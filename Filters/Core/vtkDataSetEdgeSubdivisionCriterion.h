@@ -14,8 +14,8 @@
   statement of authorship are reproduced on all copies.
 
 =========================================================================*/
-#ifndef __vtkDataSetEdgeSubdivisionCriterion_h
-#define __vtkDataSetEdgeSubdivisionCriterion_h
+#ifndef vtkDataSetEdgeSubdivisionCriterion_h
+#define vtkDataSetEdgeSubdivisionCriterion_h
 // .NAME vtkDataSetEdgeSubdivisionCriterion - a subclass of vtkEdgeSubdivisionCriterion for vtkDataSet objects.
 //
 // .SECTION Description
@@ -171,4 +171,4 @@ inline const vtkCell* vtkDataSetEdgeSubdivisionCriterion::GetCell() const { retu
 
 //ETX
 
-#endif // __vtkDataSetEdgeSubdivisionCriterion_h
+#endif // vtkDataSetEdgeSubdivisionCriterion_h

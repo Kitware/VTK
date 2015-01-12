@@ -21,8 +21,8 @@
 // scene, such as in vtkChartXY. It takes care of ensuring that it draws itself
 // within the bounds of the screen.
 
-#ifndef __vtkTooltipItem_h
-#define __vtkTooltipItem_h
+#ifndef vtkTooltipItem_h
+#define vtkTooltipItem_h
 
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkContextItem.h"
@@ -97,4 +97,4 @@ private:
 //ETX
 };
 
-#endif //__vtkTooltipItem_h
+#endif //vtkTooltipItem_h

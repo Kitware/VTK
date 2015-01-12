@@ -16,8 +16,8 @@
 // .SECTION Description
 // vtkWebGLObject represent and manipulate an WebGL object and its data.
 
-#ifndef __vtkWebGLObject_h
-#define __vtkWebGLObject_h
+#ifndef vtkWebGLObject_h
+#define vtkWebGLObject_h
 
 #include "vtkObject.h"
 #include "vtkWebGLExporterModule.h" // needed for export macro

@@ -19,8 +19,8 @@
 // .SECTION See Also
 // vtkGenericAdaptorCell, vtkBridgeDataSet
 
-#ifndef __vtkBridgeCell_h
-#define __vtkBridgeCell_h
+#ifndef vtkBridgeCell_h
+#define vtkBridgeCell_h
 
 #include "vtkBridgeExport.h" //for module export macro
 #include "vtkGenericAdaptorCell.h"

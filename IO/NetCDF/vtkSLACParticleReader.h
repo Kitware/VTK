@@ -33,8 +33,8 @@
 // piece 0.  All other pieces are empty.
 //
 
-#ifndef __vtkSLACParticleReader_h
-#define __vtkSLACParticleReader_h
+#ifndef vtkSLACParticleReader_h
+#define vtkSLACParticleReader_h
 
 #include "vtkIONetCDFModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
@@ -86,4 +86,4 @@ private:
   void operator=(const vtkSLACParticleReader &);        // Not implemented
 };
 
-#endif //__vtkSLACParticleReader_h
+#endif //vtkSLACParticleReader_h

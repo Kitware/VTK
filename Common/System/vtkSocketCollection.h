@@ -18,8 +18,8 @@
 // provides means to wait for activity on all the sockets in the
 // collection simultaneously.
 
-#ifndef __vtkSocketCollection_h
-#define __vtkSocketCollection_h
+#ifndef vtkSocketCollection_h
+#define vtkSocketCollection_h
 
 #include "vtkCommonSystemModule.h" // For export macro
 #include "vtkCollection.h"

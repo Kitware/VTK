@@ -18,8 +18,8 @@
 // algorithm only when its outputs are out-of-date with respect to its
 // inputs.
 
-#ifndef __vtkDemandDrivenPipeline_h
-#define __vtkDemandDrivenPipeline_h
+#ifndef vtkDemandDrivenPipeline_h
+#define vtkDemandDrivenPipeline_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkExecutive.h"

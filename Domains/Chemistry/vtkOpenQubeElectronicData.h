@@ -15,8 +15,8 @@
 // .NAME vtkOpenQubeElectronicData - Provides access to and storage of
 // electronic data calculated by OpenQube.
 
-#ifndef __vtkOpenQubeElectronicData_h
-#define __vtkOpenQubeElectronicData_h
+#ifndef vtkOpenQubeElectronicData_h
+#define vtkOpenQubeElectronicData_h
 
 #include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkAbstractElectronicData.h"

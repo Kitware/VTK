@@ -31,8 +31,8 @@
 // .SECTION See Also
 // vtkGeoView vtkGeoView2D vtkGeoTerrain vtkGeoAlignedImageRepresentation
 
-#ifndef __vtkGeoTreeNode_h
-#define __vtkGeoTreeNode_h
+#ifndef vtkGeoTreeNode_h
+#define vtkGeoTreeNode_h
 
 #include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkObject.h"

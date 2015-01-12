@@ -67,8 +67,8 @@
 // .SECTION See Also
 // vtkDispatcher
 
-#ifndef __vtkDispatcher_h
-#define __vtkDispatcher_h
+#ifndef vtkDispatcher_h
+#define vtkDispatcher_h
 
 #include "vtkDispatcher_Private.h" //needed for Functor,CastingPolicy,TypeInfo
 #include <map> //Required for the storage of template params to runtime params
@@ -209,5 +209,5 @@ ReturnType vtkDispatcher<BaseLhs,ReturnType,CastingPolicy>
   return (i->second)(*lhs);
   }
 
-#endif // __vtkDispatcher_h
+#endif // vtkDispatcher_h
 // VTK-HeaderTest-Exclude: vtkDispatcher.h

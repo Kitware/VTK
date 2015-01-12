@@ -35,8 +35,8 @@
 // vtkFieldDataToAttributeData to create a dataset ready for
 // processing in the visualization pipeline.
 
-#ifndef __vtkMergeDataObjectFilter_h
-#define __vtkMergeDataObjectFilter_h
+#ifndef vtkMergeDataObjectFilter_h
+#define vtkMergeDataObjectFilter_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

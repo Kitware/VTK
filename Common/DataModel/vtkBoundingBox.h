@@ -21,8 +21,8 @@ PURPOSE.  See the above copyright notice for more information.
 // .SECTION see also
 // vtkBox
 
-#ifndef __vtkBoundingBox_h
-#define __vtkBoundingBox_h
+#ifndef vtkBoundingBox_h
+#define vtkBoundingBox_h
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkSystemIncludes.h"
 

@@ -28,8 +28,8 @@
 // vtkInteractorObserver
 
 
-#ifndef __vtkXYPlotWidget_h
-#define __vtkXYPlotWidget_h
+#ifndef vtkXYPlotWidget_h
+#define vtkXYPlotWidget_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkInteractorObserver.h"

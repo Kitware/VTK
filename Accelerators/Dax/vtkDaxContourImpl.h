@@ -14,8 +14,8 @@
 //
 //=============================================================================
 
-#ifndef __vtkDaxContourImpl_h
-#define __vtkDaxContourImpl_h
+#ifndef vtkDaxContourImpl_h
+#define vtkDaxContourImpl_h
 
 // Common code
 #include "vtkDaxConfig.h"

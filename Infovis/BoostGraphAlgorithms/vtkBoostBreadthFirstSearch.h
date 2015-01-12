@@ -28,8 +28,8 @@
 // .SECTION See Also
 // vtkGraph vtkBoostGraphAdapter
 
-#ifndef __vtkBoostBreadthFirstSearch_h
-#define __vtkBoostBreadthFirstSearch_h
+#ifndef vtkBoostBreadthFirstSearch_h
+#define vtkBoostBreadthFirstSearch_h
 
 #include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkStdString.h" // For string type

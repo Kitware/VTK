@@ -27,8 +27,8 @@
 // .SECTION See Also
 // vtkImageThreshold vtkImageShiftScale
 
-#ifndef __vtkImageCast_h
-#define __vtkImageCast_h
+#ifndef vtkImageCast_h
+#define vtkImageCast_h
 
 
 #include "vtkImagingCoreModule.h" // For export macro

@@ -28,8 +28,8 @@
 // Thanks to Brian Wylie from Sandia National Laboratories for adding incremental
 // layout capabilities.
 
-#ifndef __vtkGraphLayout_h
-#define __vtkGraphLayout_h
+#ifndef vtkGraphLayout_h
+#define vtkGraphLayout_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"

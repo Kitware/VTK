@@ -20,8 +20,8 @@
 // objects, such as passing data through filter, copying data from one
 // cell to another, and interpolating data given cell interpolation weights.
 
-#ifndef __vtkCellData_h
-#define __vtkCellData_h
+#ifndef vtkCellData_h
+#define vtkCellData_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataSetAttributes.h"

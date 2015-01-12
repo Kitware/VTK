@@ -1,5 +1,5 @@
-#ifndef __vtkExodusIICache_h
-#define __vtkExodusIICache_h
+#ifndef vtkExodusIICache_h
+#define vtkExodusIICache_h
 
 // ============================================================================
 // The following classes define an LRU cache for data arrays
@@ -212,4 +212,4 @@ private:
   vtkExodusIICache( const vtkExodusIICache& ); // Not implemented
   void operator = ( const vtkExodusIICache& ); // Not implemented
 };
-#endif // __vtkExodusIICache_h
+#endif // vtkExodusIICache_h

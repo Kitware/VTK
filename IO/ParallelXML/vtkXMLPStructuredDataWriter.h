@@ -17,8 +17,8 @@
 // vtkXMLPStructuredDataWriter provides PVTK XML writing functionality
 // that is common among all the parallel structured data formats.
 
-#ifndef __vtkXMLPStructuredDataWriter_h
-#define __vtkXMLPStructuredDataWriter_h
+#ifndef vtkXMLPStructuredDataWriter_h
+#define vtkXMLPStructuredDataWriter_h
 
 #include "vtkIOParallelXMLModule.h" // For export macro
 #include "vtkXMLPDataWriter.h"

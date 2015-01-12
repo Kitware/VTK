@@ -21,8 +21,8 @@
 // Reader written by Mark Olesen
 //
 
-#ifndef __vtkProStarReader_h
-#define __vtkProStarReader_h
+#ifndef vtkProStarReader_h
+#define vtkProStarReader_h
 
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"

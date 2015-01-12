@@ -30,8 +30,8 @@
 // Please address all comments to Jean Favre (jfavre at cscs.ch).
 
 
-#ifndef __vtkHexagonalPrism_h
-#define __vtkHexagonalPrism_h
+#ifndef vtkHexagonalPrism_h
+#define vtkHexagonalPrism_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell3D.h"

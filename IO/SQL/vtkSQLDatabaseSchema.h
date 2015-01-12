@@ -37,8 +37,8 @@ PURPOSE.  See the above copyright notice for more information.
 // .SECTION See Also
 // vtkSQLDatabase
 
-#ifndef __vtkSQLDatabaseSchema_h
-#define __vtkSQLDatabaseSchema_h
+#ifndef vtkSQLDatabaseSchema_h
+#define vtkSQLDatabaseSchema_h
 
 #include "vtkIOSQLModule.h" // For export macro
 #include "vtkObject.h"
@@ -390,4 +390,4 @@ class VTKIOSQL_EXPORT vtkSQLDatabaseSchema : public vtkObject
   void operator=(const vtkSQLDatabaseSchema &); // Not implemented.
 };
 
-#endif // __vtkSQLDatabaseSchema_h
+#endif // vtkSQLDatabaseSchema_h

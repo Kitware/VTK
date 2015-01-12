@@ -23,8 +23,8 @@
 // vtkXMLRectilinearGridWriter vtkXMLPolyDataWriter
 // vtkXMLUnstructuredGridWriter
 
-#ifndef __vtkXMLDataSetWriter_h
-#define __vtkXMLDataSetWriter_h
+#ifndef vtkXMLDataSetWriter_h
+#define vtkXMLDataSetWriter_h
 
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLWriter.h"

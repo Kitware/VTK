@@ -48,8 +48,8 @@
 // vtk3DWidget vtkLineWidget vtkBoxWidget vtkPlaneWidget
 
 
-#ifndef __vtkSphereWidget_h
-#define __vtkSphereWidget_h
+#ifndef vtkSphereWidget_h
+#define vtkSphereWidget_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtk3DWidget.h"

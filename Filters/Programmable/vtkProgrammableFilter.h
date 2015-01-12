@@ -34,8 +34,8 @@
 // .SECTION See Also
 // vtkProgrammablePointDataFilter vtkProgrammableSource
 
-#ifndef __vtkProgrammableFilter_h
-#define __vtkProgrammableFilter_h
+#ifndef vtkProgrammableFilter_h
+#define vtkProgrammableFilter_h
 
 #include "vtkFiltersProgrammableModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"

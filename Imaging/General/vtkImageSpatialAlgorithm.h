@@ -22,8 +22,8 @@
 // execute methods.
 
 
-#ifndef __vtkImageSpatialAlgorithm_h
-#define __vtkImageSpatialAlgorithm_h
+#ifndef vtkImageSpatialAlgorithm_h
+#define vtkImageSpatialAlgorithm_h
 
 
 #include "vtkImagingGeneralModule.h" // For export macro

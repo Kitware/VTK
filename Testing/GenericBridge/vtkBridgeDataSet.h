@@ -17,8 +17,8 @@
 // It is just an example that show how to implement the Generic. It is also
 // used for testing and evaluating the Generic.
 
-#ifndef __vtkBridgeDataSet_h
-#define __vtkBridgeDataSet_h
+#ifndef vtkBridgeDataSet_h
+#define vtkBridgeDataSet_h
 
 #include "vtkBridgeExport.h" //for module export macro
 #include "vtkGenericDataSet.h"

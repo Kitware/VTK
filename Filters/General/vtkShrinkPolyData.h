@@ -33,8 +33,8 @@
 // .SECTION See Also
 // vtkShrinkFilter
 
-#ifndef __vtkShrinkPolyData_h
-#define __vtkShrinkPolyData_h
+#ifndef vtkShrinkPolyData_h
+#define vtkShrinkPolyData_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

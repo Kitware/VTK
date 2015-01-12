@@ -29,8 +29,8 @@
 // .SECTION See Also
 // vtkGraph vtkInEdgeIterator
 
-#ifndef __vtkOutEdgeIterator_h
-#define __vtkOutEdgeIterator_h
+#ifndef vtkOutEdgeIterator_h
+#define vtkOutEdgeIterator_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

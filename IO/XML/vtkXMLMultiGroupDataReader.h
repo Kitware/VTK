@@ -17,8 +17,8 @@
 // vtkXMLMultiGroupDataReader is a legacy reader that reads multi group files
 // into multiblock datasets.
 
-#ifndef __vtkXMLMultiGroupDataReader_h
-#define __vtkXMLMultiGroupDataReader_h
+#ifndef vtkXMLMultiGroupDataReader_h
+#define vtkXMLMultiGroupDataReader_h
 
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLMultiBlockDataReader.h"

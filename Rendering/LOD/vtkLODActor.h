@@ -49,8 +49,8 @@
 // .SECTION see also
 // vtkActor vtkRenderer vtkLODProp3D
 
-#ifndef __vtkLODActor_h
-#define __vtkLODActor_h
+#ifndef vtkLODActor_h
+#define vtkLODActor_h
 
 #include "vtkRenderingLODModule.h" // For export macro
 #include "vtkActor.h"

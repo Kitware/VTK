@@ -17,8 +17,8 @@
 // vtkWarpLens is a filter that modifies point coordinates by moving
 // in accord with a lens distortion model.
 
-#ifndef __vtkWarpLens_h
-#define __vtkWarpLens_h
+#ifndef vtkWarpLens_h
+#define vtkWarpLens_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"

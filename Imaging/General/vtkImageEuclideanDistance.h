@@ -40,8 +40,8 @@
 // October 1999. http://ltswww.epfl.ch/~cuisenai/papers/oc_thesis.pdf
 
 
-#ifndef __vtkImageEuclideanDistance_h
-#define __vtkImageEuclideanDistance_h
+#ifndef vtkImageEuclideanDistance_h
+#define vtkImageEuclideanDistance_h
 
 #include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkImageDecomposeFilter.h"

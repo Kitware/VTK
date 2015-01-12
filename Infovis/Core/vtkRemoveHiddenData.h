@@ -29,8 +29,8 @@
 //    Port 1 - vtkAnnotationLayers (optional)
 //
 
-#ifndef __vtkRemoveHiddenData_h
-#define __vtkRemoveHiddenData_h
+#ifndef vtkRemoveHiddenData_h
+#define vtkRemoveHiddenData_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"

@@ -18,8 +18,8 @@
 // Collection can be turned on or off using the "PassThrough" flag.
 
 
-#ifndef __vtkCollectPolyData_h
-#define __vtkCollectPolyData_h
+#ifndef vtkCollectPolyData_h
+#define vtkCollectPolyData_h
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

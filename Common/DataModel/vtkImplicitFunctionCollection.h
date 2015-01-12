@@ -19,8 +19,8 @@
 // .SECTION See Also
 // vtkCollection vtkPlaneCollection
 
-#ifndef __vtkImplicitFunctionCollection_h
-#define __vtkImplicitFunctionCollection_h
+#ifndef vtkImplicitFunctionCollection_h
+#define vtkImplicitFunctionCollection_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCollection.h"

@@ -40,8 +40,8 @@
 // .SECTION Caveats
 // No SelectionList is created by default. It should be assigned.
 
-#ifndef __vtkSelectionNode_h
-#define __vtkSelectionNode_h
+#ifndef vtkSelectionNode_h
+#define vtkSelectionNode_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

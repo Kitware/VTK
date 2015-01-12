@@ -32,8 +32,8 @@
 // with the vtkObjectFactory::RegisterFactory method.
 //
 
-#ifndef __vtkObjectFactory_h
-#define __vtkObjectFactory_h
+#ifndef vtkObjectFactory_h
+#define vtkObjectFactory_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"

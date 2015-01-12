@@ -18,8 +18,8 @@
 // vtkInformation. This should only be accessed by friends
 // and sub-classes of that class.
 
-#ifndef __vtkInformationInternals_h
-#define __vtkInformationInternals_h
+#ifndef vtkInformationInternals_h
+#define vtkInformationInternals_h
 
 #include "vtkInformationKey.h"
 #include "vtkObjectBase.h"

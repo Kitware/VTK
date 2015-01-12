@@ -30,8 +30,8 @@
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
-#ifndef __vtkVariantExtract_h
-#define __vtkVariantExtract_h
+#ifndef vtkVariantExtract_h
+#define vtkVariantExtract_h
 
 #include <typeinfo> // for typeid
 

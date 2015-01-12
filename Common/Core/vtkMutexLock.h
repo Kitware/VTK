@@ -18,8 +18,8 @@
 // through different threads.  This header file also defines
 // vtkSimpleMutexLock which is not a subclass of vtkObject.
 
-#ifndef __vtkMutexLock_h
-#define __vtkMutexLock_h
+#ifndef vtkMutexLock_h
+#define vtkMutexLock_h
 
 
 #include "vtkCommonCoreModule.h" // For export macro

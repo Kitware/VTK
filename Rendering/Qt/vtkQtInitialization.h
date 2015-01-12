@@ -26,8 +26,8 @@
 // their implementation - create an instance of vtkQtInitialization
 // prior to instantiating any filters that require Qt.
 
-#ifndef __vtkQtInitialization_h
-#define __vtkQtInitialization_h
+#ifndef vtkQtInitialization_h
+#define vtkQtInitialization_h
 
 #include "vtkRenderingQtModule.h" // For export macro
 #include "vtkObject.h"
@@ -55,5 +55,5 @@ private:
   //ETX
 };
 
-#endif // __vtkQtInitialization_h
+#endif // vtkQtInitialization_h
 

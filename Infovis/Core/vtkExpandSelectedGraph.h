@@ -32,8 +32,8 @@
 // Note: IncludeShortestPaths is currently non-functional
 
 
-#ifndef __vtkExpandSelectedGraph_h
-#define __vtkExpandSelectedGraph_h
+#ifndef vtkExpandSelectedGraph_h
+#define vtkExpandSelectedGraph_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkSelectionAlgorithm.h"

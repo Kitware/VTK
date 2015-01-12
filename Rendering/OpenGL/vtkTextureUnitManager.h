@@ -24,8 +24,8 @@
 // .SECTION See Also
 // vtkOpenGLRenderWindow
 
-#ifndef __vtkTextureUnitManager_h
-#define __vtkTextureUnitManager_h
+#ifndef vtkTextureUnitManager_h
+#define vtkTextureUnitManager_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkObject.h"

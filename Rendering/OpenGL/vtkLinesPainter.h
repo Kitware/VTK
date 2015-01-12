@@ -22,8 +22,8 @@
 // propagated to the delegate painter.
 //
 
-#ifndef __vtkLinesPainter_h
-#define __vtkLinesPainter_h
+#ifndef vtkLinesPainter_h
+#define vtkLinesPainter_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkPrimitivePainter.h"

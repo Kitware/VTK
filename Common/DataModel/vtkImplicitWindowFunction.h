@@ -27,8 +27,8 @@
 // .SECTION See Also
 // vtkImplicitFunction
 
-#ifndef __vtkImplicitWindowFunction_h
-#define __vtkImplicitWindowFunction_h
+#ifndef vtkImplicitWindowFunction_h
+#define vtkImplicitWindowFunction_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"

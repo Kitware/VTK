@@ -24,8 +24,8 @@
 // .SECTION Thanks
 // Thanks to Michael Granseier for helping to debug this class with respect
 // to maximum memory issues (which must be specified as vtkIdType and not int).
-#ifndef __vtkOpenGLGPUVolumeRayCastMapper_h
-#define __vtkOpenGLGPUVolumeRayCastMapper_h
+#ifndef vtkOpenGLGPUVolumeRayCastMapper_h
+#define vtkOpenGLGPUVolumeRayCastMapper_h
 
 #include "vtkRenderingVolumeOpenGLModule.h" // For export macro
 #include "vtkGPUVolumeRayCastMapper.h"

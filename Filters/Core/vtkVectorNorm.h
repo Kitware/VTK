@@ -24,8 +24,8 @@
 // input. Alternatively, you can choose to generate scalar norm values
 // for just cell or point data.
 
-#ifndef __vtkVectorNorm_h
-#define __vtkVectorNorm_h
+#ifndef vtkVectorNorm_h
+#define vtkVectorNorm_h
 
 #define VTK_ATTRIBUTE_MODE_DEFAULT 0
 #define VTK_ATTRIBUTE_MODE_USE_POINT_DATA 1

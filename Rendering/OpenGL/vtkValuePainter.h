@@ -22,8 +22,8 @@
 // .SECTION See Also
 // vtkValuePass, vtkValuePasses
 
-#ifndef __vtkValuePainter_h
-#define __vtkValuePainter_h
+#ifndef vtkValuePainter_h
+#define vtkValuePainter_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkStandardPolyDataPainter.h"

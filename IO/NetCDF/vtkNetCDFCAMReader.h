@@ -23,8 +23,8 @@
 // Currently this reader ignores time that may exist in the points
 // file.
 
-#ifndef __vtkNetCDFCAMReader_h
-#define __vtkNetCDFCAMReader_h
+#ifndef vtkNetCDFCAMReader_h
+#define vtkNetCDFCAMReader_h
 
 #include "vtkIONetCDFModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"

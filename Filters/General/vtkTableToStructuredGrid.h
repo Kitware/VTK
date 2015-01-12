@@ -20,8 +20,8 @@
 // (specified using SetWholeExtent()) must match the number of rows in the input
 // table.
 
-#ifndef __vtkTableToStructuredGrid_h
-#define __vtkTableToStructuredGrid_h
+#ifndef vtkTableToStructuredGrid_h
+#define vtkTableToStructuredGrid_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkStructuredGridAlgorithm.h"

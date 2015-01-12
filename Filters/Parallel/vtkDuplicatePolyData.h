@@ -20,8 +20,8 @@
 // display.
 
 
-#ifndef __vtkDuplicatePolyData_h
-#define __vtkDuplicatePolyData_h
+#ifndef vtkDuplicatePolyData_h
+#define vtkDuplicatePolyData_h
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

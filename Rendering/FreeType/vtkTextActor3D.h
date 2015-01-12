@@ -27,8 +27,8 @@
 // .SECTION See Also
 // vtkProp3D
 
-#ifndef __vtkTextActor3D_h
-#define __vtkTextActor3D_h
+#ifndef vtkTextActor3D_h
+#define vtkTextActor3D_h
 
 #include "vtkRenderingFreeTypeModule.h" // For export macro
 #include "vtkProp3D.h"

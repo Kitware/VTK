@@ -13,10 +13,10 @@
 
 =========================================================================*/
 
-#ifndef __vtkTDxConfigure_h
-#define __vtkTDxConfigure_h
+#ifndef vtkTDxConfigure_h
+#define vtkTDxConfigure_h
 
 /* Whether the 3Dconnexion devices are being used */
 #cmakedefine VTK_USE_TDX
 
-#endif /*  __vtkTDxConfigure_h */
+#endif /*  vtkTDxConfigure_h */

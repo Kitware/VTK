@@ -19,8 +19,8 @@
 // the input is an image.  Output is always doubles.
 
 
-#ifndef __vtkImageSobel2D_h
-#define __vtkImageSobel2D_h
+#ifndef vtkImageSobel2D_h
+#define vtkImageSobel2D_h
 
 
 #include "vtkImagingGeneralModule.h" // For export macro

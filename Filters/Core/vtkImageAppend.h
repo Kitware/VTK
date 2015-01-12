@@ -24,8 +24,8 @@
 // must have the same scalar type.
 
 
-#ifndef __vtkImageAppend_h
-#define __vtkImageAppend_h
+#ifndef vtkImageAppend_h
+#define vtkImageAppend_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"

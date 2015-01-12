@@ -19,8 +19,8 @@
 // different set of typeflags. If any of the data or inputs change, then all
 // display lists are discarded.
 
-#ifndef __vtkOpenGLDisplayListPainter_h
-#define __vtkOpenGLDisplayListPainter_h
+#ifndef vtkOpenGLDisplayListPainter_h
+#define vtkOpenGLDisplayListPainter_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkDisplayListPainter.h"

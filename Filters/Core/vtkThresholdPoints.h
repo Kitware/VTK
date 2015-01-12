@@ -21,8 +21,8 @@
 // .SECTION See Also
 // vtkThreshold
 
-#ifndef __vtkThresholdPoints_h
-#define __vtkThresholdPoints_h
+#ifndef vtkThresholdPoints_h
+#define vtkThresholdPoints_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

@@ -17,8 +17,8 @@
 // vtkPostgreSQLToTableReader reads a table from a PostgreSQL database and
 // outputs it as a vtkTable.
 
-#ifndef __vtkPostgreSQLToTableReader_h
-#define __vtkPostgreSQLToTableReader_h
+#ifndef vtkPostgreSQLToTableReader_h
+#define vtkPostgreSQLToTableReader_h
 
 #include "vtkIOPostgreSQLModule.h" // For export macro
 #include "vtkDatabaseToTableReader.h"

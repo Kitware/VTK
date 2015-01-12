@@ -17,8 +17,8 @@
 // vtkPoints2D represents 2D points. The data model for vtkPoints2D is an
 // array of vx-vy doublets accessible by (point or cell) id.
 
-#ifndef __vtkPoints2D_h
-#define __vtkPoints2D_h
+#ifndef vtkPoints2D_h
+#define vtkPoints2D_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"

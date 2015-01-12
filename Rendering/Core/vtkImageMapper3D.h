@@ -24,8 +24,8 @@
 // vtkImage vtkImageProperty vtkImageResliceMapper vtkImageSliceMapper
 
 
-#ifndef __vtkImageMapper3D_h
-#define __vtkImageMapper3D_h
+#ifndef vtkImageMapper3D_h
+#define vtkImageMapper3D_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAbstractMapper3D.h"

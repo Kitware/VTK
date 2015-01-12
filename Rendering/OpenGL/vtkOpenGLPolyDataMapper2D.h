@@ -21,8 +21,8 @@
 // .SECTION See Also
 // vtkPolyDataMapper2D
 
-#ifndef __vtkOpenGLPolyDataMapper2D_h
-#define __vtkOpenGLPolyDataMapper2D_h
+#ifndef vtkOpenGLPolyDataMapper2D_h
+#define vtkOpenGLPolyDataMapper2D_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkPolyDataMapper2D.h"

@@ -19,8 +19,8 @@
 // Provides a convenient data structure to represent mouse events in the
 // vtkContextScene. Passed to vtkAbstractContextItem objects.
 
-#ifndef __vtkContextMouseEvent_h
-#define __vtkContextMouseEvent_h
+#ifndef vtkContextMouseEvent_h
+#define vtkContextMouseEvent_h
 
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkWin32Header.h" // For export macros.
@@ -146,5 +146,5 @@ protected:
   vtkRenderWindowInteractor *Interactor;
 };
 
-#endif // __vtkContextMouseEvent_h
+#endif // vtkContextMouseEvent_h
 // VTK-HeaderTest-Exclude: vtkContextMouseEvent.h

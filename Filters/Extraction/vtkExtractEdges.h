@@ -20,8 +20,8 @@
 // .SECTION See Also
 // vtkFeatureEdges
 
-#ifndef __vtkExtractEdges_h
-#define __vtkExtractEdges_h
+#ifndef vtkExtractEdges_h
+#define vtkExtractEdges_h
 
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

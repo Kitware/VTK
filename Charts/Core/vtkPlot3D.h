@@ -21,8 +21,8 @@
 // .SECTION See Also
 // vtkPlot3DPoints vtkPlot3DLine vtkPlot3DBar vtkChart vtkChartXY
 
-#ifndef __vtkPlot3D_h
-#define __vtkPlot3D_h
+#ifndef vtkPlot3D_h
+#define vtkPlot3D_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
@@ -168,4 +168,4 @@ private:
 //ETX
 };
 
-#endif //__vtkPlot3D_h
+#endif //vtkPlot3D_h

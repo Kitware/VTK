@@ -34,8 +34,8 @@
 // .SECTION See Also
 // vtkDijkstraGraphGeodesicPath, vtkPolyDataNormals
 
-#ifndef __vtkPolygonalSurfaceContourLineInterpolator_h
-#define __vtkPolygonalSurfaceContourLineInterpolator_h
+#ifndef vtkPolygonalSurfaceContourLineInterpolator_h
+#define vtkPolygonalSurfaceContourLineInterpolator_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPolyDataContourLineInterpolator.h"

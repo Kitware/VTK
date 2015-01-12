@@ -17,8 +17,8 @@
 // vtkPhyloXMLTreeWriter is writes a vtkTree to a PhyloXML formatted file
 // or string.
 
-#ifndef __vtkPhyloXMLTreeWriter_h
-#define __vtkPhyloXMLTreeWriter_h
+#ifndef vtkPhyloXMLTreeWriter_h
+#define vtkPhyloXMLTreeWriter_h
 
 #include "vtkIOInfovisModule.h" // For export macro
 #include "vtkXMLWriter.h"

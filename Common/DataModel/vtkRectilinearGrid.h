@@ -30,8 +30,8 @@
 // program failure) may result. Also, you must supply coordinates in all
 // three directions, even if the dataset topology is 2D, 1D, or 0D.
 
-#ifndef __vtkRectilinearGrid_h
-#define __vtkRectilinearGrid_h
+#ifndef vtkRectilinearGrid_h
+#define vtkRectilinearGrid_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataSet.h"

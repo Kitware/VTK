@@ -20,8 +20,8 @@
 // This class is used as the superclass of most image writing classes
 // such as vtkBMPWriter etc. It supports streaming.
 
-#ifndef __vtkPImageWriter_h
-#define __vtkPImageWriter_h
+#ifndef vtkPImageWriter_h
+#define vtkPImageWriter_h
 
 #include "vtkIOParallelModule.h" // For export macro
 #include "vtkImageWriter.h"

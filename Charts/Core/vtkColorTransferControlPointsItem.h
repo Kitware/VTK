@@ -22,8 +22,8 @@
 // vtkColorTransferFunctionItem
 // vtkCompositeTransferFunctionItem
 
-#ifndef __vtkColorTransferControlPointsItem_h
-#define __vtkColorTransferControlPointsItem_h
+#ifndef vtkColorTransferControlPointsItem_h
+#define vtkColorTransferControlPointsItem_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkControlPointsItem.h"

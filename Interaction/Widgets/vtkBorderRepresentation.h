@@ -34,8 +34,8 @@
 // vtkBorderWidget vtkTextWidget
 
 
-#ifndef __vtkBorderRepresentation_h
-#define __vtkBorderRepresentation_h
+#ifndef vtkBorderRepresentation_h
+#define vtkBorderRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"

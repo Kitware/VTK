@@ -17,8 +17,8 @@
 // instantiation is not needed.  It just includes the corresponding
 // .txx file, so only the name is important.
 
-#ifndef __vtkDataArrayTemplateImplicit_txx
-#define __vtkDataArrayTemplateImplicit_txx
+#ifndef vtkDataArrayTemplateImplicit_txx
+#define vtkDataArrayTemplateImplicit_txx
 
 #include "vtkDataArrayTemplate.txx"
 

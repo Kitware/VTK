@@ -33,8 +33,8 @@
 // .SECTION see also
 // vtkEncodedGradientEstimator
 
-#ifndef __vtkFiniteDifferenceGradientEstimator_h
-#define __vtkFiniteDifferenceGradientEstimator_h
+#ifndef vtkFiniteDifferenceGradientEstimator_h
+#define vtkFiniteDifferenceGradientEstimator_h
 
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkEncodedGradientEstimator.h"

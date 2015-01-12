@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkXMLPImageDataWriter
 
-#ifndef __vtkXMLImageDataWriter_h
-#define __vtkXMLImageDataWriter_h
+#ifndef vtkXMLImageDataWriter_h
+#define vtkXMLImageDataWriter_h
 
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLStructuredDataWriter.h"

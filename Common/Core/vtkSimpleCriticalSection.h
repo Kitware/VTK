@@ -30,8 +30,8 @@
 // for non-Windows platforms (Irix, SunOS, etc) are discovered, they
 // should replace the implementations in this class
 
-#ifndef __vtkSimpleCriticalSection_h
-#define __vtkSimpleCriticalSection_h
+#ifndef vtkSimpleCriticalSection_h
+#define vtkSimpleCriticalSection_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"

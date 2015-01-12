@@ -36,8 +36,8 @@
 // Thanks to Patricia Crossno, Ken Moreland, Andrew Wilson and Brian Wylie from
 // Sandia National Laboratories for their help in developing this class.
 
-#ifndef __vtkGraphAlgorithm_h
-#define __vtkGraphAlgorithm_h
+#ifndef vtkGraphAlgorithm_h
+#define vtkGraphAlgorithm_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"

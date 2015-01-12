@@ -39,8 +39,8 @@
 // vtkImageReslice
 
 
-#ifndef __vtkImageSlabReslice_h
-#define __vtkImageSlabReslice_h
+#ifndef vtkImageSlabReslice_h
+#define vtkImageSlabReslice_h
 
 #include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkImageReslice.h"

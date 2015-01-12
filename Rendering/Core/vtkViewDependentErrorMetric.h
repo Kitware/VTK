@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkGenericCellTessellator vtkGenericSubdivisionErrorMetric
 
-#ifndef __vtkViewDependentErrorMetric_h
-#define __vtkViewDependentErrorMetric_h
+#ifndef vtkViewDependentErrorMetric_h
+#define vtkViewDependentErrorMetric_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkGenericSubdivisionErrorMetric.h"

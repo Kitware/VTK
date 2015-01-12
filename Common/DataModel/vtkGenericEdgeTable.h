@@ -24,8 +24,8 @@
 // error metric on each edge. This avoids recomputing the error metric each
 // time the same edge is visited.
 
-#ifndef __vtkGenericEdgeTable_h
-#define __vtkGenericEdgeTable_h
+#ifndef vtkGenericEdgeTable_h
+#define vtkGenericEdgeTable_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

@@ -26,8 +26,8 @@
 // .SECTION Thanks
 // Thanks to Philippe Pebay from Sandia National Laboratories for implementing this class.
 
-#ifndef __vtkPCorrelativeStatistics_h
-#define __vtkPCorrelativeStatistics_h
+#ifndef vtkPCorrelativeStatistics_h
+#define vtkPCorrelativeStatistics_h
 
 #include "vtkFiltersParallelStatisticsModule.h" // For export macro
 #include "vtkCorrelativeStatistics.h"

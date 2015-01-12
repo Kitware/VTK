@@ -18,8 +18,8 @@
 // To use this class, instantiate it and then call SetInstance(this).
 //
 
-#ifndef __vtkFileOutputWindow_h
-#define __vtkFileOutputWindow_h
+#ifndef vtkFileOutputWindow_h
+#define vtkFileOutputWindow_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkOutputWindow.h"

@@ -25,8 +25,8 @@
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
-#ifndef __vtkTypeTemplate_h
-#define __vtkTypeTemplate_h
+#ifndef vtkTypeTemplate_h
+#define vtkTypeTemplate_h
 
 #include "vtkObjectBase.h"
 #include <string>

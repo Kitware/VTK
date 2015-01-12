@@ -26,8 +26,8 @@
 //    test for intersection of that hull with an axis aligned
 //    rectangle.  This is used for intersection tests of 3D volumes.
 
-#ifndef __vtkPointsProjectedHull_h
-#define __vtkPointsProjectedHull_h
+#ifndef vtkPointsProjectedHull_h
+#define vtkPointsProjectedHull_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkPoints.h"

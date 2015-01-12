@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkVolumeMask_h_
-#define __vtkVolumeMask_h_
+#ifndef vtkVolumeMask_h_
+#define vtkVolumeMask_h_
 
 #include <vtkDataArray.h>
 #include <vtkImageData.h>
@@ -345,5 +345,5 @@ private:
   vtkMapMaskTextureId &operator=(const vtkMapMaskTextureId &other);
 };
 
-#endif // __vtkVolumeMask_h_
+#endif // vtkVolumeMask_h_
 // VTK-HeaderTest-Exclude: vtkVolumeMask.h

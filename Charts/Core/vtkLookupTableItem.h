@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkLookupTableItem_h
-#define __vtkLookupTableItem_h
+#ifndef vtkLookupTableItem_h
+#define vtkLookupTableItem_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkScalarsToColorsItem.h"

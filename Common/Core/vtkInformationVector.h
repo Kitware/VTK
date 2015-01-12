@@ -20,8 +20,8 @@
 // vtkAlgorithm.  An instance of this class is passed to
 // vtkAlgorithm::ProcessRequest calls.
 
-#ifndef __vtkInformationVector_h
-#define __vtkInformationVector_h
+#ifndef vtkInformationVector_h
+#define vtkInformationVector_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"

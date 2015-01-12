@@ -30,8 +30,8 @@
 // .SECTION See Also
 // vtkNIFTIImageReader, vtkNIFTIImageWriter
 
-#ifndef __vtkNIFTIImageHeader_h
-#define __vtkNIFTIImageHeader_h
+#ifndef vtkNIFTIImageHeader_h
+#define vtkNIFTIImageHeader_h
 
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkObject.h"
@@ -380,4 +380,4 @@ private:
   void operator=(const vtkNIFTIImageHeader&);  // Not implemented.
 };
 
-#endif // __vtkNIFTIImageHeader_h
+#endif // vtkNIFTIImageHeader_h

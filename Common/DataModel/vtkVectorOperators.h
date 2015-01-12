@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkVectorOperators_h
-#define __vtkVectorOperators_h
+#ifndef vtkVectorOperators_h
+#define vtkVectorOperators_h
 
 // This set of operators enhance the vtkVector classes, allowing various
 // operator overloads one might expect.

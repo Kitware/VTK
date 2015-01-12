@@ -24,8 +24,8 @@
 // fired and beginning of the render to ensure that vtkHardwareSelector's
 // CurrentPass is updated appropriately.
 
-#ifndef __vtkPHardwareSelector_h
-#define __vtkPHardwareSelector_h
+#ifndef vtkPHardwareSelector_h
+#define vtkPHardwareSelector_h
 
 #include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkOpenGLHardwareSelector.h"

@@ -17,8 +17,8 @@
 // vtkTableToMySQLWriter reads a vtkTable and inserts it into a MySQL
 // database.
 
-#ifndef __vtkTableToMySQLWriter_h
-#define __vtkTableToMySQLWriter_h
+#ifndef vtkTableToMySQLWriter_h
+#define vtkTableToMySQLWriter_h
 
 #include "vtkIOMySQLModule.h" // For export macro
 #include "vtkTableToDatabaseWriter.h"

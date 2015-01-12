@@ -29,8 +29,8 @@
 // .SECTION See Also
 // vtkActor2D vtkPolyDataMapper vtkTextProperty vtkTextRenderer
 
-#ifndef __vtkTextActor_h
-#define __vtkTextActor_h
+#ifndef vtkTextActor_h
+#define vtkTextActor_h
 
 #include "vtkRenderingFreeTypeModule.h" // For export macro
 #include "vtkTexturedActor2D.h"

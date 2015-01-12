@@ -45,8 +45,8 @@
 // The class was contributed by Dean Inglis.
 
 
-#ifndef __vtkDijkstraImageGeodesicPath_h
-#define __vtkDijkstraImageGeodesicPath_h
+#ifndef vtkDijkstraImageGeodesicPath_h
+#define vtkDijkstraImageGeodesicPath_h
 
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkDijkstraGraphGeodesicPath.h"

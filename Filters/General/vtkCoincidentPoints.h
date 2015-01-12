@@ -24,8 +24,8 @@
 // each coordinate is stored with a set of point id's of points that are
 // all coincident.
 
-#ifndef __vtkCoincidentPoints_h
-#define __vtkCoincidentPoints_h
+#ifndef vtkCoincidentPoints_h
+#define vtkCoincidentPoints_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkObject.h"
@@ -98,4 +98,4 @@ private:
   //ETX
 };
 
-#endif // __vtkCoincidentPoints_h
+#endif // vtkCoincidentPoints_h

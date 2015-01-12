@@ -28,8 +28,8 @@
 // vtkUnstructuredGridVolumeRayCastFunction
 //
 
-#ifndef __vtkUnstructuredGridVolumeRayCastIterator_h
-#define __vtkUnstructuredGridVolumeRayCastIterator_h
+#ifndef vtkUnstructuredGridVolumeRayCastIterator_h
+#define vtkUnstructuredGridVolumeRayCastIterator_h
 
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkObject.h"
@@ -90,5 +90,5 @@ private:
   void operator=(const vtkUnstructuredGridVolumeRayCastIterator&);  // Not implemented.
 };
 
-#endif //__vtkUnstructuredGridRayCastIterator_h
+#endif //vtkUnstructuredGridRayCastIterator_h
 

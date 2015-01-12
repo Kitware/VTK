@@ -27,8 +27,8 @@
 // .SECTION See Also
 //      vtkKdTree vtkOBSPCuts
 
-#ifndef __vtkKdNode_h
-#define __vtkKdNode_h
+#ifndef vtkKdNode_h
+#define vtkKdNode_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

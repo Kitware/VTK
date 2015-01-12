@@ -58,8 +58,8 @@
 // vtkStructuredGrid vtkUnstructuredGrid vtkRectilinearGrid
 // vtkDataSetAttributes vtkDataArray
 
-#ifndef __vtkDataObjectToDataSetFilter_h
-#define __vtkDataObjectToDataSetFilter_h
+#ifndef vtkDataObjectToDataSetFilter_h
+#define vtkDataObjectToDataSetFilter_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

@@ -28,8 +28,8 @@
 // If you use the GetOutput() method, you will be retrieving the x vector
 // component.
 
-#ifndef __vtkExtractVectorComponents_h
-#define __vtkExtractVectorComponents_h
+#ifndef vtkExtractVectorComponents_h
+#define vtkExtractVectorComponents_h
 
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

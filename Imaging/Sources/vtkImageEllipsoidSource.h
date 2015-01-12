@@ -20,8 +20,8 @@
 
 
 
-#ifndef __vtkImageEllipsoidSource_h
-#define __vtkImageEllipsoidSource_h
+#ifndef vtkImageEllipsoidSource_h
+#define vtkImageEllipsoidSource_h
 
 #include "vtkImagingSourcesModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

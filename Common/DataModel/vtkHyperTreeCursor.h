@@ -23,8 +23,8 @@
 // Kitware 2013
 // This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
-#ifndef __vtkHyperTreeCursor_h
-#define __vtkHyperTreeCursor_h
+#ifndef vtkHyperTreeCursor_h
+#define vtkHyperTreeCursor_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

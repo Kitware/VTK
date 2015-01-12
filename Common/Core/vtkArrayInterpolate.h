@@ -39,8 +39,8 @@
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National
 // Laboratories.
 
-#ifndef __vtkArrayInterpolate_h
-#define __vtkArrayInterpolate_h
+#ifndef vtkArrayInterpolate_h
+#define vtkArrayInterpolate_h
 
 #include "vtkTypedArray.h"
 

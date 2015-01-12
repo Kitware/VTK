@@ -29,8 +29,8 @@
 // VTK Journal, 2011,
 // http://hdl.handle.net/10380/3252
 
-#ifndef __vtkBSplineTransform_h
-#define __vtkBSplineTransform_h
+#ifndef vtkBSplineTransform_h
+#define vtkBSplineTransform_h
 
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkWarpTransform.h"

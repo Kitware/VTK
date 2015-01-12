@@ -25,8 +25,8 @@
 // .SECTION See Also
 // vtkTemporalStreamTracer
 
-#ifndef __vtkAbstractParticleWriter_h
-#define __vtkAbstractParticleWriter_h
+#ifndef vtkAbstractParticleWriter_h
+#define vtkAbstractParticleWriter_h
 
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkWriter.h"

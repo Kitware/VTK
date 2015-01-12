@@ -15,8 +15,8 @@
 // .NAME vtkAtomicInt -
 // .SECTION Description
 
-#ifndef __vtkAtomicInt_h
-#define __vtkAtomicInt_h
+#ifndef vtkAtomicInt_h
+#define vtkAtomicInt_h
 
 #include <tbb/atomic.h>
 

@@ -24,8 +24,8 @@
 // .SECTION See Also
 // vtkXMLPUnstructuredGridWriter
 
-#ifndef __vtkXMLUnstructuredGridWriter_h
-#define __vtkXMLUnstructuredGridWriter_h
+#ifndef vtkXMLUnstructuredGridWriter_h
+#define vtkXMLUnstructuredGridWriter_h
 
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLUnstructuredDataWriter.h"

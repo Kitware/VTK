@@ -20,8 +20,8 @@
 // .SECTION See Also
 // vtkGenericDataObjectReader
 
-#ifndef __vtkXMLGenericDataObjectReader_h
-#define __vtkXMLGenericDataObjectReader_h
+#ifndef vtkXMLGenericDataObjectReader_h
+#define vtkXMLGenericDataObjectReader_h
 
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLDataReader.h"

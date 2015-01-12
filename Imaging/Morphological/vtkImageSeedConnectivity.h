@@ -25,8 +25,8 @@
 // connected to seeds.  The same seeds are used for all images in the image
 // set.
 
-#ifndef __vtkImageSeedConnectivity_h
-#define __vtkImageSeedConnectivity_h
+#ifndef vtkImageSeedConnectivity_h
+#define vtkImageSeedConnectivity_h
 
 #include "vtkImagingMorphologicalModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

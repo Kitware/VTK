@@ -77,8 +77,8 @@
 // .SECTION See Also
 // vtkQuadricDecimation vtkDecimatePro vtkDecimate vtkQuadricLODActor
 
-#ifndef __vtkQuadricClustering_h
-#define __vtkQuadricClustering_h
+#ifndef vtkQuadricClustering_h
+#define vtkQuadricClustering_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

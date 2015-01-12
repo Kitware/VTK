@@ -18,8 +18,8 @@
 // .SECTION See Also
 // vtkLSDynaReader
 
-#ifndef __vtkLSDynaSummaryParser_h
-#define __vtkLSDynaSummaryParser_h
+#ifndef vtkLSDynaSummaryParser_h
+#define vtkLSDynaSummaryParser_h
 
 #include "vtkIOLSDynaModule.h" // For export macro
 #include "vtkXMLParser.h"
@@ -59,4 +59,4 @@ private:
   void operator = ( const vtkLSDynaSummaryParser& ); // Not implemented.
 };
 
-#endif //__vtkLSDynaReader_h
+#endif //vtkLSDynaReader_h

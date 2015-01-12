@@ -22,8 +22,8 @@
 // vtkHandleRepresentation vtkHandleWidget vtkCursor3D
 
 
-#ifndef __vtkPointHandleRepresentation3D_h
-#define __vtkPointHandleRepresentation3D_h
+#ifndef vtkPointHandleRepresentation3D_h
+#define vtkPointHandleRepresentation3D_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkHandleRepresentation.h"

@@ -24,8 +24,8 @@
 // data in order to create the quadruple array (min x, max x, min y, max y) of
 // bounds for each vertex of the tree.
 
-#ifndef __vtkTreeMapToPolyData_h
-#define __vtkTreeMapToPolyData_h
+#ifndef vtkTreeMapToPolyData_h
+#define vtkTreeMapToPolyData_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

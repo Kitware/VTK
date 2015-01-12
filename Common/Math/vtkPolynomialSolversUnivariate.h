@@ -43,8 +43,8 @@
 // Thanks to Philippe Pebay, Korben Rusek, David Thompson, and Maurice Rojas
 // for implementing these solvers.
 
-#ifndef __vtkPolynomialSolversUnivariate_h
-#define __vtkPolynomialSolversUnivariate_h
+#ifndef vtkPolynomialSolversUnivariate_h
+#define vtkPolynomialSolversUnivariate_h
 
 #include "vtkCommonMathModule.h" // For export macro
 #include "vtkObject.h"

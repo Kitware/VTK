@@ -17,8 +17,8 @@
 // vtkPoints represents 3D points. The data model for vtkPoints is an
 // array of vx-vy-vz triplets accessible by (point or cell) id.
 
-#ifndef __vtkPoints_h
-#define __vtkPoints_h
+#ifndef vtkPoints_h
+#define vtkPoints_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"

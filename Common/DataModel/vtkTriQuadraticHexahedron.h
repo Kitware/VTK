@@ -65,8 +65,8 @@
 // Thanks to Soeren Gebbert  who developed this class and
 // integrated it into VTK 5.0.
 
-#ifndef __vtkTriQuadraticHexahedron_h
-#define __vtkTriQuadraticHexahedron_h
+#ifndef vtkTriQuadraticHexahedron_h
+#define vtkTriQuadraticHexahedron_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkNonLinearCell.h"

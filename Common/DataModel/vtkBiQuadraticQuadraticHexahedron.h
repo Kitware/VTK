@@ -63,8 +63,8 @@
 // integrated it into VTK 5.0.
 
 
-#ifndef __vtkBiQuadraticQuadraticHexahedron_h
-#define __vtkBiQuadraticQuadraticHexahedron_h
+#ifndef vtkBiQuadraticQuadraticHexahedron_h
+#define vtkBiQuadraticQuadraticHexahedron_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkNonLinearCell.h"

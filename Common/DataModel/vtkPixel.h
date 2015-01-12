@@ -19,8 +19,8 @@
 // and aligned along x-y-z coordinate axes leading to large increases in
 // computational efficiency.
 
-#ifndef __vtkPixel_h
-#define __vtkPixel_h
+#ifndef vtkPixel_h
+#define vtkPixel_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell.h"

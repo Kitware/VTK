@@ -28,8 +28,8 @@
 // .SECTION Thanks
 // Thanks to David Gobbi for contributing this class to VTK.
 
-#ifndef __vtkContourTriangulator_h
-#define __vtkContourTriangulator_h
+#ifndef vtkContourTriangulator_h
+#define vtkContourTriangulator_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

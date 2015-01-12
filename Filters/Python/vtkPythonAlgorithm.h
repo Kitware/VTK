@@ -34,8 +34,8 @@
 // .SECTION See Also
 // vtkProgrammableFilter
 
-#ifndef __vtkPythonAlgorithm_h
-#define __vtkPythonAlgorithm_h
+#ifndef vtkPythonAlgorithm_h
+#define vtkPythonAlgorithm_h
 
 #include "vtkPython.h" // Must be first
 

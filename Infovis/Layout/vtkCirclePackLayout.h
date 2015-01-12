@@ -39,8 +39,8 @@
 // for help developing this class.
 //
 
-#ifndef __vtkCirclePackLayout_h
-#define __vtkCirclePackLayout_h
+#ifndef vtkCirclePackLayout_h
+#define vtkCirclePackLayout_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkTreeAlgorithm.h"

@@ -20,8 +20,8 @@
 // this class merely defines the API and subclasses provide implementations for
 // Cg and GL.
 
-#ifndef __vtkShaderDeviceAdapter2_h
-#define __vtkShaderDeviceAdapter2_h
+#ifndef vtkShaderDeviceAdapter2_h
+#define vtkShaderDeviceAdapter2_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"

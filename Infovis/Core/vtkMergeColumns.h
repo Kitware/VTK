@@ -36,8 +36,8 @@
 // If the arrays are strings, the values are concatenated.  The strings are
 // separated by a space if they are both nonempty.
 
-#ifndef __vtkMergeColumns_h
-#define __vtkMergeColumns_h
+#ifndef vtkMergeColumns_h
+#define vtkMergeColumns_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkTableAlgorithm.h"

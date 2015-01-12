@@ -30,8 +30,8 @@
 // vtkInteractorObserver
 
 
-#ifndef __vtkScalarBarWidget_h
-#define __vtkScalarBarWidget_h
+#ifndef vtkScalarBarWidget_h
+#define vtkScalarBarWidget_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderWidget.h"

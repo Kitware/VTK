@@ -26,8 +26,8 @@
 // Sandia National Laboratories for their help in developing this class.
 
 
-#ifndef __vtkVariantArray_h
-#define __vtkVariantArray_h
+#ifndef vtkVariantArray_h
+#define vtkVariantArray_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkAbstractArray.h"

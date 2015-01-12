@@ -46,8 +46,8 @@
 // .SECTION See Also
 // vtkDispatcher vtkDoubleDispatcher
 
-#ifndef __vtkDataArrayDispatcher_h
-#define __vtkDataArrayDispatcher_h
+#ifndef vtkDataArrayDispatcher_h
+#define vtkDataArrayDispatcher_h
 
 #include "vtkType.h" //Required for vtkIdType
 #include "vtkDataArray.h" //required for constructor of the vtkDataArrayFunctor
@@ -168,5 +168,5 @@ ReturnType vtkDataArrayDispatcher<DefaultFunctorType,ReturnType>
   return ReturnType();
   }
 
-#endif // __vtkDataArrayDispatcher_h
+#endif // vtkDataArrayDispatcher_h
 // VTK-HeaderTest-Exclude: vtkDataArrayDispatcher.h

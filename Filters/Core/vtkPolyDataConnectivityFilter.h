@@ -44,8 +44,8 @@
 // .SECTION See Also
 // vtkConnectivityFilter
 
-#ifndef __vtkPolyDataConnectivityFilter_h
-#define __vtkPolyDataConnectivityFilter_h
+#ifndef vtkPolyDataConnectivityFilter_h
+#define vtkPolyDataConnectivityFilter_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

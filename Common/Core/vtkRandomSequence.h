@@ -25,8 +25,8 @@
 // "Object-Oriented Software Construction", 2nd Edition, by Bertrand Meyer.
 // chapter 23, "Principles of class design", "Pseudo-random number generators:
 // a design exercise", page 754--755.
-#ifndef __vtkRandomSequence_h
-#define __vtkRandomSequence_h
+#ifndef vtkRandomSequence_h
+#define vtkRandomSequence_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
@@ -53,4 +53,4 @@ private:
   void operator=(const vtkRandomSequence&);  // Not implemented.
 };
 
-#endif // #ifndef __vtkRandomSequence_h
+#endif // #ifndef vtkRandomSequence_h

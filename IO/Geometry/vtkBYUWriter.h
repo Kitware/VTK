@@ -23,8 +23,8 @@
 // WARNING: this writer does not currently write triangle strips. Use
 // vtkTriangleFilter to convert strips to triangles.
 
-#ifndef __vtkBYUWriter_h
-#define __vtkBYUWriter_h
+#ifndef vtkBYUWriter_h
+#define vtkBYUWriter_h
 
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkWriter.h"

@@ -27,8 +27,8 @@
 // .SECTION Thanks
 // This class was written by Philippe Pebay, Kitware SAS 2012
 
-#ifndef __vtkXYPlotRepresentation_h
-#define __vtkXYPlotRepresentation_h
+#ifndef vtkXYPlotRepresentation_h
+#define vtkXYPlotRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderRepresentation.h"
@@ -150,4 +150,4 @@ private:
   void operator=(const vtkXYPlotRepresentation &);   // Not implemented
 };
 
-#endif //__vtkXYPlotRepresentation_h
+#endif //vtkXYPlotRepresentation_h

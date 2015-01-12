@@ -25,8 +25,8 @@
 // GetDataType(). To fix this, such subclasses should override GetDataType() to
 // return VTK_ID_TYPE.
 
-#ifndef __vtkTypedDataArray_h
-#define __vtkTypedDataArray_h
+#ifndef vtkTypedDataArray_h
+#define vtkTypedDataArray_h
 
 #include "vtkDataArray.h"
 
@@ -163,6 +163,6 @@ typename vtkTypedDataArray<Scalar>::Iterator vtkTypedDataArray<Scalar>::End()
 
 #include "vtkTypedDataArray.txx"
 
-#endif //__vtkTypedDataArray_h
+#endif //vtkTypedDataArray_h
 
 // VTK-HeaderTest-Exclude: vtkTypedDataArray.h

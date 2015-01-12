@@ -20,8 +20,8 @@
 // image LIC is computed on the new decomposition this class will
 // un-shuffle the computed LIC back onto the original decomposition.
 
-#ifndef __vtkPSurfaceLICComposite_h
-#define __vtkPSurfaceLICComposite_h
+#ifndef vtkPSurfaceLICComposite_h
+#define vtkPSurfaceLICComposite_h
 
 #include "vtkSurfaceLICComposite.h"
 #include "vtkWeakPointer.h" // for ren context

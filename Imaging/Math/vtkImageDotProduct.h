@@ -17,8 +17,8 @@
 // vtkImageDotProduct interprets the scalar components of two images
 // as vectors and takes the dot product vector by vector (pixel by pixel).
 
-#ifndef __vtkImageDotProduct_h
-#define __vtkImageDotProduct_h
+#ifndef vtkImageDotProduct_h
+#define vtkImageDotProduct_h
 
 
 

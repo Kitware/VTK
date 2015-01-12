@@ -40,8 +40,8 @@
 // vtkRectilinearWipeWidget vtkWidgetRepresentation vtkAbstractWidget
 
 
-#ifndef __vtkHandleRepresentation_h
-#define __vtkHandleRepresentation_h
+#ifndef vtkHandleRepresentation_h
+#define vtkHandleRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"

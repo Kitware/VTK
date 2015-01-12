@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkRenderWindow vtkRenderer vtkImageMapper vtkActor2D
 
-#ifndef __vtkImageViewer_h
-#define __vtkImageViewer_h
+#ifndef vtkImageViewer_h
+#define vtkImageViewer_h
 
 #include "vtkInteractionImageModule.h" // For export macro
 #include "vtkObject.h"

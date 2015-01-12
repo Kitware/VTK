@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtk_gl2ps_h
-#define __vtk_gl2ps_h
+#ifndef vtk_gl2ps_h
+#define vtk_gl2ps_h
 
 /* Use the gl2ps library configured for VTK.  */
 #cmakedefine VTK_USE_SYSTEM_GL2PS

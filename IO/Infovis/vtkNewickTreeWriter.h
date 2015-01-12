@@ -17,8 +17,8 @@
 // vtkNewickTreeWriter is writes a vtkTree to a Newick formatted file
 // or string.
 
-#ifndef __vtkNewickTreeWriter_h
-#define __vtkNewickTreeWriter_h
+#ifndef vtkNewickTreeWriter_h
+#define vtkNewickTreeWriter_h
 
 #include "vtkIOInfovisModule.h" // For export macro
 #include "vtkDataWriter.h"

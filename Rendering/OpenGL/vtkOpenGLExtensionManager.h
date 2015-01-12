@@ -119,8 +119,8 @@
 // with "vtkglX::".
 //
 
-#ifndef __vtkOpenGLExtensionManager_h
-#define __vtkOpenGLExtensionManager_h
+#ifndef vtkOpenGLExtensionManager_h
+#define vtkOpenGLExtensionManager_h
 
 #include "vtkObject.h"
 #include "vtkWeakPointer.h" // needed for vtkWeakPointer.
@@ -393,4 +393,4 @@ private:
 //ETX
 };
 
-#endif //__vtkOpenGLExtensionManager
+#endif // vtkOpenGLExtensionManager_h

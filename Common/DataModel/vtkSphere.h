@@ -19,8 +19,8 @@
 // methods are available for sphere-related computations, such as computing
 // bounding spheres for a set of points, or set of spheres.
 
-#ifndef __vtkSphere_h
-#define __vtkSphere_h
+#ifndef vtkSphere_h
+#define vtkSphere_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"

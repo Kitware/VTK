@@ -22,8 +22,8 @@
 // on different updates.
 
 
-#ifndef __vtkImageNoiseSource_h
-#define __vtkImageNoiseSource_h
+#ifndef vtkImageNoiseSource_h
+#define vtkImageNoiseSource_h
 
 
 #include "vtkImagingSourcesModule.h" // For export macro

@@ -23,8 +23,8 @@
 // .SECTION see also
 // vtkTransform vtkPerspectiveTransform
 
-#ifndef __vtkGeneralTransform_h
-#define __vtkGeneralTransform_h
+#ifndef vtkGeneralTransform_h
+#define vtkGeneralTransform_h
 
 #include "vtkCommonTransformsModule.h" // For export macro
 #include "vtkAbstractTransform.h"

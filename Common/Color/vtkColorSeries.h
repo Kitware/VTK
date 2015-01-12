@@ -35,8 +35,8 @@
 // Cynthia A. Brewer (Dept. of Geography, Pennsylvania State University)
 // and present under the Apache License. See the source code for details.
 
-#ifndef __vtkColorSeries_h
-#define __vtkColorSeries_h
+#ifndef vtkColorSeries_h
+#define vtkColorSeries_h
 
 #include "vtkCommonColorModule.h" // For export macro
 #include "vtkObject.h"
@@ -319,4 +319,4 @@ private:
 //ETX
 };
 
-#endif //__vtkColorSeries_h
+#endif //vtkColorSeries_h

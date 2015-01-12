@@ -22,8 +22,8 @@
 // in a vtkMultiBlockDataSet object.
 
 
-#ifndef __vtkMultiTimeStepAlgorithm_h
-#define __vtkMultiTimeStepAlgorithm_h
+#ifndef vtkMultiTimeStepAlgorithm_h
+#define vtkMultiTimeStepAlgorithm_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"

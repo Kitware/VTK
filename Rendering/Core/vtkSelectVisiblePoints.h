@@ -39,8 +39,8 @@
 // are using this filter in conjunction with vtkLabeledDataMapper,
 // things work out because 2D rendering occurs after the 3D rendering.
 
-#ifndef __vtkSelectVisiblePoints_h
-#define __vtkSelectVisiblePoints_h
+#ifndef vtkSelectVisiblePoints_h
+#define vtkSelectVisiblePoints_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

@@ -29,8 +29,8 @@
 // of each leaf vertex is 1.  You may optionally set a flag to first take the
 // log of all leaf values before aggregating.
 
-#ifndef __vtkTreeFieldAggregator_h
-#define __vtkTreeFieldAggregator_h
+#ifndef vtkTreeFieldAggregator_h
+#define vtkTreeFieldAggregator_h
 
 class vtkPoints;
 class vtkTree;

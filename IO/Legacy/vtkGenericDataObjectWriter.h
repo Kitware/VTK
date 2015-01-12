@@ -17,8 +17,8 @@
 // vtkGenericDataObjectWriter is a concrete class that writes data objects
 // to disk. The input to this object is any subclass of vtkDataObject.
 
-#ifndef __vtkGenericDataObjectWriter_h
-#define __vtkGenericDataObjectWriter_h
+#ifndef vtkGenericDataObjectWriter_h
+#define vtkGenericDataObjectWriter_h
 
 #include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataWriter.h"

@@ -23,8 +23,8 @@
 // components. Ideally we would use a lightweight color class to store and pass
 // around colors.
 
-#ifndef __vtkPen_h
-#define __vtkPen_h
+#ifndef vtkPen_h
+#define vtkPen_h
 
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkObject.h"
@@ -154,4 +154,4 @@ private:
 //ETX
 };
 
-#endif //__vtkPen_h
+#endif //vtkPen_h

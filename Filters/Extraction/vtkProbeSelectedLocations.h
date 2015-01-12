@@ -22,8 +22,8 @@
 // is ignored. The ContentType of the input vtkSelection must be
 // vtkSelection::LOCATIONS.
 
-#ifndef __vtkProbeSelectedLocations_h
-#define __vtkProbeSelectedLocations_h
+#ifndef vtkProbeSelectedLocations_h
+#define vtkProbeSelectedLocations_h
 
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkExtractSelectionBase.h"

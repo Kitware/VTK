@@ -41,8 +41,8 @@
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
-#ifndef __vtkTypedArray_h
-#define __vtkTypedArray_h
+#ifndef vtkTypedArray_h
+#define vtkTypedArray_h
 
 #include "vtkArray.h"
 #include "vtkTypeTemplate.h"

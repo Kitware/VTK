@@ -24,8 +24,8 @@
 // .SECTION See Also
 //  vtkDefaultPainter vtkSurfaceLICPainter
 
-#ifndef __vtkSurfaceLICDefaultPainter_h
-#define __vtkSurfaceLICDefaultPainter_h
+#ifndef vtkSurfaceLICDefaultPainter_h
+#define vtkSurfaceLICDefaultPainter_h
 
 #include "vtkRenderingLICModule.h" // For export macro
 #include "vtkDefaultPainter.h"

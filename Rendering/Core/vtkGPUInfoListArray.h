@@ -16,8 +16,8 @@
 // .SECTION Description
 // vtkGPUInfoListArray is just a PIMPL mechanism for vtkGPUInfoList.
 
-#ifndef __vtkGPUInfoListArray_h
-#define __vtkGPUInfoListArray_h
+#ifndef vtkGPUInfoListArray_h
+#define vtkGPUInfoListArray_h
 
 #include "vtkGPUInfo.h"
 #include <vector> // STL Header

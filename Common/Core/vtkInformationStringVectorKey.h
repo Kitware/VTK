@@ -17,8 +17,8 @@
 // vtkInformationStringVectorKey is used to represent keys for String
 // vector values in vtkInformation.h
 
-#ifndef __vtkInformationStringVectorKey_h
-#define __vtkInformationStringVectorKey_h
+#ifndef vtkInformationStringVectorKey_h
+#define vtkInformationStringVectorKey_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkInformationKey.h"

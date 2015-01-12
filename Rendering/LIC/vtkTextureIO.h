@@ -16,8 +16,8 @@
 // .SECTION Description
 // A small collection of I/O routines that write vtkTextureObject
 // to disk for debugging.
-#ifndef __vtkTextureIO_h
-#define __vtkTextureIO_h
+#ifndef vtkTextureIO_h
+#define vtkTextureIO_h
 
 #include "vtkRenderingLICModule.h" // for export
 #include "vtkPixelExtent.h" // for pixel extent

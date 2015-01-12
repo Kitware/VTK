@@ -39,8 +39,8 @@
 // implementing this class.
 
 
-#ifndef __vtkFixedWidthTextReader_h
-#define __vtkFixedWidthTextReader_h
+#ifndef vtkFixedWidthTextReader_h
+#define vtkFixedWidthTextReader_h
 
 #include "vtkIOInfovisModule.h" // For export macro
 #include "vtkTableAlgorithm.h"

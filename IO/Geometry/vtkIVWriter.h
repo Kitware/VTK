@@ -21,8 +21,8 @@
 // vtkPolyDataWriter
 
 
-#ifndef __vtkIVWriter_h
-#define __vtkIVWriter_h
+#ifndef vtkIVWriter_h
+#define vtkIVWriter_h
 
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkWriter.h"

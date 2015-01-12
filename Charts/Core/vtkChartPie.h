@@ -18,8 +18,8 @@
 // .SECTION Description
 // This class implements an pie chart.
 
-#ifndef __vtkChartPie_h
-#define __vtkChartPie_h
+#ifndef vtkChartPie_h
+#define vtkChartPie_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkChart.h"
@@ -144,4 +144,4 @@ private:
 //ETX
 };
 
-#endif //__vtkChartPie_h
+#endif //vtkChartPie_h

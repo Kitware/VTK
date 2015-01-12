@@ -24,8 +24,8 @@
 // This class is used to represent and render a compass.
 
 
-#ifndef __vtkCompassRepresentation_h
-#define __vtkCompassRepresentation_h
+#ifndef vtkCompassRepresentation_h
+#define vtkCompassRepresentation_h
 
 #include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkContinuousValueWidgetRepresentation.h"

@@ -42,8 +42,8 @@
 // vtkAnnotatedCubeActor vtkOrientationMarkerWidget vtkCaptionActor2D
 // vtkTextProperty
 
-#ifndef __vtkAxesActor_h
-#define __vtkAxesActor_h
+#ifndef vtkAxesActor_h
+#define vtkAxesActor_h
 
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkProp3D.h"

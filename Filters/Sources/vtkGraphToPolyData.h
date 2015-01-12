@@ -29,8 +29,8 @@
 // Only the owned graph edges (i.e. edges with ghost level 0) are copied
 // into the vtkPolyData.
 
-#ifndef __vtkGraphToPolyData_h
-#define __vtkGraphToPolyData_h
+#ifndef vtkGraphToPolyData_h
+#define vtkGraphToPolyData_h
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

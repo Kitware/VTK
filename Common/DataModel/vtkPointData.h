@@ -19,8 +19,8 @@
 // coordinates, etc.) Most of the functionality is handled by
 // vtkDataSetAttributes
 
-#ifndef __vtkPointData_h
-#define __vtkPointData_h
+#ifndef vtkPointData_h
+#define vtkPointData_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataSetAttributes.h"

@@ -17,8 +17,8 @@
 //
 // .SECTION Description
 
-#ifndef __vtkPProjectSphereFilter_h
-#define __vtkPProjectSphereFilter_h
+#ifndef vtkPProjectSphereFilter_h
+#define vtkPProjectSphereFilter_h
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkProjectSphereFilter.h"
@@ -52,4 +52,4 @@ private:
   void operator=(const vtkPProjectSphereFilter &);    // Not implemented
 };
 
-#endif // __vtkPProjectSphereFilter_h
+#endif // vtkPProjectSphereFilter_h

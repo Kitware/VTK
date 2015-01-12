@@ -24,8 +24,8 @@
 // .SECTION See Also
 // vtkMultiBlockDataSet
 
-#ifndef __vtkGDALVectorReader_h
-#define __vtkGDALVectorReader_h
+#ifndef vtkGDALVectorReader_h
+#define vtkGDALVectorReader_h
 
 #include "vtkMultiBlockDataSetAlgorithm.h"
 #include "vtkIOGDALModule.h" // For export macro
@@ -135,4 +135,4 @@ private:
   void operator=(const vtkGDALVectorReader&);       // Not implemented.
 };
 
-#endif // __vtkGDALVectorReader_h
+#endif // vtkGDALVectorReader_h

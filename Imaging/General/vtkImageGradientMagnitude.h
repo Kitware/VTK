@@ -22,8 +22,8 @@
 // .SECTION See Also
 // vtkImageGradient vtkImageMagnitude
 
-#ifndef __vtkImageGradientMagnitude_h
-#define __vtkImageGradientMagnitude_h
+#ifndef vtkImageGradientMagnitude_h
+#define vtkImageGradientMagnitude_h
 
 
 #include "vtkImagingGeneralModule.h" // For export macro

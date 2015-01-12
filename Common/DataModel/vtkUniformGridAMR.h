@@ -19,8 +19,8 @@
 // vtkUniformGrid.
 
 
-#ifndef __vtkUniformGridAMR_h
-#define __vtkUniformGridAMR_h
+#ifndef vtkUniformGridAMR_h
+#define vtkUniformGridAMR_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCompositeDataSet.h"

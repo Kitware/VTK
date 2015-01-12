@@ -16,8 +16,8 @@
 // vtkMolecule object
 // .SECTION Description
 
-#ifndef __vtkCMLMoleculeReader_h
-#define __vtkCMLMoleculeReader_h
+#ifndef vtkCMLMoleculeReader_h
+#define vtkCMLMoleculeReader_h
 
 #include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkMoleculeAlgorithm.h"

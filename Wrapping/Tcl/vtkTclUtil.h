@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkTclInclude_h
-#define __vtkTclInclude_h
+#ifndef vtkTclInclude_h
+#define vtkTclInclude_h
 
 #include "vtkObject.h"
 #include "vtkCommand.h"

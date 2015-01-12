@@ -20,8 +20,8 @@
 // .SECTION see also
 // vtkDirectionEncoder
 
-#ifndef __vtkSphericalDirectionEncoder_h
-#define __vtkSphericalDirectionEncoder_h
+#ifndef vtkSphericalDirectionEncoder_h
+#define vtkSphericalDirectionEncoder_h
 
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkDirectionEncoder.h"

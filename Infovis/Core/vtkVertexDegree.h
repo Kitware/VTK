@@ -24,8 +24,8 @@
 // of the array will be "VertexDegree", but that can be changed by calling
 // SetOutputArrayName("foo");
 
-#ifndef __vtkVertexDegree_h
-#define __vtkVertexDegree_h
+#ifndef vtkVertexDegree_h
+#define vtkVertexDegree_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"

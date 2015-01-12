@@ -56,8 +56,8 @@
 // </pre>
 //
 
-#ifndef __vtkHandleWidget_h
-#define __vtkHandleWidget_h
+#ifndef vtkHandleWidget_h
+#define vtkHandleWidget_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"

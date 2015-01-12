@@ -27,8 +27,8 @@
 // layers introduces a prioritization of annotations. Annotations in
 // higher layers may obscure annotations in lower layers.
 
-#ifndef __vtkAnnotationLayers_h
-#define __vtkAnnotationLayers_h
+#ifndef vtkAnnotationLayers_h
+#define vtkAnnotationLayers_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"

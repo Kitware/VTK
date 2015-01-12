@@ -53,8 +53,8 @@
 // .SECTION See Also
 // vtkRenderPass
 
-#ifndef __vtkSobelGradientMagnitudePass_h
-#define __vtkSobelGradientMagnitudePass_h
+#ifndef vtkSobelGradientMagnitudePass_h
+#define vtkSobelGradientMagnitudePass_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkImageProcessingPass.h"

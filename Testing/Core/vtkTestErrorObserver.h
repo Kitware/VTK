@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtkTestErrorObserver_h
-#define __vtkTestErrorObserver_h
+#ifndef vtkTestErrorObserver_h
+#define vtkTestErrorObserver_h
 
 #include <vtkCommand.h>
 #include <string>

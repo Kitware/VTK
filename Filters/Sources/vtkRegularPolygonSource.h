@@ -21,8 +21,8 @@
 //
 // This object can be used for seeding streamlines or defining regions for clipping/cutting.
 
-#ifndef __vtkRegularPolygonSource_h
-#define __vtkRegularPolygonSource_h
+#ifndef vtkRegularPolygonSource_h
+#define vtkRegularPolygonSource_h
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

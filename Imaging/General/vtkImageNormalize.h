@@ -19,8 +19,8 @@
 // vector is zero also.
 
 
-#ifndef __vtkImageNormalize_h
-#define __vtkImageNormalize_h
+#ifndef vtkImageNormalize_h
+#define vtkImageNormalize_h
 
 
 #include "vtkImagingGeneralModule.h" // For export macro

@@ -21,8 +21,8 @@
 // the distributed to others using the multiprocess controller.
 
 
-#ifndef __vtkTransmitUnstructuredGridPiece_h
-#define __vtkTransmitUnstructuredGridPiece_h
+#ifndef vtkTransmitUnstructuredGridPiece_h
+#define vtkTransmitUnstructuredGridPiece_h
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"

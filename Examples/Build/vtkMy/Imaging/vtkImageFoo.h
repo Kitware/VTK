@@ -16,8 +16,8 @@
 // .SECTION Description
 // With vtkImageFoo Pixels are foo'ed.
 
-#ifndef __vtkImageFoo_h
-#define __vtkImageFoo_h
+#ifndef vtkImageFoo_h
+#define vtkImageFoo_h
 
 #include "vtkThreadedImageAlgorithm.h"
 #include "vtkmyImagingWin32Header.h"

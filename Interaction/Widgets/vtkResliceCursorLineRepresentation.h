@@ -27,8 +27,8 @@
 // vtkResliceCursorActor vtkImagePlaneWidget
 
 
-#ifndef __vtkResliceCursorLineRepresentation_h
-#define __vtkResliceCursorLineRepresentation_h
+#ifndef vtkResliceCursorLineRepresentation_h
+#define vtkResliceCursorLineRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkResliceCursorRepresentation.h"

@@ -22,8 +22,8 @@
 // .SECTION See Also
 // vtkRenderPass vtkGaussianBlurPass vtkSobelGradientMagnitudePass
 
-#ifndef __vtkImageProcessingPass_h
-#define __vtkImageProcessingPass_h
+#ifndef vtkImageProcessingPass_h
+#define vtkImageProcessingPass_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkRenderPass.h"

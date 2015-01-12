@@ -41,8 +41,8 @@
 // This filter is not "domain-aware". Pedigree ids are assumed to be globally
 // unique, regardless of their domain.
 
-#ifndef __vtkMergeGraphs_h
-#define __vtkMergeGraphs_h
+#ifndef vtkMergeGraphs_h
+#define vtkMergeGraphs_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"

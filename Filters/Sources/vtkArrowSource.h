@@ -23,8 +23,8 @@
 // The length of the tip can also be set, and defaults to 0.35.
 
 
-#ifndef __vtkArrowSource_h
-#define __vtkArrowSource_h
+#ifndef vtkArrowSource_h
+#define vtkArrowSource_h
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

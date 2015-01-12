@@ -21,8 +21,8 @@
 // .SECTION See Also
 // vtkStreamTracer
 
-#ifndef __vtkPStreamTracer_h
-#define __vtkPStreamTracer_h
+#ifndef vtkPStreamTracer_h
+#define vtkPStreamTracer_h
 
 #include "vtkStreamTracer.h"
 #include "vtkSmartPointer.h" // This is a leaf node. No need to use PIMPL to avoid compile time penalty.

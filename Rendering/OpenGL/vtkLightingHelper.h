@@ -23,8 +23,8 @@
 // .SECTION see also
 //  vtkShaderProgram2
 
-#ifndef __vtkLightingHelper_h
-#define __vtkLightingHelper_h
+#ifndef vtkLightingHelper_h
+#define vtkLightingHelper_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkObject.h"

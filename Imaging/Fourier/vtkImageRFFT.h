@@ -31,8 +31,8 @@
 
 
 
-#ifndef __vtkImageRFFT_h
-#define __vtkImageRFFT_h
+#ifndef vtkImageRFFT_h
+#define vtkImageRFFT_h
 
 
 #include "vtkImagingFourierModule.h" // For export macro

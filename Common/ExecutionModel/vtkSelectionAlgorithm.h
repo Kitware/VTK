@@ -31,8 +31,8 @@
 // Thanks to Patricia Crossno, Ken Moreland, Andrew Wilson and Brian Wylie from
 // Sandia National Laboratories for their help in developing this class.
 
-#ifndef __vtkSelectionAlgorithm_h
-#define __vtkSelectionAlgorithm_h
+#ifndef vtkSelectionAlgorithm_h
+#define vtkSelectionAlgorithm_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"

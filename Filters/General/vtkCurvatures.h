@@ -58,8 +58,8 @@
 // .SECTION See Also
 //
 
-#ifndef __vtkCurvatures_h
-#define __vtkCurvatures_h
+#ifndef vtkCurvatures_h
+#define vtkCurvatures_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

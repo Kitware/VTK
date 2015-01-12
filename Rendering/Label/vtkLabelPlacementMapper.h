@@ -29,8 +29,8 @@
 // and will render only those labels/icons. A label render strategy is used to
 // render the labels, and can use e.g. FreeType or Qt for rendering.
 
-#ifndef __vtkLabelPlacementMapper_h
-#define __vtkLabelPlacementMapper_h
+#ifndef vtkLabelPlacementMapper_h
+#define vtkLabelPlacementMapper_h
 
 #include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkMapper2D.h"

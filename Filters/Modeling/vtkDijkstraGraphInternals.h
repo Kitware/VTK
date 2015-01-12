@@ -19,8 +19,8 @@
 // .SECTION Warning
 //  Do not include this file in a header file, it will break PIMPL convention
 
-#ifndef __vtkDijkstraGraphInternals_h
-#define __vtkDijkstraGraphInternals_h
+#ifndef vtkDijkstraGraphInternals_h
+#define vtkDijkstraGraphInternals_h
 
 #include <vector>
 #include <map>

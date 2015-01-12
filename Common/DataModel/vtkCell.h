@@ -31,8 +31,8 @@
 // vtkPolygon vtkQuad vtkTetra vtkTriangle
 // vtkTriangleStrip vtkVertex vtkVoxel vtkWedge vtkPyramid
 
-#ifndef __vtkCell_h
-#define __vtkCell_h
+#ifndef vtkCell_h
+#define vtkCell_h
 
 #define VTK_CELL_SIZE 512
 #define VTK_TOL 1.e-05 // Tolerance for geometric calculation

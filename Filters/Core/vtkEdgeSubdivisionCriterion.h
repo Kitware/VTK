@@ -14,8 +14,8 @@
   statement of authorship are reproduced on all copies.
 
 =========================================================================*/
-#ifndef __vtkEdgeSubdivisionCriterion_h
-#define __vtkEdgeSubdivisionCriterion_h
+#ifndef vtkEdgeSubdivisionCriterion_h
+#define vtkEdgeSubdivisionCriterion_h
 // .NAME vtkEdgeSubdivisionCriterion - how to decide whether a linear approximation to nonlinear geometry or field should be subdivided
 //
 // .SECTION Description
@@ -175,4 +175,4 @@ inline int vtkEdgeSubdivisionCriterion::GetNumberOfFields() const { return this-
 
 //ETX
 
-#endif // __vtkEdgeSubdivisionCriterion_h
+#endif // vtkEdgeSubdivisionCriterion_h

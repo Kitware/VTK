@@ -22,8 +22,8 @@
 // .SECTION Description
 // Uses vtkAssignCoordinates to use values from arrays as the x, y, and z coordinates.
 
-#ifndef __vtkAssignCoordinatesLayoutStrategy_h
-#define __vtkAssignCoordinatesLayoutStrategy_h
+#ifndef vtkAssignCoordinatesLayoutStrategy_h
+#define vtkAssignCoordinatesLayoutStrategy_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"

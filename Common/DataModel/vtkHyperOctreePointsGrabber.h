@@ -23,8 +23,8 @@
 // vtkHyperOctree, vtkHyperOctreeClipCutPointsGrabber,
 // vtkClipHyperOctree, vtkHyperOctreeCutter
 
-#ifndef __vtkHyperOctreePointsGrabber_h
-#define __vtkHyperOctreePointsGrabber_h
+#ifndef vtkHyperOctreePointsGrabber_h
+#define vtkHyperOctreePointsGrabber_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

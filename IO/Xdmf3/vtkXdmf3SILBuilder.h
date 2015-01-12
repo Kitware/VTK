@@ -26,8 +26,8 @@
 // not intended to be part of VTK public API
 // VTK-HeaderTest-Exclude: vtkXdmf3SILBuilder.h
 
-#ifndef __vtkXdmf3SILBuilder_h
-#define __vtkXdmf3SILBuilder_h
+#ifndef vtkXdmf3SILBuilder_h
+#define vtkXdmf3SILBuilder_h
 
 #include "vtkIOXdmf3Module.h" // For export macro
 #include "vtkType.h"
@@ -69,4 +69,4 @@ public:
   ~vtkXdmf3SILBuilder();
 };
 
-#endif //__vtkXdmf3SILBuilder_h
+#endif //vtkXdmf3SILBuilder_h

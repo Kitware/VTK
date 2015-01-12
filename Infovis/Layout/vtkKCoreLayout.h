@@ -48,8 +48,8 @@
 // implementation.
 
 
-#ifndef __vtkKCoreLayout_h
-#define __vtkKCoreLayout_h
+#ifndef vtkKCoreLayout_h
+#define vtkKCoreLayout_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"

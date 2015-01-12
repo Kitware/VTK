@@ -30,8 +30,8 @@
 // If you can use an edge window array to filter out old edges based on a
 // moving threshold.
 
-#ifndef __vtkStreamGraph_h
-#define __vtkStreamGraph_h
+#ifndef vtkStreamGraph_h
+#define vtkStreamGraph_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"

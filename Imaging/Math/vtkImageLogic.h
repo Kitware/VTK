@@ -19,8 +19,8 @@
 // The filter can take two or one input. Inputs must have the same type.
 
 
-#ifndef __vtkImageLogic_h
-#define __vtkImageLogic_h
+#ifndef vtkImageLogic_h
+#define vtkImageLogic_h
 
 
 // Operation options.

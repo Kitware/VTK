@@ -15,8 +15,8 @@
 
 // .NAME vtkPythonUtil
 
-#ifndef __vtkPythonUtil_h
-#define __vtkPythonUtil_h
+#ifndef vtkPythonUtil_h
+#define vtkPythonUtil_h
 
 #include "vtkPython.h"
 #include "PyVTKClass.h"

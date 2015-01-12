@@ -37,8 +37,8 @@
 // vtkParametricEnneper vtkParametricRandomHills vtkParametricSuperEllipsoid
 // vtkParametricSuperToroid vtkParametricTorus
 //
-#ifndef __vtkParametricFunctionSource_h
-#define __vtkParametricFunctionSource_h
+#ifndef vtkParametricFunctionSource_h
+#define vtkParametricFunctionSource_h
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

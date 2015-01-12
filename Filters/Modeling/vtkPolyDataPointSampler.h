@@ -35,8 +35,8 @@
 // .SECTION See Also
 // vtkImplicitModeller
 
-#ifndef __vtkPolyDataPointSampler_h
-#define __vtkPolyDataPointSampler_h
+#ifndef vtkPolyDataPointSampler_h
+#define vtkPolyDataPointSampler_h
 
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

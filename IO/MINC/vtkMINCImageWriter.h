@@ -62,8 +62,8 @@ POSSIBILITY OF SUCH DAMAGES.
 // Thanks to David Gobbi for writing this class and Atamai Inc. for
 // contributing it to VTK.
 
-#ifndef __vtkMINCImageWriter_h
-#define __vtkMINCImageWriter_h
+#ifndef vtkMINCImageWriter_h
+#define vtkMINCImageWriter_h
 
 #include "vtkIOMINCModule.h" // For export macro
 #include "vtkImageWriter.h"

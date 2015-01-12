@@ -16,8 +16,8 @@
 // with API to get current level and dataset index.
 // .SECTION Description
 
-#ifndef __vtkUniformGridAMRDataIterator2_h
-#define __vtkUniformGridAMRDataIterator2_h
+#ifndef vtkUniformGridAMRDataIterator2_h
+#define vtkUniformGridAMRDataIterator2_h
 
 #include "vtkCompositeDataIterator.h"
 #include "vtkSmartPointer.h" //for member variable Information

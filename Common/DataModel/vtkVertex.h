@@ -16,8 +16,8 @@
 // .SECTION Description
 // vtkVertex is a concrete implementation of vtkCell to represent a 3D point.
 
-#ifndef __vtkVertex_h
-#define __vtkVertex_h
+#ifndef vtkVertex_h
+#define vtkVertex_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell.h"

@@ -36,8 +36,8 @@
 // .SECTION See Also
 // vtkGraph vtkMutableUndirectedGraph
 
-#ifndef __vtkUndirectedGraph_h
-#define __vtkUndirectedGraph_h
+#ifndef vtkUndirectedGraph_h
+#define vtkUndirectedGraph_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkGraph.h"

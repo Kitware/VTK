@@ -75,8 +75,8 @@
 // projection.)
 
 
-#ifndef __vtkInteractorStyleUnicam_h
-#define __vtkInteractorStyleUnicam_h
+#ifndef vtkInteractorStyleUnicam_h
+#define vtkInteractorStyleUnicam_h
 
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyle.h"
@@ -179,7 +179,7 @@ private:
   void operator=(const vtkInteractorStyleUnicam&);  // Not implemented.
 };
 
-#endif  // __vtkInteractorStyleUnicam_h
+#endif  // vtkInteractorStyleUnicam_h
 
 
 

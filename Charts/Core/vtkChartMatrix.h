@@ -20,8 +20,8 @@
 // vtkChartXY by default, but this can be overridden. The class will manage
 // their layout and object lifetime.
 
-#ifndef __vtkChartMatrix_h
-#define __vtkChartMatrix_h
+#ifndef vtkChartMatrix_h
+#define vtkChartMatrix_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkAbstractContextItem.h"
@@ -135,4 +135,4 @@ private:
   void operator=(const vtkChartMatrix &); // Not implemented.
 };
 
-#endif //__vtkChartMatrix_h
+#endif //vtkChartMatrix_h

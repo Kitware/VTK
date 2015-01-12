@@ -38,8 +38,8 @@
 // .SECTION See Also
 // vtkVectorNorm
 
-#ifndef __vtkCellDerivatives_h
-#define __vtkCellDerivatives_h
+#ifndef vtkCellDerivatives_h
+#define vtkCellDerivatives_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

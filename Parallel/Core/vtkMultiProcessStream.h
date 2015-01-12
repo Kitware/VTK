@@ -23,8 +23,8 @@
 // Note, stream operators cannot be combined with the Push/Pop array operators.
 // For example, if you push an array to the stream,
 
-#ifndef __vtkMultiProcessStream_h
-#define __vtkMultiProcessStream_h
+#ifndef vtkMultiProcessStream_h
+#define vtkMultiProcessStream_h
 
 #include "vtkParallelCoreModule.h" // For export macro
 #include "vtkObject.h"

@@ -37,8 +37,8 @@
 // ExtractScalars is on, and the appropriate scalar extraction mode is
 // set.
 
-#ifndef __vtkExtractTensorComponents_h
-#define __vtkExtractTensorComponents_h
+#ifndef vtkExtractTensorComponents_h
+#define vtkExtractTensorComponents_h
 
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

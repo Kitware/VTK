@@ -33,8 +33,8 @@
 // vtkImageFFT
 //
 
-#ifndef __vtkTableFFT_h
-#define __vtkTableFFT_h
+#ifndef vtkTableFFT_h
+#define vtkTableFFT_h
 
 #include "vtkTableAlgorithm.h"
 #include "vtkImagingFourierModule.h" // For export macro
@@ -67,4 +67,4 @@ private:
 };
 
 
-#endif //__vtkTableFFT_h
+#endif //vtkTableFFT_h

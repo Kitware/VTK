@@ -18,8 +18,8 @@
 // classes that implement a encoding for the
 // X3D exporter
 
-#ifndef __vtkX3DExporterWriter_h
-#define __vtkX3DExporterWriter_h
+#ifndef vtkX3DExporterWriter_h
+#define vtkX3DExporterWriter_h
 
 #include "vtkIOExportModule.h" // For export macro
 #include "vtkObject.h"

@@ -56,8 +56,8 @@
 // .SECTION See Also
 // vtkCGMWriter vtkImageQuantizeRGBToIndex vtkTriangleFilter
 
-#ifndef __vtkImageToPolyDataFilter_h
-#define __vtkImageToPolyDataFilter_h
+#ifndef vtkImageToPolyDataFilter_h
+#define vtkImageToPolyDataFilter_h
 
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

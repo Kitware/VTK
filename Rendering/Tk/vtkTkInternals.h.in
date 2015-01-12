@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkTkInternals_h
-#define __vtkTkInternals_h
+#ifndef vtkTkInternals_h
+#define vtkTkInternals_h
 
 #include "vtkRenderingOpenGLConfigure.h" // for COCOA, CARBON, X11, WIN32
 
@@ -48,5 +48,5 @@ extern "C"
 #include "tkMacOSXInt.h"
 #endif
 
-#endif /* __vtkTkInternals_h */
+#endif /* vtkTkInternals_h */
 

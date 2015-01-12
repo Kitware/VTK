@@ -33,8 +33,8 @@
 // vtkPolyDataWriter vtkPointDataToCellData
 
 
-#ifndef __vtkCGMWriter_h
-#define __vtkCGMWriter_h
+#ifndef vtkCGMWriter_h
+#define vtkCGMWriter_h
 
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkPolyDataWriter.h"

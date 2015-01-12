@@ -29,8 +29,8 @@
 // .SECTION See Also
 // vtkGAMBITReader
 
-#ifndef __vtkFLUENTReader_h
-#define __vtkFLUENTReader_h
+#ifndef vtkFLUENTReader_h
+#define vtkFLUENTReader_h
 
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"

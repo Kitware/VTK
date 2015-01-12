@@ -28,8 +28,8 @@
 // two tags.
 
 
-#ifndef __vtkImageOpenClose3D_h
-#define __vtkImageOpenClose3D_h
+#ifndef vtkImageOpenClose3D_h
+#define vtkImageOpenClose3D_h
 
 
 #include "vtkImagingMorphologicalModule.h" // For export macro

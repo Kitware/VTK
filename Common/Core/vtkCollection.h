@@ -25,8 +25,8 @@
 // vtkRenderWindowCollection vtkRendererCollection
 // vtkStructuredPointsCollection vtkTransformCollection vtkVolumeCollection
 
-#ifndef __vtkCollection_h
-#define __vtkCollection_h
+#ifndef vtkCollection_h
+#define vtkCollection_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"

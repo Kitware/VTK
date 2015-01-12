@@ -28,8 +28,8 @@
 //
 // .SECTION See Also
 
-#ifndef __vtkContourLineInterpolator_h
-#define __vtkContourLineInterpolator_h
+#ifndef vtkContourLineInterpolator_h
+#define vtkContourLineInterpolator_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkObject.h"

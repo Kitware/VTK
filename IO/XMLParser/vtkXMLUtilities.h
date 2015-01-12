@@ -18,8 +18,8 @@
 // .SECTION See Also
 // vtkXMLDataElement
 
-#ifndef __vtkXMLUtilities_h
-#define __vtkXMLUtilities_h
+#ifndef vtkXMLUtilities_h
+#define vtkXMLUtilities_h
 
 #include "vtkIOXMLParserModule.h" // For export macro
 #include "vtkObject.h"

@@ -30,8 +30,8 @@
 // .SECTION See Also
 // vtkCellArray vtkCellLinks
 
-#ifndef __vtkCellTypes_h
-#define __vtkCellTypes_h
+#ifndef vtkCellTypes_h
+#define vtkCellTypes_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

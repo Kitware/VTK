@@ -47,8 +47,8 @@
 // vtkParametricEnneper vtkParametricRandomHills vtkParametricSuperEllipsoid
 // vtkParametricSuperToroid vtkParametricTorus
 //
-#ifndef __vtkParametricFunction_h
-#define __vtkParametricFunction_h
+#ifndef vtkParametricFunction_h
+#define vtkParametricFunction_h
 
 #include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkObject.h"

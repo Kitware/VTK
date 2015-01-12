@@ -22,8 +22,8 @@
 // Kitware 2013
 // This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
-#ifndef __vtkHyperTreeGridGeometry_h
-#define __vtkHyperTreeGridGeometry_h
+#ifndef vtkHyperTreeGridGeometry_h
+#define vtkHyperTreeGridGeometry_h
 
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

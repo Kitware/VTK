@@ -40,8 +40,8 @@
 // from Sandia National Laboratories.
 //
 
-#ifndef __vtkSubCommunicator_h
-#define __vtkSubCommunicator_h
+#ifndef vtkSubCommunicator_h
+#define vtkSubCommunicator_h
 
 #include "vtkParallelCoreModule.h" // For export macro
 #include "vtkCommunicator.h"
@@ -78,4 +78,4 @@ private:
   void operator=(const vtkSubCommunicator &);           // Not implemented
 };
 
-#endif //__vtkSubCommunicator_h
+#endif //vtkSubCommunicator_h

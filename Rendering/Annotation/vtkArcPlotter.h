@@ -35,8 +35,8 @@
 // .SECTION See Also
 // vtkXYPlotActor
 
-#ifndef __vtkArcPlotter_h
-#define __vtkArcPlotter_h
+#ifndef vtkArcPlotter_h
+#define vtkArcPlotter_h
 
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

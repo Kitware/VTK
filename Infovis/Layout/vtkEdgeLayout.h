@@ -23,8 +23,8 @@
 // using the SetLayoutStrategy() function.  The layout strategies do the
 // actual work.
 
-#ifndef __vtkEdgeLayout_h
-#define __vtkEdgeLayout_h
+#ifndef vtkEdgeLayout_h
+#define vtkEdgeLayout_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"

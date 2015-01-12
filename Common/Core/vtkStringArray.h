@@ -23,8 +23,8 @@
 // .SECTION Thanks
 // Andy Wilson (atwilso@sandia.gov) wrote this class.
 
-#ifndef __vtkStringArray_h
-#define __vtkStringArray_h
+#ifndef vtkStringArray_h
+#define vtkStringArray_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkAbstractArray.h"

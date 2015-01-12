@@ -24,8 +24,8 @@
 // for safely iterating through subclasses of vtkMappedDataArray, which may
 // not use the same memory layout as a typical vtkDataArray.
 
-#ifndef __vtkTypedDataArrayIterator_h
-#define __vtkTypedDataArrayIterator_h
+#ifndef vtkTypedDataArrayIterator_h
+#define vtkTypedDataArrayIterator_h
 
 #include <iterator> // For iterator traits
 
@@ -164,6 +164,6 @@ private:
   vtkIdType Index;
 };
 
-#endif // __vtkTypedDataArrayIterator_h
+#endif // vtkTypedDataArrayIterator_h
 
 // VTK-HeaderTest-Exclude: vtkTypedDataArrayIterator.h

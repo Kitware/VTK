@@ -43,8 +43,8 @@
 // vtkMPIController
 // vtkCommunicator vtkMPICommunicator
 
-#ifndef __vtkMultiProcessController_h
-#define __vtkMultiProcessController_h
+#ifndef vtkMultiProcessController_h
+#define vtkMultiProcessController_h
 
 #include "vtkParallelCoreModule.h" // For export macro
 #include "vtkObject.h"

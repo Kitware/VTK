@@ -33,8 +33,8 @@
 //  destroyed at exit by the signleton destructor. It can be
 //  destroyed explicitly by calling DeleteGlobalInstance.
 
-#ifndef __vtkParallelTimer_h
-#define __vtkParallelTimer_h
+#ifndef vtkParallelTimer_h
+#define vtkParallelTimer_h
 
 #define vtkParallelTimerDEBUG -1
 

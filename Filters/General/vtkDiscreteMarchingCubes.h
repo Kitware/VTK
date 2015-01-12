@@ -50,8 +50,8 @@
 // .SECTION See Also
 // vtkContourFilter vtkSliceCubes vtkMarchingSquares vtkDividingCubes
 
-#ifndef __vtkDiscreteMarchingCubes_h
-#define __vtkDiscreteMarchingCubes_h
+#ifndef vtkDiscreteMarchingCubes_h
+#define vtkDiscreteMarchingCubes_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkMarchingCubes.h"

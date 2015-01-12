@@ -18,11 +18,11 @@
 // methods for insertion and retrieval of values and will
 // automatically resize itself to hold new data.
 
-#ifndef __vtkFloatArray_h
-#define __vtkFloatArray_h
+#ifndef vtkFloatArray_h
+#define vtkFloatArray_h
 
 // Tell the template header how to give our superclass a DLL interface.
-#if !defined(__vtkFloatArray_cxx)
+#if !defined(vtkFloatArray_cxx)
 # define VTK_DATA_ARRAY_TEMPLATE_TYPE float
 #endif
 

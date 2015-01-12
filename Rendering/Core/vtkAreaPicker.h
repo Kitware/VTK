@@ -38,8 +38,8 @@
 // .SECTION See Also
 // vtkInteractorStyleRubberBandPick, vtkExtractSelectedFrustum.
 
-#ifndef __vtkAreaPicker_h
-#define __vtkAreaPicker_h
+#ifndef vtkAreaPicker_h
+#define vtkAreaPicker_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAbstractPropPicker.h"

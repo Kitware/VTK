@@ -37,8 +37,8 @@
 //   }
 // \endcode
 
-#ifndef __vtkWeakPointer_h
-#define __vtkWeakPointer_h
+#ifndef vtkWeakPointer_h
+#define vtkWeakPointer_h
 
 #include "vtkWeakPointerBase.h"
 

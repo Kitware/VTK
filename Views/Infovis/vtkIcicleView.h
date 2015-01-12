@@ -25,8 +25,8 @@
 // Child sectors are below (or above) parent sectors, and may be
 // colored and sized by various parameters.
 
-#ifndef __vtkIcicleView_h
-#define __vtkIcicleView_h
+#ifndef vtkIcicleView_h
+#define vtkIcicleView_h
 
 #include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkTreeAreaView.h"

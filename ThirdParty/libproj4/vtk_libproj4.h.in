@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtk_libproj4_h
-#define __vtk_libproj4_h
+#ifndef vtk_libproj4_h
+#define vtk_libproj4_h
 
 /* Use the libproj4 library configured for VTK.  */
 #cmakedefine VTK_USE_SYSTEM_LIBPROJ4

@@ -18,8 +18,8 @@
 // Parallel parts of the vtkSurfaceLICPainter, see that class for
 // documentation.
 
-#ifndef __vtkPSurfaceLICPainter_h
-#define __vtkPSurfaceLICPainter_h
+#ifndef vtkPSurfaceLICPainter_h
+#define vtkPSurfaceLICPainter_h
 
 #include "vtkSurfaceLICPainter.h"
 #include "vtkRenderingParallelLICModule.h" // For export macro

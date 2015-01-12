@@ -24,8 +24,8 @@
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
-#ifndef __vtkBoostRandomSparseArraySource_h
-#define __vtkBoostRandomSparseArraySource_h
+#ifndef vtkBoostRandomSparseArraySource_h
+#define vtkBoostRandomSparseArraySource_h
 
 #include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkArrayDataAlgorithm.h"

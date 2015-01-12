@@ -21,8 +21,8 @@
 // .SECTION See Also
 // vtkTestingObjectFactory
 
-#ifndef __vtkTestingInteractor_h
-#define __vtkTestingInteractor_h
+#ifndef vtkTestingInteractor_h
+#define vtkTestingInteractor_h
 
 #include "vtkTestingRenderingModule.h" // For export macro
 #include "vtkRenderWindowInteractor.h"

@@ -35,8 +35,8 @@
 //
 // @deprecated Not maintained as of VTK 6.2 and will be removed eventually.
 
-#ifndef __vtkPBGLGraphSQLReader_h
-#define __vtkPBGLGraphSQLReader_h
+#ifndef vtkPBGLGraphSQLReader_h
+#define vtkPBGLGraphSQLReader_h
 
 #include "vtkInfovisParallelModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"

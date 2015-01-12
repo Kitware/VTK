@@ -36,8 +36,8 @@
 // vtkAffineRepresentation vtkAffineWidget
 
 
-#ifndef __vtkAffineRepresentation2D_h
-#define __vtkAffineRepresentation2D_h
+#ifndef vtkAffineRepresentation2D_h
+#define vtkAffineRepresentation2D_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAffineRepresentation.h"

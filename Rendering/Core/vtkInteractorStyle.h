@@ -87,8 +87,8 @@
 // .SECTION See Also
 // vtkInteractorStyleTrackball
 
-#ifndef __vtkInteractorStyle_h
-#define __vtkInteractorStyle_h
+#ifndef vtkInteractorStyle_h
+#define vtkInteractorStyle_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkInteractorObserver.h"

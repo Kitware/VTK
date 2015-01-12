@@ -34,8 +34,8 @@
 // </ul>
 //
 
-#ifndef __vtkStructuredImplicitConnectivity_h
-#define __vtkStructuredImplicitConnectivity_h
+#ifndef vtkStructuredImplicitConnectivity_h
+#define vtkStructuredImplicitConnectivity_h
 
 #include "vtkFiltersParallelMPIModule.h" // For export macro
 #include "vtkObject.h"

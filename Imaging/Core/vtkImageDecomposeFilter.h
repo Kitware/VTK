@@ -20,8 +20,8 @@
 // The filter also provides convenience methods for permuting information
 // retrieved from input, output and vtkImageData.
 
-#ifndef __vtkImageDecomposeFilter_h
-#define __vtkImageDecomposeFilter_h
+#ifndef vtkImageDecomposeFilter_h
+#define vtkImageDecomposeFilter_h
 
 
 #include "vtkImagingCoreModule.h" // For export macro

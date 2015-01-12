@@ -23,8 +23,8 @@
 // in VTK data arrays the memory will grow by at least twice
 // what is requested.
 
-#ifndef __vtkPointAccumulator_h
-#define __vtkPointAccumulator_h
+#ifndef vtkPointAccumulator_hxx
+#define vtkPointAccumulator_hxx
 
 
 #include <exception>

@@ -21,8 +21,8 @@
 // .SECTION See Also
 // vtkImageRGBToHSI
 
-#ifndef __vtkImageHSIToRGB_h
-#define __vtkImageHSIToRGB_h
+#ifndef vtkImageHSIToRGB_h
+#define vtkImageHSIToRGB_h
 
 #include "vtkImagingColorModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"

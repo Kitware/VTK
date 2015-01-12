@@ -19,8 +19,8 @@
 // .SECTION See Also
 // vtkHyperOctreeSampleFunction
 
-#ifndef __vtkHyperOctreeFractalSource_h
-#define __vtkHyperOctreeFractalSource_h
+#ifndef vtkHyperOctreeFractalSource_h
+#define vtkHyperOctreeFractalSource_h
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkHyperOctreeAlgorithm.h"

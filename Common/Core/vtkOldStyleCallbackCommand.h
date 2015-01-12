@@ -28,8 +28,8 @@
 // .SECTION See Also
 // vtkCommand vtkCallbackCommand
 
-#ifndef __vtkOldStyleCallbackCommand_h
-#define __vtkOldStyleCallbackCommand_h
+#ifndef vtkOldStyleCallbackCommand_h
+#define vtkOldStyleCallbackCommand_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkCommand.h"
@@ -66,6 +66,6 @@ protected:
 };
 
 
-#endif /* __vtkOldStyleCallbackCommand_h */
+#endif /* vtkOldStyleCallbackCommand_h */
 
 // VTK-HeaderTest-Exclude: vtkOldStyleCallbackCommand.h

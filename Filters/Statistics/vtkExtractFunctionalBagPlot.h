@@ -25,8 +25,8 @@
 // .SECTION See Also
 // vtkFunctionalBagPlot vtkHighestDensityRegionsStatistics
 
-#ifndef __vtkExtractFunctionalBagPlot_h
-#define __vtkExtractFunctionalBagPlot_h
+#ifndef vtkExtractFunctionalBagPlot_h
+#define vtkExtractFunctionalBagPlot_h
 
 #include "vtkFiltersStatisticsModule.h" // For export macro
 #include "vtkTableAlgorithm.h"
@@ -52,4 +52,4 @@ private:
   void operator = ( const vtkExtractFunctionalBagPlot& ); // Not implemented.
 };
 
-#endif // __vtkExtractFunctionalBagPlot_h
+#endif // vtkExtractFunctionalBagPlot_h

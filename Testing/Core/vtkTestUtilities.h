@@ -19,8 +19,8 @@
 // or a default value. Particularly, there are specialized methods to get the
 // root directory for VTK Data, expanding a filename with this root directory.
 
-#ifndef __vtkTestUtilities_h
-#define __vtkTestUtilities_h
+#ifndef vtkTestUtilities_h
+#define vtkTestUtilities_h
 
 #include "vtkSystemIncludes.h"
 
@@ -176,4 +176,4 @@ char* vtkTestUtilities::ExpandFileNameWithArgOrEnvOrDefault(const char* arg,
   return fullName;
 }
 
-#endif // __vtkTestUtilities_h
+#endif // vtkTestUtilities_h

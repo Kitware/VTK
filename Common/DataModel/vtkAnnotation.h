@@ -30,8 +30,8 @@
 // Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories
 // contributed code to this class.
 
-#ifndef __vtkAnnotation_h
-#define __vtkAnnotation_h
+#ifndef vtkAnnotation_h
+#define vtkAnnotation_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"

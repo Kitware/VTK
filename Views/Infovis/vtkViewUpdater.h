@@ -25,8 +25,8 @@
 // annotation changed event. This is often needed when multiple views share
 // a selection with vtkAnnotationLink.
 
-#ifndef __vtkViewUpdater_h
-#define __vtkViewUpdater_h
+#ifndef vtkViewUpdater_h
+#define vtkViewUpdater_h
 
 #include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkObject.h"

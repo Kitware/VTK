@@ -19,8 +19,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkArrayPrint_txx
-#define __vtkArrayPrint_txx
+#ifndef vtkArrayPrint_txx
+#define vtkArrayPrint_txx
 
 #include "vtkArrayCoordinates.h"
 #include <algorithm>

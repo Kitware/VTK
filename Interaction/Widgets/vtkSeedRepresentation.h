@@ -23,8 +23,8 @@
 // vtkSeedWidget vtkHandleRepresentation vtkSeedRepresentation
 
 
-#ifndef __vtkSeedRepresentation_h
-#define __vtkSeedRepresentation_h
+#ifndef vtkSeedRepresentation_h
+#define vtkSeedRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"

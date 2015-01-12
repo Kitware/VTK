@@ -16,8 +16,8 @@
 // .SECTION See Also
 // vtkGenericPointIterator, vtkBridgeDataSet
 
-#ifndef __vtkBridgePointIteratorOne_h
-#define __vtkBridgePointIteratorOne_h
+#ifndef vtkBridgePointIteratorOne_h
+#define vtkBridgePointIteratorOne_h
 
 #include "vtkBridgeExport.h" //for module export macro
 #include "vtkGenericPointIterator.h"

@@ -18,8 +18,8 @@
 // many times with smaller update extents.  All processing up stream
 // streams smaller pieces.
 
-#ifndef __vtkMemoryLimitImageDataStreamer_h
-#define __vtkMemoryLimitImageDataStreamer_h
+#ifndef vtkMemoryLimitImageDataStreamer_h
+#define vtkMemoryLimitImageDataStreamer_h
 
 #include "vtkFiltersParallelImagingModule.h" // For export macro
 #include "vtkImageDataStreamer.h"

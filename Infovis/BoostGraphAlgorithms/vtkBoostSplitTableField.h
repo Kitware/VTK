@@ -48,8 +48,8 @@
 // If no fields are specified, no splitting is performed.
 // If the delimiter for a field is an empty string, no splitting is performed on that field.
 
-#ifndef __vtkBoostSplitTableField_h
-#define __vtkBoostSplitTableField_h
+#ifndef vtkBoostSplitTableField_h
+#define vtkBoostSplitTableField_h
 
 #include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkTableAlgorithm.h"

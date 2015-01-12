@@ -29,8 +29,8 @@
 // vtkStructuredPointsReader vtkStructuredGridReader vtkTableReader
 // vtkTreeReader vtkUnstructuredGridReader
 
-#ifndef __vtkGenericDataObjectReader_h
-#define __vtkGenericDataObjectReader_h
+#ifndef vtkGenericDataObjectReader_h
+#define vtkGenericDataObjectReader_h
 
 #include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"

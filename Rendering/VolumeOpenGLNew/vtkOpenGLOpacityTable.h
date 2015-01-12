@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkOpenGLVolumeOpacityTable_h_
-#define __vtkOpenGLVolumeOpacityTable_h_
+#ifndef vtkOpenGLVolumeOpacityTable_h_
+#define vtkOpenGLVolumeOpacityTable_h_
 
 #include <vtkPiecewiseFunction.h>
 #include <vtkVolumeMapper.h>
@@ -238,5 +238,5 @@ private:
   vtkOpenGLOpacityTables &operator=(const vtkOpenGLOpacityTables &other);
 };
 
-#endif // __vtkOpenGLVolumeOpacityTable_h_
+#endif // vtkOpenGLVolumeOpacityTable_h_
 // VTK-HeaderTest-Exclude: vtkOpenGLOpacityTable.h

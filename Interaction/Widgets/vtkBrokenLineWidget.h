@@ -77,8 +77,8 @@
 // vtkImagePlaneWidget vtkImplicitPlaneWidget vtkPlaneWidget
 
 
-#ifndef __vtkBrokenLineWidget_h
-#define __vtkBrokenLineWidget_h
+#ifndef vtkBrokenLineWidget_h
+#define vtkBrokenLineWidget_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtk3DWidget.h"

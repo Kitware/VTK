@@ -23,8 +23,8 @@
 // -DVTK_DEBUG_LEAKS to the compile line, and rebuild vtkObject and
 // vtkObjectFactory.
 
-#ifndef __vtkDebugLeaks_h
-#define __vtkDebugLeaks_h
+#ifndef vtkDebugLeaks_h
+#define vtkDebugLeaks_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
@@ -104,5 +104,5 @@ public:
 };
 //ETX
 
-#endif // __vtkDebugLeaks_h
+#endif // vtkDebugLeaks_h
 // VTK-HeaderTest-Exclude: vtkDebugLeaks.h

@@ -19,7 +19,7 @@ VTK_DATA_ARRAY_TEMPLATE_INSTANTIATE(__int64);
 #include "vtkArrayIteratorTemplate.txx"
 VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(__int64);
 
-#define __vtk__Int64Array_cxx
+#define vtk__Int64Array_cxx
 #include "vtk__Int64Array.h"
 
 #include "vtkObjectFactory.h"

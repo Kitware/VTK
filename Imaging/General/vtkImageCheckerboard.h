@@ -20,8 +20,8 @@
 //  ivar. This controls the number of checkerboard divisions in the whole
 //  extent of the image.
 
-#ifndef __vtkImageCheckerboard_h
-#define __vtkImageCheckerboard_h
+#ifndef vtkImageCheckerboard_h
+#define vtkImageCheckerboard_h
 
 #include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"

@@ -27,8 +27,8 @@
 // gl2psLineWidth in order to keep GL2PS from being a module dependency for
 // vtkRenderingOpenGL.
 
-#ifndef __vtkOpenGLGL2PSHelper_h
-#define __vtkOpenGLGL2PSHelper_h
+#ifndef vtkOpenGLGL2PSHelper_h
+#define vtkOpenGLGL2PSHelper_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkOpenGL.h" // for GL defines.
@@ -105,5 +105,5 @@ private:
   void operator=(const vtkOpenGLGL2PSHelper &);   // Not implemented.
 };
 
-#endif //__vtkOpenGLGL2PSHelper_h
+#endif //vtkOpenGLGL2PSHelper_h
 // VTK-HeaderTest-Exclude: vtkOpenGLGL2PSHelper.h

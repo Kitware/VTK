@@ -16,8 +16,8 @@
 // .SECTION Description
 // Legacy class. Use vtkExtractLevel instead.
 
-#ifndef __vtkHierarchicalDataExtractLevel_h
-#define __vtkHierarchicalDataExtractLevel_h
+#ifndef vtkHierarchicalDataExtractLevel_h
+#define vtkHierarchicalDataExtractLevel_h
 
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkExtractLevel.h"

@@ -49,8 +49,8 @@
 // vtkQuaternion
 
 
-#ifndef __vtkQuaternionInterpolator_h
-#define __vtkQuaternionInterpolator_h
+#ifndef vtkQuaternionInterpolator_h
+#define vtkQuaternionInterpolator_h
 
 #include "vtkCommonMathModule.h" // For export macro
 #include "vtkObject.h"

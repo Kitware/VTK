@@ -47,8 +47,8 @@
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
 
-#ifndef __vtkArrayWriter_h
-#define __vtkArrayWriter_h
+#ifndef vtkArrayWriter_h
+#define vtkArrayWriter_h
 
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkWriter.h"

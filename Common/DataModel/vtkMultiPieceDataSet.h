@@ -27,8 +27,8 @@
 // datasets eg. vtkMultiBlockDataSet, vtkHierarchicalBoxDataSet. Hence the lack
 // of algorithms producting vtkMultiPieceDataSet.
 
-#ifndef __vtkMultiPieceDataSet_h
-#define __vtkMultiPieceDataSet_h
+#ifndef vtkMultiPieceDataSet_h
+#define vtkMultiPieceDataSet_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObjectTree.h"

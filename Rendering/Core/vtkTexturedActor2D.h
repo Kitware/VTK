@@ -21,8 +21,8 @@
 // .SECTION See Also
 // vtkActor2D vtkProp vtkMapper2D vtkProperty2D
 
-#ifndef __vtkTexturedActor2D_h
-#define __vtkTexturedActor2D_h
+#ifndef vtkTexturedActor2D_h
+#define vtkTexturedActor2D_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkActor2D.h"

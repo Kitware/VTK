@@ -101,8 +101,8 @@ PURPOSE.  See the above copyright notice for more information.
 // by Sandia National Labs.
 //
 
-#ifndef __vtkHAVSVolumeMapper_h
-#define __vtkHAVSVolumeMapper_h
+#ifndef vtkHAVSVolumeMapper_h
+#define vtkHAVSVolumeMapper_h
 
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkUnstructuredGridVolumeMapper.h"

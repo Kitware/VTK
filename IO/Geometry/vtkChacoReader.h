@@ -27,8 +27,8 @@
 // Note that the Chaco "edges" become VTK "cells", and the Chaco
 // "vertices" become VTK "points".
 
-#ifndef __vtkChacoReader_h
-#define __vtkChacoReader_h
+#ifndef vtkChacoReader_h
+#define vtkChacoReader_h
 
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"

@@ -17,8 +17,8 @@
 // vtkImageFlip will reflect the data along the filtered axis.  This filter is
 // actually a thin wrapper around vtkImageReslice.
 
-#ifndef __vtkImageFlip_h
-#define __vtkImageFlip_h
+#ifndef vtkImageFlip_h
+#define vtkImageFlip_h
 
 
 #include "vtkImagingCoreModule.h" // For export macro

@@ -31,8 +31,8 @@
 // computed distances may provide users the wrong sense of scale. These
 // effects are not present when parallel projection is enabled.
 
-#ifndef __vtkLegendScaleActor_h
-#define __vtkLegendScaleActor_h
+#ifndef vtkLegendScaleActor_h
+#define vtkLegendScaleActor_h
 
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkProp.h"

@@ -15,8 +15,8 @@
 // .NAME vtkPPolyDataNormals - compute normals for polygonal mesh
 // .SECTION Description
 
-#ifndef __vtkPPolyDataNormals_h
-#define __vtkPPolyDataNormals_h
+#ifndef vtkPPolyDataNormals_h
+#define vtkPPolyDataNormals_h
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkPolyDataNormals.h"

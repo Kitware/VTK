@@ -30,8 +30,8 @@
 // .SECTION See Also
 // vtkDataReader
 
-#ifndef __vtkXdmfReader_h
-#define __vtkXdmfReader_h
+#ifndef vtkXdmfReader_h
+#define vtkXdmfReader_h
 
 #include "vtkIOXdmf2Module.h" // For export macro
 #include "vtkDataReader.h"

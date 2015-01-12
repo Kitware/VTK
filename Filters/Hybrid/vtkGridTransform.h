@@ -23,8 +23,8 @@
 // vtkThinPlateSplineTransform vtkGeneralTransform vtkTransformToGrid
 
 
-#ifndef __vtkGridTransform_h
-#define __vtkGridTransform_h
+#ifndef vtkGridTransform_h
+#define vtkGridTransform_h
 
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkWarpTransform.h"

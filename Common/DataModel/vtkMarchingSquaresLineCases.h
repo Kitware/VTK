@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtkMarchingSquaresLineCases_h
-#define __vtkMarchingSquaresLineCases_h
+#ifndef vtkMarchingSquaresLineCases_h
+#define vtkMarchingSquaresLineCases_h
 //
 // Marching squares cases for generating isolines.
 //

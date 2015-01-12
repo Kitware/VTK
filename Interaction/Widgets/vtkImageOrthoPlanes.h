@@ -22,8 +22,8 @@
 // .SECTION Thanks
 // Thanks to Atamai Inc. for developing and contributing this class.
 
-#ifndef __vtkImageOrthoPlanes_h
-#define __vtkImageOrthoPlanes_h
+#ifndef vtkImageOrthoPlanes_h
+#define vtkImageOrthoPlanes_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkObject.h"

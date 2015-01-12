@@ -35,8 +35,8 @@
 // relative value of the point ids.
 
 
-#ifndef __vtkGenericCellTessellator_h
-#define __vtkGenericCellTessellator_h
+#ifndef vtkGenericCellTessellator_h
+#define vtkGenericCellTessellator_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

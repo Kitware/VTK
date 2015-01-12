@@ -29,8 +29,8 @@
 // .SECTION See Also
 // vtkAbstractTransform vtkTransformPolyDataFilter vtkActor
 
-#ifndef __vtkTransformFilter_h
-#define __vtkTransformFilter_h
+#ifndef vtkTransformFilter_h
+#define vtkTransformFilter_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"

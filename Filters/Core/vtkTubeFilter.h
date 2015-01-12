@@ -47,8 +47,8 @@
 // .SECTION Thanks
 // Michael Finch for absolute scalar radius
 
-#ifndef __vtkTubeFilter_h
-#define __vtkTubeFilter_h
+#ifndef vtkTubeFilter_h
+#define vtkTubeFilter_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

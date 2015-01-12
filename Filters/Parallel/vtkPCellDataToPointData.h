@@ -20,8 +20,8 @@
 // "PieceInvariant" flag that lets the user change the behavior
 // of the filter to that of its superclass.
 
-#ifndef __vtkPCellDataToPointData_h
-#define __vtkPCellDataToPointData_h
+#ifndef vtkPCellDataToPointData_h
+#define vtkPCellDataToPointData_h
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkCellDataToPointData.h"

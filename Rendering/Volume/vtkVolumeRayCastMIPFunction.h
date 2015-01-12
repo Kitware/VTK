@@ -28,8 +28,8 @@
 // vtkVolumeRayCastCompositeFunction vtkVolumeRayCastIsosurfaceFunction
 // vtkVolume vtkVolumeProperty
 
-#ifndef __vtkVolumeRayCastMIPFunction_h
-#define __vtkVolumeRayCastMIPFunction_h
+#ifndef vtkVolumeRayCastMIPFunction_h
+#define vtkVolumeRayCastMIPFunction_h
 
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkVolumeRayCastFunction.h"

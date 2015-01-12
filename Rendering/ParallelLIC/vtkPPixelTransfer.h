@@ -24,8 +24,8 @@
 // .SECTION See also
 // vtkPixelExtent
 
-#ifndef __vtkPPixelTransfer_h
-#define __vtkPPixelTransfer_h
+#ifndef vtkPPixelTransfer_h
+#define vtkPPixelTransfer_h
 
 #include "vtkPixelTransfer.h"
 #include "vtkRenderingParallelLICModule.h" // for export

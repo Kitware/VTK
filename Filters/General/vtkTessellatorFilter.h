@@ -14,8 +14,8 @@ or without modification, are permitted provided that this Notice and any
 statement of authorship are reproduced on all copies.
 
 =========================================================================*/
-#ifndef __vtkTessellatorFilter_h
-#define __vtkTessellatorFilter_h
+#ifndef vtkTessellatorFilter_h
+#define vtkTessellatorFilter_h
 
 // .NAME vtkTessellatorFilter - approximate nonlinear FEM elements with simplices
 // .SECTION Description
@@ -200,4 +200,4 @@ inline int vtkTessellatorFilter::GetOutputDimension() const
 }
 //ETX
 
-#endif // __vtkTessellatorFilter_h
+#endif // vtkTessellatorFilter_h

@@ -17,8 +17,8 @@
 // vtkSmartPointer is a class template that provides automatic casting
 // for objects held by the vtkSmartPointerBase superclass.
 
-#ifndef __vtkSmartPointer_h
-#define __vtkSmartPointer_h
+#ifndef vtkSmartPointer_h
+#define vtkSmartPointer_h
 
 #include "vtkSmartPointerBase.h"
 

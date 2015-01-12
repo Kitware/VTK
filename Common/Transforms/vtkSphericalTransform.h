@@ -26,8 +26,8 @@
 // .SECTION see also
 // vtkCylindricalTransform vtkGeneralTransform
 
-#ifndef __vtkSphericalTransform_h
-#define __vtkSphericalTransform_h
+#ifndef vtkSphericalTransform_h
+#define vtkSphericalTransform_h
 
 #include "vtkCommonTransformsModule.h" // For export macro
 #include "vtkWarpTransform.h"

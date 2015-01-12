@@ -37,8 +37,8 @@
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National
 // Laboratories.
 
-#ifndef __vtkArraySort_h
-#define __vtkArraySort_h
+#ifndef vtkArraySort_h
+#define vtkArraySort_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"

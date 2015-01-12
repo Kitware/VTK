@@ -17,8 +17,8 @@
 // vtkWarpTo is a filter that modifies point coordinates by moving the
 // points towards a user specified position.
 
-#ifndef __vtkWarpTo_h
-#define __vtkWarpTo_h
+#ifndef vtkWarpTo_h
+#define vtkWarpTo_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"

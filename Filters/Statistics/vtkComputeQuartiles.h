@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkComputeQuartiles_h
-#define __vtkComputeQuartiles_h
+#ifndef vtkComputeQuartiles_h
+#define vtkComputeQuartiles_h
 
 #include "vtkFiltersStatisticsModule.h" // For export macro
 #include "vtkTableAlgorithm.h"

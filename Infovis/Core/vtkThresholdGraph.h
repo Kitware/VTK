@@ -18,8 +18,8 @@
 // Requires input array, lower and upper threshold. This filter than
 // extracts the subgraph based on these three parameters.
 
-#ifndef __vtkThresholdGraph_h
-#define __vtkThresholdGraph_h
+#ifndef vtkThresholdGraph_h
+#define vtkThresholdGraph_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
@@ -67,4 +67,4 @@ private:
 //ETX
 };
 
-#endif // __vtkThresholdGraph_h
+#endif // vtkThresholdGraph_h

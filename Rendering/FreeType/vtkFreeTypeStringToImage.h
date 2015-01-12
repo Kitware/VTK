@@ -18,8 +18,8 @@
 // .SECTION Description
 //
 
-#ifndef __vtkFreeTypeStringToImage_h
-#define __vtkFreeTypeStringToImage_h
+#ifndef vtkFreeTypeStringToImage_h
+#define vtkFreeTypeStringToImage_h
 
 #include "vtkRenderingFreeTypeModule.h" // For export macro
 #include "vtkStringToImage.h"
@@ -86,4 +86,4 @@ private:
   void operator=(const vtkFreeTypeStringToImage &);   // Not implemented.
 };
 
-#endif //__vtkFreeTypeStringToImage_h
+#endif //vtkFreeTypeStringToImage_h

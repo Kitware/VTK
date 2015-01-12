@@ -20,8 +20,8 @@
 // This is because shift scale operations frequently convert data types.
 
 
-#ifndef __vtkImageShiftScale_h
-#define __vtkImageShiftScale_h
+#ifndef vtkImageShiftScale_h
+#define vtkImageShiftScale_h
 
 
 #include "vtkImagingCoreModule.h" // For export macro

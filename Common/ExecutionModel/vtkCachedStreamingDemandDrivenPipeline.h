@@ -16,8 +16,8 @@
 // .SECTION Description
 // vtkCachedStreamingDemandDrivenPipeline
 
-#ifndef __vtkCachedStreamingDemandDrivenPipeline_h
-#define __vtkCachedStreamingDemandDrivenPipeline_h
+#ifndef vtkCachedStreamingDemandDrivenPipeline_h
+#define vtkCachedStreamingDemandDrivenPipeline_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkStreamingDemandDrivenPipeline.h"

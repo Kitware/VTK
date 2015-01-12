@@ -19,8 +19,8 @@
 // process display VTK errors so that if a VTK application crashes,
 // the error messages are still available.
 
-#ifndef __vtkWin32ProcessOutputWindow_h
-#define __vtkWin32ProcessOutputWindow_h
+#ifndef vtkWin32ProcessOutputWindow_h
+#define vtkWin32ProcessOutputWindow_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkOutputWindow.h"

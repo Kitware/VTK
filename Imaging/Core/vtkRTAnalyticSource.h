@@ -18,8 +18,8 @@
 // by a Maximum*Gaussian*XMag*sin(XFreq*x)*sin(YFreq*y)*cos(ZFreq*z)
 // Values are float scalars on point data with name "RTData".
 
-#ifndef __vtkRTAnalyticSource_h
-#define __vtkRTAnalyticSource_h
+#ifndef vtkRTAnalyticSource_h
+#define vtkRTAnalyticSource_h
 
 #include "vtkImagingCoreModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

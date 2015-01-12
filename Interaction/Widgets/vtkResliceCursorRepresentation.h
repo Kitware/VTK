@@ -21,8 +21,8 @@
 // vtkResliceCursorLineRepresentation vtkResliceCursorThickLineRepresentation
 // vtkResliceCursorWidget vtkResliceCursor
 
-#ifndef __vtkResliceCursorRepresentation_h
-#define __vtkResliceCursorRepresentation_h
+#ifndef vtkResliceCursorRepresentation_h
+#define vtkResliceCursorRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"

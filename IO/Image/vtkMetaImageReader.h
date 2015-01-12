@@ -56,8 +56,8 @@
 
 // .SECTION See Also
 
-#ifndef __vtkMetaImageReader2_h
-#define __vtkMetaImageReader2_h
+#ifndef vtkMetaImageReader2_h
+#define vtkMetaImageReader2_h
 
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageReader2.h"

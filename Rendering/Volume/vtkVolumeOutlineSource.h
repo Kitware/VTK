@@ -24,8 +24,8 @@
 // .SECTION Thanks
 // Thanks to David Gobbi for contributing this class to VTK.
 
-#ifndef __vtkVolumeOutlineSource_h
-#define __vtkVolumeOutlineSource_h
+#ifndef vtkVolumeOutlineSource_h
+#define vtkVolumeOutlineSource_h
 
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

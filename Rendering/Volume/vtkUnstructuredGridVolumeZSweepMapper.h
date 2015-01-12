@@ -29,8 +29,8 @@
 // October 2000.
 // http://www.cse.ogi.edu/~csilva/papers/volvis2000.pdf
 
-#ifndef __vtkUnstructuredGridVolumeZSweepMapper_h
-#define __vtkUnstructuredGridVolumeZSweepMapper_h
+#ifndef vtkUnstructuredGridVolumeZSweepMapper_h
+#define vtkUnstructuredGridVolumeZSweepMapper_h
 
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkUnstructuredGridVolumeMapper.h"

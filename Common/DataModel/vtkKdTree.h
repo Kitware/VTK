@@ -50,8 +50,8 @@
 // .SECTION See Also
 //      vtkLocator vtkCellLocator vtkPKdTree
 
-#ifndef __vtkKdTree_h
-#define __vtkKdTree_h
+#ifndef vtkKdTree_h
+#define vtkKdTree_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkLocator.h"

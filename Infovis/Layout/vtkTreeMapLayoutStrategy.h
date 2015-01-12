@@ -32,8 +32,8 @@
 // Thanks to Brian Wylie and Ken Moreland from Sandia National Laboratories
 // for help developing this class.
 
-#ifndef __vtkTreeMapLayoutStrategy_h
-#define __vtkTreeMapLayoutStrategy_h
+#ifndef vtkTreeMapLayoutStrategy_h
+#define vtkTreeMapLayoutStrategy_h
 
 
 #include "vtkInfovisLayoutModule.h" // For export macro

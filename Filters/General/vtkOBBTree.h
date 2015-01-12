@@ -46,8 +46,8 @@
 // .SECTION See Also
 // vtkLocator vtkCellLocator vtkPointLocator
 
-#ifndef __vtkOBBTree_h
-#define __vtkOBBTree_h
+#ifndef vtkOBBTree_h
+#define vtkOBBTree_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkAbstractCellLocator.h"

@@ -15,8 +15,8 @@
 // .NAME vtkRenderbuffer - Storage for FBO's
 // .SECTION Description
 // Lightweight API to OpenGL Framebuffer Object EXT renderbuffers.
-#ifndef __vtkRenderbuffer_h
-#define __vtkRenderbuffer_h
+#ifndef vtkRenderbuffer_h
+#define vtkRenderbuffer_h
 
 #include "vtkObject.h"
 #include "vtkRenderingOpenGL2Module.h" // for export macro

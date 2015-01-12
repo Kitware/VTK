@@ -22,8 +22,8 @@
 // vtkVolumeRayCastMapper vtkUnstructuredGridVolumeRayCastMapper
 // vtkOpenGLRayCastImageDisplayHelper
 
-#ifndef __vtkRayCastImageDisplayHelper_h
-#define __vtkRayCastImageDisplayHelper_h
+#ifndef vtkRayCastImageDisplayHelper_h
+#define vtkRayCastImageDisplayHelper_h
 
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkObject.h"

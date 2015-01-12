@@ -33,8 +33,8 @@
 // For example, using vtkMapArrayValues you could associate the vertex values
 // "Foo, John", "Foo, John.", and "John Foo" with a single entity.
 
-#ifndef __vtkMapArrayValues_h
-#define __vtkMapArrayValues_h
+#ifndef vtkMapArrayValues_h
+#define vtkMapArrayValues_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"

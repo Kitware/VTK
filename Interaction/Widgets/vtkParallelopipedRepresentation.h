@@ -25,8 +25,8 @@
 // .SECTION See Also
 // vtkParallelopipedWidget
 
-#ifndef __vtkParallelopipedRepresentation_h
-#define __vtkParallelopipedRepresentation_h
+#ifndef vtkParallelopipedRepresentation_h
+#define vtkParallelopipedRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"

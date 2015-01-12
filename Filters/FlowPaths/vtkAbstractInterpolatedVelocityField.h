@@ -61,8 +61,8 @@
 //  vtkGenericInterpolatedVelocityField vtkCachingInterpolatedVelocityField
 //  vtkTemporalInterpolatedVelocityField vtkFunctionSet vtkStreamer vtkStreamTracer
 
-#ifndef __vtkAbstractInterpolatedVelocityField_h
-#define __vtkAbstractInterpolatedVelocityField_h
+#ifndef vtkAbstractInterpolatedVelocityField_h
+#define vtkAbstractInterpolatedVelocityField_h
 
 #include "vtkFunctionSet.h"
 //BTX

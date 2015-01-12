@@ -30,8 +30,8 @@
 // vtkProgrammableFilter vtkProgrammableAttributeDataFilter
 // vtkProgrammableSource vtkDataObjectToDataSetFilter
 
-#ifndef __vtkProgrammableDataObjectSource_h
-#define __vtkProgrammableDataObjectSource_h
+#ifndef vtkProgrammableDataObjectSource_h
+#define vtkProgrammableDataObjectSource_h
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"

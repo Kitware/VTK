@@ -26,8 +26,8 @@
 // .SECTION See Also
 // vtkWin32VideoSource vtkMILVideoSource
 
-#ifndef __vtkVideoSource_h
-#define __vtkVideoSource_h
+#ifndef vtkVideoSource_h
+#define vtkVideoSource_h
 
 #include "vtkIOVideoModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

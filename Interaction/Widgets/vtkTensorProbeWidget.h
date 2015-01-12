@@ -25,8 +25,8 @@
 // vtkEllipsoidTensorProbeRepresentation will manifest itself with the
 // ellipsoid shape changing as needed along the trajectory.
 
-#ifndef __vtkTensorProbeWidget_h
-#define __vtkTensorProbeWidget_h
+#ifndef vtkTensorProbeWidget_h
+#define vtkTensorProbeWidget_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"

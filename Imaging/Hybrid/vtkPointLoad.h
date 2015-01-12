@@ -24,8 +24,8 @@
 // .SECTION See Also
 // vtkTensorGlyph, vtkHyperStreamline
 
-#ifndef __vtkPointLoad_h
-#define __vtkPointLoad_h
+#ifndef vtkPointLoad_h
+#define vtkPointLoad_h
 
 #include "vtkImagingHybridModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

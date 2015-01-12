@@ -26,8 +26,8 @@
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
-#ifndef __vtkExtractArray_h
-#define __vtkExtractArray_h
+#ifndef vtkExtractArray_h
+#define vtkExtractArray_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkArrayDataAlgorithm.h"

@@ -65,8 +65,8 @@
 
 =======================================================================*/
 
-#ifndef __vtkVRMLImporter_h
-#define __vtkVRMLImporter_h
+#ifndef vtkVRMLImporter_h
+#define vtkVRMLImporter_h
 
 #include "vtkIOImportModule.h" // For export macro
 #include "vtkImporter.h"

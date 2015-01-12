@@ -39,8 +39,8 @@
 // .SECTION See Also
 // vtk3DSImporter vtkExporter
 
-#ifndef __vtkImporter_h
-#define __vtkImporter_h
+#ifndef vtkImporter_h
+#define vtkImporter_h
 
 #include "vtkIOImportModule.h" // For export macro
 #include "vtkObject.h"

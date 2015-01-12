@@ -50,8 +50,8 @@
 // These arrays must be data arrays.  The z-coordinate array is optional,
 // and if not given the z-coordinates are set to zero.
 
-#ifndef __vtkSQLGraphReader_h
-#define __vtkSQLGraphReader_h
+#ifndef vtkSQLGraphReader_h
+#define vtkSQLGraphReader_h
 
 #include "vtkIOSQLModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"

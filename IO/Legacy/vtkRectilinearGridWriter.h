@@ -20,8 +20,8 @@
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.
 
-#ifndef __vtkRectilinearGridWriter_h
-#define __vtkRectilinearGridWriter_h
+#ifndef vtkRectilinearGridWriter_h
+#define vtkRectilinearGridWriter_h
 
 #include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataWriter.h"

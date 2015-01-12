@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkVolumeRayCastMapper vtkVolumeProperty vtkVolume
 
-#ifndef __vtkVolumeRayCastCompositeFunction_h
-#define __vtkVolumeRayCastCompositeFunction_h
+#ifndef vtkVolumeRayCastCompositeFunction_h
+#define vtkVolumeRayCastCompositeFunction_h
 
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkVolumeRayCastFunction.h"

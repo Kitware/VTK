@@ -22,8 +22,8 @@
 // vtkPlaybackWidget
 
 
-#ifndef __vtkPlaybackRepresentation_h
-#define __vtkPlaybackRepresentation_h
+#ifndef vtkPlaybackRepresentation_h
+#define vtkPlaybackRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderRepresentation.h"

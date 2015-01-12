@@ -34,8 +34,8 @@
 // .SECTION Thanks
 // Thanks to Yvan Fournier for providing the code to support nfaced elements.
 
-#ifndef __vtkEnSightGoldBinaryReader_h
-#define __vtkEnSightGoldBinaryReader_h
+#ifndef vtkEnSightGoldBinaryReader_h
+#define vtkEnSightGoldBinaryReader_h
 
 #include "vtkIOEnSightModule.h" // For export macro
 #include "vtkEnSightReader.h"

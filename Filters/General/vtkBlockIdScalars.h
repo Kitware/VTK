@@ -18,8 +18,8 @@
 // for each block. Note that all sub-blocks within a block get the same scalar.
 // The new scalars array is named \c BlockIdScalars.
 
-#ifndef __vtkBlockIdScalars_h
-#define __vtkBlockIdScalars_h
+#ifndef vtkBlockIdScalars_h
+#define vtkBlockIdScalars_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"

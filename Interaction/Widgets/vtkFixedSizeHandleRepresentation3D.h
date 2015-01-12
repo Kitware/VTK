@@ -30,8 +30,8 @@
 // .SECTION See Also
 // vtkHandleRepresentation vtkHandleWidget
 
-#ifndef __vtkFixedSizeHandleRepresentation3D_h
-#define __vtkFixedSizeHandleRepresentation3D_h
+#ifndef vtkFixedSizeHandleRepresentation3D_h
+#define vtkFixedSizeHandleRepresentation3D_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPolygonalHandleRepresentation3D.h"

@@ -19,8 +19,8 @@
 // supporting POSIX threads.  This class can be used to execute a single
 // method on multiple threads, or to specify a method per thread.
 
-#ifndef __vtkMultiThreader_h
-#define __vtkMultiThreader_h
+#ifndef vtkMultiThreader_h
+#define vtkMultiThreader_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"

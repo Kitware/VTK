@@ -20,8 +20,8 @@
 // .SECTION See Also
 // vtkOverlappingAMR, vtkAMRBox
 
-#ifndef __vtkAMRDataInternals2_h
-#define __vtkAMRDataInternals2_h
+#ifndef vtkAMRDataInternals2_h
+#define vtkAMRDataInternals2_h
 
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" //for storing smart pointers to blocks

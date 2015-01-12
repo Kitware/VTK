@@ -28,8 +28,8 @@
 // .SECTION See Also
 // vtkGraph
 
-#ifndef __vtkVertexListIterator_h
-#define __vtkVertexListIterator_h
+#ifndef vtkVertexListIterator_h
+#define vtkVertexListIterator_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

@@ -36,8 +36,8 @@ PURPOSE.  See the above copyright notice for more information.
 // .SECTION See Also
 // vtkPolyhedralCell
 
-#ifndef __vtkMeanValueCoordinatesInterpolator_h
-#define __vtkMeanValueCoordinatesInterpolator_h
+#ifndef vtkMeanValueCoordinatesInterpolator_h
+#define vtkMeanValueCoordinatesInterpolator_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

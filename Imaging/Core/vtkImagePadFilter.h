@@ -20,8 +20,8 @@
 // The image extent of the output has to be specified.
 
 
-#ifndef __vtkImagePadFilter_h
-#define __vtkImagePadFilter_h
+#ifndef vtkImagePadFilter_h
+#define vtkImagePadFilter_h
 
 #include "vtkImagingCoreModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"

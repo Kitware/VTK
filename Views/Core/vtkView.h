@@ -35,8 +35,8 @@
 // in multiple views, their selections may be linked by setting the same
 // vtkAnnotationLink on their representations (see vtkDataRepresentation).
 
-#ifndef __vtkView_h
-#define __vtkView_h
+#ifndef vtkView_h
+#define vtkView_h
 
 #include "vtkViewsCoreModule.h" // For export macro
 #include "vtkObject.h"

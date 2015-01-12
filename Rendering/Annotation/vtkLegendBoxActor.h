@@ -32,8 +32,8 @@
 // .SECTION See Also
 // vtkXYPlotActor vtkActor2D vtkGlyphSource2D
 
-#ifndef __vtkLegendBoxActor_h
-#define __vtkLegendBoxActor_h
+#ifndef vtkLegendBoxActor_h
+#define vtkLegendBoxActor_h
 
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"

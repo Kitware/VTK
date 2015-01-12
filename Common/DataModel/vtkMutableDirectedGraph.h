@@ -29,8 +29,8 @@
 // .SECTION See Also
 // vtkDirectedGraph vtkGraph vtkTree
 
-#ifndef __vtkMutableDirectedGraph_h
-#define __vtkMutableDirectedGraph_h
+#ifndef vtkMutableDirectedGraph_h
+#define vtkMutableDirectedGraph_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDirectedGraph.h"

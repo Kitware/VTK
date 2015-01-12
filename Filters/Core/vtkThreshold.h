@@ -31,8 +31,8 @@
 // .SECTION See Also
 // vtkThresholdPoints vtkThresholdTextureCoords
 
-#ifndef __vtkThreshold_h
-#define __vtkThreshold_h
+#ifndef vtkThreshold_h
+#define vtkThreshold_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"

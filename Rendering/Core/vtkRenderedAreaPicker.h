@@ -25,8 +25,8 @@
 // some objects that pass the bounding box test of vtkAreaPicker. This
 // will happen, for instance, when picking through a corner of the bounding
 // box when the data set does not have any visible geometry in that corner.
-#ifndef __vtkRenderedAreaPicker_h
-#define __vtkRenderedAreaPicker_h
+#ifndef vtkRenderedAreaPicker_h
+#define vtkRenderedAreaPicker_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAreaPicker.h"

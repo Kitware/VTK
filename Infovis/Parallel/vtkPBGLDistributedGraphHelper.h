@@ -33,8 +33,8 @@
 // .SEEALSO
 // vtkGraph vtkDistributedGraphHelper
 
-#ifndef __vtkPBGLDistributedGraphHelper_h
-#define __vtkPBGLDistributedGraphHelper_h
+#ifndef vtkPBGLDistributedGraphHelper_h
+#define vtkPBGLDistributedGraphHelper_h
 
 #include "vtkInfovisParallelModule.h" // For export macro
 #include "vtkDistributedGraphHelper.h"
@@ -220,4 +220,4 @@ class VTKINFOVISPARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistri
 };
 
 #endif //VTK_LEGACY_REMOVE
-#endif // __vtkPBGLDistributedGraphHelper_h
+#endif // vtkPBGLDistributedGraphHelper_h

@@ -42,8 +42,8 @@
 // .SECTION see also
 // vtkImageData vtkImageGradient vtkImageNonMaximumSuppression
 
-#ifndef __vtkLinkEdgels_h
-#define __vtkLinkEdgels_h
+#ifndef vtkLinkEdgels_h
+#define vtkLinkEdgels_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

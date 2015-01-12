@@ -26,8 +26,8 @@
 // tree (which enforces graph connectivity).
 //
 
-#ifndef __vtkRandomGraphSource_h
-#define __vtkRandomGraphSource_h
+#ifndef vtkRandomGraphSource_h
+#define vtkRandomGraphSource_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"

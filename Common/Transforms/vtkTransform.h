@@ -40,8 +40,8 @@
 // vtkTransformCollection vtkTransformFilter vtkTransformPolyDataFilter
 // vtkImageReslice
 
-#ifndef __vtkTransform_h
-#define __vtkTransform_h
+#ifndef vtkTransform_h
+#define vtkTransform_h
 
 #include "vtkCommonTransformsModule.h" // For export macro
 #include "vtkLinearTransform.h"

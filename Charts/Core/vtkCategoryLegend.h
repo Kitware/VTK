@@ -22,8 +22,8 @@
 // annotated values from the vtkScalarsToColors that you wish to include
 // within the legend.
 
-#ifndef __vtkCategoryLegend_h
-#define __vtkCategoryLegend_h
+#ifndef vtkCategoryLegend_h
+#define vtkCategoryLegend_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkChartLegend.h"

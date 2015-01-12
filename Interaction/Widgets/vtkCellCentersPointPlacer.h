@@ -32,8 +32,8 @@
 // .SECTION See Also
 // vtkPointPlacer
 
-#ifndef __vtkCellCentersPointPlacer_h
-#define __vtkCellCentersPointPlacer_h
+#ifndef vtkCellCentersPointPlacer_h
+#define vtkCellCentersPointPlacer_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPointPlacer.h"

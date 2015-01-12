@@ -37,8 +37,8 @@
 // three-space
 //
 
-#ifndef __vtkParallelRenderManager_h
-#define __vtkParallelRenderManager_h
+#ifndef vtkParallelRenderManager_h
+#define vtkParallelRenderManager_h
 
 #include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkObject.h"
@@ -584,4 +584,4 @@ private:
 //ETX
 };
 
-#endif //__vtkParalleRenderManager_h
+#endif //vtkParalleRenderManager_h

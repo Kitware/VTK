@@ -27,8 +27,8 @@
 // Since most PBO mappeds don't support double format all double data is converted to
 // float and then uploaded.
 
-#ifndef __vtkPixelBufferObject_h
-#define __vtkPixelBufferObject_h
+#ifndef vtkPixelBufferObject_h
+#define vtkPixelBufferObject_h
 
 #include "vtkObject.h"
 #include "vtkRenderingOpenGLModule.h" // For export macro

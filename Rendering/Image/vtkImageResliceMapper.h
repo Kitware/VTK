@@ -23,8 +23,8 @@
 // .SECTION See also
 // vtkImageSlice vtkImageProperty vtkImageSliceMapper
 
-#ifndef __vtkImageResliceMapper_h
-#define __vtkImageResliceMapper_h
+#ifndef vtkImageResliceMapper_h
+#define vtkImageResliceMapper_h
 
 #include "vtkRenderingImageModule.h" // For export macro
 #include "vtkImageMapper3D.h"

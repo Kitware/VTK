@@ -24,8 +24,8 @@
 // vtkActor vtkFollower vtkCamera vtkAxisActor vtkCubeAxesActor
 
 
-#ifndef __vtkAxisFollower_h
-#define __vtkAxisFollower_h
+#ifndef vtkAxisFollower_h
+#define vtkAxisFollower_h
 
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkFollower.h"
@@ -167,4 +167,4 @@ private:
 
 };
 
-#endif // __vtkAxisFollower_h
+#endif // vtkAxisFollower_h

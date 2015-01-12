@@ -28,8 +28,8 @@
 // .SECTION see also
 // vtkCommunicator vtkSocketController
 
-#ifndef __vtkSocketCommunicator_h
-#define __vtkSocketCommunicator_h
+#ifndef vtkSocketCommunicator_h
+#define vtkSocketCommunicator_h
 
 #include "vtkParallelCoreModule.h" // For export macro
 #include "vtkCommunicator.h"

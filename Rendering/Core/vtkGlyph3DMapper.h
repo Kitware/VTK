@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkGlyph3D
 
-#ifndef __vtkGlyph3DMapper_h
-#define __vtkGlyph3DMapper_h
+#ifndef vtkGlyph3DMapper_h
+#define vtkGlyph3DMapper_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkMapper.h"

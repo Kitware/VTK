@@ -73,8 +73,8 @@
 // iterate over them together, use a struct or class to group them together
 // and use a thread local of that class.
 
-#ifndef __vtkSMPThreadLocal_h
-#define __vtkSMPThreadLocal_h
+#ifndef vtkSMPThreadLocal_h
+#define vtkSMPThreadLocal_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 

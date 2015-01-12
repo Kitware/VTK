@@ -20,8 +20,8 @@
 // Internal use only.
 // EXPERIMENTAL for the moment. Also include the old cache.
 
-#ifndef __vtkFreeTypeUtilities_h
-#define __vtkFreeTypeUtilities_h
+#ifndef vtkFreeTypeUtilities_h
+#define vtkFreeTypeUtilities_h
 
 #define VTK_FTFC_CACHE_CAPACITY 150
 

@@ -47,8 +47,8 @@
 // </pre>
 //
 
-#ifndef __vtkButtonWidget_h
-#define __vtkButtonWidget_h
+#ifndef vtkButtonWidget_h
+#define vtkButtonWidget_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"

@@ -36,8 +36,8 @@
 //
 
 
-#ifndef __vtkRInterface_h
-#define __vtkRInterface_h
+#ifndef vtkRInterface_h
+#define vtkRInterface_h
 
 #include "vtkFiltersStatisticsGnuRModule.h" // For export macro
 #include "vtkObject.h"

@@ -25,8 +25,8 @@
 // coordinate system with right handed rotations. Some other graphics
 // libraries use left handed coordinate systems and rotations.
 
-#ifndef __vtkTransform2D_h
-#define __vtkTransform2D_h
+#ifndef vtkTransform2D_h
+#define vtkTransform2D_h
 
 #include "vtkCommonTransformsModule.h" // For export macro
 #include "vtkObject.h"

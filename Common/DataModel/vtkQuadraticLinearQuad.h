@@ -30,8 +30,8 @@
 // Thanks to Soeren Gebbert  who developed this class and
 // integrated it into VTK 5.0.
 
-#ifndef __vtkQuadraticLinearQuad_h
-#define __vtkQuadraticLinearQuad_h
+#ifndef vtkQuadraticLinearQuad_h
+#define vtkQuadraticLinearQuad_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkNonLinearCell.h"

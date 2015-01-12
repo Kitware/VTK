@@ -20,8 +20,8 @@
 // .SECTION See also
 // vtkImageData vtkImageProgressIterator
 
-#ifndef __vtkImageIterator_h
-#define __vtkImageIterator_h
+#ifndef vtkImageIterator_h
+#define vtkImageIterator_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkSystemIncludes.h"

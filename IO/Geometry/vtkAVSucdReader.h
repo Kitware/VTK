@@ -30,8 +30,8 @@
 // .SECTION See Also
 // vtkGAMBITReader
 
-#ifndef __vtkAVSucdReader_h
-#define __vtkAVSucdReader_h
+#ifndef vtkAVSucdReader_h
+#define vtkAVSucdReader_h
 
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"

@@ -27,8 +27,8 @@
 // .SECTION See Also
 // vtkShrinkPolyData
 
-#ifndef __vtkShrinkFilter_h
-#define __vtkShrinkFilter_h
+#ifndef vtkShrinkFilter_h
+#define vtkShrinkFilter_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"

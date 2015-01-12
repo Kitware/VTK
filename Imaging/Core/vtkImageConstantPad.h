@@ -21,8 +21,8 @@
 // .SECTION See Also
 // vtkImageWrapPad vtkImageMirrorPad
 
-#ifndef __vtkImageConstantPad_h
-#define __vtkImageConstantPad_h
+#ifndef vtkImageConstantPad_h
+#define vtkImageConstantPad_h
 
 
 #include "vtkImagingCoreModule.h" // For export macro

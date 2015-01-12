@@ -21,8 +21,8 @@
 // additional triangle, a single point that, combined with the previous two
 // points, defines the next triangle.
 
-#ifndef __vtkTriangleStrip_h
-#define __vtkTriangleStrip_h
+#ifndef vtkTriangleStrip_h
+#define vtkTriangleStrip_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell.h"

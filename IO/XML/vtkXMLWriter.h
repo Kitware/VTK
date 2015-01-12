@@ -19,8 +19,8 @@
 // subclasses provide actual writer implementations calling upon this
 // functionality.
 
-#ifndef __vtkXMLWriter_h
-#define __vtkXMLWriter_h
+#ifndef vtkXMLWriter_h
+#define vtkXMLWriter_h
 
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkAlgorithm.h"

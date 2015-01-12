@@ -38,8 +38,8 @@
 // As a convenience, this selection is sent to output port 2 so that it
 // can be connected to pipelines requiring a vtkSelection.
 
-#ifndef __vtkAnnotationLink_h
-#define __vtkAnnotationLink_h
+#ifndef vtkAnnotationLink_h
+#define vtkAnnotationLink_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkAnnotationLayersAlgorithm.h"

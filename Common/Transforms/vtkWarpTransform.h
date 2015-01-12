@@ -20,8 +20,8 @@
 // vtkThinPlateSplineTransform vtkGridTransform vtkGeneralTransform
 
 
-#ifndef __vtkWarpTransform_h
-#define __vtkWarpTransform_h
+#ifndef vtkWarpTransform_h
+#define vtkWarpTransform_h
 
 #include "vtkCommonTransformsModule.h" // For export macro
 #include "vtkAbstractTransform.h"

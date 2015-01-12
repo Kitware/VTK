@@ -23,8 +23,8 @@
 // responsible for supplying data storage (if necessary) if local copies
 // of data are being made.
 
-#ifndef __vtkTensor_h
-#define __vtkTensor_h
+#ifndef vtkTensor_h
+#define vtkTensor_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

@@ -117,8 +117,8 @@
 // .SECTION See Also
 // vtkDelaunay3D vtkTransformFilter vtkGaussianSplatter
 
-#ifndef __vtkDelaunay2D_h
-#define __vtkDelaunay2D_h
+#ifndef vtkDelaunay2D_h
+#define vtkDelaunay2D_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

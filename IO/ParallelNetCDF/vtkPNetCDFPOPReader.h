@@ -25,8 +25,8 @@
 // first slice/plane has the highest z-value and the last slice/plane
 // has the lowest z-value.
 
-#ifndef __vtkPNetCDFPOPReader_h
-#define __vtkPNetCDFPOPReader_h
+#ifndef vtkPNetCDFPOPReader_h
+#define vtkPNetCDFPOPReader_h
 
 #include "vtkIOParallelNetCDFModule.h" // For export macro
 #include "vtkRectilinearGridAlgorithm.h"

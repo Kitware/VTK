@@ -63,8 +63,8 @@
 // .SECTION See Also
 // vtkAtom vtkBond vtkMoleculeMapper vtkPeriodicTable
 
-#ifndef __vtkMolecule_h
-#define __vtkMolecule_h
+#ifndef vtkMolecule_h
+#define vtkMolecule_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkUndirectedGraph.h"

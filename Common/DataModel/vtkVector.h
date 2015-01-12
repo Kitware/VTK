@@ -22,8 +22,8 @@
 // float[2] can be cast to a vtkVector2f and manipulated. Also a float[6] could
 // be cast and used as a vtkVector2f[3].
 
-#ifndef __vtkVector_h
-#define __vtkVector_h
+#ifndef vtkVector_h
+#define vtkVector_h
 
 #include "vtkTuple.h"
 #include "vtkObject.h" // for legacy macros
@@ -379,5 +379,5 @@ const T& vtkVector3<T>::Z() const
 }
 #endif // VTK_LEGACY_REMOVE
 
-#endif // __vtkVector_h
+#endif // vtkVector_h
 // VTK-HeaderTest-Exclude: vtkVector.h

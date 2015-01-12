@@ -38,8 +38,8 @@
 // .SECTION See Also
 // vtkOBBDicer vtkConnectedDicer vtkSpatialDicer
 
-#ifndef __vtkDicer_h
-#define __vtkDicer_h
+#ifndef vtkDicer_h
+#define vtkDicer_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

@@ -26,8 +26,8 @@
 // .SECTION See Also
 // vtkProperty vtkTexture vtkMapper vtkAssembly vtkFollower vtkLODActor
 
-#ifndef __vtkActor_h
-#define __vtkActor_h
+#ifndef vtkActor_h
+#define vtkActor_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkProp3D.h"

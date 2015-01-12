@@ -23,8 +23,8 @@
 // vtkXMLPRectilinearGridWriter vtkXMLPPolyDataWriter
 // vtkXMLPUnstructuredGridWriter
 
-#ifndef __vtkXMLPDataSetWriter_h
-#define __vtkXMLPDataSetWriter_h
+#ifndef vtkXMLPDataSetWriter_h
+#define vtkXMLPDataSetWriter_h
 
 #include "vtkIOParallelXMLModule.h" // For export macro
 #include "vtkXMLPDataWriter.h"

@@ -36,8 +36,8 @@
 //   David Selassie, Brandon Heller, Jeffrey Heer. Divided Edge Bundling for Directional
 //   Network Data. Proceedings of IEEE InfoVis 2011.
 
-#ifndef __vtkBoostDividedEdgeBundling_h
-#define __vtkBoostDividedEdgeBundling_h
+#ifndef vtkBoostDividedEdgeBundling_h
+#define vtkBoostDividedEdgeBundling_h
 
 #include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkDirectedGraphAlgorithm.h"

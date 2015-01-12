@@ -26,8 +26,8 @@
 // coefficients
 // 3. pass the vtkPlanes to a vtkFrustumSource.
 
-#ifndef __vtkFrustumSource_h
-#define __vtkFrustumSource_h
+#ifndef vtkFrustumSource_h
+#define vtkFrustumSource_h
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

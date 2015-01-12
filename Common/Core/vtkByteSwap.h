@@ -17,8 +17,8 @@
 // vtkByteSwap is used by other classes to perform machine dependent byte
 // swapping. Byte swapping is often used when reading or writing binary
 // files.
-#ifndef __vtkByteSwap_h
-#define __vtkByteSwap_h
+#ifndef vtkByteSwap_h
+#define vtkByteSwap_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"

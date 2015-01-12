@@ -20,8 +20,8 @@
 // by bilinear interpolation. Initially, interpolation is off and magnification
 // factors are set to 1 in all directions.
 
-#ifndef __vtkImageMagnify_h
-#define __vtkImageMagnify_h
+#ifndef vtkImageMagnify_h
+#define vtkImageMagnify_h
 
 #include "vtkImagingCoreModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"

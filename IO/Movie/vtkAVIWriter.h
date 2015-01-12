@@ -20,8 +20,8 @@
 // .SECTION See Also
 // vtkGenericMovieWriter vtkMPEG2Writer
 
-#ifndef __vtkAVIWriter_h
-#define __vtkAVIWriter_h
+#ifndef vtkAVIWriter_h
+#define vtkAVIWriter_h
 
 #include "vtkIOMovieModule.h" // For export macro
 #include "vtkGenericMovieWriter.h"

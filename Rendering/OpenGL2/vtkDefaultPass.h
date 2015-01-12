@@ -28,8 +28,8 @@
 // .SECTION See Also
 // vtkRenderPass
 
-#ifndef __vtkDefaultPass_h
-#define __vtkDefaultPass_h
+#ifndef vtkDefaultPass_h
+#define vtkDefaultPass_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderPass.h"

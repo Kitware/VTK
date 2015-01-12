@@ -34,8 +34,8 @@
 // vtkAffineWidget vtkWidgetRepresentation vtkAbstractWidget
 
 
-#ifndef __vtkAffineRepresentation_h
-#define __vtkAffineRepresentation_h
+#ifndef vtkAffineRepresentation_h
+#define vtkAffineRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"

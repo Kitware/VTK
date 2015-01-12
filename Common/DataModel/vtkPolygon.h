@@ -19,8 +19,8 @@
 // self-intersect. Define the polygon with n-points ordered in the counter-
 // clockwise direction; do not repeat the last point.
 
-#ifndef __vtkPolygon_h
-#define __vtkPolygon_h
+#ifndef vtkPolygon_h
+#define vtkPolygon_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell.h"

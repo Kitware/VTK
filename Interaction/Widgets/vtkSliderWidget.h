@@ -58,8 +58,8 @@
 // </pre>
 //
 
-#ifndef __vtkSliderWidget_h
-#define __vtkSliderWidget_h
+#ifndef vtkSliderWidget_h
+#define vtkSliderWidget_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"

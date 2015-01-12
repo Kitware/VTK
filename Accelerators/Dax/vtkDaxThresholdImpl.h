@@ -14,8 +14,8 @@
 //
 //=============================================================================
 
-#ifndef __vtkDaxThresholdImpl_h
-#define __vtkDaxThresholdImpl_h
+#ifndef vtkDaxThresholdImpl_h
+#define vtkDaxThresholdImpl_h
 
 // Common code
 #include "vtkDaxConfig.h"

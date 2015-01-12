@@ -15,8 +15,8 @@
 // .NAME vtkProgrammableElectronicData - Provides access to and storage of
 // user-generated vtkImageData that describes electrons.
 
-#ifndef __vtkProgrammableElectronicData_h
-#define __vtkProgrammableElectronicData_h
+#ifndef vtkProgrammableElectronicData_h
+#define vtkProgrammableElectronicData_h
 
 #include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkAbstractElectronicData.h"

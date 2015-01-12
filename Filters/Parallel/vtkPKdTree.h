@@ -37,8 +37,8 @@
 // .SECTION See Also
 //      vtkKdTree
 
-#ifndef __vtkPKdTree_h
-#define __vtkPKdTree_h
+#ifndef vtkPKdTree_h
+#define vtkPKdTree_h
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkKdTree.h"

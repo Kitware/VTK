@@ -25,8 +25,8 @@
 // Implementation by Thierry Carrard (CEA)
 
 
-#ifndef __vtkDataSetGradient_h
-#define __vtkDataSetGradient_h
+#ifndef vtkDataSetGradient_h
+#define vtkDataSetGradient_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

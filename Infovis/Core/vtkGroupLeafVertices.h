@@ -23,8 +23,8 @@
 // Use SetInputArrayToProcess(0, ...) to set the array to group on.
 // Currently this array must be a vtkStringArray.
 
-#ifndef __vtkGroupLeafVertices_h
-#define __vtkGroupLeafVertices_h
+#ifndef vtkGroupLeafVertices_h
+#define vtkGroupLeafVertices_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkTreeAlgorithm.h"

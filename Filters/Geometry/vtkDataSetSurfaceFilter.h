@@ -22,8 +22,8 @@
 // .SECTION See Also
 // vtkGeometryFilter vtkStructuredGridGeometryFilter.
 
-#ifndef __vtkDataSetSurfaceFilter_h
-#define __vtkDataSetSurfaceFilter_h
+#ifndef vtkDataSetSurfaceFilter_h
+#define vtkDataSetSurfaceFilter_h
 
 #include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

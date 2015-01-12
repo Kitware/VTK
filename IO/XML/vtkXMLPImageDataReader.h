@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkXMLImageDataReader
 
-#ifndef __vtkXMLPImageDataReader_h
-#define __vtkXMLPImageDataReader_h
+#ifndef vtkXMLPImageDataReader_h
+#define vtkXMLPImageDataReader_h
 
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLPStructuredDataReader.h"

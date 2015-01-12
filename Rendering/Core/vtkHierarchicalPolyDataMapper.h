@@ -19,8 +19,8 @@
 // .SECTION see also
 // vtkPolyDataMapper
 
-#ifndef __vtkHierarchicalPolyDataMapper_h
-#define __vtkHierarchicalPolyDataMapper_h
+#ifndef vtkHierarchicalPolyDataMapper_h
+#define vtkHierarchicalPolyDataMapper_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkCompositePolyDataMapper.h"

@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkPiecewiseFunctionItem_h
-#define __vtkPiecewiseFunctionItem_h
+#ifndef vtkPiecewiseFunctionItem_h
+#define vtkPiecewiseFunctionItem_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkScalarsToColorsItem.h"

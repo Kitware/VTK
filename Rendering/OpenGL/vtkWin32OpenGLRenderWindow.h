@@ -18,8 +18,8 @@
 // class vtkRenderWindow. vtkWin32OpenGLRenderer interfaces to the standard
 // OpenGL graphics library in the Windows environment.
 
-#ifndef __vtkWin32OpenGLRenderWindow_h
-#define __vtkWin32OpenGLRenderWindow_h
+#ifndef vtkWin32OpenGLRenderWindow_h
+#define vtkWin32OpenGLRenderWindow_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkOpenGLRenderWindow.h"

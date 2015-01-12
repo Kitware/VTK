@@ -19,8 +19,8 @@
 // The size of the volume and the data spacing is set from the SLC file
 // header.
 
-#ifndef __vtkSLCReader_h
-#define __vtkSLCReader_h
+#ifndef vtkSLCReader_h
+#define vtkSLCReader_h
 
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageReader2.h"

@@ -21,8 +21,8 @@
 // .SECTION See Also
 // vtkCleanPolyData
 
-#ifndef __vtkMergePoints_h
-#define __vtkMergePoints_h
+#ifndef vtkMergePoints_h
+#define vtkMergePoints_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkPointLocator.h"

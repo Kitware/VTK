@@ -21,8 +21,8 @@
 // the blocks.
 // Refer to http://www.paraview.org/Wiki/Block_Hierarchy_Meta_Data for details.
 
-#ifndef __vtkSILBuilder_h
-#define __vtkSILBuilder_h
+#ifndef vtkSILBuilder_h
+#define vtkSILBuilder_h
 
 #include "vtkIOXdmf2Module.h" // For export macro
 #include "vtkObject.h"

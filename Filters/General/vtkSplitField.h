@@ -48,8 +48,8 @@
 // vtkDataSetAttributes vtkDataArray vtkRearrangeFields
 // vtkAssignAttribute vtkMergeFields
 
-#ifndef __vtkSplitField_h
-#define __vtkSplitField_h
+#ifndef vtkSplitField_h
+#define vtkSplitField_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

@@ -40,8 +40,8 @@
 // .SECTION See Also
 // vtkDirectedGraph vtkMutableDirectedGraph vtkGraph
 
-#ifndef __vtkTree_h
-#define __vtkTree_h
+#ifndef vtkTree_h
+#define vtkTree_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDirectedAcyclicGraph.h"

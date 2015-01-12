@@ -21,8 +21,8 @@
 // .SECTION see also
 //
 
-#ifndef __vtkAMRVolumeMapper_h
-#define __vtkAMRVolumeMapper_h
+#ifndef vtkAMRVolumeMapper_h
+#define vtkAMRVolumeMapper_h
 
 #include "vtkRenderingVolumeAMRModule.h" // For export macro
 #include "vtkVolumeMapper.h"

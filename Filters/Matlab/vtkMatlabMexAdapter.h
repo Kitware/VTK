@@ -47,8 +47,8 @@
 //
 
 
-#ifndef __vtkMatlabMexAdapter
-#define __vtkMatlabMexAdapter
+#ifndef vtkMatlabMexAdapter_h
+#define vtkMatlabMexAdapter_h
 
 #include "mex.h" // Needed for Matlab mex.h mxArray
 #include "matrix.h" // Needed for Matlab matrix.h mxArray

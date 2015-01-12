@@ -20,8 +20,8 @@
 // with the SetAxisMagnificationFactor method.
 
 
-#ifndef __vtkImageResample_h
-#define __vtkImageResample_h
+#ifndef vtkImageResample_h
+#define vtkImageResample_h
 
 
 #include "vtkImagingCoreModule.h" // For export macro

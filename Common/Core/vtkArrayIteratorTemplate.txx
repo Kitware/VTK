@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtkArrayIteratorTemplate_txx
-#define __vtkArrayIteratorTemplate_txx
+#ifndef vtkArrayIteratorTemplate_txx
+#define vtkArrayIteratorTemplate_txx
 
 #include "vtkArrayIteratorTemplate.h"
 

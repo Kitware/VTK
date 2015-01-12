@@ -22,8 +22,8 @@
 // contains a single scalar component that is the elevation in meters.
 // The spacing is also expressed in meters. A number of get methods
 // provide access to fields on the header.
-#ifndef __vtkDEMReader_h
-#define __vtkDEMReader_h
+#ifndef vtkDEMReader_h
+#define vtkDEMReader_h
 
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

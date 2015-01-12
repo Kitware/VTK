@@ -32,8 +32,8 @@
 // www.imm.dtu.dk/~rrp/VTK . Also thanks to Alexandre Gouaillard and Shoaib
 // Ghias for bug fixes and enhancements.
 
-#ifndef __vtkDijkstraGraphGeodesicPath_h
-#define __vtkDijkstraGraphGeodesicPath_h
+#ifndef vtkDijkstraGraphGeodesicPath_h
+#define vtkDijkstraGraphGeodesicPath_h
 
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkGraphGeodesicPath.h"

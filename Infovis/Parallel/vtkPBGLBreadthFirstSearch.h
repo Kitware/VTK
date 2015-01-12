@@ -30,8 +30,8 @@
 // .SECTION See Also
 // vtkGraph vtkBoostBreadthFirstSearch vtkBoostGraphAdapter
 
-#ifndef __vtkPBGLBreadthFirstSearch_h
-#define __vtkPBGLBreadthFirstSearch_h
+#ifndef vtkPBGLBreadthFirstSearch_h
+#define vtkPBGLBreadthFirstSearch_h
 
 #include "vtkInfovisParallelModule.h" // For export macro
 #include "vtkStdString.h" // For string type

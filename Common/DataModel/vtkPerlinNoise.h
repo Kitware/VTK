@@ -26,8 +26,8 @@
 // .SECTION See Also
 // vtkImplicitFunction
 
-#ifndef __vtkPerlinNoise_h
-#define __vtkPerlinNoise_h
+#ifndef vtkPerlinNoise_h
+#define vtkPerlinNoise_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"

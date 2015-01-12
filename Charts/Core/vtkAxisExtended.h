@@ -22,8 +22,8 @@
 // .SECTION See Also
 // vtkAxis
 
-#ifndef __vtkAxisExtended_h
-#define __vtkAxisExtended_h
+#ifndef vtkAxisExtended_h
+#define vtkAxisExtended_h
 #endif
 
 #include "vtkChartsCoreModule.h" // For export macro

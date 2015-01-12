@@ -28,8 +28,8 @@ PURPOSE.  See the above copyright notice for more information.
 // Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories
 // for implementing this class.
 
-#ifndef __vtkStatisticsAlgorithmPrivate_h
-#define __vtkStatisticsAlgorithmPrivate_h
+#ifndef vtkStatisticsAlgorithmPrivate_h
+#define vtkStatisticsAlgorithmPrivate_h
 
 #include "vtkStdString.h"
 
@@ -171,6 +171,6 @@ public:
   vtksys_stl::set<vtkStdString> Buffer;
 };
 
-#endif // __vtkStatisticsAlgorithmPrivate_h
+#endif // vtkStatisticsAlgorithmPrivate_h
 
 // VTK-HeaderTest-Exclude: vtkStatisticsAlgorithmPrivate.h

@@ -29,8 +29,8 @@
 // Thanks to Brian Wylie from Sandia National Laboratories for creating this
 // class.
 
-#ifndef __vtkTreeLevelsFilter_h
-#define __vtkTreeLevelsFilter_h
+#ifndef vtkTreeLevelsFilter_h
+#define vtkTreeLevelsFilter_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkTreeAlgorithm.h"

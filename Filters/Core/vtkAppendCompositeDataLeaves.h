@@ -48,8 +48,8 @@
 // .SECTION See Also
 // vtkAppendPolyData vtkAppendFilter
 
-#ifndef __vtkAppendCompositeDataLeaves_h
-#define __vtkAppendCompositeDataLeaves_h
+#ifndef vtkAppendCompositeDataLeaves_h
+#define vtkAppendCompositeDataLeaves_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkCompositeDataSetAlgorithm.h"
@@ -115,4 +115,4 @@ private:
   void operator = ( const vtkAppendCompositeDataLeaves& ); // Not implemented.
 };
 
-#endif // __vtkAppendCompositeDataLeaves_h
+#endif // vtkAppendCompositeDataLeaves_h

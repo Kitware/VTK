@@ -28,8 +28,8 @@
 // RequestData( request, inputVec, outputVec).
 
 
-#ifndef __vtkAnnotationLayersAlgorithm_h
-#define __vtkAnnotationLayersAlgorithm_h
+#ifndef vtkAnnotationLayersAlgorithm_h
+#define vtkAnnotationLayersAlgorithm_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"

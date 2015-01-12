@@ -18,8 +18,8 @@
 // .SECTION Description
 //
 
-#ifndef __vtkQtStringToImage_h
-#define __vtkQtStringToImage_h
+#ifndef vtkQtStringToImage_h
+#define vtkQtStringToImage_h
 
 #include "vtkRenderingQtModule.h" // For export macro
 #include "vtkStringToImage.h"
@@ -83,4 +83,4 @@ private:
   void operator=(const vtkQtStringToImage &);   // Not implemented.
 };
 
-#endif //__vtkQtStringToImage_h
+#endif //vtkQtStringToImage_h

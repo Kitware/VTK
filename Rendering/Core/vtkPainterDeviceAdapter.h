@@ -41,8 +41,8 @@
 // vtkPainter
 //
 
-#ifndef __vtkPainterDeviceAdapter_h
-#define __vtkPainterDeviceAdapter_h
+#ifndef vtkPainterDeviceAdapter_h
+#define vtkPainterDeviceAdapter_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"

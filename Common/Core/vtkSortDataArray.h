@@ -24,8 +24,8 @@
 
 // .NAME vtkSortDataArray - Provides several methods for sorting vtk arrays.
 
-#ifndef __vtkSortDataArray_h
-#define __vtkSortDataArray_h
+#ifndef vtkSortDataArray_h
+#define vtkSortDataArray_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
@@ -71,4 +71,4 @@ private:
   void operator=(const vtkSortDataArray &);  // Not implemented.
 };
 
-#endif //__vtkSortDataArray_h
+#endif //vtkSortDataArray_h

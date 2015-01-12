@@ -26,8 +26,8 @@
 // .SECTION See also
 // vtkQtAbstractModelAdapter vtkQtTableModelAdapter
 
-#ifndef __vtkQtAnnotationLayersModelAdapter_h
-#define __vtkQtAnnotationLayersModelAdapter_h
+#ifndef vtkQtAnnotationLayersModelAdapter_h
+#define vtkQtAnnotationLayersModelAdapter_h
 
 #include "vtkGUISupportQtModule.h" // For export macro
 #include "QVTKWin32Header.h"

@@ -31,8 +31,8 @@
 // vtkSliderWidget
 
 
-#ifndef __vtkCenteredSliderRepresentation_h
-#define __vtkCenteredSliderRepresentation_h
+#ifndef vtkCenteredSliderRepresentation_h
+#define vtkCenteredSliderRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkSliderRepresentation.h"

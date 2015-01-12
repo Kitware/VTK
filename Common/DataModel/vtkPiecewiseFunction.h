@@ -31,8 +31,8 @@
 // will default to Midpoint = 0.5 (halfway between the control points) and
 // Sharpness = 0.0 (linear).
 
-#ifndef __vtkPiecewiseFunction_h
-#define __vtkPiecewiseFunction_h
+#ifndef vtkPiecewiseFunction_h
+#define vtkPiecewiseFunction_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"

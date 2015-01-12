@@ -22,8 +22,8 @@
 // .SECTION Description
 // Implements a vtkSQLDatabase using an underlying Qt QSQLDatabase.
 
-#ifndef __vtkQtSQLDatabase_h
-#define __vtkQtSQLDatabase_h
+#ifndef vtkQtSQLDatabase_h
+#define vtkQtSQLDatabase_h
 
 // Check for Qt SQL module before defining this class.
 #include <qglobal.h>
@@ -173,5 +173,5 @@ private:
 };
 
 #endif // (QT_EDITION & QT_MODULE_SQL)
-#endif // __vtkQtSQLDatabase_h
+#endif // vtkQtSQLDatabase_h
 

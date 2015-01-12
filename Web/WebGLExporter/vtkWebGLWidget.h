@@ -16,8 +16,8 @@
 // .SECTION Description
 // Widget representation for WebGL.
 
-#ifndef __vtkWebGLWidget_h
-#define __vtkWebGLWidget_h
+#ifndef vtkWebGLWidget_h
+#define vtkWebGLWidget_h
 
 #include "vtkWebGLObject.h"
 #include "vtkWebGLExporterModule.h" // needed for export macro

@@ -16,8 +16,8 @@
 // with API to get current level and dataset index.
 // .SECTION Description
 
-#ifndef __vtkUniformGridAMRDataIterator_h
-#define __vtkUniformGridAMRDataIterator_h
+#ifndef vtkUniformGridAMRDataIterator_h
+#define vtkUniformGridAMRDataIterator_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCompositeDataIterator.h"

@@ -36,8 +36,8 @@
 // generation, and may do not exactly describe the size of the superquadric.
 //
 
-#ifndef __vtkSuperquadric_h
-#define __vtkSuperquadric_h
+#ifndef vtkSuperquadric_h
+#define vtkSuperquadric_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"

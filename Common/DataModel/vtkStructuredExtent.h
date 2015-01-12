@@ -20,8 +20,8 @@
 //  structured extents. It defines a bunch of static methods (most of which are
 //  inlined) to aid in dealing with extents.
 
-#ifndef __vtkStructuredExtent_h
-#define __vtkStructuredExtent_h
+#ifndef vtkStructuredExtent_h
+#define vtkStructuredExtent_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

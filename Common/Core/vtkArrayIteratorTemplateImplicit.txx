@@ -17,8 +17,8 @@
 // instantiation is not needed.  It just includes the corresponding
 // .txx file, so only the name is important.
 
-#ifndef __vtkArrayIteratorTemplateImplicit_txx
-#define __vtkArrayIteratorTemplateImplicit_txx
+#ifndef vtkArrayIteratorTemplateImplicit_txx
+#define vtkArrayIteratorTemplateImplicit_txx
 
 #include "vtkArrayIteratorTemplate.txx"
 

@@ -18,8 +18,8 @@
 // for use with the python matplotlib.mathtext module (implemented in the
 // vtkMatplotlib module).
 
-#ifndef __vtkMathTextUtilities_h
-#define __vtkMathTextUtilities_h
+#ifndef vtkMathTextUtilities_h
+#define vtkMathTextUtilities_h
 
 #include "vtkRenderingFreeTypeModule.h" // For export macro
 #include "vtkObject.h"

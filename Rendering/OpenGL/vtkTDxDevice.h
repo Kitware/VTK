@@ -23,8 +23,8 @@
 // .SECTION Caveats
 // THIS IS EXPERIMENTAL CODE. THE API MIGHT CHANGE.
 
-#ifndef __vtkTDxDevice_h
-#define __vtkTDxDevice_h
+#ifndef vtkTDxDevice_h
+#define vtkTDxDevice_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkObject.h"

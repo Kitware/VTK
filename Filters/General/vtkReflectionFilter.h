@@ -19,8 +19,8 @@
 // Since it converts data sets into unstructured grids, it is not effeicient
 // for structured data sets.
 
-#ifndef __vtkReflectionFilter_h
-#define __vtkReflectionFilter_h
+#ifndef vtkReflectionFilter_h
+#define vtkReflectionFilter_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"

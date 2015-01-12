@@ -21,7 +21,7 @@
 //   #include "vtkArrayIteratorTemplate.txx"
 //   VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(vtkIdType);
 
-#define __vtkIdTypeArray_cxx
+#define vtkIdTypeArray_cxx
 #include "vtkIdTypeArray.h"
 
 #include "vtkObjectFactory.h"

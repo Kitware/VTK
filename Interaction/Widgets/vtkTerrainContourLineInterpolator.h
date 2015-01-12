@@ -35,8 +35,8 @@
 // .SECTION See Also
 // vtkTerrainDataPointPlacer vtkProjectedTerrainPath
 
-#ifndef __vtkTerrainContourLineInterpolator_h
-#define __vtkTerrainContourLineInterpolator_h
+#ifndef vtkTerrainContourLineInterpolator_h
+#define vtkTerrainContourLineInterpolator_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkContourLineInterpolator.h"

@@ -29,8 +29,8 @@
 // .SECTION See Also
 // vtkGlyph3D vtkLabeledDataMapper
 
-#ifndef __vtkCellCenters_h
-#define __vtkCellCenters_h
+#ifndef vtkCellCenters_h
+#define vtkCellCenters_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

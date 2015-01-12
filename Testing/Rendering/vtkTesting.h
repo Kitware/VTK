@@ -56,8 +56,8 @@
 //    }
 //
 
-#ifndef __vtkTesting_h
-#define __vtkTesting_h
+#ifndef vtkTesting_h
+#define vtkTesting_h
 
 #include "vtkTestingRenderingModule.h" // For export macro
 #include "vtkObject.h"

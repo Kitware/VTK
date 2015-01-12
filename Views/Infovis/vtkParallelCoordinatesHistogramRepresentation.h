@@ -49,8 +49,8 @@
 // .SECTION Thanks
 //  Developed by David Feng at Sandia National Laboratories
 
-#ifndef __vtkParallelCoordinatesHistogramRepresentation_h
-#define __vtkParallelCoordinatesHistogramRepresentation_h
+#ifndef vtkParallelCoordinatesHistogramRepresentation_h
+#define vtkParallelCoordinatesHistogramRepresentation_h
 
 #include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkParallelCoordinatesRepresentation.h"

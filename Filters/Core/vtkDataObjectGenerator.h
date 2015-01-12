@@ -31,8 +31,8 @@
 // an octree that is three levels deep, in which the firstmost cell in each level
 // is refined.
 
-#ifndef __vtkDataObjectGenerator_h
-#define __vtkDataObjectGenerator_h
+#ifndef vtkDataObjectGenerator_h
+#define vtkDataObjectGenerator_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"

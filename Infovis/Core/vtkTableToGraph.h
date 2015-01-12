@@ -60,8 +60,8 @@
 // of being converted to a string. The "ids" column is set as the vertex pedigree
 // ID attribute.
 
-#ifndef __vtkTableToGraph_h
-#define __vtkTableToGraph_h
+#ifndef vtkTableToGraph_h
+#define vtkTableToGraph_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"

@@ -31,8 +31,8 @@
 // vtkBoxWidget2 vtkBoxWidget
 
 
-#ifndef __vtkBoxRepresentation_h
-#define __vtkBoxRepresentation_h
+#ifndef vtkBoxRepresentation_h
+#define vtkBoxRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"

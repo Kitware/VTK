@@ -20,8 +20,8 @@
 // .SECTION See Also
 // vtkRIBExporter
 
-#ifndef __vtkRIBLight_h
-#define __vtkRIBLight_h
+#ifndef vtkRIBLight_h
+#define vtkRIBLight_h
 
 #include "vtkIOExportModule.h" // For export macro
 #include "vtkLight.h"

@@ -18,8 +18,8 @@
 //
 // .SECTION See Also
 
-#ifndef __vtkFocalPlanePointPlacer_h
-#define __vtkFocalPlanePointPlacer_h
+#ifndef vtkFocalPlanePointPlacer_h
+#define vtkFocalPlanePointPlacer_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPointPlacer.h"

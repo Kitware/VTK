@@ -27,8 +27,8 @@
 // method which updates the set of actors representing the globe given the
 // current camera position.
 
-#ifndef __vtkGeoTerrain2D_h
-#define __vtkGeoTerrain2D_h
+#ifndef vtkGeoTerrain2D_h
+#define vtkGeoTerrain2D_h
 
 #include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkGeoTerrain.h"

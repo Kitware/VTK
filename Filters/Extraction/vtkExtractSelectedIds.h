@@ -25,8 +25,8 @@
 // .SECTION See Also
 // vtkSelection vtkExtractSelection
 
-#ifndef __vtkExtractSelectedIds_h
-#define __vtkExtractSelectedIds_h
+#ifndef vtkExtractSelectedIds_h
+#define vtkExtractSelectedIds_h
 
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkExtractSelectionBase.h"

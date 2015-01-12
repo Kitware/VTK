@@ -28,8 +28,8 @@
 // Andrew Maclean andrew.amaclean@gmail.com for creating and contributing the
 // class.
 //
-#ifndef __vtkParametricRandomHills_h
-#define __vtkParametricRandomHills_h
+#ifndef vtkParametricRandomHills_h
+#define vtkParametricRandomHills_h
 
 #include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkParametricFunction.h"

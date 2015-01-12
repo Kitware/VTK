@@ -23,8 +23,8 @@
 // That means no Objective C may be used. That's why some instance variables are
 // void* instead of what they really should be.
 
-#ifndef __vtkIOSRenderWindowInteractor_h
-#define __vtkIOSRenderWindowInteractor_h
+#ifndef vtkIOSRenderWindowInteractor_h
+#define vtkIOSRenderWindowInteractor_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderWindowInteractor.h"

@@ -18,8 +18,8 @@
 // functionality that is common among all the parallel unstructured
 // data formats.
 
-#ifndef __vtkXMLPUnstructuredDataWriter_h
-#define __vtkXMLPUnstructuredDataWriter_h
+#ifndef vtkXMLPUnstructuredDataWriter_h
+#define vtkXMLPUnstructuredDataWriter_h
 
 #include "vtkIOParallelXMLModule.h" // For export macro
 #include "vtkXMLPDataWriter.h"

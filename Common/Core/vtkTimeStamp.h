@@ -20,8 +20,8 @@
 // There is built in support for the binary < and > comparison
 // operators between two vtkTimeStamp objects.
 
-#ifndef __vtkTimeStamp_h
-#define __vtkTimeStamp_h
+#ifndef vtkTimeStamp_h
+#define vtkTimeStamp_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"

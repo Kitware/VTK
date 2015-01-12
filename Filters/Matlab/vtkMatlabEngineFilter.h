@@ -32,8 +32,8 @@
 //  Developed by Thomas Otahal at Sandia National Laboratories.
 //
 
-#ifndef __vtkMatlabEngineFilter_h
-#define __vtkMatlabEngineFilter_h
+#ifndef vtkMatlabEngineFilter_h
+#define vtkMatlabEngineFilter_h
 
 #include "vtkFiltersMatlabModule.h"
 #include "vtkDataObjectAlgorithm.h"

@@ -21,8 +21,8 @@
 // processing algorithm in the pipeline is implemented in an instance
 // of vtkAlgorithm.
 
-#ifndef __vtkExecutive_h
-#define __vtkExecutive_h
+#ifndef vtkExecutive_h
+#define vtkExecutive_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkObject.h"

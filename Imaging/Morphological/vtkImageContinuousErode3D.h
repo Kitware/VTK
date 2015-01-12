@@ -19,8 +19,8 @@
 // is done on that axis.
 
 
-#ifndef __vtkImageContinuousErode3D_h
-#define __vtkImageContinuousErode3D_h
+#ifndef vtkImageContinuousErode3D_h
+#define vtkImageContinuousErode3D_h
 
 
 #include "vtkImagingMorphologicalModule.h" // For export macro

@@ -28,8 +28,8 @@
 // vtkParallelCoordinatesActor vtkXYPlotActor vtkSpiderPlotActor
 // vtkPieChartActor
 
-#ifndef __vtkBarChartActor_h
-#define __vtkBarChartActor_h
+#ifndef vtkBarChartActor_h
+#define vtkBarChartActor_h
 
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"

@@ -26,8 +26,8 @@
 // .SECTION See Also
 // vtkGeoTreeNode vtkGeoTerrainNode
 
-#ifndef __vtkGeoImageNode_h
-#define __vtkGeoImageNode_h
+#ifndef vtkGeoImageNode_h
+#define vtkGeoImageNode_h
 
 #include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkGeoTreeNode.h"

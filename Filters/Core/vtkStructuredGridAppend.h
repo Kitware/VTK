@@ -19,8 +19,8 @@
 // All inputs must have the same scalar type.
 
 
-#ifndef __vtkStructuredGridAppend_h
-#define __vtkStructuredGridAppend_h
+#ifndef vtkStructuredGridAppend_h
+#define vtkStructuredGridAppend_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkStructuredGridAlgorithm.h"

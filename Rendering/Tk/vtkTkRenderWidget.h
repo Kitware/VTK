@@ -26,8 +26,8 @@
 // vtkRenderWindow vtkRenderer
 
 
-#ifndef __vtkTkRenderWidget_h
-#define __vtkTkRenderWidget_h
+#ifndef vtkTkRenderWidget_h
+#define vtkTkRenderWidget_h
 
 #include "vtkRenderWindow.h"
 #include "vtkTcl.h"

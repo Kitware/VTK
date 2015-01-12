@@ -27,8 +27,8 @@
 // .SECTION Thanks
 // This class was contributed to VTK by David Gobbi on behalf of Atamai Inc.
 
-#ifndef __vtkVolumePicker_h
-#define __vtkVolumePicker_h
+#ifndef vtkVolumePicker_h
+#define vtkVolumePicker_h
 
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkCellPicker.h"

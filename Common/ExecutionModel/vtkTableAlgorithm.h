@@ -33,8 +33,8 @@
 // .SECTION Thanks
 // Thanks to Brian Wylie for creating this class.
 
-#ifndef __vtkTableAlgorithm_h
-#define __vtkTableAlgorithm_h
+#ifndef vtkTableAlgorithm_h
+#define vtkTableAlgorithm_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"

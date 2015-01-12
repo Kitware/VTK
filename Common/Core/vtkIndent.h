@@ -18,8 +18,8 @@
 // vtkIndent is used to control indentation during the chaining print
 // process. This way nested objects can correctly indent themselves.
 
-#ifndef __vtkIndent_h
-#define __vtkIndent_h
+#ifndef vtkIndent_h
+#define vtkIndent_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"

@@ -18,7 +18,7 @@ VTK_DATA_ARRAY_TEMPLATE_INSTANTIATE(unsigned char);
 #include "vtkArrayIteratorTemplate.txx"
 VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(unsigned char);
 
-#define __vtkUnsignedCharArray_cxx
+#define vtkUnsignedCharArray_cxx
 #include "vtkUnsignedCharArray.h"
 
 #include "vtkObjectFactory.h"

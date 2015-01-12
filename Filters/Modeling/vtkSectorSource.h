@@ -21,8 +21,8 @@ PURPOSE.  See the above copyright notice for more information.
 // .SECTION See Also
 // vtkLinearExtrusionFilter
 
-#ifndef __vtkSectorSource_h
-#define __vtkSectorSource_h
+#ifndef vtkSectorSource_h
+#define vtkSectorSource_h
 
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

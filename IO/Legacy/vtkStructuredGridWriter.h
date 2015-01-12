@@ -20,8 +20,8 @@
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.
 
-#ifndef __vtkStructuredGridWriter_h
-#define __vtkStructuredGridWriter_h
+#ifndef vtkStructuredGridWriter_h
+#define vtkStructuredGridWriter_h
 
 #include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataWriter.h"

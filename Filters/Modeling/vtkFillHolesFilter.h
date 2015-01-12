@@ -32,8 +32,8 @@
 // Note this filter only operates on polygons and triangle strips.
 // Vertices and polylines are passed through untouched.
 
-#ifndef __vtkFillHolesFilter_h
-#define __vtkFillHolesFilter_h
+#ifndef vtkFillHolesFilter_h
+#define vtkFillHolesFilter_h
 
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

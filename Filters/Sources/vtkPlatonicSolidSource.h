@@ -20,8 +20,8 @@
 // To use this class, simply specify the solid to create. Note that this
 // source object creates cell scalars that are (integral value) face numbers.
 
-#ifndef __vtkPlatonicSolidSource_h
-#define __vtkPlatonicSolidSource_h
+#ifndef vtkPlatonicSolidSource_h
+#define vtkPlatonicSolidSource_h
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

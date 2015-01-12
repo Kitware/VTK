@@ -15,8 +15,8 @@
 // .NAME vtkDisplayListPainter - abstract superclass for painter that
 // builds/uses display lists.
 
-#ifndef __vtkDisplayListPainter_h
-#define __vtkDisplayListPainter_h
+#ifndef vtkDisplayListPainter_h
+#define vtkDisplayListPainter_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkPainter.h"

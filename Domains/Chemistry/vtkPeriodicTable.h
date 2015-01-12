@@ -20,8 +20,8 @@
 // .SECTION See Also
 // vtkBlueObeliskData vtkBlueObeliskDataParser
 
-#ifndef __vtkPeriodicTable_h
-#define __vtkPeriodicTable_h
+#ifndef vtkPeriodicTable_h
+#define vtkPeriodicTable_h
 
 #include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkObject.h"

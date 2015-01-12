@@ -38,8 +38,8 @@
 // .SECTION See also
 //  vtkCompositeDataSet
 
-#ifndef __vtkCompositeDataPipeline_h
-#define __vtkCompositeDataPipeline_h
+#ifndef vtkCompositeDataPipeline_h
+#define vtkCompositeDataPipeline_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkStreamingDemandDrivenPipeline.h"

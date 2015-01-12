@@ -19,8 +19,8 @@
 // 3D surface plot.
 //
 
-#ifndef __vtkPlotSurface_h
-#define __vtkPlotSurface_h
+#ifndef vtkPlotSurface_h
+#define vtkPlotSurface_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkNew.h"              //  For vtkNew ivar
@@ -149,4 +149,4 @@ private:
 //ETX
 };
 
-#endif //__vtkPlotSurface_h
+#endif //vtkPlotSurface_h

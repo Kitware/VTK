@@ -15,8 +15,8 @@
 // .NAME vtkX3DExporterJavaHelper - create an x3d file
 // .SECTION Description
 
-#ifndef __vtkX3DExporterJavaHelper_h
-#define __vtkX3DExporterJavaHelper_h
+#ifndef vtkX3DExporterJavaHelper_h
+#define vtkX3DExporterJavaHelper_h
 
 #include "vtkIOExportModule.h" // For export macro
 #include "vtkObject.h"

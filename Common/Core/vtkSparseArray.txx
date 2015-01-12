@@ -19,8 +19,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkSparseArray_txx
-#define __vtkSparseArray_txx
+#ifndef vtkSparseArray_txx
+#define vtkSparseArray_txx
 
 #include <algorithm>
 #include <limits>

@@ -20,8 +20,8 @@
 // .SECTION See Also
 // vtkPointPlacer vtkHandleWidget vtkHandleRepresentation
 
-#ifndef __vtkBoundedPlanePointPlacer_h
-#define __vtkBoundedPlanePointPlacer_h
+#ifndef vtkBoundedPlanePointPlacer_h
+#define vtkBoundedPlanePointPlacer_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPointPlacer.h"

@@ -41,8 +41,8 @@
 // .SECTION See Also
 // vtkLocator vtkPointLocator vtkCellLocator vtkOBBTree
 
-#ifndef __vtkSpatialRepresentationFilter_h
-#define __vtkSpatialRepresentationFilter_h
+#ifndef vtkSpatialRepresentationFilter_h
+#define vtkSpatialRepresentationFilter_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"

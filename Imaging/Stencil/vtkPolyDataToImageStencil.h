@@ -56,8 +56,8 @@ POSSIBILITY OF SUCH DAMAGES.
 // .SECTION See Also
 // vtkImageStencil vtkImageAccumulate vtkImageBlend vtkImageReslice
 
-#ifndef __vtkPolyDataToImageStencil_h
-#define __vtkPolyDataToImageStencil_h
+#ifndef vtkPolyDataToImageStencil_h
+#define vtkPolyDataToImageStencil_h
 
 #include "vtkImagingStencilModule.h" // For export macro
 #include "vtkImageStencilSource.h"

@@ -37,8 +37,8 @@
 // iter->Delete();
 // \endcode
 
-#ifndef __vtkArrayIterator_h
-#define __vtkArrayIterator_h
+#ifndef vtkArrayIterator_h
+#define vtkArrayIterator_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"

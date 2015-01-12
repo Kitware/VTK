@@ -24,8 +24,8 @@
 // method that by default says that all inputs will be UnstructuredGridBase. If
 // that isn't the case then please override this method in your subclass.
 
-#ifndef __vtkUnstructuredGridBaseAlgorithm_h
-#define __vtkUnstructuredGridBaseAlgorithm_h
+#ifndef vtkUnstructuredGridBaseAlgorithm_h
+#define vtkUnstructuredGridBaseAlgorithm_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"

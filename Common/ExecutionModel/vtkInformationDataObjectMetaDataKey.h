@@ -17,8 +17,8 @@
 // that (shallow) copies itself downstream during the REQUEST_INFORMATION pass. Hence
 // it can be used to provide meta-data of type vtkDataObject or any subclass.
 
-#ifndef __vtkInformationDataObjectMetaDataKey_h
-#define __vtkInformationDataObjectMetaDataKey_h
+#ifndef vtkInformationDataObjectMetaDataKey_h
+#define vtkInformationDataObjectMetaDataKey_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkInformationDataObjectKey.h"

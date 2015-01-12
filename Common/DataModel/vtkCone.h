@@ -25,8 +25,8 @@
 // The cone is infinite in extent. To truncate the cone use the
 // vtkImplicitBoolean in combination with clipping planes.
 
-#ifndef __vtkCone_h
-#define __vtkCone_h
+#ifndef vtkCone_h
+#define vtkCone_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"

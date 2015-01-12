@@ -34,8 +34,8 @@
 // .SECTION Thanks
 // Thanks to Jason Shepherd for implementing this class
 
-#ifndef __vtkTreeAreaView_h
-#define __vtkTreeAreaView_h
+#ifndef vtkTreeAreaView_h
+#define vtkTreeAreaView_h
 
 #include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkRenderView.h"

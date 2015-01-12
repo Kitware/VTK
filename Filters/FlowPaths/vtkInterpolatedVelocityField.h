@@ -48,8 +48,8 @@
 //  vtkGenericInterpolatedVelocityField vtkCachingInterpolatedVelocityField
 //  vtkTemporalInterpolatedVelocityField vtkFunctionSet vtkStreamer vtkStreamTracer
 
-#ifndef __vtkInterpolatedVelocityField_h
-#define __vtkInterpolatedVelocityField_h
+#ifndef vtkInterpolatedVelocityField_h
+#define vtkInterpolatedVelocityField_h
 
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkCompositeInterpolatedVelocityField.h"

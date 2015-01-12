@@ -42,8 +42,8 @@
 // .SECTION See Also
 // vtkParallelCoordinatesActor vtkXYPlotActor2D
 
-#ifndef __vtkSpiderPlotActor_h
-#define __vtkSpiderPlotActor_h
+#ifndef vtkSpiderPlotActor_h
+#define vtkSpiderPlotActor_h
 
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"

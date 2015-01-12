@@ -1,5 +1,5 @@
-#ifndef __vtkStreamedCompositeSources_h
-#define __vtkStreamedCompositeSources_h
+#ifndef vtkStreamedCompositeSources_h
+#define vtkStreamedCompositeSources_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkStreamedCompositeDataPipeline.h"

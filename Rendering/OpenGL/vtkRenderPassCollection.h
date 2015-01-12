@@ -21,8 +21,8 @@
 // .SECTION see also
 // vtkRenderPass vtkCollection
 
-#ifndef __vtkRenderPassCollection_h
-#define __vtkRenderPassCollection_h
+#ifndef vtkRenderPassCollection_h
+#define vtkRenderPassCollection_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkCollection.h"

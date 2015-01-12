@@ -25,8 +25,8 @@
 // "Time Dependent Processing in a Parallel Pipeline Architecture",
 // IEEE Visualization 2007.
 
-#ifndef __vtkTemporalDataSetCache_h
-#define __vtkTemporalDataSetCache_h
+#ifndef vtkTemporalDataSetCache_h
+#define vtkTemporalDataSetCache_h
 
 #include "vtkFiltersHybridModule.h" // For export macro
 

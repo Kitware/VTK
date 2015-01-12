@@ -16,8 +16,8 @@
 // .SECTION Description
 // This filter uses LANL's Piston library to isocontour on the GPU.
 
-#ifndef __vtkPistonThreshold_h
-#define __vtkPistonThreshold_h
+#ifndef vtkPistonThreshold_h
+#define vtkPistonThreshold_h
 
 #include "vtkPistonAlgorithm.h"
 

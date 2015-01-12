@@ -17,8 +17,8 @@
 // vtkInformationVariantVectorKey is used to represent keys for variant
 // vector values in vtkInformation.h
 
-#ifndef __vtkInformationVariantVectorKey_h
-#define __vtkInformationVariantVectorKey_h
+#ifndef vtkInformationVariantVectorKey_h
+#define vtkInformationVariantVectorKey_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkInformationKey.h"

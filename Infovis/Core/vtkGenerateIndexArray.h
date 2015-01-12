@@ -40,8 +40,8 @@
 // from an array with arbitrary contents to an index that can
 // be used as tensor coordinates.
 
-#ifndef __vtkGenerateIndexArray_h
-#define __vtkGenerateIndexArray_h
+#ifndef vtkGenerateIndexArray_h
+#define vtkGenerateIndexArray_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"

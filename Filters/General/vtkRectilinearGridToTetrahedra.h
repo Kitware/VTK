@@ -40,8 +40,8 @@
 // .SECTION See Also
 //    vtkDelaunay3D
 
-#ifndef __vtkRectilinearGridToTetrahedra_h
-#define __vtkRectilinearGridToTetrahedra_h
+#ifndef vtkRectilinearGridToTetrahedra_h
+#define vtkRectilinearGridToTetrahedra_h
 
 // ways to create the mesh from voxels
 #define VTK_VOXEL_TO_12_TET      12
@@ -152,5 +152,5 @@ protected:
 //ETX
 };
 
-#endif /* __vtkRectilinearGridToTetrahedra_h */
+#endif /* vtkRectilinearGridToTetrahedra_h */
 

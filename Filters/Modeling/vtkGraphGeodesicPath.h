@@ -18,8 +18,8 @@
 // polygonal dataset treating it as a graph. ie points connecting the
 // vertices of the graph
 
-#ifndef __vtkGraphGeodesicPath_h
-#define __vtkGraphGeodesicPath_h
+#ifndef vtkGraphGeodesicPath_h
+#define vtkGraphGeodesicPath_h
 
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkGeodesicPath.h"

@@ -23,8 +23,8 @@
 // vtkExtractGrid vtkImageClip vtkGeometryFilter vtkExtractGeometry vtkExtractVOI
 // vtkStructuredGridGeometryFilter
 
-#ifndef __vtkExtractRectilinearGrid_h
-#define __vtkExtractRectilinearGrid_h
+#ifndef vtkExtractRectilinearGrid_h
+#define vtkExtractRectilinearGrid_h
 
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkRectilinearGridAlgorithm.h"

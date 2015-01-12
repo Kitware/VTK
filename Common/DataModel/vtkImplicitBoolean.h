@@ -29,8 +29,8 @@
 // VTK_UNION_OF_MAGNITUDES takes the minimum absolute value of the
 // implicit functions.
 
-#ifndef __vtkImplicitBoolean_h
-#define __vtkImplicitBoolean_h
+#ifndef vtkImplicitBoolean_h
+#define vtkImplicitBoolean_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"

@@ -24,8 +24,8 @@
 // .SECTION See Also
 // vtkAnimationCue
 
-#ifndef __vtkAnimationScene_h
-#define __vtkAnimationScene_h
+#ifndef vtkAnimationScene_h
+#define vtkAnimationScene_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkAnimationCue.h"

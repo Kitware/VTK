@@ -25,8 +25,8 @@
 // of the graph have already been filled (perhaps by vtkGraphLayout).
 // The vertex data is passed along to the point data.
 
-#ifndef __vtkGraphToPoints_h
-#define __vtkGraphToPoints_h
+#ifndef vtkGraphToPoints_h
+#define vtkGraphToPoints_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

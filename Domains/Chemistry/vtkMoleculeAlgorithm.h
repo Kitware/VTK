@@ -27,8 +27,8 @@
 // then please override this method in your subclass. You should implement
 // the subclass's algorithm into RequestData( request, inputVec, outputVec).
 
-#ifndef __vtkMoleculeAlgorithm_h
-#define __vtkMoleculeAlgorithm_h
+#ifndef vtkMoleculeAlgorithm_h
+#define vtkMoleculeAlgorithm_h
 
 #include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkAlgorithm.h"

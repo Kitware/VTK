@@ -68,8 +68,8 @@
 // you'll want to send a manual Modified() method to the filter to force it
 // to reexecute.
 
-#ifndef __vtkProgrammableAttributeDataFilter_h
-#define __vtkProgrammableAttributeDataFilter_h
+#ifndef vtkProgrammableAttributeDataFilter_h
+#define vtkProgrammableAttributeDataFilter_h
 
 #include "vtkFiltersProgrammableModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

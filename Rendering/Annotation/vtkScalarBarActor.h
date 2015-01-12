@@ -50,8 +50,8 @@
 // .SECTION See Also
 // vtkActor2D vtkTextProperty vtkTextMapper vtkPolyDataMapper2D
 
-#ifndef __vtkScalarBarActor_h
-#define __vtkScalarBarActor_h
+#ifndef vtkScalarBarActor_h
+#define vtkScalarBarActor_h
 
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"

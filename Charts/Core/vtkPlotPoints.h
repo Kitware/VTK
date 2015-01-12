@@ -24,8 +24,8 @@
 // .SECTION See Also
 // vtkPlotLine
 
-#ifndef __vtkPlotPoints_h
-#define __vtkPlotPoints_h
+#ifndef vtkPlotPoints_h
+#define vtkPlotPoints_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlot.h"
@@ -244,4 +244,4 @@ private:
 //ETX
 };
 
-#endif //__vtkPlotPoints_h
+#endif //vtkPlotPoints_h

@@ -16,8 +16,8 @@
 // .SECTION Description
 // vtkImageLuminance calculates luminance from an rgb input.
 
-#ifndef __vtkImageLuminance_h
-#define __vtkImageLuminance_h
+#ifndef vtkImageLuminance_h
+#define vtkImageLuminance_h
 
 
 #include "vtkImagingColorModule.h" // For export macro

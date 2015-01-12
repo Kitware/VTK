@@ -16,8 +16,8 @@
 // .SECTION Description
 // vtkWebGLExporter export the data of the scene to be used in the WebGL.
 
-#ifndef __vtkWebGLExporter_h
-#define __vtkWebGLExporter_h
+#ifndef vtkWebGLExporter_h
+#define vtkWebGLExporter_h
 
 class vtkActor;
 class vtkActor2D;

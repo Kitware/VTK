@@ -57,8 +57,8 @@
 // <li> Otherwise it will be glyphed with the default icon.
 // </ol>
 
-#ifndef __vtkApplyIcons_h
-#define __vtkApplyIcons_h
+#ifndef vtkApplyIcons_h
+#define vtkApplyIcons_h
 
 #include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"

@@ -22,8 +22,8 @@
 // should use a vtkLineSource followed by a vtkTubeFilter instead of the
 // vtkCylinderSource.
 
-#ifndef __vtkCylinderSource_h
-#define __vtkCylinderSource_h
+#ifndef vtkCylinderSource_h
+#define vtkCylinderSource_h
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

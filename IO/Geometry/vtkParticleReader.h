@@ -28,8 +28,8 @@
 //  pieces is supported.
 //
 
-#ifndef __vtkParticleReader_h
-#define __vtkParticleReader_h
+#ifndef vtkParticleReader_h
+#define vtkParticleReader_h
 
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

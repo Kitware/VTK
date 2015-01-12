@@ -17,8 +17,8 @@
 // vtkDataSetCollection is an object that creates and manipulates lists of
 // datasets. See also vtkCollection and subclasses.
 
-#ifndef __vtkDataSetCollection_h
-#define __vtkDataSetCollection_h
+#ifndef vtkDataSetCollection_h
+#define vtkDataSetCollection_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCollection.h"

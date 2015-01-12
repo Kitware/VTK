@@ -21,8 +21,8 @@
 // .SECTION See Also
 // vtkContourLineInterpolator
 
-#ifndef __vtkBezierContourLineInterpolator_h
-#define __vtkBezierContourLineInterpolator_h
+#ifndef vtkBezierContourLineInterpolator_h
+#define vtkBezierContourLineInterpolator_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkContourLineInterpolator.h"

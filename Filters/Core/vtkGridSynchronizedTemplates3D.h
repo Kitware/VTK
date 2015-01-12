@@ -24,8 +24,8 @@
 // .SECTION See Also
 // vtkContourFilter vtkSynchronizedTemplates3D
 
-#ifndef __vtkGridSynchronizedTemplates3D_h
-#define __vtkGridSynchronizedTemplates3D_h
+#ifndef vtkGridSynchronizedTemplates3D_h
+#define vtkGridSynchronizedTemplates3D_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

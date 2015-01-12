@@ -18,8 +18,8 @@
 // a mirror image of the original image (mirror at image boundaries).
 
 
-#ifndef __vtkImageMirrorPad_h
-#define __vtkImageMirrorPad_h
+#ifndef vtkImageMirrorPad_h
+#define vtkImageMirrorPad_h
 
 
 #include "vtkImagingCoreModule.h" // For export macro

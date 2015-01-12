@@ -27,8 +27,8 @@
 // .SECTION See Also
 // vtkSpline vtkKochanekSpline
 
-#ifndef __vtkSCurveSpline_h
-#define __vtkSCurveSpline_h
+#ifndef vtkSCurveSpline_h
+#define vtkSCurveSpline_h
 
 #include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkSpline.h"

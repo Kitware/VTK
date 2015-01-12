@@ -19,8 +19,8 @@
 // .SECTION Description
 // This vtkContextItem draws the supplied image in the scene.
 
-#ifndef __vtkImageItem_h
-#define __vtkImageItem_h
+#ifndef vtkImageItem_h
+#define vtkImageItem_h
 
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkContextItem.h"
@@ -71,4 +71,4 @@ private:
 //ETX
 };
 
-#endif //__vtkImageItem_h
+#endif //vtkImageItem_h

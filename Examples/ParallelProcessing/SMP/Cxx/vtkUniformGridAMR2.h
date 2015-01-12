@@ -19,8 +19,8 @@
 // vtkUniformGrid.
 
 
-#ifndef __vtkUniformGridAMR2_h
-#define __vtkUniformGridAMR2_h
+#ifndef vtkUniformGridAMR2_h
+#define vtkUniformGridAMR2_h
 
 #include "vtkCompositeDataSet.h"
 

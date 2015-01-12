@@ -27,8 +27,8 @@
 // if it was pushed in before the N-th location was even taken up for encoding
 // by the a thread in the thread pool.
 
-#ifndef __vtkDataEncoder_h
-#define __vtkDataEncoder_h
+#ifndef vtkDataEncoder_h
+#define vtkDataEncoder_h
 
 #include "vtkObject.h"
 #include "vtkWebCoreModule.h" // needed for exports

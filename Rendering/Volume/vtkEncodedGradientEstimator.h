@@ -28,8 +28,8 @@
 // .SECTION see also
 // vtkFiniteDifferenceGradientEstimator vtkDirectionEncoder
 
-#ifndef __vtkEncodedGradientEstimator_h
-#define __vtkEncodedGradientEstimator_h
+#ifndef vtkEncodedGradientEstimator_h
+#define vtkEncodedGradientEstimator_h
 
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkObject.h"

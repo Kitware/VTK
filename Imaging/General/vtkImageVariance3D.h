@@ -22,8 +22,8 @@
 // the total number of neighbors to produce the output value.
 
 
-#ifndef __vtkImageVariance3D_h
-#define __vtkImageVariance3D_h
+#ifndef vtkImageVariance3D_h
+#define vtkImageVariance3D_h
 
 
 #include "vtkImagingGeneralModule.h" // For export macro

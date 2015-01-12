@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkImageSlabReslice vtkResliceCursorLineRepresentation vtkResliceCursorWidget
 
-#ifndef __vtkResliceCursorThickLineRepresentation_h
-#define __vtkResliceCursorThickLineRepresentation_h
+#ifndef vtkResliceCursorThickLineRepresentation_h
+#define vtkResliceCursorThickLineRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkResliceCursorLineRepresentation.h"

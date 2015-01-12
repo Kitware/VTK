@@ -21,8 +21,8 @@
 // produce M blocks, each of which has N datasets. Inside the merged group,
 // the i'th data set comes from the i'th data set in the i'th input.
 
-#ifndef __vtkMultiBlockMergeFilter_h
-#define __vtkMultiBlockMergeFilter_h
+#ifndef vtkMultiBlockMergeFilter_h
+#define vtkMultiBlockMergeFilter_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"

@@ -39,8 +39,8 @@
 // Year: 2006
 //
 
-#ifndef __vtkCirclePackFrontChainLayoutStrategy_h
-#define __vtkCirclePackFrontChainLayoutStrategy_h
+#ifndef vtkCirclePackFrontChainLayoutStrategy_h
+#define vtkCirclePackFrontChainLayoutStrategy_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkCirclePackLayoutStrategy.h"

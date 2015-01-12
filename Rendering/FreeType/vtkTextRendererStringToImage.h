@@ -16,8 +16,8 @@
 // .NAME vtkTextRendererStringToImage - uses vtkTextRenderer to render the
 // supplied text to an image.
 
-#ifndef __vtkTextRendererStringToImage_h
-#define __vtkTextRendererStringToImage_h
+#ifndef vtkTextRendererStringToImage_h
+#define vtkTextRendererStringToImage_h
 
 #include "vtkRenderingFreeTypeModule.h" // For export macro
 #include "vtkStringToImage.h"
@@ -84,4 +84,4 @@ private:
   void operator=(const vtkTextRendererStringToImage &);   // Not implemented.
 };
 
-#endif //__vtkTextRendererStringToImage_h
+#endif //vtkTextRendererStringToImage_h

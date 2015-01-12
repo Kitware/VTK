@@ -17,8 +17,8 @@
 // vtkInformationUnsignedLongKey is used to represent keys for unsigned long values
 // in vtkInformation.
 
-#ifndef __vtkInformationUnsignedLongKey_h
-#define __vtkInformationUnsignedLongKey_h
+#ifndef vtkInformationUnsignedLongKey_h
+#define vtkInformationUnsignedLongKey_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkInformationKey.h"

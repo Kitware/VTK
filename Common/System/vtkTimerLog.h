@@ -22,8 +22,8 @@
 // time, and to start/stop a simple timer separate from the timing
 // table logging.
 
-#ifndef __vtkTimerLog_h
-#define __vtkTimerLog_h
+#ifndef vtkTimerLog_h
+#define vtkTimerLog_h
 
 #include "vtkCommonSystemModule.h" // For export macro
 #include "vtkObject.h"

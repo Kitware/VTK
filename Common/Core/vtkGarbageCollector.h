@@ -73,8 +73,8 @@
 // If subclassing from a class that already supports garbage
 // collection, one need only provide the ReportReferences method.
 
-#ifndef __vtkGarbageCollector_h
-#define __vtkGarbageCollector_h
+#ifndef vtkGarbageCollector_h
+#define vtkGarbageCollector_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"

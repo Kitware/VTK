@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtkMultiBlockPLOT3DReaderInternals_h
-#define __vtkMultiBlockPLOT3DReaderInternals_h
+#ifndef vtkMultiBlockPLOT3DReaderInternals_h
+#define vtkMultiBlockPLOT3DReaderInternals_h
 
 #include "vtkByteSwap.h"
 #include "vtkMultiBlockPLOT3DReader.h"

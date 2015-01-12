@@ -18,8 +18,8 @@
 // This is OpenGL implementation of a painter handling representation
 // i.e. Points, Wireframe, Surface.
 
-#ifndef __vtkOpenGLRepresentationPainter_h
-#define __vtkOpenGLRepresentationPainter_h
+#ifndef vtkOpenGLRepresentationPainter_h
+#define vtkOpenGLRepresentationPainter_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkRepresentationPainter.h"

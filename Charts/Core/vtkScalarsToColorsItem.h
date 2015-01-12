@@ -24,8 +24,8 @@
 // vtkCompositeTransferFunctionItem
 // vtkPiecewiseItemFunctionItem
 
-#ifndef __vtkScalarsToColorsItem_h
-#define __vtkScalarsToColorsItem_h
+#ifndef vtkScalarsToColorsItem_h
+#define vtkScalarsToColorsItem_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlot.h"

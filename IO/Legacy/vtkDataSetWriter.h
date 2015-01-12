@@ -18,8 +18,8 @@
 // data to disk (or into a communications port). The input to this object is
 // a dataset of any type.
 
-#ifndef __vtkDataSetWriter_h
-#define __vtkDataSetWriter_h
+#ifndef vtkDataSetWriter_h
+#define vtkDataSetWriter_h
 
 #include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataWriter.h"

@@ -24,8 +24,8 @@
 // can be used directly instead.
 
 
-#ifndef __vtkTransmitImageDataPiece_h
-#define __vtkTransmitImageDataPiece_h
+#ifndef vtkTransmitImageDataPiece_h
+#define vtkTransmitImageDataPiece_h
 
 #include "vtkFiltersParallelImagingModule.h" // For export macro
 #include "vtkTransmitStructuredDataPiece.h"

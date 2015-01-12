@@ -21,8 +21,8 @@
 // memory layout. Use the vtkCPExodusIIInSituReader to read an Exodus II file's
 // data into this structure.
 
-#ifndef __vtkCPExodusIIElementBlock_h
-#define __vtkCPExodusIIElementBlock_h
+#ifndef vtkCPExodusIIElementBlock_h
+#define vtkCPExodusIIElementBlock_h
 
 #include "vtkObject.h"
 #include "vtkIOExodusModule.h" // For export macro
@@ -110,4 +110,4 @@ vtkMakeExportedMappedUnstructuredGrid(vtkCPExodusIIElementBlock,
                                       vtkCPExodusIIElementBlockImpl,
                                       VTKIOEXODUS_EXPORT)
 
-#endif //__vtkCPExodusIIElementBlock_h
+#endif //vtkCPExodusIIElementBlock_h

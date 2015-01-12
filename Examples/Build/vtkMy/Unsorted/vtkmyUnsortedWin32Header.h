@@ -17,8 +17,8 @@
 // The vtkmyUnsortedWin32Header captures some system differences between Unix
 // and Windows operating systems.
 
-#ifndef __vtkmyUnsortedWin32Header_h
-#define __vtkmyUnsortedWin32Header_h
+#ifndef vtkmyUnsortedWin32Header_h
+#define vtkmyUnsortedWin32Header_h
 
 #include <vtkmyConfigure.h>
 

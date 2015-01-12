@@ -24,8 +24,8 @@
 // .SECTION See Also
 // vtkXMLPPolyDataWriter
 
-#ifndef __vtkXMLPolyDataWriter_h
-#define __vtkXMLPolyDataWriter_h
+#ifndef vtkXMLPolyDataWriter_h
+#define vtkXMLPolyDataWriter_h
 
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLUnstructuredDataWriter.h"

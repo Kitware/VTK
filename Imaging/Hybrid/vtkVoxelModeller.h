@@ -25,8 +25,8 @@
 // .SECTION see also
 // vtkImplicitModeller
 
-#ifndef __vtkVoxelModeller_h
-#define __vtkVoxelModeller_h
+#ifndef vtkVoxelModeller_h
+#define vtkVoxelModeller_h
 
 #include "vtkImagingHybridModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

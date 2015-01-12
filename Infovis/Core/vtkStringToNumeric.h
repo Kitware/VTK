@@ -23,8 +23,8 @@
 // vtkStringToNumeric is a filter for converting a string array
 // into a numeric arrays.
 
-#ifndef __vtkStringToNumeric_h
-#define __vtkStringToNumeric_h
+#ifndef vtkStringToNumeric_h
+#define vtkStringToNumeric_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"

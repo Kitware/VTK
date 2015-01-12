@@ -21,8 +21,8 @@
 // the vtkCPExodusIIInSituReader to read an Exodus II file's data into this
 // structure.
 
-#ifndef __vtkCPExodusIIResultsArrayTemplate_h
-#define __vtkCPExodusIIResultsArrayTemplate_h
+#ifndef vtkCPExodusIIResultsArrayTemplate_h
+#define vtkCPExodusIIResultsArrayTemplate_h
 
 #include "vtkMappedDataArray.h"
 
@@ -120,6 +120,6 @@ private:
 
 #include "vtkCPExodusIIResultsArrayTemplate.txx"
 
-#endif //__vtkCPExodusIIResultsArrayTemplate_h
+#endif //vtkCPExodusIIResultsArrayTemplate_h
 
 // VTK-HeaderTest-Exclude: vtkCPExodusIIResultsArrayTemplate.h

@@ -11,8 +11,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtkAbstractInteractionDevice_h
-#define __vtkAbstractInteractionDevice_h
+#ifndef vtkAbstractInteractionDevice_h
+#define vtkAbstractInteractionDevice_h
 
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro

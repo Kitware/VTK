@@ -21,8 +21,8 @@
 // .SECTION See Also
 // vtkTransform
 
-#ifndef __vtkMatrix4x4_h
-#define __vtkMatrix4x4_h
+#ifndef vtkMatrix4x4_h
+#define vtkMatrix4x4_h
 
 #include "vtkCommonMathModule.h" // For export macro
 #include "vtkObject.h"

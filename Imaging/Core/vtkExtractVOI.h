@@ -33,8 +33,8 @@
 // .SECTION See Also
 // vtkGeometryFilter vtkExtractGeometry vtkExtractGrid
 
-#ifndef __vtkExtractVOI_h
-#define __vtkExtractVOI_h
+#ifndef vtkExtractVOI_h
+#define vtkExtractVOI_h
 
 #include "vtkImagingCoreModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

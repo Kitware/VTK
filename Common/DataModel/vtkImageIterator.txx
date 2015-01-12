@@ -15,8 +15,8 @@
 // Include blockers needed since vtkImageIterator.h includes this file
 // when VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION is defined.
 
-#ifndef __vtkImageIterator_txx
-#define __vtkImageIterator_txx
+#ifndef vtkImageIterator_txx
+#define vtkImageIterator_txx
 
 #include "vtkImageIterator.h"
 #include "vtkImageData.h"

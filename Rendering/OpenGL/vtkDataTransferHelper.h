@@ -25,8 +25,8 @@
 // .SECTION see also
 //  vtkPixelBufferObject vtkTextureObject vtkOpenGLExtensionManager
 
-#ifndef __vtkDataTransferHelper_h
-#define __vtkDataTransferHelper_h
+#ifndef vtkDataTransferHelper_h
+#define vtkDataTransferHelper_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkObject.h"

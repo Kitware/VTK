@@ -18,8 +18,8 @@
 // This painter must typically be placed before the painter that
 // do the primitive rendering.
 
-#ifndef __vtkOpenGLClipPlanesPainter_h
-#define __vtkOpenGLClipPlanesPainter_h
+#ifndef vtkOpenGLClipPlanesPainter_h
+#define vtkOpenGLClipPlanesPainter_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkClipPlanesPainter.h"

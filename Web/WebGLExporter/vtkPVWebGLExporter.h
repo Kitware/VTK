@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtkPVWebGLExporter_h
-#define __vtkPVWebGLExporter_h
+#ifndef vtkPVWebGLExporter_h
+#define vtkPVWebGLExporter_h
 
 #include "vtkExporter.h"
 #include "vtkWebGLExporterModule.h" // needed for export macro

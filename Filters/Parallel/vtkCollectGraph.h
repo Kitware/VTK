@@ -22,8 +22,8 @@
 // Collection can be turned on or off using the "PassThrough" flag.
 
 
-#ifndef __vtkCollectGraph_h
-#define __vtkCollectGraph_h
+#ifndef vtkCollectGraph_h
+#define vtkCollectGraph_h
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"

@@ -14,8 +14,8 @@
 // .NAME vtkShaderProgram - a glsl shader program
 // .SECTION Description
 // This class contains the vertex, fragment, geometry shaders that combine to make a shader program
-#ifndef __vtkShaderProgram_h
-#define __vtkShaderProgram_h
+#ifndef vtkShaderProgram_h
+#define vtkShaderProgram_h
 
 #include "vtkRenderingOpenGL2Module.h" // for export macro
 #include "vtkObject.h"

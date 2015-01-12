@@ -33,8 +33,8 @@
 //   * ds 1
 // @endverbatim
 
-#ifndef __vtkMultiBlockDataSet_h
-#define __vtkMultiBlockDataSet_h
+#ifndef vtkMultiBlockDataSet_h
+#define vtkMultiBlockDataSet_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObjectTree.h"

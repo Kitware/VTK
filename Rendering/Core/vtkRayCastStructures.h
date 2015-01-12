@@ -21,8 +21,8 @@
 // .SECTION See Also
 // vtkRayCaster
 
-#ifndef __vtkRayCastStructures_h
-#define __vtkRayCastStructures_h
+#ifndef vtkRayCastStructures_h
+#define vtkRayCastStructures_h
 
 typedef struct
 {

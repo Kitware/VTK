@@ -29,8 +29,8 @@
 // Andrew Maclean andrew.amaclean@gmail.com for creating and contributing the
 // class.
 //
-#ifndef __vtkParametricEllipsoid_h
-#define __vtkParametricEllipsoid_h
+#ifndef vtkParametricEllipsoid_h
+#define vtkParametricEllipsoid_h
 
 #include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkParametricFunction.h"

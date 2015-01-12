@@ -23,8 +23,8 @@
 // Removes a subtree rooted at a particular vertex in a vtkTree.
 //
 
-#ifndef __vtkPruneTreeFilter_h
-#define __vtkPruneTreeFilter_h
+#ifndef vtkPruneTreeFilter_h
+#define vtkPruneTreeFilter_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkTreeAlgorithm.h"

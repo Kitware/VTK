@@ -22,8 +22,8 @@
 // .SECTION See Also
 // vtkCommand
 
-#ifndef __vtkEventForwarderCommand_h
-#define __vtkEventForwarderCommand_h
+#ifndef vtkEventForwarderCommand_h
+#define vtkEventForwarderCommand_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkCommand.h"
@@ -59,6 +59,6 @@ protected:
   ~vtkEventForwarderCommand() {}
 };
 
-#endif /* __vtkEventForwarderCommand_h */
+#endif /* vtkEventForwarderCommand_h */
 
 // VTK-HeaderTest-Exclude: vtkEventForwarderCommand.h

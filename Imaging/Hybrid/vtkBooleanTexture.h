@@ -38,8 +38,8 @@
 // .SECTION See Also
 // vtkImplicitTextureCoords vtkThresholdTextureCoords
 
-#ifndef __vtkBooleanTexture_h
-#define __vtkBooleanTexture_h
+#ifndef vtkBooleanTexture_h
+#define vtkBooleanTexture_h
 
 #include "vtkImagingHybridModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

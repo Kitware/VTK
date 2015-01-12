@@ -17,8 +17,8 @@
 // it using multiple threads. This will probably be merged with vtkContourGrid
 // in the future.
 
-#ifndef __vtkSMPContourGrid_h
-#define __vtkSMPContourGrid_h
+#ifndef vtkSMPContourGrid_h
+#define vtkSMPContourGrid_h
 
 #include "vtkFiltersSMPModule.h" // For export macro
 #include "vtkContourGrid.h"

@@ -37,8 +37,8 @@
 // vtkGenericProbeFilter vtkProbeFilter vtkGenericDataSet
 
 
-#ifndef __vtkGenericProbeFilter_h
-#define __vtkGenericProbeFilter_h
+#ifndef vtkGenericProbeFilter_h
+#define vtkGenericProbeFilter_h
 
 #include "vtkFiltersGenericModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

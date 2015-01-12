@@ -22,8 +22,8 @@
 // DON'T PLAY WITH IT YET.
 // .SECTION See Also
 // vtkFrameBufferObject2, vtkRenderbufferObject
-#ifndef __vtkFrameBufferObject_h
-#define __vtkFrameBufferObject_h
+#ifndef vtkFrameBufferObject_h
+#define vtkFrameBufferObject_h
 
 #include "vtkObject.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro

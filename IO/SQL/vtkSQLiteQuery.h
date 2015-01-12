@@ -38,8 +38,8 @@
 // .SECTION See Also
 // vtkSQLDatabase vtkSQLQuery vtkSQLiteDatabase
 
-#ifndef __vtkSQLiteQuery_h
-#define __vtkSQLiteQuery_h
+#ifndef vtkSQLiteQuery_h
+#define vtkSQLiteQuery_h
 
 #include "vtkIOSQLModule.h" // For export macro
 #include "vtkSQLQuery.h"
@@ -172,5 +172,5 @@ private:
 
 };
 
-#endif // __vtkSQLiteQuery_h
+#endif // vtkSQLiteQuery_h
 

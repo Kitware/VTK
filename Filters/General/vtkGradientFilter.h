@@ -30,8 +30,8 @@
 // dw/dy, dw/dz} for an input array {u, v, w}. There are also the options
 // to additionally compute the vorticity and Q criterion of a vector field.
 
-#ifndef __vtkGradientFilter_h
-#define __vtkGradientFilter_h
+#ifndef vtkGradientFilter_h
+#define vtkGradientFilter_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

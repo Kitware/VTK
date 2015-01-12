@@ -40,8 +40,8 @@
 // .SECTION See Also
 // vtkApproximatingSubdivisionFilter
 
-#ifndef __vtkLoopSubdivisionFilter_h
-#define __vtkLoopSubdivisionFilter_h
+#ifndef vtkLoopSubdivisionFilter_h
+#define vtkLoopSubdivisionFilter_h
 
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkApproximatingSubdivisionFilter.h"

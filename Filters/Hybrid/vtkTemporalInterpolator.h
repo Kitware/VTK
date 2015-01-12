@@ -49,8 +49,8 @@
 // "Time Dependent Processing in a Parallel Pipeline Architecture",
 // IEEE Visualization 2007.
 
-#ifndef __vtkTemporalInterpolator_h
-#define __vtkTemporalInterpolator_h
+#ifndef vtkTemporalInterpolator_h
+#define vtkTemporalInterpolator_h
 
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkMultiTimeStepAlgorithm.h"

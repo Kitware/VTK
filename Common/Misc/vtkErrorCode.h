@@ -17,8 +17,8 @@
 // vtkErrorCode is an mechanism for (currently) reader object to
 // return errors during reading file.
 
-#ifndef __vtkErrorCode_h
-#define __vtkErrorCode_h
+#ifndef vtkErrorCode_h
+#define vtkErrorCode_h
 #include "vtkCommonMiscModule.h" // For export macro
 #include "vtkSystemIncludes.h"
 
@@ -51,6 +51,6 @@ public:
 //ETX
 };
 
-#endif /* __vtkErrorCode_h */
+#endif /* vtkErrorCode_h */
 
 // VTK-HeaderTest-Exclude: vtkErrorCode.h

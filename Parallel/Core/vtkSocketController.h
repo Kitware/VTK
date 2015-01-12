@@ -35,8 +35,8 @@
 // .SECTION see also
 // vtkMultiProcessController vtkSocketCommunicator vtkInputPort vtkOutputPort
 
-#ifndef __vtkSocketController_h
-#define __vtkSocketController_h
+#ifndef vtkSocketController_h
+#define vtkSocketController_h
 
 #include "vtkParallelCoreModule.h" // For export macro
 #include "vtkMultiProcessController.h"
@@ -131,4 +131,4 @@ private:
 };
 
 
-#endif // __vtkSocketController_h
+#endif // vtkSocketController_h

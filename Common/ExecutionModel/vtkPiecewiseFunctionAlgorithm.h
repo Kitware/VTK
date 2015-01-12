@@ -27,8 +27,8 @@
 // You should implement the subclass's algorithm into
 // RequestData( request, inputVec, outputVec).
 
-#ifndef __vtkPiecewiseFunctionAlgorithm_h
-#define __vtkPiecewiseFunctionAlgorithm_h
+#ifndef vtkPiecewiseFunctionAlgorithm_h
+#define vtkPiecewiseFunctionAlgorithm_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"

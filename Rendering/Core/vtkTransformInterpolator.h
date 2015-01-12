@@ -44,8 +44,8 @@
 // best performance is obtained by 1) configuring the interpolators, 2) adding
 // all the transforms, and 3) finally performing interpolation.
 
-#ifndef __vtkTransformInterpolator_h
-#define __vtkTransformInterpolator_h
+#ifndef vtkTransformInterpolator_h
+#define vtkTransformInterpolator_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"

@@ -23,8 +23,8 @@
 // overlap of the source extents.  This can be used by parallel data
 // readers to read as few piece files as possible.
 
-#ifndef __vtkExtentSplitter_h
-#define __vtkExtentSplitter_h
+#ifndef vtkExtentSplitter_h
+#define vtkExtentSplitter_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkObject.h"

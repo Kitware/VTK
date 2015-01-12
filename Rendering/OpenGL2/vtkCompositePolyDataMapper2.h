@@ -19,8 +19,8 @@
 // that instead of creating individual mapper for each block in the composite
 // dataset, it iterates over the blocks internally.
 
-#ifndef __vtkCompositePolyDataMapper2_h
-#define __vtkCompositePolyDataMapper2_h
+#ifndef vtkCompositePolyDataMapper2_h
+#define vtkCompositePolyDataMapper2_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSmartPointer.h" // for vtkSmartPointer

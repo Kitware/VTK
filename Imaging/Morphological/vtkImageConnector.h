@@ -24,8 +24,8 @@
 // neighbors.
 
 
-#ifndef __vtkImageConnector_h
-#define __vtkImageConnector_h
+#ifndef vtkImageConnector_h
+#define vtkImageConnector_h
 
 #include "vtkImagingMorphologicalModule.h" // For export macro
 #include "vtkObject.h"

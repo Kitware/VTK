@@ -22,8 +22,8 @@
 // .SECTION See Also
 // vtkGenericCellTessellator vtkGenericSubdivisionErrorMetric
 
-#ifndef __vtkAttributesErrorMetric_h
-#define __vtkAttributesErrorMetric_h
+#ifndef vtkAttributesErrorMetric_h
+#define vtkAttributesErrorMetric_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkGenericSubdivisionErrorMetric.h"

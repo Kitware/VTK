@@ -14,8 +14,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkFloatingPointExceptionsConfigure_h
-#define __vtkFloatingPointExceptionsConfigure_h
+#ifndef vtkFloatingPointExceptionsConfigure_h
+#define vtkFloatingPointExceptionsConfigure_h
 
 #cmakedefine VTK_HAS_FEENABLEEXCEPT
 
@@ -24,4 +24,4 @@
 # define VTK_USE_FENV 1
 #endif
 
-#endif //__vtkFloatingPointExceptionsConfigure_h
+#endif //vtkFloatingPointExceptionsConfigure_h

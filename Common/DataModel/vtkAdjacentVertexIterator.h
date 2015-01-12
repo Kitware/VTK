@@ -30,8 +30,8 @@
 // .SECTION Thanks
 //
 
-#ifndef __vtkAdjacentVertexIterator_h
-#define __vtkAdjacentVertexIterator_h
+#ifndef vtkAdjacentVertexIterator_h
+#define vtkAdjacentVertexIterator_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

@@ -14,8 +14,8 @@
 =========================================================================*/
 // VTK-HeaderTest-Exclude: vtkXdmfHeavyData.h
 
-#ifndef __vtkXdmfHeavyData_h
-#define __vtkXdmfHeavyData_h
+#ifndef vtkXdmfHeavyData_h
+#define vtkXdmfHeavyData_h
 
 #include "XdmfDataItem.h"
 #include "XdmfGrid.h" //won't compile without it

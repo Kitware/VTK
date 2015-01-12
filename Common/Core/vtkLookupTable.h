@@ -48,8 +48,8 @@
 // .SECTION See Also
 // vtkLogLookupTable vtkWindowLevelLookupTable
 
-#ifndef __vtkLookupTable_h
-#define __vtkLookupTable_h
+#ifndef vtkLookupTable_h
+#define vtkLookupTable_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkScalarsToColors.h"

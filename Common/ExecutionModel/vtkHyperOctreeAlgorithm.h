@@ -25,8 +25,8 @@
 // method that by default says that all inputs will be HyperOctree. If that
 // isn't the case then please override this method in your subclass.
 
-#ifndef __vtkHyperOctreeAlgorithm_h
-#define __vtkHyperOctreeAlgorithm_h
+#ifndef vtkHyperOctreeAlgorithm_h
+#define vtkHyperOctreeAlgorithm_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"

@@ -21,8 +21,8 @@
 // .SECTION see also
 // vtkVolumeMapper vtkUnstructuredGridVolumeMapper
 
-#ifndef __vtkAbstractVolumeMapper_h
-#define __vtkAbstractVolumeMapper_h
+#ifndef vtkAbstractVolumeMapper_h
+#define vtkAbstractVolumeMapper_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAbstractMapper3D.h"

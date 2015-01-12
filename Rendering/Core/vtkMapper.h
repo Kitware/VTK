@@ -49,8 +49,8 @@
 // .SECTION See Also
 // vtkDataSetMapper vtkPolyDataMapper
 
-#ifndef __vtkMapper_h
-#define __vtkMapper_h
+#ifndef vtkMapper_h
+#define vtkMapper_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAbstractMapper3D.h"

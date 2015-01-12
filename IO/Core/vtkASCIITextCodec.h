@@ -31,8 +31,8 @@ PURPOSE.  See the above copyright notice for more information.
 // vtkASCIITextCodecFactory
 //
 
-#ifndef __vtkASCIITextCodec_h
-#define __vtkASCIITextCodec_h
+#ifndef vtkASCIITextCodec_h
+#define vtkASCIITextCodec_h
 
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkTextCodec.h"

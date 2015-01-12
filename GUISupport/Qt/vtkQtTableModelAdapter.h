@@ -26,8 +26,8 @@
 // .SECTION See also
 // vtkQtAbstractModelAdapter vtkQtTreeModelAdapter
 
-#ifndef __vtkQtTableModelAdapter_h
-#define __vtkQtTableModelAdapter_h
+#ifndef vtkQtTableModelAdapter_h
+#define vtkQtTableModelAdapter_h
 
 #include "vtkGUISupportQtModule.h" // For export macro
 #include "vtkQtAbstractModelAdapter.h"

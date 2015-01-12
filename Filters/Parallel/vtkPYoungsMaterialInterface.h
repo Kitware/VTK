@@ -27,8 +27,8 @@
 // .SECTION See also
 // vtkYoungsMaterialInterface
 
-#ifndef __vtkPYoungsMaterialInterface_h
-#define __vtkPYoungsMaterialInterface_h
+#ifndef vtkPYoungsMaterialInterface_h
+#define vtkPYoungsMaterialInterface_h
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkYoungsMaterialInterface.h"

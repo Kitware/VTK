@@ -20,8 +20,8 @@
 // color map, this can show nodal lines/mode shapes of vibration, or a
 // displacement plot.
 
-#ifndef __vtkVectorDot_h
-#define __vtkVectorDot_h
+#ifndef vtkVectorDot_h
+#define vtkVectorDot_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

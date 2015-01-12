@@ -38,8 +38,8 @@
 // vtkAngleWidget vtkHandleRepresentation vtkBiDimensionalRepresentation2D
 
 
-#ifndef __vtkBiDimensionalRepresentation_h
-#define __vtkBiDimensionalRepresentation_h
+#ifndef vtkBiDimensionalRepresentation_h
+#define vtkBiDimensionalRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"

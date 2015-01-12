@@ -31,8 +31,8 @@
 // .SECTION See Also
 // vtkRibbonFilter vtkTubeFilter
 
-#ifndef __vtkSplineFilter_h
-#define __vtkSplineFilter_h
+#ifndef vtkSplineFilter_h
+#define vtkSplineFilter_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

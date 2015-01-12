@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtkVersionMacros_h
-#define __vtkVersionMacros_h
+#ifndef vtkVersionMacros_h
+#define vtkVersionMacros_h
 
 /* In development versions the minor component is odd and the build
    component encodes a date in CCYYMMDD format.  In release versions

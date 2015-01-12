@@ -22,8 +22,8 @@
 // the output.  A PointData array is added called "Time" (or "TimeData" if
 // there is already an array called "Time"), which is the time at each index.
 
-#ifndef __vtkExtractDataOverTime_h
-#define __vtkExtractDataOverTime_h
+#ifndef vtkExtractDataOverTime_h
+#define vtkExtractDataOverTime_h
 
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"

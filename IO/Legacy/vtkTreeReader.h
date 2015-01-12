@@ -25,8 +25,8 @@
 // .SECTION See Also
 // vtkTree vtkDataReader vtkTreeWriter
 
-#ifndef __vtkTreeReader_h
-#define __vtkTreeReader_h
+#ifndef vtkTreeReader_h
+#define vtkTreeReader_h
 
 #include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"

@@ -18,8 +18,8 @@
 // locators. It requires that the filter uses vtkSMPMergePoints which creates
 // a number of necessary data structures.
 
-#ifndef __vtkSMPMergePolyDataHelper_h
-#define __vtkSMPMergePolyDataHelper_h
+#ifndef vtkSMPMergePolyDataHelper_h
+#define vtkSMPMergePolyDataHelper_h
 
 #include "vtkFiltersSMPModule.h"
 

@@ -22,8 +22,8 @@
 // This source produces a vtkHierarchicalBoxDataSet when
 // GenerateRectilinearGrids is off, otherwise produces a vtkMultiBlockDataSet.
 
-#ifndef __vtkTemporalFractal_h
-#define __vtkTemporalFractal_h
+#ifndef vtkTemporalFractal_h
+#define vtkTemporalFractal_h
 
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkAlgorithm.h"

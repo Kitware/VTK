@@ -18,8 +18,8 @@
 // used by PVSources with multiple outputs as the VTK filter in the
 // dummy connection objects at each output.
 
-#ifndef __vtkPassThroughFilter_h
-#define __vtkPassThroughFilter_h
+#ifndef vtkPassThroughFilter_h
+#define vtkPassThroughFilter_h
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

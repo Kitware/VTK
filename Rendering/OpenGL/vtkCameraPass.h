@@ -26,8 +26,8 @@
 // .SECTION See Also
 // vtkRenderPass
 
-#ifndef __vtkCameraPass_h
-#define __vtkCameraPass_h
+#ifndef vtkCameraPass_h
+#define vtkCameraPass_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkRenderPass.h"

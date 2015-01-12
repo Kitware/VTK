@@ -26,8 +26,8 @@
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
-#ifndef __vtkNormalizeMatrixVectors_h
-#define __vtkNormalizeMatrixVectors_h
+#ifndef vtkNormalizeMatrixVectors_h
+#define vtkNormalizeMatrixVectors_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkArrayDataAlgorithm.h"

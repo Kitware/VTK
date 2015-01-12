@@ -21,8 +21,8 @@
 // .SECTION see also
 // vtkAssemblyPath vtkAssemblyNode vtkPicker vtkAssembly vtkProp
 
-#ifndef __vtkAssemblyPaths_h
-#define __vtkAssemblyPaths_h
+#ifndef vtkAssemblyPaths_h
+#define vtkAssemblyPaths_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkCollection.h"

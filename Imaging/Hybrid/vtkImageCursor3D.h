@@ -16,8 +16,8 @@
 // .SECTION Description
 // vtkImageCursor3D will draw a cursor on a 2d image or 3d volume.
 
-#ifndef __vtkImageCursor3D_h
-#define __vtkImageCursor3D_h
+#ifndef vtkImageCursor3D_h
+#define vtkImageCursor3D_h
 
 #include "vtkImagingHybridModule.h" // For export macro
 #include "vtkImageInPlaceFilter.h"

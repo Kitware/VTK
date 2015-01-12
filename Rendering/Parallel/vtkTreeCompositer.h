@@ -51,8 +51,8 @@
 // .SECTION See Also
 // vtkCompositeManager
 
-#ifndef __vtkTreeCompositer_h
-#define __vtkTreeCompositer_h
+#ifndef vtkTreeCompositer_h
+#define vtkTreeCompositer_h
 
 #include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkCompositer.h"

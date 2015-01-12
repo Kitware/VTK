@@ -35,8 +35,8 @@
 // FetchChild() method is thread-safe, since it may be called from multiple
 // workers simultaneously.
 
-#ifndef __vtkGeoSource_h
-#define __vtkGeoSource_h
+#ifndef vtkGeoSource_h
+#define vtkGeoSource_h
 
 #include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkObject.h"
@@ -115,4 +115,4 @@ private:
   void operator=(const vtkGeoSource&); // Not implemented
 };
 
-#endif // __vtkGeoSource_h
+#endif // vtkGeoSource_h

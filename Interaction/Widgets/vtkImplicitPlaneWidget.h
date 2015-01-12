@@ -58,8 +58,8 @@
 // vtk3DWidget vtkBoxWidget vtkPlaneWidget vtkLineWidget vtkPointWidget
 // vtkSphereWidget vtkImagePlaneWidget
 
-#ifndef __vtkImplicitPlaneWidget_h
-#define __vtkImplicitPlaneWidget_h
+#ifndef vtkImplicitPlaneWidget_h
+#define vtkImplicitPlaneWidget_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPolyDataSourceWidget.h"

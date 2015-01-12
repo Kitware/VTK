@@ -63,8 +63,8 @@
 // vtkAbstractWidget
 
 
-#ifndef __vtkHoverWidget_h
-#define __vtkHoverWidget_h
+#ifndef vtkHoverWidget_h
+#define vtkHoverWidget_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"

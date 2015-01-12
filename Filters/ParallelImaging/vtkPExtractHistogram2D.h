@@ -32,8 +32,8 @@
 // .SECTION Thanks
 //  Developed by David Feng and Philippe Pebay at Sandia National Laboratories
 //------------------------------------------------------------------------------
-#ifndef __vtkPExtractHistogram2D_h
-#define __vtkPExtractHistogram2D_h
+#ifndef vtkPExtractHistogram2D_h
+#define vtkPExtractHistogram2D_h
 
 #include "vtkFiltersParallelImagingModule.h" // For export macro
 #include "vtkExtractHistogram2D.h"

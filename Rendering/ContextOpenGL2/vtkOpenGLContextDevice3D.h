@@ -19,8 +19,8 @@
 // This defines the implementation of a 3D context device for drawing simple
 // primitives.
 
-#ifndef __vtkOpenGLContextDevice3D_h
-#define __vtkOpenGLContextDevice3D_h
+#ifndef vtkOpenGLContextDevice3D_h
+#define vtkOpenGLContextDevice3D_h
 
 #include "vtkRenderingContextOpenGL2Module.h" // For export macro
 #include "vtkContextDevice3D.h"

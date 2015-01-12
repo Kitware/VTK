@@ -22,8 +22,8 @@
 // vtkHandleRepresentation vtkHandleWidget vtkSphereSource
 
 
-#ifndef __vtkSphereHandleRepresentation_h
-#define __vtkSphereHandleRepresentation_h
+#ifndef vtkSphereHandleRepresentation_h
+#define vtkSphereHandleRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkHandleRepresentation.h"

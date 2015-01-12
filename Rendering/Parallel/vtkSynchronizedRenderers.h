@@ -23,8 +23,8 @@
 // of rendered images across processes on its own. You typically either subclass
 // to implement a compositing algorithm or use a renderer capable of compositing
 // eg. IceT based renderer.
-#ifndef __vtkSynchronizedRenderers_h
-#define __vtkSynchronizedRenderers_h
+#ifndef vtkSynchronizedRenderers_h
+#define vtkSynchronizedRenderers_h
 
 #include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkObject.h"

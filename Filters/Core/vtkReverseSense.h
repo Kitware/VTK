@@ -25,8 +25,8 @@
 // .SECTION Caveats
 // Normals can be operated on only if they are present in the data.
 
-#ifndef __vtkReverseSense_h
-#define __vtkReverseSense_h
+#ifndef vtkReverseSense_h
+#define vtkReverseSense_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

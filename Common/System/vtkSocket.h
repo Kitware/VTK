@@ -17,8 +17,8 @@
 // This abstract class encapsulates a BSD socket. It provides an API for
 // basic socket operations.
 
-#ifndef __vtkSocket_h
-#define __vtkSocket_h
+#ifndef vtkSocket_h
+#define vtkSocket_h
 
 #include "vtkCommonSystemModule.h" // For export macro
 #include "vtkObject.h"

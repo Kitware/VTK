@@ -17,8 +17,8 @@
 //
 // .SECTION Description
 
-#ifndef __vtkOpenQubeMoleculeSource_h
-#define __vtkOpenQubeMoleculeSource_h
+#ifndef vtkOpenQubeMoleculeSource_h
+#define vtkOpenQubeMoleculeSource_h
 
 #include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkDataReader.h"

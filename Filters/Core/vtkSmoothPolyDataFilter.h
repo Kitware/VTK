@@ -87,8 +87,8 @@
 // .SECTION See Also
 // vtkWindowedSincPolyDataFilter vtkDecimate vtkDecimatePro
 
-#ifndef __vtkSmoothPolyDataFilter_h
-#define __vtkSmoothPolyDataFilter_h
+#ifndef vtkSmoothPolyDataFilter_h
+#define vtkSmoothPolyDataFilter_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

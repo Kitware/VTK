@@ -20,8 +20,8 @@
 // .SECTION See Also
 // vtkDataSetCollection vtkCollection
 
-#ifndef __vtkPolyDataCollection_h
-#define __vtkPolyDataCollection_h
+#ifndef vtkPolyDataCollection_h
+#define vtkPolyDataCollection_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCollection.h"

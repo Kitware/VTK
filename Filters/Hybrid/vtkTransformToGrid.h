@@ -21,8 +21,8 @@
 // .SECTION See Also
 // vtkGridTransform vtkThinPlateSplineTransform vtkAbstractTransform
 
-#ifndef __vtkTransformToGrid_h
-#define __vtkTransformToGrid_h
+#ifndef vtkTransformToGrid_h
+#define vtkTransformToGrid_h
 
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkAlgorithm.h"

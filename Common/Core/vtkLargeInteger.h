@@ -14,8 +14,8 @@
 =========================================================================*/
 // .NAME vtkLargeInteger - class for arbitrarily large ints
 
-#ifndef __vtkLargeInteger_h
-#define __vtkLargeInteger_h
+#ifndef vtkLargeInteger_h
+#define vtkLargeInteger_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"

@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtkXMLWriterC_h
-#define __vtkXMLWriterC_h
+#ifndef vtkXMLWriterC_h
+#define vtkXMLWriterC_h
 
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkType.h" /* For scalar and vtkDataObject type enumerations.  */

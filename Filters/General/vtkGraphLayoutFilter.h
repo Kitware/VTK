@@ -28,8 +28,8 @@
 // can just use automatic bounds computation); and modify the cool down
 // rate (controls the final process of simulated annealing).
 
-#ifndef __vtkGraphLayoutFilter_h
-#define __vtkGraphLayoutFilter_h
+#ifndef vtkGraphLayoutFilter_h
+#define vtkGraphLayoutFilter_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

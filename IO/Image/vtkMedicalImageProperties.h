@@ -21,8 +21,8 @@
 // .SECTION See Also
 // vtkMedicalImageReader2
 
-#ifndef __vtkMedicalImageProperties_h
-#define __vtkMedicalImageProperties_h
+#ifndef vtkMedicalImageProperties_h
+#define vtkMedicalImageProperties_h
 
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkObject.h"

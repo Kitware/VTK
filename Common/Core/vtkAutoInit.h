@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtkAutoInit_h
-#define __vtkAutoInit_h
+#ifndef vtkAutoInit_h
+#define vtkAutoInit_h
 
 #include "vtkDebugLeaksManager.h" // DebugLeaks exists longer.
 #include "vtkTimeStamp.h" // Here so that TimeStamp Schwarz initializer works

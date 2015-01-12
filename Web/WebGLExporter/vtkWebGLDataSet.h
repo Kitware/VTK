@@ -16,8 +16,8 @@
 // .SECTION Description
 // vtkWebGLDataSet represent vertices, lines, polygons, and triangles.
 
-#ifndef __vtkWebGLDataSet_h
-#define __vtkWebGLDataSet_h
+#ifndef vtkWebGLDataSet_h
+#define vtkWebGLDataSet_h
 
 #include "vtkObject.h"
 #include "vtkWebGLExporterModule.h" // needed for export macro

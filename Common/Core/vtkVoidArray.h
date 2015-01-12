@@ -18,8 +18,8 @@
 // for insertion and retrieval of these pointers values, and will
 // automatically resize itself to hold new data.
 
-#ifndef __vtkVoidArray_h
-#define __vtkVoidArray_h
+#ifndef vtkVoidArray_h
+#define vtkVoidArray_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"

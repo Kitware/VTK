@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkTypedDataArray_txx
-#define __vtkTypedDataArray_txx
+#ifndef vtkTypedDataArray_txx
+#define vtkTypedDataArray_txx
 
 #include "vtkTypedDataArray.h"
 
@@ -73,4 +73,4 @@ vtkTypedDataArray<Scalar>::FastDownCast(vtkAbstractArray *source)
     }
 }
 
-#endif //__vtkTypedDataArray_txx
+#endif //vtkTypedDataArray_txx
