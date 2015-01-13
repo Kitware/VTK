@@ -89,7 +89,7 @@ protected:
   vtkOpenGLRenderWindow *Context;
 
   int NumberOfTextureUnits;
-  bool *TextureUnits;
+  unsigned int *TextureUnits;
 
 private:
   vtkTextureUnitManager(const vtkTextureUnitManager&);  // Not implemented.

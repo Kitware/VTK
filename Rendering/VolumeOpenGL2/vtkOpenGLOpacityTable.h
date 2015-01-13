@@ -17,6 +17,7 @@
 #define vtkOpenGLVolumeOpacityTable_h_
 
 #include <vtkPiecewiseFunction.h>
+#include <vtkTextureObject.h>
 #include <vtkVolumeMapper.h>
 
 #include <vtk_glew.h>
@@ -28,47 +29,40 @@ public:
   //--------------------------------------------------------------------------
   vtkOpenGLOpacityTable(int width = 1024)
     {
-      this->TextureId = 0;
+      this->TextureObject = 0;
       this->LastBlendMode = vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND;
       this->TextureWidth = width;
-      this->TextureHeight = 0;
       this->LastSampleDistance = 1.0;
       this->Table = 0;
-      this->Loaded = false;
-      this->LastLinearInterpolation = false;
+      this->LastInterpolation = -1;
       this->LastRange[0] = this->LastRange[1] = 0.0;
     }
 
   //--------------------------------------------------------------------------
   ~vtkOpenGLOpacityTable()
     {
-      if (this->TextureId != 0)
+      if (this->TextureObject)
         {
-        glDeleteTextures(1, &this->TextureId);
-        this->TextureId=0;
+        this->TextureObject->Delete();
+        this->TextureObject = 0;
         }
 
-      if (this->Table!=0)
+      if (this->Table)
         {
         delete[] this->Table;
         this->Table=0;
         }
     }
 
-  // Check if opacity transfer function texture is loaded.
-  //--------------------------------------------------------------------------
-  bool IsLoaded()
-    {
-    return this->Loaded;
-    }
-
   // Bind texture.
   //--------------------------------------------------------------------------
   void Bind()
     {
-    // Activate texture 2
-    glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_1D, this->TextureId);
+    if (!this->TextureObject)
+      {
+      return;
+      }
+    this->TextureObject->Activate();
     }
 
   // Update opacity tranfer function texture.
@@ -78,46 +72,41 @@ public:
               double sampleDistance,
               double range[2],
               double unitDistance,
-              bool linearInterpolation)
+              int filterValue,
+              vtkOpenGLRenderWindow* renWin)
     {
-    // Activate texture 2
-    glActiveTexture(GL_TEXTURE2);
-
-    bool needUpdate=false;
-    if(this->TextureId == 0)
+    bool needUpdate = false;
+    if (!this->TextureObject)
       {
-      glGenTextures(1,&this->TextureId);
-      needUpdate = true;
+      this->TextureObject = vtkTextureObject::New();
       }
+
+    this->TextureObject->SetContext(renWin);
 
     if (this->LastRange[0] != range[0] ||
         this->LastRange[1] != range[1])
       {
-      needUpdate = true;
       this->LastRange[0] = range[0];
       this->LastRange[1] = range[1];
-      }
-
-    glBindTexture(GL_TEXTURE_1D,this->TextureId);
-    if(needUpdate)
-      {
-      glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S,
-                      GL_CLAMP_TO_EDGE);
+      needUpdate = true;
       }
 
     if(scalarOpacity->GetMTime() > this->BuildTime ||
+       this->TextureObject->GetMTime() > this->BuildTime ||
        (this->LastBlendMode != blendMode) ||
        (blendMode == vtkVolumeMapper::COMPOSITE_BLEND &&
         this->LastSampleDistance != sampleDistance) ||
-       needUpdate || !this->Loaded)
+       needUpdate || !this->TextureObject->GetHandle())
       {
-      this->Loaded = false;
       if(this->Table == 0)
         {
         this->Table = new float[this->TextureWidth];
         }
 
-      scalarOpacity->GetTable(range[0], range[1], this->TextureWidth, this->Table);
+      scalarOpacity->GetTable(this->LastRange[0],
+                              this->LastRange[1],
+                              this->TextureWidth,
+                              this->Table);
       this->LastBlendMode = blendMode;
 
       // Correct the opacity array for the spacing between the planes if we
@@ -157,36 +146,57 @@ public:
           this->LastSampleDistance = sampleDistance;
           }
 
-      glTexImage1D(GL_TEXTURE_1D, 0, GL_ALPHA16, this->TextureWidth,
-                   this->TextureHeight, GL_ALPHA, GL_FLOAT, this->Table);
-      this->Loaded = true;
+      this->TextureObject->SetWrapS(vtkTextureObject::ClampToEdge);
+      this->TextureObject->SetMagnificationFilter(filterValue);
+      this->TextureObject->SetMinificationFilter(filterValue);
+      this->TextureObject->CreateAlphaFromRaw(this->TextureWidth,
+                                              vtkTextureObject::alpha16,
+                                              VTK_FLOAT,
+                                              this->Table);
+      this->LastInterpolation = filterValue;
+      this->TextureObject->Activate();
       this->BuildTime.Modified();
       }
 
-    needUpdate= needUpdate ||
-      this->LastLinearInterpolation!=linearInterpolation;
-    if(needUpdate)
+    if(this->LastInterpolation != filterValue)
       {
-      this->LastLinearInterpolation = linearInterpolation;
-      GLint value = linearInterpolation ? GL_LINEAR : GL_NEAREST;
-      glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, value);
-      glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, value);
+      this->LastInterpolation = filterValue;
+      this->TextureObject->SetMagnificationFilter(filterValue);
+      this->TextureObject->SetMinificationFilter(filterValue);
       }
+    }
 
-    glActiveTexture(GL_TEXTURE0);
+  // Get the texture unit
+  //--------------------------------------------------------------------------
+  int GetTextureUnit(void)
+    {
+    if (!this->TextureObject)
+      {
+      return -1;
+      }
+    return this->TextureObject->GetTextureUnit();
+    }
+
+  //--------------------------------------------------------------------------
+  void ReleaseGraphicsResources(vtkWindow *window)
+    {
+    if (this->TextureObject)
+      {
+      this->TextureObject->ReleaseGraphicsResources(window);
+      this->TextureObject->Delete();
+      this->TextureObject = 0;
+      }
     }
 
 protected:
-  GLuint TextureId;
+  vtkTextureObject * TextureObject;
   int LastBlendMode;
   int TextureWidth;
-  int TextureHeight;
 
   double LastSampleDistance;
   vtkTimeStamp BuildTime;
   float *Table;
-  bool Loaded;
-  bool LastLinearInterpolation;
+  int LastInterpolation;
   double LastRange[2];
 private:
   vtkOpenGLOpacityTable(const vtkOpenGLOpacityTable&);
@@ -214,6 +224,10 @@ public:
   //--------------------------------------------------------------------------
   vtkOpenGLOpacityTable* GetTable(unsigned int i)
     {
+    if (i >= this->NumberOfTables)
+      {
+      return NULL;
+      }
     return &this->Tables[i];
     }
 
@@ -222,6 +236,15 @@ public:
   unsigned int GetNumberOfTables()
     {
     return this->NumberOfTables;
+    }
+
+  //--------------------------------------------------------------------------
+  void ReleaseGraphicsResources(vtkWindow *window)
+    {
+    for (unsigned int i = 0; i <this->NumberOfTables; ++i)
+      {
+      this->Tables[i].ReleaseGraphicsResources(window);
+      }
     }
 
 private:

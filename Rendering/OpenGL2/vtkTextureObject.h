@@ -99,6 +99,26 @@ public:
     NumberOfDepthFormats
   };
 
+  // Internal alpha format
+  enum
+  {
+    alpha=0,
+    alpha4,
+    alpha8,
+    alpha12,
+    alpha16,
+    NumberOfAlphaFormats
+  };
+
+  // Depth mode formats
+  enum
+  {
+    DepthAlpha=0,
+    DepthLuminance,
+    DepthIntensity,
+    NumberOfDepthModeFormats
+  };
+
   static vtkTextureObject* New();
   vtkTypeMacro(vtkTextureObject, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -106,7 +126,10 @@ public:
   // Description:
   // Get/Set the context. This does not increase the reference count of the
   // context to avoid reference loops.
-  // SetContext() may raise an error is the OpenGL context does not support the
+  //
+  // {
+  // this->TextureObject = vtkTextureObject::New();
+  // }SetContext() may raise an error is the OpenGL context does not support the
   // required OpenGL extensions.
   void SetContext(vtkOpenGLRenderWindow*);
   vtkOpenGLRenderWindow* GetContext();
@@ -169,16 +192,36 @@ public:
   vtkGetMacro(AutoParameters, int);
 
   // Description:
+  // Create 1D texture from client memory
+  bool Create1DFromRaw(unsigned int width, int numComps,
+                       int dataType, void *data);
+
+  // Description:
   // Create a 2D texture from client memory
   // numComps must be in [1-4].
   bool Create2DFromRaw(unsigned int width, unsigned int height,
                        int numComps,  int dataType, void *data);
 
   // Description:
+  // Create a 3D texture from client memory
+  // numComps must be in [1-4].
+  bool Create3DFromRaw(unsigned int width, unsigned int height,
+                       unsigned int depth, int numComps,
+                       int dataType, void *data);
+
+  // Description:
   // Create a 2D depth texture using a raw pointer.
   // This is a blocking call. If you can, use PBO instead.
   bool CreateDepthFromRaw(unsigned int width, unsigned int height,
                           int internalFormat, int rawType,
+                          void *raw);
+
+  // Description:
+  // Create a 1D alpha texture using a raw pointer.
+  // This is a blocking call. If you can, use PBO instead.
+  bool CreateAlphaFromRaw(unsigned int width,
+                          int internalFormat,
+                          int rawType,
                           void *raw);
 
 // PBO's are not supported in ES 2.0
@@ -258,20 +301,29 @@ public:
   // Description:
   // Create texture without uploading any data.
   bool Create2D(unsigned int width, unsigned int height, int numComps,
-                int vtktype,
-                bool shaderSupportsTextureInt);
+                int vtktype, bool shaderSupportsTextureInt);
   bool Create3D(unsigned int width, unsigned int height, unsigned int depth,
-                int numComps, int vtktype,
-                bool shaderSupportsTextureInt);
+                int numComps, int vtktype, bool shaderSupportsTextureInt);
 
   // Description:
-  // Get the data type for the texture as a vtk type int i.e. VTK_INT etc.
-  int GetDataType();
+  // Get the data type for the texture as GLenum type.
+  int GetDataType(int vtk_scalar_type);
+  void SetDataType(unsigned int glType);
 
   unsigned int GetInternalFormat(int vtktype, int numComps,
                                  bool shaderSupportsTextureInt);
+  void SetInternalFormat(unsigned int glInternalFormat);
+
   unsigned int GetFormat(int vtktype, int numComps,
                          bool shaderSupportsTextureInt);
+  void SetFormat(unsigned int glFormat);
+
+  unsigned int GetDepthTextureModeFormat(int vtktype);
+  unsigned int GetMinificationFilterMode(int vtktype);
+  unsigned int GetMagnificationFilterMode(int vtktype);
+  unsigned int GetWrapSMode(int vtktype);
+  unsigned int GetWrapTMode(int vtktype);
+  unsigned int GetWrapRMode(int vtktype);
 
   // Description:
   // Optional, require support for floating point depth buffer
@@ -530,6 +582,7 @@ protected:
 
   unsigned int Target; // GLenum
   unsigned int Format; // GLenum
+  unsigned int InternalFormat; // GLenum
   unsigned int Type; // GLenum
   int Components;
 
