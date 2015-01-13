@@ -17,7 +17,7 @@
 
 void vtkRTTestSequence::GetSequenceNumbers(int &xdim)
 {
-  static int linearSequence[] = {1,2,3,5};
+  static int linearSequence[] = {1, 2, 3, 5};
 
   xdim = 1;
   int sc = this->SequenceCount;
@@ -101,11 +101,11 @@ void vtkRTTestSequence::Run()
   int sequenceEnd = this->RenderTimings->GetSequenceEnd();
   double remainingTime = this->TargetTime;
   double lastRunTime = 0.0;
-  int argc; char **argv;
+  int argc;
+  char **argv;
   this->RenderTimings->GetArguments().GetUnusedArguments(&argc, &argv);
-  // while we have enough time remaning to do a 50%
-  // longer run
-  while (remainingTime > 1.5*lastRunTime &&
+  // while we have enough time remaning to do a 50% longer run
+  while (remainingTime > 1.5 * lastRunTime &&
       (sequenceEnd == 0 || this->SequenceCount <= sequenceEnd))
     {
     double startTime = vtkTimerLog::GetUniversalTime();

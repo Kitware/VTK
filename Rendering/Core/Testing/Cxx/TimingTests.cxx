@@ -30,7 +30,7 @@ existing tests to get an idea of what to do.
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
-#include "vtkSmartPointer.h"
+#include "vtkNew.h"
 
 /*=========================================================================
 Define a test for simple triangle mesh surfaces
@@ -40,7 +40,7 @@ Define a test for simple triangle mesh surfaces
 
 class surfaceTest : public vtkRTTest
 {
-  public:
+public:
   surfaceTest(const char *name, bool withColors, bool withNormals) : vtkRTTest(name)
   {
     this->WithColors = withColors;
@@ -59,9 +59,9 @@ class surfaceTest : public vtkRTTest
     // ------------------------------------------------------------
     // Create Boy's surface
     // ------------------------------------------------------------
-    vtkSmartPointer<vtkParametricBoy> PB = vtkSmartPointer<vtkParametricBoy>::New();
-    vtkSmartPointer<vtkParametricFunctionSource> PFS = vtkSmartPointer<vtkParametricFunctionSource>::New();
-    PFS->SetParametricFunction(PB);
+    vtkNew<vtkParametricBoy> PB;
+    vtkNew<vtkParametricFunctionSource> PFS;
+    PFS->SetParametricFunction(PB.Get());
     if (this->WithColors)
       {
       PFS->SetScalarModeToModulus();
@@ -70,32 +70,30 @@ class surfaceTest : public vtkRTTest
       {
       PFS->SetScalarModeToNone();
       }
-    PFS->SetUResolution(ures*50);
-    PFS->SetVResolution(vres*100);
+    PFS->SetUResolution(ures * 50);
+    PFS->SetVResolution(vres * 100);
     PFS->Update();
     if (this->WithNormals == false)
       {
       PFS->GetOutput()->GetPointData()->SetNormals(NULL);
       }
 
-    vtkSmartPointer<vtkPolyDataMapper> mapper =
-      vtkSmartPointer<vtkPolyDataMapper>::New();
+    vtkNew<vtkPolyDataMapper> mapper;
     mapper->SetInputConnection(PFS->GetOutputPort());
-    mapper->SetScalarRange(0.0,2.0);
+    mapper->SetScalarRange(0.0, 2.0);
 
-    vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
-    actor->SetMapper(mapper);
+    vtkNew<vtkActor> actor;
+    actor->SetMapper(mapper.Get());
 
     // create a rendering window and renderer
-    vtkSmartPointer<vtkRenderer> ren1 = vtkSmartPointer<vtkRenderer>::New();
-    vtkSmartPointer<vtkRenderWindow> renWindow =
-      vtkSmartPointer<vtkRenderWindow>::New();
-    renWindow->AddRenderer(ren1);
-    ren1->AddActor(actor);
+    vtkNew<vtkRenderer> ren1;
+    vtkNew<vtkRenderWindow> renWindow;
+    renWindow->AddRenderer(ren1.Get());
+    ren1->AddActor(actor.Get());
 
     // set the size/color of our window
-    renWindow->SetSize(500,500);
-    ren1->SetBackground(0.2,0.3,0.5);
+    renWindow->SetSize(500, 500);
+    ren1->SetBackground(0.2, 0.3, 0.5);
 
     // draw the resulting scene
     double startTime = vtkTimerLog::GetUniversalTime();
@@ -108,28 +106,30 @@ class surfaceTest : public vtkRTTest
       renWindow->Render();
       ren1->GetActiveCamera()->Azimuth(1);
       ren1->GetActiveCamera()->Elevation(1);
-      if ((vtkTimerLog::GetUniversalTime() - startTime - firstFrameTime) > this->TargetTime * 1.5)
+      if ((vtkTimerLog::GetUniversalTime() - startTime - firstFrameTime) >
+          this->TargetTime * 1.5)
         {
-        frameCount = i+1;
+        frameCount = i + 1;
         break;
         }
       }
-    double subsequentFrameTime = (vtkTimerLog::GetUniversalTime() - startTime - firstFrameTime)/frameCount;
+    double subsequentFrameTime = (vtkTimerLog::GetUniversalTime() - startTime -
+                                  firstFrameTime) / frameCount;
     double numTris = PFS->GetOutput()->GetPolys()->GetNumberOfCells();
 
     vtkRTTestResult result;
     result.Results["first frame time"] = firstFrameTime;
     result.Results["subsequent frame time"] = subsequentFrameTime;
-    result.Results["Mtris"] = 1.0e-6*numTris;
-    result.Results["Mtris/sec"] = 1.0e-6*numTris/subsequentFrameTime;
+    result.Results["Mtris"] = 1.0e-6 * numTris;
+    result.Results["Mtris/sec"] = 1.0e-6 * numTris / subsequentFrameTime;
     result.Results["triangles"] = numTris;
 
     return result;
     }
 
-  protected:
-    bool WithNormals;
-    bool WithColors;
+protected:
+  bool WithNormals;
+  bool WithColors;
 };
 
 /*=========================================================================
@@ -142,7 +142,7 @@ Define a test for glyphing
 
 class glyphTest : public vtkRTTest
 {
-  public:
+public:
   glyphTest(const char *name) : vtkRTTest(name)
   {
   }
@@ -157,46 +157,43 @@ class glyphTest : public vtkRTTest
     ats->GetSequenceNumbers(res1, res2, res3, res4);
 
     // create
-    vtkSmartPointer<vtkPlaneSource> plane = vtkSmartPointer<vtkPlaneSource>::New();
-    plane->SetResolution(res1*10,res2*10);
-    plane->SetOrigin(-res1*5.0, -res2*5.0, 0.0);
-    plane->SetPoint1(res1*5.0,-res2*5.0, 0.0);
-    plane->SetPoint2(-res1*5.0,res2*5.0, 0.0);
-    vtkSmartPointer<vtkElevationFilter> colors = vtkSmartPointer<vtkElevationFilter>::New();
+    vtkNew<vtkPlaneSource> plane;
+    plane->SetResolution(res1 * 10, res2 * 10);
+    plane->SetOrigin(-res1 * 5.0, -res2 * 5.0, 0.0);
+    plane->SetPoint1(res1 * 5.0,-res2 * 5.0, 0.0);
+    plane->SetPoint2(-res1 * 5.0,res2 * 5.0, 0.0);
+    vtkNew<vtkElevationFilter> colors;
     colors->SetInputConnection(plane->GetOutputPort());
     colors->SetLowPoint(plane->GetOrigin());
-    colors->SetHighPoint(res1*5.0, res2*5.0, 0.0);
+    colors->SetHighPoint(res1 * 5.0, res2 * 5.0, 0.0);
 
     // create simple poly data so we can apply glyph
-    vtkSmartPointer<vtkSphereSource> sphere = vtkSmartPointer<vtkSphereSource>::New();
-    sphere->SetPhiResolution(5*res3+2);
-    sphere->SetThetaResolution(10*res4);
+    vtkNew<vtkSphereSource> sphere;
+    sphere->SetPhiResolution(5 * res3 + 2);
+    sphere->SetThetaResolution(10 * res4);
     sphere->SetRadius(0.7);
 
-    vtkSmartPointer<vtkGlyph3DMapper> mapper =
-      vtkSmartPointer<vtkGlyph3DMapper>::New();
+    vtkNew<vtkGlyph3DMapper> mapper;
     mapper->SetInputConnection(colors->GetOutputPort());
     mapper->SetSourceConnection(sphere->GetOutputPort());
-    mapper->SetScalarRange(0.0,2.0);
+    mapper->SetScalarRange(0.0, 2.0);
 
-    // vtkSmartPointer<vtkPolyDataMapper> mapper =
-    // vtkSmartPointer<vtkPolyDataMapper>::New();
+    // vtkNew<vtkPolyDataMapper> mapper;
     // mapper->SetInputConnection(colors->GetOutputPort());
     // mapper->SetScalarRange(0.0,2.0);
 
-    vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
-    actor->SetMapper(mapper);
+    vtkNew<vtkActor> actor;
+    actor->SetMapper(mapper.Get());
 
     // create a rendering window and renderer
-    vtkSmartPointer<vtkRenderer> ren1 = vtkSmartPointer<vtkRenderer>::New();
-    vtkSmartPointer<vtkRenderWindow> renWindow =
-      vtkSmartPointer<vtkRenderWindow>::New();
-    renWindow->AddRenderer(ren1);
-    ren1->AddActor(actor);
+    vtkNew<vtkRenderer> ren1;
+    vtkNew<vtkRenderWindow> renWindow;
+    renWindow->AddRenderer(ren1.Get());
+    ren1->AddActor(actor.Get());
 
     // set the size/color of our window
-    renWindow->SetSize(600,600);
-    ren1->SetBackground(0.2,0.3,0.5);
+    renWindow->SetSize(600, 600);
+    ren1->SetBackground(0.2, 0.3, 0.5);
 
     // draw the resulting scene
     double startTime = vtkTimerLog::GetUniversalTime();
@@ -211,31 +208,32 @@ class glyphTest : public vtkRTTest
       ren1->GetActiveCamera()->Elevation(0.5);
       ren1->GetActiveCamera()->Zoom(1.01);
       ren1->ResetCameraClippingRange();
-      if ((vtkTimerLog::GetUniversalTime() - startTime - firstFrameTime) > this->TargetTime * 1.5)
+      if ((vtkTimerLog::GetUniversalTime() - startTime - firstFrameTime) >
+          this->TargetTime * 1.5)
         {
-        frameCount = i+1;
+        frameCount = i + 1;
         break;
         }
       }
-    double subsequentFrameTime = (vtkTimerLog::GetUniversalTime() - startTime - firstFrameTime)/frameCount;
-    double numTris = 100.0*res1*res2*sphere->GetOutput()->GetPolys()->GetNumberOfCells();
+    double subsequentFrameTime = (vtkTimerLog::GetUniversalTime() - startTime -
+                                  firstFrameTime)/frameCount;
+    double numTris = 100.0 * res1 * res2 *
+                     sphere->GetOutput()->GetPolys()->GetNumberOfCells();
 
     vtkRTTestResult result;
     result.Results["first frame time"] = firstFrameTime;
     result.Results["subsequent frame time"] = subsequentFrameTime;
-    result.Results["Mtris"] = 1.0e-6*numTris;
-    result.Results["Mtris/sec"] = 1.0e-6*numTris/subsequentFrameTime;
+    result.Results["Mtris"] = 1.0e-6 * numTris;
+    result.Results["Mtris/sec"] = 1.0e-6 * numTris/subsequentFrameTime;
     result.Results["triangles"] = numTris;
 
     return result;
     }
 
-  protected:
-    bool WithNormals;
-    bool WithColors;
+protected:
+  bool WithNormals;
+  bool WithColors;
 };
-
-
 
 /*=========================================================================
 The main entry point
@@ -254,5 +252,5 @@ int main( int argc, char *argv[] )
   a.TestsToRun.push_back(new glyphTest("Glyphing"));
 
   // process them
-  return a.ParseCommandLineArguments(argc,argv);
+  return a.ParseCommandLineArguments(argc, argv);
 }
