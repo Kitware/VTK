@@ -120,6 +120,7 @@ void vtkRTTestSequence::Run()
 void vtkRTTestSequence::ReportSummaryResults(ostream &ost)
 {
   double result = 0.0;
+  double secondaryResult = 0.0;
   bool initialized = false;
   std::vector<vtkRTTestResult>::iterator trItr;
   for (trItr = this->TestResults.begin(); trItr != this->TestResults.end(); trItr++)
@@ -127,6 +128,7 @@ void vtkRTTestSequence::ReportSummaryResults(ostream &ost)
     if (!initialized)
       {
       result = trItr->Results[this->Test->GetSummaryResultName()];
+      secondaryResult = trItr->Results[this->Test->GetSecondSummaryResultName()];
       initialized = true;
       }
     else
@@ -136,6 +138,7 @@ void vtkRTTestSequence::ReportSummaryResults(ostream &ost)
         if (trItr->Results[this->Test->GetSummaryResultName()] > result)
           {
           result = trItr->Results[this->Test->GetSummaryResultName()];
+          secondaryResult = trItr->Results[this->Test->GetSecondSummaryResultName()];
           }
         }
       else
@@ -143,11 +146,13 @@ void vtkRTTestSequence::ReportSummaryResults(ostream &ost)
         if (trItr->Results[this->Test->GetSummaryResultName()] < result)
           {
           result = trItr->Results[this->Test->GetSummaryResultName()];
+          secondaryResult = trItr->Results[this->Test->GetSecondSummaryResultName()];
           }
         }
       }
     }
-  ost << this->Test->GetName() << ": " << result << " " << this->Test->GetSummaryResultName() << endl;
+  ost << this->Test->GetName() << ": " << result << " " << this->Test->GetSummaryResultName()
+      << " and " << static_cast<vtkIdType>(secondaryResult) << " " << this->Test->GetSecondSummaryResultName() << endl;
 }
 
 void vtkRTTestSequence::ReportDetailedResults(ostream &ost)

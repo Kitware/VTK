@@ -35,12 +35,16 @@ class vtkRTTest
   // what is the name of this test
   std::string GetName() { return this->Name; }
 
+  // when reporting a summary result use this key to
+  // determine the amount of triangles rendered
+  virtual const char *GetSecondSummaryResultName() = 0;
+
   // when reporting a summary result this is the
   // field that should be reported.
   virtual const char *GetSummaryResultName() = 0;
 
-  // when reporting a summary result shoudl we use the
-  // largets value or smallest?
+  // when reporting a summary result should we use the
+  // largest value or smallest?
   virtual bool UseLargestSummaryResult() { return true; }
 
   // Set/Get the time allowed for this test

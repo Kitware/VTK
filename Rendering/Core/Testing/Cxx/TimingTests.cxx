@@ -49,6 +49,8 @@ class surfaceTest : public vtkRTTest
 
   const char *GetSummaryResultName() { return "Mtris/sec"; }
 
+  const char *GetSecondSummaryResultName() { return "triangles"; }
+
   virtual vtkRTTestResult Run(vtkRTTestSequence *ats, int /*argc*/, char * /* argv */[])
     {
     int ures, vres;
@@ -120,6 +122,7 @@ class surfaceTest : public vtkRTTest
     result.Results["subsequent frame time"] = subsequentFrameTime;
     result.Results["Mtris"] = 1.0e-6*numTris;
     result.Results["Mtris/sec"] = 1.0e-6*numTris/subsequentFrameTime;
+    result.Results["triangles"] = numTris;
 
     return result;
     }
@@ -145,6 +148,8 @@ class glyphTest : public vtkRTTest
   }
 
   const char *GetSummaryResultName() { return "Mtris/sec"; }
+
+  const char *GetSecondSummaryResultName() { return "triangles"; }
 
   virtual vtkRTTestResult Run(vtkRTTestSequence *ats, int /*argc*/, char * /* argv */[])
     {
@@ -220,6 +225,7 @@ class glyphTest : public vtkRTTest
     result.Results["subsequent frame time"] = subsequentFrameTime;
     result.Results["Mtris"] = 1.0e-6*numTris;
     result.Results["Mtris/sec"] = 1.0e-6*numTris/subsequentFrameTime;
+    result.Results["triangles"] = numTris;
 
     return result;
     }
