@@ -223,7 +223,7 @@ void vtkRenderTimings::ReportResults()
 
   // then the detailed to a csv file
   ofstream rfile;
-  rfile.open (this->DetailedResultsFileName);
+  rfile.open (this->DetailedResultsFileName.c_str());
   for (tsItr = this->TestSequences.begin(); tsItr != this->TestSequences.end(); tsItr++)
     {
     (*tsItr)->ReportDetailedResults(rfile);
