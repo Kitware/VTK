@@ -41,7 +41,7 @@ class vtkRTTest
 
   // when reporting a summary result shoudl we use the
   // largets value or smallest?
-  virtual const bool UseLargestSummaryResult() { return true; }
+  virtual bool UseLargestSummaryResult() { return true; }
 
   // Set/Get the time allowed for this test
   // Tests should check if they are going more than 50%
