@@ -184,6 +184,37 @@ function(ExternalData_add_target target)
   if(NOT ExternalData_OBJECT_STORES)
     set(ExternalData_OBJECT_STORES ${CMAKE_BINARY_DIR}/ExternalData/Objects)
   endif()
+  set(_ExternalData_CONFIG_CODE "")
+
+  # Store custom script configuration.
+  foreach(url_template IN LISTS ExternalData_URL_TEMPLATES)
+    if("${url_template}" MATCHES "^ExternalDataCustomScript://([^/]*)/(.*)$")
+      set(key "${CMAKE_MATCH_1}")
+      if(key MATCHES "^[A-Za-z_][A-Za-z0-9_]*$")
+        if(ExternalData_CUSTOM_SCRIPT_${key})
+          if(IS_ABSOLUTE "${ExternalData_CUSTOM_SCRIPT_${key}}")
+            string(CONCAT _ExternalData_CONFIG_CODE "${_ExternalData_CONFIG_CODE}\n"
+              "set(ExternalData_CUSTOM_SCRIPT_${key} \"${ExternalData_CUSTOM_SCRIPT_${key}}\")")
+          else()
+            message(FATAL_ERROR
+              "No ExternalData_CUSTOM_SCRIPT_${key} is not set to a full path:\n"
+              " ${ExternalData_CUSTOM_SCRIPT_${key}}")
+          endif()
+        else()
+          message(FATAL_ERROR
+            "No ExternalData_CUSTOM_SCRIPT_${key} is set for URL template:\n"
+            " ${url_template}")
+        endif()
+      else()
+        message(FATAL_ERROR
+          "Bad ExternalDataCustomScript key '${key}' in URL template:\n"
+          " ${url_template}\n"
+          "The key must be a valid C identifier.")
+      endif()
+    endif()
+  endforeach()
+
+  # Store configuration for use by build-time script.
   set(config ${CMAKE_CURRENT_BINARY_DIR}/${target}_config.cmake)
   configure_file(${_ExternalData_SELF_DIR}/ExternalData_config.cmake.in ${config} @ONLY)
 
@@ -693,6 +724,30 @@ function(_ExternalData_download_file url file err_var msg_var)
   set("${msg_var}" "${msg}" PARENT_SCOPE)
 endfunction()
 
+function(_ExternalData_custom_fetch key loc file err_var msg_var)
+  if(NOT ExternalData_CUSTOM_SCRIPT_${key})
+    set(err 1)
+    set(msg "No ExternalData_CUSTOM_SCRIPT_${key} set!")
+  elseif(NOT EXISTS "${ExternalData_CUSTOM_SCRIPT_${key}}")
+    set(err 1)
+    set(msg "No '${ExternalData_CUSTOM_SCRIPT_${key}}' exists!")
+  else()
+    set(ExternalData_CUSTOM_LOCATION "${loc}")
+    set(ExternalData_CUSTOM_FILE "${file}")
+    unset(ExternalData_CUSTOM_ERROR)
+    include("${ExternalData_CUSTOM_SCRIPT_${key}}")
+    if(DEFINED ExternalData_CUSTOM_ERROR)
+      set(err 1)
+      set(msg "${ExternalData_CUSTOM_ERROR}")
+    else()
+      set(err 0)
+      set(msg "no error")
+    endif()
+  endif()
+  set("${err_var}" "${err}" PARENT_SCOPE)
+  set("${msg_var}" "${msg}" PARENT_SCOPE)
+endfunction()
+
 function(_ExternalData_download_object name hash algo var_obj)
   # Search all object stores for an existing object.
   foreach(dir ${ExternalData_OBJECT_STORES})
@@ -716,7 +771,11 @@ function(_ExternalData_download_object name hash algo var_obj)
     string(REPLACE "%(hash)" "${hash}" url_tmp "${url_template}")
     string(REPLACE "%(algo)" "${algo}" url "${url_tmp}")
     message(STATUS "Fetching \"${url}\"")
-    _ExternalData_download_file("${url}" "${tmp}" err errMsg)
+    if(url MATCHES "^ExternalDataCustomScript://([A-Za-z_][A-Za-z0-9_]*)/(.*)$")
+      _ExternalData_custom_fetch("${CMAKE_MATCH_1}" "${CMAKE_MATCH_2}" "${tmp}" err errMsg)
+    else()
+      _ExternalData_download_file("${url}" "${tmp}" err errMsg)
+    endif()
     set(tried "${tried}\n  ${url}")
     if(err)
       set(tried "${tried} (${errMsg})")
