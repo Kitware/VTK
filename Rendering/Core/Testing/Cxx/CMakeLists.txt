@@ -81,3 +81,6 @@ if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
 endif()
 
 vtk_test_cxx_executable(${vtk-module}CxxTests tests)
+
+# other executables
+vtk_module_test_executable(TimingTests TimingTests.cxx vtkRenderTimings.cxx)
