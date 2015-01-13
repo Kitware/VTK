@@ -499,9 +499,16 @@ void vtkSmartVolumeMapper::SetRequestedRenderMode(int mode)
     return;
     }
 
+  if (mode == RayCastAndTextureRenderMode || mode == TextureRenderMode)
+    {
+    vtkErrorMacro("RayCastAndTextureRenderMode and \
+                  TextureRenderMode no longer supported");
+    return;
+    }
+
   // Make sure it is a valid mode
   if ( mode < vtkSmartVolumeMapper::DefaultRenderMode ||
-       mode > vtkSmartVolumeMapper::GPURenderMode )
+       mode > vtkSmartVolumeMapper::GPURenderMode)
     {
     vtkErrorMacro("Invalid Render Mode.");
     return;
