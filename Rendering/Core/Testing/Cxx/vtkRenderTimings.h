@@ -60,6 +60,8 @@ class vtkRTTest
     this->Name = name;
   }
 
+  virtual ~vtkRTTest() {}
+
   protected:
     float TargetTime;
     std::string Name;
@@ -109,6 +111,8 @@ class vtkRTTestSequence
       this->TargetTime = 10.0;
       this->RenderTimings = rt;
     }
+
+    virtual ~vtkRTTestSequence(){}
 
   protected:
     std::vector<vtkRTTestResult> TestResults;
