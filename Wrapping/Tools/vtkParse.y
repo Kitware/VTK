@@ -3436,15 +3436,24 @@ void start_class(const char *classname, int is_struct_or_union)
     currentClass->ItemType = VTK_UNION_INFO;
     }
 
-  if (classname && classname[strlen(classname)-1] != '>')
+  if (classname && classname[0] != '\0')
     {
-    if (outerClass)
+    /* if name of class being defined contains "::" or "<..>", then skip it */
+    const char *cp = classname;
+    while (*cp != '\0' && *cp != ':' && *cp != '>')
       {
-      vtkParse_AddClassToClass(outerClass, currentClass);
+      cp++;
       }
-    else
+    if (*cp == '\0')
       {
-      vtkParse_AddClassToNamespace(currentNamespace, currentClass);
+      if (outerClass)
+        {
+        vtkParse_AddClassToClass(outerClass, currentClass);
+        }
+      else
+        {
+        vtkParse_AddClassToNamespace(currentNamespace, currentClass);
+        }
       }
     }
 
