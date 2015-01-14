@@ -119,7 +119,9 @@ public:
   enum
   {
     DefaultRenderMode=0,
+    RayCastAndTextureRenderMode,
     RayCastRenderMode,
+    TextureRenderMode,
     GPURenderMode,
     UndefinedRenderMode,
     InvalidRenderMode
