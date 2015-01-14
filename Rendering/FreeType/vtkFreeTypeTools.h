@@ -25,6 +25,7 @@
 
 #include "vtkRenderingFreeTypeModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkTextRenderer.h" // For Metrics struct
 
 class vtkImageData;
 class vtkPath;
@@ -97,10 +98,19 @@ public:
   // box is the anchor point described by the horizontal and vertical
   // justification text property variables.
   // Returns true on success, false otherwise.
+  // @sa GetMetrics
   bool GetBoundingBox(vtkTextProperty *tprop, const vtkStdString& str,
                       int bbox[4]);
   bool GetBoundingBox(vtkTextProperty *tprop, const vtkUnicodeString& str,
                       int bbox[4]);
+
+  // Description:
+  // Given a text property and a string, get the metrics of the rendered string.
+  // Returns true on success, false otherwise.
+  bool GetMetrics(vtkTextProperty *tprop, const vtkStdString& str,
+                  vtkTextRenderer::Metrics &metrics);
+  bool GetMetrics(vtkTextProperty *tprop, const vtkUnicodeString& str,
+                  vtkTextRenderer::Metrics &metrics);
 
   // Description:
   // Given a text property and a string, this function initializes the
@@ -194,6 +204,11 @@ protected:
   // This function initializes the extent of the ImageData to eventually
   // receive the text stored in str
   void PrepareImageData(vtkImageData *data, int bbox[4]);
+
+  // Description:
+  // Draw the background quad on the image.
+  void RenderBackground(vtkTextProperty *tprop, vtkImageData *image,
+                        ImageMetaData &metaData);
 
   // Description:
   // Given a text property, get the corresponding FreeType size object

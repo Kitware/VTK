@@ -113,6 +113,10 @@ int TestGL2PSTextActor(int, char *[])
           break;
         }
       actor->GetTextProperty()->SetColor(0.75, .2 + col * .26, .2 + row * .2);
+      actor->GetTextProperty()->SetBackgroundColor(0.0,
+                                                   0.8 - col * .26,
+                                                   .8 - row * .2);
+      actor->GetTextProperty()->SetBackgroundOpacity(0.25);
       actor->SetPosition(x[col], y[row]);
       setupTextActor(actor.GetPointer(), anchors.GetPointer());
       ren->AddActor2D(actor.GetPointer());

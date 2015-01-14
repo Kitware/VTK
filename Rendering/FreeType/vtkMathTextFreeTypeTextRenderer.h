@@ -54,6 +54,10 @@ protected:
   bool GetBoundingBoxInternal(vtkTextProperty *tprop,
                               const vtkUnicodeString &str,
                               int bbox[4], int dpi, int backend);
+  bool GetMetricsInternal(vtkTextProperty *tprop, const vtkStdString &str,
+                          Metrics &metrics, int dpi, int backend);
+  bool GetMetricsInternal(vtkTextProperty *tprop, const vtkUnicodeString &str,
+                          Metrics &metrics, int dpi, int backend);
   bool RenderStringInternal(vtkTextProperty *tprop, const vtkStdString &str,
                             vtkImageData *data, int textDims[2], int dpi,
                             int backend);

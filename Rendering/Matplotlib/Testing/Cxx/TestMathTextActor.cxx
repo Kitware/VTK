@@ -105,6 +105,10 @@ int TestMathTextActor(int, char *[])
       actor->GetTextProperty()->SetFontSize(22);
       actor->GetTextProperty()->SetOrientation(45.0 * (3 * row + col));
       actor->GetTextProperty()->SetColor(0.75, .2 + col * .26, .2 + row * .26);
+      actor->GetTextProperty()->SetBackgroundColor(0.,
+                                                   1. - col * .26,
+                                                   1. - row * .26);
+      actor->GetTextProperty()->SetBackgroundOpacity(0.25);
       actor->SetPosition(x[col], y[row]);
       setupTextActor(actor.GetPointer(), anchors.GetPointer());
       ren->AddActor(actor.GetPointer());
