@@ -98,7 +98,9 @@
         "lib/js/paraview.ui.files.js",
         "lib/js/paraview.ui.data.js",
         "lib/js/paraview.ui.proxy.editor.js",
-        "lib/js/paraview.ui.svg.pipeline.js"
+        "lib/js/paraview.ui.svg.pipeline.js",
+        "lib/js/paraview.ui.opacity.editor.js",
+        "lib/css/paraview.ui.opacity.editor.css"
         ]
 
     },
