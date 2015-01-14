@@ -17,7 +17,7 @@
 
 void vtkRTTestSequence::GetSequenceNumbers(int &xdim)
 {
-  static int linearSequence[] = {1,2,3,5};
+  static int linearSequence[] = {1, 2, 3, 5};
 
   xdim = 1;
   int sc = this->SequenceCount;
@@ -101,11 +101,11 @@ void vtkRTTestSequence::Run()
   int sequenceEnd = this->RenderTimings->GetSequenceEnd();
   double remainingTime = this->TargetTime;
   double lastRunTime = 0.0;
-  int argc; char **argv;
+  int argc;
+  char **argv;
   this->RenderTimings->GetArguments().GetUnusedArguments(&argc, &argv);
-  // while we have enough time remaning to do a 50%
-  // longer run
-  while (remainingTime > 1.5*lastRunTime &&
+  // while we have enough time remaning to do a 50% longer run
+  while (remainingTime > 1.5 * lastRunTime &&
       (sequenceEnd == 0 || this->SequenceCount <= sequenceEnd))
     {
     double startTime = vtkTimerLog::GetUniversalTime();
@@ -120,6 +120,7 @@ void vtkRTTestSequence::Run()
 void vtkRTTestSequence::ReportSummaryResults(ostream &ost)
 {
   double result = 0.0;
+  double secondaryResult = 0.0;
   bool initialized = false;
   std::vector<vtkRTTestResult>::iterator trItr;
   for (trItr = this->TestResults.begin(); trItr != this->TestResults.end(); trItr++)
@@ -127,6 +128,7 @@ void vtkRTTestSequence::ReportSummaryResults(ostream &ost)
     if (!initialized)
       {
       result = trItr->Results[this->Test->GetSummaryResultName()];
+      secondaryResult = trItr->Results[this->Test->GetSecondSummaryResultName()];
       initialized = true;
       }
     else
@@ -136,6 +138,7 @@ void vtkRTTestSequence::ReportSummaryResults(ostream &ost)
         if (trItr->Results[this->Test->GetSummaryResultName()] > result)
           {
           result = trItr->Results[this->Test->GetSummaryResultName()];
+          secondaryResult = trItr->Results[this->Test->GetSecondSummaryResultName()];
           }
         }
       else
@@ -143,11 +146,13 @@ void vtkRTTestSequence::ReportSummaryResults(ostream &ost)
         if (trItr->Results[this->Test->GetSummaryResultName()] < result)
           {
           result = trItr->Results[this->Test->GetSummaryResultName()];
+          secondaryResult = trItr->Results[this->Test->GetSecondSummaryResultName()];
           }
         }
       }
     }
-  ost << this->Test->GetName() << ": " << result << " " << this->Test->GetSummaryResultName() << endl;
+  ost << this->Test->GetName() << ": " << result << " " << this->Test->GetSummaryResultName()
+      << " and " << static_cast<vtkIdType>(secondaryResult) << " " << this->Test->GetSecondSummaryResultName() << endl;
 }
 
 void vtkRTTestSequence::ReportDetailedResults(ostream &ost)
