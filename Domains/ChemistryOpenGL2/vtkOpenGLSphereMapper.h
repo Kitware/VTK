@@ -68,8 +68,12 @@ protected:
   const char *ScaleArray;
 
   // Description:
+  // Does the VBO/IBO need to be rebuilt
+  virtual bool GetNeedToRebuildBufferObjects(vtkRenderer *ren, vtkActor *act);
+
+  // Description:
   // Update the VBO to contain point based values
-  virtual void UpdateVBO(vtkRenderer *ren, vtkActor *act);
+  virtual void BuildBufferObjects(vtkRenderer *ren, vtkActor *act);
 
   virtual void RenderPieceDraw(vtkRenderer *ren, vtkActor *act);
 
