@@ -91,6 +91,8 @@ if(TARGET vtkDomainsChemistry)
     set(extra_deps vtkDomainsChemistry)
   endif()
 endif()
+
+set(VTK_DIR ${VTK_BINARY_DIR})
 find_package(VTK COMPONENTS
   vtkFiltersSources
   vtkInteractionStyle
