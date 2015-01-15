@@ -36,6 +36,7 @@ existing tests to get an idea of what to do.
 Define a test for simple triangle mesh surfaces
 =========================================================================*/
 #include "vtkParametricBoy.h"
+#include "vtkParametricTorus.h"
 #include "vtkParametricFunctionSource.h"
 
 class surfaceTest : public vtkRTTest
@@ -57,30 +58,31 @@ public:
     ats->GetSequenceNumbers(ures,vres);
 
     // ------------------------------------------------------------
-    // Create Boy's surface
+    // Create surface
     // ------------------------------------------------------------
-    vtkNew<vtkParametricBoy> PB;
+    //  vtkNew<vtkParametricBoy> PB;
+    vtkNew<vtkParametricTorus> PB;
     vtkNew<vtkParametricFunctionSource> PFS;
     PFS->SetParametricFunction(PB.Get());
     if (this->WithColors)
       {
-      PFS->SetScalarModeToModulus();
+      PFS->SetScalarModeToPhase();
       }
     else
       {
       PFS->SetScalarModeToNone();
       }
+    if (this->WithNormals == false)
+      {
+      PFS->GenerateNormalsOff();
+      }
     PFS->SetUResolution(ures * 50);
     PFS->SetVResolution(vres * 100);
     PFS->Update();
-    if (this->WithNormals == false)
-      {
-      PFS->GetOutput()->GetPointData()->SetNormals(NULL);
-      }
 
     vtkNew<vtkPolyDataMapper> mapper;
     mapper->SetInputConnection(PFS->GetOutputPort());
-    mapper->SetScalarRange(0.0, 2.0);
+    mapper->SetScalarRange(0.0, 360.0);
 
     vtkNew<vtkActor> actor;
     actor->SetMapper(mapper.Get());
@@ -99,6 +101,8 @@ public:
     double startTime = vtkTimerLog::GetUniversalTime();
     renWindow->Render();
     double firstFrameTime = vtkTimerLog::GetUniversalTime() - startTime;
+    ren1->GetActiveCamera()->Azimuth(90);
+    ren1->ResetCameraClippingRange();
 
     int frameCount = 80;
     for (int i = 0; i < frameCount; i++)

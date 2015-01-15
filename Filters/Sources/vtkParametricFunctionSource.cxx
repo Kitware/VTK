@@ -44,6 +44,7 @@ vtkParametricFunctionSource::vtkParametricFunctionSource() :
   , OutputPointsPrecision(vtkAlgorithm::SINGLE_PRECISION)
 {
   this->SetNumberOfInputPorts(0);
+  this->GenerateNormals = 1;
 }
 
 
@@ -53,66 +54,80 @@ vtkParametricFunctionSource::~vtkParametricFunctionSource()
   this->SetParametricFunction(NULL);
 }
 
-//----------------------------------------------------------------------------
-void vtkParametricFunctionSource::MakeTriangleStrips ( vtkCellArray * strips,
-                                                       int PtsU, int PtsV )
-{
-  int id1;
-  int id2;
-
-  vtkDebugMacro(<< "Executing MakeTriangleStrips()");
-
-  for ( int i = 0; i < PtsU - 1; ++i )
+namespace {
+  void addTriCells(vtkIdType *&idPtr,
+    int id1, int id2, int id3, int id4,
+    bool clockwise)
     {
-    // Allocate space
-    if ( this->ParametricFunction->GetJoinV() )
-      {
-      strips->InsertNextCell( PtsV * 2 + 2 );
-      }
-    else
-      {
-      strips->InsertNextCell( PtsV * 2 );
-      }
-
-    // Fill the allocated space with the indexes to the points.
-    for ( int j = 0; j < PtsV; ++j )
-      {
-      id1 = j + i * PtsV;
-      id2 = (i + 1 ) * PtsV + j;
-      if ( this->ParametricFunction->GetClockwiseOrdering() )
+      *(idPtr++) = 3;
+      if ( clockwise )
         {
-        strips->InsertCellPoint(id1);
-        strips->InsertCellPoint(id2);
+        *(idPtr++) = id1;
+        *(idPtr++) = id2;
+        *(idPtr++) = id3;
+        *(idPtr++) = 3;
+        *(idPtr++) = id1;
+        *(idPtr++) = id3;
+        *(idPtr++) = id4;
         }
       else
         {
-        strips->InsertCellPoint(id2);
-        strips->InsertCellPoint(id1);
+        *(idPtr++) = id1;
+        *(idPtr++) = id3;
+        *(idPtr++) = id2;
+        *(idPtr++) = 3;
+        *(idPtr++) = id1;
+        *(idPtr++) = id4;
+        *(idPtr++) = id3;
         }
+      }
+    }
+
+//----------------------------------------------------------------------------
+void vtkParametricFunctionSource::MakeTriangles ( vtkCellArray * cells,
+                                                   int PtsU, int PtsV )
+{
+  int id1 = 0;
+  int id2 = 0;
+  int id3 = 0;
+  int id4 = 0;
+
+  vtkDebugMacro(<< "Executing MakeTriangles()");
+
+  bool clockwise = (this->ParametricFunction->GetClockwiseOrdering() != 0);
+
+  vtkIdType numCells = (PtsU + this->ParametricFunction->GetJoinU() - 1)*
+    (PtsV + this->ParametricFunction->GetJoinV() - 1)*2;
+  cells->Allocate(numCells*4,1000);
+  vtkIdType *idPtr = cells->WritePointer(numCells,numCells*4);
+
+  for ( int i = 0; i < PtsU - 1; ++i )
+    {
+    // Fill the allocated space with the indexes to the points.
+    for ( int j = 0; j < PtsV - 1; ++j )
+      {
+      id1 = j + i * PtsV;
+      id2 = id1 + PtsV;
+      id3 = id2 + 1;
+      id4 = id1 + 1;
+      addTriCells(idPtr,id1,id2,id3,id4,clockwise);
       }
     // If necessary, connect the ends of the triangle strip.
     if ( this->ParametricFunction->GetJoinV() )
       {
+      id1 = id4;
+      id2 = id3;
       if ( this->ParametricFunction->GetTwistV() )
         {
-        id1 = (i + 1) * PtsV;
-        id2 = i * PtsV;
+        id3 = (i + 1) * PtsV;
+        id4 = i * PtsV;
         }
       else
         {
-        id1 = i * PtsV;
-        id2 = (i + 1) * PtsV;
+        id3 = i * PtsV;
+        id4 = (i + 1) * PtsV;
         }
-      if ( this->ParametricFunction->GetClockwiseOrdering() )
-        {
-        strips->InsertCellPoint(id1);
-        strips->InsertCellPoint(id2);
-        }
-      else
-        {
-        strips->InsertCellPoint(id2);
-        strips->InsertCellPoint(id1);
-        }
+      addTriCells(idPtr,id1,id2,id3,id4,clockwise);
       }
     }
   // If required, connect the last triangle strip to the first by
@@ -120,80 +135,59 @@ void vtkParametricFunctionSource::MakeTriangleStrips ( vtkCellArray * strips,
   // to the points.
   if ( this->ParametricFunction->GetJoinU() )
     {
-    if ( this->ParametricFunction->GetJoinV() )
+    for ( int j = 0; j < PtsV - 1; ++j )
       {
-      strips->InsertNextCell( PtsV * 2 + 2 );
-      }
-    else
-      {
-      strips->InsertNextCell( PtsV * 2 );
-      }
-    for ( int j = 0; j < PtsV; ++j )
-      {
+      id1 = j + (PtsU - 1) * PtsV;
+      id3 = id1 + 1;
       if ( this->ParametricFunction->GetTwistU() )
         {
-        id1 = ( PtsU - 1 ) * PtsV + j;
         id2 = PtsV - 1 - j;
+        id4 = id2 - 1;
         }
       else
         {
-        id1 = ( PtsU - 1 ) * PtsV + j;
         id2 = j;
+        id4 = id2 + 1;
         }
-      if ( this->ParametricFunction->GetClockwiseOrdering() )
-        {
-        strips->InsertCellPoint(id1);
-        strips->InsertCellPoint(id2);
-        }
-      else
-        {
-        strips->InsertCellPoint(id2);
-        strips->InsertCellPoint(id1);
-        }
+      addTriCells(idPtr,id1,id2,id3,id4,clockwise);
       }
 
     // If necessary, connect the ends of the triangle strip.
     if ( this->ParametricFunction->GetJoinV() )
       {
+      id1 = id3;
+      id2 = id4;
       if ( this->ParametricFunction->GetTwistU() )
         {
         if ( this->ParametricFunction->GetTwistV() )
           {
-          id1 = PtsV - 1;
-          id2 = ( PtsU - 1 ) * PtsV;
+          id3 = PtsV - 1;
+          id4 = ( PtsU - 1 ) * PtsV;
           }
         else
           {
-          id1 = ( PtsU - 1 ) * PtsV;
-          id2 = PtsV - 1;
+          id3 = ( PtsU - 1 ) * PtsV;
+          id4 = PtsV - 1;
           }
         }
       else
         {
         if ( this->ParametricFunction->GetTwistV() )
           {
-          id1 = 0;
-          id2 = ( PtsU - 1 ) * PtsV;
+          id3 = 0;
+          id4 = ( PtsU - 1 ) * PtsV;
           }
         else
           {
-          id1 = ( PtsU - 1 ) * PtsV;
-          id2 = 0;
+          id3 = ( PtsU - 1 ) * PtsV;
+          id4 = 0;
           }
         }
-      if ( this->ParametricFunction->GetClockwiseOrdering() )
-        {
-        strips->InsertCellPoint(id1);
-        strips->InsertCellPoint(id2);
-        }
-      else
-        {
-        strips->InsertCellPoint(id2);
-        strips->InsertCellPoint(id1);
-        }
+      addTriCells(idPtr,id1,id2,id3,id4,clockwise);
       }
     }
-  vtkDebugMacro(<< "MakeTriangleStrips() finished.");
+  cells->Modified();
+  vtkDebugMacro(<< "MakeTriangles() finished.");
 }
 
 //----------------------------------------------------------------------------
@@ -270,9 +264,6 @@ void vtkParametricFunctionSource::Produce1DOutput(vtkInformationVector *output)
 //----------------------------------------------------------------------------
 void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector *output)
 {
-  // Used to hold the surface
-  vtkSmartPointer<vtkPolyData> pd = vtkSmartPointer<vtkPolyData>::New();
-
   // Adjust so the ranges:
   // this->MinimumU ... this->ParametricFunction->GetMaximumU(),
   // this->MinimumV ... this->ParametricFunction->GetMaximumV()
@@ -289,20 +280,29 @@ void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector *output)
 
   // Scalars associated with each point
   vtkSmartPointer<vtkFloatArray> sval = vtkSmartPointer<vtkFloatArray>::New();
-  sval->SetNumberOfTuples(totPts);
-  sval->SetName("Scalars");
+  if ( this->ScalarMode != SCALAR_NONE )
+    {
+    sval->SetNumberOfTuples(totPts);
+    sval->SetName("Scalars");
+    }
 
   // The normals to the surface
   vtkSmartPointer<vtkFloatArray> nval = vtkSmartPointer<vtkFloatArray>::New();
-  nval->SetNumberOfComponents(3);
-  nval->SetNumberOfTuples(totPts);
-  nval->SetName("Normals");
+  if (this->GenerateNormals)
+    {
+    nval->SetNumberOfComponents(3);
+    nval->SetNumberOfTuples(totPts);
+    nval->SetName("Normals");
+    }
 
   // Texture coordinates
   vtkSmartPointer<vtkFloatArray> newTCoords = vtkSmartPointer<vtkFloatArray>::New();
-  newTCoords->SetNumberOfComponents(2);
-  newTCoords->Allocate(2*totPts);
-  newTCoords->SetName("Textures");
+  if ( this->GenerateTextureCoordinates != 0 )
+    {
+    newTCoords->SetNumberOfComponents(2);
+    newTCoords->Allocate(2*totPts);
+    newTCoords->SetName("Textures");
+    }
 
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
 
@@ -484,7 +484,8 @@ void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector *output)
         }
 
       // Calculate the normal.
-      if ( this->ParametricFunction->GetDerivativesAvailable() )
+      if ( this->ParametricFunction->GetDerivativesAvailable() &&
+           this->GenerateNormals)
         {
         double n[3];
         vtkMath::Cross(Du,Dv,n);
@@ -496,51 +497,42 @@ void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector *output)
       }
     }
 
-  // Make the triangle strips
-  vtkSmartPointer<vtkCellArray> strips = vtkSmartPointer<vtkCellArray>::New();
-  // This is now a list of ID's defining the triangles.
-  this->MakeTriangleStrips ( strips, PtsU, PtsV );
-
-  pd->SetPoints( points );
-  pd->SetVerts( strips );
-  pd->SetStrips( strips );
-  if ( this->ScalarMode != SCALAR_NONE )
-    {
-    pd->GetPointData()->SetScalars( sval );
-    }
-
-  if ( this->ParametricFunction->GetDerivativesAvailable() )
-    {
-    pd->GetPointData()->SetNormals( nval );
-    }
-  pd->Modified();
-
-  vtkSmartPointer<vtkTriangleFilter> tri = vtkSmartPointer<vtkTriangleFilter>::New();
-  vtkSmartPointer<vtkPolyDataNormals> norm = vtkSmartPointer<vtkPolyDataNormals>::New();
-  if (this->ParametricFunction->GetDerivativesAvailable())
-    {
-    //Generate polygons from the triangle strips
-    tri->SetInputData(pd);
-    }
-  else
-    {
-    // Calculate Normals
-    norm->SetInputData(pd);
-    // Generate polygons from the triangle strips
-    tri->SetInputConnection(norm->GetOutputPort());
-    }
-  tri->PassLinesOn();
-  tri->PassVertsOff();
-  tri->Update();
-
   vtkInformation *outInfo = output->GetInformationObject(0);
   vtkPolyData *outData = static_cast<vtkPolyData*>(outInfo->Get( vtkDataObject::DATA_OBJECT() ));
-  outData->DeepCopy(tri->GetOutput());
+  vtkCellArray *tris = vtkCellArray::New();
+  this->MakeTriangles ( tris, PtsU, PtsV );
+  outData->SetPoints( points );
+  outData->SetPolys(tris);
 
+  if (this->GenerateNormals)
+    {
+    if (this->ParametricFunction->GetDerivativesAvailable())
+      {
+      outData->GetPointData()->SetNormals( nval );
+      }
+    else
+      {
+      // Used to hold the surface
+      vtkSmartPointer<vtkPolyData> pd = vtkSmartPointer<vtkPolyData>::New();
+      pd->SetPoints( points );
+      pd->SetPolys( tris );
+      vtkSmartPointer<vtkPolyDataNormals> norm = vtkSmartPointer<vtkPolyDataNormals>::New();
+      norm->SetInputData(pd);
+      norm->Update();
+      outData->DeepCopy(norm->GetOutput());
+      }
+    }
+
+  tris->Delete();
+  if ( this->ScalarMode != SCALAR_NONE )
+    {
+    outData->GetPointData()->SetScalars( sval );
+    }
   if ( this->GenerateTextureCoordinates != 0 )
     {
     outData->GetPointData()->SetTCoords( newTCoords );
     }
+  outData->Modified();
 }
 
 /*
