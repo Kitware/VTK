@@ -56,10 +56,10 @@ public:
   void Cap();
 
   // Interface implicit function computation to SMP tools.
-  template <class T> class FunctionValueOp
+  template <class TT> class FunctionValueOp
     {
     public:
-      FunctionValueOp(vtkSampleFunctionAlgorithm<T> *algo)
+      FunctionValueOp(vtkSampleFunctionAlgorithm<TT> *algo)
         { this->Algo = algo;}
       vtkSampleFunctionAlgorithm *Algo;
       void  operator() (vtkIdType k, vtkIdType end)
@@ -78,7 +78,7 @@ public:
               {
               x[0] = this->Algo->Origin[0] + i*this->Algo->Spacing[0];
               this->Algo->Scalars[i+jOffset+kOffset] =
-                static_cast<T>(this->Algo->ImplicitFunction->FunctionValue(x));
+                static_cast<TT>(this->Algo->ImplicitFunction->FunctionValue(x));
               }
             }
           }
@@ -86,10 +86,10 @@ public:
     };
 
   // Interface implicit function graadient computation to SMP tools.
-  template <class T> class FunctionGradientOp
+  template <class TT> class FunctionGradientOp
     {
     public:
-      FunctionGradientOp(vtkSampleFunctionAlgorithm<T> *algo)
+      FunctionGradientOp(vtkSampleFunctionAlgorithm<TT> *algo)
         { this->Algo = algo;}
       vtkSampleFunctionAlgorithm *Algo;
       void  operator() (vtkIdType k, vtkIdType end)
@@ -110,9 +110,9 @@ public:
               x[0] = this->Algo->Origin[0] + i*this->Algo->Spacing[0];
               this->Algo->ImplicitFunction->FunctionGradient(x,n);
               nPtr = this->Algo->Normals + 3*(i+jOffset+kOffset);
-              nPtr[0] = static_cast<T>(-n[0]);
-              nPtr[1] = static_cast<T>(-n[1]);
-              nPtr[2] = static_cast<T>(-n[2]);
+              nPtr[0] = static_cast<TT>(-n[0]);
+              nPtr[1] = static_cast<TT>(-n[1]);
+              nPtr[2] = static_cast<TT>(-n[2]);
               }//i
             }//j
           }//k
