@@ -1111,6 +1111,11 @@ bool vtkFreeTypeTools::RenderStringInternal(vtkTextProperty *tprop,
     memcpy(metaData.rgba, origColor, 3 * sizeof(unsigned char));
     }
 
+  // Mark the image data as modified, as it is possible that only
+  // vtkImageData::Get*Pointer methods will be called, which do not update the
+  // MTime.
+  data->Modified();
+
   // Render image
   return this->PopulateData(str, data, metaData);
 }

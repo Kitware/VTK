@@ -32,7 +32,7 @@
 #ifndef vtkTextActor_h
 #define vtkTextActor_h
 
-#include "vtkRenderingFreeTypeModule.h" // For export macro
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkTexturedActor2D.h"
 
 class vtkTextProperty;
@@ -43,7 +43,7 @@ class vtkTransform;
 class vtkPolyData;
 class vtkPoints;
 
-class VTKRENDERINGFREETYPE_EXPORT vtkTextActor : public vtkTexturedActor2D
+class VTKRENDERINGCORE_EXPORT vtkTextActor : public vtkTexturedActor2D
 {
 public:
   vtkTypeMacro(vtkTextActor,vtkTexturedActor2D);
@@ -295,4 +295,3 @@ private:
 
 
 #endif
-

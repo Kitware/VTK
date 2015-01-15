@@ -263,7 +263,7 @@ public:
 // Description:
 // Some inline functions for the derived types.
 #define vtkVectorNormalized(vectorType, type, size) \
-vectorType Normalized() \
+vectorType Normalized() const \
 { \
   return vectorType(vtkVector<type, size>::Normalized().GetData()); \
 } \
@@ -304,7 +304,7 @@ public:
 };
 
 #define vtkVector3Cross(vectorType, type) \
-vectorType Cross(const vectorType& other) \
+vectorType Cross(const vectorType& other) const \
 { \
   return vectorType(vtkVector3<type>::Cross(other).GetData()); \
 } \

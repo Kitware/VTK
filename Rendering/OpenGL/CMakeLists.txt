@@ -85,6 +85,7 @@ set(Module_SRCS
   vtkOpenGLHardwareSupport.cxx
   vtkOpenGLImageMapper.cxx
   vtkOpenGLImageSliceMapper.cxx
+  vtkOpenGLLabeledContourMapper.cxx
   vtkOpenGLLight.cxx
   vtkOpenGLLightMonitor.cxx
   vtkOpenGLLightingPainter.cxx
@@ -320,6 +321,7 @@ set(opengl_overrides
   Glyph3DMapper
   HardwareSelector
   ImageSliceMapper
+  LabeledContourMapper
   Light
   LightingPainter
   PainterDeviceAdapter

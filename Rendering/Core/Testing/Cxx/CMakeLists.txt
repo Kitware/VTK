@@ -37,6 +37,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestHomogeneousTransformOfActor.cxx
   TestInteractorStyleImageProperty.cxx,NO_VALID
   TestInteractorTimers.cxx,NO_VALID
+  TestLabeledContourMapper.cxx
   TestPickingManager.cxx,NO_VALID
   TestManyActors.cxx,NO_VALID
   TestMapVectorsAsRGBColors.cxx
