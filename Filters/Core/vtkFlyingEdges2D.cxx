@@ -194,6 +194,61 @@ public:
       eIds[2] += this->EdgeUses[eCase][2]; //y-edges
       eIds[3] = eIds[2] + this->EdgeUses[eCase][3];
    }
+
+  // Threading integration via SMPTools
+  template <class TT> class Pass1
+    {
+    public:
+      Pass1(vtkFlyingEdges2DAlgorithm<TT> *algo, double value)
+        { this->Algo = algo; this->Value = value;}
+      vtkFlyingEdges2DAlgorithm<TT> *Algo;
+      double Value;
+      void  operator()(vtkIdType row, vtkIdType end)
+        {
+        TT *rowPtr = this->Algo->Scalars + row*this->Algo->Inc1;
+        for ( ; row < end; ++row)
+          {
+          this->Algo->ProcessXEdge(this->Value, rowPtr, row);
+          rowPtr += this->Algo->Inc1;
+          }//for all rows in this batch
+        }
+    };
+  template <class TT> class Pass2
+    {
+    public:
+      Pass2(vtkFlyingEdges2DAlgorithm<TT> *algo)
+        { this->Algo = algo;}
+      vtkFlyingEdges2DAlgorithm<TT> *Algo;
+      void  operator()(vtkIdType row, vtkIdType end)
+        {
+        for ( ; row < end; ++row)
+          {
+          this->Algo->ProcessYEdges(row);
+          }//for all rows in this batch
+        }
+    };
+  template <class TT> class Pass3
+    {
+    public:
+      Pass3(vtkFlyingEdges2DAlgorithm<TT> *algo, double value)
+        { this->Algo = algo; this->Value = value;}
+      vtkFlyingEdges2DAlgorithm<TT> *Algo;
+      double Value;
+      void  operator()(vtkIdType row, vtkIdType end)
+        {
+        T *rowPtr = this->Algo->Scalars + row*this->Algo->Inc1;
+        for ( ; row < end; ++row)
+          {
+          this->Algo->GenerateOutput(this->Value, rowPtr, row);
+          rowPtr += this->Algo->Inc1;
+          }//for all rows in this batch
+        }
+    };
+
+  // Interface between VTK and templated functions
+  static void ContourImage(vtkFlyingEdges2D *self, T *scalars, vtkPoints *newPts,
+                           vtkDataArray *newScalars, vtkCellArray *newLines,
+                           vtkImageData *input, int *updateExt);
 };
 
 //----------------------------------------------------------------------------
@@ -547,94 +602,14 @@ GenerateOutput(double value, T* rowPtr, vtkIdType row)
 }
 
 //----------------------------------------------------------------------------
-// Here is the VTK class proper.
-// Construct object with initial contour value of 0.0.
-vtkFlyingEdges2D::vtkFlyingEdges2D()
-{
-  this->ContourValues = vtkContourValues::New();
-  this->ComputeScalars = 1;
-  this->ArrayComponent = 0;
-
-  // by default process active point scalars
-  this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
-                               vtkDataSetAttributes::SCALARS);
-}
-
-//----------------------------------------------------------------------------
-vtkFlyingEdges2D::~vtkFlyingEdges2D()
-{
-  this->ContourValues->Delete();
-}
-
-//----------------------------------------------------------------------------
-// Description:
-// Overload standard modified time function. If contour values are modified,
-// then this object is modified as well.
-unsigned long vtkFlyingEdges2D::GetMTime()
-{
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long mTime2=this->ContourValues->GetMTime();
-
-  return ( mTime2 > mTime ? mTime2 : mTime );
-}
-
-//----------------------------------------------------------------------------
-// Build threading integration with the SMPTools
-template <class T>
-class vtkFlyingEdgesPass1
-  {
-  public:
-    vtkFlyingEdges2DAlgorithm<T> *Algo;
-    double Value;
-    void  operator()(vtkIdType row, vtkIdType end)
-      {
-      T *rowPtr = this->Algo->Scalars + row*this->Algo->Inc1;
-      for ( ; row < end; ++row)
-        {
-        this->Algo->ProcessXEdge(this->Value, rowPtr, row);
-        rowPtr += this->Algo->Inc1;
-        }//for all rows in this batch
-      }
-  };
-template <class T>
-class vtkFlyingEdgesPass2
-  {
-  public:
-    vtkFlyingEdges2DAlgorithm<T> *Algo;
-    void  operator()(vtkIdType row, vtkIdType end)
-      {
-      for ( ; row < end; ++row)
-        {
-        this->Algo->ProcessYEdges(row);
-        }//for all rows in this batch
-      }
-  };
-template <class T>
-class vtkFlyingEdgesPass3
-  {
-  public:
-    vtkFlyingEdges2DAlgorithm<T> *Algo;
-    double Value;
-    void  operator()(vtkIdType row, vtkIdType end)
-      {
-      T *rowPtr = this->Algo->Scalars + row*this->Algo->Inc1;
-      for ( ; row < end; ++row)
-        {
-        this->Algo->GenerateOutput(this->Value, rowPtr, row);
-        rowPtr += this->Algo->Inc1;
-        }//for all rows in this batch
-      }
-  };
-
-//----------------------------------------------------------------------------
 // Contouring filter specialized for images. This templated function interfaces the
 // vtkFlyingEdges2D class with the templated algorithm class. It also invokes
 // the three passes of the Flying Edges algorithm.
 //
-template <class T>
-void vtkContourImage(vtkFlyingEdges2D *self, T *scalars, vtkPoints *newPts,
-                     vtkDataArray *newScalars, vtkCellArray *newLines,
-                     vtkImageData *input, int *updateExt)
+template <class T> void vtkFlyingEdges2DAlgorithm<T>::
+ContourImage(vtkFlyingEdges2D *self, T *scalars, vtkPoints *newPts,
+             vtkDataArray *newScalars, vtkCellArray *newLines,
+             vtkImageData *input, int *updateExt)
 {
   double value, *values = self->GetValues();
   int numContours = self->GetNumberOfContours();
@@ -719,7 +694,7 @@ void vtkContourImage(vtkFlyingEdges2D *self, T *scalars, vtkPoints *newPts,
 
   // The algorithm is separated into multiple passes. The first pass
   // computes intersections on row edges, counting the number of intersected edges
-  // as it progresses. It also keeps track of the generated cases and
+  // as it progresses. It also keeps track of the generated edge cases and
   // other incidental information about intersections along rows. The second
   // pass generates polylines from the cases and intersection information.
   // In the final and third pass output points and lines are generated.
@@ -732,16 +707,13 @@ void vtkContourImage(vtkFlyingEdges2D *self, T *scalars, vtkPoints *newPts,
     // PASS 1: Traverse all rows generating intersection points and building
     // the case table. Also accumulate information necessary for later allocation.
     // For example the number of output points is computed.
-    vtkFlyingEdgesPass1<T> pass1;
-    pass1.Algo = &algo;
-    pass1.Value = value;
+    vtkFlyingEdges2DAlgorithm<T>::Pass1<T> pass1(&algo,value);
     vtkSMPTools::For(0,algo.Dims[1], pass1);
 
     // PASS 2: Traverse all rows and process cell y edges. Continue building
     // case table from y contributions (using computational trimming to reduce
     // work) and keep track of cell y intersections.
-    vtkFlyingEdgesPass2<T> pass2;
-    pass2.Algo = &algo;
+    vtkFlyingEdges2DAlgorithm<T>::Pass2<T> pass2(&algo);
     vtkSMPTools::For(0,algo.Dims[1]-1, pass2);
 
     // PASS 3: Now allocate and generate output. First we have to update the
@@ -779,9 +751,7 @@ void vtkContourImage(vtkFlyingEdges2D *self, T *scalars, vtkPoints *newPts,
       }
 
     // Now process each x-row and produce the output primitives.
-    vtkFlyingEdgesPass3<T> pass3;
-    pass3.Algo = &algo;
-    pass3.Value = value;
+    vtkFlyingEdges2DAlgorithm<T>::Pass3<T> pass3(&algo,value);
     vtkSMPTools::For(0,algo.Dims[1]-1, pass3);
 
     // Handle multiple contours
@@ -793,6 +763,38 @@ void vtkContourImage(vtkFlyingEdges2D *self, T *scalars, vtkPoints *newPts,
   // Clean up and return
   delete [] algo.XCases;
   delete [] algo.EdgeMetaData;
+}
+
+//----------------------------------------------------------------------------
+// Here is the VTK class proper.
+// Construct object with initial contour value of 0.0.
+vtkFlyingEdges2D::vtkFlyingEdges2D()
+{
+  this->ContourValues = vtkContourValues::New();
+  this->ComputeScalars = 1;
+  this->ArrayComponent = 0;
+
+  // by default process active point scalars
+  this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
+                               vtkDataSetAttributes::SCALARS);
+}
+
+//----------------------------------------------------------------------------
+vtkFlyingEdges2D::~vtkFlyingEdges2D()
+{
+  this->ContourValues->Delete();
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// Overload standard modified time function. If contour values are modified,
+// then this object is modified as well.
+unsigned long vtkFlyingEdges2D::GetMTime()
+{
+  unsigned long mTime=this->Superclass::GetMTime();
+  unsigned long mTime2=this->ContourValues->GetMTime();
+
+  return ( mTime2 > mTime ? mTime2 : mTime );
 }
 
 //----------------------------------------------------------------------------
@@ -850,8 +852,8 @@ int vtkFlyingEdges2D::RequestData( vtkInformation *vtkNotUsed(request),
   void *scalars = inScalars->GetVoidPointer(0);
   switch (inScalars->GetDataType())
     {
-    vtkTemplateMacro(
-      vtkContourImage(this,(VTK_TT *)scalars, newPts,
+    vtkTemplateMacro(vtkFlyingEdges2DAlgorithm<VTK_TT>::
+                     ContourImage(this,(VTK_TT *)scalars, newPts,
                       newScalars, newLines, input, ext));
     }//switch
 
