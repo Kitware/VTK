@@ -72,6 +72,7 @@
 #define VTK_ACCUMULATION_MODE_SUM 2
 
 class vtkDoubleArray;
+class vtkCompositeDataSet;
 
 class VTKIMAGINGHYBRID_EXPORT vtkGaussianSplatter : public vtkImageAlgorithm
 {
@@ -184,6 +185,8 @@ public:
   // Compute the size of the sample bounding box automatically from the
   // input data. This is an internal helper function.
   void ComputeModelBounds(vtkDataSet *input, vtkImageData *output,
+                          vtkInformation *outInfo);
+  void ComputeModelBounds(vtkCompositeDataSet *input, vtkImageData *output,
                           vtkInformation *outInfo);
 
 protected:
