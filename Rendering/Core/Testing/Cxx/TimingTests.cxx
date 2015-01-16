@@ -22,6 +22,14 @@ existing tests to get an idea of what to do.
 
 #include "vtkRenderTimings.h"
 
+// required for get object factories
+#include "vtkAutoInit.h"
+#ifdef VTK_OPENGL2
+VTK_MODULE_INIT(vtkRenderingOpenGL2);
+#else
+VTK_MODULE_INIT(vtkRenderingOpenGL);
+#endif
+
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
@@ -247,6 +255,10 @@ Define a test for molecules
 #include "vtkBoxMuellerRandomSequence.h"
 #include "vtkPointLocator.h"
 #include "vtkMath.h"
+
+#ifdef VTK_OPENGL2
+VTK_MODULE_INIT(vtkDomainsChemistryOpenGL2);
+#endif
 
 class moleculeTest : public vtkRTTest
 {
