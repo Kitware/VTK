@@ -96,9 +96,11 @@ if(TARGET vtkDomainsChemistry)
     set(extra_deps vtkDomainsChemistry)
   endif()
   list(APPEND compile_defs HAVE_CHEMISTRY)
-  include_directories(${VTK_SOURCE_DIR}/Domains/Chemistry ${VTK_BINARY_DIR}/Domains/Chemistry)
+  include_directories(${VTK_SOURCE_DIR}/Domains/Chemistry
+    ${VTK_BINARY_DIR}/Domains/Chemistry)
 endif()
-set_source_files_properties(TimingTests.cxx APPEND PROPERTIES COMPILE_DEFINITIONS "${compile_defs}")
+set_source_files_properties(TimingTests.cxx APPEND PROPERTIES
+  COMPILE_DEFINITIONS "${compile_defs}")
 
 target_link_libraries(TimingTests
   vtkRendering${VTK_RENDERING_BACKEND}
