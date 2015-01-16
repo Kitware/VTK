@@ -39,6 +39,7 @@
 #include "vtkVectorOperators.h"
 #include "vtkWindow.h"
 
+#include <algorithm>
 #include <cmath>
 #include <sstream>
 #include <string>
