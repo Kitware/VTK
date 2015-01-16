@@ -26,6 +26,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
+#include <algorithm>
 #include <math.h>
 
 vtkStandardNewMacro(vtkGaussianSplatter);
