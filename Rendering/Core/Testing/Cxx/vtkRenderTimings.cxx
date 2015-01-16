@@ -110,7 +110,9 @@ void vtkRTTestSequence::Run()
     {
     double startTime = vtkTimerLog::GetUniversalTime();
     this->Test->SetTargetTime(remainingTime);
-    this->TestResults.push_back(this->Test->Run(this, argc, argv));
+    vtkRTTestResult tr = this->Test->Run(this, argc, argv);
+    tr.SequenceNumber = this->SequenceCount;
+    this->TestResults.push_back(tr);
     lastRunTime = vtkTimerLog::GetUniversalTime() - startTime;
     remainingTime -= lastRunTime;
     this->SequenceCount++;
@@ -120,7 +122,7 @@ void vtkRTTestSequence::Run()
 void vtkRTTestSequence::ReportSummaryResults(ostream &ost)
 {
   double result = 0.0;
-  double secondaryResult = 0.0;
+  vtkRTTestResult *bestTestResult = NULL;
   bool initialized = false;
   std::vector<vtkRTTestResult>::iterator trItr;
   for (trItr = this->TestResults.begin(); trItr != this->TestResults.end(); trItr++)
@@ -128,7 +130,7 @@ void vtkRTTestSequence::ReportSummaryResults(ostream &ost)
     if (!initialized)
       {
       result = trItr->Results[this->Test->GetSummaryResultName()];
-      secondaryResult = trItr->Results[this->Test->GetSecondSummaryResultName()];
+      bestTestResult = &(*trItr);
       initialized = true;
       }
     else
@@ -138,7 +140,7 @@ void vtkRTTestSequence::ReportSummaryResults(ostream &ost)
         if (trItr->Results[this->Test->GetSummaryResultName()] > result)
           {
           result = trItr->Results[this->Test->GetSummaryResultName()];
-          secondaryResult = trItr->Results[this->Test->GetSecondSummaryResultName()];
+          bestTestResult = &(*trItr);
           }
         }
       else
@@ -146,13 +148,15 @@ void vtkRTTestSequence::ReportSummaryResults(ostream &ost)
         if (trItr->Results[this->Test->GetSummaryResultName()] < result)
           {
           result = trItr->Results[this->Test->GetSummaryResultName()];
-          secondaryResult = trItr->Results[this->Test->GetSecondSummaryResultName()];
+          bestTestResult = &(*trItr);
           }
         }
       }
     }
-  ost << this->Test->GetName() << ": " << result << " " << this->Test->GetSummaryResultName()
-      << " and " << static_cast<vtkIdType>(secondaryResult) << " " << this->Test->GetSecondSummaryResultName() << endl;
+  ost << this->Test->GetName() << ":" << bestTestResult->SequenceNumber
+    << ": " << result << " " << this->Test->GetSummaryResultName()
+    << " and " << static_cast<vtkIdType>(bestTestResult->Results[this->Test->GetSecondSummaryResultName()])
+    << " " << this->Test->GetSecondSummaryResultName() << endl;
 }
 
 void vtkRTTestSequence::ReportDetailedResults(ostream &ost)
@@ -172,6 +176,7 @@ vtkRenderTimings::vtkRenderTimings()
   si.RunOSCheck();
   this->SystemName = si.GetOSDescription();
   this->DisplayHelp = false;
+  this->ListTests = false;
   this->SequenceStart = 0;
   this->SequenceEnd = 0;
   this->DetailedResultsFileName = "results.csv";
@@ -182,10 +187,10 @@ int vtkRenderTimings::RunTests()
   // what tests to run?
   bool useRegex = false;
   vtksys::RegularExpression re;
-  if (this->Trex.size())
+  if (this->Regex.size())
     {
     useRegex = true;
-    re.compile(this->Trex);
+    re.compile(this->Regex);
     }
 
   size_t testCount = this->TestsToRun.size();
@@ -245,28 +250,32 @@ int vtkRenderTimings::ParseCommandLineArguments( int argc, char *argv[] )
   this->TargetTime = this->TestsToRun.size()*10.0;  // seconds
 
   typedef vtksys::CommandLineArguments argT;
-  this->Arguments.AddArgument("-Tresults", argT::SPACE_ARGUMENT, &this->DetailedResultsFileName,
+  this->Arguments.AddArgument("-rn", argT::SPACE_ARGUMENT, &this->DetailedResultsFileName,
     "Specify where to write the detailed results to. Defaults to results.csv.");
-  this->Arguments.AddArgument("-Trex", argT::SPACE_ARGUMENT, &this->Trex,
+  this->Arguments.AddArgument("-regex", argT::SPACE_ARGUMENT, &this->Regex,
     "Specify a regular expression for what tests should be run.");
-  this->Arguments.AddArgument("-Ttime", argT::SPACE_ARGUMENT, &this->TargetTime,
+  this->Arguments.AddArgument("-tl", argT::SPACE_ARGUMENT, &this->TargetTime,
     "Specify a target total amount of time for the tests to run.");
-  this->Arguments.AddArgument("-Tname", argT::SPACE_ARGUMENT, &this->SystemName,
+  this->Arguments.AddArgument("-platform", argT::SPACE_ARGUMENT, &this->SystemName,
     "Specify a name for this platform. This is included in the output.");
   this->Arguments.AddBooleanArgument("--help", &this->DisplayHelp,
     "Provide a listing of command line options.");
-  this->Arguments.AddArgument("-Tss", argT::SPACE_ARGUMENT, &this->SequenceStart,
+  this->Arguments.AddBooleanArgument("-help", &this->DisplayHelp,
+    "Provide a listing of command line options.");
+  this->Arguments.AddArgument("-ss", argT::SPACE_ARGUMENT, &this->SequenceStart,
     "Specify a starting index for test sequences. Tests are designed to start at "
     "a scale that can run on even very small systems. If you have a more powerful "
     "system, you can use this option to skip the first few steps in the test "
     "sequence. The sequence starts at zero and increases an order of magnitude "
     "for every four steps");
-  this->Arguments.AddArgument("-Tse", argT::SPACE_ARGUMENT, &this->SequenceEnd,
+  this->Arguments.AddArgument("-se", argT::SPACE_ARGUMENT, &this->SequenceEnd,
     "Specify an ending index for test sequences. Even if there is time remaining "
     "a test sequence will not go beyond this value. You can combine this option "
-    "with -Tss to run just one iteration of a sequece. For example you can "
-    "use -Tss 6 -Tse 6 to only run the 6th sequence. A value of 0 means that "
+    "with -ss to run just one iteration of a sequece. For example you can "
+    "use -ss 6 -se 6 to only run the 6th sequence. A value of 0 means that "
     "there is no limit (the time limit will still stop the tests).");
+  this->Arguments.AddBooleanArgument("-list", &this->ListTests,
+    "Provide a listing of available tests.");
 
   if ( !this->Arguments.Parse() )
     {
@@ -278,6 +287,26 @@ int vtkRenderTimings::ParseCommandLineArguments( int argc, char *argv[] )
     {
     cerr << "Usage" << endl << endl << "  VTKRenderTimings [options]" << endl << endl << "Options" << endl;
     cerr << this->Arguments.GetHelp();
+    return 0;
+    }
+
+  if (this->ListTests)
+    {
+    bool useRegex = false;
+    vtksys::RegularExpression re;
+    if (this->Regex.size())
+      {
+      useRegex = true;
+      re.compile(this->Regex);
+      }
+    std::vector<vtkRTTest *>::iterator testItr;
+    for (testItr = this->TestsToRun.begin(); testItr != this->TestsToRun.end(); testItr++)
+      {
+      if (!useRegex || re.find((*testItr)->GetName()))
+        {
+        cerr << (*testItr)->GetName() << endl;
+        }
+      }
     return 0;
     }
 

@@ -71,6 +71,7 @@ class vtkRTTestResult
 {
 public:
   std::map<std::string,double> Results;
+  int SequenceNumber;
   void ReportResults(vtkRTTest *test, ostream &ost)
   {
     ost << test->GetName();
@@ -145,11 +146,12 @@ protected:
   void ReportResults();
 
 private:
-  std::string Trex; // regualr expression for tests
+  std::string Regex; // regualr expression for tests
   double TargetTime;
   std::string SystemName;
   vtksys::CommandLineArguments Arguments;
   bool DisplayHelp;
+  bool ListTests;
   int SequenceStart;
   int SequenceEnd;
   std::string DetailedResultsFileName;

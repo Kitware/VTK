@@ -22,6 +22,14 @@ existing tests to get an idea of what to do.
 
 #include "vtkRenderTimings.h"
 
+// required for get object factories
+#include "vtkAutoInit.h"
+#ifdef VTK_OPENGL2
+VTK_MODULE_INIT(vtkRenderingOpenGL2);
+#else
+VTK_MODULE_INIT(vtkRenderingOpenGL);
+#endif
+
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
@@ -41,7 +49,7 @@ Define a test for simple triangle mesh surfaces
 
 class surfaceTest : public vtkRTTest
 {
-public:
+  public:
   surfaceTest(const char *name, bool withColors, bool withNormals) : vtkRTTest(name)
   {
     this->WithColors = withColors;
@@ -131,7 +139,7 @@ public:
     return result;
     }
 
-protected:
+  protected:
   bool WithNormals;
   bool WithColors;
 };
@@ -146,7 +154,7 @@ Define a test for glyphing
 
 class glyphTest : public vtkRTTest
 {
-public:
+  public:
   glyphTest(const char *name) : vtkRTTest(name)
   {
   }
@@ -234,10 +242,146 @@ public:
     return result;
     }
 
-protected:
-  bool WithNormals;
-  bool WithColors;
+  protected:
 };
+
+
+#ifdef HAVE_CHEMISTRY
+/*=========================================================================
+Define a test for molecules
+=========================================================================*/
+#include "vtkMolecule.h"
+#include "vtkMoleculeMapper.h"
+#include "vtkBoxMuellerRandomSequence.h"
+#include "vtkPointLocator.h"
+#include "vtkMath.h"
+
+#ifdef VTK_OPENGL2
+VTK_MODULE_INIT(vtkDomainsChemistryOpenGL2);
+#endif
+
+class moleculeTest : public vtkRTTest
+{
+  public:
+  moleculeTest(const char *name, bool atomsOnly = false) : vtkRTTest(name)
+  {
+    this->AtomsOnly = atomsOnly;
+  }
+
+  const char *GetSummaryResultName() { return this->AtomsOnly ? "Atoms/sec" : "Atoms+Bonds/sec"; }
+
+  const char *GetSecondSummaryResultName() { return this->AtomsOnly ? "Atoms" : "Atoms+Bonds"; }
+
+  virtual vtkRTTestResult Run(vtkRTTestSequence *ats, int /*argc*/, char * /* argv */[])
+    {
+    int res1;
+    ats->GetSequenceNumbers(res1);
+
+    vtkNew<vtkBoxMuellerRandomSequence> rs;
+    vtkNew<vtkMolecule> mol;
+    vtkNew<vtkPointLocator> pl;
+
+    // build a molecule
+    float scale = 3.0*pow(res1,0.33);
+    double pos[3];
+    vtkNew<vtkPolyData> pointSet;
+    vtkNew<vtkPoints> pts;
+    pointSet->SetPoints(pts.GetPointer());
+    double bounds[6];
+    bounds[0] = 0.0; bounds[2] = 0.0; bounds[4] = 0.0;
+    bounds[1] = scale; bounds[3] = scale; bounds[5] = scale;
+    pl->SetDataSet(pointSet.GetPointer());
+    pl->InitPointInsertion(pointSet->GetPoints(), bounds, 10*res1);
+    for (int i = 0; i < res1*100; i++)
+      {
+      pos[0] = scale*rs->GetValue(); rs->Next();
+      pos[1] = scale*rs->GetValue(); rs->Next();
+      pos[2] = scale*rs->GetValue(); rs->Next();
+      pl->InsertPoint(i,pos);
+      int molType = i%9 > 5 ? i%9 : 1; // a lot of H, some N O CA
+      mol->AppendAtom(molType, pos[0], pos[1], pos[2]);
+      }
+
+    // now add some bonds
+    if (!this->AtomsOnly)
+      {
+      vtkNew<vtkIdList> ids;
+      int bondCount = 0;
+      while(bondCount < res1*60)
+        {
+        pos[0] = scale*rs->GetValue(); rs->Next();
+        pos[1] = scale*rs->GetValue(); rs->Next();
+        pos[2] = scale*rs->GetValue(); rs->Next();
+        pl->FindClosestNPoints(2, pos, ids.GetPointer());
+        // are the atoms close enough?
+        if (vtkMath::Distance2BetweenPoints(
+            mol->GetAtomPosition(ids->GetId(0)).GetData(),
+            mol->GetAtomPosition(ids->GetId(1)).GetData()) < 4.0)
+          {
+          int bondType = bondCount%10 == 9 ? 3 : (bondCount%10)/7+1;
+          mol->AppendBond(ids->GetId(0), ids->GetId(1), bondType);
+          bondCount++;
+          }
+        }
+      }
+
+    vtkNew<vtkMoleculeMapper> mapper;
+    mapper->SetInputData(mol.GetPointer());
+    mapper->UseBallAndStickSettings();
+
+    vtkNew<vtkActor> actor;
+    actor->SetMapper(mapper.GetPointer());
+
+    // create a rendering window and renderer
+    vtkNew<vtkRenderer> ren1;
+    vtkNew<vtkRenderWindow> renWindow;
+    renWindow->AddRenderer(ren1.GetPointer());
+    ren1->AddActor(actor.GetPointer());
+
+    // set the size/color of our window
+    renWindow->SetSize(600,600);
+    ren1->SetBackground(0.2,0.3,0.5);
+
+    // draw the resulting scene
+    double startTime = vtkTimerLog::GetUniversalTime();
+    renWindow->Render();
+    double firstFrameTime = vtkTimerLog::GetUniversalTime() - startTime;
+    ren1->GetActiveCamera()->Zoom(1.5);
+
+    int frameCount = 80;
+    for (int i = 0; i < frameCount; i++)
+      {
+      renWindow->Render();
+      ren1->GetActiveCamera()->Azimuth(0.5);
+      ren1->GetActiveCamera()->Elevation(0.5);
+      ren1->GetActiveCamera()->Zoom(1.01);
+      //ren1->ResetCameraClippingRange();
+      if ((vtkTimerLog::GetUniversalTime() - startTime - firstFrameTime) > this->TargetTime * 1.5)
+        {
+        frameCount = i+1;
+        break;
+        }
+      }
+    double subsequentFrameTime = (vtkTimerLog::GetUniversalTime() - startTime - firstFrameTime)/frameCount;
+    double numAtoms = mol->GetNumberOfAtoms();
+
+    vtkRTTestResult result;
+    result.Results["first frame time"] = firstFrameTime;
+    result.Results["subsequent frame time"] = subsequentFrameTime;
+    result.Results["Atoms"] = numAtoms;
+    result.Results["Bonds"] = mol->GetNumberOfBonds();
+    result.Results["Atoms+Bonds"] = (numAtoms+mol->GetNumberOfBonds());
+    result.Results["Atoms+Bonds/sec"] = (numAtoms+mol->GetNumberOfBonds())/subsequentFrameTime;
+    result.Results["Atoms/sec"] = numAtoms/subsequentFrameTime;
+
+    return result;
+    }
+
+  protected:
+    bool AtomsOnly;
+};
+#endif
+
 
 /*=========================================================================
 The main entry point
@@ -254,6 +398,11 @@ int main( int argc, char *argv[] )
   a.TestsToRun.push_back(new surfaceTest("SurfaceColoredWithNormals", true, true));
 
   a.TestsToRun.push_back(new glyphTest("Glyphing"));
+
+#ifdef HAVE_CHEMISTRY
+  a.TestsToRun.push_back(new moleculeTest("Molecule"));
+  a.TestsToRun.push_back(new moleculeTest("MoleculeAtomsOnly",true));
+#endif
 
   // process them
   return a.ParseCommandLineArguments(argc, argv);

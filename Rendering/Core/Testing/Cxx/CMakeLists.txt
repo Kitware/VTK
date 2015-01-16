@@ -83,5 +83,29 @@ endif()
 
 vtk_test_cxx_executable(${vtk-module}CxxTests tests)
 
-# other executables
-vtk_module_test_executable(TimingTests TimingTests.cxx vtkRenderTimings.cxx)
+
+add_executable(TimingTests MACOSX_BUNDLE TimingTests.cxx vtkRenderTimings.cxx)
+# need some flags for the object factory auto init code
+if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+  set(compile_defs VTK_OPENGL2)
+endif()
+if(TARGET vtkDomainsChemistry)
+  if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+    set(extra_deps vtkDomainsChemistryOpenGL2)
+  else()
+    set(extra_deps vtkDomainsChemistry)
+  endif()
+  list(APPEND compile_defs HAVE_CHEMISTRY)
+  include_directories(${VTK_SOURCE_DIR}/Domains/Chemistry
+    ${VTK_BINARY_DIR}/Domains/Chemistry)
+endif()
+set_source_files_properties(TimingTests.cxx APPEND PROPERTIES
+  COMPILE_DEFINITIONS "${compile_defs}")
+
+target_link_libraries(TimingTests
+  vtkRendering${VTK_RENDERING_BACKEND}
+  vtkFiltersSources
+  vtkCommonComputationalGeometry
+  vtksys
+  ${extra_deps}
+  )
