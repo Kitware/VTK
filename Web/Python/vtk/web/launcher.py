@@ -79,13 +79,13 @@ Here is a sample of what a configuration file could looks like:
       "apps" : {
         "cone" : {
           "cmd" : [
-            "${python_exec}", "${build_dir}/Wrapping/Python/vtk/web/vtk_web_cone.py", "--content", "${WWW}", "--port", "$port", "-f", "--authKey", "$secret"
+            "${python_exec}", "-dr", "${build_dir}/Wrapping/Python/vtk/web/vtk_web_cone.py", "--content", "${WWW}", "--port", "$port", "-f", "--authKey", "$secret"
               ],
           "ready_line" : "Starting factory"
         },
         "test" : {
           "cmd" : [
-            "${python_exec}", "${build_dir}/PhylogeneticTree/server/vtk_web_phylogenetic_tree.py", "--content", "${WWW}" ],
+            "${python_exec}", "-dr", "${build_dir}/PhylogeneticTree/server/vtk_web_phylogenetic_tree.py", "--content", "${WWW}" ],
           "ready_line" : "Starting factory"
         },
         "launcher" : {
