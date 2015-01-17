@@ -50,7 +50,8 @@ Define a test for simple triangle mesh surfaces
 class surfaceTest : public vtkRTTest
 {
   public:
-  surfaceTest(const char *name, bool withColors, bool withNormals) : vtkRTTest(name)
+  surfaceTest(const char *name,
+    bool withColors, bool withNormals) : vtkRTTest(name)
   {
     this->WithColors = withColors;
     this->WithNormals = withNormals;
@@ -60,7 +61,8 @@ class surfaceTest : public vtkRTTest
 
   const char *GetSecondSummaryResultName() { return "triangles"; }
 
-  virtual vtkRTTestResult Run(vtkRTTestSequence *ats, int /*argc*/, char * /* argv */[])
+  virtual vtkRTTestResult Run(vtkRTTestSequence *ats,
+      int /*argc*/, char * /* argv */[])
     {
     int ures, vres;
     ats->GetSequenceNumbers(ures,vres);
@@ -163,7 +165,8 @@ class glyphTest : public vtkRTTest
 
   const char *GetSecondSummaryResultName() { return "triangles"; }
 
-  virtual vtkRTTestResult Run(vtkRTTestSequence *ats, int /*argc*/, char * /* argv */[])
+  virtual vtkRTTestResult Run(vtkRTTestSequence *ats,
+      int /*argc*/, char * /* argv */[])
     {
     int res1, res2, res3, res4;
     ats->GetSequenceNumbers(res1, res2, res3, res4);
@@ -268,11 +271,14 @@ class moleculeTest : public vtkRTTest
     this->AtomsOnly = atomsOnly;
   }
 
-  const char *GetSummaryResultName() { return this->AtomsOnly ? "Atoms/sec" : "Atoms+Bonds/sec"; }
+  const char *GetSummaryResultName() {
+    return this->AtomsOnly ? "Atoms/sec" : "Atoms+Bonds/sec"; }
 
-  const char *GetSecondSummaryResultName() { return this->AtomsOnly ? "Atoms" : "Atoms+Bonds"; }
+  const char *GetSecondSummaryResultName() {
+    return this->AtomsOnly ? "Atoms" : "Atoms+Bonds"; }
 
-  virtual vtkRTTestResult Run(vtkRTTestSequence *ats, int /*argc*/, char * /* argv */[])
+  virtual vtkRTTestResult Run(vtkRTTestSequence *ats,
+      int /*argc*/, char * /* argv */[])
     {
     int res1;
     ats->GetSequenceNumbers(res1);
@@ -282,7 +288,7 @@ class moleculeTest : public vtkRTTest
     vtkNew<vtkPointLocator> pl;
 
     // build a molecule
-    float scale = 3.0*pow(res1,0.33);
+    float scale = 3.0*pow(static_cast<double>(res1),0.33);
     double pos[3];
     vtkNew<vtkPolyData> pointSet;
     vtkNew<vtkPoints> pts;
@@ -356,13 +362,15 @@ class moleculeTest : public vtkRTTest
       ren1->GetActiveCamera()->Elevation(0.5);
       ren1->GetActiveCamera()->Zoom(1.01);
       //ren1->ResetCameraClippingRange();
-      if ((vtkTimerLog::GetUniversalTime() - startTime - firstFrameTime) > this->TargetTime * 1.5)
+      if ((vtkTimerLog::GetUniversalTime() - startTime - firstFrameTime)
+            > this->TargetTime * 1.5)
         {
         frameCount = i+1;
         break;
         }
       }
-    double subsequentFrameTime = (vtkTimerLog::GetUniversalTime() - startTime - firstFrameTime)/frameCount;
+    double subsequentFrameTime = (vtkTimerLog::GetUniversalTime()
+      - startTime - firstFrameTime)/frameCount;
     double numAtoms = mol->GetNumberOfAtoms();
 
     vtkRTTestResult result;
@@ -371,7 +379,8 @@ class moleculeTest : public vtkRTTest
     result.Results["Atoms"] = numAtoms;
     result.Results["Bonds"] = mol->GetNumberOfBonds();
     result.Results["Atoms+Bonds"] = (numAtoms+mol->GetNumberOfBonds());
-    result.Results["Atoms+Bonds/sec"] = (numAtoms+mol->GetNumberOfBonds())/subsequentFrameTime;
+    result.Results["Atoms+Bonds/sec"] = (numAtoms+mol->GetNumberOfBonds())
+                                        /subsequentFrameTime;
     result.Results["Atoms/sec"] = numAtoms/subsequentFrameTime;
 
     return result;
@@ -395,7 +404,8 @@ int main( int argc, char *argv[] )
   a.TestsToRun.push_back(new surfaceTest("Surface", false, false));
   a.TestsToRun.push_back(new surfaceTest("SurfaceColored", true, false));
   a.TestsToRun.push_back(new surfaceTest("SurfaceWithNormals", false, true));
-  a.TestsToRun.push_back(new surfaceTest("SurfaceColoredWithNormals", true, true));
+  a.TestsToRun.push_back(
+    new surfaceTest("SurfaceColoredWithNormals", true, true));
 
   a.TestsToRun.push_back(new glyphTest("Glyphing"));
 
