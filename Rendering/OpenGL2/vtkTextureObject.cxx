@@ -209,9 +209,6 @@ vtkTextureObject::vtkTextureObject()
   this->Handle = 0;
   this->NumberOfDimensions = 0;
   this->Target = 0;
-  this->Format = 0;
-  this->InternalFormat = 0;
-  this->Type = 0;
   this->Components = 0;
   this->Width = 0;
   this->Height = 0;
@@ -241,6 +238,8 @@ vtkTextureObject::vtkTextureObject()
   this->BorderColor[1] = 0.0f;
   this->BorderColor[2] = 0.0f;
   this->BorderColor[3] = 0.0f;
+
+  this->ResetFormatAndType();
 }
 
 //----------------------------------------------------------------------------
@@ -372,12 +371,10 @@ void vtkTextureObject::DestroyTexture()
     }
   this->Handle = 0;
   this->NumberOfDimensions = 0;
-  this->Target =0;
-  this->Format = 0;
-  this->InternalFormat = 0;
-  this->Type = 0;
+  this->Target = 0;
   this->Components = 0;
   this->Width = this->Height = this->Depth = 0;
+  this->ResetFormatAndType();
 }
 
 //----------------------------------------------------------------------------
@@ -1101,6 +1098,14 @@ void vtkTextureObject::SetFormat(unsigned int glFormat)
     this->Format = glFormat;
     this->Modified();
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkTextureObject::ResetFormatAndType()
+{
+  this->Format = 0;
+  this->InternalFormat = 0;
+  this->Type = 0;
 }
 
 //----------------------------------------------------------------------------
