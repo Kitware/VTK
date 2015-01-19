@@ -160,6 +160,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
         {
         this->TextureObject = vtkTextureObject::New();
         }
+      this->TextureObject->ResetFormatAndType();
       this->TextureObject->SetContext(renWin);
 
       // Get the scalars the user choose to color with.

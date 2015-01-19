@@ -310,13 +310,30 @@ public:
   int GetDataType(int vtk_scalar_type);
   void SetDataType(unsigned int glType);
 
+  // Description:
+  // Get/Set internal format (OpenGL internal format) that should
+  // be used.
+  // (https://www.opengl.org/sdk/docs/man2/xhtml/glTexImage2D.xml)
   unsigned int GetInternalFormat(int vtktype, int numComps,
                                  bool shaderSupportsTextureInt);
   void SetInternalFormat(unsigned int glInternalFormat);
 
+  // Description:
+  // Get/Set format (OpenGL internal format) that should
+  // be used.
+  // (https://www.opengl.org/sdk/docs/man2/xhtml/glTexImage2D.xml)
   unsigned int GetFormat(int vtktype, int numComps,
                          bool shaderSupportsTextureInt);
   void SetFormat(unsigned int glFormat);
+
+  // Description:
+  // Reset format, internal format, and type of the texture.
+  //
+  // This method is useful when a texture is reused in a
+  // context same as the previous render call. In such
+  // cases, texture destruction does not happen and therefore
+  // previous set values are used.
+  void ResetFormatAndType();
 
   unsigned int GetDepthTextureModeFormat(int vtktype);
   unsigned int GetMinificationFilterMode(int vtktype);
