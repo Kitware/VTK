@@ -157,6 +157,10 @@ int vtkTriangleFilter::RequestData(
         this->UpdateProgress ((float)cellNum / numCells);
         abort = this->GetAbortExecute();
         }
+      if ( npts ==  0 )
+        {
+        continue;
+        }
       if ( npts == 3 )
         {
         newPolys->InsertNextCell(3,pts);
