@@ -18,7 +18,14 @@
 #include "vtkgl.h"
 #include "vtkSetGet.h"
 
+#ifdef NDEBUG
 #cmakedefine VTK_REPORT_OPENGL_ERRORS
+#else // NDEBUG
+#cmakedefine VTK_REPORT_OPENGL_ERRORS_IN_RELEASE_BUILDS
+#if defined(VTK_REPORT_OPENGL_ERRORS_IN_RELEASE_BUILDS)
+#cmakedefine VTK_REPORT_OPENGL_ERRORS
+#endif // defined(VTK_REPORT_OPENGL_ERRORS_IN_RELEASE_BUILDS)
+#endif // NDEBUG
 
 // Description:
 // The following functions can be used to detect and report, and/or
