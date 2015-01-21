@@ -2153,8 +2153,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->UpdateVolumeGeometry(ren, vol, input);
 
   // Update opacity transfer function
-  for (int i = 0; i < volumeProperty->GetIndependentComponents() ?
-       numberOfScalarComponents : 1; ++i)
+  for (int i = 0; i < (volumeProperty->GetIndependentComponents() ?
+       numberOfScalarComponents : 1); ++i)
     {
     this->Impl->UpdateOpacityTransferFunction(ren, vol,
       scalars->GetNumberOfComponents(), i);
