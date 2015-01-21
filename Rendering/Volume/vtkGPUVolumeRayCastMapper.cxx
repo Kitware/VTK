@@ -374,10 +374,9 @@ int vtkGPUVolumeRayCastMapper::ValidateRender(vtkRenderer *ren,
   int numberOfComponents = 0;
   if ( goodSoFar )
     {
-    numberOfComponents=scalars->GetNumberOfComponents();
-    if( !( numberOfComponents==1 ||
-           (numberOfComponents==4 &&
-            vol->GetProperty()->GetIndependentComponents()==0)))
+    numberOfComponents = scalars->GetNumberOfComponents();
+    if( !(numberOfComponents ==1 ||
+          numberOfComponents == 4) )
       {
       goodSoFar = 0;
       vtkErrorMacro(<< "Only one component scalars, or four "

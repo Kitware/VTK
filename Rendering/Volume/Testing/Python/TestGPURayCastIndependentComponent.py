@@ -39,7 +39,8 @@ class TestGPURayCastIndependentComponent(vtk.test.Testing.vtkTest):
         reader.SetFileName("" + str(dataRoot) + "/Data/vase_4comp.vti")
 
         volume = vtk.vtkVolume()
-        mapper = vtk.vtkFixedPointVolumeRayCastMapper()
+        #mapper = vtk.vtkFixedPointVolumeRayCastMapper()
+        mapper = vtk.vtkGPUVolumeRayCastMapper()
         ren = vtk.vtkRenderer()
         renWin = vtk.vtkRenderWindow()
         iRen = vtk.vtkRenderWindowInteractor()
