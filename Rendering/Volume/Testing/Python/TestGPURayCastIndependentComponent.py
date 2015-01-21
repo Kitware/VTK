@@ -53,60 +53,59 @@ class TestGPURayCastIndependentComponent(vtk.test.Testing.vtkTest):
 
         # Define opacity transfer function and color functions
         opacityFunc1 = vtk.vtkPiecewiseFunction()
-        opacityFunc1.AddPoint(0.0,0.0);
-        opacityFunc1.AddPoint(80.0,1.0);
-        opacityFunc1.AddPoint(255.0,0.0);
+        opacityFunc1.AddPoint(0.0, 0.0);
+        opacityFunc1.AddPoint(60.0, 0.1);
+        opacityFunc1.AddPoint(255.0, 0.0);
 
         opacityFunc2 = vtk.vtkPiecewiseFunction()
-        opacityFunc2.AddPoint(0.0,0.0);
-        opacityFunc2.AddPoint(80.0,1.0);
-        opacityFunc2.AddPoint(255.0,0.0);
+        opacityFunc2.AddPoint(0.0, 0.0);
+        opacityFunc2.AddPoint(60.0, 0.0);
+        opacityFunc2.AddPoint(120.0, 0.1);
+        opacityFunc1.AddPoint(255.0, 0.0);
 
         opacityFunc3 = vtk.vtkPiecewiseFunction()
-        opacityFunc3.AddPoint(0.0,0.0);
-        opacityFunc3.AddPoint(80.0,1.0);
-        opacityFunc3.AddPoint(255.0,0.0);
+        opacityFunc3.AddPoint(0.0, 0.0);
+        opacityFunc3.AddPoint(120.0, 0.0);
+        opacityFunc3.AddPoint(180.0, 0.1);
+        opacityFunc3.AddPoint(255.0, 0.0);
 
         opacityFunc4 = vtk.vtkPiecewiseFunction()
-        opacityFunc4.AddPoint(0.0,0.0);
-        opacityFunc4.AddPoint(80.0,1.0);
-        opacityFunc4.AddPoint(255.0,0.0);
+        opacityFunc4.AddPoint(0.0, 0.0);
+        opacityFunc4.AddPoint(180.0, 0.0);
+        opacityFunc4.AddPoint(255.0, 0.1);
 
         # Color transfer functions
         color1 = vtk.vtkColorTransferFunction()
-        color1.AddRGBPoint(0.0, 0.0, 0.0, 1.0);
-        color1.AddRGBPoint(40.0, 1.0, 0.0, 0.0);
-        color1.AddRGBPoint(255.0, 1.0, 1.0, 1.0);
+        color1.AddRGBPoint(0.0, 1.0, 0.0, 0.0);
+        color1.AddRGBPoint(60.0, 1.0, 0.0, 0.0);
 
         color2 = vtk.vtkColorTransferFunction()
-        color2.AddRGBPoint(0.0, 0.0, 0.0, 1.0);
-        color2.AddRGBPoint(40.0, 1.0, 0.0, 0.0);
-        color2.AddRGBPoint(255.0, 1.0, 1.0, 1.0);
+        color2.AddRGBPoint(60.0, 0.0, 0.0, 1.0);
+        color2.AddRGBPoint(120.0, 0.0, 0.0, 1.0);
 
         color3 = vtk.vtkColorTransferFunction()
-        color3.AddRGBPoint(0.0, 0.0, 0.0, 1.0);
-        color3.AddRGBPoint(40.0, 1.0, 0.0, 0.0);
-        color3.AddRGBPoint(255.0, 1.0, 1.0, 1.0);
+        color3.AddRGBPoint(120.0, 0.0, 1.0, 0.0);
+        color3.AddRGBPoint(180.0, 0.0, 1.0, 0.0);
 
         color4 = vtk.vtkColorTransferFunction()
-        color4.AddRGBPoint(0.0, 0.0, 0.0, 1.0);
-        color4.AddRGBPoint(40.0, 1.0, 0.0, 0.0);
-        color4.AddRGBPoint(255.0, 1.0, 1.0, 1.0);
+        color4.AddRGBPoint(180.0, 0.0, 0.0, 0.0);
+        color4.AddRGBPoint(239.0, 0.0, 0.0, 0.0);
 
         # Now set the opacity and the color
         volumeProperty = volume.GetProperty()
-        volumeProperty.SetScalarOpacity(0, opacityFunc1);
-        volumeProperty.SetScalarOpacity(0, opacityFunc2);
-        volumeProperty.SetScalarOpacity(0, opacityFunc3);
-        volumeProperty.SetScalarOpacity(0, opacityFunc4);
-        volumeProperty.SetColor(0, color1);
-        volumeProperty.SetColor(1, color2);
-        volumeProperty.SetColor(2, color3);
-        volumeProperty.SetColor(3, color4);
+        volumeProperty.SetIndependentComponents(1)
+        volumeProperty.SetScalarOpacity(0, opacityFunc1)
+        volumeProperty.SetScalarOpacity(1, opacityFunc2)
+        volumeProperty.SetScalarOpacity(2, opacityFunc3)
+        volumeProperty.SetScalarOpacity(3, opacityFunc4)
+        volumeProperty.SetColor(0, color1)
+        volumeProperty.SetColor(1, color2)
+        volumeProperty.SetColor(2, color3)
+        volumeProperty.SetColor(3, color4)
 
         iRen.Initialize();
-        ren.SetBackground(0.1,0.4,0.2);
-        ren.ResetCamera();
+        ren.SetBackground(0.1,0.4,0.2)
+        ren.ResetCamera()
         renWin.Render()
 
         #img_file = "TestGPURayCastIndependentComponent.png"
