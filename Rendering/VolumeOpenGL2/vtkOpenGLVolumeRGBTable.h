@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOpenGLRGBTable.h
+  Module:    vtkOpenGLVolumeRGBTable.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,19 +13,19 @@
 
 =========================================================================*/
 
-#ifndef vtkOpenGLRGBTable_h_
-#define vtkOpenGLRGBTable_h_
+#ifndef vtkOpenGLVolumeRGBTable_h_
+#define vtkOpenGLVolumeRGBTable_h_
 
 #include <vtkColorTransferFunction.h>
 #include <vtkTextureObject.h>
 #include <vtk_glew.h>
 
 //----------------------------------------------------------------------------
-class vtkOpenGLRGBTable
+class vtkOpenGLVolumeRGBTable
 {
 public:
   //--------------------------------------------------------------------------
-  vtkOpenGLRGBTable()
+  vtkOpenGLVolumeRGBTable()
     {
     this->TextureWidth = 1024;
     this->NumberOfColorComponents = 3;
@@ -36,7 +36,7 @@ public:
     }
 
   //--------------------------------------------------------------------------
-  ~vtkOpenGLRGBTable()
+  ~vtkOpenGLVolumeRGBTable()
     {
     if (this->TextureObject)
       {
@@ -151,5 +151,63 @@ protected:
   vtkTimeStamp BuildTime;
 };
 
-#endif // vtkOpenGLRGBTable_h_
-// VTK-HeaderTest-Exclude: vtkOpenGLRGBTable.h
+//----------------------------------------------------------------------------
+class vtkOpenGLVolumeRGBTables
+{
+public:
+  //--------------------------------------------------------------------------
+  vtkOpenGLVolumeRGBTables(unsigned int numberOfTables)
+    {
+    this->Tables = new vtkOpenGLVolumeRGBTable[numberOfTables];
+    this->NumberOfTables = numberOfTables;
+    }
+
+  //--------------------------------------------------------------------------
+  ~vtkOpenGLVolumeRGBTables()
+    {
+    delete [] this->Tables;
+    }
+
+  // brief Get opacity table at a given index.
+  //--------------------------------------------------------------------------
+  vtkOpenGLVolumeRGBTable* GetTable(unsigned int i)
+    {
+    if (i >= this->NumberOfTables)
+      {
+      return NULL;
+      }
+    return &this->Tables[i];
+    }
+
+  // Get number of opacity tables.
+  //--------------------------------------------------------------------------
+  unsigned int GetNumberOfTables()
+    {
+    return this->NumberOfTables;
+    }
+
+  //--------------------------------------------------------------------------
+  void ReleaseGraphicsResources(vtkWindow *window)
+    {
+    for (unsigned int i = 0; i <this->NumberOfTables; ++i)
+      {
+      this->Tables[i].ReleaseGraphicsResources(window);
+      }
+    }
+
+private:
+  unsigned int NumberOfTables;
+  vtkOpenGLVolumeRGBTable* Tables;
+
+  // vtkOpenGLVolumeRGBTables (Not implemented)
+  vtkOpenGLVolumeRGBTables();
+
+  // vtkOpenGLVolumeRGBTables (Not implemented)
+  vtkOpenGLVolumeRGBTables(const vtkOpenGLVolumeRGBTables &other);
+
+  // operator = (Not implemented)
+  vtkOpenGLVolumeRGBTables &operator=(const vtkOpenGLVolumeRGBTables &other);
+};
+
+#endif // vtkOpenGLVolumeRGBTable_h_
+// VTK-HeaderTest-Exclude: vtkOpenGLVolumeRGBTable.h
