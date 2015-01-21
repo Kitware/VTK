@@ -1814,7 +1814,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
   std::string vertexShader (raycastervs);
   std::string fragmentShader (raycasterfs);
 
-  if (vol->GetProperty()->GetShade())
+  // Every volume should have a property (cannot be NULL);
+  vtkVolumeProperty* volumeProperty = vol->GetProperty();
+
+  if (volumeProperty->GetShade())
     {
     vtkLightCollection* lc = ren->GetLights();
     vtkLight* light;
@@ -1890,18 +1893,25 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
   fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Shading::Exit",
     vtkvolume::ShadingExit(ren, this, vol), true);
 
-  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::ComputeOpacity::Dec",
-    vtkvolume::OpacityTransferFunc(ren, this, vol, noOfComponents), true);
+  fragmentShader = vtkvolume::replace(fragmentShader,
+    "//VTK::ComputeOpacity::Dec",
+    vtkvolume::OpacityTransferFunc(ren, this, vol, noOfComponents,
+      volumeProperty->GetIndependentComponents()),
+    true);
   fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::ComputeGradient::Dec",
     vtkvolume::GradientsComputeFunc(ren, this, vol, noOfComponents), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::ColorTransferFunc::Dec",
-     vtkvolume::ColorTransferFunc(ren, this, vol, noOfComponents), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::ComputeLighting::Dec",
-    vtkvolume::LightComputeFunc(ren, this, vol, noOfComponents,
-                                this->Impl->NumberOfLights,
-                                this->Impl->LightComplexity), true);
   fragmentShader = vtkvolume::replace(fragmentShader,
-                                      "//VTK::RayDirectionFunc::Dec",
+    "//VTK::ColorTransferFunc::Dec",
+    vtkvolume::ColorTransferFunc(ren, this, vol, noOfComponents,
+      volumeProperty->GetIndependentComponents()),
+    true);
+  fragmentShader = vtkvolume::replace(fragmentShader,
+    "//VTK::ComputeLighting::Dec",
+    vtkvolume::LightComputeFunc(ren, this, vol, noOfComponents,
+      this->Impl->NumberOfLights,
+      this->Impl->LightComplexity), true);
+  fragmentShader = vtkvolume::replace(fragmentShader,
+    "//VTK::RayDirectionFunc::Dec",
     vtkvolume::RayDirectionFunc(ren, this, vol,noOfComponents), true);
 
   vertexShader = vtkvolume::replace(vertexShader, "//VTK::Cropping::Dec",

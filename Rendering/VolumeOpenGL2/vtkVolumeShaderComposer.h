@@ -624,7 +624,8 @@ namespace vtkvolume
   std::string ColorTransferFunc(vtkRenderer* vtkNotUsed(ren),
                                 vtkVolumeMapper* vtkNotUsed(mapper),
                                 vtkVolume* vtkNotUsed(vol),
-                                int numberOfComponents)
+                                int numberOfComponents,
+                                bool independentComponents = false)
     {
       if (numberOfComponents == 1)
         {
@@ -637,26 +638,52 @@ namespace vtkvolume
           \n                              computeOpacity(scalar)));\
           \n  }");
         }
-
+      else if (numberOfComponents > 1 && independentComponents)
+        {
         return std::string("\
-          \nvec4 computeColor(vec4 scalar)\
+          \nuniform sampler1D in_colorTransferFunc[4];\
+          \nvec4 computeColor(vec4 scalar, int component)\
           \n  {\
-          \n  return computeLighting(vec4(scalar.xyz, computeOpacity(scalar)));\
+          \n  return computeLighting(vec4(texture1D(\
+          \n    in_colorTransferFunc[component],\
+          \n    scalar[component]).xyz,\
+          \n    computeOpacity(scalar, component)));\
           \n  }");
+        }
+
+      return std::string("\
+        \nvec4 computeColor(vec4 scalar)\
+        \n  {\
+        \n  return computeLighting(vec4(scalar.xyz, computeOpacity(scalar)));\
+        \n  }");
     }
 
   //--------------------------------------------------------------------------
   std::string OpacityTransferFunc(vtkRenderer* vtkNotUsed(ren),
                                   vtkVolumeMapper* vtkNotUsed(mapper),
                                   vtkVolume* vtkNotUsed(vol),
-                                  int vtkNotUsed(numberOfComponents))
+                                  int numberOfComponents,
+                                  bool independentComponents = false)
     {
-    return std::string("\
-      \nuniform sampler1D in_opacityTransferFunc;\
-      \nfloat computeOpacity(vec4 scalar)\
-      \n  {\
-      \n  return texture1D(in_opacityTransferFunc, scalar.w).w;\
-      \n  }");
+    if (numberOfComponents > 1 && independentComponents)
+      {
+      return std::string("\
+        \nuniform sampler1D in_opacityTransferFunc[4];\
+        \nfloat computeOpacity(vec4 scalar, int component)\
+        \n  {\
+        \n  return texture1D(in_opacityTransferFunc[component],\
+        \n                   scalar[component]).w;\
+        \n  }");
+      }
+    else
+      {
+      return std::string("\
+        \nuniform sampler1D in_opacityTransferFunc;\
+        \nfloat computeOpacity(vec4 scalar)\
+        \n  {\
+        \n  return texture1D(in_opacityTransferFunc, scalar.w).w;\
+        \n  }");
+      }
     }
 
   //--------------------------------------------------------------------------

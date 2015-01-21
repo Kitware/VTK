@@ -5,7 +5,7 @@
 =========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestNamedColorsIntegration.py
+  Module:    TestGPURayCastIndependentComponent.py
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
