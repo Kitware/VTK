@@ -844,33 +844,34 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ComputeBounds(
 
 //----------------------------------------------------------------------------
 int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateColorTransferFunction(
-  vtkRenderer* ren, vtkVolume* vol, int numberOfScalarComponents,
+  vtkRenderer* ren, vtkVolume* vol, int vtkNotUsed(numberOfScalarComponents),
   unsigned int component)
 {
+  // Volume property cannot be null.
+  vtkVolumeProperty* volumeProperty = vol->GetProperty();
+
   // Build the colormap in a 1D texture.
   // 1D RGB-texture=mapping from scalar values to color values
   // build the table.
-  if(numberOfScalarComponents == 1)
+  vtkColorTransferFunction* colorTransferFunction =
+    volumeProperty->GetRGBTransferFunction(component);
+
+  // Add points only if its not being added before
+  if (colorTransferFunction->GetSize() < 1)
     {
-    vtkVolumeProperty* volumeProperty = vol->GetProperty();
-    vtkColorTransferFunction* colorTransferFunction =
-      volumeProperty->GetRGBTransferFunction(0);
-
-    // Add points only if its not being added before
-    if (colorTransferFunction->GetSize() < 1)
-      {
-      colorTransferFunction->AddRGBPoint(this->ScalarsRange[0], 0.0, 0.0, 0.0);
-      colorTransferFunction->AddRGBPoint(this->ScalarsRange[1], 1.0, 1.0, 1.0);
-      }
-
-    int filterVal =
-      volumeProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION ?
-        vtkTextureObject::Linear : vtkTextureObject::Nearest;
-    this->RGBTables->GetTable(component)->Update(
-      colorTransferFunction, this->ScalarsRange,
-      filterVal,
-      vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
+    colorTransferFunction->AddRGBPoint(this->ScalarsRange[0], 0.0, 0.0, 0.0);
+    colorTransferFunction->AddRGBPoint(this->ScalarsRange[1], 1.0, 1.0, 1.0);
     }
+
+  int filterVal =
+    volumeProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION ?
+      vtkTextureObject::Linear : vtkTextureObject::Nearest;
+
+  this->RGBTables->GetTable(component)->Update(
+    volumeProperty->GetRGBTransferFunction(component),
+    this->ScalarsRange,
+    filterVal,
+    vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
 
   if (this->Parent->MaskInput != 0 &&
       this->Parent->MaskType == LabelMapMaskType)
@@ -906,7 +907,8 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateOpacityTransferFunction(
     }
 
   vtkVolumeProperty* volumeProperty = vol->GetProperty();
-  vtkPiecewiseFunction* scalarOpacity = volumeProperty->GetScalarOpacity();
+  vtkPiecewiseFunction* scalarOpacity =
+    volumeProperty->GetScalarOpacity(component);
 
   // TODO: Do a better job to create the default opacity map
   // Add points only if its not being added before
@@ -924,7 +926,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateOpacityTransferFunction(
     scalarOpacity,this->Parent->BlendMode,
     this->ActualSampleDistance,
     this->ScalarsRange,
-    volumeProperty->GetScalarOpacityUnitDistance(),
+    volumeProperty->GetScalarOpacityUnitDistance(component),
     filterVal,
     vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
 
@@ -2255,10 +2257,50 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->ShaderProgram->SetUniformi("in_volume",
     this->Impl->VolumeTextureObject->GetTextureUnit());
 
-  // TODO Supports only one table for now
-  this->Impl->OpacityTables->GetTable(0)->Bind();
-  this->Impl->ShaderProgram->SetUniformi("in_opacityTransferFunc",
-    this->Impl->OpacityTables->GetTable(0)->GetTextureUnit());
+  // Opacity, color, and gradient opacity samplers / textures
+  int opacitySamplers[4];
+  int colorSamplers[4];
+  int gradientOpacitySamplers[4];
+  int numberOfSamplers = (volumeProperty->GetIndependentComponents() ?
+                          numberOfScalarComponents : 1);
+  for (int i = 0; i < numberOfSamplers; ++i)
+    {
+    this->Impl->OpacityTables->GetTable(i)->Bind();
+    opacitySamplers[i] =
+      this->Impl->OpacityTables->GetTable(i)->GetTextureUnit();
+
+    if (this->BlendMode != vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
+      {
+      this->Impl->RGBTables->GetTable(i)->Bind();
+      colorSamplers[i] =
+        this->Impl->RGBTables->GetTable(i)->GetTextureUnit();
+      std::cerr << colorSamplers[i] << std::endl;
+      }
+
+    if (this->Impl->GradientOpacityTables)
+      {
+      gradientOpacitySamplers[i] =
+        this->Impl->GradientOpacityTables->GetTable(i)->GetTextureUnit();
+      }
+    }
+
+  this->Impl->ShaderProgram->SetUniform1iv("in_opacityTransferFunc",
+    numberOfSamplers, opacitySamplers);
+  vtkOpenGLCheckErrorMacro("failed at glBindTexture");
+
+  if (this->BlendMode != vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
+    {
+    this->Impl->ShaderProgram->SetUniform1iv("in_colorTransferFunc",
+      numberOfSamplers, colorSamplers);
+    vtkOpenGLCheckErrorMacro("failed at glBindTexture");
+    }
+
+  if (this->Impl->GradientOpacityTables)
+    {
+    this->Impl->ShaderProgram->SetUniform1iv("in_gradientTransferFunc",
+      numberOfSamplers, gradientOpacitySamplers);
+    vtkOpenGLCheckErrorMacro("failed at glBindTexture");
+    }
 
   this->Impl->NoiseTextureObject->Activate();
   this->Impl->ShaderProgram->SetUniformi("in_noiseSampler",
@@ -2268,12 +2310,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->ShaderProgram->SetUniformi("in_depthSampler",
     this->Impl->DepthTextureObject->GetTextureUnit());
 
-  if (this->Impl->GradientOpacityTables)
-    {
-    this->Impl->ShaderProgram->SetUniformi("in_gradientTransferFunc",
-      this->Impl->GradientOpacityTables->GetTable(0)->GetTextureUnit());
-    }
-
   if (this->Impl->CurrentMask)
     {
     this->Impl->CurrentMask->Bind();
@@ -2282,12 +2318,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     }
 
   if(numberOfScalarComponents == 1 &&
-     this->BlendMode!=vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
+     this->BlendMode != vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
     {
-    this->Impl->RGBTables->GetTable(0)->Bind();
-    this->Impl->ShaderProgram->SetUniformi("in_colorTransferFunc",
-      this->Impl->RGBTables->GetTable(0)->GetTextureUnit());
-
     if (this->MaskInput != 0 && this->MaskType == LabelMapMaskType)
       {
       this->Impl->Mask1RGBTable->Bind();

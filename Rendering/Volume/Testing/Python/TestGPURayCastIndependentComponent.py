@@ -41,6 +41,8 @@ class TestGPURayCastIndependentComponent(vtk.test.Testing.vtkTest):
         volume = vtk.vtkVolume()
         #mapper = vtk.vtkFixedPointVolumeRayCastMapper()
         mapper = vtk.vtkGPUVolumeRayCastMapper()
+        mapper.SetSampleDistance(0.1)
+        mapper.SetAutoAdjustSampleDistances(0)
         ren = vtk.vtkRenderer()
         renWin = vtk.vtkRenderWindow()
         iRen = vtk.vtkRenderWindowInteractor()
