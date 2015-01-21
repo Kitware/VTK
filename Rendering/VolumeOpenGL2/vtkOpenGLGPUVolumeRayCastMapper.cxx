@@ -226,19 +226,20 @@ public:
   // TODO Deal with numberOfScalarComponents > 1
   int UpdateColorTransferFunction(vtkRenderer* ren,
                                   vtkVolume* vol,
-                                  int numberOfScalarComponents);
+                                  int numberOfScalarComponents,
+                                  unsigned int component);
 
   // Update opacity transfer function (not gradient opacity)
   int UpdateOpacityTransferFunction(vtkRenderer* ren,
                                     vtkVolume* vol,
                                     int numberOfScalarComponents,
-                                    unsigned int level);
+                                    unsigned int component);
 
   // Update gradient opacity function
   int UpdateGradientOpacityTransferFunction(vtkRenderer* ren,
                                             vtkVolume* vol,
                                             int numberOfScalarComponents,
-                                            unsigned int level);
+                                            unsigned int component);
 
   // Update noise texture (used to reduce rendering artifacts
   // specifically banding effects)
@@ -450,9 +451,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::Initialize(
       }
     }
 
-  // TODO Currently we are supporting only one level
-  // Create opacity lookup table
-  this->OpacityTables = new vtkOpenGLOpacityTables(1);
+  // We support upto four components
+  this->OpacityTables = new vtkOpenGLOpacityTables(4);
 
   this->Initialized = true;
 }
@@ -844,7 +844,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ComputeBounds(
 
 //----------------------------------------------------------------------------
 int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateColorTransferFunction(
-  vtkRenderer* ren, vtkVolume* vol, int numberOfScalarComponents)
+  vtkRenderer* ren, vtkVolume* vol, int numberOfScalarComponents,
+  unsigned int component)
 {
   // Build the colormap in a 1D texture.
   // 1D RGB-texture=mapping from scalar values to color values
@@ -896,7 +897,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateColorTransferFunction(
 //----------------------------------------------------------------------------
 int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateOpacityTransferFunction(
   vtkRenderer* ren, vtkVolume* vol, int vtkNotUsed(numberOfScalarComponents),
-  unsigned int level)
+  unsigned int component)
 {
   if (!vol)
     {
@@ -919,7 +920,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateOpacityTransferFunction(
     volumeProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION ?
       vtkTextureObject::Linear : vtkTextureObject::Nearest;
 
-  this->OpacityTables->GetTable(level)->Update(
+  this->OpacityTables->GetTable(component)->Update(
     scalarOpacity,this->Parent->BlendMode,
     this->ActualSampleDistance,
     this->ScalarsRange,
@@ -933,7 +934,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateOpacityTransferFunction(
 //----------------------------------------------------------------------------
 int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
   UpdateGradientOpacityTransferFunction(vtkRenderer* ren, vtkVolume* vol,
-    int vtkNotUsed(numberOfScalarComponents), unsigned int level)
+    int vtkNotUsed(numberOfScalarComponents), unsigned int component)
 {
   if (!vol)
     {
@@ -968,7 +969,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
     volumeProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION ?
       vtkTextureObject::Linear : vtkTextureObject::Nearest;
 
-  this->GradientOpacityTables->GetTable(level)->Update(
+  this->GradientOpacityTables->GetTable(component)->Update(
     gradientOpacity,
     this->ActualSampleDistance,
     this->ScalarsRange,
@@ -2044,7 +2045,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   // Update in_volume first to make sure states are current
   vol->Update();
 
+  // Get the input
   vtkImageData* input = this->GetTransformedInput();
+
+  // Get the volume property (must have one)
+  vtkVolumeProperty* volumeProperty = vol->GetProperty();
 
   // Set OpenGL states
   vtkVolumeStateRAII glState;
@@ -2128,7 +2133,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
   this->Impl->ShaderCache = renWin->GetShaderCache();
 
-  if (vol->GetProperty()->GetMTime() >
+  if (volumeProperty->GetMTime() >
       this->Impl->ShaderBuildTime.GetMTime() ||
       this->GetMTime() > this->Impl->ShaderBuildTime.GetMTime() ||
       ren->GetActiveCamera()->GetParallelProjection() !=
@@ -2148,16 +2153,19 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->UpdateVolumeGeometry(ren, vol, input);
 
   // Update opacity transfer function
-  // TODO Passing level 0 for now
-  this->Impl->UpdateOpacityTransferFunction(ren, vol,
-    scalars->GetNumberOfComponents(), 0);
+  for (int i = 0; i < volumeProperty->GetIndependentComponents() ?
+       numberOfScalarComponents : 1; ++i)
+    {
+    this->Impl->UpdateOpacityTransferFunction(ren, vol,
+      scalars->GetNumberOfComponents(), i);
 
-  this->Impl->UpdateGradientOpacityTransferFunction(ren, vol,
-    scalars->GetNumberOfComponents(), 0);
+    this->Impl->UpdateGradientOpacityTransferFunction(ren, vol,
+      scalars->GetNumberOfComponents(), i);
 
-  // Update transfer color functions
-  this->Impl->UpdateColorTransferFunction(ren, vol,
-    scalars->GetNumberOfComponents());
+    // Update transfer color functions
+    this->Impl->UpdateColorTransferFunction(ren, vol,
+      scalars->GetNumberOfComponents(), i);
+    }
 
   // Update noise sampler texture
   this->Impl->UpdateNoiseTexture(ren);
@@ -2277,16 +2285,16 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
       }
     }
 
-  fvalue3[0] = fvalue3[1] = fvalue3[2] = vol->GetProperty()->GetAmbient();
+  fvalue3[0] = fvalue3[1] = fvalue3[2] = volumeProperty->GetAmbient();
   this->Impl->ShaderProgram->SetUniform3f("in_ambient", fvalue3);
 
-  fvalue3[0] = fvalue3[1] = fvalue3[2] = vol->GetProperty()->GetDiffuse();
+  fvalue3[0] = fvalue3[1] = fvalue3[2] = volumeProperty->GetDiffuse();
   this->Impl->ShaderProgram->SetUniform3f("in_diffuse", fvalue3);
 
-  fvalue3[0] = fvalue3[1] = fvalue3[2] = vol->GetProperty()->GetSpecular();
+  fvalue3[0] = fvalue3[1] = fvalue3[2] = volumeProperty->GetSpecular();
   this->Impl->ShaderProgram->SetUniform3f("in_specular", fvalue3);
 
-  fvalue3[0] = vol->GetProperty()->GetSpecularPower();
+  fvalue3[0] = volumeProperty->GetSpecularPower();
   this->Impl->ShaderProgram->SetUniformf("in_shininess", fvalue3[0]);
 
   // Look at the OpenGL Camera for the exact aspect computation
