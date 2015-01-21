@@ -237,14 +237,17 @@ void vtkOpenGLPolyDataMapper2D::SetMapperShaderParameters(
 void vtkOpenGLPolyDataMapper2D::SetPropertyShaderParameters(
   vtkgl::CellBO &cellBO, vtkViewport*, vtkActor2D *actor)
 {
-  vtkShaderProgram *program = cellBO.Program;
+  if (!this->Colors || !this->Colors->GetNumberOfComponents())
+    {
+    vtkShaderProgram *program = cellBO.Program;
 
-  // Query the actor for some of the properties that can be applied.
-  float opacity = static_cast<float>(actor->GetProperty()->GetOpacity());
-  double *dColor = actor->GetProperty()->GetColor();
-  float diffuseColor[4] = {static_cast<float>(dColor[0]), static_cast<float>(dColor[1]), static_cast<float>(dColor[2]), static_cast<float>(opacity)};
+    // Query the actor for some of the properties that can be applied.
+    float opacity = static_cast<float>(actor->GetProperty()->GetOpacity());
+    double *dColor = actor->GetProperty()->GetColor();
+    float diffuseColor[4] = {static_cast<float>(dColor[0]), static_cast<float>(dColor[1]), static_cast<float>(dColor[2]), static_cast<float>(opacity)};
 
-  program->SetUniform4f("diffuseColor", diffuseColor);
+    program->SetUniform4f("diffuseColor", diffuseColor);
+    }
 }
 
 //-----------------------------------------------------------------------------

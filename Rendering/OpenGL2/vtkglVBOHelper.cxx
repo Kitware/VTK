@@ -253,6 +253,7 @@ VBOLayout CreateVBO(vtkPoints *points, unsigned int numPts,
   return VBOLayout();
 }
 
+
 // Process the string, and return a version with replacements.
 std::string replace(std::string source, const std::string &search,
                     const std::string replace, bool all)
@@ -270,6 +271,24 @@ std::string replace(std::string source, const std::string &search,
   return source;
 }
 
+// Process the string, and return a version with replacements.
+bool substitute(std::string &source, const std::string &search,
+             const std::string replace, bool all)
+{
+  std::string::size_type pos = 0;
+  bool replaced = false;
+  while ((pos = source.find(search, 0)) != std::string::npos)
+    {
+    source.replace(pos, search.length(), replace);
+    if (!all)
+      {
+      return true;
+      }
+    pos += search.length();
+    replaced = true;
+    }
+  return replaced;
+}
 
 // used to create an IBO for triangle primatives
 size_t CreateTriangleIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,

@@ -40,12 +40,13 @@ public:
   void UpdateViewport(vtkRenderer *ren);
 
   void GetKeyMatrices(vtkRenderer *ren, vtkMatrix4x4 *&WCVCMatrix,
-    vtkMatrix3x3 *&normalMatrix, vtkMatrix4x4 *&VCDCMatrix);
+    vtkMatrix3x3 *&normalMatrix, vtkMatrix4x4 *&VCDCMatrix, vtkMatrix4x4 *&WCDCMatrix);
 
 protected:
   vtkOpenGLCamera();
   ~vtkOpenGLCamera();
 
+  vtkMatrix4x4 *WCDCMatrix;
   vtkMatrix4x4 *WCVCMatrix;
   vtkMatrix3x3 *NormalMatrix;
   vtkMatrix4x4 *VCDCMatrix;

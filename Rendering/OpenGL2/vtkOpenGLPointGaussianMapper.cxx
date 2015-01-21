@@ -15,10 +15,11 @@
 
 #include "vtkglVBOHelper.h"
 
-#include "vtkActor.h"
-#include "vtkCamera.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkMatrix4x4.h"
+#include "vtkOpenGLActor.h"
+#include "vtkOpenGLCamera.h"
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -29,8 +30,7 @@
 #include "vtkPointGaussianVS.h"
 #include "vtkglPolyDataFSNoLighting.h"
 
-using vtkgl::replace;
-
+using vtkgl::substitute;
 
 class vtkOpenGLPointGaussianMapperHelper : public vtkOpenGLPolyDataMapper
 {
@@ -113,11 +113,16 @@ void vtkOpenGLPointGaussianMapperHelper::ReplaceShaderValues(std::string &VSSour
                                                  vtkRenderer* ren,
                                                  vtkActor *actor)
 {
-  FSSource = replace(FSSource,
+  substitute(FSSource,
     "//VTK::PositionVC::Dec",
     "varying vec2 offsetVC;");
 
-  FSSource = replace(FSSource,"//VTK::Color::Impl",
+  substitute(VSSource,
+    "//VTK::Camera::Dec",
+    "uniform mat4 VCDCMatrix;\n"
+    "uniform mat4 MCVCMatrix;");
+
+  substitute(FSSource,"//VTK::Color::Impl",
     // compute the eye position and unit direction
     "//VTK::Color::Impl\n"
     "  float dist2 = dot(offsetVC.xy,offsetVC.xy);\n"
@@ -139,11 +144,31 @@ vtkOpenGLPointGaussianMapperHelper::~vtkOpenGLPointGaussianMapperHelper()
 void vtkOpenGLPointGaussianMapperHelper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
                                                     vtkRenderer* ren, vtkActor *actor)
 {
-  // do the superclass and then reset a couple values
-  this->Superclass::SetCameraShaderParameters(cellBO,ren,actor);
+  vtkShaderProgram *program = cellBO.Program;
+
+  vtkOpenGLCamera *cam = (vtkOpenGLCamera *)(ren->GetActiveCamera());
+
+  vtkMatrix4x4 *wcdc;
+  vtkMatrix4x4 *wcvc;
+  vtkMatrix3x3 *norms;
+  vtkMatrix4x4 *vcdc;
+  cam->GetKeyMatrices(ren,wcvc,norms,vcdc,wcdc);
+  program->SetUniformMatrix("VCDCMatrix", vcdc);
+
+  if (!actor->GetIsIdentity())
+    {
+    vtkMatrix4x4 *mcwc;
+    vtkMatrix3x3 *anorms;
+    ((vtkOpenGLActor *)actor)->GetKeyMatrices(mcwc,anorms);
+    vtkMatrix4x4::Multiply4x4(mcwc, wcvc, this->TempMatrix4);
+    program->SetUniformMatrix("MCVCMatrix", this->TempMatrix4);
+    }
+  else
+    {
+    program->SetUniformMatrix("MCVCMatrix", wcvc);
+    }
 
   // add in uniforms for parallel and distance
-  vtkCamera *cam = ren->GetActiveCamera();
   cellBO.Program->SetUniformi("cameraParallel", cam->GetParallelProjection());
 }
 
