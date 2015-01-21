@@ -100,11 +100,15 @@ namespace vtkvolume
                               vtkVolumeMapper* vtkNotUsed(mapper),
                               vtkVolume* vtkNotUsed(vol),
                               int vtkNotUsed(numberOfLights),
-                              int lightingComplexity)
+                              int lightingComplexity,
+                              int noOfComponents = 1,
+                              bool independentComponents = false)
     {
     std::string shaderStr = std::string("\
       \n// Volume dataset\
       \nuniform sampler3D in_volume;\
+      \nuniform int in_noOfComponents;\
+      \nuniform int in_independentComponents;\
       \n\
       \nuniform sampler2D in_noiseSampler;\
       \nuniform sampler2D in_depthSampler;\
@@ -740,7 +744,8 @@ namespace vtkvolume
                                vtkVolume* vtkNotUsed(vol),
                                vtkImageData* maskInput,
                                vtkVolumeMask* mask, int maskType,
-                               int noOfComponents)
+                               int noOfComponents,
+                               bool independentComponents = false)
     {
     std::string shaderStr = std::string("\
       \n    if (!l_skip)\
@@ -803,29 +808,56 @@ namespace vtkvolume
       }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::COMPOSITE_BLEND)
       {
-      if (!mask || !maskInput ||
-          maskType != vtkGPUVolumeRayCastMapper::LabelMapMaskType)
+      if (noOfComponents > 1 && independentComponents)
         {
         shaderStr += std::string("\
-          \n      // Data fetching from the red channel of volume texture\
-          \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
-          \n      vec4 g_srcColor = computeColor(scalar);"
-        );
-        }
+        \n       for (int i = 0; i < in_noOfComponents; ++i)\
+        \n         {\
+        ");
+        // TODO Remove duplication
+        if (!mask || !maskInput ||
+         maskType != vtkGPUVolumeRayCastMapper::LabelMapMaskType)
+          {
+          shaderStr += std::string("\
+          \n        // Data fetching from the red channel of volume texture\
+          \n        vec4 scalar = texture3D(in_volume, g_dataPos);\
+          \n        vec4 g_srcColor = computeColor(scalar, i);"
+          );
+          }
 
-      shaderStr += std::string("\
-        \n      // Opacity calculation using compositing:\
-        \n      // here we use front to back compositing scheme whereby the current\
-        \n      // sample value is multiplied to the currently accumulated alpha\
-        \n      // and then this product is subtracted from the sample value to\
-        \n      // get the alpha from the previous steps.\
-        \n      // Next, this alpha is multiplied with the current sample colour\
-        \n      // and accumulated to the composited colour. The alpha value from\
-        \n      // the previous steps is then accumulated to the composited colour\
-        \n      // alpha.\
-        \n      g_srcColor.rgb *= g_srcColor.a;\
-        \n      g_fragColor = (1.0f - g_fragColor.a) * g_srcColor + g_fragColor;"
-      );
+          shaderStr += std::string("\
+            \n      g_srcColor.rgb *= g_srcColor.a;\
+            \n      g_fragColor += (1.0f - g_fragColor.a) * g_srcColor + g_fragColor;\
+            \n      }\
+            \n      g_fragColor /= in_noOfComponents;"
+          );
+        }
+      else
+        {
+         if (!mask || !maskInput ||
+             maskType != vtkGPUVolumeRayCastMapper::LabelMapMaskType)
+           {
+           shaderStr += std::string("\
+             \n      // Data fetching from the red channel of volume texture\
+             \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
+             \n      vec4 g_srcColor = computeColor(scalar);"
+           );
+           }
+
+         shaderStr += std::string("\
+           \n      // Opacity calculation using compositing:\
+           \n      // here we use front to back compositing scheme whereby the current\
+           \n      // sample value is multiplied to the currently accumulated alpha\
+           \n      // and then this product is subtracted from the sample value to\
+           \n      // get the alpha from the previous steps.\
+           \n      // Next, this alpha is multiplied with the current sample colour\
+           \n      // and accumulated to the composited colour. The alpha value from\
+           \n      // the previous steps is then accumulated to the composited colour\
+           \n      // alpha.\
+           \n      g_srcColor.rgb *= g_srcColor.a;\
+           \n      g_fragColor = (1.0f - g_fragColor.a) * g_srcColor + g_fragColor;"
+         );
+        }
       }
      else
         {

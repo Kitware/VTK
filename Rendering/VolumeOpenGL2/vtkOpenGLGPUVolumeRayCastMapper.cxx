@@ -1816,6 +1816,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
 
   // Every volume should have a property (cannot be NULL);
   vtkVolumeProperty* volumeProperty = vol->GetProperty();
+  bool independentComponents = volumeProperty->GetIndependentComponents();
 
   if (volumeProperty->GetShade())
     {
@@ -1861,7 +1862,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
     vtkvolume::BaseGlobalsVert(ren, this, vol), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Base::Dec",
     vtkvolume::BaseGlobalsFrag(ren, this, vol, this->Impl->NumberOfLights,
-                               this->Impl->LightComplexity), true);
+                               this->Impl->LightComplexity, noOfComponents,
+                               independentComponents), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Base::Init",
     vtkvolume::BaseInit(ren, this, vol), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Base::Impl",
@@ -1889,22 +1891,21 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
   fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Shading::Impl",
     vtkvolume::ShadingIncrement(ren, this, vol, this->MaskInput,
                                 this->Impl->CurrentMask,
-                                this->MaskType, noOfComponents), true);
+                                this->MaskType, noOfComponents,
+                                independentComponents), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Shading::Exit",
     vtkvolume::ShadingExit(ren, this, vol), true);
 
   fragmentShader = vtkvolume::replace(fragmentShader,
     "//VTK::ComputeOpacity::Dec",
     vtkvolume::OpacityTransferFunc(ren, this, vol, noOfComponents,
-      volumeProperty->GetIndependentComponents()),
-    true);
+                                   independentComponents), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::ComputeGradient::Dec",
     vtkvolume::GradientsComputeFunc(ren, this, vol, noOfComponents), true);
   fragmentShader = vtkvolume::replace(fragmentShader,
     "//VTK::ColorTransferFunc::Dec",
     vtkvolume::ColorTransferFunc(ren, this, vol, noOfComponents,
-      volumeProperty->GetIndependentComponents()),
-    true);
+                                 independentComponents), true);
   fragmentShader = vtkvolume::replace(fragmentShader,
     "//VTK::ComputeLighting::Dec",
     vtkvolume::LightComputeFunc(ren, this, vol, noOfComponents,
@@ -2226,6 +2227,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     }
 
   // Pass constant uniforms at initialization
+  this->Impl->ShaderProgram->SetUniformi("in_noOfComponents",
+                                         numberOfScalarComponents);
+  this->Impl->ShaderProgram->SetUniformi("in_independentComponents",
+                                         volumeProperty->GetIndependentComponents());
+
+
   // Step should be dependant on the bounds and not on the texture size
   // since we can have non uniform voxel size / spacing / aspect ratio
   vtkInternal::ToFloat(this->Impl->CellStep, fvalue3);
