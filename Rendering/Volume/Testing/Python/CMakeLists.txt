@@ -11,6 +11,7 @@ set (GenericVolumePythonTests
   volRCRotateClip.py
   VolumePickerCrop.py
   VolumePicker.py,NO_RT
+  TestGPURayCastIndependentComponent.py
   )
 
 # These tests are only built when the rendering backend is OpenGL
