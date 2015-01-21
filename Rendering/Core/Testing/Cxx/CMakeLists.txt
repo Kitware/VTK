@@ -109,3 +109,18 @@ target_link_libraries(TimingTests
   vtksys
   ${extra_deps}
   )
+
+add_executable(GLBenchmarking MACOSX_BUNDLE GLBenchmarking.cxx)
+set_source_files_properties(GLBenchmarking.cxx APPEND PROPERTIES
+  COMPILE_DEFINITIONS "${compile_defs}")
+target_link_libraries(GLBenchmarking
+  vtkRendering${VTK_RENDERING_BACKEND}
+  vtkFiltersSources
+  vtkCommonComputationalGeometry
+  vtkViewsContext2D
+  vtkRenderingContext${VTK_RENDERING_BACKEND}
+  vtkRenderingFreeType${VTK_RENDERING_BACKEND}
+  vtkChartsCore
+  vtksys
+  ${extra_deps}
+  )
