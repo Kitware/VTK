@@ -111,10 +111,10 @@ class TestGPURayCastIndependentComponent(vtk.test.Testing.vtkTest):
         ren.ResetCamera()
         renWin.Render()
 
-        #img_file = "TestGPURayCastIndependentComponent.png"
-        #vtk.test.Testing.compareImage(
-        #  iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=10)
-        #vtk.test.Testing.interact()
+        img_file = "TestGPURayCastIndependentComponent.png"
+        vtk.test.Testing.compareImage(
+          iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=10)
+        vtk.test.Testing.interact()
         iRen.Start()
 
 if __name__ == "__main__":

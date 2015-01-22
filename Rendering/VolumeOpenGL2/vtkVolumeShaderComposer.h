@@ -811,26 +811,33 @@ namespace vtkvolume
       if (noOfComponents > 1 && independentComponents)
         {
         shaderStr += std::string("\
+        \n       vec4 color[4]; vec4 tmp = vec4(0.0);\
+        \n       float totalAlpha = 0.0;\
         \n       for (int i = 0; i < in_noOfComponents; ++i)\
         \n         {\
         ");
-        // TODO Remove duplication
         if (!mask || !maskInput ||
-         maskType != vtkGPUVolumeRayCastMapper::LabelMapMaskType)
+            maskType != vtkGPUVolumeRayCastMapper::LabelMapMaskType)
           {
           shaderStr += std::string("\
-          \n        // Data fetching from the red channel of volume texture\
-          \n        vec4 scalar = texture3D(in_volume, g_dataPos);\
-          \n        vec4 g_srcColor = computeColor(scalar, i);"
+          \n          // Data fetching from the red channel of volume texture\
+          \n          vec4 scalar = texture3D(in_volume, g_dataPos);\
+          \n          color[i] = vec4(computeColor(scalar, i));\
+          \n          totalAlpha += color[i][3];\
+          \n          }\
+          \n       if (totalAlpha > 0.0)\
+          \n         {\
+          \n         for (int i = 0; i < in_noOfComponents; ++i)\
+          \n           {\
+          \n           tmp.x += color[i].x * color[i].w;\
+          \n           tmp.y += color[i].y * color[i].w;\
+          \n           tmp.z += color[i].z * color[i].w;\
+          \n           tmp.w += ((color[i].w * color[i].w)/totalAlpha);\
+          \n           }\
+          \n         }\
+          \n       g_fragColor = (1.0f - g_fragColor.a) * tmp + g_fragColor;"
           );
           }
-
-          shaderStr += std::string("\
-            \n      g_srcColor.rgb *= g_srcColor.a;\
-            \n      g_fragColor += (1.0f - g_fragColor.a) * g_srcColor + g_fragColor;\
-            \n      }\
-            \n      g_fragColor /= in_noOfComponents;"
-          );
         }
       else
         {
