@@ -23,6 +23,7 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
@@ -155,7 +156,9 @@ int vtkGaussianSplatter::RequestData(
     return 1;
     }
 
-  vtkCompositeDataIterator* dataItr = inputComposite->NewIterator();
+  vtkSmartPointer< vtkCompositeDataIterator > dataItr =
+    vtkSmartPointer< vtkCompositeDataIterator >::Take(
+      inputComposite->NewIterator());
 
   //decide which array to splat, if any
   dataItr->InitTraversal();
@@ -359,7 +362,9 @@ void vtkGaussianSplatter::ComputeModelBounds(vtkCompositeDataSet *input,
        this->ModelBounds[4] >= this->ModelBounds[5] )
     {
     adjustBounds = 1;
-    vtkCompositeDataIterator* itr = input->NewIterator();
+    vtkSmartPointer< vtkCompositeDataIterator > itr =
+      vtkSmartPointer< vtkCompositeDataIterator >::Take(
+        input->NewIterator());
     for (itr->InitTraversal(); ! itr->IsDoneWithTraversal(); itr->GoToNextItem())
       {
       vtkDataSet* ds = vtkDataSet::SafeDownCast(itr->GetCurrentDataObject());
