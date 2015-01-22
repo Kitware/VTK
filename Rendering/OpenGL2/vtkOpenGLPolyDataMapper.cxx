@@ -57,6 +57,8 @@
 #include "vtkglPolyDataVSNoLighting.h"
 #include "vtkglPolyDataFSNoLighting.h"
 
+#include <algorithm>
+
 using vtkgl::substitute;
 
 //-----------------------------------------------------------------------------
