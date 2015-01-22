@@ -352,7 +352,8 @@ void vtkTextMapper::RenderOverlay(vtkViewport *viewport, vtkActor2D *actor)
     {
     this->UpdateImage();
     this->UpdateQuad(actor);
-    if (ren = vtkRenderer::SafeDownCast(viewport))
+    ren = vtkRenderer::SafeDownCast(viewport);
+    if (ren)
       {
       vtkDebugMacro(<<"Texture::Render called");
       this->Texture->Render(ren);
