@@ -138,14 +138,14 @@ def vtkDataArrayToVTKArray(array, dataset=None):
 
     return VTKArray(narray, array=array, dataset=dataset)
 
-def numpyTovtkDataArray(array, name="numpy_array"):
+def numpyTovtkDataArray(array, name="numpy_array", array_type=None):
     """Given a numpy array or a VTKArray and a name, returns a vtkDataArray.
     The resulting vtkDataArray will store a reference to the numpy array
     through a DeleteEvent observer: the numpy array is released only when
     the vtkDataArray is destroyed."""
     if not array.flags.contiguous:
         array = array.copy()
-    vtkarray = numpy_support.numpy_to_vtk(array)
+    vtkarray = numpy_support.numpy_to_vtk(array, array_type=array_type)
     vtkarray.SetName(name)
     # This makes the VTK array carry a reference to the numpy array.
     vtkarray.AddObserver('DeleteEvent', _MakeObserver(array))
@@ -557,6 +557,8 @@ class DataSetAttributes(VTKObjectWrapper):
 
     def GetArray(self, idx):
         "Given an index or name, returns a VTKArray."
+        if isinstance(idx, int) and idx >= self.VTKObject.GetNumberOfArrays():
+            raise IndexError, "array index out of range"
         vtkarray = self.VTKObject.GetArray(idx)
         if not vtkarray:
             vtkarray = self.VTKObject.GetAbstractArray(idx)
@@ -933,15 +935,22 @@ class PointSet(DataSet):
         return vtkDataArrayToVTKArray(
             self.VTKObject.GetPoints().GetData(), self)
 
-    Points = property(GetPoints, None, None, "This property returns the point coordinates of dataset.")
+    def SetPoints(self, pts):
+        """Given a VTKArray instance, sets the points of the dataset."""
+        from vtk.vtkCommonCore import vtkPoints
+        pts = numpyTovtkDataArray(pts)
+        p = vtkPoints()
+        p.SetData(pts)
+        self.VTKObject.SetPoints(p)
+
+    Points = property(GetPoints, SetPoints, None, "This property returns the point coordinates of dataset.")
 
 class PolyData(PointSet):
     """This is a python friendly wrapper of a vtkPolyData that defines
     a few useful properties."""
 
     def GetPolygons(self):
-        """Returns the points as a VTKArray instance. Returns None if the
-        dataset has implicit points."""
+        """Returns the polys as a VTKArray instance."""
         if not self.VTKObject.GetPolys():
             return None
         return vtkDataArrayToVTKArray(
@@ -949,10 +958,53 @@ class PolyData(PointSet):
 
     Polygons = property(GetPolygons, None, None, "This property returns the connectivity of polygons.")
 
+class UnstructuredGrid(PointSet):
+    """This is a python friendly wrapper of a vtkUnstructuredGrid that defines
+    a few useful properties."""
+
+    def GetCellTypes(self):
+        """Returns the cell types as a VTKArray instance."""
+        if not self.VTKObject.GetCellTypesArray():
+            return None
+        return vtkDataArrayToVTKArray(
+            self.VTKObject.GetCellTypesArray(), self)
+
+    def GetCellLocations(self):
+        """Returns the cell locations as a VTKArray instance."""
+        if not self.VTKObject.GetCellLocationsArray():
+            return None
+        return vtkDataArrayToVTKArray(
+            self.VTKObject.GetCellLocationsArray(), self)
+
+    def GetCells(self):
+        """Returns the cells as a VTKArray instance."""
+        if not self.VTKObject.GetCells():
+            return None
+        return vtkDataArrayToVTKArray(
+            self.VTKObject.GetCells().GetData(), self)
+
+    def SetCells(self, cellTypes, cellLocations, cells):
+        """Given cellTypes, cellLocations, cells as VTKArrays,
+        populates the unstructured grid data structures."""
+        from vtk import VTK_ID_TYPE
+        from vtk.vtkCommonDataModel import vtkCellArray
+        cellTypes = numpyTovtkDataArray(cellTypes)
+        cellLocations = numpyTovtkDataArray(cellLocations, array_type=VTK_ID_TYPE)
+        cells = numpyTovtkDataArray(cells, array_type=VTK_ID_TYPE)
+        ca = vtkCellArray()
+        ca.SetCells(cellTypes.GetNumberOfTuples(), cells)
+        self.VTKObject.SetCells(cellTypes, cellLocations, ca)
+
+    CellTypes = property(GetCellTypes, None, None, "This property returns the types of cells.")
+    CellLocations = property(GetCellLocations, None, None, "This property returns the locations of cells.")
+    Cells = property(GetCells, None, None, "This property returns the connectivity of cells.")
+
 def WrapDataObject(ds):
     """Returns a Numpy friendly wrapper of a vtkDataObject."""
     if ds.IsA("vtkPolyData"):
         return PolyData(ds)
+    elif ds.IsA("vtkUnstructuredGrid"):
+        return UnstructuredGrid(ds)
     elif ds.IsA("vtkPointSet"):
         return PointSet(ds)
     elif ds.IsA("vtkDataSet"):
