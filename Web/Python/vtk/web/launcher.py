@@ -445,7 +445,8 @@ class LauncherResource(resource.Resource, object):
         if not d:
             d = defer.Deferred()
 
-        if not self.process_manager.isReady(session, count + 1):
+        if not 'startTimedOut' in session and \
+            not self.process_manager.isReady(session, count + 1):
             reactor.callLater(1, self._waitForReady, session, request, count + 1, d)
         else:
             d.callback(request)
@@ -465,6 +466,10 @@ class LauncherResource(resource.Resource, object):
             request.setResponseCode(http.OK)
         else:
             request.write(json.dumps({"error": "Session did not start before timeout expired. Check session logs."}))
+            # Mark the session as timed out and clean up the process
+            session['startTimedOut'] = True
+            self.session_manager.deleteSession(session['id'])
+            self.process_manager.stopProcess(session['id'])
             request.setResponseCode(http.SERVICE_UNAVAILABLE)
 
         request.finish()
