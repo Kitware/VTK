@@ -18,6 +18,7 @@
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -345,19 +346,37 @@ int vtkTextMapper::SetMultipleRelativeFontSize(vtkViewport *viewport,
 void vtkTextMapper::RenderOverlay(vtkViewport *viewport, vtkActor2D *actor)
 {
   vtkDebugMacro(<<"RenderOverlay called");
+
+  vtkRenderer *ren = NULL;
   if (this->Input && this->Input[0])
     {
     this->UpdateImage();
     this->UpdateQuad(actor);
-    if (vtkRenderer *ren = vtkRenderer::SafeDownCast(viewport))
+    ren = vtkRenderer::SafeDownCast(viewport);
+    if (ren)
       {
       vtkDebugMacro(<<"Texture::Render called");
       this->Texture->Render(ren);
+      vtkInformation *info = actor->GetPropertyKeys();
+      if (!info)
+        {
+        info = vtkInformation::New();
+        actor->SetPropertyKeys(info);
+        info->Delete();
+        }
+      info->Set(vtkProp::GeneralTextureUnit(),
+        this->Texture->GetTextureUnit());
       }
     }
 
   vtkDebugMacro(<<"PolyData::RenderOverlay called");
   this->Mapper->RenderOverlay(viewport, actor);
+
+  // clean up
+  if (ren)
+    {
+    this->Texture->PostRender(ren);
+    }
 
   vtkDebugMacro(<<"Superclass::RenderOverlay called");
   this->Superclass::RenderOverlay(viewport, actor);

@@ -15,7 +15,10 @@
 
 #include "vtkglVBOHelper.h"
 
-#include "vtkCamera.h"
+#include "vtkMatrix3x3.h"
+#include "vtkMatrix4x4.h"
+#include "vtkOpenGLActor.h"
+#include "vtkOpenGLCamera.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -26,7 +29,7 @@
 
 #include "vtkStickMapperVS.h"
 
-using vtkgl::replace;
+using vtkgl::substitute;
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLStickMapper)
@@ -57,7 +60,12 @@ void vtkOpenGLStickMapper::ReplaceShaderValues(std::string &VSSource,
                                                  vtkRenderer* ren,
                                                  vtkActor *actor)
 {
-  FSSource = replace(FSSource,
+  substitute(VSSource,
+    "//VTK::Camera::Dec",
+    "uniform mat4 VCDCMatrix;\n"
+    "uniform mat4 MCVCMatrix;");
+
+  substitute(FSSource,
     "//VTK::PositionVC::Dec",
     "varying vec4 vertexVCClose;");
 
@@ -74,11 +82,11 @@ void vtkOpenGLStickMapper::ReplaceShaderValues(std::string &VSSource,
     {
     replacement += "uniform mat4 VCDCMatrix;\n";
     }
-  FSSource = replace(FSSource,"//VTK::Normal::Dec",replacement);
+  substitute(FSSource,"//VTK::Normal::Dec",replacement);
 
 
   // see https://www.cl.cam.ac.uk/teaching/1999/AGraphHCI/SMAG/node2.html
-  FSSource = replace(FSSource,"//VTK::Normal::Impl",
+  substitute(FSSource,"//VTK::Normal::Impl",
     // compute the eye position and unit direction
     "  vec4 vertexVC = vertexVCClose;\n"
     "  vec3 EyePos = vec3(0.0,0.0,0.0);\n"
@@ -88,7 +96,8 @@ void vtkOpenGLStickMapper::ReplaceShaderValues(std::string &VSSource,
     "  vec3 EyeDir = vertexVC.xyz - EyePos;\n"
     "  float lengthED = length(EyeDir);\n"
     "  EyeDir = normalize(EyeDir);\n"
-    "  if (lengthED > (radiusVC+lengthVC)*3.0) { EyePos = vertexVC.xyz - EyeDir*3.0*(radiusVC+lengthVC);}\n"
+    "  if (lengthED > (radiusVC+lengthVC)*3.0) \n"
+    "    { EyePos = vertexVC.xyz - EyeDir*3.0*(radiusVC+lengthVC);}\n"
 
     // translate to Cylinder center
     "  EyePos = EyePos - centerVC;\n"
@@ -148,18 +157,18 @@ void vtkOpenGLStickMapper::ReplaceShaderValues(std::string &VSSource,
   bool picking = (ren->GetRenderWindow()->GetIsPicking() || selector != NULL);
   if (picking)
     {
-    VSSource = vtkgl::replace(VSSource,
+    substitute(VSSource,
       "//VTK::Picking::Dec",
       "attribute vec4 selectionId;\n"
       "varying vec4 selectionIdFrag;");
-    VSSource = vtkgl::replace(VSSource,
+    substitute(VSSource,
       "//VTK::Picking::Impl",
       "selectionIdFrag = selectionId;");
-    FSSource = vtkgl::replace(FSSource,
+    substitute(FSSource,
       "//VTK::Picking::Dec",
       "uniform vec3 mapperIndex;\n"
       "varying vec4 selectionIdFrag;");
-    FSSource = vtkgl::replace(FSSource,
+    substitute(FSSource,
       "//VTK::Picking::Impl",
       "if (mapperIndex == vec3(0.0,0.0,0.0))\n"
       "    {\n"
@@ -174,7 +183,7 @@ void vtkOpenGLStickMapper::ReplaceShaderValues(std::string &VSSource,
 
   if (ren->GetLastRenderingUsedDepthPeeling())
     {
-    FSSource = vtkgl::replace(FSSource,
+    substitute(FSSource,
       "//VTK::DepthPeeling::Impl",
       "float odepth = texture2D(opaqueZTexture, gl_FragCoord.xy/screenSize).r;\n"
       "  if (gl_FragDepth >= odepth) { discard; }\n"
@@ -201,11 +210,33 @@ vtkOpenGLStickMapper::~vtkOpenGLStickMapper()
 void vtkOpenGLStickMapper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
                                                     vtkRenderer* ren, vtkActor *actor)
 {
-  // do the superclass and then reset a couple values
-  this->Superclass::SetCameraShaderParameters(cellBO,ren,actor);
+  vtkShaderProgram *program = cellBO.Program;
 
-  // add in uniforms for parallel and distance
-  vtkCamera *cam = ren->GetActiveCamera();
+  vtkOpenGLCamera *cam = (vtkOpenGLCamera *)(ren->GetActiveCamera());
+
+  vtkMatrix4x4 *wcdc;
+  vtkMatrix4x4 *wcvc;
+  vtkMatrix3x3 *norms;
+  vtkMatrix4x4 *vcdc;
+  cam->GetKeyMatrices(ren,wcvc,norms,vcdc,wcdc);
+  program->SetUniformMatrix("VCDCMatrix", vcdc);
+
+  if (!actor->GetIsIdentity())
+    {
+    vtkMatrix4x4 *mcwc;
+    vtkMatrix3x3 *anorms;
+    ((vtkOpenGLActor *)actor)->GetKeyMatrices(mcwc,anorms);
+    vtkMatrix4x4::Multiply4x4(mcwc, wcvc, this->TempMatrix4);
+    program->SetUniformMatrix("MCVCMatrix", this->TempMatrix4);
+    vtkMatrix3x3::Multiply3x3(anorms, norms, this->TempMatrix3);
+    program->SetUniformMatrix("normalMatrix", this->TempMatrix3);
+    }
+  else
+    {
+    program->SetUniformMatrix("MCVCMatrix", wcvc);
+    program->SetUniformMatrix("normalMatrix", norms);
+    }
+
   cellBO.Program->SetUniformi("cameraParallel", cam->GetParallelProjection());
 }
 

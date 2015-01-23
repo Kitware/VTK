@@ -31,8 +31,7 @@ attribute vec4 vertexMC;
 //VTK::Color::Dec
 
 // camera and actor matrix values
-uniform mat4 MCVCMatrix;  // combined Model to View transform
-uniform mat4 VCDCMatrix;  // the camera's projection matrix
+//VTK::Camera::Dec
 
 // Texture coordinates
 //VTK::TCoord::Dec
