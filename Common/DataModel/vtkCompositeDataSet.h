@@ -27,8 +27,8 @@
 // .SECTION See Also
 // vtkCompositeDataIterator
 
-#ifndef __vtkCompositeDataSet_h
-#define __vtkCompositeDataSet_h
+#ifndef vtkCompositeDataSet_h
+#define vtkCompositeDataSet_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"

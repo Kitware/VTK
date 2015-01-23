@@ -70,8 +70,8 @@
 //  vtkPoints vtkStructuredGrid vtkUnstructuredGrid vtkPointData vtkCellData
 //  vtkDataSet vtkMultiBlockDataSet
 
-#ifndef __vtkTecplotReader_h
-#define __vtkTecplotReader_h
+#ifndef vtkTecplotReader_h
+#define vtkTecplotReader_h
 
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"

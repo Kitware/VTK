@@ -30,8 +30,8 @@
 // .SECTION See Also
 // vtkArrayDataWriter
 
-#ifndef __vtkArrayDataReader_h
-#define __vtkArrayDataReader_h
+#ifndef vtkArrayDataReader_h
+#define vtkArrayDataReader_h
 
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkArrayDataAlgorithm.h"

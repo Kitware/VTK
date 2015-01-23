@@ -20,8 +20,8 @@
 //
 // .SECTION See Also
 
-#ifndef __vtkPolyDataContourLineInterpolator_h
-#define __vtkPolyDataContourLineInterpolator_h
+#ifndef vtkPolyDataContourLineInterpolator_h
+#define vtkPolyDataContourLineInterpolator_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkContourLineInterpolator.h"

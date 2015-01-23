@@ -33,8 +33,8 @@
 // .SECTION See Also
 // vtkRenderPass, vtkTranslucentPass
 
-#ifndef __vtkDepthPeelingPass_h
-#define __vtkDepthPeelingPass_h
+#ifndef vtkDepthPeelingPass_h
+#define vtkDepthPeelingPass_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkRenderPass.h"

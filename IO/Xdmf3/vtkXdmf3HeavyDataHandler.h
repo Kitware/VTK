@@ -24,8 +24,8 @@
 // part of VTK public API
 // VTK-HeaderTest-Exclude: vtkXdmf3HeavyDataHandler.h
 
-#ifndef __vtkXdmf3HeavyDataHandler_h
-#define __vtkXdmf3HeavyDataHandler_h
+#ifndef vtkXdmf3HeavyDataHandler_h
+#define vtkXdmf3HeavyDataHandler_h
 
 #include "vtkIOXdmf3Module.h" // For export macro
 
@@ -129,4 +129,4 @@ protected:
   bool AsTime;
 };
 
-#endif //__vtkXdmf3HeavyDataHandler_h
+#endif //vtkXdmf3HeavyDataHandler_h

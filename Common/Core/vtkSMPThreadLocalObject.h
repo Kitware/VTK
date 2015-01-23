@@ -64,8 +64,8 @@
 // .SECTION See Also
 // vtkSMPThreadLocal
 
-#ifndef __vtkSMPThreadLocalObject_h
-#define __vtkSMPThreadLocalObject_h
+#ifndef vtkSMPThreadLocalObject_h
+#define vtkSMPThreadLocalObject_h
 
 #include "vtkSMPThreadLocal.h"
 

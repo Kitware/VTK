@@ -30,8 +30,8 @@
 //     "GPU Prefilter for Accurate Cubic B-spline Interpolation,"
 //     The Computer Journal, doi: 10.1093/comjnl/bxq086, 2010.
 
-#ifndef __vtkImageBSplineInternals_h
-#define __vtkImageBSplineInternals_h
+#ifndef vtkImageBSplineInternals_h
+#define vtkImageBSplineInternals_h
 
 #include "vtkImagingCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"

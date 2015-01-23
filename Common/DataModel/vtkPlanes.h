@@ -32,8 +32,8 @@
 // .SECTION See Also
 // vtkCamera
 
-#ifndef __vtkPlanes_h
-#define __vtkPlanes_h
+#ifndef vtkPlanes_h
+#define vtkPlanes_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"

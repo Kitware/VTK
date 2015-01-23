@@ -21,8 +21,8 @@
 // subclasses methods as arguments.  Now the data is passes.  Can the caches
 // be passed, and data retrieved from the cache?
 
-#ifndef __vtkImageIterateFilter_h
-#define __vtkImageIterateFilter_h
+#ifndef vtkImageIterateFilter_h
+#define vtkImageIterateFilter_h
 
 #include "vtkImagingCoreModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"

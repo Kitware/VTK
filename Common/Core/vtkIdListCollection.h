@@ -17,8 +17,8 @@
 // vtkIdListCollection is an object that creates and manipulates lists of
 // datasets. See also vtkCollection and subclasses.
 
-#ifndef __vtkIdListCollection_h
-#define __vtkIdListCollection_h
+#ifndef vtkIdListCollection_h
+#define vtkIdListCollection_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkCollection.h"

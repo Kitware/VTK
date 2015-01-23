@@ -27,8 +27,8 @@
 // Thanks to Godzilla for not eating my computer so that this class
 // could be written.
 
-#ifndef __vtkFast2DLayoutStrategy_h
-#define __vtkFast2DLayoutStrategy_h
+#ifndef vtkFast2DLayoutStrategy_h
+#define vtkFast2DLayoutStrategy_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"

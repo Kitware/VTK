@@ -44,8 +44,8 @@
 // .SECTION See Also
 // vtkProcrustesAlignmentFilter
 
-#ifndef __vtkPCAAnalysisFilter_h
-#define __vtkPCAAnalysisFilter_h
+#ifndef vtkPCAAnalysisFilter_h
+#define vtkPCAAnalysisFilter_h
 
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"

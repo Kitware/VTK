@@ -20,8 +20,8 @@
 // to 1 to indicate that values of 0 will result in the point or
 // cell to not be blanked.
 
-#ifndef __vtkImageDataToUniformGrid_h
-#define __vtkImageDataToUniformGrid_h
+#ifndef vtkImageDataToUniformGrid_h
+#define vtkImageDataToUniformGrid_h
 
 #include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"

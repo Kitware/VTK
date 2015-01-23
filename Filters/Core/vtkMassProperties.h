@@ -30,8 +30,8 @@
 // .SECTION See Also
 // vtkTriangleFilter
 
-#ifndef __vtkMassProperties_h
-#define __vtkMassProperties_h
+#ifndef vtkMassProperties_h
+#define vtkMassProperties_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

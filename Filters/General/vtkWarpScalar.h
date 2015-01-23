@@ -33,8 +33,8 @@
 // warping.
 
 
-#ifndef __vtkWarpScalar_h
-#define __vtkWarpScalar_h
+#ifndef vtkWarpScalar_h
+#define vtkWarpScalar_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"

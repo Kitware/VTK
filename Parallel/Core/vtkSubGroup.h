@@ -36,8 +36,8 @@
 // .SECTION See Also
 //      vtkPKdTree vtkDistributedDataFilter
 
-#ifndef __vtkSubGroup_h
-#define __vtkSubGroup_h
+#ifndef vtkSubGroup_h
+#define vtkSubGroup_h
 
 #include "vtkParallelCoreModule.h" // For export macro
 #include "vtkObject.h"

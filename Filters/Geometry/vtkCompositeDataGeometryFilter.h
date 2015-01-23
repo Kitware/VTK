@@ -19,8 +19,8 @@
 // pipeline before a polydata consumer such as a polydata mapper to extract
 // geometry from all blocks and append them to one polydata object.
 
-#ifndef __vtkCompositeDataGeometryFilter_h
-#define __vtkCompositeDataGeometryFilter_h
+#ifndef vtkCompositeDataGeometryFilter_h
+#define vtkCompositeDataGeometryFilter_h
 
 #include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

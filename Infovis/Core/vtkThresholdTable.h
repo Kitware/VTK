@@ -24,8 +24,8 @@
 // table rows based on the values in a particular column.
 // The column to threshold is specified using SetInputArrayToProcess(0, ...).
 
-#ifndef __vtkThresholdTable_h
-#define __vtkThresholdTable_h
+#ifndef vtkThresholdTable_h
+#define vtkThresholdTable_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkTableAlgorithm.h"

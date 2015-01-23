@@ -26,8 +26,8 @@
 // instance has an associated vtkExecutive when it is used in a
 // pipeline.  The executive is responsible for data flow.
 
-#ifndef __vtkAlgorithm_h
-#define __vtkAlgorithm_h
+#ifndef vtkAlgorithm_h
+#define vtkAlgorithm_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkObject.h"

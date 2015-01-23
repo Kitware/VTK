@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtkMPIPixelTT_h
-#define __vtkMPIPixelTT_h
+#ifndef vtkMPIPixelTT_h
+#define vtkMPIPixelTT_h
 
 #include "vtkType.h" // for vtk types
 #include "vtkMPI.h"

@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkDSPFilterGroup vtkExodusReader vtkExodusIIReader vtkPExodusReader
 
-#ifndef __vtkDSPFilterDefinition_h
-#define __vtkDSPFilterDefinition_h
+#ifndef vtkDSPFilterDefinition_h
+#define vtkDSPFilterDefinition_h
 
 
 

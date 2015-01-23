@@ -20,8 +20,8 @@
 // pnmtops.c. Right now there aren't any real options.
 
 
-#ifndef __vtkPostScriptWriter_h
-#define __vtkPostScriptWriter_h
+#ifndef vtkPostScriptWriter_h
+#define vtkPostScriptWriter_h
 
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageWriter.h"

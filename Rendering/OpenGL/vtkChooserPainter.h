@@ -23,8 +23,8 @@
 //
 
 
-#ifndef __vtkChooserPainter_h
-#define __vtkChooserPainter_h
+#ifndef vtkChooserPainter_h
+#define vtkChooserPainter_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkPolyDataPainter.h"

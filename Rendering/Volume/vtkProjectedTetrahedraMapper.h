@@ -36,8 +36,8 @@
 // cause this mapper to produce artifacts.
 //
 
-#ifndef __vtkProjectedTetrahedraMapper_h
-#define __vtkProjectedTetrahedraMapper_h
+#ifndef vtkProjectedTetrahedraMapper_h
+#define vtkProjectedTetrahedraMapper_h
 
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkUnstructuredGridVolumeMapper.h"

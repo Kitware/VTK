@@ -30,8 +30,8 @@
 // .SECTION See Also
 // vtkDirectory
 
-#ifndef __vtkGlobFileNames_h
-#define __vtkGlobFileNames_h
+#ifndef vtkGlobFileNames_h
+#define vtkGlobFileNames_h
 
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkObject.h"

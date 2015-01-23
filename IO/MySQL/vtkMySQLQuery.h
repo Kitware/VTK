@@ -30,8 +30,8 @@
 // .SECTION See Also
 // vtkSQLDatabase vtkSQLQuery vtkMySQLDatabase
 
-#ifndef __vtkMySQLQuery_h
-#define __vtkMySQLQuery_h
+#ifndef vtkMySQLQuery_h
+#define vtkMySQLQuery_h
 
 #include "vtkIOMySQLModule.h" // For export macro
 #include "vtkSQLQuery.h"
@@ -157,5 +157,5 @@ private:
   char *LastErrorText;
 };
 
-#endif // __vtkMySQLQuery_h
+#endif // vtkMySQLQuery_h
 

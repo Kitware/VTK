@@ -38,8 +38,8 @@
 // Thanks to David Duke from the University of Leeds for providing this
 // implementation.
 
-#ifndef __vtkStrahlerMetric_h
-#define __vtkStrahlerMetric_h
+#ifndef vtkStrahlerMetric_h
+#define vtkStrahlerMetric_h
 
 #include "vtkFiltersStatisticsModule.h" // For export macro
 #include "vtkTreeAlgorithm.h"

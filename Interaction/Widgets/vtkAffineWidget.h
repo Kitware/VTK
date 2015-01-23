@@ -50,8 +50,8 @@
 // </pre>
 //
 
-#ifndef __vtkAffineWidget_h
-#define __vtkAffineWidget_h
+#ifndef vtkAffineWidget_h
+#define vtkAffineWidget_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"

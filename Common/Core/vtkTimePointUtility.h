@@ -22,8 +22,8 @@
 //
 // vtkTimePointUtility is provides methods to perform common time operations.
 
-#ifndef __vtkTimePointUtility_h
-#define __vtkTimePointUtility_h
+#ifndef vtkTimePointUtility_h
+#define vtkTimePointUtility_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"

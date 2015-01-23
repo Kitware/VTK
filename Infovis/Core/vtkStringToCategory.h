@@ -33,8 +33,8 @@
 // retrieved from output port 1. They are in a vtkTable, stored in the "Strings"
 // column as a vtkStringArray.
 
-#ifndef __vtkStringToCategory_h
-#define __vtkStringToCategory_h
+#ifndef vtkStringToCategory_h
+#define vtkStringToCategory_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"

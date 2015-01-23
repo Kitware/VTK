@@ -32,8 +32,8 @@
 // .SECTION See Also
 // vtkGenericCellTessellator
 
-#ifndef __vtkGenericSubdivisionErrorMetric_h
-#define __vtkGenericSubdivisionErrorMetric_h
+#ifndef vtkGenericSubdivisionErrorMetric_h
+#define vtkGenericSubdivisionErrorMetric_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

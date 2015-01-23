@@ -33,8 +33,8 @@
 // vtkImplicitPlaneWidget2 vtkImplicitPlaneWidget
 
 
-#ifndef __vtkImplicitPlaneRepresentation_h
-#define __vtkImplicitPlaneRepresentation_h
+#ifndef vtkImplicitPlaneRepresentation_h
+#define vtkImplicitPlaneRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"

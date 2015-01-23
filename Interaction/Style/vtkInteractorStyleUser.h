@@ -27,8 +27,8 @@
 // must use e.g. SetMiddleButtonPressMethod() instead of the more
 // general SetButtonPressMethod().
 
-#ifndef __vtkInteractorStyleUser_h
-#define __vtkInteractorStyleUser_h
+#ifndef vtkInteractorStyleUser_h
+#define vtkInteractorStyleUser_h
 
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyle.h"

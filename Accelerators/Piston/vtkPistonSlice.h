@@ -16,8 +16,8 @@
 // .SECTION Description
 // This filter uses LANL's Piston library to slice on the GPU.
 
-#ifndef __vtkPistonSlice_h
-#define __vtkPistonSlice_h
+#ifndef vtkPistonSlice_h
+#define vtkPistonSlice_h
 
 #include "vtkPistonAlgorithm.h"
 

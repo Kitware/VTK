@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyrgight notice for more information.
 
 =========================================================================*/
-#ifndef __vtkTestingObjectFactory_h
-#define __vtkTestingObjectFactory_h
+#ifndef vtkTestingObjectFactory_h
+#define vtkTestingObjectFactory_h
 
 // .NAME vtkTestingObjectFactory - Object overrides used during testing
 // .SECTION Description

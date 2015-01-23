@@ -46,14 +46,14 @@ ENDMACRO (TARGET_NAMING)
 MACRO (INSTALL_TARGET_PDB libtarget targetdestination targetcomponent)
   if (WIN32 AND MSVC)
     get_target_property (target_name ${libtarget} RELWITHDEBINFO_OUTPUT_NAME)
-    install (
-      FILES
-          ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/${CMAKE_IMPORT_LIBRARY_PREFIX}${target_name}.pdb
-      DESTINATION
-          ${targetdestination}
-      CONFIGURATIONS RelWithDebInfo
-      COMPONENT ${targetcomponent}
-  )
+  #   install (
+  #     FILES
+  #         ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/${CMAKE_IMPORT_LIBRARY_PREFIX}${target_name}.pdb
+  #     DESTINATION
+  #         ${targetdestination}
+  #     CONFIGURATIONS RelWithDebInfo
+  #     COMPONENT ${targetcomponent}
+  # )
   endif (WIN32 AND MSVC)
 ENDMACRO (INSTALL_TARGET_PDB)
 

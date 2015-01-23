@@ -43,8 +43,8 @@
 //
 
 
-#ifndef __vtkRAdapter
-#define __vtkRAdapter
+#ifndef vtkRAdapter_h
+#define vtkRAdapter_h
 
 #include "vtkFiltersStatisticsGnuRModule.h" // For export macro
 #include "vtkObject.h"

@@ -24,8 +24,8 @@
 // whether the bottom of the cone is capped with a (resolution-sided)
 // polygon, and to specify the height and radius of the cone.
 
-#ifndef __vtkConeSource_h
-#define __vtkConeSource_h
+#ifndef vtkConeSource_h
+#define vtkConeSource_h
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

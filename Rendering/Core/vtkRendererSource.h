@@ -28,8 +28,8 @@
 // .SECTION see also
 // vtkWindowToImageFilter vtkRenderer vtkStructuredPoints
 
-#ifndef __vtkRendererSource_h
-#define __vtkRendererSource_h
+#ifndef vtkRendererSource_h
+#define vtkRendererSource_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAlgorithm.h"

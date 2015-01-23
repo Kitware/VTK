@@ -30,8 +30,8 @@
 // the set of table columns determined dynamically from the contents of the
 // file.
 
-#ifndef __vtkISIReader_h
-#define __vtkISIReader_h
+#ifndef vtkISIReader_h
+#define vtkISIReader_h
 
 #include "vtkIOInfovisModule.h" // For export macro
 #include "vtkTableAlgorithm.h"

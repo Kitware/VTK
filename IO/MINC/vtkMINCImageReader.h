@@ -65,8 +65,8 @@ POSSIBILITY OF SUCH DAMAGES.
 // Thanks to David Gobbi for writing this class and Atamai Inc. for
 // contributing it to VTK.
 
-#ifndef __vtkMINCImageReader_h
-#define __vtkMINCImageReader_h
+#ifndef vtkMINCImageReader_h
+#define vtkMINCImageReader_h
 
 #include "vtkIOMINCModule.h" // For export macro
 #include "vtkImageReader2.h"

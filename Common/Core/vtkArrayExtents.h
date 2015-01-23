@@ -54,8 +54,8 @@
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National
 // Laboratories.
 
-#ifndef __vtkArrayExtents_h
-#define __vtkArrayExtents_h
+#ifndef vtkArrayExtents_h
+#define vtkArrayExtents_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"

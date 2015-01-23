@@ -37,8 +37,8 @@
 // versions match up.
 
 
-#ifndef __vtkDiscretizableColorTransferFunction_h
-#define __vtkDiscretizableColorTransferFunction_h
+#ifndef vtkDiscretizableColorTransferFunction_h
+#define vtkDiscretizableColorTransferFunction_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkColorTransferFunction.h"

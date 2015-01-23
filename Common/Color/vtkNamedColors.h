@@ -63,8 +63,8 @@
 // - rgba(r, g, b, a)      (where r, g, b, are in 0..255 or percentage values, a is in 0.0..1.0)
 // - a CSS3 color name     (e.g. "steelblue")
 
-#ifndef __vtkNamedColors_h
-#define __vtkNamedColors_h
+#ifndef vtkNamedColors_h
+#define vtkNamedColors_h
 
 #include "vtkCommonColorModule.h" // For export macro
 #include "vtkObject.h"
@@ -364,4 +364,4 @@ private:
   void operator=(const vtkNamedColors&);  // Not implemented.
 };
 
-#endif /* __vtkNamedColors_h */
+#endif /* vtkNamedColors_h */

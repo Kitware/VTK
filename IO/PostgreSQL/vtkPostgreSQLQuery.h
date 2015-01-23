@@ -33,8 +33,8 @@
 // .SECTION See Also
 // vtkSQLDatabase vtkSQLQuery vtkPostgreSQLDatabase
 
-#ifndef __vtkPostgreSQLQuery_h
-#define __vtkPostgreSQLQuery_h
+#ifndef vtkPostgreSQLQuery_h
+#define vtkPostgreSQLQuery_h
 
 #include "vtkIOPostgreSQLModule.h" // For export macro
 #include "vtkSQLQuery.h"
@@ -126,5 +126,5 @@ private:
   void operator = ( const vtkPostgreSQLQuery& ); // Not implemented.
 };
 
-#endif // __vtkPostgreSQLQuery_h
+#endif // vtkPostgreSQLQuery_h
 

@@ -72,8 +72,8 @@ PURPOSE.  See the above copyright notice for more information.
 // Updated by Philippe Pebay, Kitware SAS 2012
 // Updated by Tristan Coulange and Joachim Pouderoux, Kitware SAS 2013
 
-#ifndef __vtkMultiCorrelativeStatistics_h
-#define __vtkMultiCorrelativeStatistics_h
+#ifndef vtkMultiCorrelativeStatistics_h
+#define vtkMultiCorrelativeStatistics_h
 
 #include "vtkFiltersStatisticsModule.h" // For export macro
 #include "vtkStatisticsAlgorithm.h"

@@ -38,8 +38,8 @@
 // intermediary samples, see Graphics/Testing/Cxx/TestReebGraph.cxx).
 //
 
-#ifndef __vtkReebGraphVolumeSkeletonFilter_h
-#define __vtkReebGraphVolumeSkeletonFilter_h
+#ifndef vtkReebGraphVolumeSkeletonFilter_h
+#define vtkReebGraphVolumeSkeletonFilter_h
 
 #include "vtkFiltersReebGraphModule.h" // For export macro
 #include  "vtkDataObjectAlgorithm.h"

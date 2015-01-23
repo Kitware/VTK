@@ -19,8 +19,8 @@
 // .SECTION Description
 // The main functionality supported here is the point location inside vtkOverlappingAMR data set.
 
-#ifndef __vtkAMRInterpolatedVelocityField_h
-#define __vtkAMRInterpolatedVelocityField_h
+#ifndef vtkAMRInterpolatedVelocityField_h
+#define vtkAMRInterpolatedVelocityField_h
 
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 

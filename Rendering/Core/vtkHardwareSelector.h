@@ -55,8 +55,8 @@
 // .SECTION See Also
 // vtkIdentColoredPainter
 
-#ifndef __vtkHardwareSelector_h
-#define __vtkHardwareSelector_h
+#ifndef vtkHardwareSelector_h
+#define vtkHardwareSelector_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"

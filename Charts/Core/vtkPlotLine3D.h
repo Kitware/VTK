@@ -25,8 +25,8 @@
 // vtkPlotLine
 //
 
-#ifndef __vtkPlotLine3D_h
-#define __vtkPlotLine3D_h
+#ifndef vtkPlotLine3D_h
+#define vtkPlotLine3D_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlotPoints3D.h"
@@ -57,4 +57,4 @@ private:
 //ETX
 };
 
-#endif //__vtkPlotLine3D_h
+#endif //vtkPlotLine3D_h

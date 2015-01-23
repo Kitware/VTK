@@ -53,8 +53,8 @@
 // .SECTION See Also
 // vtkImplicitFunction vtkCutter vtkClipVolume
 
-#ifndef __vtkClipPolyData_h
-#define __vtkClipPolyData_h
+#ifndef vtkClipPolyData_h
+#define vtkClipPolyData_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

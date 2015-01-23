@@ -85,6 +85,7 @@ set(Module_SRCS
   vtkOpenGLHardwareSupport.cxx
   vtkOpenGLImageMapper.cxx
   vtkOpenGLImageSliceMapper.cxx
+  vtkOpenGLLabeledContourMapper.cxx
   vtkOpenGLLight.cxx
   vtkOpenGLLightMonitor.cxx
   vtkOpenGLLightingPainter.cxx
@@ -320,6 +321,7 @@ set(opengl_overrides
   Glyph3DMapper
   HardwareSelector
   ImageSliceMapper
+  LabeledContourMapper
   Light
   LightingPainter
   PainterDeviceAdapter
@@ -451,7 +453,10 @@ set(${vtk-module}_INCLUDE_DIRS "${OPENGL_INCLUDE_DIR}")
 # Detect and clear OpenGL errors. If not then other classes/user code
 # may detect VTK's OpenGL errors and vice-versa.
 set(VTK_REPORT_OPENGL_ERRORS ON CACHE BOOL "Enable OpenGL error check and report")
-mark_as_advanced(VTK_REPORT_OPENGL_ERRORS)
+cmake_dependent_option(VTK_REPORT_OPENGL_ERRORS_IN_RELEASE_BUILDS
+  "Enable OpenGL error check and reporting in non-debug builds." OFF
+  VTK_REPORT_OPENGL_ERRORS OFF)
+mark_as_advanced(VTK_REPORT_OPENGL_ERRORS VTK_REPORT_OPENGL_ERRORS_IN_RELEASE_BUILDS)
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/vtkOpenGLError.h.in
     ${CMAKE_CURRENT_BINARY_DIR}/vtkOpenGLError.h)

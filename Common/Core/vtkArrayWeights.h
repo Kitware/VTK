@@ -38,8 +38,8 @@
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National
 // Laboratories.
 
-#ifndef __vtkArrayWeights_h
-#define __vtkArrayWeights_h
+#ifndef vtkArrayWeights_h
+#define vtkArrayWeights_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"

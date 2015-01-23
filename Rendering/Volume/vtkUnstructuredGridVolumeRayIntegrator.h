@@ -25,8 +25,8 @@
 // vtkUnstructuredGridVolumeRayCastMapper
 // vtkUnstructuredGridVolumeRayCastFunction
 
-#ifndef __vtkUnstructuredGridVolumeRayIntegrator_h
-#define __vtkUnstructuredGridVolumeRayIntegrator_h
+#ifndef vtkUnstructuredGridVolumeRayIntegrator_h
+#define vtkUnstructuredGridVolumeRayIntegrator_h
 
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkObject.h"

@@ -22,8 +22,8 @@
 // vtkImageGradientMagnitude as inputs.
 
 
-#ifndef __vtkImageNonMaximumSuppression_h
-#define __vtkImageNonMaximumSuppression_h
+#ifndef vtkImageNonMaximumSuppression_h
+#define vtkImageNonMaximumSuppression_h
 
 #define VTK_IMAGE_NON_MAXIMUM_SUPPRESSION_MAGNITUDE_INPUT 0
 #define VTK_IMAGE_NON_MAXIMUM_SUPPRESSION_VECTOR_INPUT 1

@@ -29,8 +29,8 @@
 // Correctness test is described in first column, page 1195:
 // A seed of 1 at step 1 should give a seed of 1043618065 at step 10001.
 
-#ifndef __vtkMinimalStandardRandomSequence_h
-#define __vtkMinimalStandardRandomSequence_h
+#ifndef vtkMinimalStandardRandomSequence_h
+#define vtkMinimalStandardRandomSequence_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkRandomSequence.h"
@@ -108,4 +108,4 @@ private:
   void operator=(const vtkMinimalStandardRandomSequence&);  // Not implemented.
 };
 
-#endif // #ifndef __vtkMinimalStandardRandomSequence_h
+#endif // #ifndef vtkMinimalStandardRandomSequence_h

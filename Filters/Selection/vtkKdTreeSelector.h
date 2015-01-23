@@ -25,8 +25,8 @@
 // vtkSelection containing the ids found in the kd-tree using the specified
 // bounds.
 
-#ifndef __vtkKdTreeSelector_h
-#define __vtkKdTreeSelector_h
+#ifndef vtkKdTreeSelector_h
+#define vtkKdTreeSelector_h
 
 #include "vtkFiltersSelectionModule.h" // For export macro
 #include "vtkSelectionAlgorithm.h"

@@ -25,8 +25,8 @@
 // vtkCameraWidget vtkCameraInterpolator
 
 
-#ifndef __vtkCameraRepresentation_h
-#define __vtkCameraRepresentation_h
+#ifndef vtkCameraRepresentation_h
+#define vtkCameraRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderRepresentation.h"

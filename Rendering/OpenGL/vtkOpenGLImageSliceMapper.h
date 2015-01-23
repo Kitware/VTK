@@ -20,8 +20,8 @@
 // Thanks to David Gobbi at the Seaman Family MR Centre and Dept. of Clinical
 // Neurosciences, Foothills Medical Centre, Calgary, for providing this class.
 
-#ifndef __vtkOpenGLImageSliceMapper_h
-#define __vtkOpenGLImageSliceMapper_h
+#ifndef vtkOpenGLImageSliceMapper_h
+#define vtkOpenGLImageSliceMapper_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkImageSliceMapper.h"

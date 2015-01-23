@@ -33,8 +33,8 @@ PURPOSE.  See the above copyright notice for more information.
 // * Assess: not implemented.
 // * Test: not implemented.
 
-#ifndef __vtkHighestDensityRegionsStatistics_h
-#define __vtkHighestDensityRegionsStatistics_h
+#ifndef vtkHighestDensityRegionsStatistics_h
+#define vtkHighestDensityRegionsStatistics_h
 
 #include "vtkFiltersStatisticsModule.h" // For export macro
 #include "vtkStatisticsAlgorithm.h"

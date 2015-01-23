@@ -21,8 +21,8 @@
 // .SECTION See Also
 // vtkLinearExtrusionFilter
 
-#ifndef __vtkDiskSource_h
-#define __vtkDiskSource_h
+#ifndef vtkDiskSource_h
+#define vtkDiskSource_h
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

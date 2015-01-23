@@ -25,8 +25,8 @@
 // - the y axis goes from the origin to the intersection of Greenwitch meridian and equator (longitude=0,latitude=0)
 // - the z axis goes from the origin to the Geographic North Pole (latitude=90)
 // - therefore the frame is right-handed.
-#ifndef __vtkGeoSphereTransform_h
-#define __vtkGeoSphereTransform_h
+#ifndef vtkGeoSphereTransform_h
+#define vtkGeoSphereTransform_h
 
 #include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkAbstractTransform.h"
@@ -89,4 +89,4 @@ private:
   void operator = ( const vtkGeoSphereTransform& ); // Not implemented.
 };
 
-#endif // __vtkGeoSphereTransform_h
+#endif // vtkGeoSphereTransform_h

@@ -30,8 +30,8 @@
 // .SECTION see also
 // vtkPiecewiseFunction
 
-#ifndef __vtkColorTransferFunction_h
-#define __vtkColorTransferFunction_h
+#ifndef vtkColorTransferFunction_h
+#define vtkColorTransferFunction_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkScalarsToColors.h"

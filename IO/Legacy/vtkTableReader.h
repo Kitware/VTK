@@ -25,8 +25,8 @@
 // .SECTION See Also
 // vtkTable vtkDataReader vtkTableWriter
 
-#ifndef __vtkTableReader_h
-#define __vtkTableReader_h
+#ifndef vtkTableReader_h
+#define vtkTableReader_h
 
 #include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"

@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef ___vtkVolumeShaderComposer_h
-#define ___vtkVolumeShaderComposer_h
+#ifndef _vtkVolumeShaderComposer_h
+#define _vtkVolumeShaderComposer_h
 
 #include "vtkVolumeMask.h"
 
@@ -1082,5 +1082,5 @@ namespace vtkvolume
   }
 }
 
-#endif // ___vtkVolumeShaderComposer_h
+#endif // _vtkVolumeShaderComposer_h
 // VTK-HeaderTest-Exclude: vtkVolumeShaderComposer.h

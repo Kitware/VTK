@@ -20,8 +20,8 @@
 // allow file readers to configure what data arrays are read from the
 // file.
 
-#ifndef __vtkDataArraySelection_h
-#define __vtkDataArraySelection_h
+#ifndef vtkDataArraySelection_h
+#define vtkDataArraySelection_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"

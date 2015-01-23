@@ -712,6 +712,11 @@ bool vtkMatplotlibMathTextUtilities::RenderString(const char *str,
       }
     }
 
+  // Mark the image data as modified, as it is possible that only
+  // vtkImageData::Get*Pointer methods will be called, which do not update the
+  // MTime.
+  image->Modified();
+
   // Determine the dimensions of the rotated image
   double angleDeg = tprop->GetOrientation();
   // Save some time if no rotation needed

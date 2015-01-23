@@ -20,8 +20,8 @@
 
 // .NAME vtkJavaScriptDataWriter - A Javascript data writer for vtkTable
 // Writes a vtkTable into a Javascript data format.
-#ifndef __vtkJavaScriptDataWriter_h
-#define __vtkJavaScriptDataWriter_h
+#ifndef vtkJavaScriptDataWriter_h
+#define vtkJavaScriptDataWriter_h
 
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkWriter.h"

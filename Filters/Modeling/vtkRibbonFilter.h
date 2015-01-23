@@ -30,8 +30,8 @@
 // .SECTION See Also
 // vtkTubeFilter
 
-#ifndef __vtkRibbonFilter_h
-#define __vtkRibbonFilter_h
+#ifndef vtkRibbonFilter_h
+#define vtkRibbonFilter_h
 
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

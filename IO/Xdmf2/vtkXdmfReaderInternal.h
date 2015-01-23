@@ -17,8 +17,8 @@
 
 // VTK-HeaderTest-Exclude: vtkXdmfReaderInternal.h
 
-#ifndef __vtkXdmfReaderInternal_h
-#define __vtkXdmfReaderInternal_h
+#ifndef vtkXdmfReaderInternal_h
+#define vtkXdmfReaderInternal_h
 
 // NAMING CONVENTION *********************************************************
 // * all member variables of the type XdmfXml* begin with XML eg. XMLNode

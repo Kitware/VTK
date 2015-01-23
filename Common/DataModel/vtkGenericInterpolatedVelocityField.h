@@ -36,8 +36,8 @@
 // .SECTION See Also
 // vtkFunctionSet vtkGenericStreamTracer
 
-#ifndef __vtkGenericInterpolatedVelocityField_h
-#define __vtkGenericInterpolatedVelocityField_h
+#ifndef vtkGenericInterpolatedVelocityField_h
+#define vtkGenericInterpolatedVelocityField_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkFunctionSet.h"

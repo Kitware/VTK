@@ -25,8 +25,8 @@
 // Older versions can be converted to the newer versions using
 // vtkXMLHierarchicalBoxDataFileConverter.
 
-#ifndef __vtkXMLUniformGridAMRReader_h
-#define __vtkXMLUniformGridAMRReader_h
+#ifndef vtkXMLUniformGridAMRReader_h
+#define vtkXMLUniformGridAMRReader_h
 
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLCompositeDataReader.h"

@@ -30,8 +30,8 @@
 // .SEE ALSO
 // vtkTree vtkNewickTreeReader
 
-#ifndef __vtkDendrogramItem_h
-#define __vtkDendrogramItem_h
+#ifndef vtkDendrogramItem_h
+#define vtkDendrogramItem_h
 
 #include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkContextItem.h"

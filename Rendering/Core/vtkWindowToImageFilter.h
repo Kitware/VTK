@@ -48,8 +48,8 @@
 // .SECTION see also
 // vtkWindow vtkRenderLargeImage
 
-#ifndef __vtkWindowToImageFilter_h
-#define __vtkWindowToImageFilter_h
+#ifndef vtkWindowToImageFilter_h
+#define vtkWindowToImageFilter_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAlgorithm.h"

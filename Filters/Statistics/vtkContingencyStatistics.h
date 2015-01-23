@@ -37,8 +37,8 @@ PURPOSE.  See the above copyright notice for more information.
 // for implementing this class.
 // Updated by Philippe Pebay, Kitware SAS 2012
 
-#ifndef __vtkContingencyStatistics_h
-#define __vtkContingencyStatistics_h
+#ifndef vtkContingencyStatistics_h
+#define vtkContingencyStatistics_h
 
 #include "vtkFiltersStatisticsModule.h" // For export macro
 #include "vtkStatisticsAlgorithm.h"

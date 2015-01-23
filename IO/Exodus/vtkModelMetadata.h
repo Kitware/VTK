@@ -66,8 +66,8 @@
 // .SECTION See also
 //   vtkDistributedDataFilter vtkExtractCells
 
-#ifndef __vtkModelMetadata_h
-#define __vtkModelMetadata_h
+#ifndef vtkModelMetadata_h
+#define vtkModelMetadata_h
 
 #include "vtkIOExodusModule.h" // For export macro
 #include "vtkObject.h"

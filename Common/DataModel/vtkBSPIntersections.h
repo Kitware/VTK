@@ -28,8 +28,8 @@
 // .SECTION See Also
 //    vtkBSPCuts  vtkKdTree
 
-#ifndef __vtkBSPIntersections_h
-#define __vtkBSPIntersections_h
+#ifndef vtkBSPIntersections_h
+#define vtkBSPIntersections_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

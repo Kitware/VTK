@@ -36,8 +36,8 @@
 //    to change the set of planes.
 //
 
-#ifndef __vtkPlanesIntersection_h
-#define __vtkPlanesIntersection_h
+#ifndef vtkPlanesIntersection_h
+#define vtkPlanesIntersection_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkPlanes.h"

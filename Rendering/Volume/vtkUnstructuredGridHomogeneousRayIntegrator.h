@@ -31,8 +31,8 @@
 // that are defined on cells.
 //
 
-#ifndef __vtkUnstructuredGridHomogeneousRayIntegrator_h
-#define __vtkUnstructuredGridHomogeneousRayIntegrator_h
+#ifndef vtkUnstructuredGridHomogeneousRayIntegrator_h
+#define vtkUnstructuredGridHomogeneousRayIntegrator_h
 
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkUnstructuredGridVolumeRayIntegrator.h"
@@ -85,4 +85,4 @@ private:
   void operator=(const vtkUnstructuredGridHomogeneousRayIntegrator&);  // Not implemented
 };
 
-#endif //__vtkUnstructuredGridHomogeneousRayIntegrator_h
+#endif //vtkUnstructuredGridHomogeneousRayIntegrator_h

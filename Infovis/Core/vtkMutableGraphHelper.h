@@ -28,8 +28,8 @@
 // .SECTION See Also
 // vtkGraph vtkMutableDirectedGraph vtkMutableUndirectedGraph
 
-#ifndef __vtkMutableGraphHelper_h
-#define __vtkMutableGraphHelper_h
+#ifndef vtkMutableGraphHelper_h
+#define vtkMutableGraphHelper_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkObject.h"

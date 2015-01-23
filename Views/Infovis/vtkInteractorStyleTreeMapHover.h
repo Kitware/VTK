@@ -28,8 +28,8 @@
 // provides a balloon containing the name of the vertex hovered over,
 // and allows the user to highlight a vertex by clicking on it.
 
-#ifndef __vtkInteractorStyleTreeMapHover_h
-#define __vtkInteractorStyleTreeMapHover_h
+#ifndef vtkInteractorStyleTreeMapHover_h
+#define vtkInteractorStyleTreeMapHover_h
 
 #include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkInteractorStyleImage.h"

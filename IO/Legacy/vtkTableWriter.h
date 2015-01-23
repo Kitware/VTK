@@ -19,8 +19,8 @@
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.
 
-#ifndef __vtkTableWriter_h
-#define __vtkTableWriter_h
+#ifndef vtkTableWriter_h
+#define vtkTableWriter_h
 
 #include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataWriter.h"

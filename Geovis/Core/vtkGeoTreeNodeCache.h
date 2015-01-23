@@ -25,8 +25,8 @@
 // delete data from the least used nodes. This is used to recover memory
 // from nodes that store data that hasn't been used in a while.
 
-#ifndef __vtkGeoTreeNodeCache_h
-#define __vtkGeoTreeNodeCache_h
+#ifndef vtkGeoTreeNodeCache_h
+#define vtkGeoTreeNodeCache_h
 
 #include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkObject.h"

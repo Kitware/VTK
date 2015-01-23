@@ -26,8 +26,8 @@
 // The block size may be changed at compile time. Its ifdef'ed to 4 in the CXX
 // file.
 
-#ifndef __vtkVolumeRayCastSpaceLeapingImageFilter_h
-#define __vtkVolumeRayCastSpaceLeapingImageFilter_h
+#ifndef vtkVolumeRayCastSpaceLeapingImageFilter_h
+#define vtkVolumeRayCastSpaceLeapingImageFilter_h
 
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"

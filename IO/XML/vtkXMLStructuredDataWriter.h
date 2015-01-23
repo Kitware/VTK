@@ -17,8 +17,8 @@
 // vtkXMLStructuredDataWriter provides VTK XML writing functionality that
 // is common among all the structured data formats.
 
-#ifndef __vtkXMLStructuredDataWriter_h
-#define __vtkXMLStructuredDataWriter_h
+#ifndef vtkXMLStructuredDataWriter_h
+#define vtkXMLStructuredDataWriter_h
 
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLWriter.h"

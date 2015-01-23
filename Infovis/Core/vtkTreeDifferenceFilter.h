@@ -23,8 +23,8 @@
 // EdgeData or VertexData.
 //
 
-#ifndef __vtkTreeDifferenceFilter_h
-#define __vtkTreeDifferenceFilter_h
+#ifndef vtkTreeDifferenceFilter_h
+#define vtkTreeDifferenceFilter_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"

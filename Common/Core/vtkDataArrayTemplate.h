@@ -18,8 +18,8 @@
 // VTK.  This template is used to implement all the subclasses in the
 // same way while avoiding code duplication.
 
-#ifndef __vtkDataArrayTemplate_h
-#define __vtkDataArrayTemplate_h
+#ifndef vtkDataArrayTemplate_h
+#define vtkDataArrayTemplate_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkTypedDataArray.h"
@@ -401,12 +401,12 @@ private:
   void SetArray(T* array, vtkIdType size, int save); \
   void SetArray(T* array, vtkIdType size, int save, int deleteMethod) */
 
-#endif // !defined(__vtkDataArrayTemplate_h)
+#endif // !defined(vtkDataArrayTemplate_h)
 
 // This portion must be OUTSIDE the include blockers.  Each
 // vtkDataArray subclass uses this to give its instantiation of this
 // template a DLL interface.
-#if defined(VTK_DATA_ARRAY_TEMPLATE_TYPE)
+#if defined(VTK_DATA_ARRAY_TEMPLATE_TYPE) && !defined(VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
 # if defined(VTK_BUILD_SHARED_LIBS) && defined(_MSC_VER)
 #  pragma warning (push)
 #  pragma warning (disable: 4091) // warning C4091: 'extern ' :

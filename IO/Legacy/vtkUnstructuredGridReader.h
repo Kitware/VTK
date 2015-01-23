@@ -25,8 +25,8 @@
 // .SECTION See Also
 // vtkUnstructuredGrid vtkDataReader
 
-#ifndef __vtkUnstructuredGridReader_h
-#define __vtkUnstructuredGridReader_h
+#ifndef vtkUnstructuredGridReader_h
+#define vtkUnstructuredGridReader_h
 
 #include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"

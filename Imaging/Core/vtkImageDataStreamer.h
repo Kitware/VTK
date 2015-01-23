@@ -18,8 +18,8 @@
 // many times with smaller update extents.  All processing up stream
 // streams smaller pieces.
 
-#ifndef __vtkImageDataStreamer_h
-#define __vtkImageDataStreamer_h
+#ifndef vtkImageDataStreamer_h
+#define vtkImageDataStreamer_h
 
 #include "vtkImagingCoreModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

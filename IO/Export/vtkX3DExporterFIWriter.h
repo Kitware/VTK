@@ -15,8 +15,8 @@
 // .NAME vtkX3DExporterFIWriter -
 // .SECTION Description
 
-#ifndef __vtkX3DExporterFIWriter_h
-#define __vtkX3DExporterFIWriter_h
+#ifndef vtkX3DExporterFIWriter_h
+#define vtkX3DExporterFIWriter_h
 
 #include "vtkIOExportModule.h" // For export macro
 #include "vtkX3DExporterWriter.h"

@@ -20,8 +20,8 @@
 // vtkGenericAttribute, vtkBridgeDataSet
 
 
-#ifndef __vtkBridgeAttribute_h
-#define __vtkBridgeAttribute_h
+#ifndef vtkBridgeAttribute_h
+#define vtkBridgeAttribute_h
 
 #include "vtkBridgeExport.h" //for module export macro
 #include "vtkGenericAttribute.h"

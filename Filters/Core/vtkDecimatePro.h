@@ -73,8 +73,8 @@
 // vtkDecimate vtkQuadricClustering vtkQuadricDecimation
 
 
-#ifndef __vtkDecimatePro_h
-#define __vtkDecimatePro_h
+#ifndef vtkDecimatePro_h
+#define vtkDecimatePro_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

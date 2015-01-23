@@ -25,8 +25,8 @@
 // the network ip addresses.
 // Currently this array must be a vtkStringArray.
 
-#ifndef __vtkNetworkHierarchy_h
-#define __vtkNetworkHierarchy_h
+#ifndef vtkNetworkHierarchy_h
+#define vtkNetworkHierarchy_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkTreeAlgorithm.h"

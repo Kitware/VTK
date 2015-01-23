@@ -15,8 +15,8 @@
 // .SECTION Description
 // PolyDataMapper that uses a OpenGL to do the actual rendering.
 
-#ifndef __vtkOpenGLPolyDataMapper_h
-#define __vtkOpenGLPolyDataMapper_h
+#ifndef vtkOpenGLPolyDataMapper_h
+#define vtkOpenGLPolyDataMapper_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkPolyDataMapper.h"
@@ -152,8 +152,16 @@ protected:
   virtual void SetPropertyShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
 
   // Description:
-  // Update the VBO to contain point based values
-  virtual void UpdateVBO(vtkRenderer *ren, vtkActor *act);
+  // Update the VBO/IBO to be current
+  virtual void UpdateBufferObjects(vtkRenderer *ren, vtkActor *act);
+
+  // Description:
+  // Does the VBO/IBO need to be rebuilt
+  virtual bool GetNeedToRebuildBufferObjects(vtkRenderer *ren, vtkActor *act);
+
+  // Description:
+  // Build the VBO/IBO, called by UpdateBufferObjects
+  virtual void BuildBufferObjects(vtkRenderer *ren, vtkActor *act);
 
   // The VBO and its layout.
   vtkgl::BufferObject VBO;
@@ -180,7 +188,7 @@ protected:
   vtkTimeStamp DepthPeelingChanged;
 
   bool UsingScalarColoring;
-  vtkTimeStamp OpenGLUpdateTime; // When was the OpenGL updated?
+  vtkTimeStamp VBOBuildTime; // When was the OpenGL VBO updated?
   vtkOpenGLTexture* InternalColorTexture;
 
   int PopulateSelectionSettings;

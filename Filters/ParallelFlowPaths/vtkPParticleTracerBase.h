@@ -21,8 +21,8 @@
 // vtkRibbonFilter vtkRuledSurfaceFilter vtkInitialValueProblemSolver
 // vtkRungeKutta2 vtkRungeKutta4 vtkRungeKutta45 vtkStreamTracer
 
-#ifndef __vtkPParticleTracerBase_h
-#define __vtkPParticleTracerBase_h
+#ifndef vtkPParticleTracerBase_h
+#define vtkPParticleTracerBase_h
 
 #include "vtkSmartPointer.h" // For protected ivars.
 #include "vtkParticleTracerBase.h"

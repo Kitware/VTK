@@ -33,8 +33,8 @@
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
-#ifndef __vtkArrayReader_h
-#define __vtkArrayReader_h
+#ifndef vtkArrayReader_h
+#define vtkArrayReader_h
 
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkArrayDataAlgorithm.h"

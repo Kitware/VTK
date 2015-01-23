@@ -31,8 +31,8 @@
 // Thanks to Jason Shepherd from Sandia National Laboratories
 // for help developing this class.
 
-#ifndef __vtkStackedTreeLayoutStrategy_h
-#define __vtkStackedTreeLayoutStrategy_h
+#ifndef vtkStackedTreeLayoutStrategy_h
+#define vtkStackedTreeLayoutStrategy_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkAreaLayoutStrategy.h"

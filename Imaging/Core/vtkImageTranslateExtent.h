@@ -17,8 +17,8 @@
 // vtkImageTranslateExtent  shift the whole extent, but does not
 // change the data.
 
-#ifndef __vtkImageTranslateExtent_h
-#define __vtkImageTranslateExtent_h
+#ifndef vtkImageTranslateExtent_h
+#define vtkImageTranslateExtent_h
 
 #include "vtkImagingCoreModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

@@ -29,8 +29,8 @@
 // .SECTION See Also
 // vtkGraph vtkBoostGraphAdapter
 
-#ifndef __vtkBoostBrandesCentrality_h
-#define __vtkBoostBrandesCentrality_h
+#ifndef vtkBoostBrandesCentrality_h
+#define vtkBoostBrandesCentrality_h
 
 #include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkVariant.h" // For variant type

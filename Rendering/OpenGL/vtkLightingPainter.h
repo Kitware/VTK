@@ -15,8 +15,8 @@
 // .NAME vtkLightingPainter - abstract class defining interface for painter
 // that can handle lightin.
 
-#ifndef __vtkLightingPainter_h
-#define __vtkLightingPainter_h
+#ifndef vtkLightingPainter_h
+#define vtkLightingPainter_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkPolyDataPainter.h"

@@ -32,8 +32,8 @@
 // the set of table columns determined dynamically from the contents of the
 // file.
 
-#ifndef __vtkRISReader_h
-#define __vtkRISReader_h
+#ifndef vtkRISReader_h
+#define vtkRISReader_h
 
 #include "vtkIOInfovisModule.h" // For export macro
 #include "vtkTableAlgorithm.h"

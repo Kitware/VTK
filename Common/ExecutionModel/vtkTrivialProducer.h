@@ -20,8 +20,8 @@
 // producer allows data objects that are hand-constructed in a program
 // without another vtk producer to be connected.
 
-#ifndef __vtkTrivialProducer_h
-#define __vtkTrivialProducer_h
+#ifndef vtkTrivialProducer_h
+#define vtkTrivialProducer_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"

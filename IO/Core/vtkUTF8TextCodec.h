@@ -31,8 +31,8 @@ PURPOSE.  See the above copyright notice for more information.
 // vtkUTF8TextCodecFactory
 //
 
-#ifndef __vtkUTF8TextCodec_h
-#define __vtkUTF8TextCodec_h
+#ifndef vtkUTF8TextCodec_h
+#define vtkUTF8TextCodec_h
 
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkTextCodec.h"

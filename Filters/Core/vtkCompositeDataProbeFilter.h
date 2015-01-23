@@ -32,8 +32,8 @@
 // is missing, this filter uses vtkMath::Nan() for double and float arrays,
 // while 0 for all other types of arrays i.e int, char etc.
 
-#ifndef __vtkCompositeDataProbeFilter_h
-#define __vtkCompositeDataProbeFilter_h
+#ifndef vtkCompositeDataProbeFilter_h
+#define vtkCompositeDataProbeFilter_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkProbeFilter.h"

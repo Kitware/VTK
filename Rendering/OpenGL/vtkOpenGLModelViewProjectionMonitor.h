@@ -25,8 +25,8 @@
 // own instance of this class. it's intended to be called once per
 // render.
 
-#ifndef __vtkOpenGLModelViewProjectionMonitor_H
-#define __vtkOpenGLModelViewProjectionMonitor_H
+#ifndef vtkOpenGLModelViewProjectionMonitor_h
+#define vtkOpenGLModelViewProjectionMonitor_h
 
 #include "vtkRenderingOpenGLModule.h" // for export macro
 #include "vtkObject.h"

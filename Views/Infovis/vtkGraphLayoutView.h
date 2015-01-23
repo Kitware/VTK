@@ -36,8 +36,8 @@
 // .SECTION Thanks
 // Thanks a bunch to the holographic unfolding pattern.
 
-#ifndef __vtkGraphLayoutView_h
-#define __vtkGraphLayoutView_h
+#ifndef vtkGraphLayoutView_h
+#define vtkGraphLayoutView_h
 
 #include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkRenderView.h"

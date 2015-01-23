@@ -18,8 +18,8 @@
 // .SECTION See Also
 // vtkGenericCellIterator, vtkBridgeDataSet
 
-#ifndef __vtkBridgeCellIterator_h
-#define __vtkBridgeCellIterator_h
+#ifndef vtkBridgeCellIterator_h
+#define vtkBridgeCellIterator_h
 
 #include "vtkBridgeExport.h" //for module export macro
 #include "vtkGenericCellIterator.h"

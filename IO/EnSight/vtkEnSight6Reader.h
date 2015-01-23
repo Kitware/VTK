@@ -32,8 +32,8 @@
 // This reader can only handle static EnSight datasets (both static geometry
 // and variables).
 
-#ifndef __vtkEnSight6Reader_h
-#define __vtkEnSight6Reader_h
+#ifndef vtkEnSight6Reader_h
+#define vtkEnSight6Reader_h
 
 #include "vtkIOEnSightModule.h" // For export macro
 #include "vtkEnSightReader.h"

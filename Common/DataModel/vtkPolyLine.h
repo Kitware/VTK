@@ -17,8 +17,8 @@
 // vtkPolyLine is a concrete implementation of vtkCell to represent a set
 // of 1D lines.
 
-#ifndef __vtkPolyLine_h
-#define __vtkPolyLine_h
+#ifndef vtkPolyLine_h
+#define vtkPolyLine_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell.h"

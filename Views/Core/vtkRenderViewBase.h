@@ -31,8 +31,8 @@
 // widget->SetRenderWindow(view->GetRenderWindow());
 // \endcode
 
-#ifndef __vtkRenderViewBase_h
-#define __vtkRenderViewBase_h
+#ifndef vtkRenderViewBase_h
+#define vtkRenderViewBase_h
 
 #include "vtkViewsCoreModule.h" // For export macro
 #include "vtkView.h"

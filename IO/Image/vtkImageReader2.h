@@ -35,8 +35,8 @@
 // .SECTION See Also
 // vtkJPEGReader vtkPNGReader vtkImageReader vtkGESignaReader
 
-#ifndef __vtkImageReader2_h
-#define __vtkImageReader2_h
+#ifndef vtkImageReader2_h
+#define vtkImageReader2_h
 
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

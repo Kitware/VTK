@@ -42,8 +42,8 @@
 // vtkImplicitFunction vtkImplicitBoolean vtkExtractGeometry vtkClipPolyData
 // vtkConnectivityFilter vtkPolyDataConnectivityFilter
 
-#ifndef __vtkImplicitSelectionLoop_h
-#define __vtkImplicitSelectionLoop_h
+#ifndef vtkImplicitSelectionLoop_h
+#define vtkImplicitSelectionLoop_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"

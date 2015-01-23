@@ -39,8 +39,8 @@
 // .SECTION See Also
 // vtkGeneralTransform vtkTransform vtkMatrix4x4 vtkCamera
 
-#ifndef __vtkPerspectiveTransform_h
-#define __vtkPerspectiveTransform_h
+#ifndef vtkPerspectiveTransform_h
+#define vtkPerspectiveTransform_h
 
 #include "vtkCommonTransformsModule.h" // For export macro
 #include "vtkHomogeneousTransform.h"

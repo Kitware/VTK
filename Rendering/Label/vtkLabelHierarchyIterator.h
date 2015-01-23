@@ -22,8 +22,8 @@
 // .SECTION Description
 // Abstract superclass for iterators over vtkLabelHierarchy.
 
-#ifndef __vtkLabelHierarchyIterator_h
-#define __vtkLabelHierarchyIterator_h
+#ifndef vtkLabelHierarchyIterator_h
+#define vtkLabelHierarchyIterator_h
 
 #include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkObject.h"
@@ -145,4 +145,4 @@ private:
   void operator = ( const vtkLabelHierarchyIterator& ); // Not implemented.
 };
 
-#endif // __vtkLabelHierarchyIterator_h
+#endif // vtkLabelHierarchyIterator_h

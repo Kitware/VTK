@@ -18,8 +18,8 @@
 // vtkCollectionIterator which allows the items to be retrieved with
 // the proper subclass pointer type for vtkDataArrayCollection.
 
-#ifndef __vtkDataArrayCollectionIterator_h
-#define __vtkDataArrayCollectionIterator_h
+#ifndef vtkDataArrayCollectionIterator_h
+#define vtkDataArrayCollectionIterator_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkCollectionIterator.h"

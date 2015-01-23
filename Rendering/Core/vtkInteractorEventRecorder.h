@@ -28,8 +28,8 @@
 // .SECTION See Also
 // vtkInteractorObserver vtkCallback
 
-#ifndef __vtkInteractorEventRecorder_h
-#define __vtkInteractorEventRecorder_h
+#ifndef vtkInteractorEventRecorder_h
+#define vtkInteractorEventRecorder_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkInteractorObserver.h"
@@ -126,5 +126,5 @@ private:
 
 };
 
-#endif /* __vtkInteractorEventRecorder_h */
+#endif /* vtkInteractorEventRecorder_h */
 

@@ -11,8 +11,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtkglVertexArrayObject_h
-#define __vtkglVertexArrayObject_h
+#ifndef vtkglVertexArrayObject_h
+#define vtkglVertexArrayObject_h
 
 #include "vtkRenderingOpenGL2Module.h"
 #include <string> // For API.
@@ -80,6 +80,6 @@ private:
 
 } // End of vtkgl namespace
 
-#endif // __vtkglVertexArrayObject_h
+#endif // vtkglVertexArrayObject_h
 
 // VTK-HeaderTest-Exclude: vtkglVertexArrayObject.h

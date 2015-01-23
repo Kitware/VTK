@@ -21,8 +21,8 @@
 // box may be arbitrarily aligned, in which case it should be set via
 // the SetCorners() member.
 
-#ifndef __vtkOutlineSource_h
-#define __vtkOutlineSource_h
+#ifndef vtkOutlineSource_h
+#define vtkOutlineSource_h
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

@@ -33,8 +33,8 @@ PURPOSE.  See the above copyright notice for more information.
 // vtkTextCodec
 //
 
-#ifndef __vtkTextCodecFactory_h
-#define __vtkTextCodecFactory_h
+#ifndef vtkTextCodecFactory_h
+#define vtkTextCodecFactory_h
 
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkObject.h"
@@ -94,4 +94,4 @@ private:
 //ETX
 };
 
-#endif // __vtkTextCodecFactory_h
+#endif // vtkTextCodecFactory_h

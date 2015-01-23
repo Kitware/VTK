@@ -24,8 +24,8 @@
 // vtkSelectVisiblePoints) to create labels for points and cells, or labels
 // for the point or cell data scalar values.
 
-#ifndef __vtkIdFilter_h
-#define __vtkIdFilter_h
+#ifndef vtkIdFilter_h
+#define vtkIdFilter_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

@@ -41,8 +41,8 @@
 // .SECTION See Also
 // vtkStreamer vtkDashedStreamLine vtkStreamPoints
 
-#ifndef __vtkStreamLine_h
-#define __vtkStreamLine_h
+#ifndef vtkStreamLine_h
+#define vtkStreamLine_h
 
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkStreamer.h"

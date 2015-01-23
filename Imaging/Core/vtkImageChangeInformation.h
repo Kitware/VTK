@@ -18,8 +18,8 @@
 // the data without changing the data itself.  The data is not resampled
 // by this filter, only the information accompanying the data is modified.
 
-#ifndef __vtkImageChangeInformation_h
-#define __vtkImageChangeInformation_h
+#ifndef vtkImageChangeInformation_h
+#define vtkImageChangeInformation_h
 
 #include "vtkImagingCoreModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

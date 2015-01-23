@@ -87,8 +87,8 @@
 // vtkHandleWidget vtkDistanceWidget
 
 
-#ifndef __vtkBiDimensionalWidget_h
-#define __vtkBiDimensionalWidget_h
+#ifndef vtkBiDimensionalWidget_h
+#define vtkBiDimensionalWidget_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"

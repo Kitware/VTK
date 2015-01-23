@@ -27,8 +27,8 @@
 // Binary files written on one system may not be readable on other systems.
 // Be sure to specify the endian-ness of the file when reading it into EnSight
 
-#ifndef __vtkEnSightWriter_h
-#define __vtkEnSightWriter_h
+#ifndef vtkEnSightWriter_h
+#define vtkEnSightWriter_h
 
 #include "vtkIOParallelModule.h" // For export macro
 #include "vtkWriter.h"

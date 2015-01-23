@@ -16,8 +16,8 @@
 // .SECTION Description
 // vtkPReflectionFilter is a parallel version of vtkReflectionFilter which takes
 // into consideration the full dataset bounds for performing the reflection.
-#ifndef __vtkPReflectionFilter_h
-#define __vtkPReflectionFilter_h
+#ifndef vtkPReflectionFilter_h
+#define vtkPReflectionFilter_h
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkReflectionFilter.h"

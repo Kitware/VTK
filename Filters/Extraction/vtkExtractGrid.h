@@ -34,8 +34,8 @@
 // vtkGeometryFilter vtkExtractGeometry vtkExtractVOI
 // vtkStructuredGridGeometryFilter
 
-#ifndef __vtkExtractGrid_h
-#define __vtkExtractGrid_h
+#ifndef vtkExtractGrid_h
+#define vtkExtractGrid_h
 
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkStructuredGridAlgorithm.h"

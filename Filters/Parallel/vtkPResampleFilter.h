@@ -15,8 +15,8 @@
 // .NAME vtkPResampleFilter - probe dataset in parallel using a vtkImageData
 // .SECTION Description
 
-#ifndef __vtkPResampleFilter_h
-#define __vtkPResampleFilter_h
+#ifndef vtkPResampleFilter_h
+#define vtkPResampleFilter_h
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

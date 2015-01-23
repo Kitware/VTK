@@ -37,8 +37,8 @@ PURPOSE.  See the above copyright notice for more information.
 // That means no Objective-C may be used. That's why some instance variables
 // are void* instead of what they really should be.
 
-#ifndef __vtkCocoaRenderWindow_h
-#define __vtkCocoaRenderWindow_h
+#ifndef vtkCocoaRenderWindow_h
+#define vtkCocoaRenderWindow_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkOpenGLRenderWindow.h"

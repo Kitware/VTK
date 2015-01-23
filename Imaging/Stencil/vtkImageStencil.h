@@ -18,8 +18,8 @@
 // The stencil should be provided in the form of a vtkImageStencilData,
 
 
-#ifndef __vtkImageStencil_h
-#define __vtkImageStencil_h
+#ifndef vtkImageStencil_h
+#define vtkImageStencil_h
 
 #include "vtkImagingStencilModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"

@@ -20,8 +20,8 @@
 // This class can be used to transform all child items of this class. The
 // default transform is the identity.
 
-#ifndef __vtkContextTransform_h
-#define __vtkContextTransform_h
+#ifndef vtkContextTransform_h
+#define vtkContextTransform_h
 
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkAbstractContextItem.h"
@@ -181,4 +181,4 @@ private:
 //ETX
 };
 
-#endif //__vtkContextTransform_h
+#endif //vtkContextTransform_h

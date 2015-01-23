@@ -55,8 +55,8 @@
 // .SECTION See Also
 // vtkFunctionParser
 
-#ifndef __vtkArrayCalculator_h
-#define __vtkArrayCalculator_h
+#ifndef vtkArrayCalculator_h
+#define vtkArrayCalculator_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

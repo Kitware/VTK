@@ -29,8 +29,8 @@
 // .SECTION See Also
 // vtkCell3D vtkConvecPointSet vtkMeanValueCoordinatesInterpolator
 
-#ifndef __vtkPolyhedron_h
-#define __vtkPolyhedron_h
+#ifndef vtkPolyhedron_h
+#define vtkPolyhedron_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell3D.h"

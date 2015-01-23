@@ -17,8 +17,8 @@
 // A small collection of I/O routines that can write vtkPixelExtent's
 // or collections of them to disk for visualization as unstructured
 // grids.
-#ifndef __vtkPixelExtentIO_h
-#define __vtkPixelExtentIO_h
+#ifndef vtkPixelExtentIO_h
+#define vtkPixelExtentIO_h
 
 #include "vtkIOLegacyModule.h" // for export
 #include "vtkPixelExtent.h" // for pixel extent

@@ -23,8 +23,8 @@
 // .SECTION Thanks
 // Thanks to David Gobbi for contributing this class to VTK.
 
-#ifndef __vtkROIStencilSource_h
-#define __vtkROIStencilSource_h
+#ifndef vtkROIStencilSource_h
+#define vtkROIStencilSource_h
 
 
 #include "vtkImagingStencilModule.h" // For export macro

@@ -42,8 +42,8 @@
 // .SECTION Thanks
 //  Developed by David Feng at Sandia National Laboratories
 //------------------------------------------------------------------------------
-#ifndef __vtkComputeHistogram2DOutliers_h
-#define __vtkComputeHistogram2DOutliers_h
+#ifndef vtkComputeHistogram2DOutliers_h
+#define vtkComputeHistogram2DOutliers_h
 //------------------------------------------------------------------------------
 #include "vtkFiltersImagingModule.h" // For export macro
 #include "vtkSelectionAlgorithm.h"

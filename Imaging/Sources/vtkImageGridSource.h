@@ -17,8 +17,8 @@
 // vtkImageGridSource produces an image of a grid.  The
 // default output type is double.
 
-#ifndef __vtkImageGridSource_h
-#define __vtkImageGridSource_h
+#ifndef vtkImageGridSource_h
+#define vtkImageGridSource_h
 
 #include "vtkImagingSourcesModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

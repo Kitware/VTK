@@ -28,8 +28,8 @@
 // vtkArrayIteratorTemplateMacro updated, one needs to update this header
 // file alone.
 
-#ifndef __vtkArrayIteratorIncludes_h
-#define __vtkArrayIteratorIncludes_h
+#ifndef vtkArrayIteratorIncludes_h
+#define vtkArrayIteratorIncludes_h
 
 // Iterators.
 #include "vtkArrayIteratorTemplate.h"

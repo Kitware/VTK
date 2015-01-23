@@ -18,8 +18,8 @@
 // data set. The outline consists of the twelve edges of the dataset
 // bounding box.
 
-#ifndef __vtkOutlineFilter_h
-#define __vtkOutlineFilter_h
+#ifndef vtkOutlineFilter_h
+#define vtkOutlineFilter_h
 
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

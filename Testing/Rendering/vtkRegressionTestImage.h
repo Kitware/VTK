@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtkRegressionTestImage_h
-#define __vtkRegressionTestImage_h
+#ifndef vtkRegressionTestImage_h
+#define vtkRegressionTestImage_h
 
 // Includes and a macro necessary for saving the image produced by a cxx
 // example program. This capability is critical for regression testing.
@@ -37,5 +37,5 @@ vtkTesting::Test(argc, argv, rw, 10)
 #define vtkRegressionTestImageThreshold(rw, t) \
 vtkTesting::Test(argc, argv, rw, t)
 
-#endif // __vtkRegressionTestImage_h
+#endif // vtkRegressionTestImage_h
 // VTK-HeaderTest-Exclude: vtkRegressionTestImage.h

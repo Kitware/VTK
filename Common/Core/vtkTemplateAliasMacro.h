@@ -33,8 +33,8 @@
 //     vtkTemplateAliasMacro(vtkMyTemplateFunction(static_cast<VTK_TT*>(p)));
 //     }
 
-#ifndef __vtkTemplateAliasMacro_h
-#define __vtkTemplateAliasMacro_h
+#ifndef vtkTemplateAliasMacro_h
+#define vtkTemplateAliasMacro_h
 
 #include "vtkTypeTraits.h"
 

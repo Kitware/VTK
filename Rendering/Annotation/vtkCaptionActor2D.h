@@ -49,8 +49,8 @@
 // vtkLegendBoxActor vtkTextMapper vtkTextActor vtkTextProperty
 // vtkCoordinate
 
-#ifndef __vtkCaptionActor2D_h
-#define __vtkCaptionActor2D_h
+#ifndef vtkCaptionActor2D_h
+#define vtkCaptionActor2D_h
 
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"

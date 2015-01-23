@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkXMLPRectilinearGridWriter
 
-#ifndef __vtkXMLRectilinearGridWriter_h
-#define __vtkXMLRectilinearGridWriter_h
+#ifndef vtkXMLRectilinearGridWriter_h
+#define vtkXMLRectilinearGridWriter_h
 
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLStructuredDataWriter.h"

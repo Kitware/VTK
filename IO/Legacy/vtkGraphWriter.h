@@ -19,8 +19,8 @@
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.
 
-#ifndef __vtkGraphWriter_h
-#define __vtkGraphWriter_h
+#ifndef vtkGraphWriter_h
+#define vtkGraphWriter_h
 
 #include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataWriter.h"

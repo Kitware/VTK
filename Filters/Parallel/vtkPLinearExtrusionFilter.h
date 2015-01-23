@@ -19,8 +19,8 @@
 // .SECTION See Also
 // vtkLinearExtrusionFilter
 
-#ifndef __vtkPLinearExtrusionFilter_h
-#define __vtkPLinearExtrusionFilter_h
+#ifndef vtkPLinearExtrusionFilter_h
+#define vtkPLinearExtrusionFilter_h
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkLinearExtrusionFilter.h"

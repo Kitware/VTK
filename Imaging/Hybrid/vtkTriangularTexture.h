@@ -25,8 +25,8 @@
 // .SECTION See Also
 // vtkTriangularTCoords
 
-#ifndef __vtkTriangularTexture_h
-#define __vtkTriangularTexture_h
+#ifndef vtkTriangularTexture_h
+#define vtkTriangularTexture_h
 
 #include "vtkImagingHybridModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

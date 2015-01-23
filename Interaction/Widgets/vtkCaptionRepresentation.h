@@ -31,8 +31,8 @@
 // vtkCaptionWidget vtkBorderWidget vtkBorderRepresentation vtkCaptionActor
 
 
-#ifndef __vtkCaptionRepresentation_h
-#define __vtkCaptionRepresentation_h
+#ifndef vtkCaptionRepresentation_h
+#define vtkCaptionRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderRepresentation.h"

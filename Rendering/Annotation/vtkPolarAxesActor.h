@@ -30,8 +30,8 @@ All rights reserve
 // .section See Also
 // vtkActor vtkAxisActor vtkPolarAxesActor
 
-#ifndef __vtkPolarAxesActor_h
-#define __vtkPolarAxesActor_h
+#ifndef vtkPolarAxesActor_h
+#define vtkPolarAxesActor_h
 
 #define VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES 50
 #define VTK_DEFAULT_NUMBER_OF_RADIAL_AXES 5

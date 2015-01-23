@@ -30,8 +30,8 @@
 // .SECTION See Also
 // vtkMySQLQuery
 
-#ifndef __vtkMySQLDatabase_h
-#define __vtkMySQLDatabase_h
+#ifndef vtkMySQLDatabase_h
+#define vtkMySQLDatabase_h
 
 #include "vtkIOMySQLModule.h" // For export macro
 #include "vtkSQLDatabase.h"
@@ -209,5 +209,5 @@ private:
   void operator=(const vtkMySQLDatabase &); // Not implemented.
 };
 
-#endif // __vtkMySQLDatabase_h
+#endif // vtkMySQLDatabase_h
 

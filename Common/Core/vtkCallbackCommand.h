@@ -32,8 +32,8 @@
 // .SECTION See Also
 // vtkCommand vtkOldStyleCallbackCommand
 
-#ifndef __vtkCallbackCommand_h
-#define __vtkCallbackCommand_h
+#ifndef vtkCallbackCommand_h
+#define vtkCallbackCommand_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkCommand.h"

@@ -18,8 +18,8 @@
 // by a Gaussian.
 
 
-#ifndef __vtkImageGaussianSource_h
-#define __vtkImageGaussianSource_h
+#ifndef vtkImageGaussianSource_h
+#define vtkImageGaussianSource_h
 
 #include "vtkImagingSourcesModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

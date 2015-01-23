@@ -36,8 +36,8 @@
 // .SECTION Thanks
 //  Developed by David Feng at Sandia National Laboratories
 //------------------------------------------------------------------------------
-#ifndef __vtkPComputeHistogram2DOutliers_h
-#define __vtkPComputeHistogram2DOutliers_h
+#ifndef vtkPComputeHistogram2DOutliers_h
+#define vtkPComputeHistogram2DOutliers_h
 //------------------------------------------------------------------------------
 #include "vtkFiltersParallelImagingModule.h" // For export macro
 #include "vtkComputeHistogram2DOutliers.h"

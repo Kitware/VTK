@@ -25,8 +25,8 @@
 // primitives) as well as points. This is useful because vertices are
 // rendered while points are not.
 
-#ifndef __vtkMaskPoints_h
-#define __vtkMaskPoints_h
+#ifndef vtkMaskPoints_h
+#define vtkMaskPoints_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

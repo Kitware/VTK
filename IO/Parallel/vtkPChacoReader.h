@@ -24,8 +24,8 @@
 // a vtkUnstructuredGrid.  The vtkDistributedDataFilter is invoked
 // to divide the grid among the processes.
 
-#ifndef __vtkPChacoReader_h
-#define __vtkPChacoReader_h
+#ifndef vtkPChacoReader_h
+#define vtkPChacoReader_h
 
 #include "vtkIOParallelModule.h" // For export macro
 #include "vtkChacoReader.h"

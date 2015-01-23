@@ -22,8 +22,8 @@
 // .SECTION See Also
 // vtkHyperOctree
 
-#ifndef __vtkHyperOctreeLimiter_h
-#define __vtkHyperOctreeLimiter_h
+#ifndef vtkHyperOctreeLimiter_h
+#define vtkHyperOctreeLimiter_h
 
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

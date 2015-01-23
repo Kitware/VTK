@@ -39,8 +39,8 @@
 // or vtkGlyph3D to orient the button in a different direction.
 
 
-#ifndef __vtkRectangularButtonSource_h
-#define __vtkRectangularButtonSource_h
+#ifndef vtkRectangularButtonSource_h
+#define vtkRectangularButtonSource_h
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkButtonSource.h"

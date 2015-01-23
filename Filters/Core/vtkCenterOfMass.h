@@ -22,8 +22,8 @@
 // You must ensure Update() has been called before GetCenter will produce a valid
 // value.
 
-#ifndef __vtkCenterOfMass_h
-#define __vtkCenterOfMass_h
+#ifndef vtkCenterOfMass_h
+#define vtkCenterOfMass_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"

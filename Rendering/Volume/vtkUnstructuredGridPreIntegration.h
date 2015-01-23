@@ -38,8 +38,8 @@
 // independent scalars.  Thus, dependent scalars are not supported.
 //
 
-#ifndef __vtkUnstructuredGridPreIntegration_h
-#define __vtkUnstructuredGridPreIntegration_h
+#ifndef vtkUnstructuredGridPreIntegration_h
+#define vtkUnstructuredGridPreIntegration_h
 
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkUnstructuredGridVolumeRayIntegrator.h"
@@ -181,4 +181,4 @@ inline float *vtkUnstructuredGridPreIntegration::GetTableEntry(
   return this->GetIndexedTableEntry(sfi, sbi, li, component);
 }
 
-#endif //__vtkUnstructuredGridPreIntegration_h
+#endif //vtkUnstructuredGridPreIntegration_h

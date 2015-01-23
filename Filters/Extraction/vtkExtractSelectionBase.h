@@ -18,8 +18,8 @@
 // vtkExtractSelectionBase is an abstract base class for all extract selection
 // filters. It defines some properties common to all extract selection filters.
 
-#ifndef __vtkExtractSelectionBase_h
-#define __vtkExtractSelectionBase_h
+#ifndef vtkExtractSelectionBase_h
+#define vtkExtractSelectionBase_h
 
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"

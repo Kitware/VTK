@@ -20,8 +20,8 @@
 // intended to be used directly.  Instead, use the vtkSmartPointer
 // class template to automatically perform proper cast operations.
 
-#ifndef __vtkSmartPointerBase_h
-#define __vtkSmartPointerBase_h
+#ifndef vtkSmartPointerBase_h
+#define vtkSmartPointerBase_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObjectBase.h"

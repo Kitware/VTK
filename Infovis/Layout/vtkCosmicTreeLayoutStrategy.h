@@ -24,8 +24,8 @@
 // Thanks to the galaxy and David Thompson hierarchically nested inside it
 // for inspiring this layout strategy.
 
-#ifndef __vtkCosmicTreeLayoutStrategy_h
-#define __vtkCosmicTreeLayoutStrategy_h
+#ifndef vtkCosmicTreeLayoutStrategy_h
+#define vtkCosmicTreeLayoutStrategy_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"
@@ -144,4 +144,4 @@ private:
   void operator = ( const vtkCosmicTreeLayoutStrategy& ); // Not implemented.
 };
 
-#endif // __vtkCosmicTreeLayoutStrategy_h
+#endif // vtkCosmicTreeLayoutStrategy_h

@@ -72,8 +72,8 @@
 // vtkCheckerboardWidget
 
 
-#ifndef __vtkRectilinearWipeWidget_h
-#define __vtkRectilinearWipeWidget_h
+#ifndef vtkRectilinearWipeWidget_h
+#define vtkRectilinearWipeWidget_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"

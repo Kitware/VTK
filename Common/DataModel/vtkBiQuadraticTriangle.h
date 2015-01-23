@@ -32,8 +32,8 @@
 // Copyright (c) EDF - www.edf.fr
 // </verbatim>
 
-#ifndef __vtkBiQuadraticTriangle_h
-#define __vtkBiQuadraticTriangle_h
+#ifndef vtkBiQuadraticTriangle_h
+#define vtkBiQuadraticTriangle_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkNonLinearCell.h"

@@ -22,8 +22,8 @@
 // over time. The Growing ivar makes the number of cells in the output grow
 // and then shrink over time.
 
-#ifndef __vtkTimeSourceExample_h
-#define __vtkTimeSourceExample_h
+#ifndef vtkTimeSourceExample_h
+#define vtkTimeSourceExample_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"

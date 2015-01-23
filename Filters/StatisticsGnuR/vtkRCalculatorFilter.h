@@ -33,8 +33,8 @@
 //  Developed by Thomas Otahal at Sandia National Laboratories.
 //
 
-#ifndef __vtkRCalculatorFilter_h
-#define __vtkRCalculatorFilter_h
+#ifndef vtkRCalculatorFilter_h
+#define vtkRCalculatorFilter_h
 
 #include "vtkFiltersStatisticsGnuRModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"

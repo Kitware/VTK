@@ -39,8 +39,8 @@
 // the extents.
 //
 
-#ifndef __vtkFastSplatter_h
-#define __vtkFastSplatter_h
+#ifndef vtkFastSplatter_h
+#define vtkFastSplatter_h
 
 #include "vtkImagingHybridModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
@@ -261,4 +261,4 @@ void vtkFastSplatterFrozenScale(T *array,
 
 //ETX
 
-#endif //__vtkFastSplatter_h
+#endif //vtkFastSplatter_h

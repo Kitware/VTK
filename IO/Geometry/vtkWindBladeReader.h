@@ -24,8 +24,8 @@
 // with irregular spacing on the Z dimension.  Only the first and
 // second output ports have time dependent data.
 
-#ifndef __vtkWindBladeReader_h
-#define __vtkWindBladeReader_h
+#ifndef vtkWindBladeReader_h
+#define vtkWindBladeReader_h
 
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkStructuredGridAlgorithm.h"

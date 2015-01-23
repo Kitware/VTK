@@ -16,8 +16,8 @@
 // chemical electronic data
 // .SECTION Description
 
-#ifndef __vtkAbstractElectronicData_h
-#define __vtkAbstractElectronicData_h
+#ifndef vtkAbstractElectronicData_h
+#define vtkAbstractElectronicData_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"

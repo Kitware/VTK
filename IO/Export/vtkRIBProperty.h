@@ -22,8 +22,8 @@
 // .SECTION See Also
 // vtkRIBExporter
 
-#ifndef __vtkRIBProperty_h
-#define __vtkRIBProperty_h
+#ifndef vtkRIBProperty_h
+#define vtkRIBProperty_h
 
 #include "vtkIOExportModule.h" // For export macro
 #include "vtkProperty.h"

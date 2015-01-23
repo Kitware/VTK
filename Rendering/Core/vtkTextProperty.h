@@ -21,8 +21,8 @@
 // .SECTION See Also
 // vtkTextMapper vtkTextActor vtkLegendBoxActor vtkCaptionActor2D
 
-#ifndef __vtkTextProperty_h
-#define __vtkTextProperty_h
+#ifndef vtkTextProperty_h
+#define vtkTextProperty_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"

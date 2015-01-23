@@ -15,8 +15,8 @@
 // .NAME vtkClipPlanesPainter - abstract class defining interface for
 // painter that manages clipping.
 
-#ifndef __vtkClipPlanesPainter_h
-#define __vtkClipPlanesPainter_h
+#ifndef vtkClipPlanesPainter_h
+#define vtkClipPlanesPainter_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkPainter.h"

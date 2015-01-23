@@ -27,8 +27,8 @@
 // .SECTION See Also
 // vtkPLYWriter
 
-#ifndef __vtkPLYReader_h
-#define __vtkPLYReader_h
+#ifndef vtkPLYReader_h
+#define vtkPLYReader_h
 
 #include "vtkIOPLYModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

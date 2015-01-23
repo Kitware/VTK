@@ -24,8 +24,8 @@
 // .SECTION See Also
 // vtkAppendPolyData
 
-#ifndef __vtkAppendFilter_h
-#define __vtkAppendFilter_h
+#ifndef vtkAppendFilter_h
+#define vtkAppendFilter_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"

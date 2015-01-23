@@ -28,8 +28,8 @@
 // rubber band selection and provides a balloon containing the name of the
 // vertex hovered over.
 
-#ifndef __vtkInteractorStyleAreaSelectHover_h
-#define __vtkInteractorStyleAreaSelectHover_h
+#ifndef vtkInteractorStyleAreaSelectHover_h
+#define vtkInteractorStyleAreaSelectHover_h
 
 #include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkInteractorStyleRubberBand2D.h"

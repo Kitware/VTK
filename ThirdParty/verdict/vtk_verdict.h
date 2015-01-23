@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtk_verdict_h
-#define __vtk_verdict_h
+#ifndef vtk_verdict_h
+#define vtk_verdict_h
 
 /* Use the verdict library configured for VTK.  */
 #include <vtkverdict/verdict.h>

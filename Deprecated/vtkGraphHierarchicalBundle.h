@@ -49,8 +49,8 @@
 // Relations in Hierarchical Data. IEEE Transactions on Visualization and
 // Computer Graphics, Vol. 12, No. 5, 2006. pp. 741-748.
 
-#ifndef __vtkGraphHierarchicalBundle_h
-#define __vtkGraphHierarchicalBundle_h
+#ifndef vtkGraphHierarchicalBundle_h
+#define vtkGraphHierarchicalBundle_h
 
 #include "vtkPolyDataAlgorithm.h"
 

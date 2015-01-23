@@ -25,8 +25,8 @@
 // .SECTION See Also
 // vtkConvexPointSet vtkHexahedron vtkTetra vtkVoxel vtkWedge
 
-#ifndef __vtkPyramid_h
-#define __vtkPyramid_h
+#ifndef vtkPyramid_h
+#define vtkPyramid_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell3D.h"

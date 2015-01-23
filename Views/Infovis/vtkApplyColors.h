@@ -71,8 +71,8 @@
 // than any of these three opacities. Selected items are always given the
 // selection opacity directly.
 
-#ifndef __vtkApplyColors_h
-#define __vtkApplyColors_h
+#ifndef vtkApplyColors_h
+#define vtkApplyColors_h
 
 #include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"

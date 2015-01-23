@@ -63,8 +63,8 @@
 // vtkInteractorObserver vtkXYPlotWidget vtkScalarBarWidget vtkAxesActor
 // vtkAnnotatedCubeActor
 
-#ifndef __vtkOrientationMarkerWidget_h
-#define __vtkOrientationMarkerWidget_h
+#ifndef vtkOrientationMarkerWidget_h
+#define vtkOrientationMarkerWidget_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkInteractorObserver.h"

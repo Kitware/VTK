@@ -20,8 +20,8 @@
 // .SECTION Caveats
 // vtkDirectory works with windows and unix only.
 
-#ifndef __vtkDirectory_h
-#define __vtkDirectory_h
+#ifndef vtkDirectory_h
+#define vtkDirectory_h
 
 #include "vtkCommonSystemModule.h" // For export macro
 #include "vtkObject.h"

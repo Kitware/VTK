@@ -34,8 +34,8 @@
 // supports reading one file that is detached.
 //
 
-#ifndef __vtkPNrrdReader_h
-#define __vtkPNrrdReader_h
+#ifndef vtkPNrrdReader_h
+#define vtkPNrrdReader_h
 
 #include "vtkIOMPIImageModule.h" // For export macro
 #include "vtkNrrdReader.h"
@@ -114,4 +114,4 @@ private:
   void operator=(const vtkPNrrdReader &);        // Not implemented.
 };
 
-#endif //__vtkPNrrdReader_h
+#endif //vtkPNrrdReader_h

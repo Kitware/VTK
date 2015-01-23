@@ -26,8 +26,8 @@
 // vtkPolygonalHandleRepresentation3D vtkHandleRepresentation vtkHandleWidget
 
 
-#ifndef __vtkAbstractPolygonalHandleRepresentation3D_h
-#define __vtkAbstractPolygonalHandleRepresentation3D_h
+#ifndef vtkAbstractPolygonalHandleRepresentation3D_h
+#define vtkAbstractPolygonalHandleRepresentation3D_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkHandleRepresentation.h"

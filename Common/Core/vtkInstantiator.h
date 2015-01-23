@@ -50,8 +50,8 @@
 // classes from a new library, the generated header must be included.
 //
 
-#ifndef __vtkInstantiator_h
-#define __vtkInstantiator_h
+#ifndef vtkInstantiator_h
+#define vtkInstantiator_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"

@@ -39,8 +39,8 @@
 // vtkProp3DButtonRepresentation
 
 
-#ifndef __vtkTexturedButtonRepresentation2D_h
-#define __vtkTexturedButtonRepresentation2D_h
+#ifndef vtkTexturedButtonRepresentation2D_h
+#define vtkTexturedButtonRepresentation2D_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkButtonRepresentation.h"

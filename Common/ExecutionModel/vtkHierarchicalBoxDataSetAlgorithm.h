@@ -19,8 +19,8 @@
 // and produce a vtkHierarchicalBoxDataSet in the output can subclass from this
 // class.
 
-#ifndef __vtkHierarchicalBoxDataSetAlgorithm_h
-#define __vtkHierarchicalBoxDataSetAlgorithm_h
+#ifndef vtkHierarchicalBoxDataSetAlgorithm_h
+#define vtkHierarchicalBoxDataSetAlgorithm_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"

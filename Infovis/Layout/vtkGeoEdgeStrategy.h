@@ -24,8 +24,8 @@
 // This is useful for viewing lines on a sphere (e.g. the earth).
 // The arcs may "jump" above the sphere's surface using ExplodeFactor.
 
-#ifndef __vtkGeoEdgeStrategy_h
-#define __vtkGeoEdgeStrategy_h
+#ifndef vtkGeoEdgeStrategy_h
+#define vtkGeoEdgeStrategy_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkEdgeLayoutStrategy.h"

@@ -18,8 +18,8 @@
 // vtkPath provides a container for paths composed of line segment and
 // 2nd/3rd order Bezier curves.
 
-#ifndef __vtkPath_h
-#define __vtkPath_h
+#ifndef vtkPath_h
+#define vtkPath_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkPointSet.h"

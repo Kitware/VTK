@@ -21,8 +21,8 @@
 // filter by setting the kernel size to 1 for a specific axis.
 
 
-#ifndef __vtkImageDilateErode3D_h
-#define __vtkImageDilateErode3D_h
+#ifndef vtkImageDilateErode3D_h
+#define vtkImageDilateErode3D_h
 
 
 #include "vtkImagingMorphologicalModule.h" // For export macro

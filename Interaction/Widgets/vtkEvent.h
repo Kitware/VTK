@@ -18,8 +18,8 @@
 // widgets to help specify the mapping between VTK events and widget events.
 
 
-#ifndef __vtkEvent_h
-#define __vtkEvent_h
+#ifndef vtkEvent_h
+#define vtkEvent_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkObject.h"

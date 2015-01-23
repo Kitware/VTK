@@ -75,8 +75,8 @@
 // .SECTION See Also
 // vtkDelaunay2D vtkDelaunay3D vtkPolygon
 
-#ifndef __vtkOrderedTriangulator_h
-#define __vtkOrderedTriangulator_h
+#ifndef vtkOrderedTriangulator_h
+#define vtkOrderedTriangulator_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

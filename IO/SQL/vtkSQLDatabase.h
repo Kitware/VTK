@@ -47,8 +47,8 @@ PURPOSE.  See the above copyright notice for more information.
 // vtkSQLQuery
 // vtkSQLDatabaseSchema
 
-#ifndef __vtkSQLDatabase_h
-#define __vtkSQLDatabase_h
+#ifndef vtkSQLDatabase_h
+#define vtkSQLDatabase_h
 
 #include "vtkIOSQLModule.h" // For export macro
 #include "vtkObject.h"
@@ -238,4 +238,4 @@ private:
 //ETX
 };
 
-#endif // __vtkSQLDatabase_h
+#endif // vtkSQLDatabase_h

@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkMFCConfigure_h
-#define __vtkMFCConfigure_h
+#ifndef vtkMFCConfigure_h
+#define vtkMFCConfigure_h
 
 #include "vtkConfigure.h"
 

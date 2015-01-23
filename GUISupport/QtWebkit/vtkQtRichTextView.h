@@ -28,8 +28,8 @@
 // Thanks to Bob Kerr from Sandia National Laboratories for implementing
 // this class
 
-#ifndef __vtkQtRichTextView_h
-#define __vtkQtRichTextView_h
+#ifndef vtkQtRichTextView_h
+#define vtkQtRichTextView_h
 
 #include "vtkGUISupportQtWebkitModule.h" // For export macro
 #include "QVTKWin32Header.h"

@@ -33,8 +33,8 @@
 // .SECTION See Also
 // vtkContourFilter vtkMarchingCubes vtkSliceCubes vtkDividingCubes
 
-#ifndef __vtkMarchingSquares_h
-#define __vtkMarchingSquares_h
+#ifndef vtkMarchingSquares_h
+#define vtkMarchingSquares_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

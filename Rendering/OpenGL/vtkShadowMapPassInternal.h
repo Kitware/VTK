@@ -16,8 +16,8 @@
 // These internal classes are shared by vtkShadowMapBakerPass and
 // vtkShadowMapPass.
 
-#ifndef __vtkShadowMapPassInternal_h
-#define __vtkShadowMapPassInternal_h
+#ifndef vtkShadowMapPassInternal_h
+#define vtkShadowMapPassInternal_h
 
 #include "vtkCamera.h"
 #include "vtkTextureObject.h"

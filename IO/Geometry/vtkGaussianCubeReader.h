@@ -21,8 +21,8 @@
 // .SECTION Thanks
 // Dr. Jean M. Favre who developed and contributed this class.
 
-#ifndef __vtkGaussianCubeReader_h
-#define __vtkGaussianCubeReader_h
+#ifndef vtkGaussianCubeReader_h
+#define vtkGaussianCubeReader_h
 
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkMoleculeReaderBase.h"

@@ -25,8 +25,8 @@
 // .SECTION See Also
 // vtkXMLDataSetWriter vtkDataSetWriter vtkImageWriter vtkMCubesWriter
 
-#ifndef __vtkWriter_h
-#define __vtkWriter_h
+#ifndef vtkWriter_h
+#define vtkWriter_h
 
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkAlgorithm.h"

@@ -22,8 +22,8 @@
 // .SECTION See Also
 // vtkPlotLine, vtkPlotPoints
 
-#ifndef __vtkMarkerUtilities_h
-#define __vtkMarkerUtilities_h
+#ifndef vtkMarkerUtilities_h
+#define vtkMarkerUtilities_h
 
 #include "vtkRenderingContext2DModule.h" // For export macro
 
@@ -65,4 +65,4 @@ private:
 //ETX
 };
 
-#endif //__vtkMarkerUtilities_h
+#endif //vtkMarkerUtilities_h

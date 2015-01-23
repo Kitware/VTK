@@ -26,8 +26,8 @@
 // Thanks to Brian Wylie from Sandia National Laboratories for adding incremental
 // layout capabilities.
 
-#ifndef __vtkRandomLayoutStrategy_h
-#define __vtkRandomLayoutStrategy_h
+#ifndef vtkRandomLayoutStrategy_h
+#define vtkRandomLayoutStrategy_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"

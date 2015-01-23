@@ -20,8 +20,8 @@
 // .SECTION see also
 // vtkRenderWindow vtkViewport
 
-#ifndef __vtkWindow_h
-#define __vtkWindow_h
+#ifndef vtkWindow_h
+#define vtkWindow_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"

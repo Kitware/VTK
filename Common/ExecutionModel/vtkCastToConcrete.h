@@ -35,8 +35,8 @@
 // .SECTION See Also
 // vtkDataSetAlgorithm vtkPointSetToPointSetFilter
 
-#ifndef __vtkCastToConcrete_h
-#define __vtkCastToConcrete_h
+#ifndef vtkCastToConcrete_h
+#define vtkCastToConcrete_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

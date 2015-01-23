@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkXMLDataElement
 
-#ifndef __vtkXMLDataParser_h
-#define __vtkXMLDataParser_h
+#ifndef vtkXMLDataParser_h
+#define vtkXMLDataParser_h
 
 #include "vtkIOXMLParserModule.h" // For export macro
 #include "vtkXMLParser.h"

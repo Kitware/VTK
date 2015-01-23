@@ -22,8 +22,8 @@
 // float[2] can be cast to a vtkVector2f and manipulated. Also a float[6] could
 // be cast and used as a vtkVector2f[3].
 
-#ifndef __vtkVector_h
-#define __vtkVector_h
+#ifndef vtkVector_h
+#define vtkVector_h
 
 #include "vtkTuple.h"
 #include "vtkObject.h" // for legacy macros
@@ -263,7 +263,7 @@ public:
 // Description:
 // Some inline functions for the derived types.
 #define vtkVectorNormalized(vectorType, type, size) \
-vectorType Normalized() \
+vectorType Normalized() const \
 { \
   return vectorType(vtkVector<type, size>::Normalized().GetData()); \
 } \
@@ -304,7 +304,7 @@ public:
 };
 
 #define vtkVector3Cross(vectorType, type) \
-vectorType Cross(const vectorType& other) \
+vectorType Cross(const vectorType& other) const \
 { \
   return vectorType(vtkVector3<type>::Cross(other).GetData()); \
 } \
@@ -379,5 +379,5 @@ const T& vtkVector3<T>::Z() const
 }
 #endif // VTK_LEGACY_REMOVE
 
-#endif // __vtkVector_h
+#endif // vtkVector_h
 // VTK-HeaderTest-Exclude: vtkVector.h

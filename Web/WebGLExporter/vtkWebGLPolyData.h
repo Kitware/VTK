@@ -16,8 +16,8 @@
 // .SECTION Description
 // PolyData representation for WebGL.
 
-#ifndef __vtkWebGLPolyData_h
-#define __vtkWebGLPolyData_h
+#ifndef vtkWebGLPolyData_h
+#define vtkWebGLPolyData_h
 
 #include "vtkWebGLObject.h"
 #include "vtkWebGLExporterModule.h" // needed for export macro

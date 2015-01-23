@@ -19,8 +19,8 @@
 // bit-mask can be applied using a variety of boolean bitwise operators.
 
 
-#ifndef __vtkImageMaskBits_h
-#define __vtkImageMaskBits_h
+#ifndef vtkImageMaskBits_h
+#define vtkImageMaskBits_h
 
 #include "vtkImagingMathModule.h" // For export macro
 #include "vtkImageLogic.h"  //For VTK_AND, VTK_OR ...

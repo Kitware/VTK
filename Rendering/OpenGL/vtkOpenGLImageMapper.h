@@ -24,8 +24,8 @@
 // .SECTION See Also
 // vtkImageMapper
 
-#ifndef __vtkOpenGLImageMapper_h
-#define __vtkOpenGLImageMapper_h
+#ifndef vtkOpenGLImageMapper_h
+#define vtkOpenGLImageMapper_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkImageMapper.h"

@@ -1,5 +1,5 @@
-#ifndef __vtkTestingColors_h
-#define __vtkTestingColors_h
+#ifndef vtkTestingColors_h
+#define vtkTestingColors_h
 
 // Standard colors used by many vtk scripts
 
@@ -215,4 +215,4 @@ static float vtk_violet_red[3] = { 0.8157, 0.1255, 0.5647 };
 static float vtk_violet_red_medium[3] = { 0.7804, 0.0824, 0.5216 };
 static float vtk_violet_red_pale[3] = { 0.8588, 0.4392, 0.5765 };
 
-#endif // __vtkTestingColors_h
+#endif // vtkTestingColors_h

@@ -27,8 +27,8 @@
 // will update the set of actors representing the globe given the current
 // camera position.
 
-#ifndef __vtkGeoTerrain_h
-#define __vtkGeoTerrain_h
+#ifndef vtkGeoTerrain_h
+#define vtkGeoTerrain_h
 
 #include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkObject.h"

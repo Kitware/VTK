@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkFiltersStatisticsGnuRConfigure_h
-#define __vtkFiltersStatisticsGnuRConfigure_h
+#ifndef vtkFiltersStatisticsGnuRConfigure_h
+#define vtkFiltersStatisticsGnuRConfigure_h
 
 /* Set the whether we have UINTPTR_T defined in support of the GNU R interface */
 #cmakedefine HAVE_VTK_UINTPTR_T

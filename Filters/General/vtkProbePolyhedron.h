@@ -46,8 +46,8 @@
 // vtkProbeFilter vtkMeanValueCoordinatesInterpolator vtkPolyhedron
 
 
-#ifndef __vtkProbePolyhedron_h
-#define __vtkProbePolyhedron_h
+#ifndef vtkProbePolyhedron_h
+#define vtkProbePolyhedron_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

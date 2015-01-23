@@ -25,8 +25,8 @@
 // vtkODBCDatabase vtkODBCQuery
 //
 
-#ifndef __vtkODBCInternals_h
-#define __vtkODBCInternals_h
+#ifndef vtkODBCInternals_h
+#define vtkODBCInternals_h
 
 #include <sql.h>
 

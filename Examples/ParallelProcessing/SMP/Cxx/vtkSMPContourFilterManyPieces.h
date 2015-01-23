@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtkSMPContourFilterManyPieces_h
-#define __vtkSMPContourFilterManyPieces_h
+#ifndef vtkSMPContourFilterManyPieces_h
+#define vtkSMPContourFilterManyPieces_h
 
 #include "vtkContourFilter.h"
 

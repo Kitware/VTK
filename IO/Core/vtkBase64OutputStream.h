@@ -17,8 +17,8 @@
 // vtkBase64OutputStream implements base64 encoding with the
 // vtkOutputStream interface.
 
-#ifndef __vtkBase64OutputStream_h
-#define __vtkBase64OutputStream_h
+#ifndef vtkBase64OutputStream_h
+#define vtkBase64OutputStream_h
 
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkOutputStream.h"

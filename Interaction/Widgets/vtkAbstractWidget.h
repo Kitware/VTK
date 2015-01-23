@@ -47,8 +47,8 @@
 // vtkWidgetRepresentation vtkWidgetEventTranslator vtkWidgetCallbackMapper
 
 
-#ifndef __vtkAbstractWidget_h
-#define __vtkAbstractWidget_h
+#ifndef vtkAbstractWidget_h
+#define vtkAbstractWidget_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkInteractorObserver.h"

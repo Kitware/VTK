@@ -34,8 +34,8 @@ PURPOSE.  See the above copyright notice for more information.
 // .SECTION Thanks
 // This class was written by Philippe Pebay, Kitware SAS 2012
 
-#ifndef __vtkAutoCorrelativeStatistics_h
-#define __vtkAutoCorrelativeStatistics_h
+#ifndef vtkAutoCorrelativeStatistics_h
+#define vtkAutoCorrelativeStatistics_h
 
 #include "vtkFiltersStatisticsModule.h" // For export macro
 #include "vtkStatisticsAlgorithm.h"

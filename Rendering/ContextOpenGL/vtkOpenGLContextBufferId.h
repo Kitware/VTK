@@ -19,8 +19,8 @@
 // An 2D array where each element is the id of an entity drawn at the given
 // pixel.
 
-#ifndef __vtkOpenGLContextBufferId_h
-#define __vtkOpenGLContextBufferId_h
+#ifndef vtkOpenGLContextBufferId_h
+#define vtkOpenGLContextBufferId_h
 
 #include "vtkRenderingContextOpenGLModule.h" // For export macro
 #include "vtkAbstractContextBufferId.h"
@@ -91,4 +91,4 @@ private:
   void operator=(const vtkOpenGLContextBufferId &);   // Not implemented.
 };
 
-#endif // #ifndef __vtkOpenGLContextBufferId_h
+#endif // #ifndef vtkOpenGLContextBufferId_h

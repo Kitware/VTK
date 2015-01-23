@@ -22,8 +22,8 @@
 // This class takes two geographic projections and transforms point
 // coordinates between them.
 
-#ifndef __vtkGeoTransform_h
-#define __vtkGeoTransform_h
+#ifndef vtkGeoTransform_h
+#define vtkGeoTransform_h
 
 #include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkAbstractTransform.h"
@@ -87,4 +87,4 @@ private:
   void operator = ( const vtkGeoTransform& ); // Not implemented.
 };
 
-#endif // __vtkGeoTransform_h
+#endif // vtkGeoTransform_h

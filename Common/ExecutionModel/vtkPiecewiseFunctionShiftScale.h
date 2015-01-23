@@ -17,8 +17,8 @@
 //
 // .SECTION Description
 
-#ifndef __vtkPiecewiseFunctionShiftScale_h
-#define __vtkPiecewiseFunctionShiftScale_h
+#ifndef vtkPiecewiseFunctionShiftScale_h
+#define vtkPiecewiseFunctionShiftScale_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkPiecewiseFunctionAlgorithm.h"

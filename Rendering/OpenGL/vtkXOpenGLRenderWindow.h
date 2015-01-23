@@ -19,8 +19,8 @@
 // library. Application programmers should normally use vtkRenderWindow
 // instead of the OpenGL specific version.
 
-#ifndef __vtkXOpenGLRenderWindow_h
-#define __vtkXOpenGLRenderWindow_h
+#ifndef vtkXOpenGLRenderWindow_h
+#define vtkXOpenGLRenderWindow_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkOpenGLRenderWindow.h"
@@ -227,7 +227,7 @@ public:
   // Description:
   // This computes the size of the render window
   // before calling the supper classes render
-  void Render();
+  virtual void Render();
 
   // Description:
   // Render without displaying the window.

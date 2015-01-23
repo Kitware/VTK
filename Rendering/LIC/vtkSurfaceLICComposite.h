@@ -20,8 +20,8 @@
 // image LIC is computed on the new decomposition this class will
 // un-shuffle the computed LIC back onto the original decomposition
 
-#ifndef __vtkSurfaceLICComposite_h
-#define __vtkSurfaceLICComposite_h
+#ifndef vtkSurfaceLICComposite_h
+#define vtkSurfaceLICComposite_h
 
 #include "vtkObject.h"
 #include "vtkRenderingLICModule.h" // for export macro

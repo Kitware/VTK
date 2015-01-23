@@ -63,8 +63,8 @@
 // vtkODBCQuery
 
 
-#ifndef __vtkODBCDatabase_h
-#define __vtkODBCDatabase_h
+#ifndef vtkODBCDatabase_h
+#define vtkODBCDatabase_h
 
 #include "vtkIOODBCModule.h" // For export macro
 #include "vtkSQLDatabase.h"
@@ -206,5 +206,5 @@ private:
   void operator=(const vtkODBCDatabase &); // Not implemented.
 };
 
-#endif // __vtkODBCDatabase_h
+#endif // vtkODBCDatabase_h
 

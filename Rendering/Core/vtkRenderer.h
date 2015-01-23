@@ -26,8 +26,8 @@
 // .SECTION See Also
 // vtkRenderWindow vtkActor vtkCamera vtkLight vtkVolume
 
-#ifndef __vtkRenderer_h
-#define __vtkRenderer_h
+#ifndef vtkRenderer_h
+#define vtkRenderer_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkViewport.h"

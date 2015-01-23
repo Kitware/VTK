@@ -59,8 +59,8 @@ WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 // .SECTION See Also
 // vtkPLYWriter vtkPLYReader
 
-#ifndef __vtkPLY_h
-#define __vtkPLY_h
+#ifndef vtkPLY_h
+#define vtkPLY_h
 
 #include "vtkIOPLYModule.h" // For export macro
 #include "vtkObject.h"

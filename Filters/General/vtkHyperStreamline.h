@@ -42,8 +42,8 @@
 // .SECTION See Also
 // vtkTensorGlyph vtkStreamer
 
-#ifndef __vtkHyperStreamline_h
-#define __vtkHyperStreamline_h
+#ifndef vtkHyperStreamline_h
+#define vtkHyperStreamline_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

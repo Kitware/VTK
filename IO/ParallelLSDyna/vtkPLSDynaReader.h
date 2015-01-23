@@ -114,8 +114,8 @@
 // Perhaps a filter could be applied to "fancify" the geometry.
 //
 
-#ifndef __vtkPLSDynaReader_h
-#define __vtkPLSDynaReader_h
+#ifndef vtkPLSDynaReader_h
+#define vtkPLSDynaReader_h
 
 #include "vtkIOParallelLSDynaModule.h" // For export macro
 #include "vtkLSDynaReader.h"
@@ -159,4 +159,4 @@ private:
   vtkPLSDynaReaderInternal *Internal;
 };
 
-#endif // __vtkPLSDynaReader_h
+#endif // vtkPLSDynaReader_h

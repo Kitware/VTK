@@ -39,8 +39,8 @@
 // from Sandia National Laboratories.
 //
 
-#ifndef __vtkProcessGroup_h
-#define __vtkProcessGroup_h
+#ifndef vtkProcessGroup_h
+#define vtkProcessGroup_h
 
 #include "vtkParallelCoreModule.h" // For export macro
 #include "vtkObject.h"
@@ -131,4 +131,4 @@ private:
   void operator=(const vtkProcessGroup &);      // Not implemented
 };
 
-#endif //__vtkProcessGroup_h
+#endif //vtkProcessGroup_h

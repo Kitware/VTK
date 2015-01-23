@@ -72,8 +72,8 @@ version available from Los Alamos National Laboratory.
 // Christine Ahrens (cahrens@lanl.gov)
 // Version 1.3
 
-#ifndef __vtkMPASReader_h
-#define __vtkMPASReader_h
+#ifndef vtkMPASReader_h
+#define vtkMPASReader_h
 
 #define MAX_VARS 100
 #define MAX_VAR_NAME 100

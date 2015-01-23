@@ -44,8 +44,8 @@
 // responsible for linking representations as appropriate by setting the
 // same vtkAnnotationLink on each linked representation.
 
-#ifndef __vtkDataRepresentation_h
-#define __vtkDataRepresentation_h
+#ifndef vtkDataRepresentation_h
+#define vtkDataRepresentation_h
 
 #include "vtkViewsCoreModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"

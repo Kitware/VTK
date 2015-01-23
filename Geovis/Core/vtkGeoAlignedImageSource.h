@@ -27,8 +27,8 @@
 // .SECTION See Also
 // vtkGeoAlignedImageRepresentation vtkGeoView vtkGeoView2D
 
-#ifndef __vtkGeoAlignedImageSource_h
-#define __vtkGeoAlignedImageSource_h
+#ifndef vtkGeoAlignedImageSource_h
+#define vtkGeoAlignedImageSource_h
 
 #include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkGeoSource.h"

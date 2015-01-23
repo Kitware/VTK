@@ -19,8 +19,8 @@
 // .SECTION See Also
 // vtkValuePasses
 
-#ifndef __vtkClearRGBPass_h
-#define __vtkClearRGBPass_h
+#ifndef vtkClearRGBPass_h
+#define vtkClearRGBPass_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderPass.h"

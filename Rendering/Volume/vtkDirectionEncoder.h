@@ -27,8 +27,8 @@
 // .SECTION see also
 // vtkRecursiveSphereDirectionEncoder
 
-#ifndef __vtkDirectionEncoder_h
-#define __vtkDirectionEncoder_h
+#ifndef vtkDirectionEncoder_h
+#define vtkDirectionEncoder_h
 
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkObject.h"

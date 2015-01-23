@@ -27,8 +27,8 @@
 //
 // @deprecated Not maintained as of VTK 6.2 and will be removed eventually.
 
-#ifndef __vtkPBGLVertexColoring_h
-#define __vtkPBGLVertexColoring_h
+#ifndef vtkPBGLVertexColoring_h
+#define vtkPBGLVertexColoring_h
 
 #include "vtkInfovisParallelModule.h" // For export macro
 #include "vtkStdString.h" // For string type

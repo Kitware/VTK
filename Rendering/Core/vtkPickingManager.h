@@ -65,8 +65,8 @@
 // This has been done to allow adding multiple times the same picker to the manager
 // by not passing the referenced object to not force the supression of all pickers
 
-#ifndef __vtkPickingManager_h
-#define __vtkPickingManager_h
+#ifndef vtkPickingManager_h
+#define vtkPickingManager_h
 
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro

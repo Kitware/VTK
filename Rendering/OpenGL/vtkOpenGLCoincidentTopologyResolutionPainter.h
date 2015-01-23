@@ -16,8 +16,8 @@
 // .SECTION Description
 // Implementation for vtkCoincidentTopologyResolutionPainter using OpenGL.
 
-#ifndef __vtkOpenGLCoincidentTopologyResolutionPainter_h
-#define __vtkOpenGLCoincidentTopologyResolutionPainter_h
+#ifndef vtkOpenGLCoincidentTopologyResolutionPainter_h
+#define vtkOpenGLCoincidentTopologyResolutionPainter_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkCoincidentTopologyResolutionPainter.h"

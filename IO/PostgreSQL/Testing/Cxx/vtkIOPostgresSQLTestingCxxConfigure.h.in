@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkIOPostgresSQLTestingCxxConfigure_h
-#define __vtkIOPostgresSQLTestingCxxConfigure_h
+#ifndef vtkIOPostgresSQLTestingCxxConfigure_h
+#define vtkIOPostgresSQLTestingCxxConfigure_h
 
 #cmakedefine VTK_PSQL_TEST_URL
 #ifdef VTK_PSQL_TEST_URL

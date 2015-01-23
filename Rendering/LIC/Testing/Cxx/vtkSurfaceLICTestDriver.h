@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtkTestSurfaceLICDriver_h
-#define __vtkTestSurfaceLICDriver_h
+#ifndef vtkTestSurfaceLICDriver_h
+#define vtkTestSurfaceLICDriver_h
 
 #include "vtkSystemIncludes.h" // include it first
 #include <vector> // for vector

@@ -17,8 +17,8 @@
 // vtkInformationIntegerKey is used to represent keys for integer values
 // in vtkInformation.
 
-#ifndef __vtkInformationIntegerKey_h
-#define __vtkInformationIntegerKey_h
+#ifndef vtkInformationIntegerKey_h
+#define vtkInformationIntegerKey_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkInformationKey.h"

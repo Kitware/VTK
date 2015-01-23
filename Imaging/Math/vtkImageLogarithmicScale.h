@@ -20,8 +20,8 @@
 
 
 
-#ifndef __vtkImageLogarithmicScale_h
-#define __vtkImageLogarithmicScale_h
+#ifndef vtkImageLogarithmicScale_h
+#define vtkImageLogarithmicScale_h
 
 
 #include "vtkImagingMathModule.h" // For export macro

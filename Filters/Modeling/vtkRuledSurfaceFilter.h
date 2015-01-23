@@ -48,8 +48,8 @@
 // .SECTION See Also
 // vtkRibbonFilter vtkStreamLine
 
-#ifndef __vtkRuledSurfaceFilter_h
-#define __vtkRuledSurfaceFilter_h
+#ifndef vtkRuledSurfaceFilter_h
+#define vtkRuledSurfaceFilter_h
 
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

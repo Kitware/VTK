@@ -25,8 +25,8 @@
 // .SECTION See Also
 // vtkGraph vtkBoostGraphAdapter
 
-#ifndef __vtkBoostBetweennessClustering_h
-#define __vtkBoostBetweennessClustering_h
+#ifndef vtkBoostBetweennessClustering_h
+#define vtkBoostBetweennessClustering_h
 
 #include "vtkInfovisBoostGraphAlgorithmsModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
@@ -89,4 +89,4 @@ private:
   void operator=(const vtkBoostBetweennessClustering&); // Not implemented.
 };
 
-#endif // __vtkBoostBetweennessClustering_h
+#endif // vtkBoostBetweennessClustering_h

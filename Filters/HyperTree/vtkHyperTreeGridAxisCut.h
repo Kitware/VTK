@@ -27,8 +27,8 @@
 // This class was written by Philippe Pebay and Charles Law, Kitware 2012
 // This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
-#ifndef __vtkHyperTreeGridAxisCut_h
-#define __vtkHyperTreeGridAxisCut_h
+#ifndef vtkHyperTreeGridAxisCut_h
+#define vtkHyperTreeGridAxisCut_h
 
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

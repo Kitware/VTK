@@ -41,8 +41,8 @@
 // .SECTION See Also
 // vtkCutter vtkImplicitFunction vtkClipPolyData vtkGenericDataSet
 
-#ifndef __vtkGenericCutter_h
-#define __vtkGenericCutter_h
+#ifndef vtkGenericCutter_h
+#define vtkGenericCutter_h
 
 #include "vtkFiltersGenericModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

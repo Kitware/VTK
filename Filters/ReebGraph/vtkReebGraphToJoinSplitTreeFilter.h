@@ -29,8 +29,8 @@
 // computed on that mesh (port 1).
 // The outputs is vtkReebGraph object describing either a join or split tree.
 
-#ifndef __vtkReebGraphToJoinSplitTreeFilter_h
-#define __vtkReebGraphToJoinSplitTreeFilter_h
+#ifndef vtkReebGraphToJoinSplitTreeFilter_h
+#define vtkReebGraphToJoinSplitTreeFilter_h
 
 #include "vtkFiltersReebGraphModule.h" // For export macro
 #include  "vtkDirectedGraphAlgorithm.h"

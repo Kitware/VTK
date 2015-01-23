@@ -85,8 +85,8 @@
 // .SECTION See Also
 // vtkDelaunay2D vtkGaussianSplatter vtkUnstructuredGrid
 
-#ifndef __vtkDelaunay3D_h
-#define __vtkDelaunay3D_h
+#ifndef vtkDelaunay3D_h
+#define vtkDelaunay3D_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"

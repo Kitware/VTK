@@ -19,8 +19,8 @@
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.
 
-#ifndef __vtkPolyDataWriter_h
-#define __vtkPolyDataWriter_h
+#ifndef vtkPolyDataWriter_h
+#define vtkPolyDataWriter_h
 
 #include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataWriter.h"

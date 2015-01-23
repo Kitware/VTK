@@ -23,8 +23,8 @@
 // vtkImplicitDataSet vtkInterpolatedVelocityField
 // vtkInitialValueProblemSolver
 
-#ifndef __vtkFunctionSet_h
-#define __vtkFunctionSet_h
+#ifndef vtkFunctionSet_h
+#define vtkFunctionSet_h
 
 #include "vtkCommonMathModule.h" // For export macro
 #include "vtkObject.h"

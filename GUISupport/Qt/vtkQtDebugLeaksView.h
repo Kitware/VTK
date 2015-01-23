@@ -20,8 +20,8 @@
 // at program startup and displayed as a top level widget.  Simply create the
 // widget and call show().
 
-#ifndef __vtkQtDebugLeaksView_h
-#define __vtkQtDebugLeaksView_h
+#ifndef vtkQtDebugLeaksView_h
+#define vtkQtDebugLeaksView_h
 
 #include "vtkGUISupportQtModule.h" // For export macro
 #include "QVTKWin32Header.h"

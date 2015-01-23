@@ -34,8 +34,8 @@
 // .SECTION See Also
 // vtkButtonSource vtkRectangularButtonSource
 
-#ifndef __vtkEllipticalButtonSource_h
-#define __vtkEllipticalButtonSource_h
+#ifndef vtkEllipticalButtonSource_h
+#define vtkEllipticalButtonSource_h
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkButtonSource.h"

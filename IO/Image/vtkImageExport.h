@@ -26,8 +26,8 @@
 // .SECTION See Also
 // vtkImageImport
 
-#ifndef __vtkImageExport_h
-#define __vtkImageExport_h
+#ifndef vtkImageExport_h
+#define vtkImageExport_h
 
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

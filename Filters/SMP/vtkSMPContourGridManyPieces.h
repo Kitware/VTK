@@ -20,8 +20,8 @@
 // interested in a filter that merges the piece. This will probably be merged with
 // vtkContourGrid in the future.
 
-#ifndef __vtkSMPContourGridManyPieces_h
-#define __vtkSMPContourGridManyPieces_h
+#ifndef vtkSMPContourGridManyPieces_h
+#define vtkSMPContourGridManyPieces_h
 
 #include "vtkFiltersSMPModule.h" // For export macro
 #include "vtkContourGrid.h"

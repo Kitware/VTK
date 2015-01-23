@@ -14,8 +14,8 @@
 =========================================================================*/
 // .NAME vtkTStripsPainter - painter for triangle strips.
 
-#ifndef __vtkTStripsPainter_h
-#define __vtkTStripsPainter_h
+#ifndef vtkTStripsPainter_h
+#define vtkTStripsPainter_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkPrimitivePainter.h"

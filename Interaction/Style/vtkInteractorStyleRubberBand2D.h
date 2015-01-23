@@ -34,8 +34,8 @@
 // Middle mouse - Pan.
 // Scroll wheel - Zoom.
 
-#ifndef __vtkInteractorStyleRubberBand2D_h
-#define __vtkInteractorStyleRubberBand2D_h
+#ifndef vtkInteractorStyleRubberBand2D_h
+#define vtkInteractorStyleRubberBand2D_h
 
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyle.h"

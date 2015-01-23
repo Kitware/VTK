@@ -16,8 +16,8 @@
 // A vtkMoleculeMapper that uses imposters to do the rendering. It uses
 // vtkOpenGLSphereMapper and vtkOpenGLStickMapper to do the rendering.
 
-#ifndef __vtkOpenGLMoleculeMapper_h
-#define __vtkOpenGLMoleculeMapper_h
+#ifndef vtkOpenGLMoleculeMapper_h
+#define vtkOpenGLMoleculeMapper_h
 
 #include "vtkDomainsChemistryOpenGL2Module.h" // For export macro
 #include "vtkMoleculeMapper.h"

@@ -19,8 +19,8 @@
 // .SECTION See Also
 // vtkSelection
 
-#ifndef __vtkExtractSelectedPolyDataIds_h
-#define __vtkExtractSelectedPolyDataIds_h
+#ifndef vtkExtractSelectedPolyDataIds_h
+#define vtkExtractSelectedPolyDataIds_h
 
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

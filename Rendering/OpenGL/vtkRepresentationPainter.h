@@ -18,8 +18,8 @@
 // Subclasses will change the polygon rendering mode dependent on
 // the graphics library.
 
-#ifndef __vtkRepresentationPainter_h
-#define __vtkRepresentationPainter_h
+#ifndef vtkRepresentationPainter_h
+#define vtkRepresentationPainter_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkPolyDataPainter.h"

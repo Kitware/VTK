@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkRenderingOpenGLConfigure_h
-#define __vtkRenderingOpenGLConfigure_h
+#ifndef vtkRenderingOpenGLConfigure_h
+#define vtkRenderingOpenGLConfigure_h
 
 /* This header contains build settings for the vtkRenderingOpenGL module. */
 

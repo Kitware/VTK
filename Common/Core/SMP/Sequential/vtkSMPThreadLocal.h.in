@@ -33,8 +33,8 @@
 // Note that this particular implementation is designed to work in sequential
 // mode and supports only 1 thread.
 
-#ifndef __vtkSMPThreadLocal_h
-#define __vtkSMPThreadLocal_h
+#ifndef vtkSMPThreadLocal_h
+#define vtkSMPThreadLocal_h
 
 #include "vtkSystemIncludes.h"
 #include <vector>

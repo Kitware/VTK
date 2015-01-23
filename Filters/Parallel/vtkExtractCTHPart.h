@@ -34,8 +34,8 @@
 // vtkPolyData for the contour generated on the current process (which may be
 // null, for processes where no contour is generated).
 
-#ifndef __vtkExtractCTHPart_h
-#define __vtkExtractCTHPart_h
+#ifndef vtkExtractCTHPart_h
+#define vtkExtractCTHPart_h
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"

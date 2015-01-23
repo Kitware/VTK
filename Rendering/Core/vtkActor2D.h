@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkProp  vtkMapper2D vtkProperty2D
 
-#ifndef __vtkActor2D_h
-#define __vtkActor2D_h
+#ifndef vtkActor2D_h
+#define vtkActor2D_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkProp.h"

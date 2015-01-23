@@ -24,8 +24,8 @@
 // .SECTION See Also
 // vtkExtractGrid vtkExtractVOI vtkExtractRectilinearGrid
 
-#ifndef __vtkExtractStructuredGridHelper_h
-#define __vtkExtractStructuredGridHelper_h
+#ifndef vtkExtractStructuredGridHelper_h
+#define vtkExtractStructuredGridHelper_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

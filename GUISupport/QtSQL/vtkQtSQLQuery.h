@@ -22,8 +22,8 @@
 // .SECTION Description
 // Implements vtkSQLQuery using an underlying QSQLQuery.
 
-#ifndef __vtkQtSQLQuery_h
-#define __vtkQtSQLQuery_h
+#ifndef vtkQtSQLQuery_h
+#define vtkQtSQLQuery_h
 
 // Check for Qt SQL module before defining this class.
 #include <qglobal.h>
@@ -96,5 +96,5 @@ private:
 };
 
 #endif // (QT_EDITION & QT_MODULE_SQL)
-#endif // __vtkQtSQLQuery_h
+#endif // vtkQtSQLQuery_h
 

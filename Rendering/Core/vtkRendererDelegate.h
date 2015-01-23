@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkRenderer
 
-#ifndef __vtkRendererDelegate_h
-#define __vtkRendererDelegate_h
+#ifndef vtkRendererDelegate_h
+#define vtkRendererDelegate_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"

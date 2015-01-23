@@ -1,5 +1,5 @@
-#ifndef __vtkMultiCorrelativeStatisticsAssessFunctor_h
-#define __vtkMultiCorrelativeStatisticsAssessFunctor_h
+#ifndef vtkMultiCorrelativeStatisticsAssessFunctor_h
+#define vtkMultiCorrelativeStatisticsAssessFunctor_h
 
 #include "vtkStatisticsAlgorithm.h"
 
@@ -36,5 +36,5 @@ public:
   std::vector<double> EmptyTuple; // Used to quickly initialize Tuple for each datum
 };
 
-#endif // __vtkMultiCorrelativeStatisticsAssessFunctor_h
+#endif // vtkMultiCorrelativeStatisticsAssessFunctor_h
 // VTK-HeaderTest-Exclude: vtkMultiCorrelativeStatisticsAssessFunctor.h

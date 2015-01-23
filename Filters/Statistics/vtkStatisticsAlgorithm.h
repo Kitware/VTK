@@ -50,8 +50,8 @@ PURPOSE.  See the above copyright notice for more information.
 // for implementing this class.
 // Updated by Philippe Pebay, Kitware SAS 2012
 
-#ifndef __vtkStatisticsAlgorithm_h
-#define __vtkStatisticsAlgorithm_h
+#ifndef vtkStatisticsAlgorithm_h
+#define vtkStatisticsAlgorithm_h
 
 #include "vtkFiltersStatisticsModule.h" // For export macro
 #include "vtkTableAlgorithm.h"

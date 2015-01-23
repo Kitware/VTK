@@ -28,8 +28,8 @@
 // anything other than atomic separations. It will not produce anything other
 // than single bonds.
 
-#ifndef __vtkSimpleBondPerceiver_h
-#define __vtkSimpleBondPerceiver_h
+#ifndef vtkSimpleBondPerceiver_h
+#define vtkSimpleBondPerceiver_h
 
 #include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkMoleculeAlgorithm.h"

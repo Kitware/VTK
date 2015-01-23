@@ -24,8 +24,8 @@
 // geometric representation of the cursor. The second (Focus) is a single
 // point at the focal point.
 
-#ifndef __vtkCursor3D_h
-#define __vtkCursor3D_h
+#ifndef vtkCursor3D_h
+#define vtkCursor3D_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

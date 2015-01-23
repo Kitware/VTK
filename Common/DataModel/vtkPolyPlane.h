@@ -23,8 +23,8 @@
 // .SECTION ToDo
 // Generalize to extrusions along arbitrary directions.
 
-#ifndef __vtkPolyPlane_h
-#define __vtkPolyPlane_h
+#ifndef vtkPolyPlane_h
+#define vtkPolyPlane_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"

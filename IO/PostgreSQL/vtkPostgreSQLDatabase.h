@@ -40,8 +40,8 @@
 // .SECTION See Also
 // vtkPostgreSQLQuery
 
-#ifndef __vtkPostgreSQLDatabase_h
-#define __vtkPostgreSQLDatabase_h
+#ifndef vtkPostgreSQLDatabase_h
+#define vtkPostgreSQLDatabase_h
 
 #include "vtkIOPostgreSQLModule.h" // For export macro
 #include "vtkSQLDatabase.h"
@@ -264,4 +264,4 @@ inline void vtkPostgreSQLDatabase::SetServerPort( int _arg )
     }
 }
 
-#endif // __vtkPostgreSQLDatabase_h
+#endif // vtkPostgreSQLDatabase_h

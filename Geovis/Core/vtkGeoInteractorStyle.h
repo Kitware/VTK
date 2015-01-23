@@ -27,8 +27,8 @@
 // .SECTION See Also
 // vtkCompassWidget vtkInteractorStyle
 
-#ifndef __vtkGeoInteractorStyle_h
-#define __vtkGeoInteractorStyle_h
+#ifndef vtkGeoInteractorStyle_h
+#define vtkGeoInteractorStyle_h
 
 #include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkInteractorStyleTrackballCamera.h"

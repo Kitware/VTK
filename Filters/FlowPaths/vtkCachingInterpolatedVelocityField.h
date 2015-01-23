@@ -38,8 +38,8 @@
 // .SECTION TODO
 // Need to clean up style to match vtk/Kitware standards. Please help.
 
-#ifndef __vtkTInterpolatedVelocityField_h
-#define __vtkTInterpolatedVelocityField_h
+#ifndef vtkTInterpolatedVelocityField_h
+#define vtkTInterpolatedVelocityField_h
 
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkFunctionSet.h"

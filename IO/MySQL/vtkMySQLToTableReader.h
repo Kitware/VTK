@@ -17,8 +17,8 @@
 // vtkMySQLToTableReader reads a table from a MySQL database and
 // outputs it as a vtkTable.
 
-#ifndef __vtkMySQLToTableReader_h
-#define __vtkMySQLToTableReader_h
+#ifndef vtkMySQLToTableReader_h
+#define vtkMySQLToTableReader_h
 
 #include "vtkIOMySQLModule.h" // For export macro
 #include "vtkDatabaseToTableReader.h"

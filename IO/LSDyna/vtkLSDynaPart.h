@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 
-#ifndef __vtkLSDynaPart_h
-#define __vtkLSDynaPart_h
+#ifndef vtkLSDynaPart_h
+#define vtkLSDynaPart_h
 
 #include "vtkIOLSDynaModule.h" // For export macro
 #include "vtkObject.h"

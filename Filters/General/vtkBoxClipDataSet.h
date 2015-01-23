@@ -42,8 +42,8 @@
 // 2) Apply the GenerateClipScalarsOn()
 // 3) Execute clipping  Update();
 
-#ifndef __vtkBoxClipDataSet_h
-#define __vtkBoxClipDataSet_h
+#ifndef vtkBoxClipDataSet_h
+#define vtkBoxClipDataSet_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"

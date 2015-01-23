@@ -142,8 +142,8 @@
 // Perhaps a filter could be applied to "fancify" the geometry.
 //
 
-#ifndef __vtkLSDynaReader_h
-#define __vtkLSDynaReader_h
+#ifndef vtkLSDynaReader_h
+#define vtkLSDynaReader_h
 
 #include "vtkIOLSDynaModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
@@ -972,4 +972,4 @@ inline int vtkLSDynaReader::GetPartArrayStatus( const char* partName )
   return 0;
 }
 
-#endif // __vtkLSDynaReader_h
+#endif // vtkLSDynaReader_h

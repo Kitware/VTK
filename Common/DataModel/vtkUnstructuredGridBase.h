@@ -22,8 +22,8 @@
 // .SECTION See Also
 // vtkMappedDataArray vtkUnstructuredGrid
 
-#ifndef __vtkUnstructuredGridBase_h
-#define __vtkUnstructuredGridBase_h
+#ifndef vtkUnstructuredGridBase_h
+#define vtkUnstructuredGridBase_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkPointSet.h"

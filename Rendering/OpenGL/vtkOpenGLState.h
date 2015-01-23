@@ -28,8 +28,8 @@
 // .SECTION Implementation
 // Not all the OpenGL state is covered yet.
 
-#ifndef __vtkOpenGLState_h
-#define __vtkOpenGLState_h
+#ifndef vtkOpenGLState_h
+#define vtkOpenGLState_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkgl.h"

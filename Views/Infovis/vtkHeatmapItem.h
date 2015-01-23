@@ -20,8 +20,8 @@
 // .SEE ALSO
 // vtkTable
 
-#ifndef __vtkHeatmapItem_h
-#define __vtkHeatmapItem_h
+#ifndef vtkHeatmapItem_h
+#define vtkHeatmapItem_h
 
 #include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkContextItem.h"

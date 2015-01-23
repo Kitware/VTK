@@ -17,8 +17,8 @@
 // vtkInformationKeyVectorKey is used to represent keys for
 // vector-of-keys values in vtkInformation.
 
-#ifndef __vtkInformationKeyVectorKey_h
-#define __vtkInformationKeyVectorKey_h
+#ifndef vtkInformationKeyVectorKey_h
+#define vtkInformationKeyVectorKey_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkInformationKey.h"

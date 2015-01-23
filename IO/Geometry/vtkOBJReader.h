@@ -19,8 +19,8 @@
 // .SECTION See Also
 // vtkOBJImporter
 
-#ifndef __vtkOBJReader_h
-#define __vtkOBJReader_h
+#ifndef vtkOBJReader_h
+#define vtkOBJReader_h
 
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

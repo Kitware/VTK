@@ -22,8 +22,8 @@
 // vtkInteractorStyle vtkRenderWindowInteractor
 // vtkTDxInteractorStyle
 
-#ifndef __vtkTDxInteractorStyleSettings_h
-#define __vtkTDxInteractorStyleSettings_h
+#ifndef vtkTDxInteractorStyleSettings_h
+#define vtkTDxInteractorStyleSettings_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"

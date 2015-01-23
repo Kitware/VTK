@@ -19,8 +19,8 @@
 // This is a vtkContextItem that can be placed into a vtkContextScene. It draws
 // a block of the given dimensions, and reacts to mouse events.
 
-#ifndef __vtkGraphItem_h
-#define __vtkGraphItem_h
+#ifndef vtkGraphItem_h
+#define vtkGraphItem_h
 
 #include "vtkContextItem.h"
 
@@ -92,4 +92,4 @@ private:
 //ETX
 };
 
-#endif //__vtkGraphItem_h
+#endif //vtkGraphItem_h

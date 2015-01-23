@@ -35,8 +35,8 @@
 // .SECTION See Also
 // vtkBMPWriter
 
-#ifndef __vtkBMPReader_h
-#define __vtkBMPReader_h
+#ifndef vtkBMPReader_h
+#define vtkBMPReader_h
 
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageReader.h"

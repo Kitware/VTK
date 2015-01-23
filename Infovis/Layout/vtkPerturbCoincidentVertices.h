@@ -25,8 +25,8 @@
 // so we need a nice scheme to perturb the vertices so that when the user
 // zooms in the vertices can be distiquished.
 
-#ifndef __vtkPerturbCoincidentVertices_h
-#define __vtkPerturbCoincidentVertices_h
+#ifndef vtkPerturbCoincidentVertices_h
+#define vtkPerturbCoincidentVertices_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"

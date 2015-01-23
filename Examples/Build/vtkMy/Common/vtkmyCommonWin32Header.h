@@ -17,8 +17,8 @@
 // The vtkmyCommonWin32Header captures some system differences between Unix
 // and Windows operating systems.
 
-#ifndef __vtkmyCommonWin32Header_h
-#define __vtkmyCommonWin32Header_h
+#ifndef vtkmyCommonWin32Header_h
+#define vtkmyCommonWin32Header_h
 
 #include <vtkmyConfigure.h>
 

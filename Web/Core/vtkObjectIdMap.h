@@ -15,8 +15,8 @@
 // .NAME vtkObjectIdMap - class used to assign Id to any VTK object and be able
 // to retreive it base on its id.
 
-#ifndef __vtkObjectIdMap_h
-#define __vtkObjectIdMap_h
+#ifndef vtkObjectIdMap_h
+#define vtkObjectIdMap_h
 
 #include "vtkObject.h"
 #include "vtkWebCoreModule.h" // needed for exports

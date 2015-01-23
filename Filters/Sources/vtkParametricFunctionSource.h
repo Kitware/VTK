@@ -37,8 +37,8 @@
 // vtkParametricEnneper vtkParametricRandomHills vtkParametricSuperEllipsoid
 // vtkParametricSuperToroid vtkParametricTorus
 //
-#ifndef __vtkParametricFunctionSource_h
-#define __vtkParametricFunctionSource_h
+#ifndef vtkParametricFunctionSource_h
+#define vtkParametricFunctionSource_h
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
@@ -91,6 +91,15 @@ public:
   vtkBooleanMacro(GenerateTextureCoordinates,int);
   vtkSetClampMacro(GenerateTextureCoordinates,int,0,1);
   vtkGetMacro(GenerateTextureCoordinates,int);
+
+  // Description:
+  // Set/Get the generation of normals. This is on by
+  // default.
+  // Note that this is only applicable to parametric surfaces
+  // whose parametric dimension is 2.
+  vtkBooleanMacro(GenerateNormals,int);
+  vtkSetClampMacro(GenerateNormals,int,0,1);
+  vtkGetMacro(GenerateNormals,int);
 
   // Description:
   // Enumerate the supported scalar generation modes.<br>
@@ -172,6 +181,7 @@ protected:
   int VResolution;
   int WResolution;
   int GenerateTextureCoordinates;
+  int GenerateNormals;
   int ScalarMode;
   int OutputPointsPrecision;
 
@@ -181,7 +191,7 @@ private:
   void Produce2DOutput(vtkInformationVector *output);
 
   // Description:
-  // Generate triangle strips from an ordered set of points.
+  // Generate triangles from an ordered set of points.
   //
   // Given a parametrization f(u,v)->(x,y,z), this function generates
   // a vtkCellAarray of point IDs over the range MinimumU <= u < MaximumU
@@ -191,7 +201,7 @@ private:
   // VResolution, MinimumU, MaximumU, MinimumV, MaximumV, JoinU, JoinV,
   // TwistU, TwistV, ordering are set appropriately for the parametric function.
   //
-  void MakeTriangleStrips ( vtkCellArray * strips, int PtsU, int PtsV );
+  void MakeTriangles ( vtkCellArray * strips, int PtsU, int PtsV );
 
   vtkParametricFunctionSource(const vtkParametricFunctionSource&);  // Not implemented.
   void operator=(const vtkParametricFunctionSource&);  // Not implemented.

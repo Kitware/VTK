@@ -21,8 +21,8 @@
 //
 // .SECTION Description
 
-#ifndef __vtkRenderedHierarchyRepresentation_h
-#define __vtkRenderedHierarchyRepresentation_h
+#ifndef vtkRenderedHierarchyRepresentation_h
+#define vtkRenderedHierarchyRepresentation_h
 
 #include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkRenderedGraphRepresentation.h"

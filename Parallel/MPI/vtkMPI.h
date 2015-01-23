@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkMPI_h
-#define __vtkMPI_h
+#ifndef vtkMPI_h
+#define vtkMPI_h
 
 #ifndef USE_STDARG
  #define USE_STDARG
@@ -68,5 +68,5 @@ public:
 };
 
 
-#endif // __vtkMPI_h
+#endif // vtkMPI_h
 // VTK-HeaderTest-Exclude: vtkMPI.h

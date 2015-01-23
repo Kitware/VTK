@@ -24,8 +24,8 @@
 // .SECTION See Also
 // vtkProp3D vtkActor vtkVolume vtkLODActor
 
-#ifndef __vtkLODProp3D_h
-#define __vtkLODProp3D_h
+#ifndef vtkLODProp3D_h
+#define vtkLODProp3D_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkProp3D.h"

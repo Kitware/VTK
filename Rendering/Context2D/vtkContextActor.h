@@ -18,8 +18,8 @@
 // in a vtkRenderer. Uses the RenderOverlay pass to render the 2D
 // vtkContextScene.
 
-#ifndef __vtkContextActor_h
-#define __vtkContextActor_h
+#ifndef vtkContextActor_h
+#define vtkContextActor_h
 
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkProp.h"

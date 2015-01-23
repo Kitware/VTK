@@ -19,8 +19,8 @@
 // the current camera zooms by an amount determined from the shorter side of
 // the drawn rectangle.
 
-#ifndef __vtkInteractorStyleRubberBandZoom_h
-#define __vtkInteractorStyleRubberBandZoom_h
+#ifndef vtkInteractorStyleRubberBandZoom_h
+#define vtkInteractorStyleRubberBandZoom_h
 
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyle.h"

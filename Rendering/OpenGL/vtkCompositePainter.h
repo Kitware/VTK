@@ -19,8 +19,8 @@
 // This painter can also handle the case when the dataset is not a composite
 // dataset.
 
-#ifndef __vtkCompositePainter_h
-#define __vtkCompositePainter_h
+#ifndef vtkCompositePainter_h
+#define vtkCompositePainter_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkPainter.h"

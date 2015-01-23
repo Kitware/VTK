@@ -22,8 +22,8 @@
 // .SECTION See Also
 // vtkImplicitModeller
 
-#ifndef __vtkImageStencilToImage_h
-#define __vtkImageStencilToImage_h
+#ifndef vtkImageStencilToImage_h
+#define vtkImageStencilToImage_h
 
 #include "vtkImagingStencilModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

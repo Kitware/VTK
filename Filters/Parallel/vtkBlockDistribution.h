@@ -22,8 +22,8 @@
 // .SECTION Description
 //
 
-#ifndef __vtkBlockDistribution_h
-#define __vtkBlockDistribution_h
+#ifndef vtkBlockDistribution_h
+#define vtkBlockDistribution_h
 
 class vtkBlockDistribution
 {

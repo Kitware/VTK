@@ -33,8 +33,8 @@ PURPOSE.  See the above copyright notice for more information.
 // p1c2 p2c2 p3c2 ... pnc2 materialnum partnum
 // ...
 
-#ifndef __vtkFacetReader_h
-#define __vtkFacetReader_h
+#ifndef vtkFacetReader_h
+#define vtkFacetReader_h
 
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

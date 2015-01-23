@@ -19,8 +19,8 @@
 // returning plane normal. vtkPlane is a concrete implementation of the
 // abstract class vtkImplicitFunction.
 
-#ifndef __vtkPlane_h
-#define __vtkPlane_h
+#ifndef vtkPlane_h
+#define vtkPlane_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"

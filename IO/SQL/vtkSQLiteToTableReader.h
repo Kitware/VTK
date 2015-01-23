@@ -17,8 +17,8 @@
 // vtkSQLiteToTableReader reads a table from an SQLite database and
 // outputs it as a vtkTable.
 
-#ifndef __vtkSQLiteToTableReader_h
-#define __vtkSQLiteToTableReader_h
+#ifndef vtkSQLiteToTableReader_h
+#define vtkSQLiteToTableReader_h
 
 #include "vtkIOSQLModule.h" // For export macro
 #include "vtkDatabaseToTableReader.h"

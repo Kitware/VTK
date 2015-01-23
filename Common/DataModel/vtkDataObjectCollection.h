@@ -17,8 +17,8 @@
 // vtkDataObjectCollection is an object that creates and manipulates lists of
 // data objects. See also vtkCollection and subclasses.
 
-#ifndef __vtkDataObjectCollection_h
-#define __vtkDataObjectCollection_h
+#ifndef vtkDataObjectCollection_h
+#define vtkDataObjectCollection_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCollection.h"

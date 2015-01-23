@@ -37,8 +37,8 @@
 // vtkUnstructuredGridPartialPreIntegration
 //
 
-#ifndef __vtkUnstructuredGridLinearRayIntegrator_h
-#define __vtkUnstructuredGridLinearRayIntegrator_h
+#ifndef vtkUnstructuredGridLinearRayIntegrator_h
+#define vtkUnstructuredGridLinearRayIntegrator_h
 
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkUnstructuredGridVolumeRayIntegrator.h"
@@ -96,4 +96,4 @@ private:
   void operator=(const vtkUnstructuredGridLinearRayIntegrator&);  // Not implemented.
 };
 
-#endif //__vtkUnstructuredGridLinearRayIntegrator_h
+#endif //vtkUnstructuredGridLinearRayIntegrator_h

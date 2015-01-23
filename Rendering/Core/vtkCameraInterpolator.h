@@ -43,8 +43,8 @@
 // future as an alternative interpolation method for camera orientation.
 
 
-#ifndef __vtkCameraInterpolator_h
-#define __vtkCameraInterpolator_h
+#ifndef vtkCameraInterpolator_h
+#define vtkCameraInterpolator_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"

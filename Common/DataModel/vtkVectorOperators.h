@@ -13,12 +13,25 @@
 
 =========================================================================*/
 
-#ifndef __vtkVectorOperators_h
-#define __vtkVectorOperators_h
+#ifndef vtkVectorOperators_h
+#define vtkVectorOperators_h
 
 // This set of operators enhance the vtkVector classes, allowing various
 // operator overloads one might expect.
 #include "vtkVector.h"
+
+// Description:
+// Unary minus / negation of vector.
+template<typename A, int Size>
+vtkVector<A, Size> operator-(const vtkVector<A, Size>& v)
+{
+  vtkVector<A, Size> ret;
+  for (int i = 0; i < Size; ++i)
+    {
+    ret[i] = -v[i];
+    }
+  return ret;
+}
 
 // Description:
 // Performs addition of vectors of the same basic type.
@@ -92,6 +105,11 @@ vtkVector<A, Size> operator/(const vtkVector<A, Size>& v1,
 
 // Description:
 // Several macros to define the various operator overloads for the vectors.
+#define vtkVectorOperatorNegate(vectorType, type, size) \
+inline vectorType operator-(const vectorType& v) \
+{ \
+  return vectorType((-static_cast<vtkVector<type, size> >(v)).GetData()); \
+}
 #define vtkVectorOperatorPlus(vectorType, type, size) \
 inline vectorType operator+(const vectorType& v1, const vectorType& v2) \
 { \
@@ -130,6 +148,7 @@ inline vectorType operator/(const vectorType& v1, const vectorType& v2) \
 }
 
 #define vtkVectorOperatorMacro(vectorType, type, size) \
+vtkVectorOperatorNegate(vectorType, type, size) \
 vtkVectorOperatorPlus(vectorType, type, size) \
 vtkVectorOperatorMinus(vectorType, type, size) \
 vtkVectorOperatorMultiply(vectorType, type, size) \

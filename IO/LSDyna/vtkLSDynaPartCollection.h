@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 
-#ifndef __vtkLSDynaPartCollection_h
-#define __vtkLSDynaPartCollection_h
+#ifndef vtkLSDynaPartCollection_h
+#define vtkLSDynaPartCollection_h
 
 #include "vtkIOLSDynaModule.h" // For export macro
 #include "LSDynaMetaData.h" //needed for LSDynaMetaData::LSDYNA_TYPES enum

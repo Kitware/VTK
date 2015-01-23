@@ -62,8 +62,8 @@ POSSIBILITY OF SUCH DAMAGES.
 // Thanks to David Gobbi for writing this class and Atamai Inc. for
 // contributing it to VTK.
 
-#ifndef __vtkMINCImageAttributes_h
-#define __vtkMINCImageAttributes_h
+#ifndef vtkMINCImageAttributes_h
+#define vtkMINCImageAttributes_h
 
 #include "vtkIOMINCModule.h" // For export macro
 #include "vtkObject.h"
@@ -299,4 +299,4 @@ private:
 
 };
 
-#endif /* __vtkMINCImageAttributes_h */
+#endif /* vtkMINCImageAttributes_h */

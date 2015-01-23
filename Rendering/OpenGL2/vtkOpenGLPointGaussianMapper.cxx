@@ -69,8 +69,12 @@ protected:
   virtual void SetMapperShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
 
   // Description:
+  // Does the VBO/IBO need to be rebuilt
+  virtual bool GetNeedToRebuildBufferObjects(vtkRenderer *ren, vtkActor *act);
+
+  // Description:
   // Update the VBO to contain point based values
-  virtual void UpdateVBO(vtkRenderer *ren, vtkActor *act);
+  virtual void BuildBufferObjects(vtkRenderer *ren, vtkActor *act);
 
   virtual void RenderPieceDraw(vtkRenderer *ren, vtkActor *act);
 
@@ -148,7 +152,7 @@ void vtkOpenGLPointGaussianMapperHelper::SetCameraShaderParameters(vtkgl::CellBO
 void vtkOpenGLPointGaussianMapperHelper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
                                                          vtkRenderer *ren, vtkActor *actor)
 {
-  if (cellBO.indexCount && (this->OpenGLUpdateTime > cellBO.attributeUpdateTime ||
+  if (cellBO.indexCount && (this->VBOBuildTime > cellBO.attributeUpdateTime ||
       cellBO.ShaderSourceTime > cellBO.attributeUpdateTime))
     {
     vtkgl::VBOLayout &layout = this->Layout;
@@ -248,7 +252,20 @@ size_t vtkOpenGLPointGaussianMapperHelperCreateTriangleIndexBuffer(
 }
 
 //-------------------------------------------------------------------------
-void vtkOpenGLPointGaussianMapperHelper::UpdateVBO(vtkRenderer *vtkNotUsed(ren), vtkActor *act)
+bool vtkOpenGLPointGaussianMapperHelper::GetNeedToRebuildBufferObjects(vtkRenderer *vtkNotUsed(ren), vtkActor *act)
+{
+  // picking state does not require a rebuild, unlike our parent
+  if (this->VBOBuildTime < this->GetMTime() ||
+      this->VBOBuildTime < act->GetMTime() ||
+      this->VBOBuildTime < this->CurrentInput->GetMTime())
+    {
+    return true;
+    }
+  return false;
+}
+
+//-------------------------------------------------------------------------
+void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(vtkRenderer *vtkNotUsed(ren), vtkActor *act)
 {
   vtkPolyData *poly = this->CurrentInput;
 
@@ -276,7 +293,7 @@ void vtkOpenGLPointGaussianMapperHelper::UpdateVBO(vtkRenderer *vtkNotUsed(ren),
                 this->Owner->GetScaleArray())->GetVoidPointer(0)),
               this->VBO);
 
-  // create the IBO
+  // we use no IBO
   this->Points.indexCount = 0;
   this->Lines.indexCount = 0;
   this->TriStrips.indexCount = 0;

@@ -21,8 +21,8 @@
 // vtkRibbonFilter vtkRuledSurfaceFilter vtkInitialValueProblemSolver
 // vtkRungeKutta2 vtkRungeKutta4 vtkRungeKutta45 vtkStreamTracer
 
-#ifndef __vtkPTemporalStreamTracer_h
-#define __vtkPTemporalStreamTracer_h
+#ifndef vtkPTemporalStreamTracer_h
+#define vtkPTemporalStreamTracer_h
 
 #include "vtkFiltersParallelFlowPathsModule.h" // For export macro
 #include "vtkSmartPointer.h" // For protected ivars.

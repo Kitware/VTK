@@ -18,8 +18,8 @@
 // outline of a structured grid (vtkStructuredGrid). Structured data is
 // topologically a cube, so the outline will have 12 "edges".
 
-#ifndef __vtkStructuredGridOutlineFilter_h
-#define __vtkStructuredGridOutlineFilter_h
+#ifndef vtkStructuredGridOutlineFilter_h
+#define vtkStructuredGridOutlineFilter_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

@@ -26,8 +26,8 @@
 // a star, with each row of the table as a child of a new root node.
 // The columns of the table are passed as node fields of the tree.
 
-#ifndef __vtkTableToTreeFilter_h
-#define __vtkTableToTreeFilter_h
+#ifndef vtkTableToTreeFilter_h
+#define vtkTableToTreeFilter_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkTreeAlgorithm.h"

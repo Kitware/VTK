@@ -15,8 +15,8 @@
 // .NAME vtkDataObjectTreeInternals
 // .SECTION Description
 
-#ifndef __vtkDataObjectTreeInternals_h
-#define __vtkDataObjectTreeInternals_h
+#ifndef vtkDataObjectTreeInternals_h
+#define vtkDataObjectTreeInternals_h
 
 #include "vtkDataObject.h"
 #include "vtkInformation.h"

@@ -42,8 +42,8 @@
 // .SECTION See Also
 // vtkSliceCubes vtkMarchingCubes vtkImageReader
 
-#ifndef __vtkVolume16Reader_h
-#define __vtkVolume16Reader_h
+#ifndef vtkVolume16Reader_h
+#define vtkVolume16Reader_h
 
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkVolumeReader.h"

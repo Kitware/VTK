@@ -29,8 +29,8 @@
 // .SECTION See Also
 // vtkExtractArraysOverTime
 
-#ifndef __vtkPExtractArraysOverTime_h
-#define __vtkPExtractArraysOverTime_h
+#ifndef vtkPExtractArraysOverTime_h
+#define vtkPExtractArraysOverTime_h
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkExtractArraysOverTime.h"

@@ -24,8 +24,8 @@
 // .SECTION See Also
 // vtkTensorGlyph vtkGlyph3D vtkProgrammableGlyphFilter
 
-#ifndef __vtkGlyph2D_h
-#define __vtkGlyph2D_h
+#ifndef vtkGlyph2D_h
+#define vtkGlyph2D_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkGlyph3D.h"

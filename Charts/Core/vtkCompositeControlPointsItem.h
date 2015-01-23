@@ -24,8 +24,8 @@
 // vtkCompositeTransferFunctionItem
 // vtkPiecewisePointHandleItem
 
-#ifndef __vtkCompositeControlPointsItem_h
-#define __vtkCompositeControlPointsItem_h
+#ifndef vtkCompositeControlPointsItem_h
+#define vtkCompositeControlPointsItem_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkColorTransferControlPointsItem.h"

@@ -22,8 +22,8 @@
 // .SECTION See Also
 // vtkParallelopipedRepresentation
 
-#ifndef __vtkClosedSurfacePointPlacer_h
-#define __vtkClosedSurfacePointPlacer_h
+#ifndef vtkClosedSurfacePointPlacer_h
+#define vtkClosedSurfacePointPlacer_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPointPlacer.h"

@@ -40,8 +40,8 @@
 //
 
 
-#ifndef __vtkMatlabEngineInterface_h
-#define __vtkMatlabEngineInterface_h
+#ifndef vtkMatlabEngineInterface_h
+#define vtkMatlabEngineInterface_h
 
 #include "vtkFiltersMatlabModule.h"
 #include "vtkObject.h"

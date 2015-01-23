@@ -25,8 +25,8 @@
 // vtkInteractorStyleTrackballActor vtkInteractorStyleJoystickCamera
 // vtkInteractorStyleJoystickActor
 
-#ifndef __vtkInteractorStyleMultiTouchCamera_h
-#define __vtkInteractorStyleMultiTouchCamera_h
+#ifndef vtkInteractorStyleMultiTouchCamera_h
+#define vtkInteractorStyleMultiTouchCamera_h
 
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkRenderWindowInteractor.h" // for max pointers

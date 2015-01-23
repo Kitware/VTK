@@ -32,8 +32,8 @@
 // CEA/DIF - Commissariat a l'Energie Atomique, Centre DAM Ile-De-France <br>
 // BP12, F-91297 Arpajon, France. <br>
 
-#ifndef __vtkPolyDataSilhouette_h
-#define __vtkPolyDataSilhouette_h
+#ifndef vtkPolyDataSilhouette_h
+#define vtkPolyDataSilhouette_h
 
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

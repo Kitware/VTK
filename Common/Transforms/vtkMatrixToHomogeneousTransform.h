@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkPerspectiveTransform vtkMatrix4x4 vtkMatrixToLinearTransform
 
-#ifndef __vtkMatrixToHomogeneousTransform_h
-#define __vtkMatrixToHomogeneousTransform_h
+#ifndef vtkMatrixToHomogeneousTransform_h
+#define vtkMatrixToHomogeneousTransform_h
 
 #include "vtkCommonTransformsModule.h" // For export macro
 #include "vtkHomogeneousTransform.h"

@@ -48,8 +48,8 @@ PURPOSE.  See the above copyright notice for more information.
 // .SECTION See Also
 // vtkActor vtkVectorText vtkPolyDataMapper vtkAxisActor2D vtkCoordinate
 
-#ifndef __vtkAxisActor_h
-#define __vtkAxisActor_h
+#ifndef vtkAxisActor_h
+#define vtkAxisActor_h
 
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor.h"

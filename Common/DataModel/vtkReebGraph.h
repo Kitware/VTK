@@ -112,8 +112,8 @@
 // .SECTION Tests
 //      Graphics/Testing/Cxx/TestReebGraph.cxx
 
-#ifndef __vtkReebGraph_h
-#define __vtkReebGraph_h
+#ifndef vtkReebGraph_h
+#define vtkReebGraph_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include  "vtkMutableDirectedGraph.h"

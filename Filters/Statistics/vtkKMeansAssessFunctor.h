@@ -1,5 +1,5 @@
-#ifndef __vtkKMeansAssessFunctor_h
-#define __vtkKMeansAssessFunctor_h
+#ifndef vtkKMeansAssessFunctor_h
+#define vtkKMeansAssessFunctor_h
 
 class vtkKMeansAssessFunctor : public vtkStatisticsAlgorithm::AssessFunctor
 {
@@ -16,5 +16,5 @@ public:
   int GetNumberOfRuns() { return NumRuns; }
 };
 
-#endif // __vtkKMeansAssessFunctor_h
+#endif // vtkKMeansAssessFunctor_h
 // VTK-HeaderTest-Exclude: vtkKMeansAssessFunctor.h

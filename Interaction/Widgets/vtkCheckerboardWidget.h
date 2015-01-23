@@ -41,8 +41,8 @@
 // vtkImageCheckerboard vtkImageActor vtkSliderWidget vtkRectilinearWipeWidget
 
 
-#ifndef __vtkCheckerboardWidget_h
-#define __vtkCheckerboardWidget_h
+#ifndef vtkCheckerboardWidget_h
+#define vtkCheckerboardWidget_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"

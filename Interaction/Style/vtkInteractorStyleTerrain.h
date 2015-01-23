@@ -43,8 +43,8 @@
 // .SECTION See Also
 // vtkInteractorObserver vtkInteractorStyle vtk3DWidget
 
-#ifndef __vtkInteractorStyleTerrain_h
-#define __vtkInteractorStyleTerrain_h
+#ifndef vtkInteractorStyleTerrain_h
+#define vtkInteractorStyleTerrain_h
 
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyle.h"

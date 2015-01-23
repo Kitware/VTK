@@ -57,8 +57,8 @@
 // .SECTION See Also
 // vtkImageWriter vtkMetaImageReader
 
-#ifndef __vtkMetaImageWriter_h
-#define __vtkMetaImageWriter_h
+#ifndef vtkMetaImageWriter_h
+#define vtkMetaImageWriter_h
 
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageWriter.h"

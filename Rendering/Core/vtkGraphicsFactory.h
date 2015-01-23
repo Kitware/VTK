@@ -15,8 +15,8 @@
 // .NAME vtkGraphicsFactory -
 // .SECTION Description
 
-#ifndef __vtkGraphicsFactory_h
-#define __vtkGraphicsFactory_h
+#ifndef vtkGraphicsFactory_h
+#define vtkGraphicsFactory_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"

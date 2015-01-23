@@ -32,8 +32,8 @@
 // .SECTION See Also
 // vtkContextBufferId, vtkOpenGLContextBufferId
 
-#ifndef __vtkAbstractContextBufferId_h
-#define __vtkAbstractContextBufferId_h
+#ifndef vtkAbstractContextBufferId_h
+#define vtkAbstractContextBufferId_h
 
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkObject.h"
@@ -117,4 +117,4 @@ private:
   void operator=(const vtkAbstractContextBufferId &);   // Not implemented.
 };
 
-#endif // #ifndef __vtkAbstractContextBufferId_h
+#endif // #ifndef vtkAbstractContextBufferId_h

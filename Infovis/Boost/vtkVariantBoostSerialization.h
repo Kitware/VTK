@@ -27,8 +27,8 @@
 // library. Just including the header suffices to get serialization
 // support; no other action is needed.
 
-#ifndef __vtkVariantBoostSerialization_h
-#define __vtkVariantBoostSerialization_h
+#ifndef vtkVariantBoostSerialization_h
+#define vtkVariantBoostSerialization_h
 
 #include "vtkSetGet.h"
 #include "vtkType.h"

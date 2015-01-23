@@ -25,8 +25,8 @@
 // .SECTION see also
 // vtkAbstractVolumeMapper vtkVolumeProperty vtkProp3D
 
-#ifndef __vtkVolume_h
-#define __vtkVolume_h
+#ifndef vtkVolume_h
+#define vtkVolume_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkProp3D.h"

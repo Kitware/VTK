@@ -22,8 +22,8 @@
 // An edge selection perserves the vertices that are adjacent to at least one
 // selected edges.
 
-#ifndef __vtkExtractSelectedTree_h
-#define __vtkExtractSelectedTree_h
+#ifndef vtkExtractSelectedTree_h
+#define vtkExtractSelectedTree_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkTreeAlgorithm.h"

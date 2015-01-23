@@ -25,8 +25,8 @@
 // .SECTION See Also
 // vtkImageReader2
 
-#ifndef __vtkSortFileNames_h
-#define __vtkSortFileNames_h
+#ifndef vtkSortFileNames_h
+#define vtkSortFileNames_h
 
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkObject.h"

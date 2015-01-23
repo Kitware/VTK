@@ -22,8 +22,8 @@
 // .SECTION Description
 // Assigns points to the vertices around a circle with unit radius.
 
-#ifndef __vtkCircularLayoutStrategy_h
-#define __vtkCircularLayoutStrategy_h
+#ifndef vtkCircularLayoutStrategy_h
+#define vtkCircularLayoutStrategy_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"

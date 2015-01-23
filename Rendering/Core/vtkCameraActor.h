@@ -20,8 +20,8 @@
 // .SECTION See Also
 // vtkLight vtkConeSource vtkFrustumSource vtkCameraActor
 
-#ifndef __vtkCameraActor_h
-#define __vtkCameraActor_h
+#ifndef vtkCameraActor_h
+#define vtkCameraActor_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkProp3D.h"

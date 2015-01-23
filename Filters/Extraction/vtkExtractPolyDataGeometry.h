@@ -37,8 +37,8 @@
 // .SECTION See Also
 // vtkExtractGeometry vtkClipPolyData
 
-#ifndef __vtkExtractPolyDataGeometry_h
-#define __vtkExtractPolyDataGeometry_h
+#ifndef vtkExtractPolyDataGeometry_h
+#define vtkExtractPolyDataGeometry_h
 
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

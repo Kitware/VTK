@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkCompositeTransferFunctionItem_h
-#define __vtkCompositeTransferFunctionItem_h
+#ifndef vtkCompositeTransferFunctionItem_h
+#define vtkCompositeTransferFunctionItem_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkColorTransferFunctionItem.h"

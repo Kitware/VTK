@@ -53,8 +53,8 @@
 // .SECTION See Also
 //  vtkIncrementalOctreePointLocator
 
-#ifndef __vtkIncrementalOctreeNode_h
-#define __vtkIncrementalOctreeNode_h
+#ifndef vtkIncrementalOctreeNode_h
+#define vtkIncrementalOctreeNode_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

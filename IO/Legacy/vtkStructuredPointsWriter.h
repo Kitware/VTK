@@ -19,8 +19,8 @@
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.
 
-#ifndef __vtkStructuredPointsWriter_h
-#define __vtkStructuredPointsWriter_h
+#ifndef vtkStructuredPointsWriter_h
+#define vtkStructuredPointsWriter_h
 
 #include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataWriter.h"

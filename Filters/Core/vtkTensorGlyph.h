@@ -73,8 +73,8 @@
 // .SECTION See Also
 // vtkGlyph3D vtkPointLoad vtkHyperStreamline
 
-#ifndef __vtkTensorGlyph_h
-#define __vtkTensorGlyph_h
+#ifndef vtkTensorGlyph_h
+#define vtkTensorGlyph_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

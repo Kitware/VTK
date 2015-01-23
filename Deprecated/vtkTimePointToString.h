@@ -32,8 +32,8 @@
 // If the new array name is not specified, the array name will be
 // the old name appended by " [to string]".
 
-#ifndef __vtkTimePointToString_h
-#define __vtkTimePointToString_h
+#ifndef vtkTimePointToString_h
+#define vtkTimePointToString_h
 
 #include "vtkDataObjectAlgorithm.h"
 

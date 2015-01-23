@@ -31,8 +31,8 @@
 //
 // @deprecated Not maintained as of VTK 6.2 and will be removed eventually.
 
-#ifndef __vtkPBGLShortestPaths_h
-#define __vtkPBGLShortestPaths_h
+#ifndef vtkPBGLShortestPaths_h
+#define vtkPBGLShortestPaths_h
 
 #include "vtkInfovisParallelModule.h" // For export macro
 #include "vtkStdString.h" // For string type

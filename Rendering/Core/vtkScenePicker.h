@@ -37,8 +37,8 @@
 // .SECTION See Also
 // vtkHoverWidget vtkHardwareSelector
 
-#ifndef __vtkScenePicker_h
-#define __vtkScenePicker_h
+#ifndef vtkScenePicker_h
+#define vtkScenePicker_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"

@@ -27,8 +27,8 @@
 // coordinates. To do this the filter requires a pointer to the renderer
 // into which the glyphs will be rendered.
 
-#ifndef __vtkGraphToGlyphs_h
-#define __vtkGraphToGlyphs_h
+#ifndef vtkGraphToGlyphs_h
+#define vtkGraphToGlyphs_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

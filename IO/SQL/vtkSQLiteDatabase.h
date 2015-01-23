@@ -40,8 +40,8 @@
 // .SECTION See Also
 // vtkSQLiteQuery
 
-#ifndef __vtkSQLiteDatabase_h
-#define __vtkSQLiteDatabase_h
+#ifndef vtkSQLiteDatabase_h
+#define vtkSQLiteDatabase_h
 
 #include "vtkIOSQLModule.h" // For export macro
 #include "vtkSQLDatabase.h"
@@ -164,5 +164,5 @@ private:
   void operator=(const vtkSQLiteDatabase &); // Not implemented.
 };
 
-#endif // __vtkSQLiteDatabase_h
+#endif // vtkSQLiteDatabase_h
 

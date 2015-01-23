@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtkWindows_h
-#define __vtkWindows_h
+#ifndef vtkWindows_h
+#define vtkWindows_h
 
 /* This header is useless when not on windows or when the windows
    header has already been included at the top of VTK.  Block the

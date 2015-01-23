@@ -24,8 +24,8 @@
 // vtkDataSetAttributes vtkDataArray vtkRearrangeFields
 // vtkSplitField vtkMergeFields vtkAssignAttribute
 
-#ifndef __vtkMaskFields_h
-#define __vtkMaskFields_h
+#ifndef vtkMaskFields_h
+#define vtkMaskFields_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

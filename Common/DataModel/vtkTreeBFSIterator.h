@@ -25,8 +25,8 @@
 // .SECTION Thanks
 // Thanks to David Doria for submitting this class.
 
-#ifndef __vtkTreeBFSIterator_h
-#define __vtkTreeBFSIterator_h
+#ifndef vtkTreeBFSIterator_h
+#define vtkTreeBFSIterator_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkTreeIterator.h"

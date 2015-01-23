@@ -28,8 +28,8 @@
 // .SECTION See Also
 //  vtkIncrementalPointLocator vtkPointLocator vtkMergePoints
 
-#ifndef __vtkNonMergingPointLocator_h
-#define __vtkNonMergingPointLocator_h
+#ifndef vtkNonMergingPointLocator_h
+#define vtkNonMergingPointLocator_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkPointLocator.h"

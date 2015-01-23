@@ -24,8 +24,8 @@
 // not intended to be part of VTK public API
 // VTK-HeaderTest-Exclude: vtkXdmf3DataSet.h
 
-#ifndef __vtkXdmf3DataSet_h
-#define __vtkXdmf3DataSet_h
+#ifndef vtkXdmf3DataSet_h
+#define vtkXdmf3DataSet_h
 
 #include "vtkIOXdmf3Module.h" // For export macro
 #include "XdmfSharedPtr.hpp"

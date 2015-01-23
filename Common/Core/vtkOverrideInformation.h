@@ -18,8 +18,8 @@
 // a class which is overriden in a vtkObjectFactory.
 //
 
-#ifndef __vtkOverrideInformation_h
-#define __vtkOverrideInformation_h
+#ifndef vtkOverrideInformation_h
+#define vtkOverrideInformation_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"

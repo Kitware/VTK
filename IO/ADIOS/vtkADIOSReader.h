@@ -16,8 +16,8 @@
 // .SECTION Description
 // vtkADIOSReader is the base class for all ADIOS readers
 
-#ifndef __vtkADIOSReader_h
-#define __vtkADIOSReader_h
+#ifndef vtkADIOSReader_h
+#define vtkADIOSReader_h
 
 #include <map>    // For independently time stepped array indexing
 #include <queue>  // For post read operations

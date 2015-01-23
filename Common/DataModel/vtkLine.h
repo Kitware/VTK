@@ -16,8 +16,8 @@
 // .SECTION Description
 // vtkLine is a concrete implementation of vtkCell to represent a 1D line.
 
-#ifndef __vtkLine_h
-#define __vtkLine_h
+#ifndef vtkLine_h
+#define vtkLine_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell.h"

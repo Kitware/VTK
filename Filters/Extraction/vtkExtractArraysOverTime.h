@@ -30,8 +30,8 @@
 // This algorithm works only with source that produce TIME_STEPS().
 // Continuous time range is not yet supported.
 
-#ifndef __vtkExtractArraysOverTime_h
-#define __vtkExtractArraysOverTime_h
+#ifndef vtkExtractArraysOverTime_h
+#define vtkExtractArraysOverTime_h
 
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"

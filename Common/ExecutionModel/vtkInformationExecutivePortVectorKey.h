@@ -18,8 +18,8 @@
 // vtkInformation for values that are vectors of vtkExecutive
 // instances paired with port numbers.
 
-#ifndef __vtkInformationExecutivePortVectorKey_h
-#define __vtkInformationExecutivePortVectorKey_h
+#ifndef vtkInformationExecutivePortVectorKey_h
+#define vtkInformationExecutivePortVectorKey_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkInformationKey.h"

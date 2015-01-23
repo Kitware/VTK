@@ -22,8 +22,8 @@
 // .SECTION See Also
 // vtkCoordinate vtkTransformFilter vtkTransformPolyData vtkPolyDataMapper2D
 
-#ifndef __vtkTransformCoordinateSystems_h
-#define __vtkTransformCoordinateSystems_h
+#ifndef vtkTransformCoordinateSystems_h
+#define vtkTransformCoordinateSystems_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"

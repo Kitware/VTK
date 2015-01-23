@@ -23,8 +23,8 @@
 // .SECTION see also
 // vtkRenderWindowInteractor vtkXRenderWindowInteractor vtkXRenderWindow
 
-#ifndef __vtkXRenderWindowTclInteractor_h
-#define __vtkXRenderWindowTclInteractor_h
+#ifndef vtkXRenderWindowTclInteractor_h
+#define vtkXRenderWindowTclInteractor_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkXRenderWindowInteractor.h"

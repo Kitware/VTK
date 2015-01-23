@@ -54,8 +54,8 @@
 // vtkMeanValueCoordinatesInterpolator vtkProbePolyhedron vtkPolyhedron
 
 
-#ifndef __vtkDeformPointSet_h
-#define __vtkDeformPointSet_h
+#ifndef vtkDeformPointSet_h
+#define vtkDeformPointSet_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"

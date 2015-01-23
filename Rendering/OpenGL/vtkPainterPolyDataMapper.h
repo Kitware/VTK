@@ -19,8 +19,8 @@
 // Support for generic vertex attributes in VTK was contributed in
 // collaboration with Stephane Ploix at EDF.
 
-#ifndef __vtkPainterPolyDataMapper_h
-#define __vtkPainterPolyDataMapper_h
+#ifndef vtkPainterPolyDataMapper_h
+#define vtkPainterPolyDataMapper_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkPolyDataMapper.h"

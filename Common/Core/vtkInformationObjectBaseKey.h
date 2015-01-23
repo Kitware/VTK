@@ -17,8 +17,8 @@
 // vtkInformationObjectBaseKey is used to represent keys in
 // vtkInformation for values that are vtkObjectBase instances.
 
-#ifndef __vtkInformationObjectBaseKey_h
-#define __vtkInformationObjectBaseKey_h
+#ifndef vtkInformationObjectBaseKey_h
+#define vtkInformationObjectBaseKey_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkInformationKey.h"

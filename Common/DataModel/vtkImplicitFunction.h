@@ -44,8 +44,8 @@
 // vtkPlanes vtkQuadric vtkImplicitVolume vtkSampleFunction vtkCutter
 // vtkClipPolyData
 
-#ifndef __vtkImplicitFunction_h
-#define __vtkImplicitFunction_h
+#ifndef vtkImplicitFunction_h
+#define vtkImplicitFunction_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

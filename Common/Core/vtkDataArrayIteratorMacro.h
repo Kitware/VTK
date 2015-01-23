@@ -73,8 +73,8 @@
 // .SECTION See Also
 // vtkTemplateMacro vtkTypedDataArrayIterator
 
-#ifndef __vtkDataArrayIteratorMacro_h
-#define __vtkDataArrayIteratorMacro_h
+#ifndef vtkDataArrayIteratorMacro_h
+#define vtkDataArrayIteratorMacro_h
 
 #include "vtkDataArrayTemplate.h" // For all classes referred to in the macro
 #include "vtkSetGet.h" // For vtkTemplateMacro
@@ -131,6 +131,6 @@
       }                                                                    \
     )
 
-#endif //__vtkDataArrayIteratorMacro_h
+#endif //vtkDataArrayIteratorMacro_h
 
 // VTK-HeaderTest-Exclude: vtkDataArrayIteratorMacro.h

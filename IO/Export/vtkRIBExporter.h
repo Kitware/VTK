@@ -44,8 +44,8 @@
 // vtkExporter vtkRIBProperty
 
 
-#ifndef __vtkRIBExporter_h
-#define __vtkRIBExporter_h
+#ifndef vtkRIBExporter_h
+#define vtkRIBExporter_h
 
 #include "vtkIOExportModule.h" // For export macro
 #include "vtkExporter.h"

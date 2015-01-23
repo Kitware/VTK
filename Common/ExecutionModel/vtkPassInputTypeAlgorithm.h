@@ -29,8 +29,8 @@
 // same type as the input.
 
 
-#ifndef __vtkPassInputTypeAlgorithm_h
-#define __vtkPassInputTypeAlgorithm_h
+#ifndef vtkPassInputTypeAlgorithm_h
+#define vtkPassInputTypeAlgorithm_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"

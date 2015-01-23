@@ -22,8 +22,8 @@
 // data referenced by the instance on a particular input or output
 // define the request made to the vtkAlgorithm instance.
 
-#ifndef __vtkInformation_h
-#define __vtkInformation_h
+#ifndef vtkInformation_h
+#define vtkInformation_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"

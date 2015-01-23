@@ -24,8 +24,8 @@
 // Andrew Maclean andrew.amaclean@gmail.com for creating and contributing the
 // class.
 //
-#ifndef __vtkParametricTorus_h
-#define __vtkParametricTorus_h
+#ifndef vtkParametricTorus_h
+#define vtkParametricTorus_h
 
 #include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkParametricFunction.h"

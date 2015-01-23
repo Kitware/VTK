@@ -24,8 +24,8 @@
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
-#ifndef __vtkTransposeMatrix_h
-#define __vtkTransposeMatrix_h
+#ifndef vtkTransposeMatrix_h
+#define vtkTransposeMatrix_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkArrayDataAlgorithm.h"

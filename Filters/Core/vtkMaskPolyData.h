@@ -21,8 +21,8 @@
 // .SECTION See Also
 // vtkMaskPoints
 
-#ifndef __vtkMaskPolyData_h
-#define __vtkMaskPolyData_h
+#ifndef vtkMaskPolyData_h
+#define vtkMaskPolyData_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

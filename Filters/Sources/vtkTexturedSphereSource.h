@@ -20,8 +20,8 @@
 // It also is possible to create partial sphere by specifying maximum phi and
 // theta angles.
 
-#ifndef __vtkTexturedSphereSource_h
-#define __vtkTexturedSphereSource_h
+#ifndef vtkTexturedSphereSource_h
+#define vtkTexturedSphereSource_h
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

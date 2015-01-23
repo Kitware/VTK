@@ -26,8 +26,8 @@
 // sets the size in screen pixels that you would want a rendered rectangle
 // at that point to be, if it was scaled by the output array.
 
-#ifndef __vtkDistanceToCamera_h
-#define __vtkDistanceToCamera_h
+#ifndef vtkDistanceToCamera_h
+#define vtkDistanceToCamera_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

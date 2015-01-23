@@ -683,7 +683,7 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
   // Now to update the VAO too, if necessary.
   vtkgl::VBOLayout &layout = this->Layout;
 
-  if (cellBO.indexCount && (this->OpenGLUpdateTime > cellBO.attributeUpdateTime ||
+  if (cellBO.indexCount && (this->VBOBuildTime > cellBO.attributeUpdateTime ||
       cellBO.ShaderSourceTime > cellBO.attributeUpdateTime))
     {
     cellBO.vao.Bind();
@@ -1049,16 +1049,8 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
   this->TimeToDraw = 0.0;
   this->pickingAttributeIDOffset = 0;
 
-  bool picking = (ren->GetIsPicking() || selector != NULL);
-  // Update the OpenGL if needed.
-  if (this->OpenGLUpdateTime < this->GetMTime() ||
-      this->OpenGLUpdateTime < actor->GetMTime() ||
-      this->OpenGLUpdateTime < this->CurrentInput->GetMTime() ||
-      this->LastSelectionState || picking)
-    {
-    this->UpdateVBO(ren, actor);
-    this->OpenGLUpdateTime.Modified();
-    }
+  // make sure the BOs are up to date
+  this->UpdateBufferObjects(ren, actor);
 
   // If we are coloring by texture, then load the texture map.
   // Use Map as indicator, because texture hangs around.
@@ -1352,7 +1344,39 @@ void vtkOpenGLPolyDataMapper::ComputeBounds()
 }
 
 //-------------------------------------------------------------------------
-void vtkOpenGLPolyDataMapper::UpdateVBO(vtkRenderer *ren, vtkActor *act)
+void vtkOpenGLPolyDataMapper::UpdateBufferObjects(vtkRenderer *ren, vtkActor *act)
+{
+  if (this->GetNeedToRebuildBufferObjects(ren,act))
+    {
+    this->BuildBufferObjects(ren,act);
+    this->VBOBuildTime.Modified();
+    }
+}
+
+//-------------------------------------------------------------------------
+bool vtkOpenGLPolyDataMapper::GetNeedToRebuildBufferObjects(vtkRenderer *ren, vtkActor *act)
+{
+  if (this->VBOBuildTime < this->GetMTime() ||
+      this->VBOBuildTime < act->GetMTime() ||
+      this->VBOBuildTime < this->CurrentInput->GetMTime())
+    {
+    return true;
+    }
+  else
+    {
+    vtkHardwareSelector* selector = ren->GetSelector();
+    bool picking = (ren->GetIsPicking() || selector != NULL);
+    if ((this->LastSelectionState || picking) && selector &&
+          selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+      {
+      return true;
+      }
+    }
+  return false;
+}
+
+//-------------------------------------------------------------------------
+void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act)
 {
   vtkPolyData *poly = this->CurrentInput;
 
@@ -1438,8 +1462,7 @@ void vtkOpenGLPolyDataMapper::UpdateVBO(vtkRenderer *ren, vtkActor *act)
       }
     }
 
-  // Iterate through all of the different types in the polydata, building OpenGLs
-  // and IBOs as appropriate for each type.
+  // Build the VBO
   this->Layout =
     CreateVBO(poly->GetPoints(),
               cellPointMap.size() > 0 ? (unsigned int)cellPointMap.size() : poly->GetPoints()->GetNumberOfPoints(),
@@ -1451,7 +1474,7 @@ void vtkOpenGLPolyDataMapper::UpdateVBO(vtkRenderer *ren, vtkActor *act)
               pointCellMap.size() > 0 ? &pointCellMap.front() : NULL,
               cellScalars, cellNormals);
 
-  // create the IBOs
+  // now create the IBOs
   this->Points.indexCount = CreatePointIndexBuffer(prims[0],
                                                    this->Points.ibo);
 

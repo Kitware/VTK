@@ -31,8 +31,8 @@
 // .SECTION See Also
 // vtkDividingCubes vtkContourFilter vtkMarchingCubes
 
-#ifndef __vtkRecursiveDividingCubes_h
-#define __vtkRecursiveDividingCubes_h
+#ifndef vtkRecursiveDividingCubes_h
+#define vtkRecursiveDividingCubes_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

@@ -19,8 +19,8 @@
 // output, but defaults to the same type.
 
 
-#ifndef __vtkImageThreshold_h
-#define __vtkImageThreshold_h
+#ifndef vtkImageThreshold_h
+#define vtkImageThreshold_h
 
 
 #include "vtkImagingCoreModule.h" // For export macro

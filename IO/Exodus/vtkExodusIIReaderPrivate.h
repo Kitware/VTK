@@ -1,5 +1,5 @@
-#ifndef __vtkExodusIIReaderPrivate_h
-#define __vtkExodusIIReaderPrivate_h
+#ifndef vtkExodusIIReaderPrivate_h
+#define vtkExodusIIReaderPrivate_h
 
 // Do not include this file directly. It is only for use
 // from inside the ExodusII reader and its descendants.
@@ -825,5 +825,5 @@ private:
   void operator = ( const vtkExodusIIReaderPrivate& ); // Not implemented.
 };
 
-#endif // __vtkExodusIIReaderPrivate_h
+#endif // vtkExodusIIReaderPrivate_h
 // VTK-HeaderTest-Exclude: vtkExodusIIReaderPrivate.h

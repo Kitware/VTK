@@ -18,8 +18,8 @@
 // vtkPistonMapper uses this class to interface vtkScalarsToColors to GPU
 // side code that implements color mapping.
 
-#ifndef __vtkPistonScalarsColors_h
-#define __vtkPistonScalarsColors_h
+#ifndef vtkPistonScalarsColors_h
+#define vtkPistonScalarsColors_h
 
 #include "vtkAcceleratorsPistonModule.h" // For export macro
 #include "vtkObject.h"
@@ -101,4 +101,4 @@ private:
   void operator=(const vtkPistonScalarsColors&);  // Not implemented.
 };
 
-#endif // __vtkPistonScalarsColors_h
+#endif // vtkPistonScalarsColors_h

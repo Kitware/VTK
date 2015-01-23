@@ -25,8 +25,8 @@
 // on and off independently.
 //
 
-#ifndef __vtkCursor2D_h
-#define __vtkCursor2D_h
+#ifndef vtkCursor2D_h
+#define vtkCursor2D_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

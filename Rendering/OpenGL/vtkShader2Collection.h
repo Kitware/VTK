@@ -21,8 +21,8 @@
 // .SECTION see also
 // vtkShader2 vtkCollection
 
-#ifndef __vtkShader2Collection_h
-#define __vtkShader2Collection_h
+#ifndef vtkShader2Collection_h
+#define vtkShader2Collection_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkCollection.h"

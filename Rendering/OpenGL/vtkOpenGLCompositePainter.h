@@ -15,8 +15,8 @@
 // .NAME vtkOpenGLCompositePainter - composite painter for OpenGL.
 // .SECTION Description
 
-#ifndef __vtkOpenGLCompositePainter_h
-#define __vtkOpenGLCompositePainter_h
+#ifndef vtkOpenGLCompositePainter_h
+#define vtkOpenGLCompositePainter_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkCompositePainter.h"

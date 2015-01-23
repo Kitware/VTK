@@ -33,8 +33,8 @@
 // .SECTION See Also
 // vtkAxesActor vtkOrientationMarkerWidget vtkVectorText
 
-#ifndef __vtkAnnotatedCubeActor_h
-#define __vtkAnnotatedCubeActor_h
+#ifndef vtkAnnotatedCubeActor_h
+#define vtkAnnotatedCubeActor_h
 
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkProp3D.h"

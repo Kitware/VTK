@@ -21,8 +21,8 @@
 // .SECTION see also
 // vtkMapper vtkCollection
 
-#ifndef __vtkMapperCollection_h
-#define __vtkMapperCollection_h
+#ifndef vtkMapperCollection_h
+#define vtkMapperCollection_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkCollection.h"

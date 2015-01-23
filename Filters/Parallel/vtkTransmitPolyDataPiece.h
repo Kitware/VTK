@@ -21,8 +21,8 @@
 // the distributed to others using the multiprocess controller.
 
 
-#ifndef __vtkTransmitPolyDataPiece_h
-#define __vtkTransmitPolyDataPiece_h
+#ifndef vtkTransmitPolyDataPiece_h
+#define vtkTransmitPolyDataPiece_h
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

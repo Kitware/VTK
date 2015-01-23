@@ -27,8 +27,8 @@
 //   }
 // </pre>
 
-#ifndef __vtkGenericCellIterator_h
-#define __vtkGenericCellIterator_h
+#ifndef vtkGenericCellIterator_h
+#define vtkGenericCellIterator_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

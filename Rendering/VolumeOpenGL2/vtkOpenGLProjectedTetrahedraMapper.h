@@ -30,8 +30,8 @@
 // cause this mapper to produce artifacts.
 //
 
-#ifndef __vtkOpenGLProjectedTetrahedraMapper_h
-#define __vtkOpenGLProjectedTetrahedraMapper_h
+#ifndef vtkOpenGLProjectedTetrahedraMapper_h
+#define vtkOpenGLProjectedTetrahedraMapper_h
 
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 #include "vtkProjectedTetrahedraMapper.h"

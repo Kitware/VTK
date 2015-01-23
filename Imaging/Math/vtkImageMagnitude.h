@@ -17,8 +17,8 @@
 // vtkImageMagnitude takes the magnitude of the components.
 
 
-#ifndef __vtkImageMagnitude_h
-#define __vtkImageMagnitude_h
+#ifndef vtkImageMagnitude_h
+#define vtkImageMagnitude_h
 
 
 #include "vtkImagingMathModule.h" // For export macro

@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtkX3D_h
-#define __vtkX3D_h
+#ifndef vtkX3D_h
+#define vtkX3D_h
 
 extern const char* x3dElementString[];
 extern const char* x3dAttributeString[];

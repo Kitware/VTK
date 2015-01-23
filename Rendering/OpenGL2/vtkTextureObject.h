@@ -17,8 +17,8 @@
 // vtkTextureObject represents an OpenGL texture object. It provides API to
 // create textures using data already loaded into pixel buffer objects. It can
 // also be used to create textures without uploading any data.
-#ifndef __vtkTextureObject_h
-#define __vtkTextureObject_h
+#ifndef vtkTextureObject_h
+#define vtkTextureObject_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkObject.h"
@@ -99,6 +99,26 @@ public:
     NumberOfDepthFormats
   };
 
+  // Internal alpha format
+  enum
+  {
+    alpha=0,
+    alpha4,
+    alpha8,
+    alpha12,
+    alpha16,
+    NumberOfAlphaFormats
+  };
+
+  // Depth mode formats
+  enum
+  {
+    DepthAlpha=0,
+    DepthLuminance,
+    DepthIntensity,
+    NumberOfDepthModeFormats
+  };
+
   static vtkTextureObject* New();
   vtkTypeMacro(vtkTextureObject, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -106,7 +126,10 @@ public:
   // Description:
   // Get/Set the context. This does not increase the reference count of the
   // context to avoid reference loops.
-  // SetContext() may raise an error is the OpenGL context does not support the
+  //
+  // {
+  // this->TextureObject = vtkTextureObject::New();
+  // }SetContext() may raise an error is the OpenGL context does not support the
   // required OpenGL extensions.
   void SetContext(vtkOpenGLRenderWindow*);
   vtkOpenGLRenderWindow* GetContext();
@@ -169,16 +192,36 @@ public:
   vtkGetMacro(AutoParameters, int);
 
   // Description:
+  // Create 1D texture from client memory
+  bool Create1DFromRaw(unsigned int width, int numComps,
+                       int dataType, void *data);
+
+  // Description:
   // Create a 2D texture from client memory
   // numComps must be in [1-4].
   bool Create2DFromRaw(unsigned int width, unsigned int height,
                        int numComps,  int dataType, void *data);
 
   // Description:
+  // Create a 3D texture from client memory
+  // numComps must be in [1-4].
+  bool Create3DFromRaw(unsigned int width, unsigned int height,
+                       unsigned int depth, int numComps,
+                       int dataType, void *data);
+
+  // Description:
   // Create a 2D depth texture using a raw pointer.
   // This is a blocking call. If you can, use PBO instead.
   bool CreateDepthFromRaw(unsigned int width, unsigned int height,
                           int internalFormat, int rawType,
+                          void *raw);
+
+  // Description:
+  // Create a 1D alpha texture using a raw pointer.
+  // This is a blocking call. If you can, use PBO instead.
+  bool CreateAlphaFromRaw(unsigned int width,
+                          int internalFormat,
+                          int rawType,
                           void *raw);
 
 // PBO's are not supported in ES 2.0
@@ -258,20 +301,46 @@ public:
   // Description:
   // Create texture without uploading any data.
   bool Create2D(unsigned int width, unsigned int height, int numComps,
-                int vtktype,
-                bool shaderSupportsTextureInt);
+                int vtktype, bool shaderSupportsTextureInt);
   bool Create3D(unsigned int width, unsigned int height, unsigned int depth,
-                int numComps, int vtktype,
-                bool shaderSupportsTextureInt);
+                int numComps, int vtktype, bool shaderSupportsTextureInt);
 
   // Description:
-  // Get the data type for the texture as a vtk type int i.e. VTK_INT etc.
-  int GetDataType();
+  // Get the data type for the texture as GLenum type.
+  int GetDataType(int vtk_scalar_type);
+  void SetDataType(unsigned int glType);
 
+  // Description:
+  // Get/Set internal format (OpenGL internal format) that should
+  // be used.
+  // (https://www.opengl.org/sdk/docs/man2/xhtml/glTexImage2D.xml)
   unsigned int GetInternalFormat(int vtktype, int numComps,
                                  bool shaderSupportsTextureInt);
+  void SetInternalFormat(unsigned int glInternalFormat);
+
+  // Description:
+  // Get/Set format (OpenGL internal format) that should
+  // be used.
+  // (https://www.opengl.org/sdk/docs/man2/xhtml/glTexImage2D.xml)
   unsigned int GetFormat(int vtktype, int numComps,
                          bool shaderSupportsTextureInt);
+  void SetFormat(unsigned int glFormat);
+
+  // Description:
+  // Reset format, internal format, and type of the texture.
+  //
+  // This method is useful when a texture is reused in a
+  // context same as the previous render call. In such
+  // cases, texture destruction does not happen and therefore
+  // previous set values are used.
+  void ResetFormatAndType();
+
+  unsigned int GetDepthTextureModeFormat(int vtktype);
+  unsigned int GetMinificationFilterMode(int vtktype);
+  unsigned int GetMagnificationFilterMode(int vtktype);
+  unsigned int GetWrapSMode(int vtktype);
+  unsigned int GetWrapTMode(int vtktype);
+  unsigned int GetWrapRMode(int vtktype);
 
   // Description:
   // Optional, require support for floating point depth buffer
@@ -530,6 +599,7 @@ protected:
 
   unsigned int Target; // GLenum
   unsigned int Format; // GLenum
+  unsigned int InternalFormat; // GLenum
   unsigned int Type; // GLenum
   int Components;
 

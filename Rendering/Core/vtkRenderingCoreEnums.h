@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkRenderingCoreEnums_h
-#define __vtkRenderingCoreEnums_h
+#ifndef vtkRenderingCoreEnums_h
+#define vtkRenderingCoreEnums_h
 
 // Marker shapes for plotting
 enum
@@ -29,5 +29,5 @@ enum
   VTK_MARKER_UNKNOWN  // Must be last.
 };
 
-#endif // __vtkRenderingCoreEnums_h
+#endif // vtkRenderingCoreEnums_h
 // VTK-HeaderTest-Exclude: vtkRenderingCoreEnums.h

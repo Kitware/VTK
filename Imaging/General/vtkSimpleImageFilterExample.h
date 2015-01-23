@@ -20,8 +20,8 @@
 // .SECTION See also
 // vtkSimpleImageToImageFilter
 
-#ifndef __vtkSimpleImageFilterExample_h
-#define __vtkSimpleImageFilterExample_h
+#ifndef vtkSimpleImageFilterExample_h
+#define vtkSimpleImageFilterExample_h
 
 #include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkSimpleImageToImageFilter.h"

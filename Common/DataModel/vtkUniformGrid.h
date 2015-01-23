@@ -17,8 +17,8 @@
 // vtkUniformGrid is a subclass of vtkImageData. In addition to all
 // the image data functionality, it supports blanking.
 
-#ifndef __vtkUniformGrid_h
-#define __vtkUniformGrid_h
+#ifndef vtkUniformGrid_h
+#define vtkUniformGrid_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImageData.h"

@@ -29,8 +29,8 @@
 // http://hdl.handle.net/10380/3262
 // http://www.midasjournal.org/browse/publication/797
 
-#ifndef __vtkBooleanOperationPolyDataFilter_h
-#define __vtkBooleanOperationPolyDataFilter_h
+#ifndef vtkBooleanOperationPolyDataFilter_h
+#define vtkBooleanOperationPolyDataFilter_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

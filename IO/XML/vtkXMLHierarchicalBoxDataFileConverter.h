@@ -19,8 +19,8 @@
 // v1.0 of the VTK XML hierarchical file format to the v1.1. Users can then use
 // vtkXMLUniformGridAMRReader to read the dataset into VTK.
 
-#ifndef __vtkXMLHierarchicalBoxDataFileConverter_h
-#define __vtkXMLHierarchicalBoxDataFileConverter_h
+#ifndef vtkXMLHierarchicalBoxDataFileConverter_h
+#define vtkXMLHierarchicalBoxDataFileConverter_h
 
 #include "vtkObject.h"
 #include "vtkIOXMLModule.h" // needed for export macro.

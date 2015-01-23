@@ -21,8 +21,8 @@
 // .SECTION see also
 // vtkCollection vtkVolume
 
-#ifndef __vtkVolumeCollection_h
-#define __vtkVolumeCollection_h
+#ifndef vtkVolumeCollection_h
+#define vtkVolumeCollection_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPropCollection.h"

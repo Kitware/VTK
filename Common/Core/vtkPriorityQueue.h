@@ -32,8 +32,8 @@
 // array. This avoids the overhead associated with parent/child pointers,
 // and frequent memory allocation and deallocation.
 
-#ifndef __vtkPriorityQueue_h
-#define __vtkPriorityQueue_h
+#ifndef vtkPriorityQueue_h
+#define vtkPriorityQueue_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"

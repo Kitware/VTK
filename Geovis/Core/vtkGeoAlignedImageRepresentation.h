@@ -25,8 +25,8 @@
 // for fetching new data. This class keeps the fetched data in a quad-tree
 // structure organized by latitude and longitude.
 
-#ifndef __vtkGeoAlignedImageRepresentation_h
-#define __vtkGeoAlignedImageRepresentation_h
+#ifndef vtkGeoAlignedImageRepresentation_h
+#define vtkGeoAlignedImageRepresentation_h
 
 #include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkDataRepresentation.h"

@@ -14,8 +14,8 @@
 //
 //=============================================================================
 
-#ifndef __vtkDaxDetailCommon_h
-#define __vtkDaxDetailCommon_h
+#ifndef vtkDaxDetailCommon_h
+#define vtkDaxDetailCommon_h
 
 #include "vtkCellTypes.h"
 #include "vtkDataSet.h"

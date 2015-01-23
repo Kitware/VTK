@@ -21,8 +21,8 @@
 // Given V = P(x,y,z), Q(x,y,z), R(x,y,z),
 // Divergence = dP/dx + dQ/dy + dR/dz.
 
-#ifndef __vtkImageDivergence_h
-#define __vtkImageDivergence_h
+#ifndef vtkImageDivergence_h
+#define vtkImageDivergence_h
 
 #include "vtkImagingMathModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"

@@ -22,8 +22,8 @@
 // .SECTION See Also
 // vtkSelectionNode
 
-#ifndef __vtkSelection_h
-#define __vtkSelection_h
+#ifndef vtkSelection_h
+#define vtkSelection_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"

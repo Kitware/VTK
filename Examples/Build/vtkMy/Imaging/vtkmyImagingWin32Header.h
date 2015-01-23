@@ -17,8 +17,8 @@
 // The vtkmyImagingWin32Header captures some system differences between Unix
 // and Windows operating systems.
 
-#ifndef __vtkmyImagingWin32Header_h
-#define __vtkmyImagingWin32Header_h
+#ifndef vtkmyImagingWin32Header_h
+#define vtkmyImagingWin32Header_h
 
 #include <vtkmyConfigure.h>
 

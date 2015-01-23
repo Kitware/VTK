@@ -18,8 +18,8 @@
 // This exposes methods that make it easier to manage views and rendered images
 // from views.
 
-#ifndef __vtkWebApplication_h
-#define __vtkWebApplication_h
+#ifndef vtkWebApplication_h
+#define vtkWebApplication_h
 
 #include "vtkObject.h"
 #include "vtkWebCoreModule.h" // needed for exports

@@ -37,8 +37,8 @@
 // Andrew Maclean andrew.amaclean@gmail.com for creating and contributing the
 // class.
 //
-#ifndef __vtkParametricSuperToroid_h
-#define __vtkParametricSuperToroid_h
+#ifndef vtkParametricSuperToroid_h
+#define vtkParametricSuperToroid_h
 
 #include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkParametricFunction.h"

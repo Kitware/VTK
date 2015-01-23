@@ -18,8 +18,8 @@
 // .SECTION Description
 // This class is a templated data type for storing and manipulating tuples.
 
-#ifndef __vtkTuple_h
-#define __vtkTuple_h
+#ifndef vtkTuple_h
+#define vtkTuple_h
 
 #include "vtkIOStream.h" // For streaming operators
 #include "vtkSystemIncludes.h"
@@ -192,5 +192,5 @@ bool operator!=(const vtkTuple<A, Size>& t1, const vtkTuple<A, Size>& t2)
   return !(t1 == t2);
 }
 
-#endif // __vtkTuple_h
+#endif // vtkTuple_h
 // VTK-HeaderTest-Exclude: vtkTuple.h

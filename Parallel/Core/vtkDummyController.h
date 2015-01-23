@@ -20,8 +20,8 @@
 // .SECTION see also
 // vtkMultiProcessController
 
-#ifndef __vtkDummyController_h
-#define __vtkDummyController_h
+#ifndef vtkDummyController_h
+#define vtkDummyController_h
 
 #include "vtkParallelCoreModule.h" // For export macro
 #include "vtkMultiProcessController.h"

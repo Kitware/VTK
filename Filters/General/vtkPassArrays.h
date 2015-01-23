@@ -54,8 +54,8 @@
 // would be cleared since you did not specify any arrays to pass. Field data would
 // still be untouched.
 
-#ifndef __vtkPassArrays_h
-#define __vtkPassArrays_h
+#ifndef vtkPassArrays_h
+#define vtkPassArrays_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"

@@ -31,8 +31,8 @@
 // You should never have to deal with this class outside of
 // vtkPostgreSQLDatabase and vtkPostgreSQLQuery.
 
-#ifndef __vtkPostgreSQLDatabasePrivate_h
-#define __vtkPostgreSQLDatabasePrivate_h
+#ifndef vtkPostgreSQLDatabasePrivate_h
+#define vtkPostgreSQLDatabasePrivate_h
 
 #include "vtkStdString.h"
 #include "vtkType.h"
@@ -81,5 +81,5 @@ class vtkPostgreSQLDatabasePrivate
   vtksys_stl::map<Oid,int> DataTypeMap;
 };
 
-#endif // __vtkPostgreSQLDatabasePrivate_h
+#endif // vtkPostgreSQLDatabasePrivate_h
 // VTK-HeaderTest-Exclude: vtkPostgreSQLDatabasePrivate.h

@@ -23,8 +23,8 @@
 // of value stored in a vtkInformation instance corresponding to a
 // given key matches the type expected for that key.
 
-#ifndef __vtkInformationKey_h
-#define __vtkInformationKey_h
+#ifndef vtkInformationKey_h
+#define vtkInformationKey_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObjectBase.h"

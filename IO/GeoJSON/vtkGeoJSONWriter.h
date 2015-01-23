@@ -17,8 +17,8 @@
 // Outputs a Geo JSON (http://www.geojson.org) description of the input
 // polydata data set.
 
-#ifndef __vtkGeoJSONWriter_h
-#define __vtkGeoJSONWriter_h
+#ifndef vtkGeoJSONWriter_h
+#define vtkGeoJSONWriter_h
 
 #include "vtkIOGeoJSONModule.h" // For export macro
 #include "vtkWriter.h"
@@ -111,4 +111,4 @@ private:
   void operator=(const vtkGeoJSONWriter&);       // Not implemented.
 };
 
-#endif // __vtkGeoJSONWriter_h
+#endif // vtkGeoJSONWriter_h

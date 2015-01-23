@@ -27,8 +27,8 @@
 // .SECTION See Also
 // vtkTimerLog vtkMPIController vtkMPICommunicator
 
-#ifndef __vtkMPIEventLog_h
-#define __vtkMPIEventLog_h
+#ifndef vtkMPIEventLog_h
+#define vtkMPIEventLog_h
 
 #include "vtkParallelMPIModule.h" // For export macro
 #include "vtkObject.h"

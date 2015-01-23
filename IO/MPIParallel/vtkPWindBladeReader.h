@@ -26,8 +26,8 @@
 // Parallel version of vtkWindBladeReader.h
 
 
-#ifndef __vtkPWindBladeReader_h
-#define __vtkPWindBladeReader_h
+#ifndef vtkPWindBladeReader_h
+#define vtkPWindBladeReader_h
 
 #include "vtkIOMPIParallelModule.h" // For export macro
 #include "vtkWindBladeReader.h"

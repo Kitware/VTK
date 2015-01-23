@@ -21,8 +21,8 @@
 // .SECTION See Also
 // vtkBarChartActor
 
-#ifndef __vtkChartXY_h
-#define __vtkChartXY_h
+#ifndef vtkChartXY_h
+#define vtkChartXY_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkChart.h"
@@ -379,4 +379,4 @@ struct vtkChartPlotData
   int Index;
 };
 
-#endif //__vtkChartXY_h
+#endif //vtkChartXY_h

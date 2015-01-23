@@ -25,8 +25,8 @@
 // them to the coordinates of the vertices. Yes you could do this with the array
 // calculator, but your mom wears army boots so we're not going to.
 
-#ifndef __vtkAssignCoordinates_h
-#define __vtkAssignCoordinates_h
+#ifndef vtkAssignCoordinates_h
+#define vtkAssignCoordinates_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"

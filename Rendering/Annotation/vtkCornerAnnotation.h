@@ -30,8 +30,8 @@
 // .SECTION See Also
 // vtkActor2D vtkTextMapper
 
-#ifndef __vtkCornerAnnotation_h
-#define __vtkCornerAnnotation_h
+#ifndef vtkCornerAnnotation_h
+#define vtkCornerAnnotation_h
 
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"

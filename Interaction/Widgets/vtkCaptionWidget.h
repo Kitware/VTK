@@ -33,8 +33,8 @@
 // vtkBorderWidget vtkTextWidget
 
 
-#ifndef __vtkCaptionWidget_h
-#define __vtkCaptionWidget_h
+#ifndef vtkCaptionWidget_h
+#define vtkCaptionWidget_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderWidget.h"

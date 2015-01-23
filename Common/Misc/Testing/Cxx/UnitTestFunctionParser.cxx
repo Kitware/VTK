@@ -270,7 +270,7 @@ int TestVectors()
       {
       if (!vtkMathUtilities::FuzzyCompare(
             a[j], b[j],
-            std::numeric_limits<double>::epsilon()*(double)1.0))
+            std::numeric_limits<double>::epsilon() * 1.0))
         {
         std::cout << " Cross expected " << a[j]
                   << " but got " << b[j];
@@ -285,7 +285,7 @@ int TestVectors()
     double dot = parser->GetScalarResult();
     if (!vtkMathUtilities::FuzzyCompare(
           dot, 0.0,
-          std::numeric_limits<double>::epsilon()*(double)1.0))
+          std::numeric_limits<double>::epsilon() * 1.0))
       {
       std::cout << " Dot " << 0.0
                 << " but got " << dot;
@@ -300,7 +300,7 @@ int TestVectors()
     double mag = parser->GetScalarResult();
     if (!vtkMathUtilities::FuzzyCompare(
           mag, 1.0,
-          std::numeric_limits<double>::epsilon()*(double)2.0))
+          std::numeric_limits<double>::epsilon() * 2.0))
       {
       std::cout << " Mag expected" << 1.0
                 << " but got " << mag;

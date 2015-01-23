@@ -20,8 +20,8 @@
 // scalar weights add up to 1. Note that this function gives accurate
 // sums and gradients only if the input functions are linear.
 
-#ifndef __vtkImplicitSum_h
-#define __vtkImplicitSum_h
+#ifndef vtkImplicitSum_h
+#define vtkImplicitSum_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"

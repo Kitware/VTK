@@ -40,8 +40,8 @@
 // See Graphics/Testing/Cxx/TestReebGraph.cxx for an example of concrete
 // implemetnation.
 
-#ifndef __vtkReebGraphSimplificationMetric_h
-#define __vtkReebGraphSimplificationMetric_h
+#ifndef vtkReebGraphSimplificationMetric_h
+#define vtkReebGraphSimplificationMetric_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

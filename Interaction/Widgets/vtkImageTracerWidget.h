@@ -48,8 +48,8 @@
 // vtk3DWidget vtkBoxWidget vtkLineWidget vtkPointWidget vtkSphereWidget
 // vtkImagePlaneWidget vtkImplicitPlaneWidget vtkPlaneWidget
 
-#ifndef __vtkImageTracerWidget_h
-#define __vtkImageTracerWidget_h
+#ifndef vtkImageTracerWidget_h
+#define vtkImageTracerWidget_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtk3DWidget.h"

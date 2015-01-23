@@ -30,8 +30,8 @@
 // .SECTION See Also
 // vtkExtractGeometry, vtkAreaPicker, vtkExtractSelection, vtkSelection
 
-#ifndef __vtkExtractSelectedFrustum_h
-#define __vtkExtractSelectedFrustum_h
+#ifndef vtkExtractSelectedFrustum_h
+#define vtkExtractSelectedFrustum_h
 
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkExtractSelectionBase.h"

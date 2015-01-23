@@ -21,8 +21,8 @@
 // (e.g., triangles, polygons), and 3D (e.g., hexahedron, tetrahedron,
 // polyhedron, etc.).
 
-#ifndef __vtkUnstructuredGrid_h
-#define __vtkUnstructuredGrid_h
+#ifndef vtkUnstructuredGrid_h
+#define vtkUnstructuredGrid_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkUnstructuredGridBase.h"

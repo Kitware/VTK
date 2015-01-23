@@ -33,8 +33,8 @@
 // the columns named are modified.  One of these prefixes may be the empty
 // string, but they must be different.
 
-#ifndef __vtkMergeTables_h
-#define __vtkMergeTables_h
+#ifndef vtkMergeTables_h
+#define vtkMergeTables_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkTableAlgorithm.h"

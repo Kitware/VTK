@@ -14,8 +14,8 @@
 =========================================================================*/
 // .NAME vtkEnSightMasterServerReader - reader for compund EnSight files
 
-#ifndef __vtkEnSightMasterServerReader_h
-#define __vtkEnSightMasterServerReader_h
+#ifndef vtkEnSightMasterServerReader_h
+#define vtkEnSightMasterServerReader_h
 
 #include "vtkIOEnSightModule.h" // For export macro
 #include "vtkGenericEnSightReader.h"

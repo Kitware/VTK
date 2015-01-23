@@ -24,8 +24,8 @@
 // Washington University, St. Louis, Missouri.
 // http://www.cs.wustl.edu/~schmidt/win32-cv-1.html
 
-#ifndef __vtkConditionVariable_h
-#define __vtkConditionVariable_h
+#ifndef vtkConditionVariable_h
+#define vtkConditionVariable_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
@@ -196,4 +196,4 @@ inline int vtkConditionVariable::Wait( vtkMutexLock* lock )
 }
 //ETX
 
-#endif // __vtkConditionVariable_h
+#endif // vtkConditionVariable_h

@@ -21,8 +21,8 @@
 // system. The 2D faces of 3D cells are mapped only if they are used by
 // only one cell, i.e., on the boundary of the data set.
 
-#ifndef __vtkDataSetMapper_h
-#define __vtkDataSetMapper_h
+#ifndef vtkDataSetMapper_h
+#define vtkDataSetMapper_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkMapper.h"

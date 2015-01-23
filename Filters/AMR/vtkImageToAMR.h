@@ -20,8 +20,8 @@
 // refinement available for the highest level. The lower refinements and the
 // number of blocks is controlled properties specified on the filter.
 
-#ifndef __vtkImageToAMR_h
-#define __vtkImageToAMR_h
+#ifndef vtkImageToAMR_h
+#define vtkImageToAMR_h
 
 #include "vtkOverlappingAMRAlgorithm.h"
 #include "vtkFiltersAMRModule.h" // For export macro

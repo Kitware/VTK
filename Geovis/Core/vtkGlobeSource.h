@@ -30,8 +30,8 @@
 //
 // \image html vtkGlobeSourceSphericalToCartesianFigure.png
 // \image latex vtkGlobeSourceSphericalToCartesianFigure.eps
-#ifndef __vtkGlobeSource_h
-#define __vtkGlobeSource_h
+#ifndef vtkGlobeSource_h
+#define vtkGlobeSource_h
 
 #include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

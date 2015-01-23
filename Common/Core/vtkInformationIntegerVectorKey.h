@@ -17,8 +17,8 @@
 // vtkInformationIntegerVectorKey is used to represent keys for integer
 // vector values in vtkInformation.h
 
-#ifndef __vtkInformationIntegerVectorKey_h
-#define __vtkInformationIntegerVectorKey_h
+#ifndef vtkInformationIntegerVectorKey_h
+#define vtkInformationIntegerVectorKey_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkInformationKey.h"

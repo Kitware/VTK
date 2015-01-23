@@ -34,8 +34,8 @@
 //  vtkPlaneSource vtkTextureMapToCylinder
 // vtkTextureMapToSphere vtkThresholdTextureCoords
 
-#ifndef __vtkTextureMapToPlane_h
-#define __vtkTextureMapToPlane_h
+#ifndef vtkTextureMapToPlane_h
+#define vtkTextureMapToPlane_h
 
 #include "vtkFiltersTextureModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

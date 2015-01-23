@@ -38,8 +38,8 @@
 // point is lost. Bisection methods are used to speed up the search for the
 // interpolation interval.
 
-#ifndef __vtkTupleInterpolator_h
-#define __vtkTupleInterpolator_h
+#ifndef vtkTupleInterpolator_h
+#define vtkTupleInterpolator_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"

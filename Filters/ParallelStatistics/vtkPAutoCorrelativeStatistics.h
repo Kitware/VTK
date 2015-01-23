@@ -21,8 +21,8 @@
 // .SECTION Thanks
 // This class was written by Philippe Pebay, Kitware SAS 2012.
 
-#ifndef __vtkPAutoCorrelativeStatistics_h
-#define __vtkPAutoCorrelativeStatistics_h
+#ifndef vtkPAutoCorrelativeStatistics_h
+#define vtkPAutoCorrelativeStatistics_h
 
 #include "vtkFiltersParallelStatisticsModule.h" // For export macro
 #include "vtkAutoCorrelativeStatistics.h"

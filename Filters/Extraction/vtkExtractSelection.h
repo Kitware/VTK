@@ -25,8 +25,8 @@
 // vtkSelection vtkExtractSelectedIds vtkExtractSelectedFrustum
 // vtkExtractSelectedLocations vtkExtractSelectedThresholds
 
-#ifndef __vtkExtractSelection_h
-#define __vtkExtractSelection_h
+#ifndef vtkExtractSelection_h
+#define vtkExtractSelection_h
 
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkExtractSelectionBase.h"

@@ -26,8 +26,8 @@
 // .SECTION See Also
 // vtkImageReader2
 
-#ifndef __vtkGESignaReader_h
-#define __vtkGESignaReader_h
+#ifndef vtkGESignaReader_h
+#define vtkGESignaReader_h
 
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkMedicalImageReader2.h"

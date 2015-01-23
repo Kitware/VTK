@@ -26,8 +26,8 @@
 // vtkTriangularTexture vtkThresholdPoints vtkTextureMapToPlane
 // vtkTextureMapToSphere vtkTextureMapToCylinder
 
-#ifndef __vtkTriangularTCoords_h
-#define __vtkTriangularTCoords_h
+#ifndef vtkTriangularTCoords_h
+#define vtkTriangularTCoords_h
 
 #include "vtkFiltersTextureModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

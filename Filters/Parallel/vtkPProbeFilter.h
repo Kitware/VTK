@@ -15,8 +15,8 @@
 // .NAME vtkPProbeFilter - probe dataset in parallel
 // .SECTION Description
 
-#ifndef __vtkPProbeFilter_h
-#define __vtkPProbeFilter_h
+#ifndef vtkPProbeFilter_h
+#define vtkPProbeFilter_h
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkCompositeDataProbeFilter.h"

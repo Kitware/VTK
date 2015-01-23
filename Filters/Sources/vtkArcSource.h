@@ -27,8 +27,8 @@
 // Centre DAM Ile-De-France, BP12, F-91297 Arpajon, France, and implemented
 // by Philippe Pebay, Kitware SAS 2012.
 
-#ifndef __vtkArcSource_h
-#define __vtkArcSource_h
+#ifndef vtkArcSource_h
+#define vtkArcSource_h
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

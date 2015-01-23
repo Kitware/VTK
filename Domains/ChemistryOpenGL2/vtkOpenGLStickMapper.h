@@ -16,8 +16,8 @@
 // PolyDataMapper that uses imposters to draw cylinders/sticks
 // for ball/stick style molecular rendering. Supports picking.
 
-#ifndef __vtkOpenGLStickMapper_h
-#define __vtkOpenGLStickMapper_h
+#ifndef vtkOpenGLStickMapper_h
+#define vtkOpenGLStickMapper_h
 
 #include "vtkDomainsChemistryOpenGL2Module.h" // For export macro
 #include "vtkOpenGLPolyDataMapper.h"
@@ -74,8 +74,12 @@ protected:
   const char *SelectionIdArray;
 
   // Description:
+  // Does the VBO/IBO need to be rebuilt
+  virtual bool GetNeedToRebuildBufferObjects(vtkRenderer *ren, vtkActor *act);
+
+  // Description:
   // Update the VBO to contain point based values
-  virtual void UpdateVBO(vtkRenderer *ren, vtkActor *act);
+  virtual void BuildBufferObjects(vtkRenderer *ren, vtkActor *act);
 
   virtual void RenderPieceDraw(vtkRenderer *ren, vtkActor *act);
 

@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkIOMySQLTestingCxxConfigure_h
-#define __vtkIOMySQLTestingCxxConfigure_h
+#ifndef vtkIOMySQLTestingCxxConfigure_h
+#define vtkIOMySQLTestingCxxConfigure_h
 
 #cmakedefine VTK_MYSQL_TEST_URL
 #ifdef VTK_MYSQL_TEST_URL

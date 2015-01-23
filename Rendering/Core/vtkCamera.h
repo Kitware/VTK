@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkPerspectiveTransform
 
-#ifndef __vtkCamera_h
-#define __vtkCamera_h
+#ifndef vtkCamera_h
+#define vtkCamera_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
@@ -500,13 +500,13 @@ protected:
   // Description:
   // These methods should only be used within vtkCamera.cxx.
   void ComputeDistance();
-  void ComputeViewTransform();
+  virtual void ComputeViewTransform();
 
   // Description:
   // These methods should only be used within vtkCamera.cxx.
-  void ComputeProjectionTransform(double aspect,
-                                  double nearz,
-                                  double farz);
+  virtual void ComputeProjectionTransform(double aspect,
+                                          double nearz,
+                                          double farz);
 
   // Description:
   // These methods should only be used within vtkCamera.cxx.

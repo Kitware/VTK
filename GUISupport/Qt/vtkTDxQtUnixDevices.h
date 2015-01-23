@@ -20,8 +20,8 @@
 // .SECTION See Also
 // vtkTDxUnixDevice QVTKWidget QVTKApplication
 
-#ifndef __vtkTDxQtUnixDevices_h
-#define __vtkTDxQtUnixDevices_h
+#ifndef vtkTDxQtUnixDevices_h
+#define vtkTDxQtUnixDevices_h
 
 #include "vtkGUISupportQtModule.h" // For export macro
 #include <QObject>

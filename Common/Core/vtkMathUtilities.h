@@ -21,8 +21,8 @@
 // The initial motivation is to provide a few lightweight functions to help in
 // testing and internal implementation files.
 
-#ifndef __vtkMathUtilities_h
-#define __vtkMathUtilities_h
+#ifndef vtkMathUtilities_h
+#define vtkMathUtilities_h
 
 #include <cmath>
 #include <limits>
@@ -87,5 +87,5 @@ bool NearlyEqual(A a, A b, A tol=std::numeric_limits<A>::epsilon())
 
 } // End vtkMathUtilities namespace.
 
-#endif // __vtkMathUtilities_h
+#endif // vtkMathUtilities_h
 // VTK-HeaderTest-Exclude: vtkMathUtilities.h

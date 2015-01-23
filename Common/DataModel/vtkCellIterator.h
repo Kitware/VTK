@@ -59,8 +59,8 @@
 // fetching unnecessary data. Also note that at the end of the loop, the
 // iterator must be deleted as these iterators are vtkObject subclasses.
 
-#ifndef __vtkCellIterator_h
-#define __vtkCellIterator_h
+#ifndef vtkCellIterator_h
+#define vtkCellIterator_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
@@ -281,4 +281,4 @@ inline vtkIdType vtkCellIterator::GetNumberOfFaces()
   return this->Faces->GetNumberOfIds() != 0 ? this->Faces->GetId(0) : 0;
 }
 
-#endif //__vtkCellIterator_h
+#endif //vtkCellIterator_h

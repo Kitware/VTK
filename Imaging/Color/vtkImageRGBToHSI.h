@@ -18,8 +18,8 @@
 // filter output the color coded as hue, saturation and intensity.
 // Output type must be the same as input type.
 
-#ifndef __vtkImageRGBToHSI_h
-#define __vtkImageRGBToHSI_h
+#ifndef vtkImageRGBToHSI_h
+#define vtkImageRGBToHSI_h
 
 #include "vtkImagingColorModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"

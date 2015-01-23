@@ -28,8 +28,8 @@
 // </pre>
 
 
-#ifndef __vtkGenericPointIterator_h
-#define __vtkGenericPointIterator_h
+#ifndef vtkGenericPointIterator_h
+#define vtkGenericPointIterator_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

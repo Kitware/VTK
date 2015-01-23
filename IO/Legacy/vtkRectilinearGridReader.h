@@ -25,8 +25,8 @@
 // .SECTION See Also
 // vtkRectilinearGrid vtkDataReader
 
-#ifndef __vtkRectilinearGridReader_h
-#define __vtkRectilinearGridReader_h
+#ifndef vtkRectilinearGridReader_h
+#define vtkRectilinearGridReader_h
 
 #include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"

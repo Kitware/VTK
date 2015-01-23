@@ -55,8 +55,8 @@ PURPOSE.  See the above copyright notice for more information.
 // This class was initially developed by Daniel Aguilera, CEA/DIF
 // Ported and modified by Philippe Pebay, Kitware, 2011
 
-#ifndef __vtkQuadRotationalExtrusionFilter_h
-#define __vtkQuadRotationalExtrusionFilter_h
+#ifndef vtkQuadRotationalExtrusionFilter_h
+#define vtkQuadRotationalExtrusionFilter_h
 
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"

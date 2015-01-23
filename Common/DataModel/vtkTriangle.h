@@ -17,8 +17,8 @@
 // vtkTriangle is a concrete implementation of vtkCell to represent a triangle
 // located in 3-space.
 
-#ifndef __vtkTriangle_h
-#define __vtkTriangle_h
+#ifndef vtkTriangle_h
+#define vtkTriangle_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell.h"

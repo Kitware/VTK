@@ -26,8 +26,8 @@
 // it.  A warning is issued if a point in the dataset falls at the focus
 // of the projector.
 
-#ifndef __vtkProjectedTexture_h
-#define __vtkProjectedTexture_h
+#ifndef vtkProjectedTexture_h
+#define vtkProjectedTexture_h
 
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

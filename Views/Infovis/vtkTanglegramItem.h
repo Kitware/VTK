@@ -23,8 +23,8 @@
 // .SEE ALSO
 // vtkTree vtkTable vtkDendrogramItem vtkNewickTreeReader
 
-#ifndef __vtkTanglegramItem_h
-#define __vtkTanglegramItem_h
+#ifndef vtkTanglegramItem_h
+#define vtkTanglegramItem_h
 
 #include "vtkViewsInfovisModule.h" // For export macro
 

@@ -19,8 +19,8 @@
 
 
 
-#ifndef __vtkProjectSphereFilter_h
-#define __vtkProjectSphereFilter_h
+#ifndef vtkProjectSphereFilter_h
+#define vtkProjectSphereFilter_h
 
 #include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"
@@ -106,4 +106,4 @@ private:
   bool TranslateZ;
 };
 
-#endif // __vtkProjectSphereFilter_h
+#endif // vtkProjectSphereFilter_h

@@ -16,8 +16,8 @@
 // .SECTION Description
 // vtkXMLMultiBlockDataWriter is a vtkXMLCompositeDataWriter subclass to handle
 // vtkMultiBlockDataSet.
-#ifndef __vtkXMLMultiBlockDataWriter_h
-#define __vtkXMLMultiBlockDataWriter_h
+#ifndef vtkXMLMultiBlockDataWriter_h
+#define vtkXMLMultiBlockDataWriter_h
 
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLCompositeDataWriter.h"

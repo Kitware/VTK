@@ -27,8 +27,8 @@
 // .SECTION See Also
 // vtkWidgetEvent vtkCommand vtkInteractorObserver
 
-#ifndef __vtkWidgetEventTranslator_h
-#define __vtkWidgetEventTranslator_h
+#ifndef vtkWidgetEventTranslator_h
+#define vtkWidgetEventTranslator_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkObject.h"
@@ -113,5 +113,5 @@ private:
 
 };
 
-#endif /* __vtkWidgetEventTranslator_h */
+#endif /* vtkWidgetEventTranslator_h */
 

@@ -33,8 +33,8 @@
 // on the result.
 //
 
-#ifndef __vtkCellCenterDepthSort_h
-#define __vtkCellCenterDepthSort_h
+#ifndef vtkCellCenterDepthSort_h
+#define vtkCellCenterDepthSort_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkVisibilitySort.h"

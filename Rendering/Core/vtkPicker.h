@@ -35,8 +35,8 @@
 // subclasses vtkPointPicker or vtkCellPicker.  For hardware-accelerated
 // picking of any type of vtkProp, use vtkPropPicker or vtkWorldPointPicker.
 
-#ifndef __vtkPicker_h
-#define __vtkPicker_h
+#ifndef vtkPicker_h
+#define vtkPicker_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkAbstractPropPicker.h"

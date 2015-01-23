@@ -43,8 +43,8 @@
 // vtkMultiProcessController, vtkImageReader, vtkImageReader2
 //
 
-#ifndef __vtkMPIImageReader_h
-#define __vtkMPIImageReader_h
+#ifndef vtkMPIImageReader_h
+#define vtkMPIImageReader_h
 
 #include "vtkIOMPIImageModule.h" // For export macro
 #include "vtkImageReader.h"
@@ -119,4 +119,4 @@ private:
   void operator=(const vtkMPIImageReader &);    // Not implemented
 };
 
-#endif //__vtkMPIImageReader_h
+#endif //vtkMPIImageReader_h

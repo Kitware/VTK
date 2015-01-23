@@ -19,8 +19,8 @@
 // for insertion and retrieval of bits, and will automatically resize
 // itself to hold new data.
 
-#ifndef __vtkBitArray_h
-#define __vtkBitArray_h
+#ifndef vtkBitArray_h
+#define vtkBitArray_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkDataArray.h"

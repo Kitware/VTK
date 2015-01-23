@@ -34,8 +34,8 @@
 // vtkLandmarkTransform
 
 
-#ifndef __vtkIterativeClosestPointTransform_h
-#define __vtkIterativeClosestPointTransform_h
+#ifndef vtkIterativeClosestPointTransform_h
+#define vtkIterativeClosestPointTransform_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkLinearTransform.h"

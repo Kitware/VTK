@@ -20,8 +20,8 @@
 // .SECTION See Also
 // vtkGPUInfo vtkGPUInfoList
 
-#ifndef __vtkDummyGPUInfoList_h
-#define __vtkDummyGPUInfoList_h
+#ifndef vtkDummyGPUInfoList_h
+#define vtkDummyGPUInfoList_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkGPUInfoList.h"

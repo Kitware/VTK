@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkHierarchicalBoxDataSet, vtkMultiBlockDataSet vtkMultiPieceDataSet
 
-#ifndef __vtkExtractDataSets_h
-#define __vtkExtractDataSets_h
+#ifndef vtkExtractDataSets_h
+#define vtkExtractDataSets_h
 
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"

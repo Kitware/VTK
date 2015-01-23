@@ -19,8 +19,8 @@
 // .SECTION See Also
 // vtkRenderPass
 
-#ifndef __vtkClearZPass_h
-#define __vtkClearZPass_h
+#ifndef vtkClearZPass_h
+#define vtkClearZPass_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderPass.h"

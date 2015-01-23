@@ -45,8 +45,8 @@
 // old Limit values in NonLogUnscaled{Min,Max}Limit so that behavior is
 // consistent when LogScale is changed from false to true and back again.
 
-#ifndef __vtkAxis_h
-#define __vtkAxis_h
+#ifndef vtkAxis_h
+#define vtkAxis_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"
@@ -581,4 +581,4 @@ private:
 //ETX
 };
 
-#endif //__vtkAxis_h
+#endif //vtkAxis_h

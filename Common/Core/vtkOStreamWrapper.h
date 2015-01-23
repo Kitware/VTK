@@ -21,8 +21,8 @@
 // time for compilation depending on the platform.  This wrapper is
 // used by the macros in vtkSetGet.h.
 
-#ifndef __vtkOStreamWrapper_h
-#define __vtkOStreamWrapper_h
+#ifndef vtkOStreamWrapper_h
+#define vtkOStreamWrapper_h
 
 #include "vtkCommonCoreModule.h"
 

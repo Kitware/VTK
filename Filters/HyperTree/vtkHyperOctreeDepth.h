@@ -20,8 +20,8 @@
 // .SECTION See Also
 // vtkHyperOctree
 
-#ifndef __vtkHyperOctreeDepth_h
-#define __vtkHyperOctreeDepth_h
+#ifndef vtkHyperOctreeDepth_h
+#define vtkHyperOctreeDepth_h
 
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

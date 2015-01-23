@@ -72,8 +72,8 @@
 // Thanks to Goodwin Lawlor and Prabhu Ramachandran for this class.
 
 
-#ifndef __vtkGL2PSExporter_h
-#define __vtkGL2PSExporter_h
+#ifndef vtkGL2PSExporter_h
+#define vtkGL2PSExporter_h
 
 #include "vtkIOExportModule.h" // For export macro
 #include "vtkExporter.h"

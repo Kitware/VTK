@@ -29,8 +29,8 @@
 // .SECTION See Also
 // vtkGlyph3D vtkLabeledDataMapper
 
-#ifndef __vtkEdgeCenters_h
-#define __vtkEdgeCenters_h
+#ifndef vtkEdgeCenters_h
+#define vtkEdgeCenters_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

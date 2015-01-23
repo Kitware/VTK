@@ -15,8 +15,8 @@
 // .NAME vtkExtractUnstructuredGridPiece - Return specified piece, including specified
 // number of ghost levels.
 
-#ifndef __vtkExtractUnstructuredGridPiece_h
-#define __vtkExtractUnstructuredGridPiece_h
+#ifndef vtkExtractUnstructuredGridPiece_h
+#define vtkExtractUnstructuredGridPiece_h
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"

@@ -149,7 +149,7 @@ void vtkOpenGLSphereMapper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
 void vtkOpenGLSphereMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
                                                          vtkRenderer *ren, vtkActor *actor)
 {
-  if (cellBO.indexCount && (this->OpenGLUpdateTime > cellBO.attributeUpdateTime ||
+  if (cellBO.indexCount && (this->VBOBuildTime > cellBO.attributeUpdateTime ||
       cellBO.ShaderSourceTime > cellBO.attributeUpdateTime))
     {
     vtkgl::VBOLayout &layout = this->Layout;
@@ -241,7 +241,20 @@ vtkgl::VBOLayout vtkOpenGLSphereMapperCreateVBO(float * points, vtkIdType numPts
 }
 
 //-------------------------------------------------------------------------
-void vtkOpenGLSphereMapper::UpdateVBO(vtkRenderer *vtkNotUsed(ren), vtkActor *act)
+bool vtkOpenGLSphereMapper::GetNeedToRebuildBufferObjects(vtkRenderer *vtkNotUsed(ren), vtkActor *act)
+{
+  // picking state does not require a rebuild, unlike our parent
+  if (this->VBOBuildTime < this->GetMTime() ||
+      this->VBOBuildTime < act->GetMTime() ||
+      this->VBOBuildTime < this->CurrentInput->GetMTime())
+    {
+    return true;
+    }
+  return false;
+}
+
+//-------------------------------------------------------------------------
+void vtkOpenGLSphereMapper::BuildBufferObjects(vtkRenderer *vtkNotUsed(ren), vtkActor *act)
 {
   vtkPolyData *poly = this->CurrentInput;
 

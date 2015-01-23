@@ -17,8 +17,8 @@
 // vtkCompositedSynchronizedRenderers is vtkSynchronizedRenderers that uses
 // vtkCompositer to composite the images on  the root node.
 
-#ifndef __vtkCompositedSynchronizedRenderers_h
-#define __vtkCompositedSynchronizedRenderers_h
+#ifndef vtkCompositedSynchronizedRenderers_h
+#define vtkCompositedSynchronizedRenderers_h
 
 #include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkSynchronizedRenderers.h"

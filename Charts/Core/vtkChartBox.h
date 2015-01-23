@@ -18,8 +18,8 @@
 // .SECTION Description
 // This defines the interface for a box plot chart.
 
-#ifndef __vtkChartBox_h
-#define __vtkChartBox_h
+#ifndef vtkChartBox_h
+#define vtkChartBox_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkChart.h"
@@ -202,4 +202,4 @@ struct vtkChartBoxData
   int Index;
 };
 
-#endif //__vtkChartBox_h
+#endif //vtkChartBox_h

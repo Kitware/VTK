@@ -22,8 +22,8 @@
 // quality being queried. Note this filter always assume the data associate with
 // the cells or points are 3 by 3 matrix.
 
-#ifndef __vtkMatrixMathFilter_h
-#define __vtkMatrixMathFilter_h
+#ifndef vtkMatrixMathFilter_h
+#define vtkMatrixMathFilter_h
 
 #include "vtkFiltersVerdictModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
@@ -89,4 +89,4 @@ private:
   void operator=(const vtkMatrixMathFilter&); // Not implemented
 };
 
-#endif // __vtkMatrixMathFilter_h
+#endif // vtkMatrixMathFilter_h

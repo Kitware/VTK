@@ -24,8 +24,8 @@
 // .SECTION See Also
 // vtkRenderPass
 
-#ifndef __vtkSequencePass_h
-#define __vtkSequencePass_h
+#ifndef vtkSequencePass_h
+#define vtkSequencePass_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkRenderPass.h"

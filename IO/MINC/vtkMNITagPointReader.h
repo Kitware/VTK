@@ -59,8 +59,8 @@ POSSIBILITY OF SUCH DAMAGES.
 // .SECTION Thanks
 // Thanks to David Gobbi for contributing this class.
 
-#ifndef __vtkMNITagPointReader_h
-#define __vtkMNITagPointReader_h
+#ifndef vtkMNITagPointReader_h
+#define vtkMNITagPointReader_h
 
 #include "vtkIOMINCModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

@@ -33,8 +33,8 @@
 // Andrew Maclean andrew.amaclean@gmail.com for creating and contributing the
 // class.
 //
-#ifndef __vtkParametricKlein_h
-#define __vtkParametricKlein_h
+#ifndef vtkParametricKlein_h
+#define vtkParametricKlein_h
 
 #include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkParametricFunction.h"

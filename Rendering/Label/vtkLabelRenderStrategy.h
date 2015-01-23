@@ -17,8 +17,8 @@
 // .SECTION Description
 // These methods should only be called within a mapper.
 
-#ifndef __vtkLabelRenderStrategy_h
-#define __vtkLabelRenderStrategy_h
+#ifndef vtkLabelRenderStrategy_h
+#define vtkLabelRenderStrategy_h
 
 #include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkObject.h"

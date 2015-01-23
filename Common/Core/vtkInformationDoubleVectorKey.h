@@ -17,8 +17,8 @@
 // vtkInformationDoubleVectorKey is used to represent keys for double
 // vector values in vtkInformation.h
 
-#ifndef __vtkInformationDoubleVectorKey_h
-#define __vtkInformationDoubleVectorKey_h
+#ifndef vtkInformationDoubleVectorKey_h
+#define vtkInformationDoubleVectorKey_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkInformationKey.h"

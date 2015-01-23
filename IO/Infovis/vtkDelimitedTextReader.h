@@ -59,8 +59,8 @@
 // any other line in the file.
 
 
-#ifndef __vtkDelimitedTextReader_h
-#define __vtkDelimitedTextReader_h
+#ifndef vtkDelimitedTextReader_h
+#define vtkDelimitedTextReader_h
 
 #include "vtkIOInfovisModule.h" // For export macro
 #include "vtkTableAlgorithm.h"

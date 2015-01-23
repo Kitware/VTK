@@ -24,8 +24,8 @@
 // for viewing lines on a sphere (e.g. the earth). The arcs may "jump" above
 // the sphere's surface using ExplodeFactor.
 
-#ifndef __vtkGeoArcs_h
-#define __vtkGeoArcs_h
+#ifndef vtkGeoArcs_h
+#define vtkGeoArcs_h
 
 #include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

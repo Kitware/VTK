@@ -22,8 +22,8 @@
 //
 // This is private API, and should not be used outside of the vtkContext3D.
 
-#ifndef __vtkContextDevice3D_h
-#define __vtkContextDevice3D_h
+#ifndef vtkContextDevice3D_h
+#define vtkContextDevice3D_h
 
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkObject.h"

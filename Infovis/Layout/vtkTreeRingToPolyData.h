@@ -26,8 +26,8 @@
 // (start angle, end angle, inner radius, outer radius) of bounds
 // for each vertex of the tree.
 
-#ifndef __vtkTreeRingToPolyData_h
-#define __vtkTreeRingToPolyData_h
+#ifndef vtkTreeRingToPolyData_h
+#define vtkTreeRingToPolyData_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

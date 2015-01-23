@@ -1,5 +1,5 @@
-#ifndef __vtkMySQLDatabasePrivate_h
-#define __vtkMySQLDatabasePrivate_h
+#ifndef vtkMySQLDatabasePrivate_h
+#define vtkMySQLDatabasePrivate_h
 
 #ifdef _WIN32
 # include <winsock.h> // mysql.h relies on the typedefs from here
@@ -21,5 +21,5 @@ public:
   MYSQL *Connection;
 };
 
-#endif // __vtkMySQLDatabasePrivate_h
+#endif // vtkMySQLDatabasePrivate_h
 // VTK-HeaderTest-Exclude: vtkMySQLDatabasePrivate.h

@@ -20,8 +20,8 @@
 // explicitly represented (as in vtkPolyData), or may be implicit to the
 // data type (as in vtkStructuredPoints).
 
-#ifndef __vtkCellType_h
-#define __vtkCellType_h
+#ifndef vtkCellType_h
+#define vtkCellType_h
 
 // To add a new cell type, define a new integer type flag here, then
 // create a subclass of vtkCell to implement the proper behavior. You

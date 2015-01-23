@@ -21,8 +21,8 @@
 //
 
 
-#ifndef __vtkCompositeRenderManager_h
-#define __vtkCompositeRenderManager_h
+#ifndef vtkCompositeRenderManager_h
+#define vtkCompositeRenderManager_h
 
 #include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkParallelRenderManager.h"
@@ -66,4 +66,4 @@ private:
   void operator=(const vtkCompositeRenderManager &);  //Not implemented
 };
 
-#endif //__vtkCompositeRenderManager_h
+#endif //vtkCompositeRenderManager_h

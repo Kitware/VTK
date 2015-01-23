@@ -39,8 +39,8 @@ PURPOSE.  See the above copyright notice for more information.
 // for implementing this class.
 // Updated by Philippe Pebay, Kitware SAS 2012
 
-#ifndef __vtkCorrelativeStatisticsGnuR_h
-#define __vtkCorrelativeStatisticsGnuR_h
+#ifndef vtkCorrelativeStatisticsGnuR_h
+#define vtkCorrelativeStatisticsGnuR_h
 
 #include "vtkFiltersStatisticsGnuRModule.h" // For export macro
 #include "vtkCorrelativeStatistics.h"

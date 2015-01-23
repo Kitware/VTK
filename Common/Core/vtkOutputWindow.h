@@ -19,8 +19,8 @@
 // do not.  (i.e windows does not).  Sub-classes can be provided which can
 // redirect the output to a window.
 
-#ifndef __vtkOutputWindow_h
-#define __vtkOutputWindow_h
+#ifndef vtkOutputWindow_h
+#define vtkOutputWindow_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"

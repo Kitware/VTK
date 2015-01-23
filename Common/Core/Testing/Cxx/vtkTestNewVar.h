@@ -16,8 +16,8 @@
 // .SECTION Description
 // Tests instantiations of the vtkNew class template.
 
-#ifndef __vtkTestNewVar_h
-#define __vtkTestNewVar_h
+#ifndef vtkTestNewVar_h
+#define vtkTestNewVar_h
 
 #include "vtkObject.h"
 #include "vtkNew.h"

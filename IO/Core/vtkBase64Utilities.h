@@ -16,8 +16,8 @@
 // .SECTION Description
 // vtkBase64Utilities implements base64 encoding and decoding.
 
-#ifndef __vtkBase64Utilities_h
-#define __vtkBase64Utilities_h
+#ifndef vtkBase64Utilities_h
+#define vtkBase64Utilities_h
 
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkObject.h"

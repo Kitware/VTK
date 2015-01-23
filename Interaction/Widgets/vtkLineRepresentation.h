@@ -33,8 +33,8 @@
 // vtkLineWidget2 vtkLineWidget
 
 
-#ifndef __vtkLineRepresentation_h
-#define __vtkLineRepresentation_h
+#ifndef vtkLineRepresentation_h
+#define vtkLineRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"

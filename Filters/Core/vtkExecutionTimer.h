@@ -26,8 +26,8 @@
 // By default we simply store the elapsed time.  You are welcome to
 // subclass and override TimerFinished() to do anything you want.
 
-#ifndef __vtkExecutionTimer_h
-#define __vtkExecutionTimer_h
+#ifndef vtkExecutionTimer_h
+#define vtkExecutionTimer_h
 
 #include "vtkObject.h"
 #include "vtkFiltersCoreModule.h" // For export macro

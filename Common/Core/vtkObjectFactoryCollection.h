@@ -20,8 +20,8 @@
 // .SECTION see also
 // vtkCollection vtkObjectFactory
 
-#ifndef __vtkObjectFactoryCollection_h
-#define __vtkObjectFactoryCollection_h
+#ifndef vtkObjectFactoryCollection_h
+#define vtkObjectFactoryCollection_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkCollection.h"

@@ -38,8 +38,8 @@
 // Thanks to Patricia Crossno, Ken Moreland, Andrew Wilson and Brian Wylie from
 // Sandia National Laboratories for their help in developing this class.
 
-#ifndef __vtkLabeledTreeMapDataMapper_h
-#define __vtkLabeledTreeMapDataMapper_h
+#ifndef vtkLabeledTreeMapDataMapper_h
+#define vtkLabeledTreeMapDataMapper_h
 
 #include "vtkRenderingLabelModule.h" // For export macro
 #include "vtkLabeledDataMapper.h"

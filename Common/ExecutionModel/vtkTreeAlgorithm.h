@@ -30,8 +30,8 @@
 // method that by default says that all inputs will be Tree. If that
 // isn't the case then please override this method in your subclass.
 
-#ifndef __vtkTreeAlgorithm_h
-#define __vtkTreeAlgorithm_h
+#ifndef vtkTreeAlgorithm_h
+#define vtkTreeAlgorithm_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"

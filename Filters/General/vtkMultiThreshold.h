@@ -95,8 +95,8 @@
 // \enddot
 // The filled rectangles represent sets that are output.
 
-#ifndef __vtkMultiThreshold_h
-#define __vtkMultiThreshold_h
+#ifndef vtkMultiThreshold_h
+#define vtkMultiThreshold_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
@@ -471,4 +471,4 @@ inline vtkMultiThreshold::BooleanSet* vtkMultiThreshold::BooleanSet::GetBooleanS
   return this;
 }
 
-#endif // __vtkMultiThreshold_h
+#endif // vtkMultiThreshold_h

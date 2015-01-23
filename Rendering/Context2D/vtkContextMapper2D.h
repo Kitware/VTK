@@ -20,8 +20,8 @@
 // This class provides an abstract base for 2D context mappers. They currently
 // only accept vtkTable objects as input.
 
-#ifndef __vtkContextMapper2D_h
-#define __vtkContextMapper2D_h
+#ifndef vtkContextMapper2D_h
+#define vtkContextMapper2D_h
 
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkAlgorithm.h"
@@ -72,4 +72,4 @@ private:
 //ETX
 };
 
-#endif //__vtkContextMapper2D_h
+#endif //vtkContextMapper2D_h

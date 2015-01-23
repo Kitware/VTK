@@ -24,8 +24,8 @@
 // .SECTION See Also
 // vtkImplicitModeller
 
-#ifndef __vtkSampleFunction_h
-#define __vtkSampleFunction_h
+#ifndef vtkSampleFunction_h
+#define vtkSampleFunction_h
 
 #include "vtkImagingHybridModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

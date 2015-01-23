@@ -21,8 +21,8 @@
 // If no bounds are specified, they may lie anywhere on the supplied ImageActor.
 // .SECTION See Also
 
-#ifndef __vtkImageActorPointPlacer_h
-#define __vtkImageActorPointPlacer_h
+#ifndef vtkImageActorPointPlacer_h
+#define vtkImageActorPointPlacer_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPointPlacer.h"

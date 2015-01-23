@@ -23,8 +23,8 @@
 // Application programmers should normally use vtkRenderWindow instead of the
 // OpenGL specific version.
 
-#ifndef __vtkOSOpenGLRenderWindow_h
-#define __vtkOSOpenGLRenderWindow_h
+#ifndef vtkOSOpenGLRenderWindow_h
+#define vtkOSOpenGLRenderWindow_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkOpenGLRenderWindow.h"

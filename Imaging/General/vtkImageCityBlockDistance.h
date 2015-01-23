@@ -26,8 +26,8 @@
 // Distances maps can have inside (negative regions)
 // and outsides (positive regions).
 
-#ifndef __vtkImageCityBlockDistance_h
-#define __vtkImageCityBlockDistance_h
+#ifndef vtkImageCityBlockDistance_h
+#define vtkImageCityBlockDistance_h
 
 
 #include "vtkImagingGeneralModule.h" // For export macro

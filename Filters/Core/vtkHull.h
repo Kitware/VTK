@@ -35,8 +35,8 @@
 // polyhedron from the planes (without squeezing the planes towards the
 // input). The method GenerateHull() is used to do this.
 
-#ifndef __vtkHull_h
-#define __vtkHull_h
+#ifndef vtkHull_h
+#define vtkHull_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

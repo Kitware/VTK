@@ -26,8 +26,8 @@
 // .SECTION see also
 // vtkLinearTransform
 
-#ifndef __vtkLandmarkTransform_h
-#define __vtkLandmarkTransform_h
+#ifndef vtkLandmarkTransform_h
+#define vtkLandmarkTransform_h
 
 #include "vtkCommonTransformsModule.h" // For export macro
 #include "vtkLinearTransform.h"

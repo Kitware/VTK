@@ -20,8 +20,8 @@
 // does not change the data at all.  It just makes the pipeline more
 // efficient at the expense of using extra memory.
 
-#ifndef __vtkImageCacheFilter_h
-#define __vtkImageCacheFilter_h
+#ifndef vtkImageCacheFilter_h
+#define vtkImageCacheFilter_h
 
 #include "vtkImagingCoreModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

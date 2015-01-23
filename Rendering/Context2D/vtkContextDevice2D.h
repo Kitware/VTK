@@ -20,8 +20,8 @@
 // ContextDevice is a class used to paint 2D primitives onto a device, such as
 // an OpenGL context or a QGraphicsView.
 
-#ifndef __vtkContextDevice2D_h
-#define __vtkContextDevice2D_h
+#ifndef vtkContextDevice2D_h
+#define vtkContextDevice2D_h
 
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkObject.h"
@@ -337,4 +337,4 @@ private:
 //ETX
 };
 
-#endif //__vtkContextDevice2D_h
+#endif //vtkContextDevice2D_h

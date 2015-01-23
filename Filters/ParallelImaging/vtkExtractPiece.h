@@ -20,8 +20,8 @@
 // vtkRectilinearGrid, vtkStructuredGrid, and vtkUnstructuredGrid; it does
 // not handle sub-grids of type vtkCompositeDataSet.
 
-#ifndef __vtkExtractPiece_h
-#define __vtkExtractPiece_h
+#ifndef vtkExtractPiece_h
+#define vtkExtractPiece_h
 
 #include "vtkFiltersParallelImagingModule.h" // For export macro
 #include "vtkCompositeDataSetAlgorithm.h"

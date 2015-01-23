@@ -37,8 +37,8 @@
 // vtkOutputPort vtkInputPort  vtkMultiProcessController
 // vtkMPICommunicator vtkProcessGroup
 
-#ifndef __vtkMPIController_h
-#define __vtkMPIController_h
+#ifndef vtkMPIController_h
+#define vtkMPIController_h
 
 #include "vtkParallelMPIModule.h" // For export macro
 #include "vtkMultiProcessController.h"

@@ -37,8 +37,8 @@
 // .SECTION See Also
 // vtkGeoTerrain vtkGeoAlignedImageRepresentation vtkGeoSource
 
-#ifndef __vtkGeoView_h
-#define __vtkGeoView_h
+#ifndef vtkGeoView_h
+#define vtkGeoView_h
 
 #include "vtkViewsGeovisModule.h" // For export macro
 #include "vtkRenderView.h"

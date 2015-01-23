@@ -21,8 +21,8 @@
 // components coming first.
 
 
-#ifndef __vtkImageAppendComponents_h
-#define __vtkImageAppendComponents_h
+#ifndef vtkImageAppendComponents_h
+#define vtkImageAppendComponents_h
 
 
 #include "vtkImagingCoreModule.h" // For export macro

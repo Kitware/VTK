@@ -17,8 +17,8 @@
 # error "do not include unless you know what you are doing"
 #endif
 
-#ifndef __vtkXMLDataHeaderPrivate_h
-#define __vtkXMLDataHeaderPrivate_h
+#ifndef vtkXMLDataHeaderPrivate_h
+#define vtkXMLDataHeaderPrivate_h
 
 #include "vtkType.h"
 #include <vector>

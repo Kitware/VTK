@@ -36,8 +36,8 @@ PURPOSE.  See the above copyright notice for more information.
 // There are several self-explanatory operators for combining selections: ADD, SUBTRACT
 // REPLACE, and INTERSECT.
 
-#ifndef __vtkParallelCoordinatesView_h
-#define __vtkParallelCoordinatesView_h
+#ifndef vtkParallelCoordinatesView_h
+#define vtkParallelCoordinatesView_h
 
 #include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkRenderView.h"

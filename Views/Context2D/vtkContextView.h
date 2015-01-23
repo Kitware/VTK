@@ -22,8 +22,8 @@
 //
 // By default the scene has a white background.
 
-#ifndef __vtkContextView_h
-#define __vtkContextView_h
+#ifndef vtkContextView_h
+#define vtkContextView_h
 
 #include "vtkViewsContext2DModule.h" // For export macro
 #include "vtkRenderViewBase.h"

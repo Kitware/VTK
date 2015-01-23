@@ -21,8 +21,8 @@
 // .SECTION see also
 // vtkRayCastImageDisplayHelper
 
-#ifndef __vtkOpenGLRayCastImageDisplayHelper_h
-#define __vtkOpenGLRayCastImageDisplayHelper_h
+#ifndef vtkOpenGLRayCastImageDisplayHelper_h
+#define vtkOpenGLRayCastImageDisplayHelper_h
 
 #include "vtkRenderingVolumeOpenGLModule.h" // For export macro
 #include "vtkRayCastImageDisplayHelper.h"

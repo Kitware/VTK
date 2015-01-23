@@ -19,8 +19,8 @@
 // pattern.  It makes sure that the vtkGarbageCollector singleton is created
 // before and destroyed after it is used.
 
-#ifndef __vtkGarbageCollectorManager_h
-#define __vtkGarbageCollectorManager_h
+#ifndef vtkGarbageCollectorManager_h
+#define vtkGarbageCollectorManager_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"

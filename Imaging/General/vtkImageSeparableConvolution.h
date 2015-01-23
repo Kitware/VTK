@@ -23,8 +23,8 @@
 // convolutions.  It also handles arbitrarly large kernel sizes, and
 // uses edge replication to handle boundaries.
 
-#ifndef __vtkImageSeparableConvolution_h
-#define __vtkImageSeparableConvolution_h
+#ifndef vtkImageSeparableConvolution_h
+#define vtkImageSeparableConvolution_h
 
 
 #include "vtkImagingGeneralModule.h" // For export macro

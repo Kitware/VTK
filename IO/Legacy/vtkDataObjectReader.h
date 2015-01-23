@@ -25,8 +25,8 @@
 // .SECTION See Also
 // vtkFieldData vtkDataObjectWriter
 
-#ifndef __vtkDataObjectReader_h
-#define __vtkDataObjectReader_h
+#ifndef vtkDataObjectReader_h
+#define vtkDataObjectReader_h
 
 #include "vtkIOLegacyModule.h" // For export macro
 #include "vtkDataReader.h"

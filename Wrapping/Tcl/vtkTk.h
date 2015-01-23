@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtkTk_h
-#define __vtkTk_h
+#ifndef vtkTk_h
+#define vtkTk_h
 
 #include "vtkConfigure.h"
 

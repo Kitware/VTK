@@ -60,8 +60,8 @@
 // .SECTION Thanks
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.
 
-#ifndef __vtkSparseArray_h
-#define __vtkSparseArray_h
+#ifndef vtkSparseArray_h
+#define vtkSparseArray_h
 
 #include "vtkArrayCoordinates.h"
 #include "vtkArraySort.h"

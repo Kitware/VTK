@@ -42,6 +42,7 @@ set(Module_SRCS
   vtkImageSliceMapper.cxx
   vtkInteractorEventRecorder.cxx
   vtkInteractorObserver.cxx
+  vtkLabeledContourMapper.cxx
   vtkLightActor.cxx
   vtkLightCollection.cxx
   vtkLight.cxx
@@ -72,6 +73,8 @@ set(Module_SRCS
   vtkRenderWindowInteractor.cxx
   vtkSelectVisiblePoints.cxx
   vtkShaderDeviceAdapter2.cxx
+  vtkTextActor.cxx
+  vtkTextActor3D.cxx
   vtkTexture.cxx
   vtkTexturedActor2D.cxx
   vtkTransformCoordinateSystems.cxx
@@ -115,6 +118,7 @@ set(Module_SRCS
   vtkStringToImage.cxx
   vtkTextMapper.cxx
   vtkTextProperty.cxx
+  vtkTextPropertyCollection.cxx
   vtkTextRenderer.cxx
 
   # Some of the new rendering code - may move around in the future.

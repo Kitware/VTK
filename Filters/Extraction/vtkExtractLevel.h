@@ -18,8 +18,8 @@
 // vtkExtractLevel filter extracts the levels between (and including) the user
 // specified min and max levels.
 
-#ifndef __vtkExtractLevel_h
-#define __vtkExtractLevel_h
+#ifndef vtkExtractLevel_h
+#define vtkExtractLevel_h
 
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"

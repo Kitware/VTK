@@ -58,8 +58,8 @@
 // .SECTION See Also
 // vtkQuantizePolyDataPoints
 
-#ifndef __vtkCleanPolyData_h
-#define __vtkCleanPolyData_h
+#ifndef vtkCleanPolyData_h
+#define vtkCleanPolyData_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

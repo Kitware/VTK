@@ -24,8 +24,8 @@
 // .SECTION See Also
 // vtkOpenGLRenderWindow
 
-#ifndef __vtkTextureUnitManager_h
-#define __vtkTextureUnitManager_h
+#ifndef vtkTextureUnitManager_h
+#define vtkTextureUnitManager_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkObject.h"
@@ -89,7 +89,7 @@ protected:
   vtkOpenGLRenderWindow *Context;
 
   int NumberOfTextureUnits;
-  bool *TextureUnits;
+  unsigned int *TextureUnits;
 
 private:
   vtkTextureUnitManager(const vtkTextureUnitManager&);  // Not implemented.

@@ -30,8 +30,8 @@
 // class breaks out the downstream requests into separate functions such as
 // ExecuteData and ExecuteInformation.
 
-#ifndef __vtkPistonAlgorithm_h
-#define __vtkPistonAlgorithm_h
+#ifndef vtkPistonAlgorithm_h
+#define vtkPistonAlgorithm_h
 
 #include "vtkAcceleratorsPistonModule.h" // For export macro
 #include "vtkAlgorithm.h"

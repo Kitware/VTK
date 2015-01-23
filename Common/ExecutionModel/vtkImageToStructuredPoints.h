@@ -21,8 +21,8 @@
 // will try to reference count the data but in some cases it must
 // make a copy.
 
-#ifndef __vtkImageToStructuredPoints_h
-#define __vtkImageToStructuredPoints_h
+#ifndef vtkImageToStructuredPoints_h
+#define vtkImageToStructuredPoints_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

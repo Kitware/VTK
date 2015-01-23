@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkPythonCommand_h
-#define __vtkPythonCommand_h
+#ifndef vtkPythonCommand_h
+#define vtkPythonCommand_h
 
 #include "vtkWrappingPythonCoreModule.h" // For export macro
 #include "vtkPython.h"

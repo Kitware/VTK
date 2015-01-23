@@ -32,8 +32,8 @@
 //
 // .SECTION see also vtkImageMask
 
-#ifndef __vtkImageAccumulate_h
-#define __vtkImageAccumulate_h
+#ifndef vtkImageAccumulate_h
+#define vtkImageAccumulate_h
 
 #include "vtkImagingStatisticsModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

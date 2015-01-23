@@ -17,8 +17,8 @@
 //
 // .SECTION Description
 
-#ifndef __vtkChartXYZ_h
-#define __vtkChartXYZ_h
+#ifndef vtkChartXYZ_h
+#define vtkChartXYZ_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkContextItem.h"

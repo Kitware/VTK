@@ -44,8 +44,8 @@
 // Thanks to Patricia Crossno, Ken Moreland, Andrew Wilson and Brian Wylie from
 // Sandia National Laboratories for their help in developing this class API.
 
-#ifndef __vtkTable_h
-#define __vtkTable_h
+#ifndef vtkTable_h
+#define vtkTable_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"

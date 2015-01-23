@@ -14,8 +14,8 @@
 =========================================================================*/
 // Include blockers needed since vtkImageProgressIterator.h includes
 // this file when VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION is defined.
-#ifndef __vtkImageProgressIterator_txx
-#define __vtkImageProgressIterator_txx
+#ifndef vtkImageProgressIterator_txx
+#define vtkImageProgressIterator_txx
 
 #include "vtkImageProgressIterator.h"
 #include "vtkImageData.h"

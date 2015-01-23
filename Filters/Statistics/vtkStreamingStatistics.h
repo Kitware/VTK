@@ -28,8 +28,8 @@ PURPOSE.  See the above copyright notice for more information.
 // Thanks to the Universe for unfolding in a way that allowed this class
 // to be implemented, also Godzilla for not crushing my computer.
 
-#ifndef __vtkStreamingStatistics_h
-#define __vtkStreamingStatistics_h
+#ifndef vtkStreamingStatistics_h
+#define vtkStreamingStatistics_h
 
 #include "vtkFiltersStatisticsModule.h" // For export macro
 #include "vtkTableAlgorithm.h"

@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkXMLUnstructuredGridReader
 
-#ifndef __vtkXMLPUnstructuredGridReader_h
-#define __vtkXMLPUnstructuredGridReader_h
+#ifndef vtkXMLPUnstructuredGridReader_h
+#define vtkXMLPUnstructuredGridReader_h
 
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLPUnstructuredDataReader.h"

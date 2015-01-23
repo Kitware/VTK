@@ -27,8 +27,8 @@
 // This class was developed by Kenneth Moreland (kmorel@sandia.gov) from
 // Sandia National Laboratories.
 
-#ifndef __vtkImageDataToPointSet_h
-#define __vtkImageDataToPointSet_h
+#ifndef vtkImageDataToPointSet_h
+#define vtkImageDataToPointSet_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkStructuredGridAlgorithm.h"
@@ -62,4 +62,4 @@ private:
 };
 
 
-#endif //__vtkImageDataToPointSet_h
+#endif //vtkImageDataToPointSet_h

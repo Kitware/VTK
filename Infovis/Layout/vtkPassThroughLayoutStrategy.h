@@ -24,8 +24,8 @@
 // so in affect passes through the graph untouched. This strategy
 // is useful in the cases where the graph is already laid out.
 
-#ifndef __vtkPassThroughLayoutStrategy_h
-#define __vtkPassThroughLayoutStrategy_h
+#ifndef vtkPassThroughLayoutStrategy_h
+#define vtkPassThroughLayoutStrategy_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"

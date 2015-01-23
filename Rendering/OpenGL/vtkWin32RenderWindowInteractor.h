@@ -23,8 +23,8 @@
 // messages into the event bindings by setting InstallMessageProc to false.
 // This provides a minimal "Mapped" mode of interaction
 //
-#ifndef __vtkWin32RenderWindowInteractor_h
-#define __vtkWin32RenderWindowInteractor_h
+#ifndef vtkWin32RenderWindowInteractor_h
+#define vtkWin32RenderWindowInteractor_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkRenderWindowInteractor.h"

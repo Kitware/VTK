@@ -87,8 +87,8 @@
 // Actions are always dispatched first to the activeWidget, the one calling
 // the set, and then to the other widgets in the set.
 //
-#ifndef __vtkWidgetSet_h
-#define __vtkWidgetSet_h
+#ifndef vtkWidgetSet_h
+#define vtkWidgetSet_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkObject.h"

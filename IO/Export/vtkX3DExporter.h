@@ -21,8 +21,8 @@
 // .SECTION Thanks
 // X3DExporter is contributed by Christophe Mouton at EDF.
 
-#ifndef __vtkX3DExporter_h
-#define __vtkX3DExporter_h
+#ifndef vtkX3DExporter_h
+#define vtkX3DExporter_h
 
 #include "vtkIOExportModule.h" // For export macro
 #include "vtkExporter.h"

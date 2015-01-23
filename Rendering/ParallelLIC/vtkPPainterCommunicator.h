@@ -20,8 +20,8 @@
 // A simple container holding an MPI communicator. The simple API
 // is sufficient to allow serial code (no MPI available) to steer
 // execution.
-#ifndef __vtkPPainterCommunicator_h
-#define __vtkPPainterCommunicator_h
+#ifndef vtkPPainterCommunicator_h
+#define vtkPPainterCommunicator_h
 
 #include "vtkPainterCommunicator.h"
 #include "vtkRenderingParallelLICModule.h" // for export macro

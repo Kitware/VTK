@@ -14,8 +14,8 @@
 =========================================================================*/
 // .NAME vtkADIOSDirTree - A directory tree structure holding ADIOS data
 
-#ifndef __vtkADIOSDirTree_h
-#define __vtkADIOSDirTree_h
+#ifndef vtkADIOSDirTree_h
+#define vtkADIOSDirTree_h
 
 #include <map>
 #include <string>

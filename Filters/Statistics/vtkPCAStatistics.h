@@ -47,8 +47,8 @@ PURPOSE.  See the above copyright notice for more information.
 // Updated by Philippe Pebay, Kitware SAS 2012
 // Updated by Tristan Coulange and Joachim Pouderoux, Kitware SAS 2013
 
-#ifndef __vtkPCAStatistics_h
-#define __vtkPCAStatistics_h
+#ifndef vtkPCAStatistics_h
+#define vtkPCAStatistics_h
 
 #include "vtkFiltersStatisticsModule.h" // For export macro
 #include "vtkMultiCorrelativeStatistics.h"
@@ -270,5 +270,5 @@ private:
   void operator = ( const vtkPCAStatistics& );  // Not implemented
 };
 
-#endif // __vtkPCAStatistics_h
+#endif // vtkPCAStatistics_h
 

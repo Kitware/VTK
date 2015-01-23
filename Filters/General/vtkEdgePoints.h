@@ -24,8 +24,8 @@
 // not in the interior, and at lower density than dividing cubes. However, it
 // is more general than dividing cubes since it treats any type of dataset.
 
-#ifndef __vtkEdgePoints_h
-#define __vtkEdgePoints_h
+#ifndef vtkEdgePoints_h
+#define vtkEdgePoints_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

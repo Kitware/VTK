@@ -19,8 +19,8 @@
 // class.
 
 
-#ifndef __vtkMultiBlockDataSetAlgorithm_h
-#define __vtkMultiBlockDataSetAlgorithm_h
+#ifndef vtkMultiBlockDataSetAlgorithm_h
+#define vtkMultiBlockDataSetAlgorithm_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"

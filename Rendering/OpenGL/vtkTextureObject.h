@@ -19,8 +19,8 @@
 // also be used to create textures without uploading any data.
 // .SECTION Caveats
 // DON'T PLAY WITH IT YET.
-#ifndef __vtkTextureObject_h
-#define __vtkTextureObject_h
+#ifndef vtkTextureObject_h
+#define vtkTextureObject_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkObject.h"

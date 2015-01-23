@@ -66,8 +66,8 @@
 // by alpha. Also note that the window / level operation leaves the alpha
 // component unchanged - it only adjusts the RGB values.
 
-#ifndef __vtkSmartVolumeMapper_h
-#define __vtkSmartVolumeMapper_h
+#ifndef vtkSmartVolumeMapper_h
+#define vtkSmartVolumeMapper_h
 
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 #include "vtkVolumeMapper.h"
@@ -119,7 +119,9 @@ public:
   enum
   {
     DefaultRenderMode=0,
+    RayCastAndTextureRenderMode,
     RayCastRenderMode,
+    TextureRenderMode,
     GPURenderMode,
     UndefinedRenderMode,
     InvalidRenderMode

@@ -13,11 +13,15 @@
 
 =========================================================================*/
 
-#ifndef __vtkVolumeMask_h_
-#define __vtkVolumeMask_h_
+#ifndef vtkVolumeMask_h_
+#define vtkVolumeMask_h_
 
 #include <vtkDataArray.h>
 #include <vtkImageData.h>
+#include <vtkOpenGLRenderWindow.h>
+#include <vtkRenderer.h>
+#include <vtkRenderWindow.h>
+#include <vtkTextureObject.h>
 
 #include <map> // STL required
 
@@ -25,40 +29,44 @@
 class vtkVolumeMask
 {
 public:
+  //--------------------------------------------------------------------------
   vtkVolumeMask()
     {
-      this->TextureId = 0;
-      this->Loaded = false;
-      this->LoadedExtent[0] = VTK_INT_MAX;
-      this->LoadedExtent[1] = VTK_INT_MIN;
-      this->LoadedExtent[2] = VTK_INT_MAX;
-      this->LoadedExtent[3] = VTK_INT_MIN;
-      this->LoadedExtent[4] = VTK_INT_MAX;
-      this->LoadedExtent[5] = VTK_INT_MIN;
+    this->Texture = NULL;
+    this->Loaded = false;
+    this->LoadedExtent[0] = VTK_INT_MAX;
+    this->LoadedExtent[1] = VTK_INT_MIN;
+    this->LoadedExtent[2] = VTK_INT_MAX;
+    this->LoadedExtent[3] = VTK_INT_MIN;
+    this->LoadedExtent[4] = VTK_INT_MAX;
+    this->LoadedExtent[5] = VTK_INT_MIN;
     }
 
+  //--------------------------------------------------------------------------
   ~vtkVolumeMask()
     {
-      if(this->TextureId != 0)
-        {
-        glDeleteTextures(1, &this->TextureId);
-        this->TextureId = 0;
-        }
+    if (this->Texture)
+      {
+      this->Texture->Delete();
+      this->Texture = 0;
+      }
     }
 
+  //--------------------------------------------------------------------------
   vtkTimeStamp GetBuildTime()
     {
     return this->BuildTime;
     }
 
+  //--------------------------------------------------------------------------
   void Bind()
     {
-      // Activate texture 6
-      glActiveTexture(GL_TEXTURE6);
-      glBindTexture(GL_TEXTURE_3D, this->TextureId);
+    this->Texture->Activate();
     }
 
-  void Update(vtkImageData *input,
+  //--------------------------------------------------------------------------
+  void Update(vtkRenderer* ren,
+              vtkImageData *input,
               int cellFlag,
               int textureExtent[6],
               int scalarMode,
@@ -67,16 +75,22 @@ public:
               const char* arrayName,
               vtkIdType maxMemoryInBytes)
     {
-      glActiveTexture(GL_TEXTURE6);
-
       bool needUpdate = false;
       bool modified = false;
-      if(this->TextureId == 0)
+
+      if (!this->Texture)
         {
-        glGenTextures(1, &this->TextureId);
+        this->Texture = vtkTextureObject::New();
         needUpdate = true;
         }
-      glBindTexture(GL_TEXTURE_3D,this->TextureId);
+
+      this->Texture->SetContext(vtkOpenGLRenderWindow::SafeDownCast(
+                                  ren->GetRenderWindow()));
+
+      if (!this->Texture->GetHandle())
+        {
+        needUpdate = true;
+        }
 
       int obsolete = needUpdate || !this->Loaded ||
                      input->GetMTime()>this->BuildTime;
@@ -122,8 +136,8 @@ public:
 
         // Enough memory?
         int textureSize[3];
-        int i=0;
-        while(i<3)
+        int i = 0;
+        while(i < 3)
           {
           textureSize[i] = textureExtent[2*i+1] - textureExtent[2*i] + 1;
           ++i;
@@ -135,194 +149,189 @@ public:
                        textureSize[2] <= width;
         if(this->Loaded)
           {
-          // So far, so good but some cards always succeed with a proxy texture
-          // let's try to actually allocate..
-          glTexImage3D(GL_TEXTURE_3D, 0, internalFormat, textureSize[0],
-                       textureSize[1], textureSize[2], 0, format, type, 0);
-          GLenum errorCode = glGetError();
-          this->Loaded = errorCode!= GL_OUT_OF_MEMORY;
+          // so far, so good but some cards don't report allocation error
+          this->Loaded = textureSize[0] * textureSize[1]*
+                         textureSize[2] *
+                         vtkAbstractArray::GetDataTypeSize(scalarType) *
+                         scalars->GetNumberOfComponents() <=
+                         maxMemoryInBytes;
           if(this->Loaded)
             {
-            // so far, so good, actual allocation succeeded.
-            if(errorCode != GL_NO_ERROR)
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+            if(!(textureExtent[1]-textureExtent[0]+cellFlag==dim[0]))
               {
-              cout << "After try to load the texture";
-              cout << "ERROR (x"<<hex<<errorCode<<") " << dec;
-              cout << endl;
+              glPixelStorei(GL_UNPACK_ROW_LENGTH,dim[0]-cellFlag);
               }
-            // so far, so good but some cards don't report allocation error
-            this->Loaded = textureSize[0] * textureSize[1]*
-                           textureSize[2]*vtkAbstractArray::GetDataTypeSize(scalarType)*
-            scalars->GetNumberOfComponents() <= maxMemoryInBytes;
-            if(this->Loaded)
+            if(!(textureExtent[3]-textureExtent[2]+cellFlag==dim[1]))
               {
-              // OK, we consider the allocation above succeeded...
-              // If it actually didn't the only to fix it for the user
-              // is to decrease the value of this->MaxMemoryInBytes.
+              glPixelStorei(GL_UNPACK_IMAGE_HEIGHT_EXT,
+                            dim[1]-cellFlag);
+              }
+            void* dataPtr = scalars->GetVoidPointer(
+                            ((textureExtent[4]*(dim[1]-cellFlag)+textureExtent[2]) *
+                            (dim[0]-cellFlag)+textureExtent[0]) *
+                            scalars->GetNumberOfComponents());
 
-              // enough memory! We can load the scalars!
+            this->Texture->SetDataType(type);
+            this->Texture->SetFormat(format);
+            this->Texture->SetInternalFormat(internalFormat);
+            this->Texture->Create3DFromRaw(
+              textureSize[0], textureSize[1], textureSize[2],
+              1, scalarType, dataPtr);
+            this->Texture->Activate();
+            this->Texture->SetWrapS(vtkTextureObject::ClampToEdge);
+            this->Texture->SetWrapT(vtkTextureObject::ClampToEdge);
+            this->Texture->SetWrapR(vtkTextureObject::ClampToEdge);
+            this->Texture->SetMagnificationFilter(vtkTextureObject::Nearest);
+            this->Texture->SetMinificationFilter(vtkTextureObject::Nearest);
+            this->Texture->SetBorderColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-              // we don't clamp to edge because for the computation of the
-              // gradient on the border we need some external value.
-              glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-              glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-              glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            // Restore the default values.
+            glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+            glPixelStorei(GL_UNPACK_IMAGE_HEIGHT_EXT, 0);
 
-              GLfloat borderColor[4]={0.0,0.0,0.0,0.0};
-              glTexParameterfv(GL_TEXTURE_3D, GL_TEXTURE_BORDER_COLOR, borderColor);
+            this->LoadedCellFlag = cellFlag;
+            i = 0;
+            while(i < 6)
+              {
+              this->LoadedExtent[i] = textureExtent[i];
+              ++i;
+              }
 
-              glPixelTransferf(GL_ALPHA_SCALE, 1.0);
-              glPixelTransferf(GL_ALPHA_BIAS, 0.0);
-              glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+            double spacing[3];
+            double origin[3];
+            input->GetSpacing(spacing);
+            input->GetOrigin(origin);
+            int swapBounds[3];
+            swapBounds[0] = (spacing[0] < 0);
+            swapBounds[1] = (spacing[1] < 0);
+            swapBounds[2] = (spacing[2] < 0);
 
-              if(!(textureExtent[1]-textureExtent[0]+cellFlag==dim[0]))
+            if(!this->LoadedCellFlag) // loaded extents represent points
+              {
+              // slabsPoints[i]=(slabsDataSet[i] - origin[i/2]) / spacing[i/2];
+              // in general, x=o+i*spacing.
+              // if spacing is positive min extent match the min of the
+              // bounding box
+              // and the max extent match the max of the bounding box
+              // if spacing is negative min extent match the max of the
+              // bounding box
+              // and the max extent match the min of the bounding box
+
+              // if spacing is negative, we may have to rethink the equation
+              // between real point and texture coordinate...
+              this->LoadedBounds[0]=origin[0]+
+                static_cast<double>(this->LoadedExtent[0+swapBounds[0]])*spacing[0];
+              this->LoadedBounds[2]=origin[1]+
+                static_cast<double>(this->LoadedExtent[2+swapBounds[1]])*spacing[1];
+              this->LoadedBounds[4]=origin[2]+
+                static_cast<double>(this->LoadedExtent[4+swapBounds[2]])*spacing[2];
+              this->LoadedBounds[1]=origin[0]+
+                static_cast<double>(this->LoadedExtent[1-swapBounds[0]])*spacing[0];
+              this->LoadedBounds[3]=origin[1]+
+                static_cast<double>(this->LoadedExtent[3-swapBounds[1]])*spacing[1];
+              this->LoadedBounds[5]=origin[2]+
+                static_cast<double>(this->LoadedExtent[5-swapBounds[2]])*spacing[2];
+
+              }
+            else // loaded extents represent cells
+              {
+              int wholeTextureExtent[6];
+              input->GetExtent(wholeTextureExtent);
+              i=1;
+              while(i<6)
                 {
-                glPixelStorei(GL_UNPACK_ROW_LENGTH,dim[0]-cellFlag);
+                wholeTextureExtent[i]--;
+                i+=2;
                 }
-              if(!(textureExtent[3]-textureExtent[2]+cellFlag==dim[1]))
+
+              i=0;
+              while(i<3)
                 {
-                glPixelStorei(GL_UNPACK_IMAGE_HEIGHT_EXT,
-                              dim[1]-cellFlag);
-                }
-              void* dataPtr = scalars->GetVoidPointer(
-                              ((textureExtent[4]*(dim[1]-cellFlag)+textureExtent[2]) *
-                              (dim[0]-cellFlag)+textureExtent[0]) *
-                              scalars->GetNumberOfComponents());
+                if(this->LoadedExtent[2*i]==wholeTextureExtent[2*i])
+                  {
+                  this->LoadedBounds[2*i+swapBounds[i]]=origin[i];
+                  }
+                else
+                  {
+                  this->LoadedBounds[2*i+swapBounds[i]]=origin[i]+
+                    (static_cast<double>(this->LoadedExtent[2*i])+0.5)*spacing[i];
+                  }
 
-              glTexImage3D(GL_TEXTURE_3D, 0, internalFormat,
-                           textureSize[0], textureSize[1], textureSize[2],
-                           0, format, type, dataPtr);
-
-              // Restore the default values.
-              glPixelStorei(GL_UNPACK_ROW_LENGTH,0);
-              glPixelStorei(GL_UNPACK_IMAGE_HEIGHT_EXT,0);
-              glPixelTransferf(GL_ALPHA_SCALE,1.0);
-              glPixelTransferf(GL_ALPHA_BIAS,0.0);
-
-              this->LoadedCellFlag = cellFlag;
-              i = 0;
-              while(i < 6)
-                {
-                this->LoadedExtent[i] = textureExtent[i];
+                if(this->LoadedExtent[2*i+1]==wholeTextureExtent[2*i+1])
+                  {
+                  this->LoadedBounds[2*i+1-swapBounds[i]]=origin[i]+
+                    (static_cast<double>(this->LoadedExtent[2*i+1])+1.0)*spacing[i];
+                  }
+                else
+                  {
+                  this->LoadedBounds[2*i+1-swapBounds[i]]=origin[i]+
+                    (static_cast<double>(this->LoadedExtent[2*i+1])+0.5)*spacing[i];
+                  }
                 ++i;
                 }
-
-              double spacing[3];
-              double origin[3];
-              input->GetSpacing(spacing);
-              input->GetOrigin(origin);
-              int swapBounds[3];
-              swapBounds[0] = (spacing[0] < 0);
-              swapBounds[1] = (spacing[1] < 0);
-              swapBounds[2] = (spacing[2] < 0);
-
-              if(!this->LoadedCellFlag) // loaded extents represent points
-                {
-                // slabsPoints[i]=(slabsDataSet[i] - origin[i/2]) / spacing[i/2];
-                // in general, x=o+i*spacing.
-                // if spacing is positive min extent match the min of the
-                // bounding box
-                // and the max extent match the max of the bounding box
-                // if spacing is negative min extent match the max of the
-                // bounding box
-                // and the max extent match the min of the bounding box
-
-                // if spacing is negative, we may have to rethink the equation
-                // between real point and texture coordinate...
-                this->LoadedBounds[0]=origin[0]+
-                  static_cast<double>(this->LoadedExtent[0+swapBounds[0]])*spacing[0];
-                this->LoadedBounds[2]=origin[1]+
-                  static_cast<double>(this->LoadedExtent[2+swapBounds[1]])*spacing[1];
-                this->LoadedBounds[4]=origin[2]+
-                  static_cast<double>(this->LoadedExtent[4+swapBounds[2]])*spacing[2];
-                this->LoadedBounds[1]=origin[0]+
-                  static_cast<double>(this->LoadedExtent[1-swapBounds[0]])*spacing[0];
-                this->LoadedBounds[3]=origin[1]+
-                  static_cast<double>(this->LoadedExtent[3-swapBounds[1]])*spacing[1];
-                this->LoadedBounds[5]=origin[2]+
-                  static_cast<double>(this->LoadedExtent[5-swapBounds[2]])*spacing[2];
-
-                }
-              else // loaded extents represent cells
-                {
-                int wholeTextureExtent[6];
-                input->GetExtent(wholeTextureExtent);
-                i=1;
-                while(i<6)
-                  {
-                  wholeTextureExtent[i]--;
-                  i+=2;
-                  }
-
-                i=0;
-                while(i<3)
-                  {
-                  if(this->LoadedExtent[2*i]==wholeTextureExtent[2*i])
-                    {
-                    this->LoadedBounds[2*i+swapBounds[i]]=origin[i];
-                    }
-                  else
-                    {
-                    this->LoadedBounds[2*i+swapBounds[i]]=origin[i]+
-                      (static_cast<double>(this->LoadedExtent[2*i])+0.5)*spacing[i];
-                    }
-
-                  if(this->LoadedExtent[2*i+1]==wholeTextureExtent[2*i+1])
-                    {
-                    this->LoadedBounds[2*i+1-swapBounds[i]]=origin[i]+
-                      (static_cast<double>(this->LoadedExtent[2*i+1])+1.0)*spacing[i];
-                    }
-                  else
-                    {
-                    this->LoadedBounds[2*i+1-swapBounds[i]]=origin[i]+
-                      (static_cast<double>(this->LoadedExtent[2*i+1])+0.5)*spacing[i];
-                    }
-                  ++i;
-                  }
-                }
-              modified=true;
-              } // if enough memory
-            } //load fail with out of memory
+              }
+            modified = true;
+            }
           }
         }
 
-      if(this->Loaded && (needUpdate || modified))
-        {
-        glTexParameterf(GL_TEXTURE_3D,GL_TEXTURE_MIN_FILTER,
-                        GL_NEAREST );
-        glTexParameterf(GL_TEXTURE_3D,GL_TEXTURE_MAG_FILTER,
-                        GL_NEAREST );
-        modified=true;
-        }
       if(modified)
         {
         this->BuildTime.Modified();
         }
-      glActiveTexture(GL_TEXTURE0);
     }
 
+  //--------------------------------------------------------------------------
   double* GetLoadedBounds()
     {
     return this->LoadedBounds;
     }
 
+  //--------------------------------------------------------------------------
   vtkIdType* GetLoadedExtent()
     {
     return this->LoadedExtent;
     }
 
+  //--------------------------------------------------------------------------
   int GetLoadedCellFlag()
     {
     return this->LoadedCellFlag;
     }
 
+  //--------------------------------------------------------------------------
   bool IsLoaded()
     {
     return this->Loaded;
     }
 
+  // Get the texture unit
+  //--------------------------------------------------------------------------
+  int GetTextureUnit(void)
+    {
+    if (!this->Texture)
+      {
+      return -1;
+      }
+    return this->Texture->GetTextureUnit();
+    }
+
+  //--------------------------------------------------------------------------
+  void ReleaseGraphicsResources(vtkWindow *window)
+    {
+    if (this->Texture)
+      {
+      this->Texture->ReleaseGraphicsResources(window);
+      this->Texture->Delete();
+      this->Texture = 0;
+      }
+    }
+
+
 protected:
-  GLuint TextureId;
+  vtkTextureObject* Texture;
   vtkTimeStamp BuildTime;
 
   double LoadedBounds[6];
@@ -345,5 +354,5 @@ private:
   vtkMapMaskTextureId &operator=(const vtkMapMaskTextureId &other);
 };
 
-#endif // __vtkVolumeMask_h_
+#endif // vtkVolumeMask_h_
 // VTK-HeaderTest-Exclude: vtkVolumeMask.h

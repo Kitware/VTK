@@ -52,8 +52,8 @@
 // vtkActor2D vtkTextMapper vtkPolyDataMapper2D vtkScalarBarActor
 // vtkCoordinate vtkTextProperty
 
-#ifndef __vtkParallelCoordinatesActor_h
-#define __vtkParallelCoordinatesActor_h
+#ifndef vtkParallelCoordinatesActor_h
+#define vtkParallelCoordinatesActor_h
 
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"

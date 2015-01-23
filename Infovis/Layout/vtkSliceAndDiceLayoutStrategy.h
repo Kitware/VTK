@@ -28,8 +28,8 @@
 // Shneiderman, B. 1992. Tree visualization with tree-maps: 2-d space-filling approach.
 // ACM Trans. Graph. 11, 1 (Jan. 1992), 92-99.
 
-#ifndef __vtkSliceAndDiceLayoutStrategy_h
-#define __vtkSliceAndDiceLayoutStrategy_h
+#ifndef vtkSliceAndDiceLayoutStrategy_h
+#define vtkSliceAndDiceLayoutStrategy_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkTreeMapLayoutStrategy.h"

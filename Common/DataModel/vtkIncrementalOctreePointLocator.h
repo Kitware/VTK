@@ -42,8 +42,8 @@
 //  vtkAbstractPointLocator, vtkIncrementalPointLocator, vtkPointLocator,
 //  vtkMergePoints
 
-#ifndef __vtkIncrementalOctreePointLocator_h
-#define __vtkIncrementalOctreePointLocator_h
+#ifndef vtkIncrementalOctreePointLocator_h
+#define vtkIncrementalOctreePointLocator_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkIncrementalPointLocator.h"

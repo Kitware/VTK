@@ -51,8 +51,8 @@
 // .SECTION See Also
 // vtkTriangleFilter
 
-#ifndef __vtkStripper_h
-#define __vtkStripper_h
+#ifndef vtkStripper_h
+#define vtkStripper_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

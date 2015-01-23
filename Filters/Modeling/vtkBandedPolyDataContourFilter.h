@@ -34,8 +34,8 @@
 // .SECTION See Also
 // vtkClipDataSet vtkClipPolyData vtkClipVolume vtkContourFilter
 //
-#ifndef __vtkBandedPolyDataContourFilter_h
-#define __vtkBandedPolyDataContourFilter_h
+#ifndef vtkBandedPolyDataContourFilter_h
+#define vtkBandedPolyDataContourFilter_h
 
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

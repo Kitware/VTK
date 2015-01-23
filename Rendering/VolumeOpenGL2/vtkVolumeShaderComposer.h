@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef ___vtkVolumeShaderComposer_h
-#define ___vtkVolumeShaderComposer_h
+#ifndef _vtkVolumeShaderComposer_h
+#define _vtkVolumeShaderComposer_h
 
 #include "vtkVolumeMask.h"
 
@@ -138,6 +138,8 @@ namespace vtkvolume
       \nuniform vec2 in_inverseWindowSize;\
       \nuniform vec3 in_textureExtentsMax;\
       \nuniform vec3 in_textureExtentsMin;\
+      \nuniform float in_volumeScale;\
+      \nuniform float in_volumeBias;\
       \n\
       \n// Material and lighting\
       \nuniform vec3 in_diffuse;\
@@ -710,7 +712,8 @@ namespace vtkvolume
                                vtkVolumeMapper* mapper,
                                vtkVolume* vtkNotUsed(vol),
                                vtkImageData* maskInput,
-                               vtkVolumeMask* mask, int maskType)
+                               vtkVolumeMask* mask, int maskType,
+                               int noOfComponents)
     {
     std::string shaderStr = std::string("\
       \n    if (!l_skip)\
@@ -719,30 +722,56 @@ namespace vtkvolume
 
     if (mapper->GetBlendMode() == vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND)
       {
-      shaderStr += std::string("\
-        \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
-        \n      if (l_maxValue.w < scalar.w)\
-        \n        {\
-        \n        l_maxValue = scalar;\
-        \n        }"
-      );
+      if (noOfComponents == 4)
+        {
+        shaderStr += std::string("\
+          \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
+          \n      if (l_maxValue.w < scalar.w)\
+          \n        {\
+          \n        l_maxValue = scalar;\
+          \n        }"
+        );
+        }
+      else
+        {
+        shaderStr += std::string("\
+          \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
+          \n      if (l_maxValue.w < scalar.x)\
+          \n        {\
+          \n        l_maxValue.w = scalar.x;\
+          \n        }"
+        );
+        }
       }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::MINIMUM_INTENSITY_BLEND)
       {
-      shaderStr += std::string("\
-        \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
-        \n      if (l_minValue.w > scalar.w)\
-        \n        {\
-        \n        l_minValue = scalar;\
-        \n        }"
-      );
+      if (noOfComponents == 4)
+        {
+        shaderStr += std::string("\
+          \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
+          \n      if (l_minValue.w > scalar.w)\
+          \n        {\
+          \n        l_minValue = scalar;\
+          \n        }"
+        );
+        }
+      else
+        {
+        shaderStr += std::string("\
+          \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
+          \n      if (l_minValue.w > scalar.x)\
+          \n        {\
+          \n        l_minValue.w = scalar.x;\
+          \n        }"
+        );
+        }
       }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::ADDITIVE_BLEND)
       {
       shaderStr += std::string("\
         \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
         \n      float opacity = computeOpacity(scalar);\
-        \n      l_sumValue = l_sumValue + opacity * scalar.w;"
+        \n      l_sumValue = l_sumValue + opacity * scalar.x;"
       );
       }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::COMPOSITE_BLEND)
@@ -792,8 +821,8 @@ namespace vtkvolume
       return std::string("\
        \n  vec4 g_srcColor = vec4(computeColor(l_maxValue).xyz,\
        \n                         computeOpacity(l_maxValue));\
-       \n g_fragColor.rgb = g_srcColor.rgb * g_srcColor.a;\
-       \n g_fragColor.a = g_srcColor.a;"
+       \n  g_fragColor.rgb = g_srcColor.rgb * g_srcColor.a;\
+       \n  g_fragColor.a = g_srcColor.a;"
       );
       }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::MINIMUM_INTENSITY_BLEND)
@@ -1300,5 +1329,5 @@ namespace vtkvolume
   }
 }
 
-#endif // ___vtkVolumeShaderComposer_h
+#endif // _vtkVolumeShaderComposer_h
 // VTK-HeaderTest-Exclude: vtkVolumeShaderComposer.h

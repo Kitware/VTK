@@ -39,8 +39,8 @@
 // .SECTION See Also
 // vtkInteractorObserver
 
-#ifndef __vtkRenderWindowInteractor_h
-#define __vtkRenderWindowInteractor_h
+#ifndef vtkRenderWindowInteractor_h
+#define vtkRenderWindowInteractor_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"

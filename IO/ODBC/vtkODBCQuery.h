@@ -30,8 +30,8 @@
 // .SECTION See Also
 // vtkSQLDatabase vtkSQLQuery vtkODBCDatabase
 
-#ifndef __vtkODBCQuery_h
-#define __vtkODBCQuery_h
+#ifndef vtkODBCQuery_h
+#define vtkODBCQuery_h
 
 #include "vtkIOODBCModule.h" // For export macro
 #include "vtkSQLQuery.h"
@@ -173,5 +173,5 @@ private:
   char *LastErrorText;
 };
 
-#endif // __vtkODBCQuery_h
+#endif // vtkODBCQuery_h
 

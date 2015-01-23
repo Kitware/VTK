@@ -58,8 +58,8 @@
 // The minimal angle is not, strictly speaking, a quality function, but it is
 // provided because of its usage by many authors.
 
-#ifndef __vtkMeshQuality_h
-#define __vtkMeshQuality_h
+#ifndef vtkMeshQuality_h
+#define vtkMeshQuality_h
 
 #include "vtkFiltersVerdictModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"

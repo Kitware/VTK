@@ -23,8 +23,8 @@
 
 
 
-#ifndef __vtkImageLaplacian_h
-#define __vtkImageLaplacian_h
+#ifndef vtkImageLaplacian_h
+#define vtkImageLaplacian_h
 
 
 #include "vtkImagingGeneralModule.h" // For export macro

@@ -16,8 +16,8 @@
 // .SECTION Description
 // This header forward-declares the proper streams.
 
-#ifndef __vtkIOStreamFwd_h
-#define __vtkIOStreamFwd_h
+#ifndef vtkIOStreamFwd_h
+#define vtkIOStreamFwd_h
 
 #include "vtkConfigure.h"
 
@@ -41,5 +41,5 @@ using std::fstream;
 #pragma warning(pop)
 #endif
 
-#endif // __vtkIOStreamFwd_h
+#endif // vtkIOStreamFwd_h
 // VTK-HeaderTest-Exclude: vtkIOStreamFwd.h

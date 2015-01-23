@@ -17,8 +17,8 @@
 // vtkInformationRequestKey is used to represent keys for pointer
 // to pointer values in vtkInformation.h
 
-#ifndef __vtkInformationRequestKey_h
-#define __vtkInformationRequestKey_h
+#ifndef vtkInformationRequestKey_h
+#define vtkInformationRequestKey_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkInformationKey.h"

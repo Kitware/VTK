@@ -15,8 +15,8 @@
 // .NAME vtkPipelineSize - compute the memory required by a pipeline
 
 
-#ifndef __vtkPipelineSize_h
-#define __vtkPipelineSize_h
+#ifndef vtkPipelineSize_h
+#define vtkPipelineSize_h
 
 #include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkObject.h"

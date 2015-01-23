@@ -14,8 +14,8 @@
 =========================================================================*/
 // .NAME vtkClientSocket - Encapsulates a client socket.
 
-#ifndef __vtkClientSocket_h
-#define __vtkClientSocket_h
+#ifndef vtkClientSocket_h
+#define vtkClientSocket_h
 
 #include "vtkCommonSystemModule.h" // For export macro
 #include "vtkSocket.h"

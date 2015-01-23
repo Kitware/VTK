@@ -27,8 +27,8 @@
 
 
 
-#ifndef __vtkImageIdealLowPass_h
-#define __vtkImageIdealLowPass_h
+#ifndef vtkImageIdealLowPass_h
+#define vtkImageIdealLowPass_h
 
 
 #include "vtkImagingFourierModule.h" // For export macro

@@ -19,8 +19,8 @@
 // when the vtkObjectBase referred to is destroyed, the pointer gets initialized to
 // NULL, thus avoid dangling references.
 
-#ifndef __vtkWeakPointerBase_h
-#define __vtkWeakPointerBase_h
+#ifndef vtkWeakPointerBase_h
+#define vtkWeakPointerBase_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObjectBase.h"

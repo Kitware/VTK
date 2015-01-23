@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkWidgetEvent vtkWidgetEventTranslator
 
-#ifndef __vtkWidgetCallbackMapper_h
-#define __vtkWidgetCallbackMapper_h
+#ifndef vtkWidgetCallbackMapper_h
+#define vtkWidgetCallbackMapper_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkObject.h"
@@ -106,5 +106,5 @@ private:
 };
 
 
-#endif /* __vtkWidgetCallbackMapper_h */
+#endif /* vtkWidgetCallbackMapper_h */
 

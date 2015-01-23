@@ -28,8 +28,8 @@
 // This class is also the parent class for any more specialized view which uses
 // a renderer.
 
-#ifndef __vtkRenderView_h
-#define __vtkRenderView_h
+#ifndef vtkRenderView_h
+#define vtkRenderView_h
 
 #include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkRenderViewBase.h"

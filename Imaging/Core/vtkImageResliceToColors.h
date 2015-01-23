@@ -26,8 +26,8 @@
 // vtkImageMapToColors
 
 
-#ifndef __vtkImageResliceToColors_h
-#define __vtkImageResliceToColors_h
+#ifndef vtkImageResliceToColors_h
+#define vtkImageResliceToColors_h
 
 
 #include "vtkImagingCoreModule.h" // For export macro

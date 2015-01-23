@@ -20,8 +20,8 @@
 // .SECTION See Also
 // vtkGPUInfoList vtkDirectXGPUInfoList vtkCoreGraphicsGPUInfoList
 
-#ifndef __vtkGPUInfo_h
-#define __vtkGPUInfo_h
+#ifndef vtkGPUInfo_h
+#define vtkGPUInfo_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"

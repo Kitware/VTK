@@ -29,8 +29,8 @@
 // .SECTION See Also
 // vtkTree vtkXMLReader vtkPhyloXMLTreeWriter
 
-#ifndef __vtkPhyloXMLTreeReader_h
-#define __vtkPhyloXMLTreeReader_h
+#ifndef vtkPhyloXMLTreeReader_h
+#define vtkPhyloXMLTreeReader_h
 
 #include "vtkIOInfovisModule.h" // For export macro
 #include "vtkSmartPointer.h"    // For SP ivar

@@ -27,8 +27,8 @@
 // vtkQuadraticEdge vtkQuadraticTetra vtkQuadraticPyramid
 // vtkQuadraticQuad vtkQuadraticHexahedron vtkQuadraticWedge
 
-#ifndef __vtkQuadraticTriangle_h
-#define __vtkQuadraticTriangle_h
+#ifndef vtkQuadraticTriangle_h
+#define vtkQuadraticTriangle_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkNonLinearCell.h"

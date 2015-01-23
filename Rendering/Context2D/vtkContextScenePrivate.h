@@ -22,8 +22,8 @@
 //
 // \internal
 
-#ifndef __vtkContextScenePrivate_h
-#define __vtkContextScenePrivate_h
+#ifndef vtkContextScenePrivate_h
+#define vtkContextScenePrivate_h
 
 #include "vtkAbstractContextItem.h"
 #include "vtkContextScene.h"
@@ -161,5 +161,5 @@ public:
   vtkAbstractContextItem* Item;
 };
 
-#endif //__vtkContextScenePrivate_h
+#endif //vtkContextScenePrivate_h
 // VTK-HeaderTest-Exclude: vtkContextScenePrivate.h

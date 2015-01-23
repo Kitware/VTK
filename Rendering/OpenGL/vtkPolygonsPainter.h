@@ -17,8 +17,8 @@
 // This painter renders Polys in vtkPolyData. It can render the polys
 // in any representation (VTK_POINTS, VTK_WIREFRAME, VTK_SURFACE).
 
-#ifndef __vtkPolygonsPainter_h
-#define __vtkPolygonsPainter_h
+#ifndef vtkPolygonsPainter_h
+#define vtkPolygonsPainter_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkPrimitivePainter.h"

@@ -36,8 +36,8 @@
 // GL_ARB_draw_buffers
 // GL_EXT_framebuffer_object
 // GL_ARB_pixel_buffer_object
-#ifndef __vtkStructuredGridLIC2D_h
-#define __vtkStructuredGridLIC2D_h
+#ifndef vtkStructuredGridLIC2D_h
+#define vtkStructuredGridLIC2D_h
 
 #include "vtkRenderingLICModule.h" // For export macro
 #include "vtkStructuredGridAlgorithm.h"

@@ -39,8 +39,8 @@
 // added in GCC 4.0. Currently hidden is not used, but it can be used to
 // explicitly hide symbols from external linkage.
 
-#ifndef __vtkABI_h
-#define __vtkABI_h
+#ifndef vtkABI_h
+#define vtkABI_h
 
 #if defined(_WIN32)
 # define VTK_ABI_IMPORT __declspec(dllimport)
@@ -56,5 +56,5 @@
 # define VTK_ABI_HIDDEN
 #endif
 
-#endif // __vtkABI_h
+#endif // vtkABI_h
 // VTK-HeaderTest-Exclude: vtkABI.h

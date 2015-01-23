@@ -20,8 +20,8 @@
 // as a sub-block. For example, if there are two inputs and four update
 // pieces, the output contains two groups with four datasets each.
 
-#ifndef __vtkMultiBlockDataGroupFilter_h
-#define __vtkMultiBlockDataGroupFilter_h
+#ifndef vtkMultiBlockDataGroupFilter_h
+#define vtkMultiBlockDataGroupFilter_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"

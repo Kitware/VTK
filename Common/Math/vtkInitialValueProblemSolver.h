@@ -26,8 +26,8 @@
 // .SECTION See Also
 // vtkRungeKutta2 vtkRungeKutta4
 
-#ifndef __vtkInitialValueProblemSolver_h
-#define __vtkInitialValueProblemSolver_h
+#ifndef vtkInitialValueProblemSolver_h
+#define vtkInitialValueProblemSolver_h
 
 #include "vtkCommonMathModule.h" // For export macro
 #include "vtkObject.h"

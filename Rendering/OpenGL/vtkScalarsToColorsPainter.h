@@ -19,8 +19,8 @@
 // colors. It enable/disables coloring state depending on the ScalarMode.
 // This painter is composite dataset enabled.
 
-#ifndef __vtkScalarsToColorsPainter_h
-#define __vtkScalarsToColorsPainter_h
+#ifndef vtkScalarsToColorsPainter_h
+#define vtkScalarsToColorsPainter_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkPainter.h"

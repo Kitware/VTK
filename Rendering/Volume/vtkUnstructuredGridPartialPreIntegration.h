@@ -36,8 +36,8 @@
 // This class is thread safe only after the first instance is created.
 //
 
-#ifndef __vtkUnstructuredGridPartialPreIntegration_h
-#define __vtkUnstructuredGridPartialPreIntegration_h
+#ifndef vtkUnstructuredGridPartialPreIntegration_h
+#define vtkUnstructuredGridPartialPreIntegration_h
 
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkUnstructuredGridVolumeRayIntegrator.h"
@@ -164,4 +164,4 @@ inline void vtkUnstructuredGridPartialPreIntegration::IntegrateRay(
   color[3] += (1-color[3])*alpha;
 }
 
-#endif //__vtkUnstructuredGridPartialPreIntegration_h
+#endif //vtkUnstructuredGridPartialPreIntegration_h

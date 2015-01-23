@@ -30,8 +30,8 @@
 // to form an unstructured grid of elements.
 //
 
-#ifndef __vtkSLACReader_h
-#define __vtkSLACReader_h
+#ifndef vtkSLACReader_h
+#define vtkSLACReader_h
 
 #include "vtkIONetCDFModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
@@ -385,4 +385,4 @@ private:
   void operator=(const vtkSLACReader &);        // Not implemented
 };
 
-#endif //__vtkSLACReader_h
+#endif //vtkSLACReader_h

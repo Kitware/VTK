@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkRenderPass
 
-#ifndef __vtkLightsPass_h
-#define __vtkLightsPass_h
+#ifndef vtkLightsPass_h
+#define vtkLightsPass_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkRenderPass.h"

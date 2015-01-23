@@ -39,8 +39,8 @@
 // .SECTION see also
 // vtkAssemblyPath vtkProp vtkPicker vtkMatrix4x4
 
-#ifndef __vtkAssemblyNode_h
-#define __vtkAssemblyNode_h
+#ifndef vtkAssemblyNode_h
+#define vtkAssemblyNode_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"

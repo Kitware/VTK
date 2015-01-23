@@ -19,8 +19,8 @@
 // vtkXMLUniformGridAMRWriter for writing vtkUniformGridAMR datasets in
 // VTK-XML format.
 
-#ifndef __vtkXMLHierarchicalBoxDataWriter_h
-#define __vtkXMLHierarchicalBoxDataWriter_h
+#ifndef vtkXMLHierarchicalBoxDataWriter_h
+#define vtkXMLHierarchicalBoxDataWriter_h
 
 #include "vtkXMLUniformGridAMRWriter.h"
 

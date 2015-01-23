@@ -20,8 +20,8 @@
 // .SECTION see also
 // vtkImageStencil vtkImplicitFunctionToImageStencil vtkPolyDataToImageStencil
 
-#ifndef __vtkImageToImageStencil_h
-#define __vtkImageToImageStencil_h
+#ifndef vtkImageToImageStencil_h
+#define vtkImageToImageStencil_h
 
 
 #include "vtkImagingStencilModule.h" // For export macro

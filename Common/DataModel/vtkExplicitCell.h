@@ -21,8 +21,8 @@
 // require explicit face/edge descriptions. Most cells in VTK are
 // implicitly represented.
 
-#ifndef __vtkExplicitCell_h
-#define __vtkExplicitCell_h
+#ifndef vtkExplicitCell_h
+#define vtkExplicitCell_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkNonLinearCell.h"

@@ -35,8 +35,8 @@
 // .SECTION See also
 // vtkCommand vtkTimeStamp
 
-#ifndef __vtkObject_h
-#define __vtkObject_h
+#ifndef vtkObject_h
+#define vtkObject_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObjectBase.h"

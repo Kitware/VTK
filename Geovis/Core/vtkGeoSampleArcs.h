@@ -26,8 +26,8 @@
 // This is useful in order to keep lines such as political boundaries from
 // intersecting the globe and becoming invisible.
 
-#ifndef __vtkGeoSampleArcs_h
-#define __vtkGeoSampleArcs_h
+#ifndef vtkGeoSampleArcs_h
+#define vtkGeoSampleArcs_h
 
 #include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

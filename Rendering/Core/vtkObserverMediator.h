@@ -26,8 +26,8 @@
 // vtkAbstractWidget vtkWidgetRepresentation
 
 
-#ifndef __vtkObserverMediator_h
-#define __vtkObserverMediator_h
+#ifndef vtkObserverMediator_h
+#define vtkObserverMediator_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"

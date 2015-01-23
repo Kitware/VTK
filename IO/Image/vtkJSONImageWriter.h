@@ -17,8 +17,8 @@
 // vtkJSONImageWriter writes a JSON file which will describe the
 // data inside a vtkImageData.
 
-#ifndef __vtkJSONImageWriter_h
-#define __vtkJSONImageWriter_h
+#ifndef vtkJSONImageWriter_h
+#define vtkJSONImageWriter_h
 
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

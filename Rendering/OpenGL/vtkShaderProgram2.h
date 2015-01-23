@@ -19,8 +19,8 @@
 // piece of source code associated with one of the shader units (vertex,
 // fragment, geometry).
 
-#ifndef __vtkShaderProgram2_h
-#define __vtkShaderProgram2_h
+#ifndef vtkShaderProgram2_h
+#define vtkShaderProgram2_h
 
 #include <cassert> // for templated functions
 #include "vtkRenderingOpenGLModule.h" // for export macro

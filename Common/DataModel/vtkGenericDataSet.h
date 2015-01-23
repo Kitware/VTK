@@ -51,8 +51,8 @@
 // .SECTION See Also
 // vtkGenericAdaptorCell vtkDataSet
 
-#ifndef __vtkGenericDataSet_h
-#define __vtkGenericDataSet_h
+#ifndef vtkGenericDataSet_h
+#define vtkGenericDataSet_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"

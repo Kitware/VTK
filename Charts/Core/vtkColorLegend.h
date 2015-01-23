@@ -18,8 +18,8 @@
 // vtkColorLegend is an item that will display the vtkScalarsToColors
 // using a 1D texture, and a vtkAxis to show both the color and numerical range.
 
-#ifndef __vtkColorLegend_h
-#define __vtkColorLegend_h
+#ifndef vtkColorLegend_h
+#define vtkColorLegend_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkChartLegend.h"

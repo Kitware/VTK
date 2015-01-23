@@ -20,8 +20,8 @@
 // multi-group data files are meta-files that point to a list of serial VTK
 // XML files.
 
-#ifndef __vtkXMLPMultiBlockDataWriter_h
-#define __vtkXMLPMultiBlockDataWriter_h
+#ifndef vtkXMLPMultiBlockDataWriter_h
+#define vtkXMLPMultiBlockDataWriter_h
 
 #include "vtkIOParallelXMLModule.h" // For export macro
 #include "vtkXMLMultiBlockDataWriter.h"

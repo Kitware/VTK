@@ -22,8 +22,8 @@
 // proxy object: it is simply a convenience for creating or removing
 // connections.
 
-#ifndef __vtkAlgorithmOutput_h
-#define __vtkAlgorithmOutput_h
+#ifndef vtkAlgorithmOutput_h
+#define vtkAlgorithmOutput_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkObject.h"

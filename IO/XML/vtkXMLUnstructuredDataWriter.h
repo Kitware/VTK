@@ -17,8 +17,8 @@
 // vtkXMLUnstructuredDataWriter provides VTK XML writing functionality
 // that is common among all the unstructured data formats.
 
-#ifndef __vtkXMLUnstructuredDataWriter_h
-#define __vtkXMLUnstructuredDataWriter_h
+#ifndef vtkXMLUnstructuredDataWriter_h
+#define vtkXMLUnstructuredDataWriter_h
 
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLWriter.h"

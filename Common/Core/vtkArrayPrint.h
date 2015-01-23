@@ -24,8 +24,8 @@
 // Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National
 // Laboratories.
 
-#ifndef __vtkArrayPrint_h
-#define __vtkArrayPrint_h
+#ifndef vtkArrayPrint_h
+#define vtkArrayPrint_h
 
 #include "vtkTypedArray.h"
 

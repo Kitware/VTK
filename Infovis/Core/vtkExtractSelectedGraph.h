@@ -31,8 +31,8 @@
 // indicate that an edge selection should maintain the full set of vertices,
 // by turning RemoveIsolatedVertices off.
 
-#ifndef __vtkExtractSelectedGraph_h
-#define __vtkExtractSelectedGraph_h
+#ifndef vtkExtractSelectedGraph_h
+#define vtkExtractSelectedGraph_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"

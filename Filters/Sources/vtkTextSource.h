@@ -30,8 +30,8 @@
 // .SECTION See Also
 // vtkVectorText
 
-#ifndef __vtkTextSource_h
-#define __vtkTextSource_h
+#ifndef vtkTextSource_h
+#define vtkTextSource_h
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

@@ -19,8 +19,8 @@
 // is done on that axis.
 
 
-#ifndef __vtkImageContinuousDilate3D_h
-#define __vtkImageContinuousDilate3D_h
+#ifndef vtkImageContinuousDilate3D_h
+#define vtkImageContinuousDilate3D_h
 
 
 #include "vtkImagingMorphologicalModule.h" // For export macro

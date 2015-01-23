@@ -22,8 +22,8 @@
 // .SECTION See Also
 // vtkAMRInformation
 
-#ifndef __vtkOverlappingAMR2_h
-#define __vtkOverlappingAMR2_h
+#ifndef vtkOverlappingAMR2_h
+#define vtkOverlappingAMR2_h
 
 #include "vtkUniformGridAMR2.h"
 

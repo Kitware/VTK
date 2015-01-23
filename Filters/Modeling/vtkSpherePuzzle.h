@@ -16,8 +16,8 @@
 // .SECTION Description
 // vtkSpherePuzzle creates
 
-#ifndef __vtkSpherePuzzle_h
-#define __vtkSpherePuzzle_h
+#ifndef vtkSpherePuzzle_h
+#define vtkSpherePuzzle_h
 
 #include "vtkFiltersModelingModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

@@ -28,8 +28,8 @@ PURPOSE.  See the above copyright notice for more information.
 // .SECTION See Also
 // vtkOpenGLRenderWindow vtkCocoaRenderWindow
 
-#ifndef __vtkCarbonRenderWindow_h
-#define __vtkCarbonRenderWindow_h
+#ifndef vtkCarbonRenderWindow_h
+#define vtkCarbonRenderWindow_h
 
 #if defined(__LP64__) && __LP64__
   #error VTK_USE_CARBON cannot work in 64 bit; use VTK_USE_COCOA instead.

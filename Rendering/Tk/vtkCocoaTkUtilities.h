@@ -28,8 +28,8 @@ PURPOSE.  See the above copyright notice for more information.
 // That means no Objective-C may be used. That's why some instance variables
 // are void* instead of what they really should be.
 
-#ifndef __vtkvtkCocoaTkUtilities_h
-#define __vtkvtkCocoaTkUtilities_h
+#ifndef vtkvtkCocoaTkUtilities_h
+#define vtkvtkCocoaTkUtilities_h
 
 #include "vtkObject.h"
 

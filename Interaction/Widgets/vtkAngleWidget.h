@@ -64,8 +64,8 @@
 // vtkHandleWidget vtkDistanceWidget
 
 
-#ifndef __vtkAngleWidget_h
-#define __vtkAngleWidget_h
+#ifndef vtkAngleWidget_h
+#define vtkAngleWidget_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkAbstractWidget.h"

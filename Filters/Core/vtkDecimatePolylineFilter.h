@@ -34,8 +34,8 @@
 // vtkDecimate vtkDecimateProp vtkQuadricClustering vtkQuadricDecimation
 
 
-#ifndef __vtkDecimatePolylineFilter_h
-#define __vtkDecimatePolylineFilter_h
+#ifndef vtkDecimatePolylineFilter_h
+#define vtkDecimatePolylineFilter_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkSmartPointer.h" // Needed for SP ivars

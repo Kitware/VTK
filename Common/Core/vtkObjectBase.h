@@ -37,8 +37,8 @@
 // .SECTION See also
 // vtkObject vtkCommand vtkInformationKey
 
-#ifndef __vtkObjectBase_h
-#define __vtkObjectBase_h
+#ifndef vtkObjectBase_h
+#define vtkObjectBase_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkAtomicInt.h"

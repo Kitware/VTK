@@ -23,8 +23,8 @@
 // vtkStructuredPointsWriter vtkUnstructuredGridWriter
 // vtkFieldDataWriter vtkRectilinearGridWriter
 
-#ifndef __vtkDataWriter_h
-#define __vtkDataWriter_h
+#ifndef vtkDataWriter_h
+#define vtkDataWriter_h
 
 #include "vtkIOLegacyModule.h" // For export macro
 #include "vtkWriter.h"

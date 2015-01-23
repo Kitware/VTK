@@ -15,8 +15,8 @@
 // .NAME vtkMoleculeToBondStickFilter - Generate polydata with cylinders
 // representing bonds
 
-#ifndef __vtkMoleculeToBondStickFilter_h
-#define __vtkMoleculeToBondStickFilter_h
+#ifndef vtkMoleculeToBondStickFilter_h
+#define vtkMoleculeToBondStickFilter_h
 
 #include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkMoleculeToPolyDataFilter.h"

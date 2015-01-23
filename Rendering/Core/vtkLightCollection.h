@@ -21,8 +21,8 @@
 // .SECTION see also
 // vtkCollection vtkLight
 
-#ifndef __vtkLightCollection_h
-#define __vtkLightCollection_h
+#ifndef vtkLightCollection_h
+#define vtkLightCollection_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkCollection.h"

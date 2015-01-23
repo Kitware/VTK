@@ -27,8 +27,8 @@
 // files.  That means no Objective C may be used. That's why some instance
 // variables are void* instead of what they really should be.
 
-#ifndef __vtkCocoaRenderWindowInteractor_h
-#define __vtkCocoaRenderWindowInteractor_h
+#ifndef vtkCocoaRenderWindowInteractor_h
+#define vtkCocoaRenderWindowInteractor_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderWindowInteractor.h"

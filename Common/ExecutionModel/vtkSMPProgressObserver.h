@@ -21,8 +21,8 @@
 // thread. Since the execution will be somewhat load balanced,
 // it may be enough to do this only on the main thread.
 
-#ifndef __vtkSMPProgressObserver_h
-#define __vtkSMPProgressObserver_h
+#ifndef vtkSMPProgressObserver_h
+#define vtkSMPProgressObserver_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkProgressObserver.h"

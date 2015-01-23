@@ -30,8 +30,8 @@
 // You can also specify the reduction method to use for a particular
 // column by calling SetReductionMethodForColumn().
 
-#ifndef __vtkReduceTable_h
-#define __vtkReduceTable_h
+#ifndef vtkReduceTable_h
+#define vtkReduceTable_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkTableAlgorithm.h"

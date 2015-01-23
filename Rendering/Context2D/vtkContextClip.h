@@ -20,8 +20,8 @@
 // This class can be used to clip the rendering of an item inside a rectangular
 // area.
 
-#ifndef __vtkContextClip_h
-#define __vtkContextClip_h
+#ifndef vtkContextClip_h
+#define vtkContextClip_h
 
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkAbstractContextItem.h"
@@ -65,4 +65,4 @@ private:
 //ETX
 };
 
-#endif //__vtkContextClip_h
+#endif //vtkContextClip_h

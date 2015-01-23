@@ -33,8 +33,8 @@
 // vtkButtonWidget
 
 
-#ifndef __vtkButtonRepresentation_h
-#define __vtkButtonRepresentation_h
+#ifndef vtkButtonRepresentation_h
+#define vtkButtonRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"

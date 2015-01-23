@@ -25,8 +25,8 @@
 // vtkImageReslice vtkImageInterpolator vtkImageSincInterpolator
 
 
-#ifndef __vtkAbstractImageInterpolator_h
-#define __vtkAbstractImageInterpolator_h
+#ifndef vtkAbstractImageInterpolator_h
+#define vtkAbstractImageInterpolator_h
 
 #include "vtkImagingCoreModule.h" // For export macro
 #include "vtkObject.h"

@@ -21,8 +21,8 @@
 // vtkPParticleTracerBase has the details of the algorithms
 
 
-#ifndef __vtkPParticleTracer_h
-#define __vtkPParticleTracer_h
+#ifndef vtkPParticleTracer_h
+#define vtkPParticleTracer_h
 
 #include "vtkSmartPointer.h" // For protected ivars.
 #include "vtkPParticleTracerBase.h"

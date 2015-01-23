@@ -15,8 +15,8 @@
 // .NAME vtkX3DExporterFIWriterHelper -
 // .SECTION Description
 
-#ifndef __vtkX3DExporterFIWriterHelper_h
-#define __vtkX3DExporterFIWriterHelper_h
+#ifndef vtkX3DExporterFIWriterHelper_h
+#define vtkX3DExporterFIWriterHelper_h
 
 //#include "vtkX3DExporterFIByteWriter.h"
 #include "vtkZLibDataCompressor.h"

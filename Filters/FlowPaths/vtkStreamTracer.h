@@ -74,8 +74,8 @@
 // vtkCellLocatorInterpolatedVelocityField
 //
 
-#ifndef __vtkStreamTracer_h
-#define __vtkStreamTracer_h
+#ifndef vtkStreamTracer_h
+#define vtkStreamTracer_h
 
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

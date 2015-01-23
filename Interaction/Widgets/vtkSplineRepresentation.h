@@ -22,8 +22,8 @@
 // .SECTION See Also
 // vtkSplineWidget, vtkSplineWidget2
 
-#ifndef __vtkSplineRepresentation_h
-#define __vtkSplineRepresentation_h
+#ifndef vtkSplineRepresentation_h
+#define vtkSplineRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"

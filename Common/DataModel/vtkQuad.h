@@ -19,8 +19,8 @@
 // counterclockwise order. vtkQuad uses the standard isoparametric
 // interpolation functions for a linear quadrilateral.
 
-#ifndef __vtkQuad_h
-#define __vtkQuad_h
+#ifndef vtkQuad_h
+#define vtkQuad_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCell.h"

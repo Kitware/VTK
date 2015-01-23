@@ -22,8 +22,8 @@
 // components. Ideally we would use a lightweight color class to store and pass
 // around colors.
 
-#ifndef __vtkBrush_h
-#define __vtkBrush_h
+#ifndef vtkBrush_h
+#define vtkBrush_h
 
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkObject.h"
@@ -158,4 +158,4 @@ private:
 //ETX
 };
 
-#endif //__vtkBrush_h
+#endif //vtkBrush_h

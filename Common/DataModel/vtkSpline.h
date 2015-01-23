@@ -49,8 +49,8 @@
 // vtkParametricFunctionSource
 
 
-#ifndef __vtkSpline_h
-#define __vtkSpline_h
+#ifndef vtkSpline_h
+#define vtkSpline_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"

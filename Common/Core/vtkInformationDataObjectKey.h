@@ -17,8 +17,8 @@
 // vtkInformationDataObjectKey is used to represent keys in
 // vtkInformation for values that are vtkDataObject instances.
 
-#ifndef __vtkInformationDataObjectKey_h
-#define __vtkInformationDataObjectKey_h
+#ifndef vtkInformationDataObjectKey_h
+#define vtkInformationDataObjectKey_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkInformationKey.h"

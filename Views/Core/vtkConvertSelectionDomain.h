@@ -35,8 +35,8 @@
 // The second output is the selection associated with the "current annotation"
 // normally representing the current interactive selection.
 
-#ifndef __vtkConvertSelectionDomain_h
-#define __vtkConvertSelectionDomain_h
+#ifndef vtkConvertSelectionDomain_h
+#define vtkConvertSelectionDomain_h
 
 #include "vtkViewsCoreModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"

@@ -18,8 +18,8 @@
 // The vtk_polydata struct is important as that is how piston's polygonal
 // results get brought back to the CPU.
 
-#ifndef __vtkPistonDataWrangling_h
-#define __vtkPistonDataWrangling_h
+#ifndef vtkPistonDataWrangling_h
+#define vtkPistonDataWrangling_h
 
 #include <thrust/version.h>
 #if THRUST_VERSION >= 100600
@@ -67,5 +67,5 @@ struct float4tofloat3 : thrust::unary_function<float4, float3>
 
 } //namespace
 
-#endif //__vtkPistonDataWrangling_h
+#endif //vtkPistonDataWrangling_h
 // VTK-HeaderTest-Exclude: vtkPistonDataWrangling.h

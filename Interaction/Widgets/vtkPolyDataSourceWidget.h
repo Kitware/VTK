@@ -31,8 +31,8 @@
 // .SECTION See Also
 // vtk3DWidget vtkLineWidget vtkPlaneWidget vtkSphereWidget
 
-#ifndef __vtkPolyDataSourceWidget_h
-#define __vtkPolyDataSourceWidget_h
+#ifndef vtkPolyDataSourceWidget_h
+#define vtkPolyDataSourceWidget_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtk3DWidget.h"

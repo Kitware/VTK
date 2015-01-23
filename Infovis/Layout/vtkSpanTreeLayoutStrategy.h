@@ -58,8 +58,8 @@
 // implementation.
 
 
-#ifndef __vtkSpanTreeLayoutStrategy_h
-#define __vtkSpanTreeLayoutStrategy_h
+#ifndef vtkSpanTreeLayoutStrategy_h
+#define vtkSpanTreeLayoutStrategy_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"

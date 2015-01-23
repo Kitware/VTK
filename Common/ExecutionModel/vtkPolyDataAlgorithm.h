@@ -25,8 +25,8 @@
 // method that by default says that all inputs will be PolyData. If that
 // isn't the case then please override this method in your subclass.
 
-#ifndef __vtkPolyDataAlgorithm_h
-#define __vtkPolyDataAlgorithm_h
+#ifndef vtkPolyDataAlgorithm_h
+#define vtkPolyDataAlgorithm_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"

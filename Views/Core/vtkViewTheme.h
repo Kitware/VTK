@@ -27,8 +27,8 @@
 // solution based on style sheets.  Do not become overly-dependent on the
 // functionality of themes.
 
-#ifndef __vtkViewTheme_h
-#define __vtkViewTheme_h
+#ifndef vtkViewTheme_h
+#define vtkViewTheme_h
 
 #include "vtkViewsCoreModule.h" // For export macro
 #include "vtkObject.h"

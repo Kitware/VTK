@@ -53,8 +53,8 @@
 // .SECTION See Also
 // vtkGenericDataSet
 
-#ifndef __vtkGenericAdaptorCell_h
-#define __vtkGenericAdaptorCell_h
+#ifndef vtkGenericAdaptorCell_h
+#define vtkGenericAdaptorCell_h
 
 
 #include "vtkCommonDataModelModule.h" // For export macro

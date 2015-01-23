@@ -25,8 +25,8 @@
 //
 // .SECTION Thanks
 
-#ifndef __vtkQtAnnotationView_h
-#define __vtkQtAnnotationView_h
+#ifndef vtkQtAnnotationView_h
+#define vtkQtAnnotationView_h
 
 #include "vtkViewsQtModule.h" // For export macro
 #include "QVTKWin32Header.h"

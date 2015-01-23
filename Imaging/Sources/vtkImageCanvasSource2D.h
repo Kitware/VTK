@@ -19,8 +19,8 @@
 // It can paint multi-spectral images.
 
 
-#ifndef __vtkImageCanvasSource2D_h
-#define __vtkImageCanvasSource2D_h
+#ifndef vtkImageCanvasSource2D_h
+#define vtkImageCanvasSource2D_h
 
 #include "vtkImagingSourcesModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

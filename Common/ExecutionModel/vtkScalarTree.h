@@ -29,8 +29,8 @@
 // .SECTION See Also
 // vtkSimpleScalarTree
 
-#ifndef __vtkScalarTree_h
-#define __vtkScalarTree_h
+#ifndef vtkScalarTree_h
+#define vtkScalarTree_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkObject.h"

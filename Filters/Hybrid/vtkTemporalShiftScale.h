@@ -27,8 +27,8 @@
 // "Time Dependent Processing in a Parallel Pipeline Architecture",
 // IEEE Visualization 2007.
 
-#ifndef __vtkTemporalShiftScale_h
-#define __vtkTemporalShiftScale_h
+#ifndef vtkTemporalShiftScale_h
+#define vtkTemporalShiftScale_h
 
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkAlgorithm.h"

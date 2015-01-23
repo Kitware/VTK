@@ -25,8 +25,8 @@
 // polygonal data (e.g. volumetric data is converted to its external surface).
 // The representation may then be added to vtkRenderView.
 
-#ifndef __vtkRenderedSurfaceRepresentation_h
-#define __vtkRenderedSurfaceRepresentation_h
+#ifndef vtkRenderedSurfaceRepresentation_h
+#define vtkRenderedSurfaceRepresentation_h
 
 #include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkRenderedRepresentation.h"

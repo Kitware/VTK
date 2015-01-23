@@ -18,8 +18,8 @@
 
 // .SECTION See Also
 
-#ifndef __vtkRTXMLPolyDataReader_h
-#define __vtkRTXMLPolyDataReader_h
+#ifndef vtkRTXMLPolyDataReader_h
+#define vtkRTXMLPolyDataReader_h
 
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLPolyDataReader.h"

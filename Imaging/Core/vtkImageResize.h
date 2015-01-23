@@ -25,8 +25,8 @@
 // .SECTION Thanks
 // Thanks to David Gobbi for contributing this class to VTK.
 
-#ifndef __vtkImageResize_h
-#define __vtkImageResize_h
+#ifndef vtkImageResize_h
+#define vtkImageResize_h
 
 #include "vtkImagingCoreModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"

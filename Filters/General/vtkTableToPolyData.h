@@ -18,8 +18,8 @@
 // vtkTableToPolyData is a filter used to convert a vtkTable  to a vtkPolyData
 // consisting of vertices.
 
-#ifndef __vtkTableToPolyData_h
-#define __vtkTableToPolyData_h
+#ifndef vtkTableToPolyData_h
+#define vtkTableToPolyData_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

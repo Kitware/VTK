@@ -80,8 +80,8 @@
 // .SECTION See Also
 // vtkMultiBlockDataSet vtkStructuredGrid vtkPlot3DMetaReader
 
-#ifndef __vtkMultiBlockPLOT3DReader_h
-#define __vtkMultiBlockPLOT3DReader_h
+#ifndef vtkMultiBlockPLOT3DReader_h
+#define vtkMultiBlockPLOT3DReader_h
 
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"

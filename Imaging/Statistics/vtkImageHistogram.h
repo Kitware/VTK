@@ -25,8 +25,8 @@
 // Thanks to David Gobbi at the Seaman Family MR Centre and Dept. of Clinical
 // Neurosciences, Foothills Medical Centre, Calgary, for providing this class.
 
-#ifndef __vtkImageHistogram_h
-#define __vtkImageHistogram_h
+#ifndef vtkImageHistogram_h
+#define vtkImageHistogram_h
 
 #include "vtkImagingStatisticsModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"

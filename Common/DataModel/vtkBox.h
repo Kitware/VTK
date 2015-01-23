@@ -25,8 +25,8 @@
 // .SECTION See Also
 // vtkCubeSource vtkImplicitFunction
 
-#ifndef __vtkBox_h
-#define __vtkBox_h
+#ifndef vtkBox_h
+#define vtkBox_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImplicitFunction.h"

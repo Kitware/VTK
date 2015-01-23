@@ -17,8 +17,8 @@
 // The vtkBridgeExport captures some system differences between Unix and
 // Windows operating systems.
 
-#ifndef __vtkBridgeExport_h
-#define __vtkBridgeExport_h
+#ifndef vtkBridgeExport_h
+#define vtkBridgeExport_h
 #include "vtkTestingGenericBridgeModule.h"
 #include "vtkSystemIncludes.h"
 

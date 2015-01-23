@@ -24,8 +24,8 @@
 // Andrew Maclean andrew.amaclean@gmail.com for creating and contributing the
 // class.
 //
-#ifndef __vtkParametricMobius_h
-#define __vtkParametricMobius_h
+#ifndef vtkParametricMobius_h
+#define vtkParametricMobius_h
 
 #include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkParametricFunction.h"

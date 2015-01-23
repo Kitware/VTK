@@ -49,8 +49,8 @@
 // Relations in Hierarchical Data. IEEE Transactions on Visualization and
 // Computer Graphics, Vol. 12, No. 5, 2006. pp. 741-748.
 
-#ifndef __vtkGraphHierarchicalBundleEdges_h
-#define __vtkGraphHierarchicalBundleEdges_h
+#ifndef vtkGraphHierarchicalBundleEdges_h
+#define vtkGraphHierarchicalBundleEdges_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"

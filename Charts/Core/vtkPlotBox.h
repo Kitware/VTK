@@ -19,8 +19,8 @@
 // Plots to draw box plots given columns from a vtkTable that may contains
 // 5 lines with quartiles and median.
 
-#ifndef __vtkPlotBox_h
-#define __vtkPlotBox_h
+#ifndef vtkPlotBox_h
+#define vtkPlotBox_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlot.h"
@@ -144,4 +144,4 @@ private:
 //ETX
 };
 
-#endif //__vtkPlotBox_h
+#endif //vtkPlotBox_h

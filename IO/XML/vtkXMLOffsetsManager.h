@@ -40,8 +40,8 @@
 #error "do not include unless you know what you are doing"
 #endif
 
-#ifndef __vtkXMLOffsetsManager_h
-#define __vtkXMLOffsetsManager_h
+#ifndef vtkXMLOffsetsManager_h
+#define vtkXMLOffsetsManager_h
 
 #include "vtkSystemIncludes.h"
 #include <vector>

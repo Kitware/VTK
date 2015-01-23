@@ -20,8 +20,8 @@
 // .SECTION See Also
 // vtkLookupTable
 
-#ifndef __vtkImageMapToRGBA_h
-#define __vtkImageMapToRGBA_h
+#ifndef vtkImageMapToRGBA_h
+#define vtkImageMapToRGBA_h
 
 
 #include "vtkImagingColorModule.h" // For export macro

@@ -23,8 +23,8 @@
 // vtkExporter
 
 
-#ifndef __vtkOBJExporter_h
-#define __vtkOBJExporter_h
+#ifndef vtkOBJExporter_h
+#define vtkOBJExporter_h
 
 #include "vtkIOExportModule.h" // For export macro
 #include "vtkExporter.h"

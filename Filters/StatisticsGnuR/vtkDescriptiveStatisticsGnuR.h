@@ -37,8 +37,8 @@ PURPOSE.  See the above copyright notice for more information.
 // for implementing this class.
 // Updated by Philippe Pebay, Kitware SAS 2012
 
-#ifndef __vtkDescriptiveStatisticsGnuR_h
-#define __vtkDescriptiveStatisticsGnuR_h
+#ifndef vtkDescriptiveStatisticsGnuR_h
+#define vtkDescriptiveStatisticsGnuR_h
 
 #include "vtkFiltersStatisticsGnuRModule.h" // For export macro
 #include "vtkDescriptiveStatistics.h"

@@ -16,8 +16,8 @@
 // .SECTION Description
 // This header includes the proper streams.
 
-#ifndef __vtkIOStream_h
-#define __vtkIOStream_h
+#ifndef vtkIOStream_h
+#define vtkIOStream_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkConfigure.h"
@@ -97,5 +97,5 @@ inline ostream& operator << (ostream& os, vtkIOStreamULL value)
 
 #endif
 
-#endif // __vtkIOStream_h
+#endif // vtkIOStream_h
 // VTK-HeaderTest-Exclude: vtkIOStream.h

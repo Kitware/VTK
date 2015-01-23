@@ -21,8 +21,8 @@
 // vtkParticleTracerBase has the details of the algorithms
 
 
-#ifndef __vtkParticleTracer_h
-#define __vtkParticleTracer_h
+#ifndef vtkParticleTracer_h
+#define vtkParticleTracer_h
 
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkSmartPointer.h" // For protected ivars.

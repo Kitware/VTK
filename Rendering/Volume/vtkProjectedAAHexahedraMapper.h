@@ -25,8 +25,8 @@
 // "High-Quality, Semi-Analytical Volume Rendering for AMR Data",
 // Stephane Marchesin and Guillaume Colin de Verdiere, IEEE Vis 2009.
 
-#ifndef __vtkProjectedAAHexahedraMapper_h
-#define __vtkProjectedAAHexahedraMapper_h
+#ifndef vtkProjectedAAHexahedraMapper_h
+#define vtkProjectedAAHexahedraMapper_h
 
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkUnstructuredGridVolumeMapper.h"

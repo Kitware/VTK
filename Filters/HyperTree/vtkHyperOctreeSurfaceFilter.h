@@ -19,8 +19,8 @@
 // .SECTION See Also
 // vtkGeometryFilter vtkStructuredGridGeometryFilter.
 
-#ifndef __vtkHyperOctreeSurfaceFilter_h
-#define __vtkHyperOctreeSurfaceFilter_h
+#ifndef vtkHyperOctreeSurfaceFilter_h
+#define vtkHyperOctreeSurfaceFilter_h
 
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

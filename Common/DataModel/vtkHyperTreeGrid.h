@@ -35,8 +35,8 @@
 // Kitware 2013
 // This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
 
-#ifndef __vtkHyperTreeGrid_h
-#define __vtkHyperTreeGrid_h
+#ifndef vtkHyperTreeGrid_h
+#define vtkHyperTreeGrid_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataSet.h"

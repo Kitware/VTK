@@ -20,8 +20,8 @@
 // or some other object is referencing the input region.
 
 
-#ifndef __vtkImageInPlaceFilter_h
-#define __vtkImageInPlaceFilter_h
+#ifndef vtkImageInPlaceFilter_h
+#define vtkImageInPlaceFilter_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

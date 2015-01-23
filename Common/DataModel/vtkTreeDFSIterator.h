@@ -33,8 +33,8 @@
 // <code>vtkIdType vertex = iter->Next()</code> inside the loop.
 
 
-#ifndef __vtkTreeDFSIterator_h
-#define __vtkTreeDFSIterator_h
+#ifndef vtkTreeDFSIterator_h
+#define vtkTreeDFSIterator_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkTreeIterator.h"

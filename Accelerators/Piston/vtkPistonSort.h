@@ -20,8 +20,8 @@
 // keeps the same data type while producing a result which is verifiably
 // correct.
 
-#ifndef __vtkPistonSort_h
-#define __vtkPistonSort_h
+#ifndef vtkPistonSort_h
+#define vtkPistonSort_h
 
 #include "vtkPistonAlgorithm.h"
 

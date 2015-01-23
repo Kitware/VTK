@@ -25,8 +25,8 @@
 // .SECTION See Also
 // vtkRenderPass
 
-#ifndef __vtkCompositeZPass_h
-#define __vtkCompositeZPass_h
+#ifndef vtkCompositeZPass_h
+#define vtkCompositeZPass_h
 
 #include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkRenderPass.h"

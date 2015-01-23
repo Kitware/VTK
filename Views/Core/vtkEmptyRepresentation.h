@@ -21,8 +21,8 @@
 //
 // .SECTION Description
 
-#ifndef __vtkEmptyRepresentation_h
-#define __vtkEmptyRepresentation_h
+#ifndef vtkEmptyRepresentation_h
+#define vtkEmptyRepresentation_h
 
 #include "vtkViewsCoreModule.h" // For export macro
 #include "vtkDataRepresentation.h"

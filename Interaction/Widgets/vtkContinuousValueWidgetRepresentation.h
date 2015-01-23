@@ -25,8 +25,8 @@
 //
 
 
-#ifndef __vtkContinuousValueWidgetRepresentation_h
-#define __vtkContinuousValueWidgetRepresentation_h
+#ifndef vtkContinuousValueWidgetRepresentation_h
+#define vtkContinuousValueWidgetRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWidgetRepresentation.h"

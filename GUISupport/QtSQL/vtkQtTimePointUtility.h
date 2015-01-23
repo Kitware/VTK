@@ -22,8 +22,8 @@
 // .SECTION Description
 // vtkQtTimePointUtility is provides methods to perform common time operations.
 
-#ifndef __vtkQtTimePointUtility_h
-#define __vtkQtTimePointUtility_h
+#ifndef vtkQtTimePointUtility_h
+#define vtkQtTimePointUtility_h
 
 #include "vtkGUISupportQtSQLModule.h"
 #include "vtkObject.h"

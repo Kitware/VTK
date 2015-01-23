@@ -199,8 +199,8 @@
 // Laboratories and Douglas Gregor of Indiana University for designing these
 // classes.
 
-#ifndef __vtkGraph_h
-#define __vtkGraph_h
+#ifndef vtkGraph_h
+#define vtkGraph_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"

@@ -19,8 +19,8 @@
 // .SECTION See Also
 // vtkContourGrid vtkCutter vtkContourFilter
 
-#ifndef __vtkContourHelper_h
-#define __vtkContourHelper_h
+#ifndef vtkContourHelper_h
+#define vtkContourHelper_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkSmartPointer.h" //for a member variable

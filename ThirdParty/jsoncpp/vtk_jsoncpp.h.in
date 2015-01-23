@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtk_jsoncpp_h
-#define __vtk_jsoncpp_h
+#ifndef vtk_jsoncpp_h
+#define vtk_jsoncpp_h
 
 /* Use the JsonCpp library configured for VTK.  */
 #cmakedefine VTK_USE_SYSTEM_JSONCPP

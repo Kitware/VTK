@@ -27,8 +27,8 @@
 // .SECTION Thanks
 // Thanks to David Gobbi for contributing this class to VTK.
 
-#ifndef __vtkImageThresholdConnectivity_h
-#define __vtkImageThresholdConnectivity_h
+#ifndef vtkImageThresholdConnectivity_h
+#define vtkImageThresholdConnectivity_h
 
 #include "vtkImagingMorphologicalModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

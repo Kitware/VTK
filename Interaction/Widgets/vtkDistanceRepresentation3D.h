@@ -24,8 +24,8 @@
 // vtkDistanceWidget vtkDistanceRepresentation vtkDistanceRepresentation2D
 
 
-#ifndef __vtkDistanceRepresentation3D_h
-#define __vtkDistanceRepresentation3D_h
+#ifndef vtkDistanceRepresentation3D_h
+#define vtkDistanceRepresentation3D_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkDistanceRepresentation.h"

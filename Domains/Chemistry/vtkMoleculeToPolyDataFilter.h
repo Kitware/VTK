@@ -18,8 +18,8 @@
 // subclasses take as input datasets of type vtkMolecule and
 // generate polygonal data on output.
 
-#ifndef __vtkMoleculeToPolyDataFilter_h
-#define __vtkMoleculeToPolyDataFilter_h
+#ifndef vtkMoleculeToPolyDataFilter_h
+#define vtkMoleculeToPolyDataFilter_h
 
 #include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

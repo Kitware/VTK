@@ -21,8 +21,8 @@
 // sphere. The output PolyData has the specified number of points and
 // 1 cell - a vtkPolyVertex containing all of the points.
 
-#ifndef __vtkPointSource_h
-#define __vtkPointSource_h
+#ifndef vtkPointSource_h
+#define vtkPointSource_h
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

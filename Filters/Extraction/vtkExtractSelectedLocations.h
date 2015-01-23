@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkSelection vtkExtractSelection
 
-#ifndef __vtkExtractSelectedLocations_h
-#define __vtkExtractSelectedLocations_h
+#ifndef vtkExtractSelectedLocations_h
+#define vtkExtractSelectedLocations_h
 
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkExtractSelectionBase.h"

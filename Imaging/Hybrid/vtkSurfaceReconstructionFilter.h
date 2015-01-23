@@ -22,8 +22,8 @@
 // most uses but can be set if desired. This procedure is based on the PhD
 // work of Hugues Hoppe: http://www.research.microsoft.com/~hoppe
 
-#ifndef __vtkSurfaceReconstructionFilter_h
-#define __vtkSurfaceReconstructionFilter_h
+#ifndef vtkSurfaceReconstructionFilter_h
+#define vtkSurfaceReconstructionFilter_h
 
 #include "vtkImagingHybridModule.h" // For export macro
 #include "vtkImageAlgorithm.h"

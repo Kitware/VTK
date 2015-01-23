@@ -15,8 +15,8 @@
 // .NAME vtkMPIPixelView -- Templated helper function for creating
 // MPI datatypes that describe a vtkPixelExtent.
 
-#ifndef __vtkMPIPixelView_h
-#define __vtkMPIPixelView_h
+#ifndef vtkMPIPixelView_h
+#define vtkMPIPixelView_h
 
 #include "vtkPixelExtent.h" // for pixel extent
 #include "vtkMPI.h" // for mpi

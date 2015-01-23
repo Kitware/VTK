@@ -30,8 +30,8 @@
 // .SECTION See Also
 //      vtkKdTree vtkKdNode vtkDistributedDataFilter
 
-#ifndef __vtkBSPCuts_h
-#define __vtkBSPCuts_h
+#ifndef vtkBSPCuts_h
+#define vtkBSPCuts_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"

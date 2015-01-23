@@ -23,8 +23,8 @@
 // to the root node so that the root node can write the XML file describing the
 // structure correctly.
 
-#ifndef __vtkXMLPUniformGridAMRWriter_h
-#define __vtkXMLPUniformGridAMRWriter_h
+#ifndef vtkXMLPUniformGridAMRWriter_h
+#define vtkXMLPUniformGridAMRWriter_h
 
 #include "vtkIOParallelXMLModule.h" // For export macro
 #include "vtkXMLUniformGridAMRWriter.h"

@@ -33,8 +33,8 @@
 // .SECTION See Also
 // vtkShaderProgram2
 
-#ifndef __vtkShader2_h
-#define __vtkShader2_h
+#ifndef vtkShader2_h
+#define vtkShader2_h
 
 #include "vtkWeakPointer.h" // for ren context
 #include "vtkRenderingOpenGLModule.h" // For export macro

@@ -22,8 +22,8 @@
 // vector arrays of built-in types size 2,3,4; for setting objects; and
 // debug, warning, and error printout information.
 
-#ifndef __vtkSetGet_h
-#define __vtkSetGet_h
+#ifndef vtkSetGet_h
+#define vtkSetGet_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"

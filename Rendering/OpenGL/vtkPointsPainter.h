@@ -20,8 +20,8 @@
 // present the request is passed on to the Delegate painter. If this
 // class is able to render the primitive, the render request is not
 // propagated to the delegate painter.
-#ifndef __vtkPointsPainter_h
-#define __vtkPointsPainter_h
+#ifndef vtkPointsPainter_h
+#define vtkPointsPainter_h
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkPrimitivePainter.h"

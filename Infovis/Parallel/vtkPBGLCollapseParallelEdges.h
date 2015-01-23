@@ -23,8 +23,8 @@
 // Uses single input array specified with SetInputArrayToProcess(0,...)
 // to collapse groups of vertices with the same value into a single vertex.
 
-#ifndef __vtkPBGLCollapseParallelEdges_h
-#define __vtkPBGLCollapseParallelEdges_h
+#ifndef vtkPBGLCollapseParallelEdges_h
+#define vtkPBGLCollapseParallelEdges_h
 
 #include "vtkInfovisParallelModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"

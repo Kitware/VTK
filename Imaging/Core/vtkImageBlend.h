@@ -68,8 +68,8 @@
 // }
 // \endcode
 
-#ifndef __vtkImageBlend_h
-#define __vtkImageBlend_h
+#ifndef vtkImageBlend_h
+#define vtkImageBlend_h
 
 
 #include "vtkImagingCoreModule.h" // For export macro

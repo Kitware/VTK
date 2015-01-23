@@ -19,8 +19,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkDenseArray_txx
-#define __vtkDenseArray_txx
+#ifndef vtkDenseArray_txx
+#define vtkDenseArray_txx
 
 ///////////////////////////////////////////////////////////////////////////////
 // vtkDenseArray::MemoryBlock

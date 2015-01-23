@@ -24,8 +24,8 @@
 // vtkLogoWidget
 
 
-#ifndef __vtkLogoRepresentation_h
-#define __vtkLogoRepresentation_h
+#ifndef vtkLogoRepresentation_h
+#define vtkLogoRepresentation_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkBorderRepresentation.h"

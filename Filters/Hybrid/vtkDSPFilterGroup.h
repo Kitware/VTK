@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkDSPFilterDefinition vtkExodusReader vtkExodusIIReader vtkPExodusReader
 
-#ifndef __vtkDSPFilterGroup_h
-#define __vtkDSPFilterGroup_h
+#ifndef vtkDSPFilterGroup_h
+#define vtkDSPFilterGroup_h
 
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkObject.h"

@@ -36,8 +36,8 @@
 // integrated it into VTK 5.0.
 
 
-#ifndef __vtkBiQuadraticQuadraticWedge_h
-#define __vtkBiQuadraticQuadraticWedge_h
+#ifndef vtkBiQuadraticQuadraticWedge_h
+#define vtkBiQuadraticQuadraticWedge_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkNonLinearCell.h"

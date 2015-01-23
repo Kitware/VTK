@@ -15,8 +15,8 @@
 // .NAME vtkUnstructuredGridCellIterator - Implementation of vtkCellIterator
 // specialized for vtkUnstructuredGrid.
 
-#ifndef __vtkUnstructuredGridCellIterator_h
-#define __vtkUnstructuredGridCellIterator_h
+#ifndef vtkUnstructuredGridCellIterator_h
+#define vtkUnstructuredGridCellIterator_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCellIterator.h"
@@ -75,4 +75,4 @@ private:
   void operator=(const vtkUnstructuredGridCellIterator &);   // Not implemented.
 };
 
-#endif //__vtkUnstructuredGridCellIterator_h
+#endif //vtkUnstructuredGridCellIterator_h

@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtk_tiff_h
-#define __vtk_tiff_h
+#ifndef vtk_tiff_h
+#define vtk_tiff_h
 
 /* Use the tiff library configured for VTK.  */
 #cmakedefine VTK_USE_SYSTEM_TIFF

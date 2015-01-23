@@ -21,8 +21,8 @@
 // .SECTION See Also
 // vtkTextMapper
 
-#ifndef __vtkOpenGLFreeTypeTextMapper_h
-#define __vtkOpenGLFreeTypeTextMapper_h
+#ifndef vtkOpenGLFreeTypeTextMapper_h
+#define vtkOpenGLFreeTypeTextMapper_h
 
 #include "vtkRenderingFreeTypeOpenGL2Module.h" // For export macro
 #include "vtkTextMapper.h"

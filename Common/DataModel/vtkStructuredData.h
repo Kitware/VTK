@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkStructuredGrid vtkUniformGrid vtkRectilinearGrid vtkRectilinearGrid
 
-#ifndef __vtkStructuredData_h
-#define __vtkStructuredData_h
+#ifndef vtkStructuredData_h
+#define vtkStructuredData_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
