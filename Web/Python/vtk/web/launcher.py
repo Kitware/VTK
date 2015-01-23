@@ -291,7 +291,7 @@ class ProcessManager(object):
 
         # Create output log file
         logFilePath = self._getLogFilePath(session['id'])
-        with open(logFilePath, "a+") as log_file:
+        with open(logFilePath, "a+", 0) as log_file:
             try:
                 proc = subprocess.Popen(session['cmd'], stdout=log_file, stderr=log_file)
                 self.processes[session['id']] = proc
@@ -349,7 +349,7 @@ class ProcessManager(object):
 
       # Check the output for ready_line
       logFilePath = self._getLogFilePath(session['id'])
-      with open(logFilePath, "r") as log_file:
+      with open(logFilePath, "r", 0) as log_file:
           for line in log_file.readlines():
               if ready_line in line:
                   ready = True
