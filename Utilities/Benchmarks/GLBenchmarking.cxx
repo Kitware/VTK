@@ -14,15 +14,15 @@
 =========================================================================*/
 
 #include "vtkAutoInit.h"
-VTK_MODULE_INIT(vtkRenderingFreeType)
+//VTK_MODULE_INIT(vtkRenderingFreeType)
 #ifdef VTK_OPENGL2
-VTK_MODULE_INIT(vtkRenderingOpenGL2)
-VTK_MODULE_INIT(vtkRenderingContextOpenGL2)
-VTK_MODULE_INIT(vtkRenderingFreeTypeOpenGL2)
+//VTK_MODULE_INIT(vtkRenderingOpenGL2)
+//VTK_MODULE_INIT(vtkRenderingContextOpenGL2)
+//VTK_MODULE_INIT(vtkRenderingFreeTypeOpenGL2)
 #else
-VTK_MODULE_INIT(vtkRenderingOpenGL)
-VTK_MODULE_INIT(vtkRenderingContextOpenGL)
-VTK_MODULE_INIT(vtkRenderingFreeTypeOpenGL)
+//VTK_MODULE_INIT(vtkRenderingOpenGL)
+//VTK_MODULE_INIT(vtkRenderingContextOpenGL)
+//VTK_MODULE_INIT(vtkRenderingFreeTypeOpenGL)
 #endif
 
 #include "vtkActor.h"

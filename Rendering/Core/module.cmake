@@ -22,11 +22,6 @@ vtk_module(vtkRenderingCore
     vtkImagingSources
     vtkFiltersSources
     vtkFiltersProgrammable
-
-    # Can't stay here...
-    vtkRenderingContext${VTK_RENDERING_BACKEND}
-    vtkChartsCore
-    vtkViewsContext2D
   KIT
     vtkRendering
   )
