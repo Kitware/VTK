@@ -231,6 +231,13 @@
             }
         }).bind('resetViewId', function(e){
             options.view = -1;
+        }).bind('captureRenderedImage', function(e){
+            if(renderer.hasClass('active')){
+                $(container).parent().trigger({
+                    type: 'captured-screenshot-ready',
+                    imageData: bgImage.src
+                });
+            }
         }).bind('render', function(e){
             if(renderer.hasClass('active')){
                 var opts = e.options,
