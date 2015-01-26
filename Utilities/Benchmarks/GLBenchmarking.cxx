@@ -255,7 +255,7 @@ int main(int argc, char *argv[])
 
   int startSeq = args.Start;
   int endSeq = args.End;
-  results->SetNumberOfRows(endSeq - startSeq);
+  results->SetNumberOfRows(endSeq - startSeq + 1);
   int row = 0;
   for (int i = startSeq; i <= endSeq; ++i)
     {
@@ -279,6 +279,7 @@ int main(int argc, char *argv[])
   writer->SetInputData(results.Get());
   writer->SetFileName(args.FileName.c_str());
   writer->Update();
+  writer->Write();
 
   return 0;
 }
