@@ -163,7 +163,7 @@ bool runTest(vtkRenderer *renderer, vtkTable *results, int seq, int row,
 class Arguments
 {
 public:
-  Arguments(int argc, char *argv[]) : Start(0), End(16),
+  Arguments(int argc, char *argv[]) : Start(0), End(16), Timeout(1.0),
     FileName("results.csv"), DisplayHelp(false)
   {
     typedef vtksys::CommandLineArguments arg;
@@ -174,6 +174,9 @@ public:
     this->Args.AddArgument("--end", arg::SPACE_ARGUMENT,
                            &this->End,
                            "End of the test sequence sizes");
+    this->Args.AddArgument("--timeout", arg::SPACE_ARGUMENT,
+                           &this->Timeout,
+                           "Maximum average frame time before test termination");
     this->Args.AddArgument("--file", arg::SPACE_ARGUMENT,
                            &this->FileName,
                            "File to save results to");
@@ -195,6 +198,7 @@ public:
   vtksys::CommandLineArguments Args;
   int Start;
   int End;
+  double Timeout;
   std::string FileName;
   bool DisplayHelp;
 };
@@ -260,7 +264,7 @@ int main(int argc, char *argv[])
     window->Render();
     renderer->RemoveAllViewProps();
     renderer->GetActiveCamera()->DeepCopy(refCamera.Get());
-    if (!runTest(renderer.Get(), results.Get(), i, row++))
+    if (!runTest(renderer.Get(), results.Get(), i, row++, args.Timeout))
       {
       break;
       }
