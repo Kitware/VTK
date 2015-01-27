@@ -291,13 +291,13 @@ class ProcessManager(object):
 
         # Create output log file
         logFilePath = self._getLogFilePath(session['id'])
-        with open(logFilePath, "a+") as log_file:
+        with open(logFilePath, "a+", 0) as log_file:
             try:
                 proc = subprocess.Popen(session['cmd'], stdout=log_file, stderr=log_file)
                 self.processes[session['id']] = proc
             except:
                 logging.error("The command line failed")
-                logging.error(''.join(map(str, session['cmd'])))
+                logging.error(' '.join(map(str, session['cmd'])))
                 return None
 
         return proc
