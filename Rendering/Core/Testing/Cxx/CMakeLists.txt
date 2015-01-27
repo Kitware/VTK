@@ -1,6 +1,6 @@
 if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
   set(extra_opengl2_tests
-    TestCompositePolyDataMapper2.cxx
+    TestCompositePolyDataMapper2.cxx,NO_DATA
     TestAreaSelections.cxx) # incorrect results in OpenGL
 endif()
 

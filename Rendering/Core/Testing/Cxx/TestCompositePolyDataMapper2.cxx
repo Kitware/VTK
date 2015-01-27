@@ -19,7 +19,6 @@
 #include "vtkCompositeDataDisplayAttributes.h"
 #include "vtkCompositePolyDataMapper2.h"
 #include "vtkCullerCollection.h"
-#include "vtkCylinderSource.h"
 #include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
@@ -35,6 +34,13 @@
 #include <vtkTestUtilities.h>
 #include <vtkRegressionTestImage.h>
 
+#define syntheticData
+#ifdef syntheticData
+#include "vtkCylinderSource.h"
+#else
+#include "vtkXMLMultiBlockDataReader.h"
+#endif
+
 int TestCompositePolyDataMapper2(int argc, char* argv[])
 {
   vtkSmartPointer<vtkRenderWindow> win =
@@ -46,16 +52,18 @@ int TestCompositePolyDataMapper2(int argc, char* argv[])
   win->AddRenderer(ren);
   win->SetInteractor(iren);
 
+  vtkSmartPointer<vtkCompositePolyDataMapper2> mapper =
+    vtkSmartPointer<vtkCompositePolyDataMapper2>::New();
+  vtkNew<vtkCompositeDataDisplayAttributes> cdsa;
+  mapper->SetCompositeDataDisplayAttributes(cdsa.GetPointer());
+
+#ifdef syntheticData
+
   int resolution = 18;
   vtkNew<vtkCylinderSource> cyl;
   cyl->CappingOn();
   cyl->SetRadius(0.2);
   cyl->SetResolution(resolution);
-
-  vtkSmartPointer<vtkCompositePolyDataMapper2> mapper =
-    vtkSmartPointer<vtkCompositePolyDataMapper2>::New();
-  vtkNew<vtkCompositeDataDisplayAttributes> cdsa;
-  mapper->SetCompositeDataDisplayAttributes(cdsa.GetPointer());
 
   // build a composite dataset
   vtkNew<vtkMultiBlockDataSet> data;
@@ -109,9 +117,29 @@ int TestCompositePolyDataMapper2(int argc, char* argv[])
     levelEnd = static_cast<unsigned>(blocks.size());
     }
 
+  mapper->SetInputData((vtkPolyData *)(data.GetPointer()));
+
+#else
+
+  vtkNew<vtkXMLMultiBlockDataReader> reader;
+  reader->SetFileName("C:/Users/ken.martin/Documents/vtk/data/stargate.vtm");
+  mapper->SetInputConnection(reader->GetOutputPort(0));
+
+  // stargate seems to have cell scalars but all white cell scalars
+  // are slow slow slow so do not use the unless they add value
+  mapper->ScalarVisibilityOff();
+
+  // comment the following in/out for worst/best case
+  // for (int i = 0; i < 20000; ++i)
+  //   {
+  //   mapper->SetBlockColor(i,
+  //     vtkMath::HSVToRGB(0.8*(i%100)/100.0, 1.0, 1.0));
+  //   }
+
+#endif
+
   vtkSmartPointer<vtkActor> actor =
     vtkSmartPointer<vtkActor>::New();
-  mapper->SetInputData((vtkPolyData *)(data.GetPointer()));
   actor->SetMapper(mapper);
   //actor->GetProperty()->SetEdgeColor(1,0,0);
   //actor->GetProperty()->EdgeVisibilityOn();
@@ -124,11 +152,13 @@ int TestCompositePolyDataMapper2(int argc, char* argv[])
   vtkSmartPointer<vtkTimerLog> timer = vtkSmartPointer<vtkTimerLog>::New();
   win->Render();  // get the window up
 
+#ifdef syntheticData
   // modify the data to force a rebuild of OpenGL structs
   // after rendering set one cylinder to white
   mapper->SetBlockColor(1011,1.0,1.0,1.0);
   mapper->SetBlockOpacity(1011,1.0);
   mapper->SetBlockVisibility(1011,1.0);
+#endif
 
   timer->StartTimer();
   win->Render();

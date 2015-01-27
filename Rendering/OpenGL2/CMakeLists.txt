@@ -26,6 +26,7 @@ set(Module_SRCS
   vtkDefaultPass.cxx
   vtkDepthPeelingPass.cxx
   vtkGaussianBlurPass.cxx
+  vtkGenericCompositePolyDataMapper2.cxx
   vtkImageProcessingPass.cxx
   vtkLightsPass.cxx
   vtkOpaquePass.cxx

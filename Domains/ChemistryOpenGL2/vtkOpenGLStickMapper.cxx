@@ -517,7 +517,7 @@ void vtkOpenGLStickMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act)
   // I moved this out of the conditional because it is fast.
   // Color arrays are cached. If nothing has changed,
   // then the scalars do not have to be regenerted.
-  this->MapScalars(act->GetProperty()->GetOpacity());
+  this->MapScalars(1.0);
 
   vtkHardwareSelector* selector = ren->GetSelector();
   bool picking = (ren->GetRenderWindow()->GetIsPicking() || selector != NULL);

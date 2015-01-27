@@ -373,6 +373,8 @@ public:
   // allows the blending of the scalars with an additional alpha (typically
   // which comes from a vtkActor, etc.)
   virtual vtkUnsignedCharArray *MapScalars(double alpha);
+  virtual vtkUnsignedCharArray *MapScalars(vtkDataSet *input,
+                                           double alpha);
 
   // Description:
   // Set/Get the light-model color mode.

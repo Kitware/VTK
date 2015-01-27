@@ -261,10 +261,19 @@ void vtkMapper::ShallowCopy(vtkAbstractMapper *mapper)
 // to the return value
 vtkUnsignedCharArray *vtkMapper::MapScalars(double alpha)
 {
+  vtkDataSet *input = this->GetInput();
+  return this->MapScalars(input,alpha);
+}
+
+// a side effect of this is that this->Colors is also set
+// to the return value
+vtkUnsignedCharArray *vtkMapper::MapScalars(vtkDataSet *input,
+                                            double alpha)
+{
   int cellFlag = 0;
 
   vtkAbstractArray *scalars = vtkAbstractMapper::
-    GetAbstractScalars(this->GetInput(), this->ScalarMode, this->ArrayAccessMode,
+    GetAbstractScalars(input, this->ScalarMode, this->ArrayAccessMode,
                        this->ArrayId, this->ArrayName, cellFlag);
 
   // This is for a legacy feature: selection of the array component to color by
@@ -275,7 +284,7 @@ vtkUnsignedCharArray *vtkMapper::MapScalars(double alpha)
     this->ArrayComponent = 0;
     }
 
-  if ( !this->ScalarVisibility || scalars==0 || this->GetInput()==0)
+  if ( !this->ScalarVisibility || scalars==0 || input==0)
     { // No scalar colors.
     if ( this->ColorCoordinates )
       {
@@ -353,7 +362,7 @@ vtkUnsignedCharArray *vtkMapper::MapScalars(double alpha)
     if (this->LookupTable && this->LookupTable->GetAlpha() == alpha)
       {
       if (this->GetMTime() < this->Colors->GetMTime() &&
-          this->GetInput()->GetMTime() < this->Colors->GetMTime() &&
+          input->GetMTime() < this->Colors->GetMTime() &&
           this->LookupTable->GetMTime() < this->Colors->GetMTime())
         {
         return this->Colors;
