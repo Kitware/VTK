@@ -297,7 +297,7 @@ class ProcessManager(object):
                 self.processes[session['id']] = proc
             except:
                 logging.error("The command line failed")
-                logging.error(''.join(map(str, session['cmd'])))
+                logging.error(' '.join(map(str, session['cmd'])))
                 return None
 
         return proc
