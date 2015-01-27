@@ -16,6 +16,7 @@
 #define vtkOpenGL_h
 
 #include "vtkConfigure.h"
+#include "vtkRenderingOpenGLConfigure.h" // For VTK_USE_{CARBON|COCOA}
 
 // To prevent gl.h to include glext.h provided by the system
 #define GL_GLEXT_LEGACY
