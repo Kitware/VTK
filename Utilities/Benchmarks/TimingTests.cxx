@@ -391,6 +391,118 @@ class moleculeTest : public vtkRTTest
 };
 #endif
 
+//#ifdef HAVE_CHEMISTRY
+/*=========================================================================
+Define a test for volume
+=========================================================================*/
+#include "vtkColorTransferFunction.h"
+#include "vtkGPUVolumeRayCastMapper.h"
+#include "vtkPiecewiseFunction.h"
+#include "vtkRTAnalyticSource.h"
+#include "vtkVolume.h"
+#include "vtkVolumeMapper.h"
+#include "vtkVolumeProperty.h"
+
+#ifdef VTK_OPENGL2
+VTK_MODULE_INIT(vtkRenderingVolumeOpenGL2);
+#endif
+
+class volumeTest : public vtkRTTest
+{
+  public:
+  volumeTest(const char *name) : vtkRTTest(name)
+    {
+    }
+
+  const char *GetSummaryResultName()
+    {
+    return "frames/sec" ;
+    }
+
+  const char *GetSecondSummaryResultName()
+    {
+    // Emptry for now
+    return "";
+    }
+
+  virtual vtkRTTestResult Run(vtkRTTestSequence *ats,
+      int /*argc*/, char * /* argv */[])
+    {
+    int res1;
+    ats->GetSequenceNumbers(res1);
+
+    vtkNew<vtkRTAnalyticSource> wavelet;
+    wavelet->SetWholeExtent(-127, 128,
+                            -127, 128,
+                            -127, 128);
+    wavelet->SetCenter(0.0, 0.0, 0.0);
+
+    vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
+    volumeMapper->SetInputConnection(wavelet->GetOutputPort());
+
+    vtkNew<vtkVolumeProperty> volumeProperty;
+    vtkNew<vtkColorTransferFunction> ctf;
+    ctf->AddRGBPoint(37.3531, 0.2, 0.29, 1);
+    ctf->AddRGBPoint(157.091, 0.87, 0.87, 0.87);
+    ctf->AddRGBPoint(276.829, 0.7, 0.015, 0.15);
+
+    vtkNew<vtkPiecewiseFunction> pwf;
+    pwf->AddPoint(37.3531, 0.0);
+    pwf->AddPoint(276.829, 1.0);
+
+    volumeProperty->SetColor(ctf.GetPointer());
+    volumeProperty->SetScalarOpacity(pwf.GetPointer());
+
+    vtkNew<vtkVolume> volume;
+    volume->SetMapper(volumeMapper.GetPointer());
+    volume->SetProperty(volumeProperty.GetPointer());
+
+    // create a rendering window and renderer
+    vtkNew<vtkRenderer> ren1;
+    vtkNew<vtkRenderWindow> renWindow;
+    renWindow->AddRenderer(ren1.GetPointer());
+    ren1->AddActor(volume.GetPointer());
+
+    // set the size/color of our window
+    renWindow->SetSize(600,600);
+    ren1->SetBackground(0.2,0.3,0.5);
+
+    // draw the resulting scene
+    double startTime = vtkTimerLog::GetUniversalTime();
+    renWindow->Render();
+    double firstFrameTime = vtkTimerLog::GetUniversalTime() - startTime;
+    ren1->GetActiveCamera()->Zoom(1.5);
+
+    int frameCount = 80;
+    for (int i = 0; i < frameCount; i++)
+      {
+      renWindow->Render();
+      ren1->GetActiveCamera()->Azimuth(0.5);
+      ren1->GetActiveCamera()->Elevation(0.5);
+      ren1->GetActiveCamera()->Zoom(1.01);
+      //ren1->ResetCameraClippingRange();
+      if ((vtkTimerLog::GetUniversalTime() - startTime - firstFrameTime)
+            > this->TargetTime * 1.5)
+        {
+        frameCount = i+1;
+        break;
+        }
+      }
+    double subsequentFrameTime = (vtkTimerLog::GetUniversalTime()
+      - startTime - firstFrameTime)/frameCount;
+
+    vtkRTTestResult result;
+    result.Results["first frame time"] = firstFrameTime;
+    result.Results["subsequent frame time"] = subsequentFrameTime;
+    result.Results["frames/sec"] = 1/subsequentFrameTime;
+
+    return result;
+    }
+
+  protected:
+    bool AtomsOnly;
+};
+//#endif
 
 /*=========================================================================
 The main entry point
@@ -413,6 +525,8 @@ int main( int argc, char *argv[] )
   a.TestsToRun.push_back(new moleculeTest("Molecule"));
   a.TestsToRun.push_back(new moleculeTest("MoleculeAtomsOnly",true));
 #endif
+
+  a.TestsToRun.push_back(new volumeTest("Volume"));
 
   // process them
   return a.ParseCommandLineArguments(argc, argv);
