@@ -124,7 +124,6 @@ int vtkPLYReader::RequestData(
     vtkWarningMacro(<<"Could not open PLY file");
     return 0;
     }
-  std::cout << "PLY file type = " << fileType << std::endl;
 
   // Check to make sure that we can read geometry
   PlyElement *elem;
@@ -143,16 +142,15 @@ int vtkPLYReader::RequestData(
   // Check for optional attribute data. We can handle intensity; and the
   // triplet red, green, blue.
   bool intensityAvailable = false;
-  vtkUnsignedCharArray *intensity = NULL;
+  vtkSmartPointer<vtkUnsignedCharArray> intensity = NULL;
   if ( (elem = vtkPLY::find_element (ply, "face")) != NULL &&
        vtkPLY::find_property (elem, "intensity", &index) != NULL )
     {
-    intensity = vtkUnsignedCharArray::New();
+    intensity = vtkSmartPointer<vtkUnsignedCharArray>::New();
     intensity->SetName("intensity");
     intensityAvailable = true;
     output->GetCellData()->AddArray(intensity);
     output->GetCellData()->SetActiveScalars("intensity");
-    intensity->Delete();
     }
 
   bool RGBCellsAvailable = false;
@@ -176,7 +174,7 @@ int vtkPLYReader::RequestData(
        vtkPLY::find_property (elem, "green", &index) != NULL &&
        vtkPLY::find_property (elem, "blue", &index) != NULL )
     {
-    RGBPoints = vtkUnsignedCharArray::New();
+    RGBPoints = vtkSmartPointer<vtkUnsignedCharArray>::New();
     RGBPointsAvailable = true;
     RGBPoints->SetName("RGB");
     RGBPoints->SetNumberOfComponents(3);
@@ -281,7 +279,7 @@ int vtkPLYReader::RequestData(
       {
       // Create a polygonal array
       numPolys = numElems;
-      vtkCellArray *polys = vtkCellArray::New();
+      vtkSmartPointer<vtkCellArray> polys = vtkSmartPointer<vtkCellArray>::New();
       polys->Allocate(polys->EstimateSize(numPolys,3),numPolys/2);
       plyFace face;
       vtkIdType vtkVerts[256];
@@ -327,7 +325,6 @@ int vtkPLYReader::RequestData(
           }
         }
       output->SetPolys(polys);
-      polys->Delete();
       }//if face
 
     free(elist[i]); //allocated by ply_open_for_reading
