@@ -48,6 +48,7 @@ SET(Module_SRCS
   vtkThreadedCompositeDataPipeline.cxx
   vtkThreadedImageAlgorithm.cxx
   vtkTreeAlgorithm.cxx
+  vtkTrivialConsumer.cxx
   vtkTrivialProducer.cxx
   vtkUndirectedGraphAlgorithm.cxx
   vtkUnstructuredGridAlgorithm.cxx
