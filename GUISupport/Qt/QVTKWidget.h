@@ -250,6 +250,11 @@ protected:
 
 #if defined(Q_OS_WIN)
   bool winEvent(MSG* msg, long* result);
+
+#if QT_VERSION >= 0x050000
+  bool nativeEvent(const QByteArray& eventType, void* message, long* result);
+#endif
+
 #endif
 
 #if defined(QVTK_USE_CARBON)
