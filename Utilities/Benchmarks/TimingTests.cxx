@@ -22,14 +22,7 @@ existing tests to get an idea of what to do.
 
 #include "vtkRenderTimings.h"
 
-// required for get object factories
 #include "vtkAutoInit.h"
-#ifdef VTK_OPENGL2
-VTK_MODULE_INIT(vtkRenderingOpenGL2);
-#else
-VTK_MODULE_INIT(vtkRenderingOpenGL);
-#endif
-
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
@@ -391,7 +384,6 @@ class moleculeTest : public vtkRTTest
 };
 #endif
 
-#ifdef HAVE_VOLUME
 /*=========================================================================
 Define a test for volume rendering
 =========================================================================*/
@@ -402,10 +394,6 @@ Define a test for volume rendering
 #include "vtkVolume.h"
 #include "vtkVolumeMapper.h"
 #include "vtkVolumeProperty.h"
-
-#ifdef VTK_OPENGL2
-VTK_MODULE_INIT(vtkRenderingVolumeOpenGL2);
-#endif
 
 class volumeTest : public vtkRTTest
 {
@@ -498,7 +486,6 @@ class volumeTest : public vtkRTTest
     return result;
     }
 };
-#endif
 
 /*=========================================================================
 The main entry point
@@ -522,9 +509,7 @@ int main( int argc, char *argv[] )
   a.TestsToRun.push_back(new moleculeTest("MoleculeAtomsOnly",true));
 #endif
 
-#ifdef HAVE_VOLUME
   a.TestsToRun.push_back(new volumeTest("Volume"));
-#endif
 
   // process them
   return a.ParseCommandLineArguments(argc, argv);
