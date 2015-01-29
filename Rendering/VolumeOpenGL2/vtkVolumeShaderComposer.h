@@ -101,8 +101,8 @@ namespace vtkvolume
                               vtkVolume* vtkNotUsed(vol),
                               int vtkNotUsed(numberOfLights),
                               int lightingComplexity,
-                              int noOfComponents = 1,
-                              bool independentComponents = false)
+                              int vtkNotUsed(noOfComponents),
+                              bool vtkNotUsed(independentComponents))
     {
     std::string shaderStr = std::string("\
       \n// Volume dataset\
@@ -880,29 +880,71 @@ namespace vtkvolume
   //--------------------------------------------------------------------------
   std::string ShadingExit(vtkRenderer* vtkNotUsed(ren),
                           vtkVolumeMapper* mapper,
-                          vtkVolume* vtkNotUsed(vol))
+                          vtkVolume* vtkNotUsed(vol),
+                          int noOfComponents,
+                          bool independentComponents = false)
     {
     if (mapper->GetBlendMode() == vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND)
       {
-      return std::string("\
-       \n  vec4 g_srcColor = vec4(computeColor(l_maxValue).xyz,\
-       \n                         computeOpacity(l_maxValue));\
-       \n  g_fragColor.rgb = g_srcColor.rgb * g_srcColor.a;\
-       \n  g_fragColor.a = g_srcColor.a;"
-      );
+      if (noOfComponents > 1 && independentComponents)
+        {
+        return std::string("\
+          \n       for (int i = 0; i < in_noOfComponents; ++i)\
+          \n         {\
+          \n         vec4 g_srcColor = vec4(0);\
+          \n         for (int i = 0; i < in_noOfComponents; ++i)\
+          \n           {\                                                                                                                   \
+          \n           vec4 tmp = vec4(computeColor(l_maxValue, i);\
+          \n           g_srcColor[0] += tmp[0] * tmp[3];\
+          \n           g_srcColor[1] += tmp[1] * tmp[3];\
+          \n           g_srcColor[2] += tmp[2] * tmp[3];\
+          \n           g_srcColor[2] += tmp[3] * tmp[3];\
+          \n           }\
+          \n        }"
+        );
+        }
+      else
+        {
+        return std::string("\
+         \n  vec4 g_srcColor = vec4(computeColor(l_maxValue).xyz,\
+         \n                         computeOpacity(l_maxValue));\
+         \n  g_fragColor.rgb = g_srcColor.rgb * g_srcColor.a;\
+         \n  g_fragColor.a = g_srcColor.a;"
+        );
+        }
       }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::MINIMUM_INTENSITY_BLEND)
       {
-      return std::string("\
-        \n  vec4 g_srcColor = vec4(computeColor(l_minValue).xyz,\
-        \n                         computeOpacity(l_minValue));\
-        \n  g_fragColor.rgb = g_srcColor.rgb * g_srcColor.a;\
-        \n  g_fragColor.a = g_srcColor.a;"
-      );
+      if (noOfComponents > 1 && independentComponents)
+        {
+        return std::string ("\
+          \n       for (int i = 0; i < in_noOfComponents; ++i)\
+          \n         {\
+          \n         vec4 g_srcColor = vec4(0);\
+          \n         for (int i = 0; i < in_noOfComponents; ++i)\
+          \n           {\                                                                                                                   \
+          \n           vec4 tmp = vec4(computeColor(l_maxValue, i);\
+          \n           g_srcColor[0] += tmp[0] * tmp[3];\
+          \n           g_srcColor[1] += tmp[1] * tmp[3];\
+          \n           g_srcColor[2] += tmp[2] * tmp[3];\
+          \n           g_srcColor[2] += tmp[3] * tmp[3];\
+          \n           }\
+          \n        }"
+        );
+        }
+      else
+        {
+        return std::string ("\
+          \n  vec4 g_srcColor = vec4(computeColor(l_minValue).xyz,\
+          \n                         computeOpacity(l_minValue));\
+          \n  g_fragColor.rgb = g_srcColor.rgb * g_srcColor.a;\
+          \n  g_fragColor.a = g_srcColor.a;"
+        );
+        }
       }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::ADDITIVE_BLEND)
       {
-      return std::string("\
+      return std::string ("\
         \n  l_sumValue = clamp(l_sumValue, 0.0, 1.0);\
         \n  g_fragColor = vec4(vec3(l_sumValue), 1.0);"
       );

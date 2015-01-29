@@ -1896,7 +1896,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
                                 this->MaskType, noOfComponents,
                                 independentComponents), true);
   fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Shading::Exit",
-    vtkvolume::ShadingExit(ren, this, vol), true);
+    vtkvolume::ShadingExit(ren, this, vol, noOfComponents,
+                           independentComponents), true);
 
   fragmentShader = vtkvolume::replace(fragmentShader,
     "//VTK::ComputeOpacity::Dec",
