@@ -421,8 +421,7 @@ class volumeTest : public vtkRTTest
 
   const char *GetSecondSummaryResultName()
     {
-    // Emptry for now
-    return "";
+    return "dim";
     }
 
   virtual vtkRTTestResult Run(vtkRTTestSequence *ats,
@@ -436,6 +435,7 @@ class volumeTest : public vtkRTTest
                             -127, 128,
                             -127, 128);
     wavelet->SetCenter(0.0, 0.0, 0.0);
+    wavelet->Update();
 
     vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
     volumeMapper->SetInputConnection(wavelet->GetOutputPort());
@@ -464,8 +464,8 @@ class volumeTest : public vtkRTTest
     ren1->AddActor(volume.GetPointer());
 
     // set the size/color of our window
-    renWindow->SetSize(600,600);
-    ren1->SetBackground(0.2,0.3,0.5);
+    renWindow->SetSize(600, 600);
+    ren1->SetBackground(0.2, 0.3, 0.5);
 
     // draw the resulting scene
     double startTime = vtkTimerLog::GetUniversalTime();
@@ -479,8 +479,6 @@ class volumeTest : public vtkRTTest
       renWindow->Render();
       ren1->GetActiveCamera()->Azimuth(0.5);
       ren1->GetActiveCamera()->Elevation(0.5);
-      ren1->GetActiveCamera()->Zoom(2.01);
-      //ren1->ResetCameraClippingRange();
       if ((vtkTimerLog::GetUniversalTime() - startTime - firstFrameTime)
             > this->TargetTime * 1.5)
         {
@@ -495,6 +493,7 @@ class volumeTest : public vtkRTTest
     result.Results["first frame time"] = firstFrameTime;
     result.Results["subsequent frame time"] = subsequentFrameTime;
     result.Results["frames/sec"] = 1/subsequentFrameTime;
+    result.Results["dim"] = 128;
 
     return result;
     }
