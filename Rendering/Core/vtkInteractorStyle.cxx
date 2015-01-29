@@ -266,6 +266,7 @@ void vtkInteractorStyle::SetInteractor(vtkRenderWindowInteractor *i)
   if (this->Interactor)
     {
     this->AddObserver(vtkCommand::StartInteractionEvent, this->EventForwarder);
+    this->AddObserver(vtkCommand::InteractionEvent, this->EventForwarder);
     this->AddObserver(vtkCommand::EndInteractionEvent, this->EventForwarder);
     }
   else
