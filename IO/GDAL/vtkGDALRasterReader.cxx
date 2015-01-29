@@ -874,20 +874,18 @@ int vtkGDALRasterReader::RequestInformation(vtkInformation * vtkNotUsed(request)
   this->DataExtent[5] = 0;
 
   double geoTransform[6] = {};
-  if (this->Implementation->GDALData->GetGeoTransform(geoTransform) == CE_None)
+  if (CE_Failure == this->Implementation->GDALData->GetGeoTransform(geoTransform))
     {
-    this->DataOrigin[0] = geoTransform[0];
-    this->DataOrigin[1] = geoTransform[3];
-    this->DataOrigin[2] = 0.0;
-    this->DataSpacing[0] = geoTransform[1];
-    this->DataSpacing[1] = geoTransform[5];
-    this->DataSpacing[2] = 0.0;
+    // Issue warning message if image doensn't contain geotransform.
+    // Not fatal because GDAL will return a default transform on CE_Failure.
+    vtkErrorMacro("No GeoTransform data in input image");
     }
-  else
-    {
-    vtkErrorMacro("Cannot read GeoTransform from input");
-    return 0;
-    }
+  this->DataOrigin[0] = geoTransform[0];
+  this->DataOrigin[1] = geoTransform[3];
+  this->DataOrigin[2] = 0.0;
+  this->DataSpacing[0] = geoTransform[1];
+  this->DataSpacing[1] = geoTransform[5];
+  this->DataSpacing[2] = 0.0;
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                this->DataExtent, 6);
