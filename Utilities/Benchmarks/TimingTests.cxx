@@ -419,9 +419,9 @@ class volumeTest : public vtkRTTest
     ats->GetSequenceNumbers(res1);
 
     vtkNew<vtkRTAnalyticSource> wavelet;
-    wavelet->SetWholeExtent(-127, 128,
-                            -127, 128,
-                            -127, 128);
+    wavelet->SetWholeExtent(-res1 + 1, res1,
+                            -res1 + 1, res1,
+                            -res1 + 1, res1);
     wavelet->SetCenter(0.0, 0.0, 0.0);
     wavelet->Update();
 
@@ -481,7 +481,7 @@ class volumeTest : public vtkRTTest
     result.Results["first frame time"] = firstFrameTime;
     result.Results["subsequent frame time"] = subsequentFrameTime;
     result.Results["frames/sec"] = 1/subsequentFrameTime;
-    result.Results["dim"] = 128;
+    result.Results["dimension"] = res1 * 2;
 
     return result;
     }
