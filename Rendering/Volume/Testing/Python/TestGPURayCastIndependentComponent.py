@@ -115,7 +115,6 @@ class TestGPURayCastIndependentComponent(vtk.test.Testing.vtkTest):
         vtk.test.Testing.compareImage(
           iRen.GetRenderWindow(), vtk.test.Testing.getAbsImagePath(img_file), threshold=10)
         vtk.test.Testing.interact()
-        iRen.Start()
 
 if __name__ == "__main__":
      vtk.test.Testing.main([(TestGPURayCastIndependentComponent, 'test')])
