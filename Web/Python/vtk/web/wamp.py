@@ -3,10 +3,11 @@ WAMP related class for the purpose of vtkWeb.
 
 """
 
-import inspect, types, string, random, logging, six, json
+import inspect, types, string, random, logging, six, json, re
 
 from threading import Timer
 
+from twisted.web            import resource
 from twisted.python         import log
 from twisted.internet       import reactor
 from twisted.internet       import defer
@@ -282,3 +283,46 @@ class CustomWampCraRouterSession(RouterSession):
 
         ## deny client
         return types.Deny()
+
+
+# =============================================================================
+# Simple web server endpoint handling POST requests to execute rpc methods
+# =============================================================================
+
+class HttpRpcResource(resource.Resource, object):
+    def __init__(self, serverProtocol, endpointRootPath):
+        super(HttpRpcResource, self).__init__()
+
+        self.functionMap = {}
+        self.urlMatcher = re.compile(endpointRootPath.strip('/') + '/([^/]+)')
+
+        # Build the rpc method dictionary
+        protocolList = serverProtocol.getVtkWebProtocols()
+        protocolList.append(serverProtocol)    # so the exit methods get "registered"
+        for protocolObject in protocolList:
+            test = lambda x: inspect.ismethod(x) or inspect.isfunction(x)
+            for k in inspect.getmembers(protocolObject.__class__, test):
+                proc = k[1]
+                if "_wampuris" in proc.__dict__:
+                    pat = proc.__dict__["_wampuris"][0]
+                    if pat.is_endpoint():
+                        uri = pat.uri()
+                        self.functionMap[uri] = (protocolObject, proc)
+
+    def extractRpcMethod(self, path):
+        m = self.urlMatcher.search(path)
+        if m:
+            return m.group(1)
+        else:
+            return None
+
+    def getChild(self, path, request):
+        return self
+
+    def render_POST(self, request):
+        payload = json.loads(request.content.getvalue())
+        args = payload['args']
+        methodName = self.extractRpcMethod(request.path)
+        obj,func = self.functionMap[methodName]
+        results = func(obj, *args)
+        return json.dumps(results)

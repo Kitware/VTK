@@ -140,6 +140,46 @@
     }
 
     /**
+     * Create a session that uses only http to make calls to the
+     * server-side protocols.
+     *
+     * @member {object} vtkWeb.connect
+     * A json object that only needs a 'sessionURL' string in to know where
+     * to send method requests.
+     *
+     * @param connetionInfo
+     *
+     * @param {Function} readyCallback
+     * Callback function called when a connection that has been extended with
+     * a valid session that can be used to make server-side method calls.
+     *
+     */
+    function httpConnect(connectionInfo, readyCallback) {
+        connectionInfo.session = {
+            'call': function(methodName, args) {
+                var dfd = $.Deferred();
+
+                $.ajax({
+                    type: 'POST',
+                    url: connectionInfo.sessionURL + methodName,
+                    dataType: 'json',
+                    data: JSON.stringify({ 'args': args }),
+                    success: function(result) {
+                        dfd.resolve(result);
+                    },
+                    error: function(error) {
+                        dfd.reject(error);
+                    }
+                });
+
+                return dfd.promise();
+            }
+        };
+
+        readyCallback(connectionInfo);
+    }
+
+    /**
      * Return any existing session for a given connection or Wamp URL
      *
      * @member vtkWeb.connect
@@ -189,6 +229,9 @@
     };
     module.getConnections = function () {
         return getConnections();
+    };
+    module.httpConnect = function(connection, readyCallback) {
+        return httpConnect(connection, readyCallback);
     };
 
     // ----------------------------------------------------------------------
