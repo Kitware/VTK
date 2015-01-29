@@ -823,6 +823,17 @@ bool QVTKWidget::winEvent(MSG* msg, long*)
     }
   return false;
 }
+
+#if QT_VERSION >= 0x050000
+bool QVTKWidget::nativeEvent(const QByteArray& eventType, void* message, long* result)
+{
+  if (eventType == "windows_generic_MSG")
+    {
+    winEvent((MSG*)message, result);
+    }
+  return false;
+}
+#endif
 #endif
 
 #if defined (QVTK_USE_CARBON)
