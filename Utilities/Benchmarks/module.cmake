@@ -5,7 +5,6 @@ vtk_module(vtkUtilitiesBenchmarks
     vtkRenderingContext${VTK_RENDERING_BACKEND}
     vtkRendering${VTK_RENDERING_BACKEND}
     vtkRenderingFreeType${VTK_RENDERING_BACKEND}
-    vtkRenderingVolume${VTK_RENDERING_BACKEND}
     vtkInteractionStyle
     vtkViewsContext2D
     vtkFiltersGeometry

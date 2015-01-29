@@ -10,6 +10,8 @@ set_source_files_properties(TimingTests.cxx APPEND PROPERTIES
 if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
   set(compile_defs VTK_OPENGL2)
 endif()
+
+# Chemistry target
 if(TARGET vtkDomainsChemistry)
   if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
     set(extra_deps vtkDomainsChemistryOpenGL2)
@@ -20,6 +22,22 @@ if(TARGET vtkDomainsChemistry)
   include_directories(${VTK_SOURCE_DIR}/Domains/Chemistry
     ${VTK_BINARY_DIR}/Domains/Chemistry)
 endif()
+
+# Volume target
+if(TARGET vtkRenderingVolumeOpenGL2)
+  if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+    list(APPEND extra_deps vtkRenderingVolumeOpenGL2)
+  else()
+    list(APPEND extra_deps vtkRenderingVolumeOpenGL)
+  endif()
+  list(APPEND compile_defs HAVE_VOLUME)
+  include_directories(
+    ${VTK_SOURCE_DIR}/Rendering/Volume
+    ${VTK_SOURCE_DIR}/Rendering/VolumeOpenGL2
+    ${VTK_BINARY_DIR}/Rendering/VolumeOpenGL2
+    ${VTK_BINARY_DIR}/Rendering/VolumeOpenGL2)
+endif()
+
 set_source_files_properties(TimingTests.cxx APPEND PROPERTIES
   COMPILE_DEFINITIONS "${compile_defs}")
 target_link_libraries(TimingTests ${extra_deps})

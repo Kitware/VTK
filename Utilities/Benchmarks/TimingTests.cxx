@@ -391,7 +391,7 @@ class moleculeTest : public vtkRTTest
 };
 #endif
 
-//#ifdef HAVE_CHEMISTRY
+#ifdef HAVE_VOLUME
 /*=========================================================================
 Define a test for volume
 =========================================================================*/
@@ -479,7 +479,7 @@ class volumeTest : public vtkRTTest
       renWindow->Render();
       ren1->GetActiveCamera()->Azimuth(0.5);
       ren1->GetActiveCamera()->Elevation(0.5);
-      ren1->GetActiveCamera()->Zoom(1.01);
+      ren1->GetActiveCamera()->Zoom(2.01);
       //ren1->ResetCameraClippingRange();
       if ((vtkTimerLog::GetUniversalTime() - startTime - firstFrameTime)
             > this->TargetTime * 1.5)
@@ -498,11 +498,8 @@ class volumeTest : public vtkRTTest
 
     return result;
     }
-
-  protected:
-    bool AtomsOnly;
 };
-//#endif
+#endif
 
 /*=========================================================================
 The main entry point
@@ -526,7 +523,9 @@ int main( int argc, char *argv[] )
   a.TestsToRun.push_back(new moleculeTest("MoleculeAtomsOnly",true));
 #endif
 
+#ifdef HAVE_VOLUME
   a.TestsToRun.push_back(new volumeTest("Volume"));
+#endif
 
   // process them
   return a.ParseCommandLineArguments(argc, argv);
