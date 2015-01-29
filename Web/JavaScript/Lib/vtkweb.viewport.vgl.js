@@ -129,6 +129,7 @@
     originalMouseMove = document.onmousemove,
     originalContextMenu = document.oncontextmenu,
     m_background = null;
+    screenImage = null,
     m_vglActors = {}
 
     // Helper functions -------------------------------------------------
@@ -215,7 +216,7 @@
             actors.invalid = false;
 
             // Redraw the scene
-            drawScene();
+            drawScene(false);
           } catch(error) {
             console.log(error);
           }
@@ -227,7 +228,16 @@
 
     // ------------------------------------------------------------------
 
-    function drawScene() {
+    function render(saveScreenOnRender) {
+      m_canvas3D.width = m_rendererAttrs.width();
+      m_canvas3D.height = m_rendererAttrs.height();
+      m_viewer = m_vglVtkReader.updateCanvas(m_canvas3D);
+      drawScene(saveScreenOnRender);
+    }
+
+    // ------------------------------------------------------------------
+
+    function drawScene(saveScreenOnRender) {
       var layer;
 
       try {
@@ -247,6 +257,10 @@
         });
 
         m_viewer.render();
+
+        if (saveScreenOnRender === true) {
+          screenImage = m_canvas3D.toDataURL();
+        }
 
         numObjects = m_vglVtkReader.numObjects();
 
@@ -310,7 +324,7 @@
         m_objectHandler.fetchMissingObjects(fetchObject, m_sceneJSON);
 
         // Draw scene
-        drawScene();
+        drawScene(false);
       } catch(error) {
         console.log(error);
       }
@@ -358,10 +372,15 @@
       }
     }).bind('render', function(){
       if(m_rendererAttrs.hasClass('active')){
-        m_canvas3D.width = m_rendererAttrs.width();
-        m_canvas3D.height = m_rendererAttrs.height();
-        m_viewer = m_vglVtkReader.updateCanvas(m_canvas3D);
-        drawScene();
+        render(false);
+      }
+    }).bind('captureRenderedImage', function(e){
+      if (m_rendererAttrs.hasClass('active')) {
+          render(true);
+          $(m_container).parent().trigger({
+              type: 'captured-screenshot-ready',
+              imageData: screenImage
+          });
       }
     }).bind('resetViewId', function(e){
       m_options.view = -1;

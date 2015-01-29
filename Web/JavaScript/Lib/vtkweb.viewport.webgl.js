@@ -972,6 +972,7 @@
         canvas2D = GLOBAL.document.createElement('canvas'),
         canvas3D = GLOBAL.document.createElement('canvas'),
         ctx2d = canvas2D.getContext('2d'),
+        screenImage = null,
         gl = canvas3D.getContext("experimental-webgl") || canvas3D.getContext("webgl"),
         shaderProgram = gl.createProgram(),
         pointShaderProgram = gl.createProgram(),
@@ -1053,7 +1054,7 @@
                         objectHandler.registerObject(newObject);
 
                         // Redraw the scene
-                        drawScene();
+                        drawScene(false);
                     } catch(error) {
                         console.log(error);
                     }
@@ -1065,7 +1066,7 @@
 
         // ------------------------------------------------------------------
 
-        function drawScene() {
+        function drawScene(saveScreenOnRender) {
             try {
                 if (sceneJSON === null || cameraLayerZero === null){
                     return;
@@ -1142,6 +1143,10 @@
                     gl.disable(gl.BLEND);
                 }
 
+                if (saveScreenOnRender === true) {
+                    screenImage = renderingContext.gl.canvas.toDataURL();
+                }
+
                 // Update frame rate
                 container.trigger({
                     type: 'stats',
@@ -1216,7 +1221,7 @@
                 objectHandler.fetchMissingObjects(fetchObject);
 
                 // Draw scene
-                drawScene();
+                drawScene(false);
             } catch(error) {
                 console.log(error);
             }
@@ -1234,10 +1239,18 @@
             }
         }).bind('render', function(){
             if(renderer.hasClass('active')){
-                drawScene();
+                drawScene(false);
             }
         }).bind('resetViewId', function(e){
             options.view = -1;
+        }).bind('captureRenderedImage', function(e){
+            if (renderer.hasClass('active')) {
+                drawScene(true);
+                $(container).parent().trigger({
+                    type: 'captured-screenshot-ready',
+                    imageData: screenImage
+                });
+            }
         }).bind('mouse', function(event){
             if(renderer.hasClass('active')){
                 event.preventDefault();
@@ -1285,7 +1298,7 @@
                         }
                     }
 
-                    drawScene();
+                    drawScene(false);
                     pushCameraState();
                 }
             }
@@ -1306,7 +1319,7 @@
 
                 // Ready to render data
                 fetchScene();
-                drawScene();
+                drawScene(false);
             }
         });
     }

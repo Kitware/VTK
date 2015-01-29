@@ -646,6 +646,16 @@
             },
 
             /**
+             * Ask the concrete renderer to generate an image and trigger its own
+             * event when the image is ready.
+             *
+             * @member vtkWeb.Viewport
+             */
+            captureScreenImage: function () {
+                rendererContainer.trigger('captureRenderedImage');
+            },
+
+            /**
              * Attach viewport to a DOM element
              *
              * @member vtkWeb.Viewport
