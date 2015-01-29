@@ -393,7 +393,7 @@ class moleculeTest : public vtkRTTest
 
 #ifdef HAVE_VOLUME
 /*=========================================================================
-Define a test for volume
+Define a test for volume rendering
 =========================================================================*/
 #include "vtkColorTransferFunction.h"
 #include "vtkGPUVolumeRayCastMapper.h"
@@ -448,7 +448,7 @@ class volumeTest : public vtkRTTest
 
     vtkNew<vtkPiecewiseFunction> pwf;
     pwf->AddPoint(37.3531, 0.0);
-    pwf->AddPoint(276.829, 1.0);
+    pwf->AddPoint(276.829, 0.05);
 
     volumeProperty->SetColor(ctf.GetPointer());
     volumeProperty->SetScalarOpacity(pwf.GetPointer());
