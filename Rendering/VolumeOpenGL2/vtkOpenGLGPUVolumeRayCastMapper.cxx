@@ -2194,6 +2194,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   // Temporary variables
   float fvalue2[2];
   float fvalue3[3];
+  float fvalue4[4];
   float fvalue16[16];
 
   // Update sampling distance
@@ -2493,6 +2494,16 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     1.0 / this->FinalColorWindow);
   this->Impl->ShaderProgram->SetUniformf("in_bias",
     (0.5 - (this->FinalColorLevel/this->FinalColorWindow)));
+
+  if (numberOfScalarComponents > 1 &&
+      volumeProperty->GetIndependentComponents())
+    {
+    for (int i = 0; i < numberOfScalarComponents; ++i)
+      {
+      fvalue4[i] = static_cast<float>(volumeProperty->GetComponentWeight(i));
+      }
+    this->Impl->ShaderProgram->SetUniform4fv("in_componentWeight", 1, &fvalue4);
+    }
 
 #ifndef __APPLE__
   glBindVertexArray(this->Impl->CubeVAOId);

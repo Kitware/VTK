@@ -101,8 +101,8 @@ namespace vtkvolume
                               vtkVolume* vtkNotUsed(vol),
                               int vtkNotUsed(numberOfLights),
                               int lightingComplexity,
-                              int vtkNotUsed(noOfComponents),
-                              bool vtkNotUsed(independentComponents))
+                              int noOfComponents,
+                              bool independentComponents)
     {
     std::string shaderStr = std::string("\
       \n// Volume dataset\
@@ -191,6 +191,12 @@ namespace vtkvolume
         \nuniform vec3 in_lightDiffuseColor[1];\
         \nuniform vec3 in_lightSpecularColor[1];\
       ");
+      }
+
+    if (noOfComponents > 1 && independentComponents)
+      {
+      shaderStr += std::string("\
+        uniform vec4 in_componentWeight;");
       }
 
     return shaderStr;
@@ -823,15 +829,15 @@ namespace vtkvolume
           \n          // Data fetching from the red channel of volume texture\
           \n          vec4 scalar = texture3D(in_volume, g_dataPos);\
           \n          color[i] = vec4(computeColor(scalar, i));\
-          \n          totalAlpha += color[i][3];\
+          \n          totalAlpha += color[i][3] * in_componentWeight[i];\
           \n          }\
           \n       if (totalAlpha > 0.0)\
           \n         {\
           \n         for (int i = 0; i < in_noOfComponents; ++i)\
           \n           {\
-          \n           tmp.x += color[i].x * color[i].w;\
-          \n           tmp.y += color[i].y * color[i].w;\
-          \n           tmp.z += color[i].z * color[i].w;\
+          \n           tmp.x += color[i].x * color[i].w * in_componentWeight[i] ;\
+          \n           tmp.y += color[i].y * color[i].w * in_componentWeight[i];\
+          \n           tmp.z += color[i].z * color[i].w * in_componentWeight[i];\
           \n           tmp.w += ((color[i].w * color[i].w)/totalAlpha);\
           \n           }\
           \n         }\
@@ -895,10 +901,10 @@ namespace vtkvolume
           \n         for (int i = 0; i < in_noOfComponents; ++i)\
           \n           {\                                                                                                                   \
           \n           vec4 tmp = vec4(computeColor(l_maxValue, i);\
-          \n           g_srcColor[0] += tmp[0] * tmp[3];\
-          \n           g_srcColor[1] += tmp[1] * tmp[3];\
-          \n           g_srcColor[2] += tmp[2] * tmp[3];\
-          \n           g_srcColor[2] += tmp[3] * tmp[3];\
+          \n           g_srcColor[0] += tmp[0] * tmp[3] * in_componentWeight[i];\
+          \n           g_srcColor[1] += tmp[1] * tmp[3] * in_componentWeight[i];\
+          \n           g_srcColor[2] += tmp[2] * tmp[3] * in_componentWeight[i];\
+          \n           g_srcColor[2] += tmp[3] * tmp[3] * in_componentWeight[i];\
           \n           }\
           \n        }"
         );
@@ -924,10 +930,10 @@ namespace vtkvolume
           \n         for (int i = 0; i < in_noOfComponents; ++i)\
           \n           {\                                                                                                                   \
           \n           vec4 tmp = vec4(computeColor(l_maxValue, i);\
-          \n           g_srcColor[0] += tmp[0] * tmp[3];\
-          \n           g_srcColor[1] += tmp[1] * tmp[3];\
-          \n           g_srcColor[2] += tmp[2] * tmp[3];\
-          \n           g_srcColor[2] += tmp[3] * tmp[3];\
+          \n           g_srcColor[0] += tmp[0] * tmp[3] * in_componentWeight[i];\
+          \n           g_srcColor[1] += tmp[1] * tmp[3] * in_componentWeight[i];\
+          \n           g_srcColor[2] += tmp[2] * tmp[3] * in_componentWeight[i];\
+          \n           g_srcColor[2] += tmp[3] * tmp[3] * in_componentWeight[i];\
           \n           }\
           \n        }"
         );
