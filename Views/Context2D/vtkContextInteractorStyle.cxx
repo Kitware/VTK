@@ -115,23 +115,34 @@ void vtkContextInteractorStyle::ProcessSceneEvents(vtkObject*,
 
 //----------------------------------------------------------------------------
 void vtkContextInteractorStyle::ProcessInteractorEvents(vtkObject*,
-                                                        unsigned long,
+                                                        unsigned long eventId,
                                                         void* clientdata,
                                                         void* vtkNotUsed(calldata))
 {
   vtkContextInteractorStyle* self =
     reinterpret_cast<vtkContextInteractorStyle *>(clientdata);
+  if (eventId == vtkCommand::TimerEvent)
+    {
+    // This is a timeout. To avoid the self->RenderNow() from destroying a
+    // already dead timer, just we just reset it.
+    self->TimerId = 0;
+    }
+
   self->RenderNow();
 }
 
 //----------------------------------------------------------------------------
 void vtkContextInteractorStyle::RenderNow()
 {
-  this->TimerId = 0;
+  if (this->TimerId > 0)
+    {
+    this->Interactor->DestroyTimer(this->TimerId);
+    this->TimerId = 0;
+    }
   if (this->Scene && !this->ProcessingEvents &&
       this->Interactor->GetInitialized())
     {
-    this->Interactor->GetRenderWindow()->Render();
+    this->Interactor->Render();
     }
 }
 
@@ -158,7 +169,7 @@ void vtkContextInteractorStyle::OnSceneModified()
   // If there is no timer, create a one shot timer to render an updated scene
   if (this->TimerId == 0)
     {
-    this->Interactor->CreateOneShotTimer(40);
+    this->TimerId = this->Interactor->CreateOneShotTimer(40);
     }
   this->EndProcessingEvent();
 }
