@@ -375,7 +375,7 @@ int vtkGPUVolumeRayCastMapper::ValidateRender(vtkRenderer *ren,
   if ( goodSoFar )
     {
     numberOfComponents = scalars->GetNumberOfComponents();
-    if( !(numberOfComponents ==1 ||
+    if( !(numberOfComponents == 1 ||
           numberOfComponents == 4) )
       {
       goodSoFar = 0;

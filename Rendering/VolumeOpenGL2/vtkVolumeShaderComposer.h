@@ -257,16 +257,28 @@ namespace vtkvolume
   std::string GradientsComputeFunc(vtkRenderer* vtkNotUsed(ren),
                                    vtkVolumeMapper* vtkNotUsed(mapper),
                                    vtkVolume* vol,
-                                   int vtkNotUsed(numberOfComponents))
+                                   int noOfComponents,
+                                   int independentComponents)
   {
     std::string shaderStr;
-    if (vol->GetProperty()->HasGradientOpacity())
+    if (noOfComponents == 1 && vol->GetProperty()->HasGradientOpacity())
       {
       shaderStr += std::string("\
         \nuniform sampler1D in_gradientTransferFunc;\
         \nfloat computeGradientOpacity(vec4 grad)\
         \n  {\
         \n  return texture1D(in_gradientTransferFunc, grad.w).w;\
+        \n  }"
+      );
+      }
+    else if (noOfComponents > 1 && independentComponents &&
+             vol->GetProperty()->HasGradientOpacity())
+      {
+      shaderStr += std::string("\
+        \nuniform sampler1D in_gradientTransferFunc[4];\
+        \nfloat computeGradientOpacity(vec4 grad, int component)\
+        \n  {\
+        \n  return texture1D(in_gradientTransferFunc[component], grad.w).w;\
         \n  }"
       );
       }
@@ -300,7 +312,7 @@ namespace vtkvolume
         \n  {\
         \n  vec3 g1;\
         \n  vec4 g2;\
-        \n   vec3 xvec = vec3(in_cellStep[0], 0.0, 0.0);\
+        \n  vec3 xvec = vec3(in_cellStep[0], 0.0, 0.0);\
         \n  vec3 yvec = vec3(0.0, in_cellStep[1], 0.0);\
         \n  vec3 zvec = vec3(0.0, 0.0, in_cellStep[2]);\
         \n  g1.x = texture3D(in_volume, vec3(g_dataPos + xvec)).x;\
@@ -373,7 +385,8 @@ namespace vtkvolume
   std::string LightComputeFunc(vtkRenderer* vtkNotUsed(ren),
                                vtkVolumeMapper* vtkNotUsed(mapper),
                                vtkVolume* vol,
-                               int vtkNotUsed(numberOfComponents),
+                               int noOfComponents,
+                               int independentComponents,
                                int vtkNotUsed(numberOfLights),
                                int lightingComplexity)
     {
@@ -585,14 +598,27 @@ namespace vtkvolume
       );
       }
 
-    if (volProperty->HasGradientOpacity())
+    if (noOfComponents == 1 && volProperty->HasGradientOpacity())
       {
       shaderStr += std::string("\
         \n  if (gradient.w >= 0.0)\
         \n    {\
         \n    color.a = color.a *\
-        \n    texture1D(in_gradientTransferFunc, gradient.w).w;\
+        \n    computeGradientOpacity(gradient);\
         \n    }"
+      );
+      }
+    else if (noOfComponents > 1 && independentComponents &&
+             volProperty->HasGradientOpacity())
+      {
+      shaderStr += std::string("\
+      \n  if (gradient.w >= 0.0)\
+      \n    {\
+      \n    for (int i = 0; i < in_noOfComponents; ++i)\
+      \n      {\
+      \n      color.a = color.a *\
+      \n      computeGradientOpacity(gradient, i) * in_componentWeight[i];\
+      \n      }"
       );
       }
 
@@ -635,7 +661,7 @@ namespace vtkvolume
                                 vtkVolumeMapper* vtkNotUsed(mapper),
                                 vtkVolume* vtkNotUsed(vol),
                                 int numberOfComponents,
-                                bool independentComponents = false)
+                                int independentComponents = 0)
     {
       if (numberOfComponents == 1)
         {
@@ -673,7 +699,7 @@ namespace vtkvolume
                                   vtkVolumeMapper* vtkNotUsed(mapper),
                                   vtkVolume* vtkNotUsed(vol),
                                   int numberOfComponents,
-                                  bool independentComponents = false)
+                                  int independentComponents = 0)
     {
     if (numberOfComponents > 1 && independentComponents)
       {
@@ -751,7 +777,7 @@ namespace vtkvolume
                                vtkImageData* maskInput,
                                vtkVolumeMask* mask, int maskType,
                                int noOfComponents,
-                               bool independentComponents = false)
+                               int independentComponents = 0)
     {
     std::string shaderStr = std::string("\
       \n    if (!l_skip)\
@@ -888,7 +914,7 @@ namespace vtkvolume
                           vtkVolumeMapper* mapper,
                           vtkVolume* vtkNotUsed(vol),
                           int noOfComponents,
-                          bool independentComponents = false)
+                          int independentComponents = 0)
     {
     if (mapper->GetBlendMode() == vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND)
       {
@@ -899,7 +925,7 @@ namespace vtkvolume
           \n         {\
           \n         vec4 g_srcColor = vec4(0);\
           \n         for (int i = 0; i < in_noOfComponents; ++i)\
-          \n           {\                                                                                                                   \
+          \n           {\
           \n           vec4 tmp = vec4(computeColor(l_maxValue, i);\
           \n           g_srcColor[0] += tmp[0] * tmp[3] * in_componentWeight[i];\
           \n           g_srcColor[1] += tmp[1] * tmp[3] * in_componentWeight[i];\
@@ -923,12 +949,12 @@ namespace vtkvolume
       {
       if (noOfComponents > 1 && independentComponents)
         {
-        return std::string ("\
+        return std::string("\
           \n       for (int i = 0; i < in_noOfComponents; ++i)\
           \n         {\
           \n         vec4 g_srcColor = vec4(0);\
           \n         for (int i = 0; i < in_noOfComponents; ++i)\
-          \n           {\                                                                                                                   \
+          \n           {\
           \n           vec4 tmp = vec4(computeColor(l_maxValue, i);\
           \n           g_srcColor[0] += tmp[0] * tmp[3] * in_componentWeight[i];\
           \n           g_srcColor[1] += tmp[1] * tmp[3] * in_componentWeight[i];\
@@ -940,7 +966,7 @@ namespace vtkvolume
         }
       else
         {
-        return std::string ("\
+        return std::string("\
           \n  vec4 g_srcColor = vec4(computeColor(l_minValue).xyz,\
           \n                         computeOpacity(l_minValue));\
           \n  g_fragColor.rgb = g_srcColor.rgb * g_srcColor.a;\
@@ -950,7 +976,7 @@ namespace vtkvolume
       }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::ADDITIVE_BLEND)
       {
-      return std::string ("\
+      return std::string("\
         \n  l_sumValue = clamp(l_sumValue, 0.0, 1.0);\
         \n  g_fragColor = vec4(vec3(l_sumValue), 1.0);"
       );
