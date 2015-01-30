@@ -22,6 +22,7 @@ from autobahn.twisted.resource  import WebSocketResource
 from autobahn.twisted.websocket import listenWS
 from autobahn.twisted.longpoll  import WampLongPollResource
 
+from twisted.web                import resource
 from twisted.web.resource       import Resource
 from twisted.internet           import reactor
 from twisted.internet.defer     import inlineCallbacks
