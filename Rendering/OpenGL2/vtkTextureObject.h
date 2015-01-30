@@ -33,7 +33,7 @@ class VertexArrayObject;
 class CellBO;
 }
 
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
 class vtkPixelBufferObject;
 #endif
 
@@ -204,8 +204,8 @@ public:
                           int internalFormat, int rawType,
                           void *raw);
 
-// PBO's, 1D and 3D textures are not supported in ES 2.0
-#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
+// 1D  textures are not supported in ES 2.0 or 3.0
+#if GL_ES_VERSION_2_0 != 1
 
   // Description:
   // Create a 1D texture using the PBO.
@@ -224,6 +224,17 @@ public:
   // Create 1D texture from client memory
   bool Create1DFromRaw(unsigned int width, int numComps,
                        int dataType, void *data);
+  // Description:
+  // Create a 1D alpha texture using a raw pointer.
+  // This is a blocking call. If you can, use PBO instead.
+  bool CreateAlphaFromRaw(unsigned int width,
+                          int internalFormat,
+                          int rawType,
+                          void *raw);
+#endif
+
+// PBO's, and 3D textures are not supported in ES 2.0
+#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
 
   // Description:
   // Create a 2D texture using the PBO.
@@ -264,14 +275,6 @@ public:
                    unsigned int height,
                    int internalFormat,
                    vtkPixelBufferObject *pbo);
-
-  // Description:
-  // Create a 1D alpha texture using a raw pointer.
-  // This is a blocking call. If you can, use PBO instead.
-  bool CreateAlphaFromRaw(unsigned int width,
-                          int internalFormat,
-                          int rawType,
-                          void *raw);
 
 #endif
 
