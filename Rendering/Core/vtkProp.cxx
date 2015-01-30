@@ -20,11 +20,13 @@
 #include "vtkInformationIterator.h"
 #include "vtkInformationKey.h"
 #include "vtkInformationIntegerKey.h"
+#include "vtkInformationDoubleVectorKey.h"
 #include <cassert>
 
 vtkCxxSetObjectMacro(vtkProp,PropertyKeys,vtkInformation);
 
 vtkInformationKeyMacro(vtkProp,GeneralTextureUnit,Integer);
+vtkInformationKeyMacro(vtkProp,GeneralTextureTransform,DoubleVector);
 
 //----------------------------------------------------------------------------
 // Creates an Prop with the following defaults: visibility on.
