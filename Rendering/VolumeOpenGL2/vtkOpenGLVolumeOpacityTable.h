@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOpenGLOpacityTable.h
+  Module:    vtkOpenGLVolumeOpacityTable.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -23,11 +23,11 @@
 #include <vtk_glew.h>
 
 //----------------------------------------------------------------------------
-class vtkOpenGLOpacityTable
+class vtkOpenGLVolumeOpacityTable
 {
 public:
   //--------------------------------------------------------------------------
-  vtkOpenGLOpacityTable(int width = 1024)
+  vtkOpenGLVolumeOpacityTable(int width = 1024)
     {
       this->TextureObject = 0;
       this->LastBlendMode = vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND;
@@ -39,7 +39,7 @@ public:
     }
 
   //--------------------------------------------------------------------------
-  ~vtkOpenGLOpacityTable()
+  ~vtkOpenGLVolumeOpacityTable()
     {
       if (this->TextureObject)
         {
@@ -199,30 +199,30 @@ protected:
   int LastInterpolation;
   double LastRange[2];
 private:
-  vtkOpenGLOpacityTable(const vtkOpenGLOpacityTable&);
-  vtkOpenGLOpacityTable& operator=(const vtkOpenGLOpacityTable&);
+  vtkOpenGLVolumeOpacityTable(const vtkOpenGLVolumeOpacityTable&);
+  vtkOpenGLVolumeOpacityTable& operator=(const vtkOpenGLVolumeOpacityTable&);
 };
 
 //----------------------------------------------------------------------------
-class vtkOpenGLOpacityTables
+class vtkOpenGLVolumeOpacityTables
 {
 public:
   //--------------------------------------------------------------------------
-  vtkOpenGLOpacityTables(unsigned int numberOfTables)
+  vtkOpenGLVolumeOpacityTables(unsigned int numberOfTables)
     {
-    this->Tables = new vtkOpenGLOpacityTable[numberOfTables];
+    this->Tables = new vtkOpenGLVolumeOpacityTable[numberOfTables];
     this->NumberOfTables = numberOfTables;
     }
 
   //--------------------------------------------------------------------------
-  ~vtkOpenGLOpacityTables()
+  ~vtkOpenGLVolumeOpacityTables()
     {
     delete [] this->Tables;
     }
 
   // brief Get opacity table at a given index.
   //--------------------------------------------------------------------------
-  vtkOpenGLOpacityTable* GetTable(unsigned int i)
+  vtkOpenGLVolumeOpacityTable* GetTable(unsigned int i)
     {
     if (i >= this->NumberOfTables)
       {
@@ -249,17 +249,17 @@ public:
 
 private:
   unsigned int NumberOfTables;
-  vtkOpenGLOpacityTable *Tables;
+  vtkOpenGLVolumeOpacityTable *Tables;
 
-  // vtkOpenGLOpacityTables (Not implemented)
-  vtkOpenGLOpacityTables();
+  // vtkOpenGLVolumeOpacityTables (Not implemented)
+  vtkOpenGLVolumeOpacityTables();
 
-  // vtkOpenGLOpacityTables (Not implemented)
-  vtkOpenGLOpacityTables(const vtkOpenGLOpacityTables &other);
+  // vtkOpenGLVolumeOpacityTables (Not implemented)
+  vtkOpenGLVolumeOpacityTables(const vtkOpenGLVolumeOpacityTables &other);
 
   // operator = (Not implemented)
-  vtkOpenGLOpacityTables &operator=(const vtkOpenGLOpacityTables &other);
+  vtkOpenGLVolumeOpacityTables &operator=(const vtkOpenGLVolumeOpacityTables &other);
 };
 
 #endif // vtkOpenGLVolumeOpacityTable_h_
-// VTK-HeaderTest-Exclude: vtkOpenGLOpacityTable.h
+// VTK-HeaderTest-Exclude: vtkOpenGLVolumeOpacityTable.h

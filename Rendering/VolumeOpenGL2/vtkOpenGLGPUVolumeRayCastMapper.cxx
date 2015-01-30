@@ -15,8 +15,8 @@
 
 #include "vtkOpenGLGPUVolumeRayCastMapper.h"
 
-#include "vtkOpenGLGradientOpacityTable.h"
-#include "vtkOpenGLOpacityTable.h"
+#include "vtkOpenGLVolumeGradientOpacityTable.h"
+#include "vtkOpenGLVolumeOpacityTable.h"
 #include "vtkOpenGLVolumeRGBTable.h"
 #include "vtkVolumeShaderComposer.h"
 #include "vtkVolumeStateRAII.h"
@@ -326,10 +326,10 @@ public:
   std::ostringstream ExtensionsStringStream;
 
   vtkOpenGLVolumeRGBTables* RGBTables;
-  vtkOpenGLOpacityTables* OpacityTables;
+  vtkOpenGLVolumeOpacityTables* OpacityTables;
   vtkOpenGLVolumeRGBTable* Mask1RGBTable;
   vtkOpenGLVolumeRGBTable* Mask2RGBTable;
-  vtkOpenGLGradientOpacityTables* GradientOpacityTables;
+  vtkOpenGLVolumeGradientOpacityTables* GradientOpacityTables;
 
   vtkTimeStamp ShaderBuildTime;
 
@@ -452,7 +452,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::Initialize(
     }
 
   // We support upto four components
-  this->OpacityTables = new vtkOpenGLOpacityTables(4);
+  this->OpacityTables = new vtkOpenGLVolumeOpacityTables(4);
 
   this->Initialized = true;
 }
@@ -956,7 +956,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
   if (!this->GradientOpacityTables && gradientOpacity)
     {
     // NOTE Handling only one component
-    this->GradientOpacityTables = new vtkOpenGLGradientOpacityTables(1);
+    this->GradientOpacityTables = new vtkOpenGLVolumeGradientOpacityTables(1);
     }
 
   // TODO: Do a better job to create the default opacity map

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkOpenGLGradientOpacityTable.h
+  Module:    vtkOpenGLVolumeGradientOpacityTable.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef vtkOpenGLGradientOpacityTable_h_
-#define vtkOpenGLGradientOpacityTable_h_
+#ifndef vtkOpenGLVolumeGradientOpacityTable_h_
+#define vtkOpenGLVolumeGradientOpacityTable_h_
 
 #include <vtkPiecewiseFunction.h>
 #include <vtkTextureObject.h>
@@ -23,11 +23,11 @@
 #include <vtk_glew.h>
 
 //----------------------------------------------------------------------------
-class vtkOpenGLGradientOpacityTable
+class vtkOpenGLVolumeGradientOpacityTable
 {
 public:
   //--------------------------------------------------------------------------
-  vtkOpenGLGradientOpacityTable(int width = 1024)
+  vtkOpenGLVolumeGradientOpacityTable(int width = 1024)
     {
       this->TextureObject = 0;
       this->TextureWidth = width;
@@ -38,7 +38,7 @@ public:
     }
 
   //--------------------------------------------------------------------------
-  ~vtkOpenGLGradientOpacityTable()
+  ~vtkOpenGLVolumeGradientOpacityTable()
     {
       if (this->TextureObject)
         {
@@ -157,30 +157,30 @@ protected:
   int LastInterpolation;
   double LastRange[2];
 private:
-  vtkOpenGLGradientOpacityTable(const vtkOpenGLGradientOpacityTable&);
-  vtkOpenGLGradientOpacityTable& operator=(const vtkOpenGLGradientOpacityTable&);
+  vtkOpenGLVolumeGradientOpacityTable(const vtkOpenGLVolumeGradientOpacityTable&);
+  vtkOpenGLVolumeGradientOpacityTable& operator=(const vtkOpenGLVolumeGradientOpacityTable&);
 };
 
 //-----------------------------------------------------------------------------
-class vtkOpenGLGradientOpacityTables
+class vtkOpenGLVolumeGradientOpacityTables
 {
 public:
   //--------------------------------------------------------------------------
-  vtkOpenGLGradientOpacityTables(unsigned int numberOfTables)
+  vtkOpenGLVolumeGradientOpacityTables(unsigned int numberOfTables)
     {
-    this->Tables = new vtkOpenGLGradientOpacityTable[numberOfTables];
+    this->Tables = new vtkOpenGLVolumeGradientOpacityTable[numberOfTables];
     this->NumberOfTables = numberOfTables;
     }
 
   //--------------------------------------------------------------------------
-  ~vtkOpenGLGradientOpacityTables()
+  ~vtkOpenGLVolumeGradientOpacityTables()
     {
     delete [] this->Tables;
     }
 
   // Get opacity table at a given index.
   //--------------------------------------------------------------------------
-  vtkOpenGLGradientOpacityTable* GetTable(unsigned int i)
+  vtkOpenGLVolumeGradientOpacityTable* GetTable(unsigned int i)
     {
     if (i >= this->NumberOfTables)
       {
@@ -206,17 +206,17 @@ public:
     }
 private:
   unsigned int NumberOfTables;
-  vtkOpenGLGradientOpacityTable* Tables;
+  vtkOpenGLVolumeGradientOpacityTable* Tables;
 
-  // vtkOpenGLGradientOpacityTables (Not implemented)
-  vtkOpenGLGradientOpacityTables();
+  // vtkOpenGLVolumeGradientOpacityTables (Not implemented)
+  vtkOpenGLVolumeGradientOpacityTables();
 
-  // vtkOpenGLGradientOpacityTables (Not implemented)
-  vtkOpenGLGradientOpacityTables(const vtkOpenGLGradientOpacityTables &other);
+  // vtkOpenGLVolumeGradientOpacityTables (Not implemented)
+  vtkOpenGLVolumeGradientOpacityTables(const vtkOpenGLVolumeGradientOpacityTables &other);
 
   // operator = (Not implemented)
-  vtkOpenGLGradientOpacityTables &operator=(const vtkOpenGLGradientOpacityTables &other);
+  vtkOpenGLVolumeGradientOpacityTables &operator=(const vtkOpenGLVolumeGradientOpacityTables &other);
 };
 
-#endif // vtkOpenGLGradientOpacityTable_h_
-// VTK-HeaderTest-Exclude: vtkOpenGLGradientOpacityTable.h
+#endif // vtkOpenGLVolumeGradientOpacityTable_h_
+// VTK-HeaderTest-Exclude: vtkOpenGLVolumeGradientOpacityTable.h
