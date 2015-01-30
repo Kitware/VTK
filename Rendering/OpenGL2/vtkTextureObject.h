@@ -205,7 +205,7 @@ public:
                           void *raw);
 
 // PBO's, 1D and 3D textures are not supported in ES 2.0
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
 
   // Description:
   // Create a 1D texture using the PBO.

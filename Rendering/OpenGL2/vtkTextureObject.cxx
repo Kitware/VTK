@@ -1273,7 +1273,7 @@ unsigned int vtkTextureObject::GetWrapRMode(int vtktype)
   return this->GetWrapSMode(vtktype);
 }
 
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
 
 //----------------------------------------------------------------------------
 bool vtkTextureObject::Create1D(int numComps,
