@@ -96,11 +96,12 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
       }
 
     timer->StartTimer();
-    numRenders = 200;
+    numRenders = 100;
     for (int i = 0; i < numRenders; ++i)
       {
       renderer->GetActiveCamera()->Azimuth(1);
       renderer->GetActiveCamera()->Elevation(1);
+      renderer->GetActiveCamera()->OrthogonalizeViewUp();
       renderWindow->Render();
       }
     timer->StopTimer();
