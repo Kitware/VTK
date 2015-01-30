@@ -145,7 +145,7 @@ protected:
   int                 ProcessingEvents;
   unsigned long int   LastSceneRepaintMTime;
 
-  unsigned long int   TimerId;
+  int                 TimerId;
   bool                TimerCallbackInitialized;
 
 private:
