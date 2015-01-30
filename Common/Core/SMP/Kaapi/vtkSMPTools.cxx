@@ -51,3 +51,8 @@ void vtkSMPTools::Initialize(int)
     }
   vtkSMPToolsCS.Unlock();
 }
+
+int vtkSMPTools::GetEstimatedNumberOfThreads()
+{
+  return kaapic_get_concurrency();
+}

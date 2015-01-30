@@ -81,3 +81,8 @@ void vtkSMPTools::Initialize(int nThreads)
   vtkSMPToolsThreadIds.resize(vtkSMPToolsNumberOfThreads);
   vtkSMPToolsThreadIds[0] = vtkMultiThreader::GetCurrentThreadID();
 }
+
+int vtkSMPTools::GetEstimatedNumberOfThreads()
+{
+  return vtkSMPToolsNumberOfThreads;
+}
