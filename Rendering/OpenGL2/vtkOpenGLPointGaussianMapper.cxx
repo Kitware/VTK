@@ -227,11 +227,13 @@ vtkgl::VBOLayout vtkOpenGLPointGaussianMapperHelperCreateVBO(float * points, vtk
 
   float cos30 = cos(vtkMath::RadiansFromDegrees(30.0));
 
+  unsigned char white[4] = {255, 255, 255, 255};
+
   for (vtkIdType i = 0; i < numPts; ++i)
     {
     pointPtr = points + i*3;
-    colorPtr = colors + i*colorComponents;
-    float radius = sizes[i];
+    colorPtr = colors ? (colors + i*colorComponents) : white;
+    float radius = sizes ? sizes[i] : 1.0;
 
     // Vertices
     *(it++) = pointPtr[0];
@@ -314,8 +316,8 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(vtkRenderer *vtkNotU
               poly->GetPoints()->GetNumberOfPoints(),
               this->Colors ? (unsigned char *)this->Colors->GetVoidPointer(0) : NULL,
               this->Colors ? this->Colors->GetNumberOfComponents() : 0,
-              static_cast<float *>(poly->GetPointData()->GetArray(
-                this->Owner->GetScaleArray())->GetVoidPointer(0)),
+              this->Owner->GetScaleArray() ? static_cast<float *>(poly->GetPointData()->GetArray(
+                this->Owner->GetScaleArray())->GetVoidPointer(0)) : NULL,
               this->VBO);
 
   // we use no IBO
