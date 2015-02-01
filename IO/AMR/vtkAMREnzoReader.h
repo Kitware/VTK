@@ -25,6 +25,7 @@
 #include "vtkAMRBaseReader.h"
 
 #include <map>     // For STL map
+#include <string>  // For std::string
 
 class vtkOverlappingAMR;
 class vtkEnzoReaderInternal;

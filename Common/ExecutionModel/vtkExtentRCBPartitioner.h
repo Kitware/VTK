@@ -25,6 +25,7 @@
 #include "vtkObject.h"
 #include <vector> // For STL vector
 #include <cassert>  // For assert
+#include <string> // For std::string
 
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExtentRCBPartitioner : public vtkObject
 {
