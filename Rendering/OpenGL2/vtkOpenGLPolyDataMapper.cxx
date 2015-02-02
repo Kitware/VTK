@@ -265,21 +265,21 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColorMaterialValues(std::string &VSSo
       {
       substitute(FSSource,"//VTK::Color::Impl", colorImpl +
                           "  ambientColor = vertexColor.rgb;\n"
-                          "  opacity = vertexColor.a;");
+                          "  opacity = opacity*vertexColor.a;");
       }
     else if (this->ScalarMaterialMode == VTK_MATERIALMODE_DIFFUSE ||
           (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT && actor->GetProperty()->GetAmbient() <= actor->GetProperty()->GetDiffuse()))
       {
       substitute(FSSource,"//VTK::Color::Impl", colorImpl +
                           "  diffuseColor = vertexColor.rgb;\n"
-                          "  opacity = vertexColor.a;");
+                          "  opacity = opacity*vertexColor.a;");
       }
     else
       {
       substitute(FSSource,"//VTK::Color::Impl", colorImpl +
                           "  diffuseColor = vertexColor.rgb;\n"
                           "  ambientColor = vertexColor.rgb;\n"
-                          "  opacity = vertexColor.a;");
+                          "  opacity = opacity*vertexColor.a;");
       }
     }
   else
@@ -295,7 +295,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColorMaterialValues(std::string &VSSo
                     "//VTK::Color::Impl", colorImpl +
                     "  vec4 texColor = texture2D(texture1, tcoordVC.st);\n"
                     "  ambientColor = texColor.rgb;\n"
-                    "  opacity = texColor.a;");
+                    "  opacity = opacity*texColor.a;");
         }
       else if (this->ScalarMaterialMode == VTK_MATERIALMODE_DIFFUSE ||
           (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT &&
@@ -305,7 +305,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColorMaterialValues(std::string &VSSo
                     "//VTK::Color::Impl", colorImpl +
                     "  vec4 texColor = texture2D(texture1, tcoordVC.st);\n"
                     "  diffuseColor = texColor.rgb;\n"
-                    "  opacity = texColor.a;");
+                    "  opacity = opacity*texColor.a;");
         }
       else
         {
@@ -314,7 +314,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColorMaterialValues(std::string &VSSo
                     "vec4 texColor = texture2D(texture1, tcoordVC.st);\n"
                     "  ambientColor = texColor.rgb;\n"
                     "  diffuseColor = texColor.rgb;\n"
-                    "  opacity = texColor.a;");
+                    "  opacity = opacity*texColor.a;");
         }
       }
     else
@@ -984,15 +984,22 @@ void vtkOpenGLPolyDataMapper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO,
   {
   // Query the property for some of the properties that can be applied.
   float opacity = static_cast<float>(ppty->GetOpacity());
-  double *aColor = this->DrawingEdges ? ppty->GetEdgeColor() : ppty->GetAmbientColor();
-  double aIntensity = this->DrawingEdges ? 1.0 : ppty->GetAmbient();  // ignoring renderer ambient
-  float ambientColor[3] = {static_cast<float>(aColor[0] * aIntensity), static_cast<float>(aColor[1] * aIntensity), static_cast<float>(aColor[2] * aIntensity)};
+  double *aColor = this->DrawingEdges ?
+    ppty->GetEdgeColor() : ppty->GetAmbientColor();
+  double aIntensity = this->DrawingEdges ? 1.0 : ppty->GetAmbient();
+  float ambientColor[3] = {static_cast<float>(aColor[0] * aIntensity),
+    static_cast<float>(aColor[1] * aIntensity),
+    static_cast<float>(aColor[2] * aIntensity)};
   double *dColor = ppty->GetDiffuseColor();
   double dIntensity = this->DrawingEdges ? 0.0 : ppty->GetDiffuse();
-  float diffuseColor[3] = {static_cast<float>(dColor[0] * dIntensity), static_cast<float>(dColor[1] * dIntensity), static_cast<float>(dColor[2] * dIntensity)};
+  float diffuseColor[3] = {static_cast<float>(dColor[0] * dIntensity),
+    static_cast<float>(dColor[1] * dIntensity),
+    static_cast<float>(dColor[2] * dIntensity)};
   double *sColor = ppty->GetSpecularColor();
   double sIntensity = this->DrawingEdges ? 0.0 : ppty->GetSpecular();
-  float specularColor[3] = {static_cast<float>(sColor[0] * sIntensity), static_cast<float>(sColor[1] * sIntensity), static_cast<float>(sColor[2] * sIntensity)};
+  float specularColor[3] = {static_cast<float>(sColor[0] * sIntensity),
+    static_cast<float>(sColor[1] * sIntensity),
+    static_cast<float>(sColor[2] * sIntensity)};
   double specularPower = ppty->GetSpecularPower();
 
   program->SetUniformf("opacityUniform", opacity);
@@ -1015,13 +1022,19 @@ void vtkOpenGLPolyDataMapper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO,
     float opacity = static_cast<float>(ppty->GetOpacity());
     double *aColor = ppty->GetAmbientColor();
     double aIntensity = ppty->GetAmbient();  // ignoring renderer ambient
-    float ambientColor[3] = {static_cast<float>(aColor[0] * aIntensity), static_cast<float>(aColor[1] * aIntensity), static_cast<float>(aColor[2] * aIntensity)};
+    float ambientColor[3] = {static_cast<float>(aColor[0] * aIntensity),
+      static_cast<float>(aColor[1] * aIntensity),
+      static_cast<float>(aColor[2] * aIntensity)};
     double *dColor = ppty->GetDiffuseColor();
     double dIntensity = ppty->GetDiffuse();
-    float diffuseColor[3] = {static_cast<float>(dColor[0] * dIntensity), static_cast<float>(dColor[1] * dIntensity), static_cast<float>(dColor[2] * dIntensity)};
+    float diffuseColor[3] = {static_cast<float>(dColor[0] * dIntensity),
+      static_cast<float>(dColor[1] * dIntensity),
+      static_cast<float>(dColor[2] * dIntensity)};
     double *sColor = ppty->GetSpecularColor();
     double sIntensity = ppty->GetSpecular();
-    float specularColor[3] = {static_cast<float>(sColor[0] * sIntensity), static_cast<float>(sColor[1] * sIntensity), static_cast<float>(sColor[2] * sIntensity)};
+    float specularColor[3] = {static_cast<float>(sColor[0] * sIntensity),
+      static_cast<float>(sColor[1] * sIntensity),
+      static_cast<float>(sColor[2] * sIntensity)};
     double specularPower = ppty->GetSpecularPower();
 
     program->SetUniformf("opacityUniformBF", opacity);
@@ -1419,7 +1432,7 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
   // I moved this out of the conditional because it is fast.
   // Color arrays are cached. If nothing has changed,
   // then the scalars do not have to be regenerted.
-  this->MapScalars(act->GetProperty()->GetOpacity());
+  this->MapScalars(1.0);
 
   // If we are coloring by texture, then load the texture map.
   if (this->ColorTextureMap)

@@ -307,7 +307,7 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(vtkRenderer *vtkNotU
   // I moved this out of the conditional because it is fast.
   // Color arrays are cached. If nothing has changed,
   // then the scalars do not have to be regenerted.
-  this->MapScalars(act->GetProperty()->GetOpacity());
+  this->MapScalars(1.0);
 
   // Iterate through all of the different types in the polydata, building OpenGLs
   // and IBOs as appropriate for each type.
