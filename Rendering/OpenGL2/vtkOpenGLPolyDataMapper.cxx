@@ -434,30 +434,53 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
     }
   if (this->Layout.TCoordComponents)
     {
+    vtkInformation *info = actor->GetPropertyKeys();
+    if (info && info->Has(vtkProp::GeneralTextureTransform()))
+      {
+      substitute(VSSource, "//VTK::TCoord::Dec",
+        "//VTK::TCoord::Dec\n"
+        "uniform mat4 tcMatrix;",
+        false);
+      if (this->Layout.TCoordComponents == 1)
+        {
+        substitute(VSSource, "//VTK::TCoord::Impl",
+          "vec4 tcoordTmp = tcMatrix*vec4(tcoordMC,0.0,0.0,1.0);\n"
+          "tcoordVC = tcoordTmp.x/tcoordTmp.w;");
+        }
+      else
+        {
+        substitute(VSSource, "//VTK::TCoord::Impl",
+          "vec4 tcoordTmp = tcMatrix*vec4(tcoordMC,0.0,1.0);\n"
+          "tcoordVC = tcoordTmp.xy/tcoordTmp.w;");
+        }
+      }
+    else
+      {
+      substitute(VSSource, "//VTK::TCoord::Impl",
+        "tcoordVC = tcoordMC;");
+      }
+
     if (this->Layout.TCoordComponents == 1)
       {
       substitute(VSSource, "//VTK::TCoord::Dec",
         "attribute float tcoordMC; varying float tcoordVC;");
-      substitute(VSSource, "//VTK::TCoord::Impl",
-        "tcoordVC = tcoordMC;");
       substitute(FSSource, "//VTK::TCoord::Dec",
         "varying float tcoordVC; uniform sampler2D texture1;");
       substitute(FSSource, "//VTK::TCoord::Impl",
-        "gl_FragColor = gl_FragColor*texture2D(texture1, vec2(tcoordVC,0.0));");
+        "gl_FragColor = clamp(gl_FragColor,0.0,1.0)*texture2D(texture1, vec2(tcoordVC,0.0));");
     }
     else
       {
       substitute(VSSource, "//VTK::TCoord::Dec",
         "attribute vec2 tcoordMC; varying vec2 tcoordVC;");
-      substitute(VSSource, "//VTK::TCoord::Impl",
-        "tcoordVC = tcoordMC;");
       substitute(FSSource, "//VTK::TCoord::Dec",
         "varying vec2 tcoordVC; uniform sampler2D texture1;");
-    // do texture mapping except for scalat coloring case which is handled above
+      // do texture mapping except for scalar coloring case which is
+      // handled above
       if (!this->InterpolateScalarsBeforeMapping || !this->ColorCoordinates)
         {
         substitute(FSSource, "//VTK::TCoord::Impl",
-          "gl_FragColor = gl_FragColor*texture2D(texture1, tcoordVC.st);");
+          "gl_FragColor = clamp(gl_FragColor,0.0,1.0)*texture2D(texture1, tcoordVC.st);");
         }
       }
     }
@@ -746,6 +769,24 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
       }
     int tunit = vtkOpenGLTexture::SafeDownCast(texture)->GetTextureUnit();
     cellBO.Program->SetUniformi("texture1", tunit);
+
+    // check for tcoord transform matrix
+    vtkInformation *info = actor->GetPropertyKeys();
+    vtkOpenGLCheckErrorMacro("failed after Render");
+    if (info && info->Has(vtkProp::GeneralTextureTransform()))
+      {
+      double *dmatrix = info->Get(vtkProp::GeneralTextureTransform());
+      float fmatrix[16];
+      for (int i = 0; i < 4; i++)
+        {
+        for (int j = 0; j < 4; j++)
+          {
+          fmatrix[j*4+i] = dmatrix[i*4+j];
+          }
+        }
+      cellBO.Program->SetUniformMatrix4x4("tcMatrix", fmatrix);
+      vtkOpenGLCheckErrorMacro("failed after Render");
+      }
     }
 
   // if depth peeling set the required uniforms

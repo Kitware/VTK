@@ -36,6 +36,7 @@ class vtkViewport;
 class vtkWindow;
 class vtkInformation;
 class vtkInformationIntegerKey;
+class vtkInformationDoubleVectorKey;
 
 class VTKRENDERINGCORE_EXPORT vtkProp : public vtkObject
 {
@@ -164,6 +165,15 @@ public:
   // down to a mapper.
   static vtkInformationIntegerKey *GeneralTextureUnit();
 
+  // Description:
+  // Optional Key Indicating the texture transform for general texture mapping
+  // Old OpenGL was a state machine where you would push or pop
+  // items. The new OpenGL design is more mapper centric. Some
+  // classes push a texture and then assume a mapper will use it.
+  // The new design wants explicit comunication of when a texture
+  // is being used.  This key can be used to pass that information
+  // down to a mapper.
+  static vtkInformationDoubleVectorKey *GeneralTextureTransform();
 
 //BTX
   // Description:
