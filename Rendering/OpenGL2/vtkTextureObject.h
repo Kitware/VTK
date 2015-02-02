@@ -33,7 +33,7 @@ class VertexArrayObject;
 class CellBO;
 }
 
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
 class vtkPixelBufferObject;
 #endif
 
@@ -192,22 +192,10 @@ public:
   vtkGetMacro(AutoParameters, int);
 
   // Description:
-  // Create 1D texture from client memory
-  bool Create1DFromRaw(unsigned int width, int numComps,
-                       int dataType, void *data);
-
-  // Description:
   // Create a 2D texture from client memory
   // numComps must be in [1-4].
   bool Create2DFromRaw(unsigned int width, unsigned int height,
                        int numComps,  int dataType, void *data);
-
-  // Description:
-  // Create a 3D texture from client memory
-  // numComps must be in [1-4].
-  bool Create3DFromRaw(unsigned int width, unsigned int height,
-                       unsigned int depth, int numComps,
-                       int dataType, void *data);
 
   // Description:
   // Create a 2D depth texture using a raw pointer.
@@ -216,15 +204,7 @@ public:
                           int internalFormat, int rawType,
                           void *raw);
 
-  // Description:
-  // Create a 1D alpha texture using a raw pointer.
-  // This is a blocking call. If you can, use PBO instead.
-  bool CreateAlphaFromRaw(unsigned int width,
-                          int internalFormat,
-                          int rawType,
-                          void *raw);
-
-// PBO's are not supported in ES 2.0
+// 1D  textures are not supported in ES 2.0 or 3.0
 #if GL_ES_VERSION_2_0 != 1
 
   // Description:
@@ -239,6 +219,22 @@ public:
   bool Create1D(int numComps,
                 vtkPixelBufferObject *pbo,
                 bool shaderSupportsTextureInt);
+
+  // Description:
+  // Create 1D texture from client memory
+  bool Create1DFromRaw(unsigned int width, int numComps,
+                       int dataType, void *data);
+  // Description:
+  // Create a 1D alpha texture using a raw pointer.
+  // This is a blocking call. If you can, use PBO instead.
+  bool CreateAlphaFromRaw(unsigned int width,
+                          int internalFormat,
+                          int rawType,
+                          void *raw);
+#endif
+
+// PBO's, and 3D textures are not supported in ES 2.0
+#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
 
   // Description:
   // Create a 2D texture using the PBO.
@@ -257,6 +253,14 @@ public:
   bool Create3D(unsigned int width, unsigned int height, unsigned int depth,
                 int numComps, vtkPixelBufferObject *pbo,
                 bool shaderSupportsTextureInt);
+
+  // Description:
+  // Create a 3D texture from client memory
+  // numComps must be in [1-4].
+  bool Create3DFromRaw(unsigned int width, unsigned int height,
+                       unsigned int depth, int numComps,
+                       int dataType, void *data);
+
   // Description:
   // This is used to download raw data from the texture into a pixel bufer. The
   // pixel buffer API can then be used to download the pixel buffer data to CPU

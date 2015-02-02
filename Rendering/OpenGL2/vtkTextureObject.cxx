@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 
 
-#if GL_ES_VERSION_2_0 != 1
+#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
 #include "vtkPixelBufferObject.h"
 #endif
 
@@ -93,6 +93,17 @@ static const char *DepthTextureCompareFunctionAsString[8]=
     "MirroredRepeat",
     "ClampToBorder"
   };
+
+  //----------------------------------------------------------------------------
+  static GLenum OpenGLAlphaInternalFormat[5]=
+  {
+    GL_ALPHA,
+    GL_ALPHA4,
+    GL_ALPHA8,
+    GL_ALPHA12,
+    GL_ALPHA16
+  };
+
 #else
   //--------------------------------------------------------------------------
   static GLint OpenGLWrap[3]=
@@ -109,6 +120,17 @@ static const char *DepthTextureCompareFunctionAsString[8]=
     "Repeat",
     "MirroredRepeat"
   };
+
+  //----------------------------------------------------------------------------
+  static GLenum OpenGLAlphaInternalFormat[5]=
+  {
+    GL_ALPHA,
+    GL_ALPHA,
+    GL_ALPHA,
+    GL_ALPHA,
+    GL_ALPHA
+  };
+
 #endif
 
 // Mapping MinificationFilter values to OpenGL values.
@@ -188,16 +210,6 @@ static const char *DepthInternalFormatFilterAsString[6]=
   "Float32"
 };
 */
-
-//----------------------------------------------------------------------------
-static GLenum OpenGLAlphaInternalFormat[5]=
-{
-  GL_ALPHA,
-  GL_ALPHA4,
-  GL_ALPHA8,
-  GL_ALPHA12,
-  GL_ALPHA16
-};
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTextureObject);
@@ -408,11 +420,13 @@ void vtkTextureObject::CreateTexture()
       glTexParameteri(this->Target, GL_TEXTURE_WRAP_T,
                       this->GetWrapTMode(this->WrapT));
 
+#if defined(GL_TEXTURE_3D)
       if (this->Target == GL_TEXTURE_3D)
         {
         glTexParameteri(this->Target, GL_TEXTURE_WRAP_R,
                         this->GetWrapRMode(this->WrapR));
         }
+#endif
 
 #ifdef GL_TEXTURE_BASE_LEVEL
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
@@ -1236,8 +1250,10 @@ unsigned int vtkTextureObject::GetWrapSMode(int vtktype)
       return GL_CLAMP_TO_EDGE;
     case Repeat:
       return GL_REPEAT;
+#ifdef GL_CLAMP_TO_BORDER
     case ClampToBorder:
       return GL_CLAMP_TO_BORDER;
+#endif
     case MirroredRepeat:
       return GL_MIRRORED_REPEAT;
     default:
@@ -1257,6 +1273,7 @@ unsigned int vtkTextureObject::GetWrapRMode(int vtktype)
   return this->GetWrapSMode(vtktype);
 }
 
+// 1D  textures are not supported in ES 2.0 or 3.0
 #if GL_ES_VERSION_2_0 != 1
 
 //----------------------------------------------------------------------------
@@ -1315,6 +1332,102 @@ bool vtkTextureObject::Create1D(int numComps,
   this->NumberOfDimensions=1;
   return true;
 }
+
+//----------------------------------------------------------------------------
+bool vtkTextureObject::Create1DFromRaw(unsigned int width, int numComps,
+                                       int dataType, void *data)
+{
+  assert(this->Context);
+
+  // Now determine the texture parameters using the arguments.
+  this->GetDataType(dataType);
+  this->GetInternalFormat(dataType, numComps, false);
+  this->GetFormat(dataType, numComps, false);
+
+  if (!this->InternalFormat || !this->Format || !this->Type)
+    {
+    vtkErrorMacro("Failed to determine texture parameters.");
+    return false;
+    }
+
+  GLenum target = GL_TEXTURE_1D;
+  this->Target = target;
+  this->Components = numComps;
+  this->Width = width;
+  this->Height = 1;
+  this->Depth = 1;
+  this->NumberOfDimensions = 1;
+  this->CreateTexture();
+  this->Bind();
+
+  glTexImage1D(this->Target,
+               0,
+               this->InternalFormat,
+               static_cast<GLsizei> (this->Width),
+               0,
+               this->Format,
+               this->Type,
+               static_cast<const GLvoid *> (data));
+
+  vtkOpenGLCheckErrorMacro("failed at glTexImage1D");
+
+  this->UnBind();
+  return true;
+}
+
+// ----------------------------------------------------------------------------
+// Description:
+// Create a 1D alpha texture using a raw pointer.
+// This is a blocking call. If you can, use PBO instead.
+bool vtkTextureObject::CreateAlphaFromRaw(unsigned int width,
+                                          int internalFormat,
+                                          int rawType,
+                                          void* raw)
+{
+  assert("pre: context_exists" && this->GetContext()!=0);
+  assert("pre: raw_exists" && raw!=0);
+
+  assert("pre: valid_internalFormat" && internalFormat>=0
+         && internalFormat<NumberOfAlphaFormats);
+
+  // Now, detemine texture parameters using the arguments.
+  this->GetDataType(rawType);
+
+  if (!this->InternalFormat)
+    {
+    this->InternalFormat
+      = OpenGLAlphaInternalFormat[internalFormat];
+    }
+
+  if (!this->InternalFormat || !this->Type)
+    {
+    vtkErrorMacro("Failed to detemine texture parameters.");
+    return false;
+    }
+
+  this->Target = GL_TEXTURE_1D;
+  this->Format = GL_ALPHA;
+  this->Width = width;
+  this->Height = 1;
+  this->Depth = 1;
+  this->NumberOfDimensions = 1;
+  this->Components = 1;
+
+  this->CreateTexture();
+  this->Bind();
+
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  glTexImage1D(this->Target, 0, static_cast<GLint>(this->InternalFormat),
+               static_cast<GLsizei>(this->Width), 0,
+               this->Format, this->Type, raw);
+  vtkOpenGLCheckErrorMacro("failed at glTexImage1D");
+  this->UnBind();
+  return true;
+}
+
+#endif // not ES 2.0 or 3.0
+
+#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
 
 //----------------------------------------------------------------------------
 bool vtkTextureObject::Create2D(unsigned int width, unsigned int height,
@@ -1545,97 +1658,6 @@ vtkPixelBufferObject* vtkTextureObject::Download()
   return pbo;
 }
 
-#endif
-
-//----------------------------------------------------------------------------
-bool vtkTextureObject::Create1DFromRaw(unsigned int width, int numComps,
-                                       int dataType, void *data)
-{
-  assert(this->Context);
-
-  // Now determine the texture parameters using the arguments.
-  this->GetDataType(dataType);
-  this->GetInternalFormat(dataType, numComps, false);
-  this->GetFormat(dataType, numComps, false);
-
-  if (!this->InternalFormat || !this->Format || !this->Type)
-    {
-    vtkErrorMacro("Failed to determine texture parameters.");
-    return false;
-    }
-
-  GLenum target = GL_TEXTURE_1D;
-  this->Target = target;
-  this->Components = numComps;
-  this->Width = width;
-  this->Height = 1;
-  this->Depth = 1;
-  this->NumberOfDimensions = 1;
-  this->CreateTexture();
-  this->Bind();
-
-  glTexImage1D(this->Target,
-               0,
-               this->InternalFormat,
-               static_cast<GLsizei> (this->Width),
-               0,
-               this->Format,
-               this->Type,
-               static_cast<const GLvoid *> (data));
-
-  vtkOpenGLCheckErrorMacro("failed at glTexImage1D");
-
-  this->UnBind();
-  return true;
-}
-
-//----------------------------------------------------------------------------
-bool vtkTextureObject::Create2DFromRaw(unsigned int width, unsigned int height,
-                                       int numComps, int dataType, void *data)
-{
-  assert(this->Context);
-
-  // Now determine the texture parameters using the arguments.
-  this->GetDataType(dataType);
-  this->GetInternalFormat(dataType, numComps, false);
-  this->GetFormat(dataType, numComps, false);
-
-  if (!this->InternalFormat || !this->Format || !this->Type)
-    {
-    vtkErrorMacro("Failed to determine texture parameters.");
-    return false;
-    }
-
-  GLenum target = GL_TEXTURE_2D;
-  this->Target = target;
-  this->Components = numComps;
-  this->Width = width;
-  this->Height = height;
-  this->Depth = 1;
-  this->NumberOfDimensions = 2;
-  this->CreateTexture();
-  this->Bind();
-
-  // Source texture data from the PBO.
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-  glTexImage2D(
-        this->Target,
-        0,
-        this->InternalFormat,
-        static_cast<GLsizei>(this->Width),
-        static_cast<GLsizei>(this->Height),
-        0,
-        this->Format,
-        this->Type,
-        static_cast<const GLvoid *>(data));
-
-  vtkOpenGLCheckErrorMacro("failed at glTexImage2D");
-
-  this->UnBind();
-  return true;
-}
-
 //----------------------------------------------------------------------------
 bool vtkTextureObject::Create3DFromRaw(unsigned int width, unsigned int height,
                                        unsigned int depth, int numComps,
@@ -1686,52 +1708,52 @@ bool vtkTextureObject::Create3DFromRaw(unsigned int width, unsigned int height,
   return true;
 }
 
-// ----------------------------------------------------------------------------
-// Description:
-// Create a 1D alpha texture using a raw pointer.
-// This is a blocking call. If you can, use PBO instead.
-bool vtkTextureObject::CreateAlphaFromRaw(unsigned int width,
-                                          int internalFormat,
-                                          int rawType,
-                                          void* raw)
+
+#endif
+
+//----------------------------------------------------------------------------
+bool vtkTextureObject::Create2DFromRaw(unsigned int width, unsigned int height,
+                                       int numComps, int dataType, void *data)
 {
-  assert("pre: context_exists" && this->GetContext()!=0);
-  assert("pre: raw_exists" && raw!=0);
+  assert(this->Context);
 
-  assert("pre: valid_internalFormat" && internalFormat>=0
-         && internalFormat<NumberOfAlphaFormats);
+  // Now determine the texture parameters using the arguments.
+  this->GetDataType(dataType);
+  this->GetInternalFormat(dataType, numComps, false);
+  this->GetFormat(dataType, numComps, false);
 
-  // Now, detemine texture parameters using the arguments.
-  this->GetDataType(rawType);
-
-  if (!this->InternalFormat)
+  if (!this->InternalFormat || !this->Format || !this->Type)
     {
-    this->InternalFormat
-      = OpenGLAlphaInternalFormat[internalFormat];
-    }
-
-  if (!this->InternalFormat || !this->Type)
-    {
-    vtkErrorMacro("Failed to detemine texture parameters.");
+    vtkErrorMacro("Failed to determine texture parameters.");
     return false;
     }
 
-  this->Target = GL_TEXTURE_1D;
-  this->Format = GL_ALPHA;
+  GLenum target = GL_TEXTURE_2D;
+  this->Target = target;
+  this->Components = numComps;
   this->Width = width;
-  this->Height = 1;
+  this->Height = height;
   this->Depth = 1;
-  this->NumberOfDimensions = 1;
-  this->Components = 1;
-
+  this->NumberOfDimensions = 2;
   this->CreateTexture();
   this->Bind();
 
+  // Source texture data from the PBO.
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-  glTexImage1D(this->Target, 0, static_cast<GLint>(this->InternalFormat),
-               static_cast<GLsizei>(this->Width), 0,
-               this->Format, this->Type, raw);
-  vtkOpenGLCheckErrorMacro("failed at glTexImage1D");
+
+  glTexImage2D(
+        this->Target,
+        0,
+        this->InternalFormat,
+        static_cast<GLsizei>(this->Width),
+        static_cast<GLsizei>(this->Height),
+        0,
+        this->Format,
+        this->Type,
+        static_cast<const GLvoid *>(data));
+
+  vtkOpenGLCheckErrorMacro("failed at glTexImage2D");
+
   this->UnBind();
   return true;
 }
