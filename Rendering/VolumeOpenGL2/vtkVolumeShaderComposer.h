@@ -196,7 +196,7 @@ namespace vtkvolume
     if (noOfComponents > 1 && independentComponents)
       {
       shaderStr += std::string("\
-        uniform vec4 in_componentWeight;");
+        \nuniform vec4 in_componentWeight;");
       }
 
     return shaderStr;
@@ -921,18 +921,16 @@ namespace vtkvolume
       if (noOfComponents > 1 && independentComponents)
         {
         return std::string("\
-          \n       for (int i = 0; i < in_noOfComponents; ++i)\
-          \n         {\
-          \n         vec4 g_srcColor = vec4(0);\
-          \n         for (int i = 0; i < in_noOfComponents; ++i)\
-          \n           {\
-          \n           vec4 tmp = vec4(computeColor(l_maxValue, i);\
-          \n           g_srcColor[0] += tmp[0] * tmp[3] * in_componentWeight[i];\
-          \n           g_srcColor[1] += tmp[1] * tmp[3] * in_componentWeight[i];\
-          \n           g_srcColor[2] += tmp[2] * tmp[3] * in_componentWeight[i];\
-          \n           g_srcColor[2] += tmp[3] * tmp[3] * in_componentWeight[i];\
-          \n           }\
-          \n        }"
+          \n   vec4 g_srcColor = vec4(0);\
+          \n   for (int i = 0; i < in_noOfComponents; ++i)\
+          \n     {\
+          \n     vec4 tmp = computeColor(l_maxValue, i);\
+          \n     g_srcColor[0] += tmp[0] * tmp[3] * in_componentWeight[i];\
+          \n     g_srcColor[1] += tmp[1] * tmp[3] * in_componentWeight[i];\
+          \n     g_srcColor[2] += tmp[2] * tmp[3] * in_componentWeight[i];\
+          \n     g_srcColor[3] += tmp[3] * in_componentWeight[i];\
+          \n     }\
+          \n   g_fragColor = g_srcColor;"
         );
         }
       else
