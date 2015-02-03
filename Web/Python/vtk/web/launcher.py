@@ -291,13 +291,13 @@ class ProcessManager(object):
 
         # Create output log file
         logFilePath = self._getLogFilePath(session['id'])
-        with open(logFilePath, "a+") as log_file:
+        with open(logFilePath, "a+", 0) as log_file:
             try:
                 proc = subprocess.Popen(session['cmd'], stdout=log_file, stderr=log_file)
                 self.processes[session['id']] = proc
             except:
                 logging.error("The command line failed")
-                logging.error(''.join(map(str, session['cmd'])))
+                logging.error(' '.join(map(str, session['cmd'])))
                 return None
 
         return proc
@@ -349,7 +349,7 @@ class ProcessManager(object):
 
       # Check the output for ready_line
       logFilePath = self._getLogFilePath(session['id'])
-      with open(logFilePath, "r") as log_file:
+      with open(logFilePath, "r", 0) as log_file:
           for line in log_file.readlines():
               if ready_line in line:
                   ready = True
@@ -445,7 +445,8 @@ class LauncherResource(resource.Resource, object):
         if not d:
             d = defer.Deferred()
 
-        if not self.process_manager.isReady(session, count + 1):
+        if not 'startTimedOut' in session and \
+            not self.process_manager.isReady(session, count + 1):
             reactor.callLater(1, self._waitForReady, session, request, count + 1, d)
         else:
             d.callback(request)
@@ -465,6 +466,10 @@ class LauncherResource(resource.Resource, object):
             request.setResponseCode(http.OK)
         else:
             request.write(json.dumps({"error": "Session did not start before timeout expired. Check session logs."}))
+            # Mark the session as timed out and clean up the process
+            session['startTimedOut'] = True
+            self.session_manager.deleteSession(session['id'])
+            self.process_manager.stopProcess(session['id'])
             request.setResponseCode(http.SERVICE_UNAVAILABLE)
 
         request.finish()

@@ -37,8 +37,6 @@ attribute vec4 vertexMC;
 // Texture coordinates
 //VTK::TCoord::Dec
 
-uniform mat3 normalMatrix; // transform model coordinate directions to view coordinates
-
 // material property values
 //VTK::Color::Dec
 
@@ -46,8 +44,7 @@ uniform mat3 normalMatrix; // transform model coordinate directions to view coor
 //VTK::Clip::Dec
 
 // camera and actor matrix values
-uniform mat4 MCVCMatrix;  // combined Model to View transform
-uniform mat4 VCDCMatrix;  // the camera's projection matrix
+//VTK::Camera::Dec
 
 void main()
 {

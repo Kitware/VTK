@@ -36,7 +36,6 @@ import_warning_info = ""
 test_module_comm_queue = None
 
 import vtk
-import server
 
 # Try standard Python imports
 try :
@@ -90,9 +89,20 @@ class DependencyError(Exception):
 
 
 # =============================================================================
+# This class allows usage as a dictionary and an object with named property
+# access.
+# =============================================================================
+class Dictionary(dict):
+    def __getattribute__(self, attrName):
+        return self[attrName]
+    def __setattr__(self, attrName, attrValue):
+        self[attrName] = attrValue
+
+
+# =============================================================================
 # Checks whether test script supplied, if so, safely imports needed modules
 # =============================================================================
-def initialize(opts, reactor=None) :
+def initialize(opts, reactor=None, cleanupMethod=None) :
     """
     This function should be called to initialize the testing module.  The first
     important thing it does is to store the options for later, since the
@@ -103,12 +113,34 @@ def initialize(opts, reactor=None) :
     a warning if not.  If tests were requested and all modules were present,
     then this function sets "test_module_do_testing" to True and sets up the
     startTestThread function to be called after the reactor is running.
+
+        opts: Parsed arguments from the server
+
+        reactor: This argument is optional, but is used by server.py to
+        cause the test thread to be started only after the server itself
+        has started.  If it is not provided, the test thread is launched
+        immediately.
+
+        cleanupMethod: A callback method you would like the test thread
+        to execute when the test has finished.  This is used by server.py
+        as a way to have the server terminated after the test has finished,
+        but could be used for other cleanup purposes.  This argument is
+        also optional.
     """
 
     global import_warning_info
 
     global testModuleOptions
-    testModuleOptions = opts
+    testModuleOptions = Dictionary()
+
+    # Copy the testing options into something we can easily extend
+    for arg in vars(opts):
+        optValue = getattr(opts, arg)
+        testModuleOptions[arg] = optValue
+
+    # If we got one, add the cleanup method to the testing options
+    if cleanupMethod:
+        testModuleOptions['cleanupMethod'] = cleanupMethod
 
     # Check if a test was actually requested
     if (testModuleOptions.testScriptPath != "" and testModuleOptions.testScriptPath is not None) :
@@ -119,7 +151,7 @@ def initialize(opts, reactor=None) :
 
         if reactor is not None :
             # Add startTest callback to the reactor callback queue, so that
-            # the test thread get started after the reactor is running.  Of
+            # the test thread gets started after the reactor is running.  Of
             # course this should only happen if everything is good for tests.
             reactor.callWhenRunning(_start_test_thread)
         else :
@@ -191,7 +223,6 @@ def _start_test_thread() :
                          args = [],
                          kwargs = { 'serverOpts': testModuleOptions,
                                     'commQueue': test_module_comm_queue,
-                                    'serverHandle': server,
                                     'testScript': testModuleOptions.testScriptPath })
 
     t.start()
@@ -586,10 +617,6 @@ def launch_web_test(*args, **kwargs) :
     server if required.  This function expects some keyword arguments will be
     present in order for it to complete it's task:
 
-        kwargs['serverHandle']: A reference to the vtk.web.server should be
-        passed in if this function is to stop the web service after the test
-        is finished.  This should normally be the case.
-
         kwargs['serverOpts']: An object containing all the parameters used
         to start the web service.  Some of them will be used in the test script
         in order perform the test.  For example, the port on which the server
@@ -599,13 +626,8 @@ def launch_web_test(*args, **kwargs) :
         testing subclass.
     """
 
-    serverHandle = None
     serverOpts = None
     testScriptFile = None
-
-    # If we got one of these, we'll use it to stop the server afterward
-    if 'serverHandle' in kwargs :
-        serverHandle = kwargs['serverHandle']
 
     # This is really the thing all test scripts will need: access to all
     # the options used to start the server process.
@@ -681,9 +703,9 @@ def launch_web_test(*args, **kwargs) :
             print '  ' + ''.join(traceback.format_tb(tb))
             test_fail(testName)
 
-    # If we were passed a server handle, then use it to stop the service
-    if serverHandle is not None :
-        serverHandle.stop_webserver()
+    # If we were passed a cleanup method to run after testing, invoke it now
+    if 'cleanupMethod' in serverOpts :
+        serverOpts['cleanupMethod']()
 
 
 # =============================================================================

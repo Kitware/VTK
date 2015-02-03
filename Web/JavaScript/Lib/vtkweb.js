@@ -47,7 +47,7 @@
     udpateConnectionFromURL = function(connection) {
         var params = extractURLParameters();
         for(var key in params) {
-            connection[key] = params[key];
+            connection[key] = decodeURIComponent(params[key]);
         }
     }
 

@@ -29,6 +29,8 @@ class FuncCall
 {
   T& o;
 
+  void operator=(const FuncCall&); // not implemented
+
 public:
   void operator() (const tbb::blocked_range<vtkIdType>& r) const
     {

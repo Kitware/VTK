@@ -588,11 +588,12 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
     return;
     }
 
+  vtkMatrix4x4 *wcdc;
   vtkMatrix4x4 *wcvc;
   vtkMatrix3x3 *norms;
   vtkMatrix4x4 *vcdc;
   vtkOpenGLCamera *cam = (vtkOpenGLCamera *)(renderer->GetActiveCamera());
-  cam->GetKeyMatrices(renderer,wcvc,norms,vcdc);
+  cam->GetKeyMatrices(renderer,wcvc,norms,vcdc,wcdc);
   float projection_mat[16];
   for(int i = 0; i < 4; ++i)
     {

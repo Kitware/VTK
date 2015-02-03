@@ -1,0 +1,14 @@
+vtk_module(vtkUtilitiesBenchmarks
+  DEPENDS
+    vtkChartsCore
+    vtkCommonComputationalGeometry
+    vtkRenderingContext${VTK_RENDERING_BACKEND}
+    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingFreeType${VTK_RENDERING_BACKEND}
+    vtkRenderingVolume${VTK_RENDERING_BACKEND}
+    vtkInteractionStyle
+    vtkViewsContext2D
+    vtkFiltersGeometry
+    vtksys
+  EXCLUDE_FROM_WRAPPING
+)

@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkTexturedActor2D.h"
 
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 #include "vtkTexture.h"
@@ -51,9 +52,22 @@ int vtkTexturedActor2D::RenderOverlay(vtkViewport* viewport)
 {
   // Render the texture.
   vtkRenderer* ren = vtkRenderer::SafeDownCast(viewport);
+  vtkInformation *info = this->GetPropertyKeys();
   if (this->Texture)
     {
     this->Texture->Render(ren);
+    if (!info)
+      {
+      info = vtkInformation::New();
+      this->SetPropertyKeys(info);
+      info->Delete();
+      }
+    info->Set(vtkProp::GeneralTextureUnit(),
+      this->Texture->GetTextureUnit());
+    }
+  else if (info)
+    {
+    info->Remove(vtkProp::GeneralTextureUnit());
     }
   int result=this->Superclass::RenderOverlay(viewport);
   if (this->Texture)

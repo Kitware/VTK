@@ -15,9 +15,9 @@
 
 #include "vtkOpenGLGPUVolumeRayCastMapper.h"
 
-#include "vtkOpenGLGradientOpacityTable.h"
-#include "vtkOpenGLOpacityTable.h"
-#include "vtkOpenGLRGBTable.h"
+#include "vtkOpenGLVolumeGradientOpacityTable.h"
+#include "vtkOpenGLVolumeOpacityTable.h"
+#include "vtkOpenGLVolumeRGBTable.h"
 #include "vtkVolumeShaderComposer.h"
 #include "vtkVolumeStateRAII.h"
 
@@ -97,7 +97,7 @@ public:
     this->DepthTextureObject = 0;
     this->TextureWidth = 1024;
     this->ActualSampleDistance = 1.0;
-    this->RGBTable = 0;
+    this->RGBTables = 0;
     this->OpacityTables = 0;
     this->Mask1RGBTable = 0;
     this->Mask2RGBTable =  0;
@@ -125,10 +125,10 @@ public:
   //--------------------------------------------------------------------------
   ~vtkInternal()
     {
-    if (this->RGBTable)
+    if (this->RGBTables)
       {
-      delete this->RGBTable;
-      this->RGBTable = 0;
+      delete this->RGBTables;
+      this->RGBTables = 0;
       }
 
     if(this->Mask1RGBTable!=0)
@@ -198,7 +198,7 @@ public:
   static void ToFloat(const T& in1, const T& in2, const T& in3,
                       float (&out)[3]);
   template<typename T>
-  static void ToFloat(T* in, float* out, int numberOfComponents);
+  static void ToFloat(T* in, float* out, int noOfComponents);
   template<typename T>
   static void ToFloat(T (&in)[3], float (&out)[3]);
   template<typename T>
@@ -208,7 +208,8 @@ public:
   static void VtkToGlMatrix(vtkMatrix4x4* in, float (&out)[16],
                             int row = 4, int col = 4);
 
-  void Initialize(vtkRenderer* ren, vtkVolume* vol);
+  void Initialize(vtkRenderer* ren, vtkVolume* vol,
+                  int noOfComponents, int independentComponents);
 
   bool LoadVolume(vtkRenderer* ren, vtkImageData* imageData,
                   vtkDataArray* scalars);
@@ -221,24 +222,24 @@ public:
 
   void ComputeBounds(vtkImageData* input);
 
-  // Update transfer color function based on the incoming inputs and number of
-  // scalar components.
-  // TODO Deal with numberOfScalarComponents > 1
+  // Update transfer color function based on the incoming inputs
+  // and number of scalar components.
   int UpdateColorTransferFunction(vtkRenderer* ren,
                                   vtkVolume* vol,
-                                  int numberOfScalarComponents);
+                                  int noOfComponents,
+                                  unsigned int component);
 
   // Update opacity transfer function (not gradient opacity)
   int UpdateOpacityTransferFunction(vtkRenderer* ren,
                                     vtkVolume* vol,
-                                    int numberOfScalarComponents,
-                                    unsigned int level);
+                                    int noOfComponents,
+                                    unsigned int component);
 
   // Update gradient opacity function
   int UpdateGradientOpacityTransferFunction(vtkRenderer* ren,
                                             vtkVolume* vol,
-                                            int numberOfScalarComponents,
-                                            unsigned int level);
+                                            int noOfComponents,
+                                            unsigned int component);
 
   // Update noise texture (used to reduce rendering artifacts
   // specifically banding effects)
@@ -324,11 +325,11 @@ public:
 
   std::ostringstream ExtensionsStringStream;
 
-  vtkOpenGLRGBTable* RGBTable;
-  vtkOpenGLOpacityTables* OpacityTables;
-  vtkOpenGLRGBTable* Mask1RGBTable;
-  vtkOpenGLRGBTable* Mask2RGBTable;
-  vtkOpenGLGradientOpacityTables* GradientOpacityTables;
+  vtkOpenGLVolumeRGBTables* RGBTables;
+  vtkOpenGLVolumeOpacityTables* OpacityTables;
+  vtkOpenGLVolumeRGBTable* Mask1RGBTable;
+  vtkOpenGLVolumeRGBTable* Mask2RGBTable;
+  vtkOpenGLVolumeGradientOpacityTables* GradientOpacityTables;
 
   vtkTimeStamp ShaderBuildTime;
 
@@ -373,9 +374,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ToFloat(
 //----------------------------------------------------------------------------
 template<typename T>
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ToFloat(
-  T* in, float* out, int numberOfComponents)
+  T* in, float* out, int noOfComponents)
 {
-  for (int i = 0; i < numberOfComponents; ++i)
+  for (int i = 0; i < noOfComponents; ++i)
     {
     out[i] = static_cast<float>(in[i]);
     }
@@ -423,7 +424,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::VtkToGlMatrix(
 
 //----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::Initialize(
-  vtkRenderer* vtkNotUsed(ren), vtkVolume* vtkNotUsed(vol))
+  vtkRenderer* vtkNotUsed(ren), vtkVolume* vol, int
+  noOfComponents, int independentComponents)
 {
   GLenum err = glewInit();
   if (GLEW_OK != err)
@@ -435,25 +437,53 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::Initialize(
   err = glGetError();
 
   // Create RGB lookup table
-  this->RGBTable = new vtkOpenGLRGBTable();
+  if (noOfComponents > 1 && independentComponents)
+    {
+    this->RGBTables = new vtkOpenGLVolumeRGBTables(noOfComponents);
+    }
+  else
+    {
+    this->RGBTables = new vtkOpenGLVolumeRGBTables(1);
+    }
 
   if (this->Parent->MaskInput != 0 &&
       this->Parent->MaskType == LabelMapMaskType)
     {
     if(this->Mask1RGBTable == 0)
       {
-      this->Mask1RGBTable = new vtkOpenGLRGBTable();
+      this->Mask1RGBTable = new vtkOpenGLVolumeRGBTable();
       }
     if(this->Mask2RGBTable == 0)
       {
-      this->Mask2RGBTable = new vtkOpenGLRGBTable();
+      this->Mask2RGBTable = new vtkOpenGLVolumeRGBTable();
       }
     }
 
-  // TODO Currently we are supporting only one level
-  // Create opacity lookup table
-  this->OpacityTables = new vtkOpenGLOpacityTables(1);
+  // We support upto four components
+  if (noOfComponents > 1 && independentComponents)
+    {
+    this->OpacityTables = new vtkOpenGLVolumeOpacityTables(noOfComponents);
+    }
+  else
+    {
+    this->OpacityTables = new vtkOpenGLVolumeOpacityTables(1);
+    }
 
+  if (noOfComponents > 1 && independentComponents)
+    {
+    // Assuming that all four components has gradient opacity for now
+    this->GradientOpacityTables =
+      new vtkOpenGLVolumeGradientOpacityTables(noOfComponents);
+    }
+  else
+    {
+    if (vol->GetProperty()->HasGradientOpacity())
+      {
+      this->GradientOpacityTables =
+        new vtkOpenGLVolumeGradientOpacityTables(1);
+      }
+
+    }
   this->Initialized = true;
 }
 
@@ -844,32 +874,34 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ComputeBounds(
 
 //----------------------------------------------------------------------------
 int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateColorTransferFunction(
-  vtkRenderer* ren, vtkVolume* vol, int numberOfScalarComponents)
+  vtkRenderer* ren, vtkVolume* vol, int vtkNotUsed(noOfComponents),
+  unsigned int component)
 {
+  // Volume property cannot be null.
+  vtkVolumeProperty* volumeProperty = vol->GetProperty();
+
   // Build the colormap in a 1D texture.
   // 1D RGB-texture=mapping from scalar values to color values
   // build the table.
-  if(numberOfScalarComponents == 1)
+  vtkColorTransferFunction* colorTransferFunction =
+    volumeProperty->GetRGBTransferFunction(component);
+
+  // Add points only if its not being added before
+  if (colorTransferFunction->GetSize() < 1)
     {
-    vtkVolumeProperty* volumeProperty = vol->GetProperty();
-    vtkColorTransferFunction* colorTransferFunction =
-      volumeProperty->GetRGBTransferFunction(0);
-
-    // Add points only if its not being added before
-    if (colorTransferFunction->GetSize() < 1)
-      {
-      colorTransferFunction->AddRGBPoint(this->ScalarsRange[0], 0.0, 0.0, 0.0);
-      colorTransferFunction->AddRGBPoint(this->ScalarsRange[1], 1.0, 1.0, 1.0);
-      }
-
-    int filterVal =
-      volumeProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION ?
-        vtkTextureObject::Linear : vtkTextureObject::Nearest;
-    this->RGBTable->Update(
-      colorTransferFunction, this->ScalarsRange,
-        filterVal,
-        vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
+    colorTransferFunction->AddRGBPoint(this->ScalarsRange[0], 0.0, 0.0, 0.0);
+    colorTransferFunction->AddRGBPoint(this->ScalarsRange[1], 1.0, 1.0, 1.0);
     }
+
+  int filterVal =
+    volumeProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION ?
+      vtkTextureObject::Linear : vtkTextureObject::Nearest;
+
+  this->RGBTables->GetTable(component)->Update(
+    volumeProperty->GetRGBTransferFunction(component),
+    this->ScalarsRange,
+    filterVal,
+    vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
 
   if (this->Parent->MaskInput != 0 &&
       this->Parent->MaskType == LabelMapMaskType)
@@ -895,20 +927,18 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateColorTransferFunction(
 
 //----------------------------------------------------------------------------
 int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateOpacityTransferFunction(
-  vtkRenderer* ren, vtkVolume* vol, int vtkNotUsed(numberOfScalarComponents),
-  unsigned int level)
+  vtkRenderer* ren, vtkVolume* vol, int vtkNotUsed(noOfComponents),
+  unsigned int component)
 {
   if (!vol)
     {
-    std::cerr << "Invalid in_volume" << std::endl;
     return 1;
     }
 
   vtkVolumeProperty* volumeProperty = vol->GetProperty();
-  vtkPiecewiseFunction* scalarOpacity = volumeProperty->GetScalarOpacity();
+  vtkPiecewiseFunction* scalarOpacity =
+    volumeProperty->GetScalarOpacity(component);
 
-  // TODO: Do a better job to create the default opacity map
-  // Add points only if its not being added before
   if (scalarOpacity->GetSize() < 1)
     {
     scalarOpacity->AddPoint(this->ScalarsRange[0], 0.0);
@@ -919,11 +949,11 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateOpacityTransferFunction(
     volumeProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION ?
       vtkTextureObject::Linear : vtkTextureObject::Nearest;
 
-  this->OpacityTables->GetTable(level)->Update(
+  this->OpacityTables->GetTable(component)->Update(
     scalarOpacity,this->Parent->BlendMode,
     this->ActualSampleDistance,
     this->ScalarsRange,
-    volumeProperty->GetScalarOpacityUnitDistance(),
+    volumeProperty->GetScalarOpacityUnitDistance(component),
     filterVal,
     vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
 
@@ -933,7 +963,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateOpacityTransferFunction(
 //----------------------------------------------------------------------------
 int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
   UpdateGradientOpacityTransferFunction(vtkRenderer* ren, vtkVolume* vol,
-    int vtkNotUsed(numberOfScalarComponents), unsigned int level)
+    int vtkNotUsed(noOfComponents), unsigned int component)
 {
   if (!vol)
     {
@@ -942,22 +972,18 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
 
   vtkVolumeProperty* volumeProperty = vol->GetProperty();
 
-  // TODO Currently checking on index 0 only
-  if (!volumeProperty->HasGradientOpacity())
+  // TODO Currently we expect the all of the tables will
+  // be initialized once and if at that time, the gradient
+  // opacity was not enabled then it is not used later.
+  if (!volumeProperty->HasGradientOpacity(component) ||
+      !this->GradientOpacityTables)
     {
     return 1;
     }
 
-  vtkPiecewiseFunction* gradientOpacity = volumeProperty->GetGradientOpacity();
+  vtkPiecewiseFunction* gradientOpacity =
+    volumeProperty->GetGradientOpacity(component);
 
-  if (!this->GradientOpacityTables && gradientOpacity)
-    {
-    // NOTE Handling only one component
-    this->GradientOpacityTables = new vtkOpenGLGradientOpacityTables(1);
-    }
-
-  // TODO: Do a better job to create the default opacity map
-  // Add points only if its not being added before
   if (gradientOpacity->GetSize() < 1)
     {
     gradientOpacity->AddPoint(this->ScalarsRange[0], 0.0);
@@ -968,7 +994,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
     volumeProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION ?
       vtkTextureObject::Linear : vtkTextureObject::Nearest;
 
-  this->GradientOpacityTables->GetTable(level)->Update(
+  this->GradientOpacityTables->GetTable(component)->Update(
     gradientOpacity,
     this->ActualSampleDistance,
     this->ScalarsRange,
@@ -981,7 +1007,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
 
 //----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateNoiseTexture(
-                                                              vtkRenderer* ren)
+  vtkRenderer* ren)
 {
   if (!this->NoiseTextureObject)
     {
@@ -1769,11 +1795,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
       }
     }
 
-  if(this->Impl->RGBTable)
+  if(this->Impl->RGBTables)
     {
-    this->Impl->RGBTable->ReleaseGraphicsResources(window);
-    delete this->Impl->RGBTable;
-    this->Impl->RGBTable = 0;
+    this->Impl->RGBTables->ReleaseGraphicsResources(window);
+    delete this->Impl->RGBTables;
+    this->Impl->RGBTables = 0;
     }
 
   if(this->Impl->Mask1RGBTable)
@@ -1813,7 +1839,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
   std::string vertexShader (raycastervs);
   std::string fragmentShader (raycasterfs);
 
-  if (vol->GetProperty()->GetShade())
+  // Every volume should have a property (cannot be NULL);
+  vtkVolumeProperty* volumeProperty = vol->GetProperty();
+  int independentComponents = volumeProperty->GetIndependentComponents();
+
+  if (volumeProperty->GetShade())
     {
     vtkLightCollection* lc = ren->GetLights();
     vtkLight* light;
@@ -1848,104 +1878,259 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
       }
     }
 
-  vertexShader = vtkvolume::replace(vertexShader, "//VTK::ComputeClipPos::Impl",
-    vtkvolume::ComputeClip(ren, this, vol), true);
-  vertexShader = vtkvolume::replace(vertexShader, "//VTK::ComputeTextureCoords::Impl",
-    vtkvolume::ComputeTextureCoords(ren, this, vol), true);
+  // Base methods replacements
+  //--------------------------------------------------------------------------
+  vertexShader = vtkvolume::replace(
+    vertexShader,
+    "//VTK::ComputeClipPos::Impl",
+    vtkvolume::ComputeClip(ren, this, vol),
+    true);
 
-  vertexShader = vtkvolume::replace(vertexShader, "//VTK::Base::Dec",
-    vtkvolume::BaseGlobalsVert(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Base::Dec",
+  vertexShader = vtkvolume::replace(
+    vertexShader,
+    "//VTK::ComputeTextureCoords::Impl",
+    vtkvolume::ComputeTextureCoords(ren, this, vol),
+    true);
+
+  vertexShader = vtkvolume::replace(
+    vertexShader,
+    "//VTK::Base::Dec",
+    vtkvolume::BaseGlobalsVert(ren, this, vol),
+    true);
+
+  fragmentShader = vtkvolume::replace(
+    fragmentShader,
+    "//VTK::Base::Dec",
     vtkvolume::BaseGlobalsFrag(ren, this, vol, this->Impl->NumberOfLights,
-                               this->Impl->LightComplexity), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Base::Init",
-    vtkvolume::BaseInit(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Base::Impl",
-    vtkvolume::BaseIncrement(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Base::Exit",
-    vtkvolume::BaseExit(ren, this, vol), true);
+                               this->Impl->LightComplexity, noOfComponents,
+                               independentComponents),
+    true);
 
-  vertexShader = vtkvolume::replace(vertexShader, "//VTK::Termination::Dec",
-    vtkvolume::TerminationGlobalsVert(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Termination::Dec",
-    vtkvolume::TerminationGlobalsFrag(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Terminate::Init",
-    vtkvolume::TerminationInit(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Terminate::Impl",
-    vtkvolume::TerminationIncrement(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Terminate::Exit",
-    vtkvolume::TerminationExit(ren, this, vol), true);
+  fragmentShader = vtkvolume::replace(
+    fragmentShader,
+    "//VTK::Base::Init",
+    vtkvolume::BaseInit(ren, this, vol),
+    true);
 
-  vertexShader = vtkvolume::replace(vertexShader, "//VTK::Shading::Dec",
-    vtkvolume::ShadingGlobalsVert(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Shading::Dec",
-    vtkvolume::ShadingGlobalsFrag(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Shading::Init",
-    vtkvolume::ShadingInit(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Shading::Impl",
+  fragmentShader = vtkvolume::replace(
+    fragmentShader,
+    "//VTK::Base::Impl",
+    vtkvolume::BaseIncrement(ren, this, vol),
+    true);
+
+  fragmentShader = vtkvolume::replace(
+    fragmentShader,
+    "//VTK::Base::Exit",
+    vtkvolume::BaseExit(ren, this, vol),
+    true);
+
+  // Termination methods replacements
+  //--------------------------------------------------------------------------
+  vertexShader = vtkvolume::replace(
+    vertexShader,
+    "//VTK::Termination::Dec",
+    vtkvolume::TerminationGlobalsVert(ren, this, vol),
+    true);
+
+  fragmentShader = vtkvolume::replace(
+    fragmentShader,
+    "//VTK::Termination::Dec",
+    vtkvolume::TerminationGlobalsFrag(ren, this, vol),
+    true);
+
+  fragmentShader = vtkvolume::replace(
+    fragmentShader,
+    "//VTK::Terminate::Init",
+    vtkvolume::TerminationInit(ren, this, vol),
+    true);
+
+  fragmentShader = vtkvolume::replace(
+    fragmentShader,
+    "//VTK::Terminate::Impl",
+    vtkvolume::TerminationIncrement(ren, this, vol),
+    true);
+
+  fragmentShader = vtkvolume::replace(
+    fragmentShader,
+    "//VTK::Terminate::Exit",
+    vtkvolume::TerminationExit(ren, this, vol),
+    true);
+
+  // Shading methods replacements
+  //--------------------------------------------------------------------------
+  vertexShader = vtkvolume::replace(
+    vertexShader,
+    "//VTK::Shading::Dec",
+    vtkvolume::ShadingGlobalsVert(ren, this, vol),
+    true);
+
+  fragmentShader = vtkvolume::replace(
+    fragmentShader,
+    "//VTK::Shading::Dec",
+    vtkvolume::ShadingGlobalsFrag(ren, this, vol),
+    true);
+
+  fragmentShader = vtkvolume::replace(
+    fragmentShader,
+    "//VTK::Shading::Init",
+    vtkvolume::ShadingInit(ren, this, vol),
+    true);
+
+  fragmentShader = vtkvolume::replace(
+    fragmentShader,
+    "//VTK::Shading::Impl",
     vtkvolume::ShadingIncrement(ren, this, vol, this->MaskInput,
                                 this->Impl->CurrentMask,
-                                this->MaskType, noOfComponents), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Shading::Exit",
-    vtkvolume::ShadingExit(ren, this, vol), true);
+                                this->MaskType, noOfComponents,
+                                independentComponents),
+    true);
 
-  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::ComputeOpacity::Dec",
-    vtkvolume::OpacityTransferFunc(ren, this, vol, noOfComponents), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::ComputeGradient::Dec",
-    vtkvolume::GradientsComputeFunc(ren, this, vol, noOfComponents), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::ColorTransferFunc::Dec",
-     vtkvolume::ColorTransferFunc(ren, this, vol, noOfComponents), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::ComputeLighting::Dec",
+  fragmentShader = vtkvolume::replace(
+    fragmentShader,
+    "//VTK::Shading::Exit",
+    vtkvolume::ShadingExit(ren, this, vol, noOfComponents,
+                           independentComponents),
+    true);
+
+
+  // Compute methods replacements
+  //--------------------------------------------------------------------------
+  fragmentShader = vtkvolume::replace(
+    fragmentShader,
+    "//VTK::ComputeOpacity::Dec",
+    vtkvolume::OpacityTransferFunc(ren, this, vol, noOfComponents,
+                                  independentComponents),
+    true);
+
+  fragmentShader = vtkvolume::replace(
+    fragmentShader,
+    "//VTK::ComputeGradient::Dec",
+    vtkvolume::GradientsComputeFunc(ren, this, vol, noOfComponents,
+                                    independentComponents),
+    true);
+
+  fragmentShader = vtkvolume::replace(
+    fragmentShader,
+    "//VTK::ColorTransferFunc::Dec",
+    vtkvolume::ColorTransferFunc(ren, this, vol, noOfComponents,
+                                 independentComponents),
+    true);
+
+  fragmentShader = vtkvolume::replace(
+    fragmentShader,
+    "//VTK::ComputeLighting::Dec",
     vtkvolume::LightComputeFunc(ren, this, vol, noOfComponents,
+                                independentComponents,
                                 this->Impl->NumberOfLights,
-                                this->Impl->LightComplexity), true);
-  fragmentShader = vtkvolume::replace(fragmentShader,
-                                      "//VTK::RayDirectionFunc::Dec",
-    vtkvolume::RayDirectionFunc(ren, this, vol,noOfComponents), true);
+                                this->Impl->LightComplexity),
+    true);
 
-  vertexShader = vtkvolume::replace(vertexShader, "//VTK::Cropping::Dec",
-    vtkvolume::CroppingGlobalsVert(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Cropping::Dec",
-    vtkvolume::CroppingGlobalsFrag(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Cropping::Init",
-    vtkvolume::CroppingInit(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Cropping::Impl",
-    vtkvolume::CroppingIncrement(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Cropping::Exit",
-    vtkvolume::CroppingExit(ren, this, vol), true);
+  fragmentShader = vtkvolume::replace(
+    fragmentShader,
+    "//VTK::RayDirectionFunc::Dec",
+    vtkvolume::RayDirectionFunc(ren, this, vol,noOfComponents),
+    true);
 
-  vertexShader = vtkvolume::replace(vertexShader, "//VTK::Clipping::Dec",
-    vtkvolume::ClippingGlobalsVert(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Clipping::Dec",
-    vtkvolume::ClippingGlobalsFrag(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Clipping::Init",
-    vtkvolume::ClippingInit(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Clipping::Impl",
-    vtkvolume::ClippingIncrement(ren, this, vol), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Clipping::Exit",
-    vtkvolume::ClippingExit(ren, this, vol), true);
+  // Cropping methods replacements
+  //--------------------------------------------------------------------------
+  vertexShader = vtkvolume::replace(
+    vertexShader,
+    "//VTK::Cropping::Dec",
+    vtkvolume::CroppingGlobalsVert(ren, this, vol),
+    true);
 
-  fragmentShader = vtkvolume::replace(fragmentShader,
-                                      "//VTK::BinaryMask::Dec",
+  fragmentShader = vtkvolume::replace(
+    fragmentShader,
+    "//VTK::Cropping::Dec",
+    vtkvolume::CroppingGlobalsFrag(ren, this, vol),
+    true);
+
+  fragmentShader = vtkvolume::replace(
+    fragmentShader,
+    "//VTK::Cropping::Init",
+    vtkvolume::CroppingInit(ren, this, vol),
+    true);
+
+  fragmentShader = vtkvolume::replace(
+    fragmentShader,
+    "//VTK::Cropping::Impl",
+    vtkvolume::CroppingIncrement(ren, this, vol),
+    true);
+
+  fragmentShader = vtkvolume::replace(
+    fragmentShader,
+    "//VTK::Cropping::Exit",
+    vtkvolume::CroppingExit(ren, this, vol),
+    true);
+
+  // Clipping methods replacements
+  //--------------------------------------------------------------------------
+  vertexShader = vtkvolume::replace(
+    vertexShader,
+    "//VTK::Clipping::Dec",
+    vtkvolume::ClippingGlobalsVert(ren, this, vol),
+    true);
+
+  fragmentShader = vtkvolume::replace(
+    fragmentShader,
+    "//VTK::Clipping::Dec",
+    vtkvolume::ClippingGlobalsFrag(ren, this, vol),
+    true);
+
+  fragmentShader = vtkvolume::replace(
+    fragmentShader,
+    "//VTK::Clipping::Init",
+    vtkvolume::ClippingInit(ren, this, vol),
+    true);
+
+  fragmentShader = vtkvolume::replace(
+    fragmentShader,
+    "//VTK::Clipping::Impl",
+    vtkvolume::ClippingIncrement(ren, this, vol),
+    true);
+
+  fragmentShader = vtkvolume::replace(
+    fragmentShader,
+    "//VTK::Clipping::Exit",
+    vtkvolume::ClippingExit(ren, this, vol),
+    true);
+
+  // Masking methods replacements
+  //--------------------------------------------------------------------------
+  fragmentShader = vtkvolume::replace(
+    fragmentShader,
+    "//VTK::BinaryMask::Dec",
     vtkvolume::BinaryMaskGlobalsFrag(ren, this, vol, this->MaskInput,
                                      this->Impl->CurrentMask,
-                                     this->MaskType), true);
-  fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::BinaryMask::Impl",
+                                     this->MaskType),
+    true);
+
+  fragmentShader = vtkvolume::replace(
+    fragmentShader,
+    "//VTK::BinaryMask::Impl",
     vtkvolume::BinaryMaskIncrement(ren, this, vol, this->MaskInput,
                                    this->Impl->CurrentMask,
-                                   this->MaskType), true);
+                                   this->MaskType),
+    true);
 
-  fragmentShader = vtkvolume::replace(fragmentShader,
-                                      "//VTK::CompositeMask::Dec",
+  fragmentShader = vtkvolume::replace(
+    fragmentShader,
+    "//VTK::CompositeMask::Dec",
     vtkvolume::CompositeMaskGlobalsFrag(ren, this, vol, this->MaskInput,
                                         this->Impl->CurrentMask,
-                                        this->MaskType), true);
-  fragmentShader = vtkvolume::replace(fragmentShader,
-                                      "//VTK::CompositeMask::Impl",
+                                        this->MaskType),
+    true);
+
+  fragmentShader = vtkvolume::replace(
+    fragmentShader,
+    "//VTK::CompositeMask::Impl",
     vtkvolume::CompositeMaskIncrement(ren, this, vol, this->MaskInput,
                                       this->Impl->CurrentMask,
-                                      this->MaskType), true);
+                                      this->MaskType),
+    true);
 
+  // Now compile the shader
+  //--------------------------------------------------------------------------
   this->Impl->ShaderProgram = this->Impl->ShaderCache->ReadyShader(
     vertexShader.c_str(), fragmentShader.c_str(), "");
   if (!this->Impl->ShaderProgram->GetCompiled())
@@ -2044,15 +2229,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   // Update in_volume first to make sure states are current
   vol->Update();
 
+  // Get the input
   vtkImageData* input = this->GetTransformedInput();
 
-  // Set OpenGL states
-  vtkVolumeStateRAII glState;
+  // Get the volume property (must have one)
+  vtkVolumeProperty* volumeProperty = vol->GetProperty();
 
-  if (!this->Impl->IsInitialized())
-    {
-    this->Impl->Initialize(ren, vol);
-    }
+  // Check whether we have independent components or not
+  int independentComponents = volumeProperty->GetIndependentComponents();
 
   vtkDataArray* scalars = this->GetScalars(input,
                           this->ScalarMode,
@@ -2062,10 +2246,19 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
                           this->CellFlag);
 
   // How many components are there?
-  int numberOfScalarComponents = scalars->GetNumberOfComponents();
+  int noOfComponents = scalars->GetNumberOfComponents();
+
+  // Set OpenGL states
+  vtkVolumeStateRAII glState;
+
+  if (!this->Impl->IsInitialized())
+    {
+    this->Impl->Initialize(ren, vol, noOfComponents,
+                           independentComponents);
+    }
 
   // If it is just one, then get the range from the scalars
-  if(numberOfScalarComponents == 1)
+  if(noOfComponents == 1)
     {
     // NOTE: here, we ignore the blank cells.
     scalars->GetRange(this->Impl->ScalarsRange);
@@ -2128,7 +2321,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
   this->Impl->ShaderCache = renWin->GetShaderCache();
 
-  if (vol->GetProperty()->GetMTime() >
+  if (volumeProperty->GetMTime() >
       this->Impl->ShaderBuildTime.GetMTime() ||
       this->GetMTime() > this->Impl->ShaderBuildTime.GetMTime() ||
       ren->GetActiveCamera()->GetParallelProjection() !=
@@ -2136,7 +2329,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     {
     this->Impl->LastProjectionParallel =
       ren->GetActiveCamera()->GetParallelProjection();
-    this->BuildShader(ren, vol, numberOfScalarComponents);
+    this->BuildShader(ren, vol, noOfComponents);
     }
 
   // Bind the shader
@@ -2148,16 +2341,19 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->UpdateVolumeGeometry(ren, vol, input);
 
   // Update opacity transfer function
-  // TODO Passing level 0 for now
-  this->Impl->UpdateOpacityTransferFunction(ren, vol,
-    scalars->GetNumberOfComponents(), 0);
+  for (int i = 0; i < (independentComponents ?
+       noOfComponents : 1); ++i)
+    {
+    this->Impl->UpdateOpacityTransferFunction(ren, vol,
+      scalars->GetNumberOfComponents(), i);
 
-  this->Impl->UpdateGradientOpacityTransferFunction(ren, vol,
-    scalars->GetNumberOfComponents(), 0);
+    this->Impl->UpdateGradientOpacityTransferFunction(ren, vol,
+      scalars->GetNumberOfComponents(), i);
 
-  // Update transfer color functions
-  this->Impl->UpdateColorTransferFunction(ren, vol,
-    scalars->GetNumberOfComponents());
+    // Update transfer color functions
+    this->Impl->UpdateColorTransferFunction(ren, vol,
+      scalars->GetNumberOfComponents(), i);
+    }
 
   // Update noise sampler texture
   this->Impl->UpdateNoiseTexture(ren);
@@ -2172,6 +2368,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   // Temporary variables
   float fvalue2[2];
   float fvalue3[3];
+  float fvalue4[4];
   float fvalue16[16];
 
   // Update sampling distance
@@ -2208,6 +2405,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     }
 
   // Pass constant uniforms at initialization
+  this->Impl->ShaderProgram->SetUniformi("in_noOfComponents",
+                                         noOfComponents);
+  this->Impl->ShaderProgram->SetUniformi("in_independentComponents",
+                                         independentComponents);
+
+
   // Step should be dependant on the bounds and not on the texture size
   // since we can have non uniform voxel size / spacing / aspect ratio
   vtkInternal::ToFloat(this->Impl->CellStep, fvalue3);
@@ -2230,10 +2433,48 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->ShaderProgram->SetUniformi("in_volume",
     this->Impl->VolumeTextureObject->GetTextureUnit());
 
-  // TODO Supports only one table for now
-  this->Impl->OpacityTables->GetTable(0)->Bind();
-  this->Impl->ShaderProgram->SetUniformi("in_opacityTransferFunc",
-    this->Impl->OpacityTables->GetTable(0)->GetTextureUnit());
+  // Opacity, color, and gradient opacity samplers / textures
+  int opacitySamplers[4];
+  int colorSamplers[4];
+  int gradientOpacitySamplers[4];
+  int numberOfSamplers = (independentComponents ? noOfComponents : 1);
+  for (int i = 0; i < numberOfSamplers; ++i)
+    {
+    this->Impl->OpacityTables->GetTable(i)->Bind();
+    opacitySamplers[i] =
+      this->Impl->OpacityTables->GetTable(i)->GetTextureUnit();
+
+    if (this->BlendMode != vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
+      {
+      this->Impl->RGBTables->GetTable(i)->Bind();
+      colorSamplers[i] =
+        this->Impl->RGBTables->GetTable(i)->GetTextureUnit();
+      }
+
+    if (this->Impl->GradientOpacityTables)
+      {
+      gradientOpacitySamplers[i] =
+        this->Impl->GradientOpacityTables->GetTable(i)->GetTextureUnit();
+      }
+    }
+
+  this->Impl->ShaderProgram->SetUniform1iv("in_opacityTransferFunc",
+    numberOfSamplers, opacitySamplers);
+  vtkOpenGLCheckErrorMacro("failed at glBindTexture");
+
+  if (this->BlendMode != vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
+    {
+    this->Impl->ShaderProgram->SetUniform1iv("in_colorTransferFunc",
+      numberOfSamplers, colorSamplers);
+    vtkOpenGLCheckErrorMacro("failed at glBindTexture");
+    }
+
+  if (this->Impl->GradientOpacityTables)
+    {
+    this->Impl->ShaderProgram->SetUniform1iv("in_gradientTransferFunc",
+      numberOfSamplers, gradientOpacitySamplers);
+    vtkOpenGLCheckErrorMacro("failed at glBindTexture");
+    }
 
   this->Impl->NoiseTextureObject->Activate();
   this->Impl->ShaderProgram->SetUniformi("in_noiseSampler",
@@ -2243,12 +2484,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->ShaderProgram->SetUniformi("in_depthSampler",
     this->Impl->DepthTextureObject->GetTextureUnit());
 
-  if (this->Impl->GradientOpacityTables)
-    {
-    this->Impl->ShaderProgram->SetUniformi("in_gradientTransferFunc",
-      this->Impl->GradientOpacityTables->GetTable(0)->GetTextureUnit());
-    }
-
   if (this->Impl->CurrentMask)
     {
     this->Impl->CurrentMask->Bind();
@@ -2256,13 +2491,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
       "in_mask", this->Impl->CurrentMask->GetTextureUnit());
     }
 
-  if(numberOfScalarComponents == 1 &&
-     this->BlendMode!=vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
+  if(noOfComponents == 1 &&
+     this->BlendMode != vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
     {
-    this->Impl->RGBTable->Bind();
-    this->Impl->ShaderProgram->SetUniformi("in_colorTransferFunc",
-      this->Impl->RGBTable->GetTextureUnit());
-
     if (this->MaskInput != 0 && this->MaskType == LabelMapMaskType)
       {
       this->Impl->Mask1RGBTable->Bind();
@@ -2277,16 +2508,16 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
       }
     }
 
-  fvalue3[0] = fvalue3[1] = fvalue3[2] = vol->GetProperty()->GetAmbient();
+  fvalue3[0] = fvalue3[1] = fvalue3[2] = volumeProperty->GetAmbient();
   this->Impl->ShaderProgram->SetUniform3f("in_ambient", fvalue3);
 
-  fvalue3[0] = fvalue3[1] = fvalue3[2] = vol->GetProperty()->GetDiffuse();
+  fvalue3[0] = fvalue3[1] = fvalue3[2] = volumeProperty->GetDiffuse();
   this->Impl->ShaderProgram->SetUniform3f("in_diffuse", fvalue3);
 
-  fvalue3[0] = fvalue3[1] = fvalue3[2] = vol->GetProperty()->GetSpecular();
+  fvalue3[0] = fvalue3[1] = fvalue3[2] = volumeProperty->GetSpecular();
   this->Impl->ShaderProgram->SetUniform3f("in_specular", fvalue3);
 
-  fvalue3[0] = vol->GetProperty()->GetSpecularPower();
+  fvalue3[0] = volumeProperty->GetSpecularPower();
   this->Impl->ShaderProgram->SetUniformf("in_shininess", fvalue3[0]);
 
   // Look at the OpenGL Camera for the exact aspect computation
@@ -2435,6 +2666,15 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     1.0 / this->FinalColorWindow);
   this->Impl->ShaderProgram->SetUniformf("in_bias",
     (0.5 - (this->FinalColorLevel/this->FinalColorWindow)));
+
+  if (noOfComponents > 1 && independentComponents)
+    {
+    for (int i = 0; i < noOfComponents; ++i)
+      {
+      fvalue4[i] = static_cast<float>(volumeProperty->GetComponentWeight(i));
+      }
+    this->Impl->ShaderProgram->SetUniform4fv("in_componentWeight", 1, &fvalue4);
+    }
 
 #ifndef __APPLE__
   glBindVertexArray(this->Impl->CubeVAOId);

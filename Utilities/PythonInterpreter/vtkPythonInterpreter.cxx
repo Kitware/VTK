@@ -219,7 +219,7 @@ void vtkPythonInterpreter::PrependPythonPath(const char* dir)
 //----------------------------------------------------------------------------
 int vtkPythonInterpreter::PyMain(int argc, char** argv)
 {
-  ConsoleBuffering = false;
+  vtkPythonInterpreter::ConsoleBuffering = false;
   if (!vtkPythonInterpreter::InitializedOnce && Py_IsInitialized() == 0 &&
     argc > 0)
     {
@@ -233,7 +233,7 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
 void vtkPythonInterpreter::RunSimpleString(const char* script)
 {
   vtkPythonInterpreter::Initialize(1);
-  ConsoleBuffering = true;
+  vtkPythonInterpreter::ConsoleBuffering = true;
 
   // The embedded python interpreter cannot handle DOS line-endings, see
   // http://sourceforge.net/tracker/?group_id=5470&atid=105470&func=detail&aid=1167922
@@ -242,17 +242,17 @@ void vtkPythonInterpreter::RunSimpleString(const char* script)
 
   // The cast is necessary because PyRun_SimpleString() hasn't always been const-correct
   PyRun_SimpleString(const_cast<char*>(buffer.c_str()));
-  if (! StdErrBuffer.empty())
+  if (! vtkPythonInterpreter::StdErrBuffer.empty())
     {
     NotifyInterpreters(vtkCommand::ErrorEvent, const_cast<char*>(
-                         StdErrBuffer.c_str()));
-    StdErrBuffer.clear();
+                         vtkPythonInterpreter::StdErrBuffer.c_str()));
+    vtkPythonInterpreter::StdErrBuffer.clear();
     }
-  if (! StdOutBuffer.empty())
+  if (! vtkPythonInterpreter::StdOutBuffer.empty())
     {
     NotifyInterpreters(vtkCommand::SetOutputEvent, const_cast<char*>(
-                         StdOutBuffer.c_str()));
-    StdOutBuffer.clear();
+                         vtkPythonInterpreter::StdOutBuffer.c_str()));
+    vtkPythonInterpreter::StdOutBuffer.clear();
     }
 }
 
@@ -272,9 +272,9 @@ bool vtkPythonInterpreter::GetCaptureStdin()
 void vtkPythonInterpreter::WriteStdOut(const char* txt)
 {
   cout << txt;
-  if (ConsoleBuffering)
+  if (vtkPythonInterpreter::ConsoleBuffering)
     {
-    StdOutBuffer += std::string(txt);
+    vtkPythonInterpreter::StdOutBuffer += std::string(txt);
     }
   else
     {
@@ -291,9 +291,9 @@ void vtkPythonInterpreter::FlushStdOut()
 void vtkPythonInterpreter::WriteStdErr(const char* txt)
 {
   cerr << txt;
-  if (ConsoleBuffering)
+  if (vtkPythonInterpreter::ConsoleBuffering)
     {
-    StdErrBuffer += std::string(txt);
+    vtkPythonInterpreter::StdErrBuffer += std::string(txt);
     }
   else
     {

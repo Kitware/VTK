@@ -18,6 +18,7 @@
 
 #include "vtkActor2D.h"
 #include "vtkCellArray.h"
+#include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
@@ -31,7 +32,6 @@
 #include "vtkProperty2D.h"
 #include "vtkShader.h"
 #include "vtkShaderProgram.h"
-#include "vtkTexturedActor2D.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkViewport.h"
 
@@ -222,14 +222,12 @@ void vtkOpenGLPolyDataMapper2D::SetMapperShaderParameters(
 
   if (layout.TCoordComponents)
     {
-    vtkTexturedActor2D *ta = vtkTexturedActor2D::SafeDownCast(actor);
-    int tunit = 0;
-    if (ta)
+    vtkInformation *info = actor->GetPropertyKeys();
+    if (info && info->Has(vtkProp::GeneralTextureUnit()))
       {
-      vtkOpenGLTexture *texture = vtkOpenGLTexture::SafeDownCast(ta->GetTexture());
-      tunit = texture->GetTextureUnit();
+      int tunit = info->Get(vtkProp::GeneralTextureUnit());
+      cellBO.Program->SetUniformi("texture1", tunit);
       }
-    cellBO.Program->SetUniformi("texture1", tunit);
     }
 }
 
@@ -237,14 +235,20 @@ void vtkOpenGLPolyDataMapper2D::SetMapperShaderParameters(
 void vtkOpenGLPolyDataMapper2D::SetPropertyShaderParameters(
   vtkgl::CellBO &cellBO, vtkViewport*, vtkActor2D *actor)
 {
-  vtkShaderProgram *program = cellBO.Program;
+  if (!this->Colors || !this->Colors->GetNumberOfComponents())
+    {
+    vtkShaderProgram *program = cellBO.Program;
 
-  // Query the actor for some of the properties that can be applied.
-  float opacity = static_cast<float>(actor->GetProperty()->GetOpacity());
-  double *dColor = actor->GetProperty()->GetColor();
-  float diffuseColor[4] = {static_cast<float>(dColor[0]), static_cast<float>(dColor[1]), static_cast<float>(dColor[2]), static_cast<float>(opacity)};
+    // Query the actor for some of the properties that can be applied.
+    float opacity = static_cast<float>(actor->GetProperty()->GetOpacity());
+    double *dColor = actor->GetProperty()->GetColor();
+    float diffuseColor[4] = {static_cast<float>(dColor[0]),
+      static_cast<float>(dColor[1]),
+      static_cast<float>(dColor[2]),
+      static_cast<float>(opacity)};
 
-  program->SetUniform4f("diffuseColor", diffuseColor);
+    program->SetUniform4f("diffuseColor", diffuseColor);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -378,11 +382,10 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
 
   // do we have texture maps?
   bool haveTextures = false;
-  vtkTexturedActor2D *ta =
-      vtkTexturedActor2D::SafeDownCast(act);
-  if (ta)
+  vtkInformation *info = act->GetPropertyKeys();
+  if (info && info->Has(vtkProp::GeneralTextureUnit()))
     {
-    haveTextures = (ta->GetTexture() != NULL);
+    haveTextures = true;
     }
 
   // Transform the points, if necessary

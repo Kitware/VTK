@@ -15,9 +15,10 @@
 
 #include "vtkglVBOHelper.h"
 
-#include "vtkActor.h"
-#include "vtkCamera.h"
 #include "vtkMath.h"
+#include "vtkMatrix4x4.h"
+#include "vtkOpenGLActor.h"
+#include "vtkOpenGLCamera.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -27,7 +28,7 @@
 
 #include "vtkSphereMapperVS.h"
 
-using vtkgl::replace;
+using vtkgl::substitute;
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLSphereMapper)
@@ -41,11 +42,12 @@ vtkOpenGLSphereMapper::vtkOpenGLSphereMapper()
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLSphereMapper::GetShaderTemplate(std::string &VSSource,
-                                          std::string &FSSource,
-                                          std::string &GSSource,
-                                          int lightComplexity, vtkRenderer* ren, vtkActor *actor)
+  std::string &FSSource,
+  std::string &GSSource,
+  int lightComplexity, vtkRenderer* ren, vtkActor *actor)
 {
-  this->Superclass::GetShaderTemplate(VSSource,FSSource,GSSource,lightComplexity,ren,actor);
+  this->Superclass::GetShaderTemplate(VSSource,FSSource,GSSource,
+                                      lightComplexity,ren,actor);
 
   VSSource = vtkSphereMapperVS;
 }
@@ -57,7 +59,12 @@ void vtkOpenGLSphereMapper::ReplaceShaderValues(std::string &VSSource,
                                                  vtkRenderer* ren,
                                                  vtkActor *actor)
 {
-  FSSource = replace(FSSource,
+  substitute(VSSource,
+    "//VTK::Camera::Dec",
+    "uniform mat4 VCDCMatrix;\n"
+    "uniform mat4 MCVCMatrix;");
+
+  substitute(FSSource,
     "//VTK::PositionVC::Dec",
     "varying vec4 vertexVCClose;");
 
@@ -73,9 +80,9 @@ void vtkOpenGLSphereMapper::ReplaceShaderValues(std::string &VSSource,
     {
     replacement += "uniform mat4 VCDCMatrix;\n";
     }
-  FSSource = replace(FSSource,"//VTK::Normal::Dec",replacement);
+  substitute(FSSource,"//VTK::Normal::Dec",replacement);
 
-  FSSource = replace(FSSource,"//VTK::Normal::Impl",
+  substitute(FSSource,"//VTK::Normal::Impl",
     // compute the eye position and unit direction
     "vec4 vertexVC = vertexVCClose;\n"
     "  vec3 EyePos = vec3(0.0,0.0,0.0);\n"
@@ -114,7 +121,7 @@ void vtkOpenGLSphereMapper::ReplaceShaderValues(std::string &VSSource,
 
   if (ren->GetLastRenderingUsedDepthPeeling())
     {
-    FSSource = vtkgl::replace(FSSource,
+    substitute(FSSource,
       "//VTK::DepthPeeling::Impl",
       "float odepth = texture2D(opaqueZTexture, gl_FragCoord.xy/screenSize).r;\n"
       "  if (gl_FragDepth >= odepth) { discard; }\n"
@@ -123,7 +130,8 @@ void vtkOpenGLSphereMapper::ReplaceShaderValues(std::string &VSSource,
       );
     }
 
-  this->Superclass::ReplaceShaderValues(VSSource,FSSource,GSSource,lightComplexity,ren,actor);
+  this->Superclass::ReplaceShaderValues(VSSource,FSSource,GSSource,
+                                        lightComplexity,ren,actor);
 }
 
 //-----------------------------------------------------------------------------
@@ -134,14 +142,34 @@ vtkOpenGLSphereMapper::~vtkOpenGLSphereMapper()
 
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLSphereMapper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
-                                                    vtkRenderer* ren, vtkActor *actor)
+void vtkOpenGLSphereMapper::SetCameraShaderParameters(
+  vtkgl::CellBO &cellBO,
+  vtkRenderer* ren, vtkActor *actor)
 {
-  // do the superclass and then reset a couple values
-  this->Superclass::SetCameraShaderParameters(cellBO,ren,actor);
+  vtkShaderProgram *program = cellBO.Program;
 
-  // add in uniforms for parallel and distance
-  vtkCamera *cam = ren->GetActiveCamera();
+  vtkOpenGLCamera *cam = (vtkOpenGLCamera *)(ren->GetActiveCamera());
+
+  vtkMatrix4x4 *wcdc;
+  vtkMatrix4x4 *wcvc;
+  vtkMatrix3x3 *norms;
+  vtkMatrix4x4 *vcdc;
+  cam->GetKeyMatrices(ren,wcvc,norms,vcdc,wcdc);
+  program->SetUniformMatrix("VCDCMatrix", vcdc);
+
+  if (!actor->GetIsIdentity())
+    {
+    vtkMatrix4x4 *mcwc;
+    vtkMatrix3x3 *anorms;
+    ((vtkOpenGLActor *)actor)->GetKeyMatrices(mcwc,anorms);
+    vtkMatrix4x4::Multiply4x4(mcwc, wcvc, this->TempMatrix4);
+    program->SetUniformMatrix("MCVCMatrix", this->TempMatrix4);
+    }
+  else
+    {
+    program->SetUniformMatrix("MCVCMatrix", wcvc);
+    }
+
   cellBO.Program->SetUniformi("cameraParallel", cam->GetParallelProjection());
 }
 

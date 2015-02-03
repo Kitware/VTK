@@ -204,6 +204,10 @@ public:
   // Interpolate flag is turn off.
   virtual int IsTranslucent();
 
+  // Description:
+  // Return the texture unit used for this texture
+  virtual int GetTextureUnit() { return 0; }
+
 protected:
   vtkTexture();
   ~vtkTexture();

@@ -78,7 +78,7 @@ public:
 
   // Description:
   // Return the texture unit used for this texture
-  int GetTextureUnit();
+  virtual int GetTextureUnit();
 
   // Description:
   // Is this Texture Translucent?

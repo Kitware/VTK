@@ -15,10 +15,11 @@
 
 #include "vtkglVBOHelper.h"
 
-#include "vtkActor.h"
-#include "vtkCamera.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkMatrix4x4.h"
+#include "vtkOpenGLActor.h"
+#include "vtkOpenGLCamera.h"
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -29,8 +30,7 @@
 #include "vtkPointGaussianVS.h"
 #include "vtkglPolyDataFSNoLighting.h"
 
-using vtkgl::replace;
-
+using vtkgl::substitute;
 
 class vtkOpenGLPointGaussianMapperHelper : public vtkOpenGLPolyDataMapper
 {
@@ -113,11 +113,16 @@ void vtkOpenGLPointGaussianMapperHelper::ReplaceShaderValues(std::string &VSSour
                                                  vtkRenderer* ren,
                                                  vtkActor *actor)
 {
-  FSSource = replace(FSSource,
+  substitute(FSSource,
     "//VTK::PositionVC::Dec",
     "varying vec2 offsetVC;");
 
-  FSSource = replace(FSSource,"//VTK::Color::Impl",
+  substitute(VSSource,
+    "//VTK::Camera::Dec",
+    "uniform mat4 VCDCMatrix;\n"
+    "uniform mat4 MCVCMatrix;");
+
+  substitute(FSSource,"//VTK::Color::Impl",
     // compute the eye position and unit direction
     "//VTK::Color::Impl\n"
     "  float dist2 = dot(offsetVC.xy,offsetVC.xy);\n"
@@ -139,11 +144,31 @@ vtkOpenGLPointGaussianMapperHelper::~vtkOpenGLPointGaussianMapperHelper()
 void vtkOpenGLPointGaussianMapperHelper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
                                                     vtkRenderer* ren, vtkActor *actor)
 {
-  // do the superclass and then reset a couple values
-  this->Superclass::SetCameraShaderParameters(cellBO,ren,actor);
+  vtkShaderProgram *program = cellBO.Program;
+
+  vtkOpenGLCamera *cam = (vtkOpenGLCamera *)(ren->GetActiveCamera());
+
+  vtkMatrix4x4 *wcdc;
+  vtkMatrix4x4 *wcvc;
+  vtkMatrix3x3 *norms;
+  vtkMatrix4x4 *vcdc;
+  cam->GetKeyMatrices(ren,wcvc,norms,vcdc,wcdc);
+  program->SetUniformMatrix("VCDCMatrix", vcdc);
+
+  if (!actor->GetIsIdentity())
+    {
+    vtkMatrix4x4 *mcwc;
+    vtkMatrix3x3 *anorms;
+    ((vtkOpenGLActor *)actor)->GetKeyMatrices(mcwc,anorms);
+    vtkMatrix4x4::Multiply4x4(mcwc, wcvc, this->TempMatrix4);
+    program->SetUniformMatrix("MCVCMatrix", this->TempMatrix4);
+    }
+  else
+    {
+    program->SetUniformMatrix("MCVCMatrix", wcvc);
+    }
 
   // add in uniforms for parallel and distance
-  vtkCamera *cam = ren->GetActiveCamera();
   cellBO.Program->SetUniformi("cameraParallel", cam->GetParallelProjection());
 }
 
@@ -202,11 +227,13 @@ vtkgl::VBOLayout vtkOpenGLPointGaussianMapperHelperCreateVBO(float * points, vtk
 
   float cos30 = cos(vtkMath::RadiansFromDegrees(30.0));
 
+  unsigned char white[4] = {255, 255, 255, 255};
+
   for (vtkIdType i = 0; i < numPts; ++i)
     {
     pointPtr = points + i*3;
-    colorPtr = colors + i*colorComponents;
-    float radius = sizes[i];
+    colorPtr = colors ? (colors + i*colorComponents) : white;
+    float radius = sizes ? sizes[i] : 1.0;
 
     // Vertices
     *(it++) = pointPtr[0];
@@ -289,8 +316,8 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(vtkRenderer *vtkNotU
               poly->GetPoints()->GetNumberOfPoints(),
               this->Colors ? (unsigned char *)this->Colors->GetVoidPointer(0) : NULL,
               this->Colors ? this->Colors->GetNumberOfComponents() : 0,
-              static_cast<float *>(poly->GetPointData()->GetArray(
-                this->Owner->GetScaleArray())->GetVoidPointer(0)),
+              this->Owner->GetScaleArray() ? static_cast<float *>(poly->GetPointData()->GetArray(
+                this->Owner->GetScaleArray())->GetVoidPointer(0)) : NULL,
               this->VBO);
 
   // we use no IBO

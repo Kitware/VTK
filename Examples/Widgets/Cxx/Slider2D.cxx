@@ -7,15 +7,11 @@
 #include <vtkRenderWindow.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
-#include <vtkPolyData.h>
-#include <vtkSmartPointer.h>
-#include <vtkSphereSource.h>
 #include <vtkCommand.h>
 #include <vtkWidgetEvent.h>
 #include <vtkCallbackCommand.h>
 #include <vtkWidgetEventTranslator.h>
 #include <vtkInteractorStyleTrackballCamera.h>
-#include <vtkSliderWidget.h>
 #include <vtkSliderRepresentation2D.h>
 #include <vtkProperty.h>
 

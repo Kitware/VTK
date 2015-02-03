@@ -601,7 +601,7 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
   vtkIdType i;
   for(i=0; i < numberOfCells; ++i)
     {
-    if(coffset[i] <= lastOffset)
+    if(coffset[i] < lastOffset)
       {
       vtkErrorMacro("Cannot read cell connectivity from " << eCells->GetName()
                     << " in piece " << this->Piece

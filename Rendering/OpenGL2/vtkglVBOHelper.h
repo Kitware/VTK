@@ -35,15 +35,23 @@ namespace vtkgl
 {
 
 // Process the string, and return a version with replacements.
-std::string VTKRENDERINGOPENGL2_EXPORT replace(std::string source, const std::string &search,
-                    const std::string replace, bool all = true);
+std::string VTKRENDERINGOPENGL2_EXPORT replace(std::string source,
+  const std::string &search,
+  const std::string replace, bool all = true);
+
+// perform in place string substitutions, indicate if a substitution was done
+bool VTKRENDERINGOPENGL2_EXPORT substitute(std::string &source,
+  const std::string &search,
+  const std::string replace, bool all = true);
 
 // used to create an IBO for triangle primatives
-size_t CreateTriangleIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
-                                 vtkPoints *points, std::vector<unsigned int> &cellPointMap);
+size_t CreateTriangleIndexBuffer(vtkCellArray *cells,
+  BufferObject &indexBuffer,
+  vtkPoints *points, std::vector<unsigned int> &cellPointMap);
 
 // create a IBO for wireframe polys/tris
-size_t CreateTriangleLineIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer);
+size_t CreateTriangleLineIndexBuffer(vtkCellArray *cells,
+  BufferObject &indexBuffer);
 
 // used to create an IBO for primatives as points
 size_t CreatePointIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer);
@@ -95,14 +103,16 @@ struct VBOLayout
 // takes whatever the input type might be and packs them into a VBO using
 // floats for the vertices and normals, and unsigned char for the colors (if
 // the array is non-null).
-VBOLayout CreateVBO(vtkPoints *points, unsigned int numPoints, vtkDataArray *normals,
-                    vtkDataArray *tcoords,
-                    unsigned char *colors, int colorComponents,
-                    BufferObject &vertexBuffer, unsigned int *cellPointMap, unsigned int *pointCellMap,
-                    bool cellScalars, bool cellNormals);
+VBOLayout CreateVBO(vtkPoints *points, unsigned int numPoints,
+    vtkDataArray *normals,
+    vtkDataArray *tcoords,
+    unsigned char *colors, int colorComponents,
+    BufferObject &vertexBuffer,
+    unsigned int *cellPointMap, unsigned int *pointCellMap,
+    bool cellScalars, bool cellNormals);
 
 
-// used to create an IBO for stripped primatives such as lines and triangle strips
+// used to create an IBO for stripped primatives such as lines and strips
 void CreateCellSupportArrays(vtkPolyData *poly, vtkCellArray *[4],
                              std::vector<unsigned int> &cellPointMap,
                              std::vector<unsigned int> &pointCellMap);
