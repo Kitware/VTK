@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 
 # Python example script that uses the Matlab Engine filter to compute the
 # degree centraility for an input graph and display the result.

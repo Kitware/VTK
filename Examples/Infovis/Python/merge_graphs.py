@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 This file demonstrates the creation of a directed graph using the
 Python interface to VTK.

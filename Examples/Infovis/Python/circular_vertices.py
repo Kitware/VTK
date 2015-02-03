@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 This file demonstrates drawing graphs using circular vertices via
 vtkRenderedGraphRepresentation.

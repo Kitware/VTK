@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from vtk import *
 
 reader1 = vtkXMLTreeReader()

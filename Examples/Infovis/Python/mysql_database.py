@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from vtk import *
 
 database = vtkSQLDatabase.CreateFromURL("mysql://enron@vizdb.srn.sandia.gov:3306/enron")
