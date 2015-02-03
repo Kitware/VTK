@@ -19,6 +19,7 @@
 #include "vtkParse.h"
 #include "vtkParseMain.h"
 #include "vtkParseHierarchy.h"
+#include "vtkWrap.h"
 
 HierarchyInfo *hierarchyInfo = NULL;
 StringCache *stringCache = NULL;
@@ -1298,8 +1299,20 @@ int main(int argc, char *argv[])
 
   for (i = 0; i < data->NumberOfSuperClasses; i++)
     {
+    char *safe_name = vtkWrap_SafeSuperclassName(data->SuperClasses[i]);
+    const char *safe_superclass = safe_name ? safe_name : data->SuperClasses[i];
+
+    /* if a template class is detected add a typedef */
+    if (safe_name)
+      {
+      fprintf(fp,"typedef %s %s;\n",
+              data->SuperClasses[i], safe_name);
+      }
+
     fprintf(fp,"extern \"C\" JNIEXPORT void* %s_Typecast(void *op,char *dType);\n",
-            data->SuperClasses[i]);
+            safe_superclass);
+
+    free(safe_name);
     }
 
   fprintf(fp,"\nextern \"C\" JNIEXPORT void* %s_Typecast(void *me,char *dType)\n{\n",data->Name);
@@ -1311,9 +1324,14 @@ int main(int argc, char *argv[])
   /* check our superclasses */
   for (i = 0; i < data->NumberOfSuperClasses; i++)
     {
+    char *safe_name = vtkWrap_SafeSuperclassName(data->SuperClasses[i]);
+    const char *safe_superclass = safe_name ? safe_name : data->SuperClasses[i];
+
     fprintf(fp,"  if ((res= %s_Typecast(me,dType)) != NULL)",
-            data->SuperClasses[i]);
+            safe_superclass);
     fprintf(fp," { return res; }\n");
+
+    free(safe_name);
     }
   fprintf(fp,"  return NULL;\n");
   fprintf(fp,"}\n\n");
