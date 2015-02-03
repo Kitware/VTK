@@ -219,7 +219,6 @@ void vtkPythonInterpreter::PrependPythonPath(const char* dir)
 //----------------------------------------------------------------------------
 int vtkPythonInterpreter::PyMain(int argc, char** argv)
 {
-  vtkPythonInterpreter::ConsoleBuffering = false;
   if (!vtkPythonInterpreter::InitializedOnce && Py_IsInitialized() == 0 &&
     argc > 0)
     {
@@ -242,6 +241,7 @@ void vtkPythonInterpreter::RunSimpleString(const char* script)
 
   // The cast is necessary because PyRun_SimpleString() hasn't always been const-correct
   PyRun_SimpleString(const_cast<char*>(buffer.c_str()));
+  vtkPythonInterpreter::ConsoleBuffering = false;
   if (! vtkPythonInterpreter::StdErrBuffer.empty())
     {
     NotifyInterpreters(vtkCommand::ErrorEvent, const_cast<char*>(
