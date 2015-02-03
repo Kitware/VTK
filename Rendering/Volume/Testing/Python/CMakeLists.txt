@@ -27,7 +27,9 @@ set (VolumeOpenGLPythonTests
 
 # These tests are only built when the rendering backend is OpenGL2
 set (VolumeOpenGL2PythonTests
-     TestGPURayCastIndependentComponent.py,NO_RT)
+     TestGPURayCastIndependentComponent.py,NO_RT
+     TestGPURayCastIndependentComponentMIP.py,NO_RT
+     TestGPURayCastIndependentComponentMinIP.py,NO_RT)
 
 if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
   vtk_add_test_python(
