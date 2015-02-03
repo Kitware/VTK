@@ -1115,8 +1115,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateDepthTexture(
                                             this->WindowSize[1],
                                             4);
     }
-    this->DepthTextureObject->CopyFromFrameBuffer(this->WindowLowerLeft[0], this->WindowLowerLeft[1],
-                     0, 0,  this->WindowSize[0], this->WindowSize[1]);
+
+  this->DepthTextureObject->CopyFromFrameBuffer(this->WindowLowerLeft[0],
+                                                this->WindowLowerLeft[1],
+                                                0, 0,
+                                                this->WindowSize[0],
+                                                this->WindowSize[1]);
 }
 
 //----------------------------------------------------------------------------
@@ -1670,15 +1674,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
     {
     this->ExtensionsStringStream << "Required extension "
       << " GL_ARB_texture_float is not supported";
-    return;
-    }
-
-  // Check for framebuffer objects. Framebuffer objects
-  // are core since version 3.0 only
-  if (!glewIsSupported("GL_EXT_framebuffer_object"))
-    {
-    this->ExtensionsStringStream << "Required extension "
-      << " GL_EXT_framebuffer_object is not supported";
     return;
     }
 
