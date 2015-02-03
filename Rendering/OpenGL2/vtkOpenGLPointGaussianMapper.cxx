@@ -292,7 +292,8 @@ bool vtkOpenGLPointGaussianMapperHelper::GetNeedToRebuildBufferObjects(vtkRender
 }
 
 //-------------------------------------------------------------------------
-void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(vtkRenderer *vtkNotUsed(ren), vtkActor *act)
+void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
+  vtkRenderer *vtkNotUsed(ren), vtkActor *vtkNotUsed(act))
 {
   vtkPolyData *poly = this->CurrentInput;
 

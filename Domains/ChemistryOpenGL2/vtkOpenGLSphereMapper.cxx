@@ -282,7 +282,8 @@ bool vtkOpenGLSphereMapper::GetNeedToRebuildBufferObjects(vtkRenderer *vtkNotUse
 }
 
 //-------------------------------------------------------------------------
-void vtkOpenGLSphereMapper::BuildBufferObjects(vtkRenderer *vtkNotUsed(ren), vtkActor *act)
+void vtkOpenGLSphereMapper::BuildBufferObjects(
+  vtkRenderer *vtkNotUsed(ren), vtkActor *vtkNotUsed(act))
 {
   vtkPolyData *poly = this->CurrentInput;
 
