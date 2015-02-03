@@ -22,7 +22,9 @@
         <script type="text/javascript">
             var config = {
                 sessionManagerURL: vtkWeb.properties.sessionManagerURL,
-                application: "graph"
+                application: "graph",
+                numberOfVertices: '100',
+                numberOfEdges: '200'
             },
             stop = vtkWeb.NoOp,
             start = function(connection) {
@@ -48,13 +50,14 @@
                 // Update stop method to use the connection
                 stop = function() {
                     connection.session.call('application.exit');
-                }
+                    connection.session.close();
+                    connection.session = null;
+                };
             };
 
             // Try to launch the Viz process
             vtkWeb.smartConnect(config, start, function(code,reason){
                 console.log(reason);
-                alert(reason);
             });
         </script>
     </body>
