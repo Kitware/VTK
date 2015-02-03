@@ -327,8 +327,16 @@ add_custom_command(
   OUTPUT ${VTK_BINARY_DIR}/java/javac_stamp.txt
   DEPENDS ${VTK_JAVA_SOURCE_FILES}
   COMMAND ${JAVA_COMPILE} ${JAVAC_OPTIONS}
-  -source ${VTK_JAVA_SOURCE_VERSION} -classpath ${JAVA_COMPILATION_CLASSPATH} -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java/ -d ${VTK_BINARY_DIR}/java
-    ${VTK_BINARY_DIR}/java/vtk/*.java ${VTK_BINARY_DIR}/java/vtk/rendering/*.java ${VTK_BINARY_DIR}/java/vtk/rendering/awt/*.java ${VTK_BINARY_DIR}/java/vtk/sample/*.java ${SWT_FILES} ${JOGL_FILES}
+          -source ${VTK_JAVA_SOURCE_VERSION}
+          -classpath ${JAVA_COMPILATION_CLASSPATH}
+          -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java/
+          -d ${VTK_BINARY_DIR}/java
+          ${VTK_BINARY_DIR}/java/vtk/*.java
+          ${VTK_BINARY_DIR}/java/vtk/rendering/*.java
+          ${VTK_BINARY_DIR}/java/vtk/rendering/awt/*.java
+          ${VTK_BINARY_DIR}/java/vtk/sample/*.java
+          ${SWT_FILES}
+          ${JOGL_FILES}
   COMMAND ${CMAKE_COMMAND} -E touch ${VTK_BINARY_DIR}/java/javac_stamp.txt
   COMMENT "Compiling Java Classes"
   )
@@ -358,10 +366,12 @@ if(BUILD_TESTING)
   # Compile Java Tests
   add_custom_command(
     OUTPUT ${VTK_BINARY_DIR}/java/javac_tests_stamp.txt
-    COMMAND ${JAVA_COMPILE} ${JAVAC_OPTIONS} -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
-    -source ${VTK_JAVA_SOURCE_VERSION} -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java
-    -d ${VTK_BINARY_DIR}/Wrapping/Java
-    ${VTK_JAVA_TESTS}
+    COMMAND ${JAVA_COMPILE} ${JAVAC_OPTIONS}
+            -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
+            -source ${VTK_JAVA_SOURCE_VERSION}
+            -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java
+            -d ${VTK_BINARY_DIR}/Wrapping/Java
+            ${VTK_JAVA_TESTS}
     COMMAND ${CMAKE_COMMAND} -E touch ${VTK_BINARY_DIR}/java/javac_tests_stamp.txt
     DEPENDS ${VTK_JAR_PATH}/vtk.jar ${VTK_JAVA_TESTS}
     COMMENT "Compiling Java Tests"
