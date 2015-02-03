@@ -321,6 +321,8 @@ endif()
 # Set the javac source version
 set(VTK_JAVA_SOURCE_VERSION "1.5" CACHE STRING "javac source version")
 mark_as_advanced(VTK_JAVA_SOURCE_VERSION)
+set(VTK_JAVA_TARGET_VERSION "1.5" CACHE STRING "javac target version")
+mark_as_advanced(VTK_JAVA_TARGET_VERSION)
 
 # Compile the Java classes
 add_custom_command(
@@ -328,6 +330,7 @@ add_custom_command(
   DEPENDS ${VTK_JAVA_SOURCE_FILES}
   COMMAND ${JAVA_COMPILE} ${JAVAC_OPTIONS}
           -source ${VTK_JAVA_SOURCE_VERSION}
+          -target ${VTK_JAVA_TARGET_VERSION}
           -classpath ${JAVA_COMPILATION_CLASSPATH}
           -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java/
           -d ${VTK_BINARY_DIR}/java
@@ -369,6 +372,7 @@ if(BUILD_TESTING)
     COMMAND ${JAVA_COMPILE} ${JAVAC_OPTIONS}
             -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
             -source ${VTK_JAVA_SOURCE_VERSION}
+            -target ${VTK_JAVA_TARGET_VERSION}
             -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java
             -d ${VTK_BINARY_DIR}/Wrapping/Java
             ${VTK_JAVA_TESTS}
