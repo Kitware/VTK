@@ -31,6 +31,12 @@ public:
   vtkTypeMacro(vtkOpenGLPointGaussianMapper, vtkPointGaussianMapper)
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Release any graphics resources that are being consumed by this mapper.
+  // The parameter window could be used to determine which graphic
+  // resources to release.
+  void ReleaseGraphicsResources(vtkWindow *);
+
 protected:
   vtkOpenGLPointGaussianMapper();
   ~vtkOpenGLPointGaussianMapper();
