@@ -502,7 +502,8 @@ bool vtkOpenGLStickMapper::GetNeedToRebuildBufferObjects(vtkRenderer *ren, vtkAc
 }
 
 //-------------------------------------------------------------------------
-void vtkOpenGLStickMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act)
+void vtkOpenGLStickMapper::BuildBufferObjects(vtkRenderer *ren,
+  vtkActor *vtkNotUsed(act))
 {
   vtkPolyData *poly = this->CurrentInput;
 
