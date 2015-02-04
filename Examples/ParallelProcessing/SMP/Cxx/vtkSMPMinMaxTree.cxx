@@ -23,7 +23,7 @@ namespace
     vtkSMPThreadLocalObject<vtkDoubleArray> TLS_CellScalars;
     vtkIdType* Locks;
 
-    InitializeFunctor(vtkScalarNode *t, vtkIdType bf, vtkDataSet* ds, vtkDataArray* s, vtkIdType offset, vtkIdType size) : BF(bf), DS(ds), Scalars(s), Offset(offset), Max(size)
+    InitializeFunctor(vtkScalarNode *t, vtkIdType bf, vtkDataSet* ds, vtkDataArray* s, vtkIdType offset, vtkIdType size) : BF(bf), Offset(offset), Max(size), DS(ds), Scalars(s)
     {
       Tree = static_cast<vtkScalarRange<double>*>(t);
       Size = DS->GetNumberOfCells();
@@ -243,8 +243,6 @@ void vtkSMPMinMaxTree::BuildTree()
 void vtkSMPMinMaxTree::InitTraversal(double scalarValue)
 {
   this->BuildTree();
-  vtkScalarRange<double> *TTree =
-    static_cast< vtkScalarRange<double> * > (this->Tree);
 
   this->ScalarValue = scalarValue;
   this->TreeIndex = this->TreeSize;
