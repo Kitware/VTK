@@ -199,7 +199,7 @@ namespace
 // internal function called by CreateVBO
 vtkgl::VBOLayout vtkOpenGLPointGaussianMapperHelperCreateVBO(float * points, vtkIdType numPts,
               unsigned char *colors, int colorComponents,
-              float *sizes,
+              float *sizes, float defaultSize,
               vtkgl::BufferObject &vertexBuffer)
 {
   vtkgl::VBOLayout layout;
@@ -233,7 +233,7 @@ vtkgl::VBOLayout vtkOpenGLPointGaussianMapperHelperCreateVBO(float * points, vtk
     {
     pointPtr = points + i*3;
     colorPtr = colors ? (colors + i*colorComponents) : white;
-    float radius = sizes ? sizes[i] : 1.0;
+    float radius = sizes ? sizes[i] : defaultSize;
 
     // Vertices
     *(it++) = pointPtr[0];
@@ -319,6 +319,7 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
               this->Colors ? this->Colors->GetNumberOfComponents() : 0,
               this->Owner->GetScaleArray() ? static_cast<float *>(poly->GetPointData()->GetArray(
                 this->Owner->GetScaleArray())->GetVoidPointer(0)) : NULL,
+              this->Owner->GetDefaultRadius(),
               this->VBO);
 
   // we use no IBO
