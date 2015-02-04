@@ -907,8 +907,6 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateColorTransferFunction(
   if (this->Parent->MaskInput != 0 &&
       this->Parent->MaskType == LabelMapMaskType)
     {
-    vtkVolumeProperty* volumeProperty = vol->GetProperty();
-
     vtkColorTransferFunction* colorTransferFunc =
       volumeProperty->GetRGBTransferFunction(1);
     this->Mask1RGBTable->Update(colorTransferFunc, this->ScalarsRange,

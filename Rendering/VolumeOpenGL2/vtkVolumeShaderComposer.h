@@ -102,7 +102,7 @@ namespace vtkvolume
                               int vtkNotUsed(numberOfLights),
                               int lightingComplexity,
                               int noOfComponents,
-                              bool independentComponents)
+                              int independentComponents)
     {
     std::string shaderStr = std::string("\
       \n// Volume dataset\
