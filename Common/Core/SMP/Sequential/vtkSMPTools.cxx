@@ -21,3 +21,8 @@
 void vtkSMPTools::Initialize(int)
 {
 }
+
+int vtkSMPTools::GetEstimatedNumberOfThreads()
+{
+  return 1;
+}

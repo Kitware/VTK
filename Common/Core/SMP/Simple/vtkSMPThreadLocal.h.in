@@ -78,8 +78,10 @@
 
 #include "vtkCommonCoreModule.h" // For export macro
 
+#include "vtkAtomicInt.h"
 #include "vtkSystemIncludes.h"
 #include "vtkMultiThreader.h"
+
 #include <vector>
 
 VTKCOMMONCORE_EXPORT int vtkSMPToolsGetNumberOfThreads();
@@ -93,7 +95,7 @@ class vtkSMPThreadLocal
 public:
   // Description:
   // Default constructor. Creates a default exemplar.
-  vtkSMPThreadLocal() : Exemplar()
+  vtkSMPThreadLocal() : NumInitialized(0)
     {
       this->Initialize();
     }
@@ -102,7 +104,7 @@ public:
   // Constructor that allows the specification of an exemplar object
   // which is used when constructing objects when Local() is first called.
   // Note that a copy of the exemplar is created using its copy constructor.
-  vtkSMPThreadLocal(const T& exemplar) : Exemplar(exemplar)
+  vtkSMPThreadLocal(const T& exemplar) : NumInitialized(0), Exemplar(exemplar)
     {
       this->Initialize();
     }
@@ -122,8 +124,16 @@ public:
         {
         this->Internal[tid] = this->Exemplar;
         this->Initialized[tid] = true;
+        ++this->NumInitialized;
         }
       return this->Internal[tid];
+    }
+
+  // Description:
+  // Return the number of thread local objects that have been initialized
+  size_t size() const
+    {
+      return this->NumInitialized.load();
     }
 
   // Description:
@@ -156,6 +166,18 @@ public:
         return *this;
       }
 
+    iterator operator++(int)
+      {
+        iterator copy = *this;
+        ++(*this);
+        return copy;
+      }
+
+    bool operator==(const iterator& other)
+      {
+        return this->Iter == other.Iter;
+      }
+
     bool operator!=(const iterator& other)
       {
         return this->Iter != other.Iter;
@@ -164,6 +186,11 @@ public:
     T& operator*()
       {
         return *this->Iter;
+      }
+
+    T* operator->()
+      {
+        return &*this->Iter;
       }
 
   private:
@@ -216,6 +243,7 @@ public:
 private:
   TLS Internal;
   std::vector<unsigned char> Initialized;
+  vtkAtomicInt<size_t> NumInitialized;
   T Exemplar;
 
   void Initialize()

@@ -206,6 +206,13 @@ public:
   // When using Kaapi, use the KAAPI_CPUCOUNT env. variable to control
   // the number of threads used in the thread pool.
   static void Initialize(int numThreads=0);
+
+  // Description:
+  // Get the estimated number of threads being used by the backend.
+  // This should be used as just an estimate since the number of threads may
+  // vary dynamically and a particular task may not be executed on all the
+  // available threads.
+  static int GetEstimatedNumberOfThreads();
 };
 
 #endif
