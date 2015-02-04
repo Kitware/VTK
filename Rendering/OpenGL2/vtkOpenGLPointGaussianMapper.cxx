@@ -365,11 +365,18 @@ void vtkOpenGLPointGaussianMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
 {
   if (this->GetMTime() > this->HelperUpdateTime)
     {
-    this->Helper->SetInputData(this->GetInput());
     this->Helper->vtkPolyDataMapper::ShallowCopy(this);
     this->HelperUpdateTime.Modified();
     }
   this->Helper->RenderPiece(ren,act);
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLPointGaussianMapper::ReleaseGraphicsResources(vtkWindow* win)
+{
+  this->Helper->ReleaseGraphicsResources(win);
+  this->Helper->SetInputData(0);
+  this->Modified();
 }
 
 //-----------------------------------------------------------------------------
