@@ -91,6 +91,7 @@ vtkBarChartActor::vtkBarChartActor()
   this->GlyphSource->SetGlyphTypeToNone();
   this->GlyphSource->DashOn();
   this->GlyphSource->FilledOff();
+  this->GlyphSource->Update();
 
   this->YAxis = vtkAxisActor2D::New();
   this->YAxis->GetPositionCoordinate()->SetCoordinateSystemToViewport();
