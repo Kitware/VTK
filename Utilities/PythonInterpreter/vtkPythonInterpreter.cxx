@@ -285,6 +285,7 @@ void vtkPythonInterpreter::WriteStdOut(const char* txt)
 //----------------------------------------------------------------------------
 void vtkPythonInterpreter::FlushStdOut()
 {
+    cout.flush();
 }
 
 //----------------------------------------------------------------------------
@@ -304,6 +305,7 @@ void vtkPythonInterpreter::WriteStdErr(const char* txt)
 //----------------------------------------------------------------------------
 void vtkPythonInterpreter::FlushStdErr()
 {
+    cerr.flush();
 }
 
 //----------------------------------------------------------------------------
