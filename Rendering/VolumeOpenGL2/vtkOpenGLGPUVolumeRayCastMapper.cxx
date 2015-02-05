@@ -460,7 +460,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
   int scalarType = scalars->GetDataType();
   if (scalars->GetNumberOfComponents() == 4)
     {
-    internalFormat = GL_RGBA16;
+    internalFormat = GL_RGBA8;
     format = GL_RGBA;
     type = GL_UNSIGNED_BYTE;
     }
