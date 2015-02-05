@@ -35,20 +35,58 @@ VarInfo::VarInfo(ADIOS_FILE *f, ADIOS_VARINFO *v)
   err = adios_inq_var_blockinfo(f, v);
   ReadError::TestEq(0, err);
 
-  // Calculate block ids
+  // Polulate dimensions and determine block step ranges
+  size_t pidMax = 0;
+  size_t tidMax = 0;
+  int nd = v->ndim;
+  this->Dims.resize(v->sum_nblocks);
+  for(size_t bid = 0; bid < v->sum_nblocks; ++bid)
+    {
+    ADIOS_VARBLOCK &bi = v->blockinfo[bid];
+    if(bi.process_id > pidMax)
+      {
+      pidMax = bi.process_id;
+      }
+
+    if(nd > 0)
+      {
+      std::vector<size_t> &dimsBid = this->Dims[bid];
+      dimsBid.reserve(nd);
+      for(size_t n = 0; n < nd; ++n)
+        {
+        dimsBid.push_back(bi.count[n]);
+        }
+      }
+    }
+
+  // Construct the block index
+  this->NumPids = pidMax + 1;
+  this->NumSteps = f->last_step+1;
+  this->StepBlockIndex.clear();
+  this->StepBlockIndex.resize(this->NumSteps*this->NumPids, NULL);
   size_t bid = 0;
-  this->BlockId.resize(v->nsteps);
-  this->Dims.resize(v->nsteps);
   for(size_t s = 0; s < v->nsteps; ++s)
     {
-    this->Dims[s].resize(v->nblocks[s]);
     for(size_t b = 0; b < v->nblocks[s]; ++b)
       {
-      this->Dims[s][b].reserve(v->ndim);
-      std::copy(v->blockinfo[bid].count, v->blockinfo[bid].count+v->ndim,
-        std::back_inserter(this->Dims[s][b]));
+      ADIOS_VARBLOCK &bi = v->blockinfo[bid];
+      this->StepBlockIndex[(bi.time_index-1)*this->NumPids+bi.process_id] =
+        new StepBlock(s, b, bid++);
+      }
+    }
+}
 
-      this->BlockId[s].push_back(bid++);
+//----------------------------------------------------------------------------
+VarInfo::~VarInfo()
+{
+  // Cleanup the block step index
+  for(std::vector<StepBlock*>::iterator i = this->StepBlockIndex.begin();
+    i != this->StepBlockIndex.end(); ++i)
+    {
+    if(*i)
+      {
+      delete *i;
+      *i = NULL;
       }
     }
 }
@@ -74,34 +112,38 @@ const std::string& VarInfo::GetName(void) const
 //----------------------------------------------------------------------------
 size_t VarInfo::GetNumSteps(void) const
 {
-  return this->BlockId.size();
+  return this->NumSteps;
 }
 
 //----------------------------------------------------------------------------
 size_t VarInfo::GetNumBlocks(size_t step) const
 {
-  return this->BlockId[step].size();
+  return this->NumPids;
 }
 
 //----------------------------------------------------------------------------
-size_t VarInfo::GetBlockId(size_t step, size_t block) const
+VarInfo::StepBlock* VarInfo::GetNewestBlockIndex(size_t step, size_t pid) const
 {
-  ReadError::TestEq(true, step < this->BlockId.size(), "Invalid step");
-  ReadError::TestEq(true, block < this->BlockId[step].size(),
-    "Invalid block");
-  return static_cast<int>(this->BlockId[step][block]);
+  ReadError::TestEq(true, step < this->NumSteps, "Invalid step");
+  ReadError::TestEq(true, pid < this->NumPids, "Invalid block");
+
+  StepBlock* idx = NULL;
+  for(int curStep = step; !idx && curStep >= 0; --curStep)
+    {
+    idx = this->StepBlockIndex[curStep*this->NumPids+pid];
+    }
+
+  return idx;
 }
 
 //----------------------------------------------------------------------------
-void VarInfo::GetDims(std::vector<size_t>& dims, size_t step,
-  size_t block) const
+void VarInfo::GetDims(std::vector<size_t>& dims, size_t step, size_t pid) const
 {
-  ReadError::TestEq(true, step < this->BlockId.size(), "Invalid step");
-  ReadError::TestEq(true, block < this->BlockId[step].size(),
-    "Invalid block");
+  StepBlock* idx = this->GetNewestBlockIndex(step, pid);
+  ReadError::TestNe<VarInfo::StepBlock*>(NULL, idx, "Variable not available");
 
   dims.clear();
-  dims = this->Dims[step][block];
+  dims = this->Dims[idx->BlockId];
 }
 
 } // End namespace ADIOS
