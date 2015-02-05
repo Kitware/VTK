@@ -747,6 +747,7 @@ namespace vtkvolume
       {
       return std::string("\
         \n  // We get data between 0.0 - 1.0 range\
+        \n  bool l_firstValue = true;\
         \n  vec4 l_maxValue = vec4(0.0);"
       );
       }
@@ -754,6 +755,7 @@ namespace vtkvolume
       {
       return std::string("\
         \n  //We get data between 0.0 - 1.0 range\
+        \n  bool l_firstValue = true;\
         \n  vec4 l_minValue = vec4(1.0);"
       );
       }
@@ -790,9 +792,14 @@ namespace vtkvolume
         {
         shaderStr += std::string("\
           \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
-          \n      if (l_maxValue.w < scalar.w)\
+          \n      if (l_maxValue.w < scalar.w || l_firstValue)\
           \n        {\
           \n        l_maxValue = scalar;\
+          \n        }\
+          \n\
+          \n     if (l_firstValue)\
+          \n        {\
+          \n        l_firstValue = false;\
           \n        }"
         );
         }
@@ -800,9 +807,14 @@ namespace vtkvolume
         {
         shaderStr += std::string("\
           \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
-          \n      if (l_maxValue.w < scalar.x)\
+          \n      if (l_maxValue.w < scalar.x || l_firstValue)\
           \n        {\
           \n        l_maxValue.w = scalar.x;\
+          \n        }\
+          \n\
+          \n     if (l_firstValue)\
+          \n        {\
+          \n        l_firstValue = false;\
           \n        }"
         );
         }
@@ -813,9 +825,14 @@ namespace vtkvolume
         {
         shaderStr += std::string("\
           \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
-          \n      if (l_minValue.w > scalar.w)\
+          \n      if (l_minValue.w > scalar.w || l_firstValue)\
           \n        {\
           \n        l_minValue = scalar;\
+          \n        }\
+          \n\
+          \n     if (l_firstValue)\
+          \n        {\
+          \n        l_firstValue = false;\
           \n        }"
         );
         }
@@ -823,9 +840,14 @@ namespace vtkvolume
         {
         shaderStr += std::string("\
           \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
-          \n      if (l_minValue.w > scalar.x)\
+          \n      if (l_minValue.w > scalar.x || l_firstValue)\
           \n        {\
           \n        l_minValue.w = scalar.x;\
+          \n        }\
+          \n\
+          \n     if (l_firstValue)\
+          \n        {\
+          \n        l_firstValue = false;\
           \n        }"
         );
         }
