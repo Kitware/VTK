@@ -82,7 +82,7 @@ void vtkGL2PSUtilities::DrawString(const char *str,
       bgVerts[10] = bgPos[1] + static_cast<double>(metrics.TopRight[1]);
       bgVerts[11] = bgPos[2];
 
-      vtkGL2PSUtilities::UnprojectPoints(bgVerts, 12);
+      vtkGL2PSUtilities::UnprojectPoints(bgVerts, 4);
 
       glDisable(GL_LIGHTING);
       glDisableClientState(GL_COLOR_ARRAY);
