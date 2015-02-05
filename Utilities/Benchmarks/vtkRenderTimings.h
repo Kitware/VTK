@@ -105,6 +105,9 @@ public:
   void GetSequenceNumbers(int &xdim, int &ydim, int &zdim);
   void GetSequenceNumbers(int &xdim, int &ydim, int &zdim, int &wdim);
 
+  // display the results in realtime using VTK charting
+  void SetChartResults(bool v) { this->ChartResults = v; }
+
   vtkRTTest *Test;
   float TargetTime;
 
@@ -113,6 +116,7 @@ public:
     this->Test = NULL;
     this->TargetTime = 10.0;
     this->RenderTimings = rt;
+    this->ChartResults = true;
     }
 
 virtual ~vtkRTTestSequence() {}
@@ -121,6 +125,7 @@ protected:
   std::vector<vtkRTTestResult> TestResults;
   int SequenceCount;
   vtkRenderTimings *RenderTimings;
+  bool ChartResults;
 };
 
 // a class to run a bunch of timing tests and
@@ -133,6 +138,9 @@ public:
   // get the sequence start and end values
   int GetSequenceStart() { return this->SequenceStart; }
   int GetSequenceEnd() { return this->SequenceEnd; }
+
+  // get the maxmimum time allowed per step
+  double GetSequenceStepTimeLimit() { return this->SequenceStepTimeLimit; }
 
   // parse and act on the command line arguments
   int ParseCommandLineArguments(int argc, char *argv[]);
@@ -156,7 +164,9 @@ private:
   vtksys::CommandLineArguments Arguments;
   bool DisplayHelp;
   bool ListTests;
+  bool NoChartResults;
   int SequenceStart;
   int SequenceEnd;
+  double SequenceStepTimeLimit;
   std::string DetailedResultsFileName;
 };
