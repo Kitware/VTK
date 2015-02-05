@@ -59,6 +59,8 @@ int TestLabeledContourMapper(int argc, char *argv[])
   vtkNew<vtkTextProperty> tprop1;
   tprop1->SetBold(1);
   tprop1->SetFontSize(12);
+  tprop1->SetBackgroundColor(0.5, 0.5, 0.5);
+  tprop1->SetBackgroundOpacity(0.25);
   tprop1->SetColor(1., 1., 1.);
   tprops->AddItem(tprop1.GetPointer());
 

@@ -50,6 +50,17 @@ public:
   vtkGetMacro(Opacity,double);
 
   // Description:
+  // The background color.
+  vtkSetVector3Macro(BackgroundColor, double);
+  vtkGetVector3Macro(BackgroundColor, double);
+
+  // Description:
+  // The background opacity. 1.0 is totally opaque and 0.0 is completely
+  // transparent.
+  vtkSetMacro(BackgroundOpacity, double);
+  vtkGetMacro(BackgroundOpacity, double);
+
+  // Description:
   // Set/Get the font family. Supports legacy three font family system.
   // If the symbolic constant VTK_FONT_FILE is returned by GetFontFamily(), the
   // string returned by GetFontFile() must be an absolute filepath
@@ -157,6 +168,8 @@ protected:
 
   double Color[3];
   double Opacity;
+  double BackgroundColor[3];
+  double BackgroundOpacity;
   char* FontFamilyAsString;
   char* FontFile;
   int   FontSize;

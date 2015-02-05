@@ -165,6 +165,119 @@ bool vtkMathTextFreeTypeTextRenderer::GetBoundingBoxInternal(
 }
 
 //------------------------------------------------------------------------------
+bool vtkMathTextFreeTypeTextRenderer::GetMetricsInternal(
+    vtkTextProperty *tprop, const vtkStdString &str,
+    vtkTextRenderer::Metrics &metrics, int dpi, int backend)
+{
+  if (!tprop)
+    {
+    vtkErrorMacro("No text property supplied!");
+    return false;
+    }
+
+  metrics = Metrics();
+  if (str.empty())
+    {
+    return true;
+    }
+
+  if (static_cast<Backend>(backend) == Default)
+    {
+    backend = this->DefaultBackend;
+    }
+
+  if (static_cast<Backend>(backend) == Detect)
+    {
+    backend = static_cast<int>(this->DetectBackend(str));
+    }
+
+  switch (static_cast<Backend>(backend))
+    {
+    case MathText:
+      if (this->HasMathText)
+        {
+        if (this->MathTextUtilities->GetMetrics(tprop, str.c_str(), dpi,
+                                                metrics))
+          {
+          return true;
+          }
+        }
+      vtkDebugMacro("MathText unavailable. Falling back to FreeType.");
+    case FreeType:
+      {
+      vtkStdString cleanString(str);
+      this->CleanUpFreeTypeEscapes(cleanString);
+      // Interpret string as UTF-8, use the UTF-16 GetBoundingBox overload:
+      return this->FreeTypeTools->GetMetrics(
+            tprop, vtkUnicodeString::from_utf8(cleanString), metrics);
+      }
+    default:
+      vtkDebugMacro("Unrecognized backend requested: " << backend);
+      break;
+    case Detect:
+      vtkDebugMacro("Unhandled 'Detect' backend requested!");
+      break;
+    }
+  return false;
+}
+
+//------------------------------------------------------------------------------
+bool vtkMathTextFreeTypeTextRenderer::GetMetricsInternal(
+    vtkTextProperty *tprop, const vtkUnicodeString &str,
+    vtkTextRenderer::Metrics &metrics, int dpi, int backend)
+{
+  if (!tprop)
+    {
+    vtkErrorMacro("No text property supplied!");
+    return false;
+    }
+
+  metrics = Metrics();
+  if (str.empty())
+    {
+    return true;
+    }
+
+  if (static_cast<Backend>(backend) == Default)
+    {
+    backend = this->DefaultBackend;
+    }
+
+  if (static_cast<Backend>(backend) == Detect)
+    {
+    backend = static_cast<int>(this->DetectBackend(str));
+    }
+
+  switch (static_cast<Backend>(backend))
+    {
+    case MathText:
+      if (this->HasMathText)
+        {
+        vtkDebugMacro("Converting UTF16 to UTF8 for MathText rendering.");
+        if (this->MathTextUtilities->GetMetrics(tprop, str.utf8_str(), dpi,
+                                                metrics))
+          {
+          return true;
+          }
+        }
+      vtkDebugMacro("MathText unavailable. Falling back to FreeType.");
+    case FreeType:
+      {
+      vtkUnicodeString cleanString(str);
+      this->CleanUpFreeTypeEscapes(cleanString);
+      return this->FreeTypeTools->GetMetrics(tprop, cleanString, metrics);
+      }
+    default:
+      vtkDebugMacro("Unrecognized backend requested: " << backend);
+      break;
+    case Detect:
+      vtkDebugMacro("Unhandled 'Detect' backend requested!");
+      break;
+    }
+  return false;
+}
+
+//------------------------------------------------------------------------------
 bool vtkMathTextFreeTypeTextRenderer::RenderStringInternal(
     vtkTextProperty *tprop, const vtkStdString &str, vtkImageData *data,
     int textDims[2], int dpi, int backend)

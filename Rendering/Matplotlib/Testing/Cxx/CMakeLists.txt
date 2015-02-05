@@ -21,14 +21,14 @@ if(MATPLOTLIB_FOUND)
     )
 
   if(VTK_GHOSTSCRIPT_EXECUTABLE)
-    vtk_add_test_cxx(${vtk-module}CxxTests gl2ps_tests
+    vtk_add_test_cxx(${vtk-module}CxxTests GL2PSTests
       TestGL2PSMathTextActor.cxx
       TestGL2PSMathTextActor3D.cxx
       TestGL2PSMathTextOutput.cxx
       TestGL2PSMathTextScaling.cxx
     )
     list(APPEND tests
-      ${gl2ps_tests})
+      ${GL2PSTests})
   endif()
 
   vtk_test_cxx_executable(${vtk-module}CxxTests tests
@@ -42,7 +42,7 @@ endif()
 # baseline.
 if(GL2PSTests)
 
-  foreach(test ${GL2PSTests} ${MixedTests})
+  foreach(test ${GL2PSTests})
     # Convert ps to png
     get_filename_component(TName ${test} NAME_WE)
     add_test(NAME ${vtk-module}Cxx-${TName}-RasterizePNG
