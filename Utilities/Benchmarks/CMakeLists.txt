@@ -7,7 +7,10 @@ set(extra_deps)
 set(compile_defs)
 
 # Add our test executables.
-add_executable(TimingTests MACOSX_BUNDLE TimingTests.cxx vtkRenderTimings.cxx)
+add_executable(TimingTests MACOSX_BUNDLE
+  TimingTests.cxx
+  vtkRenderTimings.cxx
+  )
 target_link_libraries(TimingTests ${${vtk-module}_LIBRARIES})
 set_property(TARGET TimingTests APPEND PROPERTY
   COMPILE_DEFINITIONS "${${vtk-module}_DEFINITIONS}")
@@ -36,7 +39,9 @@ if (extra_deps)
   target_link_libraries(TimingTests ${extra_deps})
 endif()
 
-add_executable(GLBenchmarking MACOSX_BUNDLE GLBenchmarking.cxx)
+add_executable(GLBenchmarking MACOSX_BUNDLE
+  GLBenchmarking.cxx
+  )
 target_link_libraries(GLBenchmarking ${${vtk-module}_LIBRARIES})
 set_property(TARGET GLBenchmarking APPEND PROPERTY
   COMPILE_DEFINITIONS "${${vtk-module}_DEFINITIONS}")
