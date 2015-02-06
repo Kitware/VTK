@@ -310,6 +310,9 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
   // then the scalars do not have to be regenerted.
   this->MapScalars(1.0);
 
+  bool hasScaleArray = this->Owner->GetScaleArray() != NULL &&
+                       poly->GetPointData()->HasArray(this->Owner->GetScaleArray());
+
   // Iterate through all of the different types in the polydata, building OpenGLs
   // and IBOs as appropriate for each type.
   this->Layout =
@@ -317,7 +320,7 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
               poly->GetPoints()->GetNumberOfPoints(),
               this->Colors ? (unsigned char *)this->Colors->GetVoidPointer(0) : NULL,
               this->Colors ? this->Colors->GetNumberOfComponents() : 0,
-              this->Owner->GetScaleArray() ? static_cast<float *>(poly->GetPointData()->GetArray(
+              hasScaleArray ? static_cast<float *>(poly->GetPointData()->GetArray(
                 this->Owner->GetScaleArray())->GetVoidPointer(0)) : NULL,
               this->Owner->GetDefaultRadius(),
               this->VBO);
