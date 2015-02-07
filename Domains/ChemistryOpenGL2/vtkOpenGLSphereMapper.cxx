@@ -85,14 +85,21 @@ void vtkOpenGLSphereMapper::ReplaceShaderValues(std::string &VSSource,
   substitute(FSSource,"//VTK::Normal::Impl",
     // compute the eye position and unit direction
     "vec4 vertexVC = vertexVCClose;\n"
-    "  vec3 EyePos = vec3(0.0,0.0,0.0);\n"
-    "  if (cameraParallel != 0) { EyePos = vertexVC.xyz;}\n"
-    "  vec3 EyeDir = vertexVC.xyz - EyePos;\n"
+    "  vec3 EyePos;\n"
+    "  vec3 EyeDir;\n"
+    "  if (cameraParallel != 0) {\n"
+    "    EyePos = vec3(vertexVC.x, vertexVC.y, vertexVC.z + 3.0*radiusVC);\n"
+    "    EyeDir = vec3(0.0,0.0,-1.0); }\n"
+    "  else {\n"
+    "    EyeDir = vertexVC.xyz;\n"
+    "    EyePos = vec3(0.0,0.0,0.0);\n"
+    "    float lengthED = length(EyeDir);\n"
+    "    EyeDir = normalize(EyeDir);\n"
     // we adjust the EyePos to be closer if it is too far away
     // to prevent floating point precision noise
-    "  float lengthED = length(EyeDir);\n"
-    "  EyeDir = normalize(EyeDir);\n"
-    "  if (lengthED > radiusVC*3.0) { EyePos = vertexVC.xyz - EyeDir*3.0*radiusVC;}\n"
+    "    if (lengthED > radiusVC*3.0) {\n"
+    "      EyePos = vertexVC.xyz - EyeDir*3.0*radiusVC; }\n"
+    "    }\n"
 
     // translate to Sphere center
     "  EyePos = EyePos - centerVC;\n"
