@@ -280,10 +280,15 @@ public:
   std::ostringstream ExtensionsStringStream;
 
   vtkOpenGLVolumeRGBTables* RGBTables;
+  std::map<int, std::string> RGBTablesMap;
+
   vtkOpenGLVolumeOpacityTables* OpacityTables;
+  std::map<int, std::string> OpacityTablesMap;
+
   vtkOpenGLVolumeRGBTable* Mask1RGBTable;
   vtkOpenGLVolumeRGBTable* Mask2RGBTable;
   vtkOpenGLVolumeGradientOpacityTables* GradientOpacityTables;
+  std::map<int, std::string> GradientOpacityTablesMap;
 
   vtkTimeStamp ShaderBuildTime;
 
@@ -439,6 +444,33 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::Initialize(
       this->GradientOpacityTables =
         new vtkOpenGLVolumeGradientOpacityTables(1);
       }
+    }
+
+  this->OpacityTablesMap.clear();
+  this->RGBTablesMap.clear();
+  this->GradientOpacityTablesMap.clear();
+
+  std::ostringstream numeric;
+  for (int i = 0; i < noOfComponents; ++i)
+    {
+    numeric << i;
+    if (i > 0)
+      {
+      this->OpacityTablesMap[i] = std::string("in_opacityTransferFunc") +
+                                  numeric.str();
+      this->RGBTablesMap[i] = std::string("in_colorTransferFunc") +
+                              numeric.str();
+      this->GradientOpacityTablesMap[i] = std::string("in_gradientTransferFunc") +
+                                          numeric.str();
+      }
+    else
+      {
+      this->OpacityTablesMap[i] = std::string("in_opacityTransferFunc");
+      this->RGBTablesMap[i] = std::string("in_colorTransferFunc");
+      this->GradientOpacityTablesMap[i] = std::string("in_gradientTransferFunc");
+      }
+    numeric.str("");
+    numeric.clear();
     }
 
   this->InitializationTime.Modified();
@@ -1991,21 +2023,24 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
     fragmentShader,
     "//VTK::ComputeOpacity::Dec",
     vtkvolume::OpacityTransferFunc(ren, this, vol, noOfComponents,
-                                  independentComponents),
+                                  independentComponents,
+                                   this->Impl->OpacityTablesMap),
     true);
 
   fragmentShader = vtkvolume::replace(
     fragmentShader,
     "//VTK::ComputeGradient::Dec",
     vtkvolume::GradientsComputeFunc(ren, this, vol, noOfComponents,
-                                    independentComponents),
+                                    independentComponents,
+                                    this->Impl->GradientOpacityTablesMap),
     true);
 
   fragmentShader = vtkvolume::replace(
     fragmentShader,
     "//VTK::ColorTransferFunc::Dec",
     vtkvolume::ColorTransferFunc(ren, this, vol, noOfComponents,
-                                 independentComponents),
+                                 independentComponents,
+                                 this->Impl->RGBTablesMap),
     true);
 
   fragmentShader = vtkvolume::replace(
@@ -2425,46 +2460,29 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     this->Impl->VolumeTextureObject->GetTextureUnit());
 
   // Opacity, color, and gradient opacity samplers / textures
-  int opacitySamplers[4];
-  int colorSamplers[4];
-  int gradientOpacitySamplers[4];
   int numberOfSamplers = (independentComponents ? noOfComponents : 1);
+
   for (int i = 0; i < numberOfSamplers; ++i)
     {
     this->Impl->OpacityTables->GetTable(i)->Bind();
-    opacitySamplers[i] =
-      this->Impl->OpacityTables->GetTable(i)->GetTextureUnit();
+    this->Impl->ShaderProgram->SetUniformi(
+      this->Impl->OpacityTablesMap[i].c_str(),
+      this->Impl->OpacityTables->GetTable(i)->GetTextureUnit());
 
     if (this->BlendMode != vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
       {
       this->Impl->RGBTables->GetTable(i)->Bind();
-      colorSamplers[i] =
-        this->Impl->RGBTables->GetTable(i)->GetTextureUnit();
+      this->Impl->ShaderProgram->SetUniformi(
+        this->Impl->RGBTablesMap[i].c_str(),
+        this->Impl->RGBTables->GetTable(i)->GetTextureUnit());
       }
 
     if (this->Impl->GradientOpacityTables)
       {
-      gradientOpacitySamplers[i] =
-        this->Impl->GradientOpacityTables->GetTable(i)->GetTextureUnit();
+      this->Impl->ShaderProgram->SetUniformi(
+        this->Impl->GradientOpacityTablesMap[i].c_str(),
+        this->Impl->GradientOpacityTables->GetTable(i)->GetTextureUnit());
       }
-    }
-
-  this->Impl->ShaderProgram->SetUniform1iv("in_opacityTransferFunc",
-    numberOfSamplers, opacitySamplers);
-  vtkOpenGLCheckErrorMacro("failed at glBindTexture");
-
-  if (this->BlendMode != vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
-    {
-    this->Impl->ShaderProgram->SetUniform1iv("in_colorTransferFunc",
-      numberOfSamplers, colorSamplers);
-    vtkOpenGLCheckErrorMacro("failed at glBindTexture");
-    }
-
-  if (this->Impl->GradientOpacityTables)
-    {
-    this->Impl->ShaderProgram->SetUniform1iv("in_gradientTransferFunc",
-      numberOfSamplers, gradientOpacitySamplers);
-    vtkOpenGLCheckErrorMacro("failed at glBindTexture");
     }
 
   this->Impl->NoiseTextureObject->Activate();
