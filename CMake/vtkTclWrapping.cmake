@@ -45,7 +45,7 @@ function(vtk_add_tcl_wrapping module_name module_srcs module_hdrs)
   # Figure out the dependent Tcl libraries for the module
   foreach(dep ${${vtk-module}_LINK_DEPENDS})
     if(NOT "${vtk-module}" STREQUAL "${dep}")
-      if(NOT ${dep}_EXCLUDE_FROM_WRAPPING)
+      if(NOT ${dep}_EXCLUDE_FROM_WRAPPING AND NOT "${${dep}_TCL_NAME}" STREQUAL "")
         list(APPEND extra_links ${${dep}_TCL_NAME}TCL)
       endif()
     endif()
