@@ -24,7 +24,7 @@
 #include <vtkVolumeMapper.h>
 #include <vtkVolumeProperty.h>
 
-#include <sstream>
+#include <map>
 #include <string>
 
 namespace vtkvolume

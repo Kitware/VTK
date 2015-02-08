@@ -69,6 +69,7 @@
 // C/C++ includes
 #include <cassert>
 #include <limits>
+#include <map>
 #include <sstream>
 #include <string>
 
