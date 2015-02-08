@@ -1964,22 +1964,31 @@ bool vtkFreeTypeTools::RenderCharacter(CharType character, int &x, int &y,
         FT_Vector ftvec = outline->points[point];
         char fttag = outline->tags[point];
         controlType tag = FIRST_POINT;
-        if (fttag & FT_CURVE_TAG_ON)
+
+        // Mask the tag and convert to our known-good control types:
+        // (0x3 mask is because these values often have trailing garbage --
+        // see note above controlType enum).
+        switch (fttag & 0x3)
           {
-          tag = ON_POINT;
-          }
-        else if (fttag & FT_CURVE_TAG_CUBIC)
-          {
-          tag = CUBIC_POINT;
-          }
-        else if (fttag & FT_CURVE_TAG_CONIC)
-          {
-          tag = CONIC_POINT;
+          case (FT_CURVE_TAG_ON & 0x3): // 0b01
+            tag = ON_POINT;
+            break;
+          case (FT_CURVE_TAG_CUBIC & 0x3): // 0b11
+            tag = CUBIC_POINT;
+            break;
+          case (FT_CURVE_TAG_CONIC & 0x3): // 0b00
+            tag = CONIC_POINT;
+            break;
+          default:
+            vtkWarningMacro("Invalid control code returned from FreeType: "
+                            << static_cast<int>(fttag) << " (masked: "
+                            << static_cast<int>(fttag & 0x3));
+            return false;
           }
 
         double vec[2];
-        vec[0] = ftvec.x / 64.0 + x;
-        vec[1] = ftvec.y / 64.0 + y;
+        vec[0] = ftvec.x / 64.0 + pen_x;
+        vec[1] = ftvec.y / 64.0 + pen_y;
 
         // Handle the first point here, unless it is a CONIC point, in which
         // case the switches below handle it.
