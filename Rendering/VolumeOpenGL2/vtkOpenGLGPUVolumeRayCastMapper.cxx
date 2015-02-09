@@ -127,7 +127,7 @@ public:
     {
     if (this->NoiseTextureData)
       {
-      delete this->NoiseTextureData;
+      delete [] this->NoiseTextureData;
       this->NoiseTextureData = 0;
       }
 
@@ -141,6 +141,12 @@ public:
       {
       this->DepthTextureObject->Delete();
       this->DepthTextureObject = 0;
+      }
+
+    if (this->MaskTextures)
+      {
+      delete this->MaskTextures;
+      this->MaskTextures = 0;
       }
 
     this->DeleteTransferFunctions();
