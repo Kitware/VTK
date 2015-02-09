@@ -336,7 +336,7 @@ vtkUnsignedCharArray *vtkMapper::MapScalars(vtkDataSet *input,
           (vtkUnsignedCharArray::SafeDownCast(scalars)) == 0) &&
          this->ColorMode != VTK_COLOR_MODE_DIRECT_SCALARS)
       { // Texture color option.
-      this->MapScalarsToTexture(input, dataArray, alpha);
+      this->MapScalarsToTexture(dataArray, alpha);
       return 0;
       }
     }
@@ -671,12 +671,6 @@ void CreateColorTextureCoordinates(T* input, float* output,
 // this->ColorTexture are set.
 void vtkMapper::MapScalarsToTexture(vtkDataArray* scalars, double alpha)
 {
-  this->MapScalarsToTexture(this->GetInput(), scalars, alpha);
-}
-
-void vtkMapper::MapScalarsToTexture(vtkDataSet *input,
-  vtkDataArray* scalars, double alpha)
-{
   double range[2];
   range[0] = this->LookupTable->GetRange()[0];
   range[1] = this->LookupTable->GetRange()[1];
@@ -748,7 +742,8 @@ void vtkMapper::MapScalarsToTexture(vtkDataSet *input,
   // Need to compare lookup table incase the range has changed.
   if (this->ColorCoordinates == 0 ||
       this->GetMTime() > this->ColorCoordinates->GetMTime() ||
-      input->GetMTime() > this->ColorCoordinates->GetMTime() ||
+      this->GetExecutive()->GetInputData(0, 0)->GetMTime() >
+      this->ColorCoordinates->GetMTime() ||
       this->LookupTable->GetMTime() > this->ColorCoordinates->GetMTime())
     {
     // Get rid of old colors
