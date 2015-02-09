@@ -45,8 +45,6 @@
 #include <string>
 #include <vector>
 
-namespace {
-
 //------------------------------------------------------------------------------
 struct LabelMetric
 {
@@ -81,6 +79,8 @@ struct LabelInfo
   // Factor to scale the text actor by:
   double Scale;
 };
+
+namespace {
 
 //------------------------------------------------------------------------------
 double calculateSmoothness(double pathLength, double distance)
