@@ -24,6 +24,7 @@
 #include <vtkVolumeMapper.h>
 #include <vtkVolumeProperty.h>
 
+#include <map>
 #include <string>
 
 namespace vtkvolume
@@ -258,7 +259,8 @@ namespace vtkvolume
                                    vtkVolumeMapper* vtkNotUsed(mapper),
                                    vtkVolume* vol,
                                    int noOfComponents,
-                                   int independentComponents)
+                                   int independentComponents,
+                                   std::map<int, std::string> gradientTableMap)
   {
     std::string shaderStr;
     if (noOfComponents == 1 && vol->GetProperty()->HasGradientOpacity())
@@ -274,11 +276,32 @@ namespace vtkvolume
     else if (noOfComponents > 1 && independentComponents &&
              vol->GetProperty()->HasGradientOpacity())
       {
+      std::string shaderStr;
+      for (int i = 0; i < noOfComponents; ++i)
+        {
+        shaderStr += std::string("\n uniform sampler1D ") +
+                     gradientTableMap[i] + std::string(";");
+        }
+
       shaderStr += std::string("\
-        \nuniform sampler1D in_gradientTransferFunc[4];\
         \nfloat computeGradientOpacity(vec4 grad, int component)\
         \n  {\
-        \n  return texture1D(in_gradientTransferFunc[component], grad.w).w;\
+        \n  if (component == 0)\
+        \n    {\
+        \n    return texture1D(in_gradientTransferFunc, grad.w).w;\
+        \n    }\
+        \n  if (component == 1)\
+        \n    {\
+        \n    return texture1D(in_gradientTransferFunc1, grad.w).w;\
+        \n    }\
+        \n  if (component == 2)\
+        \n    {\
+        \n    return texture1D(in_gradientTransferFunc2, grad.w).w;\
+        \n    }\
+        \n  if (component == 3)\
+        \n    {\
+        \n    return texture1D(in_gradientTransferFunc3, grad.w).w;\
+        \n    }\
         \n  }"
       );
       }
@@ -634,7 +657,7 @@ namespace vtkvolume
   std::string RayDirectionFunc(vtkRenderer* ren,
                                vtkVolumeMapper* vtkNotUsed(mapper),
                                vtkVolume* vtkNotUsed(vol),
-                               int vtkNotUsed(numberOfComponents))
+                               int vtkNotUsed(noOfComponents))
     {
     if (!ren->GetActiveCamera()->GetParallelProjection())
       {
@@ -660,10 +683,11 @@ namespace vtkvolume
   std::string ColorTransferFunc(vtkRenderer* vtkNotUsed(ren),
                                 vtkVolumeMapper* vtkNotUsed(mapper),
                                 vtkVolume* vtkNotUsed(vol),
-                                int numberOfComponents,
-                                int independentComponents = 0)
+                                int noOfComponents,
+                                int independentComponents,
+                                std::map<int, std::string> colorTableMap)
     {
-      if (numberOfComponents == 1)
+      if (noOfComponents == 1)
         {
         return std::string("\
           \nuniform sampler1D in_colorTransferFunc;\
@@ -674,17 +698,49 @@ namespace vtkvolume
           \n                              computeOpacity(scalar)));\
           \n  }");
         }
-      else if (numberOfComponents > 1 && independentComponents)
+      else if (noOfComponents > 1 && independentComponents)
         {
-        return std::string("\
-          \nuniform sampler1D in_colorTransferFunc[4];\
+        std::string shaderStr;
+        for (int i = 0; i < noOfComponents; ++i)
+          {
+          shaderStr += std::string("\n uniform sampler1D ") +
+                       colorTableMap[i] + std::string(";");
+          }
+
+        shaderStr += std::string("\
           \nvec4 computeColor(vec4 scalar, int component)\
           \n  {\
-          \n  return computeLighting(vec4(texture1D(\
-          \n    in_colorTransferFunc[component],\
-          \n    scalar[component]).xyz,\
-          \n    computeOpacity(scalar, component)));\
+          \n  if (component == 0)\
+          \n    {\
+          \n    return computeLighting(vec4(texture1D(\
+          \n      in_colorTransferFunc,\
+          \n      scalar[component]).xyz,\
+          \n      computeOpacity(scalar, component)));\
+          \n    }\
+          \n  if (component == 1)\
+          \n    {\
+          \n    return computeLighting(vec4(texture1D(\
+          \n      in_colorTransferFunc1,\
+          \n      scalar[component]).xyz,\
+          \n      computeOpacity(scalar, component)));\
+          \n    }\
+          \n  if (component == 2)\
+          \n    {\
+          \n      return computeLighting(vec4(texture1D(\
+          \n        in_colorTransferFunc2,\
+          \n        scalar[component]).xyz,\
+          \n        computeOpacity(scalar, component)));\
+          \n    }\
+          \n  if (component == 3)\
+          \n    {\
+          \n      return computeLighting(vec4(texture1D(\
+          \n        in_colorTransferFunc3,\
+          \n        scalar[component]).xyz,\
+          \n        computeOpacity(scalar, component)));\
+          \n    }\
           \n  }");
+
+          return shaderStr;
         }
 
       return std::string("\
@@ -698,18 +754,45 @@ namespace vtkvolume
   std::string OpacityTransferFunc(vtkRenderer* vtkNotUsed(ren),
                                   vtkVolumeMapper* vtkNotUsed(mapper),
                                   vtkVolume* vtkNotUsed(vol),
-                                  int numberOfComponents,
-                                  int independentComponents = 0)
+                                  int noOfComponents,
+                                  int independentComponents,
+                                  std::map<int, std::string> opacityTableMap)
     {
-    if (numberOfComponents > 1 && independentComponents)
+    if (noOfComponents > 1 && independentComponents)
       {
-      return std::string("\
-        \nuniform sampler1D in_opacityTransferFunc[4];\
+      std::string shaderStr;
+      for (int i = 0; i < noOfComponents; ++i)
+        {
+        shaderStr += std::string("\n uniform sampler1D ") +
+                     opacityTableMap[i] + std::string(";");
+        }
+
+      shaderStr += std::string("\
         \nfloat computeOpacity(vec4 scalar, int component)\
         \n  {\
-        \n  return texture1D(in_opacityTransferFunc[component],\
-        \n                   scalar[component]).w;\
+        \n  if (component == 0)\
+        \n    {\
+        \n    return texture1D(in_opacityTransferFunc,\
+        \n                     scalar[component]).w;\
+        \n    }\
+        \n  if (component == 1)\
+        \n    {\
+        \n    return texture1D(in_opacityTransferFunc1,\
+        \n                     scalar[component]).w;\
+        \n    }\
+        \n  if (component == 2)\
+        \n    {\
+        \n      return texture1D(in_opacityTransferFunc2,\
+        \n                       scalar[component]).w;\
+        \n    }\
+        \n  if (component == 3)\
+        \n    {\
+        \n      return texture1D(in_opacityTransferFunc3,\
+        \n                       scalar[component]).w;\
+        \n    }\
         \n  }");
+
+        return shaderStr;
       }
     else
       {
@@ -867,6 +950,7 @@ namespace vtkvolume
         shaderStr += std::string("\
         \n       vec4 color[4]; vec4 tmp = vec4(0.0);\
         \n       float totalAlpha = 0.0;\
+        \n       vec4 scalar = texture3D(in_volume, g_dataPos);\
         \n       for (int i = 0; i < in_noOfComponents; ++i)\
         \n         {\
         ");
@@ -875,7 +959,6 @@ namespace vtkvolume
           {
           shaderStr += std::string("\
           \n          // Data fetching from the red channel of volume texture\
-          \n          vec4 scalar = texture3D(in_volume, g_dataPos);\
           \n          color[i] = vec4(computeColor(scalar, i));\
           \n          totalAlpha += color[i][3] * in_componentWeight[i];\
           \n          }\
