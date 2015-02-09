@@ -27,12 +27,12 @@ class vtkInformationStringKey;
 class VTKIOGDAL_EXPORT vtkGDAL : public vtkObject
 {
  public:
-
   // Key used to put GDAL map projection string in the output information
   // by readers.
   static vtkInformationStringKey* MAP_PROJECTION();
 
  protected:
+  vtkGDAL();  // Not implemented
 
  private:
   vtkGDAL(const vtkGDAL&); // Not implemented.
@@ -40,3 +40,4 @@ class VTKIOGDAL_EXPORT vtkGDAL : public vtkObject
 };
 
 #endif // __vtkGDAL_h
+// VTK-HeaderTest-Exclude: vtkGDAL.h

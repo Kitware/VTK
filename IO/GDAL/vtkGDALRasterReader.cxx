@@ -463,14 +463,14 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::Convert(
 
   double targetIndex;
   double sourceIndex;
-  double min = rawUniformGridData[0], max = rawUniformGridData[1];
+  double min = rawUniformGridData[0], max = rawUniformGridData[0];
 
   vtkSmartPointer<VTK_TYPE> scArr(vtkSmartPointer<VTK_TYPE>::New());
   scArr->SetName("Elevation");
   scArr->SetNumberOfComponents(this->NumberOfBands);
   scArr->SetNumberOfTuples(targetWidth * targetHeight);
 
-  for (int j = 0, k = (targetHeight - 1); j < targetHeight; ++j, --k)
+  for (int j = 0; j < targetHeight; ++j)
     {
     for (int i = 0; i < targetWidth; ++i)
       {
@@ -479,7 +479,7 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::Convert(
         {
         targetIndex = i * NumberOfBands +
                       j * targetWidth * NumberOfBands + bandIndex;
-        sourceIndex = i + k * targetWidth +
+        sourceIndex = i + j * targetWidth +
                       bandIndex * targetWidth * targetHeight;
         RAW_TYPE tmp = rawUniformGridData[sourceIndex];
         if(tmp < min) min = tmp;
