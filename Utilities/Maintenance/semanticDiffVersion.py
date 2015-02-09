@@ -191,7 +191,7 @@ class CompareVersions():
             sys.exit(1)
 
         # Reset the working tree to version specified
-        git_reset_cmd = git_cmd + ' reset -q --hard ' + ver
+        git_reset_cmd = git_cmd + ' checkout ' + ver
         git_proc = subprocess.Popen(git_reset_cmd.split(), stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE)
         git_proc.wait()
