@@ -205,7 +205,8 @@ class CompareVersions():
         ctags_proc = subprocess.Popen([self.svar.ctags_exe, '-R', '--sort=yes',
             '--c++-kinds=cf', '--fields=aiknsz', '--language-force=C++',
             '--exclude=*.in', '--exclude=*.java', '--exclude=*.py',
-            '--exclude=*.js', '--exclude=*.bmp', '-f', fname, src_dir],
+            '--exclude=*.css', '--exclude=*.js', '--exclude=*.bmp',
+            '-f', fname, src_dir],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         ctags_proc.wait()
         ctags_proc_stderr = ctags_proc.stderr.read()
