@@ -435,7 +435,12 @@ set(VTK_CONFIG_TARGETS_FILE "\${VTK_INSTALL_PREFIX}/${VTK_INSTALL_PACKAGE_DIR}/V
 set(VTK_CONFIG_MODULE_API_FILE "\${VTK_INSTALL_PREFIX}/${VTK_INSTALL_PACKAGE_DIR}/vtkModuleAPI.cmake")
 configure_file(CMake/VTKConfig.cmake.in CMakeFiles/VTKConfig.cmake @ONLY)
 
-configure_file(CMake/VTKConfigVersion.cmake.in VTKConfigVersion.cmake @ONLY)
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+  ${VTK_BINARY_DIR}/VTKConfigVersion.cmake
+  VERSION ${_VTK_VERSION_MAJOR}.${_VTK_VERSION_MINOR}.${_VTK_VERSION_PATCH}
+  COMPATIBILITY SameMajorVersion
+  )
 
 if (NOT VTK_INSTALL_NO_DEVELOPMENT)
   install(FILES ${VTK_BINARY_DIR}/CMakeFiles/VTKConfig.cmake
