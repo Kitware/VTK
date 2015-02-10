@@ -15,12 +15,12 @@
 #include "vtkFreeTypeLabelRenderStrategy.h"
 
 #include "vtkActor2D.h"
-#include "vtkFreeTypeUtilities.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
+#include "vtkTextRenderer.h"
 #include "vtkTimerLog.h"
 
 vtkStandardNewMacro(vtkFreeTypeLabelRenderStrategy);
@@ -28,7 +28,7 @@ vtkStandardNewMacro(vtkFreeTypeLabelRenderStrategy);
 //----------------------------------------------------------------------------
 vtkFreeTypeLabelRenderStrategy::vtkFreeTypeLabelRenderStrategy()
 {
-  this->FreeTypeUtilities = vtkFreeTypeUtilities::New();
+  this->TextRenderer = vtkTextRenderer::GetInstance();
   this->Mapper = vtkTextMapper::New();
   this->Actor = vtkActor2D::New();
   this->Actor->SetMapper(this->Mapper);
@@ -37,7 +37,6 @@ vtkFreeTypeLabelRenderStrategy::vtkFreeTypeLabelRenderStrategy()
 //----------------------------------------------------------------------------
 vtkFreeTypeLabelRenderStrategy::~vtkFreeTypeLabelRenderStrategy()
 {
-  this->FreeTypeUtilities->Delete();
   this->Mapper->Delete();
   this->Actor->Delete();
 }
@@ -80,7 +79,7 @@ void vtkFreeTypeLabelRenderStrategy::ComputeLabelBounds(
     copy->SetOrientation(0.0);
     }
   int bbox[4];
-  this->FreeTypeUtilities->GetBoundingBox(copy, label.utf8_str(), bbox);
+  this->TextRenderer->GetBoundingBox(copy, label.utf8_str(), bbox);
 
   // Take line offset into account
   bds[0] = bbox[0];

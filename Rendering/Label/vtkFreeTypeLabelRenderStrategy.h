@@ -25,7 +25,7 @@
 #include "vtkLabelRenderStrategy.h"
 
 class vtkActor2D;
-class vtkFreeTypeUtilities;
+class vtkTextRenderer;
 class vtkTextMapper;
 
 class VTKRENDERINGLABEL_EXPORT vtkFreeTypeLabelRenderStrategy : public vtkLabelRenderStrategy
@@ -72,7 +72,7 @@ protected:
   vtkFreeTypeLabelRenderStrategy();
   ~vtkFreeTypeLabelRenderStrategy();
 
-  vtkFreeTypeUtilities* FreeTypeUtilities;
+  vtkTextRenderer *TextRenderer;
   vtkTextMapper* Mapper;
   vtkActor2D* Actor;
 
