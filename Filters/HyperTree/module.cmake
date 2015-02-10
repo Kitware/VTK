@@ -10,7 +10,7 @@ vtk_module(vtkFiltersHyperTree
     vtkRenderingAnnotation
     vtkTestingRendering
     vtkInteractionStyle
-    vtkRenderingFreeType${VTK_RENDERING_BACKEND}
+    vtkRendering${VTK_RENDERING_BACKEND}
   KIT
     vtkFilters
   )

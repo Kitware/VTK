@@ -14,7 +14,6 @@ vtk_module(vtkInteractionWidgets
     vtkIOLegacy
     vtkIOXML
     vtkRenderingVolume${VTK_RENDERING_BACKEND}
-    vtkRenderingFreeType${VTK_RENDERING_BACKEND}
     vtkTestingRendering
     vtkInteractionImage
     vtkInteractionStyle

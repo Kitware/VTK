@@ -20,7 +20,6 @@ find_package(VTK COMPONENTS
   vtkGUISupportQt
   vtkGUISupportQtOpenGL
   vtkIOInfovis
-  vtkRenderingFreeTypeOpenGL
   vtkViewsInfovis
 )
 include(${VTK_USE_FILE})
