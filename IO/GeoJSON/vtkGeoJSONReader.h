@@ -23,10 +23,6 @@
 // VTK Includes
 #include "vtkIOGeoJSONModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkGeoJSONProperty.h"
-#include "vtk_jsoncpp.h" // For json parser
-#include <string>
-#include <vector>
 
 class vtkPolyData;
 
@@ -84,26 +80,6 @@ protected:
   // Core implementation of the
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
                   vtkInformationVector* outputVector);
-
-  // Decription:
-  // Parse the Json Value corresponding to the root of the geoJSON data from the file
-  void ParseRoot(const Json::Value& root, vtkPolyData *output);
-
-  // Decription:
-  // Verify if file exists and can be read by the parser
-  // If exists, parse into Jsoncpp data structure
-  int CanParseFile(const char *filename, Json::Value &root);
-
-  // Decription:
-  // Verify if string can be read by the parser
-  // If exists, parse into Jsoncpp data structure
-  int CanParseString(char *input, Json::Value &root);
-
-  // Description:
-  // Extract property values from current json node
-  void ParseFeatureProperties(const Json::Value& propertiesNode,
-    std::vector<vtkGeoJSONProperty>& properties);
-
   char *FileName;
   char *StringInput;
   bool StringInputMode;
@@ -111,8 +87,8 @@ protected:
   bool OutlinePolygons;
 
 private:
-  class GeoJSONReaderInternals;
-  GeoJSONReaderInternals *Internals;
+  class GeoJSONReaderInternal;
+  GeoJSONReaderInternal *Internal;
 
   vtkGeoJSONReader(const vtkGeoJSONReader&);  // Not implemented
   void operator=(const vtkGeoJSONReader&);    // Not implemented
