@@ -27,7 +27,7 @@ vtkStandardNewMacro(vtkPolyLineSource);
 //----------------------------------------------------------------------------
 vtkPolyLineSource::vtkPolyLineSource()
 {
-  this->Points = vtkPoints::New();
+  this->Points = NULL;
   this->Closed = 0;
 
   this->SetNumberOfInputPorts(0);
@@ -42,6 +42,14 @@ vtkPolyLineSource::~vtkPolyLineSource()
 //----------------------------------------------------------------------------
 void vtkPolyLineSource::SetNumberOfPoints(vtkIdType numPoints)
 {
+  if (!this->Points)
+    {
+    vtkPoints* pts = vtkPoints::New(VTK_DOUBLE);
+    this->SetPoints(pts);
+    this->Points = pts;
+    pts->Delete();
+    }
+
   if (numPoints != this->GetNumberOfPoints())
     {
     this->Points->SetNumberOfPoints(numPoints);
@@ -58,6 +66,11 @@ vtkIdType vtkPolyLineSource::GetNumberOfPoints()
 //----------------------------------------------------------------------------
 void vtkPolyLineSource::SetPoint(vtkIdType id, double x, double y, double z)
 {
+  if (!this->Points)
+    {
+    return;
+    }
+
   if (id >= this->Points->GetNumberOfPoints())
     {
     vtkErrorMacro(<< "point id " << id << " is larger than the number of points");
@@ -66,6 +79,24 @@ void vtkPolyLineSource::SetPoint(vtkIdType id, double x, double y, double z)
 
   this->Points->SetPoint(id, x, y, z);
   this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkPolyLineSource::SetPoints(vtkPoints* points)
+{
+  if ( points != this->Points )
+    {
+    if ( this->Points != NULL )
+      {
+      this->Points->Delete();
+      }
+    this->Points = points;
+    if ( this->Points != NULL )
+      {
+      this->Points->Register(this);
+      }
+    this->Modified();
+    }
 }
 
 //----------------------------------------------------------------------------

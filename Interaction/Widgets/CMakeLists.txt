@@ -85,6 +85,8 @@ set(Module_SRCS
   vtkPolyDataContourLineInterpolator.cxx
   vtkPolyDataPointPlacer.cxx
   vtkPolyDataSourceWidget.cxx
+  vtkPolyLineRepresentation.cxx
+  vtkPolyLineWidget.cxx
   vtkPolygonalHandleRepresentation3D.cxx
   vtkPolygonalSurfaceContourLineInterpolator.cxx
   vtkPolygonalSurfacePointPlacer.cxx

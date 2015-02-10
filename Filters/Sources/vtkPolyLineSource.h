@@ -50,6 +50,7 @@ public:
   // Set whether to close the poly line by connecting the last and first points.
   vtkSetMacro(Closed, int);
   vtkGetMacro(Closed, int);
+  vtkBooleanMacro(Closed, int);
 
 protected:
   vtkPolyLineSource();
