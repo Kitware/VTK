@@ -21,6 +21,7 @@
 #define __vtkGeoJSONFeature_h
 
 // VTK Includes
+#include "vtkIOGeoJSONModule.h" // For export macro
 #include "vtkDataObject.h"
 #include "vtkGeoJSONProperty.h"
 #include "vtk_jsoncpp.h" // For json parser
@@ -38,7 +39,7 @@ class vtkPolyData;
 #define GeoJSON_MULTI_POLYGON           "MultiPolygon"
 #define GeoJSON_GEOMETRY_COLLECTION     "GeometryCollection"
 
-class vtkGeoJSONFeature : public vtkDataObject
+class VTKIOGEOJSON_EXPORT vtkGeoJSONFeature : public vtkDataObject
 {
 public:
   static vtkGeoJSONFeature *New();

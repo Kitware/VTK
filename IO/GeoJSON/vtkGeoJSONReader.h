@@ -21,6 +21,7 @@
 #define __vtkGeoJSONReader_h
 
 // VTK Includes
+#include "vtkIOGeoJSONModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkGeoJSONProperty.h"
 #include "vtk_jsoncpp.h" // For json parser
@@ -29,7 +30,7 @@
 
 class vtkPolyData;
 
-class vtkGeoJSONReader: public vtkPolyDataAlgorithm
+class VTKIOGEOJSON_EXPORT vtkGeoJSONReader: public vtkPolyDataAlgorithm
 {
 public:
   static vtkGeoJSONReader* New();

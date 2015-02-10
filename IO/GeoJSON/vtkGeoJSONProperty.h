@@ -18,12 +18,11 @@
 #ifndef __vtkGeoJSONProperty_h
 #define __vtkGeoJSONProperty_h
 
+#include "vtkIOGeoJSONModule.h" // For export macro
 #include "vtkVariant.h"
 #include <string>
 
-#include "vtkdatasetreaders_export.h"
-
-class VTKDATASETREADERS_EXPORT vtkGeoJSONProperty
+class  VTKIOGEOJSON_EXPORT vtkGeoJSONProperty
 {
 public:
   std::string Name;
