@@ -19,6 +19,7 @@ set(Module_SRCS
   vtkPlaneSource.cxx
   vtkPlatonicSolidSource.cxx
   vtkPointSource.cxx
+  vtkPolyLineSource.cxx
   vtkProgrammableDataObjectSource.cxx
   vtkProgrammableSource.cxx
   vtkRectangularButtonSource.cxx
