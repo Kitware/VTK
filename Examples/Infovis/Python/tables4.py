@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 This file provides a more advanced example of vtkTable access and
 manipulation methods.

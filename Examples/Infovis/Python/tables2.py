@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 This file contains Python code illustrating the creation and manipulation of
 vtkTable objects.

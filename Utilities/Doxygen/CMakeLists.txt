@@ -7,11 +7,17 @@ find_package(HTMLHelp)
 
 option(DOXYGEN_SHORT_NAMES "Build Doxygen of VTK using short file names" OFF)
 option(DOXYGEN_KEEP_TEMP "Do not delete the temporary Doxygen headers" OFF)
-mark_as_advanced(DOXYGEN_SHORT_NAMES DOXYGEN_KEEP_TEMP)
+option(DOXYGEN_GENERATE_HTMLHELP "Generate HTML help (CHM) files" ON)
+mark_as_advanced(DOXYGEN_SHORT_NAMES DOXYGEN_KEEP_TEMP DOXYGEN_GENERATE_HTMLHELP)
 if(DOXYGEN_SHORT_NAMES)
   set(DOXYGEN_SHORT_NAMES YES)
 else()
   set(DOXYGEN_SHORT_NAMES NO)
+endif()
+if(DOXYGEN_GENERATE_HTMLHELP)
+  set(DOXYGEN_GENERATE_HTMLHELP YES)
+else()
+  set(DOXYGEN_GENERATE_HTMLHELP NO)
 endif()
 
 #

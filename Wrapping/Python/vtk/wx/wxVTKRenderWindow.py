@@ -19,7 +19,7 @@ Creation:
 
 wxVTKRenderWindow(parent, ID, stereo=0, [wx keywords]):
 
-You should create a wx.PySimpleApp() or some other wx**App
+You should create a wx.App(False) or some other wx.App subclass
 before creating the window.
 
 ----------------------------------------
@@ -190,10 +190,12 @@ class wxVTKRenderWindow(baseClass):
         # initialize the wx.Window
         if baseClass.__name__ == 'GLCanvas':
             # Set the doublebuffer attribute of the GL canvas.
-            baseClass.__init__(self, parent, ID, position, size, style,
+            baseClass.__init__(self, parent, ID, pos=position, size=size,
+                               style=style,
                                attribList=[wx.glcanvas.WX_GL_DOUBLEBUFFER])
         else:
-            baseClass.__init__(self, parent, ID, position, size, style)
+            baseClass.__init__(self, parent, ID, pos=position, size=size,
+                               style=style)
 
         # create the RenderWindow and initialize it
         self._RenderWindow = vtk.vtkRenderWindow()
@@ -735,7 +737,7 @@ def wxVTKRenderWindowConeExample():
     """Like it says, just a simple example.
     """
     # every wx app needs an app
-    app = wx.PySimpleApp()
+    app = wx.App(False)
 
     # create the widget
     frame = wx.Frame(None, -1, "wxVTKRenderWindow", size=(400,400))

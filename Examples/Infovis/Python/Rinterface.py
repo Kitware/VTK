@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 
 # Python example script that uses the vtkRIinterface to create an instance of the
 # R interpreter and pass it some data, modify the data in R, and pass the result

@@ -249,6 +249,12 @@ void vtkWrap_DeclareVariable(
 void vtkWrap_DeclareVariableSize(
   FILE *fp, ValueInfo *v, const char *name, int idx);
 
+/**
+ * Makes a superclass name into a valid identifier. Returns NULL if the given
+ * name is valid as-is.
+ */
+char *vtkWrap_SafeSuperclassName(const char *name);
+
 
 #ifdef __cplusplus
 }

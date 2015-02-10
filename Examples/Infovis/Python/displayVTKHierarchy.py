@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import vtk
 import inspect
 import csv

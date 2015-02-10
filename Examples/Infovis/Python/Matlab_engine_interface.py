@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 
 # Python example script that uses the vtkMatlabEngineInterface to perform
 # a calculation (sin(x)^2 + cos(x)^2 = 1) on VTK array data, and pass the
