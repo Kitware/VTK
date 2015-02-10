@@ -817,7 +817,6 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
       posY = p2[1] - this->Padding - (double)i*size[1] - 0.5*size[1];
       this->TextActor[i]->SetPosition(posX,posY);
       this->TextMapper[i]->GetTextProperty()->SetFontSize(fontSize);
-      this->TextActor[i]->GetProperty()->DeepCopy(this->GetProperty());
       this->Colors->GetTuple(i, color);
       if ( color[0] >= 0.0 && color[1] >= 0.0 && color[2] >= 0.0 )
         {

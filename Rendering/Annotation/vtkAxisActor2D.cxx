@@ -358,7 +358,6 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
   // Initialize and get important info
   this->Axis->Initialize();
   this->AxisActor->SetProperty(this->GetProperty());
-  this->TitleActor->SetProperty(this->GetProperty());
 
   // Compute the location of tick marks and labels
 
@@ -536,7 +535,6 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
     // Copy prop and text prop eventually
     for (i = 0; i < this->AdjustedNumberOfLabels; i++)
         {
-        this->LabelActors[i]->SetProperty(this->GetProperty());
         if (this->LabelTextProperty->GetMTime() > this->BuildTime ||
             this->AdjustedRangeBuildTime > this->BuildTime)
           {

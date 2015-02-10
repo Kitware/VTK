@@ -808,7 +808,6 @@ int vtkSpiderPlotActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
 
   this->TitleActor->GetPositionCoordinate()->
     SetValue(this->Center[0],this->Center[1]+this->Radius+tsize[1]);
-  this->TitleActor->SetProperty(this->GetProperty());
 
   //Clean up
   webPts->Delete();
