@@ -32,6 +32,7 @@
 #include <vtkStringArray.h>
 
 #include <sstream>
+#include <string>
 
 vtkStandardNewMacro(vtkGeoJSONFeature);
 
@@ -48,12 +49,14 @@ namespace
 //----------------------------------------------------------------------------
 vtkGeoJSONFeature::vtkGeoJSONFeature()
 {
+  this->FeatureId = NULL;
   this->OutlinePolygons = false;
 }
 
 //----------------------------------------------------------------------------
 vtkGeoJSONFeature::~vtkGeoJSONFeature()
 {
+  free(this->FeatureId);
 }
 
 //----------------------------------------------------------------------------
@@ -124,7 +127,6 @@ ExtractPoint(const Json::Value& coordinates, vtkPolyData *outputData)
 
   vtkCellArray *verts = outputData->GetVerts();
   verts->InsertNextCell(PID_SIZE, &pid);
-  this->InsertFeatureProperties(outputData);
 
   vtkAbstractArray *array =
     outputData->GetCellData()->GetAbstractArray("feature-id");
@@ -167,7 +169,6 @@ ExtractMultiPoint(const Json::Value& coordinates, vtkPolyData *outputData)
     //Update polyData vertices to store multiple points
     verts->InsertNextCell(PID_SIZE, pids);
     ids->InsertNextValue(this->FeatureId);
-    this->InsertFeatureProperties(outputData);
 
     delete[] pids;
     }
@@ -214,7 +215,6 @@ ExtractLineString(const Json::Value& coordinates, vtkPolyData *outputData)
 
     lines->InsertNextCell(line.GetPointer());
     ids->InsertNextValue(this->FeatureId);
-    this->InsertFeatureProperties(outputData);
 
     lineId[0] = lineId[1];
     }
@@ -305,7 +305,6 @@ ExtractPolygon(const Json::Value& coordinate, vtkPolyData *outputData)
 
   polys->InsertNextCell(exteriorPoly);
   ids->InsertNextValue(this->FeatureId);
-  this->InsertFeatureProperties(outputData);
   exteriorPoly->Delete();
 
   if ( ! POLYGON_WITH_HOLES )
@@ -340,20 +339,6 @@ ExtractMultiPolygon(const Json::Value& coordinateArray, vtkPolyData *outputData)
 
 //----------------------------------------------------------------------------
 void vtkGeoJSONFeature::
-SetFeatureProperties(std::vector<vtkGeoJSONProperty>& properties)
-{
-  this->FeatureProperties = properties;
-}
-
-//----------------------------------------------------------------------------
-void vtkGeoJSONFeature::
-GetFeatureProperties(std::vector<vtkGeoJSONProperty>& properties)
-{
-  properties = this->FeatureProperties;
-}
-
-//----------------------------------------------------------------------------
-void vtkGeoJSONFeature::
 ExtractGeoJSONFeature(const Json::Value& root, vtkPolyData *outputData)
 {
   this->featureRoot = root;
@@ -383,7 +368,7 @@ ExtractGeoJSONFeature(const Json::Value& root, vtkPolyData *outputData)
     }
 
   // Check for feature id
-  this->FeatureId = "";
+  std::string featureString;
   Json::Value idNode = root["id"];
   // No Json::Value::toString() method, so homebrew one here
   std::stringstream oss;
@@ -395,16 +380,16 @@ ExtractGeoJSONFeature(const Json::Value& root, vtkPolyData *outputData)
     case Json::intValue:
     case Json::uintValue:
       oss << idNode.asInt();
-      this->FeatureId = oss.str();
+      featureString = oss.str();
       break;
 
     case Json::realValue:
       oss << idNode.asDouble();
-      this->FeatureId = oss.str();
+      featureString = oss.str();
       break;
 
     case Json::stringValue:
-      this->FeatureId = idNode.asString();
+      featureString = idNode.asString();
       break;
 
     default:
@@ -412,6 +397,7 @@ ExtractGeoJSONFeature(const Json::Value& root, vtkPolyData *outputData)
       break;
     }
 
+  this->FeatureId = strdup(featureString.c_str());
   this->ExtractGeoJSONFeatureGeometry(geometryNode, outputData);
 }
 
@@ -641,39 +627,6 @@ bool vtkGeoJSONFeature::IsMultiPolygon(const Json::Value& root)
     }
 
   return true;
-}
-
-//----------------------------------------------------------------------------
-void vtkGeoJSONFeature::InsertFeatureProperties(vtkPolyData *outputData)
-{
-  std::vector<vtkGeoJSONProperty>::iterator iter =
-    this->FeatureProperties.begin();
-  for(; iter != this->FeatureProperties.end(); iter++)
-    {
-    std::string name = iter->Name;
-    vtkVariant value = iter->Value;
-
-    vtkAbstractArray *array =
-      outputData->GetCellData()->GetAbstractArray(name.c_str());
-    switch (array->GetDataType())
-      {
-      case VTK_BIT:
-        vtkBitArray::SafeDownCast(array)->InsertNextValue(value.ToChar());
-        break;
-
-      case VTK_DOUBLE:
-        vtkDoubleArray::SafeDownCast(array)->InsertNextValue(value.ToDouble());
-        break;
-
-      case VTK_INT:
-        vtkIntArray::SafeDownCast(array)->InsertNextValue(value.ToInt());
-        break;
-
-      case VTK_STRING:
-        vtkStringArray::SafeDownCast(array)->InsertNextValue(value.ToString());
-        break;
-      }
-    }
 }
 
 //----------------------------------------------------------------------------

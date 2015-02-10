@@ -12,10 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGeoJSONFeature - Convert GeoJSON objects/Geometries into vtkPolyData
+// .NAME vtkGeoJSONFeature - Represents GeoJSON feature geometry & properties
 // .SECTION Description
-// Outputs a vtkPolyData containing geometry from the input
-// Geo JSON data (http://www.geojson.org)
+// This class is used by the vtkGeoJSONReader when parsing GeoJSON input.
+// It is not intended to be instantiated by applications directly.
 
 #ifndef __vtkGeoJSONFeature_h
 #define __vtkGeoJSONFeature_h
@@ -23,10 +23,7 @@
 // VTK Includes
 #include "vtkIOGeoJSONModule.h" // For export macro
 #include "vtkDataObject.h"
-#include "vtkGeoJSONProperty.h"
 #include "vtk_jsoncpp.h" // For json parser
-#include <string>
-#include <vector>
 
 class vtkPolyData;
 
@@ -59,9 +56,6 @@ public:
   // Assign any feature properties passed as cell data
   void ExtractGeoJSONFeature(const Json::Value& root, vtkPolyData *outputData);
 
-  void SetFeatureProperties(std::vector<vtkGeoJSONProperty>& properties);
-  void GetFeatureProperties(std::vector<vtkGeoJSONProperty>& properties);
-
 protected:
   vtkGeoJSONFeature();
   ~vtkGeoJSONFeature();
@@ -73,16 +67,12 @@ protected:
 
   // Description:
   // Id of current GeoJSON feature being parsed
-  std::string FeatureId;
+  char *FeatureId;
 
   // Description
   // Set/get option to generate the border outlining each polygon,
   // so that the output cells are polyine data.
   bool OutlinePolygons;
-
-  // Description:
-  // Properties of current GeoJSON feature being parsed
-  std::vector<vtkGeoJSONProperty> FeatureProperties;
 
   // Description:
   // Extract geoJSON geometry into vtkPolyData *
