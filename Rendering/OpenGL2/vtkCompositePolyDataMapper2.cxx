@@ -509,6 +509,13 @@ void vtkCompositePolyDataMapper2::AppendOneBufferObject(
   vtkPolyData *poly,
   unsigned int voffset)
 {
+  // Get rid of old texture color coordinates if any
+  if ( this->ColorCoordinates )
+    {
+    this->ColorCoordinates->UnRegister(this);
+    this->ColorCoordinates = 0;
+    }
+
   // For vertex coloring, this sets this->Colors as side effect.
   // For texture map coloring, this sets ColorCoordinates
   // and ColorTextureMap as a side effect.

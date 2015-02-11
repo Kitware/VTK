@@ -742,7 +742,8 @@ void vtkMapper::MapScalarsToTexture(vtkDataArray* scalars, double alpha)
   // Need to compare lookup table incase the range has changed.
   if (this->ColorCoordinates == 0 ||
       this->GetMTime() > this->ColorCoordinates->GetMTime() ||
-      this->GetInput()->GetMTime() > this->ColorCoordinates->GetMTime() ||
+      this->GetExecutive()->GetInputData(0, 0)->GetMTime() >
+      this->ColorCoordinates->GetMTime() ||
       this->LookupTable->GetMTime() > this->ColorCoordinates->GetMTime())
     {
     // Get rid of old colors
