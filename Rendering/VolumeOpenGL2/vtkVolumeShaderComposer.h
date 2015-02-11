@@ -276,7 +276,6 @@ namespace vtkvolume
     else if (noOfComponents > 1 && independentComponents &&
              vol->GetProperty()->HasGradientOpacity())
       {
-      std::string shaderStr;
       for (int i = 0; i < noOfComponents; ++i)
         {
         shaderStr += std::string("\n uniform sampler1D ") +
