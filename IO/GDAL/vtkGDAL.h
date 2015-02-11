@@ -32,9 +32,10 @@ class VTKIOGDAL_EXPORT vtkGDAL : public vtkObject
   static vtkInformationStringKey* MAP_PROJECTION();
 
  protected:
-  vtkGDAL();  // Not implemented
 
  private:
+  vtkGDAL();  // Static class
+  ~vtkGDAL();
   vtkGDAL(const vtkGDAL&); // Not implemented.
   void operator=(const vtkGDAL&); // Not implemented
 };
