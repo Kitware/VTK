@@ -68,6 +68,7 @@ vtkGL2PSExporter::vtkGL2PSExporter()
 {
   this->RasterExclusions = NULL;
   this->FilePrefix = NULL;
+  this->BufferSize = 4194304; // 4MB
   this->Title = NULL;
   this->FileFormat = EPS_FILE;
   this->Sort = SIMPLE_SORT;
@@ -211,12 +212,19 @@ void vtkGL2PSExporter::WriteData()
 
   vtkDebugMacro(<<"Writing file using GL2PS");
 
+  // Check that the buffer size is sane:
+  if (this->BufferSize < 1024)
+    {
+    vtkDebugMacro("Initial buffer size is too small (" << this->BufferSize
+                  << " bytes). Increasing to 1kb.");
+    this->SetBufferSize(1024);
+    }
+
   // Call gl2ps to generate the file.
-  int buffsize = 0;
+  int buffsize = this->BufferSize;
   int state = GL2PS_OVERFLOW;
   while(state == GL2PS_OVERFLOW)
     {
-    buffsize += 2048*2048;
     gl2psBeginPage(this->Title ? this->Title : "VTK GL2PS Export", "VTK",
                    viewport, format, sort, options, GL_RGBA, 0,
                    NULL, 0, 0, 0, buffsize, fpObj, fName);
@@ -259,6 +267,10 @@ void vtkGL2PSExporter::WriteData()
     this->DrawContextActors(contextActorCol.GetPointer(), renCol);
 
     state = gl2psEndPage();
+    if (state == GL2PS_OVERFLOW)
+      {
+      buffsize += this->BufferSize;
+      }
     }
   fclose(fpObj);
 
