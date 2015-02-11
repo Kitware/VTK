@@ -628,10 +628,10 @@ int vtkCornerAnnotation::HasTranslucentPolygonalGeometry()
 //----------------------------------------------------------------------------
 void vtkCornerAnnotation::SetTextActorsPosition(int vsize[2])
 {
-  this->TextActor[0]->SetPosition(5, 5);
-  this->TextActor[1]->SetPosition(vsize[0] - 5, 5);
-  this->TextActor[2]->SetPosition(5, vsize[1] - 5);
-  this->TextActor[3]->SetPosition(vsize[0] - 5, vsize[1] - 5);
+  this->TextActor[LowerLeft]->SetPosition(5, 5);
+  this->TextActor[LowerRight]->SetPosition(vsize[0] - 5, 5);
+  this->TextActor[UpperLeft]->SetPosition(5, vsize[1] - 5);
+  this->TextActor[UpperRight]->SetPosition(vsize[0] - 5, vsize[1] - 5);
 }
 
 //----------------------------------------------------------------------------
