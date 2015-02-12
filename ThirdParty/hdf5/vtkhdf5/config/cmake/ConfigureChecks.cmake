@@ -440,7 +440,7 @@ if (NOT WINDOWS)
   # POSIX feature information can be found in the gcc manual at:
   # http://www.gnu.org/s/libc/manual/html_node/Feature-Test-Macros.html
   set (HDF5_EXTRA_C_FLAGS -D_POSIX_C_SOURCE=199506L)
-  set (HDF5_EXTRA_FLAGS -D_BSD_SOURCE)
+  set (HDF5_EXTRA_FLAGS -D_DEFAULT_SOURCE -D_BSD_SOURCE)
   
   option (HDF5_ENABLE_LARGE_FILE "Enable support for large (64-bit) files on Linux." ON)
   if (HDF5_ENABLE_LARGE_FILE)
