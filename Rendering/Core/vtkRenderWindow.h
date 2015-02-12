@@ -60,6 +60,7 @@ class vtkUnsignedCharArray;
 #define VTK_STEREO_ANAGLYPH     7
 #define VTK_STEREO_CHECKERBOARD 8
 #define VTK_STEREO_SPLITVIEWPORT_HORIZONTAL 9
+#define VTK_STEREO_FAKE 10
 
 #define VTK_CURSOR_DEFAULT   0
 #define VTK_CURSOR_ARROW     1
@@ -251,7 +252,10 @@ public:
   // image where horizontal lines alternate between left and right
   // views.  StereoLeft and StereoRight modes choose one or the other
   // stereo view.  Dresden mode is yet another stereoscopic
-  // interleaving.
+  // interleaving. Fake simply causes the window to render twice without
+  // actually swapping the camera from left eye to right eye. This is useful in
+  // certain applications that want to emulate the rendering passes without
+  // actually rendering in stereo mode.
   vtkGetMacro(StereoType,int);
   vtkSetMacro(StereoType,int);
   void SetStereoTypeToCrystalEyes()
@@ -272,6 +276,8 @@ public:
     {this->SetStereoType(VTK_STEREO_CHECKERBOARD);}
   void SetStereoTypeToSplitViewportHorizontal()
     {this->SetStereoType(VTK_STEREO_SPLITVIEWPORT_HORIZONTAL);}
+  void SetStereoTypeToFake()
+    {this->SetStereoType(VTK_STEREO_FAKE);}
 
   const char *GetStereoTypeAsString();
 
