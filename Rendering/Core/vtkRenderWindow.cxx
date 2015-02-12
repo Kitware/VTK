@@ -789,7 +789,10 @@ void vtkRenderWindow::DoStereoRender()
           {
           aren->ResetCamera();
           }
-        aren->GetActiveCamera()->SetLeftEye(0);
+        if (this->StereoType != VTK_STEREO_FAKE)
+          {
+          aren->GetActiveCamera()->SetLeftEye(0);
+          }
         }
       this->Renderers->Render();
       }
@@ -1529,6 +1532,8 @@ const char *vtkRenderWindow::GetStereoTypeAsString()
       return "Checkerboard";
     case VTK_STEREO_SPLITVIEWPORT_HORIZONTAL:
       return "SplitViewportHorizontal";
+    case VTK_STEREO_FAKE:
+      return "Fake";
     default:
       return "";
   }
