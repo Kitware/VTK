@@ -167,6 +167,12 @@ public:
   // Get the transform for the anchor points.
   vtkGetObjectMacro(AnchorTransform,vtkCoordinate);
 
+  // Description:
+  // Release any graphics resources that are being consumed by this mapper.
+  // The parameter window could be used to determine which graphic
+  // resources to release.
+  virtual void ReleaseGraphicsResources(vtkWindow *);
+
 protected:
   vtkLabelPlacementMapper();
   ~vtkLabelPlacementMapper();
