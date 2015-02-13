@@ -606,7 +606,20 @@ size_t CreateEdgeFlagIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
   return indexArray.size();
 }
 
-// used to create an IBO for stripped primatives such as lines and triangle strips
+// Create supporting arays that are needed when rendering cell data
+// With cell data we have to duplicate any shared vertices
+// and then later map the original cell point indices to the new
+// duplicated vertices. The following code fills in
+//
+//   cellPointMap which maps a point index to the original
+//     point index it came from. For the original points this
+//     is just a 1 to 1 mapping, but for any shared points
+//     there will be new entries that point to the original index
+//
+//   pointCellMap which maps point indices to the cells they belong to
+//
+//   prims new cell arrays that have cells with no shared points.
+//
 void CreateCellSupportArrays(vtkPolyData *poly, vtkCellArray *prims[4],
                              std::vector<unsigned int> &cellPointMap,
                              std::vector<unsigned int> &pointCellMap)
