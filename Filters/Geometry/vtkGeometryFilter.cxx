@@ -585,7 +585,6 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
     return;
     }
   vtkIdType cellId;
-  int i;
   int allVisible;
   vtkIdType npts = 0;
   vtkIdType *pts = 0;
@@ -682,7 +681,7 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
         }
       else
         {
-        for (i=0; i < npts; i++)
+        for (int i=0; i < npts; i++)
           {
           p->GetPoint(pts[i], x);
           if ( (this->PointClipping && (pts[i] < this->PointMinimum ||
@@ -767,7 +766,7 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
 
         case VTK_PIXEL:
           polys->InsertNextCell(npts);
-          for ( i=0; i < npts; i++)
+          for ( int i=0; i < npts; i++)
             {
             polys->InsertCellPoint(pts[pixelConvert[i]]);
             }
@@ -788,7 +787,7 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
                  (!allVisible && !cellVis[cellIds->GetId(0)]) )
               {
               polys->InsertNextCell(numFacePts);
-              for ( i=0; i < numFacePts; i++)
+              for ( int i=0; i < numFacePts; i++)
                 {
                 polys->InsertCellPoint(pts[faceVerts[i]]);
                 }
@@ -812,7 +811,7 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
                  (!allVisible && !cellVis[cellIds->GetId(0)]) )
               {
               polys->InsertNextCell(numFacePts);
-              for ( i=0; i < numFacePts; i++)
+              for ( int i=0; i < numFacePts; i++)
                 {
                 polys->InsertCellPoint(pts[faceVerts[pixelConvert[i]]]);
                 }
@@ -836,7 +835,7 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
                  (!allVisible && !cellVis[cellIds->GetId(0)]) )
               {
               polys->InsertNextCell(numFacePts);
-              for ( i=0; i < numFacePts; i++)
+              for ( int i=0; i < numFacePts; i++)
                 {
                 polys->InsertCellPoint(pts[faceVerts[i]]);
                 }
@@ -864,7 +863,7 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
                  (!allVisible && !cellVis[cellIds->GetId(0)]) )
               {
               polys->InsertNextCell(numFacePts);
-              for ( i=0; i < numFacePts; i++)
+              for ( int i=0; i < numFacePts; i++)
                 {
                 polys->InsertCellPoint(pts[faceVerts[i]]);
                 }
@@ -892,7 +891,7 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
                  (!allVisible && !cellVis[cellIds->GetId(0)]) )
               {
               polys->InsertNextCell(numFacePts);
-              for ( i=0; i < numFacePts; i++)
+              for ( int i=0; i < numFacePts; i++)
                 {
                 polys->InsertCellPoint(pts[faceVerts[i]]);
                 }
@@ -921,7 +920,7 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
                  (!allVisible && !cellVis[cellIds->GetId(0)]) )
               {
               polys->InsertNextCell(numFacePts);
-              for ( i=0; i < numFacePts; i++)
+              for ( int i=0; i < numFacePts; i++)
                 {
                 polys->InsertCellPoint(pts[faceVerts[i]]);
                 }
@@ -951,7 +950,7 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
                  (!allVisible && !cellVis[cellIds->GetId(0)]) )
               {
               polys->InsertNextCell(numFacePts);
-              for ( i=0; i < numFacePts; i++)
+              for ( int i=0; i < numFacePts; i++)
                 {
                 polys->InsertCellPoint(pts[faceVerts[i]]);
                 }
@@ -987,7 +986,7 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
           if ( cell->GetCellDimension() == 1 )
             {
             cell->Triangulate(0,ipts,coords);
-            for (i=0; i < ipts->GetNumberOfIds(); i+=2)
+            for ( int i=0; i < ipts->GetNumberOfIds(); i+=2)
               {
               lines->InsertNextCell(2);
               lines->InsertCellPoint(ipts->GetId(i));
@@ -998,7 +997,7 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
           else if ( cell->GetCellDimension() == 2 )
             {
             cell->Triangulate(0,ipts,coords);
-            for (i=0; i < ipts->GetNumberOfIds(); i+=3)
+            for ( int i=0; i < ipts->GetNumberOfIds(); i+=3)
               {
               polys->InsertNextCell(3);
               polys->InsertCellPoint(ipts->GetId(i));
@@ -1017,7 +1016,7 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
               if ( icellIds->GetNumberOfIds() <= 0)
                 {
                 face->Triangulate(0,ipts,coords);
-                for (i=0; i < ipts->GetNumberOfIds(); i+=3)
+                for ( int i=0; i < ipts->GetNumberOfIds(); i+=3)
                   {
                   polys->InsertNextCell(3);
                   polys->InsertCellPoint(ipts->GetId(i));
@@ -1050,27 +1049,27 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
   strips->Delete();
 
   // Copy the cell data in appropriate order : verts / lines / polys / strips
-  int offset = 0;
+  size_t offset = 0;
   size_t size = vertCellIds.size();
-  for ( int i = 0; i < size; ++i )
+  for ( size_t i = 0; i < size; ++i )
     {
     outputCD->CopyData(cd, vertCellIds[i], i );
     }
   offset += size;
   size = lineCellIds.size();
-  for ( int i = 0; i < size; ++i )
+  for ( size_t i = 0; i < size; ++i )
     {
     outputCD->CopyData(cd, lineCellIds[i], i+offset );
     }
   offset += size;
   size = polyCellIds.size();
-  for ( int i = 0; i < size; ++i )
+  for ( size_t i = 0; i < size; ++i )
     {
     outputCD->CopyData(cd, polyCellIds[i], i+offset );
     }
   offset += size;
   size = stripCellIds.size();
-  for ( int i = 0; i < size; ++i )
+  for ( size_t i = 0; i < size; ++i )
     {
     outputCD->CopyData(cd, stripCellIds[i], i+offset );
     }
