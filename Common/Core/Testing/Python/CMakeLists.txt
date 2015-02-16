@@ -10,6 +10,7 @@ vtk_add_test_python(
   TestNumpySupport.py
   TestNumpyInterface.py
   TestOperators.py
+  TestOverloads.py
   TestPointers.py
   TestStrings.py
   TestSubClass.py
