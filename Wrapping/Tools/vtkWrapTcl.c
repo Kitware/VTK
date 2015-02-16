@@ -1366,7 +1366,10 @@ int main(int argc, char *argv[])
 
   /* Now handle if we are asked for a specific function */
   fprintf(fp,"    if(argc==3) {\n" );
-  fprintf(fp,"      Tcl_DString dString;\n");
+  if (numberOfWrappedFunctions > 0)
+    {
+    fprintf(fp,"      Tcl_DString dString;\n");
+    }
   if (data->NumberOfSuperClasses > 0)
   {
     fprintf(fp,"      int SuperClassStatus;\n" );
