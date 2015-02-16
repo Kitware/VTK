@@ -307,7 +307,7 @@ static char *vtkWrapPython_ArgCheckString(
       result[currPos++] = ' ';
       if ((argtype == VTK_PARSE_OBJECT_REF ||
            argtype == VTK_PARSE_UNKNOWN_REF) &&
-          (argtype & VTK_PARSE_CONST) == 0)
+          (arg->Type & VTK_PARSE_CONST) == 0)
         {
         result[currPos++] = '&';
         }
