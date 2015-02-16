@@ -105,12 +105,12 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
   void Scale(const float s[3]) { this->Scale(s[0], s[1], s[2]); };
 
   // Description:
-  // Set the current matrix directly.  This actually calls Identity(),
-  // followed by Concatenate(matrix).
+  // Set the current matrix directly. Note: First, the current
+  // matrix is set to the identity, then the input matrix is concatenated.
   void SetMatrix(vtkMatrix4x4 *matrix) {
     this->SetMatrix(*matrix->Element); };
   void SetMatrix(const double elements[16]) {
-    this->Identity(); this->Concatenate(elements); };
+    this->Concatenation->Identity(); this->Concatenate(elements); };
 
   // Description:
   // Concatenates the matrix with the current transformation according
