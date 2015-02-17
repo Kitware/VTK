@@ -148,4 +148,41 @@ cam1.SetPosition(100.052,62.875,102.818)
 cam1.SetViewUp(-0.307455,-0.464269,0.830617)
 iren.Initialize()
 # prevent the tk window from showing up then start the event loop
+
+# test that the cell data is properly mapped in the output
+ug = vtk.vtkUnstructuredGrid()
+p = vtk.vtkPoints()
+p.InsertNextPoint(0, 0, 0)
+p.InsertNextPoint(1, 0, 0)
+p.InsertNextPoint(2, 0, 0)
+p.InsertNextPoint(3, 0, 0)
+ug.SetPoints(p)
+ug.GetNumberOfPoints()
+ug.Allocate(4)
+lpts = [0, 1]
+ug.InsertNextCell(vtk.VTK_LINE, 2, lpts)
+vpts = [1]
+ug.InsertNextCell(vtk.VTK_VERTEX, 1, vpts)
+lpts = [2, 3]
+ug.InsertNextCell(vtk.VTK_LINE, 2, lpts)
+vpts = [3]
+ug.InsertNextCell(vtk.VTK_VERTEX, 1, vpts)
+aa = vtk.vtkIntArray()
+aa.InsertNextValue(0)
+aa.InsertNextValue(1)
+aa.InsertNextValue(2)
+aa.InsertNextValue(3)
+aa.SetName('testarray')
+ug.GetCellData().AddArray(aa)
+gf = vtk.vtkGeometryFilter()
+gf.SetInputData(ug)
+gf.Update()
+pd = gf.GetOutput()
+oa = pd.GetCellData().GetArray('testarray')
+correctcelldata = [1, 3, 0, 2]
+for i in range(4):
+    if oa.GetValue(i) != correctcelldata[i]:
+        print 'Bad celldata of test array'
+        import sys
+        sys.exit(1)
 # --- end of script --
