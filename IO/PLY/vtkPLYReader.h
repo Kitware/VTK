@@ -31,22 +31,17 @@
 #define vtkPLYReader_h
 
 #include "vtkIOPLYModule.h" // For export macro
-#include "vtkPolyDataAlgorithm.h"
+#include "vtkAbstractPolyDataReader.h"
 
-class VTKIOPLY_EXPORT vtkPLYReader : public vtkPolyDataAlgorithm
+class VTKIOPLY_EXPORT vtkPLYReader : public vtkAbstractPolyDataReader
 {
 public:
-  vtkTypeMacro(vtkPLYReader,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkPLYReader,vtkAbstractPolyDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Construct object with merging set to true.
   static vtkPLYReader *New();
-
-  // Description:
-  // Specify file name of stereo lithography file.
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
 
   // Description:
   // A simple, non-exhaustive check to see if a file is a valid ply file.
@@ -55,8 +50,6 @@ public:
 protected:
   vtkPLYReader();
   ~vtkPLYReader();
-
-  char *FileName;
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 private:
