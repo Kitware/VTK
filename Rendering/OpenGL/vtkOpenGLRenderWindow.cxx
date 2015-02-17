@@ -1604,6 +1604,15 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
   assert("pre: positive_height" && height>0);
   assert("pre: not_initialized" && !this->OffScreenUseFrameBuffer);
 
+  // This implementation currently ignores multisampling configurations:
+  if (this->MultiSamples > 1)
+    {
+    vtkDebugMacro(<<"Multisampling is not currently supported by the "
+                  "accelerated offscreen rendering backend. Falling back to "
+                  "a platform-specific offscreen solution...");
+    return 0;
+    }
+
   // 1. create a regular OpenGLcontext (ie create a window)
   this->CreateAWindow();
   this->MakeCurrent();

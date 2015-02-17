@@ -32,6 +32,7 @@ int TestOSConeCxx(int argc, char* argv[])
 {
   vtkRenderWindow *renWin = vtkRenderWindow::New();
   renWin->OffScreenRenderingOn();
+  renWin->SetMultiSamples(0);
 
   vtkRenderer *renderer = vtkRenderer::New();
   renWin->AddRenderer(renderer);
