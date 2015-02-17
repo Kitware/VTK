@@ -168,6 +168,9 @@ vtkLabeledContourMapper::vtkLabeledContourMapper()
   this->StencilQuadIndicesSize = 0;
 
   this->TextProperties = vtkSmartPointer<vtkTextPropertyCollection>::New();
+  vtkNew<vtkTextProperty> defaultTProp;
+  this->TextProperties->AddItem(defaultTProp.GetPointer());
+
   this->Internal = new vtkLabeledContourMapper::Private();
   this->Internal->PrepareTime = 0.0;
   this->Internal->RenderTime = 0.0;
