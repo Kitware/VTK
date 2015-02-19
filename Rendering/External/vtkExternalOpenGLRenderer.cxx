@@ -19,6 +19,7 @@
 #include "vtkExternalOpenGLCamera.h"
 #include "vtkLightCollection.h"
 #include "vtkLight.h"
+#include "vtkLightingHelper.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkNew.h"
@@ -35,6 +36,7 @@ vtkExternalOpenGLRenderer::vtkExternalOpenGLRenderer()
 {
   this->PreserveColorBuffer = 1;
   this->PreserveDepthBuffer = 1;
+  this->SetAutomaticLightCreation(0);
 }
 
 //----------------------------------------------------------------------------
@@ -189,23 +191,54 @@ void vtkExternalOpenGLRenderer::Render(void)
   matrix->MultiplyPoint(focalPoint, newFocalPoint);
   camera->SetFocalPoint(newFocalPoint);
 
-  matrix->DeepCopy(mv);
-  matrix->Invert();
+  this->RemoveAllLights();
 
-  vtkCollectionSimpleIterator sit;
-  vtkLight* light;
-  for (this->Lights->InitTraversal(sit);
-    (light = this->Lights->GetNextLight(sit)); )
+  short curLight;
+  for (curLight = GL_LIGHT0;
+       curLight < GL_LIGHT0 + vtkLightingHelper::VTK_MAX_LIGHTS;
+       curLight++)
     {
-    // If we set the transform matrix then even for the headlight
-    // vtkOpenGLLight will use it and result in wrong lighting computation.
-    // What we want is to use camera position and focal point only
-    // when we have a head light.
-    if (light->LightTypeIsCameraLight())
+    GLboolean status;
+    GLfloat info[4];
+    glGetBooleanv(curLight, &status);
+    if (status)
       {
-      light->SetTransformMatrix(matrix);
+      vtkLight* light = vtkLight::New();
+      light->SetLightTypeToHeadlight();
+      glGetLightfv(curLight, GL_POSITION, info);
+      light->SetPosition(info[0], info[1], info[2]);
+      glGetLightfv(curLight, GL_AMBIENT, info);
+      light->SetAmbientColor(info[0], info[1], info[2]);
+      glGetLightfv(curLight, GL_DIFFUSE, info);
+      light->SetDiffuseColor(info[0], info[1], info[2]);
+      glGetLightfv(curLight, GL_SPECULAR, info);
+      light->SetSpecularColor(info[0], info[1], info[2]);
+      glGetLightfv(curLight, GL_CONSTANT_ATTENUATION, &info[0]);
+      glGetLightfv(curLight, GL_LINEAR_ATTENUATION, &info[1]);
+      glGetLightfv(curLight, GL_QUADRATIC_ATTENUATION, &info[2]);
+      light->SetAttenuationValues(info[0], info[1], info[2]);
+      this->AddLight(light);
+      light->Delete();
       }
     }
+
+//  matrix->DeepCopy(mv);
+//  matrix->Invert();
+//
+//  vtkCollectionSimpleIterator sit;
+//  vtkLight* light;
+//  for (this->Lights->InitTraversal(sit);
+//    (light = this->Lights->GetNextLight(sit)); )
+//    {
+//    // If we set the transform matrix then even for the headlight
+//    // vtkOpenGLLight will use it and result in wrong lighting computation.
+//    // What we want is to use camera position and focal point only
+//    // when we have a head light.
+//    if (light->LightTypeIsCameraLight())
+//      {
+//      light->SetTransformMatrix(matrix);
+//      }
+//    }
 
   matrix->Delete();
 
