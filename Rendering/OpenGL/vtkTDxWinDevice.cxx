@@ -305,8 +305,10 @@ void vtkTDxWinDevice::StopListening()
   assert("pre: initialized" && this->GetInitialized());
   assert("pre: is_listening" && this->GetIsListening());
 
+  const UINT_PTR uIDEvent = this->WindowHandle != 0 ?
+    VTK_IDT_TDX_TIMER : this->Private->TimerId;
   // Kill the timer used to poll the sensor and keyboard
-  ::KillTimer(this->WindowHandle,VTK_IDT_TDX_TIMER);
+  ::KillTimer(this->WindowHandle, uIDEvent);
   this->Private->TimerId=0;
   this->IsListening=false;
 
