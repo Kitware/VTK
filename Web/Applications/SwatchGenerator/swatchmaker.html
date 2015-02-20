@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <body>
+        <input type="file" class="json-file-select-btn"/>
+        <script type="text/javascript">
+            (function() {
+
+                ///
+                /// This is a standalone tool (no dependencies other than HTML5)
+                /// which helps you generate the kind of swatches images needed
+                /// for the ParaViewWeb color editor.  Once you load it in your
+                /// browser (either from HTTP server or filesystem), you click
+                /// the button to choose a colors descriptor json file.  There is
+                /// an example file located in the current directory.  The
+                /// swatches png will be generated and displayed in your browser,
+                /// and you can then right click and choose "Save As...".
+                ///
+
+                /*************************************************************
+                 * Dynamically create a canvas of the appropriate size in
+                 * which to render the swatch.  Return both the canvas and
+                 * the context.
+                 ************************************************************/
+                function createCanvas(w, h) {
+                    var canvas = document.createElement('canvas');
+                    canvas.id     = "hidden-render-canvas";
+                    canvas.width  = w;
+                    canvas.height = h;
+                    canvas.style.display = "none";
+                    return {
+                        'canvas': canvas,
+                        'ctx': canvas.getContext("2d")
+                    };
+                }
+
+                /*************************************************************
+                 * Given the image data as a base64 string, add the image to
+                 * the DOM.
+                 ************************************************************/
+                function addImage(pngUrl) {
+                    var img = new Image();
+                    img.onload = function(evt) {
+                        document.body.appendChild(img);
+                    }
+                    img.style.border = '1px solid black';
+                    img.src = pngUrl;
+                }
+
+                /*************************************************************
+                 * Given the swatch description json object, render it into a
+                 * canvas and place an image on the screen.
+                 ************************************************************/
+                function renderSwatch(swatchJson) {
+                    if (!swatchJson.hasOwnProperty('width') || !swatchJson.hasOwnProperty('lines')) {
+                        alert("Swatches json file must have 'width' and 'lines' properties");
+                        return;
+                    }
+
+                    var canvasWidth = swatchJson.width,
+                        canvasHeight = 0,
+                        lines = swatchJson.lines,
+                        lineHeights = [];
+
+                    // Iterate over the rows one time just to calculate the size of the
+                    // canvas we need to create.
+                    for (var i = 0; i < lines.length; i+=1) {
+                        var row = lines[i],
+                            numCols = row.length,
+
+                            /// By choosing to floor here or not, you can play
+                            /// around with allowing small spaces between the
+                            /// cells in the swatch table to force all the rows
+                            /// to end up the same width.
+                            // colWidth = canvasWidth / numCols;
+                            colWidth = Math.floor(canvasWidth / numCols);
+                        canvasHeight += colWidth;
+                        lineHeights.push(colWidth);
+                    }
+
+                    // Now create the canvas
+                    var canvasObj = createCanvas(canvasWidth, canvasHeight),
+                        canvas = canvasObj.canvas,
+                        ctx = canvasObj.ctx,
+                        rowOffset = 0;
+
+                    // Iterate over the rows again to actually render the swatches
+                    for (var j = 0; j < lines.length; j+=1) {
+                        var row = lines[j],
+                            patchSize = lineHeights[j];
+                        for (var k = 0; k < row.length; k+=1) {
+                            var rgb = row[k];
+                            ctx.fillStyle = 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')';
+                            ctx.fillRect(k * patchSize, rowOffset, patchSize, patchSize);
+                        }
+                        rowOffset += patchSize;
+                    }
+
+                    // Now display the rendered swatches image in the browser
+                    addImage(canvas.toDataURL());
+                }
+
+                // Handle loading the swatches json file
+                document.querySelector('.json-file-select-btn').onchange = function(evt) {
+                    var reader = new FileReader();
+                    reader.onload = function(theFile) {
+                        renderSwatch(JSON.parse(theFile.target.result));
+                    };
+                    reader.readAsText(evt.target.files[0]);
+                };
+
+            }());
+        </script>
+    </body>
+</html>
