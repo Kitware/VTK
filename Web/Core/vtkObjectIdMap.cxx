@@ -119,12 +119,6 @@ struct ObjectId
        return (this->GlobalId < other.GlobalId);
        }
 
-     if( this->Object.GetPointer() != NULL && other.Object.GetPointer() != NULL
-         && this->Object.GetPointer() != other.Object.GetPointer())
-       {
-       return (this->Object.GetPointer() < other.Object.GetPointer());
-       }
-
      return false;
    }
 
