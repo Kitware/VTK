@@ -74,26 +74,35 @@ void vtkCompositePolyDataMapper2::Render(
 
   // do we need to do a generic render?
   bool lastUseGeneric = this->UseGeneric;
-  if (this->GenericTestTime < input->GetMTime())
+  if (this->GenericTestTime < this->GetInputDataObject(0, 0)->GetMTime())
     {
     this->UseGeneric = false;
-    vtkSmartPointer<vtkDataObjectTreeIterator> iter =
-      vtkSmartPointer<vtkDataObjectTreeIterator>::New();
-    iter->SetDataSet(input);
-    iter->SkipEmptyNodesOn();
-    iter->VisitOnlyLeavesOn();
-    for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
-        iter->GoToNextItem())
+
+    // is the data not composite
+    if (!input)
       {
-      vtkDataObject *dso = iter->GetCurrentDataObject();
-      vtkPolyData *pd = vtkPolyData::SafeDownCast(dso);
-      if (!pd ||
-          pd->GetVerts()->GetNumberOfCells() ||
-          pd->GetLines()->GetNumberOfCells() ||
-          pd->GetStrips()->GetNumberOfCells())
+      this->UseGeneric = true;
+      }
+    else
+      {
+      vtkSmartPointer<vtkDataObjectTreeIterator> iter =
+        vtkSmartPointer<vtkDataObjectTreeIterator>::New();
+      iter->SetDataSet(input);
+      iter->SkipEmptyNodesOn();
+      iter->VisitOnlyLeavesOn();
+      for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
+          iter->GoToNextItem())
         {
-        this->UseGeneric = true;
-        break;
+        vtkDataObject *dso = iter->GetCurrentDataObject();
+        vtkPolyData *pd = vtkPolyData::SafeDownCast(dso);
+        if (!pd ||
+            pd->GetVerts()->GetNumberOfCells() ||
+            pd->GetLines()->GetNumberOfCells() ||
+            pd->GetStrips()->GetNumberOfCells())
+          {
+          this->UseGeneric = true;
+          break;
+          }
         }
       }
 
@@ -514,6 +523,12 @@ void vtkCompositePolyDataMapper2::AppendOneBufferObject(
     {
     this->ColorCoordinates->UnRegister(this);
     this->ColorCoordinates = 0;
+    }
+  // Get rid of old texture color coordinates if any
+  if ( this->Colors )
+    {
+    this->Colors->UnRegister(this);
+    this->Colors = 0;
     }
 
   // For vertex coloring, this sets this->Colors as side effect.
