@@ -43,8 +43,10 @@ public:
 
   // Description:
   // Format the text in str according to tprop and instruct GL2PS to draw it at
-  // world coordinate pos.
-  static void DrawString(const char *str, vtkTextProperty *tprop, double pos[3]);
+  // world coordinate pos. Background depth is the z value for the background
+  // quad, and should be in NDC space.
+  static void DrawString(const char *str, vtkTextProperty *tprop, double pos[3],
+                         double backgroundDepth);
 
   // Description:
   // Translate the tprop's fontname into a Postscript font name.
@@ -153,6 +155,15 @@ private:
                            double halfHeight, double zfact1, double zfact2);
   static void ProjectPoints(vtkPoints *points,
                             vtkMatrix4x4 *actorMatrix = NULL);
+
+  // Description:
+  // Unproject the point from device coordinates into world coordinates.
+  // Input Z coordinate should be in NDC space.
+  static void UnprojectPoint(double point[4], vtkMatrix4x4 *invTransformMatrix,
+                             double viewportOrigin[2], double halfWidth,
+                             double halfHeight, double zfact1, double zfact2);
+  static void UnprojectPoints(double *points3D, vtkIdType numPoints,
+                              vtkMatrix4x4 *actorMatrix = NULL);
 };
 
 #endif

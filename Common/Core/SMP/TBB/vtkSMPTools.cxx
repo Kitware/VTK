@@ -29,6 +29,7 @@ struct vtkSMPToolsInit
 };
 
 static bool vtkSMPToolsInitialized = 0;
+static int vtkTBBNumSpecifiedThreads = 0;
 static vtkSimpleCriticalSection vtkSMPToolsCS;
 
 //--------------------------------------------------------------------------------
@@ -37,13 +38,20 @@ void vtkSMPTools::Initialize(int numThreads)
   vtkSMPToolsCS.Lock();
   if (!vtkSMPToolsInitialized)
     {
-    // If numThreads == 0 (default num. threads), don't create a task_scheduler_init
+    // If numThreads <= 0, don't create a task_scheduler_init
     // and let TBB do the default thing.
-    if (numThreads != 0)
+    if (numThreads > 0)
       {
       static vtkSMPToolsInit aInit(numThreads);
+      vtkTBBNumSpecifiedThreads = numThreads;
       }
     vtkSMPToolsInitialized = true;
     }
   vtkSMPToolsCS.Unlock();
+}
+
+int vtkSMPTools::GetEstimatedNumberOfThreads()
+{
+  return vtkTBBNumSpecifiedThreads ? vtkTBBNumSpecifiedThreads
+    : tbb::task_scheduler_init::default_num_threads();
 }

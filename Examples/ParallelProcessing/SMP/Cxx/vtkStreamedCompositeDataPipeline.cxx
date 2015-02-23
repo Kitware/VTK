@@ -65,9 +65,9 @@ class vtkStreamingFunctor
     vtkStreamingFunctor(vtkStreamedCompositeDataPipeline* s,
                         vtkInformation* request)
       : self(s),
-        baseRequest(request),
         baseIter(vtkUniformGridAMRDataIterator2::SafeDownCast(
           request->Get(vtkStreamedCompositeDataPipeline::STREAM_BLOCK_ID()))),
+        baseRequest(request),
         iters(baseIter)
       {
       this->returnValue = 0;
@@ -104,7 +104,7 @@ class vtkStreamingFunctor
       vtkUniformGridAMRDataIterator2*& iter = this->iters.Local();
       iter->GoToFirstItem();
       vtkInformation*& request = this->requests.Local();
-      for (; blockId < begin; ++blockId, iter->GoToNextItem());
+      for (; blockId < begin; ++blockId, iter->GoToNextItem()) {}
       for (; blockId < end; ++blockId)
         {
         request->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), blockId);
@@ -162,8 +162,8 @@ int vtkStreamedCompositeDataPipeline
         {
         return 0;
         }
-      vtkDataObject* out = this->GetOutputInformation()->GetInformationObject(0)->Get(vtkDataObject::DATA_OBJECT());
-      out->DataHasBeenGenerated();
+      vtkDataObject* outData = this->GetOutputInformation()->GetInformationObject(0)->Get(vtkDataObject::DATA_OBJECT());
+      outData->DataHasBeenGenerated();
       this->DataTime.Modified();
       this->InformationTime.Modified();
       this->DataObjectTime.Modified();

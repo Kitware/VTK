@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 
 # Python example script that uses the Gnu R random table source to create an output
 # table with 5 columns and 30 rows.  The columns are filled random numbers drawn

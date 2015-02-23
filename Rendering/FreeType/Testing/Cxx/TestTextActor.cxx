@@ -112,6 +112,10 @@ int TestTextActor(int, char *[])
           break;
         }
       actor->GetTextProperty()->SetColor(0.75, .2 + col * .26, .2 + row * .2);
+      actor->GetTextProperty()->SetBackgroundColor(0.25, 0.4 - col * .13,
+                                                   .5 - row * .1);
+      actor->GetTextProperty()->SetBackgroundOpacity(1.0);
+
       actor->SetPosition(x[col], y[row]);
       setupTextActor(actor.GetPointer(), anchors.GetPointer());
       ren->AddActor2D(actor.GetPointer());

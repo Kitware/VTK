@@ -34,11 +34,18 @@ public:
   vtkSetStringMacro(ScaleArray);
   vtkGetStringMacro(ScaleArray);
 
+  // Description:
+  // Set the default radius of the point gaussians.  This is used if the
+  // array to scale with has not been set or is set to NULL.
+  vtkSetMacro(DefaultRadius,double);
+  vtkGetMacro(DefaultRadius,double);
+
 protected:
   vtkPointGaussianMapper();
   ~vtkPointGaussianMapper();
 
   char *ScaleArray;
+  double DefaultRadius;
 
 private:
   vtkPointGaussianMapper(const vtkPointGaussianMapper&); // Not implemented.

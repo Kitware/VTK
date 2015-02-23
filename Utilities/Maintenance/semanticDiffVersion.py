@@ -191,7 +191,7 @@ class CompareVersions():
             sys.exit(1)
 
         # Reset the working tree to version specified
-        git_reset_cmd = git_cmd + ' reset -q --hard ' + ver
+        git_reset_cmd = git_cmd + ' checkout ' + ver
         git_proc = subprocess.Popen(git_reset_cmd.split(), stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE)
         git_proc.wait()
@@ -205,7 +205,8 @@ class CompareVersions():
         ctags_proc = subprocess.Popen([self.svar.ctags_exe, '-R', '--sort=yes',
             '--c++-kinds=cf', '--fields=aiknsz', '--language-force=C++',
             '--exclude=*.in', '--exclude=*.java', '--exclude=*.py',
-            '--exclude=*.js', '--exclude=*.bmp', '-f', fname, src_dir],
+            '--exclude=*.css', '--exclude=*.js', '--exclude=*.bmp',
+            '-f', fname, src_dir],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         ctags_proc.wait()
         ctags_proc_stderr = ctags_proc.stderr.read()

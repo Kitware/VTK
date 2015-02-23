@@ -42,6 +42,8 @@
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkTuple.h"  // For metrics struct
+#include "vtkVector.h" // For metrics struct
 
 class vtkImageData;
 class vtkPath;
@@ -67,6 +69,31 @@ private:
 class VTKRENDERINGCORE_EXPORT vtkTextRenderer: public vtkObject
 {
 public:
+  struct Metrics
+  {
+    // Description:
+    // Construct a Metrics object with all members initialized to 0.
+    Metrics()
+      : BoundingBox(0),
+        TopLeft(0), TopRight(0), BottomLeft(0), BottomRight(0)
+    {
+    }
+
+    // Description:
+    // The axis-aligned bounding box of the rendered text and background, in
+    // pixels. The origin of the bounding box is the anchor point of the data
+    // when considering justification. Layout is { xMin, xMax, yMin, yMax }.
+    vtkTuple<int, 4> BoundingBox;
+
+    // Description:
+    // The corners of the rendered text (or background, if applicable), in pixels.
+    // Uses the same origin as BoundingBox.
+    vtkVector2i TopLeft;
+    vtkVector2i TopRight;
+    vtkVector2i BottomLeft;
+    vtkVector2i BottomRight;
+  };
+
   vtkTypeMacro(vtkTextRenderer, vtkObject)
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
@@ -131,6 +158,24 @@ public:
                       int bbox[4], int dpi = 120, int backend = Default)
   {
     return this->GetBoundingBoxInternal(tprop, str, bbox, dpi, backend);
+  }
+
+
+  // Description:
+  // Given a text property and a string, get some metrics for the rendered
+  // string.
+  // Some rendering backends need the DPI of the target. If it is not provided,
+  // a DPI of 120 is assumed.
+  // Return true on success, false otherwise.
+  bool GetMetrics(vtkTextProperty *tprop, const vtkStdString &str,
+                  Metrics &metrics, int dpi = 120, int backend = Default)
+  {
+    return this->GetMetricsInternal(tprop, str, metrics, dpi, backend);
+  }
+  bool GetMetrics(vtkTextProperty *tprop, const vtkUnicodeString &str,
+                  Metrics &metrics, int dpi = 120, int backend = Default)
+  {
+    return this->GetMetricsInternal(tprop, str, metrics, dpi, backend);
   }
 
   // Description:
@@ -224,6 +269,12 @@ protected:
   virtual bool GetBoundingBoxInternal(vtkTextProperty *tprop,
                                       const vtkUnicodeString &str,
                                       int bbox[4], int dpi, int backend) = 0;
+  virtual bool GetMetricsInternal(vtkTextProperty *tprop,
+                                  const vtkStdString &str,
+                                  Metrics &metrics, int dpi, int backend) = 0;
+  virtual bool GetMetricsInternal(vtkTextProperty *tprop,
+                                  const vtkUnicodeString &str,
+                                  Metrics &metrics, int dpi, int backend) = 0;
   virtual bool RenderStringInternal(vtkTextProperty *tprop,
                                     const vtkStdString &str,
                                     vtkImageData *data, int textDims[2],

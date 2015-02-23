@@ -65,7 +65,7 @@ namespace
     {
     }
 
-    void operator()(vtkIdType cellId){}
+    void operator()(vtkIdType vtkNotUsed(cellId)){}
 
   };
 
@@ -98,7 +98,7 @@ namespace
                                       vtkMultiBlockDataSet* output,
                                       vtkInformation* info)
       : Filter(filter), Input(input), InScalars(inScalars), Output(output),
-        NumValues(numValues), Values(values), Info(info)
+        Info(info), NumValues(numValues), Values(values)
     {
       InputPointSet = vtkPointSet::SafeDownCast(input);
       vtkCutter::GetCellTypeDimensions(cellTypeDimensions);
@@ -322,7 +322,7 @@ namespace
 // General contouring filter.  Handles arbitrary input.
 //
 int vtkSMPContourFilterManyPieces::RequestData(
-  vtkInformation* request,
+  vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {

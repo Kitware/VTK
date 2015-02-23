@@ -5,6 +5,33 @@ set(PREFIX_DIR ${CMAKE_BINARY_DIR}/CMakeExternals/Prefix)
 set(BUILD_DIR ${CMAKE_BINARY_DIR}/CMakeExternals/Build)
 set(INSTALL_DIR ${CMAKE_BINARY_DIR}/CMakeExternals/Install)
 
+# Options for iOS
+set(OPENGL_ES_VERSION "2.0" CACHE STRING "OpenGL ES version (2.0 or 3.0)")
+set_property(CACHE OPENGL_ES_VERSION PROPERTY STRINGS 2.0 3.0)
+
+set(IOS_SIMULATOR_ARCHITECTURES "i386;x86_64"
+    CACHE STRING "iOS Simulator Architectures")
+set(IOS_DEVICE_ARCHITECTURES "arm64;armv7;armv7s"
+    CACHE STRING "iOS Device Architectures")
+
+set(CMAKE_FRAMEWORK_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/frameworks"
+    CACHE PATH "Framework install path")
+
+# Fail if the install path is invalid
+if (NOT EXISTS ${CMAKE_INSTALL_PREFIX})
+  message(FATAL_ERROR
+    "Install path ${CMAKE_INSTALL_PREFIX} does not exist.")
+endif()
+
+# Try to make the framework install directory if it doesn't exist
+if (NOT EXISTS ${CMAKE_FRAMEWORK_INSTALL_PREFIX})
+  file(MAKE_DIRECTORY ${CMAKE_FRAMEWORK_INSTALL_PREFIX})
+  if (NOT EXISTS ${CMAKE_FRAMEWORK_INSTALL_PREFIX})
+    message(FATAL_ERROR
+      "Framework install path ${CMAKE_FRAMEWORK_INSTALL_PREFIX} does not exist.")
+  endif()
+endif()
+
 # First, determine how to build
 if (CMAKE_GENERATOR MATCHES "NMake Makefiles")
   set(VTK_BUILD_COMMAND BUILD_COMMAND nmake)
@@ -34,18 +61,6 @@ macro(compile_vtk_tools)
 endmacro()
 compile_vtk_tools()
 
-# Okay, now set options for iOS
-set(OPENGL_ES_VERSION "2.0" CACHE STRING "OpenGL ES version (2.0 or 3.0)")
-set_property(CACHE OPENGL_ES_VERSION PROPERTY STRINGS 2.0 3.0)
-
-set(IOS_SIMULATOR_ARCHITECTURES "i386;x86_64"
-    CACHE STRING "iOS Simulator Architectures")
-set(IOS_DEVICE_ARCHITECTURES "arm64;armv7;armv7s"
-    CACHE STRING "iOS Device Architectures")
-
-set(CMAKE_FRAMEWORK_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/frameworks"
-    CACHE PATH "Framework install path")
-
 # Hide some CMake configs from the user
 mark_as_advanced(
   BUILD_SHARED_LIBS
@@ -63,6 +78,7 @@ set(ios_cmake_flags
   -DBUILD_TESTING:BOOL=OFF
   -DBUILD_EXAMPLES:BOOL=ON
   -DVTK_RENDERING_BACKEND:STRING=OpenGL2
+  -DOPENGL_ES_VERSION:STRING=${OPENGL_ES_VERSION}
   -DVTK_Group_Rendering:BOOL=OFF
   -DVTK_Group_StandAlone:BOOL=OFF
   -DVTK_Group_Imaging:BOOL=OFF

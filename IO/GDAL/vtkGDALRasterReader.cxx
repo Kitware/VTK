@@ -20,6 +20,7 @@
 #include <vtkCellData.h>
 #include <vtkDoubleArray.h>
 #include <vtkFloatArray.h>
+#include <vtkGDAL.h>
 #include <vtkInformationVector.h>
 #include <vtkInformation.h>
 #include <vtkIntArray.h>
@@ -29,6 +30,7 @@
 #include <vtkShortArray.h>
 #include <vtkSmartPointer.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
+#include <vtkStringArray.h>
 #include <vtkUniformGrid.h>
 #include <vtkUnsignedCharArray.h>
 #include <vtkUnsignedIntArray.h>
@@ -430,9 +432,6 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
   double geoSpacing[] = {(d[4]-d[0])/this->Reader->RasterDimensions[0],
                          (d[5]-d[1])/this->Reader->RasterDimensions[1],
                          1};
-  // TODO: This may not be right but negative spacign is not desired.
-  if(geoSpacing[0] < 0) geoSpacing[0] = -geoSpacing[0];
-  if(geoSpacing[1] < 0) geoSpacing[1] = -geoSpacing[1];
 
   // Set meta data on the image
   this->UniformGridData->SetExtent(0, (destWidth - 1), 0, (destHeight - 1), 0, 0);
@@ -464,14 +463,14 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::Convert(
 
   double targetIndex;
   double sourceIndex;
-  double min = rawUniformGridData[0], max = rawUniformGridData[1];
+  double min = rawUniformGridData[0], max = rawUniformGridData[0];
 
   vtkSmartPointer<VTK_TYPE> scArr(vtkSmartPointer<VTK_TYPE>::New());
   scArr->SetName("Elevation");
   scArr->SetNumberOfComponents(this->NumberOfBands);
   scArr->SetNumberOfTuples(targetWidth * targetHeight);
 
-  for (int j = 0, k = (targetHeight - 1); j < targetHeight; ++j, --k)
+  for (int j = 0; j < targetHeight; ++j)
     {
     for (int i = 0; i < targetWidth; ++i)
       {
@@ -480,7 +479,7 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::Convert(
         {
         targetIndex = i * NumberOfBands +
                       j * targetWidth * NumberOfBands + bandIndex;
-        sourceIndex = i + k * targetWidth +
+        sourceIndex = i + j * targetWidth +
                       bandIndex * targetWidth * targetHeight;
         RAW_TYPE tmp = rawUniformGridData[sourceIndex];
         if(tmp < min) min = tmp;
@@ -744,6 +743,16 @@ int vtkGDALRasterReader::RequestData(vtkInformation* vtkNotUsed(request),
   this->Projection = projection;
   CPLFree(projection);
 
+  // Add the map-projection as field data
+  vtkSmartPointer<vtkStringArray> projectionData =
+    vtkSmartPointer<vtkStringArray>::New();
+  projectionData->SetName("MAP_PROJECTION");
+  projectionData->SetNumberOfComponents(1);
+  projectionData->SetNumberOfTuples(1);
+  projectionData->SetValue(0, this->Projection);
+  this->Implementation->UniformGridData->GetFieldData()->AddArray(
+    projectionData);
+
   // Check if file has been changed here.
   // If changed then throw the vtxId time and load a new one.
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
@@ -865,21 +874,26 @@ int vtkGDALRasterReader::RequestInformation(vtkInformation * vtkNotUsed(request)
   this->DataExtent[4] = 0;
   this->DataExtent[5] = 0;
 
-  this->DataSpacing[0] =
-    static_cast<double>(this->Implementation->SourceDimensions[0]) /
-    this->TargetDimensions[0];
-  this->DataSpacing[1] =
-    static_cast<double>(this->Implementation->SourceDimensions[1]) /
-    this->TargetDimensions[1];
-  this->DataSpacing[2] = 1.0;
-
-  this->DataOrigin[0] = this->DataExtent[0];
-  this->DataOrigin[1] = this->DataExtent[2];
+  double geoTransform[6] = {};
+  if (CE_Failure == this->Implementation->GDALData->GetGeoTransform(geoTransform))
+    {
+    // Issue warning message if image doensn't contain geotransform.
+    // Not fatal because GDAL will return a default transform on CE_Failure.
+    vtkErrorMacro("No GeoTransform data in input image");
+    }
+  this->DataOrigin[0] = geoTransform[0];
+  this->DataOrigin[1] = geoTransform[3];
+  this->DataOrigin[2] = 0.0;
+  this->DataSpacing[0] = geoTransform[1];
+  this->DataSpacing[1] = geoTransform[5];
+  this->DataSpacing[2] = 0.0;
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                this->DataExtent, 6);
   outInfo->Set(vtkDataObject::SPACING(), this->DataSpacing, 3);
   outInfo->Set(vtkDataObject::ORIGIN(), this->DataOrigin, 3);
+  outInfo->Set(vtkGDAL::MAP_PROJECTION(),
+               this->Implementation->GDALData->GetProjectionRef());
 
   return 1;
 }

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 
 # Python example script that uses the RcalculatorFilter to compute the mean
 # vertex degree of the input graph and the distance from the mean for each

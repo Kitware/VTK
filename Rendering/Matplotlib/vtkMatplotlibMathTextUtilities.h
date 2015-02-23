@@ -53,6 +53,9 @@ public:
   bool GetBoundingBox(vtkTextProperty *tprop, const char *str,
                       unsigned int dpi, int bbox[4]);
 
+  bool GetMetrics(vtkTextProperty *tprop, const char *str,
+                  unsigned int dpi, vtkTextRenderer::Metrics &metrics);
+
   // Description:
   // Render the given string @a str into the vtkImageData @a data with a
   // resolution of @a dpi. The image is resized automatically. textDims

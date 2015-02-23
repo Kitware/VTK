@@ -1092,3 +1092,34 @@ void vtkWrap_DeclareVariableSize(
             name, idx, val->Dimensions[0]);
     }
 }
+
+char *vtkWrap_SafeSuperclassName(const char *name)
+{
+  int template_class = 0;
+  size_t size = strlen(name);
+  char *safe_name = malloc(size + 1);
+  size_t i;
+
+  memcpy(safe_name, name, size + 1);
+
+  for (i = 0; i < size; ++i)
+  {
+    char c = name[i];
+    if (c == '<' || c == '>')
+      {
+      safe_name[i] = '_';
+      template_class = 1;
+      }
+    if  (c == ',' || c == ' ')
+      {
+      safe_name[i] = '_';
+      }
+  }
+
+  if (!template_class)
+    {
+    free(safe_name);
+    return NULL;
+    }
+  return safe_name;
+}

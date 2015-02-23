@@ -37,6 +37,7 @@
 #define vtkSMPThreadLocal_h
 
 #include "vtkSystemIncludes.h"
+
 #include <vector>
 
 template <typename T>
@@ -47,7 +48,7 @@ class vtkSMPThreadLocal
 public:
   // Description:
   // Default constructor. Creates a default exemplar.
-  vtkSMPThreadLocal()
+  vtkSMPThreadLocal() : NumInitialized(0)
     {
       this->Initialize();
     }
@@ -56,7 +57,7 @@ public:
   // Constructor that allows the specification of an exemplar object
   // which is used when constructing objects when Local() is first called.
   // Note that a copy of the exemplar is created using its copy constructor.
-  vtkSMPThreadLocal(const T& exemplar) : Exemplar(exemplar)
+  vtkSMPThreadLocal(const T& exemplar) : NumInitialized(0), Exemplar(exemplar)
     {
       this->Initialize();
     }
@@ -76,13 +77,21 @@ public:
         {
         this->Internal[tid] = this->Exemplar;
         this->Initialized[tid] = true;
+        ++this->NumInitialized;
         }
       return this->Internal[tid];
     }
 
   // Description:
+  // Return the number of thread local objects that have been initialized
+  size_t size() const
+    {
+      return this->NumInitialized;
+    }
+
+  // Description:
   // Subset of the standard iterator API.
-  // The most common design patter is to use iterators in a sequential
+  // The most common design pattern is to use iterators in a sequential
   // code block and to use only the thread local objects in parallel
   // code blocks.
   // It is thread safe to iterate over the thread local containers
@@ -110,6 +119,18 @@ public:
         return *this;
       }
 
+    iterator operator++(int)
+      {
+      iterator copy = *this;
+      ++(*this);
+      return copy;
+      }
+
+    bool operator==(const iterator& other)
+      {
+        return this->Iter == other.Iter;
+      }
+
     bool operator!=(const iterator& other)
       {
         return this->Iter != other.Iter;
@@ -118,6 +139,11 @@ public:
     T& operator*()
       {
         return *this->Iter;
+      }
+
+    T* operator->()
+      {
+        return &*this->Iter;
       }
 
   private:
@@ -170,6 +196,7 @@ public:
 private:
   TLS Internal;
   std::vector<bool> Initialized;
+  size_t NumInitialized;
   T Exemplar;
 
   void Initialize()

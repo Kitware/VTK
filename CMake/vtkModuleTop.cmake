@@ -419,14 +419,26 @@ configure_file(CMake/VTKConfig.cmake.in VTKConfig.cmake @ONLY)
 # Generate VTKConfig.cmake for the install tree.
 set(VTK_CONFIG_CODE "
 # Compute the installation prefix from this VTKConfig.cmake file location.
-get_filename_component(VTK_INSTALL_PREFIX \"\${CMAKE_CURRENT_LIST_FILE}\" PATH)")
+set(_vtk_installed_prefix \"${CMAKE_INSTALL_PREFIX}/${VTK_INSTALL_PACKAGE_DIR}\")
+set(_vtk_requested_prefix \"\${CMAKE_CURRENT_LIST_DIR}\")
+get_filename_component(_vtk_installed_prefix_full \"\${_vtk_installed_prefix}\" REALPATH)
+get_filename_component(_vtk_requested_prefix_full \"\${_vtk_requested_prefix}\" REALPATH)
+if (_vtk_installed_prefix_full STREQUAL _vtk_requested_prefix_full)
+  set(VTK_INSTALL_PREFIX \"${CMAKE_INSTALL_PREFIX}\")
+else ()
+  set(VTK_INSTALL_PREFIX \"\${CMAKE_CURRENT_LIST_DIR}\")")
+
 # Construct the proper number of get_filename_component(... PATH)
 # calls to compute the installation prefix.
 string(REGEX REPLACE "/" ";" _count "${VTK_INSTALL_PACKAGE_DIR}")
 foreach(p ${_count})
   set(VTK_CONFIG_CODE "${VTK_CONFIG_CODE}
-get_filename_component(VTK_INSTALL_PREFIX \"\${VTK_INSTALL_PREFIX}\" PATH)")
+  get_filename_component(VTK_INSTALL_PREFIX \"\${VTK_INSTALL_PREFIX}\" PATH)")
 endforeach()
+
+set(VTK_CONFIG_CODE "${VTK_CONFIG_CODE}
+endif ()")
+
 set(VTK_CONFIG_CODE "${VTK_CONFIG_CODE}
 set(VTK_MODULES_DIR \"\${VTK_INSTALL_PREFIX}/${VTK_INSTALL_PACKAGE_DIR}/Modules\")")
 set(VTK_CONFIG_CMAKE_DIR "\${VTK_INSTALL_PREFIX}/${VTK_INSTALL_PACKAGE_DIR}")
@@ -435,7 +447,12 @@ set(VTK_CONFIG_TARGETS_FILE "\${VTK_INSTALL_PREFIX}/${VTK_INSTALL_PACKAGE_DIR}/V
 set(VTK_CONFIG_MODULE_API_FILE "\${VTK_INSTALL_PREFIX}/${VTK_INSTALL_PACKAGE_DIR}/vtkModuleAPI.cmake")
 configure_file(CMake/VTKConfig.cmake.in CMakeFiles/VTKConfig.cmake @ONLY)
 
-configure_file(CMake/VTKConfigVersion.cmake.in VTKConfigVersion.cmake @ONLY)
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+  ${VTK_BINARY_DIR}/VTKConfigVersion.cmake
+  VERSION ${_VTK_VERSION_MAJOR}.${_VTK_VERSION_MINOR}.${_VTK_VERSION_PATCH}
+  COMPATIBILITY SameMajorVersion
+  )
 
 if (NOT VTK_INSTALL_NO_DEVELOPMENT)
   install(FILES ${VTK_BINARY_DIR}/CMakeFiles/VTKConfig.cmake
@@ -445,11 +462,15 @@ if (NOT VTK_INSTALL_NO_DEVELOPMENT)
                 CMake/pythonmodules.h.in
                 CMake/UseVTK.cmake
                 CMake/FindTCL.cmake
+                CMake/TopologicalSort.cmake
                 CMake/vtkTclTkMacros.cmake
                 CMake/vtk-forward.c.in
+                CMake/vtkGroups.cmake
                 CMake/vtkForwardingExecutable.cmake
                 CMake/vtkJavaWrapping.cmake
                 CMake/vtkMakeInstantiator.cmake
+                CMake/vtkMakeInstantiator.cxx.in
+                CMake/vtkMakeInstantiator.h.in
                 CMake/vtkModuleAPI.cmake
                 CMake/vtkModuleHeaders.cmake.in
                 CMake/vtkModuleInfo.cmake.in

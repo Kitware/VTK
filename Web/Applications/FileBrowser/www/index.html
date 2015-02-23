@@ -10,12 +10,12 @@
 
         <script src="../../lib/core/vtkweb-loader.js" load="core-min, filebrowser"></script>
         <script type="text/javascript">
-            var connection = {
-                sessionURL: "ws://" + window.location.host + "/ws"
-            };
-
-            // Connect to remote server
-            vtkWeb.connect(connection, function(serverConnection) {
+            var config = {
+                sessionManagerURL: vtkWeb.properties.sessionManagerURL,
+                application: "filebrowser"
+            },
+            stop = vtkWeb.NoOp,
+            start = function(serverConnection) {
                 connection = serverConnection;
 
                 // Create file browser widget
@@ -28,18 +28,20 @@
                     });;
                 });
 
-            }, function(code, reason) {
-                alert(reason);
-            });
+                // Method call at exit time
+                stop = function() {
+                    if (connection.session) {
+                        connection.session.call('application.exit');
+                        connection.session.close();
+                        connection.session = null;
+                    }
+                };
+            };
 
-            // Method call at exit time
-            function stop() {
-                if(false && connection.session) {
-                    connection.session.call('application.exit');
-                    connection.session.close();
-                    connection.session = null;
-                }
-            }
+            // Try to launch the remote process
+            vtkWeb.smartConnect(config, start, function(code,reason){
+                console.log(reason);
+            });
         </script>
     </body>
 </html>

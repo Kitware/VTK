@@ -31,11 +31,8 @@
             }, function(msg) {
                 // No launcher found or error
                 console.log("Try to connect using the direct WS url");
-                vtkWeb.connect(
-                    { sessionURL: vtkWeb.properties.sessionURL },
-                    ready,
-                    close
-                );
+                connection.sessionURL = vtkWeb.properties.sessionURL;
+                vtkWeb.connect(connection, ready, close);
             });
         }
     }
@@ -75,8 +72,11 @@
 
         // Check if we should connect to an existing session
         if(connection.hasOwnProperty('session')) {
-            var url = connection['sessionManagerURL'] + '/' + connection['session'];
-            $.ajax(url).done(function(realConnection){
+            var url = connection['sessionManagerURL'] + connection['session'];
+            $.ajax({
+              url: url,
+              dataType: 'json'
+            }).done(function(realConnection){
                 autoConnect(realConnection, ready, close);
             }).fail(function(arg){
                 alert("Unable to connect to the given session: " + connection['session']);

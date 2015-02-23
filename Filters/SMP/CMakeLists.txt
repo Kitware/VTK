@@ -3,6 +3,7 @@ set(Module_SRCS
   vtkSMPContourGridManyPieces.cxx
   vtkSMPMergePoints.cxx
   vtkSMPMergePolyDataHelper.cxx
+  vtkThreadedSynchronizedTemplates3D.cxx
   vtkSMPTransform.cxx
   vtkSMPWarpVector.cxx
   )

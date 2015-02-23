@@ -75,6 +75,6 @@ void main()
     vertexVC.xy = vertexVC.xy + offsetMC;
     }
 
-  offsetVC = offsetMC/radius2;
+  offsetVC = offsetMC/sqrt(radius2);
   gl_Position = VCDCMatrix * vertexVC;
 }

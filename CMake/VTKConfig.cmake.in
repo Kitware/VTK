@@ -53,24 +53,7 @@ include("@VTK_CONFIG_MODULE_API_FILE@")
 if(VTK_FIND_COMPONENTS)
   # Specific modules requested by find_package(VTK).
   set(VTK_MODULES_REQUESTED "${VTK_FIND_COMPONENTS}")
-elseif(NOT "${CMAKE_VERSION}" VERSION_GREATER 2.8.4.20110407)
-  # CMake 2.8.4 and lower do not forward the components list through
-  # their FindVTK.cmake module, so unless the application called
-  #
-  #   find_package(VTK NO_MODULE ...)
-  #
-  # then only the per-component variables VTK_FIND_REQUIRED_<mod> will
-  # have leaked through.
-  set(VTK_MODULES_REQUESTED "")
-  get_cmake_property(_vars VARIABLES)
-  foreach(v IN LISTS _vars)
-    if("x${v}" MATCHES "^xVTK_FIND_REQUIRED_" AND ${v})
-      string(REGEX REPLACE "^VTK_FIND_REQUIRED_" "" _mod "${v}")
-      list(APPEND VTK_MODULES_REQUESTED ${_mod})
-    endif()
-  endforeach()
-endif()
-if(NOT VTK_MODULES_REQUESTED)
+else()
   # No specific modules requested.  Use all of them.
   set(VTK_MODULES_REQUESTED "${VTK_MODULES_ENABLED}")
 endif()

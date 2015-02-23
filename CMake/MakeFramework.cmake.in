@@ -8,13 +8,13 @@
 #
 
 # Make sure VTK is installed.
-if (NOT EXISTS @VTK_INSTALLED_HEADERS@)
+if (NOT EXISTS "@VTK_INSTALLED_HEADERS@")
   message(FATAL_ERROR
           "VTK not installed. Build the source then build the 'install' target.")
 endif()
 
 # Ensure a framework path is set
-if (NOT EXISTS @CMAKE_FRAMEWORK_INSTALL_PREFIX@)
+if (NOT EXISTS "@CMAKE_FRAMEWORK_INSTALL_PREFIX@")
   message(FATAL_ERROR
           "Please specifiy a CMAKE_FRAMEWORK_INSTALL_PREFIX.")
 endif()

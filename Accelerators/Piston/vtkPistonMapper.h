@@ -89,6 +89,8 @@ public:
   // Bring this algorithm's outputs up-to-date.
   // Overridden to allow specification on streaming piece.
   virtual void Update();
+  // Use the other overloads of Update.
+  using vtkAlgorithm::Update;
 
   // Description:
   // If you want only a part of the data, specify by setting the piece.

@@ -49,12 +49,32 @@ size_t CreateTriangleIndexBuffer(vtkCellArray *cells,
   BufferObject &indexBuffer,
   vtkPoints *points, std::vector<unsigned int> &cellPointMap);
 
+// used to create an IBO for triangle primatives
+void AppendTriangleIndexBuffer(
+  std::vector<unsigned int> &indexArray,
+  vtkCellArray *cells,
+  vtkPoints *points,
+  std::vector<unsigned int> &cellPointMap,
+  vtkIdType vertexOffset);
+
 // create a IBO for wireframe polys/tris
 size_t CreateTriangleLineIndexBuffer(vtkCellArray *cells,
   BufferObject &indexBuffer);
 
+// create a IBO for wireframe polys/tris
+void AppendTriangleLineIndexBuffer(
+  std::vector<unsigned int> &indexArray,
+  vtkCellArray *cells,
+  vtkIdType vertexOffset);
+
 // used to create an IBO for primatives as points
 size_t CreatePointIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer);
+
+// used to create an IBO for primatives as points
+void AppendPointIndexBuffer(
+  std::vector<unsigned int> &indexArray,
+  vtkCellArray *cells,
+  vtkIdType vertexOffset);
 
 // used to create an IBO for line strips and triangle strips
 size_t CreateMultiIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
@@ -97,6 +117,7 @@ struct VBOLayout
   int TCoordComponents; // Number of texture dimensions
   int ColorOffset;  // Offset of the color
   int ColorComponents; // Number of color components
+  std::vector<float> PackedVBO; // the data
 };
 
 // Take the points, and pack them into the VBO object supplied. This currently
@@ -108,6 +129,12 @@ VBOLayout CreateVBO(vtkPoints *points, unsigned int numPoints,
     vtkDataArray *tcoords,
     unsigned char *colors, int colorComponents,
     BufferObject &vertexBuffer,
+    unsigned int *cellPointMap, unsigned int *pointCellMap,
+    bool cellScalars, bool cellNormals);
+void AppendVBO(VBOLayout &layout, vtkPoints *points, unsigned int numPoints,
+    vtkDataArray *normals,
+    vtkDataArray *tcoords,
+    unsigned char *colors, int colorComponents,
     unsigned int *cellPointMap, unsigned int *pointCellMap,
     bool cellScalars, bool cellNormals);
 

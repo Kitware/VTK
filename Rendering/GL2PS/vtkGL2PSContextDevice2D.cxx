@@ -231,16 +231,16 @@ void vtkGL2PSContextDevice2D::DrawEllipticArc(float x, float y,
 void vtkGL2PSContextDevice2D::DrawString(float *point,
                                          const vtkStdString &string)
 {
-  double p[3] = {point[0], point[1], 0.f};
-  vtkGL2PSUtilities::DrawString(string.c_str(), this->TextProp, p);
+  double p[3] = {point[0], point[1], 0.};
+  vtkGL2PSUtilities::DrawString(string.c_str(), this->TextProp, p, 0.);
 }
 
 //-----------------------------------------------------------------------------
 void vtkGL2PSContextDevice2D::DrawString(float *point,
                                          const vtkUnicodeString &string)
 {
-  double p[3] = {point[0], point[1], 0.f};
-  vtkGL2PSUtilities::DrawString(string.utf8_str(), this->TextProp, p);
+  double p[3] = {point[0], point[1], 0.};
+  vtkGL2PSUtilities::DrawString(string.utf8_str(), this->TextProp, p, 0.);
 }
 
 //-----------------------------------------------------------------------------

@@ -21,6 +21,7 @@
 #include "vtkParseMain.h"
 #include "vtkParseHierarchy.h"
 #include "vtkConfigure.h"
+#include "vtkWrap.h"
 
 HierarchyInfo *hierarchyInfo = NULL;
 StringCache *stringCache = NULL;
@@ -1170,7 +1171,20 @@ int main(int argc, char *argv[])
 
   for (i = 0; i < data->NumberOfSuperClasses; i++)
     {
-    fprintf(fp,"int %sCppCommand(%s *op, Tcl_Interp *interp,\n             int argc, char *argv[]);\n",data->SuperClasses[i],data->SuperClasses[i]);
+    char *safe_name = vtkWrap_SafeSuperclassName(data->SuperClasses[i]);
+    const char *safe_superclass = safe_name ? safe_name : data->SuperClasses[i];
+
+    /* if a template class is detected add a typedef */
+    if (safe_name)
+      {
+      fprintf(fp,"typedef %s %s;\n",
+              data->SuperClasses[i], safe_name);
+      }
+
+    fprintf(fp,"int %sCppCommand(%s *op, Tcl_Interp *interp,\n             int argc, char *argv[]);\n",
+            safe_superclass, safe_superclass);
+
+    free(safe_name);
     }
   fprintf(fp,"int VTKTCL_EXPORT %sCppCommand(%s *op, Tcl_Interp *interp,\n             int argc, char *argv[]);\n",data->Name,data->Name);
   fprintf(fp,"\nint %sCommand(ClientData cd, Tcl_Interp *interp,\n             int argc, char *argv[])\n{\n",data->Name);
@@ -1211,9 +1225,14 @@ int main(int argc, char *argv[])
   /* check our superclasses */
   for (i = 0; i < data->NumberOfSuperClasses; i++)
     {
+    char *safe_name = vtkWrap_SafeSuperclassName(data->SuperClasses[i]);
+    const char *safe_superclass = safe_name ? safe_name : data->SuperClasses[i];
+
     fprintf(fp,"      if (%sCppCommand(static_cast<%s *>(op),interp,argc,argv) == TCL_OK)\n        {\n",
-            data->SuperClasses[i],data->SuperClasses[i]);
+            safe_superclass, data->SuperClasses[i]);
     fprintf(fp,"        return TCL_OK;\n        }\n");
+
+    free(safe_name);
     }
   fprintf(fp,"      }\n    return TCL_ERROR;\n    }\n\n");
 
@@ -1246,8 +1265,13 @@ int main(int argc, char *argv[])
   /* recurse up the tree */
   for (i = 0; i < data->NumberOfSuperClasses; i++)
     {
+    char *safe_name = vtkWrap_SafeSuperclassName(data->SuperClasses[i]);
+    const char *safe_superclass = safe_name ? safe_name : data->SuperClasses[i];
+
     fprintf(fp,"    %sCppCommand(op,interp,argc,argv);\n",
-            data->SuperClasses[i]);
+            safe_superclass);
+
+    free(safe_name);
     }
   /* now list our methods */
   fprintf(fp,"    Tcl_AppendResult(interp,\"Methods from %s:\\n\",NULL);\n",data->Name);
@@ -1311,11 +1335,16 @@ int main(int argc, char *argv[])
   /* recurse up the tree */
   for (i = 0; i < data->NumberOfSuperClasses; i++)
     {
+    char *safe_name = vtkWrap_SafeSuperclassName(data->SuperClasses[i]);
+    const char *safe_superclass = safe_name ? safe_name : data->SuperClasses[i];
+
     fprintf(fp,"    %sCppCommand(op,interp,argc,argv);\n",
-            data->SuperClasses[i]);
+            safe_superclass);
     /* append the result to our string */
     fprintf(fp,"    Tcl_DStringGetResult ( interp, &dStringParent );\n" );
     fprintf(fp,"    Tcl_DStringAppend ( &dString, Tcl_DStringValue ( &dStringParent ), -1 );\n" );
+
+    free(safe_name);
     }
   for (k = 0; k < numberOfWrappedFunctions; k++)
     {
@@ -1345,9 +1374,14 @@ int main(int argc, char *argv[])
   /* recurse up the tree */
   for (i = 0; i < data->NumberOfSuperClasses; i++)
     {
+    char *safe_name = vtkWrap_SafeSuperclassName(data->SuperClasses[i]);
+    const char *safe_superclass = safe_name ? safe_name : data->SuperClasses[i];
+
     fprintf(fp,"    SuperClassStatus = %sCppCommand(op,interp,argc,argv);\n",
-            data->SuperClasses[i]);
+            safe_superclass);
     fprintf(fp,"    if ( SuperClassStatus == TCL_OK ) { return TCL_OK; }\n" );
+
+    free(safe_name);
     }
   /* Now we handle it ourselves */
   for (k = 0; k < numberOfWrappedFunctions; k++)
@@ -1484,9 +1518,14 @@ int main(int argc, char *argv[])
   /* try superclasses */
   for (i = 0; i < data->NumberOfSuperClasses; i++)
     {
+    char *safe_name = vtkWrap_SafeSuperclassName(data->SuperClasses[i]);
+    const char *safe_superclass = safe_name ? safe_name : data->SuperClasses[i];
+
     fprintf(fp,"\n  if (%sCppCommand(static_cast<%s *>(op),interp,argc,argv) == TCL_OK)\n",
-            data->SuperClasses[i], data->SuperClasses[i]);
+            safe_superclass, data->SuperClasses[i]);
     fprintf(fp,"    {\n    return TCL_OK;\n    }\n");
+
+    free(safe_name);
     }
 
 

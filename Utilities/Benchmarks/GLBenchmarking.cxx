@@ -61,7 +61,7 @@ public:
   BenchmarkTest() { ; }
   virtual ~BenchmarkTest() { ; }
 
-  virtual vtkIdType Build(vtkRenderer *renderer, const vtkVector2i &)
+  virtual vtkIdType Build(vtkRenderer *, const vtkVector2i &)
   {
     return 0;
   }

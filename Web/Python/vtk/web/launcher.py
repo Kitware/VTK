@@ -29,71 +29,113 @@ except ImportError:
 
 
 sample_config_file = """
-Here is a sample of what a configuration file could looks like:
+Here is a sample of what a configuration file could look like:
 
     {
-      ## ===============================
-      ## General launcher configuration
-      ## ===============================
+        ## ===============================
+        ## General launcher configuration
+        ## ===============================
 
-      "configuration": {
-        "host" : "localhost",
-        "port" : 8080,
-        "endpoint": "paraview",                   # SessionManager Endpoint
-        "content": "/.../www",                    # Optional: Directory shared over HTTP
-        "proxy_file" : "/.../proxy-mapping.txt",  # Proxy-Mapping file for Apache
-        "sessionURL" : "ws://${host}:${port}/ws", # ws url used by the client to connect to the started process
-        "timeout" : 25,                           # Wait time in second after process start
-        "log_dir" : "/.../viz-logs",              # Directory for log files
-        "upload_dir" : "/.../data",               # If launcher should act as upload server, where to put files
-        "fields" : ["file", "host", "port", "updir"]       # List of fields that should be send back to client
-      },
-
-      ## ===============================
-      ## Useful session vars for client
-      ## ===============================
-
-      "sessionData" : { "updir": "/Home" },      # Tells client which path to updateFileBrowser after uploads
-
-      ## ===============================
-      ## Resources list for applications
-      ## ===============================
-
-      "resources" : [ { "host" : "localhost", "port_range" : [9001, 9003] } ],
-
-      ## ===============================
-      ## Set of properties for cmd line
-      ## ===============================
-
-      "properties" : {
-        "build_dir" : "/.../build",
-        "python_exec" : "/.../build/bin/vtkpython",
-        "WWW" : "/.../build/www",
-        "source_dir": "/.../src"
-      },
-
-      ## ===============================
-      ## Application list with cmd line
-      ## ===============================
-
-      "apps" : {
-        "cone" : {
-          "cmd" : [
-            "${python_exec}", "-dr", "${build_dir}/Wrapping/Python/vtk/web/vtk_web_cone.py", "--content", "${WWW}", "--port", "$port", "-f", "--authKey", "$secret"
-              ],
-          "ready_line" : "Starting factory"
+        "configuration": {
+            "host" : "localhost",
+            "port" : 8080,
+            "endpoint": "paraview",                   # SessionManager Endpoint
+            "content": "/.../www",                    # Optional: Directory shared over HTTP
+            "proxy_file" : "/.../proxy-mapping.txt",  # Proxy-Mapping file for Apache
+            "sessionURL" : "ws://${host}:${port}/ws", # ws url used by the client to connect to the started process
+            "timeout" : 25,                           # Wait time in second after process start
+            "log_dir" : "/.../viz-logs",              # Directory for log files
+            "upload_dir" : "/.../data",               # If launcher should act as upload server, where to put files
+            "fields" : ["file", "host", "port", "updir"]       # List of fields that should be send back to client
         },
-        "test" : {
-          "cmd" : [
-            "${python_exec}", "-dr", "${build_dir}/PhylogeneticTree/server/vtk_web_phylogenetic_tree.py", "--content", "${WWW}" ],
-          "ready_line" : "Starting factory"
+
+        ## ===============================
+        ## Useful session vars for client
+        ## ===============================
+
+        "sessionData" : { "updir": "/Home" },      # Tells client which path to updateFileBrowser after uploads
+
+        ## ===============================
+        ## Resources list for applications
+        ## ===============================
+
+        "resources" : [ { "host" : "localhost", "port_range" : [9001, 9003] } ],
+
+        ## ===============================
+        ## Set of properties for cmd line
+        ## ===============================
+
+        "properties" : {
+            "vtkpython" : "/.../VTK/build/bin/vtkpython",
+            "pvpython" : "/.../ParaView/build/bin/pvpython",
+            "vtk_python_path": "/.../VTK/build/Wrapping/Python/vtk/web",
+            "pv_python_path": "/.../ParaView/build/lib/site-packages/paraview/web",
+            "plugins_path": "/.../ParaView/build/lib",
+            "dataDir": "/.../path/to/data/directory"
         },
-        "launcher" : {
-          "cmd" : [
-            "/home/kitware/launcher.sh", "${host}", "${port}", "${node}", "${app}", "${user}", "${password}", "${secret}" ],
-          "ready_line" : "Good to go"
+
+        ## ===============================
+        ## Application list with cmd lines
+        ## ===============================
+
+        "apps" : {
+            "cone" : {
+                "cmd" : [
+                    "${vtkpython}", "${vtk_python_path}/vtk_web_cone.py", "--port", "$port" ],
+                "ready_line" : "Starting factory"
+            },
+            "graph" : {
+                "cmd" : [
+                    "${vtkpython}", "${vtk_python_path}/vtk_web_graph.py", "--port", "$port",
+                    "--vertices", "${numberOfVertices}", "--edges", "${numberOfEdges}" ],
+                "ready_line" : "Starting factory"
+            },
+            "phylotree" : {
+                "cmd" : [
+                    "${vtkpython}", "${vtk_python_path}/vtk_web_phylogenetic_tree.py", "--port", "$port",
+                    "--tree", "${dataDir}/visomics/${treeFile}", "--table", "${dataDir}/visomics/${tableFile}" ],
+                "ready_line" : "Starting factory"
+            },
+            "filebrowser" : {
+                "cmd" : [
+                    "${vtkpython}", "${vtk_python_path}/vtk_web_filebrowser.py",
+                    "--port", "${port}", "--data-dir", "${dataDir}" ],
+                "ready_line" : "Starting factory"
+            },
+            "data_prober": {
+                "cmd": [
+                    "${pvpython}", "-dr", "${pv_python_path}/pv_web_data_prober.py",
+                    "--port", "${port}", "--data-dir", "${dataDir}", "-f" ],
+                "ready_line" : "Starting factory"
+            },
+            "visualizer": {
+                "cmd": [
+                    "${pvpython}", "-dr", "${pv_python_path}/pv_web_visualizer.py",
+                    "--plugins", "${plugins_path}/libPointSprite_Plugin.so", "--port", "${port}",
+                    "--data-dir", "${dataDir}", "--load-file", "${dataDir}/${fileToLoad}",
+                    "--authKey", "${secret}", "-f" ],
+                "ready_line" : "Starting factory"
+            },
+            "loader": {
+                "cmd": [
+                    "${pvpython}", "-dr", "${pv_python_path}/pv_web_file_loader.py",
+                    "--port", "${port}", "--data-dir", "${dataDir}",
+                    "--load-file", "${dataDir}/${fileToLoad}", "-f" ],
+                "ready_line" : "Starting factory"
+            },
+            "launcher" : {
+                "cmd": [
+                    "/.../ParaView/Web/Applications/Parallel/server/launcher.sh",
+                    "${port}", "${client}", "${resources}", "${file}" ],
+                "ready_line" : "Starting factory"
+            },
+            "your_app": {
+                "cmd": [
+                    "your_shell_script.sh", "--resource-host", "${host}", "--resource-port", "${port}",
+                    "--session-id", "${id}", "--generated-password", "${secret}",
+                    "--application-key", "${application}" ],
+                "ready_line": "Output line from your shell script indicating process is ready"
         }
-      }
     }
 """
 

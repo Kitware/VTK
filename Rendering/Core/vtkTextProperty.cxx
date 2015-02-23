@@ -26,6 +26,12 @@ vtkTextProperty::vtkTextProperty()
 
   this->Opacity  = 1.0;
 
+  this->BackgroundColor[0] = 0.0;
+  this->BackgroundColor[1] = 0.0;
+  this->BackgroundColor[2] = 0.0;
+
+  this->BackgroundOpacity  = 0.0;
+
   this->FontFamilyAsString = 0;
   this->FontFile = NULL;
   this->SetFontFamilyAsString( "Arial" );
@@ -46,6 +52,7 @@ vtkTextProperty::vtkTextProperty()
   this->Orientation = 0.0;
 }
 
+//----------------------------------------------------------------------------
 vtkTextProperty::~vtkTextProperty()
 {
   this->SetFontFamilyAsString(NULL);
@@ -62,6 +69,9 @@ void vtkTextProperty::ShallowCopy(vtkTextProperty *tprop)
 
   this->SetColor(tprop->GetColor());
   this->SetOpacity(tprop->GetOpacity());
+
+  this->SetBackgroundColor(tprop->GetBackgroundColor());
+  this->SetBackgroundOpacity(tprop->GetBackgroundOpacity());
 
   this->SetFontFamilyAsString(tprop->GetFontFamilyAsString());
   this->SetFontFile(tprop->GetFontFile());
@@ -105,6 +115,13 @@ void vtkTextProperty::PrintSelf(ostream& os, vtkIndent indent)
      << this->Color[1] << ", " << this->Color[2] << ")\n";
 
   os << indent << "Opacity: " << this->Opacity << "\n";
+
+  os << indent << "BackgroundColor: ("
+     << this->BackgroundColor[0] << ", "
+     << this->BackgroundColor[1] << ", "
+     << this->BackgroundColor[2] << ")\n";
+
+  os << indent << "BackgroundOpacity: " << this->BackgroundOpacity << "\n";
 
   os << indent << "FontFamilyAsString: "
      << (this->FontFamilyAsString ? this->FontFamilyAsString : "(null)") << endl;

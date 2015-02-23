@@ -15,17 +15,18 @@
 
         <script src="../../lib/core/vtkweb-loader-min.js" load="core-min"></script>
         <script type="text/javascript">
-            var connection = {
-                sessionURL: "ws://" + window.location.host + "/ws",
+            var config = {
+                sessionManagerURL: vtkWeb.properties.sessionManagerURL,
                 name: "PhylogeneticTree",
                 description: "PhylogeneticTree Web demo application",
-                application: "PhylogeneticTree"
+                application: "phylotree",
+                treeFile: "anolyis.phy",
+                tableFile: "anolisDataAppended.csv"
             },
             loading = $(".loading"),
-            viewport = null;
-
-            // Connect to remote server
-            vtkWeb.connect(connection, function(serverConnection) {
+            viewport = null,
+            stop = vtkWeb.NoOp,
+            start = function(serverConnection) {
                 connection = serverConnection;
 
                 // Create viewport
@@ -40,29 +41,31 @@
                         viewport.render();
                     }
                 }).trigger('resize');
-            }, function(code, reason) {
-                loading.hide();
-                alert(reason);
-            });
 
+                // Method call at exit time
+                stop = function() {
+                    if(connection.session) {
+                        viewport.unbind();
+                        connection.session.call('application.exit');
+                        connection.session.close();
+                        connection.session = null;
+                    }
+                };
+            };
 
             function updateView() {
                 if(viewport) {
                     viewport.invalidateScene();
                 }
             }
+
             // Not perfect but make sure we get a new image at least every second
             setInterval(updateView, 1000);
 
-            // Method call at exit time
-            function stop() {
-                if(false && connection.session) {
-                    viewport.unbind();
-                    connection.session.call('application.exit');
-                    connection.session.close();
-                    connection.session = null;
-                }
-            }
+            // Launch remote server and connect to it
+            vtkWeb.smartConnect(config, start, function(code,reason){
+                console.log(reason);
+            });
         </script>
     </body>
 </html>

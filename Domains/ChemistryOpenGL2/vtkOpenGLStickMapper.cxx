@@ -89,15 +89,21 @@ void vtkOpenGLStickMapper::ReplaceShaderValues(std::string &VSSource,
   substitute(FSSource,"//VTK::Normal::Impl",
     // compute the eye position and unit direction
     "  vec4 vertexVC = vertexVCClose;\n"
-    "  vec3 EyePos = vec3(0.0,0.0,0.0);\n"
-    "  if (cameraParallel != 0) { EyePos = vertexVC.xyz;}\n"
+    "  vec3 EyePos;\n"
+    "  vec3 EyeDir;\n"
+    "  if (cameraParallel != 0) {\n"
+    "    EyePos = vec3(vertexVC.x, vertexVC.y, vertexVC.z + 3.0*radiusVC);\n"
+    "    EyeDir = vec3(0.0,0.0,-1.0); }\n"
+    "  else {\n"
+    "    EyeDir = vertexVC.xyz;\n"
+    "    EyePos = vec3(0.0,0.0,0.0);\n"
+    "    float lengthED = length(EyeDir);\n"
+    "    EyeDir = normalize(EyeDir);\n"
     // we adjust the EyePos to be closer if it is too far away
     // to prevent floating point precision noise
-    "  vec3 EyeDir = vertexVC.xyz - EyePos;\n"
-    "  float lengthED = length(EyeDir);\n"
-    "  EyeDir = normalize(EyeDir);\n"
-    "  if (lengthED > (radiusVC+lengthVC)*3.0) \n"
-    "    { EyePos = vertexVC.xyz - EyeDir*3.0*(radiusVC+lengthVC);}\n"
+    "    if (lengthED > radiusVC*3.0) {\n"
+    "      EyePos = vertexVC.xyz - EyeDir*3.0*radiusVC; }\n"
+    "    }\n"
 
     // translate to Cylinder center
     "  EyePos = EyePos - centerVC;\n"
@@ -502,7 +508,8 @@ bool vtkOpenGLStickMapper::GetNeedToRebuildBufferObjects(vtkRenderer *ren, vtkAc
 }
 
 //-------------------------------------------------------------------------
-void vtkOpenGLStickMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act)
+void vtkOpenGLStickMapper::BuildBufferObjects(vtkRenderer *ren,
+  vtkActor *vtkNotUsed(act))
 {
   vtkPolyData *poly = this->CurrentInput;
 
@@ -517,7 +524,7 @@ void vtkOpenGLStickMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act)
   // I moved this out of the conditional because it is fast.
   // Color arrays are cached. If nothing has changed,
   // then the scalars do not have to be regenerted.
-  this->MapScalars(act->GetProperty()->GetOpacity());
+  this->MapScalars(1.0);
 
   vtkHardwareSelector* selector = ren->GetSelector();
   bool picking = (ren->GetRenderWindow()->GetIsPicking() || selector != NULL);
