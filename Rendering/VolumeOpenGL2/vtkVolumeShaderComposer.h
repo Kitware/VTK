@@ -872,18 +872,38 @@ namespace vtkvolume
       {
       if (noOfComponents == 4)
         {
-        shaderStr += std::string("\
-          \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
-          \n      if (l_maxValue.w < scalar.w || l_firstValue)\
-          \n        {\
-          \n        l_maxValue = scalar;\
-          \n        }\
-          \n\
-          \n     if (l_firstValue)\
-          \n        {\
-          \n        l_firstValue = false;\
-          \n        }"
-        );
+        if (!independentComponents)
+          {
+          shaderStr += std::string("\
+            \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
+            \n      if (l_maxValue.w < scalar.w || l_firstValue)\
+            \n        {\
+            \n        l_maxValue = scalar;\
+            \n        }\
+            \n\
+            \n     if (l_firstValue)\
+            \n        {\
+            \n        l_firstValue = false;\
+            \n        }"
+          );
+          }
+        else
+          {
+          shaderStr += std::string("\
+           \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
+           \n      for (int i = 0; i < in_noOfComponents; ++i)\
+           \n        {\
+           \n        if (l_maxValue[i] < scalar[i] || l_firstValue)\
+           \n          {\
+           \n          l_maxValue[i] = scalar[i];\
+           \n          }\
+           \n\       }\
+           \n     if (l_firstValue)\
+           \n        {\
+           \n        l_firstValue = false;\
+           \n        }"
+          );
+          }
         }
       else
         {
@@ -905,18 +925,38 @@ namespace vtkvolume
       {
       if (noOfComponents == 4)
         {
-        shaderStr += std::string("\
+        if (!independentComponents)
+          {
+          shaderStr += std::string("\
+            \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
+            \n      if (l_minValue.w > scalar.w || l_firstValue)\
+            \n        {\
+            \n        l_minValue = scalar;\
+            \n        }\
+            \n\
+            \n     if (l_firstValue)\
+            \n        {\
+            \n        l_firstValue = false;\
+            \n        }"
+          );
+          }
+        else
+          {
+          shaderStr += std::string("\
           \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
-          \n      if (l_minValue.w > scalar.w || l_firstValue)\
+          \n      for (int i = 0; i < in_noOfComponents; ++i)\
           \n        {\
-          \n        l_minValue = scalar;\
-          \n        }\
-          \n\
+          \n        if (l_minValue[i] < scalar[i] || l_firstValue)\
+          \n          {\
+          \n          l_minValue[i] = scalar[i];\
+          \n          }\
+          \n\       }\
           \n     if (l_firstValue)\
           \n        {\
           \n        l_firstValue = false;\
           \n        }"
-        );
+          );
+          }
         }
       else
         {
