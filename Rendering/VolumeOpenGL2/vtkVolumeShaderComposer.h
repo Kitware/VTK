@@ -865,17 +865,17 @@ namespace vtkvolume
     {
     std::string shaderStr = std::string("\
       \n    if (!l_skip)\
-      \n      {"
+      \n      {\
+      \n      vec4 scalar = texture3D(in_volume, g_dataPos);"
     );
 
     if (mapper->GetBlendMode() == vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND)
       {
-      if (noOfComponents == 4)
+      if (noOfComponents > 1)
         {
         if (!independentComponents)
           {
           shaderStr += std::string("\
-            \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
             \n      if (l_maxValue.w < scalar.w || l_firstValue)\
             \n        {\
             \n        l_maxValue = scalar;\
@@ -890,7 +890,6 @@ namespace vtkvolume
         else
           {
           shaderStr += std::string("\
-           \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
            \n      for (int i = 0; i < in_noOfComponents; ++i)\
            \n        {\
            \n        if (l_maxValue[i] < scalar[i] || l_firstValue)\
@@ -908,7 +907,6 @@ namespace vtkvolume
       else
         {
         shaderStr += std::string("\
-          \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
           \n      if (l_maxValue.w < scalar.x || l_firstValue)\
           \n        {\
           \n        l_maxValue.w = scalar.x;\
@@ -923,12 +921,11 @@ namespace vtkvolume
       }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::MINIMUM_INTENSITY_BLEND)
       {
-      if (noOfComponents == 4)
+      if (noOfComponents > 1)
         {
         if (!independentComponents)
           {
           shaderStr += std::string("\
-            \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
             \n      if (l_minValue.w > scalar.w || l_firstValue)\
             \n        {\
             \n        l_minValue = scalar;\
@@ -943,7 +940,6 @@ namespace vtkvolume
         else
           {
           shaderStr += std::string("\
-          \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
           \n      for (int i = 0; i < in_noOfComponents; ++i)\
           \n        {\
           \n        if (l_minValue[i] < scalar[i] || l_firstValue)\
@@ -961,7 +957,6 @@ namespace vtkvolume
       else
         {
         shaderStr += std::string("\
-          \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
           \n      if (l_minValue.w > scalar.x || l_firstValue)\
           \n        {\
           \n        l_minValue.w = scalar.x;\
@@ -976,42 +971,63 @@ namespace vtkvolume
       }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::ADDITIVE_BLEND)
       {
-      shaderStr += std::string("\
-        \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
-        \n      float opacity = computeOpacity(scalar);\
-        \n      l_sumValue = l_sumValue + opacity * scalar.x;"
-      );
+      if (noOfComponents > 1)
+       {
+       if (!independentComponents)
+         {
+         shaderStr += std::string("\
+           \n      float opacity = computeOpacity(scalar);\
+           \n      l_sumValue = l_sumValue + opacity * scalar.x;"
+         );
+         }
+       else
+         {
+         shaderStr += std::string("\
+         \n       for (int i = 0; i < in_noOfComponents; ++i)\
+         \n         {\
+         \n         float opacity = computeOpacity(scalar, i);\
+         \n         l_sumValue[i] = l_sumValue[i] + opacity * scalar[i];\
+         \n         }"
+         );
+         }
+       }
+       else
+         {
+         shaderStr += std::string("\
+           \n      float opacity = computeOpacity(scalar);\
+           \n      l_sumValue = l_sumValue + opacity * scalar.x;"
+         );
+         }
       }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::COMPOSITE_BLEND)
       {
       if (noOfComponents > 1 && independentComponents)
         {
         shaderStr += std::string("\
-        \n       vec4 color[4]; vec4 tmp = vec4(0.0);\
-        \n       float totalAlpha = 0.0;\
-        \n       vec4 scalar = texture3D(in_volume, g_dataPos);\
-        \n       for (int i = 0; i < in_noOfComponents; ++i)\
-        \n         {\
+        \n      vec4 color[4]; vec4 tmp = vec4(0.0);\
+        \n      float totalAlpha = 0.0;\
+        \n      for (int i = 0; i < in_noOfComponents; ++i)\
+        \n        {\
         ");
         if (!mask || !maskInput ||
             maskType != vtkGPUVolumeRayCastMapper::LabelMapMaskType)
           {
           shaderStr += std::string("\
-          \n          // Data fetching from the red channel of volume texture\
-          \n          color[i] = vec4(computeColor(scalar, i));\
-          \n          totalAlpha += color[i][3] * in_componentWeight[i];\
+          \n        // Data fetching from the red channel of volume texture\
+          \n        color[i] = vec4(computeColor(scalar, i));\
+          \n        totalAlpha += color[i][3] * in_componentWeight[i];\
+          \n        }\
+          \n      if (totalAlpha > 0.0)\
+          \n        {\
+          \n        for (int i = 0; i < in_noOfComponents; ++i)\
+          \n          {\
+          \n          tmp.x += color[i].x * color[i].w * in_componentWeight[i] ;\
+          \n          tmp.y += color[i].y * color[i].w * in_componentWeight[i];\
+          \n          tmp.z += color[i].z * color[i].w * in_componentWeight[i];\
+          \n          tmp.w += ((color[i].w * color[i].w)/totalAlpha);\
           \n          }\
-          \n       if (totalAlpha > 0.0)\
-          \n         {\
-          \n         for (int i = 0; i < in_noOfComponents; ++i)\
-          \n           {\
-          \n           tmp.x += color[i].x * color[i].w * in_componentWeight[i] ;\
-          \n           tmp.y += color[i].y * color[i].w * in_componentWeight[i];\
-          \n           tmp.z += color[i].z * color[i].w * in_componentWeight[i];\
-          \n           tmp.w += ((color[i].w * color[i].w)/totalAlpha);\
-          \n           }\
-          \n         }\
-          \n       g_fragColor = (1.0f - g_fragColor.a) * tmp + g_fragColor;"
+          \n        }\
+          \n      g_fragColor = (1.0f - g_fragColor.a) * tmp + g_fragColor;"
           );
           }
         }
@@ -1021,8 +1037,6 @@ namespace vtkvolume
              maskType != vtkGPUVolumeRayCastMapper::LabelMapMaskType)
            {
            shaderStr += std::string("\
-             \n      // Data fetching from the red channel of volume texture\
-             \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
              \n      vec4 g_srcColor = computeColor(scalar);"
            );
            }
@@ -1116,10 +1130,20 @@ namespace vtkvolume
       }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::ADDITIVE_BLEND)
       {
-      return std::string("\
-        \n  l_sumValue = clamp(l_sumValue, 0.0, 1.0);\
-        \n  g_fragColor = vec4(vec3(l_sumValue), 1.0);"
-      );
+      if (noOfComponents > 1 && independentComponents)
+        {
+        return std::string("\
+          \n  l_sumValue = clamp(l_sumValue, 0.0, 1.0);\
+          \n  g_fragColor = vec4(l_sumValue);"
+        );
+        }
+      else
+        {
+        return std::string("\
+          \n  l_sumValue = clamp(l_sumValue, 0.0, 1.0);\
+          \n  g_fragColor = vec4(vec3(l_sumValue), 1.0);"
+        );
+        }
       }
     else
       {
