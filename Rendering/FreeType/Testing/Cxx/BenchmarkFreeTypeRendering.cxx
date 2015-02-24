@@ -24,6 +24,7 @@
 
 #include <ctime>
 #include <cstdio>
+#include <algorithm>
 
 //----------------------------------------------------------------------------
 int BenchmarkFreeTypeRendering(int , char *[])
