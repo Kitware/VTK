@@ -585,7 +585,6 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
     return;
     }
   vtkIdType cellId;
-  int i;
   int allVisible;
   vtkIdType npts = 0;
   vtkIdType *pts = 0;
@@ -598,7 +597,6 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
   vtkCellArray *verts, *lines, *polys, *strips;
   vtkIdList *cellIds, *faceIds;
   char *cellVis;
-  vtkIdType newCellId;
   int faceId, *faceVerts, numFacePts;
   double x[3];
   int pixelConvert[4];
@@ -683,7 +681,7 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
         }
       else
         {
-        for (i=0; i < npts; i++)
+        for (int i=0; i < npts; i++)
           {
           p->GetPoint(pts[i], x);
           if ( (this->PointClipping && (pts[i] < this->PointMinimum ||
@@ -701,10 +699,21 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
       }//for all cells
     }//if not all visible
 
+  // These store the cell ids of the input that map to the
+  // new vert/line/poly/strip cells, for copying cell data
+  // in appropriate order.
+  std::vector< vtkIdType > vertCellIds;
+  std::vector< vtkIdType > lineCellIds;
+  std::vector< vtkIdType > polyCellIds;
+  std::vector< vtkIdType > stripCellIds;
+  vertCellIds.reserve( numCells );
+  lineCellIds.reserve( numCells );
+  polyCellIds.reserve( numCells );
+  stripCellIds.reserve( numCells );
+
   // Loop over all cells now that visibility is known
   // (Have to compute visibility first for 3D cell boundarys)
   int progressInterval = numCells/20 + 1;
-  newCellId = 0;
   for (cellId=0, connectivity->InitTraversal();
        connectivity->GetNextCell(npts,pts);
        cellId++)
@@ -734,39 +743,34 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
         case VTK_VERTEX:
         case VTK_POLY_VERTEX:
           verts->InsertNextCell(npts,pts);
-          outputCD->CopyData(cd,cellId,newCellId);
-          newCellId++;
+          vertCellIds.push_back(cellId);
           break;
 
         case VTK_LINE:
         case VTK_POLY_LINE:
           lines->InsertNextCell(npts,pts);
-          outputCD->CopyData(cd,cellId,newCellId);
-          newCellId++;
+          lineCellIds.push_back(cellId);
           break;
 
         case VTK_TRIANGLE:
         case VTK_QUAD:
         case VTK_POLYGON:
           polys->InsertNextCell(npts,pts);
-          outputCD->CopyData(cd,cellId,newCellId);
-          newCellId++;
+          polyCellIds.push_back(cellId);
           break;
 
         case VTK_TRIANGLE_STRIP:
           strips->InsertNextCell(npts,pts);
-          outputCD->CopyData(cd,cellId,newCellId);
-          newCellId++;
+          stripCellIds.push_back(cellId);
           break;
 
         case VTK_PIXEL:
           polys->InsertNextCell(npts);
-          for ( i=0; i < npts; i++)
+          for ( int i=0; i < npts; i++)
             {
             polys->InsertCellPoint(pts[pixelConvert[i]]);
             }
-          outputCD->CopyData(cd,cellId,newCellId);
-          newCellId++;
+          polyCellIds.push_back(cellId);
           break;
 
         case VTK_TETRA:
@@ -783,12 +787,11 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
                  (!allVisible && !cellVis[cellIds->GetId(0)]) )
               {
               polys->InsertNextCell(numFacePts);
-              for ( i=0; i < numFacePts; i++)
+              for ( int i=0; i < numFacePts; i++)
                 {
                 polys->InsertCellPoint(pts[faceVerts[i]]);
                 }
-              outputCD->CopyData(cd,cellId,newCellId);
-              newCellId++;
+              polyCellIds.push_back(cellId);
               }
             }
           break;
@@ -808,12 +811,11 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
                  (!allVisible && !cellVis[cellIds->GetId(0)]) )
               {
               polys->InsertNextCell(numFacePts);
-              for ( i=0; i < numFacePts; i++)
+              for ( int i=0; i < numFacePts; i++)
                 {
                 polys->InsertCellPoint(pts[faceVerts[pixelConvert[i]]]);
                 }
-              outputCD->CopyData(cd,cellId,newCellId);
-              newCellId++;
+              polyCellIds.push_back(cellId);
               }
             }
           break;
@@ -833,12 +835,11 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
                  (!allVisible && !cellVis[cellIds->GetId(0)]) )
               {
               polys->InsertNextCell(numFacePts);
-              for ( i=0; i < numFacePts; i++)
+              for ( int i=0; i < numFacePts; i++)
                 {
                 polys->InsertCellPoint(pts[faceVerts[i]]);
                 }
-              outputCD->CopyData(cd,cellId,newCellId);
-              newCellId++;
+              polyCellIds.push_back(cellId);
               }
             }
           break;
@@ -862,12 +863,11 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
                  (!allVisible && !cellVis[cellIds->GetId(0)]) )
               {
               polys->InsertNextCell(numFacePts);
-              for ( i=0; i < numFacePts; i++)
+              for ( int i=0; i < numFacePts; i++)
                 {
                 polys->InsertCellPoint(pts[faceVerts[i]]);
                 }
-              outputCD->CopyData(cd,cellId,newCellId);
-              newCellId++;
+              polyCellIds.push_back(cellId);
               }
             }
           break;
@@ -891,12 +891,11 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
                  (!allVisible && !cellVis[cellIds->GetId(0)]) )
               {
               polys->InsertNextCell(numFacePts);
-              for ( i=0; i < numFacePts; i++)
+              for ( int i=0; i < numFacePts; i++)
                 {
                 polys->InsertCellPoint(pts[faceVerts[i]]);
                 }
-              outputCD->CopyData(cd,cellId,newCellId);
-              newCellId++;
+              polyCellIds.push_back(cellId);
               }
             }
           break;
@@ -921,12 +920,11 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
                  (!allVisible && !cellVis[cellIds->GetId(0)]) )
               {
               polys->InsertNextCell(numFacePts);
-              for ( i=0; i < numFacePts; i++)
+              for ( int i=0; i < numFacePts; i++)
                 {
                 polys->InsertCellPoint(pts[faceVerts[i]]);
                 }
-              outputCD->CopyData(cd,cellId,newCellId);
-              newCellId++;
+              polyCellIds.push_back(cellId);
               }
             }
           break;
@@ -952,12 +950,11 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
                  (!allVisible && !cellVis[cellIds->GetId(0)]) )
               {
               polys->InsertNextCell(numFacePts);
-              for ( i=0; i < numFacePts; i++)
+              for ( int i=0; i < numFacePts; i++)
                 {
                 polys->InsertCellPoint(pts[faceVerts[i]]);
                 }
-              outputCD->CopyData(cd,cellId,newCellId);
-              newCellId++;
+              polyCellIds.push_back(cellId);
               }
             }
           break;
@@ -989,26 +986,24 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
           if ( cell->GetCellDimension() == 1 )
             {
             cell->Triangulate(0,ipts,coords);
-            for (i=0; i < ipts->GetNumberOfIds(); i+=2)
+            for ( int i=0; i < ipts->GetNumberOfIds(); i+=2)
               {
               lines->InsertNextCell(2);
               lines->InsertCellPoint(ipts->GetId(i));
               lines->InsertCellPoint(ipts->GetId(i+1));
-              outputCD->CopyData(cd,cellId,newCellId);
-              newCellId++;
+              lineCellIds.push_back(cellId);
               }
             }
           else if ( cell->GetCellDimension() == 2 )
             {
             cell->Triangulate(0,ipts,coords);
-            for (i=0; i < ipts->GetNumberOfIds(); i+=3)
+            for ( int i=0; i < ipts->GetNumberOfIds(); i+=3)
               {
               polys->InsertNextCell(3);
               polys->InsertCellPoint(ipts->GetId(i));
               polys->InsertCellPoint(ipts->GetId(i+1));
               polys->InsertCellPoint(ipts->GetId(i+2));
-              outputCD->CopyData(cd,cellId,newCellId);
-              newCellId++;
+              polyCellIds.push_back(cellId);
               }
             }
           else //3D nonlinear cell
@@ -1021,14 +1016,13 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
               if ( icellIds->GetNumberOfIds() <= 0)
                 {
                 face->Triangulate(0,ipts,coords);
-                for (i=0; i < ipts->GetNumberOfIds(); i+=3)
+                for ( int i=0; i < ipts->GetNumberOfIds(); i+=3)
                   {
                   polys->InsertNextCell(3);
                   polys->InsertCellPoint(ipts->GetId(i));
                   polys->InsertCellPoint(ipts->GetId(i+1));
                   polys->InsertCellPoint(ipts->GetId(i+2));
-                  outputCD->CopyData(cd,cellId,newCellId);
-                  newCellId++;
+                  polyCellIds.push_back(cellId);
                   }
                 }
               }
@@ -1054,10 +1048,36 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
   output->SetStrips(strips);
   strips->Delete();
 
+  // Copy the cell data in appropriate order : verts / lines / polys / strips
+  size_t offset = 0;
+  size_t size = vertCellIds.size();
+  for ( size_t i = 0; i < size; ++i )
+    {
+    outputCD->CopyData(cd, vertCellIds[i], i );
+    }
+  offset += size;
+  size = lineCellIds.size();
+  for ( size_t i = 0; i < size; ++i )
+    {
+    outputCD->CopyData(cd, lineCellIds[i], i+offset );
+    }
+  offset += size;
+  size = polyCellIds.size();
+  for ( size_t i = 0; i < size; ++i )
+    {
+    outputCD->CopyData(cd, polyCellIds[i], i+offset );
+    }
+  offset += size;
+  size = stripCellIds.size();
+  for ( size_t i = 0; i < size; ++i )
+    {
+    outputCD->CopyData(cd, stripCellIds[i], i+offset );
+    }
+
   output->Squeeze();
 
   vtkDebugMacro(<<"Extracted " << input->GetNumberOfPoints() << " points,"
-  << output->GetNumberOfCells() << " cells.");
+    << output->GetNumberOfCells() << " cells.");
 
   cellIds->Delete();
   faceIds->Delete();
@@ -1073,7 +1093,7 @@ void vtkGeometryFilter::StructuredGridExecute(vtkDataSet *dataSetInput,
   int i;
   vtkStructuredGrid *input=static_cast<vtkStructuredGrid *>(dataSetInput);
   vtkIdType numCells=input->GetNumberOfCells();
-  char *cellVis;
+  std::vector<char> cellVis;
   vtkGenericCell *cell;
   double x[3];
   vtkIdList *ptIds;
@@ -1117,15 +1137,14 @@ void vtkGeometryFilter::StructuredGridExecute(vtkDataSet *dataSetInput,
     }
 
   if ( (!this->CellClipping) && (!this->PointClipping) &&
-  (!this->ExtentClipping) )
+       (!this->ExtentClipping) )
     {
     allVisible = 1;
-    cellVis = NULL;
     }
   else
     {
     allVisible = 0;
-    cellVis = new char[numCells];
+    cellVis.resize(numCells);
     }
 
   // Mark cells as being visible or not
@@ -1254,7 +1273,6 @@ void vtkGeometryFilter::StructuredGridExecute(vtkDataSet *dataSetInput,
   output->Squeeze();
   cellIds->Delete();
   pts->Delete();
-  delete [] cellVis;
 }
 
 //----------------------------------------------------------------------------
