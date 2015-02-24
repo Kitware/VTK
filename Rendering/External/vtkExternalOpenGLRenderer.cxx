@@ -191,8 +191,12 @@ void vtkExternalOpenGLRenderer::Render(void)
   matrix->MultiplyPoint(focalPoint, newFocalPoint);
   camera->SetFocalPoint(newFocalPoint);
 
+  matrix->Delete();
+
+  // Remove all VTK lights
   this->RemoveAllLights();
 
+  // Query OpenGL lights
   short curLight;
   for (curLight = GL_LIGHT0;
        curLight < GL_LIGHT0 + vtkLightingHelper::VTK_MAX_LIGHTS;
@@ -203,6 +207,8 @@ void vtkExternalOpenGLRenderer::Render(void)
     glGetBooleanv(curLight, &status);
     if (status)
       {
+      // For each enabled OpenGL light, add a new VTK headlight.
+      // Headlight because VTK will apply transform matrices.
       vtkLight* light = vtkLight::New();
       light->SetLightTypeToHeadlight();
       glGetLightfv(curLight, GL_POSITION, info);
@@ -217,30 +223,23 @@ void vtkExternalOpenGLRenderer::Render(void)
       glGetLightfv(curLight, GL_LINEAR_ATTENUATION, &info[1]);
       glGetLightfv(curLight, GL_QUADRATIC_ATTENUATION, &info[2]);
       light->SetAttenuationValues(info[0], info[1], info[2]);
+      glGetLightfv(curLight, GL_SPOT_CUTOFF, &info[0]);
+      if (info[0] < 180.0)
+        {
+        light->SetConeAngle(info[0]);
+        glGetLightfv(curLight, GL_SPOT_EXPONENT, &info[0]);
+        light->SetExponent(info[0]);
+        glGetLightfv(curLight, GL_SPOT_DIRECTION, info);
+        for (unsigned int i = 0; i < 3; ++i)
+          {
+          info[i] += light->GetPosition()[i];
+          }
+        light->SetFocalPoint(info[0], info[1], info[2]);
+        }
       this->AddLight(light);
       light->Delete();
       }
     }
-
-//  matrix->DeepCopy(mv);
-//  matrix->Invert();
-//
-//  vtkCollectionSimpleIterator sit;
-//  vtkLight* light;
-//  for (this->Lights->InitTraversal(sit);
-//    (light = this->Lights->GetNextLight(sit)); )
-//    {
-//    // If we set the transform matrix then even for the headlight
-//    // vtkOpenGLLight will use it and result in wrong lighting computation.
-//    // What we want is to use camera position and focal point only
-//    // when we have a head light.
-//    if (light->LightTypeIsCameraLight())
-//      {
-//      light->SetTransformMatrix(matrix);
-//      }
-//    }
-
-  matrix->Delete();
 
   // Forward the call to the Superclass
   this->Superclass::Render();
