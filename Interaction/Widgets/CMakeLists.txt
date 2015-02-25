@@ -42,6 +42,7 @@ set(Module_SRCS
   vtkContourLineInterpolator.cxx
   vtkContourRepresentation.cxx
   vtkContourWidget.cxx
+  vtkCurveRepresentation.cxx
   vtkDijkstraImageContourLineInterpolator.cxx
   vtkDistanceRepresentation2D.cxx
   vtkDistanceRepresentation3D.cxx
@@ -144,6 +145,7 @@ set_source_files_properties(
   vtkContinuousValueWidgetRepresentation
   vtkContourLineInterpolator
   vtkContourRepresentation
+  vtkCurveRepresentation
   vtkFocalPlaneContourRepresentation
   vtkDistanceRepresentation
   vtkHandleRepresentation
