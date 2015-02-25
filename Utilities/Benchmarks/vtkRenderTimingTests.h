@@ -426,6 +426,8 @@ class volumeTest : public vtkRTTest
 
     vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
     volumeMapper->SetInputConnection(wavelet->GetOutputPort());
+    volumeMapper->AutoAdjustSampleDistancesOff();
+    volumeMapper->SetSampleDistance(0.9);
 
     vtkNew<vtkVolumeProperty> volumeProperty;
     vtkNew<vtkColorTransferFunction> ctf;
