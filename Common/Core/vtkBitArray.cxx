@@ -246,7 +246,6 @@ unsigned char *vtkBitArray::ResizeAndExtend(vtkIdType sz)
   if (newSize <= 0)
     {
     this->Initialize();
-    vtkErrorMacro(<< "Memory size must be positive\n");
     return 0;
     }
 
