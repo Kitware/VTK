@@ -306,6 +306,12 @@ public:
   virtual void CopyInformationFromPipeline(vtkInformation* information);
 
   // Description:
+  // Copy information from this data object to the pipeline information.
+  // This is used by the vtkTrivialProducer that is created when someone
+  // calls SetInputData() to connect the image to a pipeline.
+  virtual void CopyInformationToPipeline(vtkInformation* information);
+
+  // Description:
   // make the output data ready for new data to be inserted. For most
   // objects we just call Initialize. But for image data we leave the old
   // data in case the memory can be reused.
