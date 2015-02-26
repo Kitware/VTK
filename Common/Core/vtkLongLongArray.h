@@ -17,6 +17,10 @@
 // vtkLongLongArray is an array of values of type long long.
 // It provides methods for insertion and retrieval of values and will
 // automatically resize itself to hold new data.
+//
+// This class should not be used directly, as it only exists on systems
+// where the long long type is defined.  If you need a 64 bit integer
+// data array, use vtkTypeInt64Array instead.
 
 #ifndef vtkLongLongArray_h
 #define vtkLongLongArray_h

@@ -17,6 +17,11 @@
 // vtkType@VTK_TYPE_NAME@Array is an array of values of type vtkType@VTK_TYPE_NAME@.  It
 // provides methods for insertion and retrieval of values and will
 // automatically resize itself to hold new data.
+//
+// This array should be preferred for data of type @VTK_TYPE_NAME@ as this
+// array will use the correct underlying datatype based on the desired number of bits
+// and the current platform.  The superclass of this type will change depending on the
+// machine and compiler in use so that the data contained always uses the proper type.
 
 #ifndef vtkType@VTK_TYPE_NAME@Array_h
 #define vtkType@VTK_TYPE_NAME@Array_h
