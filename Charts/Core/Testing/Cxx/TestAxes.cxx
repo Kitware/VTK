@@ -55,7 +55,7 @@ int TestAxes(int , char * [])
     vtkAxis *axis = axesVertical[i].GetPointer();
     axis->SetPoint1(vtkVector2f(i * 69 + 30, 10));
     axis->SetPoint2(vtkVector2f(i * 69 + 30, 290));
-    axis->SetPosition(i % 2 ? vtkAxis::LEFT : vtkAxis::RIGHT);
+    axis->SetPosition((i % 2) ? vtkAxis::LEFT : vtkAxis::RIGHT);
     axis->SetRange(NULL); // check that NULL pointers don't cause trouble
     axis->SetRange(-1, 50);
 
@@ -93,7 +93,7 @@ int TestAxes(int , char * [])
     vtkAxis *axis = axesHorizontal[i].GetPointer();
     axis->SetPoint1(vtkVector2f(310, i * 50 + 30));
     axis->SetPoint2(vtkVector2f(490, i * 50 + 30));
-    axis->SetPosition(i % 2 ? vtkAxis::TOP : vtkAxis::BOTTOM);
+    axis->SetPosition((i % 2) ? vtkAxis::TOP : vtkAxis::BOTTOM);
     axis->SetRange(-1, 50);
 
     view->GetScene()->AddItem(axis);

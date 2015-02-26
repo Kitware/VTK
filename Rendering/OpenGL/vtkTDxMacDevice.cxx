@@ -84,7 +84,7 @@ void vtkTDxMacDevice::Initialize()
   assert("pre: not_yet_initialized" && !this->GetInitialized());
   assert("pre: valid_name" && this->GetClientApplicationName()!=0);
 
-  if(vtkClientIDToDeviceObject.size()==0)
+  if(vtkClientIDToDeviceObject.empty())
     {
     OSErr result=InstallConnexionHandlers(vtkTDxMacDeviceMessageHandler,0L,0L);
     this->Initialized=result==noErr; // 0
@@ -141,7 +141,7 @@ void vtkTDxMacDevice::Close()
     }
 
   // only if the map is empty.
-  if(vtkClientIDToDeviceObject.size()==0)
+  if(vtkClientIDToDeviceObject.empty())
     {
     CleanupConnexionHandlers();
     }

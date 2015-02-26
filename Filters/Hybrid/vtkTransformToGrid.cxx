@@ -370,7 +370,7 @@ void vtkTransformToGrid::RequestData(
   grid->AllocateScalars(outInfo);
   int *extent = grid->GetExtent();
 
-  double *gridPtr = (double *)grid->GetScalarPointerForExtent(extent);
+  void *gridPtr = grid->GetScalarPointerForExtent(extent);
   int gridType = grid->GetScalarType();
 
   this->UpdateShiftScale();

@@ -1442,7 +1442,7 @@ void vtkFunctionParser::BuildInternalSubstringStructure(int beginIndex,
     if (mathFunctionNum > 0)
       {
       beginIndex2 = beginIndex;
-      while (this->Function[beginIndex2] != '(' && beginIndex2 <= endIndex)
+      while (beginIndex2 <= endIndex && this->Function[beginIndex2] != '(')
         {
         beginIndex2++;
         }

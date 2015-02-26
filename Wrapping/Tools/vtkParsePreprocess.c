@@ -422,7 +422,6 @@ static int preproc_evaluate_char(
 #endif
       return VTK_PARSE_SYNTAX_ERROR;
       }
-    cp++;
     *is_unsigned = 0;
     return VTK_PARSE_OK;
     }

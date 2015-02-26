@@ -160,7 +160,7 @@ void vtkAnimationScene::Play()
 
   this->InPlay = 1;
   this->StopPlay = 0;
-  this->FrameRate = (!this->FrameRate)? 1.0 : this->FrameRate;
+  this->FrameRate = (this->FrameRate == 0.0) ? 1.0 : this->FrameRate;
   // the actual play loop, check for StopPlay flag.
 
   double currenttime = this->AnimationTime;

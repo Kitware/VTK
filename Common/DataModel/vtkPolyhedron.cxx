@@ -2602,7 +2602,6 @@ int vtkPolyhedron::InternalContour(double value,
   std::vector<vtkIdVectorType> polygonVector;
   vtkIdToIdVectorMapType::iterator ceMapIt, ceBackupMapIt;
   vtkIdSetType::iterator cpSetIt = cpSet.end();
-  vtkIdVectorType::iterator cpVectorIt;
 
   // backup ceMap. During graph travasal, we will remove edges from contour point
   // which can mess up the ordering.

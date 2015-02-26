@@ -704,8 +704,8 @@ int vtkDelaunay2D::RequestData(
     //traverse all points, create vertices if none used
     for (ptId=0; ptId<(numPoints+8); ptId++)
       {
-      if ( !pointUse[ptId]
-           &&  (ptId < numPoints || this->BoundingTriangulation) )
+      if ( (ptId < numPoints || this->BoundingTriangulation)
+           && !pointUse[ptId] )
         {
         pts[0] = ptId;
         alphaVerts->InsertNextCell(1,pts);

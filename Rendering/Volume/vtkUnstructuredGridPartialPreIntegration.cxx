@@ -273,7 +273,7 @@ inline void vtkPartialPreIntegrationTransferFunction::GetColor(double x,
       c[3] = 0.0;
     return;
     }
-  while (this->ControlPoints[i] < x && i < size-1)
+  while ((i < size-1) && (this->ControlPoints[i] < x))
     {
     i++;
     }

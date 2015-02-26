@@ -1060,15 +1060,15 @@ vtkReebGraph::Implementation::vtkReebPath vtkReebGraph::Implementation::FindPath
         if (M==N1)
         {
           //clear all the items in the priority queue
-          while (pq.size())
+          while (!pq.empty())
           {
             vtkReebPath aux=pq.top();pq.pop();
             delete aux.ArcTable;
             delete aux.NodeTable;
           }
 
-          if (Ntouch) free(Ntouch);
-          if (Atouch) free(Atouch);
+          free(Ntouch);
+          free(Atouch);
 
           vtkIdType* tmp=new vtkIdType[entry.NodeNumber+1];
           memcpy(tmp,entry.NodeTable,sizeof(vtkIdType)*entry.NodeNumber);
