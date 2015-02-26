@@ -19,8 +19,8 @@
 // This class extends vtkOpenGLCamera by introducing API wherein the camera
 // matrices can be set explicitly by the application.
 
-#ifndef __vtkExternalOpenGLCamera_h
-#define __vtkExternalOpenGLCamera_h
+#ifndef vtkExternalOpenGLCamera_h
+#define vtkExternalOpenGLCamera_h
 
 #include "vtkRenderingExternalModule.h" // For export macro
 #include "vtkOpenGLCamera.h"

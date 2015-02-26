@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef __vtkADIOSUtilities_h
-#define __vtkADIOSUtilities_h
+#ifndef vtkADIOSUtilities_h
+#define vtkADIOSUtilities_h
 
 #include <vtkType.h>
 

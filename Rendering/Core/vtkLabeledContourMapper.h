@@ -23,8 +23,8 @@
 // render window (it is disabled by default). Otherwise the lines will be
 // drawn through the labels.
 
-#ifndef __vtkLabeledContourMapper_h
-#define __vtkLabeledContourMapper_h
+#ifndef vtkLabeledContourMapper_h
+#define vtkLabeledContourMapper_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 

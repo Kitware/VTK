@@ -20,8 +20,8 @@
 // .SECTION see also
 // vtkTextProperty vtkCollection
 
-#ifndef __vtkTextPropertyCollection_h
-#define __vtkTextPropertyCollection_h
+#ifndef vtkTextPropertyCollection_h
+#define vtkTextPropertyCollection_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkCollection.h"

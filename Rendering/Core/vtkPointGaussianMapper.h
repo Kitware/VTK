@@ -16,8 +16,8 @@
 // An  mapper that uses imposters to draw PointGaussians. Supports
 // transparency and picking as well.
 
-#ifndef __vtkPointGaussianMapper_h
-#define __vtkPointGaussianMapper_h
+#ifndef vtkPointGaussianMapper_h
+#define vtkPointGaussianMapper_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPolyDataMapper.h"
