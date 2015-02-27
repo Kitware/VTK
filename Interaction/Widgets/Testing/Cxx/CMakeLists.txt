@@ -72,8 +72,11 @@ vtk_add_test_cxx(${vtk-module}CxxTests no_valid_tests
   vtkHoverWidgetTest1.cxx
   vtkLineRepresentationTest1.cxx
   vtkLineWidget2Test1.cxx
+  vtkPolyLineRepresentationTest1.cxx
+  vtkPolyLineWidgetTest1.cxx
   vtkSeedRepresentationTest1.cxx
   vtkSeedWidgetTest1.cxx
+  vtkSplineRepresentationTest1.cxx
   vtkSplineWidget2Test1.cxx
   vtkTextRepresentationTest1.cxx
   vtkTextWidgetTest1.cxx
