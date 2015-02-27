@@ -28,6 +28,8 @@
 #include "vtkThreadedSynchronizedTemplatesCutter3D.h"
 #include "vtkTimerLog.h"
 
+#include <algorithm>
+
 
 int TestThreadedSynchronizedTemplatesCutter3D(int, char *[])
 {
