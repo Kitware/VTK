@@ -761,6 +761,7 @@ int vtkNIFTIImageWriter::RequestData(
     {
     vtkErrorMacro("Cannot open file " << imgname);
     this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
+    return 0;
     }
 
   // write the image

@@ -65,7 +65,18 @@
     }
   },
   DEFAULT_SHADERS = {},
-  mvMatrixStack = [];
+  mvMatrixStack = [],
+  PROGRESS_BAR_TEMPLATE =
+  '<div class="download-progressbar-container">' +
+  '    <span class="progressbar-title">Download Progress</span>' +
+  '    <div class="progressbar-content-container">' +
+  '        <span class="progress-message-span">MESSAGE</span>' +
+  '        <div class="progress progress-meter-container">' +
+  '            <div class="progress-bar progress-bar-striped active progress-meter" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">' +
+  '            </div>' +
+  '        </div>' +
+  '    </div>' +
+  '</div>';
 
 
   // ----------------------------------------------------------------------
@@ -77,32 +88,6 @@
   function getKey(object) {
       return object.id + '_' + object.md5 + '_' + object.part;
   }
-
-  // ----------------------------------------------------------------------
-  // 3D object handler
-  // ----------------------------------------------------------------------
-
-  function create3DObjectHandler() {
-    var objectIndex = {}, displayList = {}, sceneJSON;
-
-    return {
-      fetchMissingObjects: function(fetchMethod, sceneJSON) {
-        var fetch = fetchMethod, idx, part, i = 0;
-        for(idx in sceneJSON.Objects) {
-          var currentObject = sceneJSON.Objects[idx],
-          key = getKey(currentObject);
-          if(!objectIndex.hasOwnProperty(key)) {
-            // Request all the pieces
-            for(part = 1; part <= currentObject.parts; part++) {
-              fetch(currentObject, part);
-            }
-          }
-        }
-      }
-    }
-  }
-
-
 
   // ----------------------------------------------------------------------
   // Geometry Delivery renderer - factory method
@@ -120,7 +105,6 @@
     m_rendererAttrs = $(m_divContainer).addClass(FACTORY_KEY).css(RENDERER_CSS).append($(m_canvas2D).css(RENDERER_CSS).css(RENDERER_CSS_2D)).append($(m_canvas3D).css(RENDERER_CSS).css(RENDERER_CSS_3D)),
     m_sceneJSON = null,
     m_sceneData = null,
-    m_objectHandler = create3DObjectHandler(),
     m_vglVtkReader = vgl.vtkReader(),
     m_viewer = null,
     m_interactorStyle,
@@ -130,9 +114,33 @@
     originalContextMenu = document.oncontextmenu,
     m_background = null;
     screenImage = null,
-    m_vglActors = {}
+    m_vglActors = {},
+    m_objectIndex = {},
+    m_numberOfPartsDownloaded = 0,
+    m_numberOfPartsToDownload = 0;
 
     // Helper functions -------------------------------------------------
+
+    function fetchMissingObjects(fetchMethod, sceneJSON) {
+      for(var idx in sceneJSON.Objects) {
+        var currentObject = sceneJSON.Objects[idx];
+        for(var part = 1; part <= currentObject.parts; part++) {
+          var key = getKey({
+            'id': currentObject.id,
+            'md5': currentObject.md5,
+            'part': part
+          });
+          if(!m_objectIndex.hasOwnProperty(key)) {
+            fetchMethod(currentObject, part);
+          } else {
+            handleCompleteSceneObject(m_objectIndex[key]);
+          }
+        }
+      }
+    }
+
+    // ------------------------------------------------------------------
+
     function fetchScene() {
       m_container.trigger({
         type: 'stats',
@@ -154,6 +162,190 @@
         });
         updateScene();
       });
+    }
+
+    // ------------------------------------------------------------------
+
+    function handleDownloadProgressEvent(event) {
+      var status = event.status;
+
+      function updateProgressBar(element, percentProgress) {
+        var progressString = percentProgress + '%';
+        element.attr('aria-valuenow', percentProgress)
+               .css('width', progressString);
+               //.html(progressString);
+      }
+
+      if (status === 'create') {
+        var initialMessage = "Downloading metadata for all timesteps",
+            html = PROGRESS_BAR_TEMPLATE.replace(/MESSAGE/, initialMessage),
+            progressElt = $(html);
+        m_container.append(progressElt);
+      } else if (status === 'update') {
+        var progressType = event.progressType,
+            pbElt = $('.progress-meter');
+        if (progressType === 'retrieved-metadata') {
+          $('.progress-message-span').text('Metadata retrieved, downloading objects');
+          pbElt.removeClass('progress-bar-striped active');
+          updateProgressBar(pbElt, 0);
+        } else {
+          var numPartsThisSha = event.numParts;
+          m_numberOfPartsDownloaded += numPartsThisSha;
+          var numberRemaining = m_numberOfPartsToDownload - m_numberOfPartsDownloaded;
+          var percent = ((m_numberOfPartsDownloaded / m_numberOfPartsToDownload) * 100).toFixed(0);
+          if (numberRemaining <= 0) {
+            $('.download-progressbar-container').remove();
+          } else {
+            $('.progress-message-span').text('Downloading objects');
+            updateProgressBar(pbElt, percent);
+          }
+        }
+      }
+    }
+
+    // ------------------------------------------------------------------
+
+    function downloadAllTimesteps() {
+      m_container.trigger({
+        type: 'downloadProgress',
+        status: 'create'
+      });
+
+      m_session.call('viewport.webgl.metadata.alltimesteps', []).then(function(result){
+        if (result.hasOwnProperty('success') && result.success === true) {
+          var metaDataList = result.metaDataList;
+
+          m_container.trigger({
+            type: 'downloadProgress',
+            status: 'update',
+            progressType: 'retrieved-metadata'
+          });
+
+          // For progress events, I want to first know how many items to retrieve
+          m_numberOfPartsToDownload = 0;
+          for (var sha in metaDataList) {
+            if (metaDataList.hasOwnProperty(sha)) {
+              m_numberOfPartsToDownload += metaDataList[sha].numParts;
+            }
+          }
+
+          m_numberOfPartsDownloaded = 0;
+
+          setTimeout(function() {
+
+            // Now go through and download the heavy data for anythin we don't already have
+            for (var sha in metaDataList) {
+              if (metaDataList.hasOwnProperty(sha)) {
+                var numParts = metaDataList[sha].numParts,
+                    objId = metaDataList[sha].id,
+                    alreadyCached = true;
+                // Before I go and fetch all the parts for this object, make sure
+                // I don't already have them cached
+                for (var i = 0; i < numParts; i+=1) {
+                  var key = getKey({
+                    'id': objId,
+                    'md5': sha,
+                    'part': i + 1
+                  });
+                  if(!m_objectIndex.hasOwnProperty(key)) {
+                    alreadyCached = false;
+                    break;
+                  }
+                }
+                if (alreadyCached === false) {
+                  fetchCachedObject(sha);
+                } else {
+                  m_container.trigger({
+                    type: 'downloadProgress',
+                    status: 'update',
+                    numParts: numParts
+                  });
+                }
+              }
+            }
+
+          }, 500);
+        }
+      }, function(metaDataError) {
+        console.log("Error retrieving metadata for all timesteps");
+        console.log(metaDataError);
+      });
+    }
+
+    // ------------------------------------------------------------------
+
+    function fetchCachedObject(sha) {
+      var viewId = Number(m_options.view);
+
+      m_session.call('viewport.webgl.cached.data', [sha]).then(function(result) {
+        if (result.success === false) {
+          console.log("Fetching cached data for " + sha + " failed, reason:");
+          consolelog(result.reason);
+          return;
+        }
+        var dataObject = result.data;
+        if (dataObject.hasOwnProperty('partsList')) {
+          for (var dIdx = 0; dIdx < dataObject.partsList.length; dIdx += 1) {
+            // Create a complete scene part object and cache it
+            var newObject = {
+              md5: dataObject.md5,
+              part: dIdx + 1,
+              vid: viewId,
+              id: dataObject.id,
+              data: dataObject.partsList[dIdx],
+              hasTransparency: dataObject.transparency,
+              layer: dataObject.layer
+            };
+
+            var key = getKey(newObject);
+            m_objectIndex[key] = newObject;
+
+            var actors = m_vglVtkReader.parseObject(newObject);
+            m_vglActors[key] = actors;
+          }
+
+          m_container.trigger({
+            type: 'downloadProgress',
+            status: 'update',
+            numParts: dataObject.partsList.length
+          });
+        }
+      }, function(err) {
+        console.log('viewport.webgl.cached.data rpc method failed');
+        console.log(err);
+      });
+    }
+
+    // ------------------------------------------------------------------
+
+    function handleCompleteSceneObject(sceneObject) {
+        var renderer = m_vglVtkReader.getRenderer(sceneObject.layer),
+            key = getKey(sceneObject),
+            actors = {};
+
+        // Parse the new object if its not parsed already
+        // if parsed already then check if exists in  current renderer
+        if (key in m_vglActors) {
+            actors = m_vglActors[key];
+            // if exists in current renderer do nothing
+            for (i = 0; i < actors.length; i++) {
+                var actor = actors[i];
+                if (!renderer.hasActor(actor)) {
+                    renderer.addActor(actor);
+                }
+            }
+        } else {
+            // Object was not parsed so parse it, create actors, and add them to the renderer.
+            actors = m_vglVtkReader.parseObject(sceneObject);
+            m_vglActors[key] = actors;
+
+            for (i = 0; i < actors.length; i++) {
+                renderer.addActor(actors[i]);
+            }
+        }
+
+        // Mark the actor as valid
+        actors.invalid = false;
     }
 
     // ------------------------------------------------------------------
@@ -187,33 +379,12 @@
               layer: sceneObject.layer
             };
 
-            renderer = m_vglVtkReader.getRenderer(sceneObject.layer);
-            key = getKey(newObject);
+            // First, actually cache the object, because that was not happening
+            var key = getKey(newObject);
+            m_objectIndex[key] = newObject;
 
-            // Parse the new object if its not parsed already
-            // if parsed already then check if exists in  current renderer
-            if (key in m_vglActors) {
-                actors = m_vglActors[key];
-                // if exists in current renderer do nothing
-                for (i = 0; i < actors.length; i++) {
-                    actor = actors[i];
-                    if (!renderer.hasActor(actor)) {
-                        renderer.addActor(actor);
-                    }
-                }
-            }
-            // if not parsed then parse it, create actor and add it to the
-            // renderer.
-            else {
-                actors = m_vglVtkReader.parseObject(newObject);
-                m_vglActors[key] = actors;
-
-                for (i = 0; i < actors.length; i++) {
-                    renderer.addActor(actors[i]);
-                }
-            }
-            // Mark the actor as valid
-            actors.invalid = false;
+            // Now add the object to the reader, etc...
+            handleCompleteSceneObject(newObject);
 
             // Redraw the scene
             drawScene(false);
@@ -311,23 +482,25 @@
 
         // Mark all actors as invalid
         for (key in m_vglActors) {
-          if (m_vglActors[key].invalid !== undefined &&
-              !m_vglActors[key].invalid) {
-            delete m_vglActors[key];
-          }
-          else {
-            m_vglActors[key].invalid = true;
-          }
+          m_vglActors[key].invalid = true;
         }
 
         // Fetch the object that we are missing
-        m_objectHandler.fetchMissingObjects(fetchObject, m_sceneJSON);
+        fetchMissingObjects(fetchObject, m_sceneJSON);
 
         // Draw scene
         drawScene(false);
       } catch(error) {
         console.log(error);
       }
+    }
+
+    // ------------------------------------------------------------------
+
+    function clearCache() {
+      m_objectIndex = {};
+      m_vglActors = {};
+      m_container.trigger('invalidateScene');
     }
 
     // ------------------------------------------------------------------
@@ -351,8 +524,6 @@
         m_viewer.renderWindow().activeRenderer().setResetScene(false);
         m_viewer.renderWindow().activeRenderer().setResetClippingRange(false);
 
-
-
         // Bind mouse event handlers
         m_container.on('mouse', function(event) {
             if (m_viewer) {
@@ -373,6 +544,18 @@
     }).bind('render', function(){
       if(m_rendererAttrs.hasClass('active')){
         render(false);
+      }
+    }).bind('downloadAllTimesteps', function(event){
+      if(m_rendererAttrs.hasClass('active')){
+        downloadAllTimesteps();
+      }
+    }).bind('clearCache', function(event){
+      if(m_rendererAttrs.hasClass('active')){
+        clearCache();
+      }
+    }).bind('downloadProgress', function(event){
+      if(m_rendererAttrs.hasClass('active')){
+        handleDownloadProgressEvent(event);
       }
     }).bind('captureRenderedImage', function(e){
       if (m_rendererAttrs.hasClass('active')) {

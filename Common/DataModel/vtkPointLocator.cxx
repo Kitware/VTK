@@ -320,7 +320,7 @@ vtkIdType vtkPointLocator::FindClosestPointWithinRadius(double radius,
     refinedRadius2 = radius2;
     }
 
-  if (inputDataLength)
+  if (inputDataLength != 0.0)
     {
     distance2ToDataBounds = this->Distance2ToBounds(x, this->Bounds);
     maxDistance = sqrt(distance2ToDataBounds) + inputDataLength;

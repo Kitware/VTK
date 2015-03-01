@@ -977,7 +977,7 @@ void vtkLSDynaPartCollection::FillPointProperty(const vtkIdType& numTuples,
       ++partIt;
       }
     }
-  if(leftOver>0 && sortedParts.size() > 0)
+  if(leftOver>0 && !sortedParts.empty())
     {
     p->Fam.BufferChunk(LSDynaFamily::Float, leftOver*numComps);
     buf = p->Fam.GetBufferAs<T>();

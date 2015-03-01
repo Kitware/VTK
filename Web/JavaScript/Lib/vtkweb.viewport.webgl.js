@@ -65,7 +65,18 @@
         }
     },
     DEFAULT_SHADERS = {},
-    mvMatrixStack = [];
+    mvMatrixStack = [],
+    PROGRESS_BAR_TEMPLATE =
+    '<div class="download-progressbar-container">' +
+    '    <span class="progressbar-title">Download Progress</span>' +
+    '    <div class="progressbar-content-container">' +
+    '        <span class="progress-message-span">MESSAGE</span>' +
+    '        <div class="progress progress-meter-container">' +
+    '            <div class="progress-bar progress-bar-striped active progress-meter" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">' +
+    '            </div>' +
+    '        </div>' +
+    '    </div>' +
+    '</div>';
 
 
     // ----------------------------------------------------------------------
@@ -510,6 +521,12 @@
         // ------------------------------------------------------------------
 
         return {
+            clearCache: function() {
+                objectIndex = {};
+            },
+
+            // --------------------------------------------------------------
+
             registerObject: function(object) {
                 var key = getKey(object), idx;
                 if(!objectIndex.hasOwnProperty(key)) {
@@ -525,6 +542,22 @@
 
                 // Add it
                 objectIndex[key].push(object);
+            },
+
+            // --------------------------------------------------------------
+
+            isObjectRegistered: function(object) {
+                var key = getKey(object), idx;
+                if (!objectIndex.hasOwnProperty(key)) {
+                    return false;
+                } else {
+                    for (idx in objectIndex[key]) {
+                        if (objectIndex[key][idx].part === object.part) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
             },
 
             // --------------------------------------------------------------
@@ -993,7 +1026,9 @@
             shaderProgram: shaderProgram,
             pointShaderProgram: pointShaderProgram
         },
-        background = null;
+        background = null,
+        m_numberOfPartsDownloaded = 0,
+        m_numberOfPartsToDownload = 0;
 
         // Helper functions -------------------------------------------------
 
@@ -1228,6 +1263,159 @@
         }
 
         // ------------------------------------------------------------------
+
+        function handleDownloadProgressEvent(event) {
+          var status = event.status;
+
+          function updateProgressBar(element, percentProgress) {
+            var progressString = percentProgress + '%';
+            element.attr('aria-valuenow', percentProgress)
+                   .css('width', progressString);
+                   //.html(progressString);
+          }
+
+          if (status === 'create') {
+            var initialMessage = "Downloading metadata for all timesteps",
+                html = PROGRESS_BAR_TEMPLATE.replace(/MESSAGE/, initialMessage),
+                progressElt = $(html);
+            container.append(progressElt);
+          } else if (status === 'update') {
+            var progressType = event.progressType,
+                pbElt = $('.progress-meter');
+            if (progressType === 'retrieved-metadata') {
+              $('.progress-message-span').text('Metadata retrieved, downloading objects');
+              pbElt.removeClass('progress-bar-striped active');
+              updateProgressBar(pbElt, 0);
+            } else {
+              var numPartsThisSha = event.numParts;
+              m_numberOfPartsDownloaded += numPartsThisSha;
+              var numberRemaining = m_numberOfPartsToDownload - m_numberOfPartsDownloaded;
+              var percent = ((m_numberOfPartsDownloaded / m_numberOfPartsToDownload) * 100).toFixed(0);
+              if (numberRemaining <= 0) {
+                $('.download-progressbar-container').remove();
+              } else {
+                $('.progress-message-span').text('Downloading objects');
+                updateProgressBar(pbElt, percent);
+              }
+            }
+          }
+        }
+
+        // ------------------------------------------------------------------
+
+        function downloadAllTimesteps() {
+          container.trigger({
+            type: 'downloadProgress',
+            status: 'create'
+          });
+
+          session.call('viewport.webgl.metadata.alltimesteps', []).then(function(result){
+            if (result.hasOwnProperty('success') && result.success === true) {
+              var metaDataList = result.metaDataList;
+
+              container.trigger({
+                type: 'downloadProgress',
+                status: 'update',
+                progressType: 'retrieved-metadata'
+              });
+
+              // For progress events, I want to first know how many items to retrieve
+              m_numberOfPartsToDownload = 0;
+              for (var sha in metaDataList) {
+                if (metaDataList.hasOwnProperty(sha)) {
+                  m_numberOfPartsToDownload += metaDataList[sha].numParts;
+                }
+              }
+
+              m_numberOfPartsDownloaded = 0;
+
+              setTimeout(function() {
+
+                // Now go through and download the heavy data for anythin we don't already have
+                for (var sha in metaDataList) {
+                  if (metaDataList.hasOwnProperty(sha)) {
+                    var numParts = metaDataList[sha].numParts,
+                        objId = metaDataList[sha].id,
+                        alreadyCached = true;
+                    // Before I go and fetch all the parts for this object, make sure
+                    // I don't already have them cached
+                    for (var i = 0; i < numParts; i+=1) {
+                      var obj = {
+                        'id': objId,
+                        'md5': sha,
+                        'part': i + 1
+                      };
+                      if (!objectHandler.isObjectRegistered(obj)) {
+                        alreadyCached = false;
+                        break;
+                      }
+                    }
+                    if (alreadyCached === false) {
+                      fetchCachedObject(sha);
+                    } else {
+                      container.trigger({
+                        type: 'downloadProgress',
+                        status: 'update',
+                        numParts: numParts
+                      });
+                    }
+                  }
+                }
+
+              }, 500);
+            }
+          }, function(metaDataError) {
+            console.log("Error retrieving metadata for all timesteps");
+            console.log(metaDataError);
+          });
+        }
+
+        // ------------------------------------------------------------------
+
+        function fetchCachedObject(sha) {
+          var viewId = Number(options.view);
+
+          session.call('viewport.webgl.cached.data', [sha]).then(function(result) {
+            if (result.success === false) {
+              console.log("Fetching cached data for " + sha + " failed, reason:");
+              consolelog(result.reason);
+              return;
+            }
+            var dataObject = result.data;
+            if (dataObject.hasOwnProperty('partsList')) {
+              for (var dIdx = 0; dIdx < dataObject.partsList.length; dIdx += 1) {
+                // Create a complete scene part object and cache it
+                var newObject = {
+                  md5: dataObject.md5,
+                  part: dIdx + 1,
+                  vid: viewId,
+                  id: dataObject.id,
+                  data: atob(dataObject.partsList[dIdx]),
+                  hasTransparency: dataObject.transparency,
+                  layer: dataObject.layer,
+                  render: function(){}
+                };
+
+                // Process object
+                initializeObject(gl, newObject);
+
+                // Register it for rendering
+                objectHandler.registerObject(newObject);
+              }
+
+              container.trigger({
+                type: 'downloadProgress',
+                status: 'update',
+                numParts: dataObject.partsList.length
+              });
+            }
+          }, function(err) {
+            console.log('viewport.webgl.cached.data rpc method failed');
+            console.log(err);
+          });
+        }
+
+        // ------------------------------------------------------------------
         // Add renderer into the DOM
         container.append(renderer);
 
@@ -1243,6 +1431,19 @@
             }
         }).bind('resetViewId', function(e){
             options.view = -1;
+        }).bind('downloadAllTimesteps', function(event){
+            if(renderer.hasClass('active')){
+                downloadAllTimesteps();
+            }
+        }).bind('downloadProgress', function(event){
+            if(renderer.hasClass('active')){
+                handleDownloadProgressEvent(event);
+            }
+        }).bind('clearCache', function(event){
+            if(renderer.hasClass('active')){
+                objectHandler.clearCache();
+                container.trigger('invalidateScene');
+            }
         }).bind('captureRenderedImage', function(e){
             if (renderer.hasClass('active')) {
                 drawScene(true);

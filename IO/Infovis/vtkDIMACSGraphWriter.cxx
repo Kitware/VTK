@@ -35,29 +35,16 @@ vtkStandardNewMacro(vtkDIMACSGraphWriter);
 
 void vtkDIMACSGraphWriter::WriteData()
 {
-  ostream *fp;
   vtkGraph* const input = this->GetInput();
 
   vtkDebugMacro(<<"Writing vtk graph data...");
 
-  if( !(fp=this->OpenVTKFile()) )
-    {
-    if(fp)
-      {
-      if(this->FileName)
-        {
-        vtkErrorMacro("Problem opening file: "
-                      << this->FileName);
-        this->CloseVTKFile(fp);
-        }
-      else
-        {
-        this->CloseVTKFile(fp);
-        vtkErrorMacro("The FileName was not set correctly");
-        }
-      }
+  ostream *fp = this->OpenVTKFile();
+  if(!fp)
+  {
+    vtkErrorMacro("Falied to open output stream");
     return;
-    }
+  }
 
   *fp << "c vtkGraph as DIMACS format\n";
 

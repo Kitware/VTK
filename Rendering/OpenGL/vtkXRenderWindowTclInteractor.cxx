@@ -244,7 +244,7 @@ void vtkXRenderWindowTclInteractor::Enable()
                ButtonPressMask | ButtonReleaseMask |
                ExposureMask | StructureNotifyMask |
                EnterWindowMask | LeaveWindowMask |
-               PointerMotionMask | PointerMotionMask);
+               PointerMotionMask);
 
   // Setup for capturing the window deletion
   this->KillAtom = XInternAtom(this->DisplayId,"WM_DELETE_WINDOW",False);

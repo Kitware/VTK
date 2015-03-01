@@ -87,7 +87,7 @@ int TestScalarBarCombinatorics(int argc, char* argv[])
   double threshold = 10.;
   for (int cc = 1; cc < argc; ++cc)
     {
-    if (argv[cc][0] == '-' && argv[cc][1] == 'E' && cc < argc - 1)
+    if ((cc < argc - 1) && (argv[cc][0] == '-') && (argv[cc][1] == 'E'))
       {
       threshold = atof(argv[++cc]);
       continue;

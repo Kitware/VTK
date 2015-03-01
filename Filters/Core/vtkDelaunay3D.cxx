@@ -700,7 +700,7 @@ int vtkDelaunay3D::RequestData(
       //traverse all points, create vertices if none used
       for (ptId=0; ptId<(numPoints+6); ptId++)
         {
-        if (!pointUse[ptId] && (ptId < numPoints || this->BoundingTriangulation))
+        if ((ptId < numPoints || this->BoundingTriangulation) && !pointUse[ptId])
           {
           pts[0] = ptId;
           output->InsertNextCell(VTK_VERTEX,1,pts);

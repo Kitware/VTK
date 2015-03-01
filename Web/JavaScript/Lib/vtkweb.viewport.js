@@ -656,6 +656,20 @@
             },
 
             /**
+             *
+             */
+            downloadTimestepData: function(shaList) {
+                rendererContainer.trigger('downloadAllTimesteps');
+            },
+
+            /*
+             *
+             */
+            clearGeometryCache: function() {
+                rendererContainer.trigger('clearCache');
+            },
+
+            /**
              * Attach viewport to a DOM element
              *
              * @member vtkWeb.Viewport

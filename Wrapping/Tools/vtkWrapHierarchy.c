@@ -718,6 +718,7 @@ static int vtkWrapHierarchy_CompareHierarchyFile(FILE *fp, char *lines[])
       if (!line)
         {
         free(oldline);
+        free(matched);
         return 0;
         }
       if (!fgets(&line[n], (int)(maxlen-n), fp)) { break; }

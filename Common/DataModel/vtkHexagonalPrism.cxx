@@ -379,7 +379,7 @@ int vtkHexagonalPrism::CellBoundary(int subId, double pcoords[3],
 
   double dot = vtkMath::Dot2D(v, u);
   double uNorm = vtkMath::Norm2D( u );
-  if (uNorm)
+  if (uNorm != 0.0)
     {
     dot /= uNorm;
     }

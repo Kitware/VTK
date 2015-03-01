@@ -595,7 +595,7 @@ void vtkImageMarchingCubesMarch(vtkImageMarchingCubes *self,
   unsigned long target, count;
 
   // avoid warnings
-  ptr = ptr;
+  (void)ptr;
 
   // Get information to loop through images.
   inData->GetExtent(min0, max0, min1, max1, min2, max2);
