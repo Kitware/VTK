@@ -52,7 +52,7 @@ from autobahn.websocket.interfaces import IWebSocketChannel, \
                                           IWebSocketChannelFrameApi, \
                                           IWebSocketChannelStreamingApi
 
-from autobahn.util import Stopwatch
+from autobahn.util import Stopwatch, newid
 from autobahn.websocket.utf8validator import Utf8Validator
 from autobahn.websocket.xormasker import XorMaskerNull, createXorMasker
 from autobahn.websocket.compress import *
@@ -634,7 +634,10 @@ class WebSocketProtocol:
                           'echoCloseCodeReason',
                           'openHandshakeTimeout',
                           'closeHandshakeTimeout',
-                          'tcpNoDelay']
+                          'tcpNoDelay',
+                          'autoPingInterval',
+                          'autoPingTimeout',
+                          'autoPingSize']
    """
    Configuration attributes common to servers and clients.
    """
@@ -950,6 +953,18 @@ class WebSocketProtocol:
             self.factory._log("skipping onCloseHandshakeTimeout since connection is already closed")
 
 
+   def onAutoPingTimeout(self):
+      """
+      When doing automatic ping/pongs to detect broken connection, the peer
+      did not reply in time to our ping. We drop the connection.
+      """
+      if self.debugCodePaths:
+         self.factory._log("Auto ping/pong: onAutoPingTimeout fired")
+
+      self.autoPingTimeoutCall = None
+      self.dropConnection(abort = True)
+
+
    def dropConnection(self, abort = False):
       """
       Drop the underlying TCP connection.
@@ -1180,6 +1195,10 @@ class WebSocketProtocol:
       if self.openHandshakeTimeout > 0:
          self.openHandshakeTimeoutCall = self.factory._callLater(self.openHandshakeTimeout, self.onOpenHandshakeTimeout)
 
+      self.autoPingTimeoutCall = None
+      self.autoPingPending = None
+      self.autoPingPendingCall = None
+
 
    def _connectionLost(self, reason):
       """
@@ -1194,6 +1213,20 @@ class WebSocketProtocol:
             self.factory._log("serverConnectionDropTimeoutCall.cancel")
          self.serverConnectionDropTimeoutCall.cancel()
          self.serverConnectionDropTimeoutCall = None
+
+      ## cleanup auto ping/pong timers
+      ##
+      if self.autoPingPendingCall:
+         if self.debugCodePaths:
+            self.factory._log("Auto ping/pong: canceling autoPingPendingCall upon lost connection")
+         self.autoPingPendingCall.cancel()
+         self.autoPingPendingCall = None
+
+      if self.autoPingTimeoutCall:
+         if self.debugCodePaths:
+            self.factory._log("Auto ping/pong: canceling autoPingTimeoutCall upon lost connection")
+         self.autoPingTimeoutCall.cancel()
+         self.autoPingTimeoutCall = None
 
       self.state = WebSocketProtocol.STATE_CLOSED
       if not self.wasClean:
@@ -1930,6 +1963,46 @@ class WebSocketProtocol:
       ## PONG frame
       ##
       elif self.current_frame.opcode == 10:
+
+         ## auto ping/pong processing
+         ##
+         if self.autoPingPending:
+            try:
+               p = payload.decode('utf8')
+               if p == self.autoPingPending:
+                  if self.debugCodePaths:
+                     self.factory._log("Auto ping/pong: received pending pong for auto-ping/pong")
+
+                  if self.autoPingTimeoutCall:
+                     self.autoPingTimeoutCall.cancel()
+
+                  self.autoPingPending = None
+                  self.autoPingTimeoutCall = None
+
+                  if self.autoPingInterval:
+                     def send():
+                        if self.debugCodePaths:
+                           self.factory._log("Auto ping/pong: sending ping auto-ping/pong")
+
+                        self.autoPingPendingCall = None
+                        self.autoPingPending = newid(self.autoPingSize)
+                        self.sendPing(self.autoPingPending.encode('utf8'))
+
+                        if self.autoPingTimeout:
+                           if self.debugCodePaths:
+                              self.factory._log("Auto ping/pong: expecting ping in {0} seconds for auto-ping/pong".format(self.autoPingTimeout))
+                           self.autoPingTimeoutCall = self.factory._callLater(self.autoPingTimeout, self.onAutoPingTimeout)
+
+                     self.autoPingPendingCall = self.factory._callLater(self.autoPingInterval, send)
+               else:
+                  if self.debugCodePaths:
+                     self.factory._log("Auto ping/pong: received non-pending pong")
+            except:
+               if self.debugCodePaths:
+                  self.factory._log("Auto ping/pong: received non-pending pong")
+
+         ## fire app-level callback
+         ##
          self._onPong(payload)
 
       else:
@@ -3207,6 +3280,15 @@ class WebSocketServerProtocol(WebSocketProtocol):
       if self.websocket_version != 0:
          self.current_frame = None
 
+      ## automatic ping/pong
+      ##
+      if self.autoPingInterval:
+         self.autoPingPending = newid(self.autoPingSize)
+         self.sendPing(self.autoPingPending.encode('utf8'))
+         if self.autoPingTimeout:
+            self.autoPingTimeoutCall = self.factory._callLater(self.autoPingTimeout, self.onAutoPingTimeout)
+
+
       ## fire handler on derived class
       ##
       if self.trackedTimings:
@@ -3455,6 +3537,12 @@ class WebSocketServerFactory(WebSocketFactory):
       ##
       self.perMessageCompressionAccept = lambda _: None
 
+      ## automatic ping/pong ("heartbearting")
+      ##
+      self.autoPingInterval = 0
+      self.autoPingTimeout = 0
+      self.autoPingSize = 4
+
 
    def setProtocolOptions(self,
                           versions = None,
@@ -3472,7 +3560,10 @@ class WebSocketServerFactory(WebSocketFactory):
                           openHandshakeTimeout = None,
                           closeHandshakeTimeout = None,
                           tcpNoDelay = None,
-                          perMessageCompressionAccept = None):
+                          perMessageCompressionAccept = None,
+                          autoPingInterval = None,
+                          autoPingTimeout = None,
+                          autoPingSize = None):
       """
       Set WebSocket protocol options used as defaults for new protocol instances.
 
@@ -3508,6 +3599,14 @@ class WebSocketServerFactory(WebSocketFactory):
       :type tcpNoDelay: bool
       :param perMessageCompressionAccept: Acceptor function for offers.
       :type perMessageCompressionAccept: callable
+      :param autoPingInterval: Automatically send WebSocket pings every given seconds. When the peer does not respond
+         in `autoPingTimeout`, drop the connection. Set to `0` to disable. (default: `0`).
+      :type autoPingInterval: float or None
+      :param autoPingTimeout: Wait this many seconds for the peer to respond to automatically sent pings. If the
+         peer does not respond in time, drop the connection. Set to `0` to disable. (default: `0`).
+      :type autoPingTimeout: float or None
+      :param autoPingSize: Payload size for automatic pings/pongs. Must be an integer from `[4, 125]`. (default: `4`).
+      :type autoPingSize: int
       """
       if allowHixie76 is not None and allowHixie76 != self.allowHixie76:
          self.allowHixie76 = allowHixie76
@@ -3562,6 +3661,17 @@ class WebSocketServerFactory(WebSocketFactory):
 
       if perMessageCompressionAccept is not None and perMessageCompressionAccept != self.perMessageCompressionAccept:
          self.perMessageCompressionAccept = perMessageCompressionAccept
+
+      if autoPingInterval is not None and autoPingInterval != self.autoPingInterval:
+         self.autoPingInterval = autoPingInterval
+
+      if autoPingTimeout is not None and autoPingTimeout != self.autoPingTimeout:
+         self.autoPingTimeout = autoPingTimeout
+
+      if autoPingSize is not None and autoPingSize != self.autoPingSize:
+         assert(type(autoPingSize) == float or type(autoPingSize) in six.integer_types)
+         assert(autoPingSize >= 4 and autoPingSize <= 125)
+         self.autoPingSize = autoPingSize
 
 
    def getConnectionCount(self):
@@ -4201,6 +4311,12 @@ class WebSocketClientFactory(WebSocketFactory):
       self.perMessageCompressionOffers = []
       self.perMessageCompressionAccept = lambda _: None
 
+      ## automatic ping/pong ("heartbearting")
+      ##
+      self.autoPingInterval = 0
+      self.autoPingTimeout = 0
+      self.autoPingSize = 4
+
 
    def setProtocolOptions(self,
                           version = None,
@@ -4219,7 +4335,10 @@ class WebSocketClientFactory(WebSocketFactory):
                           closeHandshakeTimeout = None,
                           tcpNoDelay = None,
                           perMessageCompressionOffers = None,
-                          perMessageCompressionAccept = None):
+                          perMessageCompressionAccept = None,
+                          autoPingInterval = None,
+                          autoPingTimeout = None,
+                          autoPingSize = None):
       """
       Set WebSocket protocol options used as defaults for _new_ protocol instances.
 
@@ -4254,6 +4373,14 @@ class WebSocketClientFactory(WebSocketFactory):
       :type perMessageCompressionOffers: list of instance of subclass of PerMessageCompressOffer
       :param perMessageCompressionAccept: Acceptor function for responses.
       :type perMessageCompressionAccept: callable
+      :param autoPingInterval: Automatically send WebSocket pings every given seconds. When the peer does not respond
+         in `autoPingTimeout`, drop the connection. Set to `0` to disable. (default: `0`).
+      :type autoPingInterval: float or None
+      :param autoPingTimeout: Wait this many seconds for the peer to respond to automatically sent pings. If the
+         peer does not respond in time, drop the connection. Set to `0` to disable. (default: `0`).
+      :type autoPingTimeout: float or None
+      :param autoPingSize: Payload size for automatic pings/pongs. Must be an integer from `[4, 125]`. (default: `4`).
+      :type autoPingSize: int
       """
       if allowHixie76 is not None and allowHixie76 != self.allowHixie76:
          self.allowHixie76 = allowHixie76
@@ -4316,3 +4443,14 @@ class WebSocketClientFactory(WebSocketFactory):
 
       if perMessageCompressionAccept is not None and perMessageCompressionAccept != self.perMessageCompressionAccept:
          self.perMessageCompressionAccept = perMessageCompressionAccept
+
+      if autoPingInterval is not None and autoPingInterval != self.autoPingInterval:
+         self.autoPingInterval = autoPingInterval
+
+      if autoPingTimeout is not None and autoPingTimeout != self.autoPingTimeout:
+         self.autoPingTimeout = autoPingTimeout
+
+      if autoPingSize is not None and autoPingSize != self.autoPingSize:
+         assert(type(autoPingSize) == float or type(autoPingSize) in six.integer_types)
+         assert(autoPingSize >= 4 and autoPingSize <= 125)
+         self.autoPingSize = autoPingSize

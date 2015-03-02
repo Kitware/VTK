@@ -16,6 +16,29 @@
     // Connections field used to store a map of the active sessions
     var connections = {}, module = {};
 
+    /*
+     * Create a transport object appropriate to the protocol specified
+     * in the given url.
+     */
+    function getTransportObject(url) {
+        var idx = url.indexOf(':'),
+            protocol = url.substring(0, idx);
+        if (protocol === 'ws' || protocol === 'wss') {
+            return {
+                'type': 'websocket',
+                'url': url,
+            };
+        } else if (protocol === 'http' || protocol === 'https') {
+            return {
+                'type': 'longpoll',
+                'url': url,
+                request_timeout: 300000
+            };
+        } else {
+            throw "Unknown protocol (" + protocol + ") for url (" + url + ").  Unable to create transport object.";
+        }
+    }
+
     /**
      * @class vtkWeb.Session
      * vtkWeb Session object on which RPC method calls can be made.
@@ -94,14 +117,29 @@
      *      );
      */
     function connect(connectionInfo, readyCallback, closeCallback) {
-        var wsuri = connectionInfo.sessionURL, onReady = readyCallback, onClose = closeCallback;
+        var uri = connectionInfo.sessionURL,
+            onReady = readyCallback,
+            onClose = closeCallback,
+            uriList = [].concat(uri),
+            transports = [];
 
         if(!connectionInfo.hasOwnProperty("secret")) {
             connectionInfo.secret = "vtkweb-secret"; // Default value
         }
 
+        for (var i = 0; i < uriList.length; i+=1) {
+            var url = uriList[i],
+                transport = null;
+            try {
+                transport = getTransportObject(url);
+                transports.push(transport);
+            } catch (transportCreateError) {
+                console.error(transportCreateError);
+            }
+        }
+
         connectionInfo.connection = new autobahn.Connection({
-            url: wsuri,
+            transports: transports,
             realm: "vtkweb",
             authmethods: ["wampcra"],
             authid: "vtkweb",
