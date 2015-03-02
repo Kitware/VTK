@@ -500,11 +500,11 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
   switch(scalarType)
     {
     case VTK_FLOAT:
+      type = GL_FLOAT;
+      shift=-ScalarsRange[0];
+      scale = 1/(this->ScalarsRange[1]-this->ScalarsRange[0]);
       switch(noOfComponents)
         {
-        type = GL_FLOAT;
-        shift=-ScalarsRange[0];
-        scale = 1/(this->ScalarsRange[1]-this->ScalarsRange[0]);
         case 1:
           if (glewIsSupported("GL_ARB_texture_float"))
             {
