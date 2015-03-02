@@ -974,7 +974,7 @@ template <typename T>
 T vtkVariantStringToNumeric(vtkStdString str, bool* valid, T* vtkNotUsed(ignored) = 0)
 {
   vtksys_ios::istringstream vstr(str);
-  T data;
+  T data = 0;
   vstr >> data;
   if(!vstr.eof())
     {
