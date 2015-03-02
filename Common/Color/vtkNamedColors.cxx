@@ -141,7 +141,6 @@ public:
     if ( !name.empty() && color.GetSize() == 4 )
       {
       vtkStdString s = this->ToLowercase(name);
-      std::vector<unsigned char> uv;
       unsigned char r, g, b, a;
       r = static_cast<unsigned char>(color.GetRed() * 255.0);
       g = static_cast<unsigned char>(color.GetGreen() * 255.0);

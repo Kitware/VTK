@@ -397,7 +397,6 @@ static int preproc_evaluate_char(
       else if (*cp == 'f') { *val = '\f'; }
       else if (*cp == 'n') { *val = '\n'; }
       else if (*cp == 'r') { *val = '\r'; }
-      else if (*cp == 'b') { *val = '\b'; }
       else if (*cp == 't') { *val = '\t'; }
       else if (*cp == 'v') { *val = '\v'; }
       else if (*cp == '\'') { *val = '\''; }

@@ -277,36 +277,6 @@ class vtkCellTreeBuilder
         }
       }
 
-    //----------------------------------------------------------------------------
-
-    void FindMinD( const PerCell* begin, const PerCell* end,
-      unsigned int d, float& min )
-      {
-      min = begin->Min[d];
-
-      while( ++begin != end )
-        {
-        if( begin->Min[d] < min )
-          {
-          min = begin->Min[d];
-          }
-        }
-      }
-
-    void FindMaxD( const PerCell* begin, const PerCell* end,
-      unsigned int d, float& max )
-      {
-      max = begin->Max[d];
-
-      while( ++begin != end )
-        {
-        if( begin->Max[d] > max )
-          {
-          max = begin->Max[d];
-          }
-        }
-      }
-
     // -------------------------------------------------------------------------
 
     void Split( unsigned int index, float min[3], float max[3] )
