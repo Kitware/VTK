@@ -210,6 +210,12 @@ protected:
   // are currently populated.
   bool IsShaderVariableUsed(const char *);
 
+  // if set to true, tcoords will be passed to the
+  // VBO even if the mapper knows of no texture maps
+  // normally tcoords are only added to the VBO if the
+  // mapper has indentified a texture map as well.
+  bool ForceTextureCoordinates;
+
 private:
   vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&); // Not implemented.
   void operator=(const vtkOpenGLPolyDataMapper&); // Not implemented.

@@ -30,20 +30,20 @@ void main()
   // we render front to back
   vec4 t1Color = texture2D(translucentRGBATexture, tcoordVC);
   vec4 t2Color = texture2D(currentRGBATexture, tcoordVC);
-  gl_FragColor.a = t1Color.a + t2Color.a * (1.0-t1Color.a);
-  if (gl_FragColor.a > 0.0)
+  gl_FragData[0].a = t1Color.a + t2Color.a * (1.0-t1Color.a);
+  if (gl_FragData[0].a > 0.0)
     {
     if (lastpass == 1)
       {
-      gl_FragColor.rgb = (t1Color.rgb*t1Color.a + t2Color.rgb*(1.0-t1Color.a))/gl_FragColor.a;
+      gl_FragFData[0].rgb = (t1Color.rgb*t1Color.a + t2Color.rgb*(1.0-t1Color.a))/gl_FragData[0].a;
       }
     else
       {
-      gl_FragColor.rgb = (t1Color.rgb*t1Color.a + t2Color.rgb*t2Color.a*(1.0-t1Color.a))/gl_FragColor.a;
+      gl_FragData[0].rgb = (t1Color.rgb*t1Color.a + t2Color.rgb*t2Color.a*(1.0-t1Color.a))/gl_FragData[0].a;
       }
     }
   else
     {
-    gl_FragColor.rgb = vec3(0.0,0.0,0.0);
+    gl_FragData[0].rgb = vec3(0.0,0.0,0.0);
     }
 }

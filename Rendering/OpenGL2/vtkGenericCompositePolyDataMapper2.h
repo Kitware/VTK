@@ -123,12 +123,12 @@ protected:
 
   class RenderBlockState
     {
-  public:
-    std::stack<bool> Visibility;
-    std::stack<double> Opacity;
-    std::stack<vtkColor3d> AmbientColor;
-    std::stack<vtkColor3d> DiffuseColor;
-    std::stack<vtkColor3d> SpecularColor;
+    public:
+      std::stack<bool> Visibility;
+      std::stack<double> Opacity;
+      std::stack<vtkColor3d> AmbientColor;
+      std::stack<vtkColor3d> DiffuseColor;
+      std::stack<vtkColor3d> SpecularColor;
     };
 
   RenderBlockState BlockState;

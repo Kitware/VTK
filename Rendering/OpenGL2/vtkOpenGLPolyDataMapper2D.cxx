@@ -125,7 +125,7 @@ void vtkOpenGLPolyDataMapper2D::BuildShader(
                                    "varying float tcoordVC; uniform sampler2D texture1;");
       FSSource = vtkgl::replace(FSSource,
                                    "//VTK::TCoord::Impl",
-                                   "gl_FragColor = gl_FragColor*texture2D(texture1, vec2(tcoordVC,0));");
+                                   "gl_FragData[0] = gl_FragData[0]*texture2D(texture1, vec2(tcoordVC,0));");
       }
     else
       {
@@ -140,7 +140,7 @@ void vtkOpenGLPolyDataMapper2D::BuildShader(
                                    "varying vec2 tcoordVC; uniform sampler2D texture1;");
       FSSource = vtkgl::replace(FSSource,
                                    "//VTK::TCoord::Impl",
-                                   "gl_FragColor = gl_FragColor*texture2D(texture1, tcoordVC.st);");
+                                   "gl_FragData[0] = gl_FragData[0]*texture2D(texture1, tcoordVC.st);");
       }
     }
 }
