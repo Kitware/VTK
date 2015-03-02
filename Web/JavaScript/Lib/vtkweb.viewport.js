@@ -347,7 +347,7 @@
 
             // Extract stat data
             buffer.append("<table class='viewport-stat'>");
-            buffer.append("<tr class='stat-header'><td class='label'></td><td class='value'>Current</td><td class='min'>Min</td><td class='max'>Max</td><td class='avg'>Average</td></tr>");
+            buffer.append("<tr class='stat-header'><td class='label'>Timed Quantity</td><td class='value'>Current</td><td class='min'>Min</td><td class='max'>Max</td><td class='avg'>Average</td></tr>");
             for(key in statistics) {
                 if(formatters.hasOwnProperty(key) && statistics[key].valid) {
                     formater = formatters[key];

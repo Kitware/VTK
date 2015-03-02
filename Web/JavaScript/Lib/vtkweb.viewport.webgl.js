@@ -38,27 +38,27 @@
         'options': DEFAULT_OPTIONS,
         'stats': {
             'webgl-fps': {
-                label: 'Framerate:',
+                label: 'Framerate',
                 type: 'time',
                 convert: function(value) {
                     if(value === 0) {
                         return 0;
                     }
-                    return Math.floor(1000 / value);
+                    return (1000 / value).toFixed(2);
                 }
             },
             'webgl-nb-objects': {
-                label: 'Number&nbsp;of&nbsp;3D&nbsp;objects:',
+                label: 'Number&nbsp;of&nbsp;3D&nbsp;objects',
                 type: 'value',
                 convert: NoOp
             },
             'webgl-fetch-scene': {
-                label: 'Fetch&nbsp;scene&nbsp;(ms):',
+                label: 'Fetch&nbsp;scene&nbsp;(ms)',
                 type: 'time',
                 convert: NoOp
             },
             'webgl-fetch-object': {
-                label: 'Fetch&nbsp;object&nbsp;(ms):',
+                label: 'Fetch&nbsp;object&nbsp;(ms)',
                 type: 'time',
                 convert: NoOp
             }
