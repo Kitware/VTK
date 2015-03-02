@@ -877,8 +877,9 @@ void vtkAMRResampleFilter::ExtractRegion(
 //  std::cout << "NumProcs: "  << this->Controller->GetNumberOfProcesses() << std::endl;
 //  std::cout.flush();
 
-  assert( !this->Controller || ( "pre: NumProcs must be less than or equal to NumBlocks" &&
-                                 ( static_cast<int>(this->ROI->GetNumberOfBlocks()) <= this->Controller->GetNumberOfProcesses())));
+  assert( "pre: NumProcs must be less than or equal to NumBlocks" &&
+    (!this->Controller ||
+     (static_cast<int>(this->ROI->GetNumberOfBlocks()) <= this->Controller->GetNumberOfProcesses())));
 
   mbds->SetNumberOfBlocks( this->ROI->GetNumberOfBlocks( ) );
   for( unsigned int block=0; block < this->ROI->GetNumberOfBlocks(); ++block )
