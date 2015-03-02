@@ -78,7 +78,7 @@ int TestPUnstructuredGridGhostDataGenerator(int argc, char* argv[])
     UpdateGrid(i);
     global::Grid->Modified();
 #ifdef DEBUG
-    WriteDataSet(global::Grid,grdfname.str().c_str());
+    WriteDataSet(global::Grid,grdfname.str());
 #endif
 
     // update ghost zones in this iteration...
@@ -108,7 +108,7 @@ int TestPUnstructuredGridGhostDataGenerator(int argc, char* argv[])
     ghostGrid->DeepCopy(ghostGenerator->GetOutput());
 #ifdef DEBUG
     assert("pre: ghost gird should not be NULL!" && (ghostGrid != NULL) );
-    WriteDataSet(ghostGrid,ghostfname.str().c_str());
+    WriteDataSet(ghostGrid,ghostfname.str());
 #endif
 
     rc += CheckGrid(ghostGrid,i);
