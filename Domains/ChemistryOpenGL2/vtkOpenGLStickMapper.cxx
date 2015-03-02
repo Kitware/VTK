@@ -76,12 +76,8 @@ void vtkOpenGLStickMapper::ReplaceShaderValues(std::string &VSSource,
     "varying float radiusVC;\n"
     "varying vec3 orientVC;\n"
     "varying float lengthVC;\n"
-    "varying vec3 centerVC;\n";
-
-  if (lightComplexity < 2)
-    {
-    replacement += "uniform mat4 VCDCMatrix;\n";
-    }
+    "varying vec3 centerVC;\n"
+    "uniform mat4 VCDCMatrix;\n";
   substitute(FSSource,"//VTK::Normal::Dec",replacement);
 
 

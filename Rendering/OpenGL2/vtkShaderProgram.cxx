@@ -232,11 +232,11 @@ bool vtkShaderProgram::Link()
   if (isCompiled == 0)
     {
     GLint length(0);
-    glGetShaderiv(static_cast<GLuint>(this->Handle), GL_INFO_LOG_LENGTH, &length);
+    glGetProgramiv(static_cast<GLuint>(this->Handle), GL_INFO_LOG_LENGTH, &length);
     if (length > 1)
       {
       char *logMessage = new char[length];
-      glGetShaderInfoLog(static_cast<GLuint>(this->Handle), length, NULL, logMessage);
+      glGetProgramInfoLog(static_cast<GLuint>(this->Handle), length, NULL, logMessage);
       this->Error = logMessage;
       delete[] logMessage;
       }
