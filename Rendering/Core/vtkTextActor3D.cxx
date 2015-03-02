@@ -216,6 +216,10 @@ int vtkTextActor3D::UpdateImageActor()
     return 1;
     }
 
+  // copy information to the delegate
+  vtkInformation *info = this->GetPropertyKeys();
+  this->ImageActor->SetPropertyKeys(info);
+
   // Do we need to (re-)render the text ?
   // Yes if:
   //  - instance has been modified since last build
