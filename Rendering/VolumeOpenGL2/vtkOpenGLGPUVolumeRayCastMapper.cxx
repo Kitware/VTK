@@ -496,260 +496,250 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
   double scale = 1.0;
   bool handleLargeDataTypes = false;
   int noOfComponents = scalars->GetNumberOfComponents();
-
   int scalarType = scalars->GetDataType();
-//  if (scalars->GetNumberOfComponents() == 4)
-//    {
-//    internalFormat = GL_RGBA8;
-//    format = GL_RGBA;
-//    type = GL_UNSIGNED_BYTE;
-//    }
-//  else
-//    {
-    switch(scalarType)
-      {
-      case VTK_FLOAT:
-        switch(noOfComponents)
-          {
-          type = GL_FLOAT;
-          shift=-ScalarsRange[0];
-          scale = 1/(this->ScalarsRange[1]-this->ScalarsRange[0]);
-          case 1:
-            if (glewIsSupported("GL_ARB_texture_float"))
-              {
-              internalFormat = GL_INTENSITY16F_ARB;
-              }
-            else
-              {
-              internalFormat = GL_INTENSITY16;
-              }
-              format = GL_RED;
-            break;
-          case 2:
-            internalFormat = GL_RG;
-            format = GL_RG;
-            break;
-          case 3:
-            internalFormat = GL_RGB;
-            format = GL_RGB;
-            break;
-          case 4:
-            internalFormat = GL_RGBA;
-            format = GL_RGBA;
-            break;
-          }
-        break;
-      case VTK_UNSIGNED_CHAR:
-        type = GL_UNSIGNED_BYTE;
-        shift = -this->ScalarsRange[0]/VTK_UNSIGNED_CHAR_MAX;
-        scale =
-          VTK_UNSIGNED_CHAR_MAX/(this->ScalarsRange[1]-this->ScalarsRange[0]);
-        switch(noOfComponents)
-          {
-          case 1:
-            internalFormat = GL_INTENSITY8;
-            format = GL_RED;
-            break;
-          case 2:
-            internalFormat = GL_RG;
-            format = GL_RG;
-            break;
-          case 3:
-            internalFormat = GL_RGB;
-            format = GL_RGB;
-            break;
-          case 4:
-            internalFormat = GL_RGBA;
-            format = GL_RGBA;
-            break;
-          }
-        break;
-      case VTK_SIGNED_CHAR:
-        type = GL_BYTE;
-        shift = -(2 * this->ScalarsRange[0] + 1)/VTK_UNSIGNED_CHAR_MAX;
-        scale = VTK_SIGNED_CHAR_MAX / (this->ScalarsRange[1] -
-                                       this->ScalarsRange[0]);
-        switch(noOfComponents)
-          {
-          case 1:
-            internalFormat = GL_INTENSITY8;
-            format = GL_RED;
-            break;
-          case 2:
-            internalFormat = GL_RG;
-            format = GL_RG;
-            break;
-          case 3:
-            internalFormat = GL_RGB;
-            format = GL_RGB;
-            break;
-          case 4:
-            internalFormat = GL_RGBA;
-            format = GL_RGBA;
-            break;
-          }
-        break;
-      case VTK_CHAR:
-        // not supported
-        assert("check: impossible case" && 0);
-        break;
-      case VTK_BIT:
-        // not supported
-        assert("check: impossible case" && 0);
-        break;
-      case VTK_ID_TYPE:
-        // not supported
-        assert("check: impossible case" && 0);
-        break;
-      case VTK_INT:
-        type = GL_INT;
-        shift=-(2*this->ScalarsRange[0]+1)/VTK_UNSIGNED_INT_MAX;
-        scale = VTK_INT_MAX/(this->ScalarsRange[1]-this->ScalarsRange[0]);
-
-        switch(noOfComponents)
-          {
-          case 1:
-            internalFormat = GL_INTENSITY16;
-            format = GL_RED;
-            break;
-          case 2:
-            internalFormat = GL_RG;
-            format = GL_RG;
-            break;
-          case 3:
-            internalFormat = GL_RGB;
-            format = GL_RGB;
-            break;
-          case 4:
-            internalFormat = GL_RGBA;
-            format = GL_RGBA;
-            break;
-          }
-        break;
-      case VTK_DOUBLE:
-      case VTK___INT64:
-      case VTK_LONG:
-      case VTK_LONG_LONG:
-      case VTK_UNSIGNED___INT64:
-      case VTK_UNSIGNED_LONG:
-      case VTK_UNSIGNED_LONG_LONG:
-        handleLargeDataTypes = true;
+  switch(scalarType)
+    {
+    case VTK_FLOAT:
+      switch(noOfComponents)
+        {
         type = GL_FLOAT;
-        shift = -this->ScalarsRange[0];
-        scale = 1 / (this->ScalarsRange[1] - this->ScalarsRange[0]);
-        switch(noOfComponents)
-          {
-          case 1:
-            if (glewIsSupported("GL_ARB_texture_float"))
-              {
-              internalFormat = GL_INTENSITY16F_ARB;
-              }
-            else
-              {
-              internalFormat = GL_INTENSITY16;
-              }
-            format = GL_RED;
-            break;
-          case 2:
-            internalFormat = GL_RG;
-            format = GL_RG;
-            break;
-          case 3:
-            internalFormat = GL_RGB;
-            format = GL_RGB;
-            break;
-          case 4:
-            internalFormat = GL_RGBA;
-            format = GL_RGBA;
-            break;
-          }
-        break;
-      case VTK_SHORT:
-        type = GL_SHORT;
-        shift = -(2*this->ScalarsRange[0]+1)/VTK_UNSIGNED_SHORT_MAX;
-        scale = VTK_SHORT_MAX / (this->ScalarsRange[1] -
-                                 this->ScalarsRange[0]);
-        switch(noOfComponents)
-          {
-          case 1:
+        shift=-ScalarsRange[0];
+        scale = 1/(this->ScalarsRange[1]-this->ScalarsRange[0]);
+        case 1:
+          if (glewIsSupported("GL_ARB_texture_float"))
+            {
+            internalFormat = GL_INTENSITY16F_ARB;
+            }
+          else
+            {
             internalFormat = GL_INTENSITY16;
+            }
             format = GL_RED;
-            break;
-          case 2:
-            internalFormat = GL_RG;
-            format = GL_RG;
-            break;
-          case 3:
-            internalFormat = GL_RGB;
-            format = GL_RGB;
-            break;
-          case 4:
-            internalFormat = GL_RGBA;
-            format = GL_RGBA;
-            break;
-          }
-        break;
-      case VTK_STRING:
-        // not supported
-        assert("check: impossible case" && 0);
-        break;
-      case VTK_UNSIGNED_SHORT:
-        type = GL_UNSIGNED_SHORT;
+          break;
+        case 2:
+          internalFormat = GL_RG;
+          format = GL_RG;
+          break;
+        case 3:
+          internalFormat = GL_RGB;
+          format = GL_RGB;
+          break;
+        case 4:
+          internalFormat = GL_RGBA;
+          format = GL_RGBA;
+          break;
+        }
+      break;
+    case VTK_UNSIGNED_CHAR:
+      type = GL_UNSIGNED_BYTE;
+      shift = -this->ScalarsRange[0]/VTK_UNSIGNED_CHAR_MAX;
+      scale =
+        VTK_UNSIGNED_CHAR_MAX/(this->ScalarsRange[1]-this->ScalarsRange[0]);
+      switch(noOfComponents)
+        {
+        case 1:
+          internalFormat = GL_INTENSITY8;
+          format = GL_RED;
+          break;
+        case 2:
+          internalFormat = GL_RG;
+          format = GL_RG;
+          break;
+        case 3:
+          internalFormat = GL_RGB;
+          format = GL_RGB;
+          break;
+        case 4:
+          internalFormat = GL_RGBA;
+          format = GL_RGBA;
+          break;
+        }
+      break;
+    case VTK_SIGNED_CHAR:
+      type = GL_BYTE;
+      shift = -(2 * this->ScalarsRange[0] + 1)/VTK_UNSIGNED_CHAR_MAX;
+      scale = VTK_SIGNED_CHAR_MAX / (this->ScalarsRange[1] -
+                                     this->ScalarsRange[0]);
+      switch(noOfComponents)
+        {
+        case 1:
+          internalFormat = GL_INTENSITY8;
+          format = GL_RED;
+          break;
+        case 2:
+          internalFormat = GL_RG;
+          format = GL_RG;
+          break;
+        case 3:
+          internalFormat = GL_RGB;
+          format = GL_RGB;
+          break;
+        case 4:
+          internalFormat = GL_RGBA;
+          format = GL_RGBA;
+          break;
+        }
+      break;
+    case VTK_CHAR:
+      // not supported
+      assert("check: impossible case" && 0);
+      break;
+    case VTK_BIT:
+      // not supported
+      assert("check: impossible case" && 0);
+      break;
+    case VTK_ID_TYPE:
+      // not supported
+      assert("check: impossible case" && 0);
+      break;
+    case VTK_INT:
+      type = GL_INT;
+      shift=-(2*this->ScalarsRange[0]+1)/VTK_UNSIGNED_INT_MAX;
+      scale = VTK_INT_MAX/(this->ScalarsRange[1]-this->ScalarsRange[0]);
 
-        shift=-this->ScalarsRange[0]/VTK_UNSIGNED_SHORT_MAX;
-        scale=
-          VTK_UNSIGNED_SHORT_MAX / (this->ScalarsRange[1] -
-                                    this->ScalarsRange[0]);
-        switch(noOfComponents)
-          {
-          case 1:
+      switch(noOfComponents)
+        {
+        case 1:
+          internalFormat = GL_INTENSITY16;
+          format = GL_RED;
+          break;
+        case 2:
+          internalFormat = GL_RG;
+          format = GL_RG;
+          break;
+        case 3:
+          internalFormat = GL_RGB;
+          format = GL_RGB;
+          break;
+        case 4:
+          internalFormat = GL_RGBA;
+          format = GL_RGBA;
+          break;
+        }
+      break;
+    case VTK_DOUBLE:
+    case VTK___INT64:
+    case VTK_LONG:
+    case VTK_LONG_LONG:
+    case VTK_UNSIGNED___INT64:
+    case VTK_UNSIGNED_LONG:
+    case VTK_UNSIGNED_LONG_LONG:
+      handleLargeDataTypes = true;
+      type = GL_FLOAT;
+      shift = -this->ScalarsRange[0];
+      scale = 1 / (this->ScalarsRange[1] - this->ScalarsRange[0]);
+      switch(noOfComponents)
+        {
+        case 1:
+          if (glewIsSupported("GL_ARB_texture_float"))
+            {
+            internalFormat = GL_INTENSITY16F_ARB;
+            }
+          else
+            {
             internalFormat = GL_INTENSITY16;
-            format = GL_RED;
-            break;
-          case 2:
-            internalFormat = GL_RG;
-            format = GL_RG;
-            break;
-          case 3:
-            internalFormat = GL_RGB;
-            format = GL_RGB;
-            break;
-          case 4:
-            internalFormat = GL_RGBA;
-            format = GL_RGBA;
-            break;
-          }
-        break;
-      case VTK_UNSIGNED_INT:
-        switch(noOfComponents)
-          {
-          case 1:
-            internalFormat = GL_INTENSITY16;
-            format = GL_RED;
-            break;
-          case 2:
-            internalFormat = GL_RG;
-            format = GL_RG;
-            break;
-          case 3:
-            internalFormat = GL_RGB;
-            format = GL_RGB;
-            break;
-          case 4:
-            internalFormat = GL_RGBA;
-            format = GL_RGBA;
-            break;
-          }
-        type = GL_UNSIGNED_INT;
-        shift=-this->ScalarsRange[0] / VTK_UNSIGNED_INT_MAX;
-        scale = VTK_UNSIGNED_INT_MAX / (this->ScalarsRange[1] -
-                                        this->ScalarsRange[0]);
-        break;
-      default:
-        assert("check: impossible case" && 0);
-        break;
-//      }
-    }
+            }
+          format = GL_RED;
+          break;
+        case 2:
+          internalFormat = GL_RG;
+          format = GL_RG;
+          break;
+        case 3:
+          internalFormat = GL_RGB;
+          format = GL_RGB;
+          break;
+        case 4:
+          internalFormat = GL_RGBA;
+          format = GL_RGBA;
+          break;
+        }
+      break;
+    case VTK_SHORT:
+      type = GL_SHORT;
+      shift = -(2*this->ScalarsRange[0]+1)/VTK_UNSIGNED_SHORT_MAX;
+      scale = VTK_SHORT_MAX / (this->ScalarsRange[1] -
+                               this->ScalarsRange[0]);
+      switch(noOfComponents)
+        {
+        case 1:
+          internalFormat = GL_INTENSITY16;
+          format = GL_RED;
+          break;
+        case 2:
+          internalFormat = GL_RG;
+          format = GL_RG;
+          break;
+        case 3:
+          internalFormat = GL_RGB;
+          format = GL_RGB;
+          break;
+        case 4:
+          internalFormat = GL_RGBA;
+          format = GL_RGBA;
+          break;
+        }
+      break;
+    case VTK_STRING:
+      // not supported
+      assert("check: impossible case" && 0);
+      break;
+    case VTK_UNSIGNED_SHORT:
+      type = GL_UNSIGNED_SHORT;
+
+      shift=-this->ScalarsRange[0]/VTK_UNSIGNED_SHORT_MAX;
+      scale=
+        VTK_UNSIGNED_SHORT_MAX / (this->ScalarsRange[1] -
+                                  this->ScalarsRange[0]);
+      switch(noOfComponents)
+        {
+        case 1:
+          internalFormat = GL_INTENSITY16;
+          format = GL_RED;
+          break;
+        case 2:
+          internalFormat = GL_RG;
+          format = GL_RG;
+          break;
+        case 3:
+          internalFormat = GL_RGB;
+          format = GL_RGB;
+          break;
+        case 4:
+          internalFormat = GL_RGBA;
+          format = GL_RGBA;
+          break;
+        }
+      break;
+    case VTK_UNSIGNED_INT:
+      type = GL_UNSIGNED_INT;
+      shift=-this->ScalarsRange[0] / VTK_UNSIGNED_INT_MAX;
+      scale = VTK_UNSIGNED_INT_MAX / (this->ScalarsRange[1] -
+                                      this->ScalarsRange[0]);
+      switch(noOfComponents)
+        {
+        case 1:
+          internalFormat = GL_INTENSITY16;
+          format = GL_RED;
+          break;
+        case 2:
+          internalFormat = GL_RG;
+          format = GL_RG;
+          break;
+        case 3:
+          internalFormat = GL_RGB;
+          format = GL_RGB;
+          break;
+        case 4:
+          internalFormat = GL_RGBA;
+          format = GL_RGBA;
+          break;
+        }
+      break;
+    default:
+      assert("check: impossible case" && 0);
+      break;
+  }
 
   // Update scale and bias
   this->Scale = scale;
