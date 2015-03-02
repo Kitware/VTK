@@ -8,7 +8,7 @@
 
 class vtkTimerLog;
 
-class VTKCOMMONEXECUTIONMODEL_EXPORT vtkStreamedCompositeDataPipeline :
+class VTK_EXPORT vtkStreamedCompositeDataPipeline :
   public vtkCompositeDataPipeline
 {
   //BTX
