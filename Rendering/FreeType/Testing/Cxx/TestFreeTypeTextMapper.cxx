@@ -230,6 +230,20 @@ int TestFreeTypeTextMapper(int argc, char *argv[])
   mapper15->SetInput("UTF-8 FreeType: \xce\xa8\xd2\x94\xd2\x96\xd1\x84\xd2\xbe");
   actor15->SetPosition(300, 110);
 
+  // Test for rotated kerning (PR#15301)
+  vtkNew<vtkTextMapper> mapper16;
+  vtkNew<vtkActor2D> actor16;
+  actor16->SetMapper(mapper16.GetPointer());
+  mapper16->GetTextProperty()->SetFontFile(uncodeFontFile.c_str());
+  mapper16->GetTextProperty()->SetFontFamily(VTK_FONT_FILE);
+  mapper16->GetTextProperty()->SetJustificationToCentered();
+  mapper16->GetTextProperty()->SetVerticalJustificationToCentered();
+  mapper16->GetTextProperty()->SetFontSize(18);
+  mapper16->GetTextProperty()->SetOrientation(90);
+  mapper16->GetTextProperty()->SetColor(0.0, 1.0, 0.7);
+  mapper16->SetInput("oTeVaVoVAW");
+  actor16->SetPosition(300, 200);
+
   // Boring rendering setup....
 
   vtkNew<vtkRenderer> ren;
@@ -255,6 +269,7 @@ int TestFreeTypeTextMapper(int argc, char *argv[])
   ren->AddActor(actor13.GetPointer());
   ren->AddActor(actor14.GetPointer());
   ren->AddActor(actor15.GetPointer());
+  ren->AddActor(actor16.GetPointer());
 
   win->SetMultiSamples(0);
   win->Render();
