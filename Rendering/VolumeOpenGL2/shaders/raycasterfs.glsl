@@ -64,9 +64,9 @@ vec4 g_eyePosObj;
 
 //VTK::ComputeLighting::Dec
 
-//VTK::ColorTransferFunc::Dec
+//VTK::ComputeColor::Dec
 
-//VTK::RayDirectionFunc::Dec
+//VTK::ComputeRayDirection::Dec
 
 /// We support only 8 clipping planes for now
 /// The first value is the size of the data array for clipping
