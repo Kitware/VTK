@@ -37,6 +37,10 @@ public:
   // resources to release.
   void ReleaseGraphicsResources(vtkWindow *);
 
+  // Description:
+  // Is this mapper opqaue? currently always false.
+  virtual bool GetIsOpaque();
+
 protected:
   vtkOpenGLPointGaussianMapper();
   ~vtkOpenGLPointGaussianMapper();

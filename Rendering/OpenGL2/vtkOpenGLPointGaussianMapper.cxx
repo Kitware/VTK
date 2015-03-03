@@ -382,7 +382,6 @@ void vtkOpenGLPointGaussianMapperHelper::RenderPieceDraw(vtkRenderer* ren, vtkAc
   vtkgl::VBOLayout &layout = this->Layout;
 
   // draw polygons
-  glDepthMask(GL_FALSE);
   glBlendFunc( GL_SRC_ALPHA, GL_ONE);  // additive for emissive sources
   if (layout.VertexCount)
     {
@@ -425,6 +424,12 @@ void vtkOpenGLPointGaussianMapper::ReleaseGraphicsResources(vtkWindow* win)
   this->Helper->ReleaseGraphicsResources(win);
   this->Helper->SetInputData(0);
   this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+bool vtkOpenGLPointGaussianMapper::GetIsOpaque()
+{
+  return false;
 }
 
 //-----------------------------------------------------------------------------
