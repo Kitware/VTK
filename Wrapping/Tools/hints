@@ -45,6 +45,7 @@ vtkDataArray                          GetRange                          307  2
 vtkDataArray                          GetTuple2                         307  2
 vtkDataArray                          GetTuple3                         307  3
 vtkDataArray                          GetTuple4                         307  4
+vtkDataArray                          GetTuple6                         307  6
 vtkDataArray                          GetTuple9                         307  9
 vtkDataObject                         GetUpdateExtent                   304  6
 vtkDataObject                         GetWholeExtent                    304  6
