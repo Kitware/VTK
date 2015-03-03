@@ -33,6 +33,11 @@ namespace vtkvolume
   std::string replace(std::string source, const std::string &search,
                       const std::string replace, bool all)
     {
+    if (replace.empty())
+      {
+      return source;
+      }
+
     std::string::size_type pos = 0;
     bool first = true;
     while ((pos = source.find(search, 0)) != std::string::npos)
