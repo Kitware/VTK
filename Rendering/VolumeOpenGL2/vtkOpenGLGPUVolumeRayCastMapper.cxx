@@ -2424,14 +2424,22 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     // NOTE: here, we ignore the blank cells.
     scalars->GetRange(this->Impl->ScalarsRange);
     }
-  // If it is 3, then use the 4th component's range since that is
-  // the component that will be passed through the scalar opacity
-  // transfer function to look up opacity
   else
     {
-    // Note that we've already checked data type and we know this is
-    // unsigned char
-    scalars->GetRange(this->Impl->ScalarsRange, 3);
+    if (independentComponents || (noOfComponents == 4) )
+      {
+      // If it is 3, then use the 4th component's range since that is
+      // the component that will be passed through the scalar opacity
+      // transfer function to look up opacity
+
+      // Note that we've already checked data type and we know this is
+      // unsigned char
+      scalars->GetRange(this->Impl->ScalarsRange, (noOfComponents - 1));
+      }
+    else
+      {
+      vtkErrorMacro("Dependent components are not supported");
+      }
     }
 
   // Invert the volume matrix
