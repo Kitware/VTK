@@ -82,6 +82,12 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderValues(std::string &VSSource,
       "vertexVC = MCVCMatrix * vertex;\n"
       "  gl_Position = MCDCMatrix * vertex;\n");
     }
+  else
+    {
+    substitute(VSSource,
+      "//VTK::PositionVC::Impl",
+      "gl_Position = MCDCMatrix * vertex;\n");
+    }
 
   // deal with color
   if (this->UsingInstancing)
