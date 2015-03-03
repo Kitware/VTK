@@ -35,13 +35,13 @@
 // Tcl Example: generate a rib file for the current rendering.
 // vtkRIBExporter myRIB
 //   myRIB SetInput $renWin
-//   myRIB SetFIlePrefix mine
+//   myRIB SetFilePrefix mine
 //   myRIB Write
 // This will create a file mine.rib. After running this file through
 // a Renderman renderer a file mine.tif will contain the rendered image.
 //
 // .SECTION See Also
-// vtkExporter vtkRIBProperty
+// vtkExporter vtkRIBProperty vtkRIBLight
 
 
 #ifndef vtkRIBExporter_h
@@ -79,7 +79,7 @@ public:
 
   // Description:
   // Specify the prefix of the files to write out. The resulting file names
-  // will have .RIB appended to them.
+  // will have .rib appended to them.
   vtkSetStringMacro(FilePrefix);
   vtkGetStringMacro(FilePrefix);
 
@@ -111,7 +111,7 @@ public:
   // Description:
   // Set or get the ExportArrays. If ExportArrays is set, then
   // all point data, field data, and cell data arrays will get
-  // exported together with polygons.
+  // exported together with polygons. Default is Off (0).
   vtkSetClampMacro(ExportArrays, int, 0, 1);
   vtkBooleanMacro(ExportArrays, int);
   vtkGetMacro(ExportArrays, int);

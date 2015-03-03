@@ -7,7 +7,6 @@ vtk_add_test_tcl(
   TestCameraInterpolator.tcl
   TestOpacity2.tcl
   TexturedSphere.tcl
-  cells.tcl
   cowHair2.tcl
   cowHair.tcl
   rendererSource.tcl
