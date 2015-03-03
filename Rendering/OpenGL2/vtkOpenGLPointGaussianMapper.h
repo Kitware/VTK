@@ -16,8 +16,8 @@
 // An OpenGL mapper that uses imposters to draw PointGaussians. Supports
 // transparency and picking as well.
 
-#ifndef __vtkOpenGLPointGaussianMapper_h
-#define __vtkOpenGLPointGaussianMapper_h
+#ifndef vtkOpenGLPointGaussianMapper_h
+#define vtkOpenGLPointGaussianMapper_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkPointGaussianMapper.h"
