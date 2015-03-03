@@ -746,12 +746,25 @@ namespace vtkvolume
 
           return shaderStr;
         }
-
-      return std::string("\
-        \nvec4 computeColor(vec4 scalar)\
-        \n  {\
-        \n  return computeLighting(vec4(scalar.xyz, computeOpacity(scalar)));\
-        \n  }");
+      else if (noOfComponents == 2&& !independentComponents)
+        {
+        return std::string("\
+          \nuniform sampler1D in_colorTransferFunc;\
+          \nvec4 computeColor(vec4 scalar)\
+          \n  {\
+          \n  return computeLighting(vec4(texture1D(in_colorTransferFunc,\
+          \n                                        scalar.x).xyz,\
+          \n                              computeOpacity(scalar)));\
+          \n  }");
+        }
+      else
+        {
+        return std::string("\
+          \nvec4 computeColor(vec4 scalar)\
+          \n  {\
+          \n  return computeLighting(vec4(scalar.xyz, computeOpacity(scalar)));\
+          \n  }");
+        }
     }
 
   //--------------------------------------------------------------------------
@@ -797,6 +810,15 @@ namespace vtkvolume
         \n  }");
 
         return shaderStr;
+      }
+    else if (noOfComponents == 2 && !independentComponents)
+      {
+      return std::string("\
+        \nuniform sampler1D in_opacityTransferFunc;\
+        \nfloat computeOpacity(vec4 scalar)\
+        \n  {\
+        \n  return texture1D(in_opacityTransferFunc, scalar.y).w;\
+        \n  }");
       }
     else
       {
@@ -901,7 +923,7 @@ namespace vtkvolume
            \n          {\
            \n          l_maxValue[i] = scalar[i];\
            \n          }\
-           \n\       }\
+           \n        }\
            \n     if (l_firstValue)\
            \n        {\
            \n        l_firstValue = false;\
@@ -951,7 +973,7 @@ namespace vtkvolume
           \n          {\
           \n          l_minValue[i] = scalar[i];\
           \n          }\
-          \n\       }\
+          \n        }\
           \n     if (l_firstValue)\
           \n        {\
           \n        l_firstValue = false;\

@@ -2300,6 +2300,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
     vtkErrorMacro("Shader failed to compile");
     }
 
+  std::cerr << "fragmentShader " << fragmentShader << std::endl;
 
   this->Impl->ShaderBuildTime.Modified();
 }
@@ -2426,7 +2427,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     }
   else
     {
-    if (independentComponents || (noOfComponents == 4) )
+    if (independentComponents || (noOfComponents == 2 ||
+                                  noOfComponents == 4) )
       {
       // If it is 3, then use the 4th component's range since that is
       // the component that will be passed through the scalar opacity
@@ -2438,7 +2440,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
       }
     else
       {
-      vtkErrorMacro("Dependent components are not supported");
+      vtkErrorMacro("Threee dependent components are not supported");
       }
     }
 
