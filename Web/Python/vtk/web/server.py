@@ -203,7 +203,14 @@ def start_webserver(options, protocol=vtk_wamp.ServerProtocol, disableLogging=Fa
 
     # Handle possibly complex lp endpoint
     if not options.nolp:
-        lpResource = WampLongPollResource(session_factory)
+        lpResource = WampLongPollResource(session_factory,
+                                          timeout=options.timeout,
+                                          debug=options.debug)
+                                          #killAfter = 30000,
+                                          #queueLimitBytes = 1024 * 1024,
+                                          #queueLimitMessages = 1000,
+                                          #debug=True,
+                                          #reactor=reactor)
         handle_complex_resource_path(options.lp, root, lpResource)
 
     if options.uploadPath != None :
