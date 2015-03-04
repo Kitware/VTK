@@ -369,12 +369,44 @@ int vtkGPUVolumeRayCastMapper::ValidateRender(vtkRenderer *ren,
       }
     }
 
+  int numberOfComponents = 0;
+  numberOfComponents = scalars->GetNumberOfComponents();
+
+#ifdef VTK_OPENGL2
+  // This mapper supports anywhere from 1-4 components. Number of components
+  // outside this range is not supported.
+  if( goodSoFar )
+    {
+    if( numberOfComponents <= 0 || numberOfComponents > 4 )
+      {
+      goodSoFar = 0;
+      vtkErrorMacro(<< "Only 1 - 4 component scalars "
+                    << "are supported by this mapper."
+                    << "The input data has " << numberOfComponents
+                    << " component(s).");
+      }
+    }
+
+  // If the dataset has dependent components (as set in the volume property),
+  // only 2 or 4 component scalars are supported.
+  if( goodSoFar )
+    {
+    if( !(vol->GetProperty()->GetIndependentComponents()) &&
+        (numberOfComponents == 1 || numberOfComponents == 3) )
+      {
+      goodSoFar = 0;
+      vtkErrorMacro(<< "If IndependentComponents is Off in the "
+                    << "volume property, then the data must have "
+                    << "either 2 or 4 component scalars. "
+                    << "The input data has " << numberOfComponents
+                    << " component(s).");
+      }
+    }
+#else
   // This mapper supports 1 component data, or 4 component if it is not independent
   // component (i.e. the four components define RGBA)
-  int numberOfComponents = 0;
   if ( goodSoFar )
     {
-    numberOfComponents = scalars->GetNumberOfComponents();
     if( !(numberOfComponents == 1 ||
           numberOfComponents == 4) )
       {
@@ -400,7 +432,7 @@ int vtkGPUVolumeRayCastMapper::ValidateRender(vtkRenderer *ren,
     goodSoFar=0;
     vtkErrorMacro("Additive mode only works with 1-component scalars!");
     }
-
+#endif
   // return our status
   return goodSoFar;
 }

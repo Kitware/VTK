@@ -51,6 +51,13 @@ set_source_files_properties(
   ABSTRACT
   )
 
+if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+  set_source_files_properties(
+    vtkGPUVolumeRayCastMapper.cxx APPEND PROPERTIES
+    COMPILE_DEFINITIONS VTK_OPENGL2
+    )
+endif()
+
 # only some volume mappers are supported for the OpenGL2 backend
 if(NOT VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
   set(Module_SRCS ${Module_SRCS}
