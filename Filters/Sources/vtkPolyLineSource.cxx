@@ -36,7 +36,10 @@ vtkPolyLineSource::vtkPolyLineSource()
 //----------------------------------------------------------------------------
 vtkPolyLineSource::~vtkPolyLineSource()
 {
-  this->Points->Delete();
+  if (this->Points)
+    {
+    this->Points->Delete();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -60,7 +63,12 @@ void vtkPolyLineSource::SetNumberOfPoints(vtkIdType numPoints)
 //----------------------------------------------------------------------------
 vtkIdType vtkPolyLineSource::GetNumberOfPoints()
 {
-  return this->Points->GetNumberOfPoints();
+  if (this->Points)
+    {
+    return this->Points->GetNumberOfPoints();
+    }
+
+  return 0;
 }
 
 //----------------------------------------------------------------------------
@@ -139,4 +147,5 @@ void vtkPolyLineSource::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Points: " << this->Points << "\n";
+  os << indent << "Closed: " << this->Closed << "\n";
 }
