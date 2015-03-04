@@ -495,6 +495,16 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
   // restore blending
   glEnable(GL_BLEND);
 
+  c = s->GetPropArrayCount();
+  for (i = 0; i < c; i++)
+    {
+    vtkProp *p=s->GetPropArray()[i];
+    vtkInformation *info = p->GetPropertyKeys();
+    info->Remove(vtkDepthPeelingPass::OpaqueZTextureUnit());
+    info->Remove(vtkDepthPeelingPass::TranslucentZTextureUnit());
+    info->Remove(vtkDepthPeelingPass::DestinationSize());
+    }
+
   this->NumberOfRenderedProps = this->TranslucentPass->GetNumberOfRenderedProps();
 
   vtkOpenGLCheckErrorMacro("failed after Render");

@@ -1222,6 +1222,16 @@ void vtkImplicitPlaneRepresentation::BuildRepresentation()
     return;
     }
 
+  vtkInformation *info = this->GetPropertyKeys();
+  this->OutlineActor->SetPropertyKeys(info);
+  this->CutActor->SetPropertyKeys(info);
+  this->EdgesActor->SetPropertyKeys(info);
+  this->ConeActor->SetPropertyKeys(info);
+  this->LineActor->SetPropertyKeys(info);
+  this->ConeActor2->SetPropertyKeys(info);
+  this->LineActor2->SetPropertyKeys(info);
+  this->SphereActor->SetPropertyKeys(info);
+
   if ( this->GetMTime() > this->BuildTime ||
        this->Plane->GetMTime() > this->BuildTime )
     {
