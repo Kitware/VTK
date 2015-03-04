@@ -816,11 +816,13 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
     this->VolumeTextureObject->SetMinificationFilter(vtkTextureObject::Linear);
     this->VolumeTextureObject->SetBorderColor(0.0f, 0.0f, 0.0f, 0.0f);
 
+    int numComps = scalars->GetNumberOfComponents();
+
     // Send the slices one by one to the GPU. We are not sending all of them
     // together so as to avoid allocating big data on the GPU which may not
     // work if the original dataset is big as well.
     vtkFloatArray* sliceArray = vtkFloatArray::New();
-    sliceArray->SetNumberOfComponents(1);
+    sliceArray->SetNumberOfComponents(numComps);
     sliceArray->SetNumberOfTuples(this->TextureSize[0] * this->TextureSize[1]);
     void* slicePtr = sliceArray->GetVoidPointer(0);
     int k = 0;
@@ -841,9 +843,17 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
         i = 0;
         while(i < this->TextureSize[0])
           {
-          sliceArray->SetTuple1(jDestOffset + i,
-                                (scalars->GetTuple1(kOffset + jOffset + i) +
-                                 shift)*scale);
+          vtkFloatArray* tup = vtkFloatArray::New();
+          tup->SetNumberOfComponents(numComps);
+          tup->SetNumberOfTuples(1);
+          double * tupPtr = static_cast<double *> (tup->GetVoidPointer(0));
+          double * scalarPtr = scalars->GetTuple(kOffset + jOffset + i);
+          for (int n = 0; n < numComps; ++n)
+            {
+            tupPtr[n] = (scalarPtr[n] + shift)*scale;
+            }
+          sliceArray->SetTuple(jDestOffset + i, tupPtr);
+          tup->Delete();
           ++i;
           }
         ++j;
