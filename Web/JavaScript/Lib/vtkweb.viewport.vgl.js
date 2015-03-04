@@ -8,10 +8,10 @@
  *     Viewport Factory description:
  *       - Key: vgl
  *       - Stats:
- *         - webgl-fps
- *         - webgl-nb-objects
- *         - webgl-fetch-scene
- *         - webgl-fetch-object
+ *         - vgl-fps
+ *         - vgl-nb-objects
+ *         - vgl-fetch-scene
+ *         - vgl-fetch-object
  */
 (function (GLOBAL, $) {
   var module = {},
@@ -37,28 +37,28 @@
     'builder': createVGLGeometryDeliveryRenderer,
     'options': DEFAULT_OPTIONS,
     'stats': {
-      'webgl-fps': {
-        label: 'Framerate:',
+      'vgl-fps': {
+        label: 'Framerate',
         type: 'time',
         convert: function(value) {
           if(value === 0) {
             return 0;
           }
-          return Math.floor(1000 / value);
+          return (1000 / value).toFixed(2);
         }
       },
-      'webgl-nb-objects': {
-        label: 'Number&nbsp;of&nbsp;3D&nbsp;objects:',
+      'vgl-nb-objects': {
+        label: 'Number&nbsp;of&nbsp;3D&nbsp;objects',
         type: 'value',
         convert: NoOp
       },
-      'webgl-fetch-scene': {
-        label: 'Fetch&nbsp;scene&nbsp;(ms):',
+      'vgl-fetch-scene': {
+        label: 'Fetch&nbsp;scene&nbsp;(ms)',
         type: 'time',
         convert: NoOp
       },
-      'webgl-fetch-object': {
-        label: 'Fetch&nbsp;object&nbsp;(ms):',
+      'vgl-fetch-object': {
+        label: 'Fetch&nbsp;object&nbsp;(ms)',
         type: 'time',
         convert: NoOp
       }
@@ -144,7 +144,7 @@
     function fetchScene() {
       m_container.trigger({
         type: 'stats',
-        stat_id: 'webgl-fetch-scene',
+        stat_id: 'vgl-fetch-scene',
         stat_value: 0
       });
       m_session.call("viewport.webgl.metadata", [Number(m_options.view)]).then(function(data) {
@@ -157,7 +157,7 @@
         m_vglVtkReader.setVtkScene(m_sceneJSON);
         m_container.trigger({
           type: 'stats',
-          stat_id: 'webgl-fetch-scene',
+          stat_id: 'vgl-fetch-scene',
           stat_value: 1
         });
         updateScene();
@@ -357,14 +357,14 @@
 
         m_container.trigger({
           type: 'stats',
-          stat_id: 'webgl-fetch-object',
+          stat_id: 'vgl-fetch-object',
           stat_value: 0
         });
         m_session.call("viewport.webgl.data", [viewId, sceneObject.id, part]).then(function(data) {
           try {
             m_container.trigger({
               type: 'stats',
-              stat_id: 'webgl-fetch-object',
+              stat_id: 'vgl-fetch-object',
               stat_value: 1
             });
 
@@ -423,7 +423,7 @@
         // Update frame rate
         m_container.trigger({
           type: 'stats',
-          stat_id: 'webgl-fps',
+          stat_id: 'vgl-fps',
           stat_value: 0
         });
 
@@ -438,13 +438,13 @@
         // Update frame rate
         m_container.trigger({
           type: 'stats',
-          stat_id: 'webgl-fps',
+          stat_id: 'vgl-fps',
           stat_value: 1
         });
 
         m_container.trigger({
           type: 'stats',
-          stat_id: 'webgl-nb-objects',
+          stat_id: 'vgl-nb-objects',
           stat_value: numObjects
         });
       } catch(error) {
