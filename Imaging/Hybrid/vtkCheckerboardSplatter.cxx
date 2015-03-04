@@ -41,7 +41,7 @@ vtkStandardNewMacro(vtkCheckerboardSplatter);
 
 //----------------------------------------------------------------------------
 // Algorithm and integration with vtkSMPTools
-template <class TPoints, class TScalars>
+template <typename TPoints, typename TScalars>
 class vtkCheckerboardSplatterAlgorithm
 {
 public:
@@ -148,7 +148,7 @@ public:
     {return this->ScaleFactor;}
 
   // Assign membership of points to checkerboard squares
-  template <class TTPoints> class AssignSquares
+  template <typename TTPoints> class AssignSquares
   {
   public:
     vtkCheckerboardSplatterAlgorithm *Algo;
@@ -183,7 +183,7 @@ public:
   };
 
   // Process all points in given range of checkerboard squares
-  template <class TTPoints> class SplatSquares
+  template <typename TTPoints> class SplatSquares
   {
   public:
     vtkCheckerboardSplatterAlgorithm *Algo;
@@ -209,7 +209,7 @@ public:
 
   // Do the actual work of splatting the point
   void SplatPoint(vtkIdType ptId);
-  template <class TTPoints> class Splat
+  template <typename TTPoints> class Splat
   {
   public:
     vtkCheckerboardSplatterAlgorithm *Algo;
@@ -291,7 +291,7 @@ public:
 // This is where the work is actually done and the points are splatted. Note
 // that splatting is only parallelized when the splat footprint is large
 // enough (to avoid multithreading overhead).
-template <class TPoints, class TScalars>
+template <typename TPoints, typename TScalars>
 void vtkCheckerboardSplatterAlgorithm<TPoints,TScalars>::
 SplatPoint(vtkIdType ptId)
 {
@@ -342,7 +342,7 @@ SplatPoint(vtkIdType ptId)
 
 //----------------------------------------------------------------------------
 // Cap the boundaries with a specific value (the capValue).
-template <class TPoints, class TScalars>
+template <typename TPoints, typename TScalars>
 void vtkCheckerboardSplatterAlgorithm<TPoints,TScalars>::
 Cap(TScalars *s, TScalars capValue)
 {
@@ -411,7 +411,7 @@ Cap(TScalars *s, TScalars capValue)
 
 //----------------------------------------------------------------------------
 // The algorithm driver method.
-template <class TPoints, class TScalars>
+template <typename TPoints, typename TScalars>
 void vtkCheckerboardSplatterAlgorithm<TPoints,TScalars>::
 SplatPoints(vtkCheckerboardSplatter *self, vtkIdType npts, TPoints *pts,
             vtkDataArray *inScalars, vtkDataArray *inNormals,
