@@ -25,6 +25,7 @@
 #include <vtkVolumeProperty.h>
 
 #include <map>
+#include <sstream>
 #include <string>
 
 namespace vtkvolume
@@ -705,6 +706,7 @@ namespace vtkvolume
       else if (noOfComponents > 1 && independentComponents)
         {
         std::string shaderStr;
+        std::ostringstream toString;
         for (int i = 0; i < noOfComponents; ++i)
           {
           shaderStr += std::string("\n uniform sampler1D ") +
@@ -713,37 +715,35 @@ namespace vtkvolume
 
         shaderStr += std::string("\
           \nvec4 computeColor(vec4 scalar, int component)\
-          \n  {\
-          \n  if (component == 0)\
-          \n    {\
-          \n    return computeLighting(vec4(texture1D(\
-          \n      in_colorTransferFunc,\
-          \n      scalar[component]).xyz,\
-          \n      computeOpacity(scalar, component)));\
-          \n    }\
-          \n  if (component == 1)\
-          \n    {\
-          \n    return computeLighting(vec4(texture1D(\
-          \n      in_colorTransferFunc1,\
-          \n      scalar[component]).xyz,\
-          \n      computeOpacity(scalar, component)));\
-          \n    }\
-          \n  if (component == 2)\
-          \n    {\
-          \n      return computeLighting(vec4(texture1D(\
-          \n        in_colorTransferFunc2,\
-          \n        scalar[component]).xyz,\
-          \n        computeOpacity(scalar, component)));\
-          \n    }\
-          \n  if (component == 3)\
-          \n    {\
-          \n      return computeLighting(vec4(texture1D(\
-          \n        in_colorTransferFunc3,\
-          \n        scalar[component]).xyz,\
-          \n        computeOpacity(scalar, component)));\
-          \n    }\
-          \n  }");
+          \n  {");
 
+        for (int i = 0; i < noOfComponents; ++i)
+          {
+          toString << i;
+          shaderStr += std::string("\
+            \n  if (component == " + toString.str() + ")");
+
+          if (i == 0)
+            {
+             // Reset
+             toString.str("");
+             toString.clear();
+            }
+
+          shaderStr += std::string("\
+            \n    {\
+            \n    return computeLighting(vec4(texture1D(\
+            \n      in_colorTransferFunc" + toString.str() + ",\
+            \n      scalar[component]).xyz,\
+            \n      computeOpacity(scalar, component)));\
+            \n    }");
+
+          // Reset
+          toString.str("");
+          toString.clear();
+          }
+
+          shaderStr += std::string("\n  }");
           return shaderStr;
         }
       else if (noOfComponents == 2&& !independentComponents)
@@ -778,37 +778,44 @@ namespace vtkvolume
     if (noOfComponents > 1 && independentComponents)
       {
       std::string shaderStr;
+      std::ostringstream toString;
+
       for (int i = 0; i < noOfComponents; ++i)
         {
         shaderStr += std::string("\n uniform sampler1D ") +
                      opacityTableMap[i] + std::string(";");
+
         }
 
-      shaderStr += std::string("\
-        \nfloat computeOpacity(vec4 scalar, int component)\
-        \n  {\
-        \n  if (component == 0)\
-        \n    {\
-        \n    return texture1D(in_opacityTransferFunc,\
-        \n                     scalar[component]).w;\
-        \n    }\
-        \n  if (component == 1)\
-        \n    {\
-        \n    return texture1D(in_opacityTransferFunc1,\
-        \n                     scalar[component]).w;\
-        \n    }\
-        \n  if (component == 2)\
-        \n    {\
-        \n      return texture1D(in_opacityTransferFunc2,\
-        \n                       scalar[component]).w;\
-        \n    }\
-        \n  if (component == 3)\
-        \n    {\
-        \n      return texture1D(in_opacityTransferFunc3,\
-        \n                       scalar[component]).w;\
-        \n    }\
-        \n  }");
+        shaderStr += std::string("\
+          \nfloat computeOpacity(vec4 scalar, int component)\
+          \n  {");
 
+        for (int i = 0; i < noOfComponents; ++i)
+          {
+          toString << i;
+          shaderStr += std::string("\
+            \n  if (component == " + toString.str() + ")");
+
+           if (i == 0)
+             {
+              // Reset
+              toString.str("");
+              toString.clear();
+             }
+
+          shaderStr += std::string("\
+            \n    {\
+            \n    return texture1D(in_opacityTransferFunc" + toString.str() + ",\
+            \n                     scalar[component]).w;\
+            \n    }");
+
+           // Reset
+           toString.str("");
+           toString.clear();
+           }
+
+        shaderStr += std::string("\n  }");
         return shaderStr;
       }
     else if (noOfComponents == 2 && !independentComponents)
