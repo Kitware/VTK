@@ -54,16 +54,16 @@ if test -z "$no_topic"; then
 	refspecs="HEAD:refs/for/master/$topic $refspecs"
 fi
 
+# Fetch the current upstream master branch head.
+# This helps computation of a minimal pack to push.
+echo "Fetching $remote master"
+fetch_out=$(git fetch "$remote" master 2>&1) || die "$fetch_out"
+
 # Exit early if we have nothing to push.
 if test -z "$refspecs"; then
 	echo 'Nothing to push!'
 	exit 0
 fi
-
-# Fetch the current upstream master branch head.
-# This helps the computation of a minimal pack to push.
-echo "Fetching $remote master"
-fetch_out=$(git fetch "$remote" master 2>&1) || die "$fetch_out"
 
 # Push.  Save output and exit code.
 echo "Pushing to $remote"
