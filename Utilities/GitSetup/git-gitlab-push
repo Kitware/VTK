@@ -92,7 +92,9 @@ data_refs() {
 			# Use this data ref if it exists.
 			git for-each-ref --format='%(refname)' "refs/data/$algo/$hash"
 		fi
-	done
+	done |
+	sort |
+	uniq
 }
 
 #-----------------------------------------------------------------------------
