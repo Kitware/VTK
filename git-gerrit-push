@@ -56,7 +56,7 @@ fi
 
 # Exit early if we have nothing to push.
 if test -z "$refspecs"; then
-	echo "Nothing to push!"
+	echo 'Nothing to push!'
 	exit 0
 fi
 
