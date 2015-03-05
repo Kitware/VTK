@@ -198,7 +198,9 @@ vtkTextureObject *vtkDepthPeelingPassCreateTextureObject(
   return result;
 }
 
-void vtkDepthPeelingPass::BlendIntermediatePeels(vtkOpenGLRenderWindow *renWin)
+void vtkDepthPeelingPass::BlendIntermediatePeels(
+  vtkOpenGLRenderWindow *renWin,
+  bool done)
 {
   this->CurrentRGBATexture->CopyFromFrameBuffer(this->ViewportX, this->ViewportY,
     this->ViewportX, this->ViewportY,
@@ -224,6 +226,8 @@ void vtkDepthPeelingPass::BlendIntermediatePeels(vtkOpenGLRenderWindow *renWin)
     "translucentRGBATexture", this->TranslucentRGBATexture->GetTextureUnit());
   this->IntermediateBlendProgram->Program->SetUniformi(
     "currentRGBATexture", this->CurrentRGBATexture->GetTextureUnit());
+  this->IntermediateBlendProgram->Program->SetUniformi(
+    "lastpass", done ? 1 : 0);
 
   glDisable(GL_DEPTH_TEST);
   this->CurrentRGBATexture->CopyToFrameBuffer(0, 0,
@@ -378,7 +382,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
   this->SetLastRenderingUsedDepthPeeling(s->GetRenderer(), true);
 
   glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-//  glClearColor(0.0,0.0,0.0,0.0); // always clear to black
+  glClearColor(0.0,0.0,0.0,0.0); // always clear to black
  // glClearDepth(static_cast<GLclampf>(1.0));
 #ifdef GL_MULTISAMPLE
   glDisable(GL_MULTISAMPLE);
@@ -430,7 +434,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
 #endif
 
   bool done = false;
-  GLuint nbPixels = 0;
+  GLuint nbPixels = threshold + 1;
   int peelCount = 0;
   while(!done)
     {
@@ -445,38 +449,52 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
     glBeginQuery(GL_SAMPLES_PASSED,queryId);
 #endif
 
+    // check if we are going to exceed the max number of peels or if we
+    // exceeded the pixel threshold last time
+    peelCount++;
+    if ((this->MaximumNumberOfPeels && peelCount >= this->MaximumNumberOfPeels) ||
+       nbPixels <= threshold)
+      {
+      done = true;
+      // if so we do this last render using alpha blending for all
+      // the stuff that is left
+      glEnable(GL_BLEND);
+      glDepthFunc( GL_ALWAYS );
+      }
     this->TranslucentPass->Render(s);
-
-    // update translucentZ
-    this->TranslucentZTexture->CopyFromFrameBuffer(this->ViewportX, this->ViewportY,
-        this->ViewportX, this->ViewportY,
-        this->ViewportWidth, this->ViewportHeight);
+    glDepthFunc( GL_LEQUAL );
+    glDisable(GL_BLEND);
 
 #if GL_ES_VERSION_2_0 != 1
     glEndQuery(GL_SAMPLES_PASSED);
     glGetQueryObjectuiv(queryId,GL_QUERY_RESULT,&nbPixels);
-    if (nbPixels <= threshold)
-      {
-      done = true;
-      }
 #endif
-    peelCount++;
-    if(this->MaximumNumberOfPeels && peelCount >= this->MaximumNumberOfPeels)
+    cerr << "Pass " << peelCount << " pixels Drawn " << nbPixels << "\n";
+
+    // if something was drawn, blend it in
+    if (nbPixels > 0)
+      {
+      // update translucentZ
+      this->TranslucentZTexture->CopyFromFrameBuffer(this->ViewportX, this->ViewportY,
+          this->ViewportX, this->ViewportY,
+          this->ViewportWidth, this->ViewportHeight);
+
+
+      // blend the last two peels together
+      if (peelCount > 1)
+        {
+        this->BlendIntermediatePeels(renWin,done);
+        }
+
+      // update translucent RGBA
+      this->TranslucentRGBATexture->CopyFromFrameBuffer(this->ViewportX, this->ViewportY,
+        this->ViewportX, this->ViewportY,
+        this->ViewportWidth, this->ViewportHeight);
+      }
+    else // if we drew nothing we are done
       {
       done = true;
       }
-    //cerr << "Pass " << peelCount << " pixels Drawn " << nbPixels << "\n";
-
-    // blend the last two peels together
-    if (peelCount > 1)
-      {
-      this->BlendIntermediatePeels(renWin);
-      }
-
-    // update translucent RGBA
-    this->TranslucentRGBATexture->CopyFromFrameBuffer(this->ViewportX, this->ViewportY,
-      this->ViewportX, this->ViewportY,
-      this->ViewportWidth, this->ViewportHeight);
     }
 
   // unload the textures we are done with
