@@ -815,15 +815,15 @@ int TestGPURayCastThreeComponentsIndependent(int argc, char *argv[])
   // Opacity functions
   vtkNew<vtkPiecewiseFunction> pf1;
   pf1->AddPoint(0.0, 0.0);
-  pf1->AddPoint(1.0, 0.1);
+  pf1->AddPoint(1.0, 0.2);
 
   vtkNew<vtkPiecewiseFunction> pf2;
   pf2->AddPoint(0.0, 0.0);
-  pf2->AddPoint(1.0, 0.1);
+  pf2->AddPoint(1.0, 0.2);
 
   vtkNew<vtkPiecewiseFunction> pf3;
   pf3->AddPoint(0.0, 0.0);
-  pf3->AddPoint(1.0, 0.1);
+  pf3->AddPoint(1.0, 0.2);
 
   // Volume property with independent components ON
   vtkNew<vtkVolumeProperty> property;
