@@ -149,8 +149,8 @@ namespace vtkvolume
       \nuniform vec2 in_inverseWindowSize;\
       \nuniform vec3 in_textureExtentsMax;\
       \nuniform vec3 in_textureExtentsMin;\
-      \nuniform float in_volumeScale;\
-      \nuniform float in_volumeBias;\
+//      \nuniform float in_volumeScale;\
+//      \nuniform float in_volumeBias;\
       \n\
       \n// Material and lighting\
       \nuniform vec3 in_diffuse;\

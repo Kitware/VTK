@@ -119,6 +119,10 @@ public:
     this->Extents[5] = VTK_INT_MIN;
 
     this->MaskTextures = new vtkMapMaskTextureId;
+
+    this->ScalarsRange.clear();
+    this->Scale.clear();
+    this->Bias.clear();
     }
 
   // Destructor
@@ -150,6 +154,10 @@ public:
       }
 
     this->DeleteTransferFunctions();
+
+    this->ScalarsRange.clear();
+    this->Scale.clear();
+    this->Bias.clear();
     }
 
   // Helper methods
@@ -174,7 +182,7 @@ public:
                   int noOfComponents, int independentComponents);
 
   bool LoadVolume(vtkRenderer* ren, vtkImageData* imageData,
-                  vtkDataArray* scalars);
+                  vtkDataArray* scalars, int independentComponents);
 
   bool LoadMask(vtkRenderer* ren, vtkImageData* input,
                 vtkImageData* maskInput, int textureExtent[6],
@@ -259,8 +267,8 @@ public:
 
   int TextureWidth;
 
-  double Scale;
-  double Bias;
+  std::vector<double> Scale;
+  std::vector<double> Bias;
 
   float* NoiseTextureData;
   GLint NoiseTextureSize;
@@ -273,7 +281,7 @@ public:
   int WindowLowerLeft[2];
   int WindowSize[2];
 
-  double ScalarsRange[2];
+  std::vector< std::vector<double> > ScalarsRange;
   double LoadedBounds[6];
   int Extents[6];
   double DatasetStepSize[3];
@@ -485,24 +493,30 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::Initialize(
 
 //----------------------------------------------------------------------------
 bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
-  vtkImageData* imageData, vtkDataArray* scalars)
+  vtkImageData* imageData, vtkDataArray* scalars, int independentComponents)
 {
   // Allocate data with internal format and foramt as (GL_RED)
   GLint internalFormat = 0;
   GLenum format = 0;
   GLenum type = 0;
 
-  double shift = 0.0;
-  double scale = 1.0;
   bool handleLargeDataTypes = false;
   int noOfComponents = scalars->GetNumberOfComponents();
+
+  std::vector<double> shift(noOfComponents, 0.0);
+  std::vector<double> scale(noOfComponents, 1.0);
+
   int scalarType = scalars->GetDataType();
+
   switch(scalarType)
     {
     case VTK_FLOAT:
       type = GL_FLOAT;
-      shift=-ScalarsRange[0];
-      scale = 1/(this->ScalarsRange[1]-this->ScalarsRange[0]);
+      for (int n = 0; n < noOfComponents; ++n)
+        {
+        shift[n] = -ScalarsRange[n][0];
+        scale[n] = 1/(this->ScalarsRange[n][1]-this->ScalarsRange[n][0]);
+        }
       switch(noOfComponents)
         {
         case 1:
@@ -532,9 +546,12 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
       break;
     case VTK_UNSIGNED_CHAR:
       type = GL_UNSIGNED_BYTE;
-      shift = -this->ScalarsRange[0]/VTK_UNSIGNED_CHAR_MAX;
-      scale =
-        VTK_UNSIGNED_CHAR_MAX/(this->ScalarsRange[1]-this->ScalarsRange[0]);
+      for (int n = 0; n < noOfComponents; ++n)
+        {
+        shift[n] = -this->ScalarsRange[n][0]/VTK_UNSIGNED_CHAR_MAX;
+        scale[n] = VTK_UNSIGNED_CHAR_MAX/(this->ScalarsRange[n][1] -
+                                          this->ScalarsRange[n][0]);
+        }
       switch(noOfComponents)
         {
         case 1:
@@ -557,9 +574,12 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
       break;
     case VTK_SIGNED_CHAR:
       type = GL_BYTE;
-      shift = -(2 * this->ScalarsRange[0] + 1)/VTK_UNSIGNED_CHAR_MAX;
-      scale = VTK_SIGNED_CHAR_MAX / (this->ScalarsRange[1] -
-                                     this->ScalarsRange[0]);
+      for (int n = 0; n < noOfComponents; ++n)
+        {
+        shift[n] = -(2 * this->ScalarsRange[n][0] + 1)/VTK_UNSIGNED_CHAR_MAX;
+        scale[n] = VTK_SIGNED_CHAR_MAX / (this->ScalarsRange[n][1] -
+                                          this->ScalarsRange[n][0]);
+        }
       switch(noOfComponents)
         {
         case 1:
@@ -594,8 +614,12 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
       break;
     case VTK_INT:
       type = GL_INT;
-      shift=-(2*this->ScalarsRange[0]+1)/VTK_UNSIGNED_INT_MAX;
-      scale = VTK_INT_MAX/(this->ScalarsRange[1]-this->ScalarsRange[0]);
+      for (int n = 0; n < noOfComponents; ++n)
+        {
+        shift[n] = -(2*this->ScalarsRange[n][0]+1)/VTK_UNSIGNED_INT_MAX;
+        scale[n] = VTK_INT_MAX/(this->ScalarsRange[n][1]-
+                                this->ScalarsRange[n][0]);
+        }
 
       switch(noOfComponents)
         {
@@ -626,8 +650,11 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
     case VTK_UNSIGNED_LONG_LONG:
       handleLargeDataTypes = true;
       type = GL_FLOAT;
-      shift = -this->ScalarsRange[0];
-      scale = 1 / (this->ScalarsRange[1] - this->ScalarsRange[0]);
+      for (int n = 0; n < noOfComponents; ++n)
+        {
+        shift[n] = -this->ScalarsRange[n][0];
+        scale[n] = 1 / (this->ScalarsRange[n][1] - this->ScalarsRange[n][0]);
+        }
       switch(noOfComponents)
         {
         case 1:
@@ -657,9 +684,12 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
       break;
     case VTK_SHORT:
       type = GL_SHORT;
-      shift = -(2*this->ScalarsRange[0]+1)/VTK_UNSIGNED_SHORT_MAX;
-      scale = VTK_SHORT_MAX / (this->ScalarsRange[1] -
-                               this->ScalarsRange[0]);
+      for (int n = 0; n < noOfComponents; ++n)
+        {
+        shift[n] = -(2*this->ScalarsRange[n][0]+1)/VTK_UNSIGNED_SHORT_MAX;
+        scale[n] = VTK_SHORT_MAX / (this->ScalarsRange[n][1] -
+                                 this->ScalarsRange[n][0]);
+        }
       switch(noOfComponents)
         {
         case 1:
@@ -686,11 +716,12 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
       break;
     case VTK_UNSIGNED_SHORT:
       type = GL_UNSIGNED_SHORT;
-
-      shift=-this->ScalarsRange[0]/VTK_UNSIGNED_SHORT_MAX;
-      scale=
-        VTK_UNSIGNED_SHORT_MAX / (this->ScalarsRange[1] -
-                                  this->ScalarsRange[0]);
+      for (int n = 0; n < noOfComponents; ++n)
+        {
+        shift[n] = -this->ScalarsRange[n][0]/VTK_UNSIGNED_SHORT_MAX;
+        scale[n] = VTK_UNSIGNED_SHORT_MAX / (this->ScalarsRange[n][1] -
+                                             this->ScalarsRange[n][0]);
+        }
       switch(noOfComponents)
         {
         case 1:
@@ -713,9 +744,12 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
       break;
     case VTK_UNSIGNED_INT:
       type = GL_UNSIGNED_INT;
-      shift=-this->ScalarsRange[0] / VTK_UNSIGNED_INT_MAX;
-      scale = VTK_UNSIGNED_INT_MAX / (this->ScalarsRange[1] -
-                                      this->ScalarsRange[0]);
+      for (int n = 0; n < noOfComponents; ++n)
+        {
+        shift[n] =-this->ScalarsRange[n][0] / VTK_UNSIGNED_INT_MAX;
+        scale[n] = VTK_UNSIGNED_INT_MAX / (this->ScalarsRange[n][1] -
+                                           this->ScalarsRange[n][0]);
+        }
       switch(noOfComponents)
         {
         case 1:
@@ -743,7 +777,10 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
 
   // Update scale and bias
   this->Scale = scale;
-  this->Bias = shift * this->Scale;
+  for (int n = 0; n < noOfComponents; ++n)
+    {
+    this->Bias[n] = shift[n] * this->Scale[n];
+    }
 
   // Update texture size
   imageData->GetExtent(this->Extents);
@@ -775,13 +812,31 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
     // TODO: glPixelTransfer is not supported in GL 3.2 or higher.
     // When we tried to apply scale and bias in the shader, then something
     // didn't work out quite right.
-    glPixelTransferf(GL_RED_SCALE,static_cast<GLfloat>(this->Scale));
-    glPixelTransferf(GL_RED_BIAS,static_cast<GLfloat>(this->Bias));
+    glPixelTransferf(GL_RED_SCALE,static_cast<GLfloat>(this->Scale[0]));
+    glPixelTransferf(GL_RED_BIAS,static_cast<GLfloat>(this->Bias[0]));
+
+    if (!independentComponents)
+      {
+      if (noOfComponents == 2 || noOfComponents == 4)
+        {
+        glPixelTransferf(GL_GREEN_SCALE,static_cast<GLfloat>(this->Scale[1]));
+        glPixelTransferf(GL_GREEN_BIAS,static_cast<GLfloat>(this->Bias[1]));
+        }
+      if (noOfComponents == 4)
+        {
+        glPixelTransferf(GL_BLUE_SCALE,static_cast<GLfloat>(this->Scale[2]));
+        glPixelTransferf(GL_BLUE_BIAS,static_cast<GLfloat>(this->Bias[2]));
+
+        glPixelTransferf(GL_ALPHA_SCALE,static_cast<GLfloat>(this->Scale[3]));
+        glPixelTransferf(GL_ALPHA_BIAS,static_cast<GLfloat>(this->Bias[3]));
+        }
+      }
+
     this->VolumeTextureObject->Create3DFromRaw(
       this->TextureSize[0],
       this->TextureSize[1],
       this->TextureSize[2],
-      scalars->GetNumberOfComponents(),
+      noOfComponents,
       scalarType,
       dataPtr);
     this->VolumeTextureObject->Activate();
@@ -805,7 +860,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
       this->TextureSize[0],
       this->TextureSize[1],
       this->TextureSize[2],
-      scalars->GetNumberOfComponents(),
+      noOfComponents,
       scalarType,
       0);
     this->VolumeTextureObject->Activate();
@@ -816,13 +871,11 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
     this->VolumeTextureObject->SetMinificationFilter(vtkTextureObject::Linear);
     this->VolumeTextureObject->SetBorderColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-    int numComps = scalars->GetNumberOfComponents();
-
     // Send the slices one by one to the GPU. We are not sending all of them
     // together so as to avoid allocating big data on the GPU which may not
     // work if the original dataset is big as well.
     vtkFloatArray* sliceArray = vtkFloatArray::New();
-    sliceArray->SetNumberOfComponents(numComps);
+    sliceArray->SetNumberOfComponents(noOfComponents);
     sliceArray->SetNumberOfTuples(this->TextureSize[0] * this->TextureSize[1]);
     void* slicePtr = sliceArray->GetVoidPointer(0);
     int k = 0;
@@ -844,13 +897,13 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
         while(i < this->TextureSize[0])
           {
           vtkFloatArray* tup = vtkFloatArray::New();
-          tup->SetNumberOfComponents(numComps);
+          tup->SetNumberOfComponents(noOfComponents);
           tup->SetNumberOfTuples(1);
           double * tupPtr = static_cast<double *> (tup->GetVoidPointer(0));
           double * scalarPtr = scalars->GetTuple(kOffset + jOffset + i);
-          for (int n = 0; n < numComps; ++n)
+          for (int n = 0; n < noOfComponents; ++n)
             {
-            tupPtr[n] = (scalarPtr[n] + shift)*scale;
+            tupPtr[n] = (scalarPtr[n] + shift[n])*scale[n];
             }
           sliceArray->SetTuple(jDestOffset + i, tupPtr);
           tup->Delete();
@@ -1067,17 +1120,23 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateColorTransferFunction(
   // Add points only if its not being added before
   if (colorTransferFunction->GetSize() < 1)
     {
-    colorTransferFunction->AddRGBPoint(this->ScalarsRange[0], 0.0, 0.0, 0.0);
-    colorTransferFunction->AddRGBPoint(this->ScalarsRange[1], 1.0, 1.0, 1.0);
+    colorTransferFunction->AddRGBPoint(this->ScalarsRange[0][0], 0.0, 0.0, 0.0);
+    colorTransferFunction->AddRGBPoint(this->ScalarsRange[0][1], 1.0, 1.0, 1.0);
     }
 
   int filterVal =
     volumeProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION ?
       vtkTextureObject::Linear : vtkTextureObject::Nearest;
 
+  double scalarRange[2];
+  for (int i = 0; i < 2; ++i)
+    {
+    scalarRange[i] = this->ScalarsRange[component][i];
+    }
+
   this->RGBTables->GetTable(component)->Update(
     volumeProperty->GetRGBTransferFunction(component),
-    this->ScalarsRange,
+    scalarRange,
     filterVal,
     vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
 
@@ -1086,13 +1145,13 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateColorTransferFunction(
     {
     vtkColorTransferFunction* colorTransferFunc =
       volumeProperty->GetRGBTransferFunction(1);
-    this->Mask1RGBTable->Update(colorTransferFunc, this->ScalarsRange,
+    this->Mask1RGBTable->Update(colorTransferFunc, scalarRange,
                                 vtkTextureObject::Nearest,
                                 vtkOpenGLRenderWindow::SafeDownCast(
                                   ren->GetRenderWindow()));
 
     colorTransferFunc = volumeProperty->GetRGBTransferFunction(2);
-    this->Mask2RGBTable->Update(colorTransferFunc, this->ScalarsRange,
+    this->Mask2RGBTable->Update(colorTransferFunc, scalarRange,
                                 vtkTextureObject::Nearest,
                                 vtkOpenGLRenderWindow::SafeDownCast(
                                   ren->GetRenderWindow()));
@@ -1117,18 +1176,24 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateOpacityTransferFunction(
 
   if (scalarOpacity->GetSize() < 1)
     {
-    scalarOpacity->AddPoint(this->ScalarsRange[0], 0.0);
-    scalarOpacity->AddPoint(this->ScalarsRange[1], 0.5);
+    scalarOpacity->AddPoint(this->ScalarsRange[0][0], 0.0);
+    scalarOpacity->AddPoint(this->ScalarsRange[0][1], 0.5);
     }
 
   int filterVal =
     volumeProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION ?
       vtkTextureObject::Linear : vtkTextureObject::Nearest;
 
+  double scalarRange[2];
+  for (int i = 0; i < 2; ++i)
+    {
+    scalarRange[i] = this->ScalarsRange[component][i];
+    }
+
   this->OpacityTables->GetTable(component)->Update(
     scalarOpacity,this->Parent->BlendMode,
     this->ActualSampleDistance,
-    this->ScalarsRange,
+    scalarRange,
     volumeProperty->GetScalarOpacityUnitDistance(component),
     filterVal,
     vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
@@ -1162,18 +1227,24 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
 
   if (gradientOpacity->GetSize() < 1)
     {
-    gradientOpacity->AddPoint(this->ScalarsRange[0], 0.0);
-    gradientOpacity->AddPoint(this->ScalarsRange[1], 0.5);
+    gradientOpacity->AddPoint(this->ScalarsRange[0][0], 0.0);
+    gradientOpacity->AddPoint(this->ScalarsRange[0][1], 0.5);
     }
 
   int filterVal =
     volumeProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION ?
       vtkTextureObject::Linear : vtkTextureObject::Nearest;
 
+  double scalarRange[2];
+  for (int i = 0; i < 2; ++i)
+    {
+    scalarRange[i] = this->ScalarsRange[component][i];
+    }
+
   this->GradientOpacityTables->GetTable(component)->Update(
     gradientOpacity,
     this->ActualSampleDistance,
-    this->ScalarsRange,
+    scalarRange,
     volumeProperty->GetScalarOpacityUnitDistance(),
     filterVal,
     vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
@@ -2419,6 +2490,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   // How many components are there?
   int noOfComponents = scalars->GetNumberOfComponents();
 
+  // Allocate important variables
+  this->Impl->Bias.resize(noOfComponents, 0.0);
+  this->Impl->ScalarsRange.resize(noOfComponents);
+  for (int n = 0; n < noOfComponents; ++n)
+    {
+    this->Impl->ScalarsRange[n].resize(2, 0.0);
+    }
+
   // Set OpenGL states
   vtkVolumeStateRAII glState;
 
@@ -2428,28 +2507,18 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
                            independentComponents);
     }
 
-  // If it is just one, then get the range from the scalars
-  if(noOfComponents == 1)
+  // Three dependent components are not supported
+  if ((noOfComponents == 3) && !independentComponents)
     {
-    // NOTE: here, we ignore the blank cells.
-    scalars->GetRange(this->Impl->ScalarsRange);
+    vtkErrorMacro("Three dependent components are not supported");
     }
-  else
-    {
-    if (independentComponents || (noOfComponents == 2 ||
-                                  noOfComponents == 4) )
-      {
-      // If it is 3, then use the 4th component's range since that is
-      // the component that will be passed through the scalar opacity
-      // transfer function to look up opacity
 
-      // Note that we've already checked data type and we know this is
-      // unsigned char
-      scalars->GetRange(this->Impl->ScalarsRange, (noOfComponents - 1));
-      }
-    else
+  for (int n = 0; n < noOfComponents; ++n)
+    {
+    double* range = scalars->GetRange(n);
+    for (int i = 0; i < 2; ++i)
       {
-      vtkErrorMacro("Threee dependent components are not supported");
+      this->Impl->ScalarsRange[n][i] = range[i];
       }
     }
 
@@ -2468,7 +2537,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 
     // Update bounds, data, and geometry
     this->Impl->ComputeBounds(input);
-    this->Impl->LoadVolume(ren, input, scalars);
+    this->Impl->LoadVolume(ren, input, scalars, independentComponents);
     this->Impl->LoadMask(ren, input, this->MaskInput,
                          this->Impl->Extents, vol);
     }
@@ -2605,7 +2674,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->ShaderProgram->SetUniformf("in_sampleDistance",
                                          this->Impl->ActualSampleDistance);
 
-  vtkInternal::ToFloat(this->Impl->ScalarsRange, fvalue2);
+  double scalarRange[2];
+  for (int i = 0; i < 2; ++i)
+    {
+    scalarRange[i] = this->Impl->ScalarsRange[noOfComponents - 1][i];
+    }
+  vtkInternal::ToFloat(scalarRange, fvalue2);
   this->Impl->ShaderProgram->SetUniform2fv("in_scalarsRange", 1, &fvalue2);
 
   // Bind textures
@@ -2821,8 +2895,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->UpdateClipping(ren, vol);
 
   // Finally set the scale and bias for color correction
-  this->Impl->ShaderProgram->SetUniformf("in_volumeScale", this->Impl->Scale);
-  this->Impl->ShaderProgram->SetUniformf("in_volumeBias", this->Impl->Bias);
+//  this->Impl->ShaderProgram->SetUniformf("in_volumeScale", this->Impl->Scale);
+//  this->Impl->ShaderProgram->SetUniformf("in_volumeBias", this->Impl->Bias);
 
   // Finally set the scale and bias for color correction
   this->Impl->ShaderProgram->SetUniformf("in_scale",
