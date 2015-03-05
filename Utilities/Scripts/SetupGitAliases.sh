@@ -17,4 +17,7 @@ git config alias.stage-merge '!sh -c "echo '"${stage_disabled}"'"' &&
 gerrit_disabled="VTK no longer uses Gerrit. Please use GitLab." &&
 git config alias.gerrit-push '!sh -c "echo '"${gerrit_disabled}"'"' &&
 
+# Alias to push the current topic branch to GitLab
+git config alias.gitlab-push '!bash Utilities/GitSetup/git-gitlab-push' &&
+
 true
