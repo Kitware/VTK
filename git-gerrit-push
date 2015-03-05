@@ -50,7 +50,8 @@ if test -z "$no_topic"; then
 		die 'Please name your topic:
 		git checkout -b descriptive-name'
 	fi
-	refspecs="HEAD:refs/for/master/$topic"
+	# The topic branch will be pushed by name.
+	refspecs="HEAD:refs/for/master/$topic $refspecs"
 fi
 
 # Exit early if we have nothing to push.
