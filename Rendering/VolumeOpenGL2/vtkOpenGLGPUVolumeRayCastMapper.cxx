@@ -1136,8 +1136,10 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateColorTransferFunction(
   // Add points only if its not being added before
   if (colorTransferFunction->GetSize() < 1)
     {
-    colorTransferFunction->AddRGBPoint(this->ScalarsRange[0][0], 0.0, 0.0, 0.0);
-    colorTransferFunction->AddRGBPoint(this->ScalarsRange[0][1], 1.0, 1.0, 1.0);
+    colorTransferFunction->AddRGBPoint(this->ScalarsRange[component][0],
+                                       0.0, 0.0, 0.0);
+    colorTransferFunction->AddRGBPoint(this->ScalarsRange[component][1],
+                                       1.0, 1.0, 1.0);
     }
 
   int filterVal =
@@ -1192,8 +1194,8 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateOpacityTransferFunction(
 
   if (scalarOpacity->GetSize() < 1)
     {
-    scalarOpacity->AddPoint(this->ScalarsRange[0][0], 0.0);
-    scalarOpacity->AddPoint(this->ScalarsRange[0][1], 0.5);
+    scalarOpacity->AddPoint(this->ScalarsRange[component][0], 0.0);
+    scalarOpacity->AddPoint(this->ScalarsRange[component][1], 0.5);
     }
 
   int filterVal =
@@ -1243,8 +1245,8 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
 
   if (gradientOpacity->GetSize() < 1)
     {
-    gradientOpacity->AddPoint(this->ScalarsRange[0][0], 0.0);
-    gradientOpacity->AddPoint(this->ScalarsRange[0][1], 0.5);
+    gradientOpacity->AddPoint(this->ScalarsRange[component][0], 0.0);
+    gradientOpacity->AddPoint(this->ScalarsRange[component][1], 0.5);
     }
 
   int filterVal =
