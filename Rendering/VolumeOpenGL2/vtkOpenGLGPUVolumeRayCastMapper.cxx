@@ -1189,8 +1189,16 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateOpacityTransferFunction(
     }
 
   vtkVolumeProperty* volumeProperty = vol->GetProperty();
-  vtkPiecewiseFunction* scalarOpacity =
-    volumeProperty->GetScalarOpacity(component);
+  vtkPiecewiseFunction* scalarOpacity = 0;
+
+  if (!vol->GetProperty()->GetIndependentComponents())
+    {
+    scalarOpacity = volumeProperty->GetScalarOpacity(0);
+    }
+  else
+    {
+    scalarOpacity = volumeProperty->GetScalarOpacity(component);
+    }
 
   if (scalarOpacity->GetSize() < 1)
     {
@@ -1242,8 +1250,16 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
     return 1;
     }
 
-  vtkPiecewiseFunction* gradientOpacity =
-    volumeProperty->GetGradientOpacity(component);
+  vtkPiecewiseFunction* gradientOpacity = 0;
+
+  if (!vol->GetProperty()->GetIndependentComponents())
+    {
+    gradientOpacity = volumeProperty->GetGradientOpacity(0);
+    }
+  else
+    {
+    gradientOpacity = volumeProperty->GetGradientOpacity(component);
+    }
 
   if (gradientOpacity->GetSize() < 1)
     {
