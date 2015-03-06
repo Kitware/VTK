@@ -456,7 +456,10 @@ void vtkStringArray::InsertValue(vtkIdType id, vtkStdString f)
 {
   if ( id >= this->Size )
     {
-    this->ResizeAndExtend(id+1);
+    if (!this->ResizeAndExtend(id+1))
+      {
+      return;
+      }
     }
   this->Array[id] = f;
   if ( id > this->MaxId )

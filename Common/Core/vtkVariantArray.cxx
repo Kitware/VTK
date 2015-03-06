@@ -639,7 +639,10 @@ void vtkVariantArray::InsertValue(vtkIdType id, vtkVariant value)
 {
   if ( id >= this->Size )
     {
-    this->ResizeAndExtend(id+1);
+    if (!this->ResizeAndExtend(id+1))
+      {
+      return;
+      }
     }
   this->Array[id] = value;
   if ( id > this->MaxId )
