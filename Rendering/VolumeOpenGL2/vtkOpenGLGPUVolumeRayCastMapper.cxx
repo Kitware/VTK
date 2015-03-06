@@ -849,6 +849,22 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
 
     glPixelTransferf(GL_RED_SCALE, 1.0);
     glPixelTransferf(GL_RED_BIAS, 0.0);
+    if (!independentComponents)
+      {
+      if (noOfComponents == 2 || noOfComponents == 4)
+        {
+        glPixelTransferf(GL_GREEN_SCALE,1.0);
+        glPixelTransferf(GL_GREEN_BIAS,0.0);
+        }
+      if (noOfComponents == 4)
+        {
+        glPixelTransferf(GL_BLUE_SCALE,1.0);
+        glPixelTransferf(GL_BLUE_BIAS,0.0);
+
+        glPixelTransferf(GL_ALPHA_SCALE,1.0);
+        glPixelTransferf(GL_ALPHA_BIAS,0.0);
+        }
+      }
     }
   else
     {
