@@ -296,8 +296,7 @@ void vtkCheckerboardSplatterAlgorithm<TPoints,TScalars>::
 SplatPoint(vtkIdType ptId)
 {
   // Configure the parallel splat
-  vtkCheckerboardSplatterAlgorithm<TPoints,TScalars>::
-    Splat<TPoints> splat(this);
+  Splat<TPoints> splat(this);
   TPoints *p = this->Pts + 3*ptId;
   splat.SetSplatPoint(ptId,p); //casts the point into double precision
 
@@ -513,11 +512,11 @@ SplatPoints(vtkCheckerboardSplatter *self, vtkIdType npts, TPoints *pts,
   // The checkerboard tracks (npts,pts) for each square, where npts is the
   // number of points in each square, and pts is a location into the sorted
   // points array.
-  algo.CBoard = new vtkCheckerboardSplatterAlgorithm::Squares [algo.NSquares*8];
+  algo.CBoard = new Squares [algo.NSquares*8];
 
   // The sorted points array contains the offset into the original points array
   // and a checkerboard address.
-  algo.SPts = new vtkCheckerboardSplatterAlgorithm::SortedPoints [algo.NPts];
+  algo.SPts = new SortedPoints [algo.NPts];
 
   // Loop over all points, computing address into checkerboard. This consists
   // of (octNum,i,j,k) where the checkerboard square number is a value
@@ -525,8 +524,7 @@ SplatPoints(vtkCheckerboardSplatter *self, vtkIdType npts, TPoints *pts,
   // belongs to (i.e., each point is associated with one of eight spatially
   // distinct groups). The (i,j,k) indicate which checkerboard square the
   // point is contained.
-  vtkCheckerboardSplatterAlgorithm<TPoints,TScalars>::
-    AssignSquares<TPoints> assign(&algo);
+  AssignSquares<TPoints> assign(&algo);
   vtkSMPTools::For(0,npts, assign);
 
   // Now sort points based on checkerboard address. This will separate
@@ -558,8 +556,7 @@ SplatPoints(vtkCheckerboardSplatter *self, vtkIdType npts, TPoints *pts,
   // parallel all squares in a particular color/group. Need to initialize the
   // output with the fill operation.
   std::fill_n(scalars, algo.Dims[0]*algo.Dims[1]*algo.Dims[2], algo.InitialValue);
-  vtkCheckerboardSplatterAlgorithm<TPoints,TScalars>::
-    SplatSquares<TPoints> splatSquares(&algo);
+  SplatSquares<TPoints> splatSquares(&algo);
   for (i=0; i < 8; ++i) //loop over all eight checkerboard colors
     {
     vtkSMPTools::For(algo.Offsets[i], algo.Offsets[i+1], splatSquares);
