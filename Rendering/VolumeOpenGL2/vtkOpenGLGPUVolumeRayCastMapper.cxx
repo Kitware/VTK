@@ -1208,7 +1208,9 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateOpacityTransferFunction(
     scalarRange[i] = this->ScalarsRange[component][i];
     }
 
-  this->OpacityTables->GetTable(component)->Update(
+  int tableIndex = component < this->OpacityTables->GetNumberOfTables() ?
+                   component : this->OpacityTables->GetNumberOfTables() - 1;
+  this->OpacityTables->GetTable(tableIndex)->Update(
     scalarOpacity,this->Parent->BlendMode,
     this->ActualSampleDistance,
     scalarRange,
@@ -1259,7 +1261,10 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
     scalarRange[i] = this->ScalarsRange[component][i];
     }
 
-  this->GradientOpacityTables->GetTable(component)->Update(
+  int tableIndex =
+    component < this->GradientOpacityTables->GetNumberOfTables() ?
+    component : this->GradientOpacityTables->GetNumberOfTables() - 1;
+  this->GradientOpacityTables->GetTable(tableIndex)->Update(
     gradientOpacity,
     this->ActualSampleDistance,
     scalarRange,
