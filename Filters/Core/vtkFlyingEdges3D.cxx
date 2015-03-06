@@ -42,16 +42,20 @@ class vtkFlyingEdges3DAlgorithm
 {
 public:
   // Edge case table values.
-  static const unsigned char Below = 0; //below isovalue
-  static const unsigned char Above = 1; //above isovalue
-  static const unsigned char LeftAbove = 1; //left vertex is above isovalue
-  static const unsigned char RightAbove = 2; //right vertex is above isovalue
-  static const unsigned char BothAbove = 3; //entire edge is above isovalue
+  enum {
+    Below = 0, //below isovalue
+    Above = 1, //above isovalue
+    LeftAbove = 1, //left vertex is above isovalue
+    RightAbove = 2, //right vertex is above isovalue
+    BothAbove = 3 //entire edge is above isovalue
+  };
 
   // Dealing with boundary situations when processing volumes.
-  static const unsigned char Interior = 0;
-  static const unsigned char MinBoundary = 1;
-  static const unsigned char MaxBoundary = 2;
+  enum {
+    Interior = 0,
+    MinBoundary = 1,
+    MaxBoundary = 2
+  } vtkBoundarySituations;
 
   // Edge-based case table to generate output triangle primitives. It is
   // equivalent to the vertex-based Marching Cubes case table but provides
@@ -1101,13 +1105,13 @@ Contour(vtkFlyingEdges3D *self, vtkImageData *input, int extent[6],
     // intersections (i.e., accumulate information necessary for later output
     // memory allocation, e.g., the number of output points along the x-rows
     // are counted).
-    vtkFlyingEdges3DAlgorithm<T>::Pass1<T> pass1(&algo,value);
+    Pass1<T> pass1(&algo,value);
     vtkSMPTools::For(0,algo.Dims[2], pass1);
 
     // PASS 2: Traverse all voxel x-rows and process voxel y&z edges.  The
     // result is a count of the number of y- and z-intersections, as well as
     // the number of triangles generated along these voxel rows.
-    vtkFlyingEdges3DAlgorithm<T>::Pass2<T> pass2(&algo);
+    Pass2<T> pass2(&algo);
     vtkSMPTools::For(0,algo.Dims[2]-1, pass2);
 
     // PASS 3: Now allocate and generate output. First we have to update the
@@ -1166,7 +1170,7 @@ Contour(vtkFlyingEdges3D *self, vtkImageData *input, int extent[6],
     algo.NeedGradients = (algo.NewGradients || algo.NewNormals ? 1 : 0);
 
     // Process voxel rows and generate output
-    vtkFlyingEdges3DAlgorithm<T>::Pass3<T> pass3(&algo,value);
+    Pass3<T> pass3(&algo,value);
     vtkSMPTools::For(0,algo.Dims[2]-1, pass3);
 
     // Handle multiple contours

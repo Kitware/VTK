@@ -37,17 +37,20 @@ class vtkFlyingEdges2DAlgorithm
 {
 public:
   // Edge case table values.
-  static const unsigned char Below = 0; //below isovalue
-  static const unsigned char Above = 1; //above isovalue
-  static const unsigned char LeftAbove = 1; //left vertex is above isovalue
-  static const unsigned char RightAbove = 2; //right vertex is above isovalue
-  static const unsigned char BothAbove = 3; //entire edge is above isovalue
+  enum {
+    Below = 0, //below isovalue
+    Above = 1, //above isovalue
+    LeftAbove = 1, //left vertex is above isovalue
+    RightAbove = 2, //right vertex is above isovalue
+    BothAbove = 3 //entire edge is above isovalue
+  };
 
   // Dealing with boundary situations when processing images.
-  static const unsigned char Interior = 0;
-  static const unsigned char MinBoundary = 1;
-  static const unsigned char MaxBoundary = 2;
-
+  enum {
+    Interior = 0,
+    MinBoundary = 1,
+    MaxBoundary = 2
+  };
   // Edges to generate output line primitives (aka case table).
   static const unsigned char EdgeCases[16][5];
 
@@ -707,13 +710,13 @@ ContourImage(vtkFlyingEdges2D *self, T *scalars, vtkPoints *newPts,
     // PASS 1: Traverse all rows generating intersection points and building
     // the case table. Also accumulate information necessary for later allocation.
     // For example the number of output points is computed.
-    vtkFlyingEdges2DAlgorithm<T>::Pass1<T> pass1(&algo,value);
+    Pass1<T> pass1(&algo,value);
     vtkSMPTools::For(0,algo.Dims[1], pass1);
 
     // PASS 2: Traverse all rows and process cell y edges. Continue building
     // case table from y contributions (using computational trimming to reduce
     // work) and keep track of cell y intersections.
-    vtkFlyingEdges2DAlgorithm<T>::Pass2<T> pass2(&algo);
+    Pass2<T> pass2(&algo);
     vtkSMPTools::For(0,algo.Dims[1]-1, pass2);
 
     // PASS 3: Now allocate and generate output. First we have to update the
@@ -751,7 +754,7 @@ ContourImage(vtkFlyingEdges2D *self, T *scalars, vtkPoints *newPts,
       }
 
     // Now process each x-row and produce the output primitives.
-    vtkFlyingEdges2DAlgorithm<T>::Pass3<T> pass3(&algo,value);
+    Pass3<T> pass3(&algo,value);
     vtkSMPTools::For(0,algo.Dims[1]-1, pass3);
 
     // Handle multiple contours
