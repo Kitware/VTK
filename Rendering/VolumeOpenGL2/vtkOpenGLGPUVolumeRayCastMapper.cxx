@@ -2607,19 +2607,32 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   // to render the 3D texture
   this->Impl->UpdateVolumeGeometry(ren, vol, input);
 
-  // Update opacity transfer function
-  for (int i = 0; i < (independentComponents ?
-       noOfComponents : 1); ++i)
+  // Update the transfer functions
+  if (independentComponents)
     {
-    this->Impl->UpdateOpacityTransferFunction(ren, vol,
-      scalars->GetNumberOfComponents(), i);
-
-    this->Impl->UpdateGradientOpacityTransferFunction(ren, vol,
-      scalars->GetNumberOfComponents(), i);
-
-    // Update transfer color functions
-    this->Impl->UpdateColorTransferFunction(ren, vol,
-      scalars->GetNumberOfComponents(), i);
+    for (int i = 0; i < noOfComponents; ++i)
+      {
+      this->Impl->UpdateOpacityTransferFunction(ren, vol, noOfComponents, i);
+      this->Impl->UpdateGradientOpacityTransferFunction(ren, vol,
+                                                        noOfComponents, i);
+      this->Impl->UpdateColorTransferFunction(ren, vol, noOfComponents, i);
+      }
+    }
+  else
+    {
+    if (noOfComponents == 2)
+      {
+      this->Impl->UpdateOpacityTransferFunction(ren, vol, noOfComponents, 1);
+      this->Impl->UpdateGradientOpacityTransferFunction(ren, vol,
+                                                        noOfComponents, 1);
+      this->Impl->UpdateColorTransferFunction(ren, vol, noOfComponents, 0);
+      }
+    else if (noOfComponents == 4)
+      {
+      this->Impl->UpdateOpacityTransferFunction(ren, vol, noOfComponents, 3);
+      this->Impl->UpdateGradientOpacityTransferFunction(ren, vol,
+                                                        noOfComponents, 3);
+      }
     }
 
   // Update noise sampler texture
