@@ -493,6 +493,14 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
       }
     else // if we drew nothing we are done
       {
+      // if we drew nothing on the very first frame we still
+      // need a valid texture to blend with so copy it
+      if (peelCount == 1)
+        {
+        this->TranslucentRGBATexture->CopyFromFrameBuffer(this->ViewportX, this->ViewportY,
+          this->ViewportX, this->ViewportY,
+          this->ViewportWidth, this->ViewportHeight);
+        }
       done = true;
       }
     }
