@@ -1,4 +1,5 @@
 #include "vtkSMPMinMaxTree.h"
+#include "vtkConfigure.h"
 #include "vtkObjectFactory.h"
 #include "vtkIdList.h"
 #include "vtkGenericCell.h"
@@ -8,6 +9,49 @@
 #include "vtkGenericCell.h"
 #include "vtkSMPThreadLocal.h"
 #include "vtkSMPThreadLocalObject.h"
+
+
+#if defined(__APPLE__)
+# include <libkern/OSAtomic.h>
+# define VTK_APPLE_ATOMIC
+#endif
+
+#if defined(_WIN32) && !defined(__MINGW32__)
+# include "vtkWindows.h"
+# define VTK_WINDOWS_ATOMIC
+#endif
+
+#if !defined(VTK_APPLE_ATOMIC) && !defined(VTK_WINDOWS_ATOMIC) &&\
+    !defined(VTK_HAVE_SYNC_BUILTINS)
+# error "No built in support for atomic increment found."
+#endif
+
+#if defined(VTK_USE_64BIT_IDS) && !(VTK_SIZEOF_VOID_P == 8)
+# error "No support for atomic increment on 64-bits vtkIdType."
+#endif
+
+inline vtkIdType AtomicIncrementAndFetch(vtkIdType &var)
+{
+#if defined(VTK_HAVE_SYNC_BUILTINS)
+ return __sync_add_and_fetch(&var, 1);
+
+#elif defined(VTK_APPLE_ATOMIC)
+# ifdef VTK_USE_64BIT_IDS
+ return OSAtomicIncrement64Barrier(&var);
+# else
+ return OSAtomicIncrement32Barrier(&var);
+# endif
+
+#elif defined(VTK_WINDOWS_ATOMIC)
+# ifdef VTK_USE_64BIT_IDS
+ return InterlockedIncrement64(&var);
+# else
+ return InterlockedIncrement32(&var);
+# endif
+
+#endif
+}
+
 
 namespace
 {
@@ -78,7 +122,7 @@ namespace
         while ( index )
           {
           index = ( index - 1 ) / this->BF;
-          if ( __sync_add_and_fetch(&(this->Locks[index]), 1) != this->BF )
+          if ( AtomicIncrementAndFetch(this->Locks[index]) != this->BF )
             break;
           for ( vtkIdType i = index * this->BF + 1; i < ( index + 1 ) * this->BF && i < this->Max; ++i )
             {

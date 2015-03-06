@@ -33,22 +33,22 @@
         'options': DEFAULT_OPTIONS,
         'stats': {
             'image-fps': {
-                label: 'Framerate:',
+                label: 'Framerate',
                 type: 'time',
                 convert: function(value) {
                     if(value === 0) {
                         return 0;
                     }
-                    return Math.floor(1000 / value);
+                    return (1000 / value).toFixed(2);
                 }
             },
             'image-round-trip': {
-                label: 'Round&nbsp;trip&nbsp;(ms):',
+                label: 'Round&nbsp;trip&nbsp;(ms)',
                 type: 'value',
                 convert: NoOp
             },
             'image-server-processing': {
-                label: 'Processing&nbsp;Time&nbsp;(ms):',
+                label: 'Processing&nbsp;Time&nbsp;(ms)',
                 type: 'value',
                 convert: NoOp
             }

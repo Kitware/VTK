@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSplineRepresentation.cxx
+  Module:    vtkPolyLineRepresentation.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,42 +12,28 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkSplineRepresentation.h"
+#include "vtkPolyLineRepresentation.h"
 
 #include "vtkActor.h"
-#include "vtkAssemblyNode.h"
-#include "vtkAssemblyPath.h"
 #include "vtkBoundingBox.h"
-#include "vtkCallbackCommand.h"
-#include "vtkCamera.h"
-#include "vtkCellArray.h"
 #include "vtkCellPicker.h"
-#include "vtkInteractorObserver.h"
+#include "vtkDoubleArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkParametricFunctionSource.h"
-#include "vtkParametricSpline.h"
-#include "vtkPickingManager.h"
-#include "vtkPlaneSource.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkProperty.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
+#include "vtkPolyLineSource.h"
 #include "vtkSphereSource.h"
-#include "vtkTransform.h"
-#include "vtkDoubleArray.h"
 
 //----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkSplineRepresentation);
+vtkStandardNewMacro(vtkPolyLineRepresentation);
 
 //----------------------------------------------------------------------------
-vtkSplineRepresentation::vtkSplineRepresentation()
+vtkPolyLineRepresentation::vtkPolyLineRepresentation()
 {
   // Build the representation of the widget
 
-  // Create the handles along a straight line within the bounds of a unit cube
+  // Default bounds to get started
   double x0 = -0.5;
   double x1 =  0.5;
   double y0 = -0.5;
@@ -68,26 +54,14 @@ vtkSplineRepresentation::vtkSplineRepresentation()
     this->HandleGeometry[i]->SetCenter(x,y,z);
     }
 
-  // vtkParametric spline acts as the interpolating engine
-  this->ParametricSpline = vtkParametricSpline::New();
-  this->ParametricSpline->Register(this);
-  this->ParametricSpline->SetPoints(points);
+  this->PolyLineSource = vtkPolyLineSource::New();
+  this->PolyLineSource->SetPoints(points);
   points->Delete();
-  this->ParametricSpline->Delete();
-
-  // Define the points and line segments representing the spline
-  this->Resolution = 499;
-
-  this->ParametricFunctionSource = vtkParametricFunctionSource::New();
-  this->ParametricFunctionSource->SetParametricFunction(this->ParametricSpline);
-  this->ParametricFunctionSource->SetScalarModeToNone();
-  this->ParametricFunctionSource->GenerateTextureCoordinatesOff();
-  this->ParametricFunctionSource->SetUResolution( this->Resolution );
-  this->ParametricFunctionSource->Update();
+  this->PolyLineSource->Update();
 
   vtkPolyDataMapper* lineMapper = vtkPolyDataMapper::New();
   lineMapper->SetInputConnection(
-    this->ParametricFunctionSource->GetOutputPort()) ;
+    this->PolyLineSource->GetOutputPort()) ;
   lineMapper->ImmediateModeRenderingOn();
   lineMapper->SetResolveCoincidentTopologyToPolygonOffset();
 
@@ -96,50 +70,25 @@ vtkSplineRepresentation::vtkSplineRepresentation()
 }
 
 //----------------------------------------------------------------------------
-vtkSplineRepresentation::~vtkSplineRepresentation()
+vtkPolyLineRepresentation::~vtkPolyLineRepresentation()
 {
-  if ( this->ParametricSpline )
-    {
-    this->ParametricSpline->UnRegister(this);
-    }
-
-  this->ParametricFunctionSource->Delete();
+  this->PolyLineSource->Delete();
 }
 
 //----------------------------------------------------------------------------
-void vtkSplineRepresentation::SetParametricSpline(vtkParametricSpline* spline)
-{
-  if ( this->ParametricSpline != spline )
-    {
-    // to avoid destructor recursion
-    vtkParametricSpline *temp = this->ParametricSpline;
-    this->ParametricSpline = spline;
-    if (temp != NULL)
-      {
-      temp->UnRegister(this);
-      }
-    if (this->ParametricSpline != NULL)
-      {
-      this->ParametricSpline->Register(this);
-      this->ParametricFunctionSource->SetParametricFunction(this->ParametricSpline);
-      }
-    }
-}
-
-//----------------------------------------------------------------------------
-vtkDoubleArray* vtkSplineRepresentation::GetHandlePositions()
+vtkDoubleArray* vtkPolyLineRepresentation::GetHandlePositions()
 {
   return vtkDoubleArray::SafeDownCast(
-    this->ParametricSpline->GetPoints()->GetData());
+    this->PolyLineSource->GetPoints()->GetData());
 }
 
 //----------------------------------------------------------------------------
-void vtkSplineRepresentation::BuildRepresentation()
+void vtkPolyLineRepresentation::BuildRepresentation()
 {
   this->ValidPick = 1;
   // TODO: Avoid unnecessary rebuilds.
-  // Handles have changed position, re-compute the spline coeffs
-  vtkPoints* points = this->ParametricSpline->GetPoints();
+  // Handles have changed position, re-compute the points
+  vtkPoints* points = this->PolyLineSource->GetPoints();
   if ( points->GetNumberOfPoints() != this->NumberOfHandles )
     {
     points->SetNumberOfPoints( this->NumberOfHandles );
@@ -153,8 +102,8 @@ void vtkSplineRepresentation::BuildRepresentation()
     points->SetPoint(i, pt);
     bbox.AddPoint(pt);
     }
-  this->ParametricSpline->SetClosed(this->Closed);
-  this->ParametricSpline->Modified();
+  this->PolyLineSource->SetClosed(this->Closed);
+  this->PolyLineSource->Modified();
 
   double bounds[6];
   bbox.GetBounds(bounds);
@@ -163,9 +112,8 @@ void vtkSplineRepresentation::BuildRepresentation()
                              (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
   this->SizeHandles();
 }
-
 //----------------------------------------------------------------------------
-void vtkSplineRepresentation::SetNumberOfHandles(int npts)
+void vtkPolyLineRepresentation::SetNumberOfHandles(int npts)
 {
   if ( this->NumberOfHandles == npts )
     {
@@ -173,7 +121,7 @@ void vtkSplineRepresentation::SetNumberOfHandles(int npts)
     }
   if (npts < 1)
     {
-    vtkGenericWarningMacro(<<"vtkSplineRepresentation: minimum of 1 points required.");
+    vtkGenericWarningMacro(<<"vtkPolyLineRepresentation: minimum of 1 points required.");
     return;
     }
 
@@ -201,9 +149,8 @@ void vtkSplineRepresentation::SetNumberOfHandles(int npts)
     this->Handle[i]->SetMapper(handleMapper);
     handleMapper->Delete();
     this->Handle[i]->SetProperty(this->HandleProperty);
-    double u[3], pt[3];
-    u[0] = i/(this->NumberOfHandles - 1.0);
-    this->ParametricSpline->Evaluate(u, pt, NULL);
+    double pt[3];
+    this->PolyLineSource->GetPoints()->GetPoint(i, pt);
     this->HandleGeometry[i]->SetCenter(pt);
     this->HandleGeometry[i]->SetRadius(radius);
     this->HandlePicker->AddPickList(this->Handle[i]);
@@ -224,28 +171,16 @@ void vtkSplineRepresentation::SetNumberOfHandles(int npts)
 }
 
 //----------------------------------------------------------------------------
-void vtkSplineRepresentation::SetResolution(int resolution)
+void vtkPolyLineRepresentation::GetPolyData(vtkPolyData *pd)
 {
-  if ( this->Resolution == resolution || resolution < (this->NumberOfHandles-1) )
-    {
-    return;
-    }
-
-  this->Resolution = resolution;
-  this->ParametricFunctionSource->SetUResolution( this->Resolution );
-  this->ParametricFunctionSource->Modified();
+  pd->ShallowCopy( this->PolyLineSource->GetOutput() );
 }
 
-//----------------------------------------------------------------------------
-void vtkSplineRepresentation::GetPolyData(vtkPolyData *pd)
-{
-  pd->ShallowCopy( this->ParametricFunctionSource->GetOutput() );
-}
 
 //----------------------------------------------------------------------------
-double vtkSplineRepresentation::GetSummedLength()
+double vtkPolyLineRepresentation::GetSummedLength()
 {
-  vtkPoints* points = this->ParametricFunctionSource->GetOutput()->GetPoints();
+  vtkPoints* points = this->PolyLineSource->GetOutput()->GetPoints();
   int npts = points->GetNumberOfPoints();
 
   if ( npts < 2 ) { return 0.0; }
@@ -275,8 +210,7 @@ double vtkSplineRepresentation::GetSummedLength()
   return sum;
 }
 
-//----------------------------------------------------------------------------
-void vtkSplineRepresentation::InsertHandleOnLine(double* pos)
+void vtkPolyLineRepresentation::InsertHandleOnLine(double* pos)
 {
   if (this->NumberOfHandles < 2) { return; }
 
@@ -288,8 +222,7 @@ void vtkSplineRepresentation::InsertHandleOnLine(double* pos)
   vtkPoints* newpoints = vtkPoints::New(VTK_DOUBLE);
   newpoints->SetNumberOfPoints(this->NumberOfHandles+1);
 
-  int istart = vtkMath::Floor(subid*(this->NumberOfHandles + this->Closed - 1.0)/
-    static_cast<double>(this->Resolution));
+  int istart = subid;
   int istop = istart + 1;
   int count = 0;
   for ( int i = 0; i <= istart; ++i )
@@ -309,7 +242,7 @@ void vtkSplineRepresentation::InsertHandleOnLine(double* pos)
 }
 
 //----------------------------------------------------------------------------
-void vtkSplineRepresentation::InitializeHandles(vtkPoints* points)
+void vtkPolyLineRepresentation::InitializeHandles(vtkPoints* points)
 {
   if ( !points ){ return; }
 
@@ -326,7 +259,7 @@ void vtkSplineRepresentation::InitializeHandles(vtkPoints* points)
     {
     --npts;
     this->Closed = 1;
-    this->ParametricSpline->ClosedOn();
+    this->PolyLineSource->ClosedOn();
     }
 
   this->SetNumberOfHandles(npts);
@@ -337,16 +270,16 @@ void vtkSplineRepresentation::InitializeHandles(vtkPoints* points)
 }
 
 //----------------------------------------------------------------------------
-void vtkSplineRepresentation::PrintSelf(ostream& os, vtkIndent indent)
+void vtkPolyLineRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  if ( this->ParametricSpline )
+  if ( this->PolyLineSource )
     {
-    os << indent << "ParametricSpline: "
-       << this->ParametricSpline << "\n";
+    os << indent << "PolyLineSource: "
+       << this->PolyLineSource << "\n";
     }
   else
     {
-    os << indent << "ParametricSpline: (none)\n";
+    os << indent << "PolyLineSource: (none)\n";
     }
 }

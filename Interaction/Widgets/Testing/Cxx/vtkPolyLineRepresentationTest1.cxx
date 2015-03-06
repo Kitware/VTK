@@ -1,4 +1,4 @@
-#include "vtkSplineRepresentation.h"
+#include "vtkPolyLineRepresentation.h"
 
 #include <cstdlib>
 #include <iostream>
@@ -12,13 +12,12 @@
 #include <vtkProperty.h>
 
 #include <vtkDoubleArray.h>
-#include <vtkParametricSpline.h>
 
-int vtkSplineRepresentationTest1(int , char * [] )
+int vtkPolyLineRepresentationTest1(int , char * [] )
 {
-  vtkSmartPointer< vtkSplineRepresentation > node1 = vtkSmartPointer< vtkSplineRepresentation >::New();
+  vtkSmartPointer< vtkPolyLineRepresentation > node1 = vtkSmartPointer< vtkPolyLineRepresentation >::New();
 
-  EXERCISE_BASIC_REPRESENTATION_METHODS(vtkSplineRepresentation, node1);
+  EXERCISE_BASIC_REPRESENTATION_METHODS(vtkPolyLineRepresentation, node1);
 
   vtkSmartPointer<vtkPlaneSource> planeSource = vtkSmartPointer<vtkPlaneSource>::New();
   node1->SetPlaneSource(planeSource);
@@ -68,7 +67,7 @@ int vtkSplineRepresentationTest1(int , char * [] )
   int numHandles = node1->GetNumberOfHandles();
   if (numHandles != 10)
     {
-    std::cerr << "Error in Setting numer of Handles to 10, got " << numHandles << std::endl;
+    std::cerr << "Error in Setting number of Handles to 10, got " << numHandles << std::endl;
     return EXIT_FAILURE;
     }
   node1->SetNumberOfHandles(-1);
@@ -77,20 +76,6 @@ int vtkSplineRepresentationTest1(int , char * [] )
   node1->SetNumberOfHandles(0);
   numHandles = node1->GetNumberOfHandles();
   std::cout << "After setting num handles to 0, got back "  << numHandles << std::endl;
-
-  // 0 is invalid
-  TEST_SET_GET_INT_RANGE(node1, Resolution, 10, 100);
-
-  vtkSmartPointer<vtkParametricSpline> pspline = vtkSmartPointer<vtkParametricSpline>::New();
-
-  pspline->SetPoints(node1->GetParametricSpline()->GetPoints());
-  node1->SetParametricSpline(pspline);
-  vtkSmartPointer<vtkParametricSpline> pspline2 = node1->GetParametricSpline();
-  if (pspline2 != pspline)
-    {
-    std::cerr << "Error setting/getting parametric spline." << std::endl;
-    return EXIT_FAILURE;
-    }
 
   numHandles = 5;
   node1->SetNumberOfHandles(numHandles);

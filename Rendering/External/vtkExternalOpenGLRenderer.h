@@ -27,8 +27,8 @@
 //
 // \sa vtkExternalOpenGLCamera
 
-#ifndef __vtkExternalOpenGLRenderer_h
-#define __vtkExternalOpenGLRenderer_h
+#ifndef vtkExternalOpenGLRenderer_h
+#define vtkExternalOpenGLRenderer_h
 
 #include "vtkRenderingExternalModule.h" // For export macro
 #include "vtkOpenGLRenderer.h"
@@ -74,4 +74,4 @@ private:
   void operator=(const vtkExternalOpenGLRenderer&);  // Not implemented.
 };
 
-#endif //__vtkExternalOpenGLRenderer_h
+#endif //vtkExternalOpenGLRenderer_h

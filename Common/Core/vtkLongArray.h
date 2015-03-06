@@ -17,6 +17,11 @@
 // vtkLongArray is an array of values of type long.  It provides
 // methods for insertion and retrieval of values and will
 // automatically resize itself to hold new data.
+//
+// The C++ standard does not define the exact size of the long type, so use
+// of this type directly is discouraged.  If an array of 32 bit integers is
+// needed, prefer vtkTypeInt32Array to this class.  If an array of 64 bit
+// integers is needed, prefer vtkTypeInt64Array to this class.
 
 #ifndef vtkLongArray_h
 #define vtkLongArray_h
