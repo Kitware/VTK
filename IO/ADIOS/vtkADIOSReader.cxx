@@ -205,7 +205,7 @@ int vtkADIOSReader::RequestInformation(vtkInformation *vtkNotUsed(req),
   vtkInformation* outInfo = output->GetInformationObject(0);
   outInfo->Set(vtkAlgorithm::CAN_HANDLE_PIECE_REQUEST(), 1);
 
-  // Rank 0 reads attributes and time steps and sends to all other ranks
+  // Rank 0 reads attributes and sends to all other ranks
   if(this->Controller->GetLocalProcessId() == 0)
     {
     // 1: Retrieve the necessary attributes
@@ -226,32 +226,30 @@ int vtkADIOSReader::RequestInformation(vtkInformation *vtkNotUsed(req),
       vtkWarningMacro(<< "NumberOfPieces attribute not present.  Assuming 1");
       this->NumberOfPieces = 1;
       }
-
-    // 3: Retrieve the time steps
-    const ADIOS::Scalar *varTimeSteps = this->Tree->GetScalar("TimeStamp");
-    this->TimeSteps.clear();
-    this->TimeSteps.resize(varTimeSteps->GetNumSteps());
-    for(int t = 0; t < varTimeSteps->GetNumSteps(); ++t)
-      {
-      this->TimeSteps[t] = varTimeSteps->GetValue<double>(t, 0);
-      }
     }
 
-  // 4: Communicate metadata to all other ranks
-  int msg1[2];
+  // 3: Broadcast number of pieces to all other ranks
+  int msg1[1];
   if(this->Controller->GetLocalProcessId() == 0)
     {
     msg1[0] = this->NumberOfPieces;
-    msg1[1] = this->TimeSteps.size();
     }
-  this->Controller->Broadcast(msg1, 2, 0);
+  this->Controller->Broadcast(msg1, 1, 0);
   if(this->Controller->GetLocalProcessId() != 0)
     {
     this->NumberOfPieces = msg1[0];
-    this->TimeSteps.resize(msg1[1]);
     }
-  this->Controller->Broadcast(&(*this->TimeSteps.begin()),
-    this->TimeSteps.size(), 0);
+
+
+  // 4: Retrieve the time steps
+  const ADIOS::Scalar *varTimeSteps = this->Tree->GetScalar("TimeStamp");
+  this->TimeSteps.clear();
+  this->TimeSteps.resize(varTimeSteps->GetNumSteps());
+  for(int t = 0; t < varTimeSteps->GetNumSteps(); ++t)
+    {
+    // Always read time info from block0
+    this->TimeSteps[t] = varTimeSteps->GetValue<double>(t, 0);
+    }
 
   // Populate the inverse lookup, i.e. time step value to time step index
   this->TimeStepsIndex.clear();
@@ -500,10 +498,14 @@ void vtkADIOSReader::ReadObject(const ADIOS::VarInfo* info,
   // Only queue the read if there's data to be read
   if(nc != 0 && nt != 0)
     {
+    const ADIOS::VarInfo::StepBlock *idx =
+      info->GetNewestBlockIndex(this->RequestStepIndex, blockId);
+    // TODO: Use a cached copy if available
+
     data->SetNumberOfComponents(nc);
     data->SetNumberOfTuples(nt);
     this->Reader->ScheduleReadArray(info->GetId(), data->GetVoidPointer(0),
-      this->RequestStepIndex, blockId);
+      idx->Step, idx->Block);
     }
 }
 
