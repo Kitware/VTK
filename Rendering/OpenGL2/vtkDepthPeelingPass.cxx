@@ -469,7 +469,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
     glEndQuery(GL_SAMPLES_PASSED);
     glGetQueryObjectuiv(queryId,GL_QUERY_RESULT,&nbPixels);
 #endif
-    cerr << "Pass " << peelCount << " pixels Drawn " << nbPixels << "\n";
+    // cerr << "Pass " << peelCount << " pixels Drawn " << nbPixels << "\n";
 
     // if something was drawn, blend it in
     if (nbPixels > 0)
