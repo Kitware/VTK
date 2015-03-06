@@ -158,13 +158,13 @@ SampleAcrossImage(vtkSampleFunction *self, vtkImageData *output,
   algo.CapValue = self->GetCapValue();
 
   // Okay now generate samples using SMP tools
-  vtkSampleFunctionAlgorithm<T>::FunctionValueOp<T> values(&algo);
+  FunctionValueOp<T> values(&algo);
   vtkSMPTools::For(0,algo.Dims[2], values);
 
   // If requested, generate normals
   if ( algo.Normals )
     {
-    vtkSampleFunctionAlgorithm<T>::FunctionGradientOp<T> gradient(&algo);
+    FunctionGradientOp<T> gradient(&algo);
     vtkSMPTools::For(0,algo.Dims[2], gradient);
     }
 
