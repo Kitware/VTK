@@ -333,6 +333,10 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
     {
     outInfo = outInfoVec->GetInformationObject(0);
     }
+  if (!outInfo)
+    {
+    return;
+    }
 
   // Make sure a valid composite data object exists for all output ports.
   for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
