@@ -19,9 +19,9 @@
 #if !defined(AFX_SAMPLEVIEW_H__B7F7B863_EEC9_11D2_87FE_0060082B79FD__INCLUDED_)
 #define AFX_SAMPLEVIEW_H__B7F7B863_EEC9_11D2_87FE_0060082B79FD__INCLUDED_
 
-#if _MSC_VER > 1000
+#ifdef _MSC_VER
 #pragma once
-#endif // _MSC_VER > 1000
+#endif
 
 #include "vtkMFCRenderView.h"
 

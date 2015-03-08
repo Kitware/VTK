@@ -73,12 +73,12 @@
 #ifndef vtkSMPThreadLocal_h
 #define vtkSMPThreadLocal_h
 
-#if _MSC_VER >= 1400 && _MSC_VER <= 1700
+#if _MSC_VER <= 1700
 #pragma warning(push)
 #pragma warning(disable : 4345)
 #endif
 #include <tbb/enumerable_thread_specific.h>
-#if _MSC_VER >= 1400 && _MSC_VER <= 1700
+#if _MSC_VER <= 1700
 #pragma warning(pop)
 #endif
 

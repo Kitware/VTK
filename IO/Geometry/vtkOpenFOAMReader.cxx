@@ -41,7 +41,7 @@
 #define VTK_FOAMFILE_OUTBUFSIZE (131072)
 #define VTK_FOAMFILE_INCLUDE_STACK_SIZE (10)
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1400)
+#if defined(_MSC_VER)
 #define _CRT_SECURE_NO_WARNINGS 1
 #endif
 

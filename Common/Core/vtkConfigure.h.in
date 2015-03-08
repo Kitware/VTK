@@ -186,12 +186,6 @@
    typedef long long vtkIOStreamSLL;
    typedef unsigned long long vtkIOStreamULL;
 # endif
-#elif defined(VTK_SIZEOF___INT64)
-# if defined(_MSC_VER) && (_MSC_VER < 1300)
-#  define VTK_IOSTREAM_NEED_OPERATORS_LL
-   typedef __int64 vtkIOStreamSLL;
-   typedef unsigned __int64 vtkIOStreamULL;
-# endif
 #endif
 
 /* The maximum length of a file name in bytes including the

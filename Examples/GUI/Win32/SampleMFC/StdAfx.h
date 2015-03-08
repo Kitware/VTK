@@ -20,9 +20,9 @@
 #if !defined(AFX_STDAFX_H__B7F7B85B_EEC9_11D2_87FE_0060082B79FD__INCLUDED_)
 #define AFX_STDAFX_H__B7F7B85B_EEC9_11D2_87FE_0060082B79FD__INCLUDED_
 
-#if _MSC_VER > 1000
+#ifdef _MSC_VER
 #pragma once
-#endif // _MSC_VER > 1000
+#endif
 
 #ifndef VC_EXTRALEAN
 #define VC_EXTRALEAN    // Exclude rarely-used stuff from Windows headers

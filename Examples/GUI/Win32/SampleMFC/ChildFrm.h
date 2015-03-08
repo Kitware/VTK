@@ -19,9 +19,9 @@
 #if !defined(AFX_CHILDFRM_H__B7F7B85F_EEC9_11D2_87FE_0060082B79FD__INCLUDED_)
 #define AFX_CHILDFRM_H__B7F7B85F_EEC9_11D2_87FE_0060082B79FD__INCLUDED_
 
-#if _MSC_VER > 1000
+#ifdef _MSC_VER
 #pragma once
-#endif // _MSC_VER > 1000
+#endif
 
 
 class CChildFrame : public CMDIChildWnd

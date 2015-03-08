@@ -15,9 +15,10 @@
 #if !defined(AFX_VTKMFCVIEW_H__5D36A981_8081_11D2_985E_00A0CC243C06__INCLUDED_)
 #define AFX_VTKMFCVIEW_H__5D36A981_8081_11D2_985E_00A0CC243C06__INCLUDED_
 
-#if _MSC_VER > 1000
+#ifdef _MSC_VER
 #pragma once
-#endif // _MSC_VER > 1000
+#endif
+
 // vtkMFCView.h : header file
 //
 #define vtkMFCSetObjectMacro(name,type) \

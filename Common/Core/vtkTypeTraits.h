@@ -123,11 +123,7 @@ VTK_TYPE_TRAITS(unsigned long, UNSIGNED_LONG, 0, UInt64, unsigned long, "%lu");
 # if VTK_SIZEOF_LONG_LONG == 8
 #  define VTK_TYPE_SIZED_LONG_LONG INT64
 #  define VTK_TYPE_SIZED_UNSIGNED_LONG_LONG UINT64
-#  if defined(_MSC_VER) && _MSC_VER < 1400
-#   define VTK_TYPE_LONG_LONG_FORMAT "%I64"
-#  else
-#   define VTK_TYPE_LONG_LONG_FORMAT "%ll"
-#  endif
+#  define VTK_TYPE_LONG_LONG_FORMAT "%ll"
 VTK_TYPE_TRAITS(long long, LONG_LONG, 1, Int64, long long,
                 VTK_TYPE_LONG_LONG_FORMAT "d");
 VTK_TYPE_TRAITS(unsigned long long, UNSIGNED_LONG_LONG, 0, UInt64,
