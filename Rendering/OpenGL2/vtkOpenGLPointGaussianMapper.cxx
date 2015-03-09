@@ -126,10 +126,10 @@ void vtkOpenGLPointGaussianMapperHelper::ReplaceShaderValues(std::string &VSSour
     // compute the eye position and unit direction
     "//VTK::Color::Impl\n"
     "  float dist2 = dot(offsetVC.xy,offsetVC.xy);\n"
-    "  float gaussian = exp(-0.5*16.0*dist2);\n"
-//    "  diffuseColor = vertexColor.rgb;\n"
-//    "  ambientColor = vertexColor.rgb;\n"
+    "  if (dist2 > 9.0) { discard; }\n"
+    "  float gaussian = exp(-0.5*dist2);\n"
     "  opacity = opacity*gaussian;"
+//    "  opacity = opacity*0.5;"
     , false);
 
   this->Superclass::ReplaceShaderValues(VSSource,FSSource,GSSource,lightComplexity,ren,actor);
@@ -216,6 +216,7 @@ void vtkOpenGLPointGaussianMapperHelperPackVBOTemplate2(
     pointPtr = points + i*3;
     colorPtr = colors ? (colors + i*colorComponents) : white;
     float radius = sizes ? sizes[i] : defaultSize;
+    radius *= 3.0;
 
     // Vertices
     *(it++) = pointPtr[0];
