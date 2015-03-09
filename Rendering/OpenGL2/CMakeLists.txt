@@ -221,11 +221,11 @@ elseif(VTK_USE_OSMESA)
 elseif(WIN32)
   # Add some custom overrides
   list(APPEND vtk_module_overrides "vtkRenderWindowInteractor")
-  set(vtk_module_vtkRenderWindowInteractor_override "vtkWin32OpenGLRenderWindowInteractor")
+  set(vtk_module_vtkRenderWindowInteractor_override "vtkWin32RenderWindowInteractor")
   list(APPEND vtk_module_overrides "vtkRenderWindow")
   set(vtk_module_vtkRenderWindow_override "vtkWin32OpenGLRenderWindow")
   list(APPEND Module_SRCS
-    vtkWin32OpenGLRenderWindowInteractor.cxx
+    vtkWin32RenderWindowInteractor.cxx
     vtkWin32OpenGLRenderWindow.cxx
     )
 elseif(VTK_USE_COCOA)
