@@ -846,25 +846,9 @@ void vtkAVSucdReader::ReadNodeData(vtkUnstructuredGrid *output)
         scalars->SetNumberOfTuples(this->NumberOfNodes);
         scalars->SetName(PointDataArraySelection->GetArrayName(i));
         this->FileStream->seekg(this->NodeDataInfo[i].foffset, ios::beg);
-        if(1) // this->NodeDataInfo[i].veclen == 1)
-          {
-          ptr = scalars->GetPointer(0);
-          this->ReadFloatBlock(this->NumberOfNodes *
-                               this->NodeDataInfo[i].veclen, ptr);
-          }
-        else
-          {
-          ptr = new float[this->NodeDataInfo[i].veclen];
-          for(n=0; n < this->NumberOfNodes; n++)
-            {
-            this->ReadFloatBlock(this->NodeDataInfo[i].veclen, ptr);
-            for(j=0; j < this->NodeDataInfo[i].veclen; j++)
-              {
-              scalars->SetComponent(n, j, ptr[j]);
-              }
-            }
-          delete [] ptr;
-          }
+        ptr = scalars->GetPointer(0);
+        this->ReadFloatBlock(this->NumberOfNodes *
+                             this->NodeDataInfo[i].veclen, ptr);
 
         output->GetPointData()->AddArray(scalars);
         if (!output->GetPointData()->GetScalars())
@@ -957,29 +941,9 @@ void vtkAVSucdReader::ReadCellData(vtkUnstructuredGrid *output)
         scalars->SetNumberOfTuples(this->NumberOfCells);
         scalars->SetName(CellDataArraySelection->GetArrayName(i));
         this->FileStream->seekg(this->CellDataInfo[i].foffset, ios::beg);
-        if(1) // this->CellDataInfo[i].veclen == 1)
-          {
-          ptr = scalars->GetPointer(0);
-          this->ReadFloatBlock(this->NumberOfCells *
-                               this->CellDataInfo[i].veclen, ptr);
-          }
-        else
-          {
-          ptr = new float[this->NumberOfCells];
-          for(j=0; j < this->CellDataInfo[i].veclen; j++)
-            {
-            this->FileStream->seekg(this->CellDataInfo[i].foffset +
-                            j*this->NumberOfCells,
-                            ios::beg);
-            this->ReadFloatBlock(this->NumberOfCells, ptr);
-
-            for(n=0; n < this->NumberOfCells; n++)
-              {
-              scalars->SetComponent(n, j, ptr[n]);
-              }
-            }
-          delete [] ptr;
-          }
+        ptr = scalars->GetPointer(0);
+        this->ReadFloatBlock(this->NumberOfCells *
+                             this->CellDataInfo[i].veclen, ptr);
 
         output->GetCellData()->AddArray(scalars);
         if (!output->GetCellData()->GetScalars())
