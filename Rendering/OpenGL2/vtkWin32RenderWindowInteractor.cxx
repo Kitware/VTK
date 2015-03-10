@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkWin32OpenGLRenderWindowInteractor.cxx
+  Module:    vtkWin32RenderWindowInteractor.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -36,13 +36,13 @@
 #endif  //GET_WHEEL_DELTA_WPARAM
 
 // MSVC does the right thing without the forward declaration when it
-// sees it in the friend decl in vtkWin32OpenGLRenderWindowInteractor, but
+// sees it in the friend decl in vtkWin32RenderWindowInteractor, but
 // GCC needs to see the declaration beforehand. It has to do with the
 // CALLBACK attribute.
 VTKRENDERINGOPENGL2_EXPORT LRESULT CALLBACK vtkHandleMessage(HWND,UINT,WPARAM,LPARAM);
-VTKRENDERINGOPENGL2_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND,UINT,WPARAM,LPARAM,class vtkWin32OpenGLRenderWindowInteractor*);
+VTKRENDERINGOPENGL2_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND,UINT,WPARAM,LPARAM,class vtkWin32RenderWindowInteractor*);
 
-#include "vtkWin32OpenGLRenderWindowInteractor.h"
+#include "vtkWin32RenderWindowInteractor.h"
 #include "vtkActor.h"
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
@@ -79,15 +79,15 @@ typedef bool (WINAPI *RegisterTouchWindowType)(HWND,ULONG);
 typedef bool (WINAPI *GetTouchInputInfoType)(HTOUCHINPUT,UINT,PTOUCHINPUT,int);
 typedef bool (WINAPI *CloseTouchInputHandleType)(HTOUCHINPUT);
 
-vtkStandardNewMacro(vtkWin32OpenGLRenderWindowInteractor);
+vtkStandardNewMacro(vtkWin32RenderWindowInteractor);
 
-void (*vtkWin32OpenGLRenderWindowInteractor::ClassExitMethod)(void *) = (void (*)(void *))NULL;
-void *vtkWin32OpenGLRenderWindowInteractor::ClassExitMethodArg = (void *)NULL;
-void (*vtkWin32OpenGLRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void (*)(void *))NULL;
+void (*vtkWin32RenderWindowInteractor::ClassExitMethod)(void *) = (void (*)(void *))NULL;
+void *vtkWin32RenderWindowInteractor::ClassExitMethodArg = (void *)NULL;
+void (*vtkWin32RenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void (*)(void *))NULL;
 
 //----------------------------------------------------------------------------
 // Construct object so that light follows camera motion.
-vtkWin32OpenGLRenderWindowInteractor::vtkWin32OpenGLRenderWindowInteractor()
+vtkWin32RenderWindowInteractor::vtkWin32RenderWindowInteractor()
 {
   this->WindowId           = 0;
   this->InstallMessageProc = 1;
@@ -105,7 +105,7 @@ vtkWin32OpenGLRenderWindowInteractor::vtkWin32OpenGLRenderWindowInteractor()
 }
 
 //----------------------------------------------------------------------------
-vtkWin32OpenGLRenderWindowInteractor::~vtkWin32OpenGLRenderWindowInteractor()
+vtkWin32RenderWindowInteractor::~vtkWin32RenderWindowInteractor()
 {
   vtkWin32OpenGLRenderWindow *tmp;
 
@@ -137,7 +137,7 @@ vtkWin32OpenGLRenderWindowInteractor::~vtkWin32OpenGLRenderWindowInteractor()
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32OpenGLRenderWindowInteractor::StartEventLoop()
+void vtkWin32RenderWindowInteractor::StartEventLoop()
 {
   // No need to do anything if this is a 'mapped' interactor
   if (!this->Enabled || !this->InstallMessageProc)
@@ -157,7 +157,7 @@ void vtkWin32OpenGLRenderWindowInteractor::StartEventLoop()
 
 //----------------------------------------------------------------------------
 // Begin processing keyboard strokes.
-void vtkWin32OpenGLRenderWindowInteractor::Initialize()
+void vtkWin32RenderWindowInteractor::Initialize()
 {
   vtkWin32OpenGLRenderWindow *ren;
   int *size;
@@ -185,7 +185,7 @@ void vtkWin32OpenGLRenderWindowInteractor::Initialize()
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32OpenGLRenderWindowInteractor::Enable()
+void vtkWin32RenderWindowInteractor::Enable()
 {
   vtkWin32OpenGLRenderWindow *ren;
   vtkWin32OpenGLRenderWindow *tmp;
@@ -243,7 +243,7 @@ void vtkWin32OpenGLRenderWindowInteractor::Enable()
 
 
 //----------------------------------------------------------------------------
-void vtkWin32OpenGLRenderWindowInteractor::Disable()
+void vtkWin32RenderWindowInteractor::Disable()
 {
   vtkWin32OpenGLRenderWindow *tmp;
   if (!this->Enabled)
@@ -283,7 +283,7 @@ void vtkWin32OpenGLRenderWindowInteractor::Disable()
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32OpenGLRenderWindowInteractor::TerminateApp(void)
+void vtkWin32RenderWindowInteractor::TerminateApp(void)
 {
   // Only post a quit message if Start was called...
   //
@@ -294,7 +294,7 @@ void vtkWin32OpenGLRenderWindowInteractor::TerminateApp(void)
 }
 
 //----------------------------------------------------------------------------
-int vtkWin32OpenGLRenderWindowInteractor::InternalCreateTimer(int timerId, int vtkNotUsed(timerType),
+int vtkWin32RenderWindowInteractor::InternalCreateTimer(int timerId, int vtkNotUsed(timerType),
                                                         unsigned long duration)
 {
   // Win32 always creates repeating timers
@@ -303,7 +303,7 @@ int vtkWin32OpenGLRenderWindowInteractor::InternalCreateTimer(int timerId, int v
 }
 
 //----------------------------------------------------------------------------
-int vtkWin32OpenGLRenderWindowInteractor::InternalDestroyTimer(int platformTimerId)
+int vtkWin32RenderWindowInteractor::InternalDestroyTimer(int platformTimerId)
 {
   return KillTimer(this->WindowId,platformTimerId);
 }
@@ -374,7 +374,7 @@ static const char *VKeyCodeToKeySymTable[] = {
 //-------------------------------------------------------------
 // Event loop handlers
 //-------------------------------------------------------------
-void vtkWin32OpenGLRenderWindowInteractor::OnMouseMove(HWND hWnd, UINT nFlags,
+void vtkWin32RenderWindowInteractor::OnMouseMove(HWND hWnd, UINT nFlags,
                                                  int X, int Y)
 {
   if (!this->Enabled)
@@ -410,7 +410,7 @@ void vtkWin32OpenGLRenderWindowInteractor::OnMouseMove(HWND hWnd, UINT nFlags,
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32OpenGLRenderWindowInteractor::OnNCMouseMove(HWND, UINT nFlags,
+void vtkWin32RenderWindowInteractor::OnNCMouseMove(HWND, UINT nFlags,
                                                    int X, int Y)
 {
   if (!this->Enabled)
@@ -432,7 +432,7 @@ void vtkWin32OpenGLRenderWindowInteractor::OnNCMouseMove(HWND, UINT nFlags,
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32OpenGLRenderWindowInteractor::OnMouseWheelForward(HWND,UINT nFlags,
+void vtkWin32RenderWindowInteractor::OnMouseWheelForward(HWND,UINT nFlags,
                                                    int X, int Y)
 {
   if (!this->Enabled)
@@ -448,7 +448,7 @@ void vtkWin32OpenGLRenderWindowInteractor::OnMouseWheelForward(HWND,UINT nFlags,
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32OpenGLRenderWindowInteractor::OnMouseWheelBackward(HWND,UINT nFlags,
+void vtkWin32RenderWindowInteractor::OnMouseWheelBackward(HWND,UINT nFlags,
                                                    int X, int Y)
 {
   if (!this->Enabled)
@@ -464,7 +464,7 @@ void vtkWin32OpenGLRenderWindowInteractor::OnMouseWheelBackward(HWND,UINT nFlags
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32OpenGLRenderWindowInteractor::OnLButtonDown(HWND wnd,UINT nFlags,
+void vtkWin32RenderWindowInteractor::OnLButtonDown(HWND wnd,UINT nFlags,
                                                    int X, int Y, int repeat)
 {
   if (!this->Enabled)
@@ -490,7 +490,7 @@ void vtkWin32OpenGLRenderWindowInteractor::OnLButtonDown(HWND wnd,UINT nFlags,
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32OpenGLRenderWindowInteractor::OnLButtonUp(HWND,UINT nFlags,
+void vtkWin32RenderWindowInteractor::OnLButtonUp(HWND,UINT nFlags,
                                                  int X, int Y)
 {
   if (!this->Enabled)
@@ -512,7 +512,7 @@ void vtkWin32OpenGLRenderWindowInteractor::OnLButtonUp(HWND,UINT nFlags,
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32OpenGLRenderWindowInteractor::OnMButtonDown(HWND wnd,UINT nFlags,
+void vtkWin32RenderWindowInteractor::OnMButtonDown(HWND wnd,UINT nFlags,
                                                    int X, int Y, int repeat)
 {
   if (!this->Enabled)
@@ -531,7 +531,7 @@ void vtkWin32OpenGLRenderWindowInteractor::OnMButtonDown(HWND wnd,UINT nFlags,
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32OpenGLRenderWindowInteractor::OnMButtonUp(HWND,UINT nFlags,
+void vtkWin32RenderWindowInteractor::OnMButtonUp(HWND,UINT nFlags,
                                                  int X, int Y)
 {
   if (!this->Enabled)
@@ -548,7 +548,7 @@ void vtkWin32OpenGLRenderWindowInteractor::OnMButtonUp(HWND,UINT nFlags,
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32OpenGLRenderWindowInteractor::OnRButtonDown(HWND wnd,UINT nFlags,
+void vtkWin32RenderWindowInteractor::OnRButtonDown(HWND wnd,UINT nFlags,
                                                    int X, int Y, int repeat)
 {
   if (!this->Enabled)
@@ -567,7 +567,7 @@ void vtkWin32OpenGLRenderWindowInteractor::OnRButtonDown(HWND wnd,UINT nFlags,
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32OpenGLRenderWindowInteractor::OnRButtonUp(HWND,UINT nFlags,
+void vtkWin32RenderWindowInteractor::OnRButtonUp(HWND,UINT nFlags,
                                                  int X, int Y)
 {
   if (!this->Enabled)
@@ -584,7 +584,7 @@ void vtkWin32OpenGLRenderWindowInteractor::OnRButtonUp(HWND,UINT nFlags,
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32OpenGLRenderWindowInteractor::OnSize(HWND,UINT, int X, int Y) {
+void vtkWin32RenderWindowInteractor::OnSize(HWND,UINT, int X, int Y) {
   this->UpdateSize(X,Y);
   if (this->Enabled)
     {
@@ -593,7 +593,7 @@ void vtkWin32OpenGLRenderWindowInteractor::OnSize(HWND,UINT, int X, int Y) {
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32OpenGLRenderWindowInteractor::OnTimer(HWND,UINT timerId)
+void vtkWin32RenderWindowInteractor::OnTimer(HWND,UINT timerId)
 {
   if (!this->Enabled)
     {
@@ -610,7 +610,7 @@ void vtkWin32OpenGLRenderWindowInteractor::OnTimer(HWND,UINT timerId)
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32OpenGLRenderWindowInteractor::OnKeyDown(HWND, UINT vCode, UINT nRepCnt, UINT nFlags)
+void vtkWin32RenderWindowInteractor::OnKeyDown(HWND, UINT vCode, UINT nRepCnt, UINT nFlags)
 {
   if (!this->Enabled)
     {
@@ -649,7 +649,7 @@ void vtkWin32OpenGLRenderWindowInteractor::OnKeyDown(HWND, UINT vCode, UINT nRep
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32OpenGLRenderWindowInteractor::OnKeyUp(HWND, UINT vCode, UINT nRepCnt, UINT nFlags)
+void vtkWin32RenderWindowInteractor::OnKeyUp(HWND, UINT vCode, UINT nRepCnt, UINT nFlags)
 {
   if (!this->Enabled)
     {
@@ -688,7 +688,7 @@ void vtkWin32OpenGLRenderWindowInteractor::OnKeyUp(HWND, UINT vCode, UINT nRepCn
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32OpenGLRenderWindowInteractor::OnChar(HWND,UINT nChar,
+void vtkWin32RenderWindowInteractor::OnChar(HWND,UINT nChar,
                                             UINT nRepCnt, UINT)
 {
   if (!this->Enabled)
@@ -707,7 +707,7 @@ void vtkWin32OpenGLRenderWindowInteractor::OnChar(HWND,UINT nChar,
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32OpenGLRenderWindowInteractor::OnFocus(HWND,UINT)
+void vtkWin32RenderWindowInteractor::OnFocus(HWND,UINT)
 {
   if (!this->Enabled)
     {
@@ -723,7 +723,7 @@ void vtkWin32OpenGLRenderWindowInteractor::OnFocus(HWND,UINT)
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32OpenGLRenderWindowInteractor::OnKillFocus(HWND,UINT)
+void vtkWin32RenderWindowInteractor::OnKillFocus(HWND,UINT)
 {
   if (!this->Enabled)
     {
@@ -738,7 +738,7 @@ void vtkWin32OpenGLRenderWindowInteractor::OnKillFocus(HWND,UINT)
 }
 
 // This function is used to return an index given an ID
-int vtkWin32OpenGLRenderWindowInteractor::GetContactIndex(int dwID)
+int vtkWin32RenderWindowInteractor::GetContactIndex(int dwID)
 {
   for (int i=0; i < VTKI_MAX_POINTERS; i++)
     {
@@ -762,7 +762,7 @@ int vtkWin32OpenGLRenderWindowInteractor::GetContactIndex(int dwID)
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32OpenGLRenderWindowInteractor::OnTouch(HWND hWnd, UINT wParam, UINT lParam)
+void vtkWin32RenderWindowInteractor::OnTouch(HWND hWnd, UINT wParam, UINT lParam)
 {
   if (!this->Enabled)
     {
@@ -841,13 +841,13 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam,
 {
   LRESULT res = 0;
   vtkWin32OpenGLRenderWindow *ren;
-  vtkWin32OpenGLRenderWindowInteractor *me = 0;
+  vtkWin32RenderWindowInteractor *me = 0;
 
   ren = (vtkWin32OpenGLRenderWindow *)vtkGetWindowLong(hWnd,sizeof(vtkLONG));
 
   if (ren)
     {
-    me = (vtkWin32OpenGLRenderWindowInteractor *)ren->GetInteractor();
+    me = (vtkWin32RenderWindowInteractor *)ren->GetInteractor();
     }
 
   if (me && me->GetReferenceCount()>0)
@@ -867,7 +867,7 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam,
 //----------------------------------------------------------------------------
 LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam,
                                    LPARAM lParam,
-                                   vtkWin32OpenGLRenderWindowInteractor *me)
+                                   vtkWin32RenderWindowInteractor *me)
 {
   if ((uMsg == WM_USER+13)&&(wParam == 26))
     {
@@ -1012,20 +1012,20 @@ LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam,
 // Specify the default function to be called when an interactor needs to exit.
 // This callback is overridden by an instance ExitMethod that is defined.
 void
-vtkWin32OpenGLRenderWindowInteractor::SetClassExitMethod(void (*f)(void *),void *arg)
+vtkWin32RenderWindowInteractor::SetClassExitMethod(void (*f)(void *),void *arg)
 {
-  if ( f != vtkWin32OpenGLRenderWindowInteractor::ClassExitMethod
-       || arg != vtkWin32OpenGLRenderWindowInteractor::ClassExitMethodArg)
+  if ( f != vtkWin32RenderWindowInteractor::ClassExitMethod
+       || arg != vtkWin32RenderWindowInteractor::ClassExitMethodArg)
     {
     // delete the current arg if there is a delete method
-    if ((vtkWin32OpenGLRenderWindowInteractor::ClassExitMethodArg)
-        && (vtkWin32OpenGLRenderWindowInteractor::ClassExitMethodArgDelete))
+    if ((vtkWin32RenderWindowInteractor::ClassExitMethodArg)
+        && (vtkWin32RenderWindowInteractor::ClassExitMethodArgDelete))
       {
-      (*vtkWin32OpenGLRenderWindowInteractor::ClassExitMethodArgDelete)
-        (vtkWin32OpenGLRenderWindowInteractor::ClassExitMethodArg);
+      (*vtkWin32RenderWindowInteractor::ClassExitMethodArgDelete)
+        (vtkWin32RenderWindowInteractor::ClassExitMethodArg);
       }
-    vtkWin32OpenGLRenderWindowInteractor::ClassExitMethod = f;
-    vtkWin32OpenGLRenderWindowInteractor::ClassExitMethodArg = arg;
+    vtkWin32RenderWindowInteractor::ClassExitMethod = f;
+    vtkWin32RenderWindowInteractor::ClassExitMethodArg = arg;
 
     // no call to this->Modified() since this is a class member function
     }
@@ -1034,18 +1034,18 @@ vtkWin32OpenGLRenderWindowInteractor::SetClassExitMethod(void (*f)(void *),void 
 //----------------------------------------------------------------------------
 // Set the arg delete method.  This is used to free user memory.
 void
-vtkWin32OpenGLRenderWindowInteractor::SetClassExitMethodArgDelete(void (*f)(void *))
+vtkWin32RenderWindowInteractor::SetClassExitMethodArgDelete(void (*f)(void *))
 {
-  if (f != vtkWin32OpenGLRenderWindowInteractor::ClassExitMethodArgDelete)
+  if (f != vtkWin32RenderWindowInteractor::ClassExitMethodArgDelete)
     {
-    vtkWin32OpenGLRenderWindowInteractor::ClassExitMethodArgDelete = f;
+    vtkWin32RenderWindowInteractor::ClassExitMethodArgDelete = f;
 
     // no call to this->Modified() since this is a class member function
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32OpenGLRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
+void vtkWin32RenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   os << indent << "InstallMessageProc: " << this->InstallMessageProc << endl;
@@ -1053,7 +1053,7 @@ void vtkWin32OpenGLRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent inde
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32OpenGLRenderWindowInteractor::ExitCallback()
+void vtkWin32RenderWindowInteractor::ExitCallback()
 {
   if (this->HasObserver(vtkCommand::ExitEvent))
     {
