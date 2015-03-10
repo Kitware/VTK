@@ -376,140 +376,91 @@ void vtkResliceCursor::BuildPolyData()
   vtkSmartPointer< vtkCellArray > lines
     = vtkSmartPointer< vtkCellArray >::New();
 
-  if (1)
+  // Precompute the half thickness prior to use within the loop.
+  const double ht[3] = { this->Thickness[0] / 2.0,
+                         this->Thickness[1] / 2.0,
+                         this->Thickness[2] / 2.0 };
+
+  points->Allocate(24);
+  lines->Allocate(lines->Allocate(lines->EstimateSize(18,4)));
+
+  double pts[30][3];
+  for (int i = 0; i < 3; i++)
     {
+    pts[0][i] = this->Center[i] - pdLength * this->XAxis[i];
+    pts[1][i] = this->Center[i] + pdLength * this->XAxis[i];
+    pts[2][i] = pts[0][i] - ht[1] * this->YAxis[i] - ht[2] * this->ZAxis[i];
+    pts[3][i] = pts[1][i] - ht[1] * this->YAxis[i] - ht[2] * this->ZAxis[i];
+    pts[4][i] = pts[0][i] + ht[1] * this->YAxis[i] - ht[2] * this->ZAxis[i];
+    pts[5][i] = pts[1][i] + ht[1] * this->YAxis[i] - ht[2] * this->ZAxis[i];
+    pts[6][i] = pts[0][i] + ht[1] * this->YAxis[i] + ht[2] * this->ZAxis[i];
+    pts[7][i] = pts[1][i] + ht[1] * this->YAxis[i] + ht[2] * this->ZAxis[i];
+    pts[8][i] = pts[0][i] - ht[1] * this->YAxis[i] + ht[2] * this->ZAxis[i];
+    pts[9][i] = pts[1][i] - ht[1] * this->YAxis[i] + ht[2] * this->ZAxis[i];
 
-    // Precompute the half thickness prior to use within the loop.
-    const double ht[3] = { this->Thickness[0] / 2.0,
-                           this->Thickness[1] / 2.0,
-                           this->Thickness[2] / 2.0 };
+    pts[10][i] = this->Center[i] - pdLength * this->YAxis[i];
+    pts[11][i] = this->Center[i] + pdLength * this->YAxis[i];
+    pts[12][i] = pts[10][i] - ht[0] * this->XAxis[i] - ht[2] * this->ZAxis[i];
+    pts[13][i] = pts[11][i] - ht[0] * this->XAxis[i] - ht[2] * this->ZAxis[i];
+    pts[14][i] = pts[10][i] + ht[0] * this->XAxis[i] - ht[2] * this->ZAxis[i];
+    pts[15][i] = pts[11][i] + ht[0] * this->XAxis[i] - ht[2] * this->ZAxis[i];
+    pts[16][i] = pts[10][i] + ht[0] * this->XAxis[i] + ht[2] * this->ZAxis[i];
+    pts[17][i] = pts[11][i] + ht[0] * this->XAxis[i] + ht[2] * this->ZAxis[i];
+    pts[18][i] = pts[10][i] - ht[0] * this->XAxis[i] + ht[2] * this->ZAxis[i];
+    pts[19][i] = pts[11][i] - ht[0] * this->XAxis[i] + ht[2] * this->ZAxis[i];
 
-    points->Allocate(24);
-    lines->Allocate(lines->Allocate(lines->EstimateSize(18,4)));
-
-    double pts[30][3];
-    for (int i = 0; i < 3; i++)
-      {
-      pts[0][i] = this->Center[i] - pdLength * this->XAxis[i];
-      pts[1][i] = this->Center[i] + pdLength * this->XAxis[i];
-      pts[2][i] = pts[0][i] - ht[1] * this->YAxis[i] - ht[2] * this->ZAxis[i];
-      pts[3][i] = pts[1][i] - ht[1] * this->YAxis[i] - ht[2] * this->ZAxis[i];
-      pts[4][i] = pts[0][i] + ht[1] * this->YAxis[i] - ht[2] * this->ZAxis[i];
-      pts[5][i] = pts[1][i] + ht[1] * this->YAxis[i] - ht[2] * this->ZAxis[i];
-      pts[6][i] = pts[0][i] + ht[1] * this->YAxis[i] + ht[2] * this->ZAxis[i];
-      pts[7][i] = pts[1][i] + ht[1] * this->YAxis[i] + ht[2] * this->ZAxis[i];
-      pts[8][i] = pts[0][i] - ht[1] * this->YAxis[i] + ht[2] * this->ZAxis[i];
-      pts[9][i] = pts[1][i] - ht[1] * this->YAxis[i] + ht[2] * this->ZAxis[i];
-
-      pts[10][i] = this->Center[i] - pdLength * this->YAxis[i];
-      pts[11][i] = this->Center[i] + pdLength * this->YAxis[i];
-      pts[12][i] = pts[10][i] - ht[0] * this->XAxis[i] - ht[2] * this->ZAxis[i];
-      pts[13][i] = pts[11][i] - ht[0] * this->XAxis[i] - ht[2] * this->ZAxis[i];
-      pts[14][i] = pts[10][i] + ht[0] * this->XAxis[i] - ht[2] * this->ZAxis[i];
-      pts[15][i] = pts[11][i] + ht[0] * this->XAxis[i] - ht[2] * this->ZAxis[i];
-      pts[16][i] = pts[10][i] + ht[0] * this->XAxis[i] + ht[2] * this->ZAxis[i];
-      pts[17][i] = pts[11][i] + ht[0] * this->XAxis[i] + ht[2] * this->ZAxis[i];
-      pts[18][i] = pts[10][i] - ht[0] * this->XAxis[i] + ht[2] * this->ZAxis[i];
-      pts[19][i] = pts[11][i] - ht[0] * this->XAxis[i] + ht[2] * this->ZAxis[i];
-
-      pts[20][i] = this->Center[i] - pdLength * this->ZAxis[i];
-      pts[21][i] = this->Center[i] + pdLength * this->ZAxis[i];
-      pts[22][i] = pts[20][i] - ht[1] * this->YAxis[i] - ht[0] * this->XAxis[i];
-      pts[23][i] = pts[21][i] - ht[1] * this->YAxis[i] - ht[0] * this->XAxis[i];
-      pts[24][i] = pts[20][i] + ht[1] * this->YAxis[i] - ht[0] * this->XAxis[i];
-      pts[25][i] = pts[21][i] + ht[1] * this->YAxis[i] - ht[0] * this->XAxis[i];
-      pts[26][i] = pts[20][i] + ht[1] * this->YAxis[i] + ht[0] * this->XAxis[i];
-      pts[27][i] = pts[21][i] + ht[1] * this->YAxis[i] + ht[0] * this->XAxis[i];
-      pts[28][i] = pts[20][i] - ht[1] * this->YAxis[i] + ht[0] * this->XAxis[i];
-      pts[29][i] = pts[21][i] - ht[1] * this->YAxis[i] + ht[0] * this->XAxis[i];
-      }
-
-    vtkIdType ptIds[2];
-
-    vtkIdType facePtIds[6][4] =
-      { { 0, 2, 4, 6 }, { 1, 7, 5, 3 }, { 1,3,2,0 }, { 0,6,7,1 }, { 2,3,5,4 }, {6,4,5,7} };
-
-    for (int j = 0; j < 3; j++)
-      {
-
-      vtkPoints *centerlinePoints = this->CenterlineAxis[j]->GetPoints();
-
-      for (int i = 0; i < 4; i++)
-        {
-        ptIds[0] = 10 * j + 2 + 2*i;
-        ptIds[1] = ptIds[0] + 1;
-
-        points->InsertNextPoint(pts[ptIds[0]]);
-        points->InsertNextPoint(pts[ptIds[1]]);
-        }
-
-      centerlinePoints->SetPoint(0, pts[10*j]);
-      centerlinePoints->SetPoint(1, pts[10*j+1]);
-
-      vtkSmartPointer< vtkCellArray > slabPolys =
-        vtkSmartPointer< vtkCellArray >::New();
-      slabPolys->Allocate(slabPolys->EstimateSize(6,4));
-
-      for (int i = 0; i < 6; i++)
-        {
-        vtkIdType currFacePtIds[4] = {facePtIds[i][0] + 8*j,
-                                      facePtIds[i][1] + 8*j,
-                                      facePtIds[i][2] + 8*j,
-                                      facePtIds[i][3] + 8*j };
-        lines->InsertNextCell(4,currFacePtIds);
-        slabPolys->InsertNextCell(4,facePtIds[i]);
-        }
-
-      this->CenterlineAxis[j]->Modified();
-      }
-
-    this->PolyData->SetPolys(lines);
+    pts[20][i] = this->Center[i] - pdLength * this->ZAxis[i];
+    pts[21][i] = this->Center[i] + pdLength * this->ZAxis[i];
+    pts[22][i] = pts[20][i] - ht[1] * this->YAxis[i] - ht[0] * this->XAxis[i];
+    pts[23][i] = pts[21][i] - ht[1] * this->YAxis[i] - ht[0] * this->XAxis[i];
+    pts[24][i] = pts[20][i] + ht[1] * this->YAxis[i] - ht[0] * this->XAxis[i];
+    pts[25][i] = pts[21][i] + ht[1] * this->YAxis[i] - ht[0] * this->XAxis[i];
+    pts[26][i] = pts[20][i] + ht[1] * this->YAxis[i] + ht[0] * this->XAxis[i];
+    pts[27][i] = pts[21][i] + ht[1] * this->YAxis[i] + ht[0] * this->XAxis[i];
+    pts[28][i] = pts[20][i] - ht[1] * this->YAxis[i] + ht[0] * this->XAxis[i];
+    pts[29][i] = pts[21][i] - ht[1] * this->YAxis[i] + ht[0] * this->XAxis[i];
     }
-  else
+
+  vtkIdType ptIds[2];
+
+  vtkIdType facePtIds[6][4] =
+    { { 0, 2, 4, 6 }, { 1, 7, 5, 3 }, { 1,3,2,0 }, { 0,6,7,1 }, { 2,3,5,4 }, {6,4,5,7} };
+
+  for (int j = 0; j < 3; j++)
     {
 
-    // Allocate space for 6 points, 3 cells.
-    points->Allocate(6);
-    lines->Allocate(lines->Allocate(lines->EstimateSize(3,2)));
+    vtkPoints *centerlinePoints = this->CenterlineAxis[j]->GetPoints();
 
-    // Just 3 cells..
-
-    double pts[6][3];
-    vtkIdType ptIds[2];
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < 4; i++)
       {
-      pts[0][i] = this->Center[i] - pdLength * this->XAxis[i];
-      pts[1][i] = this->Center[i] + pdLength * this->XAxis[i];
-      pts[2][i] = this->Center[i] - pdLength * this->YAxis[i];
-      pts[3][i] = this->Center[i] + pdLength * this->YAxis[i];
-      pts[4][i] = this->Center[i] - pdLength * this->ZAxis[i];
-      pts[5][i] = this->Center[i] + pdLength * this->ZAxis[i];
+      ptIds[0] = 10 * j + 2 + 2*i;
+      ptIds[1] = ptIds[0] + 1;
+
+      points->InsertNextPoint(pts[ptIds[0]]);
+      points->InsertNextPoint(pts[ptIds[1]]);
       }
+
+    centerlinePoints->SetPoint(0, pts[10*j]);
+    centerlinePoints->SetPoint(1, pts[10*j+1]);
+
+    vtkSmartPointer< vtkCellArray > slabPolys =
+      vtkSmartPointer< vtkCellArray >::New();
+    slabPolys->Allocate(slabPolys->EstimateSize(6,4));
 
     for (int i = 0; i < 6; i++)
       {
-      points->InsertNextPoint(pts[i]);
+      vtkIdType currFacePtIds[4] = {facePtIds[i][0] + 8*j,
+                                    facePtIds[i][1] + 8*j,
+                                    facePtIds[i][2] + 8*j,
+                                    facePtIds[i][3] + 8*j };
+      lines->InsertNextCell(4,currFacePtIds);
+      slabPolys->InsertNextCell(4,facePtIds[i]);
       }
 
-    ptIds[0] = 0;
-    ptIds[1] = 1;
-    lines->InsertNextCell(2, ptIds);
-    ptIds[0] = 2;
-    ptIds[1] = 3;
-    lines->InsertNextCell(2, ptIds);
-    ptIds[0] = 4;
-    ptIds[1] = 5;
-    lines->InsertNextCell(2, ptIds);
-
-    for (int i = 0; i < 3; i++)
-      {
-      vtkPoints *centerlinePoints = this->CenterlineAxis[i]->GetPoints();
-      centerlinePoints->SetPoint(2*i, pts[2*i]);
-      centerlinePoints->SetPoint(2*i+1, pts[2*i+1]);
-      this->CenterlineAxis[i]->Modified();
-      }
-    this->PolyData->SetLines(lines);
+    this->CenterlineAxis[j]->Modified();
     }
+
+  this->PolyData->SetPolys(lines);
 
   this->PolyData->SetPoints(points);
   this->PolyData->Modified();
