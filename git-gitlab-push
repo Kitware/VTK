@@ -20,6 +20,24 @@ OPTIONS_SPEC=
 SUBDIRECTORY_OK=Yes
 . "$(git --exec-path)/git-sh-setup"
 
+egrep-q() {
+	egrep "$@" >/dev/null 2>/dev/null
+}
+
+# Load the project configuration.
+gitlab_configured='' &&
+config="${BASH_SOURCE%/*}/config" &&
+protocol=$(git config -f "$config" --get gitlab.protocol ||
+	   echo "https") &&
+host=$(git config -f "$config" --get gitlab.host) &&
+site=$(git config -f "$config" --get gitlab.site ||
+       echo "$protocol://$host") &&
+group_path=$(git config -f "$config" --get gitlab.group-path) &&
+project_path=$(git config -f "$config" --get gitlab.project-path) &&
+gitlab_pushurl=$(git config --get remote.gitlab.pushurl ||
+		 git config --get remote.gitlab.url) &&
+gitlab_configured=1
+
 #-----------------------------------------------------------------------------
 
 remote=''
@@ -69,6 +87,26 @@ fi
 echo "Pushing to $remote"
 push_stdout=$(git push --porcelain $dry_run "$remote" $refspecs); push_exit=$?
 echo "$push_stdout"
+
+# Tell the user what to do next with the topic in GitLab.
+if test -z "$no_topic" &&
+   test "$push_exit" -eq 0 &&
+   test "$remote" = "gitlab" &&
+   test -n "$gitlab_configured" &&
+   echo "$gitlab_pushurl" | egrep-q "$host[^/:]*[/:][^/]*/$project_path\\.git$"; then
+	userpath="${gitlab_pushurl%/*.git}" &&
+	username="${userpath##*[/:]}" &&
+	echo '
+The topic has been pushed to your fork in GitLab.  Visit
+
+  '"$site/$username/$project_path/tree/$topic"'
+
+to see the files.  Visit
+
+  '"$site/$username/$project_path/merge_requests/new"'
+
+to create a Merge Request if there is not one already.'
+fi
 
 # Reproduce the push exit code.
 exit $push_exit
