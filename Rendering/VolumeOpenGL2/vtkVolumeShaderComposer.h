@@ -1282,32 +1282,54 @@ namespace vtkvolume
       \n  // Convert cropping region to texture space\
       \n  float cropping_planes_ts[6];\
       \n  mat4  datasetToTextureMat = in_inverseTextureDatasetMatrix;\
-      \n  vec4 temp = vec4(cropping_planes[0], cropping_planes[1], 0.0, 1.0);\
+      \n\
+      \n  vec4 temp = vec4(cropping_planes[0], 0.0, 0.0, 1.0);\
       \n  temp = datasetToTextureMat * temp;\
       \n  if (temp[3] != 0.0)\
       \n   {\
-      \n   temp[0] /= temp[3]; temp[1] /= temp[3];\
+      \n   temp[0] /= temp[3];\
       \n   }\
       \n  cropping_planes_ts[0] = temp[0];\
-      \n  cropping_planes_ts[1] = temp[1];\
       \n\
-      \n  temp = vec4(cropping_planes[2], cropping_planes[3], 0.0, 1.0);\
+      \n  temp = vec4(cropping_planes[1], 0.0, 0.0, 1.0);\
       \n  temp = datasetToTextureMat * temp;\
       \n  if (temp[3] != 0.0)\
-      \n    {\
-      \n    temp[0] /= temp[3]; temp[1] /= temp[3];\
-      \n    }\
-      \n  cropping_planes_ts[2] = temp[0];\
+      \n   {\
+      \n   temp[0] /= temp[3];\
+      \n   }\
+      \n  cropping_planes_ts[1] = temp[0];\
+      \n\
+      \n  temp = vec4(0.0, cropping_planes[2], 0.0, 1.0);\
+      \n  temp = datasetToTextureMat * temp;\
+      \n  if (temp[3] != 0.0)\
+      \n   {\
+      \n   temp[1] /= temp[3];\
+      \n   }\
+      \n  cropping_planes_ts[2] = temp[1];\
+      \n\
+      \n  temp = vec4(0.0, cropping_planes[3], 0.0, 1.0);\
+      \n  temp = datasetToTextureMat * temp;\
+      \n  if (temp[3] != 0.0)\
+      \n   {\
+      \n   temp[1] /= temp[3];\
+      \n   }\
       \n  cropping_planes_ts[3] = temp[1];\
       \n\
-      \n  temp = vec4(cropping_planes[4], cropping_planes[5], 0.0, 1.0);\
+      \n  temp = vec4(0.0, 0.0, cropping_planes[4], 1.0);\
       \n  temp = datasetToTextureMat * temp;\
       \n  if (temp[3] != 0.0)\
-      \n    {\
-      \n    temp[0] /= temp[3]; temp[1] /= temp[3];\
-      \n    }\
-      \n  cropping_planes_ts[4] = temp[0];\
-      \n  cropping_planes_ts[5] = temp[1];"
+      \n   {\
+      \n   temp[2] /= temp[3];\
+      \n   }\
+      \n  cropping_planes_ts[4] = temp[2];\
+      \n\
+      \n  temp = vec4(0.0, 0.0, cropping_planes[5], 1.0);\
+      \n  temp = datasetToTextureMat * temp;\
+      \n  if (temp[3] != 0.0)\
+      \n   {\
+      \n   temp[2] /= temp[3];\
+      \n   }\
+      \n  cropping_planes_ts[5] = temp[2];"
     );
   }
 
