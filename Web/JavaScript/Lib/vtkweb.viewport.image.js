@@ -177,6 +177,10 @@
                     // request another render to try to get the latest image.
                     if (res.stale === true) {
                         renderOnIdle();
+                    } else {
+                        container.trigger({
+                            type: 'renderer-ready'
+                        });
                     }
                 });
             }
