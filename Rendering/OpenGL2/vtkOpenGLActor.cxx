@@ -50,7 +50,7 @@ void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
   vtkOpenGLClearErrorMacro();
 
   // get opacity
-  bool opaque = this->GetIsOpaque();
+  bool opaque = (this->GetIsOpaque() != 0);
   if (opaque)
     {
     glDepthMask(GL_TRUE);
