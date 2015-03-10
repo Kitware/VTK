@@ -144,17 +144,24 @@ void vtkCachingInterpolatedVelocityField::SetDataSet(int I, vtkDataSet* dataset,
 void vtkCachingInterpolatedVelocityField::SetLastCellInfo(vtkIdType c, int datasetindex)
 {
   if ((this->LastCacheIndex != datasetindex) || (this->LastCellId != c))
-  {
+    {
     this->LastCacheIndex = datasetindex;
     this->Cache          = &this->CacheList[this->LastCacheIndex];
     this->LastCellId     = c;
     // if the dataset changes, then the cached cell is invalidated
     // we might as well prefetch the new cached cell - we'll need it on the next test anyway
     if (this->LastCellId!=-1)
-    {
-      this->Cache->DataSet->GetCell(this->LastCellId, this->Cache->Cell);
+      {
+      if(c < this->Cache->DataSet->GetNumberOfCells())
+        {
+        this->Cache->DataSet->GetCell(this->LastCellId, this->Cache->Cell);
+        }
+      else
+        {
+        this->LastCellId = -1;
+        }
+      }
     }
-  }
 }
 //---------------------------------------------------------------------------
 void vtkCachingInterpolatedVelocityField::ClearLastCellInfo() {
