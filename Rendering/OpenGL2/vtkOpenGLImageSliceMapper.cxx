@@ -131,7 +131,6 @@ vtkOpenGLImageSliceMapper::vtkOpenGLImageSliceMapper()
   this->LoadCount = 0;
 
   this->UseClampToEdge = false;
-  this->UsePowerOfTwoTextures = true;
 
   // Use GL_ARB_fragment_program, which is an extension to OpenGL 1.3
   // that is compatible with very old drivers and hardware, and is still
@@ -628,19 +627,8 @@ void vtkOpenGLImageSliceMapper::ComputeTextureSize(
   imageSize[0] = (extent[xdim*2+1] - extent[xdim*2] + 1);
   imageSize[1] = (extent[ydim*2+1] - extent[ydim*2] + 1);
 
-  if (this->UsePowerOfTwoTextures)
-    {
-    // find the target size of the power-of-two texture
-    for (int i = 0; i < 2; i++)
-      {
-      textureSize[i] = vtkMath::NearestPowerOfTwo(imageSize[i]);
-      }
-    }
-  else
-    {
-    textureSize[0] = imageSize[0];
-    textureSize[1] = imageSize[1];
-    }
+  textureSize[0] = imageSize[0];
+  textureSize[1] = imageSize[1];
 }
 
 //----------------------------------------------------------------------------
@@ -789,8 +777,7 @@ void vtkOpenGLImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
 void vtkOpenGLImageSliceMapper::CheckOpenGLCapabilities(vtkOpenGLRenderWindow*)
 {
   this->UseClampToEdge = true;
-  this->UsePowerOfTwoTextures = true;
-  this->UseFragmentProgram = true;
+  this->UseFragmentProgram = false;
 }
 
 //----------------------------------------------------------------------------
