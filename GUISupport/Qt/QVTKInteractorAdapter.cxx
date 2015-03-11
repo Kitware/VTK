@@ -158,6 +158,46 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
       }
     return true;
     }
+  if (t == QEvent::TouchBegin ||
+      t == QEvent::TouchUpdate ||
+      t == QEvent::TouchEnd)
+    {
+    QTouchEvent* e2 = dynamic_cast<QTouchEvent*>(e);
+    foreach (const QTouchEvent::TouchPoint& point, e2->touchPoints())
+      {
+      if (point.id() >= VTKI_MAX_POINTERS)
+        {
+        break;
+        }
+      // give interactor the event information
+      iren->SetEventInformationFlipY(point.pos().x(), point.pos().y(),
+                                      (e2->modifiers() & Qt::ControlModifier) > 0 ? 1 : 0,
+                                      (e2->modifiers() & Qt::ShiftModifier ) > 0 ? 1 : 0,
+                                      0,0,0, point.id());
+      }
+    foreach (const QTouchEvent::TouchPoint& point, e2->touchPoints())
+      {
+      if (point.id() >= VTKI_MAX_POINTERS)
+        {
+        break;
+        }
+      iren->SetPointerIndex(point.id());
+      if (point.state() & Qt::TouchPointReleased)
+        {
+        iren->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
+        }
+      if (point.state() & Qt::TouchPointPressed)
+        {
+        iren->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
+        }
+      if (point.state() & Qt::TouchPointMoved)
+        {
+        iren->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
+        }
+      }
+    e2->accept();
+    return true;
+    }
 
   if(t == QEvent::Enter)
     {
