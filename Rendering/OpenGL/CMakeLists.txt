@@ -40,6 +40,9 @@ endif()
 # modular fashion, for now it must remain an option on vtkRenderingOpenGL.
 option(VTK_USE_TDX "Use TDx interaction devices" OFF)
 mark_as_advanced(VTK_USE_TDX)
+if (TDX_INCLUDE_DIR)
+  include_directories(${TDX_INCLUDE_DIR})
+endif()
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkTDxConfigure.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/vtkTDxConfigure.h)
 
