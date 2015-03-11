@@ -201,6 +201,7 @@ if(PYTHON_EXECUTABLE)
 # vtk.util package
   list(APPEND VTK_PYTHON_FILES
     vtk/util/__init__
+    vtk/util/_argparse
     vtk/util/vtkMethodParser
     vtk/util/misc
     vtk/util/vtkConstants
