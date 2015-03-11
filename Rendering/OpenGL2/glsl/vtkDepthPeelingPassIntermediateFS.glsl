@@ -35,7 +35,7 @@ void main()
     {
     if (lastpass == 1)
       {
-      gl_FragFData[0].rgb = (t1Color.rgb*t1Color.a + t2Color.rgb*(1.0-t1Color.a))/gl_FragData[0].a;
+      gl_FragData[0].rgb = (t1Color.rgb*t1Color.a + t2Color.rgb*(1.0-t1Color.a))/gl_FragData[0].a;
       }
     else
       {
