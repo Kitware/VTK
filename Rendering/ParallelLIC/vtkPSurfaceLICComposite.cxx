@@ -25,13 +25,35 @@
 #include "vtkPixelBufferObject.h"
 #include "vtkFrameBufferObject2.h"
 #include "vtkRenderbuffer.h"
-#include "vtkShader2.h"
-#include "vtkShaderProgram2.h"
-#include "vtkUniformVariables.h"
-#include "vtkShader2Collection.h"
-#include "vtkOpenGLExtensionManager.h"
-#include "vtkgl.h"
 #include "vtkMPI.h"
+
+
+#ifdef VTK_OPENGL2
+# include "vtkglVBOHelper.h"
+# include "vtkOpenGLShaderCache.h"
+# include "vtkShaderProgram.h"
+# include "vtkTextureObjectVS.h"
+# include "vtkPSurfaceLICComposite_CompFS.h"
+#else
+# include "vtkShader2.h"
+# include "vtkShaderProgram2.h"
+# include "vtkUniformVariables.h"
+# include "vtkShader2Collection.h"
+# include "vtkOpenGLExtensionManager.h"
+# include "vtkgl.h"
+// compositing shader
+extern const char *vtkPSurfaceLICComposite_Comp;
+# ifndef GL_FRAMEBUFFER
+#  define GL_FRAMEBUFFER vtkgl::FRAMEBUFFER_EXT
+# endif
+# ifndef GL_DRAW_FRAMEBUFFER
+#  define GL_DRAW_FRAMEBUFFER vtkgl::DRAW_FRAMEBUFFER_EXT
+# endif
+# ifndef GL_TEXTURE0
+#  define GL_TEXTURE0 vtkgl::TEXTURE0
+# endif
+#endif
+
 
 #include <list>
 #include <deque>
@@ -82,9 +104,6 @@ string mpifn(int rank, const char *fn)
 // only use it for debugging.
 
 // #define DUPLICATE_COMMUNICATOR
-
-// compositing shader
-extern const char *vtkPSurfaceLICComposite_Comp;
 
 // ***************************************************************************
 static
@@ -314,7 +333,12 @@ vtkPSurfaceLICComposite::~vtkPSurfaceLICComposite()
   delete this->PixelOps;
   if (this->CompositeShader)
     {
+#ifdef VTK_OPENGL2
+    delete this->CompositeShader;
+#else
     this->CompositeShader->Delete();
+#endif
+    this->CompositeShader = 0;
     }
   if (this->FBO)
     {
@@ -349,7 +373,12 @@ void vtkPSurfaceLICComposite::SetContext(vtkOpenGLRenderWindow *rwin)
   // free the existing shader and fbo
   if ( this->CompositeShader )
     {
+#ifdef VTK_OPENGL2
+    this->CompositeShader->ReleaseGraphicsResources(rwin);
+    delete this->CompositeShader;
+#else
     this->CompositeShader->Delete();
+#endif
     this->CompositeShader = NULL;
     }
 
@@ -362,6 +391,14 @@ void vtkPSurfaceLICComposite::SetContext(vtkOpenGLRenderWindow *rwin)
   if ( this->Context )
     {
     // load, compile, and link the shader
+#ifdef VTK_OPENGL2
+    this->CompositeShader = new vtkgl::CellBO;
+    std::string GSSource;
+    this->CompositeShader->Program =
+        rwin->GetShaderCache()->ReadyShader(vtkTextureObjectVS,
+                                          vtkPSurfaceLICComposite_CompFS,
+                                            GSSource.c_str());
+#else
     vtkShader2 *compositeShaderSrc = vtkShader2::New();
     compositeShaderSrc->SetContext(this->Context);
     compositeShaderSrc->SetType(VTK_SHADER_TYPE_FRAGMENT);
@@ -373,6 +410,7 @@ void vtkPSurfaceLICComposite::SetContext(vtkOpenGLRenderWindow *rwin)
     this->CompositeShader->Build();
 
     compositeShaderSrc->Delete();
+#endif
 
     // setup a FBO for rendering
     this->FBO = vtkFrameBufferObject2::New();
@@ -1365,16 +1403,16 @@ int vtkPSurfaceLICComposite::Gather(
     }
 
   this->FBO->SaveCurrentBindings();
-  this->FBO->Bind(vtkgl::FRAMEBUFFER_EXT);
-  this->FBO->AddColorAttachment(vtkgl::DRAW_FRAMEBUFFER_EXT, 0U, newImage);
+  this->FBO->Bind(GL_FRAMEBUFFER);
+  this->FBO->AddColorAttachment(GL_DRAW_FRAMEBUFFER, 0U, newImage);
   this->FBO->ActivateDrawBuffer(0U);
 
   vtkRenderbuffer *depthBuf = vtkRenderbuffer::New();
   depthBuf->SetContext(this->Context);
   depthBuf->CreateDepthAttachment(winExtSize[0], winExtSize[1]);
-  this->FBO->AddDepthAttachment(vtkgl::DRAW_FRAMEBUFFER_EXT, depthBuf);
+  this->FBO->AddDepthAttachment(GL_DRAW_FRAMEBUFFER, depthBuf);
 
-  vtkCheckFrameBufferStatusMacro(vtkgl::FRAMEBUFFER_EXT);
+  vtkCheckFrameBufferStatusMacro(GL_FRAMEBUFFER);
 
   // the LIC'er requires all fragments in the vector
   // texture to be initialized to 0
@@ -1384,9 +1422,14 @@ int vtkPSurfaceLICComposite::Gather(
   glClearColor(0.0, 0.0, 0.0, 0.0);
   glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
+#ifdef VTK_OPENGL2
+  this->Context->GetShaderCache()->ReadyShader(
+    this->CompositeShader->Program);
+#else
   vtkUniformVariables *uniforms = this->CompositeShader->GetUniformVariables();
   uniforms->SetUniformit("texData", 0);
   this->CompositeShader->Use();
+#endif
 
   // overlap compositing of local data with communication
   for (int j=0; j<nTransactions; ++j)
@@ -1528,12 +1571,14 @@ int vtkPSurfaceLICComposite::Gather(
 
     tex->Delete();
     }
+#ifndef VTK_OPENGL2
   this->CompositeShader->Restore();
+#endif
 
   this->FBO->DeactivateDrawBuffers();
-  this->FBO->RemoveTexColorAttachment(vtkgl::DRAW_FRAMEBUFFER_EXT, 0U);
-  this->FBO->RemoveRenDepthAttachment(vtkgl::DRAW_FRAMEBUFFER_EXT);
-  this->FBO->UnBind(vtkgl::FRAMEBUFFER_EXT);
+  this->FBO->RemoveTexColorAttachment(GL_DRAW_FRAMEBUFFER, 0U);
+  this->FBO->RemoveRenDepthAttachment(GL_DRAW_FRAMEBUFFER);
+  this->FBO->UnBind(GL_FRAMEBUFFER);
   depthBuf->Delete();
 
   // wait for sends to complete
@@ -1557,8 +1602,6 @@ int vtkPSurfaceLICComposite::ExecuteShader(
       const vtkPixelExtent &ext,
       vtkTextureObject *tex)
 {
-  tex->Activate(vtkgl::TEXTURE0);
-
   // cell to node
   vtkPixelExtent next(ext);
   next.CellToNode();
@@ -1567,6 +1610,24 @@ int vtkPSurfaceLICComposite::ExecuteShader(
   next.GetData(fext);
 
   float tcoords[4] = {0.0f,1.0f, 0.0f,1.0f};
+
+#ifdef VTK_OPENGL2
+    tex->Activate();
+    this->CompositeShader->Program->SetUniformi("texData",
+      tex->GetTextureUnit());
+    // may beed to divide by winExtSize here
+    float verts[] = {
+      fext[0]*2.0-1.0, fext[2]*2.0-1.0, 0.0f,
+      fext[1]*2.0-1.0, fext[2]*2.0-1.0, 0.0f,
+      fext[1]*2.0-1.0, fext[3]*2.0-1.0, 0.0f,
+      fext[0]*2.0-1.0, fext[3]*2.0-1.0, 0.0f};
+
+    vtkOpenGLRenderWindow::RenderQuad(verts, tcoords,
+      this->CompositeShader->Program, &this->CompositeShader->vao);
+    tex->Deactivate();
+#else
+  tex->Activate(GL_TEXTURE0);
+
   int ids[8] = {0,2, 1,2, 1,3, 0,3};
 
   glBegin(GL_QUADS);
@@ -1578,7 +1639,8 @@ int vtkPSurfaceLICComposite::ExecuteShader(
     }
   glEnd();
 
-  //tex->Deactivate(vtkgl::TEXTURE0);
+  //tex->Deactivate(GL_TEXTURE0);
+#endif
 
   return 0;
 }

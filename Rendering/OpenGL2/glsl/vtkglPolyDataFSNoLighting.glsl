@@ -43,10 +43,10 @@ void main()
   //VTK::Color::Impl
   // Note that the above will always define vec3 ambientColor, vec3 diffuseColor and float opacity
 
-  gl_FragColor =  vec4(ambientColor + diffuseColor, opacity);
+  gl_FragData[0] =  vec4(ambientColor + diffuseColor, opacity);
   //VTK::TCoord::Impl
 
-  if (gl_FragColor.a <= 0.0)
+  if (gl_FragData[0].a <= 0.0)
     {
     discard;
     }

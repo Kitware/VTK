@@ -174,11 +174,11 @@ void vtkOpenGLStickMapper::ReplaceShaderValues(std::string &VSSource,
       "//VTK::Picking::Impl",
       "if (mapperIndex == vec3(0.0,0.0,0.0))\n"
       "    {\n"
-      "    gl_FragColor = vec4(selectionIdFrag.rgb, 1.0);\n"
+      "    gl_FragData[0] = vec4(selectionIdFrag.rgb, 1.0);\n"
       "    }\n"
       "  else\n"
       "    {\n"
-      "    gl_FragColor = vec4(mapperIndex,1.0);\n"
+      "    gl_FragData[0] = vec4(mapperIndex,1.0);\n"
       "    }"
       );
     }

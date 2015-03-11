@@ -7,7 +7,6 @@ set(Module_SRCS
   vtkPLineIntegralConvolution2D.cxx
   vtkPPainterCommunicator.cxx
   vtkPSurfaceLICComposite.cxx
-  vtkPSurfaceLICPainter.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/vtkRenderingParallelLICObjectFactory.cxx
   )
 
@@ -39,9 +38,26 @@ if (VTK_RENDERINGPARALLELLIC_LINEINTEGRALCONVLOLUTION2D_TIMER)
   add_definitions("-DvtkLineIntegralConvolution2DTIME")
 endif()
 
-set(shader_files
-  vtkPSurfaceLICComposite_Comp.glsl
-  )
+if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+  set_source_files_properties(
+    vtkPSurfaceLICComposite.cxx
+    PROPERTIES COMPILE_FLAGS -DVTK_OPENGL2)
+  list(APPEND Module_SRCS
+    vtkPSurfaceLICMapper.cxx
+    )
+  vtk_add_override(vtkSurfaceLICMapper vtkPSurfaceLICMapper)
+  set(shader_files
+    vtkPSurfaceLICComposite_CompFS.glsl
+    )
+else()
+  list(APPEND Module_SRCS
+    vtkPSurfaceLICPainter.cxx
+    )
+  vtk_add_override(vtkSurfaceLICPainter vtkPSurfaceLICPainter)
+  set(shader_files
+    vtkPSurfaceLICComposite_Comp.glsl
+    )
+endif()
 
 unset(shader_h_files)
 foreach(file ${shader_files})
@@ -65,7 +81,6 @@ endforeach()
 
 vtk_add_override(vtkLineIntegralConvolution2D vtkPLineIntegralConvolution2D)
 vtk_add_override(vtkSurfaceLICComposite vtkPSurfaceLICComposite)
-vtk_add_override(vtkSurfaceLICPainter vtkPSurfaceLICPainter)
 vtk_object_factory_configure("${vtk_module_overrides}")
 
 include(vtkMPI)

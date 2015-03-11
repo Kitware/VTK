@@ -1185,6 +1185,12 @@ static int vtkGetVTKType(GLenum gltype)
 }
 
 //----------------------------------------------------------------------------
+int vtkTextureObject::GetVTKDataType()
+{
+  return ::vtkGetVTKType(this->Type);
+}
+
+//----------------------------------------------------------------------------
 int vtkTextureObject::GetDataType(int vtk_scalar_type)
 {
   if (!this->Type)
@@ -2059,6 +2065,8 @@ bool vtkTextureObject::Create3D(unsigned int width, unsigned int height,
 void vtkTextureObject::CopyToFrameBuffer(
   vtkShaderProgram *program, vtkgl::VertexArrayObject *vao)
 {
+  // the following math really only works when texture
+  // and viewport are of the same dimensions
   float minXTexCoord=static_cast<float>(
     static_cast<double>(0.5)/this->Width);
   float minYTexCoord=static_cast<float>(

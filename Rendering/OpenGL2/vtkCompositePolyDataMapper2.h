@@ -26,8 +26,6 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkGenericCompositePolyDataMapper2.h"
 
-class vtkCompositePolyDataMapper2Internal;
-
 class VTKRENDERINGOPENGL2_EXPORT vtkCompositePolyDataMapper2 : public vtkGenericCompositePolyDataMapper2
 {
 public:

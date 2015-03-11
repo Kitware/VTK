@@ -47,6 +47,7 @@ set(Module_SRCS
   vtkOpenGLShaderCache.cxx
   vtkOpenGLTexture.cxx
   vtkOverlayPass.cxx
+  vtkRenderbuffer.cxx
   vtkRenderPass.cxx
   vtkRenderStepsPass.cxx
   vtkRenderPassCollection.cxx
@@ -66,13 +67,16 @@ set(Module_SRCS
 
 if (NOT DEFINED OPENGL_ES_VERSION)
   set(Module_SRCS ${Module_SRCS}
+    vtkDataTransferHelper.cxx
     vtkFrameBufferObject.cxx
+    vtkFrameBufferObject2.cxx
     vtkPixelBufferObject.cxx
     )
 else()
   if (${OPENGL_ES_VERSION} MATCHES 3.0)
     set(Module_SRCS ${Module_SRCS}
       vtkFrameBufferObject.cxx
+      vtkFrameBufferObject2.cxx
       )
   endif()
 endif()

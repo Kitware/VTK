@@ -48,7 +48,7 @@ using std::deque;
 
 #define vtkImageDataLIC2DDEBUG 0
 #if (vtkImageDataLIC2DDEBUG >= 1)
-#include "vtkTextureWriter.h"
+#include "vtkTextureIO.h"
 #endif
 
 #define PRINTEXTENT(ext) \
@@ -455,9 +455,9 @@ int vtkImageDataLIC2D::RequestData(
   vecPBO->Delete();
 
   #if (vtkImageDataLIC2DDEBUG >= 1)
-  vtkTextureWriter::WriteTexture(
-          "idlic2d_vectors.vtk",
-          vectorTex);
+  vtkTextureIO::Write(
+              "idlic2d_vectors.vtk",
+              vectorTex, NULL, NULL);
   #endif
 
   // magnify vectors
@@ -513,9 +513,9 @@ int vtkImageDataLIC2D::RequestData(
     }
 
   #if (vtkImageDataLIC2DDEBUG >= 1)
-  vtkTextureWriter::WriteTexture(
-          "idlic2d_magvectors.vtk",
-          magVectorTex);
+  vtkTextureIO::Write(
+              "idlic2d_magvectors.vtk",
+              magVectorTex, NULL, NULL);
   #endif
 
   // send noise data to a texture
@@ -549,9 +549,9 @@ int vtkImageDataLIC2D::RequestData(
   noisePBO->Delete();
 
   #if (vtkImageDataLIC2DDEBUG >= 1)
-  vtkTextureWriter::WriteTexture(
+  vtkTextureIO::Write(
           "idlic2d_noise.vtk",
-          noiseTex);
+          noiseTex, NULL, NULL);
   #endif
 
   // step size conversion to normalize image space
@@ -625,9 +625,9 @@ int vtkImageDataLIC2D::RequestData(
     }
 
   #if (vtkImageDataLIC2DDEBUG >= 1)
-  vtkTextureWriter::WriteTexture(
+  vtkTextureIO::Write(
           "idlic2d_lic.vtk",
-          licTex);
+          licTex, NULL, NULL);
   #endif
 
   // transfer lic from texture to vtk array
