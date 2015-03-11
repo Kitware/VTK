@@ -178,7 +178,7 @@ public:
   vtkTextureObject *CurrentRGBATexture;
   std::vector<float> *DepthZData;
 
-  void BlendIntermediatePeels(vtkOpenGLRenderWindow *renWin);
+  void BlendIntermediatePeels(vtkOpenGLRenderWindow *renWin, bool);
   void BlendFinalPeel(vtkOpenGLRenderWindow *renWin);
 
  private:

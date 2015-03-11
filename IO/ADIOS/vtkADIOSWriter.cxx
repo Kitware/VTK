@@ -58,7 +58,7 @@ vtkADIOSWriter::vtkADIOSWriter()
   TransportMethod(static_cast<int>(ADIOS::TransportMethod_POSIX)),
   TransportMethodArguments(NULL),
   Transform(static_cast<int>(ADIOS::Transform_NONE)),
-  WriteMode(vtkADIOSWriter::Always), CurrentStep(-1), Controller(NULL),
+  CurrentStep(-1), Controller(NULL),
   Writer(NULL),
   NumberOfPieces(-1), RequestPiece(-1), NumberOfGhostLevels(-1),
   WriteAllTimeSteps(false), TimeSteps(), CurrentTimeStepIndex(-1)
@@ -150,26 +150,6 @@ bool vtkADIOSWriter::DefineAndWrite(vtkDataObject *input)
       // Before any data can be writen, it's structure must be declared
       this->Define("", data);
 
-      if(this->WriteMode == vtkADIOSWriter::OnChange)
-        {
-        // Set up the index for independently array stepping
-        this->BlockStepIndex.clear();
-        this->BlockStepIndex.resize(this->BlockStepIndexIdMap.size());
-
-        std::vector<ADIOS::ArrayDim> indexDims;
-        indexDims.push_back(ADIOS::ArrayDim(this->BlockStepIndexIdMap.size()));
-        this->Writer->DefineLocalArray<int>("::BlockStepIndex", indexDims);
-
-        // Gather all the block step index id maps to Rank 0
-        std::string BlockStepIndexIdMapAttr = this->GatherBlockStepIdMap();
-
-        if(localProc == 0)
-          {
-          this->Writer->DefineAttribute<std::string>("::BlockStepIndexIdMap",
-            BlockStepIndexIdMapAttr);
-          }
-        }
-
       if(localProc == 0)
         {
         // Global time step is only used by Rank 0
@@ -194,14 +174,7 @@ bool vtkADIOSWriter::DefineAndWrite(vtkDataObject *input)
         }
       }
 
-    std::memset(&*this->BlockStepIndex.begin(), 0xFF,
-      sizeof(vtkTypeInt64)*this->BlockStepIndex.size());
     this->Write("", data);
-
-    if(this->WriteMode == vtkADIOSWriter::OnChange)
-      {
-      this->Writer->WriteArray("::BlockStepIndex", &this->BlockStepIndex[0]);
-      }
     this->Writer->Commit(this->FileName, this->CurrentStep > 0);
     }
   catch(const ADIOS::WriteError &err)
@@ -210,64 +183,6 @@ bool vtkADIOSWriter::DefineAndWrite(vtkDataObject *input)
     return false;
     }
   return true;
-}
-
-//----------------------------------------------------------------------------
-std::string vtkADIOSWriter::GatherBlockStepIdMap(void)
-{
-  const int numProcs = this->Controller->GetNumberOfProcesses();
-  const int localProc = this->Controller->GetLocalProcessId();
-
-  // Encode into string containing:
-  // Block0_Id Var0_Id Var0_Name
-  // Block0_Id Var1_Id Var1_Name
-  // ...
-  // BlockN_Id VarM_Id VarM_Name
-  std::stringstream ss;
-  for(NameIdMap::const_iterator i = this->BlockStepIndexIdMap.begin();
-    i != this->BlockStepIndexIdMap.end(); ++i)
-    {
-    ss << localProc << ' ' << i->second << ' ' << i->first << '\n';
-    }
-  std::string sendBuf = ss.str();
-  vtkIdType sendBufLen = sendBuf.length();
-
-  // Gather the variable length buffer sizes
-  vtkIdType *recvLengths = localProc == 0 ? new vtkIdType[numProcs] : NULL;
-  this->Controller->Gather(&sendBufLen, recvLengths, 1, 0);
-
-  // Compute the recieving buffer sizes and offsets
-  vtkIdType fullLength = 0;
-  vtkIdType *recvOffsets = NULL;
-  char *recvBuffer = NULL;
-  if(localProc == 0)
-    {
-    recvOffsets = new vtkIdType[numProcs];
-    for(int p = 0; p < numProcs; ++p)
-      {
-      recvOffsets[p] = fullLength;
-      fullLength += recvLengths[p];
-      }
-    recvBuffer = new char[fullLength];
-    }
-
-  // Gather the index id maps from all processes
-  this->Controller->GatherV(sendBuf.c_str(), recvBuffer, sendBufLen,
-    recvLengths, recvOffsets, 0);
-
-  std::string recv;
-  if(localProc == 0)
-    {
-    // Strip the trailing \n to make null terminated and parse as an std::string
-    recvBuffer[fullLength-1] = '\0';
-    recv = recvBuffer;
-
-    // Cleanup
-    delete[] recvBuffer;
-    delete[] recvOffsets;
-    delete[] recvLengths;
-    }
-  return recv;
 }
 
 //----------------------------------------------------------------------------
@@ -441,11 +356,6 @@ void vtkADIOSWriter::Define(const std::string& path, const vtkAbstractArray* v)
   this->Writer->DefineLocalArray(path,
     ADIOS::Type::VTKToADIOS(valueTmp->GetDataType()), dims,
     static_cast<ADIOS::Transform>(this->Transform));
-  if(this->WriteMode == vtkADIOSWriter::OnChange)
-    {
-    this->BlockStepIndexIdMap.insert(
-      std::make_pair(path, this->BlockStepIndexIdMap.size()));
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -580,7 +490,7 @@ bool vtkADIOSWriter::UpdateMTimeTable(const std::string path,
   unsigned long mtimePrev = mtimeCurrent;
 
   mtimeCurrent = mtimeNew;
-  return this->WriteMode == vtkADIOSWriter::Always || mtimeNew != mtimePrev;
+  return mtimeNew != mtimePrev;
 }
 
 //----------------------------------------------------------------------------
@@ -602,22 +512,9 @@ void vtkADIOSWriter::Write(const std::string& path, const vtkAbstractArray* v)
   size_t nc = valueTmp->GetNumberOfComponents();
   size_t nt = valueTmp->GetNumberOfTuples();
 
-  // Skip empty arrays
-  //if(nc == 0 || nt == 0)
-  //  {
-  //  return;
-  //  }
-
   this->Writer->WriteScalar<size_t>(path+"#NC", nc);
   this->Writer->WriteScalar<size_t>(path+"#NT", nt);
   this->Writer->WriteArray(path, valueTmp->GetVoidPointer(0));
-
-  if(this->WriteMode == vtkADIOSWriter::OnChange)
-    {
-    this->BlockStepIndex[this->BlockStepIndexIdMap[path]] =
-      (static_cast<vtkTypeInt64>(this->CurrentStep) << 32) |
-      this->Controller->GetLocalProcessId();
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -628,7 +525,7 @@ void vtkADIOSWriter::Write(const std::string& path, const vtkDataArray* v)
 
   if(lut)
     {
-    // Only heck the mtime here if a LUT is present.  Otherwise it will be
+    // Only check the mtime here if a LUT is present.  Otherwise it will be
     // handled apropriately by the abstract array writer
     if(!this->UpdateMTimeTable(path, v))
       {

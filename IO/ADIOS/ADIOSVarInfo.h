@@ -29,8 +29,19 @@ namespace ADIOS
 class VarInfo
 {
 public:
+  // Data structure used to hold block index mapping info
+  struct StepBlock
+  {
+    StepBlock() : Step(-1), Block(-1), BlockId(-1) {}
+    StepBlock(int s, int b, int i) : Step(s), Block(b), BlockId(i) { }
+    int Step;
+    int Block;
+    int BlockId;
+  };
+
+public:
   VarInfo(ADIOS_FILE *f, ADIOS_VARINFO *v);
-  virtual ~VarInfo(void) { }
+  virtual ~VarInfo(void);
   void SetName(const std::string& name) { this->Name = name; }
 
   const int& GetId() const;
@@ -38,15 +49,20 @@ public:
   const std::string& GetName(void) const;
   size_t GetNumSteps(void) const;
   size_t GetNumBlocks(size_t step) const;
-  size_t GetBlockId(size_t step, size_t block) const;
-  void GetDims(std::vector<size_t>& dims, size_t step, size_t block) const;
+  StepBlock* GetNewestBlockIndex(size_t step, size_t pid) const;
+  void GetDims(std::vector<size_t>& dims, size_t step, size_t pid) const;
 
 protected:
   int Id;
   ADIOS_DATATYPES Type;
   std::string Name;
-  std::vector<std::vector<size_t> > BlockId;
-  std::vector<std::vector<std::vector<size_t> > > Dims;
+  size_t NumSteps;
+  size_t NumPids;
+  std::vector<std::vector<size_t> > Dims;
+
+  // This maps the absolute time step and process id to a file-local
+  // step and block id for reading
+  std::vector<StepBlock*> StepBlockIndex;
 };
 
 } // End namespace ADIOS

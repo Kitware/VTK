@@ -522,11 +522,22 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
       "uniform vec2 screenSize;\n"
       "uniform sampler2D opaqueZTexture;\n"
       "uniform sampler2D translucentZTexture;\n");
+    // the .0000001 below is an epsilon.  It turns out that
+    // graphics cards can render the same polygon two times
+    // in a row with different z values. I suspect it has to
+    // do with how rasterinzation of the polygon is broken up.
+    // A different breakup across fragment shaders can result in
+    // very slightly different z values for some of the pixels.
+    // The end result is that with depth peeling, you can end up
+    // counting/accumulating pixels of the same surface twice
+    // simply due to this randomness in z values. So we introduce
+    // an epsilon into the transparent test to require some
+    // minimal z seperation between pixels
     substitute(FSSource, "//VTK::DepthPeeling::Impl",
       "float odepth = texture2D(opaqueZTexture, gl_FragCoord.xy/screenSize).r;\n"
       "  if (gl_FragCoord.z >= odepth) { discard; }\n"
       "  float tdepth = texture2D(translucentZTexture, gl_FragCoord.xy/screenSize).r;\n"
-      "  if (gl_FragCoord.z <= tdepth) { discard; }\n"
+      "  if (gl_FragCoord.z <= tdepth + .0000001) { discard; }\n"
       //  "gl_FragColor = vec4(odepth*odepth,tdepth*tdepth,gl_FragCoord.z*gl_FragCoord.z,1.0);"
       );
     }

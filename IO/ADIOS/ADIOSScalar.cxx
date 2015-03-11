@@ -23,72 +23,62 @@
 namespace ADIOS
 {
 
+template<typename T>
+void LoadScalarsFromStats(void* &ptr, ADIOS_VARINFO *v)
+{
+  T* &ptrT = reinterpret_cast<T*&>(ptr);
+  ptrT = new T[v->sum_nblocks];
+  for(size_t i = 0; i < v->sum_nblocks; ++i)
+    {
+    ptrT[i] = *reinterpret_cast<const T*>(v->statistics->blocks->mins[i]);
+    }
+}
+
 //----------------------------------------------------------------------------
 Scalar::Scalar(ADIOS_FILE *f, ADIOS_VARINFO *v)
 : VarInfo(f, v), Values(NULL)
 {
-  // Allocate memory
   switch(this->Type)
     {
     case adios_byte:
-      this->Values = new int8_t[v->sum_nblocks];
+      LoadScalarsFromStats<int8_t>(this->Values, v);
       break;
     case adios_short:
-      this->Values = new int16_t[v->sum_nblocks];
+      LoadScalarsFromStats<int16_t>(this->Values, v);
       break;
     case adios_integer:
-      this->Values = new int32_t[v->sum_nblocks];
+      LoadScalarsFromStats<int32_t>(this->Values, v);
       break;
     case adios_long:
-      this->Values = new int64_t[v->sum_nblocks];
+      LoadScalarsFromStats<int64_t>(this->Values, v);
       break;
     case adios_unsigned_byte:
-      this->Values = new uint8_t[v->sum_nblocks];
+      LoadScalarsFromStats<uint8_t>(this->Values, v);
       break;
     case adios_unsigned_short:
-      this->Values = new uint16_t[v->sum_nblocks];
+      LoadScalarsFromStats<uint16_t>(this->Values, v);
       break;
     case adios_unsigned_integer:
-      this->Values = new uint32_t[v->sum_nblocks];
+      LoadScalarsFromStats<uint32_t>(this->Values, v);
       break;
     case adios_unsigned_long:
-      this->Values = new uint64_t[v->sum_nblocks];
+      LoadScalarsFromStats<uint64_t>(this->Values, v);
       break;
     case adios_real:
-      this->Values = new float[v->sum_nblocks];
+      LoadScalarsFromStats<float>(this->Values, v);
       break;
     case adios_double:
-      this->Values = new double[v->sum_nblocks];
+      LoadScalarsFromStats<double>(this->Values, v);
       break;
     case adios_complex:
-      this->Values = new std::complex<float>[v->sum_nblocks];
+      LoadScalarsFromStats<std::complex<float> >(this->Values, v);
       break;
     case adios_double_complex:
-      this->Values = new std::complex<double>[v->sum_nblocks];
+      LoadScalarsFromStats<std::complex<double> >(this->Values, v);
       break;
-    default: break;
-    }
-  size_t tSize = Type::SizeOf(this->Type);
-
-  // Read all blocks and steps
-  int err;
-  char *rawPtr = reinterpret_cast<char *>(this->Values);
-  for(size_t s = 0; s < v->nsteps; ++s)
-    {
-    for(size_t b = 0; b < v->nblocks[s]; ++b)
-      {
-      ADIOS_SELECTION *sel = adios_selection_writeblock(b);
-      ReadError::TestNe<ADIOS_SELECTION*>(NULL, sel);
-
-      err = adios_schedule_read_byid(f, sel, v->varid, s, 1, rawPtr);
-      ReadError::TestEq(0, err);
-
-      err = adios_perform_reads(f, 1);
-      ReadError::TestEq(0, err);
-
-      adios_selection_delete(sel);
-      rawPtr += tSize;
-      }
+    default:
+      // Unsupported data type
+      break;
     }
 }
 
