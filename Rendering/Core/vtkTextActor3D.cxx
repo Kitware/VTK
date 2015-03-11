@@ -149,7 +149,9 @@ int vtkTextActor3D::RenderOverlay(vtkViewport *viewport)
       }
     }
 
-  if (this->UpdateImageActor())
+  if (this->UpdateImageActor() &&
+      this->ImageData &&
+      this->ImageData->GetNumberOfPoints() > 0)
     {
     rendered_something += this->ImageActor->RenderOverlay(viewport);
     }
@@ -162,7 +164,9 @@ int vtkTextActor3D::RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
 {
   int rendered_something = 0;
 
-  if (this->UpdateImageActor())
+  if (this->UpdateImageActor() &&
+      this->ImageData &&
+      this->ImageData->GetNumberOfPoints() > 0)
     {
     rendered_something +=
       this->ImageActor->RenderTranslucentPolygonalGeometry(viewport);
@@ -178,7 +182,9 @@ int vtkTextActor3D::HasTranslucentPolygonalGeometry()
 {
   int result = 0;
 
-  if (this->UpdateImageActor())
+  if (this->UpdateImageActor() &&
+      this->ImageData &&
+      this->ImageData->GetNumberOfPoints() > 0)
     {
     result=this->ImageActor->HasTranslucentPolygonalGeometry();
     }
@@ -191,7 +197,9 @@ int vtkTextActor3D::RenderOpaqueGeometry(vtkViewport *viewport)
 {
   int rendered_something = 0;
 
-  if (this->UpdateImageActor())
+  if (this->UpdateImageActor() &&
+      this->ImageData &&
+      this->ImageData->GetNumberOfPoints() > 0)
     {
     rendered_something += this->ImageActor->RenderOpaqueGeometry(viewport);
     }
