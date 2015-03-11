@@ -15,7 +15,7 @@
 # limitations under the License.
 #=============================================================================
 
-USAGE="[<remote>] [--no-topic] [--dry-run] [--]"
+USAGE="[<remote>] [--no-topic] [--no-default] [--dry-run] [--]"
 OPTIONS_SPEC=
 SUBDIRECTORY_OK=Yes
 . "$(git --exec-path)/git-sh-setup"
@@ -25,6 +25,7 @@ egrep-q() {
 }
 
 # Load the project configuration.
+gitlab_upstream='' &&
 gitlab_configured='' &&
 config="${BASH_SOURCE%/*}/config" &&
 protocol=$(git config -f "$config" --get gitlab.protocol ||
@@ -34,6 +35,7 @@ site=$(git config -f "$config" --get gitlab.site ||
        echo "$protocol://$host") &&
 group_path=$(git config -f "$config" --get gitlab.group-path) &&
 project_path=$(git config -f "$config" --get gitlab.project-path) &&
+gitlab_upstream="$site/$group_path/$project_path.git" &&
 gitlab_pushurl=$(git config --get remote.gitlab.pushurl ||
 		 git config --get remote.gitlab.url) &&
 gitlab_configured=1
@@ -43,13 +45,15 @@ gitlab_configured=1
 remote=''
 refspecs=''
 no_topic=''
+no_default=''
 dry_run=''
 
 # Parse the command line options.
 while test $# != 0; do
 	case "$1" in
-		--no-topic) no_topic=1 ;;
-		--dry-run)  dry_run=--dry-run ;;
+		--no-topic)   no_topic=1 ;;
+		--dry-run)    dry_run=--dry-run ;;
+		--no-default) no_default=1 ;;
 		--) shift; break ;;
 		-*) usage ;;
 		*) test -z "$remote" || usage ; remote="$1" ;;
@@ -72,10 +76,29 @@ if test -z "$no_topic"; then
 	refspecs="+HEAD:refs/heads/$topic $refspecs"
 fi
 
-# Fetch the current upstream master branch head.
+# Fetch the current remote master branch head.
 # This helps computation of a minimal pack to push.
 echo "Fetching $remote master"
 fetch_out=$(git fetch "$remote" master 2>&1) || die "$fetch_out"
+gitlab_head=$(git rev-parse FETCH_HEAD) || exit
+
+# Fetch the current upstream master branch head.
+if origin_fetchurl=$(git config --get remote.origin.url) &&
+   test "$origin_fetchurl" = "$gitlab_upstream"; then
+	upstream_remote='origin'
+else
+	upstream_remote="$gitlab_upstream"
+fi
+echo "Fetching $upstream_remote master"
+fetch_out=$(git fetch "$upstream_remote" master 2>&1) || die "$fetch_out"
+upstream_head=$(git rev-parse FETCH_HEAD) || exit
+
+# Add a refspec to keep the remote master up to date if possible.
+if test -z "$no_default" &&
+   base=$(git merge-base "$gitlab_head" "$upstream_head") &&
+   test "$base" = "$gitlab_head"; then
+	refspecs="$upstream_head:refs/heads/master $refspecs"
+fi
 
 # Exit early if we have nothing to push.
 if test -z "$refspecs"; then
