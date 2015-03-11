@@ -3299,44 +3299,6 @@ void vtkSurfaceLICMapper::ClearTCoords(vtkDataSet *data)
 }
 
 //----------------------------------------------------------------------------
-void vtkSurfaceLICMapper::GetBounds(vtkDataObject* dobj, double bounds[6])
-{
-  #if vtkSurfaceLICMapperDEBUG >= 1
-  cerr << "=====vtkSurfaceLICMapper::GetBounds" << endl;
-  #endif
-  // don't use SafeDownCast here for rendering performance
-
-  vtkMath::UninitializeBounds(bounds);
-  vtkDataSet* ds = vtkDataSet::SafeDownCast(dobj);
-  if (ds)
-    {
-    ds->GetBounds(bounds);
-    return;
-    }
-
-  vtkCompositeDataSet* cd = vtkCompositeDataSet::SafeDownCast(dobj);
-  if (cd)
-    {
-    vtkBoundingBox bbox;
-    vtkCompositeDataIterator* iter = cd->NewIterator();
-    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-      {
-      ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
-      if (ds && ds->GetNumberOfCells())
-        {
-        ds->GetBounds(bounds);
-        bbox.AddBounds(bounds);
-        }
-      }
-    iter->Delete();
-    bbox.GetBounds(bounds);
-    return;
-    }
-
-  vtkErrorMacro("unsupported dataset " << dobj->GetClassName());
-}
-
-//----------------------------------------------------------------------------
 void vtkSurfaceLICMapper::PrintSelf(ostream & os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

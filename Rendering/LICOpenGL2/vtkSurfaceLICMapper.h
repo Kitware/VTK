@@ -12,11 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSurfaceLICMapper - painter that performs LIC on the surface of
+// .NAME vtkSurfaceLICMapper - mapper that performs LIC on the surface of
 //  arbitrary geometry.
 //
 // .SECTION Description
-//  vtkSurfaceLICMapper painter performs LIC on the surface of arbitrary
+//  vtkSurfaceLICMapper performs LIC on the surface of arbitrary
 //  geometry. Point vectors are used as the vector field for generating the LIC.
 //  The implementation was originallu  based on "Image Space Based Visualization
 //  on Unsteady Flow on Surfaces" by Laramee, Jobard and Hauser appeared in
@@ -426,10 +426,6 @@ protected:
   // Creates a new communicator for internal use based on this
   // rank's visible data.
   void CreateCommunicator(vtkRenderer *, vtkActor *);
-
-  // Description:
-  // Computes data bounds.
-  void GetBounds(vtkDataObject* data, double bounds[6]);
 
   // Description:
   // Take part in garbage collection.
