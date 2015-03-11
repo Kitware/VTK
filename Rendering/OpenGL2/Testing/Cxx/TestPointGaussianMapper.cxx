@@ -84,7 +84,7 @@ int TestPointGaussianMapper(int argc, char *argv[])
   vtkNew<vtkRenderer> renderer;
   renderer->SetBackground(0.0, 0.0, 0.0);
   vtkNew<vtkRenderWindow> renderWindow;
-  renderWindow->SetSize(900, 900);
+  renderWindow->SetSize(300, 300);
   renderWindow->AddRenderer(renderer.Get());
   vtkNew<vtkRenderWindowInteractor>  iren;
   iren->SetRenderWindow(renderWindow.Get());
@@ -119,7 +119,6 @@ int TestPointGaussianMapper(int argc, char *argv[])
   renderer->GetActiveCamera()->SetViewUp(0,1,0);
   renderer->ResetCamera();
 
-  renderWindow->SetSize(300, 300);
   renderer->GetActiveCamera()->Zoom(10.0);
   renderWindow->Render();
 
