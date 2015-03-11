@@ -398,8 +398,9 @@ Define a test for volume rendering
 class volumeTest : public vtkRTTest
 {
   public:
-  volumeTest(const char *name) : vtkRTTest(name)
+  volumeTest(const char *name, bool withShading) : vtkRTTest(name)
     {
+    this->WithShading = withShading;
     }
 
   const char *GetSummaryResultName()
@@ -444,11 +445,11 @@ class volumeTest : public vtkRTTest
 
     vtkNew<vtkPiecewiseFunction> pwf;
     pwf->AddPoint(33.35, 0.0);
-    pwf->AddPoint(81.99, 0.02);
-    pwf->AddPoint(128.88, 0.11);
-    pwf->AddPoint(180.19, 0.23);
-    pwf->AddPoint(209.38, 0.33);
-    pwf->AddPoint(286.33, 1.0);
+    pwf->AddPoint(81.99, 0.01);
+    pwf->AddPoint(128.88, 0.02);
+    pwf->AddPoint(180.19, 0.03);
+    pwf->AddPoint(209.38, 0.04);
+    pwf->AddPoint(286.33, 0.05);
 
     volumeProperty->SetColor(ctf.GetPointer());
     volumeProperty->SetScalarOpacity(pwf.GetPointer());
@@ -456,6 +457,10 @@ class volumeTest : public vtkRTTest
     vtkNew<vtkVolume> volume;
     volume->SetMapper(volumeMapper.GetPointer());
     volume->SetProperty(volumeProperty.GetPointer());
+    if (this->WithShading)
+      {
+      volumeProperty->ShadeOn();
+      }
 
     // create a rendering window and renderer
     vtkNew<vtkRenderer> ren1;
@@ -499,5 +504,7 @@ class volumeTest : public vtkRTTest
 
     return result;
     }
-};
 
+  protected:
+  bool WithShading;
+};
