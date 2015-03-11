@@ -15,6 +15,13 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestTextActor3DDepthPeeling.cxx
   )
 
+# Check for vtkErrorMacro calls in these tests (mainly for empty inputs):
+set_tests_properties(
+  ${vtk-module}Cxx-TestTextActor
+  ${vtk-module}Cxx-TestTextActor3D
+  PROPERTIES FAIL_REGULAR_EXPRESSION "ERROR:"
+)
+
 if(${Module_vtkRenderingMatplotlib})
   set(TestMathTextFreeTypeTextRenderer_ARGS DATA{../Data/Fonts/DejaVuSans.ttf})
   set(TestFreeTypeTextMapper_ARGS DATA{../Data/Fonts/DejaVuSans.ttf})
