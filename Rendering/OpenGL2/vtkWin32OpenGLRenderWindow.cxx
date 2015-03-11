@@ -21,7 +21,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
 #include "vtkRendererCollection.h"
-#include "vtkWin32OpenGLRenderWindowInteractor.h"
+#include "vtkWin32RenderWindowInteractor.h"
 
 #include <math.h>
 #include <vtksys/ios/sstream>
