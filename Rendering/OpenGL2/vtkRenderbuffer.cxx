@@ -46,8 +46,19 @@ bool vtkRenderbuffer::IsSupported(vtkRenderWindow *win)
   vtkOpenGLRenderWindow *glwin = dynamic_cast<vtkOpenGLRenderWindow*>(win);
   if (glwin)
     {
-    bool floatTex = glewIsSupported("GL_ARB_texture_float");
-    bool floatDepth = glewIsSupported("GL_ARB_depth_buffer_float");
+#if GL_ES_VERSION_2_0 != 1
+    bool floatTex = (glewIsSupported("GL_ARB_texture_float") != 0);
+    bool floatDepth = (glewIsSupported("GL_ARB_depth_buffer_float") != 0);
+#else
+  // some of these may have extensions etc for ES 2.0
+  // setting to false right now as I do not know
+  bool floatTex = false;
+  bool floatDepth = false;
+#if GL_ES_VERSION_3_0 == 1
+  floatTex = true;
+  floatDepth = true;
+#endif
+#endif
     bool fbo = true;
 
     supported = floatTex && floatDepth && fbo;
@@ -64,19 +75,22 @@ bool vtkRenderbuffer::LoadRequiredExtensions(vtkRenderWindow *win)
   vtkOpenGLRenderWindow *glwin = dynamic_cast<vtkOpenGLRenderWindow*>(win);
   if (glwin)
     {
-
-    bool floatTex = glewIsSupported("GL_ARB_texture_float");
     bool fbo = true;
 
+#if GL_ES_VERSION_2_0 != 1
+    bool floatTex = (glewIsSupported("GL_ARB_texture_float") != 0);
+    this->DepthBufferFloat =
+      (glewIsSupported("GL_ARB_depth_buffer_float") != 0);
+#else
+    bool floatTex = false;
+    this->DepthBufferFloat = false;
+#if GL_ES_VERSION_3_0 == 1
+    floatTex = false;
+    this->DepthBufferFloat = true;
+#endif
+#endif
+
     supported = floatTex && fbo;
-
-    if (supported)
-      {
-      // no functions to load for floatTex
-
-      // We'll use floating point depth buffers if they are available.
-      this->DepthBufferFloat = glewIsSupported("GL_ARB_depth_buffer_float");
-      }
     }
 
   return supported;
@@ -85,7 +99,7 @@ bool vtkRenderbuffer::LoadRequiredExtensions(vtkRenderWindow *win)
 //----------------------------------------------------------------------------
 void vtkRenderbuffer::Alloc()
 {
-  glGenRenderbuffersEXT(1, &this->Handle);
+  glGenRenderbuffers(1, &this->Handle);
   vtkOpenGLCheckErrorMacro("failed at glGenRenderbuffers");
 }
 
@@ -99,7 +113,7 @@ void vtkRenderbuffer::Free()
   // do nothing.
   if (this->Context && this->Handle)
     {
-    glDeleteRenderbuffersEXT(1, &this->Handle);
+    glDeleteRenderbuffers(1, &this->Handle);
     vtkOpenGLCheckErrorMacro("failed at glDeleteRenderBuffers");
     }
 }
@@ -178,10 +192,10 @@ int vtkRenderbuffer::Create(
 {
   assert(this->Context);
 
-  glBindRenderbufferEXT(GL_RENDERBUFFER, (GLuint)this->Handle);
+  glBindRenderbuffer(GL_RENDERBUFFER, (GLuint)this->Handle);
   vtkOpenGLCheckErrorMacro("failed at glBindRenderBuffer");
 
-  glRenderbufferStorageEXT(GL_RENDERBUFFER, (GLenum)format, width, height);
+  glRenderbufferStorage(GL_RENDERBUFFER, (GLenum)format, width, height);
   vtkOpenGLCheckErrorMacro("failed at glRenderbufferStorage");
 
   return 1;
