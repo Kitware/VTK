@@ -271,6 +271,26 @@ void QVTKWidget2::paintGL()
   iren->Render();
 }
 
+/*! handle touch events
+ */
+bool QVTKWidget2::event(QEvent* e)
+{
+  if(e->type() == QEvent::TouchBegin ||
+          e->type() == QEvent::TouchUpdate ||
+          e->type() == QEvent::TouchEnd)
+    {
+    if(this->mRenWin)
+      {
+      mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
+      if (e->isAccepted())
+        {
+        return true;
+        }
+      }
+    }
+  return QObject::event(e);
+}
+
 /*! handle mouse press event
  */
 void QVTKWidget2::mousePressEvent(QMouseEvent* e)

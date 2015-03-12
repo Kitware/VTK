@@ -396,6 +396,19 @@ bool QVTKWidget::event(QEvent* e)
         }
       }
     }
+  else if(e->type() == QEvent::TouchBegin ||
+          e->type() == QEvent::TouchUpdate ||
+          e->type() == QEvent::TouchEnd)
+    {
+    if(this->mRenWin)
+      {
+      mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
+      if (e->isAccepted())
+        {
+        return true;
+        }
+      }
+    }
 
   if(QObject::event(e))
     {
