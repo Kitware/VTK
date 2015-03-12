@@ -1037,15 +1037,6 @@ void vtkCompositeDataPipeline::MarkOutputsGenerated(
 {
   this->Superclass::MarkOutputsGenerated(request,inInfoVec,outInfoVec);
 
-  // Save the information about COMPOSITE_INDICES() as needed in the data
-  // object.
-  int outputPort = 0;
-  if(request->Has(FROM_OUTPUT_PORT()))
-    {
-    outputPort = request->Get(FROM_OUTPUT_PORT());
-    outputPort = (outputPort >= 0 ? outputPort : 0);
-    }
-
   for (int i=0; i < outInfoVec->GetNumberOfInformationObjects(); ++i)
     {
     vtkInformation* outInfo = outInfoVec->GetInformationObject(i);

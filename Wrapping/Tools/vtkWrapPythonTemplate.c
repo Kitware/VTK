@@ -224,7 +224,7 @@ size_t vtkWrapPython_PyTemplateName(const char *name, char *pname)
   j = i;
 
   m = 1;
-  while (name[i] != '>' && i < n && m != 0)
+  while (i < n && m != 0 && name[i] != '>')
     {
     if (name[i] >= '0' && name[i] <= '9')
       {
