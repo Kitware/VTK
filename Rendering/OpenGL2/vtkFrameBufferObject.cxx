@@ -913,10 +913,6 @@ void vtkFrameBufferObject::PrintSelf(ostream& os, vtkIndent indent)
      << endl;
 }
 
-// Description:
-// Common switch for parsing fbo status return.
-#define vtkFBOStrErrorMacro(status, str, ok) \
-
 // ----------------------------------------------------------------------------
 int vtkFrameBufferObject::CheckFrameBufferStatus(unsigned int mode)
 {

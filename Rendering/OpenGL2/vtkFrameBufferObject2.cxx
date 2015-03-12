@@ -140,7 +140,9 @@ void vtkFrameBufferObject2::SaveCurrentBindings()
 //----------------------------------------------------------------------------
 void vtkFrameBufferObject2::SaveCurrentBuffers()
 {
+#ifdef GL_DRAW_BUFFER
   glGetIntegerv(GL_DRAW_BUFFER, (int*)&this->PreviousDrawBuffer);
+#endif
   glGetIntegerv(GL_READ_BUFFER, (int*)&this->PreviousReadBuffer);
 }
 
@@ -375,10 +377,8 @@ void vtkFrameBufferObject2::AddDepthAttachment(
 //----------------------------------------------------------------------------
 void vtkFrameBufferObject2::InitializeViewport(int width, int height)
 {
-  glDisable(GL_ALPHA_TEST);
   glDisable(GL_BLEND);
   glDisable(GL_DEPTH_TEST);
-  glDisable(GL_LIGHTING);
   glDisable(GL_SCISSOR_TEST);
 
   // Viewport transformation for 1:1 'pixel=texel=data' mapping.
@@ -614,23 +614,102 @@ bool vtkFrameBufferObject2::GetFrameBufferStatus(
       unsigned int mode,
       const char *&desc)
 {
-  bool ok;
+  bool ok = false;
+  desc = "error";
   GLenum status = glCheckFramebufferStatus((GLenum)mode);
-  vtkFBOStrErrorMacro(status, desc, ok);
-  return ok;
+  switch(status)
+    {
+    case GL_FRAMEBUFFER_COMPLETE:
+      desc = "FBO complete";
+      ok = true;
+      break;
+    case GL_FRAMEBUFFER_UNSUPPORTED:
+      desc = "FRAMEBUFFER_UNSUPPORTED";
+      break;
+    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+      desc = "FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
+      break;
+    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+      desc = "FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
+      break;
+#ifdef GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS
+    case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
+      desc = "FRAMEBUFFER_INCOMPLETE_DIMENSIONS";
+      break;
+#endif
+#ifdef GL_FRAMEBUFFER_INCOMPLETE_FORMATS
+    case GL_FRAMEBUFFER_INCOMPLETE_FORMATS:
+      desc = "FRAMEBUFFER_INCOMPLETE_FORMATS";
+      break;
+#endif
+#ifdef GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER
+    case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+      desc = "FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER";
+      break;
+#endif
+#ifdef GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER
+    case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
+      desc = "FRAMEBUFFER_INCOMPLETE_READ_BUFFER";
+      break;
+#endif
+    default:
+      desc = "Unknown status";
+    }
+  if (!ok)
+    {
+    return false;
+    }
+  return true;
 }
 
 // ----------------------------------------------------------------------------
 int vtkFrameBufferObject2::CheckFrameBufferStatus(unsigned int mode)
 {
-  bool ok;
-  const char *desc = "error";
+  bool ok = false;
+  const char *str = "error";
   GLenum status = glCheckFramebufferStatus((GLenum)mode);
   vtkOpenGLCheckErrorMacro("failed at glCheckFramebufferStatus");
-  vtkFBOStrErrorMacro(status, desc, ok);
+  switch(status)
+    {
+    case GL_FRAMEBUFFER_COMPLETE:
+      str = "FBO complete";
+      ok = true;
+      break;
+    case GL_FRAMEBUFFER_UNSUPPORTED:
+      str = "FRAMEBUFFER_UNSUPPORTED";
+      break;
+    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+      str = "FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
+      break;
+    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+      str = "FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
+      break;
+#ifdef GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS
+    case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
+      str = "FRAMEBUFFER_INCOMPLETE_DIMENSIONS";
+      break;
+#endif
+#ifdef GL_FRAMEBUFFER_INCOMPLETE_FORMATS
+    case GL_FRAMEBUFFER_INCOMPLETE_FORMATS:
+      str = "FRAMEBUFFER_INCOMPLETE_FORMATS";
+      break;
+#endif
+#ifdef GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER
+    case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+      str = "FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER";
+      break;
+#endif
+#ifdef GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER
+    case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
+      str = "FRAMEBUFFER_INCOMPLETE_READ_BUFFER";
+      break;
+#endif
+    default:
+      str = "Unknown status";
+    }
   if (!ok)
     {
-    vtkErrorMacro("The framebuffer is incomplete : " << desc);
+    vtkErrorMacro("The framebuffer is incomplete : " << str);
     return 0;
     }
   return 1;
