@@ -119,6 +119,9 @@ public:
     this->Extents[5] = VTK_INT_MIN;
 
     this->MaskTextures = new vtkMapMaskTextureId;
+
+    this->ContextCache = 0;
+    this->ContextChanged = false;
     }
 
   // Destructor
@@ -318,6 +321,9 @@ public:
 
   vtkShaderProgram* ShaderProgram;
   vtkOpenGLShaderCache* ShaderCache;
+
+  vtkWeakPointer<vtkOpenGLRenderWindow> ContextCache;
+  bool ContextChanged;
 };
 
 //----------------------------------------------------------------------------
@@ -1344,7 +1350,8 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::IsCameraInside(
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateVolumeGeometry(
   vtkRenderer* ren, vtkVolume* vol, vtkImageData* input)
 {
-  if (input->GetMTime() > this->InputUpdateTime.GetMTime() ||
+  if (this->ContextChanged ||
+      input->GetMTime() > this->InputUpdateTime.GetMTime() ||
       this->IsCameraInside(ren, vol) ||
       this->CameraWasInsideInLastUpdate)
     {
@@ -1860,6 +1867,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
     delete this->Impl->GradientOpacityTables;
     this->Impl->GradientOpacityTables = 0;
     }
+
+  this->Impl->ContextCache = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -2256,6 +2265,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 {
   vtkOpenGLClearErrorMacro();
 
+  this->Impl->ContextChanged = vtkOpenGLRenderWindow::SafeDownCast(
+                                  ren->GetRenderWindow()) !=
+                                  this->Impl->ContextCache;
   // Make sure the context is current
   ren->GetRenderWindow()->MakeCurrent();
 
@@ -2284,7 +2296,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   // Set OpenGL states
   vtkVolumeStateRAII glState;
 
-  if (volumeProperty->GetMTime() > this->Impl->InitializationTime.GetMTime())
+  if (this->Impl->ContextChanged ||
+      (volumeProperty->GetMTime() > this->Impl->InitializationTime.GetMTime()))
     {
     this->Impl->Initialize(ren, vol, noOfComponents,
                            independentComponents);
@@ -2314,7 +2327,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 
   // Update the volume if needed
   bool volumeModified = false;
-  if (input->GetMTime() > this->Impl->InputUpdateTime.GetMTime())
+  if (this->Impl->ContextChanged ||
+      (input->GetMTime() > this->Impl->InputUpdateTime.GetMTime()))
     {
     volumeModified = true;
     input->GetDimensions(this->Impl->Dimensions);
@@ -2354,7 +2368,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
   this->Impl->ShaderCache = renWin->GetShaderCache();
 
-  if (volumeProperty->GetMTime() >
+  if (this->Impl->ContextChanged ||
+      volumeProperty->GetMTime() >
       this->Impl->ShaderBuildTime.GetMTime() ||
       this->GetMTime() > this->Impl->ShaderBuildTime.GetMTime() ||
       ren->GetActiveCamera()->GetParallelProjection() !=
@@ -2704,6 +2719,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     this->Impl->InputUpdateTime.Modified();
     }
 
+  this->Impl->ContextCache = vtkOpenGLRenderWindow::SafeDownCast(
+                              ren->GetRenderWindow());
   glFinish();
 
   vtkOpenGLCheckErrorMacro("failed after Render");

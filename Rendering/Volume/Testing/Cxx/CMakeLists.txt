@@ -40,6 +40,7 @@ set (OpenGLNew_OR_OpenGL2_CxxTests
   TestGPURayCastVolumePolyData.cxx
   TestGPURayCastVolumeRotation.cxx
   TestGPURayCastVolumeScale.cxx
+  TestGPURayCastReleaseResources.cxx
   )
 
 if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
