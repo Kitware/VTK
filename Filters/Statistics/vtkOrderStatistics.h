@@ -140,7 +140,7 @@ protected:
                                     AssessFunctor*& dfunc );
 //ETX
 
-  int NumberOfIntervals;
+  vtkIdType NumberOfIntervals;
   QuantileDefinitionType QuantileDefinition;
   bool Quantize;
   vtkIdType MaximumHistogramSize;
