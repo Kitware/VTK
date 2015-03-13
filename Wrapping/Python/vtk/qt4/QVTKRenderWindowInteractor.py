@@ -186,8 +186,12 @@ class QVTKRenderWindowInteractor(QtGui.QWidget):
         self.setFocusPolicy(QtCore.Qt.WheelFocus)
         self.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding))
 
+        self._timers = {}
+
+        """
         self._Timer = QtCore.QTimer(self)
         self.connect(self._Timer, QtCore.SIGNAL('timeout()'), self.TimerEvent)
+        """
 
         self._Iren.AddObserver('CreateTimerEvent', self.CreateTimer)
         self._Iren.AddObserver('DestroyTimerEvent', self.DestroyTimer)
@@ -218,11 +222,27 @@ class QVTKRenderWindowInteractor(QtGui.QWidget):
         self._RenderWindow.Finalize()
 
     def CreateTimer(self, obj, evt):
-        self._Timer.start(10)
+        timer_id = self.GetTimerEventId()
+        timer_duration = self.GetTimerDuration(timer_id)
+        timer_type = self.GetTimerEventType()
+
+        t = QtCore.QTimer()
+        t.connect(t, QtCore.SIGNAL("timeout()"), self.TimerEvent)
+        if timer_type == self.OneShotTimer:
+            t.setSingleShot(True)
+        else:
+            t.setSingleShot(False)
+        t.start(timer_duration)
+        self._timers[timer_id] = t
+
 
     def DestroyTimer(self, obj, evt):
-        self._Timer.stop()
-        return 1
+        timer_id = self.GetTimerEventId()
+        if timer_id in self._timers:
+            self._timers[timer_id].stop()
+            del self._timers[timer_id]
+            return 1
+        return 0
 
     def TimerEvent(self):
         self._Iren.TimerEvent()
