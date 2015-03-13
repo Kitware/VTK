@@ -349,7 +349,7 @@ void vtkWin32VideoSource::Initialize()
     }
 
   // set user data for callbacks
-  if (!capSetUserData(this->Internal->CapWnd,(long)this))
+  if (!capSetUserData(this->Internal->CapWnd,this))
     {
     vtkErrorMacro(<< "Initialize: couldn't set user data for callback"\
                     << " (" << GetLastError() << ")");
