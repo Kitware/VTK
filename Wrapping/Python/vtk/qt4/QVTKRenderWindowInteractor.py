@@ -188,11 +188,6 @@ class QVTKRenderWindowInteractor(QtGui.QWidget):
 
         self._timers = {}
 
-        """
-        self._Timer = QtCore.QTimer(self)
-        self.connect(self._Timer, QtCore.SIGNAL('timeout()'), self.TimerEvent)
-        """
-
         self._Iren.AddObserver('CreateTimerEvent', self.CreateTimer)
         self._Iren.AddObserver('DestroyTimerEvent', self.DestroyTimer)
         self._Iren.GetRenderWindow().AddObserver('CursorChangedEvent',
