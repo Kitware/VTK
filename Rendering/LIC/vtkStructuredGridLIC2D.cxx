@@ -772,7 +772,7 @@ int vtkStructuredGridLIC2D::RequestData(
     {
     float lic = pLicOut[3*i];
     float mask = pLicOut[3*i+1];
-    if ( mask )
+    if ( mask != 0.0f )
       {
       pLicOut[3*i+1] = pLicOut[3*i+2] = pLicOut[3*i] = 0.0f;
       }

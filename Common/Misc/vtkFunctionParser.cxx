@@ -828,7 +828,7 @@ bool vtkFunctionParser::Evaluate()
         int valTrue = stackPosition - 1;
         int boolArg = stackPosition;
 
-        if (this->Stack[boolArg])
+        if (this->Stack[boolArg] != 0.0)
           this->Stack[result] = this->Stack[valTrue];
         else
           this->Stack[result] = this->Stack[valFalse];
@@ -848,7 +848,7 @@ bool vtkFunctionParser::Evaluate()
         int zValTrue = stackPosition - 1;
         int boolArg = stackPosition;
 
-        if (this->Stack[boolArg])
+        if (this->Stack[boolArg] != 0.0)
           {
           this->Stack[xResult] = this->Stack[xValTrue];
           this->Stack[yResult] = this->Stack[yValTrue];
