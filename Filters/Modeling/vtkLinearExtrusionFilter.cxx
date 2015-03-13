@@ -95,7 +95,7 @@ int vtkLinearExtrusionFilter::RequestData(
   vtkIdType *pts = 0;
   vtkIdType npts = 0;
   vtkIdType ptId, ncells, p1, p2;
-  int i, j;
+  vtkIdType i, j;
   double x[3];
   vtkPoints *newPts;
   vtkCellArray *newLines=NULL, *newPolys=NULL, *newStrips;

@@ -118,7 +118,7 @@ int vtkExtractEdges::RequestData(
 
   // Loop over all cells, extracting non-visited edges.
   //
-  int tenth = numCells/10 + 1;
+  vtkIdType tenth = numCells/10 + 1;
   for (cellNum=0; cellNum < numCells && !abort; cellNum++ )
     {
     if ( ! (cellNum % tenth) ) //manage progress reports / early abort

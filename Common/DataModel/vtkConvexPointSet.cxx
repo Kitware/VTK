@@ -101,8 +101,7 @@ vtkCell *vtkConvexPointSet::GetFace(int faceId)
 int vtkConvexPointSet::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
                                    vtkPoints *pts)
 {
-  int numPts=this->GetNumberOfPoints();
-  int i;
+  vtkIdType numPts=this->GetNumberOfPoints();
   double x[3];
   vtkIdType ptId;
 
@@ -123,7 +122,7 @@ int vtkConvexPointSet::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
   // according to point id. We insert points with id == the index into the
   // vtkConvexPointSet::PointIds and Points; but sort on the global point
   // id.
-  for (i=0; i<numPts; i++)
+  for (vtkIdType i=0; i<numPts; i++)
     {
     ptId = this->PointIds->GetId(i);
     this->Points->GetPoint(i, x);
@@ -150,12 +149,11 @@ void vtkConvexPointSet::Contour(double value,
                                 vtkCellData *outCd)
 {
   // For each tetra, contour it
-  int i, j;
   vtkIdType ptId, localId;
-  int numTets = this->TetraIds->GetNumberOfIds() / 4;
-  for (i=0; i<numTets; i++)
+  vtkIdType numTets = this->TetraIds->GetNumberOfIds() / 4;
+  for (vtkIdType i=0; i<numTets; i++)
     {
-    for (j=0; j<4; j++)
+    for (vtkIdType j=0; j<4; j++)
       {
       localId = this->TetraIds->GetId(4*i+j);
       ptId = this->PointIds->GetId(localId);

@@ -139,7 +139,7 @@ int vtkExtractVectorComponents::RequestData(
   vtkDataSet *output = vtkDataSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  int numVectors = 0, numVectorsc = 0;
+  vtkIdType numVectors = 0, numVectorsc = 0;
   vtkDataArray *vectors, *vectorsc;
   vtkDataArray *vx, *vy, *vz;
   vtkDataArray *vxc, *vyc, *vzc;

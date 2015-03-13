@@ -112,8 +112,8 @@ int vtkBivariateLinearTableThreshold::RequestData(vtkInformation* vtkNotUsed(req
   outRowIdsTable->AddColumn(outIds);
 
   outRowDataTable->Initialize();
-  int numColumns = inTable->GetNumberOfColumns();
-  for (int i=0; i<numColumns; i++)
+  vtkIdType numColumns = inTable->GetNumberOfColumns();
+  for (vtkIdType i=0; i<numColumns; i++)
     {
     vtkDataArray* a = vtkDataArray::CreateDataArray(inTable->GetColumn(i)->GetDataType());
     a->SetNumberOfComponents(inTable->GetColumn(i)->GetNumberOfComponents());
@@ -122,7 +122,7 @@ int vtkBivariateLinearTableThreshold::RequestData(vtkInformation* vtkNotUsed(req
     a->Delete();
     }
 
-  for (int i=0; i<outIds->GetNumberOfTuples(); i++)
+  for (vtkIdType i=0; i<outIds->GetNumberOfTuples(); i++)
     {
     outRowDataTable->InsertNextRow(inTable->GetRow(outIds->GetValue(i)));
     }
@@ -245,7 +245,7 @@ int vtkBivariateLinearTableThreshold::ApplyThreshold(vtkTable* tableToThreshold,
     }
 
   acceptedIds->Initialize();
-  int numTuples = a1->GetNumberOfTuples();
+  vtkIdType numTuples = a1->GetNumberOfTuples();
   double v1,v2;
   for (int i=0; i<numTuples; i++)
     {

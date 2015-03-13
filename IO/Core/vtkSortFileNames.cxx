@@ -177,8 +177,8 @@ void vtkSortFileNames::GroupFileNames(vtkStringArray *input,
   std::list<unsigned int> ungroupedFiles;
   std::vector<std::string> reducedFileNames;
 
-  unsigned int numberOfStrings = input->GetNumberOfValues();
-  for (unsigned int i = 0; i < numberOfStrings; i++)
+  vtkIdType numberOfStrings = input->GetNumberOfValues();
+  for (vtkIdType i = 0; i < numberOfStrings; i++)
     {
     std::string& fileName = input->GetValue(i);
     extension = vtksys::SystemTools::GetFilenameLastExtension(fileName);
@@ -507,8 +507,8 @@ void vtkSortFileNames::SortFileNames(vtkStringArray *input,
 {
   // convert vtkStringArray into an STL vector
   std::vector<std::string> fileNames;
-  unsigned int numberOfStrings = input->GetNumberOfValues();
-  for (unsigned int j = 0; j < numberOfStrings; j++)
+  vtkIdType numberOfStrings = input->GetNumberOfValues();
+  for (vtkIdType j = 0; j < numberOfStrings; j++)
     {
     std::string& fileName = input->GetValue(j);
 

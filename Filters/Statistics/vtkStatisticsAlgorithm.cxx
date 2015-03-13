@@ -348,10 +348,10 @@ void vtkStatisticsAlgorithm::Assess( vtkTable* inData,
       }
 
     // Store names to be able to use SetValueByName, and create the outData columns
-    int nAssessments = this->AssessNames->GetNumberOfValues();
+    vtkIdType nAssessments = this->AssessNames->GetNumberOfValues();
     vtkStdString* names = new vtkStdString[nAssessments];
     vtkIdType nRowData = inData->GetNumberOfRows();
-    for ( int a = 0; a < nAssessments; ++ a )
+    for ( vtkIdType a = 0; a < nAssessments; ++ a )
       {
       // Prepare string for numVariables-tuple of variable names
       vtksys_ios::ostringstream assessColName;
@@ -398,7 +398,7 @@ void vtkStatisticsAlgorithm::Assess( vtkTable* inData,
         {
         // Apply functor
         (*dfunc)( assessResult, r );
-        for ( int a = 0; a < nAssessments; ++ a )
+        for ( vtkIdType a = 0; a < nAssessments; ++ a )
           {
           // Store each assessment value in corresponding assessment column
           outData->SetValueByName( r,
