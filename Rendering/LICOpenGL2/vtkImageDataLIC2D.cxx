@@ -498,14 +498,14 @@ int vtkImageDataLIC2D::RequestData(
 
   vtkPixelTransfer::Blit(
         noiseExt,
-        2,
+        1,
         inNoise->GetDataType(),
         inNoise->GetVoidPointer(0),
         VTK_FLOAT,
         noisePBO->MapUnpackedBuffer(
         VTK_FLOAT,
         static_cast<unsigned int>(noiseExt.Size()),
-        2));
+        1));
 
   noisePBO->UnmapUnpackedBuffer();
 
@@ -514,7 +514,7 @@ int vtkImageDataLIC2D::RequestData(
 
   vtkTextureObject *noiseTex = vtkTextureObject::New();
   noiseTex->SetContext(this->Context);
-  noiseTex->Create2D(noiseTexSize[0], noiseTexSize[1], 2, noisePBO, false);
+  noiseTex->Create2D(noiseTexSize[0], noiseTexSize[1], 1, noisePBO, false);
 
   noisePBO->Delete();
 
