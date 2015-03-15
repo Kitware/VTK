@@ -21,7 +21,6 @@
 #include "vtkFrameBufferObject.h"
 #include "vtkTextureObject.h"
 #include "vtkOpenGLRenderWindow.h"
-#include "vtkTextureUnitManager.h"
 #include "vtkOpenGLError.h"
 #include "vtkShaderProgram.h"
 #include "vtkOpenGLShaderCache.h"

@@ -50,7 +50,7 @@ void vtkTextureUnitManager::DeleteTable()
     bool valid=true;
     while(valid && i<c)
       {
-      valid = this->TextureUnits[i] > 0 ? false : true;
+      valid = !this->TextureUnits[i];
       ++i;
       }
     if(!valid)
@@ -78,12 +78,12 @@ void vtkTextureUnitManager::SetContext(vtkOpenGLRenderWindow *context)
       glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &this->NumberOfTextureUnits);
       if(this->NumberOfTextureUnits > 0)
         {
-        this->TextureUnits = new unsigned int[this->NumberOfTextureUnits];
+        this->TextureUnits = new bool [this->NumberOfTextureUnits];
         size_t i=0;
         size_t c=this->NumberOfTextureUnits;
         while(i<c)
           {
-          this->TextureUnits[i]=0;
+          this->TextureUnits[i]=false;
           ++i;
           }
         }
@@ -114,7 +114,7 @@ int vtkTextureUnitManager::Allocate()
   size_t c=this->NumberOfTextureUnits;
   while(!found && i<c)
     {
-    found = (this->TextureUnits[i] > 0 ? false : true);
+    found = !this->TextureUnits[i];
     ++i;
     }
 
@@ -122,20 +122,11 @@ int vtkTextureUnitManager::Allocate()
   if(found)
     {
     result=static_cast<int>(i-1);
-    this->TextureUnits[result] += 1;
+    this->TextureUnits[result] = true;
     }
   else
     {
-    int leastUsed = 0;
-    for (int j = 0; j < this->NumberOfTextureUnits; ++j)
-      {
-      if (this->TextureUnits[j] < this->TextureUnits[leastUsed])
-        {
-        leastUsed = j;
-        }
-      }
-    this->TextureUnits[leastUsed] += 1;
-    result = leastUsed;
+    result = -1;
     }
 
   assert("post: valid_result" && (result==-1 || (result>=0 && result<this->GetNumberOfTextureUnits())));
@@ -150,7 +141,7 @@ int vtkTextureUnitManager::Allocate()
 bool vtkTextureUnitManager::IsAllocated(int textureUnitId)
 {
   assert("pre: valid_textureUnitId_range" && textureUnitId>=0 && textureUnitId<this->GetNumberOfTextureUnits());
-  return (this->TextureUnits[textureUnitId] > 0 ? true : false);
+  return (this->TextureUnits[textureUnitId] ? true : false);
 }
 
 // ----------------------------------------------------------------------------
@@ -163,14 +154,7 @@ void vtkTextureUnitManager::Free(int textureUnitId)
   assert("pre: valid_textureUnitId" && (textureUnitId>=0 && textureUnitId<this->GetNumberOfTextureUnits()));
 //  assert("pre: allocated_textureUnitId" && this->IsAllocated(textureUnitId));
 
-  if (this->TextureUnits[textureUnitId] >= 1)
-    {
-    this->TextureUnits[textureUnitId] -= 1;
-    }
-  else
-    {
-    this->TextureUnits[textureUnitId] = 0;
-    }
+  this->TextureUnits[textureUnitId] = false;
 }
 
 // ----------------------------------------------------------------------------

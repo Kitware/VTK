@@ -18,7 +18,16 @@
 #include "vtkSetGet.h"
 #include "vtk_glew.h"
 
+#ifndef NDEBUG
+// debug build.
 #cmakedefine VTK_REPORT_OPENGL_ERRORS
+#else // NDEBUG
+// release build
+#cmakedefine VTK_REPORT_OPENGL_ERRORS_IN_RELEASE_BUILDS
+#if defined(VTK_REPORT_OPENGL_ERRORS_IN_RELEASE_BUILDS)
+#cmakedefine VTK_REPORT_OPENGL_ERRORS
+#endif // defined(VTK_REPORT_OPENGL_ERRORS_IN_RELEASE_BUILDS)
+#endif // NDEBUG
 
 // Description:
 // The following functions can be used to detect and report, and/or

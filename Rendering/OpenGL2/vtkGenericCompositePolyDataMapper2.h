@@ -82,6 +82,12 @@ public:
   void RemoveBlockOpacity(unsigned int index);
   void RemoveBlockOpacities();
 
+  // Description:
+  // Release any graphics resources that are being consumed by this mapper.
+  // The parameter window could be used to determine which graphic
+  // resources to release.
+  void ReleaseGraphicsResources(vtkWindow *);
+
 //BTX
 protected:
   vtkGenericCompositePolyDataMapper2();

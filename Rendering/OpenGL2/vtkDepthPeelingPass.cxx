@@ -128,10 +128,25 @@ void vtkDepthPeelingPass::ReleaseGraphicsResources(vtkWindow *w)
     {
     this->TranslucentPass->ReleaseGraphicsResources(w);
     }
-
-  if(this->TranslucentPass)
+  if (this->OpaqueZTexture)
     {
-    this->TranslucentPass->ReleaseGraphicsResources(w);
+    this->OpaqueZTexture->ReleaseGraphicsResources(w);
+    }
+  if (this->TranslucentZTexture)
+    {
+    this->TranslucentZTexture->ReleaseGraphicsResources(w);
+    }
+  if (this->OpaqueRGBATexture)
+    {
+    this->OpaqueRGBATexture->ReleaseGraphicsResources(w);
+    }
+  if (this->TranslucentRGBATexture)
+    {
+    this->TranslucentRGBATexture->ReleaseGraphicsResources(w);
+    }
+  if (this->CurrentRGBATexture)
+    {
+    this->CurrentRGBATexture->ReleaseGraphicsResources(w);
     }
 }
 

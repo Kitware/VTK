@@ -739,6 +739,9 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
       }
     sliceArray->Delete();
     }
+  // do not tie up the texture unit unless we are activly using it
+  // textures can exist without being active
+  this->VolumeTextureObject->Deactivate();
   return 1;
 }
 
@@ -1111,7 +1114,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateNoiseTexture(
     this->NoiseTextureObject->SetMagnificationFilter(vtkTextureObject::Nearest);
     this->NoiseTextureObject->SetMinificationFilter(vtkTextureObject::Nearest);
     this->NoiseTextureObject->SetBorderColor(0.0f, 0.0f, 0.0f, 0.0f);
-    this->NoiseTextureObject->Activate();
     }
 }
 
@@ -2713,6 +2715,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   glDrawElements(GL_TRIANGLES,
                  this->Impl->BBoxPolyData->GetNumberOfCells() * 3,
                  GL_UNSIGNED_INT, 0);
+
+  // relase the texture units we were using
+  this->Impl->VolumeTextureObject->Deactivate();
+  this->Impl->NoiseTextureObject->Deactivate();
+  this->Impl->DepthTextureObject->Deactivate();
 
   if (volumeModified)
     {

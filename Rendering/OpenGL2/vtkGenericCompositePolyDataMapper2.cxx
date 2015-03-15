@@ -621,6 +621,13 @@ void vtkGenericCompositePolyDataMapper2::FreeGenericStructures()
   this->ShadersInitialized.clear();
 }
 
+//-----------------------------------------------------------------------------
+void vtkGenericCompositePolyDataMapper2::ReleaseGraphicsResources(vtkWindow* win)
+{
+  this->FreeGenericStructures();
+  this->Superclass::ReleaseGraphicsResources(win);
+}
+
 // ---------------------------------------------------------------------------
 // Description:
 // Method initiates the mapping process. Generally sent by the actor
