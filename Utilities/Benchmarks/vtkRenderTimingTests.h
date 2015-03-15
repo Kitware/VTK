@@ -398,8 +398,9 @@ Define a test for volume rendering
 class volumeTest : public vtkRTTest
 {
   public:
-  volumeTest(const char *name) : vtkRTTest(name)
+  volumeTest(const char *name, bool withShading) : vtkRTTest(name)
     {
+    this->WithShading = withShading;
     }
 
   const char *GetSummaryResultName()
@@ -419,24 +420,36 @@ class volumeTest : public vtkRTTest
     ats->GetSequenceNumbers(res1,res2,res3);
 
     vtkNew<vtkRTAnalyticSource> wavelet;
-    wavelet->SetWholeExtent(0, 100*res1 -1,
-                            0, 100*res2 -1,
-                            0, 100*res3 -1);
+    wavelet->SetWholeExtent(-50*res1 - 1, 50*res1,
+                            -50*res2 - 1, 50*res2,
+                            -50*res3 - 1, 50*res3);
     wavelet->Update();
 
     vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
     volumeMapper->SetInputConnection(wavelet->GetOutputPort());
+    volumeMapper->AutoAdjustSampleDistancesOff();
+    volumeMapper->SetSampleDistance(0.9);
 
     vtkNew<vtkVolumeProperty> volumeProperty;
     vtkNew<vtkColorTransferFunction> ctf;
-    ctf->AddHSVPoint(37.3531, 0.3, 1.0, 1);
-    ctf->AddHSVPoint(100.091, 0.0, 1.0, 1.0);
-    ctf->AddHSVPoint(276.829, 0.0, 0.2, 1.0);
+    ctf->AddRGBPoint(33.34, 0.23, 0.3, 0.75);
+    ctf->AddRGBPoint(72.27, 0.79, 0.05, 0.22);
+    ctf->AddRGBPoint(110.3, 0.8, 0.75, 0.82);
+    ctf->AddRGBPoint(134.19, 0.78, 0.84, 0.04);
+    ctf->AddRGBPoint(159.84, 0.07, 0.87, 0.43);
+    ctf->AddRGBPoint(181.96, 0.84, 0.31, 0.48);
+    ctf->AddRGBPoint(213.803, 0.73, 0.62, 0.8);
+    ctf->AddRGBPoint(255.38, 0.75, 0.19, 0.05);
+    ctf->AddRGBPoint(286.33, 0.7, 0.02, 0.15);
     ctf->SetColorSpaceToHSV();
 
     vtkNew<vtkPiecewiseFunction> pwf;
-    pwf->AddPoint(37.3531, 0.0);
-    pwf->AddPoint(276.829, 1.0/res1);
+    pwf->AddPoint(33.35, 0.0);
+    pwf->AddPoint(81.99, 0.01);
+    pwf->AddPoint(128.88, 0.02);
+    pwf->AddPoint(180.19, 0.03);
+    pwf->AddPoint(209.38, 0.04);
+    pwf->AddPoint(286.33, 0.05);
 
     volumeProperty->SetColor(ctf.GetPointer());
     volumeProperty->SetScalarOpacity(pwf.GetPointer());
@@ -444,6 +457,10 @@ class volumeTest : public vtkRTTest
     vtkNew<vtkVolume> volume;
     volume->SetMapper(volumeMapper.GetPointer());
     volume->SetProperty(volumeProperty.GetPointer());
+    if (this->WithShading)
+      {
+      volumeProperty->ShadeOn();
+      }
 
     // create a rendering window and renderer
     vtkNew<vtkRenderer> ren1;
@@ -487,5 +504,7 @@ class volumeTest : public vtkRTTest
 
     return result;
     }
-};
 
+  protected:
+  bool WithShading;
+};

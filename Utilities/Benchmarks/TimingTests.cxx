@@ -44,7 +44,8 @@ int main( int argc, char *argv[] )
   a.TestsToRun.push_back(new moleculeTest("MoleculeAtomsOnly",true));
 #endif
 
-  a.TestsToRun.push_back(new volumeTest("Volume"));
+  a.TestsToRun.push_back(new volumeTest("Volume", false));
+  a.TestsToRun.push_back(new volumeTest("VolumeWithShading", true));
 
   // process them
   return a.ParseCommandLineArguments(argc, argv);

@@ -123,6 +123,27 @@ int TestTextActor3D(int, char *[])
   anchorActor->GetProperty()->SetPointSize(5);
   ren->AddActor(anchorActor.GetPointer());
 
+  // Add some various 'empty' actors to make sure there are no surprises:
+  vtkNew<vtkTextActor3D> nullInputActor;
+  nullInputActor->SetInput(NULL);
+  ren->AddActor(nullInputActor.GetPointer());
+
+  vtkNew<vtkTextActor3D> emptyInputActor;
+  emptyInputActor->SetInput("");
+  ren->AddActor(emptyInputActor.GetPointer());
+
+  vtkNew<vtkTextActor3D> spaceActor;
+  spaceActor->SetInput(" ");
+  ren->AddActor(spaceActor.GetPointer());
+
+  vtkNew<vtkTextActor3D> tabActor;
+  tabActor->SetInput("\t");
+  ren->AddActor(tabActor.GetPointer());
+
+  vtkNew<vtkTextActor3D> newlineActor;
+  newlineActor->SetInput("\n");
+  ren->AddActor(newlineActor.GetPointer());
+
   vtkNew<vtkRenderWindow> win;
   win->AddRenderer(ren.GetPointer());
   vtkNew<vtkRenderWindowInteractor> iren;

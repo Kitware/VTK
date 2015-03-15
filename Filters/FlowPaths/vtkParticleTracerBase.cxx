@@ -1143,7 +1143,7 @@ void vtkParticleTracerBase::IntegrateParticle(
           {
           if(previous.PointId <0)
             {
-            vtkWarningMacro("the particle should have been added");
+            vtkDebugMacro("the particle should have been added");
             }
           else
             {

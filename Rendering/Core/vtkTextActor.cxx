@@ -360,9 +360,7 @@ void vtkTextActor::SetInput(const char* str)
 {
   if(!str)
     {
-      vtkErrorMacro(
-        <<"vtkTextActor::SetInput was passed an uninitialized string");
-    return;
+    str = "";
     }
   if(this->Input)
     {
@@ -434,7 +432,7 @@ void vtkTextActor::ReleaseGraphicsResources(vtkWindow *win)
 // ----------------------------------------------------------------------------
 int vtkTextActor::RenderOverlay(vtkViewport *viewport)
 {
-  if (!this->Visibility)
+  if (!this->Visibility || !this->Input || !this->Input[0])
     {
     return 0;
     }

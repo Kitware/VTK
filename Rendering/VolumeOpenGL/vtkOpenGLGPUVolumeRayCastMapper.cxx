@@ -941,34 +941,9 @@ public:
                      *(dim[0]-cellFlag)+textureExtent[0])
                     *scalars->GetNumberOfComponents());
 
-                  if(1) // !this->SupportsPixelBufferObjects)
-                    {
-                    vtkgl::TexImage3D(vtkgl::TEXTURE_3D, 0, internalFormat,
-                                      textureSize[0],textureSize[1],textureSize[2],
-                                      0,format,type,dataPtr);
-                    }
-                  else
-                    {
-                    GLuint pbo=0;
-                    vtkgl::GenBuffers(1,&pbo);
-                    vtkOpenGLStaticCheckErrorMacro("genbuffer");
-                    vtkgl::BindBuffer(vtkgl::PIXEL_UNPACK_BUFFER,pbo);
-                    vtkOpenGLStaticCheckErrorMacro("binbuffer");
-                    vtkgl::GLsizeiptr texSize=
-                      textureSize[0]*textureSize[1]*textureSize[2]*
-                      vtkAbstractArray::GetDataTypeSize(scalarType)*
-                      scalars->GetNumberOfComponents();
-                    vtkgl::BufferData(vtkgl::PIXEL_UNPACK_BUFFER,texSize,dataPtr,
-                                      vtkgl::STREAM_DRAW);
-                    vtkOpenGLStaticCheckErrorMacro("bufferdata");
-                    vtkgl::TexImage3D(vtkgl::TEXTURE_3D, 0, internalFormat,
-                                      textureSize[0],textureSize[1],textureSize[2],
-                                      0,format,type,0);
-                    vtkOpenGLStaticCheckErrorMacro("teximage3d");
-                    vtkgl::BindBuffer(vtkgl::PIXEL_UNPACK_BUFFER,0);
-                    vtkOpenGLStaticCheckErrorMacro("bindbuffer to 0");
-                    vtkgl::DeleteBuffers(1,&pbo);
-                    }
+                  vtkgl::TexImage3D(vtkgl::TEXTURE_3D, 0, internalFormat,
+                                    textureSize[0],textureSize[1],textureSize[2],
+                                    0,format,type,dataPtr);
                   vtkOpenGLStaticCheckErrorMacro("3d texture is too large2");
                   // make sure TexImage3D is executed with our PixelTransfer mode
                   glFinish();
