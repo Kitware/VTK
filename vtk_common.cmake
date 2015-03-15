@@ -188,7 +188,7 @@ if(NOT DEFINED dashboard_git_url)
   if (dashboard_do_superbuild)
     set(dashboard_git_url "https://github.com/demarle/VTK-superbuild.git")
   else()
-    set(dashboard_git_url "git://vtk.org/VTK.git")
+    set(dashboard_git_url "https://gitlab.kitware.com/vtk/vtk.git")
   endif()
 endif()
 
