@@ -18,6 +18,7 @@
 #include "vtkBitArray.h"
 #include "vtkMath.h"
 #include "vtkMathConfigure.h"
+#include "vtkMutexLock.h"
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
 #include "vtkVariantArray.h"
@@ -81,6 +82,8 @@ vtkLookupTable::vtkLookupTable(int sze, int ext)
   this->Scale = VTK_SCALE_LINEAR;
 
   this->OpaqueFlag=1;
+
+  this->ResizeMutex = vtkSimpleMutexLock::New();
 }
 
 //----------------------------------------------------------------------------
@@ -88,6 +91,7 @@ vtkLookupTable::~vtkLookupTable()
 {
   this->Table->UnRegister( this );
   this->Table = NULL;
+  this->ResizeMutex->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -641,8 +645,8 @@ namespace {
 
 //----------------------------------------------------------------------------
 template<class T>
-void vtkLookupTableMapData(vtkLookupTable *self, T *input,
-                           unsigned char *output, int length,
+void vtkLookupTableMapData(vtkLookupTable *self, vtkSimpleMutexLock *mutex,
+                           T *input, unsigned char *output, int length,
                            int inIncr, int outFormat, TableParameters & p)
 {
   int i = length;
@@ -654,14 +658,24 @@ void vtkLookupTableMapData(vtkLookupTable *self, T *input,
   // end. When this function is called repeatedly with the same size
   // lookup table, memory reallocation will be done only one the first
   // call if at all.
+
   vtkUnsignedCharArray* lookupTable = self->GetTable();
   vtkIdType numberOfColors = lookupTable->GetNumberOfTuples();
   vtkIdType neededSize = (numberOfColors + vtkLookupTable::NUMBER_OF_SPECIAL_COLORS) *
     lookupTable->GetNumberOfComponents();
+
+  // Since this involves a potential array resize and this function
+  // might be accessed concurently from more than one thread, we need a
+  // mutex here. This shouldn't affect performance much if this function
+  // is used to map many input values, but if it is called repeatedly
+  // with short input arrays, performance may be much worse.
+  mutex->Lock();
   if (lookupTable->GetSize() < neededSize)
     {
     lookupTable->Resize(numberOfColors + vtkLookupTable::NUMBER_OF_SPECIAL_COLORS);
     }
+  mutex->Unlock();
+
   unsigned char* table = lookupTable->GetPointer(0);
 
   // Writing directly to the memory location instead of adding them
@@ -1159,7 +1173,7 @@ void vtkLookupTable::MapScalarsThroughTable2(void *input,
           {
           newInput->SetValue(i, bitArray->GetValue(id));
           }
-        vtkLookupTableMapData(this,
+        vtkLookupTableMapData(this, this->ResizeMutex,
                               static_cast<unsigned char*>(newInput->GetPointer(0)),
                               output, numberOfValues,
                               inputIncrement, outputFormat, p);
@@ -1169,7 +1183,7 @@ void vtkLookupTable::MapScalarsThroughTable2(void *input,
         break;
 
       vtkTemplateMacro(
-        vtkLookupTableMapData(this,static_cast<VTK_TT*>(input),output,
+        vtkLookupTableMapData(this, this->ResizeMutex, static_cast<VTK_TT*>(input),output,
                               numberOfValues, inputIncrement, outputFormat, p)
         );
       default:
