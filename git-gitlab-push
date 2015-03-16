@@ -22,6 +22,9 @@ OPTIONS
 --dry-run
     Show what would be pushed without actually updating the destination
 
+-f,--force
+    Force-push the topic HEAD to rewrite the destination branch
+
 --no-default
     Do not push the default branch (e.g. master)
 
@@ -56,6 +59,7 @@ gitlab_configured=1
 
 remote=''
 refspecs=''
+force=''
 no_topic=''
 no_default=''
 dry_run=''
@@ -63,6 +67,7 @@ dry_run=''
 # Parse the command line options.
 while test $# != 0; do
 	case "$1" in
+		-f|--force)   force='+' ;;
 		--no-topic)   no_topic=1 ;;
 		--dry-run)    dry_run=--dry-run ;;
 		--no-default) no_default=1 ;;
@@ -85,7 +90,7 @@ if test -z "$no_topic"; then
 		git checkout -b descriptive-name'
 	fi
 	# The topic branch will be pushed by name.
-	refspecs="+HEAD:refs/heads/$topic $refspecs"
+	refspecs="${force}HEAD:refs/heads/$topic $refspecs"
 fi
 
 # Fetch the current remote master branch head.
@@ -120,8 +125,16 @@ fi
 
 # Push.  Save output and exit code.
 echo "Pushing to $remote"
-push_stdout=$(git push --porcelain $dry_run "$remote" $refspecs); push_exit=$?
+push_config='-c advice.pushUpdateRejected=false'
+push_stdout=$(git $push_config push --porcelain $dry_run "$remote" $refspecs); push_exit=$?
 echo "$push_stdout"
+
+# Advise the user to force-push if needed.
+if test "$push_exit" -ne 0 && test -z "$force" &&
+   echo "$push_stdout" | egrep-q 'non-fast-forward'; then
+	echo '
+Add "-f" or "--force" to push a rewritten topic.'
+fi
 
 # Tell the user what to do next with the topic in GitLab.
 if test -z "$no_topic" &&
