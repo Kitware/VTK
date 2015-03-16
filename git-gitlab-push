@@ -15,7 +15,19 @@
 # limitations under the License.
 #=============================================================================
 
-USAGE="[<remote>] [--no-topic] [--no-default] [--dry-run] [--]"
+USAGE='[<remote>] [<options>...] [--]
+
+OPTIONS
+
+--dry-run
+    Show what would be pushed without actually updating the destination
+
+--no-default
+    Do not push the default branch (e.g. master)
+
+--no-topic
+    Do not push the topic HEAD.
+'
 OPTIONS_SPEC=
 SUBDIRECTORY_OK=Yes
 . "$(git --exec-path)/git-sh-setup"
