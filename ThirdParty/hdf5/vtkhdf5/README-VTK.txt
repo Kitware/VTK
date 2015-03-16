@@ -47,9 +47,6 @@ content.  Then push the changes back up to the main repository:
  cd ..
  rm -rf hdf5-tmp
 
-Make sure your commit in 'hdf5-upstream' has a 'Change-Id: ...', otherwise
-you won't be able to commit your change into gerrit.
-
 Create a topic in the main repository on which to perform the update:
 
  git checkout -b update-hdf5 master
