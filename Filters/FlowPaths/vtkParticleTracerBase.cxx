@@ -270,19 +270,6 @@ int vtkParticleTracerBase::RequestInformation(
 
   return 1;
 }
-namespace
-{
-//----------------------------------------------------------------------------
-  class WithinTolerance: public std::binary_function<double, double, bool>
-  {
-  public:
-    result_type operator()(first_argument_type a, second_argument_type b) const
-    {
-      bool result = (fabs(a-b)<=(a*1E-6));
-      return (result_type)result;
-    }
-  };
-}
 
 //----------------------------------------------------------------------------
 int vtkParticleTracerBase::RequestUpdateExtent(

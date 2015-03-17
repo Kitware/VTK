@@ -26,12 +26,6 @@ namespace
 {
 struct ObjectId
 {
-  ObjectId()
-  {
-    this->GlobalId = 0;
-    this->Object = NULL;
-  }
-
   ObjectId(vtkTypeUInt32 id)
   {
     this->GlobalId = id;
@@ -62,48 +56,6 @@ struct ObjectId
     this->Object = other.Object;
     return *this;
   }
-
-  ObjectId& operator=(vtkTypeUInt32 id)
-  {
-    this->GlobalId = id;
-    this->Object = NULL;
-    return *this;
-  }
-
-  ObjectId& operator=(vtkObject* obj)
-  {
-    this->GlobalId = 0;
-    this->Object = obj;
-    return *this;
-  }
-
-  bool operator==(const ObjectId &other) const
-  {
-    if (this == &other)
-      {
-      // Same object?
-      return true;
-      }
-
-    if( this->GlobalId != 0 && other.GlobalId != 0
-        && this->GlobalId != other.GlobalId)
-      {
-      return false;
-      }
-
-    if( this->Object.GetPointer() != NULL && other.Object.GetPointer() != NULL
-        && this->Object.GetPointer() != other.Object.GetPointer())
-      {
-      return false;
-      }
-
-    return true;
-  }
-
-   bool operator!=(const ObjectId &other) const
-   {
-     return !(*this == other);
-   }
 
    bool operator<(const ObjectId &other) const
    {

@@ -240,15 +240,8 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
       {
       this->SourceMappers = new vtkOpenGLGlyph3DMapperArray();
       }
-    if (/*indexArray*/ true)
-      {
-      this->SourceMappers->Mappers.resize(
-        static_cast<size_t>(numberOfSources));
-      }
-    else
-      {
-      this->SourceMappers->Mappers.resize(1);
-      }
+    this->SourceMappers->Mappers.resize(
+      static_cast<size_t>(numberOfSources));
     for (size_t cc = 0; cc < this->SourceMappers->Mappers.size(); cc++)
       {
       vtkPolyData *s = this->GetSource(static_cast<int>(cc));
