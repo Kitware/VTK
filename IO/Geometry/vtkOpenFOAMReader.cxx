@@ -504,9 +504,16 @@ protected:
       case IDENTIFIER:
         this->String = new vtkStdString(*value.String);
         break;
-        // required to suppress the 'enumeration value not handled' warning by
-        // g++ when compiled with -Wall
-      default:
+      case UNDEFINED:
+      case STRINGLIST:
+      case LABELLIST:
+      case SCALARLIST:
+      case VECTORLIST:
+      case LABELLISTLIST:
+      case ENTRYVALUELIST:
+      case EMPTYLIST:
+      case DICTIONARY:
+      case TOKEN_ERROR:
         break;
       }
   }
@@ -653,9 +660,15 @@ public:
       case IDENTIFIER:
         str << *value.String;
         break;
-        // required to suppress the 'enumeration value not handled' warning by
-        // g++ when compiled with -Wall
-      default:
+      case UNDEFINED:
+      case STRINGLIST:
+      case LABELLIST:
+      case SCALARLIST:
+      case VECTORLIST:
+      case LABELLISTLIST:
+      case ENTRYVALUELIST:
+      case EMPTYLIST:
+      case DICTIONARY:
         break;
       }
     return str;
@@ -3102,8 +3115,13 @@ vtkFoamEntryValue::vtkFoamEntryValue(
       break;
     case EMPTYLIST:
       break;
-      // required to suppress the 'enumeration value not handled' warning by
-      // g++ when compiled with -Wall
+    case UNDEFINED:
+    case PUNCTUATION:
+    case LABEL:
+    case SCALAR:
+    case STRING:
+    case IDENTIFIER:
+    case TOKEN_ERROR:
     default:
       break;
     }
@@ -3134,8 +3152,14 @@ void vtkFoamEntryValue::Clear()
       case DICTIONARY:
         delete this->DictPtr;
         break;
-        // required to suppress the 'enumeration value not handled' warning by
-        // g++ when compiled with -Wall
+      case UNDEFINED:
+      case PUNCTUATION:
+      case LABEL:
+      case SCALAR:
+      case STRING:
+      case IDENTIFIER:
+      case TOKEN_ERROR:
+      case EMPTYLIST:
       default:
         break;
       }

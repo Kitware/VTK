@@ -482,6 +482,8 @@ void DICOMAppHelper::ArrayCallback(DICOMParser *parser,
         uival = DICOMFile::ReturnAsUnsignedShort(val, parser->GetDICOMFile()->GetPlatformIsBigEndian());
         HeaderFile << uival;
         break;
+      case DICOMParser::VR_UNKNOWN:
+      case DICOMParser::VR_AW:
       default:
         HeaderFile << val << dicom_stream::endl;
         break;
