@@ -91,6 +91,11 @@ vtkImageDataLIC2D::vtkImageDataLIC2D()
 vtkImageDataLIC2D::~vtkImageDataLIC2D()
 {
   this->NoiseSource->Delete();
+  if (this->MagShader)
+    {
+    this->MagShader->Delete();
+    this->MagShader = NULL;
+    }
   this->SetContext(NULL);
 }
 
@@ -162,6 +167,7 @@ int vtkImageDataLIC2D::SetContext(vtkRenderWindow * renWin)
     if (prog->GetLastBuildStatus() != VTK_SHADER_PROGRAM2_LINK_SUCCEEDED)
       {
       vtkErrorMacro("failed to build the magnification fragment shader");
+      prog->Delete();
       return 0;
       }
     this->MagShader = prog;
@@ -466,7 +472,7 @@ int vtkImageDataLIC2D::RequestData(
   magVectorExtent.Size(magVectorSize);
 
   vtkTextureObject *magVectorTex = vectorTex;
-  if (this->Magnification > 1)
+  if (this->Magnification > 1 && this->MagShader)
     {
     this->MagShader->UseProgram();
     this->MagShader->SetUniformi("texVectors", 0);
@@ -528,14 +534,14 @@ int vtkImageDataLIC2D::RequestData(
 
   vtkPixelTransfer::Blit(
         noiseExt,
-        2,
+        1,
         inNoise->GetDataType(),
         inNoise->GetVoidPointer(0),
         VTK_FLOAT,
         noisePBO->MapUnpackedBuffer(
         VTK_FLOAT,
         static_cast<unsigned int>(noiseExt.Size()),
-        2));
+        1));
 
   noisePBO->UnmapUnpackedBuffer();
 
@@ -544,7 +550,7 @@ int vtkImageDataLIC2D::RequestData(
 
   vtkTextureObject *noiseTex = vtkTextureObject::New();
   noiseTex->SetContext(this->Context);
-  noiseTex->Create2D(noiseTexSize[0], noiseTexSize[1], 2, noisePBO, false);
+  noiseTex->Create2D(noiseTexSize[0], noiseTexSize[1], 1, noisePBO, false);
 
   noisePBO->Delete();
 
