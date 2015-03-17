@@ -19,6 +19,7 @@
 #include "vtkCellData.h"
 #include "vtkFloatArray.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkImageCast.h"
 #include "vtkImageData.h"
 #include "vtkImageNoiseSource.h"
 #include "vtkInformation.h"
@@ -75,6 +76,10 @@ vtkImageDataLIC2D::vtkImageDataLIC2D()
   this->NoiseSource->SetMinimum(0.0);
   this->NoiseSource->SetMaximum(1.0);
 
+  this->ImageCast = vtkImageCast::New();
+  this->ImageCast->SetOutputScalarTypeToFloat();
+  this->ImageCast->SetInputConnection(this->NoiseSource->GetOutputPort(0));
+
   this->SetNumberOfInputPorts(2);
 
   // by default process active point vectors
@@ -91,6 +96,7 @@ vtkImageDataLIC2D::vtkImageDataLIC2D()
 vtkImageDataLIC2D::~vtkImageDataLIC2D()
 {
   this->NoiseSource->Delete();
+  this->ImageCast->Delete();
   if (this->MagShader)
     {
     this->MagShader->Delete();
@@ -395,8 +401,8 @@ int vtkImageDataLIC2D::RequestData(
 
   if ( !noise )
     {
-    this->NoiseSource->Update();
-    noise = this->NoiseSource->GetOutput();
+    this->ImageCast->Update();
+    noise = this->ImageCast->GetOutput();
     }
 
   int comp[3] = {0, 0, 0};
@@ -531,17 +537,23 @@ int vtkImageDataLIC2D::RequestData(
 
   vtkPixelBufferObject *noisePBO = vtkPixelBufferObject::New();
   noisePBO->SetContext(this->Context);
+  int noiseComp = inNoise->GetNumberOfComponents();
+
+  if (inNoise->GetDataType() != VTK_FLOAT)
+    {
+    vtkErrorMacro("noise dataset was not float");
+    }
 
   vtkPixelTransfer::Blit(
         noiseExt,
-        1,
+        noiseComp,
         inNoise->GetDataType(),
         inNoise->GetVoidPointer(0),
         VTK_FLOAT,
         noisePBO->MapUnpackedBuffer(
         VTK_FLOAT,
         static_cast<unsigned int>(noiseExt.Size()),
-        1));
+        noiseComp));
 
   noisePBO->UnmapUnpackedBuffer();
 
@@ -550,7 +562,8 @@ int vtkImageDataLIC2D::RequestData(
 
   vtkTextureObject *noiseTex = vtkTextureObject::New();
   noiseTex->SetContext(this->Context);
-  noiseTex->Create2D(noiseTexSize[0], noiseTexSize[1], 1, noisePBO, false);
+  noiseTex->Create2D(noiseTexSize[0], noiseTexSize[1],
+    noiseComp, noisePBO, false);
 
   noisePBO->Delete();
 
