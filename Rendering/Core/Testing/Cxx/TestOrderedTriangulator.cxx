@@ -30,7 +30,7 @@
 #include "vtkRegressionTestImage.h"
 
 //------------------------------------------------------------------------------
-double para_coord1[24] = {
+static double para_coord1[24] = {
   0.0, 0.0, 0.0, //0
   1.0, 0.0, 0.0, //1
   0.0, 1.0, 0.0, //2
@@ -39,7 +39,7 @@ double para_coord1[24] = {
   0.0, 0.0, 1.0, //5
 };
 
-double para_coord2[24] = {
+static double para_coord2[24] = {
   0.0, 1.0, 0.0, //0
   0.0, 0.0, 0.0, //1
   1.0, 0.0, 0.0, //2
@@ -48,7 +48,7 @@ double para_coord2[24] = {
   0.0, 0.0, 1.0, //5
   };
 
-double points[33] = {
+static double points[33] = {
   0.0, 0.0, 0.0, //0
   0.0,-1.0, 0.0, //1
   1.0, 0.0, 0.0, //2

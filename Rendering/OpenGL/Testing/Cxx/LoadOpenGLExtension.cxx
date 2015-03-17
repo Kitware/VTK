@@ -44,9 +44,9 @@
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
 
-vtkUnsignedCharArray *image;
+static vtkUnsignedCharArray *image;
 
-GLfloat laplacian[3][3] = {
+static GLfloat laplacian[3][3] = {
   { -0.125f, -0.125f, -0.125f },
   { -0.125f,  1.0f,   -0.125f },
   { -0.125f, -0.125f, -0.125f }

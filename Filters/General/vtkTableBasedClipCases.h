@@ -971,7 +971,7 @@ const int StartClipShapesHex[256] = {
   20964, 21065, 21091, 21138, 21208, 21234, 21304, 21374  // cases 248 - 255
 };
 
-unsigned char ClipShapesHex[] = {
+static unsigned char ClipShapesHex[] = {
  // Case #0: Unique case #1
   ST_HEX, COLOR0, P0, P1, P2, P3, P4, P5, P6, P7,
  // Case #1: Unique case #2
@@ -4450,7 +4450,7 @@ const int StartClipShapesVox[256] = {
   20964, 21065, 21112, 21138, 21208, 21234, 21304, 21374  // cases 248 - 255
 };
 
-unsigned char ClipShapesVox[] = {
+static unsigned char ClipShapesVox[] = {
  // Case #0: Unique case #1
   ST_HEX, COLOR0, P0, P1, P3, P2, P4, P5, P7, P6,
  // Case #1: Unique case #2
@@ -7882,7 +7882,7 @@ const int StartClipShapesWdg[64] = {
   3192, 3208, 3273, 3338, 3359, 3424, 3445, 3466  // cases 56 - 63
 };
 
-unsigned char ClipShapesWdg[] = {
+static unsigned char ClipShapesWdg[] = {
  // Case #0: Unique case #1
   ST_WDG, COLOR0, P0, P1, P2, P3, P4, P5,
  // Case #1: Unique case #2
@@ -8472,7 +8472,7 @@ const int StartClipShapesPyr[32] = {
   797, 827, 886, 914, 934, 993, 1013, 1033  // cases 24 - 31
 };
 
-unsigned char ClipShapesPyr[] = {
+static unsigned char ClipShapesPyr[] = {
  // Case #0: Unique case #1
   ST_PYR, COLOR0, P0, P1, P2, P3, P4,
  // Case #1: Unique case #2
@@ -8670,7 +8670,7 @@ const int StartClipShapesTet[16] = {
   110, 124, 140, 156, 170, 186, 200, 214  // cases 8 - 15
 };
 
-unsigned char ClipShapesTet[] = {
+static unsigned char ClipShapesTet[] = {
  // Case #0: Unique case #1
   ST_TET, COLOR0, P0, P1, P2, P3,
  // Case #1: Unique case #2
@@ -8740,7 +8740,7 @@ const int StartClipShapesQua[16] = {
   116, 132, 144, 166, 182, 194, 210, 226  // cases 8 - 15
 };
 
-unsigned char ClipShapesQua[] = {
+static unsigned char ClipShapesQua[] = {
  // Case #0: Unique case #1
   ST_QUA, COLOR0, P0, P1, P2, P3,
  // Case #1: Unique case #2
@@ -8822,7 +8822,7 @@ const int StartClipShapesPix[16] = {
   116, 132, 154, 166, 182, 194, 210, 226  // cases 8 - 15
 };
 
-unsigned char ClipShapesPix[] = {
+static unsigned char ClipShapesPix[] = {
  // Case #0: Unique case #1
   ST_QUA, COLOR0, P0, P1, P3, P2,
  // Case #1: Unique case #2
@@ -8902,7 +8902,7 @@ const int StartClipShapesTri[8] = {
   0, 5, 16, 27, 38, 49, 60, 71  // cases 0 - 7
 };
 
-unsigned char ClipShapesTri[] = {
+static unsigned char ClipShapesTri[] = {
  // Case #0: Unique case #1
   ST_TRI, COLOR0, P0, P1, P2,
  // Case #1: Unique case #2
@@ -8944,7 +8944,7 @@ const int NumClipShapesLin[4] = {
 const int StartClipShapesLin[4] = {
   0, 4, 12, 20  };
 
-unsigned char ClipShapesLin[] = {
+static unsigned char ClipShapesLin[] = {
  // Case #0: Unique case #1
   ST_LIN, COLOR0, P0, P1,
  // Case #1: Unique case #2
@@ -8974,7 +8974,7 @@ const int NumClipShapesVtx[2] = {
 const int StartClipShapesVtx[2] = {
   0, 3  };
 
-unsigned char ClipShapesVtx[] = {
+static unsigned char ClipShapesVtx[] = {
  // Case #0: Unique case #1
   ST_VTX, COLOR0, P0,
  // Case #1: Unique case #2
