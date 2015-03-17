@@ -91,7 +91,7 @@ namespace
   //return the interval i, such that a belongs to the interval (A[i],A[i+1]]
   inline int FindInterval(double a, const std::vector<double>& A)
   {
-    if( a < A[0])
+    if(A.size() == 0 || a < A[0])
       {
       return -1;
       }
