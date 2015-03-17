@@ -161,33 +161,53 @@ Follow these steps:
     select the `master` branch as the target because the change needs
     to end up there too.
 
-3.  Use the "**Compare branches**" button to proceed to the next page.
+3.  Use the "**Compare branches**" button to proceed to the next page
+    and fill out the merge request creation form.
 
-4.  Fill out the form and use the "**Submit merge request**" button to
-    create the merge request and visit its page.
+4.  In the "**Title**" field provide a one-line summary of the entire
+    topic.  This will become the title of the Merge Request.
+
+    Example Merge Request Title:
+
+        Wrapping: Add Java 1.x support
 
 5.  In the "**Description**" field provide a high-level description
     of the change the topic makes and any relevant information about
-    how to try it.  Use `@username` syntax to draw attention of
-    specific developers.  If your change is a fix for the `release`
-    branch, indicate this so that a maintainer knows it should be
-    merged to `release`.
+    how to try it.
+    *   Use `@username` syntax to draw attention of specific developers.
+        This syntax may be used anywhere outside literal text and code
+        blocks.  Or, wait until the [next step](#review-a-merge-request)
+        and add comments to draw attention of developers.
+    *   If your change is a fix for the `release` branch, indicate this
+        so that a maintainer knows it should be merged to `release`.
+    *   Optionally use a fenced code block with type `message` to specify
+        text to be included in the generated merge commit message when the
+        topic is [merged](#merge-a-topic).
 
-    Optionally use a fenced code block with type `message`, such as
+    Example Merge Request Description:
+
+        This branch requires Java 1.x which is not generally available yet.
+        Get Java 1.x from ... in order to try these changes.
 
         ```message
-        This topic adds a really cool feature.
+        Add support for Java 1.x to the wrapping infrastructure.
         ```
 
-    to specify text to be included in the generated merge commit message
-    when the topic is [merged](#merge-a-topic).  Do not use `@username`
-    syntax in this block as it will not be interpreted.
+        Cc: @user1 @user2
+
+6.  The "**Assign to**", "**Milestone**", and "**Labels**" fields
+    may be left blank.
+
+7.  Use the "**Submit merge request**" button to create the merge request
+    and visit its page.
 
 Review a Merge Request
 ----------------------
 
 Add comments mentioning specific developers using `@username` syntax to
-draw their attention and have the topic reviewed.
+draw their attention and have the topic reviewed.  After typing `@` and
+some text, GitLab will offer completions for developers whose real names
+or user names match.
 
 ### Human Reviews ###
 
