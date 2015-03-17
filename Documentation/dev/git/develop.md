@@ -209,6 +209,13 @@ draw their attention and have the topic reviewed.  After typing `@` and
 some text, GitLab will offer completions for developers whose real names
 or user names match.
 
+Comments use [GitLab Flavored Markdown][] for formatting.  See GitLab
+documentation on [Special GitLab References][] to add links to things
+like merge requests and commits in other repositories.
+
+[GitLab Flavored Markdown]: https://gitlab.kitware.com/help/markdown/markdown
+[Special GitLab References]: https://gitlab.kitware.com/help/markdown/markdown#special-gitlab-references
+
 ### Human Reviews ###
 
 Developers may add comments providing feedback or to acknowledge their
