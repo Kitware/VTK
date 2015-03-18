@@ -295,7 +295,10 @@ int ImageDataLIC2D(int argc, char* argv[])
   filter->SetStepSize(0.8/magnification);
   filter->SetMagnification(magnification);
   filter->SetInputConnection(0, probe->GetOutputPort(0));
-  if ( noise ) filter->SetInputData(1, noise);
+  if ( noise )
+    {
+    filter->SetInputData(1, noise);
+    }
   filter->UpdateInformation();
   noise = NULL;
 

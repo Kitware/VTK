@@ -40,6 +40,7 @@
 class vtkRenderWindow;
 class vtkOpenGLRenderWindow;
 class vtkImageNoiseSource;
+class vtkImageCast;
 
 class VTKRENDERINGLICOPENGL2_EXPORT vtkImageDataLIC2D : public vtkImageAlgorithm
 {
@@ -123,6 +124,7 @@ protected:
   int OpenGLExtensionsSupported;
 
   vtkImageNoiseSource* NoiseSource;
+  vtkImageCast* ImageCast;
 
   int Steps;
   double StepSize;
