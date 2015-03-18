@@ -250,10 +250,7 @@ succeeds.
 ### Testing ###
 
 VTK has a [buildbot](http://buildbot.net) instance watching for merge requests
-to test.  To enable testing, the `buildbot` label may be added to a merge
-request to be considered.  Merge requests by developers will be picked up
-automatically.  For other users, a developer must issue a command to buildbot
-to enable builds:
+to test.  A developer must issue a command to buildbot to enable builds:
 
     @buildbot test
 
