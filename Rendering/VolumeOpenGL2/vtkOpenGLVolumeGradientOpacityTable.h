@@ -53,15 +53,24 @@ public:
         }
     }
 
-  // Bind texture.
+  // activate texture.
   //--------------------------------------------------------------------------
-  void Bind()
+  void Activate()
     {
     if (!this->TextureObject)
       {
       return;
       }
     this->TextureObject->Activate();
+    }
+
+  void Deactivate()
+    {
+    if (!this->TextureObject)
+      {
+      return;
+      }
+    this->TextureObject->Deactivate();
     }
 
   // Update opacity tranfer function texture.
@@ -109,7 +118,6 @@ public:
                                               VTK_FLOAT,
                                               this->Table);
 
-      this->TextureObject->Activate();
       this->TextureObject->SetWrapS(vtkTextureObject::ClampToEdge);
       this->TextureObject->SetMagnificationFilter(filterValue);
       this->TextureObject->SetMinificationFilter(filterValue);

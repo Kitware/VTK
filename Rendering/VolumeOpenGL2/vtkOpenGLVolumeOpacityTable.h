@@ -54,15 +54,26 @@ public:
         }
     }
 
-  // Bind texture.
+  // Activate texture.
   //--------------------------------------------------------------------------
-  void Bind()
+  void Activate()
     {
     if (!this->TextureObject)
       {
       return;
       }
     this->TextureObject->Activate();
+    }
+
+  // Deactivate texture.
+  //--------------------------------------------------------------------------
+  void Deactivate()
+    {
+    if (!this->TextureObject)
+      {
+      return;
+      }
+    this->TextureObject->Deactivate();
     }
 
   // Update opacity tranfer function texture.
@@ -154,7 +165,6 @@ public:
                                               VTK_FLOAT,
                                               this->Table);
       this->LastInterpolation = filterValue;
-      this->TextureObject->Activate();
       this->BuildTime.Modified();
       }
 

@@ -59,9 +59,15 @@ public:
     }
 
   //--------------------------------------------------------------------------
-  void Bind()
+  void Activate()
     {
     this->Texture->Activate();
+    }
+
+  //--------------------------------------------------------------------------
+  void Deactivate()
+    {
+    this->Texture->Deactivate();
     }
 
   //--------------------------------------------------------------------------
@@ -179,7 +185,6 @@ public:
             this->Texture->Create3DFromRaw(
               textureSize[0], textureSize[1], textureSize[2],
               1, scalarType, dataPtr);
-            this->Texture->Activate();
             this->Texture->SetWrapS(vtkTextureObject::ClampToEdge);
             this->Texture->SetWrapT(vtkTextureObject::ClampToEdge);
             this->Texture->SetWrapR(vtkTextureObject::ClampToEdge);
