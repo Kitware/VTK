@@ -719,6 +719,7 @@ void vtkOpenGLPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* r
   cellBO.vao.Bind();
 
   this->LastBoundBO = &cellBO;
+  vtkOpenGLCheckErrorMacro("failed after UpdateShader");
 }
 
 void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
@@ -1693,6 +1694,7 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
       prims[primType]->UnRegister(this);
       }
     }
+  vtkOpenGLCheckErrorMacro("failed after BuildBufferObjects");
 }
 
 //-----------------------------------------------------------------------------
