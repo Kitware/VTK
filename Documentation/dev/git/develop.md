@@ -17,20 +17,25 @@ Setup
 
 Before you begin, perform initial setup:
 
-1.  Register [GitLab Access].
+1.  Register [GitLab Access] to create an account and select a user name.
 
-2.  Follow the [download instructions](download.md#clone) to create a
-    local VTK clone:
+2.  [Fork VTK][] into your user's namespace on GitLab.
+
+3.  Follow the [download instructions](download.md#clone) to create a
+    local clone of the main VTK repository:
 
         $ git clone https://gitlab.kitware.com/vtk/vtk.git VTK
         $ cd VTK
+    The main repository will be configured as your `origin` remote.
 
-3.  Run the [developer setup script][] to prepare your VTK work tree and
+4.  Run the [developer setup script][] to prepare your VTK work tree and
     create Git command aliases used below:
 
         $ ./Utilities/SetupForDevelopment.sh
+    This will prompt for your GitLab user name and configure a remote
+    called `gitlab` to refer to it.
 
-4.  (Optional but highly recommended.)
+5.  (Optional but highly recommended.)
     [Register](https://open.cdash.org/register.php) with the VTK project
     on Kitware's CDash instance to better know how your code performs in
     regression tests.  After registering and signing in, click on
@@ -38,6 +43,7 @@ Before you begin, perform initial setup:
     "Subscribe to this project" on the right of VTK.
 
 [GitLab Access]: https://gitlab.kitware.com/users/sign_in
+[Fork VTK]: https://gitlab.kitware.com/vtk/vtk/fork/new
 [developer setup script]: /Utilities/SetupForDevelopment.sh
 
 Workflow
