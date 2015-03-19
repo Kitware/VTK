@@ -1053,6 +1053,7 @@ M_Read(void)
               << METAIO_STREAM::endl;
     METAIO_STREAM::cout << "   ideal = " << cellDataSize << " : actual = " << gcCell << METAIO_STREAM::endl;
     delete [] _data;
+    delete [] _celldata;
     return false;
     }
 
