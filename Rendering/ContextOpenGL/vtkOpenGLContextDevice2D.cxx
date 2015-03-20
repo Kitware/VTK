@@ -1586,20 +1586,20 @@ void vtkOpenGLContextDevice2D::PrintSelf(ostream &os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Renderer: ";
   if (this->Renderer)
-  {
+    {
     os << endl;
     this->Renderer->PrintSelf(os, indent.GetNextIndent());
-  }
+    }
   else
     {
     os << "(none)" << endl;
     }
   os << indent << "Text Renderer: ";
-  if (this->Renderer)
-  {
+  if (this->TextRenderer)
+    {
     os << endl;
     this->TextRenderer->PrintSelf(os, indent.GetNextIndent());
-  }
+    }
   else
     {
     os << "(none)" << endl;
