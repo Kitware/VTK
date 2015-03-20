@@ -125,6 +125,16 @@ public:
                 unsigned char *colors, int nc_comps);
 
   // Description:
+  // Draw multiple lines between the specified pairs of points.
+  // \sa DrawPoly()
+  void DrawLines(vtkPoints2D *points);
+
+  // Description:
+  // Draw multiple lines between the specified pairs of points
+  // \sa DrawPoly()
+  void DrawLines(float *points, int n);
+
+  // Description:
   // Draw a point at the supplied x and y coordinate
   void DrawPoint(float x, float y);
 

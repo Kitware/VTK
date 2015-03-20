@@ -55,8 +55,17 @@ public:
   // layout of the coordinates. The line will be colored by
   // the colors array, which must be have nc_comps components (defining a single
   // color).
+  // \sa DrawLines()
   virtual void DrawPoly(float *points, int n,
                         unsigned char *colors = 0, int nc_comps = 0) = 0;
+
+  // Description:
+  // Draw lines using the points - memory layout is as follows:
+  // l1p1,l1p2,l2p1,l2p2... The lines will be colored by colors array
+  // which has nc_comps components (defining a single color).
+  // \sa DrawPoly()
+  virtual void DrawLines(float *f, int n, unsigned char *colors = 0,
+                         int nc_comps = 0) = 0;
 
   // Description:
   // Draw a series of points - fastest code path due to memory layout of the

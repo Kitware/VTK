@@ -52,14 +52,23 @@ public:
   // Description:
   // Draw a poly line using the points - fastest code path due to memory
   // layout of the coordinates. The line will be colored by colors array
-  // which has nc_comps components
+  // which has nc_comps components.
+  // \sa DrawLines()
   virtual void DrawPoly(float *f, int n, unsigned char *colors = 0,
                         int nc_comps = 0);
 
   // Description:
+  // Draw lines using the points - memory layout is as follows:
+  // l1p1,l1p2,l2p1,l2p2... The lines will be colored by colors array
+  // which has nc_comps components.
+  // \sa DrawPoly()
+  virtual void DrawLines(float *f, int n, unsigned char *colors = 0,
+                         int nc_comps = 0);
+
+  // Description:
   // Draw a series of points - fastest code path due to memory
   // layout of the coordinates. Points are colored by colors array
-  // which has nc_comps components
+  // which has nc_comps components.
   virtual void DrawPoints(float *points, int n, unsigned char* colors = 0,
                           int nc_comps = 0);
 

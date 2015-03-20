@@ -198,6 +198,32 @@ void vtkContext2D::DrawPoly(float *points, int n,
 }
 
 //-----------------------------------------------------------------------------
+void vtkContext2D::DrawLines(vtkPoints2D *points)
+{
+  // Construct an array with the correct coordinate packing for OpenGL.
+  int n = static_cast<int>(points->GetNumberOfPoints());
+  // If the points are of type float then call OpenGL directly
+  float *f = vtkFloatArray::SafeDownCast(points->GetData())->GetPointer(0);
+  this->DrawLines(f, n);
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawLines(float *points, int n)
+{
+  if (!this->Device)
+    {
+    vtkErrorMacro(<< "Attempted to paint with no active vtkContextDevice2D.");
+    return;
+    }
+  if (n < 2)
+    {
+    vtkErrorMacro(<< "Attempted to paint a line with <2 points.");
+    return;
+    }
+  this->Device->DrawLines(points, n);
+}
+
+//-----------------------------------------------------------------------------
 void vtkContext2D::DrawPoint(float x, float y)
 {
   float p[] = { x, y };
