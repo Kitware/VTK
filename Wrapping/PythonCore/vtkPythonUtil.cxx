@@ -181,7 +181,7 @@ public:
 //--------------------------------------------------------------------
 // The singleton for vtkPythonUtil
 
-vtkPythonUtil *vtkPythonMap = NULL;
+static vtkPythonUtil *vtkPythonMap = NULL;
 
 // destructs the singleton when python exits
 void vtkPythonUtilDelete()

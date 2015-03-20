@@ -26,7 +26,7 @@
 
 #include "vtkTestUtilities.h"
 
-char TSWeventLog[] =
+static char TSWeventLog[] =
   "# StreamVersion 1\n"
   "CharEvent 133 125 0 0 98 1 i\n"
   "KeyReleaseEvent 133 125 0 0 98 1 i\n"

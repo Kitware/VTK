@@ -34,7 +34,7 @@
 
 //--------------------------------------------------------------------
 
-const char *PyVTKTemplate_Doc =
+static const char *PyVTKTemplate_Doc =
   "A container for instantiations of class and function templates.\n\n"
   "This is a dictionary for templates, provide the template args\n"
   "in square brackets to get the desired kind of class.\n";

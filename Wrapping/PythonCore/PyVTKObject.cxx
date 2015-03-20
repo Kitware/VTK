@@ -74,7 +74,7 @@ static PyObject *PyVTKObject_Repr(PyObject *op)
   char buf[255];
   sprintf(buf,"(%s)%p",
           PyString_AS_STRING(((PyVTKObject *)op)->vtk_class->vtk_name),
-          op);
+          static_cast<void*>(op));
 
   return PyString_FromString(buf);
 }
