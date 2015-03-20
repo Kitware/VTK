@@ -27,7 +27,6 @@
 #include "vtkNew.h"
 #include "vtksys/ios/sstream"
 
-vtkCxxSetObjectMacro(vtkPlot, Selection, vtkIdTypeArray);
 vtkCxxSetObjectMacro(vtkPlot, XAxis, vtkAxis);
 vtkCxxSetObjectMacro(vtkPlot, YAxis, vtkAxis);
 
@@ -47,6 +46,7 @@ vtkPlot::vtkPlot() : ShiftScale(0.0, 0.0, 1.0, 1.0)
   this->Labels = NULL;
   this->UseIndexForXSeries = false;
   this->Data = vtkSmartPointer<vtkContextMapper2D>::New();
+  this->Selectable = true;
   this->Selection = NULL;
   this->XAxis = NULL;
   this->YAxis = NULL;
@@ -493,6 +493,16 @@ void vtkPlot::SetInputArray(int index, const vtkStdString &name)
                                      vtkDataObject::FIELD_ASSOCIATION_ROWS,
                                      name.c_str());
   this->AutoLabels = 0; // No longer valid
+}
+
+//-----------------------------------------------------------------------------
+void vtkPlot::SetSelection(vtkIdTypeArray *id)
+{
+  if (!this->GetSelectable())
+    {
+    return;
+    }
+  vtkSetObjectBodyMacro(Selection,vtkIdTypeArray,id);
 }
 
 //-----------------------------------------------------------------------------

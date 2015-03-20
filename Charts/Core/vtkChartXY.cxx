@@ -1947,7 +1947,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
             {
             vtkPlot* plot = vtkPlot::SafeDownCast(this->ChartPrivate->
                                                   PlotCorners[i]->GetItem(j));
-            if (plot && plot->GetVisible())
+            if (plot && plot->GetVisible() && plot->GetSelectable())
               {
               // There is only really one old selection in this mode.
               if (i == 0 && j == 0)
@@ -2002,7 +2002,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
             {
             vtkPlot* plot = vtkPlot::SafeDownCast(this->ChartPrivate->
                                                   PlotCorners[i]->GetItem(j));
-            if (plot && plot->GetVisible())
+            if (plot && plot->GetVisible() && plot->GetSelectable())
               {
               oldSelection->DeepCopy(plot->GetSelection());
               // Populate the selection using the appropriate shape.
@@ -2060,7 +2060,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
             {
             vtkPlot* plot = vtkPlot::SafeDownCast(this->ChartPrivate->
                                                   PlotCorners[i]->GetItem(j));
-            if (plot && plot->GetVisible())
+            if (plot && plot->GetVisible() && plot->GetSelectable())
               {
               bool selected = false;
               // Populate the selection using the appropriate shape.
