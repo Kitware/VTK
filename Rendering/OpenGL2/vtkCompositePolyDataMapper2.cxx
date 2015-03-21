@@ -518,6 +518,12 @@ void vtkCompositePolyDataMapper2::AppendOneBufferObject(
   vtkPolyData *poly,
   unsigned int voffset)
 {
+  // if there are no cells then skip this piece
+  if (poly->GetPolys()->GetNumberOfCells() == 0)
+    {
+    return;
+    }
+
   // Get rid of old texture color coordinates if any
   if ( this->ColorCoordinates )
     {
