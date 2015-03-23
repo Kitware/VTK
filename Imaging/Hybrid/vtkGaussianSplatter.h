@@ -191,8 +191,12 @@ public:
                           vtkInformation *outInfo);
 
   // Description:
-  // Provide access to templated helper class
+  // Provide access to templated helper class. Note that SamplePoint() method
+  // is public here because some compilers don't handle friend functions
+  // properly.
   friend class vtkGaussianSplatterAlgorithm;
+  double SamplePoint(double x[3]) //for compilers who can't handle this
+    {return (this->*Sample)(x);}
 
 protected:
   vtkGaussianSplatter();
@@ -225,8 +229,6 @@ protected:
     {return this->ScaleFactor * s;}
   double PositionSampling(double)
     {return this->ScaleFactor;}
-  double SamplePoint(double x[3]) //for compilers who can't handle this
-    {return (this->*Sample)(x);}
   void SetScalar(int idx, double dist2, double *sPtr)
   {
     double v = (this->*SampleFactor)(this->S) * exp(static_cast<double>
