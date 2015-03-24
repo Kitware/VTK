@@ -281,6 +281,7 @@ set_source_files_properties(
 
 set_source_files_properties(
   vtkCellType.h
+  vtkBoundingBox.h
   vtkColor.h
   vtkRect.h
   vtkVector.h
