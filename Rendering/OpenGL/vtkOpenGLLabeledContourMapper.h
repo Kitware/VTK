@@ -40,8 +40,6 @@ protected:
 private:
   vtkOpenGLLabeledContourMapper(const vtkOpenGLLabeledContourMapper&);  // Not implemented.
   void operator=(const vtkOpenGLLabeledContourMapper&);  // Not implemented.
-
-  void DrawFullScreenQuad(vtkRenderer *ren);
 };
 
 #endif
