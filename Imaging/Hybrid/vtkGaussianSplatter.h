@@ -190,6 +190,7 @@ public:
   void ComputeModelBounds(vtkCompositeDataSet *input, vtkImageData *output,
                           vtkInformation *outInfo);
 
+//BTX
   // Description:
   // Provide access to templated helper class. Note that SamplePoint() method
   // is public here because some compilers don't handle friend functions
@@ -197,38 +198,6 @@ public:
   friend class vtkGaussianSplatterAlgorithm;
   double SamplePoint(double x[3]) //for compilers who can't handle this
     {return (this->*Sample)(x);}
-
-protected:
-  vtkGaussianSplatter();
-  ~vtkGaussianSplatter() {}
-
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
-  virtual int RequestInformation (vtkInformation *,
-                                  vtkInformationVector **,
-                                  vtkInformationVector *);
-  virtual int RequestData(vtkInformation *,
-                          vtkInformationVector **,
-                          vtkInformationVector *);
-  void Cap(vtkDoubleArray *s);
-
-  int SampleDimensions[3]; // dimensions of volume to splat into
-  double Radius; // maximum distance splat propagates (as fraction 0->1)
-  double ExponentFactor; // scale exponent of gaussian function
-  double ModelBounds[6]; // bounding box of splatting dimensions
-  int NormalWarping; // on/off warping of splat via normal
-  double Eccentricity;// elliptic distortion due to normals
-  int ScalarWarping; // on/off warping of splat via scalar
-  double ScaleFactor; // splat size influenced by scale factor
-  int Capping; // Cap side of volume to close surfaces
-  double CapValue; // value to use for capping
-  int AccumulationMode; // how to combine scalar values
-
-  double Gaussian(double x[3]);
-  double EccentricGaussian(double x[3]);
-  double ScalarSampling(double s)
-    {return this->ScaleFactor * s;}
-  double PositionSampling(double)
-    {return this->ScaleFactor;}
   void SetScalar(int idx, double dist2, double *sPtr)
   {
     double v = (this->*SampleFactor)(this->S) * exp(static_cast<double>
@@ -261,6 +230,39 @@ protected:
         }
       }//not first visit
   }
+//ETX
+
+protected:
+  vtkGaussianSplatter();
+  ~vtkGaussianSplatter() {}
+
+  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  virtual int RequestInformation (vtkInformation *,
+                                  vtkInformationVector **,
+                                  vtkInformationVector *);
+  virtual int RequestData(vtkInformation *,
+                          vtkInformationVector **,
+                          vtkInformationVector *);
+  void Cap(vtkDoubleArray *s);
+
+  int SampleDimensions[3]; // dimensions of volume to splat into
+  double Radius; // maximum distance splat propagates (as fraction 0->1)
+  double ExponentFactor; // scale exponent of gaussian function
+  double ModelBounds[6]; // bounding box of splatting dimensions
+  int NormalWarping; // on/off warping of splat via normal
+  double Eccentricity;// elliptic distortion due to normals
+  int ScalarWarping; // on/off warping of splat via scalar
+  double ScaleFactor; // splat size influenced by scale factor
+  int Capping; // Cap side of volume to close surfaces
+  double CapValue; // value to use for capping
+  int AccumulationMode; // how to combine scalar values
+
+  double Gaussian(double x[3]);
+  double EccentricGaussian(double x[3]);
+  double ScalarSampling(double s)
+    {return this->ScaleFactor * s;}
+  double PositionSampling(double)
+    {return this->ScaleFactor;}
 
 //BTX
 private:
