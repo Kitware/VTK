@@ -334,6 +334,16 @@ vtkTextPropertyCollection *vtkLabeledContourMapper::GetTextProperties()
 }
 
 //------------------------------------------------------------------------------
+void vtkLabeledContourMapper::ReleaseGraphicsResources(vtkWindow *win)
+{
+  this->PolyDataMapper->ReleaseGraphicsResources(win);
+  for (vtkIdType i = 0; i < this->NumberOfTextActors; ++i)
+    {
+    this->TextActors[i]->ReleaseGraphicsResources(win);
+    }
+}
+
+//------------------------------------------------------------------------------
 void vtkLabeledContourMapper::ComputeBounds()
 {
   this->GetInput()->GetBounds(this->Bounds);

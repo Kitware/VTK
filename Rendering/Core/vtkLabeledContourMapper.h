@@ -90,6 +90,8 @@ public:
   // The polydata mapper used to render the contours.
   vtkGetNewMacro(PolyDataMapper, vtkPolyDataMapper)
 
+  virtual void ReleaseGraphicsResources(vtkWindow *);
+
 protected:
   vtkLabeledContourMapper();
   ~vtkLabeledContourMapper();
