@@ -230,7 +230,7 @@ public:
         }
       }//not first visit
   }
-//BTX
+//ETX
 
 protected:
   vtkGaussianSplatter();
