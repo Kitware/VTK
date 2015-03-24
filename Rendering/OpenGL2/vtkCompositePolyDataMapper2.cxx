@@ -371,10 +371,12 @@ void vtkCompositePolyDataMapper2::RenderPieceDraw(
       {
       if (it->Visibility)
         {
-        if (selector)
+        if (selector &&
+            selector->GetCurrentPass() ==
+              vtkHardwareSelector::COMPOSITE_INDEX_PASS)
           {
-          selector->BeginRenderProp();
           selector->RenderCompositeIndex(it->PickId);
+          prog->SetUniform3f("mapperIndex", selector->GetPropColorValue());
           }
         // override the opacity and color
         prog->SetUniformf("opacityUniform", it->Opacity);
