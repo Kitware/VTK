@@ -20,9 +20,9 @@ vtkGeoJSONReader::~vtkGeoJSONReader()
 int vtkGeoJSONReader::CanParse(const char *filename, Json::Value &root)
 {
   ifstream file;
-  file.open(filename);
+  file.open( filename );
 
-  if (!file.is_open())
+  if ( ! file.is_open() )
     {
     vtkErrorMacro(<< "Unable to Open File " << this->FileName);
     return VTK_ERROR;
@@ -33,7 +33,7 @@ int vtkGeoJSONReader::CanParse(const char *filename, Json::Value &root)
   //parse the entire geoJSON data into the Json::Value root
   bool parsedSuccess = reader.parse(file, root, false);
 
-  if (!parsedSuccess)
+  if ( ! parsedSuccess )
     {
     // Report failures and their locations in the document
     vtkErrorMacro(<<"Failed to parse JSON" << endl << reader.getFormatedErrorMessages());
@@ -55,14 +55,14 @@ int vtkGeoJSONReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   Json::Value root;
-  if(CanParse(this->FileName, root) == VTK_ERROR)
+  if ( CanParse(this->FileName, root) == VTK_ERROR )
     {
     return VTK_ERROR;
     }
 
   // If parsed successfully into Json parser Values and Arrays, then convert it
   // into appropriate vtkPolyData
-  if(root.isObject())
+  if ( root.isObject() )
     {
     ParseRoot(root, output);
 
@@ -79,24 +79,24 @@ int vtkGeoJSONReader::RequestData(vtkInformation* vtkNotUsed(request),
 //----------------------------------------------------------------------------
 void vtkGeoJSONReader::ParseRoot(Json::Value root, vtkPolyData *output)
 {
-  Json::Value rootType = root.get("type", -1);
-  Json::Value rootFeatures = root.get("features", -1);
+  Json::Value rootType = root.get( "type", -1 );
+  Json::Value rootFeatures = root.get( "features", -1 );
 
-  if(rootFeatures == -1)
+  if ( rootFeatures == -1 )
     {
     vtkErrorMacro (<<"Parse Root :: Features :: -1");
     return;
     }
 
-  output->SetPoints(vtkPoints::New());//Initialising containers for points,
-  output->SetVerts(vtkCellArray::New());//Vertices,
-  output->SetLines(vtkCellArray::New());//Lines and
-  output->SetPolys(vtkCellArray::New());//Polygons
+  output->SetPoints( vtkPoints::New() );//Initialising containers for points,
+  output->SetVerts( vtkCellArray::New() );//Vertices,
+  output->SetLines( vtkCellArray::New() );//Lines and
+  output->SetPolys( vtkCellArray::New() );//Polygons
 
-  if(rootFeatures.isArray())
+  if ( rootFeatures.isArray() )
     {
     // If it is a collection of features
-    for(int i = 0; i < rootFeatures.size(); i++)
+    for (int i = 0; i < rootFeatures.size(); i++)
       {
       // Append extracted geometry to existing outputData
       Json::Value child = rootFeatures[i];
