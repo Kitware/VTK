@@ -66,9 +66,9 @@ static void CreateInitFile(const char *libName,
     {
     fprintf(fout,"int vtkCreateCommand(ClientData cd, Tcl_Interp *interp,\n"
       "               int argc, char *argv[]);\n");
-    fprintf(fout,"\nstatic Tcl_HashTable vtkInstanceLookup;\n");
-    fprintf(fout,"static Tcl_HashTable vtkPointerLookup;\n");
-    fprintf(fout,"static Tcl_HashTable vtkCommandLookup;\n");
+    fprintf(fout,"\nTcl_HashTable vtkInstanceLookup;\n");
+    fprintf(fout,"Tcl_HashTable vtkPointerLookup;\n");
+    fprintf(fout,"Tcl_HashTable vtkCommandLookup;\n");
     }
   else
     {
