@@ -107,7 +107,7 @@ protected:
   bool PrepareRender(vtkRenderer *ren, vtkActor *act);
   bool PlaceLabels();
   bool ResolveLabels();
-  bool CreateLabels();
+  virtual bool CreateLabels(vtkActor *actor);
   bool BuildStencilQuads();
   virtual bool ApplyStencil(vtkRenderer *ren, vtkActor *act);
   bool RenderPolyData(vtkRenderer *ren, vtkActor *act);

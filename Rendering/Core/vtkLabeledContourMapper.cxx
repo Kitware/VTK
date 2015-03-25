@@ -232,7 +232,7 @@ void vtkLabeledContourMapper::Render(vtkRenderer *ren, vtkActor *act)
       return;
       }
 
-    if (!this->CreateLabels())
+    if (!this->CreateLabels(act))
       {
       return;
       }
@@ -655,7 +655,7 @@ bool vtkLabeledContourMapper::ResolveLabels()
 }
 
 //------------------------------------------------------------------------------
-bool vtkLabeledContourMapper::CreateLabels()
+bool vtkLabeledContourMapper::CreateLabels(vtkActor *)
 {
   typedef std::vector<LabelMetric> MetricVector;
   typedef std::vector<LabelInfo> InfoVector;

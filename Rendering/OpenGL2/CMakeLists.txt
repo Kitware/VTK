@@ -37,6 +37,7 @@ set(Module_SRCS
   vtkOpenGLHardwareSelector.cxx
   vtkOpenGLImageMapper.cxx
   vtkOpenGLImageSliceMapper.cxx
+  vtkOpenGLLabeledContourMapper.cxx
   vtkOpenGLLight.cxx
   vtkOpenGLPointGaussianMapper.cxx
   vtkOpenGLPolyDataMapper.cxx
@@ -175,6 +176,7 @@ endif()
 set(opengl_overrides
   Actor
   Camera
+  LabeledContourMapper
   HardwareSelector
   ImageMapper
   ImageSliceMapper
