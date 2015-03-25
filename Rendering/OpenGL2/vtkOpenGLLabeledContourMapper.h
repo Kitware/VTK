@@ -23,12 +23,23 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkLabeledContourMapper.h"
 
+class vtkMatrix4x4;
+namespace vtkgl
+{
+class CellBO;
+}
+
+
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLLabeledContourMapper
     : public vtkLabeledContourMapper
 {
 public:
   static vtkOpenGLLabeledContourMapper *New();
   vtkTypeMacro(vtkOpenGLLabeledContourMapper, vtkLabeledContourMapper)
+
+  // Description:
+  // Release graphics resources
+  void ReleaseGraphicsResources(vtkWindow *win);
 
 protected:
   vtkOpenGLLabeledContourMapper();
@@ -43,6 +54,10 @@ protected:
 
   bool ApplyStencil(vtkRenderer *ren, vtkActor *act);
   bool RemoveStencil();
+
+  vtkgl::CellBO *StencilBO;
+  vtkMatrix4x4 *TempMatrix4;
+
 
 private:
   vtkOpenGLLabeledContourMapper(const vtkOpenGLLabeledContourMapper&);  // Not implemented.
