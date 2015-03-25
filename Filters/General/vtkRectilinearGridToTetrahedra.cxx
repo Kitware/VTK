@@ -129,7 +129,7 @@ void vtkRectilinearGridToTetrahedra::SetInput(const double Extent[3],
 void vtkRectilinearGridToTetrahedra::DetermineGridDivisionTypes(
                                              vtkRectilinearGrid *RectGrid,
                                              vtkSignedCharArray *VoxelSubdivisionType,
-                                             const int &TetraPerCell)
+                                             const int &tetraPerCell)
 {
   int numRec = RectGrid->GetNumberOfCells();
   int NumPointsInDir[3];
@@ -143,7 +143,7 @@ void vtkRectilinearGridToTetrahedra::DetermineGridDivisionTypes(
   int flip;
   int i;
 
-  switch (TetraPerCell)
+  switch (tetraPerCell)
     {
     case (VTK_VOXEL_TO_12_TET):
       for(i=0;i<numRec;i++)
@@ -196,8 +196,8 @@ void vtkRectilinearGridToTetrahedra::DetermineGridDivisionTypes(
 // Take the grid and make it into a tetrahedral mesh.
 void vtkRectilinearGridToTetrahedra::GridToTetMesh(vtkRectilinearGrid *RectGrid,
                                 vtkSignedCharArray *VoxelSubdivisionType,
-                                const int &TetraPerCell,
-                                const int &RememberVoxelId,
+                                const int &tetraPerCell,
+                                const int &rememberVoxelId,
                                 vtkUnstructuredGrid *TetMesh)
 {
   int i, j;
@@ -213,7 +213,7 @@ void vtkRectilinearGridToTetrahedra::GridToTetMesh(vtkRectilinearGrid *RectGrid,
   // it is easier to way overguess to avoid re-allocation
   // slowness and range checking during insertion.
 
-  switch (TetraPerCell)
+  switch (tetraPerCell)
     {
     case (VTK_VOXEL_TO_5_TET):
       NodePoints->Allocate(numPts);
@@ -236,7 +236,7 @@ void vtkRectilinearGridToTetrahedra::GridToTetMesh(vtkRectilinearGrid *RectGrid,
   // to the Tets indicating the Voxel Id the tet
   // came from.
   vtkIntArray *TetOriginalVoxel = NULL;
-  if (RememberVoxelId) {
+  if (rememberVoxelId) {
     TetOriginalVoxel = vtkIntArray::New();
     TetOriginalVoxel->Allocate(12*numRec);
   }
@@ -253,7 +253,7 @@ void vtkRectilinearGridToTetrahedra::GridToTetMesh(vtkRectilinearGrid *RectGrid,
     NumTetFromVoxel = TetrahedralizeVoxel(VoxelCorners,
                                           (int)VoxelSubdivisionType->GetValue(i),
                                           NodePoints,TetList);
-    if (RememberVoxelId)
+    if (rememberVoxelId)
       {
       for(j=0;j<NumTetFromVoxel;j++)
         {
@@ -287,7 +287,7 @@ void vtkRectilinearGridToTetrahedra::GridToTetMesh(vtkRectilinearGrid *RectGrid,
   // Add Scalar Types if wanted
   //
 
-  if(RememberVoxelId)
+  if(rememberVoxelId)
     {
     TetOriginalVoxel->Squeeze();
     int idx = TetMesh->GetCellData()->AddArray(TetOriginalVoxel);

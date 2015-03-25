@@ -62,7 +62,6 @@ class MyProcess : public vtkObject
 {
 public:
   static MyProcess *New();
-  vtkTypeMacro(MyProcess, vtkObject);
   vtkSetMacro(ImageReductionFactor, int);
   // Returns true on success.
   bool Execute(int argc, char** argv);

@@ -89,26 +89,26 @@ public:
   };
 
   //--------------------------------------------------------------------------
-  bool PrepareDocument(vtkXdmf3Reader *self, const char *FileName, bool AsTime)
+  bool PrepareDocument(vtkXdmf3Reader *self, const char *fileName, bool AsTime)
   {
     if (this->Domain)
       {
       return true;
       }
 
-    if (!FileName )
+    if (!fileName )
       {
       vtkErrorWithObjectMacro(self, "File name not set");
       return false;
       }
-    if (!vtksys::SystemTools::FileExists(FileName))
+    if (!vtksys::SystemTools::FileExists(fileName))
       {
-      vtkErrorWithObjectMacro(self, "Error opening file " << FileName);
+      vtkErrorWithObjectMacro(self, "Error opening file " << fileName);
       return false;
       }
     if (!this->Domain)
       {
-      this->Init(FileName, AsTime);
+      this->Init(fileName, AsTime);
       }
     return true;
   }

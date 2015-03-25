@@ -300,7 +300,7 @@ class BSPNode {
     BSPNode(void) {
       mChild[0] = mChild[1] = mChild[2] = NULL;
       for (int i=0; i<6; i++) sorted_cell_lists[i] = NULL;
-      for (int i=0; i<3; i++) { bounds[i*2] = VTK_FLOAT_MAX; bounds[i*2+1] = -VTK_FLOAT_MAX; }
+      for (int i=0; i<3; i++) { this->Bounds[i*2] = VTK_FLOAT_MAX; this->Bounds[i*2+1] = -VTK_FLOAT_MAX; }
     }
     // Destructor
     ~BSPNode(void) {
@@ -309,16 +309,16 @@ class BSPNode {
     }
     // Set min box limits
     void setMin(double minx, double miny, double minz) {
-      bounds[0] = minx; bounds[2] = miny; bounds[4] = minz;
+      this->Bounds[0] = minx; this->Bounds[2] = miny; this->Bounds[4] = minz;
     }
     // Set max box limits
     void setMax(double maxx, double maxy, double maxz) {
-      bounds[1] = maxx; bounds[3] = maxy; bounds[5] = maxz;
+      this->Bounds[1] = maxx; this->Bounds[3] = maxy; this->Bounds[5] = maxz;
     }
     //
     bool Inside(double point[3]) const;
     // BBox
-    double       bounds[6];
+    double       Bounds[6];
   protected:
     // The child nodes of this one (if present - NULL otherwise)
     BSPNode   *mChild[3];
