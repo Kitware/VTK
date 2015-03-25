@@ -23,18 +23,18 @@
 // VTK Includes
 #include "vtkDataObject.h"
 #include "vtk_jsoncpp.h" // For json parser
+#include <string>
 
 class vtkPolyData;
-class vtkStdString;
 
 // Currently implemented geoJSON compatible Geometries
-#define POINT                   "Point"
-#define MULTI_POINT             "MultiPoint"
-#define LINE_STRING             "LineString"
-#define MULTI_LINE_STRING       "MultiLineString"
-#define POLYGON                 "Polygon"
-#define MULTI_POLYGON           "MultiPolygon"
-#define GEOMETRY_COLLECTION     "GeometryCollection"
+#define GeoJSON_POINT                   "Point"
+#define GeoJSON_MULTI_POINT             "MultiPoint"
+#define GeoJSON_LINE_STRING             "LineString"
+#define GeoJSON_MULTI_LINE_STRING       "MultiLineString"
+#define GeoJSON_POLYGON                 "Polygon"
+#define GeoJSON_MULTI_POLYGON           "MultiPolygon"
+#define GeoJSON_GEOMETRY_COLLECTION     "GeometryCollection"
 
 class vtkGeoJSONFeature : public vtkDataObject
 {
@@ -65,6 +65,10 @@ protected:
   Json::Value featureRoot;
 
   // Description:
+  // Id of current GeoJSON feature being parsed
+  std::string FeatureId;
+
+  // Description:
   // Extract geoJSON geometry into vtkPolyData *
   void ExtractGeoJSONFeatureGeometry(Json::Value root, vtkPolyData *outputData);
 
@@ -93,10 +97,6 @@ protected:
   // Description:
   // Point[] from its JSON equivalent
   double *CreatePoint(Json::Value coordinates);
-
-  // Description:
-  // Case insensitive string comparison
-  bool IsEqual(vtkStdString str1, vtkStdString str2);
 
 private:
   vtkGeoJSONFeature(const vtkGeoJSONFeature&);  //Not implemented

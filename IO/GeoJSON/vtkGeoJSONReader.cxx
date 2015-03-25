@@ -14,16 +14,17 @@
 =========================================================================*/
 
 #include "vtkGeoJSONReader.h"
+#include "vtkGeoJSONFeature.h"
 
 // VTK Includes
-#include "vtkPolyData.h"
-#include "vtkStdString.h"
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+#include "vtkStringArray.h"
 #include "vtkTriangleFilter.h"
-#include "vtkCellArray.h"
-#include "vtkGeoJSONFeature.h"
 
 // C++ includes
 #include <fstream>
@@ -151,17 +152,24 @@ int vtkGeoJSONReader::RequestData(vtkInformation* vtkNotUsed(request),
 //----------------------------------------------------------------------------
 void vtkGeoJSONReader::ParseRoot(Json::Value root, vtkPolyData *output)
 {
+  // Initialize geometry containers
+  output->SetPoints(vtkPoints::New());
+  output->SetVerts(vtkCellArray::New());
+  output->SetLines(vtkCellArray::New());
+  output->SetPolys(vtkCellArray::New());
+
+  // Initialize feature-id array
+  vtkStringArray *featureIdArray = vtkStringArray::New();
+  featureIdArray->SetName("feature-id");
+  output->GetCellData()->AddArray(featureIdArray);
+  featureIdArray->Delete();
+
   Json::Value rootType = root["type"];
   if (rootType.isNull())
     {
     vtkErrorMacro(<<"ParseRoot: Missing type node");
     return;
     }
-
-  output->SetPoints( vtkPoints::New() );//Initialising containers for points,
-  output->SetVerts( vtkCellArray::New() );//Vertices,
-  output->SetLines( vtkCellArray::New() );//Lines and
-  output->SetPolys( vtkCellArray::New() );//Polygons
 
   Json::Value rootFeatures;
   std::string strRootType = rootType.asString();
