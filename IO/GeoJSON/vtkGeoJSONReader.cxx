@@ -5,14 +5,13 @@ vtkStandardNewMacro(vtkGeoJSONReader);
 //----------------------------------------------------------------------------
 vtkGeoJSONReader::vtkGeoJSONReader()
 {
-    this->SetNumberOfInputPorts(0);
-    this->SetNumberOfOutputPorts(1);
+  this->SetNumberOfInputPorts(0);
+  this->SetNumberOfOutputPorts(1);
 }
 
 //----------------------------------------------------------------------------
 vtkGeoJSONReader::~vtkGeoJSONReader()
 {
-
 }
 
 //----------------------------------------------------------------------------
