@@ -232,7 +232,7 @@ void vtkLabeledContourMapper::Render(vtkRenderer *ren, vtkActor *act)
       return;
       }
 
-    if (!this->CreateLabels())
+    if (!this->CreateLabels(act))
       {
       return;
       }
@@ -331,6 +331,16 @@ void vtkLabeledContourMapper::SetTextProperties(vtkTextPropertyCollection *coll)
 vtkTextPropertyCollection *vtkLabeledContourMapper::GetTextProperties()
 {
   return this->TextProperties;
+}
+
+//------------------------------------------------------------------------------
+void vtkLabeledContourMapper::ReleaseGraphicsResources(vtkWindow *win)
+{
+  this->PolyDataMapper->ReleaseGraphicsResources(win);
+  for (vtkIdType i = 0; i < this->NumberOfTextActors; ++i)
+    {
+    this->TextActors[i]->ReleaseGraphicsResources(win);
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -645,7 +655,7 @@ bool vtkLabeledContourMapper::ResolveLabels()
 }
 
 //------------------------------------------------------------------------------
-bool vtkLabeledContourMapper::CreateLabels()
+bool vtkLabeledContourMapper::CreateLabels(vtkActor *)
 {
   typedef std::vector<LabelMetric> MetricVector;
   typedef std::vector<LabelInfo> InfoVector;
