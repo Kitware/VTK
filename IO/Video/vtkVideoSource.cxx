@@ -442,7 +442,7 @@ void vtkVideoSource::InternalGrab()
   while (--i >= 0)
     {
     randNum = 1664525*randNum + 1013904223;
-    *ptr1 = randNum;
+    *ptr1 = static_cast<unsigned char>(randNum);
     ptr1 += 16;
     }
   randsave = randNum;
