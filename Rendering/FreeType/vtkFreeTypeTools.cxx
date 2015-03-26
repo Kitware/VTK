@@ -39,6 +39,7 @@
 # include <stdint.h>
 #endif
 
+#include <cassert>
 #include <algorithm>
 #include <map>
 #include <vector>
@@ -610,7 +611,7 @@ void vtkFreeTypeTools::MapTextPropertyToId(vtkTextProperty *tprop,
   // Set the first bit to avoid id = 0
   // (the id will be mapped to a pointer, FTC_FaceID, so let's avoid NULL)
   *id = 1;
-  int bits = 1;
+  unsigned int bits = 1;
 
   // The font family is hashed into 16 bits (= 17 bits so far)
   vtkTypeUInt16 familyHash =
@@ -621,21 +622,29 @@ void vtkFreeTypeTools::MapTextPropertyToId(vtkTextProperty *tprop,
   bits += 16;
 
   // Bold is in 1 bit (= 18 bits so far)
-  int bold = (tprop->GetBold() ? 1 : 0) << bits;
+  unsigned long bold = (tprop->GetBold() ? 1 : 0) << bits;
   ++bits;
 
   // Italic is in 1 bit (= 19 bits so far)
-  int italic = (tprop->GetItalic() ? 1 : 0) << bits;
+  unsigned long italic = (tprop->GetItalic() ? 1 : 0) << bits;
   ++bits;
 
   // Orientation (in degrees)
   // We need 9 bits for 0 to 360. What do we need for more precisions:
   // - 1/10th degree: 12 bits (11.8) (31 bits)
-  int angle = (vtkMath::Round(tprop->GetOrientation() * 10.0) % 3600) << bits;
+  long angle = vtkMath::Round(tprop->GetOrientation() * 10.0) % 3600;
+  if (angle < 0)
+    {
+    angle += 3600;
+    }
+  angle << bits;
 
   // We really should not use more than 32 bits
+  unsigned long merged = (bold | italic | angle);
+  assert(merged <= std::numeric_limits<vtkTypeUInt32>::max());
+
   // Now final id
-  *id |= bold | italic | angle;
+  *id |= merged;
 
   // Insert the TextProperty into the lookup table
   if (!this->TextPropertyLookup->contains(*id))
