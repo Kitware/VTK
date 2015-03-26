@@ -91,8 +91,11 @@ if test -n "$setup"; then
 	if test -z "$fetchurl"; then
 		git remote add "$remote" "$url"
 	else
-		git config remote."$remote".url "$url"
-		git config --unset remote."$remote".pushurl
+		git config remote."$remote".url "$url" &&
+		if old=$(git config --get remote."$remote".pushurl); then
+			git config --unset remote."$remote".pushurl ||
+			echo 'Warning: failed to unset remote.'"$remote"'.pushurl'
+		fi
 	fi &&
 	echo 'Remote "'"$remote"'" is now configured to fetch from
 
