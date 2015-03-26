@@ -2177,6 +2177,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
   // Cg compiler about an infinite loop.
 #if defined(__APPLE__) && !defined(APPLE_SNOW_LEOPARD_BUG)
 
+  (void)window;
   this->UnsupportedRequiredExtensions->Stream<<
     " Disabled on Apple OS X Snow Leopard with nVidia.";
   this->LoadExtensionsSucceeded=0;
