@@ -136,7 +136,7 @@ int vtkUniformGridPartitioner::RequestData(
     int subdims[3];
     vtkStructuredExtent::GetDimensions( ext, subdims );
 
-    int pntIdx = vtkStructuredData::ComputePointId( dims, ijk );
+    vtkIdType pntIdx = vtkStructuredData::ComputePointId( dims, ijk );
 
     grd->GetPoint( pntIdx, origin );
 

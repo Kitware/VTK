@@ -339,7 +339,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
   stringCol->Delete();
 
   double dq = 1. / static_cast<double>( this->NumberOfIntervals );
-  for ( int i = 0; i <= this->NumberOfIntervals; ++ i )
+  for ( vtkIdType i = 0; i <= this->NumberOfIntervals; ++ i )
     {
 
     // Handle special case of quartiles and median for convenience

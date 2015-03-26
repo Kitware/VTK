@@ -585,9 +585,9 @@ void vtkContingencyStatistics::Assess( vtkTable* inData,
     varNames->SetValue( 1, varNameY );
 
     // Store names to be able to use SetValueByName which is faster than SetValue
-    int nv = this->AssessNames->GetNumberOfValues();
+    vtkIdType nv = this->AssessNames->GetNumberOfValues();
     vtkStdString* names = new vtkStdString[nv];
-    for ( int v = 0; v < nv; ++ v )
+    for ( vtkIdType v = 0; v < nv; ++ v )
       {
       vtksys_ios::ostringstream assessColName;
       assessColName << this->AssessNames->GetValue( v )
@@ -632,7 +632,7 @@ void vtkContingencyStatistics::Assess( vtkTable* inData,
       for ( vtkIdType r = 0; r < nRowData; ++ r )
         {
         (*dfunc)( assessResult, r );
-        for ( int v = 0; v < nv; ++ v )
+        for ( vtkIdType v = 0; v < nv; ++ v )
           {
           outData->SetValueByName( r, names[v], assessResult->GetValue( v ) );
           }

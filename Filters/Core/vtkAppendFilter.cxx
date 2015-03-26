@@ -211,7 +211,7 @@ int vtkAppendFilter::RequestData(
   vtkSmartPointer<vtkIdList> newPtIds = vtkSmartPointer<vtkIdList>::New();
   newPtIds->Allocate(VTK_CELL_SIZE);
 
-  int twentieth = (totalNumPts + totalNumCells)/20 + 1;
+  vtkIdType twentieth = (totalNumPts + totalNumCells)/20 + 1;
 
   // For optionally merging duplicate points
   vtkIdType* globalIndices = new vtkIdType[totalNumPts];

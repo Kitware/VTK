@@ -106,8 +106,8 @@ int vtkLookupTable::IsOpaque()
     if (this->NanColor[3] < 1.0) { opaque = 0; }
     if (this->UseBelowRangeColor && this->BelowRangeColor[3] < 1.0) { opaque = 0; }
     if (this->UseAboveRangeColor && this->AboveRangeColor[3] < 1.0) { opaque = 0; }
-    int size=this->Table->GetNumberOfTuples();
-    int i=0;
+    vtkIdType size=this->Table->GetNumberOfTuples();
+    vtkIdType i=0;
     unsigned char *ptr=this->Table->GetPointer(0);
     while(opaque && i<size)
       {
@@ -199,12 +199,11 @@ int vtkLookupTable::Allocate(int sz, int ext)
 // Force the lookup table to rebuild
 void vtkLookupTable::ForceBuild()
 {
-  int i;
   double hue, sat, val, hinc, sinc, vinc, ainc;
   double rgba[4], alpha;
   unsigned char *c_rgba;
 
-  int maxIndex = this->NumberOfColors - 1;
+  vtkIdType maxIndex = this->NumberOfColors - 1;
 
   if( maxIndex )
     {
@@ -218,7 +217,7 @@ void vtkLookupTable::ForceBuild()
     hinc = sinc = vinc = ainc = 0.0;
     }
 
-  for (i = 0; i <= maxIndex; i++)
+  for (vtkIdType i = 0; i <= maxIndex; i++)
     {
     hue = this->HueRange[0] + i*hinc;
     sat = this->SaturationRange[0] + i*sinc;

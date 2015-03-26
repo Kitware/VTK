@@ -693,7 +693,7 @@ vtkMultiProcessStream& vtkMultiProcessStream::operator >> (int &value)
     {
     vtkTypeInt64 value64;
     (*this) >> value64;
-    value = value64;
+    value = static_cast<int>(value64);
     return (*this);
     }
   assert(this->Internals->Data.front() == vtkInternals::int32_value);

@@ -319,7 +319,7 @@ inline vtkIdType LSDynaFamily::GetNextWordAsInt()
 template<typename T>
 inline T* LSDynaFamily::GetBufferAs()
 {
-  return (T*)this->Chunk;
+  return reinterpret_cast<T*>(this->Chunk);
 }
 
 

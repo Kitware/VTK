@@ -84,14 +84,14 @@ int vtkImageHistogramStatistics::RequestData(
   vtkIdType lowSum = static_cast<vtkIdType>(total*lowPercentile);
   vtkIdType highSum = static_cast<vtkIdType>(total*highPercentile);
   vtkIdType midSum = total/2;
-  int lowVal = 0;
-  int highVal = 0;
-  int midVal = 0;
-  int minVal = -1;
-  int maxVal = 0;
+  vtkIdType lowVal = 0;
+  vtkIdType highVal = 0;
+  vtkIdType midVal = 0;
+  vtkIdType minVal = -1;
+  vtkIdType maxVal = 0;
   double mom1 = 0;
   double mom2 = 0;
-  int nx = this->Histogram->GetNumberOfTuples();
+  vtkIdType nx = this->Histogram->GetNumberOfTuples();
   vtkIdType *histogram = this->Histogram->GetPointer(0);
   for (int ix = 0; ix < nx; ++ix)
     {

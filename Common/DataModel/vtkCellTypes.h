@@ -145,9 +145,9 @@ private:
 //----------------------------------------------------------------------------
 inline int vtkCellTypes::IsType(unsigned char type)
 {
-  int numTypes=this->GetNumberOfTypes();
+  vtkIdType numTypes=this->GetNumberOfTypes();
 
-  for (int i=0; i<numTypes; i++)
+  for (vtkIdType i=0; i<numTypes; i++)
     {
     if ( type == this->GetCellType(i))
       {

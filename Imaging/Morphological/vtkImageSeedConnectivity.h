@@ -50,18 +50,18 @@ public:
 
   // Description:
   // Set/Get what value is considered as connecting pixels.
-  vtkSetMacro(InputConnectValue, int);
-  vtkGetMacro(InputConnectValue, int);
+  vtkSetMacro(InputConnectValue, unsigned char);
+  vtkGetMacro(InputConnectValue, unsigned char);
 
   // Description:
   // Set/Get the value to set connected pixels to.
-  vtkSetMacro(OutputConnectedValue, int);
-  vtkGetMacro(OutputConnectedValue, int);
+  vtkSetMacro(OutputConnectedValue, unsigned char);
+  vtkGetMacro(OutputConnectedValue, unsigned char);
 
   // Description:
   // Set/Get the value to set unconnected pixels to.
-  vtkSetMacro(OutputUnconnectedValue, int);
-  vtkGetMacro(OutputUnconnectedValue, int);
+  vtkSetMacro(OutputUnconnectedValue, unsigned char);
+  vtkGetMacro(OutputUnconnectedValue, unsigned char);
 
   // Description:
   // Get the vtkImageCOnnector used by this filter.

@@ -279,7 +279,7 @@ void vtkProbeFilter::ProbeEmptyPoints(vtkDataSet *input,
     // Use tolerance as a function of size of source data
     //
     tol2 = source->GetLength();
-    tol2 = tol2 ? tol2*tol2 / 1000.0 : 0.001;
+    tol2 = (tol2 != 0.0) ? tol2*tol2 / 1000.0 : 0.001;
 
     // the actual sampling rate needs to be considered for a
     // more appropriate / accurate selection of the tolerance.

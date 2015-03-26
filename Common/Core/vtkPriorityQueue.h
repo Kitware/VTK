@@ -132,7 +132,7 @@ private:
 inline double vtkPriorityQueue::DeleteId(vtkIdType id)
 {
   double priority=VTK_DOUBLE_MAX;
-  int loc;
+  vtkIdType loc;
 
   if ( id <= this->ItemLocation->GetMaxId() &&
   (loc=this->ItemLocation->GetValue(id)) != -1 )
@@ -144,7 +144,7 @@ inline double vtkPriorityQueue::DeleteId(vtkIdType id)
 
 inline double vtkPriorityQueue::GetPriority(vtkIdType id)
 {
-  int loc;
+  vtkIdType loc;
 
   if ( id <= this->ItemLocation->GetMaxId() &&
   (loc=this->ItemLocation->GetValue(id)) != -1 )

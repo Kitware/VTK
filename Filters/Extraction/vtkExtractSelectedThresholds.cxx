@@ -228,7 +228,7 @@ int vtkExtractSelectedThresholds::ExtractCells(
   vtkCell *cell = 0;
   vtkPoints *newPoints = 0;
   vtkIdType i, ptId, newId, numPts, numCells;
-  int numCellPts;
+  vtkIdType numCellPts;
   double x[3];
 
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();

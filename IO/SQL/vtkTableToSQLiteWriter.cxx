@@ -68,8 +68,8 @@ void vtkTableToSQLiteWriter::WriteData()
   insertPreamble += "(";
 
   //get the columns from the vtkTable to finish the query
-  int numColumns = this->GetInput()->GetNumberOfColumns();
-  for(int i = 0; i < numColumns; i++)
+  vtkIdType numColumns = this->GetInput()->GetNumberOfColumns();
+  for(vtkIdType i = 0; i < numColumns; i++)
     {
     //get this column's name
     std::string columnName = this->GetInput()->GetColumn(i)->GetName();
@@ -118,11 +118,11 @@ void vtkTableToSQLiteWriter::WriteData()
     }
 
   //iterate over the rows of the vtkTable to complete the insert query
-  int numRows = this->GetInput()->GetNumberOfRows();
-  for(int i = 0; i < numRows; i++)
+  vtkIdType numRows = this->GetInput()->GetNumberOfRows();
+  for(vtkIdType i = 0; i < numRows; i++)
     {
     std::string insertQuery = insertPreamble;
-    for (int j = 0; j < numColumns; j++)
+    for (vtkIdType j = 0; j < numColumns; j++)
       {
       insertQuery += "'" + this->GetInput()->GetValue(i, j).ToString() + "'";
       if(j < numColumns - 1)
