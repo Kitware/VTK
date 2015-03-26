@@ -45,7 +45,7 @@ LandmarkPnt::
 ~LandmarkPnt()
 {
   delete []m_X;
-};
+}
 
 //
 // MedImage Constructors
@@ -340,6 +340,7 @@ M_Read(void)
                 << METAIO_STREAM::endl;
       METAIO_STREAM::cout << "   ideal = " << readSize << " : actual = " << gc << METAIO_STREAM::endl;
       delete [] _data;
+      delete [] posDim;
       return false;
     }
 

@@ -1876,7 +1876,7 @@ bool MetaCommand::Parse(int argc, char* argv[])
             char optName[255];
             for(unsigned int j=0; j<valuesInList; j++)
               {
-              sprintf(optName, "%03d", j);
+              sprintf(optName, "%03u", j);
               this->AddOptionField( m_OptionVector[currentOption].name,
                                     optName, STRING );
               }
@@ -2172,6 +2172,7 @@ METAIO_STL::string MetaCommand::TypeToString(TypeEnumType type)
       return "file";
     case ENUM:
       return "enum";
+    case CHAR:
     default:
       return "not defined";
     }

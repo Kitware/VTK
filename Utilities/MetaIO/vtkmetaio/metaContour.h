@@ -72,7 +72,7 @@ public:
   ~ContourInterpolatedPnt()
     {
     delete []m_X;
-    };
+    }
 
   unsigned int m_Dim;
   float* m_X;

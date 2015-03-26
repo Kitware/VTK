@@ -105,7 +105,7 @@ public:
     }
   ~MeshCellLink()
     {
-    };
+    }
 
   int m_Id; // id of the cell link
   METAIO_STL::list<int> m_Links;
@@ -122,7 +122,7 @@ public:
     }
   virtual ~MeshDataBase()
     {
-    };
+    }
 
   virtual void Write( METAIO_STREAM::ofstream* stream) = 0;
   virtual unsigned int GetSize(void) = 0;
@@ -143,7 +143,7 @@ class METAIO_EXPORT MeshData : public MeshDataBase
 public:
 
   MeshData() {m_Id=-1;}
-  ~MeshData() {};
+  ~MeshData() {}
 
   virtual MET_ValueEnumType GetMetaType()
     {
