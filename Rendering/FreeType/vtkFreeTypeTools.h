@@ -72,7 +72,7 @@ public:
 
   // Description:
   // If true, images produced by RenderString will have a transparent grey
-  // background.
+  // background and set the justification anchor texel to bright yellow.
   vtkSetMacro(DebugTextures, bool)
   vtkGetMacro(DebugTextures, bool)
   vtkBooleanMacro(DebugTextures, bool)

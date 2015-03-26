@@ -1204,7 +1204,27 @@ bool vtkFreeTypeTools::RenderStringInternal(vtkTextProperty *tprop,
   data->Modified();
 
   // Render image
-  return this->PopulateData(str, data, metaData);
+  if (!this->PopulateData(str, data, metaData))
+    {
+    vtkErrorMacro(<<"Error rendering text.");
+    return false;
+    }
+
+  // Draw a yellow dot at the anchor point:
+  if (this->DebugTextures)
+    {
+    unsigned char *ptr =
+        static_cast<unsigned char *>(data->GetScalarPointer(0, 0, 0));
+    if (ptr)
+      {
+      ptr[0] = 255;
+      ptr[1] = 255;
+      ptr[2] = 0;
+      ptr[3] = 255;
+      }
+    }
+
+  return true;
 }
 
 //----------------------------------------------------------------------------
