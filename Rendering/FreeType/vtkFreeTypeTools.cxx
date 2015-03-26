@@ -1866,7 +1866,8 @@ bool vtkFreeTypeTools::RenderCharacter(CharType character, int &x, int &y,
           iMetaData->imageIncrements[0];
       unsigned char *glyphPtrRow = bitmap->buffer;
       unsigned char *glyphPtr;
-      float tpropAlpha = iMetaData->rgba[3] / 255.0;
+      const unsigned char *fgRGB = iMetaData->rgba;
+      const float fgA = iMetaData->rgba[3] / 255.f;
 
       for (int j = 0; j < static_cast<int>(bitmap->rows); ++j)
         {
@@ -1877,41 +1878,42 @@ bool vtkFreeTypeTools::RenderCharacter(CharType character, int &x, int &y,
           if (*glyphPtr == 0)
             {
             ptr += 4;
-            ++glyphPtr;
             }
           else if (ptr[3] > 0)
             {
             // This is a pixel we've drawn before since it has non-zero alpha.
             // We must therefore blend the colors.
-            float t_alpha = tpropAlpha * (*glyphPtr / 255.0);
-            float t_1_m_alpha = 1.0 - t_alpha;
-            float data_alpha = ptr[3] / 255.0;
+            const float val = *glyphPtr / 255.f;
+            const float bgA = ptr[3] / 255.0;
 
-            float blendR(t_1_m_alpha * ptr[0] + t_alpha * iMetaData->rgba[0]);
-            float blendG(t_1_m_alpha * ptr[1] + t_alpha * iMetaData->rgba[1]);
-            float blendB(t_1_m_alpha * ptr[2] + t_alpha * iMetaData->rgba[2]);
+            const float fg_blend = fgA * val;
+            const float bg_blend = 1.f - fg_blend;
+
+            float r(bg_blend * ptr[0] + fg_blend * fgRGB[0]);
+            float g(bg_blend * ptr[1] + fg_blend * fgRGB[1]);
+            float b(bg_blend * ptr[2] + fg_blend * fgRGB[2]);
+            float a(255 * (fg_blend + bgA * bg_blend));
 
             // Figure out the color.
-            ptr[0] = static_cast<unsigned char>(blendR);
-            ptr[1] = static_cast<unsigned char>(blendG);
-            ptr[2] = static_cast<unsigned char>(blendB);
-            ptr[3] = static_cast<unsigned char>(
-                  255 * (t_alpha + data_alpha * t_1_m_alpha));
+            ptr[0] = static_cast<unsigned char>(r);
+            ptr[1] = static_cast<unsigned char>(g);
+            ptr[2] = static_cast<unsigned char>(b);
+            ptr[3] = static_cast<unsigned char>(a);
+
             ptr += 4;
-            ++glyphPtr;
             }
           else
             {
-            *ptr = iMetaData->rgba[0];
+            *ptr = fgRGB[0];
             ++ptr;
-            *ptr = iMetaData->rgba[1];
+            *ptr = fgRGB[1];
             ++ptr;
-            *ptr = iMetaData->rgba[2];
+            *ptr = fgRGB[2];
             ++ptr;
-            *ptr = static_cast<unsigned char>((*glyphPtr) * tpropAlpha);
+            *ptr = static_cast<unsigned char>((*glyphPtr) * fgA);
             ++ptr;
-            ++glyphPtr;
             }
+          ++glyphPtr;
           }
         glyphPtrRow += bitmap->pitch;
         ptr += dataPitch;
