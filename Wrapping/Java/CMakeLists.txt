@@ -324,22 +324,34 @@ mark_as_advanced(VTK_JAVA_SOURCE_VERSION)
 set(VTK_JAVA_TARGET_VERSION "1.5" CACHE STRING "javac target version")
 mark_as_advanced(VTK_JAVA_TARGET_VERSION)
 
+# On machines with long paths to VTK (or windows where the command line length
+# is short), we cannot just list all the java files on the command line.  So
+# we put them in a response file and give that to javac
+# FIXME - Ideally we should make this run every build, but this is not well
+#          supported right now...
+add_custom_command(
+  OUTPUT ${VTK_BINARY_DIR}/java/javac_stamp.rsp
+  DEPENDS ${VTK_JAVA_SOURCE_FILES}
+  COMMAND ${CMAKE_COMMAND}
+          -DVTK_JAVA_SWT_COMPONENT=${VTK_JAVA_SWT_COMPONENT}
+          -DVTK_JAVA_JOGL_COMPONENT=${VTK_JAVA_JOGL_COMPONENT}
+          -DVTK_BINARY_DIR=${VTK_BINARY_DIR}
+          -DRSP_FILENAME=${VTK_BINARY_DIR}/java/javac_stamp.rsp
+          -P ${CMAKE_CURRENT_SOURCE_DIR}/MakeJavacResponseFile.cmake
+  COMMENT "Creating javac response file"
+  )
+
 # Compile the Java classes
 add_custom_command(
   OUTPUT ${VTK_BINARY_DIR}/java/javac_stamp.txt
-  DEPENDS ${VTK_JAVA_SOURCE_FILES}
+  DEPENDS ${VTK_BINARY_DIR}/java/javac_stamp.rsp ${VTK_JAVA_SOURCE_FILES}
   COMMAND ${JAVA_COMPILE} ${JAVAC_OPTIONS}
           -source ${VTK_JAVA_SOURCE_VERSION}
           -target ${VTK_JAVA_TARGET_VERSION}
           -classpath ${JAVA_COMPILATION_CLASSPATH}
           -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java/
           -d ${VTK_BINARY_DIR}/java
-          ${VTK_BINARY_DIR}/java/vtk/*.java
-          ${VTK_BINARY_DIR}/java/vtk/rendering/*.java
-          ${VTK_BINARY_DIR}/java/vtk/rendering/awt/*.java
-          ${VTK_BINARY_DIR}/java/vtk/sample/*.java
-          ${SWT_FILES}
-          ${JOGL_FILES}
+          @${VTK_BINARY_DIR}/java/javac_stamp.rsp
   COMMAND ${CMAKE_COMMAND} -E touch ${VTK_BINARY_DIR}/java/javac_stamp.txt
   COMMENT "Compiling Java Classes"
   )
