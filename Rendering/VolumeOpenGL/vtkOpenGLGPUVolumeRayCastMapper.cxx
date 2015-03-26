@@ -2175,14 +2175,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
   // It does not work on Apple OS X Snow Leopard with nVidia.
   // There is a bug in the OpenGL driver with an error in the
   // Cg compiler about an infinite loop.
-#ifndef APPLE_SNOW_LEOPARD_BUG
- #ifdef __APPLE__
+#if defined(__APPLE__) && !defined(APPLE_SNOW_LEOPARD_BUG)
+
   this->UnsupportedRequiredExtensions->Stream<<
     " Disabled on Apple OS X Snow Leopard with nVidia.";
   this->LoadExtensionsSucceeded=0;
   return;
- #endif
-#endif
+
+#else
 
   // Assume success
   this->LoadExtensionsSucceeded=1;
@@ -2463,6 +2463,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
   this->LastComponent=
     vtkOpenGLGPUVolumeRayCastMapperComponentNotInitialized;
   this->LastShade=vtkOpenGLGPUVolumeRayCastMapperShadeNotInitialized;
+
+#endif
 }
 
 //-----------------------------------------------------------------------------
