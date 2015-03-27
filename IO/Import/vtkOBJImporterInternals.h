@@ -9,7 +9,7 @@
 const int OBJ_FILENAME_LENGTH = 500;
 const int MATERIAL_NAME_SIZE  = 255;
 
-struct obj_material
+struct vtkOBJImportedMaterial
 {
   char name[MATERIAL_NAME_SIZE];
   char texture_filename[OBJ_FILENAME_LENGTH];
@@ -34,17 +34,17 @@ struct obj_material
 };
 
 
-void obj_set_material_defaults(obj_material* mtl);
+void obj_set_material_defaults(vtkOBJImportedMaterial* mtl);
 
-std::vector<obj_material*> obj_parse_mtl_file(std::string filename,int& result_code);
+std::vector<vtkOBJImportedMaterial*> obj_parse_mtl_file(std::string filename,int& result_code);
 
-struct ImportedPolydataWithMaterial;
+struct vtkOBJImportedPolyDataWithMaterial;
 
-class vtkOBJPolydataProcessor : public vtkPolyDataAlgorithm
+class vtkOBJPolyDataProcessor : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkOBJPolydataProcessor *New();
-  vtkTypeMacro(vtkOBJPolydataProcessor,vtkPolyDataAlgorithm);
+  static vtkOBJPolyDataProcessor *New();
+  vtkTypeMacro(vtkOBJPolyDataProcessor,vtkPolyDataAlgorithm);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -54,28 +54,28 @@ public:
     FileName    = std::string(arg);
     MTLfilename = FileName + ".mtl";
   }
-  void SetMTLfileName( const char* arg ) {
+  void SetMTLfileName( const char* arg )
+  {
     MTLfilename = std::string(arg);
   }
 
   vtkSetMacro(VertexScale,double);
   vtkGetMacro(VertexScale,double);
 
-
   virtual vtkPolyData* GetOutput(int idx);
 
   //////////////////////
 
-  obj_material*  GetMaterial(int k);
+  vtkOBJImportedMaterial*  GetMaterial(int k);
 
   std::string GetTextureFilename( int idx ); // return string by index
 
   double VertexScale; // scale vertices by this during import
 
-  std::map<std::string,obj_material*>  mtlName_to_mtlData;
+  std::map<std::string,vtkOBJImportedMaterial*>  mtlName_to_mtlData;
 
   // our internal parsing/storage
-  std::vector<ImportedPolydataWithMaterial*> poly_list;
+  std::vector<vtkOBJImportedPolyDataWithMaterial*> poly_list;
 
   // what gets returned to client code via GetOutput()
   std::vector<vtkSmartPointer<vtkPolyData> >  outVector_of_vtkPolyData;
@@ -86,8 +86,8 @@ public:
   /////////////////////
 
 protected:
-  vtkOBJPolydataProcessor();
-  ~vtkOBJPolydataProcessor();
+  vtkOBJPolyDataProcessor();
+  ~vtkOBJPolyDataProcessor();
   int RequestData(vtkInformation *,
                   vtkInformationVector **, vtkInformationVector *) /*override*/;
 
@@ -95,12 +95,12 @@ protected:
   std::string MTLfilename;  // associated .mtl to *.obj, typically it is *.obj.mtl
 
 private:
-  vtkOBJPolydataProcessor(const vtkOBJPolydataProcessor&);  // Not implemented.
-  void operator=(const vtkOBJPolydataProcessor&);  // Not implemented.
+  vtkOBJPolyDataProcessor(const vtkOBJPolyDataProcessor&);  // Not implemented.
+  void operator=(const vtkOBJPolyDataProcessor&);  // Not implemented.
 };
 
 class vtkRenderWindow;
 class vtkRenderer;
 void  bindTexturedPolydataToRenderWindow( vtkRenderWindow* renderWindow,
                                           vtkRenderer* renderer,
-                                          vtkOBJPolydataProcessor* reader );
+                                          vtkOBJPolyDataProcessor* reader );

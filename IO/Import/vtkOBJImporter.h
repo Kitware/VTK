@@ -6,8 +6,8 @@
 // .SECTION Description
 
 
-#ifndef __vtkOBJPolydataProcessor_h
-#define __vtkOBJPolydataProcessor_h
+#ifndef __vtkOBJPolyDataProcessor_h
+#define __vtkOBJPolyDataProcessor_h
 
 #include "vtkSmartPointer.h"
 #include "vtkIOImportModule.h" // For export macro
@@ -16,7 +16,7 @@
 class vtkRenderWindow;
 class vtkRenderer;
 class vtkPolydata;
-class vtkOBJPolydataProcessor;
+class vtkOBJPolyDataProcessor;
 
 //! @note{updated by peter karasev, 2015 to read texture coordinates + material properties}
 class VTKIOIMPORT_EXPORT vtkOBJImporter : public vtkImporter
@@ -42,7 +42,7 @@ protected:
   virtual void ImportEnd () /*override*/;
   virtual void ReadData() /* override */;
 
-  vtkSmartPointer<vtkOBJPolydataProcessor>   Impl;
+  vtkSmartPointer<vtkOBJPolyDataProcessor>   Impl;
   char* FileName;
   char* FileNameMTL;
 
