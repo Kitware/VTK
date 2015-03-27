@@ -90,6 +90,7 @@ bool vtkMathTextFreeTypeTextRenderer::GetBoundingBoxInternal(
           }
         }
       vtkDebugMacro("MathText unavailable. Falling back to FreeType.");
+      VTK_FALLTHROUGH;
     case FreeType:
       {
       vtkStdString cleanString(str);
@@ -150,6 +151,7 @@ bool vtkMathTextFreeTypeTextRenderer::GetBoundingBoxInternal(
           }
         }
       vtkDebugMacro("MathText unavailable. Falling back to FreeType.");
+      VTK_FALLTHROUGH;
     case FreeType:
       {
       vtkUnicodeString cleanString(str);
@@ -207,6 +209,7 @@ bool vtkMathTextFreeTypeTextRenderer::GetMetricsInternal(
           }
         }
       vtkDebugMacro("MathText unavailable. Falling back to FreeType.");
+      VTK_FALLTHROUGH;
     case FreeType:
       {
       vtkStdString cleanString(str);
@@ -267,6 +270,7 @@ bool vtkMathTextFreeTypeTextRenderer::GetMetricsInternal(
           }
         }
       vtkDebugMacro("MathText unavailable. Falling back to FreeType.");
+      VTK_FALLTHROUGH;
     case FreeType:
       {
       vtkUnicodeString cleanString(str);
@@ -318,6 +322,7 @@ bool vtkMathTextFreeTypeTextRenderer::RenderStringInternal(
           }
         }
       vtkDebugMacro("MathText unavailable. Falling back to FreeType.");
+      VTK_FALLTHROUGH;
     case FreeType:
       {
       vtkStdString cleanString(str);
@@ -372,6 +377,7 @@ bool vtkMathTextFreeTypeTextRenderer::RenderStringInternal(
           }
         }
       vtkDebugMacro("MathText unavailable. Falling back to FreeType.");
+      VTK_FALLTHROUGH;
     case FreeType:
       {
       vtkUnicodeString cleanString(str);
@@ -426,6 +432,7 @@ int vtkMathTextFreeTypeTextRenderer::GetConstrainedFontSizeInternal(
           }
         }
       vtkDebugMacro("MathText unavailable. Falling back to FreeType.");
+      VTK_FALLTHROUGH;
     case FreeType:
       {
       vtkStdString cleanString(str);
@@ -482,6 +489,7 @@ int vtkMathTextFreeTypeTextRenderer::GetConstrainedFontSizeInternal(
           }
         }
       vtkDebugMacro("MathText unavailable. Falling back to FreeType.");
+      VTK_FALLTHROUGH;
     case FreeType:
       {
       vtkUnicodeString cleanString(str);
@@ -533,6 +541,7 @@ bool vtkMathTextFreeTypeTextRenderer::StringToPathInternal(
           }
         }
       vtkDebugMacro("MathText unavailable. Falling back to FreeType.");
+      VTK_FALLTHROUGH;
     case FreeType:
       {
       vtkStdString cleanString(str);
@@ -584,6 +593,7 @@ bool vtkMathTextFreeTypeTextRenderer::StringToPathInternal(
           }
         }
       vtkDebugMacro("MathText unavailable. Falling back to FreeType.");
+      VTK_FALLTHROUGH;
     case FreeType:
       {
       vtkUnicodeString cleanString(str);

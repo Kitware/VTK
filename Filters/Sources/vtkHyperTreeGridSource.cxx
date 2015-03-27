@@ -1046,13 +1046,15 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeCursor* cursor,
     double newSize[] = { 0., 0., 0. };
     switch ( this->Dimension )
       {
-      // Warning: Run through is intended! Do NOT add break statements
       case 3:
         newSize[2] = size[2] / this->BranchFactor;
+        VTK_FALLTHROUGH;
       case 2:
         newSize[1] = size[1] / this->BranchFactor;
+        VTK_FALLTHROUGH;
       case 1:
         newSize[0] = size[0] / this->BranchFactor;
+        break;
       }
 
     int newChildIdx = 0;

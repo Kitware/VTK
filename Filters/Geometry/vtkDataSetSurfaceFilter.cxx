@@ -519,14 +519,8 @@ int vtkDataSetSurfaceFilter::StructuredExecute(vtkDataSet *input,
       break;
       }
     case VTK_UNIFORM_GRID:
-      {
-      // same as vtk_image_data
-      }
     case VTK_STRUCTURED_POINTS:
-      {
-      // same as vtk_image_data
-      }
-     case VTK_IMAGE_DATA:
+    case VTK_IMAGE_DATA:
       {
       dataType = VTK_DOUBLE;
       break;
@@ -534,6 +528,7 @@ int vtkDataSetSurfaceFilter::StructuredExecute(vtkDataSet *input,
     default:
       dataType = VTK_DOUBLE;
       vtkWarningMacro("Invalid data set type.");
+      break;
     }
 
   outPoints->SetDataType(dataType);

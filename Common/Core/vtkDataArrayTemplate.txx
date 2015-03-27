@@ -190,15 +190,14 @@ void vtkDataArrayTemplate<T>::PrintSelf(ostream& os, vtkIndent indent)
 template <typename T> vtkDataArrayTemplate<T> *
 vtkDataArrayTemplate<T>::FastDownCast(vtkAbstractArray *src)
 {
-  switch (src->GetArrayType())
+  if ((src->GetArrayType() == vtkAbstractArray::DataArrayTemplate) &&
+      (src->GetDataType() == vtkTypeTraits<ValueType>::VTK_TYPE_ID))
     {
-    case vtkAbstractArray::DataArrayTemplate:
-      if (src->GetDataType() == vtkTypeTraits<ValueType>::VTK_TYPE_ID)
-        {
-        return static_cast<vtkDataArrayTemplate<ValueType>*>(src);
-        }
-    default:
-      return NULL;
+    return static_cast<vtkDataArrayTemplate<ValueType>*>(src);
+    }
+  else
+    {
+    return NULL;
     }
 }
 

@@ -759,9 +759,11 @@ void vtkImageNLCRowInterpolate<F, T>::Tricubic(
       case 4:
         iX3 = iX[3];
         fX3 = fX[3];
+        VTK_FALLTHROUGH;
       case 3:
         iX2 = iX[2];
         fX2 = fX[2];
+        VTK_FALLTHROUGH;
       case 2:
         iX1 = iX[1];
         fX1 = fX[1];

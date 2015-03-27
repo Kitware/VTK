@@ -438,7 +438,7 @@ void vtkCosmicTreeLayoutStrategy::LayoutChildren(
     // Unit size means we can stop descending when depth == 0... all entries in radii are initialized to 1.0
     if ( depth < 0 && this->LayoutDepth >= 0 )
       return;
-    // fall through:
+    VTK_FALLTHROUGH;
   case LEAVES:
     // We must descend all the way down to the leaves, regardless of LayoutDepth.
     for ( childIdx = 0; childIdx < numberOfChildren; ++ childIdx )

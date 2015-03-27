@@ -925,6 +925,7 @@ vtkHyperTree* vtkHyperTree::CreateInstance( unsigned int factor,
         default:
           vtkGenericWarningMacro( "Bad dimension " << dimension );
         }
+      break;
     case 3:
       switch ( dimension )
         {
@@ -937,6 +938,7 @@ vtkHyperTree* vtkHyperTree::CreateInstance( unsigned int factor,
         default:
           vtkGenericWarningMacro( "Bad dimension " << dimension );
         }
+      break;
     default:
       vtkGenericWarningMacro( "Bad branching factor " << factor );
     }

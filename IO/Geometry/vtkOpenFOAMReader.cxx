@@ -1080,7 +1080,7 @@ public:
             isExpanded = true;
             break;
             }
-          // fall through
+          VTK_FALLTHROUGH;
         default:
           wasPathSeparator = (c == '/' || c == '\\');
           expandedPath += c;
@@ -1175,7 +1175,7 @@ public:
           this->PutBack(c);
           return true;
           }
-        // fall through
+        VTK_FALLTHROUGH;
       case '.':
         // scalar token
         if (c == '.' && charI < MAXLEN)
@@ -3070,17 +3070,22 @@ vtkFoamEntryValue::vtkFoamEntryValue(
   switch (this->Superclass::Type)
     {
     case VECTORLIST:
+      {
+      vtkFloatArray *fa = vtkFloatArray::SafeDownCast(value.ToVTKObject());
+      if(fa->GetNumberOfComponents() == 6)
         {
-        vtkFloatArray *fa = vtkFloatArray::SafeDownCast(value.ToVTKObject());
-        if(fa->GetNumberOfComponents() == 6)
-          {
-          // create deepcopies for vtkObjects to avoid duplicated mainpulation
-          vtkFloatArray *newfa = vtkFloatArray::New();
-          newfa->DeepCopy(fa);
-          this->Superclass::VtkObjectPtr = newfa;
-          break;
-          }
+        // create deepcopies for vtkObjects to avoid duplicated mainpulation
+        vtkFloatArray *newfa = vtkFloatArray::New();
+        newfa->DeepCopy(fa);
+        this->Superclass::VtkObjectPtr = newfa;
         }
+      else
+        {
+        this->Superclass::VtkObjectPtr = value.ToVTKObject();
+        this->Superclass::VtkObjectPtr->Register(0);
+        }
+      }
+      break;
     case LABELLIST:
     case SCALARLIST:
     case STRINGLIST:
