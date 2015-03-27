@@ -81,7 +81,7 @@ public:
 
   // Description:
   // The maximum number of cycles run to see if the value goes over 2
-  vtkSetClampMacro(MaximumNumberOfIterations, unsigned char, 1, 255);
+  vtkSetClampMacro(MaximumNumberOfIterations, unsigned short, 1, 255);
   vtkGetMacro(MaximumNumberOfIterations, unsigned char);
 
   // Description:
