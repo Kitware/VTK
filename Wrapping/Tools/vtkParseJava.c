@@ -19,6 +19,7 @@
 #include "vtkParse.h"
 #include "vtkParseMain.h"
 #include "vtkParseHierarchy.h"
+#include "vtkWrap.h"
 
 HierarchyInfo *hierarchyInfo = NULL;
 StringCache *stringCache = NULL;
@@ -861,6 +862,11 @@ int main(int argc, char *argv[])
   if (options->HierarchyFileName)
     {
     hierarchyInfo = vtkParseHierarchy_ReadFile(options->HierarchyFileName);
+    if (hierarchyInfo)
+      {
+      /* resolve using declarations within the header files */
+      vtkWrap_ApplyUsingDeclarations(data, file_info, hierarchyInfo);
+      }
     }
 
   fprintf(fp,"// java wrapper for %s object\n//\n",data->Name);
