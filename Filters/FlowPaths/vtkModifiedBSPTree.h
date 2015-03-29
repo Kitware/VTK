@@ -163,11 +163,9 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkModifiedBSPTree : public vtkAbstractCellLoca
   // Construct with maximum 32 cells per node. (average 16->31)
   static vtkModifiedBSPTree *New();
 
-//BTX
+  // Re-use any superclass signatures that we don't override.
   using vtkAbstractCellLocator::IntersectWithLine;
-  using vtkAbstractCellLocator::FindClosestPoint;
-  using vtkAbstractCellLocator::FindClosestPointWithinRadius;
-//ETX
+  using vtkAbstractCellLocator::FindCell;
 
   // Description:
   // Free tree memory
@@ -187,14 +185,6 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkModifiedBSPTree : public vtkAbstractCellLoca
   virtual void GenerateRepresentationLeafs(vtkPolyData *pd);
 
   // Description:
-  // Return intersection point (if any) of finite line with cells contained
-  // in cell locator.
-  virtual int IntersectWithLine(
-    double p1[3], double p2[3], double tol, double& t, double x[3],
-    double pcoords[3], int &subId)
-    { return this->Superclass::IntersectWithLine(p1, p2, tol, t, x, pcoords, subId); }
-
-  // Description:
   // Return intersection point (if any) AND the cell which was intersected by
   // the finite line. Uses fast tree-search BBox rejection tests.
   virtual int IntersectWithLine(
@@ -210,22 +200,6 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkModifiedBSPTree : public vtkAbstractCellLoca
 
   // Description:
   // Take the passed line segment and intersect it with the data set.
-  // This method assumes that the data set is a vtkPolyData that describes
-  // a closed surface, and the intersection points that are returned in
-  // 'points' alternate between entrance points and exit points.
-  // The return value of the function is 0 if no intersections were found,
-  // -1 if point 'a0' lies inside the closed surface, or +1 if point 'a0'
-  // lies outside the closed surface.
-  // Either 'points' or 'cellIds' can be set to NULL if you don't want
-  // to receive that information. This method is currently only implemented
-  // in vtkOBBTree
-  virtual int IntersectWithLine(
-    const double p1[3], const double p2[3],
-    vtkPoints *points, vtkIdList *cellIds)
-    { return this->Superclass::IntersectWithLine(p1, p2, points, cellIds); }
-
-  // Description:
-  // Take the passed line segment and intersect it with the data set.
   // The return value of the function is 0 if no intersections were found.
   // For each intersection found, the vtkPoints and CellIds objects
   // have the relevant information added in order of intersection increasing
@@ -234,12 +208,6 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkModifiedBSPTree : public vtkAbstractCellLoca
   virtual int IntersectWithLine(
     const double p1[3], const double p2[3], const double tol,
     vtkPoints *points, vtkIdList *cellIds);
-
-  // Description:
-  // Returns the Id of the cell containing the point,
-  // returns -1 if no cell found. This interface uses a tolerance of zero
-  virtual vtkIdType FindCell(double x[3])
-    { return this->Superclass::FindCell(x); }
 
   // Description:
   // Test a point to find if it is inside a cell. Returns the cellId if inside
