@@ -19,7 +19,7 @@
 
 vtkStandardNewMacro(vtkHeap);
 
-static int vtkGetLongAlignment()
+static size_t vtkGetLongAlignment()
 {
   struct vtkTestAlignLong
   {

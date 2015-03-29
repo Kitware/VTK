@@ -156,8 +156,6 @@ int ValidateSphere::ProcessRequest(vtkInformation* request,
       }
 
     // Adjust Phi and Theta resolutions for multi-piece
-    double deltaPhi, deltaTheta, phi, theta;
-    double startTheta, endTheta, startPhi, endPhi;
     int thetaResolution, phiResolution;
     int piece = controller->GetLocalProcessId();
     int numPieces = mpInput->GetNumberOfPieces();
@@ -177,7 +175,7 @@ int ValidateSphere::ProcessRequest(vtkInformation* request,
       {
       localEndTheta += 360.0;
       }
-    deltaTheta = (localEndTheta - localStartTheta) / localThetaResolution;
+    double deltaTheta = (localEndTheta - localStartTheta) / localThetaResolution;
 
     int start, end, numPoles;
     start = piece * localThetaResolution / numPieces;
