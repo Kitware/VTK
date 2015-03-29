@@ -421,6 +421,7 @@ void vtkProp3D::ComputeMatrix()
 
     this->Transform->PreMultiply();
     this->Transform->GetMatrix(this->Matrix);
+    this->Matrix->Modified();
     this->MatrixMTime.Modified();
     this->Transform->Pop();
     }
