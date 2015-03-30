@@ -20,7 +20,7 @@ endif()
 
 set(CMAKE_CONFIGURABLE_FILE_CONTENT)
 foreach( java_file IN LISTS ${all_vtk_java_files} )
-  set(CMAKE_CONFIGURABLE_FILE_CONTENT "${CMAKE_CONFIGURABLE_FILE_CONTENT}${java_file}\n")
+  set(CMAKE_CONFIGURABLE_FILE_CONTENT "${CMAKE_CONFIGURABLE_FILE_CONTENT}\"${java_file}\"\n")
 endforeach()
 
 configure_file(
