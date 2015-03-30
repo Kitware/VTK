@@ -33,6 +33,7 @@
 
 #include "fonts/vtkEmbeddedFonts.h"
 
+#include <limits>
 #include <cassert>
 #include <sys/stat.h>
 #ifndef _MSC_VER
