@@ -57,6 +57,13 @@ If you have found a bug:
 
 [VTK Issue Tracker]: http://www.vtk.org/Bug
 
+Contributing
+============
+
+See [CONTRIBUTING.md][] for instructions to contribute.
+
+[CONTRIBUTING.md]: CONTRIBUTING.md
+
 License
 =======
 
@@ -64,10 +71,3 @@ VTK is distributed under the OSI-approved BSD 3-clause License.
 See [Copyright.txt][] for details.
 
 [Copyright.txt]: Copyright.txt
-
-Contributing
-============
-
-See [CONTRIBUTING.md][] for instructions to contribute.
-
-[CONTRIBUTING.md]: CONTRIBUTING.md
