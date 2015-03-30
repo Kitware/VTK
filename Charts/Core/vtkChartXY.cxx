@@ -2095,6 +2095,9 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
             }
           }
         }
+      vtkIdType* ptrSelection =
+        reinterpret_cast<vtkIdType *>(accumulateSelection->GetVoidPointer(0));
+      std::sort(ptrSelection, ptrSelection + accumulateSelection->GetNumberOfTuples());
       // Now add the accumulated selection to the old selection
       vtkChartSelectionHelper::BuildSelection(this->AnnotationLink,
                                               selectionMode,
