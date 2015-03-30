@@ -21,6 +21,11 @@
 #import "vtkCocoaRenderWindowInteractor.h"
 #import "vtkCommand.h"
 
+//----------------------------------------------------------------------------
+// Private
+@interface vtkCocoaGLView()
+@property(readwrite, retain, nonatomic) NSTrackingArea *rolloverTrackingArea;
+@end
 
 @implementation vtkCocoaGLView
 
@@ -32,6 +37,9 @@
 }
 
 //----------------------------------------------------------------------------
+@synthesize rolloverTrackingArea = _rolloverTrackingArea;
+
+//----------------------------------------------------------------------------
 // Overridden (from NSView).
 // designated initializer
 - (id)initWithFrame:(NSRect)frameRect
@@ -39,9 +47,6 @@
   self = [super initWithFrame:frameRect];
   if (self)
     {
-    // The tracking rect is not set yet.
-    _rolloverTrackingRectSet = NO;
-
     // Force Cocoa into "multi threaded mode" because VTK spawns pthreads.
     // Apple's docs say: "If you intend to use Cocoa calls, you must force
     // Cocoa into its multithreaded mode before detaching any POSIX threads.
@@ -96,38 +101,32 @@
 }
 
 //----------------------------------------------------------------------------
-// Private
-- (void)clearTrackingRect
-{
-  // remove any tracking rect we have
-  if (_rolloverTrackingRectSet)
-    {
-    [self removeTrackingRect:_rolloverTrackingRectTag];
-    _rolloverTrackingRectSet = NO;
-    }
-}
-
-//----------------------------------------------------------------------------
-// Private
-- (void)resetTrackingRect
-{
-  //clear out the old tracking rect
-  [self clearTrackingRect];
-
-  //create a new tracking rect
-  _rolloverTrackingRectTag = [self addTrackingRect:[self visibleRect]
-                                             owner:self
-                                          userData:NULL
-                                      assumeInside:NO];
-  _rolloverTrackingRectSet = YES;
-}
-
-//----------------------------------------------------------------------------
 // Overridden (from NSView).
-- (void)resetCursorRects
+- (void)updateTrackingAreas
 {
-  [super resetCursorRects];
-  [self resetTrackingRect];
+  //clear out the old tracking area
+  NSTrackingArea *trackingArea = [self rolloverTrackingArea];
+  if (trackingArea)
+    {
+    [self removeTrackingArea:trackingArea];
+    }
+
+  //create a new tracking area
+  NSRect rect = [self visibleRect];
+  NSTrackingAreaOptions opts = (NSTrackingMouseEnteredAndExited |
+                                NSTrackingMouseMoved |
+                                NSTrackingActiveAlways);
+  trackingArea = [[NSTrackingArea alloc] initWithRect:rect
+                                              options:opts
+                                                owner:self
+                                             userInfo:nil];
+  [self addTrackingArea:trackingArea];
+  [self setRolloverTrackingArea:trackingArea];
+#if !VTK_OBJC_IS_ARC
+  [trackingArea release];
+#endif
+
+  [super updateTrackingAreas];
 }
 
 //----------------------------------------------------------------------------
@@ -159,6 +158,7 @@ static const char *vtkMacCharCodeToKeySymTable[128] = {
   "x", "y", "z", "braceleft", "bar", "braceright", "asciitilde", "Delete",
 };
 
+//----------------------------------------------------------------------------
 // For generating keysyms that are compatible with other VTK interactors
 static const char *vtkMacKeyCodeToKeySymTable[128] = {
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -422,8 +422,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
 - (void)mouseEntered:(NSEvent *)theEvent
 {
   // Note: the mouseEntered/mouseExited events depend on the maintenance of
-  // the Tracking Rect, which is handled by the resetTrackingRect,
-  // clearTrackingRect and resetCursorRects methods above.
+  // the tracking area (updateTrackingAreas).
   [self invokeVTKMoveEvent:vtkCommand::EnterEvent
                 cocoaEvent:theEvent];
 }
