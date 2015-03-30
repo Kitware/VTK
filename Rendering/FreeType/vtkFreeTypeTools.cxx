@@ -39,6 +39,7 @@
 # include <stdint.h>
 #endif
 
+#include <limits>
 #include <cassert>
 #include <algorithm>
 #include <map>
