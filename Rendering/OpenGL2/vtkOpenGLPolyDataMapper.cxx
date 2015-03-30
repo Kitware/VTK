@@ -423,13 +423,19 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
       }
     else
       {
+      substitute(FSSource,
+        "//VTK::Normal::Dec",
+        "uniform int cameraParallel;");
+      this->ShaderVariablesUsed.push_back("cameraParallel");
+
       substitute(FSSource,"//VTK::Normal::Impl",
         "vec3 fdx = normalize(vec3(dFdx(vertexVC.x),dFdx(vertexVC.y),dFdx(vertexVC.z)));\n"
         "  vec3 fdy = normalize(vec3(dFdy(vertexVC.x),dFdy(vertexVC.y),dFdy(vertexVC.z)));\n"
         "  vec3 normalVC = normalize(cross(fdx,fdy));\n"
         // the code below is faster, but does not work on some devices
         //"vec3 normalVC = normalize(cross(dFdx(vertexVC.xyz), dFdy(vertexVC.xyz)));\n"
-        "  if (normalVC.z < 0.0) { normalVC = -1.0*normalVC; }"
+        "  if (cameraParallel == 1 && normalVC.z < 0.0) { normalVC = -1.0*normalVC; }"
+        "  if (cameraParallel == 0 && dot(normalVC,vertexVC) > 0.0) { normalVC = -1.0*normalVC; }"
         );
       }
     }
@@ -1026,6 +1032,11 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
       {
       program->SetUniformMatrix("normalMatrix", norms);
       }
+    }
+
+  if (this->IsShaderVariableUsed("cameraParallel"))
+    {
+    program->SetUniformi("cameraParallel", cam->GetParallelProjection());
     }
 }
 
