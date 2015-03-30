@@ -637,7 +637,7 @@ void vtkFreeTypeTools::MapTextPropertyToId(vtkTextProperty *tprop,
     {
     angle += 3600;
     }
-  angle << bits;
+  angle <<= bits;
 
   // We really should not use more than 32 bits
   unsigned long merged = (bold | italic | angle);
