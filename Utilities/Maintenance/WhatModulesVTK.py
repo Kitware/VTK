@@ -2,6 +2,8 @@
 import os, sys
 import re
 
+RENDERING_BACKENDS = ['OpenGL', 'OpenGL2']
+
 def displayHelp():
     print """
 Usage: WhatModulesVTK.py vtkSourceTree applicationFile|applicationFolder
@@ -64,7 +66,22 @@ Usage: WhatModulesVTK.py vtkSourceTree applicationFile|applicationFolder
 """
     exit(0)
 
-def IncludesToPaths(path):
+def EndsWithBackendName(moduleName):
+    '''
+    Return ``True`` if ``moduleName`` ends with any of the RENDERING_BACKENDS.
+    '''
+    for backend in RENDERING_BACKENDS:
+        if moduleName.endswith(backend):
+            return True
+    return False
+
+def ExcludeModuleName(moduleName, renderingBackend):
+   '''
+   Return ``True`` if ``moduleName`` should not be considered.
+   '''
+   return EndsWithBackendName(moduleName) and not moduleName.endswith(renderingBackend)
+
+def IncludesToPaths(path, renderingBackend='OpenGL'):
     '''
     Build a dict that maps include files to paths.
     '''
@@ -76,10 +93,12 @@ def IncludesToPaths(path):
                 includeFile = prog.findall(f)[0]
                 parts = root.split("/")
                 module = parts[len(parts)-2] + parts[len(parts)-1]
+                if ExcludeModuleName(module, renderingBackend):
+                    continue
                 includeToPath[includeFile] = module
     return includeToPath
 
-def FindModules(path):
+def FindModules(path, renderingBackend='OpenGL'):
     '''
     Build a dict that maps paths to modules.
     '''
@@ -94,6 +113,8 @@ def FindModules(path):
                 m = moduleProg.match(contents)
                 if m:
                     moduleName = m.group(1)
+                    if ExcludeModuleName(moduleName, renderingBackend):
+                        continue
                     parts = root.split("/")
                     pathToModule[parts[len(parts)-2] + parts[len(parts)-1]] = moduleName
                 fid.close()
@@ -112,17 +133,18 @@ def FindIncludes(path):
     fid.close()
     return includes
 
-def FindModuleFiles(path):
+def FindModuleFiles(path, renderingBackend='OpenGL'):
     '''
     Get a list of module files in the VTK directory.
     '''
     moduleFiles = [os.path.join(root, name)
                  for root, dirs, files in os.walk(path)
                  for name in files
-                 if name == ("module.cmake")]
+                 if name == ("module.cmake")
+                 and not ExcludeModuleName(name, renderingBackend)]
     return moduleFiles
 
-def ParseModuleFile(fileName):
+def ParseModuleFile(fileName, renderingBackend='OpenGL'):
     '''
     Read each module file returning the module name and what
     it depends on or implements.
@@ -160,6 +182,7 @@ def ParseModuleFile(fileName):
             state = item
             continue
         if state == 'DEPENDS' and item !=  ')':
+            item = item.replace("${VTK_RENDERING_BACKEND}", renderingBackend)
             depends.append(item)
             continue
         if state == 'IMPLEMENTS' and item !=  ')':
@@ -200,13 +223,15 @@ def MakeFindPackage(modules):
     res +=  ")"
     return res
 
-def main(vtkSourceDir, sourceFiles):
+from pprint import pprint as pp
+
+def main(vtkSourceDir, sourceFiles, renderingBackend='OpenGL'):
     '''
     Start the program
     '''
     # Generate dict's for mapping includes to modules
-    includesToPaths = IncludesToPaths(vtkSourceDir + "/")
-    pathsToModules = FindModules(vtkSourceDir + "/")
+    includesToPaths = IncludesToPaths(vtkSourceDir + "/", renderingBackend)
+    pathsToModules = FindModules(vtkSourceDir + "/", renderingBackend)
 
     # Test to see if VTK source is provided
     if len(pathsToModules) == 0:
@@ -216,9 +241,10 @@ def main(vtkSourceDir, sourceFiles):
     # Parse the module files making a dictionary of each module and its
     # dependencies or what it implements.
     moduleDepencencies = dict()
-    moduleFiles = FindModuleFiles(vtkSourceDir + "/")
+    moduleFiles = FindModuleFiles(vtkSourceDir + "/", renderingBackend)
+
     for fname in moduleFiles:
-        m = ParseModuleFile(fname)
+        m = ParseModuleFile(fname, renderingBackend)
         moduleDepencencies[m[0]] = m[1]
 
     # Build a set of includes for all command line files
@@ -249,11 +275,11 @@ def main(vtkSourceDir, sourceFiles):
     # Add OpenGL factory classes if required.
     if "vtkRenderingFreeType" in allModules:
         allModules.add("vtkRenderingFreeTypeFontConfig")
-        allModules.add("vtkRenderingFreeTypeOpenGL")
+        allModules.add("vtkRenderingFreeType%s" % renderingBackend)
     if "vtkRenderingCore" in allModules:
-        allModules.add("vtkRenderingOpenGL")
+        allModules.add("vtkRendering%s" % renderingBackend)
     if "vtkRenderingVolume" in allModules:
-        allModules.add("vtkRenderingVolumeOpenGL")
+        allModules.add("vtkRenderingVolume%s" % renderingBackend)
 
     # Find the minimal set of modules.
     minimalSetOfModules =\
