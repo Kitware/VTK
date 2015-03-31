@@ -815,14 +815,14 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
     {
     void* dataPtr = scalars->GetVoidPointer(0);
 
-    // TODO: glPixelTransfer is not supported in GL 3.2 or higher.
-    // When we tried to apply scale and bias in the shader, then something
-    // didn't work out quite right.
-    glPixelTransferf(GL_RED_SCALE,static_cast<GLfloat>(this->Scale[0]));
-    glPixelTransferf(GL_RED_BIAS,static_cast<GLfloat>(this->Bias[0]));
-
-    if (!independentComponents)
+    if (noOfComponents == 1 || noOfComponents == 2 || independentComponents)
       {
+      // TODO: glPixelTransfer is not supported in GL 3.2 or higher.
+      // When we tried to apply scale and bias in the shader, then something
+      // didn't work out quite right.
+      glPixelTransferf(GL_RED_SCALE,static_cast<GLfloat>(this->Scale[0]));
+      glPixelTransferf(GL_RED_BIAS,static_cast<GLfloat>(this->Bias[0]));
+
       if (noOfComponents == 2 || noOfComponents == 4)
         {
         glPixelTransferf(GL_GREEN_SCALE,static_cast<GLfloat>(this->Scale[1]));
@@ -853,22 +853,23 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
     this->VolumeTextureObject->SetMinificationFilter(vtkTextureObject::Linear);
     this->VolumeTextureObject->SetBorderColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-    glPixelTransferf(GL_RED_SCALE, 1.0);
-    glPixelTransferf(GL_RED_BIAS, 0.0);
-    if (!independentComponents)
+    if (noOfComponents == 1 || noOfComponents == 2 || independentComponents)
       {
+      glPixelTransferf(GL_RED_SCALE, 1.0);
+      glPixelTransferf(GL_RED_BIAS, 0.0);
+
       if (noOfComponents == 2 || noOfComponents == 4)
         {
-        glPixelTransferf(GL_GREEN_SCALE,1.0);
-        glPixelTransferf(GL_GREEN_BIAS,0.0);
+        glPixelTransferf(GL_GREEN_SCALE, 1.0);
+        glPixelTransferf(GL_GREEN_BIAS, 0.0);
         }
       if (noOfComponents == 4)
         {
         glPixelTransferf(GL_BLUE_SCALE,1.0);
         glPixelTransferf(GL_BLUE_BIAS,0.0);
 
-        glPixelTransferf(GL_ALPHA_SCALE,1.0);
-        glPixelTransferf(GL_ALPHA_BIAS,0.0);
+        glPixelTransferf(GL_ALPHA_SCALE, 1.0);
+        glPixelTransferf(GL_ALPHA_BIAS, 0.0);
         }
       }
     }
@@ -2963,10 +2964,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 
   // Updating clipping if enabled
   this->Impl->UpdateClipping(ren, vol);
-
-  // Finally set the scale and bias for color correction
-//  this->Impl->ShaderProgram->SetUniformf("in_volumeScale", this->Impl->Scale);
-//  this->Impl->ShaderProgram->SetUniformf("in_volumeBias", this->Impl->Bias);
 
   // Finally set the scale and bias for color correction
   this->Impl->ShaderProgram->SetUniformf("in_scale",
