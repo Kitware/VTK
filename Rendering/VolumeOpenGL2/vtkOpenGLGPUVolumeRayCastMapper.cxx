@@ -123,6 +123,9 @@ public:
     this->ScalarsRange.clear();
     this->Scale.clear();
     this->Bias.clear();
+
+    this->ContextCache = 0;
+    this->ContextChanged = false;
     }
 
   // Destructor
@@ -326,6 +329,9 @@ public:
 
   vtkShaderProgram* ShaderProgram;
   vtkOpenGLShaderCache* ShaderCache;
+
+  vtkWeakPointer<vtkOpenGLRenderWindow> ContextCache;
+  bool ContextChanged;
 };
 
 //----------------------------------------------------------------------------
@@ -940,6 +946,9 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
       }
     sliceArray->Delete();
     }
+  // do not tie up the texture unit unless we are activly using it
+  // textures can exist without being active
+  this->VolumeTextureObject->Deactivate();
   return 1;
 }
 
@@ -1353,7 +1362,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateNoiseTexture(
     this->NoiseTextureObject->SetMagnificationFilter(vtkTextureObject::Nearest);
     this->NoiseTextureObject->SetMinificationFilter(vtkTextureObject::Nearest);
     this->NoiseTextureObject->SetBorderColor(0.0f, 0.0f, 0.0f, 0.0f);
-    this->NoiseTextureObject->Activate();
     }
 }
 
@@ -1592,7 +1600,8 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::IsCameraInside(
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateVolumeGeometry(
   vtkRenderer* ren, vtkVolume* vol, vtkImageData* input)
 {
-  if (input->GetMTime() > this->InputUpdateTime.GetMTime() ||
+  if (this->ContextChanged ||
+      input->GetMTime() > this->InputUpdateTime.GetMTime() ||
       this->IsCameraInside(ren, vol) ||
       this->CameraWasInsideInLastUpdate)
     {
@@ -2108,6 +2117,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
     delete this->Impl->GradientOpacityTables;
     this->Impl->GradientOpacityTables = 0;
     }
+
+  this->Impl->ContextCache = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -2504,6 +2515,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 {
   vtkOpenGLClearErrorMacro();
 
+  this->Impl->ContextChanged = vtkOpenGLRenderWindow::SafeDownCast(
+                                  ren->GetRenderWindow()) !=
+                                  this->Impl->ContextCache;
   // Make sure the context is current
   ren->GetRenderWindow()->MakeCurrent();
 
@@ -2540,7 +2554,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   // Set OpenGL states
   vtkVolumeStateRAII glState;
 
-  if (volumeProperty->GetMTime() > this->Impl->InitializationTime.GetMTime())
+  if (this->Impl->ContextChanged ||
+      (volumeProperty->GetMTime() > this->Impl->InitializationTime.GetMTime()))
     {
     this->Impl->Initialize(ren, vol, noOfComponents,
                            independentComponents);
@@ -2569,7 +2584,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 
   // Update the volume if needed
   bool volumeModified = false;
-  if (input->GetMTime() > this->Impl->InputUpdateTime.GetMTime())
+  if (this->Impl->ContextChanged ||
+      (input->GetMTime() > this->Impl->InputUpdateTime.GetMTime()))
     {
     volumeModified = true;
     input->GetDimensions(this->Impl->Dimensions);
@@ -2609,7 +2625,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
   this->Impl->ShaderCache = renWin->GetShaderCache();
 
-  if (volumeProperty->GetMTime() >
+  if (this->Impl->ContextChanged ||
+      volumeProperty->GetMTime() >
       this->Impl->ShaderBuildTime.GetMTime() ||
       this->GetMTime() > this->Impl->ShaderBuildTime.GetMTime() ||
       ren->GetActiveCamera()->GetParallelProjection() !=
@@ -2744,14 +2761,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 
   for (int i = 0; i < numberOfSamplers; ++i)
     {
-    this->Impl->OpacityTables->GetTable(i)->Bind();
+    this->Impl->OpacityTables->GetTable(i)->Activate();
     this->Impl->ShaderProgram->SetUniformi(
       this->Impl->OpacityTablesMap[i].c_str(),
       this->Impl->OpacityTables->GetTable(i)->GetTextureUnit());
 
     if (this->BlendMode != vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
       {
-      this->Impl->RGBTables->GetTable(i)->Bind();
+      this->Impl->RGBTables->GetTable(i)->Activate();
       this->Impl->ShaderProgram->SetUniformi(
         this->Impl->RGBTablesMap[i].c_str(),
         this->Impl->RGBTables->GetTable(i)->GetTextureUnit());
@@ -2759,6 +2776,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 
     if (this->Impl->GradientOpacityTables)
       {
+      this->Impl->GradientOpacityTables->GetTable(i)->Activate();
       this->Impl->ShaderProgram->SetUniformi(
         this->Impl->GradientOpacityTablesMap[i].c_str(),
         this->Impl->GradientOpacityTables->GetTable(i)->GetTextureUnit());
@@ -2775,7 +2793,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 
   if (this->Impl->CurrentMask)
     {
-    this->Impl->CurrentMask->Bind();
+    this->Impl->CurrentMask->Activate();
     this->Impl->ShaderProgram->SetUniformi(
       "in_mask", this->Impl->CurrentMask->GetTextureUnit());
     }
@@ -2785,11 +2803,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     {
     if (this->MaskInput != 0 && this->MaskType == LabelMapMaskType)
       {
-      this->Impl->Mask1RGBTable->Bind();
+      this->Impl->Mask1RGBTable->Activate();
       this->Impl->ShaderProgram->SetUniformi("in_mask1",
         this->Impl->Mask1RGBTable->GetTextureUnit());
 
-      this->Impl->Mask2RGBTable->Bind();
+      this->Impl->Mask2RGBTable->Activate();
       this->Impl->ShaderProgram->SetUniformi("in_mask2",
         this->Impl->Mask2RGBTable->GetTextureUnit());
       this->Impl->ShaderProgram->SetUniformf("in_maskBlendFactor",
@@ -2972,11 +2990,46 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
                  this->Impl->BBoxPolyData->GetNumberOfCells() * 3,
                  GL_UNSIGNED_INT, 0);
 
+  // relase the texture units we were using
+  this->Impl->VolumeTextureObject->Deactivate();
+  this->Impl->NoiseTextureObject->Deactivate();
+  this->Impl->DepthTextureObject->Deactivate();
+
+  for (int i = 0; i < numberOfSamplers; ++i)
+    {
+    this->Impl->OpacityTables->GetTable(i)->Deactivate();
+    if (this->BlendMode != vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
+      {
+      this->Impl->RGBTables->GetTable(i)->Deactivate();
+      }
+    if (this->Impl->GradientOpacityTables)
+      {
+      this->Impl->GradientOpacityTables->GetTable(i)->Deactivate();
+      }
+    }
+
+  if (this->Impl->CurrentMask)
+    {
+    this->Impl->CurrentMask->Deactivate();
+    }
+
+  if(noOfComponents == 1 &&
+     this->BlendMode != vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
+    {
+    if (this->MaskInput != 0 && this->MaskType == LabelMapMaskType)
+      {
+      this->Impl->Mask1RGBTable->Deactivate();
+      this->Impl->Mask2RGBTable->Deactivate();
+      }
+    }
+
   if (volumeModified)
     {
     this->Impl->InputUpdateTime.Modified();
     }
 
+  this->Impl->ContextCache = vtkOpenGLRenderWindow::SafeDownCast(
+                              ren->GetRenderWindow());
   glFinish();
 
   vtkOpenGLCheckErrorMacro("failed after Render");

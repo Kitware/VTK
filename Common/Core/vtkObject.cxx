@@ -138,7 +138,7 @@ vtkObject *vtkObject::New()
 // to zero.
 vtkObject::vtkObject()
 {
-  this->Debug = 0;
+  this->Debug = false;
   this->SubjectHelper = NULL;
   this->Modified(); // Insures modified time > than any other time
   // initial reference count = 1 and reference counting on.
@@ -191,26 +191,26 @@ void vtkObject::PrintSelf(ostream& os, vtkIndent indent)
 // the modification time when enabling debug output.
 void vtkObject::DebugOn()
 {
-  this->Debug = 1;
+  this->Debug = true;
 }
 
 //----------------------------------------------------------------------------
 // Turn debugging output off.
 void vtkObject::DebugOff()
 {
-  this->Debug = 0;
+  this->Debug = false;
 }
 
 //----------------------------------------------------------------------------
 // Get the value of the debug flag.
-unsigned char vtkObject::GetDebug()
+bool vtkObject::GetDebug()
 {
   return this->Debug;
 }
 
 //----------------------------------------------------------------------------
-// Set the value of the debug flag. A non-zero value turns debugging on.
-void vtkObject::SetDebug(unsigned char debugFlag)
+// Set the value of the debug flag. A true value turns debugging on.
+void vtkObject::SetDebug(bool debugFlag)
 {
   this->Debug = debugFlag;
 }

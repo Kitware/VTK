@@ -4,6 +4,7 @@ set(Module_SRCS
   vtkSMPMergePoints.cxx
   vtkSMPMergePolyDataHelper.cxx
   vtkThreadedSynchronizedTemplates3D.cxx
+  vtkThreadedSynchronizedTemplatesCutter3D.cxx
   vtkSMPTransform.cxx
   vtkSMPWarpVector.cxx
   )

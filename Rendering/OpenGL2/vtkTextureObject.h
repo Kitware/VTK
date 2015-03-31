@@ -310,6 +310,10 @@ public:
                 int numComps, int vtktype, bool shaderSupportsTextureInt);
 
   // Description:
+  // Get the data type for the texture as a vtk type int i.e. VTK_INT etc.
+  int GetVTKDataType();
+
+  // Description:
   // Get the data type for the texture as GLenum type.
   int GetDataType(int vtk_scalar_type);
   void SetDataType(unsigned int glType);

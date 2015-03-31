@@ -474,7 +474,7 @@ void vtkTransform::GetOrientationWXYZ(double wxyz[4])
   // calc the return value wxyz
  double mag = sqrt( wxyz[1] * wxyz[1] + wxyz[2] * wxyz[2] + wxyz[3] * wxyz[3] );
 
-  if ( mag )
+  if ( mag != 0.0 )
     {
     wxyz[0] = 2. * vtkMath::DegreesFromRadians( acos( wxyz[0] ) );
     wxyz[1] /= mag;

@@ -17,7 +17,7 @@
 #endif
 
 
-#include "metaImageTypes.h"
+#include "metaImageUtils.h"
 #include <string.h>
 
 #if (METAIO_USE_NAMESPACE)

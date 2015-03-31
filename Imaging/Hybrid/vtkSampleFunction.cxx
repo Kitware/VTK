@@ -25,10 +25,226 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
+#include "vtkSMPTools.h"
 
 vtkStandardNewMacro(vtkSampleFunction);
 vtkCxxSetObjectMacro(vtkSampleFunction,ImplicitFunction,vtkImplicitFunction);
 
+// The heart of the algorithm plus interface to the SMP tools.
+template <class T>
+class vtkSampleFunctionAlgorithm
+{
+public:
+  vtkImplicitFunction *ImplicitFunction;
+  T         *Scalars;
+  float     *Normals;
+  vtkIdType  Extent[6];
+  vtkIdType  Dims[3];
+  vtkIdType  SliceSize;
+  double     Origin[3];
+  double     Spacing[3];
+  double     CapValue;
+
+  // Contructor
+  vtkSampleFunctionAlgorithm();
+
+  // Interface between VTK and templated functions
+  static void SampleAcrossImage(vtkSampleFunction *self, vtkImageData *output,
+                                int extent[6], T *scalars, float *normals);
+
+  // Cap the boundaries with the specified cap value (if requested).
+  void Cap();
+
+  // Interface implicit function computation to SMP tools.
+  template <class TT> class FunctionValueOp
+    {
+    public:
+      FunctionValueOp(vtkSampleFunctionAlgorithm<TT> *algo)
+        { this->Algo = algo;}
+      vtkSampleFunctionAlgorithm *Algo;
+      void  operator() (vtkIdType k, vtkIdType end)
+        {
+        double x[3];
+        vtkIdType i, j, jOffset, kOffset;
+        for ( ; k < end; ++k)
+          {
+          x[2] = this->Algo->Origin[2] + k*this->Algo->Spacing[2];
+          kOffset = k*this->Algo->SliceSize;
+          for (j=0; j<this->Algo->Dims[1]; ++j)
+            {
+            x[1] = this->Algo->Origin[1] + j*this->Algo->Spacing[1];
+            jOffset = j*this->Algo->Dims[0];
+            for (i=0; i<this->Algo->Dims[0]; ++i)
+              {
+              x[0] = this->Algo->Origin[0] + i*this->Algo->Spacing[0];
+              this->Algo->Scalars[i+jOffset+kOffset] =
+                static_cast<TT>(this->Algo->ImplicitFunction->FunctionValue(x));
+              }
+            }
+          }
+        }
+    };
+
+  // Interface implicit function graadient computation to SMP tools.
+  template <class TT> class FunctionGradientOp
+    {
+    public:
+      FunctionGradientOp(vtkSampleFunctionAlgorithm<TT> *algo)
+        { this->Algo = algo;}
+      vtkSampleFunctionAlgorithm *Algo;
+      void  operator() (vtkIdType k, vtkIdType end)
+        {
+        double x[3], n[3];
+        float *nPtr;
+        vtkIdType i, j, jOffset, kOffset;
+        for ( ; k < end; ++k)
+          {
+          x[2] = this->Algo->Origin[2] + k*this->Algo->Spacing[2];
+          kOffset = k*this->Algo->SliceSize;
+          for (j=0; j<this->Algo->Dims[1]; ++j)
+            {
+            x[1] = this->Algo->Origin[1] + j*this->Algo->Spacing[1];
+            jOffset = j*this->Algo->Dims[0];
+            for (i=0; i<this->Algo->Dims[0]; ++i)
+              {
+              x[0] = this->Algo->Origin[0] + i*this->Algo->Spacing[0];
+              this->Algo->ImplicitFunction->FunctionGradient(x,n);
+              nPtr = this->Algo->Normals + 3*(i+jOffset+kOffset);
+              nPtr[0] = static_cast<TT>(-n[0]);
+              nPtr[1] = static_cast<TT>(-n[1]);
+              nPtr[2] = static_cast<TT>(-n[2]);
+              }//i
+            }//j
+          }//k
+        }
+    };
+};
+
+//----------------------------------------------------------------------------
+// Initialized mainly to eliminate compiler warnings.
+template <class T> vtkSampleFunctionAlgorithm<T>::
+vtkSampleFunctionAlgorithm():Scalars(NULL),Normals(NULL)
+{
+  for (int i=0; i<3; ++i)
+    {
+    this->Extent[2*i] = this->Extent[2*i+1] = 0;
+    this->Dims[i] = 0;
+    this->Origin[i] = this->Spacing[i] = 0.0;
+    }
+  this->SliceSize = 0;
+  this->CapValue = 0.0;
+}
+
+//----------------------------------------------------------------------------
+// Templated class is glue between VTK and templated algorithms.
+template <class T> void vtkSampleFunctionAlgorithm<T>::
+SampleAcrossImage(vtkSampleFunction *self, vtkImageData *output,
+                  int extent[6], T *scalars, float *normals)
+{
+  // Populate data into local storage
+  vtkSampleFunctionAlgorithm<T> algo;
+  algo.ImplicitFunction = self->GetImplicitFunction();
+  algo.Scalars = scalars;
+  algo.Normals = normals;
+  for (int i=0; i<3; ++i)
+    {
+    algo.Extent[2*i] = extent[2*i];
+    algo.Extent[2*i+1] = extent[2*i+1];
+    algo.Dims[i] = extent[2*i+1] - extent[2*i] + 1;
+    }
+  algo.SliceSize = algo.Dims[0]*algo.Dims[1];
+  output->GetOrigin(algo.Origin);
+  output->GetSpacing(algo.Spacing);
+  algo.CapValue = self->GetCapValue();
+
+  // Okay now generate samples using SMP tools
+  FunctionValueOp<T> values(&algo);
+  vtkSMPTools::For(0,algo.Dims[2], values);
+
+  // If requested, generate normals
+  if ( algo.Normals )
+    {
+    FunctionGradientOp<T> gradient(&algo);
+    vtkSMPTools::For(0,algo.Dims[2], gradient);
+    }
+
+  // If requested, cap boundaries
+  if ( self->GetCapping() )
+    {
+    algo.Cap();
+    }
+}
+
+//----------------------------------------------------------------------------
+// Cap the boundaries of the volume if requested.
+template <class T> void vtkSampleFunctionAlgorithm<T>::Cap()
+{
+  vtkIdType i,j,k;
+  vtkIdType idx;
+
+  // i-j planes
+  //k = this->Extent[4];
+  for (j=this->Extent[2]; j<=this->Extent[3]; j++)
+    {
+    for (i=this->Extent[0]; i<=this->Extent[1]; i++)
+      {
+      this->Scalars[i+j*this->Dims[0]] = this->CapValue;
+      }
+    }
+
+  idx = this->Extent[5]*this->SliceSize;
+  for (j=this->Extent[2]; j<=this->Extent[3]; j++)
+    {
+    for (i=this->Extent[0]; i<=this->Extent[1]; i++)
+      {
+      this->Scalars[idx+i+j*this->Dims[0]] = this->CapValue;
+      }
+    }
+
+  // j-k planes
+  //i = this->Extent[0];
+  for (k=this->Extent[4]; k<=this->Extent[5]; k++)
+    {
+    for (j=this->Extent[2]; j<=this->Extent[3]; j++)
+      {
+      this->Scalars[j*this->Dims[0]+k*this->SliceSize] =
+        this->CapValue;
+      }
+    }
+
+  i = this->Extent[1];
+  for (k=this->Extent[4]; k<=this->Extent[5]; k++)
+    {
+    for (j=this->Extent[2]; j<=this->Extent[3]; j++)
+      {
+      this->Scalars[i+j*this->Dims[0]+k*this->SliceSize] =
+        this->CapValue;
+      }
+    }
+
+  // i-k planes
+  //j = this->Extent[2];
+  for (k=this->Extent[4]; k<=this->Extent[5]; k++)
+    {
+    for (i=this->Extent[0]; i<=this->Extent[1]; i++)
+      {
+      this->Scalars[i+k*this->SliceSize] = this->CapValue;
+      }
+    }
+
+  j = this->Extent[3];
+  idx = j*this->Dims[0];
+  for (k=this->Extent[4]; k<=this->Extent[5]; k++)
+    {
+    for (i=this->Extent[0]; i<=this->Extent[1]; i++)
+      {
+      this->Scalars[idx+i+k*this->SliceSize] = this->CapValue;
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+// Okay define the VTK class proper
 vtkSampleFunction::vtkSampleFunction()
 {
   this->ModelBounds[0] = -1.0;
@@ -56,10 +272,10 @@ vtkSampleFunction::vtkSampleFunction()
   this->NormalArrayName=0;
   this->SetNormalArrayName("normals");
 
-
   this->SetNumberOfInputPorts(0);
 }
 
+//----------------------------------------------------------------------------
 vtkSampleFunction::~vtkSampleFunction()
 {
   this->SetImplicitFunction(NULL);
@@ -67,6 +283,7 @@ vtkSampleFunction::~vtkSampleFunction()
   this->SetNormalArrayName(NULL);
 }
 
+//----------------------------------------------------------------------------
 // Specify the dimensions of the data on which to sample.
 void vtkSampleFunction::SetSampleDimensions(int i, int j, int k)
 {
@@ -79,6 +296,7 @@ void vtkSampleFunction::SetSampleDimensions(int i, int j, int k)
   this->SetSampleDimensions(dim);
 }
 
+//----------------------------------------------------------------------------
 // Specify the dimensions of the data on which to sample.
 void vtkSampleFunction::SetSampleDimensions(int dim[3])
 {
@@ -96,7 +314,8 @@ void vtkSampleFunction::SetSampleDimensions(int dim[3])
     }
 }
 
-// Set the bounds of the model
+//----------------------------------------------------------------------------
+// Set the bounds of the model.
 void vtkSampleFunction::SetModelBounds(const double bounds[6])
 {
   this->SetModelBounds(bounds[0], bounds[1],
@@ -104,6 +323,8 @@ void vtkSampleFunction::SetModelBounds(const double bounds[6])
                        bounds[4], bounds[5]);
 
 }
+
+//----------------------------------------------------------------------------
 void vtkSampleFunction::SetModelBounds(double xMin, double xMax,
                                        double yMin, double yMax,
                                        double zMin, double zMax)
@@ -140,6 +361,7 @@ void vtkSampleFunction::SetModelBounds(double xMin, double xMax,
     }
 }
 
+//----------------------------------------------------------------------------
 int vtkSampleFunction::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector ** vtkNotUsed( inputVector ),
@@ -175,19 +397,20 @@ int vtkSampleFunction::RequestInformation (
   outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
   outInfo->Set(vtkDataObject::SPACING(),ar,3);
 
-  vtkDataObject::SetPointDataActiveScalarInfo(outInfo,this->OutputScalarType,
-                                              1);
+  vtkDataObject::
+    SetPointDataActiveScalarInfo(outInfo,this->OutputScalarType,1);
 
   return 1;
 }
 
-
-void vtkSampleFunction::ExecuteDataWithInformation(vtkDataObject *outp, vtkInformation *outInfo)
+//----------------------------------------------------------------------------
+// Produce the data.
+void vtkSampleFunction::
+ExecuteDataWithInformation(vtkDataObject *outp, vtkInformation *outInfo)
 {
-  vtkIdType idx, i, j, k;
   vtkFloatArray *newNormals=NULL;
-  vtkIdType numPts;
-  double p[3], s;
+  float *normals=NULL;
+
   vtkImageData *output=this->GetOutput();
   int* extent =
     this->GetExecutive()->GetOutputInformation(0)->Get(
@@ -196,6 +419,7 @@ void vtkSampleFunction::ExecuteDataWithInformation(vtkDataObject *outp, vtkInfor
   output->SetExtent(extent);
   output = this->AllocateOutputData(outp, outInfo);
   vtkDataArray *newScalars =output->GetPointData()->GetScalars();
+  vtkIdType numPts = newScalars->GetNumberOfTuples();
 
   vtkDebugMacro(<< "Sampling implicit function");
 
@@ -207,66 +431,23 @@ void vtkSampleFunction::ExecuteDataWithInformation(vtkDataObject *outp, vtkInfor
     return;
     }
 
-  numPts = newScalars->GetNumberOfTuples();
-
-  // Traverse all points evaluating implicit function at each point
-  //
-  double spacing[3];
-  output->GetSpacing(spacing);
-
-  for ( idx=0, k=extent[4]; k <= extent[5]; k++ )
-    {
-    p[2] = this->ModelBounds[4] + k*spacing[2];
-    for ( j=extent[2]; j <= extent[3]; j++ )
-      {
-      p[1] = this->ModelBounds[2] + j*spacing[1];
-      for ( i=extent[0]; i <= extent[1]; i++ )
-        {
-        p[0] = this->ModelBounds[0] + i*spacing[0];
-        s = this->ImplicitFunction->FunctionValue(p);
-        newScalars->SetTuple1(idx++,s);
-        }
-      }
-    }
-
-  // If normal computation turned on, compute them
-  //
   if ( this->ComputeNormals )
     {
-    double n[3];
     newNormals = vtkFloatArray::New();
     newNormals->SetNumberOfComponents(3);
     newNormals->SetNumberOfTuples(numPts);
-    for ( idx=0, k=extent[4]; k <= extent[5]; k++ )
-      {
-      p[2] = this->ModelBounds[4] + k*spacing[2];
-      for ( j=extent[2]; j <= extent[3]; j++ )
-        {
-        p[1] = this->ModelBounds[2] + j*spacing[1];
-        for ( i=extent[0]; i <= extent[1]; i++ )
-          {
-          p[0] = this->ModelBounds[0] + i*spacing[0];
-          this->ImplicitFunction->FunctionGradient(p, n);
-          n[0] *= -1;
-          n[1] *= -1;
-          n[2] *= -1;
-          vtkMath::Normalize(n);
-          newNormals->SetTuple(idx++,n);
-          }
-        }
-      }
+    normals = newNormals->WritePointer(0,numPts);
+    }
+
+  void *ptr = output->GetArrayPointerForExtent(newScalars, extent);
+  switch (newScalars->GetDataType())
+    {
+    vtkTemplateMacro(vtkSampleFunctionAlgorithm<VTK_TT>::
+                     SampleAcrossImage(this, output, extent, (VTK_TT *)ptr,
+                                       normals));
     }
 
   newScalars->SetName(this->ScalarArrayName);
-
-
-  // If capping is turned on, set the distances of the outside of the volume
-  // to the CapValue.
-  //
-  if ( this->Capping )
-    {
-    this->Cap(newScalars);
-    }
 
   // Update self
   //
@@ -276,13 +457,12 @@ void vtkSampleFunction::ExecuteDataWithInformation(vtkDataObject *outp, vtkInfor
     // it will make ImplicitSum, TestBoxFunction and TestDiscreteMarchingCubes
     // to fail.
     newNormals->SetName(this->NormalArrayName);
-
     output->GetPointData()->SetNormals(newNormals);
     newNormals->Delete();
     }
 }
 
-
+//----------------------------------------------------------------------------
 unsigned long vtkSampleFunction::GetMTime()
 {
   unsigned long mTime=this->Superclass::GetMTime();
@@ -297,75 +477,7 @@ unsigned long vtkSampleFunction::GetMTime()
   return mTime;
 }
 
-void vtkSampleFunction::Cap(vtkDataArray *s)
-{
-  int i,j,k;
-  vtkIdType idx;
-  int d01=this->SampleDimensions[0]*this->SampleDimensions[1];
-  const int* extent =
-    this->GetExecutive()->GetOutputInformation(0)->Get(
-      vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
-
-  // i-j planes
-  //k = extent[4];
-  for (j=extent[2]; j<=extent[3]; j++)
-    {
-    for (i=extent[0]; i<=extent[1]; i++)
-      {
-      s->SetComponent(i+j*this->SampleDimensions[0], 0, this->CapValue);
-      }
-    }
-
-  k = extent[5];
-  idx = k*d01;
-  for (j=extent[2]; j<=extent[3]; j++)
-    {
-    for (i=extent[0]; i<=extent[1]; i++)
-      {
-      s->SetComponent(idx+i+j*this->SampleDimensions[0], 0, this->CapValue);
-      }
-    }
-
-  // j-k planes
-  //i = extent[0];
-  for (k=extent[4]; k<=extent[5]; k++)
-    {
-    for (j=extent[2]; j<=extent[3]; j++)
-      {
-      s->SetComponent(j*this->SampleDimensions[0]+k*d01, 0, this->CapValue);
-      }
-    }
-
-  i = extent[1];
-  for (k=extent[4]; k<=extent[5]; k++)
-    {
-    for (j=extent[2]; j<=extent[3]; j++)
-      {
-      s->SetComponent(i+j*this->SampleDimensions[0]+k*d01, 0, this->CapValue);
-      }
-    }
-
-  // i-k planes
-  //j = extent[2];
-  for (k=extent[4]; k<=extent[5]; k++)
-    {
-    for (i=extent[0]; i<=extent[1]; i++)
-      {
-      s->SetComponent(i+k*d01, 0, this->CapValue);
-      }
-    }
-
-  j = extent[3];
-  idx = j*this->SampleDimensions[0];
-  for (k=extent[4]; k<=extent[5]; k++)
-    {
-    for (i=extent[0]; i<=extent[1]; i++)
-      {
-      s->SetComponent(idx+i+k*d01, 0, this->CapValue);
-      }
-    }
-}
-
+//----------------------------------------------------------------------------
 #ifndef VTK_LEGACY_REMOVE
 void vtkSampleFunction::SetScalars(vtkDataArray *da)
 {
@@ -377,6 +489,7 @@ void vtkSampleFunction::SetScalars(vtkDataArray *da)
 }
 #endif
 
+//----------------------------------------------------------------------------
 void vtkSampleFunction::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

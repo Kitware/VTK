@@ -349,7 +349,7 @@ void vtkWin32VideoSource::Initialize()
     }
 
   // set user data for callbacks
-  if (!capSetUserData(this->Internal->CapWnd,(long)this))
+  if (!capSetUserData(this->Internal->CapWnd,this))
     {
     vtkErrorMacro(<< "Initialize: couldn't set user data for callback"\
                     << " (" << GetLastError() << ")");
@@ -1147,7 +1147,7 @@ void vtkWin32VideoSource::DoVFWFormatSetup()
   this->Internal->BitMapPtr->bmiHeader.biClrUsed = 0;
   this->Internal->BitMapPtr->bmiHeader.biClrImportant = 0;
 
-  for (i = 0; i < 4; i++)
+  for (i = 0; i < 3; i++)
     { // try for a
     if (this->OutputFormat == VTK_RGBA || this->OutputFormat == VTK_RGB)
       {

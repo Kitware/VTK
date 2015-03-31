@@ -446,8 +446,8 @@ int vtkBandedPolyDataContourFilter::RequestData(
   // Polygons are assumed convex and chopped into filled, convex polygons.
   // Triangle strips are treated similarly.
   //
-  int numPolys = input->GetPolys()->GetNumberOfCells();
-  int numStrips = input->GetStrips()->GetNumberOfCells();
+  vtkIdType numPolys = input->GetPolys()->GetNumberOfCells();
+  vtkIdType numStrips = input->GetStrips()->GetNumberOfCells();
   if ( numPolys > 0 || numStrips > 0 )
     {
     // Set up processing. We are going to store an ordered list of

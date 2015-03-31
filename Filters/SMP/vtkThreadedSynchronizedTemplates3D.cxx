@@ -93,14 +93,19 @@ static void vtkThreadedSynchronizedTemplates3DInitializeOutput(
 {
   vtkPoints *newPts;
   vtkCellArray *newPolys;
-  long estimatedSize;
 
-  estimatedSize = (int) pow ((double)
-      ((ext[1]-ext[0]+1)*(ext[3]-ext[2]+1)*(ext[5]-ext[4]+1)), .75);
+  const vtkIdType numCells = static_cast<vtkIdType>(ext[1]-ext[0]+1) *
+                             static_cast<vtkIdType>(ext[3]-ext[2]+1) *
+                             static_cast<vtkIdType>(ext[5]-ext[4]+1);
+
+  vtkIdType estimatedSize = (vtkIdType) pow (static_cast<double>(numCells),
+                                             .75);
+
   if (estimatedSize < 1024)
     {
     estimatedSize = 1024;
     }
+
   estimatedSize /= estimatedNumberOfPieces;
 
   newPts = vtkPoints::New();
@@ -155,7 +160,7 @@ static void vtkThreadedSynchronizedTemplates3DInitializeOutput(
 // Calculate the gradient using central difference.
 template <class T>
 void vtkSTComputePointGradient(int i, int j, int k, T *s, int *inExt,
-                               int xInc, int yInc, int zInc,
+                               vtkIdType xInc, vtkIdType yInc, vtkIdType zInc,
                                double *spacing, double n[3])
 {
   double sp, sm;
@@ -263,17 +268,17 @@ void ContourImage(vtkThreadedSynchronizedTemplates3D *self, int* exExt,
                   vtkDataArray *inScalars, bool outputTriangles)
 {
   int *inExt = data->GetExtent();
-  int xdim = exExt[1] - exExt[0] + 1;
-  int ydim = exExt[3] - exExt[2] + 1;
+  vtkIdType xdim = exExt[1] - exExt[0] + 1;
+  vtkIdType ydim = exExt[3] - exExt[2] + 1;
   double *values = self->GetValues();
   int numContours = self->GetNumberOfContours();
   T *inPtrX, *inPtrY, *inPtrZ;
   T *s0, *s1, *s2, *s3;
   int xMin, xMax, yMin, yMax, zMin, zMax;
-  int xInc, yInc, zInc;
+  vtkIdType xInc, yInc, zInc;
   double *origin = data->GetOrigin();
   double *spacing = data->GetSpacing();
-  int *isect1Ptr, *isect2Ptr;
+  vtkIdType *isect1Ptr, *isect2Ptr;
   double y, z, t;
   int i, j, k;
   int zstep, yisectstep;
@@ -283,15 +288,16 @@ void ContourImage(vtkThreadedSynchronizedTemplates3D *self, int* exExt,
   int ComputeScalars = self->GetComputeScalars();
   int NeedGradients = ComputeGradients || ComputeNormals;
   double n[3], n0[3], n1[3];
-  int jj, g0;
+  vtkIdType jj, g0;
   int *tablePtr;
-  int idx, vidx;
+  vtkIdType idx;
+  int vidx;
   double x[3], xz[3];
   int v0, v1, v2, v3;
   vtkIdType ptIds[3];
   double value;
   // We need to know the edgePointId's for interpolating attributes.
-  int edgePtId, inCellId, outCellId;
+  vtkIdType edgePtId, inCellId, outCellId;
   vtkPointData *inPD = data->GetPointData();
   vtkCellData *inCD = data->GetCellData();
   vtkPointData *outPD = output->GetPointData();
@@ -339,7 +345,7 @@ void ContourImage(vtkThreadedSynchronizedTemplates3D *self, int* exExt,
   offsets[11] = zstep*3;
 
   // allocate storage array
-  int *isect1 = new int [xdim*ydim*3*2];
+  vtkIdType *isect1 = new vtkIdType [xdim*ydim*3*2];
   // set impossible edges to -1
   for (i = 0; i < ydim; i++)
     {
@@ -737,7 +743,7 @@ public:
     et->SetWholeExtent(this->ExExt);
     et->SetNumberOfPieces(this->NumberOfPieces);
     ThreadLocalWorkSpace &ws = tlws.Local();
-    for(int i=begin; i<end; i++)
+    for(vtkIdType i=begin; i<end; i++)
       {
       int exExt2[6];
       et->SetPiece(i);
@@ -826,10 +832,14 @@ void vtkThreadedSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
     return;
     }
 
-  int ncells = (exExt[1] - exExt[0]) * (exExt[3] - exExt[2]) *
-               (exExt[5] - exExt[4]);
-  const int grainSize = 32 * 32 * 32;
-  int nPieces = (ncells == 0) ? 1 : (ncells + grainSize - 1)/grainSize;
+  //multiplication needs to be as vtkIdType so we don't roll the integer
+  //over when computing the number of cells in very large grids
+  vtkIdType ncells = static_cast<vtkIdType>(exExt[1] - exExt[0]) *
+                     static_cast<vtkIdType>(exExt[3] - exExt[2]) *
+                     static_cast<vtkIdType>(exExt[5] - exExt[4]);
+  const vtkIdType grainSize = 32 * 32 * 32;
+  vtkIdType nPieces = (ncells == 0) ? 1 : (ncells + grainSize - 1)/grainSize;
+
   DoThreadedContour functor(this, exExt, data, inScalars, nPieces);
   vtkSMPTools::For( 0, nPieces, functor );
 

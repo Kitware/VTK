@@ -65,7 +65,7 @@ select a default for VTK_DATA_STORE [n/h/s]: ' ans &&
       /*) ;;
       [A-Za-z]:[/\\]*) ;;
       '') ans='' ;;
-      *) echo; echo "Invalid response '$ans'!"; echo; ans='?' ;;
+      *) echo; echo "Invalid response '$ans'"; echo; ans='?' ;;
     esac
   done
   eval "$1='$ans'"
@@ -119,7 +119,7 @@ select a default for VTK_DATA_EXCLUDE_FROM_ALL [d/n/y]: ' ans &&
       n|N|no|off) ans='OFF' ;;
       y|Y|yes|on) ans='ON' ;;
       '') ans='' ;;
-      *) echo; echo "Invalid response '$ans'!"; echo; ans='?' ;;
+      *) echo; echo "Invalid response '$ans'"; echo; ans='?' ;;
     esac
   done
   eval "$1='$ans'"

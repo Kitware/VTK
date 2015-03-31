@@ -35,8 +35,8 @@
 // WindowIsCurrentEvent and WindowFrameEvent.
 // \sa vtkGenericOpenGLRenderWindow
 
-#ifndef __vtkExternalOpenGLRenderWindow_h
-#define __vtkExternalOpenGLRenderWindow_h
+#ifndef vtkExternalOpenGLRenderWindow_h
+#define vtkExternalOpenGLRenderWindow_h
 
 #include "vtkRenderingExternalModule.h" // For export macro
 #include "vtkGenericOpenGLRenderWindow.h"
@@ -66,4 +66,4 @@ private:
   vtkExternalOpenGLRenderWindow(const vtkExternalOpenGLRenderWindow&); // Not implemented
   void operator=(const vtkExternalOpenGLRenderWindow&); // Not implemented
 };
-#endif //__vtkExternalOpenGLRenderWindow_h
+#endif //vtkExternalOpenGLRenderWindow_h

@@ -299,7 +299,7 @@ int vtkEllipticalButtonSource::RequestData(
     vtkIdType opts[4];
 
     vtkIdType npts = 0;
-    int numPolys=newPolys->GetNumberOfCells();
+    vtkIdType numPolys=newPolys->GetNumberOfCells();
     for ( j=0, newPolys->InitTraversal(); j < numPolys; j++ )
       {
       newPolys->GetNextCell(npts,ipts);

@@ -1,3 +1,23 @@
+if (WIN32)
+  if (building_vtkpythonrc)
+    # XXX: With long paths, this command line can get too long because of all
+    # the include directories required for vtkpython to work. The thing is that
+    # CMake's RC rule in Ninja does not support response files, so the path can
+    # end up way too long. Since this doesn't need those include paths, act as
+    # if it is in a separate directory to avoid all the include_directories
+    # used here.
+    add_library(vtkpythonrc STATIC dummy.cxx vtkpython.rc)
+    return()
+  elseif (CMAKE_GENERATOR MATCHES "Visual Studio")
+    set(extra_srcs vtkpython.rc)
+  else ()
+    set(building_vtkpythonrc TRUE)
+    set(extra_links vtkpythonrc)
+    # Make a separate directory scope for building vtkpythonrc.
+    add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/vtkpythonrc")
+  endif ()
+endif ()
+
 # This is where we actually wrap the modules that have requested it.
 include(vtkPythonWrapping)
 
@@ -53,7 +73,11 @@ vtk_write_python_modules_header_for_wrapped_modules(
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkPythonAppInitConfigure.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/vtkPythonAppInitConfigure.h)
 
-add_executable(vtkpython vtkPythonAppInit.cxx vtkpython.rc)
+add_executable(vtkpython vtkPythonAppInit.cxx ${extra_srcs})
+
+if (WIN32)
+  target_link_libraries(vtkpython ${extra_links})
+endif ()
 
 unset(VTKPYTHON_LINK_FLAGS)
 unset(VTKPYTHON_LINK_LIBS)
@@ -177,6 +201,7 @@ if(PYTHON_EXECUTABLE)
 # vtk.util package
   list(APPEND VTK_PYTHON_FILES
     vtk/util/__init__
+    vtk/util/_argparse
     vtk/util/vtkMethodParser
     vtk/util/misc
     vtk/util/vtkConstants

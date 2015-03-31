@@ -50,6 +50,7 @@ struct LabelMetric
 {
   double value;
   std::string Text;
+  // These measure the pixel size of the text texture:
   vtkTuple<int, 4> BoundingBox;
   vtkTuple<int, 2> Dimensions;
 };
@@ -57,18 +58,22 @@ struct LabelMetric
 //------------------------------------------------------------------------------
 struct LabelInfo
 {
-  // World coordinate:
+  // Position in actor space:
   vtkVector3d Position;
 
   // Orientation (normalized, world space)
-  vtkVector3d Right; // Left --> Right
-  vtkVector3d Up; // Bottom --> Top
+  vtkVector3d RightW; // Left --> Right
+  vtkVector3d UpW; // Bottom --> Top
 
-  // Corner locations (world space):
-  vtkVector3d TLw;
-  vtkVector3d TRw;
-  vtkVector3d BRw;
-  vtkVector3d BLw;
+  // Orientation (normalized in world space, represented in actor space)
+  vtkVector3d RightA; // Left --> Right
+  vtkVector3d UpA; // Bottom --> Top
+
+  // Corner locations (actor space):
+  vtkVector3d TLa;
+  vtkVector3d TRa;
+  vtkVector3d BRa;
+  vtkVector3d BLa;
 
   // Corner location (display space):
   vtkVector2i TLd;
@@ -77,7 +82,7 @@ struct LabelInfo
   vtkVector2i BLd;
 
   // Factor to scale the text actor by:
-  double Scale;
+  double ScaleDisplayToActor;
 };
 
 namespace {
@@ -100,7 +105,9 @@ struct vtkLabeledContourMapper::Private
   std::vector<std::vector<LabelInfo> > LabelInfos;
 
   // Info for calculating display coordinates:
-  vtkTuple<double, 16> MVP; // model-view-projection matrix
+  vtkTuple<double, 16> AMVP; // actor-model-view-projection matrix
+  vtkTuple<double, 16> ActorMatrix; // Actor model matrix
+  vtkTuple<double, 16> InverseActorMatrix; // Inverse Actor model matrix
   vtkTuple<double, 4> ViewPort; // viewport
   vtkTuple<double, 4> NormalizedViewPort; // see vtkViewport::ViewToNormalizedVP
   vtkTuple<int, 2> WindowSize;
@@ -120,12 +127,14 @@ struct vtkLabeledContourMapper::Private
   // Only want to print the stencil warning once:
   bool AlreadyWarnedAboutStencils;
 
-  // Project coordinates:
-  void WorldToDisplay(const vtkVector3d &world, vtkVector2i &display);
-  void WorldToDisplay(const vtkVector3d &world, vtkVector2d &display);
+  // Project coordinates. Note that the vector objects must be unique.
+  void ActorToWorld(const vtkVector3d &actor, vtkVector3d &world) const;
+  void WorldToActor(const vtkVector3d &world, vtkVector3d &actor) const;
+  void ActorToDisplay(const vtkVector3d &actor, vtkVector2i &display) const;
+  void ActorToDisplay(const vtkVector3d &actor, vtkVector2d &display) const;
 
   // Camera axes:
-  bool SetViewInfo(vtkRenderer *ren);
+  bool SetViewInfo(vtkRenderer *ren, vtkActor *act);
 
   // Visibility test (display space):
   template <typename ScalarType>
@@ -168,6 +177,9 @@ vtkLabeledContourMapper::vtkLabeledContourMapper()
   this->StencilQuadIndicesSize = 0;
 
   this->TextProperties = vtkSmartPointer<vtkTextPropertyCollection>::New();
+  vtkNew<vtkTextProperty> defaultTProp;
+  this->TextProperties->AddItem(defaultTProp.GetPointer());
+
   this->Internal = new vtkLabeledContourMapper::Private();
   this->Internal->PrepareTime = 0.0;
   this->Internal->RenderTime = 0.0;
@@ -220,7 +232,7 @@ void vtkLabeledContourMapper::Render(vtkRenderer *ren, vtkActor *act)
       return;
       }
 
-    if (!this->CreateLabels())
+    if (!this->CreateLabels(act))
       {
       return;
       }
@@ -319,6 +331,16 @@ void vtkLabeledContourMapper::SetTextProperties(vtkTextPropertyCollection *coll)
 vtkTextPropertyCollection *vtkLabeledContourMapper::GetTextProperties()
 {
   return this->TextProperties;
+}
+
+//------------------------------------------------------------------------------
+void vtkLabeledContourMapper::ReleaseGraphicsResources(vtkWindow *win)
+{
+  this->PolyDataMapper->ReleaseGraphicsResources(win);
+  for (vtkIdType i = 0; i < this->NumberOfTextActors; ++i)
+    {
+    this->TextActors[i]->ReleaseGraphicsResources(win);
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -463,9 +485,9 @@ bool vtkLabeledContourMapper::CheckRebuild(vtkRenderer *, vtkActor *act)
 }
 
 //------------------------------------------------------------------------------
-bool vtkLabeledContourMapper::PrepareRender(vtkRenderer *ren, vtkActor *)
+bool vtkLabeledContourMapper::PrepareRender(vtkRenderer *ren, vtkActor *act)
 {
-  if (!this->Internal->SetViewInfo(ren))
+  if (!this->Internal->SetViewInfo(ren, act))
     {
     return false;
     }
@@ -633,7 +655,7 @@ bool vtkLabeledContourMapper::ResolveLabels()
 }
 
 //------------------------------------------------------------------------------
-bool vtkLabeledContourMapper::CreateLabels()
+bool vtkLabeledContourMapper::CreateLabels(vtkActor *)
 {
   typedef std::vector<LabelMetric> MetricVector;
   typedef std::vector<LabelInfo> InfoVector;
@@ -799,18 +821,18 @@ bool vtkLabeledContourMapper::BuildStencilQuads()
     {
     for (InnerIterator in = out->begin(), inEnd = out->end(); in != inEnd; ++in)
       {
-      this->StencilQuads[qIndex +  0] = static_cast<float>(in->TLw[0]);
-      this->StencilQuads[qIndex +  1] = static_cast<float>(in->TLw[1]);
-      this->StencilQuads[qIndex +  2] = static_cast<float>(in->TLw[2]);
-      this->StencilQuads[qIndex +  3] = static_cast<float>(in->TRw[0]);
-      this->StencilQuads[qIndex +  4] = static_cast<float>(in->TRw[1]);
-      this->StencilQuads[qIndex +  5] = static_cast<float>(in->TRw[2]);
-      this->StencilQuads[qIndex +  6] = static_cast<float>(in->BRw[0]);
-      this->StencilQuads[qIndex +  7] = static_cast<float>(in->BRw[1]);
-      this->StencilQuads[qIndex +  8] = static_cast<float>(in->BRw[2]);
-      this->StencilQuads[qIndex +  9] = static_cast<float>(in->BLw[0]);
-      this->StencilQuads[qIndex + 10] = static_cast<float>(in->BLw[1]);
-      this->StencilQuads[qIndex + 11] = static_cast<float>(in->BLw[2]);
+      this->StencilQuads[qIndex +  0] = static_cast<float>(in->TLa[0]);
+      this->StencilQuads[qIndex +  1] = static_cast<float>(in->TLa[1]);
+      this->StencilQuads[qIndex +  2] = static_cast<float>(in->TLa[2]);
+      this->StencilQuads[qIndex +  3] = static_cast<float>(in->TRa[0]);
+      this->StencilQuads[qIndex +  4] = static_cast<float>(in->TRa[1]);
+      this->StencilQuads[qIndex +  5] = static_cast<float>(in->TRa[2]);
+      this->StencilQuads[qIndex +  6] = static_cast<float>(in->BRa[0]);
+      this->StencilQuads[qIndex +  7] = static_cast<float>(in->BRa[1]);
+      this->StencilQuads[qIndex +  8] = static_cast<float>(in->BRa[2]);
+      this->StencilQuads[qIndex +  9] = static_cast<float>(in->BLa[0]);
+      this->StencilQuads[qIndex + 10] = static_cast<float>(in->BLa[1]);
+      this->StencilQuads[qIndex + 11] = static_cast<float>(in->BLa[2]);
 
       this->StencilQuadIndices[iIndex + 0] = eIndex + 0;
       this->StencilQuadIndices[iIndex + 1] = eIndex + 1;
@@ -837,26 +859,53 @@ vtkLabeledContourMapper::GetTextPropertyForCellId(vtkIdType cellId) const
 }
 
 //------------------------------------------------------------------------------
-inline void vtkLabeledContourMapper::Private::WorldToDisplay(
-    const vtkVector3d &world, vtkVector2i &display)
+void vtkLabeledContourMapper::Private::ActorToWorld(const vtkVector3d &in,
+                                                    vtkVector3d &out) const
 {
-  vtkVector2d v;
-  this->WorldToDisplay(world, v);
-  display = vtkVector2i(v.Cast<int>().GetData());
+  const vtkTuple<double, 16> &x = this->ActorMatrix;
+  double w;
+  out[0] = in[0] * x[0]  + in[1] * x[1]  + in[2] * x[2]  + x[3];
+  out[1] = in[0] * x[4]  + in[1] * x[5]  + in[2] * x[6]  + x[7];
+  out[2] = in[0] * x[8]  + in[1] * x[9]  + in[2] * x[10] + x[11];
+  w      = in[0] * x[12] + in[1] * x[13] + in[2] * x[14] + x[15];
+  out = out * (1. / w);
 }
 
 //------------------------------------------------------------------------------
-inline void vtkLabeledContourMapper::Private::WorldToDisplay(
-    const vtkVector3d &world, vtkVector2d &v)
+void vtkLabeledContourMapper::Private::WorldToActor(const vtkVector3d &in,
+                                                    vtkVector3d &out) const
+{
+  const vtkTuple<double, 16> &x = this->InverseActorMatrix;
+  double w;
+  out[0] = in[0] * x[0]  + in[1] * x[1]  + in[2] * x[2]  + x[3];
+  out[1] = in[0] * x[4]  + in[1] * x[5]  + in[2] * x[6]  + x[7];
+  out[2] = in[0] * x[8]  + in[1] * x[9]  + in[2] * x[10] + x[11];
+  w      = in[0] * x[12] + in[1] * x[13] + in[2] * x[14] + x[15];
+  out = out * (1. / w);
+}
+
+//------------------------------------------------------------------------------
+void vtkLabeledContourMapper::Private::ActorToDisplay(const vtkVector3d &actor,
+                                                      vtkVector2i &out) const
+{
+  vtkVector2d v;
+  this->ActorToDisplay(actor, v);
+  out = vtkVector2i(v.Cast<int>().GetData());
+}
+
+//------------------------------------------------------------------------------
+void vtkLabeledContourMapper::Private::ActorToDisplay(const vtkVector3d &actor,
+                                                      vtkVector2d &v) const
 {
   // This is adapted from vtkCoordinate's world to display conversion. We
   // reimplement it here for efficiency.
 
-  // vtkRenderer::WorldToView
+  // vtkRenderer::WorldToView (AMVP includes the actor matrix, too)
+  const vtkTuple<double, 16> &x = this->AMVP;
   double w;
-  v[0] = world[0] * MVP[0]  + world[1] * MVP[1]  + world[2] * MVP[2]  + MVP[3];
-  v[1] = world[0] * MVP[4]  + world[1] * MVP[5]  + world[2] * MVP[6]  + MVP[7];
-  w    = world[0] * MVP[12] + world[1] * MVP[13] + world[2] * MVP[14] + MVP[15];
+  v[0] = actor[0] * x[0]  + actor[1] * x[1]  + actor[2] * x[2]  + x[3];
+  v[1] = actor[0] * x[4]  + actor[1] * x[5]  + actor[2] * x[6]  + x[7];
+  w    = actor[0] * x[12] + actor[1] * x[13] + actor[2] * x[14] + x[15];
   v = v * (1. / w);
 
   // vtkViewport::ViewToNormalizedViewport
@@ -880,9 +929,17 @@ inline void vtkLabeledContourMapper::Private::WorldToDisplay(
 }
 
 //------------------------------------------------------------------------------
-bool vtkLabeledContourMapper::Private::SetViewInfo(vtkRenderer *ren)
+bool vtkLabeledContourMapper::Private::SetViewInfo(vtkRenderer *ren,
+                                                   vtkActor *act)
 {
-  vtkMatrix4x4 *mat = ren->GetActiveCamera()->GetModelViewTransformMatrix();
+  vtkCamera *cam = ren->GetActiveCamera();
+  if (!cam)
+    {
+    vtkGenericWarningMacro(<<"No active camera on renderer.");
+    return false;
+    }
+
+  vtkMatrix4x4 *mat = cam->GetModelViewTransformMatrix();
   this->CameraRight.Set(mat->GetElement(0, 0),
                         mat->GetElement(0, 1),
                         mat->GetElement(0, 2));
@@ -893,9 +950,18 @@ bool vtkLabeledContourMapper::Private::SetViewInfo(vtkRenderer *ren)
                           mat->GetElement(2, 1),
                           mat->GetElement(2, 2));
 
+  double mvp[16];
   mat = ren->GetActiveCamera()->GetCompositeProjectionTransformMatrix(
         ren->GetTiledAspectRatio(), 0., 1.);
-  vtkMatrix4x4::DeepCopy(this->MVP.GetData(), mat);
+  vtkMatrix4x4::DeepCopy(mvp, mat);
+
+  // Apply the actor's matrix:
+  vtkMatrix4x4::DeepCopy(this->ActorMatrix.GetData(), act->GetMatrix());
+  vtkMatrix4x4::Multiply4x4(mvp, this->ActorMatrix.GetData(),
+                            this->AMVP.GetData());
+
+  vtkMatrix4x4::Invert(this->ActorMatrix.GetData(),
+                       this->InverseActorMatrix.GetData());
 
   if (vtkWindow *win = ren->GetVTKWindow())
     {
@@ -938,39 +1004,39 @@ bool vtkLabeledContourMapper::Private::LineCanBeLabeled(
     const LabelMetric &metrics)
 {
   vtkTuple<int, 4> bbox(0);
-  vtkVector3d world;
-  vtkVector2i display;
+  vtkVector3d actorCoord;
+  vtkVector2i displayCoord;
   if (numIds > 0)
     {
     do
       {
-      points->GetPoint(*(ids++), world.GetData());
-      this->WorldToDisplay(world, display);
+      points->GetPoint(*(ids++), actorCoord.GetData());
+      this->ActorToDisplay(actorCoord, displayCoord);
       --numIds;
       }
-    while (numIds > 0 && !this->PixelIsVisible(display));
+    while (numIds > 0 && !this->PixelIsVisible(displayCoord));
 
-    if (!this->PixelIsVisible(display))
+    if (!this->PixelIsVisible(displayCoord))
       {
       // No visible points
       return false;
       }
 
-    bbox[0] = display.GetX();
-    bbox[1] = display.GetX();
-    bbox[2] = display.GetY();
-    bbox[3] = display.GetY();
+    bbox[0] = displayCoord.GetX();
+    bbox[1] = displayCoord.GetX();
+    bbox[2] = displayCoord.GetY();
+    bbox[3] = displayCoord.GetY();
     }
   while (numIds-- > 0)
     {
-    points->GetPoint(*(ids++), world.GetData());
-    this->WorldToDisplay(world, display);
-    if (this->PixelIsVisible(display))
+    points->GetPoint(*(ids++), actorCoord.GetData());
+    this->ActorToDisplay(actorCoord, displayCoord);
+    if (this->PixelIsVisible(displayCoord))
       {
-      bbox[0] = std::min(bbox[0], display.GetX());
-      bbox[1] = std::max(bbox[1], display.GetX());
-      bbox[2] = std::min(bbox[2], display.GetY());
-      bbox[3] = std::max(bbox[3], display.GetY());
+      bbox[0] = std::min(bbox[0], displayCoord.GetX());
+      bbox[1] = std::max(bbox[1], displayCoord.GetX());
+      bbox[2] = std::min(bbox[2], displayCoord.GetY());
+      bbox[3] = std::max(bbox[3], displayCoord.GetY());
       }
     }
 
@@ -1005,14 +1071,14 @@ bool vtkLabeledContourMapper::Private::NextLabel(
   vtkVector3d startPoint;
   vtkVector2d startPointDisplay;
   points->GetPoint(ids[startIdx], startPoint.GetData());
-  this->WorldToDisplay(startPoint, startPointDisplay);
+  this->ActorToDisplay(startPoint, startPointDisplay);
 
   // Find the first visible point:
   while (startIdx + 1 < numIds && !this->PixelIsVisible(startPointDisplay))
     {
     ++startIdx;
     points->GetPoint(ids[startIdx], startPoint.GetData());
-    this->WorldToDisplay(startPoint, startPointDisplay);
+    this->ActorToDisplay(startPoint, startPointDisplay);
     }
 
   // Start point in current segment.
@@ -1060,7 +1126,7 @@ bool vtkLabeledContourMapper::Private::NextLabel(
 
     // Update current:
     points->GetPoint(ids[curIdx], curPoint.GetData());
-    this->WorldToDisplay(curPoint, curPointDisplay);
+    this->ActorToDisplay(curPoint, curPointDisplay);
 
     // Calculate lengths and smoothness.
     segment = curPointDisplay - prevPointDisplay;
@@ -1096,7 +1162,7 @@ bool vtkLabeledContourMapper::Private::NextLabel(
           {
           ++startIdx;
           points->GetPoint(ids[startIdx], startPoint.GetData());
-          this->WorldToDisplay(startPoint, startPointDisplay);
+          this->ActorToDisplay(startPoint, startPointDisplay);
           }
         while (startIdx < numIds && !this->PixelIsVisible(startPointDisplay));
 
@@ -1119,22 +1185,26 @@ bool vtkLabeledContourMapper::Private::NextLabel(
     // The final index of the segment:
     vtkIdType endIdx = curIdx - 1;
 
-    // The direction of the text:
-    info.Right = (prevPoint - startPoint).Normalized();
+    // The direction of the text.
+    vtkVector3d prevPointWorld;
+    vtkVector3d startPointWorld;
+    this->ActorToWorld(prevPoint, prevPointWorld);
+    this->ActorToWorld(startPoint, startPointWorld);
+    info.RightW = (prevPointWorld - startPointWorld).Normalized();
     // Ensure the text reads left->right:
-    if (info.Right.Dot(this->CameraRight) < 0.)
+    if (info.RightW.Dot(this->CameraRight) < 0.)
       {
-      info.Right = -info.Right;
+      info.RightW = -info.RightW;
       }
 
     // The up vector. Cross the forward direction with the orientation and
     // ensure that the result vector is in the same hemisphere as CameraUp
-    info.Up = info.Right.Compare(this->CameraForward, 10e-10)
+    info.UpW = info.RightW.Compare(this->CameraForward, 10e-10)
         ? this->CameraUp
-        : info.Right.Cross(this->CameraForward).Normalized();
-    if (info.Up.Dot(this->CameraUp) < 0.)
+        : info.RightW.Cross(this->CameraForward).Normalized();
+    if (info.UpW.Dot(this->CameraUp) < 0.)
       {
-      info.Up = -info.Up;
+      info.UpW = -info.UpW;
       }
 
     // Walk through the segment lengths to find where the center is for label
@@ -1155,11 +1225,9 @@ bool vtkLabeledContourMapper::Private::NextLabel(
     targetLength -= rAccum;
     points->GetPoint(ids[startIdx + endIdxOffset - 1], prevPoint.GetData());
     points->GetPoint(ids[startIdx + endIdxOffset], curPoint.GetData());
-    this->WorldToDisplay(prevPoint, prevPointDisplay);
-    this->WorldToDisplay(curPoint, curPointDisplay);
     vtkVector3d offset = curPoint - prevPoint;
-    double rSegmentWorld = offset.Normalize();
-    offset = offset * (targetLength * rSegmentWorld / rSegment);
+    double rSegmentActor = offset.Normalize();
+    offset = offset * (targetLength * rSegmentActor / rSegment);
     info.Position = prevPoint + offset;
 
     this->ComputeLabelInfo(info, metrics);
@@ -1188,17 +1256,19 @@ bool vtkLabeledContourMapper::Private::BuildLabel(vtkTextActor3D *actor,
 
   xform->Translate((-info.Position).GetData());
 
-  xform->Scale(info.Scale, info.Scale, info.Scale);
+  xform->Scale(info.ScaleDisplayToActor,
+               info.ScaleDisplayToActor,
+               info.ScaleDisplayToActor);
 
-  vtkVector3d forward = info.Up.Cross(info.Right);
+  vtkVector3d forward = info.UpA.Cross(info.RightA);
   double rot[16];
-  rot[4 * 0 + 0] = info.Right[0];
-  rot[4 * 1 + 0] = info.Right[1];
-  rot[4 * 2 + 0] = info.Right[2];
+  rot[4 * 0 + 0] = info.RightA[0];
+  rot[4 * 1 + 0] = info.RightA[1];
+  rot[4 * 2 + 0] = info.RightA[2];
   rot[4 * 3 + 0] = 0;
-  rot[4 * 0 + 1] = info.Up[0];
-  rot[4 * 1 + 1] = info.Up[1];
-  rot[4 * 2 + 1] = info.Up[2];
+  rot[4 * 0 + 1] = info.UpA[0];
+  rot[4 * 1 + 1] = info.UpA[1];
+  rot[4 * 2 + 1] = info.UpA[2];
   rot[4 * 3 + 1] = 0;
   rot[4 * 0 + 2] = forward[0];
   rot[4 * 1 + 2] = forward[1];
@@ -1211,7 +1281,6 @@ bool vtkLabeledContourMapper::Private::BuildLabel(vtkTextActor3D *actor,
   xform->Concatenate(rot);
 
   xform->Translate(info.Position.GetData());
-
   actor->SetUserTransform(xform.GetPointer());
 
   return true;
@@ -1221,34 +1290,49 @@ bool vtkLabeledContourMapper::Private::BuildLabel(vtkTextActor3D *actor,
 void vtkLabeledContourMapper::Private::ComputeLabelInfo(
     LabelInfo &info, const LabelMetric &metrics)
 {
+  // Convert the right and up vectors into actor space:
+  vtkVector3d worldPosition;
+  this->ActorToWorld(info.Position, worldPosition);
+
+  vtkVector3d endW = worldPosition + info.RightW;
+  vtkVector3d endA;
+  this->WorldToActor(endW, endA);
+  info.RightA = endA - info.Position;
+
+  endW = worldPosition + info.UpW;
+  this->WorldToActor(endW, endA);
+  info.UpA = endA - info.Position;
+
   // Compute scaling factor. Use the Up vector for deltas as we know it is
   // perpendicular to the view axis:
-  vtkVector3d delta = info.Up * (0.5 * metrics.Dimensions[0]);
-  vtkVector3d leftWorld = info.Position - delta;
-  vtkVector3d rightWorld = info.Position + delta;
+  vtkVector3d delta = info.UpA * (0.5 * metrics.Dimensions[0]);
+  vtkVector3d leftActor = info.Position - delta;
+  vtkVector3d rightActor = info.Position + delta;
   vtkVector2d leftDisplay;
   vtkVector2d rightDisplay;
-  this->WorldToDisplay(leftWorld, leftDisplay);
-  this->WorldToDisplay(rightWorld, rightDisplay);
-  info.Scale = static_cast<double>(metrics.Dimensions[0]) /
+  this->ActorToDisplay(leftActor, leftDisplay);
+  this->ActorToDisplay(rightActor, rightDisplay);
+  info.ScaleDisplayToActor = static_cast<double>(metrics.Dimensions[0]) /
       (rightDisplay - leftDisplay).Norm();
 
-  // Compute the corners of the quad. World coordinates are used to create the
+  // Compute the corners of the quad. Actor coordinates are used to create the
   // stencil, display coordinates are used to detect collisions.
   // Note that we make this a little bigger (4px) than a tight bbox to give a
   // little breathing room around the text.
   vtkVector3d halfWidth =
-      ((0.5 * metrics.Dimensions[0] + 2) * info.Scale) * info.Right;
+      ((0.5 * metrics.Dimensions[0] + 2) * info.ScaleDisplayToActor)
+      * info.RightA;
   vtkVector3d halfHeight =
-      ((0.5 * metrics.Dimensions[1] + 2) * info.Scale) * info.Up;
-  info.TLw = info.Position + halfHeight - halfWidth;
-  info.TRw = info.Position + halfHeight + halfWidth;
-  info.BRw = info.Position - halfHeight + halfWidth;
-  info.BLw = info.Position - halfHeight - halfWidth;
-  this->WorldToDisplay(info.TLw, info.TLd);
-  this->WorldToDisplay(info.TRw, info.TRd);
-  this->WorldToDisplay(info.BRw, info.BRd);
-  this->WorldToDisplay(info.BLw, info.BLd);
+      ((0.5 * metrics.Dimensions[1] + 2) * info.ScaleDisplayToActor)
+      * info.UpA;
+  info.TLa = info.Position + halfHeight - halfWidth;
+  info.TRa = info.Position + halfHeight + halfWidth;
+  info.BRa = info.Position - halfHeight + halfWidth;
+  info.BLa = info.Position - halfHeight - halfWidth;
+  this->ActorToDisplay(info.TLa, info.TLd);
+  this->ActorToDisplay(info.TRa, info.TRd);
+  this->ActorToDisplay(info.BRa, info.BRd);
+  this->ActorToDisplay(info.BLa, info.BLd);
 }
 
 // Anonymous namespace for some TestOverlap helpers:

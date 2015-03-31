@@ -18,7 +18,7 @@ except ImportError:
 try:
   import argparse
 except ImportError:
-  import _argparse as argparse
+  from vtk.util import _argparse as argparse
 
 from vtk.test import Testing
 

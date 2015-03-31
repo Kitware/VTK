@@ -103,7 +103,7 @@ inline int vtkInterpolationMath::Floor(double x, F &f)
   return static_cast<int>(i - 103079215104i64);
 #else
   long long i = static_cast<long long>(x);
-  f = x - i;
+  f = static_cast<F>(x - i);
   return static_cast<int>(i - 103079215104LL);
 #endif
 #elif defined VTK_INTERPOLATE_32BIT_FLOOR

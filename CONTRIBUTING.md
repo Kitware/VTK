@@ -1,16 +1,71 @@
-Contributing
-------------
+Contributing to VTK
+===================
 
-Our project uses Gerrit for code review, and CDash@Home to test proposed
-patches before they are merged. Please check our [development][Development]
-guide for details on developing and contributing to the project.
+This page documents at a very high level how to contribute to VTK.
+Please check our [developer instructions][] for a more detailed guide to
+developing and contributing to the project.
 
-Our [wiki][Wiki] is used to document features, flesh out designs and host other
-documentation. Our API is [documented using Doxygen][Doxygen] with updated
-documentation generated nightly. We have several [mailing lists][MailingLists]
+1.  Register [GitLab Access] to create an account and select a user name.
+
+2.  [Fork VTK][] into your user's namespace on GitLab.
+
+3.  Follow the [download instructions][] to create a
+    local clone of the main VTK repository:
+
+        $ git clone https://gitlab.kitware.com/vtk/vtk.git VTK
+        $ cd VTK
+    The main repository will be configured as your `origin` remote.
+
+    For more information see: [Setup][]
+
+4.  Run the [developer setup script][] to prepare your VTK work tree and
+    create Git command aliases used below:
+
+        $ ./Utilities/SetupForDevelopment.sh
+    This will prompt for your GitLab user name and configure a remote
+    called `gitlab` to refer to it.
+
+    For more information see: [Setup][]
+
+5.  Edit files and create commits (repeat as needed):
+
+        $ edit file1 file2 file3
+        $ git add file1 file2 file3
+        $ git commit
+
+    For more information see: [Create a Topic][]
+
+6.  Push commits in your topic branch to your fork in GitLab:
+
+        $ git gitlab-push
+
+    For more information see: [Share a Topic][]
+
+7.  Visit your fork in GitLab, browse to the "**Merge Requests**" link on the
+    left, and use the "**New Merge Request**" button in the upper right to
+    create a Merge Request.
+
+    For more information see: [Create a Merge Request][]
+
+
+VTK uses GitLab for code review and Buildbot to test proposed
+patches before they are merged.
+
+Our [Wiki][] is used to document features, flesh out designs and host other
+documentation. Our API is documented using [Doxygen][] with updated
+documentation generated nightly. We have several [Mailing Lists][]
 to coordinate development and to provide support.
 
-  [Development]: https://docs.google.com/a/kitware.com/document/d/1nzinw-dR5JQRNi_gb8qwLL5PnkGMK2FETlQGLr10tZw/view "Development guide"
-  [Wiki]:  http://www.vtk.org/Wiki/VTK "VTK wiki"
-  [Doxygen]: http://www.vtk.org/doc/nightly/html "API documentation"
-  [MailingLists]: http://www.vtk.org/VTK/help/mailing.html "Mailing Lists"
+[developer instructions]: Documentation/dev/git/develop.md
+[GitLab Access]: https://gitlab.kitware.com/users/sign_in
+[Fork VTK]: https://gitlab.kitware.com/vtk/vtk/fork/new
+[download instructions]: Documentation/dev/git/download.md#clone
+[developer setup script]: /Utilities/SetupForDevelopment.sh
+[Setup]: Documentation/dev/git/develop.md#Setup
+[Create a Topic]: Documentation/dev/git/develop.md#create-a-topic
+[Share a Topic]: Documentation/dev/git/develop.md#share-a-topic
+[Create a Merge Request]: Documentation/dev/git/develop.md#create-a-merge-request
+
+[Wiki]: http://www.vtk.org/Wiki/VTK
+[Doxygen]: http://www.vtk.org/doc/nightly/html
+[Mailing Lists]: http://www.vtk.org/VTK/help/mailing.html

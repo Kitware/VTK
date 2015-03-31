@@ -196,7 +196,7 @@ void vtkImageNonMaximumSuppressionExecute(vtkImageNonMaximumSuppression *self,
           d = vector[2] = static_cast<double>(in2Ptr[2]) * ratio[2];
           normalizeFactor += (d * d);
           }
-        if (normalizeFactor)
+        if (normalizeFactor != 0.0)
           {
           normalizeFactor = 1.0 / sqrt(normalizeFactor);
           }

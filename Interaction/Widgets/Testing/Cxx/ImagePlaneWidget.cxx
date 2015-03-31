@@ -36,7 +36,7 @@
 
 #include "vtkTestUtilities.h"
 
-char IPWeventLog[] =
+static char IPWeventLog[] =
   "# StreamVersion 1\n"
   "CharEvent 179 195 0 0 98 1 i\n"
   "MiddleButtonPressEvent 179 195 0 0 0 0 i\n"

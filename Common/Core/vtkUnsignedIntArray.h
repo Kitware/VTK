@@ -17,6 +17,10 @@
 // vtkUnsignedIntArray is an array of values of type unsigned int.  It
 // provides methods for insertion and retrieval of values and will
 // automatically resize itself to hold new data.
+//
+// The C++ standard does not define the exact size of the unsigned int type,
+// so use of this type directly is discouraged.  If an array of 32 bit unsigned
+// integers is needed, prefer vtkTypeUInt32Array to this class.
 
 #ifndef vtkUnsignedIntArray_h
 #define vtkUnsignedIntArray_h

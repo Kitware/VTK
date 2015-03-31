@@ -356,7 +356,7 @@ class ApplicationSession(BaseSession):
       self.join(self.config.realm)
 
 
-   def join(self, realm):
+   def join(self, realm, authmethods = None, authid = None):
       """
       Implements :func:`autobahn.wamp.interfaces.ISession.join`
       """
@@ -375,7 +375,7 @@ class ApplicationSession(BaseSession):
          role.RoleCalleeFeatures()
       ]
 
-      msg = message.Hello(realm, roles)
+      msg = message.Hello(realm, roles, authmethods, authid)
       self._realm = realm
       self._transport.send(msg)
 
@@ -396,13 +396,36 @@ class ApplicationSession(BaseSession):
       """
       if self._session_id is None:
 
-         ## the first message MUST be WELCOME
+         ## the first message must be WELCOME, ABORT or CHALLENGE ..
+         ##
          if isinstance(msg, message.Welcome):
             self._session_id = msg.session
 
             details = SessionDetails(self._realm, self._session_id, msg.authid, msg.authrole, msg.authmethod)
             self._as_future(self.onJoin, details)
-            #self.onJoin(details)
+
+         elif isinstance(msg, message.Abort):
+
+            ## fire callback and close the transport
+            self.onLeave(types.CloseDetails(msg.reason, msg.message))
+
+         elif isinstance(msg, message.Challenge):
+
+            challenge = types.Challenge(msg.method, msg.extra)
+            d = self._as_future(self.onChallenge, challenge)
+
+            def success(signature):
+               reply = message.Authenticate(signature)
+               self._transport.send(reply)
+
+            def error(err):
+               reply = message.Abort(u"wamp.error.cannot_authenticate", u"{0}".format(err.value))
+               self._transport.send(reply)
+               ## fire callback and close the transport
+               self.onLeave(types.CloseDetails(reply.reason, reply.message))
+
+            self._add_future_callbacks(d, success, error)
+
          else:
             raise ProtocolError("Received {} message, and session is not yet established".format(msg.__class__))
 
@@ -735,6 +758,13 @@ class ApplicationSession(BaseSession):
          self._session_id = None
 
       self.onDisconnect()
+
+
+   def onChallenge(self, challenge):
+      """
+      Implements :func:`autobahn.wamp.interfaces.ISession.onChallenge`
+      """
+      raise Exception("received authentication challenge, but onChallenge not implemented")
 
 
    def onJoin(self, details):
@@ -1280,6 +1310,16 @@ class RouterSession(BaseSession):
                print(err.value)
 
             self._add_future_callbacks(d, success, failed)
+
+         elif isinstance(msg, message.Abort):
+
+            ## fire callback and close the transport
+            self.onLeave(types.CloseDetails(msg.reason, msg.message))
+
+            self._session_id = None
+            self._pending_session_id = None
+
+            #self._transport.close()
 
          else:
             raise ProtocolError("Received {} message, and session is not yet established".format(msg.__class__))

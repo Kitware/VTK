@@ -91,7 +91,7 @@ namespace
   //return the interval i, such that a belongs to the interval (A[i],A[i+1]]
   inline int FindInterval(double a, const std::vector<double>& A)
   {
-    if( a < A[0])
+    if(A.size() == 0 || a < A[0])
       {
       return -1;
       }
@@ -269,19 +269,6 @@ int vtkParticleTracerBase::RequestInformation(
     }
 
   return 1;
-}
-namespace
-{
-//----------------------------------------------------------------------------
-  class WithinTolerance: public std::binary_function<double, double, bool>
-  {
-  public:
-    result_type operator()(first_argument_type a, second_argument_type b) const
-    {
-      bool result = (fabs(a-b)<=(a*1E-6));
-      return (result_type)result;
-    }
-  };
 }
 
 //----------------------------------------------------------------------------
@@ -1143,7 +1130,7 @@ void vtkParticleTracerBase::IntegrateParticle(
           {
           if(previous.PointId <0)
             {
-            vtkWarningMacro("the particle should have been added");
+            vtkDebugMacro("the particle should have been added");
             }
           else
             {

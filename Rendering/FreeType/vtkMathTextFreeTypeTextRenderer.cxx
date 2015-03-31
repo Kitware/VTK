@@ -98,6 +98,8 @@ bool vtkMathTextFreeTypeTextRenderer::GetBoundingBoxInternal(
       return this->FreeTypeTools->GetBoundingBox(
             tprop, vtkUnicodeString::from_utf8(cleanString), bbox);
       }
+    case Default:
+    case UserBackend:
     default:
       vtkDebugMacro("Unrecognized backend requested: " << backend);
       break;
@@ -154,6 +156,8 @@ bool vtkMathTextFreeTypeTextRenderer::GetBoundingBoxInternal(
       this->CleanUpFreeTypeEscapes(cleanString);
       return this->FreeTypeTools->GetBoundingBox(tprop, cleanString, bbox);
       }
+    case Default:
+    case UserBackend:
     default:
       vtkDebugMacro("Unrecognized backend requested: " << backend);
       break;
@@ -211,6 +215,8 @@ bool vtkMathTextFreeTypeTextRenderer::GetMetricsInternal(
       return this->FreeTypeTools->GetMetrics(
             tprop, vtkUnicodeString::from_utf8(cleanString), metrics);
       }
+    case Default:
+    case UserBackend:
     default:
       vtkDebugMacro("Unrecognized backend requested: " << backend);
       break;
@@ -267,6 +273,8 @@ bool vtkMathTextFreeTypeTextRenderer::GetMetricsInternal(
       this->CleanUpFreeTypeEscapes(cleanString);
       return this->FreeTypeTools->GetMetrics(tprop, cleanString, metrics);
       }
+    case Default:
+    case UserBackend:
     default:
       vtkDebugMacro("Unrecognized backend requested: " << backend);
       break;
@@ -318,6 +326,8 @@ bool vtkMathTextFreeTypeTextRenderer::RenderStringInternal(
       return this->FreeTypeTools->RenderString(
             tprop, vtkUnicodeString::from_utf8(cleanString), data, textDims);
       }
+    case Default:
+    case UserBackend:
     default:
       vtkDebugMacro("Unrecognized backend requested: " << backend);
       break;
@@ -369,6 +379,8 @@ bool vtkMathTextFreeTypeTextRenderer::RenderStringInternal(
       return this->FreeTypeTools->RenderString(tprop, cleanString, data,
                                                textDims);
       }
+    case Default:
+    case UserBackend:
     default:
       vtkDebugMacro("Unrecognized backend requested: " << backend);
       break;
@@ -422,6 +434,8 @@ int vtkMathTextFreeTypeTextRenderer::GetConstrainedFontSizeInternal(
                                                          targetWidth,
                                                          targetHeight);
       }
+    case Default:
+    case UserBackend:
     default:
       vtkDebugMacro("Unrecognized backend requested: " << backend);
       break;
@@ -476,6 +490,8 @@ int vtkMathTextFreeTypeTextRenderer::GetConstrainedFontSizeInternal(
                                                          targetWidth,
                                                          targetHeight);
       }
+    case Default:
+    case UserBackend:
     default:
       vtkDebugMacro("Unrecognized backend requested: " << backend);
       break;
@@ -523,6 +539,8 @@ bool vtkMathTextFreeTypeTextRenderer::StringToPathInternal(
       this->CleanUpFreeTypeEscapes(cleanString);
       return this->FreeTypeTools->StringToPath(tprop, str, path);
       }
+    case Default:
+    case UserBackend:
     default:
       vtkDebugMacro("Unrecognized backend requested: " << backend);
       break;
@@ -572,6 +590,8 @@ bool vtkMathTextFreeTypeTextRenderer::StringToPathInternal(
       this->CleanUpFreeTypeEscapes(cleanString);
       return this->FreeTypeTools->StringToPath(tprop, str, path);
       }
+    case Default:
+    case UserBackend:
     default:
       vtkDebugMacro("Unrecognized backend requested: " << backend);
       break;

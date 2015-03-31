@@ -46,7 +46,7 @@ public:
   // Description:
   // Set/Get the text's opacity. 1.0 is totally opaque and 0.0 is completely
   // transparent.
-  vtkSetMacro(Opacity,double);
+  vtkSetClampMacro(Opacity, double, 0., 1.);
   vtkGetMacro(Opacity,double);
 
   // Description:
@@ -57,7 +57,7 @@ public:
   // Description:
   // The background opacity. 1.0 is totally opaque and 0.0 is completely
   // transparent.
-  vtkSetMacro(BackgroundOpacity, double);
+  vtkSetClampMacro(BackgroundOpacity, double, 0., 1.);
   vtkGetMacro(BackgroundOpacity, double);
 
   // Description:

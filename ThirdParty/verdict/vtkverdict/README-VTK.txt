@@ -40,8 +40,7 @@ appropriate date and version number:
  git commit --amend
 
 Edit the commit message to describe the procedure used to obtain the
-content.  Be sure to add a Gerrit Change-Id line to the bottom of the
-message.  Then push the changes back up to the main local repository:
+content.  Then push the changes back up to the main local repository:
 
  git push .. HEAD:verdict-upstream
  cd ..

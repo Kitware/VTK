@@ -95,19 +95,6 @@ public:
   void SetTransformToBZip2() { this->SetTransform(static_cast<int>(ADIOS::Transform_BZLIB2)); }
   void SetTransformToSZip()  { this->SetTransform(static_cast<int>(ADIOS::Transform_SZIP)); }
 
-  enum
-  {
-    Always = 0,
-    OnChange = 1
-  };
-
-  // Description:
-  // Get/Set the write mode for array data
-  vtkGetMacro(WriteMode, int);
-  vtkSetClampMacro(WriteMode, int, Always, OnChange);
-  void SetWriteModeToAlways()   { this->SetWriteMode(Always); }
-  void SetWriteModeToOnChange() { this->SetWriteMode(OnChange); }
-
   //Description:
   //Controls whether writer automatically writes all input time steps, or
   //just the timestep that is currently on the input.
@@ -166,15 +153,10 @@ protected:
   int TransportMethod;
   char *TransportMethodArguments;
   int Transform;
-  int WriteMode;
   int Rank;
   int CurrentStep;
-  typedef std::map<std::string, size_t> NameIdMap;
-  NameIdMap BlockStepIndexIdMap;
-  std::vector<vtkTypeInt64> BlockStepIndex;
   vtkMultiProcessController *Controller;
   ADIOS::Writer *Writer;
-  int BLOCKDEBUG;
 
   vtkADIOSWriter();
   ~vtkADIOSWriter();
@@ -206,9 +188,6 @@ protected:
   bool UpdateMTimeTable(const std::string path, const vtkObject* value);
   std::map<std::string, unsigned long> LastUpdated;
 private:
-  // Synchronize the block step index map across all processes
-  std::string GatherBlockStepIdMap();
-
   bool WriteInternal();
 
   template<typename T>

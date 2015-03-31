@@ -344,8 +344,8 @@ public:
   virtual vtkHyperOctreeCursor *Clone()
     {
       vtkCompactHyperOctreeCursor<D> *result=this->NewInstance();
-      result->Tree=this->Tree;
       assert("post: results_exists" && result!=0);
+      result->Tree=this->Tree;
       assert("post: same_tree" && result->SameTree(this));
       return result;
     }

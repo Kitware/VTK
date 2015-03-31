@@ -399,7 +399,7 @@ vtkTextureMapToSphere ballTC
 vtkLookupTable lut
   lut SetNumberOfColors 3
   lut Build
-  lut SetTableValue 0 0 0 0 0
+  lut SetTableValue 0 0 0 0 1
   lut SetTableValue 1 1 .3 .3 1
   lut SetTableValue 2 .8 .8 .9 1
 

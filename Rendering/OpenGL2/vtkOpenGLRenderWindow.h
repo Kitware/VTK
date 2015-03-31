@@ -216,6 +216,11 @@ public:
   static void RenderQuad(
     float *verts, float *tcoords,
     vtkShaderProgram *program, vtkgl::VertexArrayObject *vao);
+  static void RenderTriangles(
+    float *verts, unsigned int numVerts,
+    GLuint *indices, unsigned int numIndices,
+    float *tcoords,
+    vtkShaderProgram *program, vtkgl::VertexArrayObject *vao);
 
   // Description:
   // Replacement for the old glDrawPixels function

@@ -482,6 +482,8 @@ void DICOMAppHelper::ArrayCallback(DICOMParser *parser,
         uival = DICOMFile::ReturnAsUnsignedShort(val, parser->GetDICOMFile()->GetPlatformIsBigEndian());
         HeaderFile << uival;
         break;
+      case DICOMParser::VR_UNKNOWN:
+      case DICOMParser::VR_AW:
       default:
         HeaderFile << val << dicom_stream::endl;
         break;
@@ -1188,7 +1190,7 @@ void DICOMAppHelper::GetSliceNumberFilenamePairs(const dicom_stl::string &series
 void DICOMAppHelper::GetSliceNumberFilenamePairs(dicom_stl::vector<dicom_stl::pair<int, dicom_stl::string> >& v, bool ascending)
 {
   // Default to using the first series
-  if (this->Implementation->SeriesUIDMap.size() > 0)
+  if (!this->Implementation->SeriesUIDMap.empty())
     {
     this->GetSliceNumberFilenamePairs( (*this->Implementation->SeriesUIDMap.begin()).first, v, ascending );
     }
@@ -1242,7 +1244,7 @@ void DICOMAppHelper::GetSliceLocationFilenamePairs(const dicom_stl::string &seri
 void DICOMAppHelper::GetSliceLocationFilenamePairs(dicom_stl::vector<dicom_stl::pair<float, dicom_stl::string> >& v, bool ascending)
 {
   // Default to using the first series
-  if (this->Implementation->SeriesUIDMap.size() > 0)
+  if (!this->Implementation->SeriesUIDMap.empty())
     {
     this->GetSliceLocationFilenamePairs( (*this->Implementation->SeriesUIDMap.begin()).first,
                                          v , ascending);
@@ -1319,7 +1321,7 @@ void DICOMAppHelper::GetImagePositionPatientFilenamePairs(const dicom_stl::strin
 void DICOMAppHelper::GetImagePositionPatientFilenamePairs(dicom_stl::vector<dicom_stl::pair<float, dicom_stl::string> >& v, bool ascending)
 {
   // Default to using the first series
-  if (this->Implementation->SeriesUIDMap.size() > 0)
+  if (!this->Implementation->SeriesUIDMap.empty())
     {
     this->GetImagePositionPatientFilenamePairs(
       (*this->Implementation->SeriesUIDMap.begin()).first, v, ascending);

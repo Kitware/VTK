@@ -17,6 +17,12 @@
 // vtkUnsignedLongArray is an array of values of type unsigned long.
 // It provides methods for insertion and retrieval of values and will
 // automatically resize itself to hold new data.
+//
+// The C++ standard does not define the exact size of the unsigned long type,
+// so use of this type directly is discouraged.  If an array of 32 bit
+// unsigned integers is needed, prefer vtkTypeUInt32Array to this class.
+// If an array of 64 bit unsigned integers is needed, prefer
+// vtkUTypeInt64Array to this class.
 
 #ifndef vtkUnsignedLongArray_h
 #define vtkUnsignedLongArray_h

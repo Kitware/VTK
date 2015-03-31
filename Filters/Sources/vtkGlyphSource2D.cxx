@@ -176,8 +176,8 @@ void vtkGlyphSource2D::ConvertColor()
 void vtkGlyphSource2D::TransformGlyph(vtkPoints *pts)
 {
   double x[3];
-  int i;
-  int numPts=pts->GetNumberOfPoints();
+  vtkIdType i;
+  vtkIdType numPts=pts->GetNumberOfPoints();
 
   if ( this->RotationAngle == 0.0 )
     {

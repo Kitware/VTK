@@ -43,7 +43,6 @@ class MyProcess : public vtkProcess
 {
 public:
   static MyProcess *New();
-  vtkTypeMacro(MyProcess, vtkProcess);
 
   virtual void Execute();
 

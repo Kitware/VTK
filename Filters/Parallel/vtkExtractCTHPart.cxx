@@ -558,7 +558,7 @@ bool vtkExtractCTHPart::ExtractContourOnBlock(
 
   vtkPolyData* output =
     vtkPolyData::SafeDownCast(contourer->GetOutputDataObject(0));
-  if (!output && output->GetNumberOfPoints()== 0)
+  if (!output || output->GetNumberOfPoints()== 0)
     {
     return true;
     }

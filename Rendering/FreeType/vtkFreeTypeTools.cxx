@@ -39,6 +39,8 @@
 # include <stdint.h>
 #endif
 
+#include <limits>
+#include <cassert>
 #include <algorithm>
 #include <map>
 #include <vector>
@@ -610,7 +612,7 @@ void vtkFreeTypeTools::MapTextPropertyToId(vtkTextProperty *tprop,
   // Set the first bit to avoid id = 0
   // (the id will be mapped to a pointer, FTC_FaceID, so let's avoid NULL)
   *id = 1;
-  int bits = 1;
+  unsigned int bits = 1;
 
   // The font family is hashed into 16 bits (= 17 bits so far)
   vtkTypeUInt16 familyHash =
@@ -621,21 +623,29 @@ void vtkFreeTypeTools::MapTextPropertyToId(vtkTextProperty *tprop,
   bits += 16;
 
   // Bold is in 1 bit (= 18 bits so far)
-  int bold = (tprop->GetBold() ? 1 : 0) << bits;
+  unsigned long bold = (tprop->GetBold() ? 1 : 0) << bits;
   ++bits;
 
   // Italic is in 1 bit (= 19 bits so far)
-  int italic = (tprop->GetItalic() ? 1 : 0) << bits;
+  unsigned long italic = (tprop->GetItalic() ? 1 : 0) << bits;
   ++bits;
 
   // Orientation (in degrees)
   // We need 9 bits for 0 to 360. What do we need for more precisions:
   // - 1/10th degree: 12 bits (11.8) (31 bits)
-  int angle = (vtkMath::Round(tprop->GetOrientation() * 10.0) % 3600) << bits;
+  long angle = vtkMath::Round(tprop->GetOrientation() * 10.0) % 3600;
+  if (angle < 0)
+    {
+    angle += 3600;
+    }
+  angle <<= bits;
 
   // We really should not use more than 32 bits
+  unsigned long merged = (bold | italic | angle);
+  assert(merged <= std::numeric_limits<vtkTypeUInt32>::max());
+
   // Now final id
-  *id |= bold | italic | angle;
+  *id |= merged;
 
   // Insert the TextProperty into the lookup table
   if (!this->TextPropertyLookup->contains(*id))
@@ -1204,7 +1214,27 @@ bool vtkFreeTypeTools::RenderStringInternal(vtkTextProperty *tprop,
   data->Modified();
 
   // Render image
-  return this->PopulateData(str, data, metaData);
+  if (!this->PopulateData(str, data, metaData))
+    {
+    vtkErrorMacro(<<"Error rendering text.");
+    return false;
+    }
+
+  // Draw a yellow dot at the anchor point:
+  if (this->DebugTextures)
+    {
+    unsigned char *ptr =
+        static_cast<unsigned char *>(data->GetScalarPointer(0, 0, 0));
+    if (ptr)
+      {
+      ptr[0] = 255;
+      ptr[1] = 255;
+      ptr[2] = 0;
+      ptr[3] = 255;
+      }
+    }
+
+  return true;
 }
 
 //----------------------------------------------------------------------------
@@ -1846,7 +1876,8 @@ bool vtkFreeTypeTools::RenderCharacter(CharType character, int &x, int &y,
           iMetaData->imageIncrements[0];
       unsigned char *glyphPtrRow = bitmap->buffer;
       unsigned char *glyphPtr;
-      float tpropAlpha = iMetaData->rgba[3] / 255.0;
+      const unsigned char *fgRGB = iMetaData->rgba;
+      const float fgA = iMetaData->rgba[3] / 255.f;
 
       for (int j = 0; j < static_cast<int>(bitmap->rows); ++j)
         {
@@ -1857,41 +1888,42 @@ bool vtkFreeTypeTools::RenderCharacter(CharType character, int &x, int &y,
           if (*glyphPtr == 0)
             {
             ptr += 4;
-            ++glyphPtr;
             }
           else if (ptr[3] > 0)
             {
             // This is a pixel we've drawn before since it has non-zero alpha.
             // We must therefore blend the colors.
-            float t_alpha = tpropAlpha * (*glyphPtr / 255.0);
-            float t_1_m_alpha = 1.0 - t_alpha;
-            float data_alpha = ptr[3] / 255.0;
+            const float val = *glyphPtr / 255.f;
+            const float bgA = ptr[3] / 255.0;
 
-            float blendR(t_1_m_alpha * ptr[0] + t_alpha * iMetaData->rgba[0]);
-            float blendG(t_1_m_alpha * ptr[1] + t_alpha * iMetaData->rgba[1]);
-            float blendB(t_1_m_alpha * ptr[2] + t_alpha * iMetaData->rgba[2]);
+            const float fg_blend = fgA * val;
+            const float bg_blend = 1.f - fg_blend;
+
+            float r(bg_blend * ptr[0] + fg_blend * fgRGB[0]);
+            float g(bg_blend * ptr[1] + fg_blend * fgRGB[1]);
+            float b(bg_blend * ptr[2] + fg_blend * fgRGB[2]);
+            float a(255 * (fg_blend + bgA * bg_blend));
 
             // Figure out the color.
-            ptr[0] = static_cast<unsigned char>(blendR);
-            ptr[1] = static_cast<unsigned char>(blendG);
-            ptr[2] = static_cast<unsigned char>(blendB);
-            ptr[3] = static_cast<unsigned char>(
-                  255 * (t_alpha + data_alpha * t_1_m_alpha));
+            ptr[0] = static_cast<unsigned char>(r);
+            ptr[1] = static_cast<unsigned char>(g);
+            ptr[2] = static_cast<unsigned char>(b);
+            ptr[3] = static_cast<unsigned char>(a);
+
             ptr += 4;
-            ++glyphPtr;
             }
           else
             {
-            *ptr = iMetaData->rgba[0];
+            *ptr = fgRGB[0];
             ++ptr;
-            *ptr = iMetaData->rgba[1];
+            *ptr = fgRGB[1];
             ++ptr;
-            *ptr = iMetaData->rgba[2];
+            *ptr = fgRGB[2];
             ++ptr;
-            *ptr = static_cast<unsigned char>((*glyphPtr) * tpropAlpha);
+            *ptr = static_cast<unsigned char>((*glyphPtr) * fgA);
             ++ptr;
-            ++glyphPtr;
             }
+          ++glyphPtr;
           }
         glyphPtrRow += bitmap->pitch;
         ptr += dataPitch;

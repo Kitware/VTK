@@ -17,6 +17,10 @@
 // vtkUnsignedShortArray is an array of values of type unsigned short.
 // It provides methods for insertion and retrieval of values and will
 // automatically resize itself to hold new data.
+//
+// The C++ standard does not define the exact size of the unsigned short type,
+// so use of this type directly is discouraged.  If an array of 16 bit
+// unsigned integers is needed, prefer vtkTypeUInt16Array to this class.
 
 #ifndef vtkUnsignedShortArray_h
 #define vtkUnsignedShortArray_h

@@ -661,16 +661,14 @@ void vtkPDataSetReader::ReadVTKFileInformation(
 
   vtkInformation* info = outputVector->GetInformationObject(0);
 
-  // To avoid UMR in the first string comparison
-  strcpy(str, "        ");
-
   // Try to find the line that specifies the dataset type.
   i = 0;
-  while (strncmp(str, "DATASET", 7) != 0 && i < 6)
+  do
     {
     file->getline(str, 1024);
     ++i;
     }
+  while (strncmp(str, "DATASET", 7) != 0 && i < 6);
 
   if (strncmp(str, "DATASET POLYDATA", 16) == 0)
     {

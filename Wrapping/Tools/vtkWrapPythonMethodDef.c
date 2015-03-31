@@ -762,7 +762,7 @@ static void vtkWrapPython_CustomMethods(
             "  if (op && ap.CheckArgCount(1) &&\n"
             "      ap.GetValue(temp0))\n"
             "    {\n"
-            "    sprintf(tempr, \"Addr=%%p\", op);\n"
+            "    sprintf(tempr, \"Addr=%%p\", static_cast<void*>(op));\n"
             "\n"
             "    result = ap.BuildValue(tempr);\n"
             "    }\n"

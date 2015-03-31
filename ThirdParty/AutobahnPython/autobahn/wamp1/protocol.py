@@ -2236,7 +2236,7 @@ class CallHandler(Handler):
             self.proto.onAfterSendCallError(rmsg, call)
 
             if killsession:
-               self.proto.sendClose(3000, "killing WAMP session upon request by application exception")
+               self.proto.sendClose(3000, u"killing WAMP session upon request by application exception")
          else:
             raise Exception("fatal: internal error in CallHandler._sendCallError")
 

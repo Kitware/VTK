@@ -23,8 +23,8 @@
 // render window (it is disabled by default). Otherwise the lines will be
 // drawn through the labels.
 
-#ifndef __vtkLabeledContourMapper_h
-#define __vtkLabeledContourMapper_h
+#ifndef vtkLabeledContourMapper_h
+#define vtkLabeledContourMapper_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
 
@@ -90,6 +90,8 @@ public:
   // The polydata mapper used to render the contours.
   vtkGetNewMacro(PolyDataMapper, vtkPolyDataMapper)
 
+  virtual void ReleaseGraphicsResources(vtkWindow *);
+
 protected:
   vtkLabeledContourMapper();
   ~vtkLabeledContourMapper();
@@ -105,7 +107,7 @@ protected:
   bool PrepareRender(vtkRenderer *ren, vtkActor *act);
   bool PlaceLabels();
   bool ResolveLabels();
-  bool CreateLabels();
+  virtual bool CreateLabels(vtkActor *actor);
   bool BuildStencilQuads();
   virtual bool ApplyStencil(vtkRenderer *ren, vtkActor *act);
   bool RenderPolyData(vtkRenderer *ren, vtkActor *act);

@@ -238,7 +238,7 @@ void vtkDijkstraImageGeodesicPath::BuildAdjacency( vtkDataSet *inData )
 {
   vtkImageData *image = vtkImageData::SafeDownCast(inData);
 
-  int ncells = image->GetNumberOfCells();
+  vtkIdType ncells = image->GetNumberOfCells();
 
   // optimized for cell type VTK_PIXEL
   //
@@ -247,7 +247,7 @@ void vtkDijkstraImageGeodesicPath::BuildAdjacency( vtkDataSet *inData )
   vtkIdType vId[6] = {1,2,3,0,2,3};
   double cost;
 
-  for ( int i = 0; i < ncells; ++i )
+  for ( vtkIdType i = 0; i < ncells; ++i )
     {
     image->GetCellPoints ( i, ptIds );
 

@@ -882,7 +882,7 @@ void vtkPlotPoints::FindBadPoints()
     }
 
   // If there are bad points copy them, if not ensure the pointer is null.
-  if (bad.size() > 0)
+  if (!bad.empty())
     {
     if (!this->BadPoints)
       {

@@ -608,6 +608,7 @@ void vtkGenericCompositePolyDataMapper2::CopyMapperValuesToHelper(vtkCompositeMa
 {
   helper->vtkMapper::ShallowCopy(this);
   helper->SetStatic(1);
+  helper->SetPopulateSelectionSettings(0);
 }
 
 void vtkGenericCompositePolyDataMapper2::FreeGenericStructures()
@@ -619,6 +620,13 @@ void vtkGenericCompositePolyDataMapper2::FreeGenericStructures()
     }
   this->Helpers.clear();
   this->ShadersInitialized.clear();
+}
+
+//-----------------------------------------------------------------------------
+void vtkGenericCompositePolyDataMapper2::ReleaseGraphicsResources(vtkWindow* win)
+{
+  this->FreeGenericStructures();
+  this->Superclass::ReleaseGraphicsResources(win);
 }
 
 // ---------------------------------------------------------------------------

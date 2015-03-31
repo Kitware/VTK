@@ -25,7 +25,7 @@ from vtk.web import upload
 try:
     import argparse
 except ImportError:
-    import _argparse as argparse
+    from vtk.util import _argparse as argparse
 
 
 sample_config_file = """

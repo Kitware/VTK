@@ -62,10 +62,10 @@ void main()
   vec3 diffuse = df * diffuseColor;
   vec3 specular = sf * specularColor;
 
-  gl_FragColor = vec4(ambientColor + diffuse + specular, opacity);
+  gl_FragData[0] = vec4(ambientColor + diffuse + specular, opacity);
   //VTK::TCoord::Impl
 
-  if (gl_FragColor.a <= 0.0)
+  if (gl_FragData[0].a <= 0.0)
     {
     discard;
     }

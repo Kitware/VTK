@@ -16,5 +16,4 @@ find_package(VTK COMPONENTS
 include(${VTK_USE_FILE})
 
 add_executable(Cone6 MACOSX_BUNDLE Cone6.cxx)
-find_package( VTK )
 target_link_libraries(Cone6 ${VTK_LIBRARIES})

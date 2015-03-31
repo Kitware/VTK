@@ -119,7 +119,7 @@ def pbkdf2_bin(data, salt, iterations = 1000, keylen = 32, hashfunc = None):
 
 
 
-def derive_key(secret, salt, iterations = 1000, keylen = 32):
+def derive_key(secret, salt, iterations = None, keylen = None):
    """
    Computes a derived cryptographic key from a password according to PBKDF2.
 
@@ -136,7 +136,7 @@ def derive_key(secret, salt, iterations = 1000, keylen = 32):
 
    :returns: str -- The derived key in Base64 encoding.
    """
-   key = pbkdf2_bin(secret, salt, iterations, keylen)
+   key = pbkdf2_bin(secret, salt, iterations or 1000, keylen or 32)
    return binascii.b2a_base64(key).strip()
 
 
@@ -171,4 +171,4 @@ def compute_wcs(key, challenge):
    :returns: str -- The authentication signature.
    """
    sig = hmac.new(key, challenge, hashlib.sha256).digest()
-   return binascii.b2a_base64(sig).strip()
+   return binascii.b2a_base64(sig).strip().decode('ascii')

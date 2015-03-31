@@ -152,7 +152,7 @@ static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
                                  selector:@selector(timerFired:)
                                  userInfo:nil
                                   repeats:repeating];
-#if VTK_OBJC_IS_MRR
+#if !VTK_OBJC_IS_ARC
   [_timer retain];
 #endif
 
@@ -165,7 +165,7 @@ static vtkEarlyCocoaSetup * gEarlyCocoaSetup = new vtkEarlyCocoaSetup();
 - (void)stopTimer
 {
   [_timer invalidate];
-#if VTK_OBJC_IS_MRR
+#if !VTK_OBJC_IS_ARC
   [_timer release];
 #endif
   _timer = nil;
@@ -343,7 +343,7 @@ int vtkCocoaRenderWindowInteractor::InternalCreateTimer(int timerId,
   [timerDict setObject:cocoaTimer forKey:timerIdAsStr];
   [cocoaTimer startTimerWithInterval:((NSTimeInterval)duration/1000.0)
                            repeating:repeating];
-#if VTK_OBJC_IS_MRR
+#if !VTK_OBJC_IS_ARC
   [cocoaTimer release];
 #endif
 

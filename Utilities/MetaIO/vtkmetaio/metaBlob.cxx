@@ -45,7 +45,7 @@ BlobPnt::
 ~BlobPnt()
 {
   delete []m_X;
-};
+}
 
 //
 // MedImage Constructors

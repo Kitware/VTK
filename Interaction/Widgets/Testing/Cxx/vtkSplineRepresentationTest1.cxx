@@ -45,7 +45,7 @@ int vtkSplineRepresentationTest1(int , char * [] )
   vtkSmartPointer<vtkProperty> prop = node1->GetHandleProperty();
   if (prop == NULL)
     {
-    std::cout << "Hanlde Property is NULL." << std::endl;
+    std::cout << "Handle Property is NULL." << std::endl;
     }
   prop = node1->GetSelectedHandleProperty();
   if (prop == NULL)
@@ -79,9 +79,11 @@ int vtkSplineRepresentationTest1(int , char * [] )
   std::cout << "After setting num handles to 0, got back "  << numHandles << std::endl;
 
   // 0 is invalid
-  TEST_SET_GET_INT_RANGE(node1, Resolution, 2, 100);
+  TEST_SET_GET_INT_RANGE(node1, Resolution, 10, 100);
 
   vtkSmartPointer<vtkParametricSpline> pspline = vtkSmartPointer<vtkParametricSpline>::New();
+
+  pspline->SetPoints(node1->GetParametricSpline()->GetPoints());
   node1->SetParametricSpline(pspline);
   vtkSmartPointer<vtkParametricSpline> pspline2 = node1->GetParametricSpline();
   if (pspline2 != pspline)
@@ -97,7 +99,7 @@ int vtkSplineRepresentationTest1(int , char * [] )
   double xyz[3] = {0.0, 0.0, 0.0};
   double* hpos;
   double hpos2[3];
-  for (int h = -1; h <= numHandles; h++)
+  for (int h = 0; h < numHandles; h++)
     {
     node1->SetHandlePosition(h, x, y, z);
     hpos = node1->GetHandlePosition(h);
@@ -209,7 +211,6 @@ int vtkSplineRepresentationTest1(int , char * [] )
       std::cout << i << " = " << val[0] << ", " << val[1] << ", " << val[2] << std::endl;
       }
     }
-
 
   node1->SetLineColor(1.0, 0.5, 0.3);
 

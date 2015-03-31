@@ -829,7 +829,7 @@ void vtkCocoaRenderWindow::CreateAWindow()
       [parent addSubview:glView];
       this->SetWindowId(glView);
       this->ViewCreated = 1;
-#if VTK_OBJC_IS_MRR
+#if !VTK_OBJC_IS_ARC
       [glView release];
 #endif
       }
@@ -845,7 +845,7 @@ void vtkCocoaRenderWindow::CreateAWindow()
       this->SetWindowId(glView);
       this->ViewCreated = 1;
       [glView setVTKRenderWindow:this];
-#if VTK_OBJC_IS_MRR
+#if !VTK_OBJC_IS_ARC
       [glView release];
 #endif
       }
@@ -888,7 +888,7 @@ void vtkCocoaRenderWindow::CreateAWindow()
   vtkCocoaServer *server = [[vtkCocoaServer alloc] initWithRenderWindow:this];
   this->SetCocoaServer(reinterpret_cast<void *>(server));
   [server startObservations];
-#if VTK_OBJC_IS_MRR
+#if !VTK_OBJC_IS_ARC
   [server release];
 #endif
 }
@@ -961,7 +961,7 @@ void vtkCocoaRenderWindow::CreateGLContext()
   [pixelFormat self]; // prevent premature collection under GC.
   [context self]; // prevent premature collection under GC.
 
-#if VTK_OBJC_IS_MRR
+#if !VTK_OBJC_IS_ARC
   [pixelFormat release];
   [context release];
 #endif

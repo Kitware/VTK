@@ -2108,6 +2108,12 @@ int InvertMatrix()
     }
   if (vtkMath::InvertMatrix(mat, matI, NDimension, tmp1, tmp2) == 0)
     {
+    delete [] mat;
+    delete [] orig;
+    delete [] matI;
+    delete [] ident;
+    delete [] tmp1;
+    delete [] tmp2;
     return status;
     }
   vtkMath::MultiplyMatrix(orig,

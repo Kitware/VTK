@@ -18,12 +18,14 @@
 #include "vtkColorSeries.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
+#include "vtkDoubleArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkExecutive.h"
-#include "vtkLookupTable.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
-#include "vtkPointData.h"
+#include "vtkLookupTable.h"
 #include "vtkMath.h"
+#include "vtkPointData.h"
 #include "vtkVariantArray.h"
 
 
@@ -265,6 +267,58 @@ vtkUnsignedCharArray *vtkMapper::MapScalars(double alpha)
   return this->MapScalars(input,alpha);
 }
 
+//-----------------------------------------------------------------------------
+// Returns if we can use texture maps for scalar coloring. Note this doesn't say
+// we "will" use scalar coloring. It says, if we do use scalar coloring, we will
+// use a texture.
+// When rendering multiblock datasets, if any 2 blocks provide different
+// lookup tables for the scalars, then also we cannot use textures. This case can
+// be handled if required.
+int vtkMapper::CanUseTextureMapForColoring(vtkDataObject* input)
+{
+  if (!this->InterpolateScalarsBeforeMapping)
+    {
+    return 0; // user doesn't want us to use texture maps at all.
+    }
+
+  if (input->IsA("vtkDataSet"))
+    {
+    int cellFlag=0;
+    vtkDataSet* ds = static_cast<vtkDataSet*>(input);
+    vtkDataArray* scalars = vtkAbstractMapper::GetScalars(ds,
+      this->ScalarMode, this->ArrayAccessMode, this->ArrayId,
+      this->ArrayName, cellFlag);
+
+    if (!scalars)
+      {
+      // no scalars on  this dataset, we don't care if texture is used at all.
+      return 1;
+      }
+
+    if (cellFlag)
+      {
+      return 0; // cell data colors, don't use textures.
+      }
+
+    if ((this->ColorMode == VTK_COLOR_MODE_DEFAULT &&
+         vtkUnsignedCharArray::SafeDownCast(scalars)) ||
+        this->ColorMode == VTK_COLOR_MODE_DIRECT_SCALARS)
+      {
+      // Don't use texture is direct coloring using RGB unsigned chars is
+      // requested.
+      return 0;
+      }
+    }
+
+  if (this->LookupTable &&
+      this->LookupTable->GetIndexedLookup())
+    {
+    return 0;
+    }
+
+  return 1;
+}
+
 // a side effect of this is that this->Colors is also set
 // to the return value
 vtkUnsignedCharArray *vtkMapper::MapScalars(vtkDataSet *input,
@@ -328,17 +382,10 @@ vtkUnsignedCharArray *vtkMapper::MapScalars(vtkDataSet *input,
   // Decide betweeen texture color or vertex color.
   // Cell data always uses vertext color.
   // Only point data can use both texture and vertext coloring.
-  if (this->InterpolateScalarsBeforeMapping && ! cellFlag)
+  if (this->CanUseTextureMapForColoring(input))
     {
-    // Only use texture color if we are mapping scalars.
-    // Directly coloring with RGB unsigned chars should not use texture.
-    if (dataArray && (this->ColorMode != VTK_COLOR_MODE_DEFAULT ||
-          (vtkUnsignedCharArray::SafeDownCast(scalars)) == 0) &&
-         this->ColorMode != VTK_COLOR_MODE_DIRECT_SCALARS)
-      { // Texture color option.
-      this->MapScalarsToTexture(dataArray, alpha);
-      return 0;
-      }
+    this->MapScalarsToTexture(scalars, alpha);
+    return 0;
     }
 
   // Vertex colors are being used.
@@ -619,9 +666,18 @@ void CreateColorTextureCoordinates(T* input, float* output,
                                    vtkIdType numScalars, int numComps,
                                    int component, double* range,
                                    const double* table_range,
+                                   int tableNumberOfColors,
                                    bool use_log_scale)
 {
-  double inv_range_width = 1.0 / (range[1]-range[0]);
+  // We have to change the range used for computing texture
+  // coordinates slightly to accomodate the special above- and
+  // below-range colors that are the first and last texels,
+  // respectively.
+  double scalar_texel_width = (range[1] - range[0]) / static_cast<double>(tableNumberOfColors);
+  double padded_range[2];
+  padded_range[0] = range[0] - scalar_texel_width;
+  padded_range[1] = range[1] + scalar_texel_width;
+  double inv_range_width = 1.0 / (padded_range[1] - padded_range[0]);
 
   if (component < 0 || component >= numComps)
     {
@@ -640,7 +696,7 @@ void CreateColorTextureCoordinates(T* input, float* output,
         magnitude = vtkLookupTable::ApplyLogScale(
           magnitude, table_range, range);
         }
-      ScalarToTextureCoordinate(magnitude, range[0], inv_range_width,
+      ScalarToTextureCoordinate(magnitude, padded_range[0], inv_range_width,
                                 output[0], output[1]);
       output += 2;
       }
@@ -656,7 +712,7 @@ void CreateColorTextureCoordinates(T* input, float* output,
         input_value = vtkLookupTable::ApplyLogScale(
           input_value, table_range, range);
         }
-      ScalarToTextureCoordinate(input_value, range[0], inv_range_width,
+      ScalarToTextureCoordinate(input_value, padded_range[0], inv_range_width,
                                 output[0], output[1]);
       output += 2;
       input = input + numComps;
@@ -666,10 +722,9 @@ void CreateColorTextureCoordinates(T* input, float* output,
 
 } // end anonymous namespace
 
-#define ColorTextureMapSize 256
 // a side effect of this is that this->ColorCoordinates and
 // this->ColorTexture are set.
-void vtkMapper::MapScalarsToTexture(vtkDataArray* scalars, double alpha)
+void vtkMapper::MapScalarsToTexture(vtkAbstractArray* scalars, double alpha)
 {
   double range[2];
   range[0] = this->LookupTable->GetRange()[0];
@@ -708,24 +763,30 @@ void vtkMapper::MapScalarsToTexture(vtkDataArray* scalars, double alpha)
     // Get the texture map from the lookup table.
     // Create a dummy ramp of scalars.
     // In the future, we could extend vtkScalarsToColors.
-    double k = (range[1]-range[0]) / (ColorTextureMapSize-1);
-    vtkFloatArray* tmp = vtkFloatArray::New();
-    tmp->SetNumberOfTuples(ColorTextureMapSize*2);
-    float* ptr = tmp->GetPointer(0);
-    for (int i = 0; i < ColorTextureMapSize; ++i)
+    vtkIdType numberOfColors = this->LookupTable->GetNumberOfAvailableColors();
+    numberOfColors += 2;
+    double k = (range[1]-range[0]) / (numberOfColors-1-2);
+    vtkDoubleArray* tmp = vtkDoubleArray::New();
+    tmp->SetNumberOfTuples(numberOfColors*2);
+    double* ptr = tmp->GetPointer(0);
+    for (int i = 0; i < numberOfColors; ++i)
       {
-      *ptr = range[0] + i * k;
+      *ptr = range[0] + i * k - k; // minus k to start at below range color
+      if (use_log_scale)
+        {
+        *ptr = pow(10.0, *ptr);
+        }
       ++ptr;
       }
     // Dimension on NaN.
     double nan = vtkMath::Nan();
-    for (int i = 0; i < ColorTextureMapSize; ++i)
+    for (int i = 0; i < numberOfColors; ++i)
       {
       *ptr = nan;
       ++ptr;
       }
     this->ColorTextureMap = vtkImageData::New();
-    this->ColorTextureMap->SetExtent(0,ColorTextureMapSize-1,
+    this->ColorTextureMap->SetExtent(0,numberOfColors-1,
                                      0,1, 0,0);
     this->ColorTextureMap->GetPointData()->SetScalars(
          this->LookupTable->MapScalars(tmp, this->ColorMode, 0));
@@ -777,10 +838,11 @@ void vtkMapper::MapScalarsToTexture(vtkDataArray* scalars, double alpha)
       {
       vtkTemplateMacro(
         CreateColorTextureCoordinates(static_cast<VTK_TT*>(input),
-                                      output, num, numComps,
-                                      scalarComponent, range,
-                                      this->LookupTable->GetRange(),
-                                      use_log_scale)
+          output, num, numComps,
+          scalarComponent, range,
+          this->LookupTable->GetRange(),
+          this->LookupTable->GetNumberOfAvailableColors(),
+          use_log_scale)
         );
       case VTK_BIT:
         vtkErrorMacro("Cannot color by bit array.");

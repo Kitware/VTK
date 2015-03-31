@@ -72,7 +72,15 @@ they are system headers.  Do NOT add any #undef lines here.  */
 # pragma warning (push, 1)
 #endif
 
+#if defined(_MSC_VER) && _MSC_VER >= 1800
+#define HAVE_ROUND
+#endif
+
 #include <Python.h>
+
+#if defined(_MSC_VER) && _MSC_VER >= 1800
+#undef HAVE_ROUND
+#endif
 
 #if defined(_MSC_VER)
 # pragma warning (pop)

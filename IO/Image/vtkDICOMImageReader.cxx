@@ -144,14 +144,14 @@ void vtkDICOMImageReader::ExecuteInformation()
       dir->Delete();
       return;
       }
-    int numFiles = dir->GetNumberOfFiles();
+    vtkIdType numFiles = dir->GetNumberOfFiles();
 
     vtkDebugMacro( << "There are " << numFiles << " files in the directory.");
 
     this->DICOMFileNames->clear();
     this->AppHelper->Clear();
 
-    for (int i = 0; i < numFiles; i++)
+    for (vtkIdType i = 0; i < numFiles; i++)
       {
       if (strcmp(dir->GetFile(i), ".") == 0 ||
           strcmp(dir->GetFile(i), "..") == 0)
@@ -310,7 +310,7 @@ void vtkDICOMImageReader::ExecuteDataWithInformation(vtkDataObject *output,
     std::vector<std::string>::iterator fiter;
 
     int count = 0;
-    int numFiles = static_cast<int>(this->DICOMFileNames->size());
+    vtkIdType numFiles = static_cast<int>(this->DICOMFileNames->size());
 
     for (fiter = this->DICOMFileNames->begin();
          fiter != this->DICOMFileNames->end();

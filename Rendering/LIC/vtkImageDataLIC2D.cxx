@@ -19,6 +19,7 @@
 #include "vtkCellData.h"
 #include "vtkFloatArray.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkImageCast.h"
 #include "vtkImageData.h"
 #include "vtkImageNoiseSource.h"
 #include "vtkInformation.h"
@@ -48,7 +49,7 @@ using std::deque;
 
 #define vtkImageDataLIC2DDEBUG 0
 #if (vtkImageDataLIC2DDEBUG >= 1)
-#include "vtkTextureWriter.h"
+#include "vtkTextureIO.h"
 #endif
 
 #define PRINTEXTENT(ext) \
@@ -75,6 +76,10 @@ vtkImageDataLIC2D::vtkImageDataLIC2D()
   this->NoiseSource->SetMinimum(0.0);
   this->NoiseSource->SetMaximum(1.0);
 
+  this->ImageCast = vtkImageCast::New();
+  this->ImageCast->SetOutputScalarTypeToFloat();
+  this->ImageCast->SetInputConnection(this->NoiseSource->GetOutputPort(0));
+
   this->SetNumberOfInputPorts(2);
 
   // by default process active point vectors
@@ -91,6 +96,12 @@ vtkImageDataLIC2D::vtkImageDataLIC2D()
 vtkImageDataLIC2D::~vtkImageDataLIC2D()
 {
   this->NoiseSource->Delete();
+  this->ImageCast->Delete();
+  if (this->MagShader)
+    {
+    this->MagShader->Delete();
+    this->MagShader = NULL;
+    }
   this->SetContext(NULL);
 }
 
@@ -162,6 +173,7 @@ int vtkImageDataLIC2D::SetContext(vtkRenderWindow * renWin)
     if (prog->GetLastBuildStatus() != VTK_SHADER_PROGRAM2_LINK_SUCCEEDED)
       {
       vtkErrorMacro("failed to build the magnification fragment shader");
+      prog->Delete();
       return 0;
       }
     this->MagShader = prog;
@@ -389,8 +401,8 @@ int vtkImageDataLIC2D::RequestData(
 
   if ( !noise )
     {
-    this->NoiseSource->Update();
-    noise = this->NoiseSource->GetOutput();
+    this->ImageCast->Update();
+    noise = this->ImageCast->GetOutput();
     }
 
   int comp[3] = {0, 0, 0};
@@ -455,9 +467,9 @@ int vtkImageDataLIC2D::RequestData(
   vecPBO->Delete();
 
   #if (vtkImageDataLIC2DDEBUG >= 1)
-  vtkTextureWriter::WriteTexture(
-          "idlic2d_vectors.vtk",
-          vectorTex);
+  vtkTextureIO::Write(
+              "idlic2d_vectors.vtk",
+              vectorTex, NULL, NULL);
   #endif
 
   // magnify vectors
@@ -466,7 +478,7 @@ int vtkImageDataLIC2D::RequestData(
   magVectorExtent.Size(magVectorSize);
 
   vtkTextureObject *magVectorTex = vectorTex;
-  if (this->Magnification > 1)
+  if (this->Magnification > 1 && this->MagShader)
     {
     this->MagShader->UseProgram();
     this->MagShader->SetUniformi("texVectors", 0);
@@ -513,9 +525,9 @@ int vtkImageDataLIC2D::RequestData(
     }
 
   #if (vtkImageDataLIC2DDEBUG >= 1)
-  vtkTextureWriter::WriteTexture(
-          "idlic2d_magvectors.vtk",
-          magVectorTex);
+  vtkTextureIO::Write(
+              "idlic2d_magvectors.vtk",
+              magVectorTex, NULL, NULL);
   #endif
 
   // send noise data to a texture
@@ -525,17 +537,23 @@ int vtkImageDataLIC2D::RequestData(
 
   vtkPixelBufferObject *noisePBO = vtkPixelBufferObject::New();
   noisePBO->SetContext(this->Context);
+  int noiseComp = inNoise->GetNumberOfComponents();
+
+  if (inNoise->GetDataType() != VTK_FLOAT)
+    {
+    vtkErrorMacro("noise dataset was not float");
+    }
 
   vtkPixelTransfer::Blit(
         noiseExt,
-        2,
+        noiseComp,
         inNoise->GetDataType(),
         inNoise->GetVoidPointer(0),
         VTK_FLOAT,
         noisePBO->MapUnpackedBuffer(
         VTK_FLOAT,
         static_cast<unsigned int>(noiseExt.Size()),
-        2));
+        noiseComp));
 
   noisePBO->UnmapUnpackedBuffer();
 
@@ -544,14 +562,15 @@ int vtkImageDataLIC2D::RequestData(
 
   vtkTextureObject *noiseTex = vtkTextureObject::New();
   noiseTex->SetContext(this->Context);
-  noiseTex->Create2D(noiseTexSize[0], noiseTexSize[1], 2, noisePBO, false);
+  noiseTex->Create2D(noiseTexSize[0], noiseTexSize[1],
+    noiseComp, noisePBO, false);
 
   noisePBO->Delete();
 
   #if (vtkImageDataLIC2DDEBUG >= 1)
-  vtkTextureWriter::WriteTexture(
+  vtkTextureIO::Write(
           "idlic2d_noise.vtk",
-          noiseTex);
+          noiseTex, NULL, NULL);
   #endif
 
   // step size conversion to normalize image space
@@ -625,9 +644,9 @@ int vtkImageDataLIC2D::RequestData(
     }
 
   #if (vtkImageDataLIC2DDEBUG >= 1)
-  vtkTextureWriter::WriteTexture(
+  vtkTextureIO::Write(
           "idlic2d_lic.vtk",
-          licTex);
+          licTex, NULL, NULL);
   #endif
 
   // transfer lic from texture to vtk array
@@ -659,7 +678,7 @@ int vtkImageDataLIC2D::RequestData(
     {
     float lic = pLicOut[3*i];
     float mask = pLicOut[3*i+1];
-    if ( mask )
+    if ( mask != 0.0f )
       {
       pLicOut[3*i+1] = pLicOut[3*i+2] = pLicOut[3*i] = 0.0f;
       }

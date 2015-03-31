@@ -77,6 +77,7 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   this->TempMatrix4 = vtkMatrix4x4::New();
   this->TempMatrix3 = vtkMatrix3x3::New();
   this->DrawingEdges = false;
+  this->ForceTextureCoordinates = false;
 }
 
 
@@ -467,8 +468,8 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
       substitute(FSSource, "//VTK::TCoord::Dec",
         "varying float tcoordVC; uniform sampler2D texture1;");
       substitute(FSSource, "//VTK::TCoord::Impl",
-        "gl_FragColor = clamp(gl_FragColor,0.0,1.0)*texture2D(texture1, vec2(tcoordVC,0.0));");
-    }
+        "gl_FragData[0] = clamp(gl_FragData[0],0.0,1.0)*texture2D(texture1, vec2(tcoordVC,0.0));");
+      }
     else
       {
       substitute(VSSource, "//VTK::TCoord::Dec",
@@ -480,7 +481,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
       if (!this->InterpolateScalarsBeforeMapping || !this->ColorCoordinates)
         {
         substitute(FSSource, "//VTK::TCoord::Impl",
-          "gl_FragColor = clamp(gl_FragColor,0.0,1.0)*texture2D(texture1, tcoordVC.st);");
+          "gl_FragData[0] = clamp(gl_FragData[0],0.0,1.0)*texture2D(texture1, tcoordVC.st);");
         }
       }
     }
@@ -508,11 +509,11 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
       "if (mapperIndex == vec3(0.0,0.0,0.0))\n"
       "    {\n"
       "    int idx = gl_PrimitiveID + 1 + pickingAttributeIDOffset;\n"
-      "    gl_FragColor = vec4(float(idx%256)/255.0, float((idx/256)%256)/255.0, float(idx/65536)/255.0, 1.0);\n"
+      "    gl_FragData[0] = vec4(float(idx%256)/255.0, float((idx/256)%256)/255.0, float(idx/65536)/255.0, 1.0);\n"
       "    }\n"
       "  else\n"
       "    {\n"
-      "    gl_FragColor = vec4(mapperIndex,1.0);\n"
+      "    gl_FragData[0] = vec4(mapperIndex,1.0);\n"
       "    }");
     }
 
@@ -522,12 +523,23 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
       "uniform vec2 screenSize;\n"
       "uniform sampler2D opaqueZTexture;\n"
       "uniform sampler2D translucentZTexture;\n");
+    // the .0000001 below is an epsilon.  It turns out that
+    // graphics cards can render the same polygon two times
+    // in a row with different z values. I suspect it has to
+    // do with how rasterinzation of the polygon is broken up.
+    // A different breakup across fragment shaders can result in
+    // very slightly different z values for some of the pixels.
+    // The end result is that with depth peeling, you can end up
+    // counting/accumulating pixels of the same surface twice
+    // simply due to this randomness in z values. So we introduce
+    // an epsilon into the transparent test to require some
+    // minimal z seperation between pixels
     substitute(FSSource, "//VTK::DepthPeeling::Impl",
       "float odepth = texture2D(opaqueZTexture, gl_FragCoord.xy/screenSize).r;\n"
       "  if (gl_FragCoord.z >= odepth) { discard; }\n"
       "  float tdepth = texture2D(translucentZTexture, gl_FragCoord.xy/screenSize).r;\n"
-      "  if (gl_FragCoord.z <= tdepth) { discard; }\n"
-      //  "gl_FragColor = vec4(odepth*odepth,tdepth*tdepth,gl_FragCoord.z*gl_FragCoord.z,1.0);"
+      "  if (gl_FragCoord.z <= tdepth + .0000001) { discard; }\n"
+      //  "gl_FragData[0] = vec4(odepth*odepth,tdepth*tdepth,gl_FragCoord.z*gl_FragCoord.z,1.0);"
       );
     }
 
@@ -707,6 +719,7 @@ void vtkOpenGLPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* r
   cellBO.vao.Bind();
 
   this->LastBoundBO = &cellBO;
+  vtkOpenGLCheckErrorMacro("failed after UpdateShader");
 }
 
 void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
@@ -767,9 +780,11 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
       {
       texture = actor->GetProperty()->GetTexture(0);
       }
-    int tunit = vtkOpenGLTexture::SafeDownCast(texture)->GetTextureUnit();
-    cellBO.Program->SetUniformi("texture1", tunit);
-
+    if (texture)
+      {
+      int tunit = vtkOpenGLTexture::SafeDownCast(texture)->GetTextureUnit();
+      cellBO.Program->SetUniformi("texture1", tunit);
+      }
     // check for tcoord transform matrix
     vtkInformation *info = actor->GetPropertyKeys();
     vtkOpenGLCheckErrorMacro("failed after Render");
@@ -1526,7 +1541,9 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
     }
 
   // do we have texture maps?
-  bool haveTextures = (this->ColorTextureMap || act->GetTexture() || act->GetProperty()->GetNumberOfTextures());
+  bool haveTextures = (this->ColorTextureMap || act->GetTexture() ||
+    act->GetProperty()->GetNumberOfTextures() ||
+    this->ForceTextureCoordinates);
 
   // Set the texture if we are going to use texture
   // for coloring with a point attribute.
@@ -1677,6 +1694,7 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
       prims[primType]->UnRegister(this);
       }
     }
+  vtkOpenGLCheckErrorMacro("failed after BuildBufferObjects");
 }
 
 //-----------------------------------------------------------------------------

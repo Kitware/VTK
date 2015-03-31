@@ -1096,9 +1096,9 @@ void vtkWrap_DeclareVariableSize(
 char *vtkWrap_SafeSuperclassName(const char *name)
 {
   int template_class = 0;
-  int size = strlen(name);
+  size_t size = strlen(name);
   char *safe_name = malloc(size + 1);
-  int i;
+  size_t i;
 
   memcpy(safe_name, name, size + 1);
 

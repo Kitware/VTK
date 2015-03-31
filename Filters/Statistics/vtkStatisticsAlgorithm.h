@@ -298,7 +298,7 @@ protected:
                                     AssessFunctor*& dfunc ) = 0;
   //ETX
 
-  int NumberOfPrimaryTables;
+  vtkIdType NumberOfPrimaryTables;
   bool LearnOption;
   bool DeriveOption;
   bool AssessOption;

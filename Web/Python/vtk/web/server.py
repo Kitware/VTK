@@ -102,7 +102,7 @@ def start(argv=None,
     except ImportError:
         # since  Python 2.6 and earlier don't have argparse, we simply provide
         # the source for the same as _argparse and we use it instead.
-        import _argparse as argparse
+        from vtk.util import _argparse as argparse
 
     parser = argparse.ArgumentParser(description=description)
     add_arguments(parser)
@@ -203,7 +203,14 @@ def start_webserver(options, protocol=vtk_wamp.ServerProtocol, disableLogging=Fa
 
     # Handle possibly complex lp endpoint
     if not options.nolp:
-        lpResource = WampLongPollResource(session_factory)
+        lpResource = WampLongPollResource(session_factory,
+                                          timeout=options.timeout,
+                                          debug=options.debug)
+                                          #killAfter = 30000,
+                                          #queueLimitBytes = 1024 * 1024,
+                                          #queueLimitMessages = 1000,
+                                          #debug=True,
+                                          #reactor=reactor)
         handle_complex_resource_path(options.lp, root, lpResource)
 
     if options.uploadPath != None :
@@ -217,6 +224,9 @@ def start_webserver(options, protocol=vtk_wamp.ServerProtocol, disableLogging=Fa
       reactor.listenSSL(options.port, site, contextFactory)
     else:
       reactor.listenTCP(options.port, site)
+
+    # flush ready line
+    sys.stdout.flush()
 
     # Work around to force the output buffer to be flushed
     # This allow the process launcher to parse the output and

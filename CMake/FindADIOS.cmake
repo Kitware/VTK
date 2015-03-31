@@ -225,10 +225,6 @@ if(ADIOS_FOUND)
         unset(_LIB_DIR)
     endforeach()
 
-    #add libraries which are already using cmake format
-    string(REGEX MATCHALL "/([A-Za-z_0-9/\\.-]+)\\.([a|so]+)" _ADIOS_LIBS_SUB "${ADIOS_LINKFLAGS}")
-    list(APPEND ADIOS_LIBRARIES "${_ADIOS_LIBS_SUB}")
-
     # add the version string
     execute_process(COMMAND ${ADIOS_CONFIG} -v
                     OUTPUT_VARIABLE ADIOS_VERSION

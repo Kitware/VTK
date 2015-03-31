@@ -707,8 +707,8 @@ int vtkImageHistogram::RequestData(
   this->Threader->SetSingleMethod(vtkImageHistogramThreadedExecute, &ts);
 
   // always shut off debugging to avoid threading problems with GetMacros
-  int debug = this->Debug;
-  this->Debug = 0;
+  bool debug = this->Debug;
+  this->Debug = false;
   this->Threader->SingleMethodExecute();
   this->Debug = debug;
 

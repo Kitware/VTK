@@ -647,13 +647,14 @@ bool vtkMatplotlibMathTextUtilities::RenderString(const char *str,
   unsigned char fgR = static_cast<unsigned char>(fgColor[0] * 255);
   unsigned char fgG = static_cast<unsigned char>(fgColor[1] * 255);
   unsigned char fgB = static_cast<unsigned char>(fgColor[2] * 255);
-  double fgAlpha = tprop->GetOpacity();
+  double fgA = tprop->GetOpacity();
 
   double *bgColor = tprop->GetBackgroundColor();
   unsigned char bgR = static_cast<unsigned char>(bgColor[0] * 255);
   unsigned char bgG = static_cast<unsigned char>(bgColor[1] * 255);
   unsigned char bgB = static_cast<unsigned char>(bgColor[2] * 255);
-  double bgAlpha = tprop->GetBackgroundOpacity();
+  double bgA = tprop->GetBackgroundOpacity();
+  bool hasBackground = (static_cast<unsigned char>(bgA * 255) != 0);
 
   vtkSmartPyObject resultTuple(PyObject_CallMethod(this->MaskParser,
                                                 const_cast<char*>("to_mask"),
@@ -729,7 +730,7 @@ bool vtkMatplotlibMathTextUtilities::RenderString(const char *str,
         {
         return false;
         }
-      const float alpha = fgAlpha * (PyInt_AsLong(item) / 255.f);
+      const unsigned char val = static_cast<unsigned char>(PyInt_AsLong(item));
       if (this->CheckForError())
         {
         return false;
@@ -737,12 +738,23 @@ bool vtkMatplotlibMathTextUtilities::RenderString(const char *str,
       unsigned char *ptr =
           static_cast<unsigned char*>(image->GetScalarPointer(col, row, 0));
 
-      const float s1mA = 1.f - alpha;
+      if (hasBackground)
+        {
+        const float fg_blend = fgA * (val / 255.f);
+        const float bg_blend = 1.f - fg_blend;
 
-      ptr[0] = static_cast<unsigned char>(s1mA * bgR + alpha * fgR);
-      ptr[1] = static_cast<unsigned char>(s1mA * bgG + alpha * fgG);
-      ptr[2] = static_cast<unsigned char>(s1mA * bgB + alpha * fgB);
-      ptr[3] = static_cast<unsigned char>(255 * (alpha + bgAlpha * s1mA));
+        ptr[0] = static_cast<unsigned char>(bg_blend * bgR + fg_blend * fgR);
+        ptr[1] = static_cast<unsigned char>(bg_blend * bgG + fg_blend * fgG);
+        ptr[2] = static_cast<unsigned char>(bg_blend * bgB + fg_blend * fgB);
+        ptr[3] = static_cast<unsigned char>(255 * (fg_blend + bgA * bg_blend));
+        }
+      else
+        {
+        ptr[0] = fgR;
+        ptr[1] = fgG;
+        ptr[2] = fgB;
+        ptr[3] = static_cast<unsigned char>(val * fgA);
+        }
       }
     }
 

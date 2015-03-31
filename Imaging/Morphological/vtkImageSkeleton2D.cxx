@@ -222,14 +222,14 @@ void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
                   // special condition (making another prune level)
                   // pruning 135 degree corners
                   if (prune || countFaces != 2 || countCorners != 2 ||
-                      ((n[1]==0 || n[2]==0 || n[3]==0 || n[4]) &&
-                       (n[0]==0 || n[1]==0 || n[2]==0 || n[3]) &&
-                       (n[7]==0 || n[0]==0 || n[1]==0 || n[2]) &&
-                       (n[6]==0 || n[7]==0 || n[0]==0 || n[1]) &&
-                       (n[5]==0 || n[6]==0 || n[7]==0 || n[0]) &&
-                       (n[4]==0 || n[5]==0 || n[6]==0 || n[7]) &&
-                       (n[3]==0 || n[4]==0 || n[5]==0 || n[6]) &&
-                       (n[2]==0 || n[3]==0 || n[4]==0 || n[5])))
+                      ((n[1]==0 || n[2]==0 || n[3]==0 || n[4]!=0) &&
+                       (n[0]==0 || n[1]==0 || n[2]==0 || n[3]!=0) &&
+                       (n[7]==0 || n[0]==0 || n[1]==0 || n[2]!=0) &&
+                       (n[6]==0 || n[7]==0 || n[0]==0 || n[1]!=0) &&
+                       (n[5]==0 || n[6]==0 || n[7]==0 || n[0]!=0) &&
+                       (n[4]==0 || n[5]==0 || n[6]==0 || n[7]!=0) &&
+                       (n[3]==0 || n[4]==0 || n[5]==0 || n[6]!=0) &&
+                       (n[2]==0 || n[3]==0 || n[4]==0 || n[5]!=0)))
                     {
                     // remaining pixels need to be connected.
                     // do not break corner connectivity

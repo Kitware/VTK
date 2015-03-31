@@ -82,6 +82,12 @@ public:
   void RemoveBlockOpacity(unsigned int index);
   void RemoveBlockOpacities();
 
+  // Description:
+  // Release any graphics resources that are being consumed by this mapper.
+  // The parameter window could be used to determine which graphic
+  // resources to release.
+  void ReleaseGraphicsResources(vtkWindow *);
+
 //BTX
 protected:
   vtkGenericCompositePolyDataMapper2();
@@ -123,12 +129,12 @@ protected:
 
   class RenderBlockState
     {
-  public:
-    std::stack<bool> Visibility;
-    std::stack<double> Opacity;
-    std::stack<vtkColor3d> AmbientColor;
-    std::stack<vtkColor3d> DiffuseColor;
-    std::stack<vtkColor3d> SpecularColor;
+    public:
+      std::stack<bool> Visibility;
+      std::stack<double> Opacity;
+      std::stack<vtkColor3d> AmbientColor;
+      std::stack<vtkColor3d> DiffuseColor;
+      std::stack<vtkColor3d> SpecularColor;
     };
 
   RenderBlockState BlockState;

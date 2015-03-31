@@ -280,7 +280,10 @@ inline void vtkBitArray::InsertValue(vtkIdType id, int i)
 {
   if ( id >= this->Size )
     {
-    this->ResizeAndExtend(id+1);
+    if (!this->ResizeAndExtend(id+1))
+      {
+      return;
+      }
     }
   if (i)
     {

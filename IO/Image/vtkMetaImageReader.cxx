@@ -99,6 +99,17 @@ void vtkMetaImageReader::ExecuteInformation()
 
   switch(this->MetaImagePtr->ElementType())
     {
+    case vtkmetaio::MET_NONE:
+    case vtkmetaio::MET_ASCII_CHAR:
+    case vtkmetaio::MET_LONG_LONG:
+    case vtkmetaio::MET_ULONG_LONG:
+    case vtkmetaio::MET_STRING:
+    case vtkmetaio::MET_LONG_LONG_ARRAY:
+    case vtkmetaio::MET_ULONG_LONG_ARRAY:
+    case vtkmetaio::MET_FLOAT_ARRAY:
+    case vtkmetaio::MET_DOUBLE_ARRAY:
+    case vtkmetaio::MET_FLOAT_MATRIX:
+    case vtkmetaio::MET_OTHER:
     default:
       vtkErrorMacro(<< "Unknown data type: "
                     << this->MetaImagePtr->ElementType());
@@ -164,6 +175,7 @@ void vtkMetaImageReader::ExecuteInformation()
   switch(this->MetaImagePtr->DistanceUnits())
     {
     default:
+    case vtkmetaio::MET_DISTANCE_UNITS_UNKNOWN:
     case vtkmetaio::MET_DISTANCE_UNITS_UM:
       {
       strcpy(DistanceUnits, "um");

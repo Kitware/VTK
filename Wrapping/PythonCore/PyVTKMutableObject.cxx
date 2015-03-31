@@ -37,7 +37,7 @@ extern "C" { VTKWRAPPINGPYTHONCORE_EXPORT void PyVTKAddFile_mutable(PyObject *, 
 
 //--------------------------------------------------------------------
 
-const char *PyVTKMutableObject_Doc =
+static const char *PyVTKMutableObject_Doc =
   "A mutable wrapper for immutable objects.\n\n"
   "This wrapper class is needed when a VTK method returns a value\n"
   "in an argument that has been passed by reference.  By calling\n"

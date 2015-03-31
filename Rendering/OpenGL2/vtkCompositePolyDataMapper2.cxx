@@ -31,6 +31,7 @@
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+     #include "vtkLookupTable.h"
 #include "vtkShaderProgram.h"
 
 vtkStandardNewMacro(vtkCompositePolyDataMapper2);
@@ -74,26 +75,35 @@ void vtkCompositePolyDataMapper2::Render(
 
   // do we need to do a generic render?
   bool lastUseGeneric = this->UseGeneric;
-  if (this->GenericTestTime < input->GetMTime())
+  if (this->GenericTestTime < this->GetInputDataObject(0, 0)->GetMTime())
     {
     this->UseGeneric = false;
-    vtkSmartPointer<vtkDataObjectTreeIterator> iter =
-      vtkSmartPointer<vtkDataObjectTreeIterator>::New();
-    iter->SetDataSet(input);
-    iter->SkipEmptyNodesOn();
-    iter->VisitOnlyLeavesOn();
-    for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
-        iter->GoToNextItem())
+
+    // is the data not composite
+    if (!input)
       {
-      vtkDataObject *dso = iter->GetCurrentDataObject();
-      vtkPolyData *pd = vtkPolyData::SafeDownCast(dso);
-      if (!pd ||
-          pd->GetVerts()->GetNumberOfCells() ||
-          pd->GetLines()->GetNumberOfCells() ||
-          pd->GetStrips()->GetNumberOfCells())
+      this->UseGeneric = true;
+      }
+    else
+      {
+      vtkSmartPointer<vtkDataObjectTreeIterator> iter =
+        vtkSmartPointer<vtkDataObjectTreeIterator>::New();
+      iter->SetDataSet(input);
+      iter->SkipEmptyNodesOn();
+      iter->VisitOnlyLeavesOn();
+      for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
+          iter->GoToNextItem())
         {
-        this->UseGeneric = true;
-        break;
+        vtkDataObject *dso = iter->GetCurrentDataObject();
+        vtkPolyData *pd = vtkPolyData::SafeDownCast(dso);
+        if (!pd ||
+            pd->GetVerts()->GetNumberOfCells() ||
+            pd->GetLines()->GetNumberOfCells() ||
+            pd->GetStrips()->GetNumberOfCells())
+          {
+          this->UseGeneric = true;
+          break;
+          }
         }
       }
 
@@ -361,10 +371,12 @@ void vtkCompositePolyDataMapper2::RenderPieceDraw(
       {
       if (it->Visibility)
         {
-        if (selector)
+        if (selector &&
+            selector->GetCurrentPass() ==
+              vtkHardwareSelector::COMPOSITE_INDEX_PASS)
           {
-          selector->BeginRenderProp();
           selector->RenderCompositeIndex(it->PickId);
+          prog->SetUniform3f("mapperIndex", selector->GetPropColorValue());
           }
         // override the opacity and color
         prog->SetUniformf("opacityUniform", it->Opacity);
@@ -445,6 +457,89 @@ void vtkCompositePolyDataMapper2::RenderEdges(
     */
 }
 
+//-----------------------------------------------------------------------------
+// Returns if we can use texture maps for scalar coloring. Note this doesn't say
+// we "will" use scalar coloring. It says, if we do use scalar coloring, we will
+// use a texture.
+// When rendering multiblock datasets, if any 2 blocks provide different
+// lookup tables for the scalars, then also we cannot use textures. This case can
+// be handled if required.
+int vtkCompositePolyDataMapper2::CanUseTextureMapForColoring(vtkDataObject*)
+{
+  if (!this->InterpolateScalarsBeforeMapping)
+    {
+    return 0; // user doesn't want us to use texture maps at all.
+    }
+
+  if (this->CanUseTextureMapForColoringSet)
+    {
+    return this->CanUseTextureMapForColoringValue;
+    }
+
+  vtkCompositeDataSet *cdInput = vtkCompositeDataSet::SafeDownCast(
+    this->GetInputDataObject(0, 0));
+
+  vtkSmartPointer<vtkDataObjectTreeIterator> iter =
+    vtkSmartPointer<vtkDataObjectTreeIterator>::New();
+  iter->SetDataSet(cdInput);
+  iter->SkipEmptyNodesOn();
+  iter->VisitOnlyLeavesOn();
+  int cellFlag=0;
+  this->CanUseTextureMapForColoringValue = 1;
+  vtkScalarsToColors *scalarsLookupTable = 0;
+  for (iter->InitTraversal();
+       !iter->IsDoneWithTraversal() &&
+          this->CanUseTextureMapForColoringValue == 1;
+       iter->GoToNextItem())
+    {
+    vtkDataObject *dso = iter->GetCurrentDataObject();
+    vtkPolyData *pd = vtkPolyData::SafeDownCast(dso);
+    vtkDataArray* scalars = vtkAbstractMapper::GetScalars(pd,
+      this->ScalarMode, this->ArrayAccessMode, this->ArrayId,
+      this->ArrayName, cellFlag);
+
+    if (scalars)
+      {
+      if (cellFlag)
+        {
+        this->CanUseTextureMapForColoringValue = 0;
+        }
+      if ((this->ColorMode == VTK_COLOR_MODE_DEFAULT &&
+           vtkUnsignedCharArray::SafeDownCast(scalars)) ||
+          this->ColorMode == VTK_COLOR_MODE_DIRECT_SCALARS)
+        {
+        // Don't use texture is direct coloring using RGB unsigned chars is
+        // requested.
+        this->CanUseTextureMapForColoringValue = 0;
+        }
+
+      if (scalarsLookupTable && scalars->GetLookupTable() &&
+          (scalarsLookupTable != scalars->GetLookupTable()))
+        {
+        // Two datasets are requesting different lookup tables to color with.
+        // We don't handle this case right now for composite datasets.
+        this->CanUseTextureMapForColoringValue = 0;
+        }
+      if (scalars->GetLookupTable())
+        {
+        scalarsLookupTable = scalars->GetLookupTable();
+        }
+      }
+    }
+
+  if ((scalarsLookupTable &&
+       scalarsLookupTable->GetIndexedLookup()) ||
+      (!scalarsLookupTable &&
+       this->LookupTable &&
+       this->LookupTable->GetIndexedLookup()))
+      {
+      this->CanUseTextureMapForColoringValue = 0;
+      }
+
+  this->CanUseTextureMapForColoringSet = true;
+  return this->CanUseTextureMapForColoringValue;
+}
+
 //-------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::BuildBufferObjects(
   vtkRenderer *ren,
@@ -470,6 +565,7 @@ void vtkCompositePolyDataMapper2::BuildBufferObjects(
   this->VertexOffsets.resize(this->MaximumFlatIndex+1);
   this->IndexOffsets.resize(this->MaximumFlatIndex+1);
   this->EdgeIndexOffsets.resize(this->MaximumFlatIndex+1);
+  this->CanUseTextureMapForColoringSet = false;
 
   unsigned int voffset = 0;
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
@@ -509,11 +605,23 @@ void vtkCompositePolyDataMapper2::AppendOneBufferObject(
   vtkPolyData *poly,
   unsigned int voffset)
 {
+  // if there are no cells then skip this piece
+  if (poly->GetPolys()->GetNumberOfCells() == 0)
+    {
+    return;
+    }
+
   // Get rid of old texture color coordinates if any
   if ( this->ColorCoordinates )
     {
     this->ColorCoordinates->UnRegister(this);
     this->ColorCoordinates = 0;
+    }
+  // Get rid of old texture color coordinates if any
+  if ( this->Colors )
+    {
+    this->Colors->UnRegister(this);
+    this->Colors = 0;
     }
 
   // For vertex coloring, this sets this->Colors as side effect.

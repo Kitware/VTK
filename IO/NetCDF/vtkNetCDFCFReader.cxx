@@ -1090,6 +1090,13 @@ int vtkNetCDFCFReader::RequestData(vtkInformation *request,
         // Just fake some coordinates (related to ParaView bug #11543).
         this->FakeRectilinearCoordinates(rectilinearOutput);
         break;
+      case COORDS_UNIFORM_RECTILINEAR:
+      case COORDS_NONUNIFORM_RECTILINEAR:
+      case COORDS_REGULAR_SPHERICAL:
+      case COORDS_2D_EUCLIDEAN:
+      case COORDS_2D_SPHERICAL:
+      case COORDS_EUCLIDEAN_4SIDED_CELLS:
+      case COORDS_SPHERICAL_4SIDED_CELLS:
       default:
         this->AddRectilinearCoordinates(rectilinearOutput);
       }
@@ -2017,6 +2024,9 @@ void vtkNetCDFCFReader::IdentifySphericalCoordinates(vtkIntArray *dimensions,
       case vtkDimensionInfo::LATITUDE_UNITS:
         latitudeDim = i;
         break;
+      case vtkDimensionInfo::UNDEFINED_UNITS:
+      case vtkDimensionInfo::TIME_UNITS:
+      case vtkDimensionInfo::VERTICAL_UNITS:
       default:
         verticalDim = i;
         break;

@@ -17,6 +17,12 @@
 // vtkUnsigned__Int64Array is an array of values of type unsigned __int64.
 // It provides methods for insertion and retrieval of values and will
 // automatically resize itself to hold new data.
+//
+// This class is intended to give an array of unsigned 64 bit integers
+// on systems where unsigned __int64 is the only unsigned 64 bit integer
+// type. If an array of unsigned 64 bit
+// integers is needed, prefer vtkTypeUInt64Array, which will always uses
+// the system's most appropriate datatype for unsigned 64 bit integers.
 
 #ifndef vtkUnsigned__Int64Array_h
 #define vtkUnsigned__Int64Array_h

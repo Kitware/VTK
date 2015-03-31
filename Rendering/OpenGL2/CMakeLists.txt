@@ -37,6 +37,7 @@ set(Module_SRCS
   vtkOpenGLHardwareSelector.cxx
   vtkOpenGLImageMapper.cxx
   vtkOpenGLImageSliceMapper.cxx
+  vtkOpenGLLabeledContourMapper.cxx
   vtkOpenGLLight.cxx
   vtkOpenGLPointGaussianMapper.cxx
   vtkOpenGLPolyDataMapper.cxx
@@ -66,13 +67,18 @@ set(Module_SRCS
 
 if (NOT DEFINED OPENGL_ES_VERSION)
   set(Module_SRCS ${Module_SRCS}
+    vtkDataTransferHelper.cxx
     vtkFrameBufferObject.cxx
+    vtkFrameBufferObject2.cxx
     vtkPixelBufferObject.cxx
+    vtkRenderbuffer.cxx
     )
 else()
   if (${OPENGL_ES_VERSION} MATCHES 3.0)
     set(Module_SRCS ${Module_SRCS}
       vtkFrameBufferObject.cxx
+      vtkFrameBufferObject2.cxx
+      vtkRenderbuffer.cxx
       )
   endif()
 endif()
@@ -170,6 +176,7 @@ endif()
 set(opengl_overrides
   Actor
   Camera
+  LabeledContourMapper
   HardwareSelector
   ImageMapper
   ImageSliceMapper
@@ -221,11 +228,11 @@ elseif(VTK_USE_OSMESA)
 elseif(WIN32)
   # Add some custom overrides
   list(APPEND vtk_module_overrides "vtkRenderWindowInteractor")
-  set(vtk_module_vtkRenderWindowInteractor_override "vtkWin32OpenGLRenderWindowInteractor")
+  set(vtk_module_vtkRenderWindowInteractor_override "vtkWin32RenderWindowInteractor")
   list(APPEND vtk_module_overrides "vtkRenderWindow")
   set(vtk_module_vtkRenderWindow_override "vtkWin32OpenGLRenderWindow")
   list(APPEND Module_SRCS
-    vtkWin32OpenGLRenderWindowInteractor.cxx
+    vtkWin32RenderWindowInteractor.cxx
     vtkWin32OpenGLRenderWindow.cxx
     )
 elseif(VTK_USE_COCOA)
@@ -297,7 +304,10 @@ vtk_object_factory_configure("${vtk_module_overrides}")
 # Detect and clear OpenGL errors. If not then other classes/user code
 # may detect VTK's OpenGL errors and vice-versa.
 set(VTK_REPORT_OPENGL_ERRORS ON CACHE BOOL "Enable OpenGL error check and report")
-mark_as_advanced(VTK_REPORT_OPENGL_ERRORS)
+cmake_dependent_option(VTK_REPORT_OPENGL_ERRORS_IN_RELEASE_BUILDS
+  "Enable OpenGL error check and reporting in non-debug builds." OFF
+  VTK_REPORT_OPENGL_ERRORS OFF)
+mark_as_advanced(VTK_REPORT_OPENGL_ERRORS VTK_REPORT_OPENGL_ERRORS_IN_RELEASE_BUILDS)
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/vtkOpenGLError.h.in
     ${CMAKE_CURRENT_BINARY_DIR}/vtkOpenGLError.h)

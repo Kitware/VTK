@@ -98,7 +98,10 @@ void vtkVoidArray::InsertVoidPointer(vtkIdType id, void* p)
 {
   if ( id >= this->Size )
     {
-    this->ResizeAndExtend(id+1);
+    if (!this->ResizeAndExtend(id+1))
+      {
+      return;
+      }
     }
   this->Array[id] = p;
   if ( id >= this->NumberOfPointers )
@@ -136,7 +139,6 @@ void** vtkVoidArray::ResizeAndExtend(vtkIdType sz)
   if (newSize <= 0)
     {
     this->Initialize();
-    vtkErrorMacro(<< "Memory size must be positive\n");
     return 0;
     }
 

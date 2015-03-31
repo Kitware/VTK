@@ -11,8 +11,8 @@
 ============================================================================*/
 #include "metaTypes.h"
 
-#ifndef __MetaOutput_H_
-#define __MetaOutput_H_
+#ifndef metaOutput_h
+#define metaOutput_h
 
 #ifdef _MSC_VER
 #pragma warning ( disable : 4786 )
@@ -34,7 +34,7 @@ class MetaOutputStream
   public:
 
     MetaOutputStream();
-    virtual ~MetaOutputStream() {};
+    virtual ~MetaOutputStream() {}
 
     void                     SetName(const char* name);
     METAIO_STL::string       GetName() const;
@@ -70,7 +70,7 @@ class MetaFileOutputStream : public MetaOutputStream
   public:
 
     MetaFileOutputStream(const char* name);
-    virtual ~MetaFileOutputStream() {};
+    virtual ~MetaFileOutputStream() {}
 
     bool Open();
     bool Close();

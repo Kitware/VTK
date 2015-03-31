@@ -59,7 +59,12 @@ void main()
 
   // compute the projected vertex position
   vec4 vertexVC = MCVCMatrix * vertexMC;
-  float radius2 = dot(offsetMC,offsetMC)*0.25;
+
+  // the offsets sent down are positioned
+  // at 2.0*radius*3.0 from the center of the
+  // gaussian.  This has to be consistent
+  // with the offsets we build into the VBO
+  float radius = sqrt(dot(offsetMC,offsetMC))/6.0;
 
   // make the triangle face the camera
   if (cameraParallel == 0)
@@ -75,6 +80,6 @@ void main()
     vertexVC.xy = vertexVC.xy + offsetMC;
     }
 
-  offsetVC = offsetMC/sqrt(radius2);
+  offsetVC = offsetMC/radius;
   gl_Position = VCDCMatrix * vertexVC;
 }

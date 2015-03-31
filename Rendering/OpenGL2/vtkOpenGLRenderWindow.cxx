@@ -691,15 +691,33 @@ void vtkOpenGLRenderWindow::RenderQuad(
   float *tcoords,
   vtkShaderProgram *program, vtkgl::VertexArrayObject *vao)
 {
+  GLuint iboData[] = {0, 1, 2, 0, 2, 3};
+  vtkOpenGLRenderWindow::RenderTriangles(verts, 4,
+    iboData, 6,
+    tcoords,
+    program, vao);
+}
+
+
+// ---------------------------------------------------------------------------
+// a program must be bound
+// a VAO must be bound
+void vtkOpenGLRenderWindow::RenderTriangles(
+  float *verts, unsigned int numVerts,
+  GLuint *iboData, unsigned int numIndices,
+  float *tcoords,
+  vtkShaderProgram *program, vtkgl::VertexArrayObject *vao)
+{
   if (!program || !vao || !verts)
     {
     vtkGenericWarningMacro(<< "Error must have verts, program and vao");
     }
 
   vtkgl::BufferObject vbo;
-  vbo.Upload(verts, 12, vtkgl::BufferObject::ArrayBuffer);
+  vbo.Upload(verts, numVerts*3, vtkgl::BufferObject::ArrayBuffer);
   vao->Bind();
-  if (!vao->AddAttributeArray(program, vbo, "vertexMC", 0, sizeof(float)*3, VTK_FLOAT, 3, false))
+  if (!vao->AddAttributeArray(program, vbo, "vertexMC", 0,
+      sizeof(float)*3, VTK_FLOAT, 3, false))
     {
     vtkGenericWarningMacro(<< "Error setting 'vertexMC' in shader VAO.");
     }
@@ -707,18 +725,18 @@ void vtkOpenGLRenderWindow::RenderQuad(
   vtkgl::BufferObject tvbo;
   if (tcoords)
     {
-    tvbo.Upload(tcoords, 8, vtkgl::BufferObject::ArrayBuffer);
-    if (!vao->AddAttributeArray(program, tvbo, "tcoordMC", 0, sizeof(float)*2, VTK_FLOAT, 2, false))
+    tvbo.Upload(tcoords, numVerts*2, vtkgl::BufferObject::ArrayBuffer);
+    if (!vao->AddAttributeArray(program, tvbo, "tcoordMC", 0,
+        sizeof(float)*2, VTK_FLOAT, 2, false))
       {
       vtkGenericWarningMacro(<< "Error setting 'tcoordMC' in shader VAO.");
       }
     }
 
-  GLuint iboData[] = {0, 1, 2, 0, 2, 3};
   vtkgl::BufferObject ibo;
   vao->Bind();
-  ibo.Upload(iboData, 6, vtkgl::BufferObject::ElementArrayBuffer);
-  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT,
+  ibo.Upload(iboData, numIndices, vtkgl::BufferObject::ElementArrayBuffer);
+  glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT,
     reinterpret_cast<const GLvoid *>(NULL));
   ibo.Release();
   vao->Release();
@@ -1545,6 +1563,16 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
   assert("pre: positive_width" && width>0);
   assert("pre: positive_height" && height>0);
   assert("pre: not_initialized" && !this->OffScreenUseFrameBuffer);
+
+  // This implementation currently ignores multisampling configurations:
+  // the following code causes tests to fail, commenting it out
+  // if (this->MultiSamples > 1)
+  //   {
+  //   vtkDebugMacro(<<"Multisampling is not currently supported by the "
+  //                 "accelerated offscreen rendering backend. Falling back to "
+  //                 "a platform-specific offscreen solution...");
+  //   return 0;
+  //   }
 
   // 1. create a regular OpenGLcontext (ie create a window)
   this->CreateAWindow();

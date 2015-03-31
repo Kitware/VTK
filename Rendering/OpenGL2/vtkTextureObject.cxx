@@ -475,6 +475,7 @@ void vtkTextureObject::ReleaseGraphicsResources(vtkWindow *win)
 {
   vtkOpenGLRenderWindow *rwin =
    vtkOpenGLRenderWindow::SafeDownCast(win);
+  rwin->MakeCurrent();
 
   // It is almost guarenteed that in case of valid handle, we will have
   // value other than zero. A check like this may be required at other
@@ -1182,6 +1183,12 @@ static int vtkGetVTKType(GLenum gltype)
     }
 
   return 0;
+}
+
+//----------------------------------------------------------------------------
+int vtkTextureObject::GetVTKDataType()
+{
+  return ::vtkGetVTKType(this->Type);
 }
 
 //----------------------------------------------------------------------------
@@ -2059,6 +2066,8 @@ bool vtkTextureObject::Create3D(unsigned int width, unsigned int height,
 void vtkTextureObject::CopyToFrameBuffer(
   vtkShaderProgram *program, vtkgl::VertexArrayObject *vao)
 {
+  // the following math really only works when texture
+  // and viewport are of the same dimensions
   float minXTexCoord=static_cast<float>(
     static_cast<double>(0.5)/this->Width);
   float minYTexCoord=static_cast<float>(

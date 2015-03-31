@@ -347,7 +347,7 @@
 
             // Extract stat data
             buffer.append("<table class='viewport-stat'>");
-            buffer.append("<tr class='stat-header'><td class='label'></td><td class='value'>Current</td><td class='min'>Min</td><td class='max'>Max</td><td class='avg'>Average</td></tr>");
+            buffer.append("<tr class='stat-header'><td class='label'>Timed Quantity</td><td class='value'>Current</td><td class='min'>Min</td><td class='max'>Max</td><td class='avg'>Average</td></tr>");
             for(key in statistics) {
                 if(formatters.hasOwnProperty(key) && statistics[key].valid) {
                     formater = formatters[key];
@@ -537,6 +537,18 @@
             throw "'session' must be provided within the option.";
         }
 
+        function onReadyInternal() {
+            if(userReadyCallback.fn) {
+                // Providing just a short delay before triggering the "image-not-state"
+                // event provides a break in the action so that the browser can draw the
+                // image we just copied to the src attribute.
+                setTimeout(userReadyCallback.fn, 0);
+                if(userReadyCallback.once) {
+                    userReadyCallback.fn = null;
+                }
+            }
+        }
+
         // Create viewport
         var config = $.extend({}, DEFAULT_VIEWPORT_OPTIONS, options),
         session = options.session,
@@ -547,6 +559,7 @@
         onDoneQueue = [],
         statisticManager = createStatisticManager(),
         inSelectionMode = false,
+        userReadyCallback = { fn: null, once: false},
         viewport = {
             /**
              * Update the active renderer to be something else.
@@ -653,6 +666,28 @@
              */
             captureScreenImage: function () {
                 rendererContainer.trigger('captureRenderedImage');
+            },
+
+            /**
+             *
+             */
+            downloadTimestepData: function(shaList) {
+                rendererContainer.trigger('downloadAllTimesteps');
+            },
+
+            /*
+             *
+             */
+            clearGeometryCache: function() {
+                rendererContainer.trigger('clearCache');
+            },
+
+            /*
+             * Provide a function that will be called when
+             */
+            onReady: function(readyCallback, once) {
+                userReadyCallback.fn = readyCallback;
+                userReadyCallback.once = once;
             },
 
             /**
@@ -787,6 +822,9 @@
                 }
             }
         });
+
+        // Attach the on ready internal
+        rendererContainer.bind('renderer-ready', onReadyInternal);
 
         // Create any renderer type that is available
         for(var key in vtkWeb.ViewportFactory) {

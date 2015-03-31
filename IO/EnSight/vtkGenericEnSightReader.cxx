@@ -395,10 +395,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
             delete this->IS;
             this->IS = NULL;
 
-            fileName = new char[strlen(this->GeometryFileName) + 1];
-            strcpy(fileName, this->GeometryFileName);
-
-            if (!fileName)
+            if (!this->GeometryFileName || this->GeometryFileName[0] == '\0')
               {
               if (!quiet)
                 {
@@ -407,6 +404,10 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
                 }
               return 0;
               }
+
+            fileName = new char[strlen(this->GeometryFileName) + 1];
+            strcpy(fileName, this->GeometryFileName);
+
             if (strrchr(fileName, '*') != NULL)
               {
               // RE-open case file; find right time set and fill in
@@ -516,12 +517,10 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
             }
           } // geometry file name set
 
-        fileName = new char[strlen(this->GeometryFileName) + 1];
-        strcpy(fileName, this->GeometryFileName);
-
         delete this->IS;
         this->IS = NULL;
-        if (!fileName)
+
+        if (!this->GeometryFileName || this->GeometryFileName[0] == '\0')
           {
           if (!quiet)
             {
@@ -530,6 +529,10 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
             }
           return 0;
           }
+
+        fileName = new char[strlen(this->GeometryFileName) + 1];
+        strcpy(fileName, this->GeometryFileName);
+
         if (strrchr(fileName, '*') != NULL)
           {
           // reopen case file; find right time set and fill in wildcards from

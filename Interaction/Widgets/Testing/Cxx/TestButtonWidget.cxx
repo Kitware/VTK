@@ -48,7 +48,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-char ButtonWidgetEventLog[] =
+static char ButtonWidgetEventLog[] =
   "# StreamVersion 1\n"
   "RenderEvent 0 0 0 0 0 0 0\n"
   "EnterEvent 125 299 0 0 0 0 0\n"

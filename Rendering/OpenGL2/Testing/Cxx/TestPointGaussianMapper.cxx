@@ -30,7 +30,6 @@
 
 
 #include "vtkActor.h"
-#include "vtkBrownianPoints.h"
 #include "vtkCamera.h"
 #include "vtkProperty.h"
 #include "vtkPointGaussianMapper.h"
@@ -56,18 +55,13 @@ int TestPointGaussianMapper(int argc, char *argv[])
 
   vtkNew<vtkPointSource> points;
   points->SetNumberOfPoints(desiredPoints);
-  points->SetRadius(pow(desiredPoints,0.33)*5.0);
-
-  vtkNew<vtkBrownianPoints> randomVector;
-  randomVector->SetMinimumSpeed(0);
-  randomVector->SetMaximumSpeed(1);
-  randomVector->SetInputConnection(points->GetOutputPort());
+  points->SetRadius(pow(desiredPoints,0.33)*20.0);
 
   vtkNew<vtkRandomAttributeGenerator> randomAttr;
   randomAttr->SetDataTypeToFloat();
   randomAttr->GeneratePointScalarsOn();
   randomAttr->GeneratePointVectorsOn();
-  randomAttr->SetInputConnection(randomVector->GetOutputPort());
+  randomAttr->SetInputConnection(points->GetOutputPort());
 
   randomAttr->Update();
 
@@ -87,16 +81,17 @@ int TestPointGaussianMapper(int argc, char *argv[])
   ctf->SetColorSpaceToRGB();
   mapper->SetLookupTable(ctf.Get());
 
-  vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.Get());
   vtkNew<vtkRenderer> renderer;
   renderer->SetBackground(0.0, 0.0, 0.0);
   vtkNew<vtkRenderWindow> renderWindow;
-  renderWindow->SetSize(900, 900);
+  renderWindow->SetSize(300, 300);
   renderWindow->AddRenderer(renderer.Get());
-  renderer->AddActor(actor.Get());
   vtkNew<vtkRenderWindowInteractor>  iren;
   iren->SetRenderWindow(renderWindow.Get());
+
+  vtkNew<vtkActor> actor;
+  actor->SetMapper(mapper.Get());
+  renderer->AddActor(actor.Get());
 
   vtkNew<vtkTimerLog> timer;
   timer->StartTimer();
@@ -124,7 +119,6 @@ int TestPointGaussianMapper(int argc, char *argv[])
   renderer->GetActiveCamera()->SetViewUp(0,1,0);
   renderer->ResetCamera();
 
-  renderWindow->SetSize(300, 300);
   renderer->GetActiveCamera()->Zoom(10.0);
   renderWindow->Render();
 
@@ -134,5 +128,5 @@ int TestPointGaussianMapper(int argc, char *argv[])
     iren->Start();
     }
 
-  return EXIT_SUCCESS;
+  return !retVal;
 }

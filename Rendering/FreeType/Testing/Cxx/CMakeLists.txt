@@ -1,11 +1,3 @@
-# Check that matplotlib is available
-include(FindPythonModules)
-find_python_module(matplotlib MATPLOTLIB_FOUND)
-
-if(NOT MATPLOTLIB_FOUND)
-  message(STATUS "Matplotlib not found! MathText rendering will not be available until it is installed. Disabling tests.")
-endif()
-
 # add tests that do not require data or produce vector output
 set(TestFreeTypeTextMapperNoMath_ARGS DATA{../Data/Fonts/DejaVuSans.ttf})
 set(TestMathTextFreeTypeTextRendererNoMath_ARGS
@@ -23,7 +15,14 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestTextActor3DDepthPeeling.cxx
   )
 
-if(MATPLOTLIB_FOUND)
+# Check for vtkErrorMacro calls in these tests (mainly for empty inputs):
+set_tests_properties(
+  ${vtk-module}Cxx-TestTextActor
+  ${vtk-module}Cxx-TestTextActor3D
+  PROPERTIES FAIL_REGULAR_EXPRESSION "ERROR:"
+)
+
+if(${Module_vtkRenderingMatplotlib})
   set(TestMathTextFreeTypeTextRenderer_ARGS DATA{../Data/Fonts/DejaVuSans.ttf})
   set(TestFreeTypeTextMapper_ARGS DATA{../Data/Fonts/DejaVuSans.ttf})
 

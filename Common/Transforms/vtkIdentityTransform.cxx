@@ -159,10 +159,10 @@ void vtkIdentityTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
 void vtkIdentityTransform::TransformPoints(vtkPoints *inPts,
                                            vtkPoints *outPts)
 {
-  int n = inPts->GetNumberOfPoints();
+  vtkIdType n = inPts->GetNumberOfPoints();
   double point[3];
 
-  for (int i = 0; i < n; i++)
+  for (vtkIdType i = 0; i < n; i++)
     {
     inPts->GetPoint(i,point);
     outPts->InsertNextPoint(point);
@@ -173,10 +173,10 @@ void vtkIdentityTransform::TransformPoints(vtkPoints *inPts,
 void vtkIdentityTransform::TransformNormals(vtkDataArray *inNms,
                                             vtkDataArray *outNms)
 {
-  int n = inNms->GetNumberOfTuples();
+  vtkIdType n = inNms->GetNumberOfTuples();
   double normal[3];
 
-  for (int i = 0; i < n; i++)
+  for (vtkIdType i = 0; i < n; i++)
     {
     inNms->GetTuple(i,normal);
     outNms->InsertNextTuple(normal);
@@ -187,10 +187,10 @@ void vtkIdentityTransform::TransformNormals(vtkDataArray *inNms,
 void vtkIdentityTransform::TransformVectors(vtkDataArray *inNms,
                                             vtkDataArray *outNms)
 {
-  int n = inNms->GetNumberOfTuples();
+  vtkIdType n = inNms->GetNumberOfTuples();
   double vect[3];
 
-  for (int i = 0; i < n; i++)
+  for (vtkIdType i = 0; i < n; i++)
     {
     inNms->GetTuple(i,vect);
     outNms->InsertNextTuple(vect);
