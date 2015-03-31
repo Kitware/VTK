@@ -27,9 +27,12 @@
 #
 #
 # This module reads hints about search locations from variables:
-#  ENV TBB_ARCH_PLATFORM for windows only
-#  ENV TBB_ROOT or just TBB_ROOT
-#
+#  ENV TBB_ARCH_PLATFORM - for eg. set it to "mic" for Xeon Phi builds
+#  ENV TBB_ROOT or just TBB_ROOT - root directory of tbb installation
+#  ENV TBB_BUILD_PREFIX - specifies the build prefix for user built tbb
+#                         libraries. Should be specified with ENV TBB_ROOT
+#                         and optionally...
+#  ENV TBB_BUILD_DIR - if build directory is different than ${TBB_ROOT}/build
 #
 #
 # Modified by Robert Maynard from the original OGRE source
@@ -142,10 +145,20 @@ getenv_path(TBB_ROOT)
 set(TBB_PREFIX_PATH ${TBB_ROOT} ${ENV_TBB_ROOT})
 create_search_paths(TBB)
 
-# get the arch, only used by windows
-if($ENV{TBB_ARCH_PLATFORM})
-    set(TBB_ARCH_PLATFORM $ENV{TBB_ARCH_PLATFORM})
-endif()
+# If user built from sources
+set(TBB_BUILD_PREFIX $ENV{TBB_BUILD_PREFIX})
+if (TBB_BUILD_PREFIX AND ENV_TBB_ROOT)
+  getenv_path(TBB_BUILD_DIR)
+  if (NOT ENV_TBB_BUILD_DIR)
+    set(ENV_TBB_BUILD_DIR ${ENV_TBB_ROOT}/build)
+  endif ()
+
+  # include directory under ${ENV_TBB_ROOT}/include
+  list(APPEND TBB_LIB_SEARCH_PATH
+    ${ENV_TBB_BUILD_DIR}/${TBB_BUILD_PREFIX}_release
+    ${ENV_TBB_BUILD_DIR}/${TBB_BUILD_PREFIX}_debug)
+endif ()
+
 
 # For Windows, let's assume that the user might be using the precompiled
 # TBB packages from the main website. These use a rather awkward directory
@@ -187,10 +200,37 @@ if (WIN32 AND MSVC)
   endforeach ()
 endif ()
 
+
+# check compiler ABI
+if (CMAKE_CXX_COMPILER_ID EQUAL GNU AND
+    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.4)
+  set(COMPILER_PREFIX "gcc4.1")
+else () # Assume compatibility with 4.4 for other compilers
+  set(COMPILER_PREFIX "gcc4.4")
+endif ()
+
+# if platform architecture is explicitly specified
+set(TBB_ARCH_PLATFORM $ENV{TBB_ARCH_PLATFORM})
+if (TBB_ARCH_PLATFORM)
+  foreach (dir ${TBB_PREFIX_PATH})
+    list(APPEND TBB_LIB_SEARCH_PATH ${dir}/${TBB_ARCH_PLATFORM}/lib)
+    list(APPEND TBB_LIB_SEARCH_PATH ${dir}/lib/${TBB_ARCH_PLATFORM})
+    list(APPEND TBB_LIB_SEARCH_PATH ${dir}/lib)
+  endforeach ()
+endif ()
+
 foreach (dir ${TBB_PREFIX_PATH})
-  list(APPEND TBB_LIB_SEARCH_PATH ${dir}/${TBB_ARCH_PLATFORM}/lib)
-  list(APPEND TBB_LIB_SEARCH_PATH ${dir}/lib/${TBB_ARCH_PLATFORM})
-  list(APPEND TBB_LIB_SEARCH_PATH ${dir}/lib)
+  if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+    list(APPEND TBB_LIB_SEARCH_PATH ${dir}/lib/intel64)
+    list(APPEND TBB_LIB_SEARCH_PATH ${dir}/lib/intel64/${COMPILER_PREFIX})
+    list(APPEND TBB_LIB_SEARCH_PATH ${dir}/intel64/lib)
+    list(APPEND TBB_LIB_SEARCH_PATH ${dir}/intel64/${COMPILER_PREFIX}/lib)
+  else ()
+    list(APPEND TBB_LIB_SEARCH_PATH ${dir}/lib/ia32)
+    list(APPEND TBB_LIB_SEARCH_PATH ${dir}/lib/ia32/${COMPILER_PREFIX})
+    list(APPEND TBB_LIB_SEARCH_PATH ${dir}/ia32/lib)
+    list(APPEND TBB_LIB_SEARCH_PATH ${dir}/ia32/${COMPILER_PREFIX}/lib)
+  endif ()
 endforeach ()
 
 
