@@ -19,17 +19,25 @@
 #include "vtkPen.h"
 
 #include "vtkMatrix4x4.h"
+#include "vtkOpenGLCamera.h"
+#include "vtkOpenGLContextDevice2D.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
 
 #include "vtkObjectFactory.h"
+
+#include "vtkOpenGLShaderCache.h"
+#include "vtkShaderProgram.h"
+
+#include "vtkTransform.h"
+#include "vtkglVBOHelper.h"
 
 class vtkOpenGLContextDevice3D::Private
 {
 public:
   Private()
   {
-    this->SavedLighting = GL_TRUE;
     this->SavedDepthTest = GL_TRUE;
   }
 
@@ -39,14 +47,12 @@ public:
 
   void SaveGLState()
   {
-    this->SavedLighting = glIsEnabled(GL_LIGHTING);
     this->SavedDepthTest = glIsEnabled(GL_DEPTH_TEST);
     this->SavedBlending = glIsEnabled(GL_BLEND);
   }
 
   void RestoreGLState()
   {
-    this->SetGLCapability(GL_LIGHTING, this->SavedLighting);
     this->SetGLCapability(GL_DEPTH_TEST, this->SavedDepthTest);
     this->SetGLCapability(GL_BLEND, this->SavedBlending);
   }
@@ -134,11 +140,247 @@ vtkStandardNewMacro(vtkOpenGLContextDevice3D)
 
 vtkOpenGLContextDevice3D::vtkOpenGLContextDevice3D() : Storage(new Private)
 {
+  this->ModelMatrix = vtkTransform::New();
+  this->ModelMatrix->Identity();
+  this->VBO =  new vtkgl::CellBO;
+  this->VCBO =  new vtkgl::CellBO;
+  this->ClippingPlaneStates.resize(6,false);
+  this->ClippingPlaneValues.resize(24);
 }
 
 vtkOpenGLContextDevice3D::~vtkOpenGLContextDevice3D()
 {
+  delete this->VBO;
+  this->VBO = 0;
+  delete this->VCBO;
+  this->VCBO = 0;
+
+  this->ModelMatrix->Delete();
   delete Storage;
+}
+
+void vtkOpenGLContextDevice3D::Initialize(vtkRenderer *ren,
+  vtkOpenGLContextDevice2D *dev)
+{
+  this->Device2D = dev;
+  this->Renderer = ren;
+  this->RenderWindow =
+    vtkOpenGLRenderWindow::SafeDownCast(ren->GetVTKWindow());
+}
+//-----------------------------------------------------------------------------
+void vtkOpenGLContextDevice3D::Begin(vtkViewport* vtkNotUsed(viewport))
+{
+  this->ModelMatrix->Identity();
+  for (int i = 0; i < 6; i++)
+    {
+    this->ClippingPlaneStates[i] = false;
+    }
+}
+
+void vtkOpenGLContextDevice3D::SetMatrices(vtkShaderProgram *prog)
+{
+
+    glDisable(GL_SCISSOR_TEST);
+  prog->SetUniformMatrix("WCDCMatrix",
+    this->Device2D->GetProjectionMatrix());
+
+  vtkMatrix4x4 *mvm = this->Device2D->GetModelMatrix();
+  vtkMatrix4x4 *tmp = vtkMatrix4x4::New();
+  vtkMatrix4x4::Multiply4x4(mvm,this->ModelMatrix->GetMatrix(),tmp);
+
+  prog->SetUniformMatrix("MCWCMatrix",
+//    this->ModelMatrix->GetMatrix());
+  tmp);
+  tmp->Delete();
+
+  // add all the clipping planes
+  int numClipPlanes = 0;
+  float planeEquations[6][4];
+  for (int i = 0; i < 6; i++)
+    {
+    if (this->ClippingPlaneStates[i])
+      {
+      planeEquations[numClipPlanes][0] = this->ClippingPlaneValues[i*4];
+      planeEquations[numClipPlanes][1] = this->ClippingPlaneValues[i*4+1];
+      planeEquations[numClipPlanes][2] = this->ClippingPlaneValues[i*4+2];
+      planeEquations[numClipPlanes][3] = this->ClippingPlaneValues[i*4+3];
+      numClipPlanes++;
+      }
+    }
+  prog->SetUniformi("numClipPlanes", numClipPlanes);
+  prog->SetUniform4fv("clipPlanes", 6, planeEquations);
+}
+
+void vtkOpenGLContextDevice3D::BuildVBO(
+  vtkgl::CellBO *cellBO,
+  const float *f, int nv,
+  const unsigned char *colors, int nc,
+  float *tcoords)
+{
+  int stride = 3;
+  int cOffset = 0;
+  int tOffset = 0;
+  if (colors)
+    {
+    cOffset = stride;
+    stride++;
+    }
+  if (tcoords)
+    {
+    tOffset = stride;
+    stride += 2;
+    }
+
+  std::vector<float> va;
+  va.resize(nv*stride);
+  unsigned char c[4];
+  for (int i = 0; i < nv; i++)
+    {
+    va[i*stride] = f[i*3];
+    va[i*stride+1] = f[i*3+1];
+    va[i*stride+2] = f[i*3+2];
+    if (colors)
+      {
+      c[0] = colors[nc*i];
+      c[1] = colors[nc*i+1];
+      c[2] = colors[nc*i+2];
+      if (nc == 4)
+        {
+        c[3] = colors[nc*i+3];
+        }
+      else
+        {
+        c[3] =  255;
+        }
+      va[i*stride+cOffset] = *reinterpret_cast<float *>(c);
+      }
+    if (tcoords)
+      {
+      va[i*stride+tOffset] = tcoords[i*2];
+      va[i*stride+tOffset+1] = tcoords[i*2+1];
+      }
+    }
+
+  // upload the data
+  cellBO->ibo.Upload(va, vtkgl::BufferObject::ArrayBuffer);
+  cellBO->vao.Bind();
+  if (!cellBO->vao.AddAttributeArray(
+        cellBO->Program, cellBO->ibo,
+        "vertexMC", 0,
+        sizeof(float)*stride,
+        VTK_FLOAT, 3, false))
+    {
+    vtkErrorMacro(<< "Error setting vertexMC in shader VAO.");
+    }
+  if (colors)
+    {
+    if (!cellBO->vao.AddAttributeArray(
+          cellBO->Program, cellBO->ibo,
+          "vertexScalar", sizeof(float)*cOffset,
+          sizeof(float)*stride,
+          VTK_UNSIGNED_CHAR, 4, true))
+      {
+      vtkErrorMacro(<< "Error setting vertexScalar in shader VAO.");
+      }
+    }
+  if (tcoords)
+    {
+    if (!cellBO->vao.AddAttributeArray(
+          cellBO->Program, cellBO->ibo,
+          "tcoordMC", sizeof(float)*tOffset,
+          sizeof(float)*stride,
+          VTK_FLOAT, 2, false))
+      {
+      vtkErrorMacro(<< "Error setting tcoordMC in shader VAO.");
+      }
+    }
+
+  cellBO->vao.Bind();
+}
+
+void vtkOpenGLContextDevice3D::ReadyVBOProgram()
+{
+  if (!this->VBO->Program)
+    {
+    this->VBO->Program  =
+        this->RenderWindow->GetShaderCache()->ReadyShader(
+        // vertex shader
+        "//VTK::System::Dec\n"
+        "attribute vec3 vertexMC;\n"
+        "uniform mat4 WCDCMatrix;\n"
+        "uniform mat4 MCWCMatrix;\n"
+        "uniform int numClipPlanes;\n"
+        "uniform vec4 clipPlanes[6];\n"
+        "varying float clipDistances[6];\n"
+        "void main() {\n"
+        "vec4 vertex = vec4(vertexMC.xyz, 1.0);\n"
+        "for (int planeNum = 0; planeNum < numClipPlanes; planeNum++)\n"
+        "  {\n"
+        "  clipDistances[planeNum] = dot(clipPlanes[planeNum], vertex*MCWCMatrix);\n"
+        "  }\n"
+        "gl_Position = vertex*MCWCMatrix*WCDCMatrix; }\n",
+        // fragment shader
+        "//VTK::System::Dec\n"
+        "uniform vec4 vertexColor;\n"
+        "uniform int numClipPlanes;\n"
+        "varying float clipDistances[6];\n"
+        "void main() { \n"
+        "  for (int planeNum = 0; planeNum < numClipPlanes; planeNum++)\n"
+        "    {\n"
+        "    if (clipDistances[planeNum] < 0.0) discard;\n"
+        "    }\n"
+        "  gl_FragColor = vertexColor; }",
+        // geometry shader
+        "");
+    }
+  else
+    {
+    this->RenderWindow->GetShaderCache()->ReadyShader(this->VBO->Program);
+    }
+}
+
+void vtkOpenGLContextDevice3D::ReadyVCBOProgram()
+{
+  if (!this->VCBO->Program)
+    {
+    this->VCBO->Program  =
+        this->RenderWindow->GetShaderCache()->ReadyShader(
+        // vertex shader
+        "//VTK::System::Dec\n"
+        "attribute vec3 vertexMC;\n"
+        "attribute vec4 vertexScalar;\n"
+        "uniform mat4 WCDCMatrix;\n"
+        "uniform mat4 MCWCMatrix;\n"
+        "varying vec4 vertexColor;\n"
+        "uniform int numClipPlanes;\n"
+        "uniform vec4 clipPlanes[6];\n"
+        "varying float clipDistances[6];\n"
+        "void main() {\n"
+        "vec4 vertex = vec4(vertexMC.xyz, 1.0);\n"
+        "vertexColor = vertexScalar;\n"
+        "for (int planeNum = 0; planeNum < numClipPlanes; planeNum++)\n"
+        "  {\n"
+        "  clipDistances[planeNum] = dot(clipPlanes[planeNum], vertex*MCWCMatrix);\n"
+        "  }\n"
+        "gl_Position = vertex*MCWCMatrix*WCDCMatrix; }\n",
+        // fragment shader
+        "//VTK::System::Dec\n"
+        "varying vec4 vertexColor;\n"
+        "uniform int numClipPlanes;\n"
+        "varying float clipDistances[6];\n"
+        "void main() { \n"
+        "  for (int planeNum = 0; planeNum < numClipPlanes; planeNum++)\n"
+        "    {\n"
+        "    if (clipDistances[planeNum] < 0.0) discard;\n"
+        "    }\n"
+        "  gl_FragColor = vertexColor; }",
+        // geometry shader
+        "");
+    }
+  else
+    {
+    this->RenderWindow->GetShaderCache()->ReadyShader(this->VCBO->Program);
+    }
 }
 
 void vtkOpenGLContextDevice3D::DrawPoly(const float *verts, int n,
@@ -154,23 +396,27 @@ void vtkOpenGLContextDevice3D::DrawPoly(const float *verts, int n,
   this->Storage->SetLineType(this->Pen->GetLineType());
   glLineWidth(this->Pen->GetWidth());
 
+  vtkgl::CellBO *cbo = 0;
   if (colors)
     {
-    glEnableClientState(GL_COLOR_ARRAY);
-    glColorPointer(nc, GL_UNSIGNED_BYTE, 0, colors);
+    this->ReadyVCBOProgram();
+    cbo = this->VCBO;
     }
   else
     {
-    glColor4ubv(this->Pen->GetColor());
+    this->ReadyVBOProgram();
+    cbo = this->VBO;
+    cbo->Program->SetUniform4uc("vertexColor",
+      this->Pen->GetColor());
     }
-  glEnableClientState(GL_VERTEX_ARRAY);
-  glVertexPointer(3, GL_FLOAT, 0, verts);
+
+  this->BuildVBO(cbo, verts, n, colors, nc, NULL);
+  this->SetMatrices(cbo->Program);
+
   glDrawArrays(GL_LINE_STRIP, 0, n);
-  glDisableClientState(GL_VERTEX_ARRAY);
-  if (colors)
-    {
-    glDisableClientState(GL_COLOR_ARRAY);
-    }
+
+  // free everything
+  cbo->ReleaseGraphicsResources(this->RenderWindow);
 
   this->DisableDepthBuffer();
 
@@ -188,23 +434,28 @@ void vtkOpenGLContextDevice3D::DrawPoints(const float *verts, int n,
   this->EnableDepthBuffer();
 
   glPointSize(this->Pen->GetWidth());
-  glEnableClientState(GL_VERTEX_ARRAY);
-  if (colors && nc)
+
+  vtkgl::CellBO *cbo = 0;
+  if (colors)
     {
-    glEnableClientState(GL_COLOR_ARRAY);
-    glColorPointer(nc, GL_UNSIGNED_BYTE, 0, colors);
+    this->ReadyVCBOProgram();
+    cbo = this->VCBO;
     }
   else
     {
-    glColor4ubv(this->Pen->GetColor());
+    this->ReadyVBOProgram();
+    cbo = this->VBO;
+    cbo->Program->SetUniform4uc("vertexColor",
+      this->Pen->GetColor());
     }
-  glVertexPointer(3, GL_FLOAT, 0, verts);
+
+  this->BuildVBO(cbo, verts, n, colors, nc, NULL);
+  this->SetMatrices(cbo->Program);
+
   glDrawArrays(GL_POINTS, 0, n);
-  glDisableClientState(GL_VERTEX_ARRAY);
-  if (colors && nc)
-    {
-    glDisableClientState(GL_COLOR_ARRAY);
-    }
+
+  // free everything
+  cbo->ReleaseGraphicsResources(this->RenderWindow);
 
   this->DisableDepthBuffer();
 
@@ -222,24 +473,27 @@ void vtkOpenGLContextDevice3D::DrawTriangleMesh(const float *mesh, int n,
 
   this->EnableDepthBuffer();
 
-  glPointSize(this->Pen->GetWidth());
-  glEnableClientState(GL_VERTEX_ARRAY);
-  if (colors && nc)
+  vtkgl::CellBO *cbo = 0;
+  if (colors)
     {
-    glEnableClientState(GL_COLOR_ARRAY);
-    glColorPointer(nc, GL_UNSIGNED_BYTE, 0, colors);
+    this->ReadyVCBOProgram();
+    cbo = this->VCBO;
     }
   else
     {
-    glColor4ubv(this->Pen->GetColor());
+    this->ReadyVBOProgram();
+    cbo = this->VBO;
+    cbo->Program->SetUniform4uc("vertexColor",
+      this->Pen->GetColor());
     }
-  glVertexPointer(3, GL_FLOAT, 0, mesh);
+
+  this->BuildVBO(cbo, mesh, n, colors, nc, NULL);
+  this->SetMatrices(cbo->Program);
+
   glDrawArrays(GL_TRIANGLES, 0, n);
-  glDisableClientState(GL_VERTEX_ARRAY);
-  if (colors && nc)
-    {
-    glDisableClientState(GL_COLOR_ARRAY);
-    }
+
+  // free everything
+  cbo->ReleaseGraphicsResources(this->RenderWindow);
 
   this->DisableDepthBuffer();
 
@@ -256,45 +510,31 @@ void vtkOpenGLContextDevice3D::ApplyBrush(vtkBrush *brush)
   this->Brush->DeepCopy(brush);
 }
 
+//-----------------------------------------------------------------------------
+void vtkOpenGLContextDevice3D::PushMatrix()
+{
+  this->ModelMatrix->Push();
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLContextDevice3D::PopMatrix()
+{
+  this->ModelMatrix->Pop();
+}
+
 void vtkOpenGLContextDevice3D::SetMatrix(vtkMatrix4x4 *m)
 {
-  double matrix[16];
-  double *M = m->Element[0];
-  this->Storage->Transpose(M, matrix);
-
-  glLoadMatrixd(matrix);
+  this->ModelMatrix->SetMatrix(m);
 }
 
 void vtkOpenGLContextDevice3D::GetMatrix(vtkMatrix4x4 *m)
 {
-  double *M = m->Element[0];
-  m->Transpose();
-  double matrix[16];
-  glGetDoublev(GL_MODELVIEW_MATRIX, matrix);
-  this->Storage->Transpose(matrix, M);
+  m->DeepCopy(this->ModelMatrix->GetMatrix());
 }
 
 void vtkOpenGLContextDevice3D::MultiplyMatrix(vtkMatrix4x4 *m)
 {
-  double matrix[16];
-  double *M = m->Element[0];
-  this->Storage->Transpose(M, matrix);
-
-  glMultMatrixd(matrix);
-}
-
-void vtkOpenGLContextDevice3D::PushMatrix()
-{
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  vtkOpenGLCheckErrorMacro("failed after PushMatrix");
-}
-
-void vtkOpenGLContextDevice3D::PopMatrix()
-{
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
-  vtkOpenGLCheckErrorMacro("failed after PopMatrix");
+  this->ModelMatrix->Concatenate(m);
 }
 
 void vtkOpenGLContextDevice3D::SetClipping(const vtkRecti &rect)
@@ -337,17 +577,26 @@ void vtkOpenGLContextDevice3D::EnableClipping(bool enable)
 
 void vtkOpenGLContextDevice3D::EnableClippingPlane(int i, double *planeEquation)
 {
-  GLenum clipPlaneId = static_cast<GLenum>(GL_CLIP_PLANE0+i);
-  glEnable(clipPlaneId);
-  glClipPlane(clipPlaneId, planeEquation);
-  vtkOpenGLCheckErrorMacro("failed after EnableClippingPlane");
+  if (i >= 6)
+    {
+    vtkOpenGLCheckErrorMacro("only 6 ClippingPlane allowed");
+    return;
+    }
+  this->ClippingPlaneStates[i] = true;
+  this->ClippingPlaneValues[i*4] = planeEquation[0];
+  this->ClippingPlaneValues[i*4+1] = planeEquation[1];
+  this->ClippingPlaneValues[i*4+2] = planeEquation[2];
+  this->ClippingPlaneValues[i*4+3] = planeEquation[3];
 }
 
 void vtkOpenGLContextDevice3D::DisableClippingPlane(int i)
 {
-  GLenum clipPlaneId = static_cast<GLenum>(GL_CLIP_PLANE0+i);
-  glDisable(clipPlaneId);
-  vtkOpenGLCheckErrorMacro("failed after DisableClippingPlane");
+  if (i >= 6)
+    {
+    vtkOpenGLCheckErrorMacro("only 6 ClippingPlane allowed");
+    return;
+    }
+  this->ClippingPlaneStates[i] = false;
 }
 
 void vtkOpenGLContextDevice3D::EnableDepthBuffer()

@@ -225,7 +225,6 @@ public:
     this->TextureProperties = vtkContextDevice2D::Linear |
         vtkContextDevice2D::Stretch;
     this->SpriteTexture = NULL;
-    this->SavedLighting = GL_TRUE;
     this->SavedDepthTest = GL_TRUE;
     this->SavedAlphaTest = GL_TRUE;
     this->SavedStencilTest = GL_TRUE;
@@ -236,8 +235,6 @@ public:
                                this->SavedClearColor[3] = 0.0f;
     this->TextCounter = 0;
     this->GLExtensionsLoaded = true;
-    this->OpenGL15 = true;
-    this->OpenGL20 = true;
     this->GLSL = true;
     this->PowerOfTwoTextures = false;
   }
@@ -258,7 +255,6 @@ public:
 
   void SaveGLState(bool colorBuffer = false)
   {
-    this->SavedLighting = glIsEnabled(GL_LIGHTING);
     this->SavedDepthTest = glIsEnabled(GL_DEPTH_TEST);
 
     if (colorBuffer)
@@ -273,7 +269,6 @@ public:
 
   void RestoreGLState(bool colorBuffer = false)
   {
-    this->SetGLCapability(GL_LIGHTING, this->SavedLighting);
     this->SetGLCapability(GL_DEPTH_TEST, this->SavedDepthTest);
 
     if (colorBuffer)
@@ -435,10 +430,6 @@ public:
                  GL_UNSIGNED_BYTE, static_cast<const GLvoid *>(dataPtr));
     glAlphaFunc(GL_GREATER, static_cast<GLclampf>(0));
     glEnable(GL_ALPHA_TEST);
-    glMatrixMode(GL_TEXTURE);
-    glLoadIdentity();
-    glMatrixMode(GL_MODELVIEW);
-    glEnable(GL_TEXTURE_2D);
     delete [] dataPtr;
     return tmpIndex;
     }
@@ -478,10 +469,6 @@ public:
                  GL_UNSIGNED_BYTE, static_cast<const GLvoid *>(dataPtr));
     glAlphaFunc(GL_GREATER, static_cast<GLclampf>(0));
     glEnable(GL_ALPHA_TEST);
-    glMatrixMode(GL_TEXTURE);
-    glLoadIdentity();
-    glMatrixMode(GL_MODELVIEW);
-    glEnable(GL_TEXTURE_2D);
     return tmpIndex;
   }
 
@@ -489,7 +476,6 @@ public:
   unsigned int TextureProperties;
   vtkTexture *SpriteTexture;
   // Store the previous GL state so that we can restore it when complete
-  GLboolean SavedLighting;
   GLboolean SavedDepthTest;
   GLboolean SavedAlphaTest;
   GLboolean SavedStencilTest;
@@ -501,8 +487,6 @@ public:
   vtkVector2i Dim;
   vtkVector2i Offset;
   bool GLExtensionsLoaded;
-  bool OpenGL15;
-  bool OpenGL20;
   bool GLSL;
   bool PowerOfTwoTextures;
 

@@ -25,9 +25,19 @@
 #include "vtkRenderingContextOpenGL2Module.h" // For export macro
 #include "vtkContextDevice3D.h"
 #include "vtkNew.h"             // For ivars.
+#include <vector> // STL Header
 
 class vtkBrush;
+class vtkOpenGLRenderWindow;
+class vtkOpenGLContextDevice2D;
 class vtkPen;
+class vtkRenderer;
+class vtkTransform;
+class vtkShaderProgram;
+namespace vtkgl
+{
+class CellBO;
+}
 
 class VTKRENDERINGCONTEXTOPENGL2_EXPORT vtkOpenGLContextDevice3D : public vtkContextDevice3D
 {
@@ -101,6 +111,14 @@ public:
   void EnableClippingPlane(int i, double *planeEquation);
   void DisableClippingPlane(int i);
 
+  // Description
+  // This must be set during initialization
+  void Initialize(vtkRenderer *, vtkOpenGLContextDevice2D *);
+
+  // Description:
+  // Begin drawing, pass in the viewport to set up the view.
+  virtual void Begin(vtkViewport* viewport);
+
 protected:
   vtkOpenGLContextDevice3D();
   ~vtkOpenGLContextDevice3D();
@@ -113,6 +131,31 @@ protected:
   // End drawing, turn off the depth buffer.
   virtual void DisableDepthBuffer();
 
+  vtkgl::CellBO *VCBO;  // vertex + color
+  void ReadyVCBOProgram();
+  vtkgl::CellBO *VBO;  // vertex
+  void ReadyVBOProgram();
+
+  void SetMatrices(vtkShaderProgram *prog);
+  void BuildVBO(vtkgl::CellBO *cbo,
+    const float *v, int nv,
+    const unsigned char *coolors, int nc,
+    float *tcoords);
+  void CoreDrawTriangles(std::vector<float> &tverts);
+
+  vtkTransform *ModelMatrix;
+
+  // Description:
+  // The OpenGL render window being used by the device
+  vtkOpenGLRenderWindow* RenderWindow;
+
+  // Description:
+  // We need to store a pointer to get the camera mats
+  vtkRenderer *Renderer;
+
+  std::vector<bool> ClippingPlaneStates;
+  std::vector<double> ClippingPlaneValues;
+
 private:
   vtkOpenGLContextDevice3D(const vtkOpenGLContextDevice3D &); // Not implemented.
   void operator=(const vtkOpenGLContextDevice3D &);   // Not implemented.
@@ -121,6 +164,11 @@ private:
   // Private data pointer of the class
   class Private;
   Private *Storage;
+
+  // we need a pointer to this because only
+  // the 2D device gets a Begin and sets up
+  // the ortho matrix
+  vtkOpenGLContextDevice2D *Device2D;
 
   vtkNew<vtkBrush> Brush;
   vtkNew<vtkPen>   Pen;

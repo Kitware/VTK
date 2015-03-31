@@ -353,19 +353,6 @@ void vtkOpenGLRenderWindow::OpenGLInitState()
     }
   glEnable(GL_BLEND);
 
-  if (this->PointSmoothing)
-    {
-#ifdef GL_POINT_SMOOTH
-    glEnable(GL_POINT_SMOOTH);
-#endif
-    }
-  else
-    {
-#ifdef GL_POINT_SMOOTH
-    glDisable(GL_POINT_SMOOTH);
-#endif
-    }
-
   if (this->LineSmoothing)
     {
 #ifdef GL_LINE_SMOOTH
@@ -449,7 +436,16 @@ int vtkOpenGLRenderWindow::GetDepthBufferSize()
     {
     this->MakeCurrent();
     size = 0;
-    glGetIntegerv( GL_DEPTH_BITS, &size );
+    if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
+      {
+      glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
+        GL_DEPTH,
+        GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, &size);
+      }
+    else
+      {
+      glGetIntegerv( GL_DEPTH_BITS, &size );
+      }
     return static_cast<int>(size);
     }
   else
