@@ -2,7 +2,7 @@
 import os, sys
 import re
 
-if len(sys.argv) != 3:
+def displayHelp():
     print """
 Usage: WhatModulesVTK.py vtkSourceTree applicationFile|applicationFolder
   Generate a FindPackage(VTK COMPONENTS) that lists all modules
@@ -200,34 +200,30 @@ def MakeFindPackage(modules):
     res +=  ")"
     return res
 
-def main():
+def main(vtkSourceDir, sourceFiles):
     '''
     Start the program
     '''
     # Generate dict's for mapping includes to modules
-    includesToPaths = IncludesToPaths(sys.argv[1] + "/")
-    pathsToModules = FindModules(sys.argv[1] + "/")
+    includesToPaths = IncludesToPaths(vtkSourceDir + "/")
+    pathsToModules = FindModules(vtkSourceDir + "/")
 
     # Test to see if VTK source is provided
     if len(pathsToModules) == 0:
-        print sys.argv[1] +\
+        raise IOError, vtkSourceDir +\
         " is not a VTK source directory. It does not contain any module.cmake files."
-        exit(1)
 
     # Parse the module files making a dictionary of each module and its
     # dependencies or what it implements.
     moduleDepencencies = dict()
-    moduleFiles = FindModuleFiles(sys.argv[1] + "/")
+    moduleFiles = FindModuleFiles(vtkSourceDir + "/")
     for fname in moduleFiles:
         m = ParseModuleFile(fname)
         moduleDepencencies[m[0]] = m[1]
 
     # Build a set of includes for all command line files
     allIncludes = set()
-    program = sys.argv[0]
-    sys.argv.pop(0) # remove program name
-    sys.argv.pop(0) # remove vtk source tree
-    for f in sys.argv:
+    for f in sourceFiles:
         if os.path.isfile(f):
             allIncludes.update(FindIncludes(f))
         else:
@@ -236,8 +232,7 @@ def main():
                 for fn in files:
                     allIncludes.update(FindIncludes(os.path.join(path,fn)))
     if len(allIncludes) == 0:
-        print program + ": " + f + " does not exist"
-        exit(1)
+        raise IOError, f + " does not exist"
 
     # Build a set that contains all modules referenced in command line files
     allModules = set()
@@ -279,4 +274,7 @@ def main():
     print
 
 if __name__ == '__main__':
-    main()
+    if len(sys.argv) != 3:
+      displayHelp()
+      exit(0)
+    main(sys.argv[1], sys.argv[2:])
