@@ -5,7 +5,7 @@ file(GLOB vtk_java_rendering_files "${VTK_BINARY_DIR}/java/vtk/rendering/*.java"
 file(GLOB vtk_java_rendering_awt_files "${VTK_BINARY_DIR}/java/vtk/rendering/awt/*.java")
 file(GLOB vtk_java_sample_files "${VTK_BINARY_DIR}/java/vtk/sample/*.java")
 
-set(all_vtk_java_files vtk_java_rendering_files vtk_java_rendering_awt_files vtk_java_sample_files)
+set(all_vtk_java_files vtk_java_files vtk_java_rendering_files vtk_java_rendering_awt_files vtk_java_sample_files)
 
 if(VTK_JAVA_SWT_COMPONENT)
   file(GLOB vtk_java_swt_files "${VTK_BINARY_DIR}/java/vtk/rendering/swt/*.java")
