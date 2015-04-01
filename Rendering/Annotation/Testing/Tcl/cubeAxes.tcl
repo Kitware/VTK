@@ -52,9 +52,7 @@ vtkRenderWindowInteractor iren
 ren1 AddViewProp foheActor
 ren1 AddViewProp outlineActor
 ren2 AddViewProp foheActor
-if { [info command "rtExMath"] == ""} {
-  ren2 AddViewProp outlineActor
-}
+ren2 AddViewProp outlineActor
 
 ren1 SetBackground 0.1 0.2 0.4
 ren2 SetBackground 0.1 0.2 0.4
