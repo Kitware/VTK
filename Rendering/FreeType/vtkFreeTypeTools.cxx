@@ -79,6 +79,9 @@ public:
   unsigned long unrotatedTextPropertyCacheId;
   FT_Face face;
   bool faceHasKerning;
+  bool faceIsRotated;
+  FT_Matrix rotation;
+  FT_Matrix inverseRotation;
 
   // Set by CalculateBoundingBox
   int ascent;
@@ -1113,6 +1116,30 @@ inline bool vtkFreeTypeTools::PrepareMetaData(vtkTextProperty *tprop,
     metaData.unrotatedTextPropertyCacheId = metaData.textPropertyCacheId;
     }
 
+  // Rotation matrices:
+  metaData.faceIsRotated =
+      (fabs(metaData.textProperty->GetOrientation()) > 1e-5);
+  if (metaData.faceIsRotated)
+    {
+    float angle = vtkMath::RadiansFromDegrees(
+          static_cast<float>(metaData.textProperty->GetOrientation()));
+    // 0 -> orientation (used to adjust kerning, PR#15301)
+    float c = cos(angle);
+    float s = sin(angle);
+    metaData.rotation.xx = (FT_Fixed)( c * 0x10000L);
+    metaData.rotation.xy = (FT_Fixed)(-s * 0x10000L);
+    metaData.rotation.yx = (FT_Fixed)( s * 0x10000L);
+    metaData.rotation.yy = (FT_Fixed)( c * 0x10000L);
+
+    // orientation -> 0 (used for width calculations)
+    c = cos(-angle);
+    s = sin(-angle);
+    metaData.inverseRotation.xx = (FT_Fixed)( c * 0x10000L);
+    metaData.inverseRotation.xy = (FT_Fixed)(-s * 0x10000L);
+    metaData.inverseRotation.yx = (FT_Fixed)( s * 0x10000L);
+    metaData.inverseRotation.yy = (FT_Fixed)( c * 0x10000L);
+    }
+
   return true;
 }
 
@@ -1861,6 +1888,10 @@ bool vtkFreeTypeTools::RenderCharacter(CharType character, int &x, int &y,
       if (FT_Get_Kerning(iMetaData->face, previousGlyphIndex, glyphIndex,
                          FT_KERNING_DEFAULT, &kerningDelta) == 0)
         {
+        if (metaData.faceIsRotated) // PR#15301
+          {
+          FT_Vector_Transform(&kerningDelta, &metaData.rotation);
+          }
         penX += kerningDelta.x >> 6;
         penY += kerningDelta.y >> 6;
         }
@@ -1977,6 +2008,10 @@ bool vtkFreeTypeTools::RenderCharacter(CharType character, int &x, int &y,
       FT_Vector kerningDelta;
       FT_Get_Kerning(metaData.face, previousGlyphIndex, glyphIndex,
                      FT_KERNING_DEFAULT, &kerningDelta);
+      if (metaData.faceIsRotated) // PR#15301
+        {
+        FT_Vector_Transform(&kerningDelta, &metaData.rotation);
+        }
       pen_x += kerningDelta.x >> 6;
       pen_y += kerningDelta.y >> 6;
       }
@@ -2310,20 +2345,6 @@ template<typename T>
 void vtkFreeTypeTools::GetLineMetrics(T begin, T end, MetaData &metaData,
                                       int &width, int bbox[4])
 {
-  FT_Matrix inverseRotation;
-  bool isRotated = (fabs(metaData.textProperty->GetOrientation()) > 1e-5);
-  if (isRotated)
-    {
-    float angle = -vtkMath::RadiansFromDegrees(
-          static_cast<float>(metaData.textProperty->GetOrientation()));
-    float c = cos(angle);
-    float s = sin(angle);
-    inverseRotation.xx = (FT_Fixed)( c * 0x10000L);
-    inverseRotation.xy = (FT_Fixed)(-s * 0x10000L);
-    inverseRotation.yx = (FT_Fixed)( s * 0x10000L);
-    inverseRotation.yy = (FT_Fixed)( c * 0x10000L);
-    }
-
   FT_BitmapGlyph bitmapGlyph;
   FT_UInt gindex = 0;
   FT_UInt gindexLast = 0;
@@ -2341,13 +2362,16 @@ void vtkFreeTypeTools::GetLineMetrics(T begin, T end, MetaData &metaData,
       if (FT_Get_Kerning(metaData.face, gindexLast, gindex, FT_KERNING_DEFAULT,
                          &delta) == 0)
         {
+        // Kerning is not rotated with the face, no need to rotate/adjust for
+        // width:
+        width += delta.x >> 6;
+        // But we do need to rotate for pen location (see PR#15301)
+        if (metaData.faceIsRotated)
+          {
+          FT_Vector_Transform(&delta, &metaData.rotation);
+          }
         pen[0] += delta.x >> 6;
         pen[1] += delta.y >> 6;
-        if (isRotated)
-          {
-          FT_Vector_Transform(&delta, &inverseRotation);
-          }
-        width += delta.x >> 6;
         }
       }
 
@@ -2374,9 +2398,9 @@ void vtkFreeTypeTools::GetLineMetrics(T begin, T end, MetaData &metaData,
     pen[0] += (delta.x + 0x8000) >> 16;
     pen[1] += (delta.y + 0x8000) >> 16;
 
-    if (isRotated)
+    if (metaData.faceIsRotated)
       {
-      FT_Vector_Transform(&delta, &inverseRotation);
+      FT_Vector_Transform(&delta, &metaData.inverseRotation);
       }
     width += (delta.x + 0x8000) >> 16;
     }
