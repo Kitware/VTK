@@ -45,8 +45,11 @@ set (OpenGLNew_OR_OpenGL2_CxxTests
 
 if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
   list(APPEND OpenGLNew_OR_OpenGL2_CxxTests
-    TestGPURayCastVolumeLightKit.cxx
     TestGPURayCastPositionalLights.cxx
+    TestGPURayCastThreeComponentsIndependent.cxx
+    TestGPURayCastTwoComponentsDependent.cxx
+    TestGPURayCastTwoComponentsIndependent.cxx
+    TestGPURayCastVolumeLightKit.cxx
     )
 endif()
 

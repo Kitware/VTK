@@ -25,6 +25,7 @@
 #include <vtkVolumeProperty.h>
 
 #include <map>
+#include <sstream>
 #include <string>
 
 namespace vtkvolume
@@ -33,6 +34,11 @@ namespace vtkvolume
   std::string replace(std::string source, const std::string &search,
                       const std::string replace, bool all)
     {
+    if (replace.empty())
+      {
+      return source;
+      }
+
     std::string::size_type pos = 0;
     bool first = true;
     while ((pos = source.find(search, 0)) != std::string::npos)
@@ -52,9 +58,9 @@ namespace vtkvolume
     }
 
   //--------------------------------------------------------------------------
-  std::string ComputeClip(vtkRenderer* vtkNotUsed(ren),
-                          vtkVolumeMapper* vtkNotUsed(mapper),
-                          vtkVolume* vtkNotUsed(vol))
+  std::string ComputeClipPositionImplementation(vtkRenderer* vtkNotUsed(ren),
+                                                vtkVolumeMapper* vtkNotUsed(mapper),
+                                                vtkVolume* vtkNotUsed(vol))
     {
     return std::string("\
       \n  vec4 pos = in_projectionMatrix * in_modelViewMatrix *\
@@ -64,9 +70,9 @@ namespace vtkvolume
     }
 
   //--------------------------------------------------------------------------
-  std::string ComputeTextureCoords(vtkRenderer* vtkNotUsed(ren),
-                                   vtkVolumeMapper* vtkNotUsed(mapper),
-                                   vtkVolume* vtkNotUsed(vol))
+  std::string ComputeTextureCoordinates(vtkRenderer* vtkNotUsed(ren),
+                                        vtkVolumeMapper* vtkNotUsed(mapper),
+                                        vtkVolume* vtkNotUsed(vol))
     {
     return std::string(
       "\n  // Assuming point data only. Also, we offset the texture coordinate\
@@ -79,9 +85,9 @@ namespace vtkvolume
     }
 
   //--------------------------------------------------------------------------
-  std::string BaseGlobalsVert(vtkRenderer* vtkNotUsed(ren),
-                              vtkVolumeMapper* vtkNotUsed(mapper),
-                              vtkVolume* vtkNotUsed(vol))
+  std::string BaseDeclarationVertex(vtkRenderer* vtkNotUsed(ren),
+                                    vtkVolumeMapper* vtkNotUsed(mapper),
+                                    vtkVolume* vtkNotUsed(vol))
     {
     return std::string("\
       \n  uniform mat4 in_modelViewMatrix;\
@@ -97,13 +103,13 @@ namespace vtkvolume
     }
 
   //--------------------------------------------------------------------------
-  std::string BaseGlobalsFrag(vtkRenderer* vtkNotUsed(ren),
-                              vtkVolumeMapper* vtkNotUsed(mapper),
-                              vtkVolume* vtkNotUsed(vol),
-                              int vtkNotUsed(numberOfLights),
-                              int lightingComplexity,
-                              int noOfComponents,
-                              int independentComponents)
+  std::string BaseDeclarationFragment(vtkRenderer* vtkNotUsed(ren),
+                                      vtkVolumeMapper* vtkNotUsed(mapper),
+                                      vtkVolume* vtkNotUsed(vol),
+                                      int vtkNotUsed(numberOfLights),
+                                      int lightingComplexity,
+                                      int noOfComponents,
+                                      int independentComponents)
     {
     std::string shaderStr = std::string("\
       \n// Volume dataset\
@@ -143,8 +149,6 @@ namespace vtkvolume
       \nuniform vec2 in_inverseWindowSize;\
       \nuniform vec3 in_textureExtentsMax;\
       \nuniform vec3 in_textureExtentsMin;\
-      \nuniform float in_volumeScale;\
-      \nuniform float in_volumeBias;\
       \n\
       \n// Material and lighting\
       \nuniform vec3 in_diffuse;\
@@ -237,9 +241,9 @@ namespace vtkvolume
     }
 
   //--------------------------------------------------------------------------
-  std::string BaseIncrement(vtkRenderer* vtkNotUsed(ren),
-                            vtkVolumeMapper* vtkNotUsed(mapper),
-                            vtkVolume* vtkNotUsed(vol))
+  std::string BaseImplementation(vtkRenderer* vtkNotUsed(ren),
+                                 vtkVolumeMapper* vtkNotUsed(mapper),
+                                 vtkVolume* vtkNotUsed(vol))
     {
     return std::string("\
       \n    l_skip = false;"
@@ -255,12 +259,12 @@ namespace vtkvolume
     }
 
   //--------------------------------------------------------------------------
-  std::string GradientsComputeFunc(vtkRenderer* vtkNotUsed(ren),
-                                   vtkVolumeMapper* vtkNotUsed(mapper),
-                                   vtkVolume* vol,
-                                   int noOfComponents,
-                                   int independentComponents,
-                                   std::map<int, std::string> gradientTableMap)
+  std::string ComputeGradientDeclaration(vtkRenderer* vtkNotUsed(ren),
+                                         vtkVolumeMapper* vtkNotUsed(mapper),
+                                         vtkVolume* vol,
+                                         int noOfComponents,
+                                         int independentComponents,
+                                         std::map<int, std::string> gradientTableMap)
   {
     std::string shaderStr;
     if (noOfComponents == 1 && vol->GetProperty()->HasGradientOpacity())
@@ -404,13 +408,13 @@ namespace vtkvolume
   }
 
   //--------------------------------------------------------------------------
-  std::string LightComputeFunc(vtkRenderer* vtkNotUsed(ren),
-                               vtkVolumeMapper* vtkNotUsed(mapper),
-                               vtkVolume* vol,
-                               int noOfComponents,
-                               int independentComponents,
-                               int vtkNotUsed(numberOfLights),
-                               int lightingComplexity)
+  std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren),
+                                         vtkVolumeMapper* vtkNotUsed(mapper),
+                                         vtkVolume* vol,
+                                         int noOfComponents,
+                                         int independentComponents,
+                                         int vtkNotUsed(numberOfLights),
+                                         int lightingComplexity)
     {
     vtkVolumeProperty* volProperty = vol->GetProperty();
     std::string shaderStr = std::string("\
@@ -653,10 +657,10 @@ namespace vtkvolume
     }
 
   //--------------------------------------------------------------------------
-  std::string RayDirectionFunc(vtkRenderer* ren,
-                               vtkVolumeMapper* vtkNotUsed(mapper),
-                               vtkVolume* vtkNotUsed(vol),
-                               int vtkNotUsed(noOfComponents))
+  std::string ComputeRayDirectionDeclaration(vtkRenderer* ren,
+                                             vtkVolumeMapper* vtkNotUsed(mapper),
+                                             vtkVolume* vtkNotUsed(vol),
+                                             int vtkNotUsed(noOfComponents))
     {
     if (!ren->GetActiveCamera()->GetParallelProjection())
       {
@@ -679,12 +683,12 @@ namespace vtkvolume
     }
 
   //--------------------------------------------------------------------------
-  std::string ColorTransferFunc(vtkRenderer* vtkNotUsed(ren),
-                                vtkVolumeMapper* vtkNotUsed(mapper),
-                                vtkVolume* vtkNotUsed(vol),
-                                int noOfComponents,
-                                int independentComponents,
-                                std::map<int, std::string> colorTableMap)
+  std::string ComputeColorDeclaration(vtkRenderer* vtkNotUsed(ren),
+                                      vtkVolumeMapper* vtkNotUsed(mapper),
+                                      vtkVolume* vtkNotUsed(vol),
+                                      int noOfComponents,
+                                      int independentComponents,
+                                      std::map<int, std::string> colorTableMap)
     {
       if (noOfComponents == 1)
         {
@@ -700,6 +704,7 @@ namespace vtkvolume
       else if (noOfComponents > 1 && independentComponents)
         {
         std::string shaderStr;
+        std::ostringstream toString;
         for (int i = 0; i < noOfComponents; ++i)
           {
           shaderStr += std::string("\n uniform sampler1D ") +
@@ -708,90 +713,117 @@ namespace vtkvolume
 
         shaderStr += std::string("\
           \nvec4 computeColor(vec4 scalar, int component)\
-          \n  {\
-          \n  if (component == 0)\
-          \n    {\
-          \n    return computeLighting(vec4(texture1D(\
-          \n      in_colorTransferFunc,\
-          \n      scalar[component]).xyz,\
-          \n      computeOpacity(scalar, component)));\
-          \n    }\
-          \n  if (component == 1)\
-          \n    {\
-          \n    return computeLighting(vec4(texture1D(\
-          \n      in_colorTransferFunc1,\
-          \n      scalar[component]).xyz,\
-          \n      computeOpacity(scalar, component)));\
-          \n    }\
-          \n  if (component == 2)\
-          \n    {\
-          \n      return computeLighting(vec4(texture1D(\
-          \n        in_colorTransferFunc2,\
-          \n        scalar[component]).xyz,\
-          \n        computeOpacity(scalar, component)));\
-          \n    }\
-          \n  if (component == 3)\
-          \n    {\
-          \n      return computeLighting(vec4(texture1D(\
-          \n        in_colorTransferFunc3,\
-          \n        scalar[component]).xyz,\
-          \n        computeOpacity(scalar, component)));\
-          \n    }\
-          \n  }");
+          \n  {");
 
+        for (int i = 0; i < noOfComponents; ++i)
+          {
+          toString << i;
+          shaderStr += std::string("\
+            \n  if (component == " + toString.str() + ")");
+
+          if (i == 0)
+            {
+             // Reset
+             toString.str("");
+             toString.clear();
+            }
+
+          shaderStr += std::string("\
+            \n    {\
+            \n    return computeLighting(vec4(texture1D(\
+            \n      in_colorTransferFunc" + toString.str() + ",\
+            \n      scalar[component]).xyz,\
+            \n      computeOpacity(scalar, component)));\
+            \n    }");
+
+          // Reset
+          toString.str("");
+          toString.clear();
+          }
+
+          shaderStr += std::string("\n  }");
           return shaderStr;
         }
-
-      return std::string("\
-        \nvec4 computeColor(vec4 scalar)\
-        \n  {\
-        \n  return computeLighting(vec4(scalar.xyz, computeOpacity(scalar)));\
-        \n  }");
+      else if (noOfComponents == 2&& !independentComponents)
+        {
+        return std::string("\
+          \nuniform sampler1D in_colorTransferFunc;\
+          \nvec4 computeColor(vec4 scalar)\
+          \n  {\
+          \n  return computeLighting(vec4(texture1D(in_colorTransferFunc,\
+          \n                                        scalar.x).xyz,\
+          \n                              computeOpacity(scalar)));\
+          \n  }");
+        }
+      else
+        {
+        return std::string("\
+          \nvec4 computeColor(vec4 scalar)\
+          \n  {\
+          \n  return computeLighting(vec4(scalar.xyz, computeOpacity(scalar)));\
+          \n  }");
+        }
     }
 
   //--------------------------------------------------------------------------
-  std::string OpacityTransferFunc(vtkRenderer* vtkNotUsed(ren),
-                                  vtkVolumeMapper* vtkNotUsed(mapper),
-                                  vtkVolume* vtkNotUsed(vol),
-                                  int noOfComponents,
-                                  int independentComponents,
-                                  std::map<int, std::string> opacityTableMap)
+  std::string ComputeOpacityDeclaration(vtkRenderer* vtkNotUsed(ren),
+                                        vtkVolumeMapper* vtkNotUsed(mapper),
+                                        vtkVolume* vtkNotUsed(vol),
+                                        int noOfComponents,
+                                        int independentComponents,
+                                        std::map<int, std::string> opacityTableMap)
     {
     if (noOfComponents > 1 && independentComponents)
       {
       std::string shaderStr;
+      std::ostringstream toString;
+
       for (int i = 0; i < noOfComponents; ++i)
         {
         shaderStr += std::string("\n uniform sampler1D ") +
                      opacityTableMap[i] + std::string(";");
+
         }
 
-      shaderStr += std::string("\
-        \nfloat computeOpacity(vec4 scalar, int component)\
-        \n  {\
-        \n  if (component == 0)\
-        \n    {\
-        \n    return texture1D(in_opacityTransferFunc,\
-        \n                     scalar[component]).w;\
-        \n    }\
-        \n  if (component == 1)\
-        \n    {\
-        \n    return texture1D(in_opacityTransferFunc1,\
-        \n                     scalar[component]).w;\
-        \n    }\
-        \n  if (component == 2)\
-        \n    {\
-        \n      return texture1D(in_opacityTransferFunc2,\
-        \n                       scalar[component]).w;\
-        \n    }\
-        \n  if (component == 3)\
-        \n    {\
-        \n      return texture1D(in_opacityTransferFunc3,\
-        \n                       scalar[component]).w;\
-        \n    }\
-        \n  }");
+        shaderStr += std::string("\
+          \nfloat computeOpacity(vec4 scalar, int component)\
+          \n  {");
 
+        for (int i = 0; i < noOfComponents; ++i)
+          {
+          toString << i;
+          shaderStr += std::string("\
+            \n  if (component == " + toString.str() + ")");
+
+           if (i == 0)
+             {
+              // Reset
+              toString.str("");
+              toString.clear();
+             }
+
+          shaderStr += std::string("\
+            \n    {\
+            \n    return texture1D(in_opacityTransferFunc" + toString.str() + ",\
+            \n                     scalar[component]).w;\
+            \n    }");
+
+           // Reset
+           toString.str("");
+           toString.clear();
+           }
+
+        shaderStr += std::string("\n  }");
         return shaderStr;
+      }
+    else if (noOfComponents == 2 && !independentComponents)
+      {
+      return std::string("\
+        \nuniform sampler1D in_opacityTransferFunc;\
+        \nfloat computeOpacity(vec4 scalar)\
+        \n  {\
+        \n  return texture1D(in_opacityTransferFunc, scalar.y).w;\
+        \n  }");
       }
     else
       {
@@ -805,17 +837,17 @@ namespace vtkvolume
     }
 
   //--------------------------------------------------------------------------
-  std::string ShadingGlobalsVert(vtkRenderer* vtkNotUsed(ren),
-                                 vtkVolumeMapper* vtkNotUsed(mapper),
-                                 vtkVolume* vtkNotUsed(vol))
+  std::string ShadingDeclarationVertex(vtkRenderer* vtkNotUsed(ren),
+                                       vtkVolumeMapper* vtkNotUsed(mapper),
+                                       vtkVolume* vtkNotUsed(vol))
     {
     return std::string();
     }
 
   //--------------------------------------------------------------------------
-  std::string ShadingGlobalsFrag(vtkRenderer* vtkNotUsed(ren),
-                                 vtkVolumeMapper* vtkNotUsed(mapper),
-                                 vtkVolume* vtkNotUsed(vol))
+  std::string ShadingDeclarationFragment(vtkRenderer* vtkNotUsed(ren),
+                                         vtkVolumeMapper* vtkNotUsed(mapper),
+                                         vtkVolume* vtkNotUsed(vol))
     {
     return std::string();
     }
@@ -855,40 +887,58 @@ namespace vtkvolume
     }
 
   //--------------------------------------------------------------------------
-  std::string ShadingIncrement(vtkRenderer* vtkNotUsed(ren),
-                               vtkVolumeMapper* mapper,
-                               vtkVolume* vtkNotUsed(vol),
-                               vtkImageData* maskInput,
-                               vtkVolumeMask* mask, int maskType,
-                               int noOfComponents,
-                               int independentComponents = 0)
+  std::string ShadingImplementation(vtkRenderer* vtkNotUsed(ren),
+                                    vtkVolumeMapper* mapper,
+                                    vtkVolume* vtkNotUsed(vol),
+                                    vtkImageData* maskInput,
+                                    vtkVolumeMask* mask, int maskType,
+                                    int noOfComponents,
+                                    int independentComponents = 0)
     {
     std::string shaderStr = std::string("\
       \n    if (!l_skip)\
-      \n      {"
+      \n      {\
+      \n      vec4 scalar = texture3D(in_volume, g_dataPos);"
     );
 
     if (mapper->GetBlendMode() == vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND)
       {
-      if (noOfComponents == 4)
+      if (noOfComponents > 1)
         {
-        shaderStr += std::string("\
-          \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
-          \n      if (l_maxValue.w < scalar.w || l_firstValue)\
-          \n        {\
-          \n        l_maxValue = scalar;\
-          \n        }\
-          \n\
-          \n     if (l_firstValue)\
-          \n        {\
-          \n        l_firstValue = false;\
-          \n        }"
-        );
+        if (!independentComponents)
+          {
+          shaderStr += std::string("\
+            \n      if (l_maxValue.w < scalar.w || l_firstValue)\
+            \n        {\
+            \n        l_maxValue = scalar;\
+            \n        }\
+            \n\
+            \n     if (l_firstValue)\
+            \n        {\
+            \n        l_firstValue = false;\
+            \n        }"
+          );
+          }
+        else
+          {
+          shaderStr += std::string("\
+           \n      for (int i = 0; i < in_noOfComponents; ++i)\
+           \n        {\
+           \n        if (l_maxValue[i] < scalar[i] || l_firstValue)\
+           \n          {\
+           \n          l_maxValue[i] = scalar[i];\
+           \n          }\
+           \n        }\
+           \n     if (l_firstValue)\
+           \n        {\
+           \n        l_firstValue = false;\
+           \n        }"
+          );
+          }
         }
       else
         {
         shaderStr += std::string("\
-          \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
           \n      if (l_maxValue.w < scalar.x || l_firstValue)\
           \n        {\
           \n        l_maxValue.w = scalar.x;\
@@ -903,25 +953,42 @@ namespace vtkvolume
       }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::MINIMUM_INTENSITY_BLEND)
       {
-      if (noOfComponents == 4)
+      if (noOfComponents > 1)
         {
-        shaderStr += std::string("\
-          \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
-          \n      if (l_minValue.w > scalar.w || l_firstValue)\
+        if (!independentComponents)
+          {
+          shaderStr += std::string("\
+            \n      if (l_minValue.w > scalar.w || l_firstValue)\
+            \n        {\
+            \n        l_minValue = scalar;\
+            \n        }\
+            \n\
+            \n     if (l_firstValue)\
+            \n        {\
+            \n        l_firstValue = false;\
+            \n        }"
+          );
+          }
+        else
+          {
+          shaderStr += std::string("\
+          \n      for (int i = 0; i < in_noOfComponents; ++i)\
           \n        {\
-          \n        l_minValue = scalar;\
+          \n        if (l_minValue[i] < scalar[i] || l_firstValue)\
+          \n          {\
+          \n          l_minValue[i] = scalar[i];\
+          \n          }\
           \n        }\
-          \n\
           \n     if (l_firstValue)\
           \n        {\
           \n        l_firstValue = false;\
           \n        }"
-        );
+          );
+          }
         }
       else
         {
         shaderStr += std::string("\
-          \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
           \n      if (l_minValue.w > scalar.x || l_firstValue)\
           \n        {\
           \n        l_minValue.w = scalar.x;\
@@ -936,42 +1003,63 @@ namespace vtkvolume
       }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::ADDITIVE_BLEND)
       {
-      shaderStr += std::string("\
-        \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
-        \n      float opacity = computeOpacity(scalar);\
-        \n      l_sumValue = l_sumValue + opacity * scalar.x;"
-      );
+      if (noOfComponents > 1)
+       {
+       if (!independentComponents)
+         {
+         shaderStr += std::string("\
+           \n      float opacity = computeOpacity(scalar);\
+           \n      l_sumValue = l_sumValue + opacity * scalar.x;"
+         );
+         }
+       else
+         {
+         shaderStr += std::string("\
+         \n       for (int i = 0; i < in_noOfComponents; ++i)\
+         \n         {\
+         \n         float opacity = computeOpacity(scalar, i);\
+         \n         l_sumValue[i] = l_sumValue[i] + opacity * scalar[i];\
+         \n         }"
+         );
+         }
+       }
+       else
+         {
+         shaderStr += std::string("\
+           \n      float opacity = computeOpacity(scalar);\
+           \n      l_sumValue = l_sumValue + opacity * scalar.x;"
+         );
+         }
       }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::COMPOSITE_BLEND)
       {
       if (noOfComponents > 1 && independentComponents)
         {
         shaderStr += std::string("\
-        \n       vec4 color[4]; vec4 tmp = vec4(0.0);\
-        \n       float totalAlpha = 0.0;\
-        \n       vec4 scalar = texture3D(in_volume, g_dataPos);\
-        \n       for (int i = 0; i < in_noOfComponents; ++i)\
-        \n         {\
+        \n      vec4 color[4]; vec4 tmp = vec4(0.0);\
+        \n      float totalAlpha = 0.0;\
+        \n      for (int i = 0; i < in_noOfComponents; ++i)\
+        \n        {\
         ");
         if (!mask || !maskInput ||
             maskType != vtkGPUVolumeRayCastMapper::LabelMapMaskType)
           {
           shaderStr += std::string("\
-          \n          // Data fetching from the red channel of volume texture\
-          \n          color[i] = vec4(computeColor(scalar, i));\
-          \n          totalAlpha += color[i][3] * in_componentWeight[i];\
+          \n        // Data fetching from the red channel of volume texture\
+          \n        color[i] = vec4(computeColor(scalar, i));\
+          \n        totalAlpha += color[i][3] * in_componentWeight[i];\
+          \n        }\
+          \n      if (totalAlpha > 0.0)\
+          \n        {\
+          \n        for (int i = 0; i < in_noOfComponents; ++i)\
+          \n          {\
+          \n          tmp.x += color[i].x * color[i].w * in_componentWeight[i] ;\
+          \n          tmp.y += color[i].y * color[i].w * in_componentWeight[i];\
+          \n          tmp.z += color[i].z * color[i].w * in_componentWeight[i];\
+          \n          tmp.w += ((color[i].w * color[i].w)/totalAlpha);\
           \n          }\
-          \n       if (totalAlpha > 0.0)\
-          \n         {\
-          \n         for (int i = 0; i < in_noOfComponents; ++i)\
-          \n           {\
-          \n           tmp.x += color[i].x * color[i].w * in_componentWeight[i] ;\
-          \n           tmp.y += color[i].y * color[i].w * in_componentWeight[i];\
-          \n           tmp.z += color[i].z * color[i].w * in_componentWeight[i];\
-          \n           tmp.w += ((color[i].w * color[i].w)/totalAlpha);\
-          \n           }\
-          \n         }\
-          \n       g_fragColor = (1.0f - g_fragColor.a) * tmp + g_fragColor;"
+          \n        }\
+          \n      g_fragColor = (1.0f - g_fragColor.a) * tmp + g_fragColor;"
           );
           }
         }
@@ -981,8 +1069,6 @@ namespace vtkvolume
              maskType != vtkGPUVolumeRayCastMapper::LabelMapMaskType)
            {
            shaderStr += std::string("\
-             \n      // Data fetching from the red channel of volume texture\
-             \n      vec4 scalar = texture3D(in_volume, g_dataPos);\
              \n      vec4 g_srcColor = computeColor(scalar);"
            );
            }
@@ -1076,10 +1162,20 @@ namespace vtkvolume
       }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::ADDITIVE_BLEND)
       {
-      return std::string("\
-        \n  l_sumValue = clamp(l_sumValue, 0.0, 1.0);\
-        \n  g_fragColor = vec4(vec3(l_sumValue), 1.0);"
-      );
+      if (noOfComponents > 1 && independentComponents)
+        {
+        return std::string("\
+          \n  l_sumValue = clamp(l_sumValue, 0.0, 1.0);\
+          \n  g_fragColor = vec4(l_sumValue);"
+        );
+        }
+      else
+        {
+        return std::string("\
+          \n  l_sumValue = clamp(l_sumValue, 0.0, 1.0);\
+          \n  g_fragColor = vec4(vec3(l_sumValue), 1.0);"
+        );
+        }
       }
     else
       {
@@ -1088,17 +1184,17 @@ namespace vtkvolume
   }
 
   //--------------------------------------------------------------------------
-  std::string TerminationGlobalsVert(vtkRenderer* vtkNotUsed(ren),
-                                     vtkVolumeMapper* vtkNotUsed(mapper),
-                                     vtkVolume* vtkNotUsed(vol))
+  std::string TerminationDeclarationVertex(vtkRenderer* vtkNotUsed(ren),
+                                           vtkVolumeMapper* vtkNotUsed(mapper),
+                                           vtkVolume* vtkNotUsed(vol))
     {
     return std::string();
     }
 
   //--------------------------------------------------------------------------
-  std::string TerminationGlobalsFrag(vtkRenderer* vtkNotUsed(ren),
-                                     vtkVolumeMapper* vtkNotUsed(mapper),
-                                     vtkVolume* vtkNotUsed(vol))
+  std::string TerminationDeclarationFragment(vtkRenderer* vtkNotUsed(ren),
+                                             vtkVolumeMapper* vtkNotUsed(mapper),
+                                             vtkVolume* vtkNotUsed(vol))
     {
     return std::string();
     }
@@ -1170,9 +1266,9 @@ namespace vtkvolume
     }
 
   //--------------------------------------------------------------------------
-  std::string TerminationIncrement(vtkRenderer* vtkNotUsed(ren),
-                                   vtkVolumeMapper* vtkNotUsed(mapper),
-                                   vtkVolume* vtkNotUsed(vol))
+  std::string TerminationImplementation(vtkRenderer* vtkNotUsed(ren),
+                                        vtkVolumeMapper* vtkNotUsed(mapper),
+                                        vtkVolume* vtkNotUsed(vol))
     {
     return std::string("\
       \n    // The two constants l_tex_min and l_tex_max have a value of\
@@ -1218,17 +1314,17 @@ namespace vtkvolume
    }
 
   //--------------------------------------------------------------------------
-  std::string CroppingGlobalsVert(vtkRenderer* vtkNotUsed(ren),
-                                  vtkVolumeMapper* vtkNotUsed(mapper),
-                                  vtkVolume* vtkNotUsed(vol))
+  std::string CroppingDeclarationVertex(vtkRenderer* vtkNotUsed(ren),
+                                        vtkVolumeMapper* vtkNotUsed(mapper),
+                                        vtkVolume* vtkNotUsed(vol))
   {
     return std::string();
   }
 
   //--------------------------------------------------------------------------
-  std::string CroppingGlobalsFrag(vtkRenderer* vtkNotUsed(ren),
-                                  vtkVolumeMapper* mapper,
-                                  vtkVolume* vtkNotUsed(vol))
+  std::string CroppingDeclarationFragment(vtkRenderer* vtkNotUsed(ren),
+                                          vtkVolumeMapper* mapper,
+                                          vtkVolume* vtkNotUsed(vol))
   {
     if (!mapper->GetCropping()) {
       return std::string();
@@ -1334,9 +1430,9 @@ namespace vtkvolume
   }
 
   //--------------------------------------------------------------------------
-  std::string CroppingIncrement(vtkRenderer* vtkNotUsed(ren),
-                                vtkVolumeMapper* mapper,
-                                vtkVolume* vtkNotUsed(vol))
+  std::string CroppingImplementation(vtkRenderer* vtkNotUsed(ren),
+                                     vtkVolumeMapper* mapper,
+                                     vtkVolume* vtkNotUsed(vol))
   {
     if (!mapper->GetCropping()) {
       return std::string();
@@ -1365,17 +1461,17 @@ namespace vtkvolume
   }
 
   //--------------------------------------------------------------------------
-  std::string ClippingGlobalsVert(vtkRenderer* vtkNotUsed(ren),
-                                  vtkVolumeMapper* vtkNotUsed(mapper),
-                                  vtkVolume* vtkNotUsed(vol))
+  std::string ClippingDeclarationVertex(vtkRenderer* vtkNotUsed(ren),
+                                        vtkVolumeMapper* vtkNotUsed(mapper),
+                                        vtkVolume* vtkNotUsed(vol))
   {
     return std::string();
   }
 
   //--------------------------------------------------------------------------
-  std::string ClippingGlobalsFrag(vtkRenderer* vtkNotUsed(ren),
-                                  vtkVolumeMapper* vtkNotUsed(mapper),
-                                  vtkVolume* vtkNotUsed(vol))
+  std::string ClippingDeclarationFragment(vtkRenderer* vtkNotUsed(ren),
+                                          vtkVolumeMapper* vtkNotUsed(mapper),
+                                          vtkVolume* vtkNotUsed(vol))
   {
     return std::string();
   }
@@ -1435,9 +1531,9 @@ namespace vtkvolume
   }
 
   //--------------------------------------------------------------------------
-  std::string ClippingIncrement(vtkRenderer* vtkNotUsed(ren),
-                                vtkVolumeMapper* mapper,
-                                vtkVolume* vtkNotUsed(vol))
+  std::string ClippingImplementation(vtkRenderer* vtkNotUsed(ren),
+                                     vtkVolumeMapper* mapper,
+                                     vtkVolume* vtkNotUsed(vol))
   {
     if (!mapper->GetClippingPlanes())
       {
@@ -1472,12 +1568,12 @@ namespace vtkvolume
   }
 
   //--------------------------------------------------------------------------
-  std::string BinaryMaskGlobalsFrag(vtkRenderer* vtkNotUsed(ren),
-                                    vtkVolumeMapper* vtkNotUsed(mapper),
-                                    vtkVolume* vtkNotUsed(vol),
-                                    vtkImageData* maskInput,
-                                    vtkVolumeMask* mask,
-                                    int vtkNotUsed(maskType))
+  std::string BinaryMaskDeclaration(vtkRenderer* vtkNotUsed(ren),
+                                            vtkVolumeMapper* vtkNotUsed(mapper),
+                                            vtkVolume* vtkNotUsed(vol),
+                                            vtkImageData* maskInput,
+                                            vtkVolumeMask* mask,
+                                            int vtkNotUsed(maskType))
   {
     if (!mask || !maskInput)
       {
@@ -1490,12 +1586,12 @@ namespace vtkvolume
   }
 
   //--------------------------------------------------------------------------
-  std::string BinaryMaskIncrement(vtkRenderer* vtkNotUsed(ren),
-                                  vtkVolumeMapper* vtkNotUsed(mapper),
-                                  vtkVolume* vtkNotUsed(vol),
-                                  vtkImageData* maskInput,
-                                  vtkVolumeMask* mask,
-                                  int maskType)
+  std::string BinaryMaskImplementation(vtkRenderer* vtkNotUsed(ren),
+                                       vtkVolumeMapper* vtkNotUsed(mapper),
+                                       vtkVolume* vtkNotUsed(vol),
+                                       vtkImageData* maskInput,
+                                       vtkVolumeMask* mask,
+                                       int maskType)
   {
     if (!mask || !maskInput ||
         maskType == vtkGPUVolumeRayCastMapper::LabelMapMaskType)
@@ -1515,12 +1611,12 @@ namespace vtkvolume
   }
 
   //--------------------------------------------------------------------------
-  std::string CompositeMaskGlobalsFrag(vtkRenderer* vtkNotUsed(ren),
-                                       vtkVolumeMapper* vtkNotUsed(mapper),
-                                       vtkVolume* vtkNotUsed(vol),
-                                       vtkImageData* maskInput,
-                                       vtkVolumeMask* mask,
-                                       int maskType)
+  std::string CompositeMaskDeclarationFragment(vtkRenderer* vtkNotUsed(ren),
+                                               vtkVolumeMapper* vtkNotUsed(mapper),
+                                               vtkVolume* vtkNotUsed(vol),
+                                               vtkImageData* maskInput,
+                                               vtkVolumeMask* mask,
+                                               int maskType)
   {
     if (!mask || !maskInput ||
         maskType != vtkGPUVolumeRayCastMapper::LabelMapMaskType)
@@ -1538,12 +1634,12 @@ namespace vtkvolume
   }
 
   //--------------------------------------------------------------------------
-  std::string CompositeMaskIncrement(vtkRenderer* vtkNotUsed(ren),
-                                     vtkVolumeMapper* vtkNotUsed(mapper),
-                                     vtkVolume* vtkNotUsed(vol),
-                                     vtkImageData* maskInput,
-                                     vtkVolumeMask* mask,
-                                     int maskType)
+  std::string CompositeMaskImplementation(vtkRenderer* vtkNotUsed(ren),
+                                          vtkVolumeMapper* vtkNotUsed(mapper),
+                                          vtkVolume* vtkNotUsed(vol),
+                                          vtkImageData* maskInput,
+                                          vtkVolumeMask* mask,
+                                          int maskType)
   {
     if (!mask || !maskInput ||
         maskType != vtkGPUVolumeRayCastMapper::LabelMapMaskType)
