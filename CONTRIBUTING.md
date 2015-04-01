@@ -3,7 +3,8 @@ Contributing to VTK
 
 This page documents at a very high level how to contribute to VTK.
 Please check our [developer instructions][] for a more detailed guide to
-developing and contributing to the project.
+developing and contributing to the project, and our [VTK Git README][]
+for additional information.
 
 1.  Register [GitLab Access] to create an account and select a user name.
 
@@ -56,6 +57,7 @@ documentation. Our API is documented using [Doxygen][] with updated
 documentation generated nightly. We have several [Mailing Lists][]
 to coordinate development and to provide support.
 
+[VTK Git README]: Documentation/dev/git/README.md
 [developer instructions]: Documentation/dev/git/develop.md
 [GitLab Access]: https://gitlab.kitware.com/users/sign_in
 [Fork VTK]: https://gitlab.kitware.com/vtk/vtk/fork/new
