@@ -20,10 +20,13 @@ vtkStandardNewMacro(vtkRIBProperty);
 vtkRIBProperty::vtkRIBProperty ()
 {
   this->Declarations = NULL;
-  this->Parameters = NULL;
+  this->SurfaceShaderParameters = NULL;
+  this->DisplacementShaderParameters = NULL;
   this->SurfaceShader = new char[strlen("plastic") + 1];
   strcpy (this->SurfaceShader, "plastic");
   this->DisplacementShader = NULL;
+  this->SurfaceShaderUsesDefaultParameters = true;
+
   // create a vtkProperty that can be rendered
   this->Property = vtkProperty::New ();
 }
@@ -39,7 +42,8 @@ vtkRIBProperty::~vtkRIBProperty()
     this->Property->Delete ();
     }
 
-  delete [] this->Parameters;
+  delete [] this->SurfaceShaderParameters;
+  delete [] this->DisplacementShaderParameters;
 }
 
 void vtkRIBProperty::Render(vtkActor *anActor, vtkRenderer *ren)
@@ -49,28 +53,27 @@ void vtkRIBProperty::Render(vtkActor *anActor, vtkRenderer *ren)
   // Copy this property's ivars into the property to be rendered
   ref = this->Property->GetReferenceCount();
   this->Property->DeepCopy(this);
-  //this->Property->SetDeleteMethod(NULL);
   this->Property->SetReferenceCount(ref);
 
   // Render the property
   this->Property->Render (anActor, ren);
 }
 
-void vtkRIBProperty::SetVariable (char *variable, char *value)
+void vtkRIBProperty::SetVariable (const char *variable, const char *value)
 {
   delete [] this->Declarations;
 
   // format of line is: Declare "variable" "type"\n
   this->Declarations = new char [strlen ("Declare ") +
-                              strlen (variable) +
-                              strlen (value) +
-                              8];
+                                 strlen (variable) +
+                                 strlen (value) +
+                                 8];
 
   sprintf (this->Declarations, "Declare \"%s\" \"%s\"\n", variable, value);
   this->Modified ();
 }
 
-void vtkRIBProperty::AddVariable (char *variable, char *value)
+void vtkRIBProperty::AddVariable (const char *variable, const char *value)
 {
   if (this->Declarations == NULL)
     {
@@ -95,46 +98,106 @@ void vtkRIBProperty::AddVariable (char *variable, char *value)
     }
 }
 
-void vtkRIBProperty::SetParameter (char *parameter, char *value)
+void vtkRIBProperty::SetParameter (const char *parameter, const char *value)
 {
-  delete [] this->Parameters;
+  vtkWarningMacro("vtkRIBProperty::SetParameter is deprecated. Using SetSurfaceShaderParameter instead.");
+  this->SetSurfaceShaderParameter(parameter, value);
+}
+
+void vtkRIBProperty::SetSurfaceShaderParameter (const char *parameter, const char *value)
+{
+  delete [] this->SurfaceShaderParameters;
 
   // format of line is: "parameter" "value"
-  this->Parameters = new char [strlen (parameter) +
-                              strlen (value) +
-                              7];
+  this->SurfaceShaderParameters = new char [strlen (parameter) +
+                                                  strlen (value) +
+                                                  7];
 
-  sprintf (this->Parameters, " \"%s\" [%s]", parameter, value);
+  sprintf (this->SurfaceShaderParameters, " \"%s\" [%s]", parameter, value);
   this->Modified ();
 }
 
-void vtkRIBProperty::AddParameter (char *Parameter, char *value)
+void vtkRIBProperty::SetDisplacementShaderParameter (const char *parameter, const char *value)
 {
-  if (this->Parameters == NULL)
+  delete [] this->DisplacementShaderParameters;
+
+  // format of line is: "parameter" "value"
+  this->DisplacementShaderParameters = new char [strlen (parameter) +
+                                                  strlen (value) +
+                                                  7];
+
+  sprintf (this->DisplacementShaderParameters, " \"%s\" [%s]", parameter, value);
+  this->Modified ();
+}
+
+void vtkRIBProperty::AddParameter (const char *parameter, const char *value)
+{
+  vtkWarningMacro("vtkRIBProperty::AddParameter is deprecated. Using AddSurfaceShaderParameter instead.");
+  this->AddSurfaceShaderParameter(parameter, value);
+}
+
+void vtkRIBProperty::AddSurfaceShaderParameter (const char *SurfaceShaderParameter, const char *value)
+{
+  if (this->SurfaceShaderParameters == NULL)
     {
-    this->SetParameter (Parameter, value);
+    this->SetSurfaceShaderParameter (SurfaceShaderParameter, value);
     }
   else
     {
-    char *newParameter = new char [strlen (Parameter) +
+    char *newSurfaceShaderParameter = new char [strlen (SurfaceShaderParameter) +
                                   strlen (value) +
                                   7];
 
-    sprintf (newParameter, " \"%s\" [%s]", Parameter, value);
-    char *oldParameters = this->Parameters;
+    sprintf (newSurfaceShaderParameter, " \"%s\" [%s]", SurfaceShaderParameter, value);
+    char *oldSurfaceShaderParameters = this->SurfaceShaderParameters;
 
-    this->Parameters = new char [strlen (oldParameters) + strlen (newParameter) + 1];
-    strcpy (this->Parameters, oldParameters);
-    strcat (this->Parameters, newParameter);
-    delete [] oldParameters;
-    delete [] newParameter;
+    this->SurfaceShaderParameters = new char [strlen (oldSurfaceShaderParameters) + strlen (newSurfaceShaderParameter) + 1];
+    strcpy (this->SurfaceShaderParameters, oldSurfaceShaderParameters);
+    strcat (this->SurfaceShaderParameters, newSurfaceShaderParameter);
+    delete [] oldSurfaceShaderParameters;
+    delete [] newSurfaceShaderParameter;
+    this->Modified ();
+    }
+}
+
+void vtkRIBProperty::AddDisplacementShaderParameter (const char *DisplacementShaderParameter, const char *value)
+{
+  if (this->DisplacementShaderParameters == NULL)
+    {
+    this->SetDisplacementShaderParameter (DisplacementShaderParameter, value);
+    }
+  else
+    {
+    char *newDisplacementShaderParameter = new char [strlen (DisplacementShaderParameter) +
+                                  strlen (value) +
+                                  7];
+
+    sprintf (newDisplacementShaderParameter, " \"%s\" [%s]", DisplacementShaderParameter, value);
+    char *oldDisplacementShaderParameters = this->DisplacementShaderParameters;
+
+    this->DisplacementShaderParameters = new char [strlen (oldDisplacementShaderParameters) + strlen (newDisplacementShaderParameter) + 1];
+    strcpy (this->DisplacementShaderParameters, oldDisplacementShaderParameters);
+    strcat (this->DisplacementShaderParameters, newDisplacementShaderParameter);
+    delete [] oldDisplacementShaderParameters;
+    delete [] newDisplacementShaderParameter;
     this->Modified ();
     }
 }
 
 char *vtkRIBProperty::GetParameters ()
 {
-  return this->Parameters;
+  vtkWarningMacro("vtkRIBProperty::GetParameters is deprecated. Using GetSurfaceShaderParameter instead.");
+  return this->GetSurfaceShaderParameters();
+}
+
+char *vtkRIBProperty::GetSurfaceShaderParameters ()
+{
+  return this->SurfaceShaderParameters;
+}
+
+char *vtkRIBProperty::GetDisplacementShaderParameters ()
+{
+  return this->DisplacementShaderParameters;
 }
 
 char *vtkRIBProperty::GetDeclarations ()
@@ -170,14 +233,23 @@ void vtkRIBProperty::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Declarations: (none)\n";
     }
-  if (this->Parameters)
+  if (this->SurfaceShaderParameters)
     {
-    os << indent << "Parameters: " << this->Parameters;
+    os << indent << "SurfaceShaderParameters: " << this->SurfaceShaderParameters;
     }
   else
     {
-    os << indent << "Parameters: (none)\n";
+    os << indent << "SurfaceShaderParameters: (none)\n";
     }
-
+  if (this->DisplacementShaderParameters)
+    {
+    os << indent << "DisplacementShaderParameters: " << this->DisplacementShaderParameters;
+    }
+  else
+    {
+    os << indent << "DisplacementShaderParameters: (none)\n";
+    }
+  os << indent << "SurfaceShaderUsesDefaultParameters: "
+     << this->GetSurfaceShaderUsesDefaultParameters() << std::endl;
 }
 
