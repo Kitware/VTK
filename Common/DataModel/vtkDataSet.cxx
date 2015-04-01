@@ -817,7 +817,7 @@ bool vtkDataSet::IsAnyBitSet(vtkUnsignedCharArray *a, int bitFlag)
 
 //----------------------------------------------------------------------------
 void vtkDataSet::OnDataModified(
-  vtkObject* source, unsigned long eid, void* clientdata, void *)
+  vtkObject* source, unsigned long, void* clientdata, void *)
 {
   // update the point/cell pointers to ghost data arrays.
   vtkDataSet* This = static_cast<vtkDataSet*>(clientdata);
