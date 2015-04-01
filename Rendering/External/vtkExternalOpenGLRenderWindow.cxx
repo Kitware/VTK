@@ -23,7 +23,7 @@ vtkStandardNewMacro(vtkExternalOpenGLRenderWindow);
 //----------------------------------------------------------------------------
 vtkExternalOpenGLRenderWindow::vtkExternalOpenGLRenderWindow()
 {
-  this->AutomaticWindowResize = 1;
+  this->AutomaticWindowPositionAndResize = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -34,10 +34,11 @@ vtkExternalOpenGLRenderWindow::~vtkExternalOpenGLRenderWindow()
 //----------------------------------------------------------------------------
 void vtkExternalOpenGLRenderWindow::Start(void)
 {
-  if (this->AutomaticWindowResize)
+  if (this->AutomaticWindowPositionAndResize)
     {
     int info[4];
     glGetIntegerv(GL_VIEWPORT, info);
+    this->SetPosition(info[0], info[1]);
     this->SetSize(info[2], info[3]);
     }
 

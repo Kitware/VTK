@@ -54,6 +54,12 @@ void vtkExternalOpenGLCamera::Render(vtkRenderer *ren)
   this->Stereo = (ren->GetRenderWindow())->GetStereoRender();
   ren->GetTiledSizeAndOrigin(&usize, &vsize, lowerLeft, lowerLeft+1);
 
+  // Take the window position into account
+  for (int i = 0; i < 2; ++i)
+    {
+    lowerLeft[i] = lowerLeft[i] + ren->GetRenderWindow()->GetPosition()[i];
+    }
+
   // if were on a stereo renderer draw to special parts of screen
   if (this->Stereo)
     {

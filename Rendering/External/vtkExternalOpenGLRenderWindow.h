@@ -59,23 +59,24 @@ public:
   void Render();
 
   // Description:
-  // Turn on/off a flag which enables/disables automatic resizing of the render
-  // window. By default, vtkExternalOpenGLRenderWindow queries the viewport size
-  // from the OpenGL state and uses it to resize itself. However, in special
-  // circumstances this feature is undesirable. One such circumstance may be to
-  // avoid performance penalty of querying OpenGL state variables. So the
-  // following boolean is provided to disable automatic window resize.
-  // (Turn AutomaticWindowResize off if you do not want the viewport size to be
-  // queried from the OpenGL state.)
-  vtkGetMacro(AutomaticWindowResize,int);
-  vtkSetMacro(AutomaticWindowResize,int);
-  vtkBooleanMacro(AutomaticWindowResize,int);
+  // Turn on/off a flag which enables/disables automatic positioning and
+  // resizing of the render window. By default, vtkExternalOpenGLRenderWindow
+  // queries the viewport position and size (glViewport) from the OpenGL state
+  // and uses it to resize itself. However, in special circumstances this
+  // feature is undesirable. One such circumstance may be to avoid performance
+  // penalty of querying OpenGL state variables. So the following boolean is
+  // provided to disable automatic window resize.
+  // (Turn AutomaticWindowPositionAndResize off if you do not want the viewport
+  // to be queried from the OpenGL state.)
+  vtkGetMacro(AutomaticWindowPositionAndResize,int);
+  vtkSetMacro(AutomaticWindowPositionAndResize,int);
+  vtkBooleanMacro(AutomaticWindowPositionAndResize,int);
 
 protected:
   vtkExternalOpenGLRenderWindow();
   ~vtkExternalOpenGLRenderWindow();
 
-  int AutomaticWindowResize;
+  int AutomaticWindowPositionAndResize;
 
 private:
   vtkExternalOpenGLRenderWindow(const vtkExternalOpenGLRenderWindow&); // Not implemented
