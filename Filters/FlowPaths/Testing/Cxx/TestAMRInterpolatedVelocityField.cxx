@@ -19,7 +19,7 @@
 #include <vtkOverlappingAMR.h>
 #include <vtkMath.h>
 #include <vtkCompositeDataPipeline.h>
-
+#include "vtkUniformGrid.h"
 #define RETURNONFALSE(b)\
   if(!(b)) \
     {\
@@ -42,6 +42,20 @@ int TestAMRInterpolatedVelocityField(int, char*[])
 
   vtkOverlappingAMR* amrGrad = vtkOverlappingAMR::SafeDownCast(gradientFilter->GetOutputDataObject(0));
   amrGrad->GenerateParentChildInformation();
+  for(unsigned int level =0; level<amrGrad->GetNumberOfLevels(); level++)
+    {
+    for(unsigned int id=0; id < amrGrad->GetNumberOfDataSets(level); id++)
+      {
+      vtkUniformGrid* grid = amrGrad->GetDataSet(level,id);
+      int numBlankedCells(0);
+      for(int i=0; i<grid->GetNumberOfCells();i++)
+        {
+        numBlankedCells += grid->IsCellVisible(i)? 0 : 1;
+        }
+      cout<<numBlankedCells<<" ";
+      }
+    }
+  cout<<endl;
 
   vtkNew<vtkAMRInterpolatedVelocityField> func;
   func->SetAMRData(amrGrad);

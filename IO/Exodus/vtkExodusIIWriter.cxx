@@ -644,7 +644,7 @@ void vtkExodusIIWriter::RemoveGhostCells()
 {
   for (size_t i = 0; i < this->FlattenedInput.size (); i ++)
     {
-    vtkDataArray *da = this->FlattenedInput[i]->GetCellData()->GetArray("vtkGhostLevels");
+    vtkUnsignedCharArray *da = this->FlattenedInput[i]->GetCellGhostArray();
 
     if (da)
       {
@@ -652,15 +652,15 @@ void vtkExodusIIWriter::RemoveGhostCells()
       t->SetInputData(this->FlattenedInput[i]);
       t->ThresholdByLower(0);
       t->SetInputArrayToProcess(
-        0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, "vtkGhostLevels");
+        0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_CELLS, vtkDataSetAttributes::GhostArrayName());
 
       t->Update();
 
       this->FlattenedInput[i] = vtkSmartPointer<vtkUnstructuredGrid>(t->GetOutput());
       t->Delete();
 
-      this->FlattenedInput[i]->GetCellData()->RemoveArray("vtkGhostLevels");
-      this->FlattenedInput[i]->GetPointData()->RemoveArray("vtkGhostLevels");
+      this->FlattenedInput[i]->GetCellData()->RemoveArray(vtkDataSetAttributes::GhostArrayName());
+      this->FlattenedInput[i]->GetPointData()->RemoveArray(vtkDataSetAttributes::GhostArrayName());
 
       this->GhostLevel = 1;
       }

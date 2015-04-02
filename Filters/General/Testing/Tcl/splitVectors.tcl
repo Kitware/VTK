@@ -1,6 +1,9 @@
 package require vtk
 package require vtkinteraction
 
+
+
+
 # Create the RenderWindow, Renderer and both Actors
 #
 vtkRenderer ren1
@@ -8,7 +11,6 @@ vtkRenderWindow renWin
     renWin AddRenderer ren1
 vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
-
 # create pipeline
 #
 vtkMultiBlockPLOT3DReader pl3d
@@ -25,9 +27,7 @@ vtkSplitField sf
     sf Split 0 "vx"
     sf Split 1 "vy"
     sf Split 2 "vz"
-
-sf Print
-
+#sf Print
 vtkAssignAttribute aax
    aax SetInputConnection [sf GetOutputPort]
    aax Assign "vx" "SCALARS" "POINT_DATA"
@@ -86,9 +86,7 @@ vtkMergeFields mf
    mf Merge 0 "vy" 0
    mf Merge 1 "vz" 0
    mf Merge 2 "vx" 0
-
-mf Print
-
+#mf Print
 vtkAssignAttribute aa
    aa SetInputConnection [mf GetOutputPort]
    aa Assign "merged" "SCALARS" "POINT_DATA"
@@ -118,7 +116,6 @@ vtkPolyDataMapper outlineMapper
     outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
-
 # Add the actors to the renderer, set the background and size
 #
 ren1 AddActor isoVxActor
@@ -139,8 +136,6 @@ renWin SetSize 321 321
 [ren1 GetActiveCamera] SetViewUp 0 0 1
 [ren1 GetActiveCamera] Dolly 0.4
 ren1 ResetCameraClippingRange
-
-
 # render the image
 #
 iren AddObserver UserEvent {wm deiconify .vtkInteract}

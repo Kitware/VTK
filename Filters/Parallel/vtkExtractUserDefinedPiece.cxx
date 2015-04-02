@@ -162,7 +162,8 @@ int vtkExtractUserDefinedPiece::RequestData(
       if (cellGhostLevels)
         {
         cellGhostLevels->InsertNextValue(
-          (unsigned char)(cellTags->GetValue(cellId)));
+          cellTags->GetValue(cellId) > 0 ?
+          vtkDataSetAttributes::DUPLICATECELL : 0);
         }
 
       cell = input->GetCell(cellId);
@@ -179,7 +180,8 @@ int vtkExtractUserDefinedPiece::RequestData(
           if (pointGhostLevels)
             {
             pointGhostLevels->InsertNextValue(
-              cellTags->GetValue(pointOwnership->GetId(ptId)));
+              cellTags->GetValue(pointOwnership->GetId(ptId)) > 0 ?
+              vtkDataSetAttributes::DUPLICATEPOINT : 0);
             }
           pointMap->SetId(ptId,newId);
           outPD->CopyData(pd,ptId,newId);
@@ -201,14 +203,14 @@ int vtkExtractUserDefinedPiece::RequestData(
 
   if (cellGhostLevels)
     {
-    cellGhostLevels->SetName("vtkGhostLevels");
+    cellGhostLevels->SetName(vtkDataSetAttributes::GhostArrayName());
     output->GetCellData()->AddArray(cellGhostLevels);
     cellGhostLevels->Delete();
     cellGhostLevels = 0;
      }
   if (pointGhostLevels)
     {
-    pointGhostLevels->SetName("vtkGhostLevels");
+    pointGhostLevels->SetName(vtkDataSetAttributes::GhostArrayName());
     output->GetPointData()->AddArray(pointGhostLevels);
     pointGhostLevels->Delete();
     pointGhostLevels = 0;
@@ -265,4 +267,3 @@ ComputeCellTagsWithFunction(vtkIntArray *tags,
 
   cellPtIds->Delete();
 }
-

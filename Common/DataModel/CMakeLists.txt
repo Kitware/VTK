@@ -161,7 +161,6 @@ set(Module_SRCS
   vtkStructuredGrid.cxx
   vtkStructuredPointsCollection.cxx
   vtkStructuredPoints.cxx
-  vtkStructuredVisibilityConstraint.cxx
   vtkSuperquadric.cxx
   vtkTable.cxx
   vtkTensor.cxx

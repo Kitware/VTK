@@ -563,9 +563,9 @@ bool vtkExtractCTHPart::ExtractContourOnBlock(
     return true;
     }
   if (!this->RemoveGhostCells &&
-    output->GetCellData()->GetArray("vtkGhostLevels"))
+    output->GetCellData()->GetArray(vtkDataSetAttributes::GhostArrayName()))
     {
-    output->GetCellData()->GetArray("vtkGhostLevels")->SetName("OriginalGhostLevels");
+    output->GetCellData()->GetArray(vtkDataSetAttributes::GhostArrayName())->SetName("OriginalGhostLevels");
     }
 
   fragments.push_back(output);
@@ -591,7 +591,7 @@ void vtkExtractCTHPart::ExtractExteriorSurface(
   input->GetExtent(ext);
   input->GetExtent(originalExtents);
 
-//  vtkUnsignedCharArray *ghostArray=static_cast<vtkUnsignedCharArray *>(input->GetCellData()->GetArray("vtkGhostLevels"));
+//  vtkUnsignedCharArray *ghostArray=static_cast<vtkUnsignedCharArray *>(input->GetCellData()->GetArray(vtkDataSetAttributes::GhostArrayName()));
 
   // bounds without taking ghost cells into account
   double bounds[6];

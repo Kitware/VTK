@@ -125,7 +125,7 @@ def TestDataType(dataType, filter):
     filter.SetUpdateExtent(rank, nranks, 1)
     filter.Update()
 
-    gl = filter.GetOutput().GetCellData().GetArray("vtkGhostLevels")
+    gl = filter.GetOutput().GetCellData().GetArray(vtk.vtkDataSetAttributes.GhostArrayName())
     if not gl:
         result.SetValue(0, 0)
     else:

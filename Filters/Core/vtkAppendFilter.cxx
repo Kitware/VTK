@@ -122,8 +122,7 @@ int vtkAppendFilter::RequestData(
     for (int cc = 0; cc < inputVector[0]->GetNumberOfInformationObjects(); cc++)
       {
       vtkDataSet * tempData = vtkDataSet::GetData(inputVector[0], cc);
-      if (tempData && tempData->GetCellData() &&
-          tempData->GetCellData()->GetArray("vtkGhostLevels") != NULL)
+      if (tempData->HasAnyGhostCells())
         {
         vtkDebugMacro(<< "Ghost cells present, so points will not be merged");
         reallyMergePoints = false;

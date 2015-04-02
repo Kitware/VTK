@@ -143,7 +143,7 @@ void vtkTransmitStructuredDataPiece::RootExecute(vtkDataSet *input,
     int zeroExt[6];
     et->PieceToExtentThreadSafe(updatePiece, updateNumPieces, 0,
                                 wholeExt, zeroExt, vtkExtentTranslator::BLOCK_MODE, 0);
-    output->GenerateGhostLevelArray(zeroExt);
+    output->GenerateGhostArray(zeroExt);
     }
 
   numProcs = this->Controller->GetNumberOfProcesses();
@@ -162,7 +162,7 @@ void vtkTransmitStructuredDataPiece::RootExecute(vtkDataSet *input,
       int zeroExt[6];
       et->PieceToExtentThreadSafe(updateInfo[0], updateInfo[1], 0,
                                   wholeExt, zeroExt, vtkExtentTranslator::BLOCK_MODE, 0);
-      tmp->GenerateGhostLevelArray(zeroExt);
+      tmp->GenerateGhostArray(zeroExt);
       }
 
     this->Controller->Send(tmp, i, 22342);

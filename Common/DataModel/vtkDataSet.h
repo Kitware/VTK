@@ -47,6 +47,8 @@ class vtkCellTypes;
 class vtkGenericCell;
 class vtkIdList;
 class vtkPointData;
+class vtkUnsignedCharArray;
+class vtkCallbackCommand;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkDataSet : public vtkDataObject
 {
@@ -330,10 +332,10 @@ public:
   int CheckAttributes();
 
   // Description:
-  // Normally called by pipeline executives or algoritgms only. This method
+  // Normally called by pipeline executives or algoritms only. This method
   // computes the ghost arrays for a given dataset. The zeroExt argument
-  // specifies the extent of the region which ghost level = 0.
-  virtual void GenerateGhostLevelArray(int zeroExt[6]);
+  // specifies the extent of the region which ghost type = 0.
+  virtual void GenerateGhostArray(int zeroExt[6]);
 
   //BTX
   // Description:
@@ -353,6 +355,55 @@ public:
   // Get the number of elements for a specific attribute type (POINT, CELL, etc.).
   virtual vtkIdType GetNumberOfElements(int type);
 
+  // Description:
+  // Returns 1 if there are any ghost cells
+  // 0 otherwise.
+  bool HasAnyGhostCells();
+  // Description:
+  // Returns 1 if there are any ghost points
+  // 0 otherwise.
+  bool HasAnyGhostPoints();
+  // Description:
+  // Returns 1 if there are any blanking cells
+  // 0 otherwise. Blanking is supported only for vtkStructuredGrid
+  // and vtkUniformGrid
+  virtual bool HasAnyBlankCells()
+  {
+    return 0;
+  }
+  // Description:
+  // Returns 1 if there are any blanking points
+  // 0 otherwise. Blanking is supported only for vtkStructuredGrid
+  // and vtkUniformGrid
+  virtual bool HasAnyBlankPoints()
+  {
+    return 0;
+  }
+
+  // Description:
+  // Gets the array that defines the ghost type of each point.
+  // We cache the pointer to the array to save a lookup involving string comparisons
+  vtkUnsignedCharArray* GetPointGhostArray();
+  // Description:
+  // Updates the pointer to the point ghost array.
+  void UpdatePointGhostArrayCache();
+
+  // Description:
+  // Allocate ghost array for points.
+  vtkUnsignedCharArray* AllocatePointGhostArray();
+
+  // Description:
+  // Get the array that defines the ghost type of each cell.
+  // We cache the pointer to the array to save a lookup involving string comparisons
+  vtkUnsignedCharArray* GetCellGhostArray();
+  // Description:
+  // Updates the pointer to the cell ghost array.
+  void UpdateCellGhostArrayCache();
+
+  // Description:
+  // Allocate ghost array for cells.
+  vtkUnsignedCharArray* AllocateCellGhostArray();
+
 protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).
   vtkDataSet();
@@ -363,8 +414,14 @@ protected:
   // only if the cache became invalid (ScalarRangeComputeTime).
   virtual void ComputeScalarRange();
 
+  // Description:
+  // Helper function that tests if any of the values in 'a' have bitFlag set.
+  // The test performed is (value & bitFlag).
+  bool IsAnyBitSet(vtkUnsignedCharArray *a, int bitFlag);
+
   vtkCellData *CellData;   // Scalars, vectors, etc. associated w/ each cell
   vtkPointData *PointData;   // Scalars, vectors, etc. associated w/ each point
+  vtkCallbackCommand *DataObserver; // Observes changes to cell/point data
   vtkTimeStamp ComputeTime; // Time at which bounds, center, etc. computed
   double Bounds[6];  // (xmin,xmax, ymin,ymax, zmin,zmax) geometric bounds
   double Center[3];
@@ -375,8 +432,21 @@ protected:
   // Time at which scalar range is computed
   vtkTimeStamp ScalarRangeComputeTime;
 
+  // Description:
+  // These arrays pointers are caches used to avoid a string comparision (when
+  // getting ghost arrays using GetArray(name))
+  vtkUnsignedCharArray* PointGhostArray;
+  vtkUnsignedCharArray* CellGhostArray;
+
+
 private:
   void InternalDataSetCopy(vtkDataSet *src);
+  // Description:
+  // Called when point/cell data is modified
+  // Updates caches to point/cell ghost arrays.
+  static void OnDataModified(
+    vtkObject* source, unsigned long eid, void* clientdata, void *calldata);
+
   //BTX
   friend class vtkImageAlgorithmToDataSetFriendship;
   //ETX

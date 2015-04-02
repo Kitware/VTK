@@ -1160,7 +1160,7 @@ vtkDataArray* vtkXdmfHeavyData::ReadAttribute(XdmfAttribute* xmfAttribute,
 
 //-----------------------------------------------------------------------------
 // Read ghost cell/point information. This is simply loaded info a
-// vtkGhostLevels attribute array.
+// vtkGhostType attribute array.
 bool vtkXdmfHeavyData::ReadGhostSets(vtkDataSet* dataSet, XdmfGrid* xmfGrid,
   int *vtkNotUsed(update_extents)/*=0*/)
 {
@@ -1177,16 +1177,19 @@ bool vtkXdmfHeavyData::ReadGhostSets(vtkDataSet* dataSet, XdmfGrid* xmfGrid,
     XdmfInt32 setCenter = xmfSet->GetSetType();
     vtkIdType numElems = 0;
     vtkDataSetAttributes* dsa = 0;
+    unsigned char ghostFlag = 0;
     switch (setCenter)
       {
     case XDMF_SET_TYPE_NODE:
       dsa = dataSet->GetPointData();
       numElems = dataSet->GetNumberOfPoints();
+      ghostFlag = vtkDataSetAttributes::DUPLICATEPOINT;
       break;
 
     case XDMF_SET_TYPE_CELL:
       dsa = dataSet->GetCellData();
       numElems = dataSet->GetNumberOfCells();
+      ghostFlag = vtkDataSetAttributes::DUPLICATECELL;
       break;
 
     default:
@@ -1195,20 +1198,20 @@ bool vtkXdmfHeavyData::ReadGhostSets(vtkDataSet* dataSet, XdmfGrid* xmfGrid,
       continue;
       }
 
-    vtkUnsignedCharArray* ghostLevels = vtkUnsignedCharArray::SafeDownCast(
-      dsa->GetArray("vtkGhostLevels"));
-    if (!ghostLevels)
+    vtkUnsignedCharArray* ghosts = vtkUnsignedCharArray::SafeDownCast(
+      dsa->GetArray(vtkDataSetAttributes::GhostArrayName()));
+    if (!ghosts)
       {
-      ghostLevels = vtkUnsignedCharArray::New();
-      ghostLevels->SetName("vtkGhostLevels");
-      ghostLevels->SetNumberOfComponents(1);
-      ghostLevels->SetNumberOfTuples(numElems);
-      ghostLevels->FillComponent(0, 0);
-      dsa->AddArray(ghostLevels);
-      ghostLevels->Delete();
+      ghosts = vtkUnsignedCharArray::New();
+      ghosts->SetName(vtkDataSetAttributes::GhostArrayName());
+      ghosts->SetNumberOfComponents(1);
+      ghosts->SetNumberOfTuples(numElems);
+      ghosts->FillComponent(0, 0);
+      dsa->AddArray(ghosts);
+      ghosts->Delete();
       }
 
-    unsigned char* ptrGhostLevels = ghostLevels->GetPointer(0);
+    unsigned char* ptrGhosts = ghosts->GetPointer(0);
 
     // Read heavy data. We cannot do anything smart if update_extents or stride
     // is specified here. We have to read the entire set and then prune it.
@@ -1230,7 +1233,7 @@ bool vtkXdmfHeavyData::ReadGhostSets(vtkDataSet* dataSet, XdmfGrid* xmfGrid,
           "No such cell or point exists: " << ids[kk]);
         continue;
         }
-      ptrGhostLevels[ids[kk]] = ghost_value;
+      ptrGhosts[ids[kk]] = ghostFlag;
       }
     delete []ids;
     }

@@ -1192,7 +1192,7 @@ int vtkPDataSetReader::ImageDataExecute(
     et->PieceToExtent();
     int zeroExt[6];
     et->GetExtent(zeroExt);
-    output->GenerateGhostLevelArray(zeroExt);
+    output->GenerateGhostArray(zeroExt);
     }
 
   return 1;
@@ -1386,7 +1386,7 @@ int vtkPDataSetReader::StructuredGridExecute(
     et->PieceToExtent();
     int zeroExt[6];
     et->GetExtent(zeroExt);
-    output->GenerateGhostLevelArray(zeroExt);
+    output->GenerateGhostArray(zeroExt);
     }
 
   return 1;

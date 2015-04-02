@@ -31,10 +31,10 @@
 // 0<=i<(dims[0]-1)), then j (0<=j<(dims[1]-1)), then k (0<=k<(dims[2]-1))
 // The number of cells is (dims[0]-1)*(dims[1]-1)*(dims[2]-1).
 //
-// A unusual feature of vtkStructuredGrid is the ability to blank,
-// or "turn-off" points and cells in the dataset. This is controlled by
-// defining a "blanking array" whose values (0,1) specify whether
-// a point should be blanked or not.
+// vtkStructuredGrid has the ability to blank,
+// or "turn-off" points and cells in the dataset. This is done by setting
+// vtkDataSetAttributes::HIDDENPOINT or vtkDataSetAttributes::HIDDENCELL
+// in the ghost array for each point / cell that needs to be blanked.
 
 #ifndef vtkStructuredGrid_h
 #define vtkStructuredGrid_h
@@ -48,7 +48,6 @@ class vtkEmptyCell;
 class vtkHexahedron;
 class vtkLine;
 class vtkQuad;
-class vtkStructuredVisibilityConstraint;
 class vtkUnsignedCharArray;
 class vtkVertex;
 
@@ -139,31 +138,11 @@ public:
 
   // Description:
   // Methods for supporting blanking of cells. Blanking turns on or off
-  // cells in the structured grid, and hence the cells connected to them.
+  // cells in the structured grid, and hence the points connected to them.
   // These methods should be called only after the dimensions of the
   // grid are set.
   void BlankCell(vtkIdType ptId);
   void UnBlankCell(vtkIdType ptId);
-
-  // Description:
-  // Get the array that defines the blanking (visibility) of each point.
-  vtkUnsignedCharArray *GetPointVisibilityArray();
-
-  // Description:
-  // Set an array that defines the (blanking) visibility of the points
-  // in the grid. Make sure that length of the visibility array matches
-  // the number of points in the grid.
-  void SetPointVisibilityArray(vtkUnsignedCharArray *pointVisibility);
-
-  // Description:
-  // Get the array that defines the blanking (visibility) of each cell.
-  vtkUnsignedCharArray *GetCellVisibilityArray();
-
-  // Description:
-  // Set an array that defines the (blanking) visibility of the cells
-  // in the grid. Make sure that length of the visibility array matches
-  // the number of points in the grid.
-  void SetCellVisibilityArray(vtkUnsignedCharArray *pointVisibility);
 
   // Description:
   // Return non-zero value if specified point is visible.
@@ -180,12 +159,11 @@ public:
   // Description:
   // Returns 1 if there is any visibility constraint on the points,
   // 0 otherwise.
-  unsigned char GetPointBlanking();
-
+  virtual bool HasAnyBlankPoints();
   // Description:
   // Returns 1 if there is any visibility constraint on the cells,
   // 0 otherwise.
-  unsigned char GetCellBlanking();
+  virtual bool HasAnyBlankCells();
 
   // Description:
   // Given the node dimensions of this grid instance, this method computes the
@@ -233,16 +211,6 @@ protected:
 
   int Extent[6];
 
-  vtkStructuredVisibilityConstraint* PointVisibility;
-
-  void SetPointVisibility(vtkStructuredVisibilityConstraint *pointVisibility);
-  vtkGetObjectMacro(PointVisibility, vtkStructuredVisibilityConstraint);
-
-  vtkStructuredVisibilityConstraint* CellVisibility;
-
-  void SetCellVisibility(vtkStructuredVisibilityConstraint *cellVisibility);
-  vtkGetObjectMacro(CellVisibility, vtkStructuredVisibilityConstraint);
-
   // Description:
   // Compute the range of the scalars and cache it into ScalarRange
   // only if the cache became invalid (ScalarRangeComputeTime).
@@ -256,6 +224,8 @@ private:
 
   // Internal method used by DeepCopy and ShallowCopy.
   void InternalStructuredGridCopy(vtkStructuredGrid *src);
+
+  static unsigned char MASKED_CELL_VALUE;
 
 private:
   vtkStructuredGrid(const vtkStructuredGrid&);  // Not implemented.

@@ -103,16 +103,28 @@ int vtkBlankStructuredGridWithImage::RequestData(
     }
 
   // Get the image, set it as the blanking array.
-  unsigned char *data=static_cast<unsigned char *>(image->GetScalarPointer());
-  vtkUnsignedCharArray *dataArray = vtkUnsignedCharArray::New();
-  dataArray->SetArray(data, gridDims[0]*gridDims[1]*gridDims[2], 1);
-
+  unsigned char *data = static_cast<unsigned char *>(image->GetScalarPointer());
+  vtkUnsignedCharArray *visibility = vtkUnsignedCharArray::New();
+  const vtkIdType numberOfValues = gridDims[0] * gridDims[1] * gridDims[2];
+  visibility->SetArray(data, numberOfValues, 1);
+  vtkUnsignedCharArray *ghosts = vtkUnsignedCharArray::New();
+  ghosts->SetNumberOfValues(numberOfValues);
+  ghosts->SetName(vtkDataSetAttributes::GhostArrayName());
+  for(vtkIdType ptId = 0; ptId < numberOfValues; ++ptId)
+    {
+    unsigned char value = 0;
+    if(visibility->GetValue(ptId) == 0)
+      {
+      value |= vtkDataSetAttributes::HIDDENPOINT;
+      }
+    ghosts->SetValue(ptId, value);
+    }
   output->CopyStructure(grid);
   output->GetPointData()->PassData(grid->GetPointData());
   output->GetCellData()->PassData(grid->GetCellData());
-  output->SetPointVisibilityArray(dataArray);
-
-  dataArray->Delete();
+  output->GetPointData()->AddArray(ghosts);
+  ghosts->Delete();
+  visibility->Delete();
 
   return 1;
 }

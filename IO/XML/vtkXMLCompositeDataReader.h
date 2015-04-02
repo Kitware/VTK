@@ -98,17 +98,6 @@ protected:
   // process should read the dataset.
   int ShouldReadDataSet(unsigned int datasetIndex);
 
-  // Description:
-  // Test if the reader can read a file with the given version number.
-  virtual int CanReadFileVersion(int major, int vtkNotUsed(minor))
-    {
-    if (major > 1)
-      {
-      return 0;
-      }
-    return 1;
-    }
-
 private:
   vtkXMLCompositeDataReader(const vtkXMLCompositeDataReader&);  // Not implemented.
   void operator=(const vtkXMLCompositeDataReader&);  // Not implemented.

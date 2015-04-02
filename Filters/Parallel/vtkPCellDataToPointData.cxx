@@ -44,24 +44,6 @@ int vtkPCellDataToPointData::RequestData(
     return 0;
     }
 
-  // Remove the extra (now ivalid) ghost cells.
-  // This is only necessary fro unstructured data.
-  if (this->PieceInvariant)
-    {
-    vtkInformation* outInfo = outputVector->GetInformationObject(0);
-    int ghostLevel = outInfo->Get(
-      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
-    vtkPolyData *pd = vtkPolyData::SafeDownCast(output);
-    vtkUnstructuredGrid *ug = vtkUnstructuredGrid::SafeDownCast(output);
-    if (pd)
-      {
-      pd->RemoveGhostCells(ghostLevel+1);
-      }
-    if (ug)
-      {
-      ug->RemoveGhostCells(ghostLevel+1);
-      }
-    }
   return 1;
 }
 

@@ -58,12 +58,6 @@ protected:
   vtkXMLUniformGridAMRReader();
   ~vtkXMLUniformGridAMRReader();
 
-  // Test if the reader can read a file with the given version number.
-  virtual int CanReadFileVersion(int major, int minor)
-    {
-    return (major == 1 && minor == 1)? 1 : 0;
-    }
-
   // Description:
   // This method is used by CanReadFile() to check if the reader can read an XML
   // with the primary element with the given name. Default implementation

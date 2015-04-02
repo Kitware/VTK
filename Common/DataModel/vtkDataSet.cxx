@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkDataSet.h"
 
+#include "vtkCallbackCommand.h"
 #include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkCellTypes.h"
@@ -33,9 +34,21 @@
 vtkDataSet::vtkDataSet ()
 {
   vtkMath::UninitializeBounds(this->Bounds);
+  // Observer for updating the cell/point ghost arrays pointers
+  this->DataObserver = vtkCallbackCommand::New();
+  this->DataObserver->SetCallback(&vtkDataSet::OnDataModified);
+  this->DataObserver->SetClientData(this);
 
   this->PointData = vtkPointData::New();
+  this->PointGhostArray = NULL;
+  // when point data is modified, we update the point data ghost array cache
+  this->PointData->AddObserver(vtkCommand::ModifiedEvent, this->DataObserver);
+
   this->CellData = vtkCellData::New();
+  this->CellGhostArray = NULL;
+  // when cell data is modified, we update the cell data ghost array cache
+  this->CellData->AddObserver(vtkCommand::ModifiedEvent, this->DataObserver);
+
   this->ScalarRange[0] = 0.0;
   this->ScalarRange[1] = 1.0;
 }
@@ -43,8 +56,13 @@ vtkDataSet::vtkDataSet ()
 //----------------------------------------------------------------------------
 vtkDataSet::~vtkDataSet ()
 {
+  this->PointData->RemoveObserver(this->DataObserver);
   this->PointData->Delete();
+
+  this->CellData->RemoveObserver(this->DataObserver);
   this->CellData->Delete();
+
+  this->DataObserver->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -460,7 +478,7 @@ int vtkDataSet::CheckAttributes()
 }
 
 //----------------------------------------------------------------------------
-void vtkDataSet::GenerateGhostLevelArray(int zeroExt[6])
+void vtkDataSet::GenerateGhostArray(int zeroExt[6])
 {
   // Make sure this is a structured data set.
   if(this->GetExtentType() != VTK_3D_EXTENT)
@@ -469,28 +487,18 @@ void vtkDataSet::GenerateGhostLevelArray(int zeroExt[6])
     }
 
   // Avoid generating these if the producer has generated them.
-  if(!this->PointData->GetArray("vtkGhostLevels"))
-    { // Create ghost levels for cells and points.
-    vtkUnsignedCharArray *levels;
+  if(!this->PointData->GetArray(vtkDataSetAttributes::GhostArrayName()))
+    { // Set ghost types for cells and points.
+    vtkUnsignedCharArray *ghosts;
     int extent[6];
     int i, j, k, di, dj, dk, dist;
 
     this->Information->Get(vtkDataObject::DATA_EXTENT(), extent);
 
-    /*
-    // Get the extent with ghost level 0.
-    translator->SetWholeExtent(whole_extent);
-    translator->SetPiece(update_piece);
-    translator->SetNumberOfPieces(update_num_pieces);
-    translator->SetGhostLevel(0);
-    translator->PieceToExtent();
-    translator->GetExtent(zeroExt);
-    */
-
     // ---- POINTS ----
-    // Allocate the appropriate number levels (number of points).
-    levels = vtkUnsignedCharArray::New();
-    levels->Allocate((extent[1]-extent[0] + 1) *
+    // Allocate the appropriate ghost types.
+    ghosts = vtkUnsignedCharArray::New();
+    ghosts->Allocate((extent[1]-extent[0] + 1) *
                      (extent[3]-extent[2] + 1) *
                      (extent[5]-extent[4] + 1));
 
@@ -502,7 +510,7 @@ void vtkDataSet::GenerateGhostLevelArray(int zeroExt[6])
         {
         dk = zeroExt[4] - k;
         }
-      if (k >= zeroExt[5])
+      if (k > zeroExt[5])
         { // Special case for last tile.
         dk = k - zeroExt[5] + 1;
         }
@@ -513,7 +521,7 @@ void vtkDataSet::GenerateGhostLevelArray(int zeroExt[6])
           {
           dj = zeroExt[2] - j;
           }
-        if (j >= zeroExt[3])
+        if (j > zeroExt[3])
           { // Special case for last tile.
           dj = j - zeroExt[3] + 1;
           }
@@ -524,7 +532,7 @@ void vtkDataSet::GenerateGhostLevelArray(int zeroExt[6])
             {
             di = zeroExt[0] - i;
             }
-          if (i >= zeroExt[1])
+          if (i > zeroExt[1])
             { // Special case for last tile.
             di = i - zeroExt[1] + 1;
             }
@@ -538,23 +546,23 @@ void vtkDataSet::GenerateGhostLevelArray(int zeroExt[6])
             {
             dist = dk;
             }
-
-          //cerr << "   " << i << ", " << j << ", " << k << endl;
-          //cerr << "   " << di << ", " << dj << ", " << dk << endl;
-          //cerr << dist << endl;
-
-          levels->InsertNextValue(static_cast<unsigned char>(dist));
+          unsigned char value = 0;
+          if(dist > 0)
+            {
+            value |= vtkDataSetAttributes::DUPLICATEPOINT;
+            }
+          ghosts->InsertNextValue(value);
           }
         }
       }
-    levels->SetName("vtkGhostLevels");
-    this->PointData->AddArray(levels);
-    levels->Delete();
+    ghosts->SetName(vtkDataSetAttributes::GhostArrayName());
+    this->PointData->AddArray(ghosts);
+    ghosts->Delete();
 
     // ---- CELLS ----
-    // Allocate the appropriate number levels (number of cells).
-    levels = vtkUnsignedCharArray::New();
-    levels->Allocate((extent[1]-extent[0]) *
+    // Allocate the appropriate ghost types.
+    ghosts = vtkUnsignedCharArray::New();
+    ghosts->Allocate((extent[1]-extent[0]) *
                      (extent[3]-extent[2]) *
                      (extent[5]-extent[4]));
 
@@ -620,14 +628,18 @@ void vtkDataSet::GenerateGhostLevelArray(int zeroExt[6])
             {
             dist = dk;
             }
-
-          levels->InsertNextValue(static_cast<unsigned char>(dist));
+          unsigned char value = 0;
+          if(dist > 0)
+            {
+            value |= vtkDataSetAttributes::DUPLICATECELL;
+            }
+          ghosts->InsertNextValue(value);
           }
         }
       }
-    levels->SetName("vtkGhostLevels");
-    this->CellData->AddArray(levels);
-    levels->Delete();
+    ghosts->SetName(vtkDataSetAttributes::GhostArrayName());
+    this->CellData->AddArray(ghosts);
+    ghosts->Delete();
     }
 
 }
@@ -694,3 +706,128 @@ void vtkDataSet::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Compute Time: " <<this->ComputeTime.GetMTime() << "\n";
 }
 
+//----------------------------------------------------------------------------
+bool vtkDataSet::HasAnyGhostPoints()
+{
+  return IsAnyBitSet(
+    this->GetPointGhostArray(), vtkDataSetAttributes::DUPLICATEPOINT);
+}
+
+//----------------------------------------------------------------------------
+bool vtkDataSet::HasAnyGhostCells()
+{
+  return IsAnyBitSet(this->GetCellGhostArray(),
+                     vtkDataSetAttributes::DUPLICATECELL);
+}
+
+//----------------------------------------------------------------------------
+vtkUnsignedCharArray* vtkDataSet::GetPointGhostArray()
+{
+  if(!this->PointGhostArray)
+    {
+    this->PointGhostArray = vtkUnsignedCharArray::SafeDownCast(
+      this->GetPointData()->GetArray(vtkDataSetAttributes::GhostArrayName()));
+    }
+  assert (this->PointGhostArray ==
+          vtkUnsignedCharArray::SafeDownCast(
+            this->GetPointData()->GetArray(
+              vtkDataSetAttributes::GhostArrayName())));
+  return this->PointGhostArray;
+}
+
+//----------------------------------------------------------------------------
+void vtkDataSet::UpdatePointGhostArrayCache()
+{
+  this->PointGhostArray = vtkUnsignedCharArray::SafeDownCast(
+    this->GetPointData()->GetArray(vtkDataSetAttributes::GhostArrayName()));
+}
+
+//----------------------------------------------------------------------------
+vtkUnsignedCharArray* vtkDataSet::AllocatePointGhostArray()
+{
+  if(!this->GetPointGhostArray())
+    {
+    vtkUnsignedCharArray *ghosts = vtkUnsignedCharArray::New();
+    ghosts->SetName(vtkDataSetAttributes::GhostArrayName());
+    ghosts->SetNumberOfComponents(1);
+    ghosts->SetNumberOfTuples(this->GetNumberOfPoints());
+    ghosts->FillComponent(0, 0);
+    this->GetPointData()->AddArray(ghosts);
+    ghosts->Delete();
+    this->PointGhostArray = ghosts;
+    }
+  return this->PointGhostArray;
+}
+
+//----------------------------------------------------------------------------
+vtkUnsignedCharArray* vtkDataSet::GetCellGhostArray()
+{
+  if(!this->CellGhostArray)
+    {
+    this->CellGhostArray = vtkUnsignedCharArray::SafeDownCast(
+      this->GetCellData()->GetArray(vtkDataSetAttributes::GhostArrayName()));
+    }
+  assert (
+    this->CellGhostArray ==
+    vtkUnsignedCharArray::SafeDownCast(
+      this->GetCellData()->GetArray(vtkDataSetAttributes::GhostArrayName())));
+  return this->CellGhostArray;
+}
+
+//----------------------------------------------------------------------------
+void vtkDataSet::UpdateCellGhostArrayCache()
+{
+  this->CellGhostArray = vtkUnsignedCharArray::SafeDownCast(
+    this->GetCellData()->GetArray(vtkDataSetAttributes::GhostArrayName()));
+}
+
+
+//----------------------------------------------------------------------------
+vtkUnsignedCharArray* vtkDataSet::AllocateCellGhostArray()
+{
+  if(!this->GetCellGhostArray())
+    {
+    vtkUnsignedCharArray *ghosts = vtkUnsignedCharArray::New();
+    ghosts->SetName(vtkDataSetAttributes::GhostArrayName());
+    ghosts->SetNumberOfComponents(1);
+    ghosts->SetNumberOfTuples(this->GetNumberOfCells());
+    ghosts->FillComponent(0, 0);
+    this->GetCellData()->AddArray(ghosts);
+    ghosts->Delete();
+    this->CellGhostArray = ghosts;
+    }
+  return this->CellGhostArray;
+}
+
+//----------------------------------------------------------------------------
+bool vtkDataSet::IsAnyBitSet(vtkUnsignedCharArray *a, int bitFlag)
+{
+  if (a)
+    {
+    for (vtkIdType i = 0; i < a->GetNumberOfTuples(); ++i)
+      {
+      if (a->GetValue(i) & bitFlag)
+        {
+        return true;
+        }
+      }
+    }
+  return false;
+}
+
+//----------------------------------------------------------------------------
+void vtkDataSet::OnDataModified(
+  vtkObject* source, unsigned long, void* clientdata, void *)
+{
+  // update the point/cell pointers to ghost data arrays.
+  vtkDataSet* This = static_cast<vtkDataSet*>(clientdata);
+  if (source == This->GetPointData())
+    {
+    This->UpdatePointGhostArrayCache();
+    }
+  else
+    {
+    assert(source == This->GetCellData());
+    This->UpdateCellGhostArrayCache();
+    }
+}

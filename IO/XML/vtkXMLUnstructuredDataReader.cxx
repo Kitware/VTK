@@ -578,7 +578,7 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
     }
   c1->SetNumberOfTuples(numberOfCells);
   if(!this->ReadArrayValues(eOffsets, 0, c1,
-      0, numberOfCells))
+                            0, numberOfCells, CELL_DATA))
     {
     vtkErrorMacro("Cannot read cell offsets from " << eCells->GetName()
                   << " in piece " << this->Piece
@@ -641,7 +641,7 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
     return 0;
     }
   c0->SetNumberOfTuples(cpLength);
-  if(!this->ReadArrayValues(eConn, 0, c0, 0, cpLength))
+  if(!this->ReadArrayValues(eConn, 0, c0, 0, cpLength, CELL_DATA))
     {
     vtkErrorMacro("Cannot read cell connectivity from " << eCells->GetName()
                   << " in piece " << this->Piece
@@ -925,7 +925,7 @@ int vtkXMLUnstructuredDataReader::ReadArrayForPoints(vtkXMLDataElement* da,
   vtkIdType numPoints = this->NumberOfPoints[this->Piece];
   vtkIdType components = outArray->GetNumberOfComponents();
   return this->ReadArrayValues(da, startPoint*components,outArray,
-    0, numPoints*components);
+                               0, numPoints*components, POINT_DATA);
 }
 
 //----------------------------------------------------------------------------

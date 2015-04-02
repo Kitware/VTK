@@ -267,8 +267,8 @@ protected:
   // glyph the \c input, filling up the \c output based on the filter
   // parameters.
   virtual bool Execute(vtkDataSet* input,
-    vtkInformationVector* sourceVector,
-    vtkPolyData* output, int requestedGhostLevel);
+                       vtkInformationVector* sourceVector,
+                       vtkPolyData* output);
 
   vtkPolyData **Source; // Geometry to copy to each point
   int Scaling; // Determine whether scaling of geometry is performed

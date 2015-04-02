@@ -835,13 +835,13 @@ int vtkXMLWriter::WriteInternal()
 //----------------------------------------------------------------------------
 int vtkXMLWriter::GetDataSetMajorVersion()
 {
-  return (this->HeaderType == vtkXMLWriter::UInt64) ? 1 : 0;
+  return 2;
 }
 
 //----------------------------------------------------------------------------
 int vtkXMLWriter::GetDataSetMinorVersion()
 {
-  return (this->HeaderType == vtkXMLWriter::UInt64) ? 0 : 1;
+  return 0;
 }
 
 //----------------------------------------------------------------------------
@@ -911,11 +911,10 @@ void vtkXMLWriter::WriteFileAttributes()
     {
     os << " header_type=\"UInt64\"";
     }
-#if 0 // future: else if (this->FileMajorVersion >= 1)
+  else
     {
     os << " header_type=\"UInt32\"";
     }
-#endif
 
   // Write the compressor that will be used for the file.
   if (this->Compressor)

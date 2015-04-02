@@ -1,6 +1,6 @@
 vtk_add_test_cxx(${vtk-module}CxxTests tests
-  NO_VALID
-  TestLegacyCompositeDataReaderWriter.cxx)
+  TestLegacyCompositeDataReaderWriter.cxx,NO_VALID
+  TestLegacyGhostCellsImport.cxx)
 vtk_test_cxx_executable(${vtk-module}CxxTests tests
     RENDERING_FACTORY
     )

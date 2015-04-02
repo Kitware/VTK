@@ -1868,23 +1868,22 @@ void vtkPolyData::DeepCopy(vtkDataObject *dataObject)
     }
 }
 
-void vtkPolyData::RemoveGhostCells(int level)
+void vtkPolyData::RemoveGhostCells()
 {
   // Get a pointer to the cell ghost level array.
-  vtkUnsignedCharArray* temp = vtkUnsignedCharArray::SafeDownCast(
-    this->CellData->GetArray("vtkGhostLevels"));
+  vtkUnsignedCharArray* temp = this->GetCellGhostArray();
   if (temp == NULL)
     {
-    vtkDebugMacro("Could not find cell ghost level array.");
+    vtkDebugMacro("Could not find cell ghost array.");
     return;
     }
   if (temp->GetNumberOfComponents() != 1 ||
       temp->GetNumberOfTuples() < this->GetNumberOfCells())
     {
-    vtkErrorMacro("Poorly formed ghost level array.");
+    vtkErrorMacro("Poorly formed ghost array.");
     return;
     }
-  unsigned char* cellGhostLevels = temp->GetPointer(0);
+  unsigned char* cellGhosts = temp->GetPointer(0);
 
   vtkIdType numCells = this->GetNumberOfCells();
 
@@ -1951,7 +1950,7 @@ void vtkPolyData::RemoveGhostCells(int level)
       {
       verts->GetNextCell(n, pts);
 
-      if (int(cellGhostLevels[i]) < level)
+      if (! (cellGhosts[i] & vtkDataSetAttributes::DUPLICATECELL))
         {
         cellId = this->InsertNextCell(type, n, pts);
         newCellData->CopyData(this->CellData, i, cellId);
@@ -1961,7 +1960,7 @@ void vtkPolyData::RemoveGhostCells(int level)
       {
       lines->GetNextCell(n, pts);
 
-      if (int(cellGhostLevels[i]) < level)
+      if (! (cellGhosts[i] & vtkDataSetAttributes::DUPLICATECELL))
         {
         cellId = this->InsertNextCell(type, n, pts);
         newCellData->CopyData(this->CellData, i, cellId);
@@ -1971,7 +1970,7 @@ void vtkPolyData::RemoveGhostCells(int level)
       {
       polys->GetNextCell(n, pts);
 
-      if (int(cellGhostLevels[i]) < level)
+      if (! (cellGhosts[i] & vtkDataSetAttributes::DUPLICATECELL))
         {
         cellId = this->InsertNextCell(type, n, pts);
         newCellData->CopyData(this->CellData, i, cellId);
@@ -1981,7 +1980,7 @@ void vtkPolyData::RemoveGhostCells(int level)
       {
       strips->GetNextCell(n, pts);
 
-      if (int(cellGhostLevels[i]) < level)
+      if (! (cellGhosts[i] & vtkDataSetAttributes::DUPLICATECELL))
         {
         cellId = this->InsertNextCell(type, n, pts);
         newCellData->CopyData(this->CellData, i, cellId);
@@ -1997,11 +1996,7 @@ void vtkPolyData::RemoveGhostCells(int level)
   types->Delete();
 
   // If there are no more ghost levels, then remove all arrays.
-  if (level <= 1)
-    {
-    this->CellData->RemoveArray("vtkGhostLevels");
-    this->PointData->RemoveArray("vtkGhostLevels");
-    }
+  this->CellData->RemoveArray(vtkDataSetAttributes::GhostArrayName());
 
   this->Squeeze();
 }
