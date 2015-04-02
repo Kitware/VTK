@@ -76,6 +76,12 @@ Update
         $ git checkout master
         $ git pull
 
+2.  Optionally push `master` to your fork in GitLab:
+
+        $ git push gitlab master
+    to keep it in sync.  The `git gitlab-push` script used to
+    [Share a Topic](#share-a-topic) below will also do this.
+
 Create a Topic
 --------------
 
@@ -138,6 +144,8 @@ signed in for [GitLab Access][] and created your fork by visiting the main
     * If you are revising a previously pushed topic and have rewritten the
       topic history, add `-f` or `--force` to overwrite the destination.
     * If the topic adds data see [this note](data.md#push).
+    * The `gitlab-push` script also pushes the `master` branch to your
+      fork in GitLab to keep it in sync with the upstream `master`.
 
     The output will include a link to the topic branch in your fork in GitLab
     and a link to a page for creating a Merge Request.
@@ -239,6 +247,29 @@ included as trailing lines of the generated merge commit message.
 References to `me` and `@username` will automatically be transformed
 into a real name and email address according to the user's GitLab
 account profile.
+
+#### Fetching Changes ####
+
+One may fetch the changes associated with a merge request by using
+the `git fetch` command line shown at the top of the Merge Request
+page.  It is of the form:
+
+    $ git fetch https://gitlab.kitware.com/$username/vtk.git $branch
+
+This updates the local `FETCH_HEAD` to refer to the branch.
+
+There are a few options for checking out the changes in a work tree:
+
+*   One may checkout the branch:
+
+        $ git checkout FETCH_HEAD -b $branch
+    or checkout the commit without creating a local branch:
+
+        $ git checkout FETCH_HEAD
+
+*   Or, one may cherry-pick the commits to minimize rebuild time:
+
+        $ git cherry-pick ..FETCH_HEAD
 
 ### Robot Reviews ###
 
