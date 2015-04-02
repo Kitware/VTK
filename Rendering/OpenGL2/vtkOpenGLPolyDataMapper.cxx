@@ -434,8 +434,8 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
         "  vec3 normalVC = normalize(cross(fdx,fdy));\n"
         // the code below is faster, but does not work on some devices
         //"vec3 normalVC = normalize(cross(dFdx(vertexVC.xyz), dFdy(vertexVC.xyz)));\n"
-        "  if (cameraParallel == 1 && normalVC.z < 0.0) { normalVC = -1.0*normalVC; }"
-        "  if (cameraParallel == 0 && dot(normalVC,vertexVC) > 0.0) { normalVC = -1.0*normalVC; }"
+        "  if (cameraParallel == 1 && normalVC.z < 0.0) { normalVC = -1.0*normalVC; }\n"
+        "  if (cameraParallel == 0 && dot(normalVC,vertexVC.xyz) > 0.0) { normalVC = -1.0*normalVC; }"
         );
       }
     }
