@@ -138,9 +138,9 @@ bool DoDataObjectsDiffer(vtkDataObject *dobj1, vtkDataObject *dobj2)
 
 bool TestXDMFConversion(vtkDataObject*input, char *prefix)
 {
-  char xdmffile[256];
-  char hdf5file[256];
-  char vtkfile[256];
+  char xdmffile[VTK_MAXPATH];
+  char hdf5file[VTK_MAXPATH];
+  char vtkfile[VTK_MAX_PATH];
   sprintf(xdmffile, "%s.xmf", prefix);
   sprintf(hdf5file, "%s.h5", prefix);
   sprintf(vtkfile, "%s.vtk", prefix);
@@ -206,7 +206,7 @@ int XdmfTestVTKIO (int ac, char *av[])
   int i = 0;
   while (!fail && i<NUMTESTS)
   {
-    char filename[256];
+    char filename[VTK_MAXPATH];
     sprintf(filename, "xdmfIOtest_%d", i);
     cerr << "Test vtk object " << testobject[i] << endl;
     dog->SetProgram(testobject[i]);

@@ -159,7 +159,7 @@ int vtkEnSightMasterServerReader::DetermineFileName(int piece)
       {
       if ( currentserver == piece )
         {
-        char filename[1024] = "";
+        char filename[VTK_MAXPATH] = "";
         sscanf(result, "casefile: %s", filename);
         if ( filename[0] == 0 )
           {

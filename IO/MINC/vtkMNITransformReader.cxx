@@ -724,7 +724,7 @@ int vtkMNITransformReader::ReadGridTransform(
     return 0;
     }
 
-  char filename[256];
+  char filename[VTK_MAXPATH];
   if (!this->ParseStringValue(infile, linetext, cpp, filename))
     {
     return 0;
