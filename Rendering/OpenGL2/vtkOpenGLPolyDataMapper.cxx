@@ -396,10 +396,10 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
     if (!vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
       {
       substitute(FSSource,"//VTK::System::Dec",
+        "//VTK::System::Dec\n"
         "#ifdef GL_ES\n"
         "#extension GL_OES_standard_derivatives : enable\n"
-        "#endif\n"
-        "//VTK::System::Dec\n",
+        "#endif\n",
         false);
       }
     if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
@@ -501,8 +501,8 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
     if (!vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
       {
       substitute(FSSource,"//VTK::System::Dec",
-        "#extension GL_EXT_gpu_shader4 : enable\n"
-        "//VTK::System::Dec\n",
+        "//VTK::System::Dec\n"
+        "#extension GL_EXT_gpu_shader4 : enable\n",
         false);
       }
     if (substitute(FSSource, "//VTK::Picking::Dec",

@@ -126,14 +126,17 @@ vtkShaderProgram *vtkOpenGLShaderCache::ReadyShader(
   else
     {
     VSSource = replace(VSSource,"//VTK::System::Dec",
+                              "#version 120\n"
                               "#define highp\n"
                               "#define mediump\n"
                               "#define lowp");
     FSSource = replace(FSSource,"//VTK::System::Dec",
+                                "#version 120\n"
                                 "#define highp\n"
                                 "#define mediump\n"
                                 "#define lowp");
     GSSource = replace(GSSource,"//VTK::System::Dec",
+                                "#version 120\n"
                                 "#define highp\n"
                                 "#define mediump\n"
                                 "#define lowp");
