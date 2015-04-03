@@ -462,6 +462,7 @@ int vtkExodusIIWriter::FlattenHierarchy (vtkDataObject* input, bool& changed)
       {
       vtkDataSet* castObj = vtkDataSet::SafeDownCast (input);
 
+      output->GetFieldData ()->ShallowCopy (castObj->GetFieldData ());
       output->GetPointData ()->ShallowCopy (castObj->GetPointData ());
       output->GetCellData ()->ShallowCopy (castObj->GetCellData ());
 
@@ -951,9 +952,9 @@ int vtkExodusIIWriter::ConstructVariableInfoMaps ()
     for (int j = 0; j < fd->GetNumberOfArrays (); j ++)
       {
       char *name = 0;
-      if (fd->GetArray(j))
+      if (fd->GetAbstractArray(j))
         {
-        name = fd->GetArray(j)->GetName();
+        name = fd->GetAbstractArray(j)->GetName();
         }
       if (name == 0)
         {
@@ -962,6 +963,10 @@ int vtkExodusIIWriter::ConstructVariableInfoMaps ()
         }
       std::string upper (name);
       this->StringUppercase(upper);
+      if (strncmp(upper.c_str (),"TITLE",5) == 0)
+        {
+        continue;
+        }
       if (strncmp(upper.c_str (),"QA_RECORD",9) == 0)
         {
         continue;
@@ -974,7 +979,7 @@ int vtkExodusIIWriter::ConstructVariableInfoMaps ()
         {
         continue;
         }
-      int numComp = fd->GetArray(j)->GetNumberOfComponents ();
+      int numComp = fd->GetAbstractArray(j)->GetNumberOfComponents ();
       std::map<std::string, VariableInfo>::const_iterator iter =
         this->GlobalVariableMap.find (name);
       if (iter == this->GlobalVariableMap.end ())
