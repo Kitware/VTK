@@ -11,9 +11,11 @@
 #include "vtkImageCanvasSource2D.h"
 #include "vtkImageCast.h"
 
-std::string  createTestJPG()
+#include "vtkTestUtilities.h"
+
+std::string  createTestJPG(const std::string& path)
 {
-    std::string outputFilename = "flare.jpg";
+    std::string outputFilename = path + "/flare.jpg";
     int extent[6] = {0, 99, 0, 99, 0, 0};
     vtkSmartPointer<vtkImageCanvasSource2D> imageSource = vtkSmartPointer<vtkImageCanvasSource2D>::New();
     imageSource->SetExtent(extent);
@@ -37,9 +39,9 @@ std::string  createTestJPG()
     return outputFilename;
 }
 
-std::string  createTestPNG()
+std::string  createTestPNG(const std::string& path)
 {
-    std::string outputFilename = "map1024.png";
+    std::string outputFilename = path + "/map1024.png";
     int extent[6] = {0, 99, 0, 99, 0, 0};
     vtkSmartPointer<vtkImageCanvasSource2D> imageSource = vtkSmartPointer<vtkImageCanvasSource2D>::New();
     imageSource->SetExtent(extent);
@@ -83,33 +85,22 @@ int TestOBJImporter( int argc, char * argv [] )
     // Files for testing demonstrate updated functionality for OBJ import:
     //       polydata + textures + actor properties all get loaded.
 
-    std::string filenameOBJ;
-    std::string filenameMTL;
+    if(argc < 6)
+    {
+      std::cerr<<"expected TestName -D  File1.obj -D File2.obj.mtl"<<std::endl;
+      return -1;
+    }
+
+    std::string filenameOBJ(argv[2]);
+    std::string filenameMTL(argv[3]);
+    std::string tmppath(argv[5]);
     vtkNew<vtkOBJImporter> importer;
-    if(argc==0)
-    {
-        filenameOBJ = "MiG-35.obj";
-        filenameMTL = "MiG-35.obj.mtl";
-    }
-    else
-    {
-        if( argc < 3 )
-        {
-            std::cerr << "invalid args; expected: "<< argv[0]
-                      << " File.obj "<<" File.obj.mtl " << std::endl;
-            return 1;
-        }
-        else
-        {
-            // Ok, set the filenames from which to load geometry + material info.
-            filenameOBJ = std::string(argv[1]);
-            filenameMTL = std::string(argv[2]);
-            if(argc > 3)
-                s_interactive = 1;
-        }
-    }
-    std::string jpgfile = createTestJPG();
-    std::string pngfile = createTestPNG();
+
+    if(argc > 6)
+      s_interactive = 1;
+
+    std::string jpgfile = createTestJPG(tmppath);
+    std::string pngfile = createTestPNG(tmppath);
     importer->SetFileName(filenameOBJ.data());
     importer->SetFileNameMTL(filenameMTL.data());
 
@@ -122,6 +113,13 @@ int TestOBJImporter( int argc, char * argv [] )
     importer->SetRenderWindow(renWin.Get());
     importer->Update();
 
+    ren->ResetCamera();
+
+    if( 1 > ren->GetActors()->GetNumberOfItems() )
+    {
+      std::cerr << "failed to get an actor created?!" << std::endl;
+      return -1;
+    }
     if( bInteractive() )
     {
         renWin->SetSize(800,600);

@@ -9,8 +9,8 @@
 #ifndef __vtkOBJPolyDataProcessor_h
 #define __vtkOBJPolyDataProcessor_h
 
-#include "vtkSmartPointer.h"
 #include "vtkIOImportModule.h" // For export macro
+#include "vtkSmartPointer.h"
 #include "vtkImporter.h"
 
 class vtkRenderWindow;
