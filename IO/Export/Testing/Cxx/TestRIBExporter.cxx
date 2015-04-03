@@ -51,8 +51,11 @@ static vtkSmartPointer<vtkRIBProperty> bozo(const char *k);
 
 int TestRIBExporter (int argc, char *argv[])
 {
-  std::string prefix = vtkTestUtilities::GetArgOrEnvOrDefault(
+  const char *_prefix = vtkTestUtilities::GetArgOrEnvOrDefault(
     "-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
+  std::string prefix = _prefix;
+  delete []_prefix;
+
   if (prefix == "")
     {
     std::cout << argv[0] << " Could not determine temporary directory.\n";
