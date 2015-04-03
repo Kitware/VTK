@@ -759,6 +759,10 @@ void vtkOpenGLRenderWindow::DrawPixels(
     {
     this->DrawPixelsTextureObject = vtkTextureObject::New();
     }
+  else
+    {
+    this->DrawPixelsTextureObject->ReleaseGraphicsResources(this);
+    }
   this->DrawPixelsTextureObject->SetContext(this);
   this->DrawPixelsTextureObject->Create2DFromRaw(srcWidth, srcHeight,
         numComponents, dataType, data);
@@ -779,11 +783,15 @@ void vtkOpenGLRenderWindow::DrawPixels(
     {
     this->DrawPixelsTextureObject = vtkTextureObject::New();
     }
+  else
+    {
+    this->DrawPixelsTextureObject->ReleaseGraphicsResources(this);
+    }
   this->DrawPixelsTextureObject->SetContext(this);
   this->DrawPixelsTextureObject->Create2DFromRaw(srcWidth, srcHeight,
         numComponents, dataType, data);
   this->DrawPixelsTextureObject->CopyToFrameBuffer(
-      srcXmin, srcYmin, srcXmax, srcYmax-1,
+      srcXmin, srcYmin, srcXmax, srcYmax,
       dstXmin, dstYmin, dstXmax, dstYmax,
       this->GetSize()[0], this->GetSize()[1],
       NULL, NULL);

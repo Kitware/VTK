@@ -909,6 +909,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
                    this->Extents[2]) *
                   (this->Dimensions[0] - this->Parent->CellFlag) +
                    this->Extents[0];
+    float *tupPtr = new float [noOfComponents];
     while(k < this->TextureSize[2])
       {
       int j = 0;
@@ -919,17 +920,12 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
         i = 0;
         while(i < this->TextureSize[0])
           {
-          vtkFloatArray* tup = vtkFloatArray::New();
-          tup->SetNumberOfComponents(noOfComponents);
-          tup->SetNumberOfTuples(1);
-          double * tupPtr = static_cast<double *> (tup->GetVoidPointer(0));
           double * scalarPtr = scalars->GetTuple(kOffset + jOffset + i);
           for (int n = 0; n < noOfComponents; ++n)
             {
             tupPtr[n] = (scalarPtr[n] + shift[n])*scale[n];
             }
           sliceArray->SetTuple(jDestOffset + i, tupPtr);
-          tup->Delete();
           ++i;
           }
         ++j;
@@ -945,6 +941,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
       ++k;
       kOffset += kInc;
       }
+    delete [] tupPtr;
     sliceArray->Delete();
     }
   // do not tie up the texture unit unless we are activly using it

@@ -490,6 +490,7 @@ void vtkTextureObject::ReleaseGraphicsResources(vtkWindow *win)
     this->Handle = 0;
     this->NumberOfDimensions = 0;
     this->Target =0;
+    this->InternalFormat = 0;
     this->Format = 0;
     this->Type = 0;
     this->Components = 0;
