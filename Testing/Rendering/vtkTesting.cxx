@@ -658,7 +658,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
     }
 
 
-  os << "Failed Image Test : " << minError << endl;
+  os << "Failed Image Test ( " << validName << " ) : " << minError << endl;
   if (errIndex >= 0)
     {
     newFileName = IncrementFileName(this->ValidImageFileName, errIndex);
