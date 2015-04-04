@@ -12,14 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#version 120
-
-/// Needed to enable inverse function
-#extension GL_ARB_gpu_shader5 : enable
-
 // The following line handle system declarations such a
 // default precisions, or defining precisions to null
 //VTK::System::Dec
+
+/// Needed to enable inverse function
+#extension GL_ARB_gpu_shader5 : enable
 
 //////////////////////////////////////////////////////////////////////////////
 ///

@@ -103,20 +103,44 @@ vtkShaderProgram *vtkOpenGLShaderCache::ReadyShader(
   // desktops to not use percision statements
 #if GL_ES_VERSION_2_0 != 1
   std::string VSSource = vertexCode;
-  VSSource = replace(VSSource,"//VTK::System::Dec",
-                              "#define highp\n"
-                              "#define mediump\n"
-                              "#define lowp");
   std::string FSSource = fragmentCode;
-  FSSource = replace(FSSource,"//VTK::System::Dec",
-                              "#define highp\n"
-                              "#define mediump\n"
-                              "#define lowp");
   std::string GSSource = geometryCode;
-  GSSource = replace(GSSource,"//VTK::System::Dec",
+  if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
+    {
+    VSSource = replace(VSSource,"//VTK::System::Dec",
+                              "#version 150\n"
                               "#define highp\n"
                               "#define mediump\n"
                               "#define lowp");
+    FSSource = replace(FSSource,"//VTK::System::Dec",
+                                "#version 150\n"
+                                "#define highp\n"
+                                "#define mediump\n"
+                                "#define lowp");
+    GSSource = replace(GSSource,"//VTK::System::Dec",
+                                "#version 150\n"
+                                "#define highp\n"
+                                "#define mediump\n"
+                                "#define lowp");
+    }
+  else
+    {
+    VSSource = replace(VSSource,"//VTK::System::Dec",
+                              "#version 120\n"
+                              "#define highp\n"
+                              "#define mediump\n"
+                              "#define lowp");
+    FSSource = replace(FSSource,"//VTK::System::Dec",
+                                "#version 120\n"
+                                "#define highp\n"
+                                "#define mediump\n"
+                                "#define lowp");
+    GSSource = replace(GSSource,"//VTK::System::Dec",
+                                "#version 120\n"
+                                "#define highp\n"
+                                "#define mediump\n"
+                                "#define lowp");
+    }
   vtkShaderProgram *shader = this->GetShader(VSSource.c_str(), FSSource.c_str(), GSSource.c_str());
 #else
   std::string FSSource = fragmentCode;

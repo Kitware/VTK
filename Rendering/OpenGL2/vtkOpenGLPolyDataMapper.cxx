@@ -393,12 +393,15 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
     }
   else
     {
-    substitute(FSSource,"//VTK::System::Dec",
-      "#ifdef GL_ES\n"
-      "#extension GL_OES_standard_derivatives : enable\n"
-      "#endif\n"
-      "//VTK::System::Dec\n",
-      false);
+    if (!vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
+      {
+      substitute(FSSource,"//VTK::System::Dec",
+        "//VTK::System::Dec\n"
+        "#ifdef GL_ES\n"
+        "#extension GL_OES_standard_derivatives : enable\n"
+        "#endif\n",
+        false);
+      }
     if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
       {
       // generate a normal for lines, it will be perpendicular to the line
@@ -501,10 +504,13 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(std::string &VSSource,
     // so we request the shader4 extension.  This is particularly useful for apple
     // systems that do not provide gl_PrimitiveId otherwise.
     // we put this before the System Declarations
-    substitute(FSSource,"//VTK::System::Dec",
-      "#extension GL_EXT_gpu_shader4 : enable\n"
-      "//VTK::System::Dec\n",
-      false);
+    if (!vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
+      {
+      substitute(FSSource,"//VTK::System::Dec",
+        "//VTK::System::Dec\n"
+        "#extension GL_EXT_gpu_shader4 : enable\n",
+        false);
+      }
     if (substitute(FSSource, "//VTK::Picking::Dec",
         "uniform vec3 mapperIndex;\n"
         "uniform int pickingAttributeIDOffset;"))

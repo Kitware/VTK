@@ -38,6 +38,10 @@ public:
   // resources to release.
   virtual void ReleaseGraphicsResources(vtkWindow *window);
 
+  // Description:
+  // We only render in the overlay for the context scene.
+  virtual int RenderOverlay(vtkViewport *viewport);
+
 protected:
   vtkOpenGLContextActor();
   ~vtkOpenGLContextActor();

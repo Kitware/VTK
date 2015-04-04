@@ -15,13 +15,12 @@
 #include "vtkOpenGLContextActor.h"
 
 #include "vtkContext2D.h"
-#include "vtkOpenGLContextDevice2D.h"
-#include "vtkOpenGL2ContextDevice2D.h"
-
 #include "vtkContext3D.h"
-#include "vtkOpenGLContextDevice3D.h"
 #include "vtkContextScene.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLContextDevice2D.h"
+#include "vtkOpenGLContextDevice3D.h"
+#include "vtkRenderer.h"
 
 vtkStandardNewMacro(vtkOpenGLContextActor);
 
@@ -52,26 +51,44 @@ void vtkOpenGLContextActor::ReleaseGraphicsResources(vtkWindow *window)
 }
 
 //----------------------------------------------------------------------------
+// Renders an actor2D's property and then it's mapper.
+int vtkOpenGLContextActor::RenderOverlay(vtkViewport* viewport)
+{
+  vtkDebugMacro(<< "vtkContextActor::RenderOverlay");
+
+  if (!this->Context.GetPointer())
+    {
+    vtkErrorMacro(<< "vtkContextActor::Render - No painter set");
+    return 0;
+    }
+
+  if (!this->Initialized)
+    {
+    this->Initialize(viewport);
+    }
+
+  vtkOpenGLContextDevice3D::SafeDownCast(
+    this->Context3D->GetDevice())->Begin(viewport);
+
+  return this->Superclass::RenderOverlay(viewport);
+}
+
+
+//----------------------------------------------------------------------------
 void vtkOpenGLContextActor::Initialize(vtkViewport* viewport)
 {
-  vtkOpenGLContextDevice3D *dev = vtkOpenGLContextDevice3D::New();
-  this->Context3D->Begin(dev);
-  dev->Delete();
-
-  vtkContextDevice2D *device = NULL;
-  if (vtkOpenGL2ContextDevice2D::IsSupported(viewport))
-    {
-    vtkDebugMacro("Using OpenGL 2 for 2D rendering.")
-    device = vtkOpenGL2ContextDevice2D::New();
-    }
-  else
-    {
-    vtkDebugMacro("Using OpenGL 1 for 2D rendering.")
-    device = vtkOpenGLContextDevice2D::New();
-    }
+  vtkOpenGLContextDevice2D *device = NULL;
+  vtkDebugMacro("Using OpenGL 2 for 2D rendering.")
+  device = vtkOpenGLContextDevice2D::New();
   if (device)
     {
     this->Context->Begin(device);
+
+    vtkOpenGLContextDevice3D *dev = vtkOpenGLContextDevice3D::New();
+    dev->Initialize(vtkRenderer::SafeDownCast(viewport), device);
+    this->Context3D->Begin(dev);
+    dev->Delete();
+
     device->Delete();
     this->Initialized = true;
     }

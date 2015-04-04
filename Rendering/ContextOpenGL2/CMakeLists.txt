@@ -6,14 +6,12 @@ include(vtkObjectFactory)
 
 set(module_SRCS
   vtkOpenGLContextActor.cxx
-  vtkOpenGL2ContextDevice2D.cxx
   vtkOpenGLContextBufferId.cxx
   vtkOpenGLContextDevice2D.cxx
   vtkOpenGLContextDevice3D.cxx
   )
 
 set_source_files_properties(
-  vtkOpenGL2ContextDevice2D
   vtkOpenGLContextBufferId
   vtkOpenGLContextDevice2D
   vtkOpenGLContextDevice3D

@@ -12,8 +12,6 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#version 120
-
 // The following line handle system declarations such a
 // default precisions, or defining precisions to null
 //VTK::System::Dec

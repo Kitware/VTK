@@ -167,16 +167,9 @@ vtkIdType vtkOpenGLContextBufferId::GetPickedItem(int x, int y)
         glDisable(GL_BLEND);
         }
 
-      // Fixed-pipeline stuff
-      glActiveTexture(GL_TEXTURE0);
-      this->Texture->Bind();
-      glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
-      glEnable(GL_TEXTURE_2D);
       this->Texture->CopyToFrameBuffer(x,y,x,y,x,y,
         this->Context->GetSize()[0],
         this->Context->GetSize()[1],NULL,NULL);
-      glDisable(GL_TEXTURE_2D);
-      glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); // restore
 
       GLint savedReadBuffer;
       glGetIntegerv(GL_READ_BUFFER,&savedReadBuffer);
