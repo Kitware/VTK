@@ -44,8 +44,8 @@ vtkStandardNewMacro(vtkPImageWriter);
 //----------------------------------------------------------------------------
 vtkPImageWriter::vtkPImageWriter()
 {
-  // Set a default memory limit of a gigabyte
-  this->MemoryLimit = 1000000;
+  // Set a default memory limit of a gibibyte
+  this->MemoryLimit = 1 * 1024 * 1024;
 
   this->SizeEstimator = vtkPipelineSize::New();
 }
@@ -67,7 +67,7 @@ void vtkPImageWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "MemoryLimit: " << this->MemoryLimit << "\n";
+  os << indent << "MemoryLimit (in kibibytes): " << this->MemoryLimit << "\n";
 }
 
 

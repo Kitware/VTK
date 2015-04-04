@@ -142,7 +142,7 @@ int vtkGenericAttributeCollection::GetMaxNumberOfComponents()
 
 //----------------------------------------------------------------------------
 // Description:
-// Actual size of the data in kilobytes; only valid after the pipeline has
+// Actual size of the data in kibibytes (1024 bytes); only valid after the pipeline has
 // updated. It is guaranteed to be greater than or equal to the memory
 // required to represent the data.
 unsigned long vtkGenericAttributeCollection::GetActualMemorySize()

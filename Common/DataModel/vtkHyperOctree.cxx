@@ -86,7 +86,7 @@ public:
   virtual void SetAttributes(vtkDataSetAttributes *attributes)=0;
 
   // Description:
-  // Returns the actual memory size in kilobytes.
+  // Returns the actual memory size in kibibytes (1024 bytes).
   // Ignores the attribute array.
   virtual unsigned int GetActualMemorySize() = 0;
 
@@ -917,7 +917,7 @@ public:
 
   //---------------------------------------------------------------------------
   // Description:
-  // Return memory used in kilobytes.
+  // Return memory used in kibibytes (1024 bytes).
   // Ignore the attribute array because its size is added by the data set.
   unsigned int GetActualMemorySize()
   {

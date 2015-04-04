@@ -32,7 +32,7 @@ public:
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Get the estimated memory size in 1024 bytes
+  // Get the estimated memory size in kibibytes (1024 bytes).
   unsigned long GetEstimatedMemorySize();
 
 protected:

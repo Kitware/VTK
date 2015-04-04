@@ -97,7 +97,7 @@ public:
   virtual void ShallowCopy(vtkPoints2D *ad);
 
   // Description:
-  // Return the memory in kilobytes consumed by this attribute data.
+  // Return the memory in kibibytes (1024 bytes) consumed by this attribute data.
   // Used to support streaming and reading/writing data. The value
   // returned is guaranteed to be greater than or equal to the
   // memory required to actually represent the data represented

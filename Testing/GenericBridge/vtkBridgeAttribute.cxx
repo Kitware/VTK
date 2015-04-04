@@ -140,7 +140,7 @@ vtkIdType vtkBridgeAttribute::GetSize()
 
 //-----------------------------------------------------------------------------
 // Description:
-// Size in kilobytes taken by the attribute.
+// Size in kibibytes (1024 bytes) taken by the attribute.
 unsigned long vtkBridgeAttribute::GetActualMemorySize()
 {
   return this->Data->GetArray(this->AttributeNumber)->GetActualMemorySize();

@@ -159,7 +159,7 @@ public:
   vtkGetVector6Macro(Extent, int);
 
   // Description:
-  // Return the actual size of the data in kilobytes. This number
+  // Return the actual size of the data in kibibytes (1024 bytes). This number
   // is valid only after the pipeline has updated. The memory size
   // returned is guaranteed to be greater than or equal to the
   // memory required to represent the data (e.g., extra space in

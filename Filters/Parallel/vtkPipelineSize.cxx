@@ -31,6 +31,7 @@
 
 vtkStandardNewMacro(vtkPipelineSize);
 
+// Returns size in kibibytes (1024 bytes)
 unsigned long
 vtkPipelineSize::GetEstimatedSize(vtkAlgorithm *input, int inputPort,
                                   int connection)
@@ -59,6 +60,7 @@ vtkPipelineSize::GetEstimatedSize(vtkAlgorithm *input, int inputPort,
 // size of the specified output (which can be used by the downstream
 // filter when determining how much data it might release). The final size
 // is the maximum pipeline size encountered here and upstream from here.
+// All sizes are in kibibytes (1024 bytes).
 void vtkPipelineSize::ComputeSourcePipelineSize(vtkAlgorithm *src,
                                                 int outputPort,
                                                 unsigned long size[3])

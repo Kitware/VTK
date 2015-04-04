@@ -231,7 +231,7 @@ public:
 //ETX
 
   // Description:
-  // Return the memory in kilobytes consumed by this data array. Used to
+  // Return the memory in kibibytes (1024 bytes) consumed by this data array. Used to
   // support streaming and reading/writing data. The value returned is
   // guaranteed to be greater than or equal to the memory required to
   // actually represent the data represented by this object. The

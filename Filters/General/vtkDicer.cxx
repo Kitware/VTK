@@ -23,7 +23,7 @@ vtkDicer::vtkDicer()
 {
   this->NumberOfPointsPerPiece = 5000;
   this->NumberOfPieces = 10;
-  this->MemoryLimit = 50000; //50 MBytes
+  this->MemoryLimit = 50 * 1024; // 50 mebibytes
   this->NumberOfActualPieces = 0;
   this->FieldData = 0;
   this->DiceMode = VTK_DICE_MODE_NUMBER_OF_POINTS;
@@ -71,7 +71,7 @@ void vtkDicer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number of Pieces: "
      << this->NumberOfPieces << "\n";
 
-  os << indent << "Memory Limit: "
+  os << indent << "Memory Limit (in kibibytes): "
      << this->MemoryLimit << "\n";
 
   os << indent << "Number of Actual Pieces: "

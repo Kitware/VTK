@@ -885,7 +885,7 @@ unsigned long vtkDataArray::GetActualMemorySize()
 
   size = vtkDataArray::GetDataTypeSize(this->GetDataType());
 
-  // kilobytes
+  // kibibytes
   return static_cast<unsigned long>(ceil((size*static_cast<double>(numPrims)
                                            )/1024.0));
 }

@@ -32,7 +32,7 @@ public:
 
   // Description:
   // Compute an estimate of how much memory a pipline will require in
-  // kilobytes (1024 bytes not 1000) This is only an estimate and the
+  // kibibytes (1024 bytes) This is only an estimate and the
   // calculations in here do not take into account the specifics of many
   // sources and filters.
   unsigned long GetEstimatedSize(vtkAlgorithm *input, int inputPort,

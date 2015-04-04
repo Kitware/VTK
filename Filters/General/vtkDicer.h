@@ -103,7 +103,7 @@ public:
   // Control piece size based on a memory limit.  (This ivar has
   // effect only when the DiceMode is set to
   // SetDiceModeToMemoryLimit()). The memory limit should be set in
-  // kilobytes.
+  // kibibytes (1024 bytes).
   vtkSetClampMacro(MemoryLimit,unsigned long,100,VTK_INT_MAX);
   vtkGetMacro(MemoryLimit,unsigned long);
 

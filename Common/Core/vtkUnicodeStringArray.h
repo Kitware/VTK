@@ -64,7 +64,7 @@ public:
   virtual void Squeeze();
   virtual int Resize(vtkIdType numTuples);
   virtual void SetVoidArray(void *array, vtkIdType size, int save);
-  virtual unsigned long GetActualMemorySize();
+  virtual unsigned long GetActualMemorySize(); // in bytes
   virtual int IsNumeric();
   virtual vtkArrayIterator* NewIterator();
   virtual vtkVariant GetVariantValue(vtkIdType idx);

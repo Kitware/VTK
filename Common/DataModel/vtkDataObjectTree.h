@@ -99,7 +99,7 @@ public:
   virtual int HasMetaData(vtkCompositeDataIterator* iter);
 
   // Description:
-  // Return the actual size of the data in kilobytes. This number
+  // Return the actual size of the data in kibibytes (1024 bytes). This number
   // is valid only after the pipeline has updated.
   virtual unsigned long GetActualMemorySize();
 
