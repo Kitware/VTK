@@ -325,7 +325,7 @@ protected:
   virtual void BeginSelection();
   virtual void EndSelection();
 
-  void SavePixelBuffer(int passNo);
+  virtual void SavePixelBuffer(int passNo);
   void BuildPropHitList(unsigned char* rgbData);
 
   // Description:

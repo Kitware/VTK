@@ -23,6 +23,13 @@
 
 #include "vtkOpenGLError.h"
 
+//#define vtkOpenGLHardwareSelectorDEBUG
+#ifdef vtkOpenGLHardwareSelectorDEBUG
+#include "vtkPNMWriter.h"
+#include "vtkImageImport.h"
+#include "vtkNew.h"
+#endif
+
 #define ID_OFFSET 1
 
 // Description:
@@ -138,6 +145,30 @@ vtkOpenGLHardwareSelector::~vtkOpenGLHardwareSelector()
   cerr << "=====vtkOpenGLHardwareSelector::~vtkOpenGLHardwareSelector" << endl;
   #endif
   delete this->Internals;
+}
+
+//----------------------------------------------------------------------------
+// just add debug output if compiled with vtkOpenGLHardwareSelectorDEBUG
+void vtkOpenGLHardwareSelector::SavePixelBuffer(int passNo)
+{
+  this->Superclass::SavePixelBuffer(passNo);
+
+#ifdef vtkOpenGLHardwareSelectorDEBUG
+
+  vtkNew<vtkImageImport> ii;
+  ii->SetImportVoidPointer(this->PixBuffer[passNo],1);
+  ii->SetDataScalarTypeToUnsignedChar();
+  ii->SetNumberOfScalarComponents(3);
+  ii->SetDataExtent(this->Area[0], this->Area[2], this->Area[1], this->Area[3], 0, 0);
+
+  std::string fname = "pickbuffer_";
+  fname += ('0'+passNo);
+  fname += ".pnm";
+  vtkNew<vtkPNMWriter> pw;
+  pw->SetInputConnection(ii->GetOutputPort());
+  pw->SetFileName(fname.c_str());
+  pw->Write();
+#endif
 }
 
 //----------------------------------------------------------------------------
