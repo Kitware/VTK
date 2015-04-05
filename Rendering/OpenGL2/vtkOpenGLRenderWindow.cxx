@@ -436,6 +436,7 @@ int vtkOpenGLRenderWindow::GetDepthBufferSize()
     {
     this->MakeCurrent();
     size = 0;
+#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
     if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
       {
       glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
@@ -443,6 +444,7 @@ int vtkOpenGLRenderWindow::GetDepthBufferSize()
         GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, &size);
       }
     else
+#endif
       {
       glGetIntegerv( GL_DEPTH_BITS, &size );
       }
