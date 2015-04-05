@@ -369,6 +369,8 @@ void vtkCompositePolyDataMapper2::RenderPieceDraw(
       vtkCompositePolyDataMapper2::RenderValue>::iterator it;
     for (it = this->RenderValues.begin(); it != this->RenderValues.end(); it++)
       {
+      // reset the offset so each compsoite starts at 0
+      this->pickingAttributeIDOffset = 0;
       if (it->Visibility)
         {
         if (selector &&
@@ -396,12 +398,9 @@ void vtkCompositePolyDataMapper2::RenderPieceDraw(
           static_cast<GLsizei>(it->EndIndex - it->StartIndex + 1),
           GL_UNSIGNED_INT,
           reinterpret_cast<const GLvoid *>(it->StartIndex*sizeof(GLuint)));
-        if (selector)
-          {
-          selector->EndRenderProp();
-          }
         }
       }
+
     this->Tris.ibo.Release();
     this->pickingAttributeIDOffset += (int)this->Tris.indexCount;
     }
