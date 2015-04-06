@@ -23,6 +23,7 @@ vtkStandardNewMacro(vtkExternalOpenGLRenderWindow);
 //----------------------------------------------------------------------------
 vtkExternalOpenGLRenderWindow::vtkExternalOpenGLRenderWindow()
 {
+  this->AutomaticWindowPositionAndResize = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -33,6 +34,14 @@ vtkExternalOpenGLRenderWindow::~vtkExternalOpenGLRenderWindow()
 //----------------------------------------------------------------------------
 void vtkExternalOpenGLRenderWindow::Start(void)
 {
+  if (this->AutomaticWindowPositionAndResize)
+    {
+    int info[4];
+    glGetIntegerv(GL_VIEWPORT, info);
+    this->SetPosition(info[0], info[1]);
+    this->SetSize(info[2], info[3]);
+    }
+
   // For stereo, render the correct eye based on the OpenGL buffer mode
   GLint bufferType;
   glGetIntegerv(GL_DRAW_BUFFER, &bufferType);

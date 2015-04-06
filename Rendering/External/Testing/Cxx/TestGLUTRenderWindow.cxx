@@ -73,7 +73,6 @@ void display()
   if (!initilaized)
     {
     vtkNew<vtkExternalOpenGLRenderWindow> renWin;
-    renWin->SetSize(windowW, windowH);
     externalVTKWidget->SetRenderWindow(renWin.GetPointer());
     vtkNew<vtkCallbackCommand> callback;
     callback->SetCallback(MakeCurrentCallback);
@@ -89,19 +88,6 @@ void display()
     actor->RotateX(45.0);
     actor->RotateY(45.0);
     ren->ResetCamera();
-
-    vtkNew<vtkLight> light;
-    light->SetLightTypeToSceneLight();
-    light->SetPosition(0, 0, 1);
-    light->SetConeAngle(25.0);
-    light->SetPositional(true);
-    light->SetFocalPoint(0, 0, 0);
-    light->SetDiffuseColor(1, 0, 0);
-    light->SetAmbientColor(0, 1, 0);
-    light->SetSpecularColor(0, 0, 1);
-    renWin->Render();
-    // Make sure light is added after first render call
-    ren->AddLight(light.GetPointer());
 
     initilaized = true;
     }
@@ -121,6 +107,17 @@ void display()
     glVertex3f(1.5,0.0,0.0);
     glVertex3f(0.0,1.5,1.0);
   glEnd();
+
+  glEnable(GL_LIGHTING);
+  glEnable(GL_LIGHT0);
+  GLfloat lightpos[] = {-0.5f, 1.0f, 1.0f, 1.0f};
+  glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
+  GLfloat diffuse[] = {0.0f, 0.8f, 0.8f, 1.0f};
+  glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
+  GLfloat specular[] = {0.5f, 0.0f, 0.0f, 1.0f};
+  glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
+  GLfloat ambient[] = {1.0f, 1.0f, 0.2f,  1.0f};
+  glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
 
   externalVTKWidget->GetRenderWindow()->Render();
   glutSwapBuffers();
@@ -170,7 +167,7 @@ int TestGLUTRenderWindow(int argc, char** argv)
   ArgV = argv;
   glutInit(&argc, argv);                 // Initialize GLUT
   glutInitWindowSize(windowW, windowH);   // Set the window's initial width & height
-  glutInitWindowPosition(0, 0); // Position the window's initial top-left corner
+  glutInitWindowPosition(101, 201); // Position the window's initial top-left corner
   windowId = glutCreateWindow("VTK External Window Test"); // Create a window with the given title
   glutDisplayFunc(display); // Register display callback handler for window re-paint
   glutIdleFunc(test); // Register test callback handler for vtkTesting
