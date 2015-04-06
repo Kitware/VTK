@@ -92,10 +92,7 @@ vtkCompositeRGBAPass::~vtkCompositeRGBAPass()
      {
      vtkErrorMacro(<<"RootTexture should have been deleted in ReleaseGraphicsResources().");
     }
-   if(this->RawRGBABuffer!=0)
-     {
-     delete[] this->RawRGBABuffer;
-     }
+   delete[] this->RawRGBABuffer;
 }
 
 // ----------------------------------------------------------------------------

@@ -76,8 +76,7 @@ namespace
     }
     ~InitializeFunctor()
     {
-      if ( this->Locks )
-        delete [] this->Locks;
+      delete [] this->Locks;
     }
 
     void operator()(vtkIdType start, vtkIdType end)

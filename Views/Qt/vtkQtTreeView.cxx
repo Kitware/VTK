@@ -123,26 +123,11 @@ vtkQtTreeView::vtkQtTreeView()
 //----------------------------------------------------------------------------
 vtkQtTreeView::~vtkQtTreeView()
 {
-  if(this->TreeView)
-    {
-    delete this->TreeView;
-    }
-  if(this->ColumnView)
-    {
-    delete this->ColumnView;
-    }
-  if(this->Layout)
-    {
-    delete this->Layout;
-    }
-  if(this->Widget)
-    {
-    delete this->Widget;
-    }
-  if(this->SelectionModel)
-    {
-    delete this->SelectionModel;
-    }
+  delete this->TreeView;
+  delete this->ColumnView;
+  delete this->Layout;
+  delete this->Widget;
+  delete this->SelectionModel;
   delete this->TreeAdapter;
   delete this->TreeFilter;
 }

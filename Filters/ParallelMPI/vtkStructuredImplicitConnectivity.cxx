@@ -965,11 +965,8 @@ void vtkStructuredImplicitConnectivity::RegisterGrid(
           (this->InputGrid == NULL) );
   assert("pre: input grid ID should be >= 0" && (gridID >= 0) );
 
-  if (this->InputGrid)
-    {
-    delete this->InputGrid;
-    this->InputGrid = NULL;
-    }
+  delete this->InputGrid;
+  this->InputGrid = NULL;
 
   // Only add if the grid falls within the output extent. Processes that do
   // not contain the VOI will fail this test.
@@ -996,11 +993,8 @@ void vtkStructuredImplicitConnectivity::RegisterRectilinearGrid(
           (this->InputGrid == NULL) );
   assert("pre: input grid ID should be >= 0" && (gridID >= 0) );
 
-  if (this->InputGrid)
-    {
-    delete this->InputGrid;
-    this->InputGrid = NULL;
-    }
+  delete this->InputGrid;
+  this->InputGrid = NULL;
 
   // Only add if the grid falls within the output extent. Processes that do
   // not contain the VOI will fail this test.

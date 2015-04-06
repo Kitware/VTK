@@ -936,10 +936,7 @@ public:
     this->LightingHelper = NULL;
     this->ColorMaterialHelper = NULL;
 
-    if (this->Communicator)
-      {
-      delete this->Communicator;
-      }
+    delete this->Communicator;
     }
 
   // Description:
@@ -2498,12 +2495,7 @@ void vtkSurfaceLICPainter::CreateCommunicator()
           this->Internals->DataSetExt,
           this->Internals->BlockExts);
 
-  if (this->Internals->Communicator)
-    {
-    delete this->Internals->Communicator;
-    this->Internals->Communicator = NULL;
-    }
-
+  delete this->Internals->Communicator;
   this->Internals->Communicator = this->CreateCommunicator(includeRank);
 
   #if vtkSurfaceLICPainterDEBUG >= 1

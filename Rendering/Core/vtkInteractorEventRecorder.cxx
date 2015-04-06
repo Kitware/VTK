@@ -167,10 +167,7 @@ void vtkInteractorEventRecorder::Play()
         return;
         }
       std::string inputStr(this->InputString, len);
-      if (this->InputStream)
-        {
-        delete this->InputStream;
-        }
+      delete this->InputStream;
       this->InputStream = new vtksys_ios::istringstream(inputStr);
       if (this->InputStream->fail())
         {

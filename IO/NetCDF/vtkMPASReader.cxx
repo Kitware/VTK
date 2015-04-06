@@ -117,10 +117,7 @@ class vtkMPASReader::Internal {
   };
   ~Internal()
   {
-    if(this->ncFile)
-      {
-      delete ncFile;
-      }
+    delete ncFile;
   };
 
   NcFile* ncFile;

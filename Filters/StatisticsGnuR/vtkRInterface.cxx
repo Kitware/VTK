@@ -144,7 +144,7 @@ public:
   void CloseR()
     {
     this->refcount--;
-    if (this->refcount < 1 && ins)
+    if (this->refcount < 1)
       {
       delete ins;
       ins = NULL;

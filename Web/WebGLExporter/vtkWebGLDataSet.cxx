@@ -43,39 +43,18 @@ vtkWebGLDataSet::vtkWebGLDataSet()
 
 vtkWebGLDataSet::~vtkWebGLDataSet()
   {
-  if (this->vertices)
-    {
-    delete[] this->vertices;
-    }
-  if (this->normals)
-    {
-    delete[] this->normals;
-    }
-  if (this->indexes)
-    {
-    delete[] this->indexes;
-    }
-  if (this->points)
-    {
-    delete[] this->points;
-    }
-  if (this->tcoords)
-    {
-    delete[] this->tcoords;
-    }
-  if (this->colors)
-    {
-    delete[] this->colors;
-    }
-  if (this->binary)
-    {
-    delete[] this->binary;
-    }
+  delete[] this->vertices;
+  delete[] this->normals;
+  delete[] this->indexes;
+  delete[] this->points;
+  delete[] this->tcoords;
+  delete[] this->colors;
+  delete[] this->binary;
   }
 
 void vtkWebGLDataSet::SetVertices(float* v, int size)
   {
-  if (this->vertices) delete[] this->vertices;
+  delete[] this->vertices;
   this->vertices = v;
   this->NumberOfVertices = size;
   this->webGLType = wTRIANGLES;
@@ -84,7 +63,7 @@ void vtkWebGLDataSet::SetVertices(float* v, int size)
 
 void vtkWebGLDataSet::SetIndexes(short* i, int size)
   {
-  if (this->indexes) delete[] this->indexes;
+  delete[] this->indexes;
   this->indexes = i;
   this->NumberOfIndexes = size;
   this->hasChanged = true;
@@ -144,10 +123,7 @@ void vtkWebGLDataSet::GenerateBinaryData()
     return;
     }
   int size=0, pos=0, total=0;
-  if (this->binary)
-    {
-    delete[] this->binary;
-    }
+  delete[] this->binary;
   this->binarySize = 0;
 
   if(this->webGLType == wLINES)

@@ -1214,11 +1214,7 @@ void vtkOpenGLRenderer::StartPick(unsigned int pickFromSize)
   // a MakeCurrent was called.
   this->RenderWindow->MakeCurrent();
   this->RenderWindow->IsPickingOn();
-  if (this->PickInfo->PickBuffer)
-    {
-    delete [] this->PickInfo->PickBuffer;
-    this->PickInfo->PickBuffer = 0;
-    }
+  delete [] this->PickInfo->PickBuffer;
   this->PickInfo->PickBuffer = new GLuint[bufferSize];
   glSelectBuffer(bufferSize, this->PickInfo->PickBuffer);
   // change to selection mode
@@ -1342,11 +1338,8 @@ unsigned int vtkOpenGLRenderer::GetPickedId()
 
 vtkOpenGLRenderer::~vtkOpenGLRenderer()
 {
-  if (this->PickInfo->PickBuffer)
-    {
-    delete [] this->PickInfo->PickBuffer;
-    this->PickInfo->PickBuffer = 0;
-    }
+  delete [] this->PickInfo->PickBuffer;
+  this->PickInfo->PickBuffer = 0;
   delete this->PickInfo;
 
   if(this->ShaderProgram!=0)

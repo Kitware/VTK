@@ -117,10 +117,7 @@ vtkTextActor::~vtkTextActor()
   this->SetTextProperty(NULL);
   this->ScaledTextProperty->Delete();
   this->ScaledTextProperty = NULL;
-  if(this->Input)
-    {
-    delete [] this->Input;
-    }
+  delete [] this->Input;
   this->Rectangle->Delete();
   this->Rectangle = 0;
   this->RectanglePoints->Delete();

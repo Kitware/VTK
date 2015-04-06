@@ -128,11 +128,8 @@ vtkPNetCDFPOPReader::~vtkPNetCDFPOPReader()
     this->SelectionObserver->Delete();
     this->SelectionObserver = NULL;
     }
-  if(this->Internals)
-    {
-    delete this->Internals;
-    this->Internals = NULL;
-    }
+  delete this->Internals;
+  this->Internals = NULL;
 }
 
 //----------------------------------------------------------------------------

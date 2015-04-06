@@ -639,10 +639,7 @@ int vtkMPICommunicator::InitializeExternal (vtkMPICommunicatorOpaqueComm* comm)
 {
   this->KeepHandleOn();
 
-  if (this->MPIComm->Handle)
-    {
-    delete this->MPIComm->Handle;
-    }
+  delete this->MPIComm->Handle;
   this->MPIComm->Handle = new MPI_Comm (*(comm->GetHandle()));
   this->InitializeNumberOfProcesses();
   this->Initialized = 1;

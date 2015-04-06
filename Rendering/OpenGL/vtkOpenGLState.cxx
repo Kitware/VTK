@@ -268,16 +268,9 @@ void vtkOpenGLState::Update()
   // framebuffer control
   glGetIntegerv(vtkgl::MAX_DRAW_BUFFERS, &this->MaxDrawBuffers);
 
-  if (this->DrawBuffers !=0)
-    {
-    delete this->DrawBuffers;
-    this->DrawBuffers = 0;
-    }
-  if (this->DrawBuffers == 0)
-    {
-    this->DrawBuffers = new std::vector<GLint>(
-      static_cast<size_t>(this->MaxDrawBuffers));
-    }
+  delete this->DrawBuffers;
+  this->DrawBuffers = new std::vector<GLint>(
+    static_cast<size_t>(this->MaxDrawBuffers));
   i = 0;
   while (i < static_cast<size_t>(this->MaxDrawBuffers))
     {
@@ -438,11 +431,8 @@ void vtkOpenGLState::UpdateCurrentProgram()
 {
   GLint ivalues[4];
 
-  if (this->CurrentProgramState!=0)
-    {
-    delete this->CurrentProgramState;
-    this->CurrentProgramState=0;
-    }
+  delete this->CurrentProgramState;
+  this->CurrentProgramState=0;
 
   glGetIntegerv(vtkgl::CURRENT_PROGRAM, ivalues);
   this->CurrentProgram=static_cast<GLuint>(ivalues[0]);

@@ -383,17 +383,11 @@ void vtkFreeTypeTools::ReleaseCacheManager()
     this->CacheManager = NULL;
     }
 
-  if (this->ImageCache)
-    {
-    delete this->ImageCache;
-    this->ImageCache = NULL;
-    }
+  delete this->ImageCache;
+  this->ImageCache = NULL;
 
-  if (this->CMapCache)
-    {
-    delete this->CMapCache;
-    this->CMapCache = NULL;
-    }
+  delete this->CMapCache;
+  this->CMapCache = NULL;
 }
 
 //----------------------------------------------------------------------------

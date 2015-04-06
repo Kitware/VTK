@@ -299,11 +299,8 @@ vtkXYPlotActor::~vtkXYPlotActor()
     {
     for ( int i = 0; i < num; ++i )
       {
-      if ( this->SelectedInputScalars[i] )
-        {
-        delete [] this->SelectedInputScalars[i];
-        this->SelectedInputScalars[i] = NULL;
-        }
+      delete [] this->SelectedInputScalars[i];
+      this->SelectedInputScalars[i] = NULL;
       }
     delete [] this->SelectedInputScalars;
     this->SelectedInputScalars = NULL;
@@ -512,11 +509,8 @@ void vtkXYPlotActor::RemoveAllDataSetInputConnections()
 
   for ( idx = 0; idx < num; ++idx )
     {
-    if ( this->SelectedInputScalars[idx] )
-      {
-      delete [] this->SelectedInputScalars[idx];
-      this->SelectedInputScalars[idx] = NULL;
-      }
+    delete [] this->SelectedInputScalars[idx];
+    this->SelectedInputScalars[idx] = NULL;
     }
   this->SelectedInputScalarsComponent->Reset();
 
@@ -567,11 +561,8 @@ void vtkXYPlotActor::RemoveDataSetInputConnection( vtkAlgorithmOutput *in,
 
   // Do not bother reallocating the SelectedInputScalars
   // string array to make it smaller.
-  if ( this->SelectedInputScalars[found] )
-    {
-    delete [] this->SelectedInputScalars[found];
-    this->SelectedInputScalars[found] = NULL;
-    }
+  delete [] this->SelectedInputScalars[found];
+  this->SelectedInputScalars[found] = NULL;
   for ( int idx = found+1; idx < num; ++idx )
     {
     this->SelectedInputScalars[idx-1] = this->SelectedInputScalars[idx];

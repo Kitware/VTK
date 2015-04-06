@@ -443,11 +443,8 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
 //----------------------------------------------------------------------------
 void vtkGDALRasterReader::vtkGDALRasterReaderInternal::ReleaseData()
 {
-  if (this->GDALData)
-    {
-    delete this->GDALData;
-    this->GDALData = 0;
-    }
+  delete this->GDALData;
+  this->GDALData = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -650,11 +647,7 @@ vtkGDALRasterReader::vtkGDALRasterReader() : vtkImageReader2(),
 //-----------------------------------------------------------------------------
 vtkGDALRasterReader::~vtkGDALRasterReader()
 {
-  if (this->Implementation)
-    {
-    delete this->Implementation;
-    this->Implementation = 0;
-    }
+  delete this->Implementation;
 
   if (this->FileName)
     {

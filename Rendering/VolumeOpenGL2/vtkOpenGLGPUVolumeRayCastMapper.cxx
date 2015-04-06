@@ -132,11 +132,7 @@ public:
   //--------------------------------------------------------------------------
   ~vtkInternal()
     {
-    if (this->NoiseTextureData)
-      {
-      delete [] this->NoiseTextureData;
-      this->NoiseTextureData = 0;
-      }
+    delete [] this->NoiseTextureData;
 
     if (this->NoiseTextureObject)
       {
@@ -150,11 +146,7 @@ public:
       this->DepthTextureObject = 0;
       }
 
-    if (this->MaskTextures)
-      {
-      delete this->MaskTextures;
-      this->MaskTextures = 0;
-      }
+    delete this->MaskTextures;
 
     this->DeleteTransferFunctions();
 
@@ -1000,35 +992,20 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadMask(vtkRenderer* ren,
 //----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::DeleteTransferFunctions()
 {
-  if (this->RGBTables)
-    {
-    delete this->RGBTables;
-    this->RGBTables = 0;
-    }
+  delete this->RGBTables;
+  this->RGBTables = 0;
 
-  if(this->Mask1RGBTable!=0)
-    {
-    delete this->Mask1RGBTable;
-    this->Mask1RGBTable=0;
-    }
+  delete this->Mask1RGBTable;
+  this->Mask1RGBTable=0;
 
-  if(this->Mask2RGBTable!=0)
-    {
-    delete this->Mask2RGBTable;
-    this->Mask2RGBTable=0;
-    }
+  delete this->Mask2RGBTable;
+  this->Mask2RGBTable=0;
 
-  if (this->OpacityTables)
-    {
-    delete this->OpacityTables;
-    this->OpacityTables = 0;
-    }
+  delete this->OpacityTables;
+  this->OpacityTables = 0;
 
-  if (this->GradientOpacityTables)
-    {
-    delete this->GradientOpacityTables;
-    this->GradientOpacityTables = 0;
-    }
+  delete this->GradientOpacityTables;
+  this->GradientOpacityTables = 0;
 
   if (this->MaskTextures != 0)
     {
@@ -1324,7 +1301,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateNoiseTexture(
       size = maxSize;
       }
 
-    if (this->NoiseTextureData != 0 && this->NoiseTextureSize != size)
+    if (this->NoiseTextureSize != size)
       {
       delete[] this->NoiseTextureData;
       this->NoiseTextureData = 0;

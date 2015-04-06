@@ -825,10 +825,7 @@ void vtkMultiProcessStream::SetRawData(const std::vector<unsigned char>& data)
 void vtkMultiProcessStream::GetRawData(
     unsigned char*& data, unsigned int &size )
 {
-  if( data != NULL )
-    {
-    delete [] data;
-    }
+  delete [] data;
 
   size = this->Size()+1;
   data = new unsigned char[ size+1 ];

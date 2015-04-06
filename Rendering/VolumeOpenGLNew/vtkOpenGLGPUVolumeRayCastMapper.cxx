@@ -115,28 +115,11 @@ public:
   ~vtkInternal()
     {
     delete this->RGBTable;
-    this->RGBTable = 0;
-
-    if(this->Mask1RGBTable!=0)
-      {
-      delete this->Mask1RGBTable;
-      this->Mask1RGBTable=0;
-      }
-
-    if(this->Mask2RGBTable!=0)
-      {
-      delete this->Mask2RGBTable;
-      this->Mask2RGBTable=0;
-      }
-
+    delete this->Mask1RGBTable;
+    delete this->Mask2RGBTable;
     delete this->OpacityTables;
-    this->OpacityTables = 0;
-
     delete this->GradientOpacityTables;
-    this->GradientOpacityTables = 0;
-
     delete this->NoiseTextureData;
-    this->NoiseTextureData = 0;
 
     if (this->MaskTextures != 0)
       {
@@ -919,7 +902,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateNoiseTexture()
       size=maxSize;
       }
 
-    if (this->NoiseTextureData != 0 && this->NoiseTextureSize != size)
+    if (this->NoiseTextureSize != size)
       {
       delete[] this->NoiseTextureData;
       this->NoiseTextureData = 0;
@@ -1574,29 +1557,17 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
       }
     }
 
-  if(this->Impl->RGBTable != 0)
-    {
-    delete this->Impl->RGBTable;
-    this->Impl->RGBTable = 0;
-    }
+  delete this->Impl->RGBTable;
+  this->Impl->RGBTable = 0;
 
-  if(this->Impl->Mask1RGBTable != 0)
-    {
-    delete this->Impl->Mask1RGBTable;
-    this->Impl->Mask1RGBTable = 0;
-    }
+  delete this->Impl->Mask1RGBTable;
+  this->Impl->Mask1RGBTable = 0;
 
-  if(this->Impl->Mask2RGBTable != 0)
-    {
-    delete this->Impl->Mask2RGBTable;
-    this->Impl->Mask2RGBTable = 0;
-    }
+  delete this->Impl->Mask2RGBTable;
+  this->Impl->Mask2RGBTable = 0;
 
-  if(this->Impl->OpacityTables != 0)
-    {
-    delete this->Impl->OpacityTables;
-    this->Impl->OpacityTables = 0;
-    }
+  delete this->Impl->OpacityTables;
+  this->Impl->OpacityTables = 0;
 }
 
 //----------------------------------------------------------------------------

@@ -395,10 +395,8 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
           }
         }
 #endif
-      if(propArray!=0)
-        {
-        delete[] propArray;
-        }
+      delete[] propArray;
+
       // Nothing to bake.
       return;
       }
@@ -778,15 +776,9 @@ void vtkShadowMapBakerPass::ReleaseGraphicsResources(vtkWindow *w)
     this->FrameBufferObject=0;
     }
 
-  if(this->ShadowMaps!=0)
-    {
-    delete this->ShadowMaps;
-    this->ShadowMaps=0;
-    }
+  delete this->ShadowMaps;
+  this->ShadowMaps=0;
 
-  if(this->LightCameras!=0)
-    {
-    delete this->LightCameras;
-    this->LightCameras=0;
-    }
+  delete this->LightCameras;
+  this->LightCameras=0;
 }

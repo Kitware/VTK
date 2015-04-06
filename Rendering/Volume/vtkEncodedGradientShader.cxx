@@ -57,10 +57,7 @@ vtkEncodedGradientShader::~vtkEncodedGradientShader()
     {
     for ( i=0; i<6; i++ )
       {
-      if ( this->ShadingTable[j][i] )
-        {
-        delete [] this->ShadingTable[j][i];
-        }
+      delete [] this->ShadingTable[j][i];
       }
     }
 }
@@ -443,10 +440,7 @@ void vtkEncodedGradientShader::BuildShadingTable( int index,
     {
     for ( i=0; i<6; i++ )
       {
-      if ( this->ShadingTable[index][i] )
-        {
-        delete [] this->ShadingTable[index][i];
-        }
+      delete [] this->ShadingTable[index][i];
       this->ShadingTable[index][i] = new float[norm_size];
       }
       this->ShadingTableSize[index] = norm_size;

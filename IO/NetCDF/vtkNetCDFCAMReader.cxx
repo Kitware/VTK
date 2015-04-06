@@ -138,11 +138,8 @@ void vtkNetCDFCAMReader::SetConnectivityFileName(const char* fileName)
     {
     return;
     }
-  if(this->ConnectivityFile)
-    {
-    delete this->ConnectivityFile;
-    this->ConnectivityFile = NULL;
-    }
+  delete this->ConnectivityFile;
+  this->ConnectivityFile = NULL;
   delete [] this->ConnectivityFileName;
   if (fileName)
     {
@@ -205,10 +202,7 @@ int vtkNetCDFCAMReader::RequestInformation(
 
   if (this->NumberOfTimeSteps > 0)
     {
-    if(this->TimeSteps)
-      {
-      delete []this->TimeSteps;
-      }
+    delete []this->TimeSteps;
     this->TimeSteps = new double[this->NumberOfTimeSteps];
     NcVar* timeVar = this->PointsFile->get_var("time");
     timeVar->get(this->TimeSteps, this->NumberOfTimeSteps);

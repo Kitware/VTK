@@ -310,10 +310,7 @@ vtkUnstructuredGridPartialPreIntegration::vtkUnstructuredGridPartialPreIntegrati
 //-----------------------------------------------------------------------------
 vtkUnstructuredGridPartialPreIntegration::~vtkUnstructuredGridPartialPreIntegration()
 {
-  if (this->TransferFunctions)
-    {
-    delete[] this->TransferFunctions;
-    }
+  delete[] this->TransferFunctions;
 }
 
 //-----------------------------------------------------------------------------
@@ -365,10 +362,7 @@ void vtkUnstructuredGridPartialPreIntegration::Initialize(
     return;
     }
 
-  if (this->TransferFunctions)
-    {
-    delete[] this->TransferFunctions;
-    }
+  delete[] this->TransferFunctions;
 
   this->NumIndependentComponents = numcomponents;
   this->TransferFunctions

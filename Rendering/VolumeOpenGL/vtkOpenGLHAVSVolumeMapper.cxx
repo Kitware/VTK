@@ -64,10 +64,7 @@ vtkOpenGLHAVSVolumeMapper::~vtkOpenGLHAVSVolumeMapper()
 {
   if (!this->GPUDataStructures)
     {
-    if(this->OrderedTriangles!=0)
-      {
-      delete [] this->OrderedTriangles;
-      }
+    delete [] this->OrderedTriangles;
     }
 }
 
@@ -242,11 +239,8 @@ void vtkOpenGLHAVSVolumeMapper::SetGPUDataStructures(bool gpu)
     {
     if(!this->GPUDataStructures)
       {
-      if(this->OrderedTriangles!=0)
-        {
-        delete [] this->OrderedTriangles;
-        this->OrderedTriangles=0;
-        }
+      delete [] this->OrderedTriangles;
+      this->OrderedTriangles=0;
       }
     this->GPUDataStructures = gpu;
     if (this->Initialized)
@@ -304,10 +298,7 @@ void vtkOpenGLHAVSVolumeMapper::InitializeGPUDataStructures()
     }
   else
     {
-    if (this->OrderedTriangles)
-      {
-      delete [] this->OrderedTriangles;
-      }
+    delete [] this->OrderedTriangles;
     this->OrderedTriangles = new unsigned int[this->NumberOfTriangles*3];
     }
 

@@ -593,10 +593,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
       } // not ensight gold
     } // if we found the format section in the case file
 
-  if (fileName)
-    {
-    delete [] fileName;
-    }
+  delete [] fileName;
 
   return -1;
 }
@@ -613,10 +610,7 @@ void vtkGenericEnSightReader::SetCaseFileName(const char* fileName)
     {
     return;
     }
-  if (this->CaseFileName)
-    {
-    delete [] this->CaseFileName;
-    }
+  delete [] this->CaseFileName;
   if (fileName)
     {
     this->CaseFileName = new char[strlen(fileName)+1];
@@ -875,10 +869,7 @@ void vtkGenericEnSightReader::AddVariableDescription(const char* description)
     strcpy(newDescriptionList[i], this->VariableDescriptions[i]);
     delete [] this->VariableDescriptions[i];
     }
-  if (this->VariableDescriptions)
-    {
-    delete [] this->VariableDescriptions;
-    }
+  delete [] this->VariableDescriptions;
 
   // make room for new description
   this->VariableDescriptions = new char *[size+1];
@@ -1478,13 +1469,9 @@ char** vtkGenericEnSightReader::CreateStringArray(int numStrings)
 void vtkGenericEnSightReader::DestroyStringArray(int numStrings,
                                                  char** strings)
 {
-  int i;
-  for(i=0; i < numStrings; ++i)
+  for(int i=0; i < numStrings; ++i)
     {
-    if(strings[i])
-      {
-      delete [] strings[i];
-      }
+    delete [] strings[i];
     }
   delete[] strings;
 }

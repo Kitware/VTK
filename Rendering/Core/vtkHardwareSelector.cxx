@@ -331,12 +331,7 @@ bool vtkHardwareSelector::PassRequired(int pass)
 //----------------------------------------------------------------------------
 void vtkHardwareSelector::SavePixelBuffer(int passNo)
 {
-  if (this->PixBuffer[passNo])
-    {
-    delete [] this->PixBuffer[passNo];
-    this->PixBuffer[passNo] = 0;
-    }
-
+  delete [] this->PixBuffer[passNo];
   this->PixBuffer[passNo] = this->Renderer->GetRenderWindow()->GetPixelData(
     this->Area[0], this->Area[1], this->Area[2], this->Area[3],
     (this->Renderer->GetRenderWindow()->GetSwapBuffers() == 1)? 1 : 0);

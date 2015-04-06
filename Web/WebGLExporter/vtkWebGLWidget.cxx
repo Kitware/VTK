@@ -61,10 +61,7 @@ int vtkWebGLWidget::GetBinarySize(int vtkNotUsed(part))
 
 void vtkWebGLWidget::GenerateBinaryData()
   {
-  if (this->binaryData)
-    {
-    delete[] this->binaryData;
-    }
+  delete[] this->binaryData;
   std::string oldMD5 = "qqehissorapaz";
   oldMD5 = this->MD5;
 
@@ -126,10 +123,7 @@ void vtkWebGLWidget::GetDataFromColorMap(vtkActor2D *actor)
     theTitle << componentTitle;
     }
 
-  if (this->title)
-    {
-    delete[] this->title;
-    }
+  delete[] this->title;
   std::string tmp = theTitle.str();
   this->title = new char[tmp.length()+1];
   strcpy(this->title, tmp.c_str());

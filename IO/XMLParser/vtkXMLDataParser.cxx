@@ -493,16 +493,10 @@ int vtkXMLDataParser::ReadCompressionHeader()
 
   // Allocate the size and offset parts of the header.
   ch->Resize(this->NumberOfBlocks);
-  if(this->BlockCompressedSizes)
-    {
-    delete [] this->BlockCompressedSizes;
-    this->BlockCompressedSizes = 0;
-    }
-  if(this->BlockStartOffsets)
-    {
-    delete [] this->BlockStartOffsets;
-    this->BlockStartOffsets = 0;
-    }
+  delete [] this->BlockCompressedSizes;
+  this->BlockCompressedSizes = 0;
+  delete [] this->BlockStartOffsets;
+  this->BlockStartOffsets = 0;
   if(this->NumberOfBlocks > 0)
     {
     this->BlockCompressedSizes = new size_t[this->NumberOfBlocks];
