@@ -42,11 +42,11 @@ int TestAMRInterpolatedVelocityField(int, char*[])
 
   vtkOverlappingAMR* amrGrad = vtkOverlappingAMR::SafeDownCast(gradientFilter->GetOutputDataObject(0));
   amrGrad->GenerateParentChildInformation();
-  for(unsigned int level =0; level<amrGrad->GetNumberOfLevels(); level++)
+  for(unsigned int datasetLevel =0; datasetLevel<amrGrad->GetNumberOfLevels(); datasetLevel++)
     {
-    for(unsigned int id=0; id < amrGrad->GetNumberOfDataSets(level); id++)
+    for(unsigned int id=0; id < amrGrad->GetNumberOfDataSets(datasetLevel); id++)
       {
-      vtkUniformGrid* grid = amrGrad->GetDataSet(level,id);
+      vtkUniformGrid* grid = amrGrad->GetDataSet(datasetLevel,id);
       int numBlankedCells(0);
       for(int i=0; i<grid->GetNumberOfCells();i++)
         {
