@@ -532,7 +532,7 @@ int vtkExodusIIWriter::CreateNewExodusFile()
       }
     else
       {
-      char *myFileName = new char [1024];
+      char *myFileName = new char [VTK_MAXPATH];
       sprintf(myFileName, "%s_%06d", this->FileName, this->CurrentTimeIndex);
       this->fid = ex_create(myFileName, EX_CLOBBER, &compWordSize, &IOWordSize);
       if (fid <= 0)
@@ -546,7 +546,7 @@ int vtkExodusIIWriter::CreateNewExodusFile()
     }
   else
     {
-    char *myFileName = new char [1024];
+    char *myFileName = new char [VTK_MAXPATH];
     if (this->CurrentTimeIndex == 0)
       {
       sprintf(myFileName, "%s.%d.%d", this->FileName, this->NumberOfProcesses, this->MyRank);
