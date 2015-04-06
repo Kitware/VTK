@@ -140,7 +140,7 @@ bool TestXDMFConversion(vtkDataObject*input, char *prefix)
 {
   char xdmffile[VTK_MAXPATH];
   char hdf5file[VTK_MAXPATH];
-  char vtkfile[VTK_MAX_PATH];
+  char vtkfile[VTK_MAXPATH];
   sprintf(xdmffile, "%s.xmf", prefix);
   sprintf(hdf5file, "%s.h5", prefix);
   sprintf(vtkfile, "%s.vtk", prefix);
