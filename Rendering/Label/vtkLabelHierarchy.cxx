@@ -1958,14 +1958,8 @@ void vtkLabelHierarchyBuildCoincidenceMap(
 // in the highest possible level of octree which is not already full.
 void vtkLabelHierarchy::ComputeHierarchy()
 {
-  if ( this->Impl->Hierarchy3 )
-    {
-    delete this->Impl->Hierarchy3;
-    }
-  if ( this->Impl->Hierarchy2 )
-    {
-    delete this->Impl->Hierarchy2;
-    }
+  delete this->Impl->Hierarchy3;
+  delete this->Impl->Hierarchy2;
   this->Impl->ActualDepth = 0;
 
   double bounds[6];

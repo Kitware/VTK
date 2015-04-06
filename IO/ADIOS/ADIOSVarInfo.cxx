@@ -83,11 +83,7 @@ VarInfo::~VarInfo()
   for(std::vector<StepBlock*>::iterator i = this->StepBlockIndex.begin();
     i != this->StepBlockIndex.end(); ++i)
     {
-    if(*i)
-      {
-      delete *i;
-      *i = NULL;
-      }
+    delete *i;
     }
 }
 

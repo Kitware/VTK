@@ -73,10 +73,7 @@ public:
         {
         return;
         }
-      if(this->Name!=0)
-        {
-        delete[] this->Name;
-        }
+      delete[] this->Name;
       if(n!=0) // copy
         {
          size_t l=strlen(n)+1;
@@ -91,10 +88,7 @@ public:
 
   virtual ~vtkUniform()
     {
-      if(this->Name!=0)
-        {
-        delete[] Name;
-        }
+      delete[] Name;
     }
 
   virtual void Send(int location)=0;
@@ -688,10 +682,7 @@ public:
       while(i!=e)
         {
         vtkUniform *u=(*i).second;
-        if(u!=0)
-          {
-          delete u;
-          }
+        delete u;
         ++i;
         }
     }

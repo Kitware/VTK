@@ -41,20 +41,14 @@ public:
     }
   ~vtkInternal()
     {
-      if(this->PieceProcessList)
-        {
-        delete []this->PieceProcessList;
-        this->PieceProcessList = 0;
-        }
+      delete []this->PieceProcessList;
+      this->PieceProcessList = 0;
     }
   void Allocate(int numPieces, int numProcs)
     {
       this->NumberOfPieces = numPieces;
       this->NumberOfProcesses = numProcs;
-      if(this->PieceProcessList)
-        {
-        delete []this->PieceProcessList;
-        }
+      delete []this->PieceProcessList;
       this->PieceProcessList = new int[numPieces*numProcs];
     }
 

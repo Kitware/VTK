@@ -907,10 +907,7 @@ public:
     {
     this->ClearGraphicsResources();
 
-    if (this->Communicator)
-      {
-      delete this->Communicator;
-      }
+    delete this->Communicator;
     }
 
   // Description:
@@ -2411,12 +2408,7 @@ void vtkSurfaceLICMapper::CreateCommunicator(
           this->Internals->DataSetExt,
           this->Internals->BlockExts);
 
-  if (this->Internals->Communicator)
-    {
-    delete this->Internals->Communicator;
-    this->Internals->Communicator = NULL;
-    }
-
+  delete this->Internals->Communicator;
   this->Internals->Communicator = this->CreateCommunicator(includeRank);
 
   #if vtkSurfaceLICMapperDEBUG >= 1

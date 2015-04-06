@@ -1803,8 +1803,5 @@ void vtkVectorText::PrintSelf(ostream& os, vtkIndent indent)
 
 vtkVectorText::~vtkVectorText()
 {
-  if (this->Text)
-    {
-    delete [] this->Text;
-    }
+  delete [] this->Text;
 }

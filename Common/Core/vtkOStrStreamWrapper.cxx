@@ -32,7 +32,7 @@ vtkOStrStreamWrapper::vtkOStrStreamWrapper()
 //----------------------------------------------------------------------------
 vtkOStrStreamWrapper::~vtkOStrStreamWrapper()
 {
-  if(this->Result && !this->Frozen)
+  if(!this->Frozen)
     {
     delete [] this->Result;
     }

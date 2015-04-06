@@ -145,10 +145,7 @@ vtkDataReader::~vtkDataReader()
 
   this->SetInputArray(0);
   this->InitializeCharacteristics();
-  if ( this->IS )
-    {
-    delete this->IS;
-    }
+  delete this->IS;
 }
 
 void vtkDataReader::SetInputString(const char *in)

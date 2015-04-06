@@ -472,10 +472,7 @@ vtkBridgeAttribute::~vtkBridgeAttribute()
       this->Cd->Delete();
       }
     }
-  if(this->InternalTuple!=0)
-    {
-    delete[] this->InternalTuple;
-    }
+  delete[] this->InternalTuple;
 }
 
 //-----------------------------------------------------------------------------

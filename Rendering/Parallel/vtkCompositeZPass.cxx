@@ -99,10 +99,7 @@ vtkCompositeZPass::~vtkCompositeZPass()
 #endif
      this->Program = 0;
      }
-   if(this->RawZBuffer!=0)
-     {
-     delete[] this->RawZBuffer;
-     }
+   delete[] this->RawZBuffer;
 }
 
 // ----------------------------------------------------------------------------
@@ -228,7 +225,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
   continuousInc[2]=0;
 
 
-  if(this->RawZBuffer!=0 && this->RawZBufferSize<static_cast<size_t>(w*h))
+  if(this->RawZBufferSize<static_cast<size_t>(w*h))
     {
     delete[] this->RawZBuffer;
     }

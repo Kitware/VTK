@@ -176,10 +176,7 @@ vtkPExodusIIReader::~vtkPExodusIIReader()
     {
     for (int i=0; i<this->NumberOfFileNames; i++)
       {
-      if ( this->FileNames[i] )
-        {
-        delete [] this->FileNames[i];
-        }
+      delete [] this->FileNames[i];
       }
       delete [] this->FileNames;
     }
@@ -749,10 +746,7 @@ void vtkPExodusIIReader::SetFileNames( int nfiles, const char** names )
     {
     for ( int i = 0; i < this->NumberOfFileNames; ++ i )
       {
-      if ( this->FileNames[i] )
-        {
-        delete [] this->FileNames[i];
-        }
+      delete [] this->FileNames[i];
       }
     delete [] this->FileNames;
     this->FileNames = NULL;

@@ -533,17 +533,11 @@ void vtkFreeTypeUtilities::ReleaseCacheManager()
     this->CacheManager = NULL;
     }
 
-  if (this->ImageCache)
-    {
-    delete this->ImageCache;
-    this->ImageCache = NULL;
-    }
+  delete this->ImageCache;
+  this->ImageCache = NULL;
 
-  if (this->CMapCache)
-    {
-    delete this->CMapCache;
-    this->CMapCache = NULL;
-    }
+  delete this->CMapCache;
+  this->CMapCache = NULL;
 #endif
 }
 
@@ -1451,11 +1445,8 @@ void vtkFreeTypeUtilities::ReleaseEntry(int i)
     this->Entries[i]->TextProperty = NULL;
     }
 
-  if (this->Entries[i]->Font)
-    {
-    delete this->Entries[i]->Font;
-    this->Entries[i]->Font = NULL;
-    }
+  delete this->Entries[i]->Font;
+  this->Entries[i]->Font = NULL;
 
   delete this->Entries[i];
   this->Entries[i] = NULL;

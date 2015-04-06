@@ -505,10 +505,7 @@ const char* vtkDICOMImageReader::GetTransferSyntaxUID()
 {
   std::string tmp = this->AppHelper->GetTransferSyntaxUID();
 
-  if (this->TransferSyntaxUID)
-    {
-    delete [] this->TransferSyntaxUID;
-    }
+  delete [] this->TransferSyntaxUID;
   this->TransferSyntaxUID = new char[tmp.length()+1];
   strcpy(this->TransferSyntaxUID, tmp.c_str());
   this->TransferSyntaxUID[tmp.length()] = '\0';
@@ -533,10 +530,7 @@ const char* vtkDICOMImageReader::GetPatientName()
 {
   std::string tmp = this->AppHelper->GetPatientName();
 
-  if (this->PatientName)
-    {
-    delete [] this->PatientName;
-    }
+  delete [] this->PatientName;
   this->PatientName = new char[tmp.length()+1];
   strcpy(this->PatientName, tmp.c_str());
   this->PatientName[tmp.length()] = '\0';
@@ -549,10 +543,7 @@ const char* vtkDICOMImageReader::GetStudyUID()
 {
   std::string tmp = this->AppHelper->GetStudyUID();
 
-  if (this->StudyUID)
-    {
-    delete [] this->StudyUID;
-    }
+  delete [] this->StudyUID;
   this->StudyUID = new char[tmp.length()+1];
   strcpy(this->StudyUID, tmp.c_str());
   this->StudyUID[tmp.length()] = '\0';
@@ -565,10 +556,7 @@ const char* vtkDICOMImageReader::GetStudyID()
 {
   std::string tmp = this->AppHelper->GetStudyID();
 
-  if (this->StudyID)
-    {
-    delete [] this->StudyID;
-    }
+  delete [] this->StudyID;
   this->StudyID = new char[tmp.length()+1];
   strcpy(this->StudyID, tmp.c_str());
   this->StudyID[tmp.length()] = '\0';

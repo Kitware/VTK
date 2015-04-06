@@ -1308,10 +1308,7 @@ int vtkCommunicator::ReduceVoidArray(const void *sendBuffer,
 
   int retVal = this->ReduceVoidArray(sendBuffer, recvBuffer, length, type,
                                      opClass, destProcessId);
-  if (opClass)
-    {
-    delete opClass;
-    }
+  delete opClass;
 
   return retVal;
 

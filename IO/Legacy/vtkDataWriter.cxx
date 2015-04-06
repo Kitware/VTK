@@ -101,12 +101,9 @@ vtkDataWriter::~vtkDataWriter()
   delete [] this->LookupTableName;
   delete [] this->FieldDataName;
 
-  if (this->OutputString)
-    {
-    delete [] this->OutputString;
-    this->OutputString = NULL;
-    this->OutputStringLength = 0;
-    }
+  delete [] this->OutputString;
+  this->OutputString = NULL;
+  this->OutputStringLength = 0;
 }
 
 
@@ -127,12 +124,10 @@ ostream *vtkDataWriter::OpenVTKFile()
   if (this->WriteToOutputString)
     {
     // Get rid of any old output string.
-    if (this->OutputString)
-      {
-      delete [] this->OutputString;
-      this->OutputString = NULL;
-      this->OutputStringLength = 0;
-      }
+    delete [] this->OutputString;
+    this->OutputString = NULL;
+    this->OutputStringLength = 0;
+
     // Allocate the new output string. (Note: this will only work with binary).
     if (!this->GetInputExecutive(0, 0))
       {

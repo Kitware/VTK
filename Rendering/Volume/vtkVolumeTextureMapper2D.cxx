@@ -479,10 +479,7 @@ vtkVolumeTextureMapper2D::vtkVolumeTextureMapper2D()
 
 vtkVolumeTextureMapper2D::~vtkVolumeTextureMapper2D()
 {
-  if ( this->Texture )
-    {
-    delete [] this->Texture;
-    }
+  delete [] this->Texture;
 }
 
 void vtkVolumeTextureMapper2D::RenderSavedTexture()
@@ -750,11 +747,8 @@ void vtkVolumeTextureMapper2D::GenerateTexturesAndRenderQuads( vtkRenderer *ren,
 
   // Otherwise, we need to generate textures. We can throw away any
   // saved textures
-  if ( this->Texture )
-    {
-    delete [] this->Texture;
-        this->Texture = NULL;
-    }
+  delete [] this->Texture;
+  this->Texture = NULL;
   this->TextureSize = 0;
 
   // Will all the textures fit in the allotted storage?

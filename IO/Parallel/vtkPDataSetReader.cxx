@@ -71,27 +71,18 @@ void vtkPDataSetReader::SetNumberOfPieces(int num)
   // Delete the previous file names/extents.
   for (i = 0; i < this->NumberOfPieces; ++i)
     {
-    if (this->PieceFileNames[i])
-      {
-      delete [] this->PieceFileNames[i];
-      this->PieceFileNames[i] = NULL;
-      }
+    delete [] this->PieceFileNames[i];
+    this->PieceFileNames[i] = NULL;
     if (this->PieceExtents && this->PieceExtents[i])
       {
       delete [] this->PieceExtents[i];
       this->PieceExtents[i] = NULL;
       }
     }
-  if (this->PieceFileNames)
-    {
-    delete [] this->PieceFileNames;
-    this->PieceFileNames = NULL;
-    }
-  if (this->PieceExtents)
-    {
-    delete [] this->PieceExtents;
-    this->PieceExtents = NULL;
-    }
+  delete [] this->PieceFileNames;
+  this->PieceFileNames = NULL;
+  delete [] this->PieceExtents;
+  this->PieceExtents = NULL;
   this->NumberOfPieces = 0;
 
 
@@ -862,10 +853,7 @@ ifstream *vtkPDataSetReader::OpenFile(const char* filename)
 
   if (! file || file->fail())
     {
-    if (file)
-      {
-      delete file;
-      }
+    delete file;
     vtkErrorMacro(<< "Initialize: Could not open file " << filename);
     return NULL;
     }

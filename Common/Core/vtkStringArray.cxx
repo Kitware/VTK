@@ -89,7 +89,7 @@ vtkStringArray::vtkStringArray()
 
 vtkStringArray::~vtkStringArray()
 {
-  if ((this->Array) && (!this->SaveUserArray))
+  if (!this->SaveUserArray)
     {
     delete [] this->Array;
     }
@@ -141,7 +141,7 @@ int vtkStringArray::Allocate(vtkIdType sz, vtkIdType)
 {
   if(sz > this->Size)
     {
-    if(this->Array && !this->SaveUserArray)
+    if(!this->SaveUserArray)
       {
       delete [] this->Array;
       }
@@ -166,7 +166,7 @@ int vtkStringArray::Allocate(vtkIdType sz, vtkIdType)
 
 void vtkStringArray::Initialize()
 {
-  if(this->Array && !this->SaveUserArray)
+  if(!this->SaveUserArray)
     {
     delete [] this->Array;
     }
@@ -211,7 +211,7 @@ void vtkStringArray::DeepCopy(vtkAbstractArray* aa)
     }
 
   // Free our previous memory.
-  if(this->Array && !this->SaveUserArray)
+  if(!this->SaveUserArray)
     {
     delete [] this->Array;
     }

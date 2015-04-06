@@ -48,10 +48,7 @@ int vtkSubGroup::Initialize(int p0=0, int p1=0, int me=0, int itag=0, vtkCommuni
   this->tag = itag;
   this->comm = c;
 
-  if (this->members)
-    {
-    delete [] this->members;
-    }
+  delete [] this->members;
 
   this->members = new int [this->nmembers];
 

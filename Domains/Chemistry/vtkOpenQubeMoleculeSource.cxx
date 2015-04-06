@@ -42,7 +42,7 @@ vtkOpenQubeMoleculeSource::vtkOpenQubeMoleculeSource()
 vtkOpenQubeMoleculeSource::~vtkOpenQubeMoleculeSource()
 {
   this->SetFileName(NULL);
-  if (this->CleanUpBasisSet && this->BasisSet != NULL)
+  if (this->CleanUpBasisSet)
     {
     delete this->BasisSet;
     this->BasisSet = NULL;
@@ -68,7 +68,7 @@ void vtkOpenQubeMoleculeSource::SetBasisSet(OpenQube::BasisSet *b)
                 << "): setting BasisSet to " << b);
   if (this->BasisSet != b)
     {
-    if (this->CleanUpBasisSet && this->BasisSet != NULL)
+    if (this->CleanUpBasisSet)
       {
       delete this->BasisSet;
       }

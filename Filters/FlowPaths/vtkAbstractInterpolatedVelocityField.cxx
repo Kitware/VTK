@@ -61,11 +61,8 @@ vtkAbstractInterpolatedVelocityField::~vtkAbstractInterpolatedVelocityField()
   this->LastDataSet  = 0;
   this->SetVectorsSelection(0);
 
-  if ( this->Weights )
-    {
-    delete[] this->Weights;
-    this->Weights = 0;
-    }
+  delete[] this->Weights;
+  this->Weights = 0;
 
   if ( this->Cell )
     {

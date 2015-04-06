@@ -912,11 +912,7 @@ int vtkMatlabEngineFilter::SetMatlabScriptFromFile(const char* fname)
     len = ftell(fp);
     fseek(fp,0,SEEK_SET);
 
-    if(this->MatlabFileScript)
-      {
-      delete [] this->MatlabFileScript;
-      this->MatlabFileScript = 0;
-      }
+    delete [] this->MatlabFileScript;
 
     this->MatlabFileScript = new char[len+1];
     fread(this->MatlabFileScript,len,1,fp);

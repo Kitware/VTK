@@ -194,20 +194,11 @@ vtkXdmfWriter::~vtkXdmfWriter()
   this->SetFileName(NULL);
   this->SetHeavyDataFileName(NULL);
   this->SetHeavyDataGroupName(NULL);
-  if (this->DOM)
-    {
-    delete this->DOM;
-    this->DOM = NULL;
-    }
-  if (this->DomainMemoryHandler)
-    {
-    delete this->DomainMemoryHandler;
-    }
-  if (this->TopTemporalGrid)
-    {
-    delete this->TopTemporalGrid;
-    this->TopTemporalGrid = NULL;
-    }
+  delete this->DOM;
+  this->DOM = NULL;
+  delete this->DomainMemoryHandler;
+  delete this->TopTemporalGrid;
+  this->TopTemporalGrid = NULL;
   delete this->DomainMemoryHandler;
 
   //TODO: Verify memory isn't leaking
@@ -269,10 +260,7 @@ int vtkXdmfWriter::Write()
   root.SetVersion(2.2);
   root.Build();
 
-  if (this->DomainMemoryHandler)
-    {
-    delete this->DomainMemoryHandler;
-    }
+  delete this->DomainMemoryHandler;
   this->DomainMemoryHandler = new vtkXdmfWriterDomainMemoryHandler();
   this->DomainMemoryHandler->InsertIntoRoot(root);
 
@@ -351,11 +339,8 @@ int vtkXdmfWriter::RequestData(
     request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
 
     // make a top level temporal grid just under domain
-    if (this->TopTemporalGrid)
-      {
-      delete this->TopTemporalGrid;
-      this->TopTemporalGrid = NULL;
-      }
+    delete this->TopTemporalGrid;
+    this->TopTemporalGrid = NULL;
 
     xdmf2::XdmfGrid *tgrid = new xdmf2::XdmfGrid();
     tgrid->SetDeleteOnGridDelete(true);

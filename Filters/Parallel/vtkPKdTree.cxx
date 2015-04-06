@@ -1955,7 +1955,7 @@ int vtkPKdTree::CompleteTree()
 
   if (this->AllCheckForFailure(fail, "CompleteTree", "memory allocation"))
     {
-    if (buf) delete [] buf;
+    delete [] buf;
     return 1;
     }
 

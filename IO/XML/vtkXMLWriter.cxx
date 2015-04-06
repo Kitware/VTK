@@ -347,17 +347,10 @@ vtkXMLWriter::~vtkXMLWriter()
   this->SetFileName(0);
   this->DataStream->Delete();
   this->SetCompressor(0);
-  if (this->OutFile)
-    {
-    delete this->OutFile;
-    this->OutFile = 0;
-    }
-  if (this->OutStringStream)
-    {
-    delete this->OutStringStream;
-    this->OutStringStream = 0;
-    }
-
+  delete this->OutFile;
+  this->OutFile = 0;
+  delete this->OutStringStream;
+  this->OutStringStream = 0;
   delete this->FieldDataOM;
   delete[] this->NumberOfTimeValues;
 }
@@ -719,11 +712,8 @@ int vtkXMLWriter::OpenStream()
 //----------------------------------------------------------------------------
 int vtkXMLWriter::OpenFile()
 {
-  if (this->OutFile)
-    {
-    delete this->OutFile;
-    this->OutFile = 0;
-    }
+  delete this->OutFile;
+  this->OutFile = 0;
 
   // Strip trailing whitespace from the filename.
   int len = static_cast<int>(strlen(this->FileName));
@@ -758,12 +748,7 @@ int vtkXMLWriter::OpenFile()
 //----------------------------------------------------------------------------
 int vtkXMLWriter::OpenString()
 {
-  if (this->OutStringStream)
-    {
-    delete this->OutStringStream;
-    this->OutStringStream = 0;
-    }
-
+  delete this->OutStringStream;
   this->OutStringStream = new vtksys_ios::ostringstream();
   this->Stream = this->OutStringStream;
 
@@ -1281,7 +1266,7 @@ int vtkXMLWriter::WriteBinaryDataInternal(vtkAbstractArray* a)
     }
 
   // Free the byte swap buffer if it was allocated.
-  if (this->ByteSwapBuffer && !this->Int32IdTypeBuffer)
+  if (!this->Int32IdTypeBuffer)
     {
     delete [] this->ByteSwapBuffer;
     this->ByteSwapBuffer = 0;

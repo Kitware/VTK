@@ -937,11 +937,11 @@ static void vtkWrapPython_FreeAllocatedArrays(
     if (arg->CountHint || vtkWrap_IsPODPointer(arg))
       {
       fprintf(fp,
-              "  if (temp%d && temp%d != small%d)\n"
+              "  if (temp%d != small%d)\n"
               "    {\n"
               "    delete [] temp%d;\n"
               "    }\n",
-              i, i, i, i);
+              i, i, i);
       j = 1;
       }
     }

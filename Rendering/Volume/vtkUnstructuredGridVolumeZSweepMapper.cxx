@@ -2450,28 +2450,15 @@ vtkUnstructuredGridVolumeZSweepMapper::vtkUnstructuredGridVolumeZSweepMapper()
 //-----------------------------------------------------------------------------
 vtkUnstructuredGridVolumeZSweepMapper::~vtkUnstructuredGridVolumeZSweepMapper()
 {
-  if(this->MemoryManager!=0)
-    {
-    delete this->MemoryManager;
-    }
-  if(this->PixelListFrame!=0)
-    {
-    delete this->PixelListFrame;
-    }
+  delete this->MemoryManager;
+  delete this->PixelListFrame;
   this->Cell->Delete();
   this->EventList->Delete();
 
   this->ImageDisplayHelper->Delete();
 
-  if(this->UseSet!=0)
-    {
-    delete this->UseSet;
-    }
-
-  if(this->Vertices!=0)
-    {
-    delete this->Vertices;
-    }
+  delete this->UseSet;
+  delete this->Vertices;
 
   this->PerspectiveTransform->Delete();
   this->PerspectiveMatrix->Delete();
@@ -2940,11 +2927,8 @@ void vtkUnstructuredGridVolumeZSweepMapper::Render(vtkRenderer *ren,
     this->ImageSampleDistance = oldImageSampleDistance;
     }
 
-  if ( this->ZBuffer )
-    {
-    delete [] this->ZBuffer;
-    this->ZBuffer = NULL;
-    }
+  delete [] this->ZBuffer;
+  this->ZBuffer = NULL;
 
   this->UpdateProgress(1.0);
 }

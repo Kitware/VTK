@@ -267,11 +267,7 @@ public:
         vtkOpenGLStaticCheckErrorMacro("failed at glDeleteTextures");
         this->TextureId=0;
         }
-      if(this->Table!=0)
-        {
-        delete[] this->Table;
-        this->Table=0;
-        }
+      delete[] this->Table;
     }
 
   bool IsLoaded()
@@ -468,11 +464,7 @@ public:
         vtkOpenGLStaticCheckErrorMacro("failed at glDeleteTextures");
         this->TextureId=0;
         }
-      if(this->Table!=0)
-        {
-        delete[] this->Table;
-        this->Table=0;
-        }
+      delete[] this->Table;
     }
 
   bool IsLoaded()
@@ -1976,11 +1968,8 @@ vtkOpenGLGPUVolumeRayCastMapper::vtkOpenGLGPUVolumeRayCastMapper()
 //-----------------------------------------------------------------------------
 vtkOpenGLGPUVolumeRayCastMapper::~vtkOpenGLGPUVolumeRayCastMapper()
 {
-  if(this->UnsupportedRequiredExtensions!=0)
-    {
-    delete this->UnsupportedRequiredExtensions;
-    this->UnsupportedRequiredExtensions=0;
-    }
+  delete this->UnsupportedRequiredExtensions;
+
   int i=0;
   while(i<3)
     {
@@ -1989,11 +1978,7 @@ vtkOpenGLGPUVolumeRayCastMapper::~vtkOpenGLGPUVolumeRayCastMapper()
     ++i;
     }
 
-  if(this->ErrorString!=0)
-    {
-    delete[] this->ErrorString;
-    this->ErrorString=0;
-    }
+  delete[] this->ErrorString;
 
   if ( this->SmallInput )
     {
@@ -2034,24 +2019,9 @@ vtkOpenGLGPUVolumeRayCastMapper::~vtkOpenGLGPUVolumeRayCastMapper()
   this->InvVolumeMatrix->UnRegister(this);
   this->InvVolumeMatrix=0;
 
-  if(this->NoiseTexture!=0)
-    {
-    delete[] this->NoiseTexture;
-    this->NoiseTexture=0;
-    this->NoiseTextureSize=0;
-    }
-
-  if(this->ScalarsTextures!=0)
-    {
-    delete this->ScalarsTextures;
-    this->ScalarsTextures=0;
-    }
-
-  if(this->MaskTextures!=0)
-    {
-    delete this->MaskTextures;
-    this->MaskTextures=0;
-    }
+  delete[] this->NoiseTexture;
+  delete this->ScalarsTextures;
+  delete this->MaskTextures;
 
   if(this->Program!=0)
     {
@@ -2162,10 +2132,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
 {
   // We may already have a string stream for the unsupported extensions
   // from the last time this method was called. If so, delete it.
-  if(this->UnsupportedRequiredExtensions!=0)
-    {
-    delete this->UnsupportedRequiredExtensions;
-    }
+  delete this->UnsupportedRequiredExtensions;
 
   // Create a string stream to hold the unsupported extensions so we can
   // report something meaningful back
@@ -2562,29 +2529,17 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
       }
     }
 
-  if(this->RGBTable!=0)
-    {
-    delete this->RGBTable;
-    this->RGBTable=0;
-    }
+  delete this->RGBTable;
+  this->RGBTable=0;
 
-  if(this->Mask1RGBTable!=0)
-    {
-    delete this->Mask1RGBTable;
-    this->Mask1RGBTable=0;
-    }
+  delete this->Mask1RGBTable;
+  this->Mask1RGBTable=0;
 
-  if(this->Mask2RGBTable!=0)
-    {
-    delete this->Mask2RGBTable;
-    this->Mask2RGBTable=0;
-    }
+  delete this->Mask2RGBTable;
+  this->Mask2RGBTable=0;
 
-  if(this->OpacityTables!=0)
-    {
-    delete this->OpacityTables;
-    this->OpacityTables=0;
-    }
+  delete this->OpacityTables;
+  this->OpacityTables=0;
 
   if(this->Program!=0)
     {

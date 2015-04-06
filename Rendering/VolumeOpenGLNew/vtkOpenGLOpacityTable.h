@@ -48,11 +48,7 @@ public:
         this->TextureId=0;
         }
 
-      if (this->Table!=0)
-        {
-        delete[] this->Table;
-        this->Table=0;
-        }
+      delete[] this->Table;
     }
 
   // Check if opacity transfer function texture is loaded.

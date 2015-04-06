@@ -50,15 +50,8 @@ vtkVolumeTextureMapper::~vtkVolumeTextureMapper()
   this->SetGradientEstimator( NULL );
   this->GradientShader->Delete();
 
-  if ( this->RGBAArray )
-    {
-    delete [] this->RGBAArray;
-    }
-
-  if ( this->GradientOpacityArray )
-    {
-    delete [] this->GradientOpacityArray;
-    }
+  delete [] this->RGBAArray;
+  delete [] this->GradientOpacityArray;
 }
 
 void vtkVolumeTextureMapper::SetGradientEstimator(
@@ -132,14 +125,8 @@ void vtkVolumeTextureMapper::InitializeRender( vtkRenderer *ren,
   if ( this->ArraySize != size ||
        this->NumberOfComponents != numComponents )
     {
-    if ( this->RGBAArray )
-      {
-      delete [] this->RGBAArray;
-      }
-    if ( this->GradientOpacityArray )
-      {
-      delete [] this->GradientOpacityArray;
-      }
+    delete [] this->RGBAArray;
+    delete [] this->GradientOpacityArray;
 
     this->RGBAArray            = new unsigned char [4*size*numComponents];
     this->GradientOpacityArray = new float [256*numComponents];

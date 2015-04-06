@@ -65,16 +65,8 @@ vtkVolumeRayCastSpaceLeapingImageFilter::vtkVolumeRayCastSpaceLeapingImageFilter
 vtkVolumeRayCastSpaceLeapingImageFilter::~vtkVolumeRayCastSpaceLeapingImageFilter()
 {
   this->SetCurrentScalars(NULL);
-  if (this->MinNonZeroScalarIndex)
-    {
-    delete [] this->MinNonZeroScalarIndex;
-    this->MinNonZeroScalarIndex = NULL;
-    }
-  if (this->MinNonZeroGradientMagnitudeIndex)
-    {
-    delete [] this->MinNonZeroGradientMagnitudeIndex;
-    this->MinNonZeroGradientMagnitudeIndex = NULL;
-    }
+  delete [] this->MinNonZeroScalarIndex;
+  delete [] this->MinNonZeroGradientMagnitudeIndex;
 }
 
 //----------------------------------------------------------------------------
@@ -1042,16 +1034,10 @@ void vtkVolumeRayCastSpaceLeapingImageFilter
   const int nComponents = this->GetNumberOfIndependentComponents();
 
   // Initialize these arrays.
-  if (this->MinNonZeroScalarIndex)
-    {
-    delete [] this->MinNonZeroScalarIndex;
-    this->MinNonZeroScalarIndex = NULL;
-    }
-  if (this->MinNonZeroGradientMagnitudeIndex)
-    {
-    delete [] this->MinNonZeroGradientMagnitudeIndex;
-    this->MinNonZeroGradientMagnitudeIndex = NULL;
-    }
+  delete [] this->MinNonZeroScalarIndex;
+  this->MinNonZeroScalarIndex = NULL;
+  delete [] this->MinNonZeroGradientMagnitudeIndex;
+  this->MinNonZeroGradientMagnitudeIndex = NULL;
 
   // Update the flags now
   int i;

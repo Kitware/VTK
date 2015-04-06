@@ -22,15 +22,8 @@ public:
 
   ~Implementation()
     {
-    if ( this->Hierarchy2 )
-      {
-      delete this->Hierarchy2;
-      }
-    if ( this->Hierarchy3 )
-      {
-      delete this->Hierarchy3;
-      }
-
+    delete this->Hierarchy2;
+    delete this->Hierarchy3;
     }
 
   bool ComparePriorities( vtkIdType a, vtkIdType b )

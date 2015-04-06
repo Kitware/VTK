@@ -179,32 +179,12 @@ vtkWindBladeReader::~vtkWindBladeReader()
   delete this->Internal;
 
   delete [] this->TimeSteps;
-  this->TimeSteps = NULL;
-
-  if (this->VariableName)
-    {
-    delete[] this->VariableName;
-    }
-  if (this->VariableStruct)
-    {
-    delete[] this->VariableStruct;
-    }
-  if (this->VariableCompSize)
-    {
-    delete[] this->VariableCompSize;
-    }
-  if (this->VariableBasicType)
-    {
-    delete[] this->VariableBasicType;
-    }
-  if (this->VariableByteCount)
-    {
-    delete[] this->VariableByteCount;
-    }
-  if (this->VariableOffset)
-    {
-    delete[] this->VariableOffset;
-    }
+  delete[] this->VariableName;
+  delete[] this->VariableStruct;
+  delete[] this->VariableCompSize;
+  delete[] this->VariableBasicType;
+  delete[] this->VariableByteCount;
+  delete[] this->VariableOffset;
 }
 
 //----------------------------------------------------------------------------

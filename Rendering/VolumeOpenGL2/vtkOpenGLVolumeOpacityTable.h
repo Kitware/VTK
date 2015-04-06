@@ -47,11 +47,7 @@ public:
         this->TextureObject = 0;
         }
 
-      if (this->Table)
-        {
-        delete[] this->Table;
-        this->Table=0;
-        }
+      delete[] this->Table;
     }
 
   // Activate texture.

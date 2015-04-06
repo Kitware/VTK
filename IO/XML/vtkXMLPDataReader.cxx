@@ -56,10 +56,7 @@ vtkXMLPDataReader::~vtkXMLPDataReader()
     {
     this->DestroyPieces();
     }
-  if(this->PathName)
-    {
-    delete [] this->PathName;
-    }
+  delete [] this->PathName;
   this->PieceProgressObserver->Delete();
 }
 
@@ -477,11 +474,8 @@ void vtkXMLPDataReader::SplitFileName()
 #endif
 
   // Extract the path name up to the last '/'.
-  if(this->PathName)
-    {
-    delete [] this->PathName;
-    this->PathName = 0;
-    }
+  delete [] this->PathName;
+  this->PathName = 0;
   char* rbegin = end-1;
   char* rend = begin-1;
   for(s=rbegin;s != rend;--s)

@@ -1358,7 +1358,7 @@ void vtkTIFFReader::ReadImageInternal(T* outPtr)
         }
       }
 
-    if (tempImage != 0 && tempImage != reinterpret_cast<uint32*>(outPtr))
+    if (tempImage != reinterpret_cast<uint32*>(outPtr))
       {
       delete [] tempImage;
       }

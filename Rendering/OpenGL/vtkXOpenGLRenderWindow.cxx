@@ -796,11 +796,8 @@ void vtkXOpenGLRenderWindow::DestroyWindow()
     this->DisplayId = NULL;
     }
 
-  if (this->Capabilities)
-    {
-    delete[] this->Capabilities;
-    this->Capabilities = 0;
-    }
+  delete[] this->Capabilities;
+  this->Capabilities = 0;
 
   // make sure all other code knows we're not mapped anymore
   this->Mapped = 0;

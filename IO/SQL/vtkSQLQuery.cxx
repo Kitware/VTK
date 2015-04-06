@@ -249,10 +249,7 @@ bool vtkSQLQuery::SetQuery(const char *queryString)
     {
     return true; // query string isn't changing
     }
-  if (this->Query)
-    {
-    delete [] this->Query;
-    }
+  delete [] this->Query;
   if (queryString)
     {
     size_t n = strlen(queryString) + 1;

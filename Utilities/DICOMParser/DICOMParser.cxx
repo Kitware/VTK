@@ -132,11 +132,7 @@ DICOMParser::~DICOMParser() {
   //
   this->ClearAllDICOMTagCallbacks();
 
-  if (this->DataFile)
-    {
-    delete this->DataFile;
-    }
-
+  delete this->DataFile;
   delete this->TransferSyntaxCB;
   delete this->Implementation;
 

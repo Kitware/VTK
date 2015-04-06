@@ -1778,7 +1778,7 @@ int vtkExodusIIWriter::WriteBlockInformation()
   for (size_t n = 0; n < nblocks; n ++)
     {
     delete [] connectivity[n];
-    if (this->PassDoubles && attributesD[n])
+    if (this->PassDoubles)
       {
       delete [] attributesD[n];
       }

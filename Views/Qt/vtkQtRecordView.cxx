@@ -55,10 +55,7 @@ vtkQtRecordView::vtkQtRecordView()
 //----------------------------------------------------------------------------
 vtkQtRecordView::~vtkQtRecordView()
 {
-  if(this->TextWidget)
-    {
-    delete this->TextWidget;
-    }
+  delete this->TextWidget;
 }
 
 //----------------------------------------------------------------------------

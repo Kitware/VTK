@@ -73,11 +73,7 @@ vtkDepthPeelingPass::~vtkDepthPeelingPass()
     {
     this->TranslucentPass->Delete();
     }
-  if (this->DepthZData)
-    {
-    delete this->DepthZData;
-    this->DepthZData = 0;
-    }
+  delete this->DepthZData;
   if (this->OpaqueZTexture)
     {
     this->OpaqueZTexture->UnRegister(this);

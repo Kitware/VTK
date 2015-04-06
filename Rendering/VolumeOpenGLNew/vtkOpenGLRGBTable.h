@@ -43,11 +43,7 @@ public:
       glDeleteTextures(1,&this->TextureId);
       this->TextureId=0;
       }
-    if(this->Table!=0)
-      {
-      delete[] this->Table;
-      this->Table=0;
-      }
+    delete[] this->Table;
     }
 
   // Check if color transfer function texture is loaded.

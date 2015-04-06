@@ -70,25 +70,16 @@ vtkEncodedGradientEstimator::~vtkEncodedGradientEstimator()
   this->Threader->Delete();
   this->Threader = NULL;
 
-  if ( this->EncodedNormals )
-    {
-    delete [] this->EncodedNormals;
-    }
+  delete [] this->EncodedNormals;
 
-  if ( this->GradientMagnitudes )
-    {
-    delete [] this->GradientMagnitudes;
-    }
+  delete [] this->GradientMagnitudes;
 
   if ( this->DirectionEncoder )
     {
     this->DirectionEncoder->UnRegister( this );
     }
 
-  if ( this->CircleLimits )
-    {
-    delete [] this->CircleLimits;
-    }
+  delete [] this->CircleLimits;
 }
 
 void vtkEncodedGradientEstimator::SetZeroNormalThreshold( float v )
@@ -200,16 +191,11 @@ void vtkEncodedGradientEstimator::Update( )
          this->EncodedNormalsSize[1] != scalarInputSize[1] ||
          this->EncodedNormalsSize[2] != scalarInputSize[2] )
       {
-      if ( this->EncodedNormals )
-        {
-        delete [] this->EncodedNormals;
-        this->EncodedNormals = NULL;
-        }
-      if ( this->GradientMagnitudes )
-        {
-        delete [] this->GradientMagnitudes;
-        this->GradientMagnitudes = NULL;
-        }
+      delete [] this->EncodedNormals;
+      this->EncodedNormals = NULL;
+
+      delete [] this->GradientMagnitudes;
+      this->GradientMagnitudes = NULL;
       }
 
     // Compute the number of encoded voxels
@@ -268,10 +254,7 @@ void vtkEncodedGradientEstimator::ComputeCircleLimits( int size )
 
   if ( this->CircleLimitsSize != size )
     {
-    if ( this->CircleLimits )
-      {
-      delete [] this->CircleLimits;
-      }
+    delete [] this->CircleLimits;
     this->CircleLimits = new int[2*size];
     this->CircleLimitsSize = size;
     }
