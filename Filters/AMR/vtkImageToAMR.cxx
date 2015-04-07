@@ -279,7 +279,7 @@ int vtkImageToAMR::RequestData(vtkInformation* vtkNotUsed(request),
         vtkWarningMacro("Zero dimension? Really?");
         }
       dims0[d] = 1;
-      spacing0[d] = 0;
+      spacing0[d] = 1.0;
       }
     else
       {
