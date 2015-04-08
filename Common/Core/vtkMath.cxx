@@ -183,6 +183,17 @@ double vtkMath::Gaussian( double mean, double std )
 }
 
 //----------------------------------------------------------------------------
+inline vtkTypeInt64 vtkMath::Factorial( int N )
+{
+    vtkTypeInt64 r = 1;
+    while ( N > 1 )
+    {
+        r *= N--;
+    }
+    return r;
+}
+
+//----------------------------------------------------------------------------
 // The number of combinations of n objects from a pool of m objects (m>n).
 //
 vtkTypeInt64 vtkMath::Binomial( int m, int n )
