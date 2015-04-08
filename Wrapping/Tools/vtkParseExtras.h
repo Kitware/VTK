@@ -29,6 +29,16 @@
 #include "vtkParseData.h"
 #include <stddef.h>
 
+/* Flags for selecting what info to print for declarations */
+#define VTK_PARSE_NAMES          0x00000010
+#define VTK_PARSE_VALUES         0x00000020
+#define VTK_PARSE_RETURN_VALUE   0x00000040
+#define VTK_PARSE_PARAMETER_LIST 0x00000080
+#define VTK_PARSE_SPECIFIERS     0x00FF0000
+#define VTK_PARSE_TRAILERS       0x0F000000
+#define VTK_PARSE_TEMPLATES      0xF0000000
+#define VTK_PARSE_EVERYTHING     0xFFFFFFFF
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -83,12 +93,55 @@ size_t vtkParse_ValueInfoFromString(
   ValueInfo *val, StringCache *cache, const char *text);
 
 /**
- * Generate a declaration string from a ValueInfo struct.  If the
- * "nf" arg is set, the returned string must be freed.
- * Only simple text strings are supported, e.g. "const T **".
- * The variable or typedef name, if present, is ignored.
+ * Generate a C++ declaration string from a ValueInfo struct.
+ *
+ * The resulting string can represent a parameter declaration, a variable
+ * or type declaration, or a function return value.  To use this function,
+ * you should call it twice: first, call it with "text" set to NULL, and
+ * it will return a lower bound on the length of the string that will be
+ * produced.  Next, allocate at least length+1 bytes for the string, and
+ * and call it again with "text" set to the allocated string.  The number
+ * of bytes written to the string (not including the terminating null) will
+ * be returned.
+ *
+ * The flags provide a mask that controls what information will be included,
+ * for example VTK_PARSE_CONST|VTK_PARSE_VOLATILE is needed to include the
+ * 'const' or 'volatile' qualifiers.  Use VTK_PARSE_EVERYTHING to generate
+ * the entire declaration for a variable or parameter.
  */
-const char *vtkParse_ValueInfoToString(ValueInfo *val, int *nf);
+size_t vtkParse_ValueInfoToString(
+  ValueInfo *data, char *text, unsigned int flags);
+
+/**
+ * Generate a C++ function signature from a FunctionInfo struct.
+ *
+ * See vtkParse_ValueInfoToString() for basic usage.  The flags can be set
+ * to VTK_PARSE_RETURN_VALUE to print only the return value for the function,
+ * or VTK_PARSE_PARAMETER_LIST to print only the parameter list.
+ */
+size_t vtkParse_FunctionInfoToString(
+  FunctionInfo *func, char *text, unsigned int flags);
+
+/**
+ * Generate a C++ template declaration from a TemplateInfo struct.
+ *
+ * See vtkParse_ValueInfoToString() for basic usage.
+ */
+size_t vtkParse_TemplateInfoToString(
+  TemplateInfo *func, char *text, unsigned int flags);
+
+/**
+ * Compare two C++ functions to see if they have the same signature.
+ *
+ * The following are the possible return values.  Any non-zero return value
+ * means that the parameters match.  If the 2nd bit is also set, then the
+ * function return value also matches.  If the 3rd bit is set, then the
+ * parameters match and both methods are members of the same class, and
+ * the constness of the functions match.  This means that the signatures
+ * are not identical unless the return value is 7 or higher (.
+ */
+int vtkParse_CompareFunctionSignature(
+  const FunctionInfo *func1, const FunctionInfo *func2);
 
 /**
  * Expand a typedef within a variable, parameter, or typedef declaration.

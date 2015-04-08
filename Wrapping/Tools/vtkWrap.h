@@ -164,6 +164,15 @@ void vtkWrap_ExpandTypedefs(
   ClassInfo *data, FileInfo *finfo, HierarchyInfo *hinfo);
 
 /**
+ * Apply any using declarations that appear in the class.
+ * If any using declarations appear in the class that refer to superclass
+ * methods, the superclass header file will be parsed and the used methods
+ * will be brought into the class.
+ */
+void vtkWrap_ApplyUsingDeclarations(
+  ClassInfo *data, FileInfo *finfo, HierarchyInfo *hinfo);
+
+/**
  * Apply any hints about array sizes, e.g. hint that the
  * GetNumberOfComponents() method gives the tuple size.
  */

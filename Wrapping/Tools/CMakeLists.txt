@@ -17,6 +17,7 @@ set(VTK_PARSE_SOURCES
   vtkParseMain.c
   vtkParseExtras.c
   vtkParseMangle.c
+  vtkParseMerge.c
   vtkParseString.c
   vtkParseHierarchy.c
   vtkParsePreprocess.c

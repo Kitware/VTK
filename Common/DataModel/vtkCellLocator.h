@@ -58,47 +58,11 @@ public:
   int GetNumberOfCellsPerBucket()
   { return this->NumberOfCellsPerNode; }
 
-//BTX
-/*
-  if the borland compiler is ever removed, we can use these declarations
-  instead of reimplementaing the calls in this subclass
+  // Re-use any superclass signatures that we don't override.
   using vtkAbstractCellLocator::IntersectWithLine;
+  using vtkAbstractCellLocator::FindCell;
   using vtkAbstractCellLocator::FindClosestPoint;
   using vtkAbstractCellLocator::FindClosestPointWithinRadius;
-*/
-//ETX
-
-  // Description:
-  // reimplemented from vtkAbstractCellLocator to support bad compilers
-  virtual int IntersectWithLine(
-    double a0[3], double a1[3], double tol,
-    double& t, double x[3], double pcoords[3],
-    int &subId)
-  {
-    return Superclass::
-      IntersectWithLine(a0, a1, tol,t, x, pcoords, subId);
-  }
-
-  // Description:
-  // reimplemented from vtkAbstractCellLocator to support bad compilers
-  virtual int IntersectWithLine(
-    double a0[3], double a1[3], double tol,
-    double& t, double x[3], double pcoords[3],
-    int &subId, vtkIdType &cellId)
-  {
-    return Superclass::
-      IntersectWithLine(a0, a1, tol,t, x, pcoords, subId, cellId);
-  }
-
-  // Description:
-  // reimplemented from vtkAbstractCellLocator to support bad compilers
-  virtual int IntersectWithLine(
-    const double a0[3], const double a1[3],
-    vtkPoints *points, vtkIdList *cellIds)
-  {
-    return Superclass::
-      IntersectWithLine(a0, a1, points, cellIds);
-  }
 
   // Description:
   // Return intersection point (if any) AND the cell which was intersected by
@@ -108,16 +72,6 @@ public:
                                 double& t, double x[3], double pcoords[3],
                                 int &subId, vtkIdType &cellId,
                                 vtkGenericCell *cell);
-
-  // Description:
-  // reimplemented from vtkAbstractCellLocator to support bad compilers
-  virtual void FindClosestPoint(
-    double x[3], double closestPoint[3],
-    vtkIdType &cellId, int &subId, double& dist2)
-  {
-    Superclass::
-      FindClosestPoint(x, closestPoint, cellId, subId, dist2);
-  }
 
   // Description:
   // Return the closest point and the cell which is closest to the point x.
@@ -133,29 +87,6 @@ public:
     double x[3], double closestPoint[3],
     vtkGenericCell *cell, vtkIdType &cellId,
     int &subId, double& dist2);
-
-  // Description:
-  // reimplemented from vtkAbstractCellLocator to support bad compilers
-  virtual vtkIdType FindClosestPointWithinRadius(
-    double x[3], double radius,
-    double closestPoint[3], vtkIdType &cellId,
-    int &subId, double& dist2)
-  {
-    return Superclass::FindClosestPointWithinRadius
-      (x, radius, closestPoint, cellId, subId, dist2);
-  }
-
-  // Description:
-  // reimplemented from vtkAbstractCellLocator to support bad compilers
-  virtual vtkIdType FindClosestPointWithinRadius(
-    double x[3], double radius,
-    double closestPoint[3],
-    vtkGenericCell *cell, vtkIdType &cellId,
-    int &subId, double& dist2)
-  {
-    return Superclass::FindClosestPointWithinRadius
-      (x, radius, closestPoint, cell, cellId, subId, dist2);
-  }
 
   // Description:
   // Return the closest point within a specified radius and the cell which is
@@ -186,12 +117,6 @@ public:
   // Return number of buckets available. Insure that the locator has been
   // built before attempting to access buckets (octants).
   virtual int GetNumberOfBuckets(void);
-
-  // Description:
-  // Returns the Id of the cell containing the point,
-  // returns -1 if no cell found. This interface uses a tolerance of zero
-  virtual vtkIdType FindCell(double x[3])
-    { return this->Superclass::FindCell(x); }
 
   // Description:
   // Find the cell containing a given point. returns -1 if no cell found

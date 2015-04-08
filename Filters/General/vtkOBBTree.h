@@ -89,37 +89,8 @@ public:
   // 25 cells per octant.
   static vtkOBBTree *New();
 
-//BTX
-/*
-  if the borland compiler is ever removed, we can use these declarations
-  instead of reimplementaing the calls in this subclass
+  // Re-use any superclass signatures that we don't override.
   using vtkAbstractCellLocator::IntersectWithLine;
-  using vtkAbstractCellLocator::FindClosestPoint;
-  using vtkAbstractCellLocator::FindClosestPointWithinRadius;
-*/
-//ETX
-
-  // Description:
-  // reimplemented from vtkAbstractCellLocator to support bad compilers
-  virtual int IntersectWithLine(
-    double a0[3], double a1[3], double tol,
-    double& t, double x[3], double pcoords[3],
-    int &subId)
-  {
-    return Superclass::
-      IntersectWithLine(a0, a1, tol,t, x, pcoords, subId);
-  }
-
-  // Description:
-  // reimplemented from vtkAbstractCellLocator to support bad compilers
-  virtual int IntersectWithLine(
-    double a0[3], double a1[3], double tol,
-    double& t, double x[3], double pcoords[3],
-    int &subId, vtkIdType &cellId)
-  {
-    return Superclass::
-      IntersectWithLine(a0, a1, tol,t, x, pcoords, subId, cellId);
-  }
 
   // Description:
   // Take the passed line segment and intersect it with the data set.
@@ -141,69 +112,6 @@ public:
   int IntersectWithLine(double a0[3], double a1[3], double tol,
                         double& t, double x[3], double pcoords[3],
                         int &subId, vtkIdType &cellId, vtkGenericCell *cell);
-
-  // Description:
-  // Return the closest point and the cell which is closest to the point x.
-  // The closest point is somewhere on a cell, it need not be one of the
-  // vertices of the cell.  This version takes in a vtkGenericCell
-  // to avoid allocating and deallocating the cell.  This is much faster than
-  // the version which does not take a *cell, especially when this function is
-  // called many times in a row such as by a for loop, where the allocation and
-  // deallocation can be done only once outside the for loop.  If a cell is
-  // found, "cell" contains the points and ptIds for the cell "cellId" upon
-  // exit.
-  virtual void FindClosestPoint(
-    double x[3], double closestPoint[3],
-    vtkIdType &cellId, int &subId, double& dist2)
-  {
-    Superclass::
-      FindClosestPoint(x, closestPoint, cellId, subId, dist2);
-  }
-
-  // Description:
-  // reimplemented from vtkAbstractCellLocator to support bad compilers
-  virtual void FindClosestPoint(
-    double x[3], double closestPoint[3],
-    vtkGenericCell *cell, vtkIdType &cellId,
-    int &subId, double& dist2)
-  {
-    Superclass::
-      FindClosestPoint(x, closestPoint, cell, cellId, subId, dist2);
-  }
-
-  // Description:
-  // reimplemented from vtkAbstractCellLocator to support bad compilers
-  virtual vtkIdType FindClosestPointWithinRadius(
-    double x[3], double radius,
-    double closestPoint[3], vtkIdType &cellId,
-    int &subId, double& dist2)
-  {
-    return Superclass::FindClosestPointWithinRadius
-      (x, radius, closestPoint, cellId, subId, dist2);
-  }
-
-  // Description:
-  // reimplemented from vtkAbstractCellLocator to support bad compilers
-  virtual vtkIdType FindClosestPointWithinRadius(
-    double x[3], double radius,
-    double closestPoint[3],
-    vtkGenericCell *cell, vtkIdType &cellId,
-    int &subId, double& dist2)
-  {
-    return Superclass::FindClosestPointWithinRadius
-      (x, radius, closestPoint, cell, cellId, subId, dist2);
-  }
-
-  // Description:
-  // reimplemented from vtkAbstractCellLocator to support bad compilers
-  virtual vtkIdType FindClosestPointWithinRadius(
-    double x[3], double radius, double closestPoint[3],
-    vtkGenericCell *cell, vtkIdType &cellId,
-    int &subId, double& dist2, int &inside)
-  {
-    return Superclass::FindClosestPointWithinRadius
-      (x, radius, closestPoint, cell, cellId, subId, dist2, inside);
-  }
 
   // Description:
   // Compute an OBB from the list of points given. Return the corner point

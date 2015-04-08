@@ -863,54 +863,89 @@ size_t vtkParse_ValueInfoFromString(
 }
 
 /* Generate a C++ declaration string from a ValueInfo struct */
-const char *vtkParse_ValueInfoToString(
-  ValueInfo *data, int *needs_free)
+size_t vtkParse_ValueInfoToString(
+  ValueInfo *data, char *text, unsigned int flags)
 {
   unsigned int pointer_bits = (data->Type & VTK_PARSE_POINTER_MASK);
-  unsigned int ref_bits = (data->Type & VTK_PARSE_REF);
+  unsigned int ref_bits = (data->Type & (VTK_PARSE_REF | VTK_PARSE_RVALUE));
   unsigned int qualifier_bits = (data->Type & VTK_PARSE_CONST);
   unsigned int reverse_bits = 0;
   unsigned int pointer_type = 0;
-  const char *classname = data->Class;
-  const char *name = data->Name;
-  char *text = NULL;
+  const char *tpname = data->Class;
+  int dimensions = data->NumberOfDimensions;
+  int pointer_dimensions = 0;
   size_t i = 0;
-  size_t l;
   int j = 0;
 
-  if (pointer_bits == 0 && ref_bits == 0 && qualifier_bits == 0 &&
-      name == NULL)
+  /* check if this is a type parameter for a template */
+  if (!tpname)
     {
-    if (needs_free)
+    tpname = "class";
+    }
+
+  /* don't shown anything that isn't in the flags */
+  ref_bits &= flags;
+  qualifier_bits &= flags;
+
+  /* if this is to be a return value, [] becomes * */
+  if ((flags & VTK_PARSE_ARRAY) == 0 &&
+      pointer_bits == VTK_PARSE_POINTER)
+    {
+    if (dimensions == 1)
       {
-      *needs_free = 0;
+      dimensions = 0;
       }
-    return classname;
     }
 
-  /* compute the length of string to allocate */
-  l = 6; /* for const */
-  l += 4*7; /* for pointers */
-  l += 1; /* for ref */
-  l += strlen(classname) + 1; /* for type */
-  for (j = 0; j < data->NumberOfDimensions; j++)
+  if (!data->Function && (qualifier_bits & VTK_PARSE_CONST) != 0)
     {
-    l += 2 + strlen(data->Dimensions[j]);
-    }
-  l++; /* for NULL */
-  l += 4; /* for safety */
-
-  text = (char *)malloc(l);
-
-  if ((qualifier_bits & VTK_PARSE_CONST) != 0)
-    {
-    strcpy(&text[i], "const ");
+    if (text)
+      {
+      strcpy(&text[i], "const ");
+      }
     i += 6;
     }
 
-  strcpy(&text[i], classname);
-  i += strlen(classname);
-  text[i++] = ' ';
+  if (data->Function)
+    {
+    if (text)
+      {
+      i += vtkParse_FunctionInfoToString(
+        data->Function, &text[i], VTK_PARSE_RETURN_VALUE);
+      text[i++] = '(';
+      if (data->Function->Class)
+        {
+        strcpy(&text[i], data->Function->Class);
+        i += strlen(data->Function->Class);
+        text[i++] = ':';
+        text[i++] = ':';
+        }
+      }
+    else
+      {
+      i += vtkParse_FunctionInfoToString(
+        data->Function, NULL, VTK_PARSE_RETURN_VALUE);
+      i += 1;
+      if (data->Function->Class)
+        {
+        i += strlen(data->Function->Class);
+        i += 2;
+        }
+      }
+    }
+  else
+    {
+    if (text)
+      {
+      strcpy(&text[i], tpname);
+      }
+    i += strlen(tpname);
+    if (text)
+      {
+      text[i] = ' ';
+      }
+    i++;
+    }
 
   while (pointer_bits != 0)
     {
@@ -923,57 +958,444 @@ const char *vtkParse_ValueInfoToString(
     {
     pointer_type = (reverse_bits & VTK_PARSE_POINTER_LOWMASK);
     if (pointer_type == VTK_PARSE_ARRAY ||
-        (reverse_bits == VTK_PARSE_POINTER &&
-         data->NumberOfDimensions > 0))
+        (reverse_bits == VTK_PARSE_POINTER && dimensions > 0))
       {
+      if ((flags & VTK_PARSE_ARRAY) == 0)
+        {
+        pointer_dimensions = 1;
+        if (text)
+          {
+          text[i] = '(';
+          text[i+1] = '*';
+          }
+        i += 2;
+        }
       break;
       }
     else if (pointer_type == VTK_PARSE_POINTER)
       {
-      text[i++] = '*';
+      if (text)
+        {
+        text[i] = '*';
+        }
+      i++;
       }
     else if (pointer_type == VTK_PARSE_CONST_POINTER)
       {
-      strcpy(&text[i], "*const ");
+      if (text)
+        {
+        strcpy(&text[i], "*const ");
+        }
       i += 7;
       }
 
     reverse_bits = ((reverse_bits >> 2) & VTK_PARSE_POINTER_MASK);
     }
 
-  if (ref_bits)
+  if ((ref_bits & VTK_PARSE_REF) != 0)
     {
-    text[i++] = '&';
+    if ((ref_bits & VTK_PARSE_RVALUE) != 0)
+      {
+      if (text)
+        {
+        text[i] = '&';
+        }
+      i++;
+      }
+    if (text)
+      {
+      text[i] = '&';
+      }
+    i++;
     }
 
-  if (name)
+  if (data->Name && (flags & VTK_PARSE_NAMES) != 0)
     {
-    strcpy(&text[i], name);
-    i += strlen(name);
+    if (text)
+      {
+      strcpy(&text[i], data->Name);
+      }
+    i += strlen(data->Name);
+    if (data->Value && (flags & VTK_PARSE_VALUES) != 0)
+      {
+      if (text)
+        {
+        text[i] = '=';
+        }
+      i++;
+      if (text)
+        {
+        strcpy(&text[i], data->Value);
+        }
+      i += strlen(data->Value);
+      }
     }
 
-  for (j = 0; j < data->NumberOfDimensions; j++)
+  for (j = 0; j < pointer_dimensions; j++)
     {
-    text[i++] = '[';
+    if (text)
+      {
+      text[i] = ')';
+      }
+    i++;
+    }
+
+  for (j = pointer_dimensions; j < dimensions; j++)
+    {
+    if (text)
+      {
+      text[i] = '[';
+      }
+    i++;
     if (data->Dimensions[j])
       {
-      strcpy(&text[i], data->Dimensions[j]);
+      if (text)
+        {
+        strcpy(&text[i], data->Dimensions[j]);
+        }
       i += strlen(data->Dimensions[j]);
       }
-    text[i++] = ']';
+    if (text)
+      {
+      text[i] = ']';
+      }
+    i++;
     }
 
-  text[i] = '\0';
-
-  /* make sure enough space was allocated */
-  assert(i < l);
-
-  if (needs_free)
+  if (data->Function)
     {
-    *needs_free = 1;
+    if (text)
+      {
+      text[i++] = ')';
+      i += vtkParse_FunctionInfoToString(
+        data->Function, &text[i],
+        VTK_PARSE_CONST | VTK_PARSE_PARAMETER_LIST);
+      }
+    else
+      {
+      i++;
+      i += vtkParse_FunctionInfoToString(
+        data->Function, NULL,
+        VTK_PARSE_CONST | VTK_PARSE_PARAMETER_LIST);
+      }
     }
 
-  return text;
+  if (text)
+    {
+    text[i] = '\0';
+    }
+
+  return i;
+}
+
+/* Generate a template declaration string */
+size_t vtkParse_TemplateInfoToString(
+  TemplateInfo *data, char *text, unsigned int flags)
+{
+  int i;
+  size_t k = 0;
+
+  if (text)
+    {
+    strcpy(&text[k], "template<");
+    }
+  k += 9;
+  for (i = 0; i < data->NumberOfParameters; i++)
+    {
+    if (i != 0)
+      {
+      if (text)
+        {
+        text[k] = ',';
+        text[k+1] = ' ';
+        }
+      k += 2;
+      }
+    if (text)
+      {
+      k += vtkParse_ValueInfoToString(data->Parameters[i], &text[k], flags);
+      while (k > 0 && text[k-1] == ' ')
+        {
+        k--;
+        }
+      }
+    else
+      {
+      k += vtkParse_ValueInfoToString(data->Parameters[i], NULL, flags);
+      }
+    }
+  if (text)
+    {
+    text[k] = '>';
+    text[k+1] = '\0';
+    }
+  k++;
+
+  return k;
+}
+
+/* generate a function signature for a FunctionInfo struct */
+size_t vtkParse_FunctionInfoToString(
+  FunctionInfo *func, char *text, unsigned int flags)
+{
+  int i;
+  size_t k = 0;
+
+  if (func->Template && (flags & VTK_PARSE_TEMPLATES) != 0)
+    {
+    if (text)
+      {
+      k += vtkParse_TemplateInfoToString(func->Template, &text[k], flags);
+      text[k++] = ' ';
+      }
+    else
+      {
+      k += vtkParse_TemplateInfoToString(func->Template, NULL, flags);
+      k++;
+      }
+    }
+
+  if (func->IsStatic && (flags & VTK_PARSE_STATIC) != 0)
+    {
+    if (text)
+      {
+      strcpy(&text[k], "static ");
+      }
+    k += 7;
+    }
+  if (func->IsVirtual && (flags & VTK_PARSE_VIRTUAL) != 0)
+    {
+    if (text)
+      {
+      strcpy(&text[k], "virtual ");
+      }
+    k += 8;
+    }
+  if (func->IsExplicit && (flags & VTK_PARSE_EXPLICIT) != 0)
+    {
+    if (text)
+      {
+      strcpy(&text[k], "explicit ");
+      }
+    k += 9;
+    }
+
+  if (func->ReturnValue && (flags & VTK_PARSE_RETURN_VALUE) != 0)
+    {
+    if (text)
+      {
+      k += vtkParse_ValueInfoToString(
+        func->ReturnValue, &text[k],
+        VTK_PARSE_EVERYTHING ^ (VTK_PARSE_ARRAY | VTK_PARSE_NAMES));
+      }
+    else
+      {
+      k += vtkParse_ValueInfoToString(
+        func->ReturnValue, NULL,
+        VTK_PARSE_EVERYTHING ^ (VTK_PARSE_ARRAY | VTK_PARSE_NAMES));
+      }
+    }
+
+  if ((flags & VTK_PARSE_RETURN_VALUE) != 0 &&
+      (flags & VTK_PARSE_PARAMETER_LIST) != 0)
+    {
+    if (func->Name)
+      {
+      if (text)
+        {
+        strcpy(&text[k], func->Name);
+        }
+      k += strlen(func->Name);
+      }
+    else
+      {
+      if (text)
+        {
+        text[k++] = '(';
+        if (func->Class)
+          {
+          strcpy(&text[k], func->Class);
+          k += strlen(func->Class);
+          text[k++] = ':';
+          text[k++] = ':';
+          }
+        text[k++] = '*';
+        text[k++] = ')';
+        }
+      else
+        {
+        k++;
+        if (func->Class)
+          {
+          k += strlen(func->Class);
+          k += 2;
+          }
+        k += 2;
+        }
+      }
+    }
+  if ((flags & VTK_PARSE_PARAMETER_LIST) != 0)
+    {
+    if (text)
+      {
+      text[k] = '(';
+      }
+    k++;
+    for (i = 0; i < func->NumberOfParameters; i++)
+      {
+      if (i != 0)
+        {
+        if (text)
+          {
+          text[k] = ',';
+          text[k+1] = ' ';
+          }
+        k += 2;
+        }
+      if (text)
+        {
+        k += vtkParse_ValueInfoToString(
+          func->Parameters[i], &text[k],
+          (VTK_PARSE_EVERYTHING ^ (VTK_PARSE_NAMES | VTK_PARSE_VALUES)) |
+          (flags & (VTK_PARSE_NAMES | VTK_PARSE_VALUES)));
+        while (k > 0 && text[k-1] == ' ')
+          {
+          k--;
+          }
+        }
+      else
+        {
+        k += vtkParse_ValueInfoToString(
+          func->Parameters[i], NULL,
+          (VTK_PARSE_EVERYTHING ^ (VTK_PARSE_NAMES | VTK_PARSE_VALUES)) |
+          (flags & (VTK_PARSE_NAMES | VTK_PARSE_VALUES)));
+        }
+      }
+    if (text)
+      {
+      text[k] = ')';
+      }
+    k++;
+    }
+  if (func->IsConst && (flags & VTK_PARSE_CONST) != 0)
+    {
+    if (text)
+      {
+      strcpy(&text[k], " const");
+      }
+    k += 6;
+    }
+  if (func->IsFinal && (flags & VTK_PARSE_TRAILERS) != 0)
+    {
+    if (text)
+      {
+      strcpy(&text[k], " final");
+      }
+    k += 6;
+    }
+  if (func->IsPureVirtual && (flags & VTK_PARSE_TRAILERS) != 0)
+    {
+    if (text)
+      {
+      strcpy(&text[k], " = 0");
+      }
+    k += 4;
+    }
+  if (text)
+    {
+    text[k] = '\0';
+    }
+
+  return k;
+}
+
+/* Compare two functions */
+int vtkParse_CompareFunctionSignature(
+  const FunctionInfo *func1, const FunctionInfo *func2)
+{
+  ValueInfo *p1;
+  ValueInfo *p2;
+  int j;
+  int k;
+  int match = 0;
+
+  /* uninstantiated templates cannot be compared */
+  if (func1->Template || func2->Template)
+    {
+    return 0;
+    }
+
+  /* check the parameters */
+  if (func2->NumberOfParameters == func1->NumberOfParameters)
+    {
+    for (k = 0; k < func2->NumberOfParameters; k++)
+      {
+      p1 = func1->Parameters[k];
+      p2 = func2->Parameters[k];
+      if (p2->Type != p1->Type || strcmp(p2->Class, p1->Class) != 0)
+        {
+        break;
+        }
+      if (p1->Function && p2->Function)
+        {
+        if (vtkParse_CompareFunctionSignature(p1->Function, p2->Function) < 7)
+          {
+          break;
+          }
+        }
+      if (p1->NumberOfDimensions > 1 || p2->NumberOfDimensions > 1)
+        {
+        if (p1->NumberOfDimensions != p2->NumberOfDimensions)
+          {
+          break;
+          }
+        for (j = 1; j < p1->NumberOfDimensions; j++)
+          {
+          if (strcmp(p1->Dimensions[j], p2->Dimensions[j]) != 0)
+            {
+            break;
+            }
+          }
+        }
+      }
+    if (k == func2->NumberOfParameters)
+      {
+      match = 1;
+      }
+    }
+
+  /* check the return value */
+  if (match && func1->ReturnValue && func2->ReturnValue)
+    {
+    p1 = func1->ReturnValue;
+    p2 = func2->ReturnValue;
+    if (p2->Type == p1->Type && strcmp(p2->Class, p1->Class) == 0)
+      {
+      if (p1->Function && p2->Function)
+        {
+        if (vtkParse_CompareFunctionSignature(p1->Function, p2->Function) < 7)
+          {
+          match |= 2;
+          }
+        }
+      else
+        {
+        match |= 2;
+        }
+      }
+    }
+
+  /* check the class */
+  if (match &&
+      func1->Class && func2->Class && strcmp(func1->Class, func2->Class) == 0)
+    {
+    if (func1->IsConst == func2->IsConst)
+      {
+      match |= 4;
+      }
+    }
+
+  return match;
 }
 
 /* Search and replace, return the initial string if no replacements
