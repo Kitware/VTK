@@ -29,6 +29,8 @@
 #include "vtkFieldData.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkCompositeDataIterator.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkDataObjectTreeIterator.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkCellData.h"
 #include "vtkPointData.h"
@@ -435,15 +437,45 @@ void vtkExodusIIWriter::StringUppercase(std::string& str)
 //----------------------------------------------------------------------------
 int vtkExodusIIWriter::FlattenHierarchy (vtkDataObject* input, bool& changed)
 {
-  if (input->IsA ("vtkCompositeDataSet"))
+  if (input->IsA ("vtkMultiBlockDataSet"))
     {
-    vtkCompositeDataSet* castObj = vtkCompositeDataSet::SafeDownCast(input);
-    vtkCompositeDataIterator* iter = castObj->NewIterator ();
+    vtkMultiBlockDataSet* castObj = vtkMultiBlockDataSet::SafeDownCast(input);
+    vtkDataObjectTreeIterator* iter = castObj->NewTreeIterator ();
+    iter->VisitOnlyLeavesOff ();
+    iter->TraverseSubTreeOff ();
+    iter->SkipEmptyNodesOff ();
     for (iter->InitTraversal ();
          !iter->IsDoneWithTraversal ();
          iter->GoToNextItem ())
       {
-      if (!this->FlattenHierarchy (iter->GetCurrentDataObject (), changed))
+      const char *name = iter->GetCurrentMetaData()->Get (vtkCompositeDataSet::NAME());
+      if (strstr (name, "Sets") != 0)
+        {
+        continue;
+        }
+      if (iter->GetCurrentDataObject () && !this->FlattenHierarchy (iter->GetCurrentDataObject (), changed))
+        {
+        return 0;
+        }
+      }
+    iter->Delete ();
+    }
+  else if (input->IsA ("vtkCompositeDataSet"))
+    {
+    vtkCompositeDataSet* castObj = vtkCompositeDataSet::SafeDownCast(input);
+    vtkCompositeDataIterator* iter = castObj->NewIterator ();
+    vtkDataObjectTreeIterator* treeIter = vtkDataObjectTreeIterator::SafeDownCast (castObj);
+    if (treeIter)
+      {
+      treeIter->VisitOnlyLeavesOff ();
+      treeIter->TraverseSubTreeOff ();
+      treeIter->SkipEmptyNodesOff ();
+      }
+    for (iter->InitTraversal ();
+         !iter->IsDoneWithTraversal ();
+         iter->GoToNextItem ())
+      {
+      if (iter->GetCurrentDataObject () && !this->FlattenHierarchy (iter->GetCurrentDataObject (), changed))
         {
         return 0;
         }
