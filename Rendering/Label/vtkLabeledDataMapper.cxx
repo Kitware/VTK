@@ -437,9 +437,15 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
       {
       if (this->FieldDataName)
         {
-        vtkWarningMacro(<< "Could not find label array ("
-                        << this->FieldDataName << ") "
-                        << "in input.");
+        // When interactively selecting data with multiple sources
+        // (select the cell/point under the mouse pointer)
+        // you want to see a label for the source where the field exists
+        // and not see it if the field does not exit.
+        // Not seeing the label is enough indication that the field does not
+        // exist.
+        // vtkWarningMacro(<< "Could not find label array ("
+        //                 << this->FieldDataName << ") "
+        //                 << "in input.");
         }
       else
         {
