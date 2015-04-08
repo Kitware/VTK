@@ -188,11 +188,18 @@ double vtkMath::Gaussian( double mean, double std )
 //----------------------------------------------------------------------------
 inline vtkTypeInt64 vtkMath::Factorial( int N )
 {
+    if ( N < 30 && vtkMath::Internal.MemoizeFactorial[N] != 0 )
+    {
+        return vtkMath::Internal.MemoizeFactorial[N];
+    }
+
+    int N_ori = N;
     vtkTypeInt64 r = 1;
     while ( N > 1 )
     {
         r *= N--;
     }
+    vtkMath::Internal.MemoizeFactorial[N_ori] = r;
     return r;
 }
 
