@@ -27,6 +27,7 @@
 #include "vtkDataArray.h"
 #include <cassert>
 #include <cmath>
+#include <vector>
 
 #include "vtkBoxMuellerRandomSequence.h"
 #include "vtkMinimalStandardRandomSequence.h"
@@ -40,6 +41,7 @@ public:
   ~vtkMathInternal();
   vtkMinimalStandardRandomSequence *Uniform;
   vtkBoxMuellerRandomSequence *Gaussian;
+  std::vector<vtkTypeInt64> MemoizeFactorial;
 };
 
 vtkMathInternal::vtkMathInternal()
@@ -51,6 +53,7 @@ vtkMathInternal::vtkMathInternal()
   this->Uniform=static_cast<vtkMinimalStandardRandomSequence *>(
     this->Gaussian->GetUniformSequence());
   this->Uniform->SetSeedOnly(1177); // One authors home address
+  this->MemoizeFactorial.resize(30, 0);
 }
 
 vtkMathInternal::~vtkMathInternal()
