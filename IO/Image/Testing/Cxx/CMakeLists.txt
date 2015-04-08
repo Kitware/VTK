@@ -38,6 +38,10 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestTIFFReaderTiledRGB,TestTIFFReader.cxx,NO_OUTPUT
     "DATA{${VTK_TEST_INPUT_DIR}/libtiff/gourds_tiled_200x300.tif}")
 
+vtk_add_test_cxx(${vtk-module}CxxTests tests
+  TestCompressedTIFFReader,TestCompressedTIFFReader.cxx,NO_OUTPUT
+    "DATA{${VTK_TEST_INPUT_DIR}/al_foam_smallest.0.tif}")
+
 set(all_tests
   ${data_tests}
   ${tests}
