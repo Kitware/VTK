@@ -8,7 +8,7 @@ Main Tasks
 ----------
 
 * [Install Git](http://public.kitware.com/Wiki/Git/Download) -
-  Git 1.6.6 or greater is preferred (required for development)
+  Git 1.7.2 or greater is preferred (required for development)
 
 * [Download VTK](download.md) - Users start here
 
