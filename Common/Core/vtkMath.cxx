@@ -193,14 +193,14 @@ vtkTypeInt64 vtkMath::Factorial( int N )
     return 1;
   }
 
-  std::map<int, vtkTypeInt64> ii = this->Internal.MemoizeFactorial.find(N);
-  if (ii != this->Internal.MemoizeFactorial.end())
+  std::map<int, vtkTypeInt64>::iterator ii = vtkMath::Internal.MemoizeFactorial.find(N);
+  if (ii != vtkMath::Internal.MemoizeFactorial.end())
   {
     return ii->second;
   }
 
   vtkTypeInt64 r = Factorial(N-1) * N;
-  this->Internal.MemoizeFactorial[N] = r;
+  vtkMath::Internal.MemoizeFactorial[N] = r;
   return r;
 }
 
