@@ -27,7 +27,7 @@
 #include "vtkDataArray.h"
 #include <cassert>
 #include <cmath>
-#include <vector>
+#include <map>
 
 #include "vtkBoxMuellerRandomSequence.h"
 #include "vtkMinimalStandardRandomSequence.h"
@@ -41,7 +41,7 @@ public:
   ~vtkMathInternal();
   vtkMinimalStandardRandomSequence *Uniform;
   vtkBoxMuellerRandomSequence *Gaussian;
-  std::vector<vtkTypeInt64> MemoizeFactorial;
+  std::map<int, vtkTypeInt64> MemoizeFactorial;
 };
 
 vtkMathInternal::vtkMathInternal()
@@ -53,7 +53,7 @@ vtkMathInternal::vtkMathInternal()
   this->Uniform=static_cast<vtkMinimalStandardRandomSequence *>(
     this->Gaussian->GetUniformSequence());
   this->Uniform->SetSeedOnly(1177); // One authors home address
-  this->MemoizeFactorial.resize(30, 0);
+  this->MemoizeFactorial.clear();
 }
 
 vtkMathInternal::~vtkMathInternal()
@@ -186,21 +186,22 @@ double vtkMath::Gaussian( double mean, double std )
 }
 
 //----------------------------------------------------------------------------
-inline vtkTypeInt64 vtkMath::Factorial( int N )
+vtkTypeInt64 vtkMath::Factorial( int N )
 {
-    if ( N < 30 && vtkMath::Internal.MemoizeFactorial[N] != 0 )
-    {
-        return vtkMath::Internal.MemoizeFactorial[N];
-    }
+  if (N == 0)
+  {
+    return 1;
+  }
 
-    int N_ori = N;
-    vtkTypeInt64 r = 1;
-    while ( N > 1 )
-    {
-        r *= N--;
-    }
-    vtkMath::Internal.MemoizeFactorial[N_ori] = r;
-    return r;
+  std::map<int, vtkTypeInt64> ii = this->Internal.MemoizeFactorial.find(N);
+  if (ii != this->Internal.MemoizeFactorial.end())
+  {
+    return ii->second;
+  }
+
+  vtkTypeInt64 r = Factorial(N-1) * N;
+  this->Internal.MemoizeFactorial[N] = r;
+  return r;
 }
 
 //----------------------------------------------------------------------------
