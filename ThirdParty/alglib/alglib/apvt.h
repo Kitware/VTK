@@ -49,16 +49,16 @@ class const_raw_vector
 {
 public:
     const_raw_vector(const T *Data, int Length, int Step):
-        pData(const_cast<T*>(Data)),iLength(Length),iStep(Step){};
+        pData(const_cast<T*>(Data)),iLength(Length),iStep(Step){}
 
     const T* GetData() const
-    { return pData; };
+    { return pData; }
 
     int GetLength() const
-    { return iLength; };
+    { return iLength; }
 
     int GetStep() const
-    { return iStep; };
+    { return iStep; }
 protected:
     T       *pData;
     int     iLength, iStep;
@@ -79,10 +79,10 @@ template<class T>
 class raw_vector : public const_raw_vector<T>
 {
 public:
-    raw_vector(T *Data, int Length, int Step):const_raw_vector<T>(Data, Length, Step){};
+    raw_vector(T *Data, int Length, int Step):const_raw_vector<T>(Data, Length, Step){}
 
     T* GetData()
-    { return const_raw_vector<T>::pData; };
+    { return const_raw_vector<T>::pData; }
 };
 
 

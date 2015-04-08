@@ -97,7 +97,7 @@ class FTGL_EXPORT FTSize
      */
     FT_Error Error() const { return err; }
     
-    int GetSizeInPoints() const { return this->size; };
+    int GetSizeInPoints() const { return this->size; }
 
   private:
     /**

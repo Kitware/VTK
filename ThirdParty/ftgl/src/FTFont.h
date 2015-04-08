@@ -88,7 +88,7 @@ class FTGL_EXPORT FTFont
      */
     bool FaceSize( const unsigned int size, const unsigned int res = 72);
 
-    FTSize& GetSize() { return this->charSize; };
+    FTSize& GetSize() { return this->charSize; }
     
     /**
      * Gets the current face.
