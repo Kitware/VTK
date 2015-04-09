@@ -229,7 +229,7 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
 }
 
 //----------------------------------------------------------------------------
-void vtkPythonInterpreter::RunSimpleString(const char* script)
+int vtkPythonInterpreter::RunSimpleString(const char* script)
 {
   vtkPythonInterpreter::Initialize(1);
   vtkPythonInterpreter::ConsoleBuffering = true;
@@ -240,7 +240,7 @@ void vtkPythonInterpreter::RunSimpleString(const char* script)
   buffer.erase(std::remove(buffer.begin(), buffer.end(), '\r'), buffer.end());
 
   // The cast is necessary because PyRun_SimpleString() hasn't always been const-correct
-  PyRun_SimpleString(const_cast<char*>(buffer.c_str()));
+  int pyReturn = PyRun_SimpleString(const_cast<char*>(buffer.c_str()));
   vtkPythonInterpreter::ConsoleBuffering = false;
   if (! vtkPythonInterpreter::StdErrBuffer.empty())
     {
@@ -254,6 +254,8 @@ void vtkPythonInterpreter::RunSimpleString(const char* script)
                          vtkPythonInterpreter::StdOutBuffer.c_str()));
     vtkPythonInterpreter::StdOutBuffer.clear();
     }
+
+  return pyReturn;
 }
 
 //----------------------------------------------------------------------------
