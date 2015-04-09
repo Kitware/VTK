@@ -27,9 +27,11 @@
 #include "vtkDataArray.h"
 #include <cassert>
 #include <cmath>
+#include <vector>
 
 #include "vtkBoxMuellerRandomSequence.h"
 #include "vtkMinimalStandardRandomSequence.h"
+#include "vtkTypeTraits.h"
 
 vtkStandardNewMacro(vtkMath);
 
@@ -40,6 +42,7 @@ public:
   ~vtkMathInternal();
   vtkMinimalStandardRandomSequence *Uniform;
   vtkBoxMuellerRandomSequence *Gaussian;
+  std::vector<vtkTypeInt64> MemoizeFactorial;
 };
 
 vtkMathInternal::vtkMathInternal()
@@ -51,6 +54,7 @@ vtkMathInternal::vtkMathInternal()
   this->Uniform=static_cast<vtkMinimalStandardRandomSequence *>(
     this->Gaussian->GetUniformSequence());
   this->Uniform->SetSeedOnly(1177); // One authors home address
+  this->MemoizeFactorial.resize(21, 0);
 }
 
 vtkMathInternal::~vtkMathInternal()
@@ -180,6 +184,30 @@ double vtkMath::Gaussian( double mean, double std )
 {
   vtkMath::Internal.Gaussian->Next();
   return vtkMath::Internal.Gaussian->GetScaledValue(mean,std);
+}
+
+//----------------------------------------------------------------------------
+vtkTypeInt64 vtkMath::Factorial( int N )
+{
+  if (N > 20)
+    {
+    vtkGenericWarningMacro("Factorial(" << N << ") would overflow.");
+    return vtkTypeTraits<vtkTypeInt64>::Max();
+    }
+
+  if (N == 0)
+    {
+    return 1;
+    }
+
+  if (vtkMath::Internal.MemoizeFactorial[N] != 0)
+    {
+    return vtkMath::Internal.MemoizeFactorial[N];
+    }
+
+  vtkTypeInt64 r = vtkMath::Factorial(N - 1) * N;
+  vtkMath::Internal.MemoizeFactorial[N] = r;
+  return r;
 }
 
 //----------------------------------------------------------------------------

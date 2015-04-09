@@ -996,17 +996,6 @@ inline double vtkMath::DegreesFromRadians( double x )
 }
 
 //----------------------------------------------------------------------------
-inline vtkTypeInt64 vtkMath::Factorial( int N )
-{
-  vtkTypeInt64 r = 1;
-  while ( N > 1 )
-    {
-    r *= N--;
-    }
-  return r;
-}
-
-//----------------------------------------------------------------------------
 inline bool vtkMath::IsPowerOfTwo(vtkTypeUInt64 x)
 {
   return ((x != 0) & ((x & (x - 1)) == 0));
