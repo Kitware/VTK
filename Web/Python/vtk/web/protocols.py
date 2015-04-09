@@ -184,7 +184,8 @@ class vtkWebViewPortImageDelivery(vtkWebProtocol):
         beginTime = int(round(time() * 1000))
         view = self.getView(options["view"])
         size = [view.GetSize()[0], view.GetSize()[1]]
-        if options and options.has_key("size"):
+        resize = size != options.get("size", size)
+        if resize:
             size = options["size"]
             if size[0] > 0 and size[1] > 0:
               view.SetSize(size)
@@ -202,6 +203,15 @@ class vtkWebViewPortImageDelivery(vtkWebProtocol):
         if t == 0:
             app.InvalidateCache(view)
         reply["image"] = app.StillRenderToString(view, t, quality)
+        # Check that we are getting image size we have set if not wait until we
+        # do. The render call will set the actual window size.
+        tries = 10;
+        while resize and list(view.GetSize()) != size \
+              and size != [0, 0] and tries > 0:
+            app.InvalidateCache(view)
+            reply["image"] = app.StillRenderToString(view, t, quality)
+            tries -= 1
+
         reply["stale"] = app.GetHasImagesBeingProcessed(view)
         reply["mtime"] = app.GetLastStillRenderToStringMTime()
         reply["size"] = [view.GetSize()[0], view.GetSize()[1]]

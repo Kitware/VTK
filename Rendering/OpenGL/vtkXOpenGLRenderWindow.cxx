@@ -496,16 +496,6 @@ extern "C"
   }
 }
 
-static int XResizeWindowFailed = 0;
-extern "C"
-{
-  int vtkXResizeWindowErrorHandler(Display*, XErrorEvent*)
-  {
-    XResizeWindowFailed = 1;
-    return 1;
-  }
-}
-
 void vtkXOpenGLRenderWindow::CreateAWindow()
 {
   XVisualInfo  *v, matcher;
@@ -1196,10 +1186,6 @@ void vtkXOpenGLRenderWindow::SetSize(int width,int height)
 {
   if ((this->Size[0] != width)||(this->Size[1] != height))
     {
-
-    int previousWidth = this->Size[0];
-    int previousHeight = this->Size[1];
-
     this->Size[0] = width;
     this->Size[1] = height;
 
@@ -1214,33 +1200,10 @@ void vtkXOpenGLRenderWindow::SetSize(int width,int height)
       }
     else if(this->WindowId && this->Mapped)
       {
-      // First set error handler so we can tell if the resize failed
-      XErrorHandler previousHandler = XSetErrorHandler(vtkXResizeWindowErrorHandler);
-
       XResizeWindow(this->DisplayId,this->WindowId,
                     static_cast<unsigned int>(width),
                     static_cast<unsigned int>(height));
       XSync(this->DisplayId,False);
-
-      // XSync is not enough we need to wait for notification that a resize
-      // has occurred.
-      while (!XResizeWindowFailed)
-        {
-        XEvent e;
-        XMaskEvent(this->DisplayId, StructureNotifyMask, &e);
-
-        if(e.type == ConfigureNotify)
-          {
-          XConfigureEvent xce = e.xconfigure;
-
-          if (xce.width != previousWidth || xce.height != previousHeight)
-            {
-            break;
-            }
-          }
-        }
-        XSetErrorHandler(previousHandler);
-        XResizeWindowFailed = 0;
       }
 
     this->Modified();
