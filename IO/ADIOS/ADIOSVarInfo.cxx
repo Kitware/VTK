@@ -37,7 +37,6 @@ VarInfo::VarInfo(ADIOS_FILE *f, ADIOS_VARINFO *v)
 
   // Polulate dimensions and determine block step ranges
   size_t pidMax = 0;
-  size_t tidMax = 0;
   int nd = v->ndim;
   this->Dims.resize(v->sum_nblocks);
   for(size_t bid = 0; bid < v->sum_nblocks; ++bid)

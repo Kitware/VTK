@@ -1253,7 +1253,7 @@ PlyOtherElems *vtkPLY::ply_get_other_element (
 
   /* set up for getting elements */
   other->other_props = vtkPLY::ply_get_other_properties (plyfile, elem_name,
-                         offsetof(OtherData,other_props));
+                         static_cast<int>(offsetof(OtherData,other_props)));
 
   /* grab all these elements */
   for (i = 0; i < other->elem_count; i++) {
@@ -1297,7 +1297,7 @@ void vtkPLY::ply_describe_other_elements (
     other = &(other_elems->other_list[i]);
     vtkPLY::ply_element_count (plyfile, other->elem_name, other->elem_count);
     vtkPLY::ply_describe_other_properties (plyfile, other->other_props,
-                                   offsetof(OtherData,other_props));
+                       static_cast<int>(offsetof(OtherData,other_props)));
   }
 }
 

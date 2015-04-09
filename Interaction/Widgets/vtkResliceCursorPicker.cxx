@@ -77,11 +77,8 @@ int vtkResliceCursorPicker::Pick(double selectionX, double selectionY,
   double *clipRange;
   double ray[3], rayLength;
   double windowLowerLeft[4], windowUpperRight[4];
-  double bounds[6], tol;
   double tF, tB;
   double cameraDOP[3];
-
-  bounds[0] = bounds[1] = bounds[2] = bounds[3] = bounds[4] = bounds[5] = 0;
 
   //  Initialize picking process
   this->Initialize();
@@ -200,6 +197,7 @@ int vtkResliceCursorPicker::Pick(double selectionX, double selectionY,
   renderer->DisplayToWorld();
   renderer->GetWorldPoint(windowUpperRight);
 
+  double tol;
   for (tol=0.0,i=0; i<3; i++)
     {
     tol += (windowUpperRight[i] - windowLowerLeft[i]) *
