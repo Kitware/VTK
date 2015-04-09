@@ -289,20 +289,20 @@ void vtkParseMerge_MergeUsing(
       }
 
     /* check that the function is being "used" */
-    match = 0;
+    u = NULL;
     for (ii = 0; ii < merge->NumberOfUsings; ii++)
       {
-      u = merge->Usings[ii];
-      if (u && strcmp(u->Scope, "Superclass") == 0)
+      v = merge->Usings[ii];
+      if (v && strcmp(v->Scope, "Superclass") == 0)
         {
-        if (u->Name && strcmp(u->Name, func->Name) == 0)
+        if (v->Name && strcmp(v->Name, func->Name) == 0)
           {
-          match = 1;
+          u = v;
           break;
           }
         }
       }
-    if (!match)
+    if (!u)
       {
       continue;
       }
@@ -351,6 +351,7 @@ void vtkParseMerge_MergeUsing(
           cp = vtkParse_NewString(finfo->Strings, l);
           vtkParse_FunctionInfoToString(f2, cp, VTK_PARSE_EVERYTHING);
           f2->Signature = cp;
+          lastval = NULL;
           for (k = 0; k < j; k++)
             {
             param = (ValueInfo *)malloc(sizeof(ValueInfo));
