@@ -276,7 +276,7 @@ vtkIdType vtkPlotFunctionalBag::GetNearestPoint(const vtkVector2f& point,
 //-----------------------------------------------------------------------------
 bool vtkPlotFunctionalBag::SelectPoints(const vtkVector2f& min, const vtkVector2f& max)
 {
-  if (this->BagPoints->GetNumberOfPoints() == 0)
+  if (!this->IsBag())
     {
     return this->Line->SelectPoints(min, max);
     }
@@ -286,7 +286,7 @@ bool vtkPlotFunctionalBag::SelectPoints(const vtkVector2f& min, const vtkVector2
 //-----------------------------------------------------------------------------
 bool vtkPlotFunctionalBag::SelectPointsInPolygon(const vtkContextPolygon &polygon)
 {
-  if (this->BagPoints->GetNumberOfPoints() == 0)
+  if (!this->IsBag())
     {
     return this->Line->SelectPointsInPolygon(polygon);
     }

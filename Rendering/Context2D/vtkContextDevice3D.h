@@ -45,8 +45,15 @@ public:
 
   // Description:
   // Draw a polyline between the specified points.
+  // \sa DrawLines()
   virtual void DrawPoly(const float *verts, int n,
                         const unsigned char *colors = 0, int nc = 0) = 0;
+
+  // Description:
+  // Draw lines defined by specified pair of points.
+  // \sa DrawPoly()
+  virtual void DrawLines(const float *verts, int n,
+                         const unsigned char *colors = 0, int nc = 0) = 0;
 
   // Description:
   // Draw points at the vertex positions specified.

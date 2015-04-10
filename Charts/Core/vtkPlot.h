@@ -210,6 +210,19 @@ public:
   // column in the vtkTable.
   virtual void SetInputArray(int index, const vtkStdString &name);
 
+  // Description:
+  // Set whether the plot can be selected. True by default.
+  // If not, then SetSelection(), SelectPoints() or SelectPointsInPolygon()
+  // won't have any effect.
+  // \sa SetSelection(), SelectPoints(), SelectPointsInPolygon()
+  vtkSetMacro(Selectable,int);
+  vtkGetMacro(Selectable,int);
+  vtkBooleanMacro(Selectable,int);
+
+  // Description:
+  // Sets the list of points that must be selected.
+  // If Selectable is false, then this method does nothing.
+  // \sa SetSelectable()
   virtual void SetSelection(vtkIdTypeArray *id);
   vtkGetObjectMacro(Selection, vtkIdTypeArray);
 
@@ -324,6 +337,10 @@ protected:
   // This data member contains the data that will be plotted, it inherits
   // from vtkAlgorithm.
   vtkSmartPointer<vtkContextMapper2D> Data;
+
+  // Description:
+  // Whether plot points can be selected or not.
+  bool Selectable;
 
   // Description:
   // Selected indices for the table the plot is rendering

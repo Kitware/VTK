@@ -143,6 +143,7 @@ vtkOpenGLContextDevice3D::~vtkOpenGLContextDevice3D()
   delete Storage;
 }
 
+//-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice3D::DrawPoly(const float *verts, int n,
                                         const unsigned char *colors, int nc)
 {
@@ -177,6 +178,43 @@ void vtkOpenGLContextDevice3D::DrawPoly(const float *verts, int n,
   this->DisableDepthBuffer();
 
   vtkOpenGLCheckErrorMacro("failed after DrawPoly");
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLContextDevice3D::DrawLines(const float *verts, int n,
+                                         const unsigned char *colors, int nc)
+{
+  assert("verts must be non-null" && verts != NULL);
+  assert("n must be greater than 0" && n > 0);
+
+  vtkOpenGLClearErrorMacro();
+
+  this->EnableDepthBuffer();
+
+  this->Storage->SetLineType(this->Pen->GetLineType());
+  glLineWidth(this->Pen->GetWidth());
+
+  if (colors)
+    {
+    glEnableClientState(GL_COLOR_ARRAY);
+    glColorPointer(nc, GL_UNSIGNED_BYTE, 0, colors);
+    }
+  else
+    {
+    glColor4ubv(this->Pen->GetColor());
+    }
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glVertexPointer(3, GL_FLOAT, 0, verts);
+  glDrawArrays(GL_LINE, 0, n);
+  glDisableClientState(GL_VERTEX_ARRAY);
+  if (colors)
+    {
+    glDisableClientState(GL_COLOR_ARRAY);
+    }
+
+  this->DisableDepthBuffer();
+
+  vtkOpenGLCheckErrorMacro("failed after DrawLines");
 }
 
 void vtkOpenGLContextDevice3D::DrawPoints(const float *verts, int n,
