@@ -52,6 +52,11 @@ public:
   void DrawPoly(const float *verts, int n, const unsigned char *colors, int nc);
 
   // Description:
+  // Draw lines defined by specified pair of points.
+  // \sa DrawPoly()
+  void DrawLines(const float *verts, int n, const unsigned char *colors, int nc);
+
+  // Description:
   // Draw points at the vertex positions specified.
   void DrawPoints(const float *verts, int n,
                   const unsigned char *colors, int nc);
