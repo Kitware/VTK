@@ -43,6 +43,8 @@
 #include <deque>
 #include <cassert>
 
+#include <libxml/tree.h>
+
 using namespace xdmf2;
 
 static void vtkScaleExtents(int in_exts[6], int out_exts[6], int stride[3])
@@ -137,7 +139,7 @@ vtkDataObject* vtkXdmfHeavyData::ReadData()
 }
 
 //----------------------------------------------------------------------------
-vtkDataObject* vtkXdmfHeavyData::ReadData(XdmfGrid* xmfGrid)
+vtkDataObject* vtkXdmfHeavyData::ReadData(XdmfGrid* xmfGrid, int blockId)
 {
   if (!xmfGrid || xmfGrid->GetGridType() == XDMF_GRID_UNSET)
     {
@@ -151,7 +153,7 @@ vtkDataObject* vtkXdmfHeavyData::ReadData(XdmfGrid* xmfGrid)
     {
     // grid is a temporal collection, pick the sub-grid with matching time and
     // process that.
-    return this->ReadTemporalCollection(xmfGrid);
+    return this->ReadTemporalCollection(xmfGrid, blockId);
     }
   else if (gridType == XDMF_GRID_COLLECTION ||
     gridType == XDMF_GRID_TREE)
@@ -160,7 +162,7 @@ vtkDataObject* vtkXdmfHeavyData::ReadData(XdmfGrid* xmfGrid)
     }
 
   // grid is a primitive grid, so read the data.
-  return this->ReadUniformData(xmfGrid);
+  return this->ReadUniformData(xmfGrid, blockId);
 }
 
 //----------------------------------------------------------------------------
@@ -189,7 +191,7 @@ vtkDataObject* vtkXdmfHeavyData::ReadComposite(XdmfGrid* xmfComposite)
     if (!child_is_leaf || !distribute_leaf_nodes ||
       (number_of_leaf_nodes % this->NumberOfPieces) == this->Piece)
       {
-      vtkDataObject* childDO = this->ReadData(xmfChild);
+      vtkDataObject* childDO = this->ReadData(xmfChild, cc);
       if (childDO)
         {
         multiBlock->SetBlock(cc, childDO);
@@ -204,7 +206,7 @@ vtkDataObject* vtkXdmfHeavyData::ReadComposite(XdmfGrid* xmfComposite)
 
 //----------------------------------------------------------------------------
 vtkDataObject* vtkXdmfHeavyData::ReadTemporalCollection(
-  XdmfGrid* xmfTemporalCollection)
+  XdmfGrid* xmfTemporalCollection, int blockId)
 {
   assert(xmfTemporalCollection->GetGridType() & XDMF_GRID_COLLECTION &&
     xmfTemporalCollection->GetCollectionType() == XDMF_GRID_COLLECTION_TEMPORAL
@@ -254,7 +256,7 @@ vtkDataObject* vtkXdmfHeavyData::ReadTemporalCollection(
   std::deque<XdmfGrid*>::iterator iter;
   for (iter = valid_children.begin(); iter != valid_children.end(); ++iter)
     {
-    vtkDataObject* childDO = this->ReadData(*iter);
+    vtkDataObject* childDO = this->ReadData(*iter, blockId);
     if (childDO)
       {
       child_data_objects.push_back(childDO);
@@ -286,7 +288,7 @@ vtkDataObject* vtkXdmfHeavyData::ReadTemporalCollection(
 //----------------------------------------------------------------------------
 // Read a non-composite grid. Note here uniform has nothing to do with
 // vtkUniformGrid but to what Xdmf's GridType="Uniform".
-vtkDataObject* vtkXdmfHeavyData::ReadUniformData(XdmfGrid* xmfGrid)
+vtkDataObject* vtkXdmfHeavyData::ReadUniformData(XdmfGrid* xmfGrid, int blockId)
 {
   assert(xmfGrid->IsUniform() && "Input must be a uniform xdmf grid.");
 
@@ -300,6 +302,79 @@ vtkDataObject* vtkXdmfHeavyData::ReadUniformData(XdmfGrid* xmfGrid)
 
   // Read heavy data for grid geometry/topology. This does not read any
   // data-arrays. They are read explicitly.
+  XdmfTopology* topo = xmfGrid->GetTopology();
+  XdmfGeometry* geom = xmfGrid->GetGeometry();
+  xmlChar* filePtr;
+
+  bool caching = true;
+  XdmfDOM* topoDom = topo->GetDOM();
+  XdmfXmlNode topoNode = topo->GetElement();
+  XdmfXmlNode topoNodeDataItem = topoDom->FindElement("DataItem", 0, topoNode);
+  std::string topoFilename = "NULL";
+  if (topoNodeDataItem && caching)
+    {
+    filePtr = topoNodeDataItem->children->content;
+    if (filePtr != NULL)
+      {
+      topoFilename = reinterpret_cast<char*>(filePtr);
+      }
+    else
+      {
+      vtkErrorWithObjectMacro(this->Reader, << "Cannot find DataItem element in topology xml, no caching possible");
+      caching = false;
+      }
+    }
+  else
+    {
+    caching = false;
+    }
+
+  XdmfDOM* geomDom = geom->GetDOM();
+  XdmfXmlNode geomNode = geom->GetElement();
+  XdmfXmlNode geomNodeDataItem = geomDom->FindElement("DataItem", 0, geomNode);
+  std::string geomFilename = "NULL";
+  if (geomNodeDataItem && caching)
+    {
+    filePtr =  geomNodeDataItem->children->content;
+    if (filePtr != NULL)
+      {
+      geomFilename = reinterpret_cast<char*>(filePtr);
+      }
+    else
+      {
+      vtkErrorWithObjectMacro(this->Reader, << "Cannot find DataItem element in geometry xml, no caching possible");
+      caching = false;
+      }
+    }
+  else
+    {
+    caching = false;
+    }
+
+  vtkXdmfReader::XdmfReaderCachedData& cache =
+    vtkXdmfReader::SafeDownCast(this->Reader)->GetDataSetCache();
+  vtkXdmfReader::XdmfDataSetTopoGeoPath cachedData = cache[blockId];
+  if (caching &&
+    (cachedData.topologyPath == topoFilename) && (cachedData.geometryPath == geomFilename))
+    {
+    vtkDataSet* ds = vtkDataSet::SafeDownCast(
+      vtkDataObjectTypes::NewDataObject(cachedData.dataset->GetDataObjectType()));
+    ds->ShallowCopy(cachedData.dataset);
+    this->ReadAttributes(ds, xmfGrid);
+    return ds;
+    }
+
+  if (caching)
+    {
+    cachedData.topologyPath = topoFilename;
+    cachedData.geometryPath = geomFilename;
+    if (cache[blockId].dataset != NULL)
+      {
+      cache[blockId].dataset->Delete();
+      cache[blockId].dataset = NULL;
+      }
+    }
+
   XdmfInt32 status = xmfGrid->Update();
   if (status == XDMF_FAIL)
     {
@@ -310,31 +385,36 @@ vtkDataObject* vtkXdmfHeavyData::ReadUniformData(XdmfGrid* xmfGrid)
 
   switch (vtk_data_type)
     {
-  case VTK_UNIFORM_GRID:
-    dataObject = this->RequestImageData(xmfGrid, true);
-    break;
+    case VTK_UNIFORM_GRID:
+      dataObject = this->RequestImageData(xmfGrid, true);
+      break;
 
-  case VTK_IMAGE_DATA:
-    dataObject = this->RequestImageData(xmfGrid, false);
-    break;
+    case VTK_IMAGE_DATA:
+      dataObject = this->RequestImageData(xmfGrid, false);
+      break;
 
-  case VTK_STRUCTURED_GRID:
-    dataObject = this->RequestStructuredGrid(xmfGrid);
-    break;
+    case VTK_STRUCTURED_GRID:
+      dataObject = this->RequestStructuredGrid(xmfGrid);
+      break;
 
-  case VTK_RECTILINEAR_GRID:
-    dataObject = this->RequestRectilinearGrid(xmfGrid);
-    break;
+    case VTK_RECTILINEAR_GRID:
+      dataObject = this->RequestRectilinearGrid(xmfGrid);
+      break;
 
-  case VTK_UNSTRUCTURED_GRID:
-    dataObject = this->ReadUnstructuredGrid(xmfGrid);
-    break;
+    case VTK_UNSTRUCTURED_GRID:
+      dataObject = this->ReadUnstructuredGrid(xmfGrid);
+      break;
 
-  default:
-    // un-handled case.
-    return 0;
+    default:
+      // un-handled case.
+      return 0;
     }
 
+  if (caching)
+    {
+    cache[blockId].dataset = vtkDataSet::SafeDownCast(dataObject);
+    dataObject->Register(0);
+    }
   return dataObject;
 }
 

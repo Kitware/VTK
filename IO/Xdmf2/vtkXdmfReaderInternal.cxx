@@ -325,7 +325,13 @@ int vtkXdmfDomain::GetVTKDataType(XdmfGrid* xmfGrid)
 //----------------------------------------------------------------------------
 int vtkXdmfDomain::GetIndexForTime(double time)
 {
-  std::set<XdmfFloat64>::iterator iter = this->TimeSteps.upper_bound(time);
+  std::map<XdmfFloat64, int>::const_iterator iter = this->TimeSteps.find(time);
+  if (iter != this->TimeSteps.end())
+  {
+    return iter->second;
+  }
+
+  iter = this->TimeSteps.upper_bound(time);
   if (iter == this->TimeSteps.begin())
     {
     // The requested time step is before any available time.  We will use it by
@@ -337,7 +343,7 @@ int vtkXdmfDomain::GetIndexForTime(double time)
     iter--;
     }
 
-  std::set<XdmfFloat64>::iterator iter2 = this->TimeSteps.begin();
+  std::map<XdmfFloat64, int>::iterator iter2 = this->TimeSteps.begin();
   int counter = 0;
   while (iter2 != iter)
     {
@@ -641,7 +647,12 @@ void vtkXdmfDomain::CollectNonLeafMetaData(XdmfGrid* xmfGrid,
     XdmfTime* xmfTime = xmfGrid->GetTime();
     if (xmfTime && xmfTime->GetTimeType() != XDMF_TIME_UNSET)
       {
-      this->TimeSteps.insert(xmfTime->GetValue());
+        int step = static_cast<int>(this->TimeSteps.size());
+        if (this->TimeSteps.find(xmfTime->GetValue()) == this->TimeSteps.end())
+          {
+          this->TimeSteps[xmfTime->GetValue()] = step;//this->TimeSteps.insert(xmfTime->GetValue());
+          this->TimeStepsRev[step] = xmfTime->GetValue();
+          }
       }
     }
 }
@@ -728,7 +739,12 @@ void vtkXdmfDomain::CollectLeafMetaData(XdmfGrid* xmfGrid, vtkIdType silParent)
   XdmfTime* xmfTime = xmfGrid->GetTime();
   if (xmfTime && xmfTime->GetTimeType() != XDMF_TIME_UNSET)
     {
-    this->TimeSteps.insert(xmfTime->GetValue());
+    int step = static_cast<int>(this->TimeSteps.size());
+    if (this->TimeSteps.find(xmfTime->GetValue()) == this->TimeSteps.end())
+      {
+      this->TimeSteps[xmfTime->GetValue()] = step;//this->TimeSteps.insert(xmfTime->GetValue());
+      this->TimeStepsRev[step] = xmfTime->GetValue();
+      }
     }
 }
 
