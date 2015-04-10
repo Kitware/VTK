@@ -1,3 +1,18 @@
+/*=========================================================================
+  Program:   Visualization Toolkit
+  Module:    vtkOBJImporterInternals.h
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+=========================================================================*/
+
+#ifndef __vtkOBJImporterInternals_h
+#define __vtkOBJImporterInternals_h
+
 #include <string>
 #include "vtkOBJImporter.h"
 #include "vtkPolyDataAlgorithm.h"
@@ -6,12 +21,12 @@
 #include <map>
 #include "vtkActor.h"
 
-const int OBJ_FILENAME_LENGTH = 500;
-const int MATERIAL_NAME_SIZE  = 255;
+const int OBJ_FILENAME_LENGTH = 8192;
+const int MATERIAL_NAME_SIZE  = 8192;
 
 struct vtkOBJImportedMaterial
 {
-  char name[MATERIAL_NAME_SIZE];
+  char name[MATERIAL_NAME_SIZE]; // use std::array<char,N> when got {gcc4.7+,vs2012+}
   char texture_filename[OBJ_FILENAME_LENGTH];
   double amb[3];
   double diff[3];
@@ -22,13 +37,16 @@ struct vtkOBJImportedMaterial
   double shiny;
   double glossy;
   double refract_index;
-  double get_amb_coeff() {
+  double get_amb_coeff()
+  {
     return sqrt( amb[0]*amb[0]+amb[1]*amb[1]+amb[2]*amb[2] );
   }
-  double get_diff_coeff() {
+  double get_diff_coeff()
+  {
     return sqrt( diff[0]*diff[0]+diff[1]*diff[1]+diff[2]*diff[2] );
   }
-  double get_spec_coeff() {
+  double get_spec_coeff()
+  {
     return sqrt( spec[0]*spec[0]+spec[1]*spec[1]+spec[2]*spec[2] );
   }
 };
@@ -44,7 +62,7 @@ class vtkOBJPolyDataProcessor : public vtkPolyDataAlgorithm
 {
 public:
   static vtkOBJPolyDataProcessor *New();
-  vtkTypeMacro(vtkOBJPolyDataProcessor,vtkPolyDataAlgorithm);
+  vtkTypeMacro(vtkOBJPolyDataProcessor,vtkPolyDataAlgorithm)
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -59,12 +77,10 @@ public:
     MTLfilename = std::string(arg);
   }
 
-  vtkSetMacro(VertexScale,double);
-  vtkGetMacro(VertexScale,double);
+  vtkSetMacro(VertexScale,double)
+  vtkGetMacro(VertexScale,double)
 
   virtual vtkPolyData* GetOutput(int idx);
-
-  //////////////////////
 
   vtkOBJImportedMaterial*  GetMaterial(int k);
 
@@ -104,3 +120,6 @@ class vtkRenderer;
 void  bindTexturedPolydataToRenderWindow( vtkRenderWindow* renderWindow,
                                           vtkRenderer* renderer,
                                           vtkOBJPolyDataProcessor* reader );
+
+#endif
+// VTK-HeaderTest-Exclude: vtkOBJImporterInternals.h

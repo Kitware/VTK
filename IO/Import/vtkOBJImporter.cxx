@@ -1,8 +1,6 @@
 /*=========================================================================
-
   Program:   Visualization Toolkit
-  Module:    vtkOBJPolyDataProcessor.cxx
-
+  Module:    vtkOBJImporter.cxx
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
@@ -10,8 +8,8 @@
      This software is distributed WITHOUT ANY WARRANTY; without even
      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
-
 =========================================================================*/
+
 #include "vtkOBJImporter.h"
 
 #include "vtkCellArray.h"
@@ -78,7 +76,10 @@ int vtkOBJImporter::ImportBegin()
 //----------------------------------------------------------------------------
 void vtkOBJImporter::ImportEnd()
 {
-  std::cout << " done with "<<this->GetClassName()<<"::"<<__FUNCTION__<<std::endl;
+  if( this->GetDebug() )
+  {
+    std::cout << " done with "<<this->GetClassName()<<"::"<<__FUNCTION__<<std::endl;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -692,12 +693,17 @@ int vtkOBJPolyDataProcessor::RequestData(
   { /** based on how many named materials are present,
                  set the number of output ports of vtkPolyData */
     this->SetNumberOfOutputPorts( known_materials.size() );
-    std::cout << "vtkOBJPolyDataProcessor.cxx, set # of output ports to " << known_materials.size() << endl;
+    if( this->GetDebug() )
+    {
+      std::cout << "vtkOBJPolyDataProcessor.cxx, set # of output ports to "
+                << known_materials.size() << std::endl;
+    }
     this->outVector_of_vtkPolyData.clear();
-    for( int i=0;i<(int)known_materials.size();i++){
+    for( int i=0;i<(int)known_materials.size();i++)
+    {
         vtkSmartPointer<vtkPolyData> poly_data = vtkSmartPointer<vtkPolyData>::New();
         this->outVector_of_vtkPolyData.push_back(poly_data);
-      }
+    }
   }
 
 

@@ -4,6 +4,7 @@ vtk_module(vtkIOImport
   DEPENDS
     vtkCommonCore
     vtkRenderingCore
+    vtksys
   PRIVATE_DEPENDS
     vtkFiltersSources
     vtkIOImage

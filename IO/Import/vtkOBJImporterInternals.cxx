@@ -1,3 +1,14 @@
+/*=========================================================================
+  Program:   Visualization Toolkit
+  Module:    vtkOBJImporterInternals.cxx
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+=========================================================================*/
 
 #include <iostream>
 #include <stdlib.h>
@@ -12,8 +23,9 @@
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtksys/SystemTools.hxx"
 
-const int OBJ_LINE_SIZE = 500;
+const int OBJ_LINE_SIZE = 4096;
 
 namespace
 {
@@ -24,6 +36,8 @@ namespace
       return 1;
     return 0;
   }
+
+  int localVerbosity = 0;
 
 }
 
@@ -45,8 +59,11 @@ void obj_set_material_defaults(vtkOBJImportedMaterial* mtl)
   mtl->refract_index = 1;
   mtl->texture_filename[0] = '\0';
 
-  std::cout << "created a default vtkOBJImportedMaterial, texture filename is "
-            << std::string(mtl->texture_filename) << std::endl;
+  if( localVerbosity > 0 )
+  {
+    std::cout << "created a default vtkOBJImportedMaterial, texture filename is "
+              << std::string(mtl->texture_filename) << std::endl;
+  }
 }
 
 std::vector<vtkOBJImportedMaterial*> obj_parse_mtl_file(std::string Filename,int& result_code)
@@ -152,10 +169,16 @@ std::vector<vtkOBJImportedMaterial*> obj_parse_mtl_file(std::string Filename,int
         }
       // texture map
       else if( strequal(current_token, "map_Kd") && material_open)
-        {   /** (pk note: huh, why was this map_Ka initially?) */
+        {   /** (pk note: why was this map_Ka initially? should map_Ka be supported? ) */
           strncpy(current_mtl->texture_filename, strtok(NULL, " \t\n"), OBJ_FILENAME_LENGTH);
-          std::cout << current_mtl->name << " texture requests map_Kd filename: "
-                    << current_mtl->texture_filename << std::endl;
+          bool bFileExists = vtksys::SystemTools::FileExists(current_mtl->texture_filename);
+          if(!bFileExists)
+            {
+              vtkGenericWarningMacro(
+                    << "mtl file " << current_mtl->name
+                    << "requests texture file that appears not to exist: "
+                    << current_mtl->texture_filename << "\r\n");
+            }
         }
       else
         {

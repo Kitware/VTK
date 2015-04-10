@@ -1,13 +1,24 @@
 /*=========================================================================
- *
+  Program:   Visualization Toolkit
+  Module:    vtkOBJImporter.h
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
-// .NAME vtkOBJImporter - import polydata + textures + actors
-//                        from Wavefront .obj/.mtl files
-// .SECTION Description
+// .NAME vtkOBJImporter - import from .obj wavefront files
+// .SECTION Description - suports import of polydata, textures, and actors
+//                        from Wavefront .obj & associated .mtl files.
+// .SECTION Thanks - Peter Karasev (Georgia Tech / Keysight Technologies Inc),
+//                   Allen Tannenbaum (SUNY Stonybrook), Patricio Vela (Georgia Tech)
+// .SECTION See Also
+//  vtkImporter
 
-
-#ifndef __vtkOBJPolyDataProcessor_h
-#define __vtkOBJPolyDataProcessor_h
+#ifndef __vtkOBJImporter_h
+#define __vtkOBJImporter_h
 
 #include "vtkIOImportModule.h" // For export macro
 #include "vtkSmartPointer.h"
@@ -18,7 +29,30 @@ class vtkRenderer;
 class vtkPolydata;
 class vtkOBJPolyDataProcessor;
 
-//! @note{updated by peter karasev, 2015 to read texture coordinates + material properties}
+
+/** @note{updated by peter karasev, 2015 to read texture coordinates + material properties}
+    @note{An example of a supported (*).mtl file is show below.
+             Lighting values and texture images are specified, and a corresponding vtkActor
+             with properties and vtkTexture will be created upon import. }
+
+        # Wavefront material file saved from Meshlab
+        newmtl material_0
+        Ka 0.400000 0.400000 0.400000
+        Kd 0.5 0.5 0.5
+        Ks 0.85 0.9 0.9
+        illum 2
+        Ns 0.000000
+        map_Kd map1024.png
+
+        newmtl material_1
+        Ka 0.200000 0.200000 0.200000
+        Kd 0.666667 0.666667 0.666667
+        Ks 1.000000 0.9 1.000000
+        illum 2
+        Ns 0.000000
+        map_Kd flare.jpg
+
+   **/
 class VTKIOIMPORT_EXPORT vtkOBJImporter : public vtkImporter
 {
 public:
