@@ -215,9 +215,9 @@ public:
   // If not, then SetSelection(), SelectPoints() or SelectPointsInPolygon()
   // won't have any effect.
   // \sa SetSelection(), SelectPoints(), SelectPointsInPolygon()
-  vtkSetMacro(Selectable,int);
-  vtkGetMacro(Selectable,int);
-  vtkBooleanMacro(Selectable,int);
+  vtkSetMacro(Selectable,bool);
+  vtkGetMacro(Selectable,bool);
+  vtkBooleanMacro(Selectable,bool);
 
   // Description:
   // Sets the list of points that must be selected.
