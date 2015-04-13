@@ -1,5 +1,5 @@
 
-set(TestOBJImporter_ARGS -D DATA{../Data/Input/boxes.obj}  DATA{../Data/Input/boxes.obj.mtl}
+set(TestOBJImporter_ARGS -D DATA{../Data/Input/boxes_1.obj}  DATA{../Data/Input/boxes_1.obj.mtl}
                             DATA{../Data/Input/flare.jpg}  DATA{../Data/Input/map1024.png})
 
 vtk_add_test_cxx(${vtk-module}CxxTests tests
