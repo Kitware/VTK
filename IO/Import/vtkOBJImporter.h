@@ -68,6 +68,9 @@ public:
   vtkSetStringMacro(FileNameMTL);
   vtkGetStringMacro(FileNameMTL);
 
+  void        SetTexturePath(const char* path);
+  const char* GetTexturePath() const;
+
 protected:
   vtkOBJImporter();
   ~vtkOBJImporter();

@@ -54,8 +54,6 @@ struct vtkOBJImportedMaterial
 
 void obj_set_material_defaults(vtkOBJImportedMaterial* mtl);
 
-std::vector<vtkOBJImportedMaterial*> obj_parse_mtl_file(std::string filename,int& result_code);
-
 struct vtkOBJImportedPolyDataWithMaterial;
 
 class vtkOBJPolyDataProcessor : public vtkPolyDataAlgorithm
@@ -75,6 +73,20 @@ public:
   void SetMTLfileName( const char* arg )
   {
     MTLfilename = std::string(arg);
+  }
+  void SetTexturePath( const char* arg )
+  {
+    TexturePath = std::string(arg);
+    char sep    = '/';
+#if defined(_WIN32)
+    sep = '\\';
+#endif
+    if(TexturePath.at(TexturePath.size()-1) != sep )
+      TexturePath += sep;
+  }
+  const std::string& GetTexturePath(  ) const
+  {
+    return TexturePath;
   }
 
   vtkSetMacro(VertexScale,double)
@@ -101,6 +113,8 @@ public:
   std::vector<vtkSmartPointer<vtkActor> >  actor_list;
   /////////////////////
 
+  std::vector<vtkOBJImportedMaterial*> ParseOBJandMTL(std::string filename,int& result_code);
+
 protected:
   vtkOBJPolyDataProcessor();
   ~vtkOBJPolyDataProcessor();
@@ -109,6 +123,7 @@ protected:
 
   std::string FileName;     // filename (.obj) being read
   std::string MTLfilename;  // associated .mtl to *.obj, typically it is *.obj.mtl
+  std::string TexturePath;
 
 private:
   vtkOBJPolyDataProcessor(const vtkOBJPolyDataProcessor&);  // Not implemented.

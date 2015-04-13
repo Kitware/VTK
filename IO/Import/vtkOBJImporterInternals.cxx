@@ -66,7 +66,7 @@ void obj_set_material_defaults(vtkOBJImportedMaterial* mtl)
   }
 }
 
-std::vector<vtkOBJImportedMaterial*> obj_parse_mtl_file(std::string Filename,int& result_code)
+std::vector<vtkOBJImportedMaterial*> vtkOBJPolyDataProcessor::ParseOBJandMTL(std::string Filename,int& result_code)
 {
   // Maybe this should return a map instead, e.g. mapping string keys to ptrToMaterialStruct values
   // problem is that we don't know the material name at creation-time of this thing ... d'oh
@@ -171,13 +171,18 @@ std::vector<vtkOBJImportedMaterial*> obj_parse_mtl_file(std::string Filename,int
       else if( strequal(current_token, "map_Kd") && material_open)
         {   /** (pk note: why was this map_Ka initially? should map_Ka be supported? ) */
           strncpy(current_mtl->texture_filename, strtok(NULL, " \t\n"), OBJ_FILENAME_LENGTH);
-          bool bFileExists = vtksys::SystemTools::FileExists(current_mtl->texture_filename);
-          if(!bFileExists)
+          bool bFileExistsNoPath    = vtksys::SystemTools::FileExists(current_mtl->texture_filename);
+          std::vector<std::string> path_and_file(2);
+          path_and_file[0]   = this->GetTexturePath();
+          path_and_file[1]   = std::string(current_mtl->texture_filename);
+          std::string joined =  vtksys::SystemTools::JoinPath(path_and_file);
+          bool bFileExistsInPath    = vtksys::SystemTools::FileExists( joined );
+          if(! (bFileExistsNoPath || bFileExistsInPath ) )
             {
               vtkGenericWarningMacro(
                     << "mtl file " << current_mtl->name
                     << "requests texture file that appears not to exist: "
-                    << current_mtl->texture_filename << "\r\n");
+                    << current_mtl->texture_filename << "; texture path: " <<this->TexturePath<<"\r\n");
             }
         }
       else

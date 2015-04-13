@@ -26,6 +26,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkActor.h"
+#include "vtksys/SystemTools.hxx"
 
 #include <ctype.h>
 #include <cstdio>
@@ -95,6 +96,16 @@ void vtkOBJImporter::PrintSelf(std::ostream &os, vtkIndent indent)
   vtkImporter::PrintSelf(os,indent);
 }
 
+void vtkOBJImporter::SetTexturePath(const char *path)
+{
+  this->Impl->SetTexturePath(path);
+}
+
+const char* vtkOBJImporter::GetTexturePath( ) const
+{
+  return this->Impl->GetTexturePath().data();
+}
+
 ///////////////////////////////////////////
 
 
@@ -139,6 +150,7 @@ vtkOBJPolyDataProcessor::vtkOBJPolyDataProcessor()
   // Instantiate object with NULL filename, and no materials yet loaded.
   this->FileName    = "";
   this->MTLfilename = "";
+  this->TexturePath = ".";
   this->VertexScale = 1.0;
   this->SetNumberOfInputPorts(0);
   /** multi-poly-data paradigm: pivot based on named materials */
@@ -166,7 +178,11 @@ vtkOBJImportedMaterial*  vtkOBJPolyDataProcessor::GetMaterial(int k)
 //----------------------------------------------------------------------------
 std::string vtkOBJPolyDataProcessor::GetTextureFilename( int idx )
 {
-  return outVector_of_textureFilnames[idx];
+  std::vector<std::string> path_and_filename(2);
+  path_and_filename[0] = this->TexturePath;
+  path_and_filename[1] = outVector_of_textureFilnames[idx];
+  std::string joined   = vtksys::SystemTools::JoinPath( path_and_filename );
+  return  joined;
 }
 
 
@@ -237,7 +253,7 @@ p <v_a> <v_b> ...
 int vtkOBJPolyDataProcessor::RequestData(
     vtkInformation *vtkNotUsed(request),
     vtkInformationVector **vtkNotUsed(inputVector),
-    vtkInformationVector *outputVector)
+    vtkInformationVector *vtkNotUsed(outputVector))
 {
 
   if (this->FileName.empty())
@@ -259,7 +275,7 @@ int vtkOBJPolyDataProcessor::RequestData(
   vtkOBJImportedPolyDataWithMaterial::NamedMaterials known_materials; // std::stringto ptr map
 
   int mtlParseResult;
-  std::vector<vtkOBJImportedMaterial*>  parsedMTLs = obj_parse_mtl_file(MTLfilename,mtlParseResult);
+  std::vector<vtkOBJImportedMaterial*>  parsedMTLs = ParseOBJandMTL(MTLfilename,mtlParseResult);
   size_t numMaterialsInMTLfile = parsedMTLs.size();
   if(this->GetDebug())
     {

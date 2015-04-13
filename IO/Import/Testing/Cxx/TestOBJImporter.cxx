@@ -93,6 +93,7 @@ int TestOBJImporter( int argc, char * argv [] )
 
     std::string filenameOBJ(argv[2]);
     std::string filenameMTL(argv[3]);
+
     std::string tmppath(argv[5]);
     vtkNew<vtkOBJImporter> importer;
 
@@ -101,8 +102,11 @@ int TestOBJImporter( int argc, char * argv [] )
 
     std::string jpgfile = createTestJPG(tmppath);
     std::string pngfile = createTestPNG(tmppath);
+    std::cout<<"created texture images: "<<jpgfile<<", "<<pngfile<<std::endl;
+
     importer->SetFileName(filenameOBJ.data());
     importer->SetFileNameMTL(filenameMTL.data());
+    importer->SetTexturePath(tmppath.data());
 
     vtkNew<vtkRenderer> ren;
     vtkNew<vtkRenderWindow> renWin;
