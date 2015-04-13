@@ -140,9 +140,9 @@ protected:
   int FunctionValues(vtkDataSet* ds, double* x, double* f);
   virtual void SetVectorsSelection(const char *v);
 
-  double vals1[3];
-  double vals2[3];
-  double times[2];
+  double Vals1[3];
+  double Vals2[3];
+  double Times[2];
   double LastGoodVelocity[3];
 
   // The weight (0.0->1.0) of the value of T between the two avaiable
@@ -153,7 +153,7 @@ protected:
   // A scaling factor used when calculating the CurrentWeight { 1.0/(T2-T1) }
   double ScaleCoeff;
 //BTX
-  vtkSmartPointer<vtkCachingInterpolatedVelocityField> ivf[2];
+  vtkSmartPointer<vtkCachingInterpolatedVelocityField> IVF[2];
   // we want to keep track of static datasets so we can optimize caching
   std::vector<bool> StaticDataSets;
 //ETX

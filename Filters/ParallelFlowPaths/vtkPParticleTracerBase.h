@@ -62,13 +62,6 @@ protected:
                                   vtkInformationVector** inputVector,
                                   vtkInformationVector* outputVector);
 
-  //
-  // Generate output
-  //
-  virtual int RequestData(vtkInformation* request,
-                          vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector);
-
 //
 //BTX
 
@@ -95,10 +88,11 @@ protected:
 
   // Description : Perform a GatherV operation on a vector of particles
   // this is used during classification of seed points and also between iterations
-  // of the main loop as particles leave each processor domain
-  virtual void SendReceiveParticles(RemoteParticleVector &outofdomain, RemoteParticleVector &received);
+  // of the main loop as particles leave each processor domain. Returns
+  // true if particles were migrated to any new process.
+  virtual bool SendReceiveParticles(RemoteParticleVector &outofdomain, RemoteParticleVector &received);
 
-  void UpdateParticleListFromOtherProcesses();
+  virtual bool UpdateParticleListFromOtherProcesses();
 
   // Description:
   // Method that checks that the input arrays are ordered the
