@@ -29,7 +29,6 @@ class vtkRenderer;
 class vtkPolydata;
 class vtkOBJPolyDataProcessor;
 
-
 /** @note{updated by peter karasev, 2015 to read texture coordinates + material properties}
     @note{An example of a supported (*).mtl file is show below.
              Lighting values and texture images are specified, and a corresponding vtkActor
@@ -88,3 +87,4 @@ private:
 
 
 #endif
+// VTK-HeaderTest-Exclude: vtkOBJImporter.h
