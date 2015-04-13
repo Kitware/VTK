@@ -89,6 +89,16 @@ public:
     return TexturePath;
   }
 
+  const std::string& GetFileName(  ) const
+  {
+    return FileName;
+  }
+
+  const std::string& GetMTLFileName(  ) const
+  {
+    return MTLfilename;
+  }
+
   vtkSetMacro(VertexScale,double)
   vtkGetMacro(VertexScale,double)
 

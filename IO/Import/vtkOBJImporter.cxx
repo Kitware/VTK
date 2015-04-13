@@ -65,10 +65,8 @@ int canReadFile( vtkObject* that, const std::string& fname )
 
 int vtkOBJImporter::ImportBegin()
 {
-  if(canReadFile(this,FileName) && canReadFile(this,FileNameMTL))
+  if(canReadFile(this,GetFileName()) && canReadFile(this,GetFileNameMTL()))
     {
-      this->Impl->SetFileName(FileName);
-      this->Impl->SetMTLfileName(FileNameMTL);
       return 1;
     }
   return 0;
@@ -96,9 +94,29 @@ void vtkOBJImporter::PrintSelf(std::ostream &os, vtkIndent indent)
   vtkImporter::PrintSelf(os,indent);
 }
 
+void vtkOBJImporter::SetFileName(const char *arg)
+{
+  this->Impl->SetFileName(arg);
+}
+
+void vtkOBJImporter::SetFileNameMTL(const char *arg)
+{
+  this->Impl->SetMTLfileName(arg);
+}
+
 void vtkOBJImporter::SetTexturePath(const char *path)
 {
-  this->Impl->SetTexturePath(path);
+  return this->Impl->SetTexturePath(path);
+}
+
+const char* vtkOBJImporter::GetFileName() const
+{
+  return this->Impl->GetFileName().data();
+}
+
+const char* vtkOBJImporter::GetFileNameMTL() const
+{
+  return this->Impl->GetMTLFileName().data();
 }
 
 const char* vtkOBJImporter::GetTexturePath( ) const

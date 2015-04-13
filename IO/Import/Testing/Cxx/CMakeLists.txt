@@ -1,5 +1,6 @@
 
-set(TestOBJImporter_ARGS -D DATA{../Data/Input/MiG-35.obj} DATA{../Data/Input/MiG-35.obj.mtl})
+set(TestOBJImporter_ARGS -D DATA{../Data/Input/MiG-35.obj} DATA{../Data/Input/MiG-35.obj.mtl}
+                            DATA{../Data/Input/flare.jpg}  DATA{../Data/Input/map1024.png})
 
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestOBJImporter.cxx,NO_VALID,NO_OUTPUT

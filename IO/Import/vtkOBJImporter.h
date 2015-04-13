@@ -63,12 +63,11 @@ public:
 
   // Description:
   // Specify the name of the file to read.
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
-  vtkSetStringMacro(FileNameMTL);
-  vtkGetStringMacro(FileNameMTL);
-
-  void        SetTexturePath(const char* path);
+  void SetFileName(const char* arg);
+  void SetFileNameMTL(const char* arg);
+  void SetTexturePath(const char* path);
+  const char* GetFileName() const;
+  const char* GetFileNameMTL() const;
   const char* GetTexturePath() const;
 
 protected:
@@ -80,8 +79,6 @@ protected:
   virtual void ReadData() /* override */;
 
   vtkSmartPointer<vtkOBJPolyDataProcessor>   Impl;
-  char* FileName;
-  char* FileNameMTL;
 
 private:
   vtkOBJImporter(const vtkOBJImporter&);  // Not implemented.
