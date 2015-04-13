@@ -188,9 +188,13 @@ std::vector<vtkOBJImportedMaterial*> vtkOBJPolyDataProcessor::ParseOBJandMTL(std
         }
       else
         {
-          fprintf(stderr, "Unknown command '%s' in material file %s at line %i:\n\t%s\n",
-                  current_token, filename, line_number, current_line);
-          // just skip it, unsupported feature or comment in file ?
+          // just skip it; got an unsupported feature or a comment in file.
+          if(this->GetDebug())
+          {
+            fprintf(stderr, "Unknown command '%s' in material file %s at line %i:\n\t%s\n",
+                    current_token, filename, line_number, current_line);
+          }
+
         }
     }
 
