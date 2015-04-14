@@ -211,30 +211,52 @@ void vtkExternalOpenGLRenderer::Render(void)
       // Headlight because VTK will apply transform matrices.
       vtkLight* light = vtkLight::New();
       light->SetLightTypeToHeadlight();
-      glGetLightfv(curLight, GL_POSITION, info);
-      light->SetPosition(info[0], info[1], info[2]);
+
+      // Set color parameters
       glGetLightfv(curLight, GL_AMBIENT, info);
       light->SetAmbientColor(info[0], info[1], info[2]);
       glGetLightfv(curLight, GL_DIFFUSE, info);
       light->SetDiffuseColor(info[0], info[1], info[2]);
       glGetLightfv(curLight, GL_SPECULAR, info);
       light->SetSpecularColor(info[0], info[1], info[2]);
-      glGetLightfv(curLight, GL_CONSTANT_ATTENUATION, &info[0]);
-      glGetLightfv(curLight, GL_LINEAR_ATTENUATION, &info[1]);
-      glGetLightfv(curLight, GL_QUADRATIC_ATTENUATION, &info[2]);
-      light->SetAttenuationValues(info[0], info[1], info[2]);
-      glGetLightfv(curLight, GL_SPOT_CUTOFF, &info[0]);
-      if (info[0] < 180.0)
+
+      // Position, focal point and positional
+      glGetLightfv(curLight, GL_POSITION, info);
+      light->SetPositional(info[3] > 0.0 ? 1 : 0);
+      if (!light->GetPositional())
         {
+        light->SetFocalPoint(0, 0, 0);
+        light->SetPosition(-info[0], -info[1], -info[2]);
+        }
+      else
+        {
+        light->SetFocalPoint(0, 0, 0);
+        light->SetPosition(info[0], info[1], info[2]);
+
+        // Attenuation
+        glGetLightfv(curLight, GL_CONSTANT_ATTENUATION, &info[0]);
+        glGetLightfv(curLight, GL_LINEAR_ATTENUATION, &info[1]);
+        glGetLightfv(curLight, GL_QUADRATIC_ATTENUATION, &info[2]);
+        light->SetAttenuationValues(info[0], info[1], info[2]);
+
+        // Cutoff
+        glGetLightfv(curLight, GL_SPOT_CUTOFF, &info[0]);
         light->SetConeAngle(info[0]);
-        glGetLightfv(curLight, GL_SPOT_EXPONENT, &info[0]);
-        light->SetExponent(info[0]);
-        glGetLightfv(curLight, GL_SPOT_DIRECTION, info);
-        for (unsigned int i = 0; i < 3; ++i)
+
+        if (light->GetConeAngle() < 180.0)
           {
-          info[i] += light->GetPosition()[i];
+          // Exponent
+          glGetLightfv(curLight, GL_SPOT_EXPONENT, &info[0]);
+          light->SetExponent(info[0]);
+
+          // Direction
+          glGetLightfv(curLight, GL_SPOT_DIRECTION, info);
+          for (unsigned int i = 0; i < 3; ++i)
+            {
+            info[i] += light->GetPosition()[i];
+            }
+          light->SetFocalPoint(info[0], info[1], info[2]);
           }
-        light->SetFocalPoint(info[0], info[1], info[2]);
         }
       this->AddLight(light);
       light->Delete();
