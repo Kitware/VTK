@@ -853,7 +853,7 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
     int pass = 0; // really just for debugging
     while(continueExecuting)
       {
-      vtkDebugMacro(<<"Begin Pass " << pass++ << " with " << this->ParticleHistories.size() << " Particles");
+      vtkDebugMacro(<<"Begin Pass " << pass << " with " << this->ParticleHistories.size() << " Particles");
       for (ParticleListIterator it=it_first; it!=it_last;)
         {
         // Keep the 'next' iterator handy because if a particle is terminated
@@ -888,6 +888,7 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
         {
         it_first = this->ParticleHistories.begin();
         }
+      pass++;
       }//end of pass
     }
 
