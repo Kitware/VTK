@@ -402,7 +402,7 @@ void vtkTextureObject::CreateTexture()
     vtkOpenGLCheckErrorMacro("failed at glGenTextures");
     this->Handle=tex;
 
-    if (this->Target)
+    if (this->Target && this->Target != GL_TEXTURE_BUFFER)
       {
       glBindTexture(this->Target, this->Handle);
       vtkOpenGLCheckErrorMacro("failed at glBindTexture");
@@ -475,26 +475,30 @@ void vtkTextureObject::ReleaseGraphicsResources(vtkWindow *win)
 {
   vtkOpenGLRenderWindow *rwin =
    vtkOpenGLRenderWindow::SafeDownCast(win);
-  rwin->MakeCurrent();
 
-  // It is almost guarenteed that in case of valid handle, we will have
-  // value other than zero. A check like this may be required at other
-  // places as well.
-  if (this->Handle && rwin)
+  if (rwin)
     {
-    rwin->ActivateTexture(this);
-    this->UnBind();
-    rwin->DeactivateTexture(this);
-    GLuint tex = this->Handle;
-    glDeleteTextures(1, &tex);
-    this->Handle = 0;
-    this->NumberOfDimensions = 0;
-    this->Target =0;
-    this->InternalFormat = 0;
-    this->Format = 0;
-    this->Type = 0;
-    this->Components = 0;
-    this->Width = this->Height = this->Depth = 0;
+    rwin->MakeCurrent();
+
+    // It is almost guarenteed that in case of valid handle, we will have
+    // value other than zero. A check like this may be required at other
+    // places as well.
+    if (this->Handle)
+      {
+      rwin->ActivateTexture(this);
+      this->UnBind();
+      rwin->DeactivateTexture(this);
+      GLuint tex = this->Handle;
+      glDeleteTextures(1, &tex);
+      this->Handle = 0;
+      this->NumberOfDimensions = 0;
+      this->Target =0;
+      this->InternalFormat = 0;
+      this->Format = 0;
+      this->Type = 0;
+      this->Components = 0;
+      this->Width = this->Height = this->Depth = 0;
+      }
     }
   if (this->ShaderProgram)
     {
@@ -551,6 +555,11 @@ bool vtkTextureObject::IsBound()
         target=GL_TEXTURE_BINDING_3D;
         break;
 #endif
+#if defined(GL_TEXTURE_BUFFER) && defined(GL_TEXTURE_BINDING_BUFFER)
+      case GL_TEXTURE_BUFFER:
+        target=GL_TEXTURE_BINDING_BUFFER;
+        break;
+#endif
       default:
         assert("check: impossible case" && 0);
         break;
@@ -566,6 +575,11 @@ bool vtkTextureObject::IsBound()
 void vtkTextureObject::SendParameters()
 {
   assert("pre: is_bound" && this->IsBound());
+
+  if (this->Target == GL_TEXTURE_BUFFER)
+    {
+    return;
+    }
 
   glTexParameteri(this->Target,GL_TEXTURE_WRAP_S, OpenGLWrap[this->WrapS]);
   glTexParameteri(this->Target,GL_TEXTURE_WRAP_T, OpenGLWrap[this->WrapT]);
@@ -1710,6 +1724,50 @@ bool vtkTextureObject::Create3DFromRaw(unsigned int width, unsigned int height,
         static_cast<const GLvoid *>(data));
 
   vtkOpenGLCheckErrorMacro("failed at glTexImage2D");
+
+  this->UnBind();
+
+  return true;
+}
+
+// Description:
+// Create a texture buffer basically a 1D texture that can be
+// very large for passing data into the fragment shader
+bool vtkTextureObject::CreateTextureBuffer(unsigned int numValues, int numComps,
+                         int dataType, vtkgl::BufferObject *bo)
+{
+  assert(this->Context);
+
+  // Now, detemine texture parameters using the arguments.
+  this->GetDataType(dataType);
+  this->GetInternalFormat(dataType, numComps, false);
+  this->GetFormat(dataType, numComps, false);
+
+  if (!this->InternalFormat || !this->Format || !this->Type)
+    {
+    vtkErrorMacro("Failed to detemine texture parameters.");
+    return false;
+    }
+
+  this->Target = GL_TEXTURE_BUFFER;
+  this->Components = numComps;
+  this->Width = numValues;
+  this->Height = 1;
+  this->Depth = 1;
+  this->NumberOfDimensions = 1;
+
+  this->CreateTexture();
+  this->Bind();
+
+  // Source texture data from the PBO.
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+  glTexBuffer(
+        this->Target,
+        this->InternalFormat,
+        bo->GetHandle());
+
+  vtkOpenGLCheckErrorMacro("failed at glTexBuffer");
 
   this->UnBind();
 

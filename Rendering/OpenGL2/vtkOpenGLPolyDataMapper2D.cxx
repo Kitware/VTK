@@ -30,8 +30,10 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkProperty2D.h"
+#include "vtkProperty.h"
 #include "vtkShader.h"
 #include "vtkShaderProgram.h"
+#include "vtkTextureObject.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkViewport.h"
 
@@ -46,6 +48,8 @@ vtkStandardNewMacro(vtkOpenGLPolyDataMapper2D);
 vtkOpenGLPolyDataMapper2D::vtkOpenGLPolyDataMapper2D()
 {
   this->TransformedPoints = NULL;
+  this->CellScalarTexture = NULL;
+  this->CellScalarBuffer = NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -55,6 +59,17 @@ vtkOpenGLPolyDataMapper2D::~vtkOpenGLPolyDataMapper2D()
     {
     this->TransformedPoints->UnRegister(this);
     }
+  if (this->CellScalarTexture)
+    { // Resources released previously.
+    this->CellScalarTexture->Delete();
+    this->CellScalarTexture = 0;
+    }
+  if (this->CellScalarBuffer)
+    { // Resources released previously.
+    delete this->CellScalarBuffer;
+    this->CellScalarBuffer = 0;
+    }
+  this->HaveCellScalars = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -65,6 +80,14 @@ void vtkOpenGLPolyDataMapper2D::ReleaseGraphicsResources(vtkWindow* win)
   this->Lines.ReleaseGraphicsResources(win);
   this->Tris.ReleaseGraphicsResources(win);
   this->TriStrips.ReleaseGraphicsResources(win);
+ if (this->CellScalarTexture)
+    {
+    this->CellScalarTexture->ReleaseGraphicsResources(win);
+    }
+  if (this->CellScalarBuffer)
+    {
+    this->CellScalarBuffer->ReleaseGraphicsResources();
+    }
   this->Modified();
 }
 
@@ -98,18 +121,45 @@ void vtkOpenGLPolyDataMapper2D::BuildShader(
   GSSource.clear();
 
   // Build our shader if necessary.
-  if (this->Colors && this->Colors->GetNumberOfComponents())
+  if (this->HaveCellScalars)
     {
-    VSSource = vtkgl::replace(VSSource,
-                                 "//VTK::Color::Dec",
-                                 "attribute vec4 diffuseColor;");
+    vtkgl::substitute(FSSource,
+        "//VTK::Color::Dec",
+        "uniform samplerBuffer textureC;");
+    vtkgl::substitute(FSSource,
+        "//VTK::Color::Impl",
+        "gl_FragData[0] = texelFetchBuffer(textureC, gl_PrimitiveID + PrimitiveIDOffset);");
     }
   else
     {
-    VSSource = vtkgl::replace(VSSource,
-                                 "//VTK::Color::Dec",
-                                 "uniform vec4 diffuseColor;");
+    if (this->Colors &&
+        this->Colors->GetNumberOfComponents())
+      {
+      VSSource = vtkgl::replace(VSSource,
+         "//VTK::Color::Dec",
+         "attribute vec4 diffuseColor;\n"
+         "varying vec4 fcolor;");
+      vtkgl::substitute(VSSource,
+          "//VTK::Color::Impl",
+          "fcolor = diffuseColor;");
+      vtkgl::substitute(FSSource,
+          "//VTK::Color::Dec",
+          "varying vec4 fcolor;");
+      vtkgl::substitute(FSSource,
+          "//VTK::Color::Impl",
+          "gl_FragData[0] = fcolor;");
+      }
+    else
+      {
+      vtkgl::substitute(FSSource,
+          "//VTK::Color::Dec",
+          "uniform vec4 diffuseColor;");
+      vtkgl::substitute(FSSource,
+          "//VTK::Color::Impl",
+          "gl_FragData[0] = diffuseColor;");
+      }
     }
+
   if (this->Layout.TCoordComponents)
     {
     if (this->Layout.TCoordComponents == 1)
@@ -218,6 +268,12 @@ void vtkOpenGLPolyDataMapper2D::SetMapperShaderParameters(
         }
       }
     cellBO.attributeUpdateTime.Modified();
+    }
+
+  if (this->HaveCellScalars)
+    {
+    int tunit = this->CellScalarTexture->GetTextureUnit();
+    cellBO.Program->SetUniformi("textureC", tunit);
     }
 
   if (layout.TCoordComponents)
@@ -350,7 +406,7 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
     return;
     }
 
-  bool cellScalars = false;
+  this->HaveCellScalars = false;
   if (this->ScalarVisibility)
     {
     // We must figure out how the scalars should be mapped to the polydata.
@@ -362,22 +418,47 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
          && this->ScalarMode != VTK_SCALAR_MODE_USE_POINT_FIELD_DATA
          && this->Colors)
       {
-      cellScalars = true;
+      this->HaveCellScalars = true;
       }
     }
 
   // if we have cell scalars then we have to
-  // explode the data
+  // build the texture
   vtkCellArray *prims[4];
   prims[0] =  poly->GetVerts();
   prims[1] =  poly->GetLines();
   prims[2] =  poly->GetPolys();
   prims[3] =  poly->GetStrips();
-  std::vector<unsigned int> cellPointMap;
-  std::vector<unsigned int> pointCellMap;
-  if (cellScalars)
+  std::vector<unsigned int> cellCellMap;
+  if (this->HaveCellScalars)
     {
-    vtkgl::CreateCellSupportArrays(poly, prims, cellPointMap, pointCellMap);
+    vtkgl::CreateCellSupportArrays(prims, cellCellMap, VTK_SURFACE);
+
+    if (!this->CellScalarTexture)
+      {
+      this->CellScalarTexture = vtkTextureObject::New();
+      this->CellScalarBuffer = new vtkgl::BufferObject;
+      }
+    this->CellScalarTexture->SetContext(
+      static_cast<vtkOpenGLRenderWindow*>(viewport->GetVTKWindow()));
+    // create the cell scalar array adjusted for ogl Cells
+    std::vector<unsigned char> newColors;
+    unsigned char *colorPtr = this->Colors->GetPointer(0);
+    int numComp = this->Colors->GetNumberOfComponents();
+    for (int i = 0; i < cellCellMap.size(); i++)
+      {
+      for (int j = 0; j < numComp; j++)
+        {
+        newColors.push_back(colorPtr[cellCellMap[i]*numComp + j]);
+        }
+      }
+    this->CellScalarBuffer->Upload(newColors,
+      vtkgl::BufferObject::ArrayBuffer);
+    this->CellScalarTexture->CreateTextureBuffer(
+      static_cast<unsigned int>(cellCellMap.size()),
+      numComp,
+      VTK_UNSIGNED_CHAR,
+      this->CellScalarBuffer);
     }
 
   // do we have texture maps?
@@ -419,40 +500,24 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
   // and IBOs as appropriate for each type.
   this->Layout =
     CreateVBO(p,
-              cellPointMap.size() > 0 ? (unsigned int)cellPointMap.size() : poly->GetPoints()->GetNumberOfPoints(),
+              poly->GetPoints()->GetNumberOfPoints(),
               NULL,
               haveTextures ? poly->GetPointData()->GetTCoords() : NULL,
               this->Colors ? (unsigned char *)this->Colors->GetVoidPointer(0) : NULL,
               this->Colors ? this->Colors->GetNumberOfComponents() : 0,
               this->VBO,
-              cellPointMap.size() > 0 ? &cellPointMap.front() : NULL,
-              pointCellMap.size() > 0 ? &pointCellMap.front() : NULL,
-              cellScalars, false);
+              this->HaveCellScalars, false);
 
 
   this->Points.indexCount = CreatePointIndexBuffer(prims[0],
                                                     this->Points.ibo);
-  this->Lines.indexCount = CreateMultiIndexBuffer(prims[1],
-                         this->Lines.ibo,
-                         this->Lines.offsetArray,
-                         this->Lines.elementsArray, false);
+  this->Lines.indexCount = CreateLineIndexBuffer(prims[1], this->Lines.ibo);
   this->Tris.indexCount = CreateTriangleIndexBuffer(prims[2],
                                                     this->Tris.ibo,
-                                                    poly->GetPoints(),
-                                                    cellPointMap);
-  this->TriStrips.indexCount = CreateMultiIndexBuffer(prims[3],
-                         this->TriStrips.ibo,
-                         this->TriStrips.offsetArray,
-                         this->TriStrips.elementsArray, false);
+                                                    poly->GetPoints());
+  this->TriStrips.indexCount = CreateStripIndexBuffer(prims[3],
+                         this->TriStrips.ibo, false);
 
-  // free up new cell arrays
-  if (cellScalars)
-    {
-    for (int primType = 0; primType < 4; primType++)
-      {
-      prims[primType]->UnRegister(this);
-      }
-    }
 }
 
 
@@ -503,8 +568,16 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   this->VBO.Bind();
   vtkgl::VBOLayout &layout = this->Layout;
 
+  if (this->HaveCellScalars)
+    {
+    this->CellScalarTexture->Activate();
+    }
+
   // Figure out and build the appropriate shader for the mapped geometry.
+  this->PrimitiveIDOffset = 0;
   this->UpdateShader(this->Points, viewport, actor);
+  this->Points.Program->SetUniformi("PrimitiveIDOffset",
+    this->PrimitiveIDOffset);
 
   if (this->Points.indexCount)
     {
@@ -519,6 +592,9 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
                         GL_UNSIGNED_INT,
                         reinterpret_cast<const GLvoid *>(NULL));
     this->Points.ibo.Release();
+    this->PrimitiveIDOffset += (int)this->Points.indexCount;
+    this->Points.Program->SetUniformi("PrimitiveIDOffset",
+      this->PrimitiveIDOffset);
     }
 
   if (this->Lines.indexCount)
@@ -526,12 +602,15 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     // Set the LineWidth
     glLineWidth(actor->GetProperty()->GetLineWidth()); // supported by all OpenGL versions
     this->Lines.ibo.Bind();
-    glMultiDrawElements(GL_LINE_STRIP,
-                      (GLsizei *)(&this->Lines.elementsArray[0]),
-                      GL_UNSIGNED_INT,
-                      reinterpret_cast<const GLvoid **>(&(this->Lines.offsetArray[0])),
-                      (GLsizei)this->Lines.offsetArray.size());
+    glDrawRangeElements(GL_LINES, 0,
+                        static_cast<GLuint>(layout.VertexCount - 1),
+                        static_cast<GLsizei>(this->Lines.indexCount),
+                        GL_UNSIGNED_INT,
+                        reinterpret_cast<const GLvoid *>(NULL));
     this->Lines.ibo.Release();
+    this->PrimitiveIDOffset += (int)this->Lines.indexCount;
+    this->Points.Program->SetUniformi("PrimitiveIDOffset",
+      this->PrimitiveIDOffset);
     }
 
   // now handle lit primatives
@@ -544,17 +623,25 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
                         GL_UNSIGNED_INT,
                         reinterpret_cast<const GLvoid *>(NULL));
     this->Tris.ibo.Release();
+    this->PrimitiveIDOffset += (int)this->Tris.indexCount;
+    this->Points.Program->SetUniformi("PrimitiveIDOffset",
+      this->PrimitiveIDOffset);
     }
 
   if (this->TriStrips.indexCount)
     {
     this->TriStrips.ibo.Bind();
-    glMultiDrawElements(GL_TRIANGLE_STRIP,
-                      (GLsizei *)(&this->TriStrips.elementsArray[0]),
-                      GL_UNSIGNED_INT,
-                      reinterpret_cast<const GLvoid **>(&(this->TriStrips.offsetArray[0])),
-                      (GLsizei)this->TriStrips.offsetArray.size());
+    glDrawRangeElements(GL_TRIANGLES, 0,
+                        static_cast<GLuint>(layout.VertexCount - 1),
+                        static_cast<GLsizei>(this->TriStrips.indexCount),
+                        GL_UNSIGNED_INT,
+                        reinterpret_cast<const GLvoid *>(NULL));
     this->TriStrips.ibo.Release();
+    }
+
+  if (this->HaveCellScalars)
+    {
+    this->CellScalarTexture->Deactivate();
     }
 
   this->Points.vao.Release();

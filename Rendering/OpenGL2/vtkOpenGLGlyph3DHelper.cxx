@@ -366,11 +366,11 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkI
       // TODO wireframe of triangles is not lit properly right now
       // you either have to generate normals and send them down
       // or use a geometry shader.
-      glMultiDrawElements(GL_LINE_LOOP,
-                        (GLsizei *)(&this->Tris.elementsArray[0]),
-                        GL_UNSIGNED_INT,
-                        reinterpret_cast<const GLvoid **>(&(this->Tris.offsetArray[0])),
-                        (GLsizei)this->Tris.offsetArray.size());
+      glDrawRangeElements(GL_LINES, 0,
+                          static_cast<GLuint>(layout.VertexCount - 1),
+                          static_cast<GLsizei>(this->Tris.indexCount),
+                          GL_UNSIGNED_INT,
+                          reinterpret_cast<const GLvoid *>(NULL));
       }
     if (actor->GetProperty()->GetRepresentation() == VTK_SURFACE)
       {

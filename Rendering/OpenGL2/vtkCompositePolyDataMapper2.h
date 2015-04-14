@@ -49,7 +49,9 @@ protected:
   // Build the VBO/IBO, called by UpdateBufferObjects
   virtual void BuildBufferObjects(vtkRenderer *ren, vtkActor *act);
   virtual void AppendOneBufferObject(vtkRenderer *ren,
-    vtkActor *act, vtkPolyData *pd, unsigned int flat_index);
+    vtkActor *act, vtkPolyData *pd, unsigned int flat_index,
+    std::vector<unsigned char> &colors,
+    std::vector<float> &norms);
 
   std::vector<unsigned int> VertexOffsets;
   std::vector<unsigned int> IndexOffsets;

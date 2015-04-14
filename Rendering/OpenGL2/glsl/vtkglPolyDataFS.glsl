@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkglPolyDataFSNoLighting.glsl
+  Module:    vtkglPolyDataFS.glsl
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,20 +12,35 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+// Template for the polydata mappers fragment shader
 
 // The following line handle system declarations such a
 // default precisions, or defining precisions to null
 //VTK::System::Dec
 
-// VC positon of this fragment
+uniform int PrimitiveIDOffset;
+
+// all variables that represent positions or directions have a suffix
+// indicating the coordinate system they are in. The possible values are
+// MC - Model Coordinates
+// WC - WC world coordinates
+// VC - View Coordinates
+// DC - Display Coordinates
+
+// VC position of this fragment
 //VTK::PositionVC::Dec
 
-varying vec4 fcolor;
+// optional color passed in from the vertex shader, vertexColor
+//VTK::Color::Dec
+
+// optional surface normal declaration
+//VTK::Normal::Dec
+
+// extra lighting parameters
+//VTK::Light::Dec
 
 // Texture coordinates
 //VTK::TCoord::Dec
-
-//VTK::Color::Dec
 
 // picking support
 //VTK::Picking::Dec
@@ -41,9 +56,12 @@ void main()
   //VTK::Clip::Impl
 
   //VTK::Color::Impl
-  // Note that the above will always define vec3 ambientColor, vec3 diffuseColor and float opacity
 
-  gl_FragData[0] =  vec4(ambientColor + diffuseColor, opacity);
+  // Generate the normal if we are not passed in one
+  //VTK::Normal::Impl
+
+  //VTK::Light::Impl
+
   //VTK::TCoord::Impl
 
   if (gl_FragData[0].a <= 0.0)

@@ -31,6 +31,7 @@ namespace vtkgl
 {
 class VertexArrayObject;
 class CellBO;
+class BufferObject;
 }
 
 #if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
@@ -275,6 +276,12 @@ public:
                    unsigned int height,
                    int internalFormat,
                    vtkPixelBufferObject *pbo);
+
+  // Description:
+  // Create a texture buffer basically a 1D texture that can be
+  // very large for passing data into the fragment shader
+  bool CreateTextureBuffer(unsigned int numValues, int numComps,
+                           int dataType, vtkgl::BufferObject *bo);
 
 #endif
 

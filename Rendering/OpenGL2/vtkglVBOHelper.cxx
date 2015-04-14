@@ -14,6 +14,7 @@
 #include "vtkglVBOHelper.h"
 
 #include "vtkCellArray.h"
+#include "vtkProperty.h"
 #include "vtkPoints.h"
 #include "vtkPolygon.h"
 #include "vtkPolyData.h"
@@ -34,8 +35,6 @@ void TemplatedAppendVBO3(VBOLayout &layout,
   T* points, T2* normals, vtkIdType numPts,
   T3* tcoords, int textureComponents,
   unsigned char *colors, int colorComponents,
-  unsigned int *pointPointMap,
-  unsigned int *pointCellMap,
   bool cellScalars, bool cellNormals)
 {
   // Figure out how big each block will be, currently 6 or 7 floats.
@@ -46,7 +45,7 @@ void TemplatedAppendVBO3(VBOLayout &layout,
   layout.TCoordComponents = 0;
   layout.ColorComponents = 0;
   layout.ColorOffset = 0;
-  if (normals)
+  if (normals && !cellNormals)
     {
     layout.NormalOffset = sizeof(float) * blockSize;
     blockSize += 3;
@@ -57,7 +56,7 @@ void TemplatedAppendVBO3(VBOLayout &layout,
     layout.TCoordComponents = textureComponents;
     blockSize += textureComponents;
     }
-  if (colors)
+  if (colors && !cellScalars)
     {
     layout.ColorComponents = colorComponents;
     layout.ColorOffset = sizeof(float) * blockSize;
@@ -78,30 +77,17 @@ void TemplatedAppendVBO3(VBOLayout &layout,
   // TODO: optimize this somehow, lots of if statements in here
   for (vtkIdType i = 0; i < numPts; ++i)
     {
-    if (pointPointMap)
-      {
-      pointPtr = points + (pointPointMap[i])*3;
-      normalPtr = normals + (pointPointMap[i])*3;
-      tcoordPtr = tcoords + (pointPointMap[i])*textureComponents;
-      colorPtr = colors + (pointPointMap[i])*colorComponents;
-      }
-    else
-      {
-      pointPtr = points + i*3;
-      normalPtr = normals + i*3;
-      tcoordPtr = tcoords + i*textureComponents;
-      colorPtr = colors + i*colorComponents;
-      }
+    pointPtr = points + i*3;
+    normalPtr = normals + i*3;
+    tcoordPtr = tcoords + i*textureComponents;
+    colorPtr = colors + i*colorComponents;
+
     // Vertices
     *(it++) = *(pointPtr++);
     *(it++) = *(pointPtr++);
     *(it++) = *(pointPtr++);
-    if (normals)
+    if (normals && !cellNormals)
       {
-      if (cellNormals && pointCellMap && pointCellMap[i] > 0)
-        {
-        normalPtr = normals + (pointCellMap[i]-1)*3;
-        }
       *(it++) = *(normalPtr++);
       *(it++) = *(normalPtr++);
       *(it++) = *(normalPtr++);
@@ -113,12 +99,8 @@ void TemplatedAppendVBO3(VBOLayout &layout,
         *(it++) = *(tcoordPtr++);
         }
       }
-    if (colors)
+    if (colors && !cellScalars)
       {
-      if (cellScalars && pointCellMap && pointCellMap[i] > 0)
-        {
-        colorPtr = colors + (pointCellMap[i]-1)*colorComponents;
-        }
       if (colorComponents == 4)
         {
         *(it++) = *reinterpret_cast<float *>(colorPtr);
@@ -143,8 +125,6 @@ void TemplatedAppendVBO2(VBOLayout &layout,
   T* points, T2 *normals, vtkIdType numPts,
   vtkDataArray *tcoords,
   unsigned char *colors, int colorComponents,
-  unsigned int *pointPointMap,
-  unsigned int *pointCellMap,
   bool cellScalars, bool cellNormals)
 {
   if (tcoords)
@@ -157,7 +137,6 @@ void TemplatedAppendVBO2(VBOLayout &layout,
                   static_cast<VTK_TT*>(tcoords->GetVoidPointer(0)),
                   tcoords->GetNumberOfComponents(),
                   colors, colorComponents,
-                  pointPointMap, pointCellMap,
                   cellScalars, cellNormals));
       }
     }
@@ -166,7 +145,6 @@ void TemplatedAppendVBO2(VBOLayout &layout,
     TemplatedAppendVBO3(layout, points, normals,
                         numPts, (float *)NULL, 0,
                         colors, colorComponents,
-                        pointPointMap, pointCellMap,
                         cellScalars, cellNormals);
     }
 }
@@ -177,8 +155,6 @@ void TemplatedAppendVBO(VBOLayout &layout,
   T* points, vtkDataArray *normals, vtkIdType numPts,
   vtkDataArray *tcoords,
   unsigned char *colors, int colorComponents,
-  unsigned int *pointPointMap,
-  unsigned int *pointCellMap,
   bool cellScalars, bool cellNormals)
 {
   if (normals)
@@ -189,7 +165,6 @@ void TemplatedAppendVBO(VBOLayout &layout,
         TemplatedAppendVBO2(layout, points,
                   static_cast<VTK_TT*>(normals->GetVoidPointer(0)),
                   numPts, tcoords, colors, colorComponents,
-                  pointPointMap, pointCellMap,
                   cellScalars, cellNormals));
       }
     }
@@ -198,7 +173,6 @@ void TemplatedAppendVBO(VBOLayout &layout,
     TemplatedAppendVBO2(layout, points,
                         (float *)NULL,
                         numPts, tcoords, colors, colorComponents,
-                        pointPointMap, pointCellMap,
                         cellScalars, cellNormals);
     }
 }
@@ -212,7 +186,6 @@ void AppendVBO(VBOLayout &layout,
   vtkDataArray *normals,
   vtkDataArray *tcoords,
   unsigned char *colors, int colorComponents,
-  unsigned int *pointPointMap, unsigned int *pointCellMap,
   bool cellScalars, bool cellNormals)
 {
   switch(points->GetDataType())
@@ -220,7 +193,6 @@ void AppendVBO(VBOLayout &layout,
     vtkTemplateMacro(
       TemplatedAppendVBO(layout, static_cast<VTK_TT*>(points->GetVoidPointer(0)),
                 normals, numPts, tcoords, colors, colorComponents,
-                pointPointMap, pointCellMap,
                 cellScalars, cellNormals));
     }
 }
@@ -232,7 +204,6 @@ VBOLayout CreateVBO(
   vtkDataArray *tcoords,
   unsigned char *colors, int colorComponents,
   BufferObject &vertexBuffer,
-  unsigned int *pointPointMap, unsigned int *pointCellMap,
   bool cellScalars, bool cellNormals)
 {
   VBOLayout layout;
@@ -257,7 +228,7 @@ VBOLayout CreateVBO(
   // slower path
   layout.VertexCount = 0;
   AppendVBO(layout,points,numPts,normals,tcoords,colors,colorComponents,
-    pointPointMap, pointCellMap, cellScalars, cellNormals);
+    cellScalars, cellNormals);
   vertexBuffer.Upload(layout.PackedVBO, vtkgl::BufferObject::ArrayBuffer);
   layout.PackedVBO.resize(0);
   return layout;
@@ -304,7 +275,6 @@ void AppendTriangleIndexBuffer(
   std::vector<unsigned int> &indexArray,
   vtkCellArray *cells,
   vtkPoints *points,
-  std::vector<unsigned int> &pointPointMap,
   vtkIdType vOffset)
 {
   vtkIdType* indices(NULL);
@@ -389,10 +359,6 @@ void AppendTriangleIndexBuffer(
         for (int i = 0; i < npts; ++i)
           {
           int idx = indices[i];
-          if (pointPointMap.size() > 0)
-            {
-            idx = pointPointMap[indices[i]];
-            }
           triPoints->SetPoint(i,points->GetPoint(idx));
           triIndices[i] = i;
           }
@@ -424,14 +390,14 @@ void AppendTriangleIndexBuffer(
 // used to create an IBO for triangle primatives
 size_t CreateTriangleIndexBuffer(
   vtkCellArray *cells, BufferObject &indexBuffer,
-  vtkPoints *points, std::vector<unsigned int> &pointPointMap)
+  vtkPoints *points)
 {
   if (!cells->GetNumberOfCells())
     {
     return 0;
     }
   std::vector<unsigned int> indexArray;
-  AppendTriangleIndexBuffer(indexArray, cells, points, pointPointMap, 0);
+  AppendTriangleIndexBuffer(indexArray, cells, points, 0);
   indexBuffer.Upload(indexArray, vtkgl::BufferObject::ElementArrayBuffer);
   return indexArray.size();
 }
@@ -530,10 +496,53 @@ size_t CreateTriangleLineIndexBuffer(vtkCellArray *cells, BufferObject &indexBuf
   return indexArray.size();
 }
 
-// used to create an IBO for stripped primatives such as lines and triangle strips
-size_t CreateMultiIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
-                              std::vector<GLintptr> &memoryOffsetArray,
-                              std::vector<unsigned int> &elementCountArray,
+// used to create an IBO for primatives as lines.  This method treats each line segment
+// as independent.  So for a line strip you would get multiple line segments out
+void AppendLineIndexBuffer(
+  std::vector<unsigned int> &indexArray,
+  vtkCellArray *cells,
+  vtkIdType vOffset)
+{
+  vtkIdType* indices(NULL);
+  vtkIdType npts(0);
+  size_t targetSize = indexArray.size() + 2*(
+    cells->GetNumberOfConnectivityEntries()
+    - 2*cells->GetNumberOfCells());
+  if (targetSize > indexArray.capacity())
+    {
+    if (targetSize < indexArray.capacity()*1.5)
+      {
+      targetSize = indexArray.capacity()*1.5;
+      }
+    indexArray.reserve(targetSize);
+    }
+
+  for (cells->InitTraversal(); cells->GetNextCell(npts, indices); )
+    {
+    for (int i = 0; i < npts-1; ++i)
+      {
+      indexArray.push_back(static_cast<unsigned int>(indices[i]+vOffset));
+      indexArray.push_back(static_cast<unsigned int>(indices[i+1] + vOffset));
+      }
+    }
+}
+
+// used to create an IBO for primatives as lines.  This method treats each line segment
+// as independent.  So for a line strip you would get multiple line segments out
+size_t CreateLineIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer)
+{
+  if (!cells->GetNumberOfCells())
+    {
+    return 0;
+    }
+  std::vector<unsigned int> indexArray;
+  AppendLineIndexBuffer(indexArray, cells, 0);
+  indexBuffer.Upload(indexArray, vtkgl::BufferObject::ElementArrayBuffer);
+  return indexArray.size();
+}
+
+// used to create an IBO for triangle strips
+size_t CreateStripIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
                               bool wireframeTriStrips)
 {
   if (!cells->GetNumberOfCells())
@@ -543,33 +552,39 @@ size_t CreateMultiIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
   vtkIdType      *pts = 0;
   vtkIdType      npts = 0;
   std::vector<unsigned int> indexArray;
-  memoryOffsetArray.clear();
-  elementCountArray.clear();
-  unsigned int count = 0;
-  indexArray.reserve(cells->GetData()->GetSize());
-  for (cells->InitTraversal(); cells->GetNextCell(npts,pts); )
+
+  size_t triCount = cells->GetNumberOfConnectivityEntries()
+    - 3*cells->GetNumberOfCells();
+  size_t targetSize = wireframeTriStrips ? 2*(triCount*2+1)
+   : triCount*3;
+  indexArray.reserve(targetSize);
+
+  if (wireframeTriStrips)
     {
-    memoryOffsetArray.push_back(count*sizeof(unsigned int));
-    for (int j = 0; j < npts; ++j)
+    for (cells->InitTraversal(); cells->GetNextCell(npts,pts); )
       {
-      indexArray.push_back(static_cast<unsigned int>(pts[j]));
-      count++;
-      }
-    if (wireframeTriStrips)
-      {
-      for (int j = (npts-1)/2; j >= 0; j--)
-        {
-        indexArray.push_back(static_cast<unsigned int>(pts[j*2]));
-        count++;
-        }
-      for (int j = 1; j < (npts/2)*2; j += 2)
+      indexArray.push_back(static_cast<unsigned int>(pts[0]));
+      indexArray.push_back(static_cast<unsigned int>(pts[1]));
+      for (int j = 0; j < npts-2; ++j)
         {
         indexArray.push_back(static_cast<unsigned int>(pts[j]));
-        count++;
+        indexArray.push_back(static_cast<unsigned int>(pts[j+2]));
+        indexArray.push_back(static_cast<unsigned int>(pts[j+1]));
+        indexArray.push_back(static_cast<unsigned int>(pts[j+2]));
         }
-      npts *= 2;
       }
-    elementCountArray.push_back(npts);
+    }
+  else
+    {
+    for (cells->InitTraversal(); cells->GetNextCell(npts,pts); )
+      {
+      for (int j = 0; j < npts-2; ++j)
+        {
+        indexArray.push_back(static_cast<unsigned int>(pts[j]));
+        indexArray.push_back(static_cast<unsigned int>(pts[j+1+j%2]));
+        indexArray.push_back(static_cast<unsigned int>(pts[j+1+(j+1)%2]));
+        }
+      }
     }
   indexBuffer.Upload(indexArray, vtkgl::BufferObject::ElementArrayBuffer);
   return indexArray.size();
@@ -607,87 +622,117 @@ size_t CreateEdgeFlagIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
 }
 
 // Create supporting arays that are needed when rendering cell data
-// With cell data we have to duplicate any shared vertices
-// and then later map the original cell point indices to the new
-// duplicated vertices. The following code fills in
+// Some VTK cells have to be broken into smaller cells for OpenGL
+// Wen we have cell data we have to map cell attributes from the VTK
+// cell number to the actual OpenGL cell
+// The following code fills in
 //
-//   pointPointMap which maps a point index to the original
-//     point index it came from. For the original points this
-//     is just a 1 to 1 mapping, but for any shared points
-//     there will be new entries that point to the original index
+//   cellCellMap which maps a openGL cell id to the VTK cell it came from
 //
-//   pointCellMap which maps point indices to the cells they belong to
-//
-//   prims new cell arrays that have cells with no shared points.
-//
-void CreateCellSupportArrays(vtkPolyData *poly, vtkCellArray *prims[4],
-                             std::vector<unsigned int> &pointPointMap,
-                             std::vector<unsigned int> &pointCellMap)
+void CreateCellSupportArrays(vtkCellArray *prims[4],
+                             std::vector<unsigned int> &cellCellMap,
+                             int representation)
 {
-  vtkCellArray *newPrims[4];
-
   // need an array to track what points to orig points
-  size_t minSize = prims[0]->GetSize() +
-                       prims[1]->GetSize() +
-                       prims[2]->GetSize() +
-                       prims[3]->GetSize();
+  size_t minSize = prims[0]->GetNumberOfCells() +
+                   prims[1]->GetNumberOfCells() +
+                   prims[2]->GetNumberOfCells() +
+                   prims[3]->GetNumberOfCells();
   vtkIdType* indices(NULL);
   vtkIdType npts(0);
-  unsigned int nextId = poly->GetPoints()->GetNumberOfPoints();
-  // make sure we have at least Num Points entries
-  if (minSize < nextId)
-    {
-    minSize = nextId;
-    }
-  pointPointMap.reserve(minSize);
-  pointCellMap.reserve(minSize);
 
-  // initialize the pointPointMap
-  pointPointMap.resize(nextId);
-  for (unsigned int i=0; i < nextId; ++i)
-    {
-    pointPointMap[i] = i;
-    }
-  pointCellMap.assign(nextId,0);
+  // make sure we have at least minSize
+  cellCellMap.reserve(minSize);
+  unsigned int vtkCellCount = 0;
 
-  unsigned int cellCount = 0;
-  for (int primType = 0; primType < 4; primType++)
+  // points
+  for (prims[0]->InitTraversal(); prims[0]->GetNextCell(npts, indices); )
     {
-    newPrims[primType] = vtkCellArray::New();
-    for (prims[primType]->InitTraversal(); prims[primType]->GetNextCell(npts, indices); )
+    for (int i=0; i < npts; ++i)
       {
-      newPrims[primType]->InsertNextCell(npts);
+      cellCellMap.push_back(vtkCellCount);
+      }
+    vtkCellCount++;
+    } // for cell
 
-      for (int i=0; i < npts; ++i)
+  if (representation == VTK_POINTS)
+    {
+    for (int j = 1; j < 4; j++)
+      {
+      for (prims[j]->InitTraversal(); prims[j]->GetNextCell(npts, indices); )
         {
-        // point not used yet?
-        if (pointCellMap[indices[i]] == 0)
+        for (int i=0; i < npts; ++i)
           {
-          newPrims[primType]->InsertCellPoint(indices[i]);
-          pointCellMap[indices[i]] = cellCount + 1;
+          cellCellMap.push_back(vtkCellCount);
           }
-        // point used, need new point
-        else
-          {
-          // might be beyond the current allocation
-          if (nextId >= pointPointMap.capacity())
-            {
-            pointPointMap.reserve(nextId*1.5);
-            pointCellMap.reserve(nextId*1.5);
-            }
-          pointPointMap.push_back(indices[i]);
-          newPrims[primType]->InsertCellPoint(nextId);
-          pointCellMap.push_back(cellCount + 1);
-          nextId++;
-          }
+        vtkCellCount++;
+        } // for cell
+      }
+    }
+  else // lines or surfaces
+    {
+    // lines
+    for (prims[1]->InitTraversal(); prims[1]->GetNextCell(npts, indices); )
+      {
+      for (int i = 0; i < npts-1; ++i)
+        {
+        cellCellMap.push_back(vtkCellCount);
         }
-        cellCount++;
+      vtkCellCount++;
       } // for cell
 
-    prims[primType] = newPrims[primType];
-    } // for primType
-}
+    if (representation == VTK_WIREFRAME)
+      {
+      // polys
+      for (prims[2]->InitTraversal(); prims[2]->GetNextCell(npts, indices); )
+        {
+        for (int i = 0; i < npts; ++i)
+          {
+          cellCellMap.push_back(vtkCellCount);
+          }
+        vtkCellCount++;
+        } // for cell
 
+      // strips
+      for (prims[3]->InitTraversal(); prims[3]->GetNextCell(npts, indices); )
+        {
+        cellCellMap.push_back(vtkCellCount);
+        for (int i = 2; i < npts; ++i)
+          {
+          cellCellMap.push_back(vtkCellCount);
+          cellCellMap.push_back(vtkCellCount);
+          }
+        vtkCellCount++;
+        } // for cell
+      }
+    else
+      {
+      // polys
+      for (prims[2]->InitTraversal(); prims[2]->GetNextCell(npts, indices); )
+        {
+        if (npts > 2)
+          {
+          for (int i = 2; i < npts; ++i)
+            {
+            cellCellMap.push_back(vtkCellCount);
+            }
+          vtkCellCount++;
+          }
+        } // for cell
+
+      // strips
+      for (prims[3]->InitTraversal(); prims[3]->GetNextCell(npts, indices); )
+        {
+        for (int i = 2; i < npts; ++i)
+          {
+          cellCellMap.push_back(vtkCellCount);
+          }
+        vtkCellCount++;
+        } // for cell
+      }
+    }
+
+}
 
 
 void CellBO::ReleaseGraphicsResources(vtkWindow * vtkNotUsed(win))
@@ -700,8 +745,6 @@ void CellBO::ReleaseGraphicsResources(vtkWindow * vtkNotUsed(win))
     }
   this->ibo.ReleaseGraphicsResources();
   this->vao.ReleaseGraphicsResources();
-  this->offsetArray.clear();
-  this->elementsArray.clear();
 }
 
 }

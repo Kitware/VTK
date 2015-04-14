@@ -28,7 +28,7 @@
 #include "vtkShaderProgram.h"
 
 #include "vtkPointGaussianVS.h"
-#include "vtkglPolyDataFSNoLighting.h"
+#include "vtkglPolyDataFS.h"
 
 using vtkgl::substitute;
 
@@ -78,6 +78,11 @@ protected:
 
   virtual void RenderPieceDraw(vtkRenderer *ren, vtkActor *act);
 
+  // Description:
+  // Does the shader source need to be recomputed
+  virtual bool GetNeedToRebuildShader(vtkgl::CellBO &cellBO,
+    vtkRenderer *ren, vtkActor *act);
+
 private:
   vtkOpenGLPointGaussianMapperHelper(const vtkOpenGLPointGaussianMapperHelper&); // Not implemented.
   void operator=(const vtkOpenGLPointGaussianMapperHelper&); // Not implemented.
@@ -102,7 +107,7 @@ void vtkOpenGLPointGaussianMapperHelper::GetShaderTemplate(std::string &VSSource
                                           vtkActor *vtkNotUsed(actor))
 {
   VSSource = vtkPointGaussianVS;
-  FSSource = vtkglPolyDataFSNoLighting;
+  FSSource = vtkglPolyDataFS;
   GSSource = "";
 }
 
@@ -133,6 +138,39 @@ void vtkOpenGLPointGaussianMapperHelper::ReplaceShaderValues(std::string &VSSour
     , false);
 
   this->Superclass::ReplaceShaderValues(VSSource,FSSource,GSSource,lightComplexity,ren,actor);
+}
+
+//-----------------------------------------------------------------------------
+bool vtkOpenGLPointGaussianMapperHelper::GetNeedToRebuildShader(
+  vtkgl::CellBO &cellBO, vtkRenderer* ren, vtkActor *actor)
+{
+  this->LastLightComplexity = 0;
+
+  vtkHardwareSelector* selector = ren->GetSelector();
+  bool picking = (ren->GetIsPicking() || selector != NULL);
+  if (this->LastSelectionState != picking)
+    {
+    this->SelectionStateChanged.Modified();
+    this->LastSelectionState = picking;
+    }
+
+  // has something changed that would require us to recreate the shader?
+  // candidates are
+  // property modified (representation interpolation and lighting)
+  // input modified
+  // light complexity changed
+  if (cellBO.Program == 0 ||
+      cellBO.ShaderSourceTime < this->GetMTime() ||
+      cellBO.ShaderSourceTime < actor->GetMTime() ||
+      cellBO.ShaderSourceTime < this->CurrentInput->GetMTime() ||
+      cellBO.ShaderSourceTime < this->SelectionStateChanged ||
+      cellBO.ShaderSourceTime < this->DepthPeelingChanged ||
+      cellBO.ShaderSourceTime < this->LightComplexityChanged)
+    {
+    return true;
+    }
+
+  return false;
 }
 
 //-----------------------------------------------------------------------------

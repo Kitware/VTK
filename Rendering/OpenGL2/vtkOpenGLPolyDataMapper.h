@@ -25,6 +25,11 @@
 class vtkOpenGLTexture;
 class vtkMatrix4x4;
 class vtkMatrix3x3;
+class vtkTextureObject;
+namespace vtkgl
+{
+  class BufferObject;
+}
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMapper
 {
@@ -136,6 +141,15 @@ protected:
                            vtkRenderer *ren, vtkActor *act);
 
   // Description:
+  // Perform string replacments on the shader templates, called from
+  // ReplaceShaderValues
+  virtual void ReplaceShaderLightingValues(std::string &VertexCode,
+                           std::string &fragmentCode,
+                           std::string &geometryCode,
+                           int lightComplexity,
+                           vtkRenderer *ren, vtkActor *act);
+
+  // Description:
   // Set the shader parameteres related to the mapper/input data, called by UpdateShader
   virtual void SetMapperShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
 
@@ -192,7 +206,7 @@ protected:
   vtkOpenGLTexture* InternalColorTexture;
 
   int PopulateSelectionSettings;
-  int pickingAttributeIDOffset;
+  int PrimitiveIDOffset;
 
   vtkMatrix4x4 *TempMatrix4;
   vtkMatrix3x3 *TempMatrix3;
@@ -215,6 +229,13 @@ protected:
   // normally tcoords are only added to the VBO if the
   // mapper has indentified a texture map as well.
   bool ForceTextureCoordinates;
+
+  vtkTextureObject *CellScalarTexture;
+  vtkgl::BufferObject *CellScalarBuffer;
+  bool HaveCellScalars;
+  vtkTextureObject *CellNormalTexture;
+  vtkgl::BufferObject *CellNormalBuffer;
+  bool HaveCellNormals;
 
 private:
   vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&); // Not implemented.

@@ -47,18 +47,28 @@ bool VTKRENDERINGOPENGL2_EXPORT substitute(std::string &source,
 // used to create an IBO for triangle primatives
 size_t CreateTriangleIndexBuffer(vtkCellArray *cells,
   BufferObject &indexBuffer,
-  vtkPoints *points, std::vector<unsigned int> &cellPointMap);
+  vtkPoints *points);
 
 // used to create an IBO for triangle primatives
 void AppendTriangleIndexBuffer(
   std::vector<unsigned int> &indexArray,
   vtkCellArray *cells,
   vtkPoints *points,
-  std::vector<unsigned int> &cellPointMap,
   vtkIdType vertexOffset);
 
 // create a IBO for wireframe polys/tris
 size_t CreateTriangleLineIndexBuffer(vtkCellArray *cells,
+  BufferObject &indexBuffer);
+
+// used to create an IBO for line primatives
+void AppendLineIndexBuffer(
+  std::vector<unsigned int> &indexArray,
+  vtkCellArray *cells,
+  vtkPoints *points,
+  vtkIdType vertexOffset);
+
+// create a IBO for wireframe polys/tris
+size_t CreateLineIndexBuffer(vtkCellArray *cells,
   BufferObject &indexBuffer);
 
 // create a IBO for wireframe polys/tris
@@ -77,9 +87,7 @@ void AppendPointIndexBuffer(
   vtkIdType vertexOffset);
 
 // used to create an IBO for line strips and triangle strips
-size_t CreateMultiIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
-                              std::vector<GLintptr> &memoryOffsetArray,
-                              std::vector<unsigned int> &elementCountArray,
+size_t CreateStripIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
                               bool wireframeTriStrips);
 
 // special index buffer for polys wireframe with edge visibilityflags
@@ -94,12 +102,7 @@ public:
   BufferObject ibo;
   VertexArrayObject vao;
   vtkTimeStamp ShaderSourceTime;
-
   size_t indexCount;
-  // These are client side objects for multi draw where IBOs are not used.
-  std::vector<GLintptr> offsetArray;
-  std::vector<unsigned int> elementsArray;
-
   vtkTimeStamp attributeUpdateTime;
 
   CellBO() {this->Program = NULL; };
@@ -129,20 +132,17 @@ VBOLayout CreateVBO(vtkPoints *points, unsigned int numPoints,
     vtkDataArray *tcoords,
     unsigned char *colors, int colorComponents,
     BufferObject &vertexBuffer,
-    unsigned int *cellPointMap, unsigned int *pointCellMap,
     bool cellScalars, bool cellNormals);
 void AppendVBO(VBOLayout &layout, vtkPoints *points, unsigned int numPoints,
     vtkDataArray *normals,
     vtkDataArray *tcoords,
     unsigned char *colors, int colorComponents,
-    unsigned int *cellPointMap, unsigned int *pointCellMap,
     bool cellScalars, bool cellNormals);
 
-
 // used to create an IBO for stripped primatives such as lines and strips
-void CreateCellSupportArrays(vtkPolyData *poly, vtkCellArray *[4],
-                             std::vector<unsigned int> &cellPointMap,
-                             std::vector<unsigned int> &pointCellMap);
+void CreateCellSupportArrays(vtkCellArray *[4],
+                             std::vector<unsigned int> &cellCellMap,
+                             int representation);
 
 } // End namespace
 

@@ -25,6 +25,7 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -33,6 +34,7 @@
 #include "vtkRenderWindow.h"
      #include "vtkLookupTable.h"
 #include "vtkShaderProgram.h"
+#include "vtkTextureObject.h"
 
 vtkStandardNewMacro(vtkCompositePolyDataMapper2);
 
@@ -370,7 +372,7 @@ void vtkCompositePolyDataMapper2::RenderPieceDraw(
     for (it = this->RenderValues.begin(); it != this->RenderValues.end(); it++)
       {
       // reset the offset so each compsoite starts at 0
-      this->pickingAttributeIDOffset = 0;
+      this->PrimitiveIDOffset = 0;
       if (it->Visibility)
         {
         if (selector &&
@@ -402,7 +404,7 @@ void vtkCompositePolyDataMapper2::RenderPieceDraw(
       }
 
     this->Tris.ibo.Release();
-    this->pickingAttributeIDOffset += (int)this->Tris.indexCount;
+    this->PrimitiveIDOffset += (int)this->Tris.indexCount;
     }
 
 }
@@ -566,13 +568,17 @@ void vtkCompositePolyDataMapper2::BuildBufferObjects(
   this->EdgeIndexOffsets.resize(this->MaximumFlatIndex+1);
   this->CanUseTextureMapForColoringSet = false;
 
+  // used for cell values
+  std::vector<unsigned char> newColors;
+  std::vector<float> newNorms;
+
   unsigned int voffset = 0;
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {
     unsigned int fidx = iter->GetCurrentFlatIndex();
     vtkDataObject *dso = iter->GetCurrentDataObject();
     vtkPolyData *pd = vtkPolyData::SafeDownCast(dso);
-    this->AppendOneBufferObject(ren, act, pd, voffset);
+    this->AppendOneBufferObject(ren, act, pd, voffset, newColors, newNorms);
     this->VertexOffsets[fidx] =
       static_cast<unsigned int>(this->Layout.VertexCount);
     voffset = static_cast<unsigned int>(this->Layout.VertexCount);
@@ -580,6 +586,28 @@ void vtkCompositePolyDataMapper2::BuildBufferObjects(
       static_cast<unsigned int>(this->IndexArray.size());
     this->EdgeIndexOffsets[fidx] =
       static_cast<unsigned int>(this->EdgeIndexArray.size());
+    }
+
+  if (this->HaveCellScalars)
+    {
+    this->CellScalarBuffer->Upload(newColors,
+      vtkgl::BufferObject::ArrayBuffer);
+    this->CellScalarTexture->CreateTextureBuffer(
+      static_cast<unsigned int>(newColors.size()/
+        this->Colors->GetNumberOfComponents()),
+      this->Colors->GetNumberOfComponents(),
+      VTK_UNSIGNED_CHAR,
+      this->CellScalarBuffer);
+    }
+
+  if (this->HaveCellNormals)
+    {
+    this->CellNormalBuffer->Upload(newNorms,
+      vtkgl::BufferObject::ArrayBuffer);
+    this->CellNormalTexture->CreateTextureBuffer(
+      static_cast<unsigned int>(newNorms.size()/3),
+      3, VTK_FLOAT,
+      this->CellNormalBuffer);
     }
 
   this->VBO.Upload(this->Layout.PackedVBO, vtkgl::BufferObject::ArrayBuffer);
@@ -602,7 +630,10 @@ void vtkCompositePolyDataMapper2::AppendOneBufferObject(
   vtkRenderer *ren,
   vtkActor *act,
   vtkPolyData *poly,
-  unsigned int voffset)
+  unsigned int voffset,
+  std::vector<unsigned char> &newColors,
+  std::vector<float> &newNorms
+  )
 {
   // if there are no cells then skip this piece
   if (poly->GetPolys()->GetNumberOfCells() == 0)
@@ -642,7 +673,7 @@ void vtkCompositePolyDataMapper2::AppendOneBufferObject(
     this->InternalColorTexture->SetInputData(this->ColorTextureMap);
     }
 
-  bool cellScalars = false;
+  this->HaveCellScalars = false;
   if (this->ScalarVisibility)
     {
     // We must figure out how the scalars should be mapped to the polydata.
@@ -653,17 +684,17 @@ void vtkCompositePolyDataMapper2::AppendOneBufferObject(
          && this->ScalarMode != VTK_SCALAR_MODE_USE_POINT_FIELD_DATA
          && this->Colors)
       {
-      cellScalars = true;
+      this->HaveCellScalars = true;
       }
     }
 
-  bool cellNormals = false;
+  this->HaveCellNormals = false;
   // Do we have cell normals?
   vtkDataArray *n =
     (act->GetProperty()->GetInterpolation() != VTK_FLAT) ? poly->GetPointData()->GetNormals() : NULL;
   if (n == NULL && poly->GetCellData()->GetNormals())
     {
-    cellNormals = true;
+    this->HaveCellNormals = true;
     n = poly->GetCellData()->GetNormals();
     }
 
@@ -674,11 +705,54 @@ void vtkCompositePolyDataMapper2::AppendOneBufferObject(
   prims[1] =  poly->GetLines();
   prims[2] =  poly->GetPolys();
   prims[3] =  poly->GetStrips();
-  std::vector<unsigned int> cellPointMap;
-  std::vector<unsigned int> pointCellMap;
-  if (cellScalars || cellNormals)
+
+  int representation = act->GetProperty()->GetRepresentation();
+
+  std::vector<unsigned int> cellCellMap;
+  if (this->HaveCellScalars || this->HaveCellNormals)
     {
-    vtkgl::CreateCellSupportArrays(poly, prims, cellPointMap, pointCellMap);
+    vtkgl::CreateCellSupportArrays(prims, cellCellMap, representation);
+
+    if (this->HaveCellScalars)
+      {
+      if (!this->CellScalarTexture)
+        {
+        this->CellScalarTexture = vtkTextureObject::New();
+        this->CellScalarBuffer = new vtkgl::BufferObject;
+        }
+      this->CellScalarTexture->SetContext(
+        static_cast<vtkOpenGLRenderWindow*>(ren->GetVTKWindow()));
+
+      // create the cell scalar array adjusted for ogl Cells
+      unsigned char *colorPtr = this->Colors->GetPointer(0);
+      int numComp = this->Colors->GetNumberOfComponents();
+      for (int i = 0; i < cellCellMap.size(); i++)
+        {
+        for (int j = 0; j < numComp; j++)
+          {
+          newColors.push_back(colorPtr[cellCellMap[i]*numComp + j]);
+          }
+        }
+      }
+
+    if (this->HaveCellNormals)
+      {
+      if (!this->CellNormalTexture)
+        {
+        this->CellNormalTexture = vtkTextureObject::New();
+        this->CellNormalBuffer = new vtkgl::BufferObject;
+        }
+      this->CellNormalTexture->SetContext(
+        static_cast<vtkOpenGLRenderWindow*>(ren->GetVTKWindow()));
+      // create the cell scalar array adjusted for ogl Cells
+      for (int i = 0; i < cellCellMap.size(); i++)
+        {
+        double *norms = n->GetTuple(cellCellMap[i]);
+        newNorms.push_back(norms[0]);
+        newNorms.push_back(norms[1]);
+        newNorms.push_back(norms[2]);
+        }
+      }
     }
 
   // do we have texture maps?
@@ -702,18 +776,13 @@ void vtkCompositePolyDataMapper2::AppendOneBufferObject(
 
   // Build the VBO
   AppendVBO(this->Layout, poly->GetPoints(),
-            cellPointMap.size() > 0 ? (unsigned int)cellPointMap.size()
-              : poly->GetPoints()->GetNumberOfPoints(),
+            poly->GetPoints()->GetNumberOfPoints(),
             n, tcoords,
             this->Colors ? (unsigned char *)this->Colors->GetVoidPointer(0) : NULL,
             this->Colors ? this->Colors->GetNumberOfComponents() : 0,
-            cellPointMap.size() > 0 ? &cellPointMap.front() : NULL,
-            pointCellMap.size() > 0 ? &pointCellMap.front() : NULL,
-            cellScalars, cellNormals);
+            this->HaveCellScalars, this->HaveCellNormals);
 
   // now create the IBOs
-  int representation = act->GetProperty()->GetRepresentation();
-
   vtkHardwareSelector* selector = ren->GetSelector();
   if (selector && this->PopulateSelectionSettings &&
       selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS &&
@@ -738,7 +807,6 @@ void vtkCompositePolyDataMapper2::AppendOneBufferObject(
       vtkgl::AppendTriangleIndexBuffer(this->IndexArray,
         prims[2],
         poly->GetPoints(),
-        cellPointMap,
         voffset);
       }
     }
@@ -753,12 +821,4 @@ void vtkCompositePolyDataMapper2::AppendOneBufferObject(
       this->EdgeIndexArray, prims[2], voffset);
     }
 
-  // free up new cell arrays
-  if (cellScalars || cellNormals)
-    {
-    for (int primType = 0; primType < 4; primType++)
-      {
-      prims[primType]->UnRegister(this);
-      }
-    }
 }
