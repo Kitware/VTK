@@ -8,6 +8,12 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestVRMLImporter.cxx,NO_VALID
   )
 
+ExternalData_add_test(VTKData
+  NAME ${vtk-module}Cxx-OBJImport-MixedOrder1
+  COMMAND ${vtk-module}CxxTests TestOBJImporter
+    -D DATA{../Data/Input/boxes_2.obj}  DATA{../Data/Input/boxes_2.obj.mtl}
+       DATA{../Data/Input/flare.jpg}    DATA{../Data/Input/map1024.png}
+    -D " ${VTK_TEST_OUTPUT_DIR} "
+  )
 
-#vtk_add_test_cxx(${vtk-module}CxxTests tests TestObjImporter.cxx,NO_VALID,NO_OUTPUT )
 vtk_test_cxx_executable(${vtk-module}CxxTests tests)

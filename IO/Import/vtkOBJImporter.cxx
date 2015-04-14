@@ -85,7 +85,10 @@ void vtkOBJImporter::ImportEnd()
 void vtkOBJImporter::ReadData()
 {
   this->Impl->Update();
-  bindTexturedPolydataToRenderWindow(this->RenderWindow,this->Renderer,Impl.Get());
+  if(Impl->GetSuccessParsingFiles())
+  {
+    bindTexturedPolydataToRenderWindow(this->RenderWindow,this->Renderer,Impl.Get());
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -148,9 +151,21 @@ struct vtkOBJImportedPolyDataWithMaterial
     obj_set_material_defaults( mtlProperties );
   }
 
+  // these can be shared
   vtkSmartPointer<vtkPoints> points          ;
-  vtkSmartPointer<vtkFloatArray> tcoords     ;
   vtkSmartPointer<vtkFloatArray> normals     ;
+
+  void SetSharedPoints( vtkSmartPointer<vtkPoints> arg )
+  {
+    points = arg;
+  }
+  void SetSharedNormals( vtkSmartPointer<vtkFloatArray> arg )
+  {
+    normals = arg;
+  }
+
+  // these are unique per entity
+  vtkSmartPointer<vtkFloatArray> tcoords     ;
   vtkSmartPointer<vtkCellArray> polys        ;
   vtkSmartPointer<vtkCellArray> tcoord_polys ;
   vtkSmartPointer<vtkCellArray> pointElems   ;
@@ -170,6 +185,7 @@ vtkOBJPolyDataProcessor::vtkOBJPolyDataProcessor()
   this->MTLfilename = "";
   this->TexturePath = ".";
   this->VertexScale = 1.0;
+  this->SuccessParsingFiles = 1;
   this->SetNumberOfInputPorts(0);
   /** multi-poly-data paradigm: pivot based on named materials */
   vtkOBJImportedPolyDataWithMaterial* default_poly = (new vtkOBJImportedPolyDataWithMaterial);
@@ -180,10 +196,11 @@ vtkOBJPolyDataProcessor::vtkOBJPolyDataProcessor()
 //----------------------------------------------------------------------------
 vtkOBJPolyDataProcessor::~vtkOBJPolyDataProcessor()
 {
-  for( size_t k=0; k < poly_list.size(); k++) {
-      delete poly_list[k];
-      poly_list[k] = NULL;
-    }
+  for( size_t k=0; k < poly_list.size(); k++)
+  {
+    delete poly_list[k];
+    poly_list[k] = NULL;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -296,10 +313,36 @@ int vtkOBJPolyDataProcessor::RequestData(
   std::vector<vtkOBJImportedMaterial*>  parsedMTLs = ParseOBJandMTL(MTLfilename,mtlParseResult);
   size_t numMaterialsInMTLfile = parsedMTLs.size();
   if(this->GetDebug())
+  {
+    std::cout << "vtkOBJPolyDataProcessor parsed "   << numMaterialsInMTLfile
+         << " materials from "   << MTLfilename << endl;
+  }
+
+  vtkSmartPointer<vtkPoints>     shared_vertexs = vtkSmartPointer<vtkPoints>::New();
+  vtkSmartPointer<vtkFloatArray> shared_normals = vtkSmartPointer<vtkFloatArray>::New();
+  shared_normals->SetNumberOfComponents(3);
+
+  std::map<std::string,vtkOBJImportedPolyDataWithMaterial*>  mtlName_to_Actor;
+
+  {
+  // Since we read the MTL file, we already know how many actors we need.
+  // So, pre-allocate instead of trying to do it on the fly.
+    while(poly_list.size() != parsedMTLs.size() )
     {
-      std::cout << "vtkOBJPolyDataProcessor parsed "   << numMaterialsInMTLfile
-           << " materials from "   << MTLfilename << endl;
+      vtkOBJImportedPolyDataWithMaterial*  novaya = new vtkOBJImportedPolyDataWithMaterial;
+      novaya->SetSharedPoints(shared_vertexs);
+      novaya->SetSharedNormals(shared_normals);
+      poly_list.push_back(novaya);
     }
+    for( size_t k =0; k<parsedMTLs.size(); k++ )
+    {
+      std::string mtlname_k(parsedMTLs[k]->name);
+      poly_list[k]->materialName = mtlname_k;
+      poly_list[k]->mtlProperties= parsedMTLs[k];
+      mtlName_to_mtlData[mtlname_k] = parsedMTLs[k];
+      mtlName_to_Actor[mtlname_k]   = poly_list[k];
+    }
+  }
 
   vtkPoints* points  = poly_list.back()->points;
   vtkFloatArray* tcoords = poly_list.back()->tcoords;
@@ -317,20 +360,22 @@ int vtkOBJPolyDataProcessor::RequestData(
   // "use_mtl M1" if the .mtl file lists them in order M1, M0
 
   outVector_of_textureFilnames.resize( parsedMTLs.size() );
-  for( int i=0;i<(int)parsedMTLs.size();i++ ) {
+  for( int i=0;i<(int)parsedMTLs.size();i++ )
+  {
       std::string mtlname     = parsedMTLs[i]->name;
       std::string texfilename = parsedMTLs[i]->texture_filename;
       outVector_of_textureFilnames[i] = texfilename;
       mtlName_to_mtlData[mtlname] = parsedMTLs[i];
       if(this->GetDebug())
         std::cout << "out texture name: " << outVector_of_textureFilnames[i] << endl;
-    }
+  }
 
-  bool gotFirstUseMaterialTag = false; {
+  bool gotFirstUseMaterialTag = false;
+    // THIS SHOULD NO LONGER BE TRUE.
     // assumption is that you do vertices and normals first, THEN materials
     // badness/brokeness is expected if the file has vn, vt after usemtl so check
     // and report error if that's the case.
-  }
+
 
   int numPolysWithTCoords = 0;
   bool hasTCoords = false;
@@ -385,10 +430,10 @@ int vtkOBJPolyDataProcessor::RequestData(
                 vtkErrorMacro(<<"Error reading 'v' at line " << lineNr);
                 everything_ok = false;
               }
-            if( gotFirstUseMaterialTag ) {
-                vtkErrorMacro(<<"Trying to add vertices *after* usemtl has first appeared!? No dice!" << lineNr);
-                everything_ok = false;
-              }
+            if( gotFirstUseMaterialTag && this->GetDebug() )
+            {
+              vtkWarningMacro("attempting to add vertices after usemtl ... ");
+            }
           }
         else if (strcmp(cmd, "vt") == 0) /** Texture Coord, whango! */
           {
@@ -667,38 +712,37 @@ int vtkOBJPolyDataProcessor::RequestData(
 
             gotFirstUseMaterialTag = true; // yep we have a usemtl command. check to make sure idiots don't try to add vertices later.
             int mtlCount = known_materials.count(mtl_name);
-            if( 0 == mtlCount ) {
-                if( poly_list.back()->materialName.empty() )
-                  { // first time through, we haven't gotten to a usemtl tag yet and just read vertices
-                    poly_list.back()->materialName = mtl_name;
-                    poly_list.back()->mtlProperties= mtlName_to_mtlData[mtl_name];
-                    known_materials[mtl_name]      = poly_list.back();
-                    if(this->GetDebug())
-                      std::cout << "name of FIRST material is: " << poly_list.back()->materialName << endl;
-                  }
-                else
-                  { // new material encountered; bag and tag it, make a new named-poly-data-container
-                    vtkOBJImportedPolyDataWithMaterial*  novaya = new vtkOBJImportedPolyDataWithMaterial;
-                    novaya->materialName = mtl_name;
-                    novaya->mtlProperties= mtlName_to_mtlData[mtl_name];
-                    novaya->points->DeepCopy(poly_list.back()->points);
-                    novaya->normals->DeepCopy(poly_list.back()->normals);
-                    novaya->tcoords->DeepCopy(poly_list.back()->tcoords);
-                    poly_list.push_back(novaya);
-                    known_materials[mtl_name] = poly_list.back();
+            if( 0 == mtlCount )
+            {
+              //                if( poly_list.back()->materialName.empty() )
+              //                  { // first time through, we haven't gotten to a usemtl tag yet and just read vertices
+              //                    poly_list.back()->materialName = mtl_name;
+              //                    poly_list.back()->mtlProperties= mtlName_to_mtlData[mtl_name];
+              //                    known_materials[mtl_name]      = poly_list.back();
+              //                    if(this->GetDebug())
+              //                      std::cout << "name of FIRST material is: " << poly_list.back()->materialName << endl;
+              //                  }
+              //                else
+              { // new material encountered; bag and tag it, make a new named-poly-data-container
+                if( ! mtlName_to_Actor.count(mtl_name) )
+                {
+                  vtkErrorMacro(" material " << mtl_name << " appears in OBJ but not MTL file??");
+                }
+                vtkOBJImportedPolyDataWithMaterial* active = mtlName_to_Actor[mtl_name];
+                known_materials[mtl_name] = active;
 
-                    if(this->GetDebug())
-                      std::cout << "новые данные, name of material is: " << poly_list.back()->materialName << endl;
+                if(this->GetDebug())
+                  std::cout << "новые данные, name of material is: " << active->materialName << endl;
 
-                    /** slightly tricky: all multi-polys share the vertex, normals, and tcoords,
+                /** slightly tricky: all multi-polys share the vertex, normals, and tcoords,
                                  but define unique polygons... */
-                    polys           = poly_list.back()->polys; // Update pointers reading file further
-                    tcoord_polys    = poly_list.back()->tcoord_polys;
-                    pointElems      = poly_list.back()->pointElems;
-                    lineElems       = poly_list.back()->lineElems;
-                    normal_polys    = poly_list.back()->normal_polys;
-                  }
+                polys           = active->polys; // Update pointers reading file further
+                tcoord_polys    = active->tcoord_polys;
+                pointElems      = active->pointElems;
+                lineElems       = active->lineElems;
+                normal_polys    = active->normal_polys;
               }
+            }
             else /** This material name already exists; switch back to it! */
               {
                 vtkOBJImportedPolyDataWithMaterial* known_mtl = known_materials[mtl_name];
@@ -892,6 +936,11 @@ int vtkOBJPolyDataProcessor::RequestData(
             }
         }
     }
+
+  if(!everything_ok)
+  {
+    SetSuccessParsingFiles(false);
+  }
 
   return 1;
 }

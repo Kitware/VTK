@@ -101,6 +101,7 @@ public:
 
   vtkSetMacro(VertexScale,double)
   vtkGetMacro(VertexScale,double)
+  vtkGetMacro(SuccessParsingFiles,int)
 
   virtual vtkPolyData* GetOutput(int idx);
 
@@ -125,6 +126,7 @@ public:
 
   std::vector<vtkOBJImportedMaterial*> ParseOBJandMTL(std::string filename,int& result_code);
 
+  void ReadVertices(bool gotFirstUseMaterialTag, char *pLine, float xyz, int lineNr, const double v_scale, bool everything_ok, vtkPoints* points, const bool use_scale);
 protected:
   vtkOBJPolyDataProcessor();
   ~vtkOBJPolyDataProcessor();
@@ -134,6 +136,8 @@ protected:
   std::string FileName;     // filename (.obj) being read
   std::string MTLfilename;  // associated .mtl to *.obj, typically it is *.obj.mtl
   std::string TexturePath;
+  int         SuccessParsingFiles;
+  vtkSetMacro(SuccessParsingFiles,int)
 
 private:
   vtkOBJPolyDataProcessor(const vtkOBJPolyDataProcessor&);  // Not implemented.
