@@ -79,6 +79,7 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   this->CellScalarBuffer = NULL;
   this->CellNormalTexture = NULL;
   this->CellNormalBuffer = NULL;
+
   this->HavePickScalars = false;
   this->HaveCellScalars = false;
   this->HaveCellNormals = false;
@@ -2198,6 +2199,7 @@ void vtkOpenGLPolyDataMapper::BuildIBO(vtkRenderer *ren, vtkActor *act)
                          this->TriStripsEdges.ibo, true);
     }
 }
+
 //-----------------------------------------------------------------------------
 bool vtkOpenGLPolyDataMapper::GetIsOpaque()
 {

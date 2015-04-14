@@ -1751,8 +1751,6 @@ bool vtkTextureObject::CreateTextureBuffer(unsigned int numValues, int numComps,
   this->Bind();
 
   // Source texture data from the PBO.
-  //glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
   glTexBuffer(
       this->Target,
       this->InternalFormat,

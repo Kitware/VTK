@@ -44,7 +44,7 @@ void TemplatedAppendVBO3(VBOLayout &layout,
   layout.TCoordComponents = 0;
   layout.ColorComponents = 0;
   layout.ColorOffset = 0;
-  if (normals)
+  if (normals && !cellNormals)
     {
     layout.NormalOffset = sizeof(float) * blockSize;
     blockSize += 3;
@@ -55,7 +55,7 @@ void TemplatedAppendVBO3(VBOLayout &layout,
     layout.TCoordComponents = textureComponents;
     blockSize += textureComponents;
     }
-  if (colors)
+  if (colors && !cellScalars)
     {
     layout.ColorComponents = colorComponents;
     layout.ColorOffset = sizeof(float) * blockSize;
@@ -85,7 +85,7 @@ void TemplatedAppendVBO3(VBOLayout &layout,
     *(it++) = *(pointPtr++);
     *(it++) = *(pointPtr++);
     *(it++) = *(pointPtr++);
-    if (normals)
+    if (normals && !cellNormals)
       {
       *(it++) = *(normalPtr++);
       *(it++) = *(normalPtr++);
@@ -98,7 +98,7 @@ void TemplatedAppendVBO3(VBOLayout &layout,
         *(it++) = *(tcoordPtr++);
         }
       }
-    if (colors)
+    if (colors && !cellScalars)
       {
       if (colorComponents == 4)
         {
