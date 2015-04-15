@@ -129,10 +129,26 @@ mode_looks_exe() {
 	git cat-file blob "$2" | head -1 | grep "^#!/" > /dev/null
 }
 mode_not_exe () {
-	echo "The file '$file' has looks executable but does not have an executable mode."
+	echo "The file '$file' has looks executable but does not have an executable mode.
+On UNIX, run:
+
+  $ chmod u+x '$file' && git add -u '$file'
+
+On Windows, run:
+
+  $ git update-index --chmod=+x '$file'
+"
 }
 mode_bad_exe () {
-	echo "The file '$file' has executable mode but does not look executable."
+	echo "The file '$file' has executable mode but does not look executable.
+On UNIX, run:
+
+  $ chmod u-x '$file' && git add -u '$file'
+
+On Windows, run:
+
+  $ git update-index --chmod=-x '$file'
+"
 }
 mode_non_file () {
 	echo "The path '$file' has a non-file mode."
