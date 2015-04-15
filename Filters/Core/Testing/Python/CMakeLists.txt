@@ -21,6 +21,7 @@ vtk_add_test_python(
   TestGridSynchronizedTemplates3D.py
   TestMarchingSquares.py
   TestRectilinearSynchronizedTemplates.py
+  TestScalarTrees.py
   TestSynchronizedTemplates2D.py
   TestSynchronizedTemplates3D.py
   TestContourGrid.py,NO_VALID

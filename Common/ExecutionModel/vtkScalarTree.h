@@ -24,10 +24,17 @@
 // To use subclasses of this class, you must specify a dataset to operate on,
 // and then specify a scalar value in the InitTraversal() method. Then
 // calls to GetNextCell() return cells whose scalar data contains the
-// scalar value specified.
+// scalar value specified. (This describes serial traversal.)
+//
+// Methods supporting parallel traversal (such as threading) are also
+// supported. Basically thread-safe batches of cells (which are a
+// portion of the whole dataset) are available for processing using a
+// parallel For() operation. First request the number of batches, and
+// then for each batch, retrieve the array of cell ids in that batch. These
+// batches contain cell ids that are likely to contain the isosurface.
 
 // .SECTION See Also
-// vtkSimpleScalarTree
+// vtkSimpleScalarTree vtkSpanSpace
 
 #ifndef vtkScalarTree_h
 #define vtkScalarTree_h
@@ -48,9 +55,20 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Build the tree from the points/cells defining this dataset.
+  // Build the tree from the points/cells and scalars defining this
+  // dataset.
   virtual void SetDataSet(vtkDataSet*);
   vtkGetObjectMacro(DataSet,vtkDataSet);
+
+  // Description:
+  // Build the tree from the points/cells and scalars defining the
+  // dataset and scalars provided. Typically the scalars come from
+  // the vtkDataSet specified, but sometimes a separate vtkDataArray
+  // is provided to specify the scalars. If the scalar array is
+  // explicitly set, then it takes precedence over the scalars held
+  // in the vtkDataSet.
+  virtual void SetScalars(vtkDataArray*);
+  vtkGetObjectMacro(Scalars,vtkDataArray);
 
   // Description:
   // Construct the scalar tree from the dataset provided. Checks build times
@@ -63,7 +81,9 @@ public:
 
   // Description:
   // Begin to traverse the cells based on a scalar value. Returned cells
-  // will have scalar values that span the scalar value specified.
+  // will have scalar values that span the scalar value specified. Note
+  // that changing the scalarValue does not cause the scalar tree to be
+  // modified, and hence it does not rebuild.
   virtual void InitTraversal(double scalarValue) = 0;
 
   // Description:
@@ -74,15 +94,42 @@ public:
   virtual vtkCell *GetNextCell(vtkIdType &cellId, vtkIdList* &ptIds,
                                vtkDataArray *cellScalars) = 0;
 
+  // Description:
+  // Return the current scalar value over which tree traversal is proceeding.
+  // This is the scalar value provided in InitTraversal().
+  double GetScalarValue()
+    {return this->ScalarValue;}
+
+  // The following methods supports parallel (threaded) applications. Basically
+  // batches of cells (which are a portion of the whole dataset) are available for
+  // processing in a parallel For() operation.
+
+  // Description:
+  // Get the number of cell batches available for processing. Note
+  // that this methods should be called after InitTraversal(). This is
+  // because the number of batches available is typically a function
+  // of the isocontour value. Note that the cells found in
+  // [0...(NumberOfCellBatches-1)] will contain all the cells
+  // potentially containing the isocontour.
+  virtual vtkIdType GetNumberOfCellBatches() = 0;
+
+  // Description:
+  // Return the array of cell ids in the specified batch. The method
+  // also returns the number of cell ids in the array. Make sure to
+  // call InitTraversal() beforehand.
+  virtual const vtkIdType* GetCellBatch(vtkIdType batchNum,
+                                        vtkIdType& numCells) = 0;
+
+
 protected:
   vtkScalarTree();
   ~vtkScalarTree();
 
   vtkDataSet   *DataSet;    //the dataset over which the scalar tree is built
   vtkDataArray *Scalars;    //the scalars of the DataSet
+  double        ScalarValue; //current scalar value for traversal
 
   vtkTimeStamp BuildTime; //time at which tree was built
-  double       ScalarValue; //current scalar value for traversal
 
 private:
   vtkScalarTree(const vtkScalarTree&);  // Not implemented.
@@ -90,5 +137,3 @@ private:
 };
 
 #endif
-
-

@@ -41,6 +41,7 @@
 
 vtkStandardNewMacro(vtkContourGrid);
 
+//-----------------------------------------------------------------------------
 // Construct object with initial range (0,1) and single contour value
 // of 0.0.
 vtkContourGrid::vtkContourGrid()
@@ -62,8 +63,11 @@ vtkContourGrid::vtkContourGrid()
   // by default process active point scalars
   this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
                                vtkDataSetAttributes::SCALARS);
+
+  this->EdgeTable = NULL;
 }
 
+//-----------------------------------------------------------------------------
 vtkContourGrid::~vtkContourGrid()
 {
   this->ContourValues->Delete();
@@ -78,6 +82,7 @@ vtkContourGrid::~vtkContourGrid()
     }
 }
 
+//-----------------------------------------------------------------------------
 // Overload standard modified time function. If contour values are modified,
 // then this object is modified as well.
 unsigned long vtkContourGrid::GetMTime()
@@ -99,13 +104,14 @@ unsigned long vtkContourGrid::GetMTime()
   return mTime;
 }
 
+//-----------------------------------------------------------------------------
 template <class Scalar>
 void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
                            vtkPolyData *output,
                            vtkDataArray *inScalars,
                            int numContours, double *values,
                            int computeScalars,
-                           int useScalarTree, vtkScalarTree *&scalarTree,
+                           int useScalarTree, vtkScalarTree *scalarTree,
                            bool generateTriangles)
 {
   vtkIdType i;
@@ -185,6 +191,7 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
                           outPd, outCd, estimatedSize, generateTriangles);
   // If enabled, build a scalar tree to accelerate search
   //
+  vtkIdType numCellsContoured = 0;
   if ( !useScalarTree )
     {
     // Three passes over the cells to process lower dimensional cells first.
@@ -290,15 +297,11 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
   else
     {
     // Note: This will have problems when input contains 2D and 3D cells.
-    // CellData will get scrabled because of the implicit ordering of
+    // CellData will get scrambled because of the implicit ordering of
     // verts, lines and polys in vtkPolyData.  The solution
     // is to convert this filter to create unstructured grid.
     //
-    if ( scalarTree == NULL )
-      {
-      scalarTree = vtkSimpleScalarTree::New();
-      }
-    scalarTree->SetDataSet(input);
+
     //
     // Loop over all contour values.  Then for each contour value,
     // loop over all cells.
@@ -313,6 +316,7 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
                                              cellScalars)); )
         {
         helper.Contour(tmpCell, values[i], cellScalars, cellId);
+        numCellsContoured++;
 
         //don't want to call Contour any more than necessary
         } //for all cells
@@ -349,7 +353,7 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
   output->Squeeze();
 }
 
-//
+//-----------------------------------------------------------------------------
 // Contouring filter for unstructured grids.
 //
 int vtkContourGrid::RequestData(
@@ -372,8 +376,6 @@ int vtkContourGrid::RequestData(
   int numContours = this->ContourValues->GetNumberOfContours();
   double *values = this->ContourValues->GetValues();
   int computeScalars = this->ComputeScalars;
-  int useScalarTree = this->UseScalarTree;
-  vtkScalarTree *&scalarTree = this->ScalarTree;
 
   vtkDebugMacro(<< "Executing contour filter");
 
@@ -388,6 +390,19 @@ int vtkContourGrid::RequestData(
     {
     vtkDebugMacro(<<"No data to contour");
     return 1;
+    }
+
+  // Create scalar tree if necessary and if requested
+  int useScalarTree = this->GetUseScalarTree();
+  vtkScalarTree *scalarTree = this->ScalarTree;
+  if ( useScalarTree )
+    {
+    if ( scalarTree == NULL )
+      {
+      scalarTree = vtkSimpleScalarTree::New();
+      }
+    scalarTree->SetDataSet(input);
+    scalarTree->SetScalars(inScalars);
     }
 
   switch (inScalars->GetDataType())
@@ -422,6 +437,30 @@ int vtkContourGrid::RequestData(
   return 1;
 }
 
+//-----------------------------------------------------------------------------
+// Specify a spatial locator for merging points. By default,
+// an instance of vtkMergePoints is used.
+void vtkContourGrid::SetScalarTree(vtkScalarTree *sTree)
+{
+  if ( this->ScalarTree == sTree )
+    {
+    return;
+    }
+  if ( this->ScalarTree )
+    {
+    this->ScalarTree->UnRegister(this);
+    this->ScalarTree = NULL;
+    }
+  if ( sTree )
+    {
+    sTree->Register(this);
+    }
+  this->ScalarTree = sTree;
+  this->Modified();
+}
+
+
+//-----------------------------------------------------------------------------
 // Specify a spatial locator for merging points. By default,
 // an instance of vtkMergePoints is used.
 void vtkContourGrid::SetLocator(vtkIncrementalPointLocator *locator)
@@ -443,6 +482,7 @@ void vtkContourGrid::SetLocator(vtkIncrementalPointLocator *locator)
   this->Modified();
 }
 
+//-----------------------------------------------------------------------------
 void vtkContourGrid::CreateDefaultLocator()
 {
   if ( this->Locator == NULL )
@@ -453,17 +493,20 @@ void vtkContourGrid::CreateDefaultLocator()
     }
 }
 
+//-----------------------------------------------------------------------------
 void vtkContourGrid::SetOutputPointsPrecision(int precision)
 {
   this->OutputPointsPrecision = precision;
   this->Modified();
 }
 
+//-----------------------------------------------------------------------------
 int vtkContourGrid::GetOutputPointsPrecision() const
 {
   return this->OutputPointsPrecision;
 }
 
+//-----------------------------------------------------------------------------
 int vtkContourGrid::FillInputPortInformation(int, vtkInformation *info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),
@@ -471,6 +514,7 @@ int vtkContourGrid::FillInputPortInformation(int, vtkInformation *info)
   return 1;
 }
 
+//-----------------------------------------------------------------------------
 void vtkContourGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -485,6 +529,15 @@ void vtkContourGrid::PrintSelf(ostream& os, vtkIndent indent)
      << (this->UseScalarTree ? "On\n" : "Off\n");
 
   this->ContourValues->PrintSelf(os,indent.GetNextIndent());
+
+  if ( this->ScalarTree )
+    {
+    os << indent << "Scalar Tree: " << this->ScalarTree << "\n";
+    }
+  else
+    {
+    os << indent << "Scalar Tree: (none)\n";
+    }
 
   if ( this->Locator )
     {
