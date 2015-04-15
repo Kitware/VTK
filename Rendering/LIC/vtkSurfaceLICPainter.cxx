@@ -1911,6 +1911,8 @@ void vtkSurfaceLICPainter::SetEnhanceContrast(int val)
           break;
         case ENHANCE_CONTRAST_COLOR:
           this->Internals->LICNeedsUpdate = true;
+          this->Internals->ColorNeedsUpdate = true;
+          break;
         case ENHANCE_CONTRAST_LIC:
           this->Internals->ColorNeedsUpdate = true;
           break;

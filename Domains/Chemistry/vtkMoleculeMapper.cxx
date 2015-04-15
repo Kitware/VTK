@@ -355,6 +355,7 @@ void vtkMoleculeMapper::UpdateAtomGlyphPolyData()
     default:
       vtkWarningMacro(<<"Unknown radius type: " << this->AtomicRadiusType
                       <<". Falling back to 'VDWRadius' ("<<VDWRadius<<").");
+      VTK_FALLTHROUGH;
     case VDWRadius:
       for (vtkIdType i = 0; i < numAtoms; ++i)
         {

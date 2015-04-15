@@ -325,9 +325,15 @@ void vtkXMLWriterC_SetCoordinates(vtkXMLWriterC* self, int axis,
       {
       switch(axis)
         {
-        case 0: dataObject->SetXCoordinates(array);
-        case 1: dataObject->SetYCoordinates(array);
-        case 2: dataObject->SetZCoordinates(array);
+        case 0:
+          dataObject->SetXCoordinates(array);
+          break;
+        case 1:
+          dataObject->SetYCoordinates(array);
+          break;
+        case 2:
+          dataObject->SetZCoordinates(array);
+          break;
         }
       }
     }

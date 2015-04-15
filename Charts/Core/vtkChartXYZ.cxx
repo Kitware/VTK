@@ -706,6 +706,7 @@ void vtkChartXYZ::DetermineWhichAxesToLabel()
                 break;
               case 2:
                 ++k;
+                break;
               default:
                 break;
               }

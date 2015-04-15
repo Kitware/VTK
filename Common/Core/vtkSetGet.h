@@ -831,5 +831,20 @@ virtual double *Get##name() \
 // class is wrapped externally.
 #define VTK_WRAP_EXTERN
 
+//----------------------------------------------------------------------------
+// Switch case fall-through policy.
+
+// Use "VTK_FALLTHROUGH;" to annotate deliberate fall-through in switches,
+// use it analogously to "break;".  The trailing semi-colon is required.
+#if __cplusplus >= 201103L && defined(__has_warning)
+# if __has_feature(cxx_attributes) && __has_warning("-Wimplicit-fallthrough")
+#  define VTK_FALLTHROUGH [[clang::fallthrough]]
+# endif
+#endif
+
+#ifndef VTK_FALLTHROUGH
+# define VTK_FALLTHROUGH ((void)0)
+#endif
+
 #endif
 // VTK-HeaderTest-Exclude: vtkSetGet.h

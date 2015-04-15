@@ -374,15 +374,21 @@ void vtkTextRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     {
     case LowerLeftCorner:
       os << "LowerLeftCorner\n";
+      break;
     case LowerRightCorner:
       os << "LowerRightCorner\n";
+      break;
     case LowerCenter:
       os << "LowerCenter\n";
+      break;
     case UpperLeftCorner:
       os << "UpperLeftCorner\n";
+      break;
     case UpperRightCorner:
       os << "UpperRightCorner\n";
+      break;
     case UpperCenter:
       os << "UpperCenter\n";
+      break;
     }
 }

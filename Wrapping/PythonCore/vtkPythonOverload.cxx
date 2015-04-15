@@ -316,6 +316,7 @@ int vtkPythonOverload::CheckArg(
 
     case 'f':
       penalty = VTK_PYTHON_GOOD_MATCH;
+      VTK_FALLTHROUGH;
     case 'd':
       if (!PyFloat_Check(arg))
         {

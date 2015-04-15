@@ -1774,6 +1774,7 @@ void vtkGetSetPixelsFunc(
         default:
           *setpixels = 0;
         }
+      break;
     case 2:
       switch (dataType)
         {
@@ -1783,6 +1784,7 @@ void vtkGetSetPixelsFunc(
         default:
           *setpixels = 0;
         }
+      break;
     case 3:
       switch (dataType)
         {
@@ -1792,6 +1794,7 @@ void vtkGetSetPixelsFunc(
         default:
           *setpixels = 0;
         }
+      break;
     case 4:
       switch (dataType)
         {
@@ -1801,6 +1804,7 @@ void vtkGetSetPixelsFunc(
         default:
           *setpixels = 0;
         }
+      break;
     default:
       switch (dataType)
         {

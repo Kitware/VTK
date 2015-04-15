@@ -6107,26 +6107,29 @@ void vtkExodusIIReader::SetAllArrayStatus( int otyp, int status )
       {
       this->SetAssemblyArrayStatus( i, status );
       }
+    VTK_FALLTHROUGH;
   case PART:
     numObj = this->GetNumberOfPartArrays();
     for ( i = 0; i < numObj; ++i )
       {
       this->SetPartArrayStatus( i, status );
       }
+    VTK_FALLTHROUGH;
   case MATERIAL:
     numObj = this->GetNumberOfMaterialArrays();
     for ( i = 0; i < numObj; ++i )
       {
       this->SetMaterialArrayStatus( i, status );
       }
+    VTK_FALLTHROUGH;
   case HIERARCHY:
     numObj = this->GetNumberOfHierarchyArrays();
     for ( i = 0; i < numObj; ++i )
       {
       this->SetHierarchyArrayStatus( i, status );
       }
+    break;
   default:
-    ;
     break;
     }
 }

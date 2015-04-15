@@ -187,6 +187,7 @@ int vtkConeSource::RequestData(
     x[2] = this->Radius;
     pts[2] = newPoints->InsertNextPoint(x);
     newPolys->InsertNextCell(3,pts);
+    VTK_FALLTHROUGH;
 
   case 1:
     x[0] = xbot;

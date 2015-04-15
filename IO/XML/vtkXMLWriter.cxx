@@ -1524,6 +1524,7 @@ size_t vtkXMLWriter::GetWordTypeSize(int dataType)
 
     case VTK_STRING:
       size = sizeof(vtkStdString::value_type);
+      break;
 
     default:
       vtkWarningMacro("Unsupported data type: " << dataType);
@@ -1541,7 +1542,7 @@ const char* vtkXMLWriter::GetWordTypeName(int dataType)
   // These string values must match vtkXMLDataElement::GetWordTypeAttribute().
   switch (dataType)
     {
-  case VTK_STRING:           return "String";
+    case VTK_STRING:         return "String";
     case VTK_FLOAT:          return "Float32";
     case VTK_DOUBLE:         return "Float64";
     case VTK_ID_TYPE:

@@ -116,11 +116,11 @@ void vtkUnstructuredGridCellIterator::CatchUpSkippedCells()
         this->SkippedCells--;
         }
       assert(this->SkippedCells == 1);
-      // Fall through to first case
+      VTK_FALLTHROUGH;
     case 1:
       this->ConnectivityPtr += *this->ConnectivityPtr + 1;
       --this->SkippedCells;
-      // fall through to 0 case
+      VTK_FALLTHROUGH;
     case 0:
       // do nothing.
       break;

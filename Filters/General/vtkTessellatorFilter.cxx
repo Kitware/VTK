@@ -1347,7 +1347,7 @@ int vtkTessellatorFilter::RequestData(
           cp->EvaluateLocation( dummySubId, pts[p] + 3, pts[p], weights );
           this->Subdivider->EvaluateFields( pts[p], weights, 6 );
           }
-        // fall through
+        VTK_FALLTHROUGH;
       case VTK_QUADRATIC_HEXAHEDRON:
         for ( p = 20; p < 27; ++p )
           {

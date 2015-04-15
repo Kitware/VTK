@@ -68,9 +68,9 @@ vtkTypedDataArray<Scalar>::FastDownCast(vtkAbstractArray *source)
         {
         return static_cast<vtkTypedDataArray<Scalar>*>(source);
         }
-    default:
-      return NULL;
+      break;
     }
+  return NULL;
 }
 
 #endif //vtkTypedDataArray_txx

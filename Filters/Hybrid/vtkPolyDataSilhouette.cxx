@@ -163,30 +163,31 @@ int vtkPolyDataSilhouette::RequestData(
   // Compute the sort vector
   switch( this->Direction )
     {
-  case VTK_DIRECTION_SPECIFIED_VECTOR :
-    vector[0] = this->Vector[0];
-    vector[1] = this->Vector[1];
-    vector[2] = this->Vector[2];
-    break;
+    case VTK_DIRECTION_SPECIFIED_VECTOR :
+      vector[0] = this->Vector[0];
+      vector[1] = this->Vector[1];
+      vector[2] = this->Vector[2];
+      break;
 
-  case VTK_DIRECTION_SPECIFIED_ORIGIN :
-    origin[0] = this->Origin[0];
-    origin[1] = this->Origin[1];
-    origin[2] = this->Origin[2];
-    vectorMode = false;
-    break;
+    case VTK_DIRECTION_SPECIFIED_ORIGIN :
+      origin[0] = this->Origin[0];
+      origin[1] = this->Origin[1];
+      origin[2] = this->Origin[2];
+      vectorMode = false;
+      break;
 
-  case VTK_DIRECTION_CAMERA_ORIGIN :
-    vectorMode = false;
+    case VTK_DIRECTION_CAMERA_ORIGIN :
+      vectorMode = false;
+      VTK_FALLTHROUGH;
 
-  case VTK_DIRECTION_CAMERA_VECTOR :
-    if ( this->Camera == NULL)
-      {
-      vtkErrorMacro(<<"Need a camera when direction is set to VTK_DIRECTION_CAMERA_*");
-      return 0;
-      }
-    this->ComputeProjectionVector(vector, origin);
-    break;
+    case VTK_DIRECTION_CAMERA_VECTOR :
+      if ( this->Camera == NULL)
+        {
+        vtkErrorMacro(<<"Need a camera when direction is set to VTK_DIRECTION_CAMERA_*");
+        return 0;
+        }
+      this->ComputeProjectionVector(vector, origin);
+      break;
     }
 
   vtkIdType nPolys = input->GetNumberOfPolys();

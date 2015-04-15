@@ -199,14 +199,19 @@ double *vtkCoordinate::GetComputedWorldValue(vtkViewport* viewport)
     {
     case VTK_DISPLAY:
       viewport->DisplayToNormalizedDisplay(val[0],val[1]);
+      VTK_FALLTHROUGH;
     case VTK_NORMALIZED_DISPLAY:
       viewport->NormalizedDisplayToViewport(val[0],val[1]);
+      VTK_FALLTHROUGH;
     case VTK_VIEWPORT:
       viewport->ViewportToNormalizedViewport(val[0],val[1]);
+      VTK_FALLTHROUGH;
     case VTK_NORMALIZED_VIEWPORT:
       viewport->NormalizedViewportToView(val[0],val[1],val[2]);
+      VTK_FALLTHROUGH;
     case VTK_VIEW:
       viewport->ViewToWorld(val[0],val[1],val[2]);
+      break;
     }
 
   if (this->ReferenceCoordinate && this->CoordinateSystem == VTK_WORLD)
@@ -360,10 +365,13 @@ double *vtkCoordinate::GetComputedDoubleDisplayValue(vtkViewport* viewport)
         val[2] += refValue[2];
         }
       viewport->WorldToView(val[0],val[1],val[2]);
+      VTK_FALLTHROUGH;
     case VTK_VIEW:
       viewport->ViewToNormalizedViewport(val[0],val[1],val[2]);
+      VTK_FALLTHROUGH;
     case VTK_NORMALIZED_VIEWPORT:
       viewport->NormalizedViewportToViewport(val[0],val[1]);
+      VTK_FALLTHROUGH;
     case VTK_VIEWPORT:
       if ((this->CoordinateSystem == VTK_NORMALIZED_VIEWPORT ||
            this->CoordinateSystem == VTK_VIEWPORT) &&
@@ -374,9 +382,10 @@ double *vtkCoordinate::GetComputedDoubleDisplayValue(vtkViewport* viewport)
         val[1] += refValue[1];
         }
       viewport->ViewportToNormalizedDisplay(val[0],val[1]);
+      VTK_FALLTHROUGH;
     case VTK_NORMALIZED_DISPLAY:
       viewport->NormalizedDisplayToDisplay(val[0],val[1]);
-      break; // do not remove this break statement!
+      break;
     case VTK_USERDEFINED:
       this->GetComputedUserDefinedValue(viewport);
       val[0] = this->ComputedUserDefinedValue[0];
