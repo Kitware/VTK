@@ -928,6 +928,11 @@ int vtkCanUseNearestNeighbor(vtkMatrix4x4 *matrix, int outExt[6])
         break;
         }
       }
+    if (j >= 3)
+      {
+      assert(0);
+      return 0;
+      }
     double x = matrix->GetElement(i,j);
     double y = matrix->GetElement(i,3);
     if (outExt[2*j] == outExt[2*j+1])
