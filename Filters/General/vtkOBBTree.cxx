@@ -1086,7 +1086,6 @@ void vtkOBBTree::BuildLocator()
   this->Tree = new vtkOBBNode;
   this->Level = 0;
   this->BuildTree(cellList,this->Tree,0);
-  this->Level = this->Level;
 
   vtkDebugMacro(<<"# Cells: " << numCells << ", Deepest tree level: " <<
                 this->Level <<", Created: " << this->OBBCount << " OBB nodes");
