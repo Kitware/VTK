@@ -371,11 +371,6 @@ int vtkOBJPolyDataProcessor::RequestData(
   }
 
   bool gotFirstUseMaterialTag = false;
-    // THIS SHOULD NO LONGER BE TRUE.
-    // assumption is that you do vertices and normals first, THEN materials
-    // badness/brokeness is expected if the file has vn, vt after usemtl so check
-    // and report error if that's the case.
-
 
   int numPolysWithTCoords = 0;
   bool hasTCoords = false;

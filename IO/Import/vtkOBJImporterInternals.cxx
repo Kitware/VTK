@@ -69,8 +69,6 @@ void obj_set_material_defaults(vtkOBJImportedMaterial* mtl)
 
 std::vector<vtkOBJImportedMaterial*> vtkOBJPolyDataProcessor::ParseOBJandMTL(std::string Filename,int& result_code)
 {
-  // Maybe this should return a map instead, e.g. mapping string keys to ptrToMaterialStruct values
-  // problem is that we don't know the material name at creation-time of this thing ... d'oh
 
   std::vector<vtkOBJImportedMaterial*>  listOfMaterials;
   result_code    = 0;

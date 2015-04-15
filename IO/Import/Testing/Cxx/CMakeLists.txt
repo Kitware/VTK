@@ -8,6 +8,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestVRMLImporter.cxx,NO_VALID
   )
 
+# add another test case
 ExternalData_add_test(VTKData
   NAME ${vtk-module}Cxx-OBJImport-MixedOrder1
   COMMAND ${vtk-module}CxxTests TestOBJImporter
