@@ -39,6 +39,7 @@
 #include "vtkXMLDataHeaderPrivate.h"
 #undef vtkXMLDataHeaderPrivate_DoNotInclude
 #include "vtkXMLDataElement.h"
+#include "vtkXMLReaderVersion.h"
 #include "vtkInformationQuadratureSchemeDefinitionVectorKey.h"
 #include "vtkQuadratureSchemeDefinition.h"
 #include "vtkInformationStringKey.h"
@@ -339,6 +340,7 @@ vtkXMLWriter::vtkXMLWriter()
   this->UserContinueExecuting = -1; //invalid state
   this->NumberOfTimeValues = NULL;
   this->FieldDataOM = new OffsetsManagerGroup;
+  this->UsePreviousVersion = false;
 }
 
 //----------------------------------------------------------------------------
@@ -820,13 +822,27 @@ int vtkXMLWriter::WriteInternal()
 //----------------------------------------------------------------------------
 int vtkXMLWriter::GetDataSetMajorVersion()
 {
-  return 2;
+  if (this->UsePreviousVersion)
+    {
+    return (this->HeaderType == vtkXMLWriter::UInt64) ? 1 : 0;
+    }
+  else
+    {
+    return vtkXMLReaderMajorVersion;
+    }
 }
 
 //----------------------------------------------------------------------------
 int vtkXMLWriter::GetDataSetMinorVersion()
 {
-  return 0;
+  if (this->UsePreviousVersion)
+    {
+    return (this->HeaderType == vtkXMLWriter::UInt64) ? 0 : 1;
+    }
+  else
+    {
+    return vtkXMLReaderMinorVersion;
+    }
 }
 
 //----------------------------------------------------------------------------

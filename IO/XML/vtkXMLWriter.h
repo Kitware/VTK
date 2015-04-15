@@ -460,6 +460,14 @@ protected:
   // when using the Start/Stop/WriteNextTime API
   int UserContinueExecuting; //can only be -1 = invalid, 0 = stop, 1 = start
 
+  // This variable is used to ease transition to new versions of VTK XML files.
+  // If data that needs to be written satisfies certain conditions,
+  // the writer can use the previous file version version.
+  // For version change 0.1 -> 2.0 (UInt32 header) and 1.0 -> 2.0
+  // (UInt64 header), if data does not have a vtkGhostType array,
+  // the file is written with version: 0.1/1.0.
+  bool UsePreviousVersion;
+
   vtkTypeInt64 *NumberOfTimeValues; //one per piece / per timestep
   //BTX
   friend class vtkXMLWriterHelper;
