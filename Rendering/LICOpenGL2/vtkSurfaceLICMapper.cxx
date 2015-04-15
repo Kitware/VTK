@@ -489,7 +489,7 @@ float *RandomNoise2D::GenerateUniform(
   // with a uniform distribution and fixed number of levels
   nLevels = nLevels < 1 ? 1 : nLevels;
   int maxLevel = nLevels-1;
-  float delta = 1.0f/maxLevel;
+  float delta = maxLevel != 0 ? 1.0f/maxLevel : 0.0f;
   minNoiseVal = minNoiseVal < 0.0f ? 0.0f : minNoiseVal;
   maxNoiseVal = maxNoiseVal > 1.0f ? 1.0f : maxNoiseVal;
   float noiseRange = maxNoiseVal - minNoiseVal;
@@ -618,7 +618,7 @@ float *RandomNoise2D::GenerateGaussian(
 
   nLevels = nLevels < 1 ? 1 : nLevels;
   int maxLevel = nLevels-1;
-  float delta = 1.0f/maxLevel;
+  float delta = maxLevel != 0 ? 1.0f/maxLevel : 0.0f;
   minNoiseVal = minNoiseVal < 0.0f ? 0.0f : minNoiseVal;
   maxNoiseVal = maxNoiseVal > 1.0f ? 1.0f : maxNoiseVal;
   float noiseRange = maxNoiseVal - minNoiseVal;

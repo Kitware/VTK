@@ -659,7 +659,7 @@ const char *vtkWrapText_FormatComment(
         l = i+1;
         if (cp[l] == '/') { l++; }
         while ((cp[l] >= 'a' && cp[l] <= 'z') ||
-               (cp[l] >= 'a' && cp[l] <= 'z')) { l++; }
+               (cp[l] >= 'A' && cp[l] <= 'Z')) { l++; }
         if (cp[l] == '>')
           {
           if (cp[i+1] == 'p' || cp[i+1] == 'P' ||

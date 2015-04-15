@@ -519,15 +519,17 @@ HierarchyInfo *vtkParseHierarchy_ReadFile(const char *filename)
       }
     }
 
+  free(line);
+
   if (!feof(fp))
     {
     vtkParseHierarchy_Free(info);
     info = NULL;
     }
-
-  free(line);
-
-  sort_hierarchy_entries(info);
+  else
+    {
+    sort_hierarchy_entries(info);
+    }
 
   fclose(fp);
 

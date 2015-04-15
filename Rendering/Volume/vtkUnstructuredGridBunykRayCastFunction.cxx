@@ -36,6 +36,8 @@
 #include "vtkCellIterator.h"
 #include "vtkDataArrayIteratorMacro.h"
 
+#include <cassert>
+
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastFunction);
 
 #define VTK_BUNYKRCF_NUMLISTS 100000
@@ -887,24 +889,24 @@ int  vtkUnstructuredGridBunykRayCastFunction::IsTriangleFrontFacing( Triangle *t
   pts[2] = cell->GetPointId(2);
   pts[3] = cell->GetPointId(3);
 
-  int i;
-  for( i = 0; i < 4; i++ )
+  for( int i = 0; i < 4; i++ )
     {
     if ( pts[i] != triPtr->PointIndex[0] &&
          pts[i] != triPtr->PointIndex[1] &&
          pts[i] != triPtr->PointIndex[2] )
       {
-      break;
+      double d =
+        triPtr->A*this->Points[3*pts[i]] +
+        triPtr->B*this->Points[3*pts[i]+1] +
+        triPtr->C*this->Points[3*pts[i]+2] +
+        triPtr->D;
+
+      return (d>0);
       }
     }
 
-  double d =
-    triPtr->A*this->Points[3*pts[i]] +
-    triPtr->B*this->Points[3*pts[i]+1] +
-    triPtr->C*this->Points[3*pts[i]+2] +
-    triPtr->D;
-
-  return (d>0);
+  assert(0);
+  return false;
 }
 
 template <class T, class ScalarIterator>
