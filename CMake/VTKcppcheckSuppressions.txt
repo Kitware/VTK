@@ -1,0 +1,91 @@
+//=========================================================================
+//
+//  Program:   Visualization Toolkit
+//
+//  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+//  All rights reserved.
+//  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+//
+//     This software is distributed WITHOUT ANY WARRANTY; without even
+//     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+//     PURPOSE.  See the above copyright notice for more information.
+//
+//=========================================================================
+
+// This file contains enough suppressions to result in no cppcheck warnings,
+// at least on Mac OS X 10.9 with cppcheck 1.68.
+
+// To run:
+// cd /path/to/VTK/
+// cppcheck --platform=unix64 --enable=style -q --suppressions-list=CMake/VTKcppcheckSuppressions.txt --template='{file}:{line},{severity},{id},{message}' .
+
+// Suppress everything from ThirdParty.
+*:ThirdParty/*
+
+// Similarly, these aren't really part of VTK proper.
+*:Utilities/KWSys/*
+*:Utilities/MetaIO/*
+
+// Can't fix in portable way for all VTK-supported platforms.
+duplicateExpression:IO/PostgreSQL/vtkPostgreSQLQuery.cxx
+obsoleteFunctionsasctime
+unpreciseMathCall
+
+// There are just too many of these to manage, so suppress them all.  Can look again one day.
+clarifyCalculation
+cstyleCast
+invalidscanf
+invalidscanf_libc
+noCopyConstructor
+operatorEqVarError
+passedByValue
+redundantAssignment
+uninitMemberVar
+unreadVariable
+useInitializationList
+variableScope
+
+// Gives too many false positives.
+assertWithSideEffect
+argumentSize
+
+// False positives.
+argumentSize:Common/DataModel/vtkAMRBox.cxx
+argumentSize:Common/DataModel/vtkStructuredGrid.h
+comparisonOfBoolWithInvalidComparator:Rendering/Label/vtkLabeledTreeMapDataMapper.cxx
+deallocDealloc:Wrapping/Tools/vtkParseMerge.c
+duplicateExpression:Common/Math/Testing/Cxx/TestPolynomialSolversUnivariate.cxx
+duplicateExpression:Filters/General/vtkContourTriangulator.cxx
+duplicateExpression:Filters/General/vtkVoxelContoursToSurfaceFilter.cxx
+invalidPrintfArgType_int:Wrapping/PythonCore/vtkPythonUtil.cxx
+memleak:Common/Core/Testing/Cxx/TestGarbageCollector.cxx
+memleak:Examples/Infovis/Cxx/MultiView.cxx
+multiCondition:Filters/Matlab/vtkMatlabMexAdapter.cxx
+nullPointer:IO/Exodus/vtkExodusIIReaderParser.cxx
+oppositeInnerCondition:Rendering/VolumeOpenGL/vtkOpenGLVolumeTextureMapper3D.cxx
+redundantAssignInSwitch:Wrapping/Tools/vtkWrapPythonOverload.c
+unassignedVariable:Common/Transforms/vtkHomogeneousTransform.cxx
+unassignedVariable:Rendering/Core/vtkCamera.cxx
+uninitdata:IO/Import/vtk3DSImporter.cxx
+uninitvar:IO/Exodus/vtkExodusIIReader.cxx
+unusedAllocatedMemory:IO/Legacy/vtkDataWriter.cxx
+unusedStructMember:Common/Misc/vtkHeap.cxx
+uselessAssignmentPtrArg:Filters/General/vtkYoungsMaterialInterface.cxx
+uselessAssignmentPtrArg:Wrapping/Tools/vtkParse.tab.c
+zerodiv:Filters/ParallelFlowPaths/Testing/Cxx/TestPStreamGeometry.cxx
+
+// There are a fair number of these, but they are probably worth working through.
+catchExceptionByValue
+clarifyCondition
+invalidPointerCast
+memleakOnRealloc
+noConstructor
+operatorEq
+postfixOperator
+unnecessaryQualification
+unusedVariable
+
+// Unsure about these.
+exceptRethrowCopy:IO/Core/vtkUTF8TextCodec.cxx
+memleak:Wrapping/Tools/vtkParsePreprocess.c
+unsafeClassCanLeak:GUISupport/Qt/QVTKInteractorInternal.h
