@@ -31,6 +31,7 @@ Modify vtkParse.tab.c:
   - replace "(1-yyrhslen)" with "(1-(int)yyrhslen)"
   - remove dead store "yynewStates = YY_NULLPTR;"
   - replace "sizeof yynewStates[0] with "sizeof (yyGLRState*)"
+  - remove 'struct yy_trans_info', which is unneeded (despite the comment)
 */
 
 /*

@@ -380,13 +380,6 @@ static void yy_fatal_error (yyconst char msg[]  );
 
 #define YY_NUM_RULES 203
 #define YY_END_OF_BUFFER 204
-/* This struct is not used in this scanner,
-   but its presence is necessary. */
-struct yy_trans_info
-        {
-        flex_int32_t yy_verify;
-        flex_int32_t yy_nxt;
-        };
 static yyconst flex_int16_t yy_accept[1386] =
     {   0,
         0,    0,  204,  202,  166,  167,  167,  201,  202,  201,
