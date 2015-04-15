@@ -141,6 +141,13 @@ int vtkXMLStructuredDataWriter::ProcessRequest(
         {
         return 0;
         }
+      if (this->GetInputAsDataSet() != NULL &&
+          this->GetInputAsDataSet()->GetPointGhostArray() == NULL &&
+          this->GetInputAsDataSet()->GetCellGhostArray() == NULL)
+        {
+        // use the previous version for the file.
+        this->UsePreviousVersion = true;
+        }
       // Write the file.
       if (!this->StartFile())
         {
