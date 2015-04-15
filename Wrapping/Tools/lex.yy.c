@@ -3882,7 +3882,7 @@ static int yy_get_next_buffer (void)
                         yy_size_t num_to_read =
                         YY_CURRENT_BUFFER_LVALUE->yy_buf_size - number_to_move - 1;
 
-                while ( num_to_read <= 0 )
+                while ( num_to_read == 0 )
                         { /* Not enough room in the buffer - grow it. */
 
                         /* just a shorter name for the current buffer */
@@ -3895,7 +3895,7 @@ static int yy_get_next_buffer (void)
                                 {
                                 yy_size_t new_size = b->yy_buf_size * 2;
 
-                                if ( new_size <= 0 )
+                                if ( new_size == 0 )
                                         b->yy_buf_size += b->yy_buf_size / 8;
                                 else
                                         b->yy_buf_size *= 2;
