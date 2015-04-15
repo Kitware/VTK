@@ -19,7 +19,6 @@
 #include "vtkExternalOpenGLCamera.h"
 #include "vtkLightCollection.h"
 #include "vtkLight.h"
-#include "vtkLightingHelper.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkNew.h"
@@ -28,6 +27,8 @@
 #include "vtkOpenGL.h"
 #include "vtkRenderWindow.h"
 #include "vtkTexture.h"
+
+#define MAX_LIGHTS 8
 
 vtkStandardNewMacro(vtkExternalOpenGLRenderer);
 
@@ -199,7 +200,7 @@ void vtkExternalOpenGLRenderer::Render(void)
   // Query OpenGL lights
   short curLight;
   for (curLight = GL_LIGHT0;
-       curLight < GL_LIGHT0 + vtkLightingHelper::VTK_MAX_LIGHTS;
+       curLight < GL_LIGHT0 + MAX_LIGHTS;
        curLight++)
     {
     GLboolean status;
