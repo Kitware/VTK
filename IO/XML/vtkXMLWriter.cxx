@@ -340,7 +340,7 @@ vtkXMLWriter::vtkXMLWriter()
   this->UserContinueExecuting = -1; //invalid state
   this->NumberOfTimeValues = NULL;
   this->FieldDataOM = new OffsetsManagerGroup;
-  this->UsePreviousVersion = false;
+  this->UsePreviousVersion = true;
 }
 
 //----------------------------------------------------------------------------
