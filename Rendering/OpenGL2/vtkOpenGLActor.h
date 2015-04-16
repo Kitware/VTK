@@ -40,13 +40,6 @@ public:
 
   void GetKeyMatrices(vtkMatrix4x4 *&WCVCMatrix, vtkMatrix3x3 *&normalMatrix);
 
-  // Description:
-  // Props may provide a mapping from picked value to actual value
-  // This is useful for hardware based pickers where
-  // there is a mapping between the color in the buffer
-  // and the actual pick value
-  virtual vtkIdType GetConvertedPickValue(vtkIdType idIn, int fieldassociation);
-
 protected:
   vtkOpenGLActor();
   ~vtkOpenGLActor();

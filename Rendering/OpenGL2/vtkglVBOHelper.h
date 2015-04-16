@@ -131,13 +131,11 @@ VBOLayout CreateVBO(vtkPoints *points, unsigned int numPoints,
     vtkDataArray *normals,
     vtkDataArray *tcoords,
     unsigned char *colors, int colorComponents,
-    BufferObject &vertexBuffer,
-    bool cellScalars, bool cellNormals);
+    BufferObject &vertexBuffer);
 void AppendVBO(VBOLayout &layout, vtkPoints *points, unsigned int numPoints,
     vtkDataArray *normals,
     vtkDataArray *tcoords,
-    unsigned char *colors, int colorComponents,
-    bool cellScalars, bool cellNormals);
+    unsigned char *colors, int colorComponents);
 
 // used to create an IBO for stripped primatives such as lines and strips
 void CreateCellSupportArrays(vtkCellArray *[4],

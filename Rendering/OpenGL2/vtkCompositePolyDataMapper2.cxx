@@ -674,6 +674,7 @@ void vtkCompositePolyDataMapper2::AppendOneBufferObject(
     }
 
   this->HaveCellScalars = false;
+  vtkDataArray *c = this->Colors;
   if (this->ScalarVisibility)
     {
     // We must figure out how the scalars should be mapped to the polydata.
@@ -685,6 +686,7 @@ void vtkCompositePolyDataMapper2::AppendOneBufferObject(
          && this->Colors)
       {
       this->HaveCellScalars = true;
+      c = NULL;
       }
     }
 
@@ -705,7 +707,6 @@ void vtkCompositePolyDataMapper2::AppendOneBufferObject(
   prims[1] =  poly->GetLines();
   prims[2] =  poly->GetPolys();
   prims[3] =  poly->GetStrips();
-
   int representation = act->GetProperty()->GetRepresentation();
 
   std::vector<unsigned int> cellCellMap;
@@ -778,9 +779,8 @@ void vtkCompositePolyDataMapper2::AppendOneBufferObject(
   AppendVBO(this->Layout, poly->GetPoints(),
             poly->GetPoints()->GetNumberOfPoints(),
             n, tcoords,
-            this->Colors ? (unsigned char *)this->Colors->GetVoidPointer(0) : NULL,
-            this->Colors ? this->Colors->GetNumberOfComponents() : 0,
-            this->HaveCellScalars, this->HaveCellNormals);
+            c ? (unsigned char *)c->GetVoidPointer(0) : NULL,
+            c ? c->GetNumberOfComponents() : 0);
 
   // now create the IBOs
   vtkHardwareSelector* selector = ren->GetSelector();

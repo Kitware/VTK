@@ -15,6 +15,7 @@
 
 #include "vtkglVBOHelper.h"
 
+#include "vtkHardwareSelector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkMatrix4x4.h"
@@ -147,7 +148,7 @@ bool vtkOpenGLPointGaussianMapperHelper::GetNeedToRebuildShader(
   this->LastLightComplexity = 0;
 
   vtkHardwareSelector* selector = ren->GetSelector();
-  bool picking = (ren->GetIsPicking() || selector != NULL);
+  int picking = selector ? selector->GetCurrentPass() : -1;
   if (this->LastSelectionState != picking)
     {
     this->SelectionStateChanged.Modified();

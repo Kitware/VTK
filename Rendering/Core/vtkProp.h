@@ -148,14 +148,6 @@ public:
   virtual bool HasKeys(vtkInformation *requiredKeys);
 
   // Description:
-  // Props may provide a mapping from picked value to actual value
-  // This is useful for hardware based pickers where
-  // there is a mapping between the color in the buffer
-  // and the actual pick value
-  virtual vtkIdType GetConvertedPickValue(vtkIdType idIn,
-      int vtkNotUsed(fieldassociation)) { return idIn; }
-
-  // Description:
   // Optional Key Indicating the texture unit for general texture mapping
   // Old OpenGL was a state machine where you would push or pop
   // items. The new OpenGL design is more mapper centric. Some

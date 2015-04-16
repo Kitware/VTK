@@ -34,8 +34,7 @@ template<typename T, typename T2, typename T3>
 void TemplatedAppendVBO3(VBOLayout &layout,
   T* points, T2* normals, vtkIdType numPts,
   T3* tcoords, int textureComponents,
-  unsigned char *colors, int colorComponents,
-  bool cellScalars, bool cellNormals)
+  unsigned char *colors, int colorComponents)
 {
   // Figure out how big each block will be, currently 6 or 7 floats.
   int blockSize = 3;
@@ -45,7 +44,7 @@ void TemplatedAppendVBO3(VBOLayout &layout,
   layout.TCoordComponents = 0;
   layout.ColorComponents = 0;
   layout.ColorOffset = 0;
-  if (normals && !cellNormals)
+  if (normals)
     {
     layout.NormalOffset = sizeof(float) * blockSize;
     blockSize += 3;
@@ -56,7 +55,7 @@ void TemplatedAppendVBO3(VBOLayout &layout,
     layout.TCoordComponents = textureComponents;
     blockSize += textureComponents;
     }
-  if (colors && !cellScalars)
+  if (colors)
     {
     layout.ColorComponents = colorComponents;
     layout.ColorOffset = sizeof(float) * blockSize;
@@ -86,7 +85,7 @@ void TemplatedAppendVBO3(VBOLayout &layout,
     *(it++) = *(pointPtr++);
     *(it++) = *(pointPtr++);
     *(it++) = *(pointPtr++);
-    if (normals && !cellNormals)
+    if (normals)
       {
       *(it++) = *(normalPtr++);
       *(it++) = *(normalPtr++);
@@ -99,7 +98,7 @@ void TemplatedAppendVBO3(VBOLayout &layout,
         *(it++) = *(tcoordPtr++);
         }
       }
-    if (colors && !cellScalars)
+    if (colors)
       {
       if (colorComponents == 4)
         {
@@ -124,8 +123,7 @@ template<typename T, typename T2>
 void TemplatedAppendVBO2(VBOLayout &layout,
   T* points, T2 *normals, vtkIdType numPts,
   vtkDataArray *tcoords,
-  unsigned char *colors, int colorComponents,
-  bool cellScalars, bool cellNormals)
+  unsigned char *colors, int colorComponents)
 {
   if (tcoords)
     {
@@ -136,16 +134,14 @@ void TemplatedAppendVBO2(VBOLayout &layout,
                   numPts,
                   static_cast<VTK_TT*>(tcoords->GetVoidPointer(0)),
                   tcoords->GetNumberOfComponents(),
-                  colors, colorComponents,
-                  cellScalars, cellNormals));
+                  colors, colorComponents));
       }
     }
   else
     {
     TemplatedAppendVBO3(layout, points, normals,
                         numPts, (float *)NULL, 0,
-                        colors, colorComponents,
-                        cellScalars, cellNormals);
+                        colors, colorComponents);
     }
 }
 
@@ -154,8 +150,7 @@ template<typename T>
 void TemplatedAppendVBO(VBOLayout &layout,
   T* points, vtkDataArray *normals, vtkIdType numPts,
   vtkDataArray *tcoords,
-  unsigned char *colors, int colorComponents,
-  bool cellScalars, bool cellNormals)
+  unsigned char *colors, int colorComponents)
 {
   if (normals)
     {
@@ -164,16 +159,14 @@ void TemplatedAppendVBO(VBOLayout &layout,
       vtkFloatDoubleTemplateMacro(
         TemplatedAppendVBO2(layout, points,
                   static_cast<VTK_TT*>(normals->GetVoidPointer(0)),
-                  numPts, tcoords, colors, colorComponents,
-                  cellScalars, cellNormals));
+                  numPts, tcoords, colors, colorComponents));
       }
     }
   else
     {
     TemplatedAppendVBO2(layout, points,
                         (float *)NULL,
-                        numPts, tcoords, colors, colorComponents,
-                        cellScalars, cellNormals);
+                        numPts, tcoords, colors, colorComponents);
     }
 }
 
@@ -185,15 +178,13 @@ void AppendVBO(VBOLayout &layout,
   vtkPoints *points, unsigned int numPts,
   vtkDataArray *normals,
   vtkDataArray *tcoords,
-  unsigned char *colors, int colorComponents,
-  bool cellScalars, bool cellNormals)
+  unsigned char *colors, int colorComponents)
 {
   switch(points->GetDataType())
     {
     vtkTemplateMacro(
       TemplatedAppendVBO(layout, static_cast<VTK_TT*>(points->GetVoidPointer(0)),
-                normals, numPts, tcoords, colors, colorComponents,
-                cellScalars, cellNormals));
+                normals, numPts, tcoords, colors, colorComponents));
     }
 }
 
@@ -203,8 +194,7 @@ VBOLayout CreateVBO(
   vtkDataArray *normals,
   vtkDataArray *tcoords,
   unsigned char *colors, int colorComponents,
-  BufferObject &vertexBuffer,
-  bool cellScalars, bool cellNormals)
+  BufferObject &vertexBuffer)
 {
   VBOLayout layout;
 
@@ -227,8 +217,7 @@ VBOLayout CreateVBO(
 
   // slower path
   layout.VertexCount = 0;
-  AppendVBO(layout,points,numPts,normals,tcoords,colors,colorComponents,
-    cellScalars, cellNormals);
+  AppendVBO(layout,points,numPts,normals,tcoords,colors,colorComponents);
   vertexBuffer.Upload(layout.PackedVBO, vtkgl::BufferObject::ArrayBuffer);
   layout.PackedVBO.resize(0);
   return layout;

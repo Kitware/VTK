@@ -430,6 +430,7 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
   prims[2] =  poly->GetPolys();
   prims[3] =  poly->GetStrips();
   std::vector<unsigned int> cellCellMap;
+  vtkDataArray *c = this->Colors;
   if (this->HaveCellScalars)
     {
     vtkgl::CreateCellSupportArrays(prims, cellCellMap, VTK_SURFACE);
@@ -445,6 +446,7 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
     std::vector<unsigned char> newColors;
     unsigned char *colorPtr = this->Colors->GetPointer(0);
     int numComp = this->Colors->GetNumberOfComponents();
+    assert(numComp == 4);
     for (int i = 0; i < cellCellMap.size(); i++)
       {
       for (int j = 0; j < numComp; j++)
@@ -459,6 +461,7 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
       numComp,
       VTK_UNSIGNED_CHAR,
       this->CellScalarBuffer);
+    c = NULL;
     }
 
   // do we have texture maps?
@@ -503,10 +506,9 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
               poly->GetPoints()->GetNumberOfPoints(),
               NULL,
               haveTextures ? poly->GetPointData()->GetTCoords() : NULL,
-              this->Colors ? (unsigned char *)this->Colors->GetVoidPointer(0) : NULL,
-              this->Colors ? this->Colors->GetNumberOfComponents() : 0,
-              this->VBO,
-              this->HaveCellScalars, false);
+              c ? (unsigned char *) c->GetVoidPointer(0) : NULL,
+              c ? c->GetNumberOfComponents() : 0,
+              this->VBO);
 
 
   this->Points.indexCount = CreatePointIndexBuffer(prims[0],
@@ -608,7 +610,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
                         GL_UNSIGNED_INT,
                         reinterpret_cast<const GLvoid *>(NULL));
     this->Lines.ibo.Release();
-    this->PrimitiveIDOffset += (int)this->Lines.indexCount;
+    this->PrimitiveIDOffset += (int)this->Lines.indexCount/2;
     this->Points.Program->SetUniformi("PrimitiveIDOffset",
       this->PrimitiveIDOffset);
     }
@@ -623,7 +625,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
                         GL_UNSIGNED_INT,
                         reinterpret_cast<const GLvoid *>(NULL));
     this->Tris.ibo.Release();
-    this->PrimitiveIDOffset += (int)this->Tris.indexCount;
+    this->PrimitiveIDOffset += (int)this->Tris.indexCount/3;
     this->Points.Program->SetUniformi("PrimitiveIDOffset",
       this->PrimitiveIDOffset);
     }
