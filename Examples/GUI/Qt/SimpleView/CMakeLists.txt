@@ -18,7 +18,6 @@ find_package(VTK COMPONENTS
   vtkFiltersCore
   vtkInfovisCore
   vtkInteractionStyle
-  vtkRenderingFreeType${VTK_RENDERING_BACKEND}
   vtkViewsQt
 )
 include(${VTK_USE_FILE})

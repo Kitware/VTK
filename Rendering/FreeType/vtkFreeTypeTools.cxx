@@ -1497,67 +1497,23 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
       }
     }
 
-  // If we're drawing the background, include the bg quad in the bbox:
-  if (hasBackground)
-    {
-    // Compute the background bounding box.
-    vtkTuple<int, 4> bgBbox;
-    bgBbox[0] = std::min(std::min(metaData.TL[0], metaData.TR[0]),
-                         std::min(metaData.BL[0], metaData.BR[0]));
-    bgBbox[1] = std::max(std::max(metaData.TL[0], metaData.TR[0]),
-                         std::max(metaData.BL[0], metaData.BR[0]));
-    bgBbox[2] = std::min(std::min(metaData.TL[1], metaData.TR[1]),
-                         std::min(metaData.BL[1], metaData.BR[1]));
-    bgBbox[3] = std::max(std::max(metaData.TL[1], metaData.TR[1]),
-                         std::max(metaData.BL[1], metaData.BR[1]));
+  // Compute the background bounding box.
+  vtkTuple<int, 4> bgBbox;
+  bgBbox[0] = std::min(std::min(metaData.TL[0], metaData.TR[0]),
+                       std::min(metaData.BL[0], metaData.BR[0]));
+  bgBbox[1] = std::max(std::max(metaData.TL[0], metaData.TR[0]),
+                       std::max(metaData.BL[0], metaData.BR[0]));
+  bgBbox[2] = std::min(std::min(metaData.TL[1], metaData.TR[1]),
+                       std::min(metaData.BL[1], metaData.BR[1]));
+  bgBbox[3] = std::max(std::max(metaData.TL[1], metaData.TR[1]),
+                       std::max(metaData.BL[1], metaData.BR[1]));
 
-    // Calculate the final bounding box (should just be the bg, but just in
-    // case...)
-    metaData.bbox[0] = std::min(textBbox[0], bgBbox[0]);
-    metaData.bbox[1] = std::max(textBbox[1], bgBbox[1]);
-    metaData.bbox[2] = std::min(textBbox[2], bgBbox[2]);
-    metaData.bbox[3] = std::max(textBbox[3], bgBbox[3]);
-    }
-  else
-    {
-    metaData.bbox = textBbox;
-    }
-
-  // Sometimes the components of the bounding box are overestimated if
-  // the ascender/descender isn't utilized. Shift the box so that it contains
-  // 0 for better alignment. This essentially moves the anchor point back onto
-  // the border of the text.
-  int tmpX = 0;
-  int tmpY = 0;
-  if (textBbox[0] > 0)
-    {
-    tmpX = -textBbox[0];
-    }
-  else if (textBbox[1] < 0)
-    {
-    tmpX = -textBbox[1];
-    }
-  if (textBbox[2] > 0)
-    {
-    tmpY = -textBbox[2];
-    }
-  else if (textBbox[3] < 0)
-    {
-    tmpY = -textBbox[3];
-    }
-  if (tmpX != 0 || tmpY != 0)
-    {
-    metaData.bbox[0] += tmpX;
-    metaData.bbox[1] += tmpX;
-    metaData.bbox[2] += tmpY;
-    metaData.bbox[3] += tmpY;
-    for (size_t i = 0; i < metaData.lineMetrics.size(); ++i)
-      {
-      MetaData::LineMetrics &metrics = metaData.lineMetrics[i];
-      metrics.origin[0] += tmpX;
-      metrics.origin[1] += tmpY;
-      }
-    }
+  // Calculate the final bounding box (should just be the bg, but just in
+  // case...)
+  metaData.bbox[0] = std::min(textBbox[0], bgBbox[0]);
+  metaData.bbox[1] = std::max(textBbox[1], bgBbox[1]);
+  metaData.bbox[2] = std::min(textBbox[2], bgBbox[2]);
+  metaData.bbox[3] = std::max(textBbox[3], bgBbox[3]);
 
   return true;
 }

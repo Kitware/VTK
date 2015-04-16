@@ -195,8 +195,12 @@ if(PYTHON_EXECUTABLE)
   foreach(module ${VTK_PYTHON_MODULES})
     set(VTK_PYTHON_IMPORT_ALL "${VTK_PYTHON_IMPORT_ALL}from ${module} import *\n")
     configure_file(vtk/module.py.in vtk/${module}.py @ONLY)
+    list(APPEND VTK_PYTHON_FILES
+      "${CMAKE_CURRENT_BINARY_DIR}/vtk/${module}.py")
   endforeach()
   configure_file(vtk/__init__.py.in vtk/__init__.py @ONLY)
+  list(APPEND VTK_PYTHON_FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/vtk/__init__.py")
 
 # vtk.util package
   list(APPEND VTK_PYTHON_FILES
@@ -266,18 +270,22 @@ if(PYTHON_EXECUTABLE)
   unset(VTK_PYTHON_SOURCE_FILES)
   unset(VTK_PYTHON_OUTPUT_FILES)
   foreach(file ${VTK_PYTHON_FILES})
-    set(src "${CMAKE_CURRENT_BINARY_DIR}/${file}.py")
-    set(VTK_PYTHON_SOURCE_FILES ${VTK_PYTHON_SOURCE_FILES} ${src})
+    if (NOT IS_ABSOLUTE "${file}")
+      set(src "${CMAKE_CURRENT_BINARY_DIR}/${file}.py")
+      list(APPEND VTK_PYTHON_SOURCE_FILES "${src}")
+    endif ()
   endforeach()
 
   if(NOT "${VTK_BINARY_DIR}" MATCHES "^${VTK_SOURCE_DIR}$")
     foreach(file ${VTK_PYTHON_FILES})
-      set(src "${CMAKE_CURRENT_SOURCE_DIR}/${file}.py")
-      set(tgt "${CMAKE_CURRENT_BINARY_DIR}/${file}.py")
-      add_custom_command(DEPENDS ${src}
-        COMMAND ${CMAKE_COMMAND} -E copy ${src} ${tgt}
-        OUTPUT ${tgt}
-        COMMENT "source copy")
+      if (NOT IS_ABSOLUTE "${file}")
+        set(src "${CMAKE_CURRENT_SOURCE_DIR}/${file}.py")
+        set(tgt "${CMAKE_CURRENT_BINARY_DIR}/${file}.py")
+        add_custom_command(DEPENDS ${src}
+          COMMAND ${CMAKE_COMMAND} -E copy ${src} ${tgt}
+          OUTPUT ${tgt}
+          COMMENT "source copy")
+      endif ()
     endforeach()
   endif()
 

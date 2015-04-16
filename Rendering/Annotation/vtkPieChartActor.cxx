@@ -106,6 +106,7 @@ vtkPieChartActor::vtkPieChartActor()
   this->GlyphSource->SetGlyphTypeToNone();
   this->GlyphSource->DashOn();
   this->GlyphSource->FilledOff();
+  this->GlyphSource->Update();
 
   this->PlotData = vtkPolyData::New();
   this->PlotMapper = vtkPolyDataMapper2D::New();
@@ -637,7 +638,6 @@ int vtkPieChartActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
 
   this->TitleActor->GetPositionCoordinate()->
     SetValue(this->Center[0],this->Center[1]+this->Radius+tsize[1]);
-  this->TitleActor->SetProperty(this->GetProperty());
 
   //Clean up
   webPts->Delete();

@@ -8,7 +8,6 @@ vtk_module(vtkInfovisBoostGraphAlgorithms
     vtkInteractionStyle
     vtkIOInfovis
     vtkViewsInfovis
-    vtkRenderingFreeType${VTK_RENDERING_BACKEND}
     vtkChartsCore
     vtkViewsContext2D
   )

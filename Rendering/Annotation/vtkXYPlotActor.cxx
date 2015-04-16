@@ -1106,8 +1106,6 @@ int vtkXYPlotActor::RenderOpaqueGeometry( vtkViewport* viewport )
         this->TitleActor->GetPositionCoordinate()
           ->SetValue( this->TitlePosition[0], this->TitlePosition[1] );
         }
-
-      this->TitleActor->SetProperty( this->GetProperty() );
       }
 
     //Border and box - may adjust spacing based on font size relationship

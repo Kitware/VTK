@@ -90,7 +90,6 @@ foreach(exe
   add_executable(${exe} ${exe}.cxx)
   target_link_libraries(${exe}
     vtkRenderingOpenGL
-    vtkRenderingFreeTypeOpenGL
     vtkInteractionStyle
     vtkImagingSources
     vtkImagingGeneral

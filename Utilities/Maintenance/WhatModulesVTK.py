@@ -275,7 +275,6 @@ def main(vtkSourceDir, sourceFiles, renderingBackend='OpenGL'):
     # Add OpenGL factory classes if required.
     if "vtkRenderingFreeType" in allModules:
         allModules.add("vtkRenderingFreeTypeFontConfig")
-        allModules.add("vtkRenderingFreeType%s" % renderingBackend)
     if "vtkRenderingCore" in allModules:
         allModules.add("vtkRendering%s" % renderingBackend)
     if "vtkRenderingVolume" in allModules:

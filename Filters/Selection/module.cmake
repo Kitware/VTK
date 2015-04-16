@@ -9,7 +9,6 @@ vtk_module(vtkFiltersSelection
     vtkIOLegacy
     vtkIOXML
     vtkRendering${VTK_RENDERING_BACKEND}
-    vtkRenderingFreeType${VTK_RENDERING_BACKEND}
     vtkRenderingAnnotation
     vtkTestingRendering
     vtkInteractionStyle

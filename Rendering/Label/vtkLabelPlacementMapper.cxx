@@ -891,6 +891,12 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport *viewport,
 }
 
 //----------------------------------------------------------------------------
+void vtkLabelPlacementMapper::ReleaseGraphicsResources(vtkWindow *win)
+{
+  this->RenderStrategy->ReleaseGraphicsResources(win);
+}
+
+//----------------------------------------------------------------------------
 void vtkLabelPlacementMapper::PrintSelf( ostream& os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );

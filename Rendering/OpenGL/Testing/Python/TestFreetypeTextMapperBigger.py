@@ -69,7 +69,7 @@ class TestFreetypeTextMapperBigger(vtk.test.Testing.vtkTest):
                     txt = family + ": " + defaultText
 
                 idx = ''.join(map(str, [i, j]))
-                mapper.update({idx:vtk.vtkOpenGLFreeTypeTextMapper()})
+                mapper.update({idx:vtk.vtkTextMapper()})
                 mapper[idx].SetInput(txt)
 
                 tprop = mapper[idx].GetTextProperty()

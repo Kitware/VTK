@@ -10,7 +10,6 @@ vtk_module(vtkFiltersGeneral
     vtkImagingMath
     vtkInteractionStyle
     vtkRendering${VTK_RENDERING_BACKEND}
-    vtkRenderingFreeType${VTK_RENDERING_BACKEND}
     vtkRenderingAnnotation
     vtkRenderingLabel
     vtkTestingRendering

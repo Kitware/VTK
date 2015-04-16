@@ -56,7 +56,7 @@ add_executable(SimpleCocoaVTK MACOSX_BUNDLE ${SimpleCocoaVTK_SRCS} ${SimpleCocoa
 
 # Probably a better way to set the framework link libraries.
 target_link_libraries(SimpleCocoaVTK "-framework Cocoa -framework OpenGL"
-                      vtkRenderingOpenGL vtkRenderingFreeTypeOpenGL vtkInteractionStyle )
+                      vtkRenderingOpenGL vtkInteractionStyle )
 
 # Set a custom plist file for the app bundle
 set_target_properties(SimpleCocoaVTK PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${SimpleCocoaVTK_SOURCE_DIR}/Info-CMake.plist)

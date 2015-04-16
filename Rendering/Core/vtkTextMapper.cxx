@@ -345,6 +345,13 @@ int vtkTextMapper::SetMultipleRelativeFontSize(vtkViewport *viewport,
 //----------------------------------------------------------------------------
 void vtkTextMapper::RenderOverlay(vtkViewport *viewport, vtkActor2D *actor)
 {
+  // This is neccessary for GL2PS exports when this actor/mapper are part of an
+  // composite actor/mapper.
+  if (!actor->GetVisibility())
+    {
+    return;
+    }
+
   vtkDebugMacro(<<"RenderOverlay called");
 
   vtkRenderer *ren = NULL;
@@ -386,6 +393,7 @@ void vtkTextMapper::RenderOverlay(vtkViewport *viewport, vtkActor2D *actor)
 void vtkTextMapper::ReleaseGraphicsResources(vtkWindow *win)
 {
   this->Superclass::ReleaseGraphicsResources(win);
+  this->Mapper->ReleaseGraphicsResources(win);
   this->Texture->ReleaseGraphicsResources(win);
 }
 
@@ -428,40 +436,6 @@ int vtkTextMapper::GetNumberOfLines(const char *input)
   return numLines;
 }
 #endif // VTK_LEGACY_REMOVE
-
-//------------------------------------------------------------------------------
-namespace {
-// Given an Actor2D position coordinate (viewport, bottom left corner of actor)
-// and image dimensions, adjust the position to reflect the supplied alignment.
-void AdjustOrigin(int hAlign, int vAlign, int origin[2], const int dims[2])
-{
-  switch (hAlign)
-    {
-    default:
-    case VTK_TEXT_LEFT:
-      break;
-    case VTK_TEXT_CENTERED:
-      origin[0] -= dims[0] / 2;
-      break;
-    case VTK_TEXT_RIGHT:
-      origin[0] -= dims[0];
-      break;
-    }
-
-  switch (vAlign)
-    {
-    default:
-    case VTK_TEXT_TOP:
-      origin[1] -= dims[1];
-      break;
-    case VTK_TEXT_CENTERED:
-      origin[1] -= dims[1] / 2;
-      break;
-    case VTK_TEXT_BOTTOM:
-      break;
-    }
-}
-}
 
 //----------------------------------------------------------------------------
 void vtkTextMapper::UpdateQuad(vtkActor2D *actor)
@@ -523,13 +497,24 @@ void vtkTextMapper::UpdateQuad(vtkActor2D *actor)
   if (this->CoordsTime < actor->GetMTime() ||
       this->CoordsTime < this->TextProperty->GetMTime())
     {
-    int pos[2] = { 0, 0 };
-    AdjustOrigin(this->TextProperty->GetJustification(),
-                 this->TextProperty->GetVerticalJustification(),
-                 pos, this->TextDims);
+    int text_bbox[4];
+    vtkTextRenderer *tren = vtkTextRenderer::GetInstance();
+    if (tren)
+      {
+      if (!tren->GetBoundingBox(this->TextProperty,
+                                this->Input ? this->Input : std::string(),
+                                text_bbox))
+        {
+        vtkErrorMacro(<<"Error calculating bounding box.");
+        }
+      }
+    else
+      {
+      vtkErrorMacro(<<"Could not locate vtkTextRenderer object.");
+      }
 
-    double x = static_cast<double>(pos[0]);
-    double y = static_cast<double>(pos[1]);
+    double x = static_cast<double>(text_bbox[0]);
+    double y = static_cast<double>(text_bbox[2]);
     double w = static_cast<double>(this->TextDims[0]);
     double h = static_cast<double>(this->TextDims[1]);
 
@@ -552,7 +537,8 @@ void vtkTextMapper::UpdateImage()
     vtkTextRenderer *tren = vtkTextRenderer::GetInstance();
     if (tren)
       {
-      if (!tren->RenderString(this->TextProperty, this->Input,
+      if (!tren->RenderString(this->TextProperty,
+                              this->Input ? this->Input : std::string(),
                               this->Image.GetPointer(), this->TextDims))
         {
         vtkErrorMacro(<<"Texture generation failed.");

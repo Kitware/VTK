@@ -63,7 +63,7 @@ foreach family {
             set face_name "$face_name ([join $attribs ,])"
         }
 
-        set mapper [vtkOpenGLFreeTypeTextMapper mapper_${family}_${bold}_${italic}_${shadow}]
+        set mapper [vtkTextMapper mapper_${family}_${bold}_${italic}_${shadow}]
         $mapper SetInput "$face_name: $default_text"
 
         set tprop [$mapper GetTextProperty]

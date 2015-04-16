@@ -55,7 +55,7 @@ for (bold,italic,shadow) in ((0,0,0),(0,0,1),(1,0,0),(0,1,0),(1,1,0)):
     if attribs:
         face_name = face_name + " (" + ",".join(attribs) + ")"
 
-    mapper = vtk.vtkOpenGLFreeTypeTextMapper()
+    mapper = vtk.vtkTextMapper()
     mapper.SetInput(face_name + ": " + default_text)
 
     tprop = mapper.GetTextProperty()
