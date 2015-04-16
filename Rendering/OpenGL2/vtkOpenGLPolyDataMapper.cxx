@@ -2199,7 +2199,6 @@ void vtkOpenGLPolyDataMapper::BuildIBO(vtkRenderer *ren, vtkActor *act)
                          this->TriStripsEdges.ibo, true);
     }
 }
-
 //-----------------------------------------------------------------------------
 bool vtkOpenGLPolyDataMapper::GetIsOpaque()
 {
