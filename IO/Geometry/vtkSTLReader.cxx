@@ -361,7 +361,7 @@ bool vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
   try
     {
     int currentSolid = 0;
-    // Go into loop, reading  facet normal and vertices
+    // Go into loop, reading facet normal and vertices
     while (!done)
       {
       if (!fgets(line, 255, fp))
@@ -418,7 +418,7 @@ bool vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
       if (!strcmp(line, "ENDSOLID") || !strcmp(line, "endsolid"))
         {
         currentSolid++;
-        if (!fgets(line, 255, fp))
+        if (!fgets(line, 255, fp) && !feof(fp))
           {
           throw std::runtime_error("unable to read end solid.");
           }
@@ -477,7 +477,7 @@ int vtkSTLReader::GetSTLFileType(const char *filename)
   case vtksys::SystemTools::FileTypeText:
     return VTK_ASCII;
   case vtksys::SystemTools::FileTypeUnknown:
-    vtkWarningMacro("File type not recognized attempting binary");
+    vtkWarningMacro("File type not recognized; attempting binary");
     return VTK_BINARY;
   default:
     vtkErrorMacro("Case not handled, file type is " << static_cast<int>(ft));
