@@ -146,9 +146,9 @@ public:
       this->DepthTextureObject = 0;
       }
 
-    delete this->MaskTextures;
-
     this->DeleteTransferFunctions();
+
+    delete this->MaskTextures;
 
     this->ScalarsRange.clear();
     this->Scale.clear();
