@@ -232,21 +232,36 @@ like merge requests and commits in other repositories.
 
 ### Human Reviews ###
 
-Developers may add comments providing feedback or to acknowledge their
-approval.  Reviewers may end their comments with trailing lines of one
-of these forms:
+Reviewers may add comments providing feedback or to acknowledge their
+approval.  Lines of specific forms will be extracted during
+[merging](#merge-a-topic) and included as trailing lines of the
+generated merge commit message:
 
-    Acked-by: me
-    Reported-by: @someone
-    Reviewed-by: Some One <someone@somewhere.org>
-    Signed-off-by: ...
-    Tested-by: ...
+The *leading* line of a comment may optionally be exactly one of the
+following votes followed by nothing but whitespace before the end
+of the line:
 
-These trailers will be extracted during [merging](#merge-a-topic) and
-included as trailing lines of the generated merge commit message.
-References to `me` and `@username` will automatically be transformed
-into a real name and email address according to the user's GitLab
-account profile.
+*   `-1` or :-1: (`:-1:`) means "The change is not ready for integration."
+*   `+1` or :+1: (`:+1:`) means "I like the change but defer to others."
+*   `+2` means "The change is ready for integration."
+*   `+3` means "I have tested the change and verified it works."
+
+The middle lines of a comment may be free-form [GitLab Flavored Markdown][].
+
+Zero or more *trailing* lines of a comment may each contain exactly one
+of the following votes followed by nothing but whitespace before the end
+of the line:
+
+*   `Rejected-by: me` means "The change is not ready for integration."
+*   `Acked-by: me` means "I like the change but defer to others."
+*   `Reviewed-by: me` means "The change is ready for integration."
+*   `Tested-by: me` means "I have tested the change and verified it works."
+
+Each `me` reference may instead be an `@username` reference or a full
+`Real Name <user@domain>` reference to credit someone else for performing
+the review.  References to `me` and `@username` will automatically be
+transformed into a real name and email address according to the user's
+GitLab account profile.
 
 #### Fetching Changes ####
 
@@ -322,7 +337,10 @@ authorized developers may add a comment of the form
 
     Do: merge
 
-to ask that the change be merged into the upstream repository.
+to ask that the change be merged into the upstream repository.  By
+convention, do not request a merge if any `-1` or `Rejected-by:`
+review comments have not been resolved and superseded by at least
+`+1` or `Acked-by:` review comments from the same user.
 
 ### Merge Success ###
 
