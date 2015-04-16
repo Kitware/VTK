@@ -16,6 +16,14 @@
 #  define _XOPEN_SOURCE_EXTENDED
 #endif
 
+#if defined(_WIN32) && (defined(_MSC_VER) || defined(__WATCOMC__) || defined(__BORLANDC__) || defined(__MINGW32__))
+#  define KWSYS_WINDOWS_DIRS
+#else
+#  if defined(__SUNPRO_CC)
+#    include <fcntl.h>
+#  endif
+#endif
+
 #include "kwsysPrivate.h"
 #include KWSYS_HEADER(RegularExpression.hxx)
 #include KWSYS_HEADER(SystemTools.hxx)
@@ -205,8 +213,7 @@ static time_t windows_filetime_to_posix_time(const FILETIME& ft)
 }
 #endif
 
-#if defined(_WIN32) && (defined(_MSC_VER) || defined(__WATCOMC__) || defined(__BORLANDC__) || defined(__MINGW32__))
-
+#ifdef KWSYS_WINDOWS_DIRS
 #include <wctype.h>
 
 inline int Mkdir(const kwsys_stl::string& dir)
@@ -243,16 +250,45 @@ inline int Chdir(const kwsys_stl::string& dir)
   return _wchdir(KWSYS_NAMESPACE::Encoding::ToWide(dir).c_str());
   #endif
 }
-inline void Realpath(const kwsys_stl::string& path, kwsys_stl::string & resolved_path)
+inline void Realpath(const kwsys_stl::string& path,
+                     kwsys_stl::string& resolved_path,
+                     kwsys_stl::string* errorMessage = 0)
 {
   kwsys_stl::wstring tmp = KWSYS_NAMESPACE::Encoding::ToWide(path);
   wchar_t *ptemp;
   wchar_t fullpath[MAX_PATH];
-  if( GetFullPathNameW(tmp.c_str(), sizeof(fullpath)/sizeof(fullpath[0]),
-                       fullpath, &ptemp) )
+  DWORD bufferLen = GetFullPathNameW(tmp.c_str(),
+      sizeof(fullpath) / sizeof(fullpath[0]),
+      fullpath, &ptemp);
+  if( bufferLen < sizeof(fullpath)/sizeof(fullpath[0]) )
     {
     resolved_path = KWSYS_NAMESPACE::Encoding::ToNarrow(fullpath);
     KWSYS_NAMESPACE::SystemTools::ConvertToUnixSlashes(resolved_path);
+    }
+  else if(errorMessage)
+    {
+    if(bufferLen)
+      {
+      *errorMessage = "Destination path buffer size too small.";
+      }
+    else if(unsigned int errorId = GetLastError())
+      {
+      LPSTR message = NULL;
+      DWORD size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER
+                                   | FORMAT_MESSAGE_FROM_SYSTEM
+                                   | FORMAT_MESSAGE_IGNORE_INSERTS,
+                                   NULL, errorId,
+                                   MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                                   (LPSTR)&message, 0, NULL);
+      *errorMessage = std::string(message, size);
+      LocalFree(message);
+      }
+    else
+      {
+      *errorMessage = "Unknown error.";
+      }
+
+    resolved_path = "";
     }
   else
     {
@@ -280,14 +316,30 @@ inline int Chdir(const kwsys_stl::string& dir)
 {
   return chdir(dir.c_str());
 }
-inline void Realpath(const kwsys_stl::string& path, kwsys_stl::string & resolved_path)
+inline void Realpath(const kwsys_stl::string& path,
+                     kwsys_stl::string& resolved_path,
+                     kwsys_stl::string* errorMessage = 0)
 {
   char resolved_name[KWSYS_SYSTEMTOOLS_MAXPATH];
 
+  errno = 0;
   char *ret = realpath(path.c_str(), resolved_name);
   if(ret)
     {
     resolved_path = ret;
+    }
+  else if(errorMessage)
+    {
+    if(errno)
+      {
+      *errorMessage = strerror(errno);
+      }
+    else
+      {
+      *errorMessage = "Unknown error.";
+      }
+
+    resolved_path = "";
     }
   else
     {
@@ -1208,15 +1260,22 @@ bool SystemTools::PathCygwinToWin32(const char *path, char *win32_path)
 
 bool SystemTools::Touch(const kwsys_stl::string& filename, bool create)
 {
-  if(create && !SystemTools::FileExists(filename))
+  if (!SystemTools::FileExists(filename))
     {
-    FILE* file = Fopen(filename, "a+b");
-    if(file)
+    if(create)
       {
-      fclose(file);
+      FILE* file = Fopen(filename, "a+b");
+      if(file)
+        {
+        fclose(file);
+        return true;
+        }
+      return false;
+      }
+    else
+      {
       return true;
       }
-    return false;
     }
 #if defined(_WIN32) && !defined(__CYGWIN__)
   HANDLE h = CreateFileW(
@@ -2323,6 +2382,10 @@ bool SystemTools::CopyFileAlways(const kwsys_stl::string& source, const kwsys_st
       {
       fout.write(buffer, fin.gcount());
       }
+    else
+      {
+      break;
+      }
     }
 
   // Make sure the operating system has finished writing the file
@@ -3039,10 +3102,11 @@ kwsys_stl::string SystemTools
   return "";
 }
 
-kwsys_stl::string SystemTools::GetRealPath(const kwsys_stl::string& path)
+kwsys_stl::string SystemTools::GetRealPath(const kwsys_stl::string& path,
+                                           kwsys_stl::string* errorMessage)
 {
   kwsys_stl::string ret;
-  Realpath(path, ret);
+  Realpath(path, ret, errorMessage);
   return ret;
 }
 
@@ -4725,7 +4789,11 @@ kwsys_stl::string SystemTools::GetOperatingSystemNameAndVersion()
 
 #ifdef KWSYS_WINDOWS_DEPRECATED_GetVersionEx
 # pragma warning (push)
-# pragma warning (disable:4996)
+# ifdef __INTEL_COMPILER
+#  pragma warning (disable:1478)
+# else
+#  pragma warning (disable:4996)
+# endif
 #endif
   bOsVersionInfoEx = GetVersionEx((OSVERSIONINFO *)&osvi);
   if (!bOsVersionInfoEx)
