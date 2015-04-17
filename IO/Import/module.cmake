@@ -4,10 +4,13 @@ vtk_module(vtkIOImport
   DEPENDS
     vtkCommonCore
     vtkRenderingCore
+    vtksys
   PRIVATE_DEPENDS
     vtkFiltersSources
+    vtkIOImage
   TEST_DEPENDS
     vtkRendering${VTK_RENDERING_BACKEND}
     vtkTestingRendering
+    vtkImagingSources
     vtkInteractionStyle
   )
