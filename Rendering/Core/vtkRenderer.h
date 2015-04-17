@@ -339,12 +339,32 @@ public:
   // Description:
   // Set/Get the layer that this renderer belongs to.  This is only used if
   // there are layered renderers.
-  vtkSetMacro(Layer, int);
+  //
+  // Note: Changing the layer will update the PreserveColorBuffer setting. If
+  // the layer is 0, PreserveColorBuffer will be set to false, making the
+  // bottom renderer opaque. If the layer is non-zero, PreserveColorBuffer will
+  // be set to true, giving the renderer a transparent background. If other
+  // PreserveColorBuffer configurations are desired, they must be adjusted after
+  // the layer is set.
+  virtual void SetLayer(int layer);
   vtkGetMacro(Layer, int);
 
   // Description:
-  // Normally a renderer is treated as transparent if Layer > 0. To treat a
-  // renderer at Layer 0 as transparent, set this flag to true.
+  // By default, the renderer at layer 0 is opaque, and all non-zero layer
+  // renderers are transparent. This flag allows this behavior to be overridden.
+  // If true, this setting will force the renderer to preserve the existing
+  // color buffer regardless of layer. If false, it will always be cleared at
+  // the start of rendering.
+  //
+  // This flag influences the Transparent() method, and is updated by calls to
+  // SetLayer(). For this reason it should only be set after changing the layer.
+  vtkGetMacro(PreserveColorBuffer, int);
+  vtkSetMacro(PreserveColorBuffer, int);
+  vtkBooleanMacro(PreserveColorBuffer, int);
+
+  // Description:
+  // By default, the depth buffer is reset for each renderer. If this flag is
+  // true, this renderer will use the existing depth buffer for its rendering.
   vtkSetMacro(PreserveDepthBuffer, int);
   vtkGetMacro(PreserveDepthBuffer, int);
   vtkBooleanMacro(PreserveDepthBuffer, int);
@@ -549,6 +569,7 @@ protected:
   // Shows what layer this renderer belongs to.  Only of interested when
   // there are layered renderers.
   int                Layer;
+  int                PreserveColorBuffer;
   int                PreserveDepthBuffer;
 
   // Holds the result of ComputeVisiblePropBounds so that it is visible from

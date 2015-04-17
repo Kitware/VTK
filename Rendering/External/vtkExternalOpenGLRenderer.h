@@ -42,21 +42,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Implementation for the Clear method that clears the buffer if requested
-  void Clear(void);
-
-  // Description:
   // Synchronize camera and light parameters
   void Render(void);
-
-  // Description:
-  // Normally the vtkOpenGLRenderer clears the color buffer before rendering a
-  // new frame. When this flag is true, the color buffer is not cleared. This
-  // can be helpful when there are multiple visualization systems
-  // sharing the same context. Default value is 1.
-  vtkGetMacro(PreserveColorBuffer, int);
-  vtkSetMacro(PreserveColorBuffer, int);
-  vtkBooleanMacro(PreserveColorBuffer, int);
 
   // Description:
   // Create a new Camera sutible for use with this type of Renderer.
@@ -66,8 +53,6 @@ public:
 protected:
   vtkExternalOpenGLRenderer();
   ~vtkExternalOpenGLRenderer();
-
-  int PreserveColorBuffer;
 
 private:
   vtkExternalOpenGLRenderer(const vtkExternalOpenGLRenderer&);  // Not implemented.
