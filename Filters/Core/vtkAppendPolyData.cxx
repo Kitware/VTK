@@ -17,6 +17,7 @@
 #include "vtkAlgorithmOutput.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkDataArrayIteratorMacro.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -169,11 +170,11 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
     ds = inputs[idx];
     if (ds != NULL)
       {
-      if ( ds->GetNumberOfPoints() > 0)
+      if (ds->GetNumberOfPoints() > 0)
         {
         ++countPD;
         }
-      if (ds->GetNumberOfCells() > 0 )
+      if (ds->GetNumberOfCells() > 0)
         {
         ++countCD;
         } // for a data set that has cells
@@ -191,12 +192,12 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
     if (ds != NULL)
       {
       // Skip points and cells if there are no points.  Empty inputs may have no arrays.
-      if ( ds->GetNumberOfPoints() > 0)
+      if (ds->GetNumberOfPoints() > 0)
         {
         numPts += ds->GetNumberOfPoints();
         // Take intersection of available point data fields.
         inPD = ds->GetPointData();
-        if ( countPD == 0 )
+        if (countPD == 0)
           {
           ptList.InitializeFieldList(inPD);
           }
@@ -208,7 +209,7 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
         } // for a data set that has points
 
       // Although we cannot have cells without points ... let's not nest.
-      if (ds->GetNumberOfCells() > 0 )
+      if (ds->GetNumberOfCells() > 0)
         {
         // keep track of the size of the poly cell array
         if (ds->GetPolys())
@@ -238,7 +239,7 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
       } // for a non NULL input
     } // for each input
 
-  if ( numPts < 1 || numCells < 1 )
+  if (numPts < 1 || numCells < 1)
     {
     vtkDebugMacro(<<"No data to append!");
     return 1;
@@ -248,7 +249,7 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
   // Examine the points and check if they're the same type. If not,
   // use highest (double probably), otherwise the type of the first
   // array (float no doubt). Depends on defs in vtkSetGet.h - Warning.
-  int ttype, firstType=1, AllSame=1;
+  int ttype, firstType=1;
   int pointtype = 0;
 
   // Keep track of types for fast point append
@@ -263,12 +264,6 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
         pointtype = ds->GetPoints()->GetData()->GetDataType();
         }
       ttype = ds->GetPoints()->GetData()->GetDataType();
-
-      if ( ttype != pointtype )
-        {
-        AllSame = 0;
-        vtkDebugMacro(<<"Different point data types");
-        }
       pointtype = pointtype > ttype ? pointtype : ttype;
       }
     }
@@ -421,16 +416,9 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
       if (ds->GetNumberOfPoints() > 0)
         {
         // copy points directly
-        if (AllSame)
-          {
-          this->AppendData(newPts->GetData(),
-                           inPts->GetData(), ptOffset);
-          }
-        else
-          {
-          this->AppendDifferentPoints(newPts->GetData(),
-                                      inPts->GetData(), ptOffset);
-          }
+        this->AppendData(newPts->GetData(),
+                         inPts->GetData(), ptOffset);
+
         // copy scalars directly
         if (newPtScalars)
           {
@@ -721,15 +709,33 @@ size_t vtkAppendPolyDataGetTypeSize(T*)
 void vtkAppendPolyData::AppendData(vtkDataArray *dest, vtkDataArray *src,
                                    vtkIdType offset)
 {
-  void *pSrc, *pDest;
-  vtkIdType length;
-
-  // sanity checks
-  if (src->GetDataType() != dest->GetDataType())
+  switch (src->GetDataType())
     {
-    vtkErrorMacro("Data type mismatch.");
-    return;
+    vtkDataArrayIteratorMacro(src,
+      AppendData(dest, src, offset, vtkDABegin, vtkDAEnd));
     }
+}
+
+//----------------------------------------------------------------------------
+template <class InputIterator>
+void vtkAppendPolyData::AppendData(vtkDataArray *dest, vtkDataArray *src,
+                                   vtkIdType offset, InputIterator srcIt,
+                                   InputIterator srcEnd)
+{
+  switch (dest->GetDataType())
+    {
+    vtkDataArrayIteratorMacro(dest,
+      AppendData(dest, src, offset, srcIt, srcEnd, vtkDABegin));
+    }
+}
+
+
+//----------------------------------------------------------------------------
+template <class InputIterator, class OutputIterator>
+void vtkAppendPolyData::AppendData(vtkDataArray *dest, vtkDataArray *src,
+                                   vtkIdType offset, InputIterator srcIt,
+                                   InputIterator srcEnd, OutputIterator destIt)
+{
   if (src->GetNumberOfComponents() != dest->GetNumberOfComponents())
     {
     vtkErrorMacro("NumberOfComponents mismatch.");
@@ -743,81 +749,13 @@ void vtkAppendPolyData::AppendData(vtkDataArray *dest, vtkDataArray *src,
 
   // convert from tuples to components.
   offset *= src->GetNumberOfComponents();
-  length = src->GetMaxId() + 1;
 
-  switch (src->GetDataType())
-    {
-    vtkTemplateMacro(
-      length *= vtkAppendPolyDataGetTypeSize(static_cast<VTK_TT*>(0))
-      );
-    default:
-      vtkErrorMacro("Unknown data type " << src->GetDataType());
-    }
+  // Position destination iterator
+  destIt += offset;
 
-  pSrc  = src->GetVoidPointer(0);
-  pDest = dest->GetVoidPointer(offset);
-
-  memcpy(pDest, pSrc, length);
+  // Copy data, performing implicit conversion if necessary
+  std::copy(srcIt, srcEnd, destIt);
 }
-
-//----------------------------------------------------------------------------
-void vtkAppendPolyData::AppendDifferentPoints(vtkDataArray *dest,
-                                              vtkDataArray *src,
-                                              vtkIdType offset)
-{
-  float  *fSrc;
-  double *dSrc, *dDest;
-  vtkIdType p;
-
-  if (src->GetNumberOfTuples() + offset > dest->GetNumberOfTuples())
-    {
-    vtkErrorMacro("Destination not big enough");
-    return;
-    }
-
-  vtkIdType vals = src->GetMaxId()+1;
-  switch (dest->GetDataType())
-    {
-    //
-    // Dest is FLOAT - if sources are not all same type, dest ought to
-    // be double. (assuming float and double are the only choices)
-    //
-    case VTK_FLOAT:
-        vtkErrorMacro("Dest type should be double? "
-            << dest->GetDataType());
-        break;
-    //
-    // Dest is DOUBLE - sources may be mixed float/double combinations
-    //
-
-    case VTK_DOUBLE:
-      dDest = static_cast<double*>(
-        dest->GetVoidPointer(offset*src->GetNumberOfComponents()));
-      //
-      switch (src->GetDataType())
-        {
-        case VTK_FLOAT:
-          fSrc = static_cast<float*>(src->GetVoidPointer(0));
-          for (p=0; p<vals; p++)
-            {
-            dDest[p] = static_cast<double>(fSrc[p]);
-            }
-          break;
-        case VTK_DOUBLE:
-          dSrc = static_cast<double*>(src->GetVoidPointer(0));
-          memcpy(dDest, dSrc, vals*sizeof(double));
-          break;
-        default:
-          vtkErrorMacro("Unknown data type " << dest->GetDataType());
-        }
-      break;
-      //
-    default:
-      vtkErrorMacro("Unknown data type " << dest->GetDataType());
-    }
-
-}
-
 
 //----------------------------------------------------------------------------
 // returns the next pointer in dest
