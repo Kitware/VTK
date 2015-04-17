@@ -13,23 +13,22 @@ for a more detailed description of ghost cells.
 ```Blanking cells``` are used to specify that certain pieces of a grid
 are not part of the data. For instance, a regular dataset with a hole
 in it could be specified by blanking the cells that cover the
-hole. Blanking cells are supported for ```vtkStructuredGrid``` and
-```vtkUniformGrid```.
+hole. Blanking cells are supported for ```vtkStructuredGrid``` and ```vtkUniformGrid```.
 
 We change how ghost and blanked cells are stored to:
 
-  1. better support blanking: in the past blanked cells were stored as
-     members of ```vtkStructuredGrid``` and ```vtkUniformGrid```. This
-     created the need for special processing when these arrays needed
-     to be passed between algorithms or processes. Now, blanked cells
-     are marked with a bit in a field array. Field arrays are passed
-     automatically between algorithms and processes
+1. better support blanking: in the past blanked cells were stored as
+   members of ```vtkStructuredGrid``` and ```vtkUniformGrid```. This
+   created the need for special processing when these arrays needed to
+   be passed between algorithms or processes. Now, blanked cells are
+   marked with a bit in a field array. Field arrays are passed
+   automatically between algorithms and processes
 
-  2. provide binary compatibility with VisIt: VTK now uses the
-     [same bits as VisIt](http://www.visitusers.org/index.php?title=Representing_ghost_data)
-     to mark ghost cells and blanked cells
+2. provide binary compatibility with VisIt: VTK now uses the
+   [same bits as VisIt](http://www.visitusers.org/index.php?title=Representing_ghost_data)
+   to mark ghost cells and blanked cells
 
-  3. save space: the arrays for storing blanking are not needed anymore
+3. save space: the arrays for storing blanking are not needed anymore
 
 Note that ghosts and blanking exists for both cells and points. Simply
 replace cell with point to get the corresponding description for point
@@ -39,40 +38,39 @@ ghosts and blanking.
 
 To achieve our goals we made the following changes:
 
-  1. Previously, ghost cells were marked in a ```unsigned char```
-     attribute array called "```vtkGhostLevels```". For each cell, the
-     ghost level was stored at the corresponding cell id. Now, there
-     is no distinction between ghost levels. Cells at any ghost level,
-     are marked by setting ```vtkDataSetAttributes::DUPLICATECELL```
-     bit at the corresponding cell id, in the ```unsigned char```
-     attribute array called
-     ```vtkDataSetAttributes::GhostArrayName()```
-     ("```vtkGhostType```").
+1. Previously, ghost cells were marked in a ```unsigned char```
+   attribute array called "```vtkGhostLevels```". For each cell, the
+   ghost level was stored at the corresponding cell id. Now, there is
+   no distinction between ghost levels. Cells at any ghost level, are
+   marked by setting ```vtkDataSetAttributes::DUPLICATECELL``` bit at
+   the corresponding cell id, in the ```unsigned char``` attribute
+   array called ```vtkDataSetAttributes::GhostArrayName()```
+   ("```vtkGhostType```").
 
-  2. Previously, filters striped all ghost cells they requested from
-     upstream before finalizing the output. This is no longer
-     done. The user can remove all ghost cells at the end of pipeline
-     processing, if needed. Note that ghost cells are not shown in the
-     render window, and only consume a small amount of memory compared
-     with the whole dataset which means that removing them is often
-     not necessary.
+2. Previously, filters striped all ghost cells they requested from
+   upstream before finalizing the output. This is no longer done. The
+   user can remove all ghost cells at the end of pipeline processing,
+   if needed. Note that ghost cells are not shown in the render
+   window, and only consume a small amount of memory compared with the
+   whole dataset which means that removing them is often not
+   necessary.
 
-  3. ```vtkUniformGrid``` and ```vtkStructuredGrid``` previously
-     supported blanking through member arrays ```CellVisibility``` and
-     ```PointVisibility```. These arrays are removed and the blanking
-     functionality is supported by setting
-     ```vtkDataSetAttributes::HIDDENCELL``` bit at the corresponding
-     cell id in the "```vtkGhostType```" attribute array.
+3. ```vtkUniformGrid``` and ```vtkStructuredGrid``` previously
+   supported blanking through member arrays ```CellVisibility``` and
+   ```PointVisibility```. These arrays are removed and the blanking
+   functionality is supported by setting
+   ```vtkDataSetAttributes::HIDDENCELL``` bit at the corresponding
+   cell id in the "```vtkGhostType```" attribute array.
 
-  4. We increase file version for VTK Legacy files (see VTK/IO/Legacy)
-     to 4.0 (from 3.0). We increase file version for VTK XML files
-     (see VTK/IO/XML) to 2.0 (from 0.1 for files using UInt32 header
-     type and from 1.0 for files using UInt64 header type). We
-     increase these versions because ghost cells are now stored in a
-     file using the new ```vtkGhostType``` format described in the
-     previous section.  New readers reading old files convert a
-     ```vtkGhostLevels``` attribute array to a ```vtkGhostType```
-     array. This preserves ghost cells written using old readers.
+4. We increase file version for VTK Legacy files (see VTK/IO/Legacy)
+   to 4.0 (from 3.0). We increase file version for VTK XML files (see
+   VTK/IO/XML) to 2.0 (from 0.1 for files using UInt32 header type and
+   from 1.0 for files using UInt64 header type). We increase these
+   versions because ghost cells are now stored in a file using the new
+   ```vtkGhostType``` format described in the previous section.  New
+   readers reading old files convert a ```vtkGhostLevels``` attribute
+   array to a ```vtkGhostType``` array. This preserves ghost cells
+   written using old readers.
 
 # Bits used in the ghost type array
 
@@ -160,3 +158,11 @@ bits when converting ghost levels.
 
 We remove ```vtkStructuredGridWriter:::WriteBlanking``` as blanking is
 now written when saving the ```vtkGhostType``` array.
+
+# Update on VTK XML file version (4/16/2015)
+Because we increment VTK XML file version users with an older ParaView
+won't be able to read VTK XML files even if those files do not contain
+ghost or blanking cells. To fix this, we use the previous file version for
+VTK XML files (0.1 for files using UInt32 header type and 1.0 for
+files using UInt64 header type) unless data is unstructured or
+structured grid and there is a vtkGhostType array.
