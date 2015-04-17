@@ -59,6 +59,11 @@ public:
   void Render();
 
   // Description:
+  // Tells if this window is the current graphics context for the calling
+  // thread.
+  virtual bool IsCurrent();
+
+  // Description:
   // Turn on/off a flag which enables/disables automatic positioning and
   // resizing of the render window. By default, vtkExternalOpenGLRenderWindow
   // queries the viewport position and size (glViewport) from the OpenGL state

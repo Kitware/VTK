@@ -34,6 +34,12 @@ vtkExternalOpenGLRenderWindow::~vtkExternalOpenGLRenderWindow()
 //----------------------------------------------------------------------------
 void vtkExternalOpenGLRenderWindow::Start(void)
 {
+  // Make sure all important OpenGL options are set for VTK
+  this->OpenGLInit();
+
+  // Use hardware acceleration
+  this->SetIsDirect(1);
+
   if (this->AutomaticWindowPositionAndResize)
     {
     int info[4];
@@ -67,6 +73,12 @@ void vtkExternalOpenGLRenderWindow::Start(void)
 void vtkExternalOpenGLRenderWindow::Render()
 {
   this->Superclass::Render();
+}
+
+//----------------------------------------------------------------------------
+bool vtkExternalOpenGLRenderWindow::IsCurrent(void)
+{
+  return true;
 }
 
 //----------------------------------------------------------------------------
