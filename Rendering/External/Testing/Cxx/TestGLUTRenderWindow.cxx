@@ -29,7 +29,7 @@
 # if defined(_WIN32)
 # include "vtkWindows.h" // Needed to include OpenGL header on Windows.
 # endif // _WIN32
-# include <GL/freeglut.h> // Include GLUT API.
+# include <GL/glut.h> // Include GLUT API.
 #endif
 
 // STD includes
@@ -174,7 +174,6 @@ int TestGLUTRenderWindow(int argc, char** argv)
   ArgV = argv;
   glutInit(&argc, argv);                 // Initialize GLUT
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_STENCIL);
-  glutInitContextVersion(3, 3);
   glutInitWindowSize(windowW, windowH);   // Set the window's initial width & height
   glutInitWindowPosition(101, 201); // Position the window's initial top-left corner
   windowId = glutCreateWindow("VTK External Window Test"); // Create a window with the given title
