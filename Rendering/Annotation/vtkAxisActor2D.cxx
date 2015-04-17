@@ -441,7 +441,7 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
     const double worldLength = vtkMath::Norm(wp21);
     const double worldDistance = this->RulerDistance / (this->NumberOfMinorTicks+1);
     numTicks = static_cast<int>(
-      worldDistance <= 0.0 ? 0. : (worldLength / worldDistance));
+      worldDistance <= 0.0 ? 0.0 : (worldLength / worldDistance));
     const double precision = std::numeric_limits<double>::epsilon();
     const bool hasRemainderInDivision = worldDistance <= 0.0 ? false:
       std::fmod(worldLength, worldDistance) > precision;
@@ -452,7 +452,7 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
     // Tick distance was computed in world coordinates, convert to viewport
     // coordinates.
     const double worldToLocalRatio =
-      (worldLength < 0.0 ? 0. : length / worldLength);
+      (worldLength <= 0.0 ? 0.0 : length / worldLength);
     distance = worldDistance * worldToLocalRatio;
     }
   else
