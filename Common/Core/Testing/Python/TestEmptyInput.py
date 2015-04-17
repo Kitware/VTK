@@ -241,7 +241,7 @@ def TestOne(cname):
     :return: True if at least one of the tests is successful, False otherwise.
     '''
     try:
-        b = eval("vtk."+cname+"()")
+        b = getattr(vtk, cname)()
         e = ErrorObserver()
         # A record of whether b.Update() worked or not.
         # The indexing corresponds to:
@@ -336,9 +336,12 @@ def TestEmptyInputTest(batch, batchNo = 0, batchSize = 0):
     idx = baseIdx
     for a in batch:
         batchIdx = idx - baseIdx
-        res = " Testing -- {:4d} - {:s}".format(idx,a)
+        #res = " Testing -- {:4d} - {:s}".format(idx,a)
+        # There is no format method in Python 2.5
+        res = " Testing -- %4d - %s" % (idx,a)
         if ( batchIdx < len(batch) - 1):
-            nextRes = " Next -- {:4d} - {:s}".format(idx + 1,list(batch)[batchIdx +1])
+            #nextRes = " Next -- {:4d} - {:s}".format(idx + 1,list(batch)[batchIdx +1])
+            nextRes = " Next -- %4d - %s" % (idx + 1,list(batch)[batchIdx +1])
         else:
             nextRes = "No next"
 #         if verbose:
