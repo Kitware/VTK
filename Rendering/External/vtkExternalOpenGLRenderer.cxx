@@ -93,7 +93,7 @@ void vtkExternalOpenGLRenderer::Render(void)
   this->RemoveAllLights();
 
   // Query OpenGL lights
-  short curLight;
+  GLenum curLight;
   for (curLight = GL_LIGHT0;
        curLight < GL_LIGHT0 + MAX_LIGHTS;
        curLight++)
