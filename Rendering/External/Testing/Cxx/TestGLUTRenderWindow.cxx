@@ -26,7 +26,9 @@
 #if defined(__APPLE__)
 # include <GLUT/glut.h> // Include GLUT API.
 #else
+# if defined(_WIN32)
 # include "vtkWindows.h" // Needed to include OpenGL header on Windows.
+# endif // _WIN32
 # include <GL/freeglut.h> // Include GLUT API.
 #endif
 
@@ -45,9 +47,11 @@
 #include <vtkPolyDataMapper.h>
 #include <vtkTesting.h>
 
+namespace {
+
 // Global variables used by the glutDisplayFunc and glutIdleFunc
 vtkNew<ExternalVTKWidget> externalVTKWidget;
-static bool initilaized = false;
+static bool initialized = false;
 static int NumArgs;
 char** ArgV;
 static bool tested = false;
@@ -61,7 +65,7 @@ static void MakeCurrentCallback(vtkObject* caller,
                                 void * clientData,
                                 void * callData)
 {
-  if (initilaized)
+  if (initialized)
     {
     glutSetWindow(windowId);
     }
@@ -71,7 +75,7 @@ static void MakeCurrentCallback(vtkObject* caller,
    whenever the window needs to be re-painted. */
 void display()
 {
-  if (!initilaized)
+  if (!initialized)
     {
     vtkNew<vtkExternalOpenGLRenderWindow> renWin;
     externalVTKWidget->SetRenderWindow(renWin.GetPointer());
@@ -90,7 +94,7 @@ void display()
     actor->RotateY(45.0);
     ren->ResetCamera();
 
-    initilaized = true;
+    initialized = true;
     }
 
   // Enable depth testing. Demonstrates OpenGL context being managed by external
@@ -158,8 +162,10 @@ void handleResize(int w, int h)
 
 void onexit(void)
 {
-  initilaized = false;
+  initialized = false;
 }
+
+} // end anon namespace
 
 /* Main function: GLUT runs as a console application starting at main()  */
 int TestGLUTRenderWindow(int argc, char** argv)
