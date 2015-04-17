@@ -138,3 +138,11 @@ if(NOT VTK_OPENGL_HAS_OSMESA)
   set_tests_properties(${vtk-module}Cxx-TestPickingManagerSeedWidget
     PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestPickingManagerSeedWidget})
 endif()
+
+# On some machines this test takes ~220 seconds to complete, allow for some
+# extra time
+if(NOT VTK_TEST_TIMEOUT_TestSphereHandleWidget)
+  set(VTK_TEST_TIMEOUT_TestSphereHandleWidget 300)
+endif()
+set_tests_properties(${vtk-module}Cxx-TestSphereHandleWidget
+    PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestSphereHandleWidget})
