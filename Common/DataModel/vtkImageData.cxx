@@ -119,6 +119,19 @@ void vtkImageData::CopyInformationFromPipeline(vtkInformation* information)
 }
 
 //----------------------------------------------------------------------------
+void vtkImageData::CopyInformationToPipeline(vtkInformation* info)
+{
+  // Let the superclass copy information to the pipeline.
+  this->Superclass::CopyInformationToPipeline(info);
+
+  // Copy the spacing, origin, and scalar info
+  info->Set(vtkDataObject::SPACING(), this->Spacing, 3);
+  info->Set(vtkDataObject::ORIGIN(), this->Origin, 3);
+  vtkDataObject::SetPointDataActiveScalarInfo(
+    info, this->GetScalarType(), this->GetNumberOfScalarComponents());
+}
+
+//----------------------------------------------------------------------------
 // Graphics filters reallocate every execute.  Image filters try to reuse
 // the scalars.
 void vtkImageData::PrepareForNewData()

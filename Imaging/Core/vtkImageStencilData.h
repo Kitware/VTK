@@ -125,6 +125,7 @@ public:
   // Override these to handle origin, spacing, scalar type, and scalar
   // number of components.  See vtkDataObject for details.
   virtual void CopyInformationFromPipeline(vtkInformation* meta_data);
+  virtual void CopyInformationToPipeline(vtkInformation* meta_data);
 
   //BTX
   // Description:

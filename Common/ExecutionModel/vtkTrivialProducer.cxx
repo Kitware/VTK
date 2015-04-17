@@ -124,23 +124,8 @@ void vtkTrivialProducer::FillOutputDataInformation(vtkDataObject* output,
                  extent, 6);
     }
 
-  if (output->IsA("vtkImageData"))
-    {
-    vtkImageData* img = static_cast<vtkImageData*>(output);
-
-    double spacing[3];
-    img->GetSpacing(spacing);
-    outInfo->Set(vtkDataObject::SPACING(), spacing[0], spacing[1], spacing[2]);
-
-    double origin[3];
-    img->GetOrigin(origin);
-    outInfo->Set(vtkDataObject::ORIGIN(), origin[0], origin[1], origin[2]);
-
-    vtkDataObject::SetPointDataActiveScalarInfo(outInfo,
-                                                img->GetScalarType(),
-                                                img->GetNumberOfScalarComponents());
-
-    }
+  // Let the data object copy information to the pipeline
+  output->CopyInformationToPipeline(outInfo);
 }
 
 //----------------------------------------------------------------------------
