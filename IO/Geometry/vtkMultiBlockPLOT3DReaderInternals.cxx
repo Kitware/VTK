@@ -1,3 +1,4 @@
+
 /*=========================================================================
 
   Program:   Visualization Toolkit
@@ -41,7 +42,10 @@ void vtkMultiBlockPLOT3DReaderInternals::CheckBinaryFile(FILE *fp, long fileSize
     }
 
   char bytes[12];
-  fread(bytes, 1, 12, fp);
+  if (fread(bytes, 1, 12, fp) != 12)
+    {
+    return;
+    }
   // Check the first 12 bytes. If we find non-ascii characters, then we
   // assume that it is binary.
   for (int i=0; i<12; i++)
