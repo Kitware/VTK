@@ -182,6 +182,7 @@ int TestGLUTRenderWindow(int argc, char** argv)
   glutIdleFunc(test); // Register test callback handler for vtkTesting
   glutReshapeFunc(handleResize); // Register resize callback handler for window resize
   atexit(onexit);  // Register callback to uninitialize on exit
+  glewInit();
   glutMainLoop();  // Enter the infinitely event-processing loop
   return 0;
 }
