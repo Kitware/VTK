@@ -132,7 +132,13 @@ const char* vtkOBJImporter::GetTexturePath( ) const
 
 struct vtkOBJImportedPolyDataWithMaterial
 {
-  ~vtkOBJImportedPolyDataWithMaterial() { delete mtlProperties; }
+  ~vtkOBJImportedPolyDataWithMaterial()
+  {
+    if (mtlProperties)
+      {
+      delete mtlProperties;
+      }
+  }
   vtkOBJImportedPolyDataWithMaterial()
   { // initialize some structures to store the file contents in
     points            = vtkSmartPointer<vtkPoints>::New();
@@ -198,8 +204,13 @@ vtkOBJPolyDataProcessor::~vtkOBJPolyDataProcessor()
 {
   for( size_t k=0; k < poly_list.size(); k++)
   {
-    delete poly_list[k];
-    poly_list[k] = NULL;
+  if (poly_list[k]->mtlProperties)
+    {
+    delete poly_list[k]->mtlProperties;
+    poly_list[k]->mtlProperties = NULL;
+    }
+  delete poly_list[k];
+  poly_list[k] = NULL;
   }
 }
 
@@ -338,6 +349,10 @@ int vtkOBJPolyDataProcessor::RequestData(
     {
       std::string mtlname_k(parsedMTLs[k]->name);
       poly_list[k]->materialName = mtlname_k;
+      if (poly_list[k]->mtlProperties)
+        {
+        delete poly_list[k]->mtlProperties;
+        }
       poly_list[k]->mtlProperties= parsedMTLs[k];
       mtlName_to_mtlData[mtlname_k] = parsedMTLs[k];
       mtlName_to_Actor[mtlname_k]   = poly_list[k];
