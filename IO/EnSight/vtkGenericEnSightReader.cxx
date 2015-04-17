@@ -599,6 +599,12 @@ int vtkGenericEnSightReader::DetermineEnSightVersion(int quiet)
 }
 
 //----------------------------------------------------------------------------
+void vtkGenericEnSightReader::ClearForNewCaseFileName()
+{
+  this->TranslationTable->PartIdMap.clear();
+}
+
+//----------------------------------------------------------------------------
 void vtkGenericEnSightReader::SetCaseFileName(const char* fileName)
 {
   char *endingSlash;
@@ -621,6 +627,7 @@ void vtkGenericEnSightReader::SetCaseFileName(const char* fileName)
     this->CaseFileName = NULL;
     }
 
+  this->ClearForNewCaseFileName();
   this->Modified();
   if (!this->CaseFileName)
     {

@@ -160,6 +160,13 @@ vtkEnSightReader::~vtkEnSightReader()
 }
 
 //----------------------------------------------------------------------------
+void vtkEnSightReader::ClearForNewCaseFileName()
+{
+  this->UnstructuredPartIds->Reset();
+  vtkGenericEnSightReader::ClearForNewCaseFileName();
+}
+
+//----------------------------------------------------------------------------
 int vtkEnSightReader::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **vtkNotUsed(inputVector),

@@ -116,6 +116,8 @@ protected:
                           vtkInformationVector**,
                           vtkInformationVector*);
 
+  virtual void ClearForNewCaseFileName();
+
   // Description:
   // Set the Measured file name.
   vtkSetStringMacro(MeasuredFileName);
