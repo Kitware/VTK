@@ -277,6 +277,8 @@ protected:
   char* ProcessIdArrayName;
   char* CompositeIdArrayName;
 
+  int TextureComponents;
+
 private:
   vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&); // Not implemented.
   void operator=(const vtkOpenGLPolyDataMapper&); // Not implemented.

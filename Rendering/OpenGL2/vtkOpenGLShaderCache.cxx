@@ -116,7 +116,11 @@ vtkShaderProgram *vtkOpenGLShaderCache::ReadyShader(
       "#version 150\n"
       "#define highp\n"
       "#define mediump\n"
-      "#define lowp");
+      "#define lowp\n"
+      "#define texelFetchBuffer texelFetch\n"
+      "#define texture1D texture\n"
+      "#define texture3D texture\n"
+      );
     GSSource = replace(GSSource,"//VTK::System::Dec",
       "#version 150\n"
       "#define highp\n"

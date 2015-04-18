@@ -1630,7 +1630,6 @@ const char* vtkXOpenGLRenderWindow::ReportCapabilities()
   const char *glVendor = reinterpret_cast<const char *>(glGetString(GL_VENDOR));
   const char *glRenderer = reinterpret_cast<const char *>(glGetString(GL_RENDERER));
   const char *glVersion = reinterpret_cast<const char *>(glGetString(GL_VERSION));
-  const char *glExtensions = reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
 
   vtksys_ios::ostringstream strm;
   strm << "server glx vendor string:  " << serverVendor << endl;
@@ -1638,15 +1637,21 @@ const char* vtkXOpenGLRenderWindow::ReportCapabilities()
   strm << "server glx extensions:  " << serverExtensions << endl;
   strm << "client glx vendor string:  " << clientVendor << endl;
   strm << "client glx version string:  " << clientVersion << endl;
-  strm << "client glx extensions:  " << clientExtensions << endl;
   strm << "glx extensions:  " << glxExtensions << endl;
   strm << "OpenGL vendor string:  " << glVendor << endl;
   strm << "OpenGL renderer string:  " << glRenderer << endl;
   strm << "OpenGL version string:  " << glVersion << endl;
-  strm << "OpenGL extensions:  " << glExtensions << endl;
+  strm << "OpenGL extensions:  " << endl;
+  int n = 0;
+  glGetIntegerv(GL_NUM_EXTENSIONS, &num);
+  for (int i = 0; i < n; i++)
+    {
+    const char *ext = (const char *)glGetStringi(GL_EXTENSIONS, i);
+    strm << "  " << ext << endl;
+    }
+
   strm << "X Extensions:  ";
 
-  int n = 0;
   char **extlist = XListExtensions(this->DisplayId, &n);
 
   for (int i = 0; i < n; i++)

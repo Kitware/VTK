@@ -273,7 +273,7 @@ namespace vtkvolume
         \nuniform sampler1D in_gradientTransferFunc;\
         \nfloat computeGradientOpacity(vec4 grad)\
         \n  {\
-        \n  return texture1D(in_gradientTransferFunc, grad.w).w;\
+        \n  return texture1D(in_gradientTransferFunc, grad.w).r;\
         \n  }"
       );
       }
@@ -291,19 +291,19 @@ namespace vtkvolume
         \n  {\
         \n  if (component == 0)\
         \n    {\
-        \n    return texture1D(in_gradientTransferFunc, grad.w).w;\
+        \n    return texture1D(in_gradientTransferFunc, grad.w).r;\
         \n    }\
         \n  if (component == 1)\
         \n    {\
-        \n    return texture1D(in_gradientTransferFunc1, grad.w).w;\
+        \n    return texture1D(in_gradientTransferFunc1, grad.w).r;\
         \n    }\
         \n  if (component == 2)\
         \n    {\
-        \n    return texture1D(in_gradientTransferFunc2, grad.w).w;\
+        \n    return texture1D(in_gradientTransferFunc2, grad.w).r;\
         \n    }\
         \n  if (component == 3)\
         \n    {\
-        \n    return texture1D(in_gradientTransferFunc3, grad.w).w;\
+        \n    return texture1D(in_gradientTransferFunc3, grad.w).r;\
         \n    }\
         \n  }"
       );
@@ -326,6 +326,8 @@ namespace vtkvolume
         \n  g2.x = texture3D(in_volume, vec3(g_dataPos - xvec)).x;\
         \n  g2.y = texture3D(in_volume, vec3(g_dataPos - yvec)).x;\
         \n  g2.z = texture3D(in_volume, vec3(g_dataPos - zvec)).x;\
+        \n  g1 = g1*in_volume_scale.r + in_volume_bias.r;\
+        \n  g2 = g2*in_volume_scale.r + in_volume_bias.r;\
         \n  return vec4((g1 - g2), -1.0);\
         \n  }"
       );
@@ -347,6 +349,8 @@ namespace vtkvolume
         \n  g2.x = texture3D(in_volume, vec3(g_dataPos - xvec)).x;\
         \n  g2.y = texture3D(in_volume, vec3(g_dataPos - yvec)).x;\
         \n  g2.z = texture3D(in_volume, vec3(g_dataPos - zvec)).x;\
+        \n  g1 = g1*in_volume_scale.r + in_volume_bias.r;\
+        \n  g2 = g2*in_volume_scale.r + in_volume_bias.r;\
         \n  g1.x = in_scalarsRange[0] + (\
         \n         in_scalarsRange[1] - in_scalarsRange[0]) * g1.x;\
         \n  g1.y = in_scalarsRange[0] + (\
@@ -805,7 +809,7 @@ namespace vtkvolume
           shaderStr += std::string("\
             \n    {\
             \n    return texture1D(in_opacityTransferFunc" + toString.str() + ",\
-            \n                     scalar[component]).w;\
+            \n                     scalar[component]).r;\
             \n    }");
 
            // Reset
@@ -822,7 +826,7 @@ namespace vtkvolume
         \nuniform sampler1D in_opacityTransferFunc;\
         \nfloat computeOpacity(vec4 scalar)\
         \n  {\
-        \n  return texture1D(in_opacityTransferFunc, scalar.y).w;\
+        \n  return texture1D(in_opacityTransferFunc, scalar.y).r;\
         \n  }");
       }
     else
@@ -831,7 +835,7 @@ namespace vtkvolume
         \nuniform sampler1D in_opacityTransferFunc;\
         \nfloat computeOpacity(vec4 scalar)\
         \n  {\
-        \n  return texture1D(in_opacityTransferFunc, scalar.w).w;\
+        \n  return texture1D(in_opacityTransferFunc, scalar.w).r;\
         \n  }");
       }
     }
@@ -900,6 +904,22 @@ namespace vtkvolume
       \n      {\
       \n      vec4 scalar = texture3D(in_volume, g_dataPos);"
     );
+
+    // simulate old intensity textures
+    if (noOfComponents == 1)
+      {
+      shaderStr += std::string("\
+        \n      scalar.r = scalar.r*in_volume_scale.r + in_volume_bias.r;\
+        \n      scalar = vec4(scalar.r,scalar.r,scalar.r,scalar.r);"
+        );
+      }
+    else
+      {
+      // handle bias and scale
+      shaderStr += std::string("\
+        \n      scalar = scalar*in_volume_scale + in_volume_bias;"
+        );
+      }
 
     if (mapper->GetBlendMode() == vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND)
       {
@@ -1602,7 +1622,7 @@ namespace vtkvolume
       {
       return std::string("\
         \nvec4 maskValue = texture3D(in_mask, g_dataPos);\
-        \nif(maskValue.a <= 0.0)\
+        \nif(maskValue.r <= 0.0)\
         \n  {\
         \n  l_skip = true;\
         \n  }"
@@ -1639,7 +1659,8 @@ namespace vtkvolume
                                           vtkVolume* vtkNotUsed(vol),
                                           vtkImageData* maskInput,
                                           vtkVolumeMask* mask,
-                                          int maskType)
+                                          int maskType,
+                                          int noOfComponents)
   {
     if (!mask || !maskInput ||
         maskType != vtkGPUVolumeRayCastMapper::LabelMapMaskType)
@@ -1648,8 +1669,26 @@ namespace vtkvolume
       }
     else
       {
-      return std::string("\
-        \nvec4 scalar = texture3D(in_volume, g_dataPos);\
+      std::string shaderStr = std::string("\
+        \nvec4 scalar = texture3D(in_volume, g_dataPos);");
+
+      // simulate old intensity textures
+      if (noOfComponents == 1)
+        {
+        shaderStr += std::string("\
+          \n      scalar.r = scalar.r*in_volume_scale.r + in_volume_bias.r;\
+          \n      scalar = vec4(scalar.r,scalar.r,scalar.r,scalar.r);"
+          );
+        }
+      else
+        {
+        // handle bias and scale
+        shaderStr += std::string("\
+          \n      scalar = scalar*in_volume_scale + in_volume_bias;"
+          );
+        }
+
+      return shaderStr + std::string("\
         \nif (in_maskBlendFactor == 0.0)\
         \n  {\
         \n  g_srcColor = computeColor(scalar);\
@@ -1658,19 +1697,19 @@ namespace vtkvolume
         \n  {\
         \n  // Get the mask value at this same location\
         \n  vec4 maskValue = texture3D(in_mask, g_dataPos);\
-        \n  if(maskValue.a == 0.0)\
+        \n  if(maskValue.r == 0.0)\
         \n    {\
         \n    g_srcColor = computeColor(scalar);\
         \n    }\
         \n  else\
         \n    {\
-        \n    if (maskValue.a == 1.0/255.0)\
+        \n    if (maskValue.r == 1.0/255.0)\
         \n      {\
         \n      g_srcColor = texture1D(in_mask1, scalar.w);\
         \n      }\
         \n    else\
         \n      {\
-        \n      // maskValue.a == 2.0/255.0\
+        \n      // maskValue.r == 2.0/255.0\
         \n      g_srcColor = texture1D(in_mask2, scalar.w);\
         \n      }\
         \n    g_srcColor.a = 1.0;\

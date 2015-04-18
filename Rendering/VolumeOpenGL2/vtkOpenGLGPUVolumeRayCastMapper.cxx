@@ -248,6 +248,7 @@ public:
   bool ValidTransferFunction;
   bool LoadDepthTextureExtensionsSucceeded;
   bool CameraWasInsideInLastUpdate;
+  bool HandleLargeDataTypes;
 
   GLuint CubeVBOId;
 #ifndef __APPLE__
@@ -490,18 +491,28 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::Initialize(
 
 //----------------------------------------------------------------------------
 bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
-  vtkImageData* imageData, vtkDataArray* scalars, int independentComponents)
+  vtkImageData* imageData, vtkDataArray* scalars,
+  int vtkNotUsed(independentComponents))
 {
   // Allocate data with internal format and foramt as (GL_RED)
   GLint internalFormat = 0;
   GLenum format = 0;
   GLenum type = 0;
 
-  bool handleLargeDataTypes = false;
+  this->HandleLargeDataTypes = false;
   int noOfComponents = scalars->GetNumberOfComponents();
 
-  std::vector<double> shift(noOfComponents, 0.0);
+
+  // scale and bias
+  // NP = P*scale + bias
+  // given two point matcvhes a,b to c,d the fomula
+  // is scale = (d-c)/(b-a) and
+  // bias = c - a*scale
+  // for unsigned/float types c is zero
+  std::vector<double> bias(noOfComponents, 0.0);
   std::vector<double> scale(noOfComponents, 1.0);
+  double oglScale = 1.0;
+  double oglBias = 0.0;
 
   int scalarType = scalars->GetDataType();
 
@@ -509,50 +520,60 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
     {
     case VTK_FLOAT:
       type = GL_FLOAT;
-      for (int n = 0; n < noOfComponents; ++n)
+      if (glewIsSupported("GL_ARB_texture_float") ||
+          vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
         {
-        shift[n] = -ScalarsRange[n][0];
-        scale[n] = 1/(this->ScalarsRange[n][1]-this->ScalarsRange[n][0]);
-        }
-      switch(noOfComponents)
-        {
-        case 1:
-          if (glewIsSupported("GL_ARB_texture_float"))
-            {
-            internalFormat = GL_INTENSITY16F_ARB;
-            }
-          else
-            {
-            internalFormat = GL_INTENSITY16;
-            }
+        switch(noOfComponents)
+          {
+          case 1:
+            internalFormat = GL_R16F;
             format = GL_RED;
-          break;
-        case 2:
-          internalFormat = GL_RG;
-          format = GL_RG;
-          break;
-        case 3:
-          internalFormat = GL_RGB;
-          format = GL_RGB;
-          break;
-        case 4:
-          internalFormat = GL_RGBA;
-          format = GL_RGBA;
-          break;
+            break;
+          case 2:
+            internalFormat = GL_RG16F;
+            format = GL_RG;
+            break;
+          case 3:
+            internalFormat = GL_RGB16F;
+            format = GL_RGB;
+            break;
+          case 4:
+            internalFormat = GL_RGBA16F;
+            format = GL_RGBA;
+            break;
+          }
+        }
+      else
+        {
+        switch(noOfComponents)
+          {
+          case 1:
+            internalFormat = GL_R16;
+            format = GL_RED;
+            break;
+          case 2:
+            internalFormat = GL_RG;
+            format = GL_RG;
+            break;
+          case 3:
+            internalFormat = GL_RGB;
+            format = GL_RGB;
+            break;
+          case 4:
+            internalFormat = GL_RGBA;
+            format = GL_RGBA;
+            break;
+          }
         }
       break;
     case VTK_UNSIGNED_CHAR:
       type = GL_UNSIGNED_BYTE;
-      for (int n = 0; n < noOfComponents; ++n)
-        {
-        shift[n] = -this->ScalarsRange[n][0]/VTK_UNSIGNED_CHAR_MAX;
-        scale[n] = VTK_UNSIGNED_CHAR_MAX/(this->ScalarsRange[n][1] -
-                                          this->ScalarsRange[n][0]);
-        }
+      oglScale = 1.0/VTK_UNSIGNED_CHAR_MAX;
+      oglBias = 0.0;
       switch(noOfComponents)
         {
         case 1:
-          internalFormat = GL_INTENSITY8;
+          internalFormat = GL_R8;
           format = GL_RED;
           break;
         case 2:
@@ -571,16 +592,12 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
       break;
     case VTK_SIGNED_CHAR:
       type = GL_BYTE;
-      for (int n = 0; n < noOfComponents; ++n)
-        {
-        shift[n] = -(2 * this->ScalarsRange[n][0] + 1)/VTK_UNSIGNED_CHAR_MAX;
-        scale[n] = VTK_SIGNED_CHAR_MAX / (this->ScalarsRange[n][1] -
-                                          this->ScalarsRange[n][0]);
-        }
+      oglScale = 2.0/(VTK_SIGNED_CHAR_MAX - VTK_SIGNED_CHAR_MIN);
+      oglBias = -1.0 - VTK_SIGNED_CHAR_MIN*oglScale;
       switch(noOfComponents)
         {
         case 1:
-          internalFormat = GL_INTENSITY8;
+          internalFormat = GL_R8_SNORM;
           format = GL_RED;
           break;
         case 2:
@@ -611,17 +628,13 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
       break;
     case VTK_INT:
       type = GL_INT;
-      for (int n = 0; n < noOfComponents; ++n)
-        {
-        shift[n] = -(2*this->ScalarsRange[n][0]+1)/VTK_UNSIGNED_INT_MAX;
-        scale[n] = VTK_INT_MAX/(this->ScalarsRange[n][1]-
-                                this->ScalarsRange[n][0]);
-        }
-
+      oglScale =
+        2.0/(static_cast<double>(VTK_INT_MAX) - VTK_INT_MIN);
+      oglBias = -1.0 - VTK_INT_MIN*oglScale;
       switch(noOfComponents)
         {
         case 1:
-          internalFormat = GL_INTENSITY16;
+          internalFormat = GL_R16_SNORM;
           format = GL_RED;
           break;
         case 2:
@@ -645,23 +658,19 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
     case VTK_UNSIGNED___INT64:
     case VTK_UNSIGNED_LONG:
     case VTK_UNSIGNED_LONG_LONG:
-      handleLargeDataTypes = true;
+      this->HandleLargeDataTypes = true;
       type = GL_FLOAT;
-      for (int n = 0; n < noOfComponents; ++n)
-        {
-        shift[n] = -this->ScalarsRange[n][0];
-        scale[n] = 1 / (this->ScalarsRange[n][1] - this->ScalarsRange[n][0]);
-        }
       switch(noOfComponents)
         {
         case 1:
-          if (glewIsSupported("GL_ARB_texture_float"))
+          if (glewIsSupported("GL_ARB_texture_float") ||
+              vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
             {
-            internalFormat = GL_INTENSITY16F_ARB;
+            internalFormat = GL_R16F;
             }
           else
             {
-            internalFormat = GL_INTENSITY16;
+            internalFormat = GL_R16;
             }
           format = GL_RED;
           break;
@@ -681,16 +690,12 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
       break;
     case VTK_SHORT:
       type = GL_SHORT;
-      for (int n = 0; n < noOfComponents; ++n)
-        {
-        shift[n] = -(2*this->ScalarsRange[n][0]+1)/VTK_UNSIGNED_SHORT_MAX;
-        scale[n] = VTK_SHORT_MAX / (this->ScalarsRange[n][1] -
-                                 this->ScalarsRange[n][0]);
-        }
+      oglScale = 2.0/(VTK_SHORT_MAX - VTK_SHORT_MIN);
+      oglBias = -1.0 - VTK_SHORT_MIN*oglScale;
       switch(noOfComponents)
         {
         case 1:
-          internalFormat = GL_INTENSITY16;
+          internalFormat = GL_R16_SNORM;
           format = GL_RED;
           break;
         case 2:
@@ -713,16 +718,12 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
       break;
     case VTK_UNSIGNED_SHORT:
       type = GL_UNSIGNED_SHORT;
-      for (int n = 0; n < noOfComponents; ++n)
-        {
-        shift[n] = -this->ScalarsRange[n][0]/VTK_UNSIGNED_SHORT_MAX;
-        scale[n] = VTK_UNSIGNED_SHORT_MAX / (this->ScalarsRange[n][1] -
-                                             this->ScalarsRange[n][0]);
-        }
+      oglScale = 1.0/VTK_UNSIGNED_SHORT_MAX;
+      oglBias = 0.0;
       switch(noOfComponents)
         {
         case 1:
-          internalFormat = GL_INTENSITY16;
+          internalFormat = GL_R16;
           format = GL_RED;
           break;
         case 2:
@@ -741,16 +742,12 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
       break;
     case VTK_UNSIGNED_INT:
       type = GL_UNSIGNED_INT;
-      for (int n = 0; n < noOfComponents; ++n)
-        {
-        shift[n] =-this->ScalarsRange[n][0] / VTK_UNSIGNED_INT_MAX;
-        scale[n] = VTK_UNSIGNED_INT_MAX / (this->ScalarsRange[n][1] -
-                                           this->ScalarsRange[n][0]);
-        }
+      oglScale = 1.0/VTK_UNSIGNED_INT_MAX;
+      oglBias = 0.0;
       switch(noOfComponents)
         {
         case 1:
-          internalFormat = GL_INTENSITY16;
+          internalFormat = GL_R16;
           format = GL_RED;
           break;
         case 2:
@@ -772,12 +769,17 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
       break;
   }
 
-  // Update scale and bias
-  this->Scale = scale;
   for (int n = 0; n < noOfComponents; ++n)
     {
-    this->Bias[n] = shift[n] * this->Scale[n];
+    double oglA = this->ScalarsRange[n][0]*oglScale + oglBias;
+    double oglB = this->ScalarsRange[n][1]*oglScale + oglBias;
+    scale[n] = 1.0/ (oglB - oglA);
+    bias[n] = 0.0 - oglA*scale[n];
     }
+
+  // Update scale and bias
+  this->Scale = scale;
+  this->Bias = bias;
 
   // Update texture size
   imageData->GetExtent(this->Extents);
@@ -802,32 +804,9 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
   this->VolumeTextureObject->SetFormat(format);
   this->VolumeTextureObject->SetInternalFormat(internalFormat);
 
-  if (!handleLargeDataTypes)
+  if (!this->HandleLargeDataTypes)
     {
     void* dataPtr = scalars->GetVoidPointer(0);
-
-    if (noOfComponents == 1 || noOfComponents == 2 || independentComponents)
-      {
-      // TODO: glPixelTransfer is not supported in GL 3.2 or higher.
-      // When we tried to apply scale and bias in the shader, then something
-      // didn't work out quite right.
-      glPixelTransferf(GL_RED_SCALE,static_cast<GLfloat>(this->Scale[0]));
-      glPixelTransferf(GL_RED_BIAS,static_cast<GLfloat>(this->Bias[0]));
-
-      if (noOfComponents == 2 || noOfComponents == 4)
-        {
-        glPixelTransferf(GL_GREEN_SCALE,static_cast<GLfloat>(this->Scale[1]));
-        glPixelTransferf(GL_GREEN_BIAS,static_cast<GLfloat>(this->Bias[1]));
-        }
-      if (noOfComponents == 4)
-        {
-        glPixelTransferf(GL_BLUE_SCALE,static_cast<GLfloat>(this->Scale[2]));
-        glPixelTransferf(GL_BLUE_BIAS,static_cast<GLfloat>(this->Bias[2]));
-
-        glPixelTransferf(GL_ALPHA_SCALE,static_cast<GLfloat>(this->Scale[3]));
-        glPixelTransferf(GL_ALPHA_BIAS,static_cast<GLfloat>(this->Bias[3]));
-        }
-      }
 
     this->VolumeTextureObject->Create3DFromRaw(
       this->TextureSize[0],
@@ -843,26 +822,6 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
     this->VolumeTextureObject->SetMagnificationFilter(vtkTextureObject::Linear);
     this->VolumeTextureObject->SetMinificationFilter(vtkTextureObject::Linear);
     this->VolumeTextureObject->SetBorderColor(0.0f, 0.0f, 0.0f, 0.0f);
-
-    if (noOfComponents == 1 || noOfComponents == 2 || independentComponents)
-      {
-      glPixelTransferf(GL_RED_SCALE, 1.0);
-      glPixelTransferf(GL_RED_BIAS, 0.0);
-
-      if (noOfComponents == 2 || noOfComponents == 4)
-        {
-        glPixelTransferf(GL_GREEN_SCALE, 1.0);
-        glPixelTransferf(GL_GREEN_BIAS, 0.0);
-        }
-      if (noOfComponents == 4)
-        {
-        glPixelTransferf(GL_BLUE_SCALE,1.0);
-        glPixelTransferf(GL_BLUE_BIAS,0.0);
-
-        glPixelTransferf(GL_ALPHA_SCALE, 1.0);
-        glPixelTransferf(GL_ALPHA_BIAS, 0.0);
-        }
-      }
     }
   else
     {
@@ -914,7 +873,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
           double * scalarPtr = scalars->GetTuple(kOffset + jOffset + i);
           for (int n = 0; n < noOfComponents; ++n)
             {
-            tupPtr[n] = (scalarPtr[n] + shift[n])*scale[n];
+            tupPtr[n] = scalarPtr[n]*scale[n] + bias[n];
             }
           sliceArray->SetTuple(jDestOffset + i, tupPtr);
           ++i;
@@ -1918,6 +1877,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
   LoadRequireDepthTextureExtensions(vtkRenderWindow* vtkNotUsed(renWin))
 {
   // Reset the message stream for extensions
+  if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
+    {
+    this->LoadDepthTextureExtensionsSucceeded = true;
+    return;
+    }
+
   this->ExtensionsStringStream.str("");
   this->ExtensionsStringStream.clear();
 
@@ -2394,13 +2359,15 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
     vtkvolume::CompositeMaskImplementation(
       ren, this, vol, this->MaskInput,
       this->Impl->CurrentMask,
-      this->MaskType),
+      this->MaskType,
+      noOfComponents),
     true);
 
   // Now compile the shader
   //--------------------------------------------------------------------------
   this->Impl->ShaderProgram = this->Impl->ShaderCache->ReadyShader(
     vertexShader.c_str(), fragmentShader.c_str(), "");
+
   if (!this->Impl->ShaderProgram->GetCompiled())
     {
     vtkErrorMacro("Shader failed to compile");
@@ -2702,6 +2669,19 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->ShaderProgram->SetUniformi("in_independentComponents",
                                          independentComponents);
 
+  float tscale[4] = {1.0, 1.0, 1.0, 1.0};
+  float tbias[4] = {0.0, 0.0, 0.0, 0.0};
+  if (!this->Impl->HandleLargeDataTypes &&
+      (noOfComponents == 1 || noOfComponents == 2 || independentComponents))
+    {
+    for (int i = 0; i < noOfComponents; i++)
+      {
+      tscale[i] = this->Impl->Scale[i];
+      tbias[i] = this->Impl->Bias[i];
+      }
+    }
+  this->Impl->ShaderProgram->SetUniform4f("in_volume_scale",tscale);
+  this->Impl->ShaderProgram->SetUniform4f("in_volume_bias",tbias);
 
   // Step should be dependant on the bounds and not on the texture size
   // since we can have non uniform voxel size / spacing / aspect ratio

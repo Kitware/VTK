@@ -317,7 +317,20 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
 
   // we need alpha planes
   GLint alphaBits;
-  glGetIntegerv(GL_ALPHA_BITS, &alphaBits);
+#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
+    if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
+      {
+      glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
+        GL_FRONT_LEFT,
+        GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, &alphaBits);
+      }
+    else
+#else
+      {
+      glGetIntegerv(GL_ALPHA_BITS, &alphaBits);
+      }
+#endif
+
   if (alphaBits < 8)
     {
     // just use alpha blending

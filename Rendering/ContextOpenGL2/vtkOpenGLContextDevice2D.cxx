@@ -537,6 +537,11 @@ void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n, unsigned char *colors,
   assert("f must be non-null" && f != NULL);
   assert("n must be greater than 0" && n > 0);
 
+  if (this->Pen->GetLineType() == vtkPen::NO_PEN)
+    {
+    return;
+    }
+
   vtkOpenGLClearErrorMacro();
   this->SetLineType(this->Pen->GetLineType());
   this->SetLineWidth(this->Pen->GetWidth());
@@ -576,6 +581,11 @@ void vtkOpenGLContextDevice2D::DrawLines(float *f, int n, unsigned char *colors,
 {
   assert("f must be non-null" && f != NULL);
   assert("n must be greater than 0" && n > 0);
+
+  if (this->Pen->GetLineType() == vtkPen::NO_PEN)
+    {
+    return;
+    }
 
   vtkOpenGLClearErrorMacro();
 
@@ -1458,36 +1468,11 @@ void vtkOpenGLContextDevice2D::SetLineWidth(float width)
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::SetLineType(int type)
 {
-  if (type == vtkPen::SOLID_LINE)
+  if (type == vtkPen::SOLID_LINE || type == vtkPen::NO_PEN)
     {
-    glDisable(GL_LINE_STIPPLE);
+    return;
     }
-  else
-    {
-    glEnable(GL_LINE_STIPPLE);
-    }
-  GLushort pattern = 0x0000;
-  switch (type)
-    {
-    case vtkPen::NO_PEN:
-      pattern = 0x0000;
-      break;
-    case vtkPen::DASH_LINE:
-      pattern = 0x00FF;
-      break;
-    case vtkPen::DOT_LINE:
-      pattern = 0x0101;
-      break;
-    case vtkPen::DASH_DOT_LINE:
-      pattern = 0x0C0F;
-      break;
-    case vtkPen::DASH_DOT_DOT_LINE:
-      pattern = 0x1C47;
-      break;
-    default:
-      pattern = 0x0000;
-    }
-  glLineStipple(1, pattern);
+  vtkErrorMacro(<< "Line Stipples are no longer supported");
 }
 
 //-----------------------------------------------------------------------------

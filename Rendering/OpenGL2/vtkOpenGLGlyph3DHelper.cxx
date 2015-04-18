@@ -50,10 +50,6 @@ vtkOpenGLGlyph3DHelper::vtkOpenGLGlyph3DHelper()
   this->UseFastPath = false;
   this->UsingInstancing = false;
 
-  // we always tell our triangle VAO to emulate to be safe
-  // this is because it seems that GLEW_ARB_vertex_array_object
-  // does not always handle the attributes for GLEW_ARB_instanced_arrays
-  this->Tris.vao.SetForceEmulation(true);
 }
 
 //-----------------------------------------------------------------------------
@@ -296,6 +292,13 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkI
       std::vector<float> &normalMatrices, std::vector<vtkIdType> &pickIds,
       unsigned long pointMTime)
 {
+  // we always tell our triangle VAO to emulate unless we
+  // have opngl 3.2 to be safe
+  // this is because it seems that GLEW_ARB_vertex_array_object
+  // does not always handle the attributes for GLEW_ARB_instanced_arrays
+  this->Tris.vao.SetForceEmulation(
+    !vtkOpenGLRenderWindow::GetContextSupportsOpenGL32());
+
   this->CurrentInput = this->GetInput();
   this->UsingInstancing = false;
 

@@ -682,14 +682,47 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(
         "tcoordVC = tcoordMC;");
       }
 
+    int tNumComp = 4;
+    vtkTexture *texture = actor->GetTexture();
+    if (this->ColorTextureMap)
+      {
+      texture = this->InternalColorTexture;
+      }
+    if (!texture && actor->GetProperty()->GetNumberOfTextures())
+      {
+      texture = actor->GetProperty()->GetTexture(0);
+      }
+    if (texture)
+      {
+      tNumComp =
+        vtkOpenGLTexture::SafeDownCast(texture)->
+          GetTextureObject()->GetComponents();
+      }
+
     if (this->Layout.TCoordComponents == 1)
       {
       substitute(VSSource, "//VTK::TCoord::Dec",
         "attribute float tcoordMC; varying float tcoordVC;");
       substitute(FSSource, "//VTK::TCoord::Dec",
         "varying float tcoordVC; uniform sampler2D texture1;");
-      substitute(FSSource, "//VTK::TCoord::Impl",
-        "gl_FragData[0] = clamp(gl_FragData[0],0.0,1.0)*texture2D(texture1, vec2(tcoordVC,0.0));");
+      switch (tNumComp)
+        {
+        case 1:
+          substitute(FSSource, "//VTK::TCoord::Impl",
+            "vec4 tcolor = texture2D(texture1, vec2(tcoordVC,0.0));\n"
+            "gl_FragData[0] = clamp(gl_FragData[0],0.0,1.0)*\n"
+            "  vec4(tcolor.r,tcolor.r,tcolor.r,1.0);");
+          break;
+        case 2:
+          substitute(FSSource, "//VTK::TCoord::Impl",
+            "vec4 tcolor = texture2D(texture1, vec2(tcoordVC,0.0));\n"
+            "gl_FragData[0] = clamp(gl_FragData[0],0.0,1.0)*\n"
+            "  vec4(tcolor.r,tcolor.r,tcolor.r,tcolor.g);");
+          break;
+        default:
+          substitute(FSSource, "//VTK::TCoord::Impl",
+            "gl_FragData[0] = clamp(gl_FragData[0],0.0,1.0)*texture2D(texture1, vec2(tcoordVC,0.0));");
+        }
       }
     else
       {
@@ -701,8 +734,24 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(
       // handled above
       if (!this->InterpolateScalarsBeforeMapping || !this->ColorCoordinates)
         {
-        substitute(FSSource, "//VTK::TCoord::Impl",
-          "gl_FragData[0] = clamp(gl_FragData[0],0.0,1.0)*texture2D(texture1, tcoordVC.st);");
+        switch (tNumComp)
+          {
+          case 1:
+            substitute(FSSource, "//VTK::TCoord::Impl",
+              "vec4 tcolor = texture2D(texture1, tcoordVC);\n"
+              "gl_FragData[0] = clamp(gl_FragData[0],0.0,1.0)*\n"
+              "  vec4(tcolor.r,tcolor.r,tcolor.r,1.0);");
+            break;
+          case 2:
+            substitute(FSSource, "//VTK::TCoord::Impl",
+              "vec4 tcolor = texture2D(texture1, tcoordVC);\n"
+              "gl_FragData[0] = clamp(gl_FragData[0],0.0,1.0)*\n"
+              "  vec4(tcolor.r,tcolor.r,tcolor.r,tcolor.g);");
+            break;
+          default:
+            substitute(FSSource, "//VTK::TCoord::Impl",
+              "gl_FragData[0] = clamp(gl_FragData[0],0.0,1.0)*texture2D(texture1, tcoordVC.st);");
+          }
         }
       }
     }
@@ -1989,6 +2038,7 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
     // for coloring with a point attribute.
     // fixme ... make the existence of the coordinate array the signal.
     vtkDataArray *tcoords = NULL;
+    this->TextureComponents = 4;
     if (haveTextures)
       {
       if (this->InterpolateScalarsBeforeMapping && this->ColorCoordinates)

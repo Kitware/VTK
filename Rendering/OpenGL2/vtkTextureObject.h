@@ -104,9 +104,7 @@ public:
   enum
   {
     alpha=0,
-    alpha4,
     alpha8,
-    alpha12,
     alpha16,
     NumberOfAlphaFormats
   };

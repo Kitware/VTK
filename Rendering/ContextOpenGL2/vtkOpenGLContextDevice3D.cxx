@@ -95,36 +95,11 @@ public:
 
   void SetLineType(int type)
   {
-    if (type == vtkPen::SOLID_LINE)
-      {
-      glDisable(GL_LINE_STIPPLE);
-      }
-    else
-      {
-      glEnable(GL_LINE_STIPPLE);
-      }
-    GLushort pattern = 0x0000;
-    switch (type)
-      {
-      case vtkPen::NO_PEN:
-        pattern = 0x0000;
-        break;
-      case vtkPen::DASH_LINE:
-        pattern = 0x00FF;
-        break;
-      case vtkPen::DOT_LINE:
-        pattern = 0x0101;
-        break;
-      case vtkPen::DASH_DOT_LINE:
-        pattern = 0x0C0F;
-        break;
-      case vtkPen::DASH_DOT_DOT_LINE:
-        pattern = 0x1C47;
-        break;
-      default:
-        pattern = 0x0000;
-      }
-    glLineStipple(1, pattern);
+  if (type == vtkPen::SOLID_LINE || type == vtkPen::NO_PEN)
+    {
+    return;
+    }
+  vtkGenericWarningMacro(<< "Line Stipples are no longer supported");
   }
 
   // Store the previous GL state so that we can restore it when complete
@@ -389,6 +364,11 @@ void vtkOpenGLContextDevice3D::DrawPoly(const float *verts, int n,
   assert("verts must be non-null" && verts != NULL);
   assert("n must be greater than 0" && n > 0);
 
+  if (this->Pen->GetLineType() == vtkPen::NO_PEN)
+    {
+    return;
+    }
+
   vtkOpenGLClearErrorMacro();
 
   this->EnableDepthBuffer();
@@ -430,6 +410,11 @@ void vtkOpenGLContextDevice3D::DrawLines(const float *verts, int n,
 {
   assert("verts must be non-null" && verts != NULL);
   assert("n must be greater than 0" && n > 0);
+
+  if (this->Pen->GetLineType() == vtkPen::NO_PEN)
+    {
+    return;
+    }
 
   vtkOpenGLClearErrorMacro();
 

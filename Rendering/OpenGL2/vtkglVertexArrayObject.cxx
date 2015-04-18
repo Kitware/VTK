@@ -88,7 +88,9 @@ public:
 
   void Initialize()
   {
-    if (!this->ForceEmulation && GLEW_ARB_vertex_array_object)
+    if (!this->ForceEmulation &&
+        (GLEW_ARB_vertex_array_object ||
+            vtkOpenGLRenderWindow::GetContextSupportsOpenGL32()))
       {
       this->supported = true;
       glGenVertexArrays(1, &this->handleVAO);

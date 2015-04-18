@@ -481,14 +481,38 @@ int vtkOpenGLRenderWindow::GetColorBufferSizes(int *rgba)
   if ( this->Mapped)
     {
     this->MakeCurrent();
-    glGetIntegerv( GL_RED_BITS, &size );
-    rgba[0] = static_cast<int>(size);
-    glGetIntegerv( GL_GREEN_BITS, &size  );
-    rgba[1] = static_cast<int>(size);
-    glGetIntegerv( GL_BLUE_BITS, &size );
-    rgba[2] = static_cast<int>(size);
-    glGetIntegerv( GL_ALPHA_BITS, &size );
-    rgba[3] = static_cast<int>(size);
+#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
+    if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
+      {
+      glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
+        GL_FRONT_LEFT,
+        GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE, &size);
+      rgba[0] = static_cast<int>(size);
+      glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
+        GL_FRONT_LEFT,
+        GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE, &size);
+      rgba[1] = static_cast<int>(size);
+      glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
+        GL_FRONT_LEFT,
+        GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE, &size);
+      rgba[2] = static_cast<int>(size);
+      glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
+        GL_FRONT_LEFT,
+        GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, &size);
+      rgba[3] = static_cast<int>(size);
+      }
+    else
+#endif
+      {
+      glGetIntegerv( GL_RED_BITS, &size );
+      rgba[0] = static_cast<int>(size);
+      glGetIntegerv( GL_GREEN_BITS, &size  );
+      rgba[1] = static_cast<int>(size);
+      glGetIntegerv( GL_BLUE_BITS, &size );
+      rgba[2] = static_cast<int>(size);
+      glGetIntegerv( GL_ALPHA_BITS, &size );
+      rgba[3] = static_cast<int>(size);
+      }
     return rgba[0]+rgba[1]+rgba[2]+rgba[3];
     }
   else
