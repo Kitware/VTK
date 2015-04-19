@@ -153,7 +153,7 @@ void vtkMultiBlockPLOT3DReader::ClearGeometryCache()
 
 int vtkMultiBlockPLOT3DReader::AutoDetectionCheck(FILE* fp)
 {
-  this->Internal->CheckBinaryFile(fp);
+  this->Internal->CheckBinaryFile(fp, this->FileSize);
 
   if (!this->Internal->BinaryFile)
     {

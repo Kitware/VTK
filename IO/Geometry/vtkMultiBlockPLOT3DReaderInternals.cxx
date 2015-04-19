@@ -1,3 +1,4 @@
+
 /*=========================================================================
 
   Program:   Visualization Toolkit
@@ -28,19 +29,34 @@ int vtkMultiBlockPLOT3DReaderInternals::ReadInts(FILE* fp, int n, int* val)
   return retVal;
 }
 
-void vtkMultiBlockPLOT3DReaderInternals::CheckBinaryFile(FILE *fp)
+void vtkMultiBlockPLOT3DReaderInternals::CheckBinaryFile(FILE *fp, long fileSize)
 {
-  int j, k, l;
   rewind(fp);
-  // Try fscanf to read 3 integers. If it fails,
-  // must be a binary file.
-  if(0 == fscanf(fp, "%d %d %d\n", &j, &k, &l))
+  this->BinaryFile = 0;
+
+  // The shortest binary file is 12 files: 2 ints for block dims + 1 float for
+  // a coordinate.
+  if (fileSize < 12)
     {
-    this->BinaryFile = 1;
+    return;
     }
-  else
+
+  char bytes[12];
+  if (fread(bytes, 1, 12, fp) != 12)
     {
-    this->BinaryFile = 0;
+    return;
+    }
+  // Check the first 12 bytes. If we find non-ascii characters, then we
+  // assume that it is binary.
+  for (int i=0; i<12; i++)
+    {
+    if (!(isdigit(bytes[i]) || bytes[i] == '.' ||
+          bytes[i] == ' ' || bytes[i] == '\r' ||
+          bytes[i] == '\n' || bytes[i] == '\t'))
+      {
+      this->BinaryFile = 1;
+      return;
+      }
     }
 }
 

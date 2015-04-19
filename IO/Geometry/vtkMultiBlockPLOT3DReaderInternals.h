@@ -48,7 +48,7 @@ struct vtkMultiBlockPLOT3DReaderInternals
     }
 
   int ReadInts(FILE* fp, int n, int* val);
-  void CheckBinaryFile(FILE *fp);
+  void CheckBinaryFile(FILE *fp, long fileSize);
   int CheckByteOrder(FILE* fp);
   int CheckByteCount(FILE* fp);
   int CheckMultiGrid(FILE* fp);
