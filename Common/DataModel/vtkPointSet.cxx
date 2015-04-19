@@ -249,9 +249,10 @@ vtkIdType vtkPointSet::FindCell(double x[3], vtkCell *cell,
   // a strict check, but it is fast.
   double bounds[6];
   this->GetBounds(bounds);
-  if (   (x[0] < bounds[0]) || (x[0] > bounds[1])
-      || (x[1] < bounds[2]) || (x[1] > bounds[3])
-      || (x[2] < bounds[4]) || (x[2] > bounds[5]) )
+  double tol = sqrt(tol2);
+  if (   (x[0] < bounds[0] - tol) || (x[0] > bounds[1] + tol)
+      || (x[1] < bounds[2] - tol) || (x[1] > bounds[3] + tol)
+      || (x[2] < bounds[4] - tol) || (x[2] > bounds[5] + tol) )
     {
     return -1;
     }
