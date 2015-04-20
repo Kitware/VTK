@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkAtomicInt.h
+  Module:    vtkAtomicInt.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,244 +12,270 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+
 #include "vtkAtomicInt.h"
 
-#if !defined(VTK_HAS_ATOMIC64) || !defined(VTK_HAS_ATOMIC32)
-# include "vtkSimpleCriticalSection.h"
-#elif defined(VTK_WINDOWS_ATOMIC)
+#if !defined(VTK_HAVE_SYNC_BUILTINS)
+
+#if !defined(VTK_APPLE_ATOMICS_32) && !defined(VTK_WINDOWS_ATOMICS_32)
+# define VTK_LOCK_BASED_ATOMICS_32
+#endif
+
+#if !defined(VTK_APPLE_ATOMICS_64) && !defined(VTK_WINDOWS_ATOMICS_64)
+# define VTK_LOCK_BASED_ATOMICS_64
+#endif
+
+
+#if defined(VTK_WINDOWS_ATOMICS_32) || defined(VTK_WINDOWS_ATOMICS_64)
 # include "vtkWindows.h"
 #endif
+
+#if defined(VTK_LOCK_BASED_ATOMICS_32) || defined(VTK_LOCK_BASED_ATOMICS_64)
+
+#include "vtkSimpleCriticalSection.h"
+
+class CriticalSectionGuard
+{
+public:
+  CriticalSectionGuard(vtkSimpleCriticalSection &cs) : cs(cs)
+  {
+    this->cs.Lock();
+  }
+
+  ~CriticalSectionGuard()
+  {
+    this->cs.UnLock();
+  }
+
+private:
+  vtkSimpleCriticalSection &cs;
+};
+
+#if defined(VTK_LOCK_BASED_ATOMICS_64)
+detail::AtomicOps<8>::atomic_type::atomic_type(vtkTypeInt64 init)
+  : var(init)
+{
+  this->csec = new vtkSimpleCriticalSection;
+}
+
+detail::AtomicOps<8>::atomic_type::~atomic_type()
+{
+  delete this->csec;
+}
+#endif
+
+#if defined(VTK_LOCK_BASED_ATOMICS_32)
+detail::AtomicOps<4>::atomic_type::atomic_type(vtkTypeInt64 init)
+  : var(init)
+{
+  this->csec = new vtkSimpleCriticalSection;
+}
+
+detail::AtomicOps<4>::atomic_type::~atomic_type()
+{
+  delete this->csec;
+}
+#endif
+
+#endif // VTK_LOCK_BASED_ATOMICS
+
 
 namespace detail
 {
 
-#if !defined(VTK_HAS_ATOMIC32)
-vtkAtomicIntImpl<vtkTypeInt32>::vtkAtomicIntImpl()
-{
-  this->AtomicInt32CritSec = new vtkSimpleCriticalSection;
-}
+#if defined(VTK_WINDOWS_ATOMICS_64) || defined(VTK_LOCK_BASED_ATOMICS_64)
 
-vtkAtomicIntImpl<vtkTypeInt32>::~vtkAtomicIntImpl()
+vtkTypeInt64 AtomicOps<8>::AddAndFetch(atomic_type *ref, vtkTypeInt64 val)
 {
-  delete this->AtomicInt32CritSec;
-}
-
-vtkTypeInt32 vtkAtomicIntImpl<vtkTypeInt32>::operator++()
-{
-  if (!this->AtomicInt32CritSec)
-    {
-    return 0;
-    }
-  vtkTypeInt32 val;
-  this->AtomicInt32CritSec->Lock();
-  val = ++this->Value;
-  this->AtomicInt32CritSec->Unlock();
-  return val;
-}
-
-vtkTypeInt32 vtkAtomicIntImpl<vtkTypeInt32>::operator--()
-{
-  if (!this->AtomicInt32CritSec)
-    {
-    return 0;
-    }
-  vtkTypeInt32 val;
-  this->AtomicInt32CritSec->Lock();
-  val = --this->Value;
-  this->AtomicInt32CritSec->Unlock();
-  return val;
-}
-
-vtkTypeInt32 vtkAtomicIntImpl<vtkTypeInt32>::operator+=(vtkTypeInt32 val)
-{
-  if (!this->AtomicInt32CritSec)
-    {
-    return 0;
-    }
-  vtkTypeInt32 val2;
-  this->AtomicInt32CritSec->Lock();
-  val2 = (this->Value += val);
-  this->AtomicInt32CritSec->Unlock();
-  return val2;
-}
-
-vtkTypeInt32 vtkAtomicIntImpl<vtkTypeInt32>::load() const
-{
-  if (!this->AtomicInt32CritSec)
-    {
-    return 0;
-    }
-  vtkTypeInt32 val;
-  this->AtomicInt32CritSec->Lock();
-  val = this->Value;
-  this->AtomicInt32CritSec->Unlock();
-  return val;
-}
-
-void vtkAtomicIntImpl<vtkTypeInt32>::store(vtkTypeInt32 val)
-{
-  if (!this->AtomicInt32CritSec)
-    {
-    return;
-    }
-  this->AtomicInt32CritSec->Lock();
-  this->Value = val;
-  this->AtomicInt32CritSec->Unlock();
-}
-#elif defined (VTK_WINDOWS_ATOMIC)
-vtkAtomicIntImpl<vtkTypeInt32>::vtkAtomicIntImpl()
-{
-}
-
-vtkAtomicIntImpl<vtkTypeInt32>::~vtkAtomicIntImpl()
-{
-}
-
-vtkTypeInt32 vtkAtomicIntImpl<vtkTypeInt32>::operator++()
-{
-  return InterlockedIncrement((long*)&this->Value);
-}
-
-vtkTypeInt32 vtkAtomicIntImpl<vtkTypeInt32>::operator--()
-{
-  return InterlockedDecrement((long*)&this->Value);
-}
-
-vtkTypeInt32 vtkAtomicIntImpl<vtkTypeInt32>::operator+=(vtkTypeInt32 val)
-{
+#if defined(VTK_WINDOWS_ATOMICS_64)
 # if defined(VTK_HAS_INTERLOCKEDADD)
-  return InterlockedAdd((long*)&this->Value, val);
+  return InterlockedAdd64(ref, val);
 # else
-  return InterlockedExchangeAdd((long*)&this->Value, val) + val;
+  return InterlockedExchangeAdd64(ref, val) + val;
 # endif
+#else
+  CriticalSectionGuard(*ref->csec);
+  return ref->var += val;
+#endif
 }
 
-vtkTypeInt32 vtkAtomicIntImpl<vtkTypeInt32>::load() const
+vtkTypeInt64 AtomicOps<8>::SubAndFetch(atomic_type *ref, vtkTypeInt64 val)
 {
-  long retval;
-  InterlockedExchange(&retval, this->Value);
-  return retval;
-}
-
-void vtkAtomicIntImpl<vtkTypeInt32>::store(vtkTypeInt32 val)
-{
-  InterlockedExchange((long*)&this->Value, val);
-}
-#endif // !defined(VTK_HAS_ATOMIC32)
-
-#if !defined(VTK_HAS_ATOMIC64)
-vtkAtomicIntImpl<vtkTypeInt64>::vtkAtomicIntImpl()
-{
-  this->AtomicInt64CritSec = new vtkSimpleCriticalSection;
-}
-
-vtkAtomicIntImpl<vtkTypeInt64>::~vtkAtomicIntImpl()
-{
-  delete this->AtomicInt64CritSec;
-}
-
-vtkTypeInt64 vtkAtomicIntImpl<vtkTypeInt64>::operator++()
-{
-  if (!this->AtomicInt64CritSec)
-    {
-    return 0;
-    }
-  vtkTypeInt64 val;
-  this->AtomicInt64CritSec->Lock();
-  val = ++this->Value;
-  this->AtomicInt64CritSec->Unlock();
-  return val;
-}
-
-
-vtkTypeInt64 vtkAtomicIntImpl<vtkTypeInt64>::operator--()
-{
-  if (!this->AtomicInt64CritSec)
-    {
-    return 0;
-    }
-  vtkTypeInt64 val;
-  this->AtomicInt64CritSec->Lock();
-  val = --this->Value;
-  this->AtomicInt64CritSec->Unlock();
-  return val;
-}
-
-vtkTypeInt64 vtkAtomicIntImpl<vtkTypeInt64>::operator+=(vtkTypeInt64 val)
-{
-  if (!this->AtomicInt64CritSec)
-    {
-    return 0;
-    }
-  vtkTypeInt64 val2;
-  this->AtomicInt64CritSec->Lock();
-  val2 = (this->Value += val);
-  this->AtomicInt64CritSec->Unlock();
-  return val2;
-}
-
-vtkTypeInt64 vtkAtomicIntImpl<vtkTypeInt64>::load() const
-{
-  if (!this->AtomicInt64CritSec)
-    {
-    return 0;
-    }
-  vtkTypeInt64 val;
-  this->AtomicInt64CritSec->Lock();
-  val = this->Value;
-  this->AtomicInt64CritSec->Unlock();
-  return val;
-}
-
-void vtkAtomicIntImpl<vtkTypeInt64>::store(vtkTypeInt64 val)
-{
-  if (!this->AtomicInt64CritSec)
-    {
-    return;
-    }
-  this->AtomicInt64CritSec->Lock();
-  this->Value = val;
-  this->AtomicInt64CritSec->Unlock();
-}
-#elif defined (VTK_WINDOWS_ATOMIC)
-vtkAtomicIntImpl<vtkTypeInt64>::vtkAtomicIntImpl()
-{
-}
-
-vtkAtomicIntImpl<vtkTypeInt64>::~vtkAtomicIntImpl()
-{
-}
-
-vtkTypeInt64 vtkAtomicIntImpl<vtkTypeInt64>::operator++()
-{
-  return InterlockedIncrement64(&this->Value);
-}
-
-
-vtkTypeInt64 vtkAtomicIntImpl<vtkTypeInt64>::operator--()
-{
-  return InterlockedDecrement64(&this->Value);
-}
-
-vtkTypeInt64 vtkAtomicIntImpl<vtkTypeInt64>::operator+=(vtkTypeInt64 val)
-{
+#if defined(VTK_WINDOWS_ATOMICS_64)
 # if defined(VTK_HAS_INTERLOCKEDADD)
-  return InterlockedAdd64(&this->Value, val);
+  return InterlockedAdd64(ref, -val);
 # else
-  return InterlockedExchangeAdd64(&this->Value, val) + val;
+  return InterlockedExchangeAdd64(ref, -val) - val;
 # endif
+#else
+  CriticalSectionGuard(*ref->csec);
+  return ref->var -= val;
+#endif
 }
 
-vtkTypeInt64 vtkAtomicIntImpl<vtkTypeInt64>::load() const
+vtkTypeInt64 AtomicOps<8>::PreIncrement(atomic_type *ref)
 {
-  vtkTypeInt64 retval;
-  InterlockedExchange64(&retval, this->Value);
-  return retval;
+#if defined(VTK_WINDOWS_ATOMICS_64)
+  return InterlockedIncrement64(ref);
+#else
+  CriticalSectionGuard(*ref->csec);
+  return ++ref->var;
+#endif
 }
 
-void vtkAtomicIntImpl<vtkTypeInt64>::store(vtkTypeInt64 val)
+vtkTypeInt64 AtomicOps<8>::PreDecrement(atomic_type *ref)
 {
-  InterlockedExchange64(&this->Value, val);
+#if defined(VTK_WINDOWS_ATOMICS_64)
+  return InterlockedDecrement64(ref);
+#else
+  CriticalSectionGuard(*ref->csec);
+  return --ref->var;
+#endif
 }
-#endif // !defined(VTK_HAS_ATOMIC64)
+
+vtkTypeInt64 AtomicOps<8>::PostIncrement(atomic_type *ref)
+{
+#if defined(VTK_WINDOWS_ATOMICS_64)
+  vtkTypeInt64 val = InterlockedIncrement64(ref);
+  return --val;
+#else
+  CriticalSectionGuard(*ref->csec);
+  return ref->var++;
+#endif
 }
+
+vtkTypeInt64 AtomicOps<8>::PostDecrement(atomic_type *ref)
+{
+#if defined(VTK_WINDOWS_ATOMICS_64)
+  vtkTypeInt64 val = InterlockedDecrement64(ref);
+  return ++val;
+#else
+  CriticalSectionGuard(*ref->csec);
+  return ref->var--;
+#endif
+}
+
+vtkTypeInt64 AtomicOps<8>::Load(const atomic_type *ref)
+{
+#if defined(VTK_WINDOWS_ATOMICS_64)
+  vtkTypeInt64 val;
+  InterlockedExchange64(&val, *ref);
+  return val;
+#else
+  CriticalSectionGuard(*ref->csec);
+  return ref->var;
+#endif
+}
+
+void AtomicOps<8>::Store(atomic_type *ref, vtkTypeInt64 val)
+{
+#if defined(VTK_WINDOWS_ATOMICS_64)
+  InterlockedExchange64(ref, val);
+#else
+  CriticalSectionGuard(*ref->csec);
+  ref->var = val;
+#endif
+}
+
+#endif // defined(VTK_WINDOWS_ATOMICS_64) || defined(VTK_LOCK_BASED_ATOMICS_64)
+
+
+#if defined(VTK_WINDOWS_ATOMICS_32) || defined(VTK_LOCK_BASED_ATOMICS_32)
+
+vtkTypeInt32 AtomicOps<4>::AddAndFetch(atomic_type *ref, vtkTypeInt32 val)
+{
+#if defined(VTK_WINDOWS_ATOMICS_32)
+# if defined(VTK_HAS_INTERLOCKEDADD)
+  return InterlockedAdd(reinterpret_cast<long*>(ref), val);
+# else
+  return InterlockedExchangeAdd(reinterpret_cast<long*>(ref), val) + val;
+# endif
+#else
+  CriticalSectionGuard(*ref->csec);
+  return ref->var += val;
+#endif
+}
+
+vtkTypeInt32 AtomicOps<4>::SubAndFetch(atomic_type *ref, vtkTypeInt32 val)
+{
+#if defined(VTK_WINDOWS_ATOMICS_32)
+# if defined(VTK_HAS_INTERLOCKEDADD)
+  return InterlockedAdd(reinterpret_cast<long*>(ref), -val);
+# else
+  return InterlockedExchangeAdd(reinterpret_cast<long*>(ref), -val) - val;
+# endif
+#else
+  CriticalSectionGuard(*ref->csec);
+  return ref->var -= val;
+#endif
+}
+
+vtkTypeInt32 AtomicOps<4>::PreIncrement(atomic_type *ref)
+{
+#if defined(VTK_WINDOWS_ATOMICS_32)
+  return InterlockedIncrement(reinterpret_cast<long*>(ref));
+#else
+  CriticalSectionGuard(*ref->csec);
+  return ++ref->var;
+#endif
+}
+
+vtkTypeInt32 AtomicOps<4>::PreDecrement(atomic_type *ref)
+{
+#if defined(VTK_WINDOWS_ATOMICS_32)
+  return InterlockedDecrement(reinterpret_cast<long*>(ref));
+#else
+  CriticalSectionGuard(*ref->csec);
+  return --ref->var;
+#endif
+}
+
+vtkTypeInt32 AtomicOps<4>::PostIncrement(atomic_type *ref)
+{
+#if defined(VTK_WINDOWS_ATOMICS_32)
+  vtkTypeInt32 val = InterlockedIncrement(reinterpret_cast<long*>(ref));
+  return --val;
+#else
+  CriticalSectionGuard(*ref->csec);
+  return ref->var++;
+#endif
+}
+
+vtkTypeInt32 AtomicOps<4>::PostDecrement(atomic_type *ref)
+{
+#if defined(VTK_WINDOWS_ATOMICS_32)
+  vtkTypeInt32 val = InterlockedDecrement(reinterpret_cast<long*>(ref));
+  return ++val;
+#else
+  CriticalSectionGuard(*ref->csec);
+  return ref->var--;
+#endif
+}
+
+vtkTypeInt32 AtomicOps<4>::Load(const atomic_type *ref)
+{
+#if defined(VTK_WINDOWS_ATOMICS_32)
+  long val;
+  InterlockedExchange(&val, *ref);
+  return val;
+#else
+  CriticalSectionGuard(*ref->csec);
+  return ref->var;
+#endif
+}
+
+void AtomicOps<4>::Store(atomic_type *ref, vtkTypeInt32 val)
+{
+#if defined(VTK_WINDOWS_ATOMICS_32)
+  InterlockedExchange(reinterpret_cast<long*>(ref), val);
+#else
+  CriticalSectionGuard(*ref->csec);
+  ref->var = val;
+#endif
+}
+
+#endif // defined(VTK_WINDOWS_ATOMICS_32) || defined(VTK_LOCK_BASED_ATOMICS_32)
+
+} // namespace detail
+
+#endif // !defined(VTK_HAVE_SYNC_BUILTINS)

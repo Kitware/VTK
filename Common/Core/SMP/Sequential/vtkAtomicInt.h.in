@@ -1,4 +1,4 @@
- /*=========================================================================
+/*=========================================================================
 
   Program:   Visualization Toolkit
   Module:    vtkAtomicInt.h
@@ -17,8 +17,8 @@
 // Objects of atomic types are C++ objects that are free from data races;
 // that is, if one thread writes to an atomic object while another thread
 // reads from it, the behavior is well-defined. vtkAtomicInt provides
-// a subset of the std::atomic API and implementation, mainly for 32 bit
-// and 64 bit signed integers. For these types, vtkAtomicInt defines a
+// a subset of the std::atomic API and implementation, for 32 bit and 64 bit
+// integers and pointer types. For these types, vtkAtomicInt defines a
 // number of operations that happen atomically - without interruption
 // by another thread. Furthermore, these operations happen in a
 // sequentially-consistent way and use full memory fences. This means
@@ -35,345 +35,505 @@
 #define vtkAtomicInt_h
 
 #include "vtkCommonCoreModule.h" // For export macro
-#include "vtkSystemIncludes.h"
 #include "vtkConfigure.h"
+#include "vtkType.h"
 
-#if defined(__APPLE__)
-# include <libkern/OSAtomic.h>
+#include <cstddef>
+#include <limits>
+
+
+#if defined(_WIN32) && defined(_MSC_VER)
+//  disable warning about the padding due to alignment
+# pragma warning(disable:4324)
+# define VTK_ALIGN(X) __declspec(align(X))
+#elif defined(__GNUC__) // gcc compatible compiler
+# define VTK_ALIGN(X) __attribute__ ((aligned (X)))
+#else
+# define VTK_ALIGN(X)
 #endif
 
-#if (defined(_WIN32)  && !defined(__MINGW32__))
-# define VTK_WINDOWS_ATOMIC
-# if defined(_MSC_VER)
-#  pragma warning(disable:4324) // disable warning about the padding due to alignment
+#if !defined(VTK_HAVE_SYNC_BUILTINS)
+# if defined(VTK_APPLE_ATOMICS_32) || defined(VTK_APPLE_ATOMICS_64)
+#   include <libkern/OSAtomic.h>
 # endif
 #endif
 
-#if defined(VTK_WINDOWS_ATOMIC) || defined(__APPLE__) || defined(VTK_HAVE_SYNC_BUILTINS)
-# define VTK_HAS_ATOMIC32
-#endif
-
-// Overall, we assume that 64 bit atomic operations are not available on 32
-// bit systems.
-#if VTK_SIZEOF_VOID_P == 8
-# if defined(VTK_WINDOWS_ATOMIC) || defined(__APPLE__) || defined(VTK_HAVE_SYNC_BUILTINS)
-#  define VTK_HAS_ATOMIC64
-# endif
-#endif
-
-#if !defined(VTK_HAS_ATOMIC64) || !defined(VTK_HAS_ATOMIC32)
-class vtkSimpleCriticalSection;
-#endif
-
-// Below are the actual implementations of 32 and 64 bit atomic operations.
+#ifndef __WRAP__
 namespace detail
 {
-#if defined (VTK_WINDOWS_ATOMIC)
-# define VTK__ALIGN32 __declspec(align(32))
-#else
-# define VTK__ALIGN32
-#endif
 
-template <typename T> class vtkAtomicIntImpl;
+template <size_t size> class AtomicOps;
 
-template <>
-#if defined(VTK_HAS_ATOMIC32) && !defined(VTK_WINDOWS_ATOMIC)
-class vtkAtomicIntImpl<vtkTypeInt32>
-#else
-class VTKCOMMONCORE_EXPORT vtkAtomicIntImpl<vtkTypeInt32>
-#endif
+#if defined(VTK_HAVE_SYNC_BUILTINS)
+
+template <size_t size> struct BaseType;
+
+template<> struct BaseType<4>
 {
-public:
-
-  // Description:
-  // Atomic pre-increment.
-#if defined(VTK_HAS_ATOMIC32) && !defined(VTK_WINDOWS_ATOMIC)
-  vtkTypeInt32 operator++()
-    {
-# if defined(__APPLE__)
-    return OSAtomicIncrement32Barrier(&this->Value);
-
-// GCC, CLANG, etc
-# elif defined(VTK_HAVE_SYNC_BUILTINS)
-    return __sync_add_and_fetch(&this->Value, 1);
-
-# endif
-    }
-
-  // Description:
-  // Atomic pre-decrement.
-  vtkTypeInt32 operator--()
-    {
-# if defined(__APPLE__)
-    return OSAtomicDecrement32Barrier(&this->Value);
-
-// GCC, CLANG, etc
-# elif defined(VTK_HAVE_SYNC_BUILTINS)
-    return __sync_sub_and_fetch(&this->Value, 1);
-
-# endif
-    }
-
-  // Description:
-  // Atomic add. Returns value after addition.
-  vtkTypeInt32 operator+=(vtkTypeInt32 val)
-    {
-# if defined(__APPLE__)
-    return OSAtomicAdd32Barrier(val, &this->Value);
-
-// GCC, CLANG, etc
-# elif defined(VTK_HAVE_SYNC_BUILTINS)
-    return __sync_add_and_fetch(&this->Value, val);
-
-# endif
-    }
-
-  // Description:
-  // Atomic fetch.
-  vtkTypeInt32 load() const
-    {
-# if defined(__APPLE__)
-    vtkTypeInt32 retval = 0;
-    OSAtomicCompareAndSwap32Barrier(retval, this->Value, &retval);
-    return retval;
-
-// GCC, CLANG, etc
-# elif defined(VTK_HAVE_SYNC_BUILTINS)
-    vtkTypeInt32 retval = 0;
-    __sync_val_compare_and_swap(&retval, retval, this->Value);
-    return retval;
-
-# endif
-    }
-
-  // Description:
-  // Atomic save.
-  void store(vtkTypeInt32 val)
-    {
-# if defined(__APPLE__)
-    OSAtomicCompareAndSwap32Barrier(this->Value, val, &this->Value);
-
-// GCC, CLANG, etc
-# elif defined(VTK_HAVE_SYNC_BUILTINS)
-  __sync_val_compare_and_swap(&this->Value, this->Value, val);
-
-#endif
-    }
-
-#else // defined(VTK_HAS_ATOMIC32) && !defined(VTK_WINDOWS_ATOMIC)
-
-  // These methods are for when using a mutex. Same as above.
-  // A virtual descructor is used becase the mutex is constructed
-  // with new to avoid including windows header in the .h file.
-  vtkAtomicIntImpl<vtkTypeInt32>();
-  virtual ~vtkAtomicIntImpl<vtkTypeInt32>();
-  vtkTypeInt32 operator++();
-  vtkTypeInt32 operator--();
-  vtkTypeInt32 operator+=(vtkTypeInt32 val);
-  vtkTypeInt32 load() const;
-  void store(vtkTypeInt32 val);
-
-#endif // defined(VTK_HAS_ATOMIC32) && !defined(VTK_WINDOWS_ATOMIC)
-
-protected:
-  // Explicitely aligning Value on Windows is probably not necessary
-  // since the compiler should automatically do it. Just being extra
-  // cautious since the InterlockedXXX() functions require alignment.
-  VTK__ALIGN32 vtkTypeInt32 Value;
-
-#if !defined(VTK_HAS_ATOMIC32)
-  vtkSimpleCriticalSection* AtomicInt32CritSec;
-#endif
+  typedef vtkTypeInt32 VTK_ALIGN(4) Type;
 };
 
-#if defined (VTK_WINDOWS_ATOMIC)
-# define VTK__ALIGN64 __declspec(align(64))
-#else
-# define VTK__ALIGN64
-#endif
+template<> struct BaseType<8>
+{
+  typedef vtkTypeInt64 VTK_ALIGN(8) Type;
+};
 
-template <>
-#if defined(VTK_HAS_ATOMIC64) && !defined(VTK_WINDOWS_ATOMIC)
-class vtkAtomicIntImpl<vtkTypeInt64>
-#else
-class VTKCOMMONCORE_EXPORT vtkAtomicIntImpl<vtkTypeInt64>
-#endif
+template <size_t size> class AtomicOps
 {
 public:
+  typedef typename BaseType<size>::Type atomic_type;
+  typedef typename BaseType<size>::Type value_type;
 
-  // Description:
-  // Atomic pre-increment.
-#if defined(VTK_HAS_ATOMIC64) && !defined(VTK_WINDOWS_ATOMIC)
-  vtkTypeInt64 operator++()
-    {
-# if defined(__APPLE__)
-    return OSAtomicIncrement64Barrier(&this->Value);
+  static value_type AddAndFetch(value_type *ref, value_type val)
+  {
+    return __sync_add_and_fetch(ref, val);
+  }
 
-// GCC, CLANG, etc
-# elif defined(VTK_HAVE_SYNC_BUILTINS)
-    return __sync_add_and_fetch(&this->Value, 1);
+  static value_type SubAndFetch(value_type *ref, value_type val)
+  {
+    return __sync_sub_and_fetch(ref, val);
+  }
 
-# endif
-   }
+  static value_type PreIncrement(value_type *ref)
+  {
+    return __sync_add_and_fetch(ref, 1);
+  }
 
-  // Description:
-  // Atomic pre-decrement.
-  vtkTypeInt64 operator--()
-    {
-# if defined(__APPLE__)
-    return OSAtomicDecrement64Barrier(&this->Value);
+  static value_type PreDecrement(value_type *ref)
+  {
+    return __sync_sub_and_fetch(ref, 1);
+  }
 
-// GCC, CLANG, etc
-# elif defined(VTK_HAVE_SYNC_BUILTINS)
-    return __sync_sub_and_fetch(&this->Value, 1);
+  static value_type PostIncrement(value_type *ref)
+  {
+    return __sync_fetch_and_add(ref, 1);
+  }
 
-# endif
-    }
+  static value_type PostDecrement(value_type *ref)
+  {
+    return __sync_fetch_and_sub(ref, 1);
+  }
 
-  // Description:
-  // Atomic add. Returns value after addition.
-  vtkTypeInt64 operator+=(vtkTypeInt64 val)
-    {
-# if defined(__APPLE__)
-    return OSAtomicAdd64Barrier(val, &this->Value);
+  static value_type Load(const value_type *ref)
+  {
+    __sync_synchronize();
+    return *static_cast<const volatile value_type *>(ref);
+  }
 
-// GCC, CLANG, etc
-# elif defined(VTK_HAVE_SYNC_BUILTINS)
-    return __sync_add_and_fetch(&this->Value, val);
-
-# endif
-    }
-
-  // Description:
-  // Atomic fetch.
-  vtkTypeInt64 load() const
-    {
-# if defined(__APPLE__)
-  vtkTypeInt64 retval = 0;
-  OSAtomicCompareAndSwap64Barrier(retval, this->Value, &retval);
-  return retval;
-
-// GCC, CLANG, etc
-# elif defined(VTK_HAVE_SYNC_BUILTINS)
-  vtkTypeInt64 retval = 0;
-  __sync_val_compare_and_swap(&retval, retval, this->Value);
-  return retval;
-
-# endif
-    }
-
-  // Description:
-  // Atomic store.
-  void store(vtkTypeInt64 val)
-    {
-# if defined(__APPLE__)
-  OSAtomicCompareAndSwap64Barrier(this->Value, val, &this->Value);
-
-// GCC, CLANG, etc
-# elif defined(VTK_HAVE_SYNC_BUILTINS)
-  __sync_val_compare_and_swap(&this->Value, this->Value, val);
-
-# endif
-    }
-
-#else // defined(VTK_HAS_ATOMIC64) && !defined(VTK_WINDOWS_ATOMIC)
-
-  // These methods are for when using a mutex. Same as above.
-  // A virtual descructor is used becase the mutex is constructed
-  // with new to avoid including windows header in the .h file.
-  vtkAtomicIntImpl<vtkTypeInt64>();
-  virtual ~vtkAtomicIntImpl<vtkTypeInt64>();
-  vtkTypeInt64 operator++();
-  vtkTypeInt64 operator--();
-  vtkTypeInt64 operator+=(vtkTypeInt64 val);
-  vtkTypeInt64 load() const;
-  void store(vtkTypeInt64 val);
-
-#endif // defined(VTK_HAS_ATOMIC64) && !defined(VTK_WINDOWS_ATOMIC)
-
-protected:
- // Explicitely aligning Value on Windows is probably not necessary
-  // since the compiler should automatically do it. Just being extra
-  // cautious since the InterlockedXXX() functions require alignment.
-  VTK__ALIGN64 vtkTypeInt64 Value;
-
-#if !defined(VTK_HAS_ATOMIC64)
-  vtkSimpleCriticalSection* AtomicInt64CritSec;
-#endif
+  static void Store(value_type *ref, value_type val)
+  {
+    *static_cast<volatile value_type*>(ref) = val;
+    __sync_synchronize();
+  }
 };
+
+#else // !defined(VTK_HAVE_SYNC_BUILTINS)
+
+class vtkSimpleCriticalSection;
+
+#if defined(VTK_APPLE_ATOMICS_64)
+template <> class AtomicOps<8>
+{
+public:
+  typedef vtkTypeInt64 VTK_ALIGN(8) atomic_type;
+  typedef vtkTypeInt64 value_type;
+
+  static vtkTypeInt64 AddAndFetch(vtkTypeInt64 *ref, vtkTypeInt64 val)
+  {
+    return OSAtomicAdd64Barrier(val, ref);
+  }
+
+  static vtkTypeInt64 SubAndFetch(vtkTypeInt64 *ref, vtkTypeInt64 val)
+  {
+    return OSAtomicAdd64Barrier(-val, ref);
+  }
+
+  static vtkTypeInt64 PreIncrement(vtkTypeInt64 *ref)
+  {
+    return OSAtomicIncrement64Barrier(ref);
+  }
+
+  static vtkTypeInt64 PreDecrement(vtkTypeInt64 *ref)
+  {
+    return OSAtomicDecrement64Barrier(ref);
+  }
+
+  static vtkTypeInt64 PostIncrement(vtkTypeInt64 *ref)
+  {
+    vtkTypeInt64 val = OSAtomicIncrement64Barrier(ref);
+    return --val;
+  }
+
+  static vtkTypeInt64 PostDecrement(vtkTypeInt64 *ref)
+  {
+    vtkTypeInt64 val = OSAtomicDecrement64Barrier(ref);
+    return ++val;
+  }
+
+  static vtkTypeInt64 Load(const vtkTypeInt64 *ref);
+  {
+    OSMemoryBarrier();
+    return *static_cast<const volatile vtkTypeInt64*>(ref);
+  }
+
+  static void Store(vtkTypeInt64 *ref, vtkTypeInt64 val);
+  {
+    *static_cast<volatile vtkTypeInt64*>(ref) = val;
+    OSMemoryBarrier();
+  }
+};
+
+#else // VTK_APPLE_ATOMICS_64
+
+template <> class VTKCOMMONCORE_EXPORT AtomicOps<8>
+{
+public:
+#if defined(VTK_WINDOWS_ATOMICS_64)
+  typedef vtkTypeInt64 VTK_ALIGN(8) atomic_type;
+#else
+  struct atomic_type
+  {
+    vtkTypeInt64 var;
+    vtkSimpleCriticalSection *csec;
+
+    atomic_type(vtkTypeInt64 init);
+    ~atomic_type();
+  };
+#endif
+  typedef vtkTypeInt64 value_type;
+
+  static vtkTypeInt64 AddAndFetch(atomic_type *ref, vtkTypeInt64 val);
+  static vtkTypeInt64 SubAndFetch(atomic_type *ref, vtkTypeInt64 val);
+  static vtkTypeInt64 PreIncrement(atomic_type *ref);
+  static vtkTypeInt64 PreDecrement(atomic_type *ref);
+  static vtkTypeInt64 PostIncrement(atomic_type *ref);
+  static vtkTypeInt64 PostDecrement(atomic_type *ref);
+  static vtkTypeInt64 Load(const atomic_type *ref);
+  static void Store(atomic_type *ref, vtkTypeInt64 val);
+};
+
+#endif // VTK_APPLE_ATOMICS_64
+
+#if defined(VTK_APPLE_ATOMICS_32)
+template <> class AtomicOps<4>
+{
+public:
+  typedef vtkTypeInt32 VTK_ALIGN(4) atomic_type;
+  typedef vtkTypeInt32 value_type;
+
+  static vtkTypeInt32 AddAndFetch(vtkTypeInt32 *ref, vtkTypeInt32 val)
+  {
+    return OSAtomicAdd32Barrier(val, ref);
+  }
+
+  static vtkTypeInt32 SubAndFetch(vtkTypeInt32 *ref, vtkTypeInt32 val)
+  {
+    return OSAtomicAdd32Barrier(-val, ref);
+  }
+
+  static vtkTypeInt32 PreIncrement(vtkTypeInt32 *ref)
+  {
+    return OSAtomicIncrement32Barrier(ref);
+  }
+
+  static vtkTypeInt32 PreDecrement(vtkTypeInt32 *ref)
+  {
+    return OSAtomicDecrement32Barrier(ref);
+  }
+
+  static vtkTypeInt32 PostIncrement(vtkTypeInt32 *ref)
+  {
+    vtkTypeInt32 val = OSAtomicIncrement32Barrier(ref);
+    return --val;
+  }
+
+  static vtkTypeInt32 PostDecrement(vtkTypeInt32 *ref)
+  {
+    vtkTypeInt32 val = OSAtomicDecrement32Barrier(ref);
+    return ++val;
+  }
+
+  static vtkTypeInt32 Load(const vtkTypeInt32 *ref);
+  {
+    OSMemoryBarrier();
+    return *static_cast<const volatile vtkTypeInt32*>(ref);
+  }
+
+  static void Store(vtkTypeInt32 *ref, vtkTypeInt32 val);
+  {
+    *static_cast<volatile vtkTypeInt32*>(ref) = val;
+    OSMemoryBarrier();
+  }
+};
+
+#else // !defined(VTK_APPLE_ATOMICS_32)
+
+template <> class VTKCOMMONCORE_EXPORT AtomicOps<4>
+{
+public:
+#if defined(VTK_WINDOWS_ATOMICS_32)
+  typedef vtkTypeInt32 VTK_ALIGN(4) atomic_type;
+#else
+  struct atomic_type
+  {
+    vtkTypeInt32 var;
+    vtkSimpleCriticalSection *csec;
+
+    atomic_type(vtkTypeInt32 init);
+    ~atomic_type();
+  };
+#endif
+  typedef vtkTypeInt32 value_type;
+
+  static vtkTypeInt32 AddAndFetch(atomic_type *ref, vtkTypeInt32 val);
+  static vtkTypeInt32 SubAndFetch(atomic_type *ref, vtkTypeInt32 val);
+  static vtkTypeInt32 PreIncrement(atomic_type *ref);
+  static vtkTypeInt32 PreDecrement(atomic_type *ref);
+  static vtkTypeInt32 PostIncrement(atomic_type *ref);
+  static vtkTypeInt32 PostDecrement(atomic_type *ref);
+  static vtkTypeInt32 Load(const atomic_type *ref);
+  static void Store(atomic_type *ref, vtkTypeInt32 val);
+};
+
+#endif // VTK_APPLE_ATOMICS_32
+#endif // VTK_HAVE_SYNC_BUILTINS
+
+template <bool> struct CompileTimeCheck;
+template <> struct CompileTimeCheck<true> {};
+
+template <typename T> struct SupportedIntegralType
+{
+  CompileTimeCheck<std::numeric_limits<T>::is_specialized> c1;
+  CompileTimeCheck<std::numeric_limits<T>::is_integer> c2;
+  CompileTimeCheck<sizeof(T) == 4 || sizeof(T) == 8> c3;
+};
+
 }
+#endif // __WRAP__
 
-template <typename T>
-class vtkAtomicInt: public detail::vtkAtomicIntImpl<T>
+template <typename T> class vtkAtomicInt : detail::SupportedIntegralType<T>
 {
-  typedef detail::vtkAtomicIntImpl<T> Superclass;
+private:
+  typedef detail::AtomicOps<sizeof(T)> Impl;
 
 public:
-  // Description:
-  // Default constructor. Not atomic.
-  vtkAtomicInt()
-    {
-    this->Value = 0;
-    }
+  vtkAtomicInt() : object(0)
+  {
+  }
 
-  // Description:
-  // Constructor with initialization. Not atomic.
-  vtkAtomicInt(T val)
-    {
-    this->Value = val;
-    }
+  vtkAtomicInt(T val) : object(static_cast<typename Impl::value_type>(val))
+  {
+  }
 
-  // Description:
-  // Atomic pre-increment.
+  vtkAtomicInt(const vtkAtomicInt<T> &ai)
+    : object(static_cast<typename Impl::value_type>(ai.load()))
+  {
+  }
+
   T operator++()
-    {
-    return this->Superclass::operator++();
-    }
+  {
+    return static_cast<T>(Impl::PreIncrement(&this->object));
+  }
 
-  // Description:
-  // Atomic post-increment.
   T operator++(int)
-    {
-    return this->operator++() - 1;
-    }
+  {
+    return static_cast<T>(Impl::PostIncrement(&this->object));
+  }
 
-  // Description:
-  // Atomic pre-decrement.
   T operator--()
-    {
-    return this->Superclass::operator--();
-    }
+  {
+    return static_cast<T>(Impl::PreDecrement(&this->object));
+  }
 
-  // Description:
-  // Atomic post-decrement.
   T operator--(int)
-    {
-    return this->operator--() + 1;
-    }
+  {
+    return static_cast<T>(Impl::PostDecrement(&this->object));
+  }
 
-  // Description:
-  // Atomic subtraction. Returns value after.
+  T operator+=(T val)
+  {
+    return static_cast<T>(Impl::AddAndFetch(&this->object,
+      static_cast<typename Impl::value_type>(val)));
+  }
+
   T operator-=(T val)
-    {
-    return this->operator+=(-val);
-    }
+  {
+    return static_cast<T>(Impl::SubAndFetch(&this->object,
+      static_cast<typename Impl::value_type>(val)));
+  }
 
-  // Description:
-  // Atomic load.
   operator T() const
-    {
-    return this->load();
-    }
+  {
+    return static_cast<T>(Impl::Load(&this->object));
+  }
 
-  // Description:
-  // Atomic save.
   T operator=(T val)
-    {
-    this->store(val);
+  {
+    Impl::Store(&this->object, static_cast<typename Impl::value_type>(val));
     return val;
-    }
+  }
+
+  vtkAtomicInt<T>& operator=(const vtkAtomicInt<T> &ai)
+  {
+    this->store(ai.load());
+    return *this;
+  }
+
+  T load() const
+  {
+    return static_cast<T>(Impl::Load(&this->object));
+  }
+
+  void store(T val)
+  {
+    Impl::Store(&this->object, static_cast<typename Impl::value_type>(val));
+  }
+
+private:
+  typename Impl::atomic_type object;
 };
 
+
+template <typename T> class vtkAtomicInt<T*>
+{
+private:
+  typedef detail::AtomicOps<sizeof(T*)> Impl;
+
+public:
+  vtkAtomicInt() : object(0)
+  {
+  }
+
+  vtkAtomicInt(T* val)
+    : object(reinterpret_cast<typename Impl::value_type>(val))
+  {
+  }
+
+  vtkAtomicInt(const vtkAtomicInt<T*> &ai)
+    : object(reinterpret_cast<typename Impl::value_type>(ai.load()))
+  {
+  }
+
+  T* operator++()
+  {
+    return reinterpret_cast<T*>(Impl::AddAndFetch(&this->object, sizeof(T)));
+  }
+
+  T* operator++(int)
+  {
+    T* val = reinterpret_cast<T*>(Impl::AddAndFetch(&this->object, sizeof(T)));
+    return --val;
+  }
+
+  T* operator--()
+  {
+    return reinterpret_cast<T*>(Impl::SubAndFetch(&this->object, sizeof(T)));
+  }
+
+  T* operator--(int)
+  {
+    T* val = reinterpret_cast<T*>(Impl::AddAndFetch(&this->object, sizeof(T)));
+    return ++val;
+  }
+
+  T* operator+=(std::ptrdiff_t val)
+  {
+    return reinterpret_cast<T*>(Impl::AddAndFetch(&this->object,
+                                                  val * sizeof(T)));
+  }
+
+  T* operator-=(std::ptrdiff_t val)
+  {
+    return reinterpret_cast<T*>(Impl::SubAndFetch(&this->object,
+                                                  val * sizeof(T)));
+  }
+
+  operator T*() const
+  {
+    return reinterpret_cast<T*>(Impl::Load(&this->object));
+  }
+
+  T* operator=(T* val)
+  {
+    Impl::Store(&this->object,
+                reinterpret_cast<typename Impl::value_type>(val));
+    return val;
+  }
+
+  vtkAtomicInt<T*>& operator=(const vtkAtomicInt<T*> &ai)
+  {
+    this->store(ai.load());
+    return *this;
+  }
+
+  T* load() const
+  {
+    return reinterpret_cast<T*>(Impl::Load(&this->object));
+  }
+
+  void store(T* val)
+  {
+    Impl::Store(&this->object,
+                reinterpret_cast<typename Impl::value_type>(val));
+  }
+
+private:
+  typename Impl::atomic_type object;
+};
+
+
+template <> class vtkAtomicInt<void*>
+{
+private:
+  typedef detail::AtomicOps<sizeof(void*)> Impl;
+
+public:
+  vtkAtomicInt() : object(0)
+  {
+  }
+
+  vtkAtomicInt(void* val)
+    : object(reinterpret_cast<Impl::value_type>(val))
+  {
+  }
+
+  vtkAtomicInt(const vtkAtomicInt<void*> &ai)
+    : object(reinterpret_cast<Impl::value_type>(ai.load()))
+  {
+  }
+
+  operator void*() const
+  {
+    return reinterpret_cast<void*>(Impl::Load(&this->object));
+  }
+
+  void* operator=(void* val)
+  {
+    Impl::Store(&this->object,
+                reinterpret_cast<Impl::value_type>(val));
+    return val;
+  }
+
+  vtkAtomicInt<void*>& operator=(const vtkAtomicInt<void*> &ai)
+  {
+    this->store(ai.load());
+    return *this;
+  }
+
+  void* load() const
+  {
+    return reinterpret_cast<void*>(Impl::Load(&this->object));
+  }
+
+  void store(void* val)
+  {
+    Impl::Store(&this->object,
+                reinterpret_cast<Impl::value_type>(val));
+  }
+
+private:
+  Impl::atomic_type object;
+};
 
 #endif
 // VTK-HeaderTest-Exclude: vtkAtomicInt.h
