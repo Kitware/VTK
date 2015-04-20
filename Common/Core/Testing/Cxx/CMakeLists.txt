@@ -7,6 +7,7 @@ set(TestXMLFileOutputWindow_ARGS ${CMAKE_BINARY_DIR}/Testing/Temporary/XMLFileOu
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   NO_DATA NO_VALID NO_OUTPUT
   UnitTestMath.cxx
+  TestAngularPeriodicDataArray.cxx
   TestArrayAPI.cxx
   TestArrayAPIConvenience.cxx
   TestArrayAPIDense.cxx

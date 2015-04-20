@@ -5,6 +5,7 @@ vtk_module(vtkFiltersGeneral
     vtkCommonComputationalGeometry
     vtkFiltersCore
   TEST_DEPENDS
+    vtkFiltersFlowPaths
     vtkIOLegacy
     vtkIOXML
     vtkImagingMath

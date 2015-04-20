@@ -188,6 +188,10 @@ public:
   // Return the bounds of the points.
   void GetBounds(double bounds[6]);
 
+  // Description:
+  // The modified time of the points.
+  unsigned long int GetMTime();
+
 protected:
   vtkPoints(int dataType = VTK_FLOAT);
   ~vtkPoints();

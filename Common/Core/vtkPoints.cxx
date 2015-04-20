@@ -79,59 +79,12 @@ void vtkPoints::GetPoints(vtkIdList *ptIds, vtkPoints *outPoints)
   this->Data->GetTuples(ptIds, outPoints->Data);
 }
 
-namespace
-{
-  template <class T>
-  void InternalComputeBounds(vtkDataArray* array, double* bounds, T*)
-  {
-    bounds[0] = bounds[2] = bounds[4] =  VTK_DOUBLE_MAX;
-    bounds[1] = bounds[3] = bounds[5] = -VTK_DOUBLE_MAX;
-
-    vtkTypedDataArray<T>* tarray = vtkTypedDataArray<T>::FastDownCast(array);
-    if (tarray)
-      {
-      T x[3];
-      vtkIdType numPts = tarray->GetNumberOfTuples();
-      for (vtkIdType i = 0; i < numPts; i++)
-        {
-        tarray->GetTupleValue(i, x);
-        bounds[0] = x[0] < bounds[0] ? x[0] : bounds[0];
-        bounds[1] = x[0] > bounds[1] ? x[0] : bounds[1];
-        bounds[2] = x[1] < bounds[2] ? x[1] : bounds[2];
-        bounds[3] = x[1] > bounds[3] ? x[1] : bounds[3];
-        bounds[4] = x[2] < bounds[4] ? x[2] : bounds[4];
-        bounds[5] = x[2] > bounds[5] ? x[2] : bounds[5];
-        }
-      }
-    else
-      {
-      double x[3];
-      vtkIdType numPts = array->GetNumberOfTuples();
-      for (vtkIdType i = 0; i < numPts; i++)
-        {
-        array->GetTuple(i, x);
-        bounds[0] = x[0] < bounds[0] ? x[0] : bounds[0];
-        bounds[1] = x[0] > bounds[1] ? x[0] : bounds[1];
-        bounds[2] = x[1] < bounds[2] ? x[1] : bounds[2];
-        bounds[3] = x[1] > bounds[3] ? x[1] : bounds[3];
-        bounds[4] = x[2] < bounds[4] ? x[2] : bounds[4];
-        bounds[5] = x[2] > bounds[5] ? x[2] : bounds[5];
-        }
-      }
-  }
-}
-
 // Determine (xmin,xmax, ymin,ymax, zmin,zmax) bounds of points.
 void vtkPoints::ComputeBounds()
 {
   if (this->GetMTime() > this->ComputeTime)
     {
-    switch (this->Data->GetDataType())
-      {
-      vtkTemplateMacro(
-        InternalComputeBounds(this->Data, this->Bounds, (VTK_TT*)0));
-      }
-
+    this->Data->ComputeScalarRange(this->Bounds);
     this->ComputeTime.Modified();
     }
 }
@@ -148,6 +101,16 @@ void vtkPoints::GetBounds(double bounds[6])
 {
   this->ComputeBounds();
   memcpy(bounds, this->Bounds, 6 * sizeof(double));
+}
+
+unsigned long int vtkPoints::GetMTime()
+{
+  unsigned long int doTime = this->Superclass::GetMTime();
+  if ( this->Data->GetMTime() > doTime )
+    {
+    doTime = this->Data->GetMTime();
+    }
+  return doTime;
 }
 
 int vtkPoints::Allocate(const vtkIdType sz, const vtkIdType ext)
