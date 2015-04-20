@@ -342,15 +342,8 @@ void vtkOpenGLRenderWindow::OpenGLInitState()
   glEnable( GL_DEPTH_TEST );
 
   // initialize blending for transparency
-  if(glBlendFuncSeparate != 0)
-    {
-    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
-                             GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
-    }
-  else
-    {
-    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-    }
+  glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
+                      GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_BLEND);
 
   if (this->LineSmoothing)

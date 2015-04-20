@@ -325,11 +325,10 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
         GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, &alphaBits);
       }
     else
-#else
+#endif
       {
       glGetIntegerv(GL_ALPHA_BITS, &alphaBits);
       }
-#endif
 
   if (alphaBits < 8)
     {
