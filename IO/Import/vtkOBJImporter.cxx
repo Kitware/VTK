@@ -36,6 +36,10 @@
 #include <memory>
 #include "vtkOBJImporterInternals.h"
 
+#if defined(_WIN32)
+  #pragma warning(disable : 4267)
+#endif
+
 vtkStandardNewMacro(vtkOBJImporter)
 vtkStandardNewMacro(vtkOBJPolyDataProcessor)
 

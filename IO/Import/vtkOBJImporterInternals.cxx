@@ -26,6 +26,12 @@
 #include "vtkRenderWindow.h"
 #include "vtksys/SystemTools.hxx"
 
+
+#if defined(_WIN32)
+  #pragma warning(disable : 4267)
+  #pragma warning(disable : 4800)
+#endif
+
 const int OBJ_LINE_SIZE = 4096;
 
 namespace
@@ -238,8 +244,8 @@ void  bindTexturedPolydataToRenderWindow( vtkRenderWindow* renderWindow,
 
       vtkSmartPointer<vtkJPEGReader> tex_jpg_Loader = vtkSmartPointer<vtkJPEGReader>::New();
       vtkSmartPointer<vtkPNGReader>  tex_png_Loader = vtkSmartPointer<vtkPNGReader>::New();
-      bool bIsReadableJPEG = tex_jpg_Loader->CanReadFile( textureFilename.c_str() );
-      bool bIsReadablePNG  = tex_png_Loader->CanReadFile( textureFilename.c_str() );
+      int bIsReadableJPEG = tex_jpg_Loader->CanReadFile( textureFilename.c_str() );
+      int bIsReadablePNG  = tex_png_Loader->CanReadFile( textureFilename.c_str() );
 
       // TODO: what if there is no texture image? seems required now?
       if( bIsReadableJPEG ) {
