@@ -26,6 +26,12 @@
 #include "vtkRenderWindow.h"
 #include "vtksys/SystemTools.hxx"
 
+
+#if defined(_WIN32)
+  #pragma warning(disable : 4267)
+  #pragma warning(disable : 4800)
+#endif
+
 const int OBJ_LINE_SIZE = 4096;
 
 namespace
