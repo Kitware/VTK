@@ -306,6 +306,7 @@ protected:
 
   int CreateBlockIdMetadata(vtkModelMetadata *em);
   int CreateBlockVariableMetadata (vtkModelMetadata* em);
+  int CreateSetsMetadata (vtkModelMetadata* em);
 
 //BTX
   void ConvertVariableNames (std::map<std::string, VariableInfo>& variableMap);
