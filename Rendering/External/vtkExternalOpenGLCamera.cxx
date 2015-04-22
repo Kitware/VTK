@@ -14,7 +14,10 @@
 =========================================================================*/
 #include "vtkExternalOpenGLCamera.h"
 
+#ifndef VTK_OPENGL2
 #include "vtkgluPickMatrix.h"
+#endif
+
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLError.h"
@@ -36,11 +39,15 @@ vtkExternalOpenGLCamera::vtkExternalOpenGLCamera()
   this->UserProvidedViewTransform = false;
 }
 
-
 //----------------------------------------------------------------------------
 // Implement base class method.
 void vtkExternalOpenGLCamera::Render(vtkRenderer *ren)
 {
+#ifdef VTK_OPENGL2
+  this->Superclass::Render(ren);
+
+#else
+
   vtkOpenGLClearErrorMacro();
 
   double aspect[2];
@@ -188,6 +195,8 @@ void vtkExternalOpenGLCamera::Render(vtkRenderer *ren)
   matrix->Delete();
 
   vtkOpenGLCheckErrorMacro("failed after Render");
+
+#endif
 }
 
 //----------------------------------------------------------------------------

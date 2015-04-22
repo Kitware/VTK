@@ -21,11 +21,14 @@
 // vtkExternalOpenGLRenderer by drawing a GL_TRIANGLE in the scene before
 // drawing the vtk sphere.
 
+#include <vtk_glew.h>
 // GLUT includes
 #if defined(__APPLE__)
 # include <GLUT/glut.h> // Include GLUT API.
 #else
+# if defined(_WIN32)
 # include "vtkWindows.h" // Needed to include OpenGL header on Windows.
+# endif // _WIN32
 # include <GL/glut.h> // Include GLUT API.
 #endif
 
@@ -44,9 +47,11 @@
 #include <vtkPolyDataMapper.h>
 #include <vtkTesting.h>
 
+namespace {
+
 // Global variables used by the glutDisplayFunc and glutIdleFunc
 vtkNew<ExternalVTKWidget> externalVTKWidget;
-static bool initilaized = false;
+static bool initialized = false;
 static int NumArgs;
 char** ArgV;
 static bool tested = false;
@@ -60,7 +65,7 @@ static void MakeCurrentCallback(vtkObject* caller,
                                 void * clientData,
                                 void * callData)
 {
-  if (initilaized)
+  if (initialized)
     {
     glutSetWindow(windowId);
     }
@@ -70,7 +75,7 @@ static void MakeCurrentCallback(vtkObject* caller,
    whenever the window needs to be re-painted. */
 void display()
 {
-  if (!initilaized)
+  if (!initialized)
     {
     vtkNew<vtkExternalOpenGLRenderWindow> renWin;
     externalVTKWidget->SetRenderWindow(renWin.GetPointer());
@@ -89,7 +94,7 @@ void display()
     actor->RotateY(45.0);
     ren->ResetCamera();
 
-    initilaized = true;
+    initialized = true;
     }
 
   // Enable depth testing. Demonstrates OpenGL context being managed by external
@@ -157,8 +162,10 @@ void handleResize(int w, int h)
 
 void onexit(void)
 {
-  initilaized = false;
+  initialized = false;
 }
+
+} // end anon namespace
 
 /* Main function: GLUT runs as a console application starting at main()  */
 int TestGLUTRenderWindow(int argc, char** argv)
@@ -166,6 +173,7 @@ int TestGLUTRenderWindow(int argc, char** argv)
   NumArgs = argc;
   ArgV = argv;
   glutInit(&argc, argv);                 // Initialize GLUT
+  glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_STENCIL);
   glutInitWindowSize(windowW, windowH);   // Set the window's initial width & height
   glutInitWindowPosition(101, 201); // Position the window's initial top-left corner
   windowId = glutCreateWindow("VTK External Window Test"); // Create a window with the given title
@@ -173,6 +181,7 @@ int TestGLUTRenderWindow(int argc, char** argv)
   glutIdleFunc(test); // Register test callback handler for vtkTesting
   glutReshapeFunc(handleResize); // Register resize callback handler for window resize
   atexit(onexit);  // Register callback to uninitialize on exit
+  glewInit();
   glutMainLoop();  // Enter the infinitely event-processing loop
   return 0;
 }
