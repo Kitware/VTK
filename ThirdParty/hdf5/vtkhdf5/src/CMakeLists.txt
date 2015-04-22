@@ -621,6 +621,9 @@ IF (XCODE)
   SET (CMD "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\${CONFIGURATION}/H5detect")
 ENDIF ()
 ADD_EXECUTABLE (H5detect ${HDF5_SRC_DIR}/H5detect.c)
+SET_TARGET_PROPERTIES(H5detect
+  PROPERTIES
+    OUTPUT_NAME "vtkH5detect") # XXX(vtk): change the binary name
 IF (WIN32)
   TARGET_LINK_LIBRARIES (H5detect "ws2_32.lib")
 ENDIF ()
@@ -637,6 +640,9 @@ IF (XCODE)
   SET (CMDL "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\${CONFIGURATION}/H5make_libsettings")
 ENDIF ()
 ADD_EXECUTABLE (H5make_libsettings ${HDF5_SRC_DIR}/H5make_libsettings.c)
+SET_TARGET_PROPERTIES(H5make_libsettings
+  PROPERTIES
+    OUTPUT_NAME "vtkH5make_libsettings") # XXX(vtk): change the binary name
 IF (WIN32)
   TARGET_LINK_LIBRARIES (H5make_libsettings "ws2_32.lib")
 ENDIF ()
