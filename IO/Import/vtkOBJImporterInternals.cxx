@@ -10,11 +10,6 @@
      PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 
-#include <iostream>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <map>
 #include "vtkSmartPointer.h"
 #include "vtkOBJImporter.h"
 #include "vtkOBJImporterInternals.h"
@@ -26,25 +21,31 @@
 #include "vtkRenderWindow.h"
 #include "vtksys/SystemTools.hxx"
 
+#include <iostream>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <map>
 
 #if defined(_WIN32)
-  #pragma warning(disable : 4267)
-  #pragma warning(disable : 4800)
+#pragma warning(disable : 4267)
+#pragma warning(disable : 4800)
 #endif
 
 const int OBJ_LINE_SIZE = 4096;
 
 namespace
 {
+char strequal(const char *s1, const char *s2)
+{
+  if(strcmp(s1, s2) == 0)
+    {
+    return 1;
+    }
+  return 0;
+}
 
-  char strequal(const char *s1, const char *s2)
-  {
-    if(strcmp(s1, s2) == 0)
-      return 1;
-    return 0;
-  }
-
-  int localVerbosity = 0;
+int localVerbosity = 0;
 
 }
 
@@ -67,19 +68,19 @@ void obj_set_material_defaults(vtkOBJImportedMaterial* mtl)
   mtl->texture_filename[0] = '\0';
 
   if( localVerbosity > 0 )
-  {
-    std::cout << "created a default vtkOBJImportedMaterial, texture filename is "
-              << std::string(mtl->texture_filename) << std::endl;
-  }
+    {
+    vtkGenericWarningMacro("Created a default vtkOBJImportedMaterial, texture filename is "
+                           << std::string(mtl->texture_filename));
+    }
 }
 
-std::vector<vtkOBJImportedMaterial*> vtkOBJPolyDataProcessor::ParseOBJandMTL(std::string Filename,int& result_code)
+std::vector<vtkOBJImportedMaterial*> vtkOBJPolyDataProcessor::ParseOBJandMTL(
+  std::string Filename, int& result_code)
 {
 
   std::vector<vtkOBJImportedMaterial*>  listOfMaterials;
   result_code    = 0;
   const char* filename = Filename.c_str();
-
 
   int line_number = 0;
   char *current_token;
@@ -92,114 +93,113 @@ std::vector<vtkOBJImportedMaterial*> vtkOBJPolyDataProcessor::ParseOBJandMTL(std
   mtl_file_stream = fopen( filename, "r");
   if(mtl_file_stream == 0)
     {
-      fprintf(stderr, "Error reading file: %s\n", filename);
-      result_code = -1;
-      return listOfMaterials;
+    vtkErrorMacro("Error reading file: " << filename);
+    result_code = -1;
+    return listOfMaterials;
     }
 
   while( fgets(current_line, OBJ_LINE_SIZE, mtl_file_stream) )
     {
-      current_token = strtok( current_line, " \t\n\r");
-      line_number++;
+    current_token = strtok( current_line, " \t\n\r");
+    line_number++;
 
-      //skip comments
-      if( current_token == NULL || strequal(current_token, "//") || strequal(current_token, "#"))
-        continue;
+    //skip comments
+    if( current_token == NULL || strequal(current_token, "//") || strequal(current_token, "#"))
+      {
+      continue;
+      }
 
+    //start material
+    else if( strequal(current_token, "newmtl"))
+      {
+      material_open = 1;
+      current_mtl = (new vtkOBJImportedMaterial);
+      listOfMaterials.push_back(current_mtl);
+      obj_set_material_defaults(current_mtl);
 
-      //start material
-      else if( strequal(current_token, "newmtl"))
-        {
-          material_open = 1;
-          current_mtl = (new vtkOBJImportedMaterial);
-          listOfMaterials.push_back(current_mtl);
-          obj_set_material_defaults(current_mtl);
+      // get the name
+      strncpy(current_mtl->name, strtok(NULL, " \t\n"), MATERIAL_NAME_SIZE);
+      }
 
-          // get the name
-          strncpy(current_mtl->name, strtok(NULL, " \t\n"), MATERIAL_NAME_SIZE);
-        }
+    //ambient
+    else if( strequal(current_token, "Ka") && material_open)
+      {
+      // But this is ... right? no?
+      current_mtl->amb[0] = atof( strtok(NULL, " \t"));
+      current_mtl->amb[1] = atof( strtok(NULL, " \t"));
+      current_mtl->amb[2] = atof( strtok(NULL, " \t"));
+      }
 
-      //ambient
-      else if( strequal(current_token, "Ka") && material_open)
-        {
-          // But this is ... right? no?
-          current_mtl->amb[0] = atof( strtok(NULL, " \t"));
-          current_mtl->amb[1] = atof( strtok(NULL, " \t"));
-          current_mtl->amb[2] = atof( strtok(NULL, " \t"));
-        }
+    //diff
+    else if( strequal(current_token, "Kd") && material_open)
+      {
+      current_mtl->diff[0] = atof( strtok(NULL, " \t"));
+      current_mtl->diff[1] = atof( strtok(NULL, " \t"));
+      current_mtl->diff[2] = atof( strtok(NULL, " \t"));
+      }
 
-      //diff
-      else if( strequal(current_token, "Kd") && material_open)
+    //specular
+    else if( strequal(current_token, "Ks") && material_open)
+      {
+      current_mtl->spec[0] = atof( strtok(NULL, " \t"));
+      current_mtl->spec[1] = atof( strtok(NULL, " \t"));
+      current_mtl->spec[2] = atof( strtok(NULL, " \t"));
+      }
+    //shiny
+    else if( strequal(current_token, "Ns") && material_open)
+      {
+      current_mtl->shiny = atof( strtok(NULL, " \t"));
+      }
+    //transparent
+    else if( strequal(current_token, "d") && material_open)
+      {
+      current_mtl->trans = atof( strtok(NULL, " \t"));
+      }
+    //reflection
+    else if( strequal(current_token, "r") && material_open)
+      {
+      current_mtl->reflect = atof( strtok(NULL, " \t"));
+      }
+    //glossy
+    else if( strequal(current_token, "sharpness") && material_open)
+      {
+      current_mtl->glossy = atof( strtok(NULL, " \t"));
+      }
+    //refract index
+    else if( strequal(current_token, "Ni") && material_open)
+      {
+      current_mtl->refract_index = atof( strtok(NULL, " \t"));
+      }
+    // illumination type
+    else if( strequal(current_token, "illum") && material_open)
+      {
+      }
+    // texture map
+    else if( strequal(current_token, "map_Kd") && material_open)
+      {   /** (pk note: why was this map_Ka initially? should map_Ka be supported? ) */
+      strncpy(current_mtl->texture_filename, strtok(NULL, " \t\n"), OBJ_FILENAME_LENGTH);
+      bool bFileExistsNoPath    = vtksys::SystemTools::FileExists(current_mtl->texture_filename);
+      std::vector<std::string> path_and_file(2);
+      path_and_file[0]   = this->GetTexturePath();
+      path_and_file[1]   = std::string(current_mtl->texture_filename);
+      std::string joined =  vtksys::SystemTools::JoinPath(path_and_file);
+      bool bFileExistsInPath    = vtksys::SystemTools::FileExists( joined );
+      if(! (bFileExistsNoPath || bFileExistsInPath ) )
         {
-          current_mtl->diff[0] = atof( strtok(NULL, " \t"));
-          current_mtl->diff[1] = atof( strtok(NULL, " \t"));
-          current_mtl->diff[2] = atof( strtok(NULL, " \t"));
+        vtkGenericWarningMacro(
+          << "mtl file " << current_mtl->name
+          << "requests texture file that appears not to exist: "
+          << current_mtl->texture_filename << "; texture path: " <<this->TexturePath<<"\r\n");
         }
-
-      //specular
-      else if( strequal(current_token, "Ks") && material_open)
-        {
-          current_mtl->spec[0] = atof( strtok(NULL, " \t"));
-          current_mtl->spec[1] = atof( strtok(NULL, " \t"));
-          current_mtl->spec[2] = atof( strtok(NULL, " \t"));
-        }
-      //shiny
-      else if( strequal(current_token, "Ns") && material_open)
-        {
-          current_mtl->shiny = atof( strtok(NULL, " \t"));
-        }
-      //transparent
-      else if( strequal(current_token, "d") && material_open)
-        {
-          current_mtl->trans = atof( strtok(NULL, " \t"));
-        }
-      //reflection
-      else if( strequal(current_token, "r") && material_open)
-        {
-          current_mtl->reflect = atof( strtok(NULL, " \t"));
-        }
-      //glossy
-      else if( strequal(current_token, "sharpness") && material_open)
-        {
-          current_mtl->glossy = atof( strtok(NULL, " \t"));
-        }
-      //refract index
-      else if( strequal(current_token, "Ni") && material_open)
-        {
-          current_mtl->refract_index = atof( strtok(NULL, " \t"));
-        }
-      // illumination type
-      else if( strequal(current_token, "illum") && material_open)
-        {
-        }
-      // texture map
-      else if( strequal(current_token, "map_Kd") && material_open)
-        {   /** (pk note: why was this map_Ka initially? should map_Ka be supported? ) */
-          strncpy(current_mtl->texture_filename, strtok(NULL, " \t\n"), OBJ_FILENAME_LENGTH);
-          bool bFileExistsNoPath    = vtksys::SystemTools::FileExists(current_mtl->texture_filename);
-          std::vector<std::string> path_and_file(2);
-          path_and_file[0]   = this->GetTexturePath();
-          path_and_file[1]   = std::string(current_mtl->texture_filename);
-          std::string joined =  vtksys::SystemTools::JoinPath(path_and_file);
-          bool bFileExistsInPath    = vtksys::SystemTools::FileExists( joined );
-          if(! (bFileExistsNoPath || bFileExistsInPath ) )
-            {
-              vtkGenericWarningMacro(
-                    << "mtl file " << current_mtl->name
-                    << "requests texture file that appears not to exist: "
-                    << current_mtl->texture_filename << "; texture path: " <<this->TexturePath<<"\r\n");
-            }
-        }
-      else
-        {
-          // just skip it; got an unsupported feature or a comment in file.
-          if(this->GetDebug())
-          {
-            fprintf(stderr, "Unknown command '%s' in material file %s at line %i:\n\t%s\n",
-                    current_token, filename, line_number, current_line);
-          }
-
-        }
+      }
+    else
+      {
+      // just skip it; got an unsupported feature or a comment in file.
+      vtkDebugMacro("Unknown command " << current_token
+                    << " in material file " << filename
+                    << " at line " << line_number
+                    << ":\n\t" << current_line);
+      }
     }
 
   fclose(mtl_file_stream);
@@ -212,88 +212,101 @@ void  bindTexturedPolydataToRenderWindow( vtkRenderWindow* renderWindow,
                                           vtkRenderer* renderer,
                                           vtkOBJPolyDataProcessor* reader )
 {
-  if( NULL == (renderWindow) ) {
-      cerr << "renderWindow is null, failure!" << std::endl; return; }
-  if( NULL == (renderer) ) {
-      cerr << "renderer is null, failure!" << std::endl; return; }
-  if( NULL == (reader) ) {
-      cerr << "vtkOBJPolyDataProcessor is null, failure!" << std::endl; return; }
+  if( NULL == (renderWindow) )
+    {
+    vtkErrorWithObjectMacro(reader, "RenderWindow is null, failure!");
+    return;
+    }
+  if( NULL == (renderer) )
+    {
+    vtkErrorWithObjectMacro(reader, "Renderer is null, failure!");
+    return;
+    }
+  if( NULL == (reader) )
+    {
+    vtkErrorWithObjectMacro(reader, "vtkOBJPolyDataProcessor is null, failure!");
+    return;
+    }
 
   reader->actor_list.clear();
   reader->actor_list.reserve( reader->GetNumberOfOutputPorts() );
 
   for( int port_idx=0; port_idx < reader->GetNumberOfOutputPorts(); port_idx++)
     {
-      vtkPolyData* objPoly = reader->GetOutput(port_idx);
+    vtkPolyData* objPoly = reader->GetOutput(port_idx);
 
-      vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-      mapper->SetInputData(objPoly);
+    vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+    mapper->SetInputData(objPoly);
 
-      if(reader->GetDebug())
-        {
-          std::cout << "grabbed objPoly " << objPoly << ", port index " << port_idx << std::endl;
-          int numPolys  = objPoly->GetNumberOfPolys();
-          int numPoints = objPoly->GetNumberOfPoints();
-          printf("numPolys = %08d, numPoints = %08d ...\n",numPolys,numPoints);
-        }
+    vtkDebugWithObjectMacro(reader, "Grabbed objPoly " << objPoly
+                            << ", port index " << port_idx << "\n"
+                            << "numPolys = " << objPoly->GetNumberOfPolys()
+                            << " numPoints = " << objPoly->GetNumberOfPoints());
 
-      // For each named material, load and bind the texture, add it to the renderer
-      vtkSmartPointer<vtkTexture> vtk_texture = vtkSmartPointer<vtkTexture>::New();
+    // For each named material, load and bind the texture, add it to the renderer
+    vtkSmartPointer<vtkTexture> vtk_texture = vtkSmartPointer<vtkTexture>::New();
 
-      std::string textureFilename = reader->GetTextureFilename(port_idx);
+    std::string textureFilename = reader->GetTextureFilename(port_idx);
 
-      vtkSmartPointer<vtkJPEGReader> tex_jpg_Loader = vtkSmartPointer<vtkJPEGReader>::New();
-      vtkSmartPointer<vtkPNGReader>  tex_png_Loader = vtkSmartPointer<vtkPNGReader>::New();
-      int bIsReadableJPEG = tex_jpg_Loader->CanReadFile( textureFilename.c_str() );
-      int bIsReadablePNG  = tex_png_Loader->CanReadFile( textureFilename.c_str() );
+    vtkSmartPointer<vtkJPEGReader> tex_jpg_Loader = vtkSmartPointer<vtkJPEGReader>::New();
+    vtkSmartPointer<vtkPNGReader>  tex_png_Loader = vtkSmartPointer<vtkPNGReader>::New();
+    int bIsReadableJPEG = tex_jpg_Loader->CanReadFile( textureFilename.c_str() );
+    int bIsReadablePNG  = tex_png_Loader->CanReadFile( textureFilename.c_str() );
 
-      // TODO: what if there is no texture image? seems required now?
-      if( bIsReadableJPEG ) {
-          tex_jpg_Loader->SetFileName( textureFilename.c_str() );
-          tex_jpg_Loader->Update();
-          vtk_texture->AddInputConnection( tex_jpg_Loader->GetOutputPort() );
-        } else if( bIsReadablePNG ) {
-          tex_png_Loader->SetFileName( textureFilename.c_str() );
-          tex_png_Loader->Update();
-          vtk_texture->AddInputConnection( tex_png_Loader->GetOutputPort() );
-        } else {
-          cerr << "nonexistant texture image type!? imagefile: "<<textureFilename<<" .\n";
-        }
-      // vtk_texture->InterpolateOn();     // Better?? (cant see obvious benefit)
-      vtk_texture->InterpolateOff(); // Faster?? (yes clearly faster for largish texture)
-      vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
-      actor->SetMapper(mapper);
-      actor->SetTexture(vtk_texture);
-      vtkSmartPointer<vtkProperty> properties = vtkSmartPointer<vtkProperty>::New();
+    // TODO: what if there is no texture image? seems required now?
+    if( bIsReadableJPEG )
+      {
+      tex_jpg_Loader->SetFileName( textureFilename.c_str() );
+      tex_jpg_Loader->Update();
+      vtk_texture->AddInputConnection( tex_jpg_Loader->GetOutputPort() );
+      }
+    else if( bIsReadablePNG )
+      {
+      tex_png_Loader->SetFileName( textureFilename.c_str() );
+      tex_png_Loader->Update();
+      vtk_texture->AddInputConnection( tex_png_Loader->GetOutputPort() );
+      }
+    else
+      {
+      vtkErrorWithObjectMacro(reader, "Nonexistant texture image type!? imagefile: "
+                              <<textureFilename);
+      }
+    vtk_texture->InterpolateOff(); // Faster?? (yes clearly faster for largish texture)
 
-      vtkOBJImportedMaterial* raw_mtl_data = reader->GetMaterial(port_idx);
-      properties->SetDiffuseColor(raw_mtl_data->diff);
-      properties->SetSpecularColor(raw_mtl_data->spec);
-      properties->SetAmbientColor(raw_mtl_data->amb);
-      properties->SetOpacity(raw_mtl_data->trans);
-      properties->SetInterpolationToPhong();
-      properties->SetLighting(true);
-      properties->SetSpecular( raw_mtl_data->get_spec_coeff() );
-      properties->SetAmbient( raw_mtl_data->get_amb_coeff() );
-      properties->SetDiffuse( raw_mtl_data->get_diff_coeff() );
-      //cout << ".. done set up material definition, properties->Print says: " << std::endl;
-      //properties->Print(std::cout);
-      actor->SetProperty(properties);
-      renderer->AddActor(actor);
+    vtkSmartPointer<vtkActor> actor =
+      vtkSmartPointer<vtkActor>::New();
+    actor->SetMapper(mapper);
+    actor->SetTexture(vtk_texture);
+    vtkSmartPointer<vtkProperty> properties =
+      vtkSmartPointer<vtkProperty>::New();
 
-      //properties->ShadingOn(); // use ShadingOn() if loading vtkMaterial from xml
-      // available in mtl parser are:
-      //    double amb[3];
-      //    double diff[3];
-      //    double spec[3];
-      //    double reflect;
-      //    double refract;
-      //    double trans;
-      //    double shiny;
-      //    double glossy;
-      //    double refract_index;
+    vtkOBJImportedMaterial* raw_mtl_data =
+      reader->GetMaterial(port_idx);
+    properties->SetDiffuseColor(raw_mtl_data->diff);
+    properties->SetSpecularColor(raw_mtl_data->spec);
+    properties->SetAmbientColor(raw_mtl_data->amb);
+    properties->SetOpacity(raw_mtl_data->trans);
+    properties->SetInterpolationToPhong();
+    properties->SetLighting(true);
+    properties->SetSpecular( raw_mtl_data->get_spec_coeff() );
+    properties->SetAmbient( raw_mtl_data->get_amb_coeff() );
+    properties->SetDiffuse( raw_mtl_data->get_diff_coeff() );
+    actor->SetProperty(properties);
+    renderer->AddActor(actor);
 
-      reader->actor_list.push_back(actor); // keep a handle on actors to animate later
+    //properties->ShadingOn(); // use ShadingOn() if loading vtkMaterial from xml
+    // available in mtl parser are:
+    //    double amb[3];
+    //    double diff[3];
+    //    double spec[3];
+    //    double reflect;
+    //    double refract;
+    //    double trans;
+    //    double shiny;
+    //    double glossy;
+    //    double refract_index;
+
+    reader->actor_list.push_back(actor); // keep a handle on actors to animate later
     }
   /** post-condition of this function: the renderer has had a bunch of actors added to it */
 }

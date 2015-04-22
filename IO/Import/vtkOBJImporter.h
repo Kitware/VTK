@@ -17,8 +17,8 @@
 // .SECTION See Also
 //  vtkImporter
 
-#ifndef __vtkOBJImporter_h
-#define __vtkOBJImporter_h
+#ifndef vtkOBJImporter_h
+#define vtkOBJImporter_h
 
 #include "vtkIOImportModule.h" // For export macro
 #include "vtkSmartPointer.h"

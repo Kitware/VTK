@@ -10,8 +10,8 @@
      PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 
-#ifndef __vtkOBJImporterInternals_h
-#define __vtkOBJImporterInternals_h
+#ifndef vtkOBJImporterInternals_h
+#define vtkOBJImporterInternals_h
 
 #include <string>
 #include "vtkOBJImporter.h"
@@ -49,6 +49,7 @@ struct vtkOBJImportedMaterial
   {
     return sqrt( spec[0]*spec[0]+spec[1]*spec[1]+spec[2]*spec[2] );
   }
+  const char *GetClassName() {return "vtkOBJImportedMaterial";}
 };
 
 
@@ -68,11 +69,11 @@ public:
   void SetFileName(const char* arg)
   { // by default assume prefix.obj => prefix.obj.mtl
     FileName    = std::string(arg);
-    MTLfilename = FileName + ".mtl";
+    MTLFileName = FileName + ".mtl";
   }
   void SetMTLfileName( const char* arg )
   {
-    MTLfilename = std::string(arg);
+    MTLFileName = std::string(arg);
   }
   void SetTexturePath( const char* arg )
   {
@@ -96,7 +97,7 @@ public:
 
   const std::string& GetMTLFileName(  ) const
   {
-    return MTLfilename;
+    return MTLFileName;
   }
 
   vtkSetMacro(VertexScale,double)
@@ -133,11 +134,12 @@ protected:
   int RequestData(vtkInformation *,
                   vtkInformationVector **, vtkInformationVector *) /*override*/;
 
+  vtkSetMacro(SuccessParsingFiles,int)
+
   std::string FileName;     // filename (.obj) being read
-  std::string MTLfilename;  // associated .mtl to *.obj, typically it is *.obj.mtl
+  std::string MTLFileName;  // associated .mtl to *.obj, typically it is *.obj.mtl
   std::string TexturePath;
   int         SuccessParsingFiles;
-  vtkSetMacro(SuccessParsingFiles,int)
 
 private:
   vtkOBJPolyDataProcessor(const vtkOBJPolyDataProcessor&);  // Not implemented.
