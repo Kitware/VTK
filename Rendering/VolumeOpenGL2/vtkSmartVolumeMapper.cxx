@@ -52,6 +52,10 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
   this->LowResGPUNecessary = 0;
   this->InterpolationMode=VTK_RESLICE_CUBIC;
 
+  // Initial sample distance
+  this->AutoAdjustSampleDistances  = 1;
+  this->SampleDistance             = 1.0;
+
   // Create all the mappers we might need
   this->RayCastMapper   = vtkFixedPointVolumeRayCastMapper::New();
 
@@ -60,10 +64,6 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
   this->MaxMemoryFraction=this->GPUMapper->GetMaxMemoryFraction();
 
   this->GPULowResMapper = vtkGPUVolumeRayCastMapper::New();
-
-  // If the render window has a desired update rate of at least 1 frame
-  // per second or more, we'll consider this interactive
-  this->InteractiveUpdateRate = 1.0;
 
   // This is the resample filter that may be used if we need
   // a lower resolution version of the input for GPU rendering
@@ -172,9 +172,6 @@ void vtkSmartVolumeMapper::Render( vtkRenderer *ren, vtkVolume *vol )
         {
         usedMapper=this->GPUMapper;
         }
-      usedMapper->SetAutoAdjustSampleDistances(
-        ren->GetRenderWindow()->GetDesiredUpdateRate()>=
-        this->InteractiveUpdateRate);
       usedMapper->Render(ren, vol);
       break;
     case vtkSmartVolumeMapper::InvalidRenderMode:
@@ -353,6 +350,9 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
       this->RayCastMapper->SetBlendMode( this->GetBlendMode() );
       this->RayCastMapper->SetFinalColorWindow(this->FinalColorWindow);
       this->RayCastMapper->SetFinalColorLevel(this->FinalColorLevel);
+      this->RayCastMapper->SetAutoAdjustSampleDistances(
+        this->AutoAdjustSampleDistances);
+      this->RayCastMapper->SetSampleDistance(this->SampleDistance);
       break;
 
     // We are rendering with the vtkGPUVolumeRayCastMapper
@@ -380,6 +380,9 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
       this->GPUMapper->SetBlendMode( this->GetBlendMode() );
       this->GPUMapper->SetFinalColorWindow(this->FinalColorWindow);
       this->GPUMapper->SetFinalColorLevel(this->FinalColorLevel);
+      this->GPUMapper->SetAutoAdjustSampleDistances(
+        this->AutoAdjustSampleDistances);
+      this->GPUMapper->SetSampleDistance(this->SampleDistance);
 
       // Make the window current because we need the OpenGL context
       win->MakeCurrent();
@@ -416,6 +419,9 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
         this->GPULowResMapper->SetBlendMode( this->GetBlendMode() );
         this->GPULowResMapper->SetFinalColorWindow(this->FinalColorWindow);
         this->GPULowResMapper->SetFinalColorLevel(this->FinalColorLevel);
+        this->GPULowResMapper->SetAutoAdjustSampleDistances(
+          this->AutoAdjustSampleDistances);
+        this->GPULowResMapper->SetSampleDistance(this->SampleDistance);
         }
       else
         {
@@ -614,8 +620,10 @@ void vtkSmartVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << "FinalColorWindow: " << this->FinalColorWindow << endl;
   os << "FinalColorLevel: " << this->FinalColorLevel << endl;
   os << "RequestedRenderMode: " << this->RequestedRenderMode << endl;
-  os << "InteractiveUpdateRate: " << this->InteractiveUpdateRate << endl;
   os << "InterpolationMode: " << this->InterpolationMode << endl;
   os << "MaxMemoryInBytes:" << this->MaxMemoryInBytes << endl;
   os << "MaxMemoryFraction:" << this->MaxMemoryFraction << endl;
+  os << "AutoAdjustSampleDistances: "
+     << this->AutoAdjustSampleDistances << endl;
+  os << indent << "SampleDistance: " << this->SampleDistance << endl;
 }

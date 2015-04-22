@@ -150,20 +150,6 @@ public:
   vtkGetMacro( RequestedRenderMode, int );
 
   // Description:
-  // Set the rate at or above this render will be considered interactive.
-  // If the DesiredUpdateRate of the vtkRenderWindow that caused the Render
-  // falls at or above this rate, the render is considered interactive and
-  // the mapper may be adjusted (depending on the render mode).
-  // Initial value is 1.0.
-  vtkSetClampMacro( InteractiveUpdateRate, double, 1.0e-10, 1.0e10 );
-
-  // Description:
-  // Get the update rate at or above which this is considered an
-  // interactive render.
-  // Initial value is 1.0.
-  vtkGetMacro( InteractiveUpdateRate, double );
-
-  // Description:
   // This will return the render mode used during the previous call to
   // Render().
   int GetLastUsedRenderMode();
@@ -206,6 +192,23 @@ public:
                             int blend_mode,
                             double viewDirection[3],
                             double viewUp[3] );
+
+  // Description:
+  // If AutoAdjustSampleDistances is on, the the ImageSampleDistance
+  // will be varied to achieve the allocated render time of this
+  // prop (controlled by the desired update rate and any culling in
+  // use).
+  vtkSetClampMacro( AutoAdjustSampleDistances, int, 0, 1 );
+  vtkGetMacro( AutoAdjustSampleDistances, int );
+  vtkBooleanMacro( AutoAdjustSampleDistances, int );
+
+  // Description:
+  // Set/Get the distance between samples used for rendering
+  // when AutoAdjustSampleDistances is off, or when this mapper
+  // has more than 1 second allocated to it for rendering.
+  // Initial value is 1.0.
+  vtkSetMacro( SampleDistance, float );
+  vtkGetMacro( SampleDistance, float );
 
 
 //BTX
@@ -266,11 +269,6 @@ protected:
   // create a low resolution version of the volume for GPU rendering
   vtkImageResample *GPUResampleFilter;
 
-  // If the DesiredUpdateRate of the vtkRenderWindow causing the Render is at
-  // or above this value, the render is considered interactive. Otherwise it is
-  // considered still.
-  double InteractiveUpdateRate;
-
   // The initialize method. Called from ComputeRenderMode whenever something
   // relevant has changed.
   void  Initialize(vtkRenderer *ren,
@@ -291,6 +289,10 @@ protected:
   // because we need to reinitialize (and recheck hardware support) if
   // it changes
   int  InitializedBlendMode;
+
+  // The distance between sample points along the ray
+  float  SampleDistance;
+  int    AutoAdjustSampleDistances;
 
 private:
   vtkSmartVolumeMapper(const vtkSmartVolumeMapper&);  // Not implemented.
