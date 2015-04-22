@@ -368,29 +368,29 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColorMaterialValues(
               actor->GetProperty()->GetAmbient() > actor->GetProperty()->GetDiffuse()))
           {
           substitute(FSSource,
-                      "//VTK::Color::Impl", colorImpl +
-                      "  vec4 texColor = texelFetchBuffer(textureC, gl_PrimitiveID + PrimitiveIDOffset);\n"
-                      "  ambientColor = texColor.rgb;\n"
-                      "  opacity = opacity*texColor.a;");
+            "//VTK::Color::Impl", colorImpl +
+            "  vec4 texColor = texelFetchBuffer(textureC, gl_PrimitiveID + PrimitiveIDOffset);\n"
+            "  ambientColor = texColor.rgb;\n"
+            "  opacity = opacity*texColor.a;");
           }
         else if (this->ScalarMaterialMode == VTK_MATERIALMODE_DIFFUSE ||
             (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT &&
              actor->GetProperty()->GetAmbient() <= actor->GetProperty()->GetDiffuse()))
           {
           substitute(FSSource,
-                      "//VTK::Color::Impl", colorImpl +
-                      "  vec4 texColor = texelFetchBuffer(textureC, gl_PrimitiveID + PrimitiveIDOffset);\n"
-                      "  diffuseColor = texColor.rgb;\n"
-                      "  opacity = opacity*texColor.a;");
+            "//VTK::Color::Impl", colorImpl +
+           "  vec4 texColor = texelFetchBuffer(textureC, gl_PrimitiveID + PrimitiveIDOffset);\n"
+            "  diffuseColor = texColor.rgb;\n"
+            "  opacity = opacity*texColor.a;");
           }
         else
           {
           substitute(FSSource,
-                      "//VTK::Color::Impl", colorImpl +
-                      "vec4 texColor = texelFetchBuffer(textureC, gl_PrimitiveID + PrimitiveIDOffset);\n"
-                      "  ambientColor = texColor.rgb;\n"
-                      "  diffuseColor = texColor.rgb;\n"
-                      "  opacity = opacity*texColor.a;");
+            "//VTK::Color::Impl", colorImpl +
+            "vec4 texColor = texelFetchBuffer(textureC, gl_PrimitiveID + PrimitiveIDOffset);\n"
+            "  ambientColor = texColor.rgb;\n"
+            "  diffuseColor = texColor.rgb;\n"
+            "  opacity = opacity*texColor.a;");
           }
         }
       substitute(FSSource,"//VTK::Color::Impl", colorImpl);
@@ -1854,7 +1854,7 @@ void vtkOpenGLPolyDataMapper::BuildCellTextures(
       }
 
     this->CellScalarBuffer->Upload(newColors,
-      vtkgl::BufferObject::ArrayBuffer);
+      vtkgl::BufferObject::TextureBuffer);
     this->CellScalarTexture->CreateTextureBuffer(
       static_cast<unsigned int>(newColors.size()/numComp),
       numComp,
@@ -1912,7 +1912,7 @@ void vtkOpenGLPolyDataMapper::BuildCellTextures(
           }
         }
       this->CellScalarBuffer->Upload(newColors,
-        vtkgl::BufferObject::ArrayBuffer);
+        vtkgl::BufferObject::TextureBuffer);
       this->CellScalarTexture->CreateTextureBuffer(
         static_cast<unsigned int>(cellCellMap.size()),
         numComp,
@@ -1940,7 +1940,7 @@ void vtkOpenGLPolyDataMapper::BuildCellTextures(
         newNorms.push_back(norms[2]);
         }
       this->CellNormalBuffer->Upload(newNorms,
-        vtkgl::BufferObject::ArrayBuffer);
+        vtkgl::BufferObject::TextureBuffer);
       this->CellNormalTexture->CreateTextureBuffer(
         static_cast<unsigned int>(cellCellMap.size()),
         3, VTK_FLOAT,

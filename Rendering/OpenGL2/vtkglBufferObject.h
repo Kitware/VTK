@@ -31,7 +31,8 @@ class VTKRENDERINGOPENGL2_EXPORT BufferObject
 public:
   enum ObjectType {
     ArrayBuffer,
-    ElementArrayBuffer
+    ElementArrayBuffer,
+    TextureBuffer
   };
 
   BufferObject(ObjectType type = ArrayBuffer);

@@ -649,6 +649,9 @@ protected:
   // used for copying to framebuffer
   vtkgl::CellBO *ShaderProgram;
 
+  // for texturebuffers we hold on to the Buffer
+  vtkgl::BufferObject *BufferObject;
+
 private:
   vtkTextureObject(const vtkTextureObject&); // Not implemented.
   void operator=(const vtkTextureObject&); // Not implemented.

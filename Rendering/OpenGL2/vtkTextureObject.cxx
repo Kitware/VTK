@@ -246,6 +246,7 @@ vtkTextureObject::vtkTextureObject()
   this->BorderColor[1] = 0.0f;
   this->BorderColor[2] = 0.0f;
   this->BorderColor[3] = 0.0f;
+  this->BufferObject = 0;
 
   this->ResetFormatAndType();
 }
@@ -1746,17 +1747,18 @@ bool vtkTextureObject::CreateTextureBuffer(unsigned int numValues, int numComps,
   this->Height = 1;
   this->Depth = 1;
   this->NumberOfDimensions = 1;
+  this->BufferObject = bo;
 
   this->CreateTexture();
   this->Bind();
 
   // Source texture data from the PBO.
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  //glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
   glTexBuffer(
-        this->Target,
-        this->InternalFormat,
-        bo->GetHandle());
+      this->Target,
+      this->InternalFormat,
+      this->BufferObject->GetHandle());
 
   vtkOpenGLCheckErrorMacro("failed at glTexBuffer");
 

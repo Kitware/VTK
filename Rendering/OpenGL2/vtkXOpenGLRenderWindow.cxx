@@ -17,10 +17,9 @@
 #include "vtkOpenGLRenderer.h"
 
 #include "vtk_glew.h"
-
-// define GLX_GLXEXT_LEGACY to prevent glx.h to include glxext.h provided by
-// the system
-//#define GLX_GLXEXT_LEGACY
+// Define GLX_GLXEXT_LEGACY to prevent glx.h from including the glxext.h
+// provided by the system.
+#define GLX_GLXEXT_LEGACY
 #include "GL/glx.h"
 
 #include "vtkToolkits.h"
@@ -43,6 +42,10 @@
 #include <X11/Xutil.h>
 #include <X11/cursorfont.h>
 
+#define GLX_CONTEXT_MAJOR_VERSION_ARB       0x2091
+#define GLX_CONTEXT_MINOR_VERSION_ARB       0x2092
+typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
+
 class vtkXOpenGLRenderWindow;
 class vtkRenderWindow;
 class vtkXOpenGLRenderWindowInternal
@@ -52,6 +55,7 @@ private:
   vtkXOpenGLRenderWindowInternal(vtkRenderWindow*);
 
   GLXContext ContextId;
+  GLXFBConfig *FBConfig;
 
   // so we basically have 4 methods here for handling drawables
   // how about abstracting this a bit?
@@ -182,52 +186,17 @@ XVisualInfo *vtkXOpenGLRenderWindowTryForVisual(Display *DisplayId,
                                                 int alphaBitPlanes,
                                                 int stencil)
 {
-  int           index;
-  static int    attributes[50];
+  GLXFBConfig *fbc = vtkXOpenGLRenderWindowTryForFBConfig(DisplayId,
+       GLX_WINDOW_BIT,
+       doublebuff,
+       stereo, multisamples,
+       alphaBitPlanes,
+       stencil);
 
-  // setup the default stuff we ask for
-  index = 0;
-  attributes[index++] = GLX_RGBA;
-  attributes[index++] = GLX_RED_SIZE;
-  attributes[index++] = 1;
-  attributes[index++] = GLX_GREEN_SIZE;
-  attributes[index++] = 1;
-  attributes[index++] = GLX_BLUE_SIZE;
-  attributes[index++] = 1;
-  attributes[index++] = GLX_DEPTH_SIZE;
-  attributes[index++] = 1;
-  if (alphaBitPlanes)
-    {
-    attributes[index++] = GLX_ALPHA_SIZE;
-    attributes[index++] = 1;
-    }
-  if (doublebuff)
-    {
-    attributes[index++] = GLX_DOUBLEBUFFER;
-    }
-  if (stencil)
-    {
-    attributes[index++] = GLX_STENCIL_SIZE;
-    attributes[index++] = 8;
-    }
-  if (stereo)
-    {
-    // also try for STEREO
-    attributes[index++] = GLX_STEREO;
-    }
-  if (multisamples)
-    {
-#ifdef GLX_SAMPLE_BUFFERS_SGIS
-    attributes[index++] = GLX_SAMPLE_BUFFERS_SGIS;
-    attributes[index++] = 1;
-    attributes[index++] = GLX_SAMPLES_SGIS;
-    attributes[index++] = multisamples;
-#endif
-    }
+  XVisualInfo *v = glXGetVisualFromFBConfig( DisplayId, fbc[0]);
+  XFree (fbc);
 
-  attributes[index++] = None;
-
-  return glXChooseVisual(DisplayId, XDefaultScreen(DisplayId), attributes );
+  return v;
 }
 
 GLXFBConfig *vtkXOpenGLRenderWindowGetDesiredFBConfig(
@@ -296,10 +265,6 @@ GLXFBConfig *vtkXOpenGLRenderWindowGetDesiredFBConfig(
 XVisualInfo *vtkXOpenGLRenderWindow::GetDesiredVisualInfo()
 {
   XVisualInfo   *v = NULL;
-  int           alpha;
-  int           multi;
-  int           stereo = 0;
-  int           stencil;
 
   // get the default display connection
   if (!this->DisplayId)
@@ -316,61 +281,28 @@ XVisualInfo *vtkXOpenGLRenderWindow::GetDesiredVisualInfo()
     this->OwnDisplay = 1;
     }
 
-  // try every possibility stoping when we find one that works
-  for (stencil = this->StencilCapable; !v && stencil >= 0; stencil--)
+  this->Internal->FBConfig =
+    vtkXOpenGLRenderWindowGetDesiredFBConfig(
+      this->DisplayId,
+      this->StereoCapableWindow,
+      this->MultiSamples,
+      this->DoubleBuffer,
+      this->AlphaBitPlanes,
+      GLX_WINDOW_BIT,
+      this->StencilCapable);
+
+  if (!this->Internal->FBConfig)
     {
-    for (alpha = this->AlphaBitPlanes; !v && alpha >= 0; alpha--)
-      {
-      for (stereo = this->StereoCapableWindow; !v && stereo >= 0; stereo--)
-        {
-        for (multi = this->MultiSamples; !v && multi >= 0; multi--)
-          {
-          if (v)
-            {
-            XFree(v);
-            }
-          v = vtkXOpenGLRenderWindowTryForVisual(this->DisplayId,
-                                                 this->DoubleBuffer,
-                                                 stereo, multi, alpha,
-                                                 stencil);
-          if (v)
-            {
-            this->StereoCapableWindow = stereo;
-            this->MultiSamples = multi;
-            this->AlphaBitPlanes = alpha;
-            this->StencilCapable = stencil;
-            }
-          }
-        }
-      }
+    vtkErrorMacro(<< "Could not find a decent config\n");
     }
-  for (stencil = this->StencilCapable; !v && stencil >= 0; stencil--)
+  else
     {
-    for (alpha = this->AlphaBitPlanes; !v && alpha >= 0; alpha--)
+    v = glXGetVisualFromFBConfig( this->DisplayId,
+      this->Internal->FBConfig[0]);
+    if (!v)
       {
-      for (stereo = this->StereoCapableWindow; !v && stereo >= 0; stereo--)
-        {
-        for (multi = this->MultiSamples; !v && multi >= 0; multi--)
-          {
-          v = vtkXOpenGLRenderWindowTryForVisual(this->DisplayId,
-                                                 !this->DoubleBuffer,
-                                                 stereo, multi, alpha,
-                                                 stencil);
-          if (v)
-            {
-            this->DoubleBuffer = !this->DoubleBuffer;
-            this->StereoCapableWindow = stereo;
-            this->MultiSamples = multi;
-            this->AlphaBitPlanes = alpha;
-            this->StencilCapable = stencil;
-            }
-          }
-        }
+      vtkErrorMacro(<< "Could not find a decent visual\n");
       }
-    }
-  if (!v)
-    {
-    vtkErrorMacro(<< "Could not find a decent visual\n");
     }
   return ( v );
 }
@@ -532,6 +464,7 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
 
   // create our own window ?
   this->OwnWindow = 0;
+  GLXFBConfig* fb = NULL;
   if (!this->WindowId)
     {
     v = this->GetDesiredVisualInfo();
@@ -601,7 +534,41 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
       }
     }
 
-  if (!this->Internal->ContextId)
+  // try for 32 context
+  if (this->Internal->FBConfig)
+    {
+    // NOTE: It is not necessary to create or make current to a context before
+    // calling glXGetProcAddressARB
+    glXCreateContextAttribsARBProc glXCreateContextAttribsARB = 0;
+    glXCreateContextAttribsARB = (glXCreateContextAttribsARBProc)
+      glXGetProcAddressARB( (const GLubyte *) "glXCreateContextAttribsARB" );
+
+    int context_attribs[] =
+      {
+      GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
+      GLX_CONTEXT_MINOR_VERSION_ARB, 2,
+      //GLX_CONTEXT_FLAGS_ARB        , GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+      0
+      };
+
+    if (glXCreateContextAttribsARB)
+      {
+      this->Internal->ContextId =
+        glXCreateContextAttribsARB( this->DisplayId,
+          this->Internal->FBConfig[0], 0,
+          GL_TRUE, context_attribs );
+
+      // Sync to ensure any errors generated are processed.
+      XSync( this->DisplayId, False );
+      if ( this->Internal->ContextId )
+        {
+        this->SetContextSupportsOpenGL32(true);
+        }
+      }
+    }
+
+  // old failsafe
+  if (this->Internal->ContextId == NULL)
     {
     this->Internal->ContextId =
       glXCreateContext(this->DisplayId, v, 0, GL_TRUE);
@@ -1643,7 +1610,7 @@ const char* vtkXOpenGLRenderWindow::ReportCapabilities()
   strm << "OpenGL version string:  " << glVersion << endl;
   strm << "OpenGL extensions:  " << endl;
   int n = 0;
-  glGetIntegerv(GL_NUM_EXTENSIONS, &num);
+  glGetIntegerv(GL_NUM_EXTENSIONS, &n);
   for (int i = 0; i < n; i++)
     {
     const char *ext = (const char *)glGetStringi(GL_EXTENSIONS, i);
