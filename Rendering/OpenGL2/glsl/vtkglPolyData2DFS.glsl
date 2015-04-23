@@ -28,6 +28,9 @@ uniform int PrimitiveIDOffset;
 // Depth Peeling
 //VTK::DepthPeeling::Dec
 
+// the output of this shader
+//VTK::Output::Dec
+
 void main()
 {
   //VTK::Color::Impl

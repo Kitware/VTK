@@ -447,9 +447,9 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
     unsigned char *colorPtr = this->Colors->GetPointer(0);
     int numComp = this->Colors->GetNumberOfComponents();
     assert(numComp == 4);
-    for (int i = 0; i < cellCellMap.size(); i++)
+    for (unsigned int i = 0; i < cellCellMap.size(); i++)
       {
-      for (int j = 0; j < numComp; j++)
+      for (j = 0; j < numComp; j++)
         {
         newColors.push_back(colorPtr[cellCellMap[i]*numComp + j]);
         }

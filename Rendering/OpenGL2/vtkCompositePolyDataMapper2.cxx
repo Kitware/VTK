@@ -32,7 +32,7 @@
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
-     #include "vtkLookupTable.h"
+#include "vtkLookupTable.h"
 #include "vtkShaderProgram.h"
 #include "vtkTextureObject.h"
 
@@ -727,7 +727,7 @@ void vtkCompositePolyDataMapper2::AppendOneBufferObject(
       // create the cell scalar array adjusted for ogl Cells
       unsigned char *colorPtr = this->Colors->GetPointer(0);
       int numComp = this->Colors->GetNumberOfComponents();
-      for (int i = 0; i < cellCellMap.size(); i++)
+      for (unsigned int i = 0; i < cellCellMap.size(); i++)
         {
         for (int j = 0; j < numComp; j++)
           {
@@ -746,7 +746,7 @@ void vtkCompositePolyDataMapper2::AppendOneBufferObject(
       this->CellNormalTexture->SetContext(
         static_cast<vtkOpenGLRenderWindow*>(ren->GetVTKWindow()));
       // create the cell scalar array adjusted for ogl Cells
-      for (int i = 0; i < cellCellMap.size(); i++)
+      for (unsigned int i = 0; i < cellCellMap.size(); i++)
         {
         double *norms = n->GetTuple(cellCellMap[i]);
         newNorms.push_back(norms[0]);

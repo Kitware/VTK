@@ -23,6 +23,9 @@ varying vec2 tcoordVC;
 uniform sampler2D source;
 uniform float stepSize; // 1/W
 
+// the output of this shader
+//VTK::Output::Dec
+
 void main(void)
 {
   vec2 offset=vec2(stepSize,0.0);

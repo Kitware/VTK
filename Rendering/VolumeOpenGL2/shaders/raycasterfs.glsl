@@ -47,6 +47,8 @@ vec4 g_eyePosObj;
 uniform vec4 in_volume_scale;
 uniform vec4 in_volume_bias;
 
+//VTK::Output::Dec
+
 //VTK::Base::Dec
 
 //VTK::Termination::Dec
@@ -131,5 +133,5 @@ void main()
   g_fragColor.r = g_fragColor.r * in_scale + in_bias * g_fragColor.a;
   g_fragColor.g = g_fragColor.g * in_scale + in_bias * g_fragColor.a;
   g_fragColor.b = g_fragColor.b * in_scale + in_bias * g_fragColor.a;
-  gl_FragColor = g_fragColor;
+  gl_FragData[0] = g_fragColor;
   }

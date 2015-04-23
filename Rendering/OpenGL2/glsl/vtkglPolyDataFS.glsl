@@ -51,6 +51,9 @@ uniform int PrimitiveIDOffset;
 // clipping plane vars
 //VTK::Clip::Dec
 
+// the output of this shader
+//VTK::Output::Dec
+
 void main()
 {
   //VTK::Clip::Impl

@@ -1885,7 +1885,7 @@ void vtkOpenGLPolyDataMapper::BuildCellTextures(
 
       if (this->HavePickScalars)
         {
-        for (int i = 0; i < cellCellMap.size(); i++)
+        for (unsigned int i = 0; i < cellCellMap.size(); i++)
           {
           unsigned int value = cellCellMap[i]+1;
           if (mapArray)
@@ -1903,7 +1903,7 @@ void vtkOpenGLPolyDataMapper::BuildCellTextures(
         unsigned char *colorPtr = this->Colors->GetPointer(0);
         numComp = this->Colors->GetNumberOfComponents();
         assert(numComp == 4);
-        for (int i = 0; i < cellCellMap.size(); i++)
+        for (unsigned int i = 0; i < cellCellMap.size(); i++)
           {
           for (int j = 0; j < numComp; j++)
             {
@@ -1932,7 +1932,7 @@ void vtkOpenGLPolyDataMapper::BuildCellTextures(
       // create the cell scalar array adjusted for ogl Cells
       std::vector<float> newNorms;
       vtkDataArray *n = this->CurrentInput->GetCellData()->GetNormals();
-      for (int i = 0; i < cellCellMap.size(); i++)
+      for (unsigned int i = 0; i < cellCellMap.size(); i++)
         {
         double *norms = n->GetTuple(cellCellMap[i]);
         newNorms.push_back(norms[0]);

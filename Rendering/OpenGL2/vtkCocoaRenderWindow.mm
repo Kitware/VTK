@@ -886,6 +886,8 @@ void vtkCocoaRenderWindow::CreateGLContext()
     int i = 0;
     NSOpenGLPixelFormatAttribute attribs[20];
 
+    attribs[i++] = NSOpenGLPFAOpenGLProfile;
+    attribs[i++] = NSOpenGLProfileVersion3_2Core;
     attribs[i++] = NSOpenGLPFAAccelerated;
     attribs[i++] = NSOpenGLPFADepthSize;
     attribs[i++] = (NSOpenGLPixelFormatAttribute)32;
@@ -927,6 +929,10 @@ void vtkCocoaRenderWindow::CreateGLContext()
         {
         this->MultiSamples /= 2;
         }
+      }
+    else
+      {
+      this->SetContextSupportsOpenGL32(true);
       }
     }
 

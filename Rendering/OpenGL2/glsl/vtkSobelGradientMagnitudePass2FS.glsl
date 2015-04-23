@@ -25,6 +25,9 @@ uniform sampler2D gx1;
 uniform sampler2D gy1;
 uniform float stepSize; // 1/H
 
+// the output of this shader
+//VTK::Output::Dec
+
 void main(void)
 {
   vec2 offset=vec2(0.0,stepSize);
