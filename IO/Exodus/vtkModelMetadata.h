@@ -365,6 +365,7 @@ public:
 
   // Description:
   //   Get the total number of sides in all side sets
+  vtkSetMacro(SumSidesPerSideSet, int);
   int GetSumSidesPerSideSet() const {return this->SumSidesPerSideSet;}
 
   // Description:

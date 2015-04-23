@@ -322,6 +322,7 @@ protected:
 //ETX
   vtkIdType GetNodeLocalId(vtkIdType id);
   vtkIdType GetElementLocalId(vtkIdType id);
+  int GetElementType(vtkIdType id);
 
   int WriteInitializationParameters ();
   int WriteInformationRecords ();
