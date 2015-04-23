@@ -82,7 +82,7 @@ void vtkFrameBufferObject::DestroyFBO()
 }
 
 //----------------------------------------------------------------------------
-bool vtkFrameBufferObject::IsSupported(vtkOpenGLRenderWindow *)
+bool vtkFrameBufferObject::IsSupported(vtkOpenGLRenderWindow *rw)
 {
   if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
     {
