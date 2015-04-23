@@ -320,8 +320,16 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
 #if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
     if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
       {
+      // wow, this is how you get the alpha depth properly
+      GLint fboBind = 0;
+      glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &fboBind);
+      GLenum attachment = GL_FRONT_LEFT;
+      if (fboBind != 0)
+        {
+        attachment = GL_COLOR_ATTACHMENT0;
+        }
       glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
-        GL_FRONT_LEFT,
+        attachment,
         GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, &alphaBits);
       }
     else

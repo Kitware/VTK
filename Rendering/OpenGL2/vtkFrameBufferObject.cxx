@@ -82,8 +82,13 @@ void vtkFrameBufferObject::DestroyFBO()
 }
 
 //----------------------------------------------------------------------------
-bool vtkFrameBufferObject::IsSupported(vtkOpenGLRenderWindow *)
+bool vtkFrameBufferObject::IsSupported(vtkOpenGLRenderWindow *rw)
 {
+  if (rw->GetContextSupportsOpenGL32())
+    {
+    return true;
+    }
+
 #if GL_ES_VERSION_3_0 == 1
   bool fbo = true;
   bool fboBlit = true;
@@ -96,8 +101,13 @@ bool vtkFrameBufferObject::IsSupported(vtkOpenGLRenderWindow *)
 }
 
 //----------------------------------------------------------------------------
-bool vtkFrameBufferObject::LoadRequiredExtensions(vtkOpenGLRenderWindow *vtkNotUsed(win))
+bool vtkFrameBufferObject::LoadRequiredExtensions(vtkOpenGLRenderWindow *rw)
 {
+   if (rw->GetContextSupportsOpenGL32())
+    {
+    return true;
+    }
+
 #if GL_ES_VERSION_3_0 == 1
   bool fbo = true;
   bool fboBlit = true;
