@@ -203,6 +203,7 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
     std::string VSSource = vtkTextureObjectVS;
     std::string FSSource =
       "//VTK::System::Dec\n"
+      "//VTK::Output::Dec\n"
       "varying vec2 tcoordVC;\n"
       "uniform sampler2D source;\n"
       "uniform float scale;\n"

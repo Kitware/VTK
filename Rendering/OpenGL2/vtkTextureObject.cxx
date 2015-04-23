@@ -97,9 +97,11 @@ static const char *DepthTextureCompareFunctionAsString[8]=
   //----------------------------------------------------------------------------
   static GLenum OpenGLAlphaInternalFormat[5]=
   {
-    GL_R,
     GL_R8,
-    GL_R16
+    GL_R8,
+    GL_R16,
+    GL_R16F,
+    GL_R32F
   };
 
 #else
@@ -122,9 +124,11 @@ static const char *DepthTextureCompareFunctionAsString[8]=
   //----------------------------------------------------------------------------
   static GLenum OpenGLAlphaInternalFormat[5]=
   {
-    GL_R,
-    GL_R,
-    GL_R
+    GL_RED,
+    GL_RED,
+    GL_RED,
+    GL_RED,
+    GL_RED
   };
 
 #endif
@@ -1017,7 +1021,7 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
       switch (numComps)
         {
         case 1:
-          this->InternalFormat = GL_R;
+          this->InternalFormat = GL_RED;
           break;
         case 2:
           this->InternalFormat = GL_RG;

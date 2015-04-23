@@ -106,6 +106,8 @@ public:
     alpha=0,
     alpha8,
     alpha16,
+    alpha16f,
+    alpha32f,
     NumberOfAlphaFormats
   };
 

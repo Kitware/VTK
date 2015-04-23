@@ -399,8 +399,9 @@ void vtkOpenGLContextDevice2D::ReadyVBOProgram()
         "gl_Position = vertex*MCWCMatrix*WCDCMatrix; }\n",
         // fragment shader
         "//VTK::System::Dec\n"
+        "//VTK::Output::Dec\n"
         "uniform vec4 vertexColor;\n"
-        "void main() { gl_FragColor = vertexColor; }",
+        "void main() { gl_FragData[0] = vertexColor; }",
         // geometry shader
         "");
     }
@@ -429,8 +430,9 @@ void vtkOpenGLContextDevice2D::ReadyVCBOProgram()
         "gl_Position = vertex*MCWCMatrix*WCDCMatrix; }\n",
         // fragment shader
         "//VTK::System::Dec\n"
+        "//VTK::Output::Dec\n"
         "varying vec4 vertexColor;\n"
-        "void main() { gl_FragColor = vertexColor; }",
+        "void main() { gl_FragData[0] = vertexColor; }",
         // geometry shader
         "");
     }
@@ -459,9 +461,10 @@ void vtkOpenGLContextDevice2D::ReadyVTBOProgram()
         "gl_Position = vertex*MCWCMatrix*WCDCMatrix; }\n",
         // fragment shader
         "//VTK::System::Dec\n"
+        "//VTK::Output::Dec\n"
         "varying vec2 tcoord;\n"
         "uniform sampler2D texture1;\n"
-        "void main() { gl_FragColor = texture2D(texture1, tcoord); }",
+        "void main() { gl_FragData[0] = texture2D(texture1, tcoord); }",
         // geometry shader
         "");
     }
@@ -487,9 +490,10 @@ void vtkOpenGLContextDevice2D::ReadySBOProgram()
         "gl_Position = vertex*MCWCMatrix*WCDCMatrix; }\n",
         // fragment shader
         "//VTK::System::Dec\n"
+        "//VTK::Output::Dec\n"
         "uniform vec4 vertexColor;\n"
         "uniform sampler2D texture1;\n"
-        "void main() { gl_FragColor = vertexColor*texture2D(texture1, gl_PointCoord); }",
+        "void main() { gl_FragData[0] = vertexColor*texture2D(texture1, gl_PointCoord); }",
         // geometry shader
         "");
     }
@@ -518,9 +522,10 @@ void vtkOpenGLContextDevice2D::ReadySCBOProgram()
         "gl_Position = vertex*MCWCMatrix*WCDCMatrix; }\n",
         // fragment shader
         "//VTK::System::Dec\n"
+        "//VTK::Output::Dec\n"
         "varying vec4 vertexColor;\n"
         "uniform sampler2D texture1;\n"
-        "void main() { gl_FragColor = vertexColor*texture2D(texture1, gl_PointCoord); }",
+        "void main() { gl_FragData[0] = vertexColor*texture2D(texture1, gl_PointCoord); }",
         // geometry shader
         "");
     }

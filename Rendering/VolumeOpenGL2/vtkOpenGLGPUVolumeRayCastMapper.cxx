@@ -88,9 +88,7 @@ public:
     this->LoadDepthTextureExtensionsSucceeded = false;
     this->CameraWasInsideInLastUpdate = false;
     this->CubeVBOId = 0;
-#ifndef __APPLE__
     this->CubeVAOId = 0;
-#endif
     this->CubeIndicesId = 0;
     this->VolumeTextureObject = 0;
     this->NoiseTextureObject = 0;
@@ -251,9 +249,7 @@ public:
   bool HandleLargeDataTypes;
 
   GLuint CubeVBOId;
-#ifndef __APPLE__
   GLuint CubeVAOId;
-#endif
   GLuint CubeIndicesId;
 
   vtkTextureObject* VolumeTextureObject;
@@ -573,7 +569,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
       switch(noOfComponents)
         {
         case 1:
-          internalFormat = GL_R8;
+          internalFormat = GL_RED;
           format = GL_RED;
           break;
         case 2:
@@ -1687,9 +1683,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateVolumeGeometry(
     // Now create new ones
     this->CreateBufferObjects();
 
-#ifndef __APPLE__
-    glBindVertexArray(this->CubeVAOId);
+    // TODO: should realy use the built in VAO class
+    // which handles these apple issues internally
+#ifdef __APPLE__
+    if (this->ContextCache->GetContextSupportsOpenGL32())
 #endif
+      {
+      glBindVertexArray(this->CubeVAOId);
+      }
     // Pass cube vertices to buffer object memory
     glBindBuffer (GL_ARRAY_BUFFER, this->CubeVBOId);
     glBufferData (GL_ARRAY_BUFFER, points->GetData()->GetDataSize() *
@@ -1707,15 +1708,20 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateVolumeGeometry(
     }
   else
     {
-#ifndef __APPLE__
-    glBindVertexArray(this->CubeVAOId);
-#else
-    glBindBuffer (GL_ARRAY_BUFFER, this->CubeVBOId);
-    this->ShaderProgram->EnableAttributeArray("in_vertexPos");
-    this->ShaderProgram->UseAttributeArray("in_vertexPos", 0, 0, VTK_FLOAT,
-                                           3, vtkShaderProgram::NoNormalize);
-    glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, this->CubeIndicesId);
+#ifdef __APPLE__
+    if (!this->ContextCache->GetContextSupportsOpenGL32())
+      {
+      glBindBuffer (GL_ARRAY_BUFFER, this->CubeVBOId);
+      this->ShaderProgram->EnableAttributeArray("in_vertexPos");
+      this->ShaderProgram->UseAttributeArray("in_vertexPos", 0, 0, VTK_FLOAT,
+                                             3, vtkShaderProgram::NoNormalize);
+      glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, this->CubeIndicesId);
+      }
+    else
 #endif
+      {
+      glBindVertexArray(this->CubeVAOId);
+      }
     }
 }
 
@@ -1918,9 +1924,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
 //----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::CreateBufferObjects()
 {
-#ifndef __APPLE__
-  glGenVertexArrays(1, &this->CubeVAOId);
+#ifdef __APPLE__
+  if (this->ContextCache->GetContextSupportsOpenGL32())
 #endif
+    {
+    glGenVertexArrays(1, &this->CubeVAOId);
+    }
   glGenBuffers(1, &this->CubeVBOId);
   glGenBuffers(1, &this->CubeIndicesId);
 }
@@ -1928,12 +1937,15 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::CreateBufferObjects()
 //----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::DeleteBufferObjects()
 {
-#ifndef __APPLE__
   if (this->CubeVAOId)
     {
-    glDeleteVertexArrays(1, &this->CubeVAOId);
-    }
+#ifdef __APPLE__
+  if (this->ContextCache->GetContextSupportsOpenGL32())
 #endif
+      {
+      glDeleteVertexArrays(1, &this->CubeVAOId);
+      }
+    }
 
   if (this->CubeVBOId)
     {
@@ -2933,9 +2945,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     this->Impl->ShaderProgram->SetUniform4fv("in_componentWeight", 1, &fvalue4);
     }
 
-#ifndef __APPLE__
-  glBindVertexArray(this->Impl->CubeVAOId);
+#ifdef __APPLE__
+  if (this->Impl->ContextCache->GetContextSupportsOpenGL32())
 #endif
+    {
+    glBindVertexArray(this->Impl->CubeVAOId);
+    }
   glDrawElements(GL_TRIANGLES,
                  this->Impl->BBoxPolyData->GetNumberOfCells() * 3,
                  GL_UNSIGNED_INT, 0);

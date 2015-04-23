@@ -296,6 +296,7 @@ void vtkOpenGLContextDevice3D::ReadyVBOProgram()
         "gl_Position = vertex*MCWCMatrix*WCDCMatrix; }\n",
         // fragment shader
         "//VTK::System::Dec\n"
+        "//VTK::Output::Dec\n"
         "uniform vec4 vertexColor;\n"
         "uniform int numClipPlanes;\n"
         "varying float clipDistances[6];\n"
@@ -304,7 +305,7 @@ void vtkOpenGLContextDevice3D::ReadyVBOProgram()
         "    {\n"
         "    if (clipDistances[planeNum] < 0.0) discard;\n"
         "    }\n"
-        "  gl_FragColor = vertexColor; }",
+        "  gl_FragData[0] = vertexColor; }",
         // geometry shader
         "");
     }
@@ -340,6 +341,7 @@ void vtkOpenGLContextDevice3D::ReadyVCBOProgram()
         "gl_Position = vertex*MCWCMatrix*WCDCMatrix; }\n",
         // fragment shader
         "//VTK::System::Dec\n"
+        "//VTK::Output::Dec\n"
         "varying vec4 vertexColor;\n"
         "uniform int numClipPlanes;\n"
         "varying float clipDistances[6];\n"
@@ -348,7 +350,7 @@ void vtkOpenGLContextDevice3D::ReadyVCBOProgram()
         "    {\n"
         "    if (clipDistances[planeNum] < 0.0) discard;\n"
         "    }\n"
-        "  gl_FragColor = vertexColor; }",
+        "  gl_FragData[0] = vertexColor; }",
         // geometry shader
         "");
     }
