@@ -163,7 +163,7 @@ def TryUpdate(b, e):
             return False
         else:
             return True
-    except AttributeError as err:
+    except AttributeError:
         # No Update() method
         noUpdate.add(b.GetClassName())
         return False
@@ -192,7 +192,7 @@ def TryShutdown(b, e):
             return False
         else:
             return True
-    except AttributeError as err:
+    except AttributeError:
         # No Shutdown() method
         noShutdown.add(b.GetClassName())
         return False
@@ -222,7 +222,7 @@ def TrySetInputData(b, e, d):
             return False
         else:
             return True
-    except AttributeError as err:
+    except AttributeError:
         # No SetInputData() method
         noSetInput.add(b.GetClassName())
         return False
@@ -249,7 +249,7 @@ def TestOne(cname):
         updateStatus = [False, False, False, False, False, False]
         try:
             b.AddObserver('ErrorEvent', e)
-        except AttributeError as err:
+        except AttributeError:
             noObserver.add(cname)
             return False
         except:
@@ -307,15 +307,15 @@ def TestOne(cname):
 
         b = None
         return ok
-    except TypeError as err:
+    except TypeError:
         # Trapping abstract classes.
         abstractClasses.add(cname)
         return False
-    except NotImplementedError as err:
+    except NotImplementedError:
         # No concrete implementation
         noConcreteImplementation.add(cname)
         return False
-    except AttributeError as err:
+    except AttributeError:
         # Class does not exist
         nonexistentClasses.add(cname)
         return False
