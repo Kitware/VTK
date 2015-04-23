@@ -18,6 +18,7 @@
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
 #include "vtkCoordinate.h"
+#include "vtkDoubleArray.h"
 #include "vtkExecutive.h"
 #include "vtkInformation.h"
 #include "vtkIntArray.h"
@@ -40,7 +41,9 @@
 #include "vtkWindow.h"
 
 #include <algorithm>
+#include <cassert>
 #include <cmath>
+#include <map>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -48,7 +51,9 @@
 //------------------------------------------------------------------------------
 struct LabelMetric
 {
-  double value;
+  bool Valid;
+  double Value;
+  vtkTextProperty *TProp;
   std::string Text;
   // These measure the pixel size of the text texture:
   vtkTuple<int, 4> BoundingBox;
@@ -86,6 +91,34 @@ struct LabelInfo
 };
 
 namespace {
+
+// Circular iterator through a vtkTextPropertyCollection -----------------------
+class TextPropLoop
+{
+  vtkTextPropertyCollection *TProps;
+public:
+  TextPropLoop(vtkTextPropertyCollection *col)
+    : TProps(col)
+  {
+    TProps->InitTraversal();
+  }
+
+  vtkTextProperty* Next()
+  {
+    // The input checks should fail if this is the case:
+    assert("No text properties set! Prerender check failed!" &&
+           TProps->GetNumberOfItems() != 0);
+
+    vtkTextProperty *result = TProps->GetNextItem();
+    if (!result)
+      {
+      TProps->InitTraversal();
+      result = TProps->GetNextItem();
+      assert("Text property traversal error." && result != NULL);
+      }
+    return result;
+  }
+};
 
 //------------------------------------------------------------------------------
 double calculateSmoothness(double pathLength, double distance)
@@ -334,6 +367,22 @@ vtkTextPropertyCollection *vtkLabeledContourMapper::GetTextProperties()
 }
 
 //------------------------------------------------------------------------------
+vtkDoubleArray *vtkLabeledContourMapper::GetTextPropertyMapping()
+{
+  return this->TextPropertyMapping;
+}
+
+//------------------------------------------------------------------------------
+void vtkLabeledContourMapper::SetTextPropertyMapping(vtkDoubleArray *mapping)
+{
+  if (this->TextPropertyMapping != mapping)
+    {
+    this->TextPropertyMapping = mapping;
+    this->Modified();
+    }
+}
+
+//------------------------------------------------------------------------------
 void vtkLabeledContourMapper::ReleaseGraphicsResources(vtkWindow *win)
 {
   this->PolyDataMapper->ReleaseGraphicsResources(win);
@@ -367,6 +416,8 @@ void vtkLabeledContourMapper::PrintSelf(ostream& os, vtkIndent indent)
   this->PolyDataMapper->PrintSelf(os, indent.GetNextIndent());
   os << indent << "TextProperties:\n";
   this->TextProperties->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "TextPropertyMapping:\n";
+  this->TextPropertyMapping->PrintSelf(os, indent.GetNextIndent());
 }
 
 //------------------------------------------------------------------------------
@@ -498,26 +549,80 @@ bool vtkLabeledContourMapper::PrepareRender(vtkRenderer *ren, vtkActor *act)
   vtkDataArray *scalars = input->GetPointData()->GetScalars();
   vtkTextRenderer *tren = vtkTextRenderer::GetInstance();
 
+  // Maps scalar values to text properties:
+  typedef std::map<double, vtkTextProperty*> LabelPropertyMapType;
+  LabelPropertyMapType labelMap;
+
+  // Initialize with the user-requested mapping, if it exists.
+  if (this->TextPropertyMapping.GetPointer() != NULL)
+    {
+    vtkDoubleArray::Iterator valIt = this->TextPropertyMapping->Begin();
+    vtkDoubleArray::Iterator valItEnd = this->TextPropertyMapping->End();
+    TextPropLoop tprops(this->TextProperties);
+    for (; valIt != valItEnd; ++valIt)
+      {
+      labelMap.insert(std::make_pair(*valIt, tprops.Next()));
+      }
+    }
+
+  // Create the list of metrics, but no text property information yet.
   vtkIdType numPts;
   vtkIdType *ids;
-  vtkIdType cellId = 0;
-  for (lines->InitTraversal(); lines->GetNextCell(numPts, ids); ++cellId)
+  for (lines->InitTraversal(); lines->GetNextCell(numPts, ids);)
     {
-    vtkTextProperty *tprop = this->GetTextPropertyForCellId(cellId);
-    LabelMetric metric;
-    metric.value = numPts > 0 ? scalars->GetComponent(ids[0], 0) : 0.;
+    this->Internal->LabelMetrics.push_back(LabelMetric());
+    LabelMetric &metric = this->Internal->LabelMetrics.back();
+    if (!(metric.Valid = (numPts > 0)))
+      {
+      // Mark as invalid and skip if there are no points.
+      continue;
+      }
+    metric.Value = scalars->GetComponent(ids[0], 0);
     std::ostringstream str;
-    str << metric.value;
+    str << metric.Value;
     metric.Text = str.str();
-    if (!tren->GetBoundingBox(tprop, metric.Text, metric.BoundingBox.GetData()))
+    // The value will be replaced in the next loop:
+    labelMap.insert(
+          std::make_pair<double, vtkTextProperty*>(metric.Value, NULL));
+    }
+
+  // Now that all present scalar values are known, assign text properties:
+  TextPropLoop tprops(this->TextProperties);
+  typedef LabelPropertyMapType::iterator LabelPropertyMapIter;
+  for (LabelPropertyMapIter it = labelMap.begin(), itEnd = labelMap.end();
+       it != itEnd; ++it)
+    {
+    if (!it->second) // Skip if initialized from TextPropertyMapping
+      {
+      it->second = tprops.Next();
+      }
+    }
+
+  // Update metrics with appropriate text info:
+  typedef std::vector<LabelMetric>::iterator MetricsIter;
+  for (MetricsIter it = this->Internal->LabelMetrics.begin(),
+       itEnd = this->Internal->LabelMetrics.end(); it != itEnd; ++it)
+    {
+    if (!it->Valid)
+      {
+      continue;
+      }
+
+    // Look up text property for the scalar value:
+    LabelPropertyMapIter tpropIt = labelMap.find(it->Value);
+    assert("No text property assigned for scalar value." &&
+           tpropIt != labelMap.end());
+    it->TProp = tpropIt->second;
+
+    // Assign bounding box/dims.
+    if (!tren->GetBoundingBox(it->TProp, it->Text, it->BoundingBox.GetData()))
       {
       vtkErrorMacro(<<"Error calculating bounding box for string '"
-                    << metric.Text << "'.");
+                    << it->Text << "'.");
       return false;
       }
-    metric.Dimensions[0] = metric.BoundingBox[1] - metric.BoundingBox[0] + 1;
-    metric.Dimensions[1] = metric.BoundingBox[3] - metric.BoundingBox[2] + 1;
-    this->Internal->LabelMetrics.push_back(metric);
+    it->Dimensions[0] = it->BoundingBox[1] - it->BoundingBox[0] + 1;
+    it->Dimensions[1] = it->BoundingBox[3] - it->BoundingBox[2] + 1;
     }
 
   return true;
@@ -684,22 +789,16 @@ bool vtkLabeledContourMapper::CreateLabels(vtkActor *)
   vtkTextActor3D **actor = this->TextActors;
   vtkTextActor3D **actorEnd = this->TextActors + this->NumberOfUsedTextActors;
 
-  vtkIdType cellId = 0;
   while (metrics != metricsEnd &&
          outerLabels != outerLabelsEnd &&
          actor != actorEnd)
     {
-    vtkTextProperty *tprop = this->GetTextPropertyForCellId(cellId);
-
     for (InfoVector::const_iterator label = outerLabels->begin(),
          labelEnd = outerLabels->end(); label != labelEnd; ++label)
       {
-      (*actor)->SetTextProperty(tprop);
       this->Internal->BuildLabel(*actor, *metrics, *label);
       ++actor;
       }
-
-    ++cellId;
     ++metrics;
     ++outerLabels;
     }
@@ -848,14 +947,6 @@ bool vtkLabeledContourMapper::BuildStencilQuads()
     }
 
   return true;
-}
-
-//------------------------------------------------------------------------------
-vtkTextProperty *
-vtkLabeledContourMapper::GetTextPropertyForCellId(vtkIdType cellId) const
-{
-  int idx = static_cast<int>(cellId % this->TextProperties->GetNumberOfItems());
-  return this->TextProperties->GetItem(idx);
 }
 
 //------------------------------------------------------------------------------
@@ -1248,7 +1339,9 @@ bool vtkLabeledContourMapper::Private::BuildLabel(vtkTextActor3D *actor,
                                                   const LabelInfo &info)
 
 {
+  assert(metric.Valid);
   actor->SetInput(metric.Text.c_str());
+  actor->SetTextProperty(metric.TProp);
   actor->SetPosition(const_cast<double*>(info.Position.GetData()));
 
   vtkNew<vtkTransform> xform;
