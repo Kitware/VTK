@@ -32,10 +32,8 @@ set (GenericVolumeCxxTests
 # These tests are built only if either Module_vtkRenderingVolumeOpenGLNew is ON
 # or if the rendering backend is OpenGL2
 set (OpenGLNew_OR_OpenGL2_CxxTests
-  #TestGPURayCastAdditive1.cxx
   TestGPURayCastClipping.cxx
-  #TestGPURayCastCropping1.cxx
-  #TestGPURayCastDataTypesMinIP1.cxx
+  TestGPURayCastCropping1.cxx
   TestGPURayCastGradientOpacity.cxx
   TestGPURayCastVolumePolyData.cxx
   TestGPURayCastVolumeRotation.cxx
