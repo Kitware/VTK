@@ -381,10 +381,7 @@ void vtkOpenGLContextDevice3D::DrawPoly(const float *verts, int n,
     {
     vtkErrorMacro(<< "lines wider than 1.0 are not supported\n");
     }
-  else
-    {
-    glLineWidth(this->Pen->GetWidth());
-    }
+  glLineWidth(this->Pen->GetWidth());
 
   vtkgl::CellBO *cbo = 0;
   if (colors)
@@ -437,10 +434,7 @@ void vtkOpenGLContextDevice3D::DrawLines(const float *verts, int n,
     {
     vtkErrorMacro(<< "lines wider than 1.0 are not supported\n");
     }
-  else
-    {
-    glLineWidth(this->Pen->GetWidth());
-    }
+  glLineWidth(this->Pen->GetWidth());
 
   vtkgl::CellBO *cbo = 0;
   if (colors)
