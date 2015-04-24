@@ -1145,6 +1145,8 @@ int TestGPURayCastVolumePlane(int argc, char* argv[])
   source->SetCenter(0.0, 0.0, 0.0);
 
   vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
+  volumeMapper->AutoAdjustSampleDistancesOff();
+  volumeMapper->SetSampleDistance(0.5);
   volumeMapper->SetInputConnection(source->GetOutputPort());
 
   vtkNew<vtkVolumeProperty> volumeProperty;
