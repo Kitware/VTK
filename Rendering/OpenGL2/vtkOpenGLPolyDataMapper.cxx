@@ -962,7 +962,8 @@ void vtkOpenGLPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* r
     if (newShader != cellBO.Program)
       {
       cellBO.Program = newShader;
-      cellBO.vao.ShaderProgramChanged(); // reset the VAO as the shader has changed
+      // reset the VAO as the shader has changed
+      cellBO.vao.ReleaseGraphicsResources();
       }
 
     cellBO.ShaderSourceTime.Modified();
@@ -1389,7 +1390,12 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
 #if GL_ES_VERSION_2_0 != 1
   glPointSize(actor->GetProperty()->GetPointSize()); // not on ES2
 #endif
-  glLineWidth(actor->GetProperty()->GetLineWidth()); // supported by all OpenGL versions
+  if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32() &&
+      actor->GetProperty()->GetLineWidth() > 1.0)
+    {
+    vtkWarningMacro("line widths above 1.0 are not supported by OpenGL 3.2");
+    }
+  glLineWidth(actor->GetProperty()->GetLineWidth());
 
   vtkHardwareSelector* selector = ren->GetSelector();
   int picking = selector ? selector->GetCurrentPass() :
@@ -2067,7 +2073,8 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
   if (
       this->VBOBuildTime < this->GetMTime() ||
       this->VBOBuildTime < this->CurrentInput->GetMTime() ||
-      this->VBOBuildTime < prop->GetMTime())
+      this->VBOBuildTime < prop->GetMTime() ||
+      this->VBOBuildTime < this->SelectionStateChanged)
     {
     this->BuildIBO(ren, act);
     }

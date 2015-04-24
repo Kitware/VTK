@@ -376,7 +376,15 @@ void vtkOpenGLContextDevice3D::DrawPoly(const float *verts, int n,
   this->EnableDepthBuffer();
 
   this->Storage->SetLineType(this->Pen->GetLineType());
-  glLineWidth(this->Pen->GetWidth());
+
+  if (this->Pen->GetWidth() > 1.0)
+    {
+    vtkErrorMacro(<< "lines wider than 1.0 are not supported\n");
+    }
+  else
+    {
+    glLineWidth(this->Pen->GetWidth());
+    }
 
   vtkgl::CellBO *cbo = 0;
   if (colors)
@@ -399,6 +407,7 @@ void vtkOpenGLContextDevice3D::DrawPoly(const float *verts, int n,
 
   // free everything
   cbo->ReleaseGraphicsResources(this->RenderWindow);
+  glLineWidth(1.0);
 
   this->DisableDepthBuffer();
 
@@ -423,25 +432,38 @@ void vtkOpenGLContextDevice3D::DrawLines(const float *verts, int n,
   this->EnableDepthBuffer();
 
   this->Storage->SetLineType(this->Pen->GetLineType());
-  glLineWidth(this->Pen->GetWidth());
 
-  if (colors)
+  if (this->Pen->GetWidth() > 1.0)
     {
-    glEnableClientState(GL_COLOR_ARRAY);
-    glColorPointer(nc, GL_UNSIGNED_BYTE, 0, colors);
+    vtkErrorMacro(<< "lines wider than 1.0 are not supported\n");
     }
   else
     {
-    glColor4ubv(this->Pen->GetColor());
+    glLineWidth(this->Pen->GetWidth());
     }
-  glEnableClientState(GL_VERTEX_ARRAY);
-  glVertexPointer(3, GL_FLOAT, 0, verts);
-  glDrawArrays(GL_LINE, 0, n);
-  glDisableClientState(GL_VERTEX_ARRAY);
+
+  vtkgl::CellBO *cbo = 0;
   if (colors)
     {
-    glDisableClientState(GL_COLOR_ARRAY);
+    this->ReadyVCBOProgram();
+    cbo = this->VCBO;
     }
+  else
+    {
+    this->ReadyVBOProgram();
+    cbo = this->VBO;
+    cbo->Program->SetUniform4uc("vertexColor",
+      this->Pen->GetColor());
+    }
+
+  this->BuildVBO(cbo, verts, n, colors, nc, NULL);
+  this->SetMatrices(cbo->Program);
+
+  glDrawArrays(GL_LINE, 0, n);
+
+  // free everything
+  cbo->ReleaseGraphicsResources(this->RenderWindow);
+  glLineWidth(1.0);
 
   this->DisableDepthBuffer();
 

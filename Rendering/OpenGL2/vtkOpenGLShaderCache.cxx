@@ -142,6 +142,7 @@ vtkShaderProgram *vtkOpenGLShaderCache::ReadyShader(
       if (!done)
         {
         fragDecls += "out vec4 " + dst.str() + ";\n";
+        count++;
         }
       }
     FSSource = replace(FSSource,"//VTK::Output::Dec",fragDecls);

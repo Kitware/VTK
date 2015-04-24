@@ -602,7 +602,12 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   if (this->Lines.indexCount)
     {
     // Set the LineWidth
-    glLineWidth(actor->GetProperty()->GetLineWidth()); // supported by all OpenGL versions
+    if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32() &&
+        actor->GetProperty()->GetLineWidth() > 1.0)
+      {
+      vtkWarningMacro("line widths above 1.0 are not supported by OpenGL 3.2");
+      }
+    glLineWidth(actor->GetProperty()->GetLineWidth());
     this->Lines.ibo.Bind();
     glDrawRangeElements(GL_LINES, 0,
                         static_cast<GLuint>(layout.VertexCount - 1),

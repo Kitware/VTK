@@ -112,7 +112,8 @@ bool vtkOpenGLLabeledContourMapper::ApplyStencil(vtkRenderer *ren,
         "void main() { gl_Position = MCDCMatrix*vertexMC; }\n",
         // fragment shader
         "//VTK::System::Dec\n"
-        "void main() { gl_FragColor = vec4(1.0,1.0,1.0,1.0); }",
+        "//VTK::Output::Dec\n"
+        "void main() { gl_FragData[0] = vec4(1.0,1.0,1.0,1.0); }",
         // geometry shader
         "");
     }
