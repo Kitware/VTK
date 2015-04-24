@@ -32,6 +32,7 @@
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
+#include "vtkPlotArea.h"
 #include "vtkPlotBar.h"
 #include "vtkPlotBag.h"
 #include "vtkPlotFunctionalBag.h"
@@ -389,6 +390,7 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
     }
 
   this->UpdateLayout(painter);
+
   // Recalculate the plot transform, min and max values if necessary
   if (!this->PlotTransformValid)
     {
@@ -398,6 +400,14 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
   if (this->UpdateLayout(painter) || recalculateTransform)
     {
     this->RecalculatePlotTransforms();
+    }
+
+  // Now that plot transforms, including whether to use log scaling and the
+  // shift-scale factors, have been updated, we give the vtkPlot instances an
+  // opportunity to update caches.
+  for (size_t i = 0; i < this->ChartPrivate->plots.size(); ++i)
+    {
+    this->ChartPrivate->plots[i]->UpdateCache();
     }
 
   // Update the clipping if necessary
@@ -1148,6 +1158,14 @@ vtkPlot * vtkChartXY::AddPlot(int type)
       bag->SetParent(this);
       bag->GetBrush()->SetColor(color.GetData());
       plot = bag;
+      break;
+      }
+    case AREA:
+      {
+      vtkPlotArea* area = vtkPlotArea::New();
+      area->SetParent(this);
+      area->GetBrush()->SetColor(color.GetData());
+      plot = area;
       break;
       }
 
