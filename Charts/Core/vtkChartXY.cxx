@@ -314,11 +314,8 @@ void vtkChartXY::Update()
 
   if (this->AutoAxes)
     {
-    for (int i = 0; i < 4; ++i)
-      {
-      this->ChartPrivate->axes[i]->SetVisible(false);
-      }
-    for (size_t i = 0; i < this->ChartPrivate->PlotCorners.size(); ++i)
+    vtkTuple<bool, 4> visibilities(false);
+    for (int i = 0; i < static_cast<int>(this->ChartPrivate->PlotCorners.size()); ++i)
       {
       int visible = 0;
       for (unsigned int j = 0;
@@ -332,17 +329,13 @@ void vtkChartXY::Update()
         }
       if (visible)
         {
-        if (i < 3)
-          {
-          this->ChartPrivate->axes[i]->SetVisible(true);
-          this->ChartPrivate->axes[i+1]->SetVisible(true);
-          }
-        else
-          {
-          this->ChartPrivate->axes[0]->SetVisible(true);
-          this->ChartPrivate->axes[3]->SetVisible(true);
-          }
+        visibilities[i % 4] = true;
+        visibilities[(i+1) % 4] = true;
         }
+      }
+    for (int i = 0; i < 4; ++i)
+      {
+      this->ChartPrivate->axes[i]->SetVisible(visibilities[i]);
       }
     }
 }
