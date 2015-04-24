@@ -82,9 +82,9 @@ void vtkFrameBufferObject::DestroyFBO()
 }
 
 //----------------------------------------------------------------------------
-bool vtkFrameBufferObject::IsSupported(vtkOpenGLRenderWindow *rw)
+bool vtkFrameBufferObject::IsSupported(vtkOpenGLRenderWindow *)
 {
-  if (rw->GetContextSupportsOpenGL32())
+  if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
     {
     return true;
     }
@@ -101,9 +101,9 @@ bool vtkFrameBufferObject::IsSupported(vtkOpenGLRenderWindow *rw)
 }
 
 //----------------------------------------------------------------------------
-bool vtkFrameBufferObject::LoadRequiredExtensions(vtkOpenGLRenderWindow *rw)
+bool vtkFrameBufferObject::LoadRequiredExtensions(vtkOpenGLRenderWindow *)
 {
-   if (rw->GetContextSupportsOpenGL32())
+   if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
     {
     return true;
     }
