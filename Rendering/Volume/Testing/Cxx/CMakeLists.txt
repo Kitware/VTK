@@ -97,6 +97,7 @@ set (VolumeOpenGL2CxxTests
   TestGPURayCastVolumeDepthPass.cxx
   TestGPURayCastVolumeLightKit.cxx
   TestGPURayCastVolumePicking.cxx
+  TestGPURayCastVolumePlane.cxx
   TestGPURayCastVolumePolyData.cxx
   TestGPURayCastVolumeRotation.cxx
   TestGPURayCastVolumeScale.cxx
