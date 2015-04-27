@@ -143,6 +143,17 @@ public:
   vtkGetMacro( NormalizeVector, bool );
 
   // Description:
+  // If set to true, the first three point of the cell will be used to compute a normal to the cell,
+  // this normal will then be removed from the vorticity so the resulting vector in tangent to the cell.
+  vtkSetMacro(ForceSurfaceTangentVector, bool);
+  vtkGetMacro(ForceSurfaceTangentVector, bool);
+
+  // Description:
+  // If set to true, cell within tolerance factor will always be found, except for edges.
+  vtkSetMacro(SurfaceDataset, bool);
+  vtkGetMacro(SurfaceDataset, bool);
+
+  // Description:
   // Import parameters. Sub-classes can add more after chaining.
   virtual void CopyParameters( vtkAbstractInterpolatedVelocityField * from )
     { this->Caching = from->Caching; }
@@ -150,7 +161,7 @@ public:
 
   // Description:
   // Evaluate the velocity field f at point (x, y, z).
-  virtual int FunctionValues( double * x, double * f ) = 0;
+  virtual int FunctionValues(double * x, double * f) = 0;
 
   // Description:
   // Set the last cell id to -1 to incur a global cell search for the next point.
@@ -167,16 +178,20 @@ protected:
   ~vtkAbstractInterpolatedVelocityField();
 
   static const double TOLERANCE_SCALE;
+  static const double SURFACE_TOLERANCE_SCALE;
 
   int       CacheHit;
   int       CacheMiss;
   int       WeightsSize;
   bool      Caching;
   bool      NormalizeVector;
+  bool      ForceSurfaceTangentVector;
+  bool      SurfaceDataset;
   int       VectorsType;
   char *    VectorsSelection;
   double *  Weights;
   double    LastPCoords[3];
+  int       LastSubId;
   vtkIdType LastCellId;
   vtkDataSet *     LastDataSet;
   vtkGenericCell * Cell;
@@ -195,7 +210,21 @@ protected:
   // for cell location. In vtkCellLocatorInterpolatedVelocityField, this function
   // is invoked just to handle vtkImageData and vtkRectilinearGrid that are not
   // assigned with any vtkAbstractCellLocatot-type cell locator.
-  virtual int FunctionValues( vtkDataSet * ds, double * x, double * f );
+  // If activated, returned vector will be tangential to the first
+  // three point of the cell
+  virtual int FunctionValues(vtkDataSet * ds, double * x, double * f);
+
+  // Description:
+  // Check that all three pcoords are between 0 and 1 included.
+  virtual bool CheckPCoords(double pcoords[3]);
+
+  // Description
+  // Try to find the cell closest to provided x point in provided dataset,
+  // By first testing inclusion in it's cached cell and neighbor
+  // Then testing globally
+  // Then , only if surfacic is activated finding the closest cell
+  // using FindPoint and comparing distance with tolerance
+  virtual bool FindAndUpdateCell(vtkDataSet* ds, double* x);
 
 //BTX
   friend class vtkTemporalInterpolatedVelocityField;

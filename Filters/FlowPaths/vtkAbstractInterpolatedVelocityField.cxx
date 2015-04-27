@@ -15,6 +15,7 @@
 #include "vtkAbstractInterpolatedVelocityField.h"
 
 #include "vtkMath.h"
+#include "vtkNew.h"
 #include "vtkDataSet.h"
 #include "vtkDataArray.h"
 #include "vtkPointData.h"
@@ -25,6 +26,7 @@
 
 //----------------------------------------------------------------------------
 const double vtkAbstractInterpolatedVelocityField::TOLERANCE_SCALE = 1.0E-8;
+const double vtkAbstractInterpolatedVelocityField::SURFACE_TOLERANCE_SCALE = 1.0E-5;
 
 //---------------------------------------------------------------------------
 vtkAbstractInterpolatedVelocityField::vtkAbstractInterpolatedVelocityField()
@@ -47,6 +49,8 @@ vtkAbstractInterpolatedVelocityField::vtkAbstractInterpolatedVelocityField()
   this->VectorsType = 0;
   this->VectorsSelection = 0;
   this->NormalizeVector  = false;
+  this->ForceSurfaceTangentVector  = false;
+  this->SurfaceDataset = false;
 
   this->Cell     = vtkGenericCell::New();
   this->GenCell  = vtkGenericCell::New();
@@ -79,13 +83,11 @@ vtkAbstractInterpolatedVelocityField::~vtkAbstractInterpolatedVelocityField()
 
 //---------------------------------------------------------------------------
 int vtkAbstractInterpolatedVelocityField::FunctionValues
-  ( vtkDataSet * dataset, double * x, double * f )
+  (vtkDataSet * dataset, double * x, double * f)
 {
-  int i, j, subId , numPts, id;
+  int i, j, numPts, id;
   vtkDataArray * vectors = NULL;
   double vec[3];
-  double dist2;
-  int ret;
 
   f[0] = f[1] = f[2] = 0.0;
 
@@ -97,8 +99,8 @@ int vtkAbstractInterpolatedVelocityField::FunctionValues
     return 0;
     }
   if(!this->VectorsSelection) //if a selection is not speicifed,
-                              //use the first one in the point set (this is a behavior for backward compatability)
     {
+    //use the first one in the point set (this is a behavior for backward compatability)
     vectors =  dataset->GetPointData()->GetVectors(0);
     }
   else
@@ -112,68 +114,15 @@ int vtkAbstractInterpolatedVelocityField::FunctionValues
     return 0;
     }
 
-  double tol2 = dataset->GetLength() *
-                vtkAbstractInterpolatedVelocityField::TOLERANCE_SCALE;
 
-
-  int found = 0;
-
-  if ( this->Caching )
+  if (!this->FindAndUpdateCell(dataset, x))
     {
-    // See if the point is in the cached cell
-    if ( this->LastCellId == -1 ||
-         !(  ret = this->GenCell->EvaluatePosition
-                   ( x, 0, subId, this->LastPCoords, dist2, this->Weights)
-          )
-        || ret == -1
-       )
-      {
-      // if not, find and get it
-      if ( this->LastCellId != - 1 )
-        {
-        this->CacheMiss ++;
-
-        dataset->GetCell( this->LastCellId, this->Cell );
-
-        this->LastCellId =
-          dataset->FindCell( x, this->Cell, this->GenCell, this->LastCellId,
-                             tol2, subId, this->LastPCoords, this->Weights );
-
-        if ( this->LastCellId != -1 )
-          {
-          dataset->GetCell( this->LastCellId, this->GenCell );
-          found = 1;
-          }
-        }
-      }
-    else
-      {
-      this->CacheHit ++;
-      found = 1;
-      }
-    }
-
-  if ( !found )
-    {
-    // if the cell is not found, do a global search (ignore initial
-    // cell if there is one)
-    this->LastCellId =
-      dataset->FindCell( x, 0, this->GenCell, -1, tol2,
-                         subId, this->LastPCoords, this->Weights );
-
-    if ( this->LastCellId != -1 )
-      {
-      dataset->GetCell( this->LastCellId, this->GenCell );
-      }
-    else
-      {
       vectors = NULL;
       return  0;
-      }
     }
 
   // if the cell is valid
-  if ( this->LastCellId >= 0 )
+  if (this->LastCellId >= 0)
     {
     numPts = this->GenCell->GetNumberOfPoints();
 
@@ -195,6 +144,46 @@ int vtkAbstractInterpolatedVelocityField::FunctionValues
       vectors->GetTuple(this->LastCellId, f);
       }
 
+    if (this->ForceSurfaceTangentVector)
+      {
+      vtkNew<vtkIdList> ptIds;
+      dataset->GetCellPoints(this->LastCellId, ptIds.Get());
+      if (ptIds->GetNumberOfIds() < 3)
+        {
+        vtkErrorMacro(<<"Cannot compute normal on cells with less than 3 points");
+        }
+      else
+        {
+        double p1[3];
+        double p2[3];
+        double p3[3];
+        double normal[3];
+        double v1[3], v2[3];
+        double k;
+
+        dataset->GetPoint(ptIds->GetId(0), p1);
+        dataset->GetPoint(ptIds->GetId(1), p2);
+        dataset->GetPoint(ptIds->GetId(2), p3);
+
+        // Compute othogonal component
+        v1[0] = p2[0] - p1[0];
+        v1[1] = p2[1] - p1[1];
+        v1[2] = p2[2] - p1[2];
+        v2[0] = p3[0] - p1[0];
+        v2[1] = p3[1] - p1[1];
+        v2[2] = p3[2] - p1[2];
+
+        vtkMath::Cross(v1, v2, normal);
+        vtkMath::Normalize(normal);
+        k = vtkMath::Dot(normal, f);
+
+        // Remove non orthogonal component.
+        f[0] = f[0] - (normal[0]*k);
+        f[1] = f[1] - (normal[1]*k);
+        f[2] = f[2] - (normal[2]*k);
+        }
+      }
+
     if ( this->NormalizeVector == true )
       {
       vtkMath::Normalize( f );
@@ -211,6 +200,188 @@ int vtkAbstractInterpolatedVelocityField::FunctionValues
   return  1;
 }
 
+//---------------------------------------------------------------------------
+bool vtkAbstractInterpolatedVelocityField::CheckPCoords(double pcoords [3])
+{
+  for (int i = 0; i < 3; i++ )
+    {
+    if (pcoords[i] < 0 || pcoords[i] > 1)
+      {
+      return false;
+      }
+    }
+  return true;
+}
+
+//---------------------------------------------------------------------------
+bool vtkAbstractInterpolatedVelocityField::FindAndUpdateCell(vtkDataSet* dataset, double* x)
+{
+  double tol2, dist2;
+  if (this->SurfaceDataset)
+    {
+    tol2 = dataset->GetLength() *  dataset->GetLength() *
+      vtkAbstractInterpolatedVelocityField::SURFACE_TOLERANCE_SCALE;
+    }
+  else
+    {
+    tol2 = dataset->GetLength() *  dataset->GetLength() *
+                  vtkAbstractInterpolatedVelocityField::TOLERANCE_SCALE;
+    }
+
+  double closest[3];
+  bool found = false;
+  if (this->Caching)
+    {
+    bool out = false;
+
+    // See if the point is in the cached cell
+    if (this->LastCellId != -1)
+      {
+      // Use cache cell only if point is inside
+      // or , with surface , not far and in pccords
+      int ret = this->GenCell->EvaluatePosition
+           (x, closest, this->LastSubId, this->LastPCoords, dist2, this->Weights);
+      if (ret == -1
+          || (ret == 0 && !this->SurfaceDataset)
+          || (this->SurfaceDataset && (dist2 > tol2 || !this->CheckPCoords(this->LastPCoords))))
+        {
+        out = true;
+        }
+
+      if (out)
+        {
+        this->CacheMiss ++;
+
+        dataset->GetCell(this->LastCellId, this->Cell);
+
+        // Search around current cached cell to see if there is a cell within tolerance
+        this->LastCellId =
+          dataset->FindCell(x, this->Cell, this->GenCell, this->LastCellId,
+                            tol2, this->LastSubId, this->LastPCoords, this->Weights);
+
+        if (this->LastCellId != -1 && (!this->SurfaceDataset || this->CheckPCoords( this->LastPCoords)))
+          {
+          dataset->GetCell(this->LastCellId, this->GenCell);
+          found = true;
+          }
+        }
+      else
+        {
+        this->CacheHit ++;
+        found = true;
+        }
+      }
+    }
+  if (!found)
+    {
+    // if the cell is not found in cache, do a global search (ignore initial
+    // cell if there is one)
+    this->LastCellId =
+      dataset->FindCell(x, 0, this->GenCell, -1, tol2,
+                        this->LastSubId, this->LastPCoords, this->Weights);
+
+    if (this->LastCellId != -1 && (!this->SurfaceDataset || this->CheckPCoords( this->LastPCoords)))
+      {
+      dataset->GetCell( this->LastCellId, this->GenCell );
+      }
+    else
+      {
+      if (this->SurfaceDataset)
+        {
+        // Still cannot find cell, use point locator to find a (arbitrary) cell, for 2D surface
+        vtkIdType idPoint = dataset->FindPoint(x);
+        if(idPoint < 0)
+          {
+          this->LastCellId = -1;
+          return false;
+          }
+
+        vtkNew<vtkIdList> cellList;
+        dataset->GetPointCells(idPoint, cellList.Get());
+        double minDist2 = dataset->GetLength() * dataset->GetLength();
+        vtkIdType minDistId = -1;
+        for (vtkIdType idCell = 0; idCell < cellList->GetNumberOfIds(); idCell++)
+          {
+          this->LastCellId = cellList->GetId(idCell);
+          dataset->GetCell(this->LastCellId, this->GenCell);
+          int ret = this->GenCell->EvaluatePosition
+            (x, closest, this->LastSubId, this->LastPCoords, dist2, this->Weights);
+          if (ret != -1 && dist2 < minDist2)
+            {
+            minDistId = this->LastCellId;
+            minDist2 = dist2;
+            }
+          }
+
+        if( minDistId == -1)
+          {
+          this->LastCellId = -1;
+          return false;
+          }
+
+        // Recover closest cell info
+        this->LastCellId = minDistId;
+        dataset->GetCell(this->LastCellId, this->GenCell);
+        int ret = this->GenCell->EvaluatePosition
+            (x, closest, this->LastSubId, this->LastPCoords, dist2, this->Weights);
+
+        // Find Point being not perfect to find cell, check for closer cells
+        vtkNew<vtkIdList> boundaryPoints;
+        vtkNew<vtkIdList> neighCells;
+        bool edge = false;
+        bool closer;
+        while(true)
+          {
+            this->GenCell->CellBoundary(this->LastSubId, this->LastPCoords, boundaryPoints.Get());
+            dataset->GetCellNeighbors(this->LastCellId, boundaryPoints.Get(), neighCells.Get());
+            if (neighCells->GetNumberOfIds() == 0)
+              {
+              edge = true;
+              break;
+              }
+            closer = false;
+            for (vtkIdType neighCellId = 0; neighCellId < neighCells->GetNumberOfIds(); neighCellId++)
+              {
+                this->LastCellId = neighCells->GetId(neighCellId);
+                dataset->GetCell(this->LastCellId, this->GenCell);
+                ret = this->GenCell->EvaluatePosition
+                  (x, closest, this->LastSubId, this->LastPCoords, dist2, this->Weights);
+                if (ret != -1 && dist2 < minDist2)
+                  {
+                  minDistId = this->LastCellId;
+                  minDist2 = dist2;
+                  closer = true;
+                  }
+              }
+            if (!closer)
+              {
+              break;
+              }
+          }
+
+        // Recover closest cell info
+        if(!edge)
+          {
+          this->LastCellId = minDistId;
+          dataset->GetCell(this->LastCellId, this->GenCell);
+          this->GenCell->EvaluatePosition
+              (x, closest, this->LastSubId, this->LastPCoords, dist2, this->Weights);
+          }
+        if (minDist2 > tol2 || (!this->CheckPCoords(this->LastPCoords) && edge))
+          {
+          this->LastCellId = -1;
+          return false;
+          }
+        }
+      else
+        {
+        this->LastCellId = -1;
+        return  false;
+        }
+      }
+    }
+  return true;
+}
 //----------------------------------------------------------------------------
 int vtkAbstractInterpolatedVelocityField::GetLastWeights( double * w )
 {
@@ -285,6 +456,10 @@ void vtkAbstractInterpolatedVelocityField::PrintSelf( ostream & os, vtkIndent in
      << ( this->VectorsSelection ? this->VectorsSelection : "(none)" ) << endl;
   os << indent << "NormalizeVector: "
      << ( this->NormalizeVector ? "on." : "off." ) << endl;
+  os << indent << "ForceSurfaceTangentVector: "
+     << ( this->ForceSurfaceTangentVector ? "on." : "off." ) << endl;
+  os << indent << "SurfaceDataset: "
+     << ( this->SurfaceDataset ? "on." : "off." ) << endl;
 
   os << indent << "Caching Status: "     << ( this->Caching ? "on." : "off." )
      << endl;
