@@ -623,7 +623,7 @@ void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n, unsigned char *colors,
       }
 
     this->BuildVBO(cbo, &(newVerts[0]), newVerts.size()/2,
-      &(newColors[0]), nc, NULL);
+      colors ? &(newColors[0]) : NULL, nc, NULL);
     glDrawArrays(GL_TRIANGLES, 0, newVerts.size()/2);
     }
   else
@@ -717,7 +717,7 @@ void vtkOpenGLContextDevice2D::DrawLines(float *f, int n, unsigned char *colors,
       }
 
     this->BuildVBO(cbo, &(newVerts[0]), newVerts.size()/2,
-      &(newColors[0]), nc, NULL);
+      colors ? &(newColors[0]) : NULL, nc, NULL);
     glDrawArrays(GL_TRIANGLES, 0, newVerts.size()/2);
     }
   else
