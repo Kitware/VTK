@@ -1937,6 +1937,20 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::CreateBufferObjects()
 //----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::DeleteBufferObjects()
 {
+  if (this->CubeVBOId)
+    {
+    glBindBuffer (GL_ARRAY_BUFFER, this->CubeVBOId);
+    glDeleteBuffers(1, &this->CubeVBOId);
+    this->CubeVBOId = 0;
+    }
+
+  if (this->CubeIndicesId)
+   {
+   glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, this->CubeIndicesId);
+   glDeleteBuffers(1, &this->CubeIndicesId);
+    this->CubeIndicesId = 0;
+   }
+
   if (this->CubeVAOId)
     {
 #ifdef __APPLE__
@@ -1945,17 +1959,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::DeleteBufferObjects()
       {
       glDeleteVertexArrays(1, &this->CubeVAOId);
       }
+    this->CubeVAOId = 0;
     }
-
-  if (this->CubeVBOId)
-    {
-    glDeleteBuffers(1, &this->CubeVBOId);
-    }
-
-  if (this->CubeIndicesId)
-   {
-   glDeleteBuffers(1, &this->CubeIndicesId);
-   }
 }
 
 //----------------------------------------------------------------------------

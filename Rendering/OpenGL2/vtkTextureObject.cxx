@@ -490,29 +490,23 @@ void vtkTextureObject::ReleaseGraphicsResources(vtkWindow *win)
   vtkOpenGLRenderWindow *rwin =
    vtkOpenGLRenderWindow::SafeDownCast(win);
 
-  if (rwin)
+  if (rwin && this->Handle)
     {
     rwin->MakeCurrent();
 
-    // It is almost guarenteed that in case of valid handle, we will have
-    // value other than zero. A check like this may be required at other
-    // places as well.
-    if (this->Handle)
-      {
-      rwin->ActivateTexture(this);
-      this->UnBind();
-      rwin->DeactivateTexture(this);
-      GLuint tex = this->Handle;
-      glDeleteTextures(1, &tex);
-      this->Handle = 0;
-      this->NumberOfDimensions = 0;
-      this->Target =0;
-      this->InternalFormat = 0;
-      this->Format = 0;
-      this->Type = 0;
-      this->Components = 0;
-      this->Width = this->Height = this->Depth = 0;
-      }
+    rwin->ActivateTexture(this);
+    this->UnBind();
+    rwin->DeactivateTexture(this);
+    GLuint tex = this->Handle;
+    glDeleteTextures(1, &tex);
+    this->Handle = 0;
+    this->NumberOfDimensions = 0;
+    this->Target =0;
+    this->InternalFormat = 0;
+    this->Format = 0;
+    this->Type = 0;
+    this->Components = 0;
+    this->Width = this->Height = this->Depth = 0;
     }
   if (this->ShaderProgram)
     {

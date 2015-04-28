@@ -555,6 +555,11 @@ double* vtkLegendBoxActor::GetEntryColor(int i)
 // resources to release.
 void vtkLegendBoxActor::ReleaseGraphicsResources(vtkWindow *win)
 {
+  if ( this->BackgroundActor )
+     {
+     this->BackgroundActor->ReleaseGraphicsResources(win);
+     }
+
   if ( this->BorderActor )
      {
      this->BorderActor->ReleaseGraphicsResources(win);

@@ -684,7 +684,7 @@ void vtkXOpenGLRenderWindow::DestroyWindow()
 
   if (this->OwnContext && this->Internal->ContextId)
     {
-      this->MakeCurrent();
+    this->MakeCurrent();
     // tell each of the renderers that this render window/graphics context
     // is being removed (the RendererCollection is removed by vtkRenderWindow's
     // destructor)
@@ -697,6 +697,7 @@ void vtkXOpenGLRenderWindow::DestroyWindow()
       ren->SetRenderWindow(NULL);
       ren->SetRenderWindow(this);
       }
+    this->ReleaseGraphicsResources();
 
     if (this->Internal->ContextId)
       {

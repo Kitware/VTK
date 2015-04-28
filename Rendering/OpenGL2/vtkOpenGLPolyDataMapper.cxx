@@ -137,6 +137,8 @@ void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
   this->Lines.ReleaseGraphicsResources(win);
   this->Tris.ReleaseGraphicsResources(win);
   this->TriStrips.ReleaseGraphicsResources(win);
+  this->TrisEdges.ReleaseGraphicsResources(win);
+  this->TriStripsEdges.ReleaseGraphicsResources(win);
 
   if (this->InternalColorTexture)
     {
