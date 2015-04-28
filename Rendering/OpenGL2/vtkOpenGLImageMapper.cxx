@@ -84,6 +84,14 @@ vtkOpenGLImageMapper::~vtkOpenGLImageMapper()
   this->Actor->UnRegister(this);
 }
 
+//----------------------------------------------------------------------------
+// Release the graphics resources used by this texture.
+void vtkOpenGLImageMapper::ReleaseGraphicsResources(vtkWindow *renWin)
+{
+  this->Actor->ReleaseGraphicsResources(renWin);
+}
+
+
 
 //----------------------------------------------------------------------------
 // I know #define can be evil, but this macro absolutely ensures

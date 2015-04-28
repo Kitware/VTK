@@ -56,6 +56,11 @@ public:
   // used internally by the templated functions
   void DrawPixels(vtkViewport *vp, int width, int height, int numComponents, void *data);
 
+  // Description:
+  // Release any graphics resources that are being consumed by this
+  // mapper, the image texture in particular.
+  void ReleaseGraphicsResources(vtkWindow *);
+
 protected:
   vtkOpenGLImageMapper();
   ~vtkOpenGLImageMapper();
