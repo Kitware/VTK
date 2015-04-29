@@ -900,7 +900,7 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
 
   if(injectionFlag) //reinject again in the last step
     {
-    this->ReinjectionCounter += this->ForceReinjectionEveryNSteps;
+    this->ReinjectionCounter = this->CurrentTimeStep - this->StartTimeStep;
 
     ParticleListIterator lastParticle = this->ParticleHistories.end();
     if (!this->ParticleHistories.empty())
@@ -928,11 +928,10 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
 
     for(; itr!=this->ParticleHistories.end(); ++itr)
       {
-      ParticleInformation& info(*lastParticle);
-      this->Interpolator->TestPoint(info.CurrentPosition.x);
+      this->Interpolator->TestPoint(itr->CurrentPosition.x);
       double velocity[3];
       this->Interpolator->GetLastGoodVelocity(velocity);
-      info.speed = vtkMath::Norm(velocity);
+      itr->speed = vtkMath::Norm(velocity);
       this->AddParticle(*itr,velocity);
       }
     }

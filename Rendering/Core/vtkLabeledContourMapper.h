@@ -32,6 +32,7 @@
 #include "vtkNew.h" // For vtkNew
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 
+class vtkDoubleArray;
 class vtkTextActor3D;
 class vtkTextProperty;
 class vtkTextPropertyCollection;
@@ -69,14 +70,29 @@ public:
   // Description:
   // The text properties used to label the lines. Note that both vertical and
   // horizontal justifications will be reset to "Centered" prior to rendering.
-  // The collection is iterated through as the labels are generated, such that
-  // the first line (cell) in the dataset is labeled using the first text
-  // property in the collection, the second line is labeled with the second
-  // property, and so on. If the number of cells exceeds the number of
-  // properties, the property collection is repeated.
+  //
+  // If the TextPropertyMapping array exists, then it is used to identify which
+  // text property to use for each label as follows: If the scalar value of a
+  // line is found in the mapping, the index of the value in mapping is used to
+  // lookup the text property in the collection. If there are more mapping
+  // values than properties, the properties are looped through until the
+  // mapping is exhausted.
+  //
+  // Lines with scalar values missing from the mapping are assigned text
+  // properties in a round-robin fashion starting from the beginning of the
+  // collection, repeating from the start of the collection as necessary.
   // @sa SetTextProperty
+  // @sa SetTextPropertyMapping
   virtual void SetTextProperties(vtkTextPropertyCollection *coll);
   virtual vtkTextPropertyCollection *GetTextProperties();
+
+  // Description:
+  // Values in this array correspond to vtkTextProperty objects in the
+  // TextProperties collection. If a contour line's scalar value exists in
+  // this array, the corresponding text property is used for the label.
+  // See SetTextProperties for more information.
+  virtual vtkDoubleArray* GetTextPropertyMapping();
+  virtual void SetTextPropertyMapping(vtkDoubleArray *mapping);
 
   // Description:
   // If true, labels will be placed and drawn during rendering. Otherwise,
@@ -117,8 +133,6 @@ protected:
   bool AllocateTextActors(vtkIdType num);
   bool FreeTextActors();
 
-  vtkTextProperty* GetTextPropertyForCellId(vtkIdType cellId) const;
-
   bool LabelVisibility;
   vtkIdType NumberOfTextActors;
   vtkIdType NumberOfUsedTextActors;
@@ -126,6 +140,7 @@ protected:
 
   vtkNew<vtkPolyDataMapper> PolyDataMapper;
   vtkSmartPointer<vtkTextPropertyCollection> TextProperties;
+  vtkSmartPointer<vtkDoubleArray> TextPropertyMapping;
 
   float *StencilQuads;
   vtkIdType StencilQuadsSize;

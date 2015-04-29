@@ -122,39 +122,6 @@ int vtkGenericOpenGLRenderWindow::IsDirect()
   return this->DirectStatus;
 }
 
-void vtkGenericOpenGLRenderWindow::PushState()
-{
-  vtkOpenGLClearErrorMacro();
-
-  glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
-  glPushAttrib(GL_ALL_ATTRIB_BITS);
-
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
-  glLoadIdentity();
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  glLoadIdentity();
-
-  vtkOpenGLCheckErrorMacro("failed after PushState");
-}
-
-void vtkGenericOpenGLRenderWindow::PopState()
-{
-  vtkOpenGLClearErrorMacro();
-
-  glMatrixMode(GL_PROJECTION);
-  glPopMatrix();
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
-
-  glPopClientAttrib();
-  glPopAttrib();
-
-  vtkOpenGLCheckErrorMacro("failed after PopState");
-}
-
-
 void vtkGenericOpenGLRenderWindow::SetWindowId(void*)
 {
 }
