@@ -243,7 +243,7 @@ public:
 private:
   TLS Internal;
   std::vector<unsigned char> Initialized;
-  vtkAtomicInt<size_t> NumInitialized;
+  vtkAtomicInt<vtkIdType> NumInitialized;
   T Exemplar;
 
   void Initialize()

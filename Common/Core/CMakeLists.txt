@@ -27,60 +27,77 @@ set(vtkCommonCore_EXPORT_OPTIONS
   )
 
 # Choose which multi-threaded parallelism library to use
-set(VTK_SMP_IMPLEMENTATION_TYPE "Sequential" CACHE STRING
-  "Which multi-threaded parallelism implementation to use. Options are Sequential, Simple, Kaapi or TBB"
-)
+set(VTK_SMP_IMPLEMENTATION_TYPE_DOC_STRING "Which multi-threaded parallelism implementation to use. Options are Sequential, Simple, Kaapi or TBB")
+
+set(VTK_SMP_IMPLEMENTATION_TYPE "Sequential" CACHE STRING ${VTK_SMP_IMPLEMENTATION_TYPE_DOC_STRING})
+
 set_property(CACHE VTK_SMP_IMPLEMENTATION_TYPE PROPERTY STRINGS Sequential Simple Kaapi TBB)
 
 if( NOT ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "Kaapi" OR
          "${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "TBB" OR
          "${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "Simple") )
-  set(VTK_SMP_IMPLEMENTATION_TYPE "Sequential")
+  set(VTK_SMP_IMPLEMENTATION_TYPE "Sequential" CACHE STRING ${VTK_SMP_IMPLEMENTATION_TYPE_DOC_STRING} FORCE)
 endif()
+
+set(VTK_SMP_SOURCES "")
+set(VTK_SMP_HEADERS "")
+set(VTK_SMP_USE_DEFAULT_ATOMICS ON)
 
 if ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "TBB")
   find_package(TBB REQUIRED)
-  set(VTK_SMP_IMPLEMENTATION_LIBRARIES "")
-  if (TBB_LIBRARY)
-    list(APPEND VTK_SMP_IMPLEMENTATION_LIBRARIES optimized ${TBB_LIBRARY})
-  endif()
-  if (TBB_LIBRARY_DEBUG)
-    list(APPEND VTK_SMP_IMPLEMENTATION_LIBRARIES debug ${TBB_LIBRARY_DEBUG})
-  endif()
-  set(VTK_SMP_ATOMIC_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/SMP/TBB")
+  set(VTK_SMP_IMPLEMENTATION_LIBRARIES ${TBB_LIBRARIES})
   include_directories(${TBB_INCLUDE_DIRS})
   # This needs to be here because all modules that include vtkAtomic.h
   # need to include tbb/atomic.h
   list(APPEND vtkCommonCore_SYSTEM_INCLUDE_DIRS ${TBB_INCLUDE_DIRS})
+
+  set(VTK_SMP_USE_DEFAULT_ATOMICS OFF)
+  set(VTK_SMP_IMPLEMENTATION_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SMP/TBB")
+  set(VTK_SMP_SOURCES ${VTK_SMP_IMPLEMENTATION_DIR}/vtkSMPTools.cxx)
+  set(VTK_SMP_HEADERS_TO_CONFIG
+    vtkAtomicInt.h vtkSMPToolsInternal.h vtkSMPThreadLocal.h)
+
 elseif ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "Kaapi")
   find_package(XKaapi REQUIRED)
   include_directories(${XKAAPI_INCLUDE_DIRS})
   set(VTK_SMP_IMPLEMENTATION_LIBRARIES ${XKAAPI_LIBRARIES})
-  set(VTK_SMP_ATOMIC_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/SMP/Sequential")
   list(APPEND vtkCommonCore_SYSTEM_INCLUDE_DIRS ${XKAAPI_INCLUDE_DIRS})
+
+  set(VTK_SMP_IMPLEMENTATION_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SMP/Kaapi")
+  set(VTK_SMP_SOURCES ${VTK_SMP_IMPLEMENTATION_DIR}/vtkSMPTools.cxx)
+  set(VTK_SMP_HEADERS_TO_CONFIG vtkSMPToolsInternal.h vtkSMPThreadLocal.h)
+
 elseif ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "Simple")
   set(VTK_SMP_IMPLEMENTATION_LIBRARIES)
-  set(VTK_SMP_ATOMIC_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/SMP/Sequential")
+
+  set(VTK_SMP_IMPLEMENTATION_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SMP/Simple")
+  set(VTK_SMP_SOURCES ${VTK_SMP_IMPLEMENTATION_DIR}/vtkSMPTools.cxx)
+  set(VTK_SMP_HEADERS_TO_CONFIG vtkSMPToolsInternal.h vtkSMPThreadLocal.h)
+
   message(WARNING "The Simple backend for SMP operations is an experimental backend that is mainly used for debugging currently. We recommend that you use either the TBB or the Kaapi backend for production work. Use the Sequential backend if you would like to turn off any SMP parallelism.")
+
 elseif ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "Sequential")
   set(VTK_SMP_IMPLEMENTATION_LIBRARIES)
-  set(VTK_SMP_ATOMIC_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/SMP/Sequential")
+  set(VTK_SMP_IMPLEMENTATION_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SMP/Sequential")
+  set(VTK_SMP_SOURCES ${VTK_SMP_IMPLEMENTATION_DIR}/vtkSMPTools.cxx)
+  set(VTK_SMP_HEADERS_TO_CONFIG vtkSMPToolsInternal.h vtkSMPThreadLocal.h)
 endif()
 
-if(EXISTS ${VTK_SMP_ATOMIC_DIRECTORY}/vtkAtomicInt.cxx)
-  set(VTK_ATOMIC_CXX_FILE ${VTK_SMP_ATOMIC_DIRECTORY}/vtkAtomicInt.cxx)
-else()
-  set(VTK_ATOMIC_CXX_FILE "")
+if (${VTK_SMP_USE_DEFAULT_ATOMICS})
+  set(VTK_ATOMICS_DEFAULT_IMPL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SMP/Sequential")
+  list(APPEND VTK_SMP_SOURCES ${VTK_ATOMICS_DEFAULT_IMPL_DIR}/vtkAtomicInt.cxx)
+  configure_file(${VTK_ATOMICS_DEFAULT_IMPL_DIR}/vtkAtomicInt.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/vtkAtomicInt.h COPYONLY)
+  list(APPEND VTK_SMP_HEADERS ${CMAKE_CURRENT_BINARY_DIR}/vtkAtomicInt.h)
 endif()
 
-configure_file(${VTK_SMP_ATOMIC_DIRECTORY}/vtkAtomicInt.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkAtomicInt.h COPYONLY)
+foreach (HDR_FILE ${VTK_SMP_HEADERS_TO_CONFIG})
+  configure_file(${VTK_SMP_IMPLEMENTATION_DIR}/${HDR_FILE}.in
+    ${CMAKE_CURRENT_BINARY_DIR}/${HDR_FILE} COPYONLY)
+  list(APPEND VTK_SMP_HEADERS ${CMAKE_CURRENT_BINARY_DIR}/${HDR_FILE})
+endforeach()
 
-configure_file(SMP/${VTK_SMP_IMPLEMENTATION_TYPE}/vtkSMPThreadLocal.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkSMPThreadLocal.h COPYONLY)
-
-configure_file(SMP/${VTK_SMP_IMPLEMENTATION_TYPE}/vtkSMPToolsInternal.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkSMPToolsInternal.h COPYONLY)
+list(APPEND VTK_SMP_HEADERS vtkSMPTools.h vtkSMPThreadLocalObject.h)
 
 #-----------------------------------------------------------------------------
 
@@ -209,13 +226,8 @@ SET(Module_SRCS
   vtkTypeTemplate.h
   vtkType.h
   vtkSystemIncludes.h
-  ${VTK_ATOMIC_CXX_FILE}
-  vtkSMPThreadLocalObject.h
-  vtkSMPTools.h
-  SMP/${VTK_SMP_IMPLEMENTATION_TYPE}/vtkSMPTools.cxx
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkSMPToolsInternal.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkSMPThreadLocal.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkAtomicInt.h
+  ${VTK_SMP_SOURCES}
+  ${VTK_SMP_HEADERS}
   ${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h
@@ -315,7 +327,22 @@ endif()
 # Check for atomic functions
 include(CheckSymbolExists)
 if (WIN32)
+  check_symbol_exists(InterlockedIncrement64 "windows.h" VTK_WINDOWS_ATOMICS_64)
+  if(NOT VTK_WINDOWS_ATOMICS_64)
+    check_symbol_exists(InterlockedIncrement "windows.h" VTK_WINDOWS_ATOMICS_32)
+  else() # assume that if 64-bit operations exists then 32-bit ops also exist
+    set(VTK_WINDOWS_ATOMICS_32 true)
+  endif()
   check_symbol_exists(InterlockedAdd "windows.h" VTK_HAS_INTERLOCKEDADD)
+elseif(APPLE)
+  check_symbol_exists(OSAtomicIncrement64Barrier "libkern/OSAtomic.h"
+                      VTK_APPLE_ATOMICS_64)
+  if(NOT VTK_APPLE_ATOMICS_64)
+    check_symbol_exists(OSAtomicIncrement32Barrier "libkern/OSAtomic.h"
+                        VTK_APPLE_ATOMICS_32)
+  else()
+    set(VTK_APPLE_ATOMICS_32 true)
+  endif()
 endif()
 
 
@@ -555,13 +582,8 @@ set_source_files_properties(
   vtkMathConfigure.h
   vtkVersionMacros.h
   vtkTypeTemplate.h
-  vtkSMPThreadLocalObject.h
-  vtkSMPTools.h
-  SMP/${VTK_SMP_IMPLEMENTATION_TYPE}/vtkSMPTools.cxx
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkSMPToolsInternal.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkSMPThreadLocal.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkAtomicInt.h
-  ${VTK_ATOMIC_CXX_FILE}
+  ${VTK_SMP_SOURCES}
+  ${VTK_SMP_HEADERS}
 
   WRAP_EXCLUDE
   )

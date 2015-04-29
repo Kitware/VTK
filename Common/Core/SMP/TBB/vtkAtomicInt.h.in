@@ -20,18 +20,42 @@
 
 #include <tbb/atomic.h>
 
-template <typename T> class vtkAtomicInt
+#include <cstddef>
+#include <limits>
+
+#ifndef __WRAP__
+namespace detail
+{
+template <bool> struct CompileTimeCheck;
+template <> struct CompileTimeCheck<true> {};
+
+template <typename T> struct SupportedIntegralType
+{
+  CompileTimeCheck<std::numeric_limits<T>::is_specialized> c1;
+  CompileTimeCheck<std::numeric_limits<T>::is_integer> c2;
+  CompileTimeCheck<sizeof(T) == 4 || sizeof(T) == 8> c3;
+};
+
+}
+#endif // __WRAP__
+
+template <typename T> class vtkAtomicInt : detail::SupportedIntegralType<T>
 {
 public:
   vtkAtomicInt()
-    {
-      this->Atomic = 0;
-    }
+  {
+    this->Atomic = 0;
+  }
 
-  vtkAtomicInt(const T val)
-    {
-      this->Atomic = val;
-    }
+  vtkAtomicInt(T val)
+  {
+    this->Atomic = val;
+  }
+
+  vtkAtomicInt(const vtkAtomicInt<T> &ai)
+  {
+    this->Atomic = ai.Atomic;
+  }
 
   T operator++()
   {
@@ -74,21 +98,152 @@ public:
     return val;
   }
 
+  vtkAtomicInt<T>& operator=(const vtkAtomicInt<T> &ai)
+  {
+    this->Atomic = ai.Atomic;
+  }
+
   T load() const
-    {
-      return this->Atomic;
-    }
+  {
+    return this->Atomic;
+  }
 
   void store(T val)
-    {
-      this->Atomic = val;
-    }
-
+  {
+    this->Atomic = val;
+  }
 
 private:
   tbb::atomic<T> Atomic;
 };
 
+
+template <typename T> class vtkAtomicInt<T*>
+{
+public:
+  vtkAtomicInt()
+  {
+    this->Atomic = 0;
+  }
+
+  vtkAtomicInt(T* val)
+  {
+    this->Atomic = val;
+  }
+
+  vtkAtomicInt(const vtkAtomicInt<T*> &ai)
+  {
+    this->Atomic = ai.Atomic;
+  }
+
+  T* operator++()
+  {
+    return ++this->Atomic;
+  }
+
+  T* operator++(int)
+  {
+    return this->Atomic++;
+  }
+
+  T* operator--()
+  {
+    return --this->Atomic;
+  }
+
+  T* operator--(int)
+  {
+    return this->Atomic--;
+  }
+
+  T* operator+=(ptrdiff_t val)
+  {
+    return this->Atomic += val;
+  }
+
+  T* operator-=(ptrdiff_t val)
+  {
+    return this->Atomic -= val;
+  }
+
+  operator T*() const
+  {
+    return this->Atomic;
+  }
+
+  T* operator=(T* val)
+  {
+    this->Atomic = val;
+    return val;
+  }
+
+  vtkAtomicInt<T*>& operator=(const vtkAtomicInt<T*> &ai)
+  {
+    this->Atomic = ai.Atomic;
+  }
+
+  T* load() const
+  {
+    return this->Atomic;
+  }
+
+  void store(T* val)
+  {
+    this->Atomic = val;
+  }
+
+private:
+  tbb::atomic<T*> Atomic;
+};
+
+
+template <> class vtkAtomicInt<void*>
+{
+public:
+  vtkAtomicInt()
+  {
+    this->Atomic = 0;
+  }
+
+  vtkAtomicInt(void* val)
+  {
+    this->Atomic = val;
+  }
+
+  vtkAtomicInt(const vtkAtomicInt<void*> &ai)
+  {
+    this->Atomic = ai.Atomic;
+  }
+
+  operator void*() const
+  {
+    return this->Atomic;
+  }
+
+  void* operator=(void* val)
+  {
+    this->Atomic = val;
+    return val;
+  }
+
+  vtkAtomicInt<void*>& operator=(const vtkAtomicInt<void*> &ai)
+  {
+    this->Atomic = ai.Atomic;
+  }
+
+  void* load() const
+  {
+    return this->Atomic;
+  }
+
+  void store(void* val)
+  {
+    this->Atomic = val;
+  }
+
+private:
+  tbb::atomic<void*> Atomic;
+};
 
 #endif
 // VTK-HeaderTest-Exclude: vtkAtomicInt.h

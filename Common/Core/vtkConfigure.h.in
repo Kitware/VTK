@@ -44,6 +44,11 @@
 #cmakedefine VTK_HAVE_SYNC_BUILTINS
 #if defined(WIN32)
  #cmakedefine VTK_HAS_INTERLOCKEDADD
+ #cmakedefine VTK_WINDOWS_ATOMICS_32
+ #cmakedefine VTK_WINDOWS_ATOMICS_64
+#elif defined(__APPLE__)
+ #cmakedefine VTK_APPLE_ATOMICS_32
+ #cmakedefine VTK_APPLE_ATOMICS_64
 #endif
 
 /* Size of fundamental data types.  */
