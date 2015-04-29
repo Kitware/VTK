@@ -52,6 +52,17 @@ vtkOpenGLGlyph3DHelper::vtkOpenGLGlyph3DHelper()
 
 }
 
+// ---------------------------------------------------------------------------
+// Description:
+// Release any graphics resources that are being consumed by this mapper.
+void vtkOpenGLGlyph3DHelper::ReleaseGraphicsResources(vtkWindow *window)
+{
+  this->NormalMatrixBuffer.ReleaseGraphicsResources();
+  this->MatrixBuffer.ReleaseGraphicsResources();
+  this->ColorBuffer.ReleaseGraphicsResources();
+  this->Superclass::ReleaseGraphicsResources(window);
+}
+
 //-----------------------------------------------------------------------------
 void vtkOpenGLGlyph3DHelper::GetShaderTemplate(std::string &VSSource,
                                           std::string &FSSource,

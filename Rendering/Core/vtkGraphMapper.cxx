@@ -436,9 +436,21 @@ vtkGraph *vtkGraphMapper::GetInput()
 //----------------------------------------------------------------------------
 void vtkGraphMapper::ReleaseGraphicsResources( vtkWindow *renWin )
 {
-  if (this->EdgeMapper)
+  if (this->EdgeActor)
     {
-    this->EdgeMapper->ReleaseGraphicsResources( renWin );
+    this->EdgeActor->ReleaseGraphicsResources( renWin );
+    }
+  if (this->VertexActor)
+    {
+    this->VertexActor->ReleaseGraphicsResources( renWin );
+    }
+  if (this->OutlineActor)
+    {
+    this->OutlineActor->ReleaseGraphicsResources( renWin );
+    }
+  if (this->IconActor)
+    {
+    this->IconActor->ReleaseGraphicsResources( renWin );
     }
 }
 
