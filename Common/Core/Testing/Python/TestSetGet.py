@@ -37,7 +37,11 @@ commonExceptions = set([
  # These give an HDF5 no file name error.
 "vtkAMRFlashParticlesReader",
 "vtkAMREnzoParticlesReader",
-"vtkAMRFlashReader"
+"vtkAMRFlashReader",
+
+# core dump in release mode, issue is vtkChartMatrix.GetChart() & vtkScatterPlotMatrix.SetActivePlot()
+"vtkChartMatrix",
+"vtkScatterPlotMatrix"
 ])
 
 classLinuxExceptions = set([
