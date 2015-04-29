@@ -416,8 +416,17 @@ void vtkLabeledContourMapper::PrintSelf(ostream& os, vtkIndent indent)
   this->PolyDataMapper->PrintSelf(os, indent.GetNextIndent());
   os << indent << "TextProperties:\n";
   this->TextProperties->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "TextPropertyMapping:\n";
-  this->TextPropertyMapping->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "TextPropertyMapping:";
+  if (this->TextPropertyMapping)
+    {
+    os << "\n";
+    this->TextPropertyMapping->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << " (NULL)\n";
+    }
+
 }
 
 //------------------------------------------------------------------------------
@@ -582,8 +591,12 @@ bool vtkLabeledContourMapper::PrepareRender(vtkRenderer *ren, vtkActor *act)
     str << metric.Value;
     metric.Text = str.str();
     // The value will be replaced in the next loop:
-    labelMap.insert(
-          std::pair<double, vtkTextProperty*>(metric.Value, NULL));
+    // The extra explicit casting is needed for MSVC 10, which has trouble
+    // figuring out that NULL is a pointer type. We can't just use make_pair,
+    // because newer MSVC gets confused about passing in the double. Hopefully
+    // this line will work, at least until the next MSVC release.
+    labelMap.insert(std::pair<double, vtkTextProperty*>(
+                      metric.Value, reinterpret_cast<vtkTextProperty*>(NULL)));
     }
 
   // Now that all present scalar values are known, assign text properties:
