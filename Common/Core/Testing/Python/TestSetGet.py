@@ -41,9 +41,7 @@ commonExceptions = set([
 ])
 
 classLinuxExceptions = set([
-"vtkAMREnzoReader",  # core dump
-"vtkChartMatrix",  # core dump in release mode
-"vtkScatterPlotMatrix" # core dump in release mode, issue is vtkChartMatrix.GetChart()
+"vtkAMREnzoReader"  # core dump
 ])
 
 # In the case of Windows, these classes cause a crash.
