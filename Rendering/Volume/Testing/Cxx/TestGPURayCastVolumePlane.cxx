@@ -38,7 +38,6 @@
 //----------------------------------------------------------------------------
 static const char * TestGPURayCastVolumePlaneLog =
 "# StreamVersion 1\n"
-"RenderEvent 0 0 0 0 0 0 0\n"
 "EnterEvent 169 9 0 0 0 0 0\n"
 "MouseMoveEvent 169 9 0 0 0 0 0\n"
 "MouseMoveEvent 168 21 0 0 0 0 0\n"
@@ -1143,10 +1142,14 @@ int TestGPURayCastVolumePlane(int argc, char* argv[])
   vtkNew<vtkRTAnalyticSource> source;
   source->SetWholeExtent(-49,50,-49,50,0,1);
   source->SetCenter(0.0, 0.0, 0.0);
+  source->Update();
+
+  vtkImageData* wavelet = source->GetOutput();
+  wavelet->SetSpacing(1,1,10);
 
   vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
   volumeMapper->AutoAdjustSampleDistancesOff();
-  volumeMapper->SetSampleDistance(0.5);
+  volumeMapper->SetSampleDistance(1.0);
   volumeMapper->SetInputConnection(source->GetOutputPort());
 
   vtkNew<vtkVolumeProperty> volumeProperty;
@@ -1168,6 +1171,10 @@ int TestGPURayCastVolumePlane(int argc, char* argv[])
 
   vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->SetSize(300, 301);
+  vtkNew<vtkRenderWindowInteractor> iren;
+  iren->SetRenderWindow(renderWindow.GetPointer());
+  vtkNew<vtkInteractorStyleTrackballCamera> style;
+  iren->SetInteractorStyle(style.GetPointer());
   renderWindow->Render(); // make sure we have an OpenGL context.
 
   vtkNew<vtkPlaneSource> plane;
@@ -1191,12 +1198,6 @@ int TestGPURayCastVolumePlane(int argc, char* argv[])
   renderer->AddActor(planeActor.GetPointer());
   renderer->AddVolume(volume.GetPointer());
   renderer->ResetCamera();
-  renderWindow->Render();
-
-  vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renderWindow.GetPointer());
-  vtkNew<vtkInteractorStyleTrackballCamera> style;
-  iren->SetInteractorStyle(style.GetPointer());
 
   renderWindow->Render();
 
