@@ -129,7 +129,6 @@ set(shader_files
   glsl/vtkglPolyData2DVS.glsl
   glsl/vtkglPolyDataFS.glsl
   glsl/vtkglPolyDataVSFragmentLit.glsl
-  glsl/vtkglPolyDataVSNoLighting.glsl
   )
 unset(shader_h_files)
 foreach(file ${shader_files})
