@@ -10,8 +10,8 @@ set(LibSrcs
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 if(VTK_QT_VERSION VERSION_GREATER "4")
-  find_package(Qt5Widgets REQUIRED QUIET)
-  find_package(Qt5Sql REQUIRED QUIET)
+  find_package(Qt5 COMPONENTS Widgets REQUIRED QUIET)
+  find_package(Qt5 COMPONENTS Sql REQUIRED QUIET)
 
   set(_qt_include_dirs ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Sql_INCLUDE_DIRS})
   list(REMOVE_DUPLICATES _qt_include_dirs)

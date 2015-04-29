@@ -7,7 +7,7 @@ set(LibSrcs ${QVTKLibSrcs} vtkQtRichTextView.cxx)
 set(MocHeaders ${QVTKMocHeaders} vtkQtRichTextView.h)
 
 if(VTK_QT_VERSION VERSION_GREATER "4")
-  find_package(Qt5WebKitWidgets REQUIRED QUIET)
+  find_package(Qt5 COMPONENTS WebKitWidgets REQUIRED QUIET)
   include_directories(${Qt5WebKitWidgets_INCLUDE_DIRS})
   add_definitions(${Qt5WebKitWidgets_DEFINITIONS})
 

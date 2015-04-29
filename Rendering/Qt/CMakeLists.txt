@@ -9,7 +9,7 @@ set(LibSrcs
   )
 
 if(VTK_QT_VERSION VERSION_GREATER "4")
-  find_package(Qt5Widgets REQUIRED QUIET)
+  find_package(Qt5 COMPONENTS Widgets REQUIRED QUIET)
   include_directories(${Qt5Widgets_INCLUDE_DIRS})
   add_definitions(${Qt5Widgets_DEFINITIONS})
   set(QT_LIBRARIES ${Qt5Widgets_LIBRARIES})

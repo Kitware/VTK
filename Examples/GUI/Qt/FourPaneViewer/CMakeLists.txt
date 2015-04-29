@@ -45,7 +45,7 @@ include_directories(
 set(CMAKE_AUTOMOC ON)
 
 if(VTK_QT_VERSION VERSION_GREATER "4")
-  find_package(Qt5Widgets REQUIRED QUIET)
+  find_package(Qt5 COMPONENTS Widgets REQUIRED QUIET)
   qt5_wrap_ui(UI_Srcs ${UIs})
 
   # CMAKE_AUTOMOC in ON so the MocHdrs will be automatically wrapped.
