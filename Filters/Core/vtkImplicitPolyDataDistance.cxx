@@ -164,12 +164,10 @@ double vtkImplicitPolyDataDistance::SharedEvaluate(double x[3], double n[3])
       {
       count += (fabs(weights[i]) < this->Tolerance ? 1 : 0);
       }
-    // if weights contains no 0s
-    if ( count == 0 || count == 1 )
+    // Face case - weights contains no 0s
+    if ( count == 0 )
       {
       // Compute face normal.
-      // For count == 0, this is all we need.
-      // For count = 1, we'll add in the normals from adjacent faces.
       if ( cnorms )
         {
         cnorms->GetTuple(cellId, awnorm);
@@ -179,9 +177,8 @@ double vtkImplicitPolyDataDistance::SharedEvaluate(double x[3], double n[3])
         vtkPolygon::ComputeNormal(cell->Points, awnorm);
         }
       }
-
-    // if weights contains 1 0s
-    if ( count == 1 )
+    // Edge case - weights contain one 0
+    else if ( count == 1 )
       {
       // ... edge ... get two adjacent faces, compute average normal
       int a = -1, b = -1;
@@ -202,7 +199,9 @@ double vtkImplicitPolyDataDistance::SharedEvaluate(double x[3], double n[3])
         return this->NoValue;
         }
 
-      this->Input->GetCellEdgeNeighbors(0, a, b, idList);
+      // The first argument is the cell ID. We pass a bogus cell ID so that
+      // all face IDs attached to the edge are returned in the idList.
+      this->Input->GetCellEdgeNeighbors(VTK_ID_MAX, a, b, idList);
       for (int i = 0; i < idList->GetNumberOfIds(); i++)
         {
         double norm[3];
@@ -221,7 +220,7 @@ double vtkImplicitPolyDataDistance::SharedEvaluate(double x[3], double n[3])
       vtkMath::Normalize(awnorm);
       }
 
-    // If weights contains 2 0s
+    // Vertex case - weights contain two 0s
     else if ( count == 2 )
       {
       // ... vertex ... this is the expensive case, get all adjacent

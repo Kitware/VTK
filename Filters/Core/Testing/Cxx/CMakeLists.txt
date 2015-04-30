@@ -18,7 +18,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestFeatureEdges.cxx,NO_VALID
   TestGlyph3D.cxx
   TestHedgeHog.cxx,NO_VALID
-  TestImplicitPolyDataDistance.cxx,NO_VALID
+  TestImplicitPolyDataDistance.cxx
   TestMaskPoints.cxx,NO_VALID
   TestNamedComponents.cxx,NO_VALID
   TestPolyDataConnectivityFilter.cxx,NO_VALID
