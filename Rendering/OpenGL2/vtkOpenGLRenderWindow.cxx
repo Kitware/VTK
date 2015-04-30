@@ -428,6 +428,14 @@ void vtkOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 }
 
+void vtkOpenGLRenderWindow::Render()
+{
+  this->Superclass::Render();
+
+  // Clean up OpenGL state:
+  this->GetShaderCache()->ReleaseCurrentShader();
+}
+
 int vtkOpenGLRenderWindow::GetDepthBufferSize()
 {
   GLint size;
