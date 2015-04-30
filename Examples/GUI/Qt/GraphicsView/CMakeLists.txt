@@ -59,7 +59,7 @@ set( QRCs
 set(CMAKE_AUTOMOC ON)
 
 if(VTK_QT_VERSION VERSION_GREATER "4")
-  find_package(Qt5WebKitWidgets REQUIRED QUIET)
+  find_package(Qt5 COMPONENTS WebKitWidgets REQUIRED QUIET)
 
   qt5_add_resources(QRC_Srcs ${QRCs} )
 

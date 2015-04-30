@@ -42,7 +42,7 @@ include_directories(
 set(CMAKE_AUTOMOC ON)
 
 if(VTK_QT_VERSION VERSION_GREATER "4")
-  find_package(Qt5Widgets)
+  find_package(Qt5 COMPONENTS Widgets)
   qt5_wrap_ui(UI_Srcs ${UIs})
 
   add_executable(qtevents

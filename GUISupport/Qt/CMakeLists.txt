@@ -55,7 +55,7 @@ set(QVTKNonMocHeaders
   )
 
 if(VTK_QT_VERSION VERSION_GREATER "4")
-  find_package(Qt5Widgets REQUIRED QUIET)
+  find_package(Qt5 COMPONENTS Widgets REQUIRED QUIET)
   include_directories(${Qt5Widgets_INCLUDE_DIRS})
   add_definitions(${Qt5Widgets_DEFINITIONS})
 
@@ -110,7 +110,7 @@ if(BUILD_SHARED_LIBS)
   set(PluginMocHeaders Q4VTKWidgetPlugin.h)
 
   if(VTK_QT_VERSION VERSION_GREATER "4")
-    find_package(Qt5Designer REQUIRED QUIET)
+    find_package(Qt5 COMPONENTS Designer REQUIRED QUIET)
     add_definitions(${Qt5Designer_DEFINITIONS})
     include_directories(${Qt5Designer_INCLUDE_DIRS})
     qt5_wrap_cpp(PluginMocSrcs ${PluginMocHeaders})

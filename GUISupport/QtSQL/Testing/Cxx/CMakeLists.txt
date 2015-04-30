@@ -6,7 +6,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   )
 
 if(VTK_QT_VERSION VERSION_GREATER "4")
-  find_package(Qt5Widgets REQUIRED)
+  find_package(Qt5 COMPONENTS Widgets REQUIRED)
   include_directories(${Qt5Widgets_INCLUDE_DIRS})
   add_definitions(${Qt5Widgets_DEFINITIONS})
 else()

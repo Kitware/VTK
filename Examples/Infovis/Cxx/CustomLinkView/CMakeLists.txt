@@ -47,7 +47,7 @@ endif(CMAKE_BUILD_TOOL MATCHES "(msdev|devenv)")
 
 if(VTK_QT_VERSION VERSION_GREATER "4")
 
-  find_package(Qt5Widgets)
+  find_package(Qt5 COMPONENTS Widgets)
 
   qt5_wrap_ui(UI_Srcs ${UIs})
   qt5_add_resources(Rcs_Srcs ${Rcs})

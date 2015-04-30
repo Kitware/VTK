@@ -10,7 +10,7 @@ set(LibSrcs ${QVTKLibSrcs}
   )
 
 if(VTK_QT_VERSION VERSION_GREATER "4")
-  find_package(Qt5OpenGL REQUIRED QUIET)
+  find_package(Qt5 COMPONENTS OpenGL REQUIRED QUIET)
   include_directories(${Qt5OpenGL_INCLUDE_DIRS})
   add_definitions(${Qt5OpenGL_DEFINITIONS})
   qt5_wrap_cpp(LibMocSrcs ${MocHeaders})
