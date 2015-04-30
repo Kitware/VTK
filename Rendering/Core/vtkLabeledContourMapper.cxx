@@ -590,11 +590,21 @@ bool vtkLabeledContourMapper::PrepareRender(vtkRenderer *ren, vtkActor *act)
     std::ostringstream str;
     str << metric.Value;
     metric.Text = str.str();
+
+    // Beware future maintainers: The following line of code has been carefully
+    // crafted to reach a zen-like harmony of compatibility between various
+    // compilers that have differing syntactic requirements for creating a
+    // pair containing a NULL:
+    // - Pedantically strict C++11 compilers (e.g. MSVC 2012) will not compile:
+    //     std::make_pair<double, X*>(someDouble, NULL);
+    //   or any make_pair call with explicit template args and value arguments,
+    //   as the signature expects an rvalue.
+    // - MSVC 2010 compilers also reject:
+    //     std::pair<double, X*>(someDouble, NULL);
+    //   unless the NULL is cast explicitly to X* (as we do below) due to known
+    //   issues with pointer casting.
+
     // The value will be replaced in the next loop:
-    // The extra explicit casting is needed for MSVC 10, which has trouble
-    // figuring out that NULL is a pointer type. We can't just use make_pair,
-    // because newer MSVC gets confused about passing in the double. Hopefully
-    // this line will work, at least until the next MSVC release.
     labelMap.insert(std::pair<double, vtkTextProperty*>(
                       metric.Value, reinterpret_cast<vtkTextProperty*>(NULL)));
     }
