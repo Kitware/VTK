@@ -809,75 +809,77 @@ void vtkXOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
         this->OwnDisplay = 1;
         }
 
-      int v1, v2;
-      glXQueryVersion(this->DisplayId, &v1, &v2);
-
-      // check for GLX 1.3 or greater for Pbuffer offscreen support
-      if(v1 > 1 || (v1 == 1 && v2 >= 3))
+      if(!this->Internal->PbufferContextId)
         {
-        if(!this->Internal->PbufferContextId)
+        // get FBConfig
+        GLXFBConfig* fb = vtkXOpenGLRenderWindowGetDesiredFBConfig(
+          this->DisplayId,this->StereoCapableWindow, this->MultiSamples,
+          this->DoubleBuffer,this->AlphaBitPlanes, GLX_PBUFFER_BIT,
+          this->StencilCapable);
+        if(fb)
           {
-          // get FBConfig
-          GLXFBConfig* fb = vtkXOpenGLRenderWindowGetDesiredFBConfig(
-            this->DisplayId,this->StereoCapableWindow, this->MultiSamples,
-            this->DoubleBuffer,this->AlphaBitPlanes, GLX_PBUFFER_BIT,
-            this->StencilCapable);
-          if(fb)
+          XErrorHandler previousHandler = XSetErrorHandler(vtkXOGLPbufferErrorHandler);
+          // NOTE: It is not necessary to create or make current to a context before
+          // calling glXGetProcAddressARB
+          glXCreateContextAttribsARBProc glXCreateContextAttribsARB = 0;
+          glXCreateContextAttribsARB = (glXCreateContextAttribsARBProc)
+            glXGetProcAddressARB( (const GLubyte *) "glXCreateContextAttribsARB" );
+
+          int context_attribs[] =
             {
-            XErrorHandler previousHandler = XSetErrorHandler(vtkXOGLPbufferErrorHandler);
-            this->Internal->PbufferContextId =
-              glXCreateNewContext(this->DisplayId, fb[0],
-                                       GLX_RGBA_TYPE, NULL, true);
-            int atts [] =
-              {
-                GLX_PBUFFER_WIDTH, width,
-                GLX_PBUFFER_HEIGHT, height,
-                0
-              };
-            this->Internal->Pbuffer = glXCreatePbuffer(this->DisplayId,
-                                                            fb[0], atts);
-            glXMakeContextCurrent( this->DisplayId,
-                                        this->Internal->Pbuffer,
-                                        this->Internal->Pbuffer,
-                                        this->Internal->PbufferContextId );
-            XFree(fb);
-            XSetErrorHandler(previousHandler);
-            // failed to allocate Pbuffer, clean up
-            if(PbufferAllocFail)
-              {
-              //vtkglX::DestroyPbuffer(this->DisplayId, this->Internal->Pbuffer);
-              this->Internal->Pbuffer = 0;
-              if(this->Internal->PbufferContextId)
-                glXDestroyContext(this->DisplayId,
-                                  this->Internal->PbufferContextId);
-              this->Internal->PbufferContextId = NULL;
-              }
-            PbufferAllocFail = 0;
+            GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
+            GLX_CONTEXT_MINOR_VERSION_ARB, 2,
+            //GLX_CONTEXT_FLAGS_ARB        , GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+            0
+            };
+
+        if (glXCreateContextAttribsARB)
+          {
+          this->Internal->PbufferContextId =
+            glXCreateContextAttribsARB( this->DisplayId,
+              fb[0], 0,
+              GL_TRUE, context_attribs );
+
+          // Sync to ensure any errors generated are processed.
+          XSync( this->DisplayId, False );
+          if ( this->Internal->ContextId )
+            {
+            this->SetContextSupportsOpenGL32(true);
             }
           }
-        }
 
-      // GLX 1.3 doesn't exist or failed to allocate Pbuffer
-      // fallback on GLX 1.0 GLXPixmap offscreen support
-      if(!this->Internal->PbufferContextId && !this->Internal->PixmapContextId)
-        {
-        v = this->GetDesiredVisualInfo();
-        this->Internal->PixmapContextId = glXCreateContext(this->DisplayId,
-                                                           v, 0, GL_FALSE);
-        this->Internal->pixmap=
-          XCreatePixmap(this->DisplayId,
-                        XRootWindow(this->DisplayId,v->screen),
-                        static_cast<unsigned int>(width),
-                        static_cast<unsigned int>(height),
-                        static_cast<unsigned int>(v->depth));
-
-        this->Internal->PixmapWindowId = glXCreateGLXPixmap(this->DisplayId, v, this->Internal->pixmap);
-        glXMakeCurrent(this->DisplayId,this->Internal->PixmapWindowId,
-                       this->Internal->PixmapContextId);
-
-        if(v)
+        // old failsafe
+        if (this->Internal->PbufferContextId == NULL)
           {
-          XFree(v);
+          this->Internal->PbufferContextId =
+            glXCreateNewContext(this->DisplayId, fb[0],
+                                     GLX_RGBA_TYPE, NULL, true);
+            }
+          int atts [] =
+            {
+              GLX_PBUFFER_WIDTH, width,
+              GLX_PBUFFER_HEIGHT, height,
+              0
+            };
+          this->Internal->Pbuffer = glXCreatePbuffer(this->DisplayId,
+                                                          fb[0], atts);
+          glXMakeContextCurrent( this->DisplayId,
+                                      this->Internal->Pbuffer,
+                                      this->Internal->Pbuffer,
+                                      this->Internal->PbufferContextId );
+          XFree(fb);
+          XSetErrorHandler(previousHandler);
+          // failed to allocate Pbuffer, clean up
+          if(PbufferAllocFail)
+            {
+            //vtkglX::DestroyPbuffer(this->DisplayId, this->Internal->Pbuffer);
+            this->Internal->Pbuffer = 0;
+            if(this->Internal->PbufferContextId)
+              glXDestroyContext(this->DisplayId,
+                                this->Internal->PbufferContextId);
+            this->Internal->PbufferContextId = NULL;
+            }
+          PbufferAllocFail = 0;
           }
         }
       } // if not hardware offscreen

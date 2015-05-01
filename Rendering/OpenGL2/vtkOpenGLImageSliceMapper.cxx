@@ -694,14 +694,10 @@ void vtkOpenGLImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
   //  glDisable(GL_COLOR_MATERIAL);
 
   // do an offset to avoid depth buffer issues
-  if (vtkMapper::GetResolveCoincidentTopology() !=
-      VTK_RESOLVE_SHIFT_ZBUFFER )
-    {
-    double f, u;
-    glEnable(GL_POLYGON_OFFSET_FILL);
-    vtkMapper::GetResolveCoincidentTopologyPolygonOffsetParameters(f,u);
-    glPolygonOffset(f,u);
-    }
+  this->PolyDataActor->GetMapper()->
+    SetResolveCoincidentTopology(VTK_RESOLVE_POLYGON_OFFSET);
+  this->PolyDataActor->GetMapper()->
+    SetResolveCoincidentTopologyPolygonOffsetParameters(1.0,100);
 
   // Add all the clipping planes  TODO: really in the mapper
   //int numClipPlanes = this->GetNumberOfClippingPlanes();

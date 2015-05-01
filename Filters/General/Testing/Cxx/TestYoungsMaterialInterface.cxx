@@ -160,7 +160,7 @@ int TestYoungsMaterialInterface( int argc, char * argv [] )
     interfaceMapper->SetInputData( interface );
     interfaceIterator->GoToNextItem();
     interfaceMapper->ScalarVisibilityOff();
-    interfaceMapper->SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
+    interfaceMapper->SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 100 );
     interfaceMapper->SetResolveCoincidentTopologyToPolygonOffset();
 
     // Create surface actor and add it to view
