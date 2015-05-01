@@ -15,20 +15,21 @@
 #include "vtkOpenGLShaderCache.h"
 #include "vtk_glew.h"
 
-#include "vtkOpenGLRenderWindow.h"
-#include "vtkOpenGLError.h"
-
-#include <math.h>
-
 #include "vtkObjectFactory.h"
-
-#include "vtkglVBOHelper.h"
+#include "vtkOpenGLError.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkShader.h"
 #include "vtkShaderProgram.h"
+#include "vtkglVBOHelper.h"
+
+#include <math.h>
+#include <sstream>
+
 
 #include "vtksys/MD5.h"
 
 using vtkgl::replace;
+using vtkgl::substitute;
 
 class vtkOpenGLShaderCache::Private
 {
@@ -101,47 +102,77 @@ vtkShaderProgram *vtkOpenGLShaderCache::ReadyShader(
 {
   // perform system wide shader replacements
   // desktops to not use percision statements
+
 #if GL_ES_VERSION_2_0 != 1
+  unsigned int count = 0;
   std::string VSSource = vertexCode;
   std::string FSSource = fragmentCode;
   std::string GSSource = geometryCode;
   if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
     {
     VSSource = replace(VSSource,"//VTK::System::Dec",
-                              "#version 150\n"
-                              "#define highp\n"
-                              "#define mediump\n"
-                              "#define lowp");
+      "#version 150\n"
+      "#define attribute in\n"
+      "#define varying out\n"
+      "#define highp\n"
+      "#define mediump\n"
+      "#define lowp");
     FSSource = replace(FSSource,"//VTK::System::Dec",
-                                "#version 150\n"
-                                "#define highp\n"
-                                "#define mediump\n"
-                                "#define lowp");
+      "#version 150\n"
+      "#define varying in\n"
+      "#define highp\n"
+      "#define mediump\n"
+      "#define lowp\n"
+      "#define texelFetchBuffer texelFetch\n"
+      "#define texture1D texture\n"
+      "#define texture2D texture\n"
+      "#define texture3D texture\n"
+      );
+    std::string fragDecls;
+    bool done = false;
+    while (!done)
+      {
+      std::ostringstream src;
+      std::ostringstream dst;
+      src << "gl_FragData[" << count << "]";
+      // this naming has to match the bindings
+      // in vtkOpenGLShaderProgram.cxx
+      dst << "fragOutput" << count;
+      done = !substitute(FSSource, src.str(),dst.str());
+      if (!done)
+        {
+        fragDecls += "out vec4 " + dst.str() + ";\n";
+        count++;
+        }
+      }
+    FSSource = replace(FSSource,"//VTK::Output::Dec",fragDecls);
     GSSource = replace(GSSource,"//VTK::System::Dec",
-                                "#version 150\n"
-                                "#define highp\n"
-                                "#define mediump\n"
-                                "#define lowp");
+      "#version 150\n"
+      "#define highp\n"
+      "#define mediump\n"
+      "#define lowp");
     }
   else
     {
     VSSource = replace(VSSource,"//VTK::System::Dec",
-                              "#version 120\n"
-                              "#define highp\n"
-                              "#define mediump\n"
-                              "#define lowp");
+      "#version 120\n"
+      "#define highp\n"
+      "#define mediump\n"
+      "#define lowp");
     FSSource = replace(FSSource,"//VTK::System::Dec",
-                                "#version 120\n"
-                                "#define highp\n"
-                                "#define mediump\n"
-                                "#define lowp");
+      "#version 120\n"
+      "#extension GL_EXT_gpu_shader4 : require\n"
+      "#define highp\n"
+      "#define mediump\n"
+      "#define lowp");
     GSSource = replace(GSSource,"//VTK::System::Dec",
-                                "#version 120\n"
-                                "#define highp\n"
-                                "#define mediump\n"
-                                "#define lowp");
+      "#version 120\n"
+      "#define highp\n"
+      "#define mediump\n"
+      "#define lowp");
     }
   vtkShaderProgram *shader = this->GetShader(VSSource.c_str(), FSSource.c_str(), GSSource.c_str());
+  shader->SetNumberOfOutputs(count);
 #else
   std::string FSSource = fragmentCode;
   FSSource = replace(FSSource,"//VTK::System::Dec",

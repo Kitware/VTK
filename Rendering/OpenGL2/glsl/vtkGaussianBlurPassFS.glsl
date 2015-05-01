@@ -26,6 +26,9 @@ uniform float coef[3];
 uniform float offsetx;
 uniform float offsety;
 
+// the output of this shader
+//VTK::Output::Dec
+
 void main(void)
 {
   vec2 offset=vec2(offsetx,offsety);

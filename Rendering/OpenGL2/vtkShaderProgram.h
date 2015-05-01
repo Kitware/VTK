@@ -172,6 +172,10 @@ public:
   bool SetUniform3fv(const char *name, const int count, const float (*f)[3]);
   bool SetUniform4fv(const char *name, const int count, const float (*f)[4]);
 
+  // How many outputs does this program produce
+  // only valid for OpenGL 3.2 or later
+  vtkSetMacro(NumberOfOutputs,unsigned int);
+
 protected:
   vtkShaderProgram();
   ~vtkShaderProgram();
@@ -238,6 +242,12 @@ protected:
   bool Linked;
   bool Bound;
   bool Compiled;
+
+  // for glsl 1.5 or later, how many outputs
+  // does this shader create
+  // they will be bound in order to
+  // fragOutput0 fragOutput1 etc...
+  unsigned int NumberOfOutputs;
 
   std::string Error;
 

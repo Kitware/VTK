@@ -28,19 +28,16 @@ attribute vec4 vertexWC;
 
 // material property values
 //VTK::Color::Dec
-uniform vec3 ambientColor; // intensity weighted color
 
 // Texture coordinates
 //VTK::TCoord::Dec
 
 uniform mat4 WCVCMatrix;  // World to view matrix
 
-varying vec4 fcolor;
-
 void main()
 {
   gl_Position = WCVCMatrix*vertexWC;
   //VTK::TCoord::Impl
-  fcolor = vec4(ambientColor + diffuseColor.rgb, diffuseColor.a);
+  //VTK::Color::Impl
 }
 

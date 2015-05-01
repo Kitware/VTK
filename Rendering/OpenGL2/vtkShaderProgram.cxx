@@ -71,6 +71,7 @@ vtkShaderProgram::vtkShaderProgram() : Handle(0), VertexShaderHandle(0),
     this->GeometryShader->SetType(vtkShader::Geometry);
 
     this->Compiled = false;
+    this->NumberOfOutputs = 0;
 }
 
 vtkShaderProgram::~vtkShaderProgram()
@@ -224,6 +225,20 @@ bool vtkShaderProgram::Link()
     {
     this->Error = "Program has not been initialized, and/or does not have shaders.";
     return false;
+    }
+
+  // bind the outputs if specified
+  if (this->NumberOfOutputs)
+    {
+    for (unsigned int i = 0; i < this->NumberOfOutputs; i++)
+      {
+      // this naming has to match the bindings
+      // in vtkOpenGLShaderProgram.cxx
+      std::ostringstream dst;
+      dst << "fragOutput" << i;
+      glBindFragDataLocation(static_cast<GLuint>(this->Handle), i,
+        dst.str().c_str());
+      }
     }
 
   GLint isCompiled;

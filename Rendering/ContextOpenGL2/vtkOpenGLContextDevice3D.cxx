@@ -95,36 +95,11 @@ public:
 
   void SetLineType(int type)
   {
-    if (type == vtkPen::SOLID_LINE)
-      {
-      glDisable(GL_LINE_STIPPLE);
-      }
-    else
-      {
-      glEnable(GL_LINE_STIPPLE);
-      }
-    GLushort pattern = 0x0000;
-    switch (type)
-      {
-      case vtkPen::NO_PEN:
-        pattern = 0x0000;
-        break;
-      case vtkPen::DASH_LINE:
-        pattern = 0x00FF;
-        break;
-      case vtkPen::DOT_LINE:
-        pattern = 0x0101;
-        break;
-      case vtkPen::DASH_DOT_LINE:
-        pattern = 0x0C0F;
-        break;
-      case vtkPen::DASH_DOT_DOT_LINE:
-        pattern = 0x1C47;
-        break;
-      default:
-        pattern = 0x0000;
-      }
-    glLineStipple(1, pattern);
+  if (type == vtkPen::SOLID_LINE || type == vtkPen::NO_PEN)
+    {
+    return;
+    }
+  vtkGenericWarningMacro(<< "Line Stipples are no longer supported");
   }
 
   // Store the previous GL state so that we can restore it when complete
@@ -321,6 +296,7 @@ void vtkOpenGLContextDevice3D::ReadyVBOProgram()
         "gl_Position = vertex*MCWCMatrix*WCDCMatrix; }\n",
         // fragment shader
         "//VTK::System::Dec\n"
+        "//VTK::Output::Dec\n"
         "uniform vec4 vertexColor;\n"
         "uniform int numClipPlanes;\n"
         "varying float clipDistances[6];\n"
@@ -329,7 +305,7 @@ void vtkOpenGLContextDevice3D::ReadyVBOProgram()
         "    {\n"
         "    if (clipDistances[planeNum] < 0.0) discard;\n"
         "    }\n"
-        "  gl_FragColor = vertexColor; }",
+        "  gl_FragData[0] = vertexColor; }",
         // geometry shader
         "");
     }
@@ -365,6 +341,7 @@ void vtkOpenGLContextDevice3D::ReadyVCBOProgram()
         "gl_Position = vertex*MCWCMatrix*WCDCMatrix; }\n",
         // fragment shader
         "//VTK::System::Dec\n"
+        "//VTK::Output::Dec\n"
         "varying vec4 vertexColor;\n"
         "uniform int numClipPlanes;\n"
         "varying float clipDistances[6];\n"
@@ -373,7 +350,7 @@ void vtkOpenGLContextDevice3D::ReadyVCBOProgram()
         "    {\n"
         "    if (clipDistances[planeNum] < 0.0) discard;\n"
         "    }\n"
-        "  gl_FragColor = vertexColor; }",
+        "  gl_FragData[0] = vertexColor; }",
         // geometry shader
         "");
     }
@@ -389,11 +366,21 @@ void vtkOpenGLContextDevice3D::DrawPoly(const float *verts, int n,
   assert("verts must be non-null" && verts != NULL);
   assert("n must be greater than 0" && n > 0);
 
+  if (this->Pen->GetLineType() == vtkPen::NO_PEN)
+    {
+    return;
+    }
+
   vtkOpenGLClearErrorMacro();
 
   this->EnableDepthBuffer();
 
   this->Storage->SetLineType(this->Pen->GetLineType());
+
+  if (this->Pen->GetWidth() > 1.0)
+    {
+    vtkErrorMacro(<< "lines wider than 1.0 are not supported\n");
+    }
   glLineWidth(this->Pen->GetWidth());
 
   vtkgl::CellBO *cbo = 0;
@@ -417,6 +404,7 @@ void vtkOpenGLContextDevice3D::DrawPoly(const float *verts, int n,
 
   // free everything
   cbo->ReleaseGraphicsResources(this->RenderWindow);
+  glLineWidth(1.0);
 
   this->DisableDepthBuffer();
 
@@ -431,30 +419,45 @@ void vtkOpenGLContextDevice3D::DrawLines(const float *verts, int n,
   assert("verts must be non-null" && verts != NULL);
   assert("n must be greater than 0" && n > 0);
 
+  if (this->Pen->GetLineType() == vtkPen::NO_PEN)
+    {
+    return;
+    }
+
   vtkOpenGLClearErrorMacro();
 
   this->EnableDepthBuffer();
 
   this->Storage->SetLineType(this->Pen->GetLineType());
+
+  if (this->Pen->GetWidth() > 1.0)
+    {
+    vtkErrorMacro(<< "lines wider than 1.0 are not supported\n");
+    }
   glLineWidth(this->Pen->GetWidth());
 
+  vtkgl::CellBO *cbo = 0;
   if (colors)
     {
-    glEnableClientState(GL_COLOR_ARRAY);
-    glColorPointer(nc, GL_UNSIGNED_BYTE, 0, colors);
+    this->ReadyVCBOProgram();
+    cbo = this->VCBO;
     }
   else
     {
-    glColor4ubv(this->Pen->GetColor());
+    this->ReadyVBOProgram();
+    cbo = this->VBO;
+    cbo->Program->SetUniform4uc("vertexColor",
+      this->Pen->GetColor());
     }
-  glEnableClientState(GL_VERTEX_ARRAY);
-  glVertexPointer(3, GL_FLOAT, 0, verts);
+
+  this->BuildVBO(cbo, verts, n, colors, nc, NULL);
+  this->SetMatrices(cbo->Program);
+
   glDrawArrays(GL_LINE, 0, n);
-  glDisableClientState(GL_VERTEX_ARRAY);
-  if (colors)
-    {
-    glDisableClientState(GL_COLOR_ARRAY);
-    }
+
+  // free everything
+  cbo->ReleaseGraphicsResources(this->RenderWindow);
+  glLineWidth(1.0);
 
   this->DisableDepthBuffer();
 

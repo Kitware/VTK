@@ -25,6 +25,11 @@
 class vtkOpenGLTexture;
 class vtkMatrix4x4;
 class vtkMatrix3x3;
+class vtkTextureObject;
+namespace vtkgl
+{
+  class BufferObject;
+}
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMapper
 {
@@ -77,11 +82,34 @@ public:
   vtkPolyData *CurrentInput;
 
   // Description:
-  // Props may provide a mapping from picked value to actual value
-  // This is useful for hardware based pickers where
-  // there is a mapping between the color in the buffer
-  // and the actual pick value
-  virtual vtkIdType GetConvertedPickValue(vtkIdType idIn, int fieldassociation, vtkActor *act);
+  // By default, this painters uses the dataset's point and cell ids during
+  // rendering. However, one can override those by specifying cell and point
+  // data arrays to use instead. Currently, only vtkIdType array is supported.
+  // Set to NULL string (default) to use the point ids instead.
+  vtkSetStringMacro(PointIdArrayName);
+  vtkGetStringMacro(PointIdArrayName);
+  vtkSetStringMacro(CellIdArrayName);
+  vtkGetStringMacro(CellIdArrayName);
+
+  // Description:
+  // If the painter should override the process id using a data-array,
+  // set this variable to the name of the array to use. It must be a
+  // point-array.
+  vtkSetStringMacro(ProcessIdArrayName);
+  vtkGetStringMacro(ProcessIdArrayName);
+
+  // Description:
+  // Generally, vtkCompositePainter can render the composite id when iterating
+  // over composite datasets. However in some cases (as in AMR), the rendered
+  // structure may not correspond to the input data, in which case we need
+  // to provide a cell array that can be used to render in the composite id in
+  // selection passes. Set to NULL (default) to not override the composite id
+  // color set by vtkCompositePainter if any.
+  // The array *MUST* be a cell array and of type vtkUnsignedIntArray.
+  vtkSetStringMacro(CompositeIdArrayName);
+  vtkGetStringMacro(CompositeIdArrayName);
+
+
 
 protected:
   vtkOpenGLPolyDataMapper();
@@ -136,6 +164,15 @@ protected:
                            vtkRenderer *ren, vtkActor *act);
 
   // Description:
+  // Perform string replacments on the shader templates, called from
+  // ReplaceShaderValues
+  virtual void ReplaceShaderLightingValues(std::string &VertexCode,
+                           std::string &fragmentCode,
+                           std::string &geometryCode,
+                           int lightComplexity,
+                           vtkRenderer *ren, vtkActor *act);
+
+  // Description:
   // Set the shader parameteres related to the mapper/input data, called by UpdateShader
   virtual void SetMapperShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
 
@@ -163,6 +200,10 @@ protected:
   // Build the VBO/IBO, called by UpdateBufferObjects
   virtual void BuildBufferObjects(vtkRenderer *ren, vtkActor *act);
 
+  // Description:
+  // Build the IBO, called by BuildBufferObjects
+  virtual void BuildIBO(vtkRenderer *ren, vtkActor *act);
+
   // The VBO and its layout.
   vtkgl::BufferObject VBO;
   vtkgl::VBOLayout Layout;
@@ -181,7 +222,7 @@ protected:
   int LastLightComplexity;
   vtkTimeStamp LightComplexityChanged;
 
-  bool LastSelectionState;
+  int LastSelectionState;
   vtkTimeStamp SelectionStateChanged;
 
   int LastDepthPeeling;
@@ -192,7 +233,7 @@ protected:
   vtkOpenGLTexture* InternalColorTexture;
 
   int PopulateSelectionSettings;
-  int pickingAttributeIDOffset;
+  int PrimitiveIDOffset;
 
   vtkMatrix4x4 *TempMatrix4;
   vtkMatrix3x3 *TempMatrix3;
@@ -215,6 +256,28 @@ protected:
   // normally tcoords are only added to the VBO if the
   // mapper has indentified a texture map as well.
   bool ForceTextureCoordinates;
+
+  void BuildCellTextures(
+    vtkRenderer *ren,
+    vtkActor *,
+    vtkCellArray *prims[4],
+    int representation);
+
+  bool HavePickScalars;
+  vtkTextureObject *CellScalarTexture;
+  vtkgl::BufferObject *CellScalarBuffer;
+  bool HaveCellScalars;
+  vtkTextureObject *CellNormalTexture;
+  vtkgl::BufferObject *CellNormalBuffer;
+  bool HaveCellNormals;
+
+  // aditional picking indirection
+  char* PointIdArrayName;
+  char* CellIdArrayName;
+  char* ProcessIdArrayName;
+  char* CompositeIdArrayName;
+
+  int TextureComponents;
 
 private:
   vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&); // Not implemented.

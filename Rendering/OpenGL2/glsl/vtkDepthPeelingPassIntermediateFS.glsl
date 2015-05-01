@@ -23,6 +23,9 @@ uniform sampler2D currentRGBATexture;
 
 uniform int lastpass;
 
+// the output of this shader
+//VTK::Output::Dec
+
 void main()
 {
   // current is what is most recently rendered

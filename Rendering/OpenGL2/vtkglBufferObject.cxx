@@ -27,6 +27,8 @@ inline GLenum convertType(BufferObject::ObjectType type)
       return GL_ARRAY_BUFFER;
     case BufferObject::ElementArrayBuffer:
       return GL_ELEMENT_ARRAY_BUFFER;
+    case BufferObject::TextureBuffer:
+      return GL_TEXTURE_BUFFER;
     }
 }
 }
@@ -41,14 +43,7 @@ struct BufferObject::Private
 BufferObject::BufferObject(ObjectType type)
   : d(new Private), Dirty(true)
 {
-  if (type == ArrayBuffer)
-    {
-    this->d->type = GL_ARRAY_BUFFER;
-    }
-  else
-    {
-    this->d->type = GL_ELEMENT_ARRAY_BUFFER;
-    }
+  this->d->type = convertType(type);
 }
 
 BufferObject::~BufferObject()
@@ -76,9 +71,13 @@ BufferObject::ObjectType BufferObject::GetType() const
     {
     return ArrayBuffer;
     }
-  else
+  if (this->d->type == GL_ELEMENT_ARRAY_BUFFER)
     {
     return ElementArrayBuffer;
+    }
+  else
+    {
+    return TextureBuffer;
     }
 }
 

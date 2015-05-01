@@ -30,8 +30,12 @@
 
 class vtkRenderer;
 class vtkPoints;
+class vtkTextureObject;
 
-namespace vtkgl {class CellBO; }
+namespace vtkgl {
+  class CellBO;
+  class BufferObject;
+}
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLPolyDataMapper2D : public vtkPolyDataMapper2D
 {
@@ -95,6 +99,11 @@ protected:
   vtkgl::CellBO Lines;
   vtkgl::CellBO Tris;
   vtkgl::CellBO TriStrips;
+
+  vtkTextureObject *CellScalarTexture;
+  vtkgl::BufferObject *CellScalarBuffer;
+  bool HaveCellScalars;
+  int PrimitiveIDOffset;
 
   vtkTimeStamp VBOUpdateTime; // When was the VBO updated?
   vtkPoints *TransformedPoints;

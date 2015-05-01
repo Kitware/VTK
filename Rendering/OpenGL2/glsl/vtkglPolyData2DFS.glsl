@@ -17,17 +17,23 @@
 // default precisions, or defining precisions to null
 //VTK::System::Dec
 
+uniform int PrimitiveIDOffset;
+
 // Texture coordinates
 //VTK::TCoord::Dec
 
-varying vec4 fcolor;
+// Scalar coloring
+//VTK::Color::Dec
 
 // Depth Peeling
 //VTK::DepthPeeling::Dec
 
+// the output of this shader
+//VTK::Output::Dec
+
 void main()
 {
-  gl_FragData[0] = fcolor;
+  //VTK::Color::Impl
   //VTK::TCoord::Impl
   //VTK::DepthPeeling::Impl
 }

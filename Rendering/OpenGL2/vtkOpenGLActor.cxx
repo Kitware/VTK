@@ -125,13 +125,3 @@ void vtkOpenGLActor::GetKeyMatrices(vtkMatrix4x4 *&mcwc, vtkMatrix3x3 *&normMat)
   mcwc = this->MCWCMatrix;
   normMat = this->NormalMatrix;
 }
-
-vtkIdType vtkOpenGLActor::GetConvertedPickValue(vtkIdType idIn, int fieldassociation)
-{
-  vtkOpenGLPolyDataMapper *pdm = vtkOpenGLPolyDataMapper::SafeDownCast(this->GetMapper());
-  if (pdm)
-    {
-    return pdm->GetConvertedPickValue(idIn, fieldassociation,this);
-    }
-  return idIn;
-}

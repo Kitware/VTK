@@ -399,8 +399,9 @@ void vtkOpenGLContextDevice2D::ReadyVBOProgram()
         "gl_Position = vertex*MCWCMatrix*WCDCMatrix; }\n",
         // fragment shader
         "//VTK::System::Dec\n"
+        "//VTK::Output::Dec\n"
         "uniform vec4 vertexColor;\n"
-        "void main() { gl_FragColor = vertexColor; }",
+        "void main() { gl_FragData[0] = vertexColor; }",
         // geometry shader
         "");
     }
@@ -429,8 +430,9 @@ void vtkOpenGLContextDevice2D::ReadyVCBOProgram()
         "gl_Position = vertex*MCWCMatrix*WCDCMatrix; }\n",
         // fragment shader
         "//VTK::System::Dec\n"
+        "//VTK::Output::Dec\n"
         "varying vec4 vertexColor;\n"
-        "void main() { gl_FragColor = vertexColor; }",
+        "void main() { gl_FragData[0] = vertexColor; }",
         // geometry shader
         "");
     }
@@ -459,9 +461,10 @@ void vtkOpenGLContextDevice2D::ReadyVTBOProgram()
         "gl_Position = vertex*MCWCMatrix*WCDCMatrix; }\n",
         // fragment shader
         "//VTK::System::Dec\n"
+        "//VTK::Output::Dec\n"
         "varying vec2 tcoord;\n"
         "uniform sampler2D texture1;\n"
-        "void main() { gl_FragColor = texture2D(texture1, tcoord); }",
+        "void main() { gl_FragData[0] = texture2D(texture1, tcoord); }",
         // geometry shader
         "");
     }
@@ -487,9 +490,10 @@ void vtkOpenGLContextDevice2D::ReadySBOProgram()
         "gl_Position = vertex*MCWCMatrix*WCDCMatrix; }\n",
         // fragment shader
         "//VTK::System::Dec\n"
+        "//VTK::Output::Dec\n"
         "uniform vec4 vertexColor;\n"
         "uniform sampler2D texture1;\n"
-        "void main() { gl_FragColor = vertexColor*texture2D(texture1, gl_PointCoord); }",
+        "void main() { gl_FragData[0] = vertexColor*texture2D(texture1, gl_PointCoord); }",
         // geometry shader
         "");
     }
@@ -518,15 +522,28 @@ void vtkOpenGLContextDevice2D::ReadySCBOProgram()
         "gl_Position = vertex*MCWCMatrix*WCDCMatrix; }\n",
         // fragment shader
         "//VTK::System::Dec\n"
+        "//VTK::Output::Dec\n"
         "varying vec4 vertexColor;\n"
         "uniform sampler2D texture1;\n"
-        "void main() { gl_FragColor = vertexColor*texture2D(texture1, gl_PointCoord); }",
+        "void main() { gl_FragData[0] = vertexColor*texture2D(texture1, gl_PointCoord); }",
         // geometry shader
         "");
     }
   else
     {
     this->RenderWindow->GetShaderCache()->ReadyShader(this->SCBO->Program);
+    }
+}
+
+namespace
+{
+  void copyColors(std::vector<unsigned char> &newColors,
+    unsigned char *colors, int nc)
+    {
+    for (int j = 0; j < nc; j++)
+      {
+      newColors.push_back(colors[j]);
+      }
     }
 }
 
@@ -537,9 +554,13 @@ void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n, unsigned char *colors,
   assert("f must be non-null" && f != NULL);
   assert("n must be greater than 0" && n > 0);
 
+  if (this->Pen->GetLineType() == vtkPen::NO_PEN)
+    {
+    return;
+    }
+
   vtkOpenGLClearErrorMacro();
   this->SetLineType(this->Pen->GetLineType());
-  this->SetLineWidth(this->Pen->GetWidth());
 
   vtkgl::CellBO *cbo = 0;
   if (colors)
@@ -555,17 +576,66 @@ void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n, unsigned char *colors,
       this->Pen->GetColor());
     }
 
-  this->BuildVBO(cbo, f, n, colors, nc, NULL);
   this->SetMatrices(cbo->Program);
 
-  glDrawArrays(GL_LINE_STRIP, 0, n);
+  if (this->Pen->GetWidth() > 1.0)
+    {
+    double *scale = this->ModelMatrix->GetScale();
+    // convert to triangles and draw, this is because
+    // OpenGL no longer supports wide lines directly
+    float hwidth = this->Pen->GetWidth()/2.0;
+    std::vector<float> newVerts;
+    std::vector<unsigned char> newColors;
+    for (int i = 0; i < n-1; i++)
+      {
+      // for each line segment draw two triangles
+      // start by computing the direction
+      vtkVector2f dir((f[i*2+2] - f[i*2])*scale[0],
+        (f[i*2+3] - f[i*2+1])*scale[1]);
+      vtkVector2f norm(-dir.GetY(),dir.GetX());
+      norm.Normalize();
+      norm.SetX(hwidth*norm.GetX()/scale[0]);
+      norm.SetY(hwidth*norm.GetY()/scale[1]);
+
+      newVerts.push_back(f[i*2]+norm.GetX());
+      newVerts.push_back(f[i*2+1]+norm.GetY());
+      newVerts.push_back(f[i*2]-norm.GetX());
+      newVerts.push_back(f[i*2+1]-norm.GetY());
+      newVerts.push_back(f[i*2+2]-norm.GetX());
+      newVerts.push_back(f[i*2+3]-norm.GetY());
+
+      newVerts.push_back(f[i*2]+norm.GetX());
+      newVerts.push_back(f[i*2+1]+norm.GetY());
+      newVerts.push_back(f[i*2+2]-norm.GetX());
+      newVerts.push_back(f[i*2+3]-norm.GetY());
+      newVerts.push_back(f[i*2+2]+norm.GetX());
+      newVerts.push_back(f[i*2+3]+norm.GetY());
+
+      if (colors)
+        {
+        copyColors(newColors, colors+i*nc, nc);
+        copyColors(newColors, colors+i*nc, nc);
+        copyColors(newColors, colors+(i+1)*nc, nc);
+        copyColors(newColors, colors+i*nc, nc);
+        copyColors(newColors, colors+(i+1)*nc, nc);
+        copyColors(newColors, colors+(i+1)*nc, nc);
+        }
+      }
+
+    this->BuildVBO(cbo, &(newVerts[0]), newVerts.size()/2,
+      colors ? &(newColors[0]) : NULL, nc, NULL);
+    glDrawArrays(GL_TRIANGLES, 0, newVerts.size()/2);
+    }
+  else
+    {
+    this->SetLineWidth(this->Pen->GetWidth());
+    this->BuildVBO(cbo, f, n, colors, nc, NULL);
+    glDrawArrays(GL_LINE_STRIP, 0, n);
+    this->SetLineWidth(1.0);
+    }
 
   // free everything
   cbo->ReleaseGraphicsResources(this->RenderWindow);
-
-  // Restore line type and width.
-  this->SetLineType(vtkPen::SOLID_LINE);
-  this->SetLineWidth(1.0f);
 
   vtkOpenGLCheckErrorMacro("failed after DrawPoly");
 }
@@ -577,32 +647,89 @@ void vtkOpenGLContextDevice2D::DrawLines(float *f, int n, unsigned char *colors,
   assert("f must be non-null" && f != NULL);
   assert("n must be greater than 0" && n > 0);
 
+  if (this->Pen->GetLineType() == vtkPen::NO_PEN)
+    {
+    return;
+    }
+
   vtkOpenGLClearErrorMacro();
 
   this->SetLineType(this->Pen->GetLineType());
-  this->SetLineWidth(this->Pen->GetWidth());
 
+  vtkgl::CellBO *cbo = 0;
   if (colors)
     {
-    glEnableClientState(GL_COLOR_ARRAY);
-    glColorPointer(nc, GL_UNSIGNED_BYTE, 0, colors);
+    this->ReadyVCBOProgram();
+    cbo = this->VCBO;
     }
   else
     {
-    glColor4ubv(this->Pen->GetColor());
-    }
-  glEnableClientState(GL_VERTEX_ARRAY);
-  glVertexPointer(2, GL_FLOAT, 0, f);
-  glDrawArrays(GL_LINES, 0, n);
-  glDisableClientState(GL_VERTEX_ARRAY);
-  if (colors)
-    {
-    glDisableClientState(GL_COLOR_ARRAY);
+    this->ReadyVBOProgram();
+    cbo = this->VBO;
+    cbo->Program->SetUniform4uc("vertexColor",
+      this->Pen->GetColor());
     }
 
-  // Restore line type and width.
-  this->SetLineType(vtkPen::SOLID_LINE);
-  this->SetLineWidth(1.0f);
+  this->SetMatrices(cbo->Program);
+
+  if (this->Pen->GetWidth() > 1.0)
+    {
+    double *scale = this->ModelMatrix->GetScale();
+    // convert to triangles and draw, this is because
+    // OpenGL no longer supports wide lines directly
+    float hwidth = this->Pen->GetWidth()/2.0;
+    std::vector<float> newVerts;
+    std::vector<unsigned char> newColors;
+    for (int i = 0; i < n-1; i += 2)
+      {
+      // for each line segment draw two triangles
+      // start by computing the direction
+      vtkVector2f dir((f[i*2+2] - f[i*2])*scale[0],
+        (f[i*2+3] - f[i*2+1])*scale[1]);
+      vtkVector2f norm(-dir.GetY(),dir.GetX());
+      norm.Normalize();
+      norm.SetX(hwidth*norm.GetX()/scale[0]);
+      norm.SetY(hwidth*norm.GetY()/scale[1]);
+
+      newVerts.push_back(f[i*2]+norm.GetX());
+      newVerts.push_back(f[i*2+1]+norm.GetY());
+      newVerts.push_back(f[i*2]-norm.GetX());
+      newVerts.push_back(f[i*2+1]-norm.GetY());
+      newVerts.push_back(f[i*2+2]-norm.GetX());
+      newVerts.push_back(f[i*2+3]-norm.GetY());
+
+      newVerts.push_back(f[i*2]+norm.GetX());
+      newVerts.push_back(f[i*2+1]+norm.GetY());
+      newVerts.push_back(f[i*2+2]-norm.GetX());
+      newVerts.push_back(f[i*2+3]-norm.GetY());
+      newVerts.push_back(f[i*2+2]+norm.GetX());
+      newVerts.push_back(f[i*2+3]+norm.GetY());
+
+      if (colors)
+        {
+        copyColors(newColors, colors+i*nc, nc);
+        copyColors(newColors, colors+i*nc, nc);
+        copyColors(newColors, colors+(i+1)*nc, nc);
+        copyColors(newColors, colors+i*nc, nc);
+        copyColors(newColors, colors+(i+1)*nc, nc);
+        copyColors(newColors, colors+(i+1)*nc, nc);
+        }
+      }
+
+    this->BuildVBO(cbo, &(newVerts[0]), newVerts.size()/2,
+      colors ? &(newColors[0]) : NULL, nc, NULL);
+    glDrawArrays(GL_TRIANGLES, 0, newVerts.size()/2);
+    }
+  else
+    {
+    this->SetLineWidth(this->Pen->GetWidth());
+    this->BuildVBO(cbo, f, n, colors, nc, NULL);
+    glDrawArrays(GL_LINES, 0, n);
+    this->SetLineWidth(1.0);
+    }
+
+  // free everything
+  cbo->ReleaseGraphicsResources(this->RenderWindow);
 
   vtkOpenGLCheckErrorMacro("failed after DrawLines");
 }
@@ -1409,15 +1536,15 @@ void vtkOpenGLContextDevice2D::DrawImage(const vtkRectf& pos,
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLContextDevice2D::SetColor4(unsigned char *color)
+void vtkOpenGLContextDevice2D::SetColor4(unsigned char *)
 {
-  glColor4ubv(color);
+  vtkErrorMacro("color cannot be set this way\n");
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLContextDevice2D::SetColor(unsigned char *color)
+void vtkOpenGLContextDevice2D::SetColor(unsigned char *)
 {
-  glColor3ubv(color);
+  vtkErrorMacro("color cannot be set this way\n");
 }
 
 //-----------------------------------------------------------------------------
@@ -1458,36 +1585,11 @@ void vtkOpenGLContextDevice2D::SetLineWidth(float width)
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::SetLineType(int type)
 {
-  if (type == vtkPen::SOLID_LINE)
+  if (type == vtkPen::SOLID_LINE || type == vtkPen::NO_PEN)
     {
-    glDisable(GL_LINE_STIPPLE);
+    return;
     }
-  else
-    {
-    glEnable(GL_LINE_STIPPLE);
-    }
-  GLushort pattern = 0x0000;
-  switch (type)
-    {
-    case vtkPen::NO_PEN:
-      pattern = 0x0000;
-      break;
-    case vtkPen::DASH_LINE:
-      pattern = 0x00FF;
-      break;
-    case vtkPen::DOT_LINE:
-      pattern = 0x0101;
-      break;
-    case vtkPen::DASH_DOT_LINE:
-      pattern = 0x0C0F;
-      break;
-    case vtkPen::DASH_DOT_DOT_LINE:
-      pattern = 0x1C47;
-      break;
-    default:
-      pattern = 0x0000;
-    }
-  glLineStipple(1, pattern);
+  vtkErrorMacro(<< "Line Stipples are no longer supported");
 }
 
 //-----------------------------------------------------------------------------

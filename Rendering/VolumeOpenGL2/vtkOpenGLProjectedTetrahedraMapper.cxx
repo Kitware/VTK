@@ -312,6 +312,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ReleaseGraphicsResources(vtkWindow *win
     }
 
   this->VBO.ReleaseGraphicsResources();
+  this->Tris.ReleaseGraphicsResources(win);
 
   this->Superclass::ReleaseGraphicsResources(win);
 }

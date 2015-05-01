@@ -48,16 +48,23 @@
 # else
 /* Use the glew library configured for VTK.  */
 #cmakedefine VTK_USE_SYSTEM_GLEW
+//#cmakedefine VTK_USE_X
 #  ifdef VTK_USE_SYSTEM_GLEW
 #    include <GL/glew.h>
 #    ifdef WIN32
 #      include <GL/wglew.h>
 #    endif
+//#    ifdef VTK_USE_X
+//#      include <GL/glxew.h>
+//#    endif
 #  else
 #    include <vtkglew/include/GL/glew.h>
 #    ifdef WIN32
 #      include <vtkglew/include/GL/wglew.h>
 #    endif
+//#    ifdef VTK_USE_X
+//#      include <vtkglew/include/GL/glxew.h>
+//#    endif
 #  endif
 # endif
 #endif

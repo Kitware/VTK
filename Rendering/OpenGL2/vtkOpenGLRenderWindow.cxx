@@ -342,15 +342,8 @@ void vtkOpenGLRenderWindow::OpenGLInitState()
   glEnable( GL_DEPTH_TEST );
 
   // initialize blending for transparency
-  if(glBlendFuncSeparate != 0)
-    {
-    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
-                             GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
-    }
-  else
-    {
-    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-    }
+  glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
+                      GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_BLEND);
 
   if (this->LineSmoothing)
@@ -481,14 +474,45 @@ int vtkOpenGLRenderWindow::GetColorBufferSizes(int *rgba)
   if ( this->Mapped)
     {
     this->MakeCurrent();
-    glGetIntegerv( GL_RED_BITS, &size );
-    rgba[0] = static_cast<int>(size);
-    glGetIntegerv( GL_GREEN_BITS, &size  );
-    rgba[1] = static_cast<int>(size);
-    glGetIntegerv( GL_BLUE_BITS, &size );
-    rgba[2] = static_cast<int>(size);
-    glGetIntegerv( GL_ALPHA_BITS, &size );
-    rgba[3] = static_cast<int>(size);
+#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
+    if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
+      {
+      GLint fboBind = 0;
+      glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &fboBind);
+      GLenum attachment = GL_FRONT_LEFT;
+      if (fboBind != 0)
+        {
+        attachment = GL_COLOR_ATTACHMENT0;
+        }
+      glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
+        attachment,
+        GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE, &size);
+      rgba[0] = static_cast<int>(size);
+      glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
+        attachment,
+        GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE, &size);
+      rgba[1] = static_cast<int>(size);
+      glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
+        attachment,
+        GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE, &size);
+      rgba[2] = static_cast<int>(size);
+      glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
+        attachment,
+        GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, &size);
+      rgba[3] = static_cast<int>(size);
+      }
+    else
+#endif
+      {
+      glGetIntegerv( GL_RED_BITS, &size );
+      rgba[0] = static_cast<int>(size);
+      glGetIntegerv( GL_GREEN_BITS, &size  );
+      rgba[1] = static_cast<int>(size);
+      glGetIntegerv( GL_BLUE_BITS, &size );
+      rgba[2] = static_cast<int>(size);
+      glGetIntegerv( GL_ALPHA_BITS, &size );
+      rgba[3] = static_cast<int>(size);
+      }
     return rgba[0]+rgba[1]+rgba[2]+rgba[3];
     }
   else
@@ -745,9 +769,9 @@ void vtkOpenGLRenderWindow::RenderTriangles(
   glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT,
     reinterpret_cast<const GLvoid *>(NULL));
   ibo.Release();
-  vao->Release();
   vao->RemoveAttributeArray("vertexMC");
   vao->RemoveAttributeArray("tcoordMC");
+  vao->Release();
   vbo.Release();
   if (tcoords)
     {
