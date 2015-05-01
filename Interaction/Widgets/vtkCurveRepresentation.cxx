@@ -38,6 +38,17 @@
 //----------------------------------------------------------------------------
 vtkCurveRepresentation::vtkCurveRepresentation()
 {
+  this->LastEventPosition[0] = VTK_DOUBLE_MAX;
+  this->LastEventPosition[1] = VTK_DOUBLE_MAX;
+  this->LastEventPosition[2] = VTK_DOUBLE_MAX;
+
+  this->Bounds[0] =  VTK_DOUBLE_MAX;
+  this->Bounds[1] = -VTK_DOUBLE_MAX;
+  this->Bounds[2] =  VTK_DOUBLE_MAX;
+  this->Bounds[3] = -VTK_DOUBLE_MAX;
+  this->Bounds[4] =  VTK_DOUBLE_MAX;
+  this->Bounds[5] = -VTK_DOUBLE_MAX;
+
   this->HandleSize = 5.0;
 
   this->InteractionState = vtkCurveRepresentation::Outside;
@@ -91,6 +102,10 @@ vtkCurveRepresentation::vtkCurveRepresentation()
   this->LinePicker->AddPickList(this->LineActor);
   this->LinePicker->PickFromListOn();
 
+  this->LastPickPosition[0] = VTK_DOUBLE_MAX;
+  this->LastPickPosition[1] = VTK_DOUBLE_MAX;
+  this->LastPickPosition[2] = VTK_DOUBLE_MAX;
+
   this->CurrentHandle = NULL;
   this->CurrentHandleIndex = -1;
 
@@ -102,6 +117,10 @@ vtkCurveRepresentation::vtkCurveRepresentation()
   this->LineProperty = NULL;
   this->SelectedLineProperty = NULL;
   this->CreateDefaultProperties();
+
+  this->Centroid[0] = 0.0;
+  this->Centroid[1] = 0.0;
+  this->Centroid[2] = 0.0;
 }
 
 //----------------------------------------------------------------------------
