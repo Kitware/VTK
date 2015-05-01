@@ -30,7 +30,6 @@ commonExceptions = set([
 "vtkDataEncoder",  # Use after free error.
 "vtkWebApplication",  # Thread issues - calls vtkDataEncoder
 "vtkView",  # vtkView.SetRepresentation(None) fails
-"vtkDataRepresentation", # Uses vtkView as a friend.
 
 "vtkGenericAttributeCollection",  # Assert error
 "vtkOverlappingAMR",
@@ -47,8 +46,8 @@ commonExceptions = set([
 
 classLinuxExceptions = set([
 "vtkAMREnzoReader",  # core dump
-#"vtkGraphLayoutView", # Override vtkView, may cause crashes.
-#"vtkTreeAreaView"
+"vtkGraphLayoutView", # Override vtkView, may cause crashes.
+"vtkTreeAreaView"
 ])
 
 # In the case of Windows, these classes cause a crash.
