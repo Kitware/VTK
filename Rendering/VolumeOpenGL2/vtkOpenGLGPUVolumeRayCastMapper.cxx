@@ -1686,7 +1686,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateVolumeGeometry(
     // TODO: should realy use the built in VAO class
     // which handles these apple issues internally
 #ifdef __APPLE__
-    if (this->ContextCache->GetContextSupportsOpenGL32())
+    if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
 #endif
       {
       glBindVertexArray(this->CubeVAOId);
@@ -1709,7 +1709,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateVolumeGeometry(
   else
     {
 #ifdef __APPLE__
-    if (!this->ContextCache->GetContextSupportsOpenGL32())
+    if (!vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
       {
       glBindBuffer (GL_ARRAY_BUFFER, this->CubeVBOId);
       this->ShaderProgram->EnableAttributeArray("in_vertexPos");
@@ -1925,7 +1925,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::CreateBufferObjects()
 {
 #ifdef __APPLE__
-  if (this->ContextCache->GetContextSupportsOpenGL32())
+  if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
 #endif
     {
     glGenVertexArrays(1, &this->CubeVAOId);
@@ -1954,7 +1954,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::DeleteBufferObjects()
   if (this->CubeVAOId)
     {
 #ifdef __APPLE__
-  if (this->ContextCache->GetContextSupportsOpenGL32())
+  if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
 #endif
       {
       glDeleteVertexArrays(1, &this->CubeVAOId);
@@ -2951,7 +2951,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     }
 
 #ifdef __APPLE__
-  if (this->Impl->ContextCache->GetContextSupportsOpenGL32())
+  if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
 #endif
     {
     glBindVertexArray(this->Impl->CubeVAOId);
