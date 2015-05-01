@@ -45,9 +45,7 @@ commonExceptions = set([
 ])
 
 classLinuxExceptions = set([
-"vtkAMREnzoReader",  # core dump
-"vtkGraphLayoutView", # Override vtkView, may cause crashes.
-"vtkTreeAreaView"
+"vtkAMREnzoReader"  # core dump
 ])
 
 # In the case of Windows, these classes cause a crash.
