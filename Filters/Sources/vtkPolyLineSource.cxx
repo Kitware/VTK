@@ -72,6 +72,21 @@ vtkIdType vtkPolyLineSource::GetNumberOfPoints()
 }
 
 //----------------------------------------------------------------------------
+void vtkPolyLineSource::Resize(vtkIdType numPoints)
+{
+  if (!this->Points)
+    {
+    this->SetNumberOfPoints(numPoints);
+    }
+
+  if (numPoints != this->GetNumberOfPoints())
+    {
+    this->Points->Resize(numPoints);
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkPolyLineSource::SetPoint(vtkIdType id, double x, double y, double z)
 {
   if (!this->Points)

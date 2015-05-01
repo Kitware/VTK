@@ -38,6 +38,10 @@ public:
   vtkIdType GetNumberOfPoints();
 
   // Description:
+  // Resize while preserving data.
+  void Resize(vtkIdType numPoints);
+
+  // Description:
   // Set a point location.
   void SetPoint(vtkIdType id, double x, double y, double z);
 
