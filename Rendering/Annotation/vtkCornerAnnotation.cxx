@@ -384,7 +384,6 @@ int GetNumberOfLines(const char *str)
 int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport *viewport)
 {
   int fontSize;
-  int i;
 
   // Check to see whether we have to rebuild everything
   // If the viewport has changed we may - or may not need
@@ -412,7 +411,7 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport *viewport)
     {
     vtkPropCollection *pc = viewport->GetViewProps();
     int numProps = pc->GetNumberOfItems();
-    for (i = 0; i < numProps; i++)
+    for (int i = 0; i < numProps; i++)
       {
       ia = vtkImageActor::SafeDownCast(pc->GetItemAsObject(i));
       if (ia)
@@ -486,7 +485,7 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport *viewport)
 
       int tempi[2*NumTextPositions];
       int allZeros = 1;
-      for (i = 0; i < NumTextPositions; i++)
+      for (int i = 0; i < NumTextPositions; i++)
         {
         this->TextMapper[i]->GetSize(viewport, tempi + i * 2);
         if (tempi[2*i] > 0 || tempi[2*i+1] > 0)
@@ -547,7 +546,7 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport *viewport)
              fontSize < 100)
         {
         fontSize++;
-        for (i = 0; i < NumTextPositions; i++)
+        for (int i = 0; i < NumTextPositions; i++)
           {
           this->TextMapper[i]->GetTextProperty()->SetFontSize(fontSize);
           this->TextMapper[i]->GetSize(viewport, tempi + i * 2);
@@ -576,7 +575,7 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport *viewport)
              fontSize > 0)
         {
         fontSize--;
-        for (i = 0; i < NumTextPositions; i++)
+        for (int i = 0; i < NumTextPositions; i++)
           {
           this->TextMapper[i]->GetTextProperty()->SetFontSize(fontSize);
           this->TextMapper[i]->GetSize(viewport, tempi + i * 2);
@@ -600,7 +599,7 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport *viewport)
         fontSize = this->MaximumFontSize;
         }
       this->FontSize = fontSize;
-      for (i = 0; i < NumTextPositions; i++)
+      for (int i = 0; i < NumTextPositions; i++)
         {
         this->TextMapper[i]->GetTextProperty()->SetFontSize(fontSize);
         }
@@ -609,7 +608,7 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport *viewport)
 
       this->SetTextActorsPosition(vSize);
 
-      for (i = 0; i < NumTextPositions; i++)
+      for (int i = 0; i < NumTextPositions; i++)
         {
         this->TextActor[i]->SetProperty(this->GetProperty());
         }
@@ -622,7 +621,7 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport *viewport)
 
   if (this->FontSize >= this->MinimumFontSize)
     {
-    for (i = 0; i < NumTextPositions; i++)
+    for (int i = 0; i < NumTextPositions; i++)
       {
       this->TextActor[i]->RenderOpaqueGeometry(viewport);
       }
