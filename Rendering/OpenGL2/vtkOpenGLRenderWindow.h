@@ -49,6 +49,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Overridden to release resources that would interfere with an external
+  // application's rendering.
+  void Render();
+
+  // Description:
   // Set/Get the maximum number of multisamples
   static void SetGlobalMaximumNumberOfMultiSamples(int val);
   static int  GetGlobalMaximumNumberOfMultiSamples();
