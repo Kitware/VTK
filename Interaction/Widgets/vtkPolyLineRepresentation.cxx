@@ -133,6 +133,17 @@ void vtkPolyLineRepresentation::SetNumberOfHandles(int npts)
 
   this->NumberOfHandles = npts;
 
+  vtkIdType prevNumPoints = this->PolyLineSource->GetNumberOfPoints();
+  if (this->PolyLineSource->GetNumberOfPoints() != npts)
+    {
+    this->PolyLineSource->Resize(npts);
+    for (vtkIdType i = prevNumPoints; i < npts; ++i)
+      {
+      double pt[3] = {0.0, 0.0, 0.0};
+      this->PolyLineSource->GetPoints()->SetPoint(i, pt);
+      }
+    }
+
   // Create the handles
   this->Handle         = new vtkActor* [this->NumberOfHandles];
   this->HandleGeometry = new vtkSphereSource* [this->NumberOfHandles];
@@ -210,6 +221,7 @@ double vtkPolyLineRepresentation::GetSummedLength()
   return sum;
 }
 
+//----------------------------------------------------------------------------
 void vtkPolyLineRepresentation::InsertHandleOnLine(double* pos)
 {
   if (this->NumberOfHandles < 2) { return; }

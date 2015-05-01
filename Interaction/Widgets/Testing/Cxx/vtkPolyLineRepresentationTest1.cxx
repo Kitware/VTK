@@ -63,6 +63,9 @@ int vtkPolyLineRepresentationTest1(int , char * [] )
     std::cout << "Selected Line Property is NULL." << std::endl;
     }
 
+  double pt3[3] = {1, 2, 3};
+  node1->SetHandlePosition(3, pt3);
+
   node1->SetNumberOfHandles(10);
   int numHandles = node1->GetNumberOfHandles();
   if (numHandles != 10)
@@ -70,6 +73,15 @@ int vtkPolyLineRepresentationTest1(int , char * [] )
     std::cerr << "Error in Setting number of Handles to 10, got " << numHandles << std::endl;
     return EXIT_FAILURE;
     }
+
+  double testPt[3];
+  node1->GetHandlePosition(3, testPt);
+  if (testPt[0] != pt3[0] || testPt[1] != pt3[1] || testPt[2] != pt3[2])
+    {
+    std::cerr << "Handle position 3 changed after resize, but should have stayed the same.\n";
+    return EXIT_FAILURE;
+    }
+
   node1->SetNumberOfHandles(-1);
   numHandles = node1->GetNumberOfHandles();
   std::cout << "After setting num handles to -1, got back "  << numHandles << std::endl;
