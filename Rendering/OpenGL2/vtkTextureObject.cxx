@@ -275,7 +275,8 @@ bool vtkTextureObject::IsSupported(vtkOpenGLRenderWindow* vtkNotUsed(win),
   bool texFloat = true;
   if (requireTexFloat)
     {
-    texFloat = (glewIsSupported("GL_ARB_texture_float") != 0);
+    texFloat = (glewIsSupported("GL_ARB_texture_float") != 0
+     && glewIsSupported("GL_ARB_texture_rg") != 0);
     }
 
   bool depthFloat = true;
@@ -320,7 +321,8 @@ bool vtkTextureObject::LoadRequiredExtensions(vtkOpenGLRenderWindow *renWin)
       (glewIsSupported("GL_EXT_texture_integer") != 0);
 
     this->SupportsTextureFloat =
-      (glewIsSupported("GL_ARB_texture_float") != 0);
+      (glewIsSupported("GL_ARB_texture_float") != 0 &&
+       glewIsSupported("GL_ARB_texture_rg") != 0);
 
     this->SupportsDepthBufferFloat =
       (glewIsSupported("GL_ARB_depth_buffer_float") != 0);
