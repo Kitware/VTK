@@ -53,7 +53,7 @@ vtkCornerAnnotation::vtkCornerAnnotation()
   this->TextProperty = vtkTextProperty::New();
   this->TextProperty->ShadowOff();
 
-  for (int i = 0; i < 4; i++)
+  for (int i = 0; i < NumTextPositions; i++)
     {
     this->CornerText[i] = NULL;
     this->TextMapper[i] = vtkTextMapper::New();
@@ -76,7 +76,7 @@ vtkCornerAnnotation::~vtkCornerAnnotation()
 {
   this->SetTextProperty(NULL);
 
-  for (int i = 0; i < 4; i++)
+  for (int i = 0; i < NumTextPositions; i++)
     {
     delete [] this->CornerText[i];
     this->TextMapper[i]->Delete();
@@ -94,7 +94,7 @@ vtkCornerAnnotation::~vtkCornerAnnotation()
 void vtkCornerAnnotation::ReleaseGraphicsResources(vtkWindow *win)
 {
   this->Superclass::ReleaseGraphicsResources(win);
-  for (int i = 0; i < 4; i++)
+  for (int i = 0; i < NumTextPositions; i++)
     {
     this->TextActor[i]->ReleaseGraphicsResources(win);
     }
@@ -142,7 +142,7 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor *ia,
 
 
   // search for tokens, replace and then assign to TextMappers
-  for (i = 0; i < 4; i++)
+  for (i = 0; i < NumTextPositions; i++)
     {
     if (this->CornerText[i] && strlen(this->CornerText[i]))
       {
@@ -350,7 +350,7 @@ int vtkCornerAnnotation::RenderOverlay(vtkViewport *viewport)
   // only render if font is at least minimum font
   if (this->FontSize >= this->MinimumFontSize)
     {
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < NumTextPositions; i++)
       {
       this->TextActor[i]->RenderOverlay(viewport);
       }
@@ -462,22 +462,12 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport *viewport)
 
       if (tprop_has_changed)
         {
-        vtkTextProperty *tprop = this->TextMapper[0]->GetTextProperty();
-        tprop->ShallowCopy(this->TextProperty);
-        tprop->SetFontSize(fontSize);
-
-        tprop = this->TextMapper[1]->GetTextProperty();
-        tprop->ShallowCopy(this->TextProperty);
-        tprop->SetFontSize(fontSize);
-
-        tprop = this->TextMapper[2]->GetTextProperty();
-        tprop->ShallowCopy(this->TextProperty);
-        tprop->SetFontSize(fontSize);
-
-        tprop = this->TextMapper[3]->GetTextProperty();
-        tprop->ShallowCopy(this->TextProperty);
-        tprop->SetFontSize(fontSize);
-
+        for (int i = 0; i < NumTextPositions; i++)
+          {
+          vtkTextProperty *tprop = this->TextMapper[i]->GetTextProperty();
+          tprop->ShallowCopy(this->TextProperty);
+          tprop->SetFontSize(fontSize);
+          }
         this->SetTextActorsJustification();
         }
 
@@ -485,17 +475,18 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport *viewport)
       // use the last size as a first guess
 
       /*
-          +--------+
-          |2      3|
-          |        |
-          |        |
-          |0      1|
-          +--------+
+          +---------+
+          |2   7   3|
+          |         |
+          |6       5|
+          |         |
+          |0   4   1|
+          +---------+
       */
 
-      int tempi[8];
+      int tempi[2*NumTextPositions];
       int allZeros = 1;
-      for (i = 0; i < 4; i++)
+      for (i = 0; i < NumTextPositions; i++)
         {
         this->TextMapper[i]->GetSize(viewport, tempi + i * 2);
         if (tempi[2*i] > 0 || tempi[2*i+1] > 0)
@@ -509,13 +500,16 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport *viewport)
         return 0;
         }
 
-      int height_02 = tempi[1] + tempi[5];
-      int height_13 = tempi[3] + tempi[7];
+      int height_02 = tempi[1] + tempi[5];  // total height of text in left top/bottom corners
+      int height_13 = tempi[3] + tempi[7];  // total height of text in right top/bottom corners
+      int height_47 = tempi[9] + tempi[15]; // total height of text at center of top/bottom edges
 
-      int width_01 = tempi[0] + tempi[2];
-      int width_23 = tempi[4] + tempi[6];
+      int width_01 = tempi[0] + tempi[2];   // total width of text on botttom left/right corners
+      int width_23 = tempi[4] + tempi[6];   // total width of text on top left/right corners
+      int width_56 = tempi[10] + tempi[12]; // total width of text at center of left/right edges
 
-      int max_width = (width_01 > width_23) ? width_01 : width_23;
+      int max_width_corners = (width_01 > width_23) ? width_01 : width_23;
+      int max_width         = (width_56 > max_width_corners) ? width_56 : max_width_corners;
 
       int num_lines_02 = GetNumberOfLines(this->TextMapper[0]->GetInput())
           + GetNumberOfLines(this->TextMapper[2]->GetInput());
@@ -523,11 +517,17 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport *viewport)
       int num_lines_13 = GetNumberOfLines(this->TextMapper[1]->GetInput())
           + GetNumberOfLines(this->TextMapper[3]->GetInput());
 
+      int num_lines_47 = GetNumberOfLines(this->TextMapper[4]->GetInput())
+          + GetNumberOfLines(this->TextMapper[7]->GetInput());
+
       int line_max_02 = (int)(vSize[1] * this->MaximumLineHeight) *
         (num_lines_02 ? num_lines_02 : 1);
 
       int line_max_13 = (int)(vSize[1] * this->MaximumLineHeight) *
         (num_lines_13 ? num_lines_13 : 1);
+
+      int line_max_47 = (int)(vSize[1] * this->MaximumLineHeight) *
+        (num_lines_47 ? num_lines_47 : 1);
 
       // Target size is to use 90% of x and y
 
@@ -539,44 +539,58 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport *viewport)
 
       while (height_02 < tSize[1] &&
              height_13 < tSize[1] &&
+             height_47 < tSize[1] &&
              max_width < tSize[0] &&
              height_02 < line_max_02 &&
              height_13 < line_max_13 &&
+             height_47 < line_max_47 &&
              fontSize < 100)
         {
         fontSize++;
-        for (i = 0; i < 4; i++)
+        for (i = 0; i < NumTextPositions; i++)
           {
           this->TextMapper[i]->GetTextProperty()->SetFontSize(fontSize);
           this->TextMapper[i]->GetSize(viewport, tempi + i * 2);
           }
         height_02 = tempi[1] + tempi[5];
         height_13 = tempi[3] + tempi[7];
+        height_47 = tempi[9] + tempi[15];
+
         width_01 = tempi[0] + tempi[2];
         width_23 = tempi[4] + tempi[6];
-        max_width = (width_01 > width_23) ? width_01 : width_23;
+        width_56 = tempi[10] + tempi[12];
+
+        max_width_corners = (width_01 > width_23) ? width_01 : width_23;
+        max_width         = (width_56 > max_width_corners) ? width_56 : max_width_corners;
         }
 
       // While the size is too large decrease it
 
       while ((height_02 > tSize[1] ||
               height_13 > tSize[1] ||
+              height_47 > tSize[1] ||
               max_width > tSize[0] ||
               height_02 > line_max_02 ||
-              height_13 > line_max_13) &&
+              height_13 > line_max_13 ||
+              height_47 > line_max_47) &&
              fontSize > 0)
         {
         fontSize--;
-        for (i = 0; i < 4; i++)
+        for (i = 0; i < NumTextPositions; i++)
           {
           this->TextMapper[i]->GetTextProperty()->SetFontSize(fontSize);
           this->TextMapper[i]->GetSize(viewport, tempi + i * 2);
           }
         height_02 = tempi[1] + tempi[5];
         height_13 = tempi[3] + tempi[7];
+        height_47 = tempi[9] + tempi[15];
+
         width_01 = tempi[0] + tempi[2];
         width_23 = tempi[4] + tempi[6];
-        max_width = (width_01 > width_23) ? width_01 : width_23;
+        width_56 = tempi[10] + tempi[12];
+
+        max_width_corners = (width_01 > width_23) ? width_01 : width_23;
+        max_width         = (width_56 > max_width_corners) ? width_56 : max_width_corners;
         }
 
       fontSize = static_cast<int>(pow((double)fontSize,
@@ -586,7 +600,7 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport *viewport)
         fontSize = this->MaximumFontSize;
         }
       this->FontSize = fontSize;
-      for (i = 0; i < 4; i++)
+      for (i = 0; i < NumTextPositions; i++)
         {
         this->TextMapper[i]->GetTextProperty()->SetFontSize(fontSize);
         }
@@ -595,7 +609,7 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport *viewport)
 
       this->SetTextActorsPosition(vSize);
 
-      for (i = 0; i < 4; i++)
+      for (i = 0; i < NumTextPositions; i++)
         {
         this->TextActor[i]->SetProperty(this->GetProperty());
         }
@@ -608,7 +622,7 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport *viewport)
 
   if (this->FontSize >= this->MinimumFontSize)
     {
-    for (i = 0; i < 4; i++)
+    for (i = 0; i < NumTextPositions; i++)
       {
       this->TextActor[i]->RenderOpaqueGeometry(viewport);
       }
@@ -628,36 +642,57 @@ int vtkCornerAnnotation::HasTranslucentPolygonalGeometry()
 //----------------------------------------------------------------------------
 void vtkCornerAnnotation::SetTextActorsPosition(int vsize[2])
 {
-  this->TextActor[LowerLeft]->SetPosition(5, 5);
-  this->TextActor[LowerRight]->SetPosition(vsize[0] - 5, 5);
-  this->TextActor[UpperLeft]->SetPosition(5, vsize[1] - 5);
-  this->TextActor[UpperRight]->SetPosition(vsize[0] - 5, vsize[1] - 5);
+  this->TextActor[LowerLeft]->SetPosition  ( 5,             5             );
+  this->TextActor[LowerRight]->SetPosition ( vsize[0] - 5,  5             );
+  this->TextActor[UpperLeft]->SetPosition  ( 5,             vsize[1] - 5  );
+  this->TextActor[UpperRight]->SetPosition ( vsize[0] - 5,  vsize[1] - 5  );
+
+  this->TextActor[LowerEdge]->SetPosition  ( vsize[0]/2,    5             );
+  this->TextActor[UpperEdge]->SetPosition  ( vsize[0]/2,    vsize[1] - 5  );
+  this->TextActor[LeftEdge]->SetPosition   ( 5,             vsize[1]/2    );
+  this->TextActor[RightEdge]->SetPosition  ( vsize[0] - 5,  vsize[1]/2    );
 }
 
 //----------------------------------------------------------------------------
 void vtkCornerAnnotation::SetTextActorsJustification()
 {
-  vtkTextProperty *tprop = this->TextMapper[0]->GetTextProperty();
+  vtkTextProperty *tprop = this->TextMapper[LowerLeft]->GetTextProperty();
   tprop->SetJustificationToLeft();
   tprop->SetVerticalJustificationToBottom();
 
-  tprop = this->TextMapper[1]->GetTextProperty();
+  tprop = this->TextMapper[LowerRight]->GetTextProperty();
   tprop->SetJustificationToRight();
   tprop->SetVerticalJustificationToBottom();
 
-  tprop = this->TextMapper[2]->GetTextProperty();
+  tprop = this->TextMapper[UpperLeft]->GetTextProperty();
   tprop->SetJustificationToLeft();
   tprop->SetVerticalJustificationToTop();
 
-  tprop = this->TextMapper[3]->GetTextProperty();
+  tprop = this->TextMapper[UpperRight]->GetTextProperty();
   tprop->SetJustificationToRight();
   tprop->SetVerticalJustificationToTop();
+
+  tprop = this->TextMapper[LowerEdge]->GetTextProperty();
+  tprop->SetJustificationToCentered();
+  tprop->SetVerticalJustificationToBottom();
+
+  tprop = this->TextMapper[UpperEdge]->GetTextProperty();
+  tprop->SetJustificationToCentered();
+  tprop->SetVerticalJustificationToTop();
+
+  tprop = this->TextMapper[LeftEdge]->GetTextProperty();
+  tprop->SetJustificationToLeft();
+  tprop->SetVerticalJustificationToCentered();
+
+  tprop = this->TextMapper[RightEdge]->GetTextProperty();
+  tprop->SetJustificationToRight();
+  tprop->SetVerticalJustificationToCentered();
 }
 
 //----------------------------------------------------------------------------
 void vtkCornerAnnotation::SetText(int i, const char *text)
 {
-  if (i < 0 || i > 3)
+  if (i < 0 || i >= NumTextPositions)
     {
     return;
     }
@@ -676,7 +711,7 @@ void vtkCornerAnnotation::SetText(int i, const char *text)
 //----------------------------------------------------------------------------
 const char* vtkCornerAnnotation::GetText(int i)
 {
-  if (i < 0 || i > 3)
+  if (i < 0 || i >= NumTextPositions)
     {
     return NULL;
     }
@@ -687,7 +722,7 @@ const char* vtkCornerAnnotation::GetText(int i)
 //----------------------------------------------------------------------------
 void vtkCornerAnnotation::ClearAllTexts()
 {
-  for (int i = 0; i < 4; i++)
+  for (int i = 0; i < NumTextPositions; i++)
     {
     this->SetText(i, "");
     }
@@ -696,7 +731,7 @@ void vtkCornerAnnotation::ClearAllTexts()
 //----------------------------------------------------------------------------
 void vtkCornerAnnotation::CopyAllTextsFrom(vtkCornerAnnotation *ca)
 {
-  for (int i = 0; i < 4; i++)
+  for (int i = 0; i < NumTextPositions; i++)
     {
     this->SetText(i, ca->GetText(i));
     }

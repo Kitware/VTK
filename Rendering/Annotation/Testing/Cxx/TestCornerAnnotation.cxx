@@ -54,10 +54,16 @@ int TestCornerAnnotation( int argc, char * argv [] )
   cornerAnnotation->SetLinearFontScaleFactor( 2 );
   cornerAnnotation->SetNonlinearFontScaleFactor( 1 );
   cornerAnnotation->SetMaximumFontSize( 20 );
-  cornerAnnotation->SetText( vtkCornerAnnotation::LowerLeft, "lower left" );
+  cornerAnnotation->SetText( vtkCornerAnnotation::LowerLeft,  "lower left" );
   cornerAnnotation->SetText( vtkCornerAnnotation::LowerRight, "lower right" );
-  cornerAnnotation->SetText( vtkCornerAnnotation::UpperLeft, "upper left" );
+  cornerAnnotation->SetText( vtkCornerAnnotation::UpperLeft,  "upper left" );
   cornerAnnotation->SetText( vtkCornerAnnotation::UpperRight, "upper right" );
+
+  cornerAnnotation->SetText( vtkCornerAnnotation::UpperEdge, "U");
+  cornerAnnotation->SetText( vtkCornerAnnotation::LowerEdge, "D");
+  cornerAnnotation->SetText( vtkCornerAnnotation::RightEdge, "R");
+  cornerAnnotation->SetText( vtkCornerAnnotation::LeftEdge,  "L");
+
   cornerAnnotation->GetTextProperty()->SetColor( 1,0,0);
 
   renderer->AddViewProp(cornerAnnotation);
