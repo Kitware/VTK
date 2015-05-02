@@ -464,7 +464,6 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
 
   // create our own window ?
   this->OwnWindow = 0;
-  GLXFBConfig* fb = NULL;
   if (!this->WindowId)
     {
     v = this->GetDesiredVisualInfo();
@@ -1594,8 +1593,6 @@ const char* vtkXOpenGLRenderWindow::ReportCapabilities()
                                                       GLX_EXTENSIONS);
   const char *clientVendor = glXGetClientString(this->DisplayId, GLX_VENDOR);
   const char *clientVersion = glXGetClientString(this->DisplayId, GLX_VERSION);
-  const char *clientExtensions = glXGetClientString(this->DisplayId,
-                                                    GLX_EXTENSIONS);
   const char *glxExtensions = glXQueryExtensionsString(this->DisplayId,scrnum);
   const char *glVendor = reinterpret_cast<const char *>(glGetString(GL_VENDOR));
   const char *glRenderer = reinterpret_cast<const char *>(glGetString(GL_RENDERER));
