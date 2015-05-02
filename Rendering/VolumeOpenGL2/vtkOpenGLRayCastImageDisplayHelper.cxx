@@ -182,18 +182,18 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
     (float)imageInUseSize[1]/(float)imageMemorySize[1] - offsetY;
 
   float verts[12] = {
-    (float)imageOrigin[0]/imageViewportSize[0] * 2.0 - 1.0,
-    (float)imageOrigin[1]/imageViewportSize[1] * 2.0 - 1.0, depth,
-    (float)(imageOrigin[0]+imageInUseSize[0]) /
-    imageViewportSize[0] * 2.0 - 1.0,
-    (float)imageOrigin[1]/imageViewportSize[1] * 2.0 - 1.0, depth,
-    (float)(imageOrigin[0]+imageInUseSize[0]) /
-    imageViewportSize[0] * 2.0 - 1.0,
-    (float)(imageOrigin[1]+imageInUseSize[1]) /
-    imageViewportSize[1] * 2.0 - 1.0, depth,
-    (float)imageOrigin[0]/imageViewportSize[0] * 2.0 - 1.0,
-    (float)(imageOrigin[1]+imageInUseSize[1]) /
-    imageViewportSize[1] * 2.0 - 1.0, depth};
+    2.0f*imageOrigin[0]/imageViewportSize[0] - 1.0f,
+    2.0f*imageOrigin[1]/imageViewportSize[1] - 1.0f, depth,
+    2.0f*(imageOrigin[0]+imageInUseSize[0]) /
+    imageViewportSize[0] - 1.0f,
+    2.0f*imageOrigin[1]/imageViewportSize[1] - 1.0f, depth,
+    2.0f*(imageOrigin[0]+imageInUseSize[0]) /
+    imageViewportSize[0] - 1.0f,
+    2.0f*(imageOrigin[1]+imageInUseSize[1]) /
+    imageViewportSize[1] - 1.0f, depth,
+    2.0f*imageOrigin[0]/imageViewportSize[0] - 1.0f,
+    2.0f*(imageOrigin[1]+imageInUseSize[1]) /
+    imageViewportSize[1] - 1.0f, depth};
 
   if (!this->ShaderProgram)
     {
