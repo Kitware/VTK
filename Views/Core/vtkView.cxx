@@ -184,7 +184,7 @@ vtkDataRepresentation* vtkView::SetRepresentationFromInputConnection(vtkAlgorith
 //----------------------------------------------------------------------------
 void vtkView::AddRepresentation(vtkDataRepresentation* rep)
 {
-  if (!this->IsRepresentationPresent(rep))
+  if (rep != NULL && !this->IsRepresentationPresent(rep))
     {
     if (rep->AddToView(this))
       {
