@@ -737,8 +737,6 @@ void vtkXOpenGLRenderWindow::DestroyWindow()
 void vtkXOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
 {
 
-  XVisualInfo  *v;
-
   this->DoubleBuffer = 0;
 
   // always prefer OSMESA if we built with it
