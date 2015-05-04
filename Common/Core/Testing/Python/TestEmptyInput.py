@@ -29,8 +29,9 @@ def RedirectVTKMessages():
 
 
 commonExceptions = set([
-"vtkDistributedDataFilter", # core dump
-"vtkDataEncoder", # Use after free error.
+"vtkDistributedDataFilter",  # core dump
+"vtkDataEncoder",  # Use after free error.
+"vtkWebApplication",  # Thread issues - calls vtkDataEncoder
 
  # These give an HDF5 no file name error.
 "vtkAMRFlashParticlesReader",
@@ -39,12 +40,12 @@ commonExceptions = set([
 ])
 
 classLinuxExceptions = set([
-"vtkAMREnzoReader" # core dump
+"vtkAMREnzoReader"  # core dump
 ])
 
 # In the case of Windows, these classes cause a crash.
 classWindowsExceptions = set([
-"vtkWin32VideoSource", # Update() works the first time but a subsequent run calls up the webcam which crashes on close.
+"vtkWin32VideoSource",  # Update() works the first time but a subsequent run calls up the webcam which crashes on close.
 
 "vtkCMLMoleculeReader",
 "vtkCPExodusIIInSituReader",
@@ -63,17 +64,34 @@ emptyRG = vtk.vtkRectilinearGrid()
 # This will hold the classes to be tested.
 vtkClasses = set()
 classNames = None
+classesTested = set()
 
 # Keep a record of the classes tested.
 nonexistentClasses = set()
 abstractClasses = set()
 noConcreteImplementation = set()
-noUpdate = set()
 noShutdown = set()
-noSetInput = set()
 noObserver = set()
+# Is a vtkAlgorithm but EmptyInput failed.
+isVtkAlgorithm = set()
 emptyInputWorked = set()
 emptyInputFailed = set()
+#------------------------
+# These variables are used for further record keeping
+# should users wish to investigate or debug further.
+noUpdate = set()
+noSetInput = set()
+
+# A dictionary consisting of a key and five booleans corresponding to
+# whether SetInput() using emptyPD, emptyID, emptySG, emptyUG, emptyRG
+# worked.
+inputStatus = dict()
+
+# A dictionary consisting of a key and five booleans corresponding to
+# whether Update() using emptyPD, emptyID, emptySG, emptyUG, emptyRG
+# worked if SetInput() worked.
+updateStatus = dict()
+#-----------------------
 
 # Controls the verbosity of the output.
 verbose = False
@@ -111,7 +129,7 @@ def GetVTKClasses():
                     vtk, inspect.isclass and not inspect.isabstract)
     res = set()
     for name, obj in vtkClasses:
-            result = re.match(regEx,repr(obj))
+            result = re.match(regEx, repr(obj))
             if result:
                 res.add(result.group(2))
     return res
@@ -237,92 +255,112 @@ def TestOne(cname):
     in this case, the name of the class is stored in the global variable
     abstractClasses or noConcreteImplementation with False being returned.
 
+    Return values:
+    0: If not any of the SetInput() tests and the corresponding
+             Update() are both true.
+    1: If at least one of SetInput() tests and the corresponding
+             Update() are both true.
+    2: No observer could be added.
+    3: If it is an abstract class.
+    4: No concrete implementation.
+    5: Class does not exist.
+
     :param: cname - the name of the class to be tested.
-    :return: True if at least one of the tests is successful, False otherwise.
+    :return: One of the above return values.
     '''
     try:
         b = getattr(vtk, cname)()
         e = ErrorObserver()
+        isAlgorithm = False
+        # A record of whether b.SetInput() worked or not.
+        # The indexing corresponds to using
+        # emptyPD, emptyID, emptySG, emptyUG, emptyRG in SetInput()
+        iStatus = [False, False, False, False, False]
         # A record of whether b.Update() worked or not.
         # The indexing corresponds to:
-        # [vtkAlgorithm, emptyPD, emptyID, emptySG, emptyUG, emptyRG]
-        updateStatus = [False, False, False, False, False, False]
+        # [emptyPD, emptyID, emptySG, emptyUG, emptyRG]
+        uStatus = [False, False, False, False, False]
         try:
             b.AddObserver('ErrorEvent', e)
         except AttributeError:
             noObserver.add(cname)
-            return False
+            return 2
         except:
             raise
         if b.IsA("vtkAlgorithm"):
-            u = TryUpdate(b,e)
+            u = TryUpdate(b, e)
             if u:
-                updateStatus[0] = True
-            else:
-                updateStatus[0] = False
-        s = TrySetInputData(b, e, emptyPD)
-        if s:
-            u = TryUpdate(b,e)
+                isAlgorithm = True
+
+        if TrySetInputData(b, e, emptyPD):
+            iStatus[0] = True
+            u = TryUpdate(b, e)
             if u:
-                updateStatus[1] = True
-            else:
-                updateStatus[1] = False
-        s = TrySetInputData(b, e, emptyID)
-        if s:
-            u = TryUpdate(b,e)
+                uStatus[0] = True
+
+        if TrySetInputData(b, e, emptyID):
+            iStatus[1] = True
+            u = TryUpdate(b, e)
             if u:
-                updateStatus[2] = True
-            else:
-                updateStatus[2] = False
-        s = TrySetInputData(b, e, emptySG)
-        if s:
-            u = TryUpdate(b,e)
+                uStatus[1] = True
+
+        if TrySetInputData(b, e, emptySG):
+            iStatus[2] = True
+            u = TryUpdate(b, e)
             if u:
-                updateStatus[3] = True
-            else:
-                updateStatus[3] = False
-        s = TrySetInputData(b, e, emptyUG)
-        if s:
-            u = TryUpdate(b,e)
+                uStatus[2] = True
+
+        if TrySetInputData(b, e, emptyUG):
+            iStatus[3] = True
+            u = TryUpdate(b, e)
             if u:
-                updateStatus[4] = True
-            else:
-                updateStatus[4] = False
-        s = TrySetInputData(b, e, emptyRG)
-        if s:
-            u = TryUpdate(b,e)
+                uStatus[3] = True
+
+        if TrySetInputData(b, e, emptyRG):
+            iStatus[4] = True
+            u = TryUpdate(b, e)
             if u:
-                updateStatus[5] = True
-            else:
-                updateStatus[5] = False
+                uStatus[4] = True
+
         # If thread creation moves away from the vtkGeoSource constructor, then
         # this ShutDown call will not be necessary...
         #
         if b.IsA("vtkGeoSource"):
             TryShutdown(b, e)
 
+        inputStatus[cname] = iStatus
+        updateStatus[cname] = uStatus
         ok = False
-        for value in updateStatus:
+        # We require input and update to work for success.
+        mergeStatus = map(lambda pair: pair[0] & pair[1], zip(iStatus, uStatus))
+        for value in mergeStatus:
             ok |= value
-
+        if not(ok) and isAlgorithm:
+                isVtkAlgorithm.add(cname)
+        if ok:
+            emptyInputWorked.add(cname)
+        else:
+            emptyInputFailed.add(cname)
         b = None
-        return ok
+        if ok:
+             return 1
+        return 0
     except TypeError:
         # Trapping abstract classes.
         abstractClasses.add(cname)
-        return False
+        return 3
     except NotImplementedError:
         # No concrete implementation
         noConcreteImplementation.add(cname)
-        return False
+        return 4
     except AttributeError:
         # Class does not exist
         nonexistentClasses.add(cname)
-        return False
+        return 5
     except:
         raise
 
-def TestEmptyInputTest(batch, batchNo = 0, batchSize = 0):
+def TestEmptyInput(batch, batchNo=0, batchSize=0):
     '''
     Test each class in batch for empty input.
 
@@ -336,25 +374,39 @@ def TestEmptyInputTest(batch, batchNo = 0, batchSize = 0):
     idx = baseIdx
     for a in batch:
         batchIdx = idx - baseIdx
-        #res = " Testing -- {:4d} - {:s}".format(idx,a)
+        # res = " Testing -- {:4d} - {:s}".format(idx,a)
         # There is no format method in Python 2.5
-        res = " Testing -- %4d - %s" % (idx,a)
-        if ( batchIdx < len(batch) - 1):
-            #nextRes = " Next -- {:4d} - {:s}".format(idx + 1,list(batch)[batchIdx +1])
-            nextRes = " Next -- %4d - %s" % (idx + 1,list(batch)[batchIdx +1])
+        res = " Testing -- %4d - %s" % (idx, a)
+        if (batchIdx < len(batch) - 1):
+            # nextRes = " Next -- {:4d} - {:s}".format(idx + 1,list(batch)[batchIdx +1])
+            nextRes = " Next -- %4d - %s" % (idx + 1, list(batch)[batchIdx + 1])
         else:
             nextRes = "No next"
 #         if verbose:
 #             print res, nextRes
-        ok =  TestOne(a)
-        if ok:
-            emptyInputWorked.add(a)
-            if verbose:
-                print res + ' - Ok'
-        else:
-            emptyInputFailed.add(a)
+        classesTested.add(a)
+        ok = TestOne(a)
+        if ok == 0:
             if verbose:
                 print res + ' - Fail'
+        elif ok == 1:
+            if verbose:
+                print res + ' - Ok'
+        elif ok == 2:
+            if verbose:
+                print res + ' - no observer could be added.'
+        elif ok == 3:
+            if verbose:
+                print res + ' - is Abstract'
+        elif ok == 4:
+            if verbose:
+                print res + ' - No concrete implementation'
+        elif ok == 5:
+            if verbose:
+                print res + ' - Does not exist'
+        else:
+            if verbose:
+                print res + ' - Unknown status'
         idx += 1
 
 def BatchTest(vtkClasses, batchNo, batchSize):
@@ -375,57 +427,53 @@ def BatchTest(vtkClasses, batchNo, batchSize):
             batch.add(a)
             total += 1
             if total == batchSize:
-                TestEmptyInputTest(batch, batchNo, batchSize)
+                TestEmptyInput(batch, batchNo, batchSize)
                 print total
                 batch = set()
                 total = 0
         idx += 1
     if batch:
-        TestEmptyInputTest(batch, batchNo, batchSize)
+        TestEmptyInput(batch, batchNo, batchSize)
         print total
 
 def PrintResultSummary():
     print 'CTEST_FULL_OUTPUT (Avoid ctest truncation of output)'
-    print 'EmptyInput worked: ', len(emptyInputWorked)
-    print 'EmptyInput failed: ', len(emptyInputFailed)
-    print '   Included in EmptyInput failed'
-    print '   are the following:'
-    print '\tAbstract classes: ', len(abstractClasses)
-    print '\tNon-existent classes: ', len(nonexistentClasses)
-    print '\tNo concrete implementation: ', len(noConcreteImplementation)
-    print '\tNo observer could be added: ', len(noObserver)
-    print '\tNo Update(): ', len(noUpdate)
-    print '\tNo SetInput():', len(noSetInput)
-    print '\tNo Shutdown(): ', len(noShutdown)
-    print 'Summary:'
-    print 'Not Tested: ', len(classExceptions)
-    print 'Total number of classes tested: ', len(emptyInputWorked) + len(emptyInputFailed)
-    print 'Total number of classes: ', len(emptyInputWorked) + len(emptyInputFailed) + len(classExceptions)
-
+    print '-' * 40
+    print 'Empty Input worked:', len(emptyInputWorked)
+    print 'Empty Input failed:', len(emptyInputFailed)
+    print 'Abstract classes: ', len(abstractClasses)
+    print 'Non-existent classes: ', len(nonexistentClasses)
+    print 'No concrete implementation: ', len(noConcreteImplementation)
+    print 'No observer could be added: ', len(noObserver)
+    print '-' * 40
+    print 'Total number of classes tested: ', len(classesTested)  # , classesTested
+    print '-' * 40
+    print 'Excluded from testing: ', len(classExceptions)
+    print '-' * 40
 
 def ProgramOptions():
     desc = """
-    %prog Tests for empty input for various data structures.
+    %prog Tests each VTK class for empty input using various data structures.
     """
     parser = optparse.OptionParser(description=desc)
     parser.set_defaults(verbose=False)
 
-    parser.add_option('-c','--classnames',
+    parser.add_option('-c', '--classnames',
         help='The name of the class or a list of classes in quotes separated by commas.',
         type='string',
         dest='classnames',
         default=None,
         action='store')
-    parser.add_option('-q','--quiet',
+    parser.add_option('-q', '--quiet',
         help='Do not print status messages to stdout (default)',
         dest='verbose',
         action="store_false")
-    parser.add_option('-v','--verbose',
+    parser.add_option('-v', '--verbose',
         help='Print status messages to stdout',
         dest='verbose',
         action="store_true")
 
-    (opts,args) = parser.parse_args()
+    (opts, args) = parser.parse_args()
 
     return (True, opts)
 
@@ -438,16 +486,16 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    (res,opts) = ProgramOptions()
+    (res, opts) = ProgramOptions()
     if opts.classnames:
         cn = [x.strip() for x in opts.classnames.split(',')]
         classNames = set(cn)
     if opts.verbose:
         verbose = opts.verbose
 
-    #RedirectVTKMessages()
+    # RedirectVTKMessages()
     if classNames:
-        TestEmptyInputTest(classNames)
+        TestEmptyInput(classNames)
     else:
         classExceptions = commonExceptions.union(classLinuxExceptions)
         classExceptions = classExceptions.union(classWindowsExceptions)
@@ -456,17 +504,16 @@ def main(argv=None):
 #         filter = ['Reader', 'Writer', 'Array_I', 'Qt']
 #         vtkClasses = FilterClasses(vtkClasses, filter)
         vtkClasses = vtkClasses - classExceptions
-        TestEmptyInputTest(vtkClasses)
+        TestEmptyInput(vtkClasses)
 #         In Windows
 #         0-10, 10-17, 17-18, 18-23 in steps of 100 work but not if called
 #         in a loop.
-#         intervals = [[0,10]]# [[0,10]], [10,17], [17,18], [18,20]]
+#         intervals = [[18,20]]# [[0,10]], [10,17], [17,18], [18,20]]
 #         for j in intervals:
 #             for i in range(j[0],j[1]):
 #                 BatchTest(vtkClasses, i, 100)
 
     PrintResultSummary()
-    print 'Finished.'
 
 if __name__ == '__main__':
     sys.exit(main())
