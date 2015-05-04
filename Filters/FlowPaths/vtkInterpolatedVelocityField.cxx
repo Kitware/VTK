@@ -104,18 +104,18 @@ int vtkInterpolatedVelocityField::FunctionValues( double * x, double * f )
 //----------------------------------------------------------------------------
 int vtkInterpolatedVelocityField::SnapPointOnCell(double* pOrigin, double* pSnap)
 {
-  if( this->LastDataSet == NULL )
+  if (this->LastDataSet == NULL)
     {
     return 0;
     }
-    if (!this->FindAndUpdateCell(this->LastDataSet, pOrigin))
-      {
-      return 0;
-      }
-    double dist2;
-    this->GenCell->EvaluatePosition
-      (pOrigin, pSnap, this->LastSubId, this->LastPCoords, dist2, this->Weights);
-    return 1;
+   if (!this->FindAndUpdateCell(this->LastDataSet, pOrigin))
+    {
+    return 0;
+    }
+  double dist2;
+  this->GenCell->EvaluatePosition
+    (pOrigin, pSnap, this->LastSubId, this->LastPCoords, dist2, this->Weights);
+  return 1;
 }
 
 //----------------------------------------------------------------------------

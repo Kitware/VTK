@@ -126,6 +126,8 @@ vtkStreamTracer::vtkStreamTracer()
                                vtkDataSetAttributes::VECTORS);
 
   this->HasMatchingPointAttributes = true;
+
+  this->SurfaceStreamlines = false;
 }
 
 vtkStreamTracer::~vtkStreamTracer()
@@ -974,13 +976,13 @@ void vtkStreamTracer::Integrate(vtkPointData *input0Data,
         if (surfaceFunc->SnapPointOnCell(point2, point1) != 1)
           {
           retVal = OUT_OF_DOMAIN;
-          memcpy(lastPoint, point2, 3*sizeof(double));
+          memcpy(lastPoint, point2, 3 * sizeof(double));
           break;
           }
         }
       else
         {
-        for (i=0; i<3; i++)
+        for (i = 0; i < 3; i++)
           {
           point1[i] = point2[i];
           }

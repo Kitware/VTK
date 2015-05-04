@@ -83,7 +83,7 @@ vtkAbstractInterpolatedVelocityField::~vtkAbstractInterpolatedVelocityField()
 
 //---------------------------------------------------------------------------
 int vtkAbstractInterpolatedVelocityField::FunctionValues
-  (vtkDataSet * dataset, double * x, double * f)
+  ( vtkDataSet * dataset, double * x, double * f )
 {
   int i, j, numPts, id;
   vtkDataArray * vectors = NULL;
@@ -178,9 +178,9 @@ int vtkAbstractInterpolatedVelocityField::FunctionValues
         k = vtkMath::Dot(normal, f);
 
         // Remove non orthogonal component.
-        f[0] = f[0] - (normal[0]*k);
-        f[1] = f[1] - (normal[1]*k);
-        f[2] = f[2] - (normal[2]*k);
+        f[0] = f[0] - (normal[0] * k);
+        f[1] = f[1] - (normal[1] * k);
+        f[2] = f[2] - (normal[2] * k);
         }
       }
 
@@ -203,7 +203,7 @@ int vtkAbstractInterpolatedVelocityField::FunctionValues
 //---------------------------------------------------------------------------
 bool vtkAbstractInterpolatedVelocityField::CheckPCoords(double pcoords [3])
 {
-  for (int i = 0; i < 3; i++ )
+  for (int i = 0; i < 3; i++)
     {
     if (pcoords[i] < 0 || pcoords[i] > 1)
       {
@@ -225,7 +225,7 @@ bool vtkAbstractInterpolatedVelocityField::FindAndUpdateCell(vtkDataSet* dataset
   else
     {
     tol2 = dataset->GetLength() *  dataset->GetLength() *
-                  vtkAbstractInterpolatedVelocityField::TOLERANCE_SCALE;
+           vtkAbstractInterpolatedVelocityField::TOLERANCE_SCALE;
     }
 
   double closest[3];
@@ -240,7 +240,7 @@ bool vtkAbstractInterpolatedVelocityField::FindAndUpdateCell(vtkDataSet* dataset
       // Use cache cell only if point is inside
       // or , with surface , not far and in pccords
       int ret = this->GenCell->EvaluatePosition
-           (x, closest, this->LastSubId, this->LastPCoords, dist2, this->Weights);
+          (x, closest, this->LastSubId, this->LastPCoords, dist2, this->Weights);
       if (ret == -1
           || (ret == 0 && !this->SurfaceDataset)
           || (this->SurfaceDataset && (dist2 > tol2 || !this->CheckPCoords(this->LastPCoords))))
@@ -250,7 +250,7 @@ bool vtkAbstractInterpolatedVelocityField::FindAndUpdateCell(vtkDataSet* dataset
 
       if (out)
         {
-        this->CacheMiss ++;
+        this->CacheMiss++;
 
         dataset->GetCell(this->LastCellId, this->Cell);
 
@@ -259,7 +259,7 @@ bool vtkAbstractInterpolatedVelocityField::FindAndUpdateCell(vtkDataSet* dataset
           dataset->FindCell(x, this->Cell, this->GenCell, this->LastCellId,
                             tol2, this->LastSubId, this->LastPCoords, this->Weights);
 
-        if (this->LastCellId != -1 && (!this->SurfaceDataset || this->CheckPCoords( this->LastPCoords)))
+        if (this->LastCellId != -1 && (!this->SurfaceDataset || this->CheckPCoords(this->LastPCoords)))
           {
           dataset->GetCell(this->LastCellId, this->GenCell);
           found = true;
@@ -267,7 +267,7 @@ bool vtkAbstractInterpolatedVelocityField::FindAndUpdateCell(vtkDataSet* dataset
         }
       else
         {
-        this->CacheHit ++;
+        this->CacheHit++;
         found = true;
         }
       }
@@ -280,9 +280,9 @@ bool vtkAbstractInterpolatedVelocityField::FindAndUpdateCell(vtkDataSet* dataset
       dataset->FindCell(x, 0, this->GenCell, -1, tol2,
                         this->LastSubId, this->LastPCoords, this->Weights);
 
-    if (this->LastCellId != -1 && (!this->SurfaceDataset || this->CheckPCoords( this->LastPCoords)))
+    if (this->LastCellId != -1 && (!this->SurfaceDataset || this->CheckPCoords(this->LastPCoords)))
       {
-      dataset->GetCell( this->LastCellId, this->GenCell );
+      dataset->GetCell(this->LastCellId, this->GenCell);
       }
     else
       {
@@ -290,7 +290,7 @@ bool vtkAbstractInterpolatedVelocityField::FindAndUpdateCell(vtkDataSet* dataset
         {
         // Still cannot find cell, use point locator to find a (arbitrary) cell, for 2D surface
         vtkIdType idPoint = dataset->FindPoint(x);
-        if(idPoint < 0)
+        if (idPoint < 0)
           {
           this->LastCellId = -1;
           return false;
@@ -313,7 +313,7 @@ bool vtkAbstractInterpolatedVelocityField::FindAndUpdateCell(vtkDataSet* dataset
             }
           }
 
-        if( minDistId == -1)
+        if (minDistId == -1)
           {
           this->LastCellId = -1;
           return false;
@@ -330,7 +330,7 @@ bool vtkAbstractInterpolatedVelocityField::FindAndUpdateCell(vtkDataSet* dataset
         vtkNew<vtkIdList> neighCells;
         bool edge = false;
         bool closer;
-        while(true)
+        while (true)
           {
             this->GenCell->CellBoundary(this->LastSubId, this->LastPCoords, boundaryPoints.Get());
             dataset->GetCellNeighbors(this->LastCellId, boundaryPoints.Get(), neighCells.Get());
@@ -360,7 +360,7 @@ bool vtkAbstractInterpolatedVelocityField::FindAndUpdateCell(vtkDataSet* dataset
           }
 
         // Recover closest cell info
-        if(!edge)
+        if (!edge)
           {
           this->LastCellId = minDistId;
           dataset->GetCell(this->LastCellId, this->GenCell);

@@ -161,7 +161,7 @@ public:
 
   // Description:
   // Evaluate the velocity field f at point (x, y, z).
-  virtual int FunctionValues(double * x, double * f) = 0;
+  virtual int FunctionValues( double * x, double * f ) = 0;
 
   // Description:
   // Set the last cell id to -1 to incur a global cell search for the next point.
@@ -212,7 +212,7 @@ protected:
   // assigned with any vtkAbstractCellLocatot-type cell locator.
   // If activated, returned vector will be tangential to the first
   // three point of the cell
-  virtual int FunctionValues(vtkDataSet * ds, double * x, double * f);
+  virtual int FunctionValues( vtkDataSet * ds, double * x, double * f );
 
   // Description:
   // Check that all three pcoords are between 0 and 1 included.

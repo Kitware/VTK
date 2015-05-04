@@ -46,7 +46,7 @@ int TestStreamTracerSurface(int argc, char* argv[])
 
   vtkNew<vtkPoints> points;
   vtkDataSet* calcData = calc->GetOutput();
-  vtkIdType nLine = sqrt(calcData->GetNumberOfPoints());
+  vtkIdType nLine = static_cast<vtkIdType>(sqrt(static_cast<double>(calcData->GetNumberOfPoints())));
   for (vtkIdType i = 0; i < nLine; i += 10)
     {
     points->InsertNextPoint(calcData->GetPoint(i * (nLine - 1) + nLine));
@@ -71,9 +71,9 @@ int TestStreamTracerSurface(int argc, char* argv[])
 
   vtkNew<vtkActor> streamActor;
   streamActor->SetMapper(streamMapper.Get());
-  streamActor->GetProperty()->SetColor(1,1,1);
+  streamActor->GetProperty()->SetColor(1, 1, 1);
   streamActor->GetProperty()->SetLineWidth(4.);
-  streamActor->SetPosition(0,0,1);
+  streamActor->SetPosition(0, 0, 1);
 
   vtkNew<vtkActor> surfaceActor;
   surfaceActor->SetMapper(surfaceMapper.Get());
@@ -98,7 +98,5 @@ int TestStreamTracerSurface(int argc, char* argv[])
     {
     iren->Start();
     }
-
   return !retVal;
-
 }
