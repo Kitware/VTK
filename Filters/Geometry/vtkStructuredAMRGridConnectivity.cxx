@@ -212,6 +212,11 @@ void vtkStructuredAMRGridConnectivity::Initialize(
 void vtkStructuredAMRGridConnectivity::SetNumberOfGrids(
     const unsigned int N )
 {
+  if (N == 0)
+    {
+    vtkErrorMacro("Number of grids cannot be 0.");
+    return;
+    }
   this->NumberOfGrids = N;
   this->AllocateUserRegisterDataStructures();
 

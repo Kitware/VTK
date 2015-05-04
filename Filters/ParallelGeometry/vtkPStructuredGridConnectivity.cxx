@@ -71,6 +71,11 @@ void vtkPStructuredGridConnectivity::Initialize()
 //------------------------------------------------------------------------------
 void vtkPStructuredGridConnectivity::SetNumberOfGrids( const unsigned int N )
 {
+  if (N == 0)
+    {
+    vtkErrorMacro("Number of grids cannot be 0.");
+    return;
+    }
   this->Superclass::SetNumberOfGrids( N );
   this->GridRanks.resize( N,-1 );
 }

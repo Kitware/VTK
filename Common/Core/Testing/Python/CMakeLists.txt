@@ -13,6 +13,7 @@ vtk_add_test_python(
   TestOperators.py
   TestOverloads.py
   TestPointers.py
+  TestSetGet.py
   TestStrings.py
   TestSubClass.py
   TestSwigPointer.py
