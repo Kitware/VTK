@@ -42,6 +42,26 @@
 #include <limits>
 
 
+// Assume 64-bit atomic operations are not available on 32 bit platforms
+#if defined(VTK_HAVE_SYNC_BUILTINS)
+# define VTK_GCC_ATOMICS_32
+# if VTK_SIZEOF_VOID_P == 8
+#   define VTK_GCC_ATOMICS_64
+# endif
+#elif defined(__APPLE__)
+# include <libkern/OSAtomic.h>
+# define VTK_APPLE_ATOMICS_32
+# if VTK_SIZEOF_VOID_P == 8
+#   define VTK_APPLE_ATOMICS_64
+# endif
+#elif defined(_WIN32) && defined(_MSC_VER)
+# define VTK_WINDOWS_ATOMICS_32
+# if VTK_SIZEOF_VOID_P == 8
+#   define VTK_WINDOWS_ATOMICS_64
+# endif
+#endif
+
+
 #if defined(_WIN32) && defined(_MSC_VER)
 //  disable warning about the padding due to alignment
 # pragma warning(disable:4324)
@@ -52,11 +72,9 @@
 # define VTK_ALIGN(X)
 #endif
 
-#if !defined(VTK_HAVE_SYNC_BUILTINS)
-# if defined(VTK_APPLE_ATOMICS_32) || defined(VTK_APPLE_ATOMICS_64)
-#   include <libkern/OSAtomic.h>
-# endif
-#endif
+
+class vtkSimpleCriticalSection;
+
 
 #ifndef __WRAP__
 namespace detail
@@ -67,16 +85,6 @@ template <size_t size> class AtomicOps;
 #if defined(VTK_HAVE_SYNC_BUILTINS)
 
 template <size_t size> struct BaseType;
-
-template<> struct BaseType<4>
-{
-  typedef vtkTypeInt32 VTK_ALIGN(4) Type;
-};
-
-template<> struct BaseType<8>
-{
-  typedef vtkTypeInt64 VTK_ALIGN(8) Type;
-};
 
 template <size_t size> class AtomicOps
 {
@@ -127,11 +135,15 @@ public:
   }
 };
 
-#else // !defined(VTK_HAVE_SYNC_BUILTINS)
+#endif // defined(VTK_HAVE_SYNC_BUILTINS)
 
-class vtkSimpleCriticalSection;
+#if defined(VTK_GCC_ATOMICS_64)
+template<> struct BaseType<8>
+{
+  typedef vtkTypeInt64 VTK_ALIGN(8) Type;
+};
 
-#if defined(VTK_APPLE_ATOMICS_64)
+#elif defined(VTK_APPLE_ATOMICS_64)
 template <> class AtomicOps<8>
 {
 public:
@@ -183,7 +195,7 @@ public:
   }
 };
 
-#else // VTK_APPLE_ATOMICS_64
+#else
 
 template <> class VTKCOMMONCORE_EXPORT AtomicOps<8>
 {
@@ -212,9 +224,15 @@ public:
   static void Store(atomic_type *ref, vtkTypeInt64 val);
 };
 
-#endif // VTK_APPLE_ATOMICS_64
+#endif
 
-#if defined(VTK_APPLE_ATOMICS_32)
+#if defined(VTK_GCC_ATOMICS_32)
+template<> struct BaseType<4>
+{
+  typedef vtkTypeInt32 VTK_ALIGN(4) Type;
+};
+
+#elif defined(VTK_APPLE_ATOMICS_32)
 template <> class AtomicOps<4>
 {
 public:
@@ -266,7 +284,7 @@ public:
   }
 };
 
-#else // !defined(VTK_APPLE_ATOMICS_32)
+#else
 
 template <> class VTKCOMMONCORE_EXPORT AtomicOps<4>
 {
@@ -295,8 +313,7 @@ public:
   static void Store(atomic_type *ref, vtkTypeInt32 val);
 };
 
-#endif // VTK_APPLE_ATOMICS_32
-#endif // VTK_HAVE_SYNC_BUILTINS
+#endif
 
 template <bool> struct CompileTimeCheck;
 template <> struct CompileTimeCheck<true> {};

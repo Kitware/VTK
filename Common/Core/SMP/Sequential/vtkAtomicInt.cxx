@@ -15,13 +15,14 @@
 
 #include "vtkAtomicInt.h"
 
-#if !defined(VTK_HAVE_SYNC_BUILTINS)
 
-#if !defined(VTK_APPLE_ATOMICS_32) && !defined(VTK_WINDOWS_ATOMICS_32)
+#if !defined(VTK_GCC_ATOMICS_32) && !defined(VTK_APPLE_ATOMICS_32) &&\
+    !defined(VTK_WINDOWS_ATOMICS_32)
 # define VTK_LOCK_BASED_ATOMICS_32
 #endif
 
-#if !defined(VTK_APPLE_ATOMICS_64) && !defined(VTK_WINDOWS_ATOMICS_64)
+#if !defined(VTK_GCC_ATOMICS_64) && !defined(VTK_APPLE_ATOMICS_64) &&\
+    !defined(VTK_WINDOWS_ATOMICS_64)
 # define VTK_LOCK_BASED_ATOMICS_64
 #endif
 
@@ -44,7 +45,7 @@ public:
 
   ~CriticalSectionGuard()
   {
-    this->cs.UnLock();
+    this->cs.Unlock();
   }
 
 private:
@@ -65,7 +66,7 @@ detail::AtomicOps<8>::atomic_type::~atomic_type()
 #endif
 
 #if defined(VTK_LOCK_BASED_ATOMICS_32)
-detail::AtomicOps<4>::atomic_type::atomic_type(vtkTypeInt64 init)
+detail::AtomicOps<4>::atomic_type::atomic_type(vtkTypeInt32 init)
   : var(init)
 {
   this->csec = new vtkSimpleCriticalSection;
@@ -277,5 +278,3 @@ void AtomicOps<4>::Store(atomic_type *ref, vtkTypeInt32 val)
 #endif // defined(VTK_WINDOWS_ATOMICS_32) || defined(VTK_LOCK_BASED_ATOMICS_32)
 
 } // namespace detail
-
-#endif // !defined(VTK_HAVE_SYNC_BUILTINS)

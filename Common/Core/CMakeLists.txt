@@ -327,22 +327,7 @@ endif()
 # Check for atomic functions
 include(CheckSymbolExists)
 if (WIN32)
-  check_symbol_exists(InterlockedIncrement64 "windows.h" VTK_WINDOWS_ATOMICS_64)
-  if(NOT VTK_WINDOWS_ATOMICS_64)
-    check_symbol_exists(InterlockedIncrement "windows.h" VTK_WINDOWS_ATOMICS_32)
-  else() # assume that if 64-bit operations exists then 32-bit ops also exist
-    set(VTK_WINDOWS_ATOMICS_32 true)
-  endif()
   check_symbol_exists(InterlockedAdd "windows.h" VTK_HAS_INTERLOCKEDADD)
-elseif(APPLE)
-  check_symbol_exists(OSAtomicIncrement64Barrier "libkern/OSAtomic.h"
-                      VTK_APPLE_ATOMICS_64)
-  if(NOT VTK_APPLE_ATOMICS_64)
-    check_symbol_exists(OSAtomicIncrement32Barrier "libkern/OSAtomic.h"
-                        VTK_APPLE_ATOMICS_32)
-  else()
-    set(VTK_APPLE_ATOMICS_32 true)
-  endif()
 endif()
 
 
