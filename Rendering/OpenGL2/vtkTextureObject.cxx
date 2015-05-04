@@ -122,13 +122,14 @@ static const char *DepthTextureCompareFunctionAsString[8]=
   };
 
   //----------------------------------------------------------------------------
+  // Should be GL_RED but that requires an extension for ES 2.0
   static GLenum OpenGLAlphaInternalFormat[5]=
   {
-    GL_RED,
-    GL_RED,
-    GL_RED,
-    GL_RED,
-    GL_RED
+    GL_LUMINANCE,
+    GL_LUMINANCE,
+    GL_LUMINANCE,
+    GL_LUMINANCE,
+    GL_LUMINANCE
   };
 
 #endif
@@ -418,7 +419,11 @@ void vtkTextureObject::CreateTexture()
     vtkOpenGLCheckErrorMacro("failed at glGenTextures");
     this->Handle=tex;
 
+#if defined(GL_TEXTURE_BUFFER)
     if (this->Target && this->Target != GL_TEXTURE_BUFFER)
+#else
+    if (this->Target)
+#endif
       {
       glBindTexture(this->Target, this->Handle);
       vtkOpenGLCheckErrorMacro("failed at glBindTexture");
@@ -586,10 +591,12 @@ void vtkTextureObject::SendParameters()
 {
   assert("pre: is_bound" && this->IsBound());
 
+#if defined(GL_TEXTURE_BUFFER)
   if (this->Target == GL_TEXTURE_BUFFER)
     {
     return;
     }
+#endif
 
   glTexParameteri(this->Target,GL_TEXTURE_WRAP_S, OpenGLWrap[this->WrapS]);
   glTexParameteri(this->Target,GL_TEXTURE_WRAP_T, OpenGLWrap[this->WrapT]);
@@ -1017,10 +1024,10 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
       switch (numComps)
         {
         case 1:
-          this->InternalFormat = GL_RED;
+          this->InternalFormat = GL_LUMINANCE; // GL_RED
           break;
         case 2:
-          this->InternalFormat = GL_RG;
+          this->InternalFormat = GL_LUMINANCE_ALPHA; // GL_RG
           break;
         case 3:
           this->InternalFormat = GL_RGB;
@@ -1091,7 +1098,6 @@ unsigned int vtkTextureObject::GetFormat(int vtktype, int numComps,
       }
     }
   else
-#endif
     {
     switch (numComps)
       {
@@ -1108,6 +1114,24 @@ unsigned int vtkTextureObject::GetFormat(int vtktype, int numComps,
         this->Format = GL_RGBA;
         break;
       }
+#else
+    {
+    switch (numComps)
+      {
+      case 1:
+        this->Format = GL_LUMINANCE;
+        break;
+      case 2:
+        this->Format = GL_LUMINANCE_ALPHA;
+        break;
+      case 3:
+        this->Format = GL_RGB;
+        break;
+      case 4:
+        this->Format = GL_RGBA;
+        break;
+      }
+#endif
     }
   return this->Format;
 }
@@ -1439,6 +1463,63 @@ bool vtkTextureObject::CreateAlphaFromRaw(unsigned int width,
   return true;
 }
 
+// Description:
+// Create a texture buffer basically a 1D texture that can be
+// very large for passing data into the fragment shader
+bool vtkTextureObject::CreateTextureBuffer(unsigned int numValues, int numComps,
+                         int dataType, vtkgl::BufferObject *bo)
+{
+  assert(this->Context);
+
+  // Now, detemine texture parameters using the arguments.
+  this->GetDataType(dataType);
+  this->GetInternalFormat(dataType, numComps, false);
+  this->GetFormat(dataType, numComps, false);
+
+  if (!this->InternalFormat || !this->Format || !this->Type)
+    {
+    vtkErrorMacro("Failed to detemine texture parameters.");
+    return false;
+    }
+
+  this->Target = GL_TEXTURE_BUFFER;
+  this->Components = numComps;
+  this->Width = numValues;
+  this->Height = 1;
+  this->Depth = 1;
+  this->NumberOfDimensions = 1;
+  this->BufferObject = bo;
+
+  this->CreateTexture();
+  this->Bind();
+
+  // Source texture data from the PBO.
+  glTexBuffer(
+      this->Target,
+      this->InternalFormat,
+      this->BufferObject->GetHandle());
+
+  vtkOpenGLCheckErrorMacro("failed at glTexBuffer");
+
+  this->UnBind();
+
+  return true;
+}
+
+#else
+
+// Description:
+// Create a texture buffer basically a 1D texture that can be
+// very large for passing data into the fragment shader
+bool vtkTextureObject::CreateTextureBuffer(unsigned int numValues, int numComps,
+                         int dataType, vtkgl::BufferObject *bo)
+{
+  assert(this->Context);
+  vtkErrorMacro("TextureBuffers not supported in OPenGL ES");
+  // TODO: implement 1D and Texture buffers using 2D textures
+  return false;
+}
+
 #endif // not ES 2.0 or 3.0
 
 #if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
@@ -1716,49 +1797,6 @@ bool vtkTextureObject::Create3DFromRaw(unsigned int width, unsigned int height,
         static_cast<const GLvoid *>(data));
 
   vtkOpenGLCheckErrorMacro("failed at glTexImage2D");
-
-  this->UnBind();
-
-  return true;
-}
-
-// Description:
-// Create a texture buffer basically a 1D texture that can be
-// very large for passing data into the fragment shader
-bool vtkTextureObject::CreateTextureBuffer(unsigned int numValues, int numComps,
-                         int dataType, vtkgl::BufferObject *bo)
-{
-  assert(this->Context);
-
-  // Now, detemine texture parameters using the arguments.
-  this->GetDataType(dataType);
-  this->GetInternalFormat(dataType, numComps, false);
-  this->GetFormat(dataType, numComps, false);
-
-  if (!this->InternalFormat || !this->Format || !this->Type)
-    {
-    vtkErrorMacro("Failed to detemine texture parameters.");
-    return false;
-    }
-
-  this->Target = GL_TEXTURE_BUFFER;
-  this->Components = numComps;
-  this->Width = numValues;
-  this->Height = 1;
-  this->Depth = 1;
-  this->NumberOfDimensions = 1;
-  this->BufferObject = bo;
-
-  this->CreateTexture();
-  this->Bind();
-
-  // Source texture data from the PBO.
-  glTexBuffer(
-      this->Target,
-      this->InternalFormat,
-      this->BufferObject->GetHandle());
-
-  vtkOpenGLCheckErrorMacro("failed at glTexBuffer");
 
   this->UnBind();
 
