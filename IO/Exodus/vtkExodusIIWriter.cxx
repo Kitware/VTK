@@ -1472,7 +1472,7 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
       else if (isANodeSet)
         {
         numNodeSets ++;
-        char* id_str = strstr (name, "ID:");
+        const char* id_str = strstr (name, "ID:");
         id_str += 3;
         int id = atoi (id_str);
         nodeSetIds->InsertNextTuple1 (id);
@@ -1506,7 +1506,7 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
       else if (isASideSet)
         {
         numSideSets ++;
-        char* id_str = strstr (name, "ID:");
+        const char* id_str = strstr (name, "ID:");
         id_str += 3;
         int id = atoi (id_str);
         sideSetIds->InsertNextTuple1 (id);
