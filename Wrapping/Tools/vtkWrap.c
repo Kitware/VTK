@@ -856,7 +856,7 @@ void vtkWrap_ApplyUsingDeclarations(
   n = data->NumberOfUsings;
   for (i = 0; i < n; i++)
     {
-    if (data->Usings[i] && data->Usings[i]->Name)
+    if (data->Usings[i]->Name)
       {
       break;
       }
