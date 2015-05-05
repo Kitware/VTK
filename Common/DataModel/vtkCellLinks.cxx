@@ -267,7 +267,7 @@ unsigned long vtkCellLinks::GetActualMemorySize()
   size *= sizeof(int *); //references to cells
   size += (this->MaxId+1) * sizeof(vtkCellLinks::Link); //list of cell lists
 
-  return static_cast<unsigned long>( ceil(size/1024.0)); //kilobytes
+  return static_cast<unsigned long>( ceil(size/1024.0)); // kibibytes
 }
 
 //----------------------------------------------------------------------------

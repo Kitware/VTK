@@ -78,7 +78,7 @@ class VTKTESTINGGENERICBRIDGE_EXPORT vtkBridgeAttribute : public vtkGenericAttri
   vtkIdType GetSize();
 
   // Description:
-  // Size in kilobytes taken by the attribute.
+  // Size in kibibytes (1024 bytes) taken by the attribute.
   unsigned long GetActualMemorySize();
 
   // Description:

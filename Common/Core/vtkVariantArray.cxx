@@ -597,7 +597,7 @@ unsigned long vtkVariantArray::GetActualMemorySize()
   totalSize = numPrims*sizeof(vtkVariant);
 
   return static_cast<unsigned long>(
-    ceil(static_cast<double>(totalSize) / 1024.0)); // kilobytes
+    ceil(static_cast<double>(totalSize) / 1024.0)); // kibibytes
 }
 
 //----------------------------------------------------------------------------

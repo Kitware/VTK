@@ -90,7 +90,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkGenericAttribute : public vtkObject
   virtual vtkIdType GetSize() = 0;
 
   // Description:
-  // Size in kilobytes taken by the attribute.
+  // Size in kibibytes (1024 bytes) taken by the attribute.
   virtual unsigned long GetActualMemorySize() = 0;
 
   // Description:

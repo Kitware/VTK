@@ -35,7 +35,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set / Get the memory limit in kilobytes. The writer will
+  // Set / Get the memory limit in kibibytes (1024 bytes). The writer will
   // stream to attempt to keep the pipeline size within this limit
   vtkSetMacro(MemoryLimit, unsigned long);
   vtkGetMacro(MemoryLimit, unsigned long);

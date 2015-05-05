@@ -152,7 +152,7 @@ public:
   virtual void SubdivideLeaf( vtkHyperTreeCursor* leaf ) = 0;
 
   // Description:
-  // Return the actual memory size in kilobytes.
+  // Return the actual memory size in kibibytes (1024 bytes).
   // NB: Ignores the attribute array.
   virtual unsigned int GetActualMemorySize() = 0;
 

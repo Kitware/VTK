@@ -30,8 +30,8 @@ vtkStandardNewMacro(vtkMemoryLimitImageDataStreamer);
 //----------------------------------------------------------------------------
 vtkMemoryLimitImageDataStreamer::vtkMemoryLimitImageDataStreamer()
 {
-  // Set a default memory limit of 50 Megabytes
-  this->MemoryLimit = 50000;
+  // Set a default memory limit of 50 mebibytes
+  this->MemoryLimit = 50 * 1024;
 }
 
 
@@ -40,7 +40,7 @@ void vtkMemoryLimitImageDataStreamer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "MemoryLimit (in kb): " << this->MemoryLimit << endl;
+  os << indent << "MemoryLimit (in kibibytes): " << this->MemoryLimit << endl;
 }
 
 //----------------------------------------------------------------------------
