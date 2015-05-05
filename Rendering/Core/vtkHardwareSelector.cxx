@@ -460,7 +460,8 @@ void vtkHardwareSelector::RenderAttributeId(vtkIdType attribid)
 {
   if (attribid < 0)
     {
-    vtkErrorMacro("Invalid id: " << attribid);
+    // negative attribid is valid. It happens when rendering higher order
+    // elements where new points are added for rendering smooth surfaces.
     return;
     }
 
