@@ -12,6 +12,7 @@ vtk_module(vtkRenderingAnnotation
     vtkTestingRendering
     vtkInteractionStyle
     vtkRenderingLOD
+    vtkImagingSources
   KIT
     vtkRendering
   )
