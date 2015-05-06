@@ -785,6 +785,7 @@ void vtkOpenGLRenderWindow::DrawPixels(
   int srcWidth, int srcHeight, int numComponents, int dataType, void *data)
 {
   glDisable( GL_SCISSOR_TEST );
+  glDisable(GL_DEPTH_TEST);
   if (!this->DrawPixelsTextureObject)
     {
     this->DrawPixelsTextureObject = vtkTextureObject::New();
@@ -809,6 +810,7 @@ void vtkOpenGLRenderWindow::DrawPixels(
   int srcWidth, int srcHeight, int numComponents, int dataType, void *data)
 {
   glDisable( GL_SCISSOR_TEST );
+  glDisable(GL_DEPTH_TEST);
   if (!this->DrawPixelsTextureObject)
     {
     this->DrawPixelsTextureObject = vtkTextureObject::New();

@@ -549,6 +549,7 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
 
   // First we try to use the newer wglChoosePixelFormatARB which enables
   // features like multisamples.
+  PIXELFORMATDESCRIPTOR pfd;
   int pixelFormat = 0;
   wglChoosePixelFormatARBType wglChoosePixelFormatARB =
     reinterpret_cast<wglChoosePixelFormatARBType>(wglGetProcAddress("wglChoosePixelFormatARB"));
@@ -607,7 +608,7 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
           }
         }
       }
-    PIXELFORMATDESCRIPTOR pfd;
+
     DescribePixelFormat(hDC, pixelFormat, sizeof(pfd), &pfd);
     if (!SetPixelFormat(hDC, pixelFormat, &pfd))
       {
@@ -666,10 +667,15 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
   // Otherwise, we use the old approach of using ChoosePixelFormat.
   if (pixelFormat)
     {
+    if (debug && (dwFlags & PFD_STEREO) && !(pfd.dwFlags & PFD_STEREO))
+      {
+      vtkGenericWarningMacro("No Stereo Available!");
+      this->StereoCapableWindow = 0;
+      }
     return;
     }
 
-  PIXELFORMATDESCRIPTOR pfd = {
+  PIXELFORMATDESCRIPTOR pfd2 = {
     sizeof(PIXELFORMATDESCRIPTOR),  /* size */
     1,                              /* version */
     dwFlags         ,               /* support double-buffering */
@@ -693,8 +699,8 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
   // supports OpenGL
   if (currentPixelFormat != 0)
     {
-    DescribePixelFormat(hDC, currentPixelFormat,sizeof(pfd), &pfd);
-    if (!(pfd.dwFlags & PFD_SUPPORT_OPENGL))
+    DescribePixelFormat(hDC, currentPixelFormat,sizeof(pfd2), &pfd2);
+    if (!(pfd2.dwFlags & PFD_SUPPORT_OPENGL))
       {
 #ifdef UNICODE
       MessageBox(WindowFromDC(hDC),
@@ -721,7 +727,7 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
   else
     {
     // hDC has no current PixelFormat, so
-    pixelFormat = ChoosePixelFormat(hDC, &pfd);
+    pixelFormat = ChoosePixelFormat(hDC, &pfd2);
     if (pixelFormat == 0)
       {
 #ifdef UNICODE
@@ -741,8 +747,8 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
         exit(1);
         }
       }
-    DescribePixelFormat(hDC, pixelFormat,sizeof(pfd), &pfd);
-    if (SetPixelFormat(hDC, pixelFormat, &pfd) != TRUE)
+    DescribePixelFormat(hDC, pixelFormat,sizeof(pfd2), &pfd2);
+    if (SetPixelFormat(hDC, pixelFormat, &pfd2) != TRUE)
       {
       // int err = GetLastError();
 #ifdef UNICODE
@@ -763,7 +769,7 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
         }
       }
     }
-  if (debug && (dwFlags & PFD_STEREO) && !(pfd.dwFlags & PFD_STEREO))
+  if (debug && (dwFlags & PFD_STEREO) && !(pfd2.dwFlags & PFD_STEREO))
     {
     vtkGenericWarningMacro("No Stereo Available!");
     this->StereoCapableWindow = 0;

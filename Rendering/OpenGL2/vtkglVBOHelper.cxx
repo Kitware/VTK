@@ -268,16 +268,21 @@ void AppendTriangleIndexBuffer(
 {
   vtkIdType* indices(NULL);
   vtkIdType npts(0);
-  size_t targetSize = indexArray.size() +
-    (cells->GetNumberOfConnectivityEntries() -
-     cells->GetNumberOfCells()*3)*3;
-  if (targetSize > indexArray.capacity())
+
+  if (cells->GetNumberOfConnectivityEntries() >
+      cells->GetNumberOfCells()*3)
     {
-    if (targetSize < indexArray.capacity()*1.5)
+    size_t targetSize = indexArray.size() +
+      (cells->GetNumberOfConnectivityEntries() -
+       cells->GetNumberOfCells()*3)*3;
+    if (targetSize > indexArray.capacity())
       {
-      targetSize = indexArray.capacity()*1.5;
+      if (targetSize < indexArray.capacity()*1.5)
+        {
+        targetSize = indexArray.capacity()*1.5;
+        }
+      indexArray.reserve(targetSize);
       }
-    indexArray.reserve(targetSize);
     }
 
   // the folowing are only used if we have to triangulate a polygon
@@ -494,18 +499,23 @@ void AppendLineIndexBuffer(
 {
   vtkIdType* indices(NULL);
   vtkIdType npts(0);
-  size_t targetSize = indexArray.size() + 2*(
-    cells->GetNumberOfConnectivityEntries()
-    - 2*cells->GetNumberOfCells());
-  if (targetSize > indexArray.capacity())
-    {
-    if (targetSize < indexArray.capacity()*1.5)
-      {
-      targetSize = indexArray.capacity()*1.5;
-      }
-    indexArray.reserve(targetSize);
-    }
 
+  // possibly adjust size
+  if (cells->GetNumberOfConnectivityEntries() >
+      2*cells->GetNumberOfCells())
+    {
+    size_t targetSize = indexArray.size() + 2*(
+      cells->GetNumberOfConnectivityEntries()
+      - 2*cells->GetNumberOfCells());
+    if (targetSize > indexArray.capacity())
+      {
+      if (targetSize < indexArray.capacity()*1.5)
+        {
+        targetSize = indexArray.capacity()*1.5;
+        }
+      indexArray.reserve(targetSize);
+      }
+    }
   for (cells->InitTraversal(); cells->GetNextCell(npts, indices); )
     {
     for (int i = 0; i < npts-1; ++i)
@@ -705,8 +715,8 @@ void CreateCellSupportArrays(vtkCellArray *prims[4],
             {
             cellCellMap.push_back(vtkCellCount);
             }
-          vtkCellCount++;
           }
+        vtkCellCount++;
         } // for cell
 
       // strips

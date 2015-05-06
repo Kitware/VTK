@@ -596,12 +596,17 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(
       {
       if (this->HaveCellNormals)
         {
-        substitute(FSSource,
-          "//VTK::Normal::Dec",
-          "uniform samplerBuffer textureN;\n");
+        if (substitute(FSSource,
+            "//VTK::Normal::Dec",
+            "uniform mat3 normalMatrix;\n"
+            "uniform samplerBuffer textureN;\n"))
+          {
+          this->ShaderVariablesUsed.push_back("normalMatrix");
+          }
         substitute(FSSource,
           "//VTK::Normal::Impl",
-          "vec3 normalVC = texelFetchBuffer(textureN, gl_PrimitiveID + PrimitiveIDOffset).xyz;");
+          "vec3 normalVC = normalMatrix * normalize(\n"
+          "   texelFetchBuffer(textureN, gl_PrimitiveID + PrimitiveIDOffset).xyz);");
         }
       else
         {
@@ -1774,20 +1779,29 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildBufferObjects(
   return false;
 }
 
-void vtkOpenGLPolyDataMapper::BuildCellTextures(
+// create the cell scalar array adjusted for ogl Cells
+
+
+void vtkOpenGLPolyDataMapper::AppendCellTextures(
   vtkRenderer *ren,
   vtkActor *,
   vtkCellArray *prims[4],
-  int representation)
+  int representation,
+  std::vector<unsigned char> &newColors,
+  std::vector<float> &newNorms,
+  vtkPolyData *poly)
 {
   // deal with optional pick mapping arrays
   vtkHardwareSelector* selector = ren->GetSelector();
   vtkUnsignedIntArray* mapArray = NULL;
-  vtkPointData *pd = this->CurrentInput->GetPointData();
+  vtkIdTypeArray* mapArrayId = NULL;
+  vtkPointData *pd = poly->GetPointData();
+  vtkCellData *cd = poly->GetCellData();
   if (selector)
     {
     switch (selector->GetCurrentPass())
       {
+      // point data is used for process_pass which seems odd
       case vtkHardwareSelector::PROCESS_PASS:
         mapArray = this->ProcessIdArrayName ?
           vtkUnsignedIntArray::SafeDownCast(
@@ -1796,21 +1810,21 @@ void vtkOpenGLPolyDataMapper::BuildCellTextures(
       case vtkHardwareSelector::COMPOSITE_INDEX_PASS:
         mapArray = this->CompositeIdArrayName ?
           vtkUnsignedIntArray::SafeDownCast(
-            pd->GetArray(this->CompositeIdArrayName)) : NULL;
+            cd->GetArray(this->CompositeIdArrayName)) : NULL;
         break;
       case vtkHardwareSelector::ID_LOW24:
         if (selector->GetFieldAssociation() ==
           vtkDataObject::FIELD_ASSOCIATION_POINTS)
           {
-          mapArray = this->PointIdArrayName ?
-            vtkUnsignedIntArray::SafeDownCast(
+          mapArrayId = this->PointIdArrayName ?
+            vtkIdTypeArray::SafeDownCast(
               pd->GetArray(this->PointIdArrayName)) : NULL;
           }
         else
           {
-          mapArray = this->CellIdArrayName ?
-            vtkUnsignedIntArray::SafeDownCast(
-              pd->GetArray(this->CellIdArrayName)) : NULL;
+          mapArrayId = this->CellIdArrayName ?
+            vtkIdTypeArray::SafeDownCast(
+              cd->GetArray(this->CellIdArrayName)) : NULL;
           }
         break;
       }
@@ -1831,17 +1845,6 @@ void vtkOpenGLPolyDataMapper::BuildCellTextures(
     {
     vtkIdType* indices(NULL);
     vtkIdType npts(0);
-    if (!this->CellScalarTexture)
-      {
-      this->CellScalarTexture = vtkTextureObject::New();
-      this->CellScalarBuffer = new vtkgl::BufferObject;
-      }
-    this->CellScalarTexture->SetContext(
-      static_cast<vtkOpenGLRenderWindow*>(ren->GetVTKWindow()));
-
-    // create the cell scalar array adjusted for ogl Cells
-    std::vector<unsigned char> newColors;
-    int numComp = 4;
 
     for (int j = 0; j < 4; j++)
       {
@@ -1849,11 +1852,12 @@ void vtkOpenGLPolyDataMapper::BuildCellTextures(
         {
         for (int i=0; i < npts; ++i)
           {
-          unsigned int value = indices[i] + 1;
-          if (mapArray)
+          unsigned int value = indices[i];
+          if (mapArrayId)
             {
-            value = mapArray->GetValue(indices[i]-1);
+            value = mapArrayId->GetValue(indices[i]);
             }
+          value++;
           newColors.push_back(value & 0xff);
           newColors.push_back((value & 0xff00) >> 8);
           newColors.push_back((value & 0xff0000) >> 16);
@@ -1861,15 +1865,6 @@ void vtkOpenGLPolyDataMapper::BuildCellTextures(
           }
         } // for cell
       }
-
-    this->CellScalarBuffer->Upload(newColors,
-      vtkgl::BufferObject::TextureBuffer);
-    this->CellScalarTexture->CreateTextureBuffer(
-      static_cast<unsigned int>(newColors.size()/numComp),
-      numComp,
-      VTK_UNSIGNED_CHAR,
-      this->CellScalarBuffer);
-
     return;
     }
 
@@ -1881,26 +1876,22 @@ void vtkOpenGLPolyDataMapper::BuildCellTextures(
 
     if (this->HaveCellScalars || this->HavePickScalars)
       {
-      if (!this->CellScalarTexture)
-        {
-        this->CellScalarTexture = vtkTextureObject::New();
-        this->CellScalarBuffer = new vtkgl::BufferObject;
-        }
-      this->CellScalarTexture->SetContext(
-        static_cast<vtkOpenGLRenderWindow*>(ren->GetVTKWindow()));
-      // create the cell scalar array adjusted for ogl Cells
-      std::vector<unsigned char> newColors;
       int numComp = 4;
 
       if (this->HavePickScalars)
         {
         for (unsigned int i = 0; i < cellCellMap.size(); i++)
           {
-          unsigned int value = cellCellMap[i]+1;
+          unsigned int value = cellCellMap[i];
           if (mapArray)
             {
-            value = mapArray->GetValue(value-1);
+            value = mapArray->GetValue(value);
             }
+          if (mapArrayId)
+            {
+            value = mapArrayId->GetValue(value);
+            }
+          value++; // see vtkHardwareSelector.cxx ID_OFFSET
           newColors.push_back(value & 0xff);
           newColors.push_back((value & 0xff00) >> 8);
           newColors.push_back((value & 0xff0000) >> 16);
@@ -1920,26 +1911,11 @@ void vtkOpenGLPolyDataMapper::BuildCellTextures(
             }
           }
         }
-      this->CellScalarBuffer->Upload(newColors,
-        vtkgl::BufferObject::TextureBuffer);
-      this->CellScalarTexture->CreateTextureBuffer(
-        static_cast<unsigned int>(cellCellMap.size()),
-        numComp,
-        VTK_UNSIGNED_CHAR,
-        this->CellScalarBuffer);
       }
 
     if (this->HaveCellNormals)
       {
-      if (!this->CellNormalTexture)
-        {
-        this->CellNormalTexture = vtkTextureObject::New();
-        this->CellNormalBuffer = new vtkgl::BufferObject;
-        }
-      this->CellNormalTexture->SetContext(
-        static_cast<vtkOpenGLRenderWindow*>(ren->GetVTKWindow()));
       // create the cell scalar array adjusted for ogl Cells
-      std::vector<float> newNorms;
       vtkDataArray *n = this->CurrentInput->GetCellData()->GetNormals();
       for (unsigned int i = 0; i < cellCellMap.size(); i++)
         {
@@ -1948,13 +1924,56 @@ void vtkOpenGLPolyDataMapper::BuildCellTextures(
         newNorms.push_back(norms[1]);
         newNorms.push_back(norms[2]);
         }
-      this->CellNormalBuffer->Upload(newNorms,
-        vtkgl::BufferObject::TextureBuffer);
-      this->CellNormalTexture->CreateTextureBuffer(
-        static_cast<unsigned int>(cellCellMap.size()),
-        3, VTK_FLOAT,
-        this->CellNormalBuffer);
       }
+    }
+}
+
+void vtkOpenGLPolyDataMapper::BuildCellTextures(
+  vtkRenderer *ren,
+  vtkActor *actor,
+  vtkCellArray *prims[4],
+  int representation)
+{
+  // create the cell scalar array adjusted for ogl Cells
+  std::vector<unsigned char> newColors;
+  std::vector<float> newNorms;
+  this->AppendCellTextures(ren, actor, prims, representation,
+    newColors, newNorms, this->CurrentInput);
+
+  // allocate as needed
+  if (this->HaveCellScalars || this->HavePickScalars)
+    {
+    if (!this->CellScalarTexture)
+      {
+      this->CellScalarTexture = vtkTextureObject::New();
+      this->CellScalarBuffer = new vtkgl::BufferObject;
+      }
+    this->CellScalarTexture->SetContext(
+      static_cast<vtkOpenGLRenderWindow*>(ren->GetVTKWindow()));
+    this->CellScalarBuffer->Upload(newColors,
+      vtkgl::BufferObject::TextureBuffer);
+    this->CellScalarTexture->CreateTextureBuffer(
+      static_cast<unsigned int>(newColors.size()/4),
+      4,
+      VTK_UNSIGNED_CHAR,
+      this->CellScalarBuffer);
+    }
+
+  if (this->HaveCellNormals)
+    {
+    if (!this->CellNormalTexture)
+      {
+      this->CellNormalTexture = vtkTextureObject::New();
+      this->CellNormalBuffer = new vtkgl::BufferObject;
+      }
+    this->CellNormalTexture->SetContext(
+      static_cast<vtkOpenGLRenderWindow*>(ren->GetVTKWindow()));
+    this->CellNormalBuffer->Upload(newNorms,
+      vtkgl::BufferObject::TextureBuffer);
+    this->CellNormalTexture->CreateTextureBuffer(
+      static_cast<unsigned int>(newNorms.size()/3),
+      3, VTK_FLOAT,
+      this->CellNormalBuffer);
     }
 }
 
@@ -2019,7 +2038,15 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
   prims[1] =  poly->GetLines();
   prims[2] =  poly->GetPolys();
   prims[3] =  poly->GetStrips();
+
   int representation = act->GetProperty()->GetRepresentation();
+  vtkHardwareSelector* selector = ren->GetSelector();
+  if (selector && this->PopulateSelectionSettings &&
+      selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS &&
+      selector->GetCurrentPass() >= vtkHardwareSelector::ID_LOW24)
+    {
+    representation = VTK_POINTS;
+    }
 
   // only rebuild what we need to
   // if the data or mapper or selection state changed

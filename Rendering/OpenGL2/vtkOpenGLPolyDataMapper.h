@@ -263,6 +263,15 @@ protected:
     vtkCellArray *prims[4],
     int representation);
 
+  void AppendCellTextures(
+    vtkRenderer *ren,
+    vtkActor *,
+    vtkCellArray *prims[4],
+    int representation,
+    std::vector<unsigned char> &colors,
+    std::vector<float> &normals,
+    vtkPolyData *pd);
+
   bool HavePickScalars;
   vtkTextureObject *CellScalarTexture;
   vtkgl::BufferObject *CellScalarBuffer;
