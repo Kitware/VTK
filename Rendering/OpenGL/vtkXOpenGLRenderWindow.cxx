@@ -26,7 +26,15 @@
 
 // Define GLX_GLXEXT_LEGACY to prevent glx.h from including the glxext.h
 // provided by the system.
-#define GLX_GLXEXT_LEGACY
+//#define GLX_GLXEXT_LEGACY
+
+// New Workaround:
+// The GLX_GLXEXT_LEGACY definition was added to work around system glxext.h
+// files that used the GLintptr and GLsizeiptr types, but did not define them.
+// However, this broke multisampling (See PR#15433). Instead of using that
+// define, we're just defining the missing typedefs here.
+typedef ptrdiff_t GLintptr;
+typedef ptrdiff_t GLsizeiptr;
 #include "GL/glx.h"
 
 #include "vtkgl.h"
