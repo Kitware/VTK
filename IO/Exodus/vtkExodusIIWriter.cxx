@@ -440,7 +440,8 @@ int vtkExodusIIWriter::FlattenHierarchy (vtkDataObject* input, bool& changed)
   if (input->IsA ("vtkMultiBlockDataSet"))
     {
     vtkMultiBlockDataSet* castObj = vtkMultiBlockDataSet::SafeDownCast(input);
-    vtkDataObjectTreeIterator* iter = castObj->NewTreeIterator ();
+    vtkSmartPointer<vtkDataObjectTreeIterator> iter;
+    iter.TakeReference (castObj->NewTreeIterator ());
     iter->VisitOnlyLeavesOff ();
     iter->TraverseSubTreeOff ();
     iter->SkipEmptyNodesOff ();
@@ -458,12 +459,12 @@ int vtkExodusIIWriter::FlattenHierarchy (vtkDataObject* input, bool& changed)
         return 0;
         }
       }
-    iter->Delete ();
     }
   else if (input->IsA ("vtkCompositeDataSet"))
     {
     vtkCompositeDataSet* castObj = vtkCompositeDataSet::SafeDownCast(input);
-    vtkCompositeDataIterator* iter = castObj->NewIterator ();
+    vtkSmartPointer<vtkCompositeDataIterator> iter;
+    iter.TakeReference (castObj->NewIterator ());
     vtkDataObjectTreeIterator* treeIter = vtkDataObjectTreeIterator::SafeDownCast (castObj);
     if (treeIter)
       {
@@ -480,7 +481,6 @@ int vtkExodusIIWriter::FlattenHierarchy (vtkDataObject* input, bool& changed)
         return 0;
         }
       }
-    iter->Delete ();
     }
   else if (input->IsA ("vtkDataSet"))
     {
@@ -1456,7 +1456,8 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
     vtkSmartPointer<vtkIntArray> sideSetSideList = vtkSmartPointer<vtkIntArray>::New ();
 
     vtkMultiBlockDataSet* castObj = vtkMultiBlockDataSet::SafeDownCast(this->OriginalInput);
-    vtkDataObjectTreeIterator* iter = castObj->NewTreeIterator ();
+    vtkSmartPointer<vtkDataObjectTreeIterator> iter;
+    iter.TakeReference (castObj->NewTreeIterator ());
     iter->VisitOnlyLeavesOff ();
     iter->TraverseSubTreeOn ();
     for (iter->InitTraversal ();
@@ -1591,8 +1592,6 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
     int *sideSetSideList_a = new int[sideSetSideList->GetNumberOfTuples ()];
     memcpy (sideSetSideList_a, sideSetSideList->GetPointer (0), sideSetSideList->GetNumberOfTuples() * sizeof(int));
     em->SetSideSetSideList (sideSetSideList_a);
-
-    iter->Delete ();
     }
   return 1;
 }
