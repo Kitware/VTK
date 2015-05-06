@@ -1,5 +1,6 @@
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestExtractSurfaceNonLinearSubdivision.cxx
+  TestDataSetSurfaceFieldData.cxx,NO_VALID
   TestImageDataToUniformGrid.cxx,NO_VALID
   TestProjectSphereFilter.cxx,NO_VALID
   TestStructuredAMRNeighbor.cxx,NO_VALID
