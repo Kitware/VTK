@@ -49,6 +49,10 @@ public:
   }
 
 private:
+  // not copyable
+  CriticalSectionGuard(const CriticalSectionGuard&);
+  void operator=(const CriticalSectionGuard&);
+
   vtkSimpleCriticalSection &cs;
 };
 
