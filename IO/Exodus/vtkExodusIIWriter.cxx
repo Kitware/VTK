@@ -29,6 +29,8 @@
 #include "vtkFieldData.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkCompositeDataIterator.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkDataObjectTreeIterator.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkCellData.h"
 #include "vtkPointData.h"
@@ -435,20 +437,50 @@ void vtkExodusIIWriter::StringUppercase(std::string& str)
 //----------------------------------------------------------------------------
 int vtkExodusIIWriter::FlattenHierarchy (vtkDataObject* input, bool& changed)
 {
-  if (input->IsA ("vtkCompositeDataSet"))
+  if (input->IsA ("vtkMultiBlockDataSet"))
     {
-    vtkCompositeDataSet* castObj = vtkCompositeDataSet::SafeDownCast(input);
-    vtkCompositeDataIterator* iter = castObj->NewIterator ();
+    vtkMultiBlockDataSet* castObj = vtkMultiBlockDataSet::SafeDownCast(input);
+    vtkSmartPointer<vtkDataObjectTreeIterator> iter;
+    iter.TakeReference (castObj->NewTreeIterator ());
+    iter->VisitOnlyLeavesOff ();
+    iter->TraverseSubTreeOff ();
+    iter->SkipEmptyNodesOff ();
     for (iter->InitTraversal ();
          !iter->IsDoneWithTraversal ();
          iter->GoToNextItem ())
       {
-      if (!this->FlattenHierarchy (iter->GetCurrentDataObject (), changed))
+      const char *name = iter->GetCurrentMetaData()->Get (vtkCompositeDataSet::NAME());
+      if (strstr (name, "Sets") != 0)
+        {
+        continue;
+        }
+      if (iter->GetCurrentDataObject () && !this->FlattenHierarchy (iter->GetCurrentDataObject (), changed))
         {
         return 0;
         }
       }
-    iter->Delete ();
+    }
+  else if (input->IsA ("vtkCompositeDataSet"))
+    {
+    vtkCompositeDataSet* castObj = vtkCompositeDataSet::SafeDownCast(input);
+    vtkSmartPointer<vtkCompositeDataIterator> iter;
+    iter.TakeReference (castObj->NewIterator ());
+    vtkDataObjectTreeIterator* treeIter = vtkDataObjectTreeIterator::SafeDownCast (castObj);
+    if (treeIter)
+      {
+      treeIter->VisitOnlyLeavesOff ();
+      treeIter->TraverseSubTreeOff ();
+      treeIter->SkipEmptyNodesOff ();
+      }
+    for (iter->InitTraversal ();
+         !iter->IsDoneWithTraversal ();
+         iter->GoToNextItem ())
+      {
+      if (iter->GetCurrentDataObject () && !this->FlattenHierarchy (iter->GetCurrentDataObject (), changed))
+        {
+        return 0;
+        }
+      }
     }
   else if (input->IsA ("vtkDataSet"))
     {
@@ -462,6 +494,7 @@ int vtkExodusIIWriter::FlattenHierarchy (vtkDataObject* input, bool& changed)
       {
       vtkDataSet* castObj = vtkDataSet::SafeDownCast (input);
 
+      output->GetFieldData ()->ShallowCopy (castObj->GetFieldData ());
       output->GetPointData ()->ShallowCopy (castObj->GetPointData ());
       output->GetCellData ()->ShallowCopy (castObj->GetCellData ());
 
@@ -780,7 +813,7 @@ int vtkExodusIIWriter::CheckInputArrays ()
 
     // Trying to find global element id
     vtkDataArray *da = cd->GetGlobalIds();
-    if (this->WriteOutGlobalElementIdArray && da)
+    if (da)
       {
       vtkIdTypeArray *ia = vtkIdTypeArray::SafeDownCast(da);
       if (!ia)
@@ -951,9 +984,9 @@ int vtkExodusIIWriter::ConstructVariableInfoMaps ()
     for (int j = 0; j < fd->GetNumberOfArrays (); j ++)
       {
       char *name = 0;
-      if (fd->GetArray(j))
+      if (fd->GetAbstractArray(j))
         {
-        name = fd->GetArray(j)->GetName();
+        name = fd->GetAbstractArray(j)->GetName();
         }
       if (name == 0)
         {
@@ -962,6 +995,10 @@ int vtkExodusIIWriter::ConstructVariableInfoMaps ()
         }
       std::string upper (name);
       this->StringUppercase(upper);
+      if (strncmp(upper.c_str (),"TITLE",5) == 0)
+        {
+        continue;
+        }
       if (strncmp(upper.c_str (),"QA_RECORD",9) == 0)
         {
         continue;
@@ -974,7 +1011,7 @@ int vtkExodusIIWriter::ConstructVariableInfoMaps ()
         {
         continue;
         }
-      int numComp = fd->GetArray(j)->GetNumberOfComponents ();
+      int numComp = fd->GetAbstractArray(j)->GetNumberOfComponents ();
       std::map<std::string, VariableInfo>::const_iterator iter =
         this->GlobalVariableMap.find (name);
       if (iter == this->GlobalVariableMap.end ())
@@ -1172,6 +1209,8 @@ int vtkExodusIIWriter::CreateDefaultMetadata ()
     {
     return 0;
     }
+
+  this->CreateSetsMetadata(em);
   this->SetModelMetadata(em);
   em->Delete();
 
@@ -1395,6 +1434,167 @@ int vtkExodusIIWriter::CreateBlockVariableMetadata (vtkModelMetadata *em)
   return 1;
 }
 
+int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
+{
+  bool isASideSet = false;
+  bool isANodeSet = false;
+
+  if (this->OriginalInput->IsA ("vtkMultiBlockDataSet"))
+    {
+    int numNodeSets = 0;
+    int sumNodes = 0;
+    vtkSmartPointer<vtkIntArray> nodeSetIds = vtkSmartPointer<vtkIntArray>::New ();
+    vtkSmartPointer<vtkIntArray> nodeSetSizes = vtkSmartPointer<vtkIntArray>::New ();
+    vtkSmartPointer<vtkIntArray> nodeSetNumDF = vtkSmartPointer<vtkIntArray>::New ();
+    vtkSmartPointer<vtkIntArray> nodeIds = vtkSmartPointer<vtkIntArray>::New ();
+    int numSideSets = 0;
+    int sumSides = 0;
+    vtkSmartPointer<vtkIntArray> sideSetIds = vtkSmartPointer<vtkIntArray>::New ();
+    vtkSmartPointer<vtkIntArray> sideSetSizes = vtkSmartPointer<vtkIntArray>::New ();
+    vtkSmartPointer<vtkIntArray> sideSetNumDF = vtkSmartPointer<vtkIntArray>::New ();
+    vtkSmartPointer<vtkIntArray> sideSetElementList = vtkSmartPointer<vtkIntArray>::New ();
+    vtkSmartPointer<vtkIntArray> sideSetSideList = vtkSmartPointer<vtkIntArray>::New ();
+
+    vtkMultiBlockDataSet* castObj = vtkMultiBlockDataSet::SafeDownCast(this->OriginalInput);
+    vtkSmartPointer<vtkDataObjectTreeIterator> iter;
+    iter.TakeReference (castObj->NewTreeIterator ());
+    iter->VisitOnlyLeavesOff ();
+    iter->TraverseSubTreeOn ();
+    for (iter->InitTraversal ();
+         !iter->IsDoneWithTraversal ();
+         iter->GoToNextItem ())
+      {
+      const char *name = iter->GetCurrentMetaData()->Get (vtkCompositeDataSet::NAME());
+      if (iter->GetCurrentDataObject ()->IsA ("vtkMultiBlockDataSet"))
+        {
+        isASideSet = (strncmp (name, "Side Sets", 9) == 0);
+        isANodeSet = (strncmp (name, "Node Sets", 9) == 0);
+        }
+      else if (isANodeSet)
+        {
+        numNodeSets ++;
+        const char* id_str = strstr (name, "ID:");
+        id_str += 3;
+        int id = atoi (id_str);
+        nodeSetIds->InsertNextTuple1 (id);
+        vtkUnstructuredGrid* grid = vtkUnstructuredGrid::SafeDownCast (iter->GetCurrentDataObject ());
+        vtkFieldData* field = grid->GetPointData ();
+        vtkIdTypeArray* globalIds = vtkIdTypeArray::SafeDownCast (field ? field->GetArray ("GlobalNodeId") : 0);
+        if (globalIds)
+          {
+          int size = 0;
+          for (int c = 0; c < grid->GetNumberOfCells (); c ++)
+            {
+            vtkCell* cell = grid->GetCell (c);
+            for (int p = 0; p < cell->GetNumberOfPoints (); p ++)
+              {
+              size ++;
+              vtkIdType pointId = cell->GetPointId (p);
+              vtkIdType gid = globalIds->GetValue (pointId);
+              nodeIds->InsertNextTuple1 (gid);
+              // TODO implement distribution factors
+              nodeSetNumDF->InsertNextTuple1 (0);
+              }
+            }
+          nodeSetSizes->InsertNextTuple1 (size);
+          sumNodes += size;
+          }
+        else
+          {
+          vtkErrorMacro ("We have a node set, but it doesn't have GlobalNodeIDs");
+          }
+        }
+      else if (isASideSet)
+        {
+        numSideSets ++;
+        const char* id_str = strstr (name, "ID:");
+        id_str += 3;
+        int id = atoi (id_str);
+        sideSetIds->InsertNextTuple1 (id);
+        vtkUnstructuredGrid* grid = vtkUnstructuredGrid::SafeDownCast (iter->GetCurrentDataObject ());
+        vtkFieldData* field = grid->GetCellData ();
+        vtkIdTypeArray* sourceElement = vtkIdTypeArray::SafeDownCast (field ? field->GetArray ("SourceElementId") : 0);
+        vtkIntArray* sourceSide = vtkIntArray::SafeDownCast (field ? field->GetArray ("SourceElementSide") : 0);
+        if (sourceElement && sourceSide)
+          {
+          int cells = grid->GetNumberOfCells ();
+          for (int c = 0; c < cells; c ++)
+            {
+            sideSetElementList->InsertNextTuple1 (sourceElement->GetValue (c) + 1);
+            switch (GetElementType (sourceElement->GetValue (c) + 1))
+              {
+              case VTK_WEDGE:
+                {
+                int wedgeMapping[5] = {3, 4, 0, 1, 2};
+                sideSetSideList->InsertNextTuple1 (wedgeMapping[sourceSide->GetValue (c)] + 1);
+                break;
+                }
+              case VTK_HEXAHEDRON:
+                {
+                int hexMapping[6] = {3, 1, 0, 2, 4, 5};
+                sideSetSideList->InsertNextTuple1 (hexMapping[sourceSide->GetValue (c)] + 1);
+                break;
+                }
+              default:
+                sideSetSideList->InsertNextTuple1 (sourceSide->GetValue (c) + 1);
+              }
+            // TODO implement distribution factors
+            sideSetNumDF->InsertNextTuple1 (0);
+            }
+          sideSetSizes->InsertNextTuple1 (cells);
+          sumSides += cells;
+          }
+        else
+          {
+          vtkErrorMacro ("We have a side set, but it doesn't have SourceElementId or SourceElementSide");
+          }
+        }
+      }
+
+    em->SetNumberOfNodeSets (numNodeSets);
+    em->SetSumNodesPerNodeSet (sumNodes);
+
+    int *nodeSetIds_a = new int[nodeSetIds->GetNumberOfTuples ()];
+    memcpy (nodeSetIds_a, nodeSetIds->GetPointer (0), nodeSetIds->GetNumberOfTuples () * sizeof(int));
+    em->SetNodeSetIds (nodeSetIds_a);
+
+    int *nodeSetSizes_a = new int[nodeSetSizes->GetNumberOfTuples ()];
+    memcpy (nodeSetSizes_a, nodeSetSizes->GetPointer (0), nodeSetSizes->GetNumberOfTuples () * sizeof(int));
+    em->SetNodeSetSize (nodeSetSizes_a);
+
+    int *nodeSetNumDF_a = new int[nodeSetNumDF->GetNumberOfTuples ()];
+    memcpy (nodeSetNumDF_a, nodeSetNumDF->GetPointer (0), nodeSetNumDF->GetNumberOfTuples () * sizeof(int));
+    em->SetNodeSetNumberOfDistributionFactors (nodeSetNumDF_a);
+
+    int *nodeIds_a = new int[nodeIds->GetNumberOfTuples ()];
+    memcpy (nodeIds_a, nodeIds->GetPointer (0), nodeIds->GetNumberOfTuples() * sizeof(int));
+    em->SetNodeSetNodeIdList (nodeIds_a);
+
+    em->SetNumberOfSideSets (numSideSets);
+    em->SetSumSidesPerSideSet (sumSides);
+
+    int *sideSetIds_a = new int[sideSetIds->GetNumberOfTuples ()];
+    memcpy (sideSetIds_a, sideSetIds->GetPointer (0), sideSetIds->GetNumberOfTuples() * sizeof(int));
+    em->SetSideSetIds (sideSetIds_a);
+
+    int *sideSetSizes_a = new int[sideSetSizes->GetNumberOfTuples ()];
+    memcpy (sideSetSizes_a, sideSetSizes->GetPointer (0), sideSetSizes->GetNumberOfTuples() * sizeof(int));
+    em->SetSideSetSize (sideSetSizes_a);
+
+    int *sideSetNumDF_a = new int[sideSetNumDF->GetNumberOfTuples ()];
+    memcpy (sideSetNumDF_a, sideSetNumDF->GetPointer (0), sideSetNumDF->GetNumberOfTuples() * sizeof(int));
+    em->SetSideSetNumDFPerSide (sideSetNumDF_a);
+
+    int *sideSetElementList_a = new int[sideSetElementList->GetNumberOfTuples ()];
+    memcpy (sideSetElementList_a, sideSetElementList->GetPointer (0), sideSetElementList->GetNumberOfTuples() * sizeof(int));
+    em->SetSideSetElementList (sideSetElementList_a);
+
+    int *sideSetSideList_a = new int[sideSetSideList->GetNumberOfTuples ()];
+    memcpy (sideSetSideList_a, sideSetSideList->GetPointer (0), sideSetSideList->GetNumberOfTuples() * sizeof(int));
+    em->SetSideSetSideList (sideSetSideList_a);
+    }
+  return 1;
+}
 
 //----------------------------------------------------------------------------
 int vtkExodusIIWriter::ParseMetadata ()
@@ -2244,11 +2444,12 @@ int vtkExodusIIWriter::WriteNodeSetInformation()
 
   int *emNsSize = em->GetNodeSetSize();
   int *emNumDF = em->GetNodeSetNumberOfDistributionFactors();
-  int *emIdIdx = em->GetNodeSetNodeIdListIndex();
-  int *emDFIdx = em->GetNodeSetDistributionFactorIndex();
 
   int nextId = 0;
   int nextDF = 0;
+
+  int *ids = em->GetNodeSetNodeIdList();
+  float *df = em->GetNodeSetDistributionFactors();
 
   for (i=0; i<nnsets; i++)
     {
@@ -2258,35 +2459,32 @@ int vtkExodusIIWriter::WriteNodeSetInformation()
     nsIdIdx[i] = nextId;
     nsDFIdx[i] = nextDF;
 
-    int *ids = em->GetNodeSetNodeIdList() + emIdIdx[i];
-    float *df = em->GetNodeSetDistributionFactors() + emDFIdx[i];
-
     for (j=0; j< emNsSize[i]; j++)
       {
-      // Have to check if this node is still in the ugrid.
-      // It may have been deleted since the ExodusModel was created.
-
-      int lid = this->GetNodeLocalId(ids[j]);
+      int lid = this->GetNodeLocalId(*ids);
+      ids ++;
 
       if (lid < 0) continue;
 
       nsSize[i]++;
       idBuf[nextId++] = lid + 1;
 
-      if (emNumDF[i] > 0)
+      if (*emNumDF > 0)
         {
         nsNumDF[i]++;
 
         if (this->PassDoubles)
           {
-          dfBufD[nextDF++] = (double)df[j];
+          dfBufD[nextDF++] = (double)*df;
           }
         else
           {
-          dfBuf[nextDF++] = df[j];
+          dfBuf[nextDF++] = *df;
           }
         }
       }
+      df ++;
+      emNumDF ++;
     }
 
   if (this->PassDoubles)
@@ -2343,6 +2541,26 @@ vtkIdType vtkExodusIIWriter::GetElementLocalId(vtkIdType id)
     {
       return mapit->second;
     }
+}
+
+int vtkExodusIIWriter::GetElementType(vtkIdType id)
+{
+  for (size_t i = 0; i < this->FlattenedInput.size (); i ++)
+    {
+    if (this->GlobalElementIdList[i])
+      {
+      vtkIdType ncells = this->FlattenedInput[i]->GetNumberOfCells();
+      for (vtkIdType j=0; j<ncells; j++)
+        {
+        vtkIdType gid = this->GlobalElementIdList[i][j];
+        if (gid == id)
+          {
+          return this->FlattenedInput[i]->GetCellType (j);
+          }
+        }
+      }
+    }
+  return -1;
 }
 
 //-----------------------------------------------------------------------
@@ -2404,11 +2622,14 @@ int vtkExodusIIWriter::WriteSideSetInformation()
     }
 
   int *emSsSize = em->GetSideSetSize();
-  int *emIdIdx = em->GetSideSetListIndex();
   int *emDFIdx = em->GetSideSetDistributionFactorIndex();
 
   int nextId = 0;
   int nextDF = 0;
+
+  int *ids = em->GetSideSetElementList();
+  int *sides = em->GetSideSetSideList();
+  int *numDFPerSide = em->GetSideSetNumDFPerSide();
 
   for (i=0; i<nssets; i++)
     {
@@ -2420,10 +2641,6 @@ int vtkExodusIIWriter::WriteSideSetInformation()
 
     if (emSsSize[i] == 0) continue;
 
-    int *ids = em->GetSideSetElementList() + emIdIdx[i];
-    int *sides = em->GetSideSetSideList() + emIdIdx[i];
-
-    int *numDFPerSide = em->GetSideSetNumDFPerSide() + emIdIdx[i];
     float *df = NULL;
 
     if (ndf > 0)
@@ -2436,31 +2653,33 @@ int vtkExodusIIWriter::WriteSideSetInformation()
       // Have to check if this element is still in the ugrid.
       // It may have been deleted since the ExodusModel was created.
 
-      int lid = this->GetElementLocalId(ids[j]);
+      int lid = this->GetElementLocalId(*ids);
+      ids ++;
 
       if (lid >= 0)
         {
         ssSize[i]++;
 
         idBuf[nextId] = lid+1;
-        sideBuf[nextId] = sides[j];
+        sideBuf[nextId] = *sides;
+        sides ++;
 
         nextId++;
 
-        if (numDFPerSide[j] > 0)
+        if (*numDFPerSide > 0)
           {
-          ssNumDF[i] += numDFPerSide[j];
+          ssNumDF[i] += *numDFPerSide;
 
           if (this->PassDoubles)
             {
-            for (k=0; k < numDFPerSide[j]; k++)
+            for (k=0; k < *numDFPerSide; k++)
               {
               dfBufD[nextDF++] = (double)df[k];
               }
             }
           else
             {
-            for (k=0; k < numDFPerSide[j]; k++)
+            for (k=0; k < *numDFPerSide; k++)
               {
               dfBuf[nextDF++] = df[k];
               }
@@ -2468,7 +2687,8 @@ int vtkExodusIIWriter::WriteSideSetInformation()
           }
         }
 
-      if (df) df += numDFPerSide[j];
+      if (df) df += *numDFPerSide;
+      numDFPerSide ++;
       }
     }
 
