@@ -101,6 +101,7 @@ public:
   vtkAtomicInt<T>& operator=(const vtkAtomicInt<T> &ai)
   {
     this->Atomic = ai.Atomic;
+    return *this;
   }
 
   T load() const
@@ -180,6 +181,7 @@ public:
   vtkAtomicInt<T*>& operator=(const vtkAtomicInt<T*> &ai)
   {
     this->Atomic = ai.Atomic;
+    return *this;
   }
 
   T* load() const
@@ -229,6 +231,7 @@ public:
   vtkAtomicInt<void*>& operator=(const vtkAtomicInt<void*> &ai)
   {
     this->Atomic = ai.Atomic;
+    return *this;
   }
 
   void* load() const
