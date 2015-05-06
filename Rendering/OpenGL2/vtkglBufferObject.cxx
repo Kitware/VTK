@@ -22,13 +22,16 @@ inline GLenum convertType(BufferObject::ObjectType type)
 {
   switch (type)
     {
-    default:
-    case BufferObject::ArrayBuffer:
-      return GL_ARRAY_BUFFER;
     case BufferObject::ElementArrayBuffer:
       return GL_ELEMENT_ARRAY_BUFFER;
     case BufferObject::TextureBuffer:
+#if defined (GL_TEXTURE_BUFFER)
       return GL_TEXTURE_BUFFER;
+      // intentional fall through when not defined
+#endif
+    default:
+    case BufferObject::ArrayBuffer:
+      return GL_ARRAY_BUFFER;
     }
 }
 }

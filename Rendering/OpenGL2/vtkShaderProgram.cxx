@@ -227,19 +227,21 @@ bool vtkShaderProgram::Link()
     return false;
     }
 
+#if GL_ES_VERSION_2_0 != 1
   // bind the outputs if specified
   if (this->NumberOfOutputs)
     {
     for (unsigned int i = 0; i < this->NumberOfOutputs; i++)
       {
       // this naming has to match the bindings
-      // in vtkOpenGLShaderProgram.cxx
+      // in vtkOpenGLShaderCache.cxx
       std::ostringstream dst;
       dst << "fragOutput" << i;
       glBindFragDataLocation(static_cast<GLuint>(this->Handle), i,
         dst.str().c_str());
       }
     }
+#endif
 
   GLint isCompiled;
   glLinkProgram(static_cast<GLuint>(this->Handle));
