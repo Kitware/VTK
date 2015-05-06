@@ -244,7 +244,7 @@ void vtkParseMerge_MergeUsing(
   for (ii = 0; ii < merge->NumberOfUsings; ii++)
     {
     u = merge->Usings[ii];
-    if (u)
+    if (u->Scope)
       {
       match = 1;
       if (strcmp(u->Scope, super->Name) == 0)
@@ -265,7 +265,7 @@ void vtkParseMerge_MergeUsing(
     {
     func = super->Functions[i];
 
-    if (!func || !func->Name)
+    if (!func->Name)
       {
       continue;
       }
@@ -293,7 +293,7 @@ void vtkParseMerge_MergeUsing(
     for (ii = 0; ii < merge->NumberOfUsings; ii++)
       {
       v = merge->Usings[ii];
-      if (v && strcmp(v->Scope, "Superclass") == 0)
+      if (v->Scope && strcmp(v->Scope, "Superclass") == 0)
         {
         if (v->Name && strcmp(v->Name, func->Name) == 0)
           {
@@ -392,13 +392,13 @@ void vtkParseMerge_MergeUsing(
   for (i = 0; i < merge->NumberOfUsings; i++)
     {
     u = merge->Usings[i];
-    if (u && strcmp(u->Scope, "Superclass") == 0)
+    if (u->Scope && strcmp(u->Scope, "Superclass") == 0)
       {
       match = 0;
       for (j = 0; j < super->NumberOfUsings && !match; j++)
         {
         v = super->Usings[j];
-        if (v && v->Name && u->Name && strcmp(u->Name, v->Name) == 0)
+        if (v->Name && u->Name && strcmp(u->Name, v->Name) == 0)
           {
           /* get the new scope so that recursion will occur */
           u->Scope = v->Scope;
@@ -408,10 +408,11 @@ void vtkParseMerge_MergeUsing(
       for (j = 0; j < super->NumberOfFunctions && !match; j++)
         {
         func = super->Functions[j];
-        if (u->Name && func && func->Name && strcmp(func->Name, u->Name) == 0)
+        if (u->Name && func->Name && strcmp(func->Name, u->Name) == 0)
           {
-          vtkParse_FreeUsing(u);
-          merge->Usings[i] = 0;
+          /* ignore this "using" from now on */
+          merge->Usings[i]->Name = NULL;
+          merge->Usings[i]->Scope = NULL;
           match = 1;
           }
         }
@@ -695,7 +696,7 @@ void vtkParseMerge_MergeHelper(
       n = merge->NumberOfUsings;
       for (i = 0; i < n; i++)
         {
-        if (merge->Usings[i] && merge->Usings[i]->Name)
+        if (merge->Usings[i]->Name)
           {
           recurse = 1;
           break;
