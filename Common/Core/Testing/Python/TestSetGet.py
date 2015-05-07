@@ -345,7 +345,6 @@ def BatchTest(vtkClasses, batchNo, batchSize):
         TestSetGet(batch, batchNo, batchSize)
 
 def PrintResultSummary():
-    print 'CTEST_FULL_OUTPUT (Avoid ctest truncation of output)'
     print '-' * 40
     print 'Set(Get()) worked:', len(setGetWorked)
     print 'Set(Get()) failed:', len(setGetFailed)
@@ -385,7 +384,22 @@ def ProgramOptions():
 
     return (True, opts)
 
+def CheckPythonVersion(ver):
+    '''
+    Check the Python version.
+
+    :param: ver - the minimum required version number as hexadecimal.
+    :return: True if if the Python version is greater than or equal to ver.
+    '''
+    if sys.hexversion < ver:
+        return False
+    return True
+
 def main(argv=None):
+    if not CheckPythonVersion(0x02060000):
+        print 'This program requires Python 2.6 or greater.'
+        return
+
     global classExceptions
     global vtkClasses
     global classNames
@@ -400,6 +414,8 @@ def main(argv=None):
         classNames = set(cn)
     if opts.verbose:
         verbose = opts.verbose
+
+    print 'CTEST_FULL_OUTPUT (Avoid ctest truncation of output)'
 
     # RedirectVTKMessages()
     if classNames:
