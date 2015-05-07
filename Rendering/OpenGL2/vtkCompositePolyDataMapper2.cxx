@@ -605,10 +605,6 @@ void vtkCompositePolyDataMapper2::BuildBufferObjects(
   this->Lines.indexCount = 0;
   this->TriStrips.indexCount = 0;
 
-  // deal with optional pick mapping arrays
-  vtkHardwareSelector* selector = ren->GetSelector();
-
-
   // allocate as needed
   if (this->HaveCellScalars || this->HavePickScalars)
     {

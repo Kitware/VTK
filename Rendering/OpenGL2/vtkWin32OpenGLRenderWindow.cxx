@@ -614,6 +614,14 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
       {
       pixelFormat = 0;
       }
+    else
+      {
+      if (debug && (dwFlags & PFD_STEREO) && !(pfd.dwFlags & PFD_STEREO))
+        {
+        vtkGenericWarningMacro("No Stereo Available!");
+        this->StereoCapableWindow = 0;
+        }
+      }
     }
 
   // If we got a valid pixel format in the process, we are done.
@@ -667,11 +675,6 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
   // Otherwise, we use the old approach of using ChoosePixelFormat.
   if (pixelFormat)
     {
-    if (debug && (dwFlags & PFD_STEREO) && !(pfd.dwFlags & PFD_STEREO))
-      {
-      vtkGenericWarningMacro("No Stereo Available!");
-      this->StereoCapableWindow = 0;
-      }
     return;
     }
 
