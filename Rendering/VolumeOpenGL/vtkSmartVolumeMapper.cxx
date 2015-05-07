@@ -627,6 +627,18 @@ void vtkSmartVolumeMapper::SetRequestedRenderModeToDefault()
 }
 
 // ----------------------------------------------------------------------------
+void vtkSmartVolumeMapper::SetRequestedRenderModeToGPU()
+{
+  this->SetRequestedRenderMode(vtkSmartVolumeMapper::GPURenderMode);
+}
+
+// ----------------------------------------------------------------------------
+void vtkSmartVolumeMapper::SetRequestedRenderModeToTexture()
+{
+  this->SetRequestedRenderMode(vtkSmartVolumeMapper::TextureRenderMode);
+}
+
+// ----------------------------------------------------------------------------
 void vtkSmartVolumeMapper::SetRequestedRenderModeToRayCastAndTexture()
 {
   this->SetRequestedRenderMode(

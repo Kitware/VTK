@@ -146,6 +146,12 @@ public:
   void SetRequestedRenderModeToRayCast();
 
   // Description:
+  // Set the requested render mode to vtkSmartVolumeMapper::GPURenderMode.
+  // This option will use hardware accelerated rendering exclusively. This is a
+  // good option if you know there is hardware acceleration.
+  void SetRequestedRenderModeToGPU();
+
+  // Description:
   // Get the requested render mode.
   vtkGetMacro( RequestedRenderMode, int );
 

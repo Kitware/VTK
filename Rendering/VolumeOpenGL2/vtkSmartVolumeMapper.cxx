@@ -538,6 +538,12 @@ void vtkSmartVolumeMapper::SetRequestedRenderModeToRayCast()
 }
 
 // ----------------------------------------------------------------------------
+void vtkSmartVolumeMapper::SetRequestedRenderModeToGPU()
+{
+  this->SetRequestedRenderMode(vtkSmartVolumeMapper::GPURenderMode);
+}
+
+// ----------------------------------------------------------------------------
 void vtkSmartVolumeMapper::ReleaseGraphicsResources(vtkWindow *w)
 {
   this->RayCastMapper->ReleaseGraphicsResources(w);
