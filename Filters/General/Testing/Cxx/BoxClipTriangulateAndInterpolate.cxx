@@ -185,7 +185,6 @@ static void AddToRenderWindow(vtkRenderWindow *renwin,
 
   VTK_CREATE(vtkActor, actor1);
   actor1->SetMapper(mapper1);
-  actor1->GetProperty()->SetLineWidth(10.0);
   renderer->AddActor(actor1);
 
   VTK_CREATE(vtkDataSetSurfaceFilter, surface2);
@@ -196,7 +195,6 @@ static void AddToRenderWindow(vtkRenderWindow *renwin,
 
   VTK_CREATE(vtkActor, actor2);
   actor2->SetMapper(mapper2);
-  actor2->GetProperty()->SetLineWidth(10.0);
   renderer->AddActor(actor2);
 
   renwin->AddRenderer(renderer);

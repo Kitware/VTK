@@ -1589,7 +1589,7 @@ void vtkOpenGLContextDevice2D::SetLineType(int type)
     {
     return;
     }
-  vtkErrorMacro(<< "Line Stipples are no longer supported");
+  vtkWarningMacro(<< "Line Stipples are no longer supported");
 }
 
 //-----------------------------------------------------------------------------
