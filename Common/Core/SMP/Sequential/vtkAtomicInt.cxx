@@ -99,7 +99,7 @@ vtkTypeInt64 AtomicOps<8>::AddAndFetch(atomic_type *ref, vtkTypeInt64 val)
   return InterlockedExchangeAdd64(ref, val) + val;
 # endif
 #else
-  CriticalSectionGuard(*ref->csec);
+  CriticalSectionGuard csg(*ref->csec);
   return ref->var += val;
 #endif
 }
@@ -113,7 +113,7 @@ vtkTypeInt64 AtomicOps<8>::SubAndFetch(atomic_type *ref, vtkTypeInt64 val)
   return InterlockedExchangeAdd64(ref, -val) - val;
 # endif
 #else
-  CriticalSectionGuard(*ref->csec);
+  CriticalSectionGuard csg(*ref->csec);
   return ref->var -= val;
 #endif
 }
@@ -123,8 +123,8 @@ vtkTypeInt64 AtomicOps<8>::PreIncrement(atomic_type *ref)
 #if defined(VTK_WINDOWS_ATOMICS_64)
   return InterlockedIncrement64(ref);
 #else
-  CriticalSectionGuard(*ref->csec);
-  return ++ref->var;
+  CriticalSectionGuard csg(*ref->csec);
+  return ++(ref->var);
 #endif
 }
 
@@ -133,8 +133,8 @@ vtkTypeInt64 AtomicOps<8>::PreDecrement(atomic_type *ref)
 #if defined(VTK_WINDOWS_ATOMICS_64)
   return InterlockedDecrement64(ref);
 #else
-  CriticalSectionGuard(*ref->csec);
-  return --ref->var;
+  CriticalSectionGuard csg(*ref->csec);
+  return --(ref->var);
 #endif
 }
 
@@ -144,8 +144,8 @@ vtkTypeInt64 AtomicOps<8>::PostIncrement(atomic_type *ref)
   vtkTypeInt64 val = InterlockedIncrement64(ref);
   return --val;
 #else
-  CriticalSectionGuard(*ref->csec);
-  return ref->var++;
+  CriticalSectionGuard csg(*ref->csec);
+  return (ref->var)++;
 #endif
 }
 
@@ -155,8 +155,8 @@ vtkTypeInt64 AtomicOps<8>::PostDecrement(atomic_type *ref)
   vtkTypeInt64 val = InterlockedDecrement64(ref);
   return ++val;
 #else
-  CriticalSectionGuard(*ref->csec);
-  return ref->var--;
+  CriticalSectionGuard csg(*ref->csec);
+  return (ref->var)--;
 #endif
 }
 
@@ -167,7 +167,7 @@ vtkTypeInt64 AtomicOps<8>::Load(const atomic_type *ref)
   InterlockedExchange64(&val, *ref);
   return val;
 #else
-  CriticalSectionGuard(*ref->csec);
+  CriticalSectionGuard csg(*ref->csec);
   return ref->var;
 #endif
 }
@@ -177,7 +177,7 @@ void AtomicOps<8>::Store(atomic_type *ref, vtkTypeInt64 val)
 #if defined(VTK_WINDOWS_ATOMICS_64)
   InterlockedExchange64(ref, val);
 #else
-  CriticalSectionGuard(*ref->csec);
+  CriticalSectionGuard csg(*ref->csec);
   ref->var = val;
 #endif
 }
@@ -196,7 +196,7 @@ vtkTypeInt32 AtomicOps<4>::AddAndFetch(atomic_type *ref, vtkTypeInt32 val)
   return InterlockedExchangeAdd(reinterpret_cast<long*>(ref), val) + val;
 # endif
 #else
-  CriticalSectionGuard(*ref->csec);
+  CriticalSectionGuard csg(*ref->csec);
   return ref->var += val;
 #endif
 }
@@ -210,7 +210,7 @@ vtkTypeInt32 AtomicOps<4>::SubAndFetch(atomic_type *ref, vtkTypeInt32 val)
   return InterlockedExchangeAdd(reinterpret_cast<long*>(ref), -val) - val;
 # endif
 #else
-  CriticalSectionGuard(*ref->csec);
+  CriticalSectionGuard csg(*ref->csec);
   return ref->var -= val;
 #endif
 }
@@ -220,8 +220,8 @@ vtkTypeInt32 AtomicOps<4>::PreIncrement(atomic_type *ref)
 #if defined(VTK_WINDOWS_ATOMICS_32)
   return InterlockedIncrement(reinterpret_cast<long*>(ref));
 #else
-  CriticalSectionGuard(*ref->csec);
-  return ++ref->var;
+  CriticalSectionGuard csg(*ref->csec);
+  return ++(ref->var);
 #endif
 }
 
@@ -230,8 +230,8 @@ vtkTypeInt32 AtomicOps<4>::PreDecrement(atomic_type *ref)
 #if defined(VTK_WINDOWS_ATOMICS_32)
   return InterlockedDecrement(reinterpret_cast<long*>(ref));
 #else
-  CriticalSectionGuard(*ref->csec);
-  return --ref->var;
+  CriticalSectionGuard csg(*ref->csec);
+  return --(ref->var);
 #endif
 }
 
@@ -241,8 +241,8 @@ vtkTypeInt32 AtomicOps<4>::PostIncrement(atomic_type *ref)
   vtkTypeInt32 val = InterlockedIncrement(reinterpret_cast<long*>(ref));
   return --val;
 #else
-  CriticalSectionGuard(*ref->csec);
-  return ref->var++;
+  CriticalSectionGuard csg(*ref->csec);
+  return (ref->var)++;
 #endif
 }
 
@@ -252,8 +252,8 @@ vtkTypeInt32 AtomicOps<4>::PostDecrement(atomic_type *ref)
   vtkTypeInt32 val = InterlockedDecrement(reinterpret_cast<long*>(ref));
   return ++val;
 #else
-  CriticalSectionGuard(*ref->csec);
-  return ref->var--;
+  CriticalSectionGuard csg(*ref->csec);
+  return (ref->var)--;
 #endif
 }
 
@@ -264,7 +264,7 @@ vtkTypeInt32 AtomicOps<4>::Load(const atomic_type *ref)
   InterlockedExchange(&val, *ref);
   return val;
 #else
-  CriticalSectionGuard(*ref->csec);
+  CriticalSectionGuard csg(*ref->csec);
   return ref->var;
 #endif
 }
@@ -274,7 +274,7 @@ void AtomicOps<4>::Store(atomic_type *ref, vtkTypeInt32 val)
 #if defined(VTK_WINDOWS_ATOMICS_32)
   InterlockedExchange(reinterpret_cast<long*>(ref), val);
 #else
-  CriticalSectionGuard(*ref->csec);
+  CriticalSectionGuard csg(*ref->csec);
   ref->var = val;
 #endif
 }
