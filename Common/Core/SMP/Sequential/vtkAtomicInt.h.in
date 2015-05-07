@@ -203,7 +203,7 @@ public:
 #if defined(VTK_WINDOWS_ATOMICS_64)
   typedef vtkTypeInt64 VTK_ALIGN(8) atomic_type;
 #else
-  struct atomic_type
+  struct VTKCOMMONCORE_EXPORT atomic_type
   {
     vtkTypeInt64 var;
     vtkSimpleCriticalSection *csec;
@@ -292,7 +292,7 @@ public:
 #if defined(VTK_WINDOWS_ATOMICS_32)
   typedef vtkTypeInt32 VTK_ALIGN(4) atomic_type;
 #else
-  struct atomic_type
+  struct VTKCOMMONCORE_EXPORT atomic_type
   {
     vtkTypeInt32 var;
     vtkSimpleCriticalSection *csec;
