@@ -158,8 +158,11 @@ void vtkCompositePolyDataMapper2::Render(
         }
       }
 
-    // render using the composite data attributes
-    this->RenderPiece(ren, actor);
+     if (this->CurrentInput)
+      {
+      // render using the composite data attributes
+      this->RenderPiece(ren, actor);
+      }
 
     this->BlockState.Visibility.pop();
     this->BlockState.Opacity.pop();

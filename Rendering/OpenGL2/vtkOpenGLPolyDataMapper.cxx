@@ -1838,7 +1838,7 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
     this->HavePickScalars = true;
     }
 
-  // handle point picking
+  // handle point picking, all is drawn as points
   if (this->HavePickScalars &&
       selector->GetCurrentPass() >= vtkHardwareSelector::ID_LOW24 &&
       selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
@@ -1863,6 +1863,33 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
           newColors.push_back((value & 0xff0000) >> 16);
           newColors.push_back(0xff);
           }
+        } // for cell
+      }
+    return;
+    }
+
+  // handle process_id picking
+  if (this->HavePickScalars &&
+      selector->GetCurrentPass() == vtkHardwareSelector::PROCESS_PASS)
+    {
+    vtkIdType* indices(NULL);
+    vtkIdType npts(0);
+
+    std::vector<unsigned int> cellCellMap;
+    vtkgl::CreateCellSupportArrays(prims, cellCellMap, representation);
+
+    for (int j = 0; j < 4; j++)
+      {
+      // for each cell, lookup the process value for it's first vertex
+      // and use that as cell data
+      for (prims[j]->InitTraversal(); prims[j]->GetNextCell(npts, indices); )
+        {
+        unsigned int value = indices[0];
+        value = mapArray->GetValue(value) + 1;
+        newColors.push_back(value & 0xff);
+        newColors.push_back((value & 0xff00) >> 8);
+        newColors.push_back((value & 0xff0000) >> 16);
+        newColors.push_back(0xff);
         } // for cell
       }
     return;
