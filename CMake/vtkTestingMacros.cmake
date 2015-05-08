@@ -185,6 +185,7 @@ function(vtk_add_test_mpi exename _tests)
     set_tests_properties(${vtk-module}Cxx-MPI-${vtk_test_prefix}${test_name}
       PROPERTIES
         LABELS "${${vtk-module}_TEST_LABELS}"
+        PROCESSORS ${numprocs}
       )
     list(APPEND ${_tests} "${test_file}")
 
