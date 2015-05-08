@@ -145,4 +145,5 @@ if(NOT VTK_TEST_TIMEOUT_TestSphereHandleWidget)
   set(VTK_TEST_TIMEOUT_TestSphereHandleWidget 300)
 endif()
 set_tests_properties(${vtk-module}Cxx-TestSphereHandleWidget
-    PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestSphereHandleWidget})
+    PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestSphereHandleWidget}
+               RUN_SERIAL ON)

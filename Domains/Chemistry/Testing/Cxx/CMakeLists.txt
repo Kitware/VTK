@@ -28,4 +28,5 @@ if(NOT VTK_TEST_TIMEOUT_TestPDBBallAndStick)
   set(VTK_TEST_TIMEOUT_TestPDBBallAndStick 360)
 endif()
 set_tests_properties(${vtk-module}Cxx-TestPDBBallAndStick
-    PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestPDBBallAndStick})
+    PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestPDBBallAndStick}
+               RUN_SERIAL ON)
