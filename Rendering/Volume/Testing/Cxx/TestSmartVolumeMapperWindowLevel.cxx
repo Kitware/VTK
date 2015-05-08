@@ -629,7 +629,6 @@ int TestSmartVolumeMapperWindowLevel(int argc,
   mapper1->SetRequestedRenderModeToDefault();
   vtkNew<vtkSmartVolumeMapper> mapper2;
   mapper2->SetInputConnection(reader->GetOutputPort());
-  mapper2->SetRequestedRenderModeToGPU();
   vtkNew<vtkSmartVolumeMapper> mapper3;
   mapper3->SetInputConnection(reader->GetOutputPort());
   mapper3->SetRequestedRenderModeToRayCast();
