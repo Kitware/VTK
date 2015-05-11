@@ -319,9 +319,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkI
 
 #if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
   if (actor->GetProperty()->GetRepresentation() == VTK_SURFACE &&
-      !selector &&
-      (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32() ||
-        GLEW_ARB_instanced_arrays))
+      !selector && GLEW_ARB_instanced_arrays)
     {
     this->GlyphRenderInstances(ren, actor, numPts,
       colors, matrices, normalMatrices, pointMTime);
@@ -513,15 +511,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
                         reinterpret_cast<const GLvoid *>(NULL),
                         numPts);
 #else
-  if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
-    {
-    glDrawElementsInstanced(GL_TRIANGLES,
-                          static_cast<GLsizei>(this->Tris.indexCount),
-                          GL_UNSIGNED_INT,
-                          reinterpret_cast<const GLvoid *>(NULL),
-                          numPts);
-    }
-  else if (GLEW_ARB_instanced_arrays)
+  if (GLEW_ARB_instanced_arrays)
     {
     glDrawElementsInstancedARB(GL_TRIANGLES,
                           static_cast<GLsizei>(this->Tris.indexCount),
