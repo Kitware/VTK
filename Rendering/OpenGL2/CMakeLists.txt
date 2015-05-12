@@ -205,11 +205,11 @@ if(VTK_USE_X)
   include_directories(${X11_INCLUDE_DIR} ${X11_Xt_INCLUDE_PATH})
   # Add some custom overrides
   list(APPEND vtk_module_overrides "vtkRenderWindowInteractor")
-  set(vtk_module_vtkRenderWindowInteractor_override "vtkXOpenGLRenderWindowInteractor")
+  set(vtk_module_vtkRenderWindowInteractor_override "vtkXRenderWindowInteractor")
   list(APPEND vtk_module_overrides "vtkRenderWindow")
   set(vtk_module_vtkRenderWindow_override "vtkXOpenGLRenderWindow")
   list(APPEND Module_SRCS
-    vtkXOpenGLRenderWindowInteractor.cxx
+    vtkXRenderWindowInteractor.cxx
     vtkXOpenGLRenderWindow.cxx
     )
 elseif(VTK_USE_OSMESA)
