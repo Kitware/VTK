@@ -639,8 +639,8 @@ void vtkCompositePolyDataMapper2::BuildBufferObjects(
     this->CellNormalBuffer->Upload(newNorms,
       vtkgl::BufferObject::TextureBuffer);
     this->CellNormalTexture->CreateTextureBuffer(
-      static_cast<unsigned int>(newNorms.size()/3),
-      3, VTK_FLOAT,
+      static_cast<unsigned int>(newNorms.size()/4),
+      4, VTK_FLOAT,
       this->CellNormalBuffer);
     }
 }

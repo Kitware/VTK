@@ -605,8 +605,10 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(
           }
         substitute(FSSource,
           "//VTK::Normal::Impl",
-          "vec3 normalVC = normalMatrix * normalize(\n"
-          "   texelFetchBuffer(textureN, gl_PrimitiveID + PrimitiveIDOffset).xyz);");
+          "vec3 normalVC = normalize(normalMatrix *\n"
+          "    texelFetchBuffer(textureN, gl_PrimitiveID + PrimitiveIDOffset).xyz);\n"
+          "  if (gl_FrontFacing == false) { normalVC = -normalVC; }\n"
+          );
         }
       else
         {
@@ -1946,10 +1948,13 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
       vtkDataArray *n = this->CurrentInput->GetCellData()->GetNormals();
       for (unsigned int i = 0; i < cellCellMap.size(); i++)
         {
+        // RGB32F requires a later version of OpenGL than 3.2
+        // with 3.2 we know we have RGBA32F hence the extra value
         double *norms = n->GetTuple(cellCellMap[i]);
         newNorms.push_back(norms[0]);
         newNorms.push_back(norms[1]);
         newNorms.push_back(norms[2]);
+        newNorms.push_back(1.0);
         }
       }
     }
@@ -1998,8 +2003,8 @@ void vtkOpenGLPolyDataMapper::BuildCellTextures(
     this->CellNormalBuffer->Upload(newNorms,
       vtkgl::BufferObject::TextureBuffer);
     this->CellNormalTexture->CreateTextureBuffer(
-      static_cast<unsigned int>(newNorms.size()/3),
-      3, VTK_FLOAT,
+      static_cast<unsigned int>(newNorms.size()/4),
+      4, VTK_FLOAT,
       this->CellNormalBuffer);
     }
 }
