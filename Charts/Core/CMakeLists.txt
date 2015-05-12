@@ -24,6 +24,7 @@ set(Module_SRCS
   vtkPiecewisePointHandleItem.cxx
   vtkPlot.cxx
   vtkPlot3D.cxx
+  vtkPlotArea.cxx
   vtkPlotBag.cxx
   vtkPlotBar.cxx
   vtkPlotBox.cxx

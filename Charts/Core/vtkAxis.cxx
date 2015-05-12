@@ -155,9 +155,12 @@ void vtkAxis::SetPosition(int position)
 
 void vtkAxis::SetPoint1(const vtkVector2f &pos)
 {
-  this->Position1 = pos;
-  this->Resized = true;
-  this->Modified();
+  if (this->Position1 != pos)
+    {
+    this->Position1 = pos;
+    this->Resized = true;
+    this->Modified();
+    }
 }
 
 void vtkAxis::SetPoint1(float x, float y)
@@ -172,9 +175,12 @@ vtkVector2f vtkAxis::GetPosition1()
 
 void vtkAxis::SetPoint2(const vtkVector2f &pos)
 {
-  this->Position2 = pos;
-  this->Resized = true;
-  this->Modified();
+  if (this->Position2 != pos)
+    {
+    this->Position2 = pos;
+    this->Resized = true;
+    this->Modified();
+    }
 }
 
 void vtkAxis::SetPoint2(float x, float y)

@@ -32,6 +32,7 @@
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
+#include "vtkPlotArea.h"
 #include "vtkPlotBar.h"
 #include "vtkPlotBag.h"
 #include "vtkPlotFunctionalBag.h"
@@ -314,11 +315,8 @@ void vtkChartXY::Update()
 
   if (this->AutoAxes)
     {
-    for (int i = 0; i < 4; ++i)
-      {
-      this->ChartPrivate->axes[i]->SetVisible(false);
-      }
-    for (size_t i = 0; i < this->ChartPrivate->PlotCorners.size(); ++i)
+    vtkTuple<bool, 4> visibilities(false);
+    for (int i = 0; i < static_cast<int>(this->ChartPrivate->PlotCorners.size()); ++i)
       {
       int visible = 0;
       for (unsigned int j = 0;
@@ -332,17 +330,13 @@ void vtkChartXY::Update()
         }
       if (visible)
         {
-        if (i < 3)
-          {
-          this->ChartPrivate->axes[i]->SetVisible(true);
-          this->ChartPrivate->axes[i+1]->SetVisible(true);
-          }
-        else
-          {
-          this->ChartPrivate->axes[0]->SetVisible(true);
-          this->ChartPrivate->axes[3]->SetVisible(true);
-          }
+        visibilities[i % 4] = true;
+        visibilities[(i+1) % 4] = true;
         }
+      }
+    for (int i = 0; i < 4; ++i)
+      {
+      this->ChartPrivate->axes[i]->SetVisible(visibilities[i]);
       }
     }
 }
@@ -396,6 +390,7 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
     }
 
   this->UpdateLayout(painter);
+
   // Recalculate the plot transform, min and max values if necessary
   if (!this->PlotTransformValid)
     {
@@ -405,6 +400,14 @@ bool vtkChartXY::Paint(vtkContext2D *painter)
   if (this->UpdateLayout(painter) || recalculateTransform)
     {
     this->RecalculatePlotTransforms();
+    }
+
+  // Now that plot transforms, including whether to use log scaling and the
+  // shift-scale factors, have been updated, we give the vtkPlot instances an
+  // opportunity to update caches.
+  for (size_t i = 0; i < this->ChartPrivate->plots.size(); ++i)
+    {
+    this->ChartPrivate->plots[i]->UpdateCache();
     }
 
   // Update the clipping if necessary
@@ -1155,6 +1158,14 @@ vtkPlot * vtkChartXY::AddPlot(int type)
       bag->SetParent(this);
       bag->GetBrush()->SetColor(color.GetData());
       plot = bag;
+      break;
+      }
+    case AREA:
+      {
+      vtkPlotArea* area = vtkPlotArea::New();
+      area->SetParent(this);
+      area->GetBrush()->SetColor(color.GetData());
+      plot = area;
       break;
       }
 
