@@ -55,6 +55,13 @@ public:
   vtkGetObjectMacro(TextProperty,vtkTextProperty);
 
   // Description:
+  // Since a 3D text actor is not pixel-aligned and positioned in 3D space,
+  // the text is rendered at a constant DPI, rather than using the current
+  // window DPI. This static method returns the DPI value used to produce the
+  // text images.
+  static int GetRenderedDPI() { return 72; }
+
+  // Description:
   // Shallow copy of this text actor. Overloads the virtual
   // vtkProp method.
   void ShallowCopy(vtkProp *prop);
@@ -65,10 +72,10 @@ public:
   void GetBounds(double bounds[6]) {this->vtkProp3D::GetBounds( bounds );}
 
   // Description:
-  // Get the Freetype-derived real bounding box for the given vtkTextProperty
+  // Get the vtkTextRenderer-derived bounding box for the given vtkTextProperty
   // and text string str.  Results are returned in the four element bbox int
   // array.  This call can be used for sizing other elements.
-  virtual int GetBoundingBox(int bbox[4]);
+  int GetBoundingBox(int bbox[4]);
 
   //BTX
   // Description:

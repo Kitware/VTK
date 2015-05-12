@@ -1256,7 +1256,8 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
   if (image->GetNumberOfPoints() == 0 && image->GetNumberOfCells() == 0)
     {
     int textDims[2];
-    if (!this->TextRenderer->RenderString(this->TextProp, string, image,
+    if (!this->TextRenderer->RenderString(this->TextProp, string,
+                                          this->RenderWindow->GetDPI(), image,
                                           textDims))
       {
       return;
@@ -1317,7 +1318,8 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
 void vtkOpenGLContextDevice2D::ComputeStringBounds(const vtkUnicodeString &string,
                                                    float bounds[4])
 {
-  vtkVector2i box = this->TextRenderer->GetBounds(this->TextProp, string);
+  vtkVector2i box = this->TextRenderer->GetBounds(this->TextProp, string,
+                                                  this->RenderWindow->GetDPI());
   // Check for invalid bounding box
   if (box[0] == VTK_INT_MIN || box[0] == VTK_INT_MAX ||
       box[1] == VTK_INT_MIN || box[1] == VTK_INT_MAX)

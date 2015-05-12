@@ -95,7 +95,7 @@ int vtkMathTextUtilities::GetConstrainedFontSize(const char *str,
                                                  vtkTextProperty *tprop,
                                                  int targetWidth,
                                                  int targetHeight,
-                                                 unsigned int dpi)
+                                                 int dpi)
 {
   if (str == NULL || str[0] == '\0' || targetWidth == 0 || targetHeight == 0 ||
       tprop == NULL)

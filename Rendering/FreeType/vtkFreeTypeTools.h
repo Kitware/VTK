@@ -100,16 +100,16 @@ public:
   // Returns true on success, false otherwise.
   // @sa GetMetrics
   bool GetBoundingBox(vtkTextProperty *tprop, const vtkStdString& str,
-                      int bbox[4]);
+                      int dpi, int bbox[4]);
   bool GetBoundingBox(vtkTextProperty *tprop, const vtkUnicodeString& str,
-                      int bbox[4]);
+                      int dpi, int bbox[4]);
 
   // Description:
   // Given a text property and a string, get the metrics of the rendered string.
   // Returns true on success, false otherwise.
-  bool GetMetrics(vtkTextProperty *tprop, const vtkStdString& str,
+  bool GetMetrics(vtkTextProperty *tprop, const vtkStdString& str, int dpi,
                   vtkTextRenderer::Metrics &metrics);
-  bool GetMetrics(vtkTextProperty *tprop, const vtkUnicodeString& str,
+  bool GetMetrics(vtkTextProperty *tprop, const vtkUnicodeString& str, int dpi,
                   vtkTextRenderer::Metrics &metrics);
 
   // Description:
@@ -121,29 +121,29 @@ public:
   // The origin of the image's extents is aligned with the anchor point
   // described by the text property's vertical and horizontal justification
   // options.
-  bool RenderString(vtkTextProperty *tprop, const vtkStdString& str,
+  bool RenderString(vtkTextProperty *tprop, const vtkStdString& str, int dpi,
                     vtkImageData *data, int textDims[2] = NULL);
   bool RenderString(vtkTextProperty *tprop, const vtkUnicodeString& str,
-                    vtkImageData *data, int textDims[2] = NULL);
+                    int dpi, vtkImageData *data, int textDims[2] = NULL);
 
   // Description:
   // Given a text property and a string, this function populates the vtkPath
   // path with the outline of the rendered string. The origin of the path
   // coordinates is aligned with the anchor point described by the text
   // property's horizontal and vertical justification options.
-  bool StringToPath(vtkTextProperty *tprop, const vtkStdString& str,
+  bool StringToPath(vtkTextProperty *tprop, const vtkStdString& str, int dpi,
                     vtkPath *path);
   bool StringToPath(vtkTextProperty *tprop, const vtkUnicodeString& str,
-                    vtkPath *path);
+                    int dpi, vtkPath *path);
 
   // Description:
   // This function returns the font size (in points) required to fit the string
   // in the target rectangle. The font size of tprop is updated to the computed
   // value as well. If an error occurs, -1 is returned.
   int GetConstrainedFontSize(const vtkStdString &str, vtkTextProperty *tprop,
-                             int targetWidth, int targetHeight);
+                             int dpi, int targetWidth, int targetHeight);
   int GetConstrainedFontSize(const vtkUnicodeString &str,
-                             vtkTextProperty *tprop,
+                             vtkTextProperty *tprop, int dpi,
                              int targetWidth, int targetHeight);
 
   // Description:
@@ -196,7 +196,7 @@ protected:
   // Used to store state about a particular rendering and cache constant values
   class MetaData;
   class ImageMetaData;
-  bool PrepareMetaData(vtkTextProperty *tprop, MetaData &metaData);
+  bool PrepareMetaData(vtkTextProperty *tprop, int dpi, MetaData &metaData);
   bool PrepareImageMetaData(vtkTextProperty *tprop, vtkImageData *image,
                             ImageMetaData &metaData);
 
@@ -253,11 +253,16 @@ protected:
                 FT_Glyph *glyph,
                 int request = GLYPH_REQUEST_DEFAULT);
   bool GetSize(unsigned long tprop_cache_id, int font_size, FT_Size *size);
+  bool GetSize(FTC_Scaler scaler, FT_Size *size);
   bool GetFace(unsigned long tprop_cache_id, FT_Face *face);
   bool GetGlyphIndex(unsigned long tprop_cache_id, FT_UInt32 c,
                      FT_UInt *gindex);
   bool GetGlyph(unsigned long tprop_cache_id,
                 int font_size,
+                FT_UInt gindex,
+                FT_Glyph *glyph,
+                int request = GLYPH_REQUEST_DEFAULT);
+  bool GetGlyph(FTC_Scaler scaler,
                 FT_UInt gindex,
                 FT_Glyph *glyph,
                 int request = GLYPH_REQUEST_DEFAULT);
@@ -279,11 +284,15 @@ protected:
   FT_Bitmap* GetBitmap(FT_UInt32 c, unsigned long prop_cache_id,
                        int prop_font_size, FT_UInt &gindex,
                        FT_BitmapGlyph &bitmap_glyph);
+  FT_Bitmap* GetBitmap(FT_UInt32 c, FTC_Scaler scaler, FT_UInt &gindex,
+                       FT_BitmapGlyph &bitmap_glyph);
 
   // Description:
   // Attempt to get the outline for the specified character.
   FT_Outline* GetOutline(FT_UInt32 c, unsigned long prop_cache_id,
                          int prop_font_size, FT_UInt &gindex,
+                         FT_OutlineGlyph &outline_glyph);
+  FT_Outline* GetOutline(FT_UInt32 c, FTC_Scaler scaler, FT_UInt &gindex,
                          FT_OutlineGlyph &outline_glyph);
 
   // Description:
@@ -325,13 +334,13 @@ private:
   // Internal helper called by RenderString methods
   template <typename StringType>
   bool RenderStringInternal(vtkTextProperty *tprop, const StringType &str,
-                            vtkImageData *data, int textDims[2]);
+                            int dpi, vtkImageData *data, int textDims[2]);
 
   // Description:
   // Internal helper method called by StringToPath methods
   template <typename StringType>
   bool StringToPathInternal(vtkTextProperty *tprop, const StringType &str,
-                            vtkPath *path);
+                            int dpi, vtkPath *path);
 
   // Description:
   // This function initializes calculates the size of the required bounding box

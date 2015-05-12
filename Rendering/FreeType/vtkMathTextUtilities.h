@@ -72,13 +72,12 @@ public:
   // Description:
   // Determine the dimensions of the image that RenderString will produce for
   // a given str, tprop, and dpi
-  virtual bool GetBoundingBox(vtkTextProperty *tprop, const char *str,
-                              unsigned int dpi, int bbox[4]) = 0;
+  virtual bool GetBoundingBox(vtkTextProperty *tprop, const char *str, int dpi,
+                              int bbox[4]) = 0;
 
   // Description:
   // Return the metrics for the rendered str, tprop, and dpi.
-  virtual bool GetMetrics(vtkTextProperty *tprop, const char *str,
-                          unsigned int dpi,
+  virtual bool GetMetrics(vtkTextProperty *tprop, const char *str, int dpi,
                           vtkTextRenderer::Metrics &metrics) = 0;
 
   // Description:
@@ -88,14 +87,14 @@ public:
   // set to true, and the image dimensions may not match the dimensions of the
   // rendered text.
  virtual bool RenderString(const char *str, vtkImageData *data,
-                           vtkTextProperty *tprop,
-                           unsigned int dpi, int textDims[2] = NULL) = 0;
+                           vtkTextProperty *tprop, int dpi,
+                           int textDims[2] = NULL) = 0;
 
   // Description:
   // Parse the MathText expression in str and fill path with a contour of the
   // glyphs.
   virtual bool StringToPath(const char *str, vtkPath *path,
-                            vtkTextProperty *tprop) = 0;
+                            vtkTextProperty *tprop, int dpi) = 0;
 
   // Description:
   // This function returns the font size (in points) required to fit the string
@@ -105,7 +104,7 @@ public:
   virtual int GetConstrainedFontSize(const char *str,
                                      vtkTextProperty *tprop,
                                      int targetWidth, int targetHeight,
-                                     unsigned int dpi);
+                                     int dpi);
 
   // Description:
   // Set to true if the graphics implmentation requires texture image dimensions

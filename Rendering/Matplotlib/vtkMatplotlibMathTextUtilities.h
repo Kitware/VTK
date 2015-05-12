@@ -50,11 +50,11 @@ public:
   // box is the anchor point described by the horizontal and vertical
   // justification text property variables.
   // Returns true on success, false otherwise.
-  bool GetBoundingBox(vtkTextProperty *tprop, const char *str,
-                      unsigned int dpi, int bbox[4]);
+  bool GetBoundingBox(vtkTextProperty *tprop, const char *str, int dpi,
+                      int bbox[4]);
 
-  bool GetMetrics(vtkTextProperty *tprop, const char *str,
-                  unsigned int dpi, vtkTextRenderer::Metrics &metrics);
+  bool GetMetrics(vtkTextProperty *tprop, const char *str, int dpi,
+                  vtkTextRenderer::Metrics &metrics);
 
   // Description:
   // Render the given string @a str into the vtkImageData @a data with a
@@ -66,14 +66,15 @@ public:
   // described by the text property's vertical and horizontal justification
   // options.
   bool RenderString(const char *str, vtkImageData *data, vtkTextProperty *tprop,
-                    unsigned int dpi, int textDims[2] = NULL);
+                    int dpi, int textDims[2] = NULL);
 
   // Description:
   // Parse the MathText expression in str and fill path with a contour of the
   // glyphs. The origin of the path coordinates is aligned with the anchor point
   // described by the text property's horizontal and vertical justification
   // options.
-  bool StringToPath(const char *str, vtkPath *path, vtkTextProperty *tprop);
+  bool StringToPath(const char *str, vtkPath *path, vtkTextProperty *tprop,
+                    int dpi);
 
   // Description:
   // Set to true if the graphics implmentation requires texture image dimensions

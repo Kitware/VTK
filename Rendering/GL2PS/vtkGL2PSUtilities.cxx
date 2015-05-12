@@ -59,11 +59,13 @@ void vtkGL2PSUtilities::DrawString(const char *str,
     return;
     }
 
+  int dpi = vtkGL2PSUtilities::RenderWindow->GetDPI();
+
   // Draw the background if needed:
   if (tprop->GetBackgroundOpacity() > 0.)
     {
     vtkTextRenderer::Metrics metrics;
-    if (tren->GetMetrics(tprop, str, metrics))
+    if (tren->GetMetrics(tprop, str, metrics, dpi))
       {
       double bgPos[3] = { pos[0], pos[1], backgroundDepth };
       vtkGL2PSUtilities::ProjectPoint(bgPos);
@@ -106,7 +108,8 @@ void vtkGL2PSUtilities::DrawString(const char *str,
 
     GLfloat angle = static_cast<GLfloat>(tprop->GetOrientation());
 
-    GLint fontSize = static_cast<GLint>(tprop->GetFontSize());
+    // GL2PS assumes 72 DPI, so we'll have to adjust the font size:
+    GLint fontSize = static_cast<GLint>(tprop->GetFontSize() * (dpi / 72.));
 
     GL2PSrgba rgba;
     double rgbad[3];
@@ -123,7 +126,7 @@ void vtkGL2PSUtilities::DrawString(const char *str,
     {
     // Render the string to a path and then draw it to GL2PS:
     vtkNew<vtkPath> path;
-    tren->StringToPath(tprop, str, path.GetPointer());
+    tren->StringToPath(tprop, str, path.GetPointer(), dpi);
     // Get color
     double rgbd[3];
     tprop->GetColor(rgbd[0], rgbd[1], rgbd[2]);

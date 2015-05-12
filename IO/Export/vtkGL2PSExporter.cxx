@@ -734,14 +734,19 @@ void vtkGL2PSExporter::DrawTextActor3D(vtkTextActor3D *textAct,
   vtkTextProperty *tprop = textAct->GetTextProperty();
   vtkNew<vtkPath> textPath;
   vtkTextRenderer *tren = vtkTextRenderer::GetInstance();
-  if (tren)
+
+  if (!tren)
     {
-    tren->StringToPath(tprop, vtkStdString(string), textPath.GetPointer());
+    vtkWarningMacro(<<"Cannot generate path data from 3D text string '"
+                    << string << "': Text renderer unavailable.");
+    return;
     }
-  else
+
+  if (!tren->StringToPath(tprop, vtkStdString(string), textPath.GetPointer(),
+                          vtkTextActor3D::GetRenderedDPI()))
     {
-    vtkWarningMacro(<<"Cannot generate path data from 3D text string: "
-                    << string);
+    vtkWarningMacro(<<"Failed to generate path data from 3D text string '"
+                    << string << "': StringToPath failed.");
     return;
     }
 
@@ -783,7 +788,8 @@ void vtkGL2PSExporter::DrawTextActor3D(vtkTextActor3D *textAct,
                        textPos[2] + (forward[2] * 0.0001)};
 
     vtkTextRenderer::Metrics metrics;
-    if (tren->GetMetrics(tprop, string, metrics))
+    if (tren->GetMetrics(tprop, string, metrics,
+                         vtkTextActor3D::GetRenderedDPI()))
       {
       vtkNew<vtkPath> bgPath;
       bgPath->InsertNextPoint(static_cast<double>(metrics.TopLeft.GetX()),

@@ -33,6 +33,7 @@
 #include "vtkTextProperty.h"
 #include "vtkVectorText.h"
 #include "vtkViewport.h"
+#include "vtkWindow.h"
 
 vtkStandardNewMacro(vtkAxisActor);
 vtkCxxSetObjectMacro(vtkAxisActor, Camera, vtkCamera);
@@ -986,6 +987,13 @@ vtkAxisActor::SetLabelPositions2D(vtkViewport *viewport, bool force)
     return;
     }
 
+  vtkWindow *win = viewport->GetVTKWindow();
+  if (!win)
+    {
+    vtkErrorMacro(<<"No render window available: cannot determine DPI.");
+    return;
+    }
+
   for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
     {
     ptIdx = 4*i + 1;
@@ -1002,7 +1010,8 @@ vtkAxisActor::SetLabelPositions2D(vtkViewport *viewport, bool force)
 
     int bbox[4];
     if (!tren->GetBoundingBox(this->LabelActors2D[i]->GetTextProperty(),
-                              this->LabelActors2D[i]->GetInput(), bbox))
+                              this->LabelActors2D[i]->GetInput(), bbox,
+                              win->GetDPI()))
       {
       vtkErrorMacro(<< "Unable to calculate bounding box for label "
                     << this->LabelActors2D[i]->GetInput());

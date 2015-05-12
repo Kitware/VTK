@@ -249,11 +249,10 @@ void vtkGL2PSContextDevice2D::DrawMathTextString(float apoint[],
 {
   vtkNew<vtkPath> path;
   bool ok;
-  if (vtkMathTextUtilities::GetInstance())
+  if (vtkMathTextUtilities *mtu = vtkMathTextUtilities::GetInstance())
     {
-    ok = vtkMathTextUtilities::GetInstance()->StringToPath(string.c_str(),
-                                                           path.GetPointer(),
-                                                           this->TextProp);
+    ok = mtu->StringToPath(string.c_str(), path.GetPointer(), this->TextProp,
+                           this->RenderWindow->GetDPI());
     }
   else
     {

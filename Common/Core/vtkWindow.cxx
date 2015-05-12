@@ -32,7 +32,7 @@ vtkWindow::vtkWindow()
   strcpy( this->WindowName, windowname );
   this->Erase = 1;
   this->DoubleBuffer = 0;
-  this->DPI = 120;
+  this->DPI = 72;
   this->TileViewport[0] = 0;
   this->TileViewport[1] = 0;
   this->TileViewport[2] = 1.0;

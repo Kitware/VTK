@@ -21,7 +21,9 @@ if(MATPLOTLIB_FOUND)
     )
 
   if(VTK_GHOSTSCRIPT_EXECUTABLE)
+    set(TestGL2PSFontDPIScaling_ARGS DATA{../Data/Fonts/DejaVuSans.ttf})
     vtk_add_test_cxx(${vtk-module}CxxTests GL2PSTests
+      TestGL2PSFontDPIScaling.cxx
       TestGL2PSMathTextActor.cxx
       TestGL2PSMathTextActor3D.cxx
       TestGL2PSMathTextOutput.cxx
