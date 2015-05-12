@@ -623,34 +623,11 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
       assert("check: impossible case" && 0);
       break;
     case VTK_INT:
-      type = GL_INT;
-      oglScale =
-        2.0/(static_cast<double>(VTK_INT_MAX) - VTK_INT_MIN);
-      oglBias = -1.0 - VTK_INT_MIN*oglScale;
-      switch(noOfComponents)
-        {
-        case 1:
-          internalFormat = GL_R16_SNORM;
-          format = GL_RED;
-          break;
-        case 2:
-          internalFormat = GL_RG;
-          format = GL_RG;
-          break;
-        case 3:
-          internalFormat = GL_RGB;
-          format = GL_RGB;
-          break;
-        case 4:
-          internalFormat = GL_RGBA;
-          format = GL_RGBA;
-          break;
-        }
-      break;
     case VTK_DOUBLE:
     case VTK___INT64:
     case VTK_LONG:
     case VTK_LONG_LONG:
+    case VTK_UNSIGNED_INT:
     case VTK_UNSIGNED___INT64:
     case VTK_UNSIGNED_LONG:
     case VTK_UNSIGNED_LONG_LONG:
@@ -715,30 +692,6 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
     case VTK_UNSIGNED_SHORT:
       type = GL_UNSIGNED_SHORT;
       oglScale = 1.0/VTK_UNSIGNED_SHORT_MAX;
-      oglBias = 0.0;
-      switch(noOfComponents)
-        {
-        case 1:
-          internalFormat = GL_R16;
-          format = GL_RED;
-          break;
-        case 2:
-          internalFormat = GL_RG;
-          format = GL_RG;
-          break;
-        case 3:
-          internalFormat = GL_RGB;
-          format = GL_RGB;
-          break;
-        case 4:
-          internalFormat = GL_RGBA;
-          format = GL_RGBA;
-          break;
-        }
-      break;
-    case VTK_UNSIGNED_INT:
-      type = GL_UNSIGNED_INT;
-      oglScale = 1.0/VTK_UNSIGNED_INT_MAX;
       oglBias = 0.0;
       switch(noOfComponents)
         {
