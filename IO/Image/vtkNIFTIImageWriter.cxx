@@ -342,9 +342,9 @@ void vtkNIFTIImageWriterSetQForm(
     // We will be reversing the order of the slices, so the first VTK
     // slice will be at the position of the last NIfTI slice, and we
     // must adjust the offset to compensate for this.
-    mmat[3] -= rmat[0][2]*hdr->pixdim[3]*(hdr->dim[3] - 1);
-    mmat[7] -= rmat[1][2]*hdr->pixdim[3]*(hdr->dim[3] - 1);
-    mmat[11] -= rmat[2][2]*hdr->pixdim[3]*(hdr->dim[3] - 1);
+    mmat[3] += rmat[0][2] * hdr->pixdim[3] * (hdr->dim[3] - 1);
+    mmat[7] += rmat[1][2] * hdr->pixdim[3] * (hdr->dim[3] - 1);
+    mmat[11] += rmat[2][2] * hdr->pixdim[3] * (hdr->dim[3] - 1);
     }
 
   hdr->pixdim[0] = qfac;
@@ -367,9 +367,9 @@ void vtkNIFTIImageWriterSetSForm(
     // orientation vector (the third column of the matrix) to compensate.
 
     // adjust the offset to compensate for changed slice ordering
-    mmat[3] -= mmat[2]*(hdr->dim[3] - 1);
-    mmat[7] -= mmat[6]*(hdr->dim[3] - 1);
-    mmat[11] -= mmat[10]*(hdr->dim[3] - 1);
+    mmat[3] += mmat[2] * hdr->pixdim[3] * (hdr->dim[3] - 1);
+    mmat[7] += mmat[6] * hdr->pixdim[3] * (hdr->dim[3] - 1);
+    mmat[11] += mmat[10] * hdr->pixdim[3] * (hdr->dim[3] - 1);
 
     // reverse the slice orientation vector
     mmat[2] = -mmat[2];

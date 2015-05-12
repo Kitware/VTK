@@ -176,6 +176,7 @@ static double TestReadWriteRead(
   reader2->TimeAsVectorOn();
   reader2->Update();
 
+  // the images should be identical
   vtkNew<vtkImageMathematics> diff;
   diff->SetOperationToSubtract();
   diff->SetInputConnection(0,reader->GetOutputPort());
@@ -184,6 +185,55 @@ static double TestReadWriteRead(
   double diffrange[2];
   diff->GetOutput()->GetScalarRange(diffrange);
   double differr = diffrange[0]*diffrange[0] + diffrange[1]*diffrange[1];
+
+  // the matrices should be within tolerance
+  if (writer->GetQFormMatrix())
+    {
+    vtkNew<vtkMatrix4x4> m;
+    m->DeepCopy(writer->GetQFormMatrix());
+    m->Invert();
+    vtkMatrix4x4::Multiply4x4(m.GetPointer(), reader2->GetQFormMatrix(),
+                              m.GetPointer());
+    double sqdiff = 0.0;
+    for (int i = 0; i < 4; i++)
+      {
+      for (int j = 0; j < 4; j++)
+        {
+        double d = (m->GetElement(i, j) - (i == j));
+        sqdiff += d*d;
+        }
+      }
+    if (sqdiff > 1e-10)
+      {
+      cerr << "Mismatched read/write QFormMatrix:\n";
+      m->Print(cerr);
+      differr = 1.0;
+      }
+    }
+
+  if (writer->GetSFormMatrix())
+    {
+    vtkNew<vtkMatrix4x4> m;
+    m->DeepCopy(writer->GetSFormMatrix());
+    m->Invert();
+    vtkMatrix4x4::Multiply4x4(m.GetPointer(), reader2->GetSFormMatrix(),
+                              m.GetPointer());
+    double sqdiff = 0.0;
+    for (int i = 0; i < 4; i++)
+      {
+      for (int j = 0; j < 4; j++)
+        {
+        double d = (m->GetElement(i, j) - (i == j));
+        sqdiff += d*d;
+        }
+      }
+    if (sqdiff > 1e-10)
+      {
+      cerr << "Mismatched read/write SFormMatrix:\n";
+      m->Print(cerr);
+      differr = 1.0;
+      }
+    }
 
   return differr;
 }

@@ -876,9 +876,9 @@ int vtkNIFTIImageReader::RequestInformation(
   //    c) reorder the slices, multiply the 3rd column by -1, and adjust
   //       the 4th column of the matrix:
   //
-  //         M14 = S14 - (number_of_slices - 1)*S13
-  //         M24 = S24 - (number_of_slices - 1)*S23
-  //         M34 = S34 - (number_of_slices - 1)*S33
+  //         M14 = S14 + (number_of_slices - 1)*S13
+  //         M24 = S24 + (number_of_slices - 1)*S23
+  //         M34 = S34 + (number_of_slices - 1)*S33
   //
   //       The third choice will provide a VTK image that has positive
   //       spacing and a matrix with a positive determinant.
@@ -1028,9 +1028,9 @@ int vtkNIFTIImageReader::RequestInformation(
       mmat[10] = -mmat[10];
 
       // adjust the offset to compensate for changed slice ordering
-      mmat[3] -= hdr2->srow_x[2]*(hdr2->dim[3] - 1);
-      mmat[7] -= hdr2->srow_y[2]*(hdr2->dim[3] - 1);
-      mmat[11] -= hdr2->srow_z[2]*(hdr2->dim[3] - 1);
+      mmat[3] += hdr2->srow_x[2]*(hdr2->dim[3] - 1);
+      mmat[7] += hdr2->srow_y[2]*(hdr2->dim[3] - 1);
+      mmat[11] += hdr2->srow_z[2]*(hdr2->dim[3] - 1);
       }
 
     this->SFormMatrix = vtkMatrix4x4::New();
