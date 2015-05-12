@@ -725,18 +725,13 @@ namespace vtkvolume
           shaderStr += std::string("\
             \n  if (component == " + toString.str() + ")");
 
-          if (i == 0)
-            {
-             // Reset
-             toString.str("");
-             toString.clear();
-            }
-
           shaderStr += std::string("\
             \n    {\
             \n    return computeLighting(vec4(texture1D(\
-            \n      in_colorTransferFunc" + toString.str() + ",\
-            \n      scalar[component]).xyz,\
+            \n      in_colorTransferFunc");
+          shaderStr += (i == 0 ? "" : toString.str());
+          shaderStr += std::string(",\
+            \n      scalar[" + toString.str() + "]).xyz,\
             \n      computeOpacity(scalar, component)));\
             \n    }");
 
@@ -799,17 +794,11 @@ namespace vtkvolume
           shaderStr += std::string("\
             \n  if (component == " + toString.str() + ")");
 
-           if (i == 0)
-             {
-              // Reset
-              toString.str("");
-              toString.clear();
-             }
-
           shaderStr += std::string("\
             \n    {\
-            \n    return texture1D(in_opacityTransferFunc" + toString.str() + ",\
-            \n                     scalar[component]).r;\
+            \n    return texture1D(in_opacityTransferFunc");
+          shaderStr += (i == 0 ? "" : toString.str());
+          shaderStr += std::string(",scalar[" + toString.str() + "]).r;\
             \n    }");
 
            // Reset
