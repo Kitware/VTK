@@ -1884,10 +1884,26 @@ bool vtkFreeTypeTools::RenderCharacter(CharType character, int &x, int &y,
   FT_Bitmap *bitmap = this->GetBitmap(character, &iMetaData->scaler,
                                       glyphIndex, bitmapGlyph);
 
+  // Add the kerning
+  if (iMetaData->faceHasKerning && previousGlyphIndex && glyphIndex)
+    {
+    FT_Vector kerningDelta;
+    if (FT_Get_Kerning(iMetaData->face, previousGlyphIndex, glyphIndex,
+                       FT_KERNING_DEFAULT, &kerningDelta) == 0)
+      {
+      if (metaData.faceIsRotated) // PR#15301
+        {
+        FT_Vector_Transform(&kerningDelta, &metaData.rotation);
+        }
+      x += kerningDelta.x >> 6;
+      y += kerningDelta.y >> 6;
+      }
+    }
+  previousGlyphIndex = glyphIndex;
+
   if (!bitmap)
     {
     // TODO This should draw an empty rectangle.
-    previousGlyphIndex = glyphIndex;
     return false;
     }
 
@@ -1898,29 +1914,11 @@ bool vtkFreeTypeTools::RenderCharacter(CharType character, int &x, int &y,
     // from the glyph origin (0,0) to the topmost pixel of the glyph bitmap
     // (more precisely, to the pixel just above the bitmap). This distance is
     // expressed in integer pixels, and is positive for upwards y.
-    int penX = x + bitmapGlyph->left;
-    int penY = y + bitmapGlyph->top - 1;
-
-    // Add the kerning
-    if (iMetaData->faceHasKerning && previousGlyphIndex && glyphIndex)
-      {
-      FT_Vector kerningDelta;
-      if (FT_Get_Kerning(iMetaData->face, previousGlyphIndex, glyphIndex,
-                         FT_KERNING_DEFAULT, &kerningDelta) == 0)
-        {
-        if (metaData.faceIsRotated) // PR#15301
-          {
-          FT_Vector_Transform(&kerningDelta, &metaData.rotation);
-          }
-        penX += kerningDelta.x >> 6;
-        penY += kerningDelta.y >> 6;
-        }
-      }
-    previousGlyphIndex = glyphIndex;
+    vtkVector2i pen(x + bitmapGlyph->left, y + bitmapGlyph->top - 1);
 
     // Render the current glyph into the image
-    unsigned char *ptr =
-        static_cast<unsigned char *>(image->GetScalarPointer(penX, penY, 0));
+    unsigned char *ptr = static_cast<unsigned char *>(
+          image->GetScalarPointer(pen[0], pen[1], 0));
     if (ptr)
       {
       int dataPitch = (-iMetaData->imageDimensions[0] - bitmap->width) *
@@ -2009,6 +2007,22 @@ bool vtkFreeTypeTools::RenderCharacter(CharType character, int &x, int &y,
   FT_OutlineGlyph outlineGlyph;
   FT_Outline *outline = this->GetOutline(character, &metaData.scaler,
                                          glyphIndex, outlineGlyph);
+
+  // Add the kerning
+  if (metaData.faceHasKerning && previousGlyphIndex && glyphIndex)
+    {
+    FT_Vector kerningDelta;
+    FT_Get_Kerning(metaData.face, previousGlyphIndex, glyphIndex,
+                   FT_KERNING_DEFAULT, &kerningDelta);
+    if (metaData.faceIsRotated) // PR#15301
+      {
+      FT_Vector_Transform(&kerningDelta, &metaData.rotation);
+      }
+    x += kerningDelta.x >> 6;
+    y += kerningDelta.y >> 6;
+    }
+  previousGlyphIndex = glyphIndex;
+
   if (!outline)
     {
     // TODO render an empty box.
@@ -2019,21 +2033,6 @@ bool vtkFreeTypeTools::RenderCharacter(CharType character, int &x, int &y,
     {
     int pen_x = x;
     int pen_y = y;
-
-    // Add the kerning
-    if (metaData.faceHasKerning && previousGlyphIndex && glyphIndex)
-      {
-      FT_Vector kerningDelta;
-      FT_Get_Kerning(metaData.face, previousGlyphIndex, glyphIndex,
-                     FT_KERNING_DEFAULT, &kerningDelta);
-      if (metaData.faceIsRotated) // PR#15301
-        {
-        FT_Vector_Transform(&kerningDelta, &metaData.rotation);
-        }
-      pen_x += kerningDelta.x >> 6;
-      pen_y += kerningDelta.y >> 6;
-      }
-    previousGlyphIndex = glyphIndex;
 
     short point = 0;
     for (short contour = 0; contour < outline->n_contours; ++contour)
@@ -2445,6 +2444,10 @@ void vtkFreeTypeTools::GetLineMetrics(T begin, T end, MetaData &metaData,
 
   for (; begin != end; ++begin)
     {
+    // Get the bitmap and glyph index:
+    FT_Bitmap *bitmap = this->GetBitmap(*begin, &metaData.scaler, gindex,
+                                        bitmapGlyph);
+
     // Adjust the pen location for kerning
     if (metaData.faceHasKerning && gindexLast && gindex)
       {
@@ -2463,10 +2466,9 @@ void vtkFreeTypeTools::GetLineMetrics(T begin, T end, MetaData &metaData,
         pen[1] += delta.y >> 6;
         }
       }
+    gindexLast = gindex;
 
     // Use the dimensions of the bitmap glyph to get a tight bounding box.
-    FT_Bitmap *bitmap = this->GetBitmap(*begin, &metaData.scaler, gindex,
-                                        bitmapGlyph);
     if (bitmap)
       {
       bbox[0] = std::min(bbox[0], pen[0] + bitmapGlyph->left);
