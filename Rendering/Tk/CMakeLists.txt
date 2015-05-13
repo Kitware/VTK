@@ -82,7 +82,7 @@ if(TK_FOUND AND VTK_USE_TK)
         message(FATAL_ERROR "X11_Xt_LIB could not be found. Required for VTK X lib.")
       endif()
       set(Module_TCL_SRCS ${Module_TCL_SRCS} vtkXRenderWindowTclInteractor.cxx)
-      set(Module_TCL_LIBS vtksys vtkRenderingOpenGL ${TK_LIBRARY} ${X11_LIBRARIES})
+      set(Module_TCL_LIBS vtksys vtkRendering${VTK_RENDERING_BACKEND} ${TK_LIBRARY} ${X11_LIBRARIES})
     endif()
 
     if(VTK_USE_CARBON)
@@ -126,7 +126,7 @@ if(TK_FOUND AND VTK_USE_TK)
 
     set(Module_PYTHON_LIBS ${VTK_TK_LIBRARIES})
     if(VTK_USE_X)
-      set(Module_PYTHON_LIBS vtksys vtkRenderingOpenGL ${Module_PYTHON_LIBS}
+      set(Module_PYTHON_LIBS vtksys vtkRendering${VTK_RENDERING_BACKEND} ${Module_PYTHON_LIBS}
           ${X11_LIBRARIES})
     endif()
 
