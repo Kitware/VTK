@@ -123,6 +123,13 @@ public:
   vtkSetClampMacro(DPI,int,1,3000);
 
   // Description:
+  // Attempt to detect and set the DPI of the display device by querying the
+  // system. Note that this is not supported on all backends, and this method
+  // will return false if the DPI could not be detected. Use GetDPI() to
+  // inspect the detected value.
+  virtual bool DetectDPI() { return false; }
+
+  // Description:
   // Create a window in memory instead of on the screen. This may not be
   // supported for every type of window and on some windows you may need to
   // invoke this prior to the first render.

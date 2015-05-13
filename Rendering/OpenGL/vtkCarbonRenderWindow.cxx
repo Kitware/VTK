@@ -802,9 +802,6 @@ void vtkCarbonRenderWindow::WindowInitialize()
     ren->SetRenderWindow(0);
     ren->SetRenderWindow(this);
     }
-
-  // set the DPI
-  this->SetDPI(72); // this may need to be more clever some day
 }
 
 //-----------------------------------------------------------------------------
