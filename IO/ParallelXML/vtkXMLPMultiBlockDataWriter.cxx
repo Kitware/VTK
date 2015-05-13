@@ -172,8 +172,11 @@ void vtkXMLPMultiBlockDataWriter::FillDataTypes(vtkCompositeDataSet* hdInput)
   this->Internal->Allocate(numBlocks, this->Controller->GetNumberOfProcesses());
 
   // gather on to root node.
-  this->Controller->Gather(myDataTypes, &this->Internal->PieceProcessList[0],
-                           numBlocks, 0);
+  if(numBlocks)
+    {
+    this->Controller->Gather(myDataTypes, &this->Internal->PieceProcessList[0],
+                             numBlocks, 0);
+    }
 }
 
 //----------------------------------------------------------------------------
