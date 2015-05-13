@@ -36,7 +36,9 @@ extern "C" {
 #endif
 }
 
+#ifdef __GNUC__
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 
 #if LIBAVCODEC_VERSION_MAJOR < 55
 # define AV_CODEC_ID_MJPEG CODEC_ID_MJPEG
