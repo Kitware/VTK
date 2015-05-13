@@ -62,12 +62,19 @@ public:
   static vtkDiscreteMarchingCubes *New();
   vtkTypeMacro(vtkDiscreteMarchingCubes,vtkMarchingCubes);
 
+  // Description:
+  // Set/Get the computation of neighbouring voxel values.
+  vtkSetMacro(ComputeNeighbours,int);
+  vtkGetMacro(ComputeNeighbours,int);
+  vtkBooleanMacro(ComputeNeighbours,int);
+
 protected:
   vtkDiscreteMarchingCubes();
   ~vtkDiscreteMarchingCubes();
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
+  int ComputeNeighbours;
 
 private:
   vtkDiscreteMarchingCubes(const vtkDiscreteMarchingCubes&);  // Not implemented.
