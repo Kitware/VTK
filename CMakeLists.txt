@@ -194,6 +194,9 @@ else()
   option(BUILD_SHARED_LIBS "Build VTK with shared libraries." ON)
 endif()
 
+# test having OpenGL2 be on for buildbot
+set(VTK_RENDERING_BACKEND OpenGL2)
+
 set(VTK_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 
 #-----------------------------------------------------------------------------
