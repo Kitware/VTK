@@ -164,6 +164,7 @@ vtkglX::GLXFBConfig* vtkXOpenGLRenderWindowTryForFBConfig(Display *DisplayId,
   if (doublebuff)
     {
     attributes[index++] = GLX_DOUBLEBUFFER;
+    attributes[index++] = True;
     }
   if (stencil)
     {
@@ -174,6 +175,7 @@ vtkglX::GLXFBConfig* vtkXOpenGLRenderWindowTryForFBConfig(Display *DisplayId,
     {
     // also try for STEREO
     attributes[index++] = GLX_STEREO;
+    attributes[index++] = True;
     }
   if (multisamples)
     {
@@ -221,6 +223,7 @@ XVisualInfo *vtkXOpenGLRenderWindowTryForVisual(Display *DisplayId,
   if (doublebuff)
     {
     attributes[index++] = GLX_DOUBLEBUFFER;
+    attributes[index++] = True;
     }
   if (stencil)
     {
@@ -231,6 +234,7 @@ XVisualInfo *vtkXOpenGLRenderWindowTryForVisual(Display *DisplayId,
     {
     // also try for STEREO
     attributes[index++] = GLX_STEREO;
+    attributes[index++] = True;
     }
   if (multisamples)
     {

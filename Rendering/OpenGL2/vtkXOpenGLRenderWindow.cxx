@@ -160,6 +160,7 @@ GLXFBConfig* vtkXOpenGLRenderWindowTryForFBConfig(Display *DisplayId,
   if (doublebuff)
     {
     attributes[index++] = GLX_DOUBLEBUFFER;
+    attributes[index++] = True;
     }
   if (stencil)
     {
@@ -170,6 +171,7 @@ GLXFBConfig* vtkXOpenGLRenderWindowTryForFBConfig(Display *DisplayId,
     {
     // also try for STEREO
     attributes[index++] = GLX_STEREO;
+    attributes[index++] = True;
     }
   if (multisamples)
     {
@@ -708,12 +710,6 @@ void vtkXOpenGLRenderWindow::DestroyWindow()
 
     if (this->Internal->ContextId)
       {
-      /* first delete all the old lights */
-      for (short cur_light = GL_LIGHT0; cur_light < GL_LIGHT0+MAX_LIGHTS; cur_light++)
-        {
-        glDisable(static_cast<GLenum>(cur_light));
-        }
-
       glFinish();
       glXDestroyContext(this->DisplayId, this->Internal->ContextId);
       }
