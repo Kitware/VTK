@@ -23,7 +23,7 @@ set(_JsonCpp_version_args)
 if (EXISTS "${JsonCpp_INCLUDE_DIR}/json/version.h")
   file(STRINGS "${JsonCpp_INCLUDE_DIR}/json/version.h" _JsonCpp_version_contents REGEX "#\\s+define\\s+JSONCPP_VERSION_[A-Z]+")
   foreach (_JsonCpp_version_part MAJOR MINOR PATCH)
-    string(REGEX REPLACE ".*#\\s*define ARMA_VERSION_${_JsonCpp_version_part}\\s+([0-9]+).*" "\\1" JsonCpp_VERSION_${_JsonCpp_version_part} "${_JsonCpp_version_contents}")
+    string(REGEX REPLACE ".*#\\s*define JSONCPP_VERSION_${_JsonCpp_version_part}\\s+([0-9]+).*" "\\1" JsonCpp_VERSION_${_JsonCpp_version_part} "${_JsonCpp_version_contents}")
   endforeach ()
 
   set(JsonCpp_VERSION_STRING "${JsonCpp_VERSION_MAJOR}.${JsonCpp_VERSION_MINOR}.${JsonCpp_VERSION_PATCH}")
