@@ -319,25 +319,25 @@ void vtkOpenGLContextDevice2D::BuildVBO(
 
   std::vector<float> va;
   va.resize(nv*stride);
-  unsigned char c[4];
+  vtkgl::vtkucfloat c;
   for (int i = 0; i < nv; i++)
     {
     va[i*stride] = f[i*2];
     va[i*stride+1] = f[i*2+1];
     if (colors)
       {
-      c[0] = colors[nc*i];
-      c[1] = colors[nc*i+1];
-      c[2] = colors[nc*i+2];
+      c.c[0] = colors[nc*i];
+      c.c[1] = colors[nc*i+1];
+      c.c[2] = colors[nc*i+2];
       if (nc == 4)
         {
-        c[3] = colors[nc*i+3];
+        c.c[3] = colors[nc*i+3];
         }
       else
         {
-        c[3] =  255;
+        c.c[3] =  255;
         }
-      va[i*stride+cOffset] = *reinterpret_cast<float *>(c);
+      va[i*stride+cOffset] = c.f;
       }
     if (tcoords)
       {
