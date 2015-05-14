@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkAtomicInt.cxx
+  Module:    vtkAtomic.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-#include "vtkAtomicInt.h"
+#include "vtkAtomic.h"
 
 
 #if !defined(VTK_GCC_ATOMICS_32) && !defined(VTK_APPLE_ATOMICS_32) &&\
@@ -38,14 +38,14 @@
 class CriticalSectionGuard
 {
 public:
-  CriticalSectionGuard(vtkSimpleCriticalSection &cs) : cs(cs)
+  CriticalSectionGuard(vtkSimpleCriticalSection &cs) : CriticalSection(cs)
   {
-    this->cs.Lock();
+    this->CriticalSection.Lock();
   }
 
   ~CriticalSectionGuard()
   {
-    this->cs.Unlock();
+    this->CriticalSection.Unlock();
   }
 
 private:
@@ -53,7 +53,7 @@ private:
   CriticalSectionGuard(const CriticalSectionGuard&);
   void operator=(const CriticalSectionGuard&);
 
-  vtkSimpleCriticalSection &cs;
+  vtkSimpleCriticalSection &CriticalSection;
 };
 
 #if defined(VTK_LOCK_BASED_ATOMICS_64)

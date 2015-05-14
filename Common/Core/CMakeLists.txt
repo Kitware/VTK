@@ -55,7 +55,7 @@ if ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "TBB")
   set(VTK_SMP_IMPLEMENTATION_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SMP/TBB")
   set(VTK_SMP_SOURCES ${VTK_SMP_IMPLEMENTATION_DIR}/vtkSMPTools.cxx)
   set(VTK_SMP_HEADERS_TO_CONFIG
-    vtkAtomicInt.h vtkSMPToolsInternal.h vtkSMPThreadLocal.h)
+    vtkAtomic.h vtkSMPToolsInternal.h vtkSMPThreadLocal.h)
 
 elseif ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "Kaapi")
   find_package(XKaapi REQUIRED)
@@ -85,10 +85,10 @@ endif()
 
 if (${VTK_SMP_USE_DEFAULT_ATOMICS})
   set(VTK_ATOMICS_DEFAULT_IMPL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SMP/Sequential")
-  list(APPEND VTK_SMP_SOURCES ${VTK_ATOMICS_DEFAULT_IMPL_DIR}/vtkAtomicInt.cxx)
-  configure_file(${VTK_ATOMICS_DEFAULT_IMPL_DIR}/vtkAtomicInt.h.in
-    ${CMAKE_CURRENT_BINARY_DIR}/vtkAtomicInt.h COPYONLY)
-  list(APPEND VTK_SMP_HEADERS ${CMAKE_CURRENT_BINARY_DIR}/vtkAtomicInt.h)
+  list(APPEND VTK_SMP_SOURCES ${VTK_ATOMICS_DEFAULT_IMPL_DIR}/vtkAtomic.cxx)
+  configure_file(${VTK_ATOMICS_DEFAULT_IMPL_DIR}/vtkAtomic.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/vtkAtomic.h COPYONLY)
+  list(APPEND VTK_SMP_HEADERS ${CMAKE_CURRENT_BINARY_DIR}/vtkAtomic.h)
 endif()
 
 foreach (HDR_FILE ${VTK_SMP_HEADERS_TO_CONFIG})
@@ -536,6 +536,8 @@ set_source_files_properties(
   vtkArrayIteratorTemplateImplicit.txx
   vtkArrayPrint.h
   vtkArrayPrint.txx
+  vtkAtomicTypeConcepts.h
+  vtkAtomicTypes.h
   vtkAutoInit.h
   vtkDataArrayTemplate.txx
   vtkDataArrayTemplateHelper.cxx

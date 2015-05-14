@@ -73,7 +73,7 @@
 #ifndef vtkSMPThreadLocal_h
 #define vtkSMPThreadLocal_h
 
-#include "vtkAtomicInt.h"
+#include "vtkAtomicTypes.h"
 #include "vtkSystemIncludes.h"
 
 #include <vector>
@@ -90,7 +90,7 @@ class vtkSMPThreadLocal
 public:
   // Description:
   // Default constructor. Creates a default exemplar.
-  vtkSMPThreadLocal() : NumInitialized(0)
+  vtkSMPThreadLocal() : Count(0)
     {
       this->Initialize();
     }
@@ -99,7 +99,7 @@ public:
   // Constructor that allows the specification of an exemplar object
   // which is used when constructing objects when Local() is first called.
   // Note that a copy of the exemplar is created using its copy constructor.
-  vtkSMPThreadLocal(const T& exemplar) : NumInitialized(0), Exemplar(exemplar)
+  vtkSMPThreadLocal(const T& exemplar) : Count(0), Exemplar(exemplar)
     {
       this->Initialize();
     }
@@ -119,7 +119,7 @@ public:
         {
         this->Internal[tid] = this->Exemplar;
         this->Initialized[tid] = true;
-        ++this->NumInitialized;
+        ++this->Count;
         }
       return this->Internal[tid];
     }
@@ -128,7 +128,7 @@ public:
   // Return the number of thread local objects that have been initialized
   size_t size() const
     {
-      return this->NumInitialized.load();
+      return this->Count.load();
     }
 
   // Description:
@@ -238,7 +238,7 @@ public:
 private:
   TLS Internal;
   std::vector<unsigned char> Initialized;
-  vtkAtomicInt<size_t> NumInitialized;
+  vtkAtomicIdType Count;
   T Exemplar;
 
   void Initialize()

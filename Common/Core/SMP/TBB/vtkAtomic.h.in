@@ -1,7 +1,7 @@
  /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkAtomicInt.h
+  Module:    vtkAtomic.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,49 +12,35 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAtomicInt -
+// .NAME vtkAtomic -
 // .SECTION Description
 
-#ifndef vtkAtomicInt_h
-#define vtkAtomicInt_h
+#ifndef vtkAtomic_h
+#define vtkAtomic_h
+
+#include "vtkAtomicTypeConcepts.h"
 
 #include <tbb/atomic.h>
 
 #include <cstddef>
-#include <limits>
 
-#ifndef __WRAP__
-namespace detail
-{
-template <bool> struct CompileTimeCheck;
-template <> struct CompileTimeCheck<true> {};
 
-template <typename T> struct SupportedIntegralType
-{
-  CompileTimeCheck<std::numeric_limits<T>::is_specialized> c1;
-  CompileTimeCheck<std::numeric_limits<T>::is_integer> c2;
-  CompileTimeCheck<sizeof(T) == 4 || sizeof(T) == 8> c3;
-};
-
-}
-#endif // __WRAP__
-
-template <typename T> class vtkAtomicInt : detail::SupportedIntegralType<T>
+template <typename T> class vtkAtomic : vtk::atomic::detail::IntegralType<T>
 {
 public:
-  vtkAtomicInt()
+  vtkAtomic()
   {
     this->Atomic = 0;
   }
 
-  vtkAtomicInt(T val)
+  vtkAtomic(T val)
   {
     this->Atomic = val;
   }
 
-  vtkAtomicInt(const vtkAtomicInt<T> &ai)
+  vtkAtomic(const vtkAtomic<T> &atomic)
   {
-    this->Atomic = ai.Atomic;
+    this->Atomic = atomic.Atomic;
   }
 
   T operator++()
@@ -98,9 +84,9 @@ public:
     return val;
   }
 
-  vtkAtomicInt<T>& operator=(const vtkAtomicInt<T> &ai)
+  vtkAtomic<T>& operator=(const vtkAtomic<T> &atomic)
   {
-    this->Atomic = ai.Atomic;
+    this->Atomic = atomic.Atomic;
     return *this;
   }
 
@@ -119,22 +105,22 @@ private:
 };
 
 
-template <typename T> class vtkAtomicInt<T*>
+template <typename T> class vtkAtomic<T*>
 {
 public:
-  vtkAtomicInt()
+  vtkAtomic()
   {
     this->Atomic = 0;
   }
 
-  vtkAtomicInt(T* val)
+  vtkAtomic(T* val)
   {
     this->Atomic = val;
   }
 
-  vtkAtomicInt(const vtkAtomicInt<T*> &ai)
+  vtkAtomic(const vtkAtomic<T*> &atomic)
   {
-    this->Atomic = ai.Atomic;
+    this->Atomic = atomic.Atomic;
   }
 
   T* operator++()
@@ -157,12 +143,12 @@ public:
     return this->Atomic--;
   }
 
-  T* operator+=(ptrdiff_t val)
+  T* operator+=(std::ptrdiff_t val)
   {
     return this->Atomic += val;
   }
 
-  T* operator-=(ptrdiff_t val)
+  T* operator-=(std::ptrdiff_t val)
   {
     return this->Atomic -= val;
   }
@@ -178,9 +164,9 @@ public:
     return val;
   }
 
-  vtkAtomicInt<T*>& operator=(const vtkAtomicInt<T*> &ai)
+  vtkAtomic<T*>& operator=(const vtkAtomic<T*> &atomic)
   {
-    this->Atomic = ai.Atomic;
+    this->Atomic = atomic.Atomic;
     return *this;
   }
 
@@ -199,22 +185,22 @@ private:
 };
 
 
-template <> class vtkAtomicInt<void*>
+template <> class vtkAtomic<void*>
 {
 public:
-  vtkAtomicInt()
+  vtkAtomic()
   {
     this->Atomic = 0;
   }
 
-  vtkAtomicInt(void* val)
+  vtkAtomic(void* val)
   {
     this->Atomic = val;
   }
 
-  vtkAtomicInt(const vtkAtomicInt<void*> &ai)
+  vtkAtomic(const vtkAtomic<void*> &atomic)
   {
-    this->Atomic = ai.Atomic;
+    this->Atomic = atomic.Atomic;
   }
 
   operator void*() const
@@ -228,9 +214,9 @@ public:
     return val;
   }
 
-  vtkAtomicInt<void*>& operator=(const vtkAtomicInt<void*> &ai)
+  vtkAtomic<void*>& operator=(const vtkAtomic<void*> &atomic)
   {
-    this->Atomic = ai.Atomic;
+    this->Atomic = atomic.Atomic;
     return *this;
   }
 
@@ -249,4 +235,4 @@ private:
 };
 
 #endif
-// VTK-HeaderTest-Exclude: vtkAtomicInt.h
+// VTK-HeaderTest-Exclude: vtkAtomic.h

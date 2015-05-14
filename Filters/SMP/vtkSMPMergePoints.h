@@ -31,7 +31,7 @@
 #include "vtkFiltersSMPModule.h" // For export macro
 #include "vtkMergePoints.h"
 #include "vtkIdList.h" // For inline functions
-#include "vtkAtomicInt.h" // For the atomic integer used in Merge()
+#include "vtkAtomicTypes.h" // For the atomic integer used in Merge()
 
 class vtkPointData;
 
@@ -99,7 +99,7 @@ protected:
   vtkSMPMergePoints();
   ~vtkSMPMergePoints();
 
-  vtkAtomicInt<vtkIdType> AtomicInsertionId;
+  vtkAtomicIdType AtomicInsertionId;
 
 private:
   vtkSMPMergePoints(const vtkSMPMergePoints&); // Not implemented
