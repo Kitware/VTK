@@ -15,6 +15,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   BoxClipTetrahedra.cxx
   BoxClipTriangulateAndInterpolate.cxx
   BoxClipTriangulate.cxx,NO_VALID
+  TestAngularPeriodicFilter.cxx
   TestAppendPoints.cxx,NO_VALID
   TestBooleanOperationPolyDataFilter2.cxx
   TestBooleanOperationPolyDataFilter.cxx

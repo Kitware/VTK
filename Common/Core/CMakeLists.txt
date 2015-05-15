@@ -106,6 +106,7 @@ include_directories(${VTK_SOURCE_DIR}/ThirdParty/utf8/source)
 SET(Module_SRCS
   vtkAbstractArray.cxx
   vtkAnimationCue.cxx
+  vtkAngularPeriodicDataArray.txx
   vtkArrayCoordinates.cxx
   vtkArray.cxx
   vtkArrayExtents.cxx
@@ -235,6 +236,7 @@ SET(Module_SRCS
 
 set(${vtk-module}_HDRS
   vtkABI.h
+  vtkAngularPeriodicDataArray.h
   vtkArrayInterpolate.h
   vtkArrayInterpolate.txx
   vtkArrayIteratorIncludes.h
@@ -528,6 +530,7 @@ set_source_files_properties(
   vtkDataArrayPrivate.txx
 
   vtkABI.h
+  vtkAngularPeriodicDataArray.txx
   vtkArrayInterpolate.h
   vtkArrayInterpolate.txx
   vtkArrayIteratorIncludes.h

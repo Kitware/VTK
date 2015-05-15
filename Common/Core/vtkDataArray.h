@@ -41,6 +41,7 @@ class vtkDoubleArray;
 class vtkIdList;
 class vtkInformationDoubleVectorKey;
 class vtkLookupTable;
+class vtkPoints;
 
 class VTKCOMMONCORE_EXPORT vtkDataArray : public vtkAbstractArray
 {
@@ -395,6 +396,9 @@ public:
   virtual int GetArrayType() { return DataArray; }
 
 protected:
+
+  friend class vtkPoints;
+
   // Description:
   // Compute the range for a specific component. If comp is set -1
   // then L2 norm is computed on all components. Call ClearRange
