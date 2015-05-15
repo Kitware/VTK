@@ -39,10 +39,109 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <sstream>
 
-typedef std::map<vtkStdString,vtkIdType> Counts;
+typedef std::map<vtkStdString,vtkIdType> StringCounts;
 typedef std::map<vtkStdString,double> PDF;
 
 vtkObjectFactoryNewMacro(vtkContingencyStatistics)
+
+
+template<typename TypeA, typename TypeB>
+void ContingencyStatisticsCalculateRow (vtkAbstractArray* valsX, vtkAbstractArray* valsY, vtkVariantArray* row4, vtkTable* contingencyTab)
+{
+  vtkDataArray* dataX = vtkDataArray::SafeDownCast (valsX);
+  vtkDataArray* dataY = vtkDataArray::SafeDownCast (valsY);
+  if (dataX == 0 || dataY == 0)
+    {
+    return;
+    }
+  vtkIdType nRow = dataX->GetNumberOfTuples ();
+  // Calculate contingency table
+  typedef vtksys_stl::map<TypeB,vtkIdType> Counts;
+  typedef vtksys_stl::map<TypeA,Counts> Table;
+  Table contingencyTable;
+  for ( vtkIdType r = 0; r < nRow; ++ r )
+    {
+    ++ contingencyTable
+      [static_cast<TypeA>(dataX->GetTuple1( r ))]
+      [static_cast<TypeB>(dataY->GetTuple1( r ))];
+    }
+
+  // Store contingency table
+  for ( typename Table::iterator mit = contingencyTable.begin(); mit != contingencyTable.end(); ++ mit )
+    {
+    vtkVariant v1 (mit->first);
+    row4->SetValue( 1, v1.ToString() );
+    for ( typename Counts::iterator dit = mit->second.begin(); dit != mit->second.end(); ++ dit )
+      {
+      vtkVariant v2 (dit->first);
+      row4->SetValue( 2, v2.ToString ());
+      row4->SetValue( 3, dit->second );
+
+      contingencyTab->InsertNextRow( row4 );
+      }
+    }
+}
+
+template<>
+void ContingencyStatisticsCalculateRow<vtkStdString, vtkStdString> (vtkAbstractArray* valsX, vtkAbstractArray* valsY, vtkVariantArray* row4, vtkTable* contingencyTab)
+{
+  vtkIdType nRow = valsX->GetNumberOfTuples ();
+  // Calculate contingency table
+  vtksys_stl::map<vtkStdString,StringCounts> contingencyTable;
+  for ( vtkIdType r = 0; r < nRow; ++ r )
+    {
+    ++ contingencyTable
+      [valsX->GetVariantValue( r ).ToString()]
+      [valsY->GetVariantValue( r ).ToString()];
+    }
+
+  // Store contingency table
+  for ( vtksys_stl::map<vtkStdString,StringCounts>::iterator mit = contingencyTable.begin();
+        mit != contingencyTable.end(); ++ mit )
+    {
+    row4->SetValue( 1, mit->first );
+    for ( StringCounts::iterator dit = mit->second.begin(); dit != mit->second.end(); ++ dit )
+      {
+      row4->SetValue( 2, dit->first );
+      row4->SetValue( 3, dit->second );
+
+      contingencyTab->InsertNextRow( row4 );
+      }
+    }
+}
+
+template<typename TypeA>
+void ContingencyStatisticsArrayHelper (vtkAbstractArray* valsX, vtkAbstractArray* valsY, vtkVariantArray* row4, vtkTable* contingencyTab)
+{
+  vtkDataArray* dataY = vtkDataArray::SafeDownCast (valsY);
+  if (dataY == 0)
+    {
+    return;
+    }
+  switch (dataY->GetDataType ())
+    {
+    case VTK_DOUBLE: ContingencyStatisticsCalculateRow<TypeA,double>(valsX,valsY,row4,contingencyTab); break;
+    case VTK_FLOAT: ContingencyStatisticsCalculateRow<TypeA,float>(valsX,valsY,row4,contingencyTab); break;
+    case VTK_ID_TYPE: ContingencyStatisticsCalculateRow<TypeA,vtkIdType>(valsX,valsY,row4,contingencyTab); break;
+    case VTK_LONG: ContingencyStatisticsCalculateRow<TypeA,long>(valsX,valsY,row4,contingencyTab); break;
+    case VTK_UNSIGNED_LONG: ContingencyStatisticsCalculateRow<TypeA,unsigned long>(valsX,valsY,row4,contingencyTab); break;
+    case VTK_INT: ContingencyStatisticsCalculateRow<TypeA,int>(valsX,valsY,row4,contingencyTab); break;
+    case VTK_UNSIGNED_INT: ContingencyStatisticsCalculateRow<TypeA,unsigned int>(valsX,valsY,row4,contingencyTab); break;
+    case VTK_SHORT: ContingencyStatisticsCalculateRow<TypeA,short>(valsX,valsY,row4,contingencyTab); break;
+    case VTK_UNSIGNED_SHORT: ContingencyStatisticsCalculateRow<TypeA,unsigned short>(valsX,valsY,row4,contingencyTab); break;
+    case VTK_CHAR: ContingencyStatisticsCalculateRow<TypeA,char>(valsX,valsY,row4,contingencyTab); break;
+    case VTK_SIGNED_CHAR: ContingencyStatisticsCalculateRow<TypeA,signed char>(valsX,valsY,row4,contingencyTab); break;
+    case VTK_UNSIGNED_CHAR: ContingencyStatisticsCalculateRow<TypeA,unsigned char>(valsX,valsY,row4,contingencyTab); break;
+#if defined(VTK_TYPE_USE_LONG_LONG)
+    case VTK_LONG_LONG: ContingencyStatisticsCalculateRow<TypeA,long long>(valsX,valsY,row4,contingencyTab); break;
+    case VTK_UNSIGNED_LONG_LONG: ContingencyStatisticsCalculateRow<TypeA,unsigned long long>(valsX,valsY,row4,contingencyTab); break;
+#endif
+#if defined(VTK_TYPE_USE___INT64)
+    case VTK___INT64: ContingencyStatisticsCalculateRow<TypeA,__int64>(valsX,valsY,row4,contingencyTab); break;
+    case VTK_UNSIGNED__INT64: ContingencyStatisticsCalculateRow<TypeA,unsigned __int64>(valsX,valsY,row4,contingencyTab); break;
+#endif
+    }
+}
 
 // ----------------------------------------------------------------------
 vtkContingencyStatistics::vtkContingencyStatistics()
@@ -176,27 +275,18 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
     vtkAbstractArray* valsX = inData->GetColumnByName( colX );
     vtkAbstractArray* valsY = inData->GetColumnByName( colY );
 
-    // Calculate contingency table
-    std::map<vtkStdString,Counts> contingencyTable;
-    for ( vtkIdType r = 0; r < nRow; ++ r )
+    vtkDataArray* dataX = vtkDataArray::SafeDownCast (valsX);
+    vtkDataArray* dataY = vtkDataArray::SafeDownCast (valsY);
+    if (dataX != 0 && dataY != 0)
       {
-      ++ contingencyTable
-        [valsX->GetVariantValue( r ).ToString()]
-        [valsY->GetVariantValue( r ).ToString()];
-      }
-
-    // Store contingency table
-    for ( std::map<vtkStdString,Counts>::iterator mit = contingencyTable.begin();
-          mit != contingencyTable.end(); ++ mit )
-      {
-      row4->SetValue( 1, mit->first );
-      for ( Counts::iterator dit = mit->second.begin(); dit != mit->second.end(); ++ dit )
+      switch (dataX->GetDataType ())
         {
-        row4->SetValue( 2, dit->first );
-        row4->SetValue( 3, dit->second );
-
-        contingencyTab->InsertNextRow( row4 );
+        vtkTemplateMacro (ContingencyStatisticsArrayHelper<VTK_TT> (valsX, valsY, row4, contingencyTab));
         }
+      }
+    else
+      {
+      ContingencyStatisticsCalculateRow<vtkStdString,vtkStdString> (valsX, valsY, row4, contingencyTab);
       }
     }
 
@@ -388,7 +478,7 @@ void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
   // NB: block nBlock is kept for information entropy
   double inv_n = 1. / n;
   std::map<vtkStdString,PDF> marginalPDFs;
-  for ( std::map<vtkStdString,Counts>::iterator sit = marginalCounts.begin();
+  for ( std::map<vtkStdString,StringCounts>::iterator sit = marginalCounts.begin();
         sit != marginalCounts.end(); ++ sit, ++ nBlocks )
     {
     vtkTable* marginalTab = vtkTable::New();
@@ -409,7 +499,7 @@ void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     doubleCol->Delete();
 
     double p;
-    for ( Counts::iterator xit = sit->second.begin();
+    for ( StringCounts::iterator xit = sit->second.begin();
           xit != sit->second.end(); ++ xit )
       {
       // Calculate and retain marginal PDF
@@ -792,7 +882,7 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
     vtkIdType sumij = 0;
 
     // Loop over parameters table until the requested variables are found
-    std::map<vtkStdString,Counts> oij;
+    std::map<vtkStdString,StringCounts> oij;
     vtkStdString x, y;
     vtkIdType key, c;
     for ( int r = 1; r < nRowCont; ++ r ) // Skip first row which contains data set cardinality
@@ -831,7 +921,7 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
       }
 
     // Now search for relevant marginal counts
-    Counts ek[2];
+    StringCounts ek[2];
     int foundCount = 0;
     for ( unsigned int b = 2; b < inMeta->GetNumberOfBlocks()  && foundCount < 2; ++ b )
       {
@@ -893,9 +983,9 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
     double eij, delta;
     double chi2  = 0; // chi square test statistic
     double chi2y = 0; // chi square test statistic with Yates correction
-    for ( Counts::iterator xit = ek[0].begin(); xit != ek[0].end(); ++ xit )
+    for ( StringCounts::iterator xit = ek[0].begin(); xit != ek[0].end(); ++ xit )
       {
-      for ( Counts::iterator yit = ek[1].begin(); yit != ek[1].end(); ++ yit )
+      for ( StringCounts::iterator yit = ek[1].begin(); yit != ek[1].end(); ++ yit )
         {
         // Expected count
         eij = static_cast<double>( xit->second * yit->second ) / n;
