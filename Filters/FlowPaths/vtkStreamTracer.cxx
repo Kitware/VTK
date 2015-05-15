@@ -126,6 +126,8 @@ vtkStreamTracer::vtkStreamTracer()
                                vtkDataSetAttributes::VECTORS);
 
   this->HasMatchingPointAttributes = true;
+
+  this->SurfaceStreamlines = false;
 }
 
 vtkStreamTracer::~vtkStreamTracer()
@@ -700,6 +702,24 @@ void vtkStreamTracer::Integrate(vtkPointData *input0Data,
     this->GetIntegrator()->NewInstance();
   integrator->SetFunctionSet(func);
 
+  // Check Surface option
+  vtkInterpolatedVelocityField* surfaceFunc = NULL;
+  if (this->SurfaceStreamlines == true)
+    {
+    surfaceFunc = vtkInterpolatedVelocityField::SafeDownCast(func);
+    if (surfaceFunc == NULL)
+      {
+        vtkWarningMacro(<< "Surface Streamlines works only with Point Locator "
+                           "Interpolated Velocity Field, setting it off");
+        this->SetSurfaceStreamlines(false);
+      }
+    else
+      {
+      surfaceFunc->SetForceSurfaceTangentVector(true);
+      surfaceFunc->SetSurfaceDataset(true);
+      }
+    }
+
   // Since we do not know what the total number of points
   // will be, we do not allocate any. This is important for
   // cases where a lot of streamers are used at once. If we
@@ -951,9 +971,21 @@ void vtkStreamTracer::Integrate(vtkPointData *input0Data,
         }
 
       // This is the next starting point
-      for(i=0; i<3; i++)
+      if (this->SurfaceStreamlines && surfaceFunc != NULL)
         {
-        point1[i] = point2[i];
+        if (surfaceFunc->SnapPointOnCell(point2, point1) != 1)
+          {
+          retVal = OUT_OF_DOMAIN;
+          memcpy(lastPoint, point2, 3 * sizeof(double));
+          break;
+          }
+        }
+      else
+        {
+        for (i = 0; i < 3; i++)
+          {
+          point1[i] = point2[i];
+          }
         }
 
       // Interpolate the velocity at the next point

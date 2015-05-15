@@ -79,6 +79,10 @@ public:
   virtual int FunctionValues( double * x, double * f );
 
   // Description:
+  // Project the provided point on current cell, current dataset.
+  virtual int SnapPointOnCell(double* pOrigin, double* pProj);
+
+  // Description:
   // Set the cell id cached by the last evaluation within a specified dataset.
   virtual void SetLastCellId( vtkIdType c, int dataindex );
 

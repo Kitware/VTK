@@ -1,6 +1,7 @@
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestBSPTree.cxx
   TestStreamTracer.cxx,NO_VALID
+  TestStreamTracerSurface.cxx
   TestAMRInterpolatedVelocityField.cxx,NO_VALID
   TestParticleTracers.cxx,NO_VALID
   )
