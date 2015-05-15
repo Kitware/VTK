@@ -46,7 +46,7 @@ vtkObjectFactoryNewMacro(vtkContingencyStatistics)
 
 
 template<typename TypeA, typename TypeB>
-void ContingencyStatisticsCalculateRow (vtkAbstractArray* valsX, vtkAbstractArray* valsY, vtkVariantArray* row4, vtkTable* contingencyTab)
+void ContingencyStatisticsCalculateRow (vtkAbstractArray* valsX, vtkAbstractArray* valsY, vtkTable* contingencyTab, vtkIdType refRow)
 {
   vtkDataArray* dataX = vtkDataArray::SafeDownCast (valsX);
   vtkDataArray* dataY = vtkDataArray::SafeDownCast (valsY);
@@ -67,23 +67,27 @@ void ContingencyStatisticsCalculateRow (vtkAbstractArray* valsX, vtkAbstractArra
     }
 
   // Store contingency table
+  int row = contingencyTab->GetNumberOfRows ();
   for ( typename Table::iterator mit = contingencyTable.begin(); mit != contingencyTable.end(); ++ mit )
     {
     vtkVariant v1 (mit->first);
-    row4->SetValue( 1, v1.ToString() );
+    vtkStdString v1str = v1.ToString();
     for ( typename Counts::iterator dit = mit->second.begin(); dit != mit->second.end(); ++ dit )
       {
-      vtkVariant v2 (dit->first);
-      row4->SetValue( 2, v2.ToString ());
-      row4->SetValue( 3, dit->second );
+      contingencyTab->InsertNextBlankRow( );
 
-      contingencyTab->InsertNextRow( row4 );
+      contingencyTab->SetValue ( row, 0, refRow );
+      contingencyTab->SetValue ( row, 1, v1str );
+      vtkVariant v2 (dit->first);
+      contingencyTab->SetValue ( row, 2, v2.ToString () );
+      contingencyTab->SetValue ( row, 3, dit->second );
+      row ++;
       }
     }
 }
 
 template<>
-void ContingencyStatisticsCalculateRow<vtkStdString, vtkStdString> (vtkAbstractArray* valsX, vtkAbstractArray* valsY, vtkVariantArray* row4, vtkTable* contingencyTab)
+void ContingencyStatisticsCalculateRow<vtkStdString, vtkStdString> (vtkAbstractArray* valsX, vtkAbstractArray* valsY, vtkTable* contingencyTab, vtkIdType refRow)
 {
   vtkIdType nRow = valsX->GetNumberOfTuples ();
   // Calculate contingency table
@@ -96,22 +100,25 @@ void ContingencyStatisticsCalculateRow<vtkStdString, vtkStdString> (vtkAbstractA
     }
 
   // Store contingency table
+  int row = contingencyTab->GetNumberOfRows ();
   for ( vtksys_stl::map<vtkStdString,StringCounts>::iterator mit = contingencyTable.begin();
         mit != contingencyTable.end(); ++ mit )
     {
-    row4->SetValue( 1, mit->first );
     for ( StringCounts::iterator dit = mit->second.begin(); dit != mit->second.end(); ++ dit )
       {
-      row4->SetValue( 2, dit->first );
-      row4->SetValue( 3, dit->second );
+      contingencyTab->InsertNextBlankRow( );
 
-      contingencyTab->InsertNextRow( row4 );
+      contingencyTab->SetValue ( row, 0, refRow );
+      contingencyTab->SetValue ( row, 1, mit->first );
+      contingencyTab->SetValue ( row, 2, dit->first );
+      contingencyTab->SetValue ( row, 3, dit->second );
+      row ++;
       }
     }
 }
 
 template<typename TypeA>
-void ContingencyStatisticsArrayHelper (vtkAbstractArray* valsX, vtkAbstractArray* valsY, vtkVariantArray* row4, vtkTable* contingencyTab)
+void ContingencyStatisticsArrayHelper (vtkAbstractArray* valsX, vtkAbstractArray* valsY, vtkTable* contingencyTab, vtkIdType refRow)
 {
   vtkDataArray* dataY = vtkDataArray::SafeDownCast (valsY);
   if (dataY == 0)
@@ -120,25 +127,25 @@ void ContingencyStatisticsArrayHelper (vtkAbstractArray* valsX, vtkAbstractArray
     }
   switch (dataY->GetDataType ())
     {
-    case VTK_DOUBLE: ContingencyStatisticsCalculateRow<TypeA,double>(valsX,valsY,row4,contingencyTab); break;
-    case VTK_FLOAT: ContingencyStatisticsCalculateRow<TypeA,float>(valsX,valsY,row4,contingencyTab); break;
-    case VTK_ID_TYPE: ContingencyStatisticsCalculateRow<TypeA,vtkIdType>(valsX,valsY,row4,contingencyTab); break;
-    case VTK_LONG: ContingencyStatisticsCalculateRow<TypeA,long>(valsX,valsY,row4,contingencyTab); break;
-    case VTK_UNSIGNED_LONG: ContingencyStatisticsCalculateRow<TypeA,unsigned long>(valsX,valsY,row4,contingencyTab); break;
-    case VTK_INT: ContingencyStatisticsCalculateRow<TypeA,int>(valsX,valsY,row4,contingencyTab); break;
-    case VTK_UNSIGNED_INT: ContingencyStatisticsCalculateRow<TypeA,unsigned int>(valsX,valsY,row4,contingencyTab); break;
-    case VTK_SHORT: ContingencyStatisticsCalculateRow<TypeA,short>(valsX,valsY,row4,contingencyTab); break;
-    case VTK_UNSIGNED_SHORT: ContingencyStatisticsCalculateRow<TypeA,unsigned short>(valsX,valsY,row4,contingencyTab); break;
-    case VTK_CHAR: ContingencyStatisticsCalculateRow<TypeA,char>(valsX,valsY,row4,contingencyTab); break;
-    case VTK_SIGNED_CHAR: ContingencyStatisticsCalculateRow<TypeA,signed char>(valsX,valsY,row4,contingencyTab); break;
-    case VTK_UNSIGNED_CHAR: ContingencyStatisticsCalculateRow<TypeA,unsigned char>(valsX,valsY,row4,contingencyTab); break;
+    case VTK_DOUBLE: ContingencyStatisticsCalculateRow<TypeA,double>(valsX,valsY,contingencyTab,refRow); break;
+    case VTK_FLOAT: ContingencyStatisticsCalculateRow<TypeA,float>(valsX,valsY,contingencyTab,refRow); break;
+    case VTK_ID_TYPE: ContingencyStatisticsCalculateRow<TypeA,vtkIdType>(valsX,valsY,contingencyTab,refRow); break;
+    case VTK_LONG: ContingencyStatisticsCalculateRow<TypeA,long>(valsX,valsY,contingencyTab,refRow); break;
+    case VTK_UNSIGNED_LONG: ContingencyStatisticsCalculateRow<TypeA,unsigned long>(valsX,valsY,contingencyTab,refRow); break;
+    case VTK_INT: ContingencyStatisticsCalculateRow<TypeA,int>(valsX,valsY,contingencyTab,refRow); break;
+    case VTK_UNSIGNED_INT: ContingencyStatisticsCalculateRow<TypeA,unsigned int>(valsX,valsY,contingencyTab,refRow); break;
+    case VTK_SHORT: ContingencyStatisticsCalculateRow<TypeA,short>(valsX,valsY,contingencyTab,refRow); break;
+    case VTK_UNSIGNED_SHORT: ContingencyStatisticsCalculateRow<TypeA,unsigned short>(valsX,valsY,contingencyTab,refRow); break;
+    case VTK_CHAR: ContingencyStatisticsCalculateRow<TypeA,char>(valsX,valsY,contingencyTab,refRow); break;
+    case VTK_SIGNED_CHAR: ContingencyStatisticsCalculateRow<TypeA,signed char>(valsX,valsY,contingencyTab,refRow); break;
+    case VTK_UNSIGNED_CHAR: ContingencyStatisticsCalculateRow<TypeA,unsigned char>(valsX,valsY,contingencyTab,refRow); break;
 #if defined(VTK_TYPE_USE_LONG_LONG)
-    case VTK_LONG_LONG: ContingencyStatisticsCalculateRow<TypeA,long long>(valsX,valsY,row4,contingencyTab); break;
-    case VTK_UNSIGNED_LONG_LONG: ContingencyStatisticsCalculateRow<TypeA,unsigned long long>(valsX,valsY,row4,contingencyTab); break;
+    case VTK_LONG_LONG: ContingencyStatisticsCalculateRow<TypeA,long long>(valsX,valsY,contingencyTab,refRow); break;
+    case VTK_UNSIGNED_LONG_LONG: ContingencyStatisticsCalculateRow<TypeA,unsigned long long>(valsX,valsY,contingencyTab,refRow); break;
 #endif
 #if defined(VTK_TYPE_USE___INT64)
-    case VTK___INT64: ContingencyStatisticsCalculateRow<TypeA,__int64>(valsX,valsY,row4,contingencyTab); break;
-    case VTK_UNSIGNED__INT64: ContingencyStatisticsCalculateRow<TypeA,unsigned __int64>(valsX,valsY,row4,contingencyTab); break;
+    case VTK___INT64: ContingencyStatisticsCalculateRow<TypeA,__int64>(valsX,valsY,contingencyTab,refRow); break;
+    case VTK_UNSIGNED__INT64: ContingencyStatisticsCalculateRow<TypeA,unsigned __int64>(valsX,valsY,contingencyTab,refRow); break;
 #endif
     }
 }
@@ -222,10 +229,6 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
   vtkVariantArray* row2 = vtkVariantArray::New();
   row2->SetNumberOfValues( 2 );
 
-  // Row to be used to insert into contingency table
-  vtkVariantArray* row4 = vtkVariantArray::New();
-  row4->SetNumberOfValues( 4 );
-
   // Insert first row which will always contain the data set cardinality, with key -1
   // NB: The cardinality is calculated in derive mode ONLY, and is set to an invalid value of -1 in
   // learn mode to make it clear that it is not a correct value. This is an issue of database
@@ -233,11 +236,11 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
   // when the input meta table is calculated by something else than the learn mode (e.g., is specified
   // by the user).
   vtkStdString zString = vtkStdString( "" );
-  row4->SetValue( 0, -1 );
-  row4->SetValue( 1, zString );
-  row4->SetValue( 2, zString );
-  row4->SetValue( 3, -1 );
-  contingencyTab->InsertNextRow( row4 );
+  contingencyTab->InsertNextBlankRow( );
+  contingencyTab->SetValue ( 0, 0, -1 );
+  contingencyTab->SetValue ( 0, 1, zString );
+  contingencyTab->SetValue ( 0, 2, zString );
+  contingencyTab->SetValue ( 0, 3, -1 );
 
   // Loop over requests
   vtkIdType nRow = inData->GetNumberOfRows();
@@ -269,7 +272,7 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
     // for (colX,colY) values in the contingency table
     row2->SetValue( 0, colX );
     row2->SetValue( 1, colY );
-    row4->SetValue( 0, summaryTab->GetNumberOfRows() );
+    int summaryRow = summaryTab->GetNumberOfRows();
     summaryTab->InsertNextRow( row2 );
 
     vtkAbstractArray* valsX = inData->GetColumnByName( colX );
@@ -281,12 +284,12 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
       {
       switch (dataX->GetDataType ())
         {
-        vtkTemplateMacro (ContingencyStatisticsArrayHelper<VTK_TT> (valsX, valsY, row4, contingencyTab));
+        vtkTemplateMacro (ContingencyStatisticsArrayHelper<VTK_TT> (valsX, valsY, contingencyTab, summaryRow));
         }
       }
     else
       {
-      ContingencyStatisticsCalculateRow<vtkStdString,vtkStdString> (valsX, valsY, row4, contingencyTab);
+      ContingencyStatisticsCalculateRow<vtkStdString,vtkStdString> (valsX, valsY, contingencyTab, summaryRow);
       }
     }
 
@@ -301,7 +304,6 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
   summaryTab->Delete();
   contingencyTab->Delete();
   row2->Delete();
-  row4->Delete();
 }
 
 // ----------------------------------------------------------------------
