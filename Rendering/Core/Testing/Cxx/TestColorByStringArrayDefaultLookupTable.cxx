@@ -66,6 +66,11 @@ int TestColorByStringArrayDefaultLookupTable(int argc, char* argv[])
   mapper->SetScalarModeToUseCellFieldData();
   mapper->SelectColorArray(arrayName);
 
+  // Direct coloring shouldn't be possible with string arrays, so we
+  // enable direct scalars to test that the string arrays get mapped
+  // despite the color mode setting being direct scalars.
+  mapper->SetColorModeToDirectScalars();
+
   vtkNew<vtkActor> actor;
   actor->SetMapper(mapper.Get());
 
