@@ -197,7 +197,7 @@ endif()
 # test having OpenGL2 be on for buildbot
 set(VTK_RENDERING_BACKEND OpenGL2)
 # default to not using the system GLEW as ours has fixes in it
-option(VTK_USE_SYSTEM_${_upper} "Use system-installed ${_pkg}" FALSE)
+set(VTK_USE_SYSTEM_GLEW FALSE)
 
 set(VTK_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 
