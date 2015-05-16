@@ -56,7 +56,7 @@ class vtkVolumeStateRAII
 
     ~vtkVolumeStateRAII()
       {
-#ifdef __PPLE__
+#ifdef __APPLE__
       if (vtkOpenGLRenderWindow::GetContextSupports32())
 #endif
         {
