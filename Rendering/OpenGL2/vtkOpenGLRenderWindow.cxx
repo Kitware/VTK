@@ -1583,6 +1583,11 @@ void vtkOpenGLRenderWindow::DeactivateTexture(vtkTextureObject *texture)
   if (found != this->TextureResourceIds.end())
     {
     this->GetTextureUnitManager()->Free(found->second);
+
+    if (found->second > 0)
+      {
+      glActiveTexture(GL_TEXTURE0);
+      }
     this->TextureResourceIds.erase(found);
     }
 }
