@@ -479,10 +479,20 @@ int vtkOpenGLRenderWindow::GetColorBufferSizes(int *rgba)
       {
       GLint fboBind = 0;
       glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &fboBind);
-      GLenum attachment = GL_FRONT_LEFT;
-      if (fboBind != 0)
+      GLint attachment = GL_BACK_LEFT;
+      glGetIntegerv(GL_DRAW_BUFFER, &attachment);
+
+      // GL seems odd with its handling of left/right.
+      // if it says we are using GL_FRONT or GL_BACK
+      // then convert those to GL_FRONT_LEFT and
+      // GL_BACK_LEFT.
+      if (attachment == GL_FRONT)
         {
-        attachment = GL_COLOR_ATTACHMENT0;
+        attachment = GL_FRONT_LEFT;
+        }
+      if (attachment == GL_BACK)
+        {
+        attachment = GL_BACK_LEFT;
         }
       glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
         attachment,
