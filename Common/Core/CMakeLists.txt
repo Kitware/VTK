@@ -190,6 +190,7 @@ SET(Module_SRCS
   vtkOutputWindow.cxx
   vtkOverrideInformationCollection.cxx
   vtkOverrideInformation.cxx
+  vtkPeriodicDataArray.txx
   vtkPoints2D.cxx
   vtkPoints.cxx
   vtkPriorityQueue.cxx
@@ -253,6 +254,7 @@ set(${vtk-module}_HDRS
   vtkMappedDataArray.h
   vtkMathUtilities.h
   vtkNew.h
+  vtkPeriodicDataArray.h
   vtkSetGet.h
   vtkSmartPointer.h
   vtkTemplateAliasMacro.h
@@ -549,6 +551,7 @@ set_source_files_properties(
   vtkMathUtilities.h
   vtkMappedDataArray.txx
   vtkNew.h
+  vtkPeriodicDataArray.txx
   vtkSetGet.h
   vtkSmartPointer.h
   vtkSparseArray.txx
