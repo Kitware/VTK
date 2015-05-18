@@ -45,6 +45,7 @@ template <class Scalar> void vtkPeriodicDataArray<Scalar>
   this->MaxId = -1;
   this->Size = 0;
   this->InvalidRange = true;
+  this->Normalize = false;
   this->Modified();
 }
 
@@ -68,7 +69,7 @@ template <class Scalar> void vtkPeriodicDataArray<Scalar>
 
   this->NumberOfComponents = data->GetNumberOfComponents();
   this->Size = data->GetSize();
-  this->MaxId = this->Size - 1;
+  this->MaxId = data->GetMaxId();
   this->Data = data;
   this->Data->Register(0);
   this->TempScalarArray = new Scalar[this->NumberOfComponents];
@@ -79,8 +80,8 @@ template <class Scalar> void vtkPeriodicDataArray<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> void vtkPeriodicDataArray<Scalar>::
-ComputeRange(double range[2], int comp)
+template <class Scalar> bool vtkPeriodicDataArray<Scalar>::
+ComputeScalarRange(double* range)
 {
   if (this->NumberOfComponents == 3)
     {
@@ -88,8 +89,43 @@ ComputeRange(double range[2], int comp)
       {
       this->ComputePeriodicRange();
       }
-    range[0] = this->PeriodicRange[comp * 2 + 0];
-    range[1] = this->PeriodicRange[comp * 2 + 1];
+    for (int i = 0; i < 3; i++)
+      {
+      range[i * 2] = this->PeriodicRange[i * 2 + 0];
+      range[i * 2 + 1] = this->PeriodicRange[i * 2 + 1];
+      }
+    }
+  else
+    {
+    // Not implemented for tensor
+    for (int i = 0; i < this->NumberOfComponents; i++)
+      {
+      range[i * 2] = 0;
+      range[i * 2 + 1] = 1;
+      }
+    }
+  return true;
+}
+
+//------------------------------------------------------------------------------
+template <class Scalar> bool vtkPeriodicDataArray<Scalar>::
+ComputeVectorRange(double range[2])
+{
+  if (this->NumberOfComponents == 3)
+    {
+    if (this->InvalidRange)
+      {
+      this->ComputePeriodicRange();
+      }
+
+    range[0] = vtkTypeTraits<Scalar>::Max();
+    range[1] = vtkTypeTraits<Scalar>::Min();
+
+    for (int i = 0; i < 3; i++)
+      {
+      range[0] = std::min(this->PeriodicRange[i * 2], range[0]);
+      range[1] = std::max(this->PeriodicRange[i * 2 + 1], range[1]);
+      }
     }
   else
     {
@@ -97,8 +133,8 @@ ComputeRange(double range[2], int comp)
     range[0] = 0;
     range[1] = 1;
     }
+  return true;
 }
-
 //------------------------------------------------------------------------------
 template <class Scalar> void vtkPeriodicDataArray<Scalar>::
 ComputePeriodicRange()

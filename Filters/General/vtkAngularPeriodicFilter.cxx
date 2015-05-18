@@ -101,9 +101,10 @@ void vtkAngularPeriodicFilter::SetRotationAxisToZ()
 }
 
 //----------------------------------------------------------------------------
-void vtkAngularPeriodicFilter::CreatePeriodicDataSet(vtkCompositeDataIterator* loc,
-                                                            vtkCompositeDataSet* output,
-                                                            vtkCompositeDataSet* input)
+  void vtkAngularPeriodicFilter::CreatePeriodicDataSet(
+    vtkCompositeDataIterator* loc,
+    vtkCompositeDataSet* output,
+    vtkCompositeDataSet* input)
 {
   vtkDataObject* inputNode = input->GetDataSet(loc);
   if (inputNode == NULL)
@@ -249,7 +250,7 @@ void vtkAngularPeriodicFilter::AppendPeriodicPiece(double angle,
 
 //----------------------------------------------------------------------------
 vtkDataArray* vtkAngularPeriodicFilter::TransformDataArray(
-  vtkDataArray* inputArray, double angle)
+  vtkDataArray* inputArray, double angle, bool useCenter, bool normalize)
 {
   vtkDataArray* periodicArray = 0;
   switch (inputArray->GetDataType())
@@ -260,7 +261,11 @@ vtkDataArray* vtkAngularPeriodicFilter::TransformDataArray(
         vtkAngularPeriodicDataArray<float>::New();
       pArray->SetAxis(this->RotationAxis);
       pArray->SetAngle(angle);
-      pArray->SetCenter(this->Center);
+      if (useCenter)
+        {
+        pArray->SetCenter(this->Center);
+        }
+      pArray->SetNormalize(normalize);
       pArray->InitializeArray(vtkFloatArray::SafeDownCast(inputArray));
       periodicArray = pArray;
       break;
@@ -271,7 +276,11 @@ vtkDataArray* vtkAngularPeriodicFilter::TransformDataArray(
         vtkAngularPeriodicDataArray<double>::New();
       pArray->SetAxis(this->RotationAxis);
       pArray->SetAngle(angle);
-      pArray->SetCenter(this->Center);
+      if (useCenter)
+        {
+        pArray->SetCenter(this->Center);
+        }
+      pArray->SetNormalize(normalize);
       pArray->InitializeArray(vtkDoubleArray::SafeDownCast(inputArray));
       periodicArray = pArray;
       break;
@@ -281,30 +290,38 @@ vtkDataArray* vtkAngularPeriodicFilter::TransformDataArray(
       vtkErrorMacro("Unknown data type " << inputArray->GetDataType());
       periodicArray = vtkDataArray::CreateDataArray(inputArray->GetDataType());
       periodicArray->DeepCopy(inputArray);
+      break;
       }
-    break;
     }
   return periodicArray;
 }
 
 //----------------------------------------------------------------------------
 void vtkAngularPeriodicFilter::ComputeAngularPeriodicData(
-  vtkFieldData* data, vtkFieldData* transformedData, double angle)
+  vtkDataSetAttributes* data, vtkDataSetAttributes* transformedData, double angle)
 {
-  // Shallow Copy all data
-  transformedData->ShallowCopy(data);
-
   for (int i = 0; i < data->GetNumberOfArrays(); i++)
     {
+    int attribute = data->IsArrayAnAttribute(i);
     vtkDataArray* array = data->GetArray(i);
-
+    vtkDataArray* transformedArray;
     // Perdiodic copy of vector (3 components) or tensor (9 components) data
     if (array->GetNumberOfComponents() == 3 || array->GetNumberOfComponents() == 9)
       {
-      vtkDataArray* transformedArray = this->TransformDataArray(array, angle);
-      transformedData->AddArray(transformedArray);
-      transformedArray->Delete();
+      transformedArray = this->TransformDataArray(array, angle, false,
+        attribute == vtkDataSetAttributes::NORMALS);
       }
+    else
+      {
+      transformedArray = array;
+      array->Register(0);
+      }
+    transformedData->AddArray(transformedArray);
+    if (attribute >= 0)
+      {
+      transformedData->SetAttribute(transformedArray, attribute);
+      }
+    transformedArray->Delete();
     }
 }
 
@@ -318,7 +335,7 @@ void vtkAngularPeriodicFilter::ComputePeriodicMesh(vtkPointSet* dataset,
   // Transform points coordinates array
   vtkDataArray* pointArray = dataset->GetPoints()->GetData();
   vtkNew<vtkPoints> rotatedPoints;
-  vtkDataArray* transformedArray = this->TransformDataArray(pointArray, angle);
+  vtkDataArray* transformedArray = this->TransformDataArray(pointArray, angle, true);
   rotatedPoints->SetData(transformedArray);
   transformedArray->Delete();
   // Set the points

@@ -72,8 +72,8 @@ void vtkPeriodicFilter::RemoveAllIndices()
 
 //----------------------------------------------------------------------------
 void vtkPeriodicFilter::CreatePeriodicSubTree(vtkDataObjectTreeIterator* loc,
-                                                     vtkMultiBlockDataSet* output,
-                                                     vtkMultiBlockDataSet* input)
+                                              vtkMultiBlockDataSet* output,
+                                              vtkMultiBlockDataSet* input)
 {
   vtkDataObject* inputNode = input->GetDataSet(loc);
   if (!inputNode)
@@ -123,8 +123,8 @@ void vtkPeriodicFilter::CreatePeriodicSubTree(vtkDataObjectTreeIterator* loc,
 
 //----------------------------------------------------------------------------
 int vtkPeriodicFilter::RequestData(vtkInformation *vtkNotUsed(request),
-                                          vtkInformationVector **inputVector,
-                                          vtkInformationVector *outputVector)
+                                   vtkInformationVector **inputVector,
+                                   vtkInformationVector *outputVector)
 {
   vtkMultiBlockDataSet *input = vtkMultiBlockDataSet::GetData(inputVector[0], 0);
   vtkMultiBlockDataSet *output = vtkMultiBlockDataSet::GetData(outputVector, 0);

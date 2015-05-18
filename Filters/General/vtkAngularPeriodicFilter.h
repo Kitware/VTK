@@ -38,7 +38,7 @@
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPeriodicFilter.h"
 
-class vtkFieldData;
+class vtkDataSetAttributes;
 class vtkMultiPieceDataSet;
 class vtkPointSet;
 
@@ -96,7 +96,10 @@ protected:
 
   // Description:
   // Create a transform copy of the provided data array
-  vtkDataArray* TransformDataArray(vtkDataArray* inputArray, double angle);
+  vtkDataArray* TransformDataArray(vtkDataArray* inputArray,
+                                   double angle,
+                                   bool useCenter = true,
+                                   bool normalize = false);
 
   // Description:
   // Append a periodic piece to dataset, by computing rotated mesh and data
@@ -111,8 +114,9 @@ protected:
 
   // Description:
   // Compute periodic point/cell data, using provided angle
-  void ComputeAngularPeriodicData(vtkFieldData* data, vtkFieldData* rotatedData,
-                           double angle);
+  void ComputeAngularPeriodicData(vtkDataSetAttributes* data,
+                                  vtkDataSetAttributes* rotatedData,
+                                  double angle);
 
   // Description:
   // Create a periodic data, leaf of the tree
