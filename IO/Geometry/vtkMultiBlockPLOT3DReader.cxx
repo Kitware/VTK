@@ -1002,7 +1002,7 @@ int vtkMultiBlockPLOT3DReader::RequestData(
             {
             if (ib[ids->GetId(ptIdx)] == 0)
               {
-              value |= vtkDataSetAttributes::HIDDENPOINT;
+              value |= vtkDataSetAttributes::HIDDENCELL;
               break;
               }
             }
