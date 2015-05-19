@@ -56,7 +56,8 @@ public:
   // VTK_ITERATION_MODE_DIRECT_NB to specify the number of periods,
   // VTK_ITERATION_MODE_MAX to generate a full period (default).
   vtkSetClampMacro(IterationMode, int,
-    VTK_ITERATION_MODE_DIRECT_NB, VTK_ITERATION_MODE_MAX);
+                   VTK_ITERATION_MODE_DIRECT_NB,
+                   VTK_ITERATION_MODE_MAX);
   vtkGetMacro(IterationMode, int);
   void SetIterationModeToDirectNb()
     { this->SetIterationMode(VTK_ITERATION_MODE_DIRECT_NB); }
@@ -97,20 +98,21 @@ protected:
   // Description:
   // Create the periodic sub tree
   virtual void CreatePeriodicSubTree(vtkDataObjectTreeIterator* loc,
-                             vtkMultiBlockDataSet* output,
-                             vtkMultiBlockDataSet* input);
+                                     vtkMultiBlockDataSet* output,
+                                     vtkMultiBlockDataSet* input);
 
   // Description:
   // Create a periodic data, leaf of the tree
   virtual void CreatePeriodicDataSet(vtkCompositeDataIterator* loc,
-                             vtkCompositeDataSet* output,
-                             vtkCompositeDataSet* input) = 0;
+                                     vtkCompositeDataSet* output,
+                                     vtkCompositeDataSet* input) = 0;
 
   // Description:
   // Generate a name for a piece in the periodic dataset from the input dataset
   virtual void GeneratePieceName(vtkCompositeDataSet* input,
-                         vtkCompositeDataIterator* inputLoc,
-                         vtkMultiPieceDataSet* output, vtkIdType outputId);
+                                 vtkCompositeDataIterator* inputLoc,
+                                 vtkMultiPieceDataSet* output,
+                                 vtkIdType outputId);
 
 private:
   vtkPeriodicFilter(const vtkPeriodicFilter&); // Not implemented.

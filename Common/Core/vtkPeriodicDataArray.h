@@ -229,6 +229,11 @@ public:
   // Read only container, not supported.
   void InsertValue(vtkIdType idx, Scalar v);
 
+  // Description:
+  // Set/Get normalize flag. Default: false
+  vtkSetMacro(Normalize, bool);
+  vtkGetMacro(Normalize, bool);
+
 protected:
   vtkPeriodicDataArray();
   ~vtkPeriodicDataArray();
@@ -238,8 +243,12 @@ protected:
   virtual void Transform(Scalar* tuple) = 0;
 
   // Description:
-  // Get The transformed range
-  virtual void ComputeRange(double range[2], int comp);
+  // Get the transformed range by components
+  virtual bool ComputeScalarRange(double* range);
+
+  // Description:
+  // Get the transformed range on all components
+  virtual bool ComputeVectorRange(double range[2]);
 
   // Description:
   // Update the transformed periodic range
@@ -248,6 +257,8 @@ protected:
   // Description:
   // Set the invalid range flag to false
   void InvalidateRange();
+
+  bool Normalize; // If transformed vector must be normalized
 
 private:
   vtkPeriodicDataArray(const vtkPeriodicDataArray &); // Not implemented.

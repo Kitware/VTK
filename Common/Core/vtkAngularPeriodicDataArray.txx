@@ -104,6 +104,10 @@ Transform(Scalar* pos)
       static_cast<Scalar>(cosf(this->AngleInRadians) * posx - sinf(this->AngleInRadians) * posy);
     pos[axis1] = this->Center[axis1] +
       static_cast<Scalar>(sinf(this->AngleInRadians) * posx + cosf(this->AngleInRadians) * posy);
+    if (this->Normalize)
+      {
+      vtkMath::Normalize(pos);
+      }
     }
   else if (this->NumberOfComponents == 9)
     {
