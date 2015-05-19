@@ -62,6 +62,18 @@ public:
   virtual int Allocate();
 
   // Description:
+  // Reserve a specific texture unit if not already in use.
+  // This method should only be used when interacting with 3rd
+  // party code that is allocating and using textures. It allows
+  // someone to reserve a texture unit for that code and later release
+  // it. VTK will not use that texture unit until it is released.
+  // It returns -1 if the allocation failed (because there are no more
+  // texture units left).
+  // \post valid_result: result==-1 || result>=0 && result<this->GetNumberOfTextureUnits())
+  // \post allocated: result==-1 || this->IsAllocated(result)
+  virtual int Allocate(int unit);
+
+  // Description:
   // Tell if texture unit `textureUnitId' is already allocated.
   // \pre valid_textureUnitId_range : textureUnitId>=0 && textureUnitId<this->GetNumberOfTextureUnits()
   bool IsAllocated(int textureUnitId);

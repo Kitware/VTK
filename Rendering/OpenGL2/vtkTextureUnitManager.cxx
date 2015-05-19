@@ -134,6 +134,18 @@ int vtkTextureUnitManager::Allocate()
   return result;
 }
 
+int vtkTextureUnitManager::Allocate(int unit)
+{
+  if (this->IsAllocated(unit))
+    {
+    return -1;
+    }
+
+  this->TextureUnits[unit] = true;
+
+  return unit;
+}
+
 // ----------------------------------------------------------------------------
 // Description:
 // Tell if texture unit `textureUnitId' is already allocated.
