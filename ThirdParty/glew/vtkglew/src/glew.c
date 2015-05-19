@@ -10111,6 +10111,7 @@ static const GLubyte* _glewGetExtensions(void) {
     static int s_init = 0;
     static GLubyte s_array[16384];
     static const GLubyte* s_ret = 0;
+    GLint num_extensions = -1;
 
     if (s_init == 0) {
         PFNGLGETSTRINGIPROC localGetStringi = 0;
@@ -10119,12 +10120,14 @@ static const GLubyte* _glewGetExtensions(void) {
 
         localGetStringi = (PFNGLGETSTRINGIPROC)glewGetProcAddress((const GLubyte*)"glGetStringi");
 
-        if (localGetStringi) {
-            GLint num_extensions = 0;
+        // Checking for localGetStringi is not enough as it was valid on a
+        // Mac OpenGL2 context and that is why the code path never reached
+        // the else statement which uses glGetString call.
+        glGetIntegerv(GL_NUM_EXTENSIONS, &num_extensions);
+        if (localGetStringi && num_extensions >= 0) {
+
             GLint extension_idx = 0;
             GLuint arr_idx = 0;
-
-            glGetIntegerv(GL_NUM_EXTENSIONS, &num_extensions);
 
             for ( ; extension_idx < num_extensions; ++extension_idx) {
                 const GLubyte* extension = localGetStringi(GL_EXTENSIONS, extension_idx);
