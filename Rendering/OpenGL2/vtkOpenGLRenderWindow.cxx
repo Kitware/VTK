@@ -480,8 +480,9 @@ int vtkOpenGLRenderWindow::GetColorBufferSizes(int *rgba)
       GLint fboBind = 0;
       glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &fboBind);
       GLint attachment = GL_BACK_LEFT;
+#ifdef GL_DRAW_BUFFER
       glGetIntegerv(GL_DRAW_BUFFER, &attachment);
-
+#endif
       // GL seems odd with its handling of left/right.
       // if it says we are using GL_FRONT or GL_BACK
       // then convert those to GL_FRONT_LEFT and
