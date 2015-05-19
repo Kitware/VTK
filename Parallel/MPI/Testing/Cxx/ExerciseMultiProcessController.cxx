@@ -767,10 +767,10 @@ void ExerciseType(vtkMultiProcessController *controller)
   tmpSource->SetNumberOfTuples(lengths[rank]);
   buffer->SetNumberOfTuples(offsets[numProc-1]+lengths[numProc-1]);
   result = 1;
+  controller->GatherV(tmpSource, buffer,
+                      &lengths[0], &offsets[0], destProcessId);
   if (rank == destProcessId)
     {
-    controller->GatherV(tmpSource, buffer,
-                        &lengths[0], &offsets[0], destProcessId);
     for (i = 0; i < numProc; i++)
       {
       for (int j = 0; j < lengths[i]; j++)
@@ -783,10 +783,6 @@ void ExerciseType(vtkMultiProcessController *controller)
           }
         }
       }
-    }
-  else
-    {
-    controller->GatherV(tmpSource, NULL, NULL, NULL, destProcessId);
     }
   CheckSuccess(controller, result);
 
