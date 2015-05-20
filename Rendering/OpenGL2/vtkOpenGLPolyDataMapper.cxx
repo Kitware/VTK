@@ -374,7 +374,8 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColorMaterialValues(
             "//VTK::Color::Impl", colorImpl +
             "  vec4 texColor = texelFetchBuffer(textureC, gl_PrimitiveID + PrimitiveIDOffset);\n"
             "  ambientColor = texColor.rgb;\n"
-            "  opacity = opacity*texColor.a;");
+            "  opacity = opacity*texColor.a;"
+            );
           }
         else if (this->ScalarMaterialMode == VTK_MATERIALMODE_DIFFUSE ||
             (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT &&
@@ -384,7 +385,8 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColorMaterialValues(
             "//VTK::Color::Impl", colorImpl +
            "  vec4 texColor = texelFetchBuffer(textureC, gl_PrimitiveID + PrimitiveIDOffset);\n"
             "  diffuseColor = texColor.rgb;\n"
-            "  opacity = opacity*texColor.a;");
+            "  opacity = opacity*texColor.a;"
+            );
           }
         else
           {
@@ -393,7 +395,8 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColorMaterialValues(
             "vec4 texColor = texelFetchBuffer(textureC, gl_PrimitiveID + PrimitiveIDOffset);\n"
             "  ambientColor = texColor.rgb;\n"
             "  diffuseColor = texColor.rgb;\n"
-            "  opacity = opacity*texColor.a;");
+            "  opacity = opacity*texColor.a;"
+            );
           }
         }
       substitute(FSSource,"//VTK::Color::Impl", colorImpl);
@@ -1929,14 +1932,29 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
         }
       else
         {
-        unsigned char *colorPtr = this->Colors->GetPointer(0);
         numComp = this->Colors->GetNumberOfComponents();
+        unsigned char *colorPtr = this->Colors->GetPointer(0);
         assert(numComp == 4);
-        for (unsigned int i = 0; i < cellCellMap.size(); i++)
+        // use a single color value?
+        if (this->FieldDataTupleId > -1 &&
+            this->ScalarMode == VTK_SCALAR_MODE_USE_FIELD_DATA)
           {
-          for (int j = 0; j < numComp; j++)
+          for (unsigned int i = 0; i < cellCellMap.size(); i++)
             {
-            newColors.push_back(colorPtr[cellCellMap[i]*numComp + j]);
+            for (int j = 0; j < numComp; j++)
+              {
+              newColors.push_back(colorPtr[this->FieldDataTupleId*numComp + j]);
+              }
+            }
+          }
+        else
+          {
+          for (unsigned int i = 0; i < cellCellMap.size(); i++)
+            {
+            for (int j = 0; j < numComp; j++)
+              {
+              newColors.push_back(colorPtr[cellCellMap[i]*numComp + j]);
+              }
             }
           }
         }
