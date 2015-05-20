@@ -17,6 +17,9 @@
 // default precisions, or defining precisions to null
 //VTK::System::Dec
 
+// the output of this shader
+//VTK::Output::Dec
+
 /**
 This shader finalizes the convolution for the LIC computation
 applying the normalization. eg. if box kernel is used the this

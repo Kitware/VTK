@@ -52,6 +52,7 @@
 // Bring in our fragment lit shader symbols.
 #include "vtkglPolyDataVSFragmentLit.h"
 #include "vtkglPolyDataFS.h"
+#include "vtkglPolyDataGS.h"
 
 #include <algorithm>
 
@@ -191,6 +192,7 @@ void vtkOpenGLPolyDataMapper::GetShaderTemplate(
 {
   VSSource = vtkglPolyDataVSFragmentLit;
   FSSource = vtkglPolyDataFS;
+  //GSSource = vtkglPolyDataGS;
   GSSource.clear();
 }
 
@@ -580,6 +582,13 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(
       substitute(VSSource,
         "//VTK::Normal::Impl",
         "normalVCVarying = normalMatrix * normalMC;");
+      // substitute(GSSource,
+      //   "//VTK::Normal::Dec",
+      //   "in vec3 normalVCVaryingGS[];\n"
+      //   "out vec3 normalVCVarying;");
+      // substitute(GSSource,
+      //   "//VTK::Normal::Impl",
+      //   "normalVCVarying = normalVCVaryingGS[i];");
       substitute(FSSource,
         "//VTK::Normal::Dec",
         "varying vec3 normalVCVarying;");

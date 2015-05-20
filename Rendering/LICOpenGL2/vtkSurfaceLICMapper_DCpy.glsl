@@ -19,6 +19,9 @@
 // default precisions, or defining precisions to null
 //VTK::System::Dec
 
+// the output of this shader
+//VTK::Output::Dec
+
 uniform sampler2D texDepth;     // z values from vertex shader
 uniform sampler2D texRGBColors; // final rgb LIC colors
 

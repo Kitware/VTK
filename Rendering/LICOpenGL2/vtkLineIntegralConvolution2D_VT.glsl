@@ -20,6 +20,9 @@
 // default precisions, or defining precisions to null
 //VTK::System::Dec
 
+// the output of this shader
+//VTK::Output::Dec
+
 // Fragment shader used by the gaussian blur filter render pass.
 
 uniform sampler2D texVectors; // input texture

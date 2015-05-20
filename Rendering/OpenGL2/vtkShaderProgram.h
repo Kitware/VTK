@@ -238,6 +238,7 @@ protected:
   int Handle;
   int VertexShaderHandle;
   int FragmentShaderHandle;
+  int GeometryShaderHandle;
 
   bool Linked;
   bool Bound;
