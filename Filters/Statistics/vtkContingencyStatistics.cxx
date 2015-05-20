@@ -679,6 +679,7 @@ void vtkContingencyStatistics::Assess( vtkTable* inData,
     // Store names to be able to use SetValueByName which is faster than SetValue
     vtkIdType nv = this->AssessNames->GetNumberOfValues();
     vtkStdString* names = new vtkStdString[nv];
+    int columnOffset = outData->GetNumberOfColumns ();
     for ( vtkIdType v = 0; v < nv; ++ v )
       {
       std::ostringstream assessColName;
@@ -726,7 +727,7 @@ void vtkContingencyStatistics::Assess( vtkTable* inData,
         (*dfunc)( assessResult, r );
         for ( vtkIdType v = 0; v < nv; ++ v )
           {
-          outData->SetValue( r, v, assessResult->GetValue( v ) );
+          outData->SetValue ( r, columnOffset + v, assessResult->GetValue( v ) );
           }
         }
 

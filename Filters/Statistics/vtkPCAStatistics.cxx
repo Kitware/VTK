@@ -204,7 +204,7 @@ public:
                              vtkTable* inData, vtkTable* reqModel,
                              int normScheme, int basisScheme, int basisSize, double basisEnergy );
 
-  virtual void operator () ( vtkVariantArray* result, vtkIdType row );
+  virtual void operator () ( vtkDoubleArray* result, vtkIdType row );
 
   std::vector<double> EigenValues;
   std::vector<std::vector<double> > EigenVectors;
@@ -334,7 +334,7 @@ bool vtkPCAAssessFunctor::InitializePCA( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
-void vtkPCAAssessFunctor::operator () ( vtkVariantArray* result, vtkIdType row )
+void vtkPCAAssessFunctor::operator () ( vtkDoubleArray* result, vtkIdType row )
 {
   vtkIdType i;
   result->SetNumberOfValues( this->BasisSize );
