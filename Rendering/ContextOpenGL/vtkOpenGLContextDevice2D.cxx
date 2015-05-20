@@ -871,7 +871,8 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
   if (image->GetNumberOfPoints() == 0 && image->GetNumberOfCells() == 0)
     {
     int textDims[2];
-    if (!this->TextRenderer->RenderString(this->TextProp, string, image,
+    if (!this->TextRenderer->RenderString(this->TextProp, string,
+                                          this->RenderWindow->GetDPI(), image,
                                           textDims))
       {
       return;
@@ -923,7 +924,8 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
 void vtkOpenGLContextDevice2D::ComputeStringBounds(const vtkUnicodeString &string,
                                                    float bounds[4])
 {
-  vtkVector2i box = this->TextRenderer->GetBounds(this->TextProp, string);
+  vtkVector2i box = this->TextRenderer->GetBounds(this->TextProp, string,
+                                                  this->RenderWindow->GetDPI());
   // Check for invalid bounding box
   if (box[0] == VTK_INT_MIN || box[0] == VTK_INT_MAX ||
       box[1] == VTK_INT_MIN || box[1] == VTK_INT_MAX)
@@ -1586,20 +1588,20 @@ void vtkOpenGLContextDevice2D::PrintSelf(ostream &os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Renderer: ";
   if (this->Renderer)
-  {
+    {
     os << endl;
     this->Renderer->PrintSelf(os, indent.GetNextIndent());
-  }
+    }
   else
     {
     os << "(none)" << endl;
     }
   os << indent << "Text Renderer: ";
-  if (this->Renderer)
-  {
+  if (this->TextRenderer)
+    {
     os << endl;
     this->TextRenderer->PrintSelf(os, indent.GetNextIndent());
-  }
+    }
   else
     {
     os << "(none)" << endl;

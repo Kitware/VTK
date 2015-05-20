@@ -97,7 +97,7 @@ bool vtkMathTextFreeTypeTextRenderer::GetBoundingBoxInternal(
       this->CleanUpFreeTypeEscapes(cleanString);
       // Interpret string as UTF-8, use the UTF-16 GetBoundingBox overload:
       return this->FreeTypeTools->GetBoundingBox(
-            tprop, vtkUnicodeString::from_utf8(cleanString), bbox);
+            tprop, vtkUnicodeString::from_utf8(cleanString), dpi, bbox);
       }
     case Default:
     case UserBackend:
@@ -156,7 +156,7 @@ bool vtkMathTextFreeTypeTextRenderer::GetBoundingBoxInternal(
       {
       vtkUnicodeString cleanString(str);
       this->CleanUpFreeTypeEscapes(cleanString);
-      return this->FreeTypeTools->GetBoundingBox(tprop, cleanString, bbox);
+      return this->FreeTypeTools->GetBoundingBox(tprop, cleanString, dpi, bbox);
       }
     case Default:
     case UserBackend:
@@ -216,7 +216,7 @@ bool vtkMathTextFreeTypeTextRenderer::GetMetricsInternal(
       this->CleanUpFreeTypeEscapes(cleanString);
       // Interpret string as UTF-8, use the UTF-16 GetBoundingBox overload:
       return this->FreeTypeTools->GetMetrics(
-            tprop, vtkUnicodeString::from_utf8(cleanString), metrics);
+            tprop, vtkUnicodeString::from_utf8(cleanString), dpi, metrics);
       }
     case Default:
     case UserBackend:
@@ -275,7 +275,7 @@ bool vtkMathTextFreeTypeTextRenderer::GetMetricsInternal(
       {
       vtkUnicodeString cleanString(str);
       this->CleanUpFreeTypeEscapes(cleanString);
-      return this->FreeTypeTools->GetMetrics(tprop, cleanString, metrics);
+      return this->FreeTypeTools->GetMetrics(tprop, cleanString, dpi, metrics);
       }
     case Default:
     case UserBackend:
@@ -329,7 +329,8 @@ bool vtkMathTextFreeTypeTextRenderer::RenderStringInternal(
       this->CleanUpFreeTypeEscapes(cleanString);
       // Interpret string as UTF-8, use the UTF-16 RenderString overload:
       return this->FreeTypeTools->RenderString(
-            tprop, vtkUnicodeString::from_utf8(cleanString), data, textDims);
+            tprop, vtkUnicodeString::from_utf8(cleanString), dpi, data,
+            textDims);
       }
     case Default:
     case UserBackend:
@@ -382,7 +383,7 @@ bool vtkMathTextFreeTypeTextRenderer::RenderStringInternal(
       {
       vtkUnicodeString cleanString(str);
       this->CleanUpFreeTypeEscapes(cleanString);
-      return this->FreeTypeTools->RenderString(tprop, cleanString, data,
+      return this->FreeTypeTools->RenderString(tprop, cleanString, dpi, data,
                                                textDims);
       }
     case Default:
@@ -438,7 +439,7 @@ int vtkMathTextFreeTypeTextRenderer::GetConstrainedFontSizeInternal(
       vtkStdString cleanString(str);
       this->CleanUpFreeTypeEscapes(cleanString);
       return this->FreeTypeTools->GetConstrainedFontSize(cleanString, tprop,
-                                                         targetWidth,
+                                                         dpi, targetWidth,
                                                          targetHeight);
       }
     case Default:
@@ -495,7 +496,7 @@ int vtkMathTextFreeTypeTextRenderer::GetConstrainedFontSizeInternal(
       vtkUnicodeString cleanString(str);
       this->CleanUpFreeTypeEscapes(cleanString);
       return this->FreeTypeTools->GetConstrainedFontSize(cleanString, tprop,
-                                                         targetWidth,
+                                                         dpi, targetWidth,
                                                          targetHeight);
       }
     case Default:
@@ -512,7 +513,8 @@ int vtkMathTextFreeTypeTextRenderer::GetConstrainedFontSizeInternal(
 
 //------------------------------------------------------------------------------
 bool vtkMathTextFreeTypeTextRenderer::StringToPathInternal(
-    vtkTextProperty *tprop, const vtkStdString &str, vtkPath *path, int backend)
+    vtkTextProperty *tprop, const vtkStdString &str, vtkPath *path, int dpi,
+    int backend)
 {
   if (!path || !tprop)
     {
@@ -535,7 +537,8 @@ bool vtkMathTextFreeTypeTextRenderer::StringToPathInternal(
     case MathText:
       if (this->HasMathText)
         {
-        if (this->MathTextUtilities->StringToPath(str.c_str(), path, tprop))
+        if (this->MathTextUtilities->StringToPath(str.c_str(), path, tprop,
+                                                  dpi))
           {
           return true;
           }
@@ -546,7 +549,7 @@ bool vtkMathTextFreeTypeTextRenderer::StringToPathInternal(
       {
       vtkStdString cleanString(str);
       this->CleanUpFreeTypeEscapes(cleanString);
-      return this->FreeTypeTools->StringToPath(tprop, str, path);
+      return this->FreeTypeTools->StringToPath(tprop, str, dpi, path);
       }
     case Default:
     case UserBackend:
@@ -562,7 +565,7 @@ bool vtkMathTextFreeTypeTextRenderer::StringToPathInternal(
 
 //------------------------------------------------------------------------------
 bool vtkMathTextFreeTypeTextRenderer::StringToPathInternal(
-    vtkTextProperty *tprop, const vtkUnicodeString &str, vtkPath *path,
+    vtkTextProperty *tprop, const vtkUnicodeString &str, vtkPath *path, int dpi,
     int backend)
 {
   if (!path || !tprop)
@@ -587,7 +590,8 @@ bool vtkMathTextFreeTypeTextRenderer::StringToPathInternal(
       if (this->HasMathText)
         {
         vtkDebugMacro("Converting UTF16 to UTF8 for MathText rendering.");
-        if (this->MathTextUtilities->StringToPath(str.utf8_str(), path, tprop))
+        if (this->MathTextUtilities->StringToPath(str.utf8_str(), path, tprop,
+                                                  dpi))
           {
           return true;
           }
@@ -598,7 +602,7 @@ bool vtkMathTextFreeTypeTextRenderer::StringToPathInternal(
       {
       vtkUnicodeString cleanString(str);
       this->CleanUpFreeTypeEscapes(cleanString);
-      return this->FreeTypeTools->StringToPath(tprop, str, path);
+      return this->FreeTypeTools->StringToPath(tprop, str, dpi, path);
       }
     case Default:
     case UserBackend:

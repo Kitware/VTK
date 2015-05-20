@@ -58,9 +58,9 @@ int TestFTStringToPath(int , char *[])
   vtkNew<vtkPath> path;
   vtkNew<vtkTextProperty> tprop;
 
-  vtkFreeTypeTools::GetInstance()->StringToPath(tprop.GetPointer(),
-                                                vtkStdString("FreeType Path"),
-                                                path.GetPointer());
+  vtkFreeTypeTools::GetInstance()->StringToPath(
+        tprop.GetPointer(), vtkStdString("FreeType Path"),
+        view->GetRenderWindow()->GetDPI(), path.GetPointer());
 
   test->SetPath(path.GetPointer());
 

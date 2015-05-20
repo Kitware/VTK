@@ -135,11 +135,12 @@ private:
   vtkTextMapper(const vtkTextMapper&);  // Not implemented.
   void operator=(const vtkTextMapper&);  // Not implemented.
 
-  void UpdateQuad(vtkActor2D *actor);
-  void UpdateImage();
+  void UpdateQuad(vtkActor2D *actor, int dpi);
+  void UpdateImage(int dpi);
 
   int TextDims[2];
 
+  int RenderedDPI;
   vtkTimeStamp CoordsTime;
   vtkTimeStamp TCoordsTime;
   vtkNew<vtkImageData> Image;

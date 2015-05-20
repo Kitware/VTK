@@ -146,16 +146,14 @@ public:
   // ymin, ymax} of the rendered string in pixels. The origin of the bounding
   // box is the anchor point described by the horizontal and vertical
   // justification text property variables.
-  // Some rendering backends need the DPI of the target. If it is not provided,
-  // a DPI of 120 is assumed.
   // Return true on success, false otherwise.
   bool GetBoundingBox(vtkTextProperty *tprop, const vtkStdString &str,
-                      int bbox[4], int dpi = 120, int backend = Default)
+                      int bbox[4], int dpi, int backend = Default)
   {
     return this->GetBoundingBoxInternal(tprop, str, bbox, dpi, backend);
   }
   bool GetBoundingBox(vtkTextProperty *tprop, const vtkUnicodeString &str,
-                      int bbox[4], int dpi = 120, int backend = Default)
+                      int bbox[4], int dpi, int backend = Default)
   {
     return this->GetBoundingBoxInternal(tprop, str, bbox, dpi, backend);
   }
@@ -164,16 +162,14 @@ public:
   // Description:
   // Given a text property and a string, get some metrics for the rendered
   // string.
-  // Some rendering backends need the DPI of the target. If it is not provided,
-  // a DPI of 120 is assumed.
   // Return true on success, false otherwise.
   bool GetMetrics(vtkTextProperty *tprop, const vtkStdString &str,
-                  Metrics &metrics, int dpi = 120, int backend = Default)
+                  Metrics &metrics, int dpi, int backend = Default)
   {
     return this->GetMetricsInternal(tprop, str, metrics, dpi, backend);
   }
   bool GetMetrics(vtkTextProperty *tprop, const vtkUnicodeString &str,
-                  Metrics &metrics, int dpi = 120, int backend = Default)
+                  Metrics &metrics, int dpi, int backend = Default)
   {
     return this->GetMetricsInternal(tprop, str, metrics, dpi, backend);
   }
@@ -191,16 +187,14 @@ public:
   // The origin of the image's extents is aligned with the anchor point
   // described by the text property's vertical and horizontal justification
   // options.
-  // Some rendering backends need the DPI of the target. If it is not provided,
-  // a DPI of 120 is assumed.
   bool RenderString(vtkTextProperty *tprop, const vtkStdString &str,
-                    vtkImageData *data, int textDims[2] = NULL, int dpi = 120,
+                    vtkImageData *data, int textDims[2], int dpi,
                     int backend = Default)
   {
     return this->RenderStringInternal(tprop, str, data, textDims, dpi, backend);
   }
   bool RenderString(vtkTextProperty *tprop, const vtkUnicodeString &str,
-                    vtkImageData *data, int textDims[2] = NULL, int dpi = 120,
+                    vtkImageData *data, int textDims[2], int dpi,
                     int backend = Default)
   {
     return this->RenderStringInternal(tprop, str, data, textDims, dpi, backend);
@@ -211,17 +205,15 @@ public:
   // tprop that is required to fit the string in the target rectangle. The
   // computed font size will be set in @a tprop as well. If an error occurs,
   // this function will return -1.
-  // Some rendering backends need the DPI of the target. If it is not provided,
-  // a DPI of 120 is assumed.
   int GetConstrainedFontSize(const vtkStdString &str, vtkTextProperty *tprop,
-                             int targetWidth, int targetHeight, int dpi = 120,
+                             int targetWidth, int targetHeight, int dpi,
                              int backend = Default)
   {
     return this->GetConstrainedFontSizeInternal(str, tprop, targetWidth,
                                                 targetHeight, dpi, backend);
   }
   int GetConstrainedFontSize(const vtkUnicodeString &str, vtkTextProperty *tprop,
-                             int targetWidth, int targetHeight, int dpi = 120,
+                             int targetWidth, int targetHeight, int dpi,
                              int backend = Default)
   {
     return this->GetConstrainedFontSizeInternal(str, tprop, targetWidth,
@@ -235,14 +227,14 @@ public:
   // property's horizontal and vertical justification options.
   // Return true on success, false otherwise.
   bool StringToPath(vtkTextProperty *tprop, const vtkStdString &str,
-                    vtkPath *path, int backend = Default)
+                    vtkPath *path, int dpi, int backend = Default)
   {
-    return this->StringToPathInternal(tprop, str, path, backend);
+    return this->StringToPathInternal(tprop, str, path, dpi, backend);
   }
   bool StringToPath(vtkTextProperty *tprop, const vtkUnicodeString &str,
-                    vtkPath *path, int backend = Default)
+                    vtkPath *path, int dpi, int backend = Default)
   {
-    return this->StringToPathInternal(tprop, str, path, backend);
+    return this->StringToPathInternal(tprop, str, path, dpi, backend);
   }
 
   // Description:
@@ -293,10 +285,10 @@ protected:
                                              int dpi, int backend) = 0;
   virtual bool StringToPathInternal(vtkTextProperty *tprop,
                                     const vtkStdString &str, vtkPath *path,
-                                    int backend) = 0;
+                                    int dpi, int backend) = 0;
   virtual bool StringToPathInternal(vtkTextProperty *tprop,
                                     const vtkUnicodeString &str, vtkPath *path,
-                                    int backend) = 0;
+                                    int dpi, int backend) = 0;
   virtual void SetScaleToPowerOfTwoInternal(bool scale) = 0;
 
   // Description:

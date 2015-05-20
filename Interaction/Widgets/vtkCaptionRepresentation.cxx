@@ -193,10 +193,19 @@ void vtkCaptionRepresentation::AdjustCaptionBoundary()
       return;
       }
 
+    vtkWindow *win = this->Renderer->GetVTKWindow();
+    if (!win)
+      {
+      vtkErrorMacro(<<"No render window available: cannot determine DPI.");
+      return;
+      }
+
     int text_bbox[4];
     if (!tren->GetBoundingBox(this->CaptionActor2D->GetCaptionTextProperty(),
-                              this->CaptionActor2D->GetCaption(), text_bbox))
+                              this->CaptionActor2D->GetCaption(), text_bbox,
+                              win->GetDPI()))
       {
+      vtkErrorMacro(<<"Error calculating caption bounding box.");
       return;
       }
 

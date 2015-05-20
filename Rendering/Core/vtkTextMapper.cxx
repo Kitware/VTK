@@ -29,6 +29,7 @@
 #include "vtkTextProperty.h"
 #include "vtkTextRenderer.h"
 #include "vtkTexture.h"
+#include "vtkWindow.h"
 
 #include <algorithm>
 
@@ -43,6 +44,8 @@ vtkTextMapper::vtkTextMapper()
 {
   this->Input = NULL;
   this->TextProperty = NULL;
+
+  this->RenderedDPI = 0;
 
   vtkNew<vtkTextProperty> tprop;
   this->SetTextProperty(tprop.GetPointer());
@@ -128,9 +131,17 @@ void vtkTextMapper::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkTextMapper::GetSize(vtkViewport *, int size[])
+void vtkTextMapper::GetSize(vtkViewport *vp, int size[2])
 {
-  UpdateImage();
+  vtkWindow *win = vp ? vp->GetVTKWindow() : NULL;
+  if (!win)
+    {
+    size[0] = size[1] = 0;
+    vtkErrorMacro(<<"No render window available: cannot determine DPI.");
+    return;
+    }
+
+  this->UpdateImage(win->GetDPI());
   size[0] = this->TextDims[0];
   size[1] = this->TextDims[1];
 }
@@ -161,7 +172,8 @@ int vtkTextMapper::SetConstrainedFontSize(vtkViewport *viewport,
 
 
 //----------------------------------------------------------------------------
-int vtkTextMapper::SetConstrainedFontSize(vtkTextMapper *tmapper, vtkViewport *viewport,
+int vtkTextMapper::SetConstrainedFontSize(vtkTextMapper *tmapper,
+                                          vtkViewport *viewport,
                                           int targetWidth, int targetHeight)
 {
   // If target "empty" just return
@@ -357,8 +369,16 @@ void vtkTextMapper::RenderOverlay(vtkViewport *viewport, vtkActor2D *actor)
   vtkRenderer *ren = NULL;
   if (this->Input && this->Input[0])
     {
-    this->UpdateImage();
-    this->UpdateQuad(actor);
+    vtkWindow *win = viewport->GetVTKWindow();
+    if (!win)
+      {
+      vtkErrorMacro(<<"No render window available: cannot determine DPI.");
+      return;
+      }
+
+    this->UpdateImage(win->GetDPI());
+    this->UpdateQuad(actor, win->GetDPI());
+
     ren = vtkRenderer::SafeDownCast(viewport);
     if (ren)
       {
@@ -438,12 +458,9 @@ int vtkTextMapper::GetNumberOfLines(const char *input)
 #endif // VTK_LEGACY_REMOVE
 
 //----------------------------------------------------------------------------
-void vtkTextMapper::UpdateQuad(vtkActor2D *actor)
+void vtkTextMapper::UpdateQuad(vtkActor2D *actor, int dpi)
 {
   vtkDebugMacro(<<"UpdateQuad called");
-
-  // Ensure that the image is up to date.
-  UpdateImage();
 
   // Update texture coordinates:
   if (this->Image->GetMTime() > this->TCoordsTime)
@@ -503,7 +520,7 @@ void vtkTextMapper::UpdateQuad(vtkActor2D *actor)
       {
       if (!tren->GetBoundingBox(this->TextProperty,
                                 this->Input ? this->Input : std::string(),
-                                text_bbox))
+                                text_bbox, dpi))
         {
         vtkErrorMacro(<<"Error calculating bounding box.");
         }
@@ -528,10 +545,11 @@ void vtkTextMapper::UpdateQuad(vtkActor2D *actor)
 }
 
 //----------------------------------------------------------------------------
-void vtkTextMapper::UpdateImage()
+void vtkTextMapper::UpdateImage(int dpi)
 {
   vtkDebugMacro(<<"UpdateImage called");
   if (this->MTime > this->Image->GetMTime() ||
+      this->RenderedDPI != dpi ||
       this->TextProperty->GetMTime() > this->Image->GetMTime())
     {
     vtkTextRenderer *tren = vtkTextRenderer::GetInstance();
@@ -539,10 +557,11 @@ void vtkTextMapper::UpdateImage()
       {
       if (!tren->RenderString(this->TextProperty,
                               this->Input ? this->Input : std::string(),
-                              this->Image.GetPointer(), this->TextDims))
+                              this->Image.GetPointer(), this->TextDims, dpi))
         {
         vtkErrorMacro(<<"Texture generation failed.");
         }
+      this->RenderedDPI = dpi;
       vtkDebugMacro(<< "Text rendered to " << this->TextDims[0] << ", "
                     << this->TextDims[1] << " buffer.");
       }

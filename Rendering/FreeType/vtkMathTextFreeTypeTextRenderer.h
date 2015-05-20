@@ -73,9 +73,9 @@ protected:
                                      int targetWidth, int targetHeight, int dpi,
                                      int backend);
   bool StringToPathInternal(vtkTextProperty *tprop, const vtkStdString &str,
-                            vtkPath *path, int backend);
+                            vtkPath *path, int dpi, int backend);
   bool StringToPathInternal(vtkTextProperty *tprop, const vtkUnicodeString &str,
-                            vtkPath *path, int backend);
+                            vtkPath *path, int dpi, int backend);
   void SetScaleToPowerOfTwoInternal(bool scale);
 
 private:

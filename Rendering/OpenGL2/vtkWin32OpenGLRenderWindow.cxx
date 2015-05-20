@@ -1110,9 +1110,6 @@ void vtkWin32OpenGLRenderWindow::WindowInitialize()
     this->MakeCurrent(); // hsr
     this->OpenGLInit();
     }
-
-  // set the DPI
-  this->SetDPI(GetDeviceCaps(this->DeviceContext, LOGPIXELSY));
 }
 
 // Initialize the rendering window.
@@ -1765,4 +1762,11 @@ void vtkWin32OpenGLRenderWindow::SetCurrentCursor(int shape)
       LoadImage(0,cursorName,IMAGE_CURSOR,0,0,LR_SHARED | LR_DEFAULTSIZE);
     SetCursor((HCURSOR)cursor);
     }
+}
+
+//----------------------------------------------------------------------------
+bool vtkWin32OpenGLRenderWindow::DetectDPI()
+{
+  this->SetDPI(GetDeviceCaps(this->DeviceContext, LOGPIXELSY));
+  return true;
 }

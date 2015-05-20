@@ -120,7 +120,14 @@ public:
   // Return a best estimate to the dots per inch of the display
   // device being rendered (or printed).
   vtkGetMacro(DPI,int);
-  vtkSetClampMacro(DPI,int,1,3000);
+  vtkSetClampMacro(DPI,int,1,VTK_INT_MAX);
+
+  // Description:
+  // Attempt to detect and set the DPI of the display device by querying the
+  // system. Note that this is not supported on all backends, and this method
+  // will return false if the DPI could not be detected. Use GetDPI() to
+  // inspect the detected value.
+  virtual bool DetectDPI() { return false; }
 
   // Description:
   // Create a window in memory instead of on the screen. This may not be

@@ -22,6 +22,7 @@
 #include "vtkTextProperty.h"
 #include "vtkTextRenderer.h"
 #include "vtkTimerLog.h"
+#include "vtkWindow.h"
 
 vtkStandardNewMacro(vtkFreeTypeLabelRenderStrategy);
 
@@ -78,8 +79,19 @@ void vtkFreeTypeLabelRenderStrategy::ComputeLabelBounds(
     copy->ShallowCopy(tprop);
     copy->SetOrientation(0.0);
     }
+
+  int dpi = 72;
+  if (this->Renderer && this->Renderer->GetVTKWindow())
+    {
+    dpi = this->Renderer->GetVTKWindow()->GetDPI();
+    }
+  else
+    {
+    vtkWarningMacro(<<"No Renderer set. Assuming DPI of " << dpi << ".");
+    }
+
   int bbox[4];
-  this->TextRenderer->GetBoundingBox(copy, label.utf8_str(), bbox);
+  this->TextRenderer->GetBoundingBox(copy, label.utf8_str(), bbox, dpi);
 
   // Take line offset into account
   bds[0] = bbox[0];

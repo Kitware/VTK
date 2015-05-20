@@ -222,6 +222,8 @@ public:
   // Change the shape of the cursor
   virtual void SetCurrentCursor(int);
 
+  virtual bool DetectDPI();
+
   // Description:
   // Override the default implementation so that we can actively switch between
   // on and off screen rendering.

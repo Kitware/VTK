@@ -44,9 +44,11 @@ public:
   // is valid (it may not if GetBoundingBox() failed or if the string
   // was empty).
   virtual vtkVector2i GetBounds(vtkTextProperty *property,
-                                const vtkUnicodeString& string);
+                                const vtkUnicodeString& string,
+                                int dpi);
   virtual vtkVector2i GetBounds(vtkTextProperty *property,
-                                const vtkStdString& string);
+                                const vtkStdString& string,
+                                int dpi);
 
   // Description:
   // Given a text property and a string, this function initializes the
@@ -56,10 +58,12 @@ public:
   // not match the dimensions of the rendered text.
   virtual int RenderString(vtkTextProperty *property,
                            const vtkUnicodeString& string,
+                           int dpi,
                            vtkImageData *data,
                            int textDims[2] = NULL);
   virtual int RenderString(vtkTextProperty *property,
                            const vtkStdString& string,
+                           int dpi,
                            vtkImageData *data,
                            int textDims[2] = NULL);
 

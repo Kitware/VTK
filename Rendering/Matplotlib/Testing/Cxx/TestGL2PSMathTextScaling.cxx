@@ -47,6 +47,7 @@ int TestGL2PSMathTextScaling(int, char *[])
   vtkNew<vtkContextView> view;
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
   view->GetRenderWindow()->SetSize(400, 600);
+  view->GetRenderWindow()->SetDPI(120);
   vtkNew<GL2PSMathTextScalingTest> test;
   view->GetScene()->AddItem(test.GetPointer());
 
@@ -82,14 +83,17 @@ bool GL2PSMathTextScalingTest::Paint(vtkContext2D *painter)
   painter->GetBrush()->SetColor(50, 50, 128);
   painter->DrawRect(0, 0, 400, 600);
 
-  const char *str = "$\\mathrm{Text}\\/\\frac{\\pi}{\\sum_i^\\infty\\/i^{-1}}$";
   painter->GetTextProp()->SetColor(.7, .4, .5);
+  painter->GetTextProp()->SetJustificationToLeft();
+  painter->GetTextProp()->SetVerticalJustificationToBottom();
 
   for (int i = 0; i < 10; ++i)
     {
-    painter->GetTextProp()->SetFontSize(5+i*1.5);
-    painter->DrawMathTextString(20, 600-((pow(i, 1.2)+1)*40), str);
-    painter->DrawString(5, 600-((pow(i, 1.2)+1)*40), "Text");
+    int fontSize = 5 + i * 3;
+    float y = 600 - ((pow(i, 1.2) + 1) * 40);
+    painter->GetTextProp()->SetFontSize(fontSize);
+    painter->DrawString(5, y, "Text");
+    painter->DrawMathTextString(120, y, "MathText");
     }
 
   return true;

@@ -26,10 +26,12 @@ set_tests_properties(
 if(${Module_vtkRenderingMatplotlib})
   set(TestMathTextFreeTypeTextRenderer_ARGS DATA{../Data/Fonts/DejaVuSans.ttf})
   set(TestFreeTypeTextMapper_ARGS DATA{../Data/Fonts/DejaVuSans.ttf})
+  set(TestFontDPIScaling_ARGS DATA{../Data/Fonts/DejaVuSans.ttf})
 
   vtk_add_test_cxx(${vtk-module}CxxTests matplotlib_tests
     TestMathTextFreeTypeTextRenderer.cxx
     TestFreeTypeTextMapper.cxx
+    TestFontDPIScaling.cxx
     )
   list(APPEND tests
     ${matplotlib_tests})
