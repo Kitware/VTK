@@ -11,7 +11,7 @@ public:
   static vtkKMeansAssessFunctor* New();
   vtkKMeansAssessFunctor() { }
   virtual ~vtkKMeansAssessFunctor();
-  virtual void operator () ( vtkVariantArray* result, vtkIdType row );
+  virtual void operator () ( vtkDoubleArray* result, vtkIdType row );
   bool Initialize( vtkTable *inData, vtkTable *reqModel, vtkKMeansDistanceFunctor *distFunc );
   int GetNumberOfRuns() { return NumRuns; }
 };

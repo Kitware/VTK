@@ -1043,14 +1043,14 @@ void vtkPCAStatistics::Assess( vtkTable* inData,
       }
 
     // Something to hold assessed values for a single input datum
-    vtkVariantArray* singleResult = vtkVariantArray::New();
+    vtkDoubleArray* singleResult = vtkDoubleArray::New();
     // Loop over all the input data and assess each datum:
     for ( vtkIdType row = 0; row < nRow; ++ row )
       {
       (*dfunc)( singleResult, row );
       for ( comp = 0; comp < pcafunc->BasisSize; ++ comp )
         {
-        assessValues[comp][row] = singleResult->GetValue( comp ).ToDouble();
+        assessValues[comp][row] = singleResult->GetValue( comp );
         }
       }
     delete dfunc;

@@ -62,6 +62,7 @@ class vtkStdString;
 class vtkStringArray;
 class vtkVariant;
 class vtkVariantArray;
+class vtkDoubleArray;
 class vtkStatisticsAlgorithmPrivate;
 
 class VTKFILTERSSTATISTICS_EXPORT vtkStatisticsAlgorithm : public vtkTableAlgorithm
@@ -149,7 +150,7 @@ public:
   // A base class for a functor that assesses data.
   class AssessFunctor {
   public:
-    virtual void operator() ( vtkVariantArray*,
+    virtual void operator() ( vtkDoubleArray*,
                               vtkIdType ) = 0;
     virtual ~AssessFunctor() { }
   };

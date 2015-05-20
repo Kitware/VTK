@@ -720,13 +720,13 @@ void vtkContingencyStatistics::Assess( vtkTable* inData,
     else
       {
       // Assess each entry of the column
-      vtkVariantArray* assessResult = vtkVariantArray::New();
+      vtkDoubleArray* assessResult = vtkDoubleArray::New();
       for ( vtkIdType r = 0; r < nRowData; ++ r )
         {
         (*dfunc)( assessResult, r );
         for ( vtkIdType v = 0; v < nv; ++ v )
           {
-          outData->SetValueByName( r, names[v], assessResult->GetValue( v ) );
+          outData->SetValue( r, v, assessResult->GetValue( v ) );
           }
         }
 
@@ -1059,7 +1059,7 @@ public:
     this->PmiX_Y = pmiX_Y;
   }
   virtual ~BivariateContingenciesAndInformationFunctor() { }
-  virtual void operator() ( vtkVariantArray* result,
+  virtual void operator() ( vtkDoubleArray* result,
                             vtkIdType id )
   {
     vtkStdString x = this->DataX->GetVariantValue( id ).ToString();
