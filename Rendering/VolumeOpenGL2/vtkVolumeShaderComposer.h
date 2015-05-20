@@ -195,6 +195,7 @@ namespace vtkvolume
         \nuniform vec3 in_lightAmbientColor[1];\
         \nuniform vec3 in_lightDiffuseColor[1];\
         \nuniform vec3 in_lightSpecularColor[1];\
+        vec4 g_lightPosObj;\
       ");
       }
 
@@ -210,9 +211,10 @@ namespace vtkvolume
   //--------------------------------------------------------------------------
   std::string BaseInit(vtkRenderer* vtkNotUsed(ren),
                        vtkVolumeMapper* vtkNotUsed(mapper),
-                       vtkVolume* vtkNotUsed(vol))
+                       vtkVolume* vol,
+                       int lightingComplexity)
     {
-    return std::string("\
+    std::string shaderStr = std::string("\
       \n  // Get the 3D texture coordinates for lookup into the in_volume dataset\
       \n  g_dataPos = ip_textureCoords.xyz;\
       \n\
@@ -238,6 +240,22 @@ namespace vtkvolume
       \n\
       \n  // Flag to deternmine if voxel should be considered for the rendering\
       \n  bool l_skip = false;");
+
+    if (vol->GetProperty()->GetShade() && lightingComplexity == 1)
+      {
+        shaderStr += std::string("\
+          \n  // Light position in object space\
+          \n  g_lightPosObj = (in_inverseVolumeMatrix *\
+          \n                      vec4(in_cameraPos, 1.0));\
+          \n  if (g_lightPosObj.w != 0.0)\
+          \n    {\
+          \n    g_lightPosObj.x /= g_lightPosObj.w;\
+          \n    g_lightPosObj.y /= g_lightPosObj.w;\
+          \n    g_lightPosObj.z /= g_lightPosObj.w;\
+          \n    g_lightPosObj.w = 1.0;\
+          \n    }");
+      }
+      return shaderStr;
     }
 
   //--------------------------------------------------------------------------
@@ -439,19 +457,9 @@ namespace vtkvolume
       if (lightingComplexity == 1)
         {
         shaderStr += std::string("\
-          \n  // Light position in object space\
-          \n  vec4 lightPosObj = (in_inverseVolumeMatrix *\
-          \n                      vec4(in_cameraPos, 1.0));\
-          \n  if (lightPosObj.w != 0.0)\
-          \n    {\
-          \n    lightPosObj.x /= lightPosObj.w;\
-          \n    lightPosObj.y /= lightPosObj.w;\
-          \n    lightPosObj.z /= lightPosObj.w;\
-          \n    lightPosObj.w = 1.0;\
-          \n    }\
           \n  vec3 diffuse = vec3(0.0);\
           \n  vec3 specular = vec3(0.0);\
-          \n  vec3 ldir = normalize(lightPosObj.xyz - ip_vertexPos);\
+          \n  vec3 ldir = normalize(g_lightPosObj.xyz - ip_vertexPos);\
           \n  vec3 vdir = normalize(g_eyePosObj.xyz - ip_vertexPos);\
           \n  vec3 h = normalize(ldir + vdir);\
           \n  vec3 g2 = gradient.xyz;\

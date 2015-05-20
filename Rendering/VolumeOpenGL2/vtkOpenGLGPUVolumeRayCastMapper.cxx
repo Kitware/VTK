@@ -2108,7 +2108,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
   fragmentShader = vtkvolume::replace(
     fragmentShader,
     "//VTK::Base::Init",
-    vtkvolume::BaseInit(ren, this, vol),
+    vtkvolume::BaseInit(ren, this, vol, this->Impl->LightComplexity),
     true);
 
   fragmentShader = vtkvolume::replace(
