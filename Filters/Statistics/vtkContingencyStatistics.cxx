@@ -718,7 +718,7 @@ void vtkContingencyStatistics::Assess( vtkTable* inData,
         (*dfunc)( assessResult, r );
         for ( vtkIdType v = 0; v < nv; ++ v )
           {
-          outData->SetValue( r, v, assessResult->GetValue( v ) );
+          outData->SetValue ( r, columnOffset + v, assessResult->GetValue( v ) );
           }
         }
 
