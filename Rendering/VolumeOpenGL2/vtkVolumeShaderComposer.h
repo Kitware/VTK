@@ -203,7 +203,8 @@ namespace vtkvolume
         \nvec4 g_lightPosObj;\
         \nvec3 g_ldir;\
         \nvec3 g_vdir;\
-        \nvec3 g_h;"
+        \nvec3 g_h;\
+        \nvec3 g_aspect;"
       );
       }
 
@@ -270,7 +271,11 @@ namespace vtkvolume
           \n                       in_cellSpacing[2]);\
           \n  g_avgSpacing = (g_cellSpacing[0] +\
           \n                  g_cellSpacing[1] +\
-          \n                  g_cellSpacing[2])/3.0;"
+          \n                  g_cellSpacing[2])/3.0;\
+          \n  // Adjust the aspect\
+          \n  g_aspect.x = g_cellSpacing[0] * 2.0 / g_avgSpacing;\
+          \n  g_aspect.y = g_cellSpacing[1] * 2.0 / g_avgSpacing;\
+          \n  g_aspect.z = g_cellSpacing[2] * 2.0 / g_avgSpacing;"
         );
       }
     if (vol->GetProperty()->GetShade())
@@ -402,14 +407,9 @@ namespace vtkvolume
         \n  g2.z = in_scalarsRange[0] + (\
         \n         in_scalarsRange[1] - in_scalarsRange[0]) * g2.z;\
         \n  g2.xyz = g1 - g2.xyz;\
-        \n  vec3 aspect;\
-        \n  // Adjust the aspect\
-        \n  aspect.x = g_cellSpacing[0] * 2.0 / g_avgSpacing;\
-        \n  aspect.y = g_cellSpacing[1] * 2.0 / g_avgSpacing;\
-        \n  aspect.z = g_cellSpacing[2] * 2.0 / g_avgSpacing;\
-        \n  g2.x /= aspect.x;\
-        \n  g2.y /= aspect.y;\
-        \n  g2.z /= aspect.z;\
+        \n  g2.x /= g_aspect.x;\
+        \n  g2.y /= g_aspect.y;\
+        \n  g2.z /= g_aspect.z;\
         \n  float grad_mag = sqrt(g2.x * g2.x  +\
         \n                        g2.y * g2.y +\
         \n                        g2.z * g2.z);\
