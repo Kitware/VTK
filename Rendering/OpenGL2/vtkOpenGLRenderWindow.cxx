@@ -130,9 +130,13 @@ vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
     }
 
   this->SetTextureUnitManager(0);
+
+  this->GLStateIntegers.clear();
+
   this->ShaderCache->UnRegister(this);
 }
 
+// ----------------------------------------------------------------------------
 void vtkOpenGLRenderWindow::ReleaseGraphicsResources()
 {
   vtkCollectionSimpleIterator rsit;
@@ -164,7 +168,6 @@ void vtkOpenGLRenderWindow::ReleaseGraphicsResources()
       }
     }
 }
-
 
 // ----------------------------------------------------------------------------
 unsigned long vtkOpenGLRenderWindow::GetContextCreationTime()
@@ -423,10 +426,13 @@ void vtkOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkOpenGLRenderWindow::Render()
 {
+  // Query current GL state and store them
+  this->SaveGLState();
+
   this->Superclass::Render();
 
-  // Clean up OpenGL state:
-  this->GetShaderCache()->ReleaseCurrentShader();
+  // Restore state to previous known value
+  this->RestoreGLState();
 }
 
 int vtkOpenGLRenderWindow::GetDepthBufferSize()
@@ -1860,4 +1866,28 @@ vtkTextureUnitManager *vtkOpenGLRenderWindow::GetTextureUnitManager()
 void vtkOpenGLRenderWindow::WaitForCompletion()
 {
   glFinish();
+}
+
+// ----------------------------------------------------------------------------
+void vtkOpenGLRenderWindow::SaveGLState()
+{
+  // For now just query the active texture unit
+  if (this->Initialized)
+    {
+    glGetIntegerv(GL_ACTIVE_TEXTURE, &this->GLStateIntegers["GL_ACTIVE_TEXTURE"]);
+    }
+}
+
+// ----------------------------------------------------------------------------
+void vtkOpenGLRenderWindow::RestoreGLState()
+{
+  // Prevent making GL calls unless we have a valid context
+  if (this->Initialized)
+    {
+    // For now just re-store the texture unit
+    glActiveTexture(GL_TEXTURE0 + this->GLStateIntegers["GL_ACTIVE_TEXTURE"]);
+
+    // Unuse active shader program
+    this->GetShaderCache()->ReleaseCurrentShader();
+    }
 }

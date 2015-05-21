@@ -304,6 +304,17 @@ protected:
   // Set the texture unit manager.
   void SetTextureUnitManager(vtkTextureUnitManager *textureUnitManager);
 
+
+  // Description:
+  // Query and save OpenGL state
+  void SaveGLState();
+
+  // Description:
+  // Restore OpenGL state at end of the rendering
+  void RestoreGLState();
+
+  std::map<std::string, int> GLStateIntegers;
+
   unsigned int BackLeftBuffer;
   unsigned int BackRightBuffer;
   unsigned int FrontLeftBuffer;
