@@ -2046,6 +2046,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
     {
     vtkLightCollection* lc = ren->GetLights();
     vtkLight* light;
+    this->Impl->NumberOfLights = 0;
+
     // Compute light complexity.
     vtkCollectionSimpleIterator sit;
     for (lc->InitTraversal(sit); (light = lc->GetNextLight(sit)); )
