@@ -812,7 +812,7 @@ static int vtkHabichtOrSturmBisectionSolve(
       }
     else
       {
-      delete Q;
+      delete [] Q;
       }
     }
 
