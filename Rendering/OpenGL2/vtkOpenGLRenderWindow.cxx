@@ -96,7 +96,7 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->WindowName = new char[strlen("Visualization Toolkit - OpenGL")+1];
   strcpy( this->WindowName, "Visualization Toolkit - OpenGL" );
 
-  this->OffScreenUseFrameBuffer=0;
+  this->OffScreenUseFrameBuffer = 0;
 
   this->BackLeftBuffer=static_cast<unsigned int>(GL_BACK_LEFT);
   this->BackRightBuffer=static_cast<unsigned int>(GL_BACK_RIGHT);
@@ -1887,6 +1887,13 @@ void vtkOpenGLRenderWindow::SaveGLState()
   if (this->Initialized)
     {
     glGetIntegerv(GL_ACTIVE_TEXTURE, &this->GLStateIntegers["GL_ACTIVE_TEXTURE"]);
+
+    if (this->GLStateIntegers["GL_ACTIVE_TEXTURE"] < 0 ||
+        this->GLStateIntegers["GL_ACTIVE_TEXTURE"] >
+          this->TextureUnitManager->GetNumberOfTextureUnits())
+      {
+      this->GLStateIntegers["GL_ACTIVE_TEXTURE"] = 0;
+      }
     }
 }
 
