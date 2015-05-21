@@ -1881,11 +1881,10 @@ void vtkOpenGLRenderWindow::SaveGLState()
 // ----------------------------------------------------------------------------
 void vtkOpenGLRenderWindow::RestoreGLState()
 {
-  // For now just query the active texture unit
-
   // Prevent making GL calls unless we have a valid context
   if (this->Initialized)
     {
+    // For now just re-store the texture unit
     glActiveTexture(GL_TEXTURE0 + this->GLStateIntegers["GL_ACTIVE_TEXTURE"]);
 
     // Unuse active shader program
