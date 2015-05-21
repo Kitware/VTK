@@ -128,6 +128,12 @@ vtkShaderProgram *vtkOpenGLShaderCache::ReadyShader(
       "#define texture2D texture\n"
       "#define texture3D texture\n"
       );
+    GSSource = replace(GSSource,"//VTK::System::Dec",
+      "#version 150\n"
+      "#define highp\n"
+      "#define mediump\n"
+      "#define lowp"
+      );
     std::string fragDecls;
     bool done = false;
     while (!done)

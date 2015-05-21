@@ -19,6 +19,9 @@
 // default precisions, or defining precisions to null
 //VTK::System::Dec
 
+// the output of this shader
+//VTK::Output::Dec
+
 uniform sampler2D texLIC;         // inout texture
 uniform vec2      uLICTexSize;    // input texture size
 uniform vec4      uComputeBounds; // valid region of texture

@@ -20,6 +20,9 @@
 // default precisions, or defining precisions to null
 //VTK::System::Dec
 
+// the output of this shader
+//VTK::Output::Dec
+
 uniform sampler2D texLIC; // input texture
 uniform float     uDx;    // fragment size
 

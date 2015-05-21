@@ -128,6 +128,7 @@ set(shader_files
   glsl/vtkglPolyData2DFS.glsl
   glsl/vtkglPolyData2DVS.glsl
   glsl/vtkglPolyDataFS.glsl
+  glsl/vtkglPolyDataGS.glsl
   glsl/vtkglPolyDataVSFragmentLit.glsl
   )
 unset(shader_h_files)

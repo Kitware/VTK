@@ -631,7 +631,7 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
     this->SetupPalette(hDC);
 
     // create a context
-//#define USE_32_CONTEXT
+#define USE_32_CONTEXT
 #ifdef USE_32_CONTEXT
     PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB =
       reinterpret_cast<PFNWGLCREATECONTEXTATTRIBSARBPROC>(wglGetProcAddress("wglCreateContextAttribsARB"));

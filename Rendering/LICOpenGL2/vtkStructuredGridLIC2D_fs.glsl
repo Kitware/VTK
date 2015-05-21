@@ -20,6 +20,9 @@
 // default precisions, or defining precisions to null
 //VTK::System::Dec
 
+// the output of this shader
+//VTK::Output::Dec
+
 varying vec2 tcoordVC;
 
 /*

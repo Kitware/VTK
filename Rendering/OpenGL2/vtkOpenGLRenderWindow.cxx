@@ -408,11 +408,23 @@ void vtkOpenGLRenderWindow::OpenGLInitContext()
       return;
       }
 
-    if (!GLEW_VERSION_2_1)
+    if (!GLEW_VERSION_3_2)
       {
-      vtkErrorMacro("GL version 2.1 is not supported by your graphics driver.");
-      //m_valid = false;
-      return;
+      if (!GLEW_VERSION_2_1)
+        {
+        vtkErrorMacro("GL version 2.1 is not supported by your graphics driver.");
+        //m_valid = false;
+        return;
+        }
+      vtkWarningMacro(
+        "VTK is designed to work with OpenGL version 3.2 but it appears "
+        "it has been given a context that does not support 3.2. VTK will "
+        "run in a compatibility mode designed to work with OpenGL 2.1 but "
+        "some features may not work.");
+      }
+    else
+      {
+      this->SetContextSupportsOpenGL32(true);
       }
 #endif
     this->Initialized = true;

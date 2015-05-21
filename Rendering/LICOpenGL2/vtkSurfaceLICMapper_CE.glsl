@@ -21,6 +21,9 @@
 // default precisions, or defining precisions to null
 //VTK::System::Dec
 
+// the output of this shader
+//VTK::Output::Dec
+
 uniform sampler2D texGeomColors; // scalars + lighting
 uniform sampler2D texLIC;        // image lic, mask
 uniform sampler2D texHSLColors;  // hsla colors
