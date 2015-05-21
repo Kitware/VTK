@@ -19,6 +19,7 @@
 #include "vtkConditionVariable.h"
 #include "vtkImageData.h"
 #include "vtkJPEGWriter.h"
+#include "vtkPNGWriter.h"
 #include "vtkMultiThreader.h"
 #include "vtkMutexLock.h"
 #include "vtkNew.h"
@@ -359,9 +360,11 @@ public:
   vtkSharedData SharedData;
   vtkTypeUInt64 Counter;
 
+  vtkSmartPointer<vtkUnsignedCharArray> lastBase64Image;
 
   vtkInternals() : Counter(0)
   {
+    lastBase64Image = vtkSmartPointer<vtkUnsignedCharArray>::New();
   }
 
   void TerminateAllWorkers()
@@ -391,6 +394,23 @@ public:
       }
     data = output;
     return this->SharedData.CopyLatestOutputIfDifferent(key, data);
+    }
+
+  // Once an imagedata has been written to memory as a jpg or png, this
+  // convenience function can encode that image as a Base64 string.
+  const char* GetBase64EncodedImage(vtkUnsignedCharArray* encodedInputImage)
+    {
+    this->lastBase64Image->SetNumberOfComponents(1);
+    this->lastBase64Image->SetNumberOfTuples(std::ceil(1.5 * encodedInputImage->GetNumberOfTuples()));
+    unsigned long size = vtkBase64Utilities::Encode(
+      encodedInputImage->GetPointer(0),
+      encodedInputImage->GetNumberOfTuples(),
+      this->lastBase64Image->GetPointer(0), /*mark_end=*/ 0);
+
+    this->lastBase64Image->SetNumberOfTuples(static_cast<vtkIdType>(size)+1);
+    this->lastBase64Image->SetValue(size, 0);
+
+    return reinterpret_cast<char*>(this->lastBase64Image->GetPointer(0));
     }
 };
 
@@ -434,6 +454,34 @@ bool vtkDataEncoder::GetLatestOutput(
   vtkTypeUInt32 key, vtkSmartPointer<vtkUnsignedCharArray>& data)
 {
   return this->Internals->GetLatestOutput(key, data);
+}
+
+//----------------------------------------------------------------------------
+const char* vtkDataEncoder::EncodeAsBase64Png(vtkImageData* img, int compressionLevel)
+{
+  // Perform in-memory write of image as png
+  vtkNew<vtkPNGWriter> writer;
+  writer->WriteToMemoryOn();
+  writer->SetInputData(img);
+  writer->SetCompressionLevel(compressionLevel);
+  writer->Write();
+
+  // Return Base64-encoded string
+  return this->Internals->GetBase64EncodedImage(writer->GetResult());
+}
+
+//----------------------------------------------------------------------------
+const char* vtkDataEncoder::EncodeAsBase64Jpg(vtkImageData* img, int quality)
+{
+  // Perform in-memory write of image as jpg
+  vtkNew<vtkJPEGWriter> writer;
+  writer->WriteToMemoryOn();
+  writer->SetInputData(img);
+  writer->SetQuality(quality);
+  writer->Write();
+
+  // Return Base64-encoded string
+  return this->Internals->GetBase64EncodedImage(writer->GetResult());
 }
 
 //----------------------------------------------------------------------------
