@@ -162,7 +162,10 @@ bool vtkShaderProgram::AttachShader(const vtkShader *shader)
       glDetachShader(static_cast<GLuint>(this->Handle),
                      static_cast<GLuint>(this->GeometryShaderHandle));
       }
+// only use GS if supported
+#ifdef GL_GEOMETRY_SHADER
     this->GeometryShaderHandle = shader->GetHandle();
+#endif
     }
   else
     {
@@ -223,6 +226,7 @@ bool vtkShaderProgram::DetachShader(const vtkShader *shader)
         this->Linked = false;
         return true;
         }
+#ifdef GL_GEOMETRY_SHADER
     case vtkShader::Geometry:
       if (this->GeometryShaderHandle != shader->GetHandle())
         {
@@ -237,6 +241,7 @@ bool vtkShaderProgram::DetachShader(const vtkShader *shader)
         this->Linked = false;
         return true;
         }
+#endif
     default:
       return false;
     }
@@ -337,6 +342,7 @@ int vtkShaderProgram::CompileShader()
     vtkErrorMacro(<< this->GetFragmentShader()->GetError());
     return 0;
     }
+#ifdef GL_GEOMETRY_SHADER
   if (this->GetGeometryShader()->GetSource().size() > 0 &&
       !this->GetGeometryShader()->Compile())
     {
@@ -353,18 +359,19 @@ int vtkShaderProgram::CompileShader()
     vtkErrorMacro(<< this->GetGeometryShader()->GetError());
     return 0;
     }
+  if (this->GetGeometryShader()->GetSource().size() > 0 &&
+      !this->AttachShader(this->GetGeometryShader()))
+    {
+    vtkErrorMacro(<< this->GetError());
+    return 0;
+    }
+#endif
   if (!this->AttachShader(this->GetVertexShader()))
     {
     vtkErrorMacro(<< this->GetError());
     return 0;
     }
   if (!this->AttachShader(this->GetFragmentShader()))
-    {
-    vtkErrorMacro(<< this->GetError());
-    return 0;
-    }
-  if (this->GetGeometryShader()->GetSource().size() > 0 &&
-      !this->AttachShader(this->GetGeometryShader()))
     {
     vtkErrorMacro(<< this->GetError());
     return 0;
@@ -378,8 +385,6 @@ int vtkShaderProgram::CompileShader()
   this->Compiled = true;
   return 1;
 }
-
-
 
 void vtkShaderProgram::Release()
 {

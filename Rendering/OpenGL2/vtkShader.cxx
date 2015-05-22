@@ -59,9 +59,11 @@ bool vtkShader::Compile()
   GLenum type = GL_VERTEX_SHADER;
   switch (this->ShaderType)
     {
+#ifdef GL_GEOMETRY_SHADER
     case vtkShader::Geometry:
       type = GL_GEOMETRY_SHADER;
       break;
+#endif
     case vtkShader::Fragment:
       type = GL_FRAGMENT_SHADER;
       break;
