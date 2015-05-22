@@ -27,10 +27,8 @@
 #include "vtkObject.h"
 
 #include "vtkSMPThreadLocal.h" // For Initialized
-
-class vtkSMPTools;
-
 #include "vtkSMPToolsInternal.h"
+
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #ifndef __WRAP__

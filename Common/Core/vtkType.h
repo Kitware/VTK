@@ -259,16 +259,16 @@ typedef double vtkTypeFloat64;
 /* Choose an implementation for vtkIdType.  */
 #define VTK_HAS_ID_TYPE
 #ifdef VTK_USE_64BIT_IDS
-# if defined(VTK_SIZEOF_LONG) && VTK_SIZEOF_LONG == 8 && 0
-typedef long vtkIdType;
-#  define VTK_SIZEOF_ID_TYPE VTK_SIZEOF_LONG
-#  define VTK_ID_MIN VTK_LONG_MIN
-#  define VTK_ID_MAX VTK_LONG_MAX
-# elif defined(VTK_TYPE_USE_LONG_LONG) && VTK_SIZEOF_LONG_LONG == 8
+# if defined(VTK_TYPE_USE_LONG_LONG) && VTK_SIZEOF_LONG_LONG == 8
 typedef long long vtkIdType;
 #  define VTK_SIZEOF_ID_TYPE VTK_SIZEOF_LONG_LONG
 #  define VTK_ID_MIN VTK_LONG_LONG_MIN
 #  define VTK_ID_MAX VTK_LONG_LONG_MAX
+# elif defined(VTK_SIZEOF_LONG) && VTK_SIZEOF_LONG == 8
+typedef long vtkIdType;
+#  define VTK_SIZEOF_ID_TYPE VTK_SIZEOF_LONG
+#  define VTK_ID_MIN VTK_LONG_MIN
+#  define VTK_ID_MAX VTK_LONG_MAX
 # elif defined(VTK_TYPE_USE___INT64) && VTK_SIZEOF___INT64 == 8
 typedef __int64 vtkIdType;
 #  define VTK_SIZEOF_ID_TYPE VTK_SIZEOF___INT64

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkAtomicInt.h
+  Module:    vtkAtomic.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,13 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAtomicInt - Provides support for atomic integers
+// .NAME vtkAtomic - Provides support for atomic integers
 // .SECTION Description
 // Objects of atomic types are C++ objects that are free from data races;
 // that is, if one thread writes to an atomic object while another thread
-// reads from it, the behavior is well-defined. vtkAtomicInt provides
-// a subset of the std::atomic API and implementation, for 32 bit and 64 bit
-// integers and pointer types. For these types, vtkAtomicInt defines a
+// reads from it, the behavior is well-defined. vtkAtomic provides
+// a subset of the std::atomic API and implementation for the following types,
+// 32 bit signed and unsigned integers, 64 bit signed and unsigned integers,
+// and pointers. For these types, vtkAtomic defines a
 // number of operations that happen atomically - without interruption
 // by another thread. Furthermore, these operations happen in a
 // sequentially-consistent way and use full memory fences. This means
@@ -31,15 +32,16 @@
 // platform or compiler, mutexes, which are significantly slower, are used
 // as a fallback.
 
-#ifndef vtkAtomicInt_h
-#define vtkAtomicInt_h
+#ifndef vtkAtomic_h
+#define vtkAtomic_h
 
 #include "vtkCommonCoreModule.h" // For export macro
+#include "vtkAtomicTypeConcepts.h"
 #include "vtkConfigure.h"
+#include "vtkSystemIncludes.h"
 #include "vtkType.h"
 
 #include <cstddef>
-#include <limits>
 
 
 // Assume 64-bit atomic operations are not available on 32 bit platforms
@@ -314,243 +316,232 @@ public:
 };
 
 #endif
-
-template <bool> struct CompileTimeCheck;
-template <> struct CompileTimeCheck<true> {};
-
-template <typename T> struct SupportedIntegralType
-{
-  CompileTimeCheck<std::numeric_limits<T>::is_specialized> c1;
-  CompileTimeCheck<std::numeric_limits<T>::is_integer> c2;
-  CompileTimeCheck<sizeof(T) == 4 || sizeof(T) == 8> c3;
-};
-
 }
 #endif // __WRAP__
 
-template <typename T> class vtkAtomicInt : detail::SupportedIntegralType<T>
+template <typename T> class vtkAtomic : vtk::atomic::detail::IntegralType<T>
 {
 private:
   typedef detail::AtomicOps<sizeof(T)> Impl;
 
 public:
-  vtkAtomicInt() : object(0)
+  vtkAtomic() : Atomic(0)
   {
   }
 
-  vtkAtomicInt(T val) : object(static_cast<typename Impl::value_type>(val))
+  vtkAtomic(T val) : Atomic(static_cast<typename Impl::value_type>(val))
   {
   }
 
-  vtkAtomicInt(const vtkAtomicInt<T> &ai)
-    : object(static_cast<typename Impl::value_type>(ai.load()))
+  vtkAtomic(const vtkAtomic<T> &atomic)
+    : Atomic(static_cast<typename Impl::value_type>(atomic.load()))
   {
   }
 
   T operator++()
   {
-    return static_cast<T>(Impl::PreIncrement(&this->object));
+    return static_cast<T>(Impl::PreIncrement(&this->Atomic));
   }
 
   T operator++(int)
   {
-    return static_cast<T>(Impl::PostIncrement(&this->object));
+    return static_cast<T>(Impl::PostIncrement(&this->Atomic));
   }
 
   T operator--()
   {
-    return static_cast<T>(Impl::PreDecrement(&this->object));
+    return static_cast<T>(Impl::PreDecrement(&this->Atomic));
   }
 
   T operator--(int)
   {
-    return static_cast<T>(Impl::PostDecrement(&this->object));
+    return static_cast<T>(Impl::PostDecrement(&this->Atomic));
   }
 
   T operator+=(T val)
   {
-    return static_cast<T>(Impl::AddAndFetch(&this->object,
+    return static_cast<T>(Impl::AddAndFetch(&this->Atomic,
       static_cast<typename Impl::value_type>(val)));
   }
 
   T operator-=(T val)
   {
-    return static_cast<T>(Impl::SubAndFetch(&this->object,
+    return static_cast<T>(Impl::SubAndFetch(&this->Atomic,
       static_cast<typename Impl::value_type>(val)));
   }
 
   operator T() const
   {
-    return static_cast<T>(Impl::Load(&this->object));
+    return static_cast<T>(Impl::Load(&this->Atomic));
   }
 
   T operator=(T val)
   {
-    Impl::Store(&this->object, static_cast<typename Impl::value_type>(val));
+    Impl::Store(&this->Atomic, static_cast<typename Impl::value_type>(val));
     return val;
   }
 
-  vtkAtomicInt<T>& operator=(const vtkAtomicInt<T> &ai)
+  vtkAtomic<T>& operator=(const vtkAtomic<T> &atomic)
   {
-    this->store(ai.load());
+    this->store(atomic.load());
     return *this;
   }
 
   T load() const
   {
-    return static_cast<T>(Impl::Load(&this->object));
+    return static_cast<T>(Impl::Load(&this->Atomic));
   }
 
   void store(T val)
   {
-    Impl::Store(&this->object, static_cast<typename Impl::value_type>(val));
+    Impl::Store(&this->Atomic, static_cast<typename Impl::value_type>(val));
   }
 
 private:
-  typename Impl::atomic_type object;
+  typename Impl::atomic_type Atomic;
 };
 
 
-template <typename T> class vtkAtomicInt<T*>
+template <typename T> class vtkAtomic<T*>
 {
 private:
   typedef detail::AtomicOps<sizeof(T*)> Impl;
 
 public:
-  vtkAtomicInt() : object(0)
+  vtkAtomic() : Atomic(0)
   {
   }
 
-  vtkAtomicInt(T* val)
-    : object(reinterpret_cast<typename Impl::value_type>(val))
+  vtkAtomic(T* val)
+    : Atomic(reinterpret_cast<typename Impl::value_type>(val))
   {
   }
 
-  vtkAtomicInt(const vtkAtomicInt<T*> &ai)
-    : object(reinterpret_cast<typename Impl::value_type>(ai.load()))
+  vtkAtomic(const vtkAtomic<T*> &atomic)
+    : Atomic(reinterpret_cast<typename Impl::value_type>(atomic.load()))
   {
   }
 
   T* operator++()
   {
-    return reinterpret_cast<T*>(Impl::AddAndFetch(&this->object, sizeof(T)));
+    return reinterpret_cast<T*>(Impl::AddAndFetch(&this->Atomic, sizeof(T)));
   }
 
   T* operator++(int)
   {
-    T* val = reinterpret_cast<T*>(Impl::AddAndFetch(&this->object, sizeof(T)));
+    T* val = reinterpret_cast<T*>(Impl::AddAndFetch(&this->Atomic, sizeof(T)));
     return --val;
   }
 
   T* operator--()
   {
-    return reinterpret_cast<T*>(Impl::SubAndFetch(&this->object, sizeof(T)));
+    return reinterpret_cast<T*>(Impl::SubAndFetch(&this->Atomic, sizeof(T)));
   }
 
   T* operator--(int)
   {
-    T* val = reinterpret_cast<T*>(Impl::AddAndFetch(&this->object, sizeof(T)));
+    T* val = reinterpret_cast<T*>(Impl::AddAndFetch(&this->Atomic, sizeof(T)));
     return ++val;
   }
 
   T* operator+=(std::ptrdiff_t val)
   {
-    return reinterpret_cast<T*>(Impl::AddAndFetch(&this->object,
+    return reinterpret_cast<T*>(Impl::AddAndFetch(&this->Atomic,
                                                   val * sizeof(T)));
   }
 
   T* operator-=(std::ptrdiff_t val)
   {
-    return reinterpret_cast<T*>(Impl::SubAndFetch(&this->object,
+    return reinterpret_cast<T*>(Impl::SubAndFetch(&this->Atomic,
                                                   val * sizeof(T)));
   }
 
   operator T*() const
   {
-    return reinterpret_cast<T*>(Impl::Load(&this->object));
+    return reinterpret_cast<T*>(Impl::Load(&this->Atomic));
   }
 
   T* operator=(T* val)
   {
-    Impl::Store(&this->object,
+    Impl::Store(&this->Atomic,
                 reinterpret_cast<typename Impl::value_type>(val));
     return val;
   }
 
-  vtkAtomicInt<T*>& operator=(const vtkAtomicInt<T*> &ai)
+  vtkAtomic<T*>& operator=(const vtkAtomic<T*> &atomic)
   {
-    this->store(ai.load());
+    this->store(atomic.load());
     return *this;
   }
 
   T* load() const
   {
-    return reinterpret_cast<T*>(Impl::Load(&this->object));
+    return reinterpret_cast<T*>(Impl::Load(&this->Atomic));
   }
 
   void store(T* val)
   {
-    Impl::Store(&this->object,
+    Impl::Store(&this->Atomic,
                 reinterpret_cast<typename Impl::value_type>(val));
   }
 
 private:
-  typename Impl::atomic_type object;
+  typename Impl::atomic_type Atomic;
 };
 
 
-template <> class vtkAtomicInt<void*>
+template <> class vtkAtomic<void*>
 {
 private:
   typedef detail::AtomicOps<sizeof(void*)> Impl;
 
 public:
-  vtkAtomicInt() : object(0)
+  vtkAtomic() : Atomic(0)
   {
   }
 
-  vtkAtomicInt(void* val)
-    : object(reinterpret_cast<Impl::value_type>(val))
+  vtkAtomic(void* val)
+    : Atomic(reinterpret_cast<Impl::value_type>(val))
   {
   }
 
-  vtkAtomicInt(const vtkAtomicInt<void*> &ai)
-    : object(reinterpret_cast<Impl::value_type>(ai.load()))
+  vtkAtomic(const vtkAtomic<void*> &atomic)
+    : Atomic(reinterpret_cast<Impl::value_type>(atomic.load()))
   {
   }
 
   operator void*() const
   {
-    return reinterpret_cast<void*>(Impl::Load(&this->object));
+    return reinterpret_cast<void*>(Impl::Load(&this->Atomic));
   }
 
   void* operator=(void* val)
   {
-    Impl::Store(&this->object,
+    Impl::Store(&this->Atomic,
                 reinterpret_cast<Impl::value_type>(val));
     return val;
   }
 
-  vtkAtomicInt<void*>& operator=(const vtkAtomicInt<void*> &ai)
+  vtkAtomic<void*>& operator=(const vtkAtomic<void*> &atomic)
   {
-    this->store(ai.load());
+    this->store(atomic.load());
     return *this;
   }
 
   void* load() const
   {
-    return reinterpret_cast<void*>(Impl::Load(&this->object));
+    return reinterpret_cast<void*>(Impl::Load(&this->Atomic));
   }
 
   void store(void* val)
   {
-    Impl::Store(&this->object,
+    Impl::Store(&this->Atomic,
                 reinterpret_cast<Impl::value_type>(val));
   }
 
 private:
-  Impl::atomic_type object;
+  Impl::atomic_type Atomic;
 };
 
 #endif
-// VTK-HeaderTest-Exclude: vtkAtomicInt.h
+// VTK-HeaderTest-Exclude: vtkAtomic.h
