@@ -66,18 +66,6 @@
 #
 
 #===============================================
-# Create search paths based on prefix path
-#===============================================
-macro(create_search_paths PREFIX)
-  foreach(dir ${${PREFIX}_PREFIX_PATH})
-    set(${PREFIX}_INC_SEARCH_PATH ${${PREFIX}_INC_SEARCH_PATH}
-      ${dir}/include ${dir}/Include ${dir}/include/${PREFIX})
-    set(${PREFIX}_LIB_SEARCH_PATH ${${PREFIX}_LIB_SEARCH_PATH}
-      ${dir}/lib ${dir}/Lib ${dir}/lib/${PREFIX} ${dir}/Libs)
-  endforeach(dir)
-endmacro(create_search_paths)
-
-#===============================================
 # Do the final processing for the package find.
 #===============================================
 macro(findpkg_finish PREFIX)
@@ -141,9 +129,12 @@ endmacro(make_library_set)
 
 # Get path, convert backslashes as ${ENV_${var}}
 getenv_path(TBB_ROOT)
-# construct search paths
+
+# initialize search paths
 set(TBB_PREFIX_PATH ${TBB_ROOT} ${ENV_TBB_ROOT})
-create_search_paths(TBB)
+set(TBB_INC_SEARCH_PATH "")
+set(TBB_LIB_SEARCH_PATH "")
+
 
 # If user built from sources
 set(TBB_BUILD_PREFIX $ENV{TBB_BUILD_PREFIX})
@@ -200,9 +191,32 @@ if (WIN32 AND MSVC)
   endforeach ()
 endif ()
 
+# For OS X binary distribution, choose libc++ based libraries for Maverics and
+# above and AppleClang
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" AND
+    NOT ${CMAKE_SYSTEM_VERSION} LESS 13.0)
+  set (USE_LIBCXX OFF)
+  cmake_policiy(GET CMP0025 POLICY_VAR)
+
+  if (${POLICY_VAR} STREQUAL "NEW")
+    if (${CMAKE_CXX_COMPILER_ID} STREQUAL "AppleClang")
+      set (USE_LIBCXX ON)
+    endif ()
+  else ()
+    if (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
+      set (USE_LIBCXX ON)
+    endif ()
+  endif ()
+
+  if (${USE_LIBCXX})
+    foreach (dir ${TBB_PREFIX_PATH})
+      list (APPEND TBB_LIB_SEARCH_PATH ${dir}/lib/libc++ ${dir}/libc++/lib)
+    endforeach ()
+  endif ()
+endif ()
 
 # check compiler ABI
-if (CMAKE_CXX_COMPILER_ID EQUAL GNU AND
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND
     CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.4)
   set(COMPILER_PREFIX "gcc4.1")
 else () # Assume compatibility with 4.4 for other compilers
@@ -215,7 +229,6 @@ if (TBB_ARCH_PLATFORM)
   foreach (dir ${TBB_PREFIX_PATH})
     list(APPEND TBB_LIB_SEARCH_PATH ${dir}/${TBB_ARCH_PLATFORM}/lib)
     list(APPEND TBB_LIB_SEARCH_PATH ${dir}/lib/${TBB_ARCH_PLATFORM})
-    list(APPEND TBB_LIB_SEARCH_PATH ${dir}/lib)
   endforeach ()
 endif ()
 
@@ -233,6 +246,13 @@ foreach (dir ${TBB_PREFIX_PATH})
   endif ()
 endforeach ()
 
+# add general search paths
+foreach (dir ${TBB_PREFIX_PATH})
+  list(APPEND TBB_LIB_SEARCH_PATH ${dir}/lib ${dir}/Lib ${dir}/lib/tbb
+    ${dir}/Libs)
+  list(APPEND TBB_INC_SEARCH_PATH ${dir}/include ${dir}/Include
+    ${dir}/include/tbb)
+endforeach ()
 
 set(TBB_LIBRARY_NAMES tbb)
 get_debug_names(TBB_LIBRARY_NAMES)
