@@ -89,7 +89,7 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
 
   this->ShaderCache = vtkOpenGLShaderCache::New();
 
-  this->TextureUnitManager=0;
+  this->TextureUnitManager = 0;
 
   this->MultiSamples = vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples;
   delete [] this->WindowName;
@@ -98,20 +98,20 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
 
   this->OffScreenUseFrameBuffer = 0;
 
-  this->BackLeftBuffer=static_cast<unsigned int>(GL_BACK_LEFT);
-  this->BackRightBuffer=static_cast<unsigned int>(GL_BACK_RIGHT);
-  this->FrontLeftBuffer=static_cast<unsigned int>(GL_FRONT_LEFT);
-  this->FrontRightBuffer=static_cast<unsigned int>(GL_FRONT_RIGHT);
-  this->BackBuffer=static_cast<unsigned int>(GL_BACK);
-  this->FrontBuffer=static_cast<unsigned int>(GL_FRONT);
+  this->BackLeftBuffer = static_cast<unsigned int>(GL_BACK_LEFT);
+  this->BackRightBuffer = static_cast<unsigned int>(GL_BACK_RIGHT);
+  this->FrontLeftBuffer = static_cast<unsigned int>(GL_FRONT_LEFT);
+  this->FrontRightBuffer = static_cast<unsigned int>(GL_FRONT_RIGHT);
+  this->BackBuffer = static_cast<unsigned int>(GL_BACK);
+  this->FrontBuffer = static_cast<unsigned int>(GL_FRONT);
 
   #ifndef VTK_LEGACY_REMOVE
-  this->LastGraphicError=static_cast<unsigned int>(GL_NO_ERROR);
+  this->LastGraphicError = static_cast<unsigned int>(GL_NO_ERROR);
   #endif
 
   this->DrawPixelsTextureObject = NULL;
 
-  this->OwnContext=1;
+  this->OwnContext = 1;
 }
 
 // free up memory & close the window
