@@ -1888,9 +1888,11 @@ void vtkOpenGLRenderWindow::SaveGLState()
     {
     glGetIntegerv(GL_ACTIVE_TEXTURE, &this->GLStateIntegers["GL_ACTIVE_TEXTURE"]);
 
+    // GetTextureUnitManager() will create a new texture unit
+    // manager if one does not exist
     if (this->GLStateIntegers["GL_ACTIVE_TEXTURE"] < 0 ||
         this->GLStateIntegers["GL_ACTIVE_TEXTURE"] >
-          this->TextureUnitManager->GetNumberOfTextureUnits())
+        this->GetTextureUnitManager()->GetNumberOfTextureUnits())
       {
       this->GLStateIntegers["GL_ACTIVE_TEXTURE"] = 0;
       }
