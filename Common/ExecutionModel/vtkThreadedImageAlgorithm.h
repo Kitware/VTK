@@ -63,6 +63,13 @@ public:
   // Putting this here until I merge graphics and imaging streaming.
   virtual int SplitExtent(int splitExt[6], int startExt[6],
                           int num, int total);
+  // Description:
+  // Enable/Disable SMP for threading.
+  void EnableSMP(bool state);
+
+  // Description:
+  // Set the number of blocks the data will be partioned into.
+  void SetSMPBlocks(int numberOfBlocks);
 
 protected:
   vtkThreadedImageAlgorithm();
@@ -70,6 +77,8 @@ protected:
 
   vtkMultiThreader *Threader;
   int NumberOfThreads;
+  bool useSmp;
+  int NumberOfSMPBlocks;
 
   // Description:
   // This is called by the superclass.
