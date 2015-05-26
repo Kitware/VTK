@@ -194,6 +194,26 @@ else()
   option(BUILD_SHARED_LIBS "Build VTK with shared libraries." ON)
 endif()
 
+set(VTK_RENDERING_BACKEND_OVERRIDE "Default" CACHE STRING
+    "Override the default choice of rendering backend.")
+
+if (VTK_RENDERING_BACKEND)
+  set(VTK_RENDERING_BACKEND_TMP ${VTK_RENDERING_BACKEND})
+  unset(VTK_RENDERING_BACKEND CACHE)
+  set(VTK_RENDERING_BACKEND ${VTK_RENDERING_BACKEND_TMP})
+endif()
+if (VTK_RENDERING_BACKEND_OVERRIDE AND
+    NOT VTK_RENDERING_BACKEND_OVERRIDE EQUAL "Default")
+  set(VTK_RENDERING_BACKEND ${VTK_RENDERING_BACKEND_OVERRIDE})
+endif()
+if (NOT VTK_RENDERING_BACKEND)
+  set(VTK_RENDERING_BACKEND OpenGL2)
+endif()
+
+# Set the possible values of rendering backends for cmake-gui
+set_property(CACHE VTK_RENDERING_BACKEND_OVERRIDE PROPERTY
+  STRINGS ${VTK_BACKENDS} "None" "Default")
+
 # test having OpenGL2 be on for buildbot
 set(VTK_RENDERING_BACKEND OpenGL2)
 # default to not using the system GLEW as ours has fixes in it right now
