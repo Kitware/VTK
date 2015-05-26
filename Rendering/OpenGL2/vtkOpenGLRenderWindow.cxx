@@ -89,29 +89,29 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
 
   this->ShaderCache = vtkOpenGLShaderCache::New();
 
-  this->TextureUnitManager=0;
+  this->TextureUnitManager = 0;
 
   this->MultiSamples = vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples;
   delete [] this->WindowName;
   this->WindowName = new char[strlen("Visualization Toolkit - OpenGL")+1];
   strcpy( this->WindowName, "Visualization Toolkit - OpenGL" );
 
-  this->OffScreenUseFrameBuffer=0;
+  this->OffScreenUseFrameBuffer = 0;
 
-  this->BackLeftBuffer=static_cast<unsigned int>(GL_BACK_LEFT);
-  this->BackRightBuffer=static_cast<unsigned int>(GL_BACK_RIGHT);
-  this->FrontLeftBuffer=static_cast<unsigned int>(GL_FRONT_LEFT);
-  this->FrontRightBuffer=static_cast<unsigned int>(GL_FRONT_RIGHT);
-  this->BackBuffer=static_cast<unsigned int>(GL_BACK);
-  this->FrontBuffer=static_cast<unsigned int>(GL_FRONT);
+  this->BackLeftBuffer = static_cast<unsigned int>(GL_BACK_LEFT);
+  this->BackRightBuffer = static_cast<unsigned int>(GL_BACK_RIGHT);
+  this->FrontLeftBuffer = static_cast<unsigned int>(GL_FRONT_LEFT);
+  this->FrontRightBuffer = static_cast<unsigned int>(GL_FRONT_RIGHT);
+  this->BackBuffer = static_cast<unsigned int>(GL_BACK);
+  this->FrontBuffer = static_cast<unsigned int>(GL_FRONT);
 
   #ifndef VTK_LEGACY_REMOVE
-  this->LastGraphicError=static_cast<unsigned int>(GL_NO_ERROR);
+  this->LastGraphicError = static_cast<unsigned int>(GL_NO_ERROR);
   #endif
 
   this->DrawPixelsTextureObject = NULL;
 
-  this->OwnContext=1;
+  this->OwnContext = 1;
 }
 
 // free up memory & close the window
@@ -1887,6 +1887,15 @@ void vtkOpenGLRenderWindow::SaveGLState()
   if (this->Initialized)
     {
     glGetIntegerv(GL_ACTIVE_TEXTURE, &this->GLStateIntegers["GL_ACTIVE_TEXTURE"]);
+
+    // GetTextureUnitManager() will create a new texture unit
+    // manager if one does not exist
+    if (this->GLStateIntegers["GL_ACTIVE_TEXTURE"] < 0 ||
+        this->GLStateIntegers["GL_ACTIVE_TEXTURE"] >
+        this->GetTextureUnitManager()->GetNumberOfTextureUnits())
+      {
+      this->GLStateIntegers["GL_ACTIVE_TEXTURE"] = 0;
+      }
     }
 }
 
