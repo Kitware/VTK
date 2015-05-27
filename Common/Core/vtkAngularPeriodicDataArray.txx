@@ -101,9 +101,9 @@ Transform(Scalar* pos)
     double posy = static_cast<double>(pos[axis1]) - this->Center[axis1];
 
     pos[axis0] = this->Center[axis0] +
-      static_cast<Scalar>(cosf(this->AngleInRadians) * posx - sinf(this->AngleInRadians) * posy);
+      static_cast<Scalar>(cos(this->AngleInRadians) * posx - sin(this->AngleInRadians) * posy);
     pos[axis1] = this->Center[axis1] +
-      static_cast<Scalar>(sinf(this->AngleInRadians) * posx + cosf(this->AngleInRadians) * posy);
+      static_cast<Scalar>(sin(this->AngleInRadians) * posx + cos(this->AngleInRadians) * posy);
     if (this->Normalize)
       {
       vtkMath::Normalize(pos);
@@ -131,10 +131,10 @@ UpdateRotationMatrix()
   int axis1 = (this->Axis + 2) % 3;
   this->RotationMatrix->Identity();
   this->RotationMatrix->SetElement(this->Axis, this->Axis, 1.);
-  this->RotationMatrix->SetElement(axis0, axis0, cosf(this->AngleInRadians));
-  this->RotationMatrix->SetElement(axis0, axis1, -sinf(this->AngleInRadians));
-  this->RotationMatrix->SetElement(axis1, axis0, sinf(this->AngleInRadians));
-  this->RotationMatrix->SetElement(axis1, axis1, cosf(this->AngleInRadians));
+  this->RotationMatrix->SetElement(axis0, axis0, cos(this->AngleInRadians));
+  this->RotationMatrix->SetElement(axis0, axis1, -sin(this->AngleInRadians));
+  this->RotationMatrix->SetElement(axis1, axis0, sin(this->AngleInRadians));
+  this->RotationMatrix->SetElement(axis1, axis1, cos(this->AngleInRadians));
 }
 
 //------------------------------------------------------------------------------
