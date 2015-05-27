@@ -453,8 +453,9 @@ int vtkWrap_IsVTKObjectBaseType(
       }
     }
 
-  /* fallback if no HierarchyInfo */
-  if (strncmp("vtk", classname, 3) == 0)
+  /* fallback if no HierarchyInfo, but skip smart pointers */
+  if (strncmp("vtk", classname, 3) == 0 &&
+      strncmp("vtkSmartPointer", classname, 15) != 0)
     {
     return 1;
     }
