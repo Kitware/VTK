@@ -366,12 +366,12 @@ namespace vtkvolume
         \n  {\
         \n  vec3 g1;\
         \n  vec3 g2;\
-        \n  g1.x = texture3D(in_volume, vec3(g_dataPos + xvec)).x;\
-        \n  g1.y = texture3D(in_volume, vec3(g_dataPos + yvec)).x;\
-        \n  g1.z = texture3D(in_volume, vec3(g_dataPos + zvec)).x;\
-        \n  g2.x = texture3D(in_volume, vec3(g_dataPos - xvec)).x;\
-        \n  g2.y = texture3D(in_volume, vec3(g_dataPos - yvec)).x;\
-        \n  g2.z = texture3D(in_volume, vec3(g_dataPos - zvec)).x;\
+        \n  g1.x = texture3D(in_volume, vec3(g_dataPos + g_xvec)).x;\
+        \n  g1.y = texture3D(in_volume, vec3(g_dataPos + g_yvec)).x;\
+        \n  g1.z = texture3D(in_volume, vec3(g_dataPos + g_zvec)).x;\
+        \n  g2.x = texture3D(in_volume, vec3(g_dataPos - g_xvec)).x;\
+        \n  g2.y = texture3D(in_volume, vec3(g_dataPos - g_yvec)).x;\
+        \n  g2.z = texture3D(in_volume, vec3(g_dataPos - g_zvec)).x;\
         \n  g1 = g1*in_volume_scale.r + in_volume_bias.r;\
         \n  g2 = g2*in_volume_scale.r + in_volume_bias.r;\
         \n  return vec4((g1 - g2), -1.0);\
