@@ -507,7 +507,7 @@ namespace vtkvolume
           \n  // For the headlight, ignore the light's ambient color\
           \n  // for now as it is causing the old mapper tests to fail\
           \n  vec3 finalColor = (in_ambient * color.rgb +\
-          \n                    diffuse + specular);"
+          \n                     diffuse + specular);"
           );
         }
       else if (lightingComplexity == 2)

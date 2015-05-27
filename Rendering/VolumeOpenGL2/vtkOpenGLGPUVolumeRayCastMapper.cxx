@@ -175,7 +175,7 @@ public:
                   int noOfComponents, int independentComponents);
 
   bool LoadVolume(vtkRenderer* ren, vtkImageData* imageData,
-                  vtkVolumeProperty* volProperty,
+                  vtkVolumeProperty* volumeProperty,
                   vtkDataArray* scalars, int independentComponents);
 
   bool LoadMask(vtkRenderer* ren, vtkImageData* input,
@@ -187,10 +187,10 @@ public:
   void ComputeBounds(vtkImageData* input);
 
   // Update OpenGL volume information
-  int UpdateVolume(vtkVolumeProperty* volProperty);
+  int UpdateVolume(vtkVolumeProperty* volumeProperty);
 
   // Update interpolation to be used for 3D volume
-  int UpdateInterpolationType(vtkVolumeProperty* volProperty);
+  int UpdateInterpolationType(vtkVolumeProperty* volumeProperty);
 
   // Update transfer color function based on the incoming inputs
   // and number of scalar components.s
@@ -324,6 +324,7 @@ public:
 
   vtkTimeStamp InitializationTime;
   vtkTimeStamp InputUpdateTime;
+  vtkTimeStamp VolumeUpdateTime;
   vtkTimeStamp ReleaseResourcesTime;
 
   bool NeedToInitializeResources;
@@ -497,7 +498,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::Initialize(
 
 //----------------------------------------------------------------------------
 bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
-  vtkImageData* imageData, vtkVolumeProperty* volProperty, vtkDataArray* scalars,
+  vtkImageData* imageData, vtkVolumeProperty* volumeProperty, vtkDataArray* scalars,
   int vtkNotUsed(independentComponents))
 {
   // Allocate data with internal format and foramt as (GL_RED)
@@ -762,7 +763,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
   this->VolumeTextureObject->SetFormat(format);
   this->VolumeTextureObject->SetInternalFormat(internalFormat);
 
-  this->UpdateInterpolationType(volProperty);
+  this->UpdateInterpolationType(volumeProperty);
 
   if (!this->HandleLargeDataTypes)
     {
@@ -1023,35 +1024,41 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ComputeBounds(
 
 //----------------------------------------------------------------------------
 int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateVolume(
-  vtkVolumeProperty* volProperty)
+  vtkVolumeProperty* volumeProperty)
 {
-  int interpolationType = this->InterpolationType;
-
-  this->UpdateInterpolationType(volProperty);
-
-  if (interpolationType != this->InterpolationType)
+  if (volumeProperty->GetMTime() > this->VolumeUpdateTime.GetMTime())
     {
-    this->VolumeTextureObject->Activate();
-    this->VolumeTextureObject->SetMagnificationFilter(this->InterpolationType);
-    this->VolumeTextureObject->SetMinificationFilter(this->InterpolationType);
+    int interpolationType = this->InterpolationType;
+
+    this->UpdateInterpolationType(volumeProperty);
+
+    if (interpolationType != this->InterpolationType)
+      {
+      this->VolumeTextureObject->Activate();
+      this->VolumeTextureObject->SetMagnificationFilter(this->InterpolationType);
+      this->VolumeTextureObject->SetMinificationFilter(this->InterpolationType);
+      }
     }
+  this->VolumeUpdateTime.Modified();
 
   return 0;
 }
 
 //----------------------------------------------------------------------------
 int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateInterpolationType(
-  vtkVolumeProperty* volProperty)
+  vtkVolumeProperty* volumeProperty)
 {
-    if (volProperty != NULL)
+    if (volumeProperty != NULL)
       {
-      if (volProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION &&
+      if (volumeProperty->GetInterpolationType() ==
+          VTK_LINEAR_INTERPOLATION &&
           this->InterpolationType != vtkTextureObject::Linear)
         {
         this->InterpolationType = vtkTextureObject::Linear;
         return 0;
         }
-      else if(volProperty->GetInterpolationType() == VTK_NEAREST_INTERPOLATION &&
+      else if(volumeProperty->GetInterpolationType() ==
+              VTK_NEAREST_INTERPOLATION &&
               this->InterpolationType != vtkTextureObject::Nearest)
         {
         this->InterpolationType = vtkTextureObject::Nearest;
