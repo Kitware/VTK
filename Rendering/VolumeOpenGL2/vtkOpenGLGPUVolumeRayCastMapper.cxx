@@ -1049,10 +1049,19 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateInterpolationType(
           this->InterpolationType != vtkTextureObject::Linear)
         {
         this->InterpolationType = vtkTextureObject::Linear;
+        return 0;
         }
-      this->InterpolationType = vtkTextureObject::Nearest;
+      else if(volProperty->GetInterpolationType() == VTK_NEAREST_INTERPOLATION &&
+              this->InterpolationType != vtkTextureObject::Nearest)
+        {
+        this->InterpolationType = vtkTextureObject::Nearest;
+        return 0;
+        }
+      else
+        {
+        return 1;
+        }
       }
-    return 0;
   }
 
   //----------------------------------------------------------------------------
