@@ -87,7 +87,6 @@ public:
   // The function assumes the input point lies on the polygon plane without
   // checking that.
   virtual void InterpolateFunctions(double x[3], double *sf);
-  virtual void InterpolateDerivs(double x[3], double *derivs);
 
   // Description:
   // Polygon specific methods.

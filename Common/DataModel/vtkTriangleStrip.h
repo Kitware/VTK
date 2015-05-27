@@ -79,12 +79,6 @@ public:
   // polygons. The polygons are appended to the end of the list of triangles.
   static void DecomposeStrip(int npts, vtkIdType *pts, vtkCellArray *tris);
 
-  // Description:
-  // Compute the interpolation functions/derivatives
-  // (aka shape functions/derivatives)
-  virtual void InterpolateFunctions(double pcoords[3], double *weights);
-  virtual void InterpolateDerivs(double pcoords[3], double *derivs);
-
 protected:
   vtkTriangleStrip();
   ~vtkTriangleStrip();

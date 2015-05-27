@@ -23,28 +23,37 @@ vtkStandardNewMacro(vtkEmptyCell);
 
 //----------------------------------------------------------------------------
 int vtkEmptyCell::EvaluatePosition(double  vtkNotUsed(x)[3],
-                                  double  vtkNotUsed(closestPoint)[3],
-                                  int&   vtkNotUsed(subId),
-                                  double  vtkNotUsed(pcoords)[3],
-                                  double& vtkNotUsed(dist2),
+                                  double closestPoint[3],
+                                  int& subId,
+                                  double pcoords[3],
+                                  double& dist2,
                                   double  *vtkNotUsed(weights))
 {
+  pcoords[0] = pcoords[1] = pcoords[2] = -1.0;
+  subId = 0;
+  if (closestPoint != NULL)
+    {
+    closestPoint[0] = closestPoint[1] = closestPoint[2] = 0.0;
+    dist2 = -1.0;
+    }
   return 0;
 }
 
 //----------------------------------------------------------------------------
 void vtkEmptyCell::EvaluateLocation(int&  vtkNotUsed(subId),
                                    double vtkNotUsed(pcoords)[3],
-                                   double vtkNotUsed(x)[3],
+                                   double x[3],
                                    double *vtkNotUsed(weights))
 {
+  x[0] = x[1] = x[2] = 0.0;
 }
 
 //----------------------------------------------------------------------------
 int vtkEmptyCell::CellBoundary(int vtkNotUsed(subId),
                             double vtkNotUsed(pcoords)[3],
-                            vtkIdList *vtkNotUsed(pts))
+                            vtkIdList* pts)
 {
+  pts->Reset();
   return 0;
 }
 
@@ -71,10 +80,9 @@ int vtkEmptyCell::IntersectWithLine(double vtkNotUsed(p1)[3],
                                    double vtkNotUsed(tol),
                                    double& vtkNotUsed(t),
                                    double vtkNotUsed(x)[3],
-                                   double pcoords[3],
+                                   double vtkNotUsed(pcoords)[3],
                                    int& vtkNotUsed(subId))
 {
-  pcoords[0] = -10.0;
   return 0;
 }
 
@@ -84,7 +92,6 @@ int vtkEmptyCell::Triangulate(int vtkNotUsed(index),
 {
   pts->Reset();
   ptIds->Reset();
-
   return 1;
 }
 
@@ -109,20 +116,6 @@ void vtkEmptyCell::Clip(double vtkNotUsed(value),
                         vtkCellData *vtkNotUsed(outCD),
                         int vtkNotUsed(insideOut))
 {
-}
-
-//----------------------------------------------------------------------------
-void vtkEmptyCell::InterpolateFunctions(double pcoords[3], double *weights)
-{
-  (void)pcoords;
-  (void)weights;
-}
-
-//----------------------------------------------------------------------------
-void vtkEmptyCell::InterpolateDerivs(double pcoords[3], double *derivs)
-{
-  (void)pcoords;
-  (void)derivs;
 }
 
 //----------------------------------------------------------------------------

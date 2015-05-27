@@ -272,13 +272,14 @@ void vtkPolygon::ComputeNormal (int numPts, double *pts, double n[3])
 
 //----------------------------------------------------------------------------
 int vtkPolygon::EvaluatePosition(double x[3], double* closestPoint,
-                                 int& vtkNotUsed(subId), double pcoords[3],
+                                 int& subId, double pcoords[3],
                                  double& minDist2, double *weights)
 {
   int i;
   double p0[3], p10[3], l10, p20[3], l20, n[3], cp[3];
   double ray[3];
 
+  subId = 0;
   this->ParameterizePolygon(p0, p10, l10, p20, l20, n);
   this->InterpolateFunctions(x,weights);
   vtkPlane::ProjectPoint(x,p0,n,cp);
@@ -289,6 +290,7 @@ int vtkPolygon::EvaluatePosition(double x[3], double* closestPoint,
     }
   pcoords[0] = vtkMath::Dot(ray,p10) / (l10*l10);
   pcoords[1] = vtkMath::Dot(ray,p20) / (l20*l20);
+  pcoords[2] = 0.0;
 
   if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
        pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
@@ -508,13 +510,6 @@ void vtkPolygon::InterpolateFunctionsUsingMVC(double x[3], double *weights)
     }
 
   return;
-}
-
-//----------------------------------------------------------------------------
-void vtkPolygon::InterpolateDerivs(double pcoords[3], double *derivs)
-{
-  (void)pcoords;
-  (void)derivs;
 }
 
 //----------------------------------------------------------------------------
