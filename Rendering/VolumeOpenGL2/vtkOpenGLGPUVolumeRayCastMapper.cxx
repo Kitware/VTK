@@ -193,7 +193,7 @@ public:
   int UpdateInterpolationType(vtkVolumeProperty* volumeProperty);
 
   // Update transfer color function based on the incoming inputs
-  // and number of scalar components.s
+  // and number of scalar components.
   int UpdateColorTransferFunction(vtkRenderer* ren,
                                   vtkVolume* vol,
                                   int noOfComponents,
@@ -1361,9 +1361,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateDepthTexture(
 
 //----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateLightingParameters(
-  vtkRenderer* ren, vtkVolume* vtkNotUsed(vol))
+  vtkRenderer* ren, vtkVolume* vol)
 {
   if (!this->ShaderProgram)
+    {
+    return;
+    }
+
+  if (vol && !vol->GetProperty()->GetShade())
     {
     return;
     }
