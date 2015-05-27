@@ -90,6 +90,7 @@ public:
     this->CubeVBOId = 0;
     this->CubeVAOId = 0;
     this->CubeIndicesId = 0;
+    this->InterpolationType = vtkTextureObject::Linear;
     this->VolumeTextureObject = 0;
     this->NoiseTextureObject = 0;
     this->DepthTextureObject = 0;
@@ -174,6 +175,7 @@ public:
                   int noOfComponents, int independentComponents);
 
   bool LoadVolume(vtkRenderer* ren, vtkImageData* imageData,
+                  vtkVolumeProperty* volProperty,
                   vtkDataArray* scalars, int independentComponents);
 
   bool LoadMask(vtkRenderer* ren, vtkImageData* input,
@@ -184,8 +186,14 @@ public:
 
   void ComputeBounds(vtkImageData* input);
 
+  // Update OpenGL volume information
+  int UpdateVolume(vtkVolumeProperty* volProperty);
+
+  // Update interpolation to be used for 3D volume
+  int UpdateInterpolationType(vtkVolumeProperty* volProperty);
+
   // Update transfer color function based on the incoming inputs
-  // and number of scalar components.
+  // and number of scalar components.s
   int UpdateColorTransferFunction(vtkRenderer* ren,
                                   vtkVolume* vol,
                                   int noOfComponents,
@@ -251,6 +259,8 @@ public:
   GLuint CubeVBOId;
   GLuint CubeVAOId;
   GLuint CubeIndicesId;
+
+  int InterpolationType;
 
   vtkTextureObject* VolumeTextureObject;
   vtkTextureObject* NoiseTextureObject;
@@ -487,7 +497,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::Initialize(
 
 //----------------------------------------------------------------------------
 bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
-  vtkImageData* imageData, vtkDataArray* scalars,
+  vtkImageData* imageData, vtkVolumeProperty* volProperty, vtkDataArray* scalars,
   int vtkNotUsed(independentComponents))
 {
   // Allocate data with internal format and foramt as (GL_RED)
@@ -497,7 +507,6 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
 
   this->HandleLargeDataTypes = false;
   int noOfComponents = scalars->GetNumberOfComponents();
-
 
   // scale and bias
   // NP = P*scale + bias
@@ -753,6 +762,8 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
   this->VolumeTextureObject->SetFormat(format);
   this->VolumeTextureObject->SetInternalFormat(internalFormat);
 
+  this->UpdateInterpolationType(volProperty);
+
   if (!this->HandleLargeDataTypes)
     {
     void* dataPtr = scalars->GetVoidPointer(0);
@@ -768,8 +779,8 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
     this->VolumeTextureObject->SetWrapS(vtkTextureObject::ClampToEdge);
     this->VolumeTextureObject->SetWrapT(vtkTextureObject::ClampToEdge);
     this->VolumeTextureObject->SetWrapR(vtkTextureObject::ClampToEdge);
-    this->VolumeTextureObject->SetMagnificationFilter(vtkTextureObject::Linear);
-    this->VolumeTextureObject->SetMinificationFilter(vtkTextureObject::Linear);
+    this->VolumeTextureObject->SetMagnificationFilter(this->InterpolationType);
+    this->VolumeTextureObject->SetMinificationFilter(this->InterpolationType);
     this->VolumeTextureObject->SetBorderColor(0.0f, 0.0f, 0.0f, 0.0f);
     }
   else
@@ -789,8 +800,8 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
     this->VolumeTextureObject->SetWrapS(vtkTextureObject::ClampToEdge);
     this->VolumeTextureObject->SetWrapT(vtkTextureObject::ClampToEdge);
     this->VolumeTextureObject->SetWrapR(vtkTextureObject::ClampToEdge);
-    this->VolumeTextureObject->SetMagnificationFilter(vtkTextureObject::Linear);
-    this->VolumeTextureObject->SetMinificationFilter(vtkTextureObject::Linear);
+    this->VolumeTextureObject->SetMagnificationFilter(this->InterpolationType);
+    this->VolumeTextureObject->SetMinificationFilter(this->InterpolationType);
     this->VolumeTextureObject->SetBorderColor(0.0f, 0.0f, 0.0f, 0.0f);
 
     // Send the slices one by one to the GPU. We are not sending all of them
@@ -1011,9 +1022,43 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ComputeBounds(
 }
 
 //----------------------------------------------------------------------------
-int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateColorTransferFunction(
-  vtkRenderer* ren, vtkVolume* vol, int vtkNotUsed(noOfComponents),
-  unsigned int component)
+int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateVolume(
+  vtkVolumeProperty* volProperty)
+{
+  int interpolationType = this->InterpolationType;
+
+  this->UpdateInterpolationType(volProperty);
+
+  if (interpolationType != this->InterpolationType)
+    {
+    this->VolumeTextureObject->Activate();
+    this->VolumeTextureObject->SetMagnificationFilter(this->InterpolationType);
+    this->VolumeTextureObject->SetMinificationFilter(this->InterpolationType);
+    }
+
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateInterpolationType(
+  vtkVolumeProperty* volProperty)
+{
+    if (volProperty != NULL)
+      {
+      if (volProperty->GetInterpolationType() == VTK_LINEAR_INTERPOLATION &&
+          this->InterpolationType != vtkTextureObject::Linear)
+        {
+        this->InterpolationType = vtkTextureObject::Linear;
+        }
+      this->InterpolationType = vtkTextureObject::Nearest;
+      }
+    return 0;
+  }
+
+  //----------------------------------------------------------------------------
+  int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateColorTransferFunction(
+    vtkRenderer* ren, vtkVolume* vol, int vtkNotUsed(noOfComponents),
+    unsigned int component)
 {
   // Volume property cannot be null.
   vtkVolumeProperty* volumeProperty = vol->GetProperty();
@@ -2507,9 +2552,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 
     // Update bounds, data, and geometry
     this->Impl->ComputeBounds(input);
-    this->Impl->LoadVolume(ren, input, scalars, independentComponents);
+    this->Impl->LoadVolume(ren, input, volumeProperty, scalars, independentComponents);
     this->Impl->LoadMask(ren, input, this->MaskInput,
                          this->Impl->Extents, vol);
+    }
+  else
+    {
+    this->Impl->UpdateVolume(volumeProperty);
     }
 
   // Mask
