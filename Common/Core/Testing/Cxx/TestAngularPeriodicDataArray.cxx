@@ -56,22 +56,27 @@ int TestAngularPeriodicDataArray(int, char * [])
   angularPeriodicDataArray->GetRange(range + 4, 2);
 
   if (std::abs(pTmp[0] - 7.77777777777) >= dEpsilon ||
-      std::abs(pTmp[1] - 9.134443205595016) >= dEpsilon ||
-      std::abs(pTmp[2] - 8.291829985380172) >= dEpsilon ||
-      std::abs(pTmp2[0] - 5.180415) >= fEpsilon ||
+      std::abs(pTmp[1] - 9.1344434349507945825) >= dEpsilon ||
+      std::abs(pTmp[2] - 8.29182990260197883) >= dEpsilon ||
+      std::abs(pTmp2[0] - 5.18041563034058) >= fEpsilon ||
       std::abs(pTmp2[1] - 12.3) >= fEpsilon ||
-      std::abs(pTmp2[2] - -5.878743) >= fEpsilon ||
+      std::abs(pTmp2[2] - -5.87874317169189) >= fEpsilon ||
       std::abs(range[0] - 7.77777777777) >= dEpsilon ||
-      std::abs(range[2] - 9.134443205595016) >= dEpsilon ||
-      std::abs(range[4] - 8.291829985380172) >= dEpsilon
+      std::abs(range[2] - 9.1344434349507945825) >= dEpsilon ||
+      std::abs(range[4] - 8.29182990260197883) >= dEpsilon
       )
     {
+    cerr.precision(20);
     cerr << "Error in vtkAngularPeriodicDataArray : " << endl
          << "Double Array : " << endl << std::abs(pTmp[0] - 7.77777777777) << " "
-         << std::abs(pTmp[1] - 9.134443205595016) << " "
-         << std::abs(pTmp[2] - 8.291829985380172) << endl << "Float Array : "
+         << std::abs(pTmp[1] - 9.13444343495079) << " "
+         << std::abs(pTmp[2] - 8.29182990260198) << endl << "Float Array : "
          << std::abs(pTmp2[0] - 5.180415) << " "<< std::abs(pTmp2[1] - 12.3)
-         << " " << std::abs(pTmp2[2] - -5.878743) << endl;
+         << " " << std::abs(pTmp2[2] - -5.878743) << endl
+         << "Range : " << endl << std::abs(range[0] - 7.77777777777)
+         << std::abs(range[2] - 9.13444343495079) << " "
+         << std::abs(range[4] - 8.29182990260198) << endl
+         << "Epsilon : " << fEpsilon << " " << dEpsilon << endl;
     return 1;
     }
 
@@ -118,24 +123,25 @@ int TestAngularPeriodicDataArray(int, char * [])
 
   double pTmp3[9];
   tensorPArray->GetTupleValue(0, pTmp3);
-  if (std::abs(pTmp3[0] - 2.0096596603995191543) >= dEpsilon ||
-      std::abs(pTmp3[1] - 13.555918386315806146) >= dEpsilon ||
-      std::abs(pTmp3[2] - -8.669310802221298573) >= dEpsilon ||
-      std::abs(pTmp3[3] - -3.0690815099231580909) >= dEpsilon ||
-      std::abs(pTmp3[4] - 5.7678880688287419432) >= dEpsilon ||
-      std::abs(pTmp3[5] - 15.666523169279097161) >= dEpsilon ||
-      std::abs(pTmp3[6] - 3417.474919319152832) >= dEpsilon ||
-      std::abs(pTmp3[7] - 2136.7724573373793646) >= dEpsilon ||
+  if (std::abs(pTmp3[0] - 2.0096597239047708783) >= dEpsilon ||
+      std::abs(pTmp3[1] - 13.555918489185591724) >= dEpsilon ||
+      std::abs(pTmp3[2] - -8.6693107531410973365) >= dEpsilon ||
+      std::abs(pTmp3[3] - -3.0690815108144087198) >= dEpsilon ||
+      std::abs(pTmp3[4] - 5.7678880538652288479) >= dEpsilon ||
+      std::abs(pTmp3[5] - 15.666523260298440334) >= dEpsilon ||
+      std::abs(pTmp3[6] - 3417.4749403678183626) >= dEpsilon ||
+      std::abs(pTmp3[7] - 2136.7724473977045818) >= dEpsilon ||
       std::abs(pTmp3[8] - 19.19191919) >= dEpsilon)
     {
-      cerr << "Error while rotating tensor : " << std::abs(pTmp3[0] - 2.0096596603995191543) << " " <<
-      std::abs(pTmp3[1] - 13.555918386315806146) << " " <<
-      std::abs(pTmp3[2] - -8.669310802221298573) << " " <<
-      std::abs(pTmp3[3] - -3.0690815099231580909) << " " <<
-      std::abs(pTmp3[4] - 5.7678880688287419432) << " " <<
-      std::abs(pTmp3[5] - 15.666523169279097161) << " " <<
-      std::abs(pTmp3[6] - 3417.474919319152832) << " " <<
-      std::abs(pTmp3[7] - 2136.7724573373793646) << " " <<
+      cerr.precision(20);
+      cerr << "Error while rotating tensor : " << std::abs(pTmp3[0] - 2.0096597239047708783) << " " <<
+      std::abs(pTmp3[1] - 13.555918489185591724) << " " <<
+      std::abs(pTmp3[2] - -8.6693107531410973365) << " " <<
+      std::abs(pTmp3[3] - -3.0690815108144087198) << " " <<
+      std::abs(pTmp3[4] - 5.7678880538652288479) << " " <<
+      std::abs(pTmp3[5] - 15.666523260298440334) << " " <<
+      std::abs(pTmp3[6] - 3417.4749403678183626) << " " <<
+      std::abs(pTmp3[7] - 2136.7724473977045818) << " " <<
       std::abs(pTmp3[8] - 19.19191919) << " " << dEpsilon << endl;
     }
   return 0;
