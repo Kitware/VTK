@@ -28,7 +28,7 @@ endif()
 # in for the first CMake invocation for modules that depend on the backend
 # chosen.
 if(NOT DEFINED VTK_RENDERING_BACKEND)
-  set(VTK_RENDERING_BACKEND "OpenGL")
+  set(VTK_RENDERING_BACKEND "OpenGL2")
   set(_backend_set_for_first_cmake TRUE)
 endif()
 

@@ -10,14 +10,32 @@
 # module name, i.e. vtkRenderingOpenGL for OpenGL and vtkRenderingOpenGL2
 # for OpenGL2.
 
-# Set a default backend type if none was specified, populate the enum.
-if(NOT VTK_RENDERING_BACKEND)
-  message(STATUS "Setting rendering backend to 'OpenGL' as none was specified.")
-  set(VTK_RENDERING_BACKEND "OpenGL" CACHE STRING
-    "Choose the rendering backend." FORCE)
+# is the current backend not a valid value?
+set (_options ${VTK_BACKENDS} "None")
+list (FIND _options "${VTK_RENDERING_BACKEND}"  _index)
+if (${_index} EQUAL -1)
+
+  # has the application defined a desired default for the backend?
+  # if not, use VTKs default of OpenGL2
+  if(NOT DEFINED VTK_RENDERING_BACKEND_DEFAULT)
+    set(VTK_RENDERING_BACKEND_DEFAULT "OpenGL2")
+  endif()
+
+  # if it is in the cache as a bad value we need to reset it
+  if(DEFINED VTK_RENDERING_BACKEND)
+    message(STATUS "The cache contains an illegal value for VTK_RENDERING_BACKEND, forcing it to the default value of '${VTK_RENDERING_BACKEND_DEFAULT}'.")
+    set(VTK_RENDERING_BACKEND "${VTK_RENDERING_BACKEND_DEFAULT}" CACHE STRING
+        "Choose the rendering backend." FORCE)
+  else()
+    # otherwise just initialize it to the default determined above
+    message(STATUS "Setting rendering backend to '${VTK_RENDERING_BACKEND_DEFAULT}' as none was specified.")
+    set(VTK_RENDERING_BACKEND "${VTK_RENDERING_BACKEND_DEFAULT}" CACHE STRING
+      "Choose the rendering backend.")
+  endif()
+
   # Set the possible values of rendering backends for cmake-gui
   set_property(CACHE VTK_RENDERING_BACKEND PROPERTY
-    STRINGS ${VTK_BACKENDS} "None")
+    STRINGS ${_options})
 endif()
 
 # Now iterate through and enable the one that was selected.
