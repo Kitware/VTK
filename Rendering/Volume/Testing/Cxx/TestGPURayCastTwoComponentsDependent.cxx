@@ -824,6 +824,7 @@ int TestGPURayCastTwoComponentsDependent(int argc, char *argv[])
   // Volume property with independent components ON
   vtkNew<vtkVolumeProperty> property;
   property->IndependentComponentsOff();
+  property->SetInterpolationTypeToLinear();
 
   // Set color and opacity functions
   property->SetColor(ctf.GetPointer());
