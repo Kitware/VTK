@@ -500,27 +500,6 @@ const char* vtkWin32OpenGLRenderWindow::ReportCapabilities()
 
 typedef bool (APIENTRY *wglChoosePixelFormatARBType)(HDC, const int*, const float*, unsigned int, int*, unsigned int*);
 
-bool WGLisExtensionSupported(const char *extension)
-{
-  const char *supported = NULL;
-
-  // If That Failed, Try Standard Opengl Extensions String
-  if (supported == NULL)
-    {
-    GLint n, i;
-    glGetIntegerv(GL_NUM_EXTENSIONS, &n);
-    for (i = 0; i < n; i++)
-      {
-      const char *ext = (const char *)glGetStringi(GL_EXTENSIONS, i);
-      if (!strcmp(ext,extension))
-        {
-        return true;
-        }
-      }
-    }
-  return false;
-}
-
 void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
   HDC hDC, DWORD dwFlags,
   int debug, int bpp,
@@ -584,7 +563,8 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
       n += 2;
       }
     unsigned int multiSampleAttributeIndex = 0;
-    if (this->MultiSamples > 1 && WGLisExtensionSupported("WGL_ARB_multisample"))
+    if (this->MultiSamples > 1 &&
+        wglewIsSupported("WGL_ARB_multisample"))
       {
       attrib[n] = WGL_SAMPLE_BUFFERS_ARB;
       attrib[n+1] = 1;
