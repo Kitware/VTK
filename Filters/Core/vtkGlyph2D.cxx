@@ -354,9 +354,10 @@ int vtkGlyph2D::RequestData(
       continue;
       }
 
-    // Check ghost points.
+    // Check ghost/blanked points.
     if (inGhostLevels &&
-        inGhostLevels[inPtId] & vtkDataSetAttributes::DUPLICATEPOINT)
+        inGhostLevels[inPtId] & (vtkDataSetAttributes::DUPLICATEPOINT |
+                                 vtkDataSetAttributes::HIDDENPOINT))
       {
       continue;
       }
