@@ -194,9 +194,6 @@ else()
   option(BUILD_SHARED_LIBS "Build VTK with shared libraries." ON)
 endif()
 
-
-# test having OpenGL2 be on for buildbot
-set(VTK_RENDERING_BACKEND OpenGL2)
 # default to not using the system GLEW as ours has fixes in it right now
 set(VTK_USE_SYSTEM_GLEW OFF CACHE BOOL "do not use a system glew" FORCE)
 
