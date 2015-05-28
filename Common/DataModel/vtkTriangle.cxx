@@ -81,6 +81,7 @@ int vtkTriangle::EvaluatePosition(double x[3], double* closestPoint,
   double *closest, closestPoint1[3], closestPoint2[3], cp[3];
 
   subId = 0;
+  pcoords[2] = 0.0;
 
   // Get normal for triangle, only the normal direction is needed, i.e. the
   // normal need not be normalized (unit length)
@@ -133,23 +134,22 @@ int vtkTriangle::EvaluatePosition(double x[3], double* closestPoint,
 
   if ( (det = vtkMath::Determinant2x2(c1,c2)) == 0.0 )
     {
-    pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
+    pcoords[0] = pcoords[1] = 0.0;
     return -1;
     }
 
   pcoords[0] = vtkMath::Determinant2x2(rhs,c2) / det;
   pcoords[1] = vtkMath::Determinant2x2(c1,rhs) / det;
-  pcoords[2] = 1.0 - (pcoords[0] + pcoords[1]);
 
   // Okay, now find closest point to element
   //
-  weights[0] = pcoords[2];
+  weights[0] = 1 - (pcoords[0] + pcoords[1]);
   weights[1] = pcoords[0];
   weights[2] = pcoords[1];
 
-  if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
-       pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
-       pcoords[2] >= 0.0 && pcoords[2] <= 1.0 )
+  if ( weights[0] >= 0.0 && weights[0] <= 1.0 &&
+       weights[1] >= 0.0 && weights[1] <= 1.0 &&
+       weights[2] >= 0.0 && weights[2] <= 1.0 )
     {
     //projection distance
     if (closestPoint)
@@ -166,7 +166,7 @@ int vtkTriangle::EvaluatePosition(double x[3], double* closestPoint,
     double t;
     if (closestPoint)
       {
-      if ( pcoords[0] < 0.0 && pcoords[1] < 0.0 )
+      if ( weights[1] < 0.0 && weights[2] < 0.0 )
         {
         dist2Point = vtkMath::Distance2BetweenPoints(x,pt3);
         dist2Line1 = vtkLine::DistanceToLine(x,pt1,pt3,t,closestPoint1);
@@ -191,7 +191,7 @@ int vtkTriangle::EvaluatePosition(double x[3], double* closestPoint,
           closestPoint[i] = closest[i];
           }
         }
-      else if ( pcoords[1] < 0.0 && pcoords[2] < 0.0 )
+      else if ( weights[2] < 0.0 && weights[0] < 0.0 )
         {
         dist2Point = vtkMath::Distance2BetweenPoints(x,pt1);
         dist2Line1 = vtkLine::DistanceToLine(x,pt1,pt3,t,closestPoint1);
@@ -216,7 +216,7 @@ int vtkTriangle::EvaluatePosition(double x[3], double* closestPoint,
           closestPoint[i] = closest[i];
           }
         }
-      else if ( pcoords[0] < 0.0 && pcoords[2] < 0.0 )
+      else if ( weights[1] < 0.0 && weights[0] < 0.0 )
         {
         dist2Point = vtkMath::Distance2BetweenPoints(x,pt2);
         dist2Line1 = vtkLine::DistanceToLine(x,pt2,pt3,t,closestPoint1);
@@ -241,17 +241,17 @@ int vtkTriangle::EvaluatePosition(double x[3], double* closestPoint,
           closestPoint[i] = closest[i];
           }
         }
-      else if ( pcoords[0] < 0.0 )
+      else if ( weights[0] < 0.0 )
+        {
+        dist2 = vtkLine::DistanceToLine(x,pt1,pt2,t,closestPoint);
+        }
+      else if ( weights[1] < 0.0 )
         {
         dist2 = vtkLine::DistanceToLine(x,pt2,pt3,t,closestPoint);
         }
-      else if ( pcoords[1] < 0.0 )
+      else if ( weights[2] < 0.0 )
         {
         dist2 = vtkLine::DistanceToLine(x,pt1,pt3,t,closestPoint);
-        }
-      else if ( pcoords[2] < 0.0 )
-        {
-        dist2 = vtkLine::DistanceToLine(x,pt1,pt2,t,closestPoint);
         }
       }
     return 0;
@@ -518,7 +518,6 @@ int vtkTriangle::IntersectWithLine(double p1[3], double p2[3], double tol,
     {
     if ( dist2 <= tol2 )
       {
-      pcoords[2] = 0.0;
       return 1;
       }
     return inside;
@@ -530,7 +529,7 @@ int vtkTriangle::IntersectWithLine(double p1[3], double p2[3], double tol,
   this->Line->PointIds->InsertId(0,0);
   this->Line->PointIds->InsertId(1,1);
 
-  if (pcoords[2] < 0.0)
+  /*if (pcoords[2] < 0.0)
     {
     this->Line->Points->InsertPoint(0,pt1);
     this->Line->Points->InsertPoint(1,pt2);
@@ -561,7 +560,7 @@ int vtkTriangle::IntersectWithLine(double p1[3], double p2[3], double tol,
       pcoords[2] = 0.0;
       return 1;
       }
-    }
+    }*/
 
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
   return 0;

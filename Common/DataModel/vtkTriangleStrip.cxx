@@ -74,7 +74,6 @@ int vtkTriangleStrip::EvaluatePosition(double x[3], double* closestPoint,
       subId = i;
       pcoords[0] = pc[0];
       pcoords[1] = pc[1];
-      pcoords[2] = 1.0 - pc[0] - pc[1];
       minDist2 = dist2;
       activeWeights[0] = tempWeights[0];
       activeWeights[1] = tempWeights[1];
