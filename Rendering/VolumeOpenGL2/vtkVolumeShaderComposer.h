@@ -160,7 +160,12 @@ namespace vtkvolume
     if (lightingComplexity > 0)
       {
       shaderStr += std::string("\
-        \nuniform bool in_twoSidedLighting;"
+        \nuniform bool in_twoSidedLighting;\
+        \nvec3 g_xvec;\
+        \nvec3 g_yvec;\
+        \nvec3 g_zvec;\
+        \nvec3 g_cellSpacing;\
+        \nfloat g_avgSpacing;"
       );
       }
 
@@ -195,7 +200,12 @@ namespace vtkvolume
         \nuniform vec3 in_lightAmbientColor[1];\
         \nuniform vec3 in_lightDiffuseColor[1];\
         \nuniform vec3 in_lightSpecularColor[1];\
-      ");
+        \nvec4 g_lightPosObj;\
+        \nvec3 g_ldir;\
+        \nvec3 g_vdir;\
+        \nvec3 g_h;\
+        \nvec3 g_aspect;"
+      );
       }
 
     if (noOfComponents > 1 && independentComponents)
@@ -210,9 +220,10 @@ namespace vtkvolume
   //--------------------------------------------------------------------------
   std::string BaseInit(vtkRenderer* vtkNotUsed(ren),
                        vtkVolumeMapper* vtkNotUsed(mapper),
-                       vtkVolume* vtkNotUsed(vol))
+                       vtkVolume* vol,
+                       int lightingComplexity)
     {
-    return std::string("\
+    std::string shaderStr = std::string("\
       \n  // Get the 3D texture coordinates for lookup into the in_volume dataset\
       \n  g_dataPos = ip_textureCoords.xyz;\
       \n\
@@ -238,6 +249,44 @@ namespace vtkvolume
       \n\
       \n  // Flag to deternmine if voxel should be considered for the rendering\
       \n  bool l_skip = false;");
+
+    if (vol->GetProperty()->GetShade() && lightingComplexity == 1)
+      {
+        shaderStr += std::string("\
+          \n  // Light position in object space\
+          \n  g_lightPosObj = (in_inverseVolumeMatrix *\
+          \n                      vec4(in_cameraPos, 1.0));\
+          \n  if (g_lightPosObj.w != 0.0)\
+          \n    {\
+          \n    g_lightPosObj.x /= g_lightPosObj.w;\
+          \n    g_lightPosObj.y /= g_lightPosObj.w;\
+          \n    g_lightPosObj.z /= g_lightPosObj.w;\
+          \n    g_lightPosObj.w = 1.0;\
+          \n    }\
+          \n  g_ldir = normalize(g_lightPosObj.xyz - ip_vertexPos);\
+          \n  g_vdir = normalize(g_eyePosObj.xyz - ip_vertexPos);\
+          \n  g_h = normalize(g_ldir + g_vdir);\
+          \n  g_cellSpacing = vec3(in_cellSpacing[0],\
+          \n                       in_cellSpacing[1],\
+          \n                       in_cellSpacing[2]);\
+          \n  g_avgSpacing = (g_cellSpacing[0] +\
+          \n                  g_cellSpacing[1] +\
+          \n                  g_cellSpacing[2])/3.0;\
+          \n  // Adjust the aspect\
+          \n  g_aspect.x = g_cellSpacing[0] * 2.0 / g_avgSpacing;\
+          \n  g_aspect.y = g_cellSpacing[1] * 2.0 / g_avgSpacing;\
+          \n  g_aspect.z = g_cellSpacing[2] * 2.0 / g_avgSpacing;"
+        );
+      }
+    if (vol->GetProperty()->GetShade())
+      {
+      shaderStr += std::string("\
+        \n  g_xvec = vec3(in_cellStep[0], 0.0, 0.0);\
+        \n  g_yvec = vec3(0.0, in_cellStep[1], 0.0);\
+        \n  g_zvec = vec3(0.0, 0.0, in_cellStep[2]);"
+      );
+      }
+      return shaderStr;
     }
 
   //--------------------------------------------------------------------------
@@ -317,17 +366,14 @@ namespace vtkvolume
         \n  {\
         \n  vec3 g1;\
         \n  vec3 g2;\
-        \n  vec3 xvec = vec3(in_cellStep[0], 0.0, 0.0);\
-        \n  vec3 yvec = vec3(0.0, in_cellStep[1], 0.0);\
-        \n  vec3 zvec = vec3(0.0, 0.0, in_cellStep[2]);\
-        \n  g1.x = texture3D(in_volume, vec3(g_dataPos + xvec)).x;\
-        \n  g1.y = texture3D(in_volume, vec3(g_dataPos + yvec)).x;\
-        \n  g1.z = texture3D(in_volume, vec3(g_dataPos + zvec)).x;\
-        \n  g2.x = texture3D(in_volume, vec3(g_dataPos - xvec)).x;\
-        \n  g2.y = texture3D(in_volume, vec3(g_dataPos - yvec)).x;\
-        \n  g2.z = texture3D(in_volume, vec3(g_dataPos - zvec)).x;\
-        \n  g1 = g1*in_volume_scale.r + in_volume_bias.r;\
-        \n  g2 = g2*in_volume_scale.r + in_volume_bias.r;\
+        \n  g1.x = texture3D(in_volume, vec3(g_dataPos + g_xvec)).x;\
+        \n  g1.y = texture3D(in_volume, vec3(g_dataPos + g_yvec)).x;\
+        \n  g1.z = texture3D(in_volume, vec3(g_dataPos + g_zvec)).x;\
+        \n  g2.x = texture3D(in_volume, vec3(g_dataPos - g_xvec)).x;\
+        \n  g2.y = texture3D(in_volume, vec3(g_dataPos - g_yvec)).x;\
+        \n  g2.z = texture3D(in_volume, vec3(g_dataPos - g_zvec)).x;\
+        \n  g1 = g1 * in_volume_scale.r + in_volume_bias.r;\
+        \n  g2 = g2 * in_volume_scale.r + in_volume_bias.r;\
         \n  return vec4((g1 - g2), -1.0);\
         \n  }"
       );
@@ -340,15 +386,12 @@ namespace vtkvolume
         \n  {\
         \n  vec3 g1;\
         \n  vec4 g2;\
-        \n  vec3 xvec = vec3(in_cellStep[0], 0.0, 0.0);\
-        \n  vec3 yvec = vec3(0.0, in_cellStep[1], 0.0);\
-        \n  vec3 zvec = vec3(0.0, 0.0, in_cellStep[2]);\
-        \n  g1.x = texture3D(in_volume, vec3(g_dataPos + xvec)).x;\
-        \n  g1.y = texture3D(in_volume, vec3(g_dataPos + yvec)).x;\
-        \n  g1.z = texture3D(in_volume, vec3(g_dataPos + zvec)).x;\
-        \n  g2.x = texture3D(in_volume, vec3(g_dataPos - xvec)).x;\
-        \n  g2.y = texture3D(in_volume, vec3(g_dataPos - yvec)).x;\
-        \n  g2.z = texture3D(in_volume, vec3(g_dataPos - zvec)).x;\
+        \n  g1.x = texture3D(in_volume, vec3(g_dataPos + g_xvec)).x;\
+        \n  g1.y = texture3D(in_volume, vec3(g_dataPos + g_yvec)).x;\
+        \n  g1.z = texture3D(in_volume, vec3(g_dataPos + g_zvec)).x;\
+        \n  g2.x = texture3D(in_volume, vec3(g_dataPos - g_xvec)).x;\
+        \n  g2.y = texture3D(in_volume, vec3(g_dataPos - g_yvec)).x;\
+        \n  g2.z = texture3D(in_volume, vec3(g_dataPos - g_zvec)).x;\
         \n  g1 = g1*in_volume_scale.r + in_volume_bias.r;\
         \n  g2 = g2*in_volume_scale.r + in_volume_bias.r;\
         \n  g1.x = in_scalarsRange[0] + (\
@@ -364,20 +407,9 @@ namespace vtkvolume
         \n  g2.z = in_scalarsRange[0] + (\
         \n         in_scalarsRange[1] - in_scalarsRange[0]) * g2.z;\
         \n  g2.xyz = g1 - g2.xyz;\
-        \n  vec3 cellSpacing = vec3(in_cellSpacing[0],\
-        \n                          in_cellSpacing[1],\
-        \n                          in_cellSpacing[2]);\
-        \n  vec3 aspect;\
-        \n  float avgSpacing = (cellSpacing[0] +\
-        \n                      cellSpacing[1] +\
-        \n                      cellSpacing[2])/3.0;\
-        \n  // Adjust the aspect\
-        \n  aspect.x = cellSpacing[0] * 2.0 / avgSpacing;\
-        \n  aspect.y = cellSpacing[1] * 2.0 / avgSpacing;\
-        \n  aspect.z = cellSpacing[2] * 2.0 / avgSpacing;\
-        \n  g2.x /= aspect.x;\
-        \n  g2.y /= aspect.y;\
-        \n  g2.z /= aspect.z;\
+        \n  g2.x /= g_aspect.x;\
+        \n  g2.y /= g_aspect.y;\
+        \n  g2.z /= g_aspect.z;\
         \n  float grad_mag = sqrt(g2.x * g2.x  +\
         \n                        g2.y * g2.y +\
         \n                        g2.z * g2.z);\
@@ -439,21 +471,8 @@ namespace vtkvolume
       if (lightingComplexity == 1)
         {
         shaderStr += std::string("\
-          \n  // Light position in object space\
-          \n  vec4 lightPosObj = (in_inverseVolumeMatrix *\
-          \n                      vec4(in_cameraPos, 1.0));\
-          \n  if (lightPosObj.w != 0.0)\
-          \n    {\
-          \n    lightPosObj.x /= lightPosObj.w;\
-          \n    lightPosObj.y /= lightPosObj.w;\
-          \n    lightPosObj.z /= lightPosObj.w;\
-          \n    lightPosObj.w = 1.0;\
-          \n    }\
           \n  vec3 diffuse = vec3(0.0);\
           \n  vec3 specular = vec3(0.0);\
-          \n  vec3 ldir = normalize(lightPosObj.xyz - ip_vertexPos);\
-          \n  vec3 vdir = normalize(g_eyePosObj.xyz - ip_vertexPos);\
-          \n  vec3 h = normalize(ldir + vdir);\
           \n  vec3 g2 = gradient.xyz;\
           \n  g2 = (1.0/in_cellSpacing) * g2;\
           \n  float normalLength = length(g2);\
@@ -465,8 +484,8 @@ namespace vtkvolume
           \n    {\
           \n   g2 = vec3(0.0, 0.0, 0.0);\
           \n    }\
-          \n   float nDotL = dot(g2, ldir);\
-          \n   float nDotH = dot(g2, h);\
+          \n   float nDotL = dot(g2, g_ldir);\
+          \n   float nDotH = dot(g2, g_h);\
           \n   if (nDotL < 0.0 && in_twoSidedLighting)\
           \n     {\
           \n     nDotL = -nDotL;\
@@ -488,7 +507,7 @@ namespace vtkvolume
           \n  // For the headlight, ignore the light's ambient color\
           \n  // for now as it is causing the old mapper tests to fail\
           \n  vec3 finalColor = (in_ambient * color.rgb +\
-          \n                    diffuse + specular);"
+          \n                     diffuse + specular);"
           );
         }
       else if (lightingComplexity == 2)
