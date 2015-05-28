@@ -493,6 +493,7 @@ int vtkTriangle::IntersectWithLine(double p1[3], double p2[3], double tol,
   double dist2, weights[3];
 
   subId = 0;
+  pcoords[2] = 0.0;
 
   // Get normal for triangle
   //
@@ -506,7 +507,7 @@ int vtkTriangle::IntersectWithLine(double p1[3], double p2[3], double tol,
   //
   if ( ! vtkPlane::IntersectWithLine(p1,p2,n,pt1,t,x) )
     {
-    pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
+    pcoords[0] = pcoords[1] = 0.0;
     return 0;
     }
 
@@ -523,46 +524,46 @@ int vtkTriangle::IntersectWithLine(double p1[3], double p2[3], double tol,
     return inside;
     }
 
-  // so the easy test failed. The line is not intersecting the triangle.
-  // Let's now do the 3d case check to see how close the line comes.
-  // basically we just need to test against the three lines of the triangle
-  this->Line->PointIds->InsertId(0,0);
-  this->Line->PointIds->InsertId(1,1);
-
-  /*if (pcoords[2] < 0.0)
+  // so the easy test failed. Evaluate position failed,
+  // the triangle is degenerated and we still need to check
+  // intersection between line and the longest edge.
+  double dist2Pt1Pt2 = vtkMath::Distance2BetweenPoints(pt1, pt2);
+  double dist2Pt2Pt3 = vtkMath::Distance2BetweenPoints(pt2, pt3);
+  double dist2Pt3Pt1 = vtkMath::Distance2BetweenPoints(pt3, pt1);
+  if (dist2Pt1Pt2 > dist2Pt2Pt3 && dist2Pt1Pt2 > dist2Pt3Pt1)
     {
     this->Line->Points->InsertPoint(0,pt1);
     this->Line->Points->InsertPoint(1,pt2);
-    if (this->Line->IntersectWithLine(p1,p2,tol,t,x,pcoords,subId))
-      {
-      pcoords[2] = 0.0;
-      return 1;
-      }
     }
-
-  if (pcoords[0] < 0.0)
+  else if (dist2Pt2Pt3 > dist2Pt3Pt1 && dist2Pt2Pt3 > dist2Pt1Pt2)
     {
     this->Line->Points->InsertPoint(0,pt2);
     this->Line->Points->InsertPoint(1,pt3);
-    if (this->Line->IntersectWithLine(p1,p2,tol,t,x,pcoords,subId))
-      {
-      pcoords[2] = 0.0;
-      return 1;
-      }
     }
-
-  if (pcoords[1] < 0.0)
+  else
     {
     this->Line->Points->InsertPoint(0,pt3);
     this->Line->Points->InsertPoint(1,pt1);
-    if (this->Line->IntersectWithLine(p1,p2,tol,t,x,pcoords,subId))
-      {
-      pcoords[2] = 0.0;
-      return 1;
-      }
-    }*/
+    }
 
-  pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
+  if (this->Line->IntersectWithLine(p1,p2,tol,t,x,pcoords,subId))
+    {
+    // Compute r and s manually, using dot and norm.
+    double pt1Pt2[3];
+    double pt1Pt3[3];
+    double pt1X[3];
+    for (int i = 0; i < 3; i++)
+      {
+      pt1Pt2[i] = pt2[i] - pt1[i];
+      pt1Pt3[i] = pt3[i] - pt1[i];
+      pt1X[i] = x[i] - pt1[i];
+      }
+    pcoords[0] = vtkMath::Dot(pt1X, pt1Pt2) / dist2Pt1Pt2;
+    pcoords[1] = vtkMath::Dot(pt1X, pt1Pt3) / dist2Pt1Pt2;
+    return 1;
+    }
+
+  pcoords[0] = pcoords[1] = 0.0;
   return 0;
 }
 
