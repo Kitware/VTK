@@ -888,7 +888,8 @@ void vtkCocoaRenderWindow::CreateGLContext()
 
     attribs[i++] = NSOpenGLPFAOpenGLProfile;
     attribs[i++] = NSOpenGLProfileVersion3_2Core;
-    attribs[i++] = NSOpenGLPFAAccelerated;
+  //  OSX always preferrs an accelerated context
+  //    attribs[i++] = NSOpenGLPFAAccelerated;
     attribs[i++] = NSOpenGLPFADepthSize;
     attribs[i++] = (NSOpenGLPixelFormatAttribute)32;
 

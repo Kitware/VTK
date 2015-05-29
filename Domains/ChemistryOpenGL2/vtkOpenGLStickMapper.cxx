@@ -335,9 +335,13 @@ vtkgl::VBOLayout vtkOpenGLStickMapperCreateVBO(float * points, vtkIdType numPts,
   float *orientPtr;
   unsigned char *colorPtr;
 
-  unsigned char offsets[4];
-  offsets[3] = 0;
-  unsigned int selId = 0;
+  vtkgl::vtkucfloat offsets;
+  offsets.c[3] = 0;
+  vtkgl::vtkucfloat selId;
+  selId.c[0] = 0;
+  selId.c[1] = 0;
+  selId.c[2] = 0;
+  selId.c[3] = 0;
 
   for (vtkIdType i = 0; i < numPts; ++i)
     {
@@ -348,7 +352,11 @@ vtkgl::VBOLayout vtkOpenGLStickMapperCreateVBO(float * points, vtkIdType numPts,
     float length = sizes[i*3];
     if (selectionIds)
       {
-      selId = static_cast<unsigned int>(selectionIds[i]) + 1;
+      vtkIdType thisId = selectionIds[i] + 1;
+      selId.c[0] = thisId % 256;
+      selId.c[1] = (thisId >> 8) % 256;
+      selId.c[2] = (thisId >> 16) % 256;
+      selId.c[3] = 0;
       }
 
     // Vertices
@@ -359,14 +367,14 @@ vtkgl::VBOLayout vtkOpenGLStickMapperCreateVBO(float * points, vtkIdType numPts,
     *(it++) = orientPtr[0]*length;
     *(it++) = orientPtr[1]*length;
     *(it++) = orientPtr[2]*length;
-    offsets[0] = 0;
-    offsets[1] = 0;
-    offsets[2] = 0;
-    *(it++) = *reinterpret_cast<float *>(offsets);
+    offsets.c[0] = 0;
+    offsets.c[1] = 0;
+    offsets.c[2] = 0;
+    *(it++) = offsets.f;
     *(it++) = radius;
     if (selectionIds)
       {
-      *(it++) = *reinterpret_cast<float *>(&selId);
+      *(it++) = selId.f;
       }
 
     *(it++) = pointPtr[0];
@@ -376,14 +384,14 @@ vtkgl::VBOLayout vtkOpenGLStickMapperCreateVBO(float * points, vtkIdType numPts,
     *(it++) = orientPtr[0]*length;
     *(it++) = orientPtr[1]*length;
     *(it++) = orientPtr[2]*length;
-    offsets[0] = 1;
-    offsets[1] = 0;
-    offsets[2] = 0;
-    *(it++) = *reinterpret_cast<float *>(offsets);
+    offsets.c[0] = 1;
+    offsets.c[1] = 0;
+    offsets.c[2] = 0;
+    *(it++) = offsets.f;
     *(it++) = radius;
     if (selectionIds)
       {
-      *(it++) = *reinterpret_cast<float *>(&selId);
+      *(it++) = selId.f;
       }
 
     *(it++) = pointPtr[0];
@@ -393,14 +401,14 @@ vtkgl::VBOLayout vtkOpenGLStickMapperCreateVBO(float * points, vtkIdType numPts,
     *(it++) = orientPtr[0]*length;
     *(it++) = orientPtr[1]*length;
     *(it++) = orientPtr[2]*length;
-    offsets[0] = 1;
-    offsets[1] = 0;
-    offsets[2] = 1;
-    *(it++) = *reinterpret_cast<float *>(offsets);
+    offsets.c[0] = 1;
+    offsets.c[1] = 0;
+    offsets.c[2] = 1;
+    *(it++) = offsets.f;
     *(it++) = radius;
     if (selectionIds)
       {
-      *(it++) = *reinterpret_cast<float *>(&selId);
+      *(it++) = selId.f;
       }
 
     *(it++) = pointPtr[0];
@@ -410,14 +418,14 @@ vtkgl::VBOLayout vtkOpenGLStickMapperCreateVBO(float * points, vtkIdType numPts,
     *(it++) = orientPtr[0]*length;
     *(it++) = orientPtr[1]*length;
     *(it++) = orientPtr[2]*length;
-    offsets[0] = 0;
-    offsets[1] = 0;
-    offsets[2] = 1;
-    *(it++) = *reinterpret_cast<float *>(offsets);
+    offsets.c[0] = 0;
+    offsets.c[1] = 0;
+    offsets.c[2] = 1;
+    *(it++) = offsets.f;
     *(it++) = radius;
     if (selectionIds)
       {
-      *(it++) = *reinterpret_cast<float *>(&selId);
+      *(it++) = selId.f;
       }
 
     *(it++) = pointPtr[0];
@@ -427,14 +435,14 @@ vtkgl::VBOLayout vtkOpenGLStickMapperCreateVBO(float * points, vtkIdType numPts,
     *(it++) = orientPtr[0]*length;
     *(it++) = orientPtr[1]*length;
     *(it++) = orientPtr[2]*length;
-    offsets[0] = 1;
-    offsets[1] = 1;
-    offsets[2] = 1;
-    *(it++) = *reinterpret_cast<float *>(offsets);
+    offsets.c[0] = 1;
+    offsets.c[1] = 1;
+    offsets.c[2] = 1;
+    *(it++) = offsets.f;
     *(it++) = radius;
     if (selectionIds)
       {
-      *(it++) = *reinterpret_cast<float *>(&selId);
+      *(it++) = selId.f;
       }
 
     *(it++) = pointPtr[0];
@@ -444,14 +452,14 @@ vtkgl::VBOLayout vtkOpenGLStickMapperCreateVBO(float * points, vtkIdType numPts,
     *(it++) = orientPtr[0]*length;
     *(it++) = orientPtr[1]*length;
     *(it++) = orientPtr[2]*length;
-    offsets[0] = 0;
-    offsets[1] = 1;
-    offsets[2] = 1;
-    *(it++) = *reinterpret_cast<float *>(offsets);
+    offsets.c[0] = 0;
+    offsets.c[1] = 1;
+    offsets.c[2] = 1;
+    *(it++) = offsets.f;
     *(it++) = radius;
     if (selectionIds)
       {
-      *(it++) = *reinterpret_cast<float *>(&selId);
+      *(it++) = selId.f;
       }
     }
   vertexBuffer.Upload(packedVBO, vtkgl::BufferObject::ArrayBuffer);

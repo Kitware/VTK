@@ -34,6 +34,14 @@ class vtkWindow;
 namespace vtkgl
 {
 
+// useful union for stuffing colors into a float
+union vtkucfloat
+{
+  unsigned char c[4];
+  float f;
+};
+
+
 // Process the string, and return a version with replacements.
 std::string VTKRENDERINGOPENGL2_EXPORT replace(std::string source,
   const std::string &search,

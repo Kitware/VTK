@@ -106,12 +106,12 @@ void TemplatedAppendVBO3(VBOLayout &layout,
         }
       else
         {
-        unsigned char c[4];
-        c[0] = *(colorPtr++);
-        c[1] = *(colorPtr++);
-        c[2] = *(colorPtr);
-        c[3] =  255;
-        *(it++) = *reinterpret_cast<float *>(c);
+        vtkucfloat c;
+        c.c[0] = *(colorPtr++);
+        c.c[1] = *(colorPtr++);
+        c.c[2] = *(colorPtr);
+        c.c[3] =  255;
+        *(it++) = c.f;
         }
       }
     }
