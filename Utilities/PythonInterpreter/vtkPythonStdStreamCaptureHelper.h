@@ -54,17 +54,24 @@ struct vtkPythonStdStreamCaptureHelper
     {
     return vtkPythonInterpreter::ReadStdin();
     }
+
+  void Close()
+    {
+    this->Flush();
+    }
 };
 
 static PyObject* vtkWrite(PyObject* self, PyObject* args);
 static PyObject* vtkRead(PyObject* self, PyObject* args);
 static PyObject* vtkFlush(PyObject* self, PyObject* args);
+static PyObject* vtkClose(PyObject* self, PyObject* args);
 
 // const_cast since older versions of python are not const correct.
 static PyMethodDef vtkPythonStdStreamCaptureHelperMethods[] = {
     {const_cast<char*>("write"), vtkWrite, METH_VARARGS, const_cast<char*>("Dump message")},
     {const_cast<char*>("readline"), vtkRead, METH_VARARGS, const_cast<char*>("Read input line")},
     {const_cast<char*>("flush"), vtkFlush, METH_VARARGS, const_cast<char*>("Flush")},
+    {const_cast<char*>("close"), vtkClose, METH_VARARGS, const_cast<char*>("Close")},
     {0, 0, 0, 0}
 };
 
@@ -187,6 +194,23 @@ static PyObject* vtkFlush(PyObject* self, PyObject* args)
   if (wrapper)
     {
     wrapper->Flush();
+    }
+  return Py_BuildValue(const_cast<char*>(""));
+}
+
+static PyObject* vtkClose(PyObject* self, PyObject* args)
+{
+  (void)args;
+  if(!self || !PyObject_TypeCheck(self, &vtkPythonStdStreamCaptureHelperType))
+    {
+    return 0;
+    }
+
+  vtkPythonStdStreamCaptureHelper* wrapper =
+    reinterpret_cast<vtkPythonStdStreamCaptureHelper*>(self);
+  if (wrapper)
+    {
+    wrapper->Close();
     }
   return Py_BuildValue(const_cast<char*>(""));
 }
