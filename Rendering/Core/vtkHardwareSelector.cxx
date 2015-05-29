@@ -98,11 +98,6 @@ public:
     for (iter = dataMap.begin(); iter != dataMap.end(); ++iter)
       {
       const PixelInformation &key = iter->first;
-      if (! key.Prop)
-        {
-        // we don't select 2D annotations
-        continue;
-        }
       const std::set<vtkIdType> &id_values = iter->second;
       vtkSelectionNode* child = vtkSelectionNode::New();
       child->SetContentType(vtkSelectionNode::INDICES);
