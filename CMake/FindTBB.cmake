@@ -198,7 +198,7 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" AND
   set (USE_LIBCXX OFF)
   cmake_policy(GET CMP0025 POLICY_VAR)
 
-  if (${POLICY_VAR} STREQUAL "NEW")
+  if ("${POLICY_VAR}" STREQUAL "NEW")
     if (${CMAKE_CXX_COMPILER_ID} STREQUAL "AppleClang")
       set (USE_LIBCXX ON)
     endif ()
