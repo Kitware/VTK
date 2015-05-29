@@ -3060,6 +3060,8 @@ void vtkExodusIIReaderPrivate::DetermineVtkCellType( BlockInfoType& binfo )
     { binfo.CellType=VTK_QUADRATIC_EDGE;           binfo.PointsPerCell = 3; }
   else if ((elemType.substr(0,3) == "EDG") &&      (binfo.BdsPerEntry[0] == 3))
     { binfo.CellType=VTK_QUADRATIC_EDGE;           binfo.PointsPerCell = 3; }
+  else if ((elemType.substr(0,3) == "PYR") &&      (binfo.BdsPerEntry[0] == 13))
+    { binfo.CellType=VTK_QUADRATIC_PYRAMID;        binfo.PointsPerCell = 13; }
 
   // Check for regular elements
   else if (elemType.substr(0,3) == "CIR") { binfo.CellType = VTK_VERTEX;     binfo.PointsPerCell = 1; }
