@@ -14,6 +14,7 @@ vtk_module(vtkWebCore
     vtkWebGLExporter
   TEST_DEPENDS
     vtkImagingSources
+    vtkTestingCore
   TEST_LABELS
     VTKWEB
   EXCLUDE_FROM_ALL

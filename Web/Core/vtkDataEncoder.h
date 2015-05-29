@@ -73,6 +73,14 @@ public:
   // output.
   void Flush(vtkTypeUInt32 key);
 
+  // Description:
+  // Take an image data and synchronously convert it to a base-64 encoded png.
+  const char* EncodeAsBase64Png(vtkImageData* img, int compressionLevel=5);
+
+  // Description:
+  // Take an image data and synchronously convert it to a base-64 encoded jpg.
+  const char* EncodeAsBase64Jpg(vtkImageData* img, int quality=50);
+
 //BTX
 protected:
   vtkDataEncoder();
