@@ -19,6 +19,8 @@
 #include "vtkMatrix4x4.h"
 #include "vtkOpenGLActor.h"
 #include "vtkOpenGLCamera.h"
+#include "vtkOpenGLBufferObject.h"
+#include "vtkOpenGLVertexArrayObject.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -27,6 +29,8 @@
 #include "vtkShaderProgram.h"
 
 #include "vtkSphereMapperVS.h"
+
+#include "vtk_glew.h"
 
 using vtkgl::substitute;
 
@@ -177,15 +181,16 @@ void vtkOpenGLSphereMapper::SetCameraShaderParameters(
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLSphereMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
-                                                         vtkRenderer *ren, vtkActor *actor)
+void vtkOpenGLSphereMapper::SetMapperShaderParameters(
+  vtkgl::CellBO &cellBO,
+  vtkRenderer *ren, vtkActor *actor)
 {
-  if (cellBO.indexCount && (this->VBOBuildTime > cellBO.attributeUpdateTime ||
-      cellBO.ShaderSourceTime > cellBO.attributeUpdateTime))
+  if (cellBO.IndexCount && (this->VBOBuildTime > cellBO.AttributeUpdateTime ||
+      cellBO.ShaderSourceTime > cellBO.AttributeUpdateTime))
     {
     vtkgl::VBOLayout &layout = this->Layout;
-    cellBO.vao.Bind();
-    if (!cellBO.vao.AddAttributeArray(cellBO.Program, this->VBO,
+    cellBO.VAO->Bind();
+    if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
                                     "offsetMC", layout.ColorOffset+sizeof(float),
                                     layout.Stride, VTK_FLOAT, 2, false))
       {
@@ -210,7 +215,7 @@ namespace
 vtkgl::VBOLayout vtkOpenGLSphereMapperCreateVBO(float * points, vtkIdType numPts,
               unsigned char *colors, int colorComponents,
               float *sizes,
-              vtkgl::BufferObject &vertexBuffer)
+              vtkOpenGLBufferObject *vertexBuffer)
 {
   vtkgl::VBOLayout layout;
   // Figure out how big each block will be, currently 6 or 7 floats.
@@ -265,14 +270,16 @@ vtkgl::VBOLayout vtkOpenGLSphereMapperCreateVBO(float * points, vtkIdType numPts
     *(it++) = 0.0f;
     *(it++) = 2.0f*radius;
     }
-  vertexBuffer.Upload(packedVBO, vtkgl::BufferObject::ArrayBuffer);
+  vertexBuffer->Upload(packedVBO, vtkOpenGLBufferObject::ArrayBuffer);
   layout.VertexCount = numPts*3;
   return layout;
 }
 }
 
 //-------------------------------------------------------------------------
-bool vtkOpenGLSphereMapper::GetNeedToRebuildBufferObjects(vtkRenderer *vtkNotUsed(ren), vtkActor *act)
+bool vtkOpenGLSphereMapper::GetNeedToRebuildBufferObjects(
+  vtkRenderer *vtkNotUsed(ren),
+  vtkActor *act)
 {
   // picking state does not require a rebuild, unlike our parent
   if (this->VBOBuildTime < this->GetMTime() ||
@@ -286,7 +293,8 @@ bool vtkOpenGLSphereMapper::GetNeedToRebuildBufferObjects(vtkRenderer *vtkNotUse
 
 //-------------------------------------------------------------------------
 void vtkOpenGLSphereMapper::BuildBufferObjects(
-  vtkRenderer *vtkNotUsed(ren), vtkActor *vtkNotUsed(act))
+  vtkRenderer *vtkNotUsed(ren),
+  vtkActor *vtkNotUsed(act))
 {
   vtkPolyData *poly = this->CurrentInput;
 
@@ -314,10 +322,10 @@ void vtkOpenGLSphereMapper::BuildBufferObjects(
               this->VBO);
 
   // create the IBO
-  this->Points.indexCount = 0;
-  this->Lines.indexCount = 0;
-  this->TriStrips.indexCount = 0;
-  this->Tris.indexCount = this->Layout.VertexCount;
+  this->Points.IndexCount = 0;
+  this->Lines.IndexCount = 0;
+  this->TriStrips.IndexCount = 0;
+  this->Tris.IndexCount = this->Layout.VertexCount;
 }
 
 
@@ -343,7 +351,7 @@ void vtkOpenGLSphereMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
   vtkgl::VBOLayout &layout = this->Layout;
 
   // draw polygons
-  if (this->Tris.indexCount)
+  if (this->Tris.IndexCount)
     {
     // First we do the triangles, update the shader, set uniforms, etc.
     this->UpdateShader(this->Tris, ren, actor);

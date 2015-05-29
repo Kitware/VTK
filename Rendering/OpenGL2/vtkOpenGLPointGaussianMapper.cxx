@@ -20,8 +20,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkMatrix4x4.h"
 #include "vtkOpenGLActor.h"
+#include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLPolyDataMapper.h"
+#include "vtkOpenGLVertexArrayObject.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
@@ -29,7 +31,9 @@
 #include "vtkShaderProgram.h"
 
 #include "vtkPointGaussianVS.h"
-#include "vtkglPolyDataFS.h"
+#include "vtkPolyDataFS.h"
+
+#include "vtk_glew.h"
 
 using vtkgl::substitute;
 
@@ -108,7 +112,7 @@ void vtkOpenGLPointGaussianMapperHelper::GetShaderTemplate(std::string &VSSource
                                           vtkActor *vtkNotUsed(actor))
 {
   VSSource = vtkPointGaussianVS;
-  FSSource = vtkglPolyDataFS;
+  FSSource = vtkPolyDataFS;
   GSSource = "";
 }
 
@@ -216,12 +220,12 @@ void vtkOpenGLPointGaussianMapperHelper::SetCameraShaderParameters(vtkgl::CellBO
 void vtkOpenGLPointGaussianMapperHelper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
                                                          vtkRenderer *ren, vtkActor *actor)
 {
-  if (cellBO.indexCount && (this->VBOBuildTime > cellBO.attributeUpdateTime ||
-      cellBO.ShaderSourceTime > cellBO.attributeUpdateTime))
+  if (cellBO.IndexCount && (this->VBOBuildTime > cellBO.AttributeUpdateTime ||
+      cellBO.ShaderSourceTime > cellBO.AttributeUpdateTime))
     {
     vtkgl::VBOLayout &layout = this->Layout;
-    cellBO.vao.Bind();
-    if (!cellBO.vao.AddAttributeArray(cellBO.Program, this->VBO,
+    cellBO.VAO->Bind();
+    if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
                                     "offsetMC", layout.ColorOffset+sizeof(float),
                                     layout.Stride, VTK_FLOAT, 2, false))
       {
@@ -310,7 +314,8 @@ void vtkOpenGLPointGaussianMapperHelperPackVBOTemplate(
 
 vtkgl::VBOLayout vtkOpenGLPointGaussianMapperHelperCreateVBO(
     vtkPoints* points, unsigned char* colors, int colorComponents,
-    vtkDataArray* sizes, float defaultSize, vtkgl::BufferObject& vertexBuffer)
+    vtkDataArray* sizes, float defaultSize,
+    vtkOpenGLBufferObject *vertexBuffer)
 {
 
   vtkgl::VBOLayout layout;
@@ -341,14 +346,14 @@ vtkgl::VBOLayout vtkOpenGLPointGaussianMapperHelperCreateVBO(
             points->GetNumberOfPoints(),colors,colorComponents,
             sizes,defaultSize));
     }
-  vertexBuffer.Upload(packedVBO, vtkgl::BufferObject::ArrayBuffer);
+  vertexBuffer->Upload(packedVBO, vtkOpenGLBufferObject::ArrayBuffer);
   layout.VertexCount = points->GetNumberOfPoints() * 3;
   return layout;
 }
 }
 
 size_t vtkOpenGLPointGaussianMapperHelperCreateTriangleIndexBuffer(
-  vtkgl::BufferObject &indexBuffer,
+  vtkOpenGLBufferObject *indexBuffer,
   int numPts)
 {
   std::vector<unsigned int> indexArray;
@@ -358,12 +363,14 @@ size_t vtkOpenGLPointGaussianMapperHelperCreateTriangleIndexBuffer(
     {
     indexArray.push_back(i);
     }
-  indexBuffer.Upload(indexArray, vtkgl::BufferObject::ElementArrayBuffer);
+  indexBuffer->Upload(indexArray, vtkOpenGLBufferObject::ElementArrayBuffer);
   return indexArray.size();
 }
 
 //-------------------------------------------------------------------------
-bool vtkOpenGLPointGaussianMapperHelper::GetNeedToRebuildBufferObjects(vtkRenderer *vtkNotUsed(ren), vtkActor *act)
+bool vtkOpenGLPointGaussianMapperHelper::GetNeedToRebuildBufferObjects(
+  vtkRenderer *vtkNotUsed(ren),
+  vtkActor *act)
 {
   // picking state does not require a rebuild, unlike our parent
   if (this->VBOBuildTime < this->GetMTime() ||
@@ -410,10 +417,10 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
               this->VBO);
 
   // we use no IBO
-  this->Points.indexCount = 0;
-  this->Lines.indexCount = 0;
-  this->TriStrips.indexCount = 0;
-  this->Tris.indexCount = this->Layout.VertexCount;
+  this->Points.IndexCount = 0;
+  this->Lines.IndexCount = 0;
+  this->TriStrips.IndexCount = 0;
+  this->Tris.IndexCount = this->Layout.VertexCount;
 }
 
 //-----------------------------------------------------------------------------

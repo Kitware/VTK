@@ -25,6 +25,7 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkPointData.h"
@@ -355,11 +356,11 @@ void vtkCompositePolyDataMapper2::RenderPieceDraw(
     }
 
   // draw polygons
-  if (this->Tris.indexCount)
+  if (this->Tris.IndexCount)
     {
     // First we do the triangles, update the shader, set uniforms, etc.
     this->UpdateShader(this->Tris, ren, actor);
-    this->Tris.ibo.Bind();
+    this->Tris.IBO->Bind();
     GLenum mode = (representation == VTK_POINTS) ? GL_POINTS :
       (representation == VTK_WIREFRAME) ? GL_LINES : GL_TRIANGLES;
     unsigned int modeDenom = (representation == VTK_POINTS) ? 1 :
@@ -410,7 +411,7 @@ void vtkCompositePolyDataMapper2::RenderPieceDraw(
         ((it->EndIndex - it->StartIndex + 1)/modeDenom);
       }
 
-    this->Tris.ibo.Release();
+    this->Tris.IBO->Release();
     }
 
 }
@@ -430,11 +431,11 @@ void vtkCompositePolyDataMapper2::RenderEdges(
   this->DrawingEdges = true;
 
   // draw polygons
-  if (this->TrisEdges.indexCount)
+  if (this->TrisEdges.IndexCount)
     {
     // First we do the triangles, update the shader, set uniforms, etc.
     this->UpdateShader(this->TrisEdges, ren, actor);
-    this->TrisEdges.ibo.Bind();
+    this->TrisEdges.IBO->Bind();
     std::vector<
       vtkCompositePolyDataMapper2::RenderValue>::iterator it;
     for (it = this->RenderValues.begin(); it != this->RenderValues.end(); it++)
@@ -449,7 +450,7 @@ void vtkCompositePolyDataMapper2::RenderEdges(
           reinterpret_cast<const GLvoid *>(it->StartEdgeIndex*sizeof(GLuint)));
         }
       }
-    this->TrisEdges.ibo.Release();
+    this->TrisEdges.IBO->Release();
     }
 
   this->DrawingEdges = false;
@@ -594,19 +595,19 @@ void vtkCompositePolyDataMapper2::BuildBufferObjects(
       static_cast<unsigned int>(this->EdgeIndexArray.size());
     }
 
-  this->VBO.Upload(this->Layout.PackedVBO, vtkgl::BufferObject::ArrayBuffer);
+  this->VBO->Upload(this->Layout.PackedVBO, vtkOpenGLBufferObject::ArrayBuffer);
   this->Layout.PackedVBO.resize(0);
-  this->Tris.ibo.Upload(this->IndexArray,
-    vtkgl::BufferObject::ElementArrayBuffer);
-  this->Tris.indexCount = this->IndexArray.size();
+  this->Tris.IBO->Upload(this->IndexArray,
+    vtkOpenGLBufferObject::ElementArrayBuffer);
+  this->Tris.IndexCount = this->IndexArray.size();
   this->IndexArray.resize(0);
-  this->TrisEdges.ibo.Upload(this->EdgeIndexArray,
-    vtkgl::BufferObject::ElementArrayBuffer);
-  this->TrisEdges.indexCount = this->EdgeIndexArray.size();
+  this->TrisEdges.IBO->Upload(this->EdgeIndexArray,
+    vtkOpenGLBufferObject::ElementArrayBuffer);
+  this->TrisEdges.IndexCount = this->EdgeIndexArray.size();
   this->EdgeIndexArray.resize(0);
-  this->Points.indexCount = 0;
-  this->Lines.indexCount = 0;
-  this->TriStrips.indexCount = 0;
+  this->Points.IndexCount = 0;
+  this->Lines.IndexCount = 0;
+  this->TriStrips.IndexCount = 0;
 
   // allocate as needed
   if (this->HaveCellScalars || this->HavePickScalars)
@@ -614,12 +615,12 @@ void vtkCompositePolyDataMapper2::BuildBufferObjects(
     if (!this->CellScalarTexture)
       {
       this->CellScalarTexture = vtkTextureObject::New();
-      this->CellScalarBuffer = new vtkgl::BufferObject;
+      this->CellScalarBuffer = vtkOpenGLBufferObject::New();
       }
     this->CellScalarTexture->SetContext(
       static_cast<vtkOpenGLRenderWindow*>(ren->GetVTKWindow()));
     this->CellScalarBuffer->Upload(newColors,
-      vtkgl::BufferObject::TextureBuffer);
+      vtkOpenGLBufferObject::TextureBuffer);
     this->CellScalarTexture->CreateTextureBuffer(
       static_cast<unsigned int>(newColors.size()/4),
       4,
@@ -632,12 +633,12 @@ void vtkCompositePolyDataMapper2::BuildBufferObjects(
     if (!this->CellNormalTexture)
       {
       this->CellNormalTexture = vtkTextureObject::New();
-      this->CellNormalBuffer = new vtkgl::BufferObject;
+      this->CellNormalBuffer = vtkOpenGLBufferObject::New();
       }
     this->CellNormalTexture->SetContext(
       static_cast<vtkOpenGLRenderWindow*>(ren->GetVTKWindow()));
     this->CellNormalBuffer->Upload(newNorms,
-      vtkgl::BufferObject::TextureBuffer);
+      vtkOpenGLBufferObject::TextureBuffer);
     this->CellNormalTexture->CreateTextureBuffer(
       static_cast<unsigned int>(newNorms.size()/4),
       4, VTK_FLOAT,

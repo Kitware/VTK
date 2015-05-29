@@ -245,7 +245,7 @@ void vtkDepthPeelingPass::BlendIntermediatePeels(
          this->ViewportWidth-1, this->ViewportHeight-1,
          0, 0, this->ViewportWidth, this->ViewportHeight,
          this->IntermediateBlendProgram->Program,
-         &this->IntermediateBlendProgram->vao);
+         this->IntermediateBlendProgram->VAO);
 }
 
 
@@ -280,7 +280,7 @@ void vtkDepthPeelingPass::BlendFinalPeel(vtkOpenGLRenderWindow *renWin)
          this->ViewportWidth-1, this->ViewportHeight-1,
          0, 0, this->ViewportWidth, this->ViewportHeight,
          this->FinalBlendProgram->Program,
-         &this->FinalBlendProgram->vao);
+         this->FinalBlendProgram->VAO);
 }
 
 

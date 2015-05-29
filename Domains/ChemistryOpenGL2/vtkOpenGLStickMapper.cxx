@@ -19,6 +19,8 @@
 #include "vtkMatrix4x4.h"
 #include "vtkOpenGLActor.h"
 #include "vtkOpenGLCamera.h"
+#include "vtkOpenGLBufferObject.h"
+#include "vtkOpenGLVertexArrayObject.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -28,6 +30,8 @@
 #include "vtkShaderProgram.h"
 
 #include "vtkStickMapperVS.h"
+
+#include "vtk_glew.h"
 
 using vtkgl::substitute;
 
@@ -243,30 +247,32 @@ void vtkOpenGLStickMapper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLStickMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
-                                                         vtkRenderer *ren, vtkActor *actor)
+void vtkOpenGLStickMapper::SetMapperShaderParameters(
+  vtkgl::CellBO &cellBO,
+  vtkRenderer *ren,
+  vtkActor *actor)
 {
-  if (cellBO.indexCount && (this->VBOBuildTime > cellBO.attributeUpdateTime ||
-      cellBO.ShaderSourceTime > cellBO.attributeUpdateTime))
+  if (cellBO.IndexCount && (this->VBOBuildTime > cellBO.AttributeUpdateTime ||
+      cellBO.ShaderSourceTime > cellBO.AttributeUpdateTime))
     {
     vtkHardwareSelector* selector = ren->GetSelector();
     bool picking = (ren->GetRenderWindow()->GetIsPicking() || selector != NULL);
 
     vtkgl::VBOLayout &layout = this->Layout;
-    cellBO.vao.Bind();
-    if (!cellBO.vao.AddAttributeArray(cellBO.Program, this->VBO,
+    cellBO.VAO->Bind();
+    if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
                                     "orientMC", layout.ColorOffset+sizeof(float),
                                     layout.Stride, VTK_FLOAT, 3, false))
       {
       vtkErrorMacro(<< "Error setting 'orientMC' in shader VAO.");
       }
-    if (!cellBO.vao.AddAttributeArray(cellBO.Program, this->VBO,
+    if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
                                     "offsetMC", layout.ColorOffset+4*sizeof(float),
                                     layout.Stride, VTK_UNSIGNED_CHAR, 3, false))
       {
       vtkErrorMacro(<< "Error setting 'offsetMC' in shader VAO.");
       }
-    if (!cellBO.vao.AddAttributeArray(cellBO.Program, this->VBO,
+    if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
                                     "radiusMC", layout.ColorOffset+5*sizeof(float),
                                     layout.Stride, VTK_FLOAT, 1, false))
       {
@@ -274,7 +280,7 @@ void vtkOpenGLStickMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
       }
     if (picking)
       {
-      if (!cellBO.vao.AddAttributeArray(cellBO.Program, this->VBO,
+      if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
                                       "selectionId", layout.ColorOffset+6*sizeof(float),
                                       layout.Stride, VTK_UNSIGNED_CHAR, 4, true))
         {
@@ -283,7 +289,7 @@ void vtkOpenGLStickMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
       }
     else
       {
-      cellBO.vao.RemoveAttributeArray("selectionId");
+      cellBO.VAO->RemoveAttributeArray("selectionId");
       }
     }
 
@@ -305,7 +311,7 @@ vtkgl::VBOLayout vtkOpenGLStickMapperCreateVBO(float * points, vtkIdType numPts,
               float *orients,
               float *sizes,
               vtkIdType *selectionIds,
-              vtkgl::BufferObject &vertexBuffer)
+              vtkOpenGLBufferObject *vertexBuffer)
 {
   vtkgl::VBOLayout layout;
   // Figure out how big each block will be, currently 6 or 7 floats.
@@ -462,14 +468,14 @@ vtkgl::VBOLayout vtkOpenGLStickMapperCreateVBO(float * points, vtkIdType numPts,
       *(it++) = selId.f;
       }
     }
-  vertexBuffer.Upload(packedVBO, vtkgl::BufferObject::ArrayBuffer);
+  vertexBuffer->Upload(packedVBO, vtkOpenGLBufferObject::ArrayBuffer);
   layout.VertexCount = numPts*6;
   return layout;
 }
 }
 
 size_t vtkOpenGLStickMapperCreateTriangleIndexBuffer(
-  vtkgl::BufferObject &indexBuffer,
+  vtkOpenGLBufferObject *indexBuffer,
   int numPts)
 {
   std::vector<unsigned int> indexArray;
@@ -490,12 +496,14 @@ size_t vtkOpenGLStickMapperCreateTriangleIndexBuffer(
     indexArray.push_back(i*6+4);
     indexArray.push_back(i*6+5);
     }
-  indexBuffer.Upload(indexArray, vtkgl::BufferObject::ElementArrayBuffer);
+  indexBuffer->Upload(indexArray, vtkOpenGLBufferObject::ElementArrayBuffer);
   return indexArray.size();
 }
 
 //-------------------------------------------------------------------------
-bool vtkOpenGLStickMapper::GetNeedToRebuildBufferObjects(vtkRenderer *ren, vtkActor *act)
+bool vtkOpenGLStickMapper::GetNeedToRebuildBufferObjects(
+  vtkRenderer *ren,
+  vtkActor *act)
 {
   // picking state changing always requires a rebuild
   vtkHardwareSelector* selector = ren->GetSelector();
@@ -548,11 +556,11 @@ void vtkOpenGLStickMapper::BuildBufferObjects(vtkRenderer *ren,
               this->VBO);
 
   // create the IBO
-  this->Points.indexCount = 0;
-  this->Lines.indexCount = 0;
-  this->TriStrips.indexCount = 0;
-  this->Tris.indexCount =
-    vtkOpenGLStickMapperCreateTriangleIndexBuffer(this->Tris.ibo,
+  this->Points.IndexCount = 0;
+  this->Lines.IndexCount = 0;
+  this->TriStrips.IndexCount = 0;
+  this->Tris.IndexCount =
+    vtkOpenGLStickMapperCreateTriangleIndexBuffer(this->Tris.IBO,
       poly->GetPoints()->GetNumberOfPoints());
 }
 
@@ -562,16 +570,16 @@ void vtkOpenGLStickMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
   vtkgl::VBOLayout &layout = this->Layout;
 
   // draw polygons
-  if (this->Tris.indexCount)
+  if (this->Tris.IndexCount)
     {
     // First we do the triangles, update the shader, set uniforms, etc.
     this->UpdateShader(this->Tris, ren, actor);
-    this->Tris.ibo.Bind();
+    this->Tris.IBO->Bind();
     glDrawRangeElements(GL_TRIANGLES, 0,
                         static_cast<GLuint>(layout.VertexCount - 1),
-                        static_cast<GLsizei>(this->Tris.indexCount),
+                        static_cast<GLsizei>(this->Tris.IndexCount),
                         GL_UNSIGNED_INT,
                         reinterpret_cast<const GLvoid *>(NULL));
-    this->Tris.ibo.Release();
+    this->Tris.IBO->Release();
     }
 }

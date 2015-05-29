@@ -16,19 +16,17 @@
 #define vtkGLVBOHelpher_h
 
 #include "vtkRenderingOpenGL2Module.h" // for export macro
-
-#include "vtkglBufferObject.h"
-#include "vtkglVertexArrayObject.h"
-
-#include "vtk_glew.h" // used for struct ivars
+#include "vtkTimeStamp.h"
 #include <vector> // used for struct ivars
-#include "vtkTimeStamp.h" // used for struct ivars
 
 class vtkCellArray;
-class vtkPoints;
 class vtkDataArray;
-class vtkPolyData;
+class vtkOpenGLBufferObject;
 class vtkOpenGLShaderCache;
+class vtkOpenGLVertexArrayObject;
+class vtkPoints;
+class vtkPolyData;
+class vtkShaderProgram;
 class vtkWindow;
 
 namespace vtkgl
@@ -54,7 +52,7 @@ bool VTKRENDERINGOPENGL2_EXPORT substitute(std::string &source,
 
 // used to create an IBO for triangle primatives
 size_t CreateTriangleIndexBuffer(vtkCellArray *cells,
-  BufferObject &indexBuffer,
+  vtkOpenGLBufferObject *indexBuffer,
   vtkPoints *points);
 
 // used to create an IBO for triangle primatives
@@ -66,7 +64,7 @@ void AppendTriangleIndexBuffer(
 
 // create a IBO for wireframe polys/tris
 size_t CreateTriangleLineIndexBuffer(vtkCellArray *cells,
-  BufferObject &indexBuffer);
+  vtkOpenGLBufferObject *indexBuffer);
 
 // used to create an IBO for line primatives
 void AppendLineIndexBuffer(
@@ -77,7 +75,7 @@ void AppendLineIndexBuffer(
 
 // create a IBO for wireframe polys/tris
 size_t CreateLineIndexBuffer(vtkCellArray *cells,
-  BufferObject &indexBuffer);
+  vtkOpenGLBufferObject *indexBuffer);
 
 // create a IBO for wireframe polys/tris
 void AppendTriangleLineIndexBuffer(
@@ -86,7 +84,8 @@ void AppendTriangleLineIndexBuffer(
   vtkIdType vertexOffset);
 
 // used to create an IBO for primatives as points
-size_t CreatePointIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer);
+size_t CreatePointIndexBuffer(vtkCellArray *cells,
+  vtkOpenGLBufferObject *indexBuffer);
 
 // used to create an IBO for primatives as points
 void AppendPointIndexBuffer(
@@ -95,25 +94,28 @@ void AppendPointIndexBuffer(
   vtkIdType vertexOffset);
 
 // used to create an IBO for line strips and triangle strips
-size_t CreateStripIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
-                              bool wireframeTriStrips);
+size_t CreateStripIndexBuffer(vtkCellArray *cells,
+  vtkOpenGLBufferObject *indexBuffer,
+  bool wireframeTriStrips);
 
 // special index buffer for polys wireframe with edge visibilityflags
-size_t CreateEdgeFlagIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
-                                 vtkDataArray *edgeflags);
+size_t CreateEdgeFlagIndexBuffer(vtkCellArray *cells,
+  vtkOpenGLBufferObject *indexBuffer,
+  vtkDataArray *edgeflags);
 
 // Store the shaders, program, and ibo in a common struct.
 class VTKRENDERINGOPENGL2_EXPORT CellBO
 {
 public:
   vtkShaderProgram *Program;
-  BufferObject ibo;
-  VertexArrayObject vao;
+  vtkOpenGLBufferObject *IBO;
+  vtkOpenGLVertexArrayObject *VAO;
   vtkTimeStamp ShaderSourceTime;
-  size_t indexCount;
-  vtkTimeStamp attributeUpdateTime;
+  size_t IndexCount;
+  vtkTimeStamp AttributeUpdateTime;
 
-  CellBO() {this->Program = NULL; };
+  CellBO();
+  ~CellBO();
   void ReleaseGraphicsResources(vtkWindow *win);
 };
 
@@ -139,7 +141,7 @@ VBOLayout CreateVBO(vtkPoints *points, unsigned int numPoints,
     vtkDataArray *normals,
     vtkDataArray *tcoords,
     unsigned char *colors, int colorComponents,
-    BufferObject &vertexBuffer);
+    vtkOpenGLBufferObject *vertexBuffer);
 void AppendVBO(VBOLayout &layout, vtkPoints *points, unsigned int numPoints,
     vtkDataArray *normals,
     vtkDataArray *tcoords,

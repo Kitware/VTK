@@ -14,12 +14,13 @@
 #include "vtkglVBOHelper.h"
 
 #include "vtkCellArray.h"
+#include "vtkOpenGLBufferObject.h"
+#include "vtkOpenGLVertexArrayObject.h"
 #include "vtkProperty.h"
 #include "vtkPoints.h"
 #include "vtkPolygon.h"
 #include "vtkPolyData.h"
 #include "vtkShaderProgram.h"
-
 
 // we only instantiate some cases to avoid template explosion
 #define vtkFloatDoubleTemplateMacro(call)  \
@@ -194,7 +195,7 @@ VBOLayout CreateVBO(
   vtkDataArray *normals,
   vtkDataArray *tcoords,
   unsigned char *colors, int colorComponents,
-  BufferObject &vertexBuffer)
+  vtkOpenGLBufferObject *vertexBuffer)
 {
   VBOLayout layout;
 
@@ -210,15 +211,15 @@ VBOLayout CreateVBO(
     layout.ColorOffset = 0;
     layout.Stride = sizeof(float) * blockSize;
     layout.VertexCount = numPts;
-    vertexBuffer.Upload((float *)(points->GetVoidPointer(0)), numPts*3,
-      vtkgl::BufferObject::ArrayBuffer);
+    vertexBuffer->Upload((float *)(points->GetVoidPointer(0)), numPts*3,
+      vtkOpenGLBufferObject::ArrayBuffer);
     return layout;
     }
 
   // slower path
   layout.VertexCount = 0;
   AppendVBO(layout,points,numPts,normals,tcoords,colors,colorComponents);
-  vertexBuffer.Upload(layout.PackedVBO, vtkgl::BufferObject::ArrayBuffer);
+  vertexBuffer->Upload(layout.PackedVBO, vtkOpenGLBufferObject::ArrayBuffer);
   layout.PackedVBO.resize(0);
   return layout;
 }
@@ -383,7 +384,8 @@ void AppendTriangleIndexBuffer(
 
 // used to create an IBO for triangle primatives
 size_t CreateTriangleIndexBuffer(
-  vtkCellArray *cells, BufferObject &indexBuffer,
+  vtkCellArray *cells,
+  vtkOpenGLBufferObject *indexBuffer,
   vtkPoints *points)
 {
   if (!cells->GetNumberOfCells())
@@ -392,7 +394,7 @@ size_t CreateTriangleIndexBuffer(
     }
   std::vector<unsigned int> indexArray;
   AppendTriangleIndexBuffer(indexArray, cells, points, 0);
-  indexBuffer.Upload(indexArray, vtkgl::BufferObject::ElementArrayBuffer);
+  indexBuffer->Upload(indexArray, vtkOpenGLBufferObject::ElementArrayBuffer);
   return indexArray.size();
 }
 
@@ -427,7 +429,8 @@ void AppendPointIndexBuffer(
 
 // used to create an IBO for triangle primatives
 size_t CreatePointIndexBuffer(
-  vtkCellArray *cells, BufferObject &indexBuffer)
+  vtkCellArray *cells,
+  vtkOpenGLBufferObject *indexBuffer)
 {
   if (!cells->GetNumberOfCells())
     {
@@ -435,7 +438,7 @@ size_t CreatePointIndexBuffer(
     }
   std::vector<unsigned int> indexArray;
   AppendPointIndexBuffer(indexArray, cells, 0);
-  indexBuffer.Upload(indexArray, vtkgl::BufferObject::ElementArrayBuffer);
+  indexBuffer->Upload(indexArray, vtkOpenGLBufferObject::ElementArrayBuffer);
   return indexArray.size();
 }
 
@@ -478,7 +481,9 @@ void AppendTriangleLineIndexBuffer(
 // as independent.  So for a triangle mesh you would get 6 verts per triangle
 // 3 edges * 2 verts each.  With a line loop you only get 3 verts so half the storage.
 // but... line loops are slower than line segments.
-size_t CreateTriangleLineIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer)
+size_t CreateTriangleLineIndexBuffer(
+  vtkCellArray *cells,
+  vtkOpenGLBufferObject *indexBuffer)
 {
   if (!cells->GetNumberOfCells())
     {
@@ -486,7 +491,7 @@ size_t CreateTriangleLineIndexBuffer(vtkCellArray *cells, BufferObject &indexBuf
     }
   std::vector<unsigned int> indexArray;
   AppendTriangleLineIndexBuffer(indexArray, cells, 0);
-  indexBuffer.Upload(indexArray, vtkgl::BufferObject::ElementArrayBuffer);
+  indexBuffer->Upload(indexArray, vtkOpenGLBufferObject::ElementArrayBuffer);
   return indexArray.size();
 }
 
@@ -528,7 +533,9 @@ void AppendLineIndexBuffer(
 
 // used to create an IBO for primatives as lines.  This method treats each line segment
 // as independent.  So for a line strip you would get multiple line segments out
-size_t CreateLineIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer)
+size_t CreateLineIndexBuffer(
+  vtkCellArray *cells,
+  vtkOpenGLBufferObject *indexBuffer)
 {
   if (!cells->GetNumberOfCells())
     {
@@ -536,13 +543,15 @@ size_t CreateLineIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer)
     }
   std::vector<unsigned int> indexArray;
   AppendLineIndexBuffer(indexArray, cells, 0);
-  indexBuffer.Upload(indexArray, vtkgl::BufferObject::ElementArrayBuffer);
+  indexBuffer->Upload(indexArray, vtkOpenGLBufferObject::ElementArrayBuffer);
   return indexArray.size();
 }
 
 // used to create an IBO for triangle strips
-size_t CreateStripIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
-                              bool wireframeTriStrips)
+size_t CreateStripIndexBuffer(
+  vtkCellArray *cells,
+  vtkOpenGLBufferObject *indexBuffer,
+  bool wireframeTriStrips)
 {
   if (!cells->GetNumberOfCells())
     {
@@ -585,13 +594,15 @@ size_t CreateStripIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
         }
       }
     }
-  indexBuffer.Upload(indexArray, vtkgl::BufferObject::ElementArrayBuffer);
+  indexBuffer->Upload(indexArray, vtkOpenGLBufferObject::ElementArrayBuffer);
   return indexArray.size();
 }
 
 // used to create an IBO for polys in wireframe with edge flags
-size_t CreateEdgeFlagIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
-                                 vtkDataArray *ef)
+size_t CreateEdgeFlagIndexBuffer(
+  vtkCellArray *cells,
+  vtkOpenGLBufferObject *indexBuffer,
+  vtkDataArray *ef)
 {
   if (!cells->GetNumberOfCells())
     {
@@ -616,7 +627,7 @@ size_t CreateEdgeFlagIndexBuffer(vtkCellArray *cells, BufferObject &indexBuffer,
         }
       }
     }
-  indexBuffer.Upload(indexArray, vtkgl::BufferObject::ElementArrayBuffer);
+  indexBuffer->Upload(indexArray, vtkOpenGLBufferObject::ElementArrayBuffer);
   return indexArray.size();
 }
 
@@ -734,6 +745,19 @@ void CreateCellSupportArrays(vtkCellArray *prims[4],
 }
 
 
+CellBO::CellBO()
+{
+  this->Program = NULL;
+  this->IBO = vtkOpenGLBufferObject::New();
+  this->VAO = vtkOpenGLVertexArrayObject::New();
+}
+
+CellBO::~CellBO()
+{
+  this->IBO->Delete();
+  this->VAO->Delete();
+}
+
 void CellBO::ReleaseGraphicsResources(vtkWindow * vtkNotUsed(win))
 {
   if (this->Program)
@@ -742,8 +766,8 @@ void CellBO::ReleaseGraphicsResources(vtkWindow * vtkNotUsed(win))
     // responsible for creation and deletion.
     this->Program = 0;
     }
-  this->ibo.ReleaseGraphicsResources();
-  this->vao.ReleaseGraphicsResources();
+  this->IBO->ReleaseGraphicsResources();
+  this->VAO->ReleaseGraphicsResources();
 }
 
 }

@@ -1623,7 +1623,7 @@ int vtkPSurfaceLICComposite::ExecuteShader(
       fext[0]*2.0-1.0, fext[3]*2.0-1.0, 0.0f};
 
     vtkOpenGLRenderWindow::RenderQuad(verts, tcoords,
-      this->CompositeShader->Program, &this->CompositeShader->vao);
+      this->CompositeShader->Program, this->CompositeShader->VAO);
     tex->Deactivate();
 #else
   tex->Activate(GL_TEXTURE0);

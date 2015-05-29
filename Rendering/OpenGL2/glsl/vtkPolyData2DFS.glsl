@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkglPolyData2DVS.glsl
+  Module:    vtkPolyData2DFS.glsl
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -17,27 +17,23 @@
 // default precisions, or defining precisions to null
 //VTK::System::Dec
 
-// all variables that represent positions or directions have a suffix
-// indicating the coordinate system they are in. The possible values are
-// MC - Model Coordinates
-// WC - WC world coordinates
-// VC - View Coordinates
-// DC - Display Coordinates
-
-attribute vec4 vertexWC;
-
-// material property values
-//VTK::Color::Dec
+uniform int PrimitiveIDOffset;
 
 // Texture coordinates
 //VTK::TCoord::Dec
 
-uniform mat4 WCVCMatrix;  // World to view matrix
+// Scalar coloring
+//VTK::Color::Dec
+
+// Depth Peeling
+//VTK::DepthPeeling::Dec
+
+// the output of this shader
+//VTK::Output::Dec
 
 void main()
 {
-  gl_Position = WCVCMatrix*vertexWC;
-  //VTK::TCoord::Impl
   //VTK::Color::Impl
+  //VTK::TCoord::Impl
+  //VTK::DepthPeeling::Impl
 }
-

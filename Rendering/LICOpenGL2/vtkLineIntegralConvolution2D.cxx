@@ -718,7 +718,7 @@ public:
       computeBounds[0]*2.0-1.0, computeBounds[3]*2.0-1.0, 0.0f};
 
     vtkOpenGLRenderWindow::RenderQuad(verts, tcoords,
-      cbo->Program, &cbo->vao);
+      cbo->Program, cbo->VAO);
     vtkOpenGLStaticCheckErrorMacro("failed at RenderQuad");
     }
 

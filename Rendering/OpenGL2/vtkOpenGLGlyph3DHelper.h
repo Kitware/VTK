@@ -111,9 +111,9 @@ protected:
   float* ModelNormalMatrix;
   unsigned char* ModelColor;
 
-  vtkgl::BufferObject NormalMatrixBuffer;
-  vtkgl::BufferObject MatrixBuffer;
-  vtkgl::BufferObject ColorBuffer;
+  vtkOpenGLBufferObject *NormalMatrixBuffer;
+  vtkOpenGLBufferObject *MatrixBuffer;
+  vtkOpenGLBufferObject *ColorBuffer;
   vtkTimeStamp InstanceBuffersLoadTime;
 
 

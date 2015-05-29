@@ -26,10 +26,7 @@ class vtkOpenGLTexture;
 class vtkMatrix4x4;
 class vtkMatrix3x3;
 class vtkTextureObject;
-namespace vtkgl
-{
-  class BufferObject;
-}
+class vtkOpenGLBufferObject;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMapper
 {
@@ -205,7 +202,7 @@ protected:
   virtual void BuildIBO(vtkRenderer *ren, vtkActor *act);
 
   // The VBO and its layout.
-  vtkgl::BufferObject VBO;
+  vtkOpenGLBufferObject *VBO;
   vtkgl::VBOLayout Layout;
 
   // Structures for the various cell types we render.
@@ -274,10 +271,10 @@ protected:
 
   bool HavePickScalars;
   vtkTextureObject *CellScalarTexture;
-  vtkgl::BufferObject *CellScalarBuffer;
+  vtkOpenGLBufferObject *CellScalarBuffer;
   bool HaveCellScalars;
   vtkTextureObject *CellNormalTexture;
-  vtkgl::BufferObject *CellNormalBuffer;
+  vtkOpenGLBufferObject *CellNormalBuffer;
   bool HaveCellNormals;
 
   // aditional picking indirection

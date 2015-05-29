@@ -24,10 +24,12 @@
 #endif
 
 #include "vtkNew.h"
+#include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLTexture.h"
+#include "vtkOpenGLVertexArrayObject.h"
 #include "vtkRenderer.h"
 #include "vtkShaderProgram.h"
 
@@ -1467,7 +1469,7 @@ bool vtkTextureObject::CreateAlphaFromRaw(unsigned int width,
 // Create a texture buffer basically a 1D texture that can be
 // very large for passing data into the fragment shader
 bool vtkTextureObject::CreateTextureBuffer(unsigned int numValues, int numComps,
-                         int dataType, vtkgl::BufferObject *bo)
+                         int dataType, vtkOpenGLBufferObject *bo)
 {
   assert(this->Context);
 
@@ -1512,7 +1514,7 @@ bool vtkTextureObject::CreateTextureBuffer(unsigned int numValues, int numComps,
 // Create a texture buffer basically a 1D texture that can be
 // very large for passing data into the fragment shader
 bool vtkTextureObject::CreateTextureBuffer(unsigned int numValues, int numComps,
-                         int dataType, vtkgl::BufferObject *bo)
+                         int dataType, vtkOpenGLBufferObject *bo)
 {
   assert(this->Context);
   vtkErrorMacro("TextureBuffers not supported in OPenGL ES");
@@ -2152,7 +2154,7 @@ bool vtkTextureObject::Create3D(unsigned int width, unsigned int height,
 
 // ----------------------------------------------------------------------------
 void vtkTextureObject::CopyToFrameBuffer(
-  vtkShaderProgram *program, vtkgl::VertexArrayObject *vao)
+  vtkShaderProgram *program, vtkOpenGLVertexArrayObject *vao)
 {
   // the following math really only works when texture
   // and viewport are of the same dimensions
@@ -2188,7 +2190,7 @@ void vtkTextureObject::CopyToFrameBuffer(
   int srcXmax, int srcYmax,
   int dstXmin, int dstYmin,
   int dstSizeX, int dstSizeY,
-  vtkShaderProgram *program, vtkgl::VertexArrayObject *vao)
+  vtkShaderProgram *program, vtkOpenGLVertexArrayObject *vao)
 {
   float dstXmax = static_cast<float>(dstXmin+srcXmax-srcXmin);
   float dstYmax = static_cast<float>(dstYmin+srcYmax-srcYmin);
@@ -2205,7 +2207,7 @@ void vtkTextureObject::CopyToFrameBuffer(
   int dstXmin, int dstYmin,
   int dstXmax, int dstYmax,
   int dstSizeX, int dstSizeY,
-  vtkShaderProgram *program, vtkgl::VertexArrayObject *vao)
+  vtkShaderProgram *program, vtkOpenGLVertexArrayObject *vao)
 {
   assert("pre: positive_srcXmin" && srcXmin>=0);
   assert("pre: max_srcXmax" &&
@@ -2251,7 +2253,7 @@ void vtkTextureObject::CopyToFrameBuffer(
   }
 
 void vtkTextureObject::CopyToFrameBuffer(float *tcoords, float *verts,
-  vtkShaderProgram *program, vtkgl::VertexArrayObject *vao)
+  vtkShaderProgram *program, vtkOpenGLVertexArrayObject *vao)
 {
   vtkOpenGLClearErrorMacro();
 
@@ -2279,7 +2281,7 @@ void vtkTextureObject::CopyToFrameBuffer(float *tcoords, float *verts,
       if (newShader != this->ShaderProgram->Program)
         {
         this->ShaderProgram->Program = newShader;
-        this->ShaderProgram->vao.ShaderProgramChanged(); // reset the VAO as the shader has changed
+        this->ShaderProgram->VAO->ShaderProgramChanged(); // reset the VAO as the shader has changed
         }
 
       this->ShaderProgram->ShaderSourceTime.Modified();
@@ -2294,7 +2296,7 @@ void vtkTextureObject::CopyToFrameBuffer(float *tcoords, float *verts,
     int sourceId = this->GetTextureUnit();
     this->ShaderProgram->Program->SetUniformi("source",sourceId);
     vtkOpenGLRenderWindow::RenderQuad(verts, tcoords, this->ShaderProgram->Program,
-      &this->ShaderProgram->vao);
+      this->ShaderProgram->VAO);
     this->Deactivate();
     }
   else

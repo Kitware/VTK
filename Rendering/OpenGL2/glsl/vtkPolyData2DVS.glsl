@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkglPolyDataFS.glsl
+  Module:    vtkPolyData2DVS.glsl
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,13 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// Template for the polydata mappers fragment shader
 
 // The following line handle system declarations such a
 // default precisions, or defining precisions to null
 //VTK::System::Dec
-
-uniform int PrimitiveIDOffset;
 
 // all variables that represent positions or directions have a suffix
 // indicating the coordinate system they are in. The possible values are
@@ -27,53 +24,19 @@ uniform int PrimitiveIDOffset;
 // VC - View Coordinates
 // DC - Display Coordinates
 
-// VC position of this fragment
-//VTK::PositionVC::Dec
+attribute vec4 vertexWC;
 
-// optional color passed in from the vertex shader, vertexColor
+// material property values
 //VTK::Color::Dec
-
-// optional surface normal declaration
-//VTK::Normal::Dec
-
-// extra lighting parameters
-//VTK::Light::Dec
 
 // Texture coordinates
 //VTK::TCoord::Dec
 
-// picking support
-//VTK::Picking::Dec
-
-// Depth Peeling Support
-//VTK::DepthPeeling::Dec
-
-// clipping plane vars
-//VTK::Clip::Dec
-
-// the output of this shader
-//VTK::Output::Dec
+uniform mat4 WCVCMatrix;  // World to view matrix
 
 void main()
 {
-  //VTK::Clip::Impl
-
-  //VTK::Color::Impl
-
-  // Generate the normal if we are not passed in one
-  //VTK::Normal::Impl
-
-  //VTK::Light::Impl
-
+  gl_Position = WCVCMatrix*vertexWC;
   //VTK::TCoord::Impl
-
-  if (gl_FragData[0].a <= 0.0)
-    {
-    discard;
-    }
-
-  //VTK::DepthPeeling::Impl
-
-  //VTK::Picking::Impl
-
+  //VTK::Color::Impl
 }

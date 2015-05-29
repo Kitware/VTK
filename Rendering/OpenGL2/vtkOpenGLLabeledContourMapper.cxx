@@ -148,7 +148,7 @@ bool vtkOpenGLLabeledContourMapper::ApplyStencil(vtkRenderer *ren,
     this->StencilQuadIndicesSize,
     NULL,
     this->StencilBO->Program,
-    &this->StencilBO->vao);
+    this->StencilBO->VAO);
 
   // Restore state:
   glColorMask(colorMask[0], colorMask[1], colorMask[2], colorMask[3]);

@@ -24,6 +24,7 @@
 #include "vtkTextureObject.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLVertexArrayObject.h"
 #include "vtkShaderProgram.h"
 
 #include "vtkglVBOHelper.h"
@@ -52,6 +53,11 @@ vtkOpenGLRayCastImageDisplayHelper::~vtkOpenGLRayCastImageDisplayHelper()
     {
     this->TextureObject->Delete();
     this->TextureObject = 0;
+    }
+  if (this->ShaderProgram)
+    {
+    delete this->ShaderProgram;
+    this->ShaderProgram = 0;
     }
 }
 
@@ -223,7 +229,7 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
     if (newShader != this->ShaderProgram->Program)
       {
       this->ShaderProgram->Program = newShader;
-      this->ShaderProgram->vao.ShaderProgramChanged(); // reset the VAO as the shader has changed
+      this->ShaderProgram->VAO->ShaderProgramChanged(); // reset the VAO as the shader has changed
       }
 
     this->ShaderProgram->ShaderSourceTime.Modified();
@@ -246,7 +252,7 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
   this->ShaderProgram->Program->SetUniformi("source",sourceId);
   this->ShaderProgram->Program->SetUniformf("scale",this->PixelScale);
   vtkOpenGLRenderWindow::RenderQuad(verts, tcoords, this->ShaderProgram->Program,
-    &this->ShaderProgram->vao);
+    this->ShaderProgram->VAO);
   this->TextureObject->Deactivate();
 
   vtkOpenGLCheckErrorMacro("failed after RenderTextureInternal");

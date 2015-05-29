@@ -32,11 +32,13 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLActor.h"
+#include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLTexture.h"
+#include "vtkOpenGLVertexArrayObject.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
@@ -50,9 +52,9 @@
 #include "vtkOpenGLError.h"
 
 // Bring in our fragment lit shader symbols.
-#include "vtkglPolyDataVSFragmentLit.h"
-#include "vtkglPolyDataFS.h"
-#include "vtkglPolyDataGS.h"
+#include "vtkPolyDataVS.h"
+#include "vtkPolyDataFS.h"
+#include "vtkPolyDataGS.h"
 
 #include <algorithm>
 
@@ -89,6 +91,7 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   this->CellIdArrayName = NULL;
   this->ProcessIdArrayName = NULL;
   this->CompositeIdArrayName = NULL;
+  this->VBO = vtkOpenGLBufferObject::New();
 }
 
 
@@ -110,7 +113,7 @@ vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
     }
   if (this->CellScalarBuffer)
     { // Resources released previously.
-    delete this->CellScalarBuffer;
+    this->CellScalarBuffer->Delete();
     this->CellScalarBuffer = 0;
     }
 
@@ -121,7 +124,7 @@ vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
     }
   if (this->CellNormalBuffer)
     { // Resources released previously.
-    delete this->CellNormalBuffer;
+    this->CellNormalBuffer->Delete();
     this->CellNormalBuffer = 0;
     }
 
@@ -129,12 +132,14 @@ vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
   this->SetCellIdArrayName(NULL);
   this->SetProcessIdArrayName(NULL);
   this->SetCompositeIdArrayName(NULL);
+  this->VBO->Delete();
+  this->VBO = 0;
 }
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
 {
-  this->VBO.ReleaseGraphicsResources();
+  this->VBO->ReleaseGraphicsResources();
   this->Points.ReleaseGraphicsResources(win);
   this->Lines.ReleaseGraphicsResources(win);
   this->Tris.ReleaseGraphicsResources(win);
@@ -190,9 +195,9 @@ void vtkOpenGLPolyDataMapper::GetShaderTemplate(
   std::string &GSSource,
   int vtkNotUsed(lightComplexity), vtkRenderer*, vtkActor *)
 {
-  VSSource = vtkglPolyDataVSFragmentLit;
-  FSSource = vtkglPolyDataFS;
-  //GSSource = vtkglPolyDataGS;
+  VSSource = vtkPolyDataVS;
+  FSSource = vtkPolyDataFS;
+  //GSSource = vtkPolyDataGS;
   GSSource.clear();
 }
 
@@ -985,7 +990,7 @@ void vtkOpenGLPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* r
       {
       cellBO.Program = newShader;
       // reset the VAO as the shader has changed
-      cellBO.vao.ReleaseGraphicsResources();
+      cellBO.VAO->ReleaseGraphicsResources();
       }
 
     cellBO.ShaderSourceTime.Modified();
@@ -999,7 +1004,7 @@ void vtkOpenGLPolyDataMapper::UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer* r
   this->SetPropertyShaderParameters(cellBO, ren, actor);
   this->SetCameraShaderParameters(cellBO, ren, actor);
   this->SetLightingShaderParameters(cellBO, ren, actor);
-  cellBO.vao.Bind();
+  cellBO.VAO->Bind();
 
   this->LastBoundBO = &cellBO;
   vtkOpenGLCheckErrorMacro("failed after UpdateShader");
@@ -1014,11 +1019,11 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
   cellBO.Program->SetUniformi("PrimitiveIDOffset",
     this->PrimitiveIDOffset);
 
-  if (cellBO.indexCount && (this->VBOBuildTime > cellBO.attributeUpdateTime ||
-      cellBO.ShaderSourceTime > cellBO.attributeUpdateTime))
+  if (cellBO.IndexCount && (this->VBOBuildTime > cellBO.AttributeUpdateTime ||
+      cellBO.ShaderSourceTime > cellBO.AttributeUpdateTime))
     {
-    cellBO.vao.Bind();
-    if (!cellBO.vao.AddAttributeArray(cellBO.Program, this->VBO,
+    cellBO.VAO->Bind();
+    if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
                                     "vertexMC", layout.VertexOffset,
                                     layout.Stride, VTK_FLOAT, 3, false))
       {
@@ -1026,7 +1031,7 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
       }
     if (layout.NormalOffset && this->LastLightComplexity > 0)
       {
-      if (!cellBO.vao.AddAttributeArray(cellBO.Program, this->VBO,
+      if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
                                       "normalMC", layout.NormalOffset,
                                       layout.Stride, VTK_FLOAT, 3, false))
         {
@@ -1035,7 +1040,7 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
       }
     if (layout.TCoordComponents)
       {
-      if (!cellBO.vao.AddAttributeArray(cellBO.Program, this->VBO,
+      if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
                                       "tcoordMC", layout.TCoordOffset,
                                       layout.Stride, VTK_FLOAT, layout.TCoordComponents, false))
         {
@@ -1044,7 +1049,7 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
       }
     if (layout.ColorComponents != 0)
       {
-      if (!cellBO.vao.AddAttributeArray(cellBO.Program, this->VBO,
+      if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
                                       "scalarColor", layout.ColorOffset,
                                       layout.Stride, VTK_UNSIGNED_CHAR,
                                       layout.ColorComponents, true))
@@ -1052,7 +1057,7 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
         vtkErrorMacro(<< "Error setting 'scalarColor' in shader VAO.");
         }
       }
-    cellBO.attributeUpdateTime.Modified();
+    cellBO.AttributeUpdateTime.Modified();
     }
 
   if (layout.TCoordComponents)
@@ -1477,7 +1482,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
     }
 
   // Bind the OpenGL, this is shared between the different primitive/cell types.
-  this->VBO.Bind();
+  this->VBO->Bind();
 
   this->LastBoundBO = NULL;
 
@@ -1513,18 +1518,18 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
   vtkgl::VBOLayout &layout = this->Layout;
 
   // draw points
-  if (this->Points.indexCount)
+  if (this->Points.IndexCount)
     {
     // Update/build/etc the shader.
     this->UpdateShader(this->Points, ren, actor);
-    this->Points.ibo.Bind();
+    this->Points.IBO->Bind();
     glDrawRangeElements(GL_POINTS, 0,
                         static_cast<GLuint>(layout.VertexCount - 1),
-                        static_cast<GLsizei>(this->Points.indexCount),
+                        static_cast<GLsizei>(this->Points.IndexCount),
                         GL_UNSIGNED_INT,
                         reinterpret_cast<const GLvoid *>(NULL));
-    this->Points.ibo.Release();
-    this->PrimitiveIDOffset += (int)this->Points.indexCount;
+    this->Points.IBO->Release();
+    this->PrimitiveIDOffset += (int)this->Points.IndexCount;
     }
 
   int representation = actor->GetProperty()->GetRepresentation();
@@ -1540,15 +1545,15 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
     }
 
   // draw lines
-  if (this->Lines.indexCount)
+  if (this->Lines.IndexCount)
     {
     this->UpdateShader(this->Lines, ren, actor);
-    this->Lines.ibo.Bind();
+    this->Lines.IBO->Bind();
     if (representation == VTK_POINTS)
       {
       glDrawRangeElements(GL_POINTS, 0,
                           static_cast<GLuint>(layout.VertexCount - 1),
-                          static_cast<GLsizei>(this->Lines.indexCount),
+                          static_cast<GLsizei>(this->Lines.IndexCount),
                           GL_UNSIGNED_INT,
                           reinterpret_cast<const GLvoid *>(NULL));
       }
@@ -1556,42 +1561,42 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
       {
       glDrawRangeElements(GL_LINES, 0,
                           static_cast<GLuint>(layout.VertexCount - 1),
-                          static_cast<GLsizei>(this->Lines.indexCount),
+                          static_cast<GLsizei>(this->Lines.IndexCount),
                           GL_UNSIGNED_INT,
                           reinterpret_cast<const GLvoid *>(NULL));
       }
-    this->Lines.ibo.Release();
-    this->PrimitiveIDOffset += (int)this->Lines.indexCount/2;
+    this->Lines.IBO->Release();
+    this->PrimitiveIDOffset += (int)this->Lines.IndexCount/2;
     }
 
   // draw polygons
-  if (this->Tris.indexCount)
+  if (this->Tris.IndexCount)
     {
     // First we do the triangles, update the shader, set uniforms, etc.
     this->UpdateShader(this->Tris, ren, actor);
-    this->Tris.ibo.Bind();
+    this->Tris.IBO->Bind();
     GLenum mode = (representation == VTK_POINTS) ? GL_POINTS :
       (representation == VTK_WIREFRAME) ? GL_LINES : GL_TRIANGLES;
     glDrawRangeElements(mode, 0,
                       static_cast<GLuint>(layout.VertexCount - 1),
-                      static_cast<GLsizei>(this->Tris.indexCount),
+                      static_cast<GLsizei>(this->Tris.IndexCount),
                       GL_UNSIGNED_INT,
                       reinterpret_cast<const GLvoid *>(NULL));
-    this->Tris.ibo.Release();
-    this->PrimitiveIDOffset += (int)this->Tris.indexCount/3;
+    this->Tris.IBO->Release();
+    this->PrimitiveIDOffset += (int)this->Tris.IndexCount/3;
     }
 
   // draw strips
-  if (this->TriStrips.indexCount)
+  if (this->TriStrips.IndexCount)
     {
     // Use the tris shader program/VAO, but triStrips ibo.
     this->UpdateShader(this->TriStrips, ren, actor);
-    this->TriStrips.ibo.Bind();
+    this->TriStrips.IBO->Bind();
     if (representation == VTK_POINTS)
       {
       glDrawRangeElements(GL_POINTS, 0,
                           static_cast<GLuint>(layout.VertexCount - 1),
-                          static_cast<GLsizei>(this->TriStrips.indexCount),
+                          static_cast<GLsizei>(this->TriStrips.IndexCount),
                           GL_UNSIGNED_INT,
                           reinterpret_cast<const GLvoid *>(NULL));
       }
@@ -1599,7 +1604,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
       {
       glDrawRangeElements(GL_LINES, 0,
                           static_cast<GLuint>(layout.VertexCount - 1),
-                          static_cast<GLsizei>(this->TriStrips.indexCount),
+                          static_cast<GLsizei>(this->TriStrips.IndexCount),
                           GL_UNSIGNED_INT,
                           reinterpret_cast<const GLvoid *>(NULL));
       }
@@ -1607,11 +1612,11 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
       {
       glDrawRangeElements(GL_TRIANGLES, 0,
                           static_cast<GLuint>(layout.VertexCount - 1),
-                          static_cast<GLsizei>(this->TriStrips.indexCount),
+                          static_cast<GLsizei>(this->TriStrips.IndexCount),
                           GL_UNSIGNED_INT,
                           reinterpret_cast<const GLvoid *>(NULL));
       }
-    this->TriStrips.ibo.Release();
+    this->TriStrips.IBO->Release();
     }
 }
 
@@ -1633,10 +1638,10 @@ void vtkOpenGLPolyDataMapper::RenderPieceFinish(vtkRenderer* ren, vtkActor *vtkN
 
   if (this->LastBoundBO)
     {
-    this->LastBoundBO->vao.Release();
+    this->LastBoundBO->VAO->Release();
     }
 
-  this->VBO.Release();
+  this->VBO->Release();
 
   if ( this->GetResolveCoincidentTopology() )
     {
@@ -1718,31 +1723,31 @@ void vtkOpenGLPolyDataMapper::RenderEdges(vtkRenderer* ren, vtkActor *actor)
   this->DrawingEdges = true;
 
   // draw polygons
-  if (this->TrisEdges.indexCount)
+  if (this->TrisEdges.IndexCount)
     {
     // First we do the triangles, update the shader, set uniforms, etc.
     this->UpdateShader(this->TrisEdges, ren, actor);
-    this->TrisEdges.ibo.Bind();
+    this->TrisEdges.IBO->Bind();
     glDrawRangeElements(GL_LINES, 0,
                         static_cast<GLuint>(layout.VertexCount - 1),
-                        static_cast<GLsizei>(this->TrisEdges.indexCount),
+                        static_cast<GLsizei>(this->TrisEdges.IndexCount),
                         GL_UNSIGNED_INT,
                         reinterpret_cast<const GLvoid *>(NULL));
-    this->TrisEdges.ibo.Release();
+    this->TrisEdges.IBO->Release();
     }
 
   // draw strips
-  if (this->TriStripsEdges.indexCount)
+  if (this->TriStripsEdges.IndexCount)
     {
     // Use the tris shader program/VAO, but triStrips ibo.
     this->UpdateShader(this->TriStripsEdges, ren, actor);
-    this->TriStripsEdges.ibo.Bind();
+    this->TriStripsEdges.IBO->Bind();
     glDrawRangeElements(GL_LINES, 0,
                         static_cast<GLuint>(layout.VertexCount - 1),
-                        static_cast<GLsizei>(this->TriStripsEdges.indexCount),
+                        static_cast<GLsizei>(this->TriStripsEdges.IndexCount),
                         GL_UNSIGNED_INT,
                         reinterpret_cast<const GLvoid *>(NULL));
-    this->TriStripsEdges.ibo.Release();
+    this->TriStripsEdges.IBO->Release();
     }
 
   this->DrawingEdges = false;
@@ -2005,12 +2010,12 @@ void vtkOpenGLPolyDataMapper::BuildCellTextures(
     if (!this->CellScalarTexture)
       {
       this->CellScalarTexture = vtkTextureObject::New();
-      this->CellScalarBuffer = new vtkgl::BufferObject;
+      this->CellScalarBuffer = vtkOpenGLBufferObject::New();
       }
     this->CellScalarTexture->SetContext(
       static_cast<vtkOpenGLRenderWindow*>(ren->GetVTKWindow()));
     this->CellScalarBuffer->Upload(newColors,
-      vtkgl::BufferObject::TextureBuffer);
+      vtkOpenGLBufferObject::TextureBuffer);
     this->CellScalarTexture->CreateTextureBuffer(
       static_cast<unsigned int>(newColors.size()/4),
       4,
@@ -2023,12 +2028,12 @@ void vtkOpenGLPolyDataMapper::BuildCellTextures(
     if (!this->CellNormalTexture)
       {
       this->CellNormalTexture = vtkTextureObject::New();
-      this->CellNormalBuffer = new vtkgl::BufferObject;
+      this->CellNormalBuffer = vtkOpenGLBufferObject::New();
       }
     this->CellNormalTexture->SetContext(
       static_cast<vtkOpenGLRenderWindow*>(ren->GetVTKWindow()));
     this->CellNormalBuffer->Upload(newNorms,
-      vtkgl::BufferObject::TextureBuffer);
+      vtkOpenGLBufferObject::TextureBuffer);
     this->CellNormalTexture->CreateTextureBuffer(
       static_cast<unsigned int>(newNorms.size()/4),
       4, VTK_FLOAT,
@@ -2148,7 +2153,7 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
 
     // Build the VBO
     this->Layout =
-      CreateVBO(poly->GetPoints(),
+      vtkgl::CreateVBO(poly->GetPoints(),
                 poly->GetPoints()->GetNumberOfPoints(),
                 n, tcoords,
                 c ? (unsigned char *)c->GetVoidPointer(0) : NULL,
@@ -2185,8 +2190,8 @@ void vtkOpenGLPolyDataMapper::BuildIBO(vtkRenderer *ren, vtkActor *act)
 
   vtkHardwareSelector* selector = ren->GetSelector();
 
-  this->Points.indexCount = CreatePointIndexBuffer(prims[0],
-                                                   this->Points.ibo);
+  this->Points.IndexCount = vtkgl::CreatePointIndexBuffer(prims[0],
+                                                   this->Points.IBO);
 
   if (selector && this->PopulateSelectionSettings &&
       selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS &&
@@ -2197,18 +2202,18 @@ void vtkOpenGLPolyDataMapper::BuildIBO(vtkRenderer *ren, vtkActor *act)
 
   if (representation == VTK_POINTS)
     {
-    this->Lines.indexCount = CreatePointIndexBuffer(prims[1],
-                         this->Lines.ibo);
+    this->Lines.IndexCount = vtkgl::CreatePointIndexBuffer(prims[1],
+                         this->Lines.IBO);
 
-    this->Tris.indexCount = CreatePointIndexBuffer(prims[2],
-                                                this->Tris.ibo);
-    this->TriStrips.indexCount = CreatePointIndexBuffer(prims[3],
-                         this->TriStrips.ibo);
+    this->Tris.IndexCount = vtkgl::CreatePointIndexBuffer(prims[2],
+                                                this->Tris.IBO);
+    this->TriStrips.IndexCount = vtkgl::CreatePointIndexBuffer(prims[3],
+                         this->TriStrips.IBO);
     }
   else // WIREFRAME OR SURFACE
     {
-    this->Lines.indexCount = CreateLineIndexBuffer(prims[1],
-                           this->Lines.ibo);
+    this->Lines.IndexCount = vtkgl::CreateLineIndexBuffer(prims[1],
+                           this->Lines.IBO);
 
     if (representation == VTK_WIREFRAME)
       {
@@ -2229,24 +2234,24 @@ void vtkOpenGLPolyDataMapper::BuildIBO(vtkRenderer *ren, vtkActor *act)
         }
       if (ef)
         {
-        this->Tris.indexCount = CreateEdgeFlagIndexBuffer(prims[2],
-                                             this->Tris.ibo, ef);
+        this->Tris.IndexCount = vtkgl::CreateEdgeFlagIndexBuffer(prims[2],
+                                             this->Tris.IBO, ef);
         }
       else
         {
-        this->Tris.indexCount = CreateTriangleLineIndexBuffer(prims[2],
-                                           this->Tris.ibo);
+        this->Tris.IndexCount = vtkgl::CreateTriangleLineIndexBuffer(prims[2],
+                                           this->Tris.IBO);
         }
-      this->TriStrips.indexCount = CreateStripIndexBuffer(prims[3],
-                           this->TriStrips.ibo, true);
+      this->TriStrips.IndexCount = vtkgl::CreateStripIndexBuffer(prims[3],
+                           this->TriStrips.IBO, true);
       }
    else // SURFACE
       {
-      this->Tris.indexCount = CreateTriangleIndexBuffer(prims[2],
-                                                this->Tris.ibo,
+      this->Tris.IndexCount = vtkgl::CreateTriangleIndexBuffer(prims[2],
+                                                this->Tris.IBO,
                                                 poly->GetPoints());
-      this->TriStrips.indexCount = CreateStripIndexBuffer(prims[3],
-                           this->TriStrips.ibo, false);
+      this->TriStrips.IndexCount = vtkgl::CreateStripIndexBuffer(prims[3],
+                           this->TriStrips.IBO, false);
       }
     }
 
@@ -2273,16 +2278,16 @@ void vtkOpenGLPolyDataMapper::BuildIBO(vtkRenderer *ren, vtkActor *act)
       }
     if (ef)
       {
-      this->TrisEdges.indexCount = CreateEdgeFlagIndexBuffer(prims[2],
-                                           this->TrisEdges.ibo, ef);
+      this->TrisEdges.IndexCount = vtkgl::CreateEdgeFlagIndexBuffer(prims[2],
+                                           this->TrisEdges.IBO, ef);
       }
     else
       {
-      this->TrisEdges.indexCount = CreateTriangleLineIndexBuffer(prims[2],
-                                           this->TrisEdges.ibo);
+      this->TrisEdges.IndexCount = vtkgl::CreateTriangleLineIndexBuffer(prims[2],
+                                           this->TrisEdges.IBO);
       }
-    this->TriStripsEdges.indexCount = CreateStripIndexBuffer(prims[3],
-                         this->TriStripsEdges.ibo, true);
+    this->TriStripsEdges.IndexCount = vtkgl::CreateStripIndexBuffer(prims[3],
+                         this->TriStripsEdges.IBO, true);
     }
 }
 //-----------------------------------------------------------------------------

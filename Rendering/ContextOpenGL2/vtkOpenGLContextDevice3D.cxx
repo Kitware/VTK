@@ -24,6 +24,8 @@
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLBufferObject.h"
+#include "vtkOpenGLVertexArrayObject.h"
 
 #include "vtkObjectFactory.h"
 
@@ -237,10 +239,10 @@ void vtkOpenGLContextDevice3D::BuildVBO(
     }
 
   // upload the data
-  cellBO->ibo.Upload(va, vtkgl::BufferObject::ArrayBuffer);
-  cellBO->vao.Bind();
-  if (!cellBO->vao.AddAttributeArray(
-        cellBO->Program, cellBO->ibo,
+  cellBO->IBO->Upload(va, vtkOpenGLBufferObject::ArrayBuffer);
+  cellBO->VAO->Bind();
+  if (!cellBO->VAO->AddAttributeArray(
+        cellBO->Program, cellBO->IBO,
         "vertexMC", 0,
         sizeof(float)*stride,
         VTK_FLOAT, 3, false))
@@ -249,8 +251,8 @@ void vtkOpenGLContextDevice3D::BuildVBO(
     }
   if (colors)
     {
-    if (!cellBO->vao.AddAttributeArray(
-          cellBO->Program, cellBO->ibo,
+    if (!cellBO->VAO->AddAttributeArray(
+          cellBO->Program, cellBO->IBO,
           "vertexScalar", sizeof(float)*cOffset,
           sizeof(float)*stride,
           VTK_UNSIGNED_CHAR, 4, true))
@@ -260,8 +262,8 @@ void vtkOpenGLContextDevice3D::BuildVBO(
     }
   if (tcoords)
     {
-    if (!cellBO->vao.AddAttributeArray(
-          cellBO->Program, cellBO->ibo,
+    if (!cellBO->VAO->AddAttributeArray(
+          cellBO->Program, cellBO->IBO,
           "tcoordMC", sizeof(float)*tOffset,
           sizeof(float)*stride,
           VTK_FLOAT, 2, false))
@@ -270,7 +272,7 @@ void vtkOpenGLContextDevice3D::BuildVBO(
       }
     }
 
-  cellBO->vao.Bind();
+  cellBO->VAO->Bind();
 }
 
 void vtkOpenGLContextDevice3D::ReadyVBOProgram()

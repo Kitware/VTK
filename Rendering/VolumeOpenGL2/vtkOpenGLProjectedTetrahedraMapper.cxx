@@ -36,9 +36,11 @@
 #include "vtkMatrix4x4.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLVertexArrayObject.h"
 #include "vtkPointData.h"
 #include "vtkRenderer.h"
 #include "vtkShaderProgram.h"
@@ -100,6 +102,7 @@ vtkOpenGLProjectedTetrahedraMapper::vtkOpenGLProjectedTetrahedraMapper()
   this->UseFloatingPointFrameBuffer = true;
   this->CanDoFloatingPointFrameBuffer = false;
   this->HasHardwareSupport = false;
+  this->VBO = vtkOpenGLBufferObject::New();
 }
 
 //-----------------------------------------------------------------------------
@@ -110,6 +113,7 @@ vtkOpenGLProjectedTetrahedraMapper::~vtkOpenGLProjectedTetrahedraMapper()
   this->Colors->Delete();
   delete this->Internals;
   delete[] this->SqrtTable;
+  this->VBO->Delete();
 }
 
 //-----------------------------------------------------------------------------
@@ -311,7 +315,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ReleaseGraphicsResources(vtkWindow *win
       this->Internals->RenderBufferObjectIds[1] = 0;
     }
 
-  this->VBO.ReleaseGraphicsResources();
+  this->VBO->ReleaseGraphicsResources();
   this->Tris.ReleaseGraphicsResources(win);
 
   this->Superclass::ReleaseGraphicsResources(win);
@@ -355,7 +359,7 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer *renderer,
     if (newShader != this->Tris.Program)
       {
       this->Tris.Program = newShader;
-      this->Tris.vao.ShaderProgramChanged(); // reset the VAO as the shader has changed
+      this->Tris.VAO->ShaderProgramChanged(); // reset the VAO as the shader has changed
       }
 
     this->Tris.ShaderSourceTime.Modified();
@@ -1033,55 +1037,55 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
       numPts += 5;
       }
 
-    this->VBO.Upload(packedVBO, vtkgl::BufferObject::ArrayBuffer);
+    this->VBO->Upload(packedVBO, vtkOpenGLBufferObject::ArrayBuffer);
     this->Layout.VertexCount = numPts;
-    this->VBO.Bind();
+    this->VBO->Bind();
 
-    this->Tris.vao.Bind();
-    if (this->Tris.indexCount && (
-        this->Tris.ShaderSourceTime > this->Tris.attributeUpdateTime))
+    this->Tris.VAO->Bind();
+    if (this->Tris.IndexCount && (
+        this->Tris.ShaderSourceTime > this->Tris.AttributeUpdateTime))
       {
-      if (!this->Tris.vao.AddAttributeArray(this->Tris.Program, this->VBO,
+      if (!this->Tris.VAO->AddAttributeArray(this->Tris.Program, this->VBO,
                                       "vertexDC", this->Layout.VertexOffset,
                                       this->Layout.Stride, VTK_FLOAT, 3, false))
         {
         vtkErrorMacro(<< "Error setting 'vertexDC' in shader VAO.");
         }
-      if (!this->Tris.vao.AddAttributeArray(this->Tris.Program, this->VBO,
+      if (!this->Tris.VAO->AddAttributeArray(this->Tris.Program, this->VBO,
                                       "scalarColor", this->Layout.ColorOffset,
                                       this->Layout.Stride, VTK_UNSIGNED_CHAR,
                                       this->Layout.ColorComponents, true))
         {
         vtkErrorMacro(<< "Error setting 'scalarColor' in shader VAO.");
         }
-      if (!this->Tris.vao.AddAttributeArray(this->Tris.Program, this->VBO,
+      if (!this->Tris.VAO->AddAttributeArray(this->Tris.Program, this->VBO,
                                       "attenuationArray", this->Layout.TCoordOffset,
                                       this->Layout.Stride, VTK_FLOAT,
                                       1, false))
         {
         vtkErrorMacro(<< "Error setting attenuation in shader VAO.");
         }
-      if (!this->Tris.vao.AddAttributeArray(this->Tris.Program, this->VBO,
+      if (!this->Tris.VAO->AddAttributeArray(this->Tris.Program, this->VBO,
                                       "depthArray", this->Layout.TCoordOffset+sizeof(float),
                                       this->Layout.Stride, VTK_FLOAT,
                                       1, false))
         {
         vtkErrorMacro(<< "Error setting depth in shader VAO.");
         }
-      this->Tris.attributeUpdateTime.Modified();
+      this->Tris.AttributeUpdateTime.Modified();
       }
 
-    this->Tris.ibo.Upload(indexArray, vtkgl::BufferObject::ElementArrayBuffer);
-    this->Tris.indexCount = indexArray.size();
-    this->Tris.ibo.Bind();
+    this->Tris.IBO->Upload(indexArray, vtkOpenGLBufferObject::ElementArrayBuffer);
+    this->Tris.IndexCount = indexArray.size();
+    this->Tris.IBO->Bind();
     glDrawRangeElements(GL_TRIANGLES, 0,
                         static_cast<GLuint>(this->Layout.VertexCount - 1),
-                        static_cast<GLsizei>(this->Tris.indexCount),
+                        static_cast<GLsizei>(this->Tris.IndexCount),
                         GL_UNSIGNED_INT,
                         reinterpret_cast<const GLvoid *>(NULL));
-    this->Tris.ibo.Release();
-    this->Tris.vao.Release();
-    this->VBO.Release();
+    this->Tris.IBO->Release();
+    this->Tris.VAO->Release();
+    this->VBO->Release();
     numcellsrendered += num_cell_ids;
     }
 

@@ -501,7 +501,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
       this->ZTexture->CopyToFrameBuffer(0, 0, w - 1, h - 1,
                                         0, 0, w, h,
                                         this->Program->Program,
-                                        &this->Program->vao);
+                                        this->Program->VAO);
 #else
       this->ZTexture->Bind();
       this->ZTexture->CopyToFrameBuffer(0,0,
@@ -770,7 +770,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
     this->ZTexture->CopyToFrameBuffer(0, 0, w - 1, h - 1,
                                       0, 0, w, h,
                                       this->Program->Program,
-                                      &this->Program->vao);
+                                      this->Program->VAO);
     this->ZTexture->Deactivate();
 #else
     vtkTextureUnitManager *tu=context->GetTextureUnitManager();

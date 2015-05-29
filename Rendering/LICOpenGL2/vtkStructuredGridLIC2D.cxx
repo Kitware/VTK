@@ -585,7 +585,7 @@ int vtkStructuredGridLIC2D::RequestData(
   vtkDebugMacro( << "glFinish before rendering quad" << endl );
 
   fbo->RenderQuad(0, magWidth-1,0, magHeight-1,
-    pgm, &this->LICProgram->vao);
+    pgm, this->LICProgram->VAO);
   vtkOpenGLCheckErrorMacro("StructuredGridLIC2D projection fialed");
 
   vtkDebugMacro( << "glFinish after rendering quad" << endl );

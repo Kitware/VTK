@@ -61,9 +61,9 @@ set(Module_SRCS
   vtkTextureUnitManager.cxx
   vtkTranslucentPass.cxx
   vtkVolumetricPass.cxx
-  vtkglBufferObject.cxx
+  vtkOpenGLBufferObject.cxx
   vtkglVBOHelper.cxx
-  vtkglVertexArrayObject.cxx
+  vtkOpenGLVertexArrayObject.cxx
   )
 
 if (NOT DEFINED OPENGL_ES_VERSION)
@@ -92,9 +92,9 @@ set(${vtk-module}_HDRS
   )
 
 set_source_files_properties(
-  vtkglBufferObject
+  vtkOpenGLBufferObject
   vtkglVBOHelper
-  vtkglVertexArrayObject
+  vtkOpenGLVertexArrayObject
   vtkFrameBufferObject
   vtkOpenGLGlyph3DHelper
   vtkOpenGLGlyph3DMapper
@@ -124,12 +124,12 @@ set(shader_files
   glsl/vtkPointGaussianVS.glsl
   glsl/vtkTextureObjectFS.glsl
   glsl/vtkTextureObjectVS.glsl
-  glsl/vtkglGlyph3DVSFragmentLit.glsl
-  glsl/vtkglPolyData2DFS.glsl
-  glsl/vtkglPolyData2DVS.glsl
-  glsl/vtkglPolyDataFS.glsl
-  glsl/vtkglPolyDataGS.glsl
-  glsl/vtkglPolyDataVSFragmentLit.glsl
+  glsl/vtkGlyph3DVS.glsl
+  glsl/vtkPolyData2DFS.glsl
+  glsl/vtkPolyData2DVS.glsl
+  glsl/vtkPolyDataFS.glsl
+  glsl/vtkPolyDataGS.glsl
+  glsl/vtkPolyDataVS.glsl
   )
 unset(shader_h_files)
 foreach(file ${shader_files})

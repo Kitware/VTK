@@ -91,7 +91,7 @@ protected:
   void UpdateVBO(vtkActor2D *act, vtkViewport *viewport);
 
   // The VBO and its layout.
-  vtkgl::BufferObject VBO;
+  vtkOpenGLBufferObject *VBO;
   vtkgl::VBOLayout Layout;
 
   // Structures for the various cell types we render.
@@ -101,7 +101,7 @@ protected:
   vtkgl::CellBO TriStrips;
 
   vtkTextureObject *CellScalarTexture;
-  vtkgl::BufferObject *CellScalarBuffer;
+  vtkOpenGLBufferObject *CellScalarBuffer;
   bool HaveCellScalars;
   int PrimitiveIDOffset;
 

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkglPolyDataGS.glsl
+  Module:    vtkPolyDataVS.glsl
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// Template for the polydata mappers geometry shader
+// this shader is used to implement lighting in the fragment shader
+// it handles setting up the basic varying variables for the fragment shader
 
 // The following line handle system declarations such a
 // default precisions, or defining precisions to null
@@ -25,45 +26,35 @@
 // VC - View Coordinates
 // DC - Display Coordinates
 
-// VC position of this fragment
+attribute vec4 vertexMC;
+
+// frag position in VC
 //VTK::PositionVC::Dec
 
-// optional color passed in from the vertex shader, vertexColor
-//VTK::Color::Dec
-
-// optional surface normal declaration
+// optional normal declaration
 //VTK::Normal::Dec
-
-// extra lighting parameters
-//VTK::Light::Dec
 
 // Texture coordinates
 //VTK::TCoord::Dec
 
-// picking support
-//VTK::Picking::Dec
-
-// Depth Peeling Support
-//VTK::DepthPeeling::Dec
+// material property values
+//VTK::Color::Dec
 
 // clipping plane vars
 //VTK::Clip::Dec
 
-// the output of this shader
-//VTK::Output::Dec
-
-layout(triangles) in;
-layout(triangle_strip, max_vertices = 3) out;
+// camera and actor matrix values
+//VTK::Camera::Dec
 
 void main()
 {
-  for(int i = 0; i < 3; i++)
-    {
-    //VTK::Normal::Impl
+  //VTK::Color::Impl
 
-    gl_Position = gl_in[i].gl_Position;
-    gl_PrimitiveID = gl_PrimitiveIDIn;
-    EmitVertex();
-    }
-  EndPrimitive();
+  //VTK::Normal::Impl
+
+  //VTK::TCoord::Impl
+
+  //VTK::Clip::Impl
+
+  //VTK::PositionVC::Impl
 }

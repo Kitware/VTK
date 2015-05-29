@@ -92,7 +92,7 @@ protected:
   vtkTimeStamp ColorsMappedTime;
 
   // The VBO and its layout.
-  vtkgl::BufferObject VBO;
+  vtkOpenGLBufferObject *VBO;
   vtkgl::VBOLayout Layout;
 
   // Structures for the various cell types we render.
