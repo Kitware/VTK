@@ -116,8 +116,8 @@ vtkCell *vtkQuadraticTetra::GetFace(int faceId)
 
 //----------------------------------------------------------------------------
 static const double VTK_DIVERGED = 1.e6;
-static const int VTK_TETRA_MAX_ITERATION=10;
-static const double VTK_TETRA_CONVERGED=1.e-03;
+static const int VTK_TETRA_MAX_ITERATION=20;
+static const double VTK_TETRA_CONVERGED=1.e-04;
 
 int vtkQuadraticTetra::EvaluatePosition(double* x,
                                         double* closestPoint,

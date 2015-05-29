@@ -618,7 +618,6 @@ int vtkPolygon::PointInPolygon (double x[3], int numPts, double *pts,
   int iterNumber;
   int maxComp, comps[2];
   int deltaVotes;
-
   // do a quick bounds check
   if ( x[0] < bounds[0] || x[0] > bounds[1] ||
        x[1] < bounds[2] || x[1] > bounds[3] ||
@@ -735,9 +734,18 @@ int vtkPolygon::PointInPolygon (double x[3], int numPts, double *pts,
       //   Fire the ray and compute the number of intersections.  Be careful
       //   of degenerate cases (e.g., ray intersects at vertex).
       //
+
       if ((status=vtkLine::Intersection(x,xray,x1,x2,u,v)) == VTK_POLYGON_INTERSECTION)
         {
-        if ( (VTK_POLYGON_RAY_TOL < v) && (v < 1.0-VTK_POLYGON_RAY_TOL) )
+        // This test checks for vertex and edge intersections
+        // For example
+        //  Vertex intersection
+        //    (u=0 v=0), (u=0 v=1), (u=1 v=0), (u=1 v=0)
+        //  Edge intersection
+        //    (u=0 v!=0 v!=1), (u=1 v!=0 v!=1)
+        //    (u!=0 u!=1 v=0), (u!=0 u!=1 v=1)
+        if ( (VTK_POLYGON_RAY_TOL < u) && (u < 1.0-VTK_POLYGON_RAY_TOL) &&
+             (VTK_POLYGON_RAY_TOL < v) && (v < 1.0-VTK_POLYGON_RAY_TOL) )
           {
           numInts++;
           }
@@ -753,7 +761,7 @@ int vtkPolygon::PointInPolygon (double x[3], int numPts, double *pts,
       }
     if ( testResult == VTK_POLYGON_CERTAIN )
       {
-      if ( (numInts % 2) == 0)
+      if ( numInts % 2 == 0)
           {
           --deltaVotes;
           }

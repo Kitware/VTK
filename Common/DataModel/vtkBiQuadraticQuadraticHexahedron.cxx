@@ -275,7 +275,7 @@ int vtkBiQuadraticQuadraticHexahedron::EvaluatePosition(double* x,
     d=vtkMath::Determinant3x3(rcol,scol,tcol);
     if ( fabs(d) < 1.e-20)
       {
-      vtkErrorMacro (<<"Determinant incorrect, iteration " << iteration);
+      vtkDebugMacro (<<"Determinant incorrect, iteration " << iteration);
       return -1;
       }
 
@@ -296,7 +296,6 @@ int vtkBiQuadraticQuadraticHexahedron::EvaluatePosition(double* x,
              (fabs(pcoords[1]) > VTK_DIVERGED) ||
              (fabs(pcoords[2]) > VTK_DIVERGED))
       {
-      vtkErrorMacro (<<"Newton did not converged, iteration " << iteration);
       return -1;
       }
 
@@ -313,7 +312,6 @@ int vtkBiQuadraticQuadraticHexahedron::EvaluatePosition(double* x,
   //  outside of element
   if ( !converged )
     {
-    vtkErrorMacro (<<"Newton did not converged, iteration " << iteration);
     return -1;
     }
 
@@ -549,7 +547,6 @@ void vtkBiQuadraticQuadraticHexahedron::JacobianInverse(double pcoords[3],
   // now find the inverse
   if ( vtkMath::InvertMatrix(m,inverse,3) == 0 )
     {
-    vtkErrorMacro(<<"Jacobian inverse not found");
     return;
     }
 }

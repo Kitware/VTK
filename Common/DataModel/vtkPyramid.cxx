@@ -95,7 +95,7 @@ int vtkPyramid::EvaluatePosition(double x[3], double closestPoint[3],
   // square it here because we're looking at dist2^2.
   if(dist2 == 0. || ( length2 != 0. && dist2/length2 < 1.e-6) )
     {
-    pcoords[0] = pcoords[1] = .5;
+    pcoords[0] = pcoords[1] = 0;
     pcoords[2] = 1;
     this->InterpolationFunctions(pcoords, weights);
     if(closestPoint)
@@ -150,6 +150,7 @@ int vtkPyramid::EvaluatePosition(double x[3], double closestPoint[3],
     d=vtkMath::Determinant3x3(rcol,scol,tcol);
     if ( fabs(d) < 1.e-20)
       {
+      vtkDebugMacro (<<"Determinant incorrect, iteration " << iteration);
       return -1;
       }
 

@@ -528,9 +528,6 @@ void vtkQuadraticQuad::Derivatives(int vtkNotUsed(subId),
 void vtkQuadraticQuad::InterpolationFunctions(double pcoords[3],
                                               double weights[8])
 {
-  //VTK needs parametric coordinates to be between (0,1). Isoparametric
-  //shape functions are formulated between (-1,1). Here we do a
-  //coordinate system conversion from (0,1) to (-1,1).
   double r = pcoords[0];
   double s = pcoords[1];
 

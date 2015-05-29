@@ -155,8 +155,8 @@ private:
 //
 inline int vtkQuadraticPyramid::GetParametricCenter(double pcoords[3])
 {
-  pcoords[0] = pcoords[1] = 6./13;
-  pcoords[2] = 3./13;
+  pcoords[0] = pcoords[1] = 6.0/13.0;
+  pcoords[2] = 3.0/13.0;
   return 0;
 }
 

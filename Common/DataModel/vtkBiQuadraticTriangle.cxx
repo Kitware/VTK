@@ -151,7 +151,7 @@ int vtkBiQuadraticTriangle::EvaluatePosition(double* x, double* closestPoint,
       pcoords[0] = 0.5*pc0;
       pcoords[1] = 0.5 + 0.5*pc1;
       }
-    pcoords[2] = 1.0 - pcoords[0] - pcoords[1];
+    pcoords[2] = 0.0;
     this->InterpolationFunctions(pcoords,weights);
     }
 

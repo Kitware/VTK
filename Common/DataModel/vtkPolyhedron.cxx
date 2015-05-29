@@ -1909,7 +1909,23 @@ int vtkPolyhedron::IsInside(double x[3], double tolerance)
         this->PolyData->GetCell(this->CellIds->GetId(idx), this->Cell);
         if ( this->Cell->IntersectWithLine(x, xray, tol, t, xint, pcoords, subId) )
           {
-          numInts++;
+          // Check for vertex, edge or face intersections
+          // count the number of 0 or 1 pcoords
+          int pcount = 0;
+          for (int p = 0; p < 3; ++p)
+            {
+            if (pcoords[p] == 0.0 || pcoords[p] == 1.0)
+              {
+              pcount++;
+              }
+            }
+          // pcount = 1, exact face intersection
+          // pcount = 2, exact edge intersection
+          // pcount = 3, exact vertex intersection
+          if (pcount == 0)
+            {
+            numInts++;
+            }
           }
         } //for all candidate cells
       }
@@ -1923,13 +1939,29 @@ int vtkPolyhedron::IsInside(double x[3], double tolerance)
         this->PolyData->GetCell(idx, this->Cell);
         if ( this->Cell->IntersectWithLine(x, xray, tol, t, xint, pcoords, subId) )
           {
-          numInts++;
+          // Check for vertex, edge or face intersections
+          // count the number of 0 or 1 pcoords
+          int pcount = 0;
+          for (int p = 0; p < 3; ++p)
+            {
+            if (pcoords[p] == 0.0 || pcoords[p] == 1.0)
+              {
+              pcount++;
+              }
+            }
+          // pcount = 1, exact face intersection
+          // pcount = 2, exact edge intersection
+          // pcount = 3, exact vertex intersection
+          if (pcount == 0)
+            {
+            numInts++;
+            }
           }
         } //for all candidate cells
       }
 
     // Count the result
-    if ( (numInts % 2) == 0)
+    if ( numInts != 0 && (numInts % 2) == 0)
       {
       --deltaVotes;
       }
