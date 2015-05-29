@@ -46,6 +46,7 @@ int vtkPolyVertex::EvaluatePosition(double x[3], double* closestPoint,
   double X[3];
   double dist2;
   int i;
+  pcoords[1] = pcoords[2] = -1.0;
 
   for (minDist2=VTK_DOUBLE_MAX, i=0; i<numPts; i++)
     {
@@ -75,7 +76,7 @@ int vtkPolyVertex::EvaluatePosition(double x[3], double* closestPoint,
     }
   else
     {
-    pcoords[0] = -10.0;
+    pcoords[0] = -1.0;
     return 0;
     }
 }
@@ -228,20 +229,6 @@ int vtkPolyVertex::GetParametricCenter(double pcoords[3])
 {
   pcoords[0] = pcoords[1] = pcoords[2] = 0.5;
   return (this->Points->GetNumberOfPoints() / 2);
-}
-
-//----------------------------------------------------------------------------
-void vtkPolyVertex::InterpolateFunctions(double pcoords[3], double *weights)
-{
-  (void)pcoords;
-  (void)weights;
-}
-
-//----------------------------------------------------------------------------
-void vtkPolyVertex::InterpolateDerivs(double pcoords[3], double *derivs)
-{
-  (void)pcoords;
-  (void)derivs;
 }
 
 //----------------------------------------------------------------------------

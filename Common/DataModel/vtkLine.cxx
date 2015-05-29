@@ -857,11 +857,10 @@ void vtkLine::InterpolationFunctions(double pcoords[3], double weights[2])
 }
 
 //----------------------------------------------------------------------------
-void vtkLine::InterpolationDerivs(double pcoords[3], double derivs[2])
+void vtkLine::InterpolationDerivs(double vtkNotUsed(pcoords)[3], double derivs[2])
 {
-  (void)pcoords;
   derivs[0] = -1.0;
-  derivs[1] = 1;
+  derivs[1] = 1.0;
 }
 
 //----------------------------------------------------------------------------

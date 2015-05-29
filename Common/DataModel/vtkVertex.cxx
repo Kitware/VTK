@@ -64,7 +64,7 @@ int vtkVertex::EvaluatePosition(double x[3], double* closestPoint,
     }
   else
     {
-    pcoords[0] = -10.0;
+    pcoords[0] = -1.0;
     return 0;
     }
 }
@@ -177,7 +177,7 @@ int vtkVertex::IntersectWithLine(double p1[3], double p2[3], double tol, double&
       }
     }
 
-  pcoords[0] = -10.0;
+  pcoords[0] = -1.0;
   return 0;
 }
 

@@ -472,20 +472,6 @@ int vtkPolyLine::GetParametricCenter(double pcoords[3])
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyLine::InterpolateFunctions(double pcoords[3], double *weights)
-{
-  (void)pcoords;
-  (void)weights;
-}
-
-//----------------------------------------------------------------------------
-void vtkPolyLine::InterpolateDerivs(double pcoords[3], double *derivs)
-{
-  (void)pcoords;
-  (void)derivs;
-}
-
-//----------------------------------------------------------------------------
 void vtkPolyLine::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

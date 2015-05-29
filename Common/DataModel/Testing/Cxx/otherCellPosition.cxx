@@ -73,7 +73,7 @@ int TestOCP(ostream& strm)
 
   //Poly Vertex
   vtkPolyVertex *polyVertex = vtkPolyVertex::New();
-  double polyVertexCoords[1], polyVertexWeights[2];
+  double polyVertexCoords[3], polyVertexWeights[2];
   double polyVertexPoint[3][3] = {{10.0, 20.0, 30.0}, {30.0, 20.0, 10.0}, {0, 0, 0}};
   double polyVertexClosest[3];
 
@@ -215,7 +215,7 @@ int TestOCP(ostream& strm)
 
   //Quad
   vtkQuad *quad = vtkQuad::New();
-  double quadCoords[2], quadWeights[4], quadPosition[3];
+  double quadCoords[3], quadWeights[4], quadPosition[3];
   double quadPoint[5][3] = {{10.0, 10.0, 10.0}, {12.0, 10.0, 10.0}, {12.0, 12.0, 10.0}, {10, 12, 10}, {11, 11, 10.1}};
   double quadClosest[3];
 
@@ -277,7 +277,7 @@ int TestOCP(ostream& strm)
 
   //Polygon
   vtkPolygon *polygon = vtkPolygon::New();
-  double polygonCoords[2], polygonWeights[4], polygonPosition[3];
+  double polygonCoords[3], polygonWeights[4], polygonPosition[3];
   double polygonPoint[5][3] = {{0.0, 0.0, 0.0}, {1.0, 0.0, 0.0}, {1.0, 1.0, 0.0}, {0, 1, 0}, {.5, .5, 0}};
   double polygonClosest[3];
 

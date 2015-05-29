@@ -74,7 +74,6 @@ int vtkTriangleStrip::EvaluatePosition(double x[3], double* closestPoint,
       subId = i;
       pcoords[0] = pc[0];
       pcoords[1] = pc[1];
-      pcoords[2] = 1.0 - pc[0] - pc[1];
       minDist2 = dist2;
       activeWeights[0] = tempWeights[0];
       activeWeights[1] = tempWeights[1];
@@ -337,20 +336,6 @@ int vtkTriangleStrip::GetParametricCenter(double pcoords[3])
 {
   pcoords[0] = pcoords[1] = 0.333333; pcoords[2] = 0.0;
   return ((this->Points->GetNumberOfPoints()-2) / 2);
-}
-
-//----------------------------------------------------------------------------
-void vtkTriangleStrip::InterpolateFunctions(double pcoords[3], double *weights)
-{
-  (void)pcoords;
-  (void)weights;
-}
-
-//----------------------------------------------------------------------------
-void vtkTriangleStrip::InterpolateDerivs(double pcoords[3], double *derivs)
-{
-  (void)pcoords;
-  (void)derivs;
 }
 
 //----------------------------------------------------------------------------
