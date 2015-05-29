@@ -502,31 +502,33 @@ int vtkTriangle::IntersectWithLine(double p1[3], double p2[3], double tol,
   this->Points->GetPoint(0, pt3);
 
   vtkTriangle::ComputeNormal (pt1, pt2, pt3, n);
-
-  // Intersect plane of triangle with line
-  //
-  if ( ! vtkPlane::IntersectWithLine(p1,p2,n,pt1,t,x) )
+  if (n[0] != 0 || n[1] != 0 || n[2] != 0)
     {
-    pcoords[0] = pcoords[1] = 0.0;
-    return 0;
-    }
-
-  // Evaluate position
-  //
-  int inside;
-  if ( (inside = this->EvaluatePosition(x, closestPoint, subId, pcoords,
-        dist2, weights)) >= 0)
-    {
-    if ( dist2 <= tol2 )
+    // Intersect plane of triangle with line
+    //
+    if ( ! vtkPlane::IntersectWithLine(p1,p2,n,pt1,t,x) )
       {
-      return 1;
+      pcoords[0] = pcoords[1] = 0.0;
+      return 0;
       }
-    return inside;
+
+    // Evaluate position
+    //
+    int inside;
+    if ( (inside = this->EvaluatePosition(x, closestPoint, subId, pcoords,
+          dist2, weights)) >= 0)
+      {
+      if ( dist2 <= tol2 )
+        {
+        return 1;
+        }
+      return inside;
+      }
     }
 
-  // so the easy test failed. Evaluate position failed,
-  // the triangle is degenerated and we still need to check
-  // intersection between line and the longest edge.
+  // Normals are null, so the triangle is degenerated and
+  // we still need to check intersection between line and
+  // the longest edge.
   double dist2Pt1Pt2 = vtkMath::Distance2BetweenPoints(pt1, pt2);
   double dist2Pt2Pt3 = vtkMath::Distance2BetweenPoints(pt2, pt3);
   double dist2Pt3Pt1 = vtkMath::Distance2BetweenPoints(pt3, pt1);
@@ -549,17 +551,17 @@ int vtkTriangle::IntersectWithLine(double p1[3], double p2[3], double tol,
   if (this->Line->IntersectWithLine(p1,p2,tol,t,x,pcoords,subId))
     {
     // Compute r and s manually, using dot and norm.
-    double pt1Pt2[3];
-    double pt1Pt3[3];
-    double pt1X[3];
+    double pt3Pt1[3];
+    double pt3Pt2[3];
+    double pt3X[3];
     for (int i = 0; i < 3; i++)
       {
-      pt1Pt2[i] = pt2[i] - pt1[i];
-      pt1Pt3[i] = pt3[i] - pt1[i];
-      pt1X[i] = x[i] - pt1[i];
+      pt3Pt1[i] = pt1[i] - pt3[i];
+      pt3Pt2[i] = pt2[i] - pt3[i];
+      pt3X[i] = x[i] - pt3[i];
       }
-    pcoords[0] = vtkMath::Dot(pt1X, pt1Pt2) / dist2Pt1Pt2;
-    pcoords[1] = vtkMath::Dot(pt1X, pt1Pt3) / dist2Pt1Pt2;
+    pcoords[0] = vtkMath::Dot(pt3X, pt3Pt1) / dist2Pt3Pt1;
+    pcoords[1] = vtkMath::Dot(pt3X, pt3Pt2) / dist2Pt2Pt3;
     return 1;
     }
 
