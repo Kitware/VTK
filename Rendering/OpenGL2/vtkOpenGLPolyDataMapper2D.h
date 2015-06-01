@@ -27,6 +27,7 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkPolyDataMapper2D.h"
 #include "vtkOpenGLHelper.h" // used for ivars
+#include <string> // For API.
 
 class vtkOpenGLBufferObject;
 class vtkOpenGLHelper;
