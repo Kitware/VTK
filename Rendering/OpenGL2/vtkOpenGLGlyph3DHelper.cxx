@@ -13,7 +13,7 @@
 =========================================================================*/
 #include "vtkOpenGLGlyph3DHelper.h"
 
-#include "vtkglVBOHelper.h"
+#include "vtkOpenGLHelper.h"
 
 #include "vtkBitArray.h"
 #include "vtkCamera.h"
@@ -26,10 +26,12 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLIndexBufferObject.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLVertexArrayObject.h"
+#include "vtkOpenGLVertexBufferObject.h"
 #include "vtkProperty.h"
 #include "vtkShader.h"
 #include "vtkShaderProgram.h"
@@ -38,7 +40,7 @@
 
 #include "vtkGlyph3DVS.h"
 
-using vtkgl::substitute;
+
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLGlyph3DHelper)
@@ -100,14 +102,14 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderValues(std::string &VSSource,
   if (lightComplexity > 0)
     {
     // we use vertex instead of vertexMC
-    substitute(VSSource,
+    vtkShaderProgram::Substitute(VSSource,
       "//VTK::PositionVC::Impl",
       "vertexVC = MCVCMatrix * vertex;\n"
       "  gl_Position = MCDCMatrix * vertex;\n");
     }
   else
     {
-    substitute(VSSource,
+    vtkShaderProgram::Substitute(VSSource,
       "//VTK::PositionVC::Impl",
       "gl_Position = MCDCMatrix * vertex;\n");
     }
@@ -115,18 +117,18 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderValues(std::string &VSSource,
   // deal with color
   if (this->UsingInstancing)
     {
-    substitute(VSSource,"//VTK::Color::Dec",
+    vtkShaderProgram::Substitute(VSSource,"//VTK::Color::Dec",
                         "attribute vec4 glyphColor;\n"
                         "varying vec4 vertexColor;");
     }
   else
     {
-    substitute(VSSource,
+    vtkShaderProgram::Substitute(VSSource,
                "//VTK::Color::Dec",
                "uniform vec4 glyphColor;\n"
                "varying vec4 vertexColor;");
     }
-  substitute(VSSource,"//VTK::Color::Impl",
+  vtkShaderProgram::Substitute(VSSource,"//VTK::Color::Impl",
                       "vertexColor =  glyphColor;");
 
 
@@ -158,7 +160,7 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderValues(std::string &VSSource,
       }
     }
   colorDec += "varying vec4 vertexColor;\n";
-  substitute(FSSource,"//VTK::Color::Dec", colorDec);
+  vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Dec", colorDec);
 
   // now handle the more complex fragment shader implementation
   // the following are always defined variables.  We start
@@ -223,7 +225,7 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderValues(std::string &VSSource,
         (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT &&
          actor->GetProperty()->GetAmbient() > actor->GetProperty()->GetDiffuse()))
     {
-    substitute(FSSource,"//VTK::Color::Impl", colorImpl +
+    vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl", colorImpl +
                         "  ambientColor = vertexColor.rgb;\n"
                         "  opacity = vertexColor.a;");
     }
@@ -231,13 +233,13 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderValues(std::string &VSSource,
         (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT &&
          actor->GetProperty()->GetAmbient() <= actor->GetProperty()->GetDiffuse()))
     {
-    substitute(FSSource,"//VTK::Color::Impl", colorImpl +
+    vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl", colorImpl +
                         "  diffuseColor = vertexColor.rgb;\n"
                         "  opacity = vertexColor.a;");
     }
   else
     {
-    substitute(FSSource,"//VTK::Color::Impl", colorImpl +
+    vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl", colorImpl +
                         "  diffuseColor = vertexColor.rgb;\n"
                         "  ambientColor = vertexColor.rgb;\n"
                         "  opacity = vertexColor.a;");
@@ -245,26 +247,26 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderValues(std::string &VSSource,
 
   if (this->UsingInstancing)
     {
-    substitute(VSSource,
+    vtkShaderProgram::Substitute(VSSource,
                        "//VTK::Glyph::Dec",
                        "attribute mat4 GCMCMatrix;");
     }
   else
     {
-    substitute(VSSource,
+    vtkShaderProgram::Substitute(VSSource,
                        "//VTK::Glyph::Dec",
                        "uniform mat4 GCMCMatrix;");
     }
-  substitute(VSSource,
+  vtkShaderProgram::Substitute(VSSource,
                      "//VTK::Glyph::Impl",
                      "vec4 vertex = GCMCMatrix * vertexMC;\n");
 
   // new code for normal matrix if we have normals
-  if (this->Layout.NormalOffset)
+  if (this->VBO->NormalOffset)
     {
     if (this->UsingInstancing)
       {
-      substitute(VSSource,
+      vtkShaderProgram::Substitute(VSSource,
                          "//VTK::Normal::Dec",
                          "uniform mat3 normalMatrix;\n"
                          "attribute vec3 normalMC;\n"
@@ -273,14 +275,14 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderValues(std::string &VSSource,
       }
     else
       {
-      substitute(VSSource,
+      vtkShaderProgram::Substitute(VSSource,
                          "//VTK::Normal::Dec",
                          "uniform mat3 normalMatrix;\n"
                          "attribute vec3 normalMC;\n"
                          "uniform mat3 glyphNormalMatrix;\n"
                          "varying vec3 normalVCVarying;");
       }
-    substitute(VSSource, "//VTK::Normal::Impl",
+    vtkShaderProgram::Substitute(VSSource, "//VTK::Normal::Impl",
       "normalVCVarying = normalMatrix * glyphNormalMatrix * normalMC;");
     this->ShaderVariablesUsed.push_back("normalMatrix");
     }
@@ -296,7 +298,7 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderValues(std::string &VSSource,
       numClipPlanes = 6;
       }
 
-    substitute(VSSource,
+    vtkShaderProgram::Substitute(VSSource,
        "//VTK::Clip::Impl",
        "for (int planeNum = 0; planeNum < numClipPlanes; planeNum++)\n"
        "    {\n"
@@ -361,13 +363,12 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
 
     // handle the middle
     vtkShaderProgram *program = this->Tris.Program;
-    vtkgl::VBOLayout &layout = this->Layout;
 
     // Apply the extra transform
     program->SetUniformMatrix4x4("GCMCMatrix", &(matrices[inPtId*16]));
 
     // for lit shaders set normal matrix
-    if (this->LastLightComplexity > 0 && this->Layout.NormalOffset &&
+    if (this->LastLightComplexity > 0 && this->VBO->NormalOffset &&
         !this->UsingInstancing)
       {
       program->SetUniformMatrix3x3("glyphNormalMatrix", &(normalMatrices[inPtId*9]));
@@ -384,8 +385,8 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
     if (actor->GetProperty()->GetRepresentation() == VTK_POINTS)
       {
       glDrawRangeElements(GL_POINTS, 0,
-                          static_cast<GLuint>(layout.VertexCount - 1),
-                          static_cast<GLsizei>(this->Tris.IndexCount),
+                          static_cast<GLuint>(this->VBO->VertexCount - 1),
+                          static_cast<GLsizei>(this->Tris.IBO->IndexCount),
                           GL_UNSIGNED_INT,
                           reinterpret_cast<const GLvoid *>(NULL));
       }
@@ -395,16 +396,16 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
       // you either have to generate normals and send them down
       // or use a geometry shader.
       glDrawRangeElements(GL_LINES, 0,
-                          static_cast<GLuint>(layout.VertexCount - 1),
-                          static_cast<GLsizei>(this->Tris.IndexCount),
+                          static_cast<GLuint>(this->VBO->VertexCount - 1),
+                          static_cast<GLsizei>(this->Tris.IBO->IndexCount),
                           GL_UNSIGNED_INT,
                           reinterpret_cast<const GLvoid *>(NULL));
       }
     if (actor->GetProperty()->GetRepresentation() == VTK_SURFACE)
       {
       glDrawRangeElements(GL_TRIANGLES, 0,
-                          static_cast<GLuint>(layout.VertexCount - 1),
-                          static_cast<GLsizei>(this->Tris.IndexCount),
+                          static_cast<GLuint>(this->VBO->VertexCount - 1),
+                          static_cast<GLsizei>(this->Tris.IBO->IndexCount),
                           GL_UNSIGNED_INT,
                           reinterpret_cast<const GLvoid *>(NULL));
       }
@@ -417,7 +418,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLGlyph3DHelper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
+void vtkOpenGLGlyph3DHelper::SetCameraShaderParameters(vtkOpenGLHelper &cellBO,
                                                     vtkRenderer* ren, vtkActor *actor)
 {
   // do the superclass and then reset a couple values
@@ -433,14 +434,14 @@ void vtkOpenGLGlyph3DHelper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
 
   // for lit shaders set normal matrix
   if (this->LastLightComplexity > 0 && this->ModelNormalMatrix &&
-     this->Layout.NormalOffset && !this->UsingInstancing)
+     this->VBO->NormalOffset && !this->UsingInstancing)
     {
     program->SetUniformMatrix3x3("glyphNormalMatrix", this->ModelNormalMatrix);
     }
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLGlyph3DHelper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO,
+void vtkOpenGLGlyph3DHelper::SetPropertyShaderParameters(vtkOpenGLHelper &cellBO,
                                                          vtkRenderer *ren, vtkActor *actor)
 {
   // do the superclass and then reset a couple values
@@ -455,7 +456,7 @@ void vtkOpenGLGlyph3DHelper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO,
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLGlyph3DHelper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
+void vtkOpenGLGlyph3DHelper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
                                                          vtkRenderer *ren, vtkActor *actor)
 {
   this->Superclass::SetMapperShaderParameters(cellBO,ren,actor);
@@ -479,7 +480,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
   this->UpdateShader(this->Tris, ren, actor);
 
   // do the superclass and then reset a couple values
-  if (this->Tris.IndexCount &&   // we have points and one of
+  if (this->Tris.IBO->IndexCount &&   // we have points and one of
       (this->VBOBuildTime > this->InstanceBuffersLoadTime ||
       this->Tris.ShaderSourceTime > this->InstanceBuffersLoadTime ||
       pointMTime > this->InstanceBuffersLoadTime.GetMTime()))
@@ -495,7 +496,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
       }
     this->MatrixBuffer->Release();
 
-    if (this->Layout.NormalOffset && this->LastLightComplexity > 0)
+    if (this->VBO->NormalOffset && this->LastLightComplexity > 0)
       {
       this->NormalMatrixBuffer->Bind();
       this->NormalMatrixBuffer->Upload(
@@ -525,7 +526,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
   this->Tris.IBO->Bind();
 #if GL_ES_VERSION_3_0 == 1
   glDrawElementsInstanced(GL_TRIANGLES,
-                        static_cast<GLsizei>(this->Tris.IndexCount),
+                        static_cast<GLsizei>(this->Tris.IBO->IndexCount),
                         GL_UNSIGNED_INT,
                         reinterpret_cast<const GLvoid *>(NULL),
                         numPts);
@@ -533,7 +534,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
   if (GLEW_ARB_instanced_arrays)
     {
     glDrawElementsInstancedARB(GL_TRIANGLES,
-                          static_cast<GLsizei>(this->Tris.IndexCount),
+                          static_cast<GLsizei>(this->Tris.IBO->IndexCount),
                           GL_UNSIGNED_INT,
                           reinterpret_cast<const GLvoid *>(NULL),
                           numPts);

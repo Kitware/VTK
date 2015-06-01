@@ -49,14 +49,11 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkImageProcessingPass.h"
 
-class vtkOpenGLRenderWindow;
 class vtkDepthPeelingPassLayerList; // Pimpl
 class vtkFrameBufferObject;
+class vtkOpenGLHelper;
+class vtkOpenGLRenderWindow;
 class vtkTextureObject;
-namespace vtkgl
-{
-class CellBO;
-}
 
 class VTKRENDERINGOPENGL2_EXPORT vtkGaussianBlurPass : public vtkImageProcessingPass
 {
@@ -94,7 +91,7 @@ public:
   vtkTextureObject *Pass2; // render target for the horizontal pass
 
   // Structures for the various cell types we render.
-  vtkgl::CellBO *BlurProgram;
+  vtkOpenGLHelper *BlurProgram;
 
   bool Supported;
   bool SupportProbed;

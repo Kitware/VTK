@@ -43,7 +43,7 @@
 #include <deque>
 using std::deque;
 
-#include "vtkglVBOHelper.h"
+#include "vtkOpenGLHelper.h"
 #include "vtkTextureObjectVS.h"
 
 #define vtkImageDataLIC2DDEBUG 0

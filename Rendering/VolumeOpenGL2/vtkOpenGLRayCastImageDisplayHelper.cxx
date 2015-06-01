@@ -27,7 +27,7 @@
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkShaderProgram.h"
 
-#include "vtkglVBOHelper.h"
+#include "vtkOpenGLHelper.h"
 
 #include "vtkOpenGLError.h"
 
@@ -203,7 +203,7 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
 
   if (!this->ShaderProgram)
     {
-    this->ShaderProgram = new vtkgl::CellBO;
+    this->ShaderProgram = new vtkOpenGLHelper;
 
     // build the shader source code
     std::string VSSource = vtkTextureObjectVS;

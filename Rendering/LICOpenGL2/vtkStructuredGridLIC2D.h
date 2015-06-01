@@ -43,12 +43,9 @@
 #include "vtkStructuredGridAlgorithm.h"
 #include "vtkWeakPointer.h" // needed for vtkWeakPointer.
 
-class vtkRenderWindow;
 class vtkImageNoiseSource;
-namespace vtkgl
-{
-  class CellBO;
-}
+class vtkOpenGLHelper;
+class vtkRenderWindow;
 
 class VTKRENDERINGLICOPENGL2_EXPORT vtkStructuredGridLIC2D
   : public vtkStructuredGridAlgorithm
@@ -155,7 +152,7 @@ protected:
   bool   OwnWindow;
   int    FBOSuccess;
   int    LICSuccess;
-  vtkgl::CellBO *LICProgram;
+  vtkOpenGLHelper *LICProgram;
 
 private:
   vtkStructuredGridLIC2D(const vtkStructuredGridLIC2D&); // Not implemented.

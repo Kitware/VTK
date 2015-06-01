@@ -37,10 +37,7 @@ class vtkPixelBufferObject;
 class vtkTextureObject;
 class vtkOpenGLRenderWindow;
 #ifdef VTKGL2
-namespace vtkgl
-{
-class CellBO;
-}
+class vtkOpenGLHelper;
 #else
 class vtkShaderProgram2;
 #endif
@@ -95,7 +92,7 @@ public:
   vtkPixelBufferObject *PBO;
   vtkTextureObject *ZTexture;
 #ifdef VTKGL2
-  vtkgl::CellBO *Program;
+  vtkOpenGLHelper *Program;
 #else
   vtkShaderProgram2 *Program;
 #endif

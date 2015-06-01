@@ -23,8 +23,8 @@
 #include "vtkMathTextUtilities.h"
 #include "vtkMatrix3x3.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLIndexBufferObject.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLShaderCache.h"
@@ -43,7 +43,7 @@
 #include "vtkVector.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
-#include "vtkglVBOHelper.h"
+#include "vtkOpenGLHelper.h"
 
 #include "vtkObjectFactory.h"
 
@@ -68,11 +68,11 @@ vtkOpenGLContextDevice2D::vtkOpenGLContextDevice2D()
   this->MaximumMarkerCacheSize = 20;
   this->ProjectionMatrix = vtkTransform::New();
   this->ModelMatrix = vtkTransform::New();
-  this->VBO =  new vtkgl::CellBO;
-  this->VCBO =  new vtkgl::CellBO;
-  this->VTBO =  new vtkgl::CellBO;
-  this->SBO =  new vtkgl::CellBO;
-  this->SCBO =  new vtkgl::CellBO;
+  this->VBO =  new vtkOpenGLHelper;
+  this->VCBO =  new vtkOpenGLHelper;
+  this->VTBO =  new vtkOpenGLHelper;
+  this->SBO =  new vtkOpenGLHelper;
+  this->SCBO =  new vtkOpenGLHelper;
 }
 
 //-----------------------------------------------------------------------------
@@ -293,7 +293,7 @@ void vtkOpenGLContextDevice2D::SetMatrices(vtkShaderProgram *prog)
 }
 
 void vtkOpenGLContextDevice2D::BuildVBO(
-  vtkgl::CellBO *cellBO,
+  vtkOpenGLHelper *cellBO,
   float *f, int nv,
   unsigned char *colors, int nc,
   float *tcoords)
@@ -557,7 +557,7 @@ void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n, unsigned char *colors,
   vtkOpenGLClearErrorMacro();
   this->SetLineType(this->Pen->GetLineType());
 
-  vtkgl::CellBO *cbo = 0;
+  vtkOpenGLHelper *cbo = 0;
   if (colors)
     {
     this->ReadyVCBOProgram();
@@ -651,7 +651,7 @@ void vtkOpenGLContextDevice2D::DrawLines(float *f, int n, unsigned char *colors,
 
   this->SetLineType(this->Pen->GetLineType());
 
-  vtkgl::CellBO *cbo = 0;
+  vtkOpenGLHelper *cbo = 0;
   if (colors)
     {
     this->ReadyVCBOProgram();
@@ -735,7 +735,7 @@ void vtkOpenGLContextDevice2D::DrawPoints(float *f, int n, unsigned char *c,
 {
   vtkOpenGLClearErrorMacro();
 
-  vtkgl::CellBO *cbo = 0;
+  vtkOpenGLHelper *cbo = 0;
   if (c)
     {
     this->ReadyVCBOProgram();
@@ -773,7 +773,7 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
     {
     this->SetPointSize(this->Pen->GetWidth());
 
-    vtkgl::CellBO *cbo = 0;
+    vtkOpenGLHelper *cbo = 0;
     if (colors)
       {
       this->ReadySCBOProgram();
@@ -878,7 +878,7 @@ void vtkOpenGLContextDevice2D::CoreDrawTriangles(
   vtkOpenGLClearErrorMacro();
 
   float* texCoord = 0;
-  vtkgl::CellBO *cbo = 0;
+  vtkOpenGLHelper *cbo = 0;
   if (this->Brush->GetTexture())
     {
     this->ReadyVTBOProgram();
@@ -1290,7 +1290,7 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
 
   vtkOpenGLClearErrorMacro();
 
-  vtkgl::CellBO *cbo = 0;
+  vtkOpenGLHelper *cbo = 0;
   this->ReadyVTBOProgram();
   cbo = this->VTBO;
   int tunit = vtkOpenGLTexture::SafeDownCast(texture)->GetTextureUnit();
@@ -1402,7 +1402,7 @@ void vtkOpenGLContextDevice2D::DrawMathTextString(float point[2],
 
   vtkOpenGLClearErrorMacro();
 
-  vtkgl::CellBO *cbo = 0;
+  vtkOpenGLHelper *cbo = 0;
   this->ReadyVTBOProgram();
   cbo = this->VTBO;
   int tunit = vtkOpenGLTexture::SafeDownCast(texture)->GetTextureUnit();
@@ -1446,7 +1446,7 @@ void vtkOpenGLContextDevice2D::DrawImage(float p[2], float scale,
 
   vtkOpenGLClearErrorMacro();
 
-  vtkgl::CellBO *cbo = 0;
+  vtkOpenGLHelper *cbo = 0;
   this->ReadyVTBOProgram();
   cbo = this->VTBO;
   int tunit = vtkOpenGLTexture::SafeDownCast(
@@ -1503,7 +1503,7 @@ void vtkOpenGLContextDevice2D::DrawImage(const vtkRectf& pos,
                        0.0f,   tex[1]};
 
 
-  vtkgl::CellBO *cbo = 0;
+  vtkOpenGLHelper *cbo = 0;
   this->ReadyVTBOProgram();
   cbo = this->VTBO;
   int tunit =  this->RenderWindow->GetTextureUnitManager()->Allocate();

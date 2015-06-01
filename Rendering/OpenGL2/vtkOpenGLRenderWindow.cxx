@@ -15,7 +15,7 @@
 #include "vtk_glew.h"
 #include "vtkOpenGLRenderWindow.h"
 
-#include "vtkglVBOHelper.h"
+#include "vtkOpenGLHelper.h"
 
 #include <cassert>
 

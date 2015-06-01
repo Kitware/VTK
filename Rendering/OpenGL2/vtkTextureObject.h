@@ -24,15 +24,12 @@
 #include "vtkObject.h"
 #include "vtkWeakPointer.h" // for render context
 
-class vtkWindow;
-class vtkShaderProgram;
-class vtkOpenGLRenderWindow;
 class vtkOpenGLBufferObject;
+class vtkOpenGLHelper;
+class vtkOpenGLRenderWindow;
 class vtkOpenGLVertexArrayObject;
-namespace vtkgl
-{
-class CellBO;
-}
+class vtkShaderProgram;
+class vtkWindow;
 
 #if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
 class vtkPixelBufferObject;
@@ -649,7 +646,7 @@ protected:
   vtkTimeStamp SendParametersTime;
 
   // used for copying to framebuffer
-  vtkgl::CellBO *ShaderProgram;
+  vtkOpenGLHelper *ShaderProgram;
 
   // for texturebuffers we hold on to the Buffer
   vtkOpenGLBufferObject *BufferObject;

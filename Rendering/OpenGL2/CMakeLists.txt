@@ -32,12 +32,15 @@ set(Module_SRCS
   vtkLightsPass.cxx
   vtkOpaquePass.cxx
   vtkOpenGLActor.cxx
+  vtkOpenGLBufferObject.cxx
   vtkOpenGLCamera.cxx
   vtkOpenGLGlyph3DHelper.cxx
   vtkOpenGLGlyph3DMapper.cxx
   vtkOpenGLHardwareSelector.cxx
+  vtkOpenGLHelper.cxx
   vtkOpenGLImageMapper.cxx
   vtkOpenGLImageSliceMapper.cxx
+  vtkOpenGLIndexBufferObject.cxx
   vtkOpenGLLabeledContourMapper.cxx
   vtkOpenGLLight.cxx
   vtkOpenGLPointGaussianMapper.cxx
@@ -48,11 +51,13 @@ set(Module_SRCS
   vtkOpenGLRenderer.cxx
   vtkOpenGLShaderCache.cxx
   vtkOpenGLTexture.cxx
+  vtkOpenGLVertexArrayObject.cxx
+  vtkOpenGLVertexBufferObject.cxx
   vtkOverlayPass.cxx
   vtkRenderPass.cxx
-  vtkRenderStepsPass.cxx
   vtkRenderPassCollection.cxx
   vtkRenderState.cxx
+  vtkRenderStepsPass.cxx
   vtkSequencePass.cxx
   vtkShader.cxx
   vtkShaderProgram.cxx
@@ -61,9 +66,6 @@ set(Module_SRCS
   vtkTextureUnitManager.cxx
   vtkTranslucentPass.cxx
   vtkVolumetricPass.cxx
-  vtkOpenGLBufferObject.cxx
-  vtkglVBOHelper.cxx
-  vtkOpenGLVertexArrayObject.cxx
   )
 
 if (NOT DEFINED OPENGL_ES_VERSION)
@@ -92,19 +94,21 @@ set(${vtk-module}_HDRS
   )
 
 set_source_files_properties(
-  vtkOpenGLBufferObject
-  vtkglVBOHelper
-  vtkOpenGLVertexArrayObject
+  ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
   vtkFrameBufferObject
+  vtkOpenGLBufferObject
   vtkOpenGLGlyph3DHelper
   vtkOpenGLGlyph3DMapper
+  vtkOpenGLHelper
+  vtkOpenGLIndexBufferObject
   vtkOpenGLShaderCache
+  vtkOpenGLVertexArrayObject
+  vtkOpenGLVertexBufferObject
   vtkPixelBufferObject
-  vtkRenderbuffer
   vtkRenderState
+  vtkRenderbuffer
   vtkTextureObject
   vtkTextureUnitManager
-  ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
   WRAP_EXCLUDE)
 
 set_source_files_properties(

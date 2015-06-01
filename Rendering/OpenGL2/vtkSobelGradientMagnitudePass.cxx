@@ -27,7 +27,7 @@
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkShaderProgram.h"
 
-#include "vtkglVBOHelper.h"
+#include "vtkOpenGLHelper.h"
 
 // to be able to dump intermediate passes into png files for debugging.
 // only for vtkSobelGradientMagnitudePass developers.
@@ -246,7 +246,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
     // has something changed that would require us to recreate the shaders?
     if (!this->Program1)
       {
-      this->Program1 = new vtkgl::CellBO;
+      this->Program1 = new vtkOpenGLHelper;
 
       // build the shader source code
       std::string VSSource = vtkTextureObjectVS;
@@ -380,7 +380,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
     // has something changed that would require us to recreate the shaders?
     if (!this->Program2)
       {
-      this->Program2 = new vtkgl::CellBO;
+      this->Program2 = new vtkOpenGLHelper;
 
       // build the shader source code
       std::string VSSource = vtkTextureObjectVS;

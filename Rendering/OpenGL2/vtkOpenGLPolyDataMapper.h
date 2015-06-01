@@ -20,13 +20,16 @@
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkPolyDataMapper.h"
-#include "vtkglVBOHelper.h" // used for ivars
+#include "vtkOpenGLHelper.h" // used for ivars
+#include <vector> //for ivars
 
-class vtkOpenGLTexture;
+class vtkCellArray;
 class vtkMatrix4x4;
 class vtkMatrix3x3;
-class vtkTextureObject;
+class vtkOpenGLTexture;
 class vtkOpenGLBufferObject;
+class vtkOpenGLVertexBufferObject;
+class vtkTextureObject;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMapper
 {
@@ -121,11 +124,11 @@ protected:
   // Description:
   // Make sure an appropriate shader is defined, compiled and bound.  This method
   // orchistrates the process, much of the work is done in other methods
-  virtual void UpdateShader(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
+  virtual void UpdateShader(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
 
   // Description:
   // Does the shader source need to be recomputed
-  virtual bool GetNeedToRebuildShader(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
+  virtual bool GetNeedToRebuildShader(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
 
   // Description:
   // Build the shader source code, called by UpdateShader
@@ -171,19 +174,19 @@ protected:
 
   // Description:
   // Set the shader parameteres related to the mapper/input data, called by UpdateShader
-  virtual void SetMapperShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
+  virtual void SetMapperShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
 
   // Description:
   // Set the shader parameteres related to lighting, called by UpdateShader
-  virtual void SetLightingShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
+  virtual void SetLightingShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
 
   // Description:
   // Set the shader parameteres related to the Camera, called by UpdateShader
-  virtual void SetCameraShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
+  virtual void SetCameraShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
 
   // Description:
   // Set the shader parameteres related to the property, called by UpdateShader
-  virtual void SetPropertyShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
+  virtual void SetPropertyShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
 
   // Description:
   // Update the VBO/IBO to be current
@@ -202,17 +205,16 @@ protected:
   virtual void BuildIBO(vtkRenderer *ren, vtkActor *act);
 
   // The VBO and its layout.
-  vtkOpenGLBufferObject *VBO;
-  vtkgl::VBOLayout Layout;
+  vtkOpenGLVertexBufferObject *VBO;
 
   // Structures for the various cell types we render.
-  vtkgl::CellBO Points;
-  vtkgl::CellBO Lines;
-  vtkgl::CellBO Tris;
-  vtkgl::CellBO TriStrips;
-  vtkgl::CellBO TrisEdges;
-  vtkgl::CellBO TriStripsEdges;
-  vtkgl::CellBO *LastBoundBO;
+  vtkOpenGLHelper Points;
+  vtkOpenGLHelper Lines;
+  vtkOpenGLHelper Tris;
+  vtkOpenGLHelper TriStrips;
+  vtkOpenGLHelper TrisEdges;
+  vtkOpenGLHelper TriStripsEdges;
+  vtkOpenGLHelper *LastBoundBO;
   bool DrawingEdges;
 
   // values we use to determine if we need to rebuild

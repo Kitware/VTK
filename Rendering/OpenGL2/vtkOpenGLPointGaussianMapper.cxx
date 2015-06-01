@@ -13,17 +13,18 @@
 =========================================================================*/
 #include "vtkOpenGLPointGaussianMapper.h"
 
-#include "vtkglVBOHelper.h"
+#include "vtkOpenGLHelper.h"
 
 #include "vtkHardwareSelector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkMatrix4x4.h"
 #include "vtkOpenGLActor.h"
-#include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLCamera.h"
+#include "vtkOpenGLIndexBufferObject.h"
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkOpenGLVertexArrayObject.h"
+#include "vtkOpenGLVertexBufferObject.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
@@ -35,7 +36,7 @@
 
 #include "vtk_glew.h"
 
-using vtkgl::substitute;
+
 
 class vtkOpenGLPointGaussianMapperHelper : public vtkOpenGLPolyDataMapper
 {
@@ -67,11 +68,11 @@ protected:
 
   // Description:
   // Set the shader parameters related to the Camera
-  virtual void SetCameraShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
+  virtual void SetCameraShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
 
   // Description:
   // Set the shader parameters related to the actor/mapper
-  virtual void SetMapperShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
+  virtual void SetMapperShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
 
   // Description:
   // Does the VBO/IBO need to be rebuilt
@@ -85,7 +86,7 @@ protected:
 
   // Description:
   // Does the shader source need to be recomputed
-  virtual bool GetNeedToRebuildShader(vtkgl::CellBO &cellBO,
+  virtual bool GetNeedToRebuildShader(vtkOpenGLHelper &cellBO,
     vtkRenderer *ren, vtkActor *act);
 
 private:
@@ -123,16 +124,16 @@ void vtkOpenGLPointGaussianMapperHelper::ReplaceShaderValues(std::string &VSSour
                                                  vtkRenderer* ren,
                                                  vtkActor *actor)
 {
-  substitute(FSSource,
+  vtkShaderProgram::Substitute(FSSource,
     "//VTK::PositionVC::Dec",
     "varying vec2 offsetVC;");
 
-  substitute(VSSource,
+  vtkShaderProgram::Substitute(VSSource,
     "//VTK::Camera::Dec",
     "uniform mat4 VCDCMatrix;\n"
     "uniform mat4 MCVCMatrix;");
 
-  substitute(FSSource,"//VTK::Color::Impl",
+  vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl",
     // compute the eye position and unit direction
     "//VTK::Color::Impl\n"
     "  float dist2 = dot(offsetVC.xy,offsetVC.xy);\n"
@@ -147,7 +148,7 @@ void vtkOpenGLPointGaussianMapperHelper::ReplaceShaderValues(std::string &VSSour
 
 //-----------------------------------------------------------------------------
 bool vtkOpenGLPointGaussianMapperHelper::GetNeedToRebuildShader(
-  vtkgl::CellBO &cellBO, vtkRenderer* ren, vtkActor *actor)
+  vtkOpenGLHelper &cellBO, vtkRenderer* ren, vtkActor *actor)
 {
   this->LastLightComplexity = 0;
 
@@ -184,7 +185,7 @@ vtkOpenGLPointGaussianMapperHelper::~vtkOpenGLPointGaussianMapperHelper()
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLPointGaussianMapperHelper::SetCameraShaderParameters(vtkgl::CellBO &cellBO,
+void vtkOpenGLPointGaussianMapperHelper::SetCameraShaderParameters(vtkOpenGLHelper &cellBO,
                                                     vtkRenderer* ren, vtkActor *actor)
 {
   vtkShaderProgram *program = cellBO.Program;
@@ -217,17 +218,16 @@ void vtkOpenGLPointGaussianMapperHelper::SetCameraShaderParameters(vtkgl::CellBO
 
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLPointGaussianMapperHelper::SetMapperShaderParameters(vtkgl::CellBO &cellBO,
+void vtkOpenGLPointGaussianMapperHelper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
                                                          vtkRenderer *ren, vtkActor *actor)
 {
-  if (cellBO.IndexCount && (this->VBOBuildTime > cellBO.AttributeUpdateTime ||
+  if (cellBO.IBO->IndexCount && (this->VBOBuildTime > cellBO.AttributeUpdateTime ||
       cellBO.ShaderSourceTime > cellBO.AttributeUpdateTime))
     {
-    vtkgl::VBOLayout &layout = this->Layout;
     cellBO.VAO->Bind();
     if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
-                                    "offsetMC", layout.ColorOffset+sizeof(float),
-                                    layout.Stride, VTK_FLOAT, 2, false))
+                                    "offsetMC", this->VBO->ColorOffset+sizeof(float),
+                                    this->VBO->Stride, VTK_FLOAT, 2, false))
       {
       vtkErrorMacro(<< "Error setting 'offsetMC' in shader VAO.");
       }
@@ -312,31 +312,28 @@ void vtkOpenGLPointGaussianMapperHelperPackVBOTemplate(
     }
 }
 
-vtkgl::VBOLayout vtkOpenGLPointGaussianMapperHelperCreateVBO(
+void vtkOpenGLPointGaussianMapperHelperCreateVBO(
     vtkPoints* points, unsigned char* colors, int colorComponents,
     vtkDataArray* sizes, float defaultSize,
-    vtkOpenGLBufferObject *vertexBuffer)
+    vtkOpenGLVertexBufferObject *VBO)
 {
-
-  vtkgl::VBOLayout layout;
   // Figure out how big each block will be, currently 6 floats.
   int blockSize = 3;  // x y z
-  layout.VertexOffset = 0;
-  layout.NormalOffset = 0;
-  layout.TCoordOffset = 0;
-  layout.TCoordComponents = 0;
-  layout.ColorComponents = colorComponents;
-  layout.ColorOffset = sizeof(float) * blockSize;
+  VBO->VertexOffset = 0;
+  VBO->NormalOffset = 0;
+  VBO->TCoordOffset = 0;
+  VBO->TCoordComponents = 0;
+  VBO->ColorComponents = colorComponents;
+  VBO->ColorOffset = sizeof(float) * blockSize;
   ++blockSize; // color
 
   // two more floats
   blockSize += 2;  // offset
-  layout.Stride = sizeof(float) * blockSize;
+  VBO->Stride = sizeof(float) * blockSize;
 
   // Create a buffer, and copy the data over.
-  std::vector<float> packedVBO;
-  packedVBO.resize(blockSize * points->GetNumberOfPoints() * 3);
-  std::vector<float>::iterator it = packedVBO.begin();
+  VBO->PackedVBO.resize(blockSize * points->GetNumberOfPoints() * 3);
+  std::vector<float>::iterator it = VBO->PackedVBO.begin();
 
   switch(points->GetDataType())
     {
@@ -346,9 +343,9 @@ vtkgl::VBOLayout vtkOpenGLPointGaussianMapperHelperCreateVBO(
             points->GetNumberOfPoints(),colors,colorComponents,
             sizes,defaultSize));
     }
-  vertexBuffer->Upload(packedVBO, vtkOpenGLBufferObject::ArrayBuffer);
-  layout.VertexCount = points->GetNumberOfPoints() * 3;
-  return layout;
+  VBO->Upload(VBO->PackedVBO, vtkOpenGLBufferObject::ArrayBuffer);
+  VBO->VertexCount = points->GetNumberOfPoints() * 3;
+  return;
 }
 }
 
@@ -406,35 +403,32 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
 
   // Iterate through all of the different types in the polydata, building OpenGLs
   // and IBOs as appropriate for each type.
-  this->Layout =
-    vtkOpenGLPointGaussianMapperHelperCreateVBO(
-              poly->GetPoints(),
-              this->Colors ? (unsigned char *)this->Colors->GetVoidPointer(0) : (unsigned char*)NULL,
-              this->Colors ? this->Colors->GetNumberOfComponents() : 0,
-              hasScaleArray ? poly->GetPointData()->GetArray(
-                this->Owner->GetScaleArray()) : (vtkDataArray*)NULL,
-              this->Owner->GetDefaultRadius(),
-              this->VBO);
+  vtkOpenGLPointGaussianMapperHelperCreateVBO(
+      poly->GetPoints(),
+      this->Colors ? (unsigned char *)this->Colors->GetVoidPointer(0) : (unsigned char*)NULL,
+      this->Colors ? this->Colors->GetNumberOfComponents() : 0,
+      hasScaleArray ? poly->GetPointData()->GetArray(
+        this->Owner->GetScaleArray()) : (vtkDataArray*)NULL,
+      this->Owner->GetDefaultRadius(),
+      this->VBO);
 
   // we use no IBO
-  this->Points.IndexCount = 0;
-  this->Lines.IndexCount = 0;
-  this->TriStrips.IndexCount = 0;
-  this->Tris.IndexCount = this->Layout.VertexCount;
+  this->Points.IBO->IndexCount = 0;
+  this->Lines.IBO->IndexCount = 0;
+  this->TriStrips.IBO->IndexCount = 0;
+  this->Tris.IBO->IndexCount = this->VBO->VertexCount;
 }
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLPointGaussianMapperHelper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
 {
-  vtkgl::VBOLayout &layout = this->Layout;
-
   // draw polygons
   glBlendFunc( GL_SRC_ALPHA, GL_ONE);  // additive for emissive sources
-  if (layout.VertexCount)
+  if (this->VBO->VertexCount)
     {
     // First we do the triangles, update the shader, set uniforms, etc.
     this->UpdateShader(this->Tris, ren, actor);
-    glDrawArrays(GL_TRIANGLES, 0, static_cast<GLuint>(layout.VertexCount));
+    glDrawArrays(GL_TRIANGLES, 0, static_cast<GLuint>(this->VBO->VertexCount));
     }
 }
 

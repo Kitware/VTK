@@ -27,7 +27,7 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLVertexArrayObject.h"
 
-#include "vtkglVBOHelper.h"
+#include "vtkOpenGLHelper.h"
 
 // to be able to dump intermediate passes into png files for debugging.
 // only for vtkGaussianBlurPass developers.
@@ -270,7 +270,7 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
     // has something changed that would require us to recreate the shader?
     if (!this->BlurProgram)
       {
-      this->BlurProgram = new vtkgl::CellBO;
+      this->BlurProgram = new vtkOpenGLHelper;
       // build the shader source code
       std::string VSSource = vtkGaussianBlurPassVS;
       std::string FSSource = vtkGaussianBlurPassFS;

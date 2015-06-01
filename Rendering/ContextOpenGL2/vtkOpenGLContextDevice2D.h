@@ -34,18 +34,15 @@
 #include <list> // for std::list
 
 class vtkMatrix4x4;
-class vtkWindow;
-class vtkViewport;
-class vtkRenderer;
-class vtkStringToImage;
-class vtkOpenGLRenderWindow;
 class vtkOpenGLExtensionManager;
-class vtkTransform;
+class vtkOpenGLHelper;
+class vtkOpenGLRenderWindow;
+class vtkRenderer;
 class vtkShaderProgram;
-namespace vtkgl
-{
-class CellBO;
-}
+class vtkStringToImage;
+class vtkTransform;
+class vtkViewport;
+class vtkWindow;
 
 class VTKRENDERINGCONTEXTOPENGL2_EXPORT vtkOpenGLContextDevice2D : public vtkContextDevice2D
 {
@@ -334,19 +331,19 @@ protected:
   // The OpenGL render window being used by the device
   vtkOpenGLRenderWindow* RenderWindow;
 
-  vtkgl::CellBO *VCBO;  // vertex + color
+  vtkOpenGLHelper *VCBO;  // vertex + color
   void ReadyVCBOProgram();
-  vtkgl::CellBO *VBO;  // vertex
+  vtkOpenGLHelper *VBO;  // vertex
   void ReadyVBOProgram();
-  vtkgl::CellBO *VTBO;  // vertex + tcoord
+  vtkOpenGLHelper *VTBO;  // vertex + tcoord
   void ReadyVTBOProgram();
-  vtkgl::CellBO *SCBO;  // sprite + color
+  vtkOpenGLHelper *SCBO;  // sprite + color
   void ReadySCBOProgram();
-  vtkgl::CellBO *SBO;  // sprite
+  vtkOpenGLHelper *SBO;  // sprite
   void ReadySBOProgram();
 
   void SetMatrices(vtkShaderProgram *prog);
-  void BuildVBO(vtkgl::CellBO *cbo,
+  void BuildVBO(vtkOpenGLHelper *cbo,
     float *v, int nv,
     unsigned char *coolors, int nc,
     float *tcoords);

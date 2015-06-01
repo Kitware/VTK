@@ -16,6 +16,11 @@
 
 #include "vtkRenderingOpenGL2Module.h" // for export macro
 #include "vtkObject.h"
+#include <vector> // used for method args
+
+class vtkCellArray;
+class vtkDataArray;
+class vtkPoints;
 
 /**
  * @brief OpenGL buffer object
@@ -40,6 +45,9 @@ public:
 
   /** Get the type of the buffer object. */
   ObjectType GetType() const;
+
+  /** Set the type of the buffer object. */
+  void SetType(ObjectType value);
 
   /** Get the handle of the buffer object. */
   int GetHandle() const;

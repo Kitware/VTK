@@ -15,7 +15,7 @@
 #include "vtkOpenGLTexture.h"
 #include "vtkTextureObject.h"
 
-#include "vtkglVBOHelper.h"
+#include "vtkOpenGLHelper.h"
 
 #include "vtkHomogeneousTransform.h"
 

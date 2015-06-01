@@ -73,6 +73,11 @@ void vtkOpenGLBufferObject::ReleaseGraphicsResources()
     }
 }
 
+void vtkOpenGLBufferObject::SetType(vtkOpenGLBufferObject::ObjectType value)
+{
+  this->Internal->Type = convertType(value);
+}
+
 vtkOpenGLBufferObject::ObjectType vtkOpenGLBufferObject::GetType() const
 {
   if (this->Internal->Type == GL_ARRAY_BUFFER)
@@ -137,6 +142,7 @@ bool vtkOpenGLBufferObject::UploadInternal(
   this->Dirty = false;
   return true;
 }
+
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLBufferObject::PrintSelf(ostream& os, vtkIndent indent)

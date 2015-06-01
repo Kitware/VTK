@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkStructuredGridLIC2D.h"
 
-#include "vtkglVBOHelper.h"
+#include "vtkOpenGLHelper.h"
 
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
@@ -546,7 +546,7 @@ int vtkStructuredGridLIC2D::RequestData(
   this->FBOSuccess = 1;
 
   // build the shader program
-  this->LICProgram = new vtkgl::CellBO;
+  this->LICProgram = new vtkOpenGLHelper;
   std::string VSSource = vtkTextureObjectVS;
   std::string FSSource = vtkStructuredGridLIC2D_fs;
   std::string GSSource;

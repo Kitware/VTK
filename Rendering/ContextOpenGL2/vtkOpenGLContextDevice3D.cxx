@@ -24,7 +24,7 @@
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
-#include "vtkOpenGLBufferObject.h"
+#include "vtkOpenGLIndexBufferObject.h"
 #include "vtkOpenGLVertexArrayObject.h"
 
 #include "vtkObjectFactory.h"
@@ -33,7 +33,7 @@
 #include "vtkShaderProgram.h"
 
 #include "vtkTransform.h"
-#include "vtkglVBOHelper.h"
+#include "vtkOpenGLHelper.h"
 
 class vtkOpenGLContextDevice3D::Private
 {
@@ -119,8 +119,8 @@ vtkOpenGLContextDevice3D::vtkOpenGLContextDevice3D() : Storage(new Private)
 {
   this->ModelMatrix = vtkTransform::New();
   this->ModelMatrix->Identity();
-  this->VBO =  new vtkgl::CellBO;
-  this->VCBO =  new vtkgl::CellBO;
+  this->VBO =  new vtkOpenGLHelper;
+  this->VCBO =  new vtkOpenGLHelper;
   this->ClippingPlaneStates.resize(6,false);
   this->ClippingPlaneValues.resize(24);
 }
@@ -189,7 +189,7 @@ void vtkOpenGLContextDevice3D::SetMatrices(vtkShaderProgram *prog)
 }
 
 void vtkOpenGLContextDevice3D::BuildVBO(
-  vtkgl::CellBO *cellBO,
+  vtkOpenGLHelper *cellBO,
   const float *f, int nv,
   const unsigned char *colors, int nc,
   float *tcoords)
@@ -385,7 +385,7 @@ void vtkOpenGLContextDevice3D::DrawPoly(const float *verts, int n,
     }
   glLineWidth(this->Pen->GetWidth());
 
-  vtkgl::CellBO *cbo = 0;
+  vtkOpenGLHelper *cbo = 0;
   if (colors)
     {
     this->ReadyVCBOProgram();
@@ -438,7 +438,7 @@ void vtkOpenGLContextDevice3D::DrawLines(const float *verts, int n,
     }
   glLineWidth(this->Pen->GetWidth());
 
-  vtkgl::CellBO *cbo = 0;
+  vtkOpenGLHelper *cbo = 0;
   if (colors)
     {
     this->ReadyVCBOProgram();
@@ -478,7 +478,7 @@ void vtkOpenGLContextDevice3D::DrawPoints(const float *verts, int n,
 
   glPointSize(this->Pen->GetWidth());
 
-  vtkgl::CellBO *cbo = 0;
+  vtkOpenGLHelper *cbo = 0;
   if (colors)
     {
     this->ReadyVCBOProgram();
@@ -516,7 +516,7 @@ void vtkOpenGLContextDevice3D::DrawTriangleMesh(const float *mesh, int n,
 
   this->EnableDepthBuffer();
 
-  vtkgl::CellBO *cbo = 0;
+  vtkOpenGLHelper *cbo = 0;
   if (colors)
     {
     this->ReadyVCBOProgram();

@@ -29,7 +29,7 @@
 
 
 #ifdef VTK_OPENGL2
-# include "vtkglVBOHelper.h"
+# include "vtkOpenGLHelper.h"
 # include "vtkOpenGLShaderCache.h"
 # include "vtkShaderProgram.h"
 # include "vtkTextureObjectVS.h"
@@ -392,7 +392,7 @@ void vtkPSurfaceLICComposite::SetContext(vtkOpenGLRenderWindow *rwin)
     {
     // load, compile, and link the shader
 #ifdef VTK_OPENGL2
-    this->CompositeShader = new vtkgl::CellBO;
+    this->CompositeShader = new vtkOpenGLHelper;
     std::string GSSource;
     this->CompositeShader->Program =
         rwin->GetShaderCache()->ReadyShader(vtkTextureObjectVS,

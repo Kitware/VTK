@@ -42,10 +42,7 @@ class vtkPPainterCommunicator;
 class vtkPPixelExtentOps;
 
 #ifdef VTK_OPENGL2
-namespace vtkgl
-{
-  class CellBO;
-}
+class vtkOpenGLHelper;
 #else
 class vtkShaderProgram2;
 #endif
@@ -191,7 +188,7 @@ private:
   vtkFrameBufferObject2 *FBO;                    // buffer object
 
 #ifdef VTK_OPENGL2
-  vtkgl::CellBO *CompositeShader;
+  vtkOpenGLHelper *CompositeShader;
 #else
   vtkShaderProgram2 *CompositeShader;            // shader program for compositing
 #endif

@@ -508,7 +508,7 @@ protected:
 
   // Description:
   // Set the shader parameteres related to the mapper/input data, called by UpdateShader
-  virtual void SetMapperShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
+  virtual void SetMapperShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
 
   // Description:
   // Perform string replacments on the shader templates

@@ -48,7 +48,7 @@
 #ifdef VTKGL2
 # include "vtkOpenGLShaderCache.h"
 # include "vtkShaderProgram.h"
-# include "vtkglVBOHelper.h"
+# include "vtkOpenGLHelper.h"
 # include "vtkTextureObjectVS.h"
 # include "vtkCompositeZPassFS.h"
 #else
@@ -805,7 +805,7 @@ void vtkCompositeZPass::CreateProgram(vtkOpenGLRenderWindow *context)
   assert("pre: Program_void" && this->Program==0);
 
 #ifdef VTKGL2
-  this->Program = new vtkgl::CellBO;
+  this->Program = new vtkOpenGLHelper;
   this->Program->Program =
     context->GetShaderCache()->ReadyShader(vtkTextureObjectVS,
                                            vtkCompositeZPassFS,

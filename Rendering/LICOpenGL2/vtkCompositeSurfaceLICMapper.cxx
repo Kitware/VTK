@@ -55,7 +55,7 @@ protected:
 
   // Description:
   // Set the shader parameteres related to the property, called by UpdateShader
-  virtual void SetPropertyShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
+  virtual void SetPropertyShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
 
 private:
   vtkCompositeLICHelper(const vtkCompositeLICHelper&); // Not implemented.
@@ -64,7 +64,7 @@ private:
 
 vtkStandardNewMacro(vtkCompositeLICHelper);
 
-void vtkCompositeLICHelper::SetPropertyShaderParameters(vtkgl::CellBO &cellBO,
+void vtkCompositeLICHelper::SetPropertyShaderParameters(vtkOpenGLHelper &cellBO,
                                                        vtkRenderer *ren, vtkActor *actor)
 {
   this->Superclass::SetPropertyShaderParameters(cellBO, ren, actor);

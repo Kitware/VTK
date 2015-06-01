@@ -33,7 +33,7 @@
 #include "vtkRenderer.h"
 #include "vtkShaderProgram.h"
 
-#include "vtkglVBOHelper.h"
+#include "vtkOpenGLHelper.h"
 
 #include <cassert>
 
@@ -2264,7 +2264,7 @@ void vtkTextureObject::CopyToFrameBuffer(float *tcoords, float *verts,
     {
     if (!this->ShaderProgram)
       {
-      this->ShaderProgram = new vtkgl::CellBO;
+      this->ShaderProgram = new vtkOpenGLHelper;
 
       // build the shader source code
       std::string VSSource = vtkTextureObjectVS;
