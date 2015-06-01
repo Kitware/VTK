@@ -339,9 +339,9 @@ void vtkOpenGLStickMapperCreateVBO(float * points, vtkIdType numPts,
   float *orientPtr;
   unsigned char *colorPtr;
 
-  vtkgl::vtkucfloat offsets;
+  vtkucfloat offsets;
   offsets.c[3] = 0;
-  vtkgl::vtkucfloat selId;
+  vtkucfloat selId;
   selId.c[0] = 0;
   selId.c[1] = 0;
   selId.c[2] = 0;

@@ -30,6 +30,7 @@
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkOpenGLVertexArrayObject.h"
+#include "vtkOpenGLVertexBufferObject.h"
 #include "vtkPen.h"
 #include "vtkPoints2D.h"
 #include "vtkRect.h"
@@ -314,7 +315,7 @@ void vtkOpenGLContextDevice2D::BuildVBO(
 
   std::vector<float> va;
   va.resize(nv*stride);
-  vtkgl::vtkucfloat c;
+  vtkucfloat c;
   for (int i = 0; i < nv; i++)
     {
     va[i*stride] = f[i*2];

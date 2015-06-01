@@ -16,24 +16,21 @@
 #include "vtkOpenGLContextDevice3D.h"
 
 #include "vtkBrush.h"
-#include "vtkPen.h"
-
 #include "vtkMatrix4x4.h"
+#include "vtkObjectFactory.h"
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLContextDevice2D.h"
-#include "vtkOpenGLRenderer.h"
-#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
-#include "vtkOpenGLIndexBufferObject.h"
-#include "vtkOpenGLVertexArrayObject.h"
-
-#include "vtkObjectFactory.h"
-
-#include "vtkOpenGLShaderCache.h"
-#include "vtkShaderProgram.h"
-
-#include "vtkTransform.h"
 #include "vtkOpenGLHelper.h"
+#include "vtkOpenGLIndexBufferObject.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLVertexArrayObject.h"
+#include "vtkOpenGLVertexBufferObject.h"
+#include "vtkPen.h"
+#include "vtkShaderProgram.h"
+#include "vtkTransform.h"
 
 class vtkOpenGLContextDevice3D::Private
 {
@@ -210,7 +207,7 @@ void vtkOpenGLContextDevice3D::BuildVBO(
 
   std::vector<float> va;
   va.resize(nv*stride);
-  vtkgl::vtkucfloat c;
+  vtkucfloat c;
   for (int i = 0; i < nv; i++)
     {
     va[i*stride] = f[i*3];
