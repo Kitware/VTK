@@ -2423,6 +2423,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
     vtkErrorMacro("Shader failed to compile");
     }
 
+  std::cerr << "fragmentShader " << fragmentShader << std::endl;
+
   this->Impl->ShaderBuildTime.Modified();
 }
 

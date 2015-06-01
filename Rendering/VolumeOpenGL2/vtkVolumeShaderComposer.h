@@ -639,7 +639,7 @@ namespace vtkvolume
     else
       {
       shaderStr += std::string(
-        "\n  vec3 finalColor = color.rgb;"
+        "\n  vec4 finalColor = vec4(color.rgb, 0.0);"
       );
       }
 
@@ -714,11 +714,10 @@ namespace vtkvolume
         {
         return std::string("\
           \nuniform sampler1D in_colorTransferFunc;\
-          \nvec4 computeColor(vec4 scalar)\
+          \nvec4 computeColor(vec4 scalar, float opacity)\
           \n  {\
           \n  return computeLighting(vec4(texture1D(in_colorTransferFunc,\
-          \n                                        scalar.w).xyz,\
-          \n                              computeOpacity(scalar)));\
+          \n                                        scalar.w).xyz, opacity));\
           \n  }");
         }
       else if (noOfComponents > 1 && independentComponents)
@@ -732,7 +731,7 @@ namespace vtkvolume
           }
 
         shaderStr += std::string("\
-          \nvec4 computeColor(vec4 scalar, int component)\
+          \nvec4 computeColor(vec4 scalar, opacity, int component)\
           \n  {");
 
         for (int i = 0; i < noOfComponents; ++i)
@@ -748,7 +747,7 @@ namespace vtkvolume
           shaderStr += (i == 0 ? "" : toString.str());
           shaderStr += std::string(",\
             \n      scalar[" + toString.str() + "]).xyz,\
-            \n      computeOpacity(scalar, component)));\
+            \n      opacity));\
             \n    }");
 
           // Reset
@@ -767,7 +766,7 @@ namespace vtkvolume
           \n  {\
           \n  return computeLighting(vec4(texture1D(in_colorTransferFunc,\
           \n                                        scalar.x).xyz,\
-          \n                              computeOpacity(scalar)));\
+          \n                              opacity));\
           \n  }");
         }
       else
@@ -775,7 +774,7 @@ namespace vtkvolume
         return std::string("\
           \nvec4 computeColor(vec4 scalar)\
           \n  {\
-          \n  return computeLighting(vec4(scalar.xyz, computeOpacity(scalar)));\
+          \n  return computeLighting(vec4(scalar.xyz, opacity));\
           \n  }");
         }
     }
@@ -1071,7 +1070,8 @@ namespace vtkvolume
           {
           shaderStr += std::string("\
           \n        // Data fetching from the red channel of volume texture\
-          \n        color[i] = vec4(computeColor(scalar, i));\
+          \n        color[i][3] = computeOpacity(scalar, i);\
+          \n        color[i] = computeColor(scalar, color[i][3], i);\
           \n        totalAlpha += color[i][3] * in_componentWeight[i];\
           \n        }\
           \n      if (totalAlpha > 0.0)\
@@ -1094,7 +1094,11 @@ namespace vtkvolume
              maskType != vtkGPUVolumeRayCastMapper::LabelMapMaskType)
            {
            shaderStr += std::string("\
-             \n      vec4 g_srcColor = computeColor(scalar);"
+             \n      vec4 g_srcColor = vec4(0.0);\
+             \n      g_srcColor.a = computeOpacity(scalar);\
+             \n      if (g_srcColor.a > 0.0)\
+             \n        {\
+             \n        g_srcColor = computeColor(scalar, g_srcColor.a);"
            );
            }
 
@@ -1109,7 +1113,8 @@ namespace vtkvolume
            \n      // the previous steps is then accumulated to the composited colour\
            \n      // alpha.\
            \n      g_srcColor.rgb *= g_srcColor.a;\
-           \n      g_fragColor = (1.0f - g_fragColor.a) * g_srcColor + g_fragColor;"
+           \n      g_fragColor = (1.0f - g_fragColor.a) * g_srcColor + g_fragColor;\
+           \n      }"
          );
         }
       }
