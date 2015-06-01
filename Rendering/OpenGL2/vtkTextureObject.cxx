@@ -262,6 +262,11 @@ vtkTextureObject::vtkTextureObject()
 vtkTextureObject::~vtkTextureObject()
 {
   this->DestroyTexture();
+  if (this->ShaderProgram)
+    {
+    delete this->ShaderProgram;
+    this->ShaderProgram = NULL;
+    }
 }
 
 //----------------------------------------------------------------------------
