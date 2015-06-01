@@ -462,6 +462,7 @@ namespace vtkvolume
       {
       shaderStr += std::string("\
         \n  // Compute gradient function only once\
+        \n  vec4 finalColor = vec4(0.0);\
         \n  vec4 gradient = computeGradient();"
       );
       }
@@ -473,19 +474,18 @@ namespace vtkvolume
         shaderStr += std::string("\
           \n  vec3 diffuse = vec3(0.0);\
           \n  vec3 specular = vec3(0.0);\
-          \n  vec3 g2 = gradient.xyz;\
-          \n  g2 = (1.0/in_cellSpacing) * g2;\
-          \n  float normalLength = length(g2);\
+          \n  vec3 normal = gradient.xyz / in_cellSpacing;\
+          \n  float normalLength = length(normal);\
           \n  if (normalLength > 0.0)\
           \n    {\
-          \n    g2 = normalize(g2);\
+          \n    normal = normalize(normal);\
           \n    }\
           \n  else\
           \n    {\
-          \n   g2 = vec3(0.0, 0.0, 0.0);\
+          \n    normal = vec3(0.0, 0.0, 0.0);\
           \n    }\
-          \n   float nDotL = dot(g2, g_ldir);\
-          \n   float nDotH = dot(g2, g_h);\
+          \n   float nDotL = dot(normal, g_ldir);\
+          \n   float nDotH = dot(normal, g_h);\
           \n   if (nDotL < 0.0 && in_twoSidedLighting)\
           \n     {\
           \n     nDotL = -nDotL;\
@@ -499,15 +499,11 @@ namespace vtkvolume
           \n     diffuse = nDotL * in_diffuse * in_lightDiffuseColor[0]\
           \n                 * color.rgb;\
           \n     }\
-          \n  if (nDotH > 0)\
-          \n    {\
           \n    specular = pow(nDotH, in_shininess) * in_specular *\
           \n                 in_lightSpecularColor[0];\
-          \n    }\
           \n  // For the headlight, ignore the light's ambient color\
           \n  // for now as it is causing the old mapper tests to fail\
-          \n  vec3 finalColor = (in_ambient * color.rgb +\
-          \n                     diffuse + specular);"
+          \n  finalColor.xyz = in_ambient * color.rgb + diffuse + specular;"
           );
         }
       else if (lightingComplexity == 2)
@@ -557,9 +553,9 @@ namespace vtkvolume
           \n    }\
           \n  ambient += in_lightAmbientColor[lightNum];\
           \n  }\
-          \n  vec3 finalColor = in_ambient * ambient +\
-          \n                    in_diffuse * diffuse * color.rgb +\
-          \n                    in_specular * specular;"
+          \n  finalColor.xyz = in_ambient * ambient +\
+          \n                   in_diffuse * diffuse * color.rgb +\
+          \n                   in_specular * specular;"
           );
         }
       else if (lightingComplexity == 3)
@@ -635,8 +631,8 @@ namespace vtkvolume
           \n    }\
           \n    ambient += in_lightAmbientColor[lightNum];\
           \n  }\
-          \n  vec3 finalColor = in_ambient * ambient + in_diffuse *\
-          \n                    diffuse * color.rgb + in_specular * specular;\
+          \n  finalColor.xyz = in_ambient * ambient + in_diffuse *\
+          \n                   diffuse * color.rgb + in_specular * specular;\
         ");
         }
       }
@@ -672,7 +668,8 @@ namespace vtkvolume
       }
 
     shaderStr += std::string("\
-      \n  return vec4(finalColor, color.a);\
+      \n  finalColor.a = color.a;\
+      \n  return finalColor;\
       \n  }"
     );
 
