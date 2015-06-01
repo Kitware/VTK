@@ -423,12 +423,12 @@ macro(write_cache)
   set(cache_build_type "")
   set(cache_make_program "")
   if (NOT branch_needs_data_repo)
-    set(data_options"
+    set(data_options "
 ExternalData_OBJECT_STORES:STRING=${ExternalData_OBJECT_STORES}
 VTK_USE_LARGE_DATA:BOOL=${VTK_USE_LARGE_DATA}
 ")
   else()
-    set(data_options"
+    set(data_options "
 VTK_DATA_ROOT:PATH=${VTK_DATA_ROOT}
 VTK_LARGE_DATA_ROOT:PATH=${VTK_LARGE_DATA_ROOT}
 ")
