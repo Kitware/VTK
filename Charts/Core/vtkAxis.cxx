@@ -820,44 +820,6 @@ bool vtkAxis::SetCustomTickPositions(vtkDoubleArray *positions,
     }
 }
 
-#ifndef VTK_LEGACY_REMOVE
-//-----------------------------------------------------------------------------
-void vtkAxis::SetTickPositions(vtkDoubleArray* array)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkAxis::SetTickPositions, "VTK 6.0",
-                           vtkAxis::SetCustomTickPositions);
-  if (!array)
-    {
-    this->TickPositions->SetNumberOfTuples(0);
-    }
-  else
-    {
-    this->TickPositions->DeepCopy(array);
-    }
-  this->CustomTickLabels = true;
-  this->TickMarksDirty = false;
-  this->Modified();
-}
-
-//-----------------------------------------------------------------------------
-void vtkAxis::SetTickLabels(vtkStringArray* array)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkAxis::SetTickLabels, "VTK 6.0",
-                           vtkAxis::SetCustomTickPositions);
-  if (!array)
-    {
-    this->TickLabels->SetNumberOfTuples(0);
-    }
-  else
-    {
-    this->TickLabels->DeepCopy(array);
-    }
-  this->CustomTickLabels = true;
-  this->TickMarksDirty = false;
-  this->Modified();
-}
-#endif // VTK_LEGACY_REMOVE
-
 //-----------------------------------------------------------------------------
 vtkRectf vtkAxis::GetBoundingRect(vtkContext2D* painter)
 {

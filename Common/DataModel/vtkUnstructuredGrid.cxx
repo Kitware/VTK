@@ -2090,11 +2090,3 @@ vtkUnstructuredGrid* vtkUnstructuredGrid::GetData(vtkInformationVector* v,
 {
   return vtkUnstructuredGrid::GetData(v->GetInformationObject(i));
 }
-
-//----------------------------------------------------------------------------
-#ifndef VTK_LEGACY_REMOVE
-void vtkUnstructuredGrid::GetCellNeighbors(vtkIdType cellId, vtkIdList& ptIds, vtkIdList& cellIds)
-{
-  this->GetCellNeighbors(cellId, &ptIds, &cellIds);
-}
-#endif

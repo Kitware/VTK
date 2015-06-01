@@ -293,13 +293,6 @@ public:
     STANDARD_NOTATION = 0,
     SCIENTIFIC_NOTATION,
     FIXED_NOTATION,
-
-#ifndef VTK_LEGACY_REMOVE
-    // deprecated, use the *_NOTATION versions above
-    STANDARD = STANDARD_NOTATION,
-    SCIENTIFIC = SCIENTIFIC_NOTATION,
-    MIXED = FIXED_NOTATION
-#endif
   };
 
   // Description:
@@ -388,16 +381,6 @@ public:
   // must be of the same length. Returns true on success, false on failure.
   virtual bool SetCustomTickPositions(vtkDoubleArray* positions,
                                       vtkStringArray* labels = 0);
-
-  // Description:
-  // Set the tick positions (in plot coordinates).
-  // \deprecated 6.0 Use the two parameter SetTickPositions function.
-  VTK_LEGACY(virtual void SetTickPositions(vtkDoubleArray* positions));
-
-  // Description:
-  // Set the tick labels for the axis.
-  // \deprecated 6.0 Use the two parameter SetTickPositions function.
-  VTK_LEGACY(virtual void SetTickLabels(vtkStringArray* labels));
 
   // Description:
   // Request the space the axes require to be drawn. This is returned as a

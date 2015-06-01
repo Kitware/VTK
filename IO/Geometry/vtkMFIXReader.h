@@ -108,11 +108,6 @@ public:
   void EnableAllCellArrays();
 
   // Description:
-  // Get the range of cell data. The index parameter is ignored.
-  // @deprecated Replaced by GetCellDataRange as of VTK 6.0
-  VTK_LEGACY(void GetCellDataRange(int cellComp, int index, float *min, float *max));
-
-  // Description:
   // Get the range of cell data.
   void GetCellDataRange(int cellComp, float *min, float *max);
 

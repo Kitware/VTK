@@ -45,13 +45,6 @@
 #include "vtkImagingGeneralModule.h" // For export macro
 #include "vtkImageReslice.h"
 
-// For backwards compatibility
-#ifndef VTK_LEGACY_REMOVE
-#define VTK_IMAGESLAB_BLEND_MIN VTK_IMAGE_SLAB_MIN
-#define VTK_IMAGESLAB_BLEND_MAX VTK_IMAGE_SLAB_MAX
-#define VTK_IMAGESLAB_BLEND_MEAN VTK_IMAGE_SLAB_MEAN
-#endif
-
 class VTKIMAGINGGENERAL_EXPORT vtkImageSlabReslice : public vtkImageReslice
 {
 public:

@@ -168,14 +168,6 @@ public:
   // Description:
   // Get the y component of the vector, i.e. element 1.
   const T& GetY() const { return this->Data[1]; }
-
-  // Description:
-  // Legacy method for getting the x component.
-  VTK_LEGACY(const T& X() const);
-
-  // Description:
-  // Legacy method for getting the y component.
-  VTK_LEGACY(const T& Y() const);
 };
 
 // .NAME vtkVector3 - templated base type for storage of 3D vectors.
@@ -246,18 +238,6 @@ public:
     res[2] = this->Data[0] * other.Data[1] - this->Data[1] * other.Data[0];
     return res;
   }
-
-  // Description:
-  // Legacy method for getting the x component.
-  VTK_LEGACY(const T& X() const);
-
-  // Description:
-  // Legacy method for getting the y component.
-  VTK_LEGACY(const T& Y() const);
-
-  // Description:
-  // Legacy method for getting the z component.
-  VTK_LEGACY(const T& Z() const);
 };
 
 // Description:
@@ -341,43 +321,6 @@ public:
   vtkVectorDerivedMacro(vtkVector3d, double, 3)
   vtkVector3Cross(vtkVector3d, double)
 };
-
-#ifndef VTK_LEGACY_REMOVE
-template<typename T>
-const T& vtkVector2<T>::X() const
-{
-  VTK_LEGACY_REPLACED_BODY(vtkVector2::X, "VTK 6.0", vtkVector2::GetX);
-  return this->GetX();
-}
-
-template<typename T>
-const T& vtkVector2<T>::Y() const
-{
-  VTK_LEGACY_REPLACED_BODY(vtkVector2::Y, "VTK 6.0", vtkVector2::GetY);
-  return this->GetY();
-}
-
-template<typename T>
-const T& vtkVector3<T>::X() const
-{
-  VTK_LEGACY_REPLACED_BODY(vtkVector3::X, "VTK 6.0", vtkVector3::GetX);
-  return this->GetX();
-}
-
-template<typename T>
-const T& vtkVector3<T>::Y() const
-{
-  VTK_LEGACY_REPLACED_BODY(vtkVector3::Y, "VTK 6.0", vtkVector3::GetY);
-  return this->GetY();
-}
-
-template<typename T>
-const T& vtkVector3<T>::Z() const
-{
-  VTK_LEGACY_REPLACED_BODY(vtkVector3::Z, "VTK 6.0", vtkVector3::GetZ);
-  return this->GetZ();
-}
-#endif // VTK_LEGACY_REMOVE
 
 #endif // vtkVector_h
 // VTK-HeaderTest-Exclude: vtkVector.h

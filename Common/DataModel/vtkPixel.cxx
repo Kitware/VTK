@@ -212,7 +212,7 @@ int vtkPixel::CellBoundary(int vtkNotUsed(subId), double pcoords[3], vtkIdList *
 //
 // Marching squares
 //
-#include "vtkMarchingSquaresCases.h"
+#include "vtkMarchingSquaresLineCases.h"
 
 static int edges[4][2] = { {0,1}, {1,3}, {2,3}, {0,2} };
 

@@ -74,25 +74,6 @@ class vtkUnsignedCharArray;
 #define VTK_CURSOR_HAND      9
 #define VTK_CURSOR_CROSSHAIR 10
 
-#ifndef VTK_LEGACY_REMOVE
-// This macro should not be used, see vtkOpenGLError.h for
-// GL error handling functions and macros.
-#if defined NDEBUG
-# define vtkGraphicErrorMacro(renderWindow,message)   \
-  renderWindow->CheckGraphicError();
-#else
-# define vtkGraphicErrorMacro(renderWindow,message)   \
-  renderWindow->CheckGraphicError();                  \
-  if ( renderWindow->GetReportGraphicErrors()         \
-    && renderWindow->HasGraphicError() )              \
-    {                                                 \
-    vtkErrorMacro(                                    \
-      << message << " "                               \
-      << renderWindow->GetLastGraphicErrorString());  \
-    }
-# endif
-#endif
-
 class VTKRENDERINGCORE_EXPORT vtkRenderWindow : public vtkWindow
 {
 public:
@@ -571,24 +552,6 @@ public:
   vtkGetMacro(StencilCapable, int);
   vtkBooleanMacro(StencilCapable, int);
 
-  // Description:
-  // @deprecated Replaced by
-  // the CMakeLists variable VTK_REPORT_OPENGL_ERRORS
-  // error reporting is enabled/disabled at compile time
-  VTK_LEGACY(void SetReportGraphicErrors(int val));
-  VTK_LEGACY(void SetReportGraphicErrorsOn());
-  VTK_LEGACY(void SetReportGraphicErrorsOff());
-  VTK_LEGACY(int GetReportGraphicErrors());
-
-#ifndef VTK_LEGACY_REMOVE
-  // Description:
-  // @deprecated Replaced by
-  // vtkOpenGLCheckErrorMacro
-  virtual void CheckGraphicError() = 0;
-  virtual int HasGraphicError() = 0;
-  virtual const char *GetLastGraphicErrorString() = 0;
-#endif
-
 protected:
   vtkRenderWindow();
   ~vtkRenderWindow();
@@ -635,14 +598,6 @@ protected:
   int MultiSamples;
   int StencilCapable;
   int CapturingGL2PSSpecialProps;
-
-#ifndef VTK_LEGACY_REMOVE
-  // Description:
-  // @deprecated Replaced by
-  // the CMakeLists variable VTK_REPORT_OPENGL_ERRORS
-  // error reporting is enabled/disabled at compile time
-  int ReportGraphicErrors;
-#endif
 
   // Description:
   // The universal time since the last abort check occurred.

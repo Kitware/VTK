@@ -144,18 +144,6 @@ public:
     { this->ReleasePixBuffers(); }
 
   // Description:
-  // @deprecated Replaced by
-  // PixelInformation* GetPixelInformation(unsigned int position[2]);
-  VTK_LEGACY(bool GetPixelInformation(unsigned int display_position[2],
-    int& processId, vtkIdType& attrId, vtkProp*& prop));
-
-  // Description:
-  // @deprecated Replaced by
-  // PixelInformation* GetPixelInformation(unsigned int position[2], int maxDist);
-  VTK_LEGACY(bool GetPixelInformation(unsigned int display_position[2],
-    int& processId, vtkIdType& attrId, vtkProp*& prop, int maxDist));
-
-  // Description:
   // Called by any vtkMapper or vtkProp subclass to render a composite-index.
   // Currently indices >= 0xffffff are not supported.
   virtual void RenderCompositeIndex(unsigned int index);

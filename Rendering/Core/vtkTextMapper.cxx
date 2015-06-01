@@ -431,33 +431,6 @@ unsigned long vtkTextMapper::GetMTime()
 }
 
 //----------------------------------------------------------------------------
-// Determine the number of lines in the Input string (delimited by "\n").
-#ifndef VTK_LEGACY_REMOVE
-int vtkTextMapper::GetNumberOfLines(const char *input)
-{
-  VTK_LEGACY_BODY(vtkTextMapper::GetNumberOfLines, "VTK 6.0")
-  if ( input == NULL || input[0] == '\0')
-    {
-    return 0;
-    }
-
-  int numLines=1;
-  const char *ptr = input;
-
-  while ( ptr != NULL )
-    {
-    if ( (ptr=strstr(ptr,"\n")) != NULL )
-      {
-      numLines++;
-      ptr++; //skip over \n
-      }
-    }
-
-  return numLines;
-}
-#endif // VTK_LEGACY_REMOVE
-
-//----------------------------------------------------------------------------
 void vtkTextMapper::UpdateQuad(vtkActor2D *actor, int dpi)
 {
   vtkDebugMacro(<<"UpdateQuad called");
@@ -571,29 +544,3 @@ void vtkTextMapper::UpdateImage(int dpi)
       }
     }
 }
-
-#ifndef VTK_LEGACY_REMOVE
-int vtkTextMapper::GetNumberOfLines()
-{
-  VTK_LEGACY_BODY(vtkTextMapper::GetNumberOfLines, "VTK 6.0")
-  const char *input = this->Input;
-  if ( input == NULL || input[0] == '\0')
-    {
-    return 0;
-    }
-
-  int numLines=1;
-  const char *ptr = input;
-
-  while ( ptr != NULL )
-    {
-    if ( (ptr=strstr(ptr,"\n")) != NULL )
-      {
-      numLines++;
-      ptr++; //skip over \n
-      }
-    }
-
-  return numLines;
-}
-#endif // VTK_LEGACY_REMOVE

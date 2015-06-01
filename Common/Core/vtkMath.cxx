@@ -3170,21 +3170,3 @@ bool vtkMath::IsFinite(double x)
   return !vtkMath::IsNan(x) && !vtkMath::IsInf(x);
 }
 #endif
-
-#ifndef VTK_LEGACY_REMOVE
-//-----------------------------------------------------------------------------
-double vtkMath::DoublePi()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkMath::DoublePi, "VTK 6.0", vtkMath::Pi);
-  return vtkMath::Pi();
-}
-#endif
-
-#ifndef VTK_LEGACY_REMOVE
-//-----------------------------------------------------------------------------
-double vtkMath::DoubleTwoPi()
-{
-  VTK_LEGACY_BODY(vtkMath::DoubleTwoPi, "VTK 6.0");
-  return 2.0*vtkMath::Pi();
-};
-#endif
