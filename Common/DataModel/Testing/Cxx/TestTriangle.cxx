@@ -21,6 +21,7 @@
 #include "vtkPoints.h"
 #include <limits>
 #include "vtkSmartPointer.h"
+#include "vtkNew.h"
 
 template<class A>
 bool fuzzyCompare(A a, A b) {
@@ -118,5 +119,35 @@ int TestTriangle(int,char *[])
     return EXIT_FAILURE;
     }
 
+  // Testing degenerated triangle
+  double pntDeg0[3] = { 0, 0, -10 };
+  double pntDeg1[3] = { 0, 0, 0 };
+  double pntDeg2[3] = { 0, 0, 10 };
+  vtkNew<vtkTriangle> triangleDeg;
+  triangleDeg->GetPoints()->SetPoint(0, pntDeg0);
+  triangleDeg->GetPoints()->SetPoint(1, pntDeg1);
+  triangleDeg->GetPoints()->SetPoint(2, pntDeg2);
+
+  double p1[3] = { 0, 1, 1 };
+  double p2[3] = { 0, -1, 1 };
+  double t;
+  double x[3];
+  double pcoords[3];
+  int subId;
+  double dEpsilon = std::numeric_limits<double>::epsilon();
+  if (triangleDeg->IntersectWithLine(p1, p2, dEpsilon, t, x, pcoords, subId) != 1
+     || x[0] != 0 || x[1] != 0 || x[2] != 1 || t != 0.5 || pcoords[0] != 1.1
+     || pcoords[1] != 0.55 || pcoords[2] != 0)
+    {
+    cerr<<"Error while intersecting degenerated triangle"<<endl;
+    return EXIT_FAILURE;
+    }
+  double p1b[3] = { 0, 1, 10.001 };
+  double p2b[3] = { 0, -1, 10.001 };
+  if (triangleDeg->IntersectWithLine(p1b, p2b, dEpsilon, t, x, pcoords, subId) != 0)
+    {
+    cerr<<"Error while intersecting degenerated triangle"<<endl;
+    return EXIT_FAILURE;
+    }
   return EXIT_SUCCESS;
 }
