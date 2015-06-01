@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkStructuredGridLIC2D.h"
 
-#include "vtkglVBOHelper.h"
+#include "vtkOpenGLHelper.h"
 
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
@@ -546,7 +546,7 @@ int vtkStructuredGridLIC2D::RequestData(
   this->FBOSuccess = 1;
 
   // build the shader program
-  this->LICProgram = new vtkgl::CellBO;
+  this->LICProgram = new vtkOpenGLHelper;
   std::string VSSource = vtkTextureObjectVS;
   std::string FSSource = vtkStructuredGridLIC2D_fs;
   std::string GSSource;
@@ -585,7 +585,7 @@ int vtkStructuredGridLIC2D::RequestData(
   vtkDebugMacro( << "glFinish before rendering quad" << endl );
 
   fbo->RenderQuad(0, magWidth-1,0, magHeight-1,
-    pgm, &this->LICProgram->vao);
+    pgm, this->LICProgram->VAO);
   vtkOpenGLCheckErrorMacro("StructuredGridLIC2D projection fialed");
 
   vtkDebugMacro( << "glFinish after rendering quad" << endl );

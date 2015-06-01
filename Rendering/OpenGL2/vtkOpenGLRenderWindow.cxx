@@ -15,24 +15,27 @@
 #include "vtk_glew.h"
 #include "vtkOpenGLRenderWindow.h"
 
-#include "vtkglVBOHelper.h"
+#include "vtkOpenGLHelper.h"
 
 #include <cassert>
+
 #include "vtkFloatArray.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLActor.h"
+#include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLCamera.h"
+#include "vtkOpenGLError.h"
 #include "vtkOpenGLLight.h"
 #include "vtkOpenGLProperty.h"
 #include "vtkOpenGLRenderer.h"
-#include "vtkOpenGLError.h"
-#include "vtkUnsignedCharArray.h"
 #include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLVertexArrayObject.h"
+#include "vtkRendererCollection.h"
 #include "vtkStdString.h"
 #include "vtkTextureObject.h"
 #include "vtkTextureUnitManager.h"
-#include "vtkRendererCollection.h"
+#include "vtkUnsignedCharArray.h"
 
 #include <sstream>
 using std::ostringstream;
@@ -748,7 +751,7 @@ int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 void vtkOpenGLRenderWindow::RenderQuad(
   float *verts,
   float *tcoords,
-  vtkShaderProgram *program, vtkgl::VertexArrayObject *vao)
+  vtkShaderProgram *program, vtkOpenGLVertexArrayObject *vao)
 {
   GLuint iboData[] = {0, 1, 2, 0, 2, 3};
   vtkOpenGLRenderWindow::RenderTriangles(verts, 4,
@@ -765,46 +768,46 @@ void vtkOpenGLRenderWindow::RenderTriangles(
   float *verts, unsigned int numVerts,
   GLuint *iboData, unsigned int numIndices,
   float *tcoords,
-  vtkShaderProgram *program, vtkgl::VertexArrayObject *vao)
+  vtkShaderProgram *program, vtkOpenGLVertexArrayObject *vao)
 {
   if (!program || !vao || !verts)
     {
     vtkGenericWarningMacro(<< "Error must have verts, program and vao");
     }
 
-  vtkgl::BufferObject vbo;
-  vbo.Upload(verts, numVerts*3, vtkgl::BufferObject::ArrayBuffer);
+  vtkNew<vtkOpenGLBufferObject> vbo;
+  vbo->Upload(verts, numVerts*3, vtkOpenGLBufferObject::ArrayBuffer);
   vao->Bind();
-  if (!vao->AddAttributeArray(program, vbo, "vertexMC", 0,
+  if (!vao->AddAttributeArray(program, vbo.Get(), "vertexMC", 0,
       sizeof(float)*3, VTK_FLOAT, 3, false))
     {
     vtkGenericWarningMacro(<< "Error setting 'vertexMC' in shader VAO.");
     }
 
-  vtkgl::BufferObject tvbo;
+  vtkNew<vtkOpenGLBufferObject> tvbo;
   if (tcoords)
     {
-    tvbo.Upload(tcoords, numVerts*2, vtkgl::BufferObject::ArrayBuffer);
-    if (!vao->AddAttributeArray(program, tvbo, "tcoordMC", 0,
+    tvbo->Upload(tcoords, numVerts*2, vtkOpenGLBufferObject::ArrayBuffer);
+    if (!vao->AddAttributeArray(program, tvbo.Get(), "tcoordMC", 0,
         sizeof(float)*2, VTK_FLOAT, 2, false))
       {
       vtkGenericWarningMacro(<< "Error setting 'tcoordMC' in shader VAO.");
       }
     }
 
-  vtkgl::BufferObject ibo;
+  vtkNew<vtkOpenGLBufferObject> ibo;
   vao->Bind();
-  ibo.Upload(iboData, numIndices, vtkgl::BufferObject::ElementArrayBuffer);
+  ibo->Upload(iboData, numIndices, vtkOpenGLBufferObject::ElementArrayBuffer);
   glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT,
     reinterpret_cast<const GLvoid *>(NULL));
-  ibo.Release();
+  ibo->Release();
   vao->RemoveAttributeArray("vertexMC");
   vao->RemoveAttributeArray("tcoordMC");
   vao->Release();
-  vbo.Release();
+  vbo->Release();
   if (tcoords)
     {
-    tvbo.Release();
+    tvbo->Release();
     }
 }
 

@@ -59,14 +59,11 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkImageProcessingPass.h"
 
-class vtkOpenGLRenderWindow;
 class vtkDepthPeelingPassLayerList; // Pimpl
 class vtkFrameBufferObject;
+class vtkOpenGLHelper;
+class vtkOpenGLRenderWindow;
 class vtkTextureObject;
-namespace vtkgl
-{
-class CellBO;
-}
 
 
 class VTKRENDERINGOPENGL2_EXPORT vtkSobelGradientMagnitudePass : public vtkImageProcessingPass
@@ -106,8 +103,8 @@ public:
   vtkTextureObject *Gy1; // render target 1 for the first shader
 
   // Structures for the various cell types we render.
-  vtkgl::CellBO *Program1; // shader to compute Gx1 and Gy1
-  vtkgl::CellBO *Program2; // shader to compute |G| from Gx1 and Gy1
+  vtkOpenGLHelper *Program1; // shader to compute Gx1 and Gy1
+  vtkOpenGLHelper *Program2; // shader to compute |G| from Gx1 and Gy1
 
  private:
   vtkSobelGradientMagnitudePass(const vtkSobelGradientMagnitudePass&);  // Not implemented.

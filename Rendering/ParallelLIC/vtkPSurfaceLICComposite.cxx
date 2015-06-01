@@ -29,7 +29,7 @@
 
 
 #ifdef VTK_OPENGL2
-# include "vtkglVBOHelper.h"
+# include "vtkOpenGLHelper.h"
 # include "vtkOpenGLShaderCache.h"
 # include "vtkShaderProgram.h"
 # include "vtkTextureObjectVS.h"
@@ -392,7 +392,7 @@ void vtkPSurfaceLICComposite::SetContext(vtkOpenGLRenderWindow *rwin)
     {
     // load, compile, and link the shader
 #ifdef VTK_OPENGL2
-    this->CompositeShader = new vtkgl::CellBO;
+    this->CompositeShader = new vtkOpenGLHelper;
     std::string GSSource;
     this->CompositeShader->Program =
         rwin->GetShaderCache()->ReadyShader(vtkTextureObjectVS,
@@ -1623,7 +1623,7 @@ int vtkPSurfaceLICComposite::ExecuteShader(
       fext[0]*2.0-1.0, fext[3]*2.0-1.0, 0.0f};
 
     vtkOpenGLRenderWindow::RenderQuad(verts, tcoords,
-      this->CompositeShader->Program, &this->CompositeShader->vao);
+      this->CompositeShader->Program, this->CompositeShader->VAO);
     tex->Deactivate();
 #else
   tex->Activate(GL_TEXTURE0);

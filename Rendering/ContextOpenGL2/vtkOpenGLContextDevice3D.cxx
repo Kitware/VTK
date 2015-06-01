@@ -16,22 +16,21 @@
 #include "vtkOpenGLContextDevice3D.h"
 
 #include "vtkBrush.h"
-#include "vtkPen.h"
-
 #include "vtkMatrix4x4.h"
+#include "vtkObjectFactory.h"
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLContextDevice2D.h"
-#include "vtkOpenGLRenderer.h"
-#include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
-
-#include "vtkObjectFactory.h"
-
+#include "vtkOpenGLHelper.h"
+#include "vtkOpenGLIndexBufferObject.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLShaderCache.h"
+#include "vtkOpenGLVertexArrayObject.h"
+#include "vtkOpenGLVertexBufferObject.h"
+#include "vtkPen.h"
 #include "vtkShaderProgram.h"
-
 #include "vtkTransform.h"
-#include "vtkglVBOHelper.h"
 
 class vtkOpenGLContextDevice3D::Private
 {
@@ -117,8 +116,8 @@ vtkOpenGLContextDevice3D::vtkOpenGLContextDevice3D() : Storage(new Private)
 {
   this->ModelMatrix = vtkTransform::New();
   this->ModelMatrix->Identity();
-  this->VBO =  new vtkgl::CellBO;
-  this->VCBO =  new vtkgl::CellBO;
+  this->VBO =  new vtkOpenGLHelper;
+  this->VCBO =  new vtkOpenGLHelper;
   this->ClippingPlaneStates.resize(6,false);
   this->ClippingPlaneValues.resize(24);
 }
@@ -187,7 +186,7 @@ void vtkOpenGLContextDevice3D::SetMatrices(vtkShaderProgram *prog)
 }
 
 void vtkOpenGLContextDevice3D::BuildVBO(
-  vtkgl::CellBO *cellBO,
+  vtkOpenGLHelper *cellBO,
   const float *f, int nv,
   const unsigned char *colors, int nc,
   float *tcoords)
@@ -208,7 +207,7 @@ void vtkOpenGLContextDevice3D::BuildVBO(
 
   std::vector<float> va;
   va.resize(nv*stride);
-  vtkgl::vtkucfloat c;
+  vtkucfloat c;
   for (int i = 0; i < nv; i++)
     {
     va[i*stride] = f[i*3];
@@ -237,10 +236,10 @@ void vtkOpenGLContextDevice3D::BuildVBO(
     }
 
   // upload the data
-  cellBO->ibo.Upload(va, vtkgl::BufferObject::ArrayBuffer);
-  cellBO->vao.Bind();
-  if (!cellBO->vao.AddAttributeArray(
-        cellBO->Program, cellBO->ibo,
+  cellBO->IBO->Upload(va, vtkOpenGLBufferObject::ArrayBuffer);
+  cellBO->VAO->Bind();
+  if (!cellBO->VAO->AddAttributeArray(
+        cellBO->Program, cellBO->IBO,
         "vertexMC", 0,
         sizeof(float)*stride,
         VTK_FLOAT, 3, false))
@@ -249,8 +248,8 @@ void vtkOpenGLContextDevice3D::BuildVBO(
     }
   if (colors)
     {
-    if (!cellBO->vao.AddAttributeArray(
-          cellBO->Program, cellBO->ibo,
+    if (!cellBO->VAO->AddAttributeArray(
+          cellBO->Program, cellBO->IBO,
           "vertexScalar", sizeof(float)*cOffset,
           sizeof(float)*stride,
           VTK_UNSIGNED_CHAR, 4, true))
@@ -260,8 +259,8 @@ void vtkOpenGLContextDevice3D::BuildVBO(
     }
   if (tcoords)
     {
-    if (!cellBO->vao.AddAttributeArray(
-          cellBO->Program, cellBO->ibo,
+    if (!cellBO->VAO->AddAttributeArray(
+          cellBO->Program, cellBO->IBO,
           "tcoordMC", sizeof(float)*tOffset,
           sizeof(float)*stride,
           VTK_FLOAT, 2, false))
@@ -270,7 +269,7 @@ void vtkOpenGLContextDevice3D::BuildVBO(
       }
     }
 
-  cellBO->vao.Bind();
+  cellBO->VAO->Bind();
 }
 
 void vtkOpenGLContextDevice3D::ReadyVBOProgram()
@@ -383,7 +382,7 @@ void vtkOpenGLContextDevice3D::DrawPoly(const float *verts, int n,
     }
   glLineWidth(this->Pen->GetWidth());
 
-  vtkgl::CellBO *cbo = 0;
+  vtkOpenGLHelper *cbo = 0;
   if (colors)
     {
     this->ReadyVCBOProgram();
@@ -436,7 +435,7 @@ void vtkOpenGLContextDevice3D::DrawLines(const float *verts, int n,
     }
   glLineWidth(this->Pen->GetWidth());
 
-  vtkgl::CellBO *cbo = 0;
+  vtkOpenGLHelper *cbo = 0;
   if (colors)
     {
     this->ReadyVCBOProgram();
@@ -476,7 +475,7 @@ void vtkOpenGLContextDevice3D::DrawPoints(const float *verts, int n,
 
   glPointSize(this->Pen->GetWidth());
 
-  vtkgl::CellBO *cbo = 0;
+  vtkOpenGLHelper *cbo = 0;
   if (colors)
     {
     this->ReadyVCBOProgram();
@@ -514,7 +513,7 @@ void vtkOpenGLContextDevice3D::DrawTriangleMesh(const float *mesh, int n,
 
   this->EnableDepthBuffer();
 
-  vtkgl::CellBO *cbo = 0;
+  vtkOpenGLHelper *cbo = 0;
   if (colors)
     {
     this->ReadyVCBOProgram();

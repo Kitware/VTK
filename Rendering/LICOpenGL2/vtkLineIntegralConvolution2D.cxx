@@ -16,8 +16,8 @@
 
 #include "vtk_glew.h"
 
-#include "vtkglVBOHelper.h"
-using vtkgl::substitute;
+#include "vtkOpenGLHelper.h"
+
 
 #include "vtkFloatArray.h"
 #include "vtkFrameBufferObject2.h"
@@ -685,7 +685,7 @@ public:
           float computeBoundsPt0[2],
           float computeBoundsPt1[2],
           vtkPixelExtent computeExtent,
-          vtkgl::CellBO *cbo)
+          vtkOpenGLHelper *cbo)
     {
     float computeBounds[4] = {
           computeBoundsPt0[0], computeBoundsPt1[0],
@@ -699,7 +699,7 @@ public:
   void RenderQuad(
           float computeBounds[4],
           vtkPixelExtent computeExtent,
-          vtkgl::CellBO *cbo)
+          vtkOpenGLHelper *cbo)
     {
     float quadBounds[4];
     computeExtent.CellToNode();
@@ -718,7 +718,7 @@ public:
       computeBounds[0]*2.0-1.0, computeBounds[3]*2.0-1.0, 0.0f};
 
     vtkOpenGLRenderWindow::RenderQuad(verts, tcoords,
-      cbo->Program, &cbo->vao);
+      cbo->Program, cbo->VAO);
     vtkOpenGLStaticCheckErrorMacro("failed at RenderQuad");
     }
 
@@ -1187,11 +1187,11 @@ void vtkLineIntegralConvolution2D::SetAAVShader(vtkShaderProgram * prog)
 
 namespace {
   void BuildAShader(vtkOpenGLRenderWindow *renWin,
-    vtkgl::CellBO **cbor, const char *frag)
+    vtkOpenGLHelper **cbor, const char *frag)
   {
   if (*cbor == NULL)
     {
-    *cbor = new vtkgl::CellBO;
+    *cbor = new vtkOpenGLHelper;
     std::string VSSource = vtkTextureObjectVS;
     std::string GSSource;
     (*cbor)->Program =
@@ -1212,7 +1212,7 @@ void vtkLineIntegralConvolution2D::BuildShaders()
   vtkOpenGLRenderWindow *renWin = this->Context;
 
   std::string FSSource = vtkLineIntegralConvolution2D_VT;
-  substitute(FSSource,"//VTK::LICComponentSelection::Impl",
+  vtkShaderProgram::Substitute(FSSource,"//VTK::LICComponentSelection::Impl",
     "vec2 V = texture2D(texVectors, tcoordVC.st)" +
     GetComponentSelectionProgram(this->ComponentIds) + ";"
     );
@@ -1223,7 +1223,7 @@ void vtkLineIntegralConvolution2D::BuildShaders()
     vtkLineIntegralConvolution2D_LIC0);
 
   FSSource = vtkLineIntegralConvolution2D_LICI;
-  substitute(FSSource,"//VTK::LICVectorLookup::Impl",
+  vtkShaderProgram::Substitute(FSSource,"//VTK::LICVectorLookup::Impl",
     GetVectorLookupProgram(this->NormalizeVectors)
     );
   BuildAShader(renWin, &this->LICIShader,

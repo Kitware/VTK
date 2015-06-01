@@ -98,6 +98,27 @@ vtkShaderProgram::~vtkShaderProgram()
     }
 }
 
+// Process the string, and return a version with replacements.
+bool vtkShaderProgram::Substitute(std::string &source, const std::string &search,
+             const std::string replace, bool all)
+{
+  std::string::size_type pos = 0;
+  bool replaced = false;
+  while ((pos = source.find(search, 0)) != std::string::npos)
+    {
+    source.replace(pos, search.length(), replace);
+    if (!all)
+      {
+      return true;
+      }
+    pos += search.length();
+    replaced = true;
+    }
+  return replaced;
+}
+
+
+
 template <class T> bool vtkShaderProgram::SetAttributeArray(const char *name,
                                                 const T &array, int tupleSize,
                                                 NormalizeOption normalize)

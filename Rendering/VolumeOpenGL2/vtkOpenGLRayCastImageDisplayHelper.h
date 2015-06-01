@@ -28,14 +28,11 @@
 #include "vtkRayCastImageDisplayHelper.h"
 
 class vtkFixedPointRayCastImage;
+class vtkOpenGLHelper;
 class vtkRenderer;
+class vtkTextureObject;
 class vtkVolume;
 class vtkWindow;
-class vtkTextureObject;
-namespace vtkgl
-{
-class CellBO;
-}
 
 class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkOpenGLRayCastImageDisplayHelper
   : public vtkRayCastImageDisplayHelper
@@ -82,7 +79,7 @@ protected:
 
   // used for copying to framebuffer
   vtkTextureObject *TextureObject;
-  vtkgl::CellBO *ShaderProgram;
+  vtkOpenGLHelper *ShaderProgram;
 
 
 

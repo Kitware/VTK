@@ -11,13 +11,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef vtkglBufferObject_h
-#define vtkglBufferObject_h
+#ifndef vtkOpenGLBufferObject_h
+#define vtkOpenGLBufferObject_h
 
-#include "vtkRenderingOpenGL2Module.h"
-#include "vtkStdString.h" // for std::string
+#include "vtkRenderingOpenGL2Module.h" // for export macro
+#include "vtkObject.h"
+#include <vector> // used for method args
 
-namespace vtkgl {
+class vtkCellArray;
+class vtkDataArray;
+class vtkPoints;
 
 /**
  * @brief OpenGL buffer object
@@ -26,26 +29,31 @@ namespace vtkgl {
  * GPU.
  */
 
-class VTKRENDERINGOPENGL2_EXPORT BufferObject
+class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLBufferObject : public vtkObject
 {
 public:
-  enum ObjectType {
+  static vtkOpenGLBufferObject *New();
+  vtkTypeMacro(vtkOpenGLBufferObject, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent);
+
+  enum ObjectType
+    {
     ArrayBuffer,
     ElementArrayBuffer,
     TextureBuffer
-  };
-
-  BufferObject(ObjectType type = ArrayBuffer);
-  ~BufferObject();
+    };
 
   /** Get the type of the buffer object. */
   ObjectType GetType() const;
+
+  /** Set the type of the buffer object. */
+  void SetType(ObjectType value);
 
   /** Get the handle of the buffer object. */
   int GetHandle() const;
 
   /** Determine if the buffer object is ready to be used. */
-  bool IsReady() const { return Dirty == false; }
+  bool IsReady() const { return this->Dirty == false; }
 
   /**
    * Upload data to the buffer object. The BufferObject::type() must match
@@ -85,33 +93,41 @@ public:
    */
   std::string GetError() const { return Error; }
 
-private:
-  bool UploadInternal(const void *buffer, size_t size, ObjectType objectType);
-
-  struct Private;
-  Private *d;
-
+protected:
+  vtkOpenGLBufferObject();
+  ~vtkOpenGLBufferObject();
   bool  Dirty;
   std::string Error;
+
+  bool UploadInternal(const void *buffer, size_t size, ObjectType objectType);
+
+private:
+  vtkOpenGLBufferObject(const vtkOpenGLBufferObject&); // Not implemented
+  void operator=(const vtkOpenGLBufferObject&); // Not implemented
+  struct Private;
+  Private *Internal;
 };
 
 template <class T>
-inline bool BufferObject::Upload(const T &array,
-                                 BufferObject::ObjectType objectType)
+inline bool vtkOpenGLBufferObject::Upload(
+  const T &array,
+  vtkOpenGLBufferObject::ObjectType objectType)
 {
   if (array.empty())
     {
     this->Error = "Refusing to upload empty array.";
     return false;
     }
+
   return this->UploadInternal(&array[0],
-                              array.size() * sizeof(typename T::value_type),
-                              objectType);
+            array.size() * sizeof(typename T::value_type),
+            objectType);
 }
 
 template <class T>
-inline bool BufferObject::Upload(const T *array, size_t numElements,
-                                 BufferObject::ObjectType objectType)
+inline bool vtkOpenGLBufferObject::Upload(
+  const T *array, size_t numElements,
+  vtkOpenGLBufferObject::ObjectType objectType)
 {
   if (!array)
     {
@@ -123,8 +139,4 @@ inline bool BufferObject::Upload(const T *array, size_t numElements,
                               objectType);
 }
 
-}
-
 #endif
-
-// VTK-HeaderTest-Exclude: vtkglBufferObject.h

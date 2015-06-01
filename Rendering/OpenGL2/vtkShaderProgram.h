@@ -176,6 +176,18 @@ public:
   // only valid for OpenGL 3.2 or later
   vtkSetMacro(NumberOfOutputs,unsigned int);
 
+  // Description:
+  // perform in place string substitutions, indicate if a substitution was done
+  // this is useful for building up shader strings which typically involve
+  // lots of string substitutions. Return true if a substitution was done.
+  static bool Substitute(
+    std::string &source,
+    const std::string &search,
+    const std::string replace,
+    bool all = true);
+
+
+
 protected:
   vtkShaderProgram();
   ~vtkShaderProgram();

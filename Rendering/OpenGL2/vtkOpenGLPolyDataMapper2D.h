@@ -26,16 +26,14 @@
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkPolyDataMapper2D.h"
-#include "vtkglVBOHelper.h" // used for ivars
+#include "vtkOpenGLHelper.h" // used for ivars
 
-class vtkRenderer;
+class vtkOpenGLBufferObject;
+class vtkOpenGLHelper;
+class vtkOpenGLVertexBufferObject;
 class vtkPoints;
+class vtkRenderer;
 class vtkTextureObject;
-
-namespace vtkgl {
-  class CellBO;
-  class BufferObject;
-}
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLPolyDataMapper2D : public vtkPolyDataMapper2D
 {
@@ -60,7 +58,7 @@ protected:
 
   // Description:
   // Does the shader source need to be recomputed
-  virtual bool GetNeedToRebuildShader(vtkgl::CellBO &cellBO, vtkViewport *ren, vtkActor2D *act);
+  virtual bool GetNeedToRebuildShader(vtkOpenGLHelper &cellBO, vtkViewport *ren, vtkActor2D *act);
 
   // Description:
   // Build the shader source code
@@ -71,37 +69,36 @@ protected:
 
   // Description:
   // Determine what shader to use and compile/link it
-  virtual void UpdateShader(vtkgl::CellBO &cellBO, vtkViewport *viewport, vtkActor2D *act);
+  virtual void UpdateShader(vtkOpenGLHelper &cellBO, vtkViewport *viewport, vtkActor2D *act);
 
   // Description:
   // Set the shader parameteres related to the mapper/input data, called by UpdateShader
-  virtual void SetMapperShaderParameters(vtkgl::CellBO &cellBO, vtkViewport *ren, vtkActor2D *act);
+  virtual void SetMapperShaderParameters(vtkOpenGLHelper &cellBO, vtkViewport *ren, vtkActor2D *act);
 
 
     // Description:
   // Set the shader parameteres related to the Camera
-  void SetCameraShaderParameters(vtkgl::CellBO &cellBO, vtkViewport *viewport, vtkActor2D *act);
+  void SetCameraShaderParameters(vtkOpenGLHelper &cellBO, vtkViewport *viewport, vtkActor2D *act);
 
   // Description:
   // Set the shader parameteres related to the property
-  void SetPropertyShaderParameters(vtkgl::CellBO &cellBO, vtkViewport *viewport, vtkActor2D *act);
+  void SetPropertyShaderParameters(vtkOpenGLHelper &cellBO, vtkViewport *viewport, vtkActor2D *act);
 
   // Description:
   // Update the scene when necessary.
   void UpdateVBO(vtkActor2D *act, vtkViewport *viewport);
 
   // The VBO and its layout.
-  vtkgl::BufferObject VBO;
-  vtkgl::VBOLayout Layout;
+  vtkOpenGLVertexBufferObject *VBO;
 
   // Structures for the various cell types we render.
-  vtkgl::CellBO Points;
-  vtkgl::CellBO Lines;
-  vtkgl::CellBO Tris;
-  vtkgl::CellBO TriStrips;
+  vtkOpenGLHelper Points;
+  vtkOpenGLHelper Lines;
+  vtkOpenGLHelper Tris;
+  vtkOpenGLHelper TriStrips;
 
   vtkTextureObject *CellScalarTexture;
-  vtkgl::BufferObject *CellScalarBuffer;
+  vtkOpenGLBufferObject *CellScalarBuffer;
   bool HaveCellScalars;
   int PrimitiveIDOffset;
 

@@ -30,7 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <cassert>
 #include <list>
 
-#include "vtkglVBOHelper.h"
+#include "vtkOpenGLHelper.h"
 
 // the 2D blending shaders we use
 #include "vtkDepthPeelingPassIntermediateFS.h"
@@ -220,7 +220,7 @@ void vtkDepthPeelingPass::BlendIntermediatePeels(
   // take the TranslucentRGBA texture and blend it with the current frame buffer
   if (!this->IntermediateBlendProgram)
     {
-    this->IntermediateBlendProgram = new vtkgl::CellBO;
+    this->IntermediateBlendProgram = new vtkOpenGLHelper;
     std::string VSSource = vtkTextureObjectVS;
     std::string FSSource = vtkDepthPeelingPassIntermediateFS;
     std::string GSSource;
@@ -245,7 +245,7 @@ void vtkDepthPeelingPass::BlendIntermediatePeels(
          this->ViewportWidth-1, this->ViewportHeight-1,
          0, 0, this->ViewportWidth, this->ViewportHeight,
          this->IntermediateBlendProgram->Program,
-         &this->IntermediateBlendProgram->vao);
+         this->IntermediateBlendProgram->VAO);
 }
 
 
@@ -253,7 +253,7 @@ void vtkDepthPeelingPass::BlendFinalPeel(vtkOpenGLRenderWindow *renWin)
 {
   if (!this->FinalBlendProgram)
     {
-    this->FinalBlendProgram = new vtkgl::CellBO;
+    this->FinalBlendProgram = new vtkOpenGLHelper;
     std::string VSSource = vtkTextureObjectVS;
     std::string FSSource = vtkDepthPeelingPassFinalFS;
     std::string GSSource;
@@ -280,7 +280,7 @@ void vtkDepthPeelingPass::BlendFinalPeel(vtkOpenGLRenderWindow *renWin)
          this->ViewportWidth-1, this->ViewportHeight-1,
          0, 0, this->ViewportWidth, this->ViewportHeight,
          this->FinalBlendProgram->Program,
-         &this->FinalBlendProgram->vao);
+         this->FinalBlendProgram->VAO);
 }
 
 

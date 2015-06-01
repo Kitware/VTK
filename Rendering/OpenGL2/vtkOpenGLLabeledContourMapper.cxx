@@ -26,7 +26,7 @@
 #include "vtkRenderer.h"
 #include "vtkShaderProgram.h"
 #include "vtkTextActor3D.h"
-#include "vtkglVBOHelper.h"
+#include "vtkOpenGLHelper.h"
 
 
 
@@ -36,7 +36,7 @@ vtkStandardNewMacro(vtkOpenGLLabeledContourMapper)
 //------------------------------------------------------------------------------
 vtkOpenGLLabeledContourMapper::vtkOpenGLLabeledContourMapper()
 {
-  this->StencilBO =  new vtkgl::CellBO;
+  this->StencilBO =  new vtkOpenGLHelper;
   this->TempMatrix4 = vtkMatrix4x4::New();
 }
 
@@ -148,7 +148,7 @@ bool vtkOpenGLLabeledContourMapper::ApplyStencil(vtkRenderer *ren,
     this->StencilQuadIndicesSize,
     NULL,
     this->StencilBO->Program,
-    &this->StencilBO->vao);
+    this->StencilBO->VAO);
 
   // Restore state:
   glColorMask(colorMask[0], colorMask[1], colorMask[2], colorMask[3]);

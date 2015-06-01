@@ -48,7 +48,7 @@
 #ifdef VTKGL2
 # include "vtkOpenGLShaderCache.h"
 # include "vtkShaderProgram.h"
-# include "vtkglVBOHelper.h"
+# include "vtkOpenGLHelper.h"
 # include "vtkTextureObjectVS.h"
 # include "vtkCompositeZPassFS.h"
 #else
@@ -501,7 +501,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
       this->ZTexture->CopyToFrameBuffer(0, 0, w - 1, h - 1,
                                         0, 0, w, h,
                                         this->Program->Program,
-                                        &this->Program->vao);
+                                        this->Program->VAO);
 #else
       this->ZTexture->Bind();
       this->ZTexture->CopyToFrameBuffer(0,0,
@@ -770,7 +770,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
     this->ZTexture->CopyToFrameBuffer(0, 0, w - 1, h - 1,
                                       0, 0, w, h,
                                       this->Program->Program,
-                                      &this->Program->vao);
+                                      this->Program->VAO);
     this->ZTexture->Deactivate();
 #else
     vtkTextureUnitManager *tu=context->GetTextureUnitManager();
@@ -805,7 +805,7 @@ void vtkCompositeZPass::CreateProgram(vtkOpenGLRenderWindow *context)
   assert("pre: Program_void" && this->Program==0);
 
 #ifdef VTKGL2
-  this->Program = new vtkgl::CellBO;
+  this->Program = new vtkOpenGLHelper;
   this->Program->Program =
     context->GetShaderCache()->ReadyShader(vtkTextureObjectVS,
                                            vtkCompositeZPassFS,

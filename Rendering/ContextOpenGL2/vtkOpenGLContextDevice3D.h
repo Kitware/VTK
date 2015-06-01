@@ -28,16 +28,13 @@
 #include <vector> // STL Header
 
 class vtkBrush;
-class vtkOpenGLRenderWindow;
 class vtkOpenGLContextDevice2D;
+class vtkOpenGLHelper;
+class vtkOpenGLRenderWindow;
 class vtkPen;
 class vtkRenderer;
-class vtkTransform;
 class vtkShaderProgram;
-namespace vtkgl
-{
-class CellBO;
-}
+class vtkTransform;
 
 class VTKRENDERINGCONTEXTOPENGL2_EXPORT vtkOpenGLContextDevice3D : public vtkContextDevice3D
 {
@@ -136,13 +133,13 @@ protected:
   // End drawing, turn off the depth buffer.
   virtual void DisableDepthBuffer();
 
-  vtkgl::CellBO *VCBO;  // vertex + color
+  vtkOpenGLHelper *VCBO;  // vertex + color
   void ReadyVCBOProgram();
-  vtkgl::CellBO *VBO;  // vertex
+  vtkOpenGLHelper *VBO;  // vertex
   void ReadyVBOProgram();
 
   void SetMatrices(vtkShaderProgram *prog);
-  void BuildVBO(vtkgl::CellBO *cbo,
+  void BuildVBO(vtkOpenGLHelper *cbo,
     const float *v, int nv,
     const unsigned char *coolors, int nc,
     float *tcoords);

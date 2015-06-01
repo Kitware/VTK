@@ -25,8 +25,11 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLBufferObject.h"
+#include "vtkOpenGLIndexBufferObject.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLTexture.h"
+#include "vtkOpenGLVertexBufferObject.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
@@ -355,11 +358,11 @@ void vtkCompositePolyDataMapper2::RenderPieceDraw(
     }
 
   // draw polygons
-  if (this->Tris.indexCount)
+  if (this->Tris.IBO->IndexCount)
     {
     // First we do the triangles, update the shader, set uniforms, etc.
     this->UpdateShader(this->Tris, ren, actor);
-    this->Tris.ibo.Bind();
+    this->Tris.IBO->Bind();
     GLenum mode = (representation == VTK_POINTS) ? GL_POINTS :
       (representation == VTK_WIREFRAME) ? GL_LINES : GL_TRIANGLES;
     unsigned int modeDenom = (representation == VTK_POINTS) ? 1 :
@@ -410,7 +413,7 @@ void vtkCompositePolyDataMapper2::RenderPieceDraw(
         ((it->EndIndex - it->StartIndex + 1)/modeDenom);
       }
 
-    this->Tris.ibo.Release();
+    this->Tris.IBO->Release();
     }
 
 }
@@ -430,11 +433,11 @@ void vtkCompositePolyDataMapper2::RenderEdges(
   this->DrawingEdges = true;
 
   // draw polygons
-  if (this->TrisEdges.indexCount)
+  if (this->TrisEdges.IBO->IndexCount)
     {
     // First we do the triangles, update the shader, set uniforms, etc.
     this->UpdateShader(this->TrisEdges, ren, actor);
-    this->TrisEdges.ibo.Bind();
+    this->TrisEdges.IBO->Bind();
     std::vector<
       vtkCompositePolyDataMapper2::RenderValue>::iterator it;
     for (it = this->RenderValues.begin(); it != this->RenderValues.end(); it++)
@@ -449,7 +452,7 @@ void vtkCompositePolyDataMapper2::RenderEdges(
           reinterpret_cast<const GLvoid *>(it->StartEdgeIndex*sizeof(GLuint)));
         }
       }
-    this->TrisEdges.ibo.Release();
+    this->TrisEdges.IBO->Release();
     }
 
   this->DrawingEdges = false;
@@ -556,7 +559,7 @@ void vtkCompositePolyDataMapper2::BuildBufferObjects(
     this->GetInputDataObject(0, 0));
 
   // render using the composite data attributes
-  this->Layout.VertexCount = 0;
+  this->VBO->VertexCount = 0;
 
   // compute the MaximumFlatIndex
   this->MaximumFlatIndex = 0;
@@ -586,27 +589,24 @@ void vtkCompositePolyDataMapper2::BuildBufferObjects(
     vtkPolyData *pd = vtkPolyData::SafeDownCast(dso);
     this->AppendOneBufferObject(ren, act, pd, voffset, newColors, newNorms);
     this->VertexOffsets[fidx] =
-      static_cast<unsigned int>(this->Layout.VertexCount);
-    voffset = static_cast<unsigned int>(this->Layout.VertexCount);
+      static_cast<unsigned int>(this->VBO->VertexCount);
+    voffset = static_cast<unsigned int>(this->VBO->VertexCount);
     this->IndexOffsets[fidx] =
       static_cast<unsigned int>(this->IndexArray.size());
     this->EdgeIndexOffsets[fidx] =
       static_cast<unsigned int>(this->EdgeIndexArray.size());
     }
 
-  this->VBO.Upload(this->Layout.PackedVBO, vtkgl::BufferObject::ArrayBuffer);
-  this->Layout.PackedVBO.resize(0);
-  this->Tris.ibo.Upload(this->IndexArray,
-    vtkgl::BufferObject::ElementArrayBuffer);
-  this->Tris.indexCount = this->IndexArray.size();
+  this->VBO->Upload(this->VBO->PackedVBO, vtkOpenGLBufferObject::ArrayBuffer);
+  this->VBO->PackedVBO.resize(0);
+  this->Tris.IBO->Upload(this->IndexArray,
+    vtkOpenGLBufferObject::ElementArrayBuffer);
+  this->Tris.IBO->IndexCount = this->IndexArray.size();
   this->IndexArray.resize(0);
-  this->TrisEdges.ibo.Upload(this->EdgeIndexArray,
-    vtkgl::BufferObject::ElementArrayBuffer);
-  this->TrisEdges.indexCount = this->EdgeIndexArray.size();
+  this->TrisEdges.IBO->Upload(this->EdgeIndexArray,
+    vtkOpenGLBufferObject::ElementArrayBuffer);
+  this->TrisEdges.IBO->IndexCount = this->EdgeIndexArray.size();
   this->EdgeIndexArray.resize(0);
-  this->Points.indexCount = 0;
-  this->Lines.indexCount = 0;
-  this->TriStrips.indexCount = 0;
 
   // allocate as needed
   if (this->HaveCellScalars || this->HavePickScalars)
@@ -614,12 +614,12 @@ void vtkCompositePolyDataMapper2::BuildBufferObjects(
     if (!this->CellScalarTexture)
       {
       this->CellScalarTexture = vtkTextureObject::New();
-      this->CellScalarBuffer = new vtkgl::BufferObject;
+      this->CellScalarBuffer = vtkOpenGLBufferObject::New();
       }
     this->CellScalarTexture->SetContext(
       static_cast<vtkOpenGLRenderWindow*>(ren->GetVTKWindow()));
     this->CellScalarBuffer->Upload(newColors,
-      vtkgl::BufferObject::TextureBuffer);
+      vtkOpenGLBufferObject::TextureBuffer);
     this->CellScalarTexture->CreateTextureBuffer(
       static_cast<unsigned int>(newColors.size()/4),
       4,
@@ -632,12 +632,12 @@ void vtkCompositePolyDataMapper2::BuildBufferObjects(
     if (!this->CellNormalTexture)
       {
       this->CellNormalTexture = vtkTextureObject::New();
-      this->CellNormalBuffer = new vtkgl::BufferObject;
+      this->CellNormalBuffer = vtkOpenGLBufferObject::New();
       }
     this->CellNormalTexture->SetContext(
       static_cast<vtkOpenGLRenderWindow*>(ren->GetVTKWindow()));
     this->CellNormalBuffer->Upload(newNorms,
-      vtkgl::BufferObject::TextureBuffer);
+      vtkOpenGLBufferObject::TextureBuffer);
     this->CellNormalTexture->CreateTextureBuffer(
       static_cast<unsigned int>(newNorms.size()/4),
       4, VTK_FLOAT,
@@ -760,7 +760,7 @@ void vtkCompositePolyDataMapper2::AppendOneBufferObject(
     }
 
   // Build the VBO
-  AppendVBO(this->Layout, poly->GetPoints(),
+  this->VBO->AppendVBO(poly->GetPoints(),
             poly->GetPoints()->GetNumberOfPoints(),
             n, tcoords,
             c ? (unsigned char *)c->GetVoidPointer(0) : NULL,
@@ -769,18 +769,19 @@ void vtkCompositePolyDataMapper2::AppendOneBufferObject(
   // now create the IBOs
   if (representation == VTK_POINTS)
     {
-    vtkgl::AppendPointIndexBuffer(this->IndexArray, prims[2], voffset);
+    vtkOpenGLIndexBufferObject::AppendPointIndexBuffer(
+      this->IndexArray, prims[2], voffset);
     }
   else // WIREFRAME OR SURFACE
     {
     if (representation == VTK_WIREFRAME)
       {
-      vtkgl::AppendTriangleLineIndexBuffer(
+      vtkOpenGLIndexBufferObject::AppendTriangleLineIndexBuffer(
         this->IndexArray, prims[2], voffset);
       }
    else // SURFACE
       {
-      vtkgl::AppendTriangleIndexBuffer(this->IndexArray,
+      vtkOpenGLIndexBufferObject::AppendTriangleIndexBuffer(this->IndexArray,
         prims[2],
         poly->GetPoints(),
         voffset);
@@ -793,7 +794,7 @@ void vtkCompositePolyDataMapper2::AppendOneBufferObject(
     (prop->GetEdgeVisibility() && prop->GetRepresentation() == VTK_SURFACE);
   if (draw_surface_with_edges)
     {
-    vtkgl::AppendTriangleLineIndexBuffer(
+    vtkOpenGLIndexBufferObject::AppendTriangleLineIndexBuffer(
       this->EdgeIndexArray, prims[2], voffset);
     }
 

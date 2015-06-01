@@ -24,11 +24,7 @@
 #include "vtkLabeledContourMapper.h"
 
 class vtkMatrix4x4;
-namespace vtkgl
-{
-class CellBO;
-}
-
+class vtkOpenGLHelper;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLLabeledContourMapper
     : public vtkLabeledContourMapper
@@ -55,7 +51,7 @@ protected:
   bool ApplyStencil(vtkRenderer *ren, vtkActor *act);
   bool RemoveStencil();
 
-  vtkgl::CellBO *StencilBO;
+  vtkOpenGLHelper *StencilBO;
   vtkMatrix4x4 *TempMatrix4;
 
 

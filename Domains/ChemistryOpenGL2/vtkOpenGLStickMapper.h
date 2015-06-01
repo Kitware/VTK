@@ -63,11 +63,11 @@ protected:
 
   // Description:
   // Set the shader parameters related to the Camera
-  virtual void SetCameraShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
+  virtual void SetCameraShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
 
   // Description:
   // Set the shader parameters related to the actor/mapper
-  virtual void SetMapperShaderParameters(vtkgl::CellBO &cellBO, vtkRenderer *ren, vtkActor *act);
+  virtual void SetMapperShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
 
   const char *ScaleArray;
   const char *OrientationArray;

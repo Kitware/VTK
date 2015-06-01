@@ -34,6 +34,7 @@
 
 #include "vtkCompositeSurfaceLICMapper.h"
 
+#include "vtk_glew.h"
 
 #include <vector>
 #include <string>

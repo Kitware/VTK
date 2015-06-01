@@ -30,17 +30,13 @@
 
 class vtkIdList;
 class vtkOpenGLHardwareSupport;
-class vtkTextureUnitManager;
 class vtkOpenGLShaderCache;
+class vtkOpenGLVertexArrayObject;
+class vtkShaderProgram;
 class vtkStdString;
 class vtkTexture;
 class vtkTextureObject;
-class vtkShaderProgram;
-
-namespace vtkgl
-{
-class VertexArrayObject;
-}
+class vtkTextureUnitManager;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLRenderWindow : public vtkRenderWindow
 {
@@ -220,12 +216,12 @@ public:
   // texture coordinates.
   static void RenderQuad(
     float *verts, float *tcoords,
-    vtkShaderProgram *program, vtkgl::VertexArrayObject *vao);
+    vtkShaderProgram *program, vtkOpenGLVertexArrayObject *vao);
   static void RenderTriangles(
     float *verts, unsigned int numVerts,
     GLuint *indices, unsigned int numIndices,
     float *tcoords,
-    vtkShaderProgram *program, vtkgl::VertexArrayObject *vao);
+    vtkShaderProgram *program, vtkOpenGLVertexArrayObject *vao);
 
   // Description:
   // Replacement for the old glDrawPixels function

@@ -94,17 +94,14 @@
 #include "vtkRenderingLICOpenGL2Module.h" // for export macro
 #include <deque> // for deque
 
+class vtkFrameBufferObject2;
+class vtkOpenGLHelper;
 class vtkOpenGLRenderWindow;
+class vtkPainterCommunicator;
+class vtkPixelExtent;
 class vtkRenderWindow;
 class vtkShaderProgram;
 class vtkTextureObject;
-class vtkPixelExtent;
-class vtkFrameBufferObject2;
-class vtkPainterCommunicator;
-namespace vtkgl
-{
-  class CellBO;
-}
 
 class VTKRENDERINGLICOPENGL2_EXPORT vtkLineIntegralConvolution2D : public vtkObject
 {
@@ -370,16 +367,16 @@ protected:
   vtkFrameBufferObject2 *FBO;
 
   int ShadersNeedBuild;
-  vtkgl::CellBO *FinalBlendProgram;
-  vtkgl::CellBO *IntermediateBlendProgram;
-  vtkgl::CellBO *VTShader;
-  vtkgl::CellBO *LIC0Shader;
-  vtkgl::CellBO *LICIShader;
-  vtkgl::CellBO *LICNShader;
-  vtkgl::CellBO *EEShader;
-  vtkgl::CellBO *CEShader;
-  vtkgl::CellBO *AAHShader;
-  vtkgl::CellBO *AAVShader;
+  vtkOpenGLHelper *FinalBlendProgram;
+  vtkOpenGLHelper *IntermediateBlendProgram;
+  vtkOpenGLHelper *VTShader;
+  vtkOpenGLHelper *LIC0Shader;
+  vtkOpenGLHelper *LICIShader;
+  vtkOpenGLHelper *LICNShader;
+  vtkOpenGLHelper *EEShader;
+  vtkOpenGLHelper *CEShader;
+  vtkOpenGLHelper *AAHShader;
+  vtkOpenGLHelper *AAVShader;
 
   int     NumberOfSteps;
   double  StepSize;

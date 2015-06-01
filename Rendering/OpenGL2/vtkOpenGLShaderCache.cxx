@@ -20,16 +20,14 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkShader.h"
 #include "vtkShaderProgram.h"
-#include "vtkglVBOHelper.h"
+#include "vtkOpenGLHelper.h"
 
 #include <math.h>
 #include <sstream>
 
 
-#include "vtksys/MD5.h"
 
-using vtkgl::replace;
-using vtkgl::substitute;
+#include "vtksys/MD5.h"
 
 class vtkOpenGLShaderCache::Private
 {
@@ -110,14 +108,14 @@ vtkShaderProgram *vtkOpenGLShaderCache::ReadyShader(
   std::string GSSource = geometryCode;
   if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
     {
-    VSSource = replace(VSSource,"//VTK::System::Dec",
+    vtkShaderProgram::Substitute(VSSource,"//VTK::System::Dec",
       "#version 150\n"
       "#define attribute in\n"
       "#define varying out\n"
       "#define highp\n"
       "#define mediump\n"
       "#define lowp");
-    FSSource = replace(FSSource,"//VTK::System::Dec",
+    vtkShaderProgram::Substitute(FSSource,"//VTK::System::Dec",
       "#version 150\n"
       "#define varying in\n"
       "#define highp\n"
@@ -128,7 +126,7 @@ vtkShaderProgram *vtkOpenGLShaderCache::ReadyShader(
       "#define texture2D texture\n"
       "#define texture3D texture\n"
       );
-    GSSource = replace(GSSource,"//VTK::System::Dec",
+    vtkShaderProgram::Substitute(GSSource,"//VTK::System::Dec",
       "#version 150\n"
       "#define highp\n"
       "#define mediump\n"
@@ -144,15 +142,15 @@ vtkShaderProgram *vtkOpenGLShaderCache::ReadyShader(
       // this naming has to match the bindings
       // in vtkOpenGLShaderProgram.cxx
       dst << "fragOutput" << count;
-      done = !substitute(FSSource, src.str(),dst.str());
+      done = !vtkShaderProgram::Substitute(FSSource, src.str(),dst.str());
       if (!done)
         {
         fragDecls += "out vec4 " + dst.str() + ";\n";
         count++;
         }
       }
-    FSSource = replace(FSSource,"//VTK::Output::Dec",fragDecls);
-    GSSource = replace(GSSource,"//VTK::System::Dec",
+    vtkShaderProgram::Substitute(FSSource,"//VTK::Output::Dec",fragDecls);
+    vtkShaderProgram::Substitute(GSSource,"//VTK::System::Dec",
       "#version 150\n"
       "#define highp\n"
       "#define mediump\n"
@@ -160,18 +158,18 @@ vtkShaderProgram *vtkOpenGLShaderCache::ReadyShader(
     }
   else
     {
-    VSSource = replace(VSSource,"//VTK::System::Dec",
+    vtkShaderProgram::Substitute(VSSource,"//VTK::System::Dec",
       "#version 120\n"
       "#define highp\n"
       "#define mediump\n"
       "#define lowp");
-    FSSource = replace(FSSource,"//VTK::System::Dec",
+    vtkShaderProgram::Substitute(FSSource,"//VTK::System::Dec",
       "#version 120\n"
       "#extension GL_EXT_gpu_shader4 : require\n"
       "#define highp\n"
       "#define mediump\n"
       "#define lowp");
-    GSSource = replace(GSSource,"//VTK::System::Dec",
+    vtkShaderProgram::Substitute(GSSource,"//VTK::System::Dec",
       "#version 120\n"
       "#define highp\n"
       "#define mediump\n"

@@ -20,9 +20,8 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkTextureObject.h"
 #include "vtkPixelBufferObject.h"
+#include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLError.h"
-
-#include "vtkglBufferObject.h"
 
 #include <cassert>
 #include <vector>
@@ -846,7 +845,7 @@ void vtkFrameBufferObject::DisplayBuffer(int value)
 // a program must be bound
 // a VAO must be bound
 void vtkFrameBufferObject::RenderQuad(int minX, int maxX, int minY, int maxY,
-        vtkShaderProgram *program, vtkgl::VertexArrayObject *vao)
+        vtkShaderProgram *program, vtkOpenGLVertexArrayObject *vao)
 {
   assert("pre positive_minX" && minX>=0);
   assert("pre increasing_x" && minX<=maxX);
