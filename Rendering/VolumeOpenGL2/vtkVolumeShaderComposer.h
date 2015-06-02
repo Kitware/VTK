@@ -455,14 +455,14 @@ namespace vtkvolume
     vtkVolumeProperty* volProperty = vol->GetProperty();
     std::string shaderStr = std::string("\
       \nvec4 computeLighting(vec4 color)\
-      \n  {"
+      \n  {\
+      \n  vec4 finalColor = vec4(0.0);"
     );
 
     if (volProperty->GetShade() || volProperty->HasGradientOpacity())
       {
       shaderStr += std::string("\
         \n  // Compute gradient function only once\
-        \n  vec4 finalColor = vec4(0.0);\
         \n  vec4 gradient = computeGradient();"
       );
       }
@@ -639,7 +639,7 @@ namespace vtkvolume
     else
       {
       shaderStr += std::string(
-        "\n  vec4 finalColor = vec4(color.rgb, 0.0);"
+        "\n  finalColor = vec4(color.rgb, 0.0);"
       );
       }
 
@@ -731,7 +731,7 @@ namespace vtkvolume
           }
 
         shaderStr += std::string("\
-          \nvec4 computeColor(vec4 scalar, opacity, int component)\
+          \nvec4 computeColor(vec4 scalar, float opacity, int component)\
           \n  {");
 
         for (int i = 0; i < noOfComponents; ++i)
@@ -762,7 +762,7 @@ namespace vtkvolume
         {
         return std::string("\
           \nuniform sampler1D in_colorTransferFunc;\
-          \nvec4 computeColor(vec4 scalar)\
+          \nvec4 computeColor(vec4 scalar, float opacity)\
           \n  {\
           \n  return computeLighting(vec4(texture1D(in_colorTransferFunc,\
           \n                                        scalar.x).xyz,\
@@ -772,7 +772,7 @@ namespace vtkvolume
       else
         {
         return std::string("\
-          \nvec4 computeColor(vec4 scalar)\
+          \nvec4 computeColor(vec4 scalar, float opacity)\
           \n  {\
           \n  return computeLighting(vec4(scalar.xyz, opacity));\
           \n  }");
@@ -1113,9 +1113,16 @@ namespace vtkvolume
            \n      // the previous steps is then accumulated to the composited colour\
            \n      // alpha.\
            \n      g_srcColor.rgb *= g_srcColor.a;\
-           \n      g_fragColor = (1.0f - g_fragColor.a) * g_srcColor + g_fragColor;\
-           \n      }"
+           \n      g_fragColor = (1.0f - g_fragColor.a) * g_srcColor + g_fragColor;"
          );
+
+         if (!mask || !maskInput ||
+           maskType != vtkGPUVolumeRayCastMapper::LabelMapMaskType)
+           {
+           shaderStr += std::string("\
+             \n      }"
+           );
+           }
         }
       }
      else
@@ -1144,7 +1151,7 @@ namespace vtkvolume
           \n   vec4 g_srcColor = vec4(0);\
           \n   for (int i = 0; i < in_noOfComponents; ++i)\
           \n     {\
-          \n     vec4 tmp = computeColor(l_maxValue, i);\
+          \n     vec4 tmp = computeColor(l_maxValue, computeOpacity(l_maxValuem, i), i);\
           \n     g_srcColor[0] += tmp[0] * tmp[3] * in_componentWeight[i];\
           \n     g_srcColor[1] += tmp[1] * tmp[3] * in_componentWeight[i];\
           \n     g_srcColor[2] += tmp[2] * tmp[3] * in_componentWeight[i];\
@@ -1156,8 +1163,8 @@ namespace vtkvolume
       else
         {
         return std::string("\
-         \n  vec4 g_srcColor = vec4(computeColor(l_maxValue).xyz,\
-         \n                         computeOpacity(l_maxValue));\
+         \n  vec4 g_srcColor = computeColor(l_maxValue,\
+                                            computeOpacity(l_maxValue));\
          \n  g_fragColor.rgb = g_srcColor.rgb * g_srcColor.a;\
          \n  g_fragColor.a = g_srcColor.a;"
         );
@@ -1183,8 +1190,8 @@ namespace vtkvolume
       else
         {
         return std::string("\
-          \n  vec4 g_srcColor = vec4(computeColor(l_minValue).xyz,\
-          \n                         computeOpacity(l_minValue));\
+          \n  vec4 g_srcColor = computeColor(l_minValue,\
+          \n                                 computeOpacity(l_minValue));\
           \n  g_fragColor.rgb = g_srcColor.rgb * g_srcColor.a;\
           \n  g_fragColor.a = g_srcColor.a;"
         );
@@ -1701,15 +1708,16 @@ namespace vtkvolume
       return shaderStr + std::string("\
         \nif (in_maskBlendFactor == 0.0)\
         \n  {\
-        \n  g_srcColor = computeColor(scalar);\
+        \n  g_srcColor = computeColor(scalar, computeOpacity(scalar));\
         \n  }\
         \nelse\
         \n  {\
+        \n  float opacity = computeOpacity(scalar);\
         \n  // Get the mask value at this same location\
         \n  vec4 maskValue = texture3D(in_mask, g_dataPos);\
         \n  if(maskValue.r == 0.0)\
         \n    {\
-        \n    g_srcColor = computeColor(scalar);\
+        \n    g_srcColor = computeColor(scalar, opacity);\
         \n    }\
         \n  else\
         \n    {\
@@ -1725,11 +1733,11 @@ namespace vtkvolume
         \n    g_srcColor.a = 1.0;\
         \n    if(in_maskBlendFactor < 1.0)\
         \n      {\
-        \n      g_srcColor = (1.0 - in_maskBlendFactor) * computeColor(scalar)\
+        \n      g_srcColor = (1.0 - in_maskBlendFactor) * computeColor(scalar, opacity)\
         \n                   + in_maskBlendFactor * g_srcColor;\
         \n      }\
         \n    }\
-        \n    g_srcColor.a = computeOpacity(scalar);\
+        \n    g_srcColor.a = opacity;\
         \n  }"
       );
       }
