@@ -2269,7 +2269,9 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
       (this->HaveCellNormals || this->HaveCellScalars || this->HavePickScalars))
     {
     poly = this->HandleAppleBug(poly);
-    vtkWarningMacro("VTK is working around a bug in Apple-AMD hardware related to gl_PrimitiveID.  This may cause significant memory and performance impacts.");
+    vtkWarningMacro("VTK is working around a bug in Apple-AMD hardware related to gl_PrimitiveID.  This may cause significant memory and performance impacts. Your hardware has been identified as vendor "
+      << (const char *)glGetString(GL_VENDOR) << " with renderer of "
+      << (const char *)glGetString(GL_RENDERER));
     if (n)
       {
       n = (act->GetProperty()->GetInterpolation() != VTK_FLAT) ?
