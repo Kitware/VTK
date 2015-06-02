@@ -172,6 +172,7 @@ namespace vtkvolume
     if (lightingComplexity == 3)
       {
       shaderStr += std::string("\
+        \nvec4 g_fragWorldPos;\
         \nuniform int in_numberOfLights;\
         \nuniform vec3 in_lightAmbientColor[6];\
         \nuniform vec3 in_lightDiffuseColor[6];\
@@ -187,6 +188,7 @@ namespace vtkvolume
     else if (lightingComplexity == 2)
       {
       shaderStr += std::string("\
+        \nvec4 g_fragWorldPos;\
         \nuniform int in_numberOfLights;\
         \nuniform vec3 in_lightAmbientColor[6];\
         \nuniform vec3 in_lightDiffuseColor[6];\
@@ -509,13 +511,13 @@ namespace vtkvolume
       else if (lightingComplexity == 2)
         {
         shaderStr += std::string("\
-          \n  vec4 fragWorldPos = in_modelViewMatrix * in_volumeMatrix *\
+          \n  g_fragWorldPos = in_modelViewMatrix * in_volumeMatrix *\
           \n                      in_textureDatasetMatrix * vec4(-g_dataPos, 1.0);\
-          \n  if (fragWorldPos.w != 0.0)\
+          \n  if (g_fragWorldPos.w != 0.0)\
           \n   {\
-          \n   fragWorldPos /= fragWorldPos.w;\
+          \n   g_fragWorldPos /= g_fragWorldPos.w;\
           \n   }\
-          \n  vec3 vdir = normalize(fragWorldPos.xyz);\
+          \n  vec3 vdir = normalize(g_fragWorldPos.xyz);\
           \n  vec3 normal = gradient.xyz;\
           \n  vec3 ambient = vec3(0.0);\
           \n  vec3 diffuse = vec3(0.0);\
@@ -561,13 +563,13 @@ namespace vtkvolume
       else if (lightingComplexity == 3)
         {
         shaderStr += std::string("\
-          \n  vec4 fragWorldPos = in_modelViewMatrix * in_volumeMatrix *\
+          \n  g_fragWorldPos = in_modelViewMatrix * in_volumeMatrix *\
           \n                      in_textureDatasetMatrix * vec4(g_dataPos, 1.0);\
-          \n  if (fragWorldPos.w != 0.0)\
+          \n  if (g_fragWorldPos.w != 0.0)\
           \n    {\
-          \n    fragWorldPos /= fragWorldPos.w;\
+          \n    g_fragWorldPos /= g_fragWorldPos.w;\
           \n    }\
-          \n  vec3 viewDirection = normalize(-fragWorldPos.xyz);\
+          \n  vec3 viewDirection = normalize(-g_fragWorldPos.xyz);\
           \n  vec3 ambient = vec3(0,0,0);\
           \n  vec3 diffuse = vec3(0,0,0);\
           \n  vec3 specular = vec3(0,0,0);\
@@ -585,7 +587,7 @@ namespace vtkvolume
           \n      }\
           \n    else\
           \n      {\
-          \n      vertLightDirection = (fragWorldPos.xyz - in_lightPosition[lightNum]);\
+          \n      vertLightDirection = (g_fragWorldPos.xyz - in_lightPosition[lightNum]);\
           \n      float distance = length(vertLightDirection);\
           \n      vertLightDirection = normalize(vertLightDirection);\
           \n      attenuation = 1.0 /\
