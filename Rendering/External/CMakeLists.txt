@@ -1,5 +1,6 @@
 set(Module_SRCS
   ExternalVTKWidget.cxx
+  vtkExternalLight.cxx
   vtkExternalOpenGLCamera.cxx
   vtkExternalOpenGLRenderer.cxx
   vtkExternalOpenGLRenderWindow.cxx
@@ -7,6 +8,7 @@ set(Module_SRCS
 
 set(${vtk-module}_HDRS
   ExternalVTKWidget.h
+  vtkExternalLight.h
   vtkExternalOpenGLCamera.h
   vtkExternalOpenGLRenderer.h
   vtkExternalOpenGLRenderWindow.h
