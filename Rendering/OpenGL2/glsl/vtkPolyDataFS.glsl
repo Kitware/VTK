@@ -54,8 +54,14 @@ uniform int PrimitiveIDOffset;
 // the output of this shader
 //VTK::Output::Dec
 
+// Apple Bug
+//VTK::PrimID::Dec
+
 void main()
 {
+  // Apple Bug
+  //VTK::PrimID::Impl
+
   //VTK::Clip::Impl
 
   //VTK::Color::Impl
