@@ -608,6 +608,7 @@ template <class Scalar> vtkPeriodicDataArray<Scalar>
   this->Size = 0;
 
   this->InvalidRange = true;
+  this->Normalize = false;
   this->PeriodicRange[0] = this->PeriodicRange[2] = this->PeriodicRange[4] =  VTK_DOUBLE_MAX;
   this->PeriodicRange[1] = this->PeriodicRange[3] = this->PeriodicRange[5] = -VTK_DOUBLE_MAX;
 }
