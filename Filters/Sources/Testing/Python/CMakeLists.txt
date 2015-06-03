@@ -7,3 +7,8 @@ vtk_add_test_python(
   glyph2D.py
   TestPlatonicSolids.py,NO_RT
   )
+if(VTK_USE_TK)
+  vtk_add_test_python(
+    squadViewer.py,NO_RT
+    )
+endif()
