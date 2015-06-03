@@ -1153,7 +1153,7 @@ namespace vtkvolume
           \n   vec4 g_srcColor = vec4(0);\
           \n   for (int i = 0; i < in_noOfComponents; ++i)\
           \n     {\
-          \n     vec4 tmp = computeColor(l_maxValue, computeOpacity(l_maxValuem, i), i);\
+          \n     vec4 tmp = computeColor(l_maxValue, computeOpacity(l_maxValue, i), i);\
           \n     g_srcColor[0] += tmp[0] * tmp[3] * in_componentWeight[i];\
           \n     g_srcColor[1] += tmp[1] * tmp[3] * in_componentWeight[i];\
           \n     g_srcColor[2] += tmp[2] * tmp[3] * in_componentWeight[i];\
@@ -1180,7 +1180,7 @@ namespace vtkvolume
           \n  vec4 g_srcColor = vec4(0);\
           \n  for (int i = 0; i < in_noOfComponents; ++i)\
           \n    {\
-          \n    vec4 tmp = computeColor(l_minValue, i);\
+          \n    vec4 tmp = computeColor(l_minValue, computeOpacity(l_minValue, i), i);\
           \n    g_srcColor[0] += tmp[0] * tmp[3] * in_componentWeight[i];\
           \n    g_srcColor[1] += tmp[1] * tmp[3] * in_componentWeight[i];\
           \n    g_srcColor[2] += tmp[2] * tmp[3] * in_componentWeight[i];\
