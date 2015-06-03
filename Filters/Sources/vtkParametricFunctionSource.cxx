@@ -517,6 +517,9 @@ void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector *output)
       pd->SetPoints( points );
       pd->SetPolys( tris );
       vtkSmartPointer<vtkPolyDataNormals> norm = vtkSmartPointer<vtkPolyDataNormals>::New();
+      // we prevent vtkPolyDataNormals from generating new points
+      // so that the number of newTCoords matches the number of points.
+      norm->SplittingOff();
       norm->SetInputData(pd);
       norm->Update();
       outData->DeepCopy(norm->GetOutput());
