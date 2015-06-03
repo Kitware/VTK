@@ -7,6 +7,7 @@ set(Module_SRCS
   vtkImageQuantizeRGBToIndex.cxx
   vtkImageRGBToHSI.cxx
   vtkImageRGBToHSV.cxx
+  vtkImageRGBToYIQ.cxx
   )
 
 vtk_module_library(${vtk-module} ${Module_SRCS})
