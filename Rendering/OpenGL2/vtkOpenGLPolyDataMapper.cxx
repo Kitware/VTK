@@ -2086,14 +2086,10 @@ void vtkOpenGLPolyDataMapper::BuildCellTextures(
 }
 
 vtkPolyData *vtkOpenGLPolyDataMapper::HandleAppleBug(
-  vtkPolyData *poly
+  vtkPolyData *poly,
+  std::vector<float> &buffData
   )
 {
-  if (!this->AppleBugPrimIDBuffer)
-    {
-    this->AppleBugPrimIDBuffer = vtkOpenGLBufferObject::New();
-    }
-
   vtkIdType* indices = NULL;
   vtkIdType npts = 0;
 
@@ -2117,7 +2113,7 @@ vtkPolyData *vtkOpenGLPolyDataMapper::HandleAppleBug(
 
   // for each prim type
   unsigned int newPointCount = 0;
-  this->AppleBugPrimIDs.reserve(points->GetNumberOfPoints());
+  buffData.reserve(points->GetNumberOfPoints());
   for (int j = 0; j < 4; j++)
     {
     unsigned int newCellCount = 0;
@@ -2147,7 +2143,7 @@ vtkPolyData *vtkOpenGLPolyDataMapper::HandleAppleBug(
           newPoints->InsertNextPoint(points->GetPoint(indices[i]));
           ca->InsertCellPoint(newPointCount);
           newPointData->CopyData(pointData,indices[i],newPointCount);
-          this->AppleBugPrimIDs.push_back(c.f);
+          buffData.push_back(c.f);
           newPointCount++;
           }
         newCellCount++;
@@ -2155,11 +2151,6 @@ vtkPolyData *vtkOpenGLPolyDataMapper::HandleAppleBug(
       ca->Delete();
       }
     }
-
-  this->AppleBugPrimIDBuffer->Bind();
-  this->AppleBugPrimIDBuffer->Upload(
-    this->AppleBugPrimIDs, vtkOpenGLBufferObject::ArrayBuffer);
-  this->AppleBugPrimIDBuffer->Release();
 
   newPoints->Delete();
   return newPD;
@@ -2268,7 +2259,16 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
       !pointPicking &&
       (this->HaveCellNormals || this->HaveCellScalars || this->HavePickScalars))
     {
-    poly = this->HandleAppleBug(poly);
+    if (!this->AppleBugPrimIDBuffer)
+      {
+      this->AppleBugPrimIDBuffer = vtkOpenGLBufferObject::New();
+      }
+    poly = this->HandleAppleBug(poly, this->AppleBugPrimIDs);
+    this->AppleBugPrimIDBuffer->Bind();
+    this->AppleBugPrimIDBuffer->Upload(
+     this->AppleBugPrimIDs, vtkOpenGLBufferObject::ArrayBuffer);
+    this->AppleBugPrimIDBuffer->Release();
+
     vtkWarningMacro("VTK is working around a bug in Apple-AMD hardware related to gl_PrimitiveID.  This may cause significant memory and performance impacts. Your hardware has been identified as vendor "
       << (const char *)glGetString(GL_VENDOR) << " with renderer of "
       << (const char *)glGetString(GL_RENDERER));
