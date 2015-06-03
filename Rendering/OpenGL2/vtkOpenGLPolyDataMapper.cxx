@@ -2335,6 +2335,7 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
     this->BuildIBO(ren, act, poly);
     }
 
+  // free up polydata if allocated due to apple bug
   if (poly != this->CurrentInput)
     {
     poly->Delete();

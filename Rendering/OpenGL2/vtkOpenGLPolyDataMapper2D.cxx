@@ -41,12 +41,9 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkViewport.h"
 
-
-
 // Bring in our shader symbols.
 #include "vtkPolyData2DVS.h"
 #include "vtkPolyData2DFS.h"
-
 
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper2D);
 
@@ -611,6 +608,12 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
     this->Tris.IBO->CreateTriangleIndexBuffer(prims[2], poly->GetPoints());
   this->TriStrips.IBO->IndexCount =
     this->TriStrips.IBO->CreateStripIndexBuffer(prims[3], false);
+
+  // free up polydata if allocated due to apple bug
+  if (poly != this->CurrentInput)
+    {
+    poly->Delete();
+    }
 }
 
 
