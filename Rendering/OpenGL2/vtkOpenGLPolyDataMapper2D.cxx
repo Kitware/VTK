@@ -610,7 +610,7 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
     this->TriStrips.IBO->CreateStripIndexBuffer(prims[3], false);
 
   // free up polydata if allocated due to apple bug
-  if (poly != this->CurrentInput)
+  if (poly != this->GetInput())
     {
     poly->Delete();
     }
