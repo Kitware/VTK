@@ -179,14 +179,14 @@ vtkShaderProgram *vtkOpenGLShaderCache::ReadyShader(
   shader->SetNumberOfOutputs(count);
 #else
   std::string FSSource = fragmentCode;
-  FSSource = replace(FSSource,"//VTK::System::Dec",
-                               "#ifdef GL_ES\n"
-                               "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
-                               "precision highp float;\n"
-                               "#else\n"
-                               "precision mediump float;\n"
-                               "#endif\n"
-                               "#endif\n");
+  vtkShaderProgram::Substitute(FSSource,"//VTK::System::Dec",
+     "#ifdef GL_ES\n"
+     "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
+     "precision highp float;\n"
+     "#else\n"
+     "precision mediump float;\n"
+     "#endif\n"
+     "#endif\n");
   vtkShaderProgram *shader = this->GetShader(vertexCode, FSSource.c_str(), geometryCode);
 #endif
 
