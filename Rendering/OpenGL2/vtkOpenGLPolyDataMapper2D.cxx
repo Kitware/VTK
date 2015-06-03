@@ -455,7 +455,7 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
     }
 
   // check if this system is subject to the apple primID bug
-  this->HaveAppleBug = false;
+  this->HaveAppleBug = true;
 
 #ifdef __APPLE__
   std::string vendor = (const char *)glGetString(GL_VENDOR);
@@ -481,6 +481,27 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
       {
       this->HaveCellScalars = true;
       }
+    }
+
+  // on apple with the AMD PrimID bug we use a slow
+  // painful approach to work around it
+  this->AppleBugPrimIDs.resize(0);
+  if (this->HaveAppleBug && this->HaveCellScalars)
+    {
+    if (!this->AppleBugPrimIDBuffer)
+      {
+      this->AppleBugPrimIDBuffer = vtkOpenGLBufferObject::New();
+      }
+    poly = vtkOpenGLPolyDataMapper::HandleAppleBug(poly,
+      this->AppleBugPrimIDs);
+    this->AppleBugPrimIDBuffer->Bind();
+    this->AppleBugPrimIDBuffer->Upload(
+     this->AppleBugPrimIDs, vtkOpenGLBufferObject::ArrayBuffer);
+    this->AppleBugPrimIDBuffer->Release();
+
+    vtkWarningMacro("VTK is working around a bug in Apple-AMD hardware related to gl_PrimitiveID.  This may cause significant memory and performance impacts. Your hardware has been identified as vendor "
+      << (const char *)glGetString(GL_VENDOR) << " with renderer of "
+      << (const char *)glGetString(GL_RENDERER));
     }
 
   // if we have cell scalars then we have to
@@ -536,27 +557,6 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
       VTK_UNSIGNED_CHAR,
       this->CellScalarBuffer);
     c = NULL;
-    }
-
-  // on apple with the AMD PrimID bug we use a slow
-  // painful approach to work around it
-  this->AppleBugPrimIDs.resize(0);
-  if (this->HaveAppleBug && this->HaveCellScalars)
-    {
-    if (!this->AppleBugPrimIDBuffer)
-      {
-      this->AppleBugPrimIDBuffer = vtkOpenGLBufferObject::New();
-      }
-    poly = vtkOpenGLPolyDataMapper::HandleAppleBug(poly,
-      this->AppleBugPrimIDs);
-    this->AppleBugPrimIDBuffer->Bind();
-    this->AppleBugPrimIDBuffer->Upload(
-     this->AppleBugPrimIDs, vtkOpenGLBufferObject::ArrayBuffer);
-    this->AppleBugPrimIDBuffer->Release();
-
-    vtkWarningMacro("VTK is working around a bug in Apple-AMD hardware related to gl_PrimitiveID.  This may cause significant memory and performance impacts. Your hardware has been identified as vendor "
-      << (const char *)glGetString(GL_VENDOR) << " with renderer of "
-      << (const char *)glGetString(GL_RENDERER));
     }
 
   // do we have texture maps?
