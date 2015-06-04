@@ -12,22 +12,41 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkExternalLight - a virtual light for 3D rendering in an external
-// context
+// .NAME vtkExternalLight - a virtual light object for tweaking existing lights
+// in an external 3D rendering context
+//
 // .SECTION Description
-// vtkExternalLight is a virtual light for 3D rendering in an external context.
-// It provides a mechanism to adjust and control parameters of existing lights
-// in an external OpenGL context.
+// vtkExternalLight is a virtual light object for tweaking existing lights in
+// an external 3D rendering context. It provides a mechanism to adjust and
+// control parameters of existing lights in an external OpenGL context.
 //
 // It provides methods to locate and point the light,
-// turn it on and off, and set its brightness and color. In addition to the
+// and set its brightness and color. In addition to the
 // basic infinite distance point light source attributes, you can also specify
 // the light attenuation values and cone angle. These attributes are only used
 // if the light is a positional light.
 //
 // By default, vtkExternalLight overrides specific light parameters as set by
-// the user. Setting the operation to ALL_PARAMS, will set all
+// the user. Setting the \em ReplaceMode to ALL_PARAMS, will set all
 // the light parameter values to the ones set in vtkExternalLight.
+//
+// .SECTION Caveats
+// Use the vtkExternalLight object to tweak parameters of lights created in the
+// external context. This class does not create new lights in the scene.
+// One must explicitly set the \em LightIndex to control the light of choice.
+//
+// .SECTION Example
+// \code{.cpp}
+//    vtkNew<vtkExternalLight> exLight;
+//    exLight->SetLightIndex(GL_LIGHT0); // GL_LIGHT0 identifies the external light
+//    exLight->SetDiffuseColor(1.0, 0.0, 0.0); // Changing diffuse color
+//    vtkNew<ExternalVTKWidget> exWidget;
+//    vtkExternalOpenGLRenderer* ren = vtkExternalOpenGLRenderer::SafeDownCast(exWidget->AddRenderer());
+//    ren->AddExternalLight(exLight.GetPointer());
+// \endcode
+//
+// .SECTION see also
+// vtkExternalOpenGLRenderer ExternalVTKWidget
 
 #ifndef vtkExternalLight_h
 #define vtkExternalLight_h
@@ -52,6 +71,7 @@ public:
     };
 
   // Set/Get OpenGL light index
+  // This should be the OpenGL light identifier. (e.g.: GL_LIGHT0)
   vtkSetMacro(LightIndex, int);
   vtkGetMacro(LightIndex, int);
 

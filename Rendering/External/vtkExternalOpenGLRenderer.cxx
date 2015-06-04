@@ -94,7 +94,9 @@ void vtkExternalOpenGLRenderer::Render(void)
 
   matrix->Delete();
 
-  // Query OpenGL lights
+  // Lights
+  // Query lights existing in the external context
+  // and tweak them based on vtkExternalLight objects added by the user
   GLenum curLight;
   for (curLight = GL_LIGHT0;
        curLight < GL_LIGHT0 + MAX_LIGHTS;
@@ -121,7 +123,7 @@ void vtkExternalOpenGLRenderer::Render(void)
       }
 
     int l_ind = static_cast<int> (curLight - GL_LIGHT0);
-    vtkLight* light = 0;
+    vtkLight* light = NULL;
     bool light_created = false;
     light = vtkLight::SafeDownCast(
               this->GetLights()->GetItemAsObject(l_ind));
@@ -141,16 +143,18 @@ void vtkExternalOpenGLRenderer::Render(void)
       }
     else
       {
+      // No matching light found in the VTK light collection
       if (status)
         {
-        // Create a new light only if one present in external context
+        // Create a new light only if one is present in the external context
         light = vtkLight::New();
+        // Headlight because VTK will apply transform matrices
         light->SetLightTypeToHeadlight();
         light_created = true;
         }
       else
         {
-        // No need to go forward as this light does not exist
+        // No need to go forward as this light is not being used
         continue;
         }
       }
@@ -158,12 +162,12 @@ void vtkExternalOpenGLRenderer::Render(void)
     if (curExtLight &&
         (curExtLight->GetReplaceMode() == vtkExternalLight::ALL_PARAMS))
       {
+      // If the replace mode is all parameters, blatantly overwrite the
+      // parameters of existing/new light
       light->DeepCopy(curExtLight);
       }
     else
       {
-      // For each enabled OpenGL light, add a new VTK headlight.
-      // Headlight because VTK will apply transform matrices.
 
       GLfloat info[4];
 
@@ -306,6 +310,7 @@ void vtkExternalOpenGLRenderer::Render(void)
         }
       }
 
+    // If we created a new VTK light, add it to the collection
     if (light_created)
       {
       this->AddLight(light);
