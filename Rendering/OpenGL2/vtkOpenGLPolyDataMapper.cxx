@@ -1048,6 +1048,7 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
       cellBO.ShaderSourceTime > cellBO.AttributeUpdateTime))
     {
     cellBO.VAO->Bind();
+    this->VBO->Bind();
     if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
                                     "vertexMC", this->VBO->VertexOffset,
                                     this->VBO->Stride, VTK_FLOAT, 3, false))
@@ -1082,6 +1083,7 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
         vtkErrorMacro(<< "Error setting 'scalarColor' in shader VAO.");
         }
       }
+    this->VBO->Release();
     if (this->AppleBugPrimIDs.size())
       {
       this->AppleBugPrimIDBuffer->Bind();
