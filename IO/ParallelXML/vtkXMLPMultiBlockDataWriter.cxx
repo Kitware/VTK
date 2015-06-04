@@ -52,7 +52,7 @@ public:
 
   void GetPieceProcessList(int piece, int* processList)
     {
-      if(!this->PieceProcessList.empty() || piece >= this->NumberOfPieces ||
+      if(this->PieceProcessList.empty() || piece >= this->NumberOfPieces ||
          piece < 0)
         {
         return;
