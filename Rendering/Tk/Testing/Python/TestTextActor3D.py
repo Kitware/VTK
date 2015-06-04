@@ -6,7 +6,6 @@ from functools import partial
 import vtk
 from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
-from hgext.keyword import expand
 from Tkinter import Pack
 VTK_DATA_ROOT = vtkGetDataRoot()
 
