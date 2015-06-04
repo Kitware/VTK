@@ -1064,11 +1064,23 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateInterpolationType(
         this->InterpolationType = vtkTextureObject::Nearest;
         return 0;
         }
-      else
+      else if (volumeProperty->GetInterpolationType() !=
+               VTK_LINEAR_INTERPOLATION &&
+               volumeProperty->GetInterpolationType() !=
+               VTK_NEAREST_INTERPOLATION)
         {
+        std::cerr << "Invalid interpolation type for volume texture"
+                  << std::endl;
         return 1;
         }
+      else
+        {
+        // Do nothing
+        return 0;
+        }
       }
+
+    return 0;
   }
 
   //----------------------------------------------------------------------------
@@ -2410,8 +2422,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
     {
     vtkErrorMacro("Shader failed to compile");
     }
-
-//  std::cerr << "fragmentShader " << fragmentShader << std::endl;
 
   this->Impl->ShaderBuildTime.Modified();
 }
