@@ -85,22 +85,6 @@ public:
   // Description:
   // Get the height of the rectangle, i.e. element 3.
   const T& GetHeight() const { return this->Data[3]; }
-
-  // Description:
-  // Legacy method for getting the x position.
-  VTK_LEGACY(const T& X() const);
-
-  // Description:
-  // Legacy method for getting the y position.
-  VTK_LEGACY(const T& Y() const);
-
-  // Description:
-  // Legacy method for getting the width.
-  VTK_LEGACY(const T& Width() const);
-
-  // Description:
-  // Legacy method for getting the height.
-  VTK_LEGACY(const T& Height() const);
 };
 
 class vtkRecti : public vtkRect<int>
@@ -129,38 +113,6 @@ public:
     : vtkRect<double>(x, y, width, height) {}
   explicit vtkRectd(const double *init) : vtkRect<double>(init) {}
 };
-
-#ifndef VTK_LEGACY_REMOVE
-template<typename T>
-const T& vtkRect<T>::X() const
-{
-  VTK_LEGACY_REPLACED_BODY(vtkRect::X, "VTK 6.0", vtkRect::GetX);
-  return this->GetX();
-}
-
-template<typename T>
-const T& vtkRect<T>::Y() const
-{
-  VTK_LEGACY_REPLACED_BODY(vtkRect::Y, "VTK 6.0", vtkRect::GetY);
-  return this->GetY();
-}
-
-template<typename T>
-const T& vtkRect<T>::Width() const
-{
-  VTK_LEGACY_REPLACED_BODY(vtkRect::Width, "VTK 6.0", vtkRect::GetWidth);
-  return this->GetWidth();
-}
-
-template<typename T>
-const T& vtkRect<T>::Height() const
-{
-  VTK_LEGACY_REPLACED_BODY(vtkRect::Height, "VTK 6.0", vtkRect::GetHeight);
-  return this->GetHeight();
-}
-
-#endif // VTK_LEGACY_REMOVE
-
 
 #endif // vtkRect_h
 // VTK-HeaderTest-Exclude: vtkRect.h

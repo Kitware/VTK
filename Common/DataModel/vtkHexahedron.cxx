@@ -357,7 +357,7 @@ static int faces[6][4] = { {0,4,7,3}, {1,2,6,5},
 
 // Marching cubes case table
 //
-#include "vtkMarchingCubesCases.h"
+#include "vtkMarchingCubesTriangleCases.h"
 
 void vtkHexahedron::Contour(double value, vtkDataArray *cellScalars,
                             vtkIncrementalPointLocator *locator,

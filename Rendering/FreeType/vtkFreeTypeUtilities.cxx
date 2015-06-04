@@ -1318,18 +1318,6 @@ int vtkFreeTypeUtilities::PopulateImageData(vtkTextProperty *tprop,
 }
 
 //----------------------------------------------------------------------------
-#ifndef VTK_LEGACY_REMOVE
-int vtkFreeTypeUtilities::RenderString(vtkTextProperty *tprop,
-                                       const char *str,
-                                       int, int,
-                                       vtkImageData *data)
-{
-  VTK_LEGACY_BODY(vtkFreeTypeUtilities::RenderString, "VTK 6.0");
-  return this->RenderString(tprop, str, data);
-}
-#endif
-
-//----------------------------------------------------------------------------
 int vtkFreeTypeUtilities::RenderString(vtkTextProperty *tprop,
                                        const char *str,
                                        vtkImageData *data)

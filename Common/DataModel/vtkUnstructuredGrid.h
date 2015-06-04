@@ -375,10 +375,6 @@ private:
   void operator=(const vtkUnstructuredGrid&);  // Not implemented.
 
   void Cleanup();
-
-  // Description:
-  // For legacy compatibility. Do not use.
-  VTK_LEGACY(void GetCellNeighbors(vtkIdType cellId, vtkIdList& ptIds, vtkIdList& cellIds));
 };
 
 #endif

@@ -637,15 +637,6 @@ virtual double *Get##name() \
   } \
   public:
 
-// Legacy versions of vtkTypeMacro and helpers.
-#if !defined(VTK_LEGACY_REMOVE)
-# define vtkExportedTypeRevisionMacro(thisClass,superclass,dllExport) \
-  vtkTypeMacro(thisClass,superclass)
-# define vtkTypeRevisionMacro(thisClass,superclass) \
-  vtkTypeMacro(thisClass,superclass)
-# define vtkCxxRevisionMacro(thisClass, revision)
-#endif
-
 // Macro to implement the instantiator's wrapper around the New()
 // method.  Use this macro if and only if vtkStandardNewMacro or
 // vtkObjectFactoryNewMacro is not used by the class.

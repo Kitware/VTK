@@ -81,14 +81,6 @@ public:
   static double Pi() { return 3.141592653589793; };
 
   // Description:
-  // Deprecated.  Use vtkMath::Pi() instead.
-  VTK_LEGACY(static double DoublePi());
-
-  // Description:
-  // Deprecated.  Use 2.0 * vtkMath::Pi() instead.
-  VTK_LEGACY(static double DoubleTwoPi());
-
-  // Description:
   // Convert degrees into radians
   static float RadiansFromDegrees( float degrees);
   static double RadiansFromDegrees( double degrees);

@@ -1529,28 +1529,3 @@ void vtkImageTracerWidget::SizeHandles()
   // TODO...
   return;
 }
-
-//----------------------------------------------------------------------------
-#ifndef VTK_LEGACY_REMOVE
-# ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-#  undef SetProp
-void vtkImageTracerWidget::SetPropA(vtkProp* prop)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkImageTracerWidget::SetProp, "VTK 5.0",
-                           vtkImageTracerWidget::SetViewProp);
-  this->SetViewProp(prop);
-}
-void vtkImageTracerWidget::SetPropW(vtkProp* prop)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkImageTracerWidget::SetProp, "VTK 5.0",
-                           vtkImageTracerWidget::SetViewProp);
-  this->SetViewProp(prop);
-}
-# endif
-void vtkImageTracerWidget::SetProp(vtkProp* prop)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkImageTracerWidget::SetProp, "VTK 5.0",
-                           vtkImageTracerWidget::SetViewProp);
-  this->SetViewProp(prop);
-}
-#endif

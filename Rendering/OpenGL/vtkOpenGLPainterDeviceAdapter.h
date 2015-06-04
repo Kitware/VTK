@@ -105,42 +105,6 @@ public:
   virtual int Compatible(vtkRenderer *renderer);
 
   // Description:
-  // @deprecated code that needs access directly to OpenGL state should
-  // manage it locally.
-  // Turns lighting on and off.
-  VTK_LEGACY(virtual void MakeLighting(int mode));
-
-  // Description:
-  // @deprecated code that needs access directly to OpenGL state should
-  // manage it locally.
-  // Returns current lighting setting.
-  VTK_LEGACY(virtual int QueryLighting());
-
-  // Description:
-  // @deprecated code that needs access directly to OpenGL state should
-  // manage it locally.
-  // Turns antialiasing on and off.
-  VTK_LEGACY(virtual void MakeMultisampling(int mode));
-
-  // Description:
-  // @deprecated code that needs access directly to OpenGL state should
-  // manage it locally.
-  // Returns current antialiasing setting.
-  VTK_LEGACY(virtual int QueryMultisampling());
-
-  // Description:
-  // @deprecated code that needs access directly to OpenGL state should
-  // manage it locally.
-  // Turns blending on and off.
-  VTK_LEGACY(virtual void MakeBlending(int mode));
-
-  // Description:
-  // @deprecated code that needs access directly to OpenGL state should
-  // manage it locally.
-  // Returns current blending setting.
-  VTK_LEGACY(virtual int QueryBlending());
-
-  // Description:
   // Turns emphasis of vertices on or off for vertex selection.
   // When emphasized verts are drawn nearer to the camera and are drawn
   // larger than normal to make selection of them more reliable.

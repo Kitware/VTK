@@ -109,11 +109,7 @@ public:
   // are NO_MODIFIER, ALT_MODIFIER, SHIFT_MODIFIER and/or CONTROL_MODIFIER.
   int GetModifiers() const;
 
-#ifdef VTK_LEGACY_REMOVE
-  // Deprecating the public exposure of member variables for mouse events
-  // Deprecated in VTK 5.9.
 protected:
-#endif
   // Description:
   // Position of the mouse in item coordinate system.
   vtkVector2f Pos;

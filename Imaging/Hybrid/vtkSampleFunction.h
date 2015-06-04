@@ -75,12 +75,6 @@ public:
     {this->SetOutputScalarType(VTK_UNSIGNED_CHAR);}
 
   // Description:
-  // Control the type of the scalars object by explicitly providing a scalar
-  // object.  THIS IS DEPRECATED, although it still works!!! Please use
-  // SetOutputScalarType instead.
-  VTK_LEGACY(virtual void SetScalars(vtkDataArray *da));
-
-  // Description:
   // Specify the dimensions of the data on which to sample.
   void SetSampleDimensions(int i, int j, int k);
 

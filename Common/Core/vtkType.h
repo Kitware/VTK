@@ -165,12 +165,6 @@
 # endif
 #endif
 
-/* Define compatibility names for these constants.  */
-#if !defined(VTK_LEGACY_REMOVE)
-# define VTK_LARGE_INTEGER VTK_INT_MAX
-# define VTK_LARGE_FLOAT VTK_FLOAT_MAX
-#endif
-
 /*--------------------------------------------------------------------------*/
 /* Define named types and constants corresponding to specific integer
    and floating-point sizes and signedness.  */
@@ -282,20 +276,6 @@ typedef int vtkIdType;
 # define VTK_SIZEOF_ID_TYPE VTK_SIZEOF_INT
 # define VTK_ID_MIN VTK_INT_MIN
 # define VTK_ID_MAX VTK_INT_MAX
-#endif
-
-/*--------------------------------------------------------------------------*/
-/* Provide deprecated pre-VTK6 constant. */
-#if !defined(VTK_LEGACY_REMOVE)
-#  define VTK_LARGE_ID VTK_ID_MAX
-#endif
-
-/*--------------------------------------------------------------------------*/
-/* Define the type of floating point interface used for old and new
-   versions of VTK.  VTK 4.2 and older use float and VTK 4.4 and newer
-   use double for most of the API calls.  */
-#if !defined(VTK_LEGACY_REMOVE)
-#  define vtkFloatingPointType double
 #endif
 
 #endif
