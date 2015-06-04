@@ -708,6 +708,15 @@ public:
                                        recvLengths, offsets,
                                        destProcessId);
   }
+  int GatherV(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
+              vtkIdTypeArray* recvLengths,
+              vtkIdTypeArray* offsets,
+              int destProcessId)
+  {
+    return this->Communicator->GatherV(sendBuffer, recvBuffer,
+                                       recvLengths, offsets, destProcessId);
+  }
+
 
   // Description:
   // This special form of GatherV will automatically determine \c recvLengths
@@ -717,6 +726,11 @@ public:
   int GatherV(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
               int destProcessId) {
     return this->Communicator->GatherV(sendBuffer, recvBuffer, destProcessId);
+  }
+  int GatherV(vtkDataObject* sendData, vtkSmartPointer<vtkDataObject>* recvData,
+              int destProcessId)
+  {
+    return this->Communicator->GatherV(sendData, recvData, destProcessId);
   }
 
   // Description:

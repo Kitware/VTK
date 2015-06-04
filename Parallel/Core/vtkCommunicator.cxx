@@ -18,6 +18,7 @@
 #include "vtkCharArray.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataObjectTypes.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkDataSetReader.h"
 #include "vtkDataSetWriter.h"
 #include "vtkDoubleArray.h"
@@ -29,11 +30,13 @@
 #include "vtkIntArray.h"
 #include "vtkMultiProcessController.h"
 #include "vtkMultiProcessStream.h"
+#include "vtkNew.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkSmartPointer.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredPoints.h"
 #include "vtkTypeTraits.h"
+#include "vtkTable.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedLongArray.h"
 
@@ -226,6 +229,8 @@ int vtkCommunicator::SendElementalDataObject(
   // could not marshal data
   return 0;
 }
+
+//----------------------------------------------------------------------------
 int vtkCommunicator::Send(vtkDataArray* data, int remoteHandle, int tag)
 {
   // If the receiving end is using with ANY_SOURCE, we have a problem because
@@ -957,8 +962,8 @@ int vtkCommunicator::GatherVoidArray(const void *sendBuffer,
 
 //-----------------------------------------------------------------------------
 int vtkCommunicator::Gather(vtkDataArray *sendBuffer,
-                            vtkDataArray *recvBuffer,
-                            int destProcessId)
+                             vtkDataArray *recvBuffer,
+                             int destProcessId)
 {
   int type = sendBuffer->GetDataType();
   const void *sb = sendBuffer->GetVoidPointer(0);
@@ -978,6 +983,119 @@ int vtkCommunicator::Gather(vtkDataArray *sendBuffer,
     }
   return this->GatherVoidArray(sb, rb, numComponents*numTuples, type,
                                destProcessId);
+}
+
+//-----------------------------------------------------------------------------
+int vtkCommunicator::GatherV(vtkDataArray *sendBuffer,
+                             vtkDataArray* recvBuffer,
+                             vtkSmartPointer<vtkDataArray> *recvBuffers,
+                             int destProcessId)
+{
+  vtkNew<vtkIdTypeArray> recvLengths;
+  vtkNew<vtkIdTypeArray> offsets;
+  int retValue = this->GatherV(
+    sendBuffer, recvBuffer,
+    recvLengths.GetPointer(), offsets.GetPointer(), destProcessId);
+  if (destProcessId == this->LocalProcessId)
+    {
+    int numComponents = sendBuffer->GetNumberOfComponents();
+    for (int i = 0; i < this->NumberOfProcesses; ++i)
+      {
+      recvBuffers[i]->SetNumberOfComponents(numComponents);
+      recvBuffers[i]->SetVoidArray(
+        static_cast<unsigned char*>(recvBuffer->GetVoidPointer(0))  +
+        offsets->GetValue(i) * recvBuffer->GetElementComponentSize(),
+        recvLengths->GetValue(i) * recvBuffer->GetElementComponentSize(), 1);
+      }
+    }
+  return retValue;
+}
+
+//-----------------------------------------------------------------------------
+int vtkCommunicator::GatherVElementalDataObject(
+  vtkDataObject* sendData, vtkSmartPointer<vtkDataObject>* receiveData,
+  int destProcessId)
+{
+  vtkNew<vtkCharArray> sendBuffer;
+  vtkNew<vtkCharArray> recvBuffer;
+  std::vector<vtkSmartPointer<vtkDataArray> > recvBuffers(
+    this->NumberOfProcesses);
+
+  vtkCommunicator::MarshalDataObject(sendData, sendBuffer.GetPointer());
+  if (this->LocalProcessId == destProcessId)
+    {
+    for (int i = 0; i < this->NumberOfProcesses; ++i)
+      {
+      recvBuffers[i] = vtkSmartPointer<vtkCharArray>::New();
+      }
+    }
+  if (this->GatherV(sendBuffer.GetPointer(), recvBuffer.GetPointer(),
+                    &recvBuffers[0], destProcessId))
+    {
+    if (this->LocalProcessId == destProcessId)
+      {
+      for (int i = 0; i < this->NumberOfProcesses; ++i)
+        {
+        if (! vtkCommunicator::UnMarshalDataObject(
+              vtkCharArray::SafeDownCast(recvBuffers[i].GetPointer()),
+              receiveData[i]))
+          {
+          return 0;
+          }
+        }
+      }
+    }
+  else
+    {
+    return 0;
+    }
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkCommunicator::GatherV(vtkDataObject *sendData,
+                             vtkSmartPointer<vtkDataObject>* receiveData,
+                             int destProcessId)
+{
+  int sendType = sendData? sendData->GetDataObjectType() : -1;
+  switch(sendType)
+    {
+  case -1:
+    // NULL data.
+    return 1;
+
+    //error on types we can't send
+    case VTK_DATA_OBJECT:
+    case VTK_DATA_SET:
+    case VTK_PIECEWISE_FUNCTION:
+    case VTK_POINT_SET:
+    case VTK_UNIFORM_GRID:
+    case VTK_GENERIC_DATA_SET:
+    case VTK_HYPER_OCTREE:
+    case VTK_COMPOSITE_DATA_SET:
+    case VTK_HIERARCHICAL_BOX_DATA_SET: // since we cannot send vtkUniformGrid anyways.
+    case VTK_MULTIGROUP_DATA_SET: // obsolete
+    case VTK_HIERARCHICAL_DATA_SET: //obsolete
+    default:
+      vtkErrorMacro(<< "Cannot gather " << sendData->GetClassName());
+      return 0;
+
+    //send elemental data objects
+    case VTK_DIRECTED_GRAPH:
+    case VTK_UNDIRECTED_GRAPH:
+    case VTK_IMAGE_DATA:
+    case VTK_POLY_DATA:
+    case VTK_RECTILINEAR_GRID:
+    case VTK_STRUCTURED_GRID:
+    case VTK_STRUCTURED_POINTS:
+    case VTK_TABLE:
+    case VTK_TREE:
+    case VTK_UNSTRUCTURED_GRID:
+    case VTK_MULTIBLOCK_DATA_SET:
+    case VTK_UNIFORM_GRID_AMR:
+      return this->GatherVElementalDataObject(
+        sendData, receiveData, destProcessId);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -1022,6 +1140,16 @@ int vtkCommunicator::GatherVVoidArray(const void *sendBuffer,
 
 //-----------------------------------------------------------------------------
 int vtkCommunicator::GatherV(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
+                             int destProcessId)
+{
+  vtkNew<vtkIdTypeArray> recvLengths;
+  vtkNew<vtkIdTypeArray> offsets;
+  return this->GatherV(sendBuffer, recvBuffer, recvLengths.GetPointer(),
+                       offsets.GetPointer(), destProcessId);
+}
+
+//-----------------------------------------------------------------------------
+int vtkCommunicator::GatherV(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
                              vtkIdType *recvLengths, vtkIdType *offsets,
                              int destProcessId)
 {
@@ -1042,14 +1170,18 @@ int vtkCommunicator::GatherV(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
 
 //-----------------------------------------------------------------------------
 int vtkCommunicator::GatherV(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
+                             vtkIdTypeArray* recvLengthsArray,
+                             vtkIdTypeArray* offsetsArray,
                              int destProcessId)
 {
-  std::vector<vtkIdType> recvLengths(this->NumberOfProcesses);
-  std::vector<vtkIdType> offsets(this->NumberOfProcesses + 1);
+  vtkIdType* recvLengths =
+    recvLengthsArray->WritePointer(0, this->GetNumberOfProcesses());
+  vtkIdType* offsets =
+    offsetsArray->WritePointer(0, this->GetNumberOfProcesses() + 1);
   int numComponents = sendBuffer->GetNumberOfComponents();
   vtkIdType numTuples = sendBuffer->GetNumberOfTuples();
   vtkIdType sendLength = numComponents*numTuples;
-  if (!this->Gather(&sendLength, &recvLengths.at(0), 1, destProcessId))
+  if (!this->Gather(&sendLength, recvLengths, 1, destProcessId))
     {
     return 0;
     }
@@ -1066,10 +1198,10 @@ int vtkCommunicator::GatherV(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
       }
     recvBuffer->SetNumberOfComponents(numComponents);
     recvBuffer->SetNumberOfTuples(
-                                offsets[this->NumberOfProcesses]/numComponents);
+      offsets[this->NumberOfProcesses]/numComponents);
     }
   return this->GatherV(sendBuffer, recvBuffer,
-                       &recvLengths.at(0), &offsets.at(0), destProcessId);
+                       recvLengths, offsets, destProcessId);
 }
 
 //-----------------------------------------------------------------------------
@@ -1557,4 +1689,3 @@ int vtkCommunicator::Receive(vtkMultiProcessStream& stream, int remoteId, int ta
     }
   return 1;
 }
-

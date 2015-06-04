@@ -31,12 +31,14 @@
 
 #include "vtkParallelCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkSmartPointer.h"
 
 class vtkBoundingBox;
 class vtkCharArray;
 class vtkDataArray;
 class vtkDataObject;
 class vtkDataSet;
+class vtkIdTypeArray;
 class vtkImageData;
 class vtkMultiBlockDataSet;
 class vtkMultiProcessStream;
@@ -546,9 +548,32 @@ public:
                                   offsets, VTK_UNSIGNED_LONG_LONG, destProcessId);
   }
 #endif
+  // Description:
+  // For the first GatherV variant, \c recvLenghts and \c offsets known on
+  // \c destProcessId and are passed in as parameters
+  // For the second GatherV variant, \c recvLenghts and \c offsets are not known
+  // on \c destProcessId.  The \c recvLenghts is set using a gather operation
+  // and \c offsets is computed from \c recvLenghts. recvLengths has
+  // \c NumberOfProcesses elements and \offsets has NumberOfProcesses + 1 elements.
+  // The third variant is the same as the second variant but it does not expose
+  // \c recvLength and \c offsets
   int GatherV(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
-              vtkIdType *recvLengths, vtkIdType *offsets, int destProcessId);
+              vtkIdType *recvLengths, vtkIdType *offsets,
+              int destProcessId);
   int GatherV(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
+              vtkIdTypeArray* recvLengths,
+              vtkIdTypeArray* offsets,
+              int destProcessId);
+  int GatherV(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
+              int destProcessId);
+  // Description:
+  // Collects data objects in the process with id \c
+  // destProcessId.  Each process (including the destination) marshals
+  // and then sends the data object to the destination process.  The
+  // destination process unmarshals and then stores the data objects
+  // in rank order. The \c recvData (on the destination process) must
+  // be of length numProcesses.
+  int GatherV(vtkDataObject* sendData, vtkSmartPointer<vtkDataObject>* recvData,
               int destProcessId);
 
   // Description:
@@ -1322,6 +1347,19 @@ protected:
 
   // Internal methods called by Send/Receive(vtkDataObject *... ) above.
   int SendElementalDataObject(vtkDataObject* data, int remoteHandle, int tag);
+  // Description:
+  // GatherV collects arrays in the process with id \c destProcessId.
+  // Each process (including the destination) sends its sendArray to
+  // the destination process.  The destination process receives the
+  // arrays and stores them in rank order in recvArrays.  The \c recvArays is an
+  // array containing  \c NumberOfProcesses elements. The \c recvArray allocates
+  // and manages memory for \c recvArrays.
+  int GatherV(vtkDataArray *sendArray, vtkDataArray* recvArray,
+              vtkSmartPointer<vtkDataArray>* recvArrays, int destProcessId);
+  int GatherVElementalDataObject(vtkDataObject* sendData,
+                                 vtkSmartPointer<vtkDataObject>* receiveData,
+                                 int destProcessId);
+
   int ReceiveDataObject(vtkDataObject* data,
                         int remoteHandle, int tag, int type=-1);
   int ReceiveElementalDataObject(vtkDataObject* data,
@@ -1344,5 +1382,4 @@ private:
 };
 
 #endif // vtkCommunicator_h
-
-
+// VTK-HeaderTest-Exclude: vtkCommunicator.h
