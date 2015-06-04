@@ -712,7 +712,8 @@ void vtkPDataSetReader::ReadVTKFileInformation(
     this->DataType = VTK_IMAGE_DATA;
     file->getline(str, 1024, ' ');
     // hack to stop reading.
-    while (strlen(str) > 5)
+    while (strncmp(str, "DIMENSIONS", 10) == 0 || strncmp(str, "SPACING", 7) == 0 ||
+           strncmp(str, "ASPECT_RATIO", 12) == 0 || strncmp(str, "ORIGIN", 6) == 0)
       {
       if (strncmp(str, "DIMENSIONS", 10) == 0)
         {
