@@ -94,9 +94,6 @@ void vtkExternalOpenGLRenderer::Render(void)
 
   matrix->Delete();
 
-  // Remove all VTK lights
-  this->RemoveAllLights();
-
   // Query OpenGL lights
   GLenum curLight;
   for (curLight = GL_LIGHT0;
@@ -123,98 +120,105 @@ void vtkExternalOpenGLRenderer::Render(void)
         }
       }
 
-    if (status)
+    int l_ind = static_cast<int> (curLight - GL_LIGHT0);
+    vtkLight* light = 0;
+    bool light_created = false;
+    light = vtkLight::SafeDownCast(
+              this->GetLights()->GetItemAsObject(l_ind));
+    if (light)
       {
-      if (curExtLight &&
-          (curExtLight->GetReplaceMode() == vtkExternalLight::ALL_PARAMS))
+      if (!status)
         {
-        this->AddLight(curExtLight);
+        // This is the case when we have a VTK light in the scene but no
+        // external light corresponding to that index in the context.
+        // In this case, we remove the VTK light as well.
+        light->SwitchOff();
+        this->RemoveLight(light);
+
+        // No need to go forward
+        continue;
+        }
+      }
+    else
+      {
+      if (status)
+        {
+        // Create a new light only if one present in external context
+        light = vtkLight::New();
+        light->SetLightTypeToHeadlight();
+        light_created = true;
         }
       else
         {
-        // For each enabled OpenGL light, add a new VTK headlight.
-        // Headlight because VTK will apply transform matrices.
-        vtkLight* light = vtkLight::New();
-        light->SetLightTypeToHeadlight();
+        // No need to go forward as this light does not exist
+        continue;
+        }
+      }
 
-        GLfloat info[4];
+    if (curExtLight &&
+        (curExtLight->GetReplaceMode() == vtkExternalLight::ALL_PARAMS))
+      {
+      light->DeepCopy(curExtLight);
+      }
+    else
+      {
+      // For each enabled OpenGL light, add a new VTK headlight.
+      // Headlight because VTK will apply transform matrices.
 
-        // Set color parameters
-        if (curExtLight && curExtLight->GetIntensitySet())
-          {
-          light->SetIntensity(curExtLight->GetIntensity());
-          }
+      GLfloat info[4];
 
-        if (curExtLight && curExtLight->GetAmbientColorSet())
-          {
-          light->SetAmbientColor(curExtLight->GetAmbientColor());
-          }
-        else
-          {
-          glGetLightfv(curLight, GL_AMBIENT, info);
-          light->SetAmbientColor(info[0], info[1], info[2]);
-          }
-        if (curExtLight && curExtLight->GetDiffuseColorSet())
-          {
-          light->SetDiffuseColor(curExtLight->GetDiffuseColor());
-          }
-        else
-          {
-          glGetLightfv(curLight, GL_DIFFUSE, info);
-          light->SetDiffuseColor(info[0], info[1], info[2]);
-          }
-        if (curExtLight && curExtLight->GetSpecularColorSet())
-          {
-          light->SetSpecularColor(curExtLight->GetSpecularColor());
-          }
-        else
-          {
-          glGetLightfv(curLight, GL_SPECULAR, info);
-          light->SetSpecularColor(info[0], info[1], info[2]);
-          }
+      // Set color parameters
+      if (curExtLight && curExtLight->GetIntensitySet())
+        {
+        light->SetIntensity(curExtLight->GetIntensity());
+        }
 
-        // Position, focal point and positional
-        glGetLightfv(curLight, GL_POSITION, info);
+      if (curExtLight && curExtLight->GetAmbientColorSet())
+        {
+        light->SetAmbientColor(curExtLight->GetAmbientColor());
+        }
+      else
+        {
+        glGetLightfv(curLight, GL_AMBIENT, info);
+        light->SetAmbientColor(info[0], info[1], info[2]);
+        }
+      if (curExtLight && curExtLight->GetDiffuseColorSet())
+        {
+        light->SetDiffuseColor(curExtLight->GetDiffuseColor());
+        }
+      else
+        {
+        glGetLightfv(curLight, GL_DIFFUSE, info);
+        light->SetDiffuseColor(info[0], info[1], info[2]);
+        }
+      if (curExtLight && curExtLight->GetSpecularColorSet())
+        {
+        light->SetSpecularColor(curExtLight->GetSpecularColor());
+        }
+      else
+        {
+        glGetLightfv(curLight, GL_SPECULAR, info);
+        light->SetSpecularColor(info[0], info[1], info[2]);
+        }
 
-        if (curExtLight && curExtLight->GetPositionalSet())
-          {
-          light->SetPositional(curExtLight->GetPositional());
-          }
-        else
-          {
-          light->SetPositional(info[3] > 0.0 ? 1 : 0);
-          }
+      // Position, focal point and positional
+      glGetLightfv(curLight, GL_POSITION, info);
 
-        if (!light->GetPositional())
+      if (curExtLight && curExtLight->GetPositionalSet())
+        {
+        light->SetPositional(curExtLight->GetPositional());
+        }
+      else
+        {
+        light->SetPositional(info[3] > 0.0 ? 1 : 0);
+        }
+
+      if (!light->GetPositional())
+        {
+        if (curExtLight && curExtLight->GetFocalPointSet())
           {
-          if (curExtLight && curExtLight->GetFocalPointSet())
-            {
-            light->SetFocalPoint(curExtLight->GetFocalPoint());
-            if (curExtLight->GetPositionSet())
-              {
-              light->SetPosition(curExtLight->GetPosition());
-              }
-            else
-              {
-              light->SetPosition(info[0], info[1], info[2]);
-              }
-            }
-          else
-            {
-            light->SetFocalPoint(0, 0, 0);
-            if (curExtLight->GetPositionSet())
-              {
-              light->SetPosition(curExtLight->GetPosition());
-              }
-            else
-              {
-              light->SetPosition(-info[0], -info[1], -info[2]);
-              }
-            }
-          }
-        else
-          {
-          if (curExtLight && curExtLight->GetPositionSet())
+          light->SetFocalPoint(curExtLight->GetFocalPoint());
+          if (curExtLight->GetPositionSet())
             {
             light->SetPosition(curExtLight->GetPosition());
             }
@@ -222,63 +226,90 @@ void vtkExternalOpenGLRenderer::Render(void)
             {
             light->SetPosition(info[0], info[1], info[2]);
             }
-
-          // Attenuation
-          if (curExtLight && curExtLight->GetAttenuationValuesSet())
+          }
+        else
+          {
+          light->SetFocalPoint(0, 0, 0);
+          if (curExtLight && curExtLight->GetPositionSet())
             {
-            light->SetAttenuationValues(curExtLight->GetAttenuationValues());
+            light->SetPosition(curExtLight->GetPosition());
             }
           else
             {
-            glGetLightfv(curLight, GL_CONSTANT_ATTENUATION, &info[0]);
-            glGetLightfv(curLight, GL_LINEAR_ATTENUATION, &info[1]);
-            glGetLightfv(curLight, GL_QUADRATIC_ATTENUATION, &info[2]);
-            light->SetAttenuationValues(info[0], info[1], info[2]);
-            }
-
-          // Cutoff
-          if (curExtLight && curExtLight->GetConeAngleSet())
-            {
-            light->SetConeAngle(curExtLight->GetConeAngle());
-            }
-          else
-            {
-            glGetLightfv(curLight, GL_SPOT_CUTOFF, &info[0]);
-            light->SetConeAngle(info[0]);
-            }
-
-          if (light->GetConeAngle() < 180.0)
-            {
-            // Exponent
-            if (curExtLight && curExtLight->GetExponentSet())
-              {
-              light->SetExponent(curExtLight->GetExponent());
-              }
-            else
-              {
-              glGetLightfv(curLight, GL_SPOT_EXPONENT, &info[0]);
-              light->SetExponent(info[0]);
-              }
-
-            // Direction
-            if (curExtLight && curExtLight->GetFocalPointSet())
-              {
-              light->SetFocalPoint(curExtLight->GetFocalPoint());
-              }
-            else
-              {
-              glGetLightfv(curLight, GL_SPOT_DIRECTION, info);
-              for (unsigned int i = 0; i < 3; ++i)
-                {
-                info[i] += light->GetPosition()[i];
-                }
-              light->SetFocalPoint(info[0], info[1], info[2]);
-              }
+            light->SetPosition(-info[0], -info[1], -info[2]);
             }
           }
-        this->AddLight(light);
-        light->Delete();
         }
+      else
+        {
+        if (curExtLight && curExtLight->GetPositionSet())
+          {
+          light->SetPosition(curExtLight->GetPosition());
+          }
+        else
+          {
+          light->SetPosition(info[0], info[1], info[2]);
+          }
+
+        // Attenuation
+        if (curExtLight && curExtLight->GetAttenuationValuesSet())
+          {
+          light->SetAttenuationValues(curExtLight->GetAttenuationValues());
+          }
+        else
+          {
+          glGetLightfv(curLight, GL_CONSTANT_ATTENUATION, &info[0]);
+          glGetLightfv(curLight, GL_LINEAR_ATTENUATION, &info[1]);
+          glGetLightfv(curLight, GL_QUADRATIC_ATTENUATION, &info[2]);
+          light->SetAttenuationValues(info[0], info[1], info[2]);
+          }
+
+        // Cutoff
+        if (curExtLight && curExtLight->GetConeAngleSet())
+          {
+          light->SetConeAngle(curExtLight->GetConeAngle());
+          }
+        else
+          {
+          glGetLightfv(curLight, GL_SPOT_CUTOFF, &info[0]);
+          light->SetConeAngle(info[0]);
+          }
+
+        if (light->GetConeAngle() < 180.0)
+          {
+          // Exponent
+          if (curExtLight && curExtLight->GetExponentSet())
+            {
+            light->SetExponent(curExtLight->GetExponent());
+            }
+          else
+            {
+            glGetLightfv(curLight, GL_SPOT_EXPONENT, &info[0]);
+            light->SetExponent(info[0]);
+            }
+
+          // Direction
+          if (curExtLight && curExtLight->GetFocalPointSet())
+            {
+            light->SetFocalPoint(curExtLight->GetFocalPoint());
+            }
+          else
+            {
+            glGetLightfv(curLight, GL_SPOT_DIRECTION, info);
+            for (unsigned int i = 0; i < 3; ++i)
+              {
+              info[i] += light->GetPosition()[i];
+              }
+            light->SetFocalPoint(info[0], info[1], info[2]);
+            }
+          }
+        }
+      }
+
+    if (light_created)
+      {
+      this->AddLight(light);
+      light->Delete();
       }
     }
 
