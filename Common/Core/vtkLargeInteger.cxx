@@ -387,7 +387,7 @@ int vtkLargeInteger::operator<(const vtkLargeInteger& n) const
 {
     if (this->Negative & !n.Negative) // try to make judgement using signs
         return 1;
-    else if (!this->Negative & n.Negative)
+    else if ((!this->Negative) & n.Negative)
         return 0;
     else if (this->Negative)
         return !this->IsSmaller(n);
