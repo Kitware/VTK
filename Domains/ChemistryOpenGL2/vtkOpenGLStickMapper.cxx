@@ -500,17 +500,13 @@ size_t vtkOpenGLStickMapperCreateTriangleIndexBuffer(
 
 //-------------------------------------------------------------------------
 bool vtkOpenGLStickMapper::GetNeedToRebuildBufferObjects(
-  vtkRenderer *ren,
+  vtkRenderer *vtkNotUsed(ren),
   vtkActor *act)
 {
-  // picking state changing always requires a rebuild
-  vtkHardwareSelector* selector = ren->GetSelector();
-  bool picking = (ren->GetIsPicking() || selector != NULL);
-
   if (this->VBOBuildTime < this->GetMTime() ||
       this->VBOBuildTime < act->GetMTime() ||
       this->VBOBuildTime < this->CurrentInput->GetMTime() ||
-      this->LastSelectionState || picking)
+      this->VBOBuildTime < this->SelectionStateChanged)
     {
     return true;
     }
