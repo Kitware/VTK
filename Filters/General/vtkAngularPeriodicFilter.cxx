@@ -333,13 +333,17 @@ void vtkAngularPeriodicFilter::ComputePeriodicMesh(vtkPointSet* dataset,
   transformedDataset->CopyStructure(dataset);
 
   // Transform points coordinates array
-  vtkDataArray* pointArray = dataset->GetPoints()->GetData();
-  vtkNew<vtkPoints> rotatedPoints;
-  vtkDataArray* transformedArray = this->TransformDataArray(pointArray, angle, true);
-  rotatedPoints->SetData(transformedArray);
-  transformedArray->Delete();
-  // Set the points
-  transformedDataset->SetPoints(rotatedPoints.Get());
+  vtkPoints* points = dataset->GetPoints();
+  if (points != NULL)
+    {
+    vtkDataArray* pointArray = dataset->GetPoints()->GetData();
+    vtkNew<vtkPoints> rotatedPoints;
+    vtkDataArray* transformedArray = this->TransformDataArray(pointArray, angle, true);
+    rotatedPoints->SetData(transformedArray);
+    transformedArray->Delete();
+    // Set the points
+    transformedDataset->SetPoints(rotatedPoints.Get());
+    }
 
   // Transform point data
   this->ComputeAngularPeriodicData(
