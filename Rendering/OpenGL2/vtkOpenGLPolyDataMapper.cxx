@@ -883,20 +883,14 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(
   if (this->AppleBugPrimIDs.size())
     {
     vtkShaderProgram::Substitute(VSSource,"//VTK::PrimID::Dec",
-      "flat varying int vtkPrimID;");
+      "attribute vec4 appleBugPrimID;\n"
+      "varying vec4 applePrimID;");
     vtkShaderProgram::Substitute(VSSource,"//VTK::PrimID::Impl",
-      "vtkPrimID = gl_VertexID/3;");
+      "applePrimID = appleBugPrimID;");
     vtkShaderProgram::Substitute(FSSource,"//VTK::PrimID::Dec",
-      "flat varying int vtkPrimID;");
-    // vtkShaderProgram::Substitute(VSSource,"//VTK::PrimID::Dec",
-    //   "attribute vec4 appleBugPrimID;\n"
-    //   "varying vec4 applePrimID;");
-    // vtkShaderProgram::Substitute(VSSource,"//VTK::PrimID::Impl",
-    //   "applePrimID = appleBugPrimID;");
-    // vtkShaderProgram::Substitute(FSSource,"//VTK::PrimID::Dec",
-    //   "varying vec4 applePrimID;");
-    //  vtkShaderProgram::Substitute(FSSource,"//VTK::PrimID::Impl",
-    //    "int vtkPrimID = int(applePrimID[0]*255.1) + int(applePrimID[1]*255.1)*256 + int(applePrimID[2]*255.1)*65536;");
+      "varying vec4 applePrimID;");
+     vtkShaderProgram::Substitute(FSSource,"//VTK::PrimID::Impl",
+       "int vtkPrimID = int(applePrimID[0]*255.1) + int(applePrimID[1]*255.1)*256 + int(applePrimID[2]*255.1)*65536;");
     vtkShaderProgram::Substitute(FSSource,"gl_PrimitiveID","vtkPrimID");
     }
 
@@ -2089,6 +2083,10 @@ void vtkOpenGLPolyDataMapper::BuildCellTextures(
     }
 }
 
+// on some apple systems gl_PrimitiveID does not work
+// correctly.  So we have to make sure there are no
+// shared vertices and build an aray that maps verts
+// to their cell id
 vtkPolyData *vtkOpenGLPolyDataMapper::HandleAppleBug(
   vtkPolyData *poly,
   std::vector<float> &buffData
@@ -2227,7 +2225,7 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
     }
 
   // check if this system is subject to the apple primID bug
-  this->HaveAppleBug = true;
+  this->HaveAppleBug = false;
 
 #ifdef __APPLE__
   std::string vendor = (const char *)glGetString(GL_VENDOR);
