@@ -15,6 +15,7 @@
 #include "vtkExternalLight.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkOpenGL.h"
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkExternalLight);
@@ -22,7 +23,7 @@ vtkStandardNewMacro(vtkExternalLight);
 //-----------------------------------------------------------------------------
 vtkExternalLight::vtkExternalLight()
 {
-  this->LightIndex = -1;
+  this->LightIndex = GL_LIGHT0;
   this->ReplaceMode = INDIVIDUAL_PARAMS;
 
   // By default, nothing is set by user
