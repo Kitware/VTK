@@ -176,6 +176,7 @@ public:
   // only valid for OpenGL 3.2 or later
   vtkSetMacro(NumberOfOutputs,unsigned int);
 
+//BTX
   // Description:
   // perform in place string substitutions, indicate if a substitution was done
   // this is useful for building up shader strings which typically involve
@@ -274,6 +275,7 @@ private:
 
   vtkShaderProgram(const vtkShaderProgram&);  // Not implemented.
   void operator=(const vtkShaderProgram&);  // Not implemented.
+//ETX
 };
 
 
