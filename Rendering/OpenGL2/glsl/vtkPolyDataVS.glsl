@@ -46,6 +46,9 @@ attribute vec4 vertexMC;
 // camera and actor matrix values
 //VTK::Camera::Dec
 
+// Apple Bug
+//VTK::PrimID::Dec
+
 void main()
 {
   //VTK::Color::Impl
@@ -55,6 +58,8 @@ void main()
   //VTK::TCoord::Impl
 
   //VTK::Clip::Impl
+
+  //VTK::PrimID::Impl
 
   //VTK::PositionVC::Impl
 }

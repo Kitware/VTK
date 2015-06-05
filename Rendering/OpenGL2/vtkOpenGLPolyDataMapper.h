@@ -109,11 +109,25 @@ public:
   vtkSetStringMacro(CompositeIdArrayName);
   vtkGetStringMacro(CompositeIdArrayName);
 
-
+  // the following is all extra stuff to work around the
+  // fact that gl_PrimitiveID does not work correctly on
+  // Apple devices with AMD graphics hardware. See apple
+  // bug ID 20747550
+  static vtkPolyData *HandleAppleBug(
+    vtkPolyData *poly,
+    std::vector<float> &buffData);
 
 protected:
   vtkOpenGLPolyDataMapper();
   ~vtkOpenGLPolyDataMapper();
+
+  // the following is all extra stuff to work around the
+  // fact that gl_PrimitiveID does not work correctly on
+  // Apple devices with AMD graphics hardware. See apple
+  // bug ID 20747550
+  bool HaveAppleBug;
+  std::vector<float> AppleBugPrimIDs;
+  vtkOpenGLBufferObject *AppleBugPrimIDBuffer;
 
   // Description:
   // Called in GetBounds(). When this method is called, the consider the input
@@ -202,7 +216,7 @@ protected:
 
   // Description:
   // Build the IBO, called by BuildBufferObjects
-  virtual void BuildIBO(vtkRenderer *ren, vtkActor *act);
+  virtual void BuildIBO(vtkRenderer *ren, vtkActor *act, vtkPolyData *poly);
 
   // The VBO and its layout.
   vtkOpenGLVertexBufferObject *VBO;

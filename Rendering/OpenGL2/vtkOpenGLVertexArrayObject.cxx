@@ -302,6 +302,7 @@ bool vtkOpenGLVertexArrayObject::AddAttributeArrayWithDivisor(vtkShaderProgram *
 
   // Always make the call as even the first use wants the attrib pointer setting
   // up when we are emulating.
+  buffer->Bind();
   glEnableVertexAttribArray(attribs.Index);
   glVertexAttribPointer(attribs.Index, attribs.Size, attribs.Type,
                         attribs.Normalize, attribs.Stride,

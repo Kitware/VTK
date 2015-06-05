@@ -28,6 +28,7 @@
 #include "vtkPolyDataMapper2D.h"
 #include "vtkOpenGLHelper.h" // used for ivars
 #include <string> // For API.
+#include <vector> //for ivars
 
 class vtkOpenGLBufferObject;
 class vtkOpenGLHelper;
@@ -56,6 +57,14 @@ public:
 protected:
   vtkOpenGLPolyDataMapper2D();
   ~vtkOpenGLPolyDataMapper2D();
+
+  // the following is all extra stuff to work around the
+  // fact that gl_PrimitiveID does not work correctly on
+  // Apple devices with AMD graphics hardware. See apple
+  // bug ID 20747550
+  bool HaveAppleBug;
+  std::vector<float> AppleBugPrimIDs;
+  vtkOpenGLBufferObject *AppleBugPrimIDBuffer;
 
   // Description:
   // Does the shader source need to be recomputed

@@ -25,6 +25,7 @@
 #include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLIndexBufferObject.h"
+#include "vtkOpenGLPolyDataMapper.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
@@ -40,12 +41,9 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkViewport.h"
 
-
-
 // Bring in our shader symbols.
 #include "vtkPolyData2DVS.h"
 #include "vtkPolyData2DFS.h"
-
 
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper2D);
 
@@ -56,6 +54,7 @@ vtkOpenGLPolyDataMapper2D::vtkOpenGLPolyDataMapper2D()
   this->CellScalarTexture = NULL;
   this->CellScalarBuffer = NULL;
   this->VBO = vtkOpenGLVertexBufferObject::New();
+  this->AppleBugPrimIDBuffer = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -78,6 +77,11 @@ vtkOpenGLPolyDataMapper2D::~vtkOpenGLPolyDataMapper2D()
   this->HaveCellScalars = false;
   this->VBO->Delete();
   this->VBO = 0;
+  if (this->AppleBugPrimIDBuffer)
+    {
+    this->AppleBugPrimIDBuffer->Delete();
+    }
+
 }
 
 //-----------------------------------------------------------------------------
@@ -96,6 +100,11 @@ void vtkOpenGLPolyDataMapper2D::ReleaseGraphicsResources(vtkWindow* win)
     {
     this->CellScalarBuffer->ReleaseGraphicsResources();
     }
+  if (this->AppleBugPrimIDBuffer)
+    {
+    this->AppleBugPrimIDBuffer->ReleaseGraphicsResources();
+    }
+
   this->Modified();
 }
 
@@ -201,6 +210,22 @@ void vtkOpenGLPolyDataMapper2D::BuildShader(
         "gl_FragData[0] = gl_FragData[0]*texture2D(texture1, tcoordVC.st);");
       }
     }
+
+  // are we handling the apple bug?
+  if (this->AppleBugPrimIDs.size())
+    {
+    vtkShaderProgram::Substitute(VSSource,"//VTK::PrimID::Dec",
+      "attribute vec4 appleBugPrimID;\n"
+      "varying vec4 applePrimID;");
+    vtkShaderProgram::Substitute(VSSource,"//VTK::PrimID::Impl",
+      "applePrimID = appleBugPrimID;");
+    vtkShaderProgram::Substitute(FSSource,"//VTK::PrimID::Dec",
+      "varying vec4 applePrimID;");
+    vtkShaderProgram::Substitute(FSSource,"//VTK::PrimID::Impl",
+      "int vtkPrimID = int(applePrimID[0]*255.1) + int(applePrimID[1]*255.1)*256 + int(applePrimID[2]*255.1)*65536;");
+    vtkShaderProgram::Substitute(FSSource,"gl_PrimitiveID","vtkPrimID");
+    }
+
 }
 
 //-----------------------------------------------------------------------------
@@ -274,6 +299,19 @@ void vtkOpenGLPolyDataMapper2D::SetMapperShaderParameters(
         vtkErrorMacro(<< "Error setting 'diffuseColor' in shader program.");
         }
       }
+    if (this->AppleBugPrimIDs.size())
+      {
+      this->AppleBugPrimIDBuffer->Bind();
+      if (!cellBO.VAO->AddAttributeArray(cellBO.Program,
+          this->AppleBugPrimIDBuffer,
+          "appleBugPrimID",
+           0, sizeof(float), VTK_UNSIGNED_CHAR, 4, true))
+        {
+        vtkErrorMacro(<< "Error setting 'appleBugPrimID' in shader VAO.");
+        }
+      this->AppleBugPrimIDBuffer->Release();
+      }
+
     cellBO.AttributeUpdateTime.Modified();
     }
 
@@ -413,6 +451,19 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
     return;
     }
 
+  // check if this system is subject to the apple primID bug
+  this->HaveAppleBug = true;
+
+#ifdef __APPLE__
+  std::string vendor = (const char *)glGetString(GL_VENDOR);
+  if (vendor.find("ATI") != std::string::npos ||
+      vendor.find("AMD") != std::string::npos ||
+      vendor.find("amd") != std::string::npos)
+    {
+    this->HaveAppleBug = true;
+    }
+#endif
+
   this->HaveCellScalars = false;
   if (this->ScalarVisibility)
     {
@@ -429,6 +480,27 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
       }
     }
 
+  // on apple with the AMD PrimID bug we use a slow
+  // painful approach to work around it
+  this->AppleBugPrimIDs.resize(0);
+  if (this->HaveAppleBug && this->HaveCellScalars)
+    {
+    if (!this->AppleBugPrimIDBuffer)
+      {
+      this->AppleBugPrimIDBuffer = vtkOpenGLBufferObject::New();
+      }
+    poly = vtkOpenGLPolyDataMapper::HandleAppleBug(poly,
+      this->AppleBugPrimIDs);
+    this->AppleBugPrimIDBuffer->Bind();
+    this->AppleBugPrimIDBuffer->Upload(
+     this->AppleBugPrimIDs, vtkOpenGLBufferObject::ArrayBuffer);
+    this->AppleBugPrimIDBuffer->Release();
+
+    vtkWarningMacro("VTK is working around a bug in Apple-AMD hardware related to gl_PrimitiveID.  This may cause significant memory and performance impacts. Your hardware has been identified as vendor "
+      << (const char *)glGetString(GL_VENDOR) << " with renderer of "
+      << (const char *)glGetString(GL_RENDERER));
+    }
+
   // if we have cell scalars then we have to
   // build the texture
   vtkCellArray *prims[4];
@@ -440,8 +512,19 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
   vtkDataArray *c = this->Colors;
   if (this->HaveCellScalars)
     {
-    vtkOpenGLIndexBufferObject::CreateCellSupportArrays(
-      prims, cellCellMap, VTK_SURFACE);
+    if (this->HaveAppleBug)
+      {
+      unsigned int numCells = poly->GetNumberOfCells();
+      for (unsigned int i = 0; i < numCells; i++)
+        {
+        cellCellMap.push_back(i);
+        }
+      }
+    else
+      {
+      vtkOpenGLIndexBufferObject::CreateCellSupportArrays(
+        prims, cellCellMap, VTK_SURFACE);
+      }
 
     if (!this->CellScalarTexture)
       {
@@ -525,6 +608,12 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
     this->Tris.IBO->CreateTriangleIndexBuffer(prims[2], poly->GetPoints());
   this->TriStrips.IBO->IndexCount =
     this->TriStrips.IBO->CreateStripIndexBuffer(prims[3], false);
+
+  // free up polydata if allocated due to apple bug
+  if (poly != this->GetInput())
+    {
+    poly->Delete();
+    }
 }
 
 

@@ -32,10 +32,16 @@ attribute vec4 vertexWC;
 // Texture coordinates
 //VTK::TCoord::Dec
 
+// Apple Bug
+//VTK::PrimID::Dec
+
 uniform mat4 WCVCMatrix;  // World to view matrix
 
 void main()
 {
+  // Apple Bug
+  //VTK::PrimID::Impl
+
   gl_Position = WCVCMatrix*vertexWC;
   //VTK::TCoord::Impl
   //VTK::Color::Impl
