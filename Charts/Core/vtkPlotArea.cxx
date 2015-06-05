@@ -38,42 +38,53 @@
 
 namespace
 {
-
-// PIMPL for STL vector...
-struct vtkIndexedVector2f
-{
-  size_t index;
-  vtkVector2f pos;
-  static bool compVector3fX(
-    const vtkIndexedVector2f& v1, const vtkIndexedVector2f& v2)
+  inline bool vtkIsBadPoint(const vtkVector2f& vec)
     {
-    if (v1.pos.GetX() < v2.pos.GetX())
-      {
-      return true;
-      }
-    else
-      {
-      return false;
-      }
+    return (vtkMath::IsNan(vec.GetX()) || vtkMath::IsInf(vec.GetX()) ||
+      vtkMath::IsNan(vec.GetY()) || vtkMath::IsInf(vec.GetY()));
     }
-  // See if the point is within tolerance.
-  static bool inRange(const vtkVector2f& point, const vtkVector2f& tol,
-    const vtkVector2f& current)
-    {
-    if (current.GetX() > point.GetX() - tol.GetX() && current.GetX() < point.GetX() + tol.GetX() &&
-      current.GetY() > point.GetY() - tol.GetY() && current.GetY() < point.GetY() + tol.GetY())
-      {
-      return true;
-      }
-    else
-      {
-      return false;
-      }
-    }
-};
+} // end of namespace
 
-class VectorPIMPL : public std::vector<vtkIndexedVector2f>
+// Keeps all data-dependent meta-data that's updated in
+// vtkPlotArea::Update.
+class vtkPlotArea::vtkTableCache
 {
+  // PIMPL for STL vector...
+  struct vtkIndexedVector2f
+    {
+    size_t index;
+    vtkVector2f pos;
+    static bool compVector3fX(
+      const vtkIndexedVector2f& v1, const vtkIndexedVector2f& v2)
+      {
+      if (v1.pos.GetX() < v2.pos.GetX())
+        {
+        return true;
+        }
+      else
+        {
+        return false;
+        }
+      }
+    // See if the point is within tolerance.
+    static bool inRange(const vtkVector2f& point, const vtkVector2f& tol,
+      const vtkVector2f& current)
+      {
+      if (current.GetX() > point.GetX() - tol.GetX() && current.GetX() < point.GetX() + tol.GetX() &&
+        current.GetY() > point.GetY() - tol.GetY() && current.GetY() < point.GetY() + tol.GetY())
+        {
+        return true;
+        }
+      else
+        {
+        return false;
+        }
+      }
+    };
+
+  // DataStructure used to store sorted points.
+  class VectorPIMPL : public std::vector<vtkIndexedVector2f>
+  {
 public:
   void Initialize(vtkVector2f* array, size_t n)
     {
@@ -118,20 +129,8 @@ public:
       }
     return -1;
     }
-};
-
-inline bool vtkIsBadPoint(const vtkVector2f& vec)
-{
-  return (vtkMath::IsNan(vec.GetX()) || vtkMath::IsInf(vec.GetX()) ||
-    vtkMath::IsNan(vec.GetY()) || vtkMath::IsInf(vec.GetY()));
-}
-
-} // end of namespace
-
-// Keeps all data-dependent meta-data that's updated in
-// vtkPlotArea::Update.
-class vtkPlotArea::vtkTableCache
-{
+  };
+private:
   vtkTimeStamp DataMTime;
   vtkTimeStamp BoundsMTime;
 
@@ -237,6 +236,7 @@ class vtkPlotArea::vtkTableCache
       { ++this->Value; return (*this); }
     };
 
+  VectorPIMPL SortedPoints;
 public:
   // Array which marks valid points in the array. If NULL (the default), all
   // points in the input array are considered valid.
@@ -252,7 +252,6 @@ public:
   // Set of point ids that are invalid or masked out.
   std::vector<vtkIdType> BadPoints;
 
-  VectorPIMPL SortedPoints;
 
   vtkTableCache()
     {
