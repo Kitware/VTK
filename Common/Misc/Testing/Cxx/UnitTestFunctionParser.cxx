@@ -683,7 +683,7 @@ int TestMiscFunctions()
     double expected = std::pow(x, y);
     if (!vtkMathUtilities::FuzzyCompare(
           result, expected,
-          std::numeric_limits<double>::epsilon() * 1.0))
+          std::numeric_limits<double>::epsilon() * 128.0))
       {
       std::cout << "\n";
       std::cout <<  " pow Expected " << expected
@@ -717,7 +717,7 @@ int TestMiscFunctions()
     double expected = x / y;
     if (!vtkMathUtilities::FuzzyCompare(
           result, expected,
-          std::numeric_limits<double>::epsilon() * 1.0))
+          std::numeric_limits<double>::epsilon() * 128.0))
       {
       std::cout << "\n";
       std::cout <<  " x / y Expected " << expected
