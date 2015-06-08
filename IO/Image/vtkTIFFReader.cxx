@@ -248,6 +248,7 @@ void vtkTIFFReader::vtkTIFFReaderInternal::Clean()
 vtkTIFFReader::vtkTIFFReaderInternal::vtkTIFFReaderInternal()
 {
   this->Image           = NULL;
+  // Note that this suppresses all error/warning output from libtiff!
   TIFFSetErrorHandler(&vtkTIFFReaderInternalErrorHandler);
   TIFFSetWarningHandler(&vtkTIFFReaderInternalErrorHandler);
   this->Clean();
