@@ -72,6 +72,11 @@ protected:
       const int blockIdx, vtkUniformGrid *block, const char *field);
 
   // Description:
+  // See vtkAMRBaseReader::GetAMRGridData
+  void GetAMRGridPointData(
+      const int vtkNotUsed(blockIdx), vtkUniformGrid *vtkNotUsed(block), const char *vtkNotUsed(field)) {;}
+
+  // Description:
   // See vtkAMRBaseReader::SetUpDataArraySelections
   void SetUpDataArraySelections();
 
