@@ -452,7 +452,7 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
     }
 
   // check if this system is subject to the apple primID bug
-  this->HaveAppleBug = true;
+  this->HaveAppleBug = false;
 
 #ifdef __APPLE__
   std::string vendor = (const char *)glGetString(GL_VENDOR);
