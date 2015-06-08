@@ -78,31 +78,39 @@ protected:
 
   // Description:
   // Create the basic shaders before replacement
-  virtual void GetShaderTemplate(std::string &VertexCode,
-                           std::string &fragmentCode,
-                           std::string &geometryCode,
-                           int lightComplexity,
-                           vtkRenderer *ren, vtkActor *act);
+  virtual void GetShaderTemplate(
+    std::map<vtkShader::Type, vtkShader *> shaders,
+    vtkRenderer *ren, vtkActor *act);
 
   // Description:
   // Perform string replacments on the shader templates
-  virtual void ReplaceShaderValues(std::string &VertexCode,
-                           std::string &fragmentCode,
-                           std::string &geometryCode,
-                           int lightComplexity,
-                           vtkRenderer *ren, vtkActor *act);
+  virtual void ReplaceShaderColor(
+    std::map<vtkShader::Type, vtkShader *> shaders,
+    vtkRenderer *ren, vtkActor *act);
+  virtual void ReplaceShaderNormal(
+    std::map<vtkShader::Type, vtkShader *> shaders,
+    vtkRenderer *ren, vtkActor *act);
+  virtual void ReplaceShaderClip(
+    std::map<vtkShader::Type, vtkShader *> shaders,
+    vtkRenderer *ren, vtkActor *act);
+  virtual void ReplaceShaderPositionVC(
+    std::map<vtkShader::Type, vtkShader *> shaders,
+    vtkRenderer *ren, vtkActor *act);
 
   // Description:
   // Set the shader parameteres related to the Camera
-  virtual void SetCameraShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
+  virtual void SetCameraShaderParameters(
+    vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
 
   // Description:
   // Set the shader parameteres related to the property
-  virtual void SetPropertyShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
+  virtual void SetPropertyShaderParameters(
+    vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
 
   // Description:
   // Set the shader parameteres related to the actor/mapper
-  virtual void SetMapperShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
+  virtual void SetMapperShaderParameters(
+    vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
 
   bool UseFastPath;
   bool UsingInstancing;

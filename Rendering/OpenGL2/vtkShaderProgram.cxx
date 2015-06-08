@@ -60,6 +60,10 @@ inline GLenum convertTypeToGL(int type)
 
 vtkStandardNewMacro(vtkShaderProgram)
 
+vtkCxxSetObjectMacro(vtkShaderProgram,VertexShader,vtkShader)
+vtkCxxSetObjectMacro(vtkShaderProgram,FragmentShader,vtkShader)
+vtkCxxSetObjectMacro(vtkShaderProgram,GeometryShader,vtkShader)
+
 vtkShaderProgram::vtkShaderProgram()
 {
   this->VertexShader = vtkShader::New();

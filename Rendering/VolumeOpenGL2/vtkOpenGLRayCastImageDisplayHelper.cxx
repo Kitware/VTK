@@ -221,7 +221,7 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
 
     // compile and bind it if needed
     vtkShaderProgram *newShader =
-      ctx->GetShaderCache()->ReadyShader(VSSource.c_str(),
+      ctx->GetShaderCache()->ReadyShaderProgram(VSSource.c_str(),
                                          FSSource.c_str(),
                                          GSSource.c_str());
 
@@ -236,7 +236,7 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
     }
   else
     {
-    ctx->GetShaderCache()->ReadyShader(this->ShaderProgram->Program);
+    ctx->GetShaderCache()->ReadyShaderProgram(this->ShaderProgram->Program);
     }
 
   glEnable(GL_BLEND);

@@ -277,7 +277,7 @@ void vtkOpenGLContextDevice3D::ReadyVBOProgram()
   if (!this->VBO->Program)
     {
     this->VBO->Program  =
-        this->RenderWindow->GetShaderCache()->ReadyShader(
+        this->RenderWindow->GetShaderCache()->ReadyShaderProgram(
         // vertex shader
         "//VTK::System::Dec\n"
         "attribute vec3 vertexMC;\n"
@@ -310,7 +310,7 @@ void vtkOpenGLContextDevice3D::ReadyVBOProgram()
     }
   else
     {
-    this->RenderWindow->GetShaderCache()->ReadyShader(this->VBO->Program);
+    this->RenderWindow->GetShaderCache()->ReadyShaderProgram(this->VBO->Program);
     }
 }
 
@@ -319,7 +319,7 @@ void vtkOpenGLContextDevice3D::ReadyVCBOProgram()
   if (!this->VCBO->Program)
     {
     this->VCBO->Program  =
-        this->RenderWindow->GetShaderCache()->ReadyShader(
+        this->RenderWindow->GetShaderCache()->ReadyShaderProgram(
         // vertex shader
         "//VTK::System::Dec\n"
         "attribute vec3 vertexMC;\n"
@@ -355,7 +355,7 @@ void vtkOpenGLContextDevice3D::ReadyVCBOProgram()
     }
   else
     {
-    this->RenderWindow->GetShaderCache()->ReadyShader(this->VCBO->Program);
+    this->RenderWindow->GetShaderCache()->ReadyShaderProgram(this->VCBO->Program);
     }
 }
 

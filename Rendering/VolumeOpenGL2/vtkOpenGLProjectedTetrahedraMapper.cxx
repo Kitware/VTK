@@ -352,7 +352,7 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer *renderer,
 
     // compile and bind it if needed
     vtkShaderProgram *newShader =
-      renWin->GetShaderCache()->ReadyShader(VSSource.c_str(),
+      renWin->GetShaderCache()->ReadyShaderProgram(VSSource.c_str(),
                                             FSSource.c_str(),
                                             GSSource.c_str());
 
@@ -367,7 +367,7 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer *renderer,
     }
   else
     {
-    renWin->GetShaderCache()->ReadyShader(this->Tris.Program);
+    renWin->GetShaderCache()->ReadyShaderProgram(this->Tris.Program);
     }
 
   // Check to see if input changed.

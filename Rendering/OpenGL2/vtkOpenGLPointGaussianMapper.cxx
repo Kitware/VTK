@@ -52,19 +52,18 @@ protected:
 
   // Description:
   // Create the basic shaders before replacement
-  virtual void GetShaderTemplate(std::string &VertexCode,
-                           std::string &fragmentCode,
-                           std::string &geometryCode,
-                           int lightComplexity,
-                           vtkRenderer *ren, vtkActor *act);
+  virtual void GetShaderTemplate(
+    std::map<vtkShader::Type, vtkShader *> shaders,
+    vtkRenderer *, vtkActor *);
 
   // Description:
   // Perform string replacments on the shader templates
-  virtual void ReplaceShaderValues(std::string &VertexCode,
-                           std::string &fragmentCode,
-                           std::string &geometryCode,
-                           int lightComplexity,
-                           vtkRenderer *ren, vtkActor *act);
+  virtual void ReplaceShaderColor(
+    std::map<vtkShader::Type, vtkShader *> shaders,
+    vtkRenderer *, vtkActor *);
+  virtual void ReplaceShaderPositionVC(
+    std::map<vtkShader::Type, vtkShader *> shaders,
+    vtkRenderer *, vtkActor *);
 
   // Description:
   // Set the shader parameters related to the Camera
@@ -86,7 +85,7 @@ protected:
 
   // Description:
   // Does the shader source need to be recomputed
-  virtual bool GetNeedToRebuildShader(vtkOpenGLHelper &cellBO,
+  virtual bool GetNeedToRebuildShaders(vtkOpenGLHelper &cellBO,
     vtkRenderer *ren, vtkActor *act);
 
 private:
@@ -105,25 +104,21 @@ vtkOpenGLPointGaussianMapperHelper::vtkOpenGLPointGaussianMapperHelper()
 
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLPointGaussianMapperHelper::GetShaderTemplate(std::string &VSSource,
-                                          std::string &FSSource,
-                                          std::string &GSSource,
-                                          int vtkNotUsed(lightComplexity),
-                                          vtkRenderer* vtkNotUsed(ren),
-                                          vtkActor *vtkNotUsed(actor))
+void vtkOpenGLPointGaussianMapperHelper::GetShaderTemplate(
+  std::map<vtkShader::Type, vtkShader *> shaders,
+  vtkRenderer *ren, vtkActor *actor)
 {
-  VSSource = vtkPointGaussianVS;
-  FSSource = vtkPolyDataFS;
-  GSSource = "";
+  this->Superclass::GetShaderTemplate(shaders,ren,actor);
+  shaders[vtkShader::Vertex]->SetSource(vtkPointGaussianVS);
 }
 
-void vtkOpenGLPointGaussianMapperHelper::ReplaceShaderValues(std::string &VSSource,
-                                                 std::string &FSSource,
-                                                 std::string &GSSource,
-                                                 int lightComplexity,
-                                                 vtkRenderer* ren,
-                                                 vtkActor *actor)
+void vtkOpenGLPointGaussianMapperHelper::ReplaceShaderPositionVC(
+  std::map<vtkShader::Type, vtkShader *> shaders,
+  vtkRenderer *ren, vtkActor *actor)
 {
+  std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
+  std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
+
   vtkShaderProgram::Substitute(FSSource,
     "//VTK::PositionVC::Dec",
     "varying vec2 offsetVC;");
@@ -133,6 +128,20 @@ void vtkOpenGLPointGaussianMapperHelper::ReplaceShaderValues(std::string &VSSour
     "uniform mat4 VCDCMatrix;\n"
     "uniform mat4 MCVCMatrix;");
 
+  shaders[vtkShader::Vertex]->SetSource(VSSource);
+  shaders[vtkShader::Fragment]->SetSource(FSSource);
+
+  this->Superclass::ReplaceShaderPositionVC(shaders,ren,actor);
+}
+
+void vtkOpenGLPointGaussianMapperHelper::ReplaceShaderColor(
+  std::map<vtkShader::Type, vtkShader *> shaders,
+  vtkRenderer *ren, vtkActor *actor)
+{
+  std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
+  std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
+
+
   vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl",
     // compute the eye position and unit direction
     "//VTK::Color::Impl\n"
@@ -140,14 +149,17 @@ void vtkOpenGLPointGaussianMapperHelper::ReplaceShaderValues(std::string &VSSour
     "  if (dist2 > 9.0) { discard; }\n"
     "  float gaussian = exp(-0.5*dist2);\n"
     "  opacity = opacity*gaussian;"
-//    "  opacity = opacity*0.5;"
+    //  "  opacity = opacity*0.5;"
     , false);
 
-  this->Superclass::ReplaceShaderValues(VSSource,FSSource,GSSource,lightComplexity,ren,actor);
+  shaders[vtkShader::Vertex]->SetSource(VSSource);
+  shaders[vtkShader::Fragment]->SetSource(FSSource);
+
+  this->Superclass::ReplaceShaderColor(shaders,ren,actor);
 }
 
 //-----------------------------------------------------------------------------
-bool vtkOpenGLPointGaussianMapperHelper::GetNeedToRebuildShader(
+bool vtkOpenGLPointGaussianMapperHelper::GetNeedToRebuildShaders(
   vtkOpenGLHelper &cellBO, vtkRenderer* ren, vtkActor *actor)
 {
   this->LastLightComplexity = 0;
@@ -427,7 +439,7 @@ void vtkOpenGLPointGaussianMapperHelper::RenderPieceDraw(vtkRenderer* ren, vtkAc
   if (this->VBO->VertexCount)
     {
     // First we do the triangles, update the shader, set uniforms, etc.
-    this->UpdateShader(this->Tris, ren, actor);
+    this->UpdateShaders(this->Tris, ren, actor);
     glDrawArrays(GL_TRIANGLES, 0, static_cast<GLuint>(this->VBO->VertexCount));
     }
 }

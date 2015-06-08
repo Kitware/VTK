@@ -1024,6 +1024,40 @@ vtkLineIntegralConvolution2D::~vtkLineIntegralConvolution2D()
   this->SetCEShader(NULL);
   this->SetAAHShader(NULL);
   this->SetAAVShader(NULL);
+
+  if (this->VTShader)
+    {
+    delete this->VTShader;
+    }
+  if (this->LIC0Shader)
+    {
+    delete this->LIC0Shader;
+    }
+  if (this->LICIShader)
+    {
+    delete this->LICIShader;
+    }
+  if (this->LICNShader)
+    {
+    delete this->LICNShader;
+    }
+  if (this->EEShader)
+    {
+    delete this->EEShader;
+    }
+  if (this->CEShader)
+    {
+    delete this->CEShader;
+    }
+  if (this->AAHShader)
+    {
+    delete this->AAHShader;
+    }
+  if (this->AAVShader)
+    {
+    delete this->AAVShader;
+    }
+
   this->FBO->Delete();
 }
 
@@ -1195,13 +1229,13 @@ namespace {
     std::string VSSource = vtkTextureObjectVS;
     std::string GSSource;
     (*cbor)->Program =
-        renWin->GetShaderCache()->ReadyShader(VSSource.c_str(),
+        renWin->GetShaderCache()->ReadyShaderProgram(VSSource.c_str(),
                                               frag,
                                               GSSource.c_str());
     }
   else
     {
-    renWin->GetShaderCache()->ReadyShader((*cbor)->Program);
+    renWin->GetShaderCache()->ReadyShaderProgram((*cbor)->Program);
     }
   }
 }
@@ -1448,7 +1482,7 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
     this->StartTimerEvent("vtkLineIntegralConvolution::TransformVectors");
     #endif
 
-    renWin->GetShaderCache()->ReadyShader(this->VTShader->Program);
+    renWin->GetShaderCache()->ReadyShaderProgram(this->VTShader->Program);
     bufs.AttachImageVectorBuffer(this->FBO);
 
     float fTexSize[2];
@@ -1495,7 +1529,7 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
   bufs.AttachNoiseTexture(0);
   bufs.AttachLICBuffers(this->FBO);
 
-  renWin->GetShaderCache()->ReadyShader(this->LIC0Shader->Program);
+  renWin->GetShaderCache()->ReadyShaderProgram(this->LIC0Shader->Program);
   this->LIC0Shader->Program->SetUniformi("uStepNo", 0);
   this->LIC0Shader->Program->SetUniformi("uPassNo", 0);
   this->LIC0Shader->Program->SetUniformf("uMaskThreshold", this->MaskThreshold);
@@ -1523,7 +1557,7 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
   //
   // backward LIC
   //
-  renWin->GetShaderCache()->ReadyShader(this->LICIShader->Program);
+  renWin->GetShaderCache()->ReadyShaderProgram(this->LICIShader->Program);
   this->LICIShader->Program->SetUniformi("uPassNo", 0);
   this->LICIShader->Program->SetUniformf("uStepSize", -this->StepSize);
   this->LICIShader->Program->SetUniform2f("uNoiseBoundsPt1", noiseBoundsPt1);
@@ -1552,7 +1586,7 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
 
   // initialize seeds
   //
-  renWin->GetShaderCache()->ReadyShader(this->LIC0Shader->Program);
+  renWin->GetShaderCache()->ReadyShaderProgram(this->LIC0Shader->Program);
   this->LIC0Shader->Program->SetUniformi("uStepNo", 1);
 
   bufs.AttachLICBuffers(this->FBO);
@@ -1571,7 +1605,7 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
   //
   // forward LIC
   //
-  renWin->GetShaderCache()->ReadyShader(this->LICIShader->Program);
+  renWin->GetShaderCache()->ReadyShaderProgram(this->LICIShader->Program);
   this->LICIShader->Program->SetUniformf("uStepSize", this->StepSize);
 
   for (int stepIdx=0; stepIdx<this->NumberOfSteps; ++stepIdx, ++stepNum)
@@ -1599,7 +1633,7 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
   //
   // finalize LIC
   //
-  renWin->GetShaderCache()->ReadyShader(this->LICNShader->Program);
+  renWin->GetShaderCache()->ReadyShaderProgram(this->LICNShader->Program);
   this->LICNShader->Program->SetUniformi("texLIC", bufs.GetLICTextureUnit());
 
   bufs.AttachLICBuffers(this->FBO);
@@ -1665,7 +1699,7 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
       // we don't do a halo exchange
       grayMaxMinDiff = grayMax-grayMin;
 
-      renWin->GetShaderCache()->ReadyShader(this->CEShader->Program);
+      renWin->GetShaderCache()->ReadyShaderProgram(this->CEShader->Program);
       this->CEShader->Program->SetUniformi("texLIC", bufs.GetLICTextureUnit());
       this->CEShader->Program->SetUniformf("uMin", grayMin );
       this->CEShader->Program->SetUniformf("uMaxMinDiff", grayMaxMinDiff);
@@ -1698,7 +1732,7 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
     bufs.AttachEEBuffer(this->FBO);
     #endif
 
-    renWin->GetShaderCache()->ReadyShader(this->EEShader->Program);
+    renWin->GetShaderCache()->ReadyShaderProgram(this->EEShader->Program);
     this->EEShader->Program->SetUniformi("texLIC", bufs.GetLICTextureUnit());
     this->EEShader->Program->SetUniformf("uDx", dx);
     this->EEShader->Program->SetUniformf("uDy", dy);
@@ -1740,7 +1774,7 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
     //
     // initialize convolution and seeds
     //
-    renWin->GetShaderCache()->ReadyShader(this->LIC0Shader->Program);
+    renWin->GetShaderCache()->ReadyShaderProgram(this->LIC0Shader->Program);
     this->LIC0Shader->Program->SetUniformi("uStepNo", 0);
     this->LIC0Shader->Program->SetUniformi("uPassNo", 1);
 
@@ -1763,7 +1797,7 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
     //
     // backward LIC
     //
-    renWin->GetShaderCache()->ReadyShader(this->LICIShader->Program);
+    renWin->GetShaderCache()->ReadyShaderProgram(this->LICIShader->Program);
     this->LICIShader->Program->SetUniformi("uPassNo", 1);
     this->LICIShader->Program->SetUniformf("uStepSize", -this->StepSize);
     this->LICIShader->Program->SetUniformi("texNoise", bufs.GetNoiseTextureUnit(1));
@@ -1791,7 +1825,7 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
     //
     // initialize seeds
     //
-    renWin->GetShaderCache()->ReadyShader(this->LIC0Shader->Program);
+    renWin->GetShaderCache()->ReadyShaderProgram(this->LIC0Shader->Program);
     this->LIC0Shader->Program->SetUniformi("uStepNo", 1);
 
     bufs.AttachLICBuffers(this->FBO);
@@ -1812,7 +1846,7 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
     //
     // forward LIC
     //
-    renWin->GetShaderCache()->ReadyShader(this->LICIShader->Program);
+    renWin->GetShaderCache()->ReadyShaderProgram(this->LICIShader->Program);
     this->LICIShader->Program->SetUniformf("uStepSize", this->StepSize);
 
     for (int stepIdx=0; stepIdx<nSteps; ++stepIdx, ++stepNum)
@@ -1840,7 +1874,7 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
     //
     // finalize LIC
     //
-    renWin->GetShaderCache()->ReadyShader(this->LICNShader->Program);
+    renWin->GetShaderCache()->ReadyShaderProgram(this->LICNShader->Program);
     this->LICNShader->Program->SetUniformi("texLIC", bufs.GetLICTextureUnit());
 
     bufs.AttachLICBuffers(this->FBO);
@@ -1872,11 +1906,11 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
     this->StartTimerEvent("vtkLineIntegralConvolution::AntiAlias");
     #endif
 
-    renWin->GetShaderCache()->ReadyShader(this->AAHShader->Program);
+    renWin->GetShaderCache()->ReadyShaderProgram(this->AAHShader->Program);
     this->AAHShader->Program->SetUniformi("texLIC", bufs.GetLICTextureUnit());
     this->AAHShader->Program->SetUniformf("uDx", dx);
 
-    renWin->GetShaderCache()->ReadyShader(this->AAVShader->Program);
+    renWin->GetShaderCache()->ReadyShaderProgram(this->AAVShader->Program);
     this->AAVShader->Program->SetUniformi("texLIC", bufs.GetLICTextureUnit());
     this->AAVShader->Program->SetUniformf("uDy", dy);
 
@@ -1888,7 +1922,7 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
     for (int i=0; i<this->AntiAlias; ++i)
       {
       // horizontal pass
-      renWin->GetShaderCache()->ReadyShader(this->AAHShader->Program);
+      renWin->GetShaderCache()->ReadyShaderProgram(this->AAHShader->Program);
       bufs.AttachLICBuffers(this->FBO);
       this->AAHShader->Program->SetUniformi("texLIC", bufs.GetLICTextureUnit());
       this->AAHShader->Program->SetUniformi("texSeedPts", bufs.GetSeedTextureUnit());
@@ -1901,7 +1935,7 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
       bufs.Swap();
 
       // vertical pass
-      renWin->GetShaderCache()->ReadyShader(this->AAVShader->Program);
+      renWin->GetShaderCache()->ReadyShaderProgram(this->AAVShader->Program);
       bufs.AttachLICBuffers(this->FBO);
       this->AAVShader->Program->SetUniformi("texLIC", bufs.GetLICTextureUnit());
       this->AAVShader->Program->SetUniformi("texSeedPts", bufs.GetSeedTextureUnit());
@@ -1967,7 +2001,7 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
     grayMax -= grayMaxMinDiff*this->HighContrastEnhancementFactor;
     grayMaxMinDiff = grayMax-grayMin;
 
-    renWin->GetShaderCache()->ReadyShader(this->CEShader->Program);
+    renWin->GetShaderCache()->ReadyShaderProgram(this->CEShader->Program);
     this->CEShader->Program->SetUniformi("texLIC", bufs.GetLICTextureUnit());
     this->CEShader->Program->SetUniformf("uMin", grayMin );
     this->CEShader->Program->SetUniformf("uMaxMinDiff", grayMaxMinDiff);

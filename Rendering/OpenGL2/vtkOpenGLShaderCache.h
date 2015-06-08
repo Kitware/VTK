@@ -21,8 +21,9 @@
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkObject.h"
+#include "vtkShader.h" // for vtkShader::Type
+#include <map> // for methods
 
-class vtkShader;
 class vtkShaderProgram;
 class vtkWindow;
 
@@ -33,11 +34,20 @@ public:
   vtkTypeMacro(vtkOpenGLShaderCache, vtkObject);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
-  // make sure the specified shader is compiled, linked, and bound
-  virtual vtkShaderProgram *ReadyShader(const char *vertexCode,
-                                           const char *fragmentCode,
-                                           const char *geometryCode);
-  virtual vtkShaderProgram *ReadyShader(vtkShaderProgram *shader);
+  // make sure the specified shaders are compiled, linked, and bound
+  virtual vtkShaderProgram *ReadyShaderProgram(
+    const char *vertexCode,
+    const char *fragmentCode,
+    const char *geometryCode);
+
+  // make sure the specified shaders are compiled, linked, and bound
+  // will increment the reference count on the shaders if it
+  // needs to keep them around
+  virtual vtkShaderProgram *ReadyShaderProgram(
+    std::map<vtkShader::Type,vtkShader *> shaders);
+
+  // make sure the specified shaders are compiled, linked, and bound
+  virtual vtkShaderProgram *ReadyShaderProgram(vtkShaderProgram *shader);
 
   // Description:
   // Release the current shader.  Basically go back to
@@ -59,9 +69,18 @@ protected:
   vtkOpenGLShaderCache();
   ~vtkOpenGLShaderCache();
 
-  virtual vtkShaderProgram* GetShader(const char *vertexCode,
+  // perform System and Output replacments in place. Returns
+  // the number of outputs
+  virtual unsigned int ReplaceShaderValues(
+    std::string &VSSource,
+    std::string &FSSource,
+    std::string &GSSource);
+
+  virtual vtkShaderProgram* GetShaderProgram(const char *vertexCode,
                                       const char *fragmentCode,
                                       const char *geometryCode);
+  virtual vtkShaderProgram* GetShaderProgram(
+    std::map<vtkShader::Type,vtkShader *> shaders);
   virtual int BindShader(vtkShaderProgram* shader);
 
   class Private;

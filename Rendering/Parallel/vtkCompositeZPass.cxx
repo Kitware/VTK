@@ -463,7 +463,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
       glDepthMask(GL_TRUE);
       glDepthFunc(GL_LEQUAL);
 
-      context->GetShaderCache()->ReadyShader(this->Program->Program);
+      context->GetShaderCache()->ReadyShaderProgram(this->Program->Program);
       this->ZTexture->Activate();
       this->Program->Program->SetUniformi("depth", this->ZTexture->GetTextureUnit());
 #else
@@ -764,7 +764,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
       }
 
 #ifdef VTKGL2
-    context->GetShaderCache()->ReadyShader(this->Program->Program);
+    context->GetShaderCache()->ReadyShaderProgram(this->Program->Program);
     this->ZTexture->Activate();
     this->Program->Program->SetUniformi("depth", this->ZTexture->GetTextureUnit());
     this->ZTexture->CopyToFrameBuffer(0, 0, w - 1, h - 1,
@@ -807,7 +807,7 @@ void vtkCompositeZPass::CreateProgram(vtkOpenGLRenderWindow *context)
 #ifdef VTKGL2
   this->Program = new vtkOpenGLHelper;
   this->Program->Program =
-    context->GetShaderCache()->ReadyShader(vtkTextureObjectVS,
+    context->GetShaderCache()->ReadyShaderProgram(vtkTextureObjectVS,
                                            vtkCompositeZPassFS,
                                            "");
   if (!this->Program->Program)

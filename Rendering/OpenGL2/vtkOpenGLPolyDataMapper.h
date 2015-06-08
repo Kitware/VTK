@@ -20,8 +20,10 @@
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkPolyDataMapper.h"
+#include "vtkShader.h" // for methods
 #include "vtkOpenGLHelper.h" // used for ivars
 #include <vector> //for ivars
+#include <map> //for methods
 
 class vtkCellArray;
 class vtkMatrix4x4;
@@ -136,55 +138,64 @@ protected:
   virtual void ComputeBounds();
 
   // Description:
-  // Make sure an appropriate shader is defined, compiled and bound.  This method
+  // Make sure appropriate shaders are defined, compiled and bound.  This method
   // orchistrates the process, much of the work is done in other methods
-  virtual void UpdateShader(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
+  virtual void UpdateShaders(
+    vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
 
   // Description:
   // Does the shader source need to be recomputed
-  virtual bool GetNeedToRebuildShader(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
+  virtual bool GetNeedToRebuildShaders(
+    vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
 
   // Description:
   // Build the shader source code, called by UpdateShader
-  virtual void BuildShader(std::string &VertexCode,
-                           std::string &fragmentCode,
-                           std::string &geometryCode,
-                           int lightComplexity,
-                           vtkRenderer *ren, vtkActor *act);
+  virtual void BuildShaders(
+    std::map<vtkShader::Type, vtkShader *> shaders,
+    vtkRenderer *ren, vtkActor *act);
 
   // Description:
   // Create the basic shaders before replacement
-  virtual void GetShaderTemplate(std::string &VertexCode,
-                           std::string &fragmentCode,
-                           std::string &geometryCode,
-                           int lightComplexity,
-                           vtkRenderer *ren, vtkActor *act);
+  virtual void GetShaderTemplate(
+    std::map<vtkShader::Type, vtkShader *> shaders,
+    vtkRenderer *ren, vtkActor *act);
 
   // Description:
   // Perform string replacments on the shader templates
-  virtual void ReplaceShaderValues(std::string &VertexCode,
-                           std::string &fragmentCode,
-                           std::string &geometryCode,
-                           int lightComplexity,
-                           vtkRenderer *ren, vtkActor *act);
+  virtual void ReplaceShaderValues(
+    std::map<vtkShader::Type, vtkShader *> shaders,
+    vtkRenderer *ren, vtkActor *act);
 
   // Description:
   // Perform string replacments on the shader templates, called from
   // ReplaceShaderValues
-  virtual void ReplaceShaderColorMaterialValues(std::string &VertexCode,
-                           std::string &fragmentCode,
-                           std::string &geometryCode,
-                           int lightComplexity,
-                           vtkRenderer *ren, vtkActor *act);
-
-  // Description:
-  // Perform string replacments on the shader templates, called from
-  // ReplaceShaderValues
-  virtual void ReplaceShaderLightingValues(std::string &VertexCode,
-                           std::string &fragmentCode,
-                           std::string &geometryCode,
-                           int lightComplexity,
-                           vtkRenderer *ren, vtkActor *act);
+  virtual void ReplaceShaderColor(
+    std::map<vtkShader::Type, vtkShader *> shaders,
+    vtkRenderer *ren, vtkActor *act);
+  virtual void ReplaceShaderLight(
+    std::map<vtkShader::Type, vtkShader *> shaders,
+    vtkRenderer *ren, vtkActor *act);
+  virtual void ReplaceShaderTCoord(
+    std::map<vtkShader::Type, vtkShader *> shaders,
+    vtkRenderer *ren, vtkActor *act);
+  virtual void ReplaceShaderPicking(
+    std::map<vtkShader::Type, vtkShader *> shaders,
+    vtkRenderer *ren, vtkActor *act);
+  virtual void ReplaceShaderDepthPeeling(
+    std::map<vtkShader::Type, vtkShader *> shaders,
+    vtkRenderer *ren, vtkActor *act);
+  virtual void ReplaceShaderPrimID(
+    std::map<vtkShader::Type, vtkShader *> shaders,
+    vtkRenderer *ren, vtkActor *act);
+  virtual void ReplaceShaderNormal(
+    std::map<vtkShader::Type, vtkShader *> shaders,
+    vtkRenderer *ren, vtkActor *act);
+  virtual void ReplaceShaderClip(
+    std::map<vtkShader::Type, vtkShader *> shaders,
+    vtkRenderer *ren, vtkActor *act);
+  virtual void ReplaceShaderPositionVC(
+    std::map<vtkShader::Type, vtkShader *> shaders,
+    vtkRenderer *ren, vtkActor *act);
 
   // Description:
   // Set the shader parameteres related to the mapper/input data, called by UpdateShader

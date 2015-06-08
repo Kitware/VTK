@@ -361,7 +361,7 @@ void vtkCompositePolyDataMapper2::RenderPieceDraw(
   if (this->Tris.IBO->IndexCount)
     {
     // First we do the triangles, update the shader, set uniforms, etc.
-    this->UpdateShader(this->Tris, ren, actor);
+    this->UpdateShaders(this->Tris, ren, actor);
     this->Tris.IBO->Bind();
     GLenum mode = (representation == VTK_POINTS) ? GL_POINTS :
       (representation == VTK_WIREFRAME) ? GL_LINES : GL_TRIANGLES;
@@ -436,7 +436,7 @@ void vtkCompositePolyDataMapper2::RenderEdges(
   if (this->TrisEdges.IBO->IndexCount)
     {
     // First we do the triangles, update the shader, set uniforms, etc.
-    this->UpdateShader(this->TrisEdges, ren, actor);
+    this->UpdateShaders(this->TrisEdges, ren, actor);
     this->TrisEdges.IBO->Bind();
     std::vector<
       vtkCompositePolyDataMapper2::RenderValue>::iterator it;

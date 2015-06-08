@@ -2278,9 +2278,10 @@ void vtkTextureObject::CopyToFrameBuffer(float *tcoords, float *verts,
 
       // compile and bind it if needed
       vtkShaderProgram *newShader =
-        this->Context->GetShaderCache()->ReadyShader(VSSource.c_str(),
-                                           FSSource.c_str(),
-                                           GSSource.c_str());
+        this->Context->GetShaderCache()->ReadyShaderProgram(
+          VSSource.c_str(),
+          FSSource.c_str(),
+          GSSource.c_str());
 
       // if the shader changed reinitialize the VAO
       if (newShader != this->ShaderProgram->Program)
@@ -2293,7 +2294,8 @@ void vtkTextureObject::CopyToFrameBuffer(float *tcoords, float *verts,
       }
     else
       {
-      this->Context->GetShaderCache()->ReadyShader(this->ShaderProgram->Program);
+      this->Context->GetShaderCache()->ReadyShaderProgram(
+        this->ShaderProgram->Program);
       }
 
     // bind and activate this texture

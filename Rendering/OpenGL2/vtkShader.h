@@ -21,6 +21,7 @@
 #include "vtkObject.h"
 
 #include <string> // For member variables.
+#include <vector> // For member variables.
 
 /**
  * @brief Vertex or Fragment shader, combined into a ShaderProgram.
@@ -73,6 +74,10 @@ public:
    * Shader.
    */
   void Cleanup();
+
+  std::vector<std::string> Substitutions;
+  std::vector<std::string> Inputs;
+  std::vector<std::string> Outputs;
 
 protected:
   vtkShader();
