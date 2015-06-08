@@ -717,7 +717,7 @@ int TestMiscFunctions()
     double expected = x / y;
     if (!vtkMathUtilities::FuzzyCompare(
           result, expected,
-          std::numeric_limits<double>::epsilon() * 128.0))
+          std::numeric_limits<double>::epsilon() * 256.0))
       {
       std::cout << "\n";
       std::cout <<  " x / y Expected " << expected
