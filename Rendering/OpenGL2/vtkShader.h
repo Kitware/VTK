@@ -75,10 +75,6 @@ public:
    */
   void Cleanup();
 
-  std::vector<std::string> Substitutions;
-  std::vector<std::string> Inputs;
-  std::vector<std::string> Outputs;
-
 protected:
   vtkShader();
   ~vtkShader();
