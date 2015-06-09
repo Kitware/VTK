@@ -602,16 +602,15 @@ void vtkImageResizeFilter3D(
 
     if (pixelCounter > 0)
       {
-
-      T * tmpOutPtrHead = outPtr;
+      T *tmpOutPtrHead = outPtr;
       for (int idZ = idZMin; idZ <= idZMax; idZ++)
         {
         const T *tmpPtrZ = inPtr + (*aZ++);
         const vtkIdType *aYtmp = aY;
-        T * tmpOutPtrHeadZ = tmpOutPtrHead +(idZ-idZMin)*outInc[2];
+        T *tmpOutPtrHeadZ = tmpOutPtrHead + (idZ - idZMin)*outInc[2];
         for (int idY = idYMin; idY <= idYMax; idY++)
           {
-          outPtr = tmpOutPtrHeadZ + (idY-idYMin)*outInc[1];
+          outPtr = tmpOutPtrHeadZ + (idY - idYMin)*outInc[1];
           const T *tmpPtrY = tmpPtrZ + (*aYtmp++);
           const vtkIdType *aXtmp = aX;
 
