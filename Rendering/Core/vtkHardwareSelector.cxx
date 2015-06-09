@@ -29,8 +29,9 @@
 #include "vtkStructuredExtent.h"
 
 #include <algorithm>
-#include <set>
+#include <cassert>
 #include <map>
+#include <set>
 
 #define ID_OFFSET 1
 
@@ -580,12 +581,17 @@ bool vtkHardwareSelector::IsPropHit(int id)
 
 //----------------------------------------------------------------------------
 vtkHardwareSelector::PixelInformation vtkHardwareSelector::GetPixelInformation(
-  unsigned int in_display_position[2], int maxDistance)
+  const unsigned int in_display_position[2], int maxDistance,
+  unsigned int out_selected_position[2])
 {
+  assert(in_display_position != out_selected_position);
+
   // Base case
   unsigned int maxDist = (maxDistance < 0) ? 0 : static_cast<unsigned int>(maxDistance);
   if (maxDist == 0)
     {
+    out_selected_position[0] = in_display_position[0];
+    out_selected_position[1] = in_display_position[1];
     if (in_display_position[0] < this->Area[0] || in_display_position[0] > this->Area[2] ||
       in_display_position[1] < this->Area[1] || in_display_position[1] > this->Area[3])
       {
@@ -641,7 +647,7 @@ vtkHardwareSelector::PixelInformation vtkHardwareSelector::GetPixelInformation(
   unsigned int disp_pos[2] = {in_display_position[0], in_display_position[1]};
   unsigned int cur_pos[2] = {0, 0};
   PixelInformation info;
-  info = this->GetPixelInformation(in_display_position, 0);
+  info = this->GetPixelInformation(in_display_position, 0, out_selected_position);
   if (info.Valid)
     {
     return info;
@@ -655,14 +661,14 @@ vtkHardwareSelector::PixelInformation vtkHardwareSelector::GetPixelInformation(
       if (disp_pos[0] >= dist)
         {
         cur_pos[0] = disp_pos[0] - dist;
-        info = this->GetPixelInformation(cur_pos, 0);
+        info = this->GetPixelInformation(cur_pos, 0, out_selected_position);
         if (info.Valid)
           {
           return info;
           }
         }
       cur_pos[0] = disp_pos[0] + dist;
-      info = this->GetPixelInformation(cur_pos, 0);
+      info = this->GetPixelInformation(cur_pos, 0, out_selected_position);
       if (info.Valid)
         {
         return info;
@@ -675,14 +681,14 @@ vtkHardwareSelector::PixelInformation vtkHardwareSelector::GetPixelInformation(
       if (disp_pos[1] >= dist)
         {
         cur_pos[1] = disp_pos[1] - dist;
-        info = this->GetPixelInformation(cur_pos, 0);
+        info = this->GetPixelInformation(cur_pos, 0, out_selected_position);
         if (info.Valid)
           {
           return info;
           }
         }
       cur_pos[1] = disp_pos[1] + dist;
-      info = this->GetPixelInformation(cur_pos, 0);
+      info = this->GetPixelInformation(cur_pos, 0, out_selected_position);
       if (info.Valid)
         {
         return info;
@@ -691,6 +697,8 @@ vtkHardwareSelector::PixelInformation vtkHardwareSelector::GetPixelInformation(
     }
 
   // nothing hit.
+  out_selected_position[0] = in_display_position[0];
+  out_selected_position[1] = in_display_position[1];
   return PixelInformation();
 }
 
