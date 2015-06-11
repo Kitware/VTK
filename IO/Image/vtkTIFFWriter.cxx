@@ -21,7 +21,9 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtk_tiff.h"
 
-#include <sstream>
+#if _MSC_VER
+#define snprintf _snprintf
+#endif
 
 vtkStandardNewMacro(vtkTIFFWriter);
 
