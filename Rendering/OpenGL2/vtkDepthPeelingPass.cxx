@@ -225,13 +225,15 @@ void vtkDepthPeelingPass::BlendIntermediatePeels(
     std::string FSSource = vtkDepthPeelingPassIntermediateFS;
     std::string GSSource;
     this->IntermediateBlendProgram->Program =
-        renWin->GetShaderCache()->ReadyShader(VSSource.c_str(),
-                                              FSSource.c_str(),
-                                              GSSource.c_str());
+      renWin->GetShaderCache()->ReadyShaderProgram(
+        VSSource.c_str(),
+        FSSource.c_str(),
+        GSSource.c_str());
     }
   else
     {
-    renWin->GetShaderCache()->ReadyShader(this->IntermediateBlendProgram->Program);
+    renWin->GetShaderCache()->ReadyShaderProgram(
+      this->IntermediateBlendProgram->Program);
     }
   this->IntermediateBlendProgram->Program->SetUniformi(
     "translucentRGBATexture", this->TranslucentRGBATexture->GetTextureUnit());
@@ -258,13 +260,15 @@ void vtkDepthPeelingPass::BlendFinalPeel(vtkOpenGLRenderWindow *renWin)
     std::string FSSource = vtkDepthPeelingPassFinalFS;
     std::string GSSource;
     this->FinalBlendProgram->Program =
-        renWin->GetShaderCache()->ReadyShader(VSSource.c_str(),
-                                              FSSource.c_str(),
-                                              GSSource.c_str());
+      renWin->GetShaderCache()->ReadyShaderProgram(
+        VSSource.c_str(),
+        FSSource.c_str(),
+        GSSource.c_str());
     }
   else
     {
-    renWin->GetShaderCache()->ReadyShader(this->FinalBlendProgram->Program);
+    renWin->GetShaderCache()->ReadyShaderProgram(
+      this->FinalBlendProgram->Program);
     }
 
   this->FinalBlendProgram->Program->SetUniformi(

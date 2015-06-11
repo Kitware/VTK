@@ -278,9 +278,10 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
 
       // compile and bind it if needed
       vtkShaderProgram *newShader =
-        renWin->GetShaderCache()->ReadyShader(VSSource.c_str(),
-                                              FSSource.c_str(),
-                                              GSSource.c_str());
+        renWin->GetShaderCache()->ReadyShaderProgram(
+          VSSource.c_str(),
+          FSSource.c_str(),
+          GSSource.c_str());
 
       // if the shader changed reinitialize the VAO
       if (newShader != this->BlurProgram->Program)
@@ -293,7 +294,7 @@ void vtkGaussianBlurPass::Render(const vtkRenderState *s)
       }
     else
       {
-      renWin->GetShaderCache()->ReadyShader(this->BlurProgram->Program);
+      renWin->GetShaderCache()->ReadyShaderProgram(this->BlurProgram->Program);
       }
 
     if(this->BlurProgram->Program->GetCompiled() != true)

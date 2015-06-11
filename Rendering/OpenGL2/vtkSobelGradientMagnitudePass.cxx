@@ -255,9 +255,10 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
 
       // compile and bind it if needed
       vtkShaderProgram *newShader =
-        context->GetShaderCache()->ReadyShader(VSSource.c_str(),
-                                              FSSource.c_str(),
-                                              GSSource.c_str());
+        context->GetShaderCache()->ReadyShaderProgram(
+          VSSource.c_str(),
+          FSSource.c_str(),
+          GSSource.c_str());
 
       // if the shader changed reinitialize the VAO
       if (newShader != this->Program1->Program)
@@ -270,7 +271,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
       }
     else
       {
-      context->GetShaderCache()->ReadyShader(this->Program1->Program);
+      context->GetShaderCache()->ReadyShaderProgram(this->Program1->Program);
       }
 
 #ifdef VTK_SOBEL_PASS_DEBUG
@@ -389,9 +390,10 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
 
       // compile and bind it if needed
       vtkShaderProgram *newShader =
-        context->GetShaderCache()->ReadyShader(VSSource.c_str(),
-                                              FSSource.c_str(),
-                                              GSSource.c_str());
+        context->GetShaderCache()->ReadyShaderProgram(
+          VSSource.c_str(),
+          FSSource.c_str(),
+          GSSource.c_str());
 
       // if the shader changed reinitialize the VAO
       if (newShader != this->Program2->Program)
@@ -404,7 +406,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
       }
     else
       {
-      context->GetShaderCache()->ReadyShader(this->Program2->Program);
+      context->GetShaderCache()->ReadyShaderProgram(this->Program2->Program);
       }
 
 #ifdef VTK_SOBEL_PASS_DEBUG

@@ -68,18 +68,20 @@ protected:
 
   // Description:
   // Does the shader source need to be recomputed
-  virtual bool GetNeedToRebuildShader(vtkOpenGLHelper &cellBO, vtkViewport *ren, vtkActor2D *act);
+  virtual bool GetNeedToRebuildShaders(
+    vtkOpenGLHelper &cellBO, vtkViewport *ren, vtkActor2D *act);
 
   // Description:
   // Build the shader source code
-  virtual void BuildShader(std::string &VertexCode,
+  virtual void BuildShaders(std::string &VertexCode,
                            std::string &fragmentCode,
                            std::string &geometryCode,
                            vtkViewport *ren, vtkActor2D *act);
 
   // Description:
   // Determine what shader to use and compile/link it
-  virtual void UpdateShader(vtkOpenGLHelper &cellBO, vtkViewport *viewport, vtkActor2D *act);
+  virtual void UpdateShaders(vtkOpenGLHelper &cellBO,
+    vtkViewport *viewport, vtkActor2D *act);
 
   // Description:
   // Set the shader parameteres related to the mapper/input data, called by UpdateShader

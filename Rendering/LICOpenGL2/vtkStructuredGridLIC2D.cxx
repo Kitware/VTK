@@ -551,9 +551,10 @@ int vtkStructuredGridLIC2D::RequestData(
   std::string FSSource = vtkStructuredGridLIC2D_fs;
   std::string GSSource;
   this->LICProgram->Program =
-      renWin->GetShaderCache()->ReadyShader(VSSource.c_str(),
-                                            FSSource.c_str(),
-                                            GSSource.c_str());
+    renWin->GetShaderCache()->ReadyShaderProgram(
+      VSSource.c_str(),
+      FSSource.c_str(),
+      GSSource.c_str());
   vtkShaderProgram *pgm = this->LICProgram->Program;
 
   float fvalues[3];

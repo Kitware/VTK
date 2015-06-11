@@ -82,24 +82,22 @@ void vtkOpenGLGlyph3DHelper::ReleaseGraphicsResources(vtkWindow *window)
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLGlyph3DHelper::GetShaderTemplate(std::string &VSSource,
-                                          std::string &FSSource,
-                                          std::string &GSSource,
-                                          int lightComplexity, vtkRenderer* ren, vtkActor *actor)
+void vtkOpenGLGlyph3DHelper::GetShaderTemplate(
+    std::map<vtkShader::Type, vtkShader *> shaders,
+    vtkRenderer *ren, vtkActor *actor)
 {
-  this->Superclass::GetShaderTemplate(VSSource,FSSource,GSSource,lightComplexity,ren,actor);
+  this->Superclass::GetShaderTemplate(shaders,ren,actor);
 
-  VSSource = vtkGlyph3DVS;
+  shaders[vtkShader::Vertex]->SetSource(vtkGlyph3DVS);
 }
 
-void vtkOpenGLGlyph3DHelper::ReplaceShaderValues(std::string &VSSource,
-                                                 std::string &FSSource,
-                                                 std::string &GSSource,
-                                                 int lightComplexity,
-                                                 vtkRenderer* ren,
-                                                 vtkActor *actor)
+void vtkOpenGLGlyph3DHelper::ReplaceShaderPositionVC(
+  std::map<vtkShader::Type, vtkShader *> shaders,
+  vtkRenderer *ren, vtkActor *actor)
 {
-  if (lightComplexity > 0)
+  std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
+
+  if (this->LastLightComplexity > 0)
     {
     // we use vertex instead of vertexMC
     vtkShaderProgram::Substitute(VSSource,
@@ -113,6 +111,18 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderValues(std::string &VSSource,
       "//VTK::PositionVC::Impl",
       "gl_Position = MCDCMatrix * vertex;\n");
     }
+
+  shaders[vtkShader::Vertex]->SetSource(VSSource);
+
+  this->Superclass::ReplaceShaderPositionVC(shaders,ren,actor);
+}
+
+void vtkOpenGLGlyph3DHelper::ReplaceShaderColor(
+  std::map<vtkShader::Type, vtkShader *> shaders,
+  vtkRenderer *ren, vtkActor *actor)
+{
+  std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
+  std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
 
   // deal with color
   if (this->UsingInstancing)
@@ -147,7 +157,7 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderValues(std::string &VSSource,
       "uniform vec3 diffuseColorUniformBF; // intensity weighted color\n";
     }
   // add more for specular
-  if (lightComplexity)
+  if (this->LastLightComplexity)
     {
     colorDec +=
       "uniform vec3 specularColorUniform; // intensity weighted color\n"
@@ -169,7 +179,7 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderValues(std::string &VSSource,
     "vec3 ambientColor;\n"
     "  vec3 diffuseColor;\n"
     "  float opacity;\n";
-  if (lightComplexity)
+  if (this->LastLightComplexity)
     {
     colorImpl +=
       "  vec3 specularColor;\n"
@@ -177,7 +187,7 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderValues(std::string &VSSource,
     }
   if (actor->GetBackfaceProperty())
     {
-    if (lightComplexity)
+    if (this->LastLightComplexity)
       {
       colorImpl +=
         "  if (int(gl_FrontFacing) == 0) {\n"
@@ -212,7 +222,7 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderValues(std::string &VSSource,
       "    ambientColor = ambientColorUniform;\n"
       "    diffuseColor = diffuseColorUniform;\n"
       "    opacity = opacityUniform;\n";
-    if (lightComplexity)
+    if (this->LastLightComplexity)
       {
       colorImpl +=
         "    specularColor = specularColorUniform;\n"
@@ -261,6 +271,19 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderValues(std::string &VSSource,
                      "//VTK::Glyph::Impl",
                      "vec4 vertex = GCMCMatrix * vertexMC;\n");
 
+  shaders[vtkShader::Vertex]->SetSource(VSSource);
+  shaders[vtkShader::Fragment]->SetSource(FSSource);
+
+  this->Superclass::ReplaceShaderColor(shaders,ren,actor);
+}
+
+void vtkOpenGLGlyph3DHelper::ReplaceShaderNormal(
+  std::map<vtkShader::Type, vtkShader *> shaders,
+  vtkRenderer *ren, vtkActor *actor)
+{
+  std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
+  std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
+
   // new code for normal matrix if we have normals
   if (this->VBO->NormalOffset)
     {
@@ -287,6 +310,19 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderValues(std::string &VSSource,
     this->ShaderVariablesUsed.push_back("normalMatrix");
     }
 
+  shaders[vtkShader::Vertex]->SetSource(VSSource);
+  shaders[vtkShader::Fragment]->SetSource(FSSource);
+
+  this->Superclass::ReplaceShaderNormal(shaders,ren,actor);
+}
+
+
+void vtkOpenGLGlyph3DHelper::ReplaceShaderClip(
+  std::map<vtkShader::Type, vtkShader *> shaders,
+  vtkRenderer *ren, vtkActor *actor)
+{
+  std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
+
   // override one part of the clipping code
   if (this->GetNumberOfClippingPlanes())
     {
@@ -306,9 +342,9 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderValues(std::string &VSSource,
        "    }\n");
     }
 
+  shaders[vtkShader::Vertex]->SetSource(VSSource);
 
-  this->Superclass::ReplaceShaderValues(VSSource,FSSource,GSSource,
-                                        lightComplexity,ren,actor);
+  this->Superclass::ReplaceShaderClip(shaders,ren,actor);
 }
 
 void vtkOpenGLGlyph3DHelper::GlyphRender(
@@ -356,7 +392,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
     if (!primed)
       {
       this->RenderPieceStart(ren,actor);
-      this->UpdateShader(this->Tris, ren, actor);
+      this->UpdateShaders(this->Tris, ren, actor);
       this->Tris.IBO->Bind();
       primed = true;
       }
@@ -477,7 +513,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
 {
   this->UsingInstancing = true;
   this->RenderPieceStart(ren,actor);
-  this->UpdateShader(this->Tris, ren, actor);
+  this->UpdateShaders(this->Tris, ren, actor);
 
   // do the superclass and then reset a couple values
   if (this->Tris.IBO->IndexCount &&   // we have points and one of

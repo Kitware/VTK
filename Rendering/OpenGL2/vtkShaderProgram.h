@@ -46,14 +46,17 @@ public:
   // Description:
   // Get the vertex shader for this program
   vtkGetObjectMacro(VertexShader, vtkShader);
+  void SetVertexShader(vtkShader*);
 
   // Description:
   // Get the fragment shader for this program
   vtkGetObjectMacro(FragmentShader, vtkShader);
+  void SetFragmentShader(vtkShader*);
 
   // Description:
   // Get the geometry shader for this program
   vtkGetObjectMacro(GeometryShader, vtkShader);
+  void SetGeometryShader(vtkShader*);
 
   // Description:
   // Set/Get flag for if this program is compiled

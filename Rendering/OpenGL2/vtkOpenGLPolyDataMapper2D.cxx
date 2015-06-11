@@ -109,8 +109,9 @@ void vtkOpenGLPolyDataMapper2D::ReleaseGraphicsResources(vtkWindow* win)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkOpenGLPolyDataMapper2D::GetNeedToRebuildShader(vtkOpenGLHelper &cellBO,
-      vtkViewport* vtkNotUsed(viewport), vtkActor2D *actor)
+bool vtkOpenGLPolyDataMapper2D::GetNeedToRebuildShaders(
+  vtkOpenGLHelper &cellBO,
+  vtkViewport* vtkNotUsed(viewport), vtkActor2D *actor)
 {
   // has something changed that would require us to recreate the shader?
   // candidates are
@@ -129,7 +130,7 @@ bool vtkOpenGLPolyDataMapper2D::GetNeedToRebuildShader(vtkOpenGLHelper &cellBO,
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLPolyDataMapper2D::BuildShader(
+void vtkOpenGLPolyDataMapper2D::BuildShaders(
   std::string &VSSource, std::string &FSSource, std::string &GSSource,
   vtkViewport* vtkNotUsed(viewport), vtkActor2D *vtkNotUsed(actor))
 {
@@ -229,21 +230,22 @@ void vtkOpenGLPolyDataMapper2D::BuildShader(
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLPolyDataMapper2D::UpdateShader(vtkOpenGLHelper &cellBO,
+void vtkOpenGLPolyDataMapper2D::UpdateShaders(vtkOpenGLHelper &cellBO,
     vtkViewport* viewport, vtkActor2D *actor)
 {
   vtkOpenGLRenderWindow *renWin = vtkOpenGLRenderWindow::SafeDownCast(viewport->GetVTKWindow());
 
-  if (this->GetNeedToRebuildShader(cellBO, viewport, actor))
+  if (this->GetNeedToRebuildShaders(cellBO, viewport, actor))
     {
     std::string VSSource;
     std::string FSSource;
     std::string GSSource;
-    this->BuildShader(VSSource,FSSource,GSSource,viewport,actor);
+    this->BuildShaders(VSSource,FSSource,GSSource,viewport,actor);
     vtkShaderProgram *newShader =
-      renWin->GetShaderCache()->ReadyShader(VSSource.c_str(),
-                                            FSSource.c_str(),
-                                            GSSource.c_str());
+      renWin->GetShaderCache()->ReadyShaderProgram(
+        VSSource.c_str(),
+        FSSource.c_str(),
+        GSSource.c_str());
     cellBO.ShaderSourceTime.Modified();
     // if the shader changed reinitialize the VAO
     if (newShader != cellBO.Program)
@@ -254,7 +256,7 @@ void vtkOpenGLPolyDataMapper2D::UpdateShader(vtkOpenGLHelper &cellBO,
     }
   else
     {
-    renWin->GetShaderCache()->ReadyShader(cellBO.Program);
+    renWin->GetShaderCache()->ReadyShaderProgram(cellBO.Program);
     }
 
 
@@ -670,7 +672,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
 
   // Figure out and build the appropriate shader for the mapped geometry.
   this->PrimitiveIDOffset = 0;
-  this->UpdateShader(this->Points, viewport, actor);
+  this->UpdateShaders(this->Points, viewport, actor);
   this->Points.Program->SetUniformi("PrimitiveIDOffset",
     this->PrimitiveIDOffset);
 

@@ -903,6 +903,23 @@ public:
     {
     this->ClearGraphicsResources();
 
+    if (this->ColorPass)
+      {
+      delete this->ColorPass;
+      }
+    if (this->ColorEnhancePass)
+      {
+      delete this->ColorEnhancePass;
+      }
+    if (this->CopyPass)
+      {
+      delete this->CopyPass;
+      }
+    this->ColorPass = NULL;
+    this->ColorEnhancePass = NULL;
+    this->CopyPass = NULL;
+
+
     delete this->Communicator;
     }
 
@@ -946,10 +963,6 @@ public:
   void ClearGraphicsResources()
     {
     this->ClearTextures();
-
-    this->ColorPass = NULL;
-    this->ColorEnhancePass = NULL;
-    this->CopyPass = NULL;
 
     this->Compositor = NULL;
     this->LICer = NULL;
@@ -2075,13 +2088,13 @@ namespace {
     *cbor = new vtkOpenGLHelper;
     std::string GSSource;
     (*cbor)->Program =
-        renWin->GetShaderCache()->ReadyShader(vert,
+        renWin->GetShaderCache()->ReadyShaderProgram(vert,
                                               frag,
                                               GSSource.c_str());
     }
   else
     {
-    renWin->GetShaderCache()->ReadyShader((*cbor)->Program);
+    renWin->GetShaderCache()->ReadyShaderProgram((*cbor)->Program);
     }
   }
 }
@@ -2447,13 +2460,13 @@ void vtkSurfaceLICMapper::SetUpdateAll()
   this->Internals->UpdateAll();
 }
 
-void vtkSurfaceLICMapper::ReplaceShaderValues(std::string &VSSource,
-                                              std::string &FSSource,
-                                              std::string &GSSource,
-                                              int lightComplexity,
-                                              vtkRenderer* ren,
-                                              vtkActor *actor)
+void vtkSurfaceLICMapper::ReplaceShaderValues(
+    std::map<vtkShader::Type, vtkShader *> shaders,
+    vtkRenderer *ren, vtkActor *actor)
 {
+  std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
+  std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
+
   // add some code to handle the LIC vectors and mask
   vtkShaderProgram::Substitute(VSSource,
     "//VTK::TCoord::Dec",
@@ -2496,8 +2509,10 @@ void vtkSurfaceLICMapper::ReplaceShaderValues(std::string &VSSource,
 
   this->ShaderVariablesUsed.push_back("normalMatrix");
 
-  this->Superclass::ReplaceShaderValues(VSSource,FSSource,GSSource,
-    lightComplexity, ren, actor);
+  shaders[vtkShader::Vertex]->SetSource(VSSource);
+  shaders[vtkShader::Fragment]->SetSource(FSSource);
+
+  this->Superclass::ReplaceShaderValues(shaders,ren,actor);
 }
 
 void vtkSurfaceLICMapper::SetMapperShaderParameters(
@@ -2956,7 +2971,7 @@ void vtkSurfaceLICMapper::RenderPiece(
     this->Internals->LICImage->Activate();
 
     vtkShaderProgram *colorPass = this->Internals->ColorPass->Program;
-    renWin->GetShaderCache()->ReadyShader(colorPass);
+    renWin->GetShaderCache()->ReadyShaderProgram(colorPass);
     colorPass->SetUniformi("texVectors",
       this->Internals->VectorImage->GetTextureUnit());
     colorPass->SetUniformi("texGeomColors",
@@ -3052,7 +3067,7 @@ void vtkSurfaceLICMapper::RenderPiece(
 
       vtkShaderProgram *colorEnhancePass =
         this->Internals->ColorEnhancePass->Program;
-      renWin->GetShaderCache()->ReadyShader(colorEnhancePass);
+      renWin->GetShaderCache()->ReadyShaderProgram(colorEnhancePass);
       colorEnhancePass->SetUniformi("texGeomColors",
         this->Internals->GeometryImage->GetTextureUnit());
       colorEnhancePass->SetUniformi("texHSLColors",
@@ -3112,7 +3127,7 @@ void vtkSurfaceLICMapper::RenderPiece(
 
   vtkShaderProgram *copyPass =
     this->Internals->CopyPass->Program;
-  renWin->GetShaderCache()->ReadyShader(copyPass);
+  renWin->GetShaderCache()->ReadyShaderProgram(copyPass);
   copyPass->SetUniformi("texDepth",
     this->Internals->DepthImage->GetTextureUnit());
   copyPass->SetUniformi("texRGBColors",

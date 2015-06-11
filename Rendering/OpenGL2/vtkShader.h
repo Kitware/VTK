@@ -21,6 +21,7 @@
 #include "vtkObject.h"
 
 #include <string> // For member variables.
+#include <vector> // For member variables.
 
 /**
  * @brief Vertex or Fragment shader, combined into a ShaderProgram.

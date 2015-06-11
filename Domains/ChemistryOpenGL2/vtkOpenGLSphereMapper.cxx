@@ -46,24 +46,21 @@ vtkOpenGLSphereMapper::vtkOpenGLSphereMapper()
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLSphereMapper::GetShaderTemplate(std::string &VSSource,
-  std::string &FSSource,
-  std::string &GSSource,
-  int lightComplexity, vtkRenderer* ren, vtkActor *actor)
+void vtkOpenGLSphereMapper::GetShaderTemplate(
+  std::map<vtkShader::Type, vtkShader *> shaders,
+  vtkRenderer *ren, vtkActor *actor)
 {
-  this->Superclass::GetShaderTemplate(VSSource,FSSource,GSSource,
-                                      lightComplexity,ren,actor);
-
-  VSSource = vtkSphereMapperVS;
+  this->Superclass::GetShaderTemplate(shaders,ren,actor);
+  shaders[vtkShader::Vertex]->SetSource(vtkSphereMapperVS);
 }
 
-void vtkOpenGLSphereMapper::ReplaceShaderValues(std::string &VSSource,
-                                                 std::string &FSSource,
-                                                 std::string &GSSource,
-                                                 int lightComplexity,
-                                                 vtkRenderer* ren,
-                                                 vtkActor *actor)
+void vtkOpenGLSphereMapper::ReplaceShaderValues(
+  std::map<vtkShader::Type, vtkShader *> shaders,
+  vtkRenderer *ren, vtkActor *actor)
 {
+  std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
+  std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
+
   vtkShaderProgram::Substitute(VSSource,
     "//VTK::Camera::Dec",
     "uniform mat4 VCDCMatrix;\n"
@@ -138,8 +135,10 @@ void vtkOpenGLSphereMapper::ReplaceShaderValues(std::string &VSSource,
       );
     }
 
-  this->Superclass::ReplaceShaderValues(VSSource,FSSource,GSSource,
-                                        lightComplexity,ren,actor);
+  shaders[vtkShader::Vertex]->SetSource(VSSource);
+  shaders[vtkShader::Fragment]->SetSource(FSSource);
+
+  this->Superclass::ReplaceShaderValues(shaders,ren,actor);
 }
 
 //-----------------------------------------------------------------------------
@@ -350,7 +349,7 @@ void vtkOpenGLSphereMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
   if (this->Tris.IBO->IndexCount)
     {
     // First we do the triangles, update the shader, set uniforms, etc.
-    this->UpdateShader(this->Tris, ren, actor);
+    this->UpdateShaders(this->Tris, ren, actor);
     glDrawArrays(GL_TRIANGLES, 0,
                 static_cast<GLuint>(this->VBO->VertexCount));
     }

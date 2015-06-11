@@ -104,7 +104,7 @@ bool vtkOpenGLLabeledContourMapper::ApplyStencil(vtkRenderer *ren,
   if (!this->StencilBO->Program)
     {
     this->StencilBO->Program  =
-        renWin->GetShaderCache()->ReadyShader(
+        renWin->GetShaderCache()->ReadyShaderProgram(
         // vertex shader
         "//VTK::System::Dec\n"
         "attribute vec4 vertexMC;\n"
@@ -119,7 +119,7 @@ bool vtkOpenGLLabeledContourMapper::ApplyStencil(vtkRenderer *ren,
     }
   else
     {
-    renWin->GetShaderCache()->ReadyShader(this->StencilBO->Program);
+    renWin->GetShaderCache()->ReadyShaderProgram(this->StencilBO->Program);
     }
 
   vtkOpenGLCamera *cam = (vtkOpenGLCamera *)(ren->GetActiveCamera());

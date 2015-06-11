@@ -395,7 +395,7 @@ void vtkPSurfaceLICComposite::SetContext(vtkOpenGLRenderWindow *rwin)
     this->CompositeShader = new vtkOpenGLHelper;
     std::string GSSource;
     this->CompositeShader->Program =
-        rwin->GetShaderCache()->ReadyShader(vtkTextureObjectVS,
+        rwin->GetShaderCache()->ReadyShaderProgram(vtkTextureObjectVS,
                                           vtkPSurfaceLICComposite_CompFS,
                                             GSSource.c_str());
 #else
@@ -1423,7 +1423,7 @@ int vtkPSurfaceLICComposite::Gather(
   glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
 #ifdef VTK_OPENGL2
-  this->Context->GetShaderCache()->ReadyShader(
+  this->Context->GetShaderCache()->ReadyShaderProgram(
     this->CompositeShader->Program);
 #else
   vtkUniformVariables *uniforms = this->CompositeShader->GetUniformVariables();

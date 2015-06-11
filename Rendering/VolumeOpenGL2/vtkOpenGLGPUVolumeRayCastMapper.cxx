@@ -2415,7 +2415,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
 
   // Now compile the shader
   //--------------------------------------------------------------------------
-  this->Impl->ShaderProgram = this->Impl->ShaderCache->ReadyShader(
+  this->Impl->ShaderProgram = this->Impl->ShaderCache->ReadyShaderProgram(
     vertexShader.c_str(), fragmentShader.c_str(), "");
 
   if (!this->Impl->ShaderProgram->GetCompiled())
@@ -2633,7 +2633,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     }
 
   // Bind the shader
-  this->Impl->ShaderCache->ReadyShader(
+  this->Impl->ShaderCache->ReadyShaderProgram(
     this->Impl->ShaderProgram);
 
   // And now update the geometry that will be used
