@@ -315,7 +315,7 @@ void vtkTIFFWriter::WriteVolume(T* buffer)
   uint32 h = height;
   int bitsPerSample = sizeof(T) * 8;
 
-  for (unsigned int page = 0; page < pages; ++page)
+  for (int page = 0; page < pages; ++page)
     {
     this->UpdateProgress(static_cast<double>(page + 1) / pages);
 
