@@ -87,6 +87,7 @@ void vtkImageStencilIterator<DType>::Initialize(
   vtkIdType tmp;
   image->GetContinuousIncrements(
     extent, tmp, this->RowEndIncrement, this->SliceEndIncrement);
+  this->SliceEndIncrement = this->SliceEndIncrement + this->RowEndIncrement;
 
   this->Pointer = static_cast<DType *>(
     image->GetScalarPointerForExtent(extent));
