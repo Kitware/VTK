@@ -44,6 +44,7 @@
 // Bring in our shader symbols.
 #include "vtkPolyData2DVS.h"
 #include "vtkPolyData2DFS.h"
+#include "vtkPolyDataWideLineGS.h"
 
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper2D);
 
@@ -132,11 +133,20 @@ bool vtkOpenGLPolyDataMapper2D::GetNeedToRebuildShaders(
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper2D::BuildShaders(
   std::string &VSSource, std::string &FSSource, std::string &GSSource,
-  vtkViewport* vtkNotUsed(viewport), vtkActor2D *vtkNotUsed(actor))
+  vtkViewport* vtkNotUsed(viewport), vtkActor2D *actor)
 {
   VSSource = vtkPolyData2DVS;
   FSSource = vtkPolyData2DFS;
-  GSSource.clear();
+  if (this->LastBoundBO == &this->Lines
+      && actor->GetProperty()->GetLineWidth() > 1.0
+      && vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
+    {
+    GSSource = vtkPolyDataWideLineGS;
+    }
+  else
+    {
+    GSSource.clear();
+    }
 
   // Build our shader if necessary.
   if (this->HaveCellScalars)
@@ -235,6 +245,9 @@ void vtkOpenGLPolyDataMapper2D::UpdateShaders(vtkOpenGLHelper &cellBO,
 {
   vtkOpenGLRenderWindow *renWin = vtkOpenGLRenderWindow::SafeDownCast(viewport->GetVTKWindow());
 
+  cellBO.VAO->Bind();
+  this->LastBoundBO = &cellBO;
+
   if (this->GetNeedToRebuildShaders(cellBO, viewport, actor))
     {
     std::string VSSource;
@@ -259,11 +272,9 @@ void vtkOpenGLPolyDataMapper2D::UpdateShaders(vtkOpenGLHelper &cellBO,
     renWin->GetShaderCache()->ReadyShaderProgram(cellBO.Program);
     }
 
-
   this->SetMapperShaderParameters(cellBO, viewport, actor);
   this->SetPropertyShaderParameters(cellBO, viewport, actor);
   this->SetCameraShaderParameters(cellBO, viewport, actor);
-  cellBO.VAO->Bind();
 }
 
 
@@ -331,6 +342,19 @@ void vtkOpenGLPolyDataMapper2D::SetMapperShaderParameters(
       int tunit = info->Get(vtkProp::GeneralTextureUnit());
       cellBO.Program->SetUniformi("texture1", tunit);
       }
+    }
+
+  // handle wide lines
+  if (this->LastBoundBO == &this->Lines
+      && actor->GetProperty()->GetLineWidth() > 1.0
+      && vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
+    {
+      int vp[4];
+      glGetIntegerv(GL_VIEWPORT, vp);
+      float lineWidth[2];
+      lineWidth[0] = 2.0*actor->GetProperty()->GetLineWidth()/vp[2];
+      lineWidth[1] = 2.0*actor->GetProperty()->GetLineWidth()/vp[3];
+      cellBO.Program->SetUniform2f("lineWidthNVC",lineWidth);
     }
 }
 
@@ -664,6 +688,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     }
 
   this->VBO->Bind();
+  this->LastBoundBO = NULL;
 
   if (this->HaveCellScalars)
     {
@@ -672,12 +697,12 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
 
   // Figure out and build the appropriate shader for the mapped geometry.
   this->PrimitiveIDOffset = 0;
-  this->UpdateShaders(this->Points, viewport, actor);
-  this->Points.Program->SetUniformi("PrimitiveIDOffset",
-    this->PrimitiveIDOffset);
 
   if (this->Points.IBO->IndexCount)
     {
+    this->UpdateShaders(this->Points, viewport, actor);
+    this->Points.Program->SetUniformi("PrimitiveIDOffset",
+      this->PrimitiveIDOffset);
     // Set the PointSize
 #if GL_ES_VERSION_2_0 != 1
     glPointSize(actor->GetProperty()->GetPointSize()); // not on ES2
@@ -690,19 +715,19 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
                         reinterpret_cast<const GLvoid *>(NULL));
     this->Points.IBO->Release();
     this->PrimitiveIDOffset += (int)this->Points.IBO->IndexCount;
-    this->Points.Program->SetUniformi("PrimitiveIDOffset",
-      this->PrimitiveIDOffset);
     }
 
   if (this->Lines.IBO->IndexCount)
     {
     // Set the LineWidth
-    if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32() &&
-        actor->GetProperty()->GetLineWidth() > 1.0)
+    this->UpdateShaders(this->Lines, viewport, actor);
+    this->Lines.Program->SetUniformi("PrimitiveIDOffset",
+      this->PrimitiveIDOffset);
+    if (!vtkOpenGLRenderWindow::GetContextSupportsOpenGL32() ||
+        actor->GetProperty()->GetLineWidth() <= 1.0)
       {
-      vtkWarningMacro("line widths above 1.0 are not supported by OpenGL 3.2");
+      glLineWidth(actor->GetProperty()->GetLineWidth());
       }
-    glLineWidth(actor->GetProperty()->GetLineWidth());
     this->Lines.IBO->Bind();
     glDrawRangeElements(GL_LINES, 0,
                         static_cast<GLuint>(this->VBO->VertexCount - 1),
@@ -711,13 +736,14 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
                         reinterpret_cast<const GLvoid *>(NULL));
     this->Lines.IBO->Release();
     this->PrimitiveIDOffset += (int)this->Lines.IBO->IndexCount/2;
-    this->Points.Program->SetUniformi("PrimitiveIDOffset",
-      this->PrimitiveIDOffset);
     }
 
   // now handle lit primatives
   if (this->Tris.IBO->IndexCount)
     {
+    this->UpdateShaders(this->Points, viewport, actor);
+    this->Points.Program->SetUniformi("PrimitiveIDOffset",
+      this->PrimitiveIDOffset);
     this->Tris.IBO->Bind();
     glDrawRangeElements(GL_TRIANGLES, 0,
                         static_cast<GLuint>(this->VBO->VertexCount - 1),
@@ -726,12 +752,13 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
                         reinterpret_cast<const GLvoid *>(NULL));
     this->Tris.IBO->Release();
     this->PrimitiveIDOffset += (int)this->Tris.IBO->IndexCount/3;
-    this->Points.Program->SetUniformi("PrimitiveIDOffset",
-      this->PrimitiveIDOffset);
     }
 
   if (this->TriStrips.IBO->IndexCount)
     {
+    this->UpdateShaders(this->Points, viewport, actor);
+    this->Points.Program->SetUniformi("PrimitiveIDOffset",
+      this->PrimitiveIDOffset);
     this->TriStrips.IBO->Bind();
     glDrawRangeElements(GL_TRIANGLES, 0,
                         static_cast<GLuint>(this->VBO->VertexCount - 1),
@@ -746,7 +773,10 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     this->CellScalarTexture->Deactivate();
     }
 
-  this->Points.VAO->Release();
+  if (this->LastBoundBO)
+    {
+    this->LastBoundBO->VAO->Release();
+    }
   this->VBO->Release();
 
   vtkOpenGLCheckErrorMacro("failed after RenderOverlay");

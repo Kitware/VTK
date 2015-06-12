@@ -132,7 +132,7 @@ set(shader_files
   glsl/vtkPolyData2DFS.glsl
   glsl/vtkPolyData2DVS.glsl
   glsl/vtkPolyDataFS.glsl
-  glsl/vtkPolyDataGS.glsl
+  glsl/vtkPolyDataWideLineGS.glsl
   glsl/vtkPolyDataVS.glsl
   )
 unset(shader_h_files)

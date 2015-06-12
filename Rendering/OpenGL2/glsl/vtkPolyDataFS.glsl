@@ -20,13 +20,6 @@
 
 uniform int PrimitiveIDOffset;
 
-// all variables that represent positions or directions have a suffix
-// indicating the coordinate system they are in. The possible values are
-// MC - Model Coordinates
-// WC - WC world coordinates
-// VC - View Coordinates
-// DC - Display Coordinates
-
 // VC position of this fragment
 //VTK::PositionVC::Dec
 

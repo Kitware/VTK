@@ -18,13 +18,6 @@
 // default precisions, or defining precisions to null
 //VTK::System::Dec
 
-// all variables that represent positions or directions have a suffix
-// indicating the coordinate system they are in. The possible values are
-// MC - Model Coordinates
-// WC - WC world coordinates
-// VC - View Coordinates
-// DC - Display Coordinates
-
 attribute vec4 vertexMC;
 attribute vec3 orientMC;
 attribute vec4 offsetMC;
@@ -49,11 +42,11 @@ uniform mat3 normalMatrix; // transform model coordinate directions to view coor
 // camera and actor matrix values
 //VTK::Camera::Dec
 
-varying vec4 vertexVCClose;
-varying float radiusVC;
-varying float lengthVC;
-varying vec3 centerVC;
-varying vec3 orientVC;
+varying vec4 vertexVCVSOutput;
+varying float radiusVCVSOutput;
+varying float lengthVCVSOutput;
+varying vec3 centerVCVSOutput;
+varying vec3 orientVCVSOutput;
 
 uniform int cameraParallel;
 
@@ -69,16 +62,16 @@ void main()
 
   //VTK::Clip::Impl
 
-  vertexVCClose = MCVCMatrix * vertexMC;
-  centerVC = vertexVCClose.xyz;
-  radiusVC = radiusMC;
-  lengthVC = length(orientMC);
-  orientVC = normalMatrix * normalize(orientMC);
+  vertexVCVSOutput = MCVCMatrix * vertexMC;
+  centerVCVSOutput = vertexVCVSOutput.xyz;
+  radiusVCVSOutput = radiusMC;
+  lengthVCVSOutput = length(orientMC);
+  orientVCVSOutput = normalMatrix * normalize(orientMC);
 
   // make sure it is pointing out of the screen
-  if (orientVC.z < 0.0)
+  if (orientVCVSOutput.z < 0.0)
     {
-    orientVC = -orientVC;
+    orientVCVSOutput = -orientVCVSOutput;
     }
 
   // make the basis
@@ -87,24 +80,24 @@ void main()
   vec3 dir = vec3(0.0,0.0,1.0);
   if (cameraParallel == 0)
     {
-    dir = normalize(-vertexVCClose.xyz);
+    dir = normalize(-vertexVCVSOutput.xyz);
     }
-  if (abs(dot(dir,orientVC)) == 1.0)
+  if (abs(dot(dir,orientVCVSOutput)) == 1.0)
     {
-    xbase = normalize(cross(vec3(0.0,1.0,0.0),orientVC));
-    ybase = cross(xbase,orientVC);
+    xbase = normalize(cross(vec3(0.0,1.0,0.0),orientVCVSOutput));
+    ybase = cross(xbase,orientVCVSOutput);
     }
   else
     {
-    xbase = normalize(cross(orientVC,dir));
-    ybase = cross(orientVC,xbase);
+    xbase = normalize(cross(orientVCVSOutput,dir));
+    ybase = cross(orientVCVSOutput,xbase);
     }
 
   vec3 offsets = offsetMC.xyz*2.0-1.0;
-  vertexVCClose.xyz = vertexVCClose.xyz +
-    radiusVC*offsets.x*xbase +
-    radiusVC*offsets.y*ybase +
-    0.5*lengthVC*offsets.z*orientVC;
+  vertexVCVSOutput.xyz = vertexVCVSOutput.xyz +
+    radiusVCVSOutput*offsets.x*xbase +
+    radiusVCVSOutput*offsets.y*ybase +
+    0.5*lengthVCVSOutput*offsets.z*orientVCVSOutput;
 
-  gl_Position = VCDCMatrix * vertexVCClose;
+  gl_Position = VCDCMatrix * vertexVCVSOutput;
 }

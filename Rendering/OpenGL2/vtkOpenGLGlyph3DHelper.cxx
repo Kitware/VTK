@@ -37,10 +37,7 @@
 #include "vtkShaderProgram.h"
 #include "vtkTransform.h"
 
-
 #include "vtkGlyph3DVS.h"
-
-
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLGlyph3DHelper)
@@ -102,7 +99,7 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderPositionVC(
     // we use vertex instead of vertexMC
     vtkShaderProgram::Substitute(VSSource,
       "//VTK::PositionVC::Impl",
-      "vertexVC = MCVCMatrix * vertex;\n"
+      "vertexVCVSOutput = MCVCMatrix * vertex;\n"
       "  gl_Position = MCDCMatrix * vertex;\n");
     }
   else
@@ -127,20 +124,20 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderColor(
   // deal with color
   if (this->UsingInstancing)
     {
-    vtkShaderProgram::Substitute(VSSource,"//VTK::Color::Dec",
-                        "attribute vec4 glyphColor;\n"
-                        "varying vec4 vertexColor;");
+    vtkShaderProgram::Substitute(VSSource,
+      "//VTK::Color::Dec",
+      "attribute vec4 glyphColor;\n"
+      "varying vec4 vertexColorVSOutput;");
     }
   else
     {
     vtkShaderProgram::Substitute(VSSource,
-               "//VTK::Color::Dec",
-               "uniform vec4 glyphColor;\n"
-               "varying vec4 vertexColor;");
+      "//VTK::Color::Dec",
+      "uniform vec4 glyphColor;\n"
+      "varying vec4 vertexColorVSOutput;");
     }
   vtkShaderProgram::Substitute(VSSource,"//VTK::Color::Impl",
-                      "vertexColor =  glyphColor;");
-
+    "vertexColorVSOutput =  glyphColor;");
 
   // crate the material/color property declarations, and VS implementation
   // these are always defined
@@ -169,7 +166,7 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderColor(
         "uniform float specularPowerUniformBF;\n";
       }
     }
-  colorDec += "varying vec4 vertexColor;\n";
+  colorDec += "varying vec4 vertexColorVSOutput;\n";
   vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Dec", colorDec);
 
   // now handle the more complex fragment shader implementation
@@ -235,41 +232,44 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderColor(
         (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT &&
          actor->GetProperty()->GetAmbient() > actor->GetProperty()->GetDiffuse()))
     {
-    vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl", colorImpl +
-                        "  ambientColor = vertexColor.rgb;\n"
-                        "  opacity = vertexColor.a;");
+    vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl",
+      colorImpl +
+      "  ambientColor = vertexColorVSOutput.rgb;\n"
+      "  opacity = vertexColorVSOutput.a;");
     }
   else if (this->ScalarMaterialMode == VTK_MATERIALMODE_DIFFUSE ||
         (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT &&
          actor->GetProperty()->GetAmbient() <= actor->GetProperty()->GetDiffuse()))
     {
-    vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl", colorImpl +
-                        "  diffuseColor = vertexColor.rgb;\n"
-                        "  opacity = vertexColor.a;");
+    vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl",
+      colorImpl +
+      "  diffuseColor = vertexColorVSOutput.rgb;\n"
+      "  opacity = vertexColorVSOutput.a;");
     }
   else
     {
-    vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl", colorImpl +
-                        "  diffuseColor = vertexColor.rgb;\n"
-                        "  ambientColor = vertexColor.rgb;\n"
-                        "  opacity = vertexColor.a;");
+    vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl",
+      colorImpl +
+      "  diffuseColor = vertexColorVSOutput.rgb;\n"
+      "  ambientColor = vertexColorVSOutput.rgb;\n"
+      "  opacity = vertexColorVSOutput.a;");
     }
 
   if (this->UsingInstancing)
     {
     vtkShaderProgram::Substitute(VSSource,
-                       "//VTK::Glyph::Dec",
-                       "attribute mat4 GCMCMatrix;");
+       "//VTK::Glyph::Dec",
+       "attribute mat4 GCMCMatrix;");
     }
   else
     {
     vtkShaderProgram::Substitute(VSSource,
-                       "//VTK::Glyph::Dec",
-                       "uniform mat4 GCMCMatrix;");
+      "//VTK::Glyph::Dec",
+      "uniform mat4 GCMCMatrix;");
     }
   vtkShaderProgram::Substitute(VSSource,
-                     "//VTK::Glyph::Impl",
-                     "vec4 vertex = GCMCMatrix * vertexMC;\n");
+    "//VTK::Glyph::Impl",
+    "vec4 vertex = GCMCMatrix * vertexMC;\n");
 
   shaders[vtkShader::Vertex]->SetSource(VSSource);
   shaders[vtkShader::Fragment]->SetSource(FSSource);
@@ -290,23 +290,23 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderNormal(
     if (this->UsingInstancing)
       {
       vtkShaderProgram::Substitute(VSSource,
-                         "//VTK::Normal::Dec",
-                         "uniform mat3 normalMatrix;\n"
-                         "attribute vec3 normalMC;\n"
-                         "attribute mat3 glyphNormalMatrix;\n"
-                         "varying vec3 normalVCVarying;");
+         "//VTK::Normal::Dec",
+         "uniform mat3 normalMatrix;\n"
+         "attribute vec3 normalMC;\n"
+         "attribute mat3 glyphNormalMatrix;\n"
+         "varying vec3 normalVCVSOutput;");
       }
     else
       {
       vtkShaderProgram::Substitute(VSSource,
-                         "//VTK::Normal::Dec",
-                         "uniform mat3 normalMatrix;\n"
-                         "attribute vec3 normalMC;\n"
-                         "uniform mat3 glyphNormalMatrix;\n"
-                         "varying vec3 normalVCVarying;");
+         "//VTK::Normal::Dec",
+         "uniform mat3 normalMatrix;\n"
+         "attribute vec3 normalMC;\n"
+         "uniform mat3 glyphNormalMatrix;\n"
+         "varying vec3 normalVCVSOutput;");
       }
     vtkShaderProgram::Substitute(VSSource, "//VTK::Normal::Impl",
-      "normalVCVarying = normalMatrix * glyphNormalMatrix * normalMC;");
+      "normalVCVSOutput = normalMatrix * glyphNormalMatrix * normalMC;");
     this->ShaderVariablesUsed.push_back("normalMatrix");
     }
 

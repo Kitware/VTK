@@ -68,25 +68,25 @@ void vtkOpenGLSphereMapper::ReplaceShaderValues(
 
   vtkShaderProgram::Substitute(FSSource,
     "//VTK::PositionVC::Dec",
-    "varying vec4 vertexVCClose;");
+    "varying vec4 vertexVCVSOutput;");
 
   // for lights kit and positional the VCDC matrix is already defined
   // so don't redefine it
   std::string replacement =
     "uniform float invertedDepth;\n"
     "uniform int cameraParallel;\n"
-    "varying float radiusVC;\n"
-    "varying vec3 centerVC;\n"
+    "varying float radiusVCVSOutput;\n"
+    "varying vec3 centerVCVSOutput;\n"
     "uniform mat4 VCDCMatrix;\n";
   vtkShaderProgram::Substitute(FSSource,"//VTK::Normal::Dec",replacement);
 
   vtkShaderProgram::Substitute(FSSource,"//VTK::Normal::Impl",
     // compute the eye position and unit direction
-    "vec4 vertexVC = vertexVCClose;\n"
+    "vec4 vertexVC = vertexVCVSOutput;\n"
     "  vec3 EyePos;\n"
     "  vec3 EyeDir;\n"
     "  if (cameraParallel != 0) {\n"
-    "    EyePos = vec3(vertexVC.x, vertexVC.y, vertexVC.z + 3.0*radiusVC);\n"
+    "    EyePos = vec3(vertexVC.x, vertexVC.y, vertexVC.z + 3.0*radiusVCVSOutput);\n"
     "    EyeDir = vec3(0.0,0.0,-1.0); }\n"
     "  else {\n"
     "    EyeDir = vertexVC.xyz;\n"
@@ -95,31 +95,31 @@ void vtkOpenGLSphereMapper::ReplaceShaderValues(
     "    EyeDir = normalize(EyeDir);\n"
     // we adjust the EyePos to be closer if it is too far away
     // to prevent floating point precision noise
-    "    if (lengthED > radiusVC*3.0) {\n"
-    "      EyePos = vertexVC.xyz - EyeDir*3.0*radiusVC; }\n"
+    "    if (lengthED > radiusVCVSOutput*3.0) {\n"
+    "      EyePos = vertexVC.xyz - EyeDir*3.0*radiusVCVSOutput; }\n"
     "    }\n"
 
     // translate to Sphere center
-    "  EyePos = EyePos - centerVC;\n"
+    "  EyePos = EyePos - centerVCVSOutput;\n"
     // scale to radius 1.0
-    "  EyePos = EyePos/radiusVC;\n"
+    "  EyePos = EyePos/radiusVCVSOutput;\n"
     // find the intersection
     "  float b = 2.0*dot(EyePos,EyeDir);\n"
     "  float c = dot(EyePos,EyePos) - 1.0;\n"
     "  float d = b*b - 4.0*c;\n"
-    "  vec3 normalVC = vec3(0.0,0.0,1.0);\n"
+    "  vec3 normalVCVSOutput = vec3(0.0,0.0,1.0);\n"
     "  if (d < 0.0) { discard; }\n"
     "  else {\n"
     "    float t = (-b - invertedDepth*sqrt(d))*0.5;\n"
 
     // compute the normal, for unit sphere this is just
     // the intersection point
-    "    normalVC = invertedDepth*normalize(EyePos + t*EyeDir);\n"
+    "    normalVCVSOutput = invertedDepth*normalize(EyePos + t*EyeDir);\n"
     // compute the intersection point in VC
-    "    vertexVC.xyz = normalVC*radiusVC + centerVC;\n"
+    "    vertexVC.xyz = normalVCVSOutput*radiusVCVSOutput + centerVCVSOutput;\n"
     "    }\n"
     // compute the pixel's depth
-   // " normalVC = vec3(0,0,1);\n"
+   // " normalVCVSOutput = vec3(0,0,1);\n"
     "  vec4 pos = VCDCMatrix * vertexVC;\n"
     "  gl_FragDepth = (pos.z / pos.w + 1.0) / 2.0;\n"
     );

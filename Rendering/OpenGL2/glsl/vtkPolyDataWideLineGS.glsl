@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkPolyDataGS.glsl
+  Module:    vtkPolyDataWideLineGS.glsl
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -17,13 +17,6 @@
 // The following line handle system declarations such a
 // default precisions, or defining precisions to null
 //VTK::System::Dec
-
-// all variables that represent positions or directions have a suffix
-// indicating the coordinate system they are in. The possible values are
-// MC - Model Coordinates
-// WC - WC world coordinates
-// VC - View Coordinates
-// DC - Display Coordinates
 
 // VC position of this fragment
 //VTK::PositionVC::Dec
@@ -52,17 +45,48 @@
 // the output of this shader
 //VTK::Output::Dec
 
-layout(triangles) in;
-layout(triangle_strip, max_vertices = 3) out;
+uniform vec2 lineWidthNVC;
+
+layout(lines) in;
+layout(triangle_strip, max_vertices = 4) out;
 
 void main()
 {
-  for(int i = 0; i < 3; i++)
+  // compute the lines direction
+  vec2 normal = normalize(
+    gl_in[1].gl_Position.xy/gl_in[1].gl_Position.w -
+    gl_in[0].gl_Position.xy/gl_in[0].gl_Position.w);
+
+  // rotate 90 degrees
+  normal = vec2(-1.0*normal.y,normal.x);
+
+  for (int j = 0; j < 4; j++)
     {
+    int i = j/2;
+
+    //VTK::PrimID::Impl
+
+    //VTK::Clip::Impl
+
+    //VTK::Color::Impl
+
     //VTK::Normal::Impl
 
-    gl_Position = gl_in[i].gl_Position;
-    gl_PrimitiveID = gl_PrimitiveIDIn;
+    //VTK::Light::Impl
+
+    //VTK::TCoord::Impl
+
+    //VTK::DepthPeeling::Impl
+
+    //VTK::Picking::Impl
+
+    // VC position of this fragment
+    //VTK::PositionVC::Impl
+
+    gl_Position = vec4(
+      gl_in[i].gl_Position.xy + (lineWidthNVC*normal)*((j+1)%2 - 0.5)*gl_in[i].gl_Position.w,
+      gl_in[i].gl_Position.z,
+      gl_in[i].gl_Position.w);
     EmitVertex();
     }
   EndPrimitive();

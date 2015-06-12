@@ -2471,11 +2471,11 @@ void vtkSurfaceLICMapper::ReplaceShaderValues(
   vtkShaderProgram::Substitute(VSSource,
     "//VTK::TCoord::Dec",
     "attribute vec3 tcoordMC;\n"
-    "varying vec3 tcoordVC;\n"
+    "varying vec3 tcoordVCVSOutput;\n"
     );
 
   vtkShaderProgram::Substitute(VSSource, "//VTK::TCoord::Impl",
-    "tcoordVC = tcoordMC;"
+    "tcoordVCVSOutput = tcoordMC;"
     );
 
   vtkShaderProgram::Substitute(FSSource,
@@ -2483,14 +2483,14 @@ void vtkSurfaceLICMapper::ReplaceShaderValues(
     // 0/1, when 1 V is projected to surface for |V| computation.
     "uniform int uMaskOnSurface;\n"
     "uniform mat3 normalMatrix;\n"
-    "varying vec3 tcoordVC;"
+    "varying vec3 tcoordVCVSOutput;"
     );
 
   vtkShaderProgram::Substitute(FSSource,
     "//VTK::TCoord::Impl",
     // projected vectors
-    "  vec3 tcoordLIC = normalMatrix * tcoordVC;\n"
-    "  vec3 normN = normalize(normalVC);\n"
+    "  vec3 tcoordLIC = normalMatrix * tcoordVCVSOutput;\n"
+    "  vec3 normN = normalize(normalVCVSOutput);\n"
     "  float k = dot(tcoordLIC, normN);\n"
     "  tcoordLIC = (tcoordLIC - k*normN);\n"
     "  gl_FragData[1] = vec4(tcoordLIC.x, tcoordLIC.y, 0.0 , gl_FragCoord.z);\n"
@@ -2498,7 +2498,7 @@ void vtkSurfaceLICMapper::ReplaceShaderValues(
     // vectors for fragment masking
     "  if (uMaskOnSurface == 0)\n"
     "    {\n"
-    "    gl_FragData[2] = vec4(tcoordVC, gl_FragCoord.z);\n"
+    "    gl_FragData[2] = vec4(tcoordVCVSOutput, gl_FragCoord.z);\n"
     "    }\n"
     "  else\n"
     "    {\n"
