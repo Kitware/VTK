@@ -405,12 +405,16 @@ void vtkTIFFWriter::WriteVolume(T* buffer)
 void vtkTIFFWriter::WriteFileTrailer(ofstream *, vtkImageData *)
 {
   TIFF* tif = reinterpret_cast<TIFF*>(this->TIFFPtr);
-  if ( !tif )
+  if( tif)
+    {
+    TIFFClose(tif);
+    }
+  else
     {
     vtkErrorMacro("Problem writting trailer.");
     this->SetErrorCode(vtkErrorCode::FileFormatError);
     }
-  TIFFClose(tif);
+
   this->TIFFPtr = 0;
 }
 
