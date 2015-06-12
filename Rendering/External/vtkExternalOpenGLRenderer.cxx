@@ -105,23 +105,6 @@ void vtkExternalOpenGLRenderer::Render(void)
     GLboolean status;
     glGetBooleanv(curLight, &status);
 
-    // Find out if there is an external light object associated with this
-    // light index.
-    vtkCollectionSimpleIterator sit;
-    vtkExternalLight* eLight;
-    vtkExternalLight* curExtLight = NULL;
-    for (this->ExternalLights->InitTraversal(sit);
-         (eLight = vtkExternalLight::SafeDownCast(
-          this->ExternalLights->GetNextLight(sit))); )
-      {
-      if (eLight &&
-          (static_cast<GLenum>(eLight->GetLightIndex()) == curLight))
-        {
-        curExtLight = eLight;
-        break;
-        }
-      }
-
     int l_ind = static_cast<int> (curLight - GL_LIGHT0);
     vtkLight* light = NULL;
     bool light_created = false;
@@ -156,6 +139,23 @@ void vtkExternalOpenGLRenderer::Render(void)
         {
         // No need to go forward as this light is not being used
         continue;
+        }
+      }
+
+    // Find out if there is an external light object associated with this
+    // light index.
+    vtkCollectionSimpleIterator sit;
+    vtkExternalLight* eLight;
+    vtkExternalLight* curExtLight = NULL;
+    for (this->ExternalLights->InitTraversal(sit);
+         (eLight = vtkExternalLight::SafeDownCast(
+          this->ExternalLights->GetNextLight(sit))); )
+      {
+      if (eLight &&
+          (static_cast<GLenum>(eLight->GetLightIndex()) == curLight))
+        {
+        curExtLight = eLight;
+        break;
         }
       }
 
