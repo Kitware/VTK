@@ -47,6 +47,14 @@ public:
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:
+  // Set whether the plot renders an entry in the legend. Default is true.
+  // vtkPlot::PaintLegend will get called to render the legend marker on when
+  // this is true.
+  vtkSetMacro(LegendVisibility, bool);
+  vtkGetMacro(LegendVisibility, bool);
+  vtkBooleanMacro(LegendVisibility, bool);
+
+  // Description:
   // Paint legend event for the plot, called whenever the legend needs the
   // plot items symbol/mark/line drawn. A rect is supplied with the lower left
   // corner of the rect (elements 0 and 1) and with width x height (elements 2
@@ -377,6 +385,8 @@ protected:
   // Description:
   // The current shift in origin and scaling factor applied to the plot.
   vtkRectd ShiftScale;
+
+  bool LegendVisibility;
 
 private:
   vtkPlot(const vtkPlot &); // Not implemented.

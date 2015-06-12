@@ -54,6 +54,8 @@ vtkPlot::vtkPlot() : ShiftScale(0.0, 0.0, 1.0, 1.0)
   this->TooltipDefaultLabelFormat = "%l: %x,  %y";
   this->TooltipNotation = vtkAxis::STANDARD_NOTATION;
   this->TooltipPrecision = 6;
+
+  this->LegendVisibility = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -536,4 +538,5 @@ vtkVariant vtkPlot::GetProperty(const vtkStdString&)
 void vtkPlot::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "LegendVisibility: " << this->LegendVisibility << endl;
 }
