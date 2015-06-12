@@ -148,7 +148,8 @@ vtkVolumeRayCastSpaceLeapingImageFilterClearOutput(vtkDataArray *scalars,
   vtkIdType outInc0, outInc1, outInc2;
   outData->GetContinuousIncrements(scalars,
                                    outExt, outInc0, outInc1, outInc2);
-
+  outInc1 *= 3;
+  outInc2 *= 3;
   // A. Initialize the arrays with a blank flag.
 
   int i,j,k;
@@ -769,6 +770,9 @@ void vtkVolumeRayCastSpaceLeapingImageFilter
   vtkIdType outInc0, outInc1, outInc2;
   outData->GetContinuousIncrements(this->CurrentScalars,
                                    outExt, outInc0, outInc1, outInc2);
+
+  outInc1 *= 3;
+  outInc2 *= 3;
 
   // Now process the flags
 
