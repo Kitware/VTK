@@ -43,17 +43,10 @@ vtkExternalOpenGLCamera::vtkExternalOpenGLCamera()
 // Implement base class method.
 void vtkExternalOpenGLCamera::Render(vtkRenderer *ren)
 {
-#ifdef VTK_OPENGL2
-  this->Superclass::Render(ren);
-
-#else
-
   vtkOpenGLClearErrorMacro();
 
-  double aspect[2];
   int  lowerLeft[2];
   int usize, vsize;
-  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
 
   vtkOpenGLRenderWindow *win = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
 
@@ -136,15 +129,19 @@ void vtkExternalOpenGLCamera::Render(vtkRenderer *ren)
   glEnable(GL_SCISSOR_TEST);
   glScissor(lowerLeft[0], lowerLeft[1], usize, vsize);
 
+#ifndef VTK_OPENGL2
   // some renderer subclasses may have more complicated computations for the
   // aspect ratio. So take that into account by computing the difference
   // between our simple aspect ratio and what the actual renderer is reporting.
+  double aspect[2];
   ren->ComputeAspect();
   ren->GetAspect(aspect);
   double aspect2[2];
   ren->vtkViewport::ComputeAspect();
   ren->vtkViewport::GetAspect(aspect2);
   double aspectModification = aspect[0] * aspect2[1] / (aspect[1] * aspect2[0]);
+
+  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
 
   glMatrixMode(GL_PROJECTION);
   if (usize && vsize)
@@ -186,17 +183,17 @@ void vtkExternalOpenGLCamera::Render(vtkRenderer *ren)
     glMultMatrixd(matrix->Element[0]);
     }
 
+  matrix->Delete();
+
+#endif
+
   if ((ren->GetRenderWindow())->GetErase() && ren->GetErase()
       && !ren->GetIsPicking())
     {
     ren->Clear();
     }
 
-  matrix->Delete();
-
   vtkOpenGLCheckErrorMacro("failed after Render");
-
-#endif
 }
 
 //----------------------------------------------------------------------------
