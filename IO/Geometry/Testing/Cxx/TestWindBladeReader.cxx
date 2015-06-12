@@ -133,6 +133,7 @@ int TestWindBladeReader( int argc, char *argv[] )
   bounds[2] -= 150;
   ren->ResetCamera(bounds);
   camera->Elevation(-90);
+  camera->SetViewUp(0,0,1);
   camera->Zoom(1.2);
 
   ren->AddActor(fieldActor);
