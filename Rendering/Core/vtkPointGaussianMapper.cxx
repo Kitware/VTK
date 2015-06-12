@@ -22,6 +22,8 @@ vtkAbstractObjectFactoryNewMacro(vtkPointGaussianMapper)
 vtkPointGaussianMapper::vtkPointGaussianMapper()
 {
   this->ScaleArray = 0;
+  this->DefaultRadius = 1.0;
+  this->Emissive = 1;
 }
 
 //-----------------------------------------------------------------------------
@@ -37,4 +39,5 @@ void vtkPointGaussianMapper::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Scale Array: " << (this->ScaleArray ? this->ScaleArray : "(none)") << "\n";
   os << indent << "Default Radius: " << this->DefaultRadius << "\n";
+  os << indent << "Emissive: " << this->Emissive << "\n";
 }

@@ -49,6 +49,8 @@
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 
+//#define TestPoints
+
 int TestPointGaussianMapper(int argc, char *argv[])
 {
   int desiredPoints = 1.0e4;
@@ -57,6 +59,13 @@ int TestPointGaussianMapper(int argc, char *argv[])
   points->SetNumberOfPoints(desiredPoints);
   points->SetRadius(pow(desiredPoints,0.33)*20.0);
 
+  vtkNew<vtkPointGaussianMapper> mapper;
+
+#ifdef TestPoints
+  points->Update();
+  mapper->SetInputConnection(points->GetOutputPort());
+  mapper->SetDefaultRadius(0.0);
+#else
   vtkNew<vtkRandomAttributeGenerator> randomAttr;
   randomAttr->SetDataTypeToFloat();
   randomAttr->GeneratePointScalarsOn();
@@ -65,13 +74,13 @@ int TestPointGaussianMapper(int argc, char *argv[])
 
   randomAttr->Update();
 
-  vtkNew<vtkPointGaussianMapper> mapper;
   mapper->SetInputConnection(randomAttr->GetOutputPort());
   mapper->SetColorModeToMapScalars();
   mapper->SetScalarModeToUsePointFieldData();
   mapper->SelectColorArray("RandomPointVectors");
   mapper->SetInterpolateScalarsBeforeMapping(0);
   mapper->SetScaleArray("RandomPointScalars");
+#endif
 
   vtkNew<vtkColorTransferFunction> ctf;
   ctf->AddHSVPoint(0.0,0.1,1.0,0.8);
@@ -85,6 +94,7 @@ int TestPointGaussianMapper(int argc, char *argv[])
   renderer->SetBackground(0.0, 0.0, 0.0);
   vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->SetSize(300, 300);
+  renderWindow->SetMultiSamples(0);
   renderWindow->AddRenderer(renderer.Get());
   vtkNew<vtkRenderWindowInteractor>  iren;
   iren->SetRenderWindow(renderWindow.Get());
