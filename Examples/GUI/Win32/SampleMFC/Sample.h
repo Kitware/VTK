@@ -18,9 +18,9 @@
 #if !defined(AFX_SAMPLE_H__B7F7B859_EEC9_11D2_87FE_0060082B79FD__INCLUDED_)
 #define AFX_SAMPLE_H__B7F7B859_EEC9_11D2_87FE_0060082B79FD__INCLUDED_
 
-#if _MSC_VER > 1000
+#ifdef _MSC_VER
 #pragma once
-#endif // _MSC_VER > 1000
+#endif
 
 #ifndef __AFXWIN_H__
         #error include 'stdafx.h' before including this file for PCH

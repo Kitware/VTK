@@ -146,7 +146,7 @@ to the more usual form y x; without parentheses.
 
 /* Borland and MSVC do not define __STDC__ properly. */
 #if !defined(__STDC__)
-# if (defined(_MSC_VER) && _MSC_VER >= 1200) || defined(__BORLANDC__)
+# if defined(_MSC_VER) || defined(__BORLANDC__)
 #  define __STDC__ 1
 # endif
 #endif
@@ -1562,8 +1562,7 @@ static YYSTYPE yyval_default;
 #endif
 
 #ifndef YY_ATTRIBUTE
-# if (defined __GNUC__                                               \
-      && (2 < __GNUC__ || (__GNUC__ == 2 && 96 <= __GNUC_MINOR__)))  \
+# if (defined __GNUC__)                                              \
      || defined __SUNPRO_C && 0x5110 <= __SUNPRO_C
 #  define YY_ATTRIBUTE(Spec) __attribute__(Spec)
 # else

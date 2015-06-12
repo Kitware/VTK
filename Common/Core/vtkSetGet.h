@@ -29,6 +29,16 @@
 #include "vtkSystemIncludes.h"
 #include <math.h>
 
+//----------------------------------------------------------------------------
+// Check for unsupported old compilers.
+#if defined(_MSC_VER) && _MSC_VER <= 1400
+# error VTK requires MSVC++ 9.0 aka Visual Studio 2008 or newer
+#endif
+
+#if defined(__GNUC__) && (__GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 1))
+# error VTK requires gcc 4.1 or newer
+#endif
+
 // Convert a macro representing a value to a string.
 //
 // Example: vtkQuoteMacro(__LINE__) will expand to "1234" whereas
@@ -782,7 +792,7 @@ virtual double *Get##name() \
 #else
   // Setup compile-time warnings for uses of deprecated methods if
   // possible on this compiler.
-# if defined(__GNUC__) && !defined(__INTEL_COMPILER) && (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1))
+# if defined(__GNUC__) && !defined(__INTEL_COMPILER)
 #  define VTK_LEGACY(method) method __attribute__((deprecated))
 # elif defined(_MSC_VER)
 #  define VTK_LEGACY(method) __declspec(deprecated) method

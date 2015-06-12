@@ -79,7 +79,7 @@
 #include "vtkDataArrayTemplate.h" // For all classes referred to in the macro
 #include "vtkSetGet.h" // For vtkTemplateMacro
 
-// Silence 'unused typedef' warnings on newer GCC.
+// Silence 'unused typedef' warnings on GCC.
 // use of the typedef in question depends on the macro
 // argument _call and thus should not be removed.
 #if defined(__GNUC__)

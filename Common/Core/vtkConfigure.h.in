@@ -111,9 +111,6 @@
 /* Whether we require large files support.  */
 #cmakedefine VTK_REQUIRE_LARGE_FILE_SUPPORT
 
-/* Whether reverse const iterator's have comparison operators. */
-#cmakedefine VTK_CONST_REVERSE_ITERATOR_COMPARISON
-
 /*--------------------------------------------------------------------------*/
 /* VTK Platform Configuration                                               */
 
@@ -185,12 +182,6 @@
 # if defined(VTK_IOSTREAM_NEED_OPERATORS_LL)
    typedef long long vtkIOStreamSLL;
    typedef unsigned long long vtkIOStreamULL;
-# endif
-#elif defined(VTK_SIZEOF___INT64)
-# if defined(_MSC_VER) && (_MSC_VER < 1300)
-#  define VTK_IOSTREAM_NEED_OPERATORS_LL
-   typedef __int64 vtkIOStreamSLL;
-   typedef unsigned __int64 vtkIOStreamULL;
 # endif
 #endif
 
