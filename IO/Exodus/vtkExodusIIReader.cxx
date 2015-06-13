@@ -1015,7 +1015,8 @@ int vtkExodusIIReaderPrivate::AssembleOutputGlobalArrays(
     dataIndexArray->SetName("mode_shape");
     dataIndexArray->SetNumberOfComponents(1);
     dataIndexArray->SetNumberOfTuples(1);
-    dataIndexArray->SetValue(0, timeStep);
+    // mode-shape == (timestep + 1). See vtkExodusIIReader::SetModeShape().
+    dataIndexArray->SetValue(0, (timeStep + 1));
     ofieldData->AddArray(dataIndexArray.GetPointer());
     }
 
