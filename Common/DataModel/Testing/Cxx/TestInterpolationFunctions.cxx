@@ -58,7 +58,7 @@
 #include "vtkCubicLine.h"
 
 template <class TCell>
-int TestOneInterpolationFunction()
+int TestOneInterpolationFunction(double eps = VTK_EPSILON)
 {
   TCell *cell = TCell::New();
   int numPts = cell->GetNumberOfPoints();
@@ -75,20 +75,20 @@ int TestOneInterpolationFunction()
       sum += sf[j];
       if(j == i)
         {
-        if( fabs(sf[j] - 1) > VTK_EPSILON)
+        if( fabs(sf[j] - 1) > eps)
           {
           ++r;
           }
         }
       else
         {
-        if( fabs(sf[j] - 0) > VTK_EPSILON )
+        if( fabs(sf[j] - 0) > eps )
           {
           ++r;
           }
         }
       }
-    if( fabs(sum - 1) > VTK_EPSILON )
+    if( fabs(sum - 1) > eps )
       {
       ++r;
       }
@@ -103,7 +103,7 @@ int TestOneInterpolationFunction()
     {
     sum += sf[j];
     }
-  if( fabs(sum - 1) > VTK_EPSILON )
+  if( fabs(sum - 1) > eps )
     {
     ++r;
     }
@@ -133,7 +133,7 @@ int TestInterpolationFunctions(int, char *[])
   //r += TestOneInterpolationFunction<vtkConvexPointSet>(); // not implemented
   r += TestOneInterpolationFunction<vtkHexagonalPrism>();
   r += TestOneInterpolationFunction<vtkHexahedron>();
-  r += TestOneInterpolationFunction<vtkPentagonalPrism>();
+  r += TestOneInterpolationFunction<vtkPentagonalPrism>(1.e-5);
   r += TestOneInterpolationFunction<vtkPyramid>();
   r += TestOneInterpolationFunction<vtkTetra>();
   r += TestOneInterpolationFunction<vtkVoxel>();

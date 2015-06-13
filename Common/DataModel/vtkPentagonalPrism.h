@@ -28,6 +28,12 @@
 // Thanks to Jean Favre (CSCS, Switzerland) who contributed to integrate this
 // class in VTK. <br>
 // Please address all comments to Jean Favre (jfavre at cscs.ch).
+//
+// The Interpolation functions and derivatives were changed in June
+// 2015 by Bill Lorensen. These changes follow the formulation in:
+// http://dilbert.engr.ucdavis.edu/~suku/nem/papers/polyelas.pdf
+// NOTE: An additional copy of this paper is located at:
+// http://www.vtk.org/Wiki/File:ApplicationOfPolygonalFiniteElementsInLinearElasticity.pdf
 
 #ifndef vtkPentagonalPrism_h
 #define vtkPentagonalPrism_h
@@ -131,5 +137,3 @@ inline int vtkPentagonalPrism::GetParametricCenter(double pcoords[3])
   return 0;
 }
 #endif
-
-

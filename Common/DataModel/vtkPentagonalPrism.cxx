@@ -19,6 +19,12 @@
 // Thanks to Jean Favre (CSCS, Switzerland) who contributed to integrate this
 // class in VTK. <br>
 // Please address all comments to Jean Favre (jfavre at cscs.ch).
+//
+// The Interpolation functions and derivatives were changed in June
+// 2015 by Bill Lorensen. These changes follow the formulation in:
+// http://dilbert.engr.ucdavis.edu/~suku/nem/papers/polyelas.pdf
+// NOTE: An additional copy of this paper is located at:
+// http://www.vtk.org/Wiki/File:ApplicationOfPolygonalFiniteElementsInLinearElasticity.pdf
 
 #include "vtkPentagonalPrism.h"
 
@@ -72,8 +78,8 @@ vtkPentagonalPrism::~vtkPentagonalPrism()
 }
 
 //
-//  Method to calculate parametric coordinates in an ten noded
-//  linear prism element from global coordinates.
+//  Method to calculate parametric coordinates in a pentagonal prism
+//  from global coordinates
 //
 static const int VTK_PENTA_MAX_ITERATION=10;
 static const double VTK_PENTA_CONVERGED=1.e-03;
@@ -211,135 +217,139 @@ int vtkPentagonalPrism::EvaluatePosition(double x[3], double closestPoint[3],
 //----------------------------------------------------------------------------
 //
 // Compute iso-parametric interpolation functions
-//
+// See:
+// http://dilbert.engr.ucdavis.edu/~suku/nem/papers/polyelas.pdf
 
-// see vtkPentagonalPrismCellPCoords for V#i values:
-// The general idea is that for Point #0 (V1,V1,0) the shape function should be
-// 0 on the 4 other node. So expr of the line passing through points
-// (x1,y1) and (x2,y2) is as follow:
-// (x1-x2)*y - (y1-y2)*x - (x1*y2 - x2*y1) = 0
-// x(i):=1/2+1/2*Cos( Pi + Pi/4 + i*2*Pi/5)
-// y(i):=1/2+1/2*Sin( Pi + Pi/4 + i*2*Pi/5)
-// For instance EXPRA is x(2)-x(1)
-//              EXPRB is y(2)-y(1) (== x(4)-x(3))
-//              EXPRC is x(1)*y(2)-x(2)*y(1)
-//              EXPRD is x(2)-x(3) (because of sign)
-//              EXPRE is x(2)*y(3)-x(3)*y(2)
-//              EXPRF is x(0)-x(4)
-//              EXPRG is y(4)-y(0)
-//              EXPRH is x(0)*y(4)-x(4)*y(0)
-// EXPRN was deducted to normalize the function
-#define EXPRA 0.26684892042779546;
-#define EXPRB 0.52372049461429937;
-#define EXPRC 0.36619991616704034;
-#define EXPRD 0.41562693777745341;
-#define EXPRE 0.65339106685124182;
-#define EXPRF 0.091949871500910163;
-#define EXPRG 0.58054864046304711;
-#define EXPRH 0.098485126908190265;
-#define EXPRN 9.2621670111997307;
-
-void vtkPentagonalPrism::InterpolationFunctions(double pcoords[3], double sf[10])
+void vtkPentagonalPrism::InterpolationFunctions(double pcoords[3],
+                                                double weights[10])
 {
-  double r, s, t;
-  r = pcoords[0];
-  s = pcoords[1];
-  t = pcoords[2];
+  // VTK needs parametric coordinates to be between [0,1]. Isoparametric
+  // shape functions are formulated between [-1,1]. Here we do a
+  // coordinate system conversion from [0,1] to [-1,1].
+  double x = 2.0*(pcoords[0]-0.5);
+  double y = 2.0*(pcoords[1]-0.5);
+  double z = pcoords[2]; // z is from 0 to 1
 
-  const double a = EXPRA;
-  const double b = EXPRB;
-  const double c = EXPRC;
-  const double d = EXPRD;
-  const double e = EXPRE;
-  const double f = EXPRF;
-  const double g = EXPRG;
-  const double h = EXPRH;
-  const double n = EXPRN;
+  // From Appendix A.1 Pentagonal reference element (n = 5)
+  double b = 87.05 - 12.7004 * x * x - 12.7004 * y * y;
 
-  //First pentagon
-  sf[0] = -n*(-a*s + b*r - c)*( b*s - a*r - c)*(t - 1.0);
-  sf[1] =  n*( d*s + d*r - e)*( f*s + g*r - h)*(t - 1.0);
-  sf[2] = -n*( b*s - a*r - c)*(-g*s - f*r + h)*(t - 1.0);
-  sf[3] =  n*(-a*s + b*r - c)*( f*s + g*r - h)*(t - 1.0);
-  sf[4] = -n*(-g*s - f*r + h)*( d*s + d*r - e)*(t - 1.0);
+  double a[5];
+  a[0] =
+    -0.092937 * (3.23607 + 4 * x) *
+    (-3.80423 + 3.80423 * x - 2.76393 * y) *
+    (15.2169 + 5.81234 * x + 17.8885 * y);
+  a[1] =
+    - 0.0790569 * (3.80423 - 3.80423 * x - 2.76393 * y) *
+    (-3.80423 + 3.80423 * x - 2.76393 * y ) *
+    (15.2169 + 5.81234 * x + 17.8885 * y );
+  a[2] =
+    - 0.0790569 * (15.2169 + 5.81234 * x - 17.8885 * y) *
+    (3.80423 - 3.80423 * x - 2.76393 * y) *
+    (-3.80423 + 3.80423 * x - 2.76393 * y);
+  a[3] =
+    0.092937 * (3.23607 + 4.0 * x) *
+    (15.2169 + 5.81234 * x - 17.8885 * y) *
+    (3.80423 - 3.80423 * x - 2.76393 * y);
+  a[4] =
+    0.0232343 * (3.23607 + 4.0 * x) *
+    (15.2169 + 5.81234 * x - 17.8885 * y) *
+    (15.2169 + 5.81234 * x + 17.8885 * y);
 
-  //Second pentagon
-  sf[5] =  n*(-a*s + b*r - c)*( b*s - a*r - c)*(t - 0.0);
-  sf[6] = -n*( d*s + d*r - e)*( f*s + g*r - h)*(t - 0.0);
-  sf[7] =  n*( b*s - a*r - c)*(-g*s - f*r + h)*(t - 0.0);
-  sf[8] = -n*(-a*s + b*r - c)*( f*s + g*r - h)*(t - 0.0);
-  //sf[9] =  n*(-g*s - f*r + h)*( d*s + d*r - e)*(t - 0.0);
-  sf[9] = 1. - (sf[0]+sf[1]+sf[2]+sf[3]+sf[4]+sf[5]+sf[6]+sf[7]+sf[8]);
+  for (int i = 0; i < 5; ++i)
+    {
+    weights[i]     = -(a[i] / b) * (z - 1.0);
+    weights[i + 5] = (a[i] / b) * (z - 0.0);
+    }
 }
 
 //----------------------------------------------------------------------------
 //
 // Compute iso-parametric interpolation derivatives
+// See:
+// http://dilbert.engr.ucdavis.edu/~suku/nem/papers/polyelas.pdf
 //
 void vtkPentagonalPrism::InterpolationDerivs(double pcoords[3], double derivs[30])
 {
-  double r, s, t;
-  r = pcoords[0];
-  s = pcoords[1];
-  t = pcoords[2];
+  // VTK needs parametric coordinates to be between [0,1]. Isoparametric
+  // shape functions are formulated between [-1,1]. Here we do a
+  // coordinate system conversion from [0,1] to [-1,1].
+  double x = 2.0*(pcoords[0]-0.5);
+  double y = 2.0*(pcoords[1]-0.5);
+  double z = pcoords[2];  // z is from 0 to 1
 
-  const double a = EXPRA;
-  const double b = EXPRB;
-  const double c = EXPRC;
-  const double d = EXPRD;
-  const double e = EXPRE;
-  const double f = EXPRF;
-  const double g = EXPRG;
-  const double h = EXPRH;
-  const double n = EXPRN;
+  double dd[20];
 
-  // r-derivatives
+  // x-derivatives
+  // First pentagon
+  double x2 = x * x;
+  double y2 = y * y;
+  double denom = (-12.7004*x2 - 12.7004*y2 + 87.05);
+  double denom2 = denom * denom;
+
+  // Please excuse the line length. This code was generated using the
+  // symbolic math package SymPy. (http://www.sympy.org)
+
+  dd[0] =  25.4008*x*(-0.371748*x - 0.30075063759)*(3.80423*x - 2.76393*y - 3.80423)*(5.81234*x + 17.8885*y + 15.2169)/denom2 + 5.81234*(-0.371748*x - 0.30075063759)*(3.80423*x - 2.76393*y - 3.80423)/denom + 3.80423*(-0.371748*x - 0.30075063759)*(5.81234*x + 17.8885*y + 15.2169)/denom - 0.371748*(3.80423*x - 2.76393*y - 3.80423)*(5.81234*x + 17.8885*y + 15.2169)/denom ;
+
+  dd[1] =  25.4008*x*(0.300750630687*x + 0.218507737617*y - 0.300750630687)*(3.80423*x - 2.76393*y - 3.80423)*(5.81234*x + 17.8885*y + 15.2169)/denom2 + 5.81234*(0.300750630687*x + 0.218507737617*y - 0.300750630687)*(3.80423*x - 2.76393*y - 3.80423)/denom + 3.80423*(0.300750630687*x + 0.218507737617*y - 0.300750630687)*(5.81234*x + 17.8885*y + 15.2169)/denom + 0.300750630687*(3.80423*x - 2.76393*y - 3.80423)*(5.81234*x + 17.8885*y + 15.2169)/denom ;
+
+  dd[2] =  25.4008*x*(-3.80423*x - 2.76393*y + 3.80423)*(-0.459505582146*x + 1.41420935565*y - 1.20300094161)*(3.80423*x - 2.76393*y - 3.80423)/denom2 + 3.80423*(-3.80423*x - 2.76393*y + 3.80423)*(-0.459505582146*x + 1.41420935565*y - 1.20300094161)/denom - 0.459505582146*(-3.80423*x - 2.76393*y + 3.80423)*(3.80423*x - 2.76393*y - 3.80423)/denom - 3.80423*(-0.459505582146*x + 1.41420935565*y - 1.20300094161)*(3.80423*x - 2.76393*y - 3.80423)/denom ;
+
+  dd[3] =  25.4008*x*(0.371748*x + 0.30075063759)*(-3.80423*x - 2.76393*y + 3.80423)*(5.81234*x - 17.8885*y + 15.2169)/denom2 + 5.81234*(0.371748*x + 0.30075063759)*(-3.80423*x - 2.76393*y + 3.80423)/denom - 3.80423*(0.371748*x + 0.30075063759)*(5.81234*x - 17.8885*y + 15.2169)/denom + 0.371748*(-3.80423*x - 2.76393*y + 3.80423)*(5.81234*x - 17.8885*y + 15.2169)/denom ;
+
+  dd[4] =  25.4008*x*(0.0929372*x + 0.075187821201)*(5.81234*x - 17.8885*y + 15.2169)*(5.81234*x + 17.8885*y + 15.2169)/denom2 + 5.81234*(0.0929372*x + 0.075187821201)*(5.81234*x - 17.8885*y + 15.2169)/denom + 5.81234*(0.0929372*x + 0.075187821201)*(5.81234*x + 17.8885*y + 15.2169)/denom + 0.0929372*(5.81234*x - 17.8885*y + 15.2169)*(5.81234*x + 17.8885*y + 15.2169)/denom ;
+
+  // y-derivatives
   //First pentagon
-  derivs[0] = -n*(-2*a*b*r + (a*a + b*b)*s + a*c - b*c)*(t - 1.0);
-  derivs[1] =  n*( 2*d*g*r + d*(f + g)*s - d*h - e*g)*(t - 1.0);
-  derivs[2] = -n*( 2*a*f*r + (a*g - b*f)*s - a*h + c*f)*(t - 1.0);
-  derivs[3] =  n*( 2*b*g*r + (b*f - a*g)*s - b*h - c*g)*(t - 1.0);
-  derivs[4] = -n*(-2*d*f*r - d*(f + g)*s + d*h + e*f)*(t - 1.0);
-  //Second pentagon
-  derivs[5] =  n*(-2*a*b*r + (a*a + b*b)*s + a*c - b*c)*(t - 0.0);
-  derivs[6] = -n*( 2*d*g*r + d*(f + g)*s - d*h - e*g)*(t - 0.0);
-  derivs[7] =  n*( 2*a*f*r + (a*g - b*f)*s - a*h + c*f)*(t - 0.0);
-  derivs[8] = -n*( 2*b*g*r + (b*f - a*g)*s - b*h - c*g)*(t - 0.0);
-  //derivs[9] =  n*(-2*d*f*r - d*(f + g)*s + d*h + e*f)*(t - 0.0);
-  derivs[9] = -(derivs[0]+derivs[1]+derivs[2]+derivs[3]+derivs[4]+derivs[5]
-    +derivs[6]+derivs[7]+derivs[8]);
+  dd[10] =  25.4008*y*(-0.371748*x - 0.30075063759)*(3.80423*x - 2.76393*y - 3.80423)*(5.81234*x + 17.8885*y + 15.2169)/denom2 + 17.8885*(-0.371748*x - 0.30075063759)*(3.80423*x - 2.76393*y - 3.80423)/denom - 2.76393*(-0.371748*x - 0.30075063759)*(5.81234*x + 17.8885*y + 15.2169)/denom ;
 
-  // s-derivatives
-  //First pentagon
-  derivs[10] = -n*(-2*a*b*s + (a*a + b*b)*r + a*c - b*c)*(t - 1.0);
-  derivs[11] =  n*( 2*d*f*s + d*(f + g)*r - d*h - e*f)*(t - 1.0);
-  derivs[12] = -n*(-2*b*g*s + (a*g - b*f)*r + b*h + c*g)*(t - 1.0);
-  derivs[13] =  n*(-2*a*f*s + (b*f - a*g)*r + a*h - c*f)*(t - 1.0);
-  derivs[14] = -n*(-2*d*g*s - d*(f + g)*r + d*h + e*g)*(t - 1.0);
-  //Second pentagon
-  derivs[15] =  n*(-2*a*b*s + (a*a + b*b)*r + a*c - b*c)*(t - 0.0);
-  derivs[16] = -n*( 2*d*f*s + d*(f + g)*r - d*h - e*f)*(t - 0.0);
-  derivs[17] =  n*(-2*b*g*s + (a*g - b*f)*r + b*h + c*g)*(t - 0.0);
-  derivs[18] = -n*(-2*a*f*s + (b*f - a*g)*r + a*h - c*f)*(t - 0.0);
-  //derivs[19] =  n*(-2*d*g*s - d*(f + g)*r + d*h + e*g)*(t - 0.0);
-  derivs[19] = -(derivs[10]+derivs[11]+derivs[12]+derivs[13]+derivs[14]+derivs[15]
-    +derivs[16]+derivs[17]+derivs[18]);
+  dd[11] =  25.4008*y*(0.300750630687*x + 0.218507737617*y - 0.300750630687)*(3.80423*x - 2.76393*y - 3.80423)*(5.81234*x + 17.8885*y + 15.2169)/denom2 + 17.8885*(0.300750630687*x + 0.218507737617*y - 0.300750630687)*(3.80423*x - 2.76393*y - 3.80423)/denom - 2.76393*(0.300750630687*x + 0.218507737617*y - 0.300750630687)*(5.81234*x + 17.8885*y + 15.2169)/denom + 0.218507737617*(3.80423*x - 2.76393*y - 3.80423)*(5.81234*x + 17.8885*y + 15.2169)/denom ;
 
-  // t-derivatives
-  //First pentagon
-  derivs[20] = -n*(-a*s + b*r - c)*( b*s - a*r - c);
-  derivs[21] =  n*( d*s + d*r - e)*( f*s + g*r - h);
-  derivs[22] = -n*( b*s - a*r - c)*(-g*s - f*r + h);
-  derivs[23] =  n*(-a*s + b*r - c)*( f*s + g*r - h);
-  derivs[24] = -n*(-g*s - f*r + h)*( d*s + d*r - e);
-  //Second pentagon
-  derivs[25] =  n*(-a*s + b*r - c)*( b*s - a*r - c);
-  derivs[26] = -n*( d*s + d*r - e)*( f*s + g*r - h);
-  derivs[27] =  n*( b*s - a*r - c)*(-g*s - f*r + h);
-  derivs[28] = -n*(-a*s + b*r - c)*( f*s + g*r - h);
-  //derivs[29] =  n*(-g*s - f*r + h)*( d*s + d*r - e);
-  derivs[29] = -(derivs[20]+derivs[21]+derivs[22]+derivs[23]+derivs[24]+derivs[25]
-    +derivs[26]+derivs[27]+derivs[28]);
+  dd[12] =  25.4008*y*(-3.80423*x - 2.76393*y + 3.80423)*(-0.459505582146*x + 1.41420935565*y - 1.20300094161)*(3.80423*x - 2.76393*y - 3.80423)/denom2 - 2.76393*(-3.80423*x - 2.76393*y + 3.80423)*(-0.459505582146*x + 1.41420935565*y - 1.20300094161)/denom + 1.41420935565*(-3.80423*x - 2.76393*y + 3.80423)*(3.80423*x - 2.76393*y - 3.80423)/denom - 2.76393*(-0.459505582146*x + 1.41420935565*y - 1.20300094161)*(3.80423*x - 2.76393*y - 3.80423)/denom ;
+
+  dd[13] =  25.4008*y*(0.371748*x + 0.30075063759)*(-3.80423*x - 2.76393*y + 3.80423)*(5.81234*x - 17.8885*y + 15.2169)/denom2 - 17.8885*(0.371748*x + 0.30075063759)*(-3.80423*x - 2.76393*y + 3.80423)/denom - 2.76393*(0.371748*x + 0.30075063759)*(5.81234*x - 17.8885*y + 15.2169)/denom ;
+
+  dd[14] =  25.4008*y*(0.0929372*x + 0.075187821201)*(5.81234*x - 17.8885*y + 15.2169)*(5.81234*x + 17.8885*y + 15.2169)/denom2 + 17.8885*(0.0929372*x + 0.075187821201)*(5.81234*x - 17.8885*y + 15.2169)/denom - 17.8885*(0.0929372*x + 0.075187821201)*(5.81234*x + 17.8885*y + 15.2169)/denom ;
+
+  // z-derivatives
+  // First pentagon
+  double b = 87.05 - 12.7004 * x * x - 12.7004 * y * y;
+  dd[15] =
+    -0.092937 * (3.23607 + 4 * x) *
+    (-3.80423 + 3.80423 * x - 2.76393 * y) *
+    (15.2169 + 5.81234 * x + 17.8885 * y) / b;
+  dd[16] =
+    - 0.0790569 * (3.80423 - 3.80423 * x - 2.76393 * y) *
+    (-3.80423 + 3.80423 * x - 2.76393 * y ) *
+    (15.2169 + 5.81234 * x + 17.8885 * y ) / b;
+  dd[17] =
+    - 0.0790569 * (15.2169 + 5.81234 * x - 17.8885 * y) *
+    (3.80423 - 3.80423 * x - 2.76393 * y) *
+    (-3.80423 + 3.80423 * x - 2.76393 * y) / b;
+  dd[18] =
+    0.092937 * (3.23607 + 4.0 * x) *
+    (15.2169 + 5.81234 * x - 17.8885 * y) *
+    (3.80423 - 3.80423 * x - 2.76393 * y) / b;
+  dd[19] =
+    0.0232343 * (3.23607 + 4.0 * x) *
+    (15.2169 + 5.81234 * x - 17.8885 * y) *
+    (15.2169 + 5.81234 * x + 17.8885 * y) / b;
+
+  for (int i = 0; i < 5; ++i)
+    {
+    derivs[i]      = -dd[i]      * (z - 1.0);  // x deriv first pentagon
+    derivs[i + 5]  =  dd[i]      * (z + 0.0);  // x deriv second pentagon
+    derivs[i + 10] = -dd[i + 10] * (z - 1.0);  // y deriv first pentagon
+    derivs[i + 15] =  dd[i + 10] * (z + 0.0);  // y deriv second pentagon
+    derivs[i + 20] = -dd[i + 15];              // z deriv first pentagon
+    derivs[i + 25] =  dd[i + 15];              // z deriv second pentagon
+    }
+
+  // We compute derivatives in [-1; 1] but we need them in [ 0; 1]
+  for(int i = 0; i < 30; i++)
+    {
+    derivs[i] *= 2;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -744,35 +754,20 @@ void vtkPentagonalPrism::GetFacePoints (int faceId, int *&pts)
   pts = this->GetFaceArray(faceId);
 }
 
-// How to find the points for the pentagon:
-// The points for the iso parametric pentagon have to be properly chosen so that
-// the inverse Jacobian is defined.
-// To be regular the points have to on the circle, center (1/2,1/2) with radius
-// sqrt(2)/2
-// Then since there is an odd number of points they have to be simmetric
-// to the first bisector
-// Thus I pick the first point to be on this dividing line.
-// We can then express point i (0, 4) to be:
-// Vi_x = CenterOfCircle + 1/2 ( cos( pi + pi/4 + i*2*pi/5) )
-// Vi_y = CenterOfCircle + 1/2 ( sin( pi + pi/4 + i*2*pi/5) )
-
-#define V1 0.14644660940672624
-#define V2 0.72699524986977337
-#define V3 0.054496737905816071
-#define V4 0.99384417029756889
-#define V5 0.57821723252011548
+// See:
+// http://dilbert.engr.ucdavis.edu/~suku/nem/papers/polyelas.pdf
 
 static double vtkPentagonalPrismCellPCoords[30] = {
-V1 , V1 , 0.0,
-V2 , V3 , 0.0,
-V4 , V5 , 0.0,
-V5 , V4 , 0.0,
-V3 , V2 , 0.0,
-V1 , V1 , 1.0,
-V2 , V3 , 1.0,
-V4 , V5 , 1.0,
-V5 , V4 , 1.0,
-V3 , V2 , 1.0};
+  0.654508, 0.975528, 0,
+  0.0954915, 0.793893, 0,
+  0.0954915, 0.206107, 0,
+  0.654508, 0.0244717, 0,
+  1, 0.5, 0,
+  0.654508, 0.975528, 1,
+  0.0954915, 0.793893, 1,
+  0.0954915, 0.206107, 1,
+  0.654508, 0.0244717, 1,
+  1, 0.5, 1};
 
 //----------------------------------------------------------------------------
 double *vtkPentagonalPrism::GetParametricCoords()

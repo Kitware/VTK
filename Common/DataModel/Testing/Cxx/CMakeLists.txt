@@ -18,6 +18,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestInterpolationDerivs.cxx
   TestInterpolationFunctions.cxx
   TestPath.cxx
+  TestPentagonalPrism.cxx
   TestPixelExtent.cxx
   TestPointLocators.cxx
   TestPolyDataRemoveCell.cxx
