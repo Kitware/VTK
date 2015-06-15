@@ -29,16 +29,21 @@ namespace msvc
 // Those min and max functions replace std ones because their
 // implementation used to generate very slow code with MSVC.
 // See https://randomascii.wordpress.com/2013/11/24/stdmin-causing-three-times-slowdown-on-vc/
+// The comparison expression in min/max are written so that if the "condition" is false,
+// the "left" value is returned. This is consistent with STL's implementations
+// and also handles the cases where the right value may be a NaN properly.
+// All code using these methods should ensure that the "left" value is never
+// NaN.
 template <class ValueType>
 ValueType max(const ValueType& left, const ValueType& right)
 {
-  return left > right ? left : right;
+  return right > left ? right : left;
 }
 
 template <class ValueType>
 ValueType min(const ValueType& left, const ValueType& right)
 {
-  return left <= right ? left : right;
+  return right <= left ? right : left;
 }
 }
 #endif
@@ -74,8 +79,8 @@ struct ComputeScalarRange
       {
       for(int i = 0, j = 0; i < NumComps; ++i, j+=2)
         {
-        tempRange[j] = detail::min(value[i], tempRange[j]);
-        tempRange[j+1] = detail::max(value[i], tempRange[j+1]);
+        tempRange[j] = detail::min(tempRange[j], value[i]);
+        tempRange[j+1] = detail::max(tempRange[j+1], value[i]);
         }
       }
 
@@ -164,8 +169,8 @@ bool DoComputeScalarRange(InputIteratorType begin, InputIteratorType end,
       {
       for(int i = 0, j = 0; i < numComp; ++i, j+=2)
         {
-        tempRange[j] = detail::min(value[i], tempRange[j]);
-        tempRange[j+1] = detail::max(value[i], tempRange[j+1]);
+        tempRange[j] = detail::min(tempRange[j], value[i]);
+        tempRange[j+1] = detail::max(tempRange[j+1], value[i]);
         }
       }
 
@@ -210,8 +215,8 @@ bool DoComputeVectorRange(InputIteratorType begin, InputIteratorType end,
       const double t = static_cast<double>(value[i]);
       squaredSum += t * t;
       }
-    range[0] = detail::min(squaredSum, range[0]);
-    range[1] = detail::max(squaredSum, range[1]);
+    range[0] = detail::min(range[0], squaredSum);
+    range[1] = detail::max(range[1], squaredSum);
     }
 
   //now that we have computed the smallest and largest value, take the
