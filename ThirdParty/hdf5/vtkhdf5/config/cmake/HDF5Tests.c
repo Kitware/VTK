@@ -232,12 +232,26 @@ SIMPLE_TEST(struct stat sb; sb.st_blocks=0);
 #include <stdlib.h>
 #include <string.h>
 
+#if defined(_MSC_VER) && defined(_DEBUG)
+# include <crtdbg.h>
+int DebugReport(int reportType, char* message, int* returnValue)
+{
+  (void)reportType;
+  (void)message;
+  (void)returnValue;
+  return 1; /* no further handling required */
+}
+#endif
+
 int main(void)
 {
   char *llwidthArgs[] = { "l64", "l", "L", "q", "ll", NULL };
   char *s = malloc(128);
   char **currentArg = NULL;
   LL_TYPE x = (LL_TYPE)1048576 * (LL_TYPE)1048576;
+#if defined(_MSC_VER) && defined(_DEBUG)
+  _CrtSetReportHook(DebugReport);
+#endif
   for (currentArg = llwidthArgs; *currentArg != NULL; currentArg++)
     {
     char formatString[64];
