@@ -33,6 +33,10 @@
 #include "vtkRenderingExternalModule.h" // For export macro
 #include "vtkOpenGLRenderer.h"
 
+// Forward declarations
+class vtkLightCollection;
+class vtkExternalLight;
+
 class VTKRENDERINGEXTERNAL_EXPORT vtkExternalOpenGLRenderer :
   public vtkOpenGLRenderer
 {
@@ -50,9 +54,25 @@ public:
   // This function creates the vtkExternalOpenGLCamera.
   vtkCamera* MakeCamera();
 
+  // Description:
+  // Add an external light to the list of external lights.
+  virtual void AddExternalLight(vtkExternalLight *);
+
+  // Description:
+  // Remove an external light from the list of external lights.
+  virtual void RemoveExternalLight(vtkExternalLight *);
+
+  // Description:
+  // Remove all external lights
+  virtual void RemoveAllExternalLights();
+
+  // Description:
+
 protected:
   vtkExternalOpenGLRenderer();
   ~vtkExternalOpenGLRenderer();
+
+  vtkLightCollection *ExternalLights;
 
 private:
   vtkExternalOpenGLRenderer(const vtkExternalOpenGLRenderer&);  // Not implemented.

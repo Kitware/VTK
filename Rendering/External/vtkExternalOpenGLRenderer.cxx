@@ -16,7 +16,9 @@
 
 #include "vtkCamera.h"
 #include "vtkCommand.h"
+#include "vtkExternalLight.h"
 #include "vtkExternalOpenGLCamera.h"
+#include "vtkLightCollection.h"
 #include "vtkLightCollection.h"
 #include "vtkLight.h"
 #include "vtkMath.h"
@@ -38,11 +40,14 @@ vtkExternalOpenGLRenderer::vtkExternalOpenGLRenderer()
   this->PreserveColorBuffer = 1;
   this->PreserveDepthBuffer = 1;
   this->SetAutomaticLightCreation(0);
+  this->ExternalLights = vtkLightCollection::New();
 }
 
 //----------------------------------------------------------------------------
 vtkExternalOpenGLRenderer::~vtkExternalOpenGLRenderer()
 {
+  this->ExternalLights->Delete();
+  this->ExternalLights = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -89,71 +94,225 @@ void vtkExternalOpenGLRenderer::Render(void)
 
   matrix->Delete();
 
-  // Remove all VTK lights
-  this->RemoveAllLights();
-
-  // Query OpenGL lights
+  // Lights
+  // Query lights existing in the external context
+  // and tweak them based on vtkExternalLight objects added by the user
   GLenum curLight;
   for (curLight = GL_LIGHT0;
        curLight < GL_LIGHT0 + MAX_LIGHTS;
        curLight++)
     {
     GLboolean status;
-    GLfloat info[4];
     glGetBooleanv(curLight, &status);
-    if (status)
+
+    int l_ind = static_cast<int> (curLight - GL_LIGHT0);
+    vtkLight* light = NULL;
+    bool light_created = false;
+    light = vtkLight::SafeDownCast(
+              this->GetLights()->GetItemAsObject(l_ind));
+    if (light)
       {
-      // For each enabled OpenGL light, add a new VTK headlight.
-      // Headlight because VTK will apply transform matrices.
-      vtkLight* light = vtkLight::New();
-      light->SetLightTypeToHeadlight();
-
-      // Set color parameters
-      glGetLightfv(curLight, GL_AMBIENT, info);
-      light->SetAmbientColor(info[0], info[1], info[2]);
-      glGetLightfv(curLight, GL_DIFFUSE, info);
-      light->SetDiffuseColor(info[0], info[1], info[2]);
-      glGetLightfv(curLight, GL_SPECULAR, info);
-      light->SetSpecularColor(info[0], info[1], info[2]);
-
-      // Position, focal point and positional
-      glGetLightfv(curLight, GL_POSITION, info);
-      light->SetPositional(info[3] > 0.0 ? 1 : 0);
-      if (!light->GetPositional())
+      if (!status)
         {
-        light->SetFocalPoint(0, 0, 0);
-        light->SetPosition(-info[0], -info[1], -info[2]);
+        // This is the case when we have a VTK light in the scene but no
+        // external light corresponding to that index in the context.
+        // In this case, we remove the VTK light as well.
+        light->SwitchOff();
+        this->RemoveLight(light);
+
+        // No need to go forward
+        continue;
+        }
+      }
+    else
+      {
+      // No matching light found in the VTK light collection
+      if (status)
+        {
+        // Create a new light only if one is present in the external context
+        light = vtkLight::New();
+        // Headlight because VTK will apply transform matrices
+        light->SetLightTypeToHeadlight();
+        light_created = true;
         }
       else
         {
-        light->SetFocalPoint(0, 0, 0);
-        light->SetPosition(info[0], info[1], info[2]);
+        // No need to go forward as this light is not being used
+        continue;
+        }
+      }
+
+    // Find out if there is an external light object associated with this
+    // light index.
+    vtkCollectionSimpleIterator sit;
+    vtkExternalLight* eLight;
+    vtkExternalLight* curExtLight = NULL;
+    for (this->ExternalLights->InitTraversal(sit);
+         (eLight = vtkExternalLight::SafeDownCast(
+          this->ExternalLights->GetNextLight(sit))); )
+      {
+      if (eLight &&
+          (static_cast<GLenum>(eLight->GetLightIndex()) == curLight))
+        {
+        curExtLight = eLight;
+        break;
+        }
+      }
+
+    if (curExtLight &&
+        (curExtLight->GetReplaceMode() == vtkExternalLight::ALL_PARAMS))
+      {
+      // If the replace mode is all parameters, blatantly overwrite the
+      // parameters of existing/new light
+      light->DeepCopy(curExtLight);
+      }
+    else
+      {
+
+      GLfloat info[4];
+
+      // Set color parameters
+      if (curExtLight && curExtLight->GetIntensitySet())
+        {
+        light->SetIntensity(curExtLight->GetIntensity());
+        }
+
+      if (curExtLight && curExtLight->GetAmbientColorSet())
+        {
+        light->SetAmbientColor(curExtLight->GetAmbientColor());
+        }
+      else
+        {
+        glGetLightfv(curLight, GL_AMBIENT, info);
+        light->SetAmbientColor(info[0], info[1], info[2]);
+        }
+      if (curExtLight && curExtLight->GetDiffuseColorSet())
+        {
+        light->SetDiffuseColor(curExtLight->GetDiffuseColor());
+        }
+      else
+        {
+        glGetLightfv(curLight, GL_DIFFUSE, info);
+        light->SetDiffuseColor(info[0], info[1], info[2]);
+        }
+      if (curExtLight && curExtLight->GetSpecularColorSet())
+        {
+        light->SetSpecularColor(curExtLight->GetSpecularColor());
+        }
+      else
+        {
+        glGetLightfv(curLight, GL_SPECULAR, info);
+        light->SetSpecularColor(info[0], info[1], info[2]);
+        }
+
+      // Position, focal point and positional
+      glGetLightfv(curLight, GL_POSITION, info);
+
+      if (curExtLight && curExtLight->GetPositionalSet())
+        {
+        light->SetPositional(curExtLight->GetPositional());
+        }
+      else
+        {
+        light->SetPositional(info[3] > 0.0 ? 1 : 0);
+        }
+
+      if (!light->GetPositional())
+        {
+        if (curExtLight && curExtLight->GetFocalPointSet())
+          {
+          light->SetFocalPoint(curExtLight->GetFocalPoint());
+          if (curExtLight->GetPositionSet())
+            {
+            light->SetPosition(curExtLight->GetPosition());
+            }
+          else
+            {
+            light->SetPosition(info[0], info[1], info[2]);
+            }
+          }
+        else
+          {
+          light->SetFocalPoint(0, 0, 0);
+          if (curExtLight && curExtLight->GetPositionSet())
+            {
+            light->SetPosition(curExtLight->GetPosition());
+            }
+          else
+            {
+            light->SetPosition(-info[0], -info[1], -info[2]);
+            }
+          }
+        }
+      else
+        {
+        if (curExtLight && curExtLight->GetPositionSet())
+          {
+          light->SetPosition(curExtLight->GetPosition());
+          }
+        else
+          {
+          light->SetPosition(info[0], info[1], info[2]);
+          }
 
         // Attenuation
-        glGetLightfv(curLight, GL_CONSTANT_ATTENUATION, &info[0]);
-        glGetLightfv(curLight, GL_LINEAR_ATTENUATION, &info[1]);
-        glGetLightfv(curLight, GL_QUADRATIC_ATTENUATION, &info[2]);
-        light->SetAttenuationValues(info[0], info[1], info[2]);
+        if (curExtLight && curExtLight->GetAttenuationValuesSet())
+          {
+          light->SetAttenuationValues(curExtLight->GetAttenuationValues());
+          }
+        else
+          {
+          glGetLightfv(curLight, GL_CONSTANT_ATTENUATION, &info[0]);
+          glGetLightfv(curLight, GL_LINEAR_ATTENUATION, &info[1]);
+          glGetLightfv(curLight, GL_QUADRATIC_ATTENUATION, &info[2]);
+          light->SetAttenuationValues(info[0], info[1], info[2]);
+          }
 
         // Cutoff
-        glGetLightfv(curLight, GL_SPOT_CUTOFF, &info[0]);
-        light->SetConeAngle(info[0]);
+        if (curExtLight && curExtLight->GetConeAngleSet())
+          {
+          light->SetConeAngle(curExtLight->GetConeAngle());
+          }
+        else
+          {
+          glGetLightfv(curLight, GL_SPOT_CUTOFF, &info[0]);
+          light->SetConeAngle(info[0]);
+          }
 
         if (light->GetConeAngle() < 180.0)
           {
           // Exponent
-          glGetLightfv(curLight, GL_SPOT_EXPONENT, &info[0]);
-          light->SetExponent(info[0]);
+          if (curExtLight && curExtLight->GetExponentSet())
+            {
+            light->SetExponent(curExtLight->GetExponent());
+            }
+          else
+            {
+            glGetLightfv(curLight, GL_SPOT_EXPONENT, &info[0]);
+            light->SetExponent(info[0]);
+            }
 
           // Direction
-          glGetLightfv(curLight, GL_SPOT_DIRECTION, info);
-          for (unsigned int i = 0; i < 3; ++i)
+          if (curExtLight && curExtLight->GetFocalPointSet())
             {
-            info[i] += light->GetPosition()[i];
+            light->SetFocalPoint(curExtLight->GetFocalPoint());
             }
-          light->SetFocalPoint(info[0], info[1], info[2]);
+          else
+            {
+            glGetLightfv(curLight, GL_SPOT_DIRECTION, info);
+            for (unsigned int i = 0; i < 3; ++i)
+              {
+              info[i] += light->GetPosition()[i];
+              }
+            light->SetFocalPoint(info[0], info[1], info[2]);
+            }
           }
         }
+      }
+
+    // If we created a new VTK light, add it to the collection
+    if (light_created)
+      {
       this->AddLight(light);
       light->Delete();
       }
@@ -172,8 +331,49 @@ vtkCamera* vtkExternalOpenGLRenderer::MakeCamera()
 }
 
 //----------------------------------------------------------------------------
+void vtkExternalOpenGLRenderer::AddExternalLight(vtkExternalLight *light)
+{
+  if (!light)
+    {
+    return;
+    }
+
+  vtkExternalLight* aLight;
+
+  vtkCollectionSimpleIterator sit;
+  for (this->ExternalLights->InitTraversal(sit);
+       (aLight = vtkExternalLight::SafeDownCast(
+          this->ExternalLights->GetNextLight(sit))); )
+    {
+    if (aLight && (aLight->GetLightIndex() == light->GetLightIndex()))
+      {
+      vtkErrorMacro( << "Attempting to add light with index " <<
+                     light->GetLightIndex() <<
+                     ". But light with same index already exists.");
+      return;
+      }
+    }
+
+  this->ExternalLights->AddItem(light);
+}
+
+//----------------------------------------------------------------------------
+void vtkExternalOpenGLRenderer::RemoveExternalLight(vtkExternalLight *light)
+{
+  this->ExternalLights->RemoveItem(light);
+}
+
+//----------------------------------------------------------------------------
+void vtkExternalOpenGLRenderer::RemoveAllExternalLights()
+{
+  this->ExternalLights->RemoveAllItems();
+}
+
+//----------------------------------------------------------------------------
 void vtkExternalOpenGLRenderer::PrintSelf(ostream &os, vtkIndent indent)
 {
-  os << indent << "PreserveColorBuffer: " << this->PreserveColorBuffer << "\n";
   this->Superclass::PrintSelf(os, indent);
+
+  os << indent << "External Lights:\n";
+  this->ExternalLights->PrintSelf(os, indent.GetNextIndent());
 }
