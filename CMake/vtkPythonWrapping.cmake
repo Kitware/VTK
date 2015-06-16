@@ -65,6 +65,11 @@ function(vtk_add_python_wrapping module_name)
   target_link_libraries(${module_name}PythonD LINK_PUBLIC ${module_name}
     vtkWrappingPythonCore ${extra_links} ${VTK_PYTHON_LIBRARIES})
 
+  if (MSVC)
+    set_target_properties(${module_name}PythonD
+      PROPERTIES STATIC_LIBRARY_FLAGS ${CMAKE_MODULE_LINKER_FLAGS})
+  endif()
+
   _vtk_add_python_module(${module_name}Python ${module_name}PythonInit.cxx)
   target_link_libraries(${module_name}Python ${module_name}PythonD)
   if(CMAKE_HAS_TARGET_INCLUDES)
