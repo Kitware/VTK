@@ -92,6 +92,16 @@ public:
   double GetRescaleIntercept() { return this->RescaleIntercept; }
 
   // Description:
+  // Read planar RGB (separate R, G, and B planes), rather than packed RGB.
+  // The NIFTI format should always use packed RGB.  The Analyze format,
+  // however, was used to store both planar RGB and packed RGB depending
+  // on the software, without any indication in the header about which
+  // convention was being used.  Use this if you have a planar RGB file.
+  vtkGetMacro(PlanarRGB, bool);
+  vtkSetMacro(PlanarRGB, bool);
+  vtkBooleanMacro(PlanarRGB, bool);
+
+  // Description:
   // QFac gives the slice order in the NIFTI file versus the VTK image.
   // If QFac is -1, then the VTK slice index J is related to the NIFTI
   // slice index j by the equation J = (num_slices - j - 1).  VTK requires
@@ -203,6 +213,10 @@ protected:
   // Description:
   // A copy of the header from the file that was most recently read.
   vtkNIFTIImageHeader *NIFTIHeader;
+
+  // Description:
+  // Use planar RGB instead of the default (packed).
+  bool PlanarRGB;
 
 private:
   vtkNIFTIImageReader(const vtkNIFTIImageReader&);  // Not implemented.
