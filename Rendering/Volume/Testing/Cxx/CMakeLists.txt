@@ -47,6 +47,7 @@ set (VolumeOpenGLCxxTests
 
 # These tests are only built for the OpenGL2 backend
 set (VolumeOpenGL2CxxTests
+  TestGPURayCastCameraInside.cxx
   TestGPURayCastClipping.cxx
   TestGPURayCastGradientOpacity.cxx
   TestGPURayCastPositionalLights.cxx
