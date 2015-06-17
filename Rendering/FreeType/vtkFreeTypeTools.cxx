@@ -1879,7 +1879,7 @@ bool vtkFreeTypeTools::RenderCharacter(CharType character, int &x, int &y,
                                        MetaData &metaData)
 {
   ImageMetaData *iMetaData = reinterpret_cast<ImageMetaData*>(&metaData);
-  FT_BitmapGlyph bitmapGlyph;
+  FT_BitmapGlyph bitmapGlyph = NULL;
   FT_UInt glyphIndex;
   FT_Bitmap *bitmap = this->GetBitmap(character, &iMetaData->scaler,
                                       glyphIndex, bitmapGlyph);
@@ -2004,7 +2004,7 @@ bool vtkFreeTypeTools::RenderCharacter(CharType character, int &x, int &y,
     };
 
   FT_UInt glyphIndex;
-  FT_OutlineGlyph outlineGlyph;
+  FT_OutlineGlyph outlineGlyph = NULL;
   FT_Outline *outline = this->GetOutline(character, &metaData.scaler,
                                          glyphIndex, outlineGlyph);
 
@@ -2433,7 +2433,7 @@ template<typename T>
 void vtkFreeTypeTools::GetLineMetrics(T begin, T end, MetaData &metaData,
                                       int &width, int bbox[4])
 {
-  FT_BitmapGlyph bitmapGlyph;
+  FT_BitmapGlyph bitmapGlyph = NULL;
   FT_UInt gindex = 0;
   FT_UInt gindexLast = 0;
   FT_Vector delta;
