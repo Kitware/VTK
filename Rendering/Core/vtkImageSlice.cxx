@@ -315,7 +315,12 @@ void vtkImageSlice::Render(vtkRenderer *ren)
   this->Update();
 
   // only call the mapper if it has an input
-  if (this->Mapper->GetInput())
+  vtkImageData* input = this->Mapper->GetInput();
+  int* extent = input->GetExtent();
+  if (input &&
+      extent[0] <= extent[1] &&
+      extent[2] <= extent[3] &&
+      extent[4] <= extent[5])
     {
     this->Mapper->Render(ren, this);
     this->EstimatedRenderTime += this->Mapper->GetTimeToDraw();
