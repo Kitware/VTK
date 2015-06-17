@@ -111,6 +111,9 @@
 /* Whether we require large files support.  */
 #cmakedefine VTK_REQUIRE_LARGE_FILE_SUPPORT
 
+/* Whether reverse const iterator's have comparison operators. */
+#cmakedefine VTK_CONST_REVERSE_ITERATOR_COMPARISON
+
 /*--------------------------------------------------------------------------*/
 /* VTK Platform Configuration                                               */
 

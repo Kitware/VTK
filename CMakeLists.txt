@@ -297,6 +297,22 @@ CHECK_CXX_SOURCE_RUNS("${VTK_REQUIRE_LARGE_FILE_SUPPORT_FILE}"
 SET(VTK_REQUIRE_LARGE_FILE_SUPPORT ${CMAKE_REQUIRE_LARGE_FILE_SUPPORT})
 
 #-----------------------------------------------------------------------------
+# Does the const_reverse_iterator have the comparison operators? They were not
+# present in older versions of gcc (ex: Apple fork of gcc 4.2).
+include(CheckCXXSourceCompiles)
+set(VTK_CONST_REVERSE_ITERATOR_COMPARISON_FILE
+"#include <vector>
+int main()
+{
+  std::vector<int> test;
+  std::vector<int>::const_reverse_iterator it = test.rbegin();
+  it != test.rend();
+  return 0;
+}")
+check_cxx_source_compiles("${VTK_CONST_REVERSE_ITERATOR_COMPARISON_FILE}"
+  VTK_CONST_REVERSE_ITERATOR_COMPARISON)
+
+#-----------------------------------------------------------------------------
 # Provide compatibility options.
 option(VTK_LEGACY_REMOVE "Remove all legacy code completely." OFF)
 option(VTK_LEGACY_SILENT "Silence all legacy code messages." OFF)
