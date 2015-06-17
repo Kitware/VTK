@@ -321,17 +321,17 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND
 endif ()
 
 #-----------------------------------------------------------------------------
-# Minimum compiler version check: LLVM Clang >= 2.8
+# Minimum compiler version check: LLVM Clang >= 3.0
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND
-    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 2.8)
-  message(FATAL_ERROR "LLVM Clang 2.8 or later is required.")
+    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.0)
+  message(FATAL_ERROR "LLVM Clang 3.0 or later is required.")
 endif ()
 
 #-----------------------------------------------------------------------------
-# Minimum compiler version check: Apple Clang >= 2.0 (Xcode 4.0.x)
+# Minimum compiler version check: Apple Clang >= 3.0 (Xcode 4.2)
 if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" AND
-    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 2.0)
-  message(FATAL_ERROR "Apple Clang 2.0 or later is required.")
+    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.0)
+  message(FATAL_ERROR "Apple Clang 3.0 or later is required.")
 endif ()
 
 #-----------------------------------------------------------------------------
