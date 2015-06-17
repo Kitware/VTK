@@ -1656,14 +1656,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateVolumeGeometry(
       // pick a fraction of the near-far distance.
       // 100.0 and 1000.0 are chosen based on the typical epsilon values on
       // x86 systems.
-      double offset =  static_cast<double>(
-                         std::numeric_limits<float>::epsilon()) * 100.0;
-      if(offset > 0.001)
-        {
-        double newOffset = sqrt(vtkMath::Distance2BetweenPoints(
-                             camNearPoint, camFarPoint)) / 1000.0;
-        offset = offset > newOffset ? newOffset : offset;
-        }
+      double offset = sqrt(vtkMath::Distance2BetweenPoints(
+                           camNearPoint, camFarPoint)) / 1000.0;
+      // Minimum offset to avoid floating point precision issues
+      double minOffset =  static_cast<double>(
+                         std::numeric_limits<float>::epsilon()) * 1000.0;
+      offset = offset < minOffset ? minOffset : offset;
 
       camNearPoint[0] += camPlaneNormal[0]*offset;
       camNearPoint[1] += camPlaneNormal[1]*offset;
