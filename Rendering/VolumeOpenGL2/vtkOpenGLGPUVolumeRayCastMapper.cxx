@@ -1652,18 +1652,19 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateVolumeGeometry(
       // We add an offset to the near plane to avoid hardware clipping of the
       // near plane due to floating-point precision.
       // camPlaneNormal is a unit vector, if the offset is larger than the
-      // distance between near and far point, it will not work, in this case we
-      // pick a fraction of the near-far distance.
-      // 100.0 and 1000.0 are chosen based on the typical epsilon values on
-      // x86 systems.
-      double offset =  static_cast<double>(
-                         std::numeric_limits<float>::epsilon()) * 100.0;
-      if(offset > 0.001)
-        {
-        double newOffset = sqrt(vtkMath::Distance2BetweenPoints(
-                             camNearPoint, camFarPoint)) / 1000.0;
-        offset = offset > newOffset ? newOffset : offset;
-        }
+      // distance between near and far point, it will not work. Hence, we choose
+      // a fraction of the near-far distance. However, care should be taken
+      // to avoid hardware clipping in volumes with very small spacing where the
+      // distance between near and far plane is also very small. In that case,
+      // a minimum offset is chosen. This is chosen based on the typical
+      // epsilon values on x86 systems.
+      double offset = sqrt(vtkMath::Distance2BetweenPoints(
+                           camNearPoint, camFarPoint)) / 1000.0;
+      // Minimum offset to avoid floating point precision issues for volumes
+      // with very small spacing
+      double minOffset =  static_cast<double>(
+                         std::numeric_limits<float>::epsilon()) * 1000.0;
+      offset = offset < minOffset ? minOffset : offset;
 
       camNearPoint[0] += camPlaneNormal[0]*offset;
       camNearPoint[1] += camPlaneNormal[1]*offset;
