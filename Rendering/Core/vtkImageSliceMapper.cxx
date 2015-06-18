@@ -176,8 +176,13 @@ int vtkImageSliceMapper::ProcessRequest(
       this->SliceNumber = extent[2*orientation + 1];
       }
 
-    extent[2*orientation] = this->SliceNumber;
-    extent[2*orientation + 1] = this->SliceNumber;
+    // the test is for an empty extent (0, -1, 0, -1, 0, -1) which
+    // otherwise would be changed into (0, -1, 0, -1, -1, -1)
+    if (extent[2*orientation] <= extent[2*orientation + 1])
+      {
+      extent[2*orientation] = this->SliceNumber;
+      extent[2*orientation + 1] = this->SliceNumber;
+      }
 
     this->DisplayExtent[0] = extent[0];
     this->DisplayExtent[1] = extent[1];
