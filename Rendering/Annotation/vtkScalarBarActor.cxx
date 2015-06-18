@@ -144,6 +144,11 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->P->AnnotationLeadersActor->GetPositionCoordinate()->
     SetReferenceCoordinate(this->PositionCoordinate);
 
+  this->P->TitleBox.Posn[0] = 0;
+  this->P->TitleBox.Posn[1] = 0;
+  this->P->TitleBox.Size[0] = 0;
+  this->P->TitleBox.Size[1] = 0;
+
   // If opacity is on, a jail like texture is displayed behind it..
 
   this->UseOpacity       = 0;
