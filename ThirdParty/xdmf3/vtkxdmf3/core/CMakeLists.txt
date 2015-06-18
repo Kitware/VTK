@@ -8,7 +8,7 @@ include(CheckCXXSourceCompiles)
 include(SetUpVersion)
 include(TestBigEndian)
 
-if(VERSION_CONTROL_AUTOUPDATE OR 
+if(VERSION_CONTROL_AUTOUPDATE OR
     NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/XdmfVersion.hpp)
   VersionCreate("Xdmf" "2" "XDMFCORE_EXPORT" "XdmfCore.hpp")
 endif()
@@ -154,7 +154,7 @@ set(XdmfCoreSources
 add_library(XdmfCore ${LIBTYPE} ${XdmfCoreSources})
 link_directories(${XDMF_LIBRARY_DIRS})
 
-target_link_libraries(XdmfCore ${XDMF_LIBRARIES} ${vtkxdmf3_LINK_DEPENDS})
+target_link_libraries(XdmfCore ${XDMF_LIBRARIES})
 vtk_target_install(XdmfCore)
 
 if(WIN32)
