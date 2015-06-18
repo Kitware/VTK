@@ -3,34 +3,52 @@
 # file can be sourced in the shell. You can also copy and paste the relevant
 # parts into other files if preferred.
 #
-# Note: on Windows Debug and Release are added, if another build type is
-# used, it would need to be added to the PATH too.
+# Note: Now only setting the path to the latest configuration used (for MSVC/Xcode)
 
-set(VTK_PYTHONPATH "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
-
-if(WIN32)
-  list(APPEND VTK_PYTHONPATH
-    "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/Debug"
-    "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/Release")
-endif()
-
-set(VTK_LIBRARY_PATH
-  "${VTK_PYTHONPATH}")
-
-if(WIN32)
-  file(WRITE "${VTK_BINARY_DIR}/windows_path.bat"
-    "set PATH=${VTK_LIBRARY_PATH};%PATH%
-    set PYTHONPATH=${VTK_PYTHONPATH};%PYTHONPATH%")
-elseif(UNIX)
-  # Replace the semicolons with colons for Unix operating systems
-  string(REPLACE ";" ":" VTK_LIBRARY_PATH "${VTK_LIBRARY_PATH}")
-  string(REPLACE ";" ":" VTK_PYTHONPATH "${VTK_PYTHONPATH}")
-  if(APPLE)
-    set(DYLD "DYLD")
-  else()
-    set(DYLD "LD")
+if (NOT CMAKE_CONFIGURATION_TYPES OR NOT CMAKE_VERSION VERSION_LESS "2.8.12")
+  if(WIN32)
+    set(VTK_PATH_SHELL_SCRIPT "windows_path.bat")
+    set(PATH_FORMAT "set xxx_path_var=xxx_add_path;%xxx_path_var%\r\n")
+    set(PATH_VARIABLE "PATH")
+    set(PATH_SEPARATOR ";")
+  elseif(UNIX)
+    set(VTK_PATH_SHELL_SCRIPT "unix_path.sh")
+    if(APPLE)
+      set(DYLD "DYLD")
+    else()
+      set(DYLD "LD")
+    endif()
+    set(PATH_VARIABLE "${DYLD}_LIBRARY_PATH")
+    set(PATH_SEPARATOR ":")
+    set(PATH_FORMAT "export xxx_path_var=xxx_add_path:\${xxx_path_var}\n")
   endif()
-  file(WRITE "${VTK_BINARY_DIR}/unix_path.sh"
-    "export ${DYLD}_LIBRARY_PATH=${VTK_LIBRARY_PATH}:\${${DYLD}_LIBRARY_PATH}
-    export PYTHONPATH=${VTK_PYTHONPATH}:\${PYTHONPATH}\n")
-endif()
+
+  # set the script file name
+  set(PATH_FILENAME "${VTK_BINARY_DIR}/${VTK_PATH_SHELL_SCRIPT}")
+
+  set(cfg_subdir "")
+  if (CMAKE_CONFIGURATION_TYPES)
+    set(cfg_subdir "/$<CONFIGURATION>")
+  endif ()
+
+  # FOR THE PATH VARIABLE
+  # replace the path to the executables
+  string(REPLACE "xxx_add_path" "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}${cfg_subdir}" PATH_TEMP "${PATH_FORMAT}")
+  # replace the name of the platform-specific path environment variable
+  string(REPLACE "xxx_path_var" "${PATH_VARIABLE}" PATH_LINES "${PATH_TEMP}")
+
+  if(VTK_WRAP_PYTHON)
+    # FOR THE PYTHONPATH VARIABLE, if PYTHON is wrapped
+    # replace the path to the python-specific files
+    string(REPLACE "xxx_add_path" "${VTK_BINARY_DIR}/Wrapping/Python${PATH_SEPARATOR}${CMAKE_LIBRARY_OUTPUT_DIRECTORY}${cfg_subdir}" PATH_TEMP "${PATH_FORMAT}")
+    # replace pathvar by PYTHONPATH
+    string(REPLACE "xxx_path_var" "PYTHONPATH" PATH_TEMP "${PATH_TEMP}")
+    # apped the line to the file
+    set(PATH_LINES "${PATH_LINES}${PATH_TEMP}")
+  endif()
+
+  # write to file
+  file(GENERATE
+    OUTPUT  "${PATH_FILENAME}"
+    CONTENT "${PATH_LINES}")
+endif ()
