@@ -21,6 +21,9 @@
 // VC position of this fragment
 //VTK::PositionVC::Dec
 
+// primitiveID
+//VTK::PrimID::Impl
+
 // optional color passed in from the vertex shader, vertexColor
 //VTK::Color::Dec
 
