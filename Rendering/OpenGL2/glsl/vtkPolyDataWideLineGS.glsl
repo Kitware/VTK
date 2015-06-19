@@ -22,7 +22,7 @@
 //VTK::PositionVC::Dec
 
 // primitiveID
-//VTK::PrimID::Impl
+//VTK::PrimID::Dec
 
 // optional color passed in from the vertex shader, vertexColor
 //VTK::Color::Dec

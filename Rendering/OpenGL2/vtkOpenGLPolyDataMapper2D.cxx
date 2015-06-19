@@ -171,11 +171,11 @@ void vtkOpenGLPolyDataMapper2D::BuildShaders(
           "//VTK::Color::Impl",
           "fcolorVSOutput = diffuseColor;");
       vtkShaderProgram::Substitute(GSSource,
-        "//VTK::TCoord::Dec",
+        "//VTK::Color::Dec",
         "in vec4 fcolorVSOutput[];\n"
         "out vec4 fcolorGSOutput;");
       vtkShaderProgram::Substitute(GSSource,
-        "//VTK::TCoord::Impl",
+        "//VTK::Color::Impl",
         "fcolorGSOutput = fcolorVSOutput[i];");
       vtkShaderProgram::Substitute(FSSource,
           "//VTK::Color::Dec",
