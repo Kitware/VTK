@@ -61,7 +61,7 @@
 
 
 template <class TCell>
-int TestOneInterpolationDerivs()
+int TestOneInterpolationDerivs(double eps = VTK_EPSILON)
 {
   TCell *cell = TCell::New();
   int numPts = cell->GetNumberOfPoints();
@@ -78,7 +78,7 @@ int TestOneInterpolationDerivs()
       {
       sum += derivs[j];
       }
-    if( fabs(sum) > VTK_EPSILON )
+    if( fabs(sum) > eps )
       {
       ++r;
       }
@@ -93,7 +93,7 @@ int TestOneInterpolationDerivs()
     {
     sum += derivs[j];
     }
-  if( fabs(sum) > VTK_EPSILON )
+  if( fabs(sum) > eps )
     {
     ++r;
     }
@@ -124,7 +124,7 @@ int TestInterpolationDerivs(int, char *[])
   //r += TestOneInterpolationDerivs<vtkConvexPointSet>(); // not implemented
   r += TestOneInterpolationDerivs<vtkHexagonalPrism>();
   r += TestOneInterpolationDerivs<vtkHexahedron>();
-  r += TestOneInterpolationDerivs<vtkPentagonalPrism>();
+  r += TestOneInterpolationDerivs<vtkPentagonalPrism>(1.e-05);
   r += TestOneInterpolationDerivs<vtkPyramid>();
   //r += TestOneInterpolationDerivs<vtkTetra>();
   r += TestOneInterpolationDerivs<vtkVoxel>();
