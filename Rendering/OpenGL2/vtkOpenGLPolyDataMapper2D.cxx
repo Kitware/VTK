@@ -253,11 +253,11 @@ void vtkOpenGLPolyDataMapper2D::BuildShaders(
       "applePrimIDVSOutput = appleBugPrimID;");
     vtkShaderProgram::Substitute(GSSource,
       "//VTK::PrimID::Dec",
-      "in  vec4 appleBugPrimIDVSOutput[];\n"
-      "out vec4 appleBugPrimIDGSOutput;");
+      "in  vec4 applePrimIDVSOutput[];\n"
+      "out vec4 applePrimIDGSOutput;");
     vtkShaderProgram::Substitute(GSSource,
       "//VTK::PrimID::Impl",
-      "appleBugPrimIDGSOutput = appleBugPrimIDVSOutput[i];");
+      "applePrimIDGSOutput = applePrimIDVSOutput[i];");
     vtkShaderProgram::Substitute(FSSource,"//VTK::PrimID::Dec",
       "varying vec4 applePrimIDVSOutput;");
      vtkShaderProgram::Substitute(FSSource,"//VTK::PrimID::Impl",
