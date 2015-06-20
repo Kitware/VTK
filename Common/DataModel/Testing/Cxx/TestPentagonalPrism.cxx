@@ -230,6 +230,7 @@ template<typename T> int TestCell(const VTKCellType cellType,
         ++status;
         }
       }
+    delete [] pweights;
     std::cout << "...PASSED" << std::endl;
     }
 
@@ -317,6 +318,8 @@ template<typename T> int TestCell(const VTKCellType cellType,
             << derivs[0] << " "
             << derivs[1] << " "
             << derivs[2] << " ";
+  delete [] derivs;
+  delete [] scalars;
   std::cout << "...PASSED" << std::endl;
 
   std::cout << "  Testing EvaluateLocation vertex matches pcoord...";
