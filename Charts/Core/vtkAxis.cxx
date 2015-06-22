@@ -1364,6 +1364,15 @@ double vtkAxis::NiceMinMax(double &min, double &max, float pixelRange,
 //-----------------------------------------------------------------------------
 double vtkAxis::CalculateNiceMinMax(double &min, double &max)
 {
+  if (this->NumberOfTicks > 0)
+    {
+    // An exact number of ticks was requested, use the min/max and exact number.
+    min = this->Minimum;
+    max = this->Maximum;
+    double range = fabs(max - min);
+    return range / double(this->NumberOfTicks - 1);
+    }
+
   float pixelRange = 0;
   float tickPixelSpacing = 0;
   if (this->Position == vtkAxis::LEFT || this->Position == vtkAxis::RIGHT
@@ -1390,18 +1399,7 @@ double vtkAxis::CalculateNiceMinMax(double &min, double &max)
       vtkAxis::NiceMinMax(min, max, pixelRange, tickPixelSpacing);
     }
 
-  if (this->NumberOfTicks > 0)
-    {
-    // An exact number of ticks was requested, use the min/max and exact number.
-    min = this->Minimum;
-    max = this->Maximum;
-    double range = fabs(max - min);
-    return range / double(this->NumberOfTicks - 1);
-    }
-  else
-    {
-    return niceTickSpacing;
-    }
+  return niceTickSpacing;
 }
 
 //-----------------------------------------------------------------------------
@@ -1577,25 +1575,25 @@ void vtkAxis::GenerateLogScaleTickMarks(int order,
     double value = result * pow(10.0, static_cast<double>(order));
     this->TickPositions->InsertNextValue(log10(value));
 
-    // Now create a label for the tick position
-    vtksys_ios::ostringstream ostr;
-    ostr.imbue(std::locale::classic());
-    if (this->Notation > 0)
-      {
-      ostr.precision(this->Precision);
-      }
-    if (this->Notation == SCIENTIFIC_NOTATION)
-      {
-      ostr.setf(vtksys_ios::ios::scientific, vtksys_ios::ios::floatfield);
-      }
-    else if (this->Notation == FIXED_NOTATION)
-      {
-      ostr.setf(ios::fixed, ios::floatfield);
-      }
-    ostr << value;
-
     if (niceTickMark)
       {
+      // Now create a label for the tick position
+      vtksys_ios::ostringstream ostr;
+      ostr.imbue(std::locale::classic());
+      if (this->Notation > 0)
+        {
+        ostr.precision(this->Precision);
+        }
+      if (this->Notation == SCIENTIFIC_NOTATION)
+        {
+        ostr.setf(vtksys_ios::ios::scientific, vtksys_ios::ios::floatfield);
+        }
+      else if (this->Notation == FIXED_NOTATION)
+        {
+        ostr.setf(ios::fixed, ios::floatfield);
+        }
+      ostr << value;
+
       this->TickLabels->InsertNextValue(ostr.str());
       }
     else
