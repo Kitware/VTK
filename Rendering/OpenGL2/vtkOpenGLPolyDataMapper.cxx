@@ -93,6 +93,7 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   this->VBO = vtkOpenGLVertexBufferObject::New();
 
   this->AppleBugPrimIDBuffer = 0;
+  this->HaveAppleBug = false;
 }
 
 

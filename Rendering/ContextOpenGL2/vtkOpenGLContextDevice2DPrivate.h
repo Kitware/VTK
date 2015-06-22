@@ -415,9 +415,6 @@ public:
     glGenTextures(1, &tmpIndex);
     glBindTexture(GL_TEXTURE_2D, tmpIndex);
 
-    glTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_REPLACE);
-    glTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
-
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
@@ -428,8 +425,6 @@ public:
     glTexImage2D(GL_TEXTURE_2D, 0 , glInternalFormat,
                  newImg[0], newImg[1], 0, glFormat,
                  GL_UNSIGNED_BYTE, static_cast<const GLvoid *>(dataPtr));
-    glAlphaFunc(GL_GREATER, static_cast<GLclampf>(0));
-    glEnable(GL_ALPHA_TEST);
     delete [] dataPtr;
     return tmpIndex;
     }
@@ -454,9 +449,6 @@ public:
     glGenTextures(1, &tmpIndex);
     glBindTexture(GL_TEXTURE_2D, tmpIndex);
 
-    glTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_REPLACE);
-    glTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
-
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
@@ -467,8 +459,6 @@ public:
     glTexImage2D(GL_TEXTURE_2D, 0 , glInternalFormat,
                  size[0], size[1], 0, glFormat,
                  GL_UNSIGNED_BYTE, static_cast<const GLvoid *>(dataPtr));
-    glAlphaFunc(GL_GREATER, static_cast<GLclampf>(0));
-    glEnable(GL_ALPHA_TEST);
     return tmpIndex;
   }
 
