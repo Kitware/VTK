@@ -884,6 +884,7 @@ void vtkAxis::UpdateLogScaleActive(bool alwaysUpdateMinMaxFromUnscaled)
     if (!this->LogScaleActive)
       {
       this->LogScaleActive = true;
+      this->TickMarksDirty = true;
       needUpdate = true;
       }
     if (needUpdate || alwaysUpdateMinMaxFromUnscaled)
@@ -934,6 +935,7 @@ void vtkAxis::UpdateLogScaleActive(bool alwaysUpdateMinMaxFromUnscaled)
     if (this->LogScaleActive)
       {
       this->LogScaleActive = false;
+      this->TickMarksDirty = true;
       needUpdate = true;
       }
     if (needUpdate || alwaysUpdateMinMaxFromUnscaled)
