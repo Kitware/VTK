@@ -98,6 +98,16 @@ unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(
   std::string &FSSource,
   std::string &GSSource)
 {
+  // first handle renaming any Fragment shader inputs
+  // if we have a geometry shader. By deafult fragment shaders
+  // assume their inputs come from a Vertex Shader. When we
+  // have a Geometry shader we rename the frament shader inputs
+  // to come from the geometry shader
+  if (GSSource.size() > 0)
+    {
+    vtkShaderProgram::Substitute(FSSource,"VSOut","GSOut");
+    }
+
 #if GL_ES_VERSION_2_0 != 1
   unsigned int count = 0;
   if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())

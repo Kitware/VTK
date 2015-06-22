@@ -139,7 +139,7 @@ void vtkOpenGLPointGaussianMapperHelper::ReplaceShaderPositionVC(
 
     vtkShaderProgram::Substitute(FSSource,
       "//VTK::PositionVC::Dec",
-      "varying vec2 offsetVC;");
+      "varying vec2 offsetVCVSOutput;");
 
     vtkShaderProgram::Substitute(VSSource,
       "//VTK::Camera::Dec",
@@ -165,7 +165,7 @@ void vtkOpenGLPointGaussianMapperHelper::ReplaceShaderColor(
     vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl",
       // compute the eye position and unit direction
       "//VTK::Color::Impl\n"
-      "  float dist2 = dot(offsetVC.xy,offsetVC.xy);\n"
+      "  float dist2 = dot(offsetVCVSOutput.xy,offsetVCVSOutput.xy);\n"
       "  if (dist2 > 9.0) { discard; }\n"
       "  float gaussian = exp(-0.5*dist2);\n"
       "  opacity = opacity*gaussian;"

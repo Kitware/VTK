@@ -242,6 +242,9 @@ protected:
   vtkOpenGLHelper *LastBoundBO;
   bool DrawingEdges;
 
+  // do we have wide lines that require special handling
+  virtual bool HaveWideLines(vtkActor *);
+
   // values we use to determine if we need to rebuild
   int LastLightComplexity;
   vtkTimeStamp LightComplexityChanged;

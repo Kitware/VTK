@@ -108,6 +108,7 @@ protected:
   vtkOpenGLHelper Lines;
   vtkOpenGLHelper Tris;
   vtkOpenGLHelper TriStrips;
+  vtkOpenGLHelper *LastBoundBO;
 
   vtkTextureObject *CellScalarTexture;
   vtkOpenGLBufferObject *CellScalarBuffer;
