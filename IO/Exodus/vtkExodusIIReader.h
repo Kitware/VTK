@@ -682,12 +682,6 @@ public:
   void SetSqueezePoints(bool sp);
   bool GetSqueezePoints();
 
-
-  // Description:
-  // Re-reads time information from the exodus file and updates
-  // TimeStepRange accordingly.
-  virtual void UpdateTimeInformation();
-
   virtual void Dump();
 
   // Description:

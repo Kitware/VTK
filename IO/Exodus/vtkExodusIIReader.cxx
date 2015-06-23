@@ -6260,22 +6260,3 @@ void vtkExodusIIReader::ResetCache()
 {
   this->Metadata->ResetCache();
 }
-
-void vtkExodusIIReader::UpdateTimeInformation()
-{
-  if ( this->Metadata->OpenFile( this->FileName ) )
-    {
-    this->Metadata->UpdateTimeInformation();
-
-    if ( ! this->GetHasModeShapes() )
-      {
-      int nTimes = (int) this->Metadata->Times.size();
-      if ( nTimes )
-        {
-        this->TimeStepRange[0] = 0;
-        this->TimeStepRange[1] = nTimes - 1;
-        }
-      }
-    this->Metadata->CloseFile();
-    }
-}
