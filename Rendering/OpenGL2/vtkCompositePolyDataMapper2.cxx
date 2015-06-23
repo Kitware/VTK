@@ -112,6 +112,19 @@ void vtkCompositePolyDataMapper2::Render(
         }
       }
 
+    // check if this system is subject to the apple primID bug
+    // if so don't even try using the fast path, just go slow
+
+#ifdef __APPLE__
+    std::string vendor = (const char *)glGetString(GL_VENDOR);
+    if (vendor.find("ATI") != std::string::npos ||
+        vendor.find("AMD") != std::string::npos ||
+        vendor.find("amd") != std::string::npos)
+      {
+      this->UseGeneric = true;
+      }
+#endif
+
     // clear old structures if the render method changed
     if (lastUseGeneric != this->UseGeneric)
       {

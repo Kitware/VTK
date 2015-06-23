@@ -536,9 +536,6 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
 
   // after mucking about with FBO bindings be sure
   // we're saving the default fbo attributes/blend function
-  glPushAttrib(GL_COLOR_BUFFER_BIT);
-  vtkOpenGLCheckErrorMacro("failed at glPushAttrib");
-
   this->AllocateFBOResources(renderer);
 
   if (this->UseFloatingPointFrameBuffer
@@ -1123,7 +1120,6 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
     }
 
   // Restore the blend function.
-  glPopAttrib();
   vtkOpenGLCheckErrorMacro("failed at glPopAttrib");
 
   glDepthMask(GL_TRUE);
