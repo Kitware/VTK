@@ -1010,6 +1010,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputGlobalArrays(
     }
 
   // Add mode_shape/time_step
+  if (this->HasModeShapes)
     {
     vtkNew<vtkIntArray> dataIndexArray;
     dataIndexArray->SetName("mode_shape");
@@ -1018,6 +1019,14 @@ int vtkExodusIIReaderPrivate::AssembleOutputGlobalArrays(
     // mode-shape == (timestep + 1). See vtkExodusIIReader::SetModeShape().
     dataIndexArray->SetValue(0, (timeStep + 1));
     ofieldData->AddArray(dataIndexArray.GetPointer());
+
+    vtkNew<vtkIntArray> modeShapeRange;
+    modeShapeRange->SetName("mode_shape_range");
+    modeShapeRange->SetNumberOfComponents(2);
+    modeShapeRange->SetNumberOfTuples(1);
+    modeShapeRange->SetValue(0, this->Parent->GetModeShapesRange()[0]);
+    modeShapeRange->SetValue(1, this->Parent->GetModeShapesRange()[1]);
+    ofieldData->AddArray(modeShapeRange.GetPointer());
     }
 
   vtkExodusIICacheKey infokey( -1, vtkExodusIIReader::INFO_RECORDS, 0, 0 );
