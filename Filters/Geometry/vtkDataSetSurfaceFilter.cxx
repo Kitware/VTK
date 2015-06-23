@@ -1591,6 +1591,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
       case VTK_QUADRATIC_QUAD:
       case VTK_QUADRATIC_LINEAR_QUAD:
       case VTK_BIQUADRATIC_QUAD:
+      case VTK_QUADRATIC_POLYGON:
         // save 2D cells for third pass
         flag2D = 1;
         break;
@@ -1798,7 +1799,8 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
            || cellType == VTK_BIQUADRATIC_TRIANGLE
            || cellType == VTK_QUADRATIC_QUAD
            || cellType == VTK_BIQUADRATIC_QUAD
-           || cellType == VTK_QUADRATIC_LINEAR_QUAD)
+           || cellType == VTK_QUADRATIC_LINEAR_QUAD
+           || cellType == VTK_QUADRATIC_POLYGON)
       {
       bool allGhosts = true;
       pointIdList = cellIter->GetPointIds();
@@ -1833,10 +1835,10 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
         outPts->InsertNextId(op);
         }
       // Do any further subdivision if necessary.
-      if (this->NonlinearSubdivisionLevel > 1)
+        double *pc = cell->GetParametricCoords();
+      if (this->NonlinearSubdivisionLevel > 1 && pc)
         {
         // We are going to need parametric coordinates to further subdivide.
-        double *pc = cell->GetParametricCoords();
         parametricCoords->Reset();
         parametricCoords->SetNumberOfComponents(3);
         for (i = 0; i < pts->GetNumberOfIds(); i++)

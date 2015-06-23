@@ -991,6 +991,7 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
          ||(cellType==VTK_QUADRATIC_LINEAR_QUAD)
          ||(cellType==VTK_BIQUADRATIC_TRIANGLE)
          ||(cellType==VTK_CUBIC_LINE)
+         ||(cellType==VTK_QUADRATIC_POLYGON)
         )
         {
         vtkDebugMacro(<<"not 3D cell. type="<<cellType);

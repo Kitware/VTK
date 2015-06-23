@@ -57,7 +57,7 @@ static const char* vtkCellTypesStrings[] = {
   "vtkBiQuadraticQuadraticHexahedron",
   "vtkBiQuadraticTriangle",
   "vtkCubicLine",
-  "UnknownClass",
+  "vtkQuadraticPolygon",
   "UnknownClass",
   "UnknownClass",
   "UnknownClass",
