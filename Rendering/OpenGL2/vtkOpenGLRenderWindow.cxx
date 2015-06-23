@@ -170,6 +170,7 @@ void vtkOpenGLRenderWindow::ReleaseGraphicsResources()
       vtkErrorMacro("Leaked for texture object: " << const_cast<vtkTextureObject *>(found->first));
       }
     }
+  this->Initialized = false;
 }
 
 // ----------------------------------------------------------------------------
@@ -1889,6 +1890,7 @@ void vtkOpenGLRenderWindow::SaveGLState()
   // For now just query the active texture unit
   if (this->Initialized)
     {
+    this->MakeCurrent();
     glGetIntegerv(GL_ACTIVE_TEXTURE, &this->GLStateIntegers["GL_ACTIVE_TEXTURE"]);
 
     // GetTextureUnitManager() will create a new texture unit
