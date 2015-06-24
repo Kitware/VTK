@@ -197,6 +197,7 @@ void vtkDICOMImageReader::ExecuteInformation()
       this->AppHelper->RegisterCallbacks(this->Parser);
 
       this->Parser->ReadHeader();
+      this->Parser->CloseFile();
 
       vtkDebugMacro( << "File name : " << fn );
       vtkDebugMacro( << "Slice number : " << this->AppHelper->GetSliceNumber());

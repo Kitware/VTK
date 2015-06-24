@@ -95,11 +95,8 @@ DICOMParser::GetFileName()
 
 bool DICOMParser::OpenFile(const dicom_stl::string& filename)
 {
-  if (this->DataFile)
-    {
-    // Deleting the DataFile closes the file
-    delete this->DataFile;
-    }
+  // Deleting the DataFile closes any previously opened file
+  delete this->DataFile;
   this->DataFile = new DICOMFile();
   bool val = this->DataFile->Open(filename);
 
@@ -124,6 +121,13 @@ bool DICOMParser::OpenFile(const dicom_stl::string& filename)
 #endif
 
   return val;
+}
+
+void DICOMParser::CloseFile()
+{
+  // Deleting the DataFile closes any previously opened file
+  delete this->DataFile;
+  this->DataFile = 0;
 }
 
 DICOMParser::~DICOMParser() {
