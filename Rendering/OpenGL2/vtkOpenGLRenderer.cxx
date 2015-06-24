@@ -249,7 +249,7 @@ void vtkOpenGLRenderer::Clear(void)
 
   if (!this->GetPreserveDepthBuffer())
     {
-    //glClearDepth(static_cast<GLclampf>(1.0));
+    glClearDepth(static_cast<GLclampf>(1.0));
     clear_mask |= GL_DEPTH_BUFFER_BIT;
     glDepthMask(GL_TRUE);
     }

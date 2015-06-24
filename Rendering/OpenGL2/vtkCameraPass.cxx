@@ -106,10 +106,11 @@ void vtkCameraPass::Render(const vtkRenderState *s)
   int vsize;
   vtkFrameBufferObject *fbo=s->GetFrameBuffer();
 
+  vtkOpenGLRenderWindow *win=vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+  win->MakeCurrent();
+
   if(fbo==0)
     {
-    vtkOpenGLRenderWindow *win=vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
-
     // find out if we should stereo render
     bool stereo = win->GetStereoRender()==1;
     this->GetTiledSizeAndOrigin(s, &usize,&vsize,lowerLeft,lowerLeft+1);

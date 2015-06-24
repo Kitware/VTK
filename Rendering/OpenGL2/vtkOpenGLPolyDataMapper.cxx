@@ -1681,7 +1681,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
 
   // If we are coloring by texture, then load the texture map.
   // Use Map as indicator, because texture hangs around.
-  if (this->InternalColorTexture)
+  if (this->ColorTextureMap)
     {
     this->InternalColorTexture->Load(ren);
     }
@@ -1851,7 +1851,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceFinish(vtkRenderer* ren, vtkActor *vtkN
     glDisable(GL_POLYGON_OFFSET_FILL);
     }
 
-  if (this->InternalColorTexture)
+  if (this->ColorTextureMap)
     {
     this->InternalColorTexture->PostRender(ren);
     }
