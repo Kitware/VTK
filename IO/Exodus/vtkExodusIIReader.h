@@ -95,19 +95,17 @@ public:
     }
 
   // Description:
-  // Since ModeShapes are expected to run from [1,N] rather than [0, N],
-  // this method will return the TimeStepRange offset by 1.
-  virtual int* GetModeShapesRange()
-    {
-    this->ModeShapesRange[0] = this->TimeStepRange[0] + 1;
-    this->ModeShapesRange[1] = this->TimeStepRange[1] + 1;
-    return this->ModeShapesRange;
-    }
+  // Since ModeShapes are expected to run from [1,N] rather than [0, N-1],
+  // this method will return the TimeStepRange offset by 1. Note this method
+  // returns the potential mode shapes range irrespective of whether
+  // this->HasModeShapes is set to true.
+  vtkGetVector2Macro(ModeShapesRange, int);
 
   // Description:
   // Returns the available range of valid integer time steps.
+  // Note this method returns the potential timesteps range irrespective of
+  // whether this->HasModeShapes is set to false.
   vtkGetVector2Macro(TimeStepRange,int);
-  vtkSetVector2Macro(TimeStepRange,int);
 
   // Description:
   // Extra cell data array that can be generated.  By default, this array
@@ -681,12 +679,6 @@ public:
   // By default, SqueezePoints is true for backwards compatibility.
   void SetSqueezePoints(bool sp);
   bool GetSqueezePoints();
-
-
-  // Description:
-  // Re-reads time information from the exodus file and updates
-  // TimeStepRange accordingly.
-  virtual void UpdateTimeInformation();
 
   virtual void Dump();
 

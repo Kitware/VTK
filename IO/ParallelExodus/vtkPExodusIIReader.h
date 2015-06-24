@@ -104,15 +104,6 @@ public:
   virtual vtkIdType GetTotalNumberOfNodes();
 
   // Description:
-  // Calls UpdateTimeInformation() on all serial readers so they'll re-read
-  // their time info from the file.
-  // The last time step that they all have in common
-  // is stored in LastCommonTimeStep, which is used in RequestInformation()
-  // to override the output time-specific information keys with the range
-  // of times that ALL readers can actually read.
-  virtual void UpdateTimeInformation();
-
-  // Description:
   // Sends metadata (that read from the input file, not settings modified
   // through this API) from the rank 0 node to all other processes in a job.
   virtual void Broadcast( vtkMultiProcessController* ctrl );

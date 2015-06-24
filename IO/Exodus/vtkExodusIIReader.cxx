@@ -1010,6 +1010,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputGlobalArrays(
     }
 
   // Add mode_shape/time_step
+  if (this->HasModeShapes)
     {
     vtkNew<vtkIntArray> dataIndexArray;
     dataIndexArray->SetName("mode_shape");
@@ -1018,6 +1019,14 @@ int vtkExodusIIReaderPrivate::AssembleOutputGlobalArrays(
     // mode-shape == (timestep + 1). See vtkExodusIIReader::SetModeShape().
     dataIndexArray->SetValue(0, (timeStep + 1));
     ofieldData->AddArray(dataIndexArray.GetPointer());
+
+    vtkNew<vtkIntArray> modeShapeRange;
+    modeShapeRange->SetName("mode_shape_range");
+    modeShapeRange->SetNumberOfComponents(2);
+    modeShapeRange->SetNumberOfTuples(1);
+    modeShapeRange->SetValue(0, this->Parent->GetModeShapesRange()[0]);
+    modeShapeRange->SetValue(1, this->Parent->GetModeShapesRange()[1]);
+    ofieldData->AddArray(modeShapeRange.GetPointer());
     }
 
   vtkExodusIICacheKey infokey( -1, vtkExodusIIReader::INFO_RECORDS, 0, 0 );
@@ -6199,9 +6208,21 @@ bool vtkExodusIIReader::FindXMLFile()
 
 void vtkExodusIIReader::AdvertiseTimeSteps( vtkInformation* outInfo )
 {
+  // This method is called in vtkExodusIIReader::RequestInformation() to update
+  // information about timesteps. Since this gets called after this->Metadata
+  // has processed the file meta-data it's a good place to update iVars that
+  // reflect the meta-data read from the file about timesteps/mode shapes.
+
+  int nTimes = static_cast<int>(this->Metadata->Times.size());
+  this->TimeStepRange[0] = 0;
+  this->TimeStepRange[1] = (nTimes > 0)? (nTimes-1) : 0;
+
+  // Since modeshape range is 1 indexed.
+  this->ModeShapesRange[0] = this->TimeStepRange[0] + 1;
+  this->ModeShapesRange[1] = this->TimeStepRange[1] + 1;
+
   if ( ! this->GetHasModeShapes() )
     {
-    int nTimes = (int) this->Metadata->Times.size();
     double timeRange[2];
     if ( nTimes )
       {
@@ -6209,7 +6230,6 @@ void vtkExodusIIReader::AdvertiseTimeSteps( vtkInformation* outInfo )
       timeRange[1] = this->Metadata->Times[nTimes - 1];
       outInfo->Set( vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &this->Metadata->Times[0], nTimes );
       outInfo->Set( vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2 );
-      this->TimeStepRange[0] = 0; this->TimeStepRange[1] = nTimes - 1;
       }
     }
   else if (this->GetAnimateModeShapes())
@@ -6259,23 +6279,4 @@ bool vtkExodusIIReader::GetSqueezePoints()
 void vtkExodusIIReader::ResetCache()
 {
   this->Metadata->ResetCache();
-}
-
-void vtkExodusIIReader::UpdateTimeInformation()
-{
-  if ( this->Metadata->OpenFile( this->FileName ) )
-    {
-    this->Metadata->UpdateTimeInformation();
-
-    if ( ! this->GetHasModeShapes() )
-      {
-      int nTimes = (int) this->Metadata->Times.size();
-      if ( nTimes )
-        {
-        this->TimeStepRange[0] = 0;
-        this->TimeStepRange[1] = nTimes - 1;
-        }
-      }
-    this->Metadata->CloseFile();
-    }
 }
