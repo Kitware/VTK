@@ -358,11 +358,7 @@ void vtkTIFFWriter::WriteVolume(T* buffer)
        TIFFSetField(tif, TIFFTAG_PREDICTOR, 2);
        }
 
-    if (bitsPerSample == 8 || bitsPerSample == 16)
-      {
-      TIFFSetField(tif, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_INT);
-      }
-    else
+    if (bitsPerSample == 32)
       {
       TIFFSetField(tif, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_IEEEFP);
       }
