@@ -1838,7 +1838,7 @@ bool vtkTextureObject::Create2DFromRaw(unsigned int width, unsigned int height,
   this->Depth = 1;
   this->NumberOfDimensions = 2;
   this->CreateTexture();
-  this->Bind();
+  this->Activate();
 
   // Source texture data from the PBO.
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -1856,7 +1856,7 @@ bool vtkTextureObject::Create2DFromRaw(unsigned int width, unsigned int height,
 
   vtkOpenGLCheckErrorMacro("failed at glTexImage2D");
 
-  this->UnBind();
+  this->Deactivate();
   return true;
 }
 
