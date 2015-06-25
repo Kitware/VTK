@@ -869,22 +869,6 @@ void vtkDataArrayTemplate<T>::RemoveTuple(vtkIdType id)
 }
 
 //----------------------------------------------------------------------------
-template <class T>
-void vtkDataArrayTemplate<T>::RemoveFirstTuple()
-{
-  this->RemoveTuple(0);
-  this->DataChanged();
-}
-
-//----------------------------------------------------------------------------
-template <class T>
-void vtkDataArrayTemplate<T>::RemoveLastTuple()
-{
-  this->Resize(this->GetNumberOfTuples()- 1);
-  this->DataChanged();
-}
-
-//----------------------------------------------------------------------------
 // Return the data component at the ith tuple and jth component location.
 // Note that i<NumberOfTuples and j<NumberOfComponents.
 template <class T>

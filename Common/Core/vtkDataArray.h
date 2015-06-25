@@ -219,8 +219,8 @@ public:
   // resize array, so the data array is still valid after this operation. Note,
   // this operation is fairly slow.
   virtual void RemoveTuple(vtkIdType id) = 0;
-  virtual void RemoveFirstTuple() = 0;
-  virtual void RemoveLastTuple() = 0;
+  virtual void RemoveFirstTuple() { this->RemoveTuple(0); }
+  virtual void RemoveLastTuple();
 
   // Description:
   // Return the data component at the ith tuple and jth component location.
