@@ -19,8 +19,10 @@
 #define vtkAgnosticArray_h
 
 #include "vtkDataArray.h"
+#include "vtkSmartPointer.h"
 #include "vtkTypeTemplate.h"
 #include "vtkTypeTraits.h"
+#include <cassert>
 
 #include <typeinfo>
 #define vtkAgnosticArrayMacro(array, call) \
@@ -36,19 +38,17 @@
     abort();\
     }
 
-
 template<class DerivedT,
          class ScalarTypeT,
          class TupleTypeT,
          class IteratorTypeT,
-         class AllocatorT,
          class ScalarReturnTypeT=ScalarTypeT&>
 class vtkAgnosticArray : public vtkTypeTemplate<
-                         vtkAgnosticArray<DerivedT, ScalarTypeT, TupleTypeT, IteratorTypeT, AllocatorT, ScalarReturnTypeT>,
+                         vtkAgnosticArray<DerivedT, ScalarTypeT, TupleTypeT, IteratorTypeT, ScalarReturnTypeT>,
                          vtkDataArray>
 {
   typedef
-    vtkAgnosticArray<DerivedT, ScalarTypeT, TupleTypeT, IteratorTypeT, AllocatorT, ScalarReturnTypeT> SelfType;
+    vtkAgnosticArray<DerivedT, ScalarTypeT, TupleTypeT, IteratorTypeT, ScalarReturnTypeT> SelfType;
 public:
   typedef ScalarTypeT ScalarType;
   typedef TupleTypeT TupleType;
@@ -95,20 +95,96 @@ public:
   virtual double *GetTuple(vtkIdType i) { return NULL; }
   virtual void GetTuple(vtkIdType i, double * tuple) { }
   virtual void RemoveTuple(vtkIdType id) {}
-  virtual void* WriteVoidPointer(vtkIdType id, vtkIdType number) {}
+  virtual void* WriteVoidPointer(vtkIdType id, vtkIdType number) {return NULL;}
 
   //----------------------------------------------------------------------------
   // Methods relating to memory allocated for this array.
-  // All these methods forward to the allocator.
-  virtual int Allocate(vtkIdType size, vtkIdType ext)
+
+  // Allocate memory for this array. Delete old storage only if necessary.
+  // Note that ext is no longer used.
+  virtual int Allocate(vtkIdType size, vtkIdType vtkNotUsed(ext))
     {
+    DerivedT* self = static_cast<DerivedT*>(this);
+
     // Allocator must updated this->Size and this->MaxId properly.
-    return this->Allocator.Allocate(static_cast<DerivedT*>(this), size, ext);
+    this->MaxId = -1;
+    if (size > this->Size)
+      {
+      this->Size = 0;
+
+      // let's keep the size an integral multiple of the number of components.
+      size = size < 0? 0 : size;
+      int numComps = this->GetNumberOfComponents() > 0? this->GetNumberOfComponents() : 1;
+      vtkIdType numTuples = numComps * ceil(size/ static_cast<double>(numComps));
+      // NOTE: if numTuples is 0, AllocateTuples is expected to release the
+      // memory.
+      if (self->AllocateTuples(numTuples) == false)
+        {
+        vtkErrorMacro("Unable to allocate " << size
+                      << " elements of size " << sizeof(ScalarType)
+                      << " bytes. ");
+#if !defined NDEBUG
+        // We're debugging, crash here preserving the stack
+        abort();
+#elif !defined VTK_DONT_THROW_BAD_ALLOC
+        // We can throw something that has universal meaning
+        throw std::bad_alloc();
+#else
+        // We indicate that alloc failed by return
+        return 0;
+#endif
+        }
+      this->Size = numTuples * numComps;
+      }
+    this->DataChanged();
+    return 1;
     }
   virtual int Resize(vtkIdType numTuples)
     {
-    // Allocator must updated this->Size and this->MaxId properly.
-    return this->Allocator.Resize(static_cast<DerivedT*>(this), numTuples);
+    int numComps = this->GetNumberOfComponents();
+    vtkIdType curNumTuples = this->Size / (numComps> 0? numComps : 1);
+    if (numTuples > curNumTuples)
+      {
+      // Requested size is bigger than current size.  Allocate enough
+      // memory to fit the requested size and be more than double the
+      // currently allocated memory.
+      numTuples = curNumTuples + numTuples;
+      }
+    else if (numTuples == curNumTuples)
+      {
+      return 1;
+      }
+    else
+      {
+      // Requested size is smaller than current size.  Squeeze the
+      // memory.
+      this->DataChanged();
+      }
+
+    assert(numTuples >= 0);
+
+    DerivedT* self = static_cast<DerivedT*>(this);
+    if (!self->ReallocateTuples(numTuples))
+      {
+      vtkErrorMacro("Unable to allocate " << numTuples * numComps
+                    << " elements of size " << sizeof(ScalarType)
+                    << " bytes. ");
+      #if !defined NDEBUG
+      // We're debugging, crash here preserving the stack
+      abort();
+      #elif !defined VTK_DONT_THROW_BAD_ALLOC
+      // We can throw something that has universal meaning
+      throw std::bad_alloc();
+      #else
+      // We indicate that malloc failed by return
+      return 0;
+      #endif
+      }
+
+    // Allocation was successful. Save it.
+    this->Size = numTuples * numComps;
+    this->MaxId = (this->Size - 1);
+    return 1;
     }
   virtual void SetNumberOfTuples(vtkIdType number)
     {
@@ -144,14 +220,17 @@ public:
   virtual vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray *source)
     {
     this->InsertTuple(this->MaxId, j, source);
+    return this->MaxId;
     }
   virtual vtkIdType InsertNextTuple(const float *source)
     {
     this->InsertTuple(this->MaxId, source);
+    return this->MaxId;
     }
   virtual vtkIdType InsertNextTuple(const double *source)
     {
     this->InsertTuple(this->MaxId, source);
+    return this->MaxId;
     }
   virtual void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds, vtkAbstractArray *source);
   virtual void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart, vtkAbstractArray* source);
@@ -189,13 +268,8 @@ public:
   // alternatives.
 
 protected:
-  vtkAgnosticArray()
-    {
-    }
-
-  virtual ~vtkAgnosticArray()
-    {
-    }
+  vtkAgnosticArray() { }
+  virtual ~vtkAgnosticArray() { }
 
   bool EnsureAccess(vtkIdType tuple)
     {
@@ -205,12 +279,9 @@ protected:
       }
     return true;
     }
-
-  AllocatorT Allocator;
 private:
   vtkAgnosticArray(const vtkAgnosticArray&); // Not implemented.
   void operator=(const vtkAgnosticArray&); // Not implemented.
-  friend AllocatorT;
 };
 
 template <class ArrayTypeT>
@@ -258,15 +329,16 @@ private:
 
 #include "vtkAgnosticArray.txx"
 
-//#define vtkAgnosticArrayMacro2(array1, array2, callOriginal) \
-//  vtkAgnosticArrayMacro(array1, \
-//    typedef ARRAY_TYPE ARRAY_TYPE1; \
-//    ARRAY_TYPE& ARRAY1 = ARRAY; \
-//    vtkAgnosticArrayMacro(array2, \
-//      typedef ARRAY_TYPE ARRAY_TYPE2; \
-//      ARRAY_TYPE& ARRAY2 = ARRAY; \
-//      callOriginal \
-//    )\
-//  )
-//
+/*
+#define vtkAgnosticArrayMacro2(array1, array2, callOriginal) \
+  vtkAgnosticArrayMacro(array1, \
+    typedef ARRAY_TYPE ARRAY_TYPE1; \
+    ARRAY_TYPE& ARRAY1 = ARRAY; \
+    vtkAgnosticArrayMacro(array2, \
+      typedef ARRAY_TYPE ARRAY_TYPE2; \
+      ARRAY_TYPE& ARRAY2 = ARRAY; \
+      callOriginal \
+    )\
+  )
+*/
 #endif

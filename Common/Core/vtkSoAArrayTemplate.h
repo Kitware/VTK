@@ -21,106 +21,96 @@
 #include "vtkAgnosticArray.h"
 #include <vector>
 
-
-template <class ArrayType>
-class vtkResizeableSoAArrayAllocator
-{
-public:
-  vtkResizeableSoAArrayAllocator()
-    {
-    }
-  virtual ~vtkResizeableSoAArrayAllocator()
-    {
-    }
-  virtual int Allocate(ArrayType* array, vtkIdType size, vtkIdType)
-    {
-    array->MaxId = -1;
-    if (array->Size < size)
-      {
-      this->DeleteArray(array);
-
-      int numComps = array->GetNumberOfComponents() > 0? array->GetNumberOfComponents() : 1;
-      vtkIdType compSize = size / numComps;
-      array->Data.resize(numComps);
-      for (int cc=0; cc < numComps && compSize > 0; cc++)
-        {
-        array->Data[cc] = new typename ArrayType::ScalarType[compSize];
-        }
-      array->DataChanged();
-      array->Size = numComps*compSize;
-      }
-    return 1;
-    }
-  virtual int Resize(ArrayType* array, vtkIdType numTuples)
-    {
-    if (this->Allocate(array, numTuples*array->GetNumberOfComponents(), 0))
-      {
-      vtkIdType newSize = numTuples * array->GetNumberOfComponents();
-      array->MaxId = (newSize-1);
-      return 1;
-      }
-    return 0;
-    }
-  virtual void DeleteArray(ArrayType* array)
-    {
-    for (size_t cc=0; cc < array->Data.size(); ++cc)
-      {
-      delete[] array->Data[cc];
-      }
-    array->Data.clear();
-    array->MaxId = -1;
-    array->Size = 0;
-    }
-};
-
 template <class ScalarTypeT>
 class vtkSoAArrayTemplate : public vtkTypeTemplate<
                             vtkSoAArrayTemplate<ScalarTypeT>,
                             vtkAgnosticArray<vtkSoAArrayTemplate<ScalarTypeT>,
                               ScalarTypeT,
                               std::vector<ScalarTypeT>,
-                              vtkAgnosticArrayInputIterator<vtkSoAArrayTemplate<ScalarTypeT> >,
-                              vtkResizeableSoAArrayAllocator<vtkSoAArrayTemplate<ScalarTypeT> > >
+                              vtkAgnosticArrayInputIterator<vtkSoAArrayTemplate<ScalarTypeT> > >
                             >
 {
   typedef vtkAgnosticArray<vtkSoAArrayTemplate<ScalarTypeT>,
       ScalarTypeT,
       std::vector<ScalarTypeT>,
-      vtkAgnosticArrayInputIterator<vtkSoAArrayTemplate<ScalarTypeT> >,
-      vtkResizeableSoAArrayAllocator<vtkSoAArrayTemplate<ScalarTypeT> > > AgnosticArrayType;
+      vtkAgnosticArrayInputIterator<vtkSoAArrayTemplate<ScalarTypeT> > > AgnosticArrayType;
 public:
   typedef vtkSoAArrayTemplate<ScalarTypeT> SelfType;
   typedef typename AgnosticArrayType::ScalarType ScalarType;
   typedef typename AgnosticArrayType::TupleType TupleType;
   typedef typename AgnosticArrayType::ScalarReturnType ScalarReturnType;
-  typedef typename AgnosticArrayType::IteratorType IteratorType;
 
   static SelfType* New();
 
   inline ScalarReturnType GetComponentFast(vtkIdType index, int comp) const
     {
-    return this->Data[comp][index];
+    return this->Data[comp].Pointer[index];
     }
   inline TupleType GetTupleFast(vtkIdType index) const
     {
     TupleType tuple (this->NumberOfComponents>0? this->NumberOfComponents : 1);
     for (int cc=0; cc < this->NumberOfComponents; ++cc)
       {
-      tuple[cc] = this->Data[cc][index];
+      tuple[cc] = this->Data[cc].Pointer[index];
       }
     return tuple;
     }
 
+  // Description:
+  // Call this method before using any of the methods on this array that affect
+  // memory allocation. When set to false, any attempt to grow the arrays will
+  // raise runtime exceptions. Any attempt to shrink the arrays will have no
+  // effect.
+  vtkSetMacro(Resizeable, bool);
+  vtkGetMacro(Resizeable, bool);
+  vtkBooleanMacro(Resizeable, bool);
+
+  enum DeleteMethod
+    {
+    VTK_DATA_ARRAY_FREE,
+    VTK_DATA_ARRAY_DELETE
+    };
+
+  // Description:
+  // Use this API to pass externally allocated memory to this instance. Since
+  // vtkSoAArrayTemplate uses separate contiguous regions for each component,
+  // use this API to add arrays for each of the component.
+  // \c save: When set to true, vtkSoAArrayTemplate will not release or realloc the memory
+  // even when the AllocatorType is set to RESIZABLE. If needed it will simply
+  // allow new memory buffers and "forget" the supplied pointers. When save is
+  // set to false, this will be the \c deleteMethod specified to release the
+  // array.
+  // \c size is specified in number of elements of ScalarType.
+  void SetArray(int comp, ScalarType* array, vtkIdType size,
+    bool save=false, int deleteMethod=VTK_DATA_ARRAY_FREE);
+
+  // Description:
+  // Overridden to allocate pointer for each component.
+  virtual void SetNumberOfComponents(int);
 protected:
   vtkSoAArrayTemplate();
   ~vtkSoAArrayTemplate();
 
-  std::vector<ScalarTypeT*> Data;
+  // Description:
+  // Implement the memory management interface.
+  bool AllocateTuples(vtkIdType numTuples);
+  bool ReallocateTuples(vtkIdType numTuples);
+
+  struct DataItem
+    {
+    ScalarType* Pointer;
+    vtkIdType Size;
+    bool Save;
+    int DeleteMethod;
+    DataItem() : Pointer(NULL), Size(0), DeleteMethod(VTK_DATA_ARRAY_FREE) {}
+    };
+  std::vector<DataItem> Data;
+  bool Resizeable;
 private:
   vtkSoAArrayTemplate(const vtkSoAArrayTemplate&); // Not implemented.
   void operator=(const vtkSoAArrayTemplate&); // Not implemented.
 
-  friend class vtkResizeableSoAArrayAllocator<SelfType>;
+  friend AgnosticArrayType;
 };
 
 #include "vtkSoAArrayTemplate.txx"
