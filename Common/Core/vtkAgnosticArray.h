@@ -1,0 +1,272 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkAgnosticArray.h
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+// .NAME vtkAgnosticArray
+// .SECTION Description
+
+#ifndef vtkAgnosticArray_h
+#define vtkAgnosticArray_h
+
+#include "vtkDataArray.h"
+#include "vtkTypeTemplate.h"
+#include "vtkTypeTraits.h"
+
+#include <typeinfo>
+#define vtkAgnosticArrayMacro(array, call) \
+  if (typeid(*array) == typeid(vtkSoAArrayTemplate<float>)) \
+    { \
+    typedef vtkSoAArrayTemplate<float> ARRAY_TYPE; \
+    ARRAY_TYPE* ARRAY = reinterpret_cast<ARRAY_TYPE*>(array); \
+    call ; \
+    } \
+  else \
+    { \
+    vtkGenericWarningMacro("Unknown type " << typeid(*array).name()); \
+    abort();\
+    }
+
+
+template<class DerivedT,
+         class ScalarTypeT,
+         class TupleTypeT,
+         class IteratorTypeT,
+         class AllocatorT,
+         class ScalarReturnTypeT=ScalarTypeT&>
+class vtkAgnosticArray : public vtkTypeTemplate<
+                         vtkAgnosticArray<DerivedT, ScalarTypeT, TupleTypeT, IteratorTypeT, AllocatorT, ScalarReturnTypeT>,
+                         vtkDataArray>
+{
+  typedef
+    vtkAgnosticArray<DerivedT, ScalarTypeT, TupleTypeT, IteratorTypeT, AllocatorT, ScalarReturnTypeT> SelfType;
+public:
+  typedef ScalarTypeT ScalarType;
+  typedef TupleTypeT TupleType;
+  typedef IteratorTypeT IteratorType;
+  typedef ScalarReturnTypeT ScalarReturnType;
+
+  inline IteratorType Begin(vtkIdType pos=0) const
+    { return IteratorType(*static_cast<const DerivedT*>(this), pos); }
+  inline IteratorType End() const
+    { return this->Begin(const_cast<SelfType*>(this)->GetNumberOfTuples()); }
+
+  inline ScalarReturnType GetComponentFast(vtkIdType index, int comp) const
+    {
+    return static_cast<const DerivedT*>(this)->GetComponentFast(index, comp);
+    }
+  inline TupleType GetTupleFast(vtkIdType index) const
+    {
+    return static_cast<const DerivedT*>(this)->GetTupleFast(index);
+    }
+
+  // Provide implementations for pure virtual methods in vtkDataArray.
+
+  //----------------------------------------------------------------------------
+  // Core methods.
+  virtual int GetDataType()
+    {
+    return vtkTypeTraits<ScalarType>::VTK_TYPE_ID;
+    }
+  virtual int GetDataTypeSize()
+    {
+    return static_cast<int>(sizeof(ScalarType));
+    }
+
+  //----------------------------------------------------------------------------
+  // Currently unhandled methods.
+  virtual void *GetVoidPointer(vtkIdType id)  { return NULL; }
+  virtual void SetVoidArray(void*, vtkIdType, int) {}
+  virtual vtkArrayIterator* NewIterator() { return NULL; }
+  virtual vtkIdType LookupValue(vtkVariant value) { return -1; }
+  virtual void LookupValue(vtkVariant value, vtkIdList* ids) {}
+  virtual void SetVariantValue(vtkIdType idx, vtkVariant value) {}
+  virtual void DataChanged() {}
+  virtual void ClearLookup() {}
+  virtual double *GetTuple(vtkIdType i) { return NULL; }
+  virtual void GetTuple(vtkIdType i, double * tuple) { }
+  virtual void RemoveTuple(vtkIdType id) {}
+  virtual void* WriteVoidPointer(vtkIdType id, vtkIdType number) {}
+
+  //----------------------------------------------------------------------------
+  // Methods relating to memory allocated for this array.
+  // All these methods forward to the allocator.
+  virtual int Allocate(vtkIdType size, vtkIdType ext)
+    {
+    // Allocator must updated this->Size and this->MaxId properly.
+    return this->Allocator.Allocate(static_cast<DerivedT*>(this), size, ext);
+    }
+  virtual int Resize(vtkIdType numTuples)
+    {
+    // Allocator must updated this->Size and this->MaxId properly.
+    return this->Allocator.Resize(static_cast<DerivedT*>(this), numTuples);
+    }
+  virtual void SetNumberOfTuples(vtkIdType number)
+    {
+    this->Resize(number);
+    }
+  virtual void Initialize()
+    {
+    this->Resize(0);
+    }
+  virtual void Squeeze()
+    {
+    this->Resize(this->MaxId+1);
+    }
+
+  //----------------------------------------------------------------------------
+  // Insert* methods. The call the Set* equivalent methods after having resized,
+  // if needed.
+  virtual void InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray *source)
+    {
+    this->EnsureAccess(i);
+    this->SetTuple(i, j, source);
+    }
+  virtual void InsertTuple(vtkIdType i, const float *source)
+    {
+    this->EnsureAccess(i);
+    this->SetTuple(i, source);
+    }
+  virtual void InsertTuple(vtkIdType i, const double *source)
+    {
+    this->EnsureAccess(i);
+    this->SetTuple(i, source);
+    }
+  virtual vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray *source)
+    {
+    this->InsertTuple(this->MaxId, j, source);
+    }
+  virtual vtkIdType InsertNextTuple(const float *source)
+    {
+    this->InsertTuple(this->MaxId, source);
+    }
+  virtual vtkIdType InsertNextTuple(const double *source)
+    {
+    this->InsertTuple(this->MaxId, source);
+    }
+  virtual void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds, vtkAbstractArray *source);
+  virtual void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart, vtkAbstractArray* source);
+
+  //----------------------------------------------------------------------------
+  // Set* methods.
+  virtual void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray *source)
+    {
+    //vtkAgnosticArrayMacro(source,
+    //  for (int cc=0, max=this->GetNumberOfComponents(); cc < max; ++cc)
+    //    {
+    //    this->Begin(i)[cc] = static_cast<ScalarType>(ARRAY.Begin(j)[cc]);
+    //    }
+    //  );
+    }
+  virtual void SetTuple(vtkIdType i, const float *source)
+    {
+    for (int cc=0, max=this->GetNumberOfComponents(); cc < max; ++cc)
+      {
+      this->Begin(i)[cc] = static_cast<ScalarType>(source[cc]);
+      }
+    }
+  virtual void SetTuple(vtkIdType i, const double *source)
+    {
+    for (int cc=0, max=this->GetNumberOfComponents(); cc < max; ++cc)
+      {
+      this->Begin(i)[cc] = static_cast<ScalarType>(source[cc]);
+      }
+    }
+
+  //----------------------------------------------------------------------------
+  // All the lookup related methods that we'll implement eventually. We should
+  // provide a default implementation that works using the iterator. Since these
+  // methods are virtual, a subclass can override these to provide faster
+  // alternatives.
+
+protected:
+  vtkAgnosticArray()
+    {
+    }
+
+  virtual ~vtkAgnosticArray()
+    {
+    }
+
+  bool EnsureAccess(vtkIdType tuple)
+    {
+    if (this->MaxId <= tuple)
+      {
+      return this->Resize(tuple + 1) != 0;
+      }
+    return true;
+    }
+
+  AllocatorT Allocator;
+private:
+  vtkAgnosticArray(const vtkAgnosticArray&); // Not implemented.
+  void operator=(const vtkAgnosticArray&); // Not implemented.
+  friend AllocatorT;
+};
+
+template <class ArrayTypeT>
+class vtkAgnosticArrayInputIterator
+{
+public:
+  typedef vtkAgnosticArrayInputIterator<ArrayTypeT> SelfType;
+
+  typedef ArrayTypeT ArrayType;
+  typedef typename ArrayType::ScalarType ScalarType;
+  typedef typename ArrayType::ScalarReturnType ScalarReturnType;
+  typedef typename ArrayType::TupleType TupleType;
+
+  vtkAgnosticArrayInputIterator(const ArrayType& associatedArray, const vtkIdType& index=0) :
+    AssociatedArray(associatedArray), Index(index)
+  {
+  }
+  vtkAgnosticArrayInputIterator(const SelfType& other) :
+    AssociatedArray(other.AssociatedArray), Index(other.Index)
+  {
+  }
+  inline const vtkIdType& GetIndex() const { return this->Index; }
+  inline void operator++() { ++this->Index; }
+  inline void operator++(int) { this->Index++; }
+  inline bool operator==(const SelfType& other) const
+    {
+    return (this->Index == other.Index);
+    }
+  inline bool operator!=(const SelfType& other) const
+    {
+    return (this->Index != other.Index);
+    }
+  inline ScalarReturnType operator[](int component) const
+    {
+    return this->AssociatedArray.GetComponentFast(this->Index, component);
+    }
+  inline TupleType operator*() const
+    {
+    return this->AssociatedArray.GetTupleFast(this->Index);
+    }
+private:
+  const ArrayType& AssociatedArray;
+  vtkIdType Index;
+};
+
+#include "vtkAgnosticArray.txx"
+
+//#define vtkAgnosticArrayMacro2(array1, array2, callOriginal) \
+//  vtkAgnosticArrayMacro(array1, \
+//    typedef ARRAY_TYPE ARRAY_TYPE1; \
+//    ARRAY_TYPE& ARRAY1 = ARRAY; \
+//    vtkAgnosticArrayMacro(array2, \
+//      typedef ARRAY_TYPE ARRAY_TYPE2; \
+//      ARRAY_TYPE& ARRAY2 = ARRAY; \
+//      callOriginal \
+//    )\
+//  )
+//
+#endif

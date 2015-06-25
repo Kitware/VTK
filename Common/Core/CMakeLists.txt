@@ -238,6 +238,8 @@ SET(Module_SRCS
 
 set(${vtk-module}_HDRS
   vtkABI.h
+  vtkAgnosticArray.h
+  vtkAgnosticArray.txx
   vtkAngularPeriodicDataArray.h
   vtkArrayInterpolate.h
   vtkArrayInterpolate.txx
@@ -261,6 +263,8 @@ set(${vtk-module}_HDRS
   vtkPeriodicDataArray.h
   vtkSetGet.h
   vtkSmartPointer.h
+  vtkSoAArrayTemplate.h
+  vtkSoAArrayTemplate.txx
   vtkTemplateAliasMacro.h
   vtkTypeTraits.h
   vtkTypedDataArray.h
