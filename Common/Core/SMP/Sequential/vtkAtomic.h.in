@@ -84,15 +84,12 @@ namespace detail
 
 template <size_t size> class AtomicOps;
 
-#if defined(VTK_HAVE_SYNC_BUILTINS)
-
-template <size_t size> struct BaseType;
-
-template <size_t size> class AtomicOps
+#if defined(VTK_GCC_ATOMICS_64)
+template <> class AtomicOps<8>
 {
 public:
-  typedef typename BaseType<size>::Type atomic_type;
-  typedef typename BaseType<size>::Type value_type;
+  typedef vtkTypeInt64 VTK_ALIGN(8) atomic_type;
+  typedef vtkTypeInt64 value_type;
 
   static value_type AddAndFetch(value_type *ref, value_type val)
   {
@@ -135,14 +132,6 @@ public:
     *static_cast<volatile value_type*>(ref) = val;
     __sync_synchronize();
   }
-};
-
-#endif // defined(VTK_HAVE_SYNC_BUILTINS)
-
-#if defined(VTK_GCC_ATOMICS_64)
-template<> struct BaseType<8>
-{
-  typedef vtkTypeInt64 VTK_ALIGN(8) Type;
 };
 
 #elif defined(VTK_APPLE_ATOMICS_64)
@@ -229,9 +218,53 @@ public:
 #endif
 
 #if defined(VTK_GCC_ATOMICS_32)
-template<> struct BaseType<4>
+template <> class AtomicOps<4>
 {
-  typedef vtkTypeInt32 VTK_ALIGN(4) Type;
+public:
+  typedef vtkTypeInt32 VTK_ALIGN(4) atomic_type;
+  typedef vtkTypeInt32 value_type;
+
+  static value_type AddAndFetch(value_type *ref, value_type val)
+  {
+    return __sync_add_and_fetch(ref, val);
+  }
+
+  static value_type SubAndFetch(value_type *ref, value_type val)
+  {
+    return __sync_sub_and_fetch(ref, val);
+  }
+
+  static value_type PreIncrement(value_type *ref)
+  {
+    return __sync_add_and_fetch(ref, 1);
+  }
+
+  static value_type PreDecrement(value_type *ref)
+  {
+    return __sync_sub_and_fetch(ref, 1);
+  }
+
+  static value_type PostIncrement(value_type *ref)
+  {
+    return __sync_fetch_and_add(ref, 1);
+  }
+
+  static value_type PostDecrement(value_type *ref)
+  {
+    return __sync_fetch_and_sub(ref, 1);
+  }
+
+  static value_type Load(const value_type *ref)
+  {
+    __sync_synchronize();
+    return *static_cast<const volatile value_type *>(ref);
+  }
+
+  static void Store(value_type *ref, value_type val)
+  {
+    *static_cast<volatile value_type*>(ref) = val;
+    __sync_synchronize();
+  }
 };
 
 #elif defined(VTK_APPLE_ATOMICS_32)
