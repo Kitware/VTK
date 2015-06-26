@@ -268,26 +268,48 @@ private:
 #include "vtkAgnosticArray.txx"
 
 #include <typeinfo>
-#define vtkAgnosticArrayMacro(array, call) \
-  if (typeid(*array) == typeid(vtkSoAArrayTemplate<float>)) \
+#define vtkAgnosticArrayMacroCase(arrayT, scalarT, array, call) \
+  if (typeid(*array) == typeid(arrayT<scalarT>)) \
     { \
-    typedef vtkSoAArrayTemplate<float> ARRAY_TYPE; \
+    typedef arrayT<scalarT> ARRAY_TYPE; \
     ARRAY_TYPE* ARRAY = reinterpret_cast<ARRAY_TYPE*>(array); \
-    call ; \
-    } \
+    call; \
+    }
+
+#define vtkWriteableAgnosticArrayMacro(array, call) \
+  vtkAgnosticArrayMacroCase(vtkSoAArrayTemplate, float, array, call) \
+  else vtkAgnosticArrayMacroCase(vtkSoAArrayTemplate, double, array, call) \
   else \
     { \
     vtkGenericWarningMacro("Unknown type " << typeid(*array).name()); \
-    abort();\
+    abort(); \
     }
-#define vtkAgnosticArrayMacro2(array1, array2, callOriginal) \
-  vtkAgnosticArrayMacro(array1, \
+
+#define vtkConstAgnosticArrayMacro(array, call) \
+  vtkAgnosticArrayMacroCase(vtkSoAArrayTemplate, const float, array, call) \
+  else vtkAgnosticArrayMacroCase(vtkSoAArrayTemplate, const double, array, call) \
+  else vtkWriteableAgnosticArrayMacro(array, call)
+
+#define vtkWriteableAgnosticArrayMacro2(array1, array2, call) \
+  vtkWriteableAgnosticArrayMacro(array1, \
     typedef ARRAY_TYPE ARRAY_TYPE1; \
-    ARRAY_TYPE* ARRAY1 = ARRAY; \
-    vtkAgnosticArrayMacro(array2, \
-      typedef ARRAY_TYPE ARRAY_TYPE2; \
-      ARRAY_TYPE* ARRAY2 = ARRAY; \
-      callOriginal \
+    ARRAY_TYPE1* ARRAY1 = ARRAY; \
+    vtkWriteableAgnosticArrayMacro(array2, \
+      typedef ARRAY_TYPE2 ARRAY_TYPE; \
+      ARRAY_TYPE2* ARRAY2 = ARRAY; \
+      call; \
     )\
   )
+
+#define vtkAgnosticArrayMacro2(inarray, outarray, call) \
+  vtkConstAgnosticArrayMacro(inarray, \
+    typedef ARRAY_TYPE IN_ARRAY_TYPE; \
+    IN_ARRAY_TYPE* IN_ARRAY = ARRAY; \
+    vtkWriteableAgnosticArrayMacro(outarray, \
+      typedef ARRAY_TYPE OUT_ARRAY_TYPE; \
+      OUT_ARRAY_TYPE* OUT_ARRAY = ARRAY; \
+      call; \
+    ) \
+  )
+
 #endif

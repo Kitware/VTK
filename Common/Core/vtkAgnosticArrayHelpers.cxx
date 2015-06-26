@@ -73,13 +73,13 @@ void vtkAgnosticArrayHelpers::SetTuple(
     }
 
   vtkAgnosticArrayMacro2(dest, source,
-    vtkSetTuple(ARRAY1, destTuple, ARRAY2, sourceTuple));
+    vtkSetTuple(OUT_ARRAY, destTuple, IN_ARRAY, sourceTuple));
 }
 
 //----------------------------------------------------------------------------
 void vtkAgnosticArrayHelpers::GetTuple(vtkAbstractArray* source, vtkIdType tuple, double* buffer)
 {
-  vtkAgnosticArrayMacro(source, vtkGetTuple(ARRAY, tuple, buffer));
+  vtkConstAgnosticArrayMacro(source, vtkGetTuple(ARRAY, tuple, buffer));
 }
 
 //----------------------------------------------------------------------------
