@@ -1352,7 +1352,7 @@ bool vtkTextureObject::Create1D(int numComps,
 
   this->Target = target;
   this->CreateTexture();
-  this->Bind();
+  this->Activate();
 
   pbo->Bind(vtkPixelBufferObject::UNPACKED_BUFFER);
 
@@ -1365,7 +1365,7 @@ bool vtkTextureObject::Create1D(int numComps,
                type, BUFFER_OFFSET(0));
   vtkOpenGLCheckErrorMacro("failed at glTexImage1D");
   pbo->UnBind();
-  this->UnBind();
+  this->Deactivate();
 
   this->Target = target;
   this->Format = format;
@@ -1403,7 +1403,7 @@ bool vtkTextureObject::Create1DFromRaw(unsigned int width, int numComps,
   this->Depth = 1;
   this->NumberOfDimensions = 1;
   this->CreateTexture();
-  this->Bind();
+  this->Activate();
 
   glTexImage1D(this->Target,
                0,
@@ -1416,7 +1416,7 @@ bool vtkTextureObject::Create1DFromRaw(unsigned int width, int numComps,
 
   vtkOpenGLCheckErrorMacro("failed at glTexImage1D");
 
-  this->UnBind();
+  this->Deactivate();
   return true;
 }
 
@@ -1459,14 +1459,14 @@ bool vtkTextureObject::CreateAlphaFromRaw(unsigned int width,
   this->Components = 1;
 
   this->CreateTexture();
-  this->Bind();
+  this->Activate();
 
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   glTexImage1D(this->Target, 0, static_cast<GLint>(this->InternalFormat),
                static_cast<GLsizei>(this->Width), 0,
                this->Format, this->Type, raw);
   vtkOpenGLCheckErrorMacro("failed at glTexImage1D");
-  this->UnBind();
+  this->Deactivate();
   return true;
 }
 
@@ -1498,7 +1498,7 @@ bool vtkTextureObject::CreateTextureBuffer(unsigned int numValues, int numComps,
   this->BufferObject = bo;
 
   this->CreateTexture();
-  this->Bind();
+  this->Activate();
 
   // Source texture data from the PBO.
   glTexBuffer(
@@ -1508,7 +1508,7 @@ bool vtkTextureObject::CreateTextureBuffer(unsigned int numValues, int numComps,
 
   vtkOpenGLCheckErrorMacro("failed at glTexBuffer");
 
-  this->UnBind();
+  this->Deactivate();
 
   return true;
 }
@@ -1568,7 +1568,7 @@ bool vtkTextureObject::Create2D(unsigned int width, unsigned int height,
   GLenum target = GL_TEXTURE_2D;
   this->Target = target;
   this->CreateTexture();
-  this->Bind();
+  this->Activate();
 
   // Source texture data from the PBO.
   pbo->Bind(vtkPixelBufferObject::UNPACKED_BUFFER);
@@ -1588,7 +1588,7 @@ bool vtkTextureObject::Create2D(unsigned int width, unsigned int height,
   vtkOpenGLCheckErrorMacro("failed at glTexImage2D");
 
   pbo->UnBind();
-  this->UnBind();
+  this->Deactivate();
 
   this->Target = target;
   this->Format = format;
@@ -1630,7 +1630,7 @@ bool vtkTextureObject::CreateDepth(unsigned int width,
   this->Components=1;
 
   this->CreateTexture();
-  this->Bind();
+  this->Activate();
 
   pbo->Bind(vtkPixelBufferObject::UNPACKED_BUFFER);
 
@@ -1641,7 +1641,7 @@ bool vtkTextureObject::CreateDepth(unsigned int width,
                this->Format, this->Type, BUFFER_OFFSET(0));
   vtkOpenGLCheckErrorMacro("failed at glTexImage2D");
   pbo->UnBind();
-  this->UnBind();
+  this->Deactivate();
   return true;
 }
 
@@ -1684,7 +1684,7 @@ bool vtkTextureObject::Create3D(unsigned int width, unsigned int height,
 
   this->Target = target;
   this->CreateTexture();
-  this->Bind();
+  this->Activate();
 
   pbo->Bind(vtkPixelBufferObject::UNPACKED_BUFFER);
 
@@ -1697,7 +1697,7 @@ bool vtkTextureObject::Create3D(unsigned int width, unsigned int height,
   vtkOpenGLCheckErrorMacro("failed at glTexImage3D");
 
   pbo->UnBind();
-  this->UnBind();
+  this->Deactivate();
 
   this->Target = target;
   this->Format = format;
@@ -1752,7 +1752,7 @@ vtkPixelBufferObject* vtkTextureObject::Download()
 #endif
 
   vtkOpenGLCheckErrorMacro("failed at glGetTexImage");
-  this->UnBind();
+  this->Deactivate();
   pbo->UnBind();
 
   pbo->SetComponents(this->Components);
@@ -1786,7 +1786,7 @@ bool vtkTextureObject::Create3DFromRaw(unsigned int width, unsigned int height,
   this->NumberOfDimensions = 3;
 
   this->CreateTexture();
-  this->Bind();
+  this->Activate();
 
   // Source texture data from the PBO.
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -1805,7 +1805,7 @@ bool vtkTextureObject::Create3DFromRaw(unsigned int width, unsigned int height,
 
   vtkOpenGLCheckErrorMacro("failed at glTexImage2D");
 
-  this->UnBind();
+  this->Deactivate();
 
   return true;
 }
@@ -1900,7 +1900,7 @@ bool vtkTextureObject::CreateDepthFromRaw(unsigned int width,
   this->Components = 1;
 
   this->CreateTexture();
-  this->Bind();
+  this->Activate();
 
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   glTexImage2D(this->Target, 0, static_cast<GLint>(this->InternalFormat),
@@ -1908,7 +1908,7 @@ bool vtkTextureObject::CreateDepthFromRaw(unsigned int width,
                static_cast<GLsizei>(this->Height), 0,
                this->Format, this->Type,raw);
   vtkOpenGLCheckErrorMacro("failed at glTexImage2D");
-  this->UnBind();
+  this->Deactivate();
   return true;
 }
 
@@ -1941,7 +1941,7 @@ bool vtkTextureObject::AllocateDepth(unsigned int width, unsigned int height,
   this->Components = 1;
 
   this->CreateTexture();
-  this->Bind();
+  this->Activate();
 
   glTexImage2D(
           this->Target,
@@ -1956,7 +1956,7 @@ bool vtkTextureObject::AllocateDepth(unsigned int width, unsigned int height,
 
   vtkOpenGLCheckErrorMacro("failed at glTexImage2D");
 
-  this->UnBind();
+  this->Deactivate();
   return true;
 }
 
@@ -1980,12 +1980,12 @@ bool vtkTextureObject::Allocate1D(unsigned int width, int numComps,
   this->NumberOfDimensions = 1;
 
   this->CreateTexture();
-  this->Bind();
+  this->Activate();
   glTexImage1D(this->Target, 0, static_cast<GLint>(this->InternalFormat),
                static_cast<GLsizei>(this->Width), 0, this->Format,
                this->Type,0);
   vtkOpenGLCheckErrorMacro("failed at glTexImage1D");
-  this->UnBind();
+  this->Deactivate();
   return true;
 #else
   return false;
@@ -2014,13 +2014,13 @@ bool vtkTextureObject::Allocate2D(unsigned int width,unsigned int height,
   this->NumberOfDimensions=2;
 
   this->CreateTexture();
-  this->Bind();
+  this->Activate();
   glTexImage2D(this->Target, 0, static_cast<GLint>(this->InternalFormat),
                static_cast<GLsizei>(this->Width),
                static_cast<GLsizei>(this->Height),
                0, this->Format, this->Type, 0);
   vtkOpenGLCheckErrorMacro("failed at glTexImage2D");
-  this->UnBind();
+  this->Deactivate();
   return true;
 }
 
@@ -2052,7 +2052,7 @@ bool vtkTextureObject::Allocate3D(unsigned int width,unsigned int height,
   this->NumberOfDimensions = 3;
 
   this->CreateTexture();
-  this->Bind();
+  this->Activate();
   glTexImage3D(this->Target, 0,
                static_cast<GLint>(this->InternalFormat),
                static_cast<GLsizei>(this->Width),
@@ -2060,7 +2060,7 @@ bool vtkTextureObject::Allocate3D(unsigned int width,unsigned int height,
                static_cast<GLsizei>(this->Depth), 0,
                this->Format, this->Type, 0);
   vtkOpenGLCheckErrorMacro("failed at glTexImage3D");
-  this->UnBind();
+  this->Deactivate();
   return true;
 #else
   return false;
@@ -2096,7 +2096,7 @@ bool vtkTextureObject::Create2D(unsigned int width, unsigned int height,
   this->NumberOfDimensions = 2;
 
   this->CreateTexture();
-  this->Bind();
+  this->Activate();
 
   // Allocate space for texture, don't upload any data.
   glTexImage2D(target, 0,
@@ -2105,7 +2105,7 @@ bool vtkTextureObject::Create2D(unsigned int width, unsigned int height,
                static_cast<GLsizei>(this->Height),
                0, this->Format, this->Type, NULL);
   vtkOpenGLCheckErrorMacro("failed at glTexImage2D");
-  this->UnBind();
+  this->Deactivate();
   return true;
 }
 
@@ -2138,7 +2138,7 @@ bool vtkTextureObject::Create3D(unsigned int width, unsigned int height,
   this->Depth = depth;
   this->NumberOfDimensions = 3;
   this->CreateTexture();
-  this->Bind();
+  this->Activate();
 
   // Allocate space for texture, don't upload any data.
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -2149,7 +2149,7 @@ bool vtkTextureObject::Create3D(unsigned int width, unsigned int height,
                static_cast<GLsizei>(this->Depth), 0,
                this->Format, this->Type, NULL);
   vtkOpenGLCheckErrorMacro("falied at glTexImage3D");
-  this->UnBind();
+  this->Deactivate();
 
   return true;
 #else
