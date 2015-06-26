@@ -249,7 +249,11 @@ void vtkOpenGLRenderer::Clear(void)
 
   if (!this->GetPreserveDepthBuffer())
     {
+#if GL_ES_VERSION_2_0 == 1
+    glClearDepthf(static_cast<GLclampf>(1.0));
+#else
     glClearDepth(static_cast<GLclampf>(1.0));
+#endif
     clear_mask |= GL_DEPTH_BUFFER_BIT;
     glDepthMask(GL_TRUE);
     }
