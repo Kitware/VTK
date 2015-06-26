@@ -24,6 +24,7 @@
 #include <vtkInformationVector.h>
 #include <vtkInformation.h>
 #include <vtkIntArray.h>
+#include <vtkMath.h>
 #include <vtkObjectFactory.h>
 #include <vtkPointData.h>
 #include <vtkPoints.h>
@@ -746,6 +747,28 @@ int vtkGDALRasterReader::RequestData(vtkInformation* vtkNotUsed(request),
   this->Implementation->UniformGridData->GetFieldData()->AddArray(
     projectionData);
 
+  // Add NoDataValue as field data
+  // GDALDatset can have 1 value for each raster band
+  // Use NaN for undefined values
+  vtkSmartPointer<vtkDoubleArray> noDataArray =
+    vtkSmartPointer<vtkDoubleArray>::New();
+  noDataArray->SetName("NO_DATA_VALUE");
+  noDataArray->SetNumberOfComponents(1);
+  noDataArray->SetNumberOfTuples(this->Implementation->NumberOfBands);
+  int success = 0;
+  for (int i=0; i<this->Implementation->NumberOfBands; i++)
+    {
+    double noDataValue = this->Implementation->GDALData->GetRasterBand(
+      i+1)->GetNoDataValue(&success);
+    if (!success)
+      {
+      noDataValue = vtkMath::Nan();
+       }
+     noDataArray->SetValue(i, noDataValue);
+    }
+  this->Implementation->UniformGridData->GetFieldData()->AddArray(
+    noDataArray);
+
   // Check if file has been changed here.
   // If changed then throw the vtxId time and load a new one.
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
@@ -887,7 +910,6 @@ int vtkGDALRasterReader::RequestInformation(vtkInformation * vtkNotUsed(request)
   outInfo->Set(vtkDataObject::ORIGIN(), this->DataOrigin, 3);
   outInfo->Set(vtkGDAL::MAP_PROJECTION(),
                this->Implementation->GDALData->GetProjectionRef());
-
   return 1;
 }
 
