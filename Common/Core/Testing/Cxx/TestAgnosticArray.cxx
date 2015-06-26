@@ -20,7 +20,7 @@ int TestAgnosticArray(int, char**)
   array->SetNumberOfComponents(3);
   array->SetNumberOfTuples(100);
   vtkAgnosticArrayMacro(array,
-    for (typename ARRAY_TYPE::IteratorType iter = ARRAY->Begin(), max = ARRAY->End(); iter != max; ++iter)
+    for (typename ARRAY_TYPE::TupleIteratorType iter = ARRAY->Begin(), max = ARRAY->End(); iter != max; ++iter)
     {
     iter[0] = 1;
     iter[1] = 2;

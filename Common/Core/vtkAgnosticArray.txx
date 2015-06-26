@@ -17,8 +17,8 @@
 #include "vtkIdList.h"
 
 //-----------------------------------------------------------------------------
-template<class D, class S, class T, class I, class SR>
-void vtkAgnosticArray<D,S,T,I,SR>::
+template<class D, class S, class T, class SR>
+void vtkAgnosticArray<D,S,T,SR>::
 InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds, vtkAbstractArray *source)
 {
   if (this->GetDataType() != source->GetDataType())
@@ -88,8 +88,8 @@ InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds, vtkAbstractArray *source)
 }
 
 //-----------------------------------------------------------------------------
-template<class D, class S, class T, class I, class SR>
-void vtkAgnosticArray<D,S,T,I,SR>::
+template<class D, class S, class T, class SR>
+void vtkAgnosticArray<D,S,T,SR>::
 InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart, vtkAbstractArray* source)
 {
 }

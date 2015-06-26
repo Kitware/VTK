@@ -24,16 +24,12 @@
 template <class ScalarTypeT>
 class vtkSoAArrayTemplate : public vtkTypeTemplate<
                             vtkSoAArrayTemplate<ScalarTypeT>,
-                            vtkAgnosticArray<vtkSoAArrayTemplate<ScalarTypeT>,
-                              ScalarTypeT,
-                              std::vector<ScalarTypeT>,
-                              vtkAgnosticArrayInputIterator<vtkSoAArrayTemplate<ScalarTypeT> > >
+                            vtkAgnosticArray<vtkSoAArrayTemplate<ScalarTypeT>, ScalarTypeT, std::vector<ScalarTypeT> >
                             >
 {
   typedef vtkAgnosticArray<vtkSoAArrayTemplate<ScalarTypeT>,
       ScalarTypeT,
-      std::vector<ScalarTypeT>,
-      vtkAgnosticArrayInputIterator<vtkSoAArrayTemplate<ScalarTypeT> > > AgnosticArrayType;
+      std::vector<ScalarTypeT> > AgnosticArrayType;
 public:
   typedef vtkSoAArrayTemplate<ScalarTypeT> SelfType;
   typedef typename AgnosticArrayType::ScalarType ScalarType;

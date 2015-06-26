@@ -18,6 +18,7 @@
 #ifndef vtkAgnosticArray_h
 #define vtkAgnosticArray_h
 
+#include "vtkAgnosticArrayTupleIterator.h"
 #include "vtkDataArray.h"
 #include "vtkSmartPointer.h"
 #include "vtkTypeTemplate.h"
@@ -41,23 +42,22 @@
 template<class DerivedT,
          class ScalarTypeT,
          class TupleTypeT,
-         class IteratorTypeT,
          class ScalarReturnTypeT=ScalarTypeT&>
 class vtkAgnosticArray : public vtkTypeTemplate<
-                         vtkAgnosticArray<DerivedT, ScalarTypeT, TupleTypeT, IteratorTypeT, ScalarReturnTypeT>,
+                         vtkAgnosticArray<DerivedT, ScalarTypeT, TupleTypeT, ScalarReturnTypeT>,
                          vtkDataArray>
 {
   typedef
-    vtkAgnosticArray<DerivedT, ScalarTypeT, TupleTypeT, IteratorTypeT, ScalarReturnTypeT> SelfType;
+    vtkAgnosticArray<DerivedT, ScalarTypeT, TupleTypeT, ScalarReturnTypeT> SelfType;
 public:
   typedef ScalarTypeT ScalarType;
   typedef TupleTypeT TupleType;
-  typedef IteratorTypeT IteratorType;
+  typedef vtkAgnosticArrayTupleIterator<SelfType> TupleIteratorType;
   typedef ScalarReturnTypeT ScalarReturnType;
 
-  inline IteratorType Begin(vtkIdType pos=0) const
-    { return IteratorType(*static_cast<const DerivedT*>(this), pos); }
-  inline IteratorType End() const
+  inline TupleIteratorType Begin(vtkIdType pos=0) const
+    { return TupleIteratorType(*static_cast<const DerivedT*>(this), pos); }
+  inline TupleIteratorType End() const
     { return this->Begin(const_cast<SelfType*>(this)->GetNumberOfTuples()); }
 
   inline ScalarReturnType GetComponentFast(vtkIdType index, int comp) const
@@ -271,6 +271,8 @@ protected:
   vtkAgnosticArray() { }
   virtual ~vtkAgnosticArray() { }
 
+  // This method resizes the array if needed so that the given tuple index is
+  // valid/accessible.
   bool EnsureAccess(vtkIdType tuple)
     {
     if (this->MaxId <= tuple)
@@ -282,49 +284,6 @@ protected:
 private:
   vtkAgnosticArray(const vtkAgnosticArray&); // Not implemented.
   void operator=(const vtkAgnosticArray&); // Not implemented.
-};
-
-template <class ArrayTypeT>
-class vtkAgnosticArrayInputIterator
-{
-public:
-  typedef vtkAgnosticArrayInputIterator<ArrayTypeT> SelfType;
-
-  typedef ArrayTypeT ArrayType;
-  typedef typename ArrayType::ScalarType ScalarType;
-  typedef typename ArrayType::ScalarReturnType ScalarReturnType;
-  typedef typename ArrayType::TupleType TupleType;
-
-  vtkAgnosticArrayInputIterator(const ArrayType& associatedArray, const vtkIdType& index=0) :
-    AssociatedArray(associatedArray), Index(index)
-  {
-  }
-  vtkAgnosticArrayInputIterator(const SelfType& other) :
-    AssociatedArray(other.AssociatedArray), Index(other.Index)
-  {
-  }
-  inline const vtkIdType& GetIndex() const { return this->Index; }
-  inline void operator++() { ++this->Index; }
-  inline void operator++(int) { this->Index++; }
-  inline bool operator==(const SelfType& other) const
-    {
-    return (this->Index == other.Index);
-    }
-  inline bool operator!=(const SelfType& other) const
-    {
-    return (this->Index != other.Index);
-    }
-  inline ScalarReturnType operator[](int component) const
-    {
-    return this->AssociatedArray.GetComponentFast(this->Index, component);
-    }
-  inline TupleType operator*() const
-    {
-    return this->AssociatedArray.GetTupleFast(this->Index);
-    }
-private:
-  const ArrayType& AssociatedArray;
-  vtkIdType Index;
 };
 
 #include "vtkAgnosticArray.txx"
