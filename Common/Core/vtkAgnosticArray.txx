@@ -15,11 +15,15 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkIdList.h"
+#include "vtkAgnosticArrayHelpers.h"
+
+#define vtkAgnosticArrayT(returnType) \
+  template <class D, class S, class T, class SR> \
+  returnType vtkAgnosticArray<D, S, T, SR>
 
 //-----------------------------------------------------------------------------
-template<class D, class S, class T, class SR>
-void vtkAgnosticArray<D,S,T,SR>::
-InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds, vtkAbstractArray *source)
+vtkAgnosticArrayT(void)::InsertTuples(
+  vtkIdList *dstIds, vtkIdList *srcIds, vtkAbstractArray *source)
 {
   if (this->GetDataType() != source->GetDataType())
     {
@@ -46,7 +50,7 @@ InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds, vtkAbstractArray *source)
     {
     maxDstId = std::max(maxDstId, dstIds->GetId(idIndex));
     }
-  if (!this->EnsureAccess(maxDstId))
+  if (!this->EnsureAccessToTuple(maxDstId))
     {
     vtkErrorMacro("Failed to allocate memory.");
     return;
@@ -88,8 +92,26 @@ InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds, vtkAbstractArray *source)
 }
 
 //-----------------------------------------------------------------------------
-template<class D, class S, class T, class SR>
-void vtkAgnosticArray<D,S,T,SR>::
-InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart, vtkAbstractArray* source)
+vtkAgnosticArrayT(void)::InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart, vtkAbstractArray* source)
 {
+}
+
+//-----------------------------------------------------------------------------
+vtkAgnosticArrayT(double *)::GetTuple(vtkIdType i)
+{
+  this->LegacyTuple.resize(this->GetNumberOfComponents());
+  vtkAgnosticArrayHelpers::GetTuple(this, i,  &this->LegacyTuple[0]);
+  return &this->LegacyTuple[0];
+}
+
+//-----------------------------------------------------------------------------
+vtkAgnosticArrayT(void)::GetTuple(vtkIdType i, double * tuple)
+{
+  vtkAgnosticArrayHelpers::GetTuple(this, i, tuple);
+}
+
+//-----------------------------------------------------------------------------
+vtkAgnosticArrayT(void)::RemoveTuple(vtkIdType id)
+{
+  // XXX: abort!
 }

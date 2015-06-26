@@ -18,26 +18,13 @@
 #ifndef vtkAgnosticArray_h
 #define vtkAgnosticArray_h
 
+#include "vtkAgnosticArrayHelpers.h"
 #include "vtkAgnosticArrayTupleIterator.h"
 #include "vtkDataArray.h"
 #include "vtkSmartPointer.h"
 #include "vtkTypeTemplate.h"
 #include "vtkTypeTraits.h"
 #include <cassert>
-
-#include <typeinfo>
-#define vtkAgnosticArrayMacro(array, call) \
-  if (typeid(*array) == typeid(vtkSoAArrayTemplate<float>)) \
-    { \
-    typedef vtkSoAArrayTemplate<float> ARRAY_TYPE; \
-    ARRAY_TYPE* ARRAY = reinterpret_cast<ARRAY_TYPE*>(array); \
-    call ; \
-    } \
-  else \
-    { \
-    vtkGenericWarningMacro("Unknown type " << typeid(*array).name()); \
-    abort();\
-    }
 
 template<class DerivedT,
          class ScalarTypeT,
@@ -83,9 +70,9 @@ public:
   virtual void SetVariantValue(vtkIdType idx, vtkVariant value) {}
   virtual void DataChanged() {}
   virtual void ClearLookup() {}
-  virtual double *GetTuple(vtkIdType i) { return NULL; }
-  virtual void GetTuple(vtkIdType i, double * tuple) { }
-  virtual void RemoveTuple(vtkIdType id) {}
+  virtual double *GetTuple(vtkIdType i);
+  virtual void GetTuple(vtkIdType i, double * tuple);
+  virtual void RemoveTuple(vtkIdType id);
   virtual void* WriteVoidPointer(vtkIdType id, vtkIdType number) {return NULL;}
 
   //----------------------------------------------------------------------------
@@ -195,17 +182,17 @@ public:
   // if needed.
   virtual void InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray *source)
     {
-    this->EnsureAccess(i);
+    this->EnsureAccessToTuple(i);
     this->SetTuple(i, j, source);
     }
   virtual void InsertTuple(vtkIdType i, const float *source)
     {
-    this->EnsureAccess(i);
+    this->EnsureAccessToTuple(i);
     this->SetTuple(i, source);
     }
   virtual void InsertTuple(vtkIdType i, const double *source)
     {
-    this->EnsureAccess(i);
+    this->EnsureAccessToTuple(i);
     this->SetTuple(i, source);
     }
   virtual vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray *source)
@@ -230,12 +217,8 @@ public:
   // Set* methods.
   virtual void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray *source)
     {
-    //vtkAgnosticArrayMacro(source,
-    //  for (int cc=0, max=this->GetNumberOfComponents(); cc < max; ++cc)
-    //    {
-    //    this->Begin(i)[cc] = static_cast<ScalarType>(ARRAY.Begin(j)[cc]);
-    //    }
-    //  );
+    vtkAgnosticArrayHelpers::SetTuple(this, i, source, j);
+    this->DataChanged();
     }
   virtual void SetTuple(vtkIdType i, const float *source)
     {
@@ -243,6 +226,7 @@ public:
       {
       this->Begin(i)[cc] = static_cast<ScalarType>(source[cc]);
       }
+    this->DataChanged();
     }
   virtual void SetTuple(vtkIdType i, const double *source)
     {
@@ -250,6 +234,7 @@ public:
       {
       this->Begin(i)[cc] = static_cast<ScalarType>(source[cc]);
       }
+    this->DataChanged();
     }
 
   //----------------------------------------------------------------------------
@@ -264,9 +249,11 @@ protected:
 
   // This method resizes the array if needed so that the given tuple index is
   // valid/accessible.
-  bool EnsureAccess(vtkIdType tuple)
+  bool EnsureAccessToTuple(vtkIdType tuple)
     {
-    if (this->MaxId <= tuple)
+    if (tuple < 0) { return false; }
+    vtkIdType expectedMaxId = (1 + tuple) * this->GetNumberOfComponents() - 1;
+    if (this->MaxId < expectedMaxId)
       {
       return this->Resize(tuple + 1) != 0;
       }
@@ -275,20 +262,32 @@ protected:
 private:
   vtkAgnosticArray(const vtkAgnosticArray&); // Not implemented.
   void operator=(const vtkAgnosticArray&); // Not implemented.
+  std::vector<double> LegacyTuple;
 };
 
 #include "vtkAgnosticArray.txx"
 
-/*
+#include <typeinfo>
+#define vtkAgnosticArrayMacro(array, call) \
+  if (typeid(*array) == typeid(vtkSoAArrayTemplate<float>)) \
+    { \
+    typedef vtkSoAArrayTemplate<float> ARRAY_TYPE; \
+    ARRAY_TYPE* ARRAY = reinterpret_cast<ARRAY_TYPE*>(array); \
+    call ; \
+    } \
+  else \
+    { \
+    vtkGenericWarningMacro("Unknown type " << typeid(*array).name()); \
+    abort();\
+    }
 #define vtkAgnosticArrayMacro2(array1, array2, callOriginal) \
   vtkAgnosticArrayMacro(array1, \
     typedef ARRAY_TYPE ARRAY_TYPE1; \
-    ARRAY_TYPE& ARRAY1 = ARRAY; \
+    ARRAY_TYPE* ARRAY1 = ARRAY; \
     vtkAgnosticArrayMacro(array2, \
       typedef ARRAY_TYPE ARRAY_TYPE2; \
-      ARRAY_TYPE& ARRAY2 = ARRAY; \
+      ARRAY_TYPE* ARRAY2 = ARRAY; \
       callOriginal \
     )\
   )
-*/
 #endif

@@ -104,6 +104,7 @@ include_directories(${VTK_SOURCE_DIR}/ThirdParty/utf8/source)
 
 SET(Module_SRCS
   vtkAbstractArray.cxx
+  vtkAgnosticArrayHelpers.cxx
   vtkAnimationCue.cxx
   vtkAngularPeriodicDataArray.txx
   vtkArrayCoordinates.cxx
@@ -493,6 +494,7 @@ configure_file(
 set_source_files_properties(
   # vtkObjectBase is marked ABSTRACT so that instantiators are happy.
   vtkAbstractArray
+  vtkAgnosticArrayHelpers
   vtkArrayIterator
   vtkArrayIteratorTemplate
   vtkArray
@@ -564,6 +566,7 @@ set_source_files_properties(
   vtkDataArrayPrivate.txx
 
   vtkABI.h
+  vtkAgnosticArrayHelpers.h
   vtkAngularPeriodicDataArray.txx
   vtkArrayInterpolate.h
   vtkArrayInterpolate.txx
