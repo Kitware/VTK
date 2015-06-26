@@ -14,6 +14,7 @@
 =========================================================================*/
 // .NAME vtkSoAArrayTemplate
 // .SECTION Description
+// vtkSoAArrayTemplate is the counterpart of vtkDataArrayTemplate.
 
 #ifndef vtkSoAArrayTemplate_h
 #define vtkSoAArrayTemplate_h
@@ -38,6 +39,10 @@ public:
 
   static SelfType* New();
 
+  // **************************************************************************
+  // Methods that are needed to be implemented by every vtkAgnosticArray
+  // subclass.
+  // **************************************************************************
   inline ScalarReturnType GetComponentFast(vtkIdType index, int comp) const
     {
     return this->Data[comp].Pointer[index];
@@ -51,15 +56,7 @@ public:
       }
     return tuple;
     }
-
-  // Description:
-  // Call this method before using any of the methods on this array that affect
-  // memory allocation. When set to false, any attempt to grow the arrays will
-  // raise runtime exceptions. Any attempt to shrink the arrays will have no
-  // effect.
-  vtkSetMacro(Resizeable, bool);
-  vtkGetMacro(Resizeable, bool);
-  vtkBooleanMacro(Resizeable, bool);
+  // **************************************************************************
 
   enum DeleteMethod
     {
@@ -83,14 +80,28 @@ public:
   // Description:
   // Overridden to allocate pointer for each component.
   virtual void SetNumberOfComponents(int);
+
+  // Description:
+  // Call this method before using any of the methods on this array that affect
+  // memory allocation. When set to false, any attempt to grow the arrays will
+  // raise runtime exceptions. Any attempt to shrink the arrays will have no
+  // effect.
+  vtkSetMacro(Resizeable, bool);
+  vtkGetMacro(Resizeable, bool);
+  vtkBooleanMacro(Resizeable, bool);
+
 protected:
   vtkSoAArrayTemplate();
   ~vtkSoAArrayTemplate();
 
-  // Description:
+  // **************************************************************************
+  // Methods that are needed to be implemented by every vtkAgnosticArray
+  // subclass.
+  // **************************************************************************
   // Implement the memory management interface.
   bool AllocateTuples(vtkIdType numTuples);
   bool ReallocateTuples(vtkIdType numTuples);
+  // **************************************************************************
 
   struct DataItem
     {

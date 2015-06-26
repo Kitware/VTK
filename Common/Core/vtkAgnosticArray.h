@@ -52,22 +52,13 @@ class vtkAgnosticArray : public vtkTypeTemplate<
 public:
   typedef ScalarTypeT ScalarType;
   typedef TupleTypeT TupleType;
-  typedef vtkAgnosticArrayTupleIterator<SelfType> TupleIteratorType;
+  typedef vtkAgnosticArrayTupleIterator<DerivedT> TupleIteratorType;
   typedef ScalarReturnTypeT ScalarReturnType;
 
   inline TupleIteratorType Begin(vtkIdType pos=0) const
     { return TupleIteratorType(*static_cast<const DerivedT*>(this), pos); }
   inline TupleIteratorType End() const
     { return this->Begin(const_cast<SelfType*>(this)->GetNumberOfTuples()); }
-
-  inline ScalarReturnType GetComponentFast(vtkIdType index, int comp) const
-    {
-    return static_cast<const DerivedT*>(this)->GetComponentFast(index, comp);
-    }
-  inline TupleType GetTupleFast(vtkIdType index) const
-    {
-    return static_cast<const DerivedT*>(this)->GetTupleFast(index);
-    }
 
   // Provide implementations for pure virtual methods in vtkDataArray.
 
