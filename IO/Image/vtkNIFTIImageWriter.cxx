@@ -71,6 +71,8 @@ vtkNIFTIImageWriter::vtkNIFTIImageWriter()
   strncpy(this->Description, "VTK", 3);
   strncpy(&this->Description[3], version, l);
   this->Description[l + 3] = '\0';
+  // Planar RGB (NIFTI doesn't allow this, it's here for Analyze)
+  this->PlanarRGB = false;
 }
 
 //----------------------------------------------------------------------------
@@ -159,6 +161,7 @@ void vtkNIFTIImageWriter::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)\n";
     }
   os << indent << "NIFTIVersion: " << this->NIFTIVersion << "\n";
+  os << indent << "PlanarRGB: " << (this->PlanarRGB ? "On\n" : "Off\n");
 }
 
 //----------------------------------------------------------------------------
@@ -768,6 +771,11 @@ int vtkNIFTIImageWriter::RequestData(
   unsigned char *dataPtr =
     static_cast<unsigned char *>(data->GetScalarPointer());
 
+  // check if planar RGB is applicable (Analyze only)
+  bool planarRGB = (this->PlanarRGB &&
+                    (this->OwnHeader->GetDataType() == NIFTI_TYPE_RGB24 ||
+                     this->OwnHeader->GetDataType() == NIFTI_TYPE_RGBA32));
+
   int swapBytes = 0;
   int scalarSize = data->GetScalarSize();
   int numComponents = data->GetNumberOfScalarComponents();
@@ -781,10 +789,16 @@ int vtkNIFTIImageWriter::RequestData(
   vectorDim *= timeDim;
 
   z_off_t fileVoxelIncr = scalarSize*numComponents/vectorDim;
+  int planarSize = 1;
+  if (planarRGB)
+    {
+    planarSize = numComponents/vectorDim;
+    fileVoxelIncr = scalarSize;
+    }
 
   // add a buffer for planar-vector to packed-vector conversion
   unsigned char *rowBuffer = 0;
-  if (vectorDim > 1 || swapBytes)
+  if (vectorDim > 1 || planarRGB || swapBytes)
     {
     rowBuffer = new unsigned char[outSizeX*fileVoxelIncr];
     }
@@ -801,16 +815,29 @@ int vtkNIFTIImageWriter::RequestData(
     dataPtr += sliceOffset*(outSizeZ - 1);
     }
 
+  // special increment to handle planar RGB
+  vtkIdType planarOffset = 0;
+  vtkIdType planarEndOffset = 0;
+  if (planarRGB)
+    {
+    planarOffset = scalarSize*numComponents;
+    planarOffset *= outSizeX;
+    planarOffset *= outSizeY;
+    planarOffset -= scalarSize;
+    planarEndOffset = planarOffset - scalarSize*(planarSize - 1);
+    }
+
   // report progress every 2% of the way to completion
   vtkIdType target =
-    static_cast<vtkIdType>(0.02*outSizeY*outSizeZ*vectorDim) + 1;
+    static_cast<vtkIdType>(0.02*planarSize*outSizeY*outSizeZ*vectorDim) + 1;
   vtkIdType count = 0;
 
   // write the data one row at a time, do planar-to-packed conversion
   // of vector components if NIFTI file has a vector dimension
-  int rowSize = numComponents/vectorDim*outSizeX;
+  int rowSize = fileVoxelIncr/scalarSize*outSizeX;
   int c = 0; // counter for vector components
   int j = 0; // counter for rows
+  int p = 0; // counter for planes (planar RGB)
   int k = 0; // counter for slices
   int t = 0; // counter for time
 
@@ -818,7 +845,7 @@ int vtkNIFTIImageWriter::RequestData(
 
   while (!this->AbortExecute && !this->ErrorCode)
     {
-    if (vectorDim == 1 && swapBytes == 0)
+    if (vectorDim == 1 && !planarRGB && !swapBytes)
       {
       // write directly from input, instead of using a buffer
       rowBuffer = ptr;
@@ -867,28 +894,36 @@ int vtkNIFTIImageWriter::RequestData(
     if (++j == outSizeY)
       {
       j = 0;
-      ptr -= 2*sliceOffset; // for reverse slice order
-      if (++k == outSizeZ)
+      // back up for next plane (R, G, or B) if planar mode
+      ptr -= planarOffset;
+      if (++p == planarSize)
         {
-        k = 0;
-        if (++t == timeDim)
+        p = 0;
+        ptr += planarEndOffset; // advance to start of next slice
+        ptr -= 2*sliceOffset; // for reverse slice order
+        if (++k == outSizeZ)
           {
-          t = 0;
-          }
-        if (++c == vectorDim)
-          {
-          break;
-          }
-        // back up the ptr to the beginning of the image,
-        // then increment to the next vector component
-        ptr = dataPtr + c*fileVoxelIncr;
+          k = 0;
+          if (++t == timeDim)
+            {
+            t = 0;
+            }
+          if (++c == vectorDim)
+            {
+            break;
+            }
+          // back up the ptr to the beginning of the image,
+          // then increment to the next vector component
+          ptr = dataPtr + c*fileVoxelIncr*planarSize;
 
-        if (timeDim > 1)
-          {
-          // if timeDim is included in the vectorDim (and hence in the
-          // VTK scalar components) then we have to make sure that
-          // the vector components are packed before the time steps
-          ptr = dataPtr + (c + t*(vectorDim - 1))/timeDim*fileVoxelIncr;
+          if (timeDim > 1)
+            {
+            // if timeDim is included in the vectorDim (and hence in the
+            // VTK scalar components) then we have to make sure that
+            // the vector components are packed before the time steps
+            ptr = dataPtr + (c + t*(vectorDim - 1))/timeDim*
+                             fileVoxelIncr*planarSize;
+            }
           }
         }
       }
@@ -896,7 +931,7 @@ int vtkNIFTIImageWriter::RequestData(
 
   // only delete this if it was alloced (if it was not alloced, it
   // would have been set directly to a row out the output image)
-  if (vectorDim > 1 || swapBytes)
+  if (vectorDim > 1 || swapBytes || planarRGB)
     {
     delete [] rowBuffer;
     }

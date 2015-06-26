@@ -85,6 +85,16 @@ public:
    vtkGetMacro(RescaleIntercept, double);
 
   // Description:
+  // Write planar RGB (separate R, G, and B planes), rather than packed RGB.
+  // Use this option with extreme caution: the NIFTI standard requires RGB
+  // pixels to be packed.  The Analyze format, however, was used to store
+  // both planar RGB and packed RGB depending on the software, without any
+  // indication in the header about which convention was being used.
+  vtkGetMacro(PlanarRGB, bool);
+  vtkSetMacro(PlanarRGB, bool);
+  vtkBooleanMacro(PlanarRGB, bool);
+
+  // Description:
   // The QFac sets the ordering of the slices in the NIFTI file.
   // If QFac is -1, then the slice ordering in the file will be reversed
   // as compared to VTK. Use with caution.
@@ -168,6 +178,10 @@ protected:
   vtkNIFTIImageHeader *NIFTIHeader;
   vtkNIFTIImageHeader *OwnHeader;
   int NIFTIVersion;
+
+  // Description:
+  // Use planar RGB instead of the default (packed).
+  bool PlanarRGB;
 
 private:
   vtkNIFTIImageWriter(const vtkNIFTIImageWriter&);  // Not implemented.
