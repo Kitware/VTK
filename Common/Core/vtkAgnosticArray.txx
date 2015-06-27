@@ -18,8 +18,8 @@
 #include "vtkAgnosticArrayHelpers.h"
 
 #define vtkAgnosticArrayT(returnType) \
-  template <class D, class S, class T, class SR> \
-  returnType vtkAgnosticArray<D, S, T, SR>
+  template <class D, class S, class T, class TI, class SR> \
+  returnType vtkAgnosticArray<D, S, T, TI, SR>
 
 //-----------------------------------------------------------------------------
 vtkAgnosticArrayT(void)::InsertTuples(

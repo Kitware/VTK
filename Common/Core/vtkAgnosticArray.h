@@ -29,17 +29,18 @@
 template<class DerivedT,
          class ScalarTypeT,
          class TupleTypeT,
+         class TupleIteratorT=vtkAgnosticArrayTupleIterator<DerivedT>,
          class ScalarReturnTypeT=ScalarTypeT&>
 class vtkAgnosticArray : public vtkTypeTemplate<
-                         vtkAgnosticArray<DerivedT, ScalarTypeT, TupleTypeT, ScalarReturnTypeT>,
+                         vtkAgnosticArray<DerivedT, ScalarTypeT, TupleTypeT, TupleIteratorT, ScalarReturnTypeT>,
                          vtkDataArray>
 {
   typedef
-    vtkAgnosticArray<DerivedT, ScalarTypeT, TupleTypeT, ScalarReturnTypeT> SelfType;
+    vtkAgnosticArray<DerivedT, ScalarTypeT, TupleTypeT, TupleIteratorT, ScalarReturnTypeT> SelfType;
 public:
   typedef ScalarTypeT ScalarType;
   typedef TupleTypeT TupleType;
-  typedef vtkAgnosticArrayTupleIterator<DerivedT> TupleIteratorType;
+  typedef TupleIteratorT TupleIteratorType;
   typedef ScalarReturnTypeT ScalarReturnType;
 
   inline TupleIteratorType Begin(vtkIdType pos=0) const
