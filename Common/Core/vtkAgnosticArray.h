@@ -18,30 +18,32 @@
 #ifndef vtkAgnosticArray_h
 #define vtkAgnosticArray_h
 
-#include "vtkAgnosticArrayHelpers.h"
-#include "vtkAgnosticArrayTupleIterator.h"
 #include "vtkDataArray.h"
 #include "vtkSmartPointer.h"
 #include "vtkTypeTemplate.h"
 #include "vtkTypeTraits.h"
+#include "vtkAgnosticArrayLookupHelper.h"
+#include "vtkAgnosticArrayHelpers.h"
+#include "vtkAgnosticArrayTupleIterator.h"
+
 #include <cassert>
 
 template<class DerivedT,
          class ScalarTypeT,
          class TupleTypeT,
-         class TupleIteratorT=vtkAgnosticArrayTupleIterator<DerivedT>,
+         class TupleIteratorTypeT=vtkAgnosticArrayTupleIterator<DerivedT>,
          class ScalarReturnTypeT=ScalarTypeT&>
 class vtkAgnosticArray : public vtkTypeTemplate<
-                         vtkAgnosticArray<DerivedT, ScalarTypeT, TupleTypeT, TupleIteratorT, ScalarReturnTypeT>,
+                         vtkAgnosticArray<DerivedT, ScalarTypeT, TupleTypeT, TupleIteratorTypeT, ScalarReturnTypeT>,
                          vtkDataArray>
 {
   typedef
-    vtkAgnosticArray<DerivedT, ScalarTypeT, TupleTypeT, TupleIteratorT, ScalarReturnTypeT> SelfType;
+    vtkAgnosticArray<DerivedT, ScalarTypeT, TupleTypeT, TupleIteratorTypeT, ScalarReturnTypeT> SelfType;
 public:
-  typedef ScalarTypeT ScalarType;
-  typedef TupleTypeT TupleType;
-  typedef TupleIteratorT TupleIteratorType;
-  typedef ScalarReturnTypeT ScalarReturnType;
+  typedef ScalarTypeT           ScalarType;
+  typedef ScalarReturnTypeT     ScalarReturnType;
+  typedef TupleTypeT            TupleType;
+  typedef TupleIteratorTypeT    TupleIteratorType;
 
   inline TupleIteratorType Begin(vtkIdType pos=0) const
     { return TupleIteratorType(*static_cast<const DerivedT*>(this), pos); }
@@ -62,19 +64,25 @@ public:
     }
 
   //----------------------------------------------------------------------------
-  // Currently unhandled methods.
-  virtual void *GetVoidPointer(vtkIdType id)  { return NULL; }
-  virtual void SetVoidArray(void*, vtkIdType, int) {}
-  virtual vtkArrayIterator* NewIterator() { return NULL; }
-  virtual vtkIdType LookupValue(vtkVariant value) { return -1; }
-  virtual void LookupValue(vtkVariant value, vtkIdList* ids) {}
-  virtual void SetVariantValue(vtkIdType idx, vtkVariant value) {}
-  virtual void DataChanged() {}
-  virtual void ClearLookup() {}
-  virtual double *GetTuple(vtkIdType i);
-  virtual void GetTuple(vtkIdType i, double * tuple);
-  virtual void RemoveTuple(vtkIdType id);
-  virtual void* WriteVoidPointer(vtkIdType id, vtkIdType number) {return NULL;}
+  // Pointer access methods.
+  // These are considered legacy and are not implemented. New arrays types keep
+  // on supporting filters that use this API should override these methods to
+  // provide appropriate implementations.
+
+  // Description:
+  // Default implementation raises a runtime error. If subclasses are keep on
+  // supporting this API, they should override this method.
+  virtual void *GetVoidPointer(vtkIdType id);
+
+  // Description:
+  // Implementation provided simply raises a runtime error. If subclasses are
+  // keep on supporting this API, they should override the method.
+  virtual void SetVoidArray(void*, vtkIdType, int);
+
+  // Description:
+  // Implementation provided simply raises a runtime error. If subclasses are
+  // keep on supporting this API, they should override the method.
+  virtual void* WriteVoidPointer(vtkIdType id, vtkIdType number);
 
   //----------------------------------------------------------------------------
   // Methods relating to memory allocated for this array.
@@ -167,6 +175,8 @@ public:
     }
   virtual void SetNumberOfTuples(vtkIdType number)
     {
+    // XXX: We should change this to not release memory when shrinking, should
+    // we?
     this->Resize(number);
     }
   virtual void Initialize()
@@ -215,38 +225,65 @@ public:
   virtual void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart, vtkAbstractArray* source);
 
   //----------------------------------------------------------------------------
-  // Set* methods.
-  virtual void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray *source)
+  // SetTuple methods.
+  virtual void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray *source);
+  virtual void SetTuple(vtkIdType i, const float *source);
+  virtual void SetTuple(vtkIdType i, const double *source);
+
+  //----------------------------------------------------------------------------
+  // GetTuple methods.
+  virtual double *GetTuple(vtkIdType i);
+  virtual void GetTuple(vtkIdType i, double * tuple);
+
+  //----------------------------------------------------------------------------
+  // Description:
+  // Removes a tuple at the given index. Default implementation uses
+  // TupleIteratorType to iterate over tuples to move elements. Subclasses are
+  // encouraged to reimplemented this method to support faster implementations,
+  // if needed.
+  virtual void RemoveTuple(vtkIdType id);
+
+
+  //----------------------------------------------------------------------------
+  // Set Value methods. Note the index for all these methods is a "value" index
+  // or component index assuming traditional VTK style memory layout for tuples
+  // and components.
+  virtual void SetVariantValue(vtkIdType idx, vtkVariant value);
+
+  //----------------------------------------------------------------------------
+  // All the lookup related methods We provide a default implementation that works
+  // using the iterator. Since these methods are virtual, a subclass can override
+  // these to provide faster alternatives.
+  virtual vtkIdType LookupValue(vtkVariant value);
+  virtual vtkIdType LookupTypedValue(ScalarType value);
+  virtual void LookupValue(vtkVariant value, vtkIdList* ids);
+  virtual void LookupTypedValue(ScalarType value, vtkIdList* ids);
+  virtual void ClearLookup()
     {
-    vtkAgnosticArrayHelpers::SetTuple(this, i, source, j);
-    this->DataChanged();
+    this->Lookup.ClearLookup();
     }
-  virtual void SetTuple(vtkIdType i, const float *source)
+
+  virtual void DataChanged()
     {
-    for (int cc=0, max=this->GetNumberOfComponents(); cc < max; ++cc)
-      {
-      this->Begin(i)[cc] = static_cast<ScalarType>(source[cc]);
-      }
-    this->DataChanged();
-    }
-  virtual void SetTuple(vtkIdType i, const double *source)
-    {
-    for (int cc=0, max=this->GetNumberOfComponents(); cc < max; ++cc)
-      {
-      this->Begin(i)[cc] = static_cast<ScalarType>(source[cc]);
-      }
-    this->DataChanged();
+    this->Lookup.ClearLookup();
     }
 
   //----------------------------------------------------------------------------
-  // All the lookup related methods that we'll implement eventually. We should
-  // provide a default implementation that works using the iterator. Since these
-  // methods are virtual, a subclass can override these to provide faster
-  // alternatives.
+  // vtkArrayIterator API. This provides the generic vtkArrayIterator. Code
+  // using vtkDataArray should stick to using the TupleIteratorType based
+  // API when iterating over tuples as that is typically faster.
+  // TODO:
+  virtual vtkArrayIterator* NewIterator() { return NULL;}
 
 protected:
-  vtkAgnosticArray() { }
-  virtual ~vtkAgnosticArray() { }
+  vtkAgnosticArray()
+    : Lookup(*this)
+    {
+    }
+
+  virtual ~vtkAgnosticArray()
+    {
+    }
 
   // This method resizes the array if needed so that the given tuple index is
   // valid/accessible.
@@ -260,6 +297,8 @@ protected:
       }
     return true;
     }
+
+  vtkAgnosticArrayLookupHelper<SelfType> Lookup;
 private:
   vtkAgnosticArray(const vtkAgnosticArray&); // Not implemented.
   void operator=(const vtkAgnosticArray&); // Not implemented.
