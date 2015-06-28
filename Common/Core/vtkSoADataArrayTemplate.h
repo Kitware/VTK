@@ -117,7 +117,7 @@ private:
   vtkSoADataArrayTemplate(const vtkSoADataArrayTemplate&); // Not implemented.
   void operator=(const vtkSoADataArrayTemplate&); // Not implemented.
 
-  friend GenericDataArrayType;
+  friend class vtkGenericDataArray<vtkSoADataArrayTemplate<ScalarTypeT>, ScalarTypeT, std::vector<ScalarTypeT> >;
 };
 
 #include "vtkSoADataArrayTemplate.txx"
