@@ -175,13 +175,15 @@ public:
     }
   virtual void SetNumberOfTuples(vtkIdType number)
     {
-    // XXX: We should change this to not release memory when shrinking, should
-    // we?
-    this->Resize(number);
+    if (this->Allocate(number, 0))
+      {
+      this->MaxId = number - 1;
+      }
     }
   virtual void Initialize()
     {
     this->Resize(0);
+    this->DataChanged();
     }
   virtual void Squeeze()
     {
