@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSoAArrayTemplate.h
+  Module:    vtkSoADataArrayTemplate.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,35 +12,35 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSoAArrayTemplate
+// .NAME vtkSoADataArrayTemplate
 // .SECTION Description
-// vtkSoAArrayTemplate is the counterpart of vtkDataArrayTemplate.
+// vtkSoADataArrayTemplate is the counterpart of vtkDataArrayTemplate.
 
-#ifndef vtkSoAArrayTemplate_h
-#define vtkSoAArrayTemplate_h
+#ifndef vtkSoADataArrayTemplate_h
+#define vtkSoADataArrayTemplate_h
 
-#include "vtkAgnosticArray.h"
+#include "vtkGenericDataArray.h"
 #include <vector>
 
 template <class ScalarTypeT>
-class vtkSoAArrayTemplate : public vtkTypeTemplate<
-                            vtkSoAArrayTemplate<ScalarTypeT>,
-                            vtkAgnosticArray<vtkSoAArrayTemplate<ScalarTypeT>, ScalarTypeT, std::vector<ScalarTypeT> >
+class vtkSoADataArrayTemplate : public vtkTypeTemplate<
+                            vtkSoADataArrayTemplate<ScalarTypeT>,
+                            vtkGenericDataArray<vtkSoADataArrayTemplate<ScalarTypeT>, ScalarTypeT, std::vector<ScalarTypeT> >
                             >
 {
-  typedef vtkAgnosticArray<vtkSoAArrayTemplate<ScalarTypeT>,
+  typedef vtkGenericDataArray<vtkSoADataArrayTemplate<ScalarTypeT>,
       ScalarTypeT,
-      std::vector<ScalarTypeT> > AgnosticArrayType;
+      std::vector<ScalarTypeT> > GenericDataArrayType;
 public:
-  typedef vtkSoAArrayTemplate<ScalarTypeT> SelfType;
-  typedef typename AgnosticArrayType::ScalarType ScalarType;
-  typedef typename AgnosticArrayType::TupleType TupleType;
-  typedef typename AgnosticArrayType::ScalarReturnType ScalarReturnType;
+  typedef vtkSoADataArrayTemplate<ScalarTypeT> SelfType;
+  typedef typename GenericDataArrayType::ScalarType ScalarType;
+  typedef typename GenericDataArrayType::TupleType TupleType;
+  typedef typename GenericDataArrayType::ScalarReturnType ScalarReturnType;
 
   static SelfType* New();
 
   // **************************************************************************
-  // Methods that are needed to be implemented by every vtkAgnosticArray
+  // Methods that are needed to be implemented by every vtkGenericDataArray
   // subclass.
   // **************************************************************************
   inline ScalarReturnType GetComponentFast(vtkIdType index, int comp) const
@@ -66,9 +66,9 @@ public:
 
   // Description:
   // Use this API to pass externally allocated memory to this instance. Since
-  // vtkSoAArrayTemplate uses separate contiguous regions for each component,
+  // vtkSoADataArrayTemplate uses separate contiguous regions for each component,
   // use this API to add arrays for each of the component.
-  // \c save: When set to true, vtkSoAArrayTemplate will not release or realloc the memory
+  // \c save: When set to true, vtkSoADataArrayTemplate will not release or realloc the memory
   // even when the AllocatorType is set to RESIZABLE. If needed it will simply
   // allow new memory buffers and "forget" the supplied pointers. When save is
   // set to false, this will be the \c deleteMethod specified to release the
@@ -91,11 +91,11 @@ public:
   vtkBooleanMacro(Resizeable, bool);
 
 protected:
-  vtkSoAArrayTemplate();
-  ~vtkSoAArrayTemplate();
+  vtkSoADataArrayTemplate();
+  ~vtkSoADataArrayTemplate();
 
   // **************************************************************************
-  // Methods that are needed to be implemented by every vtkAgnosticArray
+  // Methods that are needed to be implemented by every vtkGenericDataArray
   // subclass.
   // **************************************************************************
   // Implement the memory management interface.
@@ -114,11 +114,11 @@ protected:
   std::vector<DataItem> Data;
   bool Resizeable;
 private:
-  vtkSoAArrayTemplate(const vtkSoAArrayTemplate&); // Not implemented.
-  void operator=(const vtkSoAArrayTemplate&); // Not implemented.
+  vtkSoADataArrayTemplate(const vtkSoADataArrayTemplate&); // Not implemented.
+  void operator=(const vtkSoADataArrayTemplate&); // Not implemented.
 
-  friend AgnosticArrayType;
+  friend GenericDataArrayType;
 };
 
-#include "vtkSoAArrayTemplate.txx"
+#include "vtkSoADataArrayTemplate.txx"
 #endif

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkAgnosticArrayLookupHelper.h
+  Module:    vtkGenericDataArrayLookupHelper.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,12 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAgnosticArrayLookupHelper - internal class used by
-// vtkAgnosticArray to support LookupValue.
+// .NAME vtkGenericDataArrayLookupHelper - internal class used by
+// vtkGenericDataArray to support LookupValue.
 // .SECTION Description
 
-#ifndef vtkAgnosticArrayLookupHelper_h
-#define vtkAgnosticArrayLookupHelper_h
+#ifndef vtkGenericDataArrayLookupHelper_h
+#define vtkGenericDataArrayLookupHelper_h
 
 #include <algorithm>
 #include "vtkIdList.h"
@@ -30,7 +30,7 @@ namespace detail
 }
 
 template <class ArrayTypeT>
-class vtkAgnosticArrayLookupHelper
+class vtkGenericDataArrayLookupHelper
 {
 public:
   typedef ArrayTypeT ArrayType;
@@ -38,12 +38,12 @@ public:
   typedef typename ArrayType::TupleIteratorType TupleIteratorType;
 
   // Constructor.
-  vtkAgnosticArrayLookupHelper(ArrayType& associatedArray)
+  vtkGenericDataArrayLookupHelper(ArrayType& associatedArray)
     : AssociatedArray(associatedArray),
     SortedArray(NULL)
     {
     }
-  ~vtkAgnosticArrayLookupHelper()
+  ~vtkGenericDataArrayLookupHelper()
     {
     this->ClearLookup();
     }
@@ -91,8 +91,8 @@ public:
     }
 
 private:
-  vtkAgnosticArrayLookupHelper(const vtkAgnosticArrayLookupHelper&); // Not implemented.
-  void operator=(const vtkAgnosticArrayLookupHelper&); // Not implemented.
+  vtkGenericDataArrayLookupHelper(const vtkGenericDataArrayLookupHelper&); // Not implemented.
+  void operator=(const vtkGenericDataArrayLookupHelper&); // Not implemented.
 
   struct ValueWithIndex
     {

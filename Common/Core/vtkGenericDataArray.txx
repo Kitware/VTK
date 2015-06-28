@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkAgnosticArray.txx
+  Module:    vtkGenericDataArray.txx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -15,15 +15,15 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkIdList.h"
-#include "vtkAgnosticArrayHelpers.h"
+#include "vtkGenericDataArrayHelper.h"
 #include "vtkVariantCast.h"
 
-#define vtkAgnosticArrayT(returnType) \
+#define vtkGenericDataArrayT(returnType) \
   template <class D, class S, class T, class TI, class SR> \
-  returnType vtkAgnosticArray<D, S, T, TI, SR>
+  returnType vtkGenericDataArray<D, S, T, TI, SR>
 
 //-----------------------------------------------------------------------------
-vtkAgnosticArrayT(void)::InsertTuples(
+vtkGenericDataArrayT(void)::InsertTuples(
   vtkIdList *dstIds, vtkIdList *srcIds, vtkAbstractArray *source)
 {
   // XXX Should these be implemented in vtkDataArray?
@@ -64,13 +64,13 @@ vtkAgnosticArrayT(void)::InsertTuples(
 
   for (vtkIdType cc=0; cc < numIds; ++cc)
     {
-    vtkAgnosticArrayHelpers::SetTuple(this, dstIds->GetId(cc), source, srcIds->GetId(cc));
+    vtkGenericDataArrayHelper::SetTuple(this, dstIds->GetId(cc), source, srcIds->GetId(cc));
     }
   this->DataChanged();
 }
 
 //-----------------------------------------------------------------------------
-vtkAgnosticArrayT(void)::InsertTuples(vtkIdType dstStart, vtkIdType n,
+vtkGenericDataArrayT(void)::InsertTuples(vtkIdType dstStart, vtkIdType n,
   vtkIdType srcStart, vtkAbstractArray* source)
 {
   // XXX Should these be implemented in vtkDataArray?
@@ -111,37 +111,37 @@ vtkAgnosticArrayT(void)::InsertTuples(vtkIdType dstStart, vtkIdType n,
 
   for (vtkIdType cc=0; cc < n; ++cc)
     {
-    vtkAgnosticArrayHelpers::SetTuple(this, dstStart + cc, source, srcStart + cc);
+    vtkGenericDataArrayHelper::SetTuple(this, dstStart + cc, source, srcStart + cc);
     }
   this->DataChanged();
 }
 
 //-----------------------------------------------------------------------------
-vtkAgnosticArrayT(double *)::GetTuple(vtkIdType i)
+vtkGenericDataArrayT(double *)::GetTuple(vtkIdType i)
 {
   // XXX Should these be implemented in vtkDataArray?
   this->LegacyTuple.resize(this->GetNumberOfComponents());
-  vtkAgnosticArrayHelpers::GetTuple(this, i,  &this->LegacyTuple[0]);
+  vtkGenericDataArrayHelper::GetTuple(this, i,  &this->LegacyTuple[0]);
   return &this->LegacyTuple[0];
 }
 
 //-----------------------------------------------------------------------------
-vtkAgnosticArrayT(void)::GetTuple(vtkIdType i, double * tuple)
+vtkGenericDataArrayT(void)::GetTuple(vtkIdType i, double * tuple)
 {
   // XXX Should these be implemented in vtkDataArray?
-  vtkAgnosticArrayHelpers::GetTuple(this, i, tuple);
+  vtkGenericDataArrayHelper::GetTuple(this, i, tuple);
 }
 
 //-----------------------------------------------------------------------------
-vtkAgnosticArrayT(void)::SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray *source)
+vtkGenericDataArrayT(void)::SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray *source)
 {
   // XXX Should these be implemented in vtkDataArray?
-  vtkAgnosticArrayHelpers::SetTuple(this, i, source, j);
+  vtkGenericDataArrayHelper::SetTuple(this, i, source, j);
   this->DataChanged();
 }
 
 //-----------------------------------------------------------------------------
-vtkAgnosticArrayT(void)::SetTuple(vtkIdType i, const float *source)
+vtkGenericDataArrayT(void)::SetTuple(vtkIdType i, const float *source)
 {
   // XXX Should these be implemented in vtkDataArray?
   for (int cc=0, max=this->GetNumberOfComponents(); cc < max; ++cc)
@@ -152,7 +152,7 @@ vtkAgnosticArrayT(void)::SetTuple(vtkIdType i, const float *source)
 }
 
 //-----------------------------------------------------------------------------
-vtkAgnosticArrayT(void)::SetTuple(vtkIdType i, const double *source)
+vtkGenericDataArrayT(void)::SetTuple(vtkIdType i, const double *source)
 {
   // XXX Should these be implemented in vtkDataArray?
   for (int cc=0, max=this->GetNumberOfComponents(); cc < max; ++cc)
@@ -163,7 +163,7 @@ vtkAgnosticArrayT(void)::SetTuple(vtkIdType i, const double *source)
 }
 
 //-----------------------------------------------------------------------------
-vtkAgnosticArrayT(void)::RemoveTuple(vtkIdType id)
+vtkGenericDataArrayT(void)::RemoveTuple(vtkIdType id)
 {
   if (id < 0 || id >= this->GetNumberOfTuples())
     {
@@ -198,27 +198,27 @@ vtkAgnosticArrayT(void)::RemoveTuple(vtkIdType id)
 }
 
 //-----------------------------------------------------------------------------
-vtkAgnosticArrayT(void)::SetVoidArray(void*, vtkIdType, int)
+vtkGenericDataArrayT(void)::SetVoidArray(void*, vtkIdType, int)
 {
   vtkErrorMacro("SetVoidArray is not supported by this class.");
 }
 
 //-----------------------------------------------------------------------------
-vtkAgnosticArrayT(void*)::WriteVoidPointer(vtkIdType id, vtkIdType number)
+vtkGenericDataArrayT(void*)::WriteVoidPointer(vtkIdType id, vtkIdType number)
 {
   vtkErrorMacro("WriteVoidPointer is not supported by this class.");
   return NULL;
 }
 
 //-----------------------------------------------------------------------------
-vtkAgnosticArrayT(void*)::GetVoidPointer(vtkIdType)
+vtkGenericDataArrayT(void*)::GetVoidPointer(vtkIdType)
 {
   vtkErrorMacro("GetVoidPointer is not supported by this class.");
   return NULL;
 }
 
 //-----------------------------------------------------------------------------
-vtkAgnosticArrayT(vtkIdType)::LookupValue(vtkVariant valueVariant)
+vtkGenericDataArrayT(vtkIdType)::LookupValue(vtkVariant valueVariant)
 {
   bool valid = true;
   ScalarType value = vtkVariantCast<ScalarType>(valueVariant, &valid);
@@ -230,13 +230,13 @@ vtkAgnosticArrayT(vtkIdType)::LookupValue(vtkVariant valueVariant)
 }
 
 //-----------------------------------------------------------------------------
-vtkAgnosticArrayT(vtkIdType)::LookupTypedValue(ScalarType value)
+vtkGenericDataArrayT(vtkIdType)::LookupTypedValue(ScalarType value)
 {
   return this->Lookup.LookupValue(value);
 }
 
 //-----------------------------------------------------------------------------
-vtkAgnosticArrayT(void)::LookupValue(vtkVariant valueVariant, vtkIdList* ids)
+vtkGenericDataArrayT(void)::LookupValue(vtkVariant valueVariant, vtkIdList* ids)
 {
   ids->Reset();
   bool valid = true;
@@ -248,14 +248,14 @@ vtkAgnosticArrayT(void)::LookupValue(vtkVariant valueVariant, vtkIdList* ids)
 }
 
 //-----------------------------------------------------------------------------
-vtkAgnosticArrayT(void)::LookupTypedValue(ScalarType value, vtkIdList* ids)
+vtkGenericDataArrayT(void)::LookupTypedValue(ScalarType value, vtkIdList* ids)
 {
   ids->Reset();
   this->Lookup.LookupValue(value, ids);
 }
 
 //-----------------------------------------------------------------------------
-vtkAgnosticArrayT(void)::SetVariantValue(vtkIdType idx, vtkVariant valueVariant)
+vtkGenericDataArrayT(void)::SetVariantValue(vtkIdType idx, vtkVariant valueVariant)
 {
   bool valid = true;
   ScalarType value = vtkVariantCast<ScalarType>(valueVariant, &valid);
@@ -267,4 +267,4 @@ vtkAgnosticArrayT(void)::SetVariantValue(vtkIdType idx, vtkVariant valueVariant)
     }
 }
 
-#undef vtkAgnosticArrayT
+#undef vtkGenericDataArrayT

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestAgnosticArray.cxx
+  Module:    TestGenericDataArray.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -11,15 +11,15 @@
     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
     PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
-#include "vtkSoAArrayTemplate.h"
+#include "vtkSoADataArrayTemplate.h"
 
-int TestAgnosticArray(int, char**)
+int TestGenericDataArray(int, char**)
 {
-  typedef vtkSoAArrayTemplate<float> vtkFloatArray2;
-  vtkSoAArrayTemplate<float>* array = vtkSoAArrayTemplate<float>::New();
+  typedef vtkSoADataArrayTemplate<float> vtkFloatArray2;
+  vtkSoADataArrayTemplate<float>* array = vtkSoADataArrayTemplate<float>::New();
   array->SetNumberOfComponents(3);
   array->SetNumberOfTuples(100);
-  vtkWriteableAgnosticArrayMacro(array,
+  vtkWriteableGenericDataArrayMacro(array,
     for (ARRAY_TYPE::TupleIteratorType iter = ARRAY->Begin(), max = ARRAY->End(); iter != max; ++iter)
     {
     iter[0] = 1;

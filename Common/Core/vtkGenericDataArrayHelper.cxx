@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkAgnosticArrayHelpers.cxx
+  Module:    vtkGenericDataArrayHelper.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,10 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkAgnosticArrayHelpers.h"
+#include "vtkGenericDataArrayHelper.h"
 
 #include "vtkObjectFactory.h"
-#include "vtkSoAArrayTemplate.h"
+#include "vtkSoADataArrayTemplate.h"
 
 //============================================================================
 namespace
@@ -47,17 +47,17 @@ namespace
 
 
 //----------------------------------------------------------------------------
-vtkAgnosticArrayHelpers::vtkAgnosticArrayHelpers()
+vtkGenericDataArrayHelper::vtkGenericDataArrayHelper()
 {
 }
 
 //----------------------------------------------------------------------------
-vtkAgnosticArrayHelpers::~vtkAgnosticArrayHelpers()
+vtkGenericDataArrayHelper::~vtkGenericDataArrayHelper()
 {
 }
 
 //----------------------------------------------------------------------------
-void vtkAgnosticArrayHelpers::SetTuple(
+void vtkGenericDataArrayHelper::SetTuple(
   vtkAbstractArray* dest, vtkIdType destTuple,
   vtkAbstractArray* source, vtkIdType sourceTuple)
 {
@@ -72,18 +72,18 @@ void vtkAgnosticArrayHelpers::SetTuple(
     return;
     }
 
-  vtkAgnosticArrayMacro2(dest, source,
+  vtkGenericDataArrayMacro2(dest, source,
     vtkSetTuple(OUT_ARRAY, destTuple, IN_ARRAY, sourceTuple));
 }
 
 //----------------------------------------------------------------------------
-void vtkAgnosticArrayHelpers::GetTuple(vtkAbstractArray* source, vtkIdType tuple, double* buffer)
+void vtkGenericDataArrayHelper::GetTuple(vtkAbstractArray* source, vtkIdType tuple, double* buffer)
 {
-  vtkConstAgnosticArrayMacro(source, vtkGetTuple(ARRAY, tuple, buffer));
+  vtkConstGenericDataArrayMacro(source, vtkGetTuple(ARRAY, tuple, buffer));
 }
 
 //----------------------------------------------------------------------------
-void vtkAgnosticArrayHelpers::PrintSelf(ostream& os, vtkIndent indent)
+void vtkGenericDataArrayHelper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

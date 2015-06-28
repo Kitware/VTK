@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSoAArrayTemplate.h
+  Module:    vtkSoADataArrayTemplate.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -16,22 +16,22 @@
 
 //-----------------------------------------------------------------------------
 template<class ScalarType>
-vtkSoAArrayTemplate<ScalarType>*
-vtkSoAArrayTemplate<ScalarType>::New()
+vtkSoADataArrayTemplate<ScalarType>*
+vtkSoADataArrayTemplate<ScalarType>::New()
 {
-  VTK_STANDARD_NEW_BODY(vtkSoAArrayTemplate<ScalarType>);
+  VTK_STANDARD_NEW_BODY(vtkSoADataArrayTemplate<ScalarType>);
 }
 
 //-----------------------------------------------------------------------------
 template<class ScalarType>
-vtkSoAArrayTemplate<ScalarType>::vtkSoAArrayTemplate()
+vtkSoADataArrayTemplate<ScalarType>::vtkSoADataArrayTemplate()
   : Resizeable(true)
 {
 }
 
 //-----------------------------------------------------------------------------
 template<class ScalarType>
-vtkSoAArrayTemplate<ScalarType>::~vtkSoAArrayTemplate()
+vtkSoADataArrayTemplate<ScalarType>::~vtkSoADataArrayTemplate()
 {
   for (int cc=0; cc < this->GetNumberOfComponents(); ++cc)
     {
@@ -41,9 +41,9 @@ vtkSoAArrayTemplate<ScalarType>::~vtkSoAArrayTemplate()
 
 //-----------------------------------------------------------------------------
 template<class ScalarType>
-void vtkSoAArrayTemplate<ScalarType>::SetNumberOfComponents(int val)
+void vtkSoADataArrayTemplate<ScalarType>::SetNumberOfComponents(int val)
 {
-  this->AgnosticArrayType::SetNumberOfComponents(val);
+  this->GenericDataArrayType::SetNumberOfComponents(val);
   size_t numComps = static_cast<size_t>(this->GetNumberOfComponents());
   assert(numComps >= 1);
   while (this->Data.size() > numComps)
@@ -56,7 +56,7 @@ void vtkSoAArrayTemplate<ScalarType>::SetNumberOfComponents(int val)
 
 //-----------------------------------------------------------------------------
 template<class ScalarType>
-void vtkSoAArrayTemplate<ScalarType>::SetArray(
+void vtkSoADataArrayTemplate<ScalarType>::SetArray(
   int comp, ScalarType* array, vtkIdType size, bool save, int deleteMethod)
 {
   const int numComps = this->GetNumberOfComponents();
@@ -92,7 +92,7 @@ void vtkSoAArrayTemplate<ScalarType>::SetArray(
 
 //-----------------------------------------------------------------------------
 template<class ScalarType>
-bool vtkSoAArrayTemplate<ScalarType>::AllocateTuples(vtkIdType numTuples)
+bool vtkSoADataArrayTemplate<ScalarType>::AllocateTuples(vtkIdType numTuples)
 {
   if (!this->Resizeable)
     {
@@ -120,7 +120,7 @@ bool vtkSoAArrayTemplate<ScalarType>::AllocateTuples(vtkIdType numTuples)
 
 //-----------------------------------------------------------------------------
 template<class ScalarType>
-bool vtkSoAArrayTemplate<ScalarType>::ReallocateTuples(vtkIdType numTuples)
+bool vtkSoADataArrayTemplate<ScalarType>::ReallocateTuples(vtkIdType numTuples)
 {
   if (!this->Resizeable)
     {

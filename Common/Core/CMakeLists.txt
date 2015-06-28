@@ -104,9 +104,8 @@ include_directories(${VTK_SOURCE_DIR}/ThirdParty/utf8/source)
 
 SET(Module_SRCS
   vtkAbstractArray.cxx
-  vtkAgnosticArrayHelpers.cxx
-  vtkAnimationCue.cxx
   vtkAngularPeriodicDataArray.txx
+  vtkAnimationCue.cxx
   vtkArrayCoordinates.cxx
   vtkArray.cxx
   vtkArrayExtents.cxx
@@ -143,6 +142,7 @@ SET(Module_SRCS
   vtkGarbageCollector.cxx
   vtkGarbageCollectorManager.cxx
   vtkGaussianRandomSequence.cxx
+  vtkGenericDataArrayHelper.cxx
   vtkIdListCollection.cxx
   vtkIdList.cxx
   vtkIdTypeArray.cxx
@@ -239,17 +239,13 @@ SET(Module_SRCS
 
 set(${vtk-module}_HDRS
   vtkABI.h
-  vtkAgnosticArray.h
-  vtkAgnosticArrayLookupHelper.h
-  vtkAgnosticArrayTupleIterator.h
-  vtkAgnosticArray.txx
   vtkAngularPeriodicDataArray.h
   vtkArrayInterpolate.h
   vtkArrayInterpolate.txx
   vtkArrayIteratorIncludes.h
   vtkArrayIteratorTemplate.h
-  vtkArrayIteratorTemplate.txx
   vtkArrayIteratorTemplateImplicit.txx
+  vtkArrayIteratorTemplate.txx
   vtkArrayPrint.h
   vtkArrayPrint.txx
   vtkAtomicTypeConcepts.h
@@ -257,6 +253,10 @@ set(${vtk-module}_HDRS
   vtkAutoInit.h
   vtkDataArrayIteratorMacro.h
   vtkDataArrayTemplateImplicit.txx
+  vtkGenericDataArray.h
+  vtkGenericDataArrayLookupHelper.h
+  vtkGenericDataArrayTupleIterator.h
+  vtkGenericDataArray.txx
   vtkIOStream.h
   vtkIOStreamFwd.h
   vtkInformationInternals.h
@@ -266,8 +266,8 @@ set(${vtk-module}_HDRS
   vtkPeriodicDataArray.h
   vtkSetGet.h
   vtkSmartPointer.h
-  vtkSoAArrayTemplate.h
-  vtkSoAArrayTemplate.txx
+  vtkSoADataArrayTemplate.h
+  vtkSoADataArrayTemplate.txx
   vtkTemplateAliasMacro.h
   vtkTypeTraits.h
   vtkTypedDataArray.h
@@ -495,10 +495,9 @@ configure_file(
 set_source_files_properties(
   # vtkObjectBase is marked ABSTRACT so that instantiators are happy.
   vtkAbstractArray
-  vtkAgnosticArrayHelpers
+  vtkArray
   vtkArrayIterator
   vtkArrayIteratorTemplate
-  vtkArray
   vtkCallbackCommand
   vtkCommand
   vtkCommonInformationKeyManager
@@ -507,6 +506,7 @@ set_source_files_properties(
   vtkFloatingPointExceptions
   vtkFunctionSet
   vtkGaussianRandomSequence
+  vtkGenericDataArrayHelpers
   vtkInformationDataObjectKey
   vtkInformationDoubleKey
   vtkInformationDoubleVectorKey
@@ -567,26 +567,27 @@ set_source_files_properties(
   vtkDataArrayPrivate.txx
 
   vtkABI.h
-  vtkAgnosticArrayHelpers.h
   vtkAngularPeriodicDataArray.txx
   vtkArrayInterpolate.h
   vtkArrayInterpolate.txx
   vtkArrayIteratorIncludes.h
   vtkArrayIteratorTemplate.h
-  vtkArrayIteratorTemplate.txx
   vtkArrayIteratorTemplateImplicit.txx
+  vtkArrayIteratorTemplate.txx
   vtkArrayPrint.h
   vtkArrayPrint.txx
   vtkAtomicTypeConcepts.h
   vtkAtomicTypes.h
   vtkAutoInit.h
-  vtkDataArrayTemplate.txx
   vtkDataArrayTemplateHelper.cxx
   vtkDataArrayTemplateImplicit.txx
+  vtkDataArrayTemplate.txx
   vtkDenseArray.txx
+  vtkGenericDataArrayHelpers.h
   vtkIOStream.h
   vtkIOStreamFwd.h
   vtkInformationInternals.h
+  vtkIOStreamFwd.h
   vtkMathUtilities.h
   vtkMappedDataArray.txx
   vtkNew.h

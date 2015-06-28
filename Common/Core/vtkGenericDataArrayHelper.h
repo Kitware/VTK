@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkAgnosticArrayHelpers.h
+  Module:    vtkGenericDataArrayHelper.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,19 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAgnosticArrayHelpers
+// .NAME vtkGenericDataArrayHelper
 // .SECTION Description
 
-#ifndef vtkAgnosticArrayHelpers_h
-#define vtkAgnosticArrayHelpers_h
+#ifndef vtkGenericDataArrayHelper_h
+#define vtkGenericDataArrayHelper_h
 
 #include "vtkObject.h"
 
 class vtkAbstractArray;
-class VTKCOMMONCORE_EXPORT vtkAgnosticArrayHelpers : public vtkObject
+class VTKCOMMONCORE_EXPORT vtkGenericDataArrayHelper : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkAgnosticArrayHelpers, vtkObject);
+  vtkTypeMacro(vtkGenericDataArrayHelper, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   static void SetTuple(vtkAbstractArray* dest, vtkIdType destTuple,
@@ -33,12 +33,12 @@ public:
   static void GetTuple(vtkAbstractArray* source, vtkIdType tuple, double* buffer);
 //BTX
 protected:
-  vtkAgnosticArrayHelpers();
-  ~vtkAgnosticArrayHelpers();
+  vtkGenericDataArrayHelper();
+  ~vtkGenericDataArrayHelper();
 
 private:
-  vtkAgnosticArrayHelpers(const vtkAgnosticArrayHelpers&); // Not implemented.
-  void operator=(const vtkAgnosticArrayHelpers&); // Not implemented.
+  vtkGenericDataArrayHelper(const vtkGenericDataArrayHelper&); // Not implemented.
+  void operator=(const vtkGenericDataArrayHelper&); // Not implemented.
 //ETX
 };
 

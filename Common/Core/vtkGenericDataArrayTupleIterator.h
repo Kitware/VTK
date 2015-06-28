@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkAgnosticArrayTupleIterator.h
+  Module:    vtkGenericDataArrayTupleIterator.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,30 +12,30 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAgnosticArrayTupleIterator
+// .NAME vtkGenericDataArrayTupleIterator
 // .SECTION Description
 
-#ifndef vtkAgnosticArrayTupleIterator_h
-#define vtkAgnosticArrayTupleIterator_h
+#ifndef vtkGenericDataArrayTupleIterator_h
+#define vtkGenericDataArrayTupleIterator_h
 
 #include "vtkObject.h"
 
 template <class ArrayTypeT>
-class vtkAgnosticArrayTupleIterator
+class vtkGenericDataArrayTupleIterator
 {
 public:
-  typedef vtkAgnosticArrayTupleIterator<ArrayTypeT> SelfType;
+  typedef vtkGenericDataArrayTupleIterator<ArrayTypeT> SelfType;
 
   typedef ArrayTypeT ArrayType;
   typedef typename ArrayType::ScalarType ScalarType;
   typedef typename ArrayType::ScalarReturnType ScalarReturnType;
   typedef typename ArrayType::TupleType TupleType;
 
-  vtkAgnosticArrayTupleIterator(const ArrayType& associatedArray, const vtkIdType& index=0) :
+  vtkGenericDataArrayTupleIterator(const ArrayType& associatedArray, const vtkIdType& index=0) :
     AssociatedArray(associatedArray), Index(index)
   {
   }
-  vtkAgnosticArrayTupleIterator(const SelfType& other) :
+  vtkGenericDataArrayTupleIterator(const SelfType& other) :
     AssociatedArray(other.AssociatedArray), Index(other.Index)
   {
   }

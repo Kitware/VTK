@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkAgnosticArray.h
+  Module:    vtkGenericDataArray.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,33 +12,33 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAgnosticArray
+// .NAME vtkGenericDataArray
 // .SECTION Description
 
-#ifndef vtkAgnosticArray_h
-#define vtkAgnosticArray_h
+#ifndef vtkGenericDataArray_h
+#define vtkGenericDataArray_h
 
 #include "vtkDataArray.h"
 #include "vtkSmartPointer.h"
 #include "vtkTypeTemplate.h"
 #include "vtkTypeTraits.h"
-#include "vtkAgnosticArrayLookupHelper.h"
-#include "vtkAgnosticArrayHelpers.h"
-#include "vtkAgnosticArrayTupleIterator.h"
+#include "vtkGenericDataArrayLookupHelper.h"
+#include "vtkGenericDataArrayHelper.h"
+#include "vtkGenericDataArrayTupleIterator.h"
 
 #include <cassert>
 
 template<class DerivedT,
          class ScalarTypeT,
          class TupleTypeT,
-         class TupleIteratorTypeT=vtkAgnosticArrayTupleIterator<DerivedT>,
+         class TupleIteratorTypeT=vtkGenericDataArrayTupleIterator<DerivedT>,
          class ScalarReturnTypeT=ScalarTypeT&>
-class vtkAgnosticArray : public vtkTypeTemplate<
-                         vtkAgnosticArray<DerivedT, ScalarTypeT, TupleTypeT, TupleIteratorTypeT, ScalarReturnTypeT>,
+class vtkGenericDataArray : public vtkTypeTemplate<
+                         vtkGenericDataArray<DerivedT, ScalarTypeT, TupleTypeT, TupleIteratorTypeT, ScalarReturnTypeT>,
                          vtkDataArray>
 {
   typedef
-    vtkAgnosticArray<DerivedT, ScalarTypeT, TupleTypeT, TupleIteratorTypeT, ScalarReturnTypeT> SelfType;
+    vtkGenericDataArray<DerivedT, ScalarTypeT, TupleTypeT, TupleIteratorTypeT, ScalarReturnTypeT> SelfType;
 public:
   typedef ScalarTypeT           ScalarType;
   typedef ScalarReturnTypeT     ScalarReturnType;
@@ -276,12 +276,12 @@ public:
   virtual vtkArrayIterator* NewIterator() { return NULL;}
 
 protected:
-  vtkAgnosticArray()
+  vtkGenericDataArray()
     : Lookup(*this)
     {
     }
 
-  virtual ~vtkAgnosticArray()
+  virtual ~vtkGenericDataArray()
     {
     }
 
@@ -298,17 +298,17 @@ protected:
     return true;
     }
 
-  vtkAgnosticArrayLookupHelper<SelfType> Lookup;
+  vtkGenericDataArrayLookupHelper<SelfType> Lookup;
 private:
-  vtkAgnosticArray(const vtkAgnosticArray&); // Not implemented.
-  void operator=(const vtkAgnosticArray&); // Not implemented.
+  vtkGenericDataArray(const vtkGenericDataArray&); // Not implemented.
+  void operator=(const vtkGenericDataArray&); // Not implemented.
   std::vector<double> LegacyTuple;
 };
 
-#include "vtkAgnosticArray.txx"
+#include "vtkGenericDataArray.txx"
 
 #include <typeinfo>
-#define vtkAgnosticArrayMacroCase(arrayT, scalarT, array, call) \
+#define vtkGenericDataArrayMacroCase(arrayT, scalarT, array, call) \
   if (typeid(*array) == typeid(arrayT<scalarT>)) \
     { \
     typedef arrayT<scalarT> ARRAY_TYPE; \
@@ -316,36 +316,36 @@ private:
     call; \
     }
 
-#define vtkWriteableAgnosticArrayMacro(array, call) \
-  vtkAgnosticArrayMacroCase(vtkSoAArrayTemplate, float, array, call) \
-  else vtkAgnosticArrayMacroCase(vtkSoAArrayTemplate, double, array, call) \
+#define vtkWriteableGenericDataArrayMacro(array, call) \
+  vtkGenericDataArrayMacroCase(vtkSoADataArrayTemplate, float, array, call) \
+  else vtkGenericDataArrayMacroCase(vtkSoADataArrayTemplate, double, array, call) \
   else \
     { \
     vtkGenericWarningMacro("Unknown type " << typeid(*array).name()); \
     abort(); \
     }
 
-#define vtkConstAgnosticArrayMacro(array, call) \
-  vtkAgnosticArrayMacroCase(vtkSoAArrayTemplate, const float, array, call) \
-  else vtkAgnosticArrayMacroCase(vtkSoAArrayTemplate, const double, array, call) \
-  else vtkWriteableAgnosticArrayMacro(array, call)
+#define vtkConstGenericDataArrayMacro(array, call) \
+  vtkGenericDataArrayMacroCase(vtkSoADataArrayTemplate, const float, array, call) \
+  else vtkGenericDataArrayMacroCase(vtkSoADataArrayTemplate, const double, array, call) \
+  else vtkWriteableGenericDataArrayMacro(array, call)
 
-#define vtkWriteableAgnosticArrayMacro2(array1, array2, call) \
-  vtkWriteableAgnosticArrayMacro(array1, \
+#define vtkWriteableGenericDataArrayMacro2(array1, array2, call) \
+  vtkWriteableGenericDataArrayMacro(array1, \
     typedef ARRAY_TYPE ARRAY_TYPE1; \
     ARRAY_TYPE1* ARRAY1 = ARRAY; \
-    vtkWriteableAgnosticArrayMacro(array2, \
+    vtkWriteableGenericDataArrayMacro(array2, \
       typedef ARRAY_TYPE2 ARRAY_TYPE; \
       ARRAY_TYPE2* ARRAY2 = ARRAY; \
       call; \
     )\
   )
 
-#define vtkAgnosticArrayMacro2(inarray, outarray, call) \
-  vtkConstAgnosticArrayMacro(inarray, \
+#define vtkGenericDataArrayMacro2(inarray, outarray, call) \
+  vtkConstGenericDataArrayMacro(inarray, \
     typedef ARRAY_TYPE IN_ARRAY_TYPE; \
     IN_ARRAY_TYPE* IN_ARRAY = ARRAY; \
-    vtkWriteableAgnosticArrayMacro(outarray, \
+    vtkWriteableGenericDataArrayMacro(outarray, \
       typedef ARRAY_TYPE OUT_ARRAY_TYPE; \
       OUT_ARRAY_TYPE* OUT_ARRAY = ARRAY; \
       call; \
