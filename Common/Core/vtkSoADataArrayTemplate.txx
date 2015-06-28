@@ -88,6 +88,7 @@ void vtkSoADataArrayTemplate<ScalarType>::SetArray(
   item.Save = save;
   item.DeleteMethod = deleteMethod;
   this->DataChanged();
+  // FIXME: Should we update MaxId like vtkDataArrayTemplate does? If so, how?
 }
 
 //-----------------------------------------------------------------------------
@@ -100,7 +101,6 @@ bool vtkSoADataArrayTemplate<ScalarType>::AllocateTuples(vtkIdType numTuples)
     return false;
     }
 
-  assert(numTuples > 0);
   for (int cc=0, max=this->GetNumberOfComponents(); cc < max; ++cc)
     {
     // Release old memory.

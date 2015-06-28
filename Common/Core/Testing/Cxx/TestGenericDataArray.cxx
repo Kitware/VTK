@@ -12,11 +12,13 @@
     PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 #include "vtkSoADataArrayTemplate.h"
+#include "vtkAoSDataArrayTemplate.h"
 
-int TestGenericDataArray(int, char**)
+
+template <class T>
+void Test()
 {
-  typedef vtkSoADataArrayTemplate<float> vtkFloatArray2;
-  vtkSoADataArrayTemplate<float>* array = vtkSoADataArrayTemplate<float>::New();
+  T* array = T::New();
   array->SetNumberOfComponents(3);
   array->SetNumberOfTuples(100);
   vtkWriteableGenericDataArrayMacro(array,
@@ -29,5 +31,11 @@ int TestGenericDataArray(int, char**)
   );
   array->Print(cout);
   array->Delete();
+}
+
+int TestGenericDataArray(int, char**)
+{
+  Test<vtkSoADataArrayTemplate<float> >();
+  Test<vtkAoSDataArrayTemplate<float> >();
   return 1;
 }

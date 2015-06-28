@@ -240,6 +240,8 @@ SET(Module_SRCS
 set(${vtk-module}_HDRS
   vtkABI.h
   vtkAngularPeriodicDataArray.h
+  vtkAoSDataArrayTemplate.h
+  vtkAoSDataArrayTemplate.txx
   vtkArrayInterpolate.h
   vtkArrayInterpolate.txx
   vtkArrayIteratorIncludes.h

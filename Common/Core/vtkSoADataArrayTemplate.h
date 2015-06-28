@@ -37,7 +37,7 @@ public:
   typedef typename GenericDataArrayType::TupleType TupleType;
   typedef typename GenericDataArrayType::ScalarReturnType ScalarReturnType;
 
-  static SelfType* New();
+  static vtkSoADataArrayTemplate* New();
 
   // **************************************************************************
   // Methods that are needed to be implemented by every vtkGenericDataArray
