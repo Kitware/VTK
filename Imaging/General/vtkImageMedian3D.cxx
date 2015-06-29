@@ -89,9 +89,18 @@ namespace {
 template<class T>
 T vtkComputeMedianOfArray(T *aBegin, T *aEnd)
 {
-  T *aMid = aBegin + (aEnd - aBegin - 1)/2;
+  T *aMid = aBegin + (aEnd - aBegin)/2;
   std::nth_element(aBegin, aMid, aEnd);
-  return *aMid;
+  T m = *aMid;
+
+  // if even size, get max of lower part of array and compute the average
+  if (aMid - aBegin == aEnd - aMid)
+    {
+    T *lowMid = std::max_element(aBegin, aMid);
+    m = *lowMid + (m - *lowMid)/2;
+    }
+
+  return m;
 }
 
 } // end anonymous namespace
