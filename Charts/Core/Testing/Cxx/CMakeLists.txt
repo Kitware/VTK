@@ -52,6 +52,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestChartDouble.cxx
   TestChartDoubleColors.cxx
   TestChartMatrix.cxx
+  TestChartTileScaling.cxx
   TestChartUnicode.cxx
   TestChartsOn3D.cxx
   TestChartXYInvertedAxis.cxx

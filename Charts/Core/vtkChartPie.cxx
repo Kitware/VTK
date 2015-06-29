@@ -98,7 +98,11 @@ bool vtkChartPie::Paint(vtkContext2D *painter)
     {
     // Take up the entire window right now, this could be made configurable
     this->SetGeometry(geometry);
-    this->SetBorders(20, 20, 20, 20);
+
+    vtkVector2i tileScale = this->Scene->GetLogicalTileScale();
+    this->SetBorders(20 * tileScale.GetX(), 20 * tileScale.GetY(),
+                     20 * tileScale.GetX(), 20 * tileScale.GetY());
+
     // Put the legend in the top corner of the chart
     vtkRectf rect = this->Legend->GetBoundingRect(painter);
     this->Legend->SetPoint(this->Point2[0] - rect.GetWidth(),

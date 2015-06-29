@@ -833,6 +833,9 @@ bool vtkChartXY::UpdateLayout(vtkContext2D* painter)
   // their bounds, and to update the chart in response to that.
   bool changed = false;
 
+  vtkVector2i tileScale = this->Scene->GetLogicalTileScale();
+  vtkVector2i hiddenAxisBorder = tileScale * this->HiddenAxisBorder;
+
   // Axes
   if (this->LayoutStrategy == vtkChart::FILL_SCENE ||
       this->LayoutStrategy == vtkChart::FILL_RECT)
@@ -862,13 +865,20 @@ bool vtkChartXY::UpdateLayout(vtkContext2D* painter)
         painter->ComputeStringBounds(this->Title, bounds);
         if (bounds[3] > 0)
           {
-          border += 5 /* title margin */
+          border += (5 * tileScale.GetY()) /* title margin */
                     + bounds[3]; // add the title text height to the border.
           }
         }
 
-      border = border < this->HiddenAxisBorder ? this->HiddenAxisBorder :
-                                                 border;
+      if (i == vtkAxis::TOP || i == vtkAxis::BOTTOM)
+        {
+        border = std::max(border, hiddenAxisBorder.GetY());
+        }
+      else
+        {
+        border = std::max(border, hiddenAxisBorder.GetX());
+        }
+
       if (this->ChartPrivate->Borders[i] != border)
         {
         this->ChartPrivate->Borders[i] = border;
@@ -881,8 +891,8 @@ bool vtkChartXY::UpdateLayout(vtkContext2D* painter)
     {
     if (this->DrawAxesAtOrigin)
       {
-      this->SetBorders(this->HiddenAxisBorder,
-                       this->HiddenAxisBorder,
+      this->SetBorders(hiddenAxisBorder.GetX(),
+                       hiddenAxisBorder.GetY(),
                        this->ChartPrivate->Borders[2],
                        this->ChartPrivate->Borders[3]);
       // Get the screen coordinates for the origin, and move the axes there.
@@ -967,6 +977,8 @@ int vtkChartXY::GetLegendBorder(vtkContext2D* painter, int axisPosition)
     return 0;
     }
 
+  vtkVector2i tileScale = this->Scene->GetLogicalTileScale();
+
   int padding = 10;
   vtkVector2i legendSize(0, 0);
   vtkVector2i legendAlignment(this->Legend->GetHorizontalAlignment(),
@@ -980,12 +992,12 @@ int vtkChartXY::GetLegendBorder(vtkContext2D* painter, int axisPosition)
   if (axisPosition == vtkAxis::LEFT &&
       legendAlignment.GetX() == vtkChartLegend::LEFT)
     {
-    return legendSize.GetX() + padding;
+    return legendSize.GetX() + padding * tileScale.GetX();
     }
   else if (axisPosition == vtkAxis::RIGHT &&
            legendAlignment.GetX() == vtkChartLegend::RIGHT)
     {
-    return legendSize.GetX() + padding;
+    return legendSize.GetX() + padding * tileScale.GetX();
     }
   else if ((axisPosition == vtkAxis::TOP || axisPosition == vtkAxis::BOTTOM) &&
            (legendAlignment.GetX() == vtkChartLegend::LEFT ||
@@ -996,12 +1008,12 @@ int vtkChartXY::GetLegendBorder(vtkContext2D* painter, int axisPosition)
   else if (axisPosition == vtkAxis::TOP &&
            legendAlignment.GetY() == vtkChartLegend::TOP)
     {
-    return legendSize.GetY() + padding;
+    return legendSize.GetY() + padding * tileScale.GetY();
     }
   else if (axisPosition == vtkAxis::BOTTOM &&
            legendAlignment.GetY() == vtkChartLegend::BOTTOM)
     {
-    return legendSize.GetY() + padding;
+    return legendSize.GetY() + padding * tileScale.GetY();
     }
   else
     {

@@ -18,6 +18,7 @@
 #include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkContext2D.h"
+#include "vtkContextScene.h"
 #include "vtkPen.h"
 #include "vtkChart.h"
 #include "vtkTextProperty.h"
@@ -1373,18 +1374,20 @@ double vtkAxis::CalculateNiceMinMax(double &min, double &max)
     return range / double(this->NumberOfTicks - 1);
     }
 
+  vtkVector2i tileScale = this->Scene->GetLogicalTileScale();
+
   float pixelRange = 0;
   float tickPixelSpacing = 0;
   if (this->Position == vtkAxis::LEFT || this->Position == vtkAxis::RIGHT
       || this->Position == vtkAxis::PARALLEL)
     {
     pixelRange = this->Position2.GetY() - this->Position1.GetY();
-    tickPixelSpacing = 30;
+    tickPixelSpacing = 30 * tileScale.GetX();
     }
   else
     {
     pixelRange = this->Position2.GetX() - this->Position1.GetX();
-    tickPixelSpacing = 45;
+    tickPixelSpacing = 45 * tileScale.GetY();
     }
 
   double niceTickSpacing = 0.0;

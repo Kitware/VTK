@@ -37,6 +37,7 @@ vtkColorLegend::vtkColorLegend()
   this->Interpolate = true;
   this->Axis = vtkSmartPointer<vtkAxis>::New();
   this->Axis->SetPosition(vtkAxis::RIGHT);
+  this->AddItem(this->Axis);
   this->SetInline(false);
   this->SetHorizontalAlignment(vtkChartLegend::RIGHT);
   this->SetVerticalAlignment(vtkChartLegend::BOTTOM);

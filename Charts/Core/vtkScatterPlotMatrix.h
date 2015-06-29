@@ -63,6 +63,8 @@ public:
   // Paint event for the chart matrix.
   virtual bool Paint(vtkContext2D *painter);
 
+  virtual void SetScene(vtkContextScene *scene);
+
   // Description:
   // Set the active plot, the one that will be displayed in the top-right.
   // This defaults to (0, n-2), the plot below the first histogram on the left.

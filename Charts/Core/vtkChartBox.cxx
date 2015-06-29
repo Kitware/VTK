@@ -75,6 +75,7 @@ vtkChartBox::vtkChartBox()
 {
   this->Storage = new vtkChartBox::Private;
   this->Storage->Plot->SetParent(this);
+  this->AddItem(this->Storage->YAxis.GetPointer());
   this->GeometryValid = false;
   this->Selection = vtkIdTypeArray::New();
   this->SelectedColumn = -1;
@@ -398,7 +399,10 @@ void vtkChartBox::UpdateGeometry(vtkContext2D* painter)
 
     // Take up the entire window right now, this could be made configurable
     this->SetGeometry(geometry.GetData());
-    this->SetBorders(leftBorder, 30, 0, 20);
+
+    vtkVector2i tileScale = this->Scene->GetLogicalTileScale();
+    this->SetBorders(leftBorder, 30 * tileScale.GetY(),
+                     0, 20 * tileScale.GetY());
 
     int nbPlots = static_cast<int>(this->Storage->XPosition.size());
     // Iterate through the axes and set them up to span the chart area.

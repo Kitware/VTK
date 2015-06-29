@@ -161,6 +161,7 @@ int TestAxes(int , char * [])
   vtkNew<vtkAxis> logAxis;
   double plainRange[2] = {0.1, 1000.0};
   double logRange[2];
+  logAxis->SetScene(view->GetScene());
   logAxis->SetUnscaledRange(plainRange);
   logAxis->LogScaleOn();
   logAxis->GetUnscaledRange(NULL); // Insure NULL pointers are ignored.
