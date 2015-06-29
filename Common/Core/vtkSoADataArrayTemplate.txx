@@ -97,8 +97,20 @@ bool vtkSoADataArrayTemplate<ScalarType>::AllocateTuples(vtkIdType numTuples)
 {
   if (!this->Resizeable)
     {
-    vtkErrorMacro("AllocateTuples cannot be called on a non-resizeable array!");
-    return false;
+    vtkIdType minTuples = VTK_ID_MAX;
+    for (int cc=0, max=this->GetNumberOfComponents(); cc < max; cc++)
+      {
+      minTuples = std::min(minTuples, this->Data[cc].Size);
+      }
+    if (numTuples <= minTuples)
+      {
+      return true;
+      }
+    else
+      {
+      vtkErrorMacro("AllocateTuples cannot be called on a non-resizeable array!");
+      return false;
+      }
     }
 
   for (int cc=0, max=this->GetNumberOfComponents(); cc < max; ++cc)

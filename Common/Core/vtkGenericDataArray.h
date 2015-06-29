@@ -102,7 +102,7 @@ public:
       // let's keep the size an integral multiple of the number of components.
       size = size < 0? 0 : size;
       int numComps = this->GetNumberOfComponents() > 0? this->GetNumberOfComponents() : 1;
-      vtkIdType numTuples = numComps * ceil(size/ static_cast<double>(numComps));
+      vtkIdType numTuples = ceil(size/ static_cast<double>(numComps));
       // NOTE: if numTuples is 0, AllocateTuples is expected to release the
       // memory.
       if (self->AllocateTuples(numTuples) == false)
