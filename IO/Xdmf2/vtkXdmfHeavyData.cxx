@@ -385,29 +385,29 @@ vtkDataObject* vtkXdmfHeavyData::ReadUniformData(XdmfGrid* xmfGrid, int blockId)
 
   switch (vtk_data_type)
     {
-    case VTK_UNIFORM_GRID:
-      dataObject = this->RequestImageData(xmfGrid, true);
-      break;
+  case VTK_UNIFORM_GRID:
+    dataObject = this->RequestImageData(xmfGrid, true);
+    break;
 
-    case VTK_IMAGE_DATA:
-      dataObject = this->RequestImageData(xmfGrid, false);
-      break;
+  case VTK_IMAGE_DATA:
+    dataObject = this->RequestImageData(xmfGrid, false);
+    break;
 
-    case VTK_STRUCTURED_GRID:
-      dataObject = this->RequestStructuredGrid(xmfGrid);
-      break;
+  case VTK_STRUCTURED_GRID:
+    dataObject = this->RequestStructuredGrid(xmfGrid);
+    break;
 
-    case VTK_RECTILINEAR_GRID:
-      dataObject = this->RequestRectilinearGrid(xmfGrid);
-      break;
+  case VTK_RECTILINEAR_GRID:
+    dataObject = this->RequestRectilinearGrid(xmfGrid);
+    break;
 
-    case VTK_UNSTRUCTURED_GRID:
-      dataObject = this->ReadUnstructuredGrid(xmfGrid);
-      break;
+  case VTK_UNSTRUCTURED_GRID:
+    dataObject = this->ReadUnstructuredGrid(xmfGrid);
+    break;
 
-    default:
-      // un-handled case.
-      return 0;
+  default:
+    // un-handled case.
+    return 0;
     }
 
   if (caching)

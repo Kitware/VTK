@@ -321,15 +321,14 @@ int vtkXdmfReader::RequestInformation(vtkInformation *, vtkInformationVector **,
   // * Publish the SIL which provides information about the grid hierarchy.
   outInfo->Set(vtkDataObject::SIL(), domain->GetSIL());
 
+  // * Publish time information.
   const std::map<int, XdmfFloat64>& ts = domain->GetTimeStepsRev();
   std::vector<double> time_steps(ts.size());
   std::map<int, XdmfFloat64>::const_iterator it = ts.begin();
   for (int i = 0; it != ts.end(); i++, ++it)
+    {
     time_steps[i] = it->second;
-
-  // * Publish time information.
-  /*std::vector<double> time_steps(domain->GetTimeSteps().begin(),
-    domain->GetTimeSteps().end());*/
+    }
 
   if (time_steps.size() > 0)
     {
@@ -628,7 +627,6 @@ vtkGraph* vtkXdmfReader::GetSIL()
     }
   return 0;
 }
-
 
 //----------------------------------------------------------------------------
 void vtkXdmfReader::ClearDataSetCache()

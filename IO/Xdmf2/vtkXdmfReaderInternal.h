@@ -261,19 +261,7 @@ public:
   XdmfFloat64 GetTimeForIndex(int index)
     {
       std::map<int, XdmfFloat64>::iterator iter = this->TimeStepsRev.find(index);
-    /*int cc=0;
-    for (iter = this->TimeSteps.begin(); iter != this->TimeSteps.end();
-      iter++, cc++)
-      {
-      if (cc == index)
-        {
-        return *iter;
-        }
-      }*/
-      if (iter != this->TimeStepsRev.end())
-        return iter->second;
-    // invalid index.
-    return 0.0;
+      return (iter != this->TimeStepsRev.end()) ? iter->second : 0.0;
     }
 
   //---------------------------------------------------------------------------

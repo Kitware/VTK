@@ -41,6 +41,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkTypeTraits.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtksys/SystemTools.hxx"
 
 #include "XdmfArray.h"
 #include "XdmfAttribute.h"
@@ -52,8 +53,6 @@
 #include "XdmfRoot.h"
 #include "XdmfTime.h"
 #include "XdmfTopology.h"
-
-#include "vtksys/SystemTools.hxx"
 
 #include <algorithm>
 #include <map>
@@ -417,7 +416,6 @@ int vtkXdmfWriter::RequestData(
     }
 
   this->LightDataLimit = lightDataLimit;
-
   return 1;
 }
 
