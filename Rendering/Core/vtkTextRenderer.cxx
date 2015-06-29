@@ -50,8 +50,6 @@ void vtkTextRenderer::PrintSelf(ostream &os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Instance: " << vtkTextRenderer::Instance << endl;
-  os << indent << "HasFreeType: " << this->HasFreeType << endl;
-  os << indent << "HasMathText: " << this->HasMathText << endl;
   os << indent << "MathTextRegExp: " << this->MathTextRegExp << endl;
   os << indent << "MathTextRegExp2: " << this->MathTextRegExp2 << endl;
 }
@@ -114,8 +112,6 @@ void vtkTextRenderer::SetInstance(vtkTextRenderer *instance)
 vtkTextRenderer::vtkTextRenderer()
   : MathTextRegExp(new vtksys::RegularExpression("[^\\]\\$.+[^\\]\\$")),
     MathTextRegExp2(new vtksys::RegularExpression("^\\$.+[^\\]\\$")),
-    HasFreeType(false),
-    HasMathText(false),
     DefaultBackend(Detect)
 {
 }

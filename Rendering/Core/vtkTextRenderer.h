@@ -138,8 +138,8 @@ public:
 
   // Description:
   // Test for availability of various backends
-  bool FreeTypeIsSupported() { return HasFreeType; }
-  bool MathTextIsSupported() { return HasMathText; }
+  virtual bool FreeTypeIsSupported() { return false; }
+  virtual bool MathTextIsSupported() { return false; }
 
   // Description:
   // Given a text property and a string, get the bounding box {xmin, xmax,
@@ -308,12 +308,6 @@ protected:
   // Replace all instances of "\$" with "$".
   virtual void CleanUpFreeTypeEscapes(vtkStdString &str);
   virtual void CleanUpFreeTypeEscapes(vtkUnicodeString &str);
-
-  // Description:
-  // Used to cache the availability of backends. Set these in the derived class
-  // constructor
-  bool HasFreeType;
-  bool HasMathText;
 
   // Description:
   // The backend to use when none is specified. Default: Detect

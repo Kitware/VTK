@@ -52,6 +52,10 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Returns true if mathtext rendering is available.
+  virtual bool IsAvailable() { return false; } // Override in subclasses.
+
+  // Description:
   // This is a singleton pattern New. There will be only ONE reference
   // to a vtkMathTextUtilities object per process.  Clients that
   // call this method must use Delete() on the object so that reference

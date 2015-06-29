@@ -44,6 +44,8 @@ public:
 
   static vtkMatplotlibMathTextUtilities *New();
 
+  virtual bool IsAvailable();
+
   // Description:
   // Given a text property and a string, get the bounding box {xmin, xmax,
   // ymin, ymax} of the rendered string in pixels. The origin of the bounding
@@ -118,28 +120,33 @@ protected:
   static void RotateCorners(double angleDeg, double corners[4][2],
                             double bbox[4]);
 
+  bool ScaleToPowerOfTwo;
+  bool PrepareImageData(vtkImageData *data, int bbox[4]);
+
+private:
+  vtkMatplotlibMathTextUtilities(const vtkMatplotlibMathTextUtilities&); // Not implemented.
+  void operator=(const vtkMatplotlibMathTextUtilities&); // Not implemented.
+
   // Description:
   // Used for runtime checking of matplotlib's mathtext availability.
-  enum Availablity
+  // @sa IsAvailable
+  enum Availability
     {
     NOT_TESTED = 0,
     AVAILABLE,
     UNAVAILABLE
     };
 
-  bool ScaleToPowerOfTwo;
-  bool PrepareImageData(vtkImageData *data, int bbox[4]);
-
+  // Description:
   // Function used to check MPL availability and update MPLMathTextAvailable.
-  // This will do tests only the first time this method is called.
-  static void CheckMPLAvailability();
+  // This will do tests only the first time this method is called. This method
+  // is called internally when matplotlib rendering is first needed and is used
+  // to implement IsAvailable.
+  static Availability CheckMPLAvailability();
 
-private:
-  vtkMatplotlibMathTextUtilities(const vtkMatplotlibMathTextUtilities&); // Not implemented.
-  void operator=(const vtkMatplotlibMathTextUtilities&); // Not implemented.
-
-
-  static Availablity MPLMathTextAvailable;
+  // Description:
+  // Cache the availability of matplotlib in the current python session.
+  static Availability MPLMathTextAvailable;
 };
 
 #endif
