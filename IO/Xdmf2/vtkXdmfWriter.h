@@ -27,7 +27,8 @@
 
 #include "vtkDataObjectAlgorithm.h"
 
-#include <vector> // Needed for private members
+#include <string> // Needed for private members
+#include <vector>
 
 class vtkExecutive;
 
