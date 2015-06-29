@@ -23,6 +23,8 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include <algorithm> // for std::nth_element
+
 vtkStandardNewMacro(vtkImageMedian3D);
 
 //-----------------------------------------------------------------------------
@@ -83,101 +85,13 @@ void vtkImageMedian3D::SetKernelSize(int size0, int size1, int size2)
 namespace {
 
 //-----------------------------------------------------------------------------
-// Add a sample to the median computation
-double *vtkImageMedian3DAccumulateMedian(int &UpNum, int &DownNum,
-                                         int &UpMax, int &DownMax,
-                                         int &NumNeighborhood,
-                                         double *Median, double val)
+// Compute the median with std::nth_element
+template<class T>
+T vtkComputeMedianOfArray(T *aBegin, T *aEnd)
 {
-  int idx, max;
-  double temp, *ptr;
-
-  // special case: no samples yet
-  if (UpNum == 0)
-    {
-    *(Median) = val;
-    // length of up and down arrays inclusive of current
-    UpNum = DownNum = 1;
-    // median is guaranteed to be in this range (length of array)
-    DownMax = UpMax = (NumNeighborhood + 1) / 2;
-    return Median;
-    }
-
-  // Case: value is above median
-  if (val >= *(Median))
-    {
-    // move the median if necessary
-    if (UpNum > DownNum)
-      {
-      // Move the median Up one
-      ++Median;
-      --UpNum;
-      ++DownNum;
-      --UpMax;
-      ++DownMax;
-      }
-    // find the position for val in the sorted array
-    max = (UpNum < UpMax) ? UpNum : UpMax;
-    ptr = Median;
-    idx = 0;
-    while (idx < max && val >= *ptr)
-      {
-      ++ptr;
-      ++idx;
-      }
-    // place val and move all others up
-    while (idx < max)
-      {
-      temp = *ptr;
-      *ptr = val;
-      val = temp;
-      ++ptr;
-      ++idx;
-      }
-    *ptr = val;
-    // Update counts
-    ++UpNum;
-    --DownMax;
-    return Median;
-    }
-
-  // Case: value is below median
-  // If we got here, val < *(Median)
-
-  // move the median if necessary
-  if (DownNum > UpNum)
-    {
-    // Move the median Down one
-    --Median;
-    --DownNum;
-    ++UpNum;
-    --DownMax;
-    ++UpMax;
-    }
-  // find the position for val in the sorted array
-  max = (DownNum < DownMax) ? DownNum : DownMax;
-  ptr = Median;
-  idx = 0;
-  while (idx < max && val <= *ptr)
-    {
-    --ptr;
-    ++idx;
-    }
-  // place val and move all others up
-  while (idx < max)
-    {
-    temp = *ptr;
-    *ptr = val;
-    val = temp;
-    --ptr;
-    ++idx;
-    }
-  *ptr = val;
-  // Update counts
-  ++DownNum;
-  --UpMax;
-
-  return Median;
+  T *aMid = aBegin + (aEnd - aBegin - 1)/2;
+  std::nth_element(aBegin, aMid, aEnd);
+  return *aMid;
 }
 
 } // end anonymous namespace
@@ -193,7 +107,6 @@ void vtkImageMedian3DExecute(vtkImageMedian3D *self,
                              vtkDataArray *inArray)
 {
   int *kernelMiddle, *kernelSize;
-  int NumberOfElements;
   // For looping though output (and input) pixels.
   int outIdx0, outIdx1, outIdx2;
   vtkIdType inInc0, inInc1, inInc2;
@@ -208,12 +121,6 @@ void vtkImageMedian3DExecute(vtkImageMedian3D *self,
   // The portion of the out image that needs no boundary processing.
   int middleMin0, middleMax0, middleMin1, middleMax1, middleMin2, middleMax2;
   int numComp;
-  // variables for the median calc
-  int UpNum = 0;
-  int DownNum = 0;
-  int UpMax = 0;
-  int DownMax = 0;
-  double *Median;
   int *inExt;
   unsigned long count = 0;
   unsigned long target;
@@ -223,7 +130,8 @@ void vtkImageMedian3DExecute(vtkImageMedian3D *self,
     return;
     }
 
-  double *Sort = new double[(self->GetNumberOfElements() + 8)];
+  // Array used to compute the median
+  T *workArray = new T[self->GetNumberOfElements()];
 
   // Get information to march through data
   inData->GetIncrements(inInc0, inInc1, inInc2);
@@ -265,8 +173,6 @@ void vtkImageMedian3DExecute(vtkImageMedian3D *self,
                                       (outExt[3] - outExt[2] + 1)/50.0);
   target++;
 
-  NumberOfElements = self->GetNumberOfElements();
-
   // loop through pixel of output
   inPtr = static_cast<T *>(
     inArray->GetVoidPointer((hoodMin0 - inExt[0])* inInc0 +
@@ -297,10 +203,8 @@ void vtkImageMedian3DExecute(vtkImageMedian3D *self,
         for (outIdxC = 0; outIdxC < numComp; outIdxC++)
           {
           // Compute median of neighborhood
-          // Note: For boundary, NumNeighborhood could be changed for
-          // a faster sort.
-          DownNum = UpNum = 0;
-          Median = Sort + (NumberOfElements / 2) + 4;
+          T *workEnd = workArray;
+
           // loop through neighborhood pixels
           tmpPtr2 = inPtr0 + outIdxC;
           for (hoodIdx2 = hoodMin2; hoodIdx2 <= hoodMax2; ++hoodIdx2)
@@ -312,12 +216,7 @@ void vtkImageMedian3DExecute(vtkImageMedian3D *self,
               for (hoodIdx0 = hoodMin0; hoodIdx0 <= hoodMax0; ++hoodIdx0)
                 {
                 // Add this pixel to the median
-                Median = vtkImageMedian3DAccumulateMedian(UpNum, DownNum,
-                                                          UpMax, DownMax,
-                                                          NumberOfElements,
-                                                          Median,
-                                                          double(*tmpPtr0));
-
+                *workEnd++ = *tmpPtr0;
                 tmpPtr0 += inInc0;
                 }
               tmpPtr1 += inInc1;
@@ -326,8 +225,7 @@ void vtkImageMedian3DExecute(vtkImageMedian3D *self,
             }
 
           // Replace this pixel with the hood median
-          *outPtr = static_cast<T>(*Median);
-          outPtr++;
+          *outPtr++ = vtkComputeMedianOfArray(workArray, workEnd);
           }
 
         // shift neighborhood considering boundaries
@@ -366,7 +264,7 @@ void vtkImageMedian3DExecute(vtkImageMedian3D *self,
     outPtr += outIncZ;
     }
 
-  delete [] Sort;
+  delete [] workArray;
 }
 
 //-----------------------------------------------------------------------------
