@@ -199,8 +199,8 @@ void vtkQuadraticHexahedron::Subdivide(vtkPointData *inPd, vtkCellData *inCd,
 
 //----------------------------------------------------------------------------
 static const double VTK_DIVERGED = 1.e6;
-static const int VTK_HEX_MAX_ITERATION=10;
-static const double VTK_HEX_CONVERGED=1.e-03;
+static const int VTK_HEX_MAX_ITERATION=20;
+static const double VTK_HEX_CONVERGED=1.e-04;
 
 int vtkQuadraticHexahedron::EvaluatePosition(double* x,
                                              double* closestPoint,
@@ -252,6 +252,7 @@ int vtkQuadraticHexahedron::EvaluatePosition(double* x,
     d=vtkMath::Determinant3x3(rcol,scol,tcol);
     if ( fabs(d) < 1.e-20)
       {
+      vtkDebugMacro (<<"Determinant incorrect, iteration " << iteration);
       return -1;
       }
 

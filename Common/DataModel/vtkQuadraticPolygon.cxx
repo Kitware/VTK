@@ -484,10 +484,9 @@ void vtkQuadraticPolygon::ConvertFromPolygon(vtkIdList *ids)
 
 //----------------------------------------------------------------------------
 void vtkQuadraticPolygon::Derivatives(int vtkNotUsed(subId),
-                                      double pcoords[3],
+                                      double vtkNotUsed(pcoords)[3],
                                       double *vtkNotUsed(values),
                                       int vtkNotUsed(dim),
                                       double *vtkNotUsed(derivs))
 {
-  pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
 }

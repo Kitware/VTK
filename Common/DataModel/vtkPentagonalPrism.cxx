@@ -134,6 +134,7 @@ int vtkPentagonalPrism::EvaluatePosition(double x[3], double closestPoint[3],
     d=vtkMath::Determinant3x3(rcol,scol,tcol);
     if ( fabs(d) < 1.e-20)
       {
+      vtkDebugMacro (<<"Determinant incorrect, iteration " << iteration);
       return -1;
       }
 

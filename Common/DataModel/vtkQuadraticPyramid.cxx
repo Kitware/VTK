@@ -160,10 +160,50 @@ int vtkQuadraticPyramid::EvaluatePosition(double* x,
                                           int& subId, double pcoords[3],
                                           double& dist2, double *weights)
 {
+  int i, j;
+  subId = 0;
+  // There are problems searching for the apex point so we check if
+  // we are there first before doing the full parametric inversion.
+  vtkPoints* points = this->GetPoints();
+  double apexPoint[3];
+  points->GetPoint(4, apexPoint);
+  dist2 = vtkMath::Distance2BetweenPoints(apexPoint, x);
+  double baseMidpoint[3];
+  points->GetPoint(0, baseMidpoint);
+  for(i=1;i<4;i++)
+    {
+    double tmp[3];
+    points->GetPoint(i, tmp);
+    for(j=0;j<3;j++)
+      {
+      baseMidpoint[j] += tmp[j];
+      }
+    }
+  for(i=0;i<3;i++)
+    {
+    baseMidpoint[i] /= 4.;
+    }
+
+  double length2 = vtkMath::Distance2BetweenPoints(apexPoint, baseMidpoint);
+  // we use .001 as the relative tolerance here since that is the same
+  // that is used for the interior cell check below but we need to
+  // square it here because we're looking at dist2^2.
+  if(dist2 == 0. || ( length2 != 0. && dist2/length2 < 1.e-6) )
+    {
+    pcoords[0] = pcoords[1] = 0;
+    pcoords[2] = 1;
+    this->InterpolationFunctions(pcoords, weights);
+    if(closestPoint)
+      {
+      memcpy(closestPoint, x, 3*sizeof(double));
+      dist2 = 0.;
+      }
+    return 1;
+    }
+
   int iteration, converged;
   double  params[3];
   double  fcol[3], rcol[3], scol[3], tcol[3];
-  int i, j;
   double  d, pt[3];
   double derivs[3*13];
 
@@ -205,6 +245,7 @@ int vtkQuadraticPyramid::EvaluatePosition(double* x,
     d=vtkMath::Determinant3x3(rcol,scol,tcol);
     if ( fabs(d) < 1.e-20)
       {
+      vtkDebugMacro (<<"Determinant incorrect, iteration " << iteration);
       return -1;
       }
 
@@ -646,39 +687,30 @@ void vtkQuadraticPyramid::InterpolationFunctions(double pcoords[3],
   // VTK needs parametric coordinates to be between (0,1). Isoparametric
   // shape functions are formulated between (-1,1). Here we do a
   // coordinate system conversion from (0,1) to (-1,1).
-  const double r = 2*pcoords[0] - 1;
-  const double s = 2*pcoords[1] - 1;
-  const double t = 2*pcoords[2] - 1;
+  const double r = 2.0*(pcoords[0] - 0.5);
+  const double s = 2.0*(pcoords[1] - 0.5);
+  const double t = 2.0*(pcoords[2] - 0.5);
+  const double r2 = r*r;
+  const double s2 = s*s;
+  const double t2 = t*t;
 
-  const double rm = 1.0 - r;
-  const double rp = 1.0 + r;
-  const double sm = 1.0 - s;
-  const double sp = 1.0 + s;
-  const double tm = 1.0 - t;
-  const double tp = 1.0 + t;
-  const double r2 = 1.0 - r*r;
-  const double s2 = 1.0 - s*s;
-  const double t2 = 1.0 - t*t;
+  weights[0] = -(1 - r) * (1 - s) * (1 - t) * (4 + 3*r + 3*s + 2*r*s + 2*t + r*t + s*t + 2*r*s*t) / 16.0;
+  weights[1] = -(1 + r) * (1 - s) * (1 - t) * (4 - 3*r + 3*s - 2*r*s + 2*t - r*t + s*t - 2*r*s*t) / 16.0;
+  weights[2] = -(1 + r) * (1 + s) * (1 - t) * (4 - 3*r - 3*s + 2*r*s + 2*t - r*t - s*t + 2*r*s*t) / 16.0;
+  weights[3] = -(1 - r) * (1 + s) * (1 - t) * (4 + 3*r - 3*s - 2*r*s + 2*t + r*t - s*t - 2*r*s*t) / 16.0;
 
-  // corners
-  weights[0] = 0.125 * rm * sm * tm * (-r - s - t - 2.0);
-  weights[1] = 0.125 * rp * sm * tm * ( r - s - t - 2.0);
-  weights[2] = 0.125 * rp * sp * tm * ( r + s - t - 2.0);
-  weights[3] = 0.125 * rm * sp * tm * (-r + s - t - 2.0);
-  weights[4] = 0.5   * t  * tp;
+  weights[4] = t * (1 + t) / 2.0;
 
-  // midsides of rectangles
-  weights[5] = 0.25 * r2 * sm * tm;
-  weights[6] = 0.25 * s2 * rp * tm;
-  weights[7] = 0.25 * r2 * sp * tm;
-  weights[8] = 0.25 * s2 * rm * tm;
+  weights[5] = (1 - r2) * (1 - s) * (1 - t) * (2 + s + s*t) / 8.0;
+  weights[6] = (1 + r) * (1 - s2) * (1 - t) * (2 - r - r*t) / 8.0;
+  weights[7] = (1 - r2) * (1 + s) * (1 - t) * (2 - s - s*t) / 8.0;
+  weights[8] = (1 - r) * (1 - s2) * (1 - t) * (2 + r + r*t) / 8.0;
 
+  weights[9] = (1 - r) * (1 - s) * (1 - t2) / 4.0;
+  weights[10] = (1 + r) * (1 - s) * (1 - t2) / 4.0;
+  weights[11] = (1 + r) * (1 + s) * (1 - t2) / 4.0;
+  weights[12] = (1 - r) * (1 + s) * (1 - t2) / 4.0;
 
-  // midsides of triangles
-  weights[9]  = 0.25 * ( 1 - r ) * (1 - s ) * t2;
-  weights[10] = 0.25 * ( 1 + r ) * (1 - s ) * t2;
-  weights[11] = 0.25 * ( 1 + r ) * (1 + s ) * t2;
-  weights[12] = 0.25 * ( 1 - r ) * (1 + s ) * t2;
 }
 
 //----------------------------------------------------------------------------

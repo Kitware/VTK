@@ -414,12 +414,9 @@ vtkBiQuadraticQuad::Derivatives (int vtkNotUsed (subId),
 void vtkBiQuadraticQuad::InterpolationFunctions (double pcoords[3],
                                                  double weights[9])
 {
-  //VTK needs parametric coordinates to be between (0,1). Isoparametric
-  //shape functions are normaly formulated between (-1,1). But because we need
-  //to derivate these functions in x and y direction, we are formulating the
-  //shape functions in parametric coordinates. Normaly these coordinates are
-  //named r and s, but I chose x and y, because you can easily mark and
-  //paste these functions to the gnuplot splot function. :D
+  //Normally these coordinates are named r and s, but I chose x and y,
+  //because you can easily mark and paste these functions to the
+  //gnuplot splot function. :D
   double x = pcoords[0];
   double y = pcoords[1];
 

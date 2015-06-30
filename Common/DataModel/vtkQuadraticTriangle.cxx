@@ -127,7 +127,7 @@ int vtkQuadraticTriangle::EvaluatePosition(double* x, double* closestPoint,
       pcoords[0] = 0.5 - pcoords[0]/2.0;
       pcoords[1] = 0.5 - pcoords[1]/2.0;
       }
-    pcoords[2] = 1.0 - pcoords[0] - pcoords[1];
+    pcoords[2] = 0.0;
     if(closestPoint!=0)
       {
       // Compute both closestPoint and weights
@@ -260,12 +260,11 @@ int vtkQuadraticTriangle::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 
 //----------------------------------------------------------------------------
 void vtkQuadraticTriangle::Derivatives(int vtkNotUsed(subId),
-                                       double pcoords[3],
+                                       double vtkNotUsed(pcoords)[3],
                                        double *vtkNotUsed(values),
                                        int vtkNotUsed(dim),
                                        double *vtkNotUsed(derivs))
 {
-  pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
 }
 
 

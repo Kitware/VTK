@@ -77,6 +77,7 @@ int TestOneInterpolationFunction(double eps = VTK_EPSILON)
         {
         if( fabs(sf[j] - 1) > eps)
           {
+          std::cout << "fabs(sf[" << j << "] - 1): " << fabs(sf[j] - 1) << std::endl;
           ++r;
           }
         }
@@ -84,6 +85,7 @@ int TestOneInterpolationFunction(double eps = VTK_EPSILON)
         {
         if( fabs(sf[j] - 0) > eps )
           {
+          std::cout << "fabs(sf[" << j << "] - 0): " << fabs(sf[j] - 0) << std::endl;
           ++r;
           }
         }
