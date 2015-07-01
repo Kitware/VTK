@@ -220,6 +220,7 @@ int TestResliceCursorWidget3( int argc, char *argv[] )
   vtkSmartPointer< vtkResliceCursorWidget > resliceCursorWidget[3];
   vtkSmartPointer< vtkResliceCursorThickLineRepresentation > resliceCursorRep[3];
 
+  double viewUp[3][3] = {{0, 0, -1}, {0, 0, 1}, {0, 1, 0}};
   for (int i = 0; i < 3; i++)
     {
     resliceCursorWidget[i] = vtkSmartPointer< vtkResliceCursorWidget >::New();
@@ -249,6 +250,7 @@ int TestResliceCursorWidget3( int argc, char *argv[] )
     ren[i]->GetActiveCamera()->SetPosition(camPos);
 
     ren[i]->GetActiveCamera()->ParallelProjectionOn();
+    ren[i]->GetActiveCamera()->SetViewUp(viewUp[i]);
     ren[i]->ResetCamera();
     //ren[i]->ResetCameraClippingRange();
 
@@ -279,10 +281,6 @@ int TestResliceCursorWidget3( int argc, char *argv[] )
   ren[3]->SetBackground( 0.1, 0.1, 0.1 );
   renWin->SetSize( 600, 600);
   //renWin->SetFullScreen(1);
-
-  ren[0]->GetActiveCamera()->SetViewUp( 0, 0, -1 );
-  ren[1]->GetActiveCamera()->SetViewUp( 0, 0, 1 );
-  ren[2]->GetActiveCamera()->SetViewUp( 0, 1, 0 );
 
   ren[0]->SetViewport(0,0,0.5,0.5);
   ren[1]->SetViewport(0.5,0,1,0.5);
