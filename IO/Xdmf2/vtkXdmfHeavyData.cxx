@@ -353,7 +353,7 @@ vtkDataObject* vtkXdmfHeavyData::ReadUniformData(XdmfGrid* xmfGrid, int blockId)
 
   vtkXdmfReader::XdmfReaderCachedData& cache =
     vtkXdmfReader::SafeDownCast(this->Reader)->GetDataSetCache();
-  vtkXdmfReader::XdmfDataSetTopoGeoPath cachedData = cache[blockId];
+  vtkXdmfReader::XdmfDataSetTopoGeoPath& cachedData = cache[blockId];
   if (caching &&
     (cachedData.topologyPath == topoFilename) && (cachedData.geometryPath == geomFilename))
     {

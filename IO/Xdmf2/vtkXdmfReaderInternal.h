@@ -260,8 +260,8 @@ public:
   // Returns the time value at the given index.
   XdmfFloat64 GetTimeForIndex(int index)
     {
-      std::map<int, XdmfFloat64>::iterator iter = this->TimeStepsRev.find(index);
-      return (iter != this->TimeStepsRev.end()) ? iter->second : 0.0;
+    std::map<int, XdmfFloat64>::iterator iter = this->TimeStepsRev.find(index);
+    return (iter != this->TimeStepsRev.end()) ? iter->second : 0.0;
     }
 
   //---------------------------------------------------------------------------

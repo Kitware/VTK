@@ -647,12 +647,12 @@ void vtkXdmfDomain::CollectNonLeafMetaData(XdmfGrid* xmfGrid,
     XdmfTime* xmfTime = xmfGrid->GetTime();
     if (xmfTime && xmfTime->GetTimeType() != XDMF_TIME_UNSET)
       {
-        int step = static_cast<int>(this->TimeSteps.size());
-        if (this->TimeSteps.find(xmfTime->GetValue()) == this->TimeSteps.end())
-          {
-          this->TimeSteps[xmfTime->GetValue()] = step;//this->TimeSteps.insert(xmfTime->GetValue());
-          this->TimeStepsRev[step] = xmfTime->GetValue();
-          }
+      int step = static_cast<int>(this->TimeSteps.size());
+      if (this->TimeSteps.find(xmfTime->GetValue()) == this->TimeSteps.end())
+        {
+        this->TimeSteps[xmfTime->GetValue()] = step;
+        this->TimeStepsRev[step] = xmfTime->GetValue();
+        }
       }
     }
 }
@@ -742,7 +742,7 @@ void vtkXdmfDomain::CollectLeafMetaData(XdmfGrid* xmfGrid, vtkIdType silParent)
     int step = static_cast<int>(this->TimeSteps.size());
     if (this->TimeSteps.find(xmfTime->GetValue()) == this->TimeSteps.end())
       {
-      this->TimeSteps[xmfTime->GetValue()] = step;//this->TimeSteps.insert(xmfTime->GetValue());
+      this->TimeSteps[xmfTime->GetValue()] = step;
       this->TimeStepsRev[step] = xmfTime->GetValue();
       }
     }
