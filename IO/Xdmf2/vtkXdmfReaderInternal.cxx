@@ -218,7 +218,7 @@ vtkXdmfDomain::vtkXdmfDomain(XdmfDOM* xmlDom, int domain_index)
   this->NumberOfGrids = this->XMLDOM->FindNumberOfElements("Grid", this->XMLDomain);
   this->XMFGrids = new XdmfGrid[this->NumberOfGrids+1];
 
-  XdmfXmlNode xmlGrid = this->XMLDOM->FindElement("Grid", 0, this->XMLDomain); 
+  XdmfXmlNode xmlGrid = this->XMLDOM->FindElement("Grid", 0, this->XMLDomain);
   XdmfInt64 cc=0;
   while (xmlGrid)
     {
@@ -297,14 +297,14 @@ int vtkXdmfDomain::GetVTKDataType(XdmfGrid* xmfGrid)
     {
     return VTK_MULTIBLOCK_DATA_SET;
     }
-  if (xmfGrid->GetTopology()->GetClass() == XDMF_UNSTRUCTURED ) 
+  if (xmfGrid->GetTopology()->GetClass() == XDMF_UNSTRUCTURED )
     {
     return VTK_UNSTRUCTURED_GRID;
-    } 
+    }
   XdmfInt32 topologyType = xmfGrid->GetTopology()->GetTopologyType();
   if (topologyType == XDMF_2DSMESH || topologyType == XDMF_3DSMESH )
-    { 
-    return VTK_STRUCTURED_GRID; 
+    {
+    return VTK_STRUCTURED_GRID;
     }
   else if (topologyType == XDMF_2DCORECTMESH ||
     topologyType == XDMF_3DCORECTMESH)
@@ -325,7 +325,13 @@ int vtkXdmfDomain::GetVTKDataType(XdmfGrid* xmfGrid)
 //----------------------------------------------------------------------------
 int vtkXdmfDomain::GetIndexForTime(double time)
 {
-  std::set<XdmfFloat64>::iterator iter = this->TimeSteps.upper_bound(time);
+  std::map<XdmfFloat64, int>::const_iterator iter = this->TimeSteps.find(time);
+  if (iter != this->TimeSteps.end())
+    {
+    return iter->second;
+    }
+
+  iter = this->TimeSteps.upper_bound(time);
   if (iter == this->TimeSteps.begin())
     {
     // The requested time step is before any available time.  We will use it by
@@ -337,7 +343,7 @@ int vtkXdmfDomain::GetIndexForTime(double time)
     iter--;
     }
 
-  std::set<XdmfFloat64>::iterator iter2 = this->TimeSteps.begin();
+  std::map<XdmfFloat64, int>::iterator iter2 = this->TimeSteps.begin();
   int counter = 0;
   while (iter2 != iter)
     {
@@ -437,7 +443,7 @@ bool vtkXdmfDomain::GetOriginAndSpacing(XdmfGrid* xmfGrid,
 
   XdmfGeometry *xmfGeometry = xmfGrid->GetGeometry();
   if (xmfGeometry->GetGeometryType() == XDMF_GEOMETRY_ORIGIN_DXDYDZ )
-    { 
+    {
     // Update geometry so that origin and spacing are read
     xmfGeometry->Update(); // read heavy-data for the geometry.
     XdmfFloat64 *xmfOrigin = xmfGeometry->GetOrigin();
@@ -542,7 +548,7 @@ void vtkXdmfDomain::CollectMetaData()
     this->Grids->clear();
 
     // We have aborted collecting grids information since it was too numerous to
-    // be of any use to the user. 
+    // be of any use to the user.
     this->SILBuilder->Initialize();
     blocksRoot = this->SILBuilder->AddVertex("Blocks");
     hierarchyRoot = this->SILBuilder->AddVertex("Hierarchy");
@@ -623,7 +629,7 @@ void vtkXdmfDomain::CollectNonLeafMetaData(XdmfGrid* xmfGrid,
   XdmfInt32 numChildren = xmfGrid->GetNumberOfChildren();
   for (XdmfInt32 cc=0; cc < numChildren; cc++)
     {
-    XdmfGrid* xmfChild = xmfGrid->GetChild(cc); 
+    XdmfGrid* xmfChild = xmfGrid->GetChild(cc);
     this->CollectMetaData(xmfChild, silVertex);
     }
 
@@ -641,7 +647,12 @@ void vtkXdmfDomain::CollectNonLeafMetaData(XdmfGrid* xmfGrid,
     XdmfTime* xmfTime = xmfGrid->GetTime();
     if (xmfTime && xmfTime->GetTimeType() != XDMF_TIME_UNSET)
       {
-      this->TimeSteps.insert(xmfTime->GetValue());
+      int step = static_cast<int>(this->TimeSteps.size());
+      if (this->TimeSteps.find(xmfTime->GetValue()) == this->TimeSteps.end())
+        {
+        this->TimeSteps[xmfTime->GetValue()] = step;
+        this->TimeStepsRev[step] = xmfTime->GetValue();
+        }
       }
     }
 }
@@ -719,7 +730,7 @@ void vtkXdmfDomain::CollectLeafMetaData(XdmfGrid* xmfGrid, vtkIdType silParent)
 
     // XdmfInt32 setCenter = xmfSet->GetSetType();
     // Not sure if we want to create separate lists for different types of sets
-    // or just treat all the sets as same. For now, we are treating them as 
+    // or just treat all the sets as same. For now, we are treating them as
     // the same.
     this->Sets->AddArray(name);
     }
@@ -728,7 +739,12 @@ void vtkXdmfDomain::CollectLeafMetaData(XdmfGrid* xmfGrid, vtkIdType silParent)
   XdmfTime* xmfTime = xmfGrid->GetTime();
   if (xmfTime && xmfTime->GetTimeType() != XDMF_TIME_UNSET)
     {
-    this->TimeSteps.insert(xmfTime->GetValue());
+    int step = static_cast<int>(this->TimeSteps.size());
+    if (this->TimeSteps.find(xmfTime->GetValue()) == this->TimeSteps.end())
+      {
+      this->TimeSteps[xmfTime->GetValue()] = step;
+      this->TimeStepsRev[step] = xmfTime->GetValue();
+      }
     }
 }
 

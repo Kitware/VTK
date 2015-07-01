@@ -19,6 +19,7 @@
 #include "vtkCharArray.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkDataObjectTypes.h"
+#include "vtkDataSet.h"
 #include "vtkExtentTranslator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -116,6 +117,8 @@ vtkXdmfReader::~vtkXdmfReader()
   delete this->CellArraysCache;
   delete this->GridsCache;
   delete this->SetsCache;
+
+  this->ClearDataSetCache();
 }
 
 //----------------------------------------------------------------------------
@@ -319,8 +322,13 @@ int vtkXdmfReader::RequestInformation(vtkInformation *, vtkInformationVector **,
   outInfo->Set(vtkDataObject::SIL(), domain->GetSIL());
 
   // * Publish time information.
-  std::vector<double> time_steps(domain->GetTimeSteps().begin(),
-    domain->GetTimeSteps().end());
+  const std::map<int, XdmfFloat64>& ts = domain->GetTimeStepsRev();
+  std::vector<double> time_steps(ts.size());
+  std::map<int, XdmfFloat64>::const_iterator it = ts.begin();
+  for (int i = 0; it != ts.end(); i++, ++it)
+    {
+    time_steps[i] = it->second;
+    }
 
   if (time_steps.size() > 0)
     {
@@ -386,6 +394,10 @@ int vtkXdmfReader::RequestData(vtkInformation *, vtkInformationVector **,
     }
 
   this->LastTimeIndex = this->ChooseTimeStep(outInfo);
+  if (this->LastTimeIndex == 0)
+    {
+    this->ClearDataSetCache();
+    }
 
   vtkXdmfHeavyData dataReader(this->XdmfDocument->GetActiveDomain(), this);
   dataReader.Piece = updatePiece;
@@ -614,4 +626,25 @@ vtkGraph* vtkXdmfReader::GetSIL()
     return domain->GetSIL();
     }
   return 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkXdmfReader::ClearDataSetCache()
+{
+  XdmfReaderCachedData::iterator it = this->DataSetCache.begin();
+  while (it != this->DataSetCache.end())
+    {
+    if (it->second.dataset != NULL)
+      {
+      it->second.dataset->Delete();
+      }
+    ++it;
+    }
+  this->DataSetCache.clear();
+}
+
+//----------------------------------------------------------------------------
+vtkXdmfReader::XdmfReaderCachedData& vtkXdmfReader::GetDataSetCache()
+{
+  return this->DataSetCache;
 }

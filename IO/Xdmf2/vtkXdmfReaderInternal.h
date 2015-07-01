@@ -203,8 +203,9 @@ private:
   vtkXdmfArraySelection* CellArrays;
   vtkXdmfArraySelection* Grids;
   vtkXdmfArraySelection* Sets;
-  std::set<XdmfFloat64> TimeSteps; //< Only discrete timesteps are currently
+  std::map<XdmfFloat64, int> TimeSteps; //< Only discrete timesteps are currently
                                  //  supported.
+  std::map<int, XdmfFloat64> TimeStepsRev;
 
 public:
   //---------------------------------------------------------------------------
@@ -244,8 +245,10 @@ public:
   //---------------------------------------------------------------------------
   // Description:
   // Returns the timesteps.
-  const std::set<XdmfFloat64>& GetTimeSteps()
+  const std::map<XdmfFloat64, int>& GetTimeSteps()
     { return this->TimeSteps; }
+  const std::map<int,XdmfFloat64>& GetTimeStepsRev()
+    { return this->TimeStepsRev; }
 
   //---------------------------------------------------------------------------
   // Description:
@@ -257,18 +260,8 @@ public:
   // Returns the time value at the given index.
   XdmfFloat64 GetTimeForIndex(int index)
     {
-    std::set<XdmfFloat64>::iterator iter;
-    int cc=0;
-    for (iter = this->TimeSteps.begin(); iter != this->TimeSteps.end();
-      iter++, cc++)
-      {
-      if (cc == index)
-        {
-        return *iter;
-        }
-      }
-    // invalid index.
-    return 0.0;
+    std::map<int, XdmfFloat64>::iterator iter = this->TimeStepsRev.find(index);
+    return (iter != this->TimeStepsRev.end()) ? iter->second : 0.0;
     }
 
   //---------------------------------------------------------------------------

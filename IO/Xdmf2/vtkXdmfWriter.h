@@ -27,6 +27,9 @@
 
 #include "vtkDataObjectAlgorithm.h"
 
+#include <string> // Needed for private members
+#include <vector> //
+
 class vtkExecutive;
 
 class vtkCompositeDataSet;
@@ -42,7 +45,10 @@ namespace xdmf2
 {
 class XdmfArray;
 class XdmfDOM;
+class XdmfElement;
 class XdmfGrid;
+class XdmfGeometry;
+class XdmfTopology;
 }
 
 class VTKIOXDMF2_EXPORT vtkXdmfWriter : public vtkDataObjectAlgorithm
@@ -82,6 +88,7 @@ public:
   // Description:
   // Topology Geometry and Attribute arrays smaller than this are written in line into the XML.
   // Default is 100.
+  // Node: LightDataLimit is forced to 1 when MeshStaticOverTime is TRUE.
   vtkSetMacro(LightDataLimit, int);
   vtkGetMacro(LightDataLimit, int);
 
@@ -92,6 +99,15 @@ public:
   vtkSetMacro(WriteAllTimeSteps, int);
   vtkGetMacro(WriteAllTimeSteps, int);
   vtkBooleanMacro(WriteAllTimeSteps, int);
+
+  // Description:
+  // Set of get the flag that specify if input mesh is static over time.
+  // If so, the mesh topology and geometry heavy data will be written only once.
+  // Default if FALSE.
+  // Note: this mode requires that all data is dumped in the heavy data file.
+  vtkSetMacro(MeshStaticOverTime, bool);
+  vtkGetMacro(MeshStaticOverTime, bool);
+  vtkBooleanMacro(MeshStaticOverTime, bool);
 
     // Description:
   // Called in parallel runs to identify the portion this process is responsible for
@@ -143,23 +159,35 @@ protected:
                                 vtkIdType rank, vtkIdType *dims,
                                 int AllocStrategy, const char *heavyprefix);
 
+  virtual void SetupDataArrayXML(xdmf2::XdmfElement*, xdmf2::XdmfArray*) const;
+
   char *FileName;
   char *HeavyDataFileName;
   char *HeavyDataGroupName;
+  std::string WorkingDirectory;
+  std::string BaseFileName;
 
   int LightDataLimit;
 
   int WriteAllTimeSteps;
   int NumberOfTimeSteps;
+  double CurrentTime;
   int CurrentTimeIndex;
+  int CurrentBlockIndex;
+  int UnlabelledDataArrayId;
 
   int Piece;
   int NumberOfPieces;
+
+  bool MeshStaticOverTime;
 
   xdmf2::XdmfDOM *DOM;
   xdmf2::XdmfGrid *TopTemporalGrid;
 
   vtkXdmfWriterDomainMemoryHandler *DomainMemoryHandler;
+
+  std::vector<xdmf2::XdmfTopology*> TopologyAtT0;
+  std::vector<xdmf2::XdmfGeometry*> GeometryAtT0;
 
 private:
   vtkXdmfWriter(const vtkXdmfWriter&); // Not implemented

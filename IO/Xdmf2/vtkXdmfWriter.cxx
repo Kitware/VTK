@@ -41,6 +41,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkTypeTraits.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtksys/SystemTools.hxx"
 
 #include "XdmfArray.h"
 #include "XdmfAttribute.h"
@@ -56,6 +57,7 @@
 #include <algorithm>
 #include <map>
 #include <stdio.h>
+#include <sstream>
 #include <vector>
 
 #include <libxml/tree.h> // always after std::blah stuff
@@ -186,6 +188,7 @@ vtkXdmfWriter::vtkXdmfWriter()
   this->TopTemporalGrid = NULL;
   this->DomainMemoryHandler = NULL;
   this->SetNumberOfOutputPorts(0);
+  this->MeshStaticOverTime = false;
 }
 
 //----------------------------------------------------------------------------
@@ -247,6 +250,10 @@ int vtkXdmfWriter::Write()
 
   // always write even if the data hasn't changed
   this->Modified();
+
+  this->TopologyAtT0.clear();
+  this->GeometryAtT0.clear();
+  this->UnlabelledDataArrayId = 0;
 
   //TODO: Specify name of heavy data companion file?
   if (!this->DOM)
@@ -331,6 +338,15 @@ int vtkXdmfWriter::RequestData(
     return 1;
     }
 
+  this->WorkingDirectory = vtksys::SystemTools::GetFilenamePath(this->FileName);
+  this->BaseFileName     = vtksys::SystemTools::GetFilenameWithoutLastExtension(this->FileName);
+
+  // If mesh is static we force heavy data to be exported in HDF
+  int lightDataLimit = this->LightDataLimit;
+  this->LightDataLimit = this->MeshStaticOverTime ? 1 : this->LightDataLimit;
+
+  this->CurrentBlockIndex = 0;
+
   if (this->CurrentTimeIndex == 0 &&
       this->WriteAllTimeSteps &&
       this->NumberOfTimeSteps > 1)
@@ -346,13 +362,13 @@ int vtkXdmfWriter::RequestData(
     tgrid->SetDeleteOnGridDelete(true);
     tgrid->SetGridType(XDMF_GRID_COLLECTION);
     tgrid->SetCollectionType(XDMF_GRID_COLLECTION_TEMPORAL);
+    tgrid->SetName(this->BaseFileName.c_str());
     XdmfTopology *t = tgrid->GetTopology();
     t->SetTopologyType(XDMF_NOTOPOLOGY);
     XdmfGeometry *geo = tgrid->GetGeometry();
     geo->SetGeometryType(XDMF_GEOMETRY_NONE);
 
     this->DomainMemoryHandler->InsertGrid(tgrid);
-
     this->TopTemporalGrid = tgrid;
     }
 
@@ -367,19 +383,21 @@ int vtkXdmfWriter::RequestData(
     this->DomainMemoryHandler->InsertGrid(grid);
     }
 
+  this->CurrentTime = 0;
+
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
   vtkInformation *inDataInfo = input->GetInformation();
   if (inDataInfo->Has(vtkDataObject::DATA_TIME_STEP()))
     {
     //I am assuming we are not given a temporal data object and getting just one time.
-    double dataT = input->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
-    //cerr << "Writing " << this->CurrentTimeIndex << " " << *dataT << endl;
+    this->CurrentTime = input->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
+    //cerr << "Writing timestep" << this->CurrentTimeIndex << " (" << this->CurrentTime << ")" << endl;
 
     XdmfTime *xT = grid->GetTime();
     xT->SetDeleteOnGridDelete(true);
     xT->SetTimeType(XDMF_TIME_SINGLE);
-    xT->SetValue(dataT);
+    xT->SetValue(this->CurrentTime);
     grid->Insert(xT);
     }
 
@@ -397,6 +415,7 @@ int vtkXdmfWriter::RequestData(
     this->TopTemporalGrid = NULL;
     }
 
+  this->LightDataLimit = lightDataLimit;
   return 1;
 }
 
@@ -482,6 +501,19 @@ int vtkXdmfWriter::WriteCompositeDataSet(vtkCompositeDataSet *dobj, xdmf2::XdmfG
 
   return 1;
 }
+
+//----------------------------------------------------------------------------
+void vtkXdmfWriter::SetupDataArrayXML(XdmfElement* e, XdmfArray* a) const
+{
+  std::stringstream ss;
+  ss << "<DataItem Dimensions = \"" << a->GetShapeAsString() <<
+    "\" NumberType = \"" << XdmfTypeToClassString(a->GetNumberType()) <<
+    "\" Precision = \"" << a->GetElementSize() <<
+    "\" Format = \"HDF\">" <<
+    a->GetHeavyDataSetName() << "</DataItem>";
+  e->SetDataXml(ss.str().c_str());
+}
+
 //------------------------------------------------------------------------------
 int vtkXdmfWriter::CreateTopology(vtkDataSet *ds, xdmf2::XdmfGrid *grid, vtkIdType PDims[3], vtkIdType CDims[3], vtkIdType &PRank, vtkIdType &CRank, void *staticdata)
 {
@@ -494,14 +526,35 @@ int vtkXdmfWriter::CreateTopology(vtkDataSet *ds, xdmf2::XdmfGrid *grid, vtkIdTy
   if (this->HeavyDataFileName)
     {
     heavyDataSetName = std::string(this->HeavyDataFileName) + ":";
-    if (this->HeavyDataGroupName)
+    if (this->MeshStaticOverTime)
       {
-      heavyDataSetName = heavyDataSetName + HeavyDataGroupName + "/Topology";
+      std::stringstream hdf5group;
+      hdf5group << "/Topology_";
+      if (this->CurrentBlockIndex >= 0)
+        {
+        if (grid->GetName())
+          {
+          hdf5group << grid->GetName();
+          }
+        else
+          {
+          hdf5group << "Block_" << this->CurrentBlockIndex;
+          }
+        heavyDataSetName = heavyDataSetName + hdf5group.str();
+        }
+      }
+    else
+      {
+      if (this->HeavyDataGroupName)
+        {
+        heavyDataSetName = heavyDataSetName + HeavyDataGroupName + "/Topology";
+        }
       }
     heavyName = heavyDataSetName.c_str();
     }
 
   XdmfTopology *t = grid->GetTopology();
+  t->SetLightDataLimit(this->LightDataLimit);
 
   //
   // If the topology is unchanged from last grid written, we can reuse the XML
@@ -527,6 +580,28 @@ int vtkXdmfWriter::CreateTopology(vtkDataSet *ds, xdmf2::XdmfGrid *grid, vtkIdTy
       // @TODO : t->SetNodesPerElement(ppCell);
     }
   }
+
+  if (this->MeshStaticOverTime)
+    {
+    if (this->CurrentTimeIndex == 0)
+      {
+      // Save current topology node at t0 for next time steps
+      this->TopologyAtT0.push_back(t);
+      }
+    else if (static_cast<int>(this->TopologyAtT0.size()) > this->CurrentBlockIndex)
+      {
+      // Get topology node at t0
+      XdmfTopology* topo = this->TopologyAtT0[this->CurrentBlockIndex];
+      // Setup current topology node with t0 properties
+      t->SetTopologyTypeFromString(topo->GetTopologyTypeAsString());
+      t->SetNumberOfElements(topo->GetNumberOfElements());
+
+      // Setup connectivity data XML according t0 one
+      this->SetupDataArrayXML(t, topo->GetConnectivity());
+      reusing_topology = true;
+      // process continue as need to setup PDims parameters
+      }
+    }
 
   //Topology
   switch (ds->GetDataObjectType()) {
@@ -688,6 +763,7 @@ int vtkXdmfWriter::CreateTopology(vtkDataSet *ds, xdmf2::XdmfGrid *grid, vtkIdTy
         {
         di->SetNumberType(XDMF_INT32_TYPE);
         }
+
       XdmfInt64 hDim[2];
       hDim[0] = ds->GetNumberOfCells();
       hDim[1] = ppCell;
@@ -866,9 +942,29 @@ int vtkXdmfWriter::CreateGeometry(vtkDataSet *ds, xdmf2::XdmfGrid *grid, void *s
   if (this->HeavyDataFileName)
     {
     heavyDataSetName = std::string(this->HeavyDataFileName) + ":";
-    if (this->HeavyDataGroupName)
+    if (this->MeshStaticOverTime)
       {
-      heavyDataSetName = heavyDataSetName + HeavyDataGroupName + "/Geometry";
+      std::stringstream hdf5group;
+      hdf5group << "/Geometry_";
+      if (this->CurrentBlockIndex >= 0)
+        {
+        if (grid->GetName())
+          {
+          hdf5group << grid->GetName();
+          }
+        else
+          {
+          hdf5group << "Block_" << this->CurrentBlockIndex;
+          }
+        heavyDataSetName = heavyDataSetName + hdf5group.str();
+        }
+      }
+    else
+      {
+      if (this->HeavyDataGroupName)
+        {
+        heavyDataSetName = heavyDataSetName + HeavyDataGroupName + "/Geometry";
+        }
       }
     heavyName = heavyDataSetName.c_str();
     }
@@ -885,6 +981,25 @@ int vtkXdmfWriter::CreateGeometry(vtkDataSet *ds, xdmf2::XdmfGrid *grid, void *s
       return 1;
     }
   }
+
+  if (this->MeshStaticOverTime)
+    {
+    if (this->CurrentTimeIndex == 0)
+      {
+      // Save current geometry node at t0 for next time steps
+      this->GeometryAtT0.push_back(geo);
+      }
+    else if (static_cast<int>(this->TopologyAtT0.size()) > this->CurrentBlockIndex)
+      {
+      // Get geometry node at t0
+      XdmfGeometry* geo0 = this->GeometryAtT0[this->CurrentBlockIndex];
+      // Setup current geometry node with t0 properties
+      geo->SetGeometryTypeFromString(geo0->GetGeometryTypeAsString());
+      // Setup points data XML according t0 one
+      this->SetupDataArrayXML(geo, geo0->GetPoints());
+      return 1;
+      }
+    }
 
   switch (ds->GetDataObjectType()) {
   case VTK_STRUCTURED_POINTS:
@@ -956,6 +1071,7 @@ int vtkXdmfWriter::CreateGeometry(vtkDataSet *ds, xdmf2::XdmfGrid *grid, void *s
 
   return 1;
 }
+
 //------------------------------------------------------------------------------
 int vtkXdmfWriter::WriteAtomicDataSet(vtkDataObject *dobj, xdmf2::XdmfGrid *grid)
 {
@@ -968,6 +1084,8 @@ int vtkXdmfWriter::WriteAtomicDataSet(vtkDataObject *dobj, xdmf2::XdmfGrid *grid
     return 0;
     }
 
+  this->DOM->SetWorkingDirectory(this->WorkingDirectory.c_str());
+
   //Attributes
   vtkIdType FRank = 1;
   vtkIdType FDims[1];
@@ -975,6 +1093,29 @@ int vtkXdmfWriter::WriteAtomicDataSet(vtkDataObject *dobj, xdmf2::XdmfGrid *grid
   vtkIdType CDims[3];
   vtkIdType PRank = 3;
   vtkIdType PDims[3];
+
+  // We need to force a data and group name for supporting still mesh over time
+  // otherwise names are generated when the data is dumped in HDF5: too late
+  // because we need the name to reuse it when building the tree.
+  std::string hdf5name = this->BaseFileName + ".h5";
+  this->SetHeavyDataFileName(hdf5name.c_str());
+
+  std::stringstream hdf5group;
+  hdf5group << "/";
+  if (this->CurrentBlockIndex >= 0)
+    {
+    if (grid->GetName())
+      {
+      hdf5group << grid->GetName();
+      }
+    else
+      {
+      hdf5group << "Block_" << this->CurrentBlockIndex;
+      }
+    }
+  hdf5group << "_t" << setw(6) << setfill('0') << this->CurrentTime;
+  hdf5group << ends;
+  this->SetHeavyDataGroupName(hdf5group.str().c_str());
 
   this->CreateTopology(ds, grid, PDims, CDims, PRank, CRank, NULL);
   if (!this->CreateGeometry(ds, grid, NULL))
@@ -986,6 +1127,8 @@ int vtkXdmfWriter::WriteAtomicDataSet(vtkDataObject *dobj, xdmf2::XdmfGrid *grid
   this->WriteArrays(ds->GetFieldData(),grid,XDMF_ATTRIBUTE_CENTER_GRID, FRank, FDims, "Field");
   this->WriteArrays(ds->GetCellData(), grid,XDMF_ATTRIBUTE_CENTER_CELL, CRank, CDims, "Cell");
   this->WriteArrays(ds->GetPointData(),grid,XDMF_ATTRIBUTE_CENTER_NODE, PRank, PDims, "Node");
+
+  this->CurrentBlockIndex++;
 
   return 1;
 }
@@ -1170,10 +1313,22 @@ void vtkXdmfWriter::ConvertVToXArray(vtkDataArray *vda,
       }
     }
 
-  if (heavyprefix) {
-    std::string dsname = std::string(heavyprefix) + "/" + std::string(vda->GetName());
+  if (heavyprefix)
+    {
+    std::string name;
+    if (vda->GetName())
+      {
+      name = vda->GetName();
+      }
+    else
+      {
+      std::stringstream ss;
+      ss << "DataArray" << this->UnlabelledDataArrayId++;
+      name = ss.str();
+      }
+    std::string dsname = std::string(heavyprefix) + "/" + name;
     xda->SetHeavyDataSetName(dsname.c_str());
-  }
+    }
 
   //TODO: if we can make xdmf write out immediately, then wouldn't have to keep around
   //arrays when working with temporal data
