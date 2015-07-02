@@ -544,8 +544,6 @@
 /// test vtkAngleRepresentation methods
 #define EXERCISE_BASIC_ANGLE_REPRESENTATION_METHODS(className, object)  \
   {                                                                     \
-    EXERCISE_BASIC_REPRESENTATION_METHODS(className, object); \
-                                                                        \
     vtkSmartPointer<vtkPointHandleRepresentation2D> phandle0 = vtkSmartPointer<vtkPointHandleRepresentation2D>::New(); \
     object->SetHandleRepresentation(phandle0);                           \
     object->InstantiateHandleRepresentation();                          \
@@ -613,6 +611,7 @@
                                                                         \
     double e[2] = {5.0, 1.0};                                           \
     object->CenterWidgetInteraction(e);                                 \
+    EXERCISE_BASIC_REPRESENTATION_METHODS(className, object);           \
   }
 
 /// test vtkBorderRepresentation methods
