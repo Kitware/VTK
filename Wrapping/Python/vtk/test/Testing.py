@@ -255,7 +255,12 @@ def compareImage(renwin, img_fname, threshold=10):
     w2if.ReadFrontBufferOff()
     w2if.SetInput(renwin)
     w2if.Update()
-    return compareImageWithSavedImage(w2if, img_fname, threshold)
+    try:
+        compareImageWithSavedImage(w2if, img_fname, threshold)
+    except RuntimeError:
+        w2if.ReadFrontBufferOn()
+        compareImageWithSavedImage(w2if, img_fname, threshold)
+    return
 
 
 def _printCDashImageError(img_err, err_index, img_base):
