@@ -18,6 +18,7 @@
 #include "vtkRenderWindowInteractor.h"
 
 #include <vtksys/ios/sstream>
+#include <cassert>
 #include <locale>
 #include <vtksys/SystemTools.hxx>
 
@@ -28,10 +29,15 @@ float vtkInteractorEventRecorder::StreamVersion = 1.0f;
 //----------------------------------------------------------------------------
 vtkInteractorEventRecorder::vtkInteractorEventRecorder()
 {
-  //take over the processing of delete and keypress events from the superclass
+  //take over the processing of keypress events from the superclass
   this->KeyPressCallbackCommand->SetCallback(
     vtkInteractorEventRecorder::ProcessCharEvent);
   this->KeyPressCallbackCommand->SetPassiveObserver(1); // get events first
+  //processes delete events
+  this->DeleteEventCallbackCommand = vtkCallbackCommand::New();
+  this->DeleteEventCallbackCommand->SetClientData(this);
+  this->DeleteEventCallbackCommand->SetCallback(
+    vtkInteractorEventRecorder::ProcessDeleteEvent);
 
   this->EventCallbackCommand->SetCallback(
     vtkInteractorEventRecorder::ProcessEvents);
@@ -66,6 +72,7 @@ vtkInteractorEventRecorder::~vtkInteractorEventRecorder()
 
   delete [] this->InputString;
   this->InputString = NULL;
+  this->DeleteEventCallbackCommand->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -291,6 +298,7 @@ void vtkInteractorEventRecorder::SetInteractor(vtkRenderWindowInteractor* i)
     {
     this->SetEnabled(0); //disable the old interactor
     this->Interactor->RemoveObserver(this->KeyPressCallbackCommand);
+    this->Interactor->RemoveObserver(this->DeleteEventCallbackCommand);
     }
 
   this->Interactor = i;
@@ -301,10 +309,24 @@ void vtkInteractorEventRecorder::SetInteractor(vtkRenderWindowInteractor* i)
     i->AddObserver(vtkCommand::CharEvent,
                    this->KeyPressCallbackCommand, this->Priority);
     i->AddObserver(vtkCommand::DeleteEvent,
-                   this->KeyPressCallbackCommand, this->Priority);
+                   this->DeleteEventCallbackCommand, this->Priority);
     }
 
   this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorEventRecorder::ProcessDeleteEvent(vtkObject* vtkNotUsed(object),
+                                                    unsigned long event,
+                                                    void* clientData,
+                                                    void* vtkNotUsed(callData))
+{
+  assert (event == vtkCommand::DeleteEvent);
+  (void)event;
+  vtkInteractorEventRecorder* self =
+    reinterpret_cast<vtkInteractorEventRecorder *>( clientData );
+  // if the interactor is being deleted then remove the event handlers
+  self->SetInteractor(0);
 }
 
 //----------------------------------------------------------------------------
@@ -313,34 +335,26 @@ void vtkInteractorEventRecorder::ProcessCharEvent(vtkObject* object,
                                                   void* clientData,
                                                   void* vtkNotUsed(callData))
 {
+  assert (event == vtkCommand::CharEvent);
+  (void)event;
   vtkInteractorEventRecorder* self =
     reinterpret_cast<vtkInteractorEventRecorder *>( clientData );
   vtkRenderWindowInteractor* rwi =
     static_cast<vtkRenderWindowInteractor *>( object );
-
-  switch(event)
+  if ( self->KeyPressActivation )
     {
-    case vtkCommand::DeleteEvent:
-      // if the interactor is being deleted then remove the event handlers
-      self->SetInteractor(0);
-      break;
-
-    case vtkCommand::CharEvent:
-      if ( self->KeyPressActivation )
+    if (rwi->GetKeyCode() == self->KeyPressActivationValue )
+      {
+      if ( !self->Enabled )
         {
-        if (rwi->GetKeyCode() == self->KeyPressActivationValue )
-          {
-          if ( !self->Enabled )
-            {
-            self->On();
-            }
-          else
-            {
-            self->Off();
-            }
-          }//event not aborted
-        }//if activation enabled
-    }
+        self->On();
+        }
+      else
+        {
+        self->Off();
+        }
+      }//event not aborted
+    }//if activation enabled
 }
 
 //----------------------------------------------------------------------------
