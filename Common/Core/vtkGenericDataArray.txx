@@ -15,7 +15,9 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkIdList.h"
-#include "vtkGenericDataArrayHelper.h"
+#include "vtkGenericDataArrayHelper.h" // XXX: vtkGenericDataArrayHelper should not be needed.
+                                       // All API that needs it can be
+                                       // implemented in vtkDataArray!
 #include "vtkVariantCast.h"
 
 #define vtkGenericDataArrayT(returnType) \
