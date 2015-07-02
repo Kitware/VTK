@@ -435,6 +435,8 @@ private:
 #define vtkWriteableGenericDataArrayMacro(array, call) \
   vtkGenericDataArrayMacroCase(vtkSoADataArrayTemplate, float, array, call) \
   else vtkGenericDataArrayMacroCase(vtkSoADataArrayTemplate, double, array, call) \
+  else vtkGenericDataArrayMacroCase(vtkAoSDataArrayTemplate, float, array, call) \
+  else vtkGenericDataArrayMacroCase(vtkAoSDataArrayTemplate, double, array, call) \
   else \
     { \
     vtkGenericWarningMacro("Unknown type " << typeid(*array).name()); \
@@ -444,6 +446,8 @@ private:
 #define vtkConstGenericDataArrayMacro(array, call) \
   vtkGenericDataArrayMacroCase(vtkSoADataArrayTemplate, const float, array, call) \
   else vtkGenericDataArrayMacroCase(vtkSoADataArrayTemplate, const double, array, call) \
+  else vtkGenericDataArrayMacroCase(vtkAoSDataArrayTemplate, const float, array, call) \
+  else vtkGenericDataArrayMacroCase(vtkAoSDataArrayTemplate, const double, array, call) \
   else vtkWriteableGenericDataArrayMacro(array, call)
 
 #define vtkWriteableGenericDataArrayMacro2(array1, array2, call) \

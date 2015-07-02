@@ -56,8 +56,8 @@ vtkAoSDataArrayTemplateT(void)::SetArray(
         delete [] this->Array;
         }
       }
-    this->Array = array;
     }
+  this->Array = array;
   this->Size = size;
   this->MaxId = this->Size - 1;
   this->DeleteMethod = deleteMethod;

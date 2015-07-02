@@ -16,6 +16,7 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkSoADataArrayTemplate.h"
+#include "vtkAoSDataArrayTemplate.h"
 
 //============================================================================
 namespace
