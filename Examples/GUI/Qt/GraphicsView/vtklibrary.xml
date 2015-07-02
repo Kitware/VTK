@@ -516,8 +516,6 @@
     </node>
     <node id="vtkBiQuadraticQuadraticWedge">
     </node>
-    <node id="vtkExplicitCell">
-    </node>
     <node id="vtkQuadraticEdge">
     </node>
     <node id="vtkQuadraticHexahedron">
