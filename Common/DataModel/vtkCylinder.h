@@ -59,7 +59,8 @@ public:
   // Description:
   // Set/Get cylinder center
   vtkSetVector3Macro(Center,double);
-  vtkGetVectorMacro(Center,double,3);
+  vtkGetVector3Macro(Center,double);
+
 protected:
   vtkCylinder();
   ~vtkCylinder() {}
