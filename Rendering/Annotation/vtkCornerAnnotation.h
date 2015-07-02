@@ -104,8 +104,13 @@ public:
     LowerLeft = 0, ///< Uses the lower left corner.
     LowerRight,    ///< Uses the lower right corner.
     UpperLeft,     ///< Uses the upper left corner.
-    UpperRight     ///< Uses the upper right corner.
+    UpperRight,    ///< Uses the upper right corner.
+    LowerEdge,     ///< Uses the lower edge center.
+    RightEdge,     ///< Uses the right edge center.
+    LeftEdge,      ///< Uses the left edge center
+    UpperEdge      ///< Uses the upper edge center.
     };
+  static const int NumTextPositions = 8;
 
   // Description:
   // Set/Get the text to be displayed for each corner
@@ -161,13 +166,13 @@ protected:
   vtkImageActor *ImageActor;
   vtkImageActor *LastImageActor;
 
-  char *CornerText[4];
+  char *CornerText[NumTextPositions];
 
   int FontSize;
-  vtkActor2D    *TextActor[4];
+  vtkActor2D    *TextActor[NumTextPositions];
   vtkTimeStamp   BuildTime;
   int            LastSize[2];
-  vtkTextMapper *TextMapper[4];
+  vtkTextMapper *TextMapper[NumTextPositions];
 
   int MinimumFontSize;
   int MaximumFontSize;
