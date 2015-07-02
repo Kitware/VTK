@@ -38,7 +38,6 @@
 #include "vtkWedge.h"
 
 // Subclass of vtkNonLinearCell
-//#include "vtkExplicitCell.h"
 #include "vtkQuadraticEdge.h"
 #include "vtkQuadraticHexahedron.h"
 #include "vtkQuadraticPyramid.h"
@@ -142,7 +141,6 @@ int TestInterpolationFunctions(int, char *[])
   r += TestOneInterpolationFunction<vtkWedge>();
 
   // Subclass of vtkNonLinearCell
-  //r += TestOneInterpolationFunction<vtkExplicitCell>(); // not implemented
   r += TestOneInterpolationFunction<vtkQuadraticEdge>();
   r += TestOneInterpolationFunction<vtkQuadraticHexahedron>();
   r += TestOneInterpolationFunction<vtkQuadraticPyramid>();
