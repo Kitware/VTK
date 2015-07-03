@@ -22,6 +22,7 @@ reslice SetInterpolationModeToCubic
 # to do this, it is just put in as an example)
 vtkImageChangeInformation information2
 information2 SetInputConnection [reslice GetOutputPort]
+reader Update
 information2 SetInformationInputData [reader GetOutput]
 
 vtkImageViewer viewer
