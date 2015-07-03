@@ -1,35 +1,27 @@
 #ifndef __WidgetTestingMacros_h
 #define __WidgetTestingMacros_h
 
+#include <vtkAbstractTransform.h>
+#include <vtkActor.h>
+#include <vtkAssemblyPath.h>
+#include "vtkCamera.h"
 #include "vtkDebugLeaks.h"
-#include "vtkSmartPointer.h"
+#include <vtkFollower.h>
+#include <vtkInformation.h>
+#include <vtkLineWidget2.h>
 #include "vtkMath.h"
-
+#include <vtkMatrix4x4.h>
+#include <vtkPointHandleRepresentation2D.h>
+#include <vtkPointPlacer.h>
+#include <vtkPolyData.h>
+#include <vtkPropCollection.h>
+#include <vtkProperty2D.h>
+#include <vtkProperty.h>
+#include <vtkProp.h>
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkCamera.h"
-
-#include <vtkAssemblyPath.h>
-#include <vtkPropCollection.h>
-#include <vtkInformation.h>
-#include <vtkMatrix4x4.h>
-#include <vtkProp.h>
-#include <vtkActor.h>
-#include <vtkPointPlacer.h>
-
-#include <vtkPolyData.h>
-#include <vtkProperty.h>
-#include <vtkProperty2D.h>
-
-#include <vtkAbstractTransform.h>
-#include <vtkFollower.h>
-
-// to instantiate some variables for testing
-#include <vtkPointHandleRepresentation2D.h>
-#include <vtkLineWidget2.h>
-
-
+#include "vtkSmartPointer.h"
 
 /// tests basic vtkObject methods
 #define EXERCISE_BASIC_OBJECT_METHODS( object ) \
@@ -42,7 +34,7 @@
     object->Print( std::cout );  \
     std::cout << "Name of Class = " << object->GetClassName() << std::endl; \
     std::cout << "Name of Superclass = " << object->Superclass::GetClassName() << std::endl; \
-    }
+}
 
 /// test object by calling Set on the variable with false, true, 0, 1, On, Off
 #define TEST_SET_GET_BOOLEAN( object, variable ) \
@@ -497,7 +489,6 @@
 
 /// test vtkWidgetRepresentation methods
 #define EXERCISE_BASIC_REPRESENTATION_METHODS(className, object)   \
-    EXERCISE_BASIC_PROP_METHODS(className, object);                     \
     std::cout << "Creating a renderer and a default widget..." << std::endl; \
     vtkSmartPointer< vtkCamera > cam1 =  vtkSmartPointer< vtkCamera >::New(); \
     vtkSmartPointer< vtkRenderer > ren1 = vtkSmartPointer< vtkRenderer >::New(); \
@@ -547,8 +538,8 @@
     std::cout << "Trying to get back to init state for further testing." << std::endl; \
     object->SetPlaceFactor(0.5);                                        \
     object->SetHandleSize(0.05);                                        \
-    std::cout << "Done basic rep methods" << std::endl;
-
+    std::cout << "Done basic rep methods" << std::endl;                 \
+    EXERCISE_BASIC_PROP_METHODS(className, object);
 
 /// test vtkAngleRepresentation methods
 #define EXERCISE_BASIC_ANGLE_REPRESENTATION_METHODS(className, object)  \
