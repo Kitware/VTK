@@ -20,6 +20,7 @@
 #define vtkSoADataArrayTemplate_h
 
 #include "vtkGenericDataArray.h"
+#include "vtkBuffer.h"
 #include <vector>
 
 template <class ScalarTypeT>
@@ -45,14 +46,14 @@ public:
   // **************************************************************************
   inline ScalarReturnType GetComponentFast(vtkIdType index, int comp) const
     {
-    return this->Data[comp].Pointer[index];
+    return this->Data[comp].GetBuffer()[index];
     }
   inline TupleType GetTupleFast(vtkIdType index) const
     {
     TupleType tuple (this->NumberOfComponents>0? this->NumberOfComponents : 1);
     for (int cc=0; cc < this->NumberOfComponents; ++cc)
       {
-      tuple[cc] = this->Data[cc].Pointer[index];
+      tuple[cc] = this->Data[cc].GetBuffer()[index];
       }
     return tuple;
     }
@@ -103,15 +104,7 @@ protected:
   bool ReallocateTuples(vtkIdType numTuples);
   // **************************************************************************
 
-  struct DataItem
-    {
-    ScalarType* Pointer;
-    vtkIdType Size;
-    bool Save;
-    int DeleteMethod;
-    DataItem() : Pointer(NULL), Size(0), DeleteMethod(VTK_DATA_ARRAY_FREE) {}
-    };
-  std::vector<DataItem> Data;
+  std::vector<vtkBuffer<ScalarType> > Data;
   bool Resizeable;
 private:
   vtkSoADataArrayTemplate(const vtkSoADataArrayTemplate&); // Not implemented.
