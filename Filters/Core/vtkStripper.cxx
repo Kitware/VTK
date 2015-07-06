@@ -33,6 +33,7 @@ vtkStripper::vtkStripper()
   this->PassCellDataAsFieldData = 0;
   this->PassThroughCellIds = 0;
   this->PassThroughPointIds = 0;
+  this->JoinContiguousSegments = 0;
 }
 
 int vtkStripper::RequestData(
@@ -606,4 +607,5 @@ void vtkStripper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PassCellDataAsFieldData: " << this->PassCellDataAsFieldData << endl;
   os << indent << "PassThroughCellIds: " << this->PassThroughCellIds << endl;
   os << indent << "PassThroughPointIds: " << this->PassThroughPointIds << endl;
+  os << indent << "JoinContiguousSegments: " << this->JoinContiguousSegments << endl;
 }
