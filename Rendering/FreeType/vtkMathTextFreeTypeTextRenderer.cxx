@@ -52,6 +52,19 @@ void vtkMathTextFreeTypeTextRenderer::PrintSelf(ostream &os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
+bool vtkMathTextFreeTypeTextRenderer::FreeTypeIsSupported()
+{
+  return this->FreeTypeTools != NULL;
+}
+
+//------------------------------------------------------------------------------
+bool vtkMathTextFreeTypeTextRenderer::MathTextIsSupported()
+{
+  return this->MathTextUtilities != NULL &&
+         this->MathTextUtilities->IsAvailable();
+}
+
+//------------------------------------------------------------------------------
 bool vtkMathTextFreeTypeTextRenderer::GetBoundingBoxInternal(
     vtkTextProperty *tprop, const vtkStdString &str, int bbox[4], int dpi,
     int backend)
@@ -81,7 +94,7 @@ bool vtkMathTextFreeTypeTextRenderer::GetBoundingBoxInternal(
   switch (static_cast<Backend>(backend))
     {
     case MathText:
-      if (this->HasMathText)
+      if (this->MathTextIsSupported())
         {
         if (this->MathTextUtilities->GetBoundingBox(tprop, str.c_str(), dpi,
                                                     bbox))
@@ -141,7 +154,7 @@ bool vtkMathTextFreeTypeTextRenderer::GetBoundingBoxInternal(
   switch (static_cast<Backend>(backend))
     {
     case MathText:
-      if (this->HasMathText)
+      if (this->MathTextIsSupported())
         {
         vtkDebugMacro("Converting UTF16 to UTF8 for MathText rendering.");
         if (this->MathTextUtilities->GetBoundingBox(tprop, str.utf8_str(), dpi,
@@ -200,7 +213,7 @@ bool vtkMathTextFreeTypeTextRenderer::GetMetricsInternal(
   switch (static_cast<Backend>(backend))
     {
     case MathText:
-      if (this->HasMathText)
+      if (this->MathTextIsSupported())
         {
         if (this->MathTextUtilities->GetMetrics(tprop, str.c_str(), dpi,
                                                 metrics))
@@ -260,7 +273,7 @@ bool vtkMathTextFreeTypeTextRenderer::GetMetricsInternal(
   switch (static_cast<Backend>(backend))
     {
     case MathText:
-      if (this->HasMathText)
+      if (this->MathTextIsSupported())
         {
         vtkDebugMacro("Converting UTF16 to UTF8 for MathText rendering.");
         if (this->MathTextUtilities->GetMetrics(tprop, str.utf8_str(), dpi,
@@ -313,7 +326,7 @@ bool vtkMathTextFreeTypeTextRenderer::RenderStringInternal(
   switch (static_cast<Backend>(backend))
     {
     case MathText:
-      if (this->HasMathText)
+      if (this->MathTextIsSupported())
         {
         if (this->MathTextUtilities->RenderString(str.c_str(), data, tprop,
                                                   dpi, textDims))
@@ -368,7 +381,7 @@ bool vtkMathTextFreeTypeTextRenderer::RenderStringInternal(
   switch (static_cast<Backend>(backend))
     {
     case MathText:
-      if (this->HasMathText)
+      if (this->MathTextIsSupported())
         {
         vtkDebugMacro("Converting UTF16 to UTF8 for MathText rendering.");
         if (this->MathTextUtilities->RenderString(str.utf8_str(), data, tprop,
@@ -422,7 +435,7 @@ int vtkMathTextFreeTypeTextRenderer::GetConstrainedFontSizeInternal(
   switch (static_cast<Backend>(backend))
     {
     case MathText:
-      if (this->HasMathText)
+      if (this->MathTextIsSupported())
         {
         if (this->MathTextUtilities->GetConstrainedFontSize(str.c_str(), tprop,
                                                             targetWidth,
@@ -478,7 +491,7 @@ int vtkMathTextFreeTypeTextRenderer::GetConstrainedFontSizeInternal(
   switch (static_cast<Backend>(backend))
     {
     case MathText:
-      if (this->HasMathText)
+      if (this->MathTextIsSupported())
         {
         vtkDebugMacro("Converting UTF16 to UTF8 for MathText rendering.");
         if (this->MathTextUtilities->GetConstrainedFontSize(str.utf8_str(),
@@ -535,7 +548,7 @@ bool vtkMathTextFreeTypeTextRenderer::StringToPathInternal(
   switch (static_cast<Backend>(backend))
     {
     case MathText:
-      if (this->HasMathText)
+      if (this->MathTextIsSupported())
         {
         if (this->MathTextUtilities->StringToPath(str.c_str(), path, tprop,
                                                   dpi))
@@ -587,7 +600,7 @@ bool vtkMathTextFreeTypeTextRenderer::StringToPathInternal(
   switch (static_cast<Backend>(backend))
     {
     case MathText:
-      if (this->HasMathText)
+      if (this->MathTextIsSupported())
         {
         vtkDebugMacro("Converting UTF16 to UTF8 for MathText rendering.");
         if (this->MathTextUtilities->StringToPath(str.utf8_str(), path, tprop,
@@ -634,9 +647,6 @@ vtkMathTextFreeTypeTextRenderer::vtkMathTextFreeTypeTextRenderer()
 {
   this->FreeTypeTools = vtkFreeTypeTools::GetInstance();
   this->MathTextUtilities = vtkMathTextUtilities::GetInstance();
-
-  this->HasFreeType = (this->FreeTypeTools != NULL);
-  this->HasMathText = (this->MathTextUtilities != NULL);
 }
 
 //------------------------------------------------------------------------------

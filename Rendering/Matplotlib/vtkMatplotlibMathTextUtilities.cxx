@@ -46,7 +46,7 @@ typedef Py_intptr_t     Py_ssize_t;
 #endif
 
 //----------------------------------------------------------------------------
-vtkMatplotlibMathTextUtilities::Availablity
+vtkMatplotlibMathTextUtilities::Availability
 vtkMatplotlibMathTextUtilities::MPLMathTextAvailable =
 vtkMatplotlibMathTextUtilities::NOT_TESTED;
 
@@ -55,13 +55,16 @@ vtkMatplotlibMathTextUtilities::NOT_TESTED;
 // work in release mode builds.
 #define vtkMplStartUpDebugMacro(x) if(debug){vtkGenericWarningMacro(x);}
 
+vtkObjectFactoryNewMacro(vtkMatplotlibMathTextUtilities)
+
 //----------------------------------------------------------------------------
-void vtkMatplotlibMathTextUtilities::CheckMPLAvailability()
+vtkMatplotlibMathTextUtilities::Availability
+vtkMatplotlibMathTextUtilities::CheckMPLAvailability()
 {
   if (vtkMatplotlibMathTextUtilities::MPLMathTextAvailable != NOT_TESTED)
     {
     // Already tested. Nothing to do now.
-    return;
+    return vtkMatplotlibMathTextUtilities::MPLMathTextAvailable;
     }
 
   // Enable startup debugging output. This will be set to true when
@@ -111,35 +114,14 @@ void vtkMatplotlibMathTextUtilities::CheckMPLAvailability()
     vtkMplStartUpDebugMacro("Successfully imported matplotlib.");
     vtkMatplotlibMathTextUtilities::MPLMathTextAvailable = AVAILABLE;
     }
+
+  return vtkMatplotlibMathTextUtilities::MPLMathTextAvailable;
 }
 
 //----------------------------------------------------------------------------
-vtkMatplotlibMathTextUtilities* vtkMatplotlibMathTextUtilities::New()
+bool vtkMatplotlibMathTextUtilities::IsAvailable()
 {
-  vtkMatplotlibMathTextUtilities::CheckMPLAvailability();
-
-  // Attempt to import matplotlib to check for availability
-  switch (vtkMatplotlibMathTextUtilities::MPLMathTextAvailable)
-    {
-  case vtkMatplotlibMathTextUtilities::AVAILABLE:
-    break;
-
-  case vtkMatplotlibMathTextUtilities::NOT_TESTED:
-  case vtkMatplotlibMathTextUtilities::UNAVAILABLE:
-  default:
-    return NULL;
-    }
-
-  // Adapted from VTK_OBJECT_FACTORY_NEW_BODY to enable debugging output when
-  // requested.
-  vtkObject* ret =
-    vtkObjectFactory::CreateInstance("vtkMatplotlibMathTextUtilities");
-  if (ret)
-    {
-    return static_cast<vtkMatplotlibMathTextUtilities*>(ret);
-    }
-
-  return new vtkMatplotlibMathTextUtilities;
+  return this->CheckMPLAvailability() == AVAILABLE;
 }
 
 //----------------------------------------------------------------------------
@@ -313,6 +295,12 @@ bool vtkMatplotlibMathTextUtilities::CheckForError(PyObject *object)
 PyObject *
 vtkMatplotlibMathTextUtilities::GetFontProperties(vtkTextProperty *tprop)
 {
+  if (!this->IsAvailable())
+    {
+    vtkErrorMacro(<<"Matplotlib rendering is unavailable.");
+    return NULL;
+    }
+
   if (!this->FontPropertiesClass)
     {
     if (!this->InitializeFontPropertiesClass())
@@ -536,6 +524,12 @@ bool vtkMatplotlibMathTextUtilities::GetMetrics(
     vtkTextProperty *tprop, const char *str, int dpi,
     vtkTextRenderer::Metrics &metrics)
 {
+  if (!this->IsAvailable())
+    {
+    vtkErrorMacro(<<"Matplotlib rendering is unavailable.");
+    return false;
+    }
+
   if (!this->MaskParser)
     {
     if (!this->InitializeMaskParser())
@@ -620,6 +614,12 @@ bool vtkMatplotlibMathTextUtilities::RenderString(const char *str,
                                                   int dpi,
                                                   int textDims[2])
 {
+  if (!this->IsAvailable())
+    {
+    vtkErrorMacro(<<"Matplotlib rendering is unavailable.");
+    return false;
+    }
+
   if (!this->MaskParser)
     {
     if (!this->InitializeMaskParser())
@@ -822,6 +822,12 @@ bool vtkMatplotlibMathTextUtilities::StringToPath(const char *str,
                                                   vtkTextProperty *tprop,
                                                   int dpi)
 {
+  if (!this->IsAvailable())
+    {
+    vtkErrorMacro(<<"Matplotlib rendering is unavailable.");
+    return false;
+    }
+
   if (!this->PathParser)
     {
     if (!this->InitializePathParser())
@@ -1071,6 +1077,21 @@ bool vtkMatplotlibMathTextUtilities::StringToPath(const char *str,
 void vtkMatplotlibMathTextUtilities::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+
+  os << indent << "MPLMathTextAvailable: ";
+  switch (this->MPLMathTextAvailable)
+    {
+    case vtkMatplotlibMathTextUtilities::NOT_TESTED:
+      os << "Not tested\n";
+      break;
+    case vtkMatplotlibMathTextUtilities::AVAILABLE:
+      os << "Available\n";
+      break;
+    default:
+    case vtkMatplotlibMathTextUtilities::UNAVAILABLE:
+      os << "Unavailable\n";
+      break;
+    }
 
   os << indent << "MaskParser: " << this->MaskParser << endl;
   os << indent << "PathParser: " << this->PathParser << endl;

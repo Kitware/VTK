@@ -1352,7 +1352,7 @@ void vtkOpenGLContextDevice2D::DrawMathTextString(float point[2],
                                                   const vtkStdString &string)
 {
   vtkMathTextUtilities *mathText = vtkMathTextUtilities::GetInstance();
-  if (!mathText)
+  if (!mathText || !mathText->IsAvailable())
     {
     vtkWarningMacro(<<"MathText is not available to parse string "
                     << string.c_str() << ". Install matplotlib and enable "

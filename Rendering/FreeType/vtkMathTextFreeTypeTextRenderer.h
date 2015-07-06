@@ -43,6 +43,11 @@ public:
 
   static vtkMathTextFreeTypeTextRenderer *New();
 
+  // Description:
+  // Test for availability of various backends
+  virtual bool FreeTypeIsSupported();
+  virtual bool MathTextIsSupported();
+
 protected:
   vtkMathTextFreeTypeTextRenderer();
   ~vtkMathTextFreeTypeTextRenderer();
