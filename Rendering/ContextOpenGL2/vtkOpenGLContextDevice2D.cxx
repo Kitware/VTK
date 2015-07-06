@@ -1322,8 +1322,16 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
 void vtkOpenGLContextDevice2D::ComputeStringBounds(const vtkUnicodeString &string,
                                                    float bounds[4])
 {
-  vtkVector2i box = this->TextRenderer->GetBounds(this->TextProp, string,
-                                                  this->RenderWindow->GetDPI());
+  // TODO this currently ignores vtkContextScene::ScaleTiles. Not sure how to
+  // get at that from here, but this is better than ignoring scaling altogether.
+  // TODO Also, FreeType supports anisotropic DPI. Might be needed if the
+  // tileScale isn't homogeneous, but we'll need to update the textrenderer API
+  // and see if MPL/mathtext can support it.
+  int tileScale[2];
+  this->RenderWindow->GetTileScale(tileScale);
+  int dpi = this->RenderWindow->GetDPI() * std::max(tileScale[0], tileScale[1]);
+
+  vtkVector2i box = this->TextRenderer->GetBounds(this->TextProp, string, dpi);
   // Check for invalid bounding box
   if (box[0] == VTK_INT_MIN || box[0] == VTK_INT_MAX ||
       box[1] == VTK_INT_MIN || box[1] == VTK_INT_MAX)
@@ -1335,16 +1343,13 @@ void vtkOpenGLContextDevice2D::ComputeStringBounds(const vtkUnicodeString &strin
     return;
     }
 
-  int tileScale[2];
-  this->RenderWindow->GetTileScale(tileScale);
-
   double *mv = this->ModelMatrix->GetMatrix()->Element[0];
   float xScale = mv[0];
   float yScale = mv[5];
   bounds[0] = static_cast<float>(0);
   bounds[1] = static_cast<float>(0);
-  bounds[2] = static_cast<float>((box.GetX() / xScale) * tileScale[0]);
-  bounds[3] = static_cast<float>((box.GetY() / yScale) * tileScale[1]);
+  bounds[2] = static_cast<float>(box.GetX() / xScale);
+  bounds[3] = static_cast<float>(box.GetY() / yScale);
 }
 
 //-----------------------------------------------------------------------------
