@@ -212,6 +212,12 @@ protected:
   vtkTexture();
   ~vtkTexture();
 
+  // A texture is a sink, so there is no need to do anything.
+  // This definition avoids a warning when doing Update() on a vtkTexture object.
+  virtual void ExecuteData(vtkDataObject *)
+  {
+  }
+
   int Repeat;
   int EdgeClamp;
   int Interpolate;
