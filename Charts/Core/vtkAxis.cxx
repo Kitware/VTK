@@ -1374,7 +1374,16 @@ double vtkAxis::CalculateNiceMinMax(double &min, double &max)
     return range / double(this->NumberOfTicks - 1);
     }
 
-  vtkVector2i tileScale = this->Scene->GetLogicalTileScale();
+  vtkVector2i tileScale(1);
+  if (!this->Scene)
+    {
+    vtkWarningMacro("vtkAxis needs a vtkContextScene to determine window "
+                    "properties. Assuming no tile scaling is set.");
+    }
+  else
+    {
+    tileScale = this->Scene->GetLogicalTileScale();
+    }
 
   float pixelRange = 0;
   float tickPixelSpacing = 0;
