@@ -288,7 +288,7 @@ bool QVTKWidget2::event(QEvent* e)
         }
       }
     }
-  return QObject::event(e);
+  return QGLWidget::event(e);
 }
 
 /*! handle mouse press event
