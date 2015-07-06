@@ -123,9 +123,9 @@ Note that we use a 'or' operation to preserve other bits that might be
 set for the cell.
 
 To create a new ghost array, instead of
-`vtkDataSetAttributes::GenerateGhostLevelArray`, use
-`vtkDataSetAttributes::GenerateGhostArray`. We changed the name
-because there are no ghost levels in the new ghost array.
+`vtkDataSet::GenerateGhostLevelArray`, use
+`vtkDataSet::GenerateGhostArray`. We changed the name because there
+are no ghost levels in the new ghost array.
 
 To test if there are any ghost cells, instead of
 `grid->GetCellData()->GetArray("vtkGhostLevels") != NULL`, use
