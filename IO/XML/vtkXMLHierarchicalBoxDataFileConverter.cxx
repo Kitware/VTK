@@ -24,6 +24,7 @@
 #include "vtkXMLDataParser.h"
 #include "vtkXMLImageDataReader.h"
 #include "vtkStructuredData.h"
+#include "vtksys/SystemTools.hxx"
 #include "vtkExecutive.h"
 #include "vtkInformation.h"
 
@@ -151,10 +152,22 @@ bool vtkXMLHierarchicalBoxDataFileConverter::Convert()
   for (int cc=0; cc < ePrimary->GetNumberOfNestedElements(); cc++)
     {
     int level = 0;
-    vtkXMLDataElement* child = ePrimary->GetNestedElement(cc);
-    if (child && child->GetName() &&
-      strcmp(child->GetName(), "Block") == 0 &&
-      child->GetScalarAttribute("level", level) &&
+    vtkXMLDataElement* block = ePrimary->GetNestedElement(cc);
+    // iterate over all <DataSet> inside the current block
+    // and replace the folder for the file attribute.
+    for (int i = 0; i < block->GetNumberOfNestedElements(); ++i)
+      {
+      vtkXMLDataElement* dataset = block->GetNestedElement(i);
+      std::string file(dataset->GetAttribute("file"));
+      std::string fileNoDir (vtksys::SystemTools::GetFilenameName(file));
+      std::string dir (
+        vtksys::SystemTools::GetFilenameWithoutLastExtension(
+          this->OutputFileName));
+      dataset->SetAttribute("file", (dir + '/' + fileNoDir).c_str());
+      }
+    if (block && block->GetName() &&
+      strcmp(block->GetName(), "Block") == 0 &&
+      block->GetScalarAttribute("level", level) &&
       level >= 0)
       {
       }
@@ -162,8 +175,8 @@ bool vtkXMLHierarchicalBoxDataFileConverter::Convert()
       {
       continue;
       }
-    child->SetVectorAttribute("spacing", 3, &spacing[3*level]);
-    child->RemoveAttribute("refinement_ratio");
+    block->SetVectorAttribute("spacing", 3, &spacing[3*level]);
+    block->RemoveAttribute("refinement_ratio");
     }
   delete [] spacing;
 
