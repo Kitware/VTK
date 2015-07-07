@@ -11,6 +11,7 @@ if(VTK_USE_SYSTEM_MPI4PY)
       COMMAND "${PYTHON_EXECUTABLE}" -c
               "import mpi4py; print(mpi4py.get_include())"
       OUTPUT_VARIABLE mpi4py_include_dir
+      OUTPUT_STRIP_TRAILING_WHITESPACE
       )
     set(MPI4PY_INCLUDE_DIR "${mpi4py_include_dir}"
       CACHE PATH "Path the the MPI4Py include directory")
