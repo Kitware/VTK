@@ -45,6 +45,18 @@ QVTKWidget2::QVTKWidget2(QWidget* p, const QGLWidget* shareWidget, Qt::WindowFla
   this->setAutoBufferSwap(false);
 }
 
+QVTKWidget2::QVTKWidget2(vtkGenericOpenGLRenderWindow* w, QWidget* p, const QGLWidget* shareWidget, Qt::WindowFlags f)
+  : QGLWidget(QVTKWidget2::GetDefaultVTKFormat(w), p, shareWidget, f), mRenWin(NULL)
+{
+  this->UseTDx=false;
+  mIrenAdapter = new QVTKInteractorAdapter(this);
+  mConnect = vtkSmartPointer<vtkEventQtSlotConnect>::New();
+  this->setMouseTracking(true);
+  this->setAutoBufferSwap(false);
+
+  this->SetRenderWindow(w);
+}
+
 QVTKWidget2::QVTKWidget2(QGLContext* ctx, QWidget* p, const QGLWidget* shareWidget, Qt::WindowFlags f)
   : Superclass(ctx, p, shareWidget, f), mRenWin(NULL)
 {
@@ -152,7 +164,7 @@ void QVTKWidget2::SetRenderWindow(vtkGenericOpenGLRenderWindow* w)
 
   if(this->mRenWin)
     {
-    this->SetMultiSamples(this->mRenWin->GetGlobalMaximumNumberOfMultiSamples());
+    this->mRenWin->SetMultiSamples(this->GetMultiSamples());
     // if it is mapped somewhere else, unmap it
     this->mRenWin->Finalize();
     this->mRenWin->SetMapped(1);
@@ -472,17 +484,6 @@ void QVTKWidget2::Frame()
 
 }
 
-void QVTKWidget2::SetMultiSamples(int multiSamples)
-{
-  QGLFormat newform = this->format();
-  newform.setSamples(multiSamples);
-  this->setFormat(newform);
-  if(this->mRenWin)
-    {
-    this->mRenWin->SetMultiSamples(multiSamples);
-    }
-}
-
 int QVTKWidget2::GetMultiSamples() const
 {
   return this->format().samples();
@@ -496,4 +497,34 @@ void QVTKWidget2::setAutoBufferSwap(bool f)
 bool QVTKWidget2::autoBufferSwap() const
 {
   return Superclass::autoBufferSwap();
+}
+
+QGLFormat QVTKWidget2::GetDefaultVTKFormat(vtkGenericOpenGLRenderWindow* w)
+{
+  QGLFormat format;
+
+  format.setDepth(true);
+
+  if (w)
+    {
+    format.setSampleBuffers(w->GetMultiSamples() > 0);
+    format.setSamples(w->GetMultiSamples());
+    format.setAlpha(w->GetAlphaBitPlanes() > 0);
+    format.setAlphaBufferSize(w->GetAlphaBitPlanes());
+    format.setDoubleBuffer(w->GetDoubleBuffer());
+    format.setStereo(w->GetStereoCapableWindow());
+    format.setStencil(w->GetStencilCapable());
+    }
+  else
+    {
+    format.setSampleBuffers(vtkOpenGLRenderWindow::GetGlobalMaximumNumberOfMultiSamples() > 0);
+    format.setSamples(vtkOpenGLRenderWindow::GetGlobalMaximumNumberOfMultiSamples());
+    format.setAlpha(true);
+    format.setAlphaBufferSize(8);
+    format.setDoubleBuffer(true);
+    format.setStereo(true);
+    format.setStencil(true);
+    }
+
+  return format;
 }

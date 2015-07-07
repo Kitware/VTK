@@ -43,6 +43,7 @@ class VTKGUISUPPORTQTOPENGL_EXPORT QVTKWidget2 : public QGLWidget
 public:
   //! constructor
   QVTKWidget2(QWidget* parent = NULL, const QGLWidget* shareWidget=0, Qt::WindowFlags f = 0);
+  QVTKWidget2(vtkGenericOpenGLRenderWindow* w, QWidget* parent = NULL, const QGLWidget* shareWidget=0, Qt::WindowFlags f = 0);
   QVTKWidget2(QGLContext* ctx, QWidget* parent = NULL, const QGLWidget* shareWidget=0, Qt::WindowFlags f = 0);
   QVTKWidget2(const QGLFormat& fmt, QWidget* parent = NULL, const QGLWidget* shareWidget=0, Qt::WindowFlags f = 0);
   //! destructor
@@ -59,13 +60,6 @@ public:
   // Description:
   // Get the Qt/vtk interactor that was either created by default or set by the user
   virtual QVTKInteractor* GetInteractor();
-
-  // Description:
-  // Set the number of multisamples to use for antialiasing in this GLContext
-  // Note: This will overwrite the MultiSamples of the internal vtkRenderWindow.
-  // Warning: this->GetRenderWindow()->SetMultiSamples() will not have any effect, since
-  // this is not synchronized with the vtkRenderWindow.
-  virtual void SetMultiSamples(int multiSamples);
 
   // Description:
   // Get the number of multisamples used for antialiasing
@@ -85,6 +79,8 @@ public:
   // Make the swap buffers functions public
   void setAutoBufferSwap(bool);
   bool autoBufferSwap() const;
+
+  static QGLFormat GetDefaultVTKFormat(vtkGenericOpenGLRenderWindow* w = NULL);
 
 public Q_SLOTS:
 
