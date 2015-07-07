@@ -23,6 +23,7 @@
 #define vtkAoSDataArrayTemplate_h
 
 #include "vtkGenericDataArray.h"
+#include "vtkBuffer.h"
 
 template <class ScalarTypeT>
 class vtkAoSDataArrayTemplate :
@@ -50,12 +51,12 @@ public:
   // **************************************************************************
   inline ScalarReturnType GetComponentFast(vtkIdType index, int comp) const
     {
-    return this->Array[this->NumberOfComponents*index + comp];
+    return this->Buffer.GetBuffer()[this->NumberOfComponents*index + comp];
     }
   inline TupleType GetTupleFast(vtkIdType index) const
     {
     TupleType tuple (this->NumberOfComponents>0? this->NumberOfComponents : 1);
-    std::copy(this->Array + (this->NumberOfComponents*index), this->NumberOfComponents, &tuple[0]);
+    std::copy(this->Buffer.GetBuffer() + (this->NumberOfComponents*index), this->NumberOfComponents, &tuple[0]);
     return tuple;
     }
   // **************************************************************************
@@ -75,13 +76,13 @@ public:
   // If the data is simply being iterated over, consider using
   // vtkDataArrayIteratorMacro for safety and efficiency, rather than using this
   // member directly.
-  ScalarType* GetPointer(vtkIdType id) { return this->Array + id; }
+  ScalarType* GetPointer(vtkIdType id) { return this->Buffer.GetBuffer() + id; }
   virtual void* GetVoidPointer(vtkIdType id) { return this->GetPointer(id); }
 
   enum DeleteMethod
     {
-    VTK_DATA_ARRAY_FREE,
-    VTK_DATA_ARRAY_DELETE
+    VTK_DATA_ARRAY_FREE=vtkBuffer<ScalarType>::VTK_DATA_ARRAY_FREE,
+    VTK_DATA_ARRAY_DELETE=vtkBuffer<ScalarType>::VTK_DATA_ARRAY_DELETE
     };
 
   // Description:
@@ -121,7 +122,7 @@ protected:
   bool ReallocateTuples(vtkIdType numTuples);
   // **************************************************************************
 
-  ScalarType* Array;
+  vtkBuffer<ScalarType> Buffer;
   ScalarType ValueRange[2]; // XXX
   bool SaveUserArray;
   int DeleteMethod;

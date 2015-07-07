@@ -61,8 +61,8 @@ public:
 
   enum DeleteMethod
     {
-    VTK_DATA_ARRAY_FREE,
-    VTK_DATA_ARRAY_DELETE
+    VTK_DATA_ARRAY_FREE=vtkBuffer<ScalarType>::VTK_DATA_ARRAY_FREE,
+    VTK_DATA_ARRAY_DELETE=vtkBuffer<ScalarType>::VTK_DATA_ARRAY_DELETE
     };
 
   // Description:
