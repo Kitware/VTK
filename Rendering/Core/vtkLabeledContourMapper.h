@@ -103,6 +103,12 @@ public:
   vtkBooleanMacro(LabelVisibility, bool)
 
   // Description:
+  // Ensure that there are at least SkipDistance pixels between labels. This
+  // is only enforced on labels along the the same line. The default is 0.
+  vtkSetMacro(SkipDistance, double)
+  vtkGetMacro(SkipDistance, double)
+
+  // Description:
   // The polydata mapper used to render the contours.
   vtkGetNewMacro(PolyDataMapper, vtkPolyDataMapper)
 
@@ -132,6 +138,8 @@ protected:
 
   bool AllocateTextActors(vtkIdType num);
   bool FreeTextActors();
+
+  double SkipDistance;
 
   bool LabelVisibility;
   vtkIdType NumberOfTextActors;
