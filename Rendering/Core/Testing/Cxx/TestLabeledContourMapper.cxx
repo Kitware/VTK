@@ -105,6 +105,7 @@ int TestLabeledContourMapper(int argc, char *argv[])
   mapper->SetTextProperties(tprops.GetPointer());
   mapper->SetTextPropertyMapping(tpropMapping.GetPointer());
   mapper->SetInputConnection(contourStripper->GetOutputPort());
+  mapper->SetSkipDistance(100);
 
   vtkNew<vtkActor> actor;
   actor->SetMapper(mapper.GetPointer());
