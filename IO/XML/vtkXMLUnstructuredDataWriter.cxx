@@ -549,7 +549,7 @@ void vtkXMLUnstructuredDataWriter::WriteAppendedPieceData(int index)
   this->SetProgressRange(progressRange, 2, fractions);
 
   // Write the point specification array.
-  // Since we are writting the point let save the Modified Time of vtkPoints:
+  // Since we are writing the point let save the Modified Time of vtkPoints:
   this->WritePointsAppendedData(input->GetPoints(), this->CurrentTimeIndex,
                                 &this->PointsOM->GetPiece(index));
 }

@@ -109,7 +109,7 @@ public:
   // A texture extent can have a given dimension 0D (one value), 1D, 2D or 3D.
   // By default 0D and 1D are translated into a 1D texture, 2D is translated
   // into a 2D texture, 3D is translated into a 3D texture. To make life easier
-  // when writting GLSL code and use only one type of sampler (ex: sampler2d),
+  // when writing GLSL code and use only one type of sampler (ex: sampler2d),
   // the default behavior can be changed by forcing a type of texture with
   // this ivar.
   // 1: default behavior. Initial value.

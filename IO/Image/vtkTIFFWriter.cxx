@@ -409,7 +409,7 @@ void vtkTIFFWriter::WriteFileTrailer(ofstream *, vtkImageData *)
     }
   else
     {
-    vtkErrorMacro("Problem writting trailer.");
+    vtkErrorMacro("Problem writing trailer.");
     this->SetErrorCode(vtkErrorCode::FileFormatError);
     }
 
