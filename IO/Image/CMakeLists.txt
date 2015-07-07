@@ -33,6 +33,7 @@ set(Module_SRCS
   vtkTIFFWriter.cxx
   vtkVolume16Reader.cxx
   vtkVolumeReader.cxx
+  vtkMRCReader.cxx
   )
 
 set_source_files_properties(
