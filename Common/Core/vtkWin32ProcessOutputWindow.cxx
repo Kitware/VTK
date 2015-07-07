@@ -95,7 +95,7 @@ int vtkWin32ProcessOutputWindow::Initialize()
 
   // Construct the executable name from the process id, pointer to
   // this output window instance, and a count.  This should be unique.
-  sprintf(exeName, "vtkWin32OWP_%"PRIdword"_%p_%u.exe",
+  sprintf(exeName, "vtkWin32OWP_%" PRIdword "_%p_%u.exe",
           GetCurrentProcessId(), this, this->Count++);
 
   // Allocate a buffer to hold the executable path.
