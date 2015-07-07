@@ -56,13 +56,15 @@ set(ExternalData_URL_TEMPLATES "" CACHE STRING
   "Additional URL templates for the ExternalData CMake script to look for testing data. E.g.
 file:///var/bigharddrive/%(algo)/%(hash)")
 mark_as_advanced(ExternalData_URL_TEMPLATES)
-list(APPEND ExternalData_URL_TEMPLATES
-  # Data published by MIDAS
-  "http://midas3.kitware.com/midas/api/rest?method=midas.bitstream.download&checksum=%(hash)&algorithm=%(algo)"
+if(NOT VTK_FORBID_DOWNLOADS)
+  list(APPEND ExternalData_URL_TEMPLATES
+    # Data published by MIDAS
+    "http://midas3.kitware.com/midas/api/rest?method=midas.bitstream.download&checksum=%(hash)&algorithm=%(algo)"
 
-  # Data published by developers using git-gitlab-push.
-  "http://www.vtk.org/files/ExternalData/%(algo)/%(hash)"
+    # Data published by developers using git-gitlab-push.
+    "http://www.vtk.org/files/ExternalData/%(algo)/%(hash)"
   )
+endif()
 
 # Tell ExternalData commands to transform raw files to content links.
 # TODO: Condition this feature on presence of our pre-commit hook.
