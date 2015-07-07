@@ -20,7 +20,7 @@
 #include "vtkFloatArray.h"
 #include "vtkGlyph2D.h"
 #include "vtkGlyphSource2D.h"
-#include "vtkMath.h"
+#include "vtkMinimalStandardRandomSequence.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -47,16 +47,28 @@ int TestGlyphSource2DResolution(int argc, char* argv[])
   pd->GetPointData()->SetScalars(scalars.GetPointer());
   pd->GetPointData()->SetVectors(vectors.GetPointer());
 
+  vtkNew<vtkMinimalStandardRandomSequence> randomSequence;
+  randomSequence->SetSeed(1);
+
   int size = 400;
 
   for (int i = 0; i < 100; ++i)
     {
-    pts->InsertNextPoint(vtkMath::Random(0, size - 1),
-                         vtkMath::Random(0, size - 1),
+    randomSequence->Next();
+    double x = randomSequence->GetValue()*size;
+    randomSequence->Next();
+    double y = randomSequence->GetValue()*size;
+    pts->InsertNextPoint(x,
+                         y,
                          0.0);
-    scalars->InsertNextValue(vtkMath::Random(0.0, 5.0));
-    vectors->InsertNextTuple3(vtkMath::Random(-1, 1),
-                              vtkMath::Random(-1, 1),
+    randomSequence->Next();
+    scalars->InsertNextValue(5.0*randomSequence->GetValue());
+    randomSequence->Next();
+    double ihat = randomSequence->GetValue()*2-1;
+    randomSequence->Next();
+    double jhat = randomSequence->GetValue()*2-1;
+    vectors->InsertNextTuple3(ihat,
+                              jhat,
                               0.0);
     }
 
