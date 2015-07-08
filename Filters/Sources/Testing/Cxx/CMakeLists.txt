@@ -23,5 +23,6 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestTessellatedBoxSource.cxx,NO_VALID
   TestTextSource.cxx,NO_VALID
   TestTexturedSphereSource.cxx,NO_VALID
+  TestGlyphSource2DResolution.cxx,
   )
 vtk_test_cxx_executable(${vtk-module}CxxTests tests)
