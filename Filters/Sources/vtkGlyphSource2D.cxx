@@ -358,13 +358,13 @@ void vtkGlyphSource2D::CreateCircle(vtkPoints *pts, vtkCellArray *lines,
     ptIds->SetId(i, pts->InsertNextPoint(x));
     }
 
+  ptIds->SetId(this->Resolution, ptIds->GetId(0));
   if ( this->Filled )
     {
     polys->InsertNextCell(ptIds);
     }
   else
     {
-    ptIds->SetId(this->Resolution, ptIds->GetId(0));
     lines->InsertNextCell(ptIds);
     }
   colors->InsertNextValue(this->RGB[0]);
