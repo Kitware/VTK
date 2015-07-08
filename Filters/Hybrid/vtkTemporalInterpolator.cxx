@@ -216,8 +216,7 @@ int vtkTemporalInterpolator::RequestData(
 {
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
-  vtkDataObject *outData = NULL;
+  vtkDataObject *outData = vtkDataObject::GetData(outInfo);
 
   // get the requested update times
   double upTime = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
@@ -229,8 +228,7 @@ int vtkTemporalInterpolator::RequestData(
   if (numTimeSteps==1)
     {
     // pass the lowest data
-    outData = inData->GetBlock(0);
-    outInfo->Set(vtkDataObject::DATA_OBJECT(),outData);
+    outData->ShallowCopy(inData->GetBlock(0));
     }
   else
     {
@@ -245,11 +243,9 @@ int vtkTemporalInterpolator::RequestData(
     double t0 = data0->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
     double t1 = data1->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
     this->Ratio  = (upTime-t0)/(t1 - t0);
-    outData = this->InterpolateDataObject(data0,data1,this->Ratio);
-    // stamp this new dataset with a time key
-    outData->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(),upTime);
-    outInfo->Set(vtkDataObject::DATA_OBJECT(),outData);
-    outData->Delete();
+    vtkSmartPointer<vtkDataObject> newOutput;
+    newOutput.TakeReference(this->InterpolateDataObject(data0, data1, this->Ratio));
+    outData->ShallowCopy(newOutput);
     }
 
   // @TODO remove this when we move to new time framework
