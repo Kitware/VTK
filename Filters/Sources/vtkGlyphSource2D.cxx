@@ -16,12 +16,14 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkMath.h"
+#include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkUnsignedCharArray.h"
+
 
 vtkStandardNewMacro(vtkGlyphSource2D);
 
@@ -341,7 +343,9 @@ void vtkGlyphSource2D::CreateSquare(vtkPoints *pts, vtkCellArray *lines,
 void vtkGlyphSource2D::CreateCircle(vtkPoints *pts, vtkCellArray *lines,
                                     vtkCellArray *polys, vtkUnsignedCharArray *colors)
 {
-  vtkIdType ptIds[this->Resolution + 1];
+  vtkIdList* ptIds = vtkIdList::New();
+  ptIds->SetNumberOfIds(this->Resolution + 1);
+
   double x[3], theta;
 
   // generate eight points in a circle
@@ -351,21 +355,23 @@ void vtkGlyphSource2D::CreateCircle(vtkPoints *pts, vtkCellArray *lines,
     {
     x[0] = 0.5 * cos(i*theta);
     x[1] = 0.5 * sin(i*theta);
-    ptIds[i] = pts->InsertNextPoint(x);
+    ptIds->SetId(i, pts->InsertNextPoint(x));
     }
 
   if ( this->Filled )
     {
-    polys->InsertNextCell(this->Resolution,ptIds);
+    polys->InsertNextCell(ptIds);
     }
   else
     {
-    ptIds[this->Resolution] = ptIds[0];
-    lines->InsertNextCell(this->Resolution+1,ptIds);
+    ptIds->SetId(this->Resolution, ptIds->GetId(0));
+    lines->InsertNextCell(ptIds);
     }
   colors->InsertNextValue(this->RGB[0]);
   colors->InsertNextValue(this->RGB[1]);
   colors->InsertNextValue(this->RGB[2]);
+
+  ptIds->Delete();
 }
 
 void vtkGlyphSource2D::CreateDiamond(vtkPoints *pts, vtkCellArray *lines,
