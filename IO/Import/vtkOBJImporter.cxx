@@ -68,11 +68,15 @@ int CanReadFile( vtkObject* that, const std::string& fname )
 
 int vtkOBJImporter::ImportBegin()
 {
-  if (CanReadFile(this, this->GetFileName()) && CanReadFile(this, this->GetFileNameMTL()))
+  if (!CanReadFile(this, this->GetFileName()))
     {
-    return 1;
+    return 0;
     }
-  return 0;
+  if( !std::string(GetFileNameMTL()).empty() && !CanReadFile(this,this->GetFileNameMTL()))
+    {
+      return 0;
+    }
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -315,6 +319,11 @@ int vtkOBJPolyDataProcessor::RequestData(
 
   int mtlParseResult;
   std::vector<vtkOBJImportedMaterial*>  parsedMTLs = ParseOBJandMTL(MTLFileName,mtlParseResult);
+  if(parsedMTLs.empty())
+    { // construct a default material to define the single polydata's actor.
+    parsedMTLs.push_back( new vtkOBJImportedMaterial );
+    }
+
   vtkDebugMacro("vtkOBJPolyDataProcessor parsed "   << parsedMTLs.size()
                 << " materials from "   << MTLFileName);
 
@@ -327,12 +336,15 @@ int vtkOBJPolyDataProcessor::RequestData(
   {
   // Since we read the MTL file, we already know how many actors we need.
   // So, pre-allocate instead of trying to do it on the fly.
-  while(poly_list.size() != parsedMTLs.size() )
+  if(!parsedMTLs.empty())
     {
-    vtkOBJImportedPolyDataWithMaterial*  newMaterial = new vtkOBJImportedPolyDataWithMaterial;
-    newMaterial->SetSharedPoints(shared_vertexs);
-    newMaterial->SetSharedNormals(shared_normals);
-    poly_list.push_back(newMaterial);
+    while(poly_list.size() != parsedMTLs.size() )
+      {
+      vtkOBJImportedPolyDataWithMaterial*  newMaterial = new vtkOBJImportedPolyDataWithMaterial;
+      newMaterial->SetSharedPoints(shared_vertexs);
+      newMaterial->SetSharedNormals(shared_normals);
+      poly_list.push_back(newMaterial);
+      }
     }
   for( size_t k = 0; k<parsedMTLs.size(); ++k )
     {
@@ -356,12 +368,6 @@ int vtkOBJPolyDataProcessor::RequestData(
   vtkCellArray* pointElems    = poly_list.back()->pointElems;
   vtkCellArray* lineElems     = poly_list.back()->lineElems;
   vtkCellArray* normal_polys  = poly_list.back()->normal_polys;
-
-  // ????
-  // Implementation warning: this seems to assume that
-  // the MTL definitions are in "apperance in .obj order" within
-  // the actual MTL file. So, can't have "use_mtl M0" before
-  // "use_mtl M1" if the .mtl file lists them in order M1, M0
 
   outVector_of_textureFilnames.resize( parsedMTLs.size() );
   for( int i = 0; i < (int)parsedMTLs.size(); ++i )
@@ -781,6 +787,11 @@ int vtkOBJPolyDataProcessor::RequestData(
 
   // we have finished with the file
   fclose(in);
+
+  if(!gotFirstUseMaterialTag)
+  {
+    known_materials[parsedMTLs[0]->name] = poly_list[0];
+  }
 
   { /** based on how many named materials are present,
                  set the number of output ports of vtkPolyData */

@@ -50,6 +50,7 @@ struct vtkOBJImportedMaterial
     return sqrt( spec[0]*spec[0]+spec[1]*spec[1]+spec[2]*spec[2] );
   }
   const char *GetClassName() {return "vtkOBJImportedMaterial";}
+  vtkOBJImportedMaterial();
 };
 
 
@@ -78,6 +79,8 @@ public:
   void SetTexturePath( const char* arg )
   {
     TexturePath = std::string(arg);
+    if(TexturePath.empty())
+      return;
     char sep    = '/';
 #if defined(_WIN32)
     sep = '\\';

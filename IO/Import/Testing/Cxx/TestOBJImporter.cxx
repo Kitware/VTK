@@ -62,8 +62,12 @@ int TestOBJImporter( int argc, char * argv [] )
     std::string tmppath(argv[lastArg]);
     vtkNew<vtkOBJImporter> importer;
 
+
     if(argc > 8)
+    {
       s_interactive = 1;
+      importer->DebugOn();
+    }
 
     importer->SetFileName(filenameOBJ.data());
     importer->SetFileNameMTL(filenameMTL.data());
