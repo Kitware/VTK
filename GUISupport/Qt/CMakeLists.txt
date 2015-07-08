@@ -104,7 +104,12 @@ if(APPLE)
 endif()
 
 # This build plugin logic should just get migrated into a module I think.
-if(BUILD_SHARED_LIBS)
+cmake_dependent_option(VTK_BUILD_QT_DESIGNER_PLUGIN
+  "Build the VTK Qt plugin for the Qt Designer." ON
+  BUILD_SHARED_LIBS OFF)
+mark_as_advanced(VTK_BUILD_QT_DESIGNER_PLUGIN)
+
+if(BUILD_SHARED_LIBS AND VTK_BUILD_QT_DESIGNER_PLUGIN)
   set(PluginLibSrcs Q4VTKWidgetPlugin.cxx)
 
   set(PluginMocHeaders Q4VTKWidgetPlugin.h)
