@@ -48,6 +48,7 @@ set(Module_SRCS
   vtkOpenGLPolyDataMapper2D.cxx
   vtkOpenGLProperty.cxx
   vtkOpenGLRenderWindow.cxx
+  vtkOpenGLRenderUtilities.cxx
   vtkOpenGLRenderer.cxx
   vtkOpenGLShaderCache.cxx
   vtkOpenGLTexture.cxx

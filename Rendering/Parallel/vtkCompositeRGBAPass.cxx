@@ -13,6 +13,10 @@
 
 =========================================================================*/
 
+#ifdef VTKGL2
+# include "vtk_glew.h"
+#endif
+
 #include "vtkCompositeRGBAPass.h"
 #include "vtkObjectFactory.h"
 #include <cassert>

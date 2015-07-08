@@ -22,6 +22,7 @@
 #include "vtkNew.h"
 #include "vtkProperty.h"
 #include "vtkTextureObject.h"
+#include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLVertexArrayObject.h"
@@ -251,7 +252,7 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
   int sourceId = this->TextureObject->GetTextureUnit();
   this->ShaderProgram->Program->SetUniformi("source",sourceId);
   this->ShaderProgram->Program->SetUniformf("scale",this->PixelScale);
-  vtkOpenGLRenderWindow::RenderQuad(verts, tcoords, this->ShaderProgram->Program,
+  vtkOpenGLRenderUtilities::RenderQuad(verts, tcoords, this->ShaderProgram->Program,
     this->ShaderProgram->VAO);
   this->TextureObject->Deactivate();
 

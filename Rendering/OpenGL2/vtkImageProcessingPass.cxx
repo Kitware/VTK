@@ -13,6 +13,8 @@
 
 =========================================================================*/
 
+#include "vtk_glew.h"
+
 #include "vtkImageProcessingPass.h"
 #include "vtkObjectFactory.h"
 #include <cassert>

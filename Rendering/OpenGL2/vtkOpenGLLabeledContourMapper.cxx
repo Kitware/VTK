@@ -20,6 +20,7 @@
 #include "vtkOpenGLActor.h"
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLTexture.h"
@@ -141,7 +142,7 @@ bool vtkOpenGLLabeledContourMapper::ApplyStencil(vtkRenderer *ren,
     this->StencilBO->Program->SetUniformMatrix("MCDCMatrix", wcdc);
     }
 
-  vtkOpenGLRenderWindow::RenderTriangles(
+  vtkOpenGLRenderUtilities::RenderTriangles(
     this->StencilQuads,
     this->StencilQuadsSize/3,
     this->StencilQuadIndices,
