@@ -18,6 +18,10 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
+#ifdef VTKGL2
+#include "vtk_glew.h"
+#endif
+
 #include "QVTKGraphicsItem.h"
 #include <QGLFramebufferObject>
 #include <QGraphicsSceneMouseEvent>
@@ -27,7 +31,9 @@
 #include "QVTKInteractorAdapter.h"
 #include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkEventQtSlotConnect.h"
+#ifndef VTKGL2
 #include "vtkgl.h"
+#endif
 #include "vtkOpenGLError.h"
 
 QVTKGraphicsItem::QVTKGraphicsItem(QGLContext* ctx, QGraphicsItem* p)
@@ -77,10 +83,17 @@ void QVTKGraphicsItem::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
   {
     mWin->SetMapped(1);
     mWin->SetDoubleBuffer(0);
+#ifdef VTKGL2
+    mWin->SetFrontBuffer(GL_COLOR_ATTACHMENT0);
+    mWin->SetFrontLeftBuffer(GL_COLOR_ATTACHMENT0);
+    mWin->SetBackBuffer(GL_COLOR_ATTACHMENT0);
+    mWin->SetBackLeftBuffer(GL_COLOR_ATTACHMENT0);
+#else
     mWin->SetFrontBuffer(vtkgl::COLOR_ATTACHMENT0_EXT);
     mWin->SetFrontLeftBuffer(vtkgl::COLOR_ATTACHMENT0_EXT);
     mWin->SetBackBuffer(vtkgl::COLOR_ATTACHMENT0_EXT);
     mWin->SetBackLeftBuffer(vtkgl::COLOR_ATTACHMENT0_EXT);
+#endif
 
     mConnect->Connect(mWin, vtkCommand::StartEvent, this, SLOT(Start()));
     mConnect->Connect(mWin, vtkCommand::WindowMakeCurrentEvent, this, SLOT(MakeCurrent()));
