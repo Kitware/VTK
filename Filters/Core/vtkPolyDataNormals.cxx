@@ -103,10 +103,11 @@ int vtkPolyDataNormals::RequestData(
     output->CopyStructure(input);
     output->GetPointData()->PassData(input->GetPointData());
     output->GetCellData()->PassData(input->GetCellData());
+    output->GetFieldData()->PassData(input->GetFieldData());
     return 1;
     }
   output->GetCellData()->PassData(input->GetCellData());
-  output->SetFieldData(input->GetFieldData());
+  output->GetFieldData()->PassData(input->GetFieldData());
 
   // Load data into cell structure.  We need two copies: one is a
   // non-writable mesh used to perform topological queries.  The other
