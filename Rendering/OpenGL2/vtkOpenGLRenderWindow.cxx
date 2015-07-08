@@ -520,19 +520,31 @@ int vtkOpenGLRenderWindow::GetColorBufferSizes(int *rgba)
       glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
         attachment,
         GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE, &size);
-      rgba[0] = static_cast<int>(size);
+      if (glGetError() == GL_NO_ERROR)
+        {
+        rgba[0] = static_cast<int>(size);
+        }
       glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
         attachment,
         GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE, &size);
-      rgba[1] = static_cast<int>(size);
+      if (glGetError() == GL_NO_ERROR)
+        {
+        rgba[1] = static_cast<int>(size);
+        }
       glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
         attachment,
         GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE, &size);
-      rgba[2] = static_cast<int>(size);
+      if (glGetError() == GL_NO_ERROR)
+        {
+        rgba[2] = static_cast<int>(size);
+        }
       glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
         attachment,
         GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, &size);
-      rgba[3] = static_cast<int>(size);
+      if (glGetError() == GL_NO_ERROR)
+        {
+        rgba[3] = static_cast<int>(size);
+        }
       }
     else
 #endif
