@@ -30,17 +30,25 @@ int TestOBJImporter( int argc, char * argv [] )
     // Files for testing demonstrate updated functionality for OBJ import:
     //       polydata + textures + actor properties all get loaded.
 
-    if(argc < 8)
+    if(argc < (5))
     {
-      std::cerr<<"expected TestName -D  File1.obj File2.obj.mtl  texture1  texture2  ... "<<std::endl;
+      std::cerr<<"expected TestName -D  File1.obj [File2.obj.mtl]  [texture1]  [texture2]  ... "<<std::endl;
       return -1;
     }
 
     std::string filenameOBJ(argv[2]);
-    std::string filenameMTL(argv[3]);
 
-    std::string texfile1(argv[4]);
-    std::string texfile2(argv[5]);
+    std::string filenameMTL,texfile1,texfile2;
+
+    if(argc >= 6)
+      filenameMTL = argv[3];
+
+    if(argc >= 7)
+      texfile1 = argv[4];
+
+    if(argc >= 8)
+      texfile2 = argv[5];
+
     std::vector<std::string> tmp1,tmp2;
     std::string texture_path1 = vtksys::SystemTools::GetFilenamePath(texfile1);
     std::string texture_path2 = vtksys::SystemTools::GetFilenamePath(texfile2);
@@ -50,11 +58,16 @@ int TestOBJImporter( int argc, char * argv [] )
       return -2;
     }
 
-    std::string tmppath(argv[7]);
+    int lastArg = (argc <= 8) ? (argc-1) : 7;
+    std::string tmppath(argv[lastArg]);
     vtkNew<vtkOBJImporter> importer;
 
+
     if(argc > 8)
+    {
       s_interactive = 1;
+      importer->DebugOn();
+    }
 
     importer->SetFileName(filenameOBJ.data());
     importer->SetFileNameMTL(filenameMTL.data());
