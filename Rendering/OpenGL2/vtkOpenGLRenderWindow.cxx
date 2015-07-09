@@ -115,6 +115,7 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->DrawPixelsTextureObject = NULL;
 
   this->OwnContext = 1;
+  this->MaximumHardwareLineWidth = 1.0;
 }
 
 // free up memory & close the window
@@ -432,6 +433,28 @@ void vtkOpenGLRenderWindow::OpenGLInitContext()
       }
 #endif
     this->Initialized = true;
+
+    // get this system's supported maximum line width
+    // we do it here and store it to avoid repeated glGet
+    // calls when the result should not change
+    GLfloat lineWidthRange[2];
+    this->MaximumHardwareLineWidth = 1.0;
+    if (this->LineSmoothing)
+      {
+      glGetFloatv(GL_SMOOTH_LINE_WIDTH_RANGE,lineWidthRange);
+      if (glGetError() == GL_NO_ERROR)
+        {
+        this->MaximumHardwareLineWidth = lineWidthRange[1];
+        }
+      }
+    else
+      {
+      glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE,lineWidthRange);
+      if (glGetError() == GL_NO_ERROR)
+        {
+        this->MaximumHardwareLineWidth = lineWidthRange[1];
+        }
+      }
     }
 }
 

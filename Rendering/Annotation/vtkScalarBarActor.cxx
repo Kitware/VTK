@@ -2066,7 +2066,7 @@ struct vtkScalarBarHLabelPlacer
 
     // II. Loop over all labels checking for interference.
     // Where found, close current line and start new one on the other side.
-    int ic = this->Places.size() / 2;
+    int ic = static_cast<int>(this->Places.size()) / 2;
     int lf, rt;
     bool done = false;
     if (!this->HaveCtr)

@@ -242,6 +242,11 @@ public:
   virtual void DrawPixels(
     int srcWidth, int srcHeight, int numComponents, int dataType, void *data);
 
+  // Description:
+  // Return the largest line width supported by the hardware
+  virtual float GetMaximumHardwareLineWidth() {
+    return this->MaximumHardwareLineWidth; };
+
 protected:
   vtkOpenGLRenderWindow();
   ~vtkOpenGLRenderWindow();
@@ -336,6 +341,8 @@ protected:
   vtkTextureObject *DrawPixelsTextureObject;
 
   bool Initialized; // ensure glewinit has been called
+
+  float MaximumHardwareLineWidth;
 
 private:
   vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&);  // Not implemented.
