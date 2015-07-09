@@ -1884,6 +1884,7 @@ vtkImageData *vtkOpenGLContextDevice2D::GenerateMarker(int shape, int width,
       }
     default: // Maintaining old behavior, which produces plus for unknown shape
       vtkWarningMacro(<<"Invalid marker shape: " << shape);
+      VTK_FALLTHROUGH;
     case VTK_MARKER_PLUS:
       {
       int center = (width + 1) / 2;
