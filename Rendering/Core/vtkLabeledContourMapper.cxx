@@ -233,6 +233,12 @@ vtkLabeledContourMapper::~vtkLabeledContourMapper()
 //------------------------------------------------------------------------------
 void vtkLabeledContourMapper::Render(vtkRenderer *ren, vtkActor *act)
 {
+  // Make sure input data is synced
+  if (vtkAlgorithm *inputAlgorithm = this->GetInputAlgorithm())
+    {
+    inputAlgorithm->Update();
+    }
+
   if (!this->CheckInputs(ren))
     {
     return;
