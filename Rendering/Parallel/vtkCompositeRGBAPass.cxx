@@ -48,7 +48,7 @@
 # include "vtkOpenGLState.h"
 #endif
 
-#ifndef VTKGL2
+#ifndef VTK_OPENGL2
 # include "vtkgl.h"
 # include "vtkOpenGLExtensionManager.h"
 #endif
@@ -123,7 +123,7 @@ void vtkCompositeRGBAPass::PrintSelf(ostream& os, vtkIndent indent)
 // ----------------------------------------------------------------------------
 bool vtkCompositeRGBAPass::IsSupported(vtkOpenGLRenderWindow *context)
 {
-#ifdef VTKGL2
+#ifdef VTK_OPENGL2
   return (context != 0);
 #else
   vtkOpenGLExtensionManager *extmgr = context->GetExtensionManager();
@@ -354,7 +354,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
 
   // framebuffers have their color premultiplied by alpha.
 
-#ifdef VTKGL2
+#ifdef VTK_OPENGL2
     // save off current state of src / dst blend functions
     GLint blendSrcA;
     GLint blendDstA;
@@ -447,7 +447,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
         glEnable(GL_BLEND);
         blendingEnabled=true;
         }
-#ifdef VTKGL2
+#ifdef VTK_OPENGL2
       to->Activate();
       to->CopyToFrameBuffer(0, 0, w - 1, h - 1, 0, 0, w, h, NULL, NULL);
       to->Deactivate();

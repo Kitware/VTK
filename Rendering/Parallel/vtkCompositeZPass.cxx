@@ -45,7 +45,7 @@
 # include "vtkOpenGLState.h"
 #endif
 
-#ifdef VTKGL2
+#ifdef VTK_OPENGL2
 # include "vtkOpenGLShaderCache.h"
 # include "vtkShaderProgram.h"
 # include "vtkOpenGLHelper.h"
@@ -92,7 +92,7 @@ vtkCompositeZPass::~vtkCompositeZPass()
     }
    if(this->Program!=0)
      {
-#ifdef VTKGL2
+#ifdef VTK_OPENGL2
      delete this->Program;
 #else
      this->Program->Delete();
@@ -121,7 +121,7 @@ void vtkCompositeZPass::PrintSelf(ostream& os, vtkIndent indent)
 // ----------------------------------------------------------------------------
 bool vtkCompositeZPass::IsSupported(vtkOpenGLRenderWindow *context)
 {
-#ifdef VTKGL2
+#ifdef VTK_OPENGL2
   return context != 0;
 #else
   return vtkFrameBufferObject::IsSupported(context)
@@ -160,7 +160,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
   vtkOpenGLRenderWindow *context=static_cast<vtkOpenGLRenderWindow *>(
     r->GetRenderWindow());
 
-#ifndef VTKGL2
+#ifndef VTK_OPENGL2
    // Test for Hardware support. If not supported, return.
   bool supported=vtkFrameBufferObject::IsSupported(context);
 
@@ -456,7 +456,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
       cout << "sourceId=" << sourceId << endl;
 #endif
 
-#ifdef VTKGL2
+#ifdef VTK_OPENGL2
       // Apply TO on quad with special zcomposite fragment shader.
       glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
       glEnable(GL_DEPTH_TEST);
@@ -497,7 +497,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
       outfile04.close();
 #endif
 
-#ifdef VTKGL2
+#ifdef VTK_OPENGL2
       this->ZTexture->CopyToFrameBuffer(0, 0, w - 1, h - 1,
                                         0, 0, w, h,
                                         this->Program->Program,
@@ -520,7 +520,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
       outfile05.close();
 #endif
 
-#ifdef VTKGL2
+#ifdef VTK_OPENGL2
       this->ZTexture->Deactivate();
 #else
       this->ZTexture->UnBind();
@@ -540,7 +540,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
       outfile06.close();
 #endif
 
-#ifndef VTKGL2
+#ifndef VTK_OPENGL2
       glPopAttrib();
 #endif
 
@@ -763,7 +763,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
       this->CreateProgram(context);
       }
 
-#ifdef VTKGL2
+#ifdef VTK_OPENGL2
     context->GetShaderCache()->ReadyShaderProgram(this->Program->Program);
     this->ZTexture->Activate();
     this->Program->Program->SetUniformi("depth", this->ZTexture->GetTextureUnit());
@@ -804,7 +804,7 @@ void vtkCompositeZPass::CreateProgram(vtkOpenGLRenderWindow *context)
   assert("pre: context_exists" && context!=0);
   assert("pre: Program_void" && this->Program==0);
 
-#ifdef VTKGL2
+#ifdef VTK_OPENGL2
   this->Program = new vtkOpenGLHelper;
   this->Program->Program =
     context->GetShaderCache()->ReadyShaderProgram(vtkTextureObjectVS,
@@ -858,7 +858,7 @@ void vtkCompositeZPass::ReleaseGraphicsResources(vtkWindow *w)
     }
   if(this->Program!=0)
     {
-#ifdef VTKGL2
+#ifdef VTK_OPENGL2
     this->Program->ReleaseGraphicsResources(w);
 #else
     this->Program->ReleaseGraphicsResources();
