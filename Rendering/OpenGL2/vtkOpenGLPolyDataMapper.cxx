@@ -1630,8 +1630,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
 #if GL_ES_VERSION_2_0 != 1
   glPointSize(actor->GetProperty()->GetPointSize()); // not on ES2
 #endif
-  if (actor->GetProperty()->GetLineWidth() != 1.0 &&
-      !this->HaveWideLines(ren,actor))
+  if (!this->HaveWideLines(ren,actor))
     {
     glLineWidth(actor->GetProperty()->GetLineWidth());
     }
