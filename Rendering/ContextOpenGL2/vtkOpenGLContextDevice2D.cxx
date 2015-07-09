@@ -891,11 +891,6 @@ void vtkOpenGLContextDevice2D::CoreDrawTriangles(
 
     int tunit = vtkOpenGLTexture::SafeDownCast(this->Storage->Texture)->GetTextureUnit();
     cbo->Program->SetUniformi("texture1", tunit);
-    cerr << "have tcoords\n";
-    if (this->Storage->Texture->GetTransform())
-      {
-        cerr << "have a transform\n";
-      }
     }
   else
     {
