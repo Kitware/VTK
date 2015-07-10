@@ -71,57 +71,6 @@ void vtkPeriodicFilter::RemoveAllIndices()
 }
 
 //----------------------------------------------------------------------------
-void vtkPeriodicFilter::CreatePeriodicSubTree(vtkDataObjectTreeIterator* loc,
-                                              vtkMultiBlockDataSet* output,
-                                              vtkMultiBlockDataSet* input)
-{
-  vtkDataObject* inputNode = input->GetDataSet(loc);
-  if (!inputNode)
-    {
-    return;
-    }
-  if (!inputNode->IsA("vtkCompositeDataSet"))
-    {
-    // We are on a leaf, process it
-    this->CreatePeriodicDataSet(loc, output, input);
-    }
-  else
-    {
-    // Recursively process the composite tree
-    vtkCompositeDataSet* cinput = vtkCompositeDataSet::SafeDownCast(inputNode);
-    vtkCompositeDataSet* coutput =
-      vtkCompositeDataSet::SafeDownCast(output->GetDataSet(loc));
-    if (coutput == NULL)
-      {
-      return;
-      }
-    vtkCompositeDataIterator* iter = cinput->NewIterator();
-    vtkDataObjectTreeIterator* treeIter =
-      vtkDataObjectTreeIterator::SafeDownCast(iter);
-    if (treeIter)
-      {
-      treeIter->VisitOnlyLeavesOff();
-      }
-    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-      {
-      vtkDataObject* inputNode2 = cinput->GetDataSet(iter);
-      if (inputNode2 == NULL)
-        {
-        break;
-        }
-      if (!inputNode2->IsA("vtkCompositeDataSet"))
-        {
-        this->CreatePeriodicDataSet(iter, coutput, cinput);
-        }
-
-      this->ActiveIndices.erase(
-        loc->GetCurrentFlatIndex() + iter->GetCurrentFlatIndex());
-      }
-    iter->Delete();
-    }
-}
-
-//----------------------------------------------------------------------------
 int vtkPeriodicFilter::RequestData(vtkInformation *vtkNotUsed(request),
                                    vtkInformationVector **inputVector,
                                    vtkInformationVector *outputVector)
@@ -138,36 +87,21 @@ int vtkPeriodicFilter::RequestData(vtkInformation *vtkNotUsed(request),
 
   output->CopyStructure(input);
 
-  this->ActiveIndices = this->Indices;
-
   // Copy selected blocks over to the output.
   vtkDataObjectTreeIterator* iter = input->NewTreeIterator();
 
-  iter->VisitOnlyLeavesOff();
-  iter->InitTraversal();
-  while (!iter->IsDoneWithTraversal() && this->ActiveIndices.size() > 0)
-    {
-    const unsigned int index = iter->GetCurrentFlatIndex();
-    if (this->ActiveIndices.find(index) != this->ActiveIndices.end())
-      {
-      this->ActiveIndices.erase(index);
-
-      // This removed the visited indices from this->ActiveIndices.
-      this->CreatePeriodicSubTree(iter, output, input);
-      }
-    iter->GoToNextItem();
-    }
-  iter->Delete();
-
-  // Now shallow copy leaves from the input that were not selected
-  // Note: this is OK to share iterator between input and output here
-  iter = output->NewTreeIterator();
+  // Generate leaf multipieces
   iter->VisitOnlyLeavesOn();
   iter->SkipEmptyNodesOff();
   iter->InitTraversal();
-  while (!iter->IsDoneWithTraversal())
+  while (!iter->IsDoneWithTraversal() && this->Indices.size() > 0)
     {
-    if (!output->GetDataSet(iter))
+    const unsigned int index = iter->GetCurrentFlatIndex();
+    if (this->Indices.find(index) != this->Indices.end())
+      {
+      this->CreatePeriodicDataSet(iter, output, input);
+      }
+    else
       {
       vtkDataObject* inputLeaf = input->GetDataSet(iter);
       if (inputLeaf)
@@ -181,9 +115,6 @@ int vtkPeriodicFilter::RequestData(vtkInformation *vtkNotUsed(request),
     iter->GoToNextItem();
     }
   iter->Delete();
-
-  this->ActiveIndices.clear();
-
   return 1;
 }
 

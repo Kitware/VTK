@@ -96,12 +96,6 @@ protected:
                           vtkInformationVector *);
 
   // Description:
-  // Create the periodic sub tree
-  virtual void CreatePeriodicSubTree(vtkDataObjectTreeIterator* loc,
-                                     vtkMultiBlockDataSet* output,
-                                     vtkMultiBlockDataSet* input);
-
-  // Description:
   // Create a periodic data, leaf of the tree
   virtual void CreatePeriodicDataSet(vtkCompositeDataIterator* loc,
                                      vtkCompositeDataSet* output,
@@ -121,8 +115,7 @@ private:
   int IterationMode;
   int NumberOfPeriods;      // User provided number of periods
 
-  std::set<vtkIdType> Indices;          // All the tree indices
-  std::set<vtkIdType> ActiveIndices;    // Selected indices only
+  std::set<vtkIdType> Indices;          // Selected indices
 };
 
 #endif

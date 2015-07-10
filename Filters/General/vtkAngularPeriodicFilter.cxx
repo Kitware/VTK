@@ -107,10 +107,7 @@ void vtkAngularPeriodicFilter::SetRotationAxisToZ()
     vtkCompositeDataSet* input)
 {
   vtkDataObject* inputNode = input->GetDataSet(loc);
-  if (inputNode == NULL)
-    {
-    return;
-    }
+  vtkNew<vtkMultiPieceDataSet> multiPiece;
 
   // Rotation angle in degree
   double angle = this->GetRotationAngle();
@@ -161,10 +158,12 @@ void vtkAngularPeriodicFilter::SetRotationAxisToZ()
       }
     }
 
-  vtkNew<vtkMultiPieceDataSet> multiPiece;
+
+
+
   multiPiece->SetNumberOfPieces(periodsNb);
 
-  if (periodsNb > 0)
+  if (periodsNb > 0 && inputNode != NULL)
     {
     // Shallow copy the first piece, it is not transformed
     vtkDataObject* firstDataSet = inputNode->NewInstance();
@@ -172,12 +171,12 @@ void vtkAngularPeriodicFilter::SetRotationAxisToZ()
     multiPiece->SetPiece(0, firstDataSet);
     firstDataSet->Delete();
     this->GeneratePieceName(input, loc, multiPiece.Get(), 0);
-    }
 
-  for (vtkIdType iPiece = 1; iPiece < periodsNb; iPiece++)
-    {
-    this->AppendPeriodicPiece(angle, iPiece, inputNode, multiPiece.Get());
-    this->GeneratePieceName(input, loc, multiPiece.Get(), iPiece);
+    for (vtkIdType iPiece = 1; iPiece < periodsNb; iPiece++)
+      {
+      this->AppendPeriodicPiece(angle, iPiece, inputNode, multiPiece.Get());
+      this->GeneratePieceName(input, loc, multiPiece.Get(), iPiece);
+      }
     }
   output->SetDataSet(loc, multiPiece.Get());
 }
@@ -189,32 +188,14 @@ void vtkAngularPeriodicFilter::AppendPeriodicPiece(double angle,
   vtkPointSet* dataset = vtkPointSet::SafeDownCast(inputNode);
   vtkPointSet* transformedDataset = NULL;
 
-  // MappedData supported type are polydata and (un)structured grid
-  if (!dataset)
-    {
-    return;
-    }
-
-  switch (dataset->GetDataObjectType())
-    {
-    case(VTK_POLY_DATA):
-      transformedDataset = vtkPolyData::New();
-      break;
-    case(VTK_STRUCTURED_GRID):
-      transformedDataset = vtkStructuredGrid::New();
-      break;
-    case(VTK_UNSTRUCTURED_GRID):
-      transformedDataset = vtkUnstructuredGrid::New();
-      break;
-    default:
-      break;
-    }
-
   int pieceAlterner =  ((iPiece % 2) * 2 - 1) * ((iPiece + 1) / 2);
   double pieceAngle = angle * pieceAlterner;
 
-  if (transformedDataset)
+  // MappedData supported type are pointset
+  if (dataset)
     {
+    transformedDataset = dataset->NewInstance();
+
     // Transform periodic points and cells
     this->ComputePeriodicMesh(dataset, transformedDataset, pieceAngle);
     multiPiece->SetPiece(iPiece, transformedDataset);
