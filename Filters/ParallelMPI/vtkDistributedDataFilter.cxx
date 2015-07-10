@@ -1089,6 +1089,17 @@ vtkDataSet *vtkDistributedDataFilter::TestFixTooFewInputFiles(vtkDataSet *input)
       }
     }
 
+  if (numTotalCells == 0)
+    {
+    // Nothing to do.
+    // Based on the comments in RequestData() where this method is called, if
+    // this method returns NULL, it indicates that there's no distribution to be
+    // done. That's indeed the case for empty datasets. Hence we'll return NULL.
+    delete[] nodeType;
+    inputSize->Delete();
+    return NULL;
+    }
+
   if (numConsumers == 0)
     {
     // Nothing to do.  Every process has input data.
