@@ -1954,55 +1954,19 @@ vtkUnstructuredGrid *
 }
 
 // ----------------------- Fast versions ----------------------------//
-vtkIdTypeArray *vtkDistributedDataFilter::ExchangeCountsFast(vtkIdType myCount, int tag)
+vtkIdTypeArray *vtkDistributedDataFilter::ExchangeCountsFast(
+  vtkIdType myCount, int vtkNotUsed(tag))
 {
   vtkIdTypeArray *countArray = NULL;
 
-  vtkIdType i;
   int nprocs = this->NumProcesses;
-  int me = this->MyId;
-
-  vtkMPICommunicator::Request *req = new vtkMPICommunicator::Request [nprocs];
-  vtkMPIController *mpiContr = vtkMPIController::SafeDownCast(this->Controller);
 
   vtkIdType *counts = new vtkIdType [nprocs];
-  counts[me] = myCount;
-
-  for (i = 0; i < nprocs; i++)
-    {
-    if (i  == me)
-      {
-      continue;
-      }
-    mpiContr->NoBlockReceive(counts + i, 1, i, tag, req[i]);
-    }
-
-  mpiContr->Barrier();
-
-  for (i = 0; i < nprocs; i++)
-    {
-    if (i  == me)
-      {
-      continue;
-      }
-    mpiContr->Send(&myCount, 1, i, tag);
-    }
+  this->Controller->AllGather(&myCount, counts, 1);
 
   countArray = vtkIdTypeArray::New();
   countArray->SetArray(counts, nprocs, 0,
     vtkIdTypeArray::VTK_DATA_ARRAY_DELETE);
-
-  for (i = 0; i < nprocs; i++)
-    {
-    if (i  == me)
-      {
-      continue;
-      }
-    req[i].Wait();
-    }
-
-  delete [] req;
-
   return countArray;
 }
 
