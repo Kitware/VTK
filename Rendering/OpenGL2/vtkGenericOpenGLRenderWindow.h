@@ -76,6 +76,11 @@ public:
   void SetBackRightBuffer(unsigned int);
   // }@
 
+  //! no-op (for API compat with OpenGL1).
+  void PushState() {}
+  //! no-op (for API compat with OpenGL1).
+  void PopState() {}
+
   // {@
   //! does nothing
   void SetWindowId(void*);

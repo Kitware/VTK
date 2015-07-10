@@ -26,8 +26,6 @@
 #include "vtkRenderWindow.h"
 #include <map> // for ivar
 
-#include "vtk_glew.h" // Needed for GLuint.
-
 class vtkIdList;
 class vtkOpenGLHardwareSupport;
 class vtkOpenGLShaderCache;
@@ -208,20 +206,6 @@ public:
   // Block the thread until the actual rendering is finished().
   // Useful for measurement only.
   virtual void WaitForCompletion();
-
-  // Description:
-  // Helper function that draws a quad on the screen
-  // at the specified vertex coordinates and if
-  // tcoords are not NULL with the specified
-  // texture coordinates.
-  static void RenderQuad(
-    float *verts, float *tcoords,
-    vtkShaderProgram *program, vtkOpenGLVertexArrayObject *vao);
-  static void RenderTriangles(
-    float *verts, unsigned int numVerts,
-    GLuint *indices, unsigned int numIndices,
-    float *tcoords,
-    vtkShaderProgram *program, vtkOpenGLVertexArrayObject *vao);
 
   // Description:
   // Replacement for the old glDrawPixels function

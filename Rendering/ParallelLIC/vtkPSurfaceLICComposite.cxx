@@ -20,6 +20,9 @@
 #include "vtkPainterCommunicator.h"
 #include "vtkPPainterCommunicator.h"
 #include "vtkRenderWindow.h"
+#ifdef VTK_OPENGL2
+# include "vtkOpenGLRenderUtilities.h"
+#endif
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkTextureObject.h"
 #include "vtkPixelBufferObject.h"
@@ -1622,7 +1625,7 @@ int vtkPSurfaceLICComposite::ExecuteShader(
       fext[1]*2.0-1.0, fext[3]*2.0-1.0, 0.0f,
       fext[0]*2.0-1.0, fext[3]*2.0-1.0, 0.0f};
 
-    vtkOpenGLRenderWindow::RenderQuad(verts, tcoords,
+    vtkOpenGLRenderUtilities::RenderQuad(verts, tcoords,
       this->CompositeShader->Program, this->CompositeShader->VAO);
     tex->Deactivate();
 #else

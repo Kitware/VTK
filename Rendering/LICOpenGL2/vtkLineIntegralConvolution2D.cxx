@@ -24,6 +24,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkPainterCommunicator.h"
@@ -717,7 +718,7 @@ public:
       computeBounds[1]*2.0-1.0, computeBounds[3]*2.0-1.0, 0.0f,
       computeBounds[0]*2.0-1.0, computeBounds[3]*2.0-1.0, 0.0f};
 
-    vtkOpenGLRenderWindow::RenderQuad(verts, tcoords,
+    vtkOpenGLRenderUtilities::RenderQuad(verts, tcoords,
       cbo->Program, cbo->VAO);
     vtkOpenGLStaticCheckErrorMacro("failed at RenderQuad");
     }

@@ -9,6 +9,10 @@ set(LibSrcs ${QVTKLibSrcs}
   QVTKWidget2.cxx
   )
 
+if (VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+  add_definitions(-DVTKGL2)
+endif ()
+
 if(VTK_QT_VERSION VERSION_GREATER "4")
   find_package(Qt5 COMPONENTS OpenGL REQUIRED QUIET)
   include_directories(${Qt5OpenGL_INCLUDE_DIRS})

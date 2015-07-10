@@ -13,6 +13,8 @@
 
 =========================================================================*/
 
+#include "vtk_glew.h"
+
 #include "vtkExternalOpenGLRenderWindow.h"
 #include "vtkObjectFactory.h"
 #include "vtkRendererCollection.h"
