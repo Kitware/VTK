@@ -763,7 +763,7 @@ int vtkGDALRasterReader::RequestData(vtkInformation* vtkNotUsed(request),
     if (!success)
       {
       noDataValue = vtkMath::Nan();
-       }
+      }
      noDataArray->SetValue(i, noDataValue);
     }
   this->Implementation->UniformGridData->GetFieldData()->AddArray(
@@ -910,6 +910,7 @@ int vtkGDALRasterReader::RequestInformation(vtkInformation * vtkNotUsed(request)
   outInfo->Set(vtkDataObject::ORIGIN(), this->DataOrigin, 3);
   outInfo->Set(vtkGDAL::MAP_PROJECTION(),
                this->Implementation->GDALData->GetProjectionRef());
+
   return 1;
 }
 
