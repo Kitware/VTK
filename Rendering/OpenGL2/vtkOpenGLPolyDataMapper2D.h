@@ -118,6 +118,9 @@ protected:
   vtkTimeStamp VBOUpdateTime; // When was the VBO updated?
   vtkPoints *TransformedPoints;
 
+  // do we have wide lines that require special handling
+  virtual bool HaveWideLines(vtkViewport *, vtkActor2D *);
+
 private:
   vtkOpenGLPolyDataMapper2D(const vtkOpenGLPolyDataMapper2D&);  // Not implemented.
   void operator=(const vtkOpenGLPolyDataMapper2D&);  // Not implemented.

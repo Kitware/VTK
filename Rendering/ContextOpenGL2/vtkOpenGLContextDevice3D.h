@@ -145,6 +145,9 @@ protected:
     float *tcoords);
   void CoreDrawTriangles(std::vector<float> &tverts);
 
+  // do we have wide lines that require special handling
+  virtual bool HaveWideLines();
+
   vtkTransform *ModelMatrix;
 
   // Description:

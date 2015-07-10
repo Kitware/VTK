@@ -359,6 +359,21 @@ void vtkOpenGLContextDevice3D::ReadyVCBOProgram()
     }
 }
 
+bool vtkOpenGLContextDevice3D::HaveWideLines()
+{
+  if (this->Pen->GetWidth() > 1.0
+      && vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
+    {
+    // we have wide lines, but the OpenGL implementation may
+    // actually support them, check the range to see if we
+    // really need have to implement our own wide lines
+    return !(this->RenderWindow &&
+      this->RenderWindow->GetMaximumHardwareLineWidth() >= this->Pen->GetWidth());
+    }
+  return false;
+}
+
+
 void vtkOpenGLContextDevice3D::DrawPoly(const float *verts, int n,
                                         const unsigned char *colors, int nc)
 {
@@ -376,12 +391,6 @@ void vtkOpenGLContextDevice3D::DrawPoly(const float *verts, int n,
 
   this->Storage->SetLineType(this->Pen->GetLineType());
 
-  if (this->Pen->GetWidth() > 1.0)
-    {
-    vtkErrorMacro(<< "lines wider than 1.0 are not supported\n");
-    }
-  glLineWidth(this->Pen->GetWidth());
-
   vtkOpenGLHelper *cbo = 0;
   if (colors)
     {
@@ -392,6 +401,14 @@ void vtkOpenGLContextDevice3D::DrawPoly(const float *verts, int n,
     {
     this->ReadyVBOProgram();
     cbo = this->VBO;
+    if (this->HaveWideLines())
+      {
+      vtkWarningMacro(<< "a line width has been requested that is larger than your system supports");
+      }
+    else
+      {
+      glLineWidth(this->Pen->GetWidth());
+      }
     cbo->Program->SetUniform4uc("vertexColor",
       this->Pen->GetColor());
     }
