@@ -596,11 +596,11 @@ public:
 
     // deactivate all textures?
     vtkTextureObject **readTex = this->Textures[this->ReadIndex];
-    readTex[0] ? readTex[0]->Deactivate() : NULL;
-    readTex[1] ? readTex[1]->Deactivate() : NULL;
+    if (readTex[0]) { readTex[0]->Deactivate(); }
+    if (readTex[1]) { readTex[1]->Deactivate(); }
     vtkTextureObject **writeTex = this->Textures[1-this->ReadIndex];
-    writeTex[0] ? writeTex[0]->Deactivate() : NULL;
-    writeTex[1] ? writeTex[1]->Deactivate() : NULL;
+    if (writeTex[0]) { writeTex[0]->Deactivate(); }
+    if (writeTex[1]) { writeTex[1]->Deactivate(); }
     }
 
   // Description:
