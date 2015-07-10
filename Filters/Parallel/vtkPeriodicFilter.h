@@ -32,10 +32,11 @@
 #ifndef vtkPeriodicFilter_h
 #define vtkPeriodicFilter_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
 #include <set> // For block selection
+#include <vector> // For pieces number
 
 class vtkCompositeDataIterator;
 class vtkCompositeDataSet;
@@ -45,7 +46,7 @@ class vtkMultiPieceDataSet;
 #define VTK_ITERATION_MODE_DIRECT_NB 0    // Generate a user-provided number of periods
 #define VTK_ITERATION_MODE_MAX       1    // Generate a maximum of periods, i.e. a full period.
 
-class VTKFILTERSGENERAL_EXPORT vtkPeriodicFilter : public vtkMultiBlockDataSetAlgorithm
+class VTKFILTERSPARALLEL_EXPORT vtkPeriodicFilter : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkPeriodicFilter, vtkMultiBlockDataSetAlgorithm);
@@ -102,11 +103,13 @@ protected:
                                      vtkCompositeDataSet* input) = 0;
 
   // Description:
-  // Generate a name for a piece in the periodic dataset from the input dataset
-  virtual void GeneratePieceName(vtkCompositeDataSet* input,
-                                 vtkCompositeDataIterator* inputLoc,
-                                 vtkMultiPieceDataSet* output,
-                                 vtkIdType outputId);
+  // Manually set the number of period on a specific leaf
+  virtual void SetPeriodNumber(vtkCompositeDataIterator* loc,
+                               vtkCompositeDataSet* output,
+                               int nbPeriod) = 0;
+
+  std::vector<int> PeriodNumbers;     // Periods numbers by leaf
+  bool ReducePeriodNumbers;
 
 private:
   vtkPeriodicFilter(const vtkPeriodicFilter&); // Not implemented.

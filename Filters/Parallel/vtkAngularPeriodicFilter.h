@@ -35,7 +35,7 @@
 #ifndef vtkAngularPeriodicFilter_h
 #define vtkAngularPeriodicFilter_h
 
-#include "vtkFiltersGeneralModule.h" // For export macro
+#include "vtkFiltersParallelModule.h" // For export macro
 #include "vtkPeriodicFilter.h"
 
 class vtkDataSetAttributes;
@@ -45,7 +45,7 @@ class vtkPointSet;
 #define VTK_ROTATION_MODE_DIRECT_ANGLE 0  // Use user-provided angle
 #define VTK_ROTATION_MODE_ARRAY_VALUE  1  // Use array from input data as angle
 
-class VTKFILTERSGENERAL_EXPORT vtkAngularPeriodicFilter : public vtkPeriodicFilter
+class VTKFILTERSPARALLEL_EXPORT vtkAngularPeriodicFilter : public vtkPeriodicFilter
 {
 public:
   static vtkAngularPeriodicFilter* New();
@@ -94,6 +94,10 @@ protected:
   vtkAngularPeriodicFilter();
   ~vtkAngularPeriodicFilter();
 
+  virtual int RequestData(vtkInformation *,
+                          vtkInformationVector **,
+                          vtkInformationVector *);
+
   // Description:
   // Create a transform copy of the provided data array
   vtkDataArray* TransformDataArray(vtkDataArray* inputArray,
@@ -106,6 +110,12 @@ protected:
   void AppendPeriodicPiece(double angle, vtkIdType iPiece,
                            vtkDataObject* inputNode,
                            vtkMultiPieceDataSet* multiPiece);
+
+  // Description:
+  // Manually set the number of period on a specific leaf
+  virtual void SetPeriodNumber(vtkCompositeDataIterator* loc,
+                               vtkCompositeDataSet* output,
+                               int nbPeriod);
 
   // Description:
   // Compute periodic pointset, rotating point, using provided angle
@@ -124,6 +134,12 @@ protected:
                              vtkCompositeDataSet* output,
                              vtkCompositeDataSet* input);
 
+  // Description:
+  // Generate a name for a piece in the periodic dataset from the input dataset
+  virtual void GeneratePieceName(vtkCompositeDataSet* input,
+                                 vtkCompositeDataIterator* inputLoc,
+                                 vtkMultiPieceDataSet* output,
+                                 vtkIdType outputId);
 private:
   vtkAngularPeriodicFilter(const vtkAngularPeriodicFilter&); // Not implemented.
   void operator=(const vtkAngularPeriodicFilter&); // Not implemented.

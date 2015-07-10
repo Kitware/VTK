@@ -1,5 +1,4 @@
 set(Module_SRCS
-  vtkAngularPeriodicFilter.cxx
   vtkAnnotationLink.cxx
   vtkAppendPoints.cxx
   vtkApproximatingSubdivisionFilter.cxx
@@ -47,7 +46,6 @@ set(Module_SRCS
   vtkOBBDicer.cxx
   vtkOBBTree.cxx
   vtkPassThrough.cxx
-  vtkPeriodicFilter.cxx
   vtkPolyDataStreamer.cxx
   vtkPolyDataToReebGraphFilter.cxx
   vtkProbePolyhedron.cxx

@@ -12,10 +12,12 @@ vtk_module(vtkFiltersParallel
     vtkTestingCore
     vtkTestingRendering
     vtkInteractionStyle
+    vtkIOXML
     vtkRendering${VTK_RENDERING_BACKEND}
     vtkRenderingParallel
     vtkFiltersParallelMPI
     vtkFiltersParallelImaging
+    vtkFiltersFlowPaths
     vtkIOLegacy
   KIT
     vtkParallel

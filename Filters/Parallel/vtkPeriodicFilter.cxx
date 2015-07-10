@@ -16,17 +16,16 @@
 #include "vtkPeriodicFilter.h"
 
 #include "vtkDataObjectTreeIterator.h"
-#include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
-#include "vtkMultiPieceDataSet.h"
+#include "vtkMultiProcessController.h"
 
-#include <sstream>
 //----------------------------------------------------------------------------
 vtkPeriodicFilter::vtkPeriodicFilter()
 {
   this->IterationMode = VTK_ITERATION_MODE_MAX;
   this->NumberOfPeriods = 1;
+  this->ReducePeriodNumbers = false;
 }
 
 //----------------------------------------------------------------------------
@@ -85,6 +84,8 @@ int vtkPeriodicFilter::RequestData(vtkInformation *vtkNotUsed(request),
     return 1;
     }
 
+  this->PeriodNumbers.clear();
+
   output->CopyStructure(input);
 
   // Copy selected blocks over to the output.
@@ -114,30 +115,34 @@ int vtkPeriodicFilter::RequestData(vtkInformation *vtkNotUsed(request),
       }
     iter->GoToNextItem();
     }
+
+  // Reduce period number in case of parrallelism, and update empty multipieces
+  if (this->ReducePeriodNumbers)
+    {
+    int* reducedPeriodNumbers = new int[this->PeriodNumbers.size()];
+    vtkMultiProcessController *controller = vtkMultiProcessController::GetGlobalController();
+    if (controller)
+      {
+      controller->AllReduce(&this->PeriodNumbers.front(), reducedPeriodNumbers,
+        this->PeriodNumbers.size(), vtkCommunicator::MAX_OP);
+      int i = 0;
+      iter->InitTraversal();
+      while (!iter->IsDoneWithTraversal() && this->Indices.size() > 0)
+        {
+        if (reducedPeriodNumbers[i] > this->PeriodNumbers[i])
+          {
+          const unsigned int index = iter->GetCurrentFlatIndex();
+          if (this->Indices.find(index) != this->Indices.end())
+            {
+            this->SetPeriodNumber(iter, output, reducedPeriodNumbers[i]);
+            }
+          }
+        iter->GoToNextItem();
+        i++;
+        }
+      }
+    delete [] reducedPeriodNumbers;
+    }
   iter->Delete();
   return 1;
-}
-
-//----------------------------------------------------------------------------
-void vtkPeriodicFilter::GeneratePieceName(vtkCompositeDataSet* input,
-  vtkCompositeDataIterator* inputLoc, vtkMultiPieceDataSet* output, vtkIdType outputId)
-{
-  vtkDataObjectTree* inputTree = vtkDataObjectTree::SafeDownCast(input);
-  if (!inputTree)
-    {
-    return;
-    }
-  std::ostringstream ss;
-  const char* parentName =
-    inputTree->GetMetaData(inputLoc)->Get(vtkCompositeDataSet::NAME());
-  if (parentName)
-    {
-    ss << parentName;
-    }
-  else
-    {
-    ss << "Piece";
-    }
-  ss << "_period" << outputId;
-  output->GetMetaData(outputId)->Set(vtkCompositeDataSet::NAME(), ss.str().c_str());
 }
