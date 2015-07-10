@@ -10,7 +10,7 @@ set(LibSrcs ${QVTKLibSrcs}
   )
 
 if (VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
-  add_definitions(-DVTKGL2)
+  add_definitions(-DVTK_OPENGL2)
 endif ()
 
 if(VTK_QT_VERSION VERSION_GREATER "4")

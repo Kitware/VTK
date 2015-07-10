@@ -504,7 +504,7 @@ QGLFormat QVTKWidget2::GetDefaultVTKFormat(vtkGenericOpenGLRenderWindow* w)
   QGLFormat format;
 
   format.setDepth(true);
-#ifdef VTKGL2
+#ifdef VTK_OPENGL2
   format.setVersion(3, 2);
 #endif
 
