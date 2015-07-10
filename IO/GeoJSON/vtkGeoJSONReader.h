@@ -68,9 +68,15 @@ public:
   vtkBooleanMacro(OutlinePolygons, bool);
 
   // Description:
+  // Set/get name of data array for serialized GeoJSON "properties" node.
+  // If specified, data will be stored as vtkCellData/vtkStringArray.
+  vtkSetStringMacro(SerializedPropertiesArrayName);
+  vtkGetStringMacro(SerializedPropertiesArrayName);
+
+  // Description:
   // Specify feature property to read in with geometry objects
   // Note that defaultValue specifies both type & value
-  void AddFeatureProperty(char *name, vtkVariant& typeAndDefaultValue);
+  void AddFeatureProperty(const char *name, vtkVariant& typeAndDefaultValue);
 
 protected:
   vtkGeoJSONReader();
@@ -85,6 +91,7 @@ protected:
   bool StringInputMode;
   bool TriangulatePolygons;
   bool OutlinePolygons;
+  char *SerializedPropertiesArrayName;
 
 private:
   class GeoJSONReaderInternal;
