@@ -755,9 +755,9 @@ int vtkGDALRasterReader::RequestData(vtkInformation* vtkNotUsed(request),
   noDataArray->SetName("NO_DATA_VALUE");
   noDataArray->SetNumberOfComponents(1);
   noDataArray->SetNumberOfTuples(this->Implementation->NumberOfBands);
-  int success = 0;
   for (int i=0; i<this->Implementation->NumberOfBands; i++)
     {
+    int success = 0;
     double noDataValue = this->Implementation->GDALData->GetRasterBand(
       i+1)->GetNoDataValue(&success);
     if (!success)
