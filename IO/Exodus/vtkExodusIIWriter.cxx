@@ -450,7 +450,7 @@ int vtkExodusIIWriter::FlattenHierarchy (vtkDataObject* input, bool& changed)
          iter->GoToNextItem ())
       {
       const char *name = iter->GetCurrentMetaData()->Get (vtkCompositeDataSet::NAME());
-      if (strstr (name, "Sets") != 0)
+      if (name != 0 && strstr (name, "Sets") != 0)
         {
         continue;
         }
@@ -1467,8 +1467,8 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
       const char *name = iter->GetCurrentMetaData()->Get (vtkCompositeDataSet::NAME());
       if (iter->GetCurrentDataObject ()->IsA ("vtkMultiBlockDataSet"))
         {
-        isASideSet = (strncmp (name, "Side Sets", 9) == 0);
-        isANodeSet = (strncmp (name, "Node Sets", 9) == 0);
+        isASideSet = (name != 0 && strncmp (name, "Side Sets", 9) == 0);
+        isANodeSet = (name != 0 && strncmp (name, "Node Sets", 9) == 0);
         }
       else if (isANodeSet)
         {
