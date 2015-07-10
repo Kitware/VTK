@@ -56,8 +56,6 @@
 
 #include "vtkUnsignedCharArray.h" // Needed for inline method
 
-class vtkSimpleMutexLock;
-
 #define VTK_RAMP_LINEAR 0
 #define VTK_RAMP_SCURVE 1
 #define VTK_RAMP_SQRT 2
@@ -361,7 +359,9 @@ protected:
   int OpaqueFlag;
   vtkTimeStamp OpaqueFlagBuildTime;
 
-  vtkSimpleMutexLock* ResizeMutex;
+  // Description:
+  // Resize the LookupTable to have enough room for the out-of-range colors
+  void ResizeTableForSpecialColors();
 
 private:
   vtkLookupTable(const vtkLookupTable&);  // Not implemented.
