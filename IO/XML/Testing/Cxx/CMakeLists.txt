@@ -6,6 +6,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestXMLHierarchicalBoxDataFileConverter.cxx,NO_VALID
   TestXMLUnstructuredGridReader.cxx
   TestXML.cxx,NO_DATA,NO_VALID,NO_OUTPUT
+  TestXMLToString.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   TestDataObjectXMLIO.cxx,NO_VALID
   )
 
