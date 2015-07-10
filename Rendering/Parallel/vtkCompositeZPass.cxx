@@ -51,6 +51,7 @@
 # include "vtkOpenGLHelper.h"
 # include "vtkTextureObjectVS.h"
 # include "vtkCompositeZPassFS.h"
+# include "vtk_glew.h"
 #else
 # include "vtkgl.h"
 # include "vtkShaderProgram2.h"

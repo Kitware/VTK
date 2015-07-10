@@ -13,10 +13,6 @@
 
 =========================================================================*/
 
-#ifdef VTKGL2
-# include "vtk_glew.h"
-#endif
-
 #include "vtkCompositeRGBAPass.h"
 #include "vtkObjectFactory.h"
 #include <cassert>
@@ -52,7 +48,9 @@
 # include "vtkOpenGLState.h"
 #endif
 
-#ifndef VTK_OPENGL2
+#ifdef VTK_OPENGL2
+# include "vtk_glew.h"
+#else
 # include "vtkgl.h"
 # include "vtkOpenGLExtensionManager.h"
 #endif
