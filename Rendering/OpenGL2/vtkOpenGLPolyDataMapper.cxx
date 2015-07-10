@@ -198,7 +198,9 @@ void vtkOpenGLPolyDataMapper::BuildShaders(
   std::sort(this->ShaderVariablesUsed.begin(),this->ShaderVariablesUsed.end());
 }
 
-bool vtkOpenGLPolyDataMapper::HaveWideLines(vtkActor *actor)
+bool vtkOpenGLPolyDataMapper::HaveWideLines(
+  vtkRenderer *ren,
+  vtkActor *actor)
 {
   if ((this->LastBoundBO == &this->Lines ||
        this->LastBoundBO == &this->TrisEdges ||
@@ -209,7 +211,12 @@ bool vtkOpenGLPolyDataMapper::HaveWideLines(vtkActor *actor)
       && actor->GetProperty()->GetLineWidth() > 1.0
       && vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
     {
-    return true;
+    // we have wide lines, but the OpenGL implementation may
+    // actually support them, check the range to see if we
+      // really need have to implement our own wide lines
+    vtkOpenGLRenderWindow *renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+    return !(renWin &&
+      renWin->GetMaximumHardwareLineWidth() >= actor->GetProperty()->GetLineWidth());
     }
   return false;
 }
@@ -217,11 +224,11 @@ bool vtkOpenGLPolyDataMapper::HaveWideLines(vtkActor *actor)
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::GetShaderTemplate(
     std::map<vtkShader::Type, vtkShader *> shaders,
-    vtkRenderer *, vtkActor *actor)
+    vtkRenderer *ren, vtkActor *actor)
 {
   shaders[vtkShader::Vertex]->SetSource(vtkPolyDataVS);
   shaders[vtkShader::Fragment]->SetSource(vtkPolyDataFS);
-  if (this->HaveWideLines(actor))
+  if (this->HaveWideLines(ren, actor))
     {
     shaders[vtkShader::Geometry]->SetSource(vtkPolyDataWideLineGS);
     }
@@ -1373,7 +1380,7 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
     }
 
   // handle wide lines
-  if (this->HaveWideLines(actor))
+  if (this->HaveWideLines(ren, actor))
     {
       int vp[4];
       glGetIntegerv(GL_VIEWPORT, vp);
@@ -1623,8 +1630,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
 #if GL_ES_VERSION_2_0 != 1
   glPointSize(actor->GetProperty()->GetPointSize()); // not on ES2
 #endif
-  if (!vtkOpenGLRenderWindow::GetContextSupportsOpenGL32() ||
-      actor->GetProperty()->GetLineWidth() <= 1.0)
+  if (!this->HaveWideLines(ren,actor))
     {
     glLineWidth(actor->GetProperty()->GetLineWidth());
     }
