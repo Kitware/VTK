@@ -143,11 +143,7 @@ bool vtkPythonOverloadHelper::next(const char **format, const char **classname)
 // If tmpi > VTK_INT_MAX, then penalize unless format == 'l'
 
 #if VTK_SIZEOF_LONG != VTK_SIZEOF_INT
-#ifdef PY_LONG_LONG
 static int vtkPythonIntPenalty(PY_LONG_LONG tmpi, int penalty, char format)
-#else
-static int vtkPythonIntPenalty(long tmpi, int penalty, char format)
-#endif
 {
   if (tmpi > VTK_INT_MAX || tmpi < VTK_INT_MIN)
     {
@@ -185,11 +181,7 @@ static int vtkPythonIntPenalty(long tmpi, int penalty, char format)
 }
 
 #else
-#ifdef PY_LONG_LONG
 int vtkPythonIntPenalty(PY_LONG_LONG, int penalty, char)
-#else
-int vtkPythonIntPenalty(long, int penalty, char)
-#endif
 {
   return penalty;
 }
@@ -251,11 +243,7 @@ int vtkPythonOverload::CheckArg(
           penalty++;
           }
 #else
-# ifdef PY_LONG_LONG
         PY_LONG_LONG tmpi = PyLong_AsLongLong(arg);
-# else
-        long tmpi = PyLong_AsLong(arg);
-# endif
         if (PyErr_Occurred())
           {
           PyErr_Clear();
@@ -284,7 +272,6 @@ int vtkPythonOverload::CheckArg(
         }
       break;
 
-#ifdef PY_LONG_LONG
     case 'L':
     case 'K':
       if (!PyLong_Check(arg))
@@ -309,7 +296,6 @@ int vtkPythonOverload::CheckArg(
           }
         }
       break;
-#endif
 
     case 'f':
       penalty = VTK_PYTHON_GOOD_MATCH;

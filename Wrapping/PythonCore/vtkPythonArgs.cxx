@@ -46,7 +46,7 @@ bool vtkPythonGetValue(PyObject *o, long &a)
   VTK_PYTHON_FLOAT_CHECK();
 
   a = PyInt_AsLong(o);
-  return (a != -1 || !PyErr_Occurred());
+  return (a != static_cast<long>(-1) || !PyErr_Occurred());
 }
 
 inline
@@ -54,16 +54,8 @@ bool vtkPythonGetValue(PyObject *o, unsigned long &a)
 {
   VTK_PYTHON_FLOAT_CHECK();
 
-  long l = PyInt_AsLong(o);
-  if (l < 0)
-    {
-    PyErr_SetString(PyExc_OverflowError,
-                    "can't convert negative value to unsigned integer");
-    return false;
-    }
-  a = static_cast<unsigned long>(l);
   a = PyLong_AsUnsignedLong(o);
-  return (static_cast<long>(a) != -1 || !PyErr_Occurred());
+  return (a != static_cast<unsigned long>(-1) || !PyErr_Occurred());
 }
 
 template <class T> inline
@@ -71,13 +63,9 @@ bool vtkPythonGetLongLongValue(PyObject *o, T &a)
 {
   VTK_PYTHON_FLOAT_CHECK();
 
-#ifdef PY_LONG_LONG
   PY_LONG_LONG i = PyLong_AsLongLong(o);
-#else
-  long i = PyInt_AsLong(o);
-#endif
   a = static_cast<T>(i);
-  return (i != -1 || !PyErr_Occurred());
+  return (i != static_cast<PY_LONG_LONG>(-1) || !PyErr_Occurred());
 }
 
 template <class T> inline
@@ -85,30 +73,17 @@ bool vtkPythonGetUnsignedLongLongValue(PyObject *o, T &a)
 {
   VTK_PYTHON_FLOAT_CHECK();
 
-#ifdef PY_LONG_LONG
-  unsigned PY_LONG_LONG i;
-#else
-  unsigned long i;
-#endif
-  long l = PyInt_AsLong(o);
-  if (l < 0)
+  // PyLong_AsUnsignedLongLong will fail if "o" is not a PyLong
+  if (PyLong_Check(o))
     {
-    PyErr_SetString(PyExc_OverflowError,
-                    "can't convert negative value to unsigned long");
-    return false;
+    unsigned PY_LONG_LONG i = PyLong_AsUnsignedLongLong(o);
+    a = static_cast<T>(i);
+    return (i != static_cast<unsigned PY_LONG_LONG>(-1) || !PyErr_Occurred());
     }
-#ifdef PY_LONG_LONG
-  i = static_cast<unsigned PY_LONG_LONG>(l);
-#else
-  i = static_cast<unsigned long>(l);
-#endif
-#ifdef PY_LONG_LONG
-  i = PyLong_AsUnsignedLongLong(o);
-#else
-  i = PyLong_AsUnsignedLong(o);
-#endif
-  a = static_cast<T>(i);
-  return (static_cast<int>(i) != -1 || !PyErr_Occurred());
+
+  unsigned long l = PyLong_AsUnsignedLong(o);
+  a = static_cast<T>(l);
+  return (l != static_cast<unsigned long>(-1) || !PyErr_Occurred());
 }
 
 
