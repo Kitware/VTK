@@ -41,7 +41,7 @@
 //--------------------------------------------------------------------
 static PyObject *PyVTKObject_String(PyObject *op)
 {
-  PyObject *func = PyObject_GetAttrString(op, (char*)"__str__");
+  PyObject *func = PyObject_GetAttrString(op, "__str__");
 
   if (func)
     {
@@ -61,7 +61,7 @@ static PyObject *PyVTKObject_String(PyObject *op)
 //--------------------------------------------------------------------
 static PyObject *PyVTKObject_Repr(PyObject *op)
 {
-  PyObject *func = PyObject_GetAttrString(op, (char*)"__repr__");
+  PyObject *func = PyObject_GetAttrString(op, "__repr__");
 
   if (func)
     {
@@ -106,7 +106,7 @@ static int PyVTKObject_SetAttr(PyObject *op, PyObject *attr, PyObject *value)
     PyObject *func = self->vtk_class->vtk_setattr;
     if (func)
       {
-      PyObject *args = Py_BuildValue((char*)"(OOO)", self, attr, value);
+      PyObject *args = Py_BuildValue("(OOO)", self, attr, value);
       PyObject *res = PyEval_CallObject(func, args);
       Py_DECREF(args);
       if (res)
@@ -123,7 +123,7 @@ static int PyVTKObject_SetAttr(PyObject *op, PyObject *attr, PyObject *value)
     PyObject *func = self->vtk_class->vtk_delattr;
     if (func)
       {
-      PyObject *args = Py_BuildValue((char*)"(OO)", self, attr);
+      PyObject *args = Py_BuildValue("(OO)", self, attr);
       PyObject *res = PyEval_CallObject(func, args);
       Py_DECREF(args);
       if (res)
@@ -229,7 +229,7 @@ static PyObject *PyVTKObject_GetAttr(PyObject *op, PyObject *attr)
   pyclass = self->vtk_class;
   if (pyclass->vtk_getattr)
     {
-    PyObject *args = Py_BuildValue((char*)"(OO)", self, attr);
+    PyObject *args = Py_BuildValue("(OO)", self, attr);
     PyObject *res = PyEval_CallObject(pyclass->vtk_getattr, args);
     Py_DECREF(args);
     return res;
@@ -387,7 +387,7 @@ static PyBufferProcs PyVTKObject_AsBuffer = {
 PyTypeObject PyVTKObject_Type = {
   PyObject_HEAD_INIT(&PyType_Type)
   0,
-  (char*)"vtkobject",                    // tp_name
+  "vtkobject",                           // tp_name
   sizeof(PyVTKObject),                   // tp_basicsize
   0,                                     // tp_itemsize
   PyVTKObject_Delete,                    // tp_dealloc
@@ -406,7 +406,7 @@ PyTypeObject PyVTKObject_Type = {
   PyVTKObject_SetAttr,                   // tp_setattro
   &PyVTKObject_AsBuffer,                 // tp_as_buffer
   Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC, // tp_flags
-  (char*)"Use help(x.__class__) to get full documentation.",  // tp_doc
+  "Use help(x.__class__) to get full documentation.",  // tp_doc
   PyVTKObject_Traverse,                  // tp_traverse
   0,                                     // tp_clear
   0,                                     // tp_richcompare
@@ -455,7 +455,7 @@ PyObject *PyVTKObject_New(
         // NotImplementedError indicates a pure virtual method call.
         PyErr_SetString(
           PyExc_NotImplementedError,
-          (char*)"no concrete implementation exists for this class");
+          "no concrete implementation exists for this class");
         return 0;
         }
       haveRef = true;
@@ -464,7 +464,7 @@ PyObject *PyVTKObject_New(
       {
       PyErr_SetString(
         PyExc_TypeError,
-        (char*)"this is an abstract class and cannot be instantiated");
+        "this is an abstract class and cannot be instantiated");
       return 0;
       }
     }

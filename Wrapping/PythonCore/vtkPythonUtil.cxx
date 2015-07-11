@@ -267,7 +267,7 @@ PyObject *vtkPythonUtil::BuildDocString(const char *docstring[])
     total += m[i];
     }
 
-  result = PyString_FromStringAndSize((char *)docstring[0], (Py_ssize_t)m[0]);
+  result = PyString_FromStringAndSize(docstring[0], (Py_ssize_t)m[0]);
 
   if (n > 1)
     {
@@ -614,10 +614,10 @@ vtkObjectBase *vtkPythonUtil::GetPointerFromObject(
   // check to ensure it is a vtk object
   if (!PyVTKObject_Check(obj))
     {
-    obj = PyObject_GetAttrString(obj,(char*)"__vtk__");
+    obj = PyObject_GetAttrString(obj, "__vtk__");
     if (obj)
       {
-      PyObject *arglist = Py_BuildValue((char*)"()");
+      PyObject *arglist = Py_BuildValue("()");
       PyObject *result = PyEval_CallObject(obj, arglist);
       Py_DECREF(arglist);
       Py_DECREF(obj);
@@ -1061,7 +1061,7 @@ void vtkPythonVoidFunc(void *arg)
   PyGILState_STATE state = PyGILState_Ensure();
 #endif
 
-  arglist = Py_BuildValue((char*)"()");
+  arglist = Py_BuildValue("()");
 
   result = PyEval_CallObject(func, arglist);
   Py_DECREF(arglist);

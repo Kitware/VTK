@@ -386,13 +386,13 @@ static void vtkWrapPython_ClassMethodDef(
         comment, maxlen - strlen(signatures));
 
       fprintf(fp,
-              "  {(char*)\"%s\", Py%s_%s, METH_VARARGS%s,\n",
+              "  {\"%s\", Py%s_%s, METH_VARARGS%s,\n",
               wrappedFunctions[fnum]->Name, classname,
               wrappedFunctions[fnum]->Name,
               wrappedFunctions[fnum]->IsStatic ? " | METH_STATIC" : "");
 
       fprintf(fp,
-              "   (char*)\"%s\\n\\n%s\"},\n",
+              "   \"%s\\n\\n%s\"},\n",
               signatures, comment);
       }
     if(wrappedFunctions[fnum]->IsLegacy)
@@ -406,8 +406,8 @@ static void vtkWrapPython_ClassMethodDef(
   if (strcmp("vtkObject", data->Name) == 0)
     {
     fprintf(fp,
-            "  {(char*)\"AddObserver\",  Py%s_AddObserver, 1,\n"
-            "   (char*)\"V.AddObserver(int, function) -> int\\nC++: unsigned long AddObserver(const char *event,\\n    vtkCommand *command, float priority=0.0f)\\n\\nAdd an event callback function(vtkObject, int) for an event type.\\nReturns a handle that can be used with RemoveEvent(int).\"},\n",
+            "  {\"AddObserver\",  Py%s_AddObserver, 1,\n"
+            "   \"V.AddObserver(int, function) -> int\\nC++: unsigned long AddObserver(const char *event,\\n    vtkCommand *command, float priority=0.0f)\\n\\nAdd an event callback function(vtkObject, int) for an event type.\\nReturns a handle that can be used with RemoveEvent(int).\"},\n",
             classname);
     }
 
@@ -415,20 +415,20 @@ static void vtkWrapPython_ClassMethodDef(
   else if (strcmp("vtkObjectBase", data->Name) == 0)
     {
     fprintf(fp,
-            "  {(char*)\"GetAddressAsString\",  Py%s_GetAddressAsString, 1,\n"
-            "   (char*)\"V.GetAddressAsString(string) -> string\\nC++: const char *GetAddressAsString()\\n\\nGet address of C++ object in format 'Addr=%%p' after casting to\\nthe specified type.  You can get the same information from o.__this__.\"},\n",
+            "  {\"GetAddressAsString\",  Py%s_GetAddressAsString, 1,\n"
+            "   \"V.GetAddressAsString(string) -> string\\nC++: const char *GetAddressAsString()\\n\\nGet address of C++ object in format 'Addr=%%p' after casting to\\nthe specified type.  You can get the same information from o.__this__.\"},\n",
             classname);
 #ifndef VTK_LEGACY_REMOVE
     fprintf(fp,
-            "  {(char*)\"PrintRevisions\",  Py%s_PrintRevisions, 1,\n"
-            "   (char*)\"V.PrintRevisions() -> string\\nC++: const char *PrintRevisions()\\n\\nPrints the .cxx file CVS revisions of the classes in the\\nobject's inheritance chain.\"},\n",
+            "  {\"PrintRevisions\",  Py%s_PrintRevisions, 1,\n"
+            "   \"V.PrintRevisions() -> string\\nC++: const char *PrintRevisions()\\n\\nPrints the .cxx file CVS revisions of the classes in the\\nobject's inheritance chain.\"},\n",
             classname);
 #endif
     fprintf(fp,
-            "  {(char*)\"Register\", Py%s_Register, 1,\n"
-            "   (char*)\"V.Register(vtkObjectBase)\\nC++: virtual void Register(vtkObjectBase *o)\\n\\nIncrease the reference count by 1.\\n\"},\n"
-            "  {(char*)\"UnRegister\", Py%s_UnRegister, 1,\n"
-            "   (char*)\"V.UnRegister(vtkObjectBase)\\nC++: virtual void UnRegister(vtkObjectBase *o)\\n\\nDecrease the reference count (release by another object). This\\nhas the same effect as invoking Delete() (i.e., it reduces the\\nreference count by 1).\\n\"},\n",
+            "  {\"Register\", Py%s_Register, 1,\n"
+            "   \"V.Register(vtkObjectBase)\\nC++: virtual void Register(vtkObjectBase *o)\\n\\nIncrease the reference count by 1.\\n\"},\n"
+            "  {\"UnRegister\", Py%s_UnRegister, 1,\n"
+            "   \"V.UnRegister(vtkObjectBase)\\nC++: virtual void UnRegister(vtkObjectBase *o)\\n\\nDecrease the reference count (release by another object). This\\nhas the same effect as invoking Delete() (i.e., it reduces the\\nreference count by 1).\\n\"},\n",
             classname, classname);
     }
 

@@ -529,7 +529,7 @@ void vtkWrapPython_OverloadMethodDef(
 
     fprintf(fp,
             "  {NULL, Py%s_%s%s, METH_VARARGS%s,\n"
-            "   (char*)\"%s\"},\n",
+            "   \"%s\"},\n",
             classname, wrappedFunctions[occ]->Name,
             occSuffix,
             theOccurrence->IsStatic ? " | METH_STATIC" : "",

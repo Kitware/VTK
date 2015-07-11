@@ -47,7 +47,7 @@ static void PyVTKNamespace_Delete(PyObject *op)
 PyTypeObject PyVTKNamespace_Type = {
   PyObject_HEAD_INIT(&PyType_Type)
   0,
-  (char*)"vtk.namespace",                // tp_name
+  "vtk.namespace",                       // tp_name
   0,                                     // tp_basicsize
   0,                                     // tp_itemsize
   PyVTKNamespace_Delete,                 // tp_dealloc
@@ -66,7 +66,7 @@ PyTypeObject PyVTKNamespace_Type = {
   0,                                     // tp_setattro
   0,                                     // tp_as_buffer
   Py_TPFLAGS_DEFAULT,                    // tp_flags
-  (char*)PyVTKNamespace_Doc,             // tp_doc
+  PyVTKNamespace_Doc,                    // tp_doc
   0,                                     // tp_traverse
   0,                                     // tp_clear
   0,                                     // tp_richcompare

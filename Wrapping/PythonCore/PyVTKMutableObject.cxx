@@ -171,7 +171,7 @@ int PyVTKMutableObject_SetValue(PyObject *self, PyObject *val)
 
 static PyObject *PyVTKMutableObject_Get(PyObject *self, PyObject *args)
 {
-  if (PyArg_ParseTuple(args, (char*)":get"))
+  if (PyArg_ParseTuple(args, ":get"))
     {
     PyObject *ob = PyVTKMutableObject_GetValue(self);
     Py_INCREF(ob);
@@ -185,7 +185,7 @@ static PyObject *PyVTKMutableObject_Set(PyObject *self, PyObject *args)
 {
   PyObject *opn;
 
-  if (PyArg_ParseTuple(args, (char*)"O:set", &opn))
+  if (PyArg_ParseTuple(args, "O:set", &opn))
     {
     opn = PyVTKMutableObject_CompatibleObject(opn);
 
@@ -203,8 +203,8 @@ static PyObject *PyVTKMutableObject_Set(PyObject *self, PyObject *args)
 }
 
 static PyMethodDef PyVTKMutableObject_Methods[] = {
-  {(char*)"get", PyVTKMutableObject_Get, 1, (char *)"Get the stored value."},
-  {(char*)"set", PyVTKMutableObject_Set, 1, (char *)"Set the stored value."},
+  {"get", PyVTKMutableObject_Get, 1, "Get the stored value."},
+  {"set", PyVTKMutableObject_Set, 1, "Set the stored value."},
   { NULL, NULL, 0, NULL }
 };
 
@@ -741,7 +741,7 @@ static PyObject *PyVTKMutableObject_New(
     return NULL;
     }
 
-  if (PyArg_ParseTuple(args, (char *)"O:mutable", &o))
+  if (PyArg_ParseTuple(args, "O:mutable", &o))
     {
     o = PyVTKMutableObject_CompatibleObject(o);
 
@@ -760,7 +760,7 @@ static PyObject *PyVTKMutableObject_New(
 PyTypeObject PyVTKMutableObject_Type = {
   PyObject_HEAD_INIT(&PyType_Type)
   0,
-  (char*)"vtk.mutable",                  // tp_name
+  "vtk.mutable",                         // tp_name
   sizeof(PyVTKMutableObject),            // tp_basicsize
   0,                                     // tp_itemsize
   PyVTKMutableObject_Delete,             // tp_dealloc
@@ -783,7 +783,7 @@ PyTypeObject PyVTKMutableObject_Type = {
   0,                                     // tp_setattro
   &PyVTKMutableObject_AsBuffer,          // tp_as_buffer
   Py_TPFLAGS_CHECKTYPES | Py_TPFLAGS_DEFAULT, // tp_flags
-  (char*)PyVTKMutableObject_Doc,         // tp_doc
+  PyVTKMutableObject_Doc,                // tp_doc
   0,                                     // tp_traverse
   0,                                     // tp_clear
   PyVTKMutableObject_RichCompare,        // tp_richcompare
@@ -818,7 +818,7 @@ void PyVTKAddFile_mutable(
 {
   PyObject *o = (PyObject *)&PyVTKMutableObject_Type;
 
-  if (o && PyDict_SetItemString(dict, (char *)"mutable", o) != 0)
+  if (o && PyDict_SetItemString(dict, "mutable", o) != 0)
     {
     Py_DECREF(o);
     }

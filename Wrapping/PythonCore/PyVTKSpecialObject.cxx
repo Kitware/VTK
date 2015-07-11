@@ -61,9 +61,9 @@ PyObject *PyVTKSpecialObject_Repr(PyObject *self)
   PyTypeObject *type = self->ob_type;
   const char *name = self->ob_type->tp_name;
 
-  PyObject *s = PyString_FromString((char *)"(");
-  PyString_ConcatAndDel(&s, PyString_FromString((char *)name));
-  PyString_ConcatAndDel(&s, PyString_FromString((char *)")"));
+  PyObject *s = PyString_FromString("(");
+  PyString_ConcatAndDel(&s, PyString_FromString(name));
+  PyString_ConcatAndDel(&s, PyString_FromString(")"));
 
   while (type->tp_base && !type->tp_str)
     {
@@ -117,14 +117,14 @@ PyObject *PyVTKSpecialObject_SequenceString(PyObject *self)
     }
   else if (i > 0)
     {
-    return PyString_FromString((char *)bracket);
+    return PyString_FromString(bracket);
     }
 
   n = PySequence_Size(self);
   if (n >= 0)
     {
-    comma = PyString_FromString((char *)", ");
-    s = PyString_FromStringAndSize((char *)bracket, 1);
+    comma = PyString_FromString(", ");
+    s = PyString_FromStringAndSize(bracket, 1);
 
     for (i = 0; i < n && s != NULL; i++)
       {
@@ -154,7 +154,7 @@ PyObject *PyVTKSpecialObject_SequenceString(PyObject *self)
     if (s)
       {
       PyString_ConcatAndDel(&s,
-        PyString_FromStringAndSize((char *)&bracket[4], 1));
+        PyString_FromStringAndSize(&bracket[4], 1));
       }
 
     Py_DECREF(comma);

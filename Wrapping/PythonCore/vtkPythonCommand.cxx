@@ -53,14 +53,14 @@ namespace
   PyObject *arglist;
   if (callDataAsPyObject)
       {
-      arglist = Py_BuildValue((char*)"(NsN)", caller, eventname, callDataAsPyObject);
+      arglist = Py_BuildValue("(NsN)", caller, eventname, callDataAsPyObject);
       }
   else
       {
       PyErr_Clear();
       /* we couldn't create a the expected python object, so we pass in None */
       Py_INCREF(Py_None);
-      arglist = Py_BuildValue((char*)"(NsN)", caller, eventname, Py_None);
+      arglist = Py_BuildValue("(NsN)", caller, eventname, Py_None);
       }
   return arglist;
   }
@@ -177,7 +177,7 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
           {
           // we don't handle this, so we pass in a None as the third parameter
           Py_INCREF(Py_None);
-          arglist = Py_BuildValue((char*)"(NsN)", obj2, eventname, Py_None);
+          arglist = Py_BuildValue("(NsN)", obj2, eventname, Py_None);
           }
         }
     else if (PyString_Check(callDataTypeObj))
@@ -196,14 +196,14 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
         {
         // we don't handle this, so we pass in a None as the third parameter
         Py_INCREF(Py_None);
-        arglist = Py_BuildValue((char*)"(NsN)", obj2, eventname, Py_None);
+        arglist = Py_BuildValue("(NsN)", obj2, eventname, Py_None);
         }
       }
     else
       {
       // the handler object has a CallDataType attribute, but it's neither an
       // integer or a string -- then we do traditional arguments
-      arglist = Py_BuildValue((char*)"(Ns)", obj2, eventname);
+      arglist = Py_BuildValue("(Ns)", obj2, eventname);
       }
     // we have to do this
     Py_DECREF(callDataTypeObj);
@@ -213,7 +213,7 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
     // this means there was no CallDataType attribute, so we do the
     // traditional obj(object, eventname) call
     PyErr_Clear();
-    arglist = Py_BuildValue((char*)"(Ns)", obj2, eventname);
+    arglist = Py_BuildValue("(Ns)", obj2, eventname);
     }
 
   PyObject *result = PyEval_CallObject(this->obj, arglist);

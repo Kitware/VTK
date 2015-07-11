@@ -36,7 +36,7 @@ resulting in wrapper code that is faster and more compact.
   if (PyFloat_Check(o)) \
     { \
     PyErr_SetString(PyExc_TypeError, \
-                      (char *)"integer argument expected, got float"); \
+                      "integer argument expected, got float"); \
     return false; \
     }
 

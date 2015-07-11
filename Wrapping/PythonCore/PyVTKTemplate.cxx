@@ -45,7 +45,7 @@ static const char *PyVTKTemplate_Doc =
 static PyObject *PyVTKTemplate_HasKey(PyObject *ob, PyObject *args)
 {
   PyObject *key = NULL;
-  if (PyArg_ParseTuple(args, (char *)"O:has_key", &key))
+  if (PyArg_ParseTuple(args, "O:has_key", &key))
     {
     ob = ((PyVTKTemplate *)ob)->dict;
     return PyObject_CallMethod(ob, (char *)"has_key", (char *)"(O)", key);
@@ -55,7 +55,7 @@ static PyObject *PyVTKTemplate_HasKey(PyObject *ob, PyObject *args)
 
 static PyObject *PyVTKTemplate_Keys(PyObject *ob, PyObject *args)
 {
-  if (PyArg_ParseTuple(args, (char *)":keys"))
+  if (PyArg_ParseTuple(args, ":keys"))
     {
     ob = ((PyVTKTemplate *)ob)->dict;
     return PyObject_CallMethod(ob, (char *)"keys", (char *)"()");
@@ -65,7 +65,7 @@ static PyObject *PyVTKTemplate_Keys(PyObject *ob, PyObject *args)
 
 static PyObject *PyVTKTemplate_Values(PyObject *ob, PyObject *args)
 {
-  if (PyArg_ParseTuple(args, (char *)":values"))
+  if (PyArg_ParseTuple(args, ":values"))
     {
     ob = ((PyVTKTemplate *)ob)->dict;
     return PyObject_CallMethod(ob, (char *)"values", (char *)"()");
@@ -75,7 +75,7 @@ static PyObject *PyVTKTemplate_Values(PyObject *ob, PyObject *args)
 
 static PyObject *PyVTKTemplate_Items(PyObject *ob, PyObject *args)
 {
-  if (PyArg_ParseTuple(args, (char *)":items"))
+  if (PyArg_ParseTuple(args, ":items"))
     {
     ob = ((PyVTKTemplate *)ob)->dict;
     return PyObject_CallMethod(ob, (char *)"items", (char *)"()");
@@ -87,7 +87,7 @@ static PyObject *PyVTKTemplate_Get(PyObject *ob, PyObject *args)
 {
   PyObject *key = NULL;
   PyObject *def = Py_None;
-  if (PyArg_ParseTuple(args, (char *)"O|O:get"))
+  if (PyArg_ParseTuple(args, "O|O:get"))
     {
     ob = ((PyVTKTemplate *)ob)->dict;
     return PyObject_CallMethod(ob, (char *)"get", (char *)"(OO)", key, def);
@@ -97,7 +97,7 @@ static PyObject *PyVTKTemplate_Get(PyObject *ob, PyObject *args)
 
 static PyObject *PyVTKTemplate_Copy(PyObject *ob, PyObject *args)
 {
-  if (PyArg_ParseTuple(args, (char *)":copy"))
+  if (PyArg_ParseTuple(args, ":copy"))
     {
     ob = ((PyVTKTemplate *)ob)->dict;
     return PyObject_CallMethod(ob, (char *)"copy", NULL);
@@ -107,18 +107,18 @@ static PyObject *PyVTKTemplate_Copy(PyObject *ob, PyObject *args)
 
 
 static PyMethodDef PyVTKTemplate_Methods[] = {
-  {(char*)"has_key", PyVTKTemplate_HasKey, METH_VARARGS,
-   (char *)"T.has_key(args) -> True only the template args are allowed."},
-  {(char*)"keys", PyVTKTemplate_Keys, METH_VARARGS,
-   (char *)"T.keys() -> list of allowed template args."},
-  {(char*)"values", PyVTKTemplate_Values, METH_VARARGS,
-   (char *)"T.values() -> list of provided template instantiations."},
-  {(char*)"items", PyVTKTemplate_Items, METH_VARARGS,
-   (char *)"T.items() -> list of (args,types) pairs."},
-  {(char*)"get", PyVTKTemplate_Get, METH_VARARGS,
-   (char *)"T.get(args) -> get instantiated template type or None."},
-  {(char*)"copy", PyVTKTemplate_Copy, METH_VARARGS,
-   (char *)"T.copy() -> get a shallow copy of T."},
+  {"has_key", PyVTKTemplate_HasKey, METH_VARARGS,
+   "T.has_key(args) -> True only the template args are allowed."},
+  {"keys", PyVTKTemplate_Keys, METH_VARARGS,
+   "T.keys() -> list of allowed template args."},
+  {"values", PyVTKTemplate_Values, METH_VARARGS,
+   "T.values() -> list of provided template instantiations."},
+  {"items", PyVTKTemplate_Items, METH_VARARGS,
+   "T.items() -> list of (args,types) pairs."},
+  {"get", PyVTKTemplate_Get, METH_VARARGS,
+   "T.get(args) -> get instantiated template type or None."},
+  {"copy", PyVTKTemplate_Copy, METH_VARARGS,
+   "T.copy() -> get a shallow copy of T."},
   { NULL, NULL, 0, NULL }
 };
 
@@ -313,7 +313,7 @@ static PyObject *PyVTKTemplate_GetAttr(PyObject *self, PyObject *attr)
       }
     if (strcmp(name, "__bases__") == 0)
       {
-      return Py_BuildValue((char *)"()");
+      return Py_BuildValue("()");
       }
     }
 
@@ -335,7 +335,7 @@ static PyObject *PyVTKTemplate_GetAttr(PyObject *self, PyObject *attr)
 PyTypeObject PyVTKTemplate_Type = {
   PyObject_HEAD_INIT(&PyType_Type)
   0,
-  (char*)"vtk.template",                 // tp_name
+  "vtk.template",                        // tp_name
   sizeof(PyVTKTemplate),                 // tp_basicsize
   0,                                     // tp_itemsize
   PyVTKTemplate_Delete,                  // tp_dealloc
@@ -354,7 +354,7 @@ PyTypeObject PyVTKTemplate_Type = {
   0,                                     // tp_setattro
   0,                                     // tp_as_buffer
   Py_TPFLAGS_CHECKTYPES | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_DEFAULT, // tp_flags
-  (char*)PyVTKTemplate_Doc,              // tp_doc
+  PyVTKTemplate_Doc,                     // tp_doc
   PyVTKTemplate_Traverse,                // tp_traverse
   0,                                     // tp_clear
   0,                                     // tp_richcompare
@@ -548,7 +548,7 @@ int PyVTKTemplate_AddItem(PyObject *self, PyObject *val)
         PyErr_SetString(PyExc_TypeError, "unrecognized mangled type.");
         return -1;
         }
-      keys[i] = PyString_FromStringAndSize((char *)ptype, (Py_ssize_t)j);
+      keys[i] = PyString_FromStringAndSize(ptype, (Py_ssize_t)j);
       }
     }
 

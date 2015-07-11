@@ -109,12 +109,12 @@ static PyObject *PyVTKClass_Call(PyObject *op, PyObject *arg, PyObject *kw)
                     "this function takes no keyword arguments");
     return NULL;
     }
-  if (PyArg_ParseTuple(arg,(char*)""))
+  if (PyArg_ParseTuple(arg, ""))
     {
     return PyVTKObject_New((PyObject *)self, NULL, NULL);
     }
   PyErr_Clear();
-  if (PyArg_ParseTuple(arg,(char*)"O", &arg))
+  if (PyArg_ParseTuple(arg, "O", &arg))
     {
     return vtkPythonUtil::GetObjectFromObject(
       arg, PyString_AsString(self->vtk_name));
@@ -249,7 +249,7 @@ static PyObject *PyVTKClass_Dir(PyObject *op, PyObject *arg)
 }
 
 static PyMethodDef PyVTKClass_Dir_Method =
-{ (char *)"__dir__", PyVTKClass_Dir, METH_O, (char *)"class directory" };
+{ "__dir__", PyVTKClass_Dir, METH_O, "class directory" };
 
 //--------------------------------------------------------------------
 static int PyVTKClass_Traverse(PyObject *o, visitproc visit, void *arg)
@@ -321,7 +321,7 @@ static PyObject *PyVTKClassMetaType_GetAttr(PyObject *op, PyObject *attr)
     }
   if (strcmp(name, "__members__") == 0)
     {
-    return Py_BuildValue((char*)"[ss]", "__doc__", "__name__");
+    return Py_BuildValue("[ss]", "__doc__", "__name__");
     }
   if (strcmp(name,"__dir__") == 0)
     {
@@ -348,7 +348,7 @@ static PyObject *PyVTKClass_NewSubclass(PyObject *self, PyObject *args,
 static PyTypeObject PyVTKClassMetaType = {
   PyObject_HEAD_INIT(&PyType_Type)
   0,
-  (char*)"vtkclass type",                // tp_name
+  "vtkclass type",                       // tp_name
   sizeof(PyTypeObject),                  // tp_basicsize
   0,                                     // tp_itemsize
   0,                                     // tp_dealloc
@@ -367,7 +367,7 @@ static PyTypeObject PyVTKClassMetaType = {
   0,                                     // tp_setattro
   0,                                     // tp_as_buffer
   0,                                     // tp_flags
-  (char*)"PyVTKClassMetaType, part of the subclassing mechanism for VTK classes.",
+  "PyVTKClassMetaType, part of the subclassing mechanism for VTK classes.",
   0,                                     // tp_traverse
   0,                                     // tp_clear
   0,                                     // tp_richcompare
@@ -379,7 +379,7 @@ static PyTypeObject PyVTKClassMetaType = {
 PyTypeObject PyVTKClass_Type = {
   PyObject_HEAD_INIT(&PyVTKClassMetaType)
   0,
-  (char*)"vtkclass",                     // tp_name
+  "vtkclass",                            // tp_name
   sizeof(PyVTKClass),                    // tp_basicsize
   0,                                     // tp_itemsize
   PyVTKClass_Delete,                     // tp_dealloc
@@ -398,7 +398,7 @@ PyTypeObject PyVTKClass_Type = {
   0,                                     // tp_setattro
   0,                                     // tp_as_buffer
   Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC, // tp_flags
-  (char*)"A generator for VTK objects.  Special attributes are: __bases__ (a tuple of base classes), __dict__ (methods and attributes), __doc__ (the docstring for the class), __name__ (the name of class), and __module__ (module that the class is defined in).", // tp_doc
+  "A generator for VTK objects.  Special attributes are: __bases__ (a tuple of base classes), __dict__ (methods and attributes), __doc__ (the docstring for the class), __name__ (the name of class), and __module__ (module that the class is defined in).", // tp_doc
   PyVTKClass_Traverse,                   // tp_traverse
   0,                                     // tp_clear
   0,                                     // tp_richcompare
@@ -486,14 +486,14 @@ PyObject *PyVTKClass_New(vtknewfunc constructor, PyMethodDef *methods,
       {
       pythonname = classname;
       }
-    name = PyString_FromString((char *)pythonname);
+    name = PyString_FromString(pythonname);
 
     // intern the module string
     for (i = 0; i < nmodulestr; i++)
       {
       if (modulestr[i] == 0)
         {
-        modulestr[i] = PyString_InternFromString((char *)modulename);
+        modulestr[i] = PyString_InternFromString(modulename);
         moduleobj = modulestr[i];
         Py_INCREF(moduleobj);
         break;
@@ -508,7 +508,7 @@ PyObject *PyVTKClass_New(vtknewfunc constructor, PyMethodDef *methods,
 
     if (i == nmodulestr)
       {
-      moduleobj = PyString_FromString((char *)modulename);
+      moduleobj = PyString_FromString(modulename);
       }
 
     doc = vtkPythonUtil::BuildDocString(docstring);
@@ -552,7 +552,7 @@ static PyObject *PyVTKClass_NewSubclass(PyObject *, PyObject *args,
   PyVTKClass *base;
   PyObject *attributes;
 
-  if ((PyArg_ParseTupleAndKeywords(args, kw, (char*)"sOO", (char**)kwlist,
+  if ((PyArg_ParseTupleAndKeywords(args, kw, "sOO", (char**)kwlist,
                                    &classname, &bases, &attributes)))
     {
     if (!PyTuple_Check(bases) || PyTuple_Size(bases) != 1)
@@ -581,7 +581,7 @@ static PyObject *PyVTKClass_NewSubclass(PyObject *, PyObject *args,
       return NULL;
       }
 
-    if (PyDict_GetItemString(attributes, (char*)"__del__"))
+    if (PyDict_GetItemString(attributes, "__del__"))
       {
       PyErr_SetString(PyExc_ValueError, "__del__ attribute is not supported");
       return NULL;
@@ -596,19 +596,19 @@ static PyObject *PyVTKClass_NewSubclass(PyObject *, PyObject *args,
     newclass->vtk_dict = attributes;
     newclass->vtk_name = PyString_FromString(classname);
 
-    newclass->vtk_getattr = PyDict_GetItemString(attributes, (char*)"__getattr__");
+    newclass->vtk_getattr = PyDict_GetItemString(attributes, "__getattr__");
     if (newclass->vtk_getattr == 0)
       {
       newclass->vtk_getattr = base->vtk_getattr;
       }
     Py_XINCREF(newclass->vtk_getattr);
-    newclass->vtk_setattr = PyDict_GetItemString(attributes, (char*)"__setattr__");
+    newclass->vtk_setattr = PyDict_GetItemString(attributes, "__setattr__");
     if (newclass->vtk_setattr == 0)
       {
       newclass->vtk_setattr = base->vtk_setattr;
       }
     Py_XINCREF(newclass->vtk_setattr);
-    newclass->vtk_delattr = PyDict_GetItemString(attributes, (char*)"__delattr__");
+    newclass->vtk_delattr = PyDict_GetItemString(attributes, "__delattr__");
     if (newclass->vtk_delattr == 0)
       {
       newclass->vtk_delattr = base->vtk_delattr;
@@ -625,7 +625,7 @@ static PyObject *PyVTKClass_NewSubclass(PyObject *, PyObject *args,
     globals = PyEval_GetGlobals();
     if (globals != NULL)
       {
-      PyObject *modname = PyDict_GetItemString(globals, (char*)"__name__");
+      PyObject *modname = PyDict_GetItemString(globals, "__name__");
       if (modname != NULL)
         {
         Py_INCREF(modname);
@@ -637,11 +637,11 @@ static PyObject *PyVTKClass_NewSubclass(PyObject *, PyObject *args,
       newclass->vtk_module = PyString_FromString("__main__");
       }
 
-    newclass->vtk_doc = PyDict_GetItemString(attributes, (char*)"__doc__");
+    newclass->vtk_doc = PyDict_GetItemString(attributes, "__doc__");
     if (newclass->vtk_doc)
       {
       Py_INCREF(newclass->vtk_doc);
-      PyDict_DelItemString(attributes, (char*)"__doc__");
+      PyDict_DelItemString(attributes, "__doc__");
       }
     else
       {

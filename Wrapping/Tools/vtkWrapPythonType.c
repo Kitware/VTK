@@ -313,7 +313,7 @@ static void vtkWrapPython_RichCompareProtocol(
     fprintf(fp,
       "  if (result == -1)\n"
       "    {\n"
-      "    PyErr_SetString(PyExc_TypeError, (char *)\"operation not available\");\n"
+      "    PyErr_SetString(PyExc_TypeError, \"operation not available\");\n"
       "    return NULL;\n"
       "    }\n"
       "\n"
@@ -669,8 +669,8 @@ void vtkWrapPython_GenerateSpecialType(
   /* generate the method table for the New method */
   fprintf(fp,
     "static PyMethodDef Py%s_NewMethod = \\\n"
-    "{ (char*)\"%s\", Py%s_%*.*s, 1,\n"
-    "  (char*)\"\" };\n"
+    "{ \"%s\", Py%s_%*.*s, 1,\n"
+    "  \"\" };\n"
     "\n",
     classname, classname, classname,
     (int)n, (int)n, constructor);
@@ -684,7 +684,7 @@ void vtkWrapPython_GenerateSpecialType(
     "PyTypeObject Py%s_Type = {\n"
     "  PyObject_HEAD_INIT(&PyType_Type)\n"
     "  0,\n"
-    "  (char*)\"%s\", // tp_name\n"
+    "  \"%s\", // tp_name\n"
     "  sizeof(PyVTKSpecialObject), // tp_basicsize\n"
     "  0, // tp_itemsize\n"
     "  Py%s_Delete, // tp_dealloc\n"
