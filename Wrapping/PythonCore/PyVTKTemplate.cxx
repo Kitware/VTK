@@ -129,11 +129,7 @@ static Py_ssize_t
 PyVTKTemplate_Size(PyObject *ob)
 {
   ob = ((PyVTKTemplate *)ob)->dict;
-#if PY_MAJOR_VERSION >= 2
   return PyObject_Size(ob);
-#else
-  return PyObject_Length(ob);
-#endif
 }
 
 static PyObject *
@@ -239,7 +235,6 @@ static PyMappingMethods PyVTKTemplate_AsMapping = {
 };
 
 //--------------------------------------------------------------------
-#if PY_MAJOR_VERSION >= 2
 static int PyVTKTemplate_Traverse(PyObject *o, visitproc visit, void *arg)
 {
   PyVTKTemplate *self = (PyVTKTemplate *)o;
@@ -260,25 +255,16 @@ static int PyVTKTemplate_Traverse(PyObject *o, visitproc visit, void *arg)
 
   return err;
 }
-#endif
 
 //--------------------------------------------------------------------
 static void PyVTKTemplate_Delete(PyObject *op)
 {
-#if PY_VERSION_HEX >= 0x02020000
   PyObject_GC_UnTrack(op);
-#endif
 
   Py_DECREF(((PyVTKTemplate *)op)->dict);
   Py_DECREF(((PyVTKTemplate *)op)->doc);
 
-#if PY_VERSION_HEX >= 0x02020000
   PyObject_GC_Del(op);
-#elif PY_MAJOR_VERSION >= 2
-  PyObject_Del(op);
-#else
-  PyMem_DEL(op);
-#endif
 }
 
 //--------------------------------------------------------------------
@@ -367,16 +353,12 @@ PyTypeObject PyVTKTemplate_Type = {
   PyVTKTemplate_GetAttr,                 // tp_getattro
   0,                                     // tp_setattro
   0,                                     // tp_as_buffer
-#if PY_VERSION_HEX >= 0x02020000
-  Py_TPFLAGS_CHECKTYPES | Py_TPFLAGS_HAVE_GC |
-#endif
-  Py_TPFLAGS_DEFAULT,                    // tp_flags
+  Py_TPFLAGS_CHECKTYPES | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_DEFAULT, // tp_flags
   (char*)PyVTKTemplate_Doc,              // tp_doc
   PyVTKTemplate_Traverse,                // tp_traverse
   0,                                     // tp_clear
   0,                                     // tp_richcompare
   0,                                     // tp_weaklistoffset
-#if PY_VERSION_HEX >= 0x02020000
   0,                                     // tp_iter
   0,                                     // tp_iternext
   PyVTKTemplate_Methods,                 // tp_methods
@@ -390,18 +372,13 @@ PyTypeObject PyVTKTemplate_Type = {
   0,                                     // tp_init
   0,                                     // tp_alloc
   0,                                     // tp_new
-#if PY_VERSION_HEX >= 0x02030000
   PyObject_Del,                          // tp_free
-#else
-  _PyObject_Del,                         // tp_free
-#endif
   0,                                     // tp_is_gc
   0,                                     // tp_bases
   0,                                     // tp_mro
   0,                                     // tp_cache
   0,                                     // tp_subclasses
   0,                                     // tp_weaklist
-#endif
   VTK_WRAP_PYTHON_SUPRESS_UNINITIALIZED
 };
 
@@ -412,13 +389,7 @@ PyObject *PyVTKTemplate_New(const char *name, const char *modulename,
   PyObject *doc = vtkPythonUtil::BuildDocString(docstring);
   PyObject *dict = PyDict_New();
 
-#if PY_VERSION_HEX >= 0x02020000
   PyVTKTemplate *op = PyObject_GC_New(PyVTKTemplate, &PyVTKTemplate_Type);
-#elif PY_MAJOR_VERSION >= 2
-  PyVTKTemplate *op = PyObject_New(PyVTKTemplate, &PyVTKTemplate_Type);
-#else
-  PyVTKTemplate *op = PyObject_NEW(PyVTKTemplate, &PyVTKTemplate_Type);
-#endif
   PyObject *self = (PyObject *)op;
 
   op->dict = dict;
@@ -426,9 +397,7 @@ PyObject *PyVTKTemplate_New(const char *name, const char *modulename,
   op->name = name;
   op->module = modulename;
 
-#if PY_VERSION_HEX >= 0x02020000
   PyObject_GC_Track(self);
-#endif
 
   return self;
 }

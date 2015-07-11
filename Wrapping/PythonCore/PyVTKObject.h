@@ -37,9 +37,7 @@ struct PyVTKObject {
   vtkObjectBase *vtk_ptr;
   unsigned long *vtk_observers;
   unsigned int vtk_flags;
-#if PY_VERSION_HEX >= 0x02010000
   PyObject *vtk_weakreflist;
-#endif
 };
 
 extern VTKWRAPPINGPYTHONCORE_EXPORT PyTypeObject PyVTKObject_Type;

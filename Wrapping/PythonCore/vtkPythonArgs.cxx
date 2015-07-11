@@ -32,7 +32,6 @@ resulting in wrapper code that is faster and more compact.
 // on unsigned values.
 
 // Macro to mimic a check done in PyArg_ParseTuple
-#if PY_VERSION_HEX >= 0x02030000
 #define VTK_PYTHON_FLOAT_CHECK()\
   if (PyFloat_Check(o)) \
     { \
@@ -40,9 +39,6 @@ resulting in wrapper code that is faster and more compact.
                       (char *)"integer argument expected, got float"); \
     return false; \
     }
-#else
-#define VTK_PYTHON_FLOAT_CHECK()
-#endif
 
 inline
 bool vtkPythonGetValue(PyObject *o, long &a)
@@ -58,31 +54,15 @@ bool vtkPythonGetValue(PyObject *o, unsigned long &a)
 {
   VTK_PYTHON_FLOAT_CHECK();
 
-#if PY_VERSION_HEX >= 0x02020000 && PY_VERSION_HEX < 0x2040000
-  if (PyInt_Check(o))
+  long l = PyInt_AsLong(o);
+  if (l < 0)
     {
-#endif
-#if PY_VERSION_HEX < 0x2040000
-    long l = PyInt_AsLong(o);
-    if (l < 0)
-      {
-      PyErr_SetString(PyExc_OverflowError,
-                      "can't convert negative value to unsigned integer");
-      return false;
-      }
-    a = static_cast<unsigned long>(l);
-#endif
-#if PY_VERSION_HEX >= 0x02020000 && PY_VERSION_HEX < 0x2040000
+    PyErr_SetString(PyExc_OverflowError,
+                    "can't convert negative value to unsigned integer");
+    return false;
     }
-  else
-    {
-#endif
-#if PY_VERSION_HEX >= 0x2020000
-    a = PyLong_AsUnsignedLong(o);
-#endif
-#if PY_VERSION_HEX >= 0x02020000 && PY_VERSION_HEX < 0x2040000
-    }
-#endif
+  a = static_cast<unsigned long>(l);
+  a = PyLong_AsUnsignedLong(o);
   return (static_cast<long>(a) != -1 || !PyErr_Occurred());
 }
 
@@ -110,36 +90,22 @@ bool vtkPythonGetUnsignedLongLongValue(PyObject *o, T &a)
 #else
   unsigned long i;
 #endif
-#if PY_VERSION_HEX >= 0x02020000
-  if (PyInt_Check(o))
+  long l = PyInt_AsLong(o);
+  if (l < 0)
     {
-#endif
-    long l = PyInt_AsLong(o);
-    if (l < 0)
-      {
-      PyErr_SetString(PyExc_OverflowError,
-                      "can't convert negative value to unsigned long");
-      return false;
-      }
-#ifdef PY_LONG_LONG
-    i = static_cast<unsigned PY_LONG_LONG>(l);
-#else
-    i = static_cast<unsigned long>(l);
-#endif
-#if PY_VERSION_HEX >= 0x02020000
+    PyErr_SetString(PyExc_OverflowError,
+                    "can't convert negative value to unsigned long");
+    return false;
     }
-  else
-    {
-#endif
-#if PY_VERSION_HEX >= 0x2020000
 #ifdef PY_LONG_LONG
-    i = PyLong_AsUnsignedLongLong(o);
+  i = static_cast<unsigned PY_LONG_LONG>(l);
 #else
-    i = PyLong_AsUnsignedLong(o);
+  i = static_cast<unsigned long>(l);
 #endif
-#endif
-#if PY_VERSION_HEX >= 0x02020000
-    }
+#ifdef PY_LONG_LONG
+  i = PyLong_AsUnsignedLongLong(o);
+#else
+  i = PyLong_AsUnsignedLong(o);
 #endif
   a = static_cast<T>(i);
   return (static_cast<int>(i) != -1 || !PyErr_Occurred());
@@ -553,11 +519,7 @@ bool vtkPythonGetArray(PyObject *o, T *a, int n)
       }
     else if (PySequence_Check(o))
       {
-#if PY_MAJOR_VERSION >= 2
       m = PySequence_Size(o);
-#else
-      m = PySequence_Length(o);
-#endif
       if (m == n)
         {
         bool r = true;
@@ -626,11 +588,7 @@ bool vtkPythonGetNArray(PyObject *o, T *a, int ndim, const int *dims)
       }
     else if (PySequence_Check(o))
       {
-#if PY_MAJOR_VERSION >= 2
       m = PySequence_Size(o);
-#else
-      m = PySequence_Length(o);
-#endif
       if (m == n)
         {
         bool r = true;
@@ -694,11 +652,7 @@ bool vtkPythonSetArray(PyObject *o, const T *a, int n)
       }
     else if (PySequence_Check(o))
       {
-#if PY_MAJOR_VERSION >= 2
       m = PySequence_Size(o);
-#else
-      m = PySequence_Length(o);
-#endif
       if (m == n)
         {
         bool r = true;
@@ -774,11 +728,7 @@ bool vtkPythonSetNArray(
       }
     else if (PySequence_Check(o))
       {
-#if PY_MAJOR_VERSION >= 2
       m = PySequence_Size(o);
-#else
-      m = PySequence_Length(o);
-#endif
       if (m == n)
         {
         bool r = true;

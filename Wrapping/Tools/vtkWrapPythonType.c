@@ -69,9 +69,8 @@ static void vtkWrapPython_NewDeleteProtocol(
       }
     }
 
-  /* the new method for python versions >= 2.2 */
+  /* the "new" method */
   fprintf(fp,
-    "#if PY_VERSION_HEX >= 0x02020000\n"
     "static PyObject *\n"
     "Py%s_New(PyTypeObject *, PyObject *args, PyObject *kwds)\n"
     "{\n"
@@ -84,7 +83,6 @@ static void vtkWrapPython_NewDeleteProtocol(
     "\n"
     "  return Py%s_%*.*s(NULL, args);\n"
     "}\n"
-    "#endif\n"
     "\n",
     classname, classname, (int)n, (int)n, constructor);
 
@@ -94,11 +92,7 @@ static void vtkWrapPython_NewDeleteProtocol(
     "{\n"
     "  PyVTKSpecialObject *obj = (PyVTKSpecialObject *)self;\n"
     "  delete static_cast<%s *>(obj->vtk_ptr);\n"
-    "#if PY_MAJOR_VERSION >= 2\n"
     "  PyObject_Del(self);\n"
-    "#else\n"
-    "  PyMem_DEL(self);\n"
-    "#endif\n"
     "}\n"
     "\n",
     classname, data->Name);
@@ -237,7 +231,6 @@ static void vtkWrapPython_RichCompareProtocol(
     info->has_compare = 1;
 
     fprintf(fp,
-      "#if PY_VERSION_HEX >= 0x02010000\n"
       "static PyObject *Py%s_RichCompare(\n"
       "  PyObject *o1, PyObject *o2, int opid)\n"
       "{\n"
@@ -324,20 +317,9 @@ static void vtkWrapPython_RichCompareProtocol(
       "    return NULL;\n"
       "    }\n"
       "\n"
-      "#if PY_VERSION_HEX >= 0x02030000\n"
       "  // avoids aliasing issues with Py_INCREF(Py_False)\n"
       "  return PyBool_FromLong((long)result);\n"
-      "#else\n"
-      "  if (result == 0)\n"
-      "    {\n"
-      "    Py_INCREF(Py_False);\n"
-      "    return Py_False;\n"
-      "    }\n"
-      "  Py_INCREF(Py_True);\n"
-      "  return Py_True;\n"
-      "#endif\n"
       "}\n"
-      "#endif\n"
       "\n");
     }
 }
@@ -503,10 +485,8 @@ static void vtkWrapPython_SequenceProtocol(
     fprintf(fp,
       "  0, // sq_ass_slice\n"
       "  0, // sq_contains\n"
-      "#if PY_VERSION_HEX >= 0x2000000\n"
       "  0, // sq_inplace_concat\n"
       "  0, // sq_inplace_repeat\n"
-      "#endif\n"
       "};\n\n");
     }
 }
@@ -754,11 +734,7 @@ void vtkWrapPython_GenerateSpecialType(
     }
 
   fprintf(fp,
-    "#if PY_VERSION_HEX >= 0x02020000\n"
     "  PyObject_GenericGetAttr, // tp_getattro\n"
-    "#else\n"
-    "  PyVTKSpecialObject_GetAttr, // tp_getattro\n"
-    "#endif\n"
     "  0, // tp_setattro\n"
     "  0, // tp_as_buffer\n"
     "  Py_TPFLAGS_DEFAULT, // tp_flags\n"
@@ -769,11 +745,7 @@ void vtkWrapPython_GenerateSpecialType(
   if (info.has_compare)
     {
     fprintf(fp,
-      "#if PY_VERSION_HEX >= 0x02010000\n"
-      "  Py%s_RichCompare, // tp_richcompare\n"
-      "#else\n"
-      "  0, // tp_richcompare\n"
-      "#endif\n",
+      "  Py%s_RichCompare, // tp_richcompare\n",
       classname);
     }
   else
@@ -784,7 +756,6 @@ void vtkWrapPython_GenerateSpecialType(
 
   fprintf(fp,
     "  0, // tp_weaklistoffset\n"
-    "#if PY_VERSION_HEX >= 0x02020000\n"
     "  0, // tp_iter\n"
     "  0, // tp_iternext\n");
 
@@ -815,11 +786,7 @@ void vtkWrapPython_GenerateSpecialType(
     "  0, // tp_init\n"
     "  0, // tp_alloc\n"
     "  Py%s_New, // tp_new\n"
-    "#if PY_VERSION_HEX >= 0x02030000\n"
     "  PyObject_Del, // tp_free\n"
-    "#else\n"
-    "  _PyObject_Del, // tp_free\n"
-    "#endif\n"
     "  0, // tp_is_gc\n",
     classname);
 
@@ -829,8 +796,7 @@ void vtkWrapPython_GenerateSpecialType(
     "  0, // tp_mro\n"
     "  0, // tp_cache\n"
     "  0, // tp_subclasses\n"
-    "  0, // tp_weaklist\n"
-    "#endif\n");
+    "  0, // tp_weaklist\n");
 
   /* internal struct members */
   fprintf(fp,

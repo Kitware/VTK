@@ -195,7 +195,6 @@ static PyObject *PyVTKClass_GetAttr(PyObject *op, PyObject *attr)
 }
 
 //--------------------------------------------------------------------
-#if PY_VERSION_HEX >= 0x02020000
 static PyObject *PyVTKClass_Dir(PyObject *op, PyObject *arg)
 {
   /* depending on where it is bound */
@@ -251,10 +250,8 @@ static PyObject *PyVTKClass_Dir(PyObject *op, PyObject *arg)
 
 static PyMethodDef PyVTKClass_Dir_Method =
 { (char *)"__dir__", PyVTKClass_Dir, METH_O, (char *)"class directory" };
-#endif
 
 //--------------------------------------------------------------------
-#if PY_MAJOR_VERSION >= 2
 static int PyVTKClass_Traverse(PyObject *o, visitproc visit, void *arg)
 {
   PyVTKClass *self = (PyVTKClass *)o;
@@ -281,16 +278,13 @@ static int PyVTKClass_Traverse(PyObject *o, visitproc visit, void *arg)
 
   return err;
 }
-#endif
 
 //--------------------------------------------------------------------
 static void PyVTKClass_Delete(PyObject *op)
 {
   PyVTKClass *self = (PyVTKClass *)op;
 
-#if PY_VERSION_HEX >= 0x02020000
   PyObject_GC_UnTrack(op);
-#endif
   Py_XDECREF(self->vtk_bases);
   Py_XDECREF(self->vtk_dict);
   Py_XDECREF(self->vtk_name);
@@ -302,13 +296,7 @@ static void PyVTKClass_Delete(PyObject *op)
   Py_XDECREF(self->vtk_module);
   Py_XDECREF(self->vtk_doc);
 
-#if PY_VERSION_HEX >= 0x02020000
   PyObject_GC_Del(op);
-#elif PY_MAJOR_VERSION >= 2
-  PyObject_Del(op);
-#else
-  PyMem_DEL(op);
-#endif
 }
 
 //--------------------------------------------------------------------
@@ -335,12 +323,10 @@ static PyObject *PyVTKClassMetaType_GetAttr(PyObject *op, PyObject *attr)
     {
     return Py_BuildValue((char*)"[ss]", "__doc__", "__name__");
     }
-#if PY_VERSION_HEX >= 0x02020000
   if (strcmp(name,"__dir__") == 0)
     {
     return PyCFunction_New(&PyVTKClass_Dir_Method, op);
     }
-#endif
 
   PyErr_SetString(PyExc_AttributeError, name);
   return NULL;
@@ -382,14 +368,10 @@ static PyTypeObject PyVTKClassMetaType = {
   0,                                     // tp_as_buffer
   0,                                     // tp_flags
   (char*)"PyVTKClassMetaType, part of the subclassing mechanism for VTK classes.",
-#if PY_MAJOR_VERSION >= 2
   0,                                     // tp_traverse
   0,                                     // tp_clear
   0,                                     // tp_richcompare
   0,                                     // tp_weaklistoffset
-#else
-  0, 0, 0, 0,                            // reserved
-#endif
   VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED
 };
 
@@ -415,21 +397,12 @@ PyTypeObject PyVTKClass_Type = {
   PyVTKClass_GetAttr,                    // tp_getattro
   0,                                     // tp_setattro
   0,                                     // tp_as_buffer
-#if PY_VERSION_HEX >= 0x02020000
   Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC, // tp_flags
-#else
-  0,                                     // tp_flags
-#endif
   (char*)"A generator for VTK objects.  Special attributes are: __bases__ (a tuple of base classes), __dict__ (methods and attributes), __doc__ (the docstring for the class), __name__ (the name of class), and __module__ (module that the class is defined in).", // tp_doc
-#if PY_MAJOR_VERSION >= 2
   PyVTKClass_Traverse,                   // tp_traverse
   0,                                     // tp_clear
   0,                                     // tp_richcompare
   0,                                     // tp_weaklistoffset
-#else
-  0, 0, 0, 0,                            // reserved
-#endif
-#if PY_VERSION_HEX >= 0x02020000
   0,                                     // tp_iter
   0,                                     // tp_iternext
   0,                                     // tp_methods
@@ -450,7 +423,6 @@ PyTypeObject PyVTKClass_Type = {
   0,                                     // tp_cache
   0,                                     // tp_subclasses
   0,                                     // tp_weaklist
-#endif
   VTK_WRAP_PYTHON_SUPRESS_UNINITIALIZED
 };
 
@@ -541,13 +513,7 @@ PyObject *PyVTKClass_New(vtknewfunc constructor, PyMethodDef *methods,
 
     doc = vtkPythonUtil::BuildDocString(docstring);
 
-#if PY_VERSION_HEX >= 0x02020000
     PyVTKClass *class_self = PyObject_GC_New(PyVTKClass, &PyVTKClass_Type);
-#elif PY_MAJOR_VERSION >= 2
-    PyVTKClass *class_self = PyObject_New(PyVTKClass, &PyVTKClass_Type);
-#else
-    PyVTKClass *class_self = PyObject_NEW(PyVTKClass, &PyVTKClass_Type);
-#endif
     self = (PyObject *)class_self;
 
     class_self->vtk_bases = bases;
@@ -565,9 +531,7 @@ PyObject *PyVTKClass_New(vtknewfunc constructor, PyMethodDef *methods,
     class_self->vtk_cppname = classname;
     class_self->vtk_mangle = (manglename ? manglename : classname);
 
-#if PY_VERSION_HEX >= 0x02020000
     PyObject_GC_Track(self);
-#endif
 
     vtkPythonUtil::AddClassToMap(self, classname);
     }
@@ -623,13 +587,7 @@ static PyObject *PyVTKClass_NewSubclass(PyObject *, PyObject *args,
       return NULL;
       }
 
-#if PY_VERSION_HEX >= 0x02020000
     newclass = PyObject_GC_New(PyVTKClass, &PyVTKClass_Type);
-#elif PY_MAJOR_VERSION >= 2
-    newclass = PyObject_New(PyVTKClass, &PyVTKClass_Type);
-#else
-    newclass = PyObject_NEW(PyVTKClass, &PyVTKClass_Type);
-#endif
 
     Py_INCREF(bases);
     Py_INCREF(attributes);
@@ -690,9 +648,7 @@ static PyObject *PyVTKClass_NewSubclass(PyObject *, PyObject *args,
       newclass->vtk_doc = PyString_FromString("");
       }
 
-#if PY_VERSION_HEX >= 0x02020000
     PyObject_GC_Track((PyObject *)newclass);
-#endif
 
     return (PyObject *)newclass;
     }

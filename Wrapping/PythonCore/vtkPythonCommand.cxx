@@ -83,10 +83,7 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
     }
 
 #ifndef VTK_NO_PYTHON_THREADS
-#if (PY_MAJOR_VERSION > 2) || \
-((PY_MAJOR_VERSION == 2) && (PY_MINOR_VERSION >= 3))
   PyGILState_STATE state = PyGILState_Ensure();
-#endif
 #endif
 
   // If a threadstate has been set using vtkPythonCommand::SetThreadState,
@@ -243,9 +240,6 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
     }
 
 #ifndef VTK_NO_PYTHON_THREADS
-#if (PY_MAJOR_VERSION > 2) || \
-((PY_MAJOR_VERSION == 2) && (PY_MINOR_VERSION >= 3))
   PyGILState_Release(state);
-#endif
 #endif
 }

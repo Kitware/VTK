@@ -736,11 +736,7 @@ PyObject *vtkPythonArgs::BuildValue(double a)
 inline
 PyObject *vtkPythonArgs::BuildValue(bool a)
 {
-#if PY_VERSION_HEX >= 0x02030000
   return PyBool_FromLong((long)a);
-#else
-  return PyInt_FromLong((long)a);
-#endif
 }
 
 inline

@@ -240,7 +240,6 @@ static PyObject *PyVTKObject_GetAttr(PyObject *op, PyObject *attr)
 }
 
 //--------------------------------------------------------------------
-#if PY_MAJOR_VERSION >= 2
 static int PyVTKObject_Traverse(PyObject *o, visitproc visit, void *arg)
 {
   PyVTKObject *self = (PyVTKObject *)o;
@@ -286,23 +285,18 @@ static int PyVTKObject_Traverse(PyObject *o, visitproc visit, void *arg)
 
   return err;
 }
-#endif
 
 //--------------------------------------------------------------------
 static void PyVTKObject_Delete(PyObject *op)
 {
   PyVTKObject *self = (PyVTKObject *)op;
 
-#if PY_VERSION_HEX >= 0x02020000
   PyObject_GC_UnTrack(op);
-#endif
 
-#if PY_VERSION_HEX >= 0x02010000
   if (self->vtk_weakreflist != NULL)
     {
     PyObject_ClearWeakRefs(op);
     }
-#endif
 
   // A python object owning a VTK object reference is getting
   // destroyed.  Remove the python object's VTK object reference.
@@ -312,13 +306,7 @@ static void PyVTKObject_Delete(PyObject *op)
   Py_DECREF(self->vtk_dict);
   delete [] self->vtk_observers;
 
-#if PY_VERSION_HEX >= 0x02020000
   PyObject_GC_Del(op);
-#elif PY_MAJOR_VERSION >= 2
-  PyObject_Del(op);
-#else
-  PyMem_DEL(op);
-#endif
 }
 
 //--------------------------------------------------------------------
@@ -385,7 +373,6 @@ PyVTKObject_AsBuffer_GetWriteBuf(
 
 //--------------------------------------------------------------------
 static PyBufferProcs PyVTKObject_AsBuffer = {
-#if PY_VERSION_HEX >= 0x02050000
   PyVTKObject_AsBuffer_GetReadBuf,       // bf_getreadbuffer
   PyVTKObject_AsBuffer_GetWriteBuf,      // bf_getwritebuffer
   PyVTKObject_AsBuffer_GetSegCount,      // bf_getsegcount
@@ -394,12 +381,6 @@ static PyBufferProcs PyVTKObject_AsBuffer = {
   0,                                     // bf_getbuffer
   0                                      // bf_releasebuffer
  #endif
-#else
-  PyVTKObject_AsBuffer_GetReadBuf,       // bf_getreadbuffer
-  PyVTKObject_AsBuffer_GetWriteBuf,      // bf_getwritebuffer
-  PyVTKObject_AsBuffer_GetSegCount,      // bf_getsegcount
-  0,                                     // bf_getcharbuffer
-#endif
 };
 
 //--------------------------------------------------------------------
@@ -424,27 +405,12 @@ PyTypeObject PyVTKObject_Type = {
   PyVTKObject_GetAttr,                   // tp_getattro
   PyVTKObject_SetAttr,                   // tp_setattro
   &PyVTKObject_AsBuffer,                 // tp_as_buffer
-#if PY_VERSION_HEX >= 0x02020000
   Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC, // tp_flags
-#elif PY_VERSION_HEX >= 0x02010000
-  Py_TPFLAGS_HAVE_WEAKREFS,              // tp_flags
-#else
-  0,                                     // tp_flags
-#endif
   (char*)"Use help(x.__class__) to get full documentation.",  // tp_doc
-#if PY_MAJOR_VERSION >= 2
   PyVTKObject_Traverse,                  // tp_traverse
   0,                                     // tp_clear
   0,                                     // tp_richcompare
-#if PY_VERSION_HEX >= 0x02010000
   offsetof(PyVTKObject, vtk_weakreflist),// tp_weaklistoffset
-#else
-  0,                                     // tp_weaklistoffset
-#endif
-#else
-  0, 0, 0, 0,                            // reserved
-#endif
-#if PY_VERSION_HEX >= 0x02020000
   0,                                     // tp_iter
   0,                                     // tp_iternext
   0,                                     // tp_methods
@@ -465,7 +431,6 @@ PyTypeObject PyVTKObject_Type = {
   0,                                     // tp_cache
   0,                                     // tp_subclasses
   0,                                     // tp_weaklist
-#endif
   VTK_WRAP_PYTHON_SUPRESS_UNINITIALIZED
 };
 
@@ -534,27 +499,16 @@ PyObject *PyVTKObject_New(
     dict = PyDict_New();
     }
 
-#if PY_VERSION_HEX >= 0x02020000
   PyVTKObject *self = PyObject_GC_New(PyVTKObject, &PyVTKObject_Type);
-#elif PY_MAJOR_VERSION >= 2
-  PyVTKObject *self = PyObject_New(PyVTKObject, &PyVTKObject_Type);
-#else
-  PyVTKObject *self = PyObject_NEW(PyVTKObject, &PyVTKObject_Type);
-#endif
 
   self->vtk_ptr = ptr;
   self->vtk_flags = 0;
   self->vtk_class = (PyVTKClass *)cls;
   self->vtk_dict = dict;
   self->vtk_observers = 0;
-
-#if PY_VERSION_HEX >= 0x02010000
   self->vtk_weakreflist = NULL;
-#endif
 
-#if PY_VERSION_HEX >= 0x02020000
   PyObject_GC_Track((PyObject *)self);
-#endif
 
   // A python object owning a VTK object reference is getting
   // created.  Add the python object's VTK object reference.

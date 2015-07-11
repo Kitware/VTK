@@ -83,11 +83,6 @@ PyObject *PyVTKSpecialObject_Repr(PyObject *self);
 
 VTKWRAPPINGPYTHONCORE_EXPORT
 PyObject *PyVTKSpecialObject_SequenceString(PyObject *self);
-
-#if PY_VERSION_HEX < 0x02020000
-VTKWRAPPINGPYTHONCORE_EXPORT
-PyObject *PyVTKSpecialObject_GetAttr(PyObject *self, PyObject *attr);
-#endif
 }
 
 #endif

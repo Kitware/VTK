@@ -223,7 +223,6 @@ int vtkPythonOverload::CheckArg(
     case 'k':
     case 'i':
     case 'I':
-#if PY_VERSION_HEX >= 0x02030000
       if (PyBool_Check(arg))
         {
         penalty = VTK_PYTHON_GOOD_MATCH;
@@ -232,9 +231,7 @@ int vtkPythonOverload::CheckArg(
           penalty++;
           }
         }
-      else
-#endif
-      if (PyInt_Check(arg))
+      else if (PyInt_Check(arg))
         {
 #if VTK_SIZEOF_LONG == VTK_SIZEOF_INT
         if (*format != 'i')
@@ -405,9 +402,7 @@ int vtkPythonOverload::CheckArg(
       // booleans
       if (name[0] == 'b' && strcmp(classname, "bool") == 0)
         {
-#if PY_VERSION_HEX >= 0x02030000
         if (!PyBool_Check(arg))
-#endif
           {
           penalty = VTK_PYTHON_NEEDS_CONVERSION;
           int tmpi = PyObject_IsTrue(arg);
@@ -502,7 +497,6 @@ int vtkPythonOverload::CheckArg(
         // Check for an exact match
         if (strncmp(arg->ob_type->tp_name, classname, 127) != 0)
           {
-#if PY_VERSION_HEX >= 0x02020000
           // Check superclasses
           PyTypeObject *basetype = arg->ob_type->tp_base;
           penalty = VTK_PYTHON_GOOD_MATCH;
@@ -513,7 +507,6 @@ int vtkPythonOverload::CheckArg(
             basetype = basetype->tp_base;
             }
           if (!basetype)
-#endif
             {
             // If it didn't match, then maybe conversion is possible
             penalty = VTK_PYTHON_NEEDS_CONVERSION;
@@ -548,7 +541,6 @@ int vtkPythonOverload::CheckArg(
         // Check for an exact match
         if (strncmp(arg->ob_type->tp_name, classname, 127) != 0)
           {
-#if PY_VERSION_HEX >= 0x02020000
           // Check superclasses
           PyTypeObject *basetype = arg->ob_type->tp_base;
           penalty = VTK_PYTHON_GOOD_MATCH;
@@ -559,7 +551,6 @@ int vtkPythonOverload::CheckArg(
             basetype = basetype->tp_base;
             }
           if (!basetype)
-#endif
             {
             penalty = VTK_PYTHON_INCOMPATIBLE;
             }
@@ -661,11 +652,7 @@ int vtkPythonOverload::CheckArg(
         PyObject *sarg = arg;
         while (PySequence_Check(sarg))
           {
-#if PY_MAJOR_VERSION >= 2
           Py_ssize_t m = PySequence_Size(sarg);
-#else
-          Py_ssize_t m = PySequence_Length(sarg);
-#endif
           if (m <= 0 || (sizeneeded != 0 && m != sizeneeded))
             {
             break;

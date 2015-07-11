@@ -769,7 +769,6 @@ void *vtkPythonUtil::GetPointerFromSpecialObject(
     return ((PyVTKSpecialObject *)obj)->vtk_ptr;
     }
 
-#if PY_VERSION_HEX >= 0x02020000
   // check superclasses
   for (PyTypeObject *basetype = obj->ob_type->tp_base;
        basetype != NULL;
@@ -780,7 +779,6 @@ void *vtkPythonUtil::GetPointerFromSpecialObject(
       return ((PyVTKSpecialObject *)obj)->vtk_ptr;
       }
     }
-#endif
 
   if (PyVTKObject_Check(obj))
     {
@@ -1011,11 +1009,7 @@ long vtkPythonUtil::VariantHash(const vtkVariant *v)
     {
     case VTK_OBJECT:
       {
-#if PY_MAJOR_VERSION >= 2
       h = _Py_HashPointer(v->ToVTKObject());
-#else
-      h = (long)(v->ToVTKObject());
-#endif
       break;
       }
 
@@ -1064,10 +1058,7 @@ void vtkPythonVoidFunc(void *arg)
     }
 
 #ifndef VTK_NO_PYTHON_THREADS
-#if (PY_MAJOR_VERSION > 2) || \
-((PY_MAJOR_VERSION == 2) && (PY_MINOR_VERSION >= 3))
   PyGILState_STATE state = PyGILState_Ensure();
-#endif
 #endif
 
   arglist = Py_BuildValue((char*)"()");
@@ -1090,10 +1081,7 @@ void vtkPythonVoidFunc(void *arg)
     }
 
 #ifndef VTK_NO_PYTHON_THREADS
-#if (PY_MAJOR_VERSION > 2) || \
-((PY_MAJOR_VERSION == 2) && (PY_MINOR_VERSION >= 3))
   PyGILState_Release(state);
-#endif
 #endif
 }
 
@@ -1111,10 +1099,7 @@ void vtkPythonVoidFuncArgDelete(void *arg)
     }
 
 #ifndef VTK_NO_PYTHON_THREADS
-#if (PY_MAJOR_VERSION > 2) || \
-((PY_MAJOR_VERSION == 2) && (PY_MINOR_VERSION >= 3))
   PyGILState_STATE state = PyGILState_Ensure();
-#endif
 #endif
 
   if (func)
@@ -1123,10 +1108,7 @@ void vtkPythonVoidFuncArgDelete(void *arg)
     }
 
 #ifndef VTK_NO_PYTHON_THREADS
-#if (PY_MAJOR_VERSION > 2) || \
-((PY_MAJOR_VERSION == 2) && (PY_MINOR_VERSION >= 3))
   PyGILState_Release(state);
-#endif
 #endif
 }
 
