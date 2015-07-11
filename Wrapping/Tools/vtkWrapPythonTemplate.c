@@ -475,7 +475,7 @@ int vtkWrapPython_WrapTemplatedClass(
             hinfo, entry, instantiations[k], "vtkObjectBase", NULL))
         {
         fprintf(fp,
-            "  o = PyVTKClass_%sNew(modulename);\n",
+            "  o = Py%s_ClassNew(modulename);\n",
             classname);
         }
       else

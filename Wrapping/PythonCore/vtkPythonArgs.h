@@ -28,7 +28,7 @@ resulting in wrapper code that is faster and more compact.
 
 #include "vtkWrappingPythonCoreModule.h" // For export macro
 #include "vtkPythonUtil.h"
-#include "PyVTKClass.h"
+#include "PyVTKObject.h"
 #include "PyVTKTemplate.h"
 
 #include "vtkConfigure.h"
@@ -45,7 +45,7 @@ public:
   vtkPythonArgs(PyObject *self, PyObject *args, const char *methodname) :
       Args(args), MethodName(methodname) {
       this->N = PyTuple_GET_SIZE(args);
-      this->M = PyVTKClass_Check(self);
+      this->M = PyType_Check(self);
       this->I = this->M;
     }
 
@@ -488,7 +488,7 @@ public:
   // Get the argument count for a method that might be unbound.
   static int GetArgCount(PyObject *self, PyObject *args) {
     return (static_cast<int>(PyTuple_GET_SIZE(args)) -
-            PyVTKClass_Check(self)); }
+            PyType_Check(self)); }
 
   // Description:
   // Raise a type error just saying that the arg count is wrong.
@@ -566,7 +566,7 @@ private:
 inline
 vtkObjectBase *vtkPythonArgs::GetSelfPointer(PyObject *self, PyObject *args)
 {
-  if (PyVTKClass_Check(self))
+  if (PyType_Check(self))
     {
     return vtkPythonArgs::GetSelfFromFirstArg(self, args);
     }

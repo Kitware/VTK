@@ -656,11 +656,7 @@ int main(int argc, char *argv[])
              "      {\n"
              "      PyObject *ot = PyList_GET_ITEM(l, i);\n"
              "      const char *nt = NULL;\n"
-             "      if (PyVTKClass_Check(ot))\n"
-             "        {\n"
-             "        nt = PyString_AsString(((PyVTKClass *)ot)->vtk_name);\n"
-             "        }\n"
-             "      else if (PyType_Check(ot))\n"
+             "      if (PyType_Check(ot))\n"
              "        {\n"
              "        nt = ((PyTypeObject *)ot)->tp_name;\n"
              "        }\n"
@@ -681,7 +677,7 @@ int main(int argc, char *argv[])
       {
       /* Class is derived from vtkObjectBase */
       fprintf(fp,
-            "  o = PyVTKClass_%sNew(modulename);\n"
+            "  o = Py%s_ClassNew(modulename);\n"
             "\n",
             data->Name);
       }

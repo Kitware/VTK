@@ -54,7 +54,7 @@ public:
   PyVTKObjectGhost() : vtk_ptr(), vtk_class(0), vtk_dict(0) {};
 
   vtkWeakPointerBase vtk_ptr;
-  PyVTKClass *vtk_class;
+  PyTypeObject *vtk_class;
   PyObject *vtk_dict;
 };
 
@@ -139,7 +139,7 @@ class vtkPythonGhostMap
 
 // Keep track of all the VTK classes that python knows about.
 class vtkPythonClassMap
-  : public std::map<std::string, PyObject*>
+  : public std::map<std::string, PyVTKClass>
 {
 };
 
@@ -378,7 +378,7 @@ void vtkPythonUtil::RemoveObjectFromMap(PyObject *obj)
     vtkWeakPointerBase wptr;
 
     // check for customized class or dict
-    if (pobj->vtk_class->vtk_methods == 0 ||
+    if (pobj->vtk_class->py_type != pobj->ob_type ||
         PyDict_Size(pobj->vtk_dict))
       {
       wptr = pobj->vtk_ptr;
@@ -412,7 +412,7 @@ void vtkPythonUtil::RemoveObjectFromMap(PyObject *obj)
       // Add this new ghost to the map
       PyVTKObjectGhost &g = (*vtkPythonMap->GhostMap)[pobj->vtk_ptr];
       g.vtk_ptr = wptr;
-      g.vtk_class = pobj->vtk_class;
+      g.vtk_class = pobj->ob_type;
       g.vtk_dict = pobj->vtk_dict;
       Py_INCREF(g.vtk_class);
       Py_INCREF(g.vtk_dict);
@@ -458,8 +458,8 @@ PyObject *vtkPythonUtil::GetObjectFromPointer(vtkObjectBase *ptr)
     {
     if (j->second.vtk_ptr.GetPointer())
       {
-      obj = PyVTKObject_New((PyObject *)j->second.vtk_class,
-                            j->second.vtk_dict, ptr);
+      obj = PyVTKObject_FromPointer(
+        j->second.vtk_class, j->second.vtk_dict, ptr);
       }
     Py_DECREF(j->second.vtk_class);
     Py_DECREF(j->second.vtk_dict);
@@ -469,23 +469,30 @@ PyObject *vtkPythonUtil::GetObjectFromPointer(vtkObjectBase *ptr)
   if (obj == NULL)
     {
     // create a new object
-    PyObject *vtkclass = NULL;
+    PyVTKClass *vtkclass = NULL;
     vtkPythonClassMap::iterator k =
       vtkPythonMap->ClassMap->find(ptr->GetClassName());
     if (k != vtkPythonMap->ClassMap->end())
       {
-      vtkclass = k->second;
+      vtkclass = &k->second;
       }
 
     // if the class was not in the map, then find the nearest base class
-    // that is and associate ptr->GetClassName() with that base class
+    // that is, and associate ptr->GetClassName() with that base class
     if (vtkclass == NULL)
       {
+      const char *classname = ptr->GetClassName();
       vtkclass = vtkPythonUtil::FindNearestBaseClass(ptr);
-      vtkPythonUtil::AddClassToMap(vtkclass, ptr->GetClassName());
+      vtkPythonClassMap::iterator i =
+        vtkPythonMap->ClassMap->find(classname);
+      if (i == vtkPythonMap->ClassMap->end())
+        {
+        vtkPythonMap->ClassMap->insert(
+          i, vtkPythonClassMap::value_type(classname, *vtkclass));
+        }
       }
 
-    obj = PyVTKObject_New(vtkclass, NULL, ptr);
+    obj = PyVTKObject_FromPointer(vtkclass->py_type, NULL, ptr);
     }
 
   return obj;
@@ -505,10 +512,10 @@ const char *vtkPythonUtil::PythonicClassName(const char *classname)
   if (*cp != '\0')
     {
     /* look up class and get its pythonic name */
-    PyObject *o = vtkPythonUtil::FindClass(classname);
+    PyVTKClass *o = vtkPythonUtil::FindClass(classname);
     if (o)
       {
-      classname = PyString_AsString(((PyVTKClass *)o)->vtk_name);
+      classname = o->vtk_mangle;
       }
     }
 
@@ -516,38 +523,31 @@ const char *vtkPythonUtil::PythonicClassName(const char *classname)
 }
 
 //--------------------------------------------------------------------
-void vtkPythonUtil::AddClassToMap(PyObject *vtkclass, const char *classname)
+PyVTKClass *vtkPythonUtil::AddClassToMap(
+  PyTypeObject *pytype, PyMethodDef *methods,
+  const char *classname, const char *manglename,
+  vtknewfunc constructor)
 {
-  if (vtkPythonMap == NULL)
-    {
-    vtkPythonMap = new vtkPythonUtil();
-    Py_AtExit(vtkPythonUtilDelete);
-    }
-
-#ifdef VTKPYTHONDEBUG
-  //  vtkGenericWarningMacro("Adding an type " << type << " to map ptr");
-#endif
+  vtkPythonUtilCreateIfNeeded();
 
   // lets make sure it isn't already there
   vtkPythonClassMap::iterator i =
     vtkPythonMap->ClassMap->find(classname);
-  if(i != vtkPythonMap->ClassMap->end())
+  if (i != vtkPythonMap->ClassMap->end())
     {
-#ifdef VTKPYTHONDEBUG
-    vtkGenericWarningMacro("Attempt to add type to the map when already there!!!");
-#endif
-    return;
+    return 0;
     }
 
-  (*vtkPythonMap->ClassMap)[classname] = vtkclass;
+  i = vtkPythonMap->ClassMap->insert(i,
+    vtkPythonClassMap::value_type(
+      classname,
+      PyVTKClass(pytype, methods, classname, manglename, constructor)));
 
-#ifdef VTKPYTHONDEBUG
-  //  vtkGenericWarningMacro("Added type to map type = " << typeObject);
-#endif
+  return &i->second;
 }
 
 //--------------------------------------------------------------------
-PyObject *vtkPythonUtil::FindClass(const char *classname)
+PyVTKClass *vtkPythonUtil::FindClass(const char *classname)
 {
   if (vtkPythonMap)
     {
@@ -555,7 +555,7 @@ PyObject *vtkPythonUtil::FindClass(const char *classname)
       vtkPythonMap->ClassMap->find(classname);
     if (it != vtkPythonMap->ClassMap->end())
       {
-      return it->second;
+      return &it->second;
       }
     }
 
@@ -565,27 +565,25 @@ PyObject *vtkPythonUtil::FindClass(const char *classname)
 //--------------------------------------------------------------------
 // this is a helper function to find the nearest base class for an
 // object whose class is not in the ClassDict
-PyObject *vtkPythonUtil::FindNearestBaseClass(vtkObjectBase *ptr)
+PyVTKClass *vtkPythonUtil::FindNearestBaseClass(vtkObjectBase *ptr)
 {
-  PyObject *nearestbase = NULL;
+  PyVTKClass *nearestbase = NULL;
   int maxdepth = 0;
   int depth;
 
-  for(vtkPythonClassMap::iterator classes =
+  for (vtkPythonClassMap::iterator classes =
         vtkPythonMap->ClassMap->begin();
-      classes != vtkPythonMap->ClassMap->end(); ++classes)
+       classes != vtkPythonMap->ClassMap->end(); ++classes)
     {
-    PyObject *pyclass = classes->second;
+    PyVTKClass *pyclass = &classes->second;
 
-    if (ptr->IsA(((PyVTKClass *)pyclass)->vtk_cppname))
+    if (ptr->IsA(pyclass->vtk_cppname))
       {
-      PyObject *cls = pyclass;
-      PyObject *bases = ((PyVTKClass *)pyclass)->vtk_bases;
+      PyTypeObject *base = pyclass->py_type->tp_base;
       // count the hierarchy depth for this class
-      for (depth = 0; PyTuple_GET_SIZE(bases) != 0; depth++)
+      for (depth = 0; base != 0; depth++)
         {
-        cls = PyTuple_GET_ITEM(bases,0);
-        bases = ((PyVTKClass *)cls)->vtk_bases;
+        base = base->tp_base;
         }
       // we want the class that is furthest from vtkObjectBase
       if (depth > maxdepth)
@@ -778,13 +776,6 @@ void *vtkPythonUtil::GetPointerFromSpecialObject(
       {
       return ((PyVTKSpecialObject *)obj)->vtk_ptr;
       }
-    }
-
-  if (PyVTKObject_Check(obj))
-    {
-    // use the VTK type name, instead of "vtkobject"
-    object_type =
-      PyString_AS_STRING(((PyVTKObject *)obj)->vtk_class->vtk_name);
     }
 
   // try to construct the special object from the supplied object

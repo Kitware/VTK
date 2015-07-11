@@ -796,27 +796,21 @@ VTK_PYTHON_BUILD_TUPLE(unsigned __int64)
 vtkObjectBase *vtkPythonArgs::GetSelfFromFirstArg(
   PyObject *self, PyObject *args)
 {
- if (PyVTKClass_Check(self))
+  if (PyType_Check(self))
     {
-    PyVTKClass *vtkclass = (PyVTKClass *)self;
-    const char *classname = PyString_AS_STRING(vtkclass->vtk_name);
-
+    PyTypeObject *pytype = (PyTypeObject *)self;
     if (PyTuple_GET_SIZE(args) > 0)
       {
       self = PyTuple_GET_ITEM(args, 0);
-      if (PyVTKObject_Check(self))
+      if (PyObject_TypeCheck(self, pytype))
         {
-        vtkObjectBase *vtkself = ((PyVTKObject *)self)->vtk_ptr;
-        if (vtkself->IsA(vtkclass->vtk_cppname))
-          {
-          return vtkself;
-          }
+        return ((PyVTKObject *)self)->vtk_ptr;
         }
       }
 
     char buf[256];
     sprintf(buf, "unbound method requires a %.200s as the first argument",
-            classname);
+            pytype->tp_name);
     PyErr_SetString(PyExc_TypeError, buf);
     return NULL;
     }

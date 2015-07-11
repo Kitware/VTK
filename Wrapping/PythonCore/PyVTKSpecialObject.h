@@ -31,10 +31,7 @@
 // copy the object and return the copy
 typedef void *(*PyVTKSpecialCopyFunc)(const void *);
 
-// Unlike PyVTKObject, for special VTK types there is no "meta-type"
-// like PyVTKClass.  Special VTK types use PyTypeObject instead, in a
-// manner more in line with most python extension packages.  However,
-// since PyTypeObject can't hold all the typing information that we
+// Because the PyTypeObject can't hold all the typing information that we
 // need, we use this PyVTKSpecialType class to hold a bit of extra info.
 class VTKWRAPPINGPYTHONCORE_EXPORT PyVTKSpecialType
 {

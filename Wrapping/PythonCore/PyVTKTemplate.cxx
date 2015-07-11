@@ -21,7 +21,6 @@
 -----------------------------------------------------------------------*/
 
 #include "PyVTKTemplate.h"
-#include "PyVTKClass.h"
 #include "vtkPythonUtil.h"
 
 // Silence warning like
@@ -182,11 +181,6 @@ PyVTKTemplate_GetItem(PyObject *ob, PyObject *key)
         }
       while (n && cp[n-1] != '.') { --n; }
       o = PyString_FromString(&cp[n]);
-      }
-    else if (PyVTKClass_Check(o))
-      {
-      o = ((PyVTKClass *)o)->vtk_name;
-      Py_INCREF(o);
       }
     else if (PyString_Check(o) && PyString_Size(o) == 1)
       {
@@ -414,11 +408,7 @@ int PyVTKTemplate_AddItem(PyObject *self, PyObject *val)
   int i, n;
   size_t j = 0;
 
-  if (PyVTKClass_Check(val))
-    {
-    name = PyString_AsString(((PyVTKClass *)val)->vtk_name);
-    }
-  else if (PyType_Check(val))
+  if (PyType_Check(val))
     {
     name = ((PyTypeObject *)val)->tp_name;
     }

@@ -440,33 +440,18 @@ int vtkPythonOverload::CheckArg(
           if (strncmp(vtkPythonUtil::PythonicClassName(
                 vobj->vtk_ptr->GetClassName()), classname, 127) != 0)
             {
-            // Trace back through superclasses to look for a match
-            PyVTKClass *cls = vobj->vtk_class;
-            if (PyTuple_GET_SIZE(cls->vtk_bases) == 0)
+            // Check superclasses
+            PyTypeObject *basetype = arg->ob_type->tp_base;
+            penalty = VTK_PYTHON_GOOD_MATCH;
+            while (basetype &&
+                   strncmp(basetype->tp_name, classname, 127) != 0)
+              {
+              penalty++;
+              basetype = basetype->tp_base;
+              }
+            if (!basetype)
               {
               penalty = VTK_PYTHON_INCOMPATIBLE;
-              }
-            else
-              {
-              penalty = VTK_PYTHON_GOOD_MATCH;
-              cls = (PyVTKClass *)PyTuple_GET_ITEM(cls->vtk_bases,0);
-              while (strncmp(PyString_AS_STRING(cls->vtk_name),
-                     classname, 127) != 0)
-                {
-                if (PyTuple_Size(cls->vtk_bases) > 0)
-                  {
-                  cls = (PyVTKClass *)PyTuple_GET_ITEM(cls->vtk_bases,0);
-                  }
-                else
-                  {
-                  penalty = VTK_PYTHON_INCOMPATIBLE;
-                  break;
-                  }
-                if (penalty+1 < VTK_PYTHON_NEEDS_CONVERSION)
-                  {
-                  penalty++;
-                  }
-                }
               }
             }
           }

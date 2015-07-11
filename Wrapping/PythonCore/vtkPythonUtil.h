@@ -19,7 +19,6 @@
 #define vtkPythonUtil_h
 
 #include "vtkPython.h"
-#include "PyVTKClass.h"
 #include "PyVTKMutableObject.h"
 #include "PyVTKNamespace.h"
 #include "PyVTKObject.h"
@@ -50,17 +49,20 @@ public:
   // Description:
   // Add a PyVTKClass to the type lookup table, this allows us to later
   // create object given only the class name.
-  static void AddClassToMap(PyObject *obj, const char *classname);
+  static PyVTKClass *AddClassToMap(
+    PyTypeObject *pytype, PyMethodDef *methods,
+    const char *classname, const char *manglename,
+    vtknewfunc constructor);
 
   // Description:
   // Get information about a special VTK type, given the type name.
-  static PyObject *FindClass(const char *classname);
+  static PyVTKClass *FindClass(const char *classname);
 
   // Description:
   // For an VTK object whose class is not in the ClassMap, search
   // the whole ClassMap to find out which class is the closest base
   // class of the object.  Returns a PyVTKClass.
-  static PyObject *FindNearestBaseClass(vtkObjectBase *ptr);
+  static PyVTKClass *FindNearestBaseClass(vtkObjectBase *ptr);
 
   // Description:
   // Extract the vtkObjectBase from a PyVTKObject.  If the PyObject is
