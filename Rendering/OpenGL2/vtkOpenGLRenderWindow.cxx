@@ -439,6 +439,7 @@ void vtkOpenGLRenderWindow::OpenGLInitContext()
     // calls when the result should not change
     GLfloat lineWidthRange[2];
     this->MaximumHardwareLineWidth = 1.0;
+#if defined(GL_SMOOTH_LINE_WIDTH_RANGE) && defined(GL_ALIASED_LINE_WIDTH_RANGE)
     if (this->LineSmoothing)
       {
       glGetFloatv(GL_SMOOTH_LINE_WIDTH_RANGE,lineWidthRange);
@@ -455,6 +456,7 @@ void vtkOpenGLRenderWindow::OpenGLInitContext()
         this->MaximumHardwareLineWidth = lineWidthRange[1];
         }
       }
+#endif
     }
 }
 
