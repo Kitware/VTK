@@ -70,6 +70,28 @@ void vtkCompositePolyDataMapper2::FreeStructures()
   this->RenderValues.resize(0);
 }
 
+void vtkCompositePolyDataMapper2::ReplaceShaderColor(
+  std::map<vtkShader::Type, vtkShader *> shaders,
+  vtkRenderer *ren, vtkActor *actor)
+{
+  std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
+
+  vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Dec",
+    "uniform bool OverridesColor;\n"
+    "//VTK::Color::Dec",false);
+
+  vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl",
+    "//VTK::Color::Impl\n"
+    "  if (OverridesColor) {\n"
+    "    ambientColor = ambientColorUniform;\n"
+    "    diffuseColor = diffuseColorUniform; }\n",
+    false);
+
+  shaders[vtkShader::Fragment]->SetSource(FSSource);
+
+  this->Superclass::ReplaceShaderColor(shaders,ren,actor);
+}
+
 // ---------------------------------------------------------------------------
 // Description:
 // Method initiates the mapping process. Generally sent by the actor
@@ -290,6 +312,7 @@ void vtkCompositePolyDataMapper2::BuildRenderValues(
       rv.Visibility = vis;
       rv.Color = color;
       rv.PickId = my_flat_index;
+      rv.OverridesColor = (this->BlockState.AmbientColor.size() > 1);
       this->RenderValues.push_back(rv);
       }
 
@@ -312,6 +335,7 @@ void vtkCompositePolyDataMapper2::BuildRenderValues(
       rv.Visibility = vis;
       rv.Color = color;
       rv.PickId = my_flat_index;
+      rv.OverridesColor = (this->BlockState.AmbientColor.size() > 1);
       this->RenderValues.push_back(rv);
       }
     lastVertex = this->VertexOffsets[my_flat_index];
@@ -417,6 +441,7 @@ void vtkCompositePolyDataMapper2::RenderPieceDraw(
         prog->SetUniform3f("diffuseColorUniform", diffuseColor);
         prog->SetUniformi("PrimitiveIDOffset",
           this->PrimitiveIDOffset);
+        prog->SetUniformi("OverridesColor", it->OverridesColor);
         glDrawRangeElements(mode,
           static_cast<GLuint>(it->StartVertex),
           static_cast<GLuint>(it->EndVertex),
