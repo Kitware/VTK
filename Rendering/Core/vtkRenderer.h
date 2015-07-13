@@ -495,7 +495,7 @@ public:
   // Description:
   // Set/Get the texture to be used for the background. If set
   // and enabled this gets the priority over the gradient background.
-  void SetBackgroundTexture(vtkTexture*);
+  virtual void SetBackgroundTexture(vtkTexture*);
   vtkGetObjectMacro(BackgroundTexture, vtkTexture);
 
   // Description:

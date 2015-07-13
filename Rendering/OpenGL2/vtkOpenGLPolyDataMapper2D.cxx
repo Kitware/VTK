@@ -133,13 +133,11 @@ bool vtkOpenGLPolyDataMapper2D::GetNeedToRebuildShaders(
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper2D::BuildShaders(
   std::string &VSSource, std::string &FSSource, std::string &GSSource,
-  vtkViewport* vtkNotUsed(viewport), vtkActor2D *actor)
+  vtkViewport* viewport, vtkActor2D *actor)
 {
   VSSource = vtkPolyData2DVS;
   FSSource = vtkPolyData2DFS;
-  if (this->LastBoundBO == &this->Lines
-      && actor->GetProperty()->GetLineWidth() > 1.0
-      && vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
+  if (this->HaveWideLines(viewport, actor))
     {
     GSSource = vtkPolyDataWideLineGS;
     }
@@ -316,7 +314,7 @@ void vtkOpenGLPolyDataMapper2D::UpdateShaders(vtkOpenGLHelper &cellBO,
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper2D::SetMapperShaderParameters(
-  vtkOpenGLHelper &cellBO, vtkViewport *vtkNotUsed(viewport), vtkActor2D *actor)
+  vtkOpenGLHelper &cellBO, vtkViewport *viewport, vtkActor2D *actor)
 {
   // Now to update the VAO too, if necessary.
   if (this->VBOUpdateTime > cellBO.AttributeUpdateTime ||
@@ -381,9 +379,7 @@ void vtkOpenGLPolyDataMapper2D::SetMapperShaderParameters(
     }
 
   // handle wide lines
-  if (this->LastBoundBO == &this->Lines
-      && actor->GetProperty()->GetLineWidth() > 1.0
-      && vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
+  if (this->HaveWideLines(viewport,actor))
     {
       int vp[4];
       glGetIntegerv(GL_VIEWPORT, vp);
@@ -678,6 +674,24 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
     }
 }
 
+bool vtkOpenGLPolyDataMapper2D::HaveWideLines(
+  vtkViewport *ren,
+  vtkActor2D *actor)
+{
+  if (this->LastBoundBO == &this->Lines
+      && actor->GetProperty()->GetLineWidth() > 1.0
+      && vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
+    {
+    // we have wide lines, but the OpenGL implementation may
+    // actually support them, check the range to see if we
+      // really need have to implement our own wide lines
+    vtkOpenGLRenderWindow *renWin =
+      vtkOpenGLRenderWindow::SafeDownCast(ren->GetVTKWindow());
+    return !(renWin &&
+      renWin->GetMaximumHardwareLineWidth() >= actor->GetProperty()->GetLineWidth());
+    }
+  return false;
+}
 
 void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
                                               vtkActor2D* actor)
@@ -759,8 +773,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     this->UpdateShaders(this->Lines, viewport, actor);
     this->Lines.Program->SetUniformi("PrimitiveIDOffset",
       this->PrimitiveIDOffset);
-    if (!vtkOpenGLRenderWindow::GetContextSupportsOpenGL32() ||
-        actor->GetProperty()->GetLineWidth() <= 1.0)
+    if (!this->HaveWideLines(viewport,actor))
       {
       glLineWidth(actor->GetProperty()->GetLineWidth());
       }

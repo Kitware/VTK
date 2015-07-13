@@ -458,10 +458,18 @@ vtkUniformGrid* vtkAMRBaseReader::GetAMRBlock( const int blockIdx )
 
 //------------------------------------------------------------------------------
 void vtkAMRBaseReader::LoadPointData(
-    const int vtkNotUsed(blockIdx), vtkUniformGrid* vtkNotUsed(block) )
+    const int blockIdx, vtkUniformGrid* block )
 {
-  // TODO: implement this
-  //vtkErrorMacro( "Node-centered AMR data are not currently supported" );
+  // Sanity check!
+  assert( "pre: AMR block should not be NULL" && (block != NULL) );
+
+  for( int i=0; i < this->GetNumberOfPointArrays(); ++i )
+    {
+    if( this->GetPointArrayStatus( this->GetPointArrayName( i ) ) )
+      {
+      this->GetAMRPointData( blockIdx, block, this->GetPointArrayName( i ) );
+      }
+    } // END for all point arrays
 }
 
 //------------------------------------------------------------------------------

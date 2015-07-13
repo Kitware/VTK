@@ -243,7 +243,7 @@ protected:
   bool DrawingEdges;
 
   // do we have wide lines that require special handling
-  virtual bool HaveWideLines(vtkActor *);
+  virtual bool HaveWideLines(vtkRenderer *, vtkActor *);
 
   // values we use to determine if we need to rebuild
   int LastLightComplexity;

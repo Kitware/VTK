@@ -24,6 +24,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkPainterCommunicator.h"
@@ -596,11 +597,11 @@ public:
 
     // deactivate all textures?
     vtkTextureObject **readTex = this->Textures[this->ReadIndex];
-    readTex[0] ? readTex[0]->Deactivate() : NULL;
-    readTex[1] ? readTex[1]->Deactivate() : NULL;
+    if (readTex[0]) { readTex[0]->Deactivate(); }
+    if (readTex[1]) { readTex[1]->Deactivate(); }
     vtkTextureObject **writeTex = this->Textures[1-this->ReadIndex];
-    writeTex[0] ? writeTex[0]->Deactivate() : NULL;
-    writeTex[1] ? writeTex[1]->Deactivate() : NULL;
+    if (writeTex[0]) { writeTex[0]->Deactivate(); }
+    if (writeTex[1]) { writeTex[1]->Deactivate(); }
     }
 
   // Description:
@@ -717,7 +718,7 @@ public:
       computeBounds[1]*2.0-1.0, computeBounds[3]*2.0-1.0, 0.0f,
       computeBounds[0]*2.0-1.0, computeBounds[3]*2.0-1.0, 0.0f};
 
-    vtkOpenGLRenderWindow::RenderQuad(verts, tcoords,
+    vtkOpenGLRenderUtilities::RenderQuad(verts, tcoords,
       cbo->Program, cbo->VAO);
     vtkOpenGLStaticCheckErrorMacro("failed at RenderQuad");
     }

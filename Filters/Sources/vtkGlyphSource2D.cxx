@@ -16,12 +16,14 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkMath.h"
+#include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkUnsignedCharArray.h"
+
 
 vtkStandardNewMacro(vtkGlyphSource2D);
 
@@ -40,6 +42,7 @@ vtkGlyphSource2D::vtkGlyphSource2D()
   this->Cross = 0;
   this->Dash = 0;
   this->RotationAngle = 0.0;
+  this->Resolution = 8;
   this->OutputPointsPrecision = SINGLE_PRECISION;
   this->GlyphType = VTK_VERTEX_GLYPH;
 
@@ -340,31 +343,35 @@ void vtkGlyphSource2D::CreateSquare(vtkPoints *pts, vtkCellArray *lines,
 void vtkGlyphSource2D::CreateCircle(vtkPoints *pts, vtkCellArray *lines,
                                     vtkCellArray *polys, vtkUnsignedCharArray *colors)
 {
-  vtkIdType ptIds[9];
+  vtkIdList* ptIds = vtkIdList::New();
+  ptIds->SetNumberOfIds(this->Resolution + 1);
+
   double x[3], theta;
 
   // generate eight points in a circle
   x[2] = 0.0;
-  theta = 2.0 * vtkMath::Pi() / 8.0;
-  for (int i=0; i<8; i++)
+  theta = 2.0 * vtkMath::Pi() / static_cast<double>(this->Resolution);
+  for (int i=0; i<this->Resolution; i++)
     {
     x[0] = 0.5 * cos(i*theta);
     x[1] = 0.5 * sin(i*theta);
-    ptIds[i] = pts->InsertNextPoint(x);
+    ptIds->SetId(i, pts->InsertNextPoint(x));
     }
 
+  ptIds->SetId(this->Resolution, ptIds->GetId(0));
   if ( this->Filled )
     {
-    polys->InsertNextCell(8,ptIds);
+    polys->InsertNextCell(ptIds);
     }
   else
     {
-    ptIds[8] = ptIds[0];
-    lines->InsertNextCell(9,ptIds);
+    lines->InsertNextCell(ptIds);
     }
   colors->InsertNextValue(this->RGB[0]);
   colors->InsertNextValue(this->RGB[1]);
   colors->InsertNextValue(this->RGB[2]);
+
+  ptIds->Delete();
 }
 
 void vtkGlyphSource2D::CreateDiamond(vtkPoints *pts, vtkCellArray *lines,
@@ -559,6 +566,7 @@ void vtkGlyphSource2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Scale: " << this->Scale << "\n";
   os << indent << "Scale2: " << this->Scale2 << "\n";
   os << indent << "Rotation Angle: " << this->RotationAngle << "\n";
+  os << indent << "Resolution: " << this->Resolution << "\n";
 
   os << indent << "Color: (" << this->Color[0] << ", "
      << this->Color[1] << ", " << this->Color[2] << ")\n";

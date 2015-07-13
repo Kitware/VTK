@@ -26,8 +26,6 @@
 #include "vtkRenderWindow.h"
 #include <map> // for ivar
 
-#include "vtk_glew.h" // Needed for GLuint.
-
 class vtkIdList;
 class vtkOpenGLHardwareSupport;
 class vtkOpenGLShaderCache;
@@ -210,20 +208,6 @@ public:
   virtual void WaitForCompletion();
 
   // Description:
-  // Helper function that draws a quad on the screen
-  // at the specified vertex coordinates and if
-  // tcoords are not NULL with the specified
-  // texture coordinates.
-  static void RenderQuad(
-    float *verts, float *tcoords,
-    vtkShaderProgram *program, vtkOpenGLVertexArrayObject *vao);
-  static void RenderTriangles(
-    float *verts, unsigned int numVerts,
-    GLuint *indices, unsigned int numIndices,
-    float *tcoords,
-    vtkShaderProgram *program, vtkOpenGLVertexArrayObject *vao);
-
-  // Description:
   // Replacement for the old glDrawPixels function
   virtual void DrawPixels(int x1, int y1, int x2, int y2,
               int numComponents, int dataType, void *data);
@@ -241,6 +225,11 @@ public:
   // the data to the entire current viewport scaling as needed.
   virtual void DrawPixels(
     int srcWidth, int srcHeight, int numComponents, int dataType, void *data);
+
+  // Description:
+  // Return the largest line width supported by the hardware
+  virtual float GetMaximumHardwareLineWidth() {
+    return this->MaximumHardwareLineWidth; };
 
 protected:
   vtkOpenGLRenderWindow();
@@ -336,6 +325,8 @@ protected:
   vtkTextureObject *DrawPixelsTextureObject;
 
   bool Initialized; // ensure glewinit has been called
+
+  float MaximumHardwareLineWidth;
 
 private:
   vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&);  // Not implemented.

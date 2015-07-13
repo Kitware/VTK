@@ -268,8 +268,11 @@ void  bindTexturedPolydataToRenderWindow( vtkRenderWindow* renderWindow,
       }
     else
       {
-      vtkErrorWithObjectMacro(reader, "Nonexistant texture image type!? imagefile: "
-                              <<textureFilename);
+        if(!textureFilename.empty()) // OK to have no texture image, but if its not empty it ought to exist.
+        {
+          vtkErrorWithObjectMacro(reader, "Nonexistant texture image type!? imagefile: "
+                                  <<textureFilename);
+        }
       }
     vtk_texture->InterpolateOff(); // Faster?? (yes clearly faster for largish texture)
 
@@ -309,4 +312,12 @@ void  bindTexturedPolydataToRenderWindow( vtkRenderWindow* renderWindow,
     reader->actor_list.push_back(actor); // keep a handle on actors to animate later
     }
   /** post-condition of this function: the renderer has had a bunch of actors added to it */
+}
+
+
+vtkOBJImportedMaterial::vtkOBJImportedMaterial()
+{
+  name[0] = 'x';
+  name[1] = '\0';
+  obj_set_material_defaults(this);
 }

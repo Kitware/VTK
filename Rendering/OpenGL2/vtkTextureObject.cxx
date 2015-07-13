@@ -26,6 +26,7 @@
 #include "vtkNew.h"
 #include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLTexture.h"
@@ -2302,13 +2303,13 @@ void vtkTextureObject::CopyToFrameBuffer(float *tcoords, float *verts,
     this->Activate();
     int sourceId = this->GetTextureUnit();
     this->ShaderProgram->Program->SetUniformi("source",sourceId);
-    vtkOpenGLRenderWindow::RenderQuad(verts, tcoords, this->ShaderProgram->Program,
+    vtkOpenGLRenderUtilities::RenderQuad(verts, tcoords, this->ShaderProgram->Program,
       this->ShaderProgram->VAO);
     this->Deactivate();
     }
   else
     {
-    vtkOpenGLRenderWindow::RenderQuad(verts, tcoords, program, vao);
+    vtkOpenGLRenderUtilities::RenderQuad(verts, tcoords, program, vao);
     }
 
   vtkOpenGLCheckErrorMacro("failed after CopyToFrameBuffer")

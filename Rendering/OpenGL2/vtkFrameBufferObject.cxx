@@ -17,6 +17,7 @@
 #include "vtk_glew.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkTextureObject.h"
 #include "vtkPixelBufferObject.h"
@@ -890,7 +891,7 @@ void vtkFrameBufferObject::RenderQuad(int minX, int maxX, int minY, int maxY,
     1.0, 0,
     1.0, maxYTexCoord,
     0, maxYTexCoord};
-  vtkOpenGLRenderWindow::RenderQuad(verts, tcoords, program, vao);
+  vtkOpenGLRenderUtilities::RenderQuad(verts, tcoords, program, vao);
 
   vtkOpenGLCheckErrorMacro("failed after Render");
 

@@ -8,7 +8,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestVRMLImporter.cxx,NO_VALID
   )
 
-# add another test case
+
 ExternalData_add_test(VTKData
   NAME ${vtk-module}Cxx-OBJImport-MixedOrder1
   COMMAND ${vtk-module}CxxTests TestOBJImporter
@@ -16,5 +16,20 @@ ExternalData_add_test(VTKData
        DATA{../Data/Input/flare.jpg}    DATA{../Data/Input/map1024.png}
     -D " ${VTK_TEST_OUTPUT_DIR} "
   )
+
+ExternalData_add_test(VTKData
+  NAME ${vtk-module}Cxx-OBJImport-NoMTL
+  COMMAND ${vtk-module}CxxTests TestOBJImporter
+    -D DATA{../Data/Input/boxes_3_no_mtl.obj}
+    -D " ${VTK_TEST_OUTPUT_DIR} "
+  )
+
+ExternalData_add_test(VTKData
+  NAME ${vtk-module}Cxx-OBJImport-MTLwithoutTextureFile
+  COMMAND ${vtk-module}CxxTests TestOBJImporter
+    -D DATA{../Data/Input/boxes_4_mtl_no_texture.obj}  DATA{../Data/Input/boxes_4_mtl_no_texture.obj.mtl}
+    -D " ${VTK_TEST_OUTPUT_DIR} "
+  )
+
 
 vtk_test_cxx_executable(${vtk-module}CxxTests tests)

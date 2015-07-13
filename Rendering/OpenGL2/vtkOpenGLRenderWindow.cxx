@@ -115,6 +115,7 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->DrawPixelsTextureObject = NULL;
 
   this->OwnContext = 1;
+  this->MaximumHardwareLineWidth = 1.0;
 }
 
 // free up memory & close the window
@@ -432,6 +433,30 @@ void vtkOpenGLRenderWindow::OpenGLInitContext()
       }
 #endif
     this->Initialized = true;
+
+    // get this system's supported maximum line width
+    // we do it here and store it to avoid repeated glGet
+    // calls when the result should not change
+    GLfloat lineWidthRange[2];
+    this->MaximumHardwareLineWidth = 1.0;
+#if defined(GL_SMOOTH_LINE_WIDTH_RANGE) && defined(GL_ALIASED_LINE_WIDTH_RANGE)
+    if (this->LineSmoothing)
+      {
+      glGetFloatv(GL_SMOOTH_LINE_WIDTH_RANGE,lineWidthRange);
+      if (glGetError() == GL_NO_ERROR)
+        {
+        this->MaximumHardwareLineWidth = lineWidthRange[1];
+        }
+      }
+    else
+      {
+      glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE,lineWidthRange);
+      if (glGetError() == GL_NO_ERROR)
+        {
+        this->MaximumHardwareLineWidth = lineWidthRange[1];
+        }
+      }
+#endif
     }
 }
 
@@ -520,19 +545,31 @@ int vtkOpenGLRenderWindow::GetColorBufferSizes(int *rgba)
       glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
         attachment,
         GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE, &size);
-      rgba[0] = static_cast<int>(size);
+      if (glGetError() == GL_NO_ERROR)
+        {
+        rgba[0] = static_cast<int>(size);
+        }
       glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
         attachment,
         GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE, &size);
-      rgba[1] = static_cast<int>(size);
+      if (glGetError() == GL_NO_ERROR)
+        {
+        rgba[1] = static_cast<int>(size);
+        }
       glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
         attachment,
         GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE, &size);
-      rgba[2] = static_cast<int>(size);
+      if (glGetError() == GL_NO_ERROR)
+        {
+        rgba[2] = static_cast<int>(size);
+        }
       glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER,
         attachment,
         GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, &size);
-      rgba[3] = static_cast<int>(size);
+      if (glGetError() == GL_NO_ERROR)
+        {
+        rgba[3] = static_cast<int>(size);
+        }
       }
     else
 #endif
@@ -743,73 +780,6 @@ int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
     }
   return this->SetPixelData(x1, y1, x2, y2, data->GetPointer(0), front);
 
-}
-
-
-// ---------------------------------------------------------------------------
-// a program must be bound
-// a VAO must be bound
-void vtkOpenGLRenderWindow::RenderQuad(
-  float *verts,
-  float *tcoords,
-  vtkShaderProgram *program, vtkOpenGLVertexArrayObject *vao)
-{
-  GLuint iboData[] = {0, 1, 2, 0, 2, 3};
-  vtkOpenGLRenderWindow::RenderTriangles(verts, 4,
-    iboData, 6,
-    tcoords,
-    program, vao);
-}
-
-
-// ---------------------------------------------------------------------------
-// a program must be bound
-// a VAO must be bound
-void vtkOpenGLRenderWindow::RenderTriangles(
-  float *verts, unsigned int numVerts,
-  GLuint *iboData, unsigned int numIndices,
-  float *tcoords,
-  vtkShaderProgram *program, vtkOpenGLVertexArrayObject *vao)
-{
-  if (!program || !vao || !verts)
-    {
-    vtkGenericWarningMacro(<< "Error must have verts, program and vao");
-    }
-
-  vtkNew<vtkOpenGLBufferObject> vbo;
-  vbo->Upload(verts, numVerts*3, vtkOpenGLBufferObject::ArrayBuffer);
-  vao->Bind();
-  if (!vao->AddAttributeArray(program, vbo.Get(), "vertexMC", 0,
-      sizeof(float)*3, VTK_FLOAT, 3, false))
-    {
-    vtkGenericWarningMacro(<< "Error setting 'vertexMC' in shader VAO.");
-    }
-
-  vtkNew<vtkOpenGLBufferObject> tvbo;
-  if (tcoords)
-    {
-    tvbo->Upload(tcoords, numVerts*2, vtkOpenGLBufferObject::ArrayBuffer);
-    if (!vao->AddAttributeArray(program, tvbo.Get(), "tcoordMC", 0,
-        sizeof(float)*2, VTK_FLOAT, 2, false))
-      {
-      vtkGenericWarningMacro(<< "Error setting 'tcoordMC' in shader VAO.");
-      }
-    }
-
-  vtkNew<vtkOpenGLBufferObject> ibo;
-  vao->Bind();
-  ibo->Upload(iboData, numIndices, vtkOpenGLBufferObject::ElementArrayBuffer);
-  glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT,
-    reinterpret_cast<const GLvoid *>(NULL));
-  ibo->Release();
-  vao->RemoveAttributeArray("vertexMC");
-  vao->RemoveAttributeArray("tcoordMC");
-  vao->Release();
-  vbo->Release();
-  if (tcoords)
-    {
-    tvbo->Release();
-    }
 }
 
 

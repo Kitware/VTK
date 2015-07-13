@@ -12,6 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtk_glew.h"
+
 #include "vtkCompositePolyDataMapper2.h"
 
 #include "vtkCellArray.h"
