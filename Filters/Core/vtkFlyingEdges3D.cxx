@@ -362,6 +362,8 @@ public:
               }//for all rows in this slice
             }//if there are triangles
           slicePtr += this->Algo->Inc2;
+          eMD0 = eMD1;
+          eMD1 = eMD0 + 6*this->Algo->Dims[1];
           }//for all slices in this batch
         }
     };
