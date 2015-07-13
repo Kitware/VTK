@@ -18,6 +18,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
 #include "vtkFloatArray.h"
+#include "vtkIncrementalOctreePointLocator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
@@ -29,7 +30,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
-#include <map>
+#include <vector>
 #include <vtk_netcdfcpp.h>
 
 namespace
@@ -38,14 +39,30 @@ namespace
 // a cell that wraps from the right side of the domain to the left side)
   bool IsCellInverted(double points[4][3])
   {
+    // We test the normal 3 points at a time. Not all grids are well-behaved
+    // i.e. consistenly use 0 or 360. We've had grid where 3 points on the left
+    // side, and just 1 on the right. Just checking the first 3 points (which is
+    // what ComputeNormal() does, we may (and do) miss a few cells.
+    // See BUG #0014897.
     double normal[3];
-    vtkPolygon::ComputeNormal(4, points[0], normal);
+    vtkPolygon::ComputeNormal(3, points[0], normal);
+    if(normal[2] > 0)
+      {
+      return true;
+      }
+    vtkPolygon::ComputeNormal(3, points[1], normal);
     if(normal[2] > 0)
       {
       return true;
       }
     return false;
   }
+
+  template <class T>
+  inline bool IsZero(const T& val)
+    {
+    return std::abs(val) < std::numeric_limits<T>::epsilon();
+    }
 }
 
 vtkStandardNewMacro(vtkNetCDFCAMReader);
@@ -60,7 +77,6 @@ vtkNetCDFCAMReader::vtkNetCDFCAMReader()
   this->PointsFile = NULL;
   this->ConnectivityFile = NULL;
   this->SingleLevel = 0;
-  this->CellLayerRight = 1;
   this->TimeSteps = NULL;
   this->NumberOfTimeSteps = 0;
   this->SetNumberOfInputPorts(0);
@@ -330,6 +346,8 @@ int vtkNetCDFCAMReader::RequestData(
   NcVar* lon = this->PointsFile->get_var("lon");
   NcVar* lat = this->PointsFile->get_var("lat");
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+  output->SetPoints(points);
+
   long numFilePoints = dimension->size();
   if(lat == NULL || lon == NULL)
     {
@@ -378,11 +396,19 @@ int vtkNetCDFCAMReader::RequestData(
   // domain and only the points on the left boundary are included in
   // the points file.  if a cell uses a point that is on the left
   // boundary and it should be on the right boundary we will have
-  // to create that point.  that's what boundaryPoints is used for.
-  // note that if this->CellLayerRight is false then we do the opposite
-  // and make the 'connecting' cell on the left side of the domain
-  // we don't actually build the cells yet though.
-  std::map<vtkIdType, vtkIdType> boundaryPoints;
+  // to create that point.  That's what boundaryPoints is used for.
+  // The (index + numFilePoints) gives us the new point id, and the value
+  // for that in this array will correspond to the original point id that the
+  // boundaryPoint is duplicate of.
+  std::vector<vtkIdType> boundaryPoints;
+
+  // To avoid creating multiple duplicates, we we a
+  // vtkIncrementalOctreePointLocator.
+  vtkSmartPointer<vtkIncrementalOctreePointLocator> locator =
+    vtkSmartPointer<vtkIncrementalOctreePointLocator>::New();
+  locator->SetDataSet(output); // dataset only has points right now.
+  locator->BuildLocator();
+
   dimension = this->ConnectivityFile->get_dim("ncells");
   if(dimension == NULL)
     {
@@ -411,8 +437,6 @@ int vtkNetCDFCAMReader::RequestData(
   connectivity->set_cur(0, beginCell);
   connectivity->get(&(cellConnectivity[0]), 4, numLocalCells);
 
-  double leftSide = 1.;
-  double rightSide = 359.;
   for(long i=0;i<numLocalCells;i++)
     {
     vtkIdType pointIds[4];
@@ -422,45 +446,87 @@ int vtkNetCDFCAMReader::RequestData(
       pointIds[j] = cellConnectivity[i+j*numLocalCells]-1;
       points->GetPoint(pointIds[j], coords[j]);
       }
-    if(IsCellInverted(coords) == true)
+    if (IsCellInverted(coords) == true)
       {
-      for(int j=0;j<4;j++)
+      // First decide whether we're putting this cell on the 360 side (right) or on the
+      // 0 side (left). We decide this based on which side will have the
+      // smallest protrusion.
+      double delta = 0.0;
+      bool anchorLeft = false;
+      for (int j=0; j < 4; ++j)
         {
-        if(this->CellLayerRight && coords[j][0] < leftSide)
+        // We're assured that coords[j][0] is in the range [0, 360].
+        // We just that fact to avoid having to do a std::abs() here.
+        double rightDelta = (360.0 - coords[j][0]);
+        double leftDelta = coords[j][0]; // i.e. (coords[j][0] - 0.0).
+        if (IsZero(rightDelta) || IsZero(leftDelta) || rightDelta == leftDelta)
           {
-          std::map<vtkIdType, vtkIdType>::iterator otherPoint =
-            boundaryPoints.find(pointIds[j]);
-          if(otherPoint != boundaryPoints.end())
-            { // already made point on the right boundary
-            cellConnectivity[i+j*numLocalCells] = otherPoint->second + 1;
-            }
-          else
-            { // need to make point on the right boundary
-            vtkIdType index =
-              points->InsertNextPoint(coords[j][0]+360., coords[j][1], coords[j][2]);
-            cellConnectivity[i+j*numLocalCells] = index+1;
-            boundaryPoints[pointIds[j]] = index;
+          // if the point is equidistant from both ends or is one of the ends,
+          // we let the other points in this cell dictate where the cell should
+          // anchor since this point can easily be anchored on either side with
+          // no side effects.
+          continue;
+          }
+        if (rightDelta < leftDelta)
+          {
+          if (rightDelta > delta)
+            {
+            delta = rightDelta;
+            anchorLeft = false;
             }
           }
-        else if(this->CellLayerRight == 0 && coords[j][0] > rightSide)
+        else
           {
-          std::map<vtkIdType, vtkIdType>::iterator otherPoint =
-            boundaryPoints.find(pointIds[j]);
-          if(otherPoint != boundaryPoints.end())
-            { // already made point on the right boundary
-            cellConnectivity[i+j*numLocalCells] = otherPoint->second+1;
-            }
-          else
-            { // need to make point on the right boundary
-            vtkIdType index =
-              points->InsertNextPoint(coords[j][0]-360., coords[j][1], coords[j][2]);
-            cellConnectivity[i+j*numLocalCells] = index+1;
-            boundaryPoints[pointIds[j]] = index;
+          if (leftDelta > delta)
+            {
+            delta = leftDelta;
+            anchorLeft = true;
             }
           }
         }
+      // Once we've decided where we're anchoring we adjust the points.
+      for (int j=0; j < 4; ++j)
+        {
+        if (anchorLeft)
+          {
+          // if coords[j] is closer to right (360), move it to the left.
+          if ( (360.0 - coords[j][0]) < coords[j][0] )
+            {
+            coords[j][0] -= 360.0;
+            }
+          else
+            {
+            continue;
+            }
+          }
+        else
+          {
+          // if coords[j] is closer to left (0), move it to the right
+          if ( coords[j][0] < (360.0 - coords[j][0]) )
+            {
+            coords[j][0] += 360.0;
+            }
+          else
+            {
+            continue;
+            }
+          }
+        // Okay, we have moved the coords. Update the boundaryPoints so which
+        // original point id is this new point id a clone of.
+        vtkIdType newPtId;
+        if (locator->InsertUniquePoint(coords[j], newPtId) == 1)
+          {
+          // if a new point was indeed inserted, we need to update the
+          // boundaryPoints to keep track of it.
+          assert(newPtId >= numFilePoints && pointIds[j] < newPtId);
+          assert(static_cast<vtkIdType>(boundaryPoints.size()) == (newPtId-numFilePoints));
+          boundaryPoints.push_back(pointIds[j]);
+          }
+        cellConnectivity[i+j*numLocalCells] = (newPtId + 1); // note: 1-indexed.
+        }
       }
     }
+  locator = NULL; // release the locator memory.
 
   // we now have all of the points at a single level.  build them up
   // for the rest of the levels before creating the cells.
@@ -484,7 +550,7 @@ int vtkNetCDFCAMReader::RequestData(
     }
 
   points->Modified();
-  output->SetPoints(points);
+  points->Squeeze();
 
   this->SetProgress(.5);  // educated guess for progress
 
@@ -601,13 +667,14 @@ int vtkNetCDFCAMReader::RequestData(
   pointData->CopyAllOn();
   pointData->CopyAllocate(output->GetPointData(),
                           output->GetNumberOfPoints());
-  for(std::map<vtkIdType, vtkIdType>::const_iterator it=
-        boundaryPoints.begin();it!=boundaryPoints.end();it++)
+
+  vtkIdType newPtId = numFilePoints;
+  for (std::vector<vtkIdType>::const_iterator it=
+        boundaryPoints.begin(); it!=boundaryPoints.end(); ++it, ++newPtId)
     {
     for(long lev=0;lev<numLocalCellLevels+1-this->SingleLevel;lev++)
       {
-      pointData->CopyData(pointData, it->first+lev*numPointsPerLevel,
-                          it->second+lev*numPointsPerLevel);
+      pointData->CopyData(pointData, (*it), newPtId);
       }
     }
 
@@ -756,6 +823,23 @@ bool vtkNetCDFCAMReader::GetPartitioning(
 }
 
 //----------------------------------------------------------------------------
+#if !defined(VTK_LEGACY_REMOVE)
+void vtkNetCDFCAMReader::SetCellLayerRight(int)
+{
+  VTK_LEGACY_BODY(vtkNetCDFCAMReader::SetCellLayerRight, "VTK 6.3");
+}
+#endif
+
+//----------------------------------------------------------------------------
+#if !defined(VTK_LEGACY_REMOVE)
+int vtkNetCDFCAMReader::GetCellLayerRight()
+{
+  VTK_LEGACY_BODY(vtkNetCDFCAMReader::GetCellLayerRight, "VTK 6.3");
+  return 0;
+}
+#endif
+
+//----------------------------------------------------------------------------
 void vtkNetCDFCAMReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -765,7 +849,6 @@ void vtkNetCDFCAMReader::PrintSelf(ostream& os, vtkIndent indent)
     (this->ConnectivityFileName ? this->ConnectivityFileName : "(NULL)")
      << endl;
   os << indent << "SingleLevel: " << this->SingleLevel << endl;
-  os << indent << "CellLayerRight: " << this->CellLayerRight << endl;
   if(this->PointsFile)
     {
     os << indent << "PointsFile: " << this->PointsFile << endl;
