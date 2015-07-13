@@ -55,8 +55,11 @@ public:
   void SetInputString(std::string s) { this->InputString = s; }
 
   // Description:
-  // Test whether the file with the given name can be read by this
-  // reader.
+  // Test whether the file (type) with the given name can be read by this
+  // reader. If the file has a newer version than the reader, we still say
+  // we can read the file type and we fail later, when we try to read the file.
+  // This enables clients (ParaView) to distinguish between failures when we
+  // need to look for another reader and failures when we don't.
   virtual int CanReadFile(const char* name);
 
   // Description:

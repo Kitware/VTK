@@ -631,9 +631,9 @@ int vtkXMLReader::ReadVTKFile(vtkXMLDataElement* eVTKFile)
   const char* version = eVTKFile->GetAttribute("version");
   if (version && !this->CanReadFileVersionString(version))
     {
-    vtkErrorMacro("File version: " << version << " is is higher than "
-                  "this reader supports. Cannot read file.");
-    return 0;
+    vtkWarningMacro("File version: " << version << " is higher than "
+                    "this reader supports " << vtkXMLReaderMajorVersion << "."
+                    << vtkXMLReaderMinorVersion);
     }
 
   ::ReadStringVersion(version, this->FileMajorVersion, this->FileMinorVersion);
@@ -839,18 +839,7 @@ int vtkXMLReader::CanReadFile(const char* name)
     {
     if (this->CanReadFileWithDataType(tester->GetFileDataType()))
       {
-      const char* version = tester->GetFileVersion();
-      if (version)
-        {
-        if (this->CanReadFileVersionString(version))
-          {
-          result = 3;
-          }
-        }
-      else
-        {
-        result = 3;
-        }
+      result = 1;
       }
     }
 
