@@ -24,6 +24,8 @@ PURPOSE.  See the above copyright notice for more information.
 
 #import <vtksys/ios/sstream>
 
+#include "vtk_glew.h"
+
 vtkStandardNewMacro(vtkIOSRenderWindow);
 
 
