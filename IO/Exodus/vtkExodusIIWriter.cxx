@@ -1475,7 +1475,7 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
       else if (isANodeSet)
         {
         numNodeSets ++;
-        const char* id_str = strstr (name, "ID:");
+        const char* id_str = name != 0 ? strstr (name, "ID:") : 0;
         if (id_str != 0)
           {
           id_str += 3;
@@ -1505,15 +1505,15 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
           nodeSetSizes->InsertNextTuple1 (size);
           sumNodes += size;
           }
-        else
-          {
-          vtkErrorMacro ("We have a node set, but it doesn't have GlobalNodeIDs");
-          }
+        // else
+          // {
+          // vtkErrorMacro ("We have a node set, but it doesn't have GlobalNodeIDs");
+          // }
         }
       else if (isASideSet)
         {
         numSideSets ++;
-        const char* id_str = strstr (name, "ID:");
+        const char* id_str = name != 0 ? strstr (name, "ID:") : 0;
         if (id_str != 0)
           {
           id_str += 3;
@@ -1554,10 +1554,10 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
           sideSetSizes->InsertNextTuple1 (cells);
           sumSides += cells;
           }
-        else
-          {
-          vtkErrorMacro ("We have a side set, but it doesn't have SourceElementId or SourceElementSide");
-          }
+        // else
+          // {
+          // vtkErrorMacro ("We have a side set, but it doesn't have SourceElementId or SourceElementSide");
+          // }
         }
       }
 
