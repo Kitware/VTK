@@ -36,9 +36,6 @@
 #include <QDesignerCustomWidgetInterface>
 #include <QDesignerCustomWidgetCollectionInterface>
 #include <QObject>
-#if QT_VERSION >= 0x050000
-# include <QtDesigner>
-#endif
 #include <QtPlugin>
 #include <QWidget>
 
