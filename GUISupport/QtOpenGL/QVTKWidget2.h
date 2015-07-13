@@ -82,6 +82,9 @@ public:
 
   static QGLFormat GetDefaultVTKFormat(vtkGenericOpenGLRenderWindow* w = NULL);
 
+signals:
+  void mouseEvent(QMouseEvent* e);
+
 public Q_SLOTS:
 
   // Description:

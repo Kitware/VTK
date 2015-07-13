@@ -310,14 +310,30 @@ void QVTKWidget2::mousePressEvent(QMouseEvent* e)
   if(this->mRenWin)
     {
     mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
+
+    emit mouseEvent(e);
     }
 
+}
+
+/*! handle mouse release event
+ */
+void QVTKWidget2::mouseReleaseEvent(QMouseEvent* e)
+{
+  if(this->mRenWin)
+    {
+    mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
+
+    emit mouseEvent(e);
+    }
 }
 
 /*! handle mouse move event
  */
 void QVTKWidget2::mouseMoveEvent(QMouseEvent* e)
 {
+  emit mouseEvent(e);
+
   if(this->mRenWin)
     {
     mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
@@ -338,16 +354,6 @@ void QVTKWidget2::enterEvent(QEvent* e)
 /*! handle leave event
  */
 void QVTKWidget2::leaveEvent(QEvent* e)
-{
-  if(this->mRenWin)
-    {
-    mIrenAdapter->ProcessEvent(e, this->mRenWin->GetInteractor());
-    }
-}
-
-/*! handle mouse release event
- */
-void QVTKWidget2::mouseReleaseEvent(QMouseEvent* e)
 {
   if(this->mRenWin)
     {
