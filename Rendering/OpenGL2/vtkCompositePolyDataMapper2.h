@@ -46,6 +46,13 @@ protected:
   ~vtkCompositePolyDataMapper2();
 
   // Description:
+  // Perform string replacments on the shader templates, called from
+  // ReplaceShaderValues
+  virtual void ReplaceShaderColor(
+    std::map<vtkShader::Type, vtkShader *> shaders,
+    vtkRenderer *ren, vtkActor *act);
+
+  // Description:
   // Build the VBO/IBO, called by UpdateBufferObjects
   virtual void BuildBufferObjects(vtkRenderer *ren, vtkActor *act);
   virtual void AppendOneBufferObject(vtkRenderer *ren,
@@ -70,6 +77,7 @@ protected:
       unsigned int EndIndex;
       unsigned int EndEdgeIndex;
       double Opacity;
+      bool OverridesColor;
       bool Visibility;
       vtkColor3d Color;
       unsigned int PickId;

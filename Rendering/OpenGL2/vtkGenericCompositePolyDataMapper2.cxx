@@ -82,6 +82,13 @@ protected:
   virtual void UpdateShaders(
     vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
 
+  // Description:
+  // Perform string replacments on the shader templates, called from
+  // ReplaceShaderValues
+  virtual void ReplaceShaderColor(
+    std::map<vtkShader::Type, vtkShader *> shaders,
+    vtkRenderer *ren, vtkActor *act);
+
 private:
   vtkCompositeMapperHelper(const vtkCompositeMapperHelper&); // Not implemented.
   void operator=(const vtkCompositeMapperHelper&); // Not implemented.
@@ -117,6 +124,10 @@ void vtkCompositeMapperHelper::SetPropertyShaderParameters(vtkOpenGLHelper &cell
 
   vtkProperty *ppty = actor->GetProperty();
 
+  // block colors, if set override scalar coloring
+  cellBO.Program->SetUniformi("OverridesColor",
+    this->Parent->BlockState.AmbientColor.size() > 1);
+
   // override the opacity
   cellBO.Program->SetUniformf("opacityUniform", this->Parent->BlockState.Opacity.top());
   double aIntensity = this->DrawingEdges ? 1.0 : ppty->GetAmbient();  // ignoring renderer ambient
@@ -133,6 +144,29 @@ void vtkCompositeMapperHelper::SetPropertyShaderParameters(vtkOpenGLHelper &cell
   cellBO.Program->SetUniform3f("ambientColorUniform", ambientColor);
   cellBO.Program->SetUniform3f("diffuseColorUniform", diffuseColor);
 }
+
+void vtkCompositeMapperHelper::ReplaceShaderColor(
+  std::map<vtkShader::Type, vtkShader *> shaders,
+  vtkRenderer *ren, vtkActor *actor)
+{
+  std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
+
+  vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Dec",
+    "uniform bool OverridesColor;\n"
+    "//VTK::Color::Dec",false);
+
+  vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl",
+    "//VTK::Color::Impl\n"
+    "  if (OverridesColor) {\n"
+    "    ambientColor = ambientColorUniform;\n"
+    "    diffuseColor = diffuseColorUniform; }\n",
+    false);
+
+  shaders[vtkShader::Fragment]->SetSource(FSSource);
+
+  this->Superclass::ReplaceShaderColor(shaders,ren,actor);
+}
+
 
 //-----------------------------------------------------------------------------
 void vtkCompositeMapperHelper::UpdateShaders(

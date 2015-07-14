@@ -1,6 +1,7 @@
 if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
   set(extra_opengl2_tests
     TestCompositePolyDataMapper2.cxx,NO_DATA
+    TestCompositePolyDataMapper2Scalars.cxx,NO_DATA
     # the following produce incorrect results in OpenGL
     TestTranslucentLUTAlphaBlending.cxx
     TestTranslucentLUTTextureAlphaBlending.cxx
