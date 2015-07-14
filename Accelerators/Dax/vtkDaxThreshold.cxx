@@ -35,7 +35,7 @@ vtkStandardNewMacro(vtkDaxThreshold)
 //------------------------------------------------------------------------------
 vtkDaxThreshold::vtkDaxThreshold()
 {
-
+  VTK_LEGACY_BODY(vtkDaxContour::vtkDaxContour, "VTK 6.3");
 }
 
 //------------------------------------------------------------------------------
