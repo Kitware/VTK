@@ -13,6 +13,7 @@ vtk_module(vtkInteractionWidgets
   TEST_DEPENDS
     vtkIOLegacy
     vtkIOXML
+    vtkIOParallel
     vtkRenderingVolume${VTK_RENDERING_BACKEND}
     vtkTestingRendering
     vtkInteractionImage

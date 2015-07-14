@@ -12,6 +12,7 @@ vtk_module(vtkRenderingMatplotlib
     vtkInteractionImage
     vtkInteractionWidgets
     vtkIOGeometry
+    vtkIOParallel
     vtkTestingRendering
     vtkInteractionStyle
     vtkRendering${VTK_RENDERING_BACKEND}
