@@ -77,6 +77,12 @@ public:
   virtual int HasTranslucentPolygonalGeometry();
 
   // Description:
+  // If true, the orientation will be updated based on the widget's position.
+  // Default is true.
+  vtkSetMacro(AutoOrient, bool)
+  vtkGetMacro(AutoOrient, bool)
+
+  // Description:
   // Get/Set the orientation.
   void SetOrientation(int orient);
   int GetOrientation();
@@ -85,7 +91,14 @@ protected:
   vtkScalarBarRepresentation();
   ~vtkScalarBarRepresentation();
 
+  // Description:
+  // Change horizontal <--> vertical orientation, rotate the corners of the
+  // bar to preserve size, and swap the resize handle locations.
+  void SwapOrientation();
+
   vtkScalarBarActor *ScalarBarActor;
+  bool AutoOrient;
+
 private:
   vtkScalarBarRepresentation(const vtkScalarBarRepresentation &); // Not implemented
   void operator=(const vtkScalarBarRepresentation &);   // Not implemented
