@@ -3,7 +3,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkXMLPolyDataWriter.h"
 
-int TestXMLToString(int argc, char*argv[])
+int TestXMLToString(int /*argc*/, char* /*argv*/[])
 {
   vtkNew<vtkSphereSource> sphere;
   vtkNew<vtkXMLPolyDataWriter> writer;
