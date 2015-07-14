@@ -18,7 +18,7 @@
 int vtkMultiBlockPLOT3DReaderInternals::ReadInts(FILE* fp, int n, int* val)
 {
   int retVal = static_cast<int>(fread(val, sizeof(int), n, fp));
-  if (this->ByteOrder == vtkMultiBlockPLOT3DReader::FILE_LITTLE_ENDIAN)
+  if (this->Settings.ByteOrder == vtkMultiBlockPLOT3DReader::FILE_LITTLE_ENDIAN)
     {
     vtkByteSwap::Swap4LERange(val, n);
     }
@@ -32,7 +32,7 @@ int vtkMultiBlockPLOT3DReaderInternals::ReadInts(FILE* fp, int n, int* val)
 void vtkMultiBlockPLOT3DReaderInternals::CheckBinaryFile(FILE *fp, long fileSize)
 {
   rewind(fp);
-  this->BinaryFile = 0;
+  this->Settings.BinaryFile = 0;
 
   // The shortest binary file is 12 files: 2 ints for block dims + 1 float for
   // a coordinate.
@@ -54,7 +54,7 @@ void vtkMultiBlockPLOT3DReaderInternals::CheckBinaryFile(FILE *fp, long fileSize
           bytes[i] == ' ' || bytes[i] == '\r' ||
           bytes[i] == '\n' || bytes[i] == '\t'))
       {
-      this->BinaryFile = 1;
+      this->Settings.BinaryFile = 1;
       return;
       }
     }
@@ -77,11 +77,11 @@ int vtkMultiBlockPLOT3DReaderInternals::CheckByteOrder(FILE* fp)
   // endian.
   if(cpy[0] == 0 && cpy[3] != 0)
     {
-    this->ByteOrder = vtkMultiBlockPLOT3DReader::FILE_BIG_ENDIAN;
+    this->Settings.ByteOrder = vtkMultiBlockPLOT3DReader::FILE_BIG_ENDIAN;
     }
   else
     {
-    this->ByteOrder = vtkMultiBlockPLOT3DReader::FILE_LITTLE_ENDIAN;
+    this->Settings.ByteOrder = vtkMultiBlockPLOT3DReader::FILE_LITTLE_ENDIAN;
     }
   return 1;
 }
@@ -108,18 +108,18 @@ int vtkMultiBlockPLOT3DReaderInternals::CheckByteCount(FILE* fp)
     }
   if (count == count2)
     {
-    this->HasByteCount = 1;
+    this->Settings.HasByteCount = 1;
     }
   else
     {
-    this->HasByteCount = 0;
+    this->Settings.HasByteCount = 0;
     }
   return 1;
 }
 
 int vtkMultiBlockPLOT3DReaderInternals::CheckMultiGrid(FILE* fp)
 {
-  if (this->HasByteCount)
+  if (this->Settings.HasByteCount)
     {
     rewind(fp);
     // We read the byte count, if it is 4 (1 int),
@@ -133,11 +133,11 @@ int vtkMultiBlockPLOT3DReaderInternals::CheckMultiGrid(FILE* fp)
       }
     if(recMarkBeg == sizeof(int))
       {
-      this->MultiGrid = 1;
+      this->Settings.MultiGrid = 1;
       }
     else
       {
-      this->MultiGrid = 0;
+      this->Settings.MultiGrid = 0;
       }
     return 1;
     }
@@ -146,12 +146,12 @@ int vtkMultiBlockPLOT3DReaderInternals::CheckMultiGrid(FILE* fp)
 
 int vtkMultiBlockPLOT3DReaderInternals::Check2DGeom(FILE* fp)
 {
-  if (this->HasByteCount)
+  if (this->Settings.HasByteCount)
     {
     rewind(fp);
     int recMarkBeg, recMarkEnd;
     int numGrids = 1;
-    if(this->MultiGrid)
+    if(this->Settings.MultiGrid)
       {
       if (!this->ReadInts(fp, 1, &recMarkBeg) ||
           !this->ReadInts(fp, 1, &numGrids) ||
@@ -181,7 +181,7 @@ int vtkMultiBlockPLOT3DReaderInternals::Check2DGeom(FILE* fp)
         ndims = 2;
         }
       }
-    this->NumberOfDimensions = ndims;
+    this->Settings.NumberOfDimensions = ndims;
     return 1;
     }
   return 0;
@@ -193,7 +193,7 @@ int vtkMultiBlockPLOT3DReaderInternals::CheckBlankingAndPrecision(FILE* fp)
   int* jmax;
 
   rewind(fp);
-  if(this->MultiGrid)
+  if(this->Settings.MultiGrid)
     {
     if (!this->ReadInts(fp, 1, &recMarkBeg) ||
         !this->ReadInts(fp, 1, &numGrids) ||
@@ -206,7 +206,7 @@ int vtkMultiBlockPLOT3DReaderInternals::CheckBlankingAndPrecision(FILE* fp)
     {
     return 0;
     }
-  nMax = this->NumberOfDimensions * numGrids;
+  nMax = this->Settings.NumberOfDimensions * numGrids;
   jmax = new int[numGrids*3]; // allocate memory for jmax
   if (!this->ReadInts(fp, nMax, jmax) ||
       !this->ReadInts(fp, 1, &recMarkEnd))
@@ -215,40 +215,40 @@ int vtkMultiBlockPLOT3DReaderInternals::CheckBlankingAndPrecision(FILE* fp)
     return 0;
     }
   totPts = 1;
-  for (int i=0; i<this->NumberOfDimensions; i++)
+  for (int i=0; i<this->Settings.NumberOfDimensions; i++)
     {
     totPts *= jmax[i];
     }
   this->ReadInts(fp, 1, &recMarkBeg);
   // single precision, with iblanking
-  if(recMarkBeg == totPts*(this->NumberOfDimensions*4 + 4))
+  if(recMarkBeg == totPts*(this->Settings.NumberOfDimensions*4 + 4))
     {
-    this->Precision = 4;
-    this->IBlanking = 1;
+    this->Settings.Precision = 4;
+    this->Settings.IBlanking = 1;
     delete[] jmax;
     return 1;
     }
   // double precision, with iblanking
-  else if(recMarkBeg == totPts*(this->NumberOfDimensions*8 + 4))
+  else if(recMarkBeg == totPts*(this->Settings.NumberOfDimensions*8 + 4))
     {
-    this->Precision = 8;
-    this->IBlanking = 1;
+    this->Settings.Precision = 8;
+    this->Settings.IBlanking = 1;
     delete[] jmax;
     return 1;
     }
   // single precision, no iblanking
-  else if(recMarkBeg == totPts*this->NumberOfDimensions*4)
+  else if(recMarkBeg == totPts*this->Settings.NumberOfDimensions*4)
     {
-    this->Precision = 4;
-    this->IBlanking = 0;
+    this->Settings.Precision = 4;
+    this->Settings.IBlanking = 0;
     delete[] jmax;
     return 1;
     }
   // double precision, no iblanking
-  else if(recMarkBeg == totPts*this->NumberOfDimensions*8)
+  else if(recMarkBeg == totPts*this->Settings.NumberOfDimensions*8)
     {
-    this->Precision = 8;
-    this->IBlanking = 0;
+    this->Settings.Precision = 8;
+    this->Settings.IBlanking = 0;
     delete[] jmax;
     return 1;
     }
@@ -292,10 +292,10 @@ int vtkMultiBlockPLOT3DReaderInternals::CheckCFile(FILE* fp, long fileSize)
                                     1,
                                     gridDims))
           {
-          this->MultiGrid = 0;
-          this->Precision = precision;
-          this->IBlanking = blanking;
-          this->NumberOfDimensions = dimension;
+          this->Settings.MultiGrid = 0;
+          this->Settings.Precision = precision;
+          this->Settings.IBlanking = blanking;
+          this->Settings.NumberOfDimensions = dimension;
           return 1;
           }
         }
@@ -335,10 +335,10 @@ int vtkMultiBlockPLOT3DReaderInternals::CheckCFile(FILE* fp, long fileSize)
                                     nGrids,
                                     gridDims2))
           {
-          this->MultiGrid = 1;
-          this->Precision = precision;
-          this->IBlanking = blanking;
-          this->NumberOfDimensions = dimension;
+          this->Settings.MultiGrid = 1;
+          this->Settings.Precision = precision;
+          this->Settings.IBlanking = blanking;
+          this->Settings.NumberOfDimensions = dimension;
           delete[] gridDims2;
           return 1;
           }

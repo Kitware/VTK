@@ -83,17 +83,18 @@
 #ifndef vtkMultiBlockPLOT3DReader_h
 #define vtkMultiBlockPLOT3DReader_h
 
-#include "vtkIOGeometryModule.h" // For export macro
+#include "vtkIOParallelModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
 class vtkDataArray;
 class vtkUnsignedCharArray;
 class vtkIntArray;
 class vtkStructuredGrid;
-//BTX
+class vtkMultiProcessController;
+
 struct vtkMultiBlockPLOT3DReaderInternals;
-//ETX
-class VTKIOGEOMETRY_EXPORT vtkMultiBlockPLOT3DReader : public vtkMultiBlockDataSetAlgorithm
+
+class VTKIOPARALLEL_EXPORT vtkMultiBlockPLOT3DReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   static vtkMultiBlockPLOT3DReader *New();
@@ -233,9 +234,10 @@ public:
   virtual int CanReadBinaryFile(const char* fname);
 
   // Description:
-  // Overwritten to make sure that RequestInformation reads the meta-data
-  // again after the reader parameters were changed.
-  virtual void Modified();
+  // Set/Get the communicator object (we'll use global World controller
+  // if you don't set a different one).
+  void SetController(vtkMultiProcessController *c);
+  vtkGetObjectMacro(Controller, vtkMultiProcessController);
 
 //BTX
   enum
@@ -256,11 +258,28 @@ protected:
   int CheckSolutionFile(FILE*& qFp);
   int CheckFunctionFile(FILE*& fFp);
 
+  int GetByteCountSize();
   int SkipByteCount (FILE* fp);
   int ReadIntBlock  (FILE* fp, int n, int*   block);
 
-  int ReadScalar(FILE* fp, int n, vtkDataArray* scalar);
-  int ReadVector(FILE* fp, int n, int numDims, vtkDataArray* vector);
+  int ReadValues(
+    FILE* fp,
+    int n,
+    vtkDataArray* scalar);
+  virtual int ReadIntScalar(
+    void* vfp,
+    int extent[6], int wextent[6],
+    vtkDataArray* scalar, vtkTypeUInt64 offset);
+  virtual int ReadScalar(
+    void* vfp,
+    int extent[6], int wextent[6],
+    vtkDataArray* scalar, vtkTypeUInt64 offset);
+  virtual int ReadVector(
+    void* vfp,
+    int extent[6], int wextent[6],
+    int numDims, vtkDataArray* vector, vtkTypeUInt64 offset);
+  virtual int OpenFileForDataRead(void*& fp, const char* fname);
+  virtual void CloseFile(void* fp);
 
   int GetNumberOfBlocksInternal(FILE* xyzFp, int allocate);
 
@@ -272,7 +291,6 @@ protected:
   long EstimateSize(int ni, int nj, int nk);
 
   int AutoDetectionCheck(FILE* fp);
-
 
   void AssignAttribute(int fNumber, vtkStructuredGrid* output,
                        int attributeType);
@@ -317,6 +335,8 @@ protected:
   int DoublePrecision;
   int AutoDetectFormat;
 
+  int ExecutedGhostLevels;
+
   long FileSize;
 
   //parameters used in computing derived functions
@@ -342,6 +362,8 @@ protected:
                                  vtkInformationVector*);
 
   vtkMultiBlockPLOT3DReaderInternals* Internal;
+
+  vtkMultiProcessController *Controller;
 
 private:
   vtkMultiBlockPLOT3DReader(const vtkMultiBlockPLOT3DReader&);  // Not implemented.
