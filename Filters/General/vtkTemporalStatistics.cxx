@@ -356,9 +356,8 @@ void vtkTemporalStatistics::InitializeStatistics(vtkCompositeDataSet *input,
     vtkSmartPointer<vtkDataObject> outputObj;
     outputObj.TakeReference(inputObj->NewInstance());
 
-    output->SetDataSet(inputItr, outputObj);
-
     this->InitializeStatistics(inputObj, outputObj);
+    output->SetDataSet(inputItr, outputObj);
     }
 }
 
