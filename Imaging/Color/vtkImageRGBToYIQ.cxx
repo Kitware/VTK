@@ -39,7 +39,7 @@ void vtkImageRGBToYIQExecute(vtkImageRGBToYIQ *self,
 {
   vtkImageIterator<T> inIt(inData, outExt);
   vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
-  int idxC, maxC;
+  int maxC;
   double R, G, B, Y, I, Q;
   double max = self->GetMaximum();
 
@@ -91,7 +91,7 @@ void vtkImageRGBToYIQExecute(vtkImageRGBToYIQ *self,
       *outSI = static_cast<T>(I); outSI++;
       *outSI = static_cast<T>(Q); outSI++;
 
-      for (idxC = 3; idxC <= maxC; idxC++)
+      for (int idxC = 3; idxC <= maxC; idxC++)
         {
         *outSI++ = *inSI++;
         }
