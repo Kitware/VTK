@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkStreamLine.h"
 
+#ifndef VTK_LEGACY_REMOVE
+
 #include "vtkCellArray.h"
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
@@ -33,6 +35,8 @@ vtkStreamLine::vtkStreamLine()
 {
   this->StepLength = 1.0;
   this->NumberOfStreamers = 0;
+
+  VTK_LEGACY_BODY(vtkStreamLine::vtkStreamLine, "VTK 6.3");
 }
 
 int vtkStreamLine::RequestData(
@@ -257,3 +261,5 @@ void vtkStreamLine::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Step Length: " << this->StepLength << "\n";
 
 }
+
+#endif // VTK_LEGACY_REMOVE
