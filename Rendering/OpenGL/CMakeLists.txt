@@ -2,35 +2,6 @@
 if(TARGET vtkRenderingOpenGL2)
   message(FATAL_ERROR "vtkRenderingOpenGL cannot be built with vtkRenderingOpenGL2, please disable one of them.")
 endif()
-# FIXME: This should probably be fixed, vtkgl generation needs some refinement
-# to allow for things to split up properly.
-
-set(VTK_USE_X_DEFAULT OFF)
-
-if(APPLE)
-  option(VTK_USE_COCOA "Use Cocoa for VTK render windows" ON)
-  mark_as_advanced(VTK_USE_COCOA)
-elseif(UNIX)
-  set(VTK_USE_X_DEFAULT ON)
-endif()
-
-option(VTK_USE_X "Use X for VTK render windows" ${VTK_USE_X_DEFAULT})
-mark_as_advanced(VTK_USE_X)
-
-# OSMesa logic for offscreen mesa rendering.
-option(VTK_OPENGL_HAS_OSMESA
-  "The OpenGL library being used supports off screen Mesa calls" OFF)
-option(VTK_USE_OFFSCREEN "Use off screen calls by default" OFF)
-unset(VTK_CAN_DO_OFFSCREEN)
-if(VTK_OPENGL_HAS_OSMESA OR WIN32)
-  set(VTK_CAN_DO_OFFSCREEN 1)
-endif()
-mark_as_advanced(VTK_OPENGL_HAS_OSMESA VTK_USE_OFFSCREEN)
-if(VTK_USE_X OR VTK_USE_COCOA OR WIN32)
-  set(VTK_USE_OSMESA FALSE)
-else()
-  set(VTK_USE_OSMESA TRUE)
-endif()
 
 # FIXME: The TDx support needs some refactoring before we can build it in a
 # modular fashion, for now it must remain an option on vtkRenderingOpenGL.
@@ -189,11 +160,7 @@ set_source_files_properties(
   WRAP_EXCLUDE
   )
 
-if(VTK_USE_OSMESA)
-  find_package(OpenGL)
-else()
-  find_package(OpenGL REQUIRED)
-endif()
+include(vtkOpenGL)
 
 # Configuration for vtkOpenGLExtensionManager
 if(WIN32)
@@ -274,8 +241,6 @@ add_custom_command(
   DEPENDS ${VTK_GLEXT_FILE} ${VTK_GLXEXT_FILE} ${VTK_WGLEXT_FILE}
   )
 
-include_directories(${OPENGL_INCLUDE_DIR})
-
 set(shader_files
   vtkColorMaterialHelper_vs.glsl
   vtkDepthPeeling_fs.glsl
@@ -355,12 +320,6 @@ if(VTK_USE_X)
     vtkXOpenGLRenderWindow.cxx
     )
 elseif(VTK_USE_OSMESA)
-  message(STATUS "VTK will be built with OSMesa support!")
-  find_package(OSMesa REQUIRED)
-  if(NOT OSMESA_FOUND)
-    message(FATAL_ERROR "The OSMesa library could not be found. REQUIRED for off screen rendering")
-  endif()
-  include_directories(${OSMESA_INCLUDE_DIR})
   list(APPEND vtk_module_overrides "vtkRenderWindow")
   set(vtk_module_vtkRenderWindow_override "vtkOSOpenGLRenderWindow")
   list(APPEND Module_SRCS vtkOSOpenGLRenderWindow.cxx)
@@ -437,7 +396,13 @@ set(${vtk-module}_EXPORT_CODE "#include \"vtkRenderingOpenGLConfigure.h\"")
 # Since several headers in this module include vtkOpenGL.h which needed GL.h,
 # need to ensure that any dependent modules inherit the include directory
 # automatically.
-set(${vtk-module}_INCLUDE_DIRS "${OPENGL_INCLUDE_DIR}")
+if(VTK_USE_OSMESA)
+  set(${vtk-module}_SYSTEM_INCLUDE_DIRS
+    ${OSMESA_INCLUDE_DIR})
+else()
+  set(${vtk-module}_SYSTEM_INCLUDE_DIRS
+    ${OPENGL_INCLUDE_DIR})
+endif()
 
 # Detect and clear OpenGL errors. If not then other classes/user code
 # may detect VTK's OpenGL errors and vice-versa.
@@ -464,15 +429,12 @@ if (VTK_IGNORE_GLDRIVER_BUGS)
 endif()
 
 vtk_module_library(vtkRenderingOpenGL ${Module_SRCS})
+vtk_opengl_link(vtkRenderingOpenGL)
 vtk_module_link_libraries(vtkRenderingOpenGL
-  LINK_PUBLIC ${OPENGL_LIBRARIES} ${extra_libs})
+  LINK_PUBLIC ${extra_libs})
 if(VTK_USE_X)
   vtk_module_link_libraries(vtkRenderingOpenGL
     LINK_PUBLIC ${X11_LIBRARIES} ${X11_Xt_LIB})
 elseif(VTK_USE_COCOA)
   vtk_module_link_libraries(vtkRenderingOpenGL LINK_PUBLIC "-framework Cocoa")
-endif()
-
-if(VTK_OPENGL_HAS_OSMESA)
-  vtk_module_link_libraries(vtkRenderingOpenGL LINK_PUBLIC ${OSMESA_LIBRARY})
 endif()

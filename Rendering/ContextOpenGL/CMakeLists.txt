@@ -32,3 +32,5 @@ list(APPEND module_SRCS
 set_source_files_properties(${vtk-module}ObjectFactory WRAP_EXCLUDE)
 
 vtk_module_library(${vtk-module} ${module_SRCS})
+include(vtkOpenGL)
+vtk_opengl_link(${vtk-module})

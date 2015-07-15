@@ -86,4 +86,7 @@ vtk_object_factory_configure("${vtk_module_overrides}")
 include(vtkMPI)
 
 vtk_module_library(${vtk-module} ${Module_SRCS})
+include(vtkOpenGL)
+vtk_opengl_link(${vtk-module})
+
 vtk_mpi_link(${vtk-module})

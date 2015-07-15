@@ -33,5 +33,4 @@ set_source_files_properties(
   ABSTRACT
   )
 
-include_directories(${OPENGL_INCLUDE_DIR})
 vtk_module_library(vtkGeovisCore ${Module_SRCS})

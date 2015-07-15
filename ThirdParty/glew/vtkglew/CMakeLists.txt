@@ -1,7 +1,6 @@
 project(VTKGLEW)
 
-find_package(OpenGL REQUIRED)
-include(vtkOpenGLMesaLogic)
+include(vtkOpenGL)
 
 include_directories(${VTKGLEW_SOURCE_DIR} ${VTKGLEW_SOURCE_DIR}/include)
 
@@ -18,8 +17,7 @@ if(VTK_USE_OSMESA AND UNIX AND NOT APPLE)
 endif()
 
 vtk_add_library(vtkglew ${common_SRCS})
-target_link_libraries(vtkglew
-  LINK_PUBLIC ${OPENGL_LIBRARIES})
+vtk_opengl_link(vtkglew)
 if(VTK_USE_OSMESA AND UNIX AND NOT APPLE)
   target_link_libraries(vtkglew LINK_PRIVATE ${CMAKE_DL_LIBS})
 endif()
