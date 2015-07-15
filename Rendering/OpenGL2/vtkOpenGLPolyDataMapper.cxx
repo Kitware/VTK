@@ -94,6 +94,7 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
 
   this->AppleBugPrimIDBuffer = 0;
   this->HaveAppleBug = false;
+  this->LastBoundBO = NULL;
 }
 
 
