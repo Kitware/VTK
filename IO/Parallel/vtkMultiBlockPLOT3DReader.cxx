@@ -41,7 +41,7 @@
 
 #include <exception>
 
-vtkStandardNewMacro(vtkMultiBlockPLOT3DReader);
+vtkObjectFactoryNewMacro(vtkMultiBlockPLOT3DReader);
 
 vtkCxxSetObjectMacro(vtkMultiBlockPLOT3DReader,
                      Controller,
