@@ -31,6 +31,7 @@ vtkImageRGBToYIQ::vtkImageRGBToYIQ()
 
 //----------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
+namespace{
 template <class T>
 void vtkImageRGBToYIQExecute(vtkImageRGBToYIQ *self,
                              vtkImageData *inData,
@@ -39,7 +40,7 @@ void vtkImageRGBToYIQExecute(vtkImageRGBToYIQ *self,
 {
   vtkImageIterator<T> inIt(inData, outExt);
   vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
-  int maxC;
+  int idxC, maxC;
   double R, G, B, Y, I, Q;
   double max = self->GetMaximum();
 
@@ -91,7 +92,7 @@ void vtkImageRGBToYIQExecute(vtkImageRGBToYIQ *self,
       *outSI = static_cast<T>(I); outSI++;
       *outSI = static_cast<T>(Q); outSI++;
 
-      for (int idxC = 3; idxC <= maxC; idxC++)
+      for (idxC = 3; idxC <= maxC; idxC++)
         {
         *outSI++ = *inSI++;
         }
@@ -100,6 +101,8 @@ void vtkImageRGBToYIQExecute(vtkImageRGBToYIQ *self,
     outIt.NextSpan();
     }
 }
+}
+
 
 //----------------------------------------------------------------------------
 void vtkImageRGBToYIQ::ThreadedExecute (vtkImageData *inData,
