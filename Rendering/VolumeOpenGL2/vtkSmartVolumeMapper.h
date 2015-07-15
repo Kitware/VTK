@@ -226,7 +226,8 @@ public:
   // Set/Get the distance between samples used for rendering
   // when AutoAdjustSampleDistances is off, or when this mapper
   // has more than 1 second allocated to it for rendering.
-  // Initial value is 1.0.
+  // If SampleDistance is negative, it will be computed based on the dataset
+  // spacing. Initial value is -1.0.
   vtkSetMacro( SampleDistance, float );
   vtkGetMacro( SampleDistance, float );
 

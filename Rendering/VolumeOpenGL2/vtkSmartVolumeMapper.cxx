@@ -58,7 +58,7 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
 
   // Initial sample distance
   this->AutoAdjustSampleDistances  = 1;
-  this->SampleDistance             = 1.0;
+  this->SampleDistance             = -1.0;
 
   // Create all the mappers we might need
   this->RayCastMapper   = vtkFixedPointVolumeRayCastMapper::New();
@@ -289,6 +289,15 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
   double spacing[3];
   this->GetInput()->GetSpacing(spacing);
 
+  // Compute the sample distance based on dataset spacing.
+  // It is assumed that a negative SampleDistance means the user would like to
+  // compute volume mapper sample distance based on data spacing.
+  if (this->SampleDistance < 0)
+    {
+    this->SampleDistance =
+      static_cast<float>((spacing[0] + spacing[1] + spacing[2]) / 6.0);
+    }
+
   vtkRenderWindow *win=ren->GetRenderWindow();
 
   switch ( this->RequestedRenderMode )
@@ -372,8 +381,6 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
       this->GPUMapper->SetScalarMode(this->GetScalarMode());
       this->GPUMapper->SetMaxMemoryInBytes(this->MaxMemoryInBytes);
       this->GPUMapper->SetMaxMemoryFraction(this->MaxMemoryFraction);
-      this->GPUMapper->SetSampleDistance(
-        static_cast<float>((spacing[0] + spacing[1] + spacing[2] ) / 6.0) );
       this->ConnectMapperInput(this->GPUMapper);
       this->GPUMapper->SetClippingPlanes(this->GetClippingPlanes());
       this->GPUMapper->SetCropping(this->GetCropping());
@@ -409,8 +416,6 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
 
         this->GPULowResMapper->SetMaxMemoryInBytes(this->MaxMemoryInBytes);
         this->GPULowResMapper->SetMaxMemoryFraction(this->MaxMemoryFraction);
-        this->GPULowResMapper->SetSampleDistance(
-        static_cast<float>((spacing[0] + spacing[1] + spacing[2] ) / 6.0) );
 
         this->GPULowResMapper->SetInputConnection(
           this->GPUResampleFilter->GetOutputPort());
