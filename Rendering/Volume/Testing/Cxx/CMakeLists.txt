@@ -23,6 +23,7 @@ set (GenericVolumeCxxTests
   TestGPURayCastNearestDataTypesMIP.cxx
   TestGPURayCastPerspectiveParallel.cxx
   TestGPURayCastVolumeUpdate.cxx
+  TestGPUVolumeRayCastMapper.cxx
   TestMinIntensityRendering.cxx
   TestProjectedTetrahedra.cxx
   TestSmartVolumeMapper.cxx
