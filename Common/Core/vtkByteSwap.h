@@ -54,11 +54,11 @@ public:
   VTK_BYTE_SWAP_DECL(unsigned short);
   VTK_BYTE_SWAP_DECL(unsigned int);
   VTK_BYTE_SWAP_DECL(unsigned long);
-#if defined(VTK_DECL_USE_LONG_LONG)
+#if defined(VTK_TYPE_USE_LONG_LONG)
   VTK_BYTE_SWAP_DECL(long long);
   VTK_BYTE_SWAP_DECL(unsigned long long);
 #endif
-#if defined(VTK_DECL_USE___INT64)
+#if defined(VTK_TYPE_USE___INT64)
   VTK_BYTE_SWAP_DECL(__int64);
   VTK_BYTE_SWAP_DECL(unsigned __int64);
 #endif
