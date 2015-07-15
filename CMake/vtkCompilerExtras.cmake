@@ -14,12 +14,17 @@ if(CMAKE_COMPILER_IS_GNUCXX)
 
   # If we are compiling on Linux then set some extra linker flags too
   if(CMAKE_SYSTEM_NAME MATCHES Linux)
+    option(VTK_LINKER_FATAL_WARNINGS "Specify if linker warnings must be considered as errors." OFF)
+    mark_as_advanced(VTK_LINKER_FATAL_WARNINGS)
+    if(VTK_LINKER_FATAL_WARNINGS)
+      set(VTK_EXTRA_SHARED_LINKER_FLAGS "-Wl,--fatal-warnings")
+    endif()
     set(CMAKE_SHARED_LINKER_FLAGS
-      "-Wl,--fatal-warnings -Wl,--no-undefined -lc ${CMAKE_SHARED_LINKER_FLAGS}")
+      "${VTK_EXTRA_SHARED_LINKER_FLAGS} -Wl,--no-undefined -lc ${CMAKE_SHARED_LINKER_FLAGS}")
     set(CMAKE_MODULE_LINKER_FLAGS
-      "-Wl,--fatal-warnings -Wl,--no-undefined -lc ${CMAKE_SHARED_LINKER_FLAGS}")
+      "${VTK_EXTRA_SHARED_LINKER_FLAGS} -Wl,--no-undefined -lc ${CMAKE_SHARED_LINKER_FLAGS}")
     set (CMAKE_EXE_LINKER_FLAGS
-      "-Wl,--fatal-warnings -Wl,--no-undefined -lc ${CMAKE_SHARED_LINKER_FLAGS}")
+      "${VTK_EXTRA_SHARED_LINKER_FLAGS} -Wl,--no-undefined -lc ${CMAKE_SHARED_LINKER_FLAGS}")
   endif()
 
   # Now check if we can use visibility to selectively export symbols
