@@ -1,6 +1,7 @@
 vtk_module(vtkIOMPIParallel
   IMPLEMENTS
     vtkIOGeometry
+    vtkIOParallel
   GROUPS
     MPI
   DEPENDS

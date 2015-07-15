@@ -460,6 +460,7 @@ function(vtk_add_test_python_mpi)
     ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${numprocs}
     ${VTK_MPI_PREFLAGS})
 
+  set (VTK_PYTHON_EXE "\\$<TARGET_FILE:pvtkpython>")
   vtk_add_test_python(${ARGN})
 endfunction()
 
