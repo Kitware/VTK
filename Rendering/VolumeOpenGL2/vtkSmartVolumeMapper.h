@@ -200,6 +200,20 @@ public:
                             double viewUp[3] );
 
   // Description:
+  // Set the rate at or above this render will be considered interactive.
+  // If the DesiredUpdateRate of the vtkRenderWindow that caused the Render
+  // falls at or above this rate, the render is considered interactive and
+  // the mapper may be adjusted (depending on the render mode).
+  // Initial value is 1.0.
+  vtkSetClampMacro( InteractiveUpdateRate, double, 1.0e-10, 1.0e10 );
+
+  // Description:
+  // Get the update rate at or above which this is considered an
+  // interactive render.
+  // Initial value is 1.0.
+  vtkGetMacro( InteractiveUpdateRate, double );
+
+  // Description:
   // If AutoAdjustSampleDistances is on, the the ImageSampleDistance
   // will be varied to achieve the allocated render time of this
   // prop (controlled by the desired update rate and any culling in
@@ -299,6 +313,11 @@ protected:
   // The distance between sample points along the ray
   float  SampleDistance;
   int    AutoAdjustSampleDistances;
+
+  // If the DesiredUpdateRate of the vtkRenderWindow causing the Render is at
+  // or above this value, the render is considered interactive. Otherwise it is
+  // considered still.
+  double InteractiveUpdateRate;
 
 private:
   vtkSmartVolumeMapper(const vtkSmartVolumeMapper&);  // Not implemented.

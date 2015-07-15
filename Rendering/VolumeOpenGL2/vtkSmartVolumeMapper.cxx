@@ -52,6 +52,10 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
   this->LowResGPUNecessary = 0;
   this->InterpolationMode=VTK_RESLICE_CUBIC;
 
+  // If the render window has a desired update rate of at least 1 frame
+  // per second or more, we'll consider this interactive
+  this->InteractiveUpdateRate = 1.0;
+
   // Initial sample distance
   this->AutoAdjustSampleDistances  = 1;
   this->SampleDistance             = 1.0;
@@ -626,6 +630,7 @@ void vtkSmartVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << "FinalColorWindow: " << this->FinalColorWindow << endl;
   os << "FinalColorLevel: " << this->FinalColorLevel << endl;
   os << "RequestedRenderMode: " << this->RequestedRenderMode << endl;
+  os << "InteractiveUpdateRate: " << this->InteractiveUpdateRate << endl;
   os << "InterpolationMode: " << this->InterpolationMode << endl;
   os << "MaxMemoryInBytes:" << this->MaxMemoryInBytes << endl;
   os << "MaxMemoryFraction:" << this->MaxMemoryFraction << endl;
