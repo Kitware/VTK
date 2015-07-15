@@ -214,10 +214,26 @@ public:
   vtkGetMacro( InteractiveUpdateRate, double );
 
   // Description:
-  // If AutoAdjustSampleDistances is on, the the ImageSampleDistance
+  // If the InteractiveAdjustSampleDistances flag is enabled,
+  // vtkSmartVolumeMapper interactively sets and resets the
+  // AutoAdjustSampleDistances flag on the internal volume mapper. This flag
+  // along with InteractiveUpdateRate is useful to adjust volume mapper sample
+  // distance based on whether the render is interactive or still.
+  // Note that, if this flag is enabled,
+  // vtkSmartVolumeMapper::AutoAdjustSampleDistances flag is ignored.
+  // By default, InteractiveAdjustSampleDistances is enabled.
+  vtkSetClampMacro( InteractiveAdjustSampleDistances, int, 0, 1);
+  vtkGetMacro( InteractiveAdjustSampleDistances, int);
+  vtkBooleanMacro( InteractiveAdjustSampleDistances, int);
+
+  // Description:
+  // If AutoAdjustSampleDistances is on, the ImageSampleDistance
   // will be varied to achieve the allocated render time of this
   // prop (controlled by the desired update rate and any culling in
   // use).
+  // Note that, this flag is ignored when InteractiveAdjustSampleDistances is
+  // enabled. To explicitly set and use this flag, one must disable
+  // InteractiveAdjustSampleDistances.
   vtkSetClampMacro( AutoAdjustSampleDistances, int, 0, 1 );
   vtkGetMacro( AutoAdjustSampleDistances, int );
   vtkBooleanMacro( AutoAdjustSampleDistances, int );
@@ -313,12 +329,24 @@ protected:
 
   // The distance between sample points along the ray
   float  SampleDistance;
+
+  // Set whether or not the sample distance should be automatically calculated
+  // within the internal volume mapper
   int    AutoAdjustSampleDistances;
 
   // If the DesiredUpdateRate of the vtkRenderWindow causing the Render is at
   // or above this value, the render is considered interactive. Otherwise it is
   // considered still.
   double InteractiveUpdateRate;
+
+  // If the InteractiveAdjustSampleDistances flag is enabled,
+  // vtkSmartVolumeMapper interactively sets and resets the
+  // AutoAdjustSampleDistances flag on the internal volume mapper. This flag
+  // along with InteractiveUpdateRate is useful to adjust volume mapper sample
+  // distance based on whether the render is interactive or still.
+  // Note that, if this flag is enabled,
+  // vtkSmartVolumeMapper::AutoAdjustSampleDistances flag is ignored.
+  int InteractiveAdjustSampleDistances;
 
 private:
   vtkSmartVolumeMapper(const vtkSmartVolumeMapper&);  // Not implemented.
