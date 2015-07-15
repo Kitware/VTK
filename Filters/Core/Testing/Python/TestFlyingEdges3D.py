@@ -22,7 +22,7 @@ sphere.SetRadius(0.25)
 sample = vtk.vtkSampleFunction()
 sample.SetImplicitFunction(sphere)
 sample.SetModelBounds(-0.5,0.5, -0.5,0.5, -0.5,0.5)
-sample.SetSampleDimensions(250,350,400)
+sample.SetSampleDimensions(25,35,40)
 
 iso = vtk.vtkFlyingEdges3D()
 iso.SetInputConnection(sample.GetOutputPort())
