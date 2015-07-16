@@ -200,7 +200,6 @@ public:
                             double viewUp[3] );
 
   // Description:
-  // Set the rate at or above this render will be considered interactive.
   // If the DesiredUpdateRate of the vtkRenderWindow that caused the Render
   // falls at or above this rate, the render is considered interactive and
   // the mapper may be adjusted (depending on the render mode).
@@ -219,8 +218,6 @@ public:
   // AutoAdjustSampleDistances flag on the internal volume mapper. This flag
   // along with InteractiveUpdateRate is useful to adjust volume mapper sample
   // distance based on whether the render is interactive or still.
-  // Note that, if this flag is enabled,
-  // vtkSmartVolumeMapper::AutoAdjustSampleDistances flag is ignored.
   // By default, InteractiveAdjustSampleDistances is enabled.
   vtkSetClampMacro( InteractiveAdjustSampleDistances, int, 0, 1);
   vtkGetMacro( InteractiveAdjustSampleDistances, int);
@@ -344,8 +341,6 @@ protected:
   // AutoAdjustSampleDistances flag on the internal volume mapper. This flag
   // along with InteractiveUpdateRate is useful to adjust volume mapper sample
   // distance based on whether the render is interactive or still.
-  // Note that, if this flag is enabled,
-  // vtkSmartVolumeMapper::AutoAdjustSampleDistances flag is ignored.
   int InteractiveAdjustSampleDistances;
 
 private:

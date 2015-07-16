@@ -52,8 +52,9 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
   this->LowResGPUNecessary = 0;
   this->InterpolationMode=VTK_RESLICE_CUBIC;
 
-  // If the render window has a desired update rate of at least 1 frame
-  // per second or more, we'll consider this interactive
+  // If the render window has a desired update greater than or equal to the
+  // interactive update rate, we apply certain optimizations to ensure that the
+  // rendering is interactive.
   this->InteractiveUpdateRate = 1.0;
   // Enable checking whether the render is interactive and use the appropriate
   // sample distance for rendering
