@@ -1,4 +1,5 @@
 set(Module_SRCS
+  vtkAngularPeriodicFilter.cxx
   vtkCollectGraph.cxx
   vtkCollectPolyData.cxx
   vtkCollectTable.cxx
@@ -10,6 +11,7 @@ set(Module_SRCS
   vtkExtractUserDefinedPiece.cxx
   vtkPCellDataToPointData.cxx
   vtkPExtractArraysOverTime.cxx
+  vtkPeriodicFilter.cxx
   vtkPKdTree.cxx
   vtkPLinearExtrusionFilter.cxx
   vtkPMaskPoints.cxx

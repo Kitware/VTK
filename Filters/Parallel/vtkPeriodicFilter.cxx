@@ -16,17 +16,16 @@
 #include "vtkPeriodicFilter.h"
 
 #include "vtkDataObjectTreeIterator.h"
-#include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
-#include "vtkMultiPieceDataSet.h"
+#include "vtkMultiProcessController.h"
 
-#include <sstream>
 //----------------------------------------------------------------------------
 vtkPeriodicFilter::vtkPeriodicFilter()
 {
   this->IterationMode = VTK_ITERATION_MODE_MAX;
   this->NumberOfPeriods = 1;
+  this->ReducePeriodNumbers = false;
 }
 
 //----------------------------------------------------------------------------
@@ -71,57 +70,6 @@ void vtkPeriodicFilter::RemoveAllIndices()
 }
 
 //----------------------------------------------------------------------------
-void vtkPeriodicFilter::CreatePeriodicSubTree(vtkDataObjectTreeIterator* loc,
-                                              vtkMultiBlockDataSet* output,
-                                              vtkMultiBlockDataSet* input)
-{
-  vtkDataObject* inputNode = input->GetDataSet(loc);
-  if (!inputNode)
-    {
-    return;
-    }
-  if (!inputNode->IsA("vtkCompositeDataSet"))
-    {
-    // We are on a leaf, process it
-    this->CreatePeriodicDataSet(loc, output, input);
-    }
-  else
-    {
-    // Recursively process the composite tree
-    vtkCompositeDataSet* cinput = vtkCompositeDataSet::SafeDownCast(inputNode);
-    vtkCompositeDataSet* coutput =
-      vtkCompositeDataSet::SafeDownCast(output->GetDataSet(loc));
-    if (coutput == NULL)
-      {
-      return;
-      }
-    vtkCompositeDataIterator* iter = cinput->NewIterator();
-    vtkDataObjectTreeIterator* treeIter =
-      vtkDataObjectTreeIterator::SafeDownCast(iter);
-    if (treeIter)
-      {
-      treeIter->VisitOnlyLeavesOff();
-      }
-    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-      {
-      vtkDataObject* inputNode2 = cinput->GetDataSet(iter);
-      if (inputNode2 == NULL)
-        {
-        break;
-        }
-      if (!inputNode2->IsA("vtkCompositeDataSet"))
-        {
-        this->CreatePeriodicDataSet(iter, coutput, cinput);
-        }
-
-      this->ActiveIndices.erase(
-        loc->GetCurrentFlatIndex() + iter->GetCurrentFlatIndex());
-      }
-    iter->Delete();
-    }
-}
-
-//----------------------------------------------------------------------------
 int vtkPeriodicFilter::RequestData(vtkInformation *vtkNotUsed(request),
                                    vtkInformationVector **inputVector,
                                    vtkInformationVector *outputVector)
@@ -136,38 +84,25 @@ int vtkPeriodicFilter::RequestData(vtkInformation *vtkNotUsed(request),
     return 1;
     }
 
-  output->CopyStructure(input);
+  this->PeriodNumbers.clear();
 
-  this->ActiveIndices = this->Indices;
+  output->CopyStructure(input);
 
   // Copy selected blocks over to the output.
   vtkDataObjectTreeIterator* iter = input->NewTreeIterator();
 
-  iter->VisitOnlyLeavesOff();
-  iter->InitTraversal();
-  while (!iter->IsDoneWithTraversal() && this->ActiveIndices.size() > 0)
-    {
-    const unsigned int index = iter->GetCurrentFlatIndex();
-    if (this->ActiveIndices.find(index) != this->ActiveIndices.end())
-      {
-      this->ActiveIndices.erase(index);
-
-      // This removed the visited indices from this->ActiveIndices.
-      this->CreatePeriodicSubTree(iter, output, input);
-      }
-    iter->GoToNextItem();
-    }
-  iter->Delete();
-
-  // Now shallow copy leaves from the input that were not selected
-  // Note: this is OK to share iterator between input and output here
-  iter = output->NewTreeIterator();
+  // Generate leaf multipieces
   iter->VisitOnlyLeavesOn();
   iter->SkipEmptyNodesOff();
   iter->InitTraversal();
-  while (!iter->IsDoneWithTraversal())
+  while (!iter->IsDoneWithTraversal() && this->Indices.size() > 0)
     {
-    if (!output->GetDataSet(iter))
+    const unsigned int index = iter->GetCurrentFlatIndex();
+    if (this->Indices.find(index) != this->Indices.end())
+      {
+      this->CreatePeriodicDataSet(iter, output, input);
+      }
+    else
       {
       vtkDataObject* inputLeaf = input->GetDataSet(iter);
       if (inputLeaf)
@@ -180,33 +115,34 @@ int vtkPeriodicFilter::RequestData(vtkInformation *vtkNotUsed(request),
       }
     iter->GoToNextItem();
     }
+
+  // Reduce period number in case of parrallelism, and update empty multipieces
+  if (this->ReducePeriodNumbers)
+    {
+    int* reducedPeriodNumbers = new int[this->PeriodNumbers.size()];
+    vtkMultiProcessController *controller = vtkMultiProcessController::GetGlobalController();
+    if (controller)
+      {
+      controller->AllReduce(&this->PeriodNumbers.front(), reducedPeriodNumbers,
+        this->PeriodNumbers.size(), vtkCommunicator::MAX_OP);
+      int i = 0;
+      iter->InitTraversal();
+      while (!iter->IsDoneWithTraversal() && this->Indices.size() > 0)
+        {
+        if (reducedPeriodNumbers[i] > this->PeriodNumbers[i])
+          {
+          const unsigned int index = iter->GetCurrentFlatIndex();
+          if (this->Indices.find(index) != this->Indices.end())
+            {
+            this->SetPeriodNumber(iter, output, reducedPeriodNumbers[i]);
+            }
+          }
+        iter->GoToNextItem();
+        i++;
+        }
+      }
+    delete [] reducedPeriodNumbers;
+    }
   iter->Delete();
-
-  this->ActiveIndices.clear();
-
   return 1;
-}
-
-//----------------------------------------------------------------------------
-void vtkPeriodicFilter::GeneratePieceName(vtkCompositeDataSet* input,
-  vtkCompositeDataIterator* inputLoc, vtkMultiPieceDataSet* output, vtkIdType outputId)
-{
-  vtkDataObjectTree* inputTree = vtkDataObjectTree::SafeDownCast(input);
-  if (!inputTree)
-    {
-    return;
-    }
-  std::ostringstream ss;
-  const char* parentName =
-    inputTree->GetMetaData(inputLoc)->Get(vtkCompositeDataSet::NAME());
-  if (parentName)
-    {
-    ss << parentName;
-    }
-  else
-    {
-    ss << "Piece";
-    }
-  ss << "_period" << outputId;
-  output->GetMetaData(outputId)->Set(vtkCompositeDataSet::NAME(), ss.str().c_str());
 }
