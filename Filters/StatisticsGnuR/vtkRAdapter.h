@@ -48,6 +48,9 @@
 
 #include "vtkFiltersStatisticsGnuRModule.h" // For export macro
 #include "vtkObject.h"
+
+#define R_NO_REMAP /* Don't pollute the namespace (some of which conflict). DO NOT REMOVE. */
+
 #include "Rinternals.h" // Needed for Rinternals.h SEXP data structure
 
 class vtkInformation;
@@ -125,6 +128,3 @@ private:
 
 
 #endif
-
-
-
