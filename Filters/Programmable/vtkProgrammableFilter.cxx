@@ -202,8 +202,8 @@ int vtkProgrammableFilter::RequestData(
         vtkCompositeDataIterator* iter = cdsInput->NewIterator();
         for(iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
           {
-          vtkDataSet* iblock = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
-          vtkDataSet* oblock = iblock->NewInstance();
+          vtkDataObject* iblock = iter->GetCurrentDataObject();
+          vtkDataObject* oblock = iblock->NewInstance();
           if (iblock)
             {
             if (this->CopyArrays)
@@ -212,7 +212,12 @@ int vtkProgrammableFilter::RequestData(
               }
             else
               {
-              oblock->CopyStructure( iblock );
+              vtkDataSet* iblockDS = vtkDataSet::SafeDownCast(iblock);
+              vtkDataSet* oblockDS = vtkDataSet::SafeDownCast(oblock);
+              if (iblockDS && oblockDS)
+                {
+                oblockDS->CopyStructure(iblockDS);
+                }
               }
             }
           cdsOutput->SetDataSet(iter, oblock);
