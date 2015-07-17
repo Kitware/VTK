@@ -476,7 +476,6 @@ endif()
 if(VTK_WRAP_PYTHON)
   set(VTK_WRAP_PYTHON_EXE vtkWrapPython)
   set(VTK_WRAP_PYTHON_INIT_EXE vtkWrapPythonInit)
-  set(VTK_PYTHON_EXE vtkpython)
   # Force the WrappingPythonCore module to on if wrapping is on
   set(Module_vtkWrappingPythonCore ON CACHE BOOL "Core Python wrapping library"
     FORCE)
