@@ -26,6 +26,8 @@ vtkStandardNewMacro(vtkPistonDataObject);
 //----------------------------------------------------------------------------
 vtkPistonDataObject::vtkPistonDataObject()
 {
+  VTK_LEGACY_BODY(vtkPistonDataObject::vtkPistonDataObject, "VTK 6.3");
+
   //cerr << "PDO(" << this << ") Create" << endl;
   this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_PIECES_EXTENT);
   this->Information->Set(vtkDataObject::DATA_PIECE_NUMBER(), -1);

@@ -115,6 +115,8 @@ void vtkPistonMapper::InitCudaGL(vtkRenderWindow *rw)
 //-----------------------------------------------------------------------------
 vtkPistonMapper::vtkPistonMapper()
 {
+  VTK_LEGACY_BODY(vtkPistonMapper::vtkPistonMapper, "VTK 6.3");
+
   //cerr << "PM(" << this << ") create" << endl;
   vtkMath::UninitializeBounds(this->Bounds);
   this->Center[0] = this->Center[1] = this->Center[2] = 0.0;

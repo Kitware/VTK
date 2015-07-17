@@ -1,19 +1,21 @@
-vtk_module(vtkAcceleratorsPiston
-  DEPENDS
-    vtkCommonCore
-    vtkCommonDataModel
-    vtkCommonExecutionModel
-    vtkRenderingCore
-    vtkRenderingOpenGL
-    vtkIOImage #from piston
-    vtkImagingHybrid #from piston
-  TEST_DEPENDS
-    vtkTestingRendering
-    vtkInteractionStyle
-    vtkInteractionWidgets
-    vtkImagingSources
-    vtkParallelCore
-    vtkParallelMPI
-    vtkRenderingParallel
-  EXCLUDE_FROM_ALL
-  )
+if(NOT VTK_LEGACY_REMOVE)
+  vtk_module(vtkAcceleratorsPiston
+    DEPENDS
+      vtkCommonCore
+      vtkCommonDataModel
+      vtkCommonExecutionModel
+      vtkRenderingCore
+      vtkRenderingOpenGL
+      vtkIOImage #from piston
+      vtkImagingHybrid #from piston
+    TEST_DEPENDS
+      vtkTestingRendering
+      vtkInteractionStyle
+      vtkInteractionWidgets
+      vtkImagingSources
+      vtkParallelCore
+      vtkParallelMPI
+      vtkRenderingParallel
+    EXCLUDE_FROM_ALL
+    )
+endif()
