@@ -1903,9 +1903,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateSamplingDistance(
 
     if (this->Parent->ReductionFactor < 1.0)
       {
-      // 0.5 is done to increase the impact factor
       this->ActualSampleDistance /=
-        static_cast<GLfloat>(this->Parent->ReductionFactor * 0.5);
+        static_cast<GLfloat>(this->Parent->ReductionFactor);
       }
     }
 }
@@ -2472,32 +2471,25 @@ void vtkOpenGLGPUVolumeRayCastMapper::ComputeReductionFactor(
     double fullTime = timeToDraw / this->ReductionFactor;
     double newFactor = allocatedTime / fullTime;
 
-    if ( oldFactor == 1.0 ||
-         newFactor / oldFactor > 1.3 ||
-         newFactor / oldFactor < .95 )
+    this->ReductionFactor = (newFactor+oldFactor)/2.0;
+
+    this->ReductionFactor = (this->ReductionFactor > 1.0) ? 1.0 :
+                              (this->ReductionFactor);
+    this->ReductionFactor = (this->ReductionFactor < 1.0) ? (0.5) :
+                              (this->ReductionFactor);
+    this->ReductionFactor = (this->ReductionFactor < 0.5) ? (0.25) :
+                              (this->ReductionFactor);
+    this->ReductionFactor = (this->ReductionFactor < 0.25) ? (0.1) :
+                              (this->ReductionFactor);
+
+    if ( 1.0/this->ReductionFactor > this->MaximumImageSampleDistance )
       {
-      this->ReductionFactor = (newFactor+oldFactor)/2.0;
-
-      this->ReductionFactor = (this->ReductionFactor > 5.0) ? (1.00) :
-                                (this->ReductionFactor);
-      this->ReductionFactor = (this->ReductionFactor > 1.0) ? (0.99) :
-                                (this->ReductionFactor);
-      this->ReductionFactor = (this->ReductionFactor < 0.1) ? (0.10) :
-                                (this->ReductionFactor);
-
-      if ( 1.0/this->ReductionFactor > this->MaximumImageSampleDistance )
-        {
-        this->ReductionFactor = 1.0 / this->MaximumImageSampleDistance;
-        }
-      if ( 1.0/this->ReductionFactor < this->MinimumImageSampleDistance )
-        {
-        this->ReductionFactor = 1.0 / this->MinimumImageSampleDistance;
-        }
+      this->ReductionFactor = 1.0 / this->MaximumImageSampleDistance;
       }
-    }
-  else
-    {
-    this->ReductionFactor = 1.0;
+    if ( 1.0/this->ReductionFactor < this->MinimumImageSampleDistance )
+      {
+      this->ReductionFactor = 1.0 / this->MinimumImageSampleDistance;
+      }
     }
 }
 

@@ -74,30 +74,35 @@ int TestGPURayCastAdditive(int argc,
 
   t->Update();
 
-  vtkRenderWindow *renWin=vtkRenderWindow::New();
-  vtkRenderer *ren1=vtkRenderer::New();
+  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkRenderer *ren1 = vtkRenderer::New();
   ren1->SetBackground(0.1,0.4,0.2);
 
   renWin->AddRenderer(ren1);
   ren1->Delete();
-  renWin->SetSize(301,300); // intentional odd and NPOT  width/height
 
-  vtkRenderWindowInteractor *iren=vtkRenderWindowInteractor::New();
+  // intentional odd and NPOT  width/height
+  renWin->SetSize(301,300);
+
+  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
   renWin->Delete();
 
-  renWin->Render(); // make sure we have an OpenGL context.
+  // make sure we have an OpenGL context.
+  renWin->Render();
 
   vtkGPUVolumeRayCastMapper *volumeMapper;
   vtkVolumeProperty *volumeProperty;
   vtkVolume *volume;
 
-  volumeMapper=vtkGPUVolumeRayCastMapper::New();
+  volumeMapper = vtkGPUVolumeRayCastMapper::New();
+  volumeMapper->SetAutoAdjustSampleDistances(0);
+  volumeMapper->SetSampleDistance(0.2);
   volumeMapper->SetBlendModeToComposite(); // composite first
   volumeMapper->SetInputConnection(
     t->GetOutputPort());
 
-  volumeProperty=vtkVolumeProperty::New();
+  volumeProperty = vtkVolumeProperty::New();
   volumeProperty->ShadeOff();
   volumeProperty->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
 
