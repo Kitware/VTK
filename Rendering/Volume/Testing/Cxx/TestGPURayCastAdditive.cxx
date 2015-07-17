@@ -40,11 +40,11 @@ int TestGPURayCastAdditive(int argc,
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
   // Create a spherical implicit function.
-  vtkSphere *shape=vtkSphere::New();
+  vtkSphere *shape = vtkSphere::New();
   shape->SetRadius(0.1);
   shape->SetCenter(0.0,0.0,0.0);
 
-  vtkSampleFunction *source=vtkSampleFunction::New();
+  vtkSampleFunction *source = vtkSampleFunction::New();
   source->SetImplicitFunction(shape);
   shape->Delete();
   source->SetOutputScalarTypeToDouble();
@@ -56,18 +56,18 @@ int TestGPURayCastAdditive(int argc,
 
   source->Update();
 
-  vtkDataArray *a=source->GetOutput()->GetPointData()->GetScalars("values");
+  vtkDataArray *a = source->GetOutput()->GetPointData()->GetScalars("values");
   double range[2];
   a->GetRange(range);
 
-  vtkImageShiftScale *t=vtkImageShiftScale::New();
+  vtkImageShiftScale *t = vtkImageShiftScale::New();
   t->SetInputConnection(source->GetOutputPort());
   source->Delete();
   t->SetShift(-range[0]);
-  double magnitude=range[1]-range[0];
-  if(magnitude==0.0)
+  double magnitude = range[1]-range[0];
+  if(magnitude == 0.0)
     {
-    magnitude=1.0;
+    magnitude = 1.0;
     }
   t->SetScale(255.0/magnitude);
   t->SetOutputScalarTypeToUnsignedChar();
@@ -119,19 +119,19 @@ int TestGPURayCastAdditive(int argc,
   compositeOpacity->AddPoint(255.0,0.0);
   volumeProperty->SetScalarOpacity(compositeOpacity); // composite first.
 
-  vtkColorTransferFunction *color=vtkColorTransferFunction::New();
+  vtkColorTransferFunction *color = vtkColorTransferFunction::New();
   color->AddRGBPoint(0.0  ,0.0,0.0,1.0);
   color->AddRGBPoint(40.0  ,1.0,0.0,0.0);
   color->AddRGBPoint(255.0,1.0,1.0,1.0);
   volumeProperty->SetColor(color);
   color->Delete();
 
-  volume=vtkVolume::New();
+  volume = vtkVolume::New();
   volume->SetMapper(volumeMapper);
   volume->SetProperty(volumeProperty);
   ren1->AddViewProp(volume);
 
-  int valid=volumeMapper->IsRenderSupported(renWin,volumeProperty);
+  int valid = volumeMapper->IsRenderSupported(renWin,volumeProperty);
 
   int retVal;
   if(valid)
@@ -154,7 +154,7 @@ int TestGPURayCastAdditive(int argc,
     }
   else
     {
-    retVal=vtkTesting::PASSED;
+    retVal = vtkTesting::PASSED;
     cout << "Required extensions not supported." << endl;
     }
 

@@ -2463,6 +2463,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::ComputeReductionFactor(
       timeToDraw = this->BigTimeToDraw;
       }
 
+    // This should be the case when rendering the volume very first time
+    // 10.0 is an arbitrary value chosen which happen to a large number
+    // in this context
     if ( timeToDraw == 0.0 )
       {
       timeToDraw = 10.0;
@@ -2471,8 +2474,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::ComputeReductionFactor(
     double fullTime = timeToDraw / this->ReductionFactor;
     double newFactor = allocatedTime / fullTime;
 
+    // Compute average factor
     this->ReductionFactor = (newFactor+oldFactor)/2.0;
 
+    // Discretize reduction factor so that it doesn't cause
+    // visual artifacts when used to reduce the sample distance
     this->ReductionFactor = (this->ReductionFactor > 1.0) ? 1.0 :
                               (this->ReductionFactor);
     this->ReductionFactor = (this->ReductionFactor < 1.0) ? (0.5) :
@@ -2482,6 +2488,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::ComputeReductionFactor(
     this->ReductionFactor = (this->ReductionFactor < 0.25) ? (0.1) :
                               (this->ReductionFactor);
 
+    // Clamp it
     if ( 1.0/this->ReductionFactor > this->MaximumImageSampleDistance )
       {
       this->ReductionFactor = 1.0 / this->MaximumImageSampleDistance;
