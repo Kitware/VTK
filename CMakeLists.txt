@@ -44,6 +44,18 @@ set(CMAKE_MODULE_PATH ${VTK_CMAKE_DIR} ${CMAKE_MODULE_PATH})
 include(vtkModuleMacros)
 include(vtkExternalData)
 
+#-----------------------------------------------------------------------------
+# Forbid downloading resources from the network during a build. This helps
+# when building on systems without network connectivity to determine which
+# resources much be obtained manually and made available to the build.
+option(VTK_FORBID_DOWNLOADS "Do not download source code or data from the network" OFF)
+mark_as_advanced(VTK_FORBID_DOWNLOADS)
+macro(vtk_download_attempt_check _name)
+  if(VTK_FORBID_DOWNLOADS)
+    message(SEND_ERROR "Attempted to download ${_name} when VTK_FORBID_DOWNLOADS is ON")
+  endif()
+endmacro()
+
 # Set a default build type if none was specified
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   message(STATUS "Setting build type to 'Debug' as none was specified.")
@@ -253,6 +265,10 @@ if (CMAKE_CROSSCOMPILING AND NOT COMPILE_TOOLS_IMPORTED)
   find_package(VTKCompileTools REQUIRED)
   set (COMPILE_TOOLS_IMPORTED TRUE)
 endif()
+
+#-----------------------------------------------------------------------------
+# Add the Remote Subdirectory
+add_subdirectory(Remote)
 
 #-----------------------------------------------------------------------------
 # Do we try to use system libraries by default?
