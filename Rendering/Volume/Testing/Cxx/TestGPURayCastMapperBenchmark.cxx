@@ -19,17 +19,14 @@
 #include "vtkImageData.h"
 #include "vtkNew.h"
 #include "vtkPiecewiseFunction.h"
-#include "vtkRTAnalyticSource.h"
+#include "vtkRegressionTestImage.h"
+#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRenderer.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
-#include "vtkXMLImageDataReader.h"
-
-#include "vtkRegressionTestImage.h"
-#include "vtkTestUtilities.h"
 
 //----------------------------------------------------------------------------
 int TestGPURayCastMapperBenchmark(int argc, char* argv[])
