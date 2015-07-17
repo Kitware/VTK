@@ -29,6 +29,7 @@ namespace vtkpiston {
 //----------------------------------------------------------------------------
 vtkPistonContour::vtkPistonContour()
 {
+  VTK_LEGACY_BODY(vtkPistonContour::vtkPistonContour, "VTK 6.3");
   this->IsoValue = 0.0;
 }
 

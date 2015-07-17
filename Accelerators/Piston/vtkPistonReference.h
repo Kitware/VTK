@@ -38,6 +38,7 @@ public:
 
     vtkPistonReference() : mtime(0), type(-1), data(NULL)
     {
+      VTK_LEGACY_BODY(vtkPistonReference::vtkPistonReference, "VTK 6.3");
       //cerr << "TR(" << this << ") CREATE" << endl;
     }
 

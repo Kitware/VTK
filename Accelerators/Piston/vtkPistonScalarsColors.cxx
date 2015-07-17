@@ -15,6 +15,7 @@ vtkPistonScalarsColors::vtkPistonScalarsColors() : vtkObject(),
   NumberOfValues(256),
   LookupTable(0)
 {
+  VTK_LEGACY_BODY(vtkPistonScalarsColors::vtkPistonScalarsColors, "VTK 6.3");
   this->TableRange[0] = this->TableRange[1] = 0.0;
   this->ComputeColorsTime.Modified();
   this->ComputeColorsfTime.Modified();

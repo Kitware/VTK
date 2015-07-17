@@ -1,3 +1,12 @@
+
+if(VTK_LEGACY_REMOVE)
+  message(STATUS
+          "vtkAcceleratorsPiston can not be enabled as it has been "
+          "marked for deprecation and legacy code has been disabled in this "
+          "build.")
+  return()
+endif()
+
 find_package(CUDA REQUIRED)
 find_path(PISTON_INCLUDE
   PistonCodingStyle.xml

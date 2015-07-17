@@ -37,6 +37,7 @@ vtkStandardNewMacro(vtkPistonToDataSet);
 //----------------------------------------------------------------------------
 vtkPistonToDataSet::vtkPistonToDataSet()
 {
+  VTK_LEGACY_BODY(vtkPistonToDataSet::vtkPistonToDataSet, "VTK 6.3");
   this->OutputDataSetType = VTK_POLY_DATA;
 }
 

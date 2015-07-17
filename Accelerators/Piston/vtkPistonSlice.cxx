@@ -30,6 +30,7 @@ namespace vtkpiston {
 //----------------------------------------------------------------------------
 vtkPistonSlice::vtkPistonSlice()
 {
+  VTK_LEGACY_BODY(vtkPistonSlice::vtkPistonSlice, "VTK 6.3");
   this->Plane = vtkPlane::New();
   this->Offset = 0.0;
 }
