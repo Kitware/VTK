@@ -1901,7 +1901,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateSamplingDistance(
     // by 1/reduceFactor.
     this->ActualSampleDistance = static_cast<float>(minWorldSpacing);
 
-    if (this->Parent->ReductionFactor < 1.0)
+    if (this->Parent->ReductionFactor < 1.0 &&
+        this->Parent->ReductionFactor != 0.0)
       {
       this->ActualSampleDistance /=
         static_cast<GLfloat>(this->Parent->ReductionFactor);
@@ -1999,6 +2000,7 @@ vtkOpenGLGPUVolumeRayCastMapper::vtkOpenGLGPUVolumeRayCastMapper() :
   vtkGPUVolumeRayCastMapper()
 {
   this->Impl = new vtkInternal(this);
+  this->ReductionFactor = 1.0;
 }
 
 ///
