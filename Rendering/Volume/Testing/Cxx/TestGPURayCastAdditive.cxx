@@ -40,11 +40,11 @@ int TestGPURayCastAdditive(int argc,
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
   // Create a spherical implicit function.
-  vtkSphere *shape=vtkSphere::New();
+  vtkSphere *shape = vtkSphere::New();
   shape->SetRadius(0.1);
   shape->SetCenter(0.0,0.0,0.0);
 
-  vtkSampleFunction *source=vtkSampleFunction::New();
+  vtkSampleFunction *source = vtkSampleFunction::New();
   source->SetImplicitFunction(shape);
   shape->Delete();
   source->SetOutputScalarTypeToDouble();
@@ -56,48 +56,53 @@ int TestGPURayCastAdditive(int argc,
 
   source->Update();
 
-  vtkDataArray *a=source->GetOutput()->GetPointData()->GetScalars("values");
+  vtkDataArray *a = source->GetOutput()->GetPointData()->GetScalars("values");
   double range[2];
   a->GetRange(range);
 
-  vtkImageShiftScale *t=vtkImageShiftScale::New();
+  vtkImageShiftScale *t = vtkImageShiftScale::New();
   t->SetInputConnection(source->GetOutputPort());
   source->Delete();
   t->SetShift(-range[0]);
-  double magnitude=range[1]-range[0];
-  if(magnitude==0.0)
+  double magnitude = range[1]-range[0];
+  if(magnitude == 0.0)
     {
-    magnitude=1.0;
+    magnitude = 1.0;
     }
   t->SetScale(255.0/magnitude);
   t->SetOutputScalarTypeToUnsignedChar();
 
   t->Update();
 
-  vtkRenderWindow *renWin=vtkRenderWindow::New();
-  vtkRenderer *ren1=vtkRenderer::New();
+  vtkRenderWindow *renWin = vtkRenderWindow::New();
+  vtkRenderer *ren1 = vtkRenderer::New();
   ren1->SetBackground(0.1,0.4,0.2);
 
   renWin->AddRenderer(ren1);
   ren1->Delete();
-  renWin->SetSize(301,300); // intentional odd and NPOT  width/height
 
-  vtkRenderWindowInteractor *iren=vtkRenderWindowInteractor::New();
+  // intentional odd and NPOT  width/height
+  renWin->SetSize(301,300);
+
+  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
   renWin->Delete();
 
-  renWin->Render(); // make sure we have an OpenGL context.
+  // make sure we have an OpenGL context.
+  renWin->Render();
 
   vtkGPUVolumeRayCastMapper *volumeMapper;
   vtkVolumeProperty *volumeProperty;
   vtkVolume *volume;
 
-  volumeMapper=vtkGPUVolumeRayCastMapper::New();
+  volumeMapper = vtkGPUVolumeRayCastMapper::New();
+  volumeMapper->SetAutoAdjustSampleDistances(0);
+  volumeMapper->SetSampleDistance(0.2);
   volumeMapper->SetBlendModeToComposite(); // composite first
   volumeMapper->SetInputConnection(
     t->GetOutputPort());
 
-  volumeProperty=vtkVolumeProperty::New();
+  volumeProperty = vtkVolumeProperty::New();
   volumeProperty->ShadeOff();
   volumeProperty->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
 
@@ -114,19 +119,19 @@ int TestGPURayCastAdditive(int argc,
   compositeOpacity->AddPoint(255.0,0.0);
   volumeProperty->SetScalarOpacity(compositeOpacity); // composite first.
 
-  vtkColorTransferFunction *color=vtkColorTransferFunction::New();
+  vtkColorTransferFunction *color = vtkColorTransferFunction::New();
   color->AddRGBPoint(0.0  ,0.0,0.0,1.0);
   color->AddRGBPoint(40.0  ,1.0,0.0,0.0);
   color->AddRGBPoint(255.0,1.0,1.0,1.0);
   volumeProperty->SetColor(color);
   color->Delete();
 
-  volume=vtkVolume::New();
+  volume = vtkVolume::New();
   volume->SetMapper(volumeMapper);
   volume->SetProperty(volumeProperty);
   ren1->AddViewProp(volume);
 
-  int valid=volumeMapper->IsRenderSupported(renWin,volumeProperty);
+  int valid = volumeMapper->IsRenderSupported(renWin,volumeProperty);
 
   int retVal;
   if(valid)
@@ -149,7 +154,7 @@ int TestGPURayCastAdditive(int argc,
     }
   else
     {
-    retVal=vtkTesting::PASSED;
+    retVal = vtkTesting::PASSED;
     cout << "Required extensions not supported." << endl;
     }
 
