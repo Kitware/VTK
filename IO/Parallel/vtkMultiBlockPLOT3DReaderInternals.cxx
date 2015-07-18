@@ -29,7 +29,7 @@ int vtkMultiBlockPLOT3DReaderInternals::ReadInts(FILE* fp, int n, int* val)
   return retVal;
 }
 
-void vtkMultiBlockPLOT3DReaderInternals::CheckBinaryFile(FILE *fp, long fileSize)
+void vtkMultiBlockPLOT3DReaderInternals::CheckBinaryFile(FILE *fp, size_t fileSize)
 {
   rewind(fp);
   this->Settings.BinaryFile = 0;
@@ -259,7 +259,7 @@ int vtkMultiBlockPLOT3DReaderInternals::CheckBlankingAndPrecision(FILE* fp)
 // to check becaues it has no byte count markers. We need
 // to do a bit more brute force checks based on reading
 // data and estimating file size.
-int vtkMultiBlockPLOT3DReaderInternals::CheckCFile(FILE* fp, long fileSize)
+int vtkMultiBlockPLOT3DReaderInternals::CheckCFile(FILE* fp, size_t fileSize)
 {
   int precisions[2] = {4, 8};
   int blankings[2] = {0, 1};
@@ -349,7 +349,7 @@ int vtkMultiBlockPLOT3DReaderInternals::CheckCFile(FILE* fp, long fileSize)
   return 0;
 }
 
-long vtkMultiBlockPLOT3DReaderInternals::CalculateFileSize(int mgrid,
+size_t vtkMultiBlockPLOT3DReaderInternals::CalculateFileSize(int mgrid,
                                                            int precision, // in bytes
                                                            int blanking,
                                                            int ndims,
@@ -357,7 +357,7 @@ long vtkMultiBlockPLOT3DReaderInternals::CalculateFileSize(int mgrid,
                                                            int nGrids,
                                                            int* gridDims)
 {
-  long size = 0; // the header portion, 3 ints
+  size_t size = 0; // the header portion, 3 ints
 
   // N grids
   if (mgrid)
@@ -383,15 +383,15 @@ long vtkMultiBlockPLOT3DReaderInternals::CalculateFileSize(int mgrid,
   return size;
 }
 
-long vtkMultiBlockPLOT3DReaderInternals::CalculateFileSizeForBlock(int precision, // in bytes
+size_t vtkMultiBlockPLOT3DReaderInternals::CalculateFileSizeForBlock(int precision, // in bytes
                                                                    int blanking,
                                                                    int ndims,
                                                                    int hasByteCount,
                                                                    int* gridDims)
 {
-  long size = 0;
+  size_t size = 0;
   // x, y, (z)
-  long npts = 1;
+  size_t npts = 1;
   for (int i=0; i<ndims; i++)
     {
     npts *= gridDims[i];

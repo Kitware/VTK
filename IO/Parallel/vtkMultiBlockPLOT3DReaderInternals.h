@@ -68,21 +68,21 @@ struct vtkMultiBlockPLOT3DReaderInternals
     }
 
   int ReadInts(FILE* fp, int n, int* val);
-  void CheckBinaryFile(FILE *fp, long fileSize);
+  void CheckBinaryFile(FILE *fp, size_t fileSize);
   int CheckByteOrder(FILE* fp);
   int CheckByteCount(FILE* fp);
   int CheckMultiGrid(FILE* fp);
   int Check2DGeom(FILE* fp);
   int CheckBlankingAndPrecision(FILE* fp);
-  int CheckCFile(FILE* fp, long fileSize);
-  long CalculateFileSize(int mgrid,
+  int CheckCFile(FILE* fp, size_t fileSize);
+  size_t CalculateFileSize(int mgrid,
                          int precision, // in bytes
                          int blanking,
                          int ndims,
                          int hasByteCount,
                          int nGrids,
                          int* gridDims);
-  long CalculateFileSizeForBlock(int precision, // in bytes
+  size_t CalculateFileSizeForBlock(int precision, // in bytes
                                  int blanking,
                                  int ndims,
                                  int hasByteCount,

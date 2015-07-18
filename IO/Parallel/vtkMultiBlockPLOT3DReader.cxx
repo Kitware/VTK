@@ -41,6 +41,16 @@
 
 #include <exception>
 
+#ifdef _WIN64
+# define vtk_fseek _fseeki64
+# define vtk_ftell _ftelli64
+# define vtk_off_t __int64
+#else
+# define vtk_fseek fseek
+# define vtk_ftell ftell
+# define vtk_off_t long
+#endif
+
 vtkObjectFactoryNewMacro(vtkMultiBlockPLOT3DReader);
 
 vtkCxxSetObjectMacro(vtkMultiBlockPLOT3DReader,
@@ -65,10 +75,10 @@ public:
     {
       if (preskip > 0)
         {
-        fseek(fp, preskip*sizeof(DataType), SEEK_CUR);
+        vtk_fseek(fp, preskip*sizeof(DataType), SEEK_CUR);
         }
       int retVal = static_cast<int>(fread(scalar, sizeof(DataType), n, fp));
-      fseek(fp, postskip*sizeof(DataType), SEEK_CUR);
+      vtk_fseek(fp, postskip*sizeof(DataType), SEEK_CUR);
       if (this->ByteOrder == vtkMultiBlockPLOT3DReader::FILE_LITTLE_ENDIAN)
         {
         if (sizeof(DataType) == 4)
@@ -514,7 +524,7 @@ int vtkMultiBlockPLOT3DReader::ReadIntScalar(
 
   if (this->Internal->Settings.BinaryFile)
     {
-    if (fseek(fp, offset, SEEK_SET) != 0)
+    if (vtk_fseek(fp, offset, SEEK_SET) != 0)
       {
       return 0;
       }
@@ -544,7 +554,7 @@ int vtkMultiBlockPLOT3DReader::ReadScalar(
 
   if (this->Internal->Settings.BinaryFile)
     {
-    if (fseek(fp, offset, SEEK_SET) != 0)
+    if (vtk_fseek(fp, offset, SEEK_SET) != 0)
       {
       return 0;
       }
@@ -623,7 +633,7 @@ int vtkMultiBlockPLOT3DReader::ReadVector(
 
   if (this->Internal->Settings.BinaryFile)
     {
-    if (fseek(fp, offset, SEEK_SET) != 0)
+    if (vtk_fseek(fp, offset, SEEK_SET) != 0)
       {
       return 0;
       }
@@ -692,31 +702,10 @@ int vtkMultiBlockPLOT3DReader::ReadVector(
 // Read a block of floats (ascii or binary) and return number read.
 void vtkMultiBlockPLOT3DReader::CalculateFileSize(FILE* fp)
 {
-  long curPos = ftell(fp);
-  fseek(fp, 0, SEEK_END);
-  this->FileSize = ftell(fp);
-  fseek(fp, curPos, SEEK_SET);
-}
-
-
-// Estimate the size of a grid (binary file only)
-long vtkMultiBlockPLOT3DReader::EstimateSize(int ni, int nj, int nk)
-{
-  long size; // the header portion, 3 ints
-  size = this->Internal->Settings.NumberOfDimensions*4;
-  // x, y, z
-  size += ni*nj*nk*this->Internal->Settings.NumberOfDimensions*this->Internal->Settings.Precision;
-
-  if (this->Internal->Settings.HasByteCount)
-    {
-    size += 2*4; // the byte counts
-    }
-  if (this->Internal->Settings.IBlanking)
-    {
-    size += ni*nj*nk*4;
-    }
-
-  return size;
+  vtk_off_t curPos = vtk_ftell(fp);
+  vtk_fseek(fp, 0, SEEK_END);
+  this->FileSize = static_cast<size_t>(vtk_ftell(fp));
+  vtk_fseek(fp, curPos, SEEK_SET);
 }
 
 int vtkMultiBlockPLOT3DReader::CanReadBinaryFile(const char* fname)
@@ -1241,7 +1230,7 @@ int vtkMultiBlockPLOT3DReader::RequestData(
 
       if (this->Internal->Settings.BinaryFile)
         {
-        offset = ftell(xyzFp);
+        offset = vtk_ftell(xyzFp);
         fclose(xyzFp);
         }
       }
@@ -1527,7 +1516,7 @@ int vtkMultiBlockPLOT3DReader::RequestData(
       if (mp->GetLocalProcessId() == 0 &&
           this->Internal->Settings.BinaryFile)
         {
-        offset = ftell(qFp);
+        offset = vtk_ftell(qFp);
         }
       mp->Broadcast(&offset, 1, 0);
 
@@ -1714,7 +1703,7 @@ int vtkMultiBlockPLOT3DReader::RequestData(
 
       if (rank == 0 && this->Internal->Settings.BinaryFile)
         {
-        fseek(qFp, offset, SEEK_SET);
+        vtk_fseek(qFp, offset, SEEK_SET);
         }
 
       if ( this->FunctionList->GetNumberOfTuples() > 0 )
@@ -1760,7 +1749,7 @@ int vtkMultiBlockPLOT3DReader::RequestData(
         fclose(fFp);
         return 0;
         }
-      offset = ftell(fFp);
+      offset = vtk_ftell(fFp);
       fclose(fFp);
       }
     mp->Broadcast(&nFunctions[0], numBlocks, 0);

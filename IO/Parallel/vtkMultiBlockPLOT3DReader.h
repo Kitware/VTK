@@ -288,7 +288,6 @@ protected:
   int ReadFunctionHeader(FILE* fp, int* nFunctions);
 
   void CalculateFileSize(FILE* fp);
-  long EstimateSize(int ni, int nj, int nk);
 
   int AutoDetectionCheck(FILE* fp);
 
@@ -337,7 +336,7 @@ protected:
 
   int ExecutedGhostLevels;
 
-  long FileSize;
+  size_t FileSize;
 
   //parameters used in computing derived functions
   double R;
