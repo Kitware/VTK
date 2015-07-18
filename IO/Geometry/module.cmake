@@ -8,7 +8,6 @@ vtk_module(vtkIOGeometry
     vtkIOCore
   PRIVATE_DEPENDS
     vtkzlib
-    vtkjsoncpp
     vtksys
   TEST_DEPENDS
     vtkIOAMR

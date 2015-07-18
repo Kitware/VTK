@@ -370,9 +370,14 @@ endfunction()
 #   The 'vtk_test_prefix' variable may be set to create separate tests from a
 #   single test name (e.g., running with different arguments), but should be
 #   used only when required.
+#
+#   Before calling this function, you can define VTK_PYTHON_EXE to point the
+#   executable (or generator expression for the executable) to run for the test.
+#   If VTK_PYTHON_EXE is not defined, `vtkpython` is assumed i.e.
+#   ($<TARGET_FILE:vtkpython>)
 function(vtk_add_test_python)
-  if(NOT VTK_PYTHON_EXE)
-    message(FATAL_ERROR "VTK_PYTHON_EXE not set")
+  if (NOT DEFINED VTK_PYTHON_EXE)
+    set(VTK_PYTHON_EXE "\$<TARGET_FILE:vtkpython>")
   endif()
   set(python_options
     NO_DATA
@@ -447,6 +452,10 @@ function(vtk_add_test_python)
   endforeach()
 endfunction()
 
+#   Before calling this function, you can define VTK_PYTHON_EXE to point the
+#   executable (or generator expression for the executable) to run for the test.
+#   If VTK_PYTHON_EXE is not defined, `vtkpython` is assumed i.e.
+#   ($<TARGET_FILE:pvtkpython>)
 function(vtk_add_test_python_mpi)
   set(_vtk_test_python_suffix "-MPI")
 
@@ -460,6 +469,9 @@ function(vtk_add_test_python_mpi)
     ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${numprocs}
     ${VTK_MPI_PREFLAGS})
 
+  if (NOT DEFINED VTK_PYTHON_EXE)
+    set(VTK_PYTHON_EXE "\$<TARGET_FILE:pvtkpython>")
+  endif()
   vtk_add_test_python(${ARGN})
 endfunction()
 

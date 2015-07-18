@@ -11,6 +11,7 @@ vtk_module(vtkFiltersSources
     vtkRendering${VTK_RENDERING_BACKEND}
     vtkFiltersModeling
     vtkIOXML
+    vtkIOParallel
   KIT
     vtkFilters
   )

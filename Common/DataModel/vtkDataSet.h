@@ -335,7 +335,11 @@ public:
   // Normally called by pipeline executives or algoritms only. This method
   // computes the ghost arrays for a given dataset. The zeroExt argument
   // specifies the extent of the region which ghost type = 0.
-  virtual void GenerateGhostArray(int zeroExt[6]);
+  virtual void GenerateGhostArray(int zeroExt[6])
+  {
+    this->GenerateGhostArray(zeroExt, false);
+  }
+  virtual void GenerateGhostArray(int zeroExt[6], bool cellOnly);
 
   //BTX
   // Description:

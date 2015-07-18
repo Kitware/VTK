@@ -245,11 +245,11 @@ VTK_BYTE_SWAP_IMPL(unsigned char)
 VTK_BYTE_SWAP_IMPL(unsigned short)
 VTK_BYTE_SWAP_IMPL(unsigned int)
 VTK_BYTE_SWAP_IMPL(unsigned long)
-#if defined(VTK_IMPL_USE_LONG_LONG)
+#if defined(VTK_TYPE_USE_LONG_LONG)
 VTK_BYTE_SWAP_IMPL(long long)
 VTK_BYTE_SWAP_IMPL(unsigned long long)
 #endif
-#if defined(VTK_IMPL_USE___INT64)
+#if defined(VTK_TYPE_USE___INT64)
 VTK_BYTE_SWAP_IMPL(__int64)
 VTK_BYTE_SWAP_IMPL(unsigned __int64)
 #endif

@@ -25,6 +25,8 @@
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkPointData.h"
+#include "vtkSmartPointer.h"
+#include "vtkStructuredData.h"
 
 #include <math.h>
 
@@ -478,7 +480,7 @@ int vtkDataSet::CheckAttributes()
 }
 
 //----------------------------------------------------------------------------
-void vtkDataSet::GenerateGhostArray(int zeroExt[6])
+void vtkDataSet::GenerateGhostArray(int zeroExt[6], bool cellOnly)
 {
   // Make sure this is a structured data set.
   if(this->GetExtentType() != VTK_3D_EXTENT)
@@ -486,21 +488,42 @@ void vtkDataSet::GenerateGhostArray(int zeroExt[6])
     return;
     }
 
-  // Avoid generating these if the producer has generated them.
-  if(!this->PointData->GetArray(vtkDataSetAttributes::GhostArrayName()))
-    { // Set ghost types for cells and points.
-    vtkUnsignedCharArray *ghosts;
-    int extent[6];
-    int i, j, k, di, dj, dk, dist;
+  int extent[6];
+  int i, j, k, di, dj, dk, dist;
 
-    this->Information->Get(vtkDataObject::DATA_EXTENT(), extent);
+  bool sameExtent = true;
+  for (i=0; i<6; i++)
+    {
+    if (extent[i] != zeroExt[i])
+      {
+      sameExtent = false;
+      break;
+      }
+    }
+  if (sameExtent)
+    {
+    return;
+    }
 
-    // ---- POINTS ----
-    // Allocate the appropriate ghost types.
-    ghosts = vtkUnsignedCharArray::New();
-    ghosts->Allocate((extent[1]-extent[0] + 1) *
-                     (extent[3]-extent[2] + 1) *
-                     (extent[5]-extent[4] + 1));
+  this->Information->Get(vtkDataObject::DATA_EXTENT(), extent);
+
+  vtkIdType index = 0;
+
+  // ---- POINTS ----
+
+  if (!cellOnly)
+    {
+    vtkSmartPointer<vtkUnsignedCharArray> ghostPoints =
+      vtkUnsignedCharArray::SafeDownCast(
+        this->PointData->GetArray(vtkDataSetAttributes::GhostArrayName()));
+    if (!ghostPoints)
+      {
+      ghostPoints.TakeReference(vtkUnsignedCharArray::New());
+      ghostPoints->SetName(vtkDataSetAttributes::GhostArrayName());
+      ghostPoints->SetNumberOfTuples(vtkStructuredData::GetNumberOfPoints(extent));
+      ghostPoints->FillComponent(0, 0);
+      this->PointData->AddArray(ghostPoints);
+      }
 
     // Loop through the points in this image.
     for (k = extent[4]; k <= extent[5]; ++k)
@@ -546,102 +569,106 @@ void vtkDataSet::GenerateGhostArray(int zeroExt[6])
             {
             dist = dk;
             }
-          unsigned char value = 0;
+          unsigned char value = ghostPoints->GetValue(index);
           if(dist > 0)
             {
             value |= vtkDataSetAttributes::DUPLICATEPOINT;
             }
-          ghosts->InsertNextValue(value);
+          ghostPoints->SetValue(index, value);
+          index++;
           }
         }
       }
-    ghosts->SetName(vtkDataSetAttributes::GhostArrayName());
-    this->PointData->AddArray(ghosts);
-    ghosts->Delete();
-
-    // ---- CELLS ----
-    // Allocate the appropriate ghost types.
-    ghosts = vtkUnsignedCharArray::New();
-    ghosts->Allocate((extent[1]-extent[0]) *
-                     (extent[3]-extent[2]) *
-                     (extent[5]-extent[4]));
-
-    // Loop through the cells in this image.
-    // Cells may be 2d or 1d ... Treat all as 3D
-    if (extent[0] == extent[1])
-      {
-      ++extent[1];
-      ++zeroExt[1];
-      }
-    if (extent[2] == extent[3])
-      {
-      ++extent[3];
-      ++zeroExt[3];
-      }
-    if (extent[4] == extent[5])
-      {
-      ++extent[5];
-      ++zeroExt[5];
-      }
-
-    // Loop
-    for (k = extent[4]; k < extent[5]; ++k)
-      { // Determine the Manhatten distances to zero extent.
-      dk = 0;
-      if (k < zeroExt[4])
-        {
-        dk = zeroExt[4] - k;
-        }
-      if (k >= zeroExt[5])
-        {
-        dk = k - zeroExt[5] + 1;
-        }
-      for (j = extent[2]; j < extent[3]; ++j)
-        {
-        dj = 0;
-        if (j < zeroExt[2])
-          {
-          dj = zeroExt[2] - j;
-          }
-        if (j >= zeroExt[3])
-          {
-          dj = j - zeroExt[3] + 1;
-          }
-        for (i = extent[0]; i < extent[1]; ++i)
-          {
-          di = 0;
-          if (i < zeroExt[0])
-            {
-            di = zeroExt[0] - i;
-            }
-          if (i >= zeroExt[1])
-            {
-            di = i - zeroExt[1] + 1;
-            }
-          // Compute Manhatten distance.
-          dist = di;
-          if (dj > dist)
-            {
-            dist = dj;
-            }
-          if (dk > dist)
-            {
-            dist = dk;
-            }
-          unsigned char value = 0;
-          if(dist > 0)
-            {
-            value |= vtkDataSetAttributes::DUPLICATECELL;
-            }
-          ghosts->InsertNextValue(value);
-          }
-        }
-      }
-    ghosts->SetName(vtkDataSetAttributes::GhostArrayName());
-    this->CellData->AddArray(ghosts);
-    ghosts->Delete();
     }
 
+  // ---- CELLS ----
+
+  vtkSmartPointer<vtkUnsignedCharArray> ghostCells =
+    vtkUnsignedCharArray::SafeDownCast(
+      this->CellData->GetArray(vtkDataSetAttributes::GhostArrayName()));
+  if (!ghostCells)
+    {
+    ghostCells.TakeReference(vtkUnsignedCharArray::New());
+    ghostCells->SetName(vtkDataSetAttributes::GhostArrayName());
+    ghostCells->SetNumberOfTuples(vtkStructuredData::GetNumberOfCells(extent));
+    ghostCells->FillComponent(0, 0);
+    this->CellData->AddArray(ghostCells);
+    }
+
+  index = 0;
+
+  // Loop through the cells in this image.
+  // Cells may be 2d or 1d ... Treat all as 3D
+  if (extent[0] == extent[1])
+    {
+    ++extent[1];
+    ++zeroExt[1];
+    }
+  if (extent[2] == extent[3])
+    {
+    ++extent[3];
+    ++zeroExt[3];
+    }
+  if (extent[4] == extent[5])
+    {
+    ++extent[5];
+    ++zeroExt[5];
+    }
+
+  // Loop
+  for (k = extent[4]; k < extent[5]; ++k)
+    { // Determine the Manhatten distances to zero extent.
+    dk = 0;
+    if (k < zeroExt[4])
+      {
+      dk = zeroExt[4] - k;
+      }
+    if (k >= zeroExt[5])
+      {
+      dk = k - zeroExt[5] + 1;
+      }
+    for (j = extent[2]; j < extent[3]; ++j)
+      {
+      dj = 0;
+      if (j < zeroExt[2])
+        {
+        dj = zeroExt[2] - j;
+        }
+      if (j >= zeroExt[3])
+        {
+        dj = j - zeroExt[3] + 1;
+        }
+      for (i = extent[0]; i < extent[1]; ++i)
+        {
+        di = 0;
+        if (i < zeroExt[0])
+          {
+          di = zeroExt[0] - i;
+          }
+        if (i >= zeroExt[1])
+          {
+          di = i - zeroExt[1] + 1;
+          }
+        // Compute Manhatten distance.
+        dist = di;
+        if (dj > dist)
+          {
+          dist = dj;
+          }
+        if (dk > dist)
+          {
+          dist = dk;
+          }
+        unsigned char value = ghostCells->GetValue(index);
+        if(dist > 0)
+          {
+          value |= vtkDataSetAttributes::DUPLICATECELL;
+          }
+        ghostCells->SetValue(index, value);
+        index++;
+        }
+      }
+    }
 }
 
 //----------------------------------------------------------------------------

@@ -339,6 +339,7 @@ int vtkPlot3DMetaReader::RequestInformation(
   vtkInformationVector* outputVector)
 {
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  outInfo->Set(vtkAlgorithm::CAN_HANDLE_PIECE_REQUEST(), 1);
 
   this->Internal->TimeSteps.clear();
 
@@ -482,8 +483,19 @@ int vtkPlot3DMetaReader::RequestData(
       {
       this->Reader->SetFunctionFileName(0);
       }
+    this->Reader->UpdateInformation();
+    this->Reader->SetUpdateExtent(
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()),
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()),
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS())
+      );
     this->Reader->Update();
-    output->ShallowCopy(this->Reader->GetOutput());
+    vtkDataObject* ioutput = this->Reader->GetOutput();
+    output->ShallowCopy(ioutput);
+    output->GetInformation()->Set(
+      vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(),
+      ioutput->GetInformation()->Get(
+        vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS()));
     }
   else
     {

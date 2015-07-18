@@ -73,7 +73,7 @@
 #ifndef vtkPlot3DMetaReader_h
 #define vtkPlot3DMetaReader_h
 
-#include "vtkIOGeometryModule.h" // For export macro
+#include "vtkIOParallelModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
 //BTX
@@ -87,7 +87,7 @@ namespace Json
   class Value;
 }
 
-class VTKIOGEOMETRY_EXPORT vtkPlot3DMetaReader : public vtkMultiBlockDataSetAlgorithm
+class VTKIOPARALLEL_EXPORT vtkPlot3DMetaReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   static vtkPlot3DMetaReader* New();
