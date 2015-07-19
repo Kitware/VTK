@@ -120,8 +120,11 @@ namespace
 
     int numIterations = static_cast<int>(valuesToRead/_INT_MAX) + 1;
     int maxNumIterations;
-    MPI_Allreduce(&numIterations, &maxNumIterations, 1, mpi_type<int>::type(),
-      MPI_MAX, *this->Communicator.GetHandle());
+    if (MPI_Allreduce(&numIterations, &maxNumIterations, 1, mpi_type<int>::type(),
+        MPI_MAX, *this->Communicator.GetHandle()) != MPI_SUCCESS)
+      {
+      throw MPIPlot3DException();
+      }
 
     vtkTypeUInt64 byteOffset = this->Offset;
     // simply use the VTK array for scalars.
