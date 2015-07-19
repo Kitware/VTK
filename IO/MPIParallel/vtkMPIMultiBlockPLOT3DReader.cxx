@@ -266,7 +266,7 @@ int vtkMPIMultiBlockPLOT3DReader::ReadIntScalar(
 {
   if (!this->CanUseMPIIO())
     {
-    return this->Superclass::ReadScalar(vfp, extent, wextent, scalar, offset);
+    return this->Superclass::ReadIntScalar(vfp, extent, wextent, scalar, offset);
     }
 
   return this->ReadScalar(vfp, extent, wextent, scalar, offset);
