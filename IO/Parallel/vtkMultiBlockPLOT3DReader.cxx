@@ -634,7 +634,7 @@ int vtkMultiBlockPLOT3DReader::ReadVector(
   void* vfp, int extent[6], int wextent[6],
   int numDims, vtkDataArray* vector, vtkTypeUInt64 offset)
 {
-  vtkIdType n = vtkStructuredData::GetNumberOfPoints(wextent);
+  vtkIdType n = vtkStructuredData::GetNumberOfPoints(extent);
   vtkIdType nValues = n*numDims;
 
   FILE* fp = reinterpret_cast<FILE*>(vfp);
