@@ -71,13 +71,17 @@ public:
     {
     }
 
-  int ReadScalar(FILE* fp, vtkIdType preskip, vtkIdType n, vtkIdType postskip, DataType* scalar)
+  size_t ReadScalar(FILE* fp,
+                    vtkIdType preskip,
+                    vtkIdType n,
+                    vtkIdType postskip,
+                    DataType* scalar)
     {
       if (preskip > 0)
         {
         vtk_fseek(fp, preskip*sizeof(DataType), SEEK_CUR);
         }
-      int retVal = static_cast<int>(fread(scalar, sizeof(DataType), n, fp));
+      size_t retVal = fread(scalar, sizeof(DataType), n, fp);
       vtk_fseek(fp, postskip*sizeof(DataType), SEEK_CUR);
       if (this->ByteOrder == vtkMultiBlockPLOT3DReader::FILE_LITTLE_ENDIAN)
         {
@@ -112,9 +116,9 @@ public:
     postskip = nPtsInPlane * (wextent[5] - extent[5]);
     }
 
-  int ReadVector(FILE* fp,
-                 int extent[6], int wextent[6],
-                 int numDims, DataType* vector)
+  size_t ReadVector(FILE* fp,
+                    int extent[6], int wextent[6],
+                    int numDims, DataType* vector)
     {
       vtkIdType n = vtkStructuredData::GetNumberOfPoints(extent);
 
@@ -124,7 +128,7 @@ public:
       // in the file)
       memset(vector, 0, n*3*sizeof(DataType));
 
-      int retVal = 0;
+      size_t retVal = 0;
       DataType* buffer = new DataType[n];
       for (int component = 0; component < numDims; component++)
         {
@@ -535,12 +539,12 @@ int vtkMultiBlockPLOT3DReader::ReadIntScalar(
     arrayReader.CalculateSkips(extent, wextent, preskip, postskip);
     vtkIntArray* intArray = static_cast<vtkIntArray*>(scalar);
     return arrayReader.ReadScalar(
-      fp, preskip, n, postskip, intArray->GetPointer(0));
+      fp, preskip, n, postskip, intArray->GetPointer(0)) == n;
     }
   else
     {
     vtkIntArray* intArray = static_cast<vtkIntArray*>(scalar);
-    return this->ReadIntBlock(fp, n, intArray->GetPointer(0));
+    return this->ReadIntBlock(fp, n, intArray->GetPointer(0)) == n;
     }
 }
 
@@ -567,7 +571,7 @@ int vtkMultiBlockPLOT3DReader::ReadScalar(
       arrayReader.CalculateSkips(extent, wextent, preskip, postskip);
       vtkFloatArray* floatArray = static_cast<vtkFloatArray*>(scalar);
       return arrayReader.ReadScalar(
-        fp, preskip, n, postskip, floatArray->GetPointer(0));
+        fp, preskip, n, postskip, floatArray->GetPointer(0)) == n;
       }
     else
       {
@@ -577,7 +581,7 @@ int vtkMultiBlockPLOT3DReader::ReadScalar(
       arrayReader.CalculateSkips(extent, wextent, preskip, postskip);
       vtkDoubleArray* doubleArray = static_cast<vtkDoubleArray*>(scalar);
       return arrayReader.ReadScalar(
-        fp, preskip, n, postskip, doubleArray->GetPointer(0));
+        fp, preskip, n, postskip, doubleArray->GetPointer(0)) == n;
       }
     }
   else
@@ -600,7 +604,7 @@ int vtkMultiBlockPLOT3DReader::ReadScalar(
           return 0;
           }
         }
-      return count;
+      return count == n;
       }
     else
       {
@@ -620,7 +624,7 @@ int vtkMultiBlockPLOT3DReader::ReadScalar(
           return 0;
           }
         }
-      return count;
+      return count == n;
       }
     }
 }
@@ -629,6 +633,9 @@ int vtkMultiBlockPLOT3DReader::ReadVector(
   void* vfp, int extent[6], int wextent[6],
   int numDims, vtkDataArray* vector, vtkTypeUInt64 offset)
 {
+  vtkIdType n = vtkStructuredData::GetNumberOfPoints(wextent);
+  vtkIdType nValues = n*numDims;
+
   FILE* fp = reinterpret_cast<FILE*>(vfp);
 
   if (this->Internal->Settings.BinaryFile)
@@ -642,19 +649,20 @@ int vtkMultiBlockPLOT3DReader::ReadVector(
       vtkPLOT3DArrayReader<float> arrayReader;
       arrayReader.ByteOrder = this->Internal->Settings.ByteOrder;
       vtkFloatArray* floatArray = static_cast<vtkFloatArray*>(vector);
-      return arrayReader.ReadVector(fp, extent, wextent, numDims, floatArray->GetPointer(0));
+      return arrayReader.ReadVector(
+        fp, extent, wextent, numDims, floatArray->GetPointer(0)) == nValues;
       }
     else
       {
       vtkPLOT3DArrayReader<double> arrayReader;
       arrayReader.ByteOrder = this->Internal->Settings.ByteOrder;
       vtkDoubleArray* doubleArray = static_cast<vtkDoubleArray*>(vector);
-      return arrayReader.ReadVector(fp, extent, wextent, numDims, doubleArray->GetPointer(0));
+      return arrayReader.ReadVector(
+        fp, extent, wextent, numDims, doubleArray->GetPointer(0)) == nValues;
       }
     }
   else
     {
-    vtkIdType n = vtkStructuredData::GetNumberOfPoints(wextent);
 
     // Initialize the 3rd component to 0 in case the input file is
     // 2D
@@ -695,7 +703,7 @@ int vtkMultiBlockPLOT3DReader::ReadVector(
       tmpArray->Delete();
       }
 
-    return count;
+    return count == nValues;
     }
 }
 
@@ -1070,7 +1078,7 @@ int vtkMultiBlockPLOT3DReader::RequestInformation(
           properties->SetNumberOfTuples(4);
 
           // Read fsmach, alpha, re, time;
-          if (this->ReadValues(qFp, 4, properties) == 0)
+          if (this->ReadValues(qFp, 4, properties) != 4)
             {
             vtkErrorMacro("Encountered premature end-of-file while reading "
                           "the q file (or the file is corrupt).");
@@ -1130,6 +1138,7 @@ int vtkMultiBlockPLOT3DReader::RequestData(
     vtkMultiBlockDataSet::SafeDownCast(doOutput);
   if (!mb)
     {
+    this->ClearGeometryCache();
     return 0;
     }
 
@@ -1185,6 +1194,7 @@ int vtkMultiBlockPLOT3DReader::RequestData(
       {
       this->Controller->Broadcast(&numBlocks, 1, 0);
       mb->SetNumberOfBlocks(numBlocks);
+      this->ClearGeometryCache();
       return 1;
       }
     else
@@ -1209,30 +1219,47 @@ int vtkMultiBlockPLOT3DReader::RequestData(
 
     vtkTypeUInt64 offset = 0;
 
+    int error = 0;
+
     // Only the first rank does meta-data checking
     // using POSIX IO.
     if (rank == 0)
       {
-      if ( this->CheckGeometryFile(xyzFp) != VTK_OK)
+      try
         {
-        return 0;
-        }
+        if ( this->CheckGeometryFile(xyzFp) != VTK_OK)
+          {
+          throw Plot3DException();
+          }
 
-      if ( this->ReadGeometryHeader(xyzFp) != VTK_OK )
+        if ( this->ReadGeometryHeader(xyzFp) != VTK_OK )
+          {
+          vtkErrorMacro("Error reading geometry file.");
+          fclose(xyzFp);
+          throw Plot3DException();
+          }
+
+        // Update from the value in the file.
+        numBlocks = static_cast<int>(this->Internal->Dimensions.size());
+
+        if (this->Internal->Settings.BinaryFile)
+          {
+          offset = vtk_ftell(xyzFp);
+          fclose(xyzFp);
+          }
+        }
+      catch (Plot3DException&)
         {
-        vtkErrorMacro("Error reading geometry file.");
-        fclose(xyzFp);
-        return 0;
+        error = 1;
         }
+      }
 
-      // Update from the value in the file.
-      numBlocks = static_cast<int>(this->Internal->Dimensions.size());
-
-      if (this->Internal->Settings.BinaryFile)
-        {
-        offset = vtk_ftell(xyzFp);
-        fclose(xyzFp);
-        }
+    mp->Broadcast(&error, 1, 0);
+    if (error)
+      {
+      vtkErrorMacro("Error reading file " << this->XYZFileName);
+      this->ClearGeometryCache();
+      return 0;
       }
 
     // All meta-data needs to be broadcasted.
@@ -1311,6 +1338,7 @@ int vtkMultiBlockPLOT3DReader::RequestData(
                       "the geometry file (or the file is corrupt).");
         this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
         this->CloseFile(xyzFp2);
+        this->ClearGeometryCache();
         return 0;
         }
       // Increment the offset for next read. This points to the
@@ -1329,6 +1357,7 @@ int vtkMultiBlockPLOT3DReader::RequestData(
                         "the xyz file (or the file is corrupt).");
           this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
           this->CloseFile(xyzFp2);
+          this->ClearGeometryCache();
           return 0;
           }
 
@@ -1399,19 +1428,37 @@ int vtkMultiBlockPLOT3DReader::RequestData(
     {
     FILE* qFp = 0;
     int nq=0, nqc=0, isOverflow=0;
+
+    int error = 0;
     if (rank == 0)
       {
-      if ( this->CheckSolutionFile(qFp) != VTK_OK)
+      try
         {
-        return 0;
-        }
+        if ( this->CheckSolutionFile(qFp) != VTK_OK)
+          {
+          throw Plot3DException();
+          }
 
-      if ( this->ReadQHeader(qFp, true, nq, nqc, isOverflow) != VTK_OK )
+        if ( this->ReadQHeader(qFp, true, nq, nqc, isOverflow) != VTK_OK )
+          {
+          fclose(qFp);
+          throw Plot3DException();
+          }
+        }
+      catch (Plot3DException&)
         {
-        fclose(qFp);
-        return 0;
+        error = 1;
         }
       }
+
+    mp->Broadcast(&error, 1, 0);
+    if (error)
+      {
+      vtkErrorMacro("Error reading file " << this->XYZFileName);
+      this->ClearGeometryCache();
+      return 0;
+      }
+
     int vals[3] = {nq, nqc, isOverflow};
     mp->Broadcast(vals, 3, 0);
     nq = vals[0];
@@ -1458,56 +1505,73 @@ int vtkMultiBlockPLOT3DReader::RequestData(
       mp->Broadcast(&numProperties, 1, 0);
       properties->SetNumberOfTuples(numProperties);
 
+      int error = 0;
       if (rank == 0)
         {
-        // Read fsmach, alpha, re, time;
-        if ( this->ReadValues(qFp, 4, properties) == 0)
+        try
           {
-          vtkErrorMacro("Encountered premature end-of-file while reading "
-                        "the q file (or the file is corrupt).");
-          this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
-          fclose(qFp);
-          properties->Delete();
-          return 0;
-          }
-
-        if (isOverflow)
-          {
-          // We create a dummy array to use with ReadValues
-          vtkDataArray* dummyArray = properties->NewInstance();
-          dummyArray->SetVoidArray(properties->GetVoidPointer(4), 3, 1);
-
-          // Read GAMINF, BETA, TINF
-          if ( this->ReadValues(qFp, 3, dummyArray) == 0)
+          // Read fsmach, alpha, re, time;
+          if ( this->ReadValues(qFp, 4, properties) != 4)
             {
             vtkErrorMacro("Encountered premature end-of-file while reading "
                           "the q file (or the file is corrupt).");
             this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
             fclose(qFp);
             properties->Delete();
-            return 0;
+            throw Plot3DException();
             }
 
-          // igam is an int
-          int igam;
-          this->ReadIntBlock(qFp, 1, &igam);
-          properties->SetTuple1(7, igam);
-
-          dummyArray->SetVoidArray(properties->GetVoidPointer(8), 3, 1);
-          // Read the rest of properties
-          if ( this->ReadValues(qFp, numProperties - 8, dummyArray) == 0)
+          if (isOverflow)
             {
-            vtkErrorMacro("Encountered premature end-of-file while reading "
-                          "the q file (or the file is corrupt).");
-            this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
-            fclose(qFp);
-            properties->Delete();
-            return 0;
+            // We create a dummy array to use with ReadValues
+            vtkDataArray* dummyArray = properties->NewInstance();
+            dummyArray->SetVoidArray(properties->GetVoidPointer(4), 3, 1);
+
+            // Read GAMINF, BETA, TINF
+            if ( this->ReadValues(qFp, 3, dummyArray) != 3)
+              {
+              vtkErrorMacro("Encountered premature end-of-file while reading "
+                            "the q file (or the file is corrupt).");
+              this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
+              fclose(qFp);
+              properties->Delete();
+              throw Plot3DException();
+              }
+
+            // igam is an int
+            int igam;
+            this->ReadIntBlock(qFp, 1, &igam);
+            properties->SetTuple1(7, igam);
+
+            dummyArray->SetVoidArray(properties->GetVoidPointer(8), 3, 1);
+            // Read the rest of properties
+            if ( this->ReadValues(qFp, numProperties - 8, dummyArray) !=
+                 numProperties - 8)
+              {
+              vtkErrorMacro("Encountered premature end-of-file while reading "
+                            "the q file (or the file is corrupt).");
+              this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
+              fclose(qFp);
+              properties->Delete();
+              throw Plot3DException();
+              }
+            dummyArray->Delete();
             }
-          dummyArray->Delete();
+          this->SkipByteCount(qFp);
           }
-        this->SkipByteCount(qFp);
+        catch (Plot3DException&)
+          {
+          error = 1;
+          }
         }
+      mp->Broadcast(&error, 1, 0);
+      if (error)
+        {
+        vtkErrorMacro("Error reading file " << this->XYZFileName);
+        this->ClearGeometryCache();
+        return 0;
+        }
+
       mp->Broadcast(properties, 0);
 
       nthOutput->GetFieldData()->AddArray(properties);
@@ -1548,6 +1612,7 @@ int vtkMultiBlockPLOT3DReader::RequestData(
           }
         this->CloseFile(qFp2);
         density->Delete();
+        this->ClearGeometryCache();
         return 0;
         }
       nthOutput->GetPointData()->AddArray(density);
@@ -1573,6 +1638,7 @@ int vtkMultiBlockPLOT3DReader::RequestData(
           }
         this->CloseFile(qFp2);
         momentum->Delete();
+        this->ClearGeometryCache();
         return 0;
         }
       nthOutput->GetPointData()->AddArray(momentum);
@@ -1594,6 +1660,7 @@ int vtkMultiBlockPLOT3DReader::RequestData(
           }
         this->CloseFile(qFp2);
         se->Delete();
+        this->ClearGeometryCache();
         return 0;
         }
       nthOutput->GetPointData()->AddArray(se);
@@ -1618,6 +1685,7 @@ int vtkMultiBlockPLOT3DReader::RequestData(
               }
             this->CloseFile(qFp2);
             gamma->Delete();
+            this->ClearGeometryCache();
             return 0;
             }
           nthOutput->GetPointData()->AddArray(gamma);
@@ -1645,6 +1713,7 @@ int vtkMultiBlockPLOT3DReader::RequestData(
               }
             this->CloseFile(qFp2);
             temp->Delete();
+            this->ClearGeometryCache();
             return 0;
             }
           nthOutput->GetPointData()->AddArray(temp);
@@ -1691,6 +1760,7 @@ int vtkMultiBlockPLOT3DReader::RequestData(
               }
             this->CloseFile(qFp2);
             temp->Delete();
+            this->ClearGeometryCache();
             return 0;
             }
           nthOutput->GetPointData()->AddArray(temp);
@@ -1737,21 +1807,37 @@ int vtkMultiBlockPLOT3DReader::RequestData(
     FILE* fFp = 0;
 
     std::vector<int> nFunctions(numBlocks);
+    int error = 0;
     if (rank == 0)
       {
-      if ( this->CheckFunctionFile(fFp) != VTK_OK)
+      try
         {
-        return 0;
-        }
+        if ( this->CheckFunctionFile(fFp) != VTK_OK)
+          {
+          throw Plot3DException();
+          }
 
-      if ( this->ReadFunctionHeader(fFp, &nFunctions[0]) != VTK_OK )
-        {
+        if ( this->ReadFunctionHeader(fFp, &nFunctions[0]) != VTK_OK )
+          {
+          fclose(fFp);
+          throw Plot3DException();
+          }
+        offset = vtk_ftell(fFp);
         fclose(fFp);
-        return 0;
         }
-      offset = vtk_ftell(fFp);
-      fclose(fFp);
+      catch (Plot3DException&)
+        {
+        error = 1;
+        }
       }
+    mp->Broadcast(&error, 1, 0);
+    if (error)
+      {
+      vtkErrorMacro("Error reading file " << this->XYZFileName);
+      this->ClearGeometryCache();
+      return 0;
+      }
+
     mp->Broadcast(&nFunctions[0], numBlocks, 0);
     mp->Broadcast(&offset, 1, 0);
 
@@ -1796,6 +1882,7 @@ int vtkMultiBlockPLOT3DReader::RequestData(
                         "the function file (or the file is corrupt).");
           this->CloseFile(fFp2);
           functionArray->Delete();
+          this->ClearGeometryCache();
           return 0;
           }
         offset += nTotalPts*this->Internal->Settings.Precision;
