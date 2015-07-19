@@ -1181,7 +1181,11 @@ int vtkMultiBlockPLOT3DReader::RequestData(
 
   int rank = mp->GetLocalProcessId();
   int size = mp->GetNumberOfProcesses();
-  int realSize = rank;
+  int realSize = size;
+
+  int* settings = reinterpret_cast<int*>(&this->Internal->Settings);
+  mp->Broadcast(settings, sizeof(
+    vtkMultiBlockPLOT3DReaderInternals::InternalSettings) / sizeof(int), 0);
 
   // Special case where we are reading an ASCII or
   // 2D file in parallel. All the work is done by
@@ -1272,10 +1276,6 @@ int vtkMultiBlockPLOT3DReader::RequestData(
 
     int* rawdims = reinterpret_cast<int*>(&this->Internal->Dimensions[0]);
     mp->Broadcast(rawdims, 3*numBlocks, 0);
-
-    int* settings = reinterpret_cast<int*>(&this->Internal->Settings);
-    mp->Broadcast(settings, sizeof(
-      vtkMultiBlockPLOT3DReaderInternals::InternalSettings) / sizeof(int), 0);
 
     mp->Broadcast(&offset, 1, 0);
 
