@@ -262,7 +262,7 @@ protected:
   int SkipByteCount (FILE* fp);
   int ReadIntBlock  (FILE* fp, int n, int*   block);
 
-  int ReadValues(
+  vtkIdType ReadValues(
     FILE* fp,
     int n,
     vtkDataArray* scalar);

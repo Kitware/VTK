@@ -71,7 +71,7 @@ public:
     {
     }
 
-  size_t ReadScalar(FILE* fp,
+  vtkIdType ReadScalar(FILE* fp,
                     vtkIdType preskip,
                     vtkIdType n,
                     vtkIdType postskip,
@@ -81,7 +81,8 @@ public:
         {
         vtk_fseek(fp, preskip*sizeof(DataType), SEEK_CUR);
         }
-      size_t retVal = fread(scalar, sizeof(DataType), n, fp);
+      vtkIdType retVal = static_cast<vtkIdType>(
+        fread(scalar, sizeof(DataType), n, fp));
       vtk_fseek(fp, postskip*sizeof(DataType), SEEK_CUR);
       if (this->ByteOrder == vtkMultiBlockPLOT3DReader::FILE_LITTLE_ENDIAN)
         {
@@ -116,7 +117,7 @@ public:
     postskip = nPtsInPlane * (wextent[5] - extent[5]);
     }
 
-  size_t ReadVector(FILE* fp,
+  vtkIdType ReadVector(FILE* fp,
                     int extent[6], int wextent[6],
                     int numDims, DataType* vector)
     {
@@ -128,7 +129,7 @@ public:
       // in the file)
       memset(vector, 0, n*3*sizeof(DataType));
 
-      size_t retVal = 0;
+      vtkIdType retVal = 0;
       DataType* buffer = new DataType[n];
       for (int component = 0; component < numDims; component++)
         {
@@ -412,7 +413,7 @@ int vtkMultiBlockPLOT3DReader::ReadIntBlock(FILE* fp, int n, int* block)
 {
   if (this->Internal->Settings.BinaryFile)
     {
-    int retVal=static_cast<int>(fread(block, sizeof(int), n, fp));
+    vtkIdType retVal=static_cast<vtkIdType>(fread(block, sizeof(int), n, fp));
     if (this->Internal->Settings.ByteOrder == FILE_LITTLE_ENDIAN)
       {
       vtkByteSwap::Swap4LERange(block, n);
@@ -421,11 +422,11 @@ int vtkMultiBlockPLOT3DReader::ReadIntBlock(FILE* fp, int n, int* block)
       {
       vtkByteSwap::Swap4BERange(block, n);
       }
-    return retVal;
+    return retVal == n;
     }
   else
     {
-    int count = 0;
+    vtkIdType count = 0;
     for(int i=0; i<n; i++)
       {
       int num = fscanf(fp, "%d", &(block[i]));
@@ -438,7 +439,7 @@ int vtkMultiBlockPLOT3DReader::ReadIntBlock(FILE* fp, int n, int* block)
         return 0;
         }
       }
-    return count;
+    return count == n;
     }
 }
 
@@ -454,7 +455,7 @@ vtkDataArray* vtkMultiBlockPLOT3DReader::NewFloatArray()
     }
 }
 
-int vtkMultiBlockPLOT3DReader::ReadValues(
+vtkIdType vtkMultiBlockPLOT3DReader::ReadValues(
   FILE* fp, int n, vtkDataArray* scalar)
 {
   if (this->Internal->Settings.BinaryFile)
@@ -544,7 +545,7 @@ int vtkMultiBlockPLOT3DReader::ReadIntScalar(
   else
     {
     vtkIntArray* intArray = static_cast<vtkIntArray*>(scalar);
-    return this->ReadIntBlock(fp, n, intArray->GetPointer(0)) == n;
+    return this->ReadIntBlock(fp, n, intArray->GetPointer(0));
     }
 }
 
@@ -668,7 +669,7 @@ int vtkMultiBlockPLOT3DReader::ReadVector(
     // 2D
     vector->FillComponent(2, 0);
 
-    int count = 0;
+    vtkIdType count = 0;
 
     if (this->Internal->Settings.Precision == 4)
       {
@@ -1505,7 +1506,7 @@ int vtkMultiBlockPLOT3DReader::RequestData(
       mp->Broadcast(&numProperties, 1, 0);
       properties->SetNumberOfTuples(numProperties);
 
-      int error = 0;
+      error = 0;
       if (rank == 0)
         {
         try
