@@ -40,6 +40,8 @@ vtkScalarBarRepresentation::vtkScalarBarRepresentation()
   this->PositionCoordinate->SetValue(0.82, 0.1);
   this->Position2Coordinate->SetValue(0.17, 0.8);
 
+  this->AutoOrient = true;
+
   this->ScalarBarActor = NULL;
   vtkScalarBarActor *actor = vtkScalarBarActor::New();
   this->SetScalarBarActor(actor);
@@ -90,9 +92,10 @@ void vtkScalarBarRepresentation::PrintSelf(ostream &os, vtkIndent indent)
 //-----------------------------------------------------------------------------
 void vtkScalarBarRepresentation::SetOrientation(int orientation)
 {
-  if (this->ScalarBarActor)
+  if (this->ScalarBarActor &&
+      this->ScalarBarActor->GetOrientation() != orientation)
     {
-    this->ScalarBarActor->SetOrientation(orientation);
+    this->SwapOrientation();
     }
 }
 
@@ -126,6 +129,36 @@ void vtkScalarBarRepresentation::WidgetInteraction(double eventPos[2])
   this->Superclass::WidgetInteraction(eventPos);
 
   // Check to see if we need to change the orientation.
+  if (this->AutoOrient)
+    {
+    double *fpos1 = this->PositionCoordinate->GetValue();
+    double *fpos2 = this->Position2Coordinate->GetValue();
+    double center[2];
+    center[0] = fpos1[0] + 0.5*fpos2[0];
+    center[1] = fpos1[1] + 0.5*fpos2[1];
+
+    if (fabs(center[0] - 0.5) > 0.2+fabs(center[1] - 0.5))
+      {
+      // Close enough to left/right to be swapped to vertical
+      if (this->ScalarBarActor->GetOrientation() == VTK_ORIENT_HORIZONTAL)
+        {
+        this->SwapOrientation();
+        }
+      }
+    else if (fabs(center[1] - 0.5) > 0.2+fabs(center[0] - 0.5))
+      {
+      // Close enough to left/right to be swapped to horizontal
+      if (this->ScalarBarActor->GetOrientation() == VTK_ORIENT_VERTICAL)
+        {
+        this->SwapOrientation();
+        }
+      }
+    } // if this->AutoOrient
+}
+
+//-----------------------------------------------------------------------------
+void vtkScalarBarRepresentation::SwapOrientation()
+{
   double *fpos1 = this->PositionCoordinate->GetValue();
   double *fpos2 = this->Position2Coordinate->GetValue();
   double par1[2];
@@ -137,43 +170,30 @@ void vtkScalarBarRepresentation::WidgetInteraction(double eventPos[2])
   double center[2];
   center[0] = fpos1[0] + 0.5*fpos2[0];
   center[1] = fpos1[1] + 0.5*fpos2[1];
-  bool orientationSwapped = false;
-  if (fabs(center[0] - 0.5) > 0.2+fabs(center[1] - 0.5))
+
+  // Change the corners to effectively rotate 90 degrees.
+  par2[0] = center[0] + center[1] - par1[1];
+  par2[1] = center[1] + center[0] - par1[0];
+  par1[0] = 2*center[0] - par2[0];
+  par1[1] = 2*center[1] - par2[1];
+
+  if (this->ScalarBarActor->GetOrientation() == VTK_ORIENT_HORIZONTAL)
     {
-    // Close enough to left/right to be swapped to vertical
-    if (this->ScalarBarActor->GetOrientation() == VTK_ORIENT_HORIZONTAL)
-      {
-      this->ScalarBarActor->SetOrientation(VTK_ORIENT_VERTICAL);
-      orientationSwapped = true;
-      }
+    this->ScalarBarActor->SetOrientation(VTK_ORIENT_VERTICAL);
     }
-  else if (fabs(center[1] - 0.5) > 0.2+fabs(center[0] - 0.5))
+  else
     {
-    // Close enough to left/right to be swapped to horizontal
-    if (this->ScalarBarActor->GetOrientation() == VTK_ORIENT_VERTICAL)
-      {
-      this->ScalarBarActor->SetOrientation(VTK_ORIENT_HORIZONTAL);
-      orientationSwapped = true;
-      }
+    this->ScalarBarActor->SetOrientation(VTK_ORIENT_HORIZONTAL);
     }
 
-  if (orientationSwapped)
-    {
-    // Change the corners to effectively rotate 90 degrees.
-    par2[0] = center[0] + center[1] - par1[1];
-    par2[1] = center[1] + center[0] - par1[0];
-    par1[0] = 2*center[0] - par2[0];
-    par1[1] = 2*center[1] - par2[1];
+  this->PositionCoordinate->SetValue(par1[0],par1[1]);
+  this->Position2Coordinate->SetValue(par2[0] - par1[0], par2[1] - par1[1]);
 
-    this->PositionCoordinate->SetValue(par1[0],par1[1]);
-    this->Position2Coordinate->SetValue(par2[0] - par1[0], par2[1] - par1[1]);
+  std::swap(this->ShowHorizontalBorder, this->ShowVerticalBorder);
 
-    std::swap(this->ShowHorizontalBorder, this->ShowVerticalBorder);
-
-    this->Modified();
-    this->UpdateShowBorder();
-    this->BuildRepresentation();
-  }
+  this->Modified();
+  this->UpdateShowBorder();
+  this->BuildRepresentation();
 }
 
 //-----------------------------------------------------------------------------
@@ -253,4 +273,3 @@ int vtkScalarBarRepresentation::HasTranslucentPolygonalGeometry()
     }
   return result;
 }
-
