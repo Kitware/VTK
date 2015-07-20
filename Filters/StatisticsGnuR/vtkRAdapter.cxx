@@ -48,6 +48,8 @@
 #include <stdio.h>
 #include <cassert>
 
+#define R_NO_REMAP /* AVOID SOME SERIOUS STUPIDITY. DO NOT REMOVE. */
+
 #include "R.h"
 #include "Rdefines.h"
 #include "R_ext/Parse.h"
