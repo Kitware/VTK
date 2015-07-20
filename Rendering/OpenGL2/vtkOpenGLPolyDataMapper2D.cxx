@@ -773,7 +773,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     this->PrimitiveIDOffset += (int)this->Points.IBO->IndexCount;
     }
 
-  if (this->Lines.IBO->IndexCount)
+  if (this->Lines.IBO->IndexCount && this->Lines.Program)
     {
     // Set the LineWidth
     this->UpdateShaders(this->Lines, viewport, actor);
@@ -793,11 +793,11 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     this->PrimitiveIDOffset += (int)this->Lines.IBO->IndexCount/2;
     }
 
-  // now handle lit primatives
-  if (this->Tris.IBO->IndexCount && this->Points.Program)
+  // now handle lit primitives
+  if (this->Tris.IBO->IndexCount && this->Tris.Program)
     {
     this->UpdateShaders(this->Points, viewport, actor);
-    this->Points.Program->SetUniformi("PrimitiveIDOffset",
+    this->Tris.Program->SetUniformi("PrimitiveIDOffset",
       this->PrimitiveIDOffset);
     this->Tris.IBO->Bind();
     glDrawRangeElements(GL_TRIANGLES, 0,
@@ -809,10 +809,10 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     this->PrimitiveIDOffset += (int)this->Tris.IBO->IndexCount/3;
     }
 
-  if (this->TriStrips.IBO->IndexCount && this->Points.Program)
+  if (this->TriStrips.IBO->IndexCount && this->TriStrips.Program)
     {
     this->UpdateShaders(this->Points, viewport, actor);
-    this->Points.Program->SetUniformi("PrimitiveIDOffset",
+    this->TriStrips.Program->SetUniformi("PrimitiveIDOffset",
       this->PrimitiveIDOffset);
     this->TriStrips.IBO->Bind();
     glDrawRangeElements(GL_TRIANGLES, 0,
