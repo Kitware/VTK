@@ -668,13 +668,15 @@ int vtkNetCDFCAMReader::RequestData(
   pointData->CopyAllocate(output->GetPointData(),
                           output->GetNumberOfPoints());
 
-  vtkIdType newPtId = numFilePoints;
+  vtkIdType newPtId=0;
   for (std::vector<vtkIdType>::const_iterator it=
         boundaryPoints.begin(); it!=boundaryPoints.end(); ++it, ++newPtId)
     {
     for(long lev=0;lev<numLocalCellLevels+1-this->SingleLevel;lev++)
       {
-      pointData->CopyData(pointData, (*it), newPtId);
+      vtkIdType srcId = (*it) + lev * numPointsPerLevel;
+      vtkIdType destId = (newPtId + numFilePoints) + lev * numPointsPerLevel;
+      pointData->CopyData(pointData, srcId, destId);
       }
     }
 
