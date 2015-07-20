@@ -793,7 +793,7 @@ VTK_PYTHON_BUILD_TUPLE(unsigned __int64)
 
 //--------------------------------------------------------------------
 // If "self" is a class, get real "self" from arg list
-vtkObjectBase *vtkPythonArgs::GetSelfFromFirstArg(
+PyObject *vtkPythonArgs::GetSelfFromFirstArg(
   PyObject *self, PyObject *args)
 {
   if (PyType_Check(self))
@@ -804,7 +804,7 @@ vtkObjectBase *vtkPythonArgs::GetSelfFromFirstArg(
       self = PyTuple_GET_ITEM(args, 0);
       if (PyObject_TypeCheck(self, pytype))
         {
-        return ((PyVTKObject *)self)->vtk_ptr;
+        return self;
         }
       }
 

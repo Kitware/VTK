@@ -291,7 +291,7 @@ PyObject *vtkPythonUtil::BuildDocString(const char *docstring[])
 //--------------------------------------------------------------------
 PyVTKSpecialType *vtkPythonUtil::AddSpecialTypeToMap(
   PyTypeObject *pytype, PyMethodDef *methods, PyMethodDef *constructors,
-  const char *docstring[], PyVTKSpecialCopyFunc copyfunc)
+  vtkcopyfunc copyfunc)
 {
   const char *classname = pytype->tp_name;
   vtkPythonUtilCreateIfNeeded();
@@ -303,19 +303,15 @@ PyVTKSpecialType *vtkPythonUtil::AddSpecialTypeToMap(
   // lets make sure it isn't already there
   vtkPythonSpecialTypeMap::iterator i =
     vtkPythonMap->SpecialTypeMap->find(classname);
-  if(i != vtkPythonMap->SpecialTypeMap->end())
+  if (i != vtkPythonMap->SpecialTypeMap->end())
     {
-#ifdef VTKPYTHONDEBUG
-    vtkGenericWarningMacro("Attempt to add type to the map when already there!!!");
-#endif
     return 0;
     }
 
   i = vtkPythonMap->SpecialTypeMap->insert(i,
     vtkPythonSpecialTypeMap::value_type(
       classname,
-      PyVTKSpecialType(pytype, methods, constructors,
-                       docstring, copyfunc)));
+      PyVTKSpecialType(pytype, methods, constructors, copyfunc)));
 
 #ifdef VTKPYTHONDEBUG
   //  vtkGenericWarningMacro("Added type to map type = " << typeObject);
@@ -787,7 +783,7 @@ void *vtkPythonUtil::GetPointerFromSpecialObject(
 
     PyVTKSpecialType *info = &it->second;
     PyMethodDef *meth =
-      vtkPythonOverload::FindConversionMethod(info->constructors, obj);
+      vtkPythonOverload::FindConversionMethod(info->vtk_constructors, obj);
 
     // If a constructor signature exists for "obj", call it
     if (meth && meth->ml_meth)

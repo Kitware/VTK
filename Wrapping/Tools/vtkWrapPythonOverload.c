@@ -40,7 +40,7 @@ static char *vtkWrapPython_FormatString(
 
 /* create a string for checking arguments against available signatures */
 static char *vtkWrapPython_ArgCheckString(
-  int isvtkobjmethod, FunctionInfo *currentFunction);
+  int isStatic, FunctionInfo *currentFunction);
 
 
 /* -------------------------------------------------------------------- */
@@ -242,7 +242,7 @@ static char *vtkWrapPython_FormatString(FunctionInfo *currentFunction)
  * are possible, so the "at" is a placeholder for "self". */
 
 static char *vtkWrapPython_ArgCheckString(
-  int isvtkobjmethod, FunctionInfo *currentFunction)
+  int isStatic, FunctionInfo *currentFunction)
 {
   static char result[2048]; /* max literal string length */
   char pythonname[1024];
@@ -256,10 +256,12 @@ static char *vtkWrapPython_ArgCheckString(
 
   if (currentFunction->IsExplicit)
     {
+    /* only used for explicit contsructors */
     result[currPos++] = '-';
     }
 
-  if (isvtkobjmethod)
+  /* placeholder for type in unbound method calls */
+  if (!isStatic)
     {
     result[currPos++] = '@';
     }
@@ -452,7 +454,7 @@ int *vtkWrapPython_ArgCountToOverloadMap(
 void vtkWrapPython_OverloadMethodDef(
   FILE *fp, const char *classname, ClassInfo *data, int *overloadMap,
   FunctionInfo **wrappedFunctions, int numberOfWrappedFunctions,
-  int fnum, int numberOfOccurrences, int is_vtkobject, int all_legacy)
+  int fnum, int numberOfOccurrences, int all_legacy)
 {
   char occSuffix[8];
   int occ, occCounter;
@@ -534,8 +536,7 @@ void vtkWrapPython_OverloadMethodDef(
             occSuffix,
             theOccurrence->IsStatic ? " | METH_STATIC" : "",
             vtkWrapPython_ArgCheckString(
-              (is_vtkobject && !theOccurrence->IsStatic),
-              wrappedFunctions[occ]));
+              theOccurrence->IsStatic, wrappedFunctions[occ]));
 
     if (theOccurrence->IsLegacy && !all_legacy)
       {

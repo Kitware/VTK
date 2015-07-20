@@ -1061,8 +1061,8 @@ void vtkWrapPython_GenerateOneMethod(
       else if (!theOccurrence->IsStatic && !do_constructors)
         {
         fprintf(fp,
-                "  vtkPythonArgs ap(args, \"%s\");\n"
-                "  void *vp = ap.GetSelfPointer(self);\n"
+                "  vtkPythonArgs ap(self, args, \"%s\");\n"
+                "  void *vp = ap.GetSelfSpecialPointer(self, args);\n"
                 "  %s *op = static_cast<%s *>(vp);\n"
                 "\n",
                 theOccurrence->Name, data->Name, data->Name);
@@ -1085,13 +1085,18 @@ void vtkWrapPython_GenerateOneMethod(
       fprintf(fp,
               "  if (");
 
-      /* special things for vtkObject methods */
-      if (is_vtkobject && !theOccurrence->IsStatic)
+      if (!theOccurrence->IsStatic && !do_constructors)
         {
+        /* if not static, make sure the object is not null */
         fprintf(fp, "op && ");
-        if (theOccurrence->IsPureVirtual)
+
+        if (is_vtkobject)
           {
-          fprintf(fp, "!ap.IsPureVirtual() && ");
+          /* special things for vtkObject methods */
+          if (theOccurrence->IsPureVirtual)
+            {
+            fprintf(fp, "!ap.IsPureVirtual() && ");
+            }
           }
         }
 
@@ -1170,7 +1175,7 @@ void vtkWrapPython_GenerateOneMethod(
     vtkWrapPython_OverloadMethodDef(
       fp, classname, data, overloadMap,
       wrappedFunctions, numberOfWrappedFunctions,
-      fnum, numberOfOccurrences, is_vtkobject, all_legacy);
+      fnum, numberOfOccurrences, all_legacy);
     }
 
   if (numberOfOccurrences > 1)

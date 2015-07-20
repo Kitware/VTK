@@ -113,7 +113,7 @@ public:
   // later create object given only the class name.
   static PyVTKSpecialType *AddSpecialTypeToMap(
     PyTypeObject *pytype, PyMethodDef *methods, PyMethodDef *constructors,
-    const char *docstring[], PyVTKSpecialCopyFunc copyfunc);
+    vtkcopyfunc copyfunc);
 
   // Description:
   // Get information about a special VTK type, given the type name.

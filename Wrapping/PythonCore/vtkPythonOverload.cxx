@@ -495,7 +495,7 @@ int vtkPythonOverload::CheckArg(
               {
               // Try out all the constructor methods
               if (!vtkPythonOverload::FindConversionMethod(
-                     info->constructors, arg))
+                     info->vtk_constructors, arg))
                 {
                 penalty = VTK_PYTHON_INCOMPATIBLE;
                 }
@@ -692,9 +692,9 @@ PyObject *vtkPythonOverload::CallMethod(
     bool selfIsClass = 0;
     int sig;
 
-    // Is self a PyVTKClass object, rather than a PyVTKObject?  If so,
-    // then first arg is an object, and other args should follow format.
-    if (self && PyVTKClass_Check(self))
+    // Is self a type object, rather than an instance?  If so, then the
+    // first arg is an object, and other args should follow format.
+    if (self && PyType_Check(self))
       {
       selfIsClass = true;
       }

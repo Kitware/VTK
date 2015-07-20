@@ -68,9 +68,9 @@ const char *vtkWrapPython_GetSuperClass(
       supername = cp;
       }
 
-    // Add QVTKInteractor as the sole exception: It is derived
-    // from vtkObject but does not start with "vtk".  Given its
-    // name, it would be expected to be derived from QObject.
+    /* Add QVTKInteractor as the sole exception: It is derived
+     * from vtkObject but does not start with "vtk".  Given its
+     * name, it would be expected to be derived from QObject. */
     if (vtkWrap_IsVTKObjectBaseType(hinfo, data->Name) ||
         strcmp(data->Name, "QVTKInteractor") == 0)
       {
@@ -354,7 +354,7 @@ static void vtkWrapPython_GenerateObjectNew(
   fprintf(fp,
           "PyObject *Py%s_ClassNew(const char *)\n"
           "{\n"
-          "  PyObject *cls = PyVTKClass_New(\n"
+          "  PyVTKClass_Add(\n"
           "    &Py%s_Type, Py%s_Methods,\n",
           classname, classname, classname);
 
@@ -386,12 +386,13 @@ static void vtkWrapPython_GenerateObjectNew(
             " NULL);\n\n");
     }
 
-  /* return if the class is already ready */
+  /* if type is already ready, then return */
   fprintf(fp,
-          "  if (cls)\n"
+          "  if ((Py%s_Type.tp_flags & Py_TPFLAGS_READY) != 0)\n"
           "    {\n"
-          "    return cls;\n"
-          "    }\n\n");
+          "    return (PyObject *)&Py%s_Type;\n"
+          "    }\n\n",
+          classname, classname);
 
   /* find the first superclass that is a VTK class, create it first */
   name = vtkWrapPython_GetSuperClass(data, hinfo);

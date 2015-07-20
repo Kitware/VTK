@@ -65,13 +65,19 @@ public:
   // Description:
   // Get a pointer to the self object, converted to its C++ type.
   // Returns NULL and sets a TypeError if the type is wrong.
-  // If "self" is a PyVTKClass, pull the object from the first arg.
+  // If "self" is a class type, pull the object from the first arg.
   static vtkObjectBase *GetSelfPointer(PyObject *self, PyObject *args);
 
   // Description:
   // Get a pointer to the self object, converted to its C++ type.
+  // Returns NULL and sets a TypeError if the type is wrong.
+  // If "self" is a type, pull the object from the first arg.
+  static void *GetSelfSpecialPointer(PyObject *self, PyObject *args);
+
+  // Description:
+  // Get a pointer to the self object, converted to its C++ type.
   // Always succeeds.
-  static void *GetSelfPointer(PyObject *self);
+  static void *GetSelfSpecialPointer(PyObject *self);
 
   // Description:
   // Verify the arg count for a method with optional arguments.
@@ -499,7 +505,7 @@ protected:
 
   // Description:
   // Get the "self" object from the first argument.
-  static vtkObjectBase *GetSelfFromFirstArg(PyObject *self, PyObject *args);
+  static PyObject *GetSelfFromFirstArg(PyObject *self, PyObject *args);
 
   // Description:
   // Get the next argument as an object of the given type.
@@ -568,14 +574,25 @@ vtkObjectBase *vtkPythonArgs::GetSelfPointer(PyObject *self, PyObject *args)
 {
   if (PyType_Check(self))
     {
-    return vtkPythonArgs::GetSelfFromFirstArg(self, args);
+    self = vtkPythonArgs::GetSelfFromFirstArg(self, args);
     }
-  return ((PyVTKObject *)self)->vtk_ptr;
+  return (self ? ((PyVTKObject *)self)->vtk_ptr : NULL);
 }
 
 // Get "self" from a PyVTKSpecialObject.
 inline
-void *vtkPythonArgs::GetSelfPointer(PyObject *self)
+void *vtkPythonArgs::GetSelfSpecialPointer(PyObject *self, PyObject *args)
+{
+  if (PyType_Check(self))
+    {
+    self = vtkPythonArgs::GetSelfFromFirstArg(self, args);
+    }
+  return (self ? ((PyVTKSpecialObject *)self)->vtk_ptr : NULL);
+}
+
+// Get "self" from a PyVTKSpecialObject (for methods with no args).
+inline
+void *vtkPythonArgs::GetSelfSpecialPointer(PyObject *self)
 {
   return ((PyVTKSpecialObject *)self)->vtk_ptr;
 }

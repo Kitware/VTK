@@ -64,7 +64,12 @@ PyVTKClass::PyVTKClass(
 }
 
 //--------------------------------------------------------------------
-PyObject *PyVTKClass_New(
+// C API
+
+//--------------------------------------------------------------------
+// Add a class, add methods and members to its type object.  A return
+// value of NULL signifies that the class was already added.
+PyVTKClass *PyVTKClass_Add(
   PyTypeObject *pytype, PyMethodDef *methods,
   const char *classname, const char *manglename,
   const char *docstring[], vtknewfunc constructor)
@@ -76,8 +81,8 @@ PyObject *PyVTKClass_New(
 
   if (info == 0)
     {
-    // Return the class if it was already in the map
-    return (PyObject *)pytype;
+    // The class was already in the map, so do nothing
+    return info;
     }
 
   // Cache the type object for vtkObjectBase for quick access
@@ -110,15 +115,7 @@ PyObject *PyVTKClass_New(
     Py_DECREF(func);
     }
 
-  // Return NULL so caller knows that type object is not ready yet
-  return 0;
-}
-
-//--------------------------------------------------------------------
-int PyVTKClass_Check(PyObject *op)
-{
-  return (PyType_Check(op) &&
-          PyObject_IsSubclass(op, (PyObject *)PyVTKObject_Type));
+  return info;
 }
 
 //--------------------------------------------------------------------
@@ -126,6 +123,9 @@ int PyVTKObject_Check(PyObject *op)
 {
   return PyObject_TypeCheck(op, PyVTKObject_Type);
 }
+
+//--------------------------------------------------------------------
+// Object protocol
 
 //--------------------------------------------------------------------
 PyObject *PyVTKObject_String(PyObject *op)

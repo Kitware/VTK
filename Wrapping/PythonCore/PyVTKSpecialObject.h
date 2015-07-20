@@ -29,7 +29,7 @@
 // Prototypes for per-type copy, delete, and print funcs
 
 // copy the object and return the copy
-typedef void *(*PyVTKSpecialCopyFunc)(const void *);
+typedef void *(*vtkcopyfunc)(const void *);
 
 // Because the PyTypeObject can't hold all the typing information that we
 // need, we use this PyVTKSpecialType class to hold a bit of extra info.
@@ -37,19 +37,18 @@ class VTKWRAPPINGPYTHONCORE_EXPORT PyVTKSpecialType
 {
 public:
   PyVTKSpecialType() :
-    py_type(0), methods(0), constructors(0), docstring(0), copy_func(0) {}
+    py_type(0), vtk_methods(0), vtk_constructors(0), vtk_copy(0) {}
 
   PyVTKSpecialType(
     PyTypeObject *typeobj, PyMethodDef *cmethods, PyMethodDef *ccons,
-    const char *cdocs[], PyVTKSpecialCopyFunc copyfunc);
+    vtkcopyfunc copyfunc);
 
   // general information
   PyTypeObject *py_type;
-  PyMethodDef *methods;
-  PyMethodDef *constructors;
-  PyObject *docstring;
+  PyMethodDef *vtk_methods;
+  PyMethodDef *vtk_constructors;
   // copy an object
-  PyVTKSpecialCopyFunc copy_func;
+  vtkcopyfunc vtk_copy;
 };
 
 // The PyVTKSpecialObject is very lightweight.  All special VTK types
@@ -65,9 +64,9 @@ struct PyVTKSpecialObject {
 extern "C"
 {
 VTKWRAPPINGPYTHONCORE_EXPORT
-PyObject *PyVTKSpecialType_New(PyTypeObject *pytype,
-  PyMethodDef *methods, PyMethodDef *constructors, PyMethodDef *newmethod,
-  const char *docstring[], PyVTKSpecialCopyFunc copyfunc);
+PyVTKSpecialType *PyVTKSpecialType_Add(PyTypeObject *pytype,
+  PyMethodDef *methods, PyMethodDef *constructors,
+  const char *docstring[], vtkcopyfunc copyfunc);
 
 VTKWRAPPINGPYTHONCORE_EXPORT
 PyObject *PyVTKSpecialObject_New(const char *classname, void *ptr);
