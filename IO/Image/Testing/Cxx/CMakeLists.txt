@@ -42,6 +42,13 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestCompressedTIFFReader,TestCompressedTIFFReader.cxx,NO_OUTPUT
     "DATA{${VTK_TEST_INPUT_DIR}/al_foam_smallest.0.tif}")
 
+if (VTK_USE_LARGE_DATA)
+  vtk_add_test_cxx(${vtk-module}CxxTests large_data_tests
+    TestMRCReader,TestMRCReader.cxx,NO_OUTPUT
+      "DATA{${VTK_TEST_INPUT_DIR}/mrc/emd_1056.mrc}")
+  list(APPEND data_tests ${large_data_tests})
+endif()
+
 set(all_tests
   ${data_tests}
   ${tests}
