@@ -416,6 +416,12 @@ void vtkOpenGLPolyDataMapper2D::SetCameraShaderParameters(
 {
   vtkShaderProgram *program = cellBO.Program;
 
+  if(!program)
+  {
+    vtkErrorWithObjectMacro(this," got null shader program, cannot set parameters.");
+    return;
+  }
+
   // Get the position of the actor
   int size[2];
   size[0] = viewport->GetSize()[0];
@@ -788,7 +794,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     }
 
   // now handle lit primatives
-  if (this->Tris.IBO->IndexCount)
+  if (this->Tris.IBO->IndexCount && this->Points.Program)
     {
     this->UpdateShaders(this->Points, viewport, actor);
     this->Points.Program->SetUniformi("PrimitiveIDOffset",
@@ -803,7 +809,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     this->PrimitiveIDOffset += (int)this->Tris.IBO->IndexCount/3;
     }
 
-  if (this->TriStrips.IBO->IndexCount)
+  if (this->TriStrips.IBO->IndexCount && this->Points.Program)
     {
     this->UpdateShaders(this->Points, viewport, actor);
     this->Points.Program->SetUniformi("PrimitiveIDOffset",

@@ -437,9 +437,13 @@ const char* vtkWin32OpenGLRenderWindow::ReportCapabilities()
   const char *glVersion = (const char *) glGetString(GL_VERSION);
 
   vtksys_ios::ostringstream strm;
-  strm << "OpenGL vendor string:  " << glVendor << endl;
-  strm << "OpenGL renderer string:  " << glRenderer << endl;
-  strm << "OpenGL version string:  " << glVersion << endl;
+  if(glVendor)
+    strm << "OpenGL vendor string:  " << glVendor << endl;
+  if(glRenderer)
+    strm << "OpenGL renderer string:  " << glRenderer << endl;
+  if(glVersion)
+    strm << "OpenGL version string:  " << glVersion << endl;
+
   strm << "OpenGL extensions:  " << endl;
   GLint n, i;
   glGetIntegerv(GL_NUM_EXTENSIONS, &n);
@@ -685,17 +689,9 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
     DescribePixelFormat(hDC, currentPixelFormat,sizeof(pfd2), &pfd2);
     if (!(pfd2.dwFlags & PFD_SUPPORT_OPENGL))
       {
-#ifdef UNICODE
-      MessageBox(WindowFromDC(hDC),
-                 L"Invalid pixel format, no OpenGL support",
-                 L"Error",
-                 MB_ICONERROR | MB_OK);
-#else
-      MessageBox(WindowFromDC(hDC),
-                 "Invalid pixel format, no OpenGL support",
-                 "Error",
-                 MB_ICONERROR | MB_OK);
-#endif
+
+      vtkErrorWithObjectMacro(this,"Failed in call to DescribePixelFormat; got either invalid pixel format or win32 rejected multiple initialization attempts.");
+
       if (this->HasObserver(vtkCommand::ExitEvent))
         {
         this->InvokeEvent(vtkCommand::ExitEvent, NULL);
@@ -703,7 +699,7 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
         }
       else
         {
-        exit(1);
+        return;
         }
       }
     }
