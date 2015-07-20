@@ -174,6 +174,7 @@ public:
   bool SetUniform2fv(const char *name, const int count, const float (*f)[2]);
   bool SetUniform3fv(const char *name, const int count, const float (*f)[3]);
   bool SetUniform4fv(const char *name, const int count, const float (*f)[4]);
+  bool SetUniformMatrix4x4v(const char *name, const int count, float *v);
 
   // How many outputs does this program produce
   // only valid for OpenGL 3.2 or later

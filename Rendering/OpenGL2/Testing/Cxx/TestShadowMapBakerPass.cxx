@@ -1,0 +1,161 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+// test baking shadow maps
+//
+// The command line arguments are:
+// -I        => run in interactive mode; unless this is used, the program will
+//              not allow interaction and exit
+
+#include "vtkCamera.h"
+#include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkActor.h"
+#include "vtkCellArray.h"
+#include "vtkPointData.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkPLYReader.h"
+#include "vtkNew.h"
+#include "vtkProperty.h"
+#include "vtkLightKit.h"
+#include "vtkPolyDataNormals.h"
+#include "vtkTimerLog.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkPlaneSource.h"
+#include "vtkOpenGLTexture.h"
+#include "vtkCameraPass.h"
+#include "vtkLightsPass.h"
+#include "vtkSequencePass.h"
+#include "vtkOpaquePass.h"
+#include "vtkRenderPassCollection.h"
+
+#include "vtkShadowMapBakerPass.h"
+#include "vtkShadowMapPassInternal.h"
+#include "vtkRenderStepsPass.h"
+
+#include "vtkRegressionTestImage.h"
+#include "vtkTestUtilities.h"
+
+#include "vtkRenderWindowInteractor.h"
+
+//----------------------------------------------------------------------------
+int TestShadowMapBakerPass(int argc, char *argv[])
+{
+  vtkNew<vtkActor> actor;
+  vtkNew<vtkRenderer> renderer;
+  vtkNew<vtkPolyDataMapper> mapper;
+  renderer->SetBackground(0.3, 0.4, 0.6);
+  vtkNew<vtkRenderWindow> renderWindow;
+  renderWindow->SetSize(600, 600);
+  renderWindow->AddRenderer(renderer.Get());
+  renderer->AddActor(actor.Get());
+  vtkNew<vtkRenderWindowInteractor>  iren;
+  iren->SetRenderWindow(renderWindow.Get());
+  vtkNew<vtkLightKit> lightKit;
+  lightKit->AddLightsToRenderer(renderer.Get());
+
+  const char* fileName =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/dragon.ply");
+  vtkNew<vtkPLYReader> reader;
+  reader->SetFileName(fileName);
+  reader->Update();
+
+  // vtkNew<vtkPolyDataNormals> norms;
+  // norms->SetInputConnection(reader->GetOutputPort());
+  // norms->Update();
+
+  mapper->SetInputConnection(reader->GetOutputPort());
+  //mapper->SetInputConnection(norms->GetOutputPort());
+  actor->SetMapper(mapper.Get());
+  actor->GetProperty()->SetAmbientColor(0.2, 0.2, 1.0);
+  actor->GetProperty()->SetDiffuseColor(1.0, 0.65, 0.7);
+  actor->GetProperty()->SetSpecularColor(1.0, 1.0, 1.0);
+  actor->GetProperty()->SetSpecular(0.5);
+  actor->GetProperty()->SetDiffuse(0.7);
+  actor->GetProperty()->SetAmbient(0.5);
+  actor->GetProperty()->SetSpecularPower(20.0);
+  actor->GetProperty()->SetOpacity(1.0);
+  //actor->GetProperty()->SetRepresentationToWireframe();
+
+  renderWindow->SetMultiSamples(0);
+
+  // create the basic VTK render steps
+  vtkNew<vtkRenderStepsPass> basicPasses;
+
+  vtkNew<vtkOpaquePass> opaque;
+  vtkNew<vtkLightsPass> lights;
+  vtkNew<vtkSequencePass> opaqueSequence;
+  vtkNew<vtkRenderPassCollection> passes2;
+  passes2->AddItem(lights.Get());
+  passes2->AddItem(opaque.Get());
+  opaqueSequence->SetPasses(passes2.Get());
+  vtkNew<vtkCameraPass> opaqueCameraPass;
+  opaqueCameraPass->SetDelegatePass(opaqueSequence.Get());
+
+  vtkNew<vtkShadowMapBakerPass> bakerPass;
+//  bakerPass->SetOpaquePass(basicPasses->GetOpaquePass());
+  bakerPass->SetOpaquePass(opaqueCameraPass.Get());
+  bakerPass->SetResolution(1024);
+  // To cancel self-shadowing.
+  bakerPass->SetPolygonOffsetFactor(3.1f);
+  bakerPass->SetPolygonOffsetUnits(10.0f);
+  basicPasses->SetOpaquePass(bakerPass.Get());
+
+  // tell the renderer to use our render pass pipeline
+  vtkOpenGLRenderer *glrenderer =
+      vtkOpenGLRenderer::SafeDownCast(renderer.GetPointer());
+  glrenderer->SetPass(basicPasses.Get());
+
+  vtkNew<vtkTimerLog> timer;
+  timer->StartTimer();
+  renderWindow->Render();
+  timer->StopTimer();
+  double firstRender = timer->GetElapsedTime();
+  cerr << "baking time: " << firstRender << endl;
+
+  // get a shadow map
+  vtkTextureObject *to = bakerPass->GetShadowMaps()->Vector[2];
+  // by default the textures have depth comparison on
+  // but for simple display we need to turn it off
+  to->SetDepthTextureCompare(false);
+
+  // now render this texture so we can see the depth map
+  vtkNew<vtkActor> actor2;
+  vtkNew<vtkPolyDataMapper> mapper2;
+  vtkNew<vtkOpenGLTexture> texture;
+  texture->SetTextureObject(to);
+  actor2->SetTexture(texture.Get());
+  actor2->SetMapper(mapper2.Get());
+
+  vtkNew<vtkPlaneSource> plane;
+  mapper2->SetInputConnection(plane->GetOutputPort());
+  renderer->RemoveActor(actor.Get());
+  renderer->AddActor(actor2.Get());
+  glrenderer->SetPass(NULL);
+
+  renderer->GetActiveCamera()->SetPosition(0,0,1);
+  renderer->GetActiveCamera()->SetFocalPoint(0,0,0);
+  renderer->GetActiveCamera()->SetViewUp(0,1,0);
+  renderer->ResetCamera();
+  renderer->GetActiveCamera()->Zoom(2.0);
+  renderWindow->Render();
+
+  int retVal = vtkRegressionTestImage( renderWindow.Get() );
+  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+    {
+    iren->Start();
+    }
+
+  bakerPass->ReleaseGraphicsResources(renderWindow.Get());
+  return EXIT_SUCCESS;
+}

@@ -27,6 +27,9 @@ attribute vec4 vertexMC;
 // optional normal declaration
 //VTK::Normal::Dec
 
+// extra lighting parameters
+//VTK::Light::Dec
+
 // Texture coordinates
 //VTK::TCoord::Dec
 
@@ -55,4 +58,6 @@ void main()
   //VTK::PrimID::Impl
 
   //VTK::PositionVC::Impl
+
+  //VTK::Light::Impl
 }

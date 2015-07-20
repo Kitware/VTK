@@ -62,6 +62,8 @@ set(Module_SRCS
   vtkSequencePass.cxx
   vtkShader.cxx
   vtkShaderProgram.cxx
+  vtkShadowMapBakerPass.cxx
+  vtkShadowMapPass.cxx
   vtkSobelGradientMagnitudePass.cxx
   vtkTextureObject.cxx
   vtkTextureUnitManager.cxx

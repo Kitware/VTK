@@ -548,13 +548,21 @@ bool vtkShaderProgram::SetUniformMatrix3x3(const char *name,
 bool vtkShaderProgram::SetUniformMatrix4x4(const char *name,
                                            float *matrix)
 {
+  return this->SetUniformMatrix4x4v(name,1,matrix);
+}
+
+bool vtkShaderProgram::SetUniformMatrix4x4v(
+  const char *name,
+  const int count,
+  float *matrix)
+{
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
     {
     this->Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
     return false;
     }
-  glUniformMatrix4fv(location, 1, GL_FALSE, matrix);
+  glUniformMatrix4fv(location, count, GL_FALSE, matrix);
   return true;
 }
 

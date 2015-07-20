@@ -630,12 +630,12 @@ void vtkTextureObject::SendParameters()
 #if GL_ES_VERSION_3_0 != 1
   glTexParameterfv(this->Target, GL_TEXTURE_BORDER_COLOR, this->BorderColor);
 
-  if(DepthTextureCompare)
+  if(this->DepthTextureCompare)
     {
     glTexParameteri(
           this->Target,
           GL_TEXTURE_COMPARE_MODE,
-          GL_COMPARE_R_TO_TEXTURE);
+          GL_COMPARE_REF_TO_TEXTURE);
     }
   else
     {
