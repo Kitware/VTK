@@ -22,9 +22,7 @@
 #include "vtkCameraPass.h"
 #include "vtkCellArray.h"
 #include "vtkLight.h"
-#include "vtkLightsPass.h"
 #include "vtkNew.h"
-#include "vtkOpaquePass.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkPLYReader.h"
@@ -105,42 +103,20 @@ int TestShadowMapPass(int argc, char *argv[])
 
   renderWindow->SetMultiSamples(0);
 
-  vtkNew<vtkOpaquePass> opaque;
-  vtkNew<vtkLightsPass> lights;
-  vtkNew<vtkSequencePass> opaqueSequence;
-  vtkNew<vtkRenderPassCollection> passes2;
-  passes2->AddItem(lights.Get());
-  passes2->AddItem(opaque.Get());
-  opaqueSequence->SetPasses(passes2.Get());
-  vtkNew<vtkCameraPass> opaqueCameraPass;
-  opaqueCameraPass->SetDelegatePass(opaqueSequence.Get());
-
-  vtkNew<vtkShadowMapBakerPass> bakerPass;
-//  bakerPass->SetOpaquePass(basicPasses->GetOpaquePass());
-  bakerPass->SetOpaquePass(opaqueCameraPass.Get());
-  bakerPass->SetResolution(1024);
-  // To cancel self-shadowing.
-  bakerPass->SetPolygonOffsetFactor(3.1f);
-  bakerPass->SetPolygonOffsetUnits(10.0f);
-
-  // tell the renderer to use our render pass pipeline
-  vtkOpenGLRenderer *glrenderer =
-      vtkOpenGLRenderer::SafeDownCast(renderer.GetPointer());
-
   vtkNew<vtkShadowMapPass> shadows;
-  shadows->SetShadowMapBakerPass(bakerPass.Get());
-  shadows->SetOpaquePass(opaqueSequence.Get());
 
   vtkNew<vtkSequencePass> seq;
   vtkNew<vtkRenderPassCollection> passes;
-  passes->AddItem(bakerPass.Get());
+  passes->AddItem(shadows->GetShadowMapBakerPass());
   passes->AddItem(shadows.Get());
-  passes->AddItem(lights.Get());
   seq->SetPasses(passes.Get());
 
   vtkNew<vtkCameraPass> cameraP;
   cameraP->SetDelegatePass(seq.Get());
 
+  // tell the renderer to use our render pass pipeline
+  vtkOpenGLRenderer *glrenderer =
+    vtkOpenGLRenderer::SafeDownCast(renderer.GetPointer());
   glrenderer->SetPass(cameraP.Get());
 
   vtkNew<vtkTimerLog> timer;
@@ -179,6 +155,5 @@ int TestShadowMapPass(int argc, char *argv[])
     iren->Start();
     }
 
-  bakerPass->ReleaseGraphicsResources(renderWindow.Get());
   return EXIT_SUCCESS;
 }

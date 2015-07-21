@@ -13,36 +13,30 @@
 
 =========================================================================*/
 
-#include "vtkShadowMapBakerPass.h"
-#include "vtkObjectFactory.h"
-#include <cassert>
-
-#include "vtkRenderState.h"
-#include "vtkOpenGLRenderer.h"
-#include "vtkFrameBufferObject.h"
-#include "vtkTextureObject.h"
-#include "vtkOpenGLRenderWindow.h"
-#include "vtkOpenGLError.h"
-#include "vtkInformationIntegerKey.h"
-#include "vtkMath.h"
-
-// to be able to dump intermediate passes into png files for debugging.
-// only for vtkShadowMapBakerPass developers.
-//#define VTK_SHADOW_MAP_BAKER_PASS_DEBUG
-//#define DONT_DUPLICATE_LIGHTS
-
-#include "vtkImageImport.h"
-#include "vtkPixelBufferObject.h"
-#include "vtkImageExtractComponents.h"
-#include "vtkLightCollection.h"
-#include "vtkLight.h"
-#include "vtkInformation.h"
+//#include "vtkAbstractTransform.h" // for helper classes stack and concatenation
 #include "vtkCamera.h"
-#include "vtkAbstractTransform.h" // for helper classes stack and concatenation
-#include "vtkPerspectiveTransform.h"
-#include "vtkTransform.h"
+#include "vtkCameraPass.h"
+#include "vtkFrameBufferObject.h"
+#include "vtkInformation.h"
+#include "vtkInformationIntegerKey.h"
+#include "vtkLight.h"
+#include "vtkLightCollection.h"
+#include "vtkLightsPass.h"
+#include "vtkMath.h"
+#include "vtkNew.h"
+#include "vtkObjectFactory.h"
+#include "vtkOpaquePass.h"
+#include "vtkOpenGLError.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkRenderPassCollection.h"
+#include "vtkRenderState.h"
+#include "vtkSequencePass.h"
+#include "vtkShadowMapBakerPass.h"
+#include "vtkTextureObject.h"
 
 #include <vtksys/ios/sstream>
+#include <cassert>
 #include "vtkStdString.h"
 
 // For vtkShadowMapBakerPassTextures, vtkShadowMapBakerPassLightCameras
@@ -51,13 +45,15 @@
 // debugging
 #include "vtkTimerLog.h"
 
+// to be able to dump intermediate passes into png files for debugging.
+// only for vtkShadowMapBakerPass developers.
+//#define VTK_SHADOW_MAP_BAKER_PASS_DEBUG
+//#define DONT_DUPLICATE_LIGHTS
+
 
 vtkStandardNewMacro(vtkShadowMapBakerPass);
-vtkCxxSetObjectMacro(vtkShadowMapBakerPass,OpaquePass,vtkRenderPass);
+vtkCxxSetObjectMacro(vtkShadowMapBakerPass,OpaqueSequence,vtkRenderPass);
 vtkCxxSetObjectMacro(vtkShadowMapBakerPass,CompositeZPass,vtkRenderPass);
-
-vtkInformationKeyMacro(vtkShadowMapBakerPass,OCCLUDER,Integer);
-vtkInformationKeyMacro(vtkShadowMapBakerPass,RECEIVER,Integer);
 
 // ----------------------------------------------------------------------------
 // helper function to compute the mNearest point in a given direction.
@@ -127,13 +123,22 @@ void vtkShadowMapBakerPass::BoxNearFar(double *bb,
 // ----------------------------------------------------------------------------
 vtkShadowMapBakerPass::vtkShadowMapBakerPass()
 {
-  this->OpaquePass=0;
+  vtkNew<vtkCameraPass> camP;
+  vtkNew<vtkSequencePass> seqP;
+  vtkNew<vtkLightsPass> lightP;
+  vtkNew<vtkOpaquePass> opaqueP;
+  camP->SetDelegatePass(seqP.Get());
+  vtkNew<vtkRenderPassCollection> rpc;
+  rpc->AddItem(lightP.Get());
+  rpc->AddItem(opaqueP.Get());
+  seqP->SetPasses(rpc.Get());
+
+  this->OpaqueSequence=0;
+  this->SetOpaqueSequence(camP.Get());
+
   this->CompositeZPass=0;
 
-  this->Resolution=256;
-
-  this->PolygonOffsetFactor=1.1f;
-  this->PolygonOffsetUnits=4.0f;
+  this->Resolution=1024;
 
   this->FrameBufferObject=0;
   this->ShadowMaps=0;
@@ -146,9 +151,9 @@ vtkShadowMapBakerPass::vtkShadowMapBakerPass()
 // ----------------------------------------------------------------------------
 vtkShadowMapBakerPass::~vtkShadowMapBakerPass()
 {
-  if(this->OpaquePass!=0)
+  if(this->OpaqueSequence!=0)
     {
-    this->OpaquePass->Delete();
+    this->OpaqueSequence->Delete();
     }
 
   if(this->CompositeZPass!=0)
@@ -176,10 +181,10 @@ void vtkShadowMapBakerPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "OpaquePass: ";
-  if(this->OpaquePass!=0)
+  os << indent << "OpaqueSequence: ";
+  if(this->OpaqueSequence!=0)
     {
-    this->OpaquePass->PrintSelf(os,indent);
+    this->OpaqueSequence->PrintSelf(os,indent);
     }
   else
     {
@@ -197,10 +202,6 @@ void vtkShadowMapBakerPass::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "Resolution: " << this->Resolution << endl;
-
-  os << indent << "PolygonOffsetFactor: " <<  this->PolygonOffsetFactor
-     << endl;
-  os << indent << "PolygonOffsetUnits: " << this->PolygonOffsetUnits << endl;
 }
 
 // ----------------------------------------------------------------------------
@@ -259,7 +260,7 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
   vtkOpenGLRenderWindow *context=static_cast<vtkOpenGLRenderWindow *>(
     r->GetRenderWindow());
 
-  if(this->OpaquePass!=0)
+  if(this->OpaqueSequence!=0)
     {
     // Disable the scissor test during the shadow map pass.
     GLboolean saved_scissor_test;
@@ -516,15 +517,12 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
           glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
           glDepthMask(GL_TRUE);
 
-          glEnable(GL_POLYGON_OFFSET_FILL);
-          glPolygonOffset(this->PolygonOffsetFactor,this->PolygonOffsetUnits);
-
           glEnable(GL_DEPTH_TEST);
-          this->OpaquePass->Render(&s2);
+          this->OpaqueSequence->Render(&s2);
           map->Deactivate();
 
           this->NumberOfRenderedProps+=
-            this->OpaquePass->GetNumberOfRenderedProps();
+            this->OpaqueSequence->GetNumberOfRenderedProps();
 
           if(this->CompositeZPass!=0)
             {
@@ -543,9 +541,6 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
         l=lights->GetNextItem();
         }
       this->LastRenderTime.Modified(); // was a BUG
-
-      glDisable(GL_POLYGON_OFFSET_FILL);
-      glPolygonOffset(0.0f,0.0f);
 
       // back to the original frame buffer.
       this->FrameBufferObject->UnBind();
@@ -656,9 +651,9 @@ void vtkShadowMapBakerPass::BuildCameraLight(vtkLight *light,
 void vtkShadowMapBakerPass::ReleaseGraphicsResources(vtkWindow *w)
 {
   assert("pre: w_exists" && w!=0);
-  if(this->OpaquePass!=0)
+  if(this->OpaqueSequence!=0)
     {
-    this->OpaquePass->ReleaseGraphicsResources(w);
+    this->OpaqueSequence->ReleaseGraphicsResources(w);
     }
 
   if(this->CompositeZPass!=0)

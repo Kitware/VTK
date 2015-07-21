@@ -86,14 +86,10 @@ public:
     vtkShadowMapBakerPass *shadowMapBakerPass);
 
   // Description:
-  // Pass that render the opaque geometry, with no camera pass (otherwise
-  // it does not work with Ice-T).
-  // Initial value is a NULL pointer.
+  // Pass that render the lights and opaque geometry
   // Typically a sequence pass with a light pass and opaque pass.
-  // This should be the Opaque pass of the vtkShadowMapBakerPass without the
-  // vtkCameraPass.
-  vtkGetObjectMacro(OpaquePass,vtkRenderPass);
-  virtual void SetOpaquePass(vtkRenderPass *opaquePass);
+  vtkGetObjectMacro(OpaqueSequence,vtkRenderPass);
+  virtual void SetOpaqueSequence(vtkRenderPass *opaqueSequence);
 
   // Description:
   // this key will contain the matricies for all the
@@ -128,7 +124,7 @@ public:
   vtkShadowMapBakerPass *ShadowMapBakerPass;
   vtkRenderPass *CompositeRGBAPass;
 
-  vtkRenderPass *OpaquePass;
+  vtkRenderPass *OpaqueSequence;
 
   // Description:
   // Graphics resources.

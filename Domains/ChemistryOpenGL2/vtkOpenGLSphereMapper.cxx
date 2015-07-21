@@ -70,6 +70,11 @@ void vtkOpenGLSphereMapper::ReplaceShaderValues(
     "//VTK::PositionVC::Dec",
     "varying vec4 vertexVCVSOutput;");
 
+  // we create vertexVC below, so turn off the default
+  // implementation
+  vtkShaderProgram::Substitute(FSSource,
+    "//VTK::PositionVC::Impl","");
+
   // for lights kit and positional the VCDC matrix is already defined
   // so don't redefine it
   std::string replacement =

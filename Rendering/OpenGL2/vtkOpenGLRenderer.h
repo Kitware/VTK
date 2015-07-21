@@ -28,6 +28,7 @@ class vtkRenderPass;
 class vtkOpenGLTexture;
 class vtkTextureObject;
 class vtkDepthPeelingPass;
+class vtkShadowMapPass;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLRenderer : public vtkRenderer
 {
@@ -77,6 +78,12 @@ protected:
   // Internal method to release graphics resources in any derived renderers.
   virtual void ReleaseGraphicsResources(vtkWindow *w);
 
+  // Description:
+  // Ask all props to update and draw any opaque and translucent
+  // geometry. This includes both vtkActors and vtkVolumes
+  // Returns the number of props that rendered geometry.
+  virtual int UpdateGeometry();
+
   // Picking functions to be implemented by sub-classes
   virtual void DevicePickRender();
   virtual void StartPick(unsigned int pickFromSize);
@@ -98,8 +105,12 @@ protected:
   friend class vtkOpenGLImageResliceMapper;
 
   // Description:
-  // Deepth peeling is delegated to an instance of vtkDepthPeelingPass
+  // Depth peeling is delegated to an instance of vtkDepthPeelingPass
   vtkDepthPeelingPass *DepthPeelingPass;
+
+  // Description:
+  // Shadows are delegated to an instance of vtkShadowMapPass
+  vtkShadowMapPass *ShadowMapPass;
 
   // Is rendering at translucent geometry stage using depth peeling and
   // rendering a layer other than the first one? (Boolean value)

@@ -479,12 +479,11 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
     {
     int *shadowMapTextures = 0;
     int numLights = 0;
-    std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
 
     shadowMapTextures = info->Get(vtkShadowMapPass::ShadowMapTextures());
     numLights = info->Length(vtkShadowMapPass::ShadowMapTextures());
 
-    // how many lights have shadow maps
+    // count how many lights have shadow maps
     int numSMT = 0;
     for (int i = 0; i < numLights; i++)
       {
@@ -499,58 +498,56 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
     vtkShaderProgram::Substitute(FSSource,"//VTK::Light::Dec",
       "//VTK::Light::Dec\n"
       "#define VTK_NUM_SHADOW_MAPS " + toString.str() + "\n"
-      "uniform sampler2DShadow shadowMaps[VTK_NUM_SHADOW_MAPS];\n"
-      "varying vec4 shadowCoordsVSOutput[VTK_NUM_SHADOW_MAPS];\n"
-      , false);
-
-    vtkShaderProgram::Substitute(VSSource,"//VTK::Light::Dec",
-      "//VTK::Light::Dec\n"
-      "#define VTK_NUM_SHADOW_MAPS " + toString.str() + "\n"
+//      "uniform sampler2DShadow shadowMaps[VTK_NUM_SHADOW_MAPS];\n"
+      "uniform sampler2D shadowMaps[VTK_NUM_SHADOW_MAPS];\n"
       "uniform mat4 shadowTransforms[VTK_NUM_SHADOW_MAPS];\n"
-      "varying vec4 shadowCoordsVSOutput[VTK_NUM_SHADOW_MAPS];\n"
+      "float computeShadowFactor(in vec4 vc, in mat4 strans, in sampler2D smap)\n"
+      "  {\n"
+      "  vec4 shadowCoord = strans*vc;\n"
+      "  if(shadowCoord.w > 0.0)\n"
+      "    {\n"
+      "    vec2 projected = shadowCoord.xy/shadowCoord.w;\n"
+      "    if(projected.x >= 0.0 && projected.x <= 1.0\n"
+      "       && projected.y >= 0.0 && projected.y <= 1.0)\n"
+      "      {\n"
+      "      float result = 0.0;\n"
+      "      float zval = shadowCoord.z - 0.005;\n"
+      "      if (textureProjOffset(smap,shadowCoord,ivec2( 0, 0)).r - zval > 0) { result += 0.34; }\n"
+      "      if (textureProjOffset(smap,shadowCoord,ivec2( 0, 1)).r - zval > 0) { result += 0.33; }\n"
+      "      if (textureProjOffset(smap,shadowCoord,ivec2( 1, 0)).r - zval > 0) { result += 0.33; }\n"
+      "      return result;\n"
+      "      }\n"
+      "    }\n"
+      "    return 1.0;\n"
+      "  }\n"
       , false);
 
     // build the code for the lighting factors
     std::string lfc =
       "float factors[6];\n";
-    for (int i = 0, numSMT = 0; i < 6; i++)
+    numSMT = 0;
+    for (int i = 0; i < 6; i++)
       {
       toString.str("");
       toString.clear();
       toString << i;
-      lfc += "  factors[" + toString.str() + "] = 1.0;\n";
       if (shadowMapTextures[i] >= 0 && i < numLights)
         {
         std::ostringstream toString2;
         toString2 << numSMT;
-        lfc +=
-          "  if(shadowCoordsVSOutput[" + toString2.str() + "].w > 0.0)\n"
-          "    {\n"
-          "    vec2 projected = shadowCoordsVSOutput[" + toString2.str() + "].xy/shadowCoordsVSOutput[" + toString2.str() + "].w;\n"
-          "    if(projected.x >= 0.0 && projected.x <= 1.0\n"
-          "       && projected.y >= 0.0 && projected.y <= 1.0)\n"
-          "      {\n"
-          "      factors[" + toString.str() + "] = textureProj(shadowMaps["
-                + toString2.str() + "],shadowCoordsVSOutput[" + toString2.str() + "]);\n"
-          "      }\n"
-   //       "    factors[" + toString.str() + "] = 0.0;\n"
-          "    }\n";
+        lfc += "  factors[" + toString.str() + "] = computeShadowFactor(vertexVC,shadowTransforms["
+            + toString2.str() + "],shadowMaps["
+                 + toString2.str() + "]);\n";
         numSMT++;
+        }
+      else
+        {
+        lfc += "  factors[" + toString.str() + "] = 1.0;\n";
         }
       }
     lfc += "//VTK::Light::Impl";
     vtkShaderProgram::Substitute(FSSource,"//VTK::Light::Impl",
       lfc.c_str(), false);
-
-    vtkShaderProgram::Substitute(VSSource,"//VTK::Light::Impl",
-      "//VTK::Light::Impl\n"
-      "  for (int i = 0; i < VTK_NUM_SHADOW_MAPS; i++)\n"
-      "    {\n"
-      "    shadowCoordsVSOutput[i] = shadowTransforms[i]*vertexVCVSOutput;\n"
-      "    }\n"
-      , false);
-
-    shaders[vtkShader::Vertex]->SetSource(VSSource);
 
     shadowFactor = "*factors[lightNum]";
     }
@@ -628,7 +625,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
         "      }\n"
         "    else\n"
         "      {\n"
-        "      vertLightDirectionVC = vertexVCVSOutput.xyz - lightPositionVC[lightNum];\n"
+        "      vertLightDirectionVC = vertexVC.xyz - lightPositionVC[lightNum];\n"
         "      float distanceVC = length(vertLightDirectionVC);\n"
         "      vertLightDirectionVC = normalize(vertLightDirectionVC);\n"
         "      attenuation = 1.0 /\n"
@@ -994,8 +991,8 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
           // the line (which is a plane but maximally aligned with the camera view.
           vtkShaderProgram::Substitute(FSSource,"//VTK::Normal::Impl",
             "vec3 normalVCVSOutput;\n"
-            "  vec3 fdx = normalize(vec3(dFdx(vertexVCVSOutput.x),dFdx(vertexVCVSOutput.y),dFdx(vertexVCVSOutput.z)));\n"
-            "  vec3 fdy = normalize(vec3(dFdy(vertexVCVSOutput.x),dFdy(vertexVCVSOutput.y),dFdy(vertexVCVSOutput.z)));\n"
+            "  vec3 fdx = normalize(vec3(dFdx(vertexVC.x),dFdx(vertexVC.y),dFdx(vertexVC.z)));\n"
+            "  vec3 fdy = normalize(vec3(dFdy(vertexVC.x),dFdy(vertexVC.y),dFdy(vertexVC.z)));\n"
             "  if (abs(fdx.x) > 0.0)\n"
             "    { normalVCVSOutput = normalize(cross(vec3(fdx.y, -fdx.x, 0.0), fdx)); }\n"
             "  else { normalVCVSOutput = normalize(cross(vec3(fdy.y, -fdy.x, 0.0), fdy));}"
@@ -1009,13 +1006,13 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
           this->ShaderVariablesUsed.push_back("cameraParallel");
 
           vtkShaderProgram::Substitute(FSSource,"//VTK::Normal::Impl",
-            "vec3 fdx = normalize(vec3(dFdx(vertexVCVSOutput.x),dFdx(vertexVCVSOutput.y),dFdx(vertexVCVSOutput.z)));\n"
-            "  vec3 fdy = normalize(vec3(dFdy(vertexVCVSOutput.x),dFdy(vertexVCVSOutput.y),dFdy(vertexVCVSOutput.z)));\n"
+            "vec3 fdx = normalize(vec3(dFdx(vertexVC.x),dFdx(vertexVC.y),dFdx(vertexVC.z)));\n"
+            "  vec3 fdy = normalize(vec3(dFdy(vertexVC.x),dFdy(vertexVC.y),dFdy(vertexVC.z)));\n"
             "  vec3 normalVCVSOutput = normalize(cross(fdx,fdy));\n"
             // the code below is faster, but does not work on some devices
-            //"vec3 normalVC = normalize(cross(dFdx(vertexVCVSOutput.xyz), dFdy(vertexVCVSOutput.xyz)));\n"
+            //"vec3 normalVC = normalize(cross(dFdx(vertexVC.xyz), dFdy(vertexVC.xyz)));\n"
             "  if (cameraParallel == 1 && normalVCVSOutput.z < 0.0) { normalVCVSOutput = -1.0*normalVCVSOutput; }\n"
-            "  if (cameraParallel == 0 && dot(normalVCVSOutput,vertexVCVSOutput.xyz) > 0.0) { normalVCVSOutput = -1.0*normalVCVSOutput; }"
+            "  if (cameraParallel == 0 && dot(normalVCVSOutput,vertexVC.xyz) > 0.0) { normalVCVSOutput = -1.0*normalVCVSOutput; }"
             );
           }
         }
@@ -1062,6 +1059,9 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPositionVC(
     vtkShaderProgram::Substitute(FSSource,
       "//VTK::PositionVC::Dec",
       "varying vec4 vertexVCVSOutput;");
+    vtkShaderProgram::Substitute(FSSource,
+      "//VTK::PositionVC::Impl",
+      "vec4 vertexVC = vertexVCVSOutput;");
     }
   else
     {
@@ -1509,9 +1509,9 @@ void vtkOpenGLPolyDataMapper::SetLightingShaderParameters(
       if (shadowMapTextures[i] >= 0)
         {
         tunits[numSMT] = shadowMapTextures[i];
-        for (int i = 0; i < 16; i++)
+        for (int j = 0; j < 16; j++)
           {
-          transforms[numSMT*16+i] = shadowTransforms[numSMT*16+i];
+          transforms[numSMT*16+j] = shadowTransforms[numSMT*16+j];
           }
         numSMT++;
         }

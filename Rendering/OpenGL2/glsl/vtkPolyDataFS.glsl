@@ -59,6 +59,9 @@ void main()
 
   //VTK::Color::Impl
 
+  // VC position of this fragment
+  //VTK::PositionVC::Impl
+
   // Generate the normal if we are not passed in one
   //VTK::Normal::Impl
 

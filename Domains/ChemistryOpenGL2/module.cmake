@@ -11,4 +11,10 @@ vtk_module(vtkDomainsChemistryOpenGL2
     vtkglew
   KIT
     vtkOpenGL
+  TEST_DEPENDS
+    vtkTestingCore
+    vtkTestingRendering
+    vtkInteractionStyle
+    vtkRendering${VTK_RENDERING_BACKEND}
+    ${extra_opengl_depend}
   )

@@ -33,15 +33,9 @@
 #include "vtkOpenGLRenderer.h"
 #include "vtkPlaneSource.h"
 #include "vtkOpenGLTexture.h"
-#include "vtkCameraPass.h"
-#include "vtkLightsPass.h"
-#include "vtkSequencePass.h"
-#include "vtkOpaquePass.h"
-#include "vtkRenderPassCollection.h"
 
 #include "vtkShadowMapBakerPass.h"
 #include "vtkShadowMapPassInternal.h"
-#include "vtkRenderStepsPass.h"
 
 #include "vtkRegressionTestImage.h"
 #include "vtkTestUtilities.h"
@@ -89,32 +83,12 @@ int TestShadowMapBakerPass(int argc, char *argv[])
 
   renderWindow->SetMultiSamples(0);
 
-  // create the basic VTK render steps
-  vtkNew<vtkRenderStepsPass> basicPasses;
-
-  vtkNew<vtkOpaquePass> opaque;
-  vtkNew<vtkLightsPass> lights;
-  vtkNew<vtkSequencePass> opaqueSequence;
-  vtkNew<vtkRenderPassCollection> passes2;
-  passes2->AddItem(lights.Get());
-  passes2->AddItem(opaque.Get());
-  opaqueSequence->SetPasses(passes2.Get());
-  vtkNew<vtkCameraPass> opaqueCameraPass;
-  opaqueCameraPass->SetDelegatePass(opaqueSequence.Get());
-
   vtkNew<vtkShadowMapBakerPass> bakerPass;
-//  bakerPass->SetOpaquePass(basicPasses->GetOpaquePass());
-  bakerPass->SetOpaquePass(opaqueCameraPass.Get());
-  bakerPass->SetResolution(1024);
-  // To cancel self-shadowing.
-  bakerPass->SetPolygonOffsetFactor(3.1f);
-  bakerPass->SetPolygonOffsetUnits(10.0f);
-  basicPasses->SetOpaquePass(bakerPass.Get());
 
   // tell the renderer to use our render pass pipeline
   vtkOpenGLRenderer *glrenderer =
       vtkOpenGLRenderer::SafeDownCast(renderer.GetPointer());
-  glrenderer->SetPass(basicPasses.Get());
+  glrenderer->SetPass(bakerPass.Get());
 
   vtkNew<vtkTimerLog> timer;
   timer->StartTimer();

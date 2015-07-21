@@ -15,65 +15,61 @@
 
 #include "vtkShadowMapPass.h"
 #include "vtkObjectFactory.h"
-#include <cassert>
 
-#include "vtkRenderState.h"
-#include "vtkOpenGLRenderer.h"
-#include "vtk_glew.h"
+#include "vtkAbstractTransform.h" // for helper classes stack and concatenation
+#include "vtkCamera.h"
 #include "vtkFrameBufferObject.h"
-#include "vtkTextureObject.h"
-#include "vtkOpenGLCamera.h"
-#include "vtkOpenGLRenderWindow.h"
-#include "vtkOpenGLError.h"
-#include "vtkTextureUnitManager.h"
+#include "vtkImageData.h"
+#include "vtkImageExport.h"
+#include "vtkImplicitHalo.h"
+#include "vtkImplicitSum.h"
+#include "vtkInformation.h"
+#include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationIntegerVectorKey.h"
+#include "vtkLight.h"
+#include "vtkLightCollection.h"
+#include "vtkLightsPass.h"
 #include "vtkMath.h"
+#include "vtkMatrixToLinearTransform.h"
+#include "vtkNew.h"
+#include "vtkOpaquePass.h"
+#include "vtkOpenGLCamera.h"
+#include "vtkOpenGLError.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkPerspectiveTransform.h"
+#include "vtkRenderPassCollection.h"
+#include "vtkRenderState.h"
+#include "vtkSampleFunction.h"
+#include "vtkSequencePass.h"
+#include "vtkShadowMapBakerPass.h"
+// For vtkShadowMapBakerPassTextures, vtkShadowMapBakerPassLightCameras
+#include "vtkShadowMapPassInternal.h"
+#include "vtkTextureObject.h"
+#include "vtkTextureUnitManager.h"
+#include "vtkTransform.h"
+#include "vtk_glew.h"
+
+// debugging
+#include "vtkTimerLog.h"
+//#include "vtkBreakPoint.h"
+
+#include <cassert>
+#include <vtksys/ios/sstream>
+#include "vtkStdString.h"
+
 
 // to be able to dump intermediate passes into png files for debugging.
 // only for vtkShadowMapPass developers.
 //#define VTK_SHADOW_MAP_PASS_DEBUG
 //#define DONT_DUPLICATE_LIGHTS
 
-#include "vtkPNGWriter.h"
-#include "vtkImageImport.h"
-#include "vtkPixelBufferObject.h"
-#include "vtkImageExtractComponents.h"
-#include "vtkLightCollection.h"
-#include "vtkLight.h"
-#include "vtkInformation.h"
-#include "vtkCamera.h"
-#include "vtkAbstractTransform.h" // for helper classes stack and concatenation
-#include "vtkPerspectiveTransform.h"
-#include "vtkTransform.h"
-
-#include <vtksys/ios/sstream>
-#include "vtkStdString.h"
-
-#include "vtkImageShiftScale.h"
-#include "vtkImageExport.h"
-#include "vtkImageData.h"
-#include "vtkImplicitHalo.h"
-#include "vtkSampleFunction.h"
-
-#include "vtkImplicitWindowFunction.h"
-#include "vtkImplicitSum.h"
-
-// For vtkShadowMapBakerPassTextures, vtkShadowMapBakerPassLightCameras
-#include "vtkShadowMapPassInternal.h"
-#include "vtkShadowMapBakerPass.h"
-#include "vtkMatrixToLinearTransform.h"
-
-#include "vtkInformationDoubleVectorKey.h"
-
-// debugging
-#include "vtkTimerLog.h"
-//#include "vtkBreakPoint.h"
 
 vtkStandardNewMacro(vtkShadowMapPass);
 vtkCxxSetObjectMacro(vtkShadowMapPass,ShadowMapBakerPass,
                      vtkShadowMapBakerPass);
-vtkCxxSetObjectMacro(vtkShadowMapPass,OpaquePass,
+vtkCxxSetObjectMacro(vtkShadowMapPass,OpaqueSequence,
                      vtkRenderPass);
 
 vtkInformationKeyMacro(vtkShadowMapPass,ShadowMapTextures,IntegerVector);
@@ -84,7 +80,21 @@ vtkInformationKeyMacro(vtkShadowMapPass,ShadowMapTransforms,DoubleVector);
 vtkShadowMapPass::vtkShadowMapPass()
 {
   this->ShadowMapBakerPass=0;
-  this->OpaquePass=0;
+
+  vtkNew<vtkSequencePass> seqP;
+  vtkNew<vtkLightsPass> lightP;
+  vtkNew<vtkOpaquePass> opaqueP;
+  vtkNew<vtkRenderPassCollection> rpc;
+  rpc->AddItem(lightP.Get());
+  rpc->AddItem(opaqueP.Get());
+  seqP->SetPasses(rpc.Get());
+
+  this->OpaqueSequence=0;
+  this->SetOpaqueSequence(seqP.Get());
+
+  vtkNew<vtkShadowMapBakerPass> bp;
+  this->ShadowMapBakerPass = 0;
+  this->SetShadowMapBakerPass(bp.Get());
 
   this->IntensityMap=0;
   this->IntensitySource=0;
@@ -99,9 +109,9 @@ vtkShadowMapPass::~vtkShadowMapPass()
     {
     this->ShadowMapBakerPass->Delete();
     }
-  if(this->OpaquePass!=0)
+  if(this->OpaqueSequence!=0)
     {
-    this->OpaquePass->Delete();
+    this->OpaqueSequence->Delete();
     }
 
   if(this->IntensityMap!=0)
@@ -139,10 +149,10 @@ void vtkShadowMapPass::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "(none)" <<endl;
     }
-  os << indent << "OpaquePass: ";
-  if(this->OpaquePass!=0)
+  os << indent << "OpaqueSequence: ";
+  if(this->OpaqueSequence!=0)
     {
-    this->OpaquePass->PrintSelf(os,indent);
+    this->OpaqueSequence->PrintSelf(os,indent);
     }
   else
     {
@@ -168,7 +178,7 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
     r->GetRenderWindow());
 
   if(this->ShadowMapBakerPass != 0 &&
-     this->OpaquePass != 0)
+     this->OpaqueSequence != 0)
     {
      // Test for Hardware support. If not supported, just render the delegate.
     bool supported=vtkFrameBufferObject::IsSupported(context);
@@ -176,17 +186,17 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
     if(!supported)
       {
       vtkErrorMacro("FBOs are not supported by the context. Cannot use shadow mapping.");
-      this->OpaquePass->Render(s);
+      this->OpaqueSequence->Render(s);
       this->NumberOfRenderedProps+=
-        this->OpaquePass->GetNumberOfRenderedProps();
+        this->OpaqueSequence->GetNumberOfRenderedProps();
       return;
       }
 
     if(!this->ShadowMapBakerPass->GetHasShadows())
       {
-      this->OpaquePass->Render(s);
+      this->OpaqueSequence->Render(s);
       this->NumberOfRenderedProps+=
-        this->OpaquePass->GetNumberOfRenderedProps();
+        this->OpaqueSequence->GetNumberOfRenderedProps();
       return;
       }
 
@@ -292,9 +302,9 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
 
     // render with shadows
     // note this time we use the list of props after culling.
-    this->OpaquePass->Render(s);
+    this->OpaqueSequence->Render(s);
     this->NumberOfRenderedProps+=
-      this->OpaquePass->GetNumberOfRenderedProps();
+      this->OpaqueSequence->GetNumberOfRenderedProps();
 
     // now deactivate the shadow maps
     shadowingLightIndex = 0;
@@ -321,7 +331,7 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
     }
   else
     {
-    vtkWarningMacro(<<" no ShadowMapBakerPass or no OpaquePass on the ShadowMapBakerPass.");
+    vtkWarningMacro(<<" no ShadowMapBakerPass or no OpaqueSequence on the ShadowMapBakerPass.");
     }
 
   vtkOpenGLCheckErrorMacro("failed after Render");

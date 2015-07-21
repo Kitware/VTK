@@ -508,6 +508,13 @@ public:
   // method to release graphics resources in any derived renderers.
   virtual void ReleaseGraphicsResources(vtkWindow *) { }
 
+  // Description:
+  // Turn on/off rendering of shadows if supported
+  // Initial value is off.
+  vtkSetMacro(UseShadows,int);
+  vtkGetMacro(UseShadows,int);
+  vtkBooleanMacro(UseShadows,int);
+
 //BTX
 protected:
   vtkRenderer();
@@ -639,6 +646,11 @@ protected:
   // automatically (see GetActiveCamera).
   // This is only used internally.
   vtkCamera *GetActiveCameraAndResetIfCreated();
+
+  // Description:
+  // If this flag is on and the rendering engine supports it render shadows
+  // Initial value is off.
+  int UseShadows;
 
   // Description:
   // If this flag is on and the GPU supports it, depth peeling is used

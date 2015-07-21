@@ -111,6 +111,8 @@ vtkRenderer::vtkRenderer()
 
   this->GL2PSSpecialPropCollection = NULL;
 
+  this->UseShadows = 0;
+
   this->UseDepthPeeling=0;
   this->OcclusionRatio=0.0;
   this->MaximumNumberOfPeels=4;
