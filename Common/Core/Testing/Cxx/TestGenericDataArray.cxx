@@ -22,11 +22,11 @@ void Test()
   array->SetNumberOfComponents(3);
   array->SetNumberOfTuples(100);
   vtkWriteableGenericDataArrayMacro(array,
-    for (ARRAY_TYPE::TupleIteratorType iter = ARRAY->Begin(), max = ARRAY->End(); iter != max; ++iter)
+    for (vtkIdType tupleIdx=0, max=ARRAY->GetNumberOfTuples(); tupleIdx < max; ++tupleIdx)
     {
-    iter[0] = 1;
-    iter[1] = 2;
-    iter[2] = 3;
+    ARRAY->SetComponentValue(tupleIdx, 0, 1);
+    ARRAY->SetComponentValue(tupleIdx, 1, 2);
+    ARRAY->SetComponentValue(tupleIdx, 2, 3);
     }
   );
   array->Print(cout);
@@ -37,5 +37,5 @@ int TestGenericDataArray(int, char**)
 {
   Test<vtkSoADataArrayTemplate<float> >();
   Test<vtkAoSDataArrayTemplate<float> >();
-  return 1;
+  return EXIT_SUCCESS;
 }

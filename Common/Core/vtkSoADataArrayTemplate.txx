@@ -25,7 +25,8 @@ vtkSoADataArrayTemplate<ScalarType>::New()
 //-----------------------------------------------------------------------------
 template<class ScalarType>
 vtkSoADataArrayTemplate<ScalarType>::vtkSoADataArrayTemplate()
-  : Resizeable(true)
+  : Resizeable(true),
+  NumberOfComponentsReciprocal(1.0)
 {
 }
 
@@ -52,6 +53,7 @@ void vtkSoADataArrayTemplate<ScalarType>::SetNumberOfComponents(int val)
     this->Data.pop_back();
     }
   this->Data.resize(numComps);
+  this->NumberOfComponentsReciprocal = 1.0 / this->NumberOfComponents;
 }
 
 //-----------------------------------------------------------------------------

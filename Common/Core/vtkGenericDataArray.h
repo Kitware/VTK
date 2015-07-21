@@ -24,31 +24,49 @@
 #include "vtkTypeTraits.h"
 #include "vtkGenericDataArrayLookupHelper.h"
 #include "vtkGenericDataArrayHelper.h"
-#include "vtkGenericDataArrayTupleIterator.h"
 
 #include <cassert>
 
 template<class DerivedT,
          class ScalarTypeT,
-         class TupleTypeT,
-         class TupleIteratorTypeT=vtkGenericDataArrayTupleIterator<DerivedT>,
          class ScalarReturnTypeT=ScalarTypeT&>
 class vtkGenericDataArray : public vtkTypeTemplate<
-                         vtkGenericDataArray<DerivedT, ScalarTypeT, TupleTypeT, TupleIteratorTypeT, ScalarReturnTypeT>,
+                         vtkGenericDataArray<DerivedT, ScalarTypeT, ScalarReturnTypeT>,
                          vtkDataArray>
 {
   typedef
-    vtkGenericDataArray<DerivedT, ScalarTypeT, TupleTypeT, TupleIteratorTypeT, ScalarReturnTypeT> SelfType;
+    vtkGenericDataArray<DerivedT, ScalarTypeT, ScalarReturnTypeT> SelfType;
 public:
   typedef ScalarTypeT           ScalarType;
   typedef ScalarReturnTypeT     ScalarReturnType;
-  typedef TupleTypeT            TupleType;
-  typedef TupleIteratorTypeT    TupleIteratorType;
 
-  inline TupleIteratorType Begin(vtkIdType pos=0) const
-    { return TupleIteratorType(*static_cast<const DerivedT*>(this), pos); }
-  inline TupleIteratorType End() const
-    { return this->Begin(const_cast<SelfType*>(this)->GetNumberOfTuples()); }
+  //----------------------------------------------------------------------------
+  // Methods that must be defined by the subclasses.
+  // Let's call these GenericDataArray concept methods.
+  inline ScalarReturnType GetValue(vtkIdType valueIdx) const
+    {
+    return static_cast<const DerivedT*>(this)->GetValue(valueIdx);
+    }
+  inline void GetTupleValue(vtkIdType tupleIdx, ScalarType* tuple) const
+    {
+    static_cast<const DerivedT*>(this)->GetTupleValue(tupleIdx, tuple);
+    }
+  inline ScalarReturnType GetComponentValue(vtkIdType tupleIdx, int comp) const
+    {
+    return static_cast<const DerivedT*>(this)->GetComponentValue(tupleIdx, comp);
+    }
+  inline void SetValue(vtkIdType valueIdx, ScalarType value)
+    {
+    static_cast<DerivedT*>(this)->SetValue(valueIdx, value);
+    }
+  inline void SetTupleValue(vtkIdType tupleIdx, ScalarType* tuple)
+    {
+    static_cast<DerivedT*>(this)->SetTupleValue(tupleIdx, tuple);
+    }
+  inline void SetComponentValue(vtkIdType tupleIdx, int comp, ScalarType value)
+    {
+    static_cast<DerivedT*>(this)->SetComponentValue(tupleIdx, comp, value);
+    }
 
   // Provide implementations for pure virtual methods in vtkDataArray.
 
@@ -174,6 +192,12 @@ public:
     return 1;
     }
 
+  virtual void SetNumberOfComponents(int num)
+    {
+    this->vtkDataArray::SetNumberOfComponents(num);
+    this->LegacyTuple.resize(num);
+    }
+
   virtual void SetNumberOfTuples(vtkIdType number)
     {
     if (this->Allocate(number*this->NumberOfComponents, 0))
@@ -181,6 +205,7 @@ public:
       this->MaxId = this->Size - 1;
       }
     }
+
   virtual void Initialize()
     {
     this->Resize(0);
@@ -243,12 +268,11 @@ public:
 
   //----------------------------------------------------------------------------
   // Description:
-  // Removes a tuple at the given index. Default implementation uses
-  // TupleIteratorType to iterate over tuples to move elements. Subclasses are
+  // Removes a tuple at the given index. Default implementation
+  // iterates over tuples to move elements. Subclasses are
   // encouraged to reimplemented this method to support faster implementations,
   // if needed.
   virtual void RemoveTuple(vtkIdType id);
-
 
   //----------------------------------------------------------------------------
   // Set Value methods. Note the index for all these methods is a "value" index
@@ -275,24 +299,14 @@ public:
     }
 
   //----------------------------------------------------------------------------
-  // vtkArrayIterator API. This provides the generic vtkArrayIterator. Code
-  // using vtkDataArray should stick to using the TupleIteratorType based
-  // API when iterating over tuples as that is typically faster.
+  // vtkArrayIterator API. This provides the generic vtkArrayIterator.
   // TODO:
   virtual vtkArrayIterator* NewIterator() { return NULL;}
 
   //----------------------------------------------------------------------------
   // API provided by vtkDataArrayTemplate/vtkTypedDataArray. These methods used
-  // to be virtual. They are no longer virtual and use TupleIterator mechanism
-  // to access values.
-
-  // Description:
-  // Get the data at a particular index. Index is value/component index assuming
-  // traditional VTK memory layout (array-of-structures).
-  ScalarType GetValue(vtkIdType idx)
-    {
-    return this->GetValueReference(idx);
-    }
+  // to be virtual. They are no longer virtual and the vtkGenericDataArray
+  // concept methods defined above.
 
   // Description:
   // Get a reference to the scalar value at a particular index.
@@ -300,47 +314,8 @@ public:
   // traditional VTK memory layout (array-of-structures).
   ScalarReturnType GetValueReference(vtkIdType idx)
     {
-    vtkIdType tuple = idx / this->NumberOfComponents;
-    int comp = static_cast<int>(idx % this->NumberOfComponents);
-    return this->Begin(tuple)[comp];
+    return this->GetValue(idx);
     }
-
-  // Description:
-  // Set the data at a particular index. Does not do range checking. Make sure
-  // you use the method SetNumberOfValues() before inserting data.
-  // Index is value/component index assuming
-  // traditional VTK memory layout (array-of-structures).
-  void SetValue(vtkIdType idx, ScalarType value)
-    {
-    vtkIdType tuple = idx / this->NumberOfComponents;
-    int comp = static_cast<int>(idx % this->NumberOfComponents);
-    this->Begin(tuple)[comp] = value;
-    this->DataChanged();
-    }
-
-  // Description:
-  // Copy the tuple value into a user-provided array.
-  void GetTupleValue(vtkIdType tupleIdx, ScalarType *t)
-    {
-    TupleIteratorType iter = this->Begin(tupleIdx);
-    for (int cc=0; cc < this->NumberOfComponents; ++cc)
-      {
-      t[cc] = iter[cc];
-      }
-    }
-
-  // Description:
-  // Set the tuple value at the ith location in the array.
-  void SetTupleValue(vtkIdType tupleIdx, const ScalarType *t)
-    {
-    TupleIteratorType iter = this->Begin(tupleIdx);
-    for (int cc=0; cc < this->NumberOfComponents; ++cc)
-      {
-      iter[cc] = t[cc];
-      }
-    this->DataChanged();
-    }
-
 
   // Description:
   // Insert data at the end of the array. Return its location in the array.
@@ -384,13 +359,20 @@ public:
 
   // Description:
   // Insert (memory allocation performed) the tuple onto the end of the array.
-  virtual vtkIdType InsertNextTupleValue(const ScalarType *t)
+  vtkIdType InsertNextTupleValue(const ScalarType *t)
     {
     vtkIdType nextTuple = this->GetNumberOfTuples();
     this->InsertTupleValue(nextTuple, t);
     return nextTuple;
     }
 
+  // Description:
+  // Returns the number of values i.e.
+  // (this->NumberOfComponents*this->NumberOfTuples)
+  inline vtkIdType GetNumberOfValues()
+    {
+    return (this->MaxId + 1);
+    }
 protected:
   vtkGenericDataArray()
     : Lookup(*this)

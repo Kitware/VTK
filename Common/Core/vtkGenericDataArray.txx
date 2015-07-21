@@ -21,8 +21,8 @@
 #include "vtkVariantCast.h"
 
 #define vtkGenericDataArrayT(returnType) \
-  template <class D, class S, class T, class TI, class SR> \
-  returnType vtkGenericDataArray<D, S, T, TI, SR>
+  template <class D, class S, class SR> \
+  returnType vtkGenericDataArray<D, S, SR>
 
 //-----------------------------------------------------------------------------
 vtkGenericDataArrayT(void)::InsertTuples(
@@ -122,7 +122,6 @@ vtkGenericDataArrayT(void)::InsertTuples(vtkIdType dstStart, vtkIdType n,
 vtkGenericDataArrayT(double *)::GetTuple(vtkIdType i)
 {
   // XXX Should these be implemented in vtkDataArray?
-  this->LegacyTuple.resize(this->GetNumberOfComponents());
   vtkGenericDataArrayHelper::GetTuple(this, i,  &this->LegacyTuple[0]);
   return &this->LegacyTuple[0];
 }
@@ -148,7 +147,7 @@ vtkGenericDataArrayT(void)::SetTuple(vtkIdType i, const float *source)
   // XXX Should these be implemented in vtkDataArray?
   for (int cc=0, max=this->GetNumberOfComponents(); cc < max; ++cc)
     {
-    this->Begin(i)[cc] = static_cast<ScalarType>(source[cc]);
+    this->SetComponentValue(i, cc, static_cast<ScalarType>(source[cc]));
     }
   this->DataChanged();
 }
@@ -159,7 +158,7 @@ vtkGenericDataArrayT(void)::SetTuple(vtkIdType i, const double *source)
   // XXX Should these be implemented in vtkDataArray?
   for (int cc=0, max=this->GetNumberOfComponents(); cc < max; ++cc)
     {
-    this->Begin(i)[cc] = static_cast<ScalarType>(source[cc]);
+    this->SetComponentValue(i, cc, static_cast<ScalarType>(source[cc]));
     }
   this->DataChanged();
 }
@@ -185,14 +184,14 @@ vtkGenericDataArrayT(void)::RemoveTuple(vtkIdType id)
   assert(len > 0);
 
   int numComps = this->GetNumberOfComponents();
-  TupleIteratorType from = this->Begin(id+1);
-  TupleIteratorType to = this->Begin(id);
-  TupleIteratorType end = this->End();
-  for (; from != end; ++to, ++from)
+  vtkIdType fromTuple = id + 1;
+  vtkIdType toTuple = id;
+  vtkIdType endTuple = this->GetNumberOfTuples();
+  for (; fromTuple != endTuple; ++toTuple, ++fromTuple)
     {
-    for (int cc=0; cc < numComps; ++cc)
+    for (int comp=0; comp < numComps; ++comp)
       {
-      to[cc] = from[cc];
+      this->SetComponentValue(toTuple, comp, this->GetComponentValue(fromTuple, comp));
       }
     }
   this->SetNumberOfTuples(this->GetNumberOfTuples() - 1);
@@ -257,15 +256,13 @@ vtkGenericDataArrayT(void)::LookupTypedValue(ScalarType value, vtkIdList* ids)
 }
 
 //-----------------------------------------------------------------------------
-vtkGenericDataArrayT(void)::SetVariantValue(vtkIdType idx, vtkVariant valueVariant)
+vtkGenericDataArrayT(void)::SetVariantValue(vtkIdType valueIdx, vtkVariant valueVariant)
 {
   bool valid = true;
   ScalarType value = vtkVariantCast<ScalarType>(valueVariant, &valid);
   if (valid)
     {
-    vtkIdType tupleIndex = static_cast<vtkIdType>(idx / this->NumberOfComponents);
-    int comp = static_cast<int>(idx % this->NumberOfComponents);
-    this->Begin(tupleIndex)[comp] = value;
+    this->SetValue(valueIdx, value);
     }
 }
 

@@ -21,21 +21,17 @@
 
 #include "vtkGenericDataArray.h"
 #include "vtkBuffer.h"
-#include <vector>
 
 template <class ScalarTypeT>
 class vtkSoADataArrayTemplate : public vtkTypeTemplate<
                             vtkSoADataArrayTemplate<ScalarTypeT>,
-                            vtkGenericDataArray<vtkSoADataArrayTemplate<ScalarTypeT>, ScalarTypeT, std::vector<ScalarTypeT> >
+                            vtkGenericDataArray<vtkSoADataArrayTemplate<ScalarTypeT>, ScalarTypeT>
                             >
 {
-  typedef vtkGenericDataArray<vtkSoADataArrayTemplate<ScalarTypeT>,
-      ScalarTypeT,
-      std::vector<ScalarTypeT> > GenericDataArrayType;
+  typedef vtkGenericDataArray<vtkSoADataArrayTemplate<ScalarTypeT>, ScalarTypeT> GenericDataArrayType;
 public:
   typedef vtkSoADataArrayTemplate<ScalarTypeT> SelfType;
   typedef typename GenericDataArrayType::ScalarType ScalarType;
-  typedef typename GenericDataArrayType::TupleType TupleType;
   typedef typename GenericDataArrayType::ScalarReturnType ScalarReturnType;
 
   static vtkSoADataArrayTemplate* New();
@@ -44,19 +40,43 @@ public:
   // Methods that are needed to be implemented by every vtkGenericDataArray
   // subclass.
   // **************************************************************************
-  inline ScalarReturnType GetComponentFast(vtkIdType index, int comp) const
+  inline ScalarReturnType GetValue(vtkIdType valueIdx) const
     {
-    return this->Data[comp].GetBuffer()[index];
+    vtkIdType tupleIdx;
+    int comp;
+    this->GetTupleIndexFromValueIndex(valueIdx, tupleIdx, comp);
+    return this->GetComponentValue(tupleIdx, comp);
     }
-  inline TupleType GetTupleFast(vtkIdType index) const
+  inline void GetTupleValue(vtkIdType tupleIdx, ScalarType* tuple) const
     {
-    TupleType tuple (this->NumberOfComponents>0? this->NumberOfComponents : 1);
+    for (int cc=0; cc < this->NumberOfComponents; cc++)
+      {
+      tuple[cc] = this->Data[cc].GetBuffer()[tupleIdx];
+      }
+    }
+  inline ScalarReturnType GetComponentValue(vtkIdType tupleIdx, int comp) const
+    {
+    return this->Data[comp].GetBuffer()[tupleIdx];
+    }
+  inline void SetValue(vtkIdType valueIdx, ScalarType value)
+    {
+    vtkIdType tupleIdx;
+    int comp;
+    this->GetTupleIndexFromValueIndex(valueIdx, tupleIdx, comp);
+    this->SetComponentValue(tupleIdx, comp, value);
+    }
+  inline void SetTupleValue(vtkIdType tupleIdx, ScalarType* tuple)
+    {
     for (int cc=0; cc < this->NumberOfComponents; ++cc)
       {
-      tuple[cc] = this->Data[cc].GetBuffer()[index];
+      this->Data[cc].GetBuffer()[tupleIdx] = tuple[cc];
       }
-    return tuple;
     }
+  inline void SetComponentValue(vtkIdType tupleIdx, int comp, ScalarType value)
+    {
+    this->Data[comp].GetBuffer()[tupleIdx] = value;
+    }
+
   // **************************************************************************
 
   enum DeleteMethod
@@ -106,11 +126,19 @@ protected:
 
   std::vector<vtkBuffer<ScalarType> > Data;
   bool Resizeable;
+  double NumberOfComponentsReciprocal;
 private:
   vtkSoADataArrayTemplate(const vtkSoADataArrayTemplate&); // Not implemented.
   void operator=(const vtkSoADataArrayTemplate&); // Not implemented.
 
-  friend class vtkGenericDataArray<vtkSoADataArrayTemplate<ScalarTypeT>, ScalarTypeT, std::vector<ScalarTypeT> >;
+  inline void GetTupleIndexFromValueIndex(vtkIdType valueIdx, vtkIdType& tupleIdx, int& comp) const
+    {
+    tupleIdx = static_cast<vtkIdType>(valueIdx * this->NumberOfComponentsReciprocal);
+    comp = valueIdx - (tupleIdx * this->NumberOfComponents);
+    }
+
+
+  friend class vtkGenericDataArray<vtkSoADataArrayTemplate<ScalarTypeT>, ScalarTypeT>;
 };
 
 #include "vtkSoADataArrayTemplate.txx"

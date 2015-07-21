@@ -35,7 +35,6 @@ class vtkGenericDataArrayLookupHelper
 public:
   typedef ArrayTypeT ArrayType;
   typedef typename ArrayType::ScalarType ScalarType;
-  typedef typename ArrayType::TupleIteratorType TupleIteratorType;
 
   // Constructor.
   vtkGenericDataArrayLookupHelper(ArrayType& associatedArray)
@@ -114,15 +113,11 @@ private:
     if (this->SortedArraySize == 0) { return; }
 
     this->SortedArray = reinterpret_cast<ValueWithIndex*>(malloc(this->SortedArraySize * sizeof(ValueWithIndex)));
-    for (TupleIteratorType iter = this->AssociatedArray.Begin(); iter != this->AssociatedArray.End(); ++iter)
+    for (vtkIdType cc=0, max=this->AssociatedArray.GetNumberOfValues(); cc < max; ++cc)
       {
-      for (int cc=0; cc < numComps; ++cc)
-        {
-        ValueWithIndex& item = this->SortedArray[iter.GetIndex()*numComps+cc];
-        item.Value = iter[cc];
-        item.Index = iter.GetIndex();
-        // not preserving component index for now.
-        }
+      ValueWithIndex& item = this->SortedArray[cc];
+      item.Value = this->AssociatedArray.GetValue(cc);
+      item.Index = cc;
       }
     std::sort(this->SortedArray, this->SortedArray + this->SortedArraySize);
     }

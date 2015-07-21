@@ -29,17 +29,14 @@ template <class ScalarTypeT>
 class vtkAoSDataArrayTemplate :
   public vtkTypeTemplate<
           vtkAoSDataArrayTemplate<ScalarTypeT>,
-          vtkGenericDataArray<vtkAoSDataArrayTemplate<ScalarTypeT>, ScalarTypeT, std::vector<ScalarTypeT> >
+          vtkGenericDataArray<vtkAoSDataArrayTemplate<ScalarTypeT>, ScalarTypeT>
          >
 {
 public:
-  typedef vtkGenericDataArray<vtkAoSDataArrayTemplate<ScalarTypeT>,
-      ScalarTypeT,
-      std::vector<ScalarTypeT> > GenericDataArrayType;
+  typedef vtkGenericDataArray<vtkAoSDataArrayTemplate<ScalarTypeT>, ScalarTypeT > GenericDataArrayType;
   typedef GenericDataArrayType Superclass;
   typedef vtkAoSDataArrayTemplate<ScalarTypeT> SelfType;
   typedef typename Superclass::ScalarType ScalarType;
-  typedef typename Superclass::TupleType TupleType;
   typedef typename Superclass::ScalarReturnType ScalarReturnType;
   typedef typename Superclass::ScalarType ValueType; // to match vtkDataArrayTemplate.
 
@@ -49,19 +46,40 @@ public:
   // Methods that are needed to be implemented by every vtkGenericDataArray
   // subclass.
   // **************************************************************************
-  inline ScalarReturnType GetComponentFast(vtkIdType index, int comp) const
+  inline ScalarReturnType GetValue(vtkIdType valueIdx) const
+    {
+    return this->Buffer.GetBuffer()[valueIdx];
+    }
+  inline void GetTupleValue(vtkIdType tupleIdx, ScalarType* tuple) const
+    {
+    const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
+    std::copy(this->Buffer.GetBuffer() + valueIdx,
+              this->Buffer.GetBuffer() + valueIdx + this->NumberOfComponents,
+              tuple);
+    }
+  inline ScalarReturnType GetComponentValue(vtkIdType index, int comp) const
     {
     return this->Buffer.GetBuffer()[this->NumberOfComponents*index + comp];
     }
-  inline TupleType GetTupleFast(vtkIdType index) const
+  inline void SetValue(vtkIdType valueIdx, ScalarType value)
     {
-    TupleType tuple (this->NumberOfComponents>0? this->NumberOfComponents : 1);
-    std::copy(this->Buffer.GetBuffer() + (this->NumberOfComponents*index), this->NumberOfComponents, &tuple[0]);
-    return tuple;
+    this->Buffer.GetBuffer()[valueIdx] = value;
+    this->DataChanged();
     }
+  inline void SetTupleValue(vtkIdType tupleIdx, ScalarType* tuple)
+    {
+    const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
+    std::copy(tuple, tuple + this->NumberOfComponents,
+              this->Buffer.GetBuffer() + valueIdx);
+    this->DataChanged();
+    }
+  inline void SetComponentValue(vtkIdType tupleIdx, int comp, ScalarType value)
+    {
+    const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents + comp;
+    this->SetValue(valueIdx, value);
+    }
+
   // **************************************************************************
-
-
   // Description:
   // Get the address of a particular data index. Make sure data is allocated
   // for the number of items requested. Set MaxId according to the number of
@@ -130,7 +148,7 @@ protected:
 private:
   vtkAoSDataArrayTemplate(const vtkAoSDataArrayTemplate&); // Not implemented.
   void operator=(const vtkAoSDataArrayTemplate&); // Not implemented.
-  friend class vtkGenericDataArray<vtkAoSDataArrayTemplate<ScalarTypeT>, ScalarTypeT, std::vector<ScalarTypeT> >;
+  friend class vtkGenericDataArray<vtkAoSDataArrayTemplate<ScalarTypeT>, ScalarTypeT>;
 //ETX
 };
 

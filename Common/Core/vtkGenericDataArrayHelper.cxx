@@ -28,8 +28,8 @@ namespace
       {
       for (int cc=0, max=dest->GetNumberOfComponents(); cc < max; ++cc)
         {
-        dest->Begin(destTuple)[cc] =
-          static_cast<typename ArrayDestType::ScalarType>(source->Begin(sourceTuple)[cc]);
+        dest->SetComponentValue(destTuple, cc,
+          static_cast<typename ArrayDestType::ScalarType>(source->GetComponentValue(sourceTuple, cc)));
         }
       }
 
@@ -39,10 +39,9 @@ namespace
       {
       for (int cc=0, max=source->GetNumberOfComponents(); cc < max; ++cc)
         {
-        buffer[cc] = static_cast<double>(source->Begin(tuple)[cc]);
+        buffer[cc] = static_cast<double>(source->GetComponentValue(tuple, cc));
         }
       }
-
 }
 //============================================================================
 
