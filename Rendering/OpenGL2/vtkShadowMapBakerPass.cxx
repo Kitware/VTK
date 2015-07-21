@@ -474,14 +474,14 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
             }
 
           map->SetContext(context);
-          map->SetDepthTextureCompare(true);
+//          map->SetDepthTextureCompare(true);
           map->SetLinearMagnification(true);
           map->SetMinificationFilter(vtkTextureObject::Linear);
           map->SetWrapS(vtkTextureObject::ClampToEdge);
           map->SetWrapT(vtkTextureObject::ClampToEdge);
           map->SetWrapR(vtkTextureObject::ClampToEdge);
-          map->SetDepthTextureCompareFunction(
-            vtkTextureObject::Lequal);
+//          map->SetDepthTextureCompareFunction(
+//            vtkTextureObject::Lequal);
           if(map->GetWidth()!=this->Resolution ||
              map->GetHeight()!=this->Resolution)
             {
@@ -519,7 +519,6 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
 
           glEnable(GL_DEPTH_TEST);
           this->OpaqueSequence->Render(&s2);
-          map->Deactivate();
 
           this->NumberOfRenderedProps+=
             this->OpaqueSequence->GetNumberOfRenderedProps();
@@ -536,6 +535,7 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
           glFinish();
 #endif
 
+          map->Deactivate();
           ++lightIndex;
           }
         l=lights->GetNextItem();

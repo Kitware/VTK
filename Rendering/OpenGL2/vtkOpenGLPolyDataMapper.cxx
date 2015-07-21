@@ -501,9 +501,9 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
 //      "uniform sampler2DShadow shadowMaps[VTK_NUM_SHADOW_MAPS];\n"
       "uniform sampler2D shadowMaps[VTK_NUM_SHADOW_MAPS];\n"
       "uniform mat4 shadowTransforms[VTK_NUM_SHADOW_MAPS];\n"
-      "float computeShadowFactor(in vec4 vc, in mat4 strans, in sampler2D smap)\n"
+      "float computeShadowFactor(vec4 vc, int idx)\n"
       "  {\n"
-      "  vec4 shadowCoord = strans*vc;\n"
+      "  vec4 shadowCoord = shadowTransforms[idx]*vc;\n"
       "  if(shadowCoord.w > 0.0)\n"
       "    {\n"
       "    vec2 projected = shadowCoord.xy/shadowCoord.w;\n"
@@ -512,9 +512,9 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
       "      {\n"
       "      float result = 0.0;\n"
       "      float zval = shadowCoord.z - 0.005;\n"
-      "      if (textureProjOffset(smap,shadowCoord,ivec2( 0, 0)).r - zval > 0) { result += 0.34; }\n"
-      "      if (textureProjOffset(smap,shadowCoord,ivec2( 0, 1)).r - zval > 0) { result += 0.33; }\n"
-      "      if (textureProjOffset(smap,shadowCoord,ivec2( 1, 0)).r - zval > 0) { result += 0.33; }\n"
+      "      if (textureProjOffset(shadowMaps[idx],shadowCoord,ivec2( 0, 0)).r - zval > 0) { result += 0.34; }\n"
+      "      if (textureProjOffset(shadowMaps[idx],shadowCoord,ivec2( 0, 1)).r - zval > 0) { result += 0.33; }\n"
+      "      if (textureProjOffset(shadowMaps[idx],shadowCoord,ivec2( 1, 0)).r - zval > 0) { result += 0.33; }\n"
       "      return result;\n"
       "      }\n"
       "    }\n"
@@ -535,9 +535,8 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
         {
         std::ostringstream toString2;
         toString2 << numSMT;
-        lfc += "  factors[" + toString.str() + "] = computeShadowFactor(vertexVC,shadowTransforms["
-            + toString2.str() + "],shadowMaps["
-                 + toString2.str() + "]);\n";
+        lfc +=
+        "  factors[" + toString.str() + "] = computeShadowFactor(vertexVC," + toString2.str() + ");\n";
         numSMT++;
         }
       else

@@ -28,7 +28,6 @@
 #include "vtkNew.h"
 #include "vtkProperty.h"
 #include "vtkLightKit.h"
-#include "vtkPolyDataNormals.h"
 #include "vtkTimerLog.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkPlaneSource.h"
@@ -63,10 +62,6 @@ int TestShadowMapBakerPass(int argc, char *argv[])
   vtkNew<vtkPLYReader> reader;
   reader->SetFileName(fileName);
   reader->Update();
-
-  // vtkNew<vtkPolyDataNormals> norms;
-  // norms->SetInputConnection(reader->GetOutputPort());
-  // norms->Update();
 
   mapper->SetInputConnection(reader->GetOutputPort());
   //mapper->SetInputConnection(norms->GetOutputPort());
