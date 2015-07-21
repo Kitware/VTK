@@ -141,7 +141,7 @@ PyObject *PyVTKObject_String(PyObject *op)
 PyObject *PyVTKObject_Repr(PyObject *op)
 {
   char buf[255];
-  sprintf(buf,"(%s)%p", op->ob_type->tp_name, static_cast<void*>(op));
+  sprintf(buf, "(%.200s)%p", op->ob_type->tp_name, static_cast<void*>(op));
 
   return PyString_FromString(buf);
 }
