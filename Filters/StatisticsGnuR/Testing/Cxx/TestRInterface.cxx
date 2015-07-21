@@ -196,9 +196,9 @@ int TestRInterface(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     int EDGE_ARRAY[5][2] = { {4,5},{5,6},{5,3},{6,1},{6,2} };
     for ( int i = 0; i< r_edge->GetNumberOfTuples(); i++)
       {
-      double * a = r_edge->GetTuple(i);
-      test_expression(doubleEquals(a[0],double( EDGE_ARRAY[i][0]), 0.001));
-      test_expression(doubleEquals(a[1],double( EDGE_ARRAY[i][1]), 0.001));
+      double * tup = r_edge->GetTuple(i);
+      test_expression(doubleEquals(tup[0],double( EDGE_ARRAY[i][0]), 0.001));
+      test_expression(doubleEquals(tup[1],double( EDGE_ARRAY[i][1]), 0.001));
       }
     //check Nnode
     vtkDoubleArray* r_Nnode= vtkDoubleArray::SafeDownCast(rint->AssignRVariableToVTKDataArray("Nnode"));
@@ -229,16 +229,16 @@ int TestRInterface(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     //check edge data
     for (int i = 0; i < vtk_tr->GetNumberOfEdges(); i++)
       {
-      vtkDoubleArray * weights = vtkDoubleArray::SafeDownCast(vtk_tr->GetEdgeData()->GetArray("weight"));
-      test_expression(doubleEquals(weights->GetValue(i),double( e_weights[i]), 0.001));
+      vtkDoubleArray * edge_weights = vtkDoubleArray::SafeDownCast(vtk_tr->GetEdgeData()->GetArray("weight"));
+      test_expression(doubleEquals(edge_weights->GetValue(i),double( e_weights[i]), 0.001));
       }
 
     //check vertex data
     const char *  t_names[] ={"a","b","c","","",""};
     for (int i = 0; i < vtk_tr->GetNumberOfVertices(); i++)
       {
-      vtkStringArray * names = vtkStringArray::SafeDownCast(vtk_tr->GetVertexData()->GetAbstractArray("node name"));
-      test_expression(stringEquals(names->GetValue(i).c_str(), t_names[i] ));
+      vtkStringArray * v_names = vtkStringArray::SafeDownCast(vtk_tr->GetVertexData()->GetAbstractArray("node name"));
+      test_expression(stringEquals(v_names->GetValue(i).c_str(), t_names[i] ));
       }
 
 
@@ -256,4 +256,3 @@ int TestRInterface(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     return 1;
     }
 }
-
