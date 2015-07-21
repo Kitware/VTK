@@ -48,7 +48,7 @@
 #endif
 
 // This will be set to the python type struct for vtkObjectBase
-PyTypeObject *PyVTKObject_Type = 0;
+static PyTypeObject *PyVTKObject_Type = 0;
 
 //--------------------------------------------------------------------
 PyVTKClass::PyVTKClass(
