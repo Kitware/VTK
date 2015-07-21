@@ -195,9 +195,9 @@ extern VTKWRAPPINGPYTHONCORE_EXPORT void vtkPythonVoidFuncArgDelete(void *);
 // We define it as a macro in case the length needs to change across
 // python versions.
 #if   PY_VERSION_HEX >= 0x02060000 // for tp_version_tag
-#define VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED \
+#define VTK_PYTHON_UTIL_SUPPRESS_UNINITIALIZED \
   0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0, 0,
-#define VTK_WRAP_PYTHON_SUPRESS_UNINITIALIZED \
+#define VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED \
   0, 0,
 #endif
 

@@ -502,7 +502,7 @@ void vtkWrapPython_GenerateObjectType(FILE *fp, const char *classname)
 
   /* internal struct members */
   fprintf(fp,
-    "  VTK_WRAP_PYTHON_SUPRESS_UNINITIALIZED\n"
+    "  VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED\n"
     "};\n"
     "\n");
 }

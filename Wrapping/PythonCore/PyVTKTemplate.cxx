@@ -373,7 +373,7 @@ PyTypeObject PyVTKTemplate_Type = {
   0,                                     // tp_cache
   0,                                     // tp_subclasses
   0,                                     // tp_weaklist
-  VTK_WRAP_PYTHON_SUPRESS_UNINITIALIZED
+  VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED
 };
 
 //--------------------------------------------------------------------
