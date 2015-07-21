@@ -622,7 +622,7 @@ int main(int argc, char *argv[])
       {
       fprintf(fp,
             "  o = PyVTKNamespace_%s();\n"
-            "  if (o && PyDict_SetItemString(dict, (char *)\"%s\", o) != 0)\n"
+            "  if (o && PyDict_SetItemString(dict, \"%s\", o) != 0)\n"
             "    {\n"
             "    Py_DECREF(o);\n"
             "    }\n"
@@ -666,7 +666,7 @@ int main(int argc, char *argv[])
              "        }\n"
              "      if (nt)\n"
              "        {\n"
-             "        PyDict_SetItemString(dict, (char *)nt, ot);\n"
+             "        PyDict_SetItemString(dict, nt, ot);\n"
              "        }\n"
              "      }\n"
              "    Py_DECREF(l);\n"
@@ -691,7 +691,7 @@ int main(int argc, char *argv[])
       }
 
     fprintf(fp,
-            "  if (o && PyDict_SetItemString(dict, (char *)\"%s\", o) != 0)\n"
+            "  if (o && PyDict_SetItemString(dict, \"%s\", o) != 0)\n"
             "    {\n"
             "    Py_DECREF(o);\n"
             "    }\n"

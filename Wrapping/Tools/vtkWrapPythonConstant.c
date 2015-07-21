@@ -197,7 +197,7 @@ void vtkWrapPython_AddConstantHelper(
     fprintf(fp,
             "%sif (%s)\n"
             "%s  {\n"
-            "%s  PyDict_SetItemString(%s, (char *)%s%s%s, %s);\n"
+            "%s  PyDict_SetItemString(%s, %s%s%s, %s);\n"
             "%s  Py_DECREF(%s);\n"
             "%s  }\n",
             indent, objvar, indent, indent, dictvar,
