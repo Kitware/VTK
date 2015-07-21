@@ -51,7 +51,7 @@ static PyObject *PyVTKObject_String(PyObject *op)
     }
   PyErr_Clear();
 
-  vtksys_ios::ostringstream vtkmsg_with_warning_C4701;
+  std::ostringstream vtkmsg_with_warning_C4701;
   ((PyVTKObject *)op)->vtk_ptr->Print(vtkmsg_with_warning_C4701);
   vtkmsg_with_warning_C4701.put('\0');
   PyObject *res = PyString_FromString(vtkmsg_with_warning_C4701.str().c_str());

@@ -30,9 +30,9 @@
 #include "vtkSmartPointer.h"
 #include "vtkTimerLog.h"
 
-#include <vtksys/stl/map>
-#include <vtksys/stl/utility>
-#include <vtksys/stl/vector>
+#include <map>
+#include <utility>
+#include <vector>
 
 static VTK_THREAD_RETURN_TYPE vtkGeoSourceThreadStart(void* arg)
 {
@@ -44,8 +44,8 @@ static VTK_THREAD_RETURN_TYPE vtkGeoSourceThreadStart(void* arg)
 
 class vtkGeoSource::implementation {
 public:
-  vtksys_stl::map<vtksys_stl::pair<unsigned long, int>, vtkSmartPointer<vtkCollection> > OutputMap;
-  vtksys_stl::vector<int> ThreadIds;
+  std::map<std::pair<unsigned long, int>, vtkSmartPointer<vtkCollection> > OutputMap;
+  std::vector<int> ThreadIds;
 };
 
 vtkGeoSource::vtkGeoSource()
@@ -121,7 +121,7 @@ vtkCollection* vtkGeoSource::GetRequestedNodes(vtkGeoTreeNode* node)
 {
   vtkCollection* c = 0;
   this->OutputSetLock->Lock();
-  vtksys_stl::pair<unsigned long, int> p(node->GetId(), node->GetLevel());
+  std::pair<unsigned long, int> p(node->GetId(), node->GetLevel());
   if (this->Implementation->OutputMap.count(p) > 0)
     {
     c = this->Implementation->OutputMap[p];
@@ -212,7 +212,7 @@ void vtkGeoSource::WorkerThread()
 
       // Move from processing set to output
       this->OutputSetLock->Lock();
-      vtksys_stl::pair<unsigned long, int> p(node->GetId(), node->GetLevel());
+      std::pair<unsigned long, int> p(node->GetId(), node->GetLevel());
       this->Implementation->OutputMap[p] =
         vtkSmartPointer<vtkCollection>::New();
       if (success)

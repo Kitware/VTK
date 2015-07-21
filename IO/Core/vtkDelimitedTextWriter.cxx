@@ -71,7 +71,7 @@ bool vtkDelimitedTextWriter::OpenStream()
 {
   if (this->WriteToOutputString)
     {
-    this->Stream = new vtksys_ios::ostringstream;
+    this->Stream = new std::ostringstream;
     }
   else
     {
@@ -213,7 +213,7 @@ void vtkDelimitedTextWriter::WriteTable(vtkTable* table)
         }
       first = false;
 
-      vtksys_ios::ostringstream array_name;
+      std::ostringstream array_name;
       array_name << array->GetName();
       if (array->GetNumberOfComponents() > 1)
         {
@@ -251,8 +251,8 @@ void vtkDelimitedTextWriter::WriteTable(vtkTable* table)
 
   if (this->WriteToOutputString)
     {
-    vtksys_ios::ostringstream *ostr =
-      static_cast<vtksys_ios::ostringstream*>(this->Stream);
+    std::ostringstream *ostr =
+      static_cast<std::ostringstream*>(this->Stream);
 
     delete [] this->OutputString;
     size_t strLen = ostr->str().size();

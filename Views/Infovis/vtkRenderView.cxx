@@ -584,7 +584,7 @@ void vtkRenderView::UpdateHoverText()
     }
 
   // For debugging
-  //vtksys_ios::ostringstream oss;
+  //std::ostringstream oss;
   //oss << "prop: " << prop << " cell: " << cell;
   //this->Balloon->SetBalloonText(oss.str().c_str());
   //this->Balloon->StartWidgetInteraction(loc);

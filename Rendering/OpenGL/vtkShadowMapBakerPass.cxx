@@ -615,7 +615,7 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
           state->Update();
           vtkIndent indent;
 
-          vtksys_ios::ostringstream ost00;
+          std::ostringstream ost00;
           ost00.setf(ios::fixed,ios::floatfield);
           ost00.precision(5);
           ost00 << "OpenGLState_" << pthread_self() << "_"
@@ -627,7 +627,7 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
 
 #ifdef VTK_SHADOW_MAP_BAKER_PASS_DEBUG
           state->Update();
-          vtksys_ios::ostringstream ost01;
+          std::ostringstream ost01;
           ost01.setf(ios::fixed,ios::floatfield);
           ost01.precision(5);
           ost01 << "OpenGLState_" << pthread_self() << "_"

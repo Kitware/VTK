@@ -132,7 +132,7 @@ vtkStdString vtkSQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* schem
                                                      int tblHandle,
                                                      int colHandle )
 {
-  vtksys_ios::ostringstream queryStr;
+  std::ostringstream queryStr;
   queryStr << schema->GetColumnNameFromHandle( tblHandle, colHandle );
 
   // Figure out column type

@@ -744,7 +744,7 @@ template <typename iterT>
 vtkStdString vtkVariantArrayToString(iterT* it)
 {
   vtkIdType maxInd = it->GetNumberOfValues();
-  vtksys_ios::ostringstream ostr;
+  std::ostringstream ostr;
   for (vtkIdType i = 0; i < maxInd; i++)
     {
     if (i > 0)
@@ -772,72 +772,72 @@ vtkStdString vtkVariant::ToString() const
     }
   if (this->IsFloat())
     {
-    vtksys_ios::ostringstream ostr;
+    std::ostringstream ostr;
     ostr.imbue(std::locale::classic());
     ostr << this->Data.Float;
     return vtkStdString(ostr.str());
     }
   if (this->IsDouble())
     {
-    vtksys_ios::ostringstream ostr;
+    std::ostringstream ostr;
     ostr.imbue(std::locale::classic());
     ostr << this->Data.Double;
     return vtkStdString(ostr.str());
     }
   if (this->IsChar())
     {
-    vtksys_ios::ostringstream ostr;
+    std::ostringstream ostr;
     ostr << this->Data.Char;
     return vtkStdString(ostr.str());
     }
   if (this->IsUnsignedChar())
     {
-    vtksys_ios::ostringstream ostr;
+    std::ostringstream ostr;
     ostr << static_cast<unsigned int>(this->Data.UnsignedChar);
     return vtkStdString(ostr.str());
     }
   if (this->IsSignedChar())
     {
-    vtksys_ios::ostringstream ostr;
+    std::ostringstream ostr;
     ostr << this->Data.SignedChar;
     return vtkStdString(ostr.str());
     }
   if (this->IsShort())
     {
-    vtksys_ios::ostringstream ostr;
+    std::ostringstream ostr;
     ostr << this->Data.Short;
     return vtkStdString(ostr.str());
     }
   if (this->IsUnsignedShort())
     {
-    vtksys_ios::ostringstream ostr;
+    std::ostringstream ostr;
     ostr << this->Data.UnsignedShort;
     return vtkStdString(ostr.str());
     }
   if (this->IsInt())
     {
-    vtksys_ios::ostringstream ostr;
+    std::ostringstream ostr;
     ostr.imbue(std::locale::classic());
     ostr << this->Data.Int;
     return vtkStdString(ostr.str());
     }
   if (this->IsUnsignedInt())
     {
-    vtksys_ios::ostringstream ostr;
+    std::ostringstream ostr;
     ostr.imbue(std::locale::classic());
     ostr << this->Data.UnsignedInt;
     return vtkStdString(ostr.str());
     }
   if (this->IsLong())
     {
-    vtksys_ios::ostringstream ostr;
+    std::ostringstream ostr;
     ostr.imbue(std::locale::classic());
     ostr << this->Data.Long;
     return vtkStdString(ostr.str());
     }
   if (this->IsUnsignedLong())
     {
-    vtksys_ios::ostringstream ostr;
+    std::ostringstream ostr;
     ostr.imbue(std::locale::classic());
     ostr << this->Data.UnsignedLong;
     return vtkStdString(ostr.str());
@@ -845,14 +845,14 @@ vtkStdString vtkVariant::ToString() const
 #if defined(VTK_TYPE_USE___INT64)
   if (this->Is__Int64())
     {
-    vtksys_ios::ostringstream ostr;
+    std::ostringstream ostr;
     ostr.imbue(std::locale::classic());
     ostr << this->Data.__Int64;
     return vtkStdString(ostr.str());
     }
   if (this->IsUnsigned__Int64())
     {
-    vtksys_ios::ostringstream ostr;
+    std::ostringstream ostr;
     ostr.imbue(std::locale::classic());
     ostr << this->Data.Unsigned__Int64;
     return vtkStdString(ostr.str());
@@ -861,14 +861,14 @@ vtkStdString vtkVariant::ToString() const
 #if defined(VTK_TYPE_USE_LONG_LONG)
   if (this->IsLongLong())
     {
-    vtksys_ios::ostringstream ostr;
+    std::ostringstream ostr;
     ostr.imbue(std::locale::classic());
     ostr << this->Data.LongLong;
     return vtkStdString(ostr.str());
     }
   if (this->IsUnsignedLongLong())
     {
-    vtksys_ios::ostringstream ostr;
+    std::ostringstream ostr;
     ostr.imbue(std::locale::classic());
     ostr << this->Data.UnsignedLongLong;
     return vtkStdString(ostr.str());
@@ -973,7 +973,7 @@ template<> float vtkVariantStringToNonFiniteNumeric<float>(vtkStdString str,
 template <typename T>
 T vtkVariantStringToNumeric(vtkStdString str, bool* valid, T* vtkNotUsed(ignored) = 0)
 {
-  vtksys_ios::istringstream vstr(str);
+  std::istringstream vstr(str);
   T data = 0;
   vstr >> data;
   if(!vstr.eof())

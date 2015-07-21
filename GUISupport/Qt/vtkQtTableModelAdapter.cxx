@@ -786,7 +786,7 @@ QMimeData *vtkQtTableModelAdapter::mimeData(const QModelIndexList &indexes) cons
     return 0;
     }
 
-  vtksys_ios::ostringstream buffer;
+  std::ostringstream buffer;
   buffer << pedigreeIdSelection;
 
   QMimeData *mime_data = new QMimeData();

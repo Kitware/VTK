@@ -580,6 +580,6 @@ int TestOCP(ostream& strm)
 
 int otherCellPosition(int, char *[])
 {
-  vtksys_ios::ostringstream vtkmsg_with_warning_C4701;
+  std::ostringstream vtkmsg_with_warning_C4701;
   return TestOCP(vtkmsg_with_warning_C4701);
 }

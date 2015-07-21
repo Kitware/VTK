@@ -192,7 +192,7 @@ void vtkX3DExporter::WriteData()
 
   writer->StartNode(meta);
   writer->SetField(name, "numberofelements");
-  vtksys_ios::ostringstream ss;
+  std::ostringstream ss;
   ss << ren->GetActors()->GetNumberOfItems();
   writer->SetField(content, ss.str().c_str());
   writer->EndNode();
@@ -398,8 +398,8 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
   vtkSmartPointer<vtkTransform> trans;
 
   // to be deleted
-  vtksys_ios::ostringstream appearance_stream;
-  vtksys_ios::ostringstream ostr;
+  std::ostringstream appearance_stream;
+  std::ostringstream ostr;
 
   // see if the actor has a mapper. it could be an assembly
   if (anActor->GetMapper() == NULL)
@@ -533,7 +533,7 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
     vtkCellArray* polys = pd->GetPolys();
     vtkCellArray* tstrips = pd->GetStrips();
 
-    vtksys_ios::ostringstream geometry_stream;
+    std::ostringstream geometry_stream;
 
     vtkIdType numVerts = verts->GetNumberOfCells();
     vtkIdType numLines = lines->GetNumberOfCells();

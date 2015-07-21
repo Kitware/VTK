@@ -52,7 +52,7 @@ vtkDoubleArray* vtkPCAStatisticsGnuR::CalculatePValues(vtkIdTypeArray* dimCol,
 
   // Calculate the p-values (p+1 degrees of freedom)
   // Now prepare R script and calculate the p-values (in a single R script evaluation for efficiency)
-  vtksys_ios::ostringstream rs;
+  std::ostringstream rs;
   rs << "p<-c();"
      << "for(i in 1:"
      << dimCol->GetNumberOfTuples()

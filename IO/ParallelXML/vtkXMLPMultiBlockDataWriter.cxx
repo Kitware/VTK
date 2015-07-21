@@ -371,7 +371,7 @@ vtkStdString vtkXMLPMultiBlockDataWriter::CreatePieceFileName(
     }
     }
 
-  vtksys_ios::ostringstream fn_with_warning_C4701;
+  std::ostringstream fn_with_warning_C4701;
   fn_with_warning_C4701
     << this->GetFilePrefix() << "/"
     << this->GetFilePrefix() << "_" << currentFileIndex

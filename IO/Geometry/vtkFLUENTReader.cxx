@@ -2523,7 +2523,7 @@ void vtkFLUENTReader::GetNodesAscii()
     size_t dend = this->CaseBuffer->value.find(')', dstart+1);
     std::string pdata = this->CaseBuffer->
                            value.substr(dstart+1, dend-start-1);
-    vtksys_ios::stringstream pdatastream(pdata);
+    std::stringstream pdatastream(pdata);
 
     double x, y, z;
     if (this->GridDimension == 3)
@@ -2663,7 +2663,7 @@ void vtkFLUENTReader::GetCellsAscii()
       size_t dend = this->CaseBuffer->value.find(')', dstart+1);
       std::string pdata = this->CaseBuffer->
                                    value.substr(dstart+1, dend-start-1);
-      vtksys_ios::stringstream pdatastream(pdata);
+      std::stringstream pdatastream(pdata);
       for (int i = firstIndex; i <=lastIndex; i++)
         {
         pdatastream >> this->Cells->value[i-1].type;
@@ -2749,7 +2749,7 @@ void vtkFLUENTReader::GetFacesAscii()
     size_t dend = this->CaseBuffer->value.find(')', dstart+1);
     std::string pdata = this->CaseBuffer->
                                  value.substr(dstart+1, dend-start-1);
-    vtksys_ios::stringstream pdatastream(pdata);
+    std::stringstream pdatastream(pdata);
 
     int numberOfNodesInFace = 0;
     for (int i = firstIndex; i <=lastIndex; i++)
@@ -2868,7 +2868,7 @@ void vtkFLUENTReader::GetPeriodicShadowFacesAscii()
   size_t dstart = this->CaseBuffer->value.find('(', 7);
   size_t dend = this->CaseBuffer->value.find(')', dstart+1);
   std::string pdata = this->CaseBuffer->value.substr(dstart+1, dend-start-1);
-  vtksys_ios::stringstream pdatastream(pdata);
+  std::stringstream pdatastream(pdata);
 
   int faceIndex1, faceIndex2;
   for (int i = firstIndex; i <=lastIndex; i++)
@@ -2917,7 +2917,7 @@ void vtkFLUENTReader::GetCellTreeAscii()
   size_t dstart = this->CaseBuffer->value.find('(', 7);
   size_t dend = this->CaseBuffer->value.find(')', dstart+1);
   std::string pdata = this->CaseBuffer->value.substr(dstart+1, dend-start-1);
-  vtksys_ios::stringstream pdatastream(pdata);
+  std::stringstream pdatastream(pdata);
 
   int numberOfKids, kid;
   for (int i = cellId0; i <=cellId1; i++)
@@ -2974,7 +2974,7 @@ void vtkFLUENTReader::GetFaceTreeAscii()
   size_t dstart = this->CaseBuffer->value.find('(', 7);
   size_t dend = this->CaseBuffer->value.find(')', dstart+1);
   std::string pdata = this->CaseBuffer->value.substr(dstart+1, dend-start-1);
-  vtksys_ios::stringstream pdatastream(pdata);
+  std::stringstream pdatastream(pdata);
 
   int numberOfKids, kid;
   for (int i = faceId0; i <=faceId1; i++)
@@ -3029,7 +3029,7 @@ void vtkFLUENTReader::GetInterfaceFaceParentsAscii()
   size_t dstart = this->CaseBuffer->value.find('(', 7);
   size_t dend = this->CaseBuffer->value.find(')', dstart+1);
   std::string pdata = this->CaseBuffer->value.substr(dstart+1, dend-start-1);
-  vtksys_ios::stringstream pdatastream(pdata);
+  std::stringstream pdatastream(pdata);
 
   int parentId0, parentId1;
   for (int i = faceId0; i <=faceId1; i++)
@@ -3082,7 +3082,7 @@ void vtkFLUENTReader::GetNonconformalGridInterfaceFaceInformationAscii()
   size_t dstart = this->CaseBuffer->value.find('(', 7);
   size_t dend = this->CaseBuffer->value.find(')', dstart+1);
   std::string pdata = this->CaseBuffer->value.substr(dstart+1, dend-start-1);
-  vtksys_ios::stringstream pdatastream(pdata);
+  std::stringstream pdatastream(pdata);
 
   int child, parent;
   for (int i = 0; i < numberOfFaces; i++)
@@ -4035,7 +4035,7 @@ void vtkFLUENTReader::GetData(int dataType)
   size_t start = this->DataBuffer->value.find('(', 1);
   size_t end = this->DataBuffer->value.find(')',1);
   std::string info = this->DataBuffer->value.substr(start+1,end-start-1 );
-  vtksys_ios::stringstream infostream(info);
+  std::stringstream infostream(info);
   int subSectionId, zoneId, size, nTimeLevels, nPhases, firstId, lastId;
   infostream >> subSectionId >> zoneId >> size >> nTimeLevels >> nPhases >>
                 firstId >> lastId;
@@ -4058,7 +4058,7 @@ void vtkFLUENTReader::GetData(int dataType)
     size_t dend = this->DataBuffer->value.find(')', dstart+1);
     std::string pdata = this->DataBuffer->
                            value.substr(dstart+1, dend-dstart-2);
-    vtksys_ios::stringstream pdatastream(pdata);
+    std::stringstream pdatastream(pdata);
     size_t ptr = dstart + 1;
 
     // Is this a new variable?
@@ -4253,7 +4253,7 @@ void vtkFLUENTReader::GetSpeciesVariableNames()
     size_t endPos = variables.find(")");
     variables.erase(endPos);
 
-    vtksys_ios::stringstream tokenizer(variables);
+    std::stringstream tokenizer(variables);
 
     int iterator = 0;
 

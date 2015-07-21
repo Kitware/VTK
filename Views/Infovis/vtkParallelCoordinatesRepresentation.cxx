@@ -361,7 +361,7 @@ void vtkParallelCoordinatesRepresentation::UpdateHoverHighlight(vtkView* view,
 
   if (x > 0 && y > 0)
     {
-        vtksys_ios::ostringstream str;
+        std::ostringstream str;
     int* size = win->GetSize();
     int linesFound = 0;
     vtkCellArray* lines = this->PlotData->GetLines();

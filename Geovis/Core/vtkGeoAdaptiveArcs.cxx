@@ -36,8 +36,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTimerLog.h"
 
-#include <vtksys/stl/map>
-using vtksys_stl::map;
+#include <map>
 
 vtkStandardNewMacro(vtkGeoAdaptiveArcs);
 

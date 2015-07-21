@@ -26,9 +26,9 @@
 #include "vtkSmartPointer.h"
 #include "vtkTimerLog.h"
 
-#include <vtksys/stl/vector>
-#include <vtksys/stl/map>
-#include <vtksys/stl/utility>
+#include <vector>
+
+#include <utility>
 
 // In Boost 1.34.1, boost/pending/relaxed_heap.hpp does not include <climits>
 // but uses CHAR_BIT. gcc>=4.3 has stricter and cleaner header files
@@ -49,7 +49,6 @@
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 using namespace boost;
-using namespace vtksys_stl;
 
 template <typename Graph>
 void TestTraversal(Graph g, int repeat, int& vtkNotUsed(errors))
@@ -78,8 +77,8 @@ void TestTraversal(Graph g, int repeat, int& vtkNotUsed(errors))
 
   Edge e = *(edges(g).first);
   Vertex v = *(vertices(g).first);
-  vector<Edge> edge_vec;
-  vector<Vertex> vert_vec;
+  std::vector<Edge> edge_vec;
+  std::vector<Vertex> vert_vec;
 
   timer->StartTimer();
   count = 0;
@@ -177,8 +176,8 @@ void TestGraph(Graph g, vtkIdType numVertices, vtkIdType numEdges, int repeat, i
 
   VTK_CREATE(vtkTimerLog, timer);
 
-  vector<Vertex> graphVerts;
-  vector<Edge> graphEdges;
+  std::vector<Vertex> graphVerts;
+  std::vector<Edge> graphEdges;
   typename graph_traits<Graph>::vertex_iterator vi, viEnd;
 
   // Create a graph

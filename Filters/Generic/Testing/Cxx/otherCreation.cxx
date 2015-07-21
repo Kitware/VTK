@@ -604,7 +604,7 @@ int TestWithPointsAndCells(ostream &strm)
   int i;
   int count;
   std::string s;
-  vtksys_ios::ostringstream ost;
+  std::ostringstream ost;
   vtkGenericAdaptorCell *cab=0;
 
   while(itNum<itCount)
@@ -1126,7 +1126,7 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
   int i;
   int count;
   std::string s;
-  vtksys_ios::ostringstream ost;
+  std::ostringstream ost;
   vtkGenericAdaptorCell *cab;
 
   while(itNum<itCount)
@@ -1680,7 +1680,7 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
 int otherCreation(int vtkNotUsed(argc),
                   char *vtkNotUsed(argv)[])
 {
-  vtksys_ios::ostringstream vtkmsg_with_warning_C4701;
+  std::ostringstream vtkmsg_with_warning_C4701;
 
   if (TestEmpty(cout))
     {

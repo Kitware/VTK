@@ -38,8 +38,8 @@
 #include "vtkVariantArray.h"
 #include "vtkVertexListIterator.h"
 
-#include <vtksys/stl/map>
-#include <vtksys/stl/utility> // for pair
+#include <map>
+#include <utility> // for pair
 
 vtkStandardNewMacro(vtkPBGLCollapseParallelEdges);
 
@@ -115,7 +115,7 @@ int vtkPBGLCollapseParallelEdgesRequestData(
   output_helper->Synchronize();
 
   // Iterate through input edges, adding a new edge for every new (source,target) pair.
-  vtksys_stl::map<vtksys_stl::pair<vtkIdType, vtkIdType>, int> edge_weights;
+  std::map<std::pair<vtkIdType, vtkIdType>, int> edge_weights;
   vtkSmartPointer<vtkOutEdgeIterator> out_edges
     = vtkSmartPointer<vtkOutEdgeIterator>::New();
   input->GetVertices(vertices);
@@ -134,7 +134,7 @@ int vtkPBGLCollapseParallelEdgesRequestData(
         a = e.Target;
         b = u;
         }
-      vtksys_stl::pair<vtkIdType,vtkIdType> p(a, b);
+      std::pair<vtkIdType,vtkIdType> p(a, b);
       if (edge_weights.count(p) > 0)
         {
         edge_weights[p]++;
@@ -146,7 +146,7 @@ int vtkPBGLCollapseParallelEdgesRequestData(
       }
     }
 
-  vtksys_stl::map<vtksys_stl::pair<vtkIdType, vtkIdType>, int>::iterator wi;
+  std::map<std::pair<vtkIdType, vtkIdType>, int>::iterator wi;
   for (wi = edge_weights.begin(); wi != edge_weights.end(); ++wi)
     {
     builder->LazyAddEdge(wi->first.first, wi->first.second);
@@ -159,7 +159,7 @@ int vtkPBGLCollapseParallelEdgesRequestData(
   while (edges->HasNext())
     {
     vtkEdgeType e = edges->Next();
-    vtksys_stl::pair<vtkIdType,vtkIdType> p(e.Source, e.Target);
+    std::pair<vtkIdType,vtkIdType> p(e.Source, e.Target);
     weight_arr->InsertNextValue(edge_weights[p]);
     //put(distrib_weight_arr, e, edge_weights[p]);
     }

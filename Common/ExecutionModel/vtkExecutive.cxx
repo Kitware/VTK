@@ -795,7 +795,7 @@ int vtkExecutive::CheckAlgorithm(const char* method,
     {
     if(request)
       {
-      vtksys_ios::ostringstream rqmsg;
+      std::ostringstream rqmsg;
       request->Print(rqmsg);
       vtkErrorMacro(<< method << " invoked during another request.  "
                     "Returning failure to algorithm "

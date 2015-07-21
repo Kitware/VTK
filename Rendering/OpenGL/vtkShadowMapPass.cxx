@@ -334,9 +334,9 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
       shaders->RemoveAllItems();
       size_t nbLights=
         this->ShadowMapBakerPass->GetShadowMaps()->Vector.size();
-       vtksys_ios::ostringstream ostVS;
+       std::ostringstream ostVS;
 
-       vtksys_ios::ostringstream numLights;
+       std::ostringstream numLights;
        numLights << endl << "#define VTK_LIGHTING_NUMBER_OF_LIGHTS " << nbLights << endl;
 
        vtkStdString vertShader(vtkShadowMapPassShader_vs);
@@ -349,7 +349,7 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
        vtkStdString *vsCode=new vtkStdString;
        (*vsCode)=ostVS.str();
 
-       vtksys_ios::ostringstream ostLightingVS;
+       std::ostringstream ostLightingVS;
 
        vtkStdString lightShader(vtkLighting_s);
        version_loc = lightShader.find("#version 110");
@@ -362,7 +362,7 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
        (*lightingVsCode)=ostLightingVS.str();
 
 
-       vtksys_ios::ostringstream ostFS;
+       std::ostringstream ostFS;
 
        vtkStdString fragShader(vtkShadowMapPassShader_fs);
        version_loc = fragShader.find("#version 110");
@@ -550,7 +550,7 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
         map->SetMinificationFilter(vtkTextureObject::Linear);
         map->Bind();
 
-        vtksys_ios::ostringstream ostShadowMapTextureUnit;
+        std::ostringstream ostShadowMapTextureUnit;
         ostShadowMapTextureUnit << "shadowMaps[" << shadowingLightIndex << "]";
 
        vtkStdString *shadowMapTextureUnitString=new vtkStdString;

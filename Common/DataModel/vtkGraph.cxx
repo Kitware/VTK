@@ -45,9 +45,9 @@
 #include "vtkStringArray.h"
 
 #include <cassert>
-#include <vtksys/stl/algorithm>
-#include <vtksys/stl/set>
-#include <vtksys/stl/vector>
+#include <algorithm>
+#include <set>
+#include <vector>
 
 double vtkGraph::DefaultPoint[3] = {0, 0, 0};
 
@@ -59,7 +59,7 @@ class vtkGraphEdgePoints : public vtkObject
 public:
   static vtkGraphEdgePoints *New();
   vtkTypeMacro(vtkGraphEdgePoints, vtkObject);
-  vtksys_stl::vector< vtksys_stl::vector<double> > Storage;
+  std::vector< std::vector<double> > Storage;
 
 protected:
   vtkGraphEdgePoints() { }
@@ -884,7 +884,7 @@ void vtkGraph::SetEdgePoints(vtkIdType e, vtkIdType npts, double* pts)
     {
     this->EdgePoints = vtkGraphEdgePoints::New();
     }
-  vtksys_stl::vector< vtksys_stl::vector<double> >::size_type numEdges = this->Internals->NumberOfEdges;
+  std::vector< std::vector<double> >::size_type numEdges = this->Internals->NumberOfEdges;
   if (this->EdgePoints->Storage.size() < numEdges)
     {
     this->EdgePoints->Storage.resize(numEdges);
@@ -922,7 +922,7 @@ void vtkGraph::GetEdgePoints(vtkIdType e, vtkIdType& npts, double*& pts)
     pts = 0;
     return;
     }
-  vtksys_stl::vector< vtksys_stl::vector<double> >::size_type numEdges = this->Internals->NumberOfEdges;
+  std::vector< std::vector<double> >::size_type numEdges = this->Internals->NumberOfEdges;
   if (this->EdgePoints->Storage.size() < numEdges)
     {
     this->EdgePoints->Storage.resize(numEdges);
@@ -962,7 +962,7 @@ vtkIdType vtkGraph::GetNumberOfEdgePoints(vtkIdType e)
     {
     return 0;
     }
-  vtksys_stl::vector< vtksys_stl::vector<double> >::size_type numEdges = this->Internals->NumberOfEdges;
+  std::vector< std::vector<double> >::size_type numEdges = this->Internals->NumberOfEdges;
   if (this->EdgePoints->Storage.size() < numEdges)
     {
     this->EdgePoints->Storage.resize(numEdges);
@@ -994,7 +994,7 @@ double* vtkGraph::GetEdgePoint(vtkIdType e, vtkIdType i)
     {
     this->EdgePoints = vtkGraphEdgePoints::New();
     }
-  vtksys_stl::vector< vtksys_stl::vector<double> >::size_type numEdges = this->Internals->NumberOfEdges;
+  std::vector< std::vector<double> >::size_type numEdges = this->Internals->NumberOfEdges;
   if (this->EdgePoints->Storage.size() < numEdges)
     {
     this->EdgePoints->Storage.resize(numEdges);
@@ -1032,7 +1032,7 @@ void vtkGraph::SetEdgePoint(vtkIdType e, vtkIdType i, double x[3])
     {
     this->EdgePoints = vtkGraphEdgePoints::New();
     }
-  vtksys_stl::vector< vtksys_stl::vector<double> >::size_type numEdges = this->Internals->NumberOfEdges;
+  std::vector< std::vector<double> >::size_type numEdges = this->Internals->NumberOfEdges;
   if (this->EdgePoints->Storage.size() < numEdges)
     {
     this->EdgePoints->Storage.resize(numEdges);
@@ -1073,7 +1073,7 @@ void vtkGraph::ClearEdgePoints(vtkIdType e)
     {
     this->EdgePoints = vtkGraphEdgePoints::New();
     }
-  vtksys_stl::vector< vtksys_stl::vector<double> >::size_type numEdges = this->Internals->NumberOfEdges;
+  std::vector< std::vector<double> >::size_type numEdges = this->Internals->NumberOfEdges;
   if (this->EdgePoints->Storage.size() < numEdges)
     {
     this->EdgePoints->Storage.resize(numEdges);
@@ -1104,7 +1104,7 @@ void vtkGraph::AddEdgePoint(vtkIdType e, double x[3])
     {
     this->EdgePoints = vtkGraphEdgePoints::New();
     }
-  vtksys_stl::vector< vtksys_stl::vector<double> >::size_type numEdges = this->Internals->NumberOfEdges;
+  std::vector< std::vector<double> >::size_type numEdges = this->Internals->NumberOfEdges;
   if (this->EdgePoints->Storage.size() < numEdges)
     {
     this->EdgePoints->Storage.resize(numEdges);
@@ -1459,20 +1459,20 @@ void vtkGraph::RemoveVertexInternal(vtkIdType v, bool directed)
     }
 
   // Remove connected edges
-  vtksys_stl::set<vtkIdType> edges;
-  vtksys_stl::vector<vtkOutEdgeType>::iterator oi, oiEnd;
+  std::set<vtkIdType> edges;
+  std::vector<vtkOutEdgeType>::iterator oi, oiEnd;
   oiEnd = this->Internals->Adjacency[v].OutEdges.end();
   for (oi = this->Internals->Adjacency[v].OutEdges.begin(); oi != oiEnd; ++oi)
     {
     edges.insert(oi->Id);
     }
-  vtksys_stl::vector<vtkInEdgeType>::iterator ii, iiEnd;
+  std::vector<vtkInEdgeType>::iterator ii, iiEnd;
   iiEnd = this->Internals->Adjacency[v].InEdges.end();
   for (ii = this->Internals->Adjacency[v].InEdges.begin(); ii != iiEnd; ++ii)
     {
     edges.insert(ii->Id);
     }
-  vtksys_stl::set<vtkIdType>::reverse_iterator ei, eiEnd;
+  std::set<vtkIdType>::reverse_iterator ei, eiEnd;
   eiEnd = edges.rend();
   for (ei = edges.rbegin(); ei != eiEnd; ++ei)
     {
@@ -1505,7 +1505,7 @@ void vtkGraph::RemoveVertexInternal(vtkIdType v, bool directed)
       }
     else
       {
-      vtksys_stl::vector<vtkOutEdgeType>::iterator oi2, oi2End;
+      std::vector<vtkOutEdgeType>::iterator oi2, oi2End;
       oi2End = this->Internals->Adjacency[oi->Target].OutEdges.end();
       for (oi2 = this->Internals->Adjacency[oi->Target].OutEdges.begin(); oi2 != oi2End; ++oi2)
         {
@@ -1643,20 +1643,20 @@ void vtkGraph::RemoveVerticesInternal(vtkIdTypeArray* arr, bool directed)
   // Sort
   vtkIdType* p = arr->GetPointer(0);
   vtkIdType numVert = arr->GetNumberOfTuples();
-  vtksys_stl::sort(p, p + numVert);
+  std::sort(p, p + numVert);
 
   // Collect all edges to be removed
-  vtksys_stl::set<vtkIdType> edges;
+  std::set<vtkIdType> edges;
   for (vtkIdType vind = 0; vind < numVert; ++vind)
     {
     vtkIdType v = p[vind];
-    vtksys_stl::vector<vtkOutEdgeType>::iterator oi, oiEnd;
+    std::vector<vtkOutEdgeType>::iterator oi, oiEnd;
     oiEnd = this->Internals->Adjacency[v].OutEdges.end();
     for (oi = this->Internals->Adjacency[v].OutEdges.begin(); oi != oiEnd; ++oi)
       {
       edges.insert(oi->Id);
       }
-    vtksys_stl::vector<vtkInEdgeType>::iterator ii, iiEnd;
+    std::vector<vtkInEdgeType>::iterator ii, iiEnd;
     iiEnd = this->Internals->Adjacency[v].InEdges.end();
     for (ii = this->Internals->Adjacency[v].InEdges.begin(); ii != iiEnd; ++ii)
       {
@@ -1665,7 +1665,7 @@ void vtkGraph::RemoveVerticesInternal(vtkIdTypeArray* arr, bool directed)
     }
 
   // Remove edges in reverse index order
-  vtksys_stl::set<vtkIdType>::reverse_iterator ei, eiEnd;
+  std::set<vtkIdType>::reverse_iterator ei, eiEnd;
   eiEnd = edges.rend();
   for (ei = edges.rbegin(); ei != eiEnd; ++ei)
     {
@@ -1695,7 +1695,7 @@ void vtkGraph::RemoveEdgesInternal(vtkIdTypeArray* arr, bool directed)
   // Sort
   vtkIdType* p = arr->GetPointer(0);
   vtkIdType numEdges = arr->GetNumberOfTuples();
-  vtksys_stl::sort(p, p + numEdges);
+  std::sort(p, p + numEdges);
 
   // Edges vertices in reverse index order
   for (vtkIdType eind = numEdges - 1; eind >= 0; --eind)
@@ -1721,8 +1721,8 @@ void vtkGraph::ReorderOutVertices(vtkIdType v, vtkIdTypeArray *vertices)
     }
 
   this->ForceOwnership();
-  vtksys_stl::vector<vtkOutEdgeType> outEdges;
-  vtksys_stl::vector<vtkOutEdgeType>::iterator it, itEnd;
+  std::vector<vtkOutEdgeType> outEdges;
+  std::vector<vtkOutEdgeType>::iterator it, itEnd;
   itEnd = this->Internals->Adjacency[index].OutEdges.end();
   for (vtkIdType i = 0; i < vertices->GetNumberOfTuples(); ++i)
     {

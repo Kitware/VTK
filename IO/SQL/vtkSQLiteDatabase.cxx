@@ -90,7 +90,7 @@ vtkStdString vtkSQLiteDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* sc
                                                      int tblHandle,
                                                      int colHandle )
 {
-  vtksys_ios::ostringstream queryStr;
+  std::ostringstream queryStr;
   queryStr << schema->GetColumnNameFromHandle( tblHandle, colHandle );
 
   // Figure out column type
@@ -296,7 +296,7 @@ bool vtkSQLiteDatabase::Open(const char* password, int mode)
     if (mode == CREATE_OR_CLEAR && exists)
       {
       // Here we need to clear the file if it exists by opening it.
-      vtksys_ios::ofstream os;
+      std::ofstream os;
       os.open(this->DatabaseFileName);
       if (!os.is_open())
         {

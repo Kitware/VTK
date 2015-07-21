@@ -585,7 +585,7 @@ vtkDataObject* vtkCompositeDataReader::ReadChild()
 
   unsigned int child_stack_depth = 1;
 
-  vtksys_ios::ostringstream child_data;
+  std::ostringstream child_data;
   char line[512];
   while (child_stack_depth > 0)
     // read until ENDCHILD (passing over any nested CHILD-ENDCHILD correctly).

@@ -36,8 +36,8 @@
 
 #include <cassert>
 
-#include <vtksys/ios/sstream>
-#include <vtksys/stl/vector>
+#include <sstream>
+#include <vector>
 
 /*
  * Bound Parameters and MySQL
@@ -282,7 +282,7 @@ public:
   MYSQL_ROW        CurrentRow;
   unsigned long   *CurrentLengths;
 
-  typedef vtksys_stl::vector<vtkMySQLBoundParameter *> ParameterList;
+  typedef std::vector<vtkMySQLBoundParameter *> ParameterList;
   ParameterList UserParameterList;
 };
 

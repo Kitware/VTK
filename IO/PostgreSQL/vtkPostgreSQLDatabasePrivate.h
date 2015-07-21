@@ -1,4 +1,3 @@
-/* -*- Mode: C++; -*- */
 /*=========================================================================
 
   Program:   Visualization Toolkit
@@ -39,7 +38,7 @@
 #include "vtkTimeStamp.h"
 
 #include <libpq-fe.h>
-#include <vtksys/stl/map>
+#include <map>
 
 class vtkPostgreSQLDatabasePrivate
 {
@@ -62,7 +61,7 @@ class vtkPostgreSQLDatabasePrivate
     // Given a Postgres column type OID, return a VTK array type (see vtkType.h).
     int GetVTKTypeFromOID( Oid pgtype )
     {
-      vtksys_stl::map<Oid,int>::const_iterator it = this->DataTypeMap.find( pgtype );
+      std::map<Oid,int>::const_iterator it = this->DataTypeMap.find( pgtype );
       if ( it == this->DataTypeMap.end() )
         {
         return VTK_STRING;
@@ -78,7 +77,7 @@ class vtkPostgreSQLDatabasePrivate
   PGconn  *Connection;
 
   // Map Postgres column types to VTK types.
-  vtksys_stl::map<Oid,int> DataTypeMap;
+  std::map<Oid,int> DataTypeMap;
 };
 
 #endif // vtkPostgreSQLDatabasePrivate_h

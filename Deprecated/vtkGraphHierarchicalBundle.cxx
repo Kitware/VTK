@@ -35,8 +35,7 @@
 #include "vtkTree.h"
 #include "vtkVariantArray.h"
 
-#include <vtksys/stl/map>
-using vtksys_stl::map;
+#include <map>
 
 //---------------------------------------------------------------------------
 template <typename T>
@@ -110,7 +109,7 @@ int vtkGraphHierarchicalBundle::RequestData(
   // Create a map from graph indices to tree indices
   // If we are using DirectMapping this is trivial
   // we just create an identity map
-  map<vtkIdType, vtkIdType> graphIndexToTreeIndex;
+  std::map<vtkIdType, vtkIdType> graphIndexToTreeIndex;
   if (this->DirectMapping)
     {
     if (graph->GetNumberOfVertices() > tree->GetNumberOfVertices())
@@ -146,7 +145,7 @@ int vtkGraphHierarchicalBundle::RequestData(
       return 0;
       }
 
-    map<vtkVariant,vtkIdType,vtkVariantLessThan> graphIdMap;
+    std::map<vtkVariant,vtkIdType,vtkVariantLessThan> graphIdMap;
 
     // Create a map from graph id to graph index
     for (int i=0; i<graph->GetNumberOfVertices(); ++i)

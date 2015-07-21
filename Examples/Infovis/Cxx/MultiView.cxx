@@ -29,7 +29,7 @@
 #include "vtkTree.h"
 #include "vtkViewTheme.h"
 
-#include <vtksys/stl/vector>
+#include <vector>
 
 class ViewUpdater : public vtkCommand
 {
@@ -53,7 +53,7 @@ public:
 private:
   ViewUpdater() { }
   ~ViewUpdater() { }
-  vtksys_stl::vector<vtkView*> Views;
+  std::vector<vtkView*> Views;
 };
 
 int main(int, char*[])

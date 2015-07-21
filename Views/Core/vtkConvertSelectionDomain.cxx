@@ -39,7 +39,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-#include <vtksys/stl/set>
+#include <set>
 
 vtkStandardNewMacro(vtkConvertSelectionDomain);
 //----------------------------------------------------------------------------
@@ -57,7 +57,7 @@ vtkConvertSelectionDomain::~vtkConvertSelectionDomain()
 //----------------------------------------------------------------------------
 static void vtkConvertSelectionDomainFindDomains(
   vtkDataSetAttributes* dsa,
-  vtksys_stl::set<vtkStdString> & domains)
+  std::set<vtkStdString> & domains)
 {
   if (dsa->GetAbstractArray("domain"))
     {
@@ -86,8 +86,8 @@ static void vtkConvertSelectionDomainFindDomains(
 static void vtkConvertSelectionDomainConvertAnnotationDomain(
   vtkAnnotation* annIn,
   vtkAnnotation* annOut,
-  vtksys_stl::set<vtkStdString>& domains1,
-  vtksys_stl::set<vtkStdString>& domains2,
+  std::set<vtkStdString>& domains1,
+  std::set<vtkStdString>& domains2,
   vtkDataSetAttributes* dsa1,
   vtkDataSetAttributes* dsa2,
   int fieldType1, int fieldType2,
@@ -142,7 +142,7 @@ static void vtkConvertSelectionDomainConvertAnnotationDomain(
       if (table)
         {
         fromArr = table->GetColumnByName(inArr->GetName());
-        vtksys_stl::set<vtkStdString>::iterator it, itEnd;
+        std::set<vtkStdString>::iterator it, itEnd;
         if (dsa1)
           {
           it = domains1.begin();
@@ -289,8 +289,8 @@ int vtkConvertSelectionDomain::RequestData(
     fieldType1 = vtkSelectionNode::ROW;
     }
 
-  vtksys_stl::set<vtkStdString> domains1;
-  vtksys_stl::set<vtkStdString> domains2;
+  std::set<vtkStdString> domains1;
+  std::set<vtkStdString> domains2;
   if (dsa1)
     {
     vtkConvertSelectionDomainFindDomains(dsa1, domains1);

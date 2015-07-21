@@ -21,8 +21,8 @@
 #include "vtkCellType.h"
 #include "vtkXMLDataElement.h"
 #include "vtksys/ios/sstream"
-using vtksys_ios::ostringstream;
-using vtksys_ios::istringstream;
+using std::ostringstream;
+using std::istringstream;
 #include <string>
 using std::string;
 

@@ -304,7 +304,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
 //    rgbaToRgb->SetInputConnection(importer->GetOutputPort());
 //    rgbaToRgb->SetComponents(0,1,2);
 
-    vtksys_ios::ostringstream ostxx;
+    std::ostringstream ostxx;
     ostxx.setf(ios::fixed,ios::floatfield);
     ostxx.precision(5);
     timer->StopTimer();
@@ -506,7 +506,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
 //    rgbaToRgb->SetInputConnection(importer->GetOutputPort());
 //    rgbaToRgb->SetComponents(0,1,2);
 
-    vtksys_ios::ostringstream osty;
+    std::ostringstream osty;
     osty.setf(ios::fixed,ios::floatfield);
     osty.precision(5);
     timer->StopTimer();
@@ -573,7 +573,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
 //    rgbaToRgb->SetInputConnection(importer->GetOutputPort());
 //    rgbaToRgb->SetComponents(0,1,2);
 
-    vtksys_ios::ostringstream ostxx;
+    std::ostringstream ostxx;
     ostxx.setf(ios::fixed,ios::floatfield);
     ostxx.precision(5);
     timer->StopTimer();

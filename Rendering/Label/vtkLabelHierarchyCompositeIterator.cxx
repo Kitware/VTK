@@ -23,15 +23,15 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-#include <vtksys/stl/utility>
-#include <vtksys/stl/vector>
+#include <utility>
+#include <vector>
 
 vtkStandardNewMacro(vtkLabelHierarchyCompositeIterator);
 
 class vtkLabelHierarchyCompositeIterator::Internal
 {
 public:
-  typedef vtksys_stl::vector<vtksys_stl::pair<vtkSmartPointer<vtkLabelHierarchyIterator>, int> > IteratorVector;
+  typedef std::vector<std::pair<vtkSmartPointer<vtkLabelHierarchyIterator>, int> > IteratorVector;
   IteratorVector Iterators;
   IteratorVector::size_type CurrentIterator;
   IteratorVector::size_type InitialTraversal;
@@ -54,7 +54,7 @@ vtkLabelHierarchyCompositeIterator::~vtkLabelHierarchyCompositeIterator()
 void vtkLabelHierarchyCompositeIterator::AddIterator(vtkLabelHierarchyIterator* it, int count)
 {
   this->Implementation->Iterators.push_back(
-    vtksys_stl::make_pair(vtkSmartPointer<vtkLabelHierarchyIterator>(it), count));
+    std::make_pair(vtkSmartPointer<vtkLabelHierarchyIterator>(it), count));
 }
 
 void vtkLabelHierarchyCompositeIterator::ClearIterators()

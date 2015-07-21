@@ -35,7 +35,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-#include <vtksys/stl/set>
+#include <set>
 
 vtkStandardNewMacro(vtkStringToCategory);
 
@@ -121,7 +121,7 @@ int vtkStringToCategory::RequestData(
   fd->AddArray(catArr);
   catArr->Delete();
   vtkIdList* list = vtkIdList::New();
-  vtksys_stl::set<vtkStdString> s;
+  std::set<vtkStdString> s;
   int category = 0;
   for (vtkIdType i = 0; i < numTuples*numComp; i++)
     {

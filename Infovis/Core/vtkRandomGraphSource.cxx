@@ -32,8 +32,8 @@
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 
-#include <vtksys/stl/set>
-#include <vtksys/stl/algorithm>
+#include <set>
+#include <algorithm>
 
 vtkStandardNewMacro(vtkRandomGraphSource);
 
@@ -167,7 +167,7 @@ vtkRandomGraphSource::RequestData(
   else
     {
     // Don't duplicate edges.
-    vtksys_stl::set< vtksys_stl::pair<vtkIdType, vtkIdType> > existingEdges;
+    std::set< std::pair<vtkIdType, vtkIdType> > existingEdges;
 
     vtkIdType MaxEdges;
     if (this->AllowParallelEdges)
@@ -211,7 +211,7 @@ vtkRandomGraphSource::RequestData(
             }
           }
 
-        vtksys_stl::pair<vtkIdType, vtkIdType> newEdge(s, t);
+        std::pair<vtkIdType, vtkIdType> newEdge(s, t);
 
         if (this->AllowParallelEdges
           || existingEdges.find(newEdge) == existingEdges.end())

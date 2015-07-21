@@ -545,7 +545,7 @@ int TestCorrelativeStatistics( int, char *[] )
 
   vtkDoubleArray* datasetNormalZ1 = vtkDoubleArray::New();
   datasetNormalZ1->SetNumberOfComponents( 1 );
-  vtksys_ios::ostringstream z1Name;
+  std::ostringstream z1Name;
   z1Name << rhoXZ1
          << " N(0,1)_1 + "
          << rorXZ1
@@ -554,7 +554,7 @@ int TestCorrelativeStatistics( int, char *[] )
 
   vtkDoubleArray* datasetNormalZ2 = vtkDoubleArray::New();
   datasetNormalZ2->SetNumberOfComponents( 1 );
-  vtksys_ios::ostringstream z2Name;
+  std::ostringstream z2Name;
   z2Name << rhoXZ2
          << " N(0,1)_1 + "
          << rorXZ2

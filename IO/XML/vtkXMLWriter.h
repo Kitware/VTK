@@ -440,7 +440,7 @@ protected:
   float ProgressRange[2];
 
   ofstream* OutFile;
-  vtksys_ios::ostringstream* OutStringStream;
+  std::ostringstream* OutStringStream;
 
   int OpenStream();
   int OpenFile();

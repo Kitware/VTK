@@ -18,8 +18,8 @@
 
 #include <ctype.h>
 #include <vtksys/ios/sstream>
-using vtksys_ios::ostringstream;
-using vtksys_ios::istringstream;
+using std::ostringstream;
+using std::istringstream;
 #include <vtksys/SystemTools.hxx>
 #include <string>
 using std::string;
@@ -754,7 +754,7 @@ template <class T>
 int vtkXMLDataElementVectorAttributeParse(const char* str, int length, T* data)
 {
   if(!str || !length || !data) { return 0; }
-  vtksys_ios::stringstream vstr;
+  std::stringstream vstr;
   vstr.imbue(std::locale::classic());
   vstr << str;
   int i;
@@ -1037,7 +1037,7 @@ void vtkXMLDataElementVectorAttributeSet(vtkXMLDataElement *elem, const char* na
     {
     return;
     }
-  vtksys_ios::stringstream vstr;
+  std::stringstream vstr;
   vstr.imbue(std::locale::classic());
   vstr << data[0];
   for(int i = 1; i < length; ++i)

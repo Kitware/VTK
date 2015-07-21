@@ -400,14 +400,14 @@ int vtkDataReader::OpenVTKFile()
       std::string str(this->InputArray->GetPointer(0),
         static_cast<size_t>( this->InputArray->GetNumberOfTuples()  *
                              this->InputArray->GetNumberOfComponents()) );
-      this->IS = new vtksys_ios::istringstream(str);
+      this->IS = new std::istringstream(str);
       return 1;
       }
     else if (this->InputString)
       {
       vtkDebugMacro(<< "Reading from InputString");
       std::string str(this->InputString, this->InputStringLength);
-      this->IS = new vtksys_ios::istringstream(str);
+      this->IS = new std::istringstream(str);
       return 1;
       }
     }
@@ -3289,7 +3289,7 @@ int vtkDataReader::DecodeString(char *resname, const char* name)
     {
     return 0;
     }
-  vtksys_ios::ostringstream str;
+  std::ostringstream str;
   size_t cc = 0;
   unsigned int ch;
   size_t len = strlen(name);

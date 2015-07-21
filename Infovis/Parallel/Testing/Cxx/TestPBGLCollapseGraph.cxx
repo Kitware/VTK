@@ -56,7 +56,7 @@ namespace
 
 void TestPSQLGraphReader()
 {
-  vtksys_ios::ostringstream oss;
+  std::ostringstream oss;
   // Make a database containing a cycle.
   int vertices = 11;
   vtkSmartPointer<vtkSQLiteDatabase> db =

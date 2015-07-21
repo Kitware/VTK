@@ -33,7 +33,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkStdString.h"
 
-#include <vtksys/stl/set> // used to iterate over internal organs
+#include <set> // used to iterate over internal organs
 
 class vtkStatisticsAlgorithmPrivate
 {
@@ -90,7 +90,7 @@ public:
     {
     if ( col && strlen( col ) )
       {
-      vtksys_stl::set<vtkStdString> tmp;
+      std::set<vtkStdString> tmp;
       tmp.insert( col );
       if ( this->Requests.insert( tmp ).second )
         {
@@ -106,7 +106,7 @@ public:
     {
     if ( cola && colb && strlen( cola ) && strlen( colb ) )
       {
-      vtksys_stl::set<vtkStdString> tmp;
+      std::set<vtkStdString> tmp;
       tmp.insert( cola );
       tmp.insert( colb );
       if ( this->Requests.insert( tmp ).second )
@@ -132,7 +132,7 @@ public:
       {
       return 0;
       }
-    vtksys_stl::set<vtksys_stl::set<vtkStdString> >::iterator it = this->Requests.begin();
+    std::set<std::set<vtkStdString> >::iterator it = this->Requests.begin();
     for ( vtkIdType i = 0; i < r; ++ i )
       {
       ++ it;
@@ -149,7 +149,7 @@ public:
       {
       return false;
       }
-    vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator it = this->Requests.begin();
+    std::set<std::set<vtkStdString> >::const_iterator it = this->Requests.begin();
     for ( vtkIdType i = 0; i < r; ++ i )
       {
       ++ it;
@@ -158,7 +158,7 @@ public:
       {
       return false;
       }
-    vtksys_stl::set<vtkStdString>::const_iterator cit = it->begin();
+    std::set<vtkStdString>::const_iterator cit = it->begin();
     for ( vtkIdType j = 0; j < c; ++ j )
       {
       ++ cit;
@@ -167,8 +167,8 @@ public:
     return true;
     }
 
-  vtksys_stl::set<vtksys_stl::set<vtkStdString> > Requests;
-  vtksys_stl::set<vtkStdString> Buffer;
+  std::set<std::set<vtkStdString> > Requests;
+  std::set<vtkStdString> Buffer;
 };
 
 #endif // vtkStatisticsAlgorithmPrivate_h

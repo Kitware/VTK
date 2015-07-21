@@ -393,7 +393,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
     for ( int c = 0; c < nNormal; ++ c )
       {
       // Use assessed values (relative deviations) to check distribution
-      vtksys_ios::ostringstream relDevName;
+      std::ostringstream relDevName;
       relDevName << "d(Standard Normal "
                  << c
                  << ")";

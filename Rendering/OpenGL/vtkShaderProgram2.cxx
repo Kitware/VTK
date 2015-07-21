@@ -318,7 +318,7 @@ bool vtkShaderProgram2::DisplayListUnderCreationInCompileMode()
       {
       if (value != GL_COMPILE_AND_EXECUTE)
         {
-        vtksys_ios::ostringstream ost;
+        std::ostringstream ost;
         ost << "Unexpected display list creation mode:" << hex << value << dec;
         vtkErrorMacro(<< ost.str().c_str());
         }
@@ -896,7 +896,7 @@ void vtkShaderProgram2::PrintActiveUniformVariables(
     int element = 0;
     while (element<size)
       {
-      vtksys_ios::ostringstream ost2;
+      std::ostringstream ost2;
       ost2 << name;
       if (size > 1)
         {

@@ -64,8 +64,8 @@ void vtkKMeansDistanceFunctorCalculator::operator() (
     this->FunctionParser->RemoveScalarVariables();
     for ( vtkIdType i = 0; i < nv; ++ i )
       {
-      vtksys_ios::ostringstream xos;
-      vtksys_ios::ostringstream yos;
+      std::ostringstream xos;
+      std::ostringstream yos;
       xos << "x" << i;
       yos << "y" << i;
       this->FunctionParser->SetScalarVariableValue( xos.str().c_str(), clusterCoord->GetValue( i ).ToDouble() );

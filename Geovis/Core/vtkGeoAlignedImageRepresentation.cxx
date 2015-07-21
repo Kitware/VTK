@@ -33,16 +33,16 @@
 #include "vtkXMLImageDataReader.h"
 #include "vtkXMLImageDataWriter.h"
 
-#include <vtksys/ios/sstream>
-#include <vtksys/stl/stack>
-#include <vtksys/stl/utility>
+#include <sstream>
+#include <stack>
+#include <utility>
 
-static vtksys_stl::pair<vtkGeoImageNode*, double>
+static std::pair<vtkGeoImageNode*, double>
 vtkGeoAlignedImageRepresentationFind(vtkGeoSource* source, vtkGeoImageNode* p, double* bounds, vtkGeoTreeNodeCache* nodeList)
 {
   if (!p->HasData())
     {
-    return vtksys_stl::make_pair(static_cast<vtkGeoImageNode*>(0), 0.0);
+    return std::make_pair(static_cast<vtkGeoImageNode*>(0), 0.0);
     }
   double lb[3];
   double ub[3];
@@ -58,7 +58,7 @@ vtkGeoAlignedImageRepresentationFind(vtkGeoSource* source, vtkGeoImageNode* p, d
       ub[1] >= bounds[3])
     {
     nodeList->SendToFront(p);
-    vtksys_stl::pair<vtkGeoImageNode*, double> minDist(static_cast<vtkGeoImageNode *>(NULL), VTK_DOUBLE_MAX);
+    std::pair<vtkGeoImageNode*, double> minDist(static_cast<vtkGeoImageNode *>(NULL), VTK_DOUBLE_MAX);
 
     vtkGeoImageNode* child = p->GetChild(0);
     vtkCollection* coll = NULL;
@@ -109,7 +109,7 @@ vtkGeoAlignedImageRepresentationFind(vtkGeoSource* source, vtkGeoImageNode* p, d
       {
       for (int i = 0; i < 4; ++i)
         {
-        vtksys_stl::pair<vtkGeoImageNode*, double> subsearch =
+        std::pair<vtkGeoImageNode*, double> subsearch =
           vtkGeoAlignedImageRepresentationFind(source, p->GetChild(i), bounds, nodeList);
         if (subsearch.first && subsearch.second < minDist.second)
           {
@@ -121,11 +121,11 @@ vtkGeoAlignedImageRepresentationFind(vtkGeoSource* source, vtkGeoImageNode* p, d
       {
       return minDist;
       }
-    return vtksys_stl::make_pair(p, dist2);
+    return std::make_pair(p, dist2);
     }
   else
     {
-    return vtksys_stl::make_pair(static_cast<vtkGeoImageNode*>(0), 0.0);
+    return std::make_pair(static_cast<vtkGeoImageNode*>(0), 0.0);
     }
 }
 
@@ -185,7 +185,7 @@ void vtkGeoAlignedImageRepresentation::SaveDatabase(const char* path)
     {
     this->Initialize();
     }
-  vtksys_stl::stack< vtkSmartPointer<vtkGeoImageNode> > s;
+  std::stack< vtkSmartPointer<vtkGeoImageNode> > s;
   s.push(this->Root);
   while (!s.empty())
     {
@@ -222,7 +222,7 @@ void vtkGeoAlignedImageRepresentation::SaveDatabase(const char* path)
 //----------------------------------------------------------------------------
 vtkGeoImageNode* vtkGeoAlignedImageRepresentation::GetBestImageForBounds(double bounds[4])
 {
-  vtksys_stl::pair<vtkGeoImageNode*, double> res =
+  std::pair<vtkGeoImageNode*, double> res =
     vtkGeoAlignedImageRepresentationFind(this->GeoSource, this->Root, bounds, this->Cache);
   return res.first;
 }
