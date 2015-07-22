@@ -231,6 +231,13 @@ void PyVTKObject_Delete(PyObject *op)
 //--------------------------------------------------------------------
 // This defines any special attributes of wrapped VTK objects.
 
+static PyObject *PyVTKObject_GetDict(PyObject *op, void *)
+{
+  PyVTKObject *self = (PyVTKObject *)op;
+  Py_INCREF(self->vtk_dict);
+  return self->vtk_dict;
+}
+
 static PyObject *PyVTKObject_GetThis(PyObject *op, void *)
 {
   PyVTKObject *self = (PyVTKObject *)op;
@@ -253,6 +260,8 @@ static PyObject *PyVTKObject_GetThis(PyObject *op, void *)
 }
 
 PyGetSetDef PyVTKObject_GetSet[] = {
+  { (char *)"__dict__", PyVTKObject_GetDict, 0,
+    (char *)"Dictionary of attributes set by user.", 0 },
   { (char *)"__this__", PyVTKObject_GetThis, 0,
     (char *)"Pointer to the C++ object.", 0 },
   { 0, 0, 0, 0, 0 }
