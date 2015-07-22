@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkStripper.h"
 
+#include "vtkSmartPointer.h"
 #include "vtkCellArray.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
@@ -33,6 +34,7 @@ vtkStripper::vtkStripper()
   this->PassCellDataAsFieldData = 0;
   this->PassThroughCellIds = 0;
   this->PassThroughPointIds = 0;
+  this->JoinContiguousSegments = 0;
 }
 
 int vtkStripper::RequestData(
@@ -498,11 +500,143 @@ int vtkStripper::RequestData(
     }
 
   // output poly-lines
-  if ( newLines )
+  if (newLines)
     {
-    newLines->Squeeze();
-    output->SetLines(newLines);
+    if (this->JoinContiguousSegments)
+      {
+      // In some cases it may be possible to optimize the output
+      // polylines a bit.  The algorithm thus-far sometimes outputs
+      // polylines that could be joined together but are not.  We now
+      // go through joining any lines that we can.
+
+      // compressedLines will be our output line set, possibly
+      // with some lines joined together.
+      vtkSmartPointer<vtkCellArray> compressedLines = vtkSmartPointer<
+          vtkCellArray>::New();
+
+      bool* used = new bool[newLines->GetNumberOfCells()];
+      for (i = 0; i < newLines->GetNumberOfCells(); i++)
+        {
+        used[i] = 0;
+        }
+
+      bool done = false;
+      while (!done)
+        {
+        int out_n = 0;
+        vtkIdType* out_p =
+            new vtkIdType[newLines->GetNumberOfConnectivityEntries()];
+
+        newLines->InitTraversal();
+        int id = -1;
+        vtkIdType n;
+        vtkIdType* p;
+
+        // Find a line from the original set that has not yet been used
+        do
+          {
+          if (newLines->GetNextCell(n, p) == 0)
+            {
+            done = true;
+            }
+          id++;
+          }
+        while (!done && (used[id] == 1));
+
+        if (done == false)
+          {
+          // Write it into our output line
+          memcpy(out_p + out_n, p, n * sizeof(vtkIdType));
+          out_n += n;
+          used[id] = 1;
+
+          // Now add any unused lines that adjoin this current line
+          bool finished_new_line = false;
+          while (!finished_new_line)
+            {
+            // Here's the start and end of our current line
+            vtkIdType ca = out_p[0];
+            vtkIdType cb = out_p[out_n - 1];
+
+            vtkIdType ta;
+            vtkIdType tb;
+            bool found = false;
+
+            // Look for any lines which adjoin this one
+            while (!finished_new_line && !found)
+              {
+              if (newLines->GetNextCell(n, p) == 0)
+                {
+                finished_new_line = true;
+                }
+              id++;
+
+              if (!finished_new_line && (used[id] == 0))
+                {
+                ta = p[0];
+                tb = p[n - 1];
+                if ((ca == ta) || (ca == tb) || (cb == ta) || (cb == tb))
+                  {
+                  found = true;
+                  // Here's a line which adjoins this one somehow; add it in
+                  vtkIdType* add_to;
+
+                  if (ca == ta || ca == tb)
+                    {
+                    // This line will go in before our current one; move
+                    // the current one forwards to make room
+                    memmove(out_p + n, out_p, out_n * sizeof(vtkIdType));
+                    add_to = out_p;
+                    }
+                  else
+                    {
+                    // This line will go in after our current one
+                    add_to = out_p + out_n;
+                    }
+
+                  // Add the new line to our current one, either forwards
+                  // or backwards as appropriate
+                  if (ca == ta || cb == tb)
+                    {
+                    for (vtkIdType x = 0; x < n; x++)
+                      {
+                      add_to[x] = p[n - x - 1];
+                      }
+                    }
+                  else
+                    {
+                    memcpy(add_to, p, n * sizeof(vtkIdType));
+                    }
+                  out_n += n;
+                  used[id] = 1;
+                  }
+                else
+                  {
+                  finished_new_line = true;
+                  }
+                }
+              }
+            }
+
+          // We've finished this new line, so add it to the list
+          compressedLines->InsertNextCell(out_n, out_p);
+          }
+
+        delete [] out_p;
+        }
+
+      compressedLines->Squeeze();
+      output->SetLines(compressedLines);
+      delete [] used;
+      }
+    else
+      {
+      newLines->Squeeze();
+      output->SetLines(newLines);
+      }
+
     newLines->Delete();
+
     vtkDebugMacro (<<"Reduced " << numCells << " cells to " << numLines
                    << " poly-lines \n\t(Average " << (float)numCells/numLines
                    << " lines per poly-line, longest poly-line = "
@@ -606,4 +740,5 @@ void vtkStripper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PassCellDataAsFieldData: " << this->PassCellDataAsFieldData << endl;
   os << indent << "PassThroughCellIds: " << this->PassThroughCellIds << endl;
   os << indent << "PassThroughPointIds: " << this->PassThroughPointIds << endl;
+  os << indent << "JoinContiguousSegments: " << this->JoinContiguousSegments << endl;
 }

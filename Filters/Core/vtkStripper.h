@@ -98,6 +98,14 @@ public:
   vtkGetMacro(PassThroughPointIds,int);
   vtkBooleanMacro(PassThroughPointIds,int);
 
+  // Description:
+  // If on, the output polygonal segments will be joined if they are
+  // contiguous. This is useful after slicing a surface. The default
+  // is off.
+  vtkSetMacro(JoinContiguousSegments,int);
+  vtkGetMacro(JoinContiguousSegments,int);
+  vtkBooleanMacro(JoinContiguousSegments,int);
+
 protected:
   vtkStripper();
   ~vtkStripper() {}
@@ -109,6 +117,7 @@ protected:
   int PassCellDataAsFieldData;
   int PassThroughCellIds;
   int PassThroughPointIds;
+  int JoinContiguousSegments;
 
 private:
   vtkStripper(const vtkStripper&);  // Not implemented.
