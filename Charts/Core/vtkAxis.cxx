@@ -29,7 +29,7 @@
 #include "vtkStdString.h"
 #include "vtkAxisExtended.h"
 
-#include "vtksys/ios/sstream"
+#include "sstream"
 #include "vtkObjectFactory.h"
 
 #include <algorithm>
@@ -1133,7 +1133,7 @@ void vtkAxis::GenerateTickLabels(double min, double max)
       // Now create a label for the tick position
       if (this->TickLabelAlgorithm == vtkAxis::TICK_SIMPLE)
         {
-        vtksys_ios::ostringstream ostr;
+        std::ostringstream ostr;
         ostr.imbue(std::locale::classic());
         if (this->Notation > 0)
           {
@@ -1142,7 +1142,7 @@ void vtkAxis::GenerateTickLabels(double min, double max)
         if (this->Notation == 1)
           {
           // Scientific notation
-          ostr.setf(vtksys_ios::ios::scientific, vtksys_ios::ios::floatfield);
+          ostr.setf(std::ios::scientific, std::ios::floatfield);
           }
         else if (this->Notation == 2)
           {
@@ -1174,7 +1174,7 @@ void vtkAxis::GenerateTickLabels()
       value = pow(double(10.0), double(value));
       }
     // Now create a label for the tick position
-    vtksys_ios::ostringstream ostr;
+    std::ostringstream ostr;
     ostr.imbue(std::locale::classic());
     if (this->Notation > 0)
       {
@@ -1182,7 +1182,7 @@ void vtkAxis::GenerateTickLabels()
       }
     if (this->Notation == SCIENTIFIC_NOTATION)
       {
-      ostr.setf(vtksys_ios::ios::scientific, vtksys_ios::ios::floatfield);
+      ostr.setf(std::ios::scientific, std::ios::floatfield);
       }
     else if (this->Notation == FIXED_NOTATION)
       {
@@ -1206,7 +1206,7 @@ void vtkAxis::GenerateTickLabels()
 //   8 - Factored Scientific 5 (10^6)
 void vtkAxis::GenerateLabelFormat(int notation, double n)
 {
-  vtksys_ios::ostringstream ostr;
+  std::ostringstream ostr;
   ostr.imbue(std::locale::classic());
 
   switch(notation)
@@ -1214,7 +1214,7 @@ void vtkAxis::GenerateLabelFormat(int notation, double n)
     case 1:
       ostr << n;
       ostr.precision(this->Precision);
-      ostr.setf(vtksys_ios::ios::scientific, vtksys_ios::ios::floatfield);
+      ostr.setf(std::ios::scientific, std::ios::floatfield);
       this->TickLabels->InsertNextValue(ostr.str());
       break;
     case 2:
@@ -1289,7 +1289,7 @@ void vtkAxis::GenerateLabelFormat(int notation, double n)
       break;
     case 8:
       ostr.precision(this->Precision);
-      ostr.setf(vtksys_ios::ios::scientific, vtksys_ios::ios::floatfield);
+      ostr.setf(std::ios::scientific, std::ios::floatfield);
       ostr << n/1000.0 ;
       if(!TitleAppended)
         {
@@ -1516,7 +1516,7 @@ void vtkAxis::GenerateLogSpacedLinearTicks(int order, double min, double max)
     this->TickPositions->InsertNextValue(log10(value));
 
     // Now create a label for the tick position
-    vtksys_ios::ostringstream ostr;
+    std::ostringstream ostr;
     ostr.imbue(std::locale::classic());
     if (this->Notation > 0)
       {
@@ -1524,7 +1524,7 @@ void vtkAxis::GenerateLogSpacedLinearTicks(int order, double min, double max)
       }
     if (this->Notation == SCIENTIFIC_NOTATION)
       {
-      ostr.setf(vtksys_ios::ios::scientific, vtksys_ios::ios::floatfield);
+      ostr.setf(std::ios::scientific, std::ios::floatfield);
       }
     else if (this->Notation == FIXED_NOTATION)
       {
@@ -1590,7 +1590,7 @@ void vtkAxis::GenerateLogScaleTickMarks(int order,
     if (niceTickMark)
       {
       // Now create a label for the tick position
-      vtksys_ios::ostringstream ostr;
+      std::ostringstream ostr;
       ostr.imbue(std::locale::classic());
       if (this->Notation > 0)
         {
@@ -1598,7 +1598,7 @@ void vtkAxis::GenerateLogScaleTickMarks(int order,
         }
       if (this->Notation == SCIENTIFIC_NOTATION)
         {
-        ostr.setf(vtksys_ios::ios::scientific, vtksys_ios::ios::floatfield);
+        ostr.setf(std::ios::scientific, std::ios::floatfield);
         }
       else if (this->Notation == FIXED_NOTATION)
         {

@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLError.h"
 
-#include <vtksys/stl/map>
+#include <map>
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkUniformVariables);
@@ -666,8 +666,8 @@ protected:
   int Columns;
 };
 
-typedef vtksys_stl::map<const char *, vtkUniform *, ltstr> UniformMap;
-typedef vtksys_stl::map<const char *, vtkUniform *, ltstr>::iterator UniformMapIt;
+typedef std::map<const char *, vtkUniform *, ltstr> UniformMap;
+typedef std::map<const char *, vtkUniform *, ltstr>::iterator UniformMapIt;
 
 class vtkUniformVariablesMap
 {
@@ -752,7 +752,7 @@ void vtkUniformVariables::SetUniformi(const char *name,
     u=new vtkUniformVectorInt(numberOfComponents,value);
     u->SetName(name);
 
-    vtksys_stl::pair<const char *, vtkUniform *> p;
+    std::pair<const char *, vtkUniform *> p;
     p.first=u->GetName(); // cannot be `name' because
     // we don't manage this pointer.
     p.second=u;
@@ -814,7 +814,7 @@ void vtkUniformVariables::SetUniformf(const char *name,
     u=new vtkUniformVectorFloat(numberOfComponents,value);
     u->SetName(name);
 
-    vtksys_stl::pair<const char *, vtkUniform *> p;
+    std::pair<const char *, vtkUniform *> p;
     p.first=u->GetName(); // cannot be `name' because
     // we don't manage this pointer.
     p.second=u;
@@ -882,7 +882,7 @@ void vtkUniformVariables::SetUniformiv(const char *name,
     u=new vtkUniformArrayInt(numberOfComponents,numberOfElements,value);
     u->SetName(name);
 
-    vtksys_stl::pair<const char *, vtkUniform *> p;
+    std::pair<const char *, vtkUniform *> p;
     p.first=u->GetName(); // cannot be `name' because
     // we don't manage this pointer.
     p.second=u;
@@ -950,7 +950,7 @@ void vtkUniformVariables::SetUniformfv(const char *name,
     u=new vtkUniformArrayFloat(numberOfComponents,numberOfElements,value);
     u->SetName(name);
 
-    vtksys_stl::pair<const char *, vtkUniform *> p;
+    std::pair<const char *, vtkUniform *> p;
     p.first=u->GetName(); // cannot be `name' because
     // we don't manage this pointer.
     p.second=u;
@@ -1012,7 +1012,7 @@ void vtkUniformVariables::SetUniformMatrix(const char *name,
     {
     vtkUniform *u=new vtkUniformMatrix(rows,columns,value);
     u->SetName(name);
-    vtksys_stl::pair<const char *, vtkUniform *> p;
+    std::pair<const char *, vtkUniform *> p;
     p.first=u->GetName(); // cannot be `name' because
     // we don't manage this pointer.
     p.second=u;

@@ -80,7 +80,7 @@ void vtkGenericVertexAttributeMapping::AddMapping(
   int unit, const char* arrayName, int fieldAssociation,
   int component)
 {
-  vtksys_ios::ostringstream attributeName;
+  std::ostringstream attributeName;
   attributeName << unit;
 
   if (this->RemoveMapping(attributeName.str().c_str()))

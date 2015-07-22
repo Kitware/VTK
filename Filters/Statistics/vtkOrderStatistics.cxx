@@ -34,9 +34,9 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkVariantArray.h"
 
 #include <cstdlib>
-#include <vtksys/stl/vector>
-#include <vtksys/stl/map>
-#include <vtksys/stl/set>
+#include <vector>
+#include <map>
+#include <set>
 
 vtkStandardNewMacro(vtkOrderStatistics);
 
@@ -130,11 +130,11 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
 
   // Loop over requests
   vtkIdType nRow = inData->GetNumberOfRows();
-  for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::iterator rit = this->Internals->Requests.begin();
+  for ( std::set<std::set<vtkStdString> >::iterator rit = this->Internals->Requests.begin();
         rit != this->Internals->Requests.end(); ++ rit )
     {
     // Each request contains only one column of interest (if there are others, they are ignored)
-    vtksys_stl::set<vtkStdString>::const_iterator it = rit->begin();
+    std::set<vtkStdString>::const_iterator it = rit->begin();
     vtkStdString col = *it;
     if ( ! inData->GetColumnByName( col ) )
       {
@@ -197,7 +197,7 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
       vtkDataArray* dvals = vtkDataArray::SafeDownCast( vals );
 
       // Calculate histogram
-      vtksys_stl::map<double,vtkIdType> histogram;
+      std::map<double,vtkIdType> histogram;
       for ( vtkIdType r = 0; r < nRow; ++ r )
         {
         ++ histogram[dvals->GetTuple1( r )];
@@ -237,7 +237,7 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
         }
 
       // Store histogram
-      for ( vtksys_stl::map<double,vtkIdType>::iterator mit = histogram.begin();
+      for ( std::map<double,vtkIdType>::iterator mit = histogram.begin();
             mit != histogram.end(); ++ mit  )
         {
         row->SetValue( 0, mit->first );
@@ -251,14 +251,14 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
       vtkStringArray* svals = vtkStringArray::SafeDownCast( vals );
 
       // Calculate histogram
-      vtksys_stl::map<vtkStdString,vtkIdType> histogram;
+      std::map<vtkStdString,vtkIdType> histogram;
       for ( vtkIdType r = 0; r < nRow; ++ r )
         {
         ++ histogram[svals->GetValue( r )];
         }
 
       // Store histogram
-      for ( vtksys_stl::map<vtkStdString,vtkIdType>::iterator mit = histogram.begin();
+      for ( std::map<vtkStdString,vtkIdType>::iterator mit = histogram.begin();
             mit != histogram.end(); ++ mit  )
         {
         row->SetValue( 0, mit->first );
@@ -272,14 +272,14 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
       vtkVariantArray* vvals = vtkVariantArray::SafeDownCast( vals );
 
       // Calculate histogram
-      vtksys_stl::map<vtkVariant,vtkIdType> histogram;
+      std::map<vtkVariant,vtkIdType> histogram;
       for ( vtkIdType r = 0; r < nRow; ++ r )
         {
         ++ histogram[vvals->GetVariantValue( r )];
         }
 
       // Store histogram
-      for ( vtksys_stl::map<vtkVariant,vtkIdType>::iterator mit = histogram.begin();
+      for ( std::map<vtkVariant,vtkIdType>::iterator mit = histogram.begin();
             mit != histogram.end(); ++ mit  )
         {
         row->SetValue( 0, mit->first );
@@ -447,8 +447,8 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       }
 
     // Storage for quantile indices
-    vtksys_stl::vector<vtksys_stl::pair<vtkIdType,vtkIdType> > quantileIndices;
-    vtksys_stl::pair<vtkIdType,vtkIdType> qIdxPair;
+    std::vector<std::pair<vtkIdType,vtkIdType> > quantileIndices;
+    std::pair<vtkIdType,vtkIdType> qIdxPair;
 
     // First quantile index is always 0 with no jump (corresponding to the first and the smallest value)
     qIdxPair.first = 0;
@@ -553,7 +553,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
         {
         // Compute and store quantile values
         vtkIdType k = 0;
-        for ( vtksys_stl::vector<vtksys_stl::pair<vtkIdType,vtkIdType> >::iterator qit = quantileIndices.begin();
+        for ( std::vector<std::pair<vtkIdType,vtkIdType> >::iterator qit = quantileIndices.begin();
               qit != quantileIndices.end(); ++ qit, ++ k )
           {
           // Retrieve data values from rank into histogram and interpolate
@@ -568,7 +568,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
         {
         // Compute and store quantile values
         vtkIdType k = 0;
-        for ( vtksys_stl::vector<vtksys_stl::pair<vtkIdType,vtkIdType> >::iterator qit = quantileIndices.begin();
+        for ( std::vector<std::pair<vtkIdType,vtkIdType> >::iterator qit = quantileIndices.begin();
               qit != quantileIndices.end(); ++ qit, ++ k )
           {
           // Retrieve data value from rank into histogram
@@ -593,7 +593,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 
       // Compute and store quantile values
       vtkIdType k = 0;
-      for ( vtksys_stl::vector<vtksys_stl::pair<vtkIdType,vtkIdType> >::iterator qit = quantileIndices.begin();
+      for ( std::vector<std::pair<vtkIdType,vtkIdType> >::iterator qit = quantileIndices.begin();
             qit != quantileIndices.end(); ++ qit, ++ k )
         {
         // Retrieve data value from rank into histogram
@@ -617,7 +617,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 
       // Compute and store quantile values
       vtkIdType k = 0;
-      for ( vtksys_stl::vector<vtksys_stl::pair<vtkIdType,vtkIdType> >::iterator qit = quantileIndices.begin();
+      for ( std::vector<std::pair<vtkIdType,vtkIdType> >::iterator qit = quantileIndices.begin();
             qit != quantileIndices.end(); ++ qit, ++ k )
         {
         // Retrieve data value from rank into histogram
@@ -711,11 +711,11 @@ void vtkOrderStatistics::Test( vtkTable* inData,
   double inv_nq =  1. / nQuant;
   double inv_card = 1. / nRowData;
   double sqrt_card = sqrt( static_cast<double>( nRowData ) );
-  for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
+  for ( std::set<std::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
         rit != this->Internals->Requests.end(); ++ rit )
     {
     // Each request contains only one column of interest (if there are others, they are ignored)
-    vtksys_stl::set<vtkStdString>::const_iterator it = rit->begin();
+    std::set<vtkStdString>::const_iterator it = rit->begin();
     vtkStdString varName = *it;
     if ( ! inData->GetColumnByName( varName ) )
       {
@@ -736,7 +736,7 @@ void vtkOrderStatistics::Test( vtkTable* inData,
       }
 
     // First iterate over all observations to calculate empirical PDF
-    typedef vtksys_stl::map<vtkStdString,double> CDF;
+    typedef std::map<vtkStdString,double> CDF;
     CDF cdfEmpirical;
     for ( vtkIdType j = 0; j < nRowData; ++ j )
       {
@@ -770,8 +770,8 @@ void vtkOrderStatistics::Test( vtkTable* inData,
       quantiles[i] = quantileTab->GetValueByName( i, varName ).ToString();
 
       // Update empirical CDF if new value found (with unknown ECDF)
-      vtksys_stl::pair<CDF::iterator,bool> result
-        = cdfEmpirical.insert( vtksys_stl::pair<vtkStdString,double>( quantiles[i], -1 ) );
+      std::pair<CDF::iterator,bool> result
+        = cdfEmpirical.insert( std::pair<vtkStdString,double>( quantiles[i], -1 ) );
       if ( result.second == true )
         {
         CDF::iterator eit = result.first;

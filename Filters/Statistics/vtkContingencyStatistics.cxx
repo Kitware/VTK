@@ -34,13 +34,13 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
-#include <vtksys/stl/map>
-#include <vtksys/stl/vector>
+#include <map>
+#include <vector>
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
-typedef vtksys_stl::map<vtkStdString,vtkIdType> Counts;
-typedef vtksys_stl::map<vtkStdString,double> PDF;
+typedef std::map<vtkStdString,vtkIdType> Counts;
+typedef std::map<vtkStdString,double> PDF;
 
 vtkObjectFactoryNewMacro(vtkContingencyStatistics)
 
@@ -142,11 +142,11 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
 
   // Loop over requests
   vtkIdType nRow = inData->GetNumberOfRows();
-  for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
+  for ( std::set<std::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
         rit != this->Internals->Requests.end(); ++ rit )
     {
     // Each request contains only one pair of column of interest (if there are others, they are ignored)
-    vtksys_stl::set<vtkStdString>::const_iterator it = rit->begin();
+    std::set<vtkStdString>::const_iterator it = rit->begin();
     vtkStdString colX = *it;
     if ( ! inData->GetColumnByName( colX ) )
       {
@@ -177,7 +177,7 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
     vtkAbstractArray* valsY = inData->GetColumnByName( colY );
 
     // Calculate contingency table
-    vtksys_stl::map<vtkStdString,Counts> contingencyTable;
+    std::map<vtkStdString,Counts> contingencyTable;
     for ( vtkIdType r = 0; r < nRow; ++ r )
       {
       ++ contingencyTable
@@ -186,7 +186,7 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
       }
 
     // Store contingency table
-    for ( vtksys_stl::map<vtkStdString,Counts>::iterator mit = contingencyTable.begin();
+    for ( std::map<vtkStdString,Counts>::iterator mit = contingencyTable.begin();
           mit != contingencyTable.end(); ++ mit )
       {
       row4->SetValue( 1, mit->first );
@@ -294,11 +294,11 @@ void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     }
 
   // Temporary counters, used to check that all pairs of variables have indeed the same number of observations
-  vtksys_stl::map<vtkIdType,vtkIdType> cardinalities;
+  std::map<vtkIdType,vtkIdType> cardinalities;
 
   // Calculate marginal counts (marginal PDFs are calculated at storage time to avoid redundant summations)
-  vtksys_stl::map<vtkStdString,vtksys_stl::pair<vtkStdString,vtkStdString> > marginalToPair;
-  vtksys_stl::map<vtkStdString,Counts> marginalCounts;
+  std::map<vtkStdString,std::pair<vtkStdString,vtkStdString> > marginalToPair;
+  std::map<vtkStdString,Counts> marginalCounts;
   vtkStdString x, y, c1, c2;
   vtkIdType key, c;
   for ( int r = 1; r < nRowCont; ++ r ) // Skip first row which contains data set cardinality
@@ -350,7 +350,7 @@ void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
   // Data set cardinality: unknown yet, pick the cardinality of the first pair and make sure all other pairs
   // have the same cardinality.
   vtkIdType n = cardinalities[0];
-  for ( vtksys_stl::map<vtkIdType,vtkIdType>::iterator iit = cardinalities.begin();
+  for ( std::map<vtkIdType,vtkIdType>::iterator iit = cardinalities.begin();
         iit != cardinalities.end(); ++ iit )
     {
     if ( iit->second != n )
@@ -387,8 +387,8 @@ void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
   // Add marginal PDF tables as new blocks to the meta output starting at block nBlock
   // NB: block nBlock is kept for information entropy
   double inv_n = 1. / n;
-  vtksys_stl::map<vtkStdString,PDF> marginalPDFs;
-  for ( vtksys_stl::map<vtkStdString,Counts>::iterator sit = marginalCounts.begin();
+  std::map<vtkStdString,PDF> marginalPDFs;
+  for ( std::map<vtkStdString,Counts>::iterator sit = marginalCounts.begin();
         sit != marginalCounts.end(); ++ sit, ++ nBlocks )
     {
     vtkTable* marginalTab = vtkTable::New();
@@ -435,7 +435,7 @@ void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
   double* derivedVals = new double[nDerivedVals];
 
   // Container for information entropies
-  typedef vtksys_stl::map<vtkIdType,double> Entropies;
+  typedef std::map<vtkIdType,double> Entropies;
   Entropies *H = new Entropies[nEntropy];
 
   // Calculate joint and conditional PDFs, and information entropies
@@ -536,11 +536,11 @@ void vtkContingencyStatistics::Assess( vtkTable* inData,
   // Loop over requests
   vtkIdType nRowSumm = summaryTab->GetNumberOfRows();
   vtkIdType nRowData = inData->GetNumberOfRows();
-  for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
+  for ( std::set<std::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
         rit != this->Internals->Requests.end(); ++ rit )
     {
     // Each request contains only one pair of column of interest (if there are others, they are ignored)
-    vtksys_stl::set<vtkStdString>::const_iterator it = rit->begin();
+    std::set<vtkStdString>::const_iterator it = rit->begin();
     vtkStdString varNameX = *it;
     if ( ! inData->GetColumnByName( varNameX ) )
       {
@@ -589,7 +589,7 @@ void vtkContingencyStatistics::Assess( vtkTable* inData,
     vtkStdString* names = new vtkStdString[nv];
     for ( vtkIdType v = 0; v < nv; ++ v )
       {
-      vtksys_ios::ostringstream assessColName;
+      std::ostringstream assessColName;
       assessColName << this->AssessNames->GetValue( v )
                     << "("
                     << varNameX
@@ -742,11 +742,11 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
   // Loop over requests
   vtkIdType nRowSumm = summaryTab->GetNumberOfRows();
   vtkIdType nRowCont = contingencyTab->GetNumberOfRows();
-  for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
+  for ( std::set<std::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
         rit != this->Internals->Requests.end(); ++ rit )
     {
     // Each request contains only one pair of column of interest (if there are others, they are ignored)
-    vtksys_stl::set<vtkStdString>::const_iterator it = rit->begin();
+    std::set<vtkStdString>::const_iterator it = rit->begin();
     vtkStdString varNameX = *it;
     if ( ! inData->GetColumnByName( varNameX ) )
       {
@@ -792,7 +792,7 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
     vtkIdType sumij = 0;
 
     // Loop over parameters table until the requested variables are found
-    vtksys_stl::map<vtkStdString,Counts> oij;
+    std::map<vtkStdString,Counts> oij;
     vtkStdString x, y;
     vtkIdType key, c;
     for ( int r = 1; r < nRowCont; ++ r ) // Skip first row which contains data set cardinality
@@ -947,17 +947,17 @@ class BivariateContingenciesAndInformationFunctor : public vtkStatisticsAlgorith
 public:
   vtkAbstractArray* DataX;
   vtkAbstractArray* DataY;
-  vtksys_stl::map<vtkStdString,PDF> PdfX_Y;
-  vtksys_stl::map<vtkStdString,PDF> PdfYcX;
-  vtksys_stl::map<vtkStdString,PDF> PdfXcY;
-  vtksys_stl::map<vtkStdString,PDF> PmiX_Y;
+  std::map<vtkStdString,PDF> PdfX_Y;
+  std::map<vtkStdString,PDF> PdfYcX;
+  std::map<vtkStdString,PDF> PdfXcY;
+  std::map<vtkStdString,PDF> PmiX_Y;
 
   BivariateContingenciesAndInformationFunctor( vtkAbstractArray* valsX,
                                                vtkAbstractArray* valsY,
-                                               vtksys_stl::map<vtkStdString,PDF> pdfX_Y,
-                                               vtksys_stl::map<vtkStdString,PDF> pdfYcX,
-                                               vtksys_stl::map<vtkStdString,PDF> pdfXcY,
-                                               vtksys_stl::map<vtkStdString,PDF> pmiX_Y )
+                                               std::map<vtkStdString,PDF> pdfX_Y,
+                                               std::map<vtkStdString,PDF> pdfYcX,
+                                               std::map<vtkStdString,PDF> pdfXcY,
+                                               std::map<vtkStdString,PDF> pmiX_Y )
   {
     this->DataX = valsX;
     this->DataY = valsY;
@@ -1033,10 +1033,10 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
     }
 
   // Create parameter maps
-  vtksys_stl::map<vtkStdString,PDF> pdfX_Y;
-  vtksys_stl::map<vtkStdString,PDF> pdfYcX;
-  vtksys_stl::map<vtkStdString,PDF> pdfXcY;
-  vtksys_stl::map<vtkStdString,PDF> pmiX_Y;
+  std::map<vtkStdString,PDF> pdfX_Y;
+  std::map<vtkStdString,PDF> pdfYcX;
+  std::map<vtkStdString,PDF> pdfXcY;
+  std::map<vtkStdString,PDF> pmiX_Y;
 
   // Sanity check: joint CDF
   double cdf = 0.;

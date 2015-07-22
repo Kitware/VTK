@@ -14,9 +14,9 @@
 #include "vtkIntArray.h"
 #include "vtkIdTypeArray.h"
 
-#include <vtksys/stl/map>
-#include <vtksys/stl/vector>
-#include <vtksys/ios/sstream>
+#include <map>
+#include <vector>
+#include <sstream>
 
 vtkStandardNewMacro(vtkKMeansStatistics);
 vtkCxxSetObjectMacro(vtkKMeansStatistics,DistanceFunctor,vtkKMeansDistanceFunctor);
@@ -67,7 +67,7 @@ int vtkKMeansStatistics::InitializeDataAndClusterCenters(vtkTable* inParameters,
                                                          vtkIdTypeArray*  startRunID,
                                                          vtkIdTypeArray*  endRunID)
 {
-  vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator reqIt;
+  std::set<std::set<vtkStdString> >::const_iterator reqIt;
   if( this->Internals->Requests.size() > 1 )
     {
     static int num = 0;
@@ -120,7 +120,7 @@ int vtkKMeansStatistics::InitializeDataAndClusterCenters(vtkTable* inParameters,
         endRunID->InsertNextValue( curRow );
         }
       vtkTable* condensedTable = vtkTable::New();
-      vtksys_stl::set<vtkStdString>::const_iterator colItr;
+      std::set<vtkStdString>::const_iterator colItr;
       for ( colItr = reqIt->begin(); colItr != reqIt->end(); ++ colItr )
         {
         vtkAbstractArray* pArr = inParameters->GetColumnByName( colItr->c_str() );
@@ -182,7 +182,7 @@ void vtkKMeansStatistics::CreateInitialClusterCenters( vtkIdType numToAllocate,
                                                        vtkTable* curClusterElements,
                                                        vtkTable* newClusterElements )
 {
-  vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator reqIt;
+  std::set<std::set<vtkStdString> >::const_iterator reqIt;
   if( this->Internals->Requests.size() > 1 )
     {
     static int num = 0;
@@ -561,8 +561,8 @@ void vtkKMeansStatistics::Derive( vtkMultiBlockDataSet* outMeta )
   globalRank->SetName( "Global Rank" );
   localRank->SetName( "Local Rank" );
 
-  vtksys_stl::multimap<double, vtkIdType> globalErrorMap;
-  vtksys_stl::map<vtkIdType, vtksys_stl::multimap<double, vtkIdType> > localErrorMap;
+  std::multimap<double, vtkIdType> globalErrorMap;
+  std::map<vtkIdType, std::multimap<double, vtkIdType> > localErrorMap;
 
   vtkIdType curRow = 0;
   while ( curRow < outTable->GetNumberOfRows() )
@@ -576,11 +576,11 @@ void vtkKMeansStatistics::Derive( vtkMultiBlockDataSet* outMeta )
       totalErr+= error->GetValue( i );
       }
     totalError->InsertNextValue( totalErr );
-    globalErrorMap.insert(vtksys_stl::multimap<double, vtkIdType>::value_type( totalErr,
+    globalErrorMap.insert(std::multimap<double, vtkIdType>::value_type( totalErr,
                                                                                clusterRunIDs->GetValue( curRow ) ) );
     localErrorMap[numberOfClusters->GetValue( curRow )].insert(
-                vtksys_stl::multimap<double, vtkIdType>::value_type( totalErr, 
-                                                                     clusterRunIDs->GetValue( curRow ) ) );
+      std::multimap<double, vtkIdType>::value_type( totalErr,
+                                                    clusterRunIDs->GetValue( curRow ) ) );
     curRow += numberOfClusters->GetValue( curRow );
     }
 
@@ -588,14 +588,14 @@ void vtkKMeansStatistics::Derive( vtkMultiBlockDataSet* outMeta )
   localRank->SetNumberOfValues( totalClusterRunIDs->GetNumberOfTuples() );
   int rankID=1;
 
-  for( vtksys_stl::multimap<double, vtkIdType>::iterator itr = globalErrorMap.begin(); itr != globalErrorMap.end(); itr++ )
+  for( std::multimap<double, vtkIdType>::iterator itr = globalErrorMap.begin(); itr != globalErrorMap.end(); itr++ )
     {
     globalRank->SetValue( itr->second, rankID++ ) ;
     }
-  for( vtksys_stl::map<vtkIdType, vtksys_stl::multimap<double, vtkIdType> >::iterator itr = localErrorMap.begin(); itr != localErrorMap.end(); itr++ )
+  for( std::map<vtkIdType, std::multimap<double, vtkIdType> >::iterator itr = localErrorMap.begin(); itr != localErrorMap.end(); itr++ )
     {
     rankID=1;
-    for( vtksys_stl::multimap<double, vtkIdType>::iterator rItr = itr->second.begin(); rItr != itr->second.end(); rItr++ )
+    for( std::multimap<double, vtkIdType>::iterator rItr = itr->second.begin(); rItr != itr->second.end(); rItr++ )
       {
       localRank->SetValue( rItr->second, rankID++ ) ;
       }
@@ -669,7 +669,7 @@ void vtkKMeansStatistics::Assess( vtkTable* inData,
     {
     for ( vtkIdType v = 0; v < nv; ++ v )
       {
-      vtksys_ios::ostringstream assessColName;
+      std::ostringstream assessColName;
       assessColName << this->AssessNames->GetValue( v )
                     << "("
                     <<  i

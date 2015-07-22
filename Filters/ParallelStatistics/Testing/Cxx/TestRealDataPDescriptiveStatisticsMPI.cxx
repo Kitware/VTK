@@ -38,6 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkVariantArray.h"
 
 #include "vtksys/CommandLineArguments.hxx"
+#include <vector>
 
 namespace
 {
@@ -474,8 +475,8 @@ int TestRealDataPDescriptiveStatisticsMPI( int argc, char* argv[] )
 
   // Set default argument values (some of which are invalid, for mandatory parameters)
   vtkStdString fileName= "";
-  vtksys_stl::vector<int> dataDim;
-  vtksys_stl::vector<int> procDim;
+  std::vector<int> dataDim;
+  std::vector<int> procDim;
 
   // Initialize command line argument parser
   vtksys::CommandLineArguments clArgs;

@@ -40,8 +40,8 @@
 
 #include "vtksys/CommandLineArguments.hxx"
 
-#include <vtksys/ios/sstream>
-#include <vtksys/stl/vector>
+#include <sstream>
+#include <vector>
 
 namespace
 {
@@ -76,10 +76,10 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
 
   // Generate column names
   int nVariables = args->nVariables;
-  vtksys_stl::vector<vtkStdString> columnNames;
+  std::vector<vtkStdString> columnNames;
   for ( int v = 0; v < nVariables; ++ v )
     {
-    vtksys_ios::ostringstream columnName;
+    std::ostringstream columnName;
     columnName << "Variable " << v;
     columnNames.push_back( columnName.str() );
     }

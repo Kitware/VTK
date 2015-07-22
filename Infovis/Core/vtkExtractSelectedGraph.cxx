@@ -47,8 +47,7 @@
 #include "vtkTree.h"
 #include "vtkVertexListIterator.h"
 
-#include <vtksys/stl/map>
-#include <vector>
+#include <map>
 
 vtkStandardNewMacro(vtkExtractSelectedGraph);
 //----------------------------------------------------------------------------
@@ -298,7 +297,7 @@ int vtkExtractSelectedGraph::RequestData(
   vtkPoints* ptsOut = builder->GetPoints();
   vdOut->CopyAllocate(vdIn);
   edOut->CopyAllocate(edIn);
-  vtksys_stl::map<vtkIdType, vtkIdType> vertexMap;
+  std::map<vtkIdType, vtkIdType> vertexMap;
 
   // Step 1: Add the vertices.
   // If the user has specified a vertex selection, add them.

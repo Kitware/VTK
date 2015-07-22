@@ -81,8 +81,7 @@
 #include "vtkViewTheme.h"
 
 #include <ctype.h>
-#include <vtksys/ios/sstream>
-#include <vtksys/stl/algorithm>
+#include <algorithm>
 
 
 
@@ -770,7 +769,7 @@ vtkGraphLayoutStrategy* vtkRenderedGraphRepresentation::GetLayoutStrategy()
 void vtkRenderedGraphRepresentation::SetLayoutStrategy(const char* name)
 {
   std::string str = name;
-  vtksys_stl::transform(str.begin(), str.end(), str.begin(), tolower);
+  std::transform(str.begin(), str.end(), str.begin(), tolower);
   str.erase(std::remove(str.begin(), str.end(), ' '), str.end());
   vtkSmartPointer<vtkGraphLayoutStrategy> strategy =
     vtkSmartPointer<vtkPassThroughLayoutStrategy>::New();

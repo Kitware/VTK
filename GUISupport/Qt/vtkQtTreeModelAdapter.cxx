@@ -570,7 +570,7 @@ QMimeData *vtkQtTreeModelAdapter::mimeData(const QModelIndexList &indexes) const
     return 0;
     }
 
-  vtksys_ios::ostringstream buffer;
+  std::ostringstream buffer;
   buffer << pedigreeIdSelection;
 
   QMimeData *mime_data = new QMimeData();

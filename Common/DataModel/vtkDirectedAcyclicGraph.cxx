@@ -26,9 +26,7 @@
 #include "vtkOutEdgeIterator.h"
 #include "vtkSmartPointer.h"
 
-#include <vtksys/stl/vector>
-
-using vtksys_stl::vector;
+#include <vector>
 
 vtkStandardNewMacro(vtkDirectedAcyclicGraph);
 //----------------------------------------------------------------------------
@@ -59,7 +57,7 @@ enum { DFS_WHITE, DFS_GRAY, DFS_BLACK };
 static bool vtkDirectedAcyclicGraphDFSVisit(
   vtkGraph *g,
   vtkIdType u,
-  vtksys_stl::vector<int> color,
+  std::vector<int> color,
   vtkOutEdgeIterator *adj)
 {
   color[u] = DFS_GRAY;
@@ -106,7 +104,7 @@ bool vtkDirectedAcyclicGraph::IsStructureValid(vtkGraph *g)
   // (from Introduction to Algorithms.
   // Cormen, Leiserson, Rivest, p. 486).
   vtkIdType numVerts = g->GetNumberOfVertices();
-  vector<int> color(numVerts, DFS_WHITE);
+  std::vector<int> color(numVerts, DFS_WHITE);
   vtkSmartPointer<vtkOutEdgeIterator> adj =
     vtkSmartPointer<vtkOutEdgeIterator>::New();
   for (vtkIdType s = 0; s < numVerts; ++s)

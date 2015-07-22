@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
 #include "vtkNew.h"
-#include "vtksys/ios/sstream"
+#include "sstream"
 
 vtkCxxSetObjectMacro(vtkPlot, XAxis, vtkAxis);
 vtkCxxSetObjectMacro(vtkPlot, YAxis, vtkAxis);
@@ -144,7 +144,7 @@ vtkStdString vtkPlot::GetTooltipLabel(const vtkVector2d &plotPos,
 vtkStdString vtkPlot::GetNumber(double position, vtkAxis *axis)
 {
   // Determine and format the X and Y position in the chart
-  vtksys_ios::ostringstream ostr;
+  std::ostringstream ostr;
   ostr.imbue(std::locale::classic());
   ostr.precision(this->GetTooltipPrecision());
 

@@ -787,7 +787,7 @@ static void vtkWrapPython_CustomMethods(
             "\n"
             "  if (op && ap.CheckArgCount(0))\n"
             "    {\n"
-            "    vtksys_ios::ostringstream vtkmsg_with_warning_C4701;\n"
+            "    std::ostringstream vtkmsg_with_warning_C4701;\n"
             "    op->PrintRevisions(vtkmsg_with_warning_C4701);\n"
             "    vtkmsg_with_warning_C4701.put('\\0');\n"
             "    tempr = vtkmsg_with_warning_C4701.str().c_str();\n"

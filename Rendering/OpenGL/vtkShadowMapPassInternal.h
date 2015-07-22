@@ -22,16 +22,17 @@
 #include "vtkCamera.h"
 #include "vtkTextureObject.h"
 
+#include <vector>
 class vtkShadowMapBakerPassTextures
 {
 public:
-  vtksys_stl::vector<vtkSmartPointer<vtkTextureObject> > Vector;
+  std::vector<vtkSmartPointer<vtkTextureObject> > Vector;
 };
 
 class vtkShadowMapBakerPassLightCameras
 {
 public:
-  vtksys_stl::vector<vtkSmartPointer<vtkCamera> > Vector;
+  std::vector<vtkSmartPointer<vtkCamera> > Vector;
 };
 
 #endif

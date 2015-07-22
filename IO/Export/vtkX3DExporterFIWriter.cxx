@@ -127,7 +127,7 @@ int vtkX3DExporterFIByteWriter::OpenStream()
   this->WriteToOutputString = 1;
   this->CurrentByte = 0;
   this->CurrentBytePos = 0;
-  this->Stream = new vtksys_ios::ostringstream();
+  this->Stream = new std::ostringstream();
   return 1;
 }
 
@@ -136,8 +136,8 @@ const char* vtkX3DExporterFIByteWriter::GetStringStream(int& size)
 {
   if (this->WriteToOutputString && this->Stream)
     {
-    vtksys_ios::ostringstream *ostr =
-      static_cast<vtksys_ios::ostringstream*>(this->Stream);
+    std::ostringstream *ostr =
+      static_cast<std::ostringstream*>(this->Stream);
 
     size = static_cast<int>(ostr->str().size());
     return ostr->str().c_str();
@@ -446,7 +446,7 @@ void vtkX3DExporterFIWriter::EndAttribute()
 //----------------------------------------------------------------------------
 void vtkX3DExporterFIWriter::SetField(int attributeID, int type, const double* d)
 {
-  vtksys_ios::ostringstream ss;
+  std::ostringstream ss;
 
   this->StartAttribute(attributeID, true, false);
 
@@ -504,7 +504,7 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, int type, const double* d
 //----------------------------------------------------------------------------
 void vtkX3DExporterFIWriter::SetField(int attributeID, int type, vtkDataArray* a)
 {
-  vtksys_ios::ostringstream ss;
+  std::ostringstream ss;
   std::vector<double> values;
 
   this->StartAttribute(attributeID, true, false);
@@ -597,7 +597,7 @@ void vtkX3DExporterFIWriter::SetField(int attributeID,
 //----------------------------------------------------------------------------
 void vtkX3DExporterFIWriter::SetField(int attributeID, int type, vtkCellArray* a)
 {
-  vtksys_ios::ostringstream ss;
+  std::ostringstream ss;
   std::vector<int> values;
 
   vtkIdType npts = 0;
@@ -650,7 +650,7 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, int type, vtkCellArray* a
 //----------------------------------------------------------------------------
 void vtkX3DExporterFIWriter::SetField(int attributeID, int value)
 {
-  vtksys_ios::ostringstream ss;
+  std::ostringstream ss;
   this->StartAttribute(attributeID, true, false);
 
   // Xj3D writes out single value fields in string encoding. Expected:
@@ -662,7 +662,7 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, int value)
 //----------------------------------------------------------------------------
 void vtkX3DExporterFIWriter::SetField(int attributeID, float value)
 {
-  vtksys_ios::ostringstream ss;
+  std::ostringstream ss;
 
   this->StartAttribute(attributeID, true, false);
 

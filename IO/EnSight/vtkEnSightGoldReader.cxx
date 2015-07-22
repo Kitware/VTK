@@ -1739,9 +1739,9 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
       {
       int *numNodesPerElement;
       int numNodes;
-      vtksys_ios::stringstream* lineStream = new vtksys_ios::stringstream(vtksys_ios::stringstream::out);
-      vtksys_ios::stringstream* formatStream = new vtksys_ios::stringstream(vtksys_ios::stringstream::out);
-      vtksys_ios::stringstream* tempStream = new vtksys_ios::stringstream(vtksys_ios::stringstream::out);
+      std::stringstream* lineStream = new std::stringstream(std::stringstream::out);
+      std::stringstream* formatStream = new std::stringstream(std::stringstream::out);
+      std::stringstream* tempStream = new std::stringstream(std::stringstream::out);
 
       this->ReadNextDataLine(line);
       numElements = atoi(line);
@@ -1771,22 +1771,22 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
         formatStream->str("");
         tempStream->str("");
         lineStream->str(line);
-        lineStream->seekp(0, vtksys_ios::stringstream::end);
+        lineStream->seekp(0, std::stringstream::end);
         while (! lineRead)
           {
           lineRead = this->ReadNextDataLine(line);
           lineStream->write(line, strlen(line));
-          lineStream->seekp(0, vtksys_ios::stringstream::end);
+          lineStream->seekp(0, std::stringstream::end);
           }
         for (j = 0; j < numNodes; j++)
           {
           formatStream->write(" %d", 3);
-          formatStream->seekp(0, vtksys_ios::stringstream::end);
+          formatStream->seekp(0, std::stringstream::end);
           sscanf(lineStream->str().c_str(), formatStream->str().c_str(), &intIds[numNodes-j-1]);
           tempStream->write(" %*d", 4);
-          tempStream->seekp(0, vtksys_ios::stringstream::end);
+          tempStream->seekp(0, std::stringstream::end);
           formatStream->str(tempStream->str());
-          formatStream->seekp(0, vtksys_ios::stringstream::end);
+          formatStream->seekp(0, std::stringstream::end);
           intIds[numNodes-j-1]--;
           nodeIds[numNodes-j-1] = intIds[numNodes-j-1];
           }
@@ -2049,9 +2049,9 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
       int numNodes = 0;
       int faceCount = 0;
       int elementNodeCount = 0;
-      vtksys_ios::stringstream* lineStream = new vtksys_ios::stringstream(vtksys_ios::stringstream::out);
-      vtksys_ios::stringstream* formatStream = new vtksys_ios::stringstream(vtksys_ios::stringstream::out);
-      vtksys_ios::stringstream* tempStream = new vtksys_ios::stringstream(vtksys_ios::stringstream::out);
+      std::stringstream* lineStream = new std::stringstream(std::stringstream::out);
+      std::stringstream* formatStream = new std::stringstream(std::stringstream::out);
+      std::stringstream* tempStream = new std::stringstream(std::stringstream::out);
 
       this->ReadNextDataLine(line);
       numElements = atoi(line);
@@ -2103,22 +2103,22 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
           formatStream->str("");
           tempStream->str("");
           lineStream->str(line);
-          lineStream->seekp(0, vtksys_ios::stringstream::end);
+          lineStream->seekp(0, std::stringstream::end);
           while (! lineRead)
             {
             lineRead = this->ReadNextDataLine(line);
             lineStream->write(line, strlen(line));
-            lineStream->seekp(0, vtksys_ios::stringstream::end);
+            lineStream->seekp(0, std::stringstream::end);
             }
           for (k = 0; k < numNodesPerFace[faceCount + j]; k++)
             {
             formatStream->write(" %d", 3);
-            formatStream->seekp(0, vtksys_ios::stringstream::end);
+            formatStream->seekp(0, std::stringstream::end);
             sscanf(lineStream->str().c_str(), formatStream->str().c_str(), &intIds[elementNodeCount]);
             tempStream->write(" %*d", 4);
-            tempStream->seekp(0, vtksys_ios::stringstream::end);
+            tempStream->seekp(0, std::stringstream::end);
             formatStream->str(tempStream->str());
-            formatStream->seekp(0, vtksys_ios::stringstream::end);
+            formatStream->seekp(0, std::stringstream::end);
             elementNodeCount += 1;
             }
           lineRead = this->ReadNextDataLine(line);

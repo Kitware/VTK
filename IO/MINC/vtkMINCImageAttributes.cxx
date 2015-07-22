@@ -302,7 +302,7 @@ const char *vtkMINCImageAttributes::ConvertDataArrayToString(
     return charArray->GetPointer(0);
     }
 
-  vtksys_ios::ostringstream os;
+  std::ostringstream os;
 
   int n = array->GetNumberOfTuples();
   int i = 0;

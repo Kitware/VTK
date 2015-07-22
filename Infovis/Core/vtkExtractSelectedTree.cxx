@@ -30,7 +30,7 @@
 #include "vtkEdgeListIterator.h"
 #include "vtkNew.h"
 
-#include <vtksys/stl/map>
+#include <map>
 
 vtkStandardNewMacro(vtkExtractSelectedTree);
 
@@ -88,7 +88,7 @@ int vtkExtractSelectedTree::BuildTree( vtkTree * inputTree, vtkIdTypeArray * sel
 
   //Add selected vertices and set up a  map between the input tree vertex id
   //and the output tree vertex id
-  vtksys_stl::map<vtkIdType, vtkIdType> vertexMap;
+  std::map<vtkIdType, vtkIdType> vertexMap;
   for (vtkIdType j = 0; j < selectedVerticesList->GetNumberOfTuples();j++)
     {
     vtkIdType inVert = selectedVerticesList->GetValue(j);

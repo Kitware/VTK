@@ -33,12 +33,10 @@
 #include "vtkBoostGraphAdapter.h"
 #include <boost/graph/biconnected_components.hpp>
 #include <boost/version.hpp>
-#include <vtksys/stl/vector>
-#include <vtksys/stl/utility>
+#include <vector>
+#include <utility>
 
 using namespace boost;
-using vtksys_stl::vector;
-using vtksys_stl::pair;
 
 vtkStandardNewMacro(vtkBoostBiconnectedComponents);
 
@@ -91,9 +89,9 @@ int vtkBoostBiconnectedComponents::RequestData(
 
   // Create vector of articulation points and set it up for insertion
   // by the algorithm.
-  vector<vtkIdType> artPoints;
-  pair<size_t, vtksys_stl::back_insert_iterator<vector<vtkIdType> > >
-    res(0, vtksys_stl::back_inserter(artPoints));
+  std::vector<vtkIdType> artPoints;
+  std::pair<size_t, std::back_insert_iterator<std::vector<vtkIdType> > >
+    res(0, std::back_inserter(artPoints));
 
   // Call BGL biconnected_components.
   // It appears that the signature for this
@@ -101,13 +99,13 @@ int vtkBoostBiconnectedComponents::RequestData(
 #if BOOST_VERSION < 103300      // Boost 1.32.x
   // TODO I have no idea what the 1.32 signature is suppose to be
   // res = biconnected_components(
-  //  output, helper, vtksys_stl::back_inserter(artPoints), vtkGraphIndexMap());
+  //  output, helper, std::back_inserter(artPoints), vtkGraphIndexMap());
 #elif BOOST_VERSION < 103400    // Boost 1.33.x
   res = biconnected_components(
-    output, helper, vtksys_stl::back_inserter(artPoints), vtkGraphIndexMap());
+    output, helper, std::back_inserter(artPoints), vtkGraphIndexMap());
 #else                           // Anything after Boost 1.34.x
   res = biconnected_components(
-    output, helper, vtksys_stl::back_inserter(artPoints), vertex_index_map(vtkGraphIndexMap()));
+    output, helper, std::back_inserter(artPoints), vertex_index_map(vtkGraphIndexMap()));
 #endif
 
   size_t numComp = res.first;
@@ -149,7 +147,7 @@ int vtkBoostBiconnectedComponents::RequestData(
   // Articulation points belong to multiple biconnected components.
   // Indicate these by assigning a component value of -1.
   // It belongs to whatever components its incident edges belong to.
-  vector<vtkIdType>::size_type i;
+  std::vector<vtkIdType>::size_type i;
   for (i = 0; i < artPoints.size(); i++)
     {
     vertCompArr->SetValue(artPoints[i], -1);

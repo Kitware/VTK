@@ -18,8 +18,8 @@
 #include "vtkOrderStatistics.h"
 #include "vtkMultiBlockDataSet.h"
 
-#include <vtksys/stl/vector>
-#include <vtksys/stl/map>
+#include <vector>
+#include <map>
 
 //=============================================================================
 int TestOrderStatistics( int, char *[] )
@@ -217,7 +217,7 @@ int TestOrderStatistics( int, char *[] )
         testStatus = 1;
         }
 
-      vtksys_stl::map<int,int> histoQuantiles;
+      std::map<int,int> histoQuantiles;
       for ( vtkIdType r = 0; r < dataQuantArr->GetNumberOfTuples(); ++ r )
         {
         int qIdx = static_cast<int>( vtkMath::Round( dataQuantArr->GetTuple1( r ) ) );
@@ -225,7 +225,7 @@ int TestOrderStatistics( int, char *[] )
         }
 
       int totalHist = 0;
-      for ( vtksys_stl::map<int,int>::iterator hit = histoQuantiles.begin();
+      for ( std::map<int,int>::iterator hit = histoQuantiles.begin();
             hit != histoQuantiles.end() ; ++ hit )
         {
         cout << "    IQR "
@@ -413,13 +413,13 @@ int TestOrderStatistics( int, char *[] )
   // Test Learn operation for quartiles with non-numeric ordinal data
   vtkStdString text(
     "an ordinal scale defines a total preorder of objects the scale values themselves have a total order names may be used like bad medium good if numbers are used they are only relevant up to strictly monotonically increasing transformations also known as order isomorphisms" );
-  vtksys_stl::vector<int>::size_type textLength = text.size();
+  std::vector<int>::size_type textLength = text.size();
 
   vtkStringArray* textArr = vtkStringArray::New();
   textArr->SetNumberOfComponents( 1 );
   textArr->SetName( "Text" );
 
-  for ( vtksys_stl::vector<int>::size_type i = 0; i < textLength; ++ i )
+  for ( std::vector<int>::size_type i = 0; i < textLength; ++ i )
     {
     vtkStdString s( "" );
     s += text.at(i);

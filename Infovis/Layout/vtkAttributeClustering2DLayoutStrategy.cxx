@@ -41,7 +41,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
-#include <vtksys/stl/vector>
+#include <vector>
 
 class vtkAttributeClustering2DLayoutStrategy::Internals
 {
@@ -58,7 +58,7 @@ public:
                    // really happens in these days of magical compilers
   } vtkLayoutEdge;
 
-  vtksys_stl::vector<vtkLayoutEdge> Edges;
+  std::vector<vtkLayoutEdge> Edges;
 };
 
 
@@ -422,7 +422,7 @@ void vtkAttributeClustering2DLayoutStrategy::Layout()
 
     // Calculate the attractive forces
     float *rawAttractArray = this->AttractionArray->GetPointer(0);
-    vtksys_stl::vector<Internals::vtkLayoutEdge>::iterator iter;
+    std::vector<Internals::vtkLayoutEdge>::iterator iter;
     for (iter = this->Implementation->Edges.begin(); iter != this->Implementation->Edges.end(); ++iter)
       {
       // Check for dead edge

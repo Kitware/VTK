@@ -684,7 +684,7 @@ void vtkPolarAxesActor::BuildRadialAxes()
       // Use polar angle as a title for the radial axis
       axis->SetTitleVisibility( this->RadialTitleVisibility );
       axis->GetTitleTextProperty()->SetColor( this->RadialAxesProperty->GetColor() );
-      vtksys_ios::ostringstream title;
+      std::ostringstream title;
       title << alpha
             << ( this->RadialUnits ? " deg" : "" );
       axis->SetTitle( title.str().c_str() );

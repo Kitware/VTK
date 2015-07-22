@@ -184,7 +184,7 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
     return 0;
     }
 
-  vtksys_stl::map<int,vtkDataSet*> outputBlocks;
+  std::map<int,vtkDataSet*> outputBlocks;
 
   vtkDebugMacro(<<"input="<<compositeInput->GetClassName()<<"\n");
 
@@ -212,7 +212,7 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
       double blockAngle = this->GetDefaultAngle();
       vtkDebugMacro(<<"DefaultAngle="<<blockAngle<<"\n");
 
-      vtksys_stl::map<vtkIdType,double>::iterator amit = this->PerBlockAngles.find( blockId );
+      std::map<vtkIdType,double>::iterator amit = this->PerBlockAngles.find( blockId );
       if( amit != this->PerBlockAngles.end() )
         {
         vtkDebugMacro(<<"Found angle "<<amit->second<<" for block "<<blockId<<"\n");
@@ -503,7 +503,7 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
   // build final composite output. also tagging blocks with their associated Id
   compositeOutput->SetNumberOfBlocks( static_cast<unsigned int>( outputBlocks.size() ) );
   int blockIndex=0;
-  for( vtksys_stl::map<int,vtkDataSet*>::iterator it=outputBlocks.begin(); it!=outputBlocks.end(); ++it, ++blockIndex )
+  for( std::map<int,vtkDataSet*>::iterator it=outputBlocks.begin(); it!=outputBlocks.end(); ++it, ++blockIndex )
     {
     if( it->second->GetNumberOfCells() > 0 )
       {
@@ -543,7 +543,7 @@ void vtkQuadRotationalExtrusionFilter::PrintSelf( ostream& os, vtkIndent indent 
   os << indent << "Translation: " << this->Translation << "\n";
   os << indent << "Delta Radius: " << this->DeltaRadius << "\n";
   os << indent << "PerBlockAngles:\n";
-  for( vtksys_stl::map<vtkIdType,double>::iterator it=this->PerBlockAngles.begin();it!=this->PerBlockAngles.end();++it )
+  for( std::map<vtkIdType,double>::iterator it=this->PerBlockAngles.begin();it!=this->PerBlockAngles.end();++it )
     {
     os << indent.GetNextIndent() << "Block #" << it->first << " -> " << it->second << "\n";
     }

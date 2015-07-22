@@ -34,7 +34,7 @@
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 vtkCxxSetObjectMacro(vtkStatisticsAlgorithm,AssessNames,vtkStringArray);
 
@@ -300,7 +300,7 @@ void vtkStatisticsAlgorithm::Assess( vtkTable* inData,
     }
 
   // Loop over requests
-  for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
+  for ( std::set<std::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
         rit != this->Internals->Requests.end(); ++ rit )
     {
     // Storage for variable names of the request (smart pointer because of several exit points)
@@ -310,7 +310,7 @@ void vtkStatisticsAlgorithm::Assess( vtkTable* inData,
     // Each request must contain numVariables columns of interest (additional columns are ignored)
     bool invalidRequest = false;
     int v = 0;
-    for ( vtksys_stl::set<vtkStdString>::const_iterator it = rit->begin();
+    for ( std::set<vtkStdString>::const_iterator it = rit->begin();
           v < numVariables && it != rit->end(); ++ v, ++ it )
       {
       // Try to retrieve column with corresponding name in input data
@@ -354,7 +354,7 @@ void vtkStatisticsAlgorithm::Assess( vtkTable* inData,
     for ( vtkIdType a = 0; a < nAssessments; ++ a )
       {
       // Prepare string for numVariables-tuple of variable names
-      vtksys_ios::ostringstream assessColName;
+      std::ostringstream assessColName;
       assessColName << this->AssessNames->GetValue( a )
                     << "(";
       for ( int i = 0 ; i < numVariables ; ++ i )

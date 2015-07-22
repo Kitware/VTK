@@ -15,10 +15,11 @@
 #include "vtkMedicalImageProperties.h"
 #include "vtkObjectFactory.h"
 
-#include <vtksys/stl/string>
-#include <vtksys/stl/map>
-#include <vtksys/stl/vector>
-#include <vtksys/stl/set>
+#include <string>
+#include <map>
+#include <vector>
+#include <set>
+
 #include <ctime> // for strftime
 #include <ctype.h> // for isdigit
 #include <cassert>
@@ -43,7 +44,7 @@ public:
   public:
     double Window;
     double Level;
-    vtksys_stl::string Comment;
+    std::string Comment;
   };
 
   class UserDefinedValue

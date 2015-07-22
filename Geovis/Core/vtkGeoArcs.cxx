@@ -30,9 +30,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-#include <vtksys/stl/map>
-using vtksys_stl::map;
-
 vtkStandardNewMacro(vtkGeoArcs);
 
 vtkGeoArcs::vtkGeoArcs()

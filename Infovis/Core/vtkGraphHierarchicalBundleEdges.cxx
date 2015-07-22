@@ -35,8 +35,7 @@
 #include "vtkTree.h"
 #include "vtkVariantArray.h"
 
-#include <vtksys/stl/map>
-using vtksys_stl::map;
+#include <map>
 
 vtkStandardNewMacro(vtkGraphHierarchicalBundleEdges);
 
@@ -90,7 +89,7 @@ int vtkGraphHierarchicalBundleEdges::RequestData(
   // Create a map from graph indices to tree indices
   // If we are using DirectMapping this is trivial
   // we just create an identity map
-  map<vtkIdType, vtkIdType> graphIndexToTreeIndex;
+  std::map<vtkIdType, vtkIdType> graphIndexToTreeIndex;
   if (this->DirectMapping)
     {
     if (graph->GetNumberOfVertices() > tree->GetNumberOfVertices())
@@ -133,7 +132,7 @@ int vtkGraphHierarchicalBundleEdges::RequestData(
     vtkAbstractArray* treeDomainArray =
       tree->GetVertexData()->GetAbstractArray("domain");
 
-    map<vtkVariant,vtkIdType,vtkVariantLessThan> graphIdMap;
+    std::map<vtkVariant,vtkIdType,vtkVariantLessThan> graphIdMap;
 
     // Create a map from graph id to graph index
     for (int i=0; i<graph->GetNumberOfVertices(); ++i)

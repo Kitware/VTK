@@ -60,7 +60,7 @@ static void ReadStringVersion(const char* version, int& major, int& minor)
 
   if (s > begin)
     {
-    vtksys_ios::stringstream str;
+    std::stringstream str;
     str.write(begin, s-begin);
     str >> major;
     if (!str)
@@ -70,7 +70,7 @@ static void ReadStringVersion(const char* version, int& major, int& minor)
     }
   if (++s < end)
     {
-    vtksys_ios::stringstream str;
+    std::stringstream str;
     str.write(s, end-s);
     str >> minor;
     if (!str)
@@ -786,7 +786,7 @@ vtkAbstractArray* vtkXMLReader::CreateArray(vtkXMLDataElement* da)
 
   //determine what component names have been saved in the file.
   const char* compName = 0;
-  vtksys_ios::ostringstream buff;
+  std::ostringstream buff;
   for (int i = 0; i < components && i < 10; ++i)
     {
     //get the component names
@@ -1024,7 +1024,7 @@ void vtkXMLReader::SetDataArraySelections(
       }
     else
       {
-      vtksys_ios::ostringstream s;
+      std::ostringstream s;
       s << "Array " << i;
       sel->AddArray(s.str().c_str());
       }

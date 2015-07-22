@@ -34,7 +34,7 @@
 #define VTK_CREATE(type,name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-#include <vtksys/stl/map>
+#include <map>
 
 template <typename T>
 int CompareArrays(T* a, T* b, vtkIdType n)
@@ -129,7 +129,7 @@ int CompareSelections(vtkSelectionNode* a, vtkSelectionNode* b)
 }
 
 int TestConvertSelectionType(
-  vtksys_stl::map<int, vtkSmartPointer<vtkSelection> >& selMap,
+  std::map<int, vtkSmartPointer<vtkSelection> >& selMap,
   vtkDataObject* data,
   int inputType,
   int outputType,
@@ -184,7 +184,7 @@ void GraphConvertSelections(int & errors, int size)
     g->AddEdge(i, i);
     }
 
-  vtksys_stl::map<int, vtkSmartPointer<vtkSelection> > selMap;
+  std::map<int, vtkSmartPointer<vtkSelection> > selMap;
 
   VTK_CREATE(vtkSelection, globalIdsSelection);
   VTK_CREATE(vtkSelectionNode, globalIdsSelectionNode);
@@ -387,7 +387,7 @@ void PolyDataConvertSelections(int & errors, int size)
     }
   g->SetLines(newLines);
 
-  vtksys_stl::map<int, vtkSmartPointer<vtkSelection> > selMap;
+  std::map<int, vtkSmartPointer<vtkSelection> > selMap;
 
   VTK_CREATE(vtkSelection, globalIdsSelection);
   VTK_CREATE(vtkSelectionNode, globalIdsSelectionNode);

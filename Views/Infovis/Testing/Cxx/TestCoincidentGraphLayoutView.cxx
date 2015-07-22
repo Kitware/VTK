@@ -39,11 +39,11 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
-template<typename T> vtksys_stl::string ToString(const T& x)
+template<typename T> std::string ToString(const T& x)
 {
-  vtksys_ios::ostringstream oss;
+  std::ostringstream oss;
   oss << x;
   return oss.str();
 }

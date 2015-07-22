@@ -39,8 +39,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTree.h"
 #include "vtkVariantArray.h"
 
-#include <vtksys/stl/map>
-using vtksys_stl::map;
+#include <map>
 
 //---------------------------------------------------------------------------
 template <typename T>
@@ -232,7 +231,7 @@ int vtkTransferAttributes::RequestData(
   // If we are using DirectMapping this is trivial
   // we just create an identity map
   int i;
-  map<vtkIdType, vtkIdType> sourceIndexToTargetIndex;
+  std::map<vtkIdType, vtkIdType> sourceIndexToTargetIndex;
   if (this->DirectMapping)
     {
     if (sourceIdArray->GetNumberOfTuples() > targetIdArray->GetNumberOfTuples())
@@ -252,7 +251,7 @@ int vtkTransferAttributes::RequestData(
   // type to a nice vtkIdType to vtkIdType mapping
   if (!this->DirectMapping)
     {
-    map<vtkVariant,vtkIdType,vtkVariantLessThan> sourceInputIdMap;
+    std::map<vtkVariant,vtkIdType,vtkVariantLessThan> sourceInputIdMap;
 
     // Create a map from sourceInput id to sourceInput index
     for( i=0; i<sourceIdArray->GetNumberOfTuples(); i++)

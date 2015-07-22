@@ -21,6 +21,7 @@
 #include <cassert>
 #include <locale>
 #include <vtksys/SystemTools.hxx>
+#include <string>
 
 vtkStandardNewMacro(vtkInteractorEventRecorder);
 
@@ -175,7 +176,7 @@ void vtkInteractorEventRecorder::Play()
         }
       std::string inputStr(this->InputString, len);
       delete this->InputStream;
-      this->InputStream = new vtksys_ios::istringstream(inputStr);
+      this->InputStream = new std::istringstream(inputStr);
       if (this->InputStream->fail())
         {
         vtkErrorMacro(<< "Unable to read from string");
@@ -204,11 +205,11 @@ void vtkInteractorEventRecorder::Play()
     char event[128], keySym[64];
     int pos[2], ctrlKey, shiftKey, keyCode, repeatCount;
     float stream_version = 0.0f, tempf;
-    vtksys_stl::string line;
+    std::string line;
 
     while ( vtksys::SystemTools::GetLineFromStream(*this->InputStream, line) )
       {
-      vtksys_ios::istringstream iss(line);
+      std::istringstream iss(line);
 
       // Use classic locale, we don't want to parse float values with
       // user-defined locale.

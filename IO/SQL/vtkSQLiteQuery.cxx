@@ -373,7 +373,7 @@ vtkVariant vtkSQLiteQuery::DataValue(vtkIdType column)
 
       case VTK_SQLITE_TEXT:
       {
-      vtksys_ios::ostringstream str;
+      std::ostringstream str;
       str << vtk_sqlite3_column_text(this->Statement, column);
       return vtkVariant(vtkStdString(str.str()));
       }
@@ -650,7 +650,7 @@ bool vtkSQLiteQuery::BindIntegerParameter(int index, int value)
 
   if (status != VTK_SQLITE_OK)
     {
-    vtksys_ios::ostringstream errormessage;
+    std::ostringstream errormessage;
     errormessage << "sqlite_bind_int returned error: " << status;
     this->SetLastErrorText(errormessage.str().c_str());
     vtkErrorMacro(<<errormessage.str().c_str());
@@ -679,7 +679,7 @@ bool vtkSQLiteQuery::BindInt64Parameter(int index, vtkTypeInt64 value)
 
   if (status != VTK_SQLITE_OK)
     {
-    vtksys_ios::ostringstream errormessage;
+    std::ostringstream errormessage;
     errormessage << "sqlite_bind_int64 returned error: " << status;
     this->SetLastErrorText(errormessage.str().c_str());
     vtkErrorMacro(<<this->GetLastErrorText());
@@ -709,7 +709,7 @@ bool vtkSQLiteQuery::BindDoubleParameter(int index, double value)
 
   if (status != VTK_SQLITE_OK)
     {
-    vtksys_ios::ostringstream errormessage;
+    std::ostringstream errormessage;
     errormessage << "sqlite_bind_double returned error: " << status;
     this->SetLastErrorText(errormessage.str().c_str());
     vtkErrorMacro(<<this->GetLastErrorText());
@@ -738,7 +738,7 @@ bool vtkSQLiteQuery::BindStringParameter(int index, const char *value, int lengt
 
   if (status != VTK_SQLITE_OK)
     {
-    vtksys_ios::ostringstream errormessage;
+    std::ostringstream errormessage;
     errormessage << "sqlite_bind_text returned error: " << status;
     this->SetLastErrorText(errormessage.str().c_str());
     vtkErrorMacro(<<this->GetLastErrorText());
@@ -772,7 +772,7 @@ bool vtkSQLiteQuery::BindBlobParameter(int index, const void *data, int length)
 
   if (status != VTK_SQLITE_OK)
     {
-    vtksys_ios::ostringstream errormessage;
+    std::ostringstream errormessage;
     errormessage << "sqlite_bind_blob returned error: " << status;
     this->SetLastErrorText(errormessage.str().c_str());
     vtkErrorMacro(<<this->GetLastErrorText());
@@ -801,7 +801,7 @@ bool vtkSQLiteQuery::ClearParameterBindings()
 
   if (status != VTK_SQLITE_OK)
     {
-    vtksys_ios::ostringstream errormessage;
+    std::ostringstream errormessage;
     errormessage << "sqlite_clear_bindings returned error: " << status;
     this->SetLastErrorText(errormessage.str().c_str());
     vtkErrorMacro(<<this->GetLastErrorText());

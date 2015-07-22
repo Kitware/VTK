@@ -26,9 +26,7 @@
 #include "vtkOutEdgeIterator.h"
 #include "vtkSmartPointer.h"
 
-#include <vtksys/stl/vector>
-
-using vtksys_stl::vector;
+#include <vector>
 
 vtkStandardNewMacro(vtkTree);
 //----------------------------------------------------------------------------
@@ -172,8 +170,8 @@ bool vtkTree::IsStructureValid(vtkGraph *g)
     }
 
   // Make sure the tree is connected with no cycles.
-  vector<bool> visited(g->GetNumberOfVertices(), false);
-  vector<vtkIdType> stack;
+  std::vector<bool> visited(g->GetNumberOfVertices(), false);
+  std::vector<vtkIdType> stack;
   stack.push_back(root);
   vtkSmartPointer<vtkOutEdgeIterator> outIter =
     vtkSmartPointer<vtkOutEdgeIterator>::New();

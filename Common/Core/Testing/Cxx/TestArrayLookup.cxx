@@ -26,22 +26,22 @@
 #define VTK_CREATE(type,name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-#include <vtksys/stl/vector>
-#include <vtksys/stl/algorithm>
-#include <vtksys/stl/utility>
-#include <vtksys/stl/map>
+#include <vector>
+#include <algorithm>
+#include <utility>
+#include <map>
 
 struct NodeCompare
 {
-  bool operator()(const vtksys_stl::pair<int, vtkIdType>& a, const vtksys_stl::pair<int, vtkIdType>& b) const
+  bool operator()(const std::pair<int, vtkIdType>& a, const std::pair<int, vtkIdType>& b) const
   {
     return a.first < b.first;
   }
 };
 
-vtkIdType LookupValue(vtksys_stl::multimap<int, vtkIdType>& lookup, int value)
+vtkIdType LookupValue(std::multimap<int, vtkIdType>& lookup, int value)
 {
-  vtksys_stl::pair<const int, vtkIdType> found = *lookup.lower_bound(value);
+  std::pair<const int, vtkIdType> found = *lookup.lower_bound(value);
   if (found.first == value)
     {
     return found.second;
@@ -49,12 +49,12 @@ vtkIdType LookupValue(vtksys_stl::multimap<int, vtkIdType>& lookup, int value)
   return -1;
 }
 
-vtkIdType LookupValue(vtksys_stl::vector<vtksys_stl::pair<int, vtkIdType> >& lookup, int value)
+vtkIdType LookupValue(std::vector<std::pair<int, vtkIdType> >& lookup, int value)
 {
   NodeCompare comp;
-  vtksys_stl::pair<int, vtkIdType> val(value, 0);
-  vtksys_stl::pair<int, vtkIdType> found =
-    *vtksys_stl::lower_bound(lookup.begin(), lookup.end(), val, comp);
+  std::pair<int, vtkIdType> val(value, 0);
+  std::pair<int, vtkIdType> found =
+    *std::lower_bound(lookup.begin(), lookup.end(), val, comp);
   if (found.first == value)
     {
     return found.second;
@@ -65,7 +65,7 @@ vtkIdType LookupValue(vtksys_stl::vector<vtksys_stl::pair<int, vtkIdType> >& loo
 vtkIdType LookupValue(vtkIntArray* lookup, vtkIdTypeArray* index, int value)
 {
   int* ptr = lookup->GetPointer(0);
-  vtkIdType place = static_cast<vtkIdType>(vtksys_stl::lower_bound(ptr, ptr + lookup->GetNumberOfTuples(), value) - ptr);
+  vtkIdType place = static_cast<vtkIdType>(std::lower_bound(ptr, ptr + lookup->GetNumberOfTuples(), value) - ptr);
   if (place < lookup->GetNumberOfTuples() && ptr[place] == value)
     {
     return index->GetValue(place);
@@ -463,7 +463,7 @@ int TestArrayLookupInt(vtkIdType numVal, bool runComparison)
     // Time the lookup creation
     timer->StartTimer();
     int* ptr = arr->GetPointer(0);
-    vtksys_stl::multimap<int, vtkIdType> map;
+    std::multimap<int, vtkIdType> map;
     for (vtkIdType i = 0; i < arrSize; ++i, ++ptr)
       {
       map.insert(std::pair<const int, vtkIdType>(*ptr, i));
@@ -505,13 +505,13 @@ int TestArrayLookupInt(vtkIdType numVal, bool runComparison)
     // Time lookup creation
     timer->StartTimer();
     ptr = arr->GetPointer(0);
-    vtksys_stl::vector<vtksys_stl::pair<int, vtkIdType> > vec(arrSize);
+    std::vector<std::pair<int, vtkIdType> > vec(arrSize);
     for (vtkIdType i = 0; i < arrSize; ++i, ++ptr)
       {
-      vec[i] = vtksys_stl::pair<int, vtkIdType>(*ptr, i);
+      vec[i] = std::pair<int, vtkIdType>(*ptr, i);
       }
     NodeCompare comp;
-    vtksys_stl::sort(vec.begin(), vec.end(), comp);
+    std::sort(vec.begin(), vec.end(), comp);
     timer->StopTimer();
     cerr << "," << timer->GetElapsedTime();
 

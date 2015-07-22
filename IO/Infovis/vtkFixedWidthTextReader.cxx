@@ -29,9 +29,9 @@
 #include "vtkStdString.h"
 #include "vtkIOStream.h"
 
-#include <vtksys/stl/algorithm>
-#include <vtksys/stl/vector>
-#include <vtksys/ios/fstream>
+#include <algorithm>
+#include <vector>
+#include <fstream>
 
 #include <ctype.h>
 
@@ -41,14 +41,14 @@ vtkStandardNewMacro(vtkFixedWidthTextReader);
 static int splitString(const vtkStdString& input,
                        unsigned int fieldWidth,
                        bool stripWhitespace,
-                       vtksys_stl::vector<vtkStdString>& results,
+                       std::vector<vtkStdString>& results,
                        bool includeEmpties=true);
 
 
 // I need a safe way to read a line of arbitrary length.  It exists on
 // some platforms but not others so I'm afraid I have to write it
 // myself.
-static int my_getline(istream& stream, vtkStdString &output, char delim='\n');
+static int my_getline(std::istream& stream, vtkStdString &output, char delim='\n');
 
 // ----------------------------------------------------------------------
 
@@ -99,7 +99,7 @@ int vtkFixedWidthTextReader::RequestData(
     return 2;
     }
 
-  vtksys_ios::ifstream infile(this->FileName, ios::in);
+  std::ifstream infile(this->FileName, ios::in);
   if (!infile || infile.fail())
     {
     vtkErrorMacro(<<"vtkFixedWidthTextReader: Couldn't open file!");
@@ -109,8 +109,8 @@ int vtkFixedWidthTextReader::RequestData(
   // The first line of the file might contain the headers, so we want
   // to be a little bit careful about it.  If we don't have headers
   // we'll have to make something up.
-  vtksys_stl::vector<vtkStdString> headers;
-  vtksys_stl::vector<vtkStdString> firstLineFields;
+  std::vector<vtkStdString> headers;
+  std::vector<vtkStdString> firstLineFields;
   vtkStdString firstLine;
 
   my_getline(infile, firstLine);
@@ -146,7 +146,7 @@ int vtkFixedWidthTextReader::RequestData(
 
   // Now we can create the arrays that will hold the data for each
   // field.
-  vtksys_stl::vector<vtkStdString>::const_iterator fieldIter;
+  std::vector<vtkStdString>::const_iterator fieldIter;
   for(fieldIter = headers.begin(); fieldIter != headers.end(); ++fieldIter)
     {
     vtkStringArray* array = vtkStringArray::New();
@@ -160,7 +160,7 @@ int vtkFixedWidthTextReader::RequestData(
   if (!this->HaveHeaders)
     {
     vtkVariantArray* dataArray = vtkVariantArray::New();
-    vtksys_stl::vector<vtkStdString>::const_iterator I;
+    std::vector<vtkStdString>::const_iterator I;
     for(I = firstLineFields.begin(); I != firstLineFields.end(); ++I)
       {
       dataArray->InsertNextValue(vtkVariant(*I));
@@ -183,7 +183,7 @@ int vtkFixedWidthTextReader::RequestData(
       }
 
     vtkDebugMacro(<<"Next line: " << nextLine.c_str());
-    vtksys_stl::vector<vtkStdString> dataVector;
+    std::vector<vtkStdString> dataVector;
 
     // Split string on the delimiters
     splitString(nextLine,
@@ -196,7 +196,7 @@ int vtkFixedWidthTextReader::RequestData(
 
     // Convert from vector to variant array
     vtkVariantArray* dataArray = vtkVariantArray::New();
-    vtksys_stl::vector<vtkStdString>::const_iterator I;
+    std::vector<vtkStdString>::const_iterator I;
     for(I = dataVector.begin(); I != dataVector.end(); ++I)
       {
       dataArray->InsertNextValue(vtkVariant(*I));
@@ -224,7 +224,7 @@ static int
 splitString(const vtkStdString& input,
             unsigned int fieldWidth,
             bool stripWhitespace,
-            vtksys_stl::vector<vtkStdString>& results,
+            std::vector<vtkStdString>& results,
             bool includeEmpties)
 {
   if (input.size() == 0)

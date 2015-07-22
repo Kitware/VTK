@@ -307,7 +307,7 @@ void vtkExtractArraysOverTime::vtkInternal::AddTimeStepInternalForLocations(
 
     if (value->Label.empty())
       {
-      vtksys_ios::ostringstream stream;
+      std::ostringstream stream;
       stream << "(" << point[0] << ", " << point[1] << ", " << point[2] << ")";
       value->Label = stream.str();
       }
@@ -532,7 +532,7 @@ void vtkExtractArraysOverTime::vtkInternal::AddTimeStepInternalForQuery(
   // Determine the label to use for this block if none exists.
   if (value->Label.empty())
     {
-    vtksys_ios::ostringstream stream;
+    std::ostringstream stream;
     if (value->Label.empty())
       {
       if (composite_index != 0)
@@ -644,7 +644,7 @@ void vtkExtractArraysOverTime::vtkInternal::AddTimeStepInternal(
     // assigned.
     if (value->Label.empty())
       {
-      vtksys_ios::ostringstream stream;
+      std::ostringstream stream;
       if (this->ContentType == vtkSelectionNode::GLOBALIDS)
         {
         vtkIdTypeArray* gidsArray = vtkIdTypeArray::SafeDownCast(

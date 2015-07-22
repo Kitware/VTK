@@ -40,6 +40,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkVariantArray.h"
 
 #include "vtksys/CommandLineArguments.hxx"
+#include <map>
 
 namespace
 {
@@ -79,7 +80,7 @@ void RandomOrderStatistics( vtkMultiProcessController* controller, void* arg )
 
   // Infer number and type of generated variables based on command line options
   int nVariables = 0;
-  vtksys_stl::map<int,bool> isVariableAString;
+  std::map<int,bool> isVariableAString;
   if ( ! args->skipInt )
     {
     isVariableAString[nVariables] = false;

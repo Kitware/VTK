@@ -35,8 +35,8 @@
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
-#include <vtksys/stl/set>
-#include <vtksys/ios/sstream>
+#include <set>
+#include <sstream>
 #include <limits>
 
 vtkObjectFactoryNewMacro(vtkDescriptiveStatistics)
@@ -279,11 +279,11 @@ void vtkDescriptiveStatistics::Learn( vtkTable* inData,
 
   // Loop over requests
   vtkIdType nRow = inData->GetNumberOfRows();
-  for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
+  for ( std::set<std::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
         rit != this->Internals->Requests.end(); ++ rit )
     {
     // Each request contains only one column of interest (if there are others, they are ignored)
-    vtksys_stl::set<vtkStdString>::const_iterator it = rit->begin();
+    std::set<vtkStdString>::const_iterator it = rit->begin();
     vtkStdString varName = *it;
     if ( ! inData->GetColumnByName( varName ) )
       {
@@ -539,11 +539,11 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
   vtkStringArray* vars = vtkStringArray::SafeDownCast( primaryTab->GetColumnByName( "Variable" ) );
 
   // Loop over requests
-  for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
+  for ( std::set<std::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
         rit != this->Internals->Requests.end(); ++ rit )
     {
     // Each request contains only one column of interest (if there are others, they are ignored)
-    vtksys_stl::set<vtkStdString>::const_iterator it = rit->begin();
+    std::set<vtkStdString>::const_iterator it = rit->begin();
     vtkStdString varName = *it;
     if ( ! inData->GetColumnByName( varName ) )
       {

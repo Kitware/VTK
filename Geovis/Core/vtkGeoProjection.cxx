@@ -199,7 +199,7 @@ int vtkGeoProjection::UpdateProjection()
   projSpec += this->Name;
   std::string ellpsSpec( "+ellps=clrk66" );
   std::string meridSpec;
-  vtksys_ios::ostringstream os;
+  std::ostringstream os;
   os << "+lon_0=" << this->CentralMeridian;
   meridSpec = os.str();
   pjArgs[0] = projSpec.c_str();
@@ -210,7 +210,7 @@ int vtkGeoProjection::UpdateProjection()
   std::vector<std::string> stringHolder; // Keep string ref in memory
   for(int i=0; i < this->GetNumberOfOptionalParameters(); i++)
     {
-    vtksys_ios::ostringstream param;
+    std::ostringstream param;
     param << "+" << this->GetOptionalParameterKey(i);
     param << "=" << this->GetOptionalParameterValue(i);
     stringHolder.push_back(param.str());

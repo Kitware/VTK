@@ -119,7 +119,7 @@ int vtkRowQueryToTable::RequestData(
     if (output->GetColumnByName(name))
       {
       int i = 1;
-      vtksys_ios::ostringstream oss;
+      std::ostringstream oss;
       vtkStdString newName;
       do
         {

@@ -20,10 +20,6 @@
 #include "vtkTreeMapLayout.h"
 #include "vtkTreeMapToPolyData.h"
 
-#include <vtksys/stl/vector>
-
-using vtksys_stl::vector;
-
 #define VTK_CREATE(type,name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 

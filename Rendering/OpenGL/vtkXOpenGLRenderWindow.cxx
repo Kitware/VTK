@@ -1680,7 +1680,7 @@ const char* vtkXOpenGLRenderWindow::ReportCapabilities()
   const char *glVersion = reinterpret_cast<const char *>(glGetString(GL_VERSION));
   const char *glExtensions = reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
 
-  vtksys_ios::ostringstream strm;
+  std::ostringstream strm;
   strm << "server glx vendor string:  " << serverVendor << endl;
   strm << "server glx version string:  " << serverVersion << endl;
   strm << "server glx extensions:  " << serverExtensions << endl;

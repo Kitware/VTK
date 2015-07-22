@@ -33,8 +33,7 @@
 #include "vtkTransform.h"
 #include "vtkTransformFilter.h"
 
-#include <vtksys/stl/vector>
-using vtksys_stl::vector;
+#include <vector>
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \
@@ -62,7 +61,7 @@ public:
 private:
   TestRenderViewUpdater() { }
   ~TestRenderViewUpdater() { }
-  vector<vtkView*> Views;
+  std::vector<vtkView*> Views;
 };
 
 static char RenderViewEventLog[] =

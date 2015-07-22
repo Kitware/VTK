@@ -54,8 +54,8 @@
 #include "vtkTransformFilter.h"
 #include "vtkXMLPolyDataWriter.h"
 
-#include <vtksys/stl/stack>
-#include <vtksys/stl/utility>
+#include <stack>
+#include <utility>
 
 vtkStandardNewMacro(vtkGeoTerrain);
 vtkCxxSetObjectMacro(vtkGeoTerrain, GeoSource, vtkGeoSource);
@@ -242,7 +242,7 @@ void vtkGeoTerrain::AddActors(
     }
 
   // Use stack rather than recursion
-  vtksys_stl::stack<vtkGeoTerrainNode*> s;
+  std::stack<vtkGeoTerrainNode*> s;
   s.push(this->Root);
 
   vtkGeoTerrainNode* child = NULL;
@@ -493,7 +493,7 @@ void vtkGeoTerrain::SaveDatabase(const char* path, int depth)
     {
     this->Initialize();
     }
-  vtksys_stl::stack< vtkSmartPointer<vtkGeoTerrainNode> > s;
+  std::stack< vtkSmartPointer<vtkGeoTerrainNode> > s;
   s.push(this->Root);
   while (!s.empty())
     {

@@ -66,7 +66,7 @@ static vtkStdString GetErrorMessage(SQLSMALLINT handleType,
 
   // There may be several error messages queued up so we need to loop
   // until we've got everything.
-  vtksys_ios::ostringstream messagebuf;
+  std::ostringstream messagebuf;
   do
     {
     status = SQLGetDiagRec(handleType, handle,
@@ -294,7 +294,7 @@ bool vtkODBCDatabase::Open(const char *password)
     {
     // We don't actually have a valid SQL handle yet so I don't think
     // we can actually retrieve an error message.
-    vtksys_ios::ostringstream sbuf;
+    std::ostringstream sbuf;
     sbuf << "vtkODBCDatabase::Open: Unable to allocate environment handle.  "
          << "Return code " << status << ", error message: "
          << GetErrorMessage(SQL_HANDLE_ENV,
@@ -353,7 +353,7 @@ bool vtkODBCDatabase::Open(const char *password)
 
   if (status != SQL_SUCCESS && status != SQL_SUCCESS_WITH_INFO)
     {
-    vtksys_ios::ostringstream errbuf;
+    std::ostringstream errbuf;
     errbuf << "Error allocating ODBC connection handle: "
            << GetErrorMessage(SQL_HANDLE_ENV, this->Internals->Environment);
     this->SetLastErrorText(errbuf.str().c_str());
@@ -372,7 +372,7 @@ bool vtkODBCDatabase::Open(const char *password)
                              driverName.size());
   if (status != SQL_SUCCESS && status != SQL_SUCCESS_WITH_INFO)
     {
-    vtksys_ios::ostringstream errbuf;
+    std::ostringstream errbuf;
     errbuf << "Error setting driver name: "
            << GetErrorMessage(SQL_HANDLE_DBC, this->Internals->Connection);
     this->SetLastErrorText(errbuf.str().c_str());
@@ -397,7 +397,7 @@ bool vtkODBCDatabase::Open(const char *password)
 
   if (status != SQL_SUCCESS && status != SQL_SUCCESS_WITH_INFO)
     {
-    vtksys_ios::ostringstream sbuf;
+    std::ostringstream sbuf;
     sbuf << "vtkODBCDatabase::Open: Error during connection: "
          << GetErrorMessage(SQL_HANDLE_DBC, this->Internals->Connection);
     this->SetLastErrorText(sbuf.str().c_str());
@@ -718,7 +718,7 @@ vtkStdString vtkODBCDatabase::GetColumnSpecification(
   int tblHandle,
   int colHandle)
 {
-  vtksys_ios::ostringstream queryStr;
+  std::ostringstream queryStr;
   queryStr << schema->GetColumnNameFromHandle( tblHandle, colHandle ) << " ";
 
   // Figure out column type

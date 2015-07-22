@@ -531,7 +531,7 @@ static void vtkPCAStatisticsNormalizeSpec( vtkVariantArray* normData,
     factor[std::pair<vtkIdType,vtkIdType>( i, j )] = normSpec->GetValue( r, 2 ).ToDouble();
     }
   // Now normalize cov, recording any missing factors along the way.
-  vtksys_ios::ostringstream missing;
+  std::ostringstream missing;
   bool gotMissing = false;
   std::map<std::pair<vtkIdType,vtkIdType>,double>::iterator fit;
   if ( triangle )
@@ -712,7 +712,7 @@ void vtkPCAStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     row->SetNumberOfTuples( m + 2 );
     for ( i = 0; i < m; ++ i )
       {
-      vtksys_ios::ostringstream pcaCompName;
+      std::ostringstream pcaCompName;
       pcaCompName << VTK_PCA_COMPCOLUMN << " " << i;
       row->SetValue( 0, pcaCompName.str().c_str() );
       row->SetValue( 1, s( i ) );
@@ -731,7 +731,7 @@ void vtkPCAStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       case TRIANGLE_SPECIFIED:
         for ( i = 0; i < m; ++ i )
           {
-          vtksys_ios::ostringstream normCompName;
+          std::ostringstream normCompName;
           normCompName << VTK_PCA_NORMCOLUMN << " " << i;
           row->SetValue( 0, normCompName.str().c_str() );
           row->SetValue( 1, 0. );
@@ -1023,7 +1023,7 @@ void vtkPCAStatistics::Assess( vtkTable* inData,
     int comp;
     for ( comp = 0; comp < pcafunc->BasisSize; ++ comp )
       {
-      vtksys_ios::ostringstream reqNameStr;
+      std::ostringstream reqNameStr;
       reqNameStr << VTK_PCA_COMPCOLUMN << "{";
       for ( int i = 0; i < pcafunc->GetNumberOfColumns(); ++ i )
         {

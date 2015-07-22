@@ -427,10 +427,10 @@ private:
 
 public:
   // a super-easy way to make use of operator<<()'s defined in
-  // vtksys_ios::ostringstream class
+  // std::ostringstream class
   template <class T> vtkFoamError& operator<<(const T& t)
   {
-    vtksys_ios::ostringstream os;
+    std::ostringstream os;
     os << t;
     this->Superclass::operator+=(os.str());
     return *this;
@@ -639,7 +639,7 @@ public:
     return !this->operator==(value);
   }
 
-  friend vtksys_ios::ostringstream& operator<<(vtksys_ios::ostringstream& str,
+  friend std::ostringstream& operator<<(std::ostringstream& str,
       const vtkFoamToken& value)
   {
     switch (value.GetType())
@@ -828,7 +828,7 @@ private:
 
   vtkFoamError StackString()
   {
-    vtksys_ios::ostringstream os;
+    std::ostringstream os;
     if (this->StackI > 0)
       {
       os << "\n included";
@@ -4264,31 +4264,31 @@ bool vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByControlDict(
 
   // determine time name based on Foam::Time::timeName()
   // cf. src/OpenFOAM/db/Time/Time.C
-  vtksys_ios::ostringstream parser;
+  std::ostringstream parser;
 #ifdef _MSC_VER
   bool correctExponent = true;
 #endif
   if (timeFormat == "general")
     {
-    parser.setf(vtksys_ios::ios_base::fmtflags(0), vtksys_ios::ios_base::floatfield);
+    parser.setf(std::ios_base::fmtflags(0), std::ios_base::floatfield);
     }
   else if (timeFormat == "fixed")
     {
-    parser.setf(vtksys_ios::ios_base::fmtflags(vtksys_ios::ios_base::fixed),
-        vtksys_ios::ios_base::floatfield);
+    parser.setf(std::ios_base::fmtflags(std::ios_base::fixed),
+        std::ios_base::floatfield);
 #ifdef _MSC_VER
     correctExponent = false;
 #endif
     }
   else if (timeFormat == "scientific")
     {
-    parser.setf(vtksys_ios::ios_base::fmtflags(vtksys_ios::ios_base::scientific),
-        vtksys_ios::ios_base::floatfield);
+    parser.setf(std::ios_base::fmtflags(std::ios_base::scientific),
+        std::ios_base::floatfield);
     }
   else
     {
     vtkWarningMacro("Warning: unsupported time format. Assuming general.");
-    parser.setf(vtksys_ios::ios_base::fmtflags(0), vtksys_ios::ios_base::floatfield);
+    parser.setf(std::ios_base::fmtflags(0), std::ios_base::floatfield);
     }
   parser.precision(timePrecision);
 
@@ -6675,7 +6675,7 @@ void vtkOpenFOAMReaderPrivate::ConstructDimensions(vtkStdString *dimString,
         }
       static const char *units[7] =
       { "kg", "m", "s", "K", "mol", "A", "cd" };
-      vtksys_ios::ostringstream posDim, negDim;
+      std::ostringstream posDim, negDim;
       int posSpc = 0, negSpc = 0;
       if (dimSet[0] == 1 && dimSet[1] == -1 && dimSet[2] == -2)
         {

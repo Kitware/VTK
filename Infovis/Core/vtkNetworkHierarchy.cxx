@@ -34,10 +34,10 @@
 #include "vtkTree.h"
 #include "vtkVariant.h"
 
-#include <vtksys/stl/map>
-#include <vtksys/stl/utility>
-#include <vtksys/stl/vector>
-#include <vtksys/ios/sstream>
+#include <map>
+#include <utility>
+#include <vector>
+#include <sstream>
 #include <algorithm>
 
 vtkStandardNewMacro(vtkNetworkHierarchy);
@@ -139,9 +139,9 @@ int vtkNetworkHierarchy::RequestData(
   for (vtkIdType i = 0; i < ipArray->GetNumberOfTuples(); ++i)
     {
     unsigned int packedID = this->ITON(ipArray->GetValue(i));
-    SubnetMap.push_back(vtksys_stl::make_pair(packedID,i));
+    SubnetMap.push_back(std::make_pair(packedID,i));
     }
-  vtksys_stl::sort(SubnetMap.begin(), SubnetMap.end());
+  std::sort(SubnetMap.begin(), SubnetMap.end());
 
   // Create builder for the tree
   VTK_CREATE(vtkMutableDirectedGraph,builder);
@@ -232,7 +232,7 @@ int vtkNetworkHierarchy::RequestData(
       treeTable->InsertNextBlankRow();
 
       // Set the label for the child
-      vtksys_ios::ostringstream subnetStream;
+      std::ostringstream subnetStream;
       subnetStream << subnets[0];
       treeTable->SetValueByName(treeIndex, this->IPArrayName, vtkVariant(subnetStream.str()));
 
@@ -261,7 +261,7 @@ int vtkNetworkHierarchy::RequestData(
       treeTable->InsertNextBlankRow();
 
       // Set the label for the child
-      vtksys_ios::ostringstream subnetStream;
+      std::ostringstream subnetStream;
       subnetStream << subnets[0] << "." << subnets[1];
       treeTable->SetValueByName(treeIndex, this->IPArrayName, vtkVariant(subnetStream.str()));
 
@@ -290,7 +290,7 @@ int vtkNetworkHierarchy::RequestData(
       treeTable->InsertNextBlankRow();
 
       // Set the label for the child
-      vtksys_ios::ostringstream subnetStream;
+      std::ostringstream subnetStream;
       subnetStream << subnets[0] << "." << subnets[1] << "." << subnets[2];
       treeTable->SetValueByName(treeIndex, this->IPArrayName, vtkVariant(subnetStream.str()));
 
