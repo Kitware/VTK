@@ -275,8 +275,8 @@ public:
 
   // Description:
   // Get the address of a particular data index. Make sure data is allocated
-  // for the number of items requested. Set MaxId according to the number of
-  // data values requested.
+  // for the number of items requested. If needed, increase MaxId to mark any
+  // new value ranges as in-use.
   virtual void* WriteVoidPointer(vtkIdType id, vtkIdType number) = 0;
 
   // Description:
