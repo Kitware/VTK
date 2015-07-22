@@ -768,6 +768,21 @@ void vtkDataArray::InsertTuple4(vtkIdType i, double val0, double val1,
   tuple[3] = val3;
   this->InsertTuple(i, tuple);
 }
+
+//----------------------------------------------------------------------------
+void vtkDataArray::InsertTuple6(vtkIdType i, double val0, double val1,
+                                double val2, double val3, double val4,
+                                double val5)
+{
+  if (this->NumberOfComponents != 6)
+    {
+    vtkErrorMacro("The number of components do not match the number requested: "
+                  << this->NumberOfComponents << " != 6");
+    }
+  double tuple[6] = {val0, val1, val2, val3, val4, val5};
+  this->InsertTuple(i, tuple);
+}
+
 //----------------------------------------------------------------------------
 void vtkDataArray::InsertTuple9(vtkIdType i, double val0, double val1,
                                 double val2,  double val3, double val4,
@@ -850,6 +865,21 @@ void vtkDataArray::InsertNextTuple4(double val0, double val1,
   tuple[3] = val3;
   this->InsertNextTuple(tuple);
 }
+
+//----------------------------------------------------------------------------
+void vtkDataArray::InsertNextTuple6(double val0, double val1, double val2,
+                                    double val3, double val4, double val5)
+{
+  if (this->NumberOfComponents != 6)
+    {
+    vtkErrorMacro("The number of components do not match the number requested: "
+                  << this->NumberOfComponents << " != 6");
+    }
+
+  double tuple[6] = {val0, val1, val2, val3, val4, val5};
+  this->InsertNextTuple(tuple);
+}
+
 //----------------------------------------------------------------------------
 void vtkDataArray::InsertNextTuple9(double val0, double val1,
                                     double val2,  double val3, double val4,
