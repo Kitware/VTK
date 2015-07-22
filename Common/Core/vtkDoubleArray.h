@@ -35,13 +35,13 @@
 #define vtkDataArray vtkDataArrayTemplate<double>
 #endif
 class VTKCOMMONCORE_EXPORT vtkDoubleArray : public vtkDataArray
+{
+public:
+  vtkTypeMacro(vtkDoubleArray, vtkDataArray)
 #ifndef __WRAP__
 #undef vtkDataArray
 #endif
-{
-public:
   static vtkDoubleArray* New();
-  vtkTypeMacro(vtkDoubleArray,vtkDataArray);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // This macro expands to the set of method declarations that

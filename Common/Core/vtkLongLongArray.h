@@ -39,13 +39,13 @@
 #define vtkDataArray vtkDataArrayTemplate<long long>
 #endif
 class VTKCOMMONCORE_EXPORT vtkLongLongArray : public vtkDataArray
+{
+public:
+  vtkTypeMacro(vtkLongLongArray, vtkDataArray)
 #ifndef __WRAP__
 #undef vtkDataArray
 #endif
-{
-public:
   static vtkLongLongArray* New();
-  vtkTypeMacro(vtkLongLongArray,vtkDataArray);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // This macro expands to the set of method declarations that
