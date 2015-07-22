@@ -50,18 +50,20 @@ void vtkWrapPython_AddEnumType(
   fprintf(fp,
           "%sPyType_Ready(&Py%s%s%s_Type);\n"
           "%sPy%s%s%s_Type.tp_new = NULL;\n"
+          "%svtkPythonUtil::AddEnumToMap(&Py%s%s%s_Type);\n"
           "\n",
+          indent, (scope ? scope : ""), (scope ? "_" : ""), cls->Name,
           indent, (scope ? scope : ""), (scope ? "_" : ""), cls->Name,
           indent, (scope ? scope : ""), (scope ? "_" : ""), cls->Name);
   fprintf(fp,
           "%s%s = (PyObject *)&Py%s%s%s_Type;\n"
-          "%sif (%s && PyDict_SetItemString(%s, \"%s\", %s) != 0)\n"
+          "%sif (PyDict_SetItemString(%s, \"%s\", %s) != 0)\n"
           "%s  {\n"
           "%s  Py_DECREF(%s);\n"
           "%s  }\n",
           indent, objvar,
           (scope ? scope : ""), (scope ? "_" : ""), cls->Name,
-          indent, objvar, dictvar, cls->Name, objvar,
+          indent, dictvar, cls->Name, objvar,
           indent,
           indent, objvar,
           indent);
@@ -72,19 +74,19 @@ void vtkWrapPython_AddEnumType(
 void vtkWrapPython_GenerateEnumType(
   FILE *fp, const char *classname, EnumInfo *data)
 {
-  char enumname[1024];
-  size_t classnamelen = 0;
+  char enumname[512];
+  char tpname[512];
 
   if (classname)
     {
-    classnamelen = strlen(classname);
-    strcpy(enumname, classname);
-    enumname[classnamelen] = '_';
-    strcpy(enumname+classnamelen+1, data->Name);
+    /* join with "_" for identifier, and with "." for type name */
+    sprintf(enumname, "%.200s_%.200s", classname, data->Name);
+    sprintf(tpname, "%.200s.%.200s", classname, data->Name);
     }
   else
     {
-    strcpy(enumname, data->Name);
+    sprintf(enumname, "%.200s", data->Name);
+    sprintf(tpname, "%.200s", data->Name);
     }
 
   /* forward declaration of the type object */
@@ -112,7 +114,7 @@ void vtkWrapPython_GenerateEnumType(
     "  0, // tp_setattr\n"
     "  0, // tp_compare\n"
     "  0, // tp_repr\n",
-    enumname, data->Name);
+    enumname, tpname);
 
   fprintf(fp,
     "  0, // tp_as_number\n"

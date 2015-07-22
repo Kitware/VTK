@@ -31,6 +31,7 @@ class vtkPythonGhostMap;
 class vtkPythonObjectMap;
 class vtkPythonSpecialTypeMap;
 class vtkPythonNamespaceMap;
+class vtkPythonEnumMap;
 class vtkStdString;
 class vtkUnicodeString;
 class vtkVariant;
@@ -145,6 +146,14 @@ public:
   static PyObject *FindNamespace(const char *name);
 
   // Description:
+  // Add a wrapped C++ enum as a python type object.
+  static void AddEnumToMap(PyTypeObject *o);
+
+  // Description:
+  // Return an enum type object, or NULL if it doesn't exist.
+  static PyTypeObject *FindEnum(const char *name);
+
+  // Description:
   // Utility function to build a docstring by concatenating a series
   // of strings until a null string is found.
   static PyObject *BuildDocString(const char *docstring[]);
@@ -180,6 +189,7 @@ private:
   vtkPythonClassMap *ClassMap;
   vtkPythonSpecialTypeMap *SpecialTypeMap;
   vtkPythonNamespaceMap *NamespaceMap;
+  vtkPythonEnumMap *EnumMap;
   vtkPythonCommandList *PythonCommandList;
 
   friend void vtkPythonUtilDelete();

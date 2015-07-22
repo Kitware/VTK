@@ -155,6 +155,12 @@ class vtkPythonNamespaceMap
 {
 };
 
+// Keep track of all the C++ enums that have been wrapped.
+class vtkPythonEnumMap
+  : public std::map<std::string, PyTypeObject*>
+{
+};
+
 // Keep track of all vtkPythonCommand instances.
 class vtkPythonCommandList
   : public std::vector<vtkWeakPointer<vtkPythonCommand> >
@@ -208,6 +214,7 @@ vtkPythonUtil::vtkPythonUtil()
   this->ClassMap = new vtkPythonClassMap;
   this->SpecialTypeMap = new vtkPythonSpecialTypeMap;
   this->NamespaceMap = new vtkPythonNamespaceMap;
+  this->EnumMap = new vtkPythonEnumMap;
   this->PythonCommandList = new vtkPythonCommandList;
 }
 
@@ -219,6 +226,7 @@ vtkPythonUtil::~vtkPythonUtil()
   delete this->ClassMap;
   delete this->SpecialTypeMap;
   delete this->NamespaceMap;
+  delete this->EnumMap;
   delete this->PythonCommandList;
 }
 
@@ -754,34 +762,24 @@ PyObject *vtkPythonUtil::GetObjectFromObject(
 void *vtkPythonUtil::GetPointerFromSpecialObject(
   PyObject *obj, const char *result_type, PyObject **newobj)
 {
-  // The type name
   const char *object_type = obj->ob_type->tp_name;
 
-  // check to make sure that it is the right type
-  if (strcmp(object_type, result_type) == 0)
+  // do a lookup on the desired type
+  vtkPythonSpecialTypeMap::iterator it =
+    vtkPythonMap->SpecialTypeMap->find(result_type);
+  if (it != vtkPythonMap->SpecialTypeMap->end())
     {
-    return ((PyVTKSpecialObject *)obj)->vtk_ptr;
-    }
+    PyVTKSpecialType *info = &it->second;
 
-  // check superclasses
-  for (PyTypeObject *basetype = obj->ob_type->tp_base;
-       basetype != NULL;
-       basetype = basetype->tp_base)
-    {
-    if (strcmp(basetype->tp_name, result_type) == 0)
+    // first, check if object is the desired type
+    if (PyObject_TypeCheck(obj, info->py_type))
       {
       return ((PyVTKSpecialObject *)obj)->vtk_ptr;
       }
-    }
 
-  // try to construct the special object from the supplied object
-  vtkPythonSpecialTypeMap::iterator it =
-    vtkPythonMap->SpecialTypeMap->find(result_type);
-  if(it != vtkPythonMap->SpecialTypeMap->end())
-    {
+    // try to construct the special object from the supplied object
     PyObject *sobj = 0;
 
-    PyVTKSpecialType *info = &it->second;
     PyMethodDef *meth =
       vtkPythonOverload::FindConversionMethod(info->vtk_constructors, obj);
 
@@ -866,7 +864,7 @@ void vtkPythonUtil::AddNamespaceToMap(PyObject *module)
 }
 
 //--------------------------------------------------------------------
-// This method is called
+// This method is called from PyVTKNamespace_Delete
 void vtkPythonUtil::RemoveNamespaceFromMap(PyObject *obj)
 {
   if (vtkPythonMap && PyVTKNamespace_Check(obj))
@@ -898,6 +896,42 @@ PyObject *vtkPythonUtil::FindNamespace(const char *name)
     }
 
   return NULL;
+}
+
+//--------------------------------------------------------------------
+void vtkPythonUtil::AddEnumToMap(PyTypeObject *enumtype)
+{
+  if (vtkPythonMap == NULL)
+    {
+    vtkPythonMap = new vtkPythonUtil();
+    Py_AtExit(vtkPythonUtilDelete);
+    }
+
+  // Only add to map if it isn't already there
+  vtkPythonEnumMap::iterator i =
+    vtkPythonMap->EnumMap->find(enumtype->tp_name);
+  if (i == vtkPythonMap->EnumMap->end())
+    {
+    (*vtkPythonMap->EnumMap)[enumtype->tp_name] = enumtype;
+    }
+}
+
+//--------------------------------------------------------------------
+PyTypeObject *vtkPythonUtil::FindEnum(const char *name)
+{
+  PyTypeObject *pytype = NULL;
+
+  if (vtkPythonMap)
+    {
+    vtkPythonEnumMap::iterator it =
+      vtkPythonMap->EnumMap->find(name);
+    if (it != vtkPythonMap->EnumMap->end())
+      {
+      pytype = it->second;
+      }
+    }
+
+  return pytype;
 }
 
 //--------------------------------------------------------------------

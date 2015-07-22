@@ -40,7 +40,7 @@ static char *vtkWrapPython_FormatString(
 
 /* create a string for checking arguments against available signatures */
 static char *vtkWrapPython_ArgCheckString(
-  int isStatic, FunctionInfo *currentFunction);
+  ClassInfo *data, FunctionInfo *currentFunction);
 
 
 /* -------------------------------------------------------------------- */
@@ -235,14 +235,14 @@ static char *vtkWrapPython_FormatString(FunctionInfo *currentFunction)
 
 /* -------------------------------------------------------------------- */
 /* Create a string to describe the signature of a method.
- * If isvtkobject is set the string will start with an "at" symbol.
+ * The string will start with an "at" symbol unless the method is static.
  * Following the optional space will be a ParseTuple format string,
  * followed by the names of any VTK classes required.  The optional
  * "at" symbol indicates that methods like vtkClass.Method(self, arg1,...)
  * are possible, so the "at" is a placeholder for "self". */
 
 static char *vtkWrapPython_ArgCheckString(
-  int isStatic, FunctionInfo *currentFunction)
+  ClassInfo *data, FunctionInfo *currentFunction)
 {
   static char result[2048]; /* max literal string length */
   char pythonname[1024];
@@ -260,8 +260,8 @@ static char *vtkWrapPython_ArgCheckString(
     result[currPos++] = '-';
     }
 
-  /* placeholder for type in unbound method calls */
-  if (!isStatic)
+  /* placeholder for type object in unbound method calls */
+  if (!currentFunction->IsStatic)
     {
     result[currPos++] = '@';
     }
@@ -304,7 +304,16 @@ static char *vtkWrapPython_ArgCheckString(
         argtype == VTK_PARSE_QOBJECT_REF ||
         argtype == VTK_PARSE_QOBJECT_PTR)
       {
-      vtkWrapPython_PythonicName(arg->Class, pythonname);
+      /* If argtype is an enum that is a member of the class whose
+       * method we are wrapping, then qualify the name with the class */
+      if (vtkWrap_IsEnumMember(data, arg))
+        {
+        sprintf(pythonname, "%.200s.%.200s", data->Name, arg->Class);
+        }
+      else
+        {
+        vtkWrapPython_PythonicName(arg->Class, pythonname);
+        }
 
       result[currPos++] = ' ';
       if ((argtype == VTK_PARSE_OBJECT_REF ||
@@ -532,11 +541,10 @@ void vtkWrapPython_OverloadMethodDef(
     fprintf(fp,
             "  {NULL, Py%s_%s%s, METH_VARARGS%s,\n"
             "   \"%s\"},\n",
-            classname, wrappedFunctions[occ]->Name,
+            classname, theOccurrence->Name,
             occSuffix,
             theOccurrence->IsStatic ? " | METH_STATIC" : "",
-            vtkWrapPython_ArgCheckString(
-              theOccurrence->IsStatic, wrappedFunctions[occ]));
+            vtkWrapPython_ArgCheckString(data, theOccurrence));
 
     if (theOccurrence->IsLegacy && !all_legacy)
       {

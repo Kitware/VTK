@@ -436,15 +436,14 @@ int vtkPythonOverload::CheckArg(
           }
         else if (PyVTKObject_Check(arg))
           {
-          PyVTKObject *vobj = (PyVTKObject *)arg;
-          if (strncmp(vtkPythonUtil::PythonicClassName(
-                vobj->vtk_ptr->GetClassName()), classname, 127) != 0)
+          PyVTKClass *info = vtkPythonUtil::FindClass(classname);
+          PyTypeObject *pytype = (info ? info->py_type : NULL);
+          if (arg->ob_type != pytype)
             {
             // Check superclasses
             PyTypeObject *basetype = arg->ob_type->tp_base;
             penalty = VTK_PYTHON_GOOD_MATCH;
-            while (basetype &&
-                   strncmp(basetype->tp_name, classname, 127) != 0)
+            while (basetype && basetype != pytype)
               {
               penalty++;
               basetype = basetype->tp_base;
@@ -465,14 +464,17 @@ int vtkPythonOverload::CheckArg(
       else if (classname[0] == 'v' && classname[1] == 't' &&
                classname[2] == 'k')
         {
+        // Look up the required type in the map
+        PyVTKSpecialType *info = vtkPythonUtil::FindSpecialType(classname);
+        PyTypeObject *pytype = (info ? info->py_type : NULL);
+
         // Check for an exact match
-        if (strncmp(arg->ob_type->tp_name, classname, 127) != 0)
+        if (arg->ob_type != pytype)
           {
           // Check superclasses
           PyTypeObject *basetype = arg->ob_type->tp_base;
           penalty = VTK_PYTHON_GOOD_MATCH;
-          while (basetype &&
-                 strncmp(basetype->tp_name, classname, 127) != 0)
+          while (basetype && basetype != pytype)
             {
             penalty++;
             basetype = basetype->tp_base;
@@ -482,12 +484,8 @@ int vtkPythonOverload::CheckArg(
             // If it didn't match, then maybe conversion is possible
             penalty = VTK_PYTHON_NEEDS_CONVERSION;
 
-            // Look up the required type in the map
-            PyVTKSpecialType *info = NULL;
-
             // The "level != 0" ensures that we don't chain conversions
-            if (level != 0 ||
-                (info = vtkPythonUtil::FindSpecialType(classname)) == NULL)
+            if (level != 0 || info == 0)
               {
               penalty = VTK_PYTHON_INCOMPATIBLE;
               }
@@ -509,14 +507,17 @@ int vtkPythonOverload::CheckArg(
         // Skip over the "&" that indicates a non-const reference
         classname++;
 
+        // Look up the required type in the map
+        PyVTKSpecialType *info = vtkPythonUtil::FindSpecialType(classname);
+        PyTypeObject *pytype = (info ? info->py_type : NULL);
+
         // Check for an exact match
-        if (strncmp(arg->ob_type->tp_name, classname, 127) != 0)
+        if (arg->ob_type != pytype)
           {
           // Check superclasses
           PyTypeObject *basetype = arg->ob_type->tp_base;
           penalty = VTK_PYTHON_GOOD_MATCH;
-          while (basetype &&
-                 strncmp(basetype->tp_name, classname, 127) != 0)
+          while (basetype && basetype != pytype)
             {
             penalty++;
             basetype = basetype->tp_base;
@@ -585,26 +586,14 @@ int vtkPythonOverload::CheckArg(
           }
         if (PyInt_Check(arg))
           {
-          if (strcmp(arg->ob_type->tp_name, classname) == 0)
+          PyTypeObject *pytype = vtkPythonUtil::FindEnum(classname);
+          if (pytype && PyObject_TypeCheck(arg, pytype))
             {
             penalty = VTK_PYTHON_EXACT_MATCH;
             }
           else
             {
-            /* tp_name doesn't include namespace, so we also allow
-               matches between "name" and "namespace.name" */
-            size_t l, m;
-            l = strlen(arg->ob_type->tp_name);
-            m = strlen(classname);
-            if (l < m && !isalnum(classname[m-l-1]) &&
-                strcmp(arg->ob_type->tp_name, &classname[m-l]) == 0)
-              {
-              penalty = VTK_PYTHON_GOOD_MATCH;
-              }
-            else
-              {
-              penalty = VTK_PYTHON_NEEDS_CONVERSION;
-              }
+            penalty = VTK_PYTHON_NEEDS_CONVERSION;
             }
           }
         else
