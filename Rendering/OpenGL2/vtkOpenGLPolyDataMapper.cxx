@@ -50,13 +50,15 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedIntArray.h"
 
+#include "vtkShadowMapPass.h"
+
 // Bring in our fragment lit shader symbols.
 #include "vtkPolyDataVS.h"
 #include "vtkPolyDataFS.h"
 #include "vtkPolyDataWideLineGS.h"
 
 #include <algorithm>
-
+#include <sstream>
 
 
 //-----------------------------------------------------------------------------
@@ -466,9 +468,88 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
 
 void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
   std::map<vtkShader::Type, vtkShader *> shaders,
-  vtkRenderer *, vtkActor *)
+  vtkRenderer *, vtkActor *actor)
 {
   std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
+
+  // check for shadow maps
+  vtkInformation *info = actor->GetPropertyKeys();
+  std::string shadowFactor = "";
+  if (info && info->Has(vtkShadowMapPass::ShadowMapTextures()))
+    {
+    int *shadowMapTextures = 0;
+    int numLights = 0;
+
+    shadowMapTextures = info->Get(vtkShadowMapPass::ShadowMapTextures());
+    numLights = info->Length(vtkShadowMapPass::ShadowMapTextures());
+
+    // count how many lights have shadow maps
+    int numSMT = 0;
+    for (int i = 0; i < numLights; i++)
+      {
+      if (shadowMapTextures[i] >= 0)
+        {
+        numSMT++;
+        }
+      }
+    std::ostringstream toString;
+    toString << numSMT;
+
+    vtkShaderProgram::Substitute(FSSource,"//VTK::Light::Dec",
+      "//VTK::Light::Dec\n"
+      "#define VTK_NUM_SHADOW_MAPS " + toString.str() + "\n"
+//      "uniform sampler2DShadow shadowMaps[VTK_NUM_SHADOW_MAPS];\n"
+      "uniform sampler2D shadowMaps[VTK_NUM_SHADOW_MAPS];\n"
+      "uniform mat4 shadowTransforms[VTK_NUM_SHADOW_MAPS];\n"
+      "float computeShadowFactor(vec4 vc, int idx)\n"
+      "  {\n"
+      "  vec4 shadowCoord = shadowTransforms[idx]*vc;\n"
+      "  if(shadowCoord.w > 0.0)\n"
+      "    {\n"
+      "    vec2 projected = shadowCoord.xy/shadowCoord.w;\n"
+      "    if(projected.x >= 0.0 && projected.x <= 1.0\n"
+      "       && projected.y >= 0.0 && projected.y <= 1.0)\n"
+      "      {\n"
+      "      float result = 0.0;\n"
+      "      float zval = shadowCoord.z - 0.005;\n"
+      "      if (textureProjOffset(shadowMaps[idx],shadowCoord,ivec2( 0, 0)).r - zval > 0) { result += 0.34; }\n"
+      "      if (textureProjOffset(shadowMaps[idx],shadowCoord,ivec2( 0, 1)).r - zval > 0) { result += 0.33; }\n"
+      "      if (textureProjOffset(shadowMaps[idx],shadowCoord,ivec2( 1, 0)).r - zval > 0) { result += 0.33; }\n"
+      "      return result;\n"
+      "      }\n"
+      "    }\n"
+      "    return 1.0;\n"
+      "  }\n"
+      , false);
+
+    // build the code for the lighting factors
+    std::string lfc =
+      "float factors[6];\n";
+    numSMT = 0;
+    for (int i = 0; i < 6; i++)
+      {
+      toString.str("");
+      toString.clear();
+      toString << i;
+      if (shadowMapTextures[i] >= 0 && i < numLights)
+        {
+        std::ostringstream toString2;
+        toString2 << numSMT;
+        lfc +=
+        "  factors[" + toString.str() + "] = computeShadowFactor(vertexVC," + toString2.str() + ");\n";
+        numSMT++;
+        }
+      else
+        {
+        lfc += "  factors[" + toString.str() + "] = 1.0;\n";
+        }
+      }
+    lfc += "//VTK::Light::Impl";
+    vtkShaderProgram::Substitute(FSSource,"//VTK::Light::Impl",
+      lfc.c_str(), false);
+
+    shadowFactor = "*factors[lightNum]";
+    }
 
   switch (this->LastLightComplexity)
     {
@@ -503,11 +584,11 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
         "  for (int lightNum = 0; lightNum < numberOfLights; lightNum++)\n"
         "    {\n"
         "    float df = max(0.0, dot(normalVCVSOutput, -lightDirectionVC[lightNum]));\n"
-        "    diffuse += (df * lightColor[lightNum]);\n"
+        "    diffuse += ((df" + shadowFactor + ") * lightColor[lightNum]);\n"
         "    if (dot(normalVCVSOutput, lightDirectionVC[lightNum]) < 0.0)\n"
         "      {\n"
         "      float sf = pow( max(0.0, dot(lightHalfAngleVC[lightNum],normalVCVSOutput)), specularPower);\n"
-        "      specular += (sf * lightColor[lightNum]);\n"
+        "      specular += ((sf" + shadowFactor + ") * lightColor[lightNum]);\n"
         "      }\n"
         "    }\n"
         "  diffuse = diffuse * diffuseColor;\n"
@@ -543,7 +624,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
         "      }\n"
         "    else\n"
         "      {\n"
-        "      vertLightDirectionVC = vertexVCVSOutput.xyz - lightPositionVC[lightNum];\n"
+        "      vertLightDirectionVC = vertexVC.xyz - lightPositionVC[lightNum];\n"
         "      float distanceVC = length(vertLightDirectionVC);\n"
         "      vertLightDirectionVC = normalize(vertLightDirectionVC);\n"
         "      attenuation = 1.0 /\n"
@@ -566,11 +647,11 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
         "        }\n"
         "      }\n"
         "    float df = max(0.0, attenuation*dot(normalVCVSOutput, -vertLightDirectionVC));\n"
-        "    diffuse += (df * lightColor[lightNum]);\n"
+        "    diffuse += ((df" + shadowFactor + ") * lightColor[lightNum]);\n"
         "    if (dot(normalVCVSOutput, vertLightDirectionVC) < 0.0)\n"
         "      {\n"
         "      float sf = attenuation*pow( max(0.0, dot(lightHalfAngleVC[lightNum],normalVCVSOutput)), specularPower);\n"
-        "      specular += (sf * lightColor[lightNum]);\n"
+        "      specular += ((sf" + shadowFactor + ") * lightColor[lightNum]);\n"
         "      }\n"
         "    }\n"
         "  diffuse = diffuse * diffuseColor;\n"
@@ -909,8 +990,8 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
           // the line (which is a plane but maximally aligned with the camera view.
           vtkShaderProgram::Substitute(FSSource,"//VTK::Normal::Impl",
             "vec3 normalVCVSOutput;\n"
-            "  vec3 fdx = normalize(vec3(dFdx(vertexVCVSOutput.x),dFdx(vertexVCVSOutput.y),dFdx(vertexVCVSOutput.z)));\n"
-            "  vec3 fdy = normalize(vec3(dFdy(vertexVCVSOutput.x),dFdy(vertexVCVSOutput.y),dFdy(vertexVCVSOutput.z)));\n"
+            "  vec3 fdx = normalize(vec3(dFdx(vertexVC.x),dFdx(vertexVC.y),dFdx(vertexVC.z)));\n"
+            "  vec3 fdy = normalize(vec3(dFdy(vertexVC.x),dFdy(vertexVC.y),dFdy(vertexVC.z)));\n"
             "  if (abs(fdx.x) > 0.0)\n"
             "    { normalVCVSOutput = normalize(cross(vec3(fdx.y, -fdx.x, 0.0), fdx)); }\n"
             "  else { normalVCVSOutput = normalize(cross(vec3(fdy.y, -fdy.x, 0.0), fdy));}"
@@ -924,13 +1005,13 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
           this->ShaderVariablesUsed.push_back("cameraParallel");
 
           vtkShaderProgram::Substitute(FSSource,"//VTK::Normal::Impl",
-            "vec3 fdx = normalize(vec3(dFdx(vertexVCVSOutput.x),dFdx(vertexVCVSOutput.y),dFdx(vertexVCVSOutput.z)));\n"
-            "  vec3 fdy = normalize(vec3(dFdy(vertexVCVSOutput.x),dFdy(vertexVCVSOutput.y),dFdy(vertexVCVSOutput.z)));\n"
+            "vec3 fdx = normalize(vec3(dFdx(vertexVC.x),dFdx(vertexVC.y),dFdx(vertexVC.z)));\n"
+            "  vec3 fdy = normalize(vec3(dFdy(vertexVC.x),dFdy(vertexVC.y),dFdy(vertexVC.z)));\n"
             "  vec3 normalVCVSOutput = normalize(cross(fdx,fdy));\n"
             // the code below is faster, but does not work on some devices
-            //"vec3 normalVC = normalize(cross(dFdx(vertexVCVSOutput.xyz), dFdy(vertexVCVSOutput.xyz)));\n"
+            //"vec3 normalVC = normalize(cross(dFdx(vertexVC.xyz), dFdy(vertexVC.xyz)));\n"
             "  if (cameraParallel == 1 && normalVCVSOutput.z < 0.0) { normalVCVSOutput = -1.0*normalVCVSOutput; }\n"
-            "  if (cameraParallel == 0 && dot(normalVCVSOutput,vertexVCVSOutput.xyz) > 0.0) { normalVCVSOutput = -1.0*normalVCVSOutput; }"
+            "  if (cameraParallel == 0 && dot(normalVCVSOutput,vertexVC.xyz) > 0.0) { normalVCVSOutput = -1.0*normalVCVSOutput; }"
             );
           }
         }
@@ -977,6 +1058,9 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPositionVC(
     vtkShaderProgram::Substitute(FSSource,
       "//VTK::PositionVC::Dec",
       "varying vec4 vertexVCVSOutput;");
+    vtkShaderProgram::Substitute(FSSource,
+      "//VTK::PositionVC::Impl",
+      "vec4 vertexVC = vertexVCVSOutput;");
     }
   else
     {
@@ -1393,8 +1477,10 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLPolyDataMapper::SetLightingShaderParameters(vtkOpenGLHelper &cellBO,
-                                                      vtkRenderer* ren, vtkActor *vtkNotUsed(actor))
+void vtkOpenGLPolyDataMapper::SetLightingShaderParameters(
+  vtkOpenGLHelper &cellBO,
+  vtkRenderer* ren,
+  vtkActor *actor)
 {
   // for unlit and headlight there are no lighting parameters
   if (this->LastLightComplexity < 2 || this->DrawingEdges)
@@ -1403,6 +1489,35 @@ void vtkOpenGLPolyDataMapper::SetLightingShaderParameters(vtkOpenGLHelper &cellB
     }
 
   vtkShaderProgram *program = cellBO.Program;
+
+  // check for shadow maps
+  vtkInformation *info = actor->GetPropertyKeys();
+  std::string shadowFactor = "";
+  if (info && info->Has(vtkShadowMapPass::ShadowMapTextures()))
+    {
+    int *shadowMapTextures = info->Get(vtkShadowMapPass::ShadowMapTextures());
+    double *shadowTransforms = info->Get(vtkShadowMapPass::ShadowMapTransforms());
+    int numLights = info->Length(vtkShadowMapPass::ShadowMapTextures());
+
+    // how many lights have shadow maps
+    int numSMT = 0;
+    int tunits[6];
+    float transforms[6*16];
+    for (int i = 0; i < numLights; i++)
+      {
+      if (shadowMapTextures[i] >= 0)
+        {
+        tunits[numSMT] = shadowMapTextures[i];
+        for (int j = 0; j < 16; j++)
+          {
+          transforms[numSMT*16+j] = shadowTransforms[numSMT*16+j];
+          }
+        numSMT++;
+        }
+      }
+    program->SetUniform1iv("shadowMaps", numSMT, tunits);
+    program->SetUniformMatrix4x4v("shadowTransforms", numSMT, transforms);
+    }
 
   // for lightkit case there are some parameters to set
   vtkCamera *cam = ren->GetActiveCamera();

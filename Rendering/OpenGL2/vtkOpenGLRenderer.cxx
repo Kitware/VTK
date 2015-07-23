@@ -19,6 +19,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkCellArray.h"
 #include "vtkDepthPeelingPass.h"
 #include "vtkFloatArray.h"
+#include "vtkHardwareSelector.h"
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
 #include "vtkNew.h"
@@ -32,6 +33,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkPolyDataMapper2D.h"
 #include "vtkRenderPass.h"
 #include "vtkRenderState.h"
+#include "vtkShadowMapBakerPass.h"
+#include "vtkShadowMapPass.h"
 #include "vtkTexture.h"
 #include "vtkTextureObject.h"
 #include "vtkTexturedActor2D.h"
@@ -65,6 +68,7 @@ vtkOpenGLRenderer::vtkOpenGLRenderer()
   this->PickedZ = 0;
 
   this->DepthPeelingPass = 0;
+  this->ShadowMapPass = 0;
   this->DepthPeelingHigherLayer=0;
 
   this->BackgroundTexture = 0;
@@ -157,6 +161,94 @@ void vtkOpenGLRenderer::DeviceRender(void)
     }
 
   vtkTimerLog::MarkEndEvent("OpenGL Dev Render");
+}
+
+// Ask actors to render themselves. As a side effect will cause
+// visualization network to update.
+int vtkOpenGLRenderer::UpdateGeometry()
+{
+  int        i;
+
+  this->NumberOfPropsRendered = 0;
+
+  if ( this->PropArrayCount == 0 )
+    {
+    return 0;
+    }
+
+  if (this->Selector)
+    {
+    // When selector is present, we are performing a selection,
+    // so do the selection rendering pass instead of the normal passes.
+    // Delegate the rendering of the props to the selector itself.
+    this->NumberOfPropsRendered = this->Selector->Render(this,
+      this->PropArray, this->PropArrayCount);
+    this->RenderTime.Modified();
+    vtkDebugMacro("Rendered " << this->NumberOfPropsRendered << " actors" );
+    return this->NumberOfPropsRendered;
+    }
+
+  // if we are suing shadows then let the renderpasses handle it
+  // for opaque and translucent
+  if (this->UseShadows)
+    {
+    if (!this->ShadowMapPass)
+      {
+      this->ShadowMapPass = vtkShadowMapPass::New();
+      }
+    vtkRenderState s(this);
+    s.SetPropArrayAndCount(this->PropArray, this->PropArrayCount);
+    //s.SetFrameBuffer(0);
+    this->ShadowMapPass->GetShadowMapBakerPass()->Render(&s);
+    this->ShadowMapPass->Render(&s);
+    }
+  else
+    {
+    // loop through props and give them a chance to
+    // render themselves as opaque geometry
+    for ( i = 0; i < this->PropArrayCount; i++ )
+      {
+      this->NumberOfPropsRendered +=
+        this->PropArray[i]->RenderOpaqueGeometry(this);
+      }
+
+    // do the render library specific stuff about translucent polygonal geometry.
+    // As it can be expensive, do a quick check if we can skip this step
+    int hasTranslucentPolygonalGeometry=0;
+    for ( i = 0; !hasTranslucentPolygonalGeometry && i < this->PropArrayCount;
+          i++ )
+      {
+      hasTranslucentPolygonalGeometry=
+        this->PropArray[i]->HasTranslucentPolygonalGeometry();
+      }
+    if(hasTranslucentPolygonalGeometry)
+      {
+      this->DeviceRenderTranslucentPolygonalGeometry();
+      }
+    }
+
+  // loop through props and give them a chance to
+  // render themselves as volumetric geometry.
+  for ( i = 0; i < this->PropArrayCount; i++ )
+    {
+    this->NumberOfPropsRendered +=
+      this->PropArray[i]->RenderVolumetricGeometry(this);
+    }
+
+  // loop through props and give them a chance to
+  // render themselves as an overlay (or underlay)
+  for ( i = 0; i < this->PropArrayCount; i++ )
+    {
+    this->NumberOfPropsRendered +=
+      this->PropArray[i]->RenderOverlay(this);
+    }
+
+  this->RenderTime.Modified();
+
+  vtkDebugMacro( << "Rendered " <<
+                    this->NumberOfPropsRendered << " actors" );
+
+  return  this->NumberOfPropsRendered;
 }
 
 // ----------------------------------------------------------------------------
@@ -422,6 +514,10 @@ void vtkOpenGLRenderer::ReleaseGraphicsResources(vtkWindow *w)
     {
     this->DepthPeelingPass->ReleaseGraphicsResources(w);
     }
+  if (w && this->ShadowMapPass)
+    {
+    this->ShadowMapPass->ReleaseGraphicsResources(w);
+    }
 }
 
 void vtkOpenGLRenderer::UpdatePickId()
@@ -541,6 +637,12 @@ vtkOpenGLRenderer::~vtkOpenGLRenderer()
     {
     this->Pass->UnRegister(this);
     this->Pass = NULL;
+    }
+
+  if (this->ShadowMapPass)
+    {
+    this->ShadowMapPass->Delete();
+    this->ShadowMapPass = 0;
     }
 
   if (this->DepthPeelingPass)
