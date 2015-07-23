@@ -23,6 +23,8 @@
 #include "PyVTKTemplate.h"
 #include "vtkPythonUtil.h"
 
+#include <structmember.h> // a python header
+
 // Silence warning like
 // "dereferencing type-punned pointer will break strict-aliasing rules"
 // it happens because this kind of expression: (long *)&ptr
@@ -39,7 +41,7 @@ static const char *PyVTKTemplate_Doc =
   "in square brackets to get the desired kind of class.\n";
 
 //--------------------------------------------------------------------
-// methods from python
+// Methods for python
 
 static PyObject *PyVTKTemplate_HasKey(PyObject *ob, PyObject *args)
 {
@@ -119,6 +121,21 @@ static PyMethodDef PyVTKTemplate_Methods[] = {
   {"copy", PyVTKTemplate_Copy, METH_VARARGS,
    "T.copy() -> get a shallow copy of T."},
   { NULL, NULL, 0, NULL }
+};
+
+//--------------------------------------------------------------------
+// Members for python
+
+static PyMemberDef PyVTKTemplate_Members[] = {
+  {(char *)"__doc__", T_OBJECT, offsetof(PyVTKTemplate, doc),
+   READONLY, NULL},
+  {(char *)"__name__", T_OBJECT, offsetof(PyVTKTemplate, name),
+   READONLY, NULL},
+  {(char *)"__module__", T_OBJECT, offsetof(PyVTKTemplate, module),
+   READONLY, NULL},
+  {(char *)"__bases__", T_OBJECT, offsetof(PyVTKTemplate, bases),
+   READONLY, NULL},
+  { NULL, 0, 0, 0, NULL }
 };
 
 //--------------------------------------------------------------------
@@ -232,22 +249,14 @@ static PyMappingMethods PyVTKTemplate_AsMapping = {
 static int PyVTKTemplate_Traverse(PyObject *o, visitproc visit, void *arg)
 {
   PyVTKTemplate *self = (PyVTKTemplate *)o;
-  PyObject *members[2];
-  int err = 0;
-  int i;
 
-  members[0] = self->dict;
-  members[1] = self->doc;
+  Py_VISIT(self->dict);
+  Py_VISIT(self->doc);
+  Py_VISIT(self->name);
+  Py_VISIT(self->module);
+  Py_VISIT(self->bases);
 
-  for (i = 0; i < 2 && err == 0; i++)
-    {
-    if (members[i])
-      {
-      err = visit(members[i], arg);
-      }
-    }
-
-  return err;
+  return 0;
 }
 
 //--------------------------------------------------------------------
@@ -257,6 +266,9 @@ static void PyVTKTemplate_Delete(PyObject *op)
 
   Py_DECREF(((PyVTKTemplate *)op)->dict);
   Py_DECREF(((PyVTKTemplate *)op)->doc);
+  Py_DECREF(((PyVTKTemplate *)op)->name);
+  Py_DECREF(((PyVTKTemplate *)op)->module);
+  Py_DECREF(((PyVTKTemplate *)op)->bases);
 
   PyObject_GC_Del(op);
 }
@@ -265,11 +277,11 @@ static void PyVTKTemplate_Delete(PyObject *op)
 static PyObject *PyVTKTemplate_Repr(PyObject *op)
 {
   PyVTKTemplate *self = (PyVTKTemplate *)op;
-  char buf[512];
-  sprintf(buf,"<%.80s %.80s.%.80s>", op->ob_type->tp_name,
-          self->module, self->name);
 
-  return PyString_FromString(buf);
+  return PyString_FromFormat("<%s %s.%s>",
+    op->ob_type->tp_name,
+    PyString_AS_STRING(self->module),
+    PyString_AS_STRING(self->name));
 }
 
 //--------------------------------------------------------------------
@@ -279,49 +291,6 @@ static PyObject *PyVTKTemplate_Call(PyObject *, PyObject *, PyObject *)
                   "this is a template, provide template args in brackets "
                   "before the ().");
 
-  return NULL;
-}
-
-//--------------------------------------------------------------------
-static PyObject *PyVTKTemplate_GetAttr(PyObject *self, PyObject *attr)
-{
-  char text[256];
-  char *name = PyString_AsString(attr);
-  PyVTKTemplate *op = (PyVTKTemplate *)self;
-  PyMethodDef *meth;
-
-  if (name[0] == '_')
-    {
-    if (strcmp(name, "__name__") == 0)
-      {
-      return PyString_FromString(op->name);
-      }
-    if (strcmp(name, "__module__") == 0)
-      {
-      return PyString_FromString(op->module);
-      }
-    if (strcmp(name, "__doc__") == 0)
-      {
-      Py_INCREF(op->doc);
-      return op->doc;
-      }
-    if (strcmp(name, "__bases__") == 0)
-      {
-      return Py_BuildValue("()");
-      }
-    }
-
-  for (meth = PyVTKTemplate_Methods; meth && meth->ml_name; meth++)
-    {
-    if (strcmp(name, meth->ml_name) == 0)
-      {
-      return PyCFunction_New(meth, self);
-      }
-    }
-
-  sprintf(text, "'%.80s' object has no attribute '%.80s'",
-          self->ob_type->tp_name, name);
-  PyErr_SetString(PyExc_AttributeError, text);
   return NULL;
 }
 
@@ -344,7 +313,7 @@ PyTypeObject PyVTKTemplate_Type = {
   0,                                     // tp_hash
   PyVTKTemplate_Call,                    // tp_call
   0,                                     // tp_string
-  PyVTKTemplate_GetAttr,                 // tp_getattro
+  PyObject_GenericGetAttr,               // tp_getattro
   0,                                     // tp_setattro
   0,                                     // tp_as_buffer
   Py_TPFLAGS_CHECKTYPES | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_DEFAULT, // tp_flags
@@ -356,7 +325,7 @@ PyTypeObject PyVTKTemplate_Type = {
   0,                                     // tp_iter
   0,                                     // tp_iternext
   PyVTKTemplate_Methods,                 // tp_methods
-  0,                                     // tp_members
+  PyVTKTemplate_Members,                 // tp_members
   0,                                     // tp_getset
   0,                                     // tp_base
   0,                                     // tp_dict
@@ -366,7 +335,7 @@ PyTypeObject PyVTKTemplate_Type = {
   0,                                     // tp_init
   0,                                     // tp_alloc
   0,                                     // tp_new
-  PyObject_Del,                          // tp_free
+  0,                                     // tp_free
   0,                                     // tp_is_gc
   0,                                     // tp_bases
   0,                                     // tp_mro
@@ -377,19 +346,20 @@ PyTypeObject PyVTKTemplate_Type = {
 };
 
 //--------------------------------------------------------------------
+// C API
+
+//--------------------------------------------------------------------
 PyObject *PyVTKTemplate_New(const char *name, const char *modulename,
                             const char *docstring[])
 {
-  PyObject *doc = vtkPythonUtil::BuildDocString(docstring);
-  PyObject *dict = PyDict_New();
-
   PyVTKTemplate *op = PyObject_GC_New(PyVTKTemplate, &PyVTKTemplate_Type);
   PyObject *self = (PyObject *)op;
 
-  op->dict = dict;
-  op->doc = doc;
-  op->name = name;
-  op->module = modulename;
+  op->dict = PyDict_New();
+  op->doc = vtkPythonUtil::BuildDocString(docstring);
+  op->name = PyString_FromString(name);
+  op->module = PyString_FromString(modulename);
+  op->bases = PyTuple_New(0);
 
   PyObject_GC_Track(self);
 
