@@ -436,10 +436,14 @@ const char* vtkWin32OpenGLRenderWindow::ReportCapabilities()
   const char *glRenderer = (const char *) glGetString(GL_RENDERER);
   const char *glVersion = (const char *) glGetString(GL_VERSION);
 
-  std::ostringstream strm;
-  strm << "OpenGL vendor string:  " << glVendor << endl;
-  strm << "OpenGL renderer string:  " << glRenderer << endl;
-  strm << "OpenGL version string:  " << glVersion << endl;
+std::ostringstream strm;
+  if(glVendor)
+    strm << "OpenGL vendor string:  " << glVendor << endl;
+  if(glRenderer)
+    strm << "OpenGL renderer string:  " << glRenderer << endl;
+  if(glVersion)
+    strm << "OpenGL version string:  " << glVersion << endl;
+
   strm << "OpenGL extensions:  " << endl;
   GLint n, i;
   glGetIntegerv(GL_NUM_EXTENSIONS, &n);
