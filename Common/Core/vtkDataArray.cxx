@@ -106,7 +106,9 @@ void vtkDataArrayInterpolateTuple(Iterator from1, Iterator from2, Scalar* to,
   const double oneMinusT = 1.0 - t;
   while (numComp-- > 0)
     {
-    *(to++) = static_cast<Scalar>(oneMinusT * (*(from1++)) + t * (*(from2++)));
+    double c = oneMinusT * (*(from1++)) + t * (*(from2++));
+    // Round integer types. Don't round floating point types.
+    vtkDataArrayRoundIfNecessary(c, &(*(to++)));
     }
 }
 
