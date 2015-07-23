@@ -67,7 +67,10 @@ struct QVTKWidgetInsideQWidgets
 
   ~QVTKWidgetInsideQWidgets()
   {
-    delete widget1;
+    widget1.data()->deleteLater();
+    widget2.data()->deleteLater();
+    if(mainWindow && !mainWindow->parent())
+      delete mainWindow;
     //delete widget2;
   }
 
@@ -78,9 +81,10 @@ struct QVTKWidgetInsideQWidgets
     tabWidget->setParent(mainWindow);
     mainWindow->setCentralWidget(tabWidget);
     if(!qvtk)
-      qvtk = new QVTKWidget( );
+      qvtk = new QVTKWidget();
     qvtk->setMinimumSize(600,400);
     tabWidget->addTab(qvtk, "qvtk_widget");
+    qvtk->setParent(tabWidget);
     return qvtk;
   }
 
@@ -130,9 +134,9 @@ struct QVTKWidgetInsideQWidgets
     return EXIT_SUCCESS;
   }
 
-  WidgetType1*          widget1;
-  WidgetType2*          widget2;
-  QMainWindow*          mainWindow;
+  QPointer<WidgetType1>               widget1;
+  QPointer<WidgetType2>               widget2;
+  QPointer<QMainWindow>               mainWindow;
   vtkNew<vtkWin32OpenGLRenderWindow>  glwin;
   vtkNew<vtkRenderer>                 renderer;
 };
