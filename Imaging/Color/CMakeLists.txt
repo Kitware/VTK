@@ -1,6 +1,7 @@
 set(Module_SRCS
   vtkImageHSIToRGB.cxx
   vtkImageHSVToRGB.cxx
+  vtkImageYIQToRGB.cxx
   vtkImageLuminance.cxx
   vtkImageMapToRGBA.cxx
   vtkImageMapToWindowLevelColors.cxx
