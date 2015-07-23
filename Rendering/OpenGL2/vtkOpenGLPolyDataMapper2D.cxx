@@ -416,6 +416,12 @@ void vtkOpenGLPolyDataMapper2D::SetCameraShaderParameters(
 {
   vtkShaderProgram *program = cellBO.Program;
 
+  if(!program)
+  {
+    vtkErrorWithObjectMacro(this," got null shader program, cannot set parameters.");
+    return;
+  }
+
   // Get the position of the actor
   int size[2];
   size[0] = viewport->GetSize()[0];
@@ -751,8 +757,11 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   if (this->Points.IBO->IndexCount)
     {
     this->UpdateShaders(this->Points, viewport, actor);
-    this->Points.Program->SetUniformi("PrimitiveIDOffset",
-      this->PrimitiveIDOffset);
+    if(this->Points.Program)
+      {
+      this->Points.Program->SetUniformi("PrimitiveIDOffset",this->PrimitiveIDOffset);
+      }
+
     // Set the PointSize
 #if GL_ES_VERSION_2_0 != 1
     glPointSize(actor->GetProperty()->GetPointSize()); // not on ES2
@@ -771,8 +780,10 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     {
     // Set the LineWidth
     this->UpdateShaders(this->Lines, viewport, actor);
-    this->Lines.Program->SetUniformi("PrimitiveIDOffset",
-      this->PrimitiveIDOffset);
+    if (this->Lines.Program)
+      {
+      this->Lines.Program->SetUniformi("PrimitiveIDOffset",this->PrimitiveIDOffset);
+      }
     if (!this->HaveWideLines(viewport,actor))
       {
       glLineWidth(actor->GetProperty()->GetLineWidth());
@@ -787,12 +798,14 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     this->PrimitiveIDOffset += (int)this->Lines.IBO->IndexCount/2;
     }
 
-  // now handle lit primatives
+  // now handle lit primitives
   if (this->Tris.IBO->IndexCount)
     {
     this->UpdateShaders(this->Points, viewport, actor);
-    this->Points.Program->SetUniformi("PrimitiveIDOffset",
-      this->PrimitiveIDOffset);
+    if (this->Tris.Program)
+      {
+      this->Tris.Program->SetUniformi("PrimitiveIDOffset",this->PrimitiveIDOffset);
+      }
     this->Tris.IBO->Bind();
     glDrawRangeElements(GL_TRIANGLES, 0,
                         static_cast<GLuint>(this->VBO->VertexCount - 1),
@@ -806,8 +819,10 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   if (this->TriStrips.IBO->IndexCount)
     {
     this->UpdateShaders(this->Points, viewport, actor);
-    this->Points.Program->SetUniformi("PrimitiveIDOffset",
-      this->PrimitiveIDOffset);
+    if(this->TriStrips.Program)
+      {
+      this->TriStrips.Program->SetUniformi("PrimitiveIDOffset",this->PrimitiveIDOffset);
+      }
     this->TriStrips.IBO->Bind();
     glDrawRangeElements(GL_TRIANGLES, 0,
                         static_cast<GLuint>(this->VBO->VertexCount - 1),

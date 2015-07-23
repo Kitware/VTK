@@ -7,6 +7,13 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestQtTreeModelAdapter.cxx
   )
 
+if(WIN32)
+  vtk_add_test_cxx(${vtk-module}CxxTests tests
+    NO_VALID
+    TestWin32QVTKWidget.cxx
+    )
+endif()
+
 if(VTK_QT_VERSION VERSION_GREATER "4")
   find_package(Qt5 COMPONENTS Widgets REQUIRED)
   include_directories(${Qt5Widgets_INCLUDE_DIRS})
