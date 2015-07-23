@@ -523,7 +523,13 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
   tempPfd.dwFlags = PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW;
   tempPfd.iPixelType = PFD_TYPE_RGBA;
   int tempPixelFormat = ChoosePixelFormat(tempDC, &tempPfd);
-  SetPixelFormat(tempDC, tempPixelFormat, &tempPfd);
+
+  {
+    // https://msdn.microsoft.com/en-us/library/windows/desktop/dd369049(v=vs.85).aspx
+    // We had better not invoke SetPixelFormat again on the same window!
+    SetPixelFormat(tempDC, tempPixelFormat, &tempPfd);
+  }
+
   HGLRC tempContext = wglCreateContext(tempDC);
   wglMakeCurrent(tempDC, tempContext);
 
