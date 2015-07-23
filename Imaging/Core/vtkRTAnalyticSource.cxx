@@ -204,21 +204,22 @@ void vtkRTAnalyticSource::ExecuteDataWithInformation(vtkDataObject *vtkNotUsed(o
   temp2 = 1.0 / (2.0 * this->StandardDeviation * this->StandardDeviation);
 
   double x, y, z;
+  const double xscale = (whlExt[1] > whlExt[0])? (1.0/(whlExt[1] - whlExt[0])) : 1.0;
+  const double yscale = (whlExt[3] > whlExt[2])? (1.0/(whlExt[3] - whlExt[2])) : 1.0;
+  const double zscale = (whlExt[5] > whlExt[4])? (1.0/(whlExt[5] - whlExt[4])) : 1.0;
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
-    if (idxZ % this->SubsampleRate)
+    if ((this->SubsampleRate > 1) && (idxZ % this->SubsampleRate))
       {
       continue;
       }
     z = this->Center[2] - (idxZ + newOutExt[4]);
-    if (whlExt[5] > whlExt[4])
-      {
-      z /= (whlExt[5] - whlExt[4]);
-      }
+    z *= zscale;
     zContrib = z * z;
+    const float zfactor = static_cast<float>(this->ZMag*cos(this->ZFreq*z));
     for (idxY = 0; !this->AbortExecute && idxY <= maxY; idxY++)
       {
-      if (idxY % this->SubsampleRate)
+      if ((this->SubsampleRate > 1) && (idxY % this->SubsampleRate))
         {
         continue;
         }
@@ -228,29 +229,25 @@ void vtkRTAnalyticSource::ExecuteDataWithInformation(vtkDataObject *vtkNotUsed(o
         }
       count++;
       y = this->Center[1] - (idxY + newOutExt[2]);
-      if (whlExt[3] > whlExt[2])
-        {
-        y /= (whlExt[3] - whlExt[2]);
-        }
+      y *= yscale;
       yContrib = y * y;
+      const float yfactor = static_cast<float>(this->YMag*sin(this->YFreq*y));
       for (idxX = 0; idxX <= maxX; idxX++)
         {
-        if (idxX % this->SubsampleRate)
+        if ((this->SubsampleRate > 1) && (idxX % this->SubsampleRate))
           {
           continue;
           }
         // Pixel operation
         sum = zContrib + yContrib;
         x = this->Center[0] - (idxX + newOutExt[0]);
-        if (whlExt[1] > whlExt[0])
-          {
-          x /= (whlExt[1] - whlExt[0]);
-          }
+        x *= xscale;
         sum = sum + (x * x);
+        const float xfactor = static_cast<float>(this->XMag*sin(this->XFreq*x));
         *outPtr = this->Maximum * exp(-sum * temp2)
-          + this->XMag*sin(this->XFreq*x)
-          + this->YMag*sin(this->YFreq*y)
-          + this->ZMag*cos(this->ZFreq*z);
+          + xfactor /*this->XMag*sin(this->XFreq*x)*/
+          + yfactor /*this->YMag*sin(this->YFreq*y)*/
+          + zfactor /*this->ZMag*cos(this->ZFreq*z)*/;
         outPtr++;
         }
       outPtr += outIncY;
