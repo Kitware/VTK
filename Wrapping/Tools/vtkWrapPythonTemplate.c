@@ -427,7 +427,7 @@ int vtkWrapPython_WrapTemplatedClass(
       vtkWrapPython_PythonicName(instantiations[k], classname);
 
       vtkWrapPython_WrapOneClass(
-        fp, classname, sdata, file_info, hinfo, is_vtkobject);
+        fp, modulename, classname, sdata, file_info, hinfo, is_vtkobject);
 
       vtkParse_FreeClass(sdata);
       vtkParse_FreeTemplateDecomposition(name, nargs, args);
@@ -457,14 +457,14 @@ int vtkWrapPython_WrapTemplatedClass(
             "\n");
 
     fprintf(fp,
-            "PyObject *Py%s_TemplateNew(const char *modulename)\n"
+            "PyObject *Py%s_TemplateNew()\n"
             "{\n"
             "  PyObject *o;\n"
             "\n"
-            "  PyObject *temp = PyVTKTemplate_New(\"%s\", modulename,\n"
+            "  PyObject *temp = PyVTKTemplate_New(\"%s\", \"%s\",\n"
             "                                     Py%s_Doc);\n"
             "\n",
-            data->Name, data->Name, data->Name);
+            data->Name, data->Name, modulename, data->Name);
 
     for (k = 0; k < ninstantiations; k++)
       {
@@ -475,13 +475,13 @@ int vtkWrapPython_WrapTemplatedClass(
             hinfo, entry, instantiations[k], "vtkObjectBase", NULL))
         {
         fprintf(fp,
-            "  o = Py%s_ClassNew(modulename);\n",
+            "  o = Py%s_ClassNew();\n",
             classname);
         }
       else
         {
         fprintf(fp,
-            "  o = Py%s_TypeNew(modulename);\n",
+            "  o = Py%s_TypeNew();\n",
             classname);
         }
 

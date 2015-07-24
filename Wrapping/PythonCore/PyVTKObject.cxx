@@ -199,7 +199,8 @@ PyObject *PyVTKObject_New(PyTypeObject *tp, PyObject *args, PyObject *kwds)
   if (o)
     {
     // should use vtk_mangle instead of tp_name, to match __this__
-    return vtkPythonUtil::GetObjectFromObject(o, tp->tp_name);
+    return vtkPythonUtil::GetObjectFromObject(
+      o, vtkPythonUtil::StripModule(tp->tp_name));
     }
 
   // if PyVTKObject_FromPointer gets NULL, it creates a new object.
@@ -347,7 +348,7 @@ PyObject *PyVTKObject_FromPointer(
 {
   // This will be set if we create a new C++ object
   bool created = false;
-  const char *classname = pytype->tp_name;
+  const char *classname = vtkPythonUtil::StripModule(pytype->tp_name);
   PyVTKClass *cls = 0;
 
   if (ptr)

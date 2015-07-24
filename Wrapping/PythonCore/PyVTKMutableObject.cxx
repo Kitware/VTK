@@ -760,7 +760,7 @@ static PyObject *PyVTKMutableObject_New(
 PyTypeObject PyVTKMutableObject_Type = {
   PyObject_HEAD_INIT(&PyType_Type)
   0,
-  "vtk.mutable",                         // tp_name
+  "vtkCommonCorePython.mutable",         // tp_name
   sizeof(PyVTKMutableObject),            // tp_basicsize
   0,                                     // tp_itemsize
   PyVTKMutableObject_Delete,             // tp_dealloc

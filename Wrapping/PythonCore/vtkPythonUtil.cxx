@@ -301,7 +301,7 @@ PyVTKSpecialType *vtkPythonUtil::AddSpecialTypeToMap(
   PyTypeObject *pytype, PyMethodDef *methods, PyMethodDef *constructors,
   vtkcopyfunc copyfunc)
 {
-  const char *classname = pytype->tp_name;
+  const char *classname = vtkPythonUtil::StripModule(pytype->tp_name);
   vtkPythonUtilCreateIfNeeded();
 
 #ifdef VTKPYTHONDEBUG
@@ -524,6 +524,21 @@ const char *vtkPythonUtil::PythonicClassName(const char *classname)
     }
 
   return classname;
+}
+
+//--------------------------------------------------------------------
+const char *vtkPythonUtil::StripModule(const char *tpname)
+{
+  const char *cp = tpname;
+  while (*cp != '.' && *cp != '\0')
+    {
+    cp++;
+    }
+  if (*cp == '.')
+    {
+    return ++cp;
+    }
+  return tpname;
 }
 
 //--------------------------------------------------------------------
@@ -762,7 +777,8 @@ PyObject *vtkPythonUtil::GetObjectFromObject(
 void *vtkPythonUtil::GetPointerFromSpecialObject(
   PyObject *obj, const char *result_type, PyObject **newobj)
 {
-  const char *object_type = obj->ob_type->tp_name;
+  const char *object_type =
+    vtkPythonUtil::StripModule(obj->ob_type->tp_name);
 
   // do a lookup on the desired type
   vtkPythonSpecialTypeMap::iterator it =
@@ -908,11 +924,12 @@ void vtkPythonUtil::AddEnumToMap(PyTypeObject *enumtype)
     }
 
   // Only add to map if it isn't already there
+  const char *enumname = vtkPythonUtil::StripModule(enumtype->tp_name);
   vtkPythonEnumMap::iterator i =
-    vtkPythonMap->EnumMap->find(enumtype->tp_name);
+    vtkPythonMap->EnumMap->find(StripModule(enumname));
   if (i == vtkPythonMap->EnumMap->end())
     {
-    (*vtkPythonMap->EnumMap)[enumtype->tp_name] = enumtype;
+    (*vtkPythonMap->EnumMap)[enumname] = enumtype;
     }
 }
 

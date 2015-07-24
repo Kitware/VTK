@@ -152,7 +152,7 @@ static PyMemberDef PyVTKMethodDescriptor_Members[] = {
 PyTypeObject PyVTKMethodDescriptor_Type = {
   PyObject_HEAD_INIT(&PyType_Type)
   0,
-  "vtk.method_descriptor",               // tp_name
+  "vtkCommonCorePython.method_descriptor", // tp_name
   sizeof(PyMethodDescrObject),           // tp_basicsize
   0,                                     // tp_itemsize
   PyVTKMethodDescriptor_Delete,          // tp_dealloc

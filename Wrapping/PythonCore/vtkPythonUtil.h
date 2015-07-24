@@ -48,6 +48,10 @@ public:
   static const char *PythonicClassName(const char *classname);
 
   // Description:
+  // Given a qualified python name "module.name", remove "module.".
+  static const char *StripModule(const char *tpname);
+
+  // Description:
   // Add a PyVTKClass to the type lookup table, this allows us to later
   // create object given only the class name.
   static PyVTKClass *AddClassToMap(

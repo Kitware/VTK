@@ -72,7 +72,7 @@ void vtkWrapPython_AddEnumType(
 /* -------------------------------------------------------------------- */
 /* write out an enum type object */
 void vtkWrapPython_GenerateEnumType(
-  FILE *fp, const char *classname, EnumInfo *data)
+  FILE *fp, const char *module, const char *classname, EnumInfo *data)
 {
   char enumname[512];
   char tpname[512];
@@ -105,7 +105,7 @@ void vtkWrapPython_GenerateEnumType(
     "PyTypeObject Py%s_Type = {\n"
     "  PyObject_HEAD_INIT(&PyType_Type)\n"
     "  0,\n"
-    "  \"%s\", // tp_name\n"
+    "  \"%sPython.%s\", // tp_name\n"
     "  sizeof(PyIntObject), // tp_basicsize\n"
     "  0, // tp_itemsize\n"
     "  0, // tp_dealloc\n"
@@ -114,7 +114,7 @@ void vtkWrapPython_GenerateEnumType(
     "  0, // tp_setattr\n"
     "  0, // tp_compare\n"
     "  0, // tp_repr\n",
-    enumname, tpname);
+    enumname, module, tpname);
 
   fprintf(fp,
     "  0, // tp_as_number\n"
@@ -174,8 +174,7 @@ void vtkWrapPython_GenerateEnumType(
     "  return (PyObject *)self;\n"
     "}\n"
     "\n",
-    enumname,
-    enumname);
+    enumname, enumname);
 }
 
 /* generate code that adds all public enum types to a python dict */

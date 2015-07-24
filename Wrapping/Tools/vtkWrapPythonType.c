@@ -611,8 +611,8 @@ int vtkWrapPython_IsSpecialTypeWrappable(ClassInfo *data)
 /* -------------------------------------------------------------------- */
 /* write out a special type object */
 void vtkWrapPython_GenerateSpecialType(
-  FILE *fp, const char *classname, ClassInfo *data,
-  FileInfo *finfo, HierarchyInfo *hinfo)
+  FILE *fp, const char *module, const char *classname,
+  ClassInfo *data, FileInfo *finfo, HierarchyInfo *hinfo)
 {
   char supername[1024];
   const char *name;
@@ -662,7 +662,7 @@ void vtkWrapPython_GenerateSpecialType(
     "static PyTypeObject Py%s_Type = {\n"
     "  PyObject_HEAD_INIT(&PyType_Type)\n"
     "  0,\n"
-    "  \"%s\", // tp_name\n"
+    "  \"%sPython.%s\", // tp_name\n"
     "  sizeof(PyVTKSpecialObject), // tp_basicsize\n"
     "  0, // tp_itemsize\n"
     "  Py%s_Delete, // tp_dealloc\n"
@@ -671,7 +671,7 @@ void vtkWrapPython_GenerateSpecialType(
     "  0, // tp_setattr\n"
     "  0, // tp_compare\n"
     "  PyVTKSpecialObject_Repr, // tp_repr\n",
-    classname, classname, classname);
+    classname, module, classname, classname);
 
   fprintf(fp,
     "  0, // tp_as_number\n");
@@ -791,7 +791,7 @@ void vtkWrapPython_GenerateSpecialType(
 
   /* export New method for use by subclasses */
   fprintf(fp,
-    "extern \"C\" { %s PyObject *Py%s_TypeNew(const char *); }\n\n",
+    "extern \"C\" { %s PyObject *Py%s_TypeNew(); }\n\n",
     "VTK_PYTHON_EXPORT", classname);
 
   /* import New method of the superclass */
@@ -799,7 +799,7 @@ void vtkWrapPython_GenerateSpecialType(
     {
     fprintf(fp,
       "#ifndef DECLARED_Py%s_TypeNew\n"
-      "extern \"C\" { PyObject *Py%s_TypeNew(const char *); }\n"
+      "extern \"C\" { PyObject *Py%s_TypeNew(); }\n"
       "#define DECLARED_Py%s_TypeNew\n"
       "#endif\n",
       supername, supername, supername);
@@ -808,7 +808,7 @@ void vtkWrapPython_GenerateSpecialType(
   /* the method for adding the VTK extras to the type,
    * the unused "const char *" arg is the module name */
   fprintf(fp,
-    "PyObject *Py%s_TypeNew(const char *)\n"
+    "PyObject *Py%s_TypeNew()\n"
     "{\n"
     "  PyVTKSpecialType_Add(\n"
     "    &Py%s_Type,\n"
@@ -835,7 +835,7 @@ void vtkWrapPython_GenerateSpecialType(
   if (has_superclass)
     {
     fprintf(fp,
-      "  pytype->tp_base = (PyTypeObject *)Py%s_TypeNew(0);\n\n",
+      "  pytype->tp_base = (PyTypeObject *)Py%s_TypeNew();\n\n",
       supername);
     }
 

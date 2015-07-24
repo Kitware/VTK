@@ -27,7 +27,8 @@
 
 /* -------------------------------------------------------------------- */
 /* Wrap the namespace */
-int vtkWrapPython_WrapNamespace(FILE *fp, NamespaceInfo *data)
+int vtkWrapPython_WrapNamespace(
+  FILE *fp, const char *module, NamespaceInfo *data)
 {
   int i;
 
@@ -35,7 +36,7 @@ int vtkWrapPython_WrapNamespace(FILE *fp, NamespaceInfo *data)
   for (i = 0; i < data->NumberOfEnums; i++)
     {
     vtkWrapPython_GenerateEnumType(
-      fp, data->Name, data->Enums[i]);
+      fp, module, data->Name, data->Enums[i]);
     }
 
   fprintf(fp,

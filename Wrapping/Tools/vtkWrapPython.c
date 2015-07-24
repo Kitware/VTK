@@ -276,14 +276,14 @@ static void vtkWrapPython_GenerateSpecialHeaders(
 /* -------------------------------------------------------------------- */
 /* import any wrapped enum types that are used by this file */
 static void vtkWrapPython_ImportExportEnumTypes(
-  FILE *fp, FileInfo *file_info, HierarchyInfo *hinfo)
+  FILE *fp, const char *thisModule,
+  FileInfo *file_info, HierarchyInfo *hinfo)
 {
   const char **types;
   int numTypes = 0;
   FunctionInfo *currentFunction;
-  const char *thisModule = 0;
-  int i, j, k, n, m, ii, nn;
   ClassInfo *data;
+  int i, j, k, n, m, ii, nn;
   ValueInfo *val;
 
   types = (const char **)malloc(1000*sizeof(const char *));
@@ -341,17 +341,6 @@ static void vtkWrapPython_ImportExportEnumTypes(
           }
         }
       }
-    }
-
-  /* get the module that is being wrapped */
-  data = file_info->MainClass;
-  if (!data && file_info->Contents->NumberOfClasses > 0)
-    {
-    data = file_info->Contents->Classes[0];
-    }
-  if (data)
-    {
-    thisModule = vtkWrapPython_ClassModule(hinfo, data->Name);
     }
 
   /* for each unique enum type found in the file */
@@ -415,6 +404,7 @@ int main(int argc, char *argv[])
   HierarchyInfo *hinfo = NULL;
   FileInfo *file_info;
   FILE *fp;
+  const char *module = "vtkCommonCore";
   const char *name;
   char *name_from_file = NULL;
   int numberOfWrappedClasses = 0;
@@ -532,13 +522,24 @@ int main(int argc, char *argv[])
           "extern \"C\" { %s void PyVTKAddFile_%s(PyObject *, const char *); }\n",
           "VTK_PYTHON_EXPORT", name);
 
+  /* get the module that is being wrapped */
+  data = file_info->MainClass;
+  if (!data && file_info->Contents->NumberOfClasses > 0)
+    {
+    data = file_info->Contents->Classes[0];
+    }
+  if (data && hinfo)
+    {
+    module = vtkWrapPython_ClassModule(hinfo, data->Name);
+    }
+
   /* do the imports of any enum types that are used by methods */
-  vtkWrapPython_ImportExportEnumTypes(fp, file_info, hinfo);
+  vtkWrapPython_ImportExportEnumTypes(fp, module, file_info, hinfo);
 
   /* Wrap any enum types defined in the global namespace */
   for (i = 0; i < contents->NumberOfEnums; i++)
     {
-    vtkWrapPython_GenerateEnumType(fp, NULL, contents->Enums[i]);
+    vtkWrapPython_GenerateEnumType(fp, module, NULL, contents->Enums[i]);
     }
 
   /* Wrap any namespaces */
@@ -546,7 +547,7 @@ int main(int argc, char *argv[])
     {
     if (contents->Namespaces[i]->NumberOfConstants > 0)
       {
-      vtkWrapPython_WrapNamespace(fp, contents->Namespaces[i]);
+      vtkWrapPython_WrapNamespace(fp, module, contents->Namespaces[i]);
       numberOfWrappedNamespaces++;
       }
     }
@@ -592,7 +593,7 @@ int main(int argc, char *argv[])
     if (hinfo || data == file_info->MainClass)
       {
       if (vtkWrapPython_WrapOneClass(
-            fp, data->Name, data, file_info, hinfo, is_vtkobject))
+            fp, module, data->Name, data, file_info, hinfo, is_vtkobject))
         {
         /* re-index wrapAsVTKObject for wrapped classes */
         wrapAsVTKObject[numberOfWrappedClasses] = (is_vtkobject ? 1 : 0);
@@ -607,12 +608,11 @@ int main(int argc, char *argv[])
                       contents->NumberOfConstants);
   fprintf(fp,
           "void PyVTKAddFile_%s(\n"
-          "  PyObject *%s, const char *%s)\n"
+          "  PyObject *%s, const char *)\n"
           "{\n"
           "%s",
           name,
           (wrapped_anything ? "dict" : ""),
-          (numberOfWrappedClasses ? "modulename" : ""),
           (wrapped_anything ? "  PyObject *o;\n" : ""));
 
   /* Add all of the namespaces */
@@ -642,7 +642,7 @@ int main(int argc, char *argv[])
       {
       /* Template generator */
       fprintf(fp,
-             "  o = Py%s_TemplateNew(modulename);\n"
+             "  o = Py%s_TemplateNew();\n"
             "\n",
             data->Name);
 
@@ -677,7 +677,7 @@ int main(int argc, char *argv[])
       {
       /* Class is derived from vtkObjectBase */
       fprintf(fp,
-            "  o = Py%s_ClassNew(modulename);\n"
+            "  o = Py%s_ClassNew();\n"
             "\n",
             data->Name);
       }
@@ -685,7 +685,7 @@ int main(int argc, char *argv[])
       {
       /* Classes that are not derived from vtkObjectBase */
       fprintf(fp,
-            "  o = Py%s_TypeNew(modulename);\n"
+            "  o = Py%s_TypeNew();\n"
             "\n",
             data->Name);
       }

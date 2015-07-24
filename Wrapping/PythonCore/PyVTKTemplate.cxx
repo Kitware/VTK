@@ -189,7 +189,8 @@ PyVTKTemplate_GetItem(PyObject *ob, PyObject *key)
 
     if (PyType_Check(o))
       {
-      const char *cp = ((PyTypeObject *)o)->tp_name;
+      const char *cp =
+        vtkPythonUtil::StripModule(((PyTypeObject *)o)->tp_name);
       size_t n = strlen(cp);
       if (n == 5 && strcmp(cp, "float") == 0)
         {
@@ -298,7 +299,7 @@ static PyObject *PyVTKTemplate_Call(PyObject *, PyObject *, PyObject *)
 PyTypeObject PyVTKTemplate_Type = {
   PyObject_HEAD_INIT(&PyType_Type)
   0,
-  "vtk.template",                        // tp_name
+  "vtkCommonCorePython.template",        // tp_name
   sizeof(PyVTKTemplate),                 // tp_basicsize
   0,                                     // tp_itemsize
   PyVTKTemplate_Delete,                  // tp_dealloc
