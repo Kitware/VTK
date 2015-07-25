@@ -150,7 +150,6 @@ void vtkWrapPython_AddConstantHelper(
       objcreated = 1;
       break;
 
-#ifndef VTK_PYTHON_NO_LONG_LONG
 #ifdef VTK_TYPE_USE___INT64
     case VTK_PARSE___INT64:
       fprintf(fp,
@@ -181,7 +180,6 @@ void vtkWrapPython_AddConstantHelper(
               indent, objvar, valstring);
       objcreated = 1;
       break;
-#endif
 #endif
 
     case VTK_PARSE_BOOL:
