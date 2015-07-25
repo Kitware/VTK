@@ -55,7 +55,7 @@ void vtkWrapPython_AddEnumType(
           indent, (scope ? scope : ""), (scope ? "_" : ""), cls->Name);
   fprintf(fp,
           "%s%s = (PyObject *)&Py%s%s%s_Type;\n"
-          "%sif (%s && PyDict_SetItemString(%s, (char *)\"%s\", %s) != 0)\n"
+          "%sif (%s && PyDict_SetItemString(%s, \"%s\", %s) != 0)\n"
           "%s  {\n"
           "%s  Py_DECREF(%s);\n"
           "%s  }\n",
@@ -103,7 +103,7 @@ void vtkWrapPython_GenerateEnumType(
     "PyTypeObject Py%s_Type = {\n"
     "  PyObject_HEAD_INIT(&PyType_Type)\n"
     "  0,\n"
-    "  (char*)\"%s\", // tp_name\n"
+    "  \"%s\", // tp_name\n"
     "  sizeof(PyIntObject), // tp_basicsize\n"
     "  0, // tp_itemsize\n"
     "  0, // tp_dealloc\n"

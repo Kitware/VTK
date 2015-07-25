@@ -41,7 +41,7 @@
 //--------------------------------------------------------------------
 static PyObject *PyVTKObject_String(PyObject *op)
 {
-  PyObject *func = PyObject_GetAttrString(op, (char*)"__str__");
+  PyObject *func = PyObject_GetAttrString(op, "__str__");
 
   if (func)
     {
@@ -61,7 +61,7 @@ static PyObject *PyVTKObject_String(PyObject *op)
 //--------------------------------------------------------------------
 static PyObject *PyVTKObject_Repr(PyObject *op)
 {
-  PyObject *func = PyObject_GetAttrString(op, (char*)"__repr__");
+  PyObject *func = PyObject_GetAttrString(op, "__repr__");
 
   if (func)
     {
@@ -106,7 +106,7 @@ static int PyVTKObject_SetAttr(PyObject *op, PyObject *attr, PyObject *value)
     PyObject *func = self->vtk_class->vtk_setattr;
     if (func)
       {
-      PyObject *args = Py_BuildValue((char*)"(OOO)", self, attr, value);
+      PyObject *args = Py_BuildValue("(OOO)", self, attr, value);
       PyObject *res = PyEval_CallObject(func, args);
       Py_DECREF(args);
       if (res)
@@ -123,7 +123,7 @@ static int PyVTKObject_SetAttr(PyObject *op, PyObject *attr, PyObject *value)
     PyObject *func = self->vtk_class->vtk_delattr;
     if (func)
       {
-      PyObject *args = Py_BuildValue((char*)"(OO)", self, attr);
+      PyObject *args = Py_BuildValue("(OO)", self, attr);
       PyObject *res = PyEval_CallObject(func, args);
       Py_DECREF(args);
       if (res)
@@ -229,7 +229,7 @@ static PyObject *PyVTKObject_GetAttr(PyObject *op, PyObject *attr)
   pyclass = self->vtk_class;
   if (pyclass->vtk_getattr)
     {
-    PyObject *args = Py_BuildValue((char*)"(OO)", self, attr);
+    PyObject *args = Py_BuildValue("(OO)", self, attr);
     PyObject *res = PyEval_CallObject(pyclass->vtk_getattr, args);
     Py_DECREF(args);
     return res;
@@ -240,7 +240,6 @@ static PyObject *PyVTKObject_GetAttr(PyObject *op, PyObject *attr)
 }
 
 //--------------------------------------------------------------------
-#if PY_MAJOR_VERSION >= 2
 static int PyVTKObject_Traverse(PyObject *o, visitproc visit, void *arg)
 {
   PyVTKObject *self = (PyVTKObject *)o;
@@ -286,23 +285,18 @@ static int PyVTKObject_Traverse(PyObject *o, visitproc visit, void *arg)
 
   return err;
 }
-#endif
 
 //--------------------------------------------------------------------
 static void PyVTKObject_Delete(PyObject *op)
 {
   PyVTKObject *self = (PyVTKObject *)op;
 
-#if PY_VERSION_HEX >= 0x02020000
   PyObject_GC_UnTrack(op);
-#endif
 
-#if PY_VERSION_HEX >= 0x02010000
   if (self->vtk_weakreflist != NULL)
     {
     PyObject_ClearWeakRefs(op);
     }
-#endif
 
   // A python object owning a VTK object reference is getting
   // destroyed.  Remove the python object's VTK object reference.
@@ -312,13 +306,7 @@ static void PyVTKObject_Delete(PyObject *op)
   Py_DECREF(self->vtk_dict);
   delete [] self->vtk_observers;
 
-#if PY_VERSION_HEX >= 0x02020000
   PyObject_GC_Del(op);
-#elif PY_MAJOR_VERSION >= 2
-  PyObject_Del(op);
-#else
-  PyMem_DEL(op);
-#endif
 }
 
 //--------------------------------------------------------------------
@@ -385,7 +373,6 @@ PyVTKObject_AsBuffer_GetWriteBuf(
 
 //--------------------------------------------------------------------
 static PyBufferProcs PyVTKObject_AsBuffer = {
-#if PY_VERSION_HEX >= 0x02050000
   PyVTKObject_AsBuffer_GetReadBuf,       // bf_getreadbuffer
   PyVTKObject_AsBuffer_GetWriteBuf,      // bf_getwritebuffer
   PyVTKObject_AsBuffer_GetSegCount,      // bf_getsegcount
@@ -394,19 +381,13 @@ static PyBufferProcs PyVTKObject_AsBuffer = {
   0,                                     // bf_getbuffer
   0                                      // bf_releasebuffer
  #endif
-#else
-  PyVTKObject_AsBuffer_GetReadBuf,       // bf_getreadbuffer
-  PyVTKObject_AsBuffer_GetWriteBuf,      // bf_getwritebuffer
-  PyVTKObject_AsBuffer_GetSegCount,      // bf_getsegcount
-  0,                                     // bf_getcharbuffer
-#endif
 };
 
 //--------------------------------------------------------------------
 PyTypeObject PyVTKObject_Type = {
   PyObject_HEAD_INIT(&PyType_Type)
   0,
-  (char*)"vtkobject",                    // tp_name
+  "vtkobject",                           // tp_name
   sizeof(PyVTKObject),                   // tp_basicsize
   0,                                     // tp_itemsize
   PyVTKObject_Delete,                    // tp_dealloc
@@ -424,27 +405,12 @@ PyTypeObject PyVTKObject_Type = {
   PyVTKObject_GetAttr,                   // tp_getattro
   PyVTKObject_SetAttr,                   // tp_setattro
   &PyVTKObject_AsBuffer,                 // tp_as_buffer
-#if PY_VERSION_HEX >= 0x02020000
   Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC, // tp_flags
-#elif PY_VERSION_HEX >= 0x02010000
-  Py_TPFLAGS_HAVE_WEAKREFS,              // tp_flags
-#else
-  0,                                     // tp_flags
-#endif
-  (char*)"Use help(x.__class__) to get full documentation.",  // tp_doc
-#if PY_MAJOR_VERSION >= 2
+  "Use help(x.__class__) to get full documentation.",  // tp_doc
   PyVTKObject_Traverse,                  // tp_traverse
   0,                                     // tp_clear
   0,                                     // tp_richcompare
-#if PY_VERSION_HEX >= 0x02010000
   offsetof(PyVTKObject, vtk_weakreflist),// tp_weaklistoffset
-#else
-  0,                                     // tp_weaklistoffset
-#endif
-#else
-  0, 0, 0, 0,                            // reserved
-#endif
-#if PY_VERSION_HEX >= 0x02020000
   0,                                     // tp_iter
   0,                                     // tp_iternext
   0,                                     // tp_methods
@@ -465,7 +431,6 @@ PyTypeObject PyVTKObject_Type = {
   0,                                     // tp_cache
   0,                                     // tp_subclasses
   0,                                     // tp_weaklist
-#endif
   VTK_WRAP_PYTHON_SUPRESS_UNINITIALIZED
 };
 
@@ -490,7 +455,7 @@ PyObject *PyVTKObject_New(
         // NotImplementedError indicates a pure virtual method call.
         PyErr_SetString(
           PyExc_NotImplementedError,
-          (char*)"no concrete implementation exists for this class");
+          "no concrete implementation exists for this class");
         return 0;
         }
       haveRef = true;
@@ -499,7 +464,7 @@ PyObject *PyVTKObject_New(
       {
       PyErr_SetString(
         PyExc_TypeError,
-        (char*)"this is an abstract class and cannot be instantiated");
+        "this is an abstract class and cannot be instantiated");
       return 0;
       }
     }
@@ -534,27 +499,16 @@ PyObject *PyVTKObject_New(
     dict = PyDict_New();
     }
 
-#if PY_VERSION_HEX >= 0x02020000
   PyVTKObject *self = PyObject_GC_New(PyVTKObject, &PyVTKObject_Type);
-#elif PY_MAJOR_VERSION >= 2
-  PyVTKObject *self = PyObject_New(PyVTKObject, &PyVTKObject_Type);
-#else
-  PyVTKObject *self = PyObject_NEW(PyVTKObject, &PyVTKObject_Type);
-#endif
 
   self->vtk_ptr = ptr;
   self->vtk_flags = 0;
   self->vtk_class = (PyVTKClass *)cls;
   self->vtk_dict = dict;
   self->vtk_observers = 0;
-
-#if PY_VERSION_HEX >= 0x02010000
   self->vtk_weakreflist = NULL;
-#endif
 
-#if PY_VERSION_HEX >= 0x02020000
   PyObject_GC_Track((PyObject *)self);
-#endif
 
   // A python object owning a VTK object reference is getting
   // created.  Add the python object's VTK object reference.

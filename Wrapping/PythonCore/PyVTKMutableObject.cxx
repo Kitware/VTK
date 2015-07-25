@@ -65,7 +65,6 @@ static PyObject *PyVTKMutableObject_CompatibleObject(PyObject *opn)
     opn = ((PyVTKMutableObject *)opn)->value;
     Py_INCREF(opn);
     }
-#if PY_VERSION_HEX >= 0x02050000
   else if (nb && nb->nb_index)
     {
     opn = nb->nb_index(opn);
@@ -76,7 +75,6 @@ static PyObject *PyVTKMutableObject_CompatibleObject(PyObject *opn)
       return NULL;
       }
     }
-#endif
   else if (nb && nb->nb_float)
     {
     opn = nb->nb_float(opn);
@@ -173,7 +171,7 @@ int PyVTKMutableObject_SetValue(PyObject *self, PyObject *val)
 
 static PyObject *PyVTKMutableObject_Get(PyObject *self, PyObject *args)
 {
-  if (PyArg_ParseTuple(args, (char*)":get"))
+  if (PyArg_ParseTuple(args, ":get"))
     {
     PyObject *ob = PyVTKMutableObject_GetValue(self);
     Py_INCREF(ob);
@@ -187,7 +185,7 @@ static PyObject *PyVTKMutableObject_Set(PyObject *self, PyObject *args)
 {
   PyObject *opn;
 
-  if (PyArg_ParseTuple(args, (char*)"O:set", &opn))
+  if (PyArg_ParseTuple(args, "O:set", &opn))
     {
     opn = PyVTKMutableObject_CompatibleObject(opn);
 
@@ -205,8 +203,8 @@ static PyObject *PyVTKMutableObject_Set(PyObject *self, PyObject *args)
 }
 
 static PyMethodDef PyVTKMutableObject_Methods[] = {
-  {(char*)"get", PyVTKMutableObject_Get, 1, (char *)"Get the stored value."},
-  {(char*)"set", PyVTKMutableObject_Set, 1, (char *)"Set the stored value."},
+  {"get", PyVTKMutableObject_Get, 1, "Get the stored value."},
+  {"set", PyVTKMutableObject_Set, 1, "Set the stored value."},
   { NULL, NULL, 0, NULL }
 };
 
@@ -439,7 +437,6 @@ REFOBJECT_UNARYFUNC(Number,Float)
 // Hex
 // Oct
 
-#if PY_VERSION_HEX >= 0x02000000
 REFOBJECT_INPLACEFUNC(Number,Add)
 REFOBJECT_INPLACEFUNC(Number,Subtract)
 REFOBJECT_INPLACEFUNC(Number,Multiply)
@@ -451,18 +448,13 @@ REFOBJECT_INPLACEFUNC(Number,Rshift)
 REFOBJECT_INPLACEFUNC(Number,And)
 REFOBJECT_INPLACEFUNC(Number,Or)
 REFOBJECT_INPLACEFUNC(Number,Xor)
-#endif
 
-#if PY_VERSION_HEX >= 0x02020000
 REFOBJECT_BINARYFUNC(Number,FloorDivide)
 REFOBJECT_BINARYFUNC(Number,TrueDivide)
 REFOBJECT_INPLACEFUNC(Number,FloorDivide)
 REFOBJECT_INPLACEFUNC(Number,TrueDivide)
-#endif
 
-#if PY_VERSION_HEX >= 0x02050000
 REFOBJECT_UNARYFUNC(Number,Index)
-#endif
 
 //--------------------------------------------------------------------
 static PyNumberMethods PyVTKMutableObject_AsNumber = {
@@ -489,7 +481,6 @@ static PyNumberMethods PyVTKMutableObject_AsNumber = {
   PyVTKMutableObject_Float,                  // nb_float
   PyVTKMutableObject_Oct,                    // nb_oct
   PyVTKMutableObject_Hex,                    // nb_hex
-#if PY_VERSION_HEX >= 0x02000000
   PyVTKMutableObject_InPlaceAdd,             // nb_inplace_add
   PyVTKMutableObject_InPlaceSubtract,        // nb_inplace_subtract
   PyVTKMutableObject_InPlaceMultiply,        // nb_inplace_multiply
@@ -501,16 +492,11 @@ static PyNumberMethods PyVTKMutableObject_AsNumber = {
   PyVTKMutableObject_InPlaceAnd,             // nb_inplace_and
   PyVTKMutableObject_InPlaceXor,             // nb_inplace_xor
   PyVTKMutableObject_InPlaceOr,              // nb_inplace_or
-#endif
-#if PY_VERSION_HEX >= 0x02020000
   PyVTKMutableObject_FloorDivide,            // nb_floor_divide
   PyVTKMutableObject_TrueDivide,             // nb_true_divide
   PyVTKMutableObject_InPlaceFloorDivide,     // nb_inplace_floor_divide
   PyVTKMutableObject_InPlaceTrueDivide,      // nb_inplace_true_divide
-#endif
-#if PY_VERSION_HEX >= 0x02050000
   PyVTKMutableObject_Index,                  // nb_index
-#endif
 };
 
 
@@ -519,11 +505,7 @@ static PyNumberMethods PyVTKMutableObject_AsNumber = {
 //--------------------------------------------------------------------
 // Sequence protocol
 
-#if PY_MAJOR_VERSION >= 2
 REFOBJECT_SIZEFUNC(Sequence,Size)
-#else
-REFOBJECT_SIZEFUNC(Sequence,Length)
-#endif
 REFOBJECT_BINARYFUNC(Sequence,Concat)
 REFOBJECT_INDEXFUNC(Sequence,Repeat)
 REFOBJECT_INDEXFUNC(Sequence,GetItem)
@@ -531,29 +513,21 @@ REFOBJECT_SLICEFUNC(Sequence,GetSlice)
 REFOBJECT_INDEXSETFUNC(Sequence,SetItem)
 REFOBJECT_SLICESETFUNC(Sequence,SetSlice)
 
-#if PY_VERSION_HEX >= 0x02000000
 REFOBJECT_INPLACEFUNC(Sequence,Concat)
 REFOBJECT_INPLACEIFUNC(Sequence,Repeat)
-#endif
 
 //--------------------------------------------------------------------
 static PySequenceMethods PyVTKMutableObject_AsSequence = {
-#if PY_MAJOR_VERSION >= 2
   PyVTKMutableObject_Size,                   // sq_length
-#else
-  PyVTKMutableObject_Length,                 // sq_length
-#endif
   PyVTKMutableObject_Concat,                 // sq_concat
   PyVTKMutableObject_Repeat,                 // sq_repeat
   PyVTKMutableObject_GetItem,                // sq_item
   PyVTKMutableObject_GetSlice,               // sq_slice
   PyVTKMutableObject_SetItem,                // sq_ass_item
   PyVTKMutableObject_SetSlice,               // sq_ass_slice
-#if PY_VERSION_HEX >= 0x02000000
   0,                                         // sq_contains
   PyVTKMutableObject_InPlaceConcat,          // sq_inplace_concat
   PyVTKMutableObject_InPlaceRepeat,          // sq_inplace_repeat
-#endif
 };
 
 //--------------------------------------------------------------------
@@ -575,11 +549,7 @@ PyVTKMutableObject_SetMapItem(PyObject *ob, PyObject *key, PyObject *o)
 
 //--------------------------------------------------------------------
 static PyMappingMethods PyVTKMutableObject_AsMapping = {
-#if PY_MAJOR_VERSION >= 2
   PyVTKMutableObject_Size,                   // mp_length
-#else
-  PyVTKMutableObject_Length,                 // mp_length
-#endif
   PyVTKMutableObject_GetMapItem,             // mp_subscript
   PyVTKMutableObject_SetMapItem,             // mp_ass_subscript
 };
@@ -650,13 +620,8 @@ PyVTKMutableObject_GetSegCount(PyObject *op, Py_ssize_t *lenp)
   return -1;
 }
 
-#if PY_VERSION_HEX >= 0x02050000
 static Py_ssize_t PyVTKMutableObject_GetCharBuf(
   PyObject *op, Py_ssize_t segment, char **ptrptr)
-#else
-static Py_ssize_t PyVTKMutableObject_GetCharBuf(
-  PyObject *op, Py_ssize_t segment, const char **ptrptr)
-#endif
 {
   char text[80];
   PyBufferProcs *pb;
@@ -693,11 +658,7 @@ static PyBufferProcs PyVTKMutableObject_AsBuffer = {
 static void PyVTKMutableObject_Delete(PyObject *ob)
 {
   Py_DECREF(((PyVTKMutableObject *)ob)->value);
-#if PY_MAJOR_VERSION >= 2
   PyObject_Del(ob);
-#else
-  PyMem_DEL(ob);
-#endif
 }
 
 static PyObject *PyVTKMutableObject_Repr(PyObject *ob)
@@ -725,7 +686,6 @@ static PyObject *PyVTKMutableObject_Str(PyObject *ob)
   return PyObject_Str(((PyVTKMutableObject *)ob)->value);
 }
 
-#if PY_VERSION_HEX >= 0x02010000
 static PyObject *PyVTKMutableObject_RichCompare(
   PyObject *ob1, PyObject *ob2, int opid)
 {
@@ -739,91 +699,18 @@ static PyObject *PyVTKMutableObject_RichCompare(
     }
   return PyObject_RichCompare(ob1, ob2, opid);
 }
-#else
-static int PyVTKMutableObject_Compare(PyObject *ob1, PyObject *ob2)
-{
-  if (PyVTKMutableObject_Check(ob1))
-    {
-    ob1 = ((PyVTKMutableObject *)ob1)->value;
-    }
-  if (PyVTKMutableObject_Check(ob2))
-    {
-    ob2 = ((PyVTKMutableObject *)ob2)->value;
-    }
-  return PyObject_Compare(ob1, ob2);
-}
-#endif
 
 static PyObject *PyVTKMutableObject_GetAttr(PyObject *self, PyObject *attr)
 {
   char text[128];
   char *name = PyString_AsString(attr);
   PyObject *a;
-#if PY_VERSION_HEX < 0x02020000
-  PyMethodDef *meth;
-
-  if (name[0] == '_')
-    {
-    if (strcmp(name, "__name__") == 0)
-      {
-      return PyString_FromString(self->ob_type->tp_name);
-      }
-    if (strcmp(name, "__doc__") == 0)
-      {
-      return PyString_FromString(self->ob_type->tp_doc);
-      }
-    if (strcmp(name,"__methods__") == 0)
-      {
-      meth = PyVTKMutableObject_Methods;
-      PyObject *lst;
-      int i, n;
-
-      for (n = 0; meth && meth[n].ml_name; n++)
-        {
-        ;
-        }
-
-      if ((lst = PyList_New(n)) != NULL)
-        {
-        meth = PyVTKMutableObject_Methods;
-        for (i = 0; i < n; i++)
-          {
-          PyList_SetItem(lst, i, PyString_FromString(meth[i].ml_name));
-          }
-        PyList_Sort(lst);
-        }
-      return lst;
-      }
-
-    if (strcmp(name, "__members__") == 0)
-      {
-      PyObject *lst;
-      if ((lst = PyList_New(4)) != NULL)
-        {
-        PyList_SetItem(lst, 0, PyString_FromString("__doc__"));
-        PyList_SetItem(lst, 1, PyString_FromString("__members__"));
-        PyList_SetItem(lst, 2, PyString_FromString("__methods__"));
-        PyList_SetItem(lst, 3, PyString_FromString("__name__"));
-        }
-      return lst;
-      }
-    }
-
-  for (meth = PyVTKMutableObject_Methods; meth && meth->ml_name; meth++)
-    {
-    if (strcmp(name, meth->ml_name) == 0)
-      {
-      return PyCFunction_New(meth, self);
-      }
-    }
-#else
   a = PyObject_GenericGetAttr(self, attr);
   if (a || !PyErr_ExceptionMatches(PyExc_AttributeError))
     {
     return a;
     }
   PyErr_Clear();
-#endif
 
   if (name[0] != '_')
     {
@@ -854,17 +741,13 @@ static PyObject *PyVTKMutableObject_New(
     return NULL;
     }
 
-  if (PyArg_ParseTuple(args, (char *)"O:mutable", &o))
+  if (PyArg_ParseTuple(args, "O:mutable", &o))
     {
     o = PyVTKMutableObject_CompatibleObject(o);
 
     if (o)
       {
-#if PY_MAJOR_VERSION >= 2
       PyVTKMutableObject *self = PyObject_New(PyVTKMutableObject, &PyVTKMutableObject_Type);
-#else
-      PyVTKMutableObject *self = PyObject_NEW(PyVTKMutableObject, &PyVTKMutableObject_Type);
-#endif
       self->value = o;
       return (PyObject *)self;
       }
@@ -877,18 +760,14 @@ static PyObject *PyVTKMutableObject_New(
 PyTypeObject PyVTKMutableObject_Type = {
   PyObject_HEAD_INIT(&PyType_Type)
   0,
-  (char*)"vtk.mutable",                  // tp_name
+  "vtk.mutable",                         // tp_name
   sizeof(PyVTKMutableObject),            // tp_basicsize
   0,                                     // tp_itemsize
   PyVTKMutableObject_Delete,             // tp_dealloc
   0,                                     // tp_print
   0,                                     // tp_getattr
   0,                                     // tp_setattr
-#if PY_VERSION_HEX >= 0x02010000
   0,                                     // tp_compare
-#else
-  PyVTKMutableObject_Compare,            // tp_compare
-#endif
   PyVTKMutableObject_Repr,               // tp_repr
   &PyVTKMutableObject_AsNumber,          // tp_as_number
   0,                                     // tp_as_sequence
@@ -903,20 +782,12 @@ PyTypeObject PyVTKMutableObject_Type = {
   PyVTKMutableObject_GetAttr,            // tp_getattro
   0,                                     // tp_setattro
   &PyVTKMutableObject_AsBuffer,          // tp_as_buffer
-#if PY_VERSION_HEX >= 0x02020000
-  Py_TPFLAGS_CHECKTYPES |
-#endif
-  Py_TPFLAGS_DEFAULT,                    // tp_flags
-  (char*)PyVTKMutableObject_Doc,         // tp_doc
+  Py_TPFLAGS_CHECKTYPES | Py_TPFLAGS_DEFAULT, // tp_flags
+  PyVTKMutableObject_Doc,                // tp_doc
   0,                                     // tp_traverse
   0,                                     // tp_clear
-#if PY_VERSION_HEX >= 0x02010000
   PyVTKMutableObject_RichCompare,        // tp_richcompare
-#else
-  0,                                     // tp_richcompare
-#endif
   0,                                     // tp_weaklistoffset
-#if PY_VERSION_HEX >= 0x02020000
   0,                                     // tp_iter
   0,                                     // tp_iternext
   PyVTKMutableObject_Methods,            // tp_methods
@@ -930,48 +801,24 @@ PyTypeObject PyVTKMutableObject_Type = {
   0,                                     // tp_init
   0,                                     // tp_alloc
   PyVTKMutableObject_New,                // tp_new
-#if PY_VERSION_HEX >= 0x02030000
   PyObject_Del,                          // tp_free
-#else
-  _PyObject_Del,                         // tp_free
-#endif
   0,                                     // tp_is_gc
   0,                                     // tp_bases
   0,                                     // tp_mro
   0,                                     // tp_cache
   0,                                     // tp_subclasses
   0,                                     // tp_weaklist
-#endif
   VTK_WRAP_PYTHON_SUPRESS_UNINITIALIZED
 };
-
-//--------------------------------------------------------------------
-// Classic new method
-
-#if PY_VERSION_HEX < 0x02020000
-static PyObject *PyVTKMutableObject_ClassicNew(PyObject *, PyObject *args)
-{
-  return PyVTKMutableObject_New(PyVTKMutableObject_Type, args, 0);
-}
-
-static PyMethodDef PyVTKMutableObject_NewMethod =
-  {(char*)"mutable", PyVTKMutableObject_ClassicNew, 1,
-   (char*)PyVTKMutableObject_Doc }
-};
-#endif
 
 //--------------------------------------------------------------------
 // Exported method for adding this type to a module's dict
 void PyVTKAddFile_mutable(
   PyObject *dict, const char *)
 {
-#if PY_VERSION_HEX < 0x2020000
-  PyObject *o = PyCFunction_New(&PyVTKMutableObject_NewMethod, Py_None);
-#else
   PyObject *o = (PyObject *)&PyVTKMutableObject_Type;
-#endif
 
-  if (o && PyDict_SetItemString(dict, (char *)"mutable", o) != 0)
+  if (o && PyDict_SetItemString(dict, "mutable", o) != 0)
     {
     Py_DECREF(o);
     }

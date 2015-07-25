@@ -70,13 +70,13 @@ static void CreateImplFile(const char *libName,
 
   /* module init function */
   fprintf(fout,"  PyObject *m, *d;\n\n");
-  fprintf(fout,"  m = Py_InitModule((char*)modulename, Py%s_ClassMethods);\n",
+  fprintf(fout,"  m = Py_InitModule(modulename, Py%s_ClassMethods);\n",
     libName);
 
   fprintf(fout,"  d = PyModule_GetDict(m);\n");
   fprintf(fout,"  if (!d)\n");
   fprintf(fout,"    {\n");
-  fprintf(fout,"    Py_FatalError((char*)\"can't get dictionary for module %s\");\n",
+  fprintf(fout,"    Py_FatalError(\"can't get dictionary for module %s\");\n",
     libName);
   fprintf(fout,"    }\n");
 

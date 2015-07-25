@@ -736,11 +736,7 @@ PyObject *vtkPythonArgs::BuildValue(double a)
 inline
 PyObject *vtkPythonArgs::BuildValue(bool a)
 {
-#if PY_VERSION_HEX >= 0x02030000
   return PyBool_FromLong((long)a);
-#else
-  return PyInt_FromLong((long)a);
-#endif
 }
 
 inline
@@ -783,21 +779,13 @@ PyObject *vtkPythonArgs::BuildValue(unsigned long a)
 inline
 PyObject *vtkPythonArgs::BuildValue(long long a)
 {
-#if defined(PY_LONG_LONG)
   return PyLong_FromLongLong(a);
-#else
-  return PyLong_FromLong((long)(a));
-#endif
 }
 
 inline
 PyObject *vtkPythonArgs::BuildValue(unsigned long long a)
 {
-#if defined(PY_LONG_LONG)
   return PyLong_FromUnsignedLongLong(a);
-#else
-  return PyLong_FromUnsignedLong((unsigned long)(a));
-#endif
 }
 #endif
 
@@ -805,21 +793,13 @@ PyObject *vtkPythonArgs::BuildValue(unsigned long long a)
 inline
 PyObject *vtkPythonArgs::BuildValue(__int64 a)
 {
-#if defined(PY_LONG_LONG)
   return PyLong_FromLongLong(a);
-#else
-  return PyLong_FromLong((long)(a));
-#endif
 }
 
 inline
 PyObject *vtkPythonArgs::BuildValue(unsigned __int64 a)
 {
-#if defined(PY_LONG_LONG)
   return PyLong_FromUnsignedLongLong(a);
-#else
-  return PyLong_FromUnsignedLong((unsigned long)(a));
-#endif
 }
 #endif
 

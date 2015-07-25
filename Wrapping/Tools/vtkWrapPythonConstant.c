@@ -186,12 +186,8 @@ void vtkWrapPython_AddConstantHelper(
 
     case VTK_PARSE_BOOL:
       fprintf(fp,
-              "#if PY_VERSION_HEX >= 0x02030000\n"
-              "%s%s = PyBool_FromLong((long)(%s));\n"
-              "#else\n"
-              "%s%s = PyInt_FromLong((long)(%s));\n"
-              "#endif\n",
-              indent, objvar, valstring, indent, objvar, valstring);
+              "%s%s = PyBool_FromLong((long)(%s));\n",
+              indent, objvar, valstring);
       objcreated = 1;
       break;
     }

@@ -61,11 +61,10 @@ PyObject *PyVTKSpecialObject_Repr(PyObject *self)
   PyTypeObject *type = self->ob_type;
   const char *name = self->ob_type->tp_name;
 
-  PyObject *s = PyString_FromString((char *)"(");
-  PyString_ConcatAndDel(&s, PyString_FromString((char *)name));
-  PyString_ConcatAndDel(&s, PyString_FromString((char *)")"));
+  PyObject *s = PyString_FromString("(");
+  PyString_ConcatAndDel(&s, PyString_FromString(name));
+  PyString_ConcatAndDel(&s, PyString_FromString(")"));
 
-#if PY_VERSION_HEX >= 0x02020000
   while (type->tp_base && !type->tp_str)
     {
     type = type->tp_base;
@@ -86,9 +85,7 @@ PyObject *PyVTKSpecialObject_Repr(PyObject *self)
       }
     }
   // otherwise just print address of object
-  else
-#endif
-  if (obj->vtk_ptr)
+  else if (obj->vtk_ptr)
     {
     char buf[256];
     sprintf(buf, "%p", obj->vtk_ptr);
@@ -120,14 +117,14 @@ PyObject *PyVTKSpecialObject_SequenceString(PyObject *self)
     }
   else if (i > 0)
     {
-    return PyString_FromString((char *)bracket);
+    return PyString_FromString(bracket);
     }
 
   n = PySequence_Size(self);
   if (n >= 0)
     {
-    comma = PyString_FromString((char *)", ");
-    s = PyString_FromStringAndSize((char *)bracket, 1);
+    comma = PyString_FromString(", ");
+    s = PyString_FromStringAndSize(bracket, 1);
 
     for (i = 0; i < n && s != NULL; i++)
       {
@@ -157,7 +154,7 @@ PyObject *PyVTKSpecialObject_SequenceString(PyObject *self)
     if (s)
       {
       PyString_ConcatAndDel(&s,
-        PyString_FromStringAndSize((char *)&bracket[4], 1));
+        PyString_FromStringAndSize(&bracket[4], 1));
       }
 
     Py_DECREF(comma);
@@ -169,86 +166,13 @@ PyObject *PyVTKSpecialObject_SequenceString(PyObject *self)
 }
 
 //--------------------------------------------------------------------
-#if PY_VERSION_HEX < 0x02020000
-PyObject *PyVTKSpecialObject_GetAttr(PyObject *self, PyObject *attr)
-{
-  PyVTKSpecialObject *obj = (PyVTKSpecialObject *)self;
-  char *name = PyString_AsString(attr);
-  PyMethodDef *meth;
-
-  if (name[0] == '_')
-    {
-    if (strcmp(name, "__name__") == 0)
-      {
-      return PyString_FromString(self->ob_type->tp_name);
-      }
-    if (strcmp(name, "__doc__") == 0)
-      {
-      Py_INCREF(obj->vtk_info->docstring);
-      return obj->vtk_info->docstring;
-      }
-    if (strcmp(name,"__methods__") == 0)
-      {
-      meth = obj->vtk_info->methods;
-      PyObject *lst;
-      int i, n;
-
-      for (n = 0; meth && meth[n].ml_name; n++)
-        {
-        ;
-        }
-
-      if ((lst = PyList_New(n)) != NULL)
-        {
-        meth = obj->vtk_info->methods;
-        for (i = 0; i < n; i++)
-          {
-          PyList_SetItem(lst, i, PyString_FromString(meth[i].ml_name));
-          }
-        PyList_Sort(lst);
-        }
-      return lst;
-      }
-
-    if (strcmp(name, "__members__") == 0)
-      {
-      PyObject *lst;
-      if ((lst = PyList_New(4)) != NULL)
-        {
-        PyList_SetItem(lst, 0, PyString_FromString("__doc__"));
-        PyList_SetItem(lst, 1, PyString_FromString("__members__"));
-        PyList_SetItem(lst, 2, PyString_FromString("__methods__"));
-        PyList_SetItem(lst, 3, PyString_FromString("__name__"));
-        }
-      return lst;
-      }
-    }
-
-  for (meth = obj->vtk_info->methods; meth && meth->ml_name; meth++)
-    {
-    if (strcmp(name, meth->ml_name) == 0)
-      {
-      return PyCFunction_New(meth, self);
-      }
-    }
-
-  PyErr_SetString(PyExc_AttributeError, name);
-  return NULL;
-}
-#endif
-
-//--------------------------------------------------------------------
 PyObject *PyVTKSpecialObject_New(const char *classname, void *ptr)
 {
   // would be nice if "info" could be passed instead if "classname",
   // but this way of doing things is more dynamic if less efficient
   PyVTKSpecialType *info = vtkPythonUtil::FindSpecialType(classname);
 
-#if PY_MAJOR_VERSION >= 2
   PyVTKSpecialObject *self = PyObject_New(PyVTKSpecialObject, info->py_type);
-#else
-  PyVTKSpecialObject *self = PyObject_NEW(PyVTKSpecialObject, info->py_type);
-#endif
 
   self->vtk_info = info;
   self->vtk_ptr = ptr;
@@ -270,11 +194,7 @@ PyObject *PyVTKSpecialObject_CopyNew(const char *classname, const void *ptr)
     return NULL;
     }
 
-#if PY_MAJOR_VERSION >= 2
   PyVTKSpecialObject *self = PyObject_New(PyVTKSpecialObject, info->py_type);
-#else
-  PyVTKSpecialObject *self = PyObject_NEW(PyVTKSpecialObject, info->py_type);
-#endif
 
   self->vtk_info = info;
   self->vtk_ptr = info->copy_func(ptr);
@@ -300,12 +220,7 @@ PyObject *PyVTKSpecialType_New(PyTypeObject *pytype,
     newmethod->ml_doc = PyString_AsString(info->docstring);
     }
 
-  // Return a generator function for python < 2.2,
-  // return the type object itself for python >= 2.2
-#if PY_VERSION_HEX < 0x2020000
-  return PyCFunction_New(newmethod, Py_None);
-#else
+  // Return the type object
   PyType_Ready(pytype);
   return (PyObject *)pytype;
-#endif
 }
