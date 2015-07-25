@@ -44,7 +44,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkSimpleScalarTree : public vtkScalarTree
 public:
   // Description:
   // Instantiate scalar tree with maximum level of 20 and branching
-  // factor of 5.
+  // factor of 3.
   static vtkSimpleScalarTree *New();
 
   // Description:
