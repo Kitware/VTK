@@ -15,6 +15,8 @@
 
 #include "vtkWrapPythonEnum.h"
 
+#include "vtkWrap.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,6 +40,49 @@ int vtkWrapPython_IsEnumWrapped(
     }
 
   return rval;
+}
+
+/* -------------------------------------------------------------------- */
+/* find and mark all enum parameters by setting IsEnum=1 */
+void vtkWrapPython_MarkAllEnums(
+  NamespaceInfo *contents, HierarchyInfo *hinfo)
+{
+  FunctionInfo *currentFunction;
+  int i, j, n, m, ii, nn;
+  ClassInfo *data;
+  ValueInfo *val;
+
+  nn = contents->NumberOfClasses;
+  for (ii = 0; ii < nn; ii++)
+    {
+    data = contents->Classes[ii];
+    n = data->NumberOfFunctions;
+    for (i = 0; i < n; i++)
+      {
+      currentFunction = data->Functions[i];
+      if (currentFunction->Access == VTK_ACCESS_PUBLIC)
+        {
+        /* we start with the return value */
+        val = currentFunction->ReturnValue;
+        m = vtkWrap_CountWrappedParameters(currentFunction);
+
+        /* the -1 is for the return value */
+        for (j = (val ? -1 : 0); j < m; j++)
+          {
+          if (j >= 0)
+            {
+            val = currentFunction->Parameters[j];
+            }
+
+          if (vtkWrap_IsEnumMember(data, val) ||
+              vtkWrapPython_IsEnumWrapped(hinfo, val->Class))
+            {
+            val->IsEnum = 1;
+            }
+          }
+        }
+      }
+    }
 }
 
 /* -------------------------------------------------------------------- */
@@ -89,20 +134,11 @@ void vtkWrapPython_GenerateEnumType(
     sprintf(tpname, "%.200s", data->Name);
     }
 
-  /* forward declaration of the type object */
-  fprintf(fp,
-    "#ifndef DECLARED_Py%s_Type\n"
-    "extern %s PyTypeObject Py%s_Type;\n"
-    "#define DECLARED_Py%s_Type\n"
-    "#endif\n"
-    "\n",
-    enumname, "VTK_PYTHON_EXPORT", enumname, enumname);
-
   /* generate all functions and protocols needed for the type */
 
   /* generate the TypeObject */
   fprintf(fp,
-    "PyTypeObject Py%s_Type = {\n"
+    "static PyTypeObject Py%s_Type = {\n"
     "  PyObject_HEAD_INIT(&PyType_Type)\n"
     "  0,\n"
     "  \"%sPython.%s\", // tp_name\n"

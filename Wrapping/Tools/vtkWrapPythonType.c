@@ -792,7 +792,7 @@ void vtkWrapPython_GenerateSpecialType(
   /* export New method for use by subclasses */
   fprintf(fp,
     "extern \"C\" { %s PyObject *Py%s_TypeNew(); }\n\n",
-    "VTK_PYTHON_EXPORT", classname);
+    "VTK_ABI_EXPORT", classname);
 
   /* import New method of the superclass */
   if (has_superclass)

@@ -168,14 +168,14 @@ public:
   // Description:
   // Get the next argument as an enum value.
   template<class T>
-  bool GetEnumValue(T &v, PyTypeObject *enumtype) {
+  bool GetEnumValue(T &v, const char *enumname) {
     bool r;
-    v = static_cast<T>(this->GetArgAsEnum(enumtype, r));
+    v = static_cast<T>(this->GetArgAsEnum(enumname, r));
     return r; }
   template<class T>
-  static bool GetEnumValue(PyObject *o, T &v, PyTypeObject *enumtype) {
+  static bool GetEnumValue(PyObject *o, T &v, const char *enumname) {
     bool r;
-    v = static_cast<T>(vtkPythonArgs::GetArgAsEnum(o, enumtype, r));
+    v = static_cast<T>(vtkPythonArgs::GetArgAsEnum(o, enumname, r));
     return r; }
 
   // Description:
@@ -527,9 +527,9 @@ protected:
 
   // Description:
   // Get the next argument as an object of the given type.
-  int GetArgAsEnum(PyTypeObject *enumtype, bool &valid);
+  int GetArgAsEnum(const char *enumname, bool &valid);
   static int GetArgAsEnum(
-    PyObject *o, PyTypeObject *enumtype, bool &valid);
+    PyObject *o, const char *enumname, bool &valid);
 
   // Description:
   // Get the next argument as an object of the given type.

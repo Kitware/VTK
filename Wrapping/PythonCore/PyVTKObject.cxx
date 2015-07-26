@@ -39,14 +39,6 @@
 #include <vtksys/ios/sstream>
 #include <vtksys/cstddef>
 
-#if defined(VTK_BUILD_SHARED_LIBS)
-# define VTK_PYTHON_EXPORT VTK_ABI_EXPORT
-# define VTK_PYTHON_IMPORT VTK_ABI_IMPORT
-#else
-# define VTK_PYTHON_EXPORT VTK_ABI_EXPORT
-# define VTK_PYTHON_IMPORT VTK_ABI_EXPORT
-#endif
-
 // This will be set to the python type struct for vtkObjectBase
 static PyTypeObject *PyVTKObject_Type = 0;
 

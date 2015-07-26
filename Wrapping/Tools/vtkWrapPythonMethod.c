@@ -245,7 +245,7 @@ void vtkWrapPython_GetSingleArgument(
 
   if (vtkWrap_IsEnumMember(data, arg))
     {
-    fprintf(fp, "%sGetEnumValue(%stemp%d, &Py%s_%s_Type)",
+    fprintf(fp, "%sGetEnumValue(%stemp%d, \"%s.%s\")",
             prefix, argname, i, data->Name, arg->Class);
     }
   else if (arg->IsEnum)
@@ -257,12 +257,12 @@ void vtkWrapPython_GetSingleArgument(
       }
     if (cp[l] == ':' && cp[l+1] == ':')
       {
-      fprintf(fp, "%sGetEnumValue(%stemp%d, &Py%*.*s_%s_Type)",
+      fprintf(fp, "%sGetEnumValue(%stemp%d, \"%*.*s.%s\")",
               prefix, argname, i, (int)l, (int)l, cp, &cp[l+2]);
       }
     else
       {
-      fprintf(fp, "%sGetEnumValue(%stemp%d, &Py%s_Type)",
+      fprintf(fp, "%sGetEnumValue(%stemp%d, \"%s\")",
               prefix, argname, i, cp);
       }
     }

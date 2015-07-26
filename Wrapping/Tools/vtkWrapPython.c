@@ -274,121 +274,6 @@ static void vtkWrapPython_GenerateSpecialHeaders(
 }
 
 /* -------------------------------------------------------------------- */
-/* import any wrapped enum types that are used by this file */
-static void vtkWrapPython_ImportExportEnumTypes(
-  FILE *fp, const char *thisModule,
-  FileInfo *file_info, HierarchyInfo *hinfo)
-{
-  const char **types;
-  int numTypes = 0;
-  FunctionInfo *currentFunction;
-  ClassInfo *data;
-  int i, j, k, n, m, ii, nn;
-  ValueInfo *val;
-
-  types = (const char **)malloc(1000*sizeof(const char *));
-
-  nn = file_info->Contents->NumberOfClasses;
-  for (ii = 0; ii < nn; ii++)
-    {
-    data = file_info->Contents->Classes[ii];
-    n = data->NumberOfFunctions;
-    for (i = 0; i < n; i++)
-      {
-      currentFunction = data->Functions[i];
-      if (currentFunction->Access == VTK_ACCESS_PUBLIC)
-        {
-        /* we start with the return value */
-        val = currentFunction->ReturnValue;
-        m = vtkWrap_CountWrappedParameters(currentFunction);
-
-        /* the -1 is for the return value */
-        for (j = (val ? -1 : 0); j < m; j++)
-          {
-          if (j >= 0)
-            {
-            val = currentFunction->Parameters[j];
-            }
-
-          if (vtkWrap_IsEnumMember(data, val))
-            {
-            /* enum is within the class namespace, no import needed */
-            val->IsEnum = 1;
-            }
-          else if (vtkWrapPython_IsEnumWrapped(hinfo, val->Class))
-            {
-            /* make a unique list of all enum types found */
-            val->IsEnum = 1;
-            for (k = 0; k < numTypes; k++)
-              {
-              if (strcmp(val->Class, types[k]) == 0)
-                {
-                break;
-                }
-              }
-            /* if not already in the list */
-            if (k == numTypes)
-              {
-              /* crude code to expand list as necessary */
-              if (numTypes > 0 && (numTypes % 1000) == 0)
-                {
-                types = (const char **)realloc((char **)types,
-                  (numTypes + 1000)*sizeof(const char *));
-                }
-              types[numTypes++] = val->Class;
-              }
-            }
-          }
-        }
-      }
-    }
-
-  /* for each unique enum type found in the file */
-  for (i = 0; i < numTypes; i++)
-    {
-    int is_external = 0;
-    const char *module;
-    char enumname[1000];
-    const char *cp = types[i];
-
-    /* convert "::" to an underscore */
-    j = 0;
-    while (*cp && j < 1000-1)
-      {
-      if (cp[0] == ':' && cp[1] == ':')
-        {
-        cp += 2;
-        enumname[j++] = '_';
-        }
-      else
-        {
-        enumname[j++] = *cp++;
-        }
-      }
-    enumname[j] = '\0';
-
-    /* check whether types is external or internal */
-    module = vtkWrapPython_ClassModule(hinfo, types[i]);
-    if (module && thisModule && strcmp(module, thisModule) != 0)
-      {
-      is_external = 1;
-      }
-
-    fprintf(fp,
-      "\n"
-      "#ifndef DECLARED_Py%s_Type\n"
-      "extern %s PyTypeObject Py%s_Type;\n"
-      "#define DECLARED_Py%s_Type\n"
-      "#endif\n",
-      enumname,
-      (is_external ? "VTK_PYTHON_IMPORT" : "VTK_PYTHON_EXPORT"),
-      enumname, enumname);
-    }
-
-  free((char **)types);
-}
-
-/* -------------------------------------------------------------------- */
 /* This is the main entry point for the python wrappers.  When called,
  * it will print the vtkXXPython.c file contents to "fp".  */
 
@@ -507,20 +392,10 @@ int main(int argc, char *argv[])
           "#include \"%s.h\"\n\n",
           name);
 
-  /* define import/export macros for use in wrapper code */
-  fprintf(fp,
-          "#if defined(VTK_BUILD_SHARED_LIBS)\n"
-          "# define VTK_PYTHON_EXPORT VTK_ABI_EXPORT\n"
-          "# define VTK_PYTHON_IMPORT VTK_ABI_IMPORT\n"
-          "#else\n"
-          "# define VTK_PYTHON_EXPORT VTK_ABI_EXPORT\n"
-          "# define VTK_PYTHON_IMPORT VTK_ABI_EXPORT\n"
-          "#endif\n\n");
-
   /* do the export of the main entry point */
   fprintf(fp,
           "extern \"C\" { %s void PyVTKAddFile_%s(PyObject *, const char *); }\n",
-          "VTK_PYTHON_EXPORT", name);
+          "VTK_ABI_EXPORT", name);
 
   /* get the module that is being wrapped */
   data = file_info->MainClass;
@@ -533,8 +408,8 @@ int main(int argc, char *argv[])
     module = vtkWrapPython_ClassModule(hinfo, data->Name);
     }
 
-  /* do the imports of any enum types that are used by methods */
-  vtkWrapPython_ImportExportEnumTypes(fp, module, file_info, hinfo);
+  /* Identify all enum types that are used by methods */
+  vtkWrapPython_MarkAllEnums(file_info->Contents, hinfo);
 
   /* Wrap any enum types defined in the global namespace */
   for (i = 0; i < contents->NumberOfEnums; i++)
