@@ -6,6 +6,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestAMRBox.cxx
   TestBiQuadraticQuad.cxx
   TestCompositeDataSets.cxx
+  TestComputeBoundingSphere.cxx
   TestDataArrayDispatcher.cxx
   TestDataObject.cxx
   TestDispatchers.cxx
