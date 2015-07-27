@@ -25,20 +25,20 @@
 #include "vtkGenericDataArray.h"
 #include "vtkBuffer.h"
 
-template <class ScalarTypeT>
+template <class ValueTypeT>
 class vtkAoSDataArrayTemplate :
   public vtkTypeTemplate<
-          vtkAoSDataArrayTemplate<ScalarTypeT>,
-          vtkGenericDataArray<vtkAoSDataArrayTemplate<ScalarTypeT>, ScalarTypeT>
+          vtkAoSDataArrayTemplate<ValueTypeT>,
+          vtkGenericDataArray<vtkAoSDataArrayTemplate<ValueTypeT>, ValueTypeT>
          >
 {
+  typedef vtkGenericDataArray<vtkAoSDataArrayTemplate<ValueTypeT>, ValueTypeT >
+          GenericDataArrayType;
 public:
-  typedef vtkGenericDataArray<vtkAoSDataArrayTemplate<ScalarTypeT>, ScalarTypeT > GenericDataArrayType;
   typedef GenericDataArrayType Superclass;
-  typedef vtkAoSDataArrayTemplate<ScalarTypeT> SelfType;
-  typedef typename Superclass::ScalarType ScalarType;
-  typedef typename Superclass::ScalarReturnType ScalarReturnType;
-  typedef typename Superclass::ScalarType ValueType; // to match vtkDataArrayTemplate.
+  typedef vtkAoSDataArrayTemplate<ValueTypeT> SelfType;
+  typedef typename Superclass::ValueType ValueType;
+  typedef typename Superclass::ReferenceType ReferenceType;
 
   static vtkAoSDataArrayTemplate* New();
 
@@ -46,34 +46,34 @@ public:
   // Methods that are needed to be implemented by every vtkGenericDataArray
   // subclass.
   // **************************************************************************
-  inline ScalarReturnType GetValue(vtkIdType valueIdx) const
+  inline ReferenceType GetValue(vtkIdType valueIdx) const
     {
     return this->Buffer.GetBuffer()[valueIdx];
     }
-  inline void GetTupleValue(vtkIdType tupleIdx, ScalarType* tuple) const
+  inline void GetTupleValue(vtkIdType tupleIdx, ValueType* tuple) const
     {
     const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
     std::copy(this->Buffer.GetBuffer() + valueIdx,
               this->Buffer.GetBuffer() + valueIdx + this->NumberOfComponents,
               tuple);
     }
-  inline ScalarReturnType GetComponentValue(vtkIdType index, int comp) const
+  inline ReferenceType GetComponentValue(vtkIdType index, int comp) const
     {
     return this->Buffer.GetBuffer()[this->NumberOfComponents*index + comp];
     }
-  inline void SetValue(vtkIdType valueIdx, ScalarType value)
+  inline void SetValue(vtkIdType valueIdx, ValueType value)
     {
     this->Buffer.GetBuffer()[valueIdx] = value;
     this->DataChanged();
     }
-  inline void SetTupleValue(vtkIdType tupleIdx, ScalarType* tuple)
+  inline void SetTupleValue(vtkIdType tupleIdx, ValueType* tuple)
     {
     const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
     std::copy(tuple, tuple + this->NumberOfComponents,
               this->Buffer.GetBuffer() + valueIdx);
     this->DataChanged();
     }
-  inline void SetComponentValue(vtkIdType tupleIdx, int comp, ScalarType value)
+  inline void SetComponentValue(vtkIdType tupleIdx, int comp, ValueType value)
     {
     const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents + comp;
     this->SetValue(valueIdx, value);
@@ -84,7 +84,7 @@ public:
   // Get the address of a particular data index. Make sure data is allocated
   // for the number of items requested. Set MaxId according to the number of
   // data values requested.
-  ScalarType* WritePointer(vtkIdType id, vtkIdType number);
+  ValueType* WritePointer(vtkIdType id, vtkIdType number);
   virtual void* WriteVoidPointer(vtkIdType id, vtkIdType number)
     { return this->WritePointer(id, number); }
 
@@ -94,13 +94,13 @@ public:
   // If the data is simply being iterated over, consider using
   // vtkDataArrayIteratorMacro for safety and efficiency, rather than using this
   // member directly.
-  ScalarType* GetPointer(vtkIdType id) { return this->Buffer.GetBuffer() + id; }
+  ValueType* GetPointer(vtkIdType id) { return this->Buffer.GetBuffer() + id; }
   virtual void* GetVoidPointer(vtkIdType id) { return this->GetPointer(id); }
 
   enum DeleteMethod
     {
-    VTK_DATA_ARRAY_FREE=vtkBuffer<ScalarType>::VTK_DATA_ARRAY_FREE,
-    VTK_DATA_ARRAY_DELETE=vtkBuffer<ScalarType>::VTK_DATA_ARRAY_DELETE
+    VTK_DATA_ARRAY_FREE=vtkBuffer<ValueType>::VTK_DATA_ARRAY_FREE,
+    VTK_DATA_ARRAY_DELETE=vtkBuffer<ValueType>::VTK_DATA_ARRAY_DELETE
     };
 
   // Description:
@@ -113,17 +113,17 @@ public:
   // array will be deallocated. If the delete method is
   // VTK_DATA_ARRAY_FREE, free() will be used. If the delete method is
   // DELETE, delete[] will be used. The default is FREE.
-  void SetArray(ScalarType* array, vtkIdType size, int save, int deleteMethod);
-  void SetArray(ScalarType* array, vtkIdType size, int save)
+  void SetArray(ValueType* array, vtkIdType size, int save, int deleteMethod);
+  void SetArray(ValueType* array, vtkIdType size, int save)
     { this->SetArray(array, size, save, VTK_DATA_ARRAY_FREE); }
   virtual void SetVoidArray(void* array, vtkIdType size, int save)
-    { this->SetArray(static_cast<ScalarType*>(array), size, save); }
+    { this->SetArray(static_cast<ValueType*>(array), size, save); }
   virtual void SetVoidArray(void* array,
                             vtkIdType size,
                             int save,
                             int deleteMethod)
     {
-    this->SetArray(static_cast<ScalarType*>(array), size, save, deleteMethod);
+    this->SetArray(static_cast<ValueType*>(array), size, save, deleteMethod);
     }
 
 //BTX
@@ -140,15 +140,16 @@ protected:
   bool ReallocateTuples(vtkIdType numTuples);
   // **************************************************************************
 
-  vtkBuffer<ScalarType> Buffer;
-  ScalarType ValueRange[2]; // XXX
+  vtkBuffer<ValueType> Buffer;
+  ValueType ValueRange[2]; // XXX
   bool SaveUserArray;
   int DeleteMethod;
 
 private:
   vtkAoSDataArrayTemplate(const vtkAoSDataArrayTemplate&); // Not implemented.
   void operator=(const vtkAoSDataArrayTemplate&); // Not implemented.
-  friend class vtkGenericDataArray<vtkAoSDataArrayTemplate<ScalarTypeT>, ScalarTypeT>;
+  friend class vtkGenericDataArray<vtkAoSDataArrayTemplate<ValueTypeT>,
+                                   ValueTypeT>;
 //ETX
 };
 

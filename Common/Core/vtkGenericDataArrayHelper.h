@@ -30,7 +30,8 @@ public:
   static void SetTuple(vtkAbstractArray* dest, vtkIdType destTuple,
     vtkAbstractArray* source, vtkIdType sourceTuple);
 
-  static void GetTuple(vtkAbstractArray* source, vtkIdType tuple, double* buffer);
+  static void GetTuple(vtkAbstractArray* source, vtkIdType tuple,
+                       double* buffer);
 //BTX
 protected:
   vtkGenericDataArrayHelper();

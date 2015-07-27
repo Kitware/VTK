@@ -49,7 +49,8 @@ public:
 
   inline ScalarType* GetBuffer() const
     { return this->Pointer; }
-  void SetBuffer(ScalarType* array, vtkIdType size, bool save=false, int deleteMethod=VTK_DATA_ARRAY_FREE)
+  void SetBuffer(ScalarType* array, vtkIdType size, bool save=false,
+                 int deleteMethod=VTK_DATA_ARRAY_FREE)
     {
     if (this->Pointer != array)
       {
@@ -79,7 +80,8 @@ public:
     this->SetBuffer(NULL, 0);
     if (size > 0)
       {
-      ScalarType* newArray = static_cast<ScalarType*>(malloc(size*sizeof(ScalarType)));
+      ScalarType* newArray =
+          static_cast<ScalarType*>(malloc(size * sizeof(ScalarType)));
       if (newArray)
         {
         this->SetBuffer(newArray, size, false, VTK_DATA_ARRAY_FREE);
@@ -102,14 +104,17 @@ public:
 #endif
 
     if (this->Pointer &&
-      (this->Save || this->DeleteMethod == VTK_DATA_ARRAY_DELETE || dontUseRealloc))
+      (this->Save || this->DeleteMethod == VTK_DATA_ARRAY_DELETE ||
+       dontUseRealloc))
       {
-      ScalarType* newArray = static_cast<ScalarType*>(malloc(newsize*sizeof(ScalarType)));
+      ScalarType* newArray =
+          static_cast<ScalarType*>(malloc(newsize * sizeof(ScalarType)));
       if (!newArray)
         {
         return false;
         }
-      std::copy(this->Pointer, this->Pointer + std::min(this->Size, newsize), newArray);
+      std::copy(this->Pointer, this->Pointer + std::min(this->Size, newsize),
+                newArray);
       // now save the new array and release the old one too.
       this->SetBuffer(newArray, newsize, false, VTK_DATA_ARRAY_FREE);
       }
@@ -117,7 +122,8 @@ public:
       {
       // Try to reallocate with minimal memory usage and possibly avoid
       // copying.
-      ScalarType* newArray = static_cast<ScalarType*>(realloc(this->Pointer, newsize*sizeof(ScalarType)));
+      ScalarType* newArray = static_cast<ScalarType*>(
+            realloc(this->Pointer, newsize * sizeof(ScalarType)));
       if (!newArray)
         {
         return false;

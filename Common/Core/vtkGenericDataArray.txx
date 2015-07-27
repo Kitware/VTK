@@ -66,7 +66,8 @@ vtkGenericDataArrayT(void)::InsertTuples(
 
   for (vtkIdType cc=0; cc < numIds; ++cc)
     {
-    vtkGenericDataArrayHelper::SetTuple(this, dstIds->GetId(cc), source, srcIds->GetId(cc));
+    vtkGenericDataArrayHelper::SetTuple(this, dstIds->GetId(cc), source,
+                                        srcIds->GetId(cc));
     }
   this->DataChanged();
 }
@@ -113,7 +114,8 @@ vtkGenericDataArrayT(void)::InsertTuples(vtkIdType dstStart, vtkIdType n,
 
   for (vtkIdType cc=0; cc < n; ++cc)
     {
-    vtkGenericDataArrayHelper::SetTuple(this, dstStart + cc, source, srcStart + cc);
+    vtkGenericDataArrayHelper::SetTuple(this, dstStart + cc, source,
+                                        srcStart + cc);
     }
   this->DataChanged();
 }
@@ -134,7 +136,8 @@ vtkGenericDataArrayT(void)::GetTuple(vtkIdType i, double * tuple)
 }
 
 //-----------------------------------------------------------------------------
-vtkGenericDataArrayT(void)::SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray *source)
+vtkGenericDataArrayT(void)::SetTuple(vtkIdType i, vtkIdType j,
+                                     vtkAbstractArray *source)
 {
   // XXX Should these be implemented in vtkDataArray?
   vtkGenericDataArrayHelper::SetTuple(this, i, source, j);
@@ -147,7 +150,7 @@ vtkGenericDataArrayT(void)::SetTuple(vtkIdType i, const float *source)
   // XXX Should these be implemented in vtkDataArray?
   for (int cc=0, max=this->GetNumberOfComponents(); cc < max; ++cc)
     {
-    this->SetComponentValue(i, cc, static_cast<ScalarType>(source[cc]));
+    this->SetComponentValue(i, cc, static_cast<ValueType>(source[cc]));
     }
   this->DataChanged();
 }
@@ -158,7 +161,7 @@ vtkGenericDataArrayT(void)::SetTuple(vtkIdType i, const double *source)
   // XXX Should these be implemented in vtkDataArray?
   for (int cc=0, max=this->GetNumberOfComponents(); cc < max; ++cc)
     {
-    this->SetComponentValue(i, cc, static_cast<ScalarType>(source[cc]));
+    this->SetComponentValue(i, cc, static_cast<ValueType>(source[cc]));
     }
   this->DataChanged();
 }
@@ -191,7 +194,8 @@ vtkGenericDataArrayT(void)::RemoveTuple(vtkIdType id)
     {
     for (int comp=0; comp < numComps; ++comp)
       {
-      this->SetComponentValue(toTuple, comp, this->GetComponentValue(fromTuple, comp));
+      this->SetComponentValue(toTuple, comp,
+                              this->GetComponentValue(fromTuple, comp));
       }
     }
   this->SetNumberOfTuples(this->GetNumberOfTuples() - 1);
@@ -222,7 +226,7 @@ vtkGenericDataArrayT(void*)::GetVoidPointer(vtkIdType)
 vtkGenericDataArrayT(vtkIdType)::LookupValue(vtkVariant valueVariant)
 {
   bool valid = true;
-  ScalarType value = vtkVariantCast<ScalarType>(valueVariant, &valid);
+  ValueType value = vtkVariantCast<ValueType>(valueVariant, &valid);
   if (valid)
     {
     return this->LookupTypedValue(value);
@@ -231,7 +235,7 @@ vtkGenericDataArrayT(vtkIdType)::LookupValue(vtkVariant valueVariant)
 }
 
 //-----------------------------------------------------------------------------
-vtkGenericDataArrayT(vtkIdType)::LookupTypedValue(ScalarType value)
+vtkGenericDataArrayT(vtkIdType)::LookupTypedValue(ValueType value)
 {
   return this->Lookup.LookupValue(value);
 }
@@ -241,7 +245,7 @@ vtkGenericDataArrayT(void)::LookupValue(vtkVariant valueVariant, vtkIdList* ids)
 {
   ids->Reset();
   bool valid = true;
-  ScalarType value = vtkVariantCast<ScalarType>(valueVariant, &valid);
+  ValueType value = vtkVariantCast<ValueType>(valueVariant, &valid);
   if (valid)
     {
     this->LookupTypedValue(value, ids);
@@ -249,17 +253,18 @@ vtkGenericDataArrayT(void)::LookupValue(vtkVariant valueVariant, vtkIdList* ids)
 }
 
 //-----------------------------------------------------------------------------
-vtkGenericDataArrayT(void)::LookupTypedValue(ScalarType value, vtkIdList* ids)
+vtkGenericDataArrayT(void)::LookupTypedValue(ValueType value, vtkIdList* ids)
 {
   ids->Reset();
   this->Lookup.LookupValue(value, ids);
 }
 
 //-----------------------------------------------------------------------------
-vtkGenericDataArrayT(void)::SetVariantValue(vtkIdType valueIdx, vtkVariant valueVariant)
+vtkGenericDataArrayT(void)::SetVariantValue(vtkIdType valueIdx,
+                                            vtkVariant valueVariant)
 {
   bool valid = true;
-  ScalarType value = vtkVariantCast<ScalarType>(valueVariant, &valid);
+  ValueType value = vtkVariantCast<ValueType>(valueVariant, &valid);
   if (valid)
     {
     this->SetValue(valueIdx, value);

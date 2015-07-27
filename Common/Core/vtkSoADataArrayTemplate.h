@@ -22,17 +22,18 @@
 #include "vtkGenericDataArray.h"
 #include "vtkBuffer.h"
 
-template <class ScalarTypeT>
+template <class ValueTypeT>
 class vtkSoADataArrayTemplate : public vtkTypeTemplate<
-                            vtkSoADataArrayTemplate<ScalarTypeT>,
-                            vtkGenericDataArray<vtkSoADataArrayTemplate<ScalarTypeT>, ScalarTypeT>
-                            >
+           vtkSoADataArrayTemplate<ValueTypeT>,
+           vtkGenericDataArray<vtkSoADataArrayTemplate<ValueTypeT>, ValueTypeT>
+           >
 {
-  typedef vtkGenericDataArray<vtkSoADataArrayTemplate<ScalarTypeT>, ScalarTypeT> GenericDataArrayType;
 public:
-  typedef vtkSoADataArrayTemplate<ScalarTypeT> SelfType;
-  typedef typename GenericDataArrayType::ScalarType ScalarType;
-  typedef typename GenericDataArrayType::ScalarReturnType ScalarReturnType;
+  typedef vtkGenericDataArray<vtkSoADataArrayTemplate<ValueTypeT>, ValueTypeT>
+          GenericDataArrayType;
+  typedef vtkSoADataArrayTemplate<ValueTypeT> SelfType;
+  typedef typename GenericDataArrayType::ValueType ValueType;
+  typedef typename GenericDataArrayType::ReferenceType ReferenceType;
 
   static vtkSoADataArrayTemplate* New();
 
@@ -40,39 +41,39 @@ public:
   // Methods that are needed to be implemented by every vtkGenericDataArray
   // subclass.
   // **************************************************************************
-  inline ScalarReturnType GetValue(vtkIdType valueIdx) const
+  inline ReferenceType GetValue(vtkIdType valueIdx) const
     {
     vtkIdType tupleIdx;
     int comp;
     this->GetTupleIndexFromValueIndex(valueIdx, tupleIdx, comp);
     return this->GetComponentValue(tupleIdx, comp);
     }
-  inline void GetTupleValue(vtkIdType tupleIdx, ScalarType* tuple) const
+  inline void GetTupleValue(vtkIdType tupleIdx, ValueType* tuple) const
     {
     for (int cc=0; cc < this->NumberOfComponents; cc++)
       {
       tuple[cc] = this->Data[cc].GetBuffer()[tupleIdx];
       }
     }
-  inline ScalarReturnType GetComponentValue(vtkIdType tupleIdx, int comp) const
+  inline ReferenceType GetComponentValue(vtkIdType tupleIdx, int comp) const
     {
     return this->Data[comp].GetBuffer()[tupleIdx];
     }
-  inline void SetValue(vtkIdType valueIdx, ScalarType value)
+  inline void SetValue(vtkIdType valueIdx, ValueType value)
     {
     vtkIdType tupleIdx;
     int comp;
     this->GetTupleIndexFromValueIndex(valueIdx, tupleIdx, comp);
     this->SetComponentValue(tupleIdx, comp, value);
     }
-  inline void SetTupleValue(vtkIdType tupleIdx, ScalarType* tuple)
+  inline void SetTupleValue(vtkIdType tupleIdx, ValueType* tuple)
     {
     for (int cc=0; cc < this->NumberOfComponents; ++cc)
       {
       this->Data[cc].GetBuffer()[tupleIdx] = tuple[cc];
       }
     }
-  inline void SetComponentValue(vtkIdType tupleIdx, int comp, ScalarType value)
+  inline void SetComponentValue(vtkIdType tupleIdx, int comp, ValueType value)
     {
     this->Data[comp].GetBuffer()[tupleIdx] = value;
     }
@@ -81,21 +82,21 @@ public:
 
   enum DeleteMethod
     {
-    VTK_DATA_ARRAY_FREE=vtkBuffer<ScalarType>::VTK_DATA_ARRAY_FREE,
-    VTK_DATA_ARRAY_DELETE=vtkBuffer<ScalarType>::VTK_DATA_ARRAY_DELETE
+    VTK_DATA_ARRAY_FREE=vtkBuffer<ValueType>::VTK_DATA_ARRAY_FREE,
+    VTK_DATA_ARRAY_DELETE=vtkBuffer<ValueType>::VTK_DATA_ARRAY_DELETE
     };
 
   // Description:
   // Use this API to pass externally allocated memory to this instance. Since
-  // vtkSoADataArrayTemplate uses separate contiguous regions for each component,
-  // use this API to add arrays for each of the component.
-  // \c save: When set to true, vtkSoADataArrayTemplate will not release or realloc the memory
-  // even when the AllocatorType is set to RESIZABLE. If needed it will simply
-  // allow new memory buffers and "forget" the supplied pointers. When save is
-  // set to false, this will be the \c deleteMethod specified to release the
-  // array.
+  // vtkSoADataArrayTemplate uses separate contiguous regions for each
+  // component, use this API to add arrays for each of the component.
+  // \c save: When set to true, vtkSoADataArrayTemplate will not release or
+  // realloc the memory even when the AllocatorType is set to RESIZABLE. If
+  // needed it will simply allow new memory buffers and "forget" the supplied
+  // pointers. When save is set to false, this will be the \c deleteMethod
+  // specified to release the array.
   // \c size is specified in number of elements of ScalarType.
-  void SetArray(int comp, ScalarType* array, vtkIdType size,
+  void SetArray(int comp, ValueType* array, vtkIdType size,
     bool save=false, int deleteMethod=VTK_DATA_ARRAY_FREE);
 
   // Description:
@@ -124,21 +125,23 @@ protected:
   bool ReallocateTuples(vtkIdType numTuples);
   // **************************************************************************
 
-  std::vector<vtkBuffer<ScalarType> > Data;
+  std::vector<vtkBuffer<ValueType> > Data;
   bool Resizeable;
   double NumberOfComponentsReciprocal;
 private:
   vtkSoADataArrayTemplate(const vtkSoADataArrayTemplate&); // Not implemented.
   void operator=(const vtkSoADataArrayTemplate&); // Not implemented.
 
-  inline void GetTupleIndexFromValueIndex(vtkIdType valueIdx, vtkIdType& tupleIdx, int& comp) const
+  inline void GetTupleIndexFromValueIndex(vtkIdType valueIdx,
+                                          vtkIdType& tupleIdx, int& comp) const
     {
-    tupleIdx = static_cast<vtkIdType>(valueIdx * this->NumberOfComponentsReciprocal);
+    tupleIdx = static_cast<vtkIdType>(valueIdx *
+                                      this->NumberOfComponentsReciprocal);
     comp = valueIdx - (tupleIdx * this->NumberOfComponents);
     }
 
-
-  friend class vtkGenericDataArray<vtkSoADataArrayTemplate<ScalarTypeT>, ScalarTypeT>;
+  friend class vtkGenericDataArray<vtkSoADataArrayTemplate<ValueTypeT>,
+                                   ValueTypeT>;
 };
 
 #include "vtkSoADataArrayTemplate.txx"

@@ -34,7 +34,7 @@ class vtkGenericDataArrayLookupHelper
 {
 public:
   typedef ArrayTypeT ArrayType;
-  typedef typename ArrayType::ScalarType ScalarType;
+  typedef typename ArrayType::ValueType ValueType;
 
   // Constructor.
   vtkGenericDataArrayLookupHelper(ArrayType& associatedArray)
@@ -47,13 +47,14 @@ public:
     this->ClearLookup();
     }
 
-  vtkIdType LookupValue(ScalarType elem)
+  vtkIdType LookupValue(ValueType elem)
     {
     this->UpdateLookup();
     ValueWithIndex temp;
     temp.Value = elem;
     ValueWithIndex* pos =
-      std::lower_bound(this->SortedArray, this->SortedArray + this->SortedArraySize, temp);
+      std::lower_bound(this->SortedArray,
+                       this->SortedArray + this->SortedArraySize, temp);
     if (pos == (this->SortedArray + this->SortedArraySize))
       {
       return -1;
@@ -65,13 +66,14 @@ public:
     return pos->Index;
     }
 
-  void LookupValue(ScalarType elem, vtkIdList* ids)
+  void LookupValue(ValueType elem, vtkIdList* ids)
     {
     this->UpdateLookup();
     ValueWithIndex temp;
     temp.Value = elem;
     std::pair<ValueWithIndex*, ValueWithIndex*> range =
-      std::equal_range(this->SortedArray, this->SortedArray + this->SortedArraySize, temp);
+      std::equal_range(this->SortedArray,
+                       this->SortedArray + this->SortedArraySize, temp);
     while (range.first != range.second)
       {
       // assert(range.first->Value == elem);
@@ -95,7 +97,7 @@ private:
 
   struct ValueWithIndex
     {
-    typename detail::remove_const<ScalarType>::type Value;
+    typename detail::remove_const<ValueType>::type Value;
     vtkIdType Index;
     inline bool operator<(const ValueWithIndex& other) const
       {
@@ -108,12 +110,15 @@ private:
     if (this->SortedArray) { return; }
 
     int numComps = this->AssociatedArray.GetNumberOfComponents();
-    this->SortedArraySize = this->AssociatedArray.GetNumberOfTuples() * numComps;
+    this->SortedArraySize =
+        this->AssociatedArray.GetNumberOfTuples() * numComps;
 
     if (this->SortedArraySize == 0) { return; }
 
-    this->SortedArray = reinterpret_cast<ValueWithIndex*>(malloc(this->SortedArraySize * sizeof(ValueWithIndex)));
-    for (vtkIdType cc=0, max=this->AssociatedArray.GetNumberOfValues(); cc < max; ++cc)
+    this->SortedArray = reinterpret_cast<ValueWithIndex*>(
+          malloc(this->SortedArraySize * sizeof(ValueWithIndex)));
+    for (vtkIdType cc=0, max=this->AssociatedArray.GetNumberOfValues();
+         cc < max; ++cc)
       {
       ValueWithIndex& item = this->SortedArray[cc];
       item.Value = this->AssociatedArray.GetValue(cc);

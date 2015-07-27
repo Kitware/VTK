@@ -15,24 +15,24 @@
 #include <cassert>
 
 //-----------------------------------------------------------------------------
-template<class ScalarType>
-vtkSoADataArrayTemplate<ScalarType>*
-vtkSoADataArrayTemplate<ScalarType>::New()
+template<class ValueType>
+vtkSoADataArrayTemplate<ValueType>*
+vtkSoADataArrayTemplate<ValueType>::New()
 {
-  VTK_STANDARD_NEW_BODY(vtkSoADataArrayTemplate<ScalarType>);
+  VTK_STANDARD_NEW_BODY(vtkSoADataArrayTemplate<ValueType>);
 }
 
 //-----------------------------------------------------------------------------
-template<class ScalarType>
-vtkSoADataArrayTemplate<ScalarType>::vtkSoADataArrayTemplate()
+template<class ValueType>
+vtkSoADataArrayTemplate<ValueType>::vtkSoADataArrayTemplate()
   : Resizeable(true),
   NumberOfComponentsReciprocal(1.0)
 {
 }
 
 //-----------------------------------------------------------------------------
-template<class ScalarType>
-vtkSoADataArrayTemplate<ScalarType>::~vtkSoADataArrayTemplate()
+template<class ValueType>
+vtkSoADataArrayTemplate<ValueType>::~vtkSoADataArrayTemplate()
 {
   for (int cc=0; cc < this->GetNumberOfComponents(); ++cc)
     {
@@ -41,8 +41,8 @@ vtkSoADataArrayTemplate<ScalarType>::~vtkSoADataArrayTemplate()
 }
 
 //-----------------------------------------------------------------------------
-template<class ScalarType>
-void vtkSoADataArrayTemplate<ScalarType>::SetNumberOfComponents(int val)
+template<class ValueType>
+void vtkSoADataArrayTemplate<ValueType>::SetNumberOfComponents(int val)
 {
   this->GenericDataArrayType::SetNumberOfComponents(val);
   size_t numComps = static_cast<size_t>(this->GetNumberOfComponents());
@@ -57,9 +57,9 @@ void vtkSoADataArrayTemplate<ScalarType>::SetNumberOfComponents(int val)
 }
 
 //-----------------------------------------------------------------------------
-template<class ScalarType>
-void vtkSoADataArrayTemplate<ScalarType>::SetArray(
-  int comp, ScalarType* array, vtkIdType size, bool save, int deleteMethod)
+template<class ValueType>
+void vtkSoADataArrayTemplate<ValueType>::SetArray(
+  int comp, ValueType* array, vtkIdType size, bool save, int deleteMethod)
 {
   const int numComps = this->GetNumberOfComponents();
   if (comp >= numComps || comp < 0)
@@ -75,8 +75,8 @@ void vtkSoADataArrayTemplate<ScalarType>::SetArray(
 }
 
 //-----------------------------------------------------------------------------
-template<class ScalarType>
-bool vtkSoADataArrayTemplate<ScalarType>::AllocateTuples(vtkIdType numTuples)
+template<class ValueType>
+bool vtkSoADataArrayTemplate<ValueType>::AllocateTuples(vtkIdType numTuples)
 {
   if (!this->Resizeable)
     {
@@ -91,7 +91,8 @@ bool vtkSoADataArrayTemplate<ScalarType>::AllocateTuples(vtkIdType numTuples)
       }
     else
       {
-      vtkErrorMacro("AllocateTuples cannot be called on a non-resizeable array!");
+      vtkErrorMacro("AllocateTuples cannot be called on a non-resizeable "
+                    "array!");
       return false;
       }
     }
@@ -107,8 +108,8 @@ bool vtkSoADataArrayTemplate<ScalarType>::AllocateTuples(vtkIdType numTuples)
 }
 
 //-----------------------------------------------------------------------------
-template<class ScalarType>
-bool vtkSoADataArrayTemplate<ScalarType>::ReallocateTuples(vtkIdType numTuples)
+template<class ValueType>
+bool vtkSoADataArrayTemplate<ValueType>::ReallocateTuples(vtkIdType numTuples)
 {
   if (!this->Resizeable)
     {

@@ -14,26 +14,26 @@
 =========================================================================*/
 
 #define vtkAoSDataArrayTemplateT(returnType) \
-  template <class ScalarType> \
-  returnType vtkAoSDataArrayTemplate<ScalarType>
+  template <class ValueType> \
+  returnType vtkAoSDataArrayTemplate<ValueType>
 
 //-----------------------------------------------------------------------------
-vtkAoSDataArrayTemplateT(vtkAoSDataArrayTemplate<ScalarType>*)::New()
+vtkAoSDataArrayTemplateT(vtkAoSDataArrayTemplate<ValueType>*)::New()
 {
-  VTK_STANDARD_NEW_BODY(vtkAoSDataArrayTemplate<ScalarType>);
+  VTK_STANDARD_NEW_BODY(vtkAoSDataArrayTemplate<ValueType>);
 }
 
 //-----------------------------------------------------------------------------
-template <class ScalarType>
-vtkAoSDataArrayTemplate<ScalarType>::vtkAoSDataArrayTemplate()
+template <class ValueType>
+vtkAoSDataArrayTemplate<ValueType>::vtkAoSDataArrayTemplate()
 {
   this->SaveUserArray = false;
   this->DeleteMethod = VTK_DATA_ARRAY_FREE;
 }
 
 //-----------------------------------------------------------------------------
-template <class ScalarType>
-vtkAoSDataArrayTemplate<ScalarType>::~vtkAoSDataArrayTemplate()
+template <class ValueType>
+vtkAoSDataArrayTemplate<ValueType>::~vtkAoSDataArrayTemplate()
 {
   this->SetArray(NULL, 0, 0);
   this->Buffer.SetBuffer(NULL, 0);
@@ -41,7 +41,7 @@ vtkAoSDataArrayTemplate<ScalarType>::~vtkAoSDataArrayTemplate()
 
 //-----------------------------------------------------------------------------
 vtkAoSDataArrayTemplateT(void)::SetArray(
-  ScalarType* array, vtkIdType size, int save, int deleteMethod)
+  ValueType* array, vtkIdType size, int save, int deleteMethod)
 {
   this->Buffer.SetBuffer(array, size, save, deleteMethod);
   this->Size = size;
@@ -50,9 +50,10 @@ vtkAoSDataArrayTemplateT(void)::SetArray(
 }
 
 //-----------------------------------------------------------------------------
-template <class ScalarTypeT>
-typename vtkAoSDataArrayTemplate<ScalarTypeT>::ScalarType*
-vtkAoSDataArrayTemplate<ScalarTypeT>::WritePointer(vtkIdType id, vtkIdType number)
+template <class ValueTypeT>
+typename vtkAoSDataArrayTemplate<ValueTypeT>::ValueType*
+vtkAoSDataArrayTemplate<ValueTypeT>::WritePointer(vtkIdType id,
+                                                   vtkIdType number)
 {
   vtkIdType newSize = (id+number)+1;
   if (newSize > this->Size)

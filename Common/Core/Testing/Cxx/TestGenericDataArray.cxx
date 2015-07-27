@@ -22,7 +22,8 @@ void Test()
   array->SetNumberOfComponents(3);
   array->SetNumberOfTuples(100);
   vtkWriteableGenericDataArrayMacro(array,
-    for (vtkIdType tupleIdx=0, max=ARRAY->GetNumberOfTuples(); tupleIdx < max; ++tupleIdx)
+    for (vtkIdType tupleIdx=0, max=ARRAY->GetNumberOfTuples(); tupleIdx < max;
+         ++tupleIdx)
     {
     ARRAY->SetComponentValue(tupleIdx, 0, 1);
     ARRAY->SetComponentValue(tupleIdx, 1, 2);

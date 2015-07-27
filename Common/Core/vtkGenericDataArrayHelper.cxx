@@ -29,7 +29,8 @@ namespace
       for (int cc=0, max=dest->GetNumberOfComponents(); cc < max; ++cc)
         {
         dest->SetComponentValue(destTuple, cc,
-          static_cast<typename ArrayDestType::ScalarType>(source->GetComponentValue(sourceTuple, cc)));
+          static_cast<typename ArrayDestType::ValueType>(
+          source->GetComponentValue(sourceTuple, cc)));
         }
       }
 
@@ -77,7 +78,8 @@ void vtkGenericDataArrayHelper::SetTuple(
 }
 
 //----------------------------------------------------------------------------
-void vtkGenericDataArrayHelper::GetTuple(vtkAbstractArray* source, vtkIdType tuple, double* buffer)
+void vtkGenericDataArrayHelper::GetTuple(vtkAbstractArray* source,
+                                         vtkIdType tuple, double* buffer)
 {
   vtkConstGenericDataArrayMacro(source, vtkGetTuple(ARRAY, tuple, buffer));
 }
