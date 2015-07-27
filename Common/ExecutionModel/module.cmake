@@ -8,6 +8,7 @@ vtk_module(vtkCommonExecutionModel
   TEST_DEPENDS
     vtkTestingCore
     vtkFiltersCore
+    vtkFiltersSources
     vtkIOCore
     vtkIOLegacy
   KIT

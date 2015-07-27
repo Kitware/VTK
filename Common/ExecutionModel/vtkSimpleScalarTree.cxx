@@ -340,8 +340,8 @@ void vtkSimpleScalarTree::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Level: " << this->Level << "\n" ;
-  os << indent << "Max Level: " << this->MaxLevel << "\n" ;
-  os << indent << "Branching Factor: " << this->BranchingFactor << "\n" ;
+  os << indent << "Level: " << this->GetLevel() << "\n" ;
+  os << indent << "Max Level: " << this->GetMaxLevel() << "\n" ;
+  os << indent << "Branching Factor: " << this->GetBranchingFactor() << "\n" ;
 }
 
