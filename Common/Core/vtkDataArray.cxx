@@ -394,7 +394,7 @@ void vtkDataArray::GetData(vtkIdType tupleMin, vtkIdType tupleMax, int compMin,
 void vtkDataArray::InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
   vtkAbstractArray* source,  double* weights)
 {
-  if (this->GetDataType() != source->GetDataType())
+  if (!vtkDataTypesCompare(this->GetDataType(), source->GetDataType()))
     {
     vtkErrorMacro("Cannot InterpolateValue from array of type "
       << source->GetDataTypeAsString());
@@ -458,7 +458,8 @@ void vtkDataArray::InterpolateTuple(vtkIdType i,
 {
   int type = this->GetDataType();
 
-  if (type != source1->GetDataType() || type != source2->GetDataType())
+  if (!vtkDataTypesCompare(type, source1->GetDataType()) ||
+      !vtkDataTypesCompare(type, source2->GetDataType()))
     {
     vtkErrorMacro("All arrays to InterpolateValue must be of same type.");
     return;
@@ -769,6 +770,21 @@ void vtkDataArray::InsertTuple4(vtkIdType i, double val0, double val1,
   tuple[3] = val3;
   this->InsertTuple(i, tuple);
 }
+
+//----------------------------------------------------------------------------
+void vtkDataArray::InsertTuple6(vtkIdType i, double val0, double val1,
+                                double val2, double val3, double val4,
+                                double val5)
+{
+  if (this->NumberOfComponents != 6)
+    {
+    vtkErrorMacro("The number of components do not match the number requested: "
+                  << this->NumberOfComponents << " != 6");
+    }
+  double tuple[6] = {val0, val1, val2, val3, val4, val5};
+  this->InsertTuple(i, tuple);
+}
+
 //----------------------------------------------------------------------------
 void vtkDataArray::InsertTuple9(vtkIdType i, double val0, double val1,
                                 double val2,  double val3, double val4,
@@ -851,6 +867,21 @@ void vtkDataArray::InsertNextTuple4(double val0, double val1,
   tuple[3] = val3;
   this->InsertNextTuple(tuple);
 }
+
+//----------------------------------------------------------------------------
+void vtkDataArray::InsertNextTuple6(double val0, double val1, double val2,
+                                    double val3, double val4, double val5)
+{
+  if (this->NumberOfComponents != 6)
+    {
+    vtkErrorMacro("The number of components do not match the number requested: "
+                  << this->NumberOfComponents << " != 6");
+    }
+
+  double tuple[6] = {val0, val1, val2, val3, val4, val5};
+  this->InsertNextTuple(tuple);
+}
+
 //----------------------------------------------------------------------------
 void vtkDataArray::InsertNextTuple9(double val0, double val1,
                                     double val2,  double val3, double val4,

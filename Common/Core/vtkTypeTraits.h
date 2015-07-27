@@ -50,6 +50,9 @@ template <class T> struct vtkTypeTraits;
     /* A name for the type indicating its size and signedness.  */            \
     static const char* SizedName() { return #name; }                          \
                                                                               \
+    /* The common C++ name for the type (e.g. float, unsigned int, etc).*/    \
+    static const char* Name() { return #type; }                               \
+                                                                              \
     /* A type to use for printing or parsing values in strings.  */           \
     typedef print PrintType;                                                  \
                                                                               \

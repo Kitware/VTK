@@ -35,13 +35,13 @@
 #define vtkDataArray vtkDataArrayTemplate<unsigned char>
 #endif
 class VTKCOMMONCORE_EXPORT vtkUnsignedCharArray : public vtkDataArray
+{
+public:
+  vtkTypeMacro(vtkUnsignedCharArray, vtkDataArray)
 #ifndef __WRAP__
 #undef vtkDataArray
 #endif
-{
-public:
   static vtkUnsignedCharArray* New();
-  vtkTypeMacro(vtkUnsignedCharArray,vtkDataArray);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // This macro expands to the set of method declarations that

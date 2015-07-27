@@ -186,6 +186,8 @@ public:
   void InsertTuple3(vtkIdType i, double val0, double val1, double val2);
   void InsertTuple4(vtkIdType i, double val0, double val1, double val2,
                     double val3);
+  void InsertTuple6(vtkIdType i, double val0, double val1, double val2,
+                    double val3, double val4, double val5);
   void InsertTuple9(vtkIdType i, double val0, double val1, double val2,
                     double val3, double val4, double val5, double val6,
                     double val7, double val8);
@@ -206,6 +208,8 @@ public:
   void InsertNextTuple3(double val0, double val1, double val2);
   void InsertNextTuple4(double val0, double val1, double val2,
                         double val3);
+  void InsertNextTuple6(double val0, double val1, double val2,
+                        double val3, double val4, double val5);
   void InsertNextTuple9(double val0, double val1, double val2,
                         double val3, double val4, double val5, double val6,
                         double val7, double val8);
@@ -271,8 +275,8 @@ public:
 
   // Description:
   // Get the address of a particular data index. Make sure data is allocated
-  // for the number of items requested. Set MaxId according to the number of
-  // data values requested.
+  // for the number of items requested. If needed, increase MaxId to mark any
+  // new value ranges as in-use.
   virtual void* WriteVoidPointer(vtkIdType id, vtkIdType number) = 0;
 
   // Description:

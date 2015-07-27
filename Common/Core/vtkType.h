@@ -255,16 +255,19 @@ typedef double vtkTypeFloat64;
 #ifdef VTK_USE_64BIT_IDS
 # if defined(VTK_TYPE_USE_LONG_LONG) && VTK_SIZEOF_LONG_LONG == 8
 typedef long long vtkIdType;
+#  define VTK_ID_TYPE_IMPL VTK_LONG_LONG
 #  define VTK_SIZEOF_ID_TYPE VTK_SIZEOF_LONG_LONG
 #  define VTK_ID_MIN VTK_LONG_LONG_MIN
 #  define VTK_ID_MAX VTK_LONG_LONG_MAX
 # elif defined(VTK_SIZEOF_LONG) && VTK_SIZEOF_LONG == 8
 typedef long vtkIdType;
+#  define VTK_ID_TYPE_IMPL VTK_LONG
 #  define VTK_SIZEOF_ID_TYPE VTK_SIZEOF_LONG
 #  define VTK_ID_MIN VTK_LONG_MIN
 #  define VTK_ID_MAX VTK_LONG_MAX
 # elif defined(VTK_TYPE_USE___INT64) && VTK_SIZEOF___INT64 == 8
 typedef __int64 vtkIdType;
+#  define VTK_ID_TYPE_IMPL VTK___INT64
 #  define VTK_SIZEOF_ID_TYPE VTK_SIZEOF___INT64
 #  define VTK_ID_MIN VTK___INT64_MIN
 #  define VTK_ID_MAX VTK___INT64_MAX
@@ -273,9 +276,24 @@ typedef __int64 vtkIdType;
 # endif
 #else
 typedef int vtkIdType;
+# define VTK_ID_TYPE_IMPL VTK_INT
 # define VTK_SIZEOF_ID_TYPE VTK_SIZEOF_INT
 # define VTK_ID_MIN VTK_INT_MIN
 # define VTK_ID_MAX VTK_INT_MAX
+#endif
+
+#if defined(__cplusplus)
+/* Description:
+ * Returns true if data type tags a and b point to the same data type. This
+ * is intended to handle vtkIdType, which does not have the same tag as its
+ * underlying data type.
+ * @note This method is only available when included from a C++ source file. */
+inline int vtkDataTypesCompare(int a, int b)
+{
+  return (a == b ||
+          ((a == VTK_ID_TYPE || a == VTK_ID_TYPE_IMPL) &&
+           (b == VTK_ID_TYPE || b == VTK_ID_TYPE_IMPL)));
+}
 #endif
 
 #endif
