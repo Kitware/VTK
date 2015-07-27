@@ -42,14 +42,14 @@ const int Zdim=2;
 vtkPlanesIntersection::vtkPlanesIntersection()
 {
   this->Plane   = NULL;
-  this->regionPts = NULL;
+  this->RegionPts = NULL;
 }
 vtkPlanesIntersection::~vtkPlanesIntersection()
 {
-  if (this->regionPts)
+  if (this->RegionPts)
     {
-    this->regionPts->Delete();
-    this->regionPts = NULL;
+    this->RegionPts->Delete();
+    this->RegionPts = NULL;
     }
   delete [] this->Plane;
   this->Plane = NULL;
@@ -57,63 +57,77 @@ vtkPlanesIntersection::~vtkPlanesIntersection()
 void vtkPlanesIntersection::SetRegionVertices(vtkPoints *v)
 {
   int i;
-  if (this->regionPts) this->regionPts->Delete();
-  this->regionPts = vtkPointsProjectedHull::New();
+  if (this->RegionPts)
+    {
+    this->RegionPts->Delete();
+    }
+  this->RegionPts = vtkPointsProjectedHull::New();
 
   if (v->GetDataType() == VTK_DOUBLE)
     {
-    this->regionPts->DeepCopy(v);
+    this->RegionPts->DeepCopy(v);
     }
   else
     {
-    this->regionPts->SetDataTypeToDouble();
+    this->RegionPts->SetDataTypeToDouble();
 
     int npts = v->GetNumberOfPoints();
-    this->regionPts->SetNumberOfPoints(npts);
+    this->RegionPts->SetNumberOfPoints(npts);
 
     double *pt;
     for (i=0; i<npts; i++)
       {
       pt = v->GetPoint(i);
-      regionPts->SetPoint(i, pt[0], pt[1], pt[2]);
+      RegionPts->SetPoint(i, pt[0], pt[1], pt[2]);
       }
     }
 }
 void vtkPlanesIntersection::SetRegionVertices(double *v, int nvertices)
 {
   int i;
-  if (this->regionPts) this->regionPts->Delete();
-  this->regionPts = vtkPointsProjectedHull::New();
+  if (this->RegionPts)
+    {
+    this->RegionPts->Delete();
+    }
+  this->RegionPts = vtkPointsProjectedHull::New();
 
-  this->regionPts->SetDataTypeToDouble();
-  this->regionPts->SetNumberOfPoints(nvertices);
+  this->RegionPts->SetDataTypeToDouble();
+  this->RegionPts->SetNumberOfPoints(nvertices);
 
   for (i=0; i<nvertices; i++)
     {
-    this->regionPts->SetPoint(i, v + (i*3));
+    this->RegionPts->SetPoint(i, v + (i*3));
     }
 }
 int vtkPlanesIntersection::GetRegionVertices(double *v, int nvertices)
 {
   int i;
-  if (this->regionPts == NULL) this->ComputeRegionVertices();
+  if (this->RegionPts == NULL)
+    {
+    this->ComputeRegionVertices();
+    }
 
-  int npts = this->regionPts->GetNumberOfPoints();
+  int npts = this->RegionPts->GetNumberOfPoints();
 
-  if (npts > nvertices) npts = nvertices;
+  if (npts > nvertices)
+    {
+    npts = nvertices;
+    }
 
   for (i=0; i<npts; i++)
     {
-    this->regionPts->GetPoint(i, v + i*3);
+    this->RegionPts->GetPoint(i, v + i*3);
     }
 
   return npts;
 }
-int vtkPlanesIntersection::GetNumRegionVertices()
+int vtkPlanesIntersection::GetNumberOfRegionVertices()
 {
-  if (this->regionPts == NULL) this->ComputeRegionVertices();
-
-  return this->regionPts->GetNumberOfPoints();
+  if (this->RegionPts == NULL)
+    {
+    this->ComputeRegionVertices();
+    }
+  return this->RegionPts->GetNumberOfPoints();
 }
 
 //---------------------------------------------------------------------
@@ -133,10 +147,10 @@ int vtkPlanesIntersection::IntersectsRegion(vtkPoints *R)
     return 0;
     }
 
-  if (this->regionPts == NULL)
+  if (this->RegionPts == NULL)
     {
     this->ComputeRegionVertices();
-    if (this->regionPts->GetNumberOfPoints() < 4)
+    if (this->RegionPts->GetNumberOfPoints() < 4)
       {
       vtkErrorMacro("Invalid region: zero-volume intersection");
       return 0;
@@ -218,8 +232,10 @@ int vtkPlanesIntersection::IntersectsRegion(vtkPoints *R)
 
   else
     {
-    if (this->Plane == NULL) this->SetPlaneEquations();
-
+    if (this->Plane == NULL)
+      {
+      this->SetPlaneEquations();
+      }
     allInside = 1;
 
     for (plane=0; plane < nplanes; plane++)
@@ -602,8 +618,12 @@ void vtkPlanesIntersection::ComputeRegionVertices()
   int i, j, k;
   int nplanes = this->GetNumberOfPlanes();
 
-  if (this->regionPts) this->regionPts->Delete();
-  this->regionPts = vtkPointsProjectedHull::New();
+  if (this->RegionPts)
+    {
+    this->RegionPts->Delete();
+    }
+
+  this->RegionPts = vtkPointsProjectedHull::New();
 
   if (nplanes <= 3)
     {
@@ -634,19 +654,23 @@ void vtkPlanesIntersection::ComputeRegionVertices()
 
         int notInvertible = this->Invert3x3(M);
 
-        if (notInvertible) continue;
-
+        if (notInvertible)
+          {
+          continue;
+          }
         this->planesRHS(i, j, k, rhs);
 
         vtkMath::Multiply3x3(M, rhs, testv);
 
-        if (duplicate(testv)) continue;
-
+        if (duplicate(testv))
+          {
+          continue;
+          }
         int outside = this->outsideRegion(testv);
 
         if (!outside)
           {
-          this->regionPts->InsertPoint(nvertices, testv);
+          this->RegionPts->InsertPoint(nvertices, testv);
           nvertices++;
           }
         }
@@ -657,11 +681,11 @@ int vtkPlanesIntersection::duplicate(double testv[3]) const
 {
   int i;
   double pt[3];
-  int npts = this->regionPts->GetNumberOfPoints();
+  int npts = this->RegionPts->GetNumberOfPoints();
 
   for (i=0; i<npts; i++)
     {
-    this->regionPts->GetPoint(i, pt);
+    this->RegionPts->GetPoint(i, pt);
 
     if ( (pt[0] == testv[0]) && (pt[1] == testv[1]) && (pt[2] == testv[2]))
       {
@@ -714,8 +738,10 @@ int vtkPlanesIntersection::Invert3x3(double M[3][3])
 
   double det = vtkMath::Determinant3x3(M);
 
-  if ( (det > -VTK_SMALL_DOUBLE) && (det < VTK_SMALL_DOUBLE)) return -1;
-
+  if ( (det > -VTK_SMALL_DOUBLE) && (det < VTK_SMALL_DOUBLE))
+    {
+    return -1;
+    }
   vtkMath::Invert3x3(M, temp);
 
   for (i=0; i<3; i++)
@@ -737,7 +763,7 @@ int vtkPlanesIntersection::IntersectsBoundingBox(vtkPoints *R)
 
   R->GetBounds(BoxBounds);
 
-  this->regionPts->GetBounds(RegionBounds);
+  this->RegionPts->GetBounds(RegionBounds);
 
   if ((BoxBounds[1] < RegionBounds[0]) ||
       (BoxBounds[0] > RegionBounds[1]) ||
@@ -756,7 +782,7 @@ int vtkPlanesIntersection::EnclosesBoundingBox(vtkPoints *R)
 
   R->GetBounds(BoxBounds);
 
-  this->regionPts->GetBounds(RegionBounds);
+  this->RegionPts->GetBounds(RegionBounds);
 
   if ((BoxBounds[0] > RegionBounds[0]) ||
       (BoxBounds[1] < RegionBounds[1]) ||
@@ -831,17 +857,17 @@ int vtkPlanesIntersection::IntersectsProjection(vtkPoints *R, int dir)
     {
     case Xdim:
 
-      intersects = this->regionPts->RectangleIntersectionX(R);
+      intersects = this->RegionPts->RectangleIntersectionX(R);
       break;
 
     case Ydim:
 
-      intersects = this->regionPts->RectangleIntersectionY(R);
+      intersects = this->RegionPts->RectangleIntersectionY(R);
       break;
 
     case Zdim:
 
-      intersects = this->regionPts->RectangleIntersectionZ(R);
+      intersects = this->RegionPts->RectangleIntersectionZ(R);
       break;
     }
 
@@ -853,7 +879,7 @@ void vtkPlanesIntersection::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Plane: " << this->Plane << endl;
-  os << indent << "regionPts: " << this->regionPts << endl;
+  os << indent << "RegionPts: " << this->RegionPts << endl;
 
   int i, npts;
 
@@ -872,13 +898,13 @@ void vtkPlanesIntersection::PrintSelf(ostream& os, vtkIndent indent)
       }
     }
 
-  if (this->regionPts)
+  if (this->RegionPts)
     {
-    npts = this->regionPts->GetNumberOfPoints();
+    npts = this->RegionPts->GetNumberOfPoints();
 
     for (i=0; i<npts; i++)
       {
-      double *pt = this->regionPts->GetPoint(i);
+      double *pt = this->RegionPts->GetPoint(i);
 
       os << indent << "Vertex " <<  pt[0] << " " << pt[1] << " " << pt[2] << endl;
       }

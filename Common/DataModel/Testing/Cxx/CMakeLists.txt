@@ -50,6 +50,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestDataObjectTypes.cxx
   TestPolyDataRemoveDeletedCells.cxx
   UnitTestCells.cxx
+  UnitTestPlanesIntersection.cxx
   )
 vtk_add_test_cxx(${vtk-module}CxxTests data_tests
   TestCellIterators.cxx,NO_VALID,NO_OUTPUT

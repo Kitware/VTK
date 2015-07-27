@@ -62,7 +62,12 @@ public:
 
   void SetRegionVertices(vtkPoints *pts);
   void SetRegionVertices(double *v, int nvertices);
-  int GetNumRegionVertices();
+  int GetNumberOfRegionVertices();
+  // Retained for backward compatibility
+  int GetNumRegionVertices()
+  {
+    return this->GetNumberOfRegionVertices();
+  }
   int GetRegionVertices(double *v, int nvertices);
 
   // Description:
@@ -119,7 +124,7 @@ private:
 
   // vertices of convex regions enclosed by the planes, also
   //    the ccw hull of that region projected in 3 orthog. directions
-  vtkPointsProjectedHull *regionPts;
+  vtkPointsProjectedHull *RegionPts;
 
   vtkPlanesIntersection(const vtkPlanesIntersection&); // Not implemented
   void operator=(const vtkPlanesIntersection&); // Not implemented
