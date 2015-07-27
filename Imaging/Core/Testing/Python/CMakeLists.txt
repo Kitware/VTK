@@ -42,6 +42,7 @@ vtk_add_test_python(
   TestGradientMagnitude2.py
   TestHSIToRGB.py
   TestHSVToRGB.py
+  TestYIQToRGB.py
   TestHybridMedian2D.py
   TestIdealLowPass.py
   TestImageCanvas.py
