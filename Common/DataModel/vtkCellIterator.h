@@ -63,6 +63,7 @@
 #define vtkCellIterator_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkCellType.h" // For VTK_EMPTY_CELL
 #include "vtkObject.h"
 #include "vtkNew.h" // For vtkNew
 #include "vtkIdList.h" // For inline methods
@@ -180,7 +181,7 @@ private:
   void ResetCache()
   {
     this->CacheFlags = UninitializedFlag;
-    this->ResetContainers();
+    this->CellType = VTK_EMPTY_CELL;
   }
 
   void SetCache(unsigned char flags)
@@ -192,8 +193,6 @@ private:
   {
     return (this->CacheFlags & flags) == flags;
   }
-
-  void ResetContainers();
 
   vtkNew<vtkPoints> PointsContainer;
   vtkNew<vtkIdList> PointIdsContainer;

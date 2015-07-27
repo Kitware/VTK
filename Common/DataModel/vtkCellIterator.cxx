@@ -100,15 +100,6 @@ vtkCellIterator::vtkCellIterator()
 }
 
 //------------------------------------------------------------------------------
-void vtkCellIterator::ResetContainers()
-{
-  this->Points->Reset();
-  this->PointIds->Reset();
-  this->Faces->Reset();
-  this->CellType = VTK_EMPTY_CELL;
-}
-
-//------------------------------------------------------------------------------
 vtkCellIterator::~vtkCellIterator()
 {
 }
