@@ -1681,6 +1681,12 @@ int vtkPolyData::IsEdge(vtkIdType p1, vtkIdType p2)
   vtkIdType i, j;
   vtkIdType *cells, *pts;
 
+  vtkIdType nbPoints = this->GetNumberOfPoints();
+  if (p1 >= nbPoints || p2 >= nbPoints)
+    {
+    return 0;
+    }
+
   this->GetPointCells(p1,ncells,cells);
   for (i=0; i<ncells; i++)
     {
