@@ -252,7 +252,7 @@ private:
   int NumberOfDegeneracies;
 
   int *RecoverBoundary(vtkPolyData *source);
-  int RecoverEdge(vtkIdType p1, vtkIdType p2);
+  int RecoverEdge(vtkPolyData* source, vtkIdType p1, vtkIdType p2);
   void FillPolygons(vtkCellArray *polys, int *triUse);
 
   int InCircle (double x[3], double x1[3], double x2[3], double x3[3]);
