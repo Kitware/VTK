@@ -56,8 +56,7 @@ public:
   // create object given only the class name.
   static PyVTKClass *AddClassToMap(
     PyTypeObject *pytype, PyMethodDef *methods,
-    const char *classname, const char *manglename,
-    vtknewfunc constructor);
+    const char *classname, vtknewfunc constructor);
 
   // Description:
   // Get information about a special VTK type, given the type name.

@@ -361,7 +361,7 @@ static void vtkWrapPython_GenerateObjectNew(
   if (strcmp(data->Name, classname) == 0)
     {
     fprintf(fp,
-            "    \"%s\", NULL,\n"
+            "    \"%s\",\n"
             "    Py%s_Doc(),",
             classname, classname);
     }
@@ -369,9 +369,9 @@ static void vtkWrapPython_GenerateObjectNew(
     {
     /* use of typeid() matches vtkTypeTemplate */
     fprintf(fp,
-            "    typeid(%s).name(), \"%s\",\n"
+            "    typeid(%s).name(),\n"
             "    Py%s_Doc(),",
-            data->Name, classname, classname);
+            data->Name, classname);
     }
 
   if (class_has_new)

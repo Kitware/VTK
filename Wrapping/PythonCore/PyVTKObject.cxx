@@ -45,14 +45,12 @@ static PyTypeObject *PyVTKObject_Type = 0;
 //--------------------------------------------------------------------
 PyVTKClass::PyVTKClass(
   PyTypeObject *typeobj, PyMethodDef *methods,
-  const char *classname, const char *manglename,
-  vtknewfunc constructor)
+  const char *classname, vtknewfunc constructor)
 {
   this->py_type = typeobj;
-  this->vtk_methods = methods;
+  this->py_methods = methods;
+  this->vtk_name = classname;
   this->vtk_new = constructor;
-  this->vtk_cppname = classname;
-  this->vtk_mangle = (manglename ? manglename : classname);
 }
 
 //--------------------------------------------------------------------
@@ -63,13 +61,13 @@ PyVTKClass::PyVTKClass(
 // value of NULL signifies that the class was already added.
 PyVTKClass *PyVTKClass_Add(
   PyTypeObject *pytype, PyMethodDef *methods,
-  const char *classname, const char *manglename,
-  const char *docstring[], vtknewfunc constructor)
+  const char *classname, const char *docstring[],
+  vtknewfunc constructor)
 {
   // Add this type to the vtk class map
   PyVTKClass *info =
     vtkPythonUtil::AddClassToMap(
-      pytype, methods, classname, manglename, constructor);
+      pytype, methods, classname, constructor);
 
   if (info == 0)
     {
@@ -94,9 +92,9 @@ PyVTKClass *PyVTKClass_Add(
   PyDict_SetItemString(pytype->tp_dict, "__doc__", doc);
   Py_DECREF(doc);
 
-  // Add special attribute __cppname__
+  // Add special attribute __vtkname__
   PyObject *s = PyString_FromString(classname);
-  PyDict_SetItemString(pytype->tp_dict, "__cppname__", s);
+  PyDict_SetItemString(pytype->tp_dict, "__vtkname__", s);
   Py_DECREF(s);
 
   // Add all of the methods
@@ -190,7 +188,7 @@ PyObject *PyVTKObject_New(PyTypeObject *tp, PyObject *args, PyObject *kwds)
 
   if (o)
     {
-    // should use vtk_mangle instead of tp_name, to match __this__
+    // used to create a VTK object from a SWIG pointer
     return vtkPythonUtil::GetObjectFromObject(
       o, vtkPythonUtil::StripModule(tp->tp_name));
     }
@@ -242,10 +240,10 @@ static PyObject *PyVTKObject_GetThis(PyObject *op, void *)
     {
     do { cp++; } while (isalnum(*cp) || *cp == '_');
     }
-  // otherwise, use the mangled form of the class name
+  // otherwise, use the pythonic form of the class name
   if (*cp != '\0')
     {
-    classname = self->vtk_class->vtk_mangle;
+    classname = vtkPythonUtil::StripModule(op->ob_type->tp_name);
     }
   sprintf(buf, "p_%.500s", classname);
   return PyString_FromString(
@@ -352,8 +350,8 @@ PyObject *PyVTKObject_FromPointer(
 
   if (cls == 0)
     {
-    // Use the cppname of the supplied class type
-    PyObject *s = PyObject_GetAttrString((PyObject *)pytype, "__cppname__");
+    // Use the vtkname of the supplied class type
+    PyObject *s = PyObject_GetAttrString((PyObject *)pytype, "__vtkname__");
     if (s)
       {
       classname = PyString_AsString(s);

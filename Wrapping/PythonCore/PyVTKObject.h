@@ -37,20 +37,16 @@ class VTKWRAPPINGPYTHONCORE_EXPORT PyVTKClass
 {
 public:
   PyVTKClass() :
-    py_type(0), vtk_methods(0), vtk_new(0),
-    vtk_cppname(0), vtk_mangle(0) {}
+    py_type(0), py_methods(0), vtk_name(0), vtk_new(0) {}
 
   PyVTKClass(
     PyTypeObject *typeobj, PyMethodDef *methods,
-    const char *classname, const char *manglename,
-    vtknewfunc constructor);
+    const char *classname, vtknewfunc constructor);
 
-  // general information
   PyTypeObject *py_type;
-  PyMethodDef *vtk_methods;
+  PyMethodDef *py_methods;
+  const char *vtk_name;     // the name returned by GetClassName()
   vtknewfunc vtk_new;       // creates a C++ instance of classtype
-  const char *vtk_cppname;  // set to typeid(classtype).name()
-  const char *vtk_mangle;   // the classtype, mangled with vtkParseMangle
 };
 
 // This is the VTK/Python 'object,' it contains the python object header
@@ -73,7 +69,7 @@ extern "C"
 VTKWRAPPINGPYTHONCORE_EXPORT
 PyVTKClass *PyVTKClass_Add(
   PyTypeObject *pytype, PyMethodDef *methods, const char *classname,
-  const char *manglename, const char *docstring[], vtknewfunc constructor);
+  const char *docstring[], vtknewfunc constructor);
 
 VTKWRAPPINGPYTHONCORE_EXPORT
 int PyVTKObject_Check(PyObject *obj);

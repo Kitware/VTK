@@ -519,7 +519,7 @@ const char *vtkPythonUtil::PythonicClassName(const char *classname)
     PyVTKClass *o = vtkPythonUtil::FindClass(classname);
     if (o)
       {
-      classname = o->vtk_mangle;
+      classname = vtkPythonUtil::StripModule(o->py_type->tp_name);
       }
     }
 
@@ -544,8 +544,7 @@ const char *vtkPythonUtil::StripModule(const char *tpname)
 //--------------------------------------------------------------------
 PyVTKClass *vtkPythonUtil::AddClassToMap(
   PyTypeObject *pytype, PyMethodDef *methods,
-  const char *classname, const char *manglename,
-  vtknewfunc constructor)
+  const char *classname, vtknewfunc constructor)
 {
   vtkPythonUtilCreateIfNeeded();
 
@@ -560,7 +559,7 @@ PyVTKClass *vtkPythonUtil::AddClassToMap(
   i = vtkPythonMap->ClassMap->insert(i,
     vtkPythonClassMap::value_type(
       classname,
-      PyVTKClass(pytype, methods, classname, manglename, constructor)));
+      PyVTKClass(pytype, methods, classname, constructor)));
 
   return &i->second;
 }
@@ -596,7 +595,7 @@ PyVTKClass *vtkPythonUtil::FindNearestBaseClass(vtkObjectBase *ptr)
     {
     PyVTKClass *pyclass = &classes->second;
 
-    if (ptr->IsA(pyclass->vtk_cppname))
+    if (ptr->IsA(pyclass->vtk_name))
       {
       PyTypeObject *base = pyclass->py_type->tp_base;
       // count the hierarchy depth for this class
