@@ -18,8 +18,8 @@
 #include "vtkWrapPythonMethod.h"
 #include "vtkWrapPythonType.h"
 
+#include "vtkWrapText.h"
 #include "vtkParseExtras.h"
-#include "vtkParseMangle.h"
 
 /* required for VTK_LEGACY_REMOVE */
 #include "vtkConfigure.h"
@@ -29,77 +29,6 @@
 #include <string.h>
 #include <ctype.h>
 
-
-/* -------------------------------------------------------------------- */
-/* convert C++ templated types to valid python ids by mangling */
-void vtkWrapPython_PythonicName(const char *name, char *pname)
-{
-  size_t j = 0;
-  size_t i;
-  size_t l;
-  char *cp;
-  int scoped = 0;
-
-  /* look for first char that is not alphanumeric or underscore */
-  l = vtkParse_IdentifierLength(name);
-
-  if (name[l] != '\0')
-    {
-    /* get the mangled name */
-    vtkParse_MangledTypeName(name, pname);
-
-    /* put dots after namespaces */
-    i = 0;
-    cp = pname;
-    while (*cp == 'N')
-      {
-      scoped++;
-      cp++;
-      while (*cp >= '0' && *cp <= '9')
-        {
-        i = i*10 + (*cp++ - '0');
-        }
-      i += j;
-      while (j < i)
-        {
-        pname[j++] = *cp++;
-        }
-      pname[j++] = '.';
-      }
-
-    /* remove mangling from first identifier and add an underscore */
-    i = 0;
-    while (*cp >= '0' && *cp <= '9')
-      {
-      i = i*10 + (*cp++ - '0');
-      }
-    i += j;
-    while (j < i)
-      {
-      pname[j++] = *cp++;
-      }
-    pname[j++] = '_';
-    while (*cp != '\0')
-      {
-      pname[j++] = *cp++;
-      }
-    pname[j] = '\0';
-    }
-  else
-    {
-    strcpy(pname, name);
-    }
-
-  /* remove the "_E" that is added to mangled scoped names */
-  if (scoped)
-    {
-    j = strlen(pname);
-    if (j > 2 && pname[j-2] == '_' && pname[j-1] == 'E')
-      {
-      pname[j-2] = '\0';
-      }
-    }
-}
 
 /* -------------------------------------------------------------------- */
 /* convert a C++ templated type to pythonic dict form */
@@ -424,7 +353,7 @@ int vtkWrapPython_WrapTemplatedClass(
       sdata = (ClassInfo *)malloc(sizeof(ClassInfo));
       vtkParse_CopyClass(sdata, data);
       vtkParse_InstantiateClassTemplate(sdata, file_info->Strings, nargs, args);
-      vtkWrapPython_PythonicName(instantiations[k], classname);
+      vtkWrapText_PythonName(instantiations[k], classname);
 
       vtkWrapPython_WrapOneClass(
         fp, modulename, classname, sdata, file_info, hinfo, is_vtkobject);
@@ -468,7 +397,7 @@ int vtkWrapPython_WrapTemplatedClass(
 
     for (k = 0; k < ninstantiations; k++)
       {
-      vtkWrapPython_PythonicName(instantiations[k], classname);
+      vtkWrapText_PythonName(instantiations[k], classname);
 
       entry = vtkParseHierarchy_FindEntry(hinfo, instantiations[k]);
       if (vtkParseHierarchy_IsTypeOfTemplated(

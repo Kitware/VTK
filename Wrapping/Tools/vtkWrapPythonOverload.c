@@ -81,6 +81,7 @@
 #include "vtkWrapPythonTemplate.h"
 
 #include "vtkWrap.h"
+#include "vtkWrapText.h"
 
 /* required for VTK_USE_64BIT_IDS */
 #include "vtkConfigure.h"
@@ -246,27 +247,27 @@ static char *vtkWrapPython_ArgCheckString(
     else if (arg->IsEnum)
       {
       c = 'E';
-      vtkWrapPython_PythonicName(arg->Class, classname);
+      vtkWrapText_PythonName(arg->Class, classname);
       }
     else if (vtkWrap_IsPythonObject(arg))
       {
       c = 'O';
-      vtkWrapPython_PythonicName(arg->Class, classname);
+      vtkWrapText_PythonName(arg->Class, classname);
       }
     else if (vtkWrap_IsVTKObject(arg))
       {
       c = 'V';
-      vtkWrapPython_PythonicName(arg->Class, classname);
+      vtkWrapText_PythonName(arg->Class, classname);
       }
     else if (vtkWrap_IsSpecialObject(arg))
       {
       c = 'W';
-      vtkWrapPython_PythonicName(arg->Class, classname);
+      vtkWrapText_PythonName(arg->Class, classname);
       }
     else if (vtkWrap_IsQtEnum(arg) || vtkWrap_IsQtObject(arg))
       {
       c = 'Q';
-      vtkWrapPython_PythonicName(arg->Class, classname);
+      vtkWrapText_PythonName(arg->Class, classname);
       }
     else if (vtkWrap_IsFunction(arg))
       {

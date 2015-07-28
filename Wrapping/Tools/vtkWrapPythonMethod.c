@@ -18,6 +18,7 @@
 #include "vtkWrapPythonTemplate.h"
 
 #include "vtkWrap.h"
+#include "vtkWrapText.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -273,7 +274,7 @@ void vtkWrapPython_GetSingleArgument(
     }
   else if (vtkWrap_IsVTKObject(arg))
     {
-    vtkWrapPython_PythonicName(arg->Class, pythonname);
+    vtkWrapText_PythonName(arg->Class, pythonname);
     if (strcmp(arg->Class, pythonname) != 0)
       {
       /* use typeid() for templated names */
@@ -289,14 +290,14 @@ void vtkWrapPython_GetSingleArgument(
   else if (vtkWrap_IsSpecialObject(arg) &&
            !vtkWrap_IsNonConstRef(arg))
     {
-    vtkWrapPython_PythonicName(arg->Class, pythonname);
+    vtkWrapText_PythonName(arg->Class, pythonname);
     fprintf(fp, "%sGetSpecialObject(%stemp%d, pobj%d, \"%s\")",
             prefix, argname, i, i, pythonname);
     }
   else if (vtkWrap_IsSpecialObject(arg) &&
            vtkWrap_IsNonConstRef(arg))
     {
-    vtkWrapPython_PythonicName(arg->Class, pythonname);
+    vtkWrapText_PythonName(arg->Class, pythonname);
     fprintf(fp, "%sGetSpecialObject(%stemp%d, \"%s\")",
             prefix, argname, i, pythonname);
     }
@@ -467,7 +468,7 @@ void vtkWrapPython_ReturnValue(
   else if (vtkWrap_IsSpecialObject(val) &&
            vtkWrap_IsRef(val))
     {
-    vtkWrapPython_PythonicName(val->Class, pythonname);
+    vtkWrapText_PythonName(val->Class, pythonname);
     fprintf(fp,
             "      result = %sBuildSpecialObject(tempr, \"%s\");\n",
             prefix, pythonname);
@@ -475,7 +476,7 @@ void vtkWrapPython_ReturnValue(
   else if (vtkWrap_IsSpecialObject(val) &&
            !vtkWrap_IsRef(val))
     {
-    vtkWrapPython_PythonicName(val->Class, pythonname);
+    vtkWrapText_PythonName(val->Class, pythonname);
     fprintf(fp,
             "      result = %sBuildSpecialObject(&tempr, \"%s\");\n",
             prefix, pythonname);

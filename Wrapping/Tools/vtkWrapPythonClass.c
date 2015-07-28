@@ -307,7 +307,7 @@ static void vtkWrapPython_ExportVTKClass(
   const char *supername;
 
   /* mangle the classname if necessary */
-  vtkWrapPython_PythonicName(data->Name, classname);
+  vtkWrapText_PythonName(data->Name, classname);
 
   /* for vtkObjectBase objects: export New method for use by subclasses */
   fprintf(fp,
@@ -319,7 +319,7 @@ static void vtkWrapPython_ExportVTKClass(
   supername = vtkWrapPython_GetSuperClass(data, hinfo);
   if (supername)
     {
-    vtkWrapPython_PythonicName(supername, classname);
+    vtkWrapText_PythonName(supername, classname);
     fprintf(fp,
       "#ifndef DECLARED_Py%s_ClassNew\n"
       "extern \"C\" { PyObject *Py%s_ClassNew(); }\n"
@@ -401,7 +401,7 @@ static void vtkWrapPython_GenerateObjectNew(
   name = vtkWrapPython_GetSuperClass(data, hinfo);
   if (name)
     {
-    vtkWrapPython_PythonicName(name, superclassname);
+    vtkWrapText_PythonName(name, superclassname);
     fprintf(fp,
             "  pytype->tp_base = (PyTypeObject *)Py%s_ClassNew();\n\n",
             superclassname);

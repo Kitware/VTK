@@ -22,6 +22,7 @@
 #include "vtkWrapPythonTemplate.h"
 
 #include "vtkWrap.h"
+#include "vtkWrapText.h"
 #include "vtkParseExtras.h"
 
 #include <stdio.h>
@@ -647,7 +648,7 @@ void vtkWrapPython_GenerateSpecialType(
   if (has_superclass)
     {
     name = vtkWrapPython_GetSuperClass(data, hinfo);
-    vtkWrapPython_PythonicName(name, supername);
+    vtkWrapText_PythonName(name, supername);
     }
 
   /* generate all constructor methods */
