@@ -993,17 +993,32 @@ int Test_void_InterpolateTuple_i_id1_source1_id2_source2_t()
   for (int c = 0; c < comps; ++c)
     {
     // Compute component:
-    ScalarT ref = static_cast<ScalarT>(
-          source1->GetValue(id1 * comps + c) * (1. - t) +
-          source2->GetValue(id2 * comps + c) * t);
+    double ref = source1->GetValue(id1 * comps + c) * (1. - t) +
+                 source2->GetValue(id2 * comps + c) * t;
+
+    // Clamp to ScalarT range:
+    ref = std::max(ref, static_cast<double>(vtkTypeTraits<ScalarT>::Min()));
+    ref = std::min(ref, static_cast<double>(vtkTypeTraits<ScalarT>::Max()));
+
+    // Round for non-floating point types:
+    ScalarT refT;
+    if (vtkTypeTraits<ScalarT>::VTK_TYPE_ID == VTK_FLOAT ||
+        vtkTypeTraits<ScalarT>::VTK_TYPE_ID == VTK_DOUBLE)
+      {
+      refT = static_cast<ScalarT>(ref);
+      }
+    else
+      {
+      refT = static_cast<ScalarT>((ref >= 0.) ? (ref + 0.5) : (ref - 0.5));
+      }
 
     ScalarT test = output->GetValue(c);
 
-    if (ref != test)
+    if (refT != test)
       {
       DataArrayAPIError("Interpolated value incorrect: Got '"
                         << static_cast<double>(test) << "', expected '"
-                        << static_cast<double>(ref) << "'.");
+                        << static_cast<double>(refT) << "'.");
       }
     } // foreach component
 
