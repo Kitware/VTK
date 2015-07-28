@@ -127,7 +127,8 @@ struct QVTKWidgetInsideQWidgets
     widget2 = new WidgetType2();
     initializeWidget(widget2);
     QVTKWidget* qvtk1_ref = spawnSubwidget( widget2, qvtk );
-    glwin->Render( );
+
+    qvtk1_ref->GetRenderWindow()->Render();
 
     PRINT_AND_EVAL("AFTER RENDER2:" << glwin->ReportCapabilities());
     flushQtEvents();

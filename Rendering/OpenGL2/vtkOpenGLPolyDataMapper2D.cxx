@@ -806,13 +806,16 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
       {
       this->Tris.Program->SetUniformi("PrimitiveIDOffset",this->PrimitiveIDOffset);
       }
-    this->Tris.IBO->Bind();
-    glDrawRangeElements(GL_TRIANGLES, 0,
+    if (this->Tris.Program || this->Points.Program )
+      {
+      this->Tris.IBO->Bind();
+      glDrawRangeElements(GL_TRIANGLES, 0,
                         static_cast<GLuint>(this->VBO->VertexCount - 1),
                         static_cast<GLsizei>(this->Tris.IBO->IndexCount),
                         GL_UNSIGNED_INT,
                         reinterpret_cast<const GLvoid *>(NULL));
-    this->Tris.IBO->Release();
+      this->Tris.IBO->Release();
+      }
     this->PrimitiveIDOffset += (int)this->Tris.IBO->IndexCount/3;
     }
 
