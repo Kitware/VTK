@@ -783,53 +783,53 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     if (this->Lines.Program)
       {
       this->Lines.Program->SetUniformi("PrimitiveIDOffset",this->PrimitiveIDOffset);
+      if (!this->HaveWideLines(viewport,actor))
+        {
+        glLineWidth(actor->GetProperty()->GetLineWidth());
+        }
+      this->Lines.IBO->Bind();
+      glDrawRangeElements(GL_LINES, 0,
+                          static_cast<GLuint>(this->VBO->VertexCount - 1),
+                          static_cast<GLsizei>(this->Lines.IBO->IndexCount),
+                          GL_UNSIGNED_INT,
+                          reinterpret_cast<const GLvoid *>(NULL));
+      this->Lines.IBO->Release();
       }
-    if (!this->HaveWideLines(viewport,actor))
-      {
-      glLineWidth(actor->GetProperty()->GetLineWidth());
-      }
-    this->Lines.IBO->Bind();
-    glDrawRangeElements(GL_LINES, 0,
-                        static_cast<GLuint>(this->VBO->VertexCount - 1),
-                        static_cast<GLsizei>(this->Lines.IBO->IndexCount),
-                        GL_UNSIGNED_INT,
-                        reinterpret_cast<const GLvoid *>(NULL));
-    this->Lines.IBO->Release();
     this->PrimitiveIDOffset += (int)this->Lines.IBO->IndexCount/2;
     }
 
   // now handle lit primitives
   if (this->Tris.IBO->IndexCount)
     {
-    this->UpdateShaders(this->Points, viewport, actor);
+    this->UpdateShaders(this->Tris, viewport, actor);
     if (this->Tris.Program)
       {
       this->Tris.Program->SetUniformi("PrimitiveIDOffset",this->PrimitiveIDOffset);
+      this->Tris.IBO->Bind();
+      glDrawRangeElements(GL_TRIANGLES, 0,
+                          static_cast<GLuint>(this->VBO->VertexCount - 1),
+                          static_cast<GLsizei>(this->Tris.IBO->IndexCount),
+                          GL_UNSIGNED_INT,
+                          reinterpret_cast<const GLvoid *>(NULL));
+      this->Tris.IBO->Release();
+      this->PrimitiveIDOffset += (int)this->Tris.IBO->IndexCount/3;
       }
-    this->Tris.IBO->Bind();
-    glDrawRangeElements(GL_TRIANGLES, 0,
-                        static_cast<GLuint>(this->VBO->VertexCount - 1),
-                        static_cast<GLsizei>(this->Tris.IBO->IndexCount),
-                        GL_UNSIGNED_INT,
-                        reinterpret_cast<const GLvoid *>(NULL));
-    this->Tris.IBO->Release();
-    this->PrimitiveIDOffset += (int)this->Tris.IBO->IndexCount/3;
     }
 
   if (this->TriStrips.IBO->IndexCount)
     {
-    this->UpdateShaders(this->Points, viewport, actor);
+    this->UpdateShaders(this->TriStrips, viewport, actor);
     if(this->TriStrips.Program)
       {
       this->TriStrips.Program->SetUniformi("PrimitiveIDOffset",this->PrimitiveIDOffset);
+      this->TriStrips.IBO->Bind();
+      glDrawRangeElements(GL_TRIANGLES, 0,
+                          static_cast<GLuint>(this->VBO->VertexCount - 1),
+                          static_cast<GLsizei>(this->TriStrips.IBO->IndexCount),
+                          GL_UNSIGNED_INT,
+                          reinterpret_cast<const GLvoid *>(NULL));
+      this->TriStrips.IBO->Release();
       }
-    this->TriStrips.IBO->Bind();
-    glDrawRangeElements(GL_TRIANGLES, 0,
-                        static_cast<GLuint>(this->VBO->VertexCount - 1),
-                        static_cast<GLsizei>(this->TriStrips.IBO->IndexCount),
-                        GL_UNSIGNED_INT,
-                        reinterpret_cast<const GLvoid *>(NULL));
-    this->TriStrips.IBO->Release();
     }
 
   if (this->HaveCellScalars)
