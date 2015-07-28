@@ -74,14 +74,14 @@ void vtkGenericDataArrayHelper::SetTuple(
     }
 
   vtkGenericDataArrayMacro2(dest, source,
-    vtkSetTuple(OUT_ARRAY, destTuple, IN_ARRAY, sourceTuple));
+    vtkSetTuple(ARRAY1, destTuple, ARRAY2, sourceTuple));
 }
 
 //----------------------------------------------------------------------------
 void vtkGenericDataArrayHelper::GetTuple(vtkAbstractArray* source,
                                          vtkIdType tuple, double* buffer)
 {
-  vtkConstGenericDataArrayMacro(source, vtkGetTuple(ARRAY, tuple, buffer));
+  vtkGenericDataArrayMacro(source, vtkGetTuple(ARRAY, tuple, buffer));
 }
 
 //----------------------------------------------------------------------------

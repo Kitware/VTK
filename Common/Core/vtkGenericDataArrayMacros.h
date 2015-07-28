@@ -31,43 +31,41 @@
     call; \
     }
 
-#define vtkWriteableGenericDataArrayMacro(array, call) \
-  vtkGenericDataArrayMacroCase(vtkSoADataArrayTemplate, float, array, call) \
-  else vtkGenericDataArrayMacroCase(vtkSoADataArrayTemplate, double, array, call) \
-  else vtkGenericDataArrayMacroCase(vtkAoSDataArrayTemplate, float, array, call) \
-  else vtkGenericDataArrayMacroCase(vtkAoSDataArrayTemplate, double, array, call) \
+// vtkIdType is at the end just in case it's definied to a non-default type.
+#define vtkGenericDataArrayMacroTemplateCases(arrayT, array, call) \
+  vtkGenericDataArrayMacroCase(arrayT, char, array, call) \
+  else vtkGenericDataArrayMacroCase(arrayT, double, array, call) \
+  else vtkGenericDataArrayMacroCase(arrayT, float, array, call) \
+  else vtkGenericDataArrayMacroCase(arrayT, int, array, call) \
+  else vtkGenericDataArrayMacroCase(arrayT, long long, array, call) \
+  else vtkGenericDataArrayMacroCase(arrayT, long, array, call) \
+  else vtkGenericDataArrayMacroCase(arrayT, short, array, call) \
+  else vtkGenericDataArrayMacroCase(arrayT, signed char, array, call) \
+  else vtkGenericDataArrayMacroCase(arrayT, unsigned char, array, call) \
+  else vtkGenericDataArrayMacroCase(arrayT, unsigned int, array, call) \
+  else vtkGenericDataArrayMacroCase(arrayT, unsigned long long, array, call) \
+  else vtkGenericDataArrayMacroCase(arrayT, unsigned long, array, call) \
+  else vtkGenericDataArrayMacroCase(arrayT, unsigned short, array, call) \
+  else vtkGenericDataArrayMacroCase(arrayT, vtkIdType, array, call)
+
+#define vtkGenericDataArrayMacro(array, call) \
+  vtkGenericDataArrayMacroTemplateCases(vtkSoADataArrayTemplate, array, call) \
+  else vtkGenericDataArrayMacroTemplateCases(vtkAoSDataArrayTemplate, array, call) \
   else \
     { \
     vtkGenericWarningMacro("Unknown type " << typeid(*array).name()); \
     abort(); \
     }
 
-#define vtkConstGenericDataArrayMacro(array, call) \
-  vtkGenericDataArrayMacroCase(vtkSoADataArrayTemplate, const float, array, call) \
-  else vtkGenericDataArrayMacroCase(vtkSoADataArrayTemplate, const double, array, call) \
-  else vtkGenericDataArrayMacroCase(vtkAoSDataArrayTemplate, const float, array, call) \
-  else vtkGenericDataArrayMacroCase(vtkAoSDataArrayTemplate, const double, array, call) \
-  else vtkWriteableGenericDataArrayMacro(array, call)
-
-#define vtkWriteableGenericDataArrayMacro2(array1, array2, call) \
-  vtkWriteableGenericDataArrayMacro(array1, \
+#define vtkGenericDataArrayMacro2(array1, array2, call) \
+  vtkGenericDataArrayMacro(array1, \
     typedef ARRAY_TYPE ARRAY_TYPE1; \
     ARRAY_TYPE1* ARRAY1 = ARRAY; \
-    vtkWriteableGenericDataArrayMacro(array2, \
-      typedef ARRAY_TYPE2 ARRAY_TYPE; \
+    vtkGenericDataArrayMacro(array2, \
+      typedef ARRAY_TYPE ARRAY_TYPE2; \
       ARRAY_TYPE2* ARRAY2 = ARRAY; \
       call; \
     )\
   )
 
-#define vtkGenericDataArrayMacro2(inarray, outarray, call) \
-  vtkConstGenericDataArrayMacro(inarray, \
-    typedef ARRAY_TYPE IN_ARRAY_TYPE; \
-    IN_ARRAY_TYPE* IN_ARRAY = ARRAY; \
-    vtkWriteableGenericDataArrayMacro(outarray, \
-      typedef ARRAY_TYPE OUT_ARRAY_TYPE; \
-      OUT_ARRAY_TYPE* OUT_ARRAY = ARRAY; \
-      call; \
-    ) \
-  )
 #endif

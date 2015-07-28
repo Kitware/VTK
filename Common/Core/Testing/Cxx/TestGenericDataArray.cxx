@@ -21,7 +21,7 @@ void Test()
   T* array = T::New();
   array->SetNumberOfComponents(3);
   array->SetNumberOfTuples(100);
-  vtkWriteableGenericDataArrayMacro(array,
+  vtkGenericDataArrayMacro(array,
     for (vtkIdType tupleIdx=0, max=ARRAY->GetNumberOfTuples(); tupleIdx < max;
          ++tupleIdx)
     {
