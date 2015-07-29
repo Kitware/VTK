@@ -43,14 +43,19 @@ void ParticlePathFilterInternal::Reset()
   this->Paths.clear();
 }
 
-int ParticlePathFilterInternal::OutputParticles(vtkPolyData* particles)
+int ParticlePathFilterInternal::OutputParticles(vtkPolyData* particles, bool clearCache)
 {
-  if(!this->Filter->Output)
+  if(!this->Filter->Output || clearCache)
     {
     this->Filter->Output = vtkSmartPointer<vtkPolyData>::New();
     this->Filter->Output->SetPoints(vtkSmartPointer<vtkPoints>::New());
     this->Filter->Output->GetPointData()->CopyAllocate(particles->GetPointData());
     }
+  if(clearCache)
+    { // clear cache no matter what
+    this->Paths.clear();
+    }
+
   vtkPoints* pts = particles->GetPoints();
   if(!pts || pts->GetNumberOfPoints()==0)
     {
@@ -90,6 +95,7 @@ int ParticlePathFilterInternal::OutputParticles(vtkPolyData* particles)
 
     vtkIdList* path = this->Paths[pid];
 
+#ifdef DEBUG
     if(path->GetNumberOfIds()>0)
       {
       vtkFloatArray* outParticleAge = vtkFloatArray::SafeDownCast(outPd->GetArray("ParticleAge"));
@@ -100,6 +106,7 @@ int ParticlePathFilterInternal::OutputParticles(vtkPolyData* particles)
                << "\n" << "): " <<" new particles have wrong ages"<< "\n\n";
         }
       }
+#endif
     path->InsertNextId(outId);
     }
 
@@ -130,6 +137,7 @@ vtkParticlePathFilter::vtkParticlePathFilter()
   this->It.Initialize(this);
   this->SimulationTime = NULL;
   this->SimulationTimeStep = NULL;
+  this->ClearCache = false;
 }
 
 vtkParticlePathFilter::~vtkParticlePathFilter()
@@ -155,11 +163,12 @@ void vtkParticlePathFilter::ResetCache()
 void vtkParticlePathFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   Superclass::PrintSelf(os,indent);
+  os << indent << "ClearCache: " << this->ClearCache << endl;
 }
 
 int vtkParticlePathFilter::OutputParticles(vtkPolyData* particles)
 {
-  return this->It.OutputParticles(particles);
+  return this->It.OutputParticles(particles, this->ClearCache);
 }
 
 void vtkParticlePathFilter::InitializeExtraPointDataArrays(vtkPointData* outputPD)

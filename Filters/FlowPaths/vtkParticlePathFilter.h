@@ -35,7 +35,7 @@ public:
   ParticlePathFilterInternal():Filter(NULL){}
   void Initialize(vtkParticleTracerBase* filter);
   virtual ~ParticlePathFilterInternal(){}
-  virtual int OutputParticles(vtkPolyData* poly);
+  virtual int OutputParticles(vtkPolyData* poly, bool clearCache);
   void Finalize();
   void Reset();
 
@@ -51,6 +51,12 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   static vtkParticlePathFilter *New();
+
+  // Description:
+  // Set/get whether or not to clear out cache of previous time steps.
+  // Default value is false. Clearing the cache is aimed towards in situ use.
+  vtkSetMacro(ClearCache, bool);
+  vtkGetMacro(ClearCache, bool);
 
 protected:
   vtkParticlePathFilter();
@@ -70,6 +76,8 @@ protected:
 private:
   vtkDoubleArray* SimulationTime;
   vtkIntArray* SimulationTimeStep;
+
+  bool ClearCache;
 };
 
 

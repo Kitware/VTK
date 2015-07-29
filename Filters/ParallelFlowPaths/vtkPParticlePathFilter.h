@@ -37,6 +37,12 @@ public:
 
   static vtkPParticlePathFilter *New();
 
+  // Description:
+  // Set/get whether or not to clear out cache of previous time steps.
+  // Default value is false. Clearing the cache is aimed towards in situ use.
+  vtkSetMacro(ClearCache, bool);
+  vtkGetMacro(ClearCache, bool);
+
 protected:
   vtkPParticlePathFilter();
   ~vtkPParticlePathFilter();
@@ -54,6 +60,8 @@ private:
 
   vtkDoubleArray* SimulationTime;
   vtkIntArray* SimulationTimeStep;
+
+  bool ClearCache;
 };
 
 
