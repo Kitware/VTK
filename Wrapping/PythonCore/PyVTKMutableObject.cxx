@@ -48,7 +48,7 @@ static const char *PyVTKMutableObject_Doc =
 // helper method: make sure than an object is usable
 static PyObject *PyVTKMutableObject_CompatibleObject(PyObject *opn)
 {
-  PyNumberMethods *nb = opn->ob_type->tp_as_number;
+  PyNumberMethods *nb = Py_TYPE(opn)->tp_as_number;
 
   if (PyFloat_Check(opn) ||
       PyLong_Check(opn) ||
@@ -382,10 +382,10 @@ static PyObject *PyVTKMutableObject_Hex(PyObject *ob)
 #if PY_VERSION_HEX >= 0x02060000
   return PyNumber_ToBase(ob, 16);
 #else
-  if (ob->ob_type->tp_as_number &&
-      ob->ob_type->tp_as_number->nb_hex)
+  if (Py_TYPE(ob)->tp_as_number &&
+      Py_TYPE(ob)->tp_as_number->nb_hex)
     {
-    return ob->ob_type->tp_as_number->nb_hex(ob);
+    return Py_TYPE(ob)->tp_as_number->nb_hex(ob);
     }
 
   PyErr_SetString(PyExc_TypeError,
@@ -400,10 +400,10 @@ static PyObject *PyVTKMutableObject_Oct(PyObject *ob)
 #if PY_VERSION_HEX >= 0x02060000
   return PyNumber_ToBase(ob, 8);
 #else
-  if (ob->ob_type->tp_as_number &&
-      ob->ob_type->tp_as_number->nb_oct)
+  if (Py_TYPE(ob)->tp_as_number &&
+      Py_TYPE(ob)->tp_as_number->nb_oct)
     {
-    return ob->ob_type->tp_as_number->nb_oct(ob);
+    return Py_TYPE(ob)->tp_as_number->nb_oct(ob);
     }
 
   PyErr_SetString(PyExc_TypeError,
@@ -564,16 +564,16 @@ static Py_ssize_t PyVTKMutableObject_GetReadBuf(
   char text[80];
   PyBufferProcs *pb;
   op = ((PyVTKMutableObject *)op)->value;
-  pb = op->ob_type->tp_as_buffer;
+  pb = Py_TYPE(op)->tp_as_buffer;
 
   if (pb && pb->bf_getreadbuffer)
     {
-    return op->ob_type->tp_as_buffer->bf_getreadbuffer(
+    return Py_TYPE(op)->tp_as_buffer->bf_getreadbuffer(
       op, segment, ptrptr);
     }
 
   sprintf(text, "type \'%.20s\' does not support readable buffer access",
-          op->ob_type->tp_name);
+          Py_TYPE(op)->tp_name);
   PyErr_SetString(PyExc_TypeError, text);
 
   return -1;
@@ -585,16 +585,16 @@ static Py_ssize_t PyVTKMutableObject_GetWriteBuf(
   char text[80];
   PyBufferProcs *pb;
   op = ((PyVTKMutableObject *)op)->value;
-  pb = op->ob_type->tp_as_buffer;
+  pb = Py_TYPE(op)->tp_as_buffer;
 
   if (pb && pb->bf_getwritebuffer)
     {
-    return op->ob_type->tp_as_buffer->bf_getwritebuffer(
+    return Py_TYPE(op)->tp_as_buffer->bf_getwritebuffer(
       op, segment, ptrptr);
     }
 
   sprintf(text, "type \'%.20s\' does not support writeable buffer access",
-          op->ob_type->tp_name);
+          Py_TYPE(op)->tp_name);
   PyErr_SetString(PyExc_TypeError, text);
 
   return -1;
@@ -606,15 +606,15 @@ PyVTKMutableObject_GetSegCount(PyObject *op, Py_ssize_t *lenp)
   char text[80];
   PyBufferProcs *pb;
   op = ((PyVTKMutableObject *)op)->value;
-  pb = op->ob_type->tp_as_buffer;
+  pb = Py_TYPE(op)->tp_as_buffer;
 
   if (pb && pb->bf_getsegcount)
     {
-    return op->ob_type->tp_as_buffer->bf_getsegcount(op, lenp);
+    return Py_TYPE(op)->tp_as_buffer->bf_getsegcount(op, lenp);
     }
 
   sprintf(text, "type \'%.20s\' does not support buffer access",
-          op->ob_type->tp_name);
+          Py_TYPE(op)->tp_name);
   PyErr_SetString(PyExc_TypeError, text);
 
   return -1;
@@ -626,16 +626,16 @@ static Py_ssize_t PyVTKMutableObject_GetCharBuf(
   char text[80];
   PyBufferProcs *pb;
   op = ((PyVTKMutableObject *)op)->value;
-  pb = op->ob_type->tp_as_buffer;
+  pb = Py_TYPE(op)->tp_as_buffer;
 
   if (pb && pb->bf_getcharbuffer)
     {
-    return op->ob_type->tp_as_buffer->bf_getcharbuffer(
+    return Py_TYPE(op)->tp_as_buffer->bf_getcharbuffer(
       op, segment, ptrptr);
     }
 
   sprintf(text, "type \'%.20s\' does not support character buffer access",
-          op->ob_type->tp_name);
+          Py_TYPE(op)->tp_name);
   PyErr_SetString(PyExc_TypeError, text);
 
   return -1;
@@ -665,7 +665,7 @@ static PyObject *PyVTKMutableObject_Repr(PyObject *ob)
 {
   char textspace[128];
   PyObject *r = 0;
-  const char *name = ob->ob_type->tp_name;
+  const char *name = Py_TYPE(ob)->tp_name;
   PyObject *s = PyObject_Repr(((PyVTKMutableObject *)ob)->value);
   if (s)
     {
@@ -724,7 +724,7 @@ static PyObject *PyVTKMutableObject_GetAttr(PyObject *self, PyObject *attr)
     }
 
   sprintf(text, "'%.20s' object has no attribute '%.80s'",
-          self->ob_type->tp_name, name);
+          Py_TYPE(self)->tp_name, name);
   PyErr_SetString(PyExc_AttributeError, text);
   return NULL;
 }
@@ -758,8 +758,7 @@ static PyObject *PyVTKMutableObject_New(
 
 //--------------------------------------------------------------------
 PyTypeObject PyVTKMutableObject_Type = {
-  PyObject_HEAD_INIT(&PyType_Type)
-  0,
+  PyVarObject_HEAD_INIT(&PyType_Type, 0)
   "vtkCommonCorePython.mutable",         // tp_name
   sizeof(PyVTKMutableObject),            // tp_basicsize
   0,                                     // tp_itemsize

@@ -414,7 +414,7 @@ int vtkPythonOverload::CheckArg(
         penalty = VTK_PYTHON_NEEDS_CONVERSION;
         }
       // make sure that arg can act as a buffer
-      else if (arg->ob_type->tp_as_buffer == 0)
+      else if (Py_TYPE(arg)->tp_as_buffer == 0)
         {
         penalty = VTK_PYTHON_INCOMPATIBLE;
         }
@@ -446,10 +446,10 @@ int vtkPythonOverload::CheckArg(
           {
           PyVTKClass *info = vtkPythonUtil::FindClass(classname);
           PyTypeObject *pytype = (info ? info->py_type : NULL);
-          if (arg->ob_type != pytype)
+          if (Py_TYPE(arg) != pytype)
             {
             // Check superclasses
-            PyTypeObject *basetype = arg->ob_type->tp_base;
+            PyTypeObject *basetype = Py_TYPE(arg)->tp_base;
             penalty = VTK_PYTHON_GOOD_MATCH;
             while (basetype && basetype != pytype)
               {
@@ -482,10 +482,10 @@ int vtkPythonOverload::CheckArg(
         PyTypeObject *pytype = (info ? info->py_type : NULL);
 
         // Check for an exact match
-        if (arg->ob_type != pytype)
+        if (Py_TYPE(arg) != pytype)
           {
           // Check superclasses
-          PyTypeObject *basetype = arg->ob_type->tp_base;
+          PyTypeObject *basetype = Py_TYPE(arg)->tp_base;
           penalty = VTK_PYTHON_GOOD_MATCH;
           while (basetype && basetype != pytype)
             {
@@ -524,10 +524,10 @@ int vtkPythonOverload::CheckArg(
         PyTypeObject *pytype = (info ? info->py_type : NULL);
 
         // Check for an exact match
-        if (arg->ob_type != pytype)
+        if (Py_TYPE(arg) != pytype)
           {
           // Check superclasses
-          PyTypeObject *basetype = arg->ob_type->tp_base;
+          PyTypeObject *basetype = Py_TYPE(arg)->tp_base;
           penalty = VTK_PYTHON_GOOD_MATCH;
           while (basetype && basetype != pytype)
             {

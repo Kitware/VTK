@@ -445,8 +445,7 @@ void vtkWrapPython_GenerateObjectType(
   /* Generate the TypeObject */
   fprintf(fp,
     "static PyTypeObject Py%s_Type = {\n"
-    "  PyObject_HEAD_INIT(&PyType_Type)\n"
-    "  0,\n"
+    "  PyVarObject_HEAD_INIT(&PyType_Type, 0)\n"
     "  \"%sPython.%s\", // tp_name\n"
     "  sizeof(PyVTKObject), // tp_basicsize\n"
     "  0, // tp_itemsize\n"

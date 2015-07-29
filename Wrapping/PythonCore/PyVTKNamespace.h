@@ -27,7 +27,8 @@
 
 extern VTKWRAPPINGPYTHONCORE_EXPORT PyTypeObject PyVTKNamespace_Type;
 
-#define PyVTKNamespace_Check(obj) ((obj)->ob_type == &PyVTKNamespace_Type)
+#define PyVTKNamespace_Check(obj) \
+  (Py_TYPE(obj) == &PyVTKNamespace_Type)
 
 extern "C"
 {

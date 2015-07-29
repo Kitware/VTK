@@ -31,7 +31,7 @@
 extern VTKWRAPPINGPYTHONCORE_EXPORT PyTypeObject PyVTKMethodDescriptor_Type;
 
 #define PyVTKMethodDescriptor_Check(obj) \
-  ((obj)->ob_type == &PyVTKMethodDescriptor_Type)
+  (Py_TYPE(obj) == &PyVTKMethodDescriptor_Type)
 
 extern "C"
 {

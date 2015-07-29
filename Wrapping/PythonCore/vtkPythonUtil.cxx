@@ -382,7 +382,7 @@ void vtkPythonUtil::RemoveObjectFromMap(PyObject *obj)
     vtkWeakPointerBase wptr;
 
     // check for customized class or dict
-    if (pobj->vtk_class->py_type != pobj->ob_type ||
+    if (pobj->vtk_class->py_type != Py_TYPE(pobj) ||
         PyDict_Size(pobj->vtk_dict))
       {
       wptr = pobj->vtk_ptr;
@@ -416,7 +416,7 @@ void vtkPythonUtil::RemoveObjectFromMap(PyObject *obj)
       // Add this new ghost to the map
       PyVTKObjectGhost &g = (*vtkPythonMap->GhostMap)[pobj->vtk_ptr];
       g.vtk_ptr = wptr;
-      g.vtk_class = pobj->ob_type;
+      g.vtk_class = Py_TYPE(pobj);
       g.vtk_dict = pobj->vtk_dict;
       Py_INCREF(g.vtk_class);
       Py_INCREF(g.vtk_dict);
@@ -777,7 +777,7 @@ void *vtkPythonUtil::GetPointerFromSpecialObject(
   PyObject *obj, const char *result_type, PyObject **newobj)
 {
   const char *object_type =
-    vtkPythonUtil::StripModule(obj->ob_type->tp_name);
+    vtkPythonUtil::StripModule(Py_TYPE(obj)->tp_name);
 
   // do a lookup on the desired type
   vtkPythonSpecialTypeMap::iterator it =

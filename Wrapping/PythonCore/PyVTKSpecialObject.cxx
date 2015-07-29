@@ -61,8 +61,8 @@ PyVTKSpecialType::PyVTKSpecialType(
 PyObject *PyVTKSpecialObject_Repr(PyObject *self)
 {
   PyVTKSpecialObject *obj = (PyVTKSpecialObject *)self;
-  PyTypeObject *type = self->ob_type;
-  const char *name = self->ob_type->tp_name;
+  PyTypeObject *type = Py_TYPE(self);
+  const char *name = Py_TYPE(self)->tp_name;
 
   PyObject *s = PyString_FromString("(");
   PyString_ConcatAndDel(&s, PyString_FromString(name));
@@ -106,9 +106,9 @@ PyObject *PyVTKSpecialObject_SequenceString(PyObject *self)
   PyObject *t, *o, *comma;
   const char *bracket = "[...]";
 
-  if (self->ob_type->tp_as_sequence &&
-      self->ob_type->tp_as_sequence->sq_item != NULL &&
-      self->ob_type->tp_as_sequence->sq_ass_item == NULL)
+  if (Py_TYPE(self)->tp_as_sequence &&
+      Py_TYPE(self)->tp_as_sequence->sq_item != NULL &&
+      Py_TYPE(self)->tp_as_sequence->sq_ass_item == NULL)
     {
     bracket = "(...)";
     }

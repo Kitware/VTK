@@ -19,6 +19,7 @@
 #define vtkPythonUtil_h
 
 #include "vtkPython.h"
+#include "vtkPythonCompatibility.h"
 #include "PyVTKMutableObject.h"
 #include "PyVTKNamespace.h"
 #include "PyVTKObject.h"

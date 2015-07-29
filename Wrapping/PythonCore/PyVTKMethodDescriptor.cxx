@@ -117,7 +117,7 @@ static PyObject *PyVTKMethodDescriptor_Get(
     PyExc_TypeError,
     "descriptor '%s' for '%s' objects doesn't apply to '%s' object",
     PyString_AS_STRING(descr->d_name), descr->d_type->tp_name,
-    obj->ob_type->tp_name);
+    Py_TYPE(obj)->tp_name);
 
   return NULL;
 }
@@ -150,8 +150,7 @@ static PyMemberDef PyVTKMethodDescriptor_Members[] = {
 
 //--------------------------------------------------------------------
 PyTypeObject PyVTKMethodDescriptor_Type = {
-  PyObject_HEAD_INIT(&PyType_Type)
-  0,
+  PyVarObject_HEAD_INIT(&PyType_Type, 0)
   "vtkCommonCorePython.method_descriptor", // tp_name
   sizeof(PyMethodDescrObject),           // tp_basicsize
   0,                                     // tp_itemsize

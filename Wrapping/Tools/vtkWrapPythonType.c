@@ -549,7 +549,7 @@ static void vtkWrapPython_HashProtocol(
       "  return PyObject_HashNotImplemented(self);\n"
       "#else\n"
       "  char text[256];\n"
-      "  sprintf(text, \"unhashable type: \'%%s\'\", self->ob_type->tp_name);\n"
+      "  sprintf(text, \"unhashable type: \'%%s\'\", Py_TYPE(self)->tp_name);\n"
       "  PyErr_SetString(PyExc_TypeError, text);\n"
       "  return -1;\n"
       "#endif\n"
@@ -661,8 +661,7 @@ void vtkWrapPython_GenerateSpecialType(
   /* Generate the TypeObject */
   fprintf(fp,
     "static PyTypeObject Py%s_Type = {\n"
-    "  PyObject_HEAD_INIT(&PyType_Type)\n"
-    "  0,\n"
+    "  PyVarObject_HEAD_INIT(&PyType_Type, 0)\n"
     "  \"%sPython.%s\", // tp_name\n"
     "  sizeof(PyVTKSpecialObject), // tp_basicsize\n"
     "  0, // tp_itemsize\n"
@@ -772,7 +771,7 @@ void vtkWrapPython_GenerateSpecialType(
     fprintf(fp,
       "static int Py%s_CheckExact(PyObject *ob)\n"
       "{\n"
-      "  return (ob->ob_type == &Py%s_Type);\n"
+      "  return (Py_TYPE(ob) == &Py%s_Type);\n"
       "}\n\n",
       classname, classname);
     }

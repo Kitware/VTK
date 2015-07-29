@@ -39,7 +39,8 @@ struct PyVTKTemplate {
 
 extern VTKWRAPPINGPYTHONCORE_EXPORT PyTypeObject PyVTKTemplate_Type;
 
-#define PyVTKTemplate_Check(obj) ((obj)->ob_type == &PyVTKTemplate_Type)
+#define PyVTKTemplate_Check(obj) \
+  (Py_TYPE(obj) == &PyVTKTemplate_Type)
 
 extern "C"
 {

@@ -131,7 +131,7 @@ PyObject *PyVTKObject_String(PyObject *op)
 PyObject *PyVTKObject_Repr(PyObject *op)
 {
   char buf[255];
-  sprintf(buf, "(%.200s)%p", op->ob_type->tp_name, static_cast<void*>(op));
+  sprintf(buf, "(%.200s)%p", Py_TYPE(op)->tp_name, static_cast<void*>(op));
 
   return PyString_FromString(buf);
 }
@@ -243,7 +243,7 @@ static PyObject *PyVTKObject_GetThis(PyObject *op, void *)
   // otherwise, use the pythonic form of the class name
   if (*cp != '\0')
     {
-    classname = vtkPythonUtil::StripModule(op->ob_type->tp_name);
+    classname = vtkPythonUtil::StripModule(Py_TYPE(op)->tp_name);
     }
   sprintf(buf, "p_%.500s", classname);
   return PyString_FromString(

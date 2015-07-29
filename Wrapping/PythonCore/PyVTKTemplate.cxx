@@ -280,7 +280,7 @@ static PyObject *PyVTKTemplate_Repr(PyObject *op)
   PyVTKTemplate *self = (PyVTKTemplate *)op;
 
   return PyString_FromFormat("<%s %s.%s>",
-    op->ob_type->tp_name,
+    Py_TYPE(op)->tp_name,
     PyString_AS_STRING(self->module),
     PyString_AS_STRING(self->name));
 }
@@ -297,8 +297,7 @@ static PyObject *PyVTKTemplate_Call(PyObject *, PyObject *, PyObject *)
 
 //--------------------------------------------------------------------
 PyTypeObject PyVTKTemplate_Type = {
-  PyObject_HEAD_INIT(&PyType_Type)
-  0,
+  PyVarObject_HEAD_INIT(&PyType_Type, 0)
   "vtkCommonCorePython.template",        // tp_name
   sizeof(PyVTKTemplate),                 // tp_basicsize
   0,                                     // tp_itemsize

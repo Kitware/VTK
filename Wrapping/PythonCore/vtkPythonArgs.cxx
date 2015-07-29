@@ -163,7 +163,7 @@ inline bool vtkPythonGetStdStringValue(PyObject *o, std::string &a, const char *
 
 static bool vtkPythonGetValue(PyObject *o, const void *&a)
 {
-  PyBufferProcs *b = o->ob_type->tp_as_buffer;
+  PyBufferProcs *b = Py_TYPE(o)->tp_as_buffer;
   if (b && b->bf_getreadbuffer && b->bf_getsegcount)
     {
     if (b->bf_getsegcount(o, NULL) == 1)
@@ -902,7 +902,7 @@ int vtkPythonArgs::GetArgAsEnum(
     std::string errstring = "expected enum ";
     errstring += enumname;
     errstring += ", got ";
-    errstring += o->ob_type->tp_name;
+    errstring += Py_TYPE(o)->tp_name;
     PyErr_SetString(PyExc_TypeError, errstring.c_str());
     valid = false;
     }
@@ -1299,7 +1299,7 @@ bool vtkPythonSequenceError(PyObject *o, Py_ssize_t n, Py_ssize_t m)
   if (m == n)
     {
     sprintf(text, "expected a sequence of %ld value%s, got %s",
-            (long)n, ((n == 1) ? "" : "s"), o->ob_type->tp_name);
+            (long)n, ((n == 1) ? "" : "s"), Py_TYPE(o)->tp_name);
     }
   else
     {
