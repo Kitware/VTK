@@ -1746,10 +1746,6 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
 #if GL_ES_VERSION_2_0 != 1
   glPointSize(actor->GetProperty()->GetPointSize()); // not on ES2
 #endif
-  if (!this->HaveWideLines(ren,actor))
-    {
-    glLineWidth(actor->GetProperty()->GetLineWidth());
-    }
 
   vtkHardwareSelector* selector = ren->GetSelector();
   int picking = selector ? selector->GetCurrentPass() :
@@ -1848,6 +1844,10 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
   if (this->Lines.IBO->IndexCount)
     {
     this->UpdateShaders(this->Lines, ren, actor);
+    if (!this->HaveWideLines(ren,actor))
+      {
+      glLineWidth(actor->GetProperty()->GetLineWidth());
+      }
     this->Lines.IBO->Bind();
     if (representation == VTK_POINTS)
       {
@@ -1899,6 +1899,10 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
     {
     // First we do the triangles, update the shader, set uniforms, etc.
     this->UpdateShaders(this->Tris, ren, actor);
+    if (!this->HaveWideLines(ren,actor) && representation == VTK_WIREFRAME)
+      {
+      glLineWidth(actor->GetProperty()->GetLineWidth());
+      }
     this->Tris.IBO->Bind();
     GLenum mode = (representation == VTK_POINTS) ? GL_POINTS :
       (representation == VTK_WIREFRAME) ? GL_LINES : GL_TRIANGLES;
@@ -1927,6 +1931,10 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
       }
     if (representation == VTK_WIREFRAME)
       {
+      if (!this->HaveWideLines(ren,actor))
+        {
+        glLineWidth(actor->GetProperty()->GetLineWidth());
+        }
       glDrawRangeElements(GL_LINES, 0,
                           static_cast<GLuint>(this->VBO->VertexCount - 1),
                           static_cast<GLsizei>(this->TriStrips.IBO->IndexCount),
@@ -2051,6 +2059,10 @@ void vtkOpenGLPolyDataMapper::RenderEdges(vtkRenderer* ren, vtkActor *actor)
     {
     // First we do the triangles, update the shader, set uniforms, etc.
     this->UpdateShaders(this->TrisEdges, ren, actor);
+    if (!this->HaveWideLines(ren,actor))
+      {
+      glLineWidth(actor->GetProperty()->GetLineWidth());
+      }
     this->TrisEdges.IBO->Bind();
     glDrawRangeElements(GL_LINES, 0,
                         static_cast<GLuint>(this->VBO->VertexCount - 1),
@@ -2065,6 +2077,10 @@ void vtkOpenGLPolyDataMapper::RenderEdges(vtkRenderer* ren, vtkActor *actor)
     {
     // Use the tris shader program/VAO, but triStrips ibo.
     this->UpdateShaders(this->TriStripsEdges, ren, actor);
+    if (!this->HaveWideLines(ren,actor))
+      {
+      glLineWidth(actor->GetProperty()->GetLineWidth());
+      }
     this->TriStripsEdges.IBO->Bind();
     glDrawRangeElements(GL_LINES, 0,
                         static_cast<GLuint>(this->VBO->VertexCount - 1),

@@ -30,6 +30,7 @@ vtkPParticlePathFilter::vtkPParticlePathFilter()
   this->It.Initialize(this);
   this->SimulationTime = NULL;
   this->SimulationTimeStep = NULL;
+  this->ClearCache = false;
 }
 
 vtkPParticlePathFilter::~vtkPParticlePathFilter()
@@ -54,6 +55,7 @@ void vtkPParticlePathFilter::ResetCache()
 void vtkPParticlePathFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   Superclass::PrintSelf(os,indent);
+  os << indent << "ClearCache: " << this->ClearCache << endl;
 }
 
 int vtkPParticlePathFilter::OutputParticles(vtkPolyData* particles)
@@ -99,8 +101,8 @@ int vtkPParticlePathFilter::OutputParticles(vtkPolyData* particles)
       }
     }
 
-  this->It.OutputParticles(tailPoly.GetPointer());
-  return this->It.OutputParticles(particles);
+  this->It.OutputParticles(tailPoly.GetPointer(), this->ClearCache);
+  return this->It.OutputParticles(particles, false); // we've already cleared cache in the first call
 }
 
 void vtkPParticlePathFilter::InitializeExtraPointDataArrays(vtkPointData* outputPD)
