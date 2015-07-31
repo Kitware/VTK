@@ -51,6 +51,8 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestDataObjectTypes.cxx
   TestPolyDataRemoveDeletedCells.cxx
   UnitTestCells.cxx
+  UnitTestImplicitDataSet.cxx
+  UnitTestImplicitVolume.cxx
   UnitTestPlanesIntersection.cxx
   )
 vtk_add_test_cxx(${vtk-module}CxxTests data_tests

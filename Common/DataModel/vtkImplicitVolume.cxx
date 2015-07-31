@@ -64,7 +64,7 @@ double vtkImplicitVolume::EvaluateFunction(double x[3])
   if ( !this->Volume ||
   !(scalars = this->Volume->GetPointData()->GetScalars()) )
     {
-    vtkErrorMacro(<<"Can't evaluate volume!");
+    vtkErrorMacro(<<"Can't evaluate function: either volume is missing or volume has no point data");
     return this->OutValue;
     }
 
@@ -112,17 +112,21 @@ void vtkImplicitVolume::EvaluateGradient(double x[3], double n[3])
   double pcoords[3], weights[8], *v;
   vtkDoubleArray *gradient;
 
+  // See if a volume is defined
+  if ( !this->Volume ||
+       !(scalars = this->Volume->GetPointData()->GetScalars()) )
+    {
+    vtkErrorMacro(<<"Can't evaluate gradient: either volume is missing or volume has no point data");
+    for ( i=0; i < 3; i++ )
+      {
+      n[i] = this->OutGradient[i];
+      }
+    return;
+    }
+
   gradient = vtkDoubleArray::New();
   gradient->SetNumberOfComponents(3);
   gradient->SetNumberOfTuples(8);
-
-  // See if a volume is defined
-  if ( !this->Volume ||
-  !(scalars = this->Volume->GetPointData()->GetScalars()) )
-    {
-    vtkErrorMacro(<<"Can't evaluate volume!");
-    return;
-    }
 
   // Find the cell that contains xyz and get it
   if ( this->Volume->ComputeStructuredCoordinates(x,ijk,pcoords) )
@@ -155,13 +159,14 @@ void vtkImplicitVolume::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Out Value: " << this->OutValue << "\n";
-  os << indent << "Out Gradient: (" << this->OutGradient[0] << ", "
-     << this->OutGradient[1] << ", " << this->OutGradient[2] << ")\n";
+  os << indent << "Out Value: " << this->GetOutValue() << "\n";
+  os << indent << "Out Gradient: (" << this->GetOutGradient()[0] << ", "
+     << this->GetOutGradient()[1] << ", "
+     << this->GetOutGradient()[2] << ")\n";
 
-  if ( this->Volume )
+  if ( this->GetVolume() )
     {
-    os << indent << "Volume: " << this->Volume << "\n";
+    os << indent << "Volume: " << this->GetVolume() << "\n";
     }
   else
     {

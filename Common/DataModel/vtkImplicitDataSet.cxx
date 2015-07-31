@@ -57,19 +57,19 @@ double vtkImplicitDataSet::EvaluateFunction(double x[3])
   int subId, i, numPts;
   double pcoords[3], s;
 
+  // See if a dataset has been specified
+  if ( !this->DataSet ||
+       !(scalars = this->DataSet->GetPointData()->GetScalars()) )
+    {
+    vtkErrorMacro(<<"Can't evaluate function: either data set is missing or data set has no point data");
+    return this->OutValue;
+    }
+
   if ( this->DataSet->GetMaxCellSize() > this->Size )
     {
     delete [] this->Weights;
     this->Weights = new double[this->DataSet->GetMaxCellSize()];
     this->Size = this->DataSet->GetMaxCellSize();
-    }
-
-  // See if a dataset has been specified
-  if ( !this->DataSet ||
-       !(scalars = this->DataSet->GetPointData()->GetScalars()) )
-    {
-    vtkErrorMacro(<<"Can't evaluate dataset!");
-    return this->OutValue;
     }
 
   // Find the cell that contains xyz and get it
@@ -115,23 +115,23 @@ void vtkImplicitDataSet::EvaluateGradient(double x[3], double n[3])
   int subId, i, numPts;
   double pcoords[3];
 
-  if ( this->DataSet->GetMaxCellSize() > this->Size )
-    {
-    delete [] this->Weights;
-    this->Weights = new double[this->DataSet->GetMaxCellSize()];
-    this->Size = this->DataSet->GetMaxCellSize();
-    }
-
   // See if a dataset has been specified
   if ( !this->DataSet ||
        !(scalars = this->DataSet->GetPointData()->GetScalars()) )
     {
-    vtkErrorMacro(<<"Can't evaluate gradient!");
+    vtkErrorMacro(<<"Can't evaluate gradient: either data set is missing or data set has no point data");
     for ( i=0; i < 3; i++ )
       {
       n[i] = this->OutGradient[i];
       }
     return;
+    }
+
+  if ( this->DataSet->GetMaxCellSize() > this->Size )
+    {
+    delete [] this->Weights;
+    this->Weights = new double[this->DataSet->GetMaxCellSize()];
+    this->Size = this->DataSet->GetMaxCellSize();
     }
 
   // Find the cell that contains xyz and get it
