@@ -14,15 +14,14 @@ static void CreateInitFile(const char *libName, FILE *fout)
           "#pragma warning ( disable : 4706 )\n"
           "#endif // Windows Warnings \n\n");
 
-  fprintf(fout,"extern \"C\" void real_init%s(const char *modulename);\n\n", libName);
+  fprintf(fout,"extern \"C\" void real_init%s(const char *);\n\n", libName);
 
   for (;;)
     {
     fprintf(fout,"extern  \"C\" { %svoid init%s%s(); }\n\n", dllexp, prefix, libName);
 
     fprintf(fout,"void init%s%s()\n{\n", prefix, libName);
-    fprintf(fout,"  static const char modulename[] = \"%s%s\";\n", prefix, libName);
-    fprintf(fout,"  real_init%s(modulename);\n}\n\n", libName);
+    fprintf(fout,"  real_init%s(NULL);\n}\n\n", libName);
 
 #if defined(__CYGWIN__) || !defined(_WIN32)
     /* add a "lib" prefix for compatibility with old python scripts */
@@ -54,26 +53,26 @@ static void CreateImplFile(const char *libName,
   fprintf(fout,"// Handle compiler warning messages, etc.\n"
           "#if defined( _MSC_VER ) && !defined(VTK_DISPLAY_WIN32_WARNINGS)\n"
           "#pragma warning ( disable : 4706 )\n"
-          "#endif // Windows Warnings \n\n");
+          "#endif // Windows Warnings\n\n");
 
   for (i = 0; i < numFiles; i++)
     {
-    fprintf(fout,"extern  \"C\" {%sPyObject *PyVTKAddFile_%s(PyObject *, const char *); }\n", dllexp, files[i]);
+    fprintf(fout,"extern  \"C\" {%sPyObject *PyVTKAddFile_%s(PyObject *); }\n", dllexp, files[i]);
     }
 
   fprintf(fout,"\nstatic PyMethodDef Py%s_ClassMethods[] = {\n", libName);
   fprintf(fout,"{NULL, NULL, 0, NULL}};\n\n");
 
-  fprintf(fout,"extern  \"C\" {%svoid real_init%s(const char *modulename); }\n\n", dllexp, libName);
+  fprintf(fout,"extern  \"C\" {%svoid real_init%s(const char *); }\n\n", dllexp, libName);
 
-  fprintf(fout,"void real_init%s(const char *modulename)\n{\n", libName);
+  fprintf(fout,"void real_init%s(const char *)\n{\n", libName);
 
   /* module init function */
-  fprintf(fout,"  PyObject *m, *d;\n\n");
-  fprintf(fout,"  m = Py_InitModule(modulename, Py%s_ClassMethods);\n",
-    libName);
+  fprintf(fout,"  PyObject *m = Py_InitModule(\"%s\",\n"
+               "                              Py%s_ClassMethods);\n",
+          libName, libName);
 
-  fprintf(fout,"  d = PyModule_GetDict(m);\n");
+  fprintf(fout,"  PyObject *d = PyModule_GetDict(m);\n");
   fprintf(fout,"  if (!d)\n");
   fprintf(fout,"    {\n");
   fprintf(fout,"    Py_FatalError(\"can't get dictionary for module %s\");\n",
@@ -82,7 +81,7 @@ static void CreateImplFile(const char *libName,
 
   for (i = 0; i < numFiles; i++)
     {
-    fprintf(fout,"  PyVTKAddFile_%s(d, modulename);\n",
+    fprintf(fout,"  PyVTKAddFile_%s(d);\n",
       files[i]);
     }
   fprintf(fout,"}\n\n");

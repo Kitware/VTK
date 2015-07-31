@@ -33,7 +33,7 @@
 
 //--------------------------------------------------------------------
 // methods for adding this type to a module
-extern "C" { VTKWRAPPINGPYTHONCORE_EXPORT void PyVTKAddFile_mutable(PyObject *, const char *); }
+extern "C" { VTKWRAPPINGPYTHONCORE_EXPORT void PyVTKAddFile_mutable(PyObject *); }
 
 //--------------------------------------------------------------------
 
@@ -812,8 +812,7 @@ PyTypeObject PyVTKMutableObject_Type = {
 
 //--------------------------------------------------------------------
 // Exported method for adding this type to a module's dict
-void PyVTKAddFile_mutable(
-  PyObject *dict, const char *)
+void PyVTKAddFile_mutable(PyObject *dict)
 {
   PyObject *o = (PyObject *)&PyVTKMutableObject_Type;
 

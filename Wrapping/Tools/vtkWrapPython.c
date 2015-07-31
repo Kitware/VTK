@@ -394,7 +394,7 @@ int main(int argc, char *argv[])
 
   /* do the export of the main entry point */
   fprintf(fp,
-          "extern \"C\" { %s void PyVTKAddFile_%s(PyObject *, const char *); }\n",
+          "extern \"C\" { %s void PyVTKAddFile_%s(PyObject *); }\n",
           "VTK_ABI_EXPORT", name);
 
   /* get the module that is being wrapped */
@@ -483,7 +483,7 @@ int main(int argc, char *argv[])
                       contents->NumberOfConstants);
   fprintf(fp,
           "void PyVTKAddFile_%s(\n"
-          "  PyObject *%s, const char *)\n"
+          "  PyObject *%s)\n"
           "{\n"
           "%s",
           name,
