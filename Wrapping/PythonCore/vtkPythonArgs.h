@@ -211,10 +211,10 @@ public:
   static bool GetFunction(PyObject *arg, PyObject *&o);
 
   // Get the next arg as a void pointer (to a buffer object).
-  bool GetValue(void *&v);
-  static bool GetValue(PyObject *o, void *&v);
-  bool GetValue(const void *&v);
-  static bool GetValue(PyObject *o, const void *&v);
+  bool GetBuffer(void *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, void *&v, Py_buffer *buf);
+  bool GetBuffer(const void *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, const void *&v, Py_buffer *buf);
 
   // Description:
   // Get the next argument as a string.

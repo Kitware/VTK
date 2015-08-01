@@ -641,14 +641,29 @@ static Py_ssize_t PyVTKMutableObject_GetCharBuf(
   return -1;
 }
 
+#if PY_VERSION_HEX >= 0x02060000
+static int PyVTKMutableObject_GetBuffer(
+  PyObject *self, Py_buffer *view, int flags)
+{
+  PyObject *obj = ((PyVTKMutableObject *)self)->value;
+  return PyObject_GetBuffer(obj, view, flags);
+}
+
+static void PyVTKMutableObject_ReleaseBuffer(
+  PyObject *, Py_buffer *view)
+{
+  PyBuffer_Release(view);
+}
+#endif
+
 static PyBufferProcs PyVTKMutableObject_AsBuffer = {
   PyVTKMutableObject_GetReadBuf,       // bf_getreadbuffer
   PyVTKMutableObject_GetWriteBuf,      // bf_getwritebuffer
   PyVTKMutableObject_GetSegCount,      // bf_getsegcount
   PyVTKMutableObject_GetCharBuf,       // bf_getcharbuffer
 #if PY_VERSION_HEX >= 0x02060000
-  0,                                   // bf_getbuffer
-  0                                    // bf_releasebuffer
+  PyVTKMutableObject_GetBuffer,        // bf_getbuffer
+  PyVTKMutableObject_ReleaseBuffer     // bf_releasebuffer
 #endif
 };
 

@@ -215,6 +215,7 @@ void PyVTKObject_Delete(PyObject *op)
 
   Py_DECREF(self->vtk_dict);
   delete [] self->vtk_observers;
+  delete [] self->vtk_buffer;
 
   PyObject_GC_Del(op);
 }
@@ -263,6 +264,7 @@ PyGetSetDef PyVTKObject_GetSet[] = {
 // for PyVTKObject, so that python can read from a vtkDataArray.
 // This is particularly useful for NumPy.
 
+#ifndef VTK_PY3K
 //--------------------------------------------------------------------
 static Py_ssize_t
 PyVTKObject_AsBuffer_GetSegCount(PyObject *op, Py_ssize_t *lenp)
@@ -309,6 +311,7 @@ PyVTKObject_AsBuffer_GetReadBuf(
       da->GetNumberOfComponents()*
       da->GetDataTypeSize();
     }
+
   return -1;
 }
 
@@ -320,15 +323,156 @@ PyVTKObject_AsBuffer_GetWriteBuf(
   return PyVTKObject_AsBuffer_GetReadBuf(op, segment, ptrptr);
 }
 
+#endif
+
+#if PY_VERSION_HEX >= 0x02060000
+
+//--------------------------------------------------------------------
+// Convert a VTK type to a python type char (struct module)
+static const char *pythonTypeFormat(int t)
+{
+  const char *b = 0;
+
+  switch (t)
+    {
+    case VTK_CHAR: b = "c"; break;
+    case VTK_SIGNED_CHAR: b = "b"; break;
+    case VTK_UNSIGNED_CHAR: b = "B"; break;
+    case VTK_SHORT: b = "h"; break;
+    case VTK_UNSIGNED_SHORT: b = "H"; break;
+    case VTK_INT: b = "i"; break;
+    case VTK_UNSIGNED_INT: b = "I"; break;
+    case VTK_LONG: b = "l"; break;
+    case VTK_UNSIGNED_LONG: b = "L"; break;
+    case VTK_LONG_LONG: b = "q"; break;
+    case VTK_UNSIGNED_LONG_LONG: b = "Q"; break;
+    case VTK___INT64: b = "q"; break;
+    case VTK_UNSIGNED___INT64: b = "Q"; break;
+    case VTK_FLOAT: b = "f"; break;
+    case VTK_DOUBLE: b = "d"; break;
+#ifndef VTK_USE_64BIT_IDS
+    case VTK_ID_TYPE: b = "i"; break;
+#elif defined(VTK_TYPE_USE_LONG_LONG) || (VTK_SIZEOF_LONG != 8)
+    case VTK_ID_TYPE: b = "q"; break;
+#else
+    case VTK_ID_TYPE: b = "l"; break;
+#endif
+    }
+
+  return b;
+}
+
+//--------------------------------------------------------------------
+static int
+PyVTKObject_AsBuffer_GetBuffer(PyObject *obj, Py_buffer *view, int flags)
+{
+  PyVTKObject *self = (PyVTKObject*)obj;
+  vtkDataArray *da = vtkDataArray::SafeDownCast(self->vtk_ptr);
+  if (da)
+    {
+    void *ptr = da->GetVoidPointer(0);
+    Py_ssize_t ntuples = da->GetNumberOfTuples();
+    int ncomp = da->GetNumberOfComponents();
+    int dsize = da->GetDataTypeSize();
+    const char *format = pythonTypeFormat(da->GetDataType());
+    Py_ssize_t size = ntuples*ncomp*dsize;
+
+    if (da->GetDataType() == VTK_BIT)
+      {
+      size = (ntuples*ncomp + 7)/8;
+      }
+
+    // start by building a basic "unsigned char" buffer
+    if (PyBuffer_FillInfo(view, obj, ptr, size, 0, flags) == -1)
+      {
+      return -1;
+      }
+    // check if a dimensioned array was requested
+    if (format != 0 && (flags & PyBUF_ND) != 0)
+      {
+      // first, build a simple 1D array
+      view->itemsize = dsize;
+      view->ndim = (ncomp > 1 ? 2 : 1);
+      view->format = (char *)format;
+
+#if PY_VERSION_HEX >= 0x02070000
+      // use "smalltable" for 1D arrays, like memoryobject.c
+      view->shape = view->smalltable;
+      view->strides = &view->smalltable[1];
+      if (view->ndim > 1)
+#endif
+        {
+        if (self->vtk_buffer && self->vtk_buffer[0] != view->ndim)
+          {
+          delete [] self->vtk_buffer;
+          self->vtk_buffer = 0;
+          }
+        if (self->vtk_buffer == 0)
+          {
+          self->vtk_buffer = new Py_ssize_t[2*view->ndim + 1];
+          self->vtk_buffer[0] = view->ndim;
+          }
+        view->shape = &self->vtk_buffer[1];
+        view->strides = &self->vtk_buffer[view->ndim + 1];
+        }
+
+      if (view->ndim == 1)
+        {
+        // simple one-dimensional array
+        view->shape[0] = ntuples*ncomp;
+        view->strides[0] = view->itemsize;
+        }
+      else
+        {
+        // use native C dimension ordering by default
+        char order = 'C';
+        if ((flags & PyBUF_ANY_CONTIGUOUS) == PyBUF_F_CONTIGUOUS)
+          {
+          // use fortran ordering only if explicitly requested
+          order = 'F';
+          }
+        // need to allocate space for the strides and shape
+        view->shape[0] = ntuples;
+        view->shape[1] = ncomp;
+        if (order == 'F')
+          {
+          view->shape[0] = ncomp;
+          view->shape[1] = ntuples;
+          }
+        PyBuffer_FillContiguousStrides(
+          view->ndim, view->shape, view->strides, dsize, order);
+        }
+      }
+    return 0;
+    }
+
+  PyErr_Format(PyExc_ValueError,
+               "Cannot get a buffer from %s.", Py_TYPE(obj)->tp_name);
+  return -1;
+}
+
+//--------------------------------------------------------------------
+static void
+PyVTKObject_AsBuffer_ReleaseBuffer(PyObject *obj, Py_buffer *view)
+{
+  // nothing to do, the caller will decref the obj
+  (void)obj;
+  (void)view;
+}
+
+#endif
+
 //--------------------------------------------------------------------
 PyBufferProcs PyVTKObject_AsBuffer = {
+#ifndef VTK_PY3K
   PyVTKObject_AsBuffer_GetReadBuf,       // bf_getreadbuffer
   PyVTKObject_AsBuffer_GetWriteBuf,      // bf_getwritebuffer
   PyVTKObject_AsBuffer_GetSegCount,      // bf_getsegcount
   0,                                     // bf_getcharbuffer
+#endif
 #if PY_VERSION_HEX >= 0x02060000
-  0,                                     // bf_getbuffer
-  0                                      // bf_releasebuffer
+  PyVTKObject_AsBuffer_GetBuffer,        // bf_getbuffer
+  PyVTKObject_AsBuffer_ReleaseBuffer     // bf_releasebuffer
 #endif
 };
 
@@ -438,6 +582,7 @@ PyObject *PyVTKObject_FromPointer(
   self->vtk_flags = 0;
   self->vtk_class = cls;
   self->vtk_dict = pydict;
+  self->vtk_buffer = 0;
   self->vtk_observers = 0;
   self->vtk_weakreflist = NULL;
 

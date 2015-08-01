@@ -161,59 +161,86 @@ inline bool vtkPythonGetStdStringValue(PyObject *o, std::string &a, const char *
 //--------------------------------------------------------------------
 // Overloaded methods, mostly based on the above templates
 
-static bool vtkPythonGetValue(PyObject *o, const void *&a)
+static bool vtkPythonGetValue(
+  PyObject *o, const void *&a, Py_buffer *view)
 {
+  const char *format = 0;
+  void *p = 0;
+  Py_ssize_t sz = 0;
   PyBufferProcs *b = Py_TYPE(o)->tp_as_buffer;
+
+#if PY_VERSION_HEX >= 0x02060000
+  // use the new buffer interface
+  if (PyObject_CheckBuffer(o))
+    {
+    if (PyObject_GetBuffer(o, view, PyBUF_SIMPLE) == -1)
+      {
+      return false;
+      }
+    p = view->buf;
+    sz = view->len;
+    format = view->format;
+    }
+  else
+#endif
+  // use the old buffer interface
   if (b && b->bf_getreadbuffer && b->bf_getsegcount)
     {
     if (b->bf_getsegcount(o, NULL) == 1)
       {
-      void *p;
-      Py_ssize_t sz = b->bf_getreadbuffer(o, 0, &p);
-      if (sz >= 0 && sz <= VTK_INT_MAX)
-        {
-        // check for pointer mangled as string
-        int s = static_cast<int>(sz);
-        a = vtkPythonUtil::UnmanglePointer(
-          reinterpret_cast<char *>(p), &s, "p_void");
-        if (s >= 0)
-          {
-          return true;
-          }
-        if (s == -1)
-          {
-          char buf[128];
-          sprintf(buf, "value is %.80s, required type is p_void",
-            reinterpret_cast<char *>(p));
-          PyErr_SetString(PyExc_TypeError, buf);
-          }
-        else
-          {
-          PyErr_SetString(PyExc_TypeError, "cannot get a void pointer");
-          }
-        }
-      else if (sz >= 0)
-        {
-        // directly use the pointer to the buffer contents
-        a = p;
-        return true;
-        }
+      sz = b->bf_getreadbuffer(o, 0, &p);
+      }
+    else
+      {
+      PyErr_SetString(PyExc_TypeError, "buffer must be single-segment");
       return false;
       }
-    PyErr_SetString(PyExc_TypeError, "buffer must be single-segment");
-    return false;
     }
-  PyErr_SetString(PyExc_TypeError, "object does not have a readable buffer");
+
+  if (p && sz >= 0 && sz <= VTK_INT_MAX &&
+      (format == 0 || format[0] == 'c' || format[0] == 'B'))
+    {
+    // check for pointer mangled as string
+    int s = static_cast<int>(sz);
+    a = vtkPythonUtil::UnmanglePointer(
+      reinterpret_cast<char *>(p), &s, "p_void");
+    if (s >= 0)
+      {
+      return true;
+      }
+    if (s == -1)
+      {
+      char buf[128];
+      sprintf(buf, "value is %.80s, required type is p_void",
+        reinterpret_cast<char *>(p));
+      PyErr_SetString(PyExc_TypeError, buf);
+      return false;
+      }
+    else
+      {
+      PyErr_SetString(PyExc_TypeError, "cannot get a void pointer");
+      return false;
+      }
+    }
+  else if (p && sz >= 0)
+    {
+    // directly use the pointer to the buffer contents
+    a = p;
+    return true;
+    }
+
+  PyErr_SetString(PyExc_TypeError,
+    "object does not have a readable buffer");
   return false;
 }
 
 inline
-bool vtkPythonGetValue(PyObject *o, void *&a)
+bool vtkPythonGetValue(PyObject *o, void *&a, Py_buffer *buf)
 {
   // should have an alternate form for non-const "void *" that uses
   // writebuffer instead of readbuffer, but that would break existing code
   const void *b = NULL;
-  bool r = vtkPythonGetValue(o, b);
+  bool r = vtkPythonGetValue(o, b, buf);
   a = const_cast<void *>(b);
   return r;
 }
@@ -976,8 +1003,6 @@ bool vtkPythonArgs::GetValue(PyObject *o, T &a) \
   return vtkPythonGetValue(o, a); \
 }
 
-VTK_PYTHON_GET_ARG(void *)
-VTK_PYTHON_GET_ARG(const void *)
 VTK_PYTHON_GET_ARG(char *)
 VTK_PYTHON_GET_ARG(const char *)
 VTK_PYTHON_GET_ARG(std::string)
@@ -1076,7 +1101,7 @@ VTK_PYTHON_GET_NARRAY_ARG(unsigned __int64)
 #endif
 
 //--------------------------------------------------------------------
-// Define the special function pointer GetNextArg method
+// Define the special function pointer GetValue method
 
 bool vtkPythonArgs::GetFunction(PyObject *arg, PyObject *&o)
 {
@@ -1094,6 +1119,29 @@ bool vtkPythonArgs::GetFunction(PyObject *&o)
   PyObject *arg = PyTuple_GET_ITEM(this->Args, this->I++);
   return vtkPythonArgs::GetFunction(arg, o);
 }
+
+//--------------------------------------------------------------------
+// Define the void pointer GetValue method
+
+#define VTK_PYTHON_GET_BUFFER(T) \
+bool vtkPythonArgs::GetBuffer(T &a, Py_buffer *buf) \
+{ \
+  PyObject *o = PyTuple_GET_ITEM(this->Args, this->I++); \
+  if (vtkPythonGetValue(o, a, buf)) \
+    { \
+    return true; \
+    } \
+  this->RefineArgTypeError(this->I - this->M - 1); \
+  return false; \
+} \
+ \
+bool vtkPythonArgs::GetBuffer(PyObject *o, T &a, Py_buffer *buf) \
+{ \
+  return vtkPythonGetValue(o, a, buf); \
+}
+
+VTK_PYTHON_GET_BUFFER(void *)
+VTK_PYTHON_GET_BUFFER(const void *)
 
 //--------------------------------------------------------------------
 // Define all the SetArgValue methods for setting reference args

@@ -25,6 +25,15 @@
 // ===== Macros needed for Python 3 ====
 #ifdef VTK_PY3K
 
+// Buffer compatibility
+#if PY_VERSION_HEX < 0x03030000
+#define VTK_PYBUFFER_INITIALIZER \
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, { 0, 0 }, 0 }
+#else
+#define VTK_PYBUFFER_INITIALIZER \
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+#endif
+
 #endif
 
 // ===== Macros needed for Python 2 ====
@@ -39,6 +48,19 @@
 // Required for Python 2.5 compatibility
 #ifndef Py_TYPE
 #define Py_TYPE(ob) (((PyObject*)(ob))->ob_type)
+#endif
+
+// Buffer struct initialization is different for every version
+#if PY_VERSION_HEX < 0x02060000
+typedef struct bufferinfo { PyObject *obj; } Py_buffer;
+#define VTK_PYBUFFER_INITIALIZER \
+  { 0 }
+#elif PY_VERSION_HEX < 0x02070000
+#define VTK_PYBUFFER_INITIALIZER \
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+#else
+#define VTK_PYBUFFER_INITIALIZER \
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, { 0, 0 }, 0 }
 #endif
 
 #endif
