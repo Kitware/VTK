@@ -73,13 +73,17 @@ they are system headers.  Do NOT add any #undef lines here.  */
 #endif
 
 #if defined(_MSC_VER) && _MSC_VER >= 1800
+#if VTK_PYTHON_VERSION_HEX < 0x03040000
 #define HAVE_ROUND
+#endif
 #endif
 
 #include <Python.h>
 
 #if defined(_MSC_VER) && _MSC_VER >= 1800
+#if VTK_PYTHON_VERSION_HEX < 0x03040000
 #undef HAVE_ROUND
+#endif
 #endif
 
 #if defined(_MSC_VER)

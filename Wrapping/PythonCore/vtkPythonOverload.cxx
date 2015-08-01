@@ -147,22 +147,32 @@ bool vtkPythonOverloadHelper::next(
 }
 
 //--------------------------------------------------------------------
-// If tmpi > VTK_INT_MAX, then penalize unless format == 'l'
+// If tmpi > VTK_INT_MAX, then penalize types of int size or smaller
 
-#if VTK_SIZEOF_LONG != VTK_SIZEOF_INT
 static int vtkPythonIntPenalty(PY_LONG_LONG tmpi, int penalty, char format)
 {
   if (tmpi > VTK_INT_MAX || tmpi < VTK_INT_MIN)
     {
-    if (format != 'l')
+    if (format != 'k')
       {
       if (penalty < VTK_PYTHON_GOOD_MATCH)
         {
         penalty = VTK_PYTHON_GOOD_MATCH;
+#if VTK_SIZEOF_LONG == VTK_SIZEOF_INT
         if (format != 'i')
           {
           penalty++;
           }
+#else
+        if (format != 'l')
+          {
+          penalty++;
+          if (format != 'i')
+            {
+            penalty++;
+            }
+          }
+#endif
         }
       else
         {
@@ -187,9 +197,57 @@ static int vtkPythonIntPenalty(PY_LONG_LONG tmpi, int penalty, char format)
   return penalty;
 }
 
-#else
-int vtkPythonIntPenalty(PY_LONG_LONG, int penalty, char)
+#ifdef VTK_PY3K
+//--------------------------------------------------------------------
+// Check if a unicode string is ascii, which makes it more suitable
+// as a match for "char *" or "std::string".
+
+static int vtkPythonStringPenalty(PyObject *u, char format, int penalty)
 {
+#if PY_VERSION_HEX > 0x03030000
+  int ascii = 0;
+  if (PyUnicode_READY(u) != -1)
+    {
+    if (PyUnicode_KIND(u) == PyUnicode_1BYTE_KIND)
+      {
+      Py_UCS1 *cp = PyUnicode_1BYTE_DATA(u);
+      Py_ssize_t l = PyUnicode_GET_LENGTH(u);
+      Py_UCS1 c = 0;
+      for (int i = 0; i < l; i++)
+        {
+        c |= cp[i];
+        }
+      ascii = ((c & 0x80) == 0);
+      }
+    }
+  else
+    {
+    PyErr_Clear();
+    }
+#else
+  PyObject *ascii = PyUnicode_AsASCIIString(u);
+  if (ascii == 0)
+    {
+    PyErr_Clear();
+    }
+  else
+    {
+    Py_DECREF(ascii);
+    }
+#endif
+
+  if ((format == 'u') ^ (ascii == 0))
+    {
+    if (penalty < VTK_PYTHON_GOOD_MATCH)
+      {
+      penalty = VTK_PYTHON_GOOD_MATCH;
+      }
+    else
+      {
+      penalty++;
+      }
+    }
+
   return penalty;
 }
 #endif
@@ -255,7 +313,11 @@ int vtkPythonOverload::CheckArg(
     case 'L':
     case 'i':
     case 'I':
-      // integer types that fit in PyInt
+#ifdef VTK_PY3K
+    case 'k':
+    case 'K':
+#endif
+      // integer types
       if (PyBool_Check(arg))
         {
         penalty = VTK_PYTHON_GOOD_MATCH;
@@ -264,6 +326,7 @@ int vtkPythonOverload::CheckArg(
           penalty++;
           }
         }
+#ifndef VTK_PY3K
       else if (PyInt_Check(arg))
         {
 #if VTK_SIZEOF_LONG == VTK_SIZEOF_INT
@@ -275,15 +338,12 @@ int vtkPythonOverload::CheckArg(
         penalty = vtkPythonIntPenalty(PyInt_AsLong(arg), penalty, *format);
 #endif
         }
+#endif /* VTK_PY3K */
       else if (PyLong_Check(arg))
         {
+#ifndef VTK_PY3K
         penalty = VTK_PYTHON_GOOD_MATCH;
-#if VTK_SIZEOF_LONG == VTK_SIZEOF_INT
-        if (*format != 'i')
-          {
-          penalty++;
-          }
-#else
+#endif
         PY_LONG_LONG tmpi = PyLong_AsLongLong(arg);
         if (PyErr_Occurred())
           {
@@ -292,14 +352,17 @@ int vtkPythonOverload::CheckArg(
           }
 
         penalty = vtkPythonIntPenalty(tmpi, penalty, *format);
-#endif
         }
       else // not PyInt or PyLong
         {
         if (level == 0)
           {
           penalty = VTK_PYTHON_NEEDS_CONVERSION;
+#ifdef VTK_PY3K
+          PY_LONG_LONG tmpi = PyLong_AsLongLong(arg);
+#else
           long tmpi = PyInt_AsLong(arg);
+#endif
           if (tmpi == -1 || PyErr_Occurred())
             {
             PyErr_Clear();
@@ -313,9 +376,9 @@ int vtkPythonOverload::CheckArg(
         }
       break;
 
+#ifndef VTK_PY3K
     case 'k':
     case 'K':
-      // integer types too large for PyInt
       if (!PyLong_Check(arg))
         {
         penalty = VTK_PYTHON_GOOD_MATCH;
@@ -338,14 +401,19 @@ int vtkPythonOverload::CheckArg(
           }
         }
       break;
+#endif
 
     case 'f':
-      // float
-      penalty = VTK_PYTHON_GOOD_MATCH;
-      VTK_FALLTHROUGH;
     case 'd':
       // double and float
-      if (!PyFloat_Check(arg))
+      if (PyFloat_Check(arg))
+        {
+        if (*format != 'd')
+          {
+          penalty = VTK_PYTHON_GOOD_MATCH;
+          }
+        }
+      else
         {
         penalty = VTK_PYTHON_NEEDS_CONVERSION;
         if (level == 0)
@@ -366,8 +434,15 @@ int vtkPythonOverload::CheckArg(
 
     case 'c':
       // penalize chars, they must be converted from strings
-      penalty = VTK_PYTHON_NEEDS_CONVERSION;
-      if (!PyString_Check(arg) || PyString_Size(arg) != 1)
+      if (PyUnicode_Check(arg) && PyUnicode_GetSize(arg) == 1)
+        {
+        penalty = VTK_PYTHON_NEEDS_CONVERSION;
+        }
+      else if (PyBytes_Check(arg) && PyBytes_Size(arg) == 1)
+        {
+        penalty = VTK_PYTHON_NEEDS_CONVERSION;
+        }
+      else
         {
         penalty = VTK_PYTHON_INCOMPATIBLE;
         }
@@ -387,10 +462,14 @@ int vtkPythonOverload::CheckArg(
 #ifdef Py_USING_UNICODE
       else if (PyUnicode_Check(arg))
         {
+#ifdef VTK_PY3K
+        penalty = vtkPythonStringPenalty(arg, *format, penalty);
+#else
         penalty = VTK_PYTHON_NEEDS_CONVERSION;
+#endif
         }
 #endif
-      else if (!PyString_Check(arg))
+      else if (!PyBytes_Check(arg))
         {
         penalty = VTK_PYTHON_INCOMPATIBLE;
         }
@@ -403,6 +482,12 @@ int vtkPythonOverload::CheckArg(
         {
         penalty = VTK_PYTHON_INCOMPATIBLE;
         }
+#ifdef VTK_PY3K
+      else
+        {
+        penalty = vtkPythonStringPenalty(arg, *format, penalty);
+        }
+#endif
       break;
 #endif
 

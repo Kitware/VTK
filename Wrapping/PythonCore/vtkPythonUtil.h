@@ -172,7 +172,7 @@ public:
 
   // Description:
   // Compute a hash for a vtkVariant.
-  static long VariantHash(const vtkVariant *variant);
+  static Py_hash_t VariantHash(const vtkVariant *variant);
 
   // Description:
   // Register a vtkPythonCommand. Registering vtkPythonCommand instances ensures
@@ -203,16 +203,5 @@ private:
 // For use by SetXXMethod() , SetXXMethodArgDelete()
 extern VTKWRAPPINGPYTHONCORE_EXPORT void vtkPythonVoidFunc(void *);
 extern VTKWRAPPINGPYTHONCORE_EXPORT void vtkPythonVoidFuncArgDelete(void *);
-
-// The following macro is used to suppress missing initializer
-// warnings.  Python documentation says these should not be necessary.
-// We define it as a macro in case the length needs to change across
-// python versions.
-#if   PY_VERSION_HEX >= 0x02060000 // for tp_version_tag
-#define VTK_PYTHON_UTIL_SUPPRESS_UNINITIALIZED \
-  0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0, 0,
-#define VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED \
-  0, 0,
-#endif
 
 #endif

@@ -386,10 +386,9 @@ static void vtkWrapPython_ClassMethodDef(
         comment, maxlen - strlen(signatures));
 
       fprintf(fp,
-              "  {\"%s\", Py%s_%s, METH_VARARGS%s,\n",
+              "  {\"%s\", Py%s_%s, METH_VARARGS,\n",
               wrappedFunctions[fnum]->Name, classname,
-              wrappedFunctions[fnum]->Name,
-              wrappedFunctions[fnum]->IsStatic ? " | METH_STATIC" : "");
+              wrappedFunctions[fnum]->Name);
 
       fprintf(fp,
               "   \"%s\\n\\n%s\"},\n",

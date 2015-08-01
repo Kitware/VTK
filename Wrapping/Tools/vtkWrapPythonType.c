@@ -503,7 +503,7 @@ static void vtkWrapPython_HashProtocol(
 {
   /* the hash function, defined only for specific types */
   fprintf(fp,
-    "static long Py%s_Hash(PyObject *self)\n",
+    "static Py_hash_t Py%s_Hash(PyObject *self)\n",
     classname);
 
   if (strcmp(data->Name, "vtkTimeStamp") == 0)

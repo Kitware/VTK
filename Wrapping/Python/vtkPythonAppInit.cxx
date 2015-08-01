@@ -16,6 +16,7 @@
 /* Minimal main program -- everything is loaded from the library */
 
 #include "vtkPython.h"
+#include "vtkPythonCompatibility.h"
 
 #ifdef VTK_COMPILED_USING_MPI
 # include <mpi.h>
@@ -81,8 +82,19 @@ static void AtExitCallback()
 #endif // VTK_COMPILED_USING_MPI
 
 extern "C" {
-  extern DL_IMPORT(int) Py_Main(int, char **);
+#ifdef VTK_PY3K
+  PyAPI_FUNC(int) Py_Main(int, wchar_t **);
+#else
+  PyAPI_FUNC(int) Py_Main(int, char **);
+#endif
 }
+
+#if defined(VTK_PY3K) && defined(__APPLE__)
+extern "C" {
+extern wchar_t*
+_Py_DecodeUTF8_surrogateescape(const char *s, Py_ssize_t size);
+}
+#endif
 
 static void vtkPythonAppInitEnableMSVCDebugHook();
 static void vtkPythonAppInitPrependPath(const char* self_dir);
@@ -102,7 +114,6 @@ static void RemoveArgumentFromArgv(int &argc, char **&argv, int at);
 #define VTK_PYTHON_TO_STRING0(x) VTK_PYTHON_TO_STRING1(x)
 #define VTK_PYTHON_TO_STRING1(x) #x
 #define VTK_PYTHON_VERSION VTK_PYTHON_TO_STRING(PY_MAJOR_VERSION.PY_MINOR_VERSION)
-
 
 int main(int argc, char **argv)
 {
@@ -147,9 +158,24 @@ int main(int argc, char **argv)
   // Set the program name, so that we can ask python to provide us
   // full path.  We need to collapse the path name to aid relative
   // path computation for the VTK python module installation.
-  static char argv0[VTK_PYTHON_MAXPATH];
   std::string av0 = vtksys::SystemTools::CollapseFullPath(argv[0]);
+#ifdef VTK_PY3K
+  wchar_t *argv0;
+#ifdef __APPLE__
+  argv0 = _Py_DecodeUTF8_surrogateescape(av0.data(), av0.length());
+#else
+  argv0 = _Py_char2wchar(av0.c_str(), NULL);
+#endif
+  if (argv0 == 0)
+    {
+    fprintf(stderr, "Fatal vtkpython error: "
+                    "unable to decode the program name\n");
+    return 1;
+    }
+#else /* VTK < PY3K */
+  static char argv0[VTK_PYTHON_MAXPATH];
   strcpy(argv0, av0.c_str());
+#endif
   Py_SetProgramName(argv0);
 
   // This function is generated, and will register any static Python modules for VTK
@@ -169,17 +195,62 @@ int main(int argc, char **argv)
   // sys.executable variable contains the full path to the interpreter
   // executable.
   char tmpExe[] = "executable";
-  PyObject* executable = PySys_GetObject(tmpExe);
-  if(const char* exe_str = PyString_AsString(executable))
+  PyObject *executable = PySys_GetObject(tmpExe);
+#ifdef VTK_PY3K
+  executable = PyUnicode_EncodeFSDefault(executable);
+#endif
+  const char *exe_str = PyBytes_AsString(executable);
+  if (exe_str)
     {
     // Use the executable location to try to set sys.path to include
     // the VTK python modules.
     std::string self_dir = vtksys::SystemTools::GetFilenamePath(exe_str);
     vtkPythonAppInitPrependPath(self_dir.c_str());
     }
+#ifdef VTK_PY3K
+  Py_DECREF(executable);
+#endif
 
   // Ok, all done, now enter python main.
+#ifdef VTK_PY3K
+  // Need two copies of args, because programs might modify the first
+  wchar_t **argvWide = new wchar_t *[argc];
+  wchar_t **argvWide2 = new wchar_t *[argc];
+  for (int i = 0; i < argc; i++)
+    {
+#ifdef __APPLE__
+    argvWide[i] = _Py_DecodeUTF8_surrogateescape(argv[i], strlen(argv[i]));
+#else
+    argvWide[i] = _Py_char2wchar(argv[i], NULL);
+#endif
+    argvWide2[i] = argvWide[i];
+    if (argvWide[i] == 0)
+      {
+      fprintf(stderr, "Fatal vtkpython error: "
+                      "unable to decode the command line argument #%i\n",
+                      i + 1);
+      for (int k = 0; k < i; k++)
+        {
+        PyMem_Free(argvWide2[i]);
+        }
+      PyMem_Free(argv0);
+      delete [] argvWide;
+      delete [] argvWide2;
+      return 1;
+      }
+    }
+  int res = Py_Main(argc, argvWide);
+  PyMem_Free(argv0);
+  for (int i = 0; i < argc; i++)
+    {
+    PyMem_Free(argvWide2[i]);
+    }
+  delete [] argvWide;
+  delete [] argvWide2;
+  return res;
+#else
   return Py_Main(argc, argv);
+#endif
 }
 
 // For a DEBUG build on MSVC, add a hook to prevent error dialogs when

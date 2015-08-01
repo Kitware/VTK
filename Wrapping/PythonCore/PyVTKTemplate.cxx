@@ -214,13 +214,33 @@ PyVTKTemplate_GetItem(PyObject *ob, PyObject *key)
       while (n && cp[n-1] != '.') { --n; }
       o = PyString_FromString(&cp[n]);
       }
-    else if (PyString_Check(o) && PyString_Size(o) == 1)
+    else
       {
-      char *cp = PyString_AS_STRING(o);
+      int typechar = '\0';
+      if (PyBytes_Check(o) && PyBytes_Size(o) == 1)
+        {
+        typechar = PyBytes_AS_STRING(o)[0];
+        }
+#ifdef Py_USING_UNICODE
+      else if (PyUnicode_Check(o))
+        {
+#if PY_VERSION_HEX >= 0x03030000
+        if (PyUnicode_GetLength(o) == 1)
+          {
+          typechar = PyUnicode_ReadChar(o, 0);
+          }
+#else
+        if (PyUnicode_GetSize(o) == 1)
+          {
+          typechar = PyUnicode_AS_UNICODE(o)[0];
+          }
+#endif
+        }
+#endif
       int j;
       for (j = 0; typecodes[j]; j++)
         {
-        if (strcmp(cp, typecodes[j]) == 0)
+        if (typechar == typecodes[j][0])
           {
           o = PyString_FromString(typenames[j]);
           break;
@@ -230,10 +250,6 @@ PyVTKTemplate_GetItem(PyObject *ob, PyObject *key)
         {
         Py_INCREF(o);
         }
-      }
-    else
-      {
-      Py_INCREF(o);
       }
 
     PyTuple_SET_ITEM(t, i, o);
@@ -293,10 +309,17 @@ static PyObject *PyVTKTemplate_Repr(PyObject *op)
 {
   PyVTKTemplate *self = (PyVTKTemplate *)op;
 
+#ifdef VTK_PY3K
+  return PyString_FromFormat("<%s %U.%U>",
+    Py_TYPE(op)->tp_name,
+    self->module,
+    self->name);
+#else
   return PyString_FromFormat("<%s %s.%s>",
     Py_TYPE(op)->tp_name,
     PyString_AS_STRING(self->module),
     PyString_AS_STRING(self->name));
+#endif
 }
 
 //--------------------------------------------------------------------
@@ -330,7 +353,10 @@ PyTypeObject PyVTKTemplate_Type = {
   PyObject_GenericGetAttr,               // tp_getattro
   0,                                     // tp_setattro
   0,                                     // tp_as_buffer
-  Py_TPFLAGS_CHECKTYPES | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_DEFAULT, // tp_flags
+#ifndef VTK_PY3K
+  Py_TPFLAGS_CHECKTYPES |
+#endif
+  Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_DEFAULT, // tp_flags
   PyVTKTemplate_Doc,                     // tp_doc
   PyVTKTemplate_Traverse,                // tp_traverse
   0,                                     // tp_clear

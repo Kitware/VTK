@@ -395,7 +395,7 @@ PyVTKObject_AsBuffer_GetBuffer(PyObject *obj, Py_buffer *view, int flags)
       view->ndim = (ncomp > 1 ? 2 : 1);
       view->format = (char *)format;
 
-#if PY_VERSION_HEX >= 0x02070000
+#if PY_VERSION_HEX >= 0x02070000 && PY_VERSION_HEX < 0x03030000
       // use "smalltable" for 1D arrays, like memoryobject.c
       view->shape = view->smalltable;
       view->strides = &view->smalltable[1];
@@ -498,22 +498,31 @@ PyObject *PyVTKObject_FromPointer(
     PyObject *s = PyObject_GetAttrString((PyObject *)pytype, "__vtkname__");
     if (s)
       {
-      classname = PyString_AsString(s);
-      Py_DECREF(s);
+#ifdef VTK_PY3K
+      PyObject *tmp = PyUnicode_AsUTF8String(s);
+      if (tmp)
+        {
+        Py_DECREF(s);
+        s = tmp;
+        }
+#endif
+      classname = PyBytes_AsString(s);
       if (classname == 0)
         {
+        Py_DECREF(s);
         return NULL;
         }
       }
     cls = vtkPythonUtil::FindClass(classname);
     if (cls == 0)
       {
-      char errortext[280];
-      sprintf(errortext, "internal error, unknown VTK class %.200s",
-              classname);
-      PyErr_SetString(PyExc_ValueError, errortext);
+      PyErr_Format(PyExc_ValueError,
+                   "internal error, unknown VTK class %.200s",
+                   classname);
+      Py_XDECREF(s);
       return NULL;
       }
+    Py_XDECREF(s);
     }
 
   if (!ptr)

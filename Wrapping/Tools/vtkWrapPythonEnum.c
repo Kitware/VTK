@@ -200,16 +200,24 @@ void vtkWrapPython_GenerateEnumType(
     "\n");
 
   /* conversion method: construct from enum value */
+  /* XXX the PY3K implementation is horridly inefficient */
   fprintf(fp,
     "PyObject *Py%s_FromEnum(int val)\n"
     "{\n"
+    "#ifdef VTK_PY3K\n"
+    "  PyObject *args = Py_BuildValue(\"(i)\", val);\n"
+    "  PyObject *obj = PyLong_Type.tp_new(&Py%s_Type, args, NULL);\n"
+    "  Py_DECREF(args);\n"
+    "  return obj;\n"
+    "#else\n"
     "  PyIntObject *self = PyObject_New(PyIntObject,\n"
     "    &Py%s_Type);\n"
     "  self->ob_ival = val;\n"
     "  return (PyObject *)self;\n"
+    "#endif\n"
     "}\n"
     "\n",
-    enumname, enumname);
+    enumname, enumname, enumname);
 }
 
 /* generate code that adds all public enum types to a python dict */

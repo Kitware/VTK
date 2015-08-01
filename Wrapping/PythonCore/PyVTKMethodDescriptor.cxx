@@ -26,6 +26,12 @@
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif
 
+// Required for Python 2.5 through Python 2.7
+#ifndef PyDescr_TYPE
+#define PyDescr_TYPE(x) (((PyDescrObject *)(x))->d_type)
+#define PyDescr_NAME(x) (((PyDescrObject *)(x))->d_name)
+#endif
+
 //--------------------------------------------------------------------
 // C API
 
@@ -37,11 +43,11 @@ PyObject *PyVTKMethodDescriptor_New(PyTypeObject *pytype, PyMethodDef *meth)
   if (descr)
     {
     Py_XINCREF(pytype);
-    descr->d_type = pytype;
-    descr->d_name = PyString_InternFromString(meth->ml_name);
+    PyDescr_TYPE(descr) = pytype;
+    PyDescr_NAME(descr) = PyString_InternFromString(meth->ml_name);
     descr->d_method = meth;
 
-    if (!descr->d_name)
+    if (!PyDescr_NAME(descr))
       {
       Py_DECREF(descr);
       descr = 0;
@@ -58,23 +64,28 @@ static void PyVTKMethodDescriptor_Delete(PyObject *ob)
 {
   PyMethodDescrObject *descr = (PyMethodDescrObject *)ob;
   PyObject_GC_UnTrack(descr);
-  Py_XDECREF(descr->d_type);
-  Py_XDECREF(descr->d_name);
+  Py_XDECREF(PyDescr_TYPE(descr));
+  Py_XDECREF(PyDescr_NAME(descr));
   PyObject_GC_Del(descr);
 }
 
 static PyObject *PyVTKMethodDescriptor_Repr(PyObject *ob)
 {
   PyMethodDescrObject *descr = (PyMethodDescrObject *)ob;
+#ifdef VTK_PY3K
+  return PyUnicode_FromFormat("<method \'%U\' of \'%s\' objects>",
+    PyDescr_NAME(descr), PyDescr_TYPE(descr)->tp_name);
+#else
   return PyString_FromFormat("<method \'%s\' of \'%s\' objects>",
     PyString_AS_STRING(descr->d_name), descr->d_type->tp_name);
+#endif
 }
 
 static int PyVTKMethodDescriptor_Traverse(
   PyObject *ob, visitproc visit, void *arg)
 {
   PyMethodDescrObject *descr = (PyMethodDescrObject *)ob;
-  Py_VISIT(descr->d_type);
+  Py_VISIT(PyDescr_TYPE(descr));
   return 0;
 }
 
@@ -84,7 +95,7 @@ static PyObject *PyVTKMethodDescriptor_Call(
   PyMethodDescrObject *descr = (PyMethodDescrObject *)ob;
   PyObject *result = 0;
   PyObject *func = PyCFunction_New(
-    descr->d_method, (PyObject *)descr->d_type);
+    descr->d_method, (PyObject *)PyDescr_TYPE(descr));
 
   if (func)
     {
@@ -107,17 +118,25 @@ static PyObject *PyVTKMethodDescriptor_Get(
     return self;
     }
 
-  if (PyObject_TypeCheck(obj, descr->d_type))
+  if (PyObject_TypeCheck(obj, PyDescr_TYPE(descr)))
     {
     // Bind the method to the object
     return PyCFunction_New(descr->d_method, obj);
     }
 
+#ifdef VTK_PY3K
+  PyErr_Format(
+    PyExc_TypeError,
+    "descriptor '%U' for '%s' objects doesn't apply to '%s' object",
+    PyDescr_NAME(descr), PyDescr_TYPE(descr)->tp_name,
+    Py_TYPE(obj)->tp_name);
+#else
   PyErr_Format(
     PyExc_TypeError,
     "descriptor '%s' for '%s' objects doesn't apply to '%s' object",
-    PyString_AS_STRING(descr->d_name), descr->d_type->tp_name,
+    PyString_AS_STRING(PyDescr_NAME(descr)), PyDescr_TYPE(descr)->tp_name,
     Py_TYPE(obj)->tp_name);
+#endif
 
   return NULL;
 }

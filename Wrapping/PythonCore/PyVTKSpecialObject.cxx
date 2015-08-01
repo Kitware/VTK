@@ -64,16 +64,13 @@ PyObject *PyVTKSpecialObject_Repr(PyObject *self)
   PyTypeObject *type = Py_TYPE(self);
   const char *name = Py_TYPE(self)->tp_name;
 
-  PyObject *s = PyString_FromString("(");
-  PyString_ConcatAndDel(&s, PyString_FromString(name));
-  PyString_ConcatAndDel(&s, PyString_FromString(")"));
-
   while (type->tp_base && !type->tp_str)
     {
     type = type->tp_base;
     }
 
   // use str() if available
+  PyObject *s = NULL;
   if (type->tp_str && type->tp_str != (&PyBaseObject_Type)->tp_str)
     {
     PyObject *t = type->tp_str(self);
@@ -84,15 +81,17 @@ PyObject *PyVTKSpecialObject_Repr(PyObject *self)
       }
     else
       {
-      PyString_ConcatAndDel(&s, t);
+#ifdef VTK_PY3K
+      s = PyString_FromFormat("(%.80s)%S", name, t);
+#else
+      s = PyString_FromFormat("(%.80s)%s", name, PyString_AsString(t));
+#endif
       }
     }
   // otherwise just print address of object
   else if (obj->vtk_ptr)
     {
-    char buf[256];
-    sprintf(buf, "%p", obj->vtk_ptr);
-    PyString_ConcatAndDel(&s, PyString_FromString(buf));
+    s = PyString_FromFormat("(%.80s)%p", name, obj->vtk_ptr);
     }
 
   return s;
@@ -133,7 +132,13 @@ PyObject *PyVTKSpecialObject_SequenceString(PyObject *self)
       {
       if (i > 0)
         {
+#ifdef VTK_PY3K
+        PyObject *tmp = PyUnicode_Concat(s, comma);
+        Py_DECREF(s);
+        s = tmp;
+#else
         PyString_Concat(&s, comma);
+#endif
         }
       o = PySequence_GetItem(self, i);
       t = NULL;
@@ -144,7 +149,14 @@ PyObject *PyVTKSpecialObject_SequenceString(PyObject *self)
         }
       if (t)
         {
+#ifdef VTK_PY3K
+        PyObject *tmp = PyUnicode_Concat(s, t);
+        Py_DECREF(s);
+        Py_DECREF(t);
+        s = tmp;
+#else
         PyString_ConcatAndDel(&s, t);
+#endif
         }
       else
         {
@@ -156,8 +168,16 @@ PyObject *PyVTKSpecialObject_SequenceString(PyObject *self)
 
     if (s)
       {
+#ifdef VTK_PY3K
+      PyObject *tmp1 = PyString_FromStringAndSize(&bracket[4], 1);
+      PyObject *tmp2 = PyUnicode_Concat(s, tmp1);
+      Py_DECREF(s);
+      Py_DECREF(tmp1);
+      s = tmp2;
+#else
       PyString_ConcatAndDel(&s,
         PyString_FromStringAndSize(&bracket[4], 1));
+#endif
       }
 
     Py_DECREF(comma);

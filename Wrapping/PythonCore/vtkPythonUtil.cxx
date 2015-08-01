@@ -251,47 +251,53 @@ void vtkPythonUtil::UnRegisterPythonCommand(vtkPythonCommand* cmd)
 
 
 //--------------------------------------------------------------------
-// Concatenate an array of strings into a single string.  The resulting
-// string is allocated via new.  The array of strings must be null-terminated,
+// Concatenate an array of strings into a single python string object.
+// The array of strings must be null-terminated,
 // e.g. static char *strings[] = {"string1", "string2", NULL};
 PyObject *vtkPythonUtil::BuildDocString(const char *docstring[])
 {
   PyObject *result;
-  char *data;
-  size_t i, j, n;
-  size_t *m;
-  size_t total = 0;
 
+  // count the number of segments for the docstring
+  int n;
   for (n = 0; docstring[n] != NULL; n++)
     {
     ;
     }
 
-  m = new size_t[n];
-
-  for (i = 0; i < n; i++)
+  if (n == 0)
     {
-    m[i] = strlen(docstring[i]);
-    total += m[i];
+    result = PyString_FromString("");
     }
-
-  result = PyString_FromStringAndSize(docstring[0], (Py_ssize_t)m[0]);
-
-  if (n > 1)
+  else if (n == 1)
     {
-    _PyString_Resize(&result, (Py_ssize_t)total);
+    result = PyString_FromString(docstring[0]);
     }
-
-  data = PyString_AsString(result);
-
-  j = m[0];
-  for (i = 1; i < n; i++)
+  else
     {
-    strcpy(&data[j], docstring[i]);
-    j += m[i];
-    }
+    Py_ssize_t *m = new Py_ssize_t[n];
 
-  delete [] m;
+    Py_ssize_t l = 0;
+    for (int i = 0; i < n; i++)
+      {
+      m[i] = (Py_ssize_t)strlen(docstring[i]);
+      l += m[i];
+      }
+
+    char *data = new char[l + 1];
+
+    size_t j = 0;
+    for (int i = 0; i < n; i++)
+      {
+      strcpy(&data[j], docstring[i]);
+      j += m[i];
+      }
+
+    result = PyString_FromStringAndSize(data, l);
+
+    delete [] data;
+    delete [] m;
+    }
 
   return result;
 }
@@ -714,11 +720,20 @@ PyObject *vtkPythonUtil::GetObjectFromObject(
   PyObject *arg, const char *type)
 {
   union vtkPythonUtilPointerUnion u;
+  PyObject *tmp = 0;
 
-  if (PyString_Check(arg))
+#ifdef Py_USING_UNICODE
+  if (PyUnicode_Check(arg))
+    {
+    tmp = PyUnicode_AsUTF8String(arg);
+    arg = tmp;
+    }
+#endif
+
+  if (PyBytes_Check(arg))
     {
     vtkObjectBase *ptr;
-    char *ptrText = PyString_AsString(arg);
+    char *ptrText = PyBytes_AsString(arg);
 
     char typeCheck[1024];  // typeCheck is currently not used
 #if defined(VTK_TYPE_USE_LONG_LONG)
@@ -750,6 +765,7 @@ PyObject *vtkPythonUtil::GetObjectFromObject(
       }
     if (i <= 0)
       {
+      Py_XDECREF(tmp);
       PyErr_SetString(PyExc_ValueError, "could not extract hexidecimal address from argument string");
       return NULL;
       }
@@ -761,13 +777,16 @@ PyObject *vtkPythonUtil::GetObjectFromObject(
       char error_string[2048];
       sprintf(error_string,"method requires a %.500s address, a %.500s address was provided.",
               type, ptr->GetClassName());
+      Py_XDECREF(tmp);
       PyErr_SetString(PyExc_TypeError, error_string);
       return NULL;
       }
 
+    Py_XDECREF(tmp);
     return vtkPythonUtil::GetObjectFromPointer(ptr);
     }
 
+  Py_XDECREF(tmp);
   PyErr_SetString(PyExc_TypeError, "method requires a string argument");
   return NULL;
 }
@@ -1033,9 +1052,9 @@ void *vtkPythonUtil::UnmanglePointer(char *ptrText, int *len, const char *type)
 }
 
 //--------------------------------------------------------------------
-long vtkPythonUtil::VariantHash(const vtkVariant *v)
+Py_hash_t vtkPythonUtil::VariantHash(const vtkVariant *v)
 {
-  long h = -1;
+  Py_hash_t h = -1;
 
   // This uses the same rules as the vtkVariant "==" operator.
   // All types except for vtkObject are converted to strings.
