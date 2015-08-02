@@ -53,6 +53,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestStaticCellLinks.cxx
   TestStructuredData.cxx
   TestDataObjectTypes.cxx
+  TestDataSetAttributes.cxx
   TestPolyDataRemoveDeletedCells.cxx
   UnitTestCells.cxx
   UnitTestImplicitDataSet.cxx
