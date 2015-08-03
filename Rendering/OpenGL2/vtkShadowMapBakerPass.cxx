@@ -367,8 +367,11 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
 #ifdef VTK_SHADOW_MAP_BAKER_PASS_DEBUG
       cout << "update the shadow maps" << endl;
 #endif
+
+#ifdef GL_DRAW_BUFFER
       GLint savedDrawBuffer;
       glGetIntegerv(GL_DRAW_BUFFER,&savedDrawBuffer);
+#endif
 
       realCamera->Register(this);
 
@@ -544,8 +547,9 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
 
       // back to the original frame buffer.
       this->FrameBufferObject->UnBind();
+#ifdef GL_DRAW_BUFFER
       glDrawBuffer(static_cast<GLenum>(savedDrawBuffer));
-
+#endif
       // Restore real camera.
       r->SetActiveCamera(realCamera);
       realCamera->UnRegister(this);
