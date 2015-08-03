@@ -689,17 +689,7 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
     DescribePixelFormat(hDC, currentPixelFormat,sizeof(pfd2), &pfd2);
     if (!(pfd2.dwFlags & PFD_SUPPORT_OPENGL))
       {
-#ifdef UNICODE
-      MessageBox(WindowFromDC(hDC),
-                 L"Invalid pixel format, no OpenGL support",
-                 L"Error",
-                 MB_ICONERROR | MB_OK);
-#else
-      MessageBox(WindowFromDC(hDC),
-                 "Invalid pixel format, no OpenGL support",
-                 "Error",
-                 MB_ICONERROR | MB_OK);
-#endif
+      vtkDebugWithObjectMacro(this,"DescribePixelFormat failed; either invalid format or illegal multiple Win32 OpenGL initialize calls.");
       if (this->HasObserver(vtkCommand::ExitEvent))
         {
         this->InvokeEvent(vtkCommand::ExitEvent, NULL);
@@ -707,7 +697,7 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
         }
       else
         {
-        exit(1);
+        return;
         }
       }
     }

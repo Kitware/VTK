@@ -266,12 +266,12 @@ bool vtkOpenGLVertexArrayObject::AddAttributeArrayWithDivisor(vtkShaderProgram *
                                           bool normalize,
                                           int divisor, bool isMatrix)
 {
-  if(!buffer || !program)
+  if(!program)
     return false;
 
   // Check the program is bound, and the buffer is valid.
   if (!program->isBound() || buffer->GetHandle() == 0 ||
-      buffer->GetType() != vtkOpenGLBufferObject::ArrayBuffer)
+                             buffer->GetType() != vtkOpenGLBufferObject::ArrayBuffer )
     {
     return false;
     }
