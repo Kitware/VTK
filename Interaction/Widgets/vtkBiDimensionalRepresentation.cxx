@@ -12,25 +12,25 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkActor2D.h"
 #include "vtkBiDimensionalRepresentation.h"
-#include "vtkHandleRepresentation.h"
-#include "vtkCoordinate.h"
-#include "vtkRenderer.h"
-#include "vtkMath.h"
-#include "vtkLine.h"
-#include "vtkTextProperty.h"
-#include "vtkWindow.h"
 #include "vtkCellArray.h"
+#include "vtkCommand.h"
+#include "vtkCoordinate.h"
+#include "vtkInteractorObserver.h"
+#include "vtkHandleRepresentation.h"
+#include "vtkLine.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointHandleRepresentation2D.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper2D.h"
-#include "vtkActor2D.h"
+#include "vtkProperty2D.h"
+#include "vtkRenderer.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
-#include "vtkProperty2D.h"
-#include "vtkPointHandleRepresentation2D.h"
-#include "vtkObjectFactory.h"
-#include "vtkInteractorObserver.h"
+#include "vtkWindow.h"
 
 #include <vtksys/ios/sstream>
 
@@ -317,10 +317,13 @@ void vtkBiDimensionalRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Label Position: (" << labelPosition[0]
     << ", " << labelPosition[1] << "," << labelPosition[2] << ")\n";
 
-  double worldLabelPosition[3] = {0.0, 0.0, 0.0};
-  this->GetWorldLabelPosition(worldLabelPosition);
-  os << indent << "World Label Position: (" << worldLabelPosition[0]
-    << ", " << worldLabelPosition[1] << "," << worldLabelPosition[2] << ")\n";
+  if (this->Renderer)
+  {
+    double worldLabelPosition[3] = {0.0, 0.0, 0.0};
+    this->GetWorldLabelPosition(worldLabelPosition);
+    os << indent << "World Label Position: (" << worldLabelPosition[0]
+      << ", " << worldLabelPosition[1] << "," << worldLabelPosition[2] << ")\n";
+  }
 
   os << indent << "Label Text: " << this->GetLabelText() << "\n";
   os << indent << "Label Format: ";
