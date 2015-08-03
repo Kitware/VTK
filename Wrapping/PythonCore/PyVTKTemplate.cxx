@@ -48,8 +48,18 @@ static PyObject *PyVTKTemplate_HasKey(PyObject *ob, PyObject *args)
   PyObject *key = NULL;
   if (PyArg_ParseTuple(args, "O:has_key", &key))
     {
-    ob = ((PyVTKTemplate *)ob)->dict;
-    return PyObject_CallMethod(ob, (char *)"has_key", (char *)"(O)", key);
+    PyObject *rval = PyDict_GetItem(((PyVTKTemplate *)ob)->dict, key);
+    if (rval)
+      {
+      Py_DECREF(rval);
+      Py_INCREF(Py_True);
+      return Py_True;
+      }
+    else if (!PyErr_Occurred())
+      {
+      Py_INCREF(Py_False);
+      return Py_False;
+      }
     }
   return NULL;
 }
@@ -58,8 +68,7 @@ static PyObject *PyVTKTemplate_Keys(PyObject *ob, PyObject *args)
 {
   if (PyArg_ParseTuple(args, ":keys"))
     {
-    ob = ((PyVTKTemplate *)ob)->dict;
-    return PyObject_CallMethod(ob, (char *)"keys", (char *)"()");
+    return PyDict_Keys(((PyVTKTemplate *)ob)->dict);
     }
   return NULL;
 }
@@ -68,8 +77,7 @@ static PyObject *PyVTKTemplate_Values(PyObject *ob, PyObject *args)
 {
   if (PyArg_ParseTuple(args, ":values"))
     {
-    ob = ((PyVTKTemplate *)ob)->dict;
-    return PyObject_CallMethod(ob, (char *)"values", (char *)"()");
+    return PyDict_Values(((PyVTKTemplate *)ob)->dict);
     }
   return NULL;
 }
@@ -78,8 +86,7 @@ static PyObject *PyVTKTemplate_Items(PyObject *ob, PyObject *args)
 {
   if (PyArg_ParseTuple(args, ":items"))
     {
-    ob = ((PyVTKTemplate *)ob)->dict;
-    return PyObject_CallMethod(ob, (char *)"items", (char *)"()");
+    return PyDict_Items(((PyVTKTemplate *)ob)->dict);
     }
   return NULL;
 }
@@ -88,10 +95,18 @@ static PyObject *PyVTKTemplate_Get(PyObject *ob, PyObject *args)
 {
   PyObject *key = NULL;
   PyObject *def = Py_None;
-  if (PyArg_ParseTuple(args, "O|O:get"))
+  if (PyArg_ParseTuple(args, "O|O:get", &key, &def))
     {
-    ob = ((PyVTKTemplate *)ob)->dict;
-    return PyObject_CallMethod(ob, (char *)"get", (char *)"(OO)", key, def);
+    PyObject *rval = PyDict_GetItem(((PyVTKTemplate *)ob)->dict, key);
+    if (rval)
+      {
+      return rval;
+      }
+    else if (!PyErr_Occurred())
+      {
+      Py_INCREF(def);
+      return def;
+      }
     }
   return NULL;
 }
@@ -100,8 +115,7 @@ static PyObject *PyVTKTemplate_Copy(PyObject *ob, PyObject *args)
 {
   if (PyArg_ParseTuple(args, ":copy"))
     {
-    ob = ((PyVTKTemplate *)ob)->dict;
-    return PyObject_CallMethod(ob, (char *)"copy", NULL);
+    return PyDict_Copy(((PyVTKTemplate *)ob)->dict);
     }
   return NULL;
 }
