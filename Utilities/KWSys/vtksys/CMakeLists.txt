@@ -88,6 +88,9 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6.3 FATAL_ERROR)
 IF(POLICY CMP0025)
   CMAKE_POLICY(SET CMP0025 NEW)
 ENDIF()
+IF(POLICY CMP0056)
+  CMAKE_POLICY(SET CMP0056 NEW)
+ENDIF()
 
 #-----------------------------------------------------------------------------
 # If a namespace is not specified, use "kwsys" and enable testing.
@@ -783,6 +786,15 @@ IF(KWSYS_USE_SystemInformation)
     SET_PROPERTY(SOURCE SystemInformation.cxx APPEND PROPERTY
       COMPILE_DEFINITIONS KWSYS_BUILD_SHARED=1)
   ENDIF()
+
+  IF(UNIX AND NOT CYGWIN)
+    KWSYS_PLATFORM_CXX_TEST(KWSYS_CXX_HAS_GETLOADAVG
+      "Checking whether CXX compiler has getloadavg" DIRECT)
+    IF(KWSYS_CXX_HAS_GETLOADAVG)
+      SET_PROPERTY(SOURCE SystemInformation.cxx APPEND PROPERTY
+        COMPILE_DEFINITIONS KWSYS_CXX_HAS_GETLOADAVG=1)
+    ENDIF()
+  ENDIF()
 ENDIF()
 
 #-----------------------------------------------------------------------------
@@ -1225,7 +1237,7 @@ IF(KWSYS_STANDALONE OR CMake_SOURCE_DIR)
     IF(NOT CYGWIN)
       SET(KWSYS_TEST_PROCESS_7 7)
     ENDIF()
-    FOREACH(n 1 2 3 4 5 6 ${KWSYS_TEST_PROCESS_7})
+    FOREACH(n 1 2 3 4 5 6 ${KWSYS_TEST_PROCESS_7} 9 10)
       ADD_TEST(kwsys.testProcess-${n} ${EXEC_DIR}/${KWSYS_NAMESPACE}TestProcess ${n})
       SET_PROPERTY(TEST kwsys.testProcess-${n} PROPERTY LABELS ${KWSYS_LABELS_TEST})
       SET_TESTS_PROPERTIES(kwsys.testProcess-${n} PROPERTIES TIMEOUT 120)
@@ -1257,6 +1269,10 @@ IF(KWSYS_STANDALONE OR CMake_SOURCE_DIR)
       SET_TESTS_PROPERTIES(kwsys.testFail PROPERTIES MEASUREMENT "Some Key=Some Value")
       MESSAGE(STATUS "GET_TEST_PROPERTY returned: ${wfv}")
     ENDIF()
+
+    # Set up ctest custom configuration file.
+    CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/CTestCustom.cmake.in
+                   ${PROJECT_BINARY_DIR}/CTestCustom.cmake @ONLY)
 
     # Suppress known consistent failures on buggy systems.
     IF(KWSYS_TEST_BOGUS_FAILURES)
