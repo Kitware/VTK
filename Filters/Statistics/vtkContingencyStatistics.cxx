@@ -114,7 +114,7 @@ void ContingencyStatisticsCalculateRow<vtkStdString, vtkStdString>(vtkAbstractAr
 {
   vtkIdType nRow = valsX->GetNumberOfTuples ();
   // Calculate contingency table
-  vtksys_stl::map<vtkStdString,StringCounts> contingencyTable;
+  std::map<vtkStdString,StringCounts> contingencyTable;
   for ( vtkIdType r = 0; r < nRow; ++ r )
     {
     ++ contingencyTable
@@ -124,7 +124,7 @@ void ContingencyStatisticsCalculateRow<vtkStdString, vtkStdString>(vtkAbstractAr
 
   // Store contingency table
   int row = contingencyTab->GetNumberOfRows ();
-  for ( vtksys_stl::map<vtkStdString,StringCounts>::iterator mit = contingencyTable.begin();
+  for ( std::map<vtkStdString,StringCounts>::iterator mit = contingencyTable.begin();
         mit != contingencyTable.end(); ++ mit )
     {
     for ( StringCounts::iterator dit = mit->second.begin(); dit != mit->second.end(); ++ dit )
@@ -182,7 +182,7 @@ void ContingencyStatisticsSetupPDFBlocks (vtkMultiBlockDataSet* inMeta,
                                           vtkStringArray* varX,
                                           vtkStringArray* varY,
                                           vtkTable* contingencyTab,
-                                          vtksys_stl::map<vtkStdString,T>& marginalCounts,
+                                          std::map<vtkStdString,T>& marginalCounts,
                                           Entropies* H,
                                           int nEntropy,
                                           vtkStdString* derivedNames,
@@ -220,14 +220,14 @@ void ContingencyStatisticsSetupPDFBlocks (vtkMultiBlockDataSet* inMeta,
   vtkVariantArray* row = vtkVariantArray::New();
   row->SetNumberOfValues( 3 );
 
-  typedef vtksys_stl::map<typename T::key_type,double> PDF;
+  typedef std::map<typename T::key_type,double> PDF;
 
   // Add marginal PDF tables as new blocks to the meta output starting at block nBlock
   // NB: block nBlock is kept for information entropy
   double n = contingencyTab->GetValueByName( 0, "Cardinality" ).ToDouble ();
   double inv_n = 1. / n;
-  vtksys_stl::map<vtkStdString,PDF> marginalPDFs;
-  for ( typename vtksys_stl::map<vtkStdString,T>::iterator sit = marginalCounts.begin();
+  std::map<vtkStdString,PDF> marginalPDFs;
+  for ( typename std::map<vtkStdString,T>::iterator sit = marginalCounts.begin();
         sit != marginalCounts.end(); ++ sit, ++ nBlocks )
     {
     vtkTable* marginalTab = vtkTable::New();
@@ -366,10 +366,10 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
     }
 
   bool useDoubles = true;
-  for ( vtksys_stl::set<vtksys_stl::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
+  for ( std::set<std::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
         rit != this->Internals->Requests.end(); ++ rit )
     {
-    vtksys_stl::set<vtkStdString>::const_iterator it = rit->begin();
+    std::set<vtkStdString>::const_iterator it = rit->begin();
     vtkStdString colX = *it;
     if ( ! inData->GetColumnByName( colX ) )
       {
@@ -604,7 +604,7 @@ void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
   std::map<vtkIdType,vtkIdType> cardinalities;
 
   // Calculate marginal counts (marginal PDFs are calculated at storage time to avoid redundant summations)
-  std::map<vtkStdString,vtksys_stl::pair<vtkStdString,vtkStdString> > marginalToPair;
+  std::map<vtkStdString,std::pair<vtkStdString,vtkStdString> > marginalToPair;
   std::map<vtkStdString,StringCounts> marginalCounts;
   std::map<vtkStdString,DoubleCounts> marginalDCounts;
   vtkStdString x, y, c1, c2;
@@ -1152,21 +1152,21 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
 template<typename T>
 class BivariateContingenciesAndInformationFunctor : public vtkStatisticsAlgorithm::AssessFunctor
 {
-  typedef vtksys_stl::map<double,double> PDF;
+  typedef std::map<double,double> PDF;
 public:
   vtkDataArray* DataX;
   vtkDataArray* DataY;
-  vtksys_stl::map<double,PDF> PdfX_Y;
-  vtksys_stl::map<double,PDF> PdfYcX;
-  vtksys_stl::map<double,PDF> PdfXcY;
-  vtksys_stl::map<double,PDF> PmiX_Y;
+  std::map<double,PDF> PdfX_Y;
+  std::map<double,PDF> PdfYcX;
+  std::map<double,PDF> PdfXcY;
+  std::map<double,PDF> PmiX_Y;
 
   BivariateContingenciesAndInformationFunctor( vtkAbstractArray* valsX,
                                                vtkAbstractArray* valsY,
-                                               vtksys_stl::map<double,PDF> pdfX_Y,
-                                               vtksys_stl::map<double,PDF> pdfYcX,
-                                               vtksys_stl::map<double,PDF> pdfXcY,
-                                               vtksys_stl::map<double,PDF> pmiX_Y )
+                                               std::map<double,PDF> pdfX_Y,
+                                               std::map<double,PDF> pdfYcX,
+                                               std::map<double,PDF> pdfXcY,
+                                               std::map<double,PDF> pmiX_Y )
   {
     this->DataX = vtkDataArray::SafeDownCast (valsX);
     this->DataY = vtkDataArray::SafeDownCast (valsY);
@@ -1193,7 +1193,7 @@ public:
 template<>
 class BivariateContingenciesAndInformationFunctor<vtkStdString> : public vtkStatisticsAlgorithm::AssessFunctor
 {
-  typedef vtksys_stl::map<vtkStdString,double> PDF;
+  typedef std::map<vtkStdString,double> PDF;
 public:
   vtkAbstractArray* DataX;
   vtkAbstractArray* DataY;
@@ -1265,11 +1265,11 @@ double vtkContingencyStatisticsSelectAssessFunctor(vtkTable* contingencyTab,
       return 0;
     }
   // Create parameter maps
-  typedef vtksys_stl::map<double,double> PDF;
-  vtksys_stl::map<double,PDF> pdfX_Y;
-  vtksys_stl::map<double,PDF> pdfYcX;
-  vtksys_stl::map<double,PDF> pdfXcY;
-  vtksys_stl::map<double,PDF> pmiX_Y;
+  typedef std::map<double,double> PDF;
+  std::map<double,PDF> pdfX_Y;
+  std::map<double,PDF> pdfYcX;
+  std::map<double,PDF> pdfXcY;
+  std::map<double,PDF> pmiX_Y;
 
   // Sanity check: joint CDF
   double cdf = 0.;
