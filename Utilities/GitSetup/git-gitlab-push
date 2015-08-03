@@ -214,7 +214,7 @@ The topic has been pushed to your fork in GitLab.  Visit
 
 to see the files.  Visit
 
-  '"$site/$username/$project_path/merge_requests/new"'
+  '"$site/$username/$project_path/merge_requests/new?merge_request[source_branch]=$topic"'
 
 to create a Merge Request if there is not one already.'
 fi
