@@ -4394,6 +4394,8 @@ int vtkExodusIIReaderPrivate::SetUpEmptyGrid( vtkMultiBlockDataSet* output )
     mbds = vtkMultiBlockDataSet::New();
     mbds->SetNumberOfBlocks( numObj );
     output->SetBlock( conntypidx, mbds );
+    output->GetMetaData(conntypidx)->Set(vtkCompositeDataSet::NAME(),
+      conn_types_names[conntypidx]);
     mbds->FastDelete();
     int obj;
     int sortIdx;
@@ -5335,7 +5337,6 @@ int vtkExodusIIReader::RequestData(
       }
     }
 
-  //cout << "Requesting step " << this->TimeStep << " for output " << output << "\n";
   this->Metadata->RequestData( this->TimeStep, output );
 
   return 1;

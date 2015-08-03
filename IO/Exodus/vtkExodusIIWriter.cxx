@@ -450,7 +450,7 @@ int vtkExodusIIWriter::FlattenHierarchy (vtkDataObject* input, bool& changed)
          iter->GoToNextItem ())
       {
       const char *name = iter->GetCurrentMetaData()->Get (vtkCompositeDataSet::NAME());
-      if (strstr (name, "Sets") != 0)
+      if (name != 0 && strstr (name, "Sets") != 0)
         {
         continue;
         }
@@ -1460,6 +1460,8 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
     iter.TakeReference (castObj->NewTreeIterator ());
     iter->VisitOnlyLeavesOff ();
     iter->TraverseSubTreeOn ();
+    int node_id = 0;
+    int side_id = 0;
     for (iter->InitTraversal ();
          !iter->IsDoneWithTraversal ();
          iter->GoToNextItem ())
@@ -1467,16 +1469,20 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
       const char *name = iter->GetCurrentMetaData()->Get (vtkCompositeDataSet::NAME());
       if (iter->GetCurrentDataObject ()->IsA ("vtkMultiBlockDataSet"))
         {
-        isASideSet = (strncmp (name, "Side Sets", 9) == 0);
-        isANodeSet = (strncmp (name, "Node Sets", 9) == 0);
+        isASideSet = (name != 0 && strncmp (name, "Side Sets", 9) == 0);
+        isANodeSet = (name != 0 && strncmp (name, "Node Sets", 9) == 0);
         }
       else if (isANodeSet)
         {
         numNodeSets ++;
-        const char* id_str = strstr (name, "ID:");
-        id_str += 3;
-        int id = atoi (id_str);
-        nodeSetIds->InsertNextTuple1 (id);
+        const char* id_str = name != 0 ? strstr (name, "ID:") : 0;
+        if (id_str != 0)
+          {
+          id_str += 3;
+          node_id = atoi (id_str);
+          }
+        nodeSetIds->InsertNextTuple1 (node_id);
+        node_id ++; // Make sure the node_id is unique if id_str is invalid
         vtkUnstructuredGrid* grid = vtkUnstructuredGrid::SafeDownCast (iter->GetCurrentDataObject ());
         vtkFieldData* field = grid->GetPointData ();
         vtkIdTypeArray* globalIds = vtkIdTypeArray::SafeDownCast (field ? field->GetArray ("GlobalNodeId") : 0);
@@ -1499,18 +1505,22 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
           nodeSetSizes->InsertNextTuple1 (size);
           sumNodes += size;
           }
-        else
-          {
-          vtkErrorMacro ("We have a node set, but it doesn't have GlobalNodeIDs");
-          }
+        // else
+          // {
+          // vtkErrorMacro ("We have a node set, but it doesn't have GlobalNodeIDs");
+          // }
         }
       else if (isASideSet)
         {
         numSideSets ++;
-        const char* id_str = strstr (name, "ID:");
-        id_str += 3;
-        int id = atoi (id_str);
-        sideSetIds->InsertNextTuple1 (id);
+        const char* id_str = name != 0 ? strstr (name, "ID:") : 0;
+        if (id_str != 0)
+          {
+          id_str += 3;
+          side_id = atoi (id_str);
+          }
+        sideSetIds->InsertNextTuple1 (side_id);
+        side_id ++; // Make sure the side_id is unique if id_str is invalid
         vtkUnstructuredGrid* grid = vtkUnstructuredGrid::SafeDownCast (iter->GetCurrentDataObject ());
         vtkFieldData* field = grid->GetCellData ();
         vtkIdTypeArray* sourceElement = vtkIdTypeArray::SafeDownCast (field ? field->GetArray ("SourceElementId") : 0);
@@ -1544,10 +1554,10 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
           sideSetSizes->InsertNextTuple1 (cells);
           sumSides += cells;
           }
-        else
-          {
-          vtkErrorMacro ("We have a side set, but it doesn't have SourceElementId or SourceElementSide");
-          }
+        // else
+          // {
+          // vtkErrorMacro ("We have a side set, but it doesn't have SourceElementId or SourceElementSide");
+          // }
         }
       }
 
