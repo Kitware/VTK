@@ -206,14 +206,14 @@ int vtkXMLPMultiBlockDataWriter::WriteComposite(
        iter->GoToNextItem(), indexCounter++)
     {
     vtkDataObject* curDO = iter->GetCurrentDataObject();
+    const char *name =
+      iter->GetCurrentMetaData()->Get(vtkCompositeDataSet::NAME());
+
     if (curDO && curDO->IsA("vtkCompositeDataSet"))
       {
       // if node is a supported composite dataset
       // note in structure file and recurse.
       vtkXMLDataElement* tag = vtkXMLDataElement::New();
-
-      const char *name =
-        iter->GetCurrentMetaData()->Get(vtkCompositeDataSet::NAME());
 
       if (curDO->IsA("vtkMultiPieceDataSet"))
         {
@@ -252,6 +252,10 @@ int vtkXMLPMultiBlockDataWriter::WriteComposite(
       // if this piece is on different processes.
       datasetXML->SetName("DataSet");
       datasetXML->SetIntAttribute("index", indexCounter);
+      if (name)
+        {
+        datasetXML->SetAttribute("name", name);
+        }
       if (this->ParallelWriteNonCompositeData(
             curDO, datasetXML, currentFileIndex) )
         {
