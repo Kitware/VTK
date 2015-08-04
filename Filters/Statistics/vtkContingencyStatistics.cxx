@@ -24,6 +24,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStatisticsAlgorithmPrivate.h"
 
 #include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
+#include "vtkLongArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -41,17 +43,23 @@ PURPOSE.  See the above copyright notice for more information.
 
 typedef std::map<vtkStdString,vtkIdType> StringCounts;
 typedef std::map<double,vtkIdType> DoubleCounts;
+typedef std::map<long,vtkIdType> LongCounts;
 typedef std::map<vtkIdType,double> Entropies;
 
 vtkObjectFactoryNewMacro(vtkContingencyStatistics)
 
+typedef enum {
+  None,
+  Double,
+  Integer,
+} Specialization;
 
 template<typename TypeA, typename TypeB>
 void ContingencyStatisticsCalculateRow (vtkAbstractArray* valsX,
                                         vtkAbstractArray* valsY,
                                         vtkTable* contingencyTab,
                                         vtkIdType refRow,
-                                        bool useDoubles)
+                                        Specialization specialization)
 {
   vtkDataArray* dataX = vtkDataArray::SafeDownCast (valsX);
   vtkDataArray* dataY = vtkDataArray::SafeDownCast (valsY);
@@ -78,7 +86,7 @@ void ContingencyStatisticsCalculateRow (vtkAbstractArray* valsX,
   int row = contingencyTab->GetNumberOfRows ();
   for ( typename Table::iterator mit = contingencyTable.begin(); mit != contingencyTable.end(); ++ mit )
     {
-    if (!useDoubles)
+    if (specialization == None)
       {
       v1 = mit->first;
       v1str = v1.ToString();
@@ -88,7 +96,7 @@ void ContingencyStatisticsCalculateRow (vtkAbstractArray* valsX,
       contingencyTab->InsertNextBlankRow( );
 
       contingencyTab->SetValue ( row, 0, refRow );
-      if (!useDoubles)
+      if (specialization == None)
         {
         contingencyTab->SetValue ( row, 1, v1str );
         v2 = dit->first;
@@ -110,7 +118,7 @@ void ContingencyStatisticsCalculateRow<vtkStdString, vtkStdString>(vtkAbstractAr
                                                                    vtkAbstractArray* valsY,
                                                                    vtkTable* contingencyTab,
                                                                    vtkIdType refRow,
-                                                                   bool useDoubles)
+                                                                   Specialization specialization)
 {
   vtkIdType nRow = valsX->GetNumberOfTuples ();
   // Calculate contingency table
@@ -145,7 +153,7 @@ void ContingencyStatisticsArrayHelper (vtkAbstractArray* valsX,
                                        vtkAbstractArray* valsY,
                                        vtkTable* contingencyTab,
                                        vtkIdType refRow,
-                                       bool useDoubles)
+                                       Specialization specialization)
 {
   vtkDataArray* dataY = vtkDataArray::SafeDownCast (valsY);
   if (dataY == 0)
@@ -154,25 +162,25 @@ void ContingencyStatisticsArrayHelper (vtkAbstractArray* valsX,
     }
   switch (dataY->GetDataType ())
     {
-    case VTK_DOUBLE: ContingencyStatisticsCalculateRow<TypeA,double>(valsX,valsY,contingencyTab,refRow,useDoubles); break;
-    case VTK_FLOAT: ContingencyStatisticsCalculateRow<TypeA,float>(valsX,valsY,contingencyTab,refRow,useDoubles); break;
-    case VTK_ID_TYPE: ContingencyStatisticsCalculateRow<TypeA,vtkIdType>(valsX,valsY,contingencyTab,refRow,useDoubles); break;
-    case VTK_LONG: ContingencyStatisticsCalculateRow<TypeA,long>(valsX,valsY,contingencyTab,refRow,useDoubles); break;
-    case VTK_UNSIGNED_LONG: ContingencyStatisticsCalculateRow<TypeA,unsigned long>(valsX,valsY,contingencyTab,refRow,useDoubles); break;
-    case VTK_INT: ContingencyStatisticsCalculateRow<TypeA,int>(valsX,valsY,contingencyTab,refRow,useDoubles); break;
-    case VTK_UNSIGNED_INT: ContingencyStatisticsCalculateRow<TypeA,unsigned int>(valsX,valsY,contingencyTab,refRow,useDoubles); break;
-    case VTK_SHORT: ContingencyStatisticsCalculateRow<TypeA,short>(valsX,valsY,contingencyTab,refRow,useDoubles); break;
-    case VTK_UNSIGNED_SHORT: ContingencyStatisticsCalculateRow<TypeA,unsigned short>(valsX,valsY,contingencyTab,refRow,useDoubles); break;
-    case VTK_CHAR: ContingencyStatisticsCalculateRow<TypeA,char>(valsX,valsY,contingencyTab,refRow,useDoubles); break;
-    case VTK_SIGNED_CHAR: ContingencyStatisticsCalculateRow<TypeA,signed char>(valsX,valsY,contingencyTab,refRow,useDoubles); break;
-    case VTK_UNSIGNED_CHAR: ContingencyStatisticsCalculateRow<TypeA,unsigned char>(valsX,valsY,contingencyTab,refRow,useDoubles); break;
+    case VTK_DOUBLE: ContingencyStatisticsCalculateRow<TypeA,double>(valsX,valsY,contingencyTab,refRow,specialization); break;
+    case VTK_FLOAT: ContingencyStatisticsCalculateRow<TypeA,float>(valsX,valsY,contingencyTab,refRow,specialization); break;
+    case VTK_ID_TYPE: ContingencyStatisticsCalculateRow<TypeA,vtkIdType>(valsX,valsY,contingencyTab,refRow,specialization); break;
+    case VTK_LONG: ContingencyStatisticsCalculateRow<TypeA,long>(valsX,valsY,contingencyTab,refRow,specialization); break;
+    case VTK_UNSIGNED_LONG: ContingencyStatisticsCalculateRow<TypeA,unsigned long>(valsX,valsY,contingencyTab,refRow,specialization); break;
+    case VTK_INT: ContingencyStatisticsCalculateRow<TypeA,int>(valsX,valsY,contingencyTab,refRow,specialization); break;
+    case VTK_UNSIGNED_INT: ContingencyStatisticsCalculateRow<TypeA,unsigned int>(valsX,valsY,contingencyTab,refRow,specialization); break;
+    case VTK_SHORT: ContingencyStatisticsCalculateRow<TypeA,short>(valsX,valsY,contingencyTab,refRow,specialization); break;
+    case VTK_UNSIGNED_SHORT: ContingencyStatisticsCalculateRow<TypeA,unsigned short>(valsX,valsY,contingencyTab,refRow,specialization); break;
+    case VTK_CHAR: ContingencyStatisticsCalculateRow<TypeA,char>(valsX,valsY,contingencyTab,refRow,specialization); break;
+    case VTK_SIGNED_CHAR: ContingencyStatisticsCalculateRow<TypeA,signed char>(valsX,valsY,contingencyTab,refRow,specialization); break;
+    case VTK_UNSIGNED_CHAR: ContingencyStatisticsCalculateRow<TypeA,unsigned char>(valsX,valsY,contingencyTab,refRow,specialization); break;
 #if defined(VTK_TYPE_USE_LONG_LONG)
-    case VTK_LONG_LONG: ContingencyStatisticsCalculateRow<TypeA,long long>(valsX,valsY,contingencyTab,refRow,useDoubles); break;
-    case VTK_UNSIGNED_LONG_LONG: ContingencyStatisticsCalculateRow<TypeA,unsigned long long>(valsX,valsY,contingencyTab,refRow,useDoubles); break;
+    case VTK_LONG_LONG: ContingencyStatisticsCalculateRow<TypeA,long long>(valsX,valsY,contingencyTab,refRow,specialization); break;
+    case VTK_UNSIGNED_LONG_LONG: ContingencyStatisticsCalculateRow<TypeA,unsigned long long>(valsX,valsY,contingencyTab,refRow,specialization); break;
 #endif
 #if defined(VTK_TYPE_USE___INT64)
-    case VTK___INT64: ContingencyStatisticsCalculateRow<TypeA,__int64>(valsX,valsY,contingencyTab,refRow,useDoubles); break;
-    case VTK_UNSIGNED__INT64: ContingencyStatisticsCalculateRow<TypeA,unsigned __int64>(valsX,valsY,contingencyTab,refRow,useDoubles); break;
+    case VTK___INT64: ContingencyStatisticsCalculateRow<TypeA,__int64>(valsX,valsY,contingencyTab,refRow,specialization); break;
+    case VTK_UNSIGNED__INT64: ContingencyStatisticsCalculateRow<TypeA,unsigned __int64>(valsX,valsY,contingencyTab,refRow,specialization); break;
 #endif
     }
 }
@@ -188,8 +196,12 @@ void ContingencyStatisticsSetupPDFBlocks (vtkMultiBlockDataSet* inMeta,
                                           vtkStdString* derivedNames,
                                           int nDerivedVals)
 {
+  // vType1 is the placeholder for the first conditional
   typedef typename std::conditional<
-            std::is_same<double, typename T::key_type>::value, vtkDoubleArray, vtkStringArray>::type vType;
+            std::is_same<double, typename T::key_type>::value, vtkDoubleArray, vtkStringArray>::type vType1;
+  // vType is the final result type we want to use.  Nested conditionals don't appear to work.
+  typedef typename std::conditional<
+            std::is_same<long, typename T::key_type>::value, vtkLongArray, vType1>::type vType;
 
   vtkIdTypeArray* keys = vtkIdTypeArray::SafeDownCast( contingencyTab->GetColumnByName( "Key" ) );
   vType* valx = vType::SafeDownCast( contingencyTab->GetColumnByName( "x" ) );
@@ -365,7 +377,7 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
     return;
     }
 
-  bool useDoubles = true;
+  Specialization specialization = Integer;
   for ( std::set<std::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
         rit != this->Internals->Requests.end(); ++ rit )
     {
@@ -394,10 +406,18 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
 
     if (dataX == 0 || dataY == 0)
       {
-      useDoubles = false;
+      specialization = None;
       break;
       }
+
+    if (vtkDoubleArray::SafeDownCast (dataX) || vtkFloatArray::SafeDownCast (dataX) ||
+        vtkDoubleArray::SafeDownCast (dataY) || vtkFloatArray::SafeDownCast (dataY))
+      {
+      specialization = Double;
+      }
     }
+
+  cerr << "USING SPECIALIZATION " << specialization << endl;
 
   // Summary table: assigns a unique key to each (variable X,variable Y) pair
   vtkTable* summaryTab = vtkTable::New();
@@ -421,16 +441,20 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
   idTypeCol->Delete();
 
   vtkAbstractArray* abstractCol;
-  if (useDoubles)
+  if (specialization == Double)
     abstractCol = vtkDoubleArray::New ();
+  else if (specialization == Integer)
+    abstractCol = vtkLongArray::New ();
   else
     abstractCol = vtkStringArray::New ();
   abstractCol->SetName( "x" );
   contingencyTab->AddColumn( abstractCol );
   abstractCol->Delete();
 
-  if (useDoubles)
+  if (specialization == Double)
     abstractCol = vtkDoubleArray::New ();
+  else if (specialization == Integer)
+    abstractCol = vtkLongArray::New ();
   else
     abstractCol = vtkStringArray::New ();
   abstractCol->SetName( "y" );
@@ -455,7 +479,7 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
   vtkStdString zString = vtkStdString( "" );
   contingencyTab->InsertNextBlankRow( );
   contingencyTab->SetValue ( 0, 0, -1 );
-  if (!useDoubles)
+  if (specialization == None)
     {
     contingencyTab->SetValue ( 0, 1, zString );
     contingencyTab->SetValue ( 0, 2, zString );
@@ -509,12 +533,12 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
       {
       switch (dataX->GetDataType ())
         {
-        vtkTemplateMacro (ContingencyStatisticsArrayHelper<VTK_TT> (valsX, valsY, contingencyTab, summaryRow, useDoubles));
+        vtkTemplateMacro (ContingencyStatisticsArrayHelper<VTK_TT> (valsX, valsY, contingencyTab, summaryRow, specialization));
         }
       }
     else
       {
-      ContingencyStatisticsCalculateRow<vtkStdString,vtkStdString> (valsX, valsY, contingencyTab, summaryRow, false);
+      ContingencyStatisticsCalculateRow<vtkStdString,vtkStdString> (valsX, valsY, contingencyTab, summaryRow, specialization);
       }
     }
 
@@ -534,6 +558,7 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
 // ----------------------------------------------------------------------
 void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 {
+  cerr << "Derive 1\n";
   if ( ! inMeta || inMeta->GetNumberOfBlocks() < 2 )
     {
     return;
@@ -556,6 +581,7 @@ void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
                                   "H(Y|X)",
                                   "H(X|Y)" };
 
+  cerr << "Derive 2\n";
   // Create table for derived meta statistics
   vtkIdType nRowSumm = summaryTab->GetNumberOfRows();
   vtkDoubleArray* doubleCol;
@@ -571,6 +597,7 @@ void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       }
     }
 
+  cerr << "Derive 3\n";
   // Create columns of derived statistics
   int nDerivedVals = 4;
   vtkStdString derivedNames[] = { "P",
@@ -591,24 +618,30 @@ void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       }
     }
 
+  cerr << "Derive 4\n";
   // Downcast columns to typed arrays for efficient data access
   vtkStringArray* varX = vtkStringArray::SafeDownCast( summaryTab->GetColumnByName( "Variable X" ) );
   vtkStringArray* varY = vtkStringArray::SafeDownCast( summaryTab->GetColumnByName( "Variable Y" ) );
   vtkIdTypeArray* keys = vtkIdTypeArray::SafeDownCast( contingencyTab->GetColumnByName( "Key" ) );
   vtkStringArray* valx = vtkStringArray::SafeDownCast( contingencyTab->GetColumnByName( "x" ) );
   vtkStringArray* valy = vtkStringArray::SafeDownCast( contingencyTab->GetColumnByName( "y" ) );
+  vtkLongArray*   intx = vtkLongArray::SafeDownCast( contingencyTab->GetColumnByName( "x" ) );
+  vtkLongArray*   inty = vtkLongArray::SafeDownCast( contingencyTab->GetColumnByName( "y" ) );
   vtkDoubleArray* dubx = vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( "x" ) );
   vtkDoubleArray* duby = vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( "y" ) );
   vtkIdTypeArray* card = vtkIdTypeArray::SafeDownCast( contingencyTab->GetColumnByName( "Cardinality" ) );
   // Temporary counters, used to check that all pairs of variables have indeed the same number of observations
   std::map<vtkIdType,vtkIdType> cardinalities;
 
+  cerr << "Derive 5\n";
   // Calculate marginal counts (marginal PDFs are calculated at storage time to avoid redundant summations)
   std::map<vtkStdString,std::pair<vtkStdString,vtkStdString> > marginalToPair;
   std::map<vtkStdString,StringCounts> marginalCounts;
   std::map<vtkStdString,DoubleCounts> marginalDCounts;
+  std::map<vtkStdString,LongCounts> marginalLCounts;
   vtkStdString x, y, c1, c2;
   double dx, dy;
+  long ix, iy;
   vtkIdType key, c;
   for ( int r = 1; r < nRowCont; ++ r ) // Skip first row which contains data set cardinality
     {
@@ -642,12 +675,16 @@ void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 
     if (valx)
       x = valx->GetValue( r );
-    else
+    else if (dubx)
       dx = dubx->GetValue( r );
+    else
+      ix = intx->GetValue( r );
     if (valy)
       y = valy->GetValue( r );
-    else
+    else if (duby)
       dy = duby->GetValue( r );
+    else
+      iy = inty->GetValue( r );
     c = card->GetValue( r );
     cardinalities[key] += c;
 
@@ -655,18 +692,24 @@ void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       {
       if (valx)
         marginalCounts[c1][x] += c;
-      else
+      else if (dubx)
         marginalDCounts[c1][dx] += c;
+      else
+        marginalLCounts[c1][ix] += c;
       }
 
     if ( marginalToPair[c2].first == c1 && marginalToPair[c2].second == c2  )
       {
       if (valy)
         marginalCounts[c2][y] += c;
-      else
+      else if (duby)
         marginalDCounts[c2][dy] += c;
+      else
+        marginalLCounts[c2][iy] += c;
       }
     }
+
+  cerr << "Derive 6\n";
 
   // Data set cardinality: unknown yet, pick the cardinality of the first pair and make sure all other pairs
   // have the same cardinality.
@@ -685,6 +728,8 @@ void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       }
     }
 
+  cerr << "Derive 7\n";
+
   // We have a unique value for the cardinality and can henceforth proceed
   contingencyTab->SetValueByName( 0, "Cardinality", n );
 
@@ -699,9 +744,12 @@ void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 
   if (valx && valy)
     ContingencyStatisticsSetupPDFBlocks (inMeta, varX, varY, contingencyTab, marginalCounts, H, nEntropy, derivedNames, nDerivedVals);
-  else
+  else if (dubx && duby)
     ContingencyStatisticsSetupPDFBlocks (inMeta, varX, varY, contingencyTab, marginalDCounts, H, nEntropy, derivedNames, nDerivedVals);
+  else
+    ContingencyStatisticsSetupPDFBlocks (inMeta, varX, varY, contingencyTab, marginalLCounts, H, nEntropy, derivedNames, nDerivedVals);
 
+  cerr << "Derive 8\n";
   // Store information entropies
   for ( Entropies::iterator eit = H[0].begin(); eit != H[0].end(); ++ eit )
     {
@@ -1152,21 +1200,21 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
 template<typename T>
 class BivariateContingenciesAndInformationFunctor : public vtkStatisticsAlgorithm::AssessFunctor
 {
-  typedef std::map<double,double> PDF;
+  typedef std::map<T,double> PDF;
 public:
   vtkDataArray* DataX;
   vtkDataArray* DataY;
-  std::map<double,PDF> PdfX_Y;
-  std::map<double,PDF> PdfYcX;
-  std::map<double,PDF> PdfXcY;
-  std::map<double,PDF> PmiX_Y;
+  std::map<T,PDF> PdfX_Y;
+  std::map<T,PDF> PdfYcX;
+  std::map<T,PDF> PdfXcY;
+  std::map<T,PDF> PmiX_Y;
 
   BivariateContingenciesAndInformationFunctor( vtkAbstractArray* valsX,
                                                vtkAbstractArray* valsY,
-                                               std::map<double,PDF> pdfX_Y,
-                                               std::map<double,PDF> pdfYcX,
-                                               std::map<double,PDF> pdfXcY,
-                                               std::map<double,PDF> pmiX_Y )
+                                               std::map<T,PDF> pdfX_Y,
+                                               std::map<T,PDF> pdfYcX,
+                                               std::map<T,PDF> pdfXcY,
+                                               std::map<T,PDF> pmiX_Y )
   {
     this->DataX = vtkDataArray::SafeDownCast (valsX);
     this->DataY = vtkDataArray::SafeDownCast (valsY);
@@ -1179,8 +1227,8 @@ public:
   virtual void operator() ( vtkDoubleArray* result,
                             vtkIdType id )
   {
-    double x = this->DataX->GetTuple1( id );
-    double y = this->DataY->GetTuple1( id );
+    T x = static_cast<T>(this->DataX->GetTuple1( id ));
+    T y = static_cast<T>(this->DataY->GetTuple1( id ));
 
     result->SetNumberOfValues( 4 );
     result->SetValue( 0, this->PdfX_Y[x][y] );
@@ -1248,10 +1296,13 @@ double vtkContingencyStatisticsSelectAssessFunctor(vtkTable* contingencyTab,
                                                   vtkAbstractArray* valsY,
                                                   vtkStatisticsAlgorithm::AssessFunctor*& dfunc )
 {
+  typedef typename std::conditional<
+            std::is_same<double, T>::value, vtkDoubleArray, vtkLongArray>::type vType;
+
   // Downcast columns to appropriate arrays for efficient data access
   vtkIdTypeArray* keys = vtkIdTypeArray::SafeDownCast( contingencyTab->GetColumnByName( "Key" ) );
-  vtkDoubleArray* valx = vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( "x" ) );
-  vtkDoubleArray* valy = vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( "y" ) );
+  vType* valx = vType::SafeDownCast( contingencyTab->GetColumnByName( "x" ) );
+  vType* valy = vType::SafeDownCast( contingencyTab->GetColumnByName( "y" ) );
 
   vtkDoubleArray* pX_Y = vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( "P" ) );
   vtkDoubleArray* pYcX = vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( "Py|x" ) );
@@ -1265,18 +1316,18 @@ double vtkContingencyStatisticsSelectAssessFunctor(vtkTable* contingencyTab,
       return 0;
     }
   // Create parameter maps
-  typedef std::map<double,double> PDF;
-  std::map<double,PDF> pdfX_Y;
-  std::map<double,PDF> pdfYcX;
-  std::map<double,PDF> pdfXcY;
-  std::map<double,PDF> pmiX_Y;
+  typedef std::map<T,double> PDF;
+  std::map<T,PDF> pdfX_Y;
+  std::map<T,PDF> pdfYcX;
+  std::map<T,PDF> pdfXcY;
+  std::map<T,PDF> pmiX_Y;
 
   // Sanity check: joint CDF
   double cdf = 0.;
 
   // Loop over parameters table until the requested variables are found
   vtkIdType nRowCont = contingencyTab->GetNumberOfRows();
-  double x, y;
+  T x, y;
   vtkIdType key;
   double v;
   for ( int r = 1; r < nRowCont; ++ r ) // Skip first row which contains data set cardinality
@@ -1316,7 +1367,7 @@ double vtkContingencyStatisticsSelectAssessFunctor(vtkTable* contingencyTab,
   // Sanity check: verify that CDF = 1
   if ( fabs( cdf - 1. ) <= 1.e-6 )
     {
-    dfunc = new BivariateContingenciesAndInformationFunctor<double>( valsX,
+    dfunc = new BivariateContingenciesAndInformationFunctor<T>( valsX,
                                                              valsY,
                                                              pdfX_Y,
                                                              pdfYcX,
@@ -1440,10 +1491,16 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
 
   vtkDoubleArray* dubx = vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( "x" ) );
   vtkDoubleArray* duby = vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( "y" ) );
+  vtkLongArray* intx = vtkLongArray::SafeDownCast( contingencyTab->GetColumnByName( "x" ) );
+  vtkLongArray* inty = vtkLongArray::SafeDownCast( contingencyTab->GetColumnByName( "y" ) );
   double cdf;
   if (dubx && duby)
     {
     cdf = vtkContingencyStatisticsSelectAssessFunctor<double> (contingencyTab, pairKey, valsX, valsY, dfunc);
+    }
+  else if (intx && inty)
+    {
+    cdf = vtkContingencyStatisticsSelectAssessFunctor<long> (contingencyTab, pairKey, valsX, valsY, dfunc);
     }
   else
     {
