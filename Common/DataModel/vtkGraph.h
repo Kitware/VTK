@@ -224,15 +224,6 @@ class vtkVariant;
 class vtkVariantArray;
 
 //BTX
-// Forward declare some boost stuff even if boost wrappers
-// are turned off.
-namespace boost
-{
-  class vtk_edge_iterator;
-  class vtk_out_edge_pointer_iterator;
-  class vtk_in_edge_pointer_iterator;
-}
-
 // Edge structures.
 struct vtkEdgeBase
 {
@@ -685,9 +676,6 @@ protected:
   friend class vtkEdgeListIterator;
   friend class vtkInEdgeIterator;
   friend class vtkOutEdgeIterator;
-  friend class boost::vtk_edge_iterator;
-  friend class boost::vtk_in_edge_pointer_iterator;
-  friend class boost::vtk_out_edge_pointer_iterator;
   //ETX
 
   // Description:
