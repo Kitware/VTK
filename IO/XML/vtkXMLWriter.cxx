@@ -14,13 +14,14 @@
 =========================================================================*/
 #include "vtkXMLWriter.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkArrayIteratorIncludes.h"
+#include "vtkAoSDataArrayTemplate.h"
 #include "vtkBase64OutputStream.h"
 #include "vtkByteSwap.h"
 #include "vtkCellData.h"
 #include "vtkCommand.h"
 #include "vtkDataArray.h"
-#include "vtkDataArrayIteratorMacro.h"
 #include "vtkDataSet.h"
 #include "vtkErrorCode.h"
 #include "vtkInformation.h"
@@ -87,118 +88,138 @@ public:
    }
 };
 
-//----------------------------------------------------------------------------
-// Specialize for cases where IterType is ValueType* (common case for
-// vtkDataArrayTemplate subclasses). The last arg is to help less-robust
-// compilers decide between the various overloads by making a unfavorable
-// int-to-long conversion in the IterType overload, making this next
-// overload more favorable when the iterator is a ValueType*.
-template <class ValueType>
-int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
-  ValueType* iter, int wordType, size_t memWordSize, size_t outWordSize,
-  size_t numWords, int)
+namespace {
+
+struct WriteBinaryDataBlockWorker
 {
-  // generic implementation for fixed component length arrays.
-  size_t blockWords = writer->GetBlockSize()/outWordSize;
-  size_t memBlockSize = blockWords*memWordSize;
+  vtkXMLWriter *Writer;
+  int WordType;
+  size_t MemWordSize;
+  size_t OutWordSize;
+  size_t NumWords;
+  bool Result;
 
-  // Prepare a pointer and counter to move through the data.
-  unsigned char* ptr = reinterpret_cast<unsigned char*>(iter);
-  size_t wordsLeft = numWords;
+  WriteBinaryDataBlockWorker(vtkXMLWriter *writer, int wordType,
+                             size_t memWordSize, size_t outWordSize,
+                             size_t numWords)
+    : Writer(writer), WordType(wordType),
+      MemWordSize(memWordSize), OutWordSize(outWordSize), NumWords(numWords),
+      Result(false)
+  {}
 
-  // Do the complete blocks.
-  vtkXMLWriterHelper::SetProgressPartial(writer, 0);
-  int result = 1;
-  while(result && (wordsLeft >= blockWords))
-    {
-    if (!vtkXMLWriterHelper::WriteBinaryDataBlock(writer, ptr, blockWords, wordType))
+  //----------------------------------------------------------------------------
+  // Specialize for AoS arrays.
+  template <class ValueType>
+  int operator()(vtkAoSDataArrayTemplate<ValueType>* array)
+  {
+    // Get the raw pointer to the array data:
+    ValueType *iter = array->GetPointer(0);
+
+    // generic implementation for fixed component length arrays.
+    size_t blockWords = this->Writer->GetBlockSize() / this->OutWordSize;
+    size_t memBlockSize = blockWords * this->MemWordSize;
+
+    // Prepare a pointer and counter to move through the data.
+    unsigned char *ptr = reinterpret_cast<unsigned char*>(iter);
+    size_t wordsLeft = this->NumWords;
+
+    // Do the complete blocks.
+    vtkXMLWriterHelper::SetProgressPartial(this->Writer, 0);
+    this->Result = true;
+    while (this->Result && (wordsLeft >= blockWords))
       {
-      result = 0;
+      if (!vtkXMLWriterHelper::WriteBinaryDataBlock(this->Writer, ptr,
+                                                    blockWords, this->WordType))
+        {
+        this->Result = false;
+        }
+      ptr += memBlockSize;
+      wordsLeft -= blockWords;
+      vtkXMLWriterHelper::SetProgressPartial(
+            this->Writer,
+            static_cast<float>(this->NumWords - wordsLeft) / this->NumWords);
       }
-    ptr += memBlockSize;
-    wordsLeft -= blockWords;
-    vtkXMLWriterHelper::SetProgressPartial(writer,
-      static_cast<float>(numWords - wordsLeft) / numWords);
-    }
 
-  // Do the last partial block if any.
-  if (result && (wordsLeft > 0))
-    {
-    if (!vtkXMLWriterHelper::WriteBinaryDataBlock(writer, ptr, wordsLeft, wordType))
+    // Do the last partial block if any.
+    if (this->Result && (wordsLeft > 0))
       {
-      result = 0;
+      if (!vtkXMLWriterHelper::WriteBinaryDataBlock(this->Writer, ptr,
+                                                    wordsLeft, this->WordType))
+        {
+        this->Result = 0;
+        }
       }
-    }
-  vtkXMLWriterHelper::SetProgressPartial(writer, 1);
-  return result;
-}
+    vtkXMLWriterHelper::SetProgressPartial(this->Writer, 1);
+  }
+
+  //----------------------------------------------------------------------------
+  // Specialize for non-AoS generic arrays:
+  template <class ArrayT>
+  void operator()(ArrayT *array)
+  {
+    typedef typename ArrayT::ValueType ValueType;
+
+    // generic implementation for fixed component length arrays.
+    size_t blockWords = this->Writer->GetBlockSize() / this->OutWordSize;
+
+    // Prepare a buffer to move through the data.
+    std::vector<unsigned char> buffer(blockWords * this->MemWordSize);
+    size_t wordsLeft = this->NumWords;
+
+    if (buffer.empty())
+      {
+      // No data -- bail here, since the calls to buffer[0] below will segfault.
+      this->Result = false;
+      return;
+      }
+
+    // Do the complete blocks.
+    vtkXMLWriterHelper::SetProgressPartial(this->Writer, 0);
+    this->Result = true;
+    vtkIdType valueIdx = 0;
+    while (this->Result && (wordsLeft >= blockWords))
+      {
+      // Copy data to contiguous buffer:
+      ValueType* bufferIter = reinterpret_cast<ValueType*>(&buffer[0]);
+      for (size_t i = 0; i < blockWords; ++i, ++valueIdx)
+        {
+        *bufferIter++ = array->GetValue(valueIdx);
+        }
+
+      if (!vtkXMLWriterHelper::WriteBinaryDataBlock(this->Writer, &buffer[0],
+                                                    blockWords, this->WordType))
+        {
+        this->Result = false;
+        }
+      wordsLeft -= blockWords;
+      vtkXMLWriterHelper::SetProgressPartial(
+            this->Writer,
+            static_cast<float>(this->NumWords - wordsLeft) / this->NumWords);
+      }
+
+    // Do the last partial block if any.
+    if (this->Result && (wordsLeft > 0))
+      {
+      ValueType* bufferIter = reinterpret_cast<ValueType*>(&buffer[0]);
+      for (size_t i = 0; i < wordsLeft; ++i, ++valueIdx)
+        {
+        *bufferIter++ = array->GetValue(valueIdx);
+        }
+
+      if (!vtkXMLWriterHelper::WriteBinaryDataBlock(this->Writer, &buffer[0],
+                                                    wordsLeft, this->WordType))
+        {
+        this->Result = false;
+        }
+      }
+
+    vtkXMLWriterHelper::SetProgressPartial(this->Writer, 1);
+  }
+
+}; // End WriteBinaryDataBlockWorker
 
 //----------------------------------------------------------------------------
-// Specialize for cases where IterType is some other type with iterator
-// semantics (e.g. vtkMappedDataArray iterators):
-template <class ValueType, class IterType>
-int vtkXMLWriterWriteBinaryDataBlocks(vtkXMLWriter* writer,
-  IterType iter, int wordType, size_t memWordSize, size_t outWordSize,
-  size_t numWords, long)
-{
-  // generic implementation for fixed component length arrays.
-  size_t blockWords = writer->GetBlockSize()/outWordSize;
-
-  // Prepare a buffer to move through the data.
-  std::vector<unsigned char> buffer(blockWords * memWordSize);
-  size_t wordsLeft = numWords;
-
-  if (buffer.empty())
-    {
-    // No data -- bail here, since the calls to buffer[0] below will segfault.
-    return 1;
-    }
-
-  // Do the complete blocks.
-  vtkXMLWriterHelper::SetProgressPartial(writer, 0);
-  int result = 1;
-  while(result && (wordsLeft >= blockWords))
-    {
-    // Copy data to contiguous buffer:
-    IterType blockEnd = iter + blockWords;
-    ValueType* bufferIter = reinterpret_cast<ValueType*>(&buffer[0]);
-    while (iter != blockEnd)
-      {
-      *bufferIter++ = *iter++;
-      }
-
-    if (!vtkXMLWriterHelper::WriteBinaryDataBlock(writer, &buffer[0], blockWords,
-                                                 wordType))
-      {
-      result = 0;
-      }
-    wordsLeft -= blockWords;
-    vtkXMLWriterHelper::SetProgressPartial(writer,
-                                           float(numWords-wordsLeft)/numWords);
-    }
-
-  // Do the last partial block if any.
-  if (result && (wordsLeft > 0))
-    {
-    // Copy data to contiguous buffer:
-    IterType blockEnd = iter + wordsLeft;
-    ValueType* bufferIter = reinterpret_cast<ValueType*>(&buffer[0]);
-    while (iter != blockEnd)
-      {
-      *bufferIter++ = *iter++;
-      }
-
-    if (!vtkXMLWriterHelper::WriteBinaryDataBlock(writer, &buffer[0], wordsLeft,
-                                                 wordType))
-      {
-      result = 0;
-      }
-    }
-  vtkXMLWriterHelper::SetProgressPartial(writer, 1);
-  return result;
-}
-
-//----------------------------------------------------------------------------
+// Specialize for string arrays:
 static int vtkXMLWriterWriteBinaryDataBlocks(
            vtkXMLWriter* writer, vtkArrayIteratorTemplate<vtkStdString>* iter,
            int wordType, size_t outWordSize, size_t numStrings, int)
@@ -284,6 +305,8 @@ static int vtkXMLWriterWriteBinaryDataBlocks(
   vtkXMLWriterHelper::SetProgressPartial(writer, 1);
   return result;
 }
+
+} // end anon namespace
 //*****************************************************************************
 
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
@@ -1246,33 +1269,42 @@ int vtkXMLWriter::WriteBinaryDataInternal(vtkAbstractArray* a)
 
   size_t numValues = static_cast<size_t>(a->GetNumberOfComponents() *
                                          a->GetNumberOfTuples());
-  switch (wordType)
+
+  if (wordType == VTK_STRING)
     {
-    vtkDataArrayIteratorMacro(a,
-      ret = vtkXMLWriterWriteBinaryDataBlocks<vtkDAValueType>(
-        this, vtkDABegin, wordType, memWordSize, outWordSize, numValues, 1)
-      );
-    case VTK_STRING:
+    vtkArrayIterator *aiter = a->NewIterator();
+    vtkArrayIteratorTemplate<vtkStdString> *iter =
+        vtkArrayIteratorTemplate<vtkStdString>::SafeDownCast(aiter);
+    if (iter)
       {
-      vtkArrayIterator *aiter = a->NewIterator();
-      vtkArrayIteratorTemplate<vtkStdString> *iter =
-          vtkArrayIteratorTemplate<vtkStdString>::SafeDownCast(aiter);
-      if (iter)
-        {
-        ret = vtkXMLWriterWriteBinaryDataBlocks(
-              this, iter, wordType, outWordSize, numValues, 1);
-        }
-      else
-        {
-        vtkWarningMacro("Unsupported iterator for data type : " << wordType);
-        ret = 0;
-        }
-      aiter->Delete();
+      ret = vtkXMLWriterWriteBinaryDataBlocks(
+            this, iter, wordType, outWordSize, numValues, 1);
       }
-      break;
-    default:
-      vtkWarningMacro("Cannot write binary data of type : " << wordType);
+    else
+      {
+      vtkWarningMacro("Unsupported iterator for data type : " << wordType);
       ret = 0;
+      }
+    aiter->Delete();
+    }
+  else if (vtkDataArray *da = vtkDataArray::SafeDownCast(a))
+    {
+    WriteBinaryDataBlockWorker worker(this, wordType, memWordSize, outWordSize,
+                                      numValues);
+    if (!vtkArrayDispatch::Dispatch::Execute(da, worker))
+      {
+      vtkWarningMacro("Dispatch failed for array: " << da->GetName());
+      ret = 0;
+      }
+    else
+      {
+      ret = worker.Result ? 1 : 0;
+      }
+    }
+  else
+    {
+    vtkWarningMacro("Not writing array '" << a->GetName() << "': Unsupported "
+                    "array type: " << a->GetClassName());
     }
 
   // Free the byte swap buffer if it was allocated.

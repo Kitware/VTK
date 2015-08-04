@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkGenericDataArrayHelper.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkObjectFactory.h"
 #include "vtkSoADataArrayTemplate.h"
 #include "vtkAoSDataArrayTemplate.h"
@@ -21,29 +22,51 @@
 //============================================================================
 namespace
 {
-  //--------------------------------------------------------------------------
-  template <class ArrayDestType, class ArraySourceType>
-  void vtkSetTuple(ArrayDestType* dest, vtkIdType destTuple,
-                     ArraySourceType* source, vtkIdType sourceTuple)
-      {
-      for (int cc=0, max=dest->GetNumberOfComponents(); cc < max; ++cc)
-        {
-        dest->SetComponentValue(destTuple, cc,
-          static_cast<typename ArrayDestType::ValueType>(
-          source->GetComponentValue(sourceTuple, cc)));
-        }
-      }
 
-  //-------------------------------------------------------------------------
-  template <class ArraySourceType>
-  void vtkGetTuple(ArraySourceType* source, vtkIdType tuple, double* buffer)
+//--------------------------------------------------------------------------
+struct SetTupleWorker
+{
+  vtkIdType SourceTuple;
+  vtkIdType DestTuple;
+
+  SetTupleWorker(vtkIdType sourceTuple, vtkIdType destTuple)
+    : SourceTuple(sourceTuple),
+      DestTuple(destTuple)
+  {}
+
+  template <typename ArrayIn, typename ArrayOut>
+  void operator()(ArrayIn *source, ArrayOut *dest)
+  {
+    for (int cc = 0, max = dest->GetNumberOfComponents(); cc < max; ++cc)
       {
-      for (int cc=0, max=source->GetNumberOfComponents(); cc < max; ++cc)
-        {
-        buffer[cc] = static_cast<double>(source->GetComponentValue(tuple, cc));
-        }
+      dest->SetComponentValue(this->DestTuple, cc,
+        static_cast<typename ArrayOut::ValueType>(
+        source->GetComponentValue(this->SourceTuple, cc)));
       }
-}
+  }
+};
+
+//--------------------------------------------------------------------------
+struct GetTupleWorker
+{
+  vtkIdType Tuple;
+  double *Buffer;
+
+  GetTupleWorker(vtkIdType tuple, double *buffer) : Tuple(tuple), Buffer(buffer)
+  {}
+
+  template <typename ArrayT>
+  void operator()(ArrayT *source)
+  {
+    for (int cc = 0, max = source->GetNumberOfComponents(); cc < max; ++cc)
+      {
+      this->Buffer[cc] =
+          static_cast<double>(source->GetComponentValue(this->Tuple, cc));
+      }
+  }
+};
+
+} // end anon namespace
 //============================================================================
 
 
@@ -73,15 +96,33 @@ void vtkGenericDataArrayHelper::SetTuple(
     return;
     }
 
-  vtkGenericDataArrayMacro2(dest, source,
-    vtkSetTuple(ARRAY1, destTuple, ARRAY2, sourceTuple));
+  vtkDataArray *srcDA = vtkDataArray::SafeDownCast(source);
+  vtkDataArray *dstDA = vtkDataArray::SafeDownCast(dest);
+  if (!srcDA || !dstDA)
+    {
+    vtkGenericWarningMacro("This method expects both arrays to be vtkDataArray "
+                           "subclasses.");
+    return;
+    }
+
+  SetTupleWorker worker(sourceTuple, destTuple);
+  vtkArrayDispatch::Dispatch2SameValueType::Execute(srcDA, dstDA, worker);
 }
 
 //----------------------------------------------------------------------------
 void vtkGenericDataArrayHelper::GetTuple(vtkAbstractArray* source,
                                          vtkIdType tuple, double* buffer)
 {
-  vtkGenericDataArrayMacro(source, vtkGetTuple(ARRAY, tuple, buffer));
+  vtkDataArray *srcDA = vtkDataArray::SafeDownCast(source);
+  if (!srcDA)
+    {
+    vtkGenericWarningMacro("This method expects source to be a vtkDataArray "
+                           "subclass.");
+    return;
+    }
+
+  GetTupleWorker worker(tuple, buffer);
+  vtkArrayDispatch::Dispatch::Execute(srcDA, worker);
 }
 
 //----------------------------------------------------------------------------

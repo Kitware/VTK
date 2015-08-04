@@ -63,9 +63,8 @@ using std::max;
 template <class ValueType, int NumComps, int RangeSize>
 struct ComputeScalarRange
 {
-  template<class InputIteratorType>
-  bool operator()(InputIteratorType begin, InputIteratorType end,
-                  double* ranges)
+  template<class ArrayT>
+  bool operator()(ArrayT *array, double *ranges)
   {
     ValueType tempRange[RangeSize];
     for(int i = 0, j = 0; i < NumComps; ++i, j+=2)
@@ -75,12 +74,15 @@ struct ComputeScalarRange
       }
 
     //compute the range for each component of the data array at the same time
-    for(InputIteratorType value = begin; value != end; value+=NumComps)
+    const int numTuples = array->GetNumberOfTuples();
+    for(vtkIdType tupleIdx = 0; tupleIdx < numTuples; ++tupleIdx)
       {
-      for(int i = 0, j = 0; i < NumComps; ++i, j+=2)
+      for(int compIdx = 0, j = 0; compIdx < NumComps; ++compIdx, j+=2)
         {
-        tempRange[j] = detail::min(tempRange[j], value[i]);
-        tempRange[j+1] = detail::max(tempRange[j+1], value[i]);
+        tempRange[j] = detail::min(tempRange[j],
+          array->GetComponentValue(tupleIdx, compIdx));
+        tempRange[j+1] = detail::max(tempRange[j+1],
+          array->GetComponentValue(tupleIdx, compIdx));
         }
       }
 
@@ -95,10 +97,13 @@ struct ComputeScalarRange
 };
 
 //----------------------------------------------------------------------------
-template <class ValueType, class InputIteratorType>
-bool DoComputeScalarRange(InputIteratorType begin, InputIteratorType end,
-                        const int numComp, double* ranges)
+template <typename ArrayT>
+bool DoComputeScalarRange(ArrayT *array, double *ranges)
 {
+  typedef typename ArrayT::ValueType ValueType;
+  const int numTuples = array->GetNumberOfTuples();
+  const int numComp = array->GetNumberOfComponents();
+
   //setup the initial ranges to be the max,min for double
   for (int i = 0, j = 0; i < numComp; ++i, j+=2)
     {
@@ -107,52 +112,48 @@ bool DoComputeScalarRange(InputIteratorType begin, InputIteratorType end,
     }
 
   //do this after we make sure range is max to min
-  if (begin == end)
+  if (numTuples == 0)
     {
     return false;
     }
-
-  //verify that length of the array is divisible by the number of components
-  //this will make sure we don't walk off the end
-  assert((end-begin) % numComp == 0);
 
   //Special case for single value scalar range. This is done to help the
   //compiler detect it can perform loop optimizations.
   if (numComp == 1)
     {
-    return ComputeScalarRange<ValueType,1,2>()(begin, end, ranges);
+    return ComputeScalarRange<ValueType,1,2>()(array, ranges);
     }
   else if (numComp == 2)
     {
-    return ComputeScalarRange<ValueType,2,4>()(begin, end, ranges);
+    return ComputeScalarRange<ValueType,2,4>()(array, ranges);
     }
   else if (numComp == 3)
     {
-    return ComputeScalarRange<ValueType,3,6>()(begin, end, ranges);
+    return ComputeScalarRange<ValueType,3,6>()(array, ranges);
     }
   else if (numComp == 4)
     {
-    return ComputeScalarRange<ValueType,4,8>()(begin, end, ranges);
+    return ComputeScalarRange<ValueType,4,8>()(array, ranges);
     }
   else if (numComp == 5)
     {
-    return ComputeScalarRange<ValueType,5,10>()(begin, end, ranges);
+    return ComputeScalarRange<ValueType,5,10>()(array, ranges);
     }
   else if (numComp == 6)
     {
-    return ComputeScalarRange<ValueType,6,12>()(begin, end, ranges);
+    return ComputeScalarRange<ValueType,6,12>()(array, ranges);
     }
   else if (numComp == 7)
     {
-    return ComputeScalarRange<ValueType,7,14>()(begin, end, ranges);
+    return ComputeScalarRange<ValueType,7,14>()(array, ranges);
     }
   else if (numComp == 8)
     {
-    return ComputeScalarRange<ValueType,8,16>()(begin, end, ranges);
+    return ComputeScalarRange<ValueType,8,16>()(array, ranges);
     }
   else if (numComp == 9)
     {
-    return ComputeScalarRange<ValueType,9,18>()(begin, end, ranges);
+    return ComputeScalarRange<ValueType,9,18>()(array, ranges);
     }
   else
     {
@@ -165,12 +166,14 @@ bool DoComputeScalarRange(InputIteratorType begin, InputIteratorType end,
       }
 
     //compute the range for each component of the data array at the same time
-    for (InputIteratorType value = begin; value != end; value+=numComp)
+    for (vtkIdType tupleIdx; tupleIdx < numTuples; ++tupleIdx)
       {
-      for(int i = 0, j = 0; i < numComp; ++i, j+=2)
+      for(int compIdx = 0, j = 0; compIdx < numComp; ++compIdx, j+=2)
         {
-        tempRange[j] = detail::min(tempRange[j], value[i]);
-        tempRange[j+1] = detail::max(tempRange[j+1], value[i]);
+        tempRange[j] = detail::min(tempRange[j],
+          array->GetComponentValue(tupleIdx, compIdx));
+        tempRange[j+1] = detail::max(tempRange[j+1],
+          array->GetComponentValue(tupleIdx, compIdx));
         }
       }
 
@@ -189,30 +192,28 @@ bool DoComputeScalarRange(InputIteratorType begin, InputIteratorType end,
 }
 
 //----------------------------------------------------------------------------
-template <class ValueType, class InputIteratorType>
-bool DoComputeVectorRange(InputIteratorType begin, InputIteratorType end,
-                          int numComp, double range[2])
+template <typename ArrayT>
+bool DoComputeVectorRange(ArrayT *array, double range[2])
 {
+  const int numTuples = array->GetNumberOfTuples();
+  const int numComps = array->GetNumberOfComponents();
+
   range[0] = vtkTypeTraits<double>::Max();
   range[1] = vtkTypeTraits<double>::Min();
 
   //do this after we make sure range is max to min
-  if (begin == end)
+  if (numTuples == 0)
     {
     return false;
     }
 
-  //verify that length of the array is divisible by the number of components
-  //this will make sure we don't walk off the end
-  assert((end-begin) % numComp == 0);
-
   //iterate over all the tuples
-  for (InputIteratorType value = begin; value != end; value+=numComp)
+  for (vtkIdType tupleIdx; tupleIdx < numTuples; ++tupleIdx)
     {
     double squaredSum = 0.0;
-    for (int i = 0; i < numComp; ++i)
+    for (int compIdx = 0; compIdx < numComps; ++compIdx)
       {
-      const double t = static_cast<double>(value[i]);
+      const double t = array->GetComponent(tupleIdx, compIdx);
       squaredSum += t * t;
       }
     range[0] = detail::min(range[0], squaredSum);

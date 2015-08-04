@@ -112,6 +112,7 @@ public:
   // interpolation weights.
   // This method assumes that the two arrays are of the same type
   // and strcuture.
+  // This array will be resized to contain tuple i, if needed.
   virtual void InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
     vtkAbstractArray* source,  double* weights);
 
@@ -122,6 +123,7 @@ public:
   // with t=0 located at p1. This method assumes that the three arrays are of
   // the same type. p1 is value at index id1 in source1, while, p2 is
   // value at index id2 in source2.
+  // This array will be resized to contain tuple i, if needed.
   virtual void InterpolateTuple(vtkIdType i,
     vtkIdType id1, vtkAbstractArray* source1,
     vtkIdType id2, vtkAbstractArray* source2, double t);

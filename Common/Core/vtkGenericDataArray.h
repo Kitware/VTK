@@ -507,5 +507,4 @@ private:
 };
 
 #include "vtkGenericDataArray.txx"
-#include "vtkGenericDataArrayMacros.h"
 #endif

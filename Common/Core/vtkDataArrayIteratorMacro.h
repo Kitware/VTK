@@ -16,6 +16,11 @@
 // vtkDataArray data when the array implementation and type are unknown.
 //
 // .SECTION Description
+//
+// NOTE: This macro is deprecated and should not be used any longer. Use
+// vtkArrayDispatch and the vtkGenericDataArray API instead of
+// vtkDataArrayIteratorMacro and vtkTypedDataArrayIterator.
+//
 // See vtkTemplateMacro.
 // This macro is similar, but defines several additional typedefs and variables
 // for safely iterating through data in a vtkAbstractArray container:

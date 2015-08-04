@@ -186,7 +186,7 @@ void *vtkSoADataArrayTemplate<ValueType>::GetVoidPointer(vtkIdType id)
     vtkWarningMacro(<<"GetVoidPointer called. This is very expensive for "
                       "non-array-of-structs subclasses, as the scalar array "
                       "must be generated for each call. Using the "
-                      "vtkGenericDataArray API vtkGenericDataArrayMacro are "
+                      "vtkGenericDataArray API with vtkArrayDispatch are "
                       "preferred. Define the environment variable "
                       "VTK_SILENCE_GET_VOID_POINTER_WARNINGS to silence "
                       "this warning.");

@@ -14,6 +14,23 @@
 #include "vtkSoADataArrayTemplate.h"
 #include "vtkAoSDataArrayTemplate.h"
 
+#include "vtkArrayDispatch.h"
+
+struct TestWorker
+{
+  template <typename Array1T>
+  void operator()(Array1T *array)
+  {
+    for (vtkIdType tupleIdx = 0, max = array->GetNumberOfTuples();
+         tupleIdx < max;
+         ++tupleIdx)
+    {
+    array->SetComponentValue(tupleIdx, 0, 1);
+    array->SetComponentValue(tupleIdx, 1, 2);
+    array->SetComponentValue(tupleIdx, 2, 3);
+    }
+  }
+};
 
 template <class T>
 void Test()
@@ -21,16 +38,18 @@ void Test()
   T* array = T::New();
   array->SetNumberOfComponents(3);
   array->SetNumberOfTuples(100);
-  vtkGenericDataArrayMacro(array,
-    for (vtkIdType tupleIdx=0, max=ARRAY->GetNumberOfTuples(); tupleIdx < max;
-         ++tupleIdx)
+
+  TestWorker worker;
+  if (!vtkArrayDispatch::Dispatch::Execute(array, worker))
     {
-    ARRAY->SetComponentValue(tupleIdx, 0, 1);
-    ARRAY->SetComponentValue(tupleIdx, 1, 2);
-    ARRAY->SetComponentValue(tupleIdx, 2, 3);
+    std::cerr << "Dispatch failed! Array: " << array->GetClassName()
+              << std::endl;
     }
-  );
-  array->Print(cout);
+  else
+    {
+    array->Print(cout);
+    }
+
   array->Delete();
 }
 

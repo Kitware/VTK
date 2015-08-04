@@ -14,12 +14,12 @@
 =========================================================================*/
 #include "vtkDataSetAttributes.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkArrayIteratorIncludes.h"
 #include "vtkCell.h"
 #include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
-#include "vtkGenericDataArrayMacros.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkIntArray.h"
@@ -436,46 +436,59 @@ void vtkDataSetAttributes::PassData(vtkFieldData* fd)
 }
 
 //----------------------------------------------------------------------------
-template <class OutGenericArrayT, class InGenericArrayT>
-void vtkDataSetAttributesCopyValuesForGenericArrays(
-  OutGenericArrayT* dest, const int* outExt,
-  InGenericArrayT* src, const int* inExt)
+namespace {
+struct CopyStructuredDataWorker
 {
-  // get outExt relative to the inExt to keep the logic simple. This assumes
-  // that outExt is a subset of the inExt.
-  const int relOutExt[6] = {
-    outExt[0] - inExt[0],
-    outExt[1] - inExt[0],
-    outExt[2] - inExt[2],
-    outExt[3] - inExt[2],
-    outExt[4] - inExt[4],
-    outExt[5] - inExt[4]
-  };
+  const int *OutExt;
+  const int *InExt;
 
-  const int dims[3] = { inExt[1] - inExt[0] + 1,
-                        inExt[3] - inExt[2] + 1,
-                        inExt[5] - inExt[4] + 1};
+  CopyStructuredDataWorker(const int *outExt, const int *inExt)
+    : OutExt(outExt), InExt(inExt)
+  {}
 
-  vtkIdType outTupleIdx = 0;
-  for (int outz = relOutExt[4]; outz <= relOutExt[5]; ++outz)
-    {
-    const vtkIdType zfactor = static_cast<vtkIdType>(outz) * dims[1];
-    for (int outy = relOutExt[2]; outy <= relOutExt[3]; ++outy)
+  template <typename Array1T, typename Array2T>
+  void operator()(Array1T *dest, Array2T *src)
+  {
+    // get outExt relative to the inExt to keep the logic simple. This assumes
+    // that outExt is a subset of the inExt.
+    const int relOutExt[6] = {
+      this->OutExt[0] - this->InExt[0],
+      this->OutExt[1] - this->InExt[0],
+      this->OutExt[2] - this->InExt[2],
+      this->OutExt[3] - this->InExt[2],
+      this->OutExt[4] - this->InExt[4],
+      this->OutExt[5] - this->InExt[4]
+    };
+
+    const int dims[3] = { this->InExt[1] - this->InExt[0] + 1,
+                          this->InExt[3] - this->InExt[2] + 1,
+                          this->InExt[5] - this->InExt[4] + 1};
+
+    vtkIdType outTupleIdx = 0;
+    for (int outz = relOutExt[4]; outz <= relOutExt[5]; ++outz)
       {
-      const vtkIdType yfactor = (zfactor + outy) * dims[0];
-      for (int outx = relOutExt[0]; outx <= relOutExt[1]; ++outx)
+      const vtkIdType zfactor = static_cast<vtkIdType>(outz) * dims[1];
+      for (int outy = relOutExt[2]; outy <= relOutExt[3]; ++outy)
         {
-        const vtkIdType inTupleIdx = yfactor + outx;
-        for (int comp=0, max=dest->GetNumberOfComponents(); comp < max; ++comp)
+        const vtkIdType yfactor = (zfactor + outy) * dims[0];
+        for (int outx = relOutExt[0]; outx <= relOutExt[1]; ++outx)
           {
-          dest->SetComponentValue(outTupleIdx, comp, src->GetComponentValue(inTupleIdx, comp));
+          const vtkIdType inTupleIdx = yfactor + outx;
+          for (int comp = 0, max = dest->GetNumberOfComponents();
+               comp < max; ++comp)
+            {
+            dest->SetComponentValue(outTupleIdx, comp,
+                                    src->GetComponentValue(inTupleIdx, comp));
+            }
+          outTupleIdx++;
           }
-        outTupleIdx++;
         }
       }
-    }
-  dest->DataChanged();
-}
+    dest->DataChanged();
+  }
+};
+
+} // end anon namespace
 
 //----------------------------------------------------------------------------
 template <class iterT>
@@ -597,7 +610,11 @@ void vtkDataSetAttributes::CopyStructuredData(vtkDataSetAttributes *fromPd,
 
     // We get very little performance improvement from this, but we'll leave the
     // legacy code around until we've done through benchmarking.
-    if (inArray->HasStandardMemoryLayout() && outArray->HasStandardMemoryLayout())
+    vtkDataArray *inDA = vtkDataArray::SafeDownCast(inArray);
+    vtkDataArray *outDA = vtkDataArray::SafeDownCast(outArray);
+    if ((inArray->HasStandardMemoryLayout() &&
+         outArray->HasStandardMemoryLayout()) ||
+        (!inDA || !outDA))
       {
       vtkArrayIterator* srcIter = inArray->NewIterator();
       vtkArrayIterator* destIter = outArray->NewIterator();
@@ -613,8 +630,12 @@ void vtkDataSetAttributes::CopyStructuredData(vtkDataSetAttributes *fromPd,
       }
     else
       {
-      vtkGenericDataArrayMacro2(outArray, inArray,
-        vtkDataSetAttributesCopyValuesForGenericArrays(ARRAY1, outExt, ARRAY2, inExt));
+      CopyStructuredDataWorker worker(outExt, inExt);
+      if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(outDA, inDA,
+                                                             worker))
+        {
+        vtkWarningMacro("Dispatch failed for array " << inArray->GetName());
+        }
       }
     }
 }
