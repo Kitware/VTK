@@ -206,8 +206,11 @@ int vtkXMLPMultiBlockDataWriter::WriteComposite(
        iter->GoToNextItem(), indexCounter++)
     {
     vtkDataObject* curDO = iter->GetCurrentDataObject();
-    const char *name =
-      iter->GetCurrentMetaData()->Get(vtkCompositeDataSet::NAME());
+    const char *name = NULL;
+    if(iter->HasCurrentMetaData())
+      {
+      name = iter->GetCurrentMetaData()->Get(vtkCompositeDataSet::NAME());
+      }
 
     if (curDO && curDO->IsA("vtkCompositeDataSet"))
       {
