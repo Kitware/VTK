@@ -17,6 +17,8 @@
 
 #include "vtkAoSDataArrayTemplate.h"
 
+#include "vtkArrayIteratorTemplate.h"
+
 #define vtkAoSDataArrayTemplateT(returnType) \
   template <class ValueType> \
   returnType vtkAoSDataArrayTemplate<ValueType>
@@ -51,6 +53,14 @@ vtkAoSDataArrayTemplateT(void)::SetArray(
   this->Size = size;
   this->MaxId = this->Size - 1;
   this->DataChanged();
+}
+
+//-----------------------------------------------------------------------------
+vtkAoSDataArrayTemplateT(vtkArrayIterator*)::NewIterator()
+{
+  vtkArrayIterator *iter = vtkArrayIteratorTemplate<ValueType>::New();
+  iter->Initialize(this);
+  return iter;
 }
 
 //-----------------------------------------------------------------------------

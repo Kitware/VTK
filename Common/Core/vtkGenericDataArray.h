@@ -318,8 +318,7 @@ public:
 
   //----------------------------------------------------------------------------
   // vtkArrayIterator API. This provides the generic vtkArrayIterator.
-  // TODO:
-  virtual vtkArrayIterator* NewIterator() { return NULL;}
+  virtual vtkArrayIterator* NewIterator();
 
   //----------------------------------------------------------------------------
   // API provided by vtkDataArrayTemplate/vtkTypedDataArray. These methods used

@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#ifndef vtkGenericDataArray_txx
+#define vtkGenericDataArray_txx
+
+#include "vtkGenericDataArray.h"
 
 #include "vtkObjectFactory.h"
 #include "vtkIdList.h"
@@ -323,4 +327,14 @@ vtkGenericDataArrayT(int)::Allocate(vtkIdType size, vtkIdType vtkNotUsed(ext))
   return 1;
 }
 
+//-----------------------------------------------------------------------------
+vtkGenericDataArrayT(vtkArrayIterator*)::NewIterator()
+{
+  vtkWarningMacro(<< "No vtkArrayIterator defined for " << this->GetClassName()
+                  << " arrays.");
+  return NULL;
+}
+
 #undef vtkGenericDataArrayT
+
+#endif // header guard

@@ -141,6 +141,8 @@ public:
     this->DataChanged();
   }
 
+  virtual vtkArrayIterator *NewIterator();
+
 //BTX
 protected:
   vtkAoSDataArrayTemplate();
