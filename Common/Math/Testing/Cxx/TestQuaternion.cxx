@@ -122,7 +122,7 @@ int TestQuaternionSetGet() //use of vtkQuaternionf for this test
     }
 
   //To and from float[4]
-  float setArray[4] = {1.0, -38.0, 42.0, 0.0001};
+  float setArray[4] = {1.0f, -38.0f, 42.0f, 0.0001f};
   qf.Set(setArray);
   if (!qf.Compare( vtkQuaternionf(1.0, -38.0, 42.0, 0.0001), 0.0001))
     {
