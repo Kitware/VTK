@@ -538,8 +538,9 @@ public:
 
   // Description:
   // Get the vtkPainterDeviceAdapter which can be used to paint on
-  // this render window.
-  VTK_LEGACY(vtkGetObjectMacro(PainterDeviceAdapter, vtkPainterDeviceAdapter));
+  // this render window.  Note the old OpenGL backend requires this
+  // method.
+  vtkGetObjectMacro(PainterDeviceAdapter, vtkPainterDeviceAdapter);
 
   // Description:
   // Set / Get the number of multisamples to use for hardware antialiasing.
