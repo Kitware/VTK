@@ -661,9 +661,9 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
   PIXELFORMATDESCRIPTOR pfd2 = {
     sizeof(PIXELFORMATDESCRIPTOR),  /* size */
     1,                              /* version */
-    dwFlags         ,               /* support double-buffering */
+    dwFlags,                        /* support double-buffering */
     PFD_TYPE_RGBA,                  /* color type */
-    bpp,                             /* preferred color depth */
+    bpp,                            /* preferred color depth */
     0, 0, 0, 0, 0, 0,               /* color bits (ignored) */
     this->AlphaBitPlanes ? bpp/4 : 0, /* no alpha buffer */
     0,                              /* alpha bits (ignored) */
