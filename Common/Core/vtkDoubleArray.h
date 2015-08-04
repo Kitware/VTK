@@ -28,11 +28,11 @@
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkDataArray.h"
-#include "vtkDataArrayTemplate.h" // Real Superclass
+#include "vtkAoSDataArrayTemplate.h" // Real Superclass
 
 // Fake the superclass for the wrappers.
 #ifndef __WRAP__
-#define vtkDataArray vtkDataArrayTemplate<double>
+#define vtkDataArray vtkAoSDataArrayTemplate<double>
 #endif
 class VTKCOMMONCORE_EXPORT vtkDoubleArray : public vtkDataArray
 {
@@ -65,7 +65,7 @@ protected:
 
 private:
   //BTX
-  typedef vtkDataArrayTemplate<double> RealSuperclass;
+  typedef vtkAoSDataArrayTemplate<double> RealSuperclass;
   //ETX
   vtkDoubleArray(const vtkDoubleArray&);  // Not implemented.
   void operator=(const vtkDoubleArray&);  // Not implemented.

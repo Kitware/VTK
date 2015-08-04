@@ -222,8 +222,6 @@ SET(Module_SRCS
   vtkWeakPointerBase.cxx
   vtkWindow.cxx
   vtkXMLFileOutputWindow.cxx
-  vtkDataArrayTemplate.txx
-  vtkDataArrayTemplateHelper.cxx
   vtkDenseArray.txx
   vtkSparseArray.txx
   vtkTypedArray.txx
@@ -254,7 +252,6 @@ set(${vtk-module}_HDRS
   vtkAtomicTypes.h
   vtkAutoInit.h
   vtkDataArrayIteratorMacro.h
-  vtkDataArrayTemplateImplicit.txx
   vtkGenericDataArray.h
   vtkGenericDataArrayLookupHelper.h
   vtkGenericDataArrayMacros.h
@@ -583,7 +580,6 @@ set_source_files_properties(
   vtkAutoInit.h
   vtkDataArrayTemplateHelper.cxx
   vtkDataArrayTemplateImplicit.txx
-  vtkDataArrayTemplate.txx
   vtkDenseArray.txx
   vtkGenericDataArrayHelpers.h
   vtkIOStream.h

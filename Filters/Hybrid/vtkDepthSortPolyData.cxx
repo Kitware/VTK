@@ -88,10 +88,7 @@ void getCellCenterDepth(vtkPolyData *pds, vtkDataArray *gpts,
     return;
     }
 
-  vtkDataArrayTemplate<T> *pts
-    = static_cast<vtkDataArrayTemplate<T>*>(gpts);
-
-  T *ppts = pts->GetPointer(0);
+  T *ppts = static_cast<T*>(gpts->GetVoidPointer(0));
   T *px = ppts;
   T *py = ppts + 1;
   T *pz = ppts + 2;
@@ -148,10 +145,7 @@ void getCellPoint0Depth(vtkPolyData *pds, vtkDataArray *gpts,
     return;
     }
 
-  vtkDataArrayTemplate<T> *pts
-    = static_cast<vtkDataArrayTemplate<T>*>(gpts);
-
-  T *ppts = pts->GetPointer(0);
+  T *ppts = static_cast<T*>(gpts->GetVoidPointer(0));
   T *px = ppts;
   T *py = ppts + 1;
   T *pz = ppts + 2;

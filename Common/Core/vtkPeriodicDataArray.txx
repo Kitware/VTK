@@ -52,7 +52,7 @@ template <class Scalar> void vtkPeriodicDataArray<Scalar>
 
 //------------------------------------------------------------------------------
 template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::InitializeArray(vtkDataArrayTemplate<Scalar>* data)
+::InitializeArray(vtkAoSDataArrayTemplate<Scalar>* data)
 {
   this->Initialize();
   if (!data)

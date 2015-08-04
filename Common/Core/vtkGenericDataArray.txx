@@ -271,4 +271,16 @@ vtkGenericDataArrayT(void)::SetVariantValue(vtkIdType valueIdx,
     }
 }
 
+//-----------------------------------------------------------------------------
+vtkGenericDataArrayT(void)::InsertVariantValue(vtkIdType valueIdx,
+                                               vtkVariant valueVariant)
+{
+  bool valid = true;
+  ValueType value = vtkVariantCast<ValueType>(valueVariant, &valid);
+  if (valid)
+    {
+    this->InsertValue(valueIdx, value);
+    }
+}
+
 #undef vtkGenericDataArrayT

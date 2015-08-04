@@ -171,4 +171,78 @@ private:
 };
 
 #include "vtkAoSDataArrayTemplate.txx"
+
+// Ported over from vtkDataArrayTemplate:
+
+#if !defined(VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
+# define VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATE(T) \
+   template class VTKCOMMONCORE_EXPORT vtkAoSDataArrayTemplate< T >
+#else
+// TODO Not sure what this does, need to dig some:
+//# include "vtkDataArrayTemplateImplicit.txx"
+//# define VTK_DATA_ARRAY_TEMPLATE_INSTANTIATE(T)
 #endif
+
+#endif // header guard
+
+// TODO clean this up, more or less copy/pasted from vtkDataArrayTemplate.h:
+
+// This portion must be OUTSIDE the include blockers.  Each
+// vtkDataArray subclass uses this to give its instantiation of this
+// template a DLL interface.
+#if defined(VTK_DATA_ARRAY_TEMPLATE_TYPE) && !defined(VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
+# if defined(VTK_BUILD_SHARED_LIBS) && defined(_MSC_VER)
+#  pragma warning (push)
+#  pragma warning (disable: 4091) // warning C4091: 'extern ' :
+   // ignored on left of 'int' when no variable is declared
+#  pragma warning (disable: 4231) // Compiler-specific extension warning.
+
+   // We need to disable warning 4910 and do an extern dllexport
+   // anyway.  When deriving vtkCharArray and other types from an
+   // instantiation of this template the compiler does an explicit
+   // instantiation of the base class.  From outside the vtkCommon
+   // library we block this using an extern dllimport instantiation.
+   // For classes inside vtkCommon we should be able to just do an
+   // extern instantiation, but VS 2008 complains about missing
+   // definitions.  We cannot do an extern dllimport inside vtkCommon
+   // since the symbols are local to the dll.  An extern dllexport
+   // seems to be the only way to convince VS 2008 to do the right
+   // thing, so we just disable the warning.
+#  pragma warning (disable: 4910) // extern and dllexport incompatible
+
+   // Use an "extern explicit instantiation" to give the class a DLL
+   // interface.  This is a compiler-specific extension.
+   extern VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATE(VTK_DATA_ARRAY_TEMPLATE_TYPE);
+#  pragma warning (pop)
+# endif
+# undef VTK_DATA_ARRAY_TEMPLATE_TYPE
+#endif
+
+// This macro is used by the subclasses to create dummy
+// declarations for these functions such that the wrapper
+// can see them. The wrappers ignore vtkDataArrayTemplate.
+#define vtkCreateWrappedArrayInterface(T) \
+  int GetDataType(); \
+  void GetTupleValue(vtkIdType i, T* tuple); \
+  void SetTupleValue(vtkIdType i, const T* tuple); \
+  void InsertTupleValue(vtkIdType i, const T* tuple); \
+  vtkIdType InsertNextTupleValue(const T* tuple); \
+  T GetValue(vtkIdType id); \
+  void SetValue(vtkIdType id, T value); \
+  void SetNumberOfValues(vtkIdType number); \
+  void InsertValue(vtkIdType id, T f); \
+  vtkIdType InsertNextValue(T f); \
+  T *GetValueRange(int comp); \
+  T *GetValueRange(); \
+  T* WritePointer(vtkIdType id, vtkIdType number); \
+  T* GetPointer(vtkIdType id)/*; \
+
+  * These methods are not wrapped to avoid wrappers exposing these
+  * easy-to-get-wrong methods because passing in the wrong value for 'save' is
+  * guaranteed to cause a memory issue down the line. Either the wrappers
+  * didn't use malloc to allocate the memory or the memory isn't actually
+  * persisted because a temporary array is used that doesn't persist like this
+  * method expects.
+
+  void SetArray(T* array, vtkIdType size, int save); \
+  void SetArray(T* array, vtkIdType size, int save, int deleteMethod) */

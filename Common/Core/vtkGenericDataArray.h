@@ -319,6 +319,10 @@ public:
   virtual void SetVariantValue(vtkIdType idx, vtkVariant value);
 
   //----------------------------------------------------------------------------
+  // Insert the variant's value at the specified value index.
+  virtual void InsertVariantValue(vtkIdType idx, vtkVariant value);
+
+  //----------------------------------------------------------------------------
   // All the lookup related methods We provide a default implementation that
   // works using the iterator. Since these methods are virtual, a subclass can
   // override these to provide faster alternatives.

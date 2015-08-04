@@ -16,7 +16,7 @@
 // vtkArrayIteratorTemplate<vtkIdType> because they are instantiated
 // by the corresponding array for its native type.  Therefore this
 // code should not be uncommented and is here for reference:
-//   #include "vtkDataArrayTemplate.txx"
+//   #include "vtkAoSDataArrayTemplate.h"
 //   VTK_DATA_ARRAY_TEMPLATE_INSTANTIATE(vtkIdType);
 //   #include "vtkArrayIteratorTemplate.txx"
 //   VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(vtkIdType);
