@@ -1,4 +1,6 @@
 set(Module_SRCS
+  vtkGeoJSONFeature.cxx
+  vtkGeoJSONReader.cxx
   vtkGeoJSONWriter.cxx
   )
 
