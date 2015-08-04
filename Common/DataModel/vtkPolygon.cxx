@@ -526,6 +526,11 @@ int vtkPolygon::ParameterizePolygon(double *p0, double *p10, double& l10,
   int numPts=this->Points->GetNumberOfPoints();
   double x1[3], x2[3];
 
+  if (numPts < 3)
+    {
+    return 0;
+    }
+
   //  This is a two pass process: first create a p' coordinate system
   //  that is then adjusted to insure that the polygon points are all in
   //  the range 0<=s,t<=1.  The p' system is defined by the polygon normal,
