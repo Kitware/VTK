@@ -184,6 +184,14 @@ int vtkAbstractArray::CopyComponentNames( vtkAbstractArray *da )
   return 0;
 }
 
+//----------------------------------------------------------------------------
+void vtkAbstractArray::SetNumberOfValues(vtkIdType number)
+{
+  if (this->Allocate(number))
+    {
+    this->MaxId = number - 1;
+    }
+}
 
 //----------------------------------------------------------------------------
 void vtkAbstractArray::SetInformation(vtkInformation *args)
@@ -254,6 +262,16 @@ void vtkAbstractArray::DeepCopy( vtkAbstractArray* da )
     this->CopyInformation(da->GetInformation(),/*deep=*/1);
     }
   this->CopyComponentNames( da );
+}
+
+//----------------------------------------------------------------------------
+void vtkAbstractArray::ExportToVoidPointer(void *dest)
+{
+  if (this->MaxId > 0 && this->GetDataTypeSize() > 0)
+    {
+    void *src = this->GetVoidPointer(0);
+    memcpy(dest, src, (this->MaxId * this->GetDataTypeSize()));
+    }
 }
 
 //----------------------------------------------------------------------------

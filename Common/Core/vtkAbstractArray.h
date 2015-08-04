@@ -126,6 +126,12 @@ public:
   virtual void SetNumberOfTuples(vtkIdType number) = 0;
 
   // Description:
+  // Specify the number of values for this object to hold. Does an
+  // allocation as well as setting the MaxId ivar. Used in conjunction with
+  // SetValue() method for fast insertion.
+  virtual void SetNumberOfValues(vtkIdType number);
+
+  // Description:
   // Get the number of tuples (a component group) in the array.
   vtkIdType GetNumberOfTuples()
     {return (this->MaxId + 1)/this->NumberOfComponents;}
@@ -284,7 +290,7 @@ public:
   // This method copies the array data to the void pointer specified
   // by the user.  It is up to the user to allocate enough memory for
   // the void pointer.
-  virtual void ExportToVoidPointer(void *vtkNotUsed(out_ptr)) {}
+  virtual void ExportToVoidPointer(void *out_ptr);
 
   // Description:
   // Return the memory in kibibytes (1024 bytes) consumed by this data array. Used to

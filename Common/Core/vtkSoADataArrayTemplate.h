@@ -41,7 +41,7 @@ public:
   // Methods that are needed to be implemented by every vtkGenericDataArray
   // subclass.
   // **************************************************************************
-  inline ReferenceType GetValue(vtkIdType valueIdx) const
+  inline const ReferenceType GetValue(vtkIdType valueIdx) const
     {
     vtkIdType tupleIdx;
     int comp;
@@ -55,7 +55,8 @@ public:
       tuple[cc] = this->Data[cc].GetBuffer()[tupleIdx];
       }
     }
-  inline ReferenceType GetComponentValue(vtkIdType tupleIdx, int comp) const
+  inline const ReferenceType GetComponentValue(vtkIdType tupleIdx,
+                                               int comp) const
     {
     return this->Data[comp].GetBuffer()[tupleIdx];
     }
@@ -66,7 +67,7 @@ public:
     this->GetTupleIndexFromValueIndex(valueIdx, tupleIdx, comp);
     this->SetComponentValue(tupleIdx, comp, value);
     }
-  inline void SetTupleValue(vtkIdType tupleIdx, ValueType* tuple)
+  inline void SetTupleValue(vtkIdType tupleIdx, const ValueType* tuple)
     {
     for (int cc=0; cc < this->NumberOfComponents; ++cc)
       {

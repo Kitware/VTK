@@ -40,13 +40,20 @@ public:
   typedef typename Superclass::ValueType ValueType;
   typedef typename Superclass::ReferenceType ReferenceType;
 
+  // Description:
+  // Legacy support for array-of-structs value iteration.
+  // TODO Deprecate?
+  typedef ValueType* Iterator;
+  Iterator Begin() { return Iterator(this->GetVoidPointer(0)); }
+  Iterator End() { return Iterator(this->GetVoidPointer(this->MaxId + 1)); }
+
   static vtkAoSDataArrayTemplate* New();
 
   // **************************************************************************
   // Methods that are needed to be implemented by every vtkGenericDataArray
   // subclass.
   // **************************************************************************
-  inline ReferenceType GetValue(vtkIdType valueIdx) const
+  inline const ReferenceType GetValue(vtkIdType valueIdx) const
     {
     return this->Buffer.GetBuffer()[valueIdx];
     }
@@ -57,7 +64,7 @@ public:
               this->Buffer.GetBuffer() + valueIdx + this->NumberOfComponents,
               tuple);
     }
-  inline ReferenceType GetComponentValue(vtkIdType index, int comp) const
+  inline const ReferenceType GetComponentValue(vtkIdType index, int comp) const
     {
     return this->Buffer.GetBuffer()[this->NumberOfComponents*index + comp];
     }
@@ -66,7 +73,7 @@ public:
     this->Buffer.GetBuffer()[valueIdx] = value;
     this->DataChanged();
     }
-  inline void SetTupleValue(vtkIdType tupleIdx, ValueType* tuple)
+  inline void SetTupleValue(vtkIdType tupleIdx, const ValueType* tuple)
     {
     const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
     std::copy(tuple, tuple + this->NumberOfComponents,
@@ -118,13 +125,23 @@ public:
     { this->SetArray(array, size, save, VTK_DATA_ARRAY_FREE); }
   virtual void SetVoidArray(void* array, vtkIdType size, int save)
     { this->SetArray(static_cast<ValueType*>(array), size, save); }
-  virtual void SetVoidArray(void* array,
-                            vtkIdType size,
-                            int save,
+  virtual void SetVoidArray(void* array, vtkIdType size, int save,
                             int deleteMethod)
     {
     this->SetArray(static_cast<ValueType*>(array), size, save, deleteMethod);
     }
+
+  // Description:
+  // Tell the array explicitly that a single data element has
+  // changed. Like DataChanged(), then is only necessary when you
+  // modify the array contents without using the array's API.
+  // @note This is a legacy method from vtkDataArrayTemplate, and is only
+  // implemented for array-of-struct arrays. It currently just calls
+  // DataChanged() and does nothing clever.
+  virtual void DataElementChanged(vtkIdType)
+  {
+    this->DataChanged();
+  }
 
 //BTX
 protected:

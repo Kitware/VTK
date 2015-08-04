@@ -43,15 +43,19 @@ public:
   //----------------------------------------------------------------------------
   // Methods that must be defined by the subclasses.
   // Let's call these GenericDataArray concept methods.
-  inline ReferenceType GetValue(vtkIdType valueIdx) const
+  inline const ReferenceType GetValue(vtkIdType valueIdx) const
     {
+    // TODO this method shadows a non-const method in vtkDataArrayTemplate
+    // that returns a value. Prolly won't matter for most cases, but we should
+    // note it somewhere.
     return static_cast<const DerivedT*>(this)->GetValue(valueIdx);
     }
   inline void GetTupleValue(vtkIdType tupleIdx, ValueType* tuple) const
     {
     static_cast<const DerivedT*>(this)->GetTupleValue(tupleIdx, tuple);
     }
-  inline ReferenceType GetComponentValue(vtkIdType tupleIdx, int comp) const
+  inline const ReferenceType GetComponentValue(vtkIdType tupleIdx,
+                                               int comp) const
     {
     return static_cast<const DerivedT*>(this)->GetComponentValue(tupleIdx,
                                                                  comp);
@@ -60,7 +64,7 @@ public:
     {
     static_cast<DerivedT*>(this)->SetValue(valueIdx, value);
     }
-  inline void SetTupleValue(vtkIdType tupleIdx, ValueType* tuple)
+  inline void SetTupleValue(vtkIdType tupleIdx, const ValueType* tuple)
     {
     static_cast<DerivedT*>(this)->SetTupleValue(tupleIdx, tuple);
     }
@@ -92,6 +96,10 @@ public:
   // Default implementation raises a runtime error. If subclasses are keep on
   // supporting this API, they should override this method.
   virtual void *GetVoidPointer(vtkIdType id);
+  ValueType* GetPointer(vtkIdType id)
+  {
+    return static_cast<ValueType*>(this->GetVoidPointer(id));
+  }
 
   // Description:
   // Implementation provided simply raises a runtime error. If subclasses are
@@ -102,6 +110,10 @@ public:
   // Implementation provided simply raises a runtime error. If subclasses are
   // keep on supporting this API, they should override the method.
   virtual void* WriteVoidPointer(vtkIdType id, vtkIdType number);
+  ValueType* WritePointer(vtkIdType id, vtkIdType number)
+  {
+    return static_cast<ValueType*>(this->WriteVoidPointer(id, number));
+  }
 
   //----------------------------------------------------------------------------
   // Methods relating to memory allocated for this array.
@@ -236,6 +248,12 @@ public:
     this->EnsureAccessToTuple(i);
     this->SetTuple(i, source);
     }
+  virtual void InsertComponent(vtkIdType tupleIdx, int compIdx, double val)
+    {
+    // Reimplemented for efficiency -- base impl allocates heap memory
+    this->EnsureAccessToTuple(tupleIdx);
+    this->SetComponent(tupleIdx, compIdx, val);
+    }
   virtual vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray *source)
     {
     vtkIdType nextTuple = this->GetNumberOfTuples();
@@ -269,6 +287,22 @@ public:
   // GetTuple methods.
   virtual double *GetTuple(vtkIdType i);
   virtual void GetTuple(vtkIdType i, double * tuple);
+
+  //----------------------------------------------------------------------------
+  // SetComponent methods.
+  virtual void SetComponent(vtkIdType i, int j, double c)
+  {
+    // Reimplemented for efficiency (base impl allocates heap memory)
+    this->SetComponentValue(i, j, static_cast<ValueType>(c));
+  }
+
+  //----------------------------------------------------------------------------
+  // GetComponent methods.
+  virtual double GetComponent(vtkIdType i, int j)
+  {
+    // Reimplemented for efficiency (base impl allocates heap memory)
+    return static_cast<double>(this->GetComponentValue(i, j));
+  }
 
   //----------------------------------------------------------------------------
   // Description:
@@ -371,12 +405,61 @@ public:
     }
 
   // Description:
+  // Insert (memory allocation performed) the value at the specified tuple and
+  // component location.
+  void InsertComponentValue(vtkIdType tupleIdx, int compIdx, ValueType val)
+    {
+    // Update MaxId to the inserted component (not the complete tuple) for
+    // compatibility with InsertNextValue.
+    vtkIdType newMaxId = tupleIdx * this->NumberOfComponents + compIdx;
+    if (this->MaxId > newMaxId)
+      {
+      newMaxId = this->MaxId;
+      }
+    this->EnsureAccessToTuple(tupleIdx);
+    assert("Sufficient space allocated." && this->MaxId >= newMaxId);
+    this->MaxId = newMaxId;
+    this->SetComponentValue(tupleIdx, compIdx, val);
+    }
+
+  // Description:
   // Returns the number of values i.e.
   // (this->NumberOfComponents*this->NumberOfTuples)
   inline vtkIdType GetNumberOfValues()
     {
     return (this->MaxId + 1);
     }
+
+  // Description:
+  // Get the range of array values for the given component in the
+  // native data type.
+  void GetValueRange(ValueType range[2], int comp)
+    {
+    // TODO This is how vtkDataArrayTemplate implemented this. It should be
+    // reimplemented to avoid truncation of e.g. longer integers.
+    double doubleRange[2];
+    this->ComputeRange(doubleRange, comp);
+    range[0] = static_cast<ValueType>(doubleRange[0]);
+    range[1] = static_cast<ValueType>(doubleRange[1]);
+    }
+  ValueType *GetValueRange(int comp)
+    {
+    this->LegacyValueRange.resize(2);
+    this->GetValueRange(&this->LegacyValueRange[0], comp);
+    return &this->LegacyValueRange[0];
+    }
+
+  // Description:
+  // Get the range of array values for the 0th component in the
+  // native data type.
+  ValueType *GetValueRange() { return this->GetValueRange(0); }
+  void GetValueRange(ValueType range[2]) { this->GetValueRange(range, 0); }
+
+  // Description:
+  // Return the capacity in typeof T units of the current array.
+  // TODO Redundant with GetSize. Deprecate?
+  vtkIdType Capacity() { return this->Size; }
+
 protected:
   vtkGenericDataArray()
     : Lookup(*this)
@@ -405,6 +488,7 @@ private:
   vtkGenericDataArray(const vtkGenericDataArray&); // Not implemented.
   void operator=(const vtkGenericDataArray&); // Not implemented.
   std::vector<double> LegacyTuple;
+  std::vector<double> LegacyValueRange;
 };
 
 #include "vtkGenericDataArray.txx"
