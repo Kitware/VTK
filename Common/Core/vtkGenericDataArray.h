@@ -349,6 +349,13 @@ public:
       // multi-component arrays.
       this->MaxId = nextValueIdx;
       }
+
+    // Extending array without needing to reallocate:
+    if (this->MaxId < nextValueIdx)
+      {
+      this->MaxId = nextValueIdx;
+      }
+
     this->SetValue(nextValueIdx, v);
     }
 
