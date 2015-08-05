@@ -829,6 +829,9 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
     // Are we at or past the end? If so, just use the last value
     if ( x > this->Range[1])
       {
+      tptr[0] = 0.0;
+      tptr[1] = 0.0;
+      tptr[2] = 0.0;
       if (this->Clamping)
         {
         if (this->GetUseAboveRangeColor())
@@ -842,17 +845,14 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
           tptr[2] = lastB;
           }
         }
-      else
-        {
-        tptr[0] = 0.0;
-        tptr[1] = 0.0;
-        tptr[2] = 0.0;
-        }
       }
     // Are we before the first node? If so, duplicate this node's values.
     // We have to deal with -inf here
     else if (x < this->Range[0] || (vtkMath::IsInf(x) && x < 0))
       {
+      tptr[0] = 0.0;
+      tptr[1] = 0.0;
+      tptr[2] = 0.0;
       if (this->Clamping)
         {
         if (this->GetUseBelowRangeColor())
@@ -861,10 +861,22 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
           }
         else
           {
-          tptr[0] = this->Internal->Nodes[0]->R;
-          tptr[1] = this->Internal->Nodes[0]->G;
-          tptr[2] = this->Internal->Nodes[0]->B;
+          if (numNodes > 0)
+            {
+            tptr[0] = this->Internal->Nodes[0]->R;
+            tptr[1] = this->Internal->Nodes[0]->G;
+            tptr[2] = this->Internal->Nodes[0]->B;
+            }
           }
+        }
+      }
+    else if (idx == 0 && std::fabs(x - xStart) < 1e-6)
+      {
+      if (numNodes > 0)
+        {
+        tptr[0] = this->Internal->Nodes[0]->R;
+        tptr[1] = this->Internal->Nodes[0]->G;
+        tptr[2] = this->Internal->Nodes[0]->B;
         }
       else
         {
@@ -872,12 +884,6 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
         tptr[1] = 0.0;
         tptr[2] = 0.0;
         }
-      }
-    else if (idx == 0 && std::fabs(x - xStart) < 1e-6)
-      {
-      tptr[0] = this->Internal->Nodes[0]->R;
-      tptr[1] = this->Internal->Nodes[0]->G;
-      tptr[2] = this->Internal->Nodes[0]->B;
       }
     // Otherwise, we are between two nodes - interpolate
     else
@@ -1903,6 +1909,4 @@ void vtkColorTransferFunction::PrintSelf(ostream& os, vtkIndent indent)
        << " Midpoint: " << this->Internal->Nodes[i]->Midpoint << endl;
     }
 }
-
-
 
