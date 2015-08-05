@@ -302,7 +302,7 @@ There are a few options for checking out the changes in a work tree:
 The "Kitware Robot" automatically performs basic checks on the commits
 and adds a comment acknowledging or rejecting the topic.  This will be
 repeated automatically whenever the topic is pushed to your fork again.
-A re-check may be explicitly requested by adding a comment with the
+A re-check may be explicitly requested by adding a comment with a single
 [*trailing* line](#trailing-lines):
 
     Do: check
@@ -344,8 +344,8 @@ Merge a Topic
 -------------
 
 After a topic has been reviewed and approved in a GitLab Merge Request,
-authorized developers may add a comment with a
-[*trailing* line](#trailing-lines) set to
+authorized developers may add a comment with a single
+[*trailing* line](#trailing-lines):
 
     Do: merge
 
