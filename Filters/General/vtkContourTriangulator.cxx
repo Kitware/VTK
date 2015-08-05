@@ -295,15 +295,13 @@ double vtkCCSPolygonNormal(
   double p0[3], p1[3], p2[3];
 
   size_t n = poly.size();
-  points->GetPoint(poly[n-1], p1);
-  points->GetPoint(poly[0], p2);
+  points->GetPoint(poly[0], p0);
+  points->GetPoint(poly[1], p1);
 
-  for (size_t j = 1; j < n; j++)
+  for (size_t j = 2; j < n; j++)
     {
     double v1[3], v2[3];
 
-    p0[0] = p1[0]; p0[1] = p1[1]; p0[2] = p1[2];
-    p1[0] = p2[0]; p1[1] = p2[1]; p1[2] = p2[2];
     points->GetPoint(poly[j], p2);
 
     v1[0] = p2[0] - p1[0];
@@ -317,6 +315,10 @@ double vtkCCSPolygonNormal(
     nn[0] += v1[1]*v2[2] - v1[2]*v2[1];
     nn[1] += v1[2]*v2[0] - v1[0]*v2[2];
     nn[2] += v1[0]*v2[1] - v1[1]*v2[0];
+
+    p1[0] = p2[0];
+    p1[1] = p2[1];
+    p1[2] = p2[2];
     }
 
   double norm2 = nn[0]*nn[0] + nn[1]*nn[1] + nn[2]*nn[2];
