@@ -200,9 +200,9 @@ vtkXdmfWriter::~vtkXdmfWriter()
   delete this->DOM;
   this->DOM = NULL;
   delete this->DomainMemoryHandler;
+  this->DomainMemoryHandler = NULL;
   delete this->TopTemporalGrid;
   this->TopTemporalGrid = NULL;
-  delete this->DomainMemoryHandler;
 
   //TODO: Verify memory isn't leaking
 }
