@@ -23,6 +23,8 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPolyDataMapper.h"
 
+class vtkPiecewiseFunction;
+
 class VTKRENDERINGCORE_EXPORT vtkPointGaussianMapper : public vtkPolyDataMapper
 {
 public:
@@ -49,11 +51,39 @@ public:
   vtkGetMacro(Emissive, int);
   vtkBooleanMacro(Emissive, int);
 
+  // Description:
+  // Set/Get the optional opacity transfer function. This is only
+  // used when an OpacityArray is also specified.
+  void SetScalarOpacityFunction(vtkPiecewiseFunction *);
+  vtkGetObjectMacro(ScalarOpacityFunction,vtkPiecewiseFunction);
+
+  // Description:
+  // Method to set the optional opacity array.  If specified this
+  // array will be used to generate the opacity values.
+  vtkSetStringMacro(OpacityArray);
+  vtkGetStringMacro(OpacityArray);
+
+  // Description:
+  // Method to override the fragment shader code for the splat.  You can
+  // set this to draw other shapes. For the OPenGL2 backend some of
+  // the variables you can use and/or modify include,
+  //   opacity - 0.0 to 1.0
+  //   diffuseColor - vec3
+  //   ambientColor - vec3
+  //   offsetVCVSOutput - vec2 offset in view coordinates from the splat center
+  vtkSetStringMacro(SplatShaderCode);
+  vtkGetStringMacro(SplatShaderCode);
+
 protected:
   vtkPointGaussianMapper();
   ~vtkPointGaussianMapper();
 
   char *ScaleArray;
+  char *OpacityArray;
+  char *SplatShaderCode;
+
+  vtkPiecewiseFunction *ScalarOpacityFunction;
+
   double DefaultRadius;
   int Emissive;
 
