@@ -24,6 +24,8 @@ LSDynaMetaData::LSDynaMetaData()
   this->MaxFileLength = this->FileSizeFactor*512*512*8;
 
   this->Title[0] = '\0';
+  this->ReleaseNumber[0] = '\0';
+  this->CodeVersion = 0.0;
   this->PreStateSize = 0;
   this->StateSize = 0;
   this->CurrentState = 0;
@@ -93,6 +95,8 @@ void LSDynaMetaData::Reset()
   this->MaxFileLength = this->FileSizeFactor*512*512*8;
 
   this->Title[0] = '\0';
+  this->ReleaseNumber[0] = '\0';
+  this->CodeVersion = 0.0;
   this->PreStateSize = 0;
   this->StateSize = 0;
   this->CurrentState = 0;

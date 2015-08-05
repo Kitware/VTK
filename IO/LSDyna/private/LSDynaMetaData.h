@@ -76,6 +76,8 @@ public:
   LSDynaFamily Fam; // file family I/O aggregator
 
   char  Title[41];
+  char  ReleaseNumber[16];
+  float CodeVersion;
   int Dimensionality;
   vtkIdType CurrentState; // time step
   vtkIdType NumberOfNodes;
