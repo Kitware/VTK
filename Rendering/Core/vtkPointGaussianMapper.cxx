@@ -30,6 +30,7 @@ vtkPointGaussianMapper::vtkPointGaussianMapper()
   this->ScalarOpacityFunction = 0;
   this->DefaultRadius = 1.0;
   this->Emissive = 1;
+  this->OpacityTableSize = 1024;
 }
 
 //-----------------------------------------------------------------------------
@@ -51,4 +52,5 @@ void vtkPointGaussianMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "SplatShaderCode: " << (this->SplatShaderCode ? this->SplatShaderCode : "(none)") << "\n";
   os << indent << "Default Radius: " << this->DefaultRadius << "\n";
   os << indent << "Emissive: " << this->Emissive << "\n";
+  os << indent << "OpacityTableSize: " << this->OpacityTableSize << "\n";
 }

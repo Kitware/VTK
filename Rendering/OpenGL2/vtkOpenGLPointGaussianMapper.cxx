@@ -597,13 +597,14 @@ void vtkOpenGLPointGaussianMapperHelper::BuildOpacityArray(vtkPolyData *poly)
 
   // if a piecewise function was provided, use it to map the opacities
   vtkPiecewiseFunction *pwf = this->Owner->GetScalarOpacityFunction();
-  float table[1025];
+  int tableSize = this->Owner->GetOpacityTableSize();
+  float *table = new float[tableSize+1];
   if (pwf)
     {
     // build the interpolation table
-    pwf->GetTable(range[0],range[1],1024,table);
+    pwf->GetTable(range[0],range[1],tableSize,table);
     // duplicate the last value for bilinear interp edge case
-    table[1024] = table[1023];
+    table[tableSize] = table[tableSize-1];
     }
 
   vtkCellArray *verts = poly->GetVerts();
@@ -619,7 +620,7 @@ void vtkOpenGLPointGaussianMapperHelper::BuildOpacityArray(vtkPolyData *poly)
         float value = oda->GetComponent(indices[i],0);
         if (pwf)
           {
-          float index = 1023.0*(value - range[0])/(range[1] - range[0]);
+          float index = (tableSize - 1.0)*(value - range[0])/(range[1] - range[0]);
           int iindex = static_cast<int>(index);
           value = (1.0 - index + iindex)*table[iindex] + (index - iindex)*table[iindex+1];
           }
@@ -636,7 +637,7 @@ void vtkOpenGLPointGaussianMapperHelper::BuildOpacityArray(vtkPolyData *poly)
       float value = oda->GetComponent(i,0);
       if (pwf)
         {
-        float index = 1023.0*(value - range[0])/(range[1] - range[0]);
+        float index = (tableSize-1.0)*(value - range[0])/(range[1] - range[0]);
         int iindex = static_cast<int>(index);
         value = (1.0 - index + iindex)*table[iindex] + (index - iindex)*table[iindex+1];
         }
@@ -644,6 +645,8 @@ void vtkOpenGLPointGaussianMapperHelper::BuildOpacityArray(vtkPolyData *poly)
       count++;
       }
     }
+
+  delete [] table;
 }
 
 //-------------------------------------------------------------------------

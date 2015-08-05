@@ -92,6 +92,8 @@ int TestPointGaussianMapperOpacity(int argc, char *argv[])
   mapper->EmissiveOff();
 
   // show other shader examples
+  // the fragment that is rendered is that of a triangle
+  // large enough to encompass a circle of radius 3
   mapper->SetSplatShaderCode(
     // this first line keeps the default color opacity calcs
     // which you can then modify with additional code below

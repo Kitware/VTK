@@ -58,6 +58,12 @@ public:
   vtkGetObjectMacro(ScalarOpacityFunction,vtkPiecewiseFunction);
 
   // Description:
+  // The size of the table used in computing opacities, used when
+  // converting a vtkPiecewiseFunction to a table
+  vtkSetMacro(OpacityTableSize, int);
+  vtkGetMacro(OpacityTableSize, int);
+
+  // Description:
   // Method to set the optional opacity array.  If specified this
   // array will be used to generate the opacity values.
   vtkSetStringMacro(OpacityArray);
@@ -86,6 +92,7 @@ protected:
 
   double DefaultRadius;
   int Emissive;
+  int OpacityTableSize;
 
 private:
   vtkPointGaussianMapper(const vtkPointGaussianMapper&); // Not implemented.
