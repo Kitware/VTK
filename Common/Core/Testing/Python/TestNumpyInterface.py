@@ -3,8 +3,8 @@ import sys
 try:
     import numpy
 except ImportError:
-    print "Numpy (http://numpy.scipy.org) not found.",
-    print "This test requires numpy!"
+    print("Numpy (http://numpy.scipy.org) not found.")
+    print("This test requires numpy!")
     sys.exit(0)
 
 import vtk

@@ -8,7 +8,7 @@ arrayType = ['Bit', 'Char', 'Double', 'Float', 'Int', 'Long', 'Short',\
  'UnsignedChar', 'UnsignedInt', 'UnsignedLong', 'UnsignedShort']
 
 for array in arrayType:
-    print array, 'array'
+    print(array, 'array')
     vtkClass = 'vtk' + array + 'Array'
     a = getattr(vtk, vtkClass)()
     a.Allocate(1,1)
@@ -46,7 +46,7 @@ for array in arrayType:
         for j in range(0, a.GetNumberOfComponents()):
             if a.GetComponent(i, j) != b.GetComponent(i, j):
                 s = '%s: bad component %d, %d' % (array, i, j)
-                print s
+                print(s)
             k += 1
 
     b.InsertComponent(2001, 0, 1)

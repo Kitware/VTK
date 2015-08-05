@@ -7,14 +7,16 @@ data is partitioned according to VTK data parallel execution
 guidelines. For details, see the documentation of individual
 algorithms.
 """
+from __future__ import absolute_import
+
 try:
     import numpy
 except ImportError:
     raise RuntimeError("This module depends on the numpy module. Please make\
 sure that it is installed properly.")
 
-import dataset_adapter as dsa
-import internal_algorithms as algs
+from . import dataset_adapter as dsa
+from . import internal_algorithms as algs
 import itertools
 try:
     from vtk.vtkParallelCore import vtkMultiProcessController
@@ -497,7 +499,7 @@ def count_per_block(array, axis=None, controller=None):
     """
 
     if axis > 0:
-        raise ValueError, "Only axis=None and axis=0 are supported for count"
+        raise ValueError("Only axis=None and axis=0 are supported for count")
 
     class CountPerBlockImpl:
         def op(self):
@@ -751,11 +753,11 @@ def shape(array):
                 else:
                     tmp = a.shape
                     if (len(shp) != len(tmp)):
-                        raise ValueError, "Expected arrays of same shape"
+                        raise ValueError("Expected arrays of same shape")
                     shp[0] += tmp[0]
                     for idx in range(1,len(tmp)):
                         if shp[idx] != tmp[idx]:
-                            raise ValueError, "Expected arrays of same shape"
+                            raise ValueError("Expected arrays of same shape")
         return tuple(shp)
     elif array is dsa.NoneArray:
         return ()
@@ -808,7 +810,7 @@ def unstructured_from_composite_arrays(points, arrays, controller=None):
         dataset = None
 
     if dataset is None and points is not dsa.NoneArray:
-        raise ValueError, "Expecting a points arrays with an associated dataset."
+        raise ValueError("Expecting a points arrays with an associated dataset.")
 
     if points is dsa.NoneArray:
         cpts = []

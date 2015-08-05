@@ -27,7 +27,7 @@ class TerminationCrashTestCase:
         self.Object = vtk.vtkObject()
         self.Object.AddObserver('StartEvent', self.Handler)
     def Handler(self, obj, evt) :
-        print 'event received'
+        print('event received')
 
 test = TerminationCrashTestCase()
 

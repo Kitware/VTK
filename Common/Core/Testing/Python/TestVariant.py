@@ -15,16 +15,13 @@ Created on May 12, 2010 by David Gobbi
 """
 
 import sys
-import exceptions
 import vtk
 from vtk.test import Testing
 
-unicode_support = False
-try:
-    unicode('hello')
-    unicode_support = True
-except:
-    print "unicode not supported on this python installation"
+if sys.hexversion > 0x03000000:
+    cedilla = 'Fran\xe7ois'
+else:
+    cedilla = unicode('Fran\xe7ois', 'latin1')
 
 
 class TestVariant(Testing.vtkTest):
@@ -59,12 +56,17 @@ class TestVariant(Testing.vtkTest):
         self.assertEqual(v.GetType(), vtk.VTK_STRING)
         self.assertEqual(v.ToString(), 'hello')
 
+    def testBytesConstructor(self):
+        """Construct from bytes"""
+        v = vtk.vtkVariant(b'hello')
+        self.assertEqual(v.GetType(), vtk.VTK_STRING)
+        self.assertEqual(v.ToString(), 'hello')
+
     def testUnicodeConstructor(self):
         """Construct from unicode"""
-        if unicode_support:
-            v = vtk.vtkVariant(u'hello')
-            self.assertEqual(v.GetType(), vtk.VTK_UNICODE_STRING)
-            self.assertEqual(v.ToUnicodeString(), u'hello')
+        v = vtk.vtkVariant(cedilla)
+        self.assertEqual(v.GetType(), vtk.VTK_UNICODE_STRING)
+        self.assertEqual(v.ToUnicodeString(), cedilla)
 
     def testObjectConstructor(self):
         """Construct from VTK object"""
@@ -117,27 +119,30 @@ class TestVariant(Testing.vtkTest):
 
     def testCompare(self):
         """Use comparison operators to sort a list of vtkVariants"""
-        if not unicode_support:
-            return
-        l = map(vtk.vtkVariant, [1, 2.5, vtk.vtkVariant(), "0", u'hello'])
-        s = map(vtk.vtkVariant, [vtk.vtkVariant(), "0", 1, 2.5, u'hello'])
+        original = [1, 2.5, vtk.vtkVariant(), "0", cedilla]
+        ordered = [vtk.vtkVariant(), "0", 1, 2.5, cedilla]
+        l = [vtk.vtkVariant(x) for x in original]
+        s = [vtk.vtkVariant(x) for x in ordered]
         l.sort()
         self.assertEqual(l, s)
 
     def testStrictWeakOrder(self):
         """Use vtkVariantStrictWeakOrder to sort a list of vtkVariants"""
-        if not unicode_support:
+        if sys.hexversion > 0x03000000:
+            """sort() doesn't take comparator in py3k"""
             return
-        l = map(vtk.vtkVariant, [1, 2.5, vtk.vtkVariant(), "0", u'hello'])
-        s = map(vtk.vtkVariant, [vtk.vtkVariant(), 1, 2.5, "0", u'hello'])
+        original = [1, 2.5, vtk.vtkVariant(), "0", cedilla]
+        ordered = [vtk.vtkVariant(), 1, 2.5, "0", cedilla]
+        l = [vtk.vtkVariant(x) for x in original]
+        s = [vtk.vtkVariant(x) for x in ordered]
         l.sort(vtk.vtkVariantStrictWeakOrder)
         self.assertEqual(l, s)
 
     def testVariantExtract(self):
         """Use vtkVariantExtract"""
-        l = [1, '2', u'3', 4.0, vtk.vtkObject()]
-        s = map(vtk.vtkVariant, l)
-        m = map(vtk.vtkVariantExtract, s)
+        l = [1, '2', cedilla, 4.0, vtk.vtkObject()]
+        s = [vtk.vtkVariant(x) for x in l]
+        m = [vtk.vtkVariantExtract(x) for x in s]
         self.assertEqual(l, m)
 
     def testHash(self):
@@ -149,9 +154,9 @@ class TestVariant(Testing.vtkTest):
         self.assertEqual(d[vtk.vtkVariant('1')], 'int')
 
         # strings and unicode have the same hash
-        d[vtk.vtkVariant(u's')] = 'unicode'
-        d[vtk.vtkVariant('s')] = 'string'
-        self.assertEqual(d[vtk.vtkVariant(u's')], 'string')
+        d[vtk.vtkVariant('s').ToString()] = 'string'
+        d[vtk.vtkVariant('s').ToUnicodeString()] = 'unicode'
+        self.assertEqual(d[vtk.vtkVariant('s').ToString()], 'unicode')
 
         # every vtkObject is hashed by memory address
         o1 = vtk.vtkIntArray()

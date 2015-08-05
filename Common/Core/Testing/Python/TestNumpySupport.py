@@ -14,8 +14,8 @@ from vtk.test import Testing
 try:
     import numpy
 except ImportError:
-    print "Numpy (http://numpy.scipy.org) not found.",
-    print "This test requires numpy!"
+    print("Numpy (http://numpy.scipy.org) not found.",)
+    print("This test requires numpy!")
     sys.exit(0)
 
 from vtk.util.numpy_support import numpy_to_vtk, vtk_to_numpy
@@ -55,7 +55,7 @@ class TestNumpySupport(Testing.vtkTest):
         t_z.append(numpy.array([-2147483648, 0, 2147483647], numpy.int32))
         t_z.append(numpy.array([0, 255], numpy.uint8))
         t_z.append(numpy.array([0, 65535], numpy.uint16))
-        t_z.append(numpy.array([0, 4294967295L], numpy.uint32))
+        t_z.append(numpy.array([0, 4294967295], numpy.uint32))
         t_z.append(numpy.array([-1.0e38, 0, 1.0e38], 'f'))
         t_z.append(numpy.array([-1.0e299, 0, 1.0e299], 'd'))
 

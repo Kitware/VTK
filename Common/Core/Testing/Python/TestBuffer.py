@@ -11,7 +11,6 @@ Created on Aug 1, 2015 by David Gobbi
 
 import sys
 import struct
-import exceptions
 import vtk
 from vtk.test import Testing
 
@@ -95,7 +94,7 @@ class TestBuffer(Testing.vtkTest):
         self.assertEqual(m.strides, (5, 1))
         self.assertEqual(m.ndim, 2)
         # test the contents of the memoryview
-        self.assertEqual(m.tobytes(), bytes("helloworld"))
+        self.assertEqual(m.tobytes(), b"helloworld")
 
     def testBitArray(self):
         """Test the special case of the bit array."""

@@ -14,16 +14,15 @@ Created on May 12, 2010 by David Gobbi
 """
 
 import sys
-import exceptions
 import vtk
 from vtk.test import Testing
 
-unicode_support = False
-try:
-    unicode('hello')
-    unicode_support = True
-except:
-    print "unicode not supported on this python installation"
+if sys.hexversion > 0x03000000:
+    cedilla = 'Fran\xe7ois'
+    nocedilla = 'Francois'
+else:
+    cedilla = unicode('Fran\xe7ois', 'latin1')
+    nocedilla = unicode('Francois')
 
 
 class TestString(Testing.vtkTest):
@@ -58,30 +57,21 @@ class TestString(Testing.vtkTest):
 
     def testPassAndReturnUnicodeByReference(self):
         """Pass a unicode string by const reference"""
-        if not unicode_support:
-            return
-
         a = vtk.vtkUnicodeStringArray()
-        a.InsertNextValue(u'Fran\xe7ois')
+        a.InsertNextValue(cedilla)
         u = a.GetValue(0)
-        self.assertEqual(u, u'Fran\xe7ois')
+        self.assertEqual(u, cedilla)
 
     def testPassStringAsUnicode(self):
         """Pass a string when unicode is expected.  Should fail."""
-        if not unicode_support:
-            return
-
         a = vtk.vtkUnicodeStringArray()
-        self.assertRaises(exceptions.TypeError,
+        self.assertRaises(TypeError,
                           a.InsertNextValue, ('Francois',))
 
     def testPassUnicodeAsString(self):
         """Pass a unicode where a string is expected.  Should succeed."""
-        if not unicode_support:
-            return
-
         a = vtk.vtkStringArray()
-        a.InsertNextValue(u'Francois')
+        a.InsertNextValue(nocedilla)
         s = a.GetValue(0)
         self.assertEqual(s, 'Francois')
 

@@ -15,7 +15,7 @@ DEBUG=0
 
 def debug (msg):
     if DEBUG:
-        print msg
+        print(msg)
 
 class VtkDirMethodParser:
     """ Parses the methods from dir(vtk_obj). """

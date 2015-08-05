@@ -38,8 +38,10 @@ class TestArrayArguments(Testing.vtkTest):
             a.GetTupleValue(0, to);
             self.assertEqual(ti, to)
             d1 = a.GetTuple(0)
-            d2 = map(float, ti)
-            self.assertEqual(map(round, d1), map(round, d2))
+            d2 = [float(x) for x in ti]
+            r1 = [round(x) for x in d1]
+            r2 = [round(x) for x in d2]
+            self.assertEqual(r1, r2)
 
     def testUnsignedArrayArguments(self):
         for arrayClass in unsignedArrays:
@@ -52,8 +54,10 @@ class TestArrayArguments(Testing.vtkTest):
             a.GetTupleValue(0, to);
             self.assertEqual(ti, to)
             d1 = a.GetTuple(0)
-            d2 = map(float, ti)
-            self.assertEqual(map(round, d1), map(round, d2))
+            d2 = [float(x) for x in ti]
+            r1 = [round(x) for x in d1]
+            r2 = [round(x) for x in d2]
+            self.assertEqual(r1, r2)
 
     def testCharArrayArguments(self):
         a = vtk.vtkCharArray()
@@ -65,7 +69,7 @@ class TestArrayArguments(Testing.vtkTest):
         #to = "***"
         #a.GetTupleValue(0, to);
         d1 = list(a.GetTuple(0))
-        d2 = map(float, map(ord, ti))
+        d2 = [ord(x) for x in ti]
         self.assertEqual(d1, d2)
 
     def testBitArrayArguments(self):
@@ -76,7 +80,7 @@ class TestArrayArguments(Testing.vtkTest):
         to = [0,0]
         a.SetTuple(0, ti)
         a.GetTuple(0, to);
-        self.assertEqual(ti, map(int,to))
+        self.assertEqual(ti, [int(x) for x in to])
 
     def testNDimArrayArguments(self):
         a = [[0,0,0],[0,0,0],[0,0,0]]

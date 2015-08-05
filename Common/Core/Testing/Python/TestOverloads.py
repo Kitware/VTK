@@ -9,7 +9,6 @@ Created on Feb 15, 2015 by David Gobbi
 """
 
 import sys
-import exceptions
 import vtk
 from vtk.test import Testing
 

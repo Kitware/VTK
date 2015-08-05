@@ -68,6 +68,7 @@ sure that it is installed properly.")
 
 import itertools
 import operator
+import sys
 from vtk.util import numpy_support
 from vtk.vtkCommonDataModel import vtkDataObject
 import weakref
@@ -152,7 +153,7 @@ def numpyTovtkDataArray(array, name="numpy_array", array_type=None):
     return vtkarray
 
 def _make_tensor_array_contiguous(array):
-    if array == None:
+    if array is None:
         return None
     if array.flags.contiguous:
         return array
@@ -273,7 +274,11 @@ class VTKArray(numpy.ndarray):
         try:
             # This line tells us that they are referring to the same buffer.
             # Much like two pointers referring to same memory location in C/C++.
-            if buffer(slf) == buffer(obj2):
+            if sys.hexversion >= 0x03000000:
+                makebuffer = memoryview
+            else:
+                makebuffer = buffer
+            if makebuffer(slf) == makebuffer(obj2):
                 self.VTKObject = getattr(obj, 'VTKObject', None)
         except TypeError:
             pass
@@ -558,7 +563,7 @@ class DataSetAttributes(VTKObjectWrapper):
     def GetArray(self, idx):
         "Given an index or name, returns a VTKArray."
         if isinstance(idx, int) and idx >= self.VTKObject.GetNumberOfArrays():
-            raise IndexError, "array index out of range"
+            raise IndexError("array index out of range")
         vtkarray = self.VTKObject.GetArray(idx)
         if not vtkarray:
             vtkarray = self.VTKObject.GetAbstractArray(idx)
@@ -750,7 +755,7 @@ class CompositeDataIterator(object):
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         if not self.Iterator:
             raise StopIteration
 
@@ -759,6 +764,9 @@ class CompositeDataIterator(object):
         retVal = self.Iterator.GetCurrentDataObject()
         self.Iterator.GoToNextItem()
         return WrapDataObject(retVal)
+
+    def next(self):
+        return self.__next__()
 
     def __getattr__(self, name):
         """Returns attributes from the vtkCompositeDataIterator."""
