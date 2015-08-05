@@ -235,7 +235,14 @@ like merge requests and commits in other repositories.
 Reviewers may add comments providing feedback or to acknowledge their
 approval.  Lines of specific forms will be extracted during
 [merging](#merge-a-topic) and included as trailing lines of the
-generated merge commit message:
+generated merge commit message.
+
+A commit message consists of up to three parts which must be specified
+in the following order: the [leading line](#leading-line), then
+[middle lines](#middle-lines), then [trailing lines](#trailing-lines).
+Each part is optional, but they must be specified in this order.
+
+#### Leading Line ####
 
 The *leading* line of a comment may optionally be exactly one of the
 following votes followed by nothing but whitespace before the end
@@ -246,11 +253,15 @@ of the line:
 *   `+2` means "The change is ready for integration."
 *   `+3` means "I have tested the change and verified it works."
 
+#### Middle Lines ####
+
 The middle lines of a comment may be free-form [GitLab Flavored Markdown][].
 
-Zero or more *trailing* lines of a comment may each contain exactly one
-of the following votes followed by nothing but whitespace before the end
-of the line:
+#### Trailing Lines ####
+
+Zero or more *trailing* lines in the last section of a comment may
+each contain exactly one of the following votes followed by nothing
+but whitespace before the end of the line:
 
 *   `Rejected-by: me` means "The change is not ready for integration."
 *   `Acked-by: me` means "I like the change but defer to others."
@@ -292,7 +303,7 @@ The "Kitware Robot" automatically performs basic checks on the commits
 and adds a comment acknowledging or rejecting the topic.  This will be
 repeated automatically whenever the topic is pushed to your fork again.
 A re-check may be explicitly requested by adding a comment with the
-trailing line:
+[*trailing* line](#trailing-lines):
 
     Do: check
 
@@ -333,7 +344,8 @@ Merge a Topic
 -------------
 
 After a topic has been reviewed and approved in a GitLab Merge Request,
-authorized developers may add a comment of the form
+authorized developers may add a comment with a
+[*trailing* line](#trailing-lines) set to
 
     Do: merge
 
