@@ -293,7 +293,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
       "//VTK::Color::Impl",
       "vertexColorGSOutput = vertexColorVSOutput[i];");
     }
-  if (this->HaveCellScalars && !this->HavePickScalars)
+  if (this->HaveCellScalars && !this->HavePickScalars && !this->DrawingEdges)
     {
     colorDec += "uniform samplerBuffer textureC;\n";
     }
@@ -362,7 +362,8 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
   if (this->VBO->ColorComponents != 0)
     {
     if (this->ScalarMaterialMode == VTK_MATERIALMODE_AMBIENT ||
-          (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT && actor->GetProperty()->GetAmbient() > actor->GetProperty()->GetDiffuse()))
+        (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT &&
+          actor->GetProperty()->GetAmbient() > actor->GetProperty()->GetDiffuse()))
       {
       vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl",
         colorImpl +
@@ -370,7 +371,8 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
         "  opacity = opacity*vertexColorVSOutput.a;");
       }
     else if (this->ScalarMaterialMode == VTK_MATERIALMODE_DIFFUSE ||
-          (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT && actor->GetProperty()->GetAmbient() <= actor->GetProperty()->GetDiffuse()))
+        (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT &&
+          actor->GetProperty()->GetAmbient() <= actor->GetProperty()->GetDiffuse()))
       {
       vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl", colorImpl +
         "  diffuseColor = vertexColorVSOutput.rgb;\n"
@@ -421,7 +423,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
       }
     else
       {
-      if (this->HaveCellScalars)
+      if (this->HaveCellScalars && !this->DrawingEdges)
         {
         if (this->ScalarMaterialMode == VTK_MATERIALMODE_AMBIENT ||
             (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT &&
