@@ -26,15 +26,15 @@
 #ifndef vtkRenderState_h
 #define vtkRenderState_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkRenderer;
 class vtkProp;
-class vtkFrameBufferObject;
+class vtkFrameBufferObjectBase;
 class vtkInformation;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkRenderState
+class VTKRENDERINGCORE_EXPORT vtkRenderState
 {
  public:
   // Description:
@@ -63,12 +63,12 @@ class VTKRENDERINGOPENGL2_EXPORT vtkRenderState
   // Return the FrameBuffer. This is the framebuffer in use. NULL means it is
   // the FrameBuffer provided by the RenderWindow (it can actually be an FBO
   // in case the RenderWindow is in off screen mode).
-  vtkFrameBufferObject *GetFrameBuffer() const;
+  vtkFrameBufferObjectBase *GetFrameBuffer() const;
 
   // Description:
   // Set the FrameBuffer. See GetFrameBuffer().
   // \post is_set: GetFrameBuffer()==fbo
-  void SetFrameBuffer(vtkFrameBufferObject *fbo);
+  void SetFrameBuffer(vtkFrameBufferObjectBase *fbo);
 
   // Description:
   // Get the window size of the state.
@@ -118,7 +118,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkRenderState
   // The framebuffer in use. NULL means the FrameBuffer provided by
   // the RenderWindow (it can actually be an FBO in case the RenderWindow
   // is in off screen mode).
-  vtkFrameBufferObject *FrameBuffer;
+  vtkFrameBufferObjectBase *FrameBuffer;
 
   // Description:
   // Subset of props to render. A renderpass might ignore this filtered list

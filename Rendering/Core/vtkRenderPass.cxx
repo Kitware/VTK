@@ -15,7 +15,7 @@
 
 #include "vtkRenderPass.h"
 #include <cassert>
-#include "vtkOpenGLRenderer.h"
+#include "vtkRenderer.h"
 
 // ----------------------------------------------------------------------------
 // Description:
@@ -95,6 +95,15 @@ void vtkRenderPass::UpdateGeometry(vtkRenderer *renderer)
 {
   assert("pre: renderer_exists" && renderer != 0);
   renderer->UpdateGeometry();
+}
+
+// ----------------------------------------------------------------------------
+void vtkRenderPass::SetLastRenderingUsedDepthPeeling(vtkRenderer *renderer,
+                                                     bool value)
+{
+  assert("pre: renderer_exists" && renderer != 0);
+
+  renderer->LastRenderingUsedDepthPeeling = value;
 }
 
 // ----------------------------------------------------------------------------

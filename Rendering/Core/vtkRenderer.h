@@ -46,6 +46,7 @@ class vtkCullerCollection;
 class vtkLight;
 class vtkHardwareSelector;
 class vtkRendererDelegate;
+class vtkRenderPass;
 class vtkTexture;
 
 class VTKRENDERINGCORE_EXPORT vtkRenderer : public vtkViewport
@@ -521,6 +522,11 @@ public:
   vtkGetMacro(UseShadows,int);
   vtkBooleanMacro(UseShadows,int);
 
+  // Set/Get a custom render pass.
+  // Initial value is NULL.
+  void SetPass(vtkRenderPass *p);
+  vtkGetObjectMacro(Pass, vtkRenderPass);
+
 //BTX
 protected:
   vtkRenderer();
@@ -619,9 +625,6 @@ protected:
   // Temporary collection used by vtkRenderWindow::CaptureGL2PSSpecialProps.
   vtkPropCollection *GL2PSSpecialPropCollection;
 
-  // Friend class to allow render passes to access functions.
-  friend class vtkRenderPass;
-
   // Description:
   // Ask all props to update and draw any opaque and translucent
   // geometry. This includes both vtkActors and vtkVolumes
@@ -709,6 +712,9 @@ protected:
 
   bool TexturedBackground;
   vtkTexture* BackgroundTexture;
+
+  friend class vtkRenderPass;
+  vtkRenderPass *Pass;
 
 private:
   vtkRenderer(const vtkRenderer&);  // Not implemented.

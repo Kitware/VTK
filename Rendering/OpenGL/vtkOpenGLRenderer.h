@@ -70,11 +70,6 @@ public:
   virtual void SetShaderProgram(vtkShaderProgram2 *program);
   //ETX
 
-  // Description:
-  // Set/Get a custom render pass.
-  // Initial value is NULL.
-  void SetPass(vtkRenderPass *p);
-  vtkGetObjectMacro(Pass, vtkRenderPass);
 
 protected:
   vtkOpenGLRenderer();
@@ -168,7 +163,6 @@ protected:
   vtkShaderProgram2 *ShaderProgram;
 
   friend class vtkRenderPass;
-  vtkRenderPass *Pass;
 
 private:
   vtkOpenGLRenderer(const vtkOpenGLRenderer&);  // Not implemented.

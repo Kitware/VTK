@@ -104,7 +104,7 @@ void vtkCameraPass::Render(const vtkRenderState *s)
   int lowerLeft[2];
   int usize;
   int vsize;
-  vtkFrameBufferObject *fbo=s->GetFrameBuffer();
+  vtkFrameBufferObject *fbo=vtkFrameBufferObject::SafeDownCast(s->GetFrameBuffer());
 
   vtkOpenGLRenderWindow *win=vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
   win->MakeCurrent();

@@ -15,7 +15,7 @@
 #include "vtkRenderState.h"
 #include <cassert>
 #include "vtkRenderer.h"
-#include "vtkFrameBufferObject.h"
+#include "vtkFrameBufferObjectBase.h"
 
 // ----------------------------------------------------------------------------
 // Description:
@@ -65,7 +65,7 @@ vtkRenderer *vtkRenderState::GetRenderer() const
 // ----------------------------------------------------------------------------
 // Description:
 // Return the FrameBuffer.
-vtkFrameBufferObject *vtkRenderState::GetFrameBuffer() const
+vtkFrameBufferObjectBase *vtkRenderState::GetFrameBuffer() const
 {
   return this->FrameBuffer;
 }
@@ -74,7 +74,7 @@ vtkFrameBufferObject *vtkRenderState::GetFrameBuffer() const
 // Description:
 // Set the FrameBuffer.
 // \post is_set: GetFrameBuffer()==fbo
-void vtkRenderState::SetFrameBuffer(vtkFrameBufferObject *fbo)
+void vtkRenderState::SetFrameBuffer(vtkFrameBufferObjectBase *fbo)
 {
   this->FrameBuffer = fbo;
   assert("post: is_set" && this->GetFrameBuffer() == fbo);

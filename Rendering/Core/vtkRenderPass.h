@@ -42,26 +42,24 @@
 #ifndef vtkRenderPass_h
 #define vtkRenderPass_h
 
-#include "vtkRenderingOpenGLModule.h" // For export macro
+#include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkRenderState;
 class vtkWindow;
 class vtkRenderer;
 
-class VTKRENDERINGOPENGL_EXPORT vtkRenderPass : public vtkObject
+class VTKRENDERINGCORE_EXPORT vtkRenderPass : public vtkObject
 {
  public:
   vtkTypeMacro(vtkRenderPass,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   // Description:
   // Perform rendering according to a render state \p s.
   // It modifies NumberOfRenderedProps.
   // \pre s_exists: s!=0
   virtual void Render(const vtkRenderState *s)=0;
-  //ETX
 
   // Description:
   // Number of props rendered at the last Render call.
@@ -112,6 +110,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkRenderPass : public vtkObject
   // Modify protected member LastRenderingUsedDepthPeeling on Renderer.
   // See note about UpdateCamera().
   // \pre renderer_exists: renderer!=0
+  // Note - OpenGL1 specific, remove when completely switched to OpenGL2
   void SetLastRenderingUsedDepthPeeling(vtkRenderer *renderer,
                                         bool value);
 

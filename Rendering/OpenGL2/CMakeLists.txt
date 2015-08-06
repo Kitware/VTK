@@ -59,9 +59,7 @@ set(Module_SRCS
   vtkOpenGLVertexBufferObject.cxx
   vtkOverlayPass.cxx
   vtkPointFillPass.cxx
-  vtkRenderPass.cxx
   vtkRenderPassCollection.cxx
-  vtkRenderState.cxx
   vtkRenderStepsPass.cxx
   vtkSSAAPass.cxx
   vtkSequencePass.cxx
@@ -115,7 +113,6 @@ set_source_files_properties(
   vtkOpenGLVertexArrayObject
   vtkOpenGLVertexBufferObject
   vtkPixelBufferObject
-  vtkRenderState
   vtkRenderbuffer
   vtkTextureObject
   vtkTextureUnitManager
@@ -132,8 +129,6 @@ set_source_files_properties(
 set_source_files_properties(
   vtkOpenGLGL2PSHelper
   vtkOpenGLRenderWindow
-  vtkRenderPass
-  vtkRenderState
   ABSTRACT
   )
 

@@ -33,6 +33,7 @@
 #include "vtkProp3DCollection.h"
 #include "vtkPropCollection.h"
 #include "vtkRendererDelegate.h"
+#include "vtkRenderPass.h"
 #include "vtkRenderWindow.h"
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
@@ -40,6 +41,7 @@
 
 vtkCxxSetObjectMacro(vtkRenderer, Delegate, vtkRendererDelegate);
 vtkCxxSetObjectMacro(vtkRenderer, BackgroundTexture, vtkTexture);
+vtkCxxSetObjectMacro(vtkRenderer, Pass, vtkRenderPass);
 
 //----------------------------------------------------------------------------
 // Return NULL if no override is supplied.
@@ -125,6 +127,8 @@ vtkRenderer::vtkRenderer()
 
   this->TexturedBackground = false;
   this->BackgroundTexture = NULL;
+
+  this->Pass = 0;
 }
 
 vtkRenderer::~vtkRenderer()
@@ -1464,6 +1468,17 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "null" << endl;
     }
+
+  os << indent << "Pass:";
+  if(this->Pass!=0)
+    {
+      os << "exists" << endl;
+    }
+  else
+    {
+      os << "null" << endl;
+    }
+
 }
 
 int vtkRenderer::VisibleActorCount()

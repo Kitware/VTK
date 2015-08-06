@@ -62,12 +62,6 @@ public:
   int GetDepthPeelingHigherLayer();
 
   // Description:
-  // Set/Get a custom render pass.
-  // Initial value is NULL.
-  void SetPass(vtkRenderPass *p);
-  vtkGetObjectMacro(Pass, vtkRenderPass);
-
-  // Description:
   // Indicate if this system is subject to the apple/amd bug
   // of not having a working glPrimitiveId
   bool HaveApplePrimitiveIdBug();
@@ -124,7 +118,6 @@ protected:
   int DepthPeelingHigherLayer;
 
   friend class vtkRenderPass;
-  vtkRenderPass *Pass;
 
   bool HaveApplePrimitiveIdBugValue;
   bool HaveApplePrimitiveIdBugChecked;
