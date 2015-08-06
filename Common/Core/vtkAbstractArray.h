@@ -240,7 +240,10 @@ public:
   // Description:
   // Reset to an empty state, without freeing any memory.
   void Reset()
-    {this->MaxId = -1;}
+    {
+      this->MaxId = -1;
+      this->DataChanged();
+    }
 
   // Description:
   // Return the size of the data.
