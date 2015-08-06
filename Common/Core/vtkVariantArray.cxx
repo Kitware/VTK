@@ -454,7 +454,7 @@ void vtkVariantArray::DeepCopy(vtkAbstractArray *aa)
   this->SaveUserArray = 0;
   this->Array = new vtkVariant[this->Size];
 
-  for (int i = 0; i < this->Size; ++i)
+  for (int i = 0; i < (this->MaxId+1); ++i)
     {
     this->Array[i] = va->Array[i];
     }
