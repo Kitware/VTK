@@ -1816,15 +1816,12 @@ inline ostream& vtkXMLWriteAsciiValue(ostream& os, const signed char &c)
 VTK_TEMPLATE_SPECIALIZE
 inline ostream& vtkXMLWriteAsciiValue(ostream& os, const vtkStdString& str)
 {
-  vtkStdString::const_iterator iter = str.begin();
-  vtkXMLWriteAsciiValue(os, *iter);
-  iter++;
-  for (; iter != str.end(); ++iter)
+  vtkStdString::const_iterator iter;
+  for (iter = str.begin(); iter != str.end(); ++iter)
     {
-    os << " ";
     vtkXMLWriteAsciiValue(os, *iter);
+    os << " ";
     }
-  os << " ";
   char delim = 0x0;
   return vtkXMLWriteAsciiValue(os, delim);
 }
