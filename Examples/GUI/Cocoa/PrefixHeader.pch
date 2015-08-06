@@ -1,8 +1,10 @@
 // This header is automatically #included in every source file in the Xcode project.
 
+// VTK 6 factory methods now require "auto-initialization".
+// <http://www.vtk.org/Wiki/VTK/VTK_6_Migration/Factories_now_require_defines>
 // Match the definitions used to build VTK.
 // Required for proper object factory initialization.
 // It happens automatically when building with CMake,
-// but not when building with Xcode.
-#define vtkRenderingCore_AUTOINIT 4(vtkInteractionStyle,vtkRenderingFreeType,vtkRenderingOpenGL)
+// but not when building directly with Xcode.
+#define vtkRenderingCore_AUTOINIT 3(vtkInteractionStyle,vtkRenderingFreeType,vtkRenderingOpenGL)
 #define vtkRenderingVolume_AUTOINIT 1(vtkRenderingVolumeOpenGL)
