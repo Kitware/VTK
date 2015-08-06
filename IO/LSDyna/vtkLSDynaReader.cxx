@@ -2213,7 +2213,7 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
       extraValues -= 6; // last six values are strain.
       }
     assert(extraValues >= 0);
-    if ( std::abs(p->Dict["NUMFLUID"]) > 0 )
+    if ( std::abs(static_cast<int>(p->Dict["NUMFLUID"])) > 0 )
       {
       // Total number of ALE fluid groups. Fluid density and
       // volume fractions output as history variables, and a flag
@@ -2224,7 +2224,7 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
       // history variables are written before the Ale variables, and
       // the six element strains components after these if
       // ISTRN=1.
-      vtkIdType numGroups = std::abs(p->Dict["NUMFLUID"]);
+      vtkIdType numGroups = std::abs(static_cast<int>(p->Dict["NUMFLUID"]));
       bool hasMass = (p->Dict["NUMFLUID"] < 0);
       assert(extraValues >= (1 + numGroups + 1 + (hasMass? numGroups : 0)));
       p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_DENSITY, 1, 1 );
@@ -2814,9 +2814,9 @@ int vtkLSDynaReader::ReadCellStateInfo( vtkIdType vtkNotUsed(step) )
     extraValues -= 6; // last six values are strain.
     }
   assert(extraValues >= 0);
-  if ( std::abs(p->Dict["NUMFLUID"]) > 0 )
+  if ( std::abs(static_cast<int>(p->Dict["NUMFLUID"])) > 0 )
     {
-    vtkIdType numGroups = std::abs(p->Dict["NUMFLUID"]);
+    vtkIdType numGroups = std::abs(static_cast<int>(p->Dict["NUMFLUID"]));
     bool hasMass = (p->Dict["NUMFLUID"] < 0);
     assert(extraValues >= (1 + numGroups + 1 + (hasMass? numGroups : 0)));
     VTK_LS_CELLARRAY(1,LSDynaMetaData::SOLID, LS_ARRAYNAME_DENSITY, 1);
