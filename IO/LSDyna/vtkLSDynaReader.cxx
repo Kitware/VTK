@@ -124,6 +124,9 @@ vtkStandardNewMacro(vtkLSDynaReader);
 #define LS_ARRAYNAME_PLASTICSTRAIN      "PlasticStrain"
 #define LS_ARRAYNAME_THICKNESS          "Thickness"
 #define LS_ARRAYNAME_MASS               "Mass"
+#define LS_ARRAYNAME_VOLUME_FRACTION_FMT "VolumeFraction%02d"
+#define LS_ARRAYNAME_DOMINANT_GROUP     "DominantGroup"
+#define LS_ARRAYNAME_SPECIES_MASS_FMT   "SpeciesMass%02d"
 
 // Possible material  options
 #define LS_MDLOPT_NONE 0
@@ -1432,10 +1435,17 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
   p->Title[40] = '\0';
 
   p->Fam.SkipToWord( LSDynaFamily::ControlSection, curAdapt /*timestep*/, 13 );
-  p->Fam.BufferChunk( LSDynaFamily::Int, 1 );
-  p->Dict["Code"] = p->Fam.GetNextWordAsInt();
+
+  // Release number: Release number in character*4 form: 50 for R5.0, 511c for R5.1.1c.
+  p->Fam.BufferChunk( LSDynaFamily::Char, 1 );
+  memcpy( p->ReleaseNumber, p->Fam.GetNextWordAsChars(), 4*sizeof(char));
+  p->ReleaseNumber[4] = '\0';
+
+  // Version: Code version, floating number, eg 960.0 it is used to distinguish the
+  // floating point format, like cray, ieee, and dpieee.
   p->Fam.BufferChunk( LSDynaFamily::Float, 1 );
-  p->Dict["Version"] = vtkIdType(p->Fam.GetNextWordAsFloat());
+  p->CodeVersion = p->Fam.GetNextWordAsFloat();
+
   p->Fam.BufferChunk( LSDynaFamily::Int, 49 );
   p->Dict[    "NDIM"] = p->Fam.GetNextWordAsInt();
   p->Dict[   "NUMNP"] = p->Fam.GetNextWordAsInt();
@@ -1476,6 +1486,17 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
   p->Dict[  "NCFDV2"] = p->Fam.GetNextWordAsInt();
   p->Dict[  "NADAPT"] = p->Fam.GetNextWordAsInt();
   p->Fam.GetNextWordAsInt(); // BLANK
+
+  // NUMFLUID: Total number of ALE fluid groups. Fluid density and
+  // volume fractions output as history variables, and a flag
+  // for the dominant group. If negative multi-material
+  // species mass for each group is also output. Order is: rho,
+  // vf1, … vfn, dvf flag, m1, … mn. Density is at position 8
+  // after the location for plastic strain. Any element material
+  // history variables are written before the Ale variables, and
+  // the six element strains components after these if
+  // ISTRN=1.
+  p->Dict["NUMFLUID"] = p->Fam.GetNextWordAsInt();
 
   // Compute the derived values in this->P
   // =========================================== Control Word Section Processing
@@ -2185,13 +2206,57 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
       }
     p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_STRESS, 6, 1 );
     p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_EPSTRAIN, 1, 1 );
+
+    int extraValues = p->Dict["NEIPH"];
+    if ( p->Dict["ISTRN"] )
+      {
+      extraValues -= 6; // last six values are strain.
+      }
+    assert(extraValues >= 0);
+    if ( std::abs(p->Dict["NUMFLUID"]) > 0 )
+      {
+      // Total number of ALE fluid groups. Fluid density and
+      // volume fractions output as history variables, and a flag
+      // for the dominant group. If negative multi-material
+      // species mass for each group is also output. Order is: rho,
+      // vf1, … vfn, dvf flag, m1, … mn. Density is at position 8
+      // after the location for plastic strain. Any element material
+      // history variables are written before the Ale variables, and
+      // the six element strains components after these if
+      // ISTRN=1.
+      vtkIdType numGroups = std::abs(p->Dict["NUMFLUID"]);
+      bool hasMass = (p->Dict["NUMFLUID"] < 0);
+      assert(extraValues >= (1 + numGroups + 1 + (hasMass? numGroups : 0)));
+      p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_DENSITY, 1, 1 );
+      extraValues--;
+
+      for (vtkIdType g=0; g < numGroups; ++g)
+        {
+        sprintf( ctmp, LS_ARRAYNAME_VOLUME_FRACTION_FMT, static_cast<int>(g+1) );
+        p->AddCellArray( LSDynaMetaData::SOLID, ctmp, 1, 1 );
+        extraValues--;
+        }
+
+      p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_DOMINANT_GROUP, 1, 1 );
+      extraValues--;
+
+      for (vtkIdType g=0; hasMass && (g < numGroups); ++g)
+        {
+        sprintf( ctmp, LS_ARRAYNAME_SPECIES_MASS_FMT, static_cast<int>(g+1) );
+        p->AddCellArray( LSDynaMetaData::SOLID, ctmp, 1, 1 );
+        extraValues--;
+        }
+      }
+    assert(extraValues >= 0);
+    if (extraValues > 0)
+      {
+      // I am not sure if this is correct, but let's assume so, so that what
+      // every we were doing before we added support for ALE continues to work.
+      p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_INTEGRATIONPOINT, extraValues, 1 );
+      }
     if ( p->Dict["ISTRN"] )
       {
       p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_STRAIN, 6, 1 );
-      }
-    if ( p->Dict["NEIPH"] > 0 )
-      {
-      p->AddCellArray( LSDynaMetaData::SOLID, LS_ARRAYNAME_INTEGRATIONPOINT, p->Dict["NEIPH"], 1 );
       }
     }
 
@@ -2743,22 +2808,46 @@ int vtkLSDynaReader::ReadCellStateInfo( vtkIdType vtkNotUsed(step) )
 
   VTK_LS_CELLARRAY(1,LSDynaMetaData::SOLID,LS_ARRAYNAME_STRESS,6);
   VTK_LS_CELLARRAY(1,LSDynaMetaData::SOLID,LS_ARRAYNAME_EPSTRAIN,1);
-
-  //From the documentation if ISTRN is 1 and we have 6 or more values in NEIPH
-  //the last 6 are the strain
-  //quote "If ISTRN=1, and NEIPH>=6, the last 6 additional values are the six
-  //strain components"
-  vtkIdType neiph = p->Dict["NEIPH"], istrn = p->Dict["ISTRN"];
-  if(istrn == 1 && neiph >=6)
+  int extraValues = p->Dict["NEIPH"];
+  if ( p->Dict["ISTRN"] )
     {
-    VTK_LS_CELLARRAY(neiph > 6,LSDynaMetaData::SOLID,LS_ARRAYNAME_INTEGRATIONPOINT,neiph-6);
-    VTK_LS_CELLARRAY(p->Dict["ISTRN"] == 1,LSDynaMetaData::SOLID,LS_ARRAYNAME_STRAIN,6);
+    extraValues -= 6; // last six values are strain.
     }
-  else
+  assert(extraValues >= 0);
+  if ( std::abs(p->Dict["NUMFLUID"]) > 0 )
     {
-    VTK_LS_CELLARRAY(p->Dict["NEIPH"] > 0,LSDynaMetaData::SOLID,LS_ARRAYNAME_INTEGRATIONPOINT,p->Dict["NEIPH"]);
-    }
+    vtkIdType numGroups = std::abs(p->Dict["NUMFLUID"]);
+    bool hasMass = (p->Dict["NUMFLUID"] < 0);
+    assert(extraValues >= (1 + numGroups + 1 + (hasMass? numGroups : 0)));
+    VTK_LS_CELLARRAY(1,LSDynaMetaData::SOLID, LS_ARRAYNAME_DENSITY, 1);
+    extraValues--;
 
+    for (vtkIdType g=0; g < numGroups; ++g)
+      {
+      sprintf( ctmp, LS_ARRAYNAME_VOLUME_FRACTION_FMT, static_cast<int>(g+1) );
+      VTK_LS_CELLARRAY(1, LSDynaMetaData::SOLID, ctmp, 1);
+      extraValues--;
+      }
+
+    VTK_LS_CELLARRAY(1, LSDynaMetaData::SOLID, LS_ARRAYNAME_DOMINANT_GROUP, 1);
+    extraValues--;
+
+    for (vtkIdType g=0; hasMass && (g < numGroups); ++g)
+      {
+      sprintf( ctmp, LS_ARRAYNAME_SPECIES_MASS_FMT, static_cast<int>(g+1) );
+      VTK_LS_CELLARRAY(1, LSDynaMetaData::SOLID, ctmp, 1);
+      extraValues--;
+      }
+    }
+  assert(extraValues >= 0);
+  if (extraValues > 0)
+    {
+    VTK_LS_CELLARRAY(1, LSDynaMetaData::SOLID, LS_ARRAYNAME_INTEGRATIONPOINT, extraValues);
+    }
+  if (p->Dict["ISTRN"] == 1 && p->Dict["NEIPH"] >= 6)
+    {
+    VTK_LS_CELLARRAY(1, LSDynaMetaData::SOLID, LS_ARRAYNAME_STRAIN, 6);
+    }
   this->ReadCellProperties(LSDynaMetaData::SOLID, p->Dict["NV3D"]);
 
   // Thick Shell element data==================================================
