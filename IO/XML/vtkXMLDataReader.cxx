@@ -272,8 +272,12 @@ void vtkXMLDataReader::SetupOutputData()
     for (int i = 0; i < ePointData->GetNumberOfNestedElements(); i++)
       {
       vtkXMLDataElement* eNested = ePointData->GetNestedElement(i);
-      if (this->PointDataArrayIsEnabled(eNested) &&
-        !pointData->HasArray(eNested->GetAttribute("Name")))
+      if (pointData->HasArray(eNested->GetAttribute("Name")))
+        {
+        vtkErrorMacro("Duplicate array names.");
+        this->DataError = 1;
+        }
+      if (this->PointDataArrayIsEnabled(eNested))
         {
         this->NumberOfPointArrays++;
         vtkAbstractArray* array = this->CreateArray(eNested);
@@ -298,8 +302,12 @@ void vtkXMLDataReader::SetupOutputData()
     for (int i = 0; i < eCellData->GetNumberOfNestedElements(); i++)
       {
       vtkXMLDataElement* eNested = eCellData->GetNestedElement(i);
-      if (this->CellDataArrayIsEnabled(eNested) &&
-        !cellData->HasArray(eNested->GetAttribute("Name")))
+      if (cellData->HasArray(eNested->GetAttribute("Name")))
+        {
+        vtkErrorMacro("Duplicate array names.");
+        this->DataError = 1;
+        }
+      if (this->CellDataArrayIsEnabled(eNested))
         {
         this->NumberOfCellArrays++;
         vtkAbstractArray* array = this->CreateArray(eNested);
