@@ -3,6 +3,7 @@ vtk_module(vtkChartsCore
     StandAlone
   DEPENDS
     vtkRenderingContext2D
+    vtksys
   PRIVATE_DEPENDS
     vtkCommonColor
     vtkInfovisCore # Needed for plot parallel coordinates vtkStringToCategory
