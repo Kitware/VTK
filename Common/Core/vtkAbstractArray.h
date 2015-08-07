@@ -384,7 +384,7 @@ public:
   // prominence P, we sample N values, with N = f(T; P, U).
   // We want f to be sublinear in T in order to interactively handle large
   // arrays; in practice, we can make f independent of T:
-  // \f$ N >= \frac{5}{P}\mathrm{ln}\left(\frac{1}{PU}) \f$,
+  // \f$ N >= \frac{5}{P}\mathrm{ln}\left(\frac{1}{PU}\right) \f$,
   // but note that small values of P are costly to achieve.
   // The default parameters will locate prominent values that occur at least
   // 1 out of every 1000 samples with a confidence of 0.999999 (= 1 - 1e6).
