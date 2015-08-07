@@ -87,13 +87,13 @@ bool vtkGeoFileTerrainSource::ReadModel(int level, int id, vtkGeoTerrainNode* no
   node->SetId(id);
   node->SetLevel(level);
   vtkSmartPointer<vtkXMLPolyDataReader> reader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
-  vtksys_ios::stringstream ss;
+  std::stringstream ss;
   ss.str("");
   ss << this->Path << "/tile_" << level << "_" << id << ".vtp";
 
   // Check if the file exists
-  vtksys_ios::ifstream in;
-  in.open(ss.str().c_str(), vtksys_ios::ifstream::in);
+  std::ifstream in;
+  in.open(ss.str().c_str(), std::ifstream::in);
   if (in.fail())
     {
     // Make a dummy polydata

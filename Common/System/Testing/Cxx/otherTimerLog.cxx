@@ -70,7 +70,7 @@ void otherTimerLogTest(ostream& strm)
 
 int otherTimerLog(int,char *[])
 {
-  vtksys_ios::ostringstream vtkmsg_with_warning_C4701;
+  std::ostringstream vtkmsg_with_warning_C4701;
   otherTimerLogTest(vtkmsg_with_warning_C4701);
 
   return 0;

@@ -289,7 +289,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
 
     state->Update();
     vtkIndent indent;
-    vtksys_ios::ostringstream ost00;
+    std::ostringstream ost00;
     ost00.setf(ios::fixed,ios::floatfield);
     ost00.precision(5);
     ost00 << "OpenGLState_" << pthread_self() << "_" << vtkTimerLog::GetUniversalTime() << "_root00.txt";
@@ -300,7 +300,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
     this->PBO->Download2D(VTK_FLOAT,this->RawZBuffer,dims,1,continuousInc);
 
     state->Update();
-    vtksys_ios::ostringstream ost01;
+    std::ostringstream ost01;
     ost01.setf(ios::fixed,ios::floatfield);
     ost01.precision(5);
     ost01 << "OpenGLState_" << pthread_self() << "_" << vtkTimerLog::GetUniversalTime() << "_root01.txt";
@@ -332,7 +332,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
 //    rgbaToRgb->SetInputConnection(importer->GetOutputPort());
 //    rgbaToRgb->SetComponents(0,1,2);
 
-    vtksys_ios::ostringstream ostxx;
+    std::ostringstream ostxx;
     ostxx.setf(ios::fixed,ios::floatfield);
     ostxx.precision(5);
     timer->StopTimer();
@@ -389,7 +389,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
 //    rgbaToRgb->SetComponents(0,1,2);
 
       writer=vtkPNGWriter::New();
-      vtksys_ios::ostringstream ost;
+      std::ostringstream ost;
       timer->StopTimer();
       ost.setf(ios::fixed,ios::floatfield);
       ost.precision(5);
@@ -415,7 +415,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
 
 #ifdef VTK_COMPOSITE_ZPASS_DEBUG
       state->Update();
-      vtksys_ios::ostringstream ost02;
+      std::ostringstream ost02;
       ost02.setf(ios::fixed,ios::floatfield);
       ost02.precision(5);
       ost02 << "OpenGLState_" << pthread_self() << "_" << vtkTimerLog::GetUniversalTime() << "_root02_proc_" << proc <<"_"<<".txt";
@@ -428,7 +428,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
 
 #ifdef VTK_COMPOSITE_ZPASS_DEBUG
       state->Update();
-      vtksys_ios::ostringstream ost03;
+      std::ostringstream ost03;
       ost03.setf(ios::fixed,ios::floatfield);
       ost03.precision(5);
       ost03 << "OpenGLState_" << pthread_self() << "_" << vtkTimerLog::GetUniversalTime() << "_root03_proc_" << proc << "_"<<".txt";
@@ -489,7 +489,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
 
 #ifdef VTK_COMPOSITE_ZPASS_DEBUG
       state->Update();
-      vtksys_ios::ostringstream ost04;
+      std::ostringstream ost04;
       ost04.setf(ios::fixed,ios::floatfield);
       ost04.precision(5);
       ost04 << "OpenGLState_" << pthread_self() << "_" << vtkTimerLog::GetUniversalTime() << "_root_proc_" << proc << "_before_copyframe.txt";
@@ -512,7 +512,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
 
 #ifdef VTK_COMPOSITE_ZPASS_DEBUG
       state->Update();
-      vtksys_ios::ostringstream ost05;
+      std::ostringstream ost05;
       ost05.setf(ios::fixed,ios::floatfield);
       ost05.precision(5);
       ost05 << "OpenGLState_" << pthread_self() << "_" << vtkTimerLog::GetUniversalTime() << "_root_proc_" << proc << "_after_copyframe.txt";
@@ -532,7 +532,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
 
 #ifdef VTK_COMPOSITE_ZPASS_DEBUG
       state->Update();
-      vtksys_ios::ostringstream ost06;
+      std::ostringstream ost06;
       ost06.setf(ios::fixed,ios::floatfield);
       ost06.precision(5);
       ost06 << "OpenGLState_" << pthread_self() << "_" << vtkTimerLog::GetUniversalTime() << "_root_proc_" << proc << "_before_popattrib.txt";
@@ -547,7 +547,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
 
 #ifdef VTK_COMPOSITE_ZPASS_DEBUG
       state->Update();
-      vtksys_ios::ostringstream ost07;
+      std::ostringstream ost07;
       ost07.setf(ios::fixed,ios::floatfield);
       ost07.precision(5);
       ost07 << "OpenGLState_" << pthread_self() << "_" << vtkTimerLog::GetUniversalTime() << "_root_proc_" << proc << "_after_popattrib.txt";
@@ -595,7 +595,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
 //    rgbaToRgb->SetComponents(0,1,2);
 
 
-    vtksys_ios::ostringstream ost3;
+    std::ostringstream ost3;
     ost3.setf(ios::fixed,ios::floatfield);
     ost3.precision(5);
 
@@ -671,7 +671,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
 //    rgbaToRgb->SetInputConnection(importer->GetOutputPort());
 //    rgbaToRgb->SetComponents(0,1,2);
 
-    vtksys_ios::ostringstream ost;
+    std::ostringstream ost;
     ost.setf(ios::fixed,ios::floatfield);
     ost.precision(5);
     timer->StopTimer();
@@ -723,7 +723,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
 //    rgbaToRgb->SetInputConnection(importer->GetOutputPort());
 //    rgbaToRgb->SetComponents(0,1,2);
 
-    vtksys_ios::ostringstream ost2;
+    std::ostringstream ost2;
     ost2.setf(ios::fixed,ios::floatfield);
     ost2.precision(5);
     timer->StopTimer();

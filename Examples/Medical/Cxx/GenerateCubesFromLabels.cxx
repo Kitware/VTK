@@ -25,7 +25,7 @@
 #include <vtkPointData.h>
 #include <vtkCellData.h>
 #include <vtkUnstructuredGrid.h>
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 int main (int argc, char *argv[])
 {
@@ -123,7 +123,7 @@ int main (int argc, char *argv[])
     selector->ThresholdBetween(i, i);
 
     // output the polydata
-    vtksys_stl::stringstream ss;
+    std::stringstream ss;
     ss << filePrefix << i << ".vtp";
     cout << argv[0] << " writing " << ss.str() << endl;
 

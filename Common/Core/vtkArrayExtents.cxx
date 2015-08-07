@@ -22,8 +22,8 @@
 #include "vtkArrayCoordinates.h"
 #include "vtkArrayExtents.h"
 
-#include <vtksys/stl/functional>
-#include <vtksys/stl/numeric>
+#include <functional>
+#include <numeric>
 
 vtkArrayExtents::vtkArrayExtents()
 {
@@ -77,7 +77,7 @@ const vtkArrayExtents vtkArrayExtents::Uniform(DimensionT n, CoordinateT m)
   // IA64 HP-UX doesn't seem to have the vector<T> vector1(n, value)
   // overload nor the assign(n, value) method, so we use the single
   // argument constructor and initialize the values manually.
-  // result.Storage = vtksys_stl::vector<vtkIdType>(n, m);
+  // result.Storage = std::vector<vtkIdType>(n, m);
 
   result.Storage = std::vector<vtkArrayRange>(n);
   for(DimensionT i = 0; i < n; i++)

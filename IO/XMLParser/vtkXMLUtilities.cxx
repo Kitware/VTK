@@ -419,7 +419,7 @@ vtkXMLUtilities::ReadElementFromString(const char *str, int encoding)
     return 0;
     }
 
-  vtksys_ios::stringstream strstr;
+  std::stringstream strstr;
   strstr << str;
   vtkXMLDataElement *res =
     vtkXMLUtilities::ReadElementFromStream(strstr, encoding);
@@ -468,7 +468,7 @@ void vtkXMLUtilities::ReadElementFromAttributeArray(
         }
       else
         {
-        vtksys_ios::ostringstream str;
+        std::ostringstream str;
         vtkXMLUtilities::EncodeString(
           atts[i+1], VTK_ENCODING_UTF_8, str, element->GetAttributeEncoding(), 0);
         str << ends;
@@ -623,7 +623,7 @@ int vtkXMLUtilities::FactorElementsInternal(vtkXMLDataElement *tree,
   char buffer[5];
   sprintf(buffer, "%02d_", pool->GetNumberOfNestedElements());
 
-  vtksys_ios::ostringstream id;
+  std::ostringstream id;
   id << buffer << tree->GetName();
 
   vtkXMLDataElement *factored = vtkXMLDataElement::New();

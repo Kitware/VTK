@@ -28,9 +28,9 @@
 #include "vtkPoints.h"
 #include "vtkSmartPointer.h"
 
-#include <vtksys/stl/utility>
-#include <vtksys/stl/vector>
-#include <vtksys/stl/map>
+#include <utility>
+#include <vector>
+#include <map>
 
 vtkStandardNewMacro(vtkArcParallelEdgeStrategy);
 
@@ -46,9 +46,9 @@ vtkArcParallelEdgeStrategy::~vtkArcParallelEdgeStrategy()
 void vtkArcParallelEdgeStrategy::Layout()
 {
   bool directed = vtkDirectedGraph::SafeDownCast(this->Graph) != 0;
-  vtksys_stl::map<vtksys_stl::pair<vtkIdType, vtkIdType>, int> edgeCount;
-  vtksys_stl::map<vtksys_stl::pair<vtkIdType, vtkIdType>, int> edgeNumber;
-  vtksys_stl::vector<vtkEdgeType> edgeVector(this->Graph->GetNumberOfEdges());
+  std::map<std::pair<vtkIdType, vtkIdType>, int> edgeCount;
+  std::map<std::pair<vtkIdType, vtkIdType>, int> edgeNumber;
+  std::vector<vtkEdgeType> edgeVector(this->Graph->GetNumberOfEdges());
   vtkSmartPointer<vtkEdgeListIterator> it =
     vtkSmartPointer<vtkEdgeListIterator>::New();
   this->Graph->GetEdges(it);
@@ -67,7 +67,7 @@ void vtkArcParallelEdgeStrategy::Layout()
       src = e.Target;
       tgt = e.Source;
       }
-    edgeCount[vtksys_stl::pair<vtkIdType, vtkIdType>(src, tgt)]++;
+    edgeCount[std::pair<vtkIdType, vtkIdType>(src, tgt)]++;
     edgeVector[e.Id] = e;
 
     // Compute edge length
@@ -106,11 +106,11 @@ void vtkArcParallelEdgeStrategy::Layout()
     // Lookup the total number of edges with this source
     // and target, as well as how many times this pair
     // has been found so far.
-    vtksys_stl::pair<vtkIdType,vtkIdType> p(src, tgt);
+    std::pair<vtkIdType,vtkIdType> p(src, tgt);
     edgeNumber[p]++;
     int cur = edgeNumber[p];
     int total = edgeCount[p];
-    vtksys_stl::pair<vtkIdType,vtkIdType> revP(tgt, src);
+    std::pair<vtkIdType,vtkIdType> revP(tgt, src);
     int revTotal = edgeCount[revP];
 
     double sourcePt[3];

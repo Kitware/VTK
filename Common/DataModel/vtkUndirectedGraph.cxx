@@ -26,7 +26,7 @@
 #include "vtkOutEdgeIterator.h"
 #include "vtkSmartPointer.h"
 
-#include <vtksys/stl/vector>
+#include <vector>
 
 //----------------------------------------------------------------------------
 // class vtkUndirectedGraph
@@ -92,8 +92,8 @@ bool vtkUndirectedGraph::IsStructureValid(vtkGraph *g)
   // Verify that there are no in edges and that each edge
   // appears in exactly two edge lists.
   // Loop edges should be in exactly one edge list.
-  vtksys_stl::vector<vtkIdType> place(g->GetNumberOfEdges(), -1);
-  vtksys_stl::vector<vtkIdType> count(g->GetNumberOfEdges(), 0);
+  std::vector<vtkIdType> place(g->GetNumberOfEdges(), -1);
+  std::vector<vtkIdType> count(g->GetNumberOfEdges(), 0);
   vtkSmartPointer<vtkOutEdgeIterator> outIter =
     vtkSmartPointer<vtkOutEdgeIterator>::New();
   for (vtkIdType v = 0; v < g->GetNumberOfVertices(); ++v)

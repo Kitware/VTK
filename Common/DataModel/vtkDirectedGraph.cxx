@@ -27,7 +27,7 @@
 #include "vtkOutEdgeIterator.h"
 #include "vtkSmartPointer.h"
 
-#include <vtksys/stl/vector>
+#include <vector>
 
 //----------------------------------------------------------------------------
 // class vtkDirectedGraph
@@ -68,8 +68,8 @@ bool vtkDirectedGraph::IsStructureValid(vtkGraph *g)
     }
 
   // Verify that each edge appears in exactly one in and one out edge list.
-  vtksys_stl::vector<bool> in(g->GetNumberOfEdges(), false);
-  vtksys_stl::vector<bool> out(g->GetNumberOfEdges(), false);
+  std::vector<bool> in(g->GetNumberOfEdges(), false);
+  std::vector<bool> out(g->GetNumberOfEdges(), false);
   vtkSmartPointer<vtkInEdgeIterator> inIter =
     vtkSmartPointer<vtkInEdgeIterator>::New();
   vtkSmartPointer<vtkOutEdgeIterator> outIter =

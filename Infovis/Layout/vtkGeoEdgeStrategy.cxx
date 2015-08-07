@@ -33,9 +33,9 @@
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 
-#include <vtksys/stl/utility>
-#include <vtksys/stl/vector>
-#include <vtksys/stl/map>
+#include <utility>
+#include <vector>
+#include <map>
 
 vtkStandardNewMacro(vtkGeoEdgeStrategy);
 
@@ -48,9 +48,9 @@ vtkGeoEdgeStrategy::vtkGeoEdgeStrategy()
 
 void vtkGeoEdgeStrategy::Layout()
 {
-  vtksys_stl::map<vtksys_stl::pair<vtkIdType, vtkIdType>, int> edgeCount;
-  vtksys_stl::map<vtksys_stl::pair<vtkIdType, vtkIdType>, int> edgeNumber;
-  vtksys_stl::vector<vtkEdgeType> edgeVector(this->Graph->GetNumberOfEdges());
+  std::map<std::pair<vtkIdType, vtkIdType>, int> edgeCount;
+  std::map<std::pair<vtkIdType, vtkIdType>, int> edgeNumber;
+  std::vector<vtkEdgeType> edgeVector(this->Graph->GetNumberOfEdges());
   vtkSmartPointer<vtkEdgeListIterator> it =
     vtkSmartPointer<vtkEdgeListIterator>::New();
   this->Graph->GetEdges(it);
@@ -68,7 +68,7 @@ void vtkGeoEdgeStrategy::Layout()
       src = e.Target;
       tgt = e.Source;
       }
-    edgeCount[vtksys_stl::pair<vtkIdType, vtkIdType>(src, tgt)]++;
+    edgeCount[std::pair<vtkIdType, vtkIdType>(src, tgt)]++;
     edgeVector[e.Id] = e;
     }
   vtkIdType numEdges = this->Graph->GetNumberOfEdges();
@@ -90,7 +90,7 @@ void vtkGeoEdgeStrategy::Layout()
     // Lookup the total number of edges with this source
     // and target, as well as how many times this pair
     // has been found so far.
-    vtksys_stl::pair<vtkIdType,vtkIdType> p(src, tgt);
+    std::pair<vtkIdType,vtkIdType> p(src, tgt);
     edgeNumber[p]++;
     int cur = edgeNumber[p];
     int total = edgeCount[p];

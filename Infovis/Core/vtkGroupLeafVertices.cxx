@@ -36,9 +36,9 @@
 #include "vtkVariantArray.h"
 #include "vtkUnicodeStringArray.h"
 
-#include <vtksys/stl/map>
-#include <vtksys/stl/utility>
-#include <vtksys/stl/vector>
+#include <map>
+#include <utility>
+#include <vector>
 
 vtkStandardNewMacro(vtkGroupLeafVertices);
 
@@ -51,8 +51,8 @@ class vtkGroupLeafVerticesCompare
 {
 public:
   bool operator()(
-    const vtksys_stl::pair<vtkIdType, vtkVariant>& a,
-    const vtksys_stl::pair<vtkIdType, vtkVariant>& b) const
+    const std::pair<vtkIdType, vtkVariant>& a,
+    const std::pair<vtkIdType, vtkVariant>& b) const
   {
     if (a.first != b.first)
       {
@@ -236,10 +236,10 @@ int vtkGroupLeafVertices::RequestData(
 
   // Copy everything into the new tree, adding group nodes.
   // Make a map of (parent id, group-by string) -> group vertex id.
-  vtksys_stl::map<vtksys_stl::pair<vtkIdType, vtkVariant>,
+  std::map<std::pair<vtkIdType, vtkVariant>,
     vtkIdType, vtkGroupLeafVerticesCompare> group_vertices;
-  vtksys_stl::vector< vtksys_stl::pair<vtkIdType, vtkIdType> > vertStack;
-  vertStack.push_back(vtksys_stl::make_pair(input->GetRoot(), builder->AddVertex()));
+  std::vector< std::pair<vtkIdType, vtkIdType> > vertStack;
+  vertStack.push_back(std::make_pair(input->GetRoot(), builder->AddVertex()));
   vtkSmartPointer<vtkOutEdgeIterator> it =
   vtkSmartPointer<vtkOutEdgeIterator>::New();
 
@@ -269,7 +269,7 @@ int vtkGroupLeafVertices::RequestData(
         // and recurse.
         vtkEdgeType e = builder->AddEdge(v, child);
         builderEdgeData->CopyData(inputEdgeData, tree_e.Id, e.Id);
-        vertStack.push_back(vtksys_stl::make_pair(tree_child, child));
+        vertStack.push_back(std::make_pair(tree_child, child));
         }
       else
         {
@@ -277,9 +277,9 @@ int vtkGroupLeafVertices::RequestData(
         // Look for a group vertex.  If there isn't one already, make one.
         vtkIdType group_vertex = -1;
         vtkVariant groupVal = vtkGroupLeafVerticesGetVariant(arr, tree_child);
-        if (group_vertices.count(vtksys_stl::make_pair(v, groupVal)) > 0)
+        if (group_vertices.count(std::make_pair(v, groupVal)) > 0)
           {
-          group_vertex = group_vertices[vtksys_stl::make_pair(v, groupVal)];
+          group_vertex = group_vertices[std::make_pair(v, groupVal)];
           }
         else
           {
@@ -342,7 +342,7 @@ int vtkGroupLeafVertices::RequestData(
 
           vtkEdgeType group_e = builder->AddEdge(v, group_vertex);
           builderEdgeData->CopyData(inputEdgeData, tree_e.Id, group_e.Id);
-          group_vertices[vtksys_stl::make_pair(v, groupVal)] = group_vertex;
+          group_vertices[std::make_pair(v, groupVal)] = group_vertex;
 
           if (outputNameArr)
             {
@@ -369,7 +369,7 @@ int vtkGroupLeafVertices::RequestData(
           }
         vtkEdgeType e = builder->AddEdge(group_vertex, child);
         builderEdgeData->CopyData(inputEdgeData, tree_e.Id, e.Id);
-        vertStack.push_back(vtksys_stl::make_pair(tree_child, child));
+        vertStack.push_back(std::make_pair(tree_child, child));
         }
       }
     }

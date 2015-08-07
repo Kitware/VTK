@@ -158,7 +158,7 @@ public:
        this->OutputString = NULL;
        this->OutputStringLength = 0;
        }
-     fptr = new vtksys_ios::ostringstream;
+     fptr = new std::ostringstream;
      }
 
    if (fptr->fail())
@@ -180,8 +180,8 @@ public:
      {
      if (this->WriteToOutputString)
        {
-       vtksys_ios::ostringstream *ostr =
-         static_cast<vtksys_ios::ostringstream*>(fp);
+       std::ostringstream *ostr =
+         static_cast<std::ostringstream*>(fp);
 
        delete [] this->OutputString;
        this->OutputStringLength = static_cast<int>(ostr->str().size());

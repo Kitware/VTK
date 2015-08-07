@@ -28,7 +28,7 @@
 #include "vtkChartLegend.h"
 #include "vtkTooltipItem.h"
 
-#include "vtksys/ios/sstream"
+#include "sstream"
 
 class vtkChartPiePrivate
 {
@@ -272,7 +272,7 @@ bool vtkChartPie::LocatePointInPlots(const vtkContextMouseEvent &mouse)
       if (labelIndex >= 0)
         {
         const char *label = this->Private->Plot->GetLabel(labelIndex);
-        vtksys_ios::ostringstream ostr;
+        std::ostringstream ostr;
         ostr << label << ": " << plotPos.GetY();
         this->Tooltip->SetText(ostr.str().c_str());
         this->Tooltip->SetPosition(mouse.GetScreenPos()[0] + 2,

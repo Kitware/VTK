@@ -28,8 +28,8 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkGraph.h"
 
-#include <vtksys/stl/vector> // STL Header
-#include <vtksys/stl/map>    // STL Header
+#include <vector> // STL Header
+#include <map>    // STL Header
 
 //----------------------------------------------------------------------------
 // class vtkVertexAdjacencyList
@@ -38,8 +38,8 @@
 class vtkVertexAdjacencyList
 {
 public:
-  vtksys_stl::vector<vtkInEdgeType> InEdges;
-  vtksys_stl::vector<vtkOutEdgeType> OutEdges;
+  std::vector<vtkInEdgeType> InEdges;
+  std::vector<vtkOutEdgeType> OutEdges;
 };
 //ETX
 
@@ -52,7 +52,7 @@ public:
   static vtkGraphInternals *New();
   //BTX
   vtkTypeMacro(vtkGraphInternals, vtkObject);
-  vtksys_stl::vector<vtkVertexAdjacencyList> Adjacency;
+  std::vector<vtkVertexAdjacencyList> Adjacency;
   //ETX
   vtkIdType NumberOfEdges;
 
@@ -70,19 +70,19 @@ public:
   //BTX
   // Description:
   // Convenience method for removing an edge from an out edge list.
-  void RemoveEdgeFromOutList(vtkIdType e, vtksys_stl::vector<vtkOutEdgeType>& outEdges);
+  void RemoveEdgeFromOutList(vtkIdType e, std::vector<vtkOutEdgeType>& outEdges);
 
   // Description:
   // Convenience method for removing an edge from an in edge list.
-  void RemoveEdgeFromInList(vtkIdType e, vtksys_stl::vector<vtkInEdgeType>& inEdges);
+  void RemoveEdgeFromInList(vtkIdType e, std::vector<vtkInEdgeType>& inEdges);
 
   // Description:
   // Convenience method for renaming an edge in an out edge list.
-  void ReplaceEdgeFromOutList(vtkIdType from, vtkIdType to, vtksys_stl::vector<vtkOutEdgeType>& outEdges);
+  void ReplaceEdgeFromOutList(vtkIdType from, vtkIdType to, std::vector<vtkOutEdgeType>& outEdges);
 
   // Description:
   // Convenience method for renaming an edge in an in edge list.
-  void ReplaceEdgeFromInList(vtkIdType from, vtkIdType to, vtksys_stl::vector<vtkInEdgeType>& inEdges);
+  void ReplaceEdgeFromInList(vtkIdType from, vtkIdType to, std::vector<vtkInEdgeType>& inEdges);
   //ETX
 
 protected:

@@ -613,7 +613,7 @@ void vtkGarbageCollectorImpl::Report(vtkObjectBase* obj, void* ptr,
     if(this->Debug && vtkObject::GetGlobalWarningDisplay())
       {
       vtkObjectBase* current = this->Current->Object;
-      vtksys_ios::ostringstream msg;
+      std::ostringstream msg;
       msg << "Report: "
           << current->GetClassName() << "(" << current << ") "
           << (desc?desc:"")
@@ -709,7 +709,7 @@ void vtkGarbageCollectorImpl::PrintComponent(ComponentType* c)
 {
   if(this->Debug && vtkObject::GetGlobalWarningDisplay())
     {
-    vtksys_ios::ostringstream msg;
+    std::ostringstream msg;
     msg << "Identified strongly connected component "
         << c->Identifier << " with net reference count "
         << c->NetCount << ":";

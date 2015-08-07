@@ -144,7 +144,7 @@ void vtkXdmfDocument::UpdateDomains()
       }
     else
       {
-      vtksys_ios::ostringstream str;
+      std::ostringstream str;
       str << "Domain" << this->Domains.size() << ends;
       this->Domains.push_back(str.str());
       }
@@ -567,7 +567,7 @@ void vtkXdmfDomain::CollectMetaData()
       unsigned int count=1;
       while (this->Grids->HasArray(gridName.c_str()))
         {
-        vtksys_ios::ostringstream str;
+        std::ostringstream str;
         str << xmfGrid->GetName() << "[" << count << "]";
         gridName = str.str();
         count++;
@@ -669,7 +669,7 @@ void vtkXdmfDomain::CollectLeafMetaData(XdmfGrid* xmfGrid, vtkIdType silParent)
     unsigned int count=1;
     while (this->Grids->HasArray(gridName.c_str()))
       {
-      vtksys_ios::ostringstream str;
+      std::ostringstream str;
       str << xmfGrid->GetName() << "[" << count << "]";
       gridName = str.str();
       count++;

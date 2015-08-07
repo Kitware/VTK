@@ -341,7 +341,7 @@ std::string vtkXdmf3LightDataHandler::UniqueName(std::string name, bool ForGrid)
   vtkXdmf3ArraySelection* cache = (ForGrid?this->GridsCache:this->SetsCache);
   while (cache->HasArray(gridName.c_str()))
     {
-    vtksys_ios::ostringstream str;
+    std::ostringstream str;
     str << name << "[" << count << "]";
     gridName = str.str();
     count++;

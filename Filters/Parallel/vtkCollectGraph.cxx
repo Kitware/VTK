@@ -37,13 +37,9 @@
 #include "vtkStringArray.h"
 #include "vtkVariant.h"
 
-#include <vtksys/stl/map>
-#include <vtksys/stl/utility>
-#include <vtksys/stl/vector>
-
-using vtksys_stl::map;
-using vtksys_stl::pair;
-using vtksys_stl::vector;
+#include <map>
+#include <utility>
+#include <vector>
 
 vtkStandardNewMacro(vtkCollectGraph);
 
@@ -231,11 +227,11 @@ int vtkCollectGraph::RequestData(
     char *idFieldName = ids->GetName();
 
     // Map from global ids (owner, ownerId pairs) to wholeGraph ids.
-    map<int, vtkIdType> globalIdMapInt;
-    map<vtkStdString, vtkIdType> globalIdMapStr;
+    std::map<int, vtkIdType> globalIdMapInt;
+    std::map<vtkStdString, vtkIdType> globalIdMapStr;
 
     // Map from curGraph ids to wholeGraph ids.
-    vector<vtkIdType> localIdVec;
+    std::vector<vtkIdType> localIdVec;
 
     // Edge iterator.
     vtkSmartPointer<vtkEdgeListIterator> edges =

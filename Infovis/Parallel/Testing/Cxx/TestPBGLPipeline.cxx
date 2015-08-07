@@ -182,7 +182,7 @@ int TestPBGLPipeline(int argc, char* argv[])
   else
     {
     // Create an in-memory database containing a cycle graph.
-    vtksys_ios::ostringstream oss;
+    std::ostringstream oss;
     int vertices = 10000;
     db = vtkSmartPointer<vtkSQLiteDatabase>::New();
     vtkSQLiteDatabase::SafeDownCast(db)->SetDatabaseFileName(":memory:");

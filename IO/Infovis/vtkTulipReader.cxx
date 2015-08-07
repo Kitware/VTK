@@ -39,12 +39,12 @@
 #include "vtkVariantArray.h"
 
 #include <cassert>
-#include <vtksys/ios/fstream>
-#include <vtksys/ios/sstream>
-#include <vtksys/stl/map>
-#include <vtksys/stl/set>
-#include <vtksys/stl/stack>
-#include <vtksys/stl/vector>
+#include <fstream>
+#include <sstream>
+#include <map>
+#include <set>
+#include <stack>
+#include <vector>
 
 #if defined (__BORLANDC__)
 #include <ctype.h> // for isspace, isdigit
@@ -55,7 +55,7 @@
 // myself.
 // This function is also defined in Infovis/vtkDelimitedTextReader.cxx,
 // so it would be nice to put this in a common file.
-static int my_getline(vtksys_ios::istream& stream, vtkStdString &output, char delim='\n');
+static int my_getline(std::istream& stream, vtkStdString &output, char delim='\n');
 
 vtkStandardNewMacro(vtkTulipReader);
 
@@ -72,7 +72,7 @@ vtkTulipReader::~vtkTulipReader()
   this->SetFileName(0);
 }
 
-void vtkTulipReader::PrintSelf(vtksys_ios::ostream& os, vtkIndent indent)
+void vtkTulipReader::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
@@ -123,7 +123,7 @@ struct vtkTulipReaderToken
   double DoubleValue;
 };
 
-static void vtkTulipReaderNextToken(vtksys_ios::istream& in, vtkTulipReaderToken& tok)
+static void vtkTulipReaderNextToken(std::istream& in, vtkTulipReaderToken& tok)
 {
   char ch = in.peek();
   while (!in.eof() && (ch == ';' || isspace(ch)))
@@ -159,7 +159,7 @@ static void vtkTulipReaderNextToken(vtksys_ios::istream& in, vtkTulipReaderToken
   else if (isdigit(ch) || ch == '.')
     {
     bool isDouble = false;
-    vtksys_ios::stringstream ss;
+    std::stringstream ss;
     while (isdigit(ch) || ch == '.')
       {
       in.get();
@@ -208,7 +208,7 @@ int vtkTulipReader::RequestData(
     return 0;
     }
 
-  vtksys_ios::ifstream fin(this->FileName);
+  std::ifstream fin(this->FileName);
   if(!fin.is_open())
     {
     vtkErrorMacro("Could not open file " << this->FileName << ".");
@@ -230,19 +230,19 @@ int vtkTulipReader::RequestData(
   edgePedigrees->SetName("id");
 
   // Structures to record cluster hierarchy - all vertices belong to cluster 0.
-  vtksys_stl::vector<vtkTulipReaderCluster> clusters;
+  std::vector<vtkTulipReaderCluster> clusters;
   vtkTulipReaderCluster root;
   root.clusterId = 0;
   root.parentId = vtkTulipReaderCluster::NO_PARENT;
   root.name = "<default>";
   root.nodes = vtkSmartPointer<vtkIdTypeArray>::New();
 
-  vtksys_stl::stack<int> parentage;
+  std::stack<int> parentage;
   parentage.push(root.clusterId);
   clusters.push_back(root);
 
-  vtksys_stl::map<int, vtkIdType> nodeIdMap;
-  vtksys_stl::map<int, vtkIdType> edgeIdMap;
+  std::map<int, vtkIdType> nodeIdMap;
+  std::map<int, vtkIdType> edgeIdMap;
   vtkTulipReaderToken tok;
   vtkTulipReaderNextToken(fin, tok);
   while (tok.Type == vtkTulipReaderToken::OPEN_PAREN)
@@ -437,7 +437,7 @@ int vtkTulipReader::RequestData(
           int id = tok.IntValue;
           vtkTulipReaderNextToken(fin, tok);
           assert(tok.Type == vtkTulipReaderToken::TEXT);
-          vtksys_ios::stringstream ss;
+          std::stringstream ss;
           int value;
           ss << tok.StringValue;
           ss >> value;
@@ -488,7 +488,7 @@ int vtkTulipReader::RequestData(
           int id = tok.IntValue;
           vtkTulipReaderNextToken(fin, tok);
           assert(tok.Type == vtkTulipReaderToken::TEXT);
-          vtksys_ios::stringstream ss;
+          std::stringstream ss;
           double value;
           ss << tok.StringValue;
           ss >> value;
@@ -616,7 +616,7 @@ int vtkTulipReader::RequestData(
 }
 
 static int
-my_getline(vtksys_ios::istream& in, vtkStdString &out, char delimiter)
+my_getline(std::istream& in, vtkStdString &out, char delimiter)
 {
   out = vtkStdString();
   unsigned int numCharactersRead = 0;

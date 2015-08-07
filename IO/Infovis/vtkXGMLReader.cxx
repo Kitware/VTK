@@ -36,16 +36,16 @@ PURPOSE.  See the above copyright notice for more information.
 
 
 #include <cassert>
-#include <vtksys/ios/fstream>
-#include <vtksys/ios/sstream>
-#include <vtksys/stl/map>
+#include <fstream>
+#include <sstream>
+#include <map>
 
 #if defined (__BORLANDC__)
 #include <ctype.h> // for isspace, isdigit
 #endif
 
 // Copied from vtkTulipReader.cxx ..
-static int my_getline(vtksys_ios::istream& stream, vtkStdString &output, char delim='\n');
+static int my_getline(std::istream& stream, vtkStdString &output, char delim='\n');
 
 vtkStandardNewMacro(vtkXGMLReader);
 
@@ -61,7 +61,7 @@ vtkXGMLReader::~vtkXGMLReader()
   this->SetFileName(0);
 }
 
-void vtkXGMLReader::PrintSelf(vtksys_ios::ostream& os, vtkIndent indent)
+void vtkXGMLReader::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
@@ -100,7 +100,7 @@ struct vtkXGMLReaderToken
 
 
 
-static void vtkXGMLReaderNextToken(vtksys_ios::istream& in, vtkXGMLReaderToken& tok)
+static void vtkXGMLReaderNextToken(std::istream& in, vtkXGMLReaderToken& tok)
 {
   char ch = in.peek();
   while (!in.eof() && (ch == ';' || isspace(ch)))
@@ -136,7 +136,7 @@ static void vtkXGMLReaderNextToken(vtksys_ios::istream& in, vtkXGMLReaderToken& 
   else if (isdigit(ch) || ch == '.')
     {
     bool isDouble = false;
-    vtksys_ios::stringstream ss;
+    std::stringstream ss;
     while (isdigit(ch) || ch == '.')
       {
       in.get();
@@ -197,7 +197,7 @@ int vtkXGMLReader::RequestData(
     return 0;
     }
 
-  vtksys_ios::ifstream fin(this->FileName);
+  std::ifstream fin(this->FileName);
   if(!fin.is_open())
     {
     vtkErrorMacro("Could not open file " << this->FileName << ".");
@@ -208,8 +208,8 @@ int vtkXGMLReader::RequestData(
   vtkSmartPointer<vtkMutableUndirectedGraph> builder =
     vtkSmartPointer<vtkMutableUndirectedGraph>::New();
 
-  vtksys_stl::map<int, vtkIdType> nodeIdMap;
-  vtksys_stl::map<int, vtkIdType> edgeIdMap;
+  std::map<int, vtkIdType> nodeIdMap;
+  std::map<int, vtkIdType> edgeIdMap;
   vtkXGMLReaderToken tok;
 
   // expect graph
@@ -471,7 +471,7 @@ int vtkXGMLReader::RequestData(
 }
 
 static int
-my_getline(vtksys_ios::istream& in, vtkStdString &out, char delimiter)
+my_getline(std::istream& in, vtkStdString &out, char delimiter)
 {
   out = vtkStdString();
   unsigned int numCharactersRead = 0;

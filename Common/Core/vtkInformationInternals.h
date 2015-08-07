@@ -28,7 +28,7 @@
 #ifdef VTK_INFORMATION_USE_HASH_MAP
 # include <vtksys/hash_map.hxx>
 #else
-# include <vtksys/stl/map>
+# include <map>
 #endif
 
 //----------------------------------------------------------------------------
@@ -47,7 +47,7 @@ public:
   };
   typedef vtksys::hash_map<KeyType, DataType, HashFun> MapType;
 #else
-  typedef vtksys_stl::map<KeyType, DataType> MapType;
+  typedef std::map<KeyType, DataType> MapType;
 #endif
   MapType Map;
 

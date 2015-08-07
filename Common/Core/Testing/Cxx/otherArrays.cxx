@@ -26,7 +26,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 #define SIZE 1000
 
@@ -668,7 +668,7 @@ int otherArraysTest(ostream& strm)
 
 int otherArrays(int, char *[])
 {
-  vtksys_ios::ostringstream vtkmsg_with_warning_C4701;
+  std::ostringstream vtkmsg_with_warning_C4701;
 //  return otherArraysTest(vtkmsg_with_warning_C4701);
   return otherArraysTest(cerr);
 

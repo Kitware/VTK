@@ -196,7 +196,7 @@ class CompareVersions():
                 stderr=subprocess.PIPE)
         git_proc.wait()
         git_proc_stderr = git_proc.stderr.read()
-        if git_proc_stderr:
+        if git_proc.returncode:
             print "Error while git reset to version:", ver
             print git_proc_stderr
             sys.exit(1)
@@ -271,7 +271,7 @@ class CompareVersions():
                 stderr=subprocess.PIPE)
             git_proc.wait()
             git_proc_stderr = git_proc.stderr.read()
-            if git_proc_stderr:
+            if git_proc.returncode:
                 print "Error while getting git diff between versions %s and %s" %\
                     (self.version1, self.version2)
                 print git_proc_stderr

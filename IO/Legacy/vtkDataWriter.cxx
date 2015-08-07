@@ -140,7 +140,7 @@ ostream *vtkDataWriter::OpenVTKFile()
     ///   static_cast<int> (500+ 1024 * input->GetActualMemorySize());
     /// this->OutputString = new char[this->OutputStringAllocatedLength];
 
-    fptr = new vtksys_ios::ostringstream;
+    fptr = new std::ostringstream;
     }
   else
     {
@@ -1931,8 +1931,8 @@ void vtkDataWriter::CloseVTKFile(ostream *fp)
     {
     if (this->WriteToOutputString)
       {
-      vtksys_ios::ostringstream *ostr =
-        static_cast<vtksys_ios::ostringstream*>(fp);
+      std::ostringstream *ostr =
+        static_cast<std::ostringstream*>(fp);
 
       delete [] this->OutputString;
       this->OutputStringLength = static_cast<int>(ostr->str().size());

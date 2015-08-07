@@ -102,7 +102,7 @@ void vtkPostgreSQLDatabase::PrintSelf(ostream &os, vtkIndent indent)
 vtkStdString vtkPostgreSQLDatabase::GetColumnSpecification(
   vtkSQLDatabaseSchema* schema, int tblHandle, int colHandle )
 {
-  vtksys_ios::ostringstream queryStr;
+  std::ostringstream queryStr;
   queryStr << schema->GetColumnNameFromHandle( tblHandle, colHandle );
 
   // Figure out column type
@@ -255,7 +255,7 @@ bool vtkPostgreSQLDatabase::Open( const char* password )
   if ( this->ServerPort > 0 )
     {
     options += " port=";
-    vtksys_ios::ostringstream stream;
+    std::ostringstream stream;
     stream << this->ServerPort;
     options += stream.str();
     }

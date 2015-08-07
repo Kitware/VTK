@@ -41,7 +41,7 @@ void vtkAndroidOutputWindow::DisplayErrorText(const char* someText)
     return;
     }
 
-  vtksys_ios::istringstream stream(someText);
+  std::istringstream stream(someText);
   std::string line;
   while (std::getline(stream, line))
     {
@@ -58,7 +58,7 @@ void vtkAndroidOutputWindow::DisplayWarningText(const char* someText)
     return;
     }
 
-  vtksys_ios::istringstream stream(someText);
+  std::istringstream stream(someText);
   std::string line;
   while (std::getline(stream, line))
     {
@@ -75,7 +75,7 @@ void vtkAndroidOutputWindow::DisplayGenericWarningText(const char* someText)
     return;
     }
 
-  vtksys_ios::istringstream stream(someText);
+  std::istringstream stream(someText);
   std::string line;
   while (std::getline(stream, line))
     {
@@ -91,7 +91,7 @@ void vtkAndroidOutputWindow::DisplayDebugText(const char* someText)
     return;
     }
 
-  vtksys_ios::istringstream stream(someText);
+  std::istringstream stream(someText);
   std::string line;
   while (std::getline(stream, line))
     {
@@ -107,7 +107,7 @@ void vtkAndroidOutputWindow::DisplayText(const char* someText)
     return;
     }
 
-  vtksys_ios::istringstream stream(someText);
+  std::istringstream stream(someText);
   std::string line;
   while (std::getline(stream, line))
     {

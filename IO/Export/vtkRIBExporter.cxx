@@ -832,7 +832,7 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData,
       if ( pointData )
         {
         int cc, aa;
-        vtksys_ios::ostringstream str_with_warning_C4701;
+        std::ostringstream str_with_warning_C4701;
         for ( cc = 0; cc < pointData->GetNumberOfArrays(); cc ++ )
           {
           vtkDataArray *array = pointData->GetArray(cc);
@@ -856,7 +856,7 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData,
       if ( cellData )
         {
         int cc, aa;
-        vtksys_ios::ostringstream str_with_warning_C4701;
+        std::ostringstream str_with_warning_C4701;
         for ( cc = 0; cc < cellData->GetNumberOfArrays(); cc ++ )
           {
           vtkDataArray *array = cellData->GetArray(cc);
@@ -880,7 +880,7 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData,
       if ( fieldData )
         {
         int cc, aa;
-        vtksys_ios::ostringstream str_with_warning_C4701;
+        std::ostringstream str_with_warning_C4701;
 
         for ( cc = 0; cc < fieldData->GetNumberOfArrays(); cc ++ )
           {
@@ -1082,7 +1082,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData,
         if ( pointData )
           {
           int cc, aa;
-          vtksys_ios::ostringstream str_with_warning_C4701;
+          std::ostringstream str_with_warning_C4701;
           for ( cc = 0; cc < pointData->GetNumberOfArrays(); cc ++ )
             {
             vtkDataArray *array = pointData->GetArray(cc);
@@ -1106,7 +1106,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData,
         if ( cellData )
           {
           int cc, aa;
-          vtksys_ios::ostringstream str_with_warning_C4701;
+          std::ostringstream str_with_warning_C4701;
           for ( cc = 0; cc < cellData->GetNumberOfArrays(); cc ++ )
             {
             vtkDataArray *array = cellData->GetArray(cc);
@@ -1130,7 +1130,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData,
         if ( fieldData )
           {
           int cc, aa;
-          vtksys_ios::ostringstream str_with_warning_C4701;
+          std::ostringstream str_with_warning_C4701;
           for ( cc = 0; cc < fieldData->GetNumberOfArrays(); cc ++ )
             {
             vtkDataArray *array = fieldData->GetArray(cc);

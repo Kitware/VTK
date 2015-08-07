@@ -119,7 +119,7 @@ void SetInputParameters( int& dim,
       }
 
     // Initialize character stream
-    vtksys_ios::ostringstream stream;
+    std::ostringstream stream;
 
     // Seed random number generator
     vtkMath::RandomSeed( static_cast<int>( vtkTimerLog::GetUniversalTime() ) );

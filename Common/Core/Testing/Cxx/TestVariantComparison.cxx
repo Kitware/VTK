@@ -16,7 +16,7 @@
 #include "vtkVariant.h"
 #include "vtkObject.h"
 
-#include <vtksys/stl/map>
+#include <map>
 #include <cstdio>
 
 int
@@ -243,7 +243,7 @@ TestVariantComparison(int, char *[])
 
   cerr << "Testing vtkVariant as STL map key... ";
 
-  vtksys_stl::map<vtkVariant, vtkStdString> TestMap;
+  std::map<vtkVariant, vtkStdString> TestMap;
 
   TestMap[vtkVariant(s)] = "short";
   TestMap[vtkVariant(i)] = "int";
@@ -272,7 +272,7 @@ TestVariantComparison(int, char *[])
 
   // This one should treat variants containing different types as
   // unequal.
-  vtksys_stl::map<vtkVariant, vtkStdString, vtkVariantStrictWeakOrder> TestMap2;
+  std::map<vtkVariant, vtkStdString, vtkVariantStrictWeakOrder> TestMap2;
   TestMap2[vtkVariant()] = "invalid";
   TestMap2[vtkVariant(s)] = "short";
   TestMap2[vtkVariant(i)] = "int";

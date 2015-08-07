@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
       }
     }
 
-  vtksys_ios::ostringstream stream;
+  std::ostringstream stream;
   stream << testing->GetTempDirectory() << "/TestSocketCommunicator."
     << (is_server? "server" : "client") << ".log";
   // initialize the socket controller.

@@ -35,13 +35,13 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-#include <vtksys/stl/map>
+#include <map>
 
 vtkStandardNewMacro(vtkApplyIcons);
 
 class vtkApplyIcons::Internals {
   public:
-    vtksys_stl::map<vtkVariant, int> LookupTable;
+    std::map<vtkVariant, int> LookupTable;
 };
 
 vtkApplyIcons::vtkApplyIcons()
@@ -151,7 +151,7 @@ int vtkApplyIcons::RequestData(
   if (this->UseLookupTable && arr)
     {
     // Map the data values through the lookup table.
-    vtksys_stl::map<vtkVariant, int>::iterator itEnd = this->Implementation->LookupTable.end();
+    std::map<vtkVariant, int>::iterator itEnd = this->Implementation->LookupTable.end();
     for (vtkIdType i = 0; i < iconArr->GetNumberOfTuples(); ++i)
       {
       vtkVariant val = arr->GetVariantValue(i);

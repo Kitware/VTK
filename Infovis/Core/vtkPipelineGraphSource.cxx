@@ -32,13 +32,8 @@
 #include "vtkTree.h"
 #include "vtkVariantArray.h"
 
-#include <vtksys/stl/map>
-#include <vtksys/stl/stack>
-#include <vtksys/ios/sstream>
-
-using vtksys_stl::map;
-using vtksys_stl::stack;
-using vtksys_ios::ostringstream;
+#include <map>
+#include <sstream>
 
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
@@ -96,7 +91,7 @@ void vtkPipelineGraphSource::RemoveSink(vtkObject* sink)
 
 static void InsertObject(
   vtkObject* object,
-  map<vtkObject*, vtkIdType>& object_map,
+  std::map<vtkObject*, vtkIdType>& object_map,
   vtkMutableDirectedGraph* builder,
   vtkStringArray* vertex_class_name_array,
   vtkVariantArray* vertex_object_array,
@@ -177,7 +172,7 @@ int vtkPipelineGraphSource::RequestData(
   edge_object_array->Delete();
 
   // Recursively insert pipeline components into the graph ...
-  map<vtkObject*, vtkIdType> object_map;
+  std::map<vtkObject*, vtkIdType> object_map;
   for(vtkIdType i = 0; i != this->Sinks->GetNumberOfItems(); ++i)
     {
     InsertObject(this->Sinks->GetItemAsObject(i), object_map, builder, vertex_class_name_array, vertex_object_array, edge_output_port_array, edge_input_port_array, edge_class_name_array, edge_object_array);

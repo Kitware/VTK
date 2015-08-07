@@ -44,10 +44,10 @@
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 
-#include <vtksys/stl/algorithm>
-#include <vtksys/stl/map>
-#include <vtksys/stl/set>
-#include <vtksys/stl/vector>
+#include <algorithm>
+#include <map>
+#include <set>
+#include <vector>
 
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
@@ -304,8 +304,8 @@ class vtkTableToGraphCompare
 {
 public:
   bool operator()(
-    const vtksys_stl::pair<vtkStdString, vtkVariant>& a,
-    const vtksys_stl::pair<vtkStdString, vtkVariant>& b) const
+    const std::pair<vtkStdString, vtkVariant>& a,
+    const std::pair<vtkStdString, vtkVariant>& b) const
   {
     if (a.first != b.first)
       {
@@ -327,7 +327,7 @@ template <typename T>
 void vtkTableToGraphFindVertices(
   T* arr,                            // The raw edge table column
   vtkIdType size,                    // The size of the edge table column
-  vtksys_stl::map<vtksys_stl::pair<vtkStdString, vtkVariant>, vtkIdType, vtkTableToGraphCompare>& vertexMap,
+  std::map<std::pair<vtkStdString, vtkVariant>, vtkIdType, vtkTableToGraphCompare>& vertexMap,
                                      // A map of domain-value pairs to graph id
   vtkStringArray *domainArr,         // The domain of each vertex
   vtkStringArray *labelArr,          // The label of each vertex
@@ -340,7 +340,7 @@ void vtkTableToGraphFindVertices(
     {
     T v = arr[i];
     vtkVariant val(v);
-    vtksys_stl::pair<vtkStdString, vtkVariant> value(domain, val);
+    std::pair<vtkStdString, vtkVariant> value(domain, val);
     if (vertexMap.count(value) == 0)
       {
       vtkIdType row = vertexTable->InsertNextBlankRow();
@@ -359,7 +359,7 @@ template <typename T>
 void vtkTableToGraphFindHiddenVertices(
   T* arr,                            // The raw edge table column
   vtkIdType size,                    // The size of the edge table column
-  vtksys_stl::map<vtksys_stl::pair<vtkStdString, vtkVariant>, vtkIdType, vtkTableToGraphCompare>& hiddenMap,
+  std::map<std::pair<vtkStdString, vtkVariant>, vtkIdType, vtkTableToGraphCompare>& hiddenMap,
                                      // A map of domain-value pairs to hidden vertex id
   vtkIdType & curHiddenVertex,       // The current hidden vertex id
   vtkStdString domain)  // The domain of the array
@@ -368,7 +368,7 @@ void vtkTableToGraphFindHiddenVertices(
     {
     T v = arr[i];
     vtkVariant val(v);
-    vtksys_stl::pair<vtkStdString, vtkVariant> value(domain, val);
+    std::pair<vtkStdString, vtkVariant> value(domain, val);
     if (hiddenMap.count(value) == 0)
       {
       hiddenMap[value] = curHiddenVertex;
@@ -443,7 +443,7 @@ int vtkTableToGraph::RequestData(
     this->LinkGraph->GetVertexData()->GetAbstractArray("hidden"));
 
   // Find all the hidden types
-  vtksys_stl::set<vtkStdString> hiddenTypes;
+  std::set<vtkStdString> hiddenTypes;
   if (linkHidden)
     {
     for (vtkIdType h = 0; h < linkHidden->GetNumberOfTuples(); h++)
@@ -486,9 +486,9 @@ int vtkTableToGraph::RequestData(
   // Create the lookup maps for vertices and hidden vertices.
   // When edges are added later, we need to be able to lookup the
   // vertex ID for any domain-value pair.
-  vtksys_stl::map<vtksys_stl::pair<vtkStdString, vtkVariant>,
+  std::map<std::pair<vtkStdString, vtkVariant>,
     vtkIdType, vtkTableToGraphCompare> vertexMap;
-  vtksys_stl::map<vtksys_stl::pair<vtkStdString, vtkVariant>,
+  std::map<std::pair<vtkStdString, vtkVariant>,
     vtkIdType, vtkTableToGraphCompare> hiddenMap;
 
   // Set up the vertex table.  If we have one, just populate the
@@ -594,7 +594,7 @@ int vtkTableToGraph::RequestData(
 
     // For each new domain encountered, iterate through the values
     // of that column, adding vertices for each new value encountered.
-    vtksys_stl::set<vtkStdString> domainSet;
+    std::set<vtkStdString> domainSet;
     for (vtkIdType c = 0; c < linkDomain->GetNumberOfTuples(); c++)
       {
       vtkStdString domain = linkDomain->GetValue(c);
@@ -623,7 +623,7 @@ int vtkTableToGraph::RequestData(
         for (vtkIdType i = 0; i < arr->GetNumberOfTuples(); ++i)
           {
           vtkVariant val = vertexTable->GetValueByName(i, domain);
-          vtksys_stl::pair<vtkStdString, vtkVariant> value(domain, val);
+          std::pair<vtkStdString, vtkVariant> value(domain, val);
           // Fancy check for whether we have a valid value.
           // 1. It must not exist yet in the vertex map.
           // 2. The variant value must be valid.
@@ -720,8 +720,8 @@ int vtkTableToGraph::RequestData(
   VTK_CREATE(vtkDataSetAttributes, edgeTableData);
   edgeTableData->ShallowCopy(edgeTable->GetRowData());
   builder->GetEdgeData()->CopyAllocate(edgeTableData);
-  vtksys_stl::map<vtkIdType, vtksys_stl::vector< vtksys_stl::pair<vtkIdType, vtkIdType> > > hiddenInEdges;
-  vtksys_stl::map<vtkIdType, vtksys_stl::vector<vtkIdType> > hiddenOutEdges;
+  std::map<vtkIdType, std::vector< std::pair<vtkIdType, vtkIdType> > > hiddenInEdges;
+  std::map<vtkIdType, std::vector<vtkIdType> > hiddenOutEdges;
   int numHiddenToHiddenEdges = 0;
   VTK_CREATE(vtkEdgeListIterator, edges);
   for (vtkIdType r = 0; r < edgeTable->GetNumberOfRows(); r++)
@@ -772,8 +772,8 @@ int vtkTableToGraph::RequestData(
         vtkSuperExtraExtendedTemplateMacro(valueTarget = vtkTableToGraphGetValue(
           static_cast<VTK_TT*>(columnTarget->GetVoidPointer(0)), r));
         }
-      vtksys_stl::pair<vtkStdString, vtkVariant> lookupSource(typeSource, vtkVariant(valueSource));
-      vtksys_stl::pair<vtkStdString, vtkVariant> lookupTarget(typeTarget, vtkVariant(valueTarget));
+      std::pair<vtkStdString, vtkVariant> lookupSource(typeSource, vtkVariant(valueSource));
+      std::pair<vtkStdString, vtkVariant> lookupTarget(typeTarget, vtkVariant(valueTarget));
       vtkIdType source = -1;
       vtkIdType target = -1;
       if (!hiddenSource && vertexMap.count(lookupSource) > 0)
@@ -815,7 +815,7 @@ int vtkTableToGraph::RequestData(
         }
       else if (!hiddenSource && hiddenTarget)
         {
-        hiddenInEdges[target].push_back(vtksys_stl::make_pair(source, r));
+        hiddenInEdges[target].push_back(std::make_pair(source, r));
         }
       else
         {
@@ -835,16 +835,16 @@ int vtkTableToGraph::RequestData(
     }
 
   // Now add hidden edges.
-  vtksys_stl::map<vtkIdType, vtksys_stl::vector<vtkIdType> >::iterator out, outEnd;
+  std::map<vtkIdType, std::vector<vtkIdType> >::iterator out, outEnd;
   out = hiddenOutEdges.begin();
   outEnd = hiddenOutEdges.end();
   vtkIdType curHidden = 0;
   vtkIdType numHidden = static_cast<vtkIdType>(hiddenOutEdges.size());
   for (; out != outEnd; ++out)
     {
-    vtksys_stl::vector<vtkIdType> outVerts = out->second;
-    vtksys_stl::vector< vtksys_stl::pair<vtkIdType, vtkIdType> > inVerts = hiddenInEdges[out->first];
-    vtksys_stl::vector<vtkIdType>::size_type i, j;
+    std::vector<vtkIdType> outVerts = out->second;
+    std::vector< std::pair<vtkIdType, vtkIdType> > inVerts = hiddenInEdges[out->first];
+    std::vector<vtkIdType>::size_type i, j;
     for (i = 0; i < inVerts.size(); ++i)
       {
       vtkIdType inVertId = inVerts[i].first;

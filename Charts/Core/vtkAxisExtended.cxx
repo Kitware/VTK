@@ -19,7 +19,7 @@
 #include "vtkStdString.h"
 #include "vtkObjectFactory.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 #include <cmath>
 #include <algorithm>
@@ -197,7 +197,7 @@ double vtkAxisExtended::FormatLegibilityScore(double n, int format)
 // This method returns the length of the label given the format
 int vtkAxisExtended::FormatStringLength(int format, double n, int precision)
 {
-  vtksys_ios::ostringstream ostr;
+  std::ostringstream ostr;
   ostr.imbue(std::locale::classic());
   int numSize(0);
 
@@ -205,7 +205,7 @@ int vtkAxisExtended::FormatStringLength(int format, double n, int precision)
     {
     case 1:
       ostr.precision(precision);
-      ostr.setf(vtksys_ios::ios::scientific, vtksys_ios::ios::floatfield);
+      ostr.setf(std::ios::scientific, std::ios::floatfield);
       ostr<<n;
       numSize = (int) ostr.str().length();
       return numSize;
@@ -266,7 +266,7 @@ int vtkAxisExtended::FormatStringLength(int format, double n, int precision)
       return numSize;  // Three 0's get reduced
     case 8:
       ostr.precision(precision);
-      ostr.setf(vtksys_ios::ios::scientific, vtksys_ios::ios::floatfield);
+      ostr.setf(std::ios::scientific, std::ios::floatfield);
       ostr<<n/1000;
       numSize = (int) ostr.str().length();
       return numSize;

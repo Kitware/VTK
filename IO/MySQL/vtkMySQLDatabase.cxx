@@ -334,7 +334,7 @@ vtkStdString vtkMySQLDatabase::GetURL()
     this->GetServerPort() != VTK_MYSQL_DEFAULT_PORT
     )
     {
-    vtksys_ios::ostringstream stream;
+    std::ostringstream stream;
     stream << ":" << this->GetServerPort();
     url += stream.str();
     }
@@ -389,7 +389,7 @@ vtkStdString vtkMySQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* sch
                                                        int colHandle )
 {
   // With MySQL, the column name must be enclosed between backquotes
-  vtksys_ios::ostringstream queryStr;
+  std::ostringstream queryStr;
   queryStr << "`" << schema->GetColumnNameFromHandle( tblHandle, colHandle ) << "` ";
 
   // Figure out column type

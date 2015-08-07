@@ -1419,7 +1419,7 @@ int main(int argc, char *argv[])
     fprintf(fp,"  jstring tmp;\n\n");
     fprintf(fp,"  op = (vtkObjectBase *)vtkJavaGetPointerFromObject(env,obj);\n");
 
-    fprintf(fp,"  vtksys_ios::ostringstream vtkmsg_with_warning_C4701;\n");
+    fprintf(fp,"  std::ostringstream vtkmsg_with_warning_C4701;\n");
     fprintf(fp,"  op->Print(vtkmsg_with_warning_C4701);\n");
     fprintf(fp,"  vtkmsg_with_warning_C4701.put('\\0');\n");
     fprintf(fp,"  tmp = vtkJavaMakeJavaString(env,vtkmsg_with_warning_C4701.str().c_str());\n");
@@ -1434,7 +1434,7 @@ int main(int argc, char *argv[])
     fprintf(fp,"  jstring tmp;\n\n");
     fprintf(fp,"  op = (vtkObjectBase *)vtkJavaGetPointerFromObject(env,obj);\n");
 
-    fprintf(fp,"  vtksys_ios::ostringstream vtkmsg_with_warning_C4701;\n");
+    fprintf(fp,"  std::ostringstream vtkmsg_with_warning_C4701;\n");
     fprintf(fp,"  op->PrintRevisions(vtkmsg_with_warning_C4701);\n");
     fprintf(fp,"  vtkmsg_with_warning_C4701.put('\\0');\n");
     fprintf(fp,"  tmp = vtkJavaMakeJavaString(env,vtkmsg_with_warning_C4701.str().c_str());\n");

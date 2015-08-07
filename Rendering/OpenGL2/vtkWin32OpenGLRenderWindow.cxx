@@ -436,7 +436,7 @@ const char* vtkWin32OpenGLRenderWindow::ReportCapabilities()
   const char *glRenderer = (const char *) glGetString(GL_RENDERER);
   const char *glVersion = (const char *) glGetString(GL_VERSION);
 
-  vtksys_ios::ostringstream strm;
+  std::ostringstream strm;
   strm << "OpenGL vendor string:  " << glVendor << endl;
   strm << "OpenGL renderer string:  " << glRenderer << endl;
   strm << "OpenGL version string:  " << glVersion << endl;

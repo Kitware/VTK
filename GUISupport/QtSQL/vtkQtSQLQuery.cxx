@@ -36,14 +36,14 @@
 #include <QDateTime>
 #include <QDate>
 #include <QTime>
-#include <vtksys/stl/string>
-#include <vtksys/stl/vector>
+#include <string>
+#include <vector>
 
 class vtkQtSQLQueryInternals
 {
 public:
   QSqlQuery QtQuery;
-  vtksys_stl::vector<vtksys_stl::string> FieldNames;
+  std::vector<std::string> FieldNames;
 };
 
 

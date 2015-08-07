@@ -35,7 +35,7 @@
 #include "vtkObjectFactory.h"
 
 #include "vtksys/ios/sstream"
-using vtksys_ios::ostringstream;
+using std::ostringstream;
 
 #include "vtkQuadraturePointsUtilities.hxx"
 

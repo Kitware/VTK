@@ -37,8 +37,8 @@
 
 #include <cassert>
 
-#include <vtksys/ios/sstream>
-#include <vtksys/stl/vector>
+#include <sstream>
+#include <vector>
 
 #include <sql.h>
 #include <sqlext.h>
@@ -155,7 +155,7 @@ public:
   vtkBitArray *NullPermitted;
   SQLSMALLINT *ColumnTypes;
 
-  typedef vtksys_stl::vector<vtkODBCBoundParameter *> ParameterList;
+  typedef std::vector<vtkODBCBoundParameter *> ParameterList;
   ParameterList UserParameterList;
 
 };
@@ -171,7 +171,7 @@ vtkODBCQueryInternals::FreeStatement()
     status = SQLCloseCursor(this->Statement);
     if (status != SQL_SUCCESS && status != SQL_SUCCESS_WITH_INFO)
       {
-      vtksys_ios::ostringstream errorBuf;
+      std::ostringstream errorBuf;
       errorBuf << "vtkODBCQuery: Unable to close SQL cursor.  Error: "
                << GetErrorMessage(SQL_HANDLE_STMT, this->Statement);
       cerr << errorBuf.str() << "\n";
@@ -180,7 +180,7 @@ vtkODBCQueryInternals::FreeStatement()
     status = SQLFreeHandle(SQL_HANDLE_STMT, this->Statement);
     if (status != SQL_SUCCESS && status != SQL_SUCCESS_WITH_INFO)
       {
-      vtksys_ios::ostringstream errorBuf;
+      std::ostringstream errorBuf;
       errorBuf << "Unable to free statement handle.  Memory leak will occur. Error: "
                << GetErrorMessage(SQL_HANDLE_STMT, this->Statement);
       cerr << errorBuf.str() << "\n";
@@ -321,7 +321,7 @@ bool vtkODBCQueryInternals::PrepareQuery(const char *queryString,
                           &(this->Statement));
   if (status != SQL_SUCCESS && status != SQL_SUCCESS_WITH_INFO)
     {
-    vtksys_ios::ostringstream errorBuf;
+    std::ostringstream errorBuf;
     errorBuf << "Unable to allocate new statement handle.  Error: "
              << GetErrorMessage(SQL_HANDLE_DBC, dbConnection);
     error_message = errorBuf.str();
@@ -349,7 +349,7 @@ bool vtkODBCQueryInternals::PrepareQuery(const char *queryString,
 
   if (status != SQL_SUCCESS)
     {
-    vtksys_ios::ostringstream errorBuf;
+    std::ostringstream errorBuf;
     errorBuf << "Unable to prepare query for execution: "
              << GetErrorMessage(SQL_HANDLE_STMT, this->Statement);
     error_message = errorBuf.str();
@@ -468,7 +468,7 @@ GetErrorMessage(SQLSMALLINT handleType, SQLHANDLE handle, int *code)
 
   // There may be several error messages queued up so we need to loop
   // until we've got everything.
-  vtksys_ios::ostringstream messagebuf;
+  std::ostringstream messagebuf;
   do
     {
     status = SQLGetDiagRec(handleType, handle,
@@ -585,7 +585,7 @@ vtkODBCQuery::Execute()
 
   if (status != SQL_SUCCESS && status != SQL_SUCCESS_WITH_INFO)
     {
-    vtksys_ios::ostringstream errorBuf;
+    std::ostringstream errorBuf;
 
     errorBuf << "Unable to execute statement: "
              << GetErrorMessage(SQL_HANDLE_STMT, this->Internals->Statement);
@@ -641,7 +641,7 @@ vtkODBCQuery::Execute()
 
         if (status != SQL_SUCCESS && status != SQL_SUCCESS_WITH_INFO)
           {
-          vtksys_ios::ostringstream errbuf;
+          std::ostringstream errbuf;
           errbuf << "During vtkODBCQuery::Execute while looking up column "
                  << i << ": "
                  << GetErrorMessage(SQL_HANDLE_STMT, this->Internals->Statement);
@@ -659,7 +659,7 @@ vtkODBCQuery::Execute()
 
         if (status != SQL_SUCCESS && status != SQL_SUCCESS_WITH_INFO)
           {
-          vtksys_ios::ostringstream errbuf;
+          std::ostringstream errbuf;
           errbuf << "vtkODBCQuery::Execute: Unable to get unsigned flag for column "
                  << i << ": "
                  << GetErrorMessage(SQL_HANDLE_STMT,
@@ -696,7 +696,7 @@ vtkODBCQuery::GetNumberOfFields()
   if (status != SQL_SUCCESS &&
       status != SQL_SUCCESS_WITH_INFO)
     {
-    vtksys_ios::ostringstream errbuf;
+    std::ostringstream errbuf;
     errbuf << "During vtkODBCQuery::GetNumberOfFields: "
            << GetErrorMessage(SQL_HANDLE_STMT, this->Internals->Statement);
     this->SetLastErrorText(errbuf.str().c_str());
@@ -1187,7 +1187,7 @@ vtkODBCQuery::CacheIntColumn(int column)
     }
   else
     {
-    vtksys_ios::ostringstream errbuf;
+    std::ostringstream errbuf;
     errbuf << "CacheIntColumn (column "
            << column << "): ODBC error: "
            << GetErrorMessage(SQL_HANDLE_STMT,
@@ -1250,7 +1250,7 @@ vtkODBCQuery::CacheLongLongColumn(int column)
     }
   else
     {
-    vtksys_ios::ostringstream errbuf;
+    std::ostringstream errbuf;
     errbuf << "CacheLongLongColumn (column "
            << column << "): ODBC error: "
            << GetErrorMessage(SQL_HANDLE_STMT,
@@ -1302,7 +1302,7 @@ vtkODBCQuery::CacheCharColumn(int column)
     }
   else
     {
-    vtksys_ios::ostringstream errbuf;
+    std::ostringstream errbuf;
     errbuf << "CacheCharColumn (column "
            << column << "): ODBC error: "
            << GetErrorMessage(SQL_HANDLE_STMT,
@@ -1345,7 +1345,7 @@ vtkODBCQuery::CacheBooleanColumn(int column)
     }
   else
     {
-    vtksys_ios::ostringstream errbuf;
+    std::ostringstream errbuf;
     errbuf << "CacheCharColumn (column "
            << column << "): ODBC error: "
            << GetErrorMessage(SQL_HANDLE_STMT,
@@ -1390,7 +1390,7 @@ vtkODBCQuery::CacheFloatColumn(int column)
     }
   else
     {
-    vtksys_ios::ostringstream errbuf;
+    std::ostringstream errbuf;
     errbuf << "CacheFloatColumn (column "
            << column << "): ODBC error: "
            << GetErrorMessage(SQL_HANDLE_STMT,
@@ -1432,7 +1432,7 @@ vtkODBCQuery::CacheDoubleColumn(int column)
     }
   else
     {
-    vtksys_ios::ostringstream errbuf;
+    std::ostringstream errbuf;
     errbuf << "CacheDoubleColumn (column "
            << column << "): ODBC error: "
            << GetErrorMessage(SQL_HANDLE_STMT,
@@ -1453,7 +1453,7 @@ vtkODBCQuery::CacheStringColumn(int column)
   SQLLEN bufferLength;
   SQLLEN indicator;
   vtkStdString result;
-  vtksys_ios::ostringstream outbuf;
+  std::ostringstream outbuf;
 
   bufferLength = 65536; // this is a pretty reasonable compromise
                         // between the expense of ODBC requests and
@@ -1517,7 +1517,7 @@ vtkODBCQuery::CacheStringColumn(int column)
     else if (status == SQL_ERROR)
       {
       // there was some sort of error
-      vtksys_ios::ostringstream errbuf;
+      std::ostringstream errbuf;
       errbuf << "Error while reading wide string column " << column << ": "
              << GetErrorMessage(SQL_HANDLE_STMT, this->Internals->Statement);
       this->SetLastErrorText(errbuf.str().c_str());
@@ -1570,7 +1570,7 @@ vtkODBCQuery::CacheBinaryColumn(int column)
 
   if (status != SQL_SUCCESS)
     {
-    vtksys_ios::ostringstream errbuf;
+    std::ostringstream errbuf;
     errbuf << "CacheBinaryColumn: Unable to describe column "
            << column << ": "
            << GetErrorMessage(SQL_HANDLE_STMT, this->Internals->Statement);
@@ -1593,8 +1593,8 @@ vtkODBCQuery::CacheBinaryColumn(int column)
 
   this->SetLastErrorText(NULL);
 
-  vtksys_ios::ostringstream resultbuf;
-  vtksys_ios::ostringstream outbuf;
+  std::ostringstream resultbuf;
+  std::ostringstream outbuf;
 
   while (true)
     {
@@ -1653,7 +1653,7 @@ vtkODBCQuery::CacheBinaryColumn(int column)
     else if (status == SQL_ERROR)
       {
       // there was some sort of error
-      vtksys_ios::ostringstream errbuf;
+      std::ostringstream errbuf;
       errbuf << "Error while reading binary column " << column << ": "
              << GetErrorMessage(SQL_HANDLE_STMT, this->Internals->Statement);
       this->SetLastErrorText(errbuf.str().c_str());
@@ -1885,6 +1885,3 @@ vtkODBCQuery::ClearParameterBindings()
   this->Internals->ClearBoundParameters();
   return true;
 }
-
-
-

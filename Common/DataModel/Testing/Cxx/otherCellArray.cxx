@@ -83,6 +83,6 @@ int TestCellArray(ostream& strm)
 
 int otherCellArray(int,char *[])
 {
-  vtksys_ios::ostringstream vtkmsg_with_warning_C4701;
+  std::ostringstream vtkmsg_with_warning_C4701;
   return TestCellArray(vtkmsg_with_warning_C4701);
 }

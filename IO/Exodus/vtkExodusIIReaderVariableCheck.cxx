@@ -14,7 +14,7 @@
 
 #include <ctype.h>
 
-bool vtkExodusIIReaderVariableCheck::Start( vtksys_stl::string name, const int* truth, int numTruth )
+bool vtkExodusIIReaderVariableCheck::Start( std::string name, const int* truth, int numTruth )
 {
   this->SeqTruth.clear();
   this->SeqTruth.insert( this->SeqTruth.begin(), truth, truth + numTruth );
@@ -29,7 +29,7 @@ bool vtkExodusIIReaderVariableCheck::Start( vtksys_stl::string name, const int* 
   return result && atLeastOne;
 }
 
-std::vector<vtksys_stl::string>::size_type vtkExodusIIReaderVariableCheck::Length()
+std::vector<std::string>::size_type vtkExodusIIReaderVariableCheck::Length()
 {
   return this->OriginalNames.size();
 }
@@ -38,7 +38,7 @@ int vtkExodusIIReaderVariableCheck::Accept(
   std::vector<vtkExodusIIReaderPrivate::ArrayInfoType>& arr,
   int startIndex, vtkExodusIIReaderPrivate* priv, int objtyp )
 {
-  vtksys_stl::string::size_type len = this->Length();
+  std::string::size_type len = this->Length();
   vtkExodusIIReaderPrivate::ArrayInfoType ainfo;
   ainfo.Name = this->Prefix;
   ainfo.Source = vtkExodusIIReaderPrivate::Result;
@@ -113,14 +113,14 @@ vtkExodusIIReaderScalarCheck::vtkExodusIIReaderScalarCheck()
   this->GlomType = vtkExodusIIReaderPrivate::Scalar;
 }
 
-bool vtkExodusIIReaderScalarCheck::StartInternal( vtksys_stl::string name, const int*, int )
+bool vtkExodusIIReaderScalarCheck::StartInternal( std::string name, const int*, int )
 {
   this->Prefix = name;
   this->OriginalNames.push_back( name );
   return false;
 }
 
-bool vtkExodusIIReaderScalarCheck::Add( vtksys_stl::string, const int* )
+bool vtkExodusIIReaderScalarCheck::Add( std::string, const int* )
 { // Scalars never have more than 1 name
   return false;
 }
@@ -144,9 +144,9 @@ vtkExodusIIReaderVectorCheck::vtkExodusIIReaderVectorCheck( const char* seq, int
     }
 }
 
-bool vtkExodusIIReaderVectorCheck::StartInternal( vtksys_stl::string name, const int*, int )
+bool vtkExodusIIReaderVectorCheck::StartInternal( std::string name, const int*, int )
 {
-  vtksys_stl::string::size_type len = name.size();
+  std::string::size_type len = name.size();
   if ( len > 1 && tolower( name[len - 1] ) == this->Endings[0] )
     {
     this->Prefix = name.substr( 0, len - 1 );
@@ -159,7 +159,7 @@ bool vtkExodusIIReaderVectorCheck::StartInternal( vtksys_stl::string name, const
   return false;
 }
 
-bool vtkExodusIIReaderVectorCheck::Add( vtksys_stl::string name, const int* truth )
+bool vtkExodusIIReaderVectorCheck::Add( std::string name, const int* truth )
 {
   if (
     ( ! this->StillAdding ) ||
@@ -169,7 +169,7 @@ bool vtkExodusIIReaderVectorCheck::Add( vtksys_stl::string name, const int* trut
     this->StillAdding = false;
     return false;
     }
-  vtksys_stl::string::size_type len = name.size();
+  std::string::size_type len = name.size();
   if (
     ( len != this->Prefix.size() + 1 ) ||
     ( name.substr( 0, len - 1 ) != this->Prefix ) ||
@@ -183,9 +183,9 @@ bool vtkExodusIIReaderVectorCheck::Add( vtksys_stl::string name, const int* trut
   return true;
 }
 
-std::vector<vtksys_stl::string>::size_type vtkExodusIIReaderVectorCheck::Length()
+std::vector<std::string>::size_type vtkExodusIIReaderVectorCheck::Length()
 {
-  std::vector<vtksys_stl::string>::size_type len = this->OriginalNames.size();
+  std::vector<std::string>::size_type len = this->OriginalNames.size();
   return ( len == this->Endings.size() ) ? len : 0;
 }
 
@@ -259,9 +259,9 @@ vtkExodusIIReaderTensorCheck::vtkExodusIIReaderTensorCheck( const char* seq, int
     }
 }
 
-bool vtkExodusIIReaderTensorCheck::StartInternal( vtksys_stl::string name, const int*, int )
+bool vtkExodusIIReaderTensorCheck::StartInternal( std::string name, const int*, int )
 {
-  vtksys_stl::string::size_type len = name.size();
+  std::string::size_type len = name.size();
   if ( ( len > (unsigned) this->Rank ) &&
     vtksys::SystemTools::LowerCase( name.substr(len - this->Rank ) ) == this->Endings.substr( 0, this->Rank ) )
     {
@@ -275,7 +275,7 @@ bool vtkExodusIIReaderTensorCheck::StartInternal( vtksys_stl::string name, const
   return false;
 }
 
-bool vtkExodusIIReaderTensorCheck::Add( vtksys_stl::string name, const int* truth )
+bool vtkExodusIIReaderTensorCheck::Add( std::string name, const int* truth )
 {
   if (
     ( ! this->StillAdding ) ||
@@ -285,7 +285,7 @@ bool vtkExodusIIReaderTensorCheck::Add( vtksys_stl::string name, const int* trut
     this->StillAdding = false;
     return false;
     }
-  vtksys_stl::string::size_type len = name.size();
+  std::string::size_type len = name.size();
   if (
     ( len != this->Prefix.size() + this->Rank ) ||
     ( name.substr( 0, len - this->Rank ) != this->Prefix ) )
@@ -293,7 +293,7 @@ bool vtkExodusIIReaderTensorCheck::Add( vtksys_stl::string name, const int* trut
     this->StillAdding = false;
     return false;
     }
-  vtksys_stl::string::size_type endingOffset = this->OriginalNames.size() * this->Rank;
+  std::string::size_type endingOffset = this->OriginalNames.size() * this->Rank;
   if ( vtksys::SystemTools::LowerCase( name.substr( len - this->Rank ) ) != this->Endings.substr( endingOffset, this->Rank )  )
     {
     this->StillAdding = false;
@@ -304,10 +304,10 @@ bool vtkExodusIIReaderTensorCheck::Add( vtksys_stl::string name, const int* trut
   return true;
 }
 
-std::vector<vtksys_stl::string>::size_type vtkExodusIIReaderTensorCheck::Length()
+std::vector<std::string>::size_type vtkExodusIIReaderTensorCheck::Length()
 {
-  std::vector<vtksys_stl::string>::size_type len = this->OriginalNames.size();
-  //std::vector<vtksys_stl::string>::size_type expected = this->Rank * this->Dimension;
+  std::vector<std::string>::size_type len = this->OriginalNames.size();
+  //std::vector<std::string>::size_type expected = this->Rank * this->Dimension;
   return ( len == this->NumEndings ) ? len : 0;
 }
 
@@ -317,7 +317,7 @@ vtkExodusIIReaderIntPointCheck::vtkExodusIIReaderIntPointCheck()
   this->GlomType = vtkExodusIIReaderPrivate::IntegrationPoint;
 }
 
-bool vtkExodusIIReaderIntPointCheck::StartInternal( vtksys_stl::string name, const int*, int )
+bool vtkExodusIIReaderIntPointCheck::StartInternal( std::string name, const int*, int )
 {
   if ( this->RegExp.find( name ) )
     {
@@ -339,7 +339,7 @@ bool vtkExodusIIReaderIntPointCheck::StartInternal( vtksys_stl::string name, con
   return false;
 }
 
-bool vtkExodusIIReaderIntPointCheck::Add( vtksys_stl::string name, const int* )
+bool vtkExodusIIReaderIntPointCheck::Add( std::string name, const int* )
 {
   if (
     ( ! this->StillAdding ) ||
@@ -348,8 +348,8 @@ bool vtkExodusIIReaderIntPointCheck::Add( vtksys_stl::string name, const int* )
     this->StillAdding = false;
     return false;
     }
-  vtksys_stl::string::size_type nlen = name.size();
-  vtksys_stl::string::size_type plen = this->Prefix.size();
+  std::string::size_type nlen = name.size();
+  std::string::size_type plen = this->Prefix.size();
   if (
     ( nlen != plen + this->Rank + 3 /* for "_GP" */ ) ||
     ( name.substr( 0, plen ) != this->Prefix ) ||
@@ -363,7 +363,7 @@ bool vtkExodusIIReaderIntPointCheck::Add( vtksys_stl::string name, const int* )
   return true;
 }
 
-std::vector<vtksys_stl::string>::size_type vtkExodusIIReaderIntPointCheck::Length()
+std::vector<std::string>::size_type vtkExodusIIReaderIntPointCheck::Length()
 {
   if ( this->IntPtMin.size() != this->IntPtMax.size() )
     return 0;
@@ -391,7 +391,7 @@ std::vector<vtkExodusIIReaderPrivate::ArrayInfoType>& arr, int startIndex, vtkEx
 */
 
 bool vtkExodusIIReaderIntPointCheck::StartIntegrationPoints(
-  vtksys_stl::string cellType, vtksys_stl::string iptName )
+  std::string cellType, std::string iptName )
 {
   struct
     {
@@ -408,7 +408,7 @@ bool vtkExodusIIReaderIntPointCheck::StartIntegrationPoints(
       { "[Pp][Yy][Rr]", 3 }
     };
   vtksys::RegularExpression ctrexp;
-  vtksys_stl::string::size_type expectedRank = static_cast<vtksys_stl::string::size_type>( -1 );
+  std::string::size_type expectedRank = static_cast<std::string::size_type>( -1 );
   for ( unsigned int i = 0; i < sizeof(cellTypes)/sizeof(cellTypes[0]); ++ i )
     {
     ctrexp.compile( cellTypes[i].RE );
@@ -418,7 +418,7 @@ bool vtkExodusIIReaderIntPointCheck::StartIntegrationPoints(
       break;
       }
     }
-  vtksys_stl::string::size_type rank = iptName.size();
+  std::string::size_type rank = iptName.size();
   if ( expectedRank > 0 && rank != expectedRank )
     {
     this->Rank = 0;
@@ -427,7 +427,7 @@ bool vtkExodusIIReaderIntPointCheck::StartIntegrationPoints(
   this->Rank = rank;
   this->IntPtMin.clear();
   this->IntPtMax.clear();
-  for ( vtksys_stl::string::size_type i = 0; i < rank; ++ i )
+  for ( std::string::size_type i = 0; i < rank; ++ i )
     {
     int ival = iptName[i] - '0';
     if ( ival < 0 || ival > 9 )
@@ -443,22 +443,22 @@ bool vtkExodusIIReaderIntPointCheck::StartIntegrationPoints(
   return true;
 }
 
-bool vtkExodusIIReaderIntPointCheck::AddIntegrationPoint( vtksys_stl::string iptName )
+bool vtkExodusIIReaderIntPointCheck::AddIntegrationPoint( std::string iptName )
 {
-  vtksys_stl::string::size_type rank = iptName.size();
+  std::string::size_type rank = iptName.size();
   if ( rank != this->Rank )
     {
     this->Rank = 0;
     return false;
     }
-  std::pair<std::set<vtksys_stl::string>::iterator,bool> result;
+  std::pair<std::set<std::string>::iterator,bool> result;
   result = this->IntPtNames.insert( iptName );
   if ( ! result.second )
     { // Oops, this integration point is a duplicate.
     this->Rank = 0;
     return false;
     }
-  for ( vtksys_stl::string::size_type i = 0; i < rank; ++ i )
+  for ( std::string::size_type i = 0; i < rank; ++ i )
     {
     int ival = iptName[i] - '0';
     if ( ival < 0 || ival > 9 )

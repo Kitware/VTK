@@ -287,7 +287,7 @@ void vtkExodusIIReaderParser::FinishedParsing()
       desc = this->PartVertexID_To_Descriptions[partVertex];
       }
 
-    vtksys_ios::ostringstream stream;
+    std::ostringstream stream;
     stream << "Block: " << iter->first
       << " (" << desc.c_str()<< ") "
       << this->BlockID_To_Part[iter->first].c_str();

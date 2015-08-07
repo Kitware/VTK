@@ -751,7 +751,7 @@ int vtkXMLWriter::OpenFile()
 int vtkXMLWriter::OpenString()
 {
   delete this->OutStringStream;
-  this->OutStringStream = new vtksys_ios::ostringstream();
+  this->OutStringStream = new std::ostringstream();
   this->Stream = this->OutStringStream;
 
   return 1;
@@ -1997,7 +1997,7 @@ void vtkXMLWriter::WriteArrayHeader(vtkAbstractArray* a,  vtkIndent indent,
   else
     {
     // Generate a name for this array.
-    vtksys_ios::ostringstream name;
+    std::ostringstream name;
     void* p = a;
     name << "Array " << p;
     this->WriteStringAttribute("Name", name.str().c_str());
@@ -2009,7 +2009,7 @@ void vtkXMLWriter::WriteArrayHeader(vtkAbstractArray* a,  vtkIndent indent,
     }
 
   //always write out component names, even if only 1 component
-  vtksys_ios::ostringstream buff;
+  std::ostringstream buff;
   const char* compName = NULL;
   for (int i = 0; i < a->GetNumberOfComponents(); ++i)
     {

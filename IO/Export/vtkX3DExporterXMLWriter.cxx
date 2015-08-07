@@ -74,7 +74,7 @@ int vtkX3DExporterXMLWriter::OpenFile(const char* file)
 {
   this->CloseFile();
   this->WriteToOutputString = 0;
-  vtksys_ios::fstream* fileStream = new vtksys_ios::fstream();
+  std::fstream* fileStream = new std::fstream();
   fileStream->open (file, ios::out);
   if(fileStream->fail())
     {
@@ -94,7 +94,7 @@ int vtkX3DExporterXMLWriter::OpenStream()
   this->CloseFile();
 
   this->WriteToOutputString = 1;
-  this->OutputStream = new vtksys_ios::ostringstream();
+  this->OutputStream = new std::ostringstream();
   return 1;
 }
 
@@ -105,8 +105,8 @@ void vtkX3DExporterXMLWriter::CloseFile()
     {
     if(this->WriteToOutputString)
       {
-      vtksys_ios::ostringstream *ostr =
-        static_cast<vtksys_ios::ostringstream*>(this->OutputStream);
+      std::ostringstream *ostr =
+        static_cast<std::ostringstream*>(this->OutputStream);
 
       delete [] this->OutputString;
       this->OutputStringLength = static_cast<int>(ostr->str().size());

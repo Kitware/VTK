@@ -74,7 +74,7 @@ void vtkContingencyStatisticsGnuR::CalculatePValues( vtkTable* outTab)
   ri->AssignVTKDataArrayToRVariable( chi2yCol, "chi2y" );
 
   // Now prepare R script and calculate the p-values (in a single R script evaluation for efficiency)
-  vtksys_ios::ostringstream rs;
+  std::ostringstream rs;
   rs << "p<-c();"
      << "py<-c();"
      << "for(i in 1:"

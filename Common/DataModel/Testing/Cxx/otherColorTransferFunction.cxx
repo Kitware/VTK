@@ -149,6 +149,6 @@ int Test(ostream& strm)
 
 int otherColorTransferFunction(int, char *[])
 {
-  vtksys_ios::ostringstream vtkmsg_with_warning_C4701;
+  std::ostringstream vtkmsg_with_warning_C4701;
   return Test(vtkmsg_with_warning_C4701);
 }

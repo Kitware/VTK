@@ -139,7 +139,7 @@ namespace boost {
 #endif
 }
 
-#include <vtksys/stl/utility> // STL Header
+#include <utility> // STL Header
 
 #include <boost/config.hpp>
 #include <boost/iterator/iterator_facade.hpp>
@@ -830,7 +830,7 @@ target(boost::graph_traits< vtkGraph* >::edge_descriptor e,
   return e.Target;
 }
 
-inline vtksys_stl::pair<
+inline std::pair<
   boost::graph_traits< vtkGraph* >::vertex_iterator,
   boost::graph_traits< vtkGraph* >::vertex_iterator >
 vertices(vtkGraph *g)
@@ -844,20 +844,20 @@ vertices(vtkGraph *g)
     start = helper->MakeDistributedId(rank, start);
     }
 
-  return vtksys_stl::make_pair( Iter(start),
+  return std::make_pair( Iter(start),
                                 Iter(start + g->GetNumberOfVertices()) );
 }
 
-inline vtksys_stl::pair<
+inline std::pair<
   boost::graph_traits< vtkGraph* >::edge_iterator,
   boost::graph_traits< vtkGraph* >::edge_iterator >
 edges(vtkGraph *g)
 {
   typedef boost::graph_traits< vtkGraph* >::edge_iterator Iter;
-  return vtksys_stl::make_pair( Iter(g), Iter(g, g->GetNumberOfVertices()) );
+  return std::make_pair( Iter(g), Iter(g, g->GetNumberOfVertices()) );
 }
 
-inline vtksys_stl::pair<
+inline std::pair<
   boost::graph_traits< vtkGraph* >::out_edge_iterator,
   boost::graph_traits< vtkGraph* >::out_edge_iterator >
 out_edges(
@@ -865,11 +865,11 @@ out_edges(
   vtkGraph *g)
 {
   typedef boost::graph_traits< vtkGraph* >::out_edge_iterator Iter;
-  vtksys_stl::pair<Iter, Iter> p = vtksys_stl::make_pair( Iter(g, u), Iter(g, u, true) );
+  std::pair<Iter, Iter> p = std::make_pair( Iter(g, u), Iter(g, u, true) );
   return p;
 }
 
-inline vtksys_stl::pair<
+inline std::pair<
   boost::graph_traits< vtkGraph* >::in_edge_iterator,
   boost::graph_traits< vtkGraph* >::in_edge_iterator >
 in_edges(
@@ -877,11 +877,11 @@ in_edges(
   vtkGraph *g)
 {
   typedef boost::graph_traits< vtkGraph* >::in_edge_iterator Iter;
-  vtksys_stl::pair<Iter, Iter> p = vtksys_stl::make_pair( Iter(g, u), Iter(g, u, true) );
+  std::pair<Iter, Iter> p = std::make_pair( Iter(g, u), Iter(g, u, true) );
   return p;
 }
 
-inline vtksys_stl::pair<
+inline std::pair<
   boost::graph_traits< vtkGraph* >::adjacency_iterator,
   boost::graph_traits< vtkGraph* >::adjacency_iterator >
 adjacent_vertices(
@@ -890,8 +890,8 @@ adjacent_vertices(
 {
   typedef boost::graph_traits< vtkGraph* >::adjacency_iterator Iter;
   typedef boost::graph_traits< vtkGraph* >::out_edge_iterator OutEdgeIter;
-  vtksys_stl::pair<OutEdgeIter, OutEdgeIter> out = out_edges(u, g);
-  return vtksys_stl::make_pair( Iter(out.first, &g), Iter(out.second, &g) );
+  std::pair<OutEdgeIter, OutEdgeIter> out = out_edges(u, g);
+  return std::make_pair( Iter(out.first, &g), Iter(out.second, &g) );
 }
 
 inline boost::graph_traits< vtkGraph* >::vertices_size_type
@@ -936,7 +936,7 @@ add_vertex(vtkMutableDirectedGraph *g)
   return g->AddVertex();
 }
 
-inline vtksys_stl::pair<
+inline std::pair<
   boost::graph_traits< vtkMutableDirectedGraph* >::edge_descriptor,
   bool>
 add_edge(
@@ -945,7 +945,7 @@ add_edge(
   vtkMutableDirectedGraph *g)
 {
   boost::graph_traits< vtkMutableDirectedGraph* >::edge_descriptor e = g->AddEdge(u, v);
-  return vtksys_stl::make_pair(e, true);
+  return std::make_pair(e, true);
 }
 
 inline boost::graph_traits< vtkMutableUndirectedGraph* >::vertex_descriptor
@@ -954,7 +954,7 @@ add_vertex(vtkMutableUndirectedGraph *g)
   return g->AddVertex();
 }
 
-inline vtksys_stl::pair<
+inline std::pair<
   boost::graph_traits< vtkMutableUndirectedGraph* >::edge_descriptor,
   bool>
 add_edge(
@@ -963,7 +963,7 @@ add_edge(
   vtkMutableUndirectedGraph *g)
 {
   boost::graph_traits< vtkMutableUndirectedGraph* >::edge_descriptor e = g->AddEdge(u, v);
-  return vtksys_stl::make_pair(e, true);
+  return std::make_pair(e, true);
 }
 
 namespace boost {
