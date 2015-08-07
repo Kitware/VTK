@@ -22,7 +22,15 @@ set_source_files_properties(
   vtkLSDynaPartCollection
   private/LSDynaFamily
   private/LSDynaMetaData
-  WRAP_EXCLUDE
+  PROPERTIES
+    WRAP_EXCLUDE 1
+  )
+
+set_source_files_properties(
+  private/LSDynaFamily
+  private/LSDynaMetaData
+  PROPERTIES
+    SKIP_HEADER_INSTALL 1
   )
 
 vtk_module_library(vtkIOLSDyna ${Module_SRCS})
