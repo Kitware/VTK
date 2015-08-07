@@ -98,6 +98,7 @@ protected:
                               vtkIndent indent);
 
   void WriteCellsAppended(const char* name, vtkDataArray* types,
+                          vtkIdTypeArray* faces, vtkIdTypeArray* faceOffsets,
                           vtkIndent indent, OffsetsManagerGroup *cellsManager);
 
   void WriteCellsAppended(const char* name, vtkCellIterator *cellIter,

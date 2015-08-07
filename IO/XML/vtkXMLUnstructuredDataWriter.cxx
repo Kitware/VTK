@@ -682,9 +682,12 @@ void vtkXMLUnstructuredDataWriter::WriteCellsInlineWorker(
 //----------------------------------------------------------------------------
 void vtkXMLUnstructuredDataWriter::WriteCellsAppended(const char* name,
                                                       vtkDataArray* types,
+                                                      vtkIdTypeArray* faces,
+                                                      vtkIdTypeArray* faceOffsets,
                                                       vtkIndent indent,
                                                       OffsetsManagerGroup *cellsManager)
 {
+    this->ConvertFaces(faces,faceOffsets);
   ostream& os = *(this->Stream);
   os << indent << "<" << name << ">\n";
 
@@ -735,7 +738,7 @@ void vtkXMLUnstructuredDataWriter::WriteCellsAppended(
     types->InsertNextValue(static_cast<unsigned char>(cellIter->GetCellType()));
     }
 
-  this->WriteCellsAppended(name, types.GetPointer(), indent, cellsManager);
+  this->WriteCellsAppended(name, types.GetPointer(), 0, 0, indent, cellsManager);
 }
 
 //----------------------------------------------------------------------------
@@ -821,10 +824,14 @@ void vtkXMLUnstructuredDataWriter::WriteCellsAppendedDataWorker(
       if( cellsMTime != mtime )
         {
         cellsMTime = mtime;
+
+        assert(cellsManager->GetElement(i).GetPosition(timestep) != 0);
+
         // Write the connectivity array.
         this->WriteArrayAppendedData(allcells[i],
           cellsManager->GetElement(i).GetPosition(timestep),
           cellsManager->GetElement(i).GetOffsetValue(timestep));
+
         if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
           {
           return;
