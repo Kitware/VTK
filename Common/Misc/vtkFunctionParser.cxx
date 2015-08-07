@@ -171,6 +171,7 @@ int vtkFunctionParser::Parse()
   // - scalar/vector +
   // - scalar/vector -
   // - scalar/vector unary minus
+  // - scalar/vector unary plus
   // - * (2 scalars) or scalar multiple (scalar, vector)
   result = this->DisambiguateOperators();
   if (!result)
@@ -227,6 +228,12 @@ int vtkFunctionParser::DisambiguateOperators()
         if (tempStack[tempStackPtr] != 0)
           {
           this->ByteCode[i] = VTK_PARSER_VECTOR_UNARY_MINUS;
+          }
+        break;
+      case VTK_PARSER_UNARY_PLUS:
+        if (tempStack[tempStackPtr] != 0)
+          {
+          this->ByteCode[i] = VTK_PARSER_VECTOR_UNARY_PLUS;
           }
         break;
       case VTK_PARSER_ADD:
@@ -487,6 +494,8 @@ bool vtkFunctionParser::Evaluate()
       case VTK_PARSER_UNARY_MINUS:
         this->Stack[stackPosition] = -(this->Stack[stackPosition]);
         break;
+      case VTK_PARSER_UNARY_PLUS:
+        break;
       case VTK_PARSER_ADD:
         this->Stack[stackPosition-1] += this->Stack[stackPosition];
         stackPosition--;
@@ -723,6 +732,8 @@ bool vtkFunctionParser::Evaluate()
         this->Stack[stackPosition] = -this->Stack[stackPosition];
         this->Stack[stackPosition-1] = -this->Stack[stackPosition-1];
         this->Stack[stackPosition-2] = -this->Stack[stackPosition-2];
+        break;
+      case VTK_PARSER_VECTOR_UNARY_PLUS:
         break;
       case VTK_PARSER_DOT_PRODUCT:
         this->Stack[stackPosition-3] *= this->Stack[stackPosition];
@@ -1427,11 +1438,21 @@ void vtkFunctionParser::BuildInternalSubstringStructure(int beginIndex,
       this->AddInternalByte(VTK_PARSER_UNARY_MINUS);
       return;
       }
-    if (this->GetMathConstantNumber(beginIndex+1) > 0 &&
-        this->FindEndOfMathConstant(beginIndex+1) == endIndex)
+    }
+
+  if (this->Function[beginIndex] == '+')
+    {
+    if (this->IsSubstringCompletelyEnclosed(beginIndex+1, endIndex))
+      {
+      this->BuildInternalSubstringStructure(beginIndex+2, endIndex-1);
+      this->AddInternalByte(VTK_PARSER_UNARY_PLUS);
+      return;
+      }
+    if (this->GetMathFunctionNumber(beginIndex+1) > 0 &&
+        this->FindEndOfMathFunction(beginIndex+1) == endIndex)
       {
       this->BuildInternalSubstringStructure(beginIndex+1, endIndex);
-      this->AddInternalByte(VTK_PARSER_UNARY_MINUS);
+      this->AddInternalByte(VTK_PARSER_UNARY_PLUS);
       return;
       }
     }
@@ -1539,7 +1560,7 @@ void vtkFunctionParser::BuildInternalSubstringStructure(int beginIndex,
       if (parenthesisCount == 0 &&
           // arithmetic or boolean
           this->Function[i] == elementaryMathOps[opNum] &&
-          !(this->Function[i] == '-' &&
+          !((this->Function[i] == '-' || this->Function[i] == '+') &&
             (this->IsElementaryOperator(this->Function[i-1]) ||
              this->Function[i-1] == '(' ||
              (this->Function[i-1] == 'e' && i > 1 &&
@@ -1560,8 +1581,12 @@ void vtkFunctionParser::BuildInternalSubstringStructure(int beginIndex,
     } // end of   for (opNum = 0; opNum < numMathOps; opNum++)
 
   beginIndex2 = beginIndex;
-  if (this->Function[beginIndex] == '-')
+  bool unaryMinus = false;
+  if (this->Function[beginIndex] == '-' ||
+      this->Function[beginIndex] == '+')
     {
+    if (this->Function[beginIndex] == '-')
+      unaryMinus = true;
     beginIndex2++;
     }
 
@@ -1574,7 +1599,10 @@ void vtkFunctionParser::BuildInternalSubstringStructure(int beginIndex,
     }
   if (beginIndex2 > beginIndex)
     {
-    this->AddInternalByte(VTK_PARSER_UNARY_MINUS);
+    if (unaryMinus)
+      this->AddInternalByte(VTK_PARSER_UNARY_MINUS);
+    else
+      this->AddInternalByte(VTK_PARSER_UNARY_PLUS);
     }
 }
 
@@ -2165,6 +2193,21 @@ void vtkFunctionParser::CheckExpression(int &pos, char **error)
         {
         this->ParseErrorPositon = this->FindPositionInOriginalFunction(index);
         this->SetParseError("Syntax error: unary minus with no operand");
+        this->CopyParseError(pos, error);
+        delete [] expectCommaOnParenthesisCount;
+        delete [] expectTwoCommasOnParenthesisCount;
+        return;
+        }
+      }
+
+    // Check for leading +
+    if (currentChar == '+')
+      {
+      currentChar = this->Function[++index];
+      if(index == this->FunctionLength)
+        {
+        this->ParseErrorPositon = this->FindPositionInOriginalFunction(index);
+        this->SetParseError("Syntax error: unary plus with no operand");
         this->CopyParseError(pos, error);
         delete [] expectCommaOnParenthesisCount;
         delete [] expectTwoCommasOnParenthesisCount;
