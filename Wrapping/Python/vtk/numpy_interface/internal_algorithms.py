@@ -522,7 +522,7 @@ def make_vector(ax, ay, az=None):
     if ax is dsa.NoneArray or ay is dsa.NoneArray or ay is dsa.NoneArray:
       return dsa.NoneArray
 
-    if len(ax.shape) != 1 or len(ay.shape) != 1 or (az != None and len(az.shape) != 1):
+    if len(ax.shape) != 1 or len(ay.shape) != 1 or (az is not None and len(az.shape) != 1):
         raise ValueError("Can only merge 1D arrays")
 
     if az is None:

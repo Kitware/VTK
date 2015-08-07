@@ -8,6 +8,7 @@ guidelines. For details, see the documentation of individual
 algorithms.
 """
 from __future__ import absolute_import
+import sys
 
 try:
     import numpy
@@ -24,6 +25,11 @@ try:
 except ImportError:
     vtkMultiProcessController = None
     vtkMPI4PyCommunicator = None
+
+if sys.hexversion < 0x03000000:
+    izip = itertools.izip
+else:
+    izip = zip
 
 def _apply_func2(func, array, args):
     """Apply a function to each member of a VTKCompositeDataArray.
@@ -67,7 +73,7 @@ def apply_dfunc(dfunc, array1, val2):
     VTKArray and numpy arrays are also supported."""
     if type(array1) == dsa.VTKCompositeDataArray and type(val2) == dsa.VTKCompositeDataArray:
         res = []
-        for a1, a2 in itertools.izip(array1.Arrays, val2.Arrays):
+        for a1, a2 in izip(array1.Arrays, val2.Arrays):
             if a1 is dsa.NoneArray or a2 is dsa.NoneArray:
                 res.append(dsa.NoneArray)
             else:
@@ -421,7 +427,7 @@ def _global_per_block(impl, array, axis=None, controller=None):
                 it.GoToNextItem()
 
         # Fill the local array with available values.
-        for _id, _res in itertools.izip(ids, results):
+        for _id, _res in izip(ids, results):
             success = True
             try:
                 loc = reduce_ids.index(_id)
@@ -770,13 +776,13 @@ def make_vector(arrayx, arrayy, arrayz=None):
     if type(arrayx) == dsa.VTKCompositeDataArray and type(arrayy) == dsa.VTKCompositeDataArray and (type(arrayz) == dsa.VTKCompositeDataArray or arrayz is None):
         res = []
         if arrayz is None:
-            for ax, ay in itertools.izip(arrayx.Arrays, arrayy.Arrays):
+            for ax, ay in izip(arrayx.Arrays, arrayy.Arrays):
                 if ax is not dsa.NoneArray and ay is not dsa.NoneArray:
                     res.append(algs.make_vector(ax, ay))
                 else:
                     res.append(dsa.NoneArray)
         else:
-            for ax, ay, az in itertools.izip(arrayx.Arrays, arrayy.Arrays, arrayz.Arrays):
+            for ax, ay, az in izip(arrayx.Arrays, arrayy.Arrays, arrayz.Arrays):
                 if ax is not dsa.NoneArray and ay is not dsa.NoneArray and az is not dsa.NoneArray:
                     res.append(algs.make_vector(ax, ay, az))
                 else:
