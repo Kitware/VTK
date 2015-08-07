@@ -6,6 +6,10 @@ set(Module_SRCS
   vtkOBJImporterInternals.cxx
 )
 
+set (${vtk-module}_HDRS
+  vtk3DS.h
+)
+
 set_source_files_properties(
   vtkImporter
   ABSTRACT
