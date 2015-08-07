@@ -16,9 +16,15 @@ set_source_files_properties(
   vtkCPExodusIIResultsArrayTemplate
   vtkExodusIIReaderParser
   vtkExodusIIReaderVariableCheck
-
-  WRAP_EXCLUDE
+  PROPERTIES
+    WRAP_EXCLUDE 1
   )
+
+set_source_files_properties(
+  vtkExodusIIReaderVariableCheck
+  PROPERTIES
+    SKIP_HEADER_INSTALL 1
+)
 
 set(vtkIOExodus_HDRS
   vtkCPExodusIINodalCoordinatesTemplate.h
