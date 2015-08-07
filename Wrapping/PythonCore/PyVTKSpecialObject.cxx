@@ -30,6 +30,7 @@
 -----------------------------------------------------------------------*/
 
 #include "PyVTKSpecialObject.h"
+#include "PyVTKMethodDescriptor.h"
 #include "vtkPythonUtil.h"
 
 #include <vtksys/ios/sstream>
@@ -45,25 +46,23 @@
 //--------------------------------------------------------------------
 PyVTKSpecialType::PyVTKSpecialType(
     PyTypeObject *typeobj, PyMethodDef *cmethods, PyMethodDef *ccons,
-    const char *cdocs[], PyVTKSpecialCopyFunc copyfunc)
+    vtkcopyfunc copyfunc)
 {
   this->py_type = typeobj;
-  this->methods = cmethods;
-  this->constructors = ccons;
-  this->docstring = vtkPythonUtil::BuildDocString(cdocs);
-  this->copy_func = copyfunc;
+  this->vtk_methods = cmethods;
+  this->vtk_constructors = ccons;
+  this->vtk_copy = copyfunc;
 }
+
+//--------------------------------------------------------------------
+// Object protocol
 
 //--------------------------------------------------------------------
 PyObject *PyVTKSpecialObject_Repr(PyObject *self)
 {
   PyVTKSpecialObject *obj = (PyVTKSpecialObject *)self;
-  PyTypeObject *type = self->ob_type;
-  const char *name = self->ob_type->tp_name;
-
-  PyObject *s = PyString_FromString("(");
-  PyString_ConcatAndDel(&s, PyString_FromString(name));
-  PyString_ConcatAndDel(&s, PyString_FromString(")"));
+  PyTypeObject *type = Py_TYPE(self);
+  const char *name = Py_TYPE(self)->tp_name;
 
   while (type->tp_base && !type->tp_str)
     {
@@ -71,6 +70,7 @@ PyObject *PyVTKSpecialObject_Repr(PyObject *self)
     }
 
   // use str() if available
+  PyObject *s = NULL;
   if (type->tp_str && type->tp_str != (&PyBaseObject_Type)->tp_str)
     {
     PyObject *t = type->tp_str(self);
@@ -81,15 +81,17 @@ PyObject *PyVTKSpecialObject_Repr(PyObject *self)
       }
     else
       {
-      PyString_ConcatAndDel(&s, t);
+#ifdef VTK_PY3K
+      s = PyString_FromFormat("(%.80s)%S", name, t);
+#else
+      s = PyString_FromFormat("(%.80s)%s", name, PyString_AsString(t));
+#endif
       }
     }
   // otherwise just print address of object
   else if (obj->vtk_ptr)
     {
-    char buf[256];
-    sprintf(buf, "%p", obj->vtk_ptr);
-    PyString_ConcatAndDel(&s, PyString_FromString(buf));
+    s = PyString_FromFormat("(%.80s)%p", name, obj->vtk_ptr);
     }
 
   return s;
@@ -103,9 +105,9 @@ PyObject *PyVTKSpecialObject_SequenceString(PyObject *self)
   PyObject *t, *o, *comma;
   const char *bracket = "[...]";
 
-  if (self->ob_type->tp_as_sequence &&
-      self->ob_type->tp_as_sequence->sq_item != NULL &&
-      self->ob_type->tp_as_sequence->sq_ass_item == NULL)
+  if (Py_TYPE(self)->tp_as_sequence &&
+      Py_TYPE(self)->tp_as_sequence->sq_item != NULL &&
+      Py_TYPE(self)->tp_as_sequence->sq_ass_item == NULL)
     {
     bracket = "(...)";
     }
@@ -130,7 +132,13 @@ PyObject *PyVTKSpecialObject_SequenceString(PyObject *self)
       {
       if (i > 0)
         {
+#ifdef VTK_PY3K
+        PyObject *tmp = PyUnicode_Concat(s, comma);
+        Py_DECREF(s);
+        s = tmp;
+#else
         PyString_Concat(&s, comma);
+#endif
         }
       o = PySequence_GetItem(self, i);
       t = NULL;
@@ -141,7 +149,14 @@ PyObject *PyVTKSpecialObject_SequenceString(PyObject *self)
         }
       if (t)
         {
+#ifdef VTK_PY3K
+        PyObject *tmp = PyUnicode_Concat(s, t);
+        Py_DECREF(s);
+        Py_DECREF(t);
+        s = tmp;
+#else
         PyString_ConcatAndDel(&s, t);
+#endif
         }
       else
         {
@@ -153,8 +168,16 @@ PyObject *PyVTKSpecialObject_SequenceString(PyObject *self)
 
     if (s)
       {
+#ifdef VTK_PY3K
+      PyObject *tmp1 = PyString_FromStringAndSize(&bracket[4], 1);
+      PyObject *tmp2 = PyUnicode_Concat(s, tmp1);
+      Py_DECREF(s);
+      Py_DECREF(tmp1);
+      s = tmp2;
+#else
       PyString_ConcatAndDel(&s,
         PyString_FromStringAndSize(&bracket[4], 1));
+#endif
       }
 
     Py_DECREF(comma);
@@ -166,6 +189,10 @@ PyObject *PyVTKSpecialObject_SequenceString(PyObject *self)
 }
 
 //--------------------------------------------------------------------
+// C API
+
+//--------------------------------------------------------------------
+// Create a new python object from the pointer to a C++ object
 PyObject *PyVTKSpecialObject_New(const char *classname, void *ptr)
 {
   // would be nice if "info" could be passed instead if "classname",
@@ -182,6 +209,7 @@ PyObject *PyVTKSpecialObject_New(const char *classname, void *ptr)
 }
 
 //--------------------------------------------------------------------
+// Create a new python object via the copy constructor of the C++ object
 PyObject *PyVTKSpecialObject_CopyNew(const char *classname, const void *ptr)
 {
   PyVTKSpecialType *info = vtkPythonUtil::FindSpecialType(classname);
@@ -197,30 +225,48 @@ PyObject *PyVTKSpecialObject_CopyNew(const char *classname, const void *ptr)
   PyVTKSpecialObject *self = PyObject_New(PyVTKSpecialObject, info->py_type);
 
   self->vtk_info = info;
-  self->vtk_ptr = info->copy_func(ptr);
+  self->vtk_ptr = info->vtk_copy(ptr);
   self->vtk_hash = -1;
 
   return (PyObject *)self;
 }
 
 //--------------------------------------------------------------------
-PyObject *PyVTKSpecialType_New(PyTypeObject *pytype,
-  PyMethodDef *methods, PyMethodDef *constructors, PyMethodDef *newmethod,
-  const char *docstring[], PyVTKSpecialCopyFunc copyfunc)
+// Add a special type, add methods and members to its type object.
+// A return value of NULL signifies that it was already added.
+PyVTKSpecialType *PyVTKSpecialType_Add(PyTypeObject *pytype,
+  PyMethodDef *methods, PyMethodDef *constructors,
+  const char *docstring[], vtkcopyfunc copyfunc)
 {
   // Add this type to the special type map
   PyVTKSpecialType *info =
     vtkPythonUtil::AddSpecialTypeToMap(
-      pytype, methods, constructors, docstring, copyfunc);
+      pytype, methods, constructors, copyfunc);
 
-  if (info)
+  if (info == 0)
     {
-    // Add the built docstring to the type
-    pytype->tp_doc = PyString_AsString(info->docstring);
-    newmethod->ml_doc = PyString_AsString(info->docstring);
+    // The type was already in the map, so do nothing
+    return info;
     }
 
-  // Return the type object
-  PyType_Ready(pytype);
-  return (PyObject *)pytype;
+  // Create the dict
+  if (pytype->tp_dict == 0)
+    {
+    pytype->tp_dict = PyDict_New();
+    }
+
+  // Add the docstring to the type
+  PyObject *doc = vtkPythonUtil::BuildDocString(docstring);
+  PyDict_SetItemString(pytype->tp_dict, "__doc__", doc);
+  Py_DECREF(doc);
+
+  // Add all of the methods
+  for (PyMethodDef *meth = methods; meth && meth->ml_name; meth++)
+    {
+    PyObject *func = PyVTKMethodDescriptor_New(pytype, meth);
+    PyDict_SetItemString(pytype->tp_dict, meth->ml_name, func);
+    Py_DECREF(func);
+    }
+
+  return info;
 }

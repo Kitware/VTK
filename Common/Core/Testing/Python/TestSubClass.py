@@ -14,7 +14,6 @@ Created on Sept 26, 2010 by David Gobbi
 """
 
 import sys
-import exceptions
 import vtk
 from vtk.test import Testing
 
@@ -34,11 +33,11 @@ class vtkCustomObject(vtk.vtkObject):
     def SetExtraObject(self, o):
         """Setter method."""
         # make sure it is "None" or a vtkobject instance
-        if o == None or type(o) == type(self):
+        if o == None or isinstance(o, vtk.vtkObjectBase):
             self._ExtraObject = o
             self.Modified()
         else:
-            raise TypeError, "requires None or a vtkobject"
+            raise TypeError("requires None or a vtkobject")
 
     def GetMTime(self):
         """Override a method (only works when called from Python)"""

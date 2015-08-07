@@ -7,7 +7,7 @@ set(Module_SRCS
   vtkPythonOverload.cxx
   vtkPythonUtil.cxx
   vtkSmartPyObject.cxx
-  PyVTKClass.cxx
+  PyVTKMethodDescriptor.cxx
   PyVTKMutableObject.cxx
   PyVTKNamespace.cxx
   PyVTKObject.cxx
@@ -16,6 +16,7 @@ set(Module_SRCS
   )
 
 set(Module_HDRS
+  vtkPythonCompatibility.h
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Module.h
   )
 

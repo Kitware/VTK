@@ -42,7 +42,7 @@ class Tester:
                 msg = "Failed test for %(name)s.Get/Set%(method)s\n"\
                       "Before Set, value = %(val)s; "\
                       "After Set, value = %(val1)s"%locals()
-                raise AssertionError, msg
+                raise AssertionError(msg)
 
     def testBoolean(self, obj, excluded_methods=[]):
         """ Testing boolean (On/Off) methods."""
@@ -67,7 +67,7 @@ class Tester:
                 name = obj.GetClassName()
                 msg = "Failed test for %(name)s.%(method)sOn\n"\
                       "Result not equal to 1 "%locals()
-                raise AssertionError, msg
+                raise AssertionError(msg)
 
             # Turn on
             eval("obj.%sOff()"%method)
@@ -77,7 +77,7 @@ class Tester:
                 name = obj.GetClassName()
                 msg = "Failed test for %(name)s.%(method)sOff\n"\
                       "Result not equal to 0 "%locals()
-                raise AssertionError, msg
+                raise AssertionError(msg)
 
             # set the value back to the original value.
             eval("obj.Set%s(orig_val)"%method)

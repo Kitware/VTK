@@ -3,6 +3,7 @@ vtk_add_test_python(
   PythonSmoke.py
   TestArrays.py
   TestArrayArguments.py
+  TestBuffer.py
   TestEmptyInput.py
   TestEnums.py
   TestExecuteMethodFinalizeCrash.py

@@ -192,8 +192,13 @@ if(PYTHON_EXECUTABLE)
 # Wrapping/Python/vtk/*.py
   unset(VTK_PYTHON_FILES)
   unset(VTK_PYTHON_IMPORT_ALL)
+  set(LOCAL_IMPORT_DOT ".")
+  if("${PYTHON_MAJOR_VERSION}" LESS 3)
+    set(LOCAL_IMPORT_DOT "")
+  endif()
   foreach(module ${VTK_PYTHON_MODULES})
-    set(VTK_PYTHON_IMPORT_ALL "${VTK_PYTHON_IMPORT_ALL}from ${module} import *\n")
+    set(VTK_PYTHON_IMPORT_ALL
+      "${VTK_PYTHON_IMPORT_ALL}from ${LOCAL_IMPORT_DOT}${module} import *\n")
     configure_file(vtk/module.py.in vtk/${module}.py @ONLY)
     list(APPEND VTK_PYTHON_FILES
       "${CMAKE_CURRENT_BINARY_DIR}/vtk/${module}.py")

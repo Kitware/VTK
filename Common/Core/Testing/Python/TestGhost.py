@@ -21,7 +21,6 @@ Created on Aug 19, 2010 by David Gobbi
 """
 
 import sys
-import exceptions
 import vtk
 from vtk.test import Testing
 

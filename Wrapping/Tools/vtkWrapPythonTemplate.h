@@ -27,7 +27,4 @@ size_t vtkWrapPython_PyTemplateName(const char *name, char *pname);
 int vtkWrapPython_WrapTemplatedClass(
   FILE *fp, ClassInfo *data, FileInfo *file_info, HierarchyInfo *hinfo);
 
-/* if name has template args, mangle and prefix with "T" */
-void vtkWrapPython_PythonicName(const char *name, char *pname);
-
 #endif /* VTK_WRAP_PYTHON_TEMPLATE_H */

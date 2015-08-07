@@ -28,7 +28,7 @@ resulting in wrapper code that is faster and more compact.
 
 #include "vtkWrappingPythonCoreModule.h" // For export macro
 #include "vtkPythonUtil.h"
-#include "PyVTKClass.h"
+#include "PyVTKObject.h"
 #include "PyVTKTemplate.h"
 
 #include "vtkConfigure.h"
@@ -45,7 +45,7 @@ public:
   vtkPythonArgs(PyObject *self, PyObject *args, const char *methodname) :
       Args(args), MethodName(methodname) {
       this->N = PyTuple_GET_SIZE(args);
-      this->M = PyVTKClass_Check(self);
+      this->M = PyType_Check(self);
       this->I = this->M;
     }
 
@@ -65,13 +65,19 @@ public:
   // Description:
   // Get a pointer to the self object, converted to its C++ type.
   // Returns NULL and sets a TypeError if the type is wrong.
-  // If "self" is a PyVTKClass, pull the object from the first arg.
+  // If "self" is a class type, pull the object from the first arg.
   static vtkObjectBase *GetSelfPointer(PyObject *self, PyObject *args);
 
   // Description:
   // Get a pointer to the self object, converted to its C++ type.
+  // Returns NULL and sets a TypeError if the type is wrong.
+  // If "self" is a type, pull the object from the first arg.
+  static void *GetSelfSpecialPointer(PyObject *self, PyObject *args);
+
+  // Description:
+  // Get a pointer to the self object, converted to its C++ type.
   // Always succeeds.
-  static void *GetSelfPointer(PyObject *self);
+  static void *GetSelfSpecialPointer(PyObject *self);
 
   // Description:
   // Verify the arg count for a method with optional arguments.
@@ -162,14 +168,14 @@ public:
   // Description:
   // Get the next argument as an enum value.
   template<class T>
-  bool GetEnumValue(T &v, PyTypeObject *enumtype) {
+  bool GetEnumValue(T &v, const char *enumname) {
     bool r;
-    v = static_cast<T>(this->GetArgAsEnum(enumtype, r));
+    v = static_cast<T>(this->GetArgAsEnum(enumname, r));
     return r; }
   template<class T>
-  static bool GetEnumValue(PyObject *o, T &v, PyTypeObject *enumtype) {
+  static bool GetEnumValue(PyObject *o, T &v, const char *enumname) {
     bool r;
-    v = static_cast<T>(vtkPythonArgs::GetArgAsEnum(o, enumtype, r));
+    v = static_cast<T>(vtkPythonArgs::GetArgAsEnum(o, enumname, r));
     return r; }
 
   // Description:
@@ -205,10 +211,10 @@ public:
   static bool GetFunction(PyObject *arg, PyObject *&o);
 
   // Get the next arg as a void pointer (to a buffer object).
-  bool GetValue(void *&v);
-  static bool GetValue(PyObject *o, void *&v);
-  bool GetValue(const void *&v);
-  static bool GetValue(PyObject *o, const void *&v);
+  bool GetBuffer(void *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, void *&v, Py_buffer *buf);
+  bool GetBuffer(const void *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, const void *&v, Py_buffer *buf);
 
   // Description:
   // Get the next argument as a string.
@@ -488,7 +494,7 @@ public:
   // Get the argument count for a method that might be unbound.
   static int GetArgCount(PyObject *self, PyObject *args) {
     return (static_cast<int>(PyTuple_GET_SIZE(args)) -
-            PyVTKClass_Check(self)); }
+            PyType_Check(self)); }
 
   // Description:
   // Raise a type error just saying that the arg count is wrong.
@@ -499,7 +505,7 @@ protected:
 
   // Description:
   // Get the "self" object from the first argument.
-  static vtkObjectBase *GetSelfFromFirstArg(PyObject *self, PyObject *args);
+  static PyObject *GetSelfFromFirstArg(PyObject *self, PyObject *args);
 
   // Description:
   // Get the next argument as an object of the given type.
@@ -521,9 +527,9 @@ protected:
 
   // Description:
   // Get the next argument as an object of the given type.
-  int GetArgAsEnum(PyTypeObject *enumtype, bool &valid);
+  int GetArgAsEnum(const char *enumname, bool &valid);
   static int GetArgAsEnum(
-    PyObject *o, PyTypeObject *enumtype, bool &valid);
+    PyObject *o, const char *enumname, bool &valid);
 
   // Description:
   // Get the next argument as an object of the given type.
@@ -566,16 +572,27 @@ private:
 inline
 vtkObjectBase *vtkPythonArgs::GetSelfPointer(PyObject *self, PyObject *args)
 {
-  if (PyVTKClass_Check(self))
+  if (PyType_Check(self))
     {
-    return vtkPythonArgs::GetSelfFromFirstArg(self, args);
+    self = vtkPythonArgs::GetSelfFromFirstArg(self, args);
     }
-  return ((PyVTKObject *)self)->vtk_ptr;
+  return (self ? ((PyVTKObject *)self)->vtk_ptr : NULL);
 }
 
 // Get "self" from a PyVTKSpecialObject.
 inline
-void *vtkPythonArgs::GetSelfPointer(PyObject *self)
+void *vtkPythonArgs::GetSelfSpecialPointer(PyObject *self, PyObject *args)
+{
+  if (PyType_Check(self))
+    {
+    self = vtkPythonArgs::GetSelfFromFirstArg(self, args);
+    }
+  return (self ? ((PyVTKSpecialObject *)self)->vtk_ptr : NULL);
+}
+
+// Get "self" from a PyVTKSpecialObject (for methods with no args).
+inline
+void *vtkPythonArgs::GetSelfSpecialPointer(PyObject *self)
 {
   return ((PyVTKSpecialObject *)self)->vtk_ptr;
 }

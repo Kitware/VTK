@@ -182,7 +182,17 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
         }
     else if (PyString_Check(callDataTypeObj))
       {
-      char *callDataTypeString = PyString_AsString(callDataTypeObj);
+#ifdef VTK_PY3K
+      PyObject *bytes = PyUnicode_AsEncodedString(
+        callDataTypeObj, 0, NULL);
+      const char *callDataTypeString = 0;
+      if (bytes)
+        {
+        callDataTypeString = PyBytes_AsString(bytes);
+        }
+#else
+      const char *callDataTypeString = PyString_AsString(callDataTypeObj);
+#endif
       if (callDataTypeString)
         {
         if (strcmp(callDataTypeString, "string0") == 0)
@@ -198,6 +208,9 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
         Py_INCREF(Py_None);
         arglist = Py_BuildValue("(NsN)", obj2, eventname, Py_None);
         }
+#ifdef VTK_PY3K
+      Py_XDECREF(bytes);
+#endif
       }
     else
       {

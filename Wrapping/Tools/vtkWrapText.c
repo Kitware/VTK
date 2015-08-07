@@ -15,6 +15,10 @@
 
 #include "vtkWrapText.h"
 #include "vtkWrap.h"
+
+#include "vtkParseExtras.h"
+#include "vtkParseMangle.h"
+
 #include <string.h>
 #include <ctype.h>
 #include <stdio.h>
@@ -890,17 +894,13 @@ const char *vtkWrapText_PythonSignature(
 static void vtkWrapText_PythonTypeSignature(
   struct vtkWPString *result, const char *braces[2], ValueInfo *arg)
 {
-  char text[32];
+  char text[256];
   const char *dimension;
   const char *classname = "";
 
   if (vtkWrap_IsVoid(arg))
     {
     classname = "void";
-    }
-  else if (vtkWrap_IsObject(arg))
-    {
-    classname = arg->Class;
     }
   else if (vtkWrap_IsFunction(arg))
     {
@@ -929,6 +929,11 @@ static void vtkWrapText_PythonTypeSignature(
   else if (vtkWrap_IsInteger(arg))
     {
     classname = "int";
+    }
+  else
+    {
+    vtkWrapText_PythonName(arg->Class, text);
+    classname = text;
     }
 
   if ((vtkWrap_IsArray(arg) && arg->CountHint) ||
@@ -983,4 +988,74 @@ static void vtkWrapText_PythonArraySignature(
       }
     }
   vtkWPString_Append(result, braces[1]);
+}
+
+/* convert C++ identifier to a valid python identifier by mangling */
+void vtkWrapText_PythonName(const char *name, char *pname)
+{
+  size_t j = 0;
+  size_t i;
+  size_t l;
+  char *cp;
+  int scoped = 0;
+
+  /* look for first char that is not alphanumeric or underscore */
+  l = vtkParse_IdentifierLength(name);
+
+  if (name[l] != '\0')
+    {
+    /* get the mangled name */
+    vtkParse_MangledTypeName(name, pname);
+
+    /* put dots after namespaces */
+    i = 0;
+    cp = pname;
+    while (*cp == 'N')
+      {
+      scoped++;
+      cp++;
+      while (*cp >= '0' && *cp <= '9')
+        {
+        i = i*10 + (*cp++ - '0');
+        }
+      i += j;
+      while (j < i)
+        {
+        pname[j++] = *cp++;
+        }
+      pname[j++] = '.';
+      }
+
+    /* remove mangling from first identifier and add an underscore */
+    i = 0;
+    while (*cp >= '0' && *cp <= '9')
+      {
+      i = i*10 + (*cp++ - '0');
+      }
+    i += j;
+    while (j < i)
+      {
+      pname[j++] = *cp++;
+      }
+    pname[j++] = '_';
+    while (*cp != '\0')
+      {
+      pname[j++] = *cp++;
+      }
+    pname[j] = '\0';
+    }
+  else
+    {
+    strcpy(pname, name);
+    }
+
+  /* remove the "_E" that is added to mangled scoped names */
+  if (scoped)
+    {
+    j = strlen(pname);
+    if (j > 2 && pname[j-2] == '_' && pname[j-1] == 'E')
+      {
+      pname[j-2] = '\0';
+      }
+    }
 }

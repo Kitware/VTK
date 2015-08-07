@@ -15,7 +15,7 @@ class TestCase2 :
    self.Filter = vtk.vtkProgrammableFilter()
    self.Filter.SetExecuteMethod(self.ExecMethod)
  def ExecMethod(self) :
-   print 'execute method called'
+   print('execute method called')
 
 
 test2 = TestCase2()
