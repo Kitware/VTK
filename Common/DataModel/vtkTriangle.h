@@ -251,11 +251,10 @@ inline void vtkTriangle::TriangleCenter(double p1[3], double p2[3],
 //----------------------------------------------------------------------------
 inline double vtkTriangle::TriangleArea(double p1[3], double p2[3], double p3[3])
 {
-  double a,b,c;
-  a = vtkMath::Distance2BetweenPoints(p1,p2);
-  b = vtkMath::Distance2BetweenPoints(p2,p3);
-  c = vtkMath::Distance2BetweenPoints(p3,p1);
-  return (0.25* sqrt(fabs(4.0*a*c - (a-b+c)*(a-b+c))));
+  double n[3];
+  vtkTriangle::ComputeNormalDirection(p1,p2,p3,n);
+
+  return 0.5*vtkMath::Norm(n);
 }
 
 #endif
