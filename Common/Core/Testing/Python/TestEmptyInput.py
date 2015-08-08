@@ -438,12 +438,12 @@ def BatchTest(vtkClasses, batchNo, batchSize):
 
 def PrintResultSummary():
     print('-' * 40)
-    print('Empty Input worked:', len(emptyInputWorked))
-    print('Empty Input failed:', len(emptyInputFailed))
-    print('Abstract classes: ', len(abstractClasses))
-    print('Non-existent classes: ', len(nonexistentClasses))
-    print('No concrete implementation: ', len(noConcreteImplementation))
-    print('No observer could be added: ', len(noObserver))
+    print('Empty Input worked: %i' % len(emptyInputWorked))
+    print('Empty Input failed: %i' % len(emptyInputFailed))
+    print('Abstract classes: %i' % len(abstractClasses))
+    print('Non-existent classes: %i' % len(nonexistentClasses))
+    print('No concrete implementation: %i' % len(noConcreteImplementation))
+    print('No observer could be added: %i' % len(noObserver))
     print('-' * 40)
     print('Total number of classes tested: ', len(classesTested)) # , classesTested
     print('-' * 40)

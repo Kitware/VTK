@@ -38,17 +38,6 @@ import math, os, sys
 import wx
 import vtk
 
-# wxPython 2.4.0.4 and newer prefers the use of True and False, standard
-# booleans in Python 2.2 but not earlier.  Here we define these values if
-# they don't exist so that we can use True and False in the rest of the
-# code.  At the time of this writing, that happens exactly ONCE in
-# CreateTimer()
-try:
-    True
-except NameError:
-    True = 1
-    False = 0
-
 # a few configuration items, see what works best on your system
 
 # Use GLCanvas as base class instead of wx.Window.
@@ -278,8 +267,8 @@ class wxVTKRenderWindowInteractor(baseClass):
         elif hasattr(self._Iren, attr):
             return getattr(self._Iren, attr)
         else:
-            raise AttributeError, self.__class__.__name__ + \
-                  " has no attribute named " + attr
+            raise AttributeError(self.__class__.__name__ +
+                  " has no attribute named " + attr)
 
     def CreateTimer(self, obj, evt):
         """ Creates a timer.

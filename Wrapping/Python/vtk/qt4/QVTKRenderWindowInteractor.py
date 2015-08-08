@@ -208,8 +208,8 @@ class QVTKRenderWindowInteractor(QtGui.QWidget):
         elif hasattr(self._Iren, attr):
             return getattr(self._Iren, attr)
         else:
-            raise AttributeError, self.__class__.__name__ + \
-                  " has no attribute named " + attr
+            raise AttributeError(self.__class__.__name__ +
+                  " has no attribute named " + attr)
 
     def Finalize(self):
         '''
