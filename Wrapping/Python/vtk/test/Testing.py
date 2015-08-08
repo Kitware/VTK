@@ -267,21 +267,21 @@ def _printCDashImageError(img_err, err_index, img_base):
     """Prints the XML data necessary for CDash."""
     img_base = _getTempImagePath(img_base)
     print("Failed image test with error: %f"%img_err)
-    print("<DartMeasurement name=\"ImageError\" type=\"numeric/double\">",)
-    print("%f </DartMeasurement>"%img_err)
+    print("<DartMeasurement name=\"ImageError\" type=\"numeric/double\"> "
+          "%f </DartMeasurement>"%img_err)
     if err_index <= 0:
-        print("<DartMeasurement name=\"BaselineImage\" type=\"text/string\">Standard</DartMeasurement>",)
+        print("<DartMeasurement name=\"BaselineImage\" type=\"text/string\">Standard</DartMeasurement>")
     else:
-        print("<DartMeasurement name=\"BaselineImage\" type=\"numeric/integer\">",)
-        print("%d </DartMeasurement>"%err_index)
+        print("<DartMeasurement name=\"BaselineImage\" type=\"numeric/integer\"> "
+              "%d </DartMeasurement>"%err_index)
 
-    print("<DartMeasurementFile name=\"TestImage\" type=\"image/png\">",)
-    print("%s </DartMeasurementFile>"%(img_base + '.png'))
+    print("<DartMeasurementFile name=\"TestImage\" type=\"image/png\"> "
+          "%s </DartMeasurementFile>"%(img_base + '.png'))
 
-    print("<DartMeasurementFile name=\"DifferenceImage\" type=\"image/png\">",)
-    print("%s </DartMeasurementFile>"%(img_base + '.diff.png'))
-    print("<DartMeasurementFile name=\"ValidImage\" type=\"image/png\">",)
-    print("%s </DartMeasurementFile>"%(img_base + '.valid.png'))
+    print("<DartMeasurementFile name=\"DifferenceImage\" type=\"image/png\"> "
+          "%s </DartMeasurementFile>"%(img_base + '.diff.png'))
+    print("<DartMeasurementFile name=\"ValidImage\" type=\"image/png\"> "
+          "%s </DartMeasurementFile>"%(img_base + '.valid.png'))
 
 def _printCDashImageNotFoundError(img_fname):
     """Prints the XML data necessary for Dart when the baseline image is not found."""
@@ -289,13 +289,13 @@ def _printCDashImageNotFoundError(img_fname):
 
 def _printCDashImageSuccess(img_err, err_index):
     "Prints XML data for Dart when image test succeeded."
-    print("<DartMeasurement name=\"ImageError\" type=\"numeric/double\">",)
-    print("%f </DartMeasurement>"%img_err)
+    print("<DartMeasurement name=\"ImageError\" type=\"numeric/double\"> "
+          "%f </DartMeasurement>"%img_err)
     if err_index <= 0:
-        print("<DartMeasurement name=\"BaselineImage\" type=\"text/string\">Standard</DartMeasurement>",)
+        print("<DartMeasurement name=\"BaselineImage\" type=\"text/string\">Standard</DartMeasurement>")
     else:
-       print("<DartMeasurement name=\"BaselineImage\" type=\"numeric/integer\">",)
-       print("%d </DartMeasurement>"%err_index)
+       print("<DartMeasurement name=\"BaselineImage\" type=\"numeric/integer\"> "
+             "%d </DartMeasurement>"%err_index)
 
 
 def _handleFailedImage(idiff, pngr, img_fname):
@@ -348,10 +348,10 @@ def main(cases):
     tot_wall_time = float(time.time() - s_wall_time)
 
     # output measurements for CDash
-    print("<DartMeasurement name=\"WallTime\" type=\"numeric/double\">",)
-    print(" %f </DartMeasurement>"%tot_wall_time)
-    print("<DartMeasurement name=\"CPUTime\" type=\"numeric/double\">",)
-    print(" %f </DartMeasurement>"%tot_time)
+    print("<DartMeasurement name=\"WallTime\" type=\"numeric/double\"> "
+          " %f </DartMeasurement>"%tot_wall_time)
+    print("<DartMeasurement name=\"CPUTime\" type=\"numeric/double\"> "
+          " %f </DartMeasurement>"%tot_time)
 
     # Delete these to eliminate debug leaks warnings.
     del cases, timer

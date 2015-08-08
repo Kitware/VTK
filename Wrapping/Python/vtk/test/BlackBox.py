@@ -22,7 +22,7 @@ class Tester:
         if obj != self.obj:
             self.testParse(obj)
         methods = self.parser.get_set_methods()
-        toggle = map(lambda x: x[:-2], self.parser.toggle_methods())
+        toggle = [x[:-2] for x in self.parser.toggle_methods()]
         methods.extend(toggle)
         for method in methods:
             if method in excluded_methods:

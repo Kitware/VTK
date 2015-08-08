@@ -38,7 +38,7 @@ except:
 try:
   b = vtk.vtkObject()
   d = b.SafeDownCast(o)
-  print(b, d)
+  print(repr(b) + " " + repr(d))
 except:
   print("Cannot downcast")
   sys.exit(1)

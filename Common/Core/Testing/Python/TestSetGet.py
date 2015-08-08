@@ -228,7 +228,7 @@ def TestOne(cname):
                             # Key is not present
                             setParameterFail[cname] = set(['Set' + m])
                     except Exception as err:
-                        print(cname, 'Set' + m, err)
+                        print(cname + 'Set' + m + ' ' + str(err))
                 except TypeError:
                     # Get...() takes 1 or more arguments.
                     try:
@@ -239,7 +239,7 @@ def TestOne(cname):
                         # Key is not present
                         getParameterFail[cname] = set(['Get' + m])
                 except Exception as err:
-                    print(cname, 'Get' + m, err)
+                    print(cname + 'Get' + m + ' ' + str(err))
             ok = setGetStatus
         else:
             noGetSetPairs.add(cname)
@@ -346,16 +346,16 @@ def BatchTest(vtkClasses, batchNo, batchSize):
 
 def PrintResultSummary():
     print('-' * 40)
-    print('Set(Get()) worked:', len(setGetWorked))
-    print('Set(Get()) failed:', len(setGetFailed))
-    print('Abstract classes: ', len(abstractClasses))
-    print('Non-existent classes: ', len(nonexistentClasses))
-    print('No concrete implementation: ', len(noConcreteImplementation))
-    print('No observer could be added: ', len(noObserver))
+    print('Set(Get()) worked: %i' % len(setGetWorked))
+    print('Set(Get()) failed: %i' % len(setGetFailed))
+    print('Abstract classes: %i' % len(abstractClasses))
+    print('Non-existent classes: %i' % len(nonexistentClasses))
+    print('No concrete implementation: %i' % len(noConcreteImplementation))
+    print('No observer could be added: %i' % len(noObserver))
     print('-' * 40)
-    print('Total number of classes tested: ', len(classesTested))
+    print('Total number of classes tested: %i' % len(classesTested))
     print('-' * 40)
-    print('Excluded from testing: ', len(classExceptions))
+    print('Excluded from testing: %i' % len(classExceptions))
     print('-' * 40)
 
 def ProgramOptions():

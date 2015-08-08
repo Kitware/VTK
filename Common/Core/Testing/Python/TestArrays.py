@@ -8,7 +8,7 @@ arrayType = ['Bit', 'Char', 'Double', 'Float', 'Int', 'Long', 'Short',\
  'UnsignedChar', 'UnsignedInt', 'UnsignedLong', 'UnsignedShort']
 
 for array in arrayType:
-    print(array, 'array')
+    print(array + ' array')
     vtkClass = 'vtk' + array + 'Array'
     a = getattr(vtk, vtkClass)()
     a.Allocate(1,1)
