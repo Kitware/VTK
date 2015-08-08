@@ -79,8 +79,8 @@ class vtkTkImageViewerWidget(Tkinter.Widget):
         if attr == '_ImageViewer':
             addr = self.tk.call(self._w, 'GetImageViewer')[5:]
             return vtk.vtkImageViewer('_%s_vtkImageViewer_p' % addr)
-        raise AttributeError, self.__class__.__name__ + \
-              " has no attribute named " + attr
+        raise AttributeError(self.__class__.__name__ +
+              " has no attribute named " + attr)
 
     def GetImageViewer(self):
         return self._ImageViewer

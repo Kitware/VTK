@@ -96,8 +96,8 @@ class vtkTkRenderWindowInteractor(Tkinter.Widget):
         elif hasattr(self._Iren, attr):
             return getattr(self._Iren, attr)
         else:
-            raise AttributeError, self.__class__.__name__ + \
-                  " has no attribute named " + attr
+            raise AttributeError(self.__class__.__name__ +
+                  " has no attribute named " + attr)
 
     def BindEvents(self):
         """ Bind all the events.  """
