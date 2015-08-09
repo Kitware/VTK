@@ -69,6 +69,7 @@ sure that it is installed properly.")
 import itertools
 import operator
 import sys
+from vtk import buffer_shared
 from vtk.util import numpy_support
 from vtk.vtkCommonDataModel import vtkDataObject
 import weakref
@@ -290,11 +291,7 @@ class VTKArray(numpy.ndarray):
         try:
             # This line tells us that they are referring to the same buffer.
             # Much like two pointers referring to same memory location in C/C++.
-            if sys.hexversion >= 0x03000000:
-                makebuffer = memoryview
-            else:
-                makebuffer = buffer
-            if makebuffer(slf) == makebuffer(obj2):
+            if buffer_shared(slf, obj2):
                 self.VTKObject = getattr(obj, 'VTKObject', None)
         except TypeError:
             pass
@@ -304,9 +301,14 @@ class VTKArray(numpy.ndarray):
 
     def __getattr__(self, name):
         "Forwards unknown attribute requests to VTK array."
-        if not hasattr(self, "VTKObject") or not self.VTKObject:
-            raise AttributeError("class has no attribute %s" % name)
-        return getattr(self.VTKObject, name)
+        try:
+            o = self.__dict__["VTKObject"]
+        except KeyError:
+            o = None
+        if o is None:
+            raise AttributeError("'%s' object has no attribute '%s'" %
+                                 (self.__class__.__name__, name))
+        return getattr(o, name)
 
 class VTKNoneArrayMetaClass(type):
     def __new__(mcs, name, parent, attr):
