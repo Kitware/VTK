@@ -16,6 +16,8 @@
   This header contains macros to make Python 2 and Python 3 play nice.
   It must be included after vtkPython.h.
 -----------------------------------------------------------------------*/
+#ifndef vtkPythonCompatibility_h
+#define vtkPythonCompatibility_h
 
 // define our main check macro VTK_PY3K
 #if PY_MAJOR_VERSION >= 3
@@ -127,4 +129,5 @@ typedef struct bufferinfo { PyObject *obj; } Py_buffer;
 #define VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED 0,
 #endif
 
+#endif
 #endif
