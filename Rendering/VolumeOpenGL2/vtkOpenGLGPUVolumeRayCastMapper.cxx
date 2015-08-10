@@ -35,6 +35,7 @@
 #include <vtkDataArray.h>
 #include <vtkDensifyPolyData.h>
 #include <vtkFloatArray.h>
+#include <vtkFrameBufferObject2.h>
 #include <vtk_glew.h>
 #include <vtkImageData.h>
 #include <vtkLight.h>
@@ -65,6 +66,7 @@
 #include <vtkVolumeMask.h>
 #include <vtkVolumeProperty.h>
 #include <vtkWeakPointer.h>
+#include <vtkTextureIO.h>
 
 // C/C++ includes
 #include <cassert>
@@ -331,6 +333,10 @@ public:
 
   vtkShaderProgram* ShaderProgram;
   vtkOpenGLShaderCache* ShaderCache;
+
+  vtkNew<vtkFrameBufferObject2> FBO;
+  vtkNew<vtkTextureObject> DepthImage;
+  vtkNew<vtkTextureObject> ColorImage;
 };
 
 //----------------------------------------------------------------------------
@@ -2508,6 +2514,19 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 {
   vtkOpenGLClearErrorMacro();
 
+  // Render to FBO
+  this->Impl->FBO->SetContext(vtkOpenGLRenderWindow::SafeDownCast(
+                                ren->GetRenderWindow()));
+
+  this->Impl->FBO->SaveCurrentBindings();
+  this->Impl->FBO->Bind(GL_FRAMEBUFFER);
+  this->Impl->FBO->AddDepthAttachment(GL_DRAW_FRAMEBUFFER,
+                                      this->Impl->DepthImage.GetPointer());
+  this->Impl->FBO->AddColorAttachment(GL_DRAW_FRAMEBUFFER, 0U,
+                                      this->Impl->ColorImage.GetPointer());
+  this->Impl->FBO->ActivateDrawBuffers(3);
+  vtkCheckFrameBufferStatusMacro(GL_FRAMEBUFFER);
+
   this->Impl->NeedToInitializeResources  =
     (this->Impl->ReleaseResourcesTime.GetMTime() >
     this->Impl->InitializationTime.GetMTime());
@@ -3037,6 +3056,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     this->Impl->InputUpdateTime.Modified();
     }
 
+  this->Impl->FBO->RemoveRenDepthAttachment(GL_DRAW_FRAMEBUFFER);
+  this->Impl->FBO->RemoveTexColorAttachment(GL_DRAW_FRAMEBUFFER, 0U);
+  this->Impl->FBO->DeactivateDrawBuffers();
+  this->Impl->FBO->UnBind(GL_FRAMEBUFFER);
+
+  vtkTextureIO::Write(
+              "volumeRender.png",
+              this->Impl->ColorImage.GetPointer(), NULL, NULL);
   glFinish();
 
   vtkOpenGLCheckErrorMacro("failed after Render");
