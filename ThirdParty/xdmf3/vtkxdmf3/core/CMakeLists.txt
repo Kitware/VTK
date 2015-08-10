@@ -154,7 +154,7 @@ set(XdmfCoreSources
 add_library(XdmfCore ${LIBTYPE} ${XdmfCoreSources})
 link_directories(${XDMF_LIBRARY_DIRS})
 
-target_link_libraries(XdmfCore ${XDMF_LIBRARIES} ${vtkxdmf3_LINK_DEPENDS})
+target_link_libraries(XdmfCore ${XDMF_LIBRARIES})
 vtk_target_install(XdmfCore)
 
 if(WIN32)
