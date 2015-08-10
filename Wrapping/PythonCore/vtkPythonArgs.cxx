@@ -98,21 +98,14 @@ bool vtkPythonGetStringValue(PyObject *o, T *&a, const char *exctext)
 #ifdef Py_USING_UNICODE
   else if (PyUnicode_Check(o))
     {
-#if PYTHON_VERSION_HEX >= 0x03030000
+#if PY_VERSION_HEX >= 0x03030000
     a = PyUnicode_AsUTF8(o);
     return true;
 #else
-#ifdef _PyUnicode_AsDefaultEncodedString
     PyObject *s = _PyUnicode_AsDefaultEncodedString(o, NULL);
-#else
-    PyObject *s = PyUnicode_AsEncodedString(o, 0, NULL);
-#endif
     if (s)
       {
       a = PyBytes_AS_STRING(s);
-#ifndef _PyUnicode_AsDefaultEncodedString
-      Py_DECREF(s);
-#endif
       return true;
       }
 
@@ -138,26 +131,19 @@ inline bool vtkPythonGetStdStringValue(PyObject *o, std::string &a, const char *
 #ifdef Py_USING_UNICODE
   else if (PyUnicode_Check(o))
     {
-#if PYTHON_VERSION_HEX >= 0x03030000
+#if PY_VERSION_HEX >= 0x03030000
     Py_ssize_t len;
     const char* val = PyUnicode_AsUTF8AndSize(o, &len);
     a = std::string(val, len);
     return true;
 #else
-#ifdef _PyUnicode_AsDefaultEncodedString
     PyObject *s = _PyUnicode_AsDefaultEncodedString(o, NULL);
-#else
-    PyObject *s = PyUnicode_AsEncodedString(o, 0, NULL);
-#endif
     if (s)
       {
       char* val;
       Py_ssize_t len;
       PyBytes_AsStringAndSize(s, &val, &len);
       a = std::string(val, len);
-#ifndef _PyUnicode_AsDefaultEncodedString
-      Py_DECREF(s);
-#endif
       return true;
       }
 
