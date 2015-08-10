@@ -23,12 +23,10 @@
 //
 // .SECTION Caveats
 // This algorithm is a very simple implementation that overlooks some
-// potential complexities. First, if a vertex is multiply connected,
-// meaning that it is used by multiple polylines, then the extra
-// topological constraints are ignored. Second, the error is not updated
-// as vertices are deleted (similar to iteratively computing a quadric
-// error metric). Thus, once calculated, the error is used to determine
-// which vertices are removed. This can produce less than optimal results.
+// potential complexities. For example, if a vertex is multiply connected,
+// meaning that it is used by multiple distinct polylines, then the extra
+// topological constraints are ignored. This can produce less than optimal
+// results.
 //
 // .SECTION See Also
 // vtkDecimate vtkDecimateProp vtkQuadricClustering vtkQuadricDecimation
@@ -77,17 +75,12 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
-  double ComputeError( vtkPolyData* input, int prev, int id, int next );
-  void UpdateError( vtkPolyData* input, int iId );
-
-  int GetPrev( int iId );
-  int GetNext( int iId );
-
-  struct    vtkDecimatePolylineVertexErrorSTLMap;
-  vtkDecimatePolylineVertexErrorSTLMap*  ErrorMap;
+  class Polyline;
+  double ComputeError( vtkPolyData* input,
+                       Polyline* polyline,
+                       vtkIdType id );
 
   vtkSmartPointer< vtkPriorityQueue >   PriorityQueue;
-  bool                                  Closed;
   double                                TargetReduction;
   int                                   OutputPointsPrecision;
 
