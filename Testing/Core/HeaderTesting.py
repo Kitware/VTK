@@ -32,7 +32,6 @@ import sys
 import re
 import os
 import stat
-import string
 
 # Get the path to the directory containing this script.
 if __name__ == '__main__':
@@ -115,11 +114,15 @@ class TestVTKFiles:
         self.ClassName = ""
         self.ParentName = ""
         try:
-            file = open(filename)
+            if sys.hexversion >= 0x03000000:
+                file = open(filename, encoding='ascii', errors='ignore')
+            else:
+                file = open(filename)
             self.FileLines = file.readlines()
             file.close()
         except:
-            self.Print( "Problem reading file: %s" % filename )
+            self.Print("Problem reading file %s:\n%s" %
+                       (filename, str(sys.exc_info()[1])))
             sys.exit(1)
         return not self.CheckExclude()
 

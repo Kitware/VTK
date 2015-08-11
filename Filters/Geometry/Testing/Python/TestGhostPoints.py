@@ -1,10 +1,4 @@
 import sys
-try:
-    # for Python2
-    import exceptions
-except ImportError:
-    # In Python 3 standard exceptions were moved to builtin module.
-    pass
 import vtk
 from vtk.test import Testing
 

@@ -1,10 +1,4 @@
 import sys
-try:
-    # for Python2
-    import exceptions
-except ImportError:
-    # for Python3
-    pass
 import vtk
 import array
 from vtk.test import Testing
@@ -43,7 +37,7 @@ class TestDataEncoder(Testing.vtkTest):
 
         # Use vtkDataEncoder to convert the image to PNG format and Base64 encode it
         encoder = vtk.vtkDataEncoder()
-        base64String = encoder.EncodeAsBase64Png(imgData)
+        base64String = encoder.EncodeAsBase64Png(imgData).encode('ascii')
 
         # Now Base64 decode the string back to PNG image data bytes
         outputBuffer = bytearray(120000)

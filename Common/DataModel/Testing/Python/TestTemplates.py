@@ -29,6 +29,12 @@ arrayCodes = ['c', 'b', 'B', 'h', 'H',
               'i', 'I', 'l', 'L', 'q', 'Q',
               'f', 'd']
 
+# create a unicode string for python 2 and python 3
+if sys.hexversion >= 0x03000000:
+    francois = 'Fran\xe7ois'
+else:
+    francois = unicode('Fran\xe7ois', 'latin1')
+
 class TestTemplates(Testing.vtkTest):
 
     def testDenseArray(self):
@@ -52,8 +58,13 @@ class TestTemplates(Testing.vtkTest):
                 a.SetValue(i, value)
                 result = a.GetValue(i)
                 self.assertEqual(value, result)
-            elif t in [str, 'str', 'unicode']:
-                value = u"hello"
+            elif t in [str, 'str']:
+                value = "hello"
+                a.SetValue(i, value)
+                result = a.GetValue(i)
+                self.assertEqual(value, result)
+            elif t in ['unicode']:
+                value = francois
                 a.SetValue(i, value)
                 result = a.GetValue(i)
                 self.assertEqual(value, result)
@@ -89,8 +100,13 @@ class TestTemplates(Testing.vtkTest):
                 a.SetValue(i, value)
                 result = a.GetValue(i)
                 self.assertEqual(value, result)
-            elif t in [str, 'str', 'unicode']:
-                value = u"hello"
+            elif t in [str, 'str']:
+                value = "hello"
+                a.SetValue(i, value)
+                result = a.GetValue(i)
+                self.assertEqual(value, result)
+            elif t in ['unicode']:
+                value = francois
                 a.SetValue(i, value)
                 result = a.GetValue(i)
                 self.assertEqual(value, result)
