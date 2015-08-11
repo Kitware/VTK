@@ -114,5 +114,33 @@ class TestBuffer(Testing.vtkTest):
         # test the contents of the memoryview
         self.assertEqual(ord(m.tobytes()) & 0xF8, 0x68)
 
+    def testBufferShared(self):
+        """Test the special buffer_shared() check that VTK provides."""
+        a = bytearray(b'hello')
+        self.assertEqual(vtk.buffer_shared(a, a), True)
+        b = bytearray(b'hello')
+        self.assertEqual(vtk.buffer_shared(a, b), False)
+
+        a = vtk.vtkFloatArray()
+        a.SetNumberOfComponents(3)
+        a.InsertNextTuple((10, 7, 4))
+        a.InsertNextTuple((85, 8, 2))
+
+        b = vtk.vtkFloatArray()
+        b.SetVoidArray(a, 6, True)
+        self.assertEqual(vtk.buffer_shared(a, b), True)
+
+        c = vtk.vtkFloatArray()
+        c.DeepCopy(a)
+        self.assertEqual(vtk.buffer_shared(a, c), False)
+
+        if sys.hexversion >= 0x02070000:
+            m = memoryview(a)
+            self.assertEqual(vtk.buffer_shared(a, m), True)
+
+        if sys.hexversion < 0x03000000:
+            m = buffer(a)
+            self.assertEqual(vtk.buffer_shared(a, m), True)
+
 if __name__ == "__main__":
     Testing.main([(TestBuffer, 'test')])
