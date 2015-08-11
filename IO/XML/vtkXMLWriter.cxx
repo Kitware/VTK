@@ -1055,6 +1055,7 @@ void vtkXMLWriter::WriteAppendedDataOffset(vtkTypeInt64 streamPos,
   vtkTypeInt64 offset = returnPos - this->AppendedDataPosition;
   lastoffset = offset; //saving result
   os.seekp(std::streampos(streamPos));
+  assert(streamPos != 0);
   if (attr)
     {
     os << " " << attr << "=";
@@ -1076,6 +1077,7 @@ void vtkXMLWriter::ForwardAppendedDataOffset(
   ostream& os = *(this->Stream);
   std::streampos returnPos = os.tellp();
   os.seekp(std::streampos(streamPos));
+  assert(streamPos != 0);
   if (attr)
     {
     os << " " << attr << "=";
@@ -1816,12 +1818,15 @@ inline ostream& vtkXMLWriteAsciiValue(ostream& os, const signed char &c)
 VTK_TEMPLATE_SPECIALIZE
 inline ostream& vtkXMLWriteAsciiValue(ostream& os, const vtkStdString& str)
 {
-  vtkStdString::const_iterator iter;
-  for (iter = str.begin(); iter != str.end(); ++iter)
+  vtkStdString::const_iterator iter = str.begin();
+  vtkXMLWriteAsciiValue(os, *iter);
+  iter++;
+  for (; iter != str.end(); ++iter)
     {
-    vtkXMLWriteAsciiValue(os, *iter);
     os << " ";
+    vtkXMLWriteAsciiValue(os, *iter);
     }
+  os << " ";
   char delim = 0x0;
   return vtkXMLWriteAsciiValue(os, delim);
 }
