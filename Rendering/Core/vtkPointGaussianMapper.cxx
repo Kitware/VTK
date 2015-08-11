@@ -19,6 +19,7 @@
 //-----------------------------------------------------------------------------
 vtkAbstractObjectFactoryNewMacro(vtkPointGaussianMapper)
 
+vtkCxxSetObjectMacro(vtkPointGaussianMapper, ScaleFunction, vtkPiecewiseFunction);
 vtkCxxSetObjectMacro(vtkPointGaussianMapper, ScalarOpacityFunction, vtkPiecewiseFunction);
 
 //-----------------------------------------------------------------------------
@@ -27,10 +28,15 @@ vtkPointGaussianMapper::vtkPointGaussianMapper()
   this->ScaleArray = 0;
   this->OpacityArray = 0;
   this->SplatShaderCode = 0;
+
+  this->ScaleFunction = 0;
+  this->ScaleTableSize = 1024;
+
   this->ScalarOpacityFunction = 0;
-  this->DefaultRadius = 1.0;
-  this->Emissive = 1;
   this->OpacityTableSize = 1024;
+
+  this->ScaleFactor = 1.0;
+  this->Emissive = 1;
 }
 
 //-----------------------------------------------------------------------------
@@ -40,6 +46,7 @@ vtkPointGaussianMapper::~vtkPointGaussianMapper()
   this->SetOpacityArray(0);
   this->SetSplatShaderCode(0);
   this->SetScalarOpacityFunction(0);
+  this->SetScaleFunction(0);
 }
 
 //-----------------------------------------------------------------------------
@@ -50,7 +57,8 @@ void vtkPointGaussianMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Scale Array: " << (this->ScaleArray ? this->ScaleArray : "(none)") << "\n";
   os << indent << "Opacity Array: " << (this->OpacityArray ? this->OpacityArray : "(none)") << "\n";
   os << indent << "SplatShaderCode: " << (this->SplatShaderCode ? this->SplatShaderCode : "(none)") << "\n";
-  os << indent << "Default Radius: " << this->DefaultRadius << "\n";
+  os << indent << "ScaleFactor: " << this->ScaleFactor << "\n";
   os << indent << "Emissive: " << this->Emissive << "\n";
   os << indent << "OpacityTableSize: " << this->OpacityTableSize << "\n";
+  os << indent << "ScaleTableSize: " << this->ScaleTableSize << "\n";
 }

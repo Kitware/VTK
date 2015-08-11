@@ -33,17 +33,31 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Set/Get the optional scale transfer function. This is only
+  // used when a ScaleArray is also specified.
+  void SetScaleFunction(vtkPiecewiseFunction *);
+  vtkGetObjectMacro(ScaleFunction,vtkPiecewiseFunction);
+
+  // Description:
+  // The size of the table used in computing scale, used when
+  // converting a vtkPiecewiseFunction to a table
+  vtkSetMacro(ScaleTableSize, int);
+  vtkGetMacro(ScaleTableSize, int);
+
+  // Description:
   // Convenience method to set the array to scale with.
   vtkSetStringMacro(ScaleArray);
   vtkGetStringMacro(ScaleArray);
 
   // Description:
-  // Set the default radius of the point gaussians.  This is used if the
-  // array to scale with has not been set or is set to NULL. If there
-  // is no scale array and the default radius is set to zero then
-  // the splats wil be rendered as simple points requiring less memory.
-  vtkSetMacro(DefaultRadius,double);
-  vtkGetMacro(DefaultRadius,double);
+  // Set the default scale factor of the point gaussians.  This
+  // defaults to 1.0. All radius computations will be scaled by the factor
+  // including the ScaleArray. If a vtkPiecewideFunction is used the
+  // scaling happens prior to the function lookup.
+  // A scale factor of 0.0 indicates that the splats should be rendered
+  // as simple points.
+  vtkSetMacro(ScaleFactor,double);
+  vtkGetMacro(ScaleFactor,double);
 
   // Description:
   // Treat the points/splats as emissive light sources. The default is true.
@@ -88,11 +102,14 @@ protected:
   char *OpacityArray;
   char *SplatShaderCode;
 
-  vtkPiecewiseFunction *ScalarOpacityFunction;
+  vtkPiecewiseFunction *ScaleFunction;
+  int ScaleTableSize;
 
-  double DefaultRadius;
-  int Emissive;
+  vtkPiecewiseFunction *ScalarOpacityFunction;
   int OpacityTableSize;
+
+  double ScaleFactor;
+  int Emissive;
 
 private:
   vtkPointGaussianMapper(const vtkPointGaussianMapper&); // Not implemented.
