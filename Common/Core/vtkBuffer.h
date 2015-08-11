@@ -89,6 +89,7 @@ public:
         }
       return false;
       }
+    return true; // size == 0
     }
 
   bool Reallocate(vtkIdType newsize)

@@ -21,8 +21,8 @@
 #include "vtkVariantCast.h"
 
 #define vtkGenericDataArrayT(returnType) \
-  template <class D, class S, class SR> \
-  returnType vtkGenericDataArray<D, S, SR>
+  template <class DerivedT, class ValueTypeT, class ReferenceTypeT> \
+  returnType vtkGenericDataArray<DerivedT, ValueTypeT, ReferenceTypeT>
 
 //-----------------------------------------------------------------------------
 vtkGenericDataArrayT(void)::InsertTuples(
@@ -281,6 +281,46 @@ vtkGenericDataArrayT(void)::InsertVariantValue(vtkIdType valueIdx,
     {
     this->InsertValue(valueIdx, value);
     }
+}
+
+//-----------------------------------------------------------------------------
+vtkGenericDataArrayT(int)::Allocate(vtkIdType size, vtkIdType vtkNotUsed(ext))
+{
+  DerivedT* self = static_cast<DerivedT*>(this);
+
+  // Allocator must updated this->Size and this->MaxId properly.
+  this->MaxId = -1;
+  if (size > this->Size)
+    {
+    this->Size = 0;
+
+    // let's keep the size an integral multiple of the number of components.
+    size = size < 0? 0 : size;
+    int numComps = this->GetNumberOfComponents() > 0
+        ? this->GetNumberOfComponents() : 1;
+    vtkIdType numTuples = ceil(size/ static_cast<double>(numComps));
+    // NOTE: if numTuples is 0, AllocateTuples is expected to release the
+    // memory.
+    if (self->AllocateTuples(numTuples) == false)
+      {
+      vtkErrorMacro("Unable to allocate " << size
+                    << " elements of size " << sizeof(ValueType)
+                    << " bytes. ");
+#if !defined NDEBUG
+      // We're debugging, crash here preserving the stack
+      abort();
+#elif !defined VTK_DONT_THROW_BAD_ALLOC
+      // We can throw something that has universal meaning
+      throw std::bad_alloc();
+#else
+      // We indicate that alloc failed by return
+      return 0;
+#endif
+      }
+    this->Size = numTuples * numComps;
+    }
+  this->DataChanged();
+  return 1;
 }
 
 #undef vtkGenericDataArrayT

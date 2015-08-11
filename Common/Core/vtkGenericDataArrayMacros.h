@@ -23,8 +23,15 @@
 #include "vtkAoSDataArrayTemplate.h"
 
 #include <typeinfo>
+
+// TODO the dynamic_cast is needed instead of:
+// if (typeid(*array) == typeid(arrayT<scalarT>)) \
+// so that e.g. vtkFloatArray will match vtkAoSDataArrayTemplate<float>
+// Might be slower, need to find the more performant way to do this that
+// covers all usecases. Then again...this should never be called in a tight
+// loop, so dynamic_cast'ing might be fine?
 #define vtkGenericDataArrayMacroCase(arrayT, scalarT, array, call) \
-  if (typeid(*array) == typeid(arrayT<scalarT>)) \
+  if (dynamic_cast<arrayT<scalarT>*>(array)) \
     { \
     typedef arrayT<scalarT> ARRAY_TYPE; \
     ARRAY_TYPE* ARRAY = reinterpret_cast<ARRAY_TYPE*>(array); \

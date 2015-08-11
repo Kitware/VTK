@@ -16,11 +16,11 @@
 #include "vtkDataArray.h"
 
 // Helpers:
+#include "vtkAoSDataArrayTemplate.h"
 #include "vtkIdList.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkSmartPointer.h"
-#include "vtkTypedDataArray.h"
 #include "vtkTypeTraits.h"
 
 #include <algorithm>
@@ -31,6 +31,7 @@
 #include <vector>
 
 // Concrete classes for testing:
+#include "vtkAoSDataArrayTemplate.h"
 #include "vtkCharArray.h"
 #include "vtkFloatArray.h"
 #include "vtkDoubleArray.h"
@@ -40,6 +41,7 @@
 #include "vtkLongLongArray.h"
 #include "vtkShortArray.h"
 #include "vtkSignedCharArray.h"
+#include "vtkSoADataArrayTemplate.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
@@ -50,17 +52,21 @@
 //
 // This test runs a battery of unit tests that exercise the vtkDataArray API
 // on concrete implementations of their subclasses. It is designed to be easily
-// extended to cover new array implementations and addition unit tests.
+// extended to cover new array implementations and additional unit tests.
+//
+// This also tests the vtkAbstractArray API. The vtkGenericDataArray API is
+// tested in TestGenericDataArrayAPI.
 //
 // This test has three main components:
 // - Entry point: TestDataArrayAPI(). Add new array classes here.
 // - Unit test caller: ExerciseDataArray(). Templated on value and array types.
 //   Calls individual unit test functions to excerise the array methods.
-//   Add new unit test calls here.
+//   Add new unit test calls here. Note that the ExerciseGetRange runner has
+//   been split out to fix compilation on less robust compilers that struggle
+//   with the heavy templating (known issue on GCC 4.2.1).
 // - Unit test functions: Test_[methodSignature](). Templated on value type,
 //   array type, and possibly other parameters to simplify implementations.
 //   These should use the DataArrayAPI macros as needed
-
 
 // Forward declare the test function:
 namespace {
@@ -78,42 +84,66 @@ int TestDataArrayAPI(int, char *[])
 {
   int errors = 0;
 
+#define TEST_ARRAY(scalarT, arrayT) \
+  errors += ExerciseDataArray<scalarT, arrayT>(); \
+  errors += ExerciseGetRange<scalarT, arrayT>()
+
   // Add array classes here:
   // Defaults:
-  errors += ExerciseDataArray<char, vtkCharArray>();
-  errors += ExerciseDataArray<float, vtkFloatArray>();
-  errors += ExerciseDataArray<double, vtkDoubleArray>();
-  errors += ExerciseDataArray<vtkIdType, vtkIdTypeArray>();
-  errors += ExerciseDataArray<int, vtkIntArray>();
-  errors += ExerciseDataArray<long, vtkLongArray>();
-  errors += ExerciseDataArray<long long, vtkLongLongArray>();
-  errors += ExerciseDataArray<short, vtkShortArray>();
-  errors += ExerciseDataArray<signed char, vtkSignedCharArray>();
-  errors += ExerciseDataArray<unsigned char, vtkUnsignedCharArray>();
-  errors += ExerciseDataArray<unsigned int, vtkUnsignedIntArray>();
-  errors += ExerciseDataArray<unsigned long, vtkUnsignedLongArray>();
-  errors += ExerciseDataArray<unsigned long long, vtkUnsignedLongLongArray>();
-  errors += ExerciseDataArray<unsigned short, vtkUnsignedShortArray>();
+  TEST_ARRAY(char,               vtkCharArray);
+  TEST_ARRAY(double,             vtkDoubleArray);
+  TEST_ARRAY(float,              vtkFloatArray);
+  TEST_ARRAY(int,                vtkIntArray);
+  TEST_ARRAY(long long,          vtkLongLongArray);
+  TEST_ARRAY(long,               vtkLongArray);
+  TEST_ARRAY(short,              vtkShortArray);
+  TEST_ARRAY(signed char,        vtkSignedCharArray);
+  TEST_ARRAY(unsigned char,      vtkUnsignedCharArray);
+  TEST_ARRAY(unsigned int,       vtkUnsignedIntArray);
+  TEST_ARRAY(unsigned long long, vtkUnsignedLongLongArray);
+  TEST_ARRAY(unsigned long,      vtkUnsignedLongArray);
+  TEST_ARRAY(unsigned short,     vtkUnsignedShortArray);
+  TEST_ARRAY(vtkIdType,          vtkIdTypeArray);
 
-  errors += ExerciseGetRange<char, vtkCharArray>();
-  errors += ExerciseGetRange<float, vtkFloatArray>();
-  errors += ExerciseGetRange<double, vtkDoubleArray>();
-  errors += ExerciseGetRange<vtkIdType, vtkIdTypeArray>();
-  errors += ExerciseGetRange<int, vtkIntArray>();
-  errors += ExerciseGetRange<long, vtkLongArray>();
-  errors += ExerciseGetRange<long long, vtkLongLongArray>();
-  errors += ExerciseGetRange<short, vtkShortArray>();
-  errors += ExerciseGetRange<signed char, vtkSignedCharArray>();
-  errors += ExerciseGetRange<unsigned char, vtkUnsignedCharArray>();
-  errors += ExerciseGetRange<unsigned int, vtkUnsignedIntArray>();
-  errors += ExerciseGetRange<unsigned long, vtkUnsignedLongArray>();
-  errors += ExerciseGetRange<unsigned long long, vtkUnsignedLongLongArray>();
-  errors += ExerciseGetRange<unsigned short, vtkUnsignedShortArray>();
+  // Explicit AoS arrays:
+  TEST_ARRAY(char,               vtkAoSDataArrayTemplate<char>);
+  TEST_ARRAY(double,             vtkAoSDataArrayTemplate<double>);
+  TEST_ARRAY(float,              vtkAoSDataArrayTemplate<float>);
+  TEST_ARRAY(int,                vtkAoSDataArrayTemplate<int>);
+  TEST_ARRAY(long long,          vtkAoSDataArrayTemplate<long long>);
+  TEST_ARRAY(long,               vtkAoSDataArrayTemplate<long>);
+  TEST_ARRAY(short,              vtkAoSDataArrayTemplate<short>);
+  TEST_ARRAY(signed char,        vtkAoSDataArrayTemplate<signed char>);
+  TEST_ARRAY(unsigned char,      vtkAoSDataArrayTemplate<unsigned char>);
+  TEST_ARRAY(unsigned int,       vtkAoSDataArrayTemplate<unsigned int>);
+  TEST_ARRAY(unsigned long long, vtkAoSDataArrayTemplate<unsigned long long>);
+  TEST_ARRAY(unsigned long,      vtkAoSDataArrayTemplate<unsigned long>);
+  TEST_ARRAY(unsigned short,     vtkAoSDataArrayTemplate<unsigned short>);
+  TEST_ARRAY(vtkIdType,          vtkAoSDataArrayTemplate<vtkIdType>);
+
+  // Explicit SoA arrays:
+  TEST_ARRAY(char,               vtkSoADataArrayTemplate<char>);
+  TEST_ARRAY(double,             vtkSoADataArrayTemplate<double>);
+  TEST_ARRAY(float,              vtkSoADataArrayTemplate<float>);
+  TEST_ARRAY(int,                vtkSoADataArrayTemplate<int>);
+  TEST_ARRAY(long long,          vtkSoADataArrayTemplate<long long>);
+  TEST_ARRAY(long,               vtkSoADataArrayTemplate<long>);
+  TEST_ARRAY(short,              vtkSoADataArrayTemplate<short>);
+  TEST_ARRAY(signed char,        vtkSoADataArrayTemplate<signed char>);
+  TEST_ARRAY(unsigned char,      vtkSoADataArrayTemplate<unsigned char>);
+  TEST_ARRAY(unsigned int,       vtkSoADataArrayTemplate<unsigned int>);
+  TEST_ARRAY(unsigned long long, vtkSoADataArrayTemplate<unsigned long long>);
+  TEST_ARRAY(unsigned long,      vtkSoADataArrayTemplate<unsigned long>);
+  TEST_ARRAY(unsigned short,     vtkSoADataArrayTemplate<unsigned short>);
+  TEST_ARRAY(vtkIdType,          vtkSoADataArrayTemplate<vtkIdType>);
+
+#undef TEST_ARRAY
 
   if (errors > 0)
     {
     std::cerr << "Test failed! Error count: " << errors << std::endl;
     }
+
   return errors == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
@@ -134,15 +164,15 @@ int TestDataArrayAPI(int, char *[])
 
 #define DataArrayAPICreateReferenceArray(name) \
   vtkSmartPointer<vtkDataArray> name##DA = CreateDataArray<ScalarT>(); \
-  vtkTypedDataArray<ScalarT> *name = \
-  vtkTypedDataArray<ScalarT>::SafeDownCast(name##DA.GetPointer()); \
-  assert("Reference array is vtkTypedDataArray" && name != NULL)
+  vtkAoSDataArrayTemplate<ScalarT> *name = \
+  vtkAoSDataArrayTemplate<ScalarT>::SafeDownCast(name##DA.GetPointer()); \
+  assert("Reference array is vtkAoSDataArrayTemplate" && name != NULL)
 
 #define DataArrayAPICreateReferenceArrayWithType(name, valueType) \
   vtkSmartPointer<vtkDataArray> name##DA = CreateDataArray<valueType>(); \
-  vtkTypedDataArray<valueType> *name = \
-    vtkTypedDataArray<valueType>::SafeDownCast(name##DA.GetPointer()); \
-  assert("Reference array is vtkTypedDataArray" && name != NULL)
+  vtkAoSDataArrayTemplate<valueType> *name = \
+    vtkAoSDataArrayTemplate<valueType>::SafeDownCast(name##DA.GetPointer()); \
+  assert("Reference array is vtkAoSDataArrayTemplate" && name != NULL)
 
 #define DataArrayAPINonFatalError(x) \
   { \
@@ -262,9 +292,21 @@ int Test_void_InsertTuple_i_j_source()
 
   // dest is empty -- this call should allocate memory as needed.
   dest->SetNumberOfComponents(comps);
-  for (vtkIdType i = 0; i < tuples; ++i)
+  vtkIdType maxTuple = 0;
+  for (vtkIdType t = 0; t < tuples; ++t)
     {
-    dest->InsertTuple(tupleMap[i], i, source);
+    dest->InsertTuple(tupleMap[t], t, source);
+    maxTuple = std::max(maxTuple, tupleMap[t]);
+    if (dest->GetSize() < ((maxTuple + 1) * comps))
+      {
+      DataArrayAPIError("Size should be at least " << (maxTuple * comps)
+                        << " values, but is only " << dest->GetSize() << ".");
+      }
+    if (dest->GetMaxId() != ((maxTuple + 1) * comps) - 1)
+      {
+      DataArrayAPIError("MaxId should be " << (maxTuple * comps) - 1
+                        << ", but is " << dest->GetMaxId() << " instead.");
+      }
     }
 
   // Verify:
@@ -322,13 +364,23 @@ int Test_vtkIdType_InsertNextTuple_j_source()
 
   // dest is empty -- this call should allocate memory as needed.
   dest->SetNumberOfComponents(comps);
-  for (vtkIdType i = 0; i < tuples; ++i)
+  for (vtkIdType t = 0; t < tuples; ++t)
     {
-    vtkIdType tupleIdx = dest->InsertNextTuple(tupleMap[i], source);
-    if (i != tupleIdx)
+    vtkIdType tupleIdx = dest->InsertNextTuple(tupleMap[t], source);
+    if (t != tupleIdx)
       {
       DataArrayAPIError("Returned tuple index incorrect. Returned '"
-                        << tupleIdx << "', expected '" << i << "'.");
+                        << tupleIdx << "', expected '" << t << "'.");
+      }
+    if (dest->GetSize() < ((t + 1) * comps))
+      {
+      DataArrayAPIError("Size should be at least " << ((t + 1) * comps)
+                        << " values, but is only " << dest->GetSize() << ".");
+      }
+    if (dest->GetMaxId() != ((t + 1) * comps) - 1)
+      {
+      DataArrayAPIError("MaxId should be " << ((t + 1) * comps) - 1
+                        << ", but is " << dest->GetMaxId() << " instead.");
       }
     }
 
@@ -655,12 +707,24 @@ int Test_void_InsertComponent_i_j_c()
   vtkIdType comps = 9;
   vtkIdType tuples = 10;
   source->SetNumberOfComponents(comps);
-  for (vtkIdType i = 0; i < tuples; ++i)
+  for (vtkIdType t = 0; t < tuples; ++t)
     {
-    for (int j = 0; j < comps; ++j)
+    for (int c = 0; c < comps; ++c)
       {
-      source->InsertComponent(i, j,
-                              static_cast<double>(((i + 1) * (j + 1)) % 17));
+      source->InsertComponent(t, c,
+                              static_cast<double>(((t + 1) * (c + 1)) % 17));
+
+      if (source->GetSize() < (t * comps) + c + 1)
+        {
+        DataArrayAPIError("Size should be at least " << (t * comps) + c + 1
+                          << " values, but is only " << source->GetSize()
+                          << ".");
+        }
+      if (source->GetMaxId() != (t * comps) + c)
+        {
+        DataArrayAPIError("MaxId should be " << (t * comps) + c
+                          << ", but is " << source->GetMaxId() << " instead.");
+        }
       }
     }
 
@@ -731,6 +795,15 @@ template <typename ScalarT, typename ArrayT>
 int Test_voidptr_WriteVoidPointer_id_number()
 {
   DataArrayAPIInit("void* WriteVoidPointer(vtkIdType id, vtkIdType number)");
+
+  // Skip SoA arrays, as they do not allow this:
+  if (typeid(ArrayT) == typeid(vtkSoADataArrayTemplate<ScalarT>))
+    {
+    std::cerr << "Skipping WriteVoidPointer for "
+              << "vtkSoADataArrayTemplate<" << vtkTypeTraits<ScalarT>::Name()
+              << ">.\n";
+    DataArrayAPIFinish();
+    }
 
   DataArrayAPICreateTestArray(source);
 
@@ -886,6 +959,7 @@ int Test_int_GetElementComponentSize()
 //                       vtkAbstractArray *source, double *weights)
 // Sets the ith tuple in this array, using the source data, indices, and weights
 // provided.
+// Should allocate memory.
 template <typename ScalarT, typename ArrayT>
 int Test_void_InterpolateTuple_i_indices_source_weights()
 {
@@ -915,7 +989,6 @@ int Test_void_InterpolateTuple_i_indices_source_weights()
   double weights[] = {0.5, 1.0, 0.25, 1.0, 0.8};
 
   output->SetNumberOfComponents(comps);
-  output->SetNumberOfTuples(1);
 
   output->InterpolateTuple(0, ids.GetPointer(), source, weights);
 
@@ -964,6 +1037,7 @@ int Test_void_InterpolateTuple_i_indices_source_weights()
 // Interpolate tuple id1 from source1 and id2 form source2 and store the result
 // in this tuple at tuple index i. t belongs to [0,1] and is the interpolation
 // weight, with t=0 meaning 100% from source1.
+// Should allocate memory.
 // TODO the implementation of this method could use some attention:
 // - BIT implementation looks wrong (k is not used?) What does bit interpolation
 //   even mean?
@@ -999,7 +1073,6 @@ int Test_void_InterpolateTuple_i_id1_source1_id2_source2_t()
     }
 
   output->SetNumberOfComponents(comps);
-  output->SetNumberOfTuples(1);
 
   vtkIdType id1 = 4;
   vtkIdType id2 = 8;
@@ -1255,6 +1328,16 @@ int Test_void_InsertTuple_i_tuple()
       tuple.push_back(static_cast<TupleArgT>(((t * comps) + c) % 17));
       }
     source->InsertTuple(t, &tuple[0]);
+    if (source->GetSize() < ((t + 1) * comps))
+      {
+      DataArrayAPIError("Size should be at least " << ((t + 1) * comps)
+                        << " values, but is only " << source->GetSize() << ".");
+      }
+    if (source->GetMaxId() != ((t + 1) * comps) - 1)
+      {
+      DataArrayAPIError("MaxId should be " << ((t + 1) * comps) - 1
+                        << ", but is " << source->GetMaxId() << " instead.");
+      }
     }
 
   // Verify:
@@ -1328,6 +1411,16 @@ int Test_void_InsertTupleN_i()
       default:
         DataArrayAPIError("Invalid N: " << N << ".");
       }
+    if (source->GetSize() < ((t + 1) * comps))
+      {
+      DataArrayAPIError("Size should be at least " << ((t + 1) * comps)
+                        << " values, but is only " << source->GetSize() << ".");
+      }
+    if (source->GetMaxId() != ((t + 1) * comps) - 1)
+      {
+      DataArrayAPIError("MaxId should be " << ((t + 1) * comps) - 1
+                        << ", but is " << source->GetMaxId() << " instead.");
+      }
     }
 
   // Verify:
@@ -1374,6 +1467,16 @@ int Test_void_InsertNextTuple_tuple()
       tuple.push_back(static_cast<TupleArgT>(((t * comps) + c) % 17));
       }
     source->InsertNextTuple(&tuple[0]);
+    if (source->GetSize() < ((t + 1) * comps))
+      {
+      DataArrayAPIError("Size should be at least " << ((t + 1) * comps)
+                        << " values, but is only " << source->GetSize() << ".");
+      }
+    if (source->GetMaxId() != ((t + 1) * comps) - 1)
+      {
+      DataArrayAPIError("MaxId should be " << ((t + 1) * comps) - 1
+                        << ", but is " << source->GetMaxId() << " instead.");
+      }
     }
 
   // Verify:
@@ -1447,6 +1550,16 @@ int Test_void_InsertNextTupleN()
         break;
       default:
         DataArrayAPIError("Invalid N: " << N << ".");
+      }
+    if (source->GetSize() < ((t + 1) * comps))
+      {
+      DataArrayAPIError("Size should be at least " << ((t + 1) * comps)
+                        << " values, but is only " << source->GetSize() << ".");
+      }
+    if (source->GetMaxId() != ((t + 1) * comps) - 1)
+      {
+      DataArrayAPIError("MaxId should be " << ((t + 1) * comps) - 1
+                        << ", but is " << source->GetMaxId() << " instead.");
       }
     }
 
@@ -2016,3 +2129,12 @@ int ExerciseGetRange()
 } // end ExerciseGetRange
 
 } // end anon namespace
+
+#undef DataArrayAPIInit
+#undef DataArrayAPIUpdateSignature
+#undef DataArrayAPIFinish
+#undef DataArrayAPICreateTestArray
+#undef DataArrayAPICreateReferenceArray
+#undef DataArrayAPICreateReferenceArrayWithType
+#undef DataArrayAPINonFatalError
+#undef DataArrayAPIError

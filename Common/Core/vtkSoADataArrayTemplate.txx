@@ -34,7 +34,7 @@ vtkSoADataArrayTemplate<ValueType>::vtkSoADataArrayTemplate()
 template<class ValueType>
 vtkSoADataArrayTemplate<ValueType>::~vtkSoADataArrayTemplate()
 {
-  for (int cc=0; cc < this->GetNumberOfComponents(); ++cc)
+  for (int cc=0; cc < this->Data.size(); ++cc)
     {
     this->Data[cc].SetBuffer(NULL, 0);
     }
@@ -81,7 +81,7 @@ bool vtkSoADataArrayTemplate<ValueType>::AllocateTuples(vtkIdType numTuples)
   if (!this->Resizeable)
     {
     vtkIdType minTuples = VTK_ID_MAX;
-    for (int cc=0, max=this->GetNumberOfComponents(); cc < max; cc++)
+    for (int cc=0, max=this->Data.size(); cc < max; cc++)
       {
       minTuples = std::min(minTuples, this->Data[cc].GetSize());
       }
@@ -97,7 +97,7 @@ bool vtkSoADataArrayTemplate<ValueType>::AllocateTuples(vtkIdType numTuples)
       }
     }
 
-  for (int cc=0, max=this->GetNumberOfComponents(); cc < max; ++cc)
+  for (int cc=0, max=this->Data.size(); cc < max; ++cc)
     {
     if (!this->Data[cc].Allocate(numTuples))
       {
@@ -114,7 +114,7 @@ bool vtkSoADataArrayTemplate<ValueType>::ReallocateTuples(vtkIdType numTuples)
   if (!this->Resizeable)
     {
     vtkIdType minTuples = VTK_ID_MAX;
-    for (int cc=0, max=this->GetNumberOfComponents(); cc < max; cc++)
+    for (int cc=0, max=this->Data.size(); cc < max; cc++)
       {
       minTuples = std::min(minTuples, this->Data[cc].GetSize());
       }
@@ -126,7 +126,7 @@ bool vtkSoADataArrayTemplate<ValueType>::ReallocateTuples(vtkIdType numTuples)
     return false;
     }
 
-  for (int cc=0, max=this->GetNumberOfComponents(); cc < max; ++cc)
+  for (int cc=0, max=this->Data.size(); cc < max; ++cc)
     {
     if (!this->Data[cc].Reallocate(numTuples))
       {

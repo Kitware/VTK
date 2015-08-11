@@ -120,44 +120,7 @@ public:
 
   // Allocate memory for this array. Delete old storage only if necessary.
   // Note that ext is no longer used.
-  virtual int Allocate(vtkIdType size, vtkIdType vtkNotUsed(ext))
-    {
-    DerivedT* self = static_cast<DerivedT*>(this);
-
-    // Allocator must updated this->Size and this->MaxId properly.
-    this->MaxId = -1;
-    if (size > this->Size)
-      {
-      this->Size = 0;
-
-      // let's keep the size an integral multiple of the number of components.
-      size = size < 0? 0 : size;
-      int numComps = this->GetNumberOfComponents() > 0
-          ? this->GetNumberOfComponents() : 1;
-      vtkIdType numTuples = ceil(size/ static_cast<double>(numComps));
-      // NOTE: if numTuples is 0, AllocateTuples is expected to release the
-      // memory.
-      if (self->AllocateTuples(numTuples) == false)
-        {
-        vtkErrorMacro("Unable to allocate " << size
-                      << " elements of size " << sizeof(ValueType)
-                      << " bytes. ");
-#if !defined NDEBUG
-        // We're debugging, crash here preserving the stack
-        abort();
-#elif !defined VTK_DONT_THROW_BAD_ALLOC
-        // We can throw something that has universal meaning
-        throw std::bad_alloc();
-#else
-        // We indicate that alloc failed by return
-        return 0;
-#endif
-        }
-      this->Size = numTuples * numComps;
-      }
-    this->DataChanged();
-    return 1;
-    }
+  virtual int Allocate(vtkIdType size, vtkIdType ext = 1000);
   virtual int Resize(vtkIdType numTuples)
     {
     int numComps = this->GetNumberOfComponents();
@@ -202,7 +165,13 @@ public:
 
     // Allocation was successful. Save it.
     this->Size = numTuples * numComps;
-    this->MaxId = (this->Size - 1);
+
+    // Update MaxId if we truncated:
+    if ((this->Size - 1) < this->MaxId)
+      {
+      this->MaxId = (this->Size - 1);
+      }
+
     return 1;
     }
 
@@ -214,9 +183,10 @@ public:
 
   virtual void SetNumberOfTuples(vtkIdType number)
     {
-    if (this->Allocate(number*this->NumberOfComponents, 0))
+    vtkIdType newSize = number * this->NumberOfComponents;
+    if (this->Allocate(newSize, 0))
       {
-      this->MaxId = this->Size - 1;
+      this->MaxId = newSize - 1;
       }
     }
 
@@ -248,10 +218,16 @@ public:
     this->EnsureAccessToTuple(i);
     this->SetTuple(i, source);
     }
+  // Reimplemented for efficiency -- base impl allocates heap memory:
   virtual void InsertComponent(vtkIdType tupleIdx, int compIdx, double val)
     {
-    // Reimplemented for efficiency -- base impl allocates heap memory
+    // Update MaxId to the inserted component (not the complete tuple) for
+    // compatibility with InsertNextValue.
+    vtkIdType newMaxId = std::max(tupleIdx * this->NumberOfComponents + compIdx,
+                                  this->MaxId);
     this->EnsureAccessToTuple(tupleIdx);
+    assert("Sufficient space allocated." && this->MaxId >= newMaxId);
+    this->MaxId = newMaxId;
     this->SetComponent(tupleIdx, compIdx, val);
     }
   virtual vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray *source)
@@ -468,6 +444,8 @@ protected:
   vtkGenericDataArray()
     : Lookup(*this)
     {
+    // Initialize internal data structures:
+    this->SetNumberOfComponents(this->NumberOfComponents);
     }
 
   virtual ~vtkGenericDataArray()
@@ -478,11 +456,22 @@ protected:
   // valid/accessible.
   bool EnsureAccessToTuple(vtkIdType tupleIdx)
     {
-    if (tupleIdx < 0) { return false; }
-    vtkIdType expectedMaxId = (1 + tupleIdx) * this->NumberOfComponents - 1;
+    if (tupleIdx < 0)
+      {
+      return false;
+      }
+    vtkIdType minSize = (1 + tupleIdx) * this->NumberOfComponents;
+    vtkIdType expectedMaxId = minSize - 1;
     if (this->MaxId < expectedMaxId)
       {
-      return this->Resize(tupleIdx + 1) != 0;
+      if (this->Size < minSize)
+        {
+        if (!this->Resize(tupleIdx + 1))
+          {
+          return false;
+          }
+        }
+      this->MaxId = expectedMaxId;
       }
     return true;
     }
@@ -492,7 +481,7 @@ private:
   vtkGenericDataArray(const vtkGenericDataArray&); // Not implemented.
   void operator=(const vtkGenericDataArray&); // Not implemented.
   std::vector<double> LegacyTuple;
-  std::vector<double> LegacyValueRange;
+  std::vector<ValueType> LegacyValueRange;
 };
 
 #include "vtkGenericDataArray.txx"

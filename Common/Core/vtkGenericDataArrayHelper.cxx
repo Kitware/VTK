@@ -62,7 +62,7 @@ void vtkGenericDataArrayHelper::SetTuple(
   vtkAbstractArray* dest, vtkIdType destTuple,
   vtkAbstractArray* source, vtkIdType sourceTuple)
 {
-  if (source->GetDataType() != dest->GetDataType())
+  if (!vtkDataTypesCompare(source->GetDataType(), dest->GetDataType()))
     {
     vtkGenericWarningMacro("Input and output array data types do not match.");
     return;

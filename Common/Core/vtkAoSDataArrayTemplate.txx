@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#ifndef vtkAoSDataArrayTemplate_txx
+#define vtkAoSDataArrayTemplate_txx
+
+#include "vtkAoSDataArrayTemplate.h"
 
 #define vtkAoSDataArrayTemplateT(returnType) \
   template <class ValueType> \
@@ -53,17 +57,24 @@ vtkAoSDataArrayTemplateT(void)::SetArray(
 template <class ValueTypeT>
 typename vtkAoSDataArrayTemplate<ValueTypeT>::ValueType*
 vtkAoSDataArrayTemplate<ValueTypeT>::WritePointer(vtkIdType id,
-                                                   vtkIdType number)
+                                                  vtkIdType number)
 {
-  vtkIdType newSize = (id+number)+1;
+  vtkIdType newSize = id + number;
   if (newSize > this->Size)
     {
-    if (!this->ReallocateTuples(newSize / this->NumberOfComponents))
+    if (!this->Resize(newSize / this->NumberOfComponents + 1))
       {
       return NULL;
       }
     this->MaxId = (newSize - 1);
     }
+
+  // For extending the in-use ids but not the size:
+  if ((newSize - 1) > this->MaxId)
+    {
+    this->MaxId = newSize - 1;
+    }
+
   this->DataChanged();
   return this->GetPointer(id);
 }
@@ -72,11 +83,23 @@ vtkAoSDataArrayTemplate<ValueTypeT>::WritePointer(vtkIdType id,
 vtkAoSDataArrayTemplateT(bool)::AllocateTuples(vtkIdType numTuples)
 {
   vtkIdType numValues = numTuples * this->GetNumberOfComponents();
-  return this->Buffer.Allocate(numValues);
+  if (this->Buffer.Allocate(numValues))
+    {
+    this->Size = this->Buffer.GetSize();
+    return true;
+    }
+  return false;
 }
 
 //-----------------------------------------------------------------------------
 vtkAoSDataArrayTemplateT(bool)::ReallocateTuples(vtkIdType numTuples)
 {
-  return this->Buffer.Reallocate(numTuples * this->GetNumberOfComponents());
+  if (this->Buffer.Reallocate(numTuples * this->GetNumberOfComponents()))
+    {
+    this->Size = this->Buffer.GetSize();
+    return true;
+    }
+  return false;
 }
+
+#endif // header guard
