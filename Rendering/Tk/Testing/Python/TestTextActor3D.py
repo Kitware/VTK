@@ -8,13 +8,13 @@ from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-try:
+if sys.hexversion < 0x03000000:
     # for Python2
-    import Tkinter as tk
+    import Tkinter as tkinter
     from Tkinter import Pack
-except ImportError:
+else:
     # for Python3
-    import tkinter as tk
+    import tkinter
     from tkinter import Pack
 
 #from vtk.tk.vtkTkRenderWindowInteractor import vtkTkRenderWindowInteractor
@@ -22,27 +22,27 @@ from vtk.tk.vtkTkRenderWidget import vtkTkRenderWidget
 from vtk.tk.vtkTkImageViewerWidget import vtkTkImageViewerWidget
 
 # Tkinter constants.
-E = tk.E
-W = tk.W
-N = tk.N
-S = tk.S
-HORIZONTAL = tk.HORIZONTAL
-VERTICAL = tk.VERTICAL
-RIGHT = tk.RIGHT
-LEFT = tk.LEFT
-TOP = tk.TOP
-BOTTOM = tk.BOTTOM
-X = tk.X
-BOTH = tk.BOTH
-NO = tk.NO
-YES = tk.YES
-NORMAL = tk.NORMAL
-DISABLED = tk.DISABLED
-TRUE = tk.TRUE
-FALSE = tk.FALSE
-GROOVE = tk.GROOVE
-INSERT = tk.INSERT
-END = tk.END
+E = tkinter.E
+W = tkinter.W
+N = tkinter.N
+S = tkinter.S
+HORIZONTAL = tkinter.HORIZONTAL
+VERTICAL = tkinter.VERTICAL
+RIGHT = tkinter.RIGHT
+LEFT = tkinter.LEFT
+TOP = tkinter.TOP
+BOTTOM = tkinter.BOTTOM
+X = tkinter.X
+BOTH = tkinter.BOTH
+NO = tkinter.NO
+YES = tkinter.YES
+NORMAL = tkinter.NORMAL
+DISABLED = tkinter.DISABLED
+TRUE = tkinter.TRUE
+FALSE = tkinter.FALSE
+GROOVE = tkinter.GROOVE
+INSERT = tkinter.INSERT
+END = tkinter.END
 
 class TestTextActor3DViewer(Testing.vtkTest):
     '''
@@ -136,7 +136,7 @@ class TestTextActor3DViewer(Testing.vtkTest):
         self.renWin.AddRenderer(ren)
         #self.renWin.SetSize(600, 600)
 
-        self.root = tk.Tk()
+        self.root = tkinter.Tk()
         self.root.title("TestTextActor3D.py")
         # Define what to do when the user explicitly closes a window.
         self.root.protocol("WM_DELETE_WINDOW", OnClosing)
@@ -163,19 +163,19 @@ class TestTextActor3DViewer(Testing.vtkTest):
         self.textActors = dict()
 
         scaleLength = 200
-        controls = tk.Frame(self.root, relief=GROOVE, bd=2)
+        controls = tkinter.Frame(self.root, relief=GROOVE, bd=2)
         controls.pack(
                 padx=2, pady=2, anchor=N+W, side=LEFT, fill=BOTH, expand=NO)
 
         # Add control of text.
-        self.entryText = tk.Text(controls, height=1, width=25)
+        self.entryText = tkinter.Text(controls, height=1, width=25)
         self.entryText.insert(INSERT,baseText)
         self.entryText.pack(padx=4, pady=4, side=TOP, fill=X, expand=NO)
         self.entryText.bind('<Return>',UpdateTextActors)
         self.entryText.bind('<FocusOut>',UpdateTextActors)
 
         # Add control of orientation.
-        self.scaleOrientation = tk.Scale(controls,
+        self.scaleOrientation = tkinter.Scale(controls,
                                 from_=0, to=360, res=1,
                                 length= scaleLength,
                                 orient=HORIZONTAL,
@@ -185,7 +185,7 @@ class TestTextActor3DViewer(Testing.vtkTest):
         self.scaleOrientation.pack(side=TOP, fill=X, expand=NO)
 
         # Add control of font size.
-        self.scaleFontSize = tk.Scale(controls,
+        self.scaleFontSize = tkinter.Scale(controls,
                                 from_=5, to=150, res=1,
                                 length= scaleLength,
                                 orient=HORIZONTAL,
@@ -195,7 +195,7 @@ class TestTextActor3DViewer(Testing.vtkTest):
         self.scaleFontSize.pack(side=TOP, fill=X, expand=NO)
 
         # Add control of scale.
-        self.scaleScale = tk.Scale(controls,
+        self.scaleScale = tkinter.Scale(controls,
                                 from_=0, to=100, res=1,
                                 length= scaleLength,
                                 orient=HORIZONTAL,
@@ -205,7 +205,7 @@ class TestTextActor3DViewer(Testing.vtkTest):
         self.scaleScale.pack(side=TOP, fill=X, expand=NO)
 
         # Add control of scale.
-        self.scaleOpacity = tk.Scale(controls,
+        self.scaleOpacity = tkinter.Scale(controls,
                                 from_=0, to=1.0, res=0.01,
                                 length= scaleLength,
                                 orient=HORIZONTAL,
@@ -228,7 +228,7 @@ class TestTextActor3DViewer(Testing.vtkTest):
 
         UpdateTextActors(0)
 
-        for actor in self.textActors.itervalues():
+        for actor in self.textActors.values():
             ren.AddActor(actor)
 
     def DoIt(self):

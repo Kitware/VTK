@@ -7,18 +7,20 @@ Specify double=1 to get a double-buffered window.
 Created by David Gobbi, Nov 1999
 """
 
+from __future__ import absolute_import
 import math, os, sys
 import vtk
-try:
+
+if sys.hexversion < 0x03000000:
     # for Python2
-    import Tkinter
-except ImportError:
+    import Tkinter as tkinter
+else:
     # for Python3
     import tkinter
 
-from vtkLoadPythonTkWidgets import vtkLoadPythonTkWidgets
+from .vtkLoadPythonTkWidgets import vtkLoadPythonTkWidgets
 
-class vtkTkImageViewerWidget(Tkinter.Widget):
+class vtkTkImageViewerWidget(tkinter.Widget):
     """
     A vtkTkImageViewerWidget for Python.
 
@@ -69,7 +71,7 @@ class vtkTkImageViewerWidget(Tkinter.Widget):
             self._FocusOnEnter = 0
 
         kw['iv'] = imageViewer.GetAddressAsString("vtkImageViewer")
-        Tkinter.Widget.__init__(self, master, 'vtkTkImageViewerWidget',
+        tkinter.Widget.__init__(self, master, 'vtkTkImageViewerWidget',
                                 cnf, kw)
         if doubleBuffer:
             imageViewer.GetRenderWindow().DoubleBufferOn()
@@ -347,7 +349,7 @@ if __name__ == "__main__":
 
     # Create the GUI: two renderer widgets and a quit button
 
-    frame = Tkinter.Frame()
+    frame = tkinter.Frame()
 
     widget = vtkTkImageViewerWidget(frame,width=512,height=512,double=1)
     viewer = widget.GetImageViewer()
@@ -355,7 +357,7 @@ if __name__ == "__main__":
     viewer.SetColorWindow(256)
     viewer.SetColorLevel(127.5)
 
-    button = Tkinter.Button(frame,text="Quit",command=frame.quit)
+    button = tkinter.Button(frame,text="Quit",command=frame.quit)
 
     widget.pack(side='top',padx=3,pady=3,fill='both',expand='t')
     frame.pack(fill='both',expand='t')

@@ -1,13 +1,15 @@
-import os
+import os, sys
 import vtk
 from vtk.test import Testing
 
-try:
+if sys.hexversion < 0x03000000:
     # for Python2
-    import Tkinter as tk
-except ImportError:
+    import Tkinter as tkinter
+    from Tkinter import Pack
+else:
     # for Python3
-    import tkinter as tk
+    import tkinter
+    from tkinter import Pack
 
 from vtk.tk.vtkTkRenderWindowInteractor import vtkTkRenderWindowInteractor
 
@@ -19,7 +21,7 @@ class TestTkRenderWindowInteractor(Testing.vtkTest):
     # the pipeline will be created afresh for each and every test.
 
     # create a dummy Tkinter root window.
-    root = tk.Tk()
+    root = tkinter.Tk()
 
     # create a rendering window and renderer
     ren = vtk.vtkRenderer()
