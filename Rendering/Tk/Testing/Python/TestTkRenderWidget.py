@@ -3,7 +3,13 @@ import os
 import vtk
 from vtk.test import Testing
 
-import Tkinter
+try:
+    # for Python2
+    import Tkinter as tk
+except ImportError:
+    # for Python3
+    import tkinter as tk
+
 from vtk.tk.vtkTkRenderWidget import vtkTkRenderWidget
 
 
@@ -14,7 +20,7 @@ class TestTkRenderWidget(Testing.vtkTest):
     # the pipeline will be created afresh for each and every test.
 
     # create a dummy Tkinter root window.
-    root = Tkinter.Tk()
+    root = tk.Tk()
 
     # create a rendering window and renderer
     ren = vtk.vtkRenderer()

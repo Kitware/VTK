@@ -15,7 +15,7 @@ demModel = vtk.vtkDEMReader()
 demModel.SetFileName(VTK_DATA_ROOT + "/Data/SainteHelens.dem")
 demModel.Update()
 
-print demModel
+print(demModel)
 
 lo = Scale * demModel.GetElevationBounds()[0]
 hi = Scale * demModel.GetElevationBounds()[1]

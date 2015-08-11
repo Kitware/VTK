@@ -80,4 +80,4 @@ try:
 #    iren.Start()
 
 except IOError:
-    print  "Unable to test the writer/reader."
+    print("Unable to test the writer/reader.")

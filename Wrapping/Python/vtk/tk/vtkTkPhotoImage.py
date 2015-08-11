@@ -5,7 +5,12 @@ vtkImageData to a photo widget.
 Created by Daniel Blezek, August 2002
 """
 
-import Tkinter
+try:
+    # for Python2
+    import Tkinter
+except ImportError:
+    # for Python3
+    import tkinter
 
 from vtkLoadPythonTkWidgets import vtkLoadPythonTkWidgets
 

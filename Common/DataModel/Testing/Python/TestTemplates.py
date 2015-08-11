@@ -12,7 +12,12 @@ Created on May 29, 2011 by David Gobbi
 """
 
 import sys
-import exceptions
+try:
+    # for Python2
+    import exceptions
+except ImportError:
+    # In Python 3 standard exceptions were moved to builtin module.
+    pass
 import vtk
 from vtk.test import Testing
 
@@ -48,7 +53,7 @@ class TestTemplates(Testing.vtkTest):
                 result = a.GetValue(i)
                 self.assertEqual(value, result)
             elif t in [str, 'str', 'unicode']:
-                value = unicode("hello")
+                value = u"hello"
                 a.SetValue(i, value)
                 result = a.GetValue(i)
                 self.assertEqual(value, result)
@@ -85,7 +90,7 @@ class TestTemplates(Testing.vtkTest):
                 result = a.GetValue(i)
                 self.assertEqual(value, result)
             elif t in [str, 'str', 'unicode']:
-                value = unicode("hello")
+                value = u"hello"
                 a.SetValue(i, value)
                 result = a.GetValue(i)
                 self.assertEqual(value, result)

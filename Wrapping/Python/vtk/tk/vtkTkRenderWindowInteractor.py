@@ -9,9 +9,15 @@ Created by Prabhu Ramachandran, April 2002
 
 """
 
-import Tkinter
 import math, os, sys
 import vtk
+try:
+    # for Python2
+    import Tkinter
+except ImportError:
+    # for Python3
+    import tkinter
+
 
 from vtkLoadPythonTkWidgets import vtkLoadPythonTkWidgets
 

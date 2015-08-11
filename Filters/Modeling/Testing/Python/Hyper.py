@@ -54,7 +54,7 @@ try:
         pass
 
 except IOError:
-    print  "Unable to test the writer/reader."
+    print("Unable to test the writer/reader.")
     input = ptLoad.GetOutput()
 
 # Generate hyperstreamlines

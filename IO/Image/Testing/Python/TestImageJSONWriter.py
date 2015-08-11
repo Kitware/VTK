@@ -19,9 +19,9 @@ dim_ref = [value for value in output.GetDimensions()]
 origin_ref = [value for value in output.GetOrigin()]
 spacing_ref = [value for value in output.GetSpacing()]
 
-print dim_ref
-print origin_ref
-print spacing_ref
+print(dim_ref)
+print(origin_ref)
+print(spacing_ref)
 
 writer = vtk.vtkJSONImageWriter()
 writer.SetInputData(image1.GetOutput())
@@ -31,36 +31,36 @@ writer.SetSlice(3)
 writer.Write()
 
 # Try to load JSON file and compare with dumped data
-print "Writing file:", tmp_file
+print("Writing file:", tmp_file)
 json_file = open(tmp_file, "r")
 json_obj = json.load(json_file)
 json_file.close()
 
 slice = json_obj['RTData']
 if json_obj["dimensions"] != dim_ref:
-    print "Dimension ERROR"
+    print("Dimension ERROR")
     sys.exit(1)
 else:
-    print "Dimension OK"
+    print("Dimension OK")
 if json_obj["origin"] != origin_ref:
-    print "Origin ERROR"
+    print("Origin ERROR")
     sys.exit(1)
 else:
-    print "Origin OK"
+    print("Origin OK")
 if json_obj["spacing"] != spacing_ref:
-    print "Spacing ERROR"
+    print("Spacing ERROR")
     sys.exit(1)
 else:
-    print "Spacing OK"
+    print("Spacing OK")
 if len(slice) == 441:
-    print "Slice size OK"
+    print("Slice size OK")
 else:
-    print "Slice size ERROR - Size of ", str(len(slice))
+    print("Slice size ERROR - Size of ", str(len(slice)))
     sys.exit(1)
 
 for i in range(len(expected_first_values)):
     if expected_first_values[i] != slice[i]:
         sys.exit(1)
 
-print "All good..."
+print("All good...")
 sys.exit()

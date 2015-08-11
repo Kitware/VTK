@@ -1,5 +1,10 @@
 import sys
-import exceptions
+try:
+    # for Python2
+    import exceptions
+except ImportError:
+    # for Python3
+    pass
 import vtk
 import array
 from vtk.test import Testing

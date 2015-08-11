@@ -185,4 +185,4 @@ try:
 #    iren.Start()
 
 except IOError:
-    print  "Couldn't open RGridField.vtk for writing."
+    print("Couldn't open RGridField.vtk for writing.")

@@ -6,7 +6,7 @@ from vtk.test import Testing
 try:
     import numpy as np
 except ImportError:
-    print "WARNING: This test requires Numeric Python: http://numpy.sf.net"
+    print("WARNING: This test requires Numeric Python: http://numpy.sf.net")
     sys.exit(0)
 
 def GenerateCell(cellType, points):

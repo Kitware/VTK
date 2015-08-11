@@ -141,4 +141,4 @@ try:
 #    iren.Start()
 
 except IOError:
-    print  "Couldn't open UGridField.vtk for writing."
+    print("Couldn't open UGridField.vtk for writing.")

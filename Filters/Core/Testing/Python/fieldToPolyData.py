@@ -86,4 +86,4 @@ try:
 #    iren.Start()
 
 except IOError:
-    print  "Couldn't open PolyField.vtk for writing."
+    print("Couldn't open PolyField.vtk for writing.")

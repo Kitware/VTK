@@ -31,9 +31,9 @@ class Tester:
             getm = "Get%s"%method
             val = eval("obj.%s()"%getm)
             try:
-                apply(eval("obj.%s"%setm), val)
+                 eval("obj.%s"%setm)(*val)
             except TypeError:
-                apply(eval("obj.%s"%setm), (val,))
+                eval("obj.%s"%setm)(*(val,))
 
             val1 = eval("obj.%s()"%getm)
 

@@ -25,8 +25,8 @@ sphere.SetThetaResolution(32)
 sphere.Update()
 
 pd = sphere.GetOutput().GetPointData()
-for i in xrange(pd.GetNumberOfArrays()):
-    print pd.GetArray(i).GetName()
+for i in range(pd.GetNumberOfArrays()):
+    print(pd.GetArray(i).GetName())
 
 mapper = vtk.vtkPolyDataMapper()
 mapper.SetInputConnection(sphere.GetOutputPort())
