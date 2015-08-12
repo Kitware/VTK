@@ -344,10 +344,10 @@ void vtkOpenGLPointGaussianMapperHelperPackVBOTemplate3(
     float opacity = opacities->GetComponent(index,0);
     if (self->OpacityTable)
       {
-      float index = (opacity - self->OpacityOffset)*self->OpacityScale;
-      int iindex = static_cast<int>(index);
-      opacity = (1.0 - index + iindex)*self->OpacityTable[iindex] +
-        (index - iindex)*self->OpacityTable[iindex+1];
+      float tindex = (opacity - self->OpacityOffset)*self->OpacityScale;
+      int itindex = static_cast<int>(tindex);
+      opacity = (1.0 - tindex + itindex)*self->OpacityTable[itindex] +
+        (tindex - itindex)*self->OpacityTable[itindex+1];
       }
     rcolor.c[3] = opacity*255.0;
     }
@@ -372,10 +372,10 @@ void vtkOpenGLPointGaussianMapperHelperPackVBOTemplate3(
     radius *= defaultScale;
     if (self->ScaleTable)
       {
-      float index = (radius - self->ScaleOffset)*self->ScaleScale;
-      int iindex = static_cast<int>(index);
-      radius = (1.0 - index + iindex)*self->ScaleTable[iindex] +
-        (index - iindex)*self->ScaleTable[iindex+1];
+      float tindex = (radius - self->ScaleOffset)*self->ScaleScale;
+      int itindex = static_cast<int>(tindex);
+      radius = (1.0 - tindex + itindex)*self->ScaleTable[itindex] +
+        (tindex - itindex)*self->ScaleTable[itindex+1];
       }
 
     radius *= 3.0;
