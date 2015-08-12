@@ -125,6 +125,9 @@ public:
     this->Scale.clear();
     this->Bias.clear();
 
+    this->DepthImage = 0;
+    this->ColorImage = 0;
+
     this->NeedToInitializeResources = false;
     }
 
@@ -144,6 +147,18 @@ public:
       {
       this->DepthTextureObject->Delete();
       this->DepthTextureObject = 0;
+      }
+
+    if (this->DepthImage)
+      {
+      this->DepthImage->Delete();
+      this->DepthImage = 0;
+      }
+
+    if (this->ColorImage)
+      {
+      this->ColorImage->Delete();
+      this->ColorImage = 0;
       }
 
     this->DeleteTransferFunctions();
@@ -335,8 +350,8 @@ public:
   vtkOpenGLShaderCache* ShaderCache;
 
   vtkNew<vtkFrameBufferObject2> FBO;
-  vtkNew<vtkTextureObject> DepthImage;
-  vtkNew<vtkTextureObject> ColorImage;
+  vtkTextureObject* DepthImage;
+  vtkTextureObject* ColorImage;
 };
 
 //----------------------------------------------------------------------------
@@ -2061,6 +2076,20 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
     this->Impl->DepthTextureObject = 0;
     }
 
+  if (this->Impl->DepthImage)
+    {
+    this->Impl->DepthImage->ReleaseGraphicsResources(window);
+    this->Impl->DepthImage->Delete();
+    this->Impl->DepthImage = 0;
+    }
+
+  if (this->Impl->ColorImage)
+    {
+    this->Impl->ColorImage->ReleaseGraphicsResources(window);
+    this->Impl->ColorImage->Delete();
+    this->Impl->ColorImage = 0;
+    }
+
   if(this->Impl->MaskTextures != 0)
     {
     if(!this->Impl->MaskTextures->Map.empty())
@@ -2514,19 +2543,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 {
   vtkOpenGLClearErrorMacro();
 
-  // Render to FBO
-  this->Impl->FBO->SetContext(vtkOpenGLRenderWindow::SafeDownCast(
-                                ren->GetRenderWindow()));
-
-  this->Impl->FBO->SaveCurrentBindings();
-  this->Impl->FBO->Bind(GL_FRAMEBUFFER);
-  this->Impl->FBO->AddDepthAttachment(GL_DRAW_FRAMEBUFFER,
-                                      this->Impl->DepthImage.GetPointer());
-  this->Impl->FBO->AddColorAttachment(GL_DRAW_FRAMEBUFFER, 0U,
-                                      this->Impl->ColorImage.GetPointer());
-  this->Impl->FBO->ActivateDrawBuffers(3);
-  vtkCheckFrameBufferStatusMacro(GL_FRAMEBUFFER);
-
   this->Impl->NeedToInitializeResources  =
     (this->Impl->ReleaseResourcesTime.GetMTime() >
     this->Impl->InitializationTime.GetMTime());
@@ -2554,6 +2570,46 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 
   // How many components are there?
   int noOfComponents = scalars->GetNumberOfComponents();
+
+  // Render to FBO
+  int viewsize[2];
+  ren->GetTiledSize(&viewsize[0], &viewsize[1]);
+
+  if (!this->Impl->DepthImage)
+    {
+    this->Impl->DepthImage = vtkTextureObject::New();
+    }
+  this->Impl->DepthImage->SetContext(vtkOpenGLRenderWindow::SafeDownCast(
+                                        ren->GetRenderWindow()));
+  this->Impl->DepthImage->AllocateDepth(viewsize[0], viewsize[1],
+                                        vtkTextureObject::Float32);
+  this->Impl->DepthImage->SetAutoParameters(0);
+
+  if (!this->Impl->ColorImage)
+    {
+    this->Impl->ColorImage = vtkTextureObject::New();
+    }
+  this->Impl->ColorImage->SetContext(vtkOpenGLRenderWindow::SafeDownCast(
+                                        ren->GetRenderWindow()));
+  this->Impl->ColorImage->SetWrapS(vtkTextureObject::ClampToEdge);
+  this->Impl->ColorImage->SetWrapT(vtkTextureObject::ClampToEdge);
+  this->Impl->ColorImage->SetMinificationFilter(vtkTextureObject::Nearest);
+  this->Impl->ColorImage->SetMagnificationFilter(vtkTextureObject::Nearest);
+  this->Impl->ColorImage->SetBorderColor(0.0f, 0.0f, 0.0f, 0.0f);
+  this->Impl->ColorImage->Create2D(viewsize[0], viewsize[1], 4,
+                                   VTK_FLOAT, false);
+  this->Impl->ColorImage->SetAutoParameters(0);
+
+  this->Impl->FBO->SetContext(vtkOpenGLRenderWindow::SafeDownCast(
+                                ren->GetRenderWindow()));
+
+  this->Impl->FBO->Bind(GL_FRAMEBUFFER);
+  this->Impl->FBO->AddDepthAttachment(GL_DRAW_FRAMEBUFFER,
+                                      this->Impl->DepthImage);
+  this->Impl->FBO->AddColorAttachment(GL_DRAW_FRAMEBUFFER, 0U,
+                                      this->Impl->ColorImage);
+  this->Impl->FBO->ActivateDrawBuffers(1);
+  vtkCheckFrameBufferStatusMacro(GL_FRAMEBUFFER);
 
   // Allocate important variables
   this->Impl->Bias.resize(noOfComponents, 0.0);
@@ -3062,8 +3118,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->FBO->UnBind(GL_FRAMEBUFFER);
 
   vtkTextureIO::Write(
-              "volumeRender.png",
-              this->Impl->ColorImage.GetPointer(), NULL, NULL);
+              "volumeRender.vtk",
+              this->Impl->ColorImage, NULL, NULL);
   glFinish();
 
   vtkOpenGLCheckErrorMacro("failed after Render");
