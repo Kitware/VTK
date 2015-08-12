@@ -243,6 +243,7 @@ void vtkMapper::ShallowCopy(vtkAbstractMapper *mapper)
     this->SetUseLookupTableScalarRange(m->GetUseLookupTableScalarRange());
     this->SetInterpolateScalarsBeforeMapping(
       m->GetInterpolateScalarsBeforeMapping());
+    this->SetFieldDataTupleId(m->GetFieldDataTupleId());
 
     if ( m->GetArrayAccessMode() == VTK_GET_ARRAY_BY_ID )
       {
