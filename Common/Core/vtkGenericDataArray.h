@@ -356,6 +356,7 @@ public:
       }
 
     this->SetValue(nextValueIdx, v);
+    return nextValueIdx;
     }
 
   // Description:
@@ -363,8 +364,13 @@ public:
   void InsertValue(vtkIdType idx, ValueType v)
     {
     vtkIdType tuple = idx / this->NumberOfComponents;
+    // Update MaxId to the inserted component (not the complete tuple) for
+    // compatibility with InsertNextValue.
+    vtkIdType newMaxId = std::max(idx, this->MaxId);
     if (this->EnsureAccessToTuple(tuple))
       {
+      assert("Sufficient space allocated." && this->MaxId >= newMaxId);
+      this->MaxId = newMaxId;
       this->SetValue(idx, v);
       }
     }
@@ -372,12 +378,11 @@ public:
   // Description:
   // Insert (memory allocation performed) the tuple into the ith location
   // in the array.
-  void InsertTupleValue(vtkIdType idx, const ValueType *t)
+  void InsertTupleValue(vtkIdType tupleIdx, const ValueType *t)
     {
-    vtkIdType tuple = idx / this->NumberOfComponents;
-    if (this->EnsureAccessToTuple(tuple))
+    if (this->EnsureAccessToTuple(tupleIdx))
       {
-      this->SetTupleValue(idx, t);
+      this->SetTupleValue(tupleIdx, t);
       }
     }
 
@@ -411,6 +416,7 @@ public:
   // Description:
   // Returns the number of values i.e.
   // (this->NumberOfComponents*this->NumberOfTuples)
+  // TODO this can go in vtkAbstractArray.
   inline vtkIdType GetNumberOfValues()
     {
     return (this->MaxId + 1);
