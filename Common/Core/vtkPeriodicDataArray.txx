@@ -13,6 +13,7 @@
 
 =========================================================================*/
 
+#include "vtkArrayIteratorTemplate.h"
 #include "vtkIdList.h"
 #include "vtkVariant.h"
 
@@ -268,8 +269,10 @@ template <class Scalar> void vtkPeriodicDataArray<Scalar>
 template <class Scalar> vtkArrayIterator*
 vtkPeriodicDataArray<Scalar>::NewIterator()
 {
-  vtkErrorMacro(<< "Not implemented.");
-  return NULL;
+  vtkArrayIteratorTemplate<Scalar>* iter =
+    vtkArrayIteratorTemplate<Scalar>::New();
+  iter->Initialize(this);
+  return iter;
 }
 
 //------------------------------------------------------------------------------
