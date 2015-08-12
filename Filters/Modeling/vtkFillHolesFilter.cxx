@@ -247,6 +247,10 @@ int vtkFillHolesFilter::RequestData(
     output->SetPolys(newCells);
     newCells->Delete();
     }
+  else
+    {
+    output->SetPolys(inPolys);
+    }
   output->SetStrips(input->GetStrips());
 
   Mesh->Delete();
