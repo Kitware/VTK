@@ -46,76 +46,78 @@
 
 #define VTK_PARSER_IMMEDIATE 1
 #define VTK_PARSER_UNARY_MINUS 2
+#define VTK_PARSER_UNARY_PLUS 3
 
 // supported math functions
-#define VTK_PARSER_ADD 3
-#define VTK_PARSER_SUBTRACT 4
-#define VTK_PARSER_MULTIPLY 5
-#define VTK_PARSER_DIVIDE 6
-#define VTK_PARSER_POWER 7
-#define VTK_PARSER_ABSOLUTE_VALUE 8
-#define VTK_PARSER_EXPONENT 9
-#define VTK_PARSER_CEILING 10
-#define VTK_PARSER_FLOOR 11
-#define VTK_PARSER_LOGARITHM 12
-#define VTK_PARSER_LOGARITHME 13
-#define VTK_PARSER_LOGARITHM10 14
-#define VTK_PARSER_SQUARE_ROOT 15
-#define VTK_PARSER_SINE 16
-#define VTK_PARSER_COSINE 17
-#define VTK_PARSER_TANGENT 18
-#define VTK_PARSER_ARCSINE 19
-#define VTK_PARSER_ARCCOSINE 20
-#define VTK_PARSER_ARCTANGENT 21
-#define VTK_PARSER_HYPERBOLIC_SINE 22
-#define VTK_PARSER_HYPERBOLIC_COSINE 23
-#define VTK_PARSER_HYPERBOLIC_TANGENT 24
-#define VTK_PARSER_MIN 25
-#define VTK_PARSER_MAX 26
-#define VTK_PARSER_SIGN 28
+#define VTK_PARSER_ADD 4
+#define VTK_PARSER_SUBTRACT 5
+#define VTK_PARSER_MULTIPLY 6
+#define VTK_PARSER_DIVIDE 7
+#define VTK_PARSER_POWER 8
+#define VTK_PARSER_ABSOLUTE_VALUE 9
+#define VTK_PARSER_EXPONENT 10
+#define VTK_PARSER_CEILING 11
+#define VTK_PARSER_FLOOR 12
+#define VTK_PARSER_LOGARITHM 13
+#define VTK_PARSER_LOGARITHME 14
+#define VTK_PARSER_LOGARITHM10 15
+#define VTK_PARSER_SQUARE_ROOT 16
+#define VTK_PARSER_SINE 17
+#define VTK_PARSER_COSINE 18
+#define VTK_PARSER_TANGENT 19
+#define VTK_PARSER_ARCSINE 20
+#define VTK_PARSER_ARCCOSINE 21
+#define VTK_PARSER_ARCTANGENT 22
+#define VTK_PARSER_HYPERBOLIC_SINE 23
+#define VTK_PARSER_HYPERBOLIC_COSINE 24
+#define VTK_PARSER_HYPERBOLIC_TANGENT 25
+#define VTK_PARSER_MIN 26
+#define VTK_PARSER_MAX 27
+#define VTK_PARSER_SIGN 29
 
 // functions involving vectors
-#define VTK_PARSER_CROSS 27
-#define VTK_PARSER_VECTOR_UNARY_MINUS 29
-#define VTK_PARSER_DOT_PRODUCT 30
-#define VTK_PARSER_VECTOR_ADD 31
-#define VTK_PARSER_VECTOR_SUBTRACT 32
-#define VTK_PARSER_SCALAR_TIMES_VECTOR 33
-#define VTK_PARSER_VECTOR_TIMES_SCALAR 34
-#define VTK_PARSER_VECTOR_OVER_SCALAR 35
-#define VTK_PARSER_MAGNITUDE 36
-#define VTK_PARSER_NORMALIZE 37
+#define VTK_PARSER_CROSS 28
+#define VTK_PARSER_VECTOR_UNARY_MINUS 30
+#define VTK_PARSER_VECTOR_UNARY_PLUS 31
+#define VTK_PARSER_DOT_PRODUCT 32
+#define VTK_PARSER_VECTOR_ADD 33
+#define VTK_PARSER_VECTOR_SUBTRACT 34
+#define VTK_PARSER_SCALAR_TIMES_VECTOR 35
+#define VTK_PARSER_VECTOR_TIMES_SCALAR 36
+#define VTK_PARSER_VECTOR_OVER_SCALAR 37
+#define VTK_PARSER_MAGNITUDE 38
+#define VTK_PARSER_NORMALIZE 39
 
 // constants involving vectors
-#define VTK_PARSER_IHAT 38
-#define VTK_PARSER_JHAT 39
-#define VTK_PARSER_KHAT 40
+#define VTK_PARSER_IHAT 40
+#define VTK_PARSER_JHAT 41
+#define VTK_PARSER_KHAT 42
 
 // code for if(bool, trueval, falseval) resulting in a scalar
-#define VTK_PARSER_IF 41
+#define VTK_PARSER_IF 43
 
 // code for if(bool, truevec, falsevec) resulting in a vector
-#define VTK_PARSER_VECTOR_IF 42
+#define VTK_PARSER_VECTOR_IF 44
 
 // codes for boolean expressions
-#define VTK_PARSER_LESS_THAN 43
+#define VTK_PARSER_LESS_THAN 45
 
 // codes for boolean expressions
-#define VTK_PARSER_GREATER_THAN 44
+#define VTK_PARSER_GREATER_THAN 46
 
 // codes for boolean expressions
-#define VTK_PARSER_EQUAL_TO 45
+#define VTK_PARSER_EQUAL_TO 47
 
 // codes for boolean expressions
-#define VTK_PARSER_AND 46
+#define VTK_PARSER_AND 48
 
 // codes for boolean expressions
-#define VTK_PARSER_OR 47
+#define VTK_PARSER_OR 49
 
 // codes for scalar variables come before those for vectors. Do not define
 // values for VTK_PARSER_BEGIN_VARIABLES+1, VTK_PARSER_BEGIN_VARIABLES+2, ...,
 // because they are used to look up variables numbered 1, 2, ...
-#define VTK_PARSER_BEGIN_VARIABLES 48
+#define VTK_PARSER_BEGIN_VARIABLES 50
 
 // the value that is retuned as a result if there is an error
 #define VTK_PARSER_ERROR_RESULT VTK_FLOAT_MAX
