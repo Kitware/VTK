@@ -48,7 +48,7 @@
 // it automatically registers its picker(s) and start being managed by
 // delegating all its pick calls to the picking manager.
 // It is possible to customize with the management in two ways:
-// * at the widget level, the “ManagesPicking” variable can be changed
+// * at the widget level, the "ManagesPicking" variable can be changed
 // from the widget/representation class to tell
 // whether to use the manager or not.
 // * Directly disable the picking manager itself  with the boolean variable

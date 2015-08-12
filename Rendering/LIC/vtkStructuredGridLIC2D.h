@@ -24,8 +24,8 @@
 // texture are supported, giving a power-of-two image may result in faster
 // execution on the GPU.
 //
-// Please refer to Forssell, L. K., “Visualizing flow over curvilinear grid
-// surfaces using line integral convolution”, Visualization 94 Conference
+// Please refer to Forssell, L. K., "Visualizing flow over curvilinear grid
+// surfaces using line integral convolution", Visualization 94 Conference
 // Proceedings, pages 240-247, IEEE Computer Society, 1994 for details of the
 // algorithm.
 //
