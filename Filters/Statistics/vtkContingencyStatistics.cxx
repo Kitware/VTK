@@ -53,21 +53,23 @@ class BivariateContingenciesAndInformationFunctor : public vtkStatisticsAlgorith
   typedef typename std::conditional<
             std::is_same<long,TypeSpec>::value, vtkLongArray, vtkType1>::type vtkType;
 
-  typedef std::map<TypeSpec,double> PDF;
+  typedef std::vector<TypeSpec> Tuple;
+
+  typedef std::map<Tuple,double> PDF;
 public:
   vtkDataArray* DataX;
   vtkDataArray* DataY;
-  std::map<TypeSpec,PDF> PdfX_Y;
-  std::map<TypeSpec,PDF> PdfYcX;
-  std::map<TypeSpec,PDF> PdfXcY;
-  std::map<TypeSpec,PDF> PmiX_Y;
+  std::map<Tuple,PDF> PdfX_Y;
+  std::map<Tuple,PDF> PdfYcX;
+  std::map<Tuple,PDF> PdfXcY;
+  std::map<Tuple,PDF> PmiX_Y;
 
   BivariateContingenciesAndInformationFunctor( vtkAbstractArray* valsX,
                                                vtkAbstractArray* valsY,
-                                               std::map<TypeSpec,PDF> pdfX_Y,
-                                               std::map<TypeSpec,PDF> pdfYcX,
-                                               std::map<TypeSpec,PDF> pdfXcY,
-                                               std::map<TypeSpec,PDF> pmiX_Y )
+                                               std::map<Tuple,PDF> pdfX_Y,
+                                               std::map<Tuple,PDF> pdfYcX,
+                                               std::map<Tuple,PDF> pdfXcY,
+                                               std::map<Tuple,PDF> pmiX_Y )
   {
     this->DataX = vtkDataArray::SafeDownCast (valsX);
     this->DataY = vtkDataArray::SafeDownCast (valsY);
@@ -80,8 +82,17 @@ public:
   virtual void operator() ( vtkDoubleArray* result,
                             vtkIdType id )
   {
-    TypeSpec x = static_cast<TypeSpec> (this->DataX->GetTuple1( id ));
-    TypeSpec y = static_cast<TypeSpec> (this->DataY->GetTuple1( id ));
+    Tuple x (this->DataX->GetNumberOfComponents ());
+    Tuple y (this->DataX->GetNumberOfComponents ());
+
+    for (int c = 0; c < this->DataX->GetNumberOfComponents (); c ++)
+      {
+      x[c] = this->DataX->GetComponent (id, c);
+      }
+    for (int c = 0; c < this->DataY->GetNumberOfComponents (); c ++)
+      {
+      y[c] = this->DataY->GetComponent (id, c);
+      }
 
     result->SetNumberOfValues( 4 );
     result->SetValue( 0, this->PdfX_Y[x][y] );
@@ -136,7 +147,7 @@ public:
 
 // Count is separated from the class so that it can be properly specialized
 template<typename TypeSpec>
-void Count (std::map<TypeSpec, std::map<TypeSpec,vtkIdType> >& table,
+void Count (std::map<std::vector<TypeSpec>, std::map<std::vector<TypeSpec>,vtkIdType> >& table,
                    vtkAbstractArray* valsX, vtkAbstractArray* valsY)
 {
   vtkDataArray* dataX = vtkDataArray::SafeDownCast (valsX);
@@ -146,15 +157,24 @@ void Count (std::map<TypeSpec, std::map<TypeSpec,vtkIdType> >& table,
   vtkIdType nRow = dataX->GetNumberOfTuples ();
   for ( vtkIdType r = 0; r < nRow; ++ r )
     {
-    ++ table
-      [static_cast<TypeSpec>(dataX->GetTuple1( r ))]
-      [static_cast<TypeSpec>(dataY->GetTuple1( r ))];
+    std::vector<TypeSpec> x (dataX->GetNumberOfComponents ());
+    std::vector<TypeSpec> y (dataX->GetNumberOfComponents ());
+
+    for (int c = 0; c < dataX->GetNumberOfComponents (); c ++)
+      {
+      x[c] = dataX->GetComponent (r, c);
+      }
+    for (int c = 0; c < dataY->GetNumberOfComponents (); c ++)
+      {
+      y[c] = dataY->GetComponent (r, c);
+      }
+
+    ++ table[x][y];
     }
 }
 
-template<>
-void Count<vtkStdString> (std::map<vtkStdString, std::map<vtkStdString,vtkIdType> >& table,
-                                 vtkAbstractArray* valsX, vtkAbstractArray* valsY)
+void Count (std::map<vtkStdString, std::map<vtkStdString,vtkIdType> >& table,
+            vtkAbstractArray* valsX, vtkAbstractArray* valsY)
 {
   vtkIdType nRow = valsX->GetNumberOfTuples ();
   for ( vtkIdType r = 0; r < nRow; ++ r )
@@ -170,16 +190,14 @@ template<typename TypeSpec>
 class ContingencyImpl
 {
   typedef typename std::conditional<
-            std::is_same<double,TypeSpec>::value, vtkDoubleArray, vtkStringArray>::type vtkType1;
-  typedef typename std::conditional<
-            std::is_same<long,TypeSpec>::value, vtkLongArray, vtkType1>::type vtkType;
+            std::is_same<double,TypeSpec>::value, vtkDoubleArray, vtkLongArray>::type vtkType;
 
   typedef std::vector<TypeSpec> Tuple;
 
-  typedef std::map<TypeSpec,vtkIdType> Counts;
-  typedef std::map<TypeSpec,Counts> Table;
+  typedef std::map<Tuple,vtkIdType> Counts;
+  typedef std::map<Tuple,Counts> Table;
 
-  typedef std::map<TypeSpec,double> PDF;
+  typedef std::map<Tuple,double> PDF;
 public:
   ContingencyImpl ()
   {
@@ -195,6 +213,416 @@ public:
     // Calculate contingency table
     Table table;
     Count<TypeSpec> (table, valsX, valsY);
+
+    vtkDataArray *dataX = vtkDataArray::SafeDownCast (contingencyTab->GetColumn (1));
+    vtkDataArray *dataY = vtkDataArray::SafeDownCast (contingencyTab->GetColumn (2));
+
+    // Store contingency table
+    int row = contingencyTab->GetNumberOfRows ();
+    for ( typename Table::iterator mit = table.begin(); mit != table.end(); ++ mit )
+      {
+      for ( typename Counts::iterator dit = mit->second.begin(); dit != mit->second.end(); ++ dit )
+        {
+        contingencyTab->InsertNextBlankRow( );
+
+        contingencyTab->SetValue ( row, 0, refRow );
+
+        for (int c = 0; c < dataX->GetNumberOfComponents (); c ++)
+          {
+          dataX->SetComponent (row, c, mit->first[c]);
+          }
+
+        for (int c = 0; c < dataY->GetNumberOfComponents (); c ++)
+          {
+          dataY->SetComponent (row, c, dit->first[c]);
+          }
+
+        contingencyTab->SetValue ( row, 3, dit->second );
+        row ++;
+        }
+      }
+  }
+
+  // ----------------------------------------------------------------------
+  void ComputeMarginals (vtkIdTypeArray* keys,
+                         vtkStringArray* varX, vtkStringArray* varY,
+                         vtkAbstractArray* valsX, vtkAbstractArray* valsY,
+                         vtkIdTypeArray* card,
+                         vtkTable* contingencyTab)
+  {
+    vtkType* dataX = vtkType::SafeDownCast (valsX);
+    vtkType* dataY = vtkType::SafeDownCast (valsY);
+
+    if (dataX == 0 || dataY == 0)
+      return;
+
+    int nRowSumm = varX->GetNumberOfTuples ();
+    if (nRowSumm != varY->GetNumberOfTuples ())
+      return;
+
+    // Temporary counters, used to check that all pairs of variables have indeed the same number of observations
+    std::map<vtkIdType,vtkIdType> cardinalities;
+
+    // Calculate marginal counts (marginal PDFs are calculated at storage time to avoid redundant summations)
+    std::map<vtkStdString,std::pair<vtkStdString,vtkStdString> > marginalToPair;
+
+    marginalCounts.clear ();
+
+    vtkIdType nRowCont = contingencyTab->GetNumberOfRows();
+    for ( int r = 1; r < nRowCont; ++ r ) // Skip first row which contains data set cardinality
+      {
+      // Find the pair of variables to which the key corresponds
+      vtkIdType key = keys->GetValue( r );
+
+      if ( key < 0 || key >= nRowSumm )
+        {
+        cerr << "Inconsistent input: dictionary does not have a row "
+                      <<  key
+                      <<". Cannot derive model."
+                      << endl;
+        return;
+        }
+
+      vtkStdString c1 = varX->GetValue( key );
+      vtkStdString c2 = varY->GetValue( key );
+
+      if ( marginalToPair.find( c1 ) == marginalToPair.end() )
+        {
+        // c1 has not yet been used as a key... add it with (c1,c2) as the corresponding pair
+        marginalToPair[c1].first = c1;
+        marginalToPair[c1].second = c2;
+        }
+
+      if ( marginalToPair.find( c2 ) == marginalToPair.end() )
+        {
+        // c2 has not yet been used as a key... add it with (c1,c2) as the corresponding pair
+        marginalToPair[c2].first = c1;
+        marginalToPair[c2].second = c2;
+        }
+
+      Tuple x (dataX->GetNumberOfComponents ());
+      Tuple y (dataY->GetNumberOfComponents ());
+
+      for (int c = 0; c < dataX->GetNumberOfComponents (); c ++)
+        {
+        x[c] = dataX->GetComponent (r, c);
+        }
+      for (int c = 0; c < dataY->GetNumberOfComponents (); c ++)
+        {
+        y[c] = dataY->GetComponent (r, c);
+        }
+
+      vtkIdType c = card->GetValue( r );
+      cardinalities[key] += c;
+
+      if ( marginalToPair[c1].first == c1 && marginalToPair[c1].second == c2  )
+        {
+        marginalCounts[c1][x] += c;
+        }
+
+      if ( marginalToPair[c2].first == c1 && marginalToPair[c2].second == c2  )
+        {
+        marginalCounts[c2][y] += c;
+        }
+      }
+
+    // Data set cardinality: unknown yet, pick the cardinality of the first pair and make sure all other pairs
+    // have the same cardinality.
+    vtkIdType n = cardinalities[0];
+    for ( std::map<vtkIdType,vtkIdType>::iterator iit = cardinalities.begin();
+          iit != cardinalities.end(); ++ iit )
+      {
+      if ( iit->second != n )
+        {
+        cerr << "Inconsistent input: variable pairs do not have equal cardinalities: "
+                      << iit->first
+                      << " != "
+                      << n
+                      <<". Cannot derive model." << endl;
+        return;
+        }
+      }
+
+    // We have a unique value for the cardinality and can henceforth proceed
+    contingencyTab->SetValueByName( 0, "Cardinality", n );
+  }
+
+  // ----------------------------------------------------------------------
+  void ComputePDFs (vtkMultiBlockDataSet* inMeta, vtkTable* contingencyTab)
+  {
+    // Resize output meta so marginal PDF tables can be appended
+    unsigned int nBlocks = inMeta->GetNumberOfBlocks();
+    inMeta->SetNumberOfBlocks( nBlocks + static_cast<unsigned int>( marginalCounts.size() ) );
+
+    // Rows of the marginal PDF tables contain:
+    // 0: variable value
+    // 1: marginal cardinality
+    // 2: marginal probability
+    vtkVariantArray* row = vtkVariantArray::New();
+    row->SetNumberOfValues( 3 );
+    vtkType* array = vtkType::New ();
+
+    // Add marginal PDF tables as new blocks to the meta output starting at block nBlock
+    // NB: block nBlock is kept for information entropy
+    double n = contingencyTab->GetValueByName( 0, "Cardinality" ).ToDouble ();
+    double inv_n = 1. / n;
+
+    marginalPDFs.clear ();
+
+    for ( typename std::map<vtkStdString,Counts>::iterator sit = marginalCounts.begin();
+          sit != marginalCounts.end(); ++ sit, ++ nBlocks )
+      {
+      vtkTable* marginalTab = vtkTable::New();
+
+      vtkStringArray* stringCol = vtkStringArray::New();
+      stringCol->SetName( sit->first.c_str() );
+      marginalTab->AddColumn( stringCol );
+      stringCol->Delete();
+
+      vtkIdTypeArray* idTypeCol = vtkIdTypeArray::New();
+      idTypeCol->SetName( "Cardinality" );
+      marginalTab->AddColumn( idTypeCol );
+      idTypeCol->Delete();
+
+      vtkDoubleArray* doubleCol = vtkDoubleArray::New();
+      doubleCol->SetName( "P" );
+      marginalTab->AddColumn( doubleCol );
+      doubleCol->Delete();
+
+      double p;
+      for ( typename Counts::iterator xit = sit->second.begin();
+            xit != sit->second.end(); ++ xit )
+        {
+        // Calculate and retain marginal PDF
+        p = inv_n * xit->second;
+        marginalPDFs[sit->first][xit->first] = p;
+
+        array->SetNumberOfValues (xit->first.size ());
+        for (int i = 0; i < xit->first.size (); i ++)
+          {
+          array->SetValue (i, xit->first[i]);
+          }
+
+        // Insert marginal cardinalities and probabilities
+        row->SetValue( 0, array );         // variable value
+        row->SetValue( 1, xit->second );   // marginal cardinality
+        row->SetValue( 2, p );             // marginal probability
+        marginalTab->InsertNextRow( row );
+        }
+
+
+      // Add marginal PDF block
+      inMeta->GetMetaData( nBlocks )->Set( vtkCompositeDataSet::NAME(), sit->first.c_str() );
+      inMeta->SetBlock( nBlocks, marginalTab );
+
+      // Clean up
+      marginalTab->Delete();
+      }
+
+    array->Delete ();
+    row->Delete();
+  }
+
+  // ----------------------------------------------------------------------
+  void ComputeDerivedValues (vtkIdTypeArray* keys,
+                             vtkStringArray* varX, vtkStringArray* varY,
+                             vtkAbstractArray* valsX, vtkAbstractArray* valsY,
+                             vtkIdTypeArray* card,
+                             vtkTable* contingencyTab,
+                             vtkDoubleArray** derivedCols, int nDerivedVals,
+                             Entropies* H, int nEntropy)
+  {
+    vtkType* dataX = vtkType::SafeDownCast (valsX);
+    vtkType* dataY = vtkType::SafeDownCast (valsY);
+
+    if (dataX == 0 || dataY == 0)
+      return;
+
+    double n = contingencyTab->GetValueByName( 0, "Cardinality" ).ToDouble ();
+    double inv_n = 1. / n;
+
+    // Container for derived values
+    double* derivedVals = new double[nDerivedVals];
+
+    // Calculate joint and conditional PDFs, and information entropies
+    vtkIdType nRowCount = contingencyTab->GetNumberOfRows();
+    for ( int r = 1; r < nRowCount; ++ r ) // Skip first row which contains data set cardinality
+      {
+      // Find the pair of variables to which the key corresponds
+      vtkIdType key = keys->GetValue( r );
+
+      // Get values
+      vtkStdString c1 = varX->GetValue( key );
+      vtkStdString c2 = varY->GetValue( key );
+
+      // Get primary statistics for (c1,c2) pair
+      Tuple x (dataX->GetNumberOfComponents ());
+      Tuple y (dataX->GetNumberOfComponents ());
+
+      for (int c = 0; c < dataX->GetNumberOfComponents (); c ++)
+        {
+        x[c] = dataX->GetComponent (r, c);
+        }
+      for (int c = 0; c < dataY->GetNumberOfComponents (); c ++)
+        {
+        y[c] = dataY->GetComponent (r, c);
+        }
+
+
+      vtkIdType c = card->GetValue( r );
+
+      // Get marginal PDF values and their product
+      double p1 = marginalPDFs[c1][x];
+      double p2 = marginalPDFs[c2][y];
+
+      // Calculate P(c1,c2)
+      derivedVals[0] = inv_n * c;
+
+      // Calculate P(c2|c1)
+      derivedVals[1] = derivedVals[0] / p1;
+
+      // Calculate P(c1|c2)
+      derivedVals[2] = derivedVals[0] / p2;
+
+      // Store P(c1,c2), P(c2|c1), P(c1|c2) and use them to update H(X,Y), H(Y|X), H(X|Y)
+      for ( int j = 0; j < nEntropy; ++ j )
+        {
+        // Store probabilities
+        derivedCols[j]->SetValue( r, derivedVals[j] );
+
+        // Update information entropies
+        H[j][key] -= derivedVals[0] * log( derivedVals[j] );
+        }
+
+      // Calculate and store PMI(c1,c2)
+      derivedVals[3] = log( derivedVals[0] / ( p1 * p2 ) );
+      derivedCols[3]->SetValue( r, derivedVals[3] );
+      }
+
+    delete [] derivedVals;
+  }
+
+  // ----------------------------------------------------------------------
+  static double SelectAssessFunctor(vtkTable* contingencyTab,
+                                    vtkIdType pairKey,
+                                    vtkAbstractArray* valsX,
+                                    vtkAbstractArray* valsY,
+                                    vtkStatisticsAlgorithm::AssessFunctor*& dfunc )
+  {
+    // Downcast columns to appropriate arrays for efficient data access
+    vtkIdTypeArray* keys = vtkIdTypeArray::SafeDownCast( contingencyTab->GetColumnByName( "Key" ) );
+    vtkType* dataX = vtkType::SafeDownCast( contingencyTab->GetColumnByName( "x" ) );
+    vtkType* dataY = vtkType::SafeDownCast( contingencyTab->GetColumnByName( "y" ) );
+
+    vtkDoubleArray* pX_Y = vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( "P" ) );
+    vtkDoubleArray* pYcX = vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( "Py|x" ) );
+    vtkDoubleArray* pXcY = vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( "Px|y" ) );
+    vtkDoubleArray* pmis = vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( "PMI" ) );
+
+    // Verify that assess parameters have been properly obtained
+    if ( ! pX_Y || ! pYcX || ! pXcY || ! pmis )
+      {
+        vtkErrorWithObjectMacro(contingencyTab, "Missing derived values");
+        return 0;
+      }
+    // Create parameter maps
+    std::map<Tuple,PDF> pdfX_Y;
+    std::map<Tuple,PDF> pdfYcX;
+    std::map<Tuple,PDF> pdfXcY;
+    std::map<Tuple,PDF> pmiX_Y;
+
+    // Sanity check: joint CDF
+    double cdf = 0.;
+
+    // Loop over parameters table until the requested variables are found
+    vtkIdType nRowCont = contingencyTab->GetNumberOfRows();
+    for ( int r = 1; r < nRowCont; ++ r ) // Skip first row which contains data set cardinality
+      {
+      // Find the pair of variables to which the key corresponds
+      vtkIdType key = keys->GetValue( r );
+
+      if ( key != pairKey )
+        {
+        continue;
+        }
+
+      Tuple x (dataX->GetNumberOfComponents ());
+      Tuple y (dataX->GetNumberOfComponents ());
+      for (int c = 0; c < dataX->GetNumberOfComponents (); c ++)
+        {
+        x[c] = dataX->GetComponent (r, c);
+        }
+      for (int c = 0; c < dataY->GetNumberOfComponents (); c ++)
+        {
+        y[c] = dataY->GetComponent (r, c);
+        }
+
+
+      // Fill parameter maps
+      // PDF(X,Y)
+      double v = pX_Y->GetValue( r );
+      pdfX_Y[x][y] = v;
+
+      // Sanity check: update CDF
+      cdf += v;
+
+      // PDF(Y|X)
+      v = pYcX->GetValue( r );
+      pdfYcX[x][y] = v;
+
+      // PDF(X|Y)
+      v = pXcY->GetValue( r );
+      pdfXcY[x][y] = v;
+
+      // PMI(X,Y)
+      v = pmis->GetValue( r );
+      pmiX_Y[x][y] = v;
+      } // for ( int r = 1; r < nRowCont; ++ r )
+
+    // Sanity check: verify that CDF = 1
+    if ( fabs( cdf - 1. ) <= 1.e-6 )
+      {
+      dfunc = new BivariateContingenciesAndInformationFunctor<TypeSpec>( valsX,
+                                                                         valsY,
+                                                                         pdfX_Y,
+                                                                         pdfYcX,
+                                                                         pdfXcY,
+                                                                         pmiX_Y );
+      }
+    return cdf;
+  }
+private:
+  std::map<vtkStdString,Counts> marginalCounts;
+  std::map<vtkStdString,PDF> marginalPDFs;
+};
+
+template<>
+class ContingencyImpl<vtkStdString>
+{
+  typedef vtkStringArray vtkType;
+
+  typedef vtkStdString TypeSpec;
+  typedef TypeSpec Tuple;
+
+  typedef std::map<Tuple,vtkIdType> Counts;
+  typedef std::map<Tuple,Counts> Table;
+
+  typedef std::map<Tuple,double> PDF;
+public:
+  ContingencyImpl ()
+  {
+  }
+  ~ContingencyImpl ()
+  {
+  }
+
+  // ----------------------------------------------------------------------
+  static void CalculateContingencyRow (vtkAbstractArray* valsX, vtkAbstractArray* valsY,
+                                       vtkTable* contingencyTab, vtkIdType refRow)
+  {
+    // Calculate contingency table
+    Table table;
+    Count (table, valsX, valsY);
 
     // Store contingency table
     int row = contingencyTab->GetNumberOfRows ();
@@ -270,8 +698,8 @@ public:
         marginalToPair[c2].second = c2;
         }
 
-      TypeSpec x = dataX->GetValue( r );
-      TypeSpec y = dataY->GetValue( r );
+      Tuple x = dataX->GetValue (r);
+      Tuple y = dataY->GetValue (r);
       vtkIdType c = card->GetValue( r );
       cardinalities[key] += c;
 
@@ -407,8 +835,8 @@ public:
       vtkStdString c2 = varY->GetValue( key );
 
       // Get primary statistics for (c1,c2) pair
-      TypeSpec x = dataX->GetValue( r );
-      TypeSpec y = dataY->GetValue( r );
+      Tuple x = dataX->GetValue( r );
+      Tuple y = dataY->GetValue( r );
       vtkIdType c = card->GetValue( r );
 
       // Get marginal PDF values and their product
@@ -466,10 +894,10 @@ public:
         return 0;
       }
     // Create parameter maps
-    std::map<TypeSpec,PDF> pdfX_Y;
-    std::map<TypeSpec,PDF> pdfYcX;
-    std::map<TypeSpec,PDF> pdfXcY;
-    std::map<TypeSpec,PDF> pmiX_Y;
+    std::map<Tuple,PDF> pdfX_Y;
+    std::map<Tuple,PDF> pdfYcX;
+    std::map<Tuple,PDF> pdfXcY;
+    std::map<Tuple,PDF> pmiX_Y;
 
     // Sanity check: joint CDF
     double cdf = 0.;
@@ -486,8 +914,8 @@ public:
         continue;
         }
 
-      TypeSpec x = dataX->GetValue( r );
-      TypeSpec y = dataY->GetValue( r );
+      Tuple x = dataX->GetValue (r);
+      Tuple y = dataY->GetValue (r);
 
       // Fill parameter maps
       // PDF(X,Y)
