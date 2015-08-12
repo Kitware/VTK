@@ -27,40 +27,33 @@
 //
 // </verbatim>
 
-
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkProperty.h"
-#include "vtkPointGaussianMapper.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkSphereSource.h"
+#include "vtkColorTransferFunction.h"
 #include "vtkDataObject.h"
 #include "vtkDataSetAttributes.h"
-#include "vtkRandomAttributeGenerator.h"
 #include "vtkNew.h"
-#include "vtkTimerLog.h"
-
+#include "vtkPiecewiseFunction.h"
+#include "vtkPointGaussianMapper.h"
 #include "vtkPointSource.h"
-#include "vtkColorTransferFunction.h"
+#include "vtkProperty.h"
+#include "vtkRandomAttributeGenerator.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkSphereSource.h"
+#include "vtkTimerLog.h"
 
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 
-#include "vtkPolyDataReader.h"
-
-//#define TestPoints
-//#define TestFile
-#define TestSplats
-
-int TestPointGaussianMapper(int argc, char *argv[])
+int TestPointGaussianMapperOpacity(int argc, char *argv[])
 {
   int desiredPoints = 1.0e4;
 
   vtkNew<vtkPointSource> points;
   points->SetNumberOfPoints(desiredPoints);
-  points->SetRadius(pow(desiredPoints,0.33)*20.0);
+  points->SetRadius(pow(desiredPoints,0.33)*10.0);
   points->Update();
 
   vtkNew<vtkRandomAttributeGenerator> randomAttr;
@@ -81,37 +74,10 @@ int TestPointGaussianMapper(int argc, char *argv[])
   actor->SetMapper(mapper.Get());
   renderer->AddActor(actor.Get());
 
-#ifdef TestPoints
-  randomAttr->SetDataTypeToUnsignedChar();
-  randomAttr->GeneratePointVectorsOn();
-  randomAttr->SetMinimumComponentValue(0);
-  randomAttr->SetMaximumComponentValue(255);
-  randomAttr->Update();
-  mapper->SetInputConnection(randomAttr->GetOutputPort());
-  mapper->SelectColorArray("RandomPointVectors");
-  mapper->SetScalarModeToUsePointFieldData();
-  mapper->SetDefaultRadius(0.0);
-  mapper->EmissiveOff();
-#endif
-
-#ifdef TestFile
-  vtkNew<vtkPolyDataReader> reader;
-  reader->SetFileName("filename");
-  reader->Update();
-
-  mapper->SetInputConnection(reader->GetOutputPort());
-  mapper->SelectColorArray("Color");
-  mapper->SetScalarModeToUsePointFieldData();
-  mapper->SetDefaultRadius(0.0);
-  mapper->EmissiveOff();
-
-  //actor->GetProperty()->SetPointSize(3.0);
-#endif
-
-#ifdef TestSplats
   randomAttr->SetDataTypeToFloat();
   randomAttr->GeneratePointScalarsOn();
   randomAttr->GeneratePointVectorsOn();
+  randomAttr->GeneratePointArrayOn();
   randomAttr->Update();
 
   mapper->SetInputConnection(randomAttr->GetOutputPort());
@@ -120,13 +86,40 @@ int TestPointGaussianMapper(int argc, char *argv[])
   mapper->SelectColorArray("RandomPointVectors");
   mapper->SetInterpolateScalarsBeforeMapping(0);
   mapper->SetScaleArray("RandomPointScalars");
+  mapper->SetOpacityArray("RandomPointArray");
+  mapper->EmissiveOff();
+
+  // show other shader examples
+  // the fragment that is rendered is that of a triangle
+  // large enough to encompass a circle of radius 3
+  mapper->SetSplatShaderCode(
+    // this first line keeps the default color opacity calcs
+    // which you can then modify with additional code below
+    "//VTK::Color::Impl\n"
+
+    // example of a circle with black edges
+    // "  float dist = sqrt(dot(offsetVCVSOutput.xy,offsetVCVSOutput.xy));\n"
+    // "  if (dist > 1.1) { discard; }\n"
+    // "  if (dist < 0.5) { discard; }\n"
+    // // apply a black edge around the circle
+    // "  if (dist > 1.0 || dist < 0.6) { diffuseColor = vec3(0,0,0); ambientColor = vec3(0,0,0); }\n"
+
+    // example for a square
+    "  if (abs(offsetVCVSOutput.x) > 1.0 || abs(offsetVCVSOutput.y) > 1.0) { discard; }\n"
+    "  if (abs(offsetVCVSOutput.x) < 0.6 && abs(offsetVCVSOutput.y) < 0.6) { discard; }\n"
+    );
 
   vtkNew<vtkColorTransferFunction> ctf;
-  ctf->AddHSVPoint(0.0,0.1,1.0,0.8);
-  ctf->AddHSVPoint(1.0,0.2,0.5,1.0);
-  ctf->SetColorSpaceToRGB();
+  ctf->AddHSVPoint(0.0,0.1,0.7,1.0);
+  ctf->AddHSVPoint(1.0,0.9,0.7,1.0);
+  ctf->SetColorSpaceToHSV();
+  ctf->HSVWrapOff();
   mapper->SetLookupTable(ctf.Get());
-#endif
+
+  vtkNew<vtkPiecewiseFunction> otf;
+  otf->AddPoint(0.0,0.3);
+  otf->AddPoint(1.0,1.0);
+  mapper->SetScalarOpacityFunction(otf.Get());
 
   vtkNew<vtkTimerLog> timer;
   timer->StartTimer();

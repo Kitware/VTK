@@ -23,6 +23,8 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkPolyDataMapper.h"
 
+class vtkPiecewiseFunction;
+
 class VTKRENDERINGCORE_EXPORT vtkPointGaussianMapper : public vtkPolyDataMapper
 {
 public:
@@ -31,17 +33,31 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Set/Get the optional scale transfer function. This is only
+  // used when a ScaleArray is also specified.
+  void SetScaleFunction(vtkPiecewiseFunction *);
+  vtkGetObjectMacro(ScaleFunction,vtkPiecewiseFunction);
+
+  // Description:
+  // The size of the table used in computing scale, used when
+  // converting a vtkPiecewiseFunction to a table
+  vtkSetMacro(ScaleTableSize, int);
+  vtkGetMacro(ScaleTableSize, int);
+
+  // Description:
   // Convenience method to set the array to scale with.
   vtkSetStringMacro(ScaleArray);
   vtkGetStringMacro(ScaleArray);
 
   // Description:
-  // Set the default radius of the point gaussians.  This is used if the
-  // array to scale with has not been set or is set to NULL. If there
-  // is no scale array and the default radius is set to zero then
-  // the splats wil be rendered as simple points requiring less memory.
-  vtkSetMacro(DefaultRadius,double);
-  vtkGetMacro(DefaultRadius,double);
+  // Set the default scale factor of the point gaussians.  This
+  // defaults to 1.0. All radius computations will be scaled by the factor
+  // including the ScaleArray. If a vtkPiecewideFunction is used the
+  // scaling happens prior to the function lookup.
+  // A scale factor of 0.0 indicates that the splats should be rendered
+  // as simple points.
+  vtkSetMacro(ScaleFactor,double);
+  vtkGetMacro(ScaleFactor,double);
 
   // Description:
   // Treat the points/splats as emissive light sources. The default is true.
@@ -49,12 +65,50 @@ public:
   vtkGetMacro(Emissive, int);
   vtkBooleanMacro(Emissive, int);
 
+  // Description:
+  // Set/Get the optional opacity transfer function. This is only
+  // used when an OpacityArray is also specified.
+  void SetScalarOpacityFunction(vtkPiecewiseFunction *);
+  vtkGetObjectMacro(ScalarOpacityFunction,vtkPiecewiseFunction);
+
+  // Description:
+  // The size of the table used in computing opacities, used when
+  // converting a vtkPiecewiseFunction to a table
+  vtkSetMacro(OpacityTableSize, int);
+  vtkGetMacro(OpacityTableSize, int);
+
+  // Description:
+  // Method to set the optional opacity array.  If specified this
+  // array will be used to generate the opacity values.
+  vtkSetStringMacro(OpacityArray);
+  vtkGetStringMacro(OpacityArray);
+
+  // Description:
+  // Method to override the fragment shader code for the splat.  You can
+  // set this to draw other shapes. For the OPenGL2 backend some of
+  // the variables you can use and/or modify include,
+  //   opacity - 0.0 to 1.0
+  //   diffuseColor - vec3
+  //   ambientColor - vec3
+  //   offsetVCVSOutput - vec2 offset in view coordinates from the splat center
+  vtkSetStringMacro(SplatShaderCode);
+  vtkGetStringMacro(SplatShaderCode);
+
 protected:
   vtkPointGaussianMapper();
   ~vtkPointGaussianMapper();
 
   char *ScaleArray;
-  double DefaultRadius;
+  char *OpacityArray;
+  char *SplatShaderCode;
+
+  vtkPiecewiseFunction *ScaleFunction;
+  int ScaleTableSize;
+
+  vtkPiecewiseFunction *ScalarOpacityFunction;
+  int OpacityTableSize;
+
+  double ScaleFactor;
   int Emissive;
 
 private:
