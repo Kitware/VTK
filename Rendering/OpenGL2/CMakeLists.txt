@@ -262,16 +262,6 @@ elseif(VTK_USE_COCOA)
                                 PROPERTIES COMPILE_FLAGS "${VTK_REQUIRED_OBJCXX_FLAGS}")
   endif()
   set_source_files_properties(vtkCocoaGLView WRAP_EXCLUDE)
-elseif(VTK_USE_CARBON)
-  # Add some custom overrides
-  list(APPEND vtk_module_overrides "vtkRenderWindowInteractor")
-  set(vtk_module_vtkRenderWindowInteractor_override "vtkCarbonRenderWindowInteractor")
-  list(APPEND vtk_module_overrides "vtkRenderWindow")
-  set(vtk_module_vtkRenderWindow_override "vtkCarbonRenderWindow")
-  list(APPEND Module_SRCS
-    vtkCarbonRenderWindowInteractor.cxx
-    vtkCarbonRenderWindow.cxx
-    )
 elseif(ANDROID)
   # Add some custom overrides
   list(APPEND vtk_module_overrides "vtkRenderWindowInteractor")
@@ -333,8 +323,6 @@ elseif(VTK_USE_OSMESA)
   vtk_module_link_libraries(${vtk-module} LINK_PUBLIC ${OSMESA_LIBRARY})
 elseif(VTK_USE_COCOA)
   vtk_module_link_libraries(${vtk-module} LINK_PUBLIC "-framework Cocoa")
-elseif(VTK_USE_CARBON)
-  vtk_module_link_libraries(${vtk-module} LINK_PUBLIC "-framework Carbon")
 endif()
 
 if(ANDROID)

@@ -45,7 +45,7 @@ vtkChooserPainter::vtkChooserPainter()
   this->StripPainter = NULL;
   this->LastRenderer = NULL;
   this->UseLinesPainterForWireframes = 0;
-#if defined(__APPLE__) && (defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA))
+#if defined(__APPLE__) && defined(VTK_USE_COCOA)
   /*
    * On some Macs, glPolygonMode(*,GL_LINE) does not render anything
    * for polys. To fix this, we use the GL_LINE_LOOP to render the polygons.

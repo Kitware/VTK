@@ -237,7 +237,7 @@ void vtkStandardPolyDataPainter::RenderInternal(vtkRenderer* renderer,
   startCell += pd->GetNumberOfLines();
   if (typeflags & vtkPainter::POLYS)
     {
-#if defined(__APPLE__) && (defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA))
+#if defined(__APPLE__) && defined(VTK_USE_COCOA)
     if (property->GetRepresentation() == VTK_WIREFRAME)
       {
       this->DrawCells(VTK_TETRA, pd->GetPolys(), startCell,

@@ -16,7 +16,7 @@ PURPOSE.  See the above copyright notice for more information.
 //
 // .SECTION Description
 // vtkIOSRenderWindow is a concrete implementation of the abstract
-// class vtkOpenGLRenderWindow. It is only available on Mac OS X 10.5
+// class vtkOpenGLRenderWindow. It is only available on Mac OS X 10.6
 // and later.
 // To use this class, build VTK with VTK_USE_IOS turned ON (this is
 // the default).

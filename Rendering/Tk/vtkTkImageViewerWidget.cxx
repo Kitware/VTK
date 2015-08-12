@@ -20,13 +20,9 @@
 #ifdef _MSC_VER
  #pragma warning ( disable : 4273 )
 #else
-#if defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA)
-#ifdef VTK_USE_CARBON
-#include "vtkCarbonRenderWindow.h"
-#else
+#if defined(VTK_USE_COCOA)
 #include "vtkCocoaRenderWindow.h"
 #include "vtkCocoaTkUtilities.h"
-#endif
 #else
 #include "vtkXOpenGLRenderWindow.h"
 #endif
@@ -373,16 +369,6 @@ extern "C"
             {
             int x = Tk_X(self->TkWin);
             int y = Tk_Y(self->TkWin);
-#ifdef VTK_USE_CARBON
-            // need to get position relative to top level window
-            for (TkWindow *curPtr = ((TkWindow *)self->TkWin)->parentPtr;
-                 (NULL != curPtr) && !(curPtr->flags & TK_TOP_LEVEL);
-                 curPtr = curPtr->parentPtr)
-              {
-              x += Tk_X(curPtr);
-              y += Tk_Y(curPtr);
-              }
-#endif
             self->ImageViewer->SetPosition(x, y);
             self->ImageViewer->SetSize(self->Width, self->Height);
             }
@@ -722,9 +708,9 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
   return TCL_OK;
 }
 
-// now the APPLE version for Cocoa and Carbon APIs
+// now the Apple version for Cocoa APIs
 #else
-#if defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA)
+#if defined(VTK_USE_COCOA)
 //----------------------------------------------------------------------------
 // Creates a ImageViewer window and forces Tk to use the window.
 static int
@@ -785,66 +771,12 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
       }
     }
 
-
-#ifdef VTK_USE_CARBON
-  TkWindow *winPtr = (TkWindow *)self->TkWin;
-  WindowPtr parentWin;
-  // get the window
-  vtkCarbonRenderWindow *imgWindow =
-    static_cast<vtkCarbonRenderWindow *>(imgViewer->GetRenderWindow());
-  // If the imageviewer has already created it's window, then quit...
-  if ( imgWindow->GetRootWindow() != (Window)NULL )
-    {
-    return TCL_ERROR;
-    }
-
-  // Use the same display
-  imgWindow->SetDisplayId(dpy);
-
-  // Set the parent correctly and get the actual OS X window on the screen
-  // Window must be up so that the aglContext can be attached to it
-  if ((winPtr->parentPtr != NULL) && !(winPtr->flags & TK_TOP_LEVEL))
-    {
-      if (winPtr->parentPtr->window == None)
-        {
-        // Look at each parent TK window in order until we run out
-        // of windows or find the top level. Then the OS X window that will be
-        // the parent is created so that we have a window to pass to the
-        // vtkRenderWindow so it can attach its openGL context.
-        // Ideally the Tk_MakeWindowExist call would do the deed. (I think)
-        TkWindow *curWin = winPtr->parentPtr;
-        while ((NULL != curWin->parentPtr) && !(curWin->flags & TK_TOP_LEVEL))
-          {
-          curWin = curWin->parentPtr;
-          }
-        Tk_MakeWindowExist((Tk_Window) winPtr->parentPtr);
-        if (NULL != curWin)
-          {
-          TkMacOSXMakeRealWindowExist(curWin);
-          }
-        else
-          {
-          vtkGenericWarningMacro("Could not find the TK_TOP_LEVEL. This is bad.");
-          }
-        }
-
-      parentWin = GetWindowFromPort((CGrafPtr)TkMacOSXGetDrawablePort(
-                                    Tk_WindowId(winPtr->parentPtr)));
-      // Carbon does not have 'sub-windows', so the ParentId is used more
-      // as a flag to indicate that the renderwindow is being used as a sub-
-      // view of its 'parent' window.
-      imgWindow->SetParentId(parentWin);
-      imgWindow->SetRootWindow(parentWin);
-    }
-#else /* now the VTK_USE_COCOA section */
   Tk_MakeWindowExist(self->TkWin);
   // set the ParentId to the NSView
   vtkCocoaRenderWindow *imgWindow =
     static_cast<vtkCocoaRenderWindow *>(imgViewer->GetRenderWindow());
   imgWindow->SetParentId(vtkCocoaTkUtilities::GetDrawableView(self->TkWin));
   imgWindow->SetSize(self->Width, self->Height);
-
-#endif
 
   // Set the size
   self->ImageViewer->SetSize(self->Width, self->Height);

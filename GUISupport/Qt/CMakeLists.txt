@@ -97,12 +97,6 @@ if(VTK_USE_X)
   vtk_module_link_libraries(${vtk-module} LINK_PRIVATE ${X11_LIBRARIES})
 endif()
 
-if(APPLE)
-  if(VTK_USE_CARBON)
-    vtk_module_link_libraries(${vtk-module} LINK_PRIVATE "-framework Carbon" )
-  endif()
-endif()
-
 # This build plugin logic should just get migrated into a module I think.
 if(BUILD_SHARED_LIBS)
   set(PluginLibSrcs Q4VTKWidgetPlugin.cxx)

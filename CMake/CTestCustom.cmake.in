@@ -289,10 +289,6 @@ IF(APPLE)
 SET(CTEST_CUSTOM_WARNING_EXCEPTION
   ${CTEST_CUSTOM_WARNING_EXCEPTION}
   "warning -.: directory name .* does not exist"
-
-  # Almost all of Carbon is deprecated, so mask deprecation warnings out
-  # of dashboard results for Carbon-specific files.
-  "vtkCarbonRenderWindow.*warning.*is deprecated"
   )
 ENDIF()
 
