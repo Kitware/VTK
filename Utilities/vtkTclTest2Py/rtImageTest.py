@@ -3,7 +3,7 @@
 # The script to be run must be the first argument.
 import sys
 if len(sys.argv) < 2:
-    print "Usage %s <test script> [<addition arguments>]" % sys.argv[0]
+    print("Usage %s <test script> [<addition arguments>]" % sys.argv[0])
     sys.exit(1)
 for i in range(2, len(sys.argv)):
     if sys.argv[i] == '-A' and i < len(sys.argv)-1:
@@ -43,7 +43,7 @@ def gets(file, varName, global_vars):
 
 def tcl_platform(what):
     if what != "platform":
-        raise "Only platform supported as yet!"
+        raise ValueError("Only platform supported as yet!")
     plat = sys.platform
     if plat[:5] == "linux":
         return "unix"
@@ -60,7 +60,7 @@ def get_variable_name(*args):
         if __builtins__.type(arg) == __builtins__.type("string"):
             var_name += arg
         else:
-            var_name += `arg`
+            var_name += repr(arg)
     return var_name
 
 #init Tk
@@ -94,12 +94,12 @@ threshold = -1
 
 # we pass the locals over so that the test script has access to
 # all the locals we have defined here.
-execfile(test_script, globals(), locals())
+exec(compile(open(test_script).read(), test_script, 'exec'), globals(), locals())
 
 local_variables_dict = locals()
 
 
-if "iren" in local_variables_dict.keys():
+if "iren" in local_variables_dict:
     renWin.Render()
 
 if pythonTk:
@@ -111,7 +111,7 @@ rtResult = 0
 if rtTester.IsValidImageSpecified() != 0:
     # look for a renderWindow ImageWindow or ImageViewer
     # first check for some common names
-    if "renWin" in local_variables_dict.keys():
+    if "renWin" in local_variables_dict:
         rtTester.SetRenderWindow(renWin)
         if threshold == -1:
             threshold = 10
@@ -119,16 +119,16 @@ if rtTester.IsValidImageSpecified() != 0:
         if threshold == -1:
             threshold = 5
 
-        if "viewer" in local_variables_dict.keys():
+        if "viewer" in local_variables_dict:
             rtTester.SetRenderWindow(viewer.GetRenderWindow())
             viewer.Render()
-        elif "imgWin" in local_variables_dict.keys():
+        elif "imgWin" in local_variables_dict:
             rtTester.SetRenderWindow(imgWin)
             imgWin.Render()
     rtResult = rtTester.RegressionTest(threshold)
 
 if rtTester.IsInteractiveModeSpecified() != 0:
-    if "iren" in local_variables_dict.keys():
+    if "iren" in local_variables_dict:
         iren.Start()
 
 if rtResult == 0:

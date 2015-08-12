@@ -7,20 +7,26 @@ from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-import Tkinter
 from vtk.tk.vtkTkRenderWindowInteractor import vtkTkRenderWindowInteractor
 from vtk.tk.vtkTkRenderWidget import vtkTkRenderWidget
 
-# Tkinter constants.
-E = Tkinter.E
-W = Tkinter.W
-N = Tkinter.N
-S = Tkinter.S
-HORIZONTAL = Tkinter.HORIZONTAL
-RIGHT = Tkinter.RIGHT
-NO = Tkinter.NO
-NORMAL = Tkinter.NORMAL
-DISABLED = Tkinter.DISABLED
+if sys.hexversion < 0x03000000:
+    # for Python2
+    import Tkinter as tkinter
+else:
+    # for Python3
+    import tkinter
+
+# tkinter constants.
+E = tkinter.E
+W = tkinter.W
+N = tkinter.N
+S = tkinter.S
+HORIZONTAL = tkinter.HORIZONTAL
+RIGHT = tkinter.RIGHT
+NO = tkinter.NO
+NORMAL = tkinter.NORMAL
+DISABLED = tkinter.DISABLED
 
 class SuperQuadricViewer(Testing.vtkTest):
     '''
@@ -68,7 +74,7 @@ class SuperQuadricViewer(Testing.vtkTest):
                 scale.config(state=DISABLED, fg='gray')
             win.Render()
 
-        self.root = Tkinter.Tk()
+        self.root = tkinter.Tk()
         self.root.title("superquadric viewer")
         # Define what to do when the user explicitly closes a window.
         self.root.protocol("WM_DELETE_WINDOW", OnClosing)
@@ -80,23 +86,23 @@ class SuperQuadricViewer(Testing.vtkTest):
 
         # Create parameter sliders
         #
-        prs = Tkinter.Scale(self.root, from_=0, to=3.5, res=0.1,
+        prs = tkinter.Scale(self.root, from_=0, to=3.5, res=0.1,
                              orient=HORIZONTAL, label="phi roundness")
-        trs = Tkinter.Scale(self.root, from_=0, to=3.5, res=0.1,
+        trs = tkinter.Scale(self.root, from_=0, to=3.5, res=0.1,
                              orient=HORIZONTAL, label="theta roundness")
-        thicks = Tkinter.Scale(self.root, from_=0.01, to=1.0, res=0.01,
+        thicks = tkinter.Scale(self.root, from_=0.01, to=1.0, res=0.01,
                              orient=HORIZONTAL, label="thickness")
 
         # Create check buttons
         #
-        toroid = Tkinter.IntVar()
+        toroid = tkinter.IntVar()
         toroid.set(0)
-        doTexture = Tkinter.IntVar()
+        doTexture = tkinter.IntVar()
         doTexture.set(0)
 
-        rframe = Tkinter.Frame(self.root)
-        torbut = Tkinter.Checkbutton(rframe, text="Toroid", variable=toroid)
-        texbut = Tkinter.Checkbutton(rframe, text="Texture", variable=doTexture)
+        rframe = tkinter.Frame(self.root)
+        torbut = tkinter.Checkbutton(rframe, text="Toroid", variable=toroid)
+        texbut = tkinter.Checkbutton(rframe, text="Texture", variable=doTexture)
 
         # Put it all together
         #
@@ -108,7 +114,7 @@ class SuperQuadricViewer(Testing.vtkTest):
         thicks.grid(sticky=N+S+E+W, padx=10, ipady=5, row=1, column=1)
         prs.grid(sticky=N+E+W+S, padx=10, ipady=5, row = 2, column = 0)
         trs.grid(sticky=N+E+W+S, padx=10, ipady=5, row = 2, column = 1)
-        Tkinter.Pack.propagate(rframe,NO)
+        tkinter.Pack.propagate(rframe,NO)
 
         prs.set(1.0)
         trs.set(0.7)

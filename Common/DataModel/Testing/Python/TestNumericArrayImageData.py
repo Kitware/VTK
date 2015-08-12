@@ -16,7 +16,7 @@ import sys
 try:
     import numpy.core.numeric as numeric
 except ImportError:
-    print "WARNING: This test requires Numeric Python: http://numpy.sf.net"
+    print("WARNING: This test requires Numeric Python: http://numpy.sf.net")
     sys.exit(0)
 
 import os

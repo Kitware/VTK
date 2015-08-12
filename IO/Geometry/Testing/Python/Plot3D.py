@@ -10,7 +10,7 @@ class TestPlot3D(Testing.vtkTest):
 
         for name in names:
             r = vtk.vtkMultiBlockPLOT3DReader()
-            print "Testing ", name[0], name[1]
+            print("Testing ", name[0], name[1])
             if name[0] == "multi-ascii.xyz":
                 r.BinaryFileOff()
                 r.MultiGridOn()
@@ -40,7 +40,7 @@ class TestPlot3D(Testing.vtkTest):
 
         for name in names:
             r = vtk.vtkMultiBlockPLOT3DReader()
-            print "Testing ", name[0]
+            print("Testing ", name[0])
             r.AutoDetectFormatOn()
             r.SetFileName(str(VTK_DATA_ROOT) + "/Data/" + name[0])
             r.SetQFileName(str(VTK_DATA_ROOT) + "/Data/" + name[1])

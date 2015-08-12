@@ -1,6 +1,6 @@
 """
 
-A fully functional VTK widget for Tkinter that uses
+A fully functional VTK widget for tkinter that uses
 vtkGenericRenderWindowInteractor.  The widget is called
 vtkTkRenderWindowInteractor.  The initialization part of this code is
 similar to that of the vtkTkRenderWidget.
@@ -9,13 +9,20 @@ Created by Prabhu Ramachandran, April 2002
 
 """
 
-import Tkinter
+from __future__ import absolute_import
 import math, os, sys
 import vtk
 
-from vtkLoadPythonTkWidgets import vtkLoadPythonTkWidgets
+if sys.hexversion < 0x03000000:
+    # for Python2
+    import Tkinter as tkinter
+else:
+    # for Python3
+    import tkinter
 
-class vtkTkRenderWindowInteractor(Tkinter.Widget):
+from .vtkLoadPythonTkWidgets import vtkLoadPythonTkWidgets
+
+class vtkTkRenderWindowInteractor(tkinter.Widget):
     """ A vtkTkRenderWidndowInteractor for Python.
 
     Use GetRenderWindow() to get the vtkRenderWindow.
@@ -67,7 +74,7 @@ class vtkTkRenderWindowInteractor(Tkinter.Widget):
             self._FocusOnEnter = 0
 
         kw['rw'] = renderWindow.GetAddressAsString("vtkRenderWindow")
-        Tkinter.Widget.__init__(self, master, 'vtkTkRenderWidget', cnf, kw)
+        tkinter.Widget.__init__(self, master, 'vtkTkRenderWidget', cnf, kw)
 
         self._Iren = vtk.vtkGenericRenderWindowInteractor()
         self._Iren.SetRenderWindow(self._RenderWindow)
@@ -359,7 +366,7 @@ def vtkRenderWindowInteractorConeExample():
     """Like it says, just a simple example
     """
     # create root window
-    root = Tkinter.Tk()
+    root = tkinter.Tk()
 
     # create vtkTkRenderWidget
     pane = vtkTkRenderWindowInteractor(root, width=300, height=300)

@@ -1,12 +1,14 @@
 """ Test for various numpy_interface modules. Main goal is to test
 parallel algorithms in vtk.numpy_interface.algorithms."""
 
+from __future__ import print_function
+
 import sys
 try:
     import numpy
 except ImportError:
-    print "Numpy (http://numpy.scipy.org) not found.",
-    print "This test requires numpy!"
+    print("Numpy (http://numpy.scipy.org) not found.", end=' ')
+    print("This test requires numpy!")
     sys.exit(0)
 
 import vtk
@@ -29,12 +31,12 @@ def PRINT(text, values):
     MPI.COMM_WORLD.Allreduce([values, MPI.DOUBLE], [res, MPI.DOUBLE], MPI.SUM)
     assert numpy.abs(res) < 1E-5
     if rank == 0:
-        print text, res
+        print(text, res)
 
 def testArrays(rtData, rtData2, grad, grad2, total_npts):
     " Test various parallel algorithms."
     if rank == 0:
-        print '-----------------------'
+        print('-----------------------')
     PRINT( "SUM ones:", algs.sum(rtData / rtData) - total_npts )
 
     PRINT( "SUM sin:", (algs.sum(algs.sin(rtData) + 1) - numpy.sum(numpy.sin(rtData2) + 1)) / numpy.sum(numpy.sin(rtData2) + 1) )
@@ -180,7 +182,7 @@ else:
     start = rank*NUM_BLOCKS - 3
     end = start + NUM_BLOCKS
 
-for i in xrange(start, end):
+for i in range(start, end):
     a = vtk.vtkImageData()
     a.ShallowCopy(w.GetOutput())
     c.SetBlock(i, a)

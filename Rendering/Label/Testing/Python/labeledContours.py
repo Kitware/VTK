@@ -40,7 +40,7 @@ isoActor.SetMapper(isoMapper)
 # Subsample the points and label them
 mask = vtk.vtkMaskPoints()
 mask.SetInputConnection(iso.GetOutputPort())
-mask.SetOnRatio(numPts / 50)
+mask.SetOnRatio(numPts // 50)
 mask.SetMaximumNumberOfPoints(50)
 mask.RandomModeOn()
 

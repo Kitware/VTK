@@ -90,4 +90,4 @@ try:
     viewer.Render()
 
 except IOError:
-    print  "Unable to test the writers."
+    print("Unable to test the writers.")

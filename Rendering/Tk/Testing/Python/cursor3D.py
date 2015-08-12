@@ -12,33 +12,40 @@ from functools import partial
 import vtk
 from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
-from Tkinter import Pack
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-import Tkinter
+if sys.hexversion < 0x03000000:
+    # for Python2
+    import Tkinter as tkinter
+    from Tkinter import Pack
+else:
+    # for Python3
+    import tkinter
+    from tkinter import Pack
+
 #from vtk.tk.vtkTkRenderWindowInteractor import vtkTkRenderWindowInteractor
 from vtk.tk.vtkTkRenderWidget import vtkTkRenderWidget
 from vtk.tk.vtkTkImageViewerWidget import vtkTkImageViewerWidget
 
 # Tkinter constants.
-E = Tkinter.E
-W = Tkinter.W
-N = Tkinter.N
-S = Tkinter.S
-HORIZONTAL = Tkinter.HORIZONTAL
-VERTICAL = Tkinter.VERTICAL
-RIGHT = Tkinter.RIGHT
-LEFT = Tkinter.LEFT
-TOP = Tkinter.TOP
-BOTTOM = Tkinter.BOTTOM
-X = Tkinter.X
-BOTH = Tkinter.BOTH
-NO = Tkinter.NO
-YES = Tkinter.YES
-NORMAL = Tkinter.NORMAL
-DISABLED = Tkinter.DISABLED
-TRUE = Tkinter.TRUE
-FALSE = Tkinter.FALSE
+E = tkinter.E
+W = tkinter.W
+N = tkinter.N
+S = tkinter.S
+HORIZONTAL = tkinter.HORIZONTAL
+VERTICAL = tkinter.VERTICAL
+RIGHT = tkinter.RIGHT
+LEFT = tkinter.LEFT
+TOP = tkinter.TOP
+BOTTOM = tkinter.BOTTOM
+X = tkinter.X
+BOTH = tkinter.BOTH
+NO = tkinter.NO
+YES = tkinter.YES
+NORMAL = tkinter.NORMAL
+DISABLED = tkinter.DISABLED
+TRUE = tkinter.TRUE
+FALSE = tkinter.FALSE
 
 # Global values.
 CURSOR_X = 20
@@ -89,7 +96,6 @@ class Cursor3DViewer(Testing.vtkTest):
             self.root.update_idletasks()
             height = int(self.tkvw.configure()['height'][4])
             y = height - y
-            print height
             z = self.viewer.GetZSlice()
             SetCursor( x / IMAGE_MAG_X, y / IMAGE_MAG_Y, z / IMAGE_MAG_Z )
 
@@ -197,17 +203,17 @@ class Cursor3DViewer(Testing.vtkTest):
         self.renWin.SetSize(256, 256)
 
         # Create the GUI: two renderer widgets and a quit button.
-        self.root = Tkinter.Tk()
+        self.root = tkinter.Tk()
         self.root.title("cursor3D")
         # Define what to do when the user explicitly closes a window.
         self.root.protocol("WM_DELETE_WINDOW", OnClosing)
 
         # Help label, frame and quit button
-        helpLabel = Tkinter.Label(self.root,
+        helpLabel = tkinter.Label(self.root,
             text=
             "MiddleMouse (or shift-LeftMouse) in image viewer to place cursor")
-        displayFrame = Tkinter.Frame(self.root)
-        quitButton = Tkinter.Button(self.root, text= "Quit", command=OnClosing)
+        displayFrame = tkinter.Frame(self.root)
+        quitButton = tkinter.Button(self.root, text= "Quit", command=OnClosing)
 
         # Pack the GUI.
         helpLabel.pack()
@@ -215,26 +221,26 @@ class Cursor3DViewer(Testing.vtkTest):
         quitButton.pack(fill=X)
 
         # Create the viewer widget.
-        viewerFrame = Tkinter.Frame(displayFrame)
+        viewerFrame = tkinter.Frame(displayFrame)
         viewerFrame.pack(padx=3, pady=3, side=LEFT, anchor=N,
                         fill=BOTH, expand=FALSE)
         self.tkvw = vtkTkImageViewerWidget(viewerFrame, iv=self.viewer,
                         width=264, height=264)
-        viewerControls = Tkinter.Frame(viewerFrame)
+        viewerControls = tkinter.Frame(viewerFrame)
         viewerControls.pack(side=BOTTOM, anchor=S, fill=BOTH, expand=TRUE)
         self.tkvw.pack(side=TOP, anchor=N, fill=BOTH, expand=FALSE)
-        downButton = Tkinter.Button(viewerControls, text="Down",
+        downButton = tkinter.Button(viewerControls, text="Down",
                             command=[ViewerDown,self.viewer])
-        upButton = Tkinter.Button(viewerControls, text="Up",
+        upButton = tkinter.Button(viewerControls, text="Up",
                             command=[ViewerUp,self.viewer])
-        sliceLabel = Tkinter.Label(viewerControls,
+        sliceLabel = tkinter.Label(viewerControls,
                             text="slice: "+str(CURSOR_Z*IMAGE_MAG_Z))
         downButton.pack(side=LEFT, expand=TRUE, fill=BOTH)
         upButton.pack(side=LEFT, expand=TRUE, fill=BOTH)
         sliceLabel.pack(side=LEFT, expand=TRUE, fill=BOTH)
 
         # Create the render widget
-        renderFrame = Tkinter.Frame(displayFrame)
+        renderFrame = tkinter.Frame(displayFrame)
         renderFrame.pack(padx=3, pady=3, side=LEFT, anchor=N,
                         fill=BOTH, expand=TRUE)
         self.tkrw = vtkTkRenderWidget(renderFrame, rw=self.renWin,

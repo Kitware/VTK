@@ -8,6 +8,8 @@ Usage:
                           --process ...
 """
 
+from __future__ import print_function
+
 import sys
 import subprocess
 import time
@@ -25,7 +27,7 @@ if prev <= len(sys.argv):
 
 procs = []
 for cmdlist in command_lists:
-    print >> sys.stderr, "Executing '", " ".join(cmdlist), "'"
+    print("Executing '", " ".join(cmdlist), "'", file=sys.stderr)
     proc = subprocess.Popen(cmdlist)
     procs.append(proc)
     # sleep to ensure that the process starts.
@@ -39,6 +41,6 @@ for proc in procs:
 
 for proc in procs:
     if proc.returncode != 0:
-        print >> sys.stderr, "ERROR: A process exited with error. Test will fail."
+        print("ERROR: A process exited with error. Test will fail.", file=sys.stderr)
         sys.exit(1) # error
-print "All's well!"
+print("All's well!")

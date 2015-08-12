@@ -22,9 +22,9 @@ fow.SetFlush(0)
 fow.SetInstance(fow)
 
 # Prepare some test files.
-f = open('emptyFile.vtk', 'wb')
+f = open('emptyFile.vtk', 'wt')
 f.close()
-f = open('junkFile.vtk', 'wb')
+f = open('junkFile.vtk', 'wt')
 f.write("v9np7598mapwcawoiur-,rjpmW9MJV28nun-q38ynq-9.8ugujqvt-8n3-nv8")
 f.close()
 

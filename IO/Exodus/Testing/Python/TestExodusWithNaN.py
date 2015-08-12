@@ -16,5 +16,5 @@ data = rdr.GetOutput().GetBlock(0).GetBlock(0)
 # Test that this dataset with NaNs gets a correct range i.e. range without NaNs
 # in it.
 drange = data.GetPointData().GetArray("dist_from_origin").GetRange()[:]
-print "'dist_from_origin' Range: ", drange
+print("'dist_from_origin' Range: ", drange)
 assert (abs(drange[0] - 0.5) < 1e-3) and (abs(drange[1] - 1.118) < 1e-3)

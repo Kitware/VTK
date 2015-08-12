@@ -79,7 +79,7 @@ class TestClip(Testing.vtkTest):
         nps = i.GetNumberOfPoints()
         ps = vtk.vtkPoints()
         ps.SetNumberOfPoints(nps)
-        for idx in xrange(nps):
+        for idx in range(nps):
             ps.SetPoint(idx, i.GetPoint(idx))
 
         st.SetPoints(ps)

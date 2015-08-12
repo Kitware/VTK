@@ -7,7 +7,7 @@ def expr(caller_globals_dict, caller_localvars_dict, arguments):
     eg [expr sin(20)*$a] becomes expr.expr("sin","(","20",")","*", a)"""
     eval_str = "eval(\"\"\""
     for arg in arguments:
-        if arg in caller_localvars_dict.keys():
+        if arg in caller_localvars_dict:
             #arg is a local variable. First, get its value
             arg = caller_localvars_dict[arg]
         if type(arg) == type("string"):
@@ -22,8 +22,8 @@ def expr(caller_globals_dict, caller_localvars_dict, arguments):
                         arg = "float" #tcl double is python float
                     eval_str +=    " " + arg
             continue
-        eval_str += " " + `arg`
+        eval_str += " " + repr(arg)
     eval_str += "\"\"\")"
-    #print "eval_str : %s" % eval_str
+    #print("eval_str : %s" % eval_str)
     return eval(eval_str, caller_globals_dict, caller_localvars_dict)
 
