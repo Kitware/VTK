@@ -2584,6 +2584,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->DepthImage->AllocateDepth(viewsize[0], viewsize[1],
                                         vtkTextureObject::Float32);
   this->Impl->DepthImage->SetAutoParameters(0);
+  this->Impl->DepthImage->Activate();
 
   if (!this->Impl->ColorImage)
     {
@@ -2599,6 +2600,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->ColorImage->Create2D(viewsize[0], viewsize[1], 4,
                                    VTK_FLOAT, false);
   this->Impl->ColorImage->SetAutoParameters(0);
+  this->Impl->ColorImage->Activate();
 
   this->Impl->FBO->SetContext(vtkOpenGLRenderWindow::SafeDownCast(
                                 ren->GetRenderWindow()));
@@ -3116,6 +3118,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->FBO->RemoveTexColorAttachment(GL_DRAW_FRAMEBUFFER, 0U);
   this->Impl->FBO->DeactivateDrawBuffers();
   this->Impl->FBO->UnBind(GL_FRAMEBUFFER);
+
+  this->Impl->DepthImage->Deactivate();
+  this->Impl->ColorImage->Deactivate();
 
   vtkTextureIO::Write(
               "volumeRender.vtk",
