@@ -222,6 +222,7 @@ vtkGenericDataArrayT(void*)::WriteVoidPointer(vtkIdType id, vtkIdType number)
 //-----------------------------------------------------------------------------
 vtkGenericDataArrayT(void*)::GetVoidPointer(vtkIdType)
 {
+
   vtkErrorMacro("GetVoidPointer is not supported by this class.");
   return NULL;
 }
@@ -294,15 +295,15 @@ vtkGenericDataArrayT(int)::Allocate(vtkIdType size, vtkIdType vtkNotUsed(ext))
 
   // Allocator must updated this->Size and this->MaxId properly.
   this->MaxId = -1;
-  if (size > this->Size)
+  if (size > this->Size || size == 0)
     {
     this->Size = 0;
 
     // let's keep the size an integral multiple of the number of components.
-    size = size < 0? 0 : size;
+    size = size < 0 ? 0 : size;
     int numComps = this->GetNumberOfComponents() > 0
         ? this->GetNumberOfComponents() : 1;
-    vtkIdType numTuples = ceil(size/ static_cast<double>(numComps));
+    vtkIdType numTuples = ceil(size / static_cast<double>(numComps));
     // NOTE: if numTuples is 0, AllocateTuples is expected to release the
     // memory.
     if (self->AllocateTuples(numTuples) == false)

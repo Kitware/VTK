@@ -187,7 +187,8 @@ int vtkAbstractArray::CopyComponentNames( vtkAbstractArray *da )
 //----------------------------------------------------------------------------
 void vtkAbstractArray::SetNumberOfValues(vtkIdType number)
 {
-  if (this->Allocate(number))
+  if (this->Resize(std::ceil(number /
+                             static_cast<float>(this->NumberOfComponents))))
     {
     this->MaxId = number - 1;
     }
@@ -270,7 +271,7 @@ void vtkAbstractArray::ExportToVoidPointer(void *dest)
   if (this->MaxId > 0 && this->GetDataTypeSize() > 0)
     {
     void *src = this->GetVoidPointer(0);
-    memcpy(dest, src, (this->MaxId * this->GetDataTypeSize()));
+    memcpy(dest, src, ((this->MaxId + 1) * this->GetDataTypeSize()));
     }
 }
 

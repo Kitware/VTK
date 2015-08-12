@@ -60,6 +60,12 @@ inline char vtkVariantCast<char>(const vtkVariant& value, bool* valid)
 }
 
 template<>
+inline signed char vtkVariantCast<signed char>(const vtkVariant& value, bool* valid)
+{
+  return value.ToSignedChar(valid);
+}
+
+template<>
 inline unsigned char vtkVariantCast<unsigned char>(const vtkVariant& value, bool* valid)
 {
   return value.ToUnsignedChar(valid);

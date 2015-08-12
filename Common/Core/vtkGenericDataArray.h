@@ -294,6 +294,15 @@ public:
   // and components.
   virtual void SetVariantValue(vtkIdType idx, vtkVariant value);
 
+
+  //----------------------------------------------------------------------------
+  // Reimplemented as the default implementation in vtkAbstractArray uses
+  // GetVoidPointer under the covers.
+  virtual vtkVariant GetVariantValue(vtkIdType valueIdx)
+  {
+    return vtkVariant(this->GetValue(valueIdx));
+  }
+
   //----------------------------------------------------------------------------
   // Insert the variant's value at the specified value index.
   virtual void InsertVariantValue(vtkIdType idx, vtkVariant value);

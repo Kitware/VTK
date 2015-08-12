@@ -101,6 +101,16 @@ public:
     bool save=false, int deleteMethod=VTK_DATA_ARRAY_FREE);
 
   // Description:
+  // Use of this method is discouraged, it creates a deep copy of the data into
+  // a contiguous AoS-ordered buffer and prints a warning.
+  virtual void *GetVoidPointer(vtkIdType id);
+
+  // Description:
+  // Export a copy of the data in AoS ordering to the preallocated memory
+  // buffer.
+  void ExportToVoidPointer(void *ptr);
+
+  // Description:
   // Overridden to allocate pointer for each component.
   virtual void SetNumberOfComponents(int);
 
@@ -112,6 +122,8 @@ public:
   vtkSetMacro(Resizeable, bool);
   vtkGetMacro(Resizeable, bool);
   vtkBooleanMacro(Resizeable, bool);
+
+  virtual vtkArrayIterator *NewIterator();
 
 protected:
   vtkSoADataArrayTemplate();
@@ -127,6 +139,7 @@ protected:
   // **************************************************************************
 
   std::vector<vtkBuffer<ValueType> > Data;
+  vtkBuffer<ValueType> AoSCopy;
   bool Resizeable;
   double NumberOfComponentsReciprocal;
 private:

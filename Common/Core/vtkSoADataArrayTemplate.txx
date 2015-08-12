@@ -12,6 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+
+#ifndef vtkSoADataArrayTemplate_txx
+#define vtkSoADataArrayTemplate_txx
+
+#include "vtkSoADataArrayTemplate.h"
+
+#include "vtkArrayIteratorTemplate.h"
+#include "vtkBuffer.h"
+
 #include <cassert>
 
 //-----------------------------------------------------------------------------
@@ -54,6 +63,15 @@ void vtkSoADataArrayTemplate<ValueType>::SetNumberOfComponents(int val)
     }
   this->Data.resize(numComps);
   this->NumberOfComponentsReciprocal = 1.0 / this->NumberOfComponents;
+}
+
+//-----------------------------------------------------------------------------
+template<class ValueType>
+vtkArrayIterator* vtkSoADataArrayTemplate<ValueType>::NewIterator()
+{
+  vtkArrayIterator *iter = vtkArrayIteratorTemplate<ValueType>::New();
+  iter->Initialize(this);
+  return iter;
 }
 
 //-----------------------------------------------------------------------------
@@ -135,3 +153,63 @@ bool vtkSoADataArrayTemplate<ValueType>::ReallocateTuples(vtkIdType numTuples)
     }
   return true;
 }
+
+//-----------------------------------------------------------------------------
+template<class ValueType>
+void *vtkSoADataArrayTemplate<ValueType>::GetVoidPointer(vtkIdType id)
+{
+  // Allow warnings to be silenced:
+  const char *silence = getenv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS");
+  if (!silence)
+    {
+    vtkWarningMacro(<<"GetVoidPointer called. This is very expensive for "
+                      "non-array-of-structs subclasses, as the scalar array "
+                      "must be generated for each call. Using the "
+                      "vtkGenericDataArray API vtkGenericDataArrayMacro are "
+                      "preferred. Define the environment variable "
+                      "VTK_SILENCE_GET_VOID_POINTER_WARNINGS to silence "
+                      "this warning.");
+    }
+
+  size_t numValues = this->NumberOfComponents * this->GetNumberOfTuples();
+
+  if (!this->AoSCopy.Allocate(numValues))
+    {
+    vtkErrorMacro(<<"Error allocating a buffer of " << numValues << " '"
+                  << this->GetDataTypeAsString() << "' elements.");
+    return NULL;
+    }
+
+  this->ExportToVoidPointer(static_cast<void*>(this->AoSCopy.GetBuffer()));
+
+  return static_cast<void*>(this->AoSCopy.GetBuffer() + id);
+}
+
+//-----------------------------------------------------------------------------
+template<class ValueType>
+void vtkSoADataArrayTemplate<ValueType>::ExportToVoidPointer(void *voidPtr)
+{
+  vtkIdType numTuples = this->GetNumberOfTuples();
+  if (this->NumberOfComponents * numTuples == 0)
+    {
+    // Nothing to do.
+    return;
+    }
+
+  if (!voidPtr)
+    {
+    vtkErrorMacro(<< "Buffer is NULL.");
+    return;
+    }
+
+  ValueType *ptr = static_cast<ValueType*>(voidPtr);
+  for (vtkIdType t = 0; t < numTuples; ++t)
+    {
+    for (int c = 0; c < this->NumberOfComponents; ++c)
+      {
+      *ptr++ = this->Data[c].GetBuffer()[t];
+      }
+    }
+}
+
+#endif

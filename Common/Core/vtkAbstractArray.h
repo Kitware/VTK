@@ -67,7 +67,11 @@ public:
   // Description:
   // Allocate memory for this array. Delete old storage only if necessary.
   // Note that ext is no longer used.
-  virtual int Allocate(vtkIdType sz, vtkIdType ext=1000) = 0;
+  // This method will reset MaxId to -1 and resize the array capacity such that
+  // this->Size >= numValues.
+  // If numValues is 0, all memory will be freed.
+  // Return 1 on success, 0 on failure.
+  virtual int Allocate(vtkIdType numValues, vtkIdType ext=1000) = 0;
 
   // Description:
   // Release storage and reset array to initial state.
@@ -239,8 +243,13 @@ public:
   virtual void Squeeze() = 0;
 
   // Description:
-  // Resize the array while conserving the data.  Returns 1 if
-  // resizing succeeded and 0 otherwise.
+  // Resize the array to the requested number of tuples and preserve data.
+  // Increasing the array size may allocate extra memory beyond what was
+  // requested. MaxId will not be modified when increasing array size.
+  // Decreasing the array size will trim memory to the requested size and
+  // may update MaxId if the valid id range is truncated.
+  // Requesting an array size of 0 will free all memory.
+  // Returns 1 if resizing succeeded and 0 otherwise.
   virtual int Resize(vtkIdType numTuples) = 0;
 
   // Description:
