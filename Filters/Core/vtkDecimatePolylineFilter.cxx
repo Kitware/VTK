@@ -49,7 +49,7 @@ public:
   {
     this->Size = size;
     Vertices = new Vertex[size];
-    for (unsigned idx=0;idx<size;idx++)
+    for (vtkIdType idx=0;idx<size;idx++)
       {
       Vertices[idx].index = idx;
       Vertices[idx].id = vertexOrdering[idx];
