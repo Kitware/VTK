@@ -52,14 +52,7 @@ bool vtkPlotHistogram2D::Paint(vtkContext2D *painter)
     if (this->Input)
       {
       double bounds[4];
-      int *extent = this->Input->GetExtent();
-      bounds[0] = this->Input->GetOrigin()[0];
-      bounds[1] = bounds[0] +
-          (extent[1] - extent[0] + 1) * this->Input->GetSpacing()[0];
-
-      bounds[2] = this->Input->GetOrigin()[1];
-      bounds[3] = bounds[2] +
-          (extent[3] - extent[2] + 1) * this->Input->GetSpacing()[1];
+      this->GetBounds(bounds);
       this->Position = vtkRectf(bounds[0], bounds[2],
                                 bounds[1] - bounds[0], bounds[3] - bounds[2]);
       }
@@ -101,11 +94,11 @@ void vtkPlotHistogram2D::GetBounds(double bounds[4])
     int *extent = this->Input->GetExtent();
     bounds[0] = this->Input->GetOrigin()[0];
     bounds[1] = bounds[0] +
-        (extent[1] - extent[0]) * this->Input->GetSpacing()[0];
+        (extent[1] - extent[0] + 1) * this->Input->GetSpacing()[0];
 
     bounds[2] = this->Input->GetOrigin()[1];
     bounds[3] = bounds[2] +
-        (extent[3] - extent[2]) * this->Input->GetSpacing()[1];
+        (extent[3] - extent[2] + 1) * this->Input->GetSpacing()[1];
     }
   else
     {
@@ -148,7 +141,7 @@ vtkIdType vtkPlotHistogram2D::GetNearestPoint(const vtkVector2f& point,
   // rendered as the bottom left corner of a histogram cell, not the center
   int locX = vtkMath::Floor( (point.GetX() - bounds[0]) / spacing[0] );
   int locY = vtkMath::Floor( (point.GetY() - bounds[2]) / spacing[1] );
-  int width = vtkMath::Ceil( (bounds[1] - bounds[0]) / spacing[0] ) + 1;
+  int width = this->Input->GetExtent()[1] - this->Input->GetExtent()[0] + 1;
 
   // Discretize to ImageData point values
   location->SetX(locX * spacing[0] + bounds[0]);
@@ -170,8 +163,7 @@ vtkStdString vtkPlotHistogram2D::GetTooltipLabel(const vtkVector2d &plotPos,
 
   double bounds[4];
   this->GetBounds(bounds);
-  int width = vtkMath::Ceil( (bounds[1] - bounds[0]) /
-                                this->Input->GetSpacing()[0] ) + 1;
+  int width = this->Input->GetExtent()[1] - this->Input->GetExtent()[0] + 1;
   int pointX = seriesIndex % width;
   int pointY = seriesIndex / width;
 
