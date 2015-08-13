@@ -1563,7 +1563,8 @@ void vtkFunctionParser::BuildInternalSubstringStructure(int beginIndex,
           !((this->Function[i] == '-' || this->Function[i] == '+') &&
             (this->IsElementaryOperator(this->Function[i-1]) ||
              this->Function[i-1] == '(' ||
-             (this->Function[i-1] == 'e' && i > 1 &&
+             ((this->Function[i-1] == 'e' || this->Function[i-1] == 'E') &&
+              i > 1 &&
               isdigit(this->Function[i-2])))) &&
           !(this->Function[i] == '.' &&
             (i+1 < this->FunctionLength) &&
