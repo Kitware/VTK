@@ -38,7 +38,7 @@ vtkTIFFWriter::vtkTIFFWriter()
 void vtkTIFFWriter::Write()
 {
   // make sure the latest input is available.
-  this->Update();
+  this->GetInputAlgorithm()->Update();
   this->SetErrorCode(vtkErrorCode::NoError);
   // Error checking
   if (this->GetInput() == NULL)
