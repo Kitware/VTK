@@ -30,7 +30,7 @@
 
 vtkStandardNewMacro(vtkImplicitCylinderWidget);
 
-// The implicit plane widget observes its representation. The representation
+// The implicit cylinder widget observes its representation. The representation
 // may invoke an InteractionEvent when the camera moves when LockedNormalToCamera
 // is enabled.
 class vtkInteractionCallback : public vtkCommand
@@ -113,7 +113,7 @@ void vtkImplicitCylinderWidget::SelectAction(vtkAbstractWidget *w)
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
 
-  // We want to compute an orthogonal vector to the plane that has been selected
+  // We want to update the radius, axis and center as appropriate
   reinterpret_cast<vtkImplicitCylinderRepresentation*>(self->WidgetRep)->
     SetInteractionState(vtkImplicitCylinderRepresentation::Moving);
   int interactionState = self->WidgetRep->ComputeInteractionState(X, Y);
@@ -213,8 +213,8 @@ void vtkImplicitCylinderWidget::MoveAction(vtkAbstractWidget *w)
 
   // So as to change the cursor shape when the mouse is poised over
   // the widget. Unfortunately, this results in a few extra picks
-  // due to the cell picker. However given that its picking planes
-  // and the handles/arrows, this should be very quick
+  // due to the cell picker. However given that its picking simple geometry
+  // like the handles/arrows, this should be very quick
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
   int changed = 0;
@@ -300,7 +300,10 @@ void vtkImplicitCylinderWidget::MoveCylinderAction(vtkAbstractWidget *w)
     return;
     }
 
-  // Move the plane
+  // Invoke all of the events associated with moving the cylinder
+  self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+
+  // Move the cylinder
   double factor = ( self->Interactor->GetControlKey() ? 0.5 : 1.0);
   if (vtkStdString( self->Interactor->GetKeySym() ) == vtkStdString("Down") ||
       vtkStdString( self->Interactor->GetKeySym() ) == vtkStdString("Left"))
@@ -311,9 +314,10 @@ void vtkImplicitCylinderWidget::MoveCylinderAction(vtkAbstractWidget *w)
     {
     self->GetCylinderRepresentation()->BumpCylinder(1,factor);
     }
+  self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
 
   self->EventCallbackCommand->SetAbortFlag(1);
-  self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+  self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
   self->Render();
 }
 
