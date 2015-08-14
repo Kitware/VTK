@@ -92,6 +92,9 @@ protected:
   vtkPeriodicFilter();
   ~vtkPeriodicFilter();
 
+  // see algorithm for more info
+  virtual int FillInputPortInformation(int port, vtkInformation* info);
+
   virtual int RequestData(vtkInformation *,
                           vtkInformationVector **,
                           vtkInformationVector *);
