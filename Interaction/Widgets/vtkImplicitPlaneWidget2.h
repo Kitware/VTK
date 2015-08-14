@@ -28,21 +28,21 @@
 // By default, the widget responds to the following VTK events (i.e., it
 // watches the vtkRenderWindowInteractor for these events):
 // <pre>
-// If the plane normal is selected:
+// If the mouse is over the plane normal:
 //   LeftButtonPressEvent - select normal
 //   LeftButtonReleaseEvent - release normal
 //   MouseMoveEvent - orient the normal vector
-// If the origin point is selected:
-//   LeftButtonPressEvent - select slider (if on slider)
-//   LeftButtonReleaseEvent - release slider (if selected)
+// If the mouse is over the origin point (handle):
+//   LeftButtonPressEvent - select handle
+//   LeftButtonReleaseEvent - release handle (if selected)
 //   MouseMoveEvent - move the origin point (constrained to the plane)
-// If the plane is selected:
-//   LeftButtonPressEvent - select slider (if on slider)
-//   LeftButtonReleaseEvent - release slider (if selected)
+// If the mouse is over the plane:
+//   LeftButtonPressEvent - select plane
+//   LeftButtonReleaseEvent - release plane (if selected)
 //   MouseMoveEvent - move the plane
-// If the outline is selected:
-//   LeftButtonPressEvent - select slider (if on slider)
-//   LeftButtonReleaseEvent - release slider (if selected)
+// If the mouse is over the outline:
+//   LeftButtonPressEvent - select outline
+//   LeftButtonReleaseEvent - release outline (if selected)
 //   MouseMoveEvent - move the outline
 // If the keypress characters are used
 //   'Down/Left' Move plane down
@@ -62,7 +62,7 @@
 // <pre>
 //   vtkWidgetEvent::Select -- some part of the widget has been selected
 //   vtkWidgetEvent::EndSelect -- the selection process has completed
-//   vtkWidgetEvent::Move -- a request for slider motion has been invoked
+//   vtkWidgetEvent::Move -- a request for widget motion has been invoked
 //   vtkWidgetEvent::Up and vtkWidgetEvent::Down -- MovePlaneAction
 // </pre>
 //
@@ -81,7 +81,7 @@
 
 // .SECTION See Also
 // vtk3DWidget vtkBoxWidget vtkPlaneWidget vtkLineWidget vtkPointWidget
-// vtkSphereWidget vtkImagePlaneWidget
+// vtkSphereWidget vtkImagePlaneWidget vtkImplicitCylinderWidget
 
 #ifndef vtkImplicitPlaneWidget2_h
 #define vtkImplicitPlaneWidget2_h
@@ -154,7 +154,7 @@ protected:
   int UpdateCursorShape( int interactionState );
 
   // Description:
-  // Handle the interaction callback that may come from the representation
+  // Handle the interaction callback that may come from the representation.
   vtkInteractionCallback *InteractionCallback;
   void InvokeInteractionCallback();
 
