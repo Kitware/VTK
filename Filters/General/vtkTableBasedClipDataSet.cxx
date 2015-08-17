@@ -1827,24 +1827,12 @@ int vtkTableBasedClipDataSet::RequestData( vtkInformation * vtkNotUsed( request 
       }
     }
 
-
   int    gridType = cpyInput->GetDataObjectType();
   double isoValue = ( !this->ClipFunction || this->UseValueAsOffset )
                     ?  this->Value  :  0.0;
   if ( gridType == VTK_IMAGE_DATA || gridType == VTK_STRUCTURED_POINTS )
     {
-    int   numbDims;
-    int * dataDims = vtkImageData::SafeDownCast( cpyInput )->GetDimensions();
-    for ( numbDims = 3, i = 0; i < 3; i ++ )
-      {
-      numbDims -= (  ( dataDims[i] <= 1 ) ? 1 : 0  );
-      }
-    dataDims = NULL;
-
-    if ( numbDims == 3 )
-      {
-      this->ClipImageData( cpyInput.GetPointer(), clipAray, isoValue, outputUG );
-      }
+    this->ClipImageData( cpyInput.GetPointer(), clipAray, isoValue, outputUG );
     }
   else
   if ( gridType == VTK_POLY_DATA )
@@ -2345,9 +2333,14 @@ void vtkTableBasedClipDataSet::ClipRectilinearGridData( vtkDataSet * inputGrd,
   int   i, j;
   int   numCells = 0;
   int   isTwoDim = 0;
+  enum TwoDimType { XY, YZ, XZ };
+  TwoDimType twoDimType;
   int   rectDims[3];
   rectGrid->GetDimensions( rectDims );
-  isTwoDim = int( rectDims[2] <= 1 );
+  isTwoDim = int( rectDims[0] <= 1 || rectDims[1] <= 1 || rectDims[2] <= 1 );
+  if (rectDims[0] <= 1) twoDimType = YZ;
+  else if (rectDims[1] <= 1) twoDimType = XZ;
+  else twoDimType = XY;
   numCells = rectGrid->GetNumberOfCells();
 
   vtkTableBasedClipperVolumeFromVolume   * visItVFV = new
@@ -2355,14 +2348,33 @@ void vtkTableBasedClipDataSet::ClipRectilinearGridData( vtkDataSet * inputGrd,
       this->OutputPointsPrecision, rectGrid->GetNumberOfPoints(),
       int(   pow(  double( numCells ), double( 0.6667f )  )   ) * 5 + 100    );
 
-  int   shiftLUT[3][8] = {
-                           { 0, 1, 1, 0, 0, 1, 1, 0 },
-                           { 0, 0, 1, 1, 0, 0, 1, 1 },
-                           { 0, 0, 0, 0, 1, 1, 1, 1 }
-                         };
+  int shiftLUTx[8] = { 0, 1, 1, 0, 0, 1, 1, 0 };
+  int shiftLUTy[8] = { 0, 0, 1, 1, 0, 0, 1, 1 };
+  int shiftLUTz[8] = { 0, 0, 0, 0, 1, 1, 1, 1 };
+
+  int* shiftLUT[3];
+  if (isTwoDim && twoDimType == XZ)
+    {
+    shiftLUT[0] = shiftLUTx;
+    shiftLUT[1] = shiftLUTz;
+    shiftLUT[2] = shiftLUTy;
+    }
+  else if (isTwoDim && twoDimType == YZ)
+    {
+    shiftLUT[0] = shiftLUTy;
+    shiftLUT[1] = shiftLUTz;
+    shiftLUT[2] = shiftLUTx;
+    }
+  else
+    {
+    shiftLUT[0] = shiftLUTx;
+    shiftLUT[1] = shiftLUTy;
+    shiftLUT[2] = shiftLUTz;
+    }
+
   int   cellDims[3] = { rectDims[0] - 1, rectDims[1] - 1, rectDims[2] - 1 };
-  int   cyStride    = cellDims[0];
-  int   czStride    = cellDims[0] * cellDims[1];
+  int   cyStride    = (cellDims[0] ? cellDims[0] : 1);
+  int   czStride    = (cellDims[0] ? cellDims[0] : 1) * (cellDims[1] ? cellDims[1] : 1);
   int   pyStride    = rectDims[0];
   int   pzStride    = rectDims[0] * rectDims[1];
 
@@ -2370,9 +2382,9 @@ void vtkTableBasedClipDataSet::ClipRectilinearGridData( vtkDataSet * inputGrd,
     {
     int    caseIndx = 0;
     int    nCellPts = isTwoDim ? 4 : 8;
-    int    theCellI =   i % cellDims[0];
-    int    theCellJ = ( i / cyStride ) % cellDims[1];
-    int    theCellK = ( i / czStride );
+    int    theCellI = (cellDims[0] > 0 ? i % cellDims[0] : 0);
+    int    theCellJ = (cellDims[1] > 0 ? ( i / cyStride ) % cellDims[1] : 0);
+    int    theCellK = (cellDims[2] > 0 ? ( i / czStride ) : 0);
     double grdDiffs[8];
 
     for ( j = nCellPts - 1; j >= 0; j -- )
@@ -2667,10 +2679,15 @@ void vtkTableBasedClipDataSet::ClipStructuredGridData( vtkDataSet * inputGrd,
 
   int   i, j;
   int   isTwoDim    = 0;
+  enum TwoDimType { XY, YZ, XZ };
+  TwoDimType twoDimType;
   int   numCells    = 0;
   int   gridDims[3] = { 0, 0, 0 };
   strcGrid->GetDimensions( gridDims );
-  isTwoDim = int( gridDims[2] <= 1 );
+  isTwoDim = int( gridDims[0] <= 1 || gridDims[1] <= 1 || gridDims[2] <= 1 );
+  if (gridDims[0] <= 1) twoDimType = YZ;
+  else if (gridDims[1] <= 1) twoDimType = XZ;
+  else twoDimType = XY;
   numCells = strcGrid->GetNumberOfCells();
 
   vtkTableBasedClipperVolumeFromVolume  *  visItVFV = new
@@ -2678,25 +2695,43 @@ void vtkTableBasedClipDataSet::ClipStructuredGridData( vtkDataSet * inputGrd,
       this->OutputPointsPrecision, strcGrid->GetNumberOfPoints(),
       int(   pow(  double( numCells ), double( 0.6667f )  )   ) * 5 + 100    );
 
+  int shiftLUTx[8] = { 0, 1, 1, 0, 0, 1, 1, 0 };
+  int shiftLUTy[8] = { 0, 0, 1, 1, 0, 0, 1, 1 };
+  int shiftLUTz[8] = { 0, 0, 0, 0, 1, 1, 1, 1 };
 
-  int   shiftLUT[3][8] = {
-                           { 0, 1, 1, 0, 0, 1, 1, 0 },
-                           { 0, 0, 1, 1, 0, 0, 1, 1 },
-                           { 0, 0, 0, 0, 1, 1, 1, 1 }
-                         };
+  int* shiftLUT[3];
+  if (isTwoDim && twoDimType == XZ)
+    {
+    shiftLUT[0] = shiftLUTx;
+    shiftLUT[1] = shiftLUTz;
+    shiftLUT[2] = shiftLUTy;
+    }
+  else if (isTwoDim && twoDimType == YZ)
+    {
+    shiftLUT[0] = shiftLUTy;
+    shiftLUT[1] = shiftLUTz;
+    shiftLUT[2] = shiftLUTx;
+    }
+  else
+    {
+    shiftLUT[0] = shiftLUTx;
+    shiftLUT[1] = shiftLUTy;
+    shiftLUT[2] = shiftLUTz;
+    }
+
   int   numbPnts    = 0;
   int   cellDims[3] = { gridDims[0] - 1, gridDims[1] - 1, gridDims[2] - 1 };
-  int   cyStride    = cellDims[0];
-  int   czStride    = cellDims[0] * cellDims[1];
+  int   cyStride    = (cellDims[0] ? cellDims[0] : 1);
+  int   czStride    = (cellDims[0] ? cellDims[0] : 1) * (cellDims[1] ? cellDims[1] : 1);
   int   pyStride    = gridDims[0];
   int   pzStride    = gridDims[0] * gridDims[1];
 
   for ( i = 0; i < numCells; i ++ )
     {
     int    caseIndx = 0;
-    int    theCellI = i % cellDims[0];
-    int    theCellJ = ( i / cyStride ) % cellDims[1];
-    int    theCellK = ( i / czStride );
+    int    theCellI = (cellDims[0] > 0 ? i % cellDims[0] : 0);
+    int    theCellJ = (cellDims[1] > 0 ? ( i / cyStride ) % cellDims[1] : 0);
+    int    theCellK = (cellDims[2] > 0 ? ( i / czStride ) : 0);
     double grdDiffs[8];
 
     numbPnts = isTwoDim ? 4 : 8;
