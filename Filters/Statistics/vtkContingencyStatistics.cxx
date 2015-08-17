@@ -38,6 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <map>
 #include <vector>
+#include <type_traits>
 
 #include <sstream>
 
@@ -626,9 +627,9 @@ public:
 
     // Store contingency table
     int row = contingencyTab->GetNumberOfRows ();
-    for ( typename Table::iterator mit = table.begin(); mit != table.end(); ++ mit )
+    for ( Table::iterator mit = table.begin(); mit != table.end(); ++ mit )
       {
-      for ( typename Counts::iterator dit = mit->second.begin(); dit != mit->second.end(); ++ dit )
+      for ( Counts::iterator dit = mit->second.begin(); dit != mit->second.end(); ++ dit )
         {
         contingencyTab->InsertNextBlankRow( );
 
@@ -756,7 +757,7 @@ public:
 
     marginalPDFs.clear ();
 
-    for ( typename std::map<vtkStdString,Counts>::iterator sit = marginalCounts.begin();
+    for ( std::map<vtkStdString,Counts>::iterator sit = marginalCounts.begin();
           sit != marginalCounts.end(); ++ sit, ++ nBlocks )
       {
       vtkTable* marginalTab = vtkTable::New();
@@ -777,7 +778,7 @@ public:
       doubleCol->Delete();
 
       double p;
-      for ( typename Counts::iterator xit = sit->second.begin();
+      for ( Counts::iterator xit = sit->second.begin();
             xit != sit->second.end(); ++ xit )
         {
         // Calculate and retain marginal PDF
