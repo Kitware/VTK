@@ -13,7 +13,7 @@
 
 =========================================================================*/
 #include "vtkPolygonBuilder.h"
-#include "vtkIdList.h"
+#include "vtkIdListCollection.h"
 
 vtkPolygonBuilder::vtkPolygonBuilder()
 {
@@ -36,7 +36,7 @@ void vtkPolygonBuilder::InsertTriangle(vtkIdType* abc)
         {
         this->Edges.insert(std::make_pair(edge.first,edge.second));
         }
-        else if (nInstances == 2)
+      else if (nInstances == 2)
         {
         std::pair<EdgeMap::iterator, EdgeMap::iterator> range = Edges.equal_range(edge.first);
 
@@ -55,9 +55,9 @@ void vtkPolygonBuilder::InsertTriangle(vtkIdType* abc)
   return;
 }
 
-void vtkPolygonBuilder::GetPolygon(vtkIdList* poly)
+void vtkPolygonBuilder::GetPolygons(vtkIdListCollection* polys)
 {
-  poly->Reset();
+  polys->RemoveAllItems();
 
   // We now have exactly two instances of each outer edge, corresponding to a
   // clockwise and counterclockwise traversal
@@ -66,30 +66,40 @@ void vtkPolygonBuilder::GetPolygon(vtkIdList* poly)
     return;
     }
 
-  EdgeMap::iterator edgeIt = this->Edges.begin();
-
-  vtkIdType firstVtx,vtx1,vtx2;
-  firstVtx = vtx1 = (*edgeIt).first;
-  poly->InsertNextId(vtx1);
-
-  vtx2 = (*edgeIt).second;
-
-  while (vtx2 != firstVtx)
+  while (!(this->Edges.empty()))
     {
-    poly->InsertNextId(vtx2);
+    vtkIdList* poly = vtkIdList::New();
 
-    // we will find either the inverse to our current edge, or the next edge
-    // in the path.
-    edgeIt = this->Edges.find(vtx2);
-    if ((*edgeIt).second == vtx1)
+    Edge edge = *(this->Edges.begin());
+    EdgeMap::iterator edgeIt = this->Edges.begin();
+
+    vtkIdType firstVtx = edge.first;
+
+    do
       {
-      // we have found the inverse. Remove it and look agian.
-      this->Edges.erase(edgeIt);
-      edgeIt = this->Edges.find(vtx2);
-      }
+      poly->InsertNextId(edge.first);
 
-    vtx1 = vtx2;
-    vtx2 = edgeIt->second;
+      // we will find either the inverse to our current edge, or the next edge
+      // in the path.
+      std::pair<EdgeMap::iterator, EdgeMap::iterator> range =
+        this->Edges.equal_range(edge.second);
+
+      edgeIt = range.first;
+      vtkIdType previousVtx = edge.first;
+      while (edgeIt != range.second)
+        {
+        if ((*edgeIt).second != previousVtx)
+          {
+          // we have found the next edge in the path
+          edge.first = edge.second;
+          edge.second = edgeIt->second;
+          }
+        this->Edges.erase(edgeIt++);
+        }
+      }
+    while (edge.first != firstVtx);
+
+    polys->AddItem(poly);
     }
 
   this->Reset();

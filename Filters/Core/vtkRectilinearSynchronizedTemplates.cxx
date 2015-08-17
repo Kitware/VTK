@@ -19,6 +19,7 @@
 #include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
+#include "vtkIdListCollection.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
@@ -298,7 +299,8 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exEx
   double x1, x2, y2, z2;
   double spacing[6];
   vtkPolygonBuilder polyBuilder;
-  vtkSmartPointer<vtkIdList> poly = vtkSmartPointer<vtkIdList>::New();
+  vtkSmartPointer<vtkIdListCollection> polys =
+    vtkSmartPointer<vtkIdListCollection>::New();
 
   if (ComputeScalars)
     {
@@ -616,12 +618,19 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exEx
               }
             if(!outputTriangles)
               {
-              polyBuilder.GetPolygon(poly);
-              if(poly->GetNumberOfIds()>0)
+              polyBuilder.GetPolygons(polys);
+              int nPolys = polys->GetNumberOfItems();
+              for (int polyId = 0; polyId < nPolys; ++polyId)
                 {
-                outCellId = newPolys->InsertNextCell(poly);
-                outCD->CopyData(inCD, inCellId, outCellId);
+                vtkIdList* poly = polys->GetItem(polyId);
+                if(poly->GetNumberOfIds()!=0)
+                  {
+                  outCellId = newPolys->InsertNextCell(poly);
+                  outCD->CopyData(inCD, inCellId, outCellId);
+                  }
+                poly->Delete();
                 }
+              polys->RemoveAllItems();
               }
             }
           inPtrX += xInc;

@@ -37,6 +37,7 @@
 #include "vtkUnsignedShortArray.h"
 #include "vtkPolygonBuilder.h"
 #include "vtkIdList.h"
+#include "vtkIdListCollection.h"
 #include "vtkSmartPointer.h"
 
 #include <math.h>
@@ -158,7 +159,8 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D *self, int *exExt,
   vtkCellArray *newPolys;
   ptr += self->GetArrayComponent();
   vtkPolygonBuilder polyBuilder;
-  vtkSmartPointer<vtkIdList> poly = vtkSmartPointer<vtkIdList>::New();
+  vtkSmartPointer<vtkIdListCollection> polys =
+    vtkSmartPointer<vtkIdListCollection>::New();
 
   vtkSynchronizedTemplatesCutter3DInitializeOutput(exExt, self->GetOutputPointsPrecision(), data, output);
   newPts = output->GetPoints();
@@ -507,12 +509,19 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D *self, int *exExt,
               }
             if(!outputTriangles)
               {
-              polyBuilder.GetPolygon(poly);
-              if(poly->GetNumberOfIds()>0)
+              polyBuilder.GetPolygons(polys);
+              int nPolys = polys->GetNumberOfItems();
+              for (int polyId = 0; polyId < nPolys; ++polyId)
                 {
-                outCellId = newPolys->InsertNextCell(poly);
-                outCD->CopyData(inCD, inCellId, outCellId);
+                vtkIdList* poly = polys->GetItem(polyId);
+                if(poly->GetNumberOfIds()!=0)
+                  {
+                  outCellId = newPolys->InsertNextCell(poly);
+                  outCD->CopyData(inCD, inCellId, outCellId);
+                  }
+                poly->Delete();
                 }
+              polys->RemoveAllItems();
               }
             }
           inPtrX += xIncFunc;

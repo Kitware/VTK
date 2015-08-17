@@ -29,14 +29,26 @@
 #include "vtkType.h" //for basic types
 #include <cstddef> //for size_t
 #include "vtkObject.h"
-class vtkIdList;
+
+class vtkIdListCollection;
 
 class VTKCOMMONMISC_EXPORT vtkPolygonBuilder
 {
 public:
   vtkPolygonBuilder();
+
+  // Description:
+  // Insert a triangle as a triplet of point IDs.
   void InsertTriangle(vtkIdType* abc);
-  void GetPolygon(vtkIdList* poly);
+
+  // Description:
+  // Populate polys with lists of polygons, defined as sequential external
+  // vertices. It is the responsibility of the user to delete these generated
+  // lists in order to avoid memory leaks.
+  void GetPolygons(vtkIdListCollection* polys);
+
+  // Description:
+  // Prepare the builder for a new set of inputs.
   void Reset();
 
 private:

@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkIdList.h"
+#include "vtkIdListCollection.h"
 #include "vtkNew.h"
 #include "vtkPoints.h"
 #include "vtkPolygonBuilder.h"
@@ -41,12 +41,21 @@ int TestPolygonBuilder(int, char* [])
     builder.InsertTriangle(p);
     }
 
-  vtkNew<vtkIdList> poly;
-  builder.GetPolygon(poly.GetPointer());
+  vtkNew<vtkIdListCollection> polys;
+  builder.GetPolygons(polys.GetPointer());
 
+  if (polys->GetNumberOfItems()!=1)
+    {
+    return EXIT_FAILURE;
+    }
+
+  vtkIdList* poly = polys->GetItem(0);
   if(poly->GetNumberOfIds()!=4)
     {
     return EXIT_FAILURE;
     }
+  poly->Delete();
+  polys->RemoveAllItems();
+
   return EXIT_SUCCESS;
 }
