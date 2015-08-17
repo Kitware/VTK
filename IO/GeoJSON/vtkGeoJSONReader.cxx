@@ -179,7 +179,7 @@ GeoJSONReaderInternal::ParseRoot(
       }
 
     GeoJSONProperty property;
-    for (int i = 0; i < rootFeatures.size(); i++)
+    for (Json::Value::ArrayIndex i = 0; i < rootFeatures.size(); i++)
       {
       // Append extracted geometry to existing outputData
       Json::Value featureNode = rootFeatures[i];
