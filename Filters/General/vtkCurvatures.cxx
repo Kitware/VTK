@@ -15,6 +15,7 @@
 #include "vtkCurvatures.h"
 
 #include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
 #include "vtkFloatArray.h"
@@ -412,6 +413,7 @@ int vtkCurvatures::RequestData(
 
   output->CopyStructure(input);
   output->GetPointData()->PassData(input->GetPointData());
+  output->GetCellData()->PassData(input->GetCellData());
   output->GetFieldData()->PassData(input->GetFieldData());
 
   //-------------------------------------------------------//
