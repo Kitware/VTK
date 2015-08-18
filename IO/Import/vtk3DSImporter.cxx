@@ -39,11 +39,11 @@ vtkStandardNewMacro(vtk3DSImporter);
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif
 
-static vtk3DSColour Black = {0.0, 0.0, 0.0};
+static vtk3DSColour Black = {0.0f, 0.0f, 0.0f};
 static char   obj_name[80] = "";
-static vtk3DSColour fog_colour = {0.0, 0.0, 0.0};
-static vtk3DSColour col        = {0.0, 0.0, 0.0};
-static vtk3DSColour global_amb = {0.1, 0.1, 0.1};
+static vtk3DSColour fog_colour = {0.0f, 0.0f, 0.0f};
+static vtk3DSColour col        = {0.0f, 0.0f, 0.0f};
+static vtk3DSColour global_amb = {0.1f, 0.1f, 0.1f};
 static vtk3DSVector pos        = {0.0, 0.0, 0.0};
 static vtk3DSVector target     = {0.0, 0.0, 0.0};
 static float  hotspot = -1;

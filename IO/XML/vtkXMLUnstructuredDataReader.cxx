@@ -548,7 +548,7 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
   // connectivity array ahead of time to calculate the real fraction.
   float progressRange[2] = {0,0};
   this->GetProgressRange(progressRange);
-  float fractions[3] = {0, 0.2, 1};
+  float fractions[3] = {0, 0.2f, 1};
 
   // Set range of progress for offsets array.
   this->SetProgressRange(progressRange, 0, fractions);
@@ -726,7 +726,7 @@ int vtkXMLUnstructuredDataReader::ReadFaceArray(vtkIdType numberOfCells,
   // to calculate the real fraction.
   float progressRange[2] = {0,0};
   this->GetProgressRange(progressRange);
-  float fractions[3] = {0, 0.2, 1};
+  float fractions[3] = {0, 0.2f, 1};
 
   // Set range of progress for offsets array.
   this->SetProgressRange(progressRange, 0, fractions);
