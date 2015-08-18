@@ -1,25 +1,45 @@
 #include "SegyReader.h"
 #include <assert.h>
-SegyReader::SegyReader() {
-    isBigEndian = checkIfBigEndian();
-}
+
+#include <vtkPoints.h>
+#include <vtkCellArray.h>
+#include <vtkSmartPointer.h>
+#include <vtkPolygon.h>
+#include <vtkPolyData.h>
+#include <vtkStructuredPointsReader.h>
+#include <vtkVolumeTextureMapper3D.h>
+#include <vtkColorTransferFunction.h>
+#include <vtkRenderer.h>
+#include <vtkRenderWindow.h>
+#include <vtkVolumeProperty.h>
+#include <vtkAxesActor.h>
+#include <vtkImageShiftScale.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkFloatArray.h>
+#include <vtkPointData.h>
+#include <vtkArrayData.h>
+
+#include <set>
+#include "Trace.h"
+#include "IOUtil.h"
 
 bool SegyReader::LoadFromFile(string path) {
     ifstream in(path, ifstream::binary);
-    if(!in){
+    if (!in)
+    {
         cout << "File not found:" << path << endl;
         return false;
     }
 
-    readTextualHeader(in);
-    readBinaryHeader(in);
-
-    scanFile(in);
+    readHeader(in);
 
     int traceStartPos = 3600;// traces start after 3200 + 400 file header
-    for(int i=0; i<traceCount; i++)
+    while (true)
     {
-        readTrace(traceStartPos, in, formatCode);
+        Trace* pTrace = new Trace();
+        if (!traceReader.readTrace(traceStartPos, in, formatCode, pTrace))
+            break;
+        data.push_back(pTrace);
     }
 
     in.close();
@@ -27,262 +47,164 @@ bool SegyReader::LoadFromFile(string path) {
 }
 
 
-bool SegyReader::readTextualHeader(ifstream &in) {
-    // TODO: these are only for waha8.sgy, should read from texual header
-    traceCount = 5760;
-    crossLineNumberStep = 3;
-    traceNumberStep = 3;
-    sampleCount = 876;
-
-    traceHeaderBytesPos.InlineNumber = 8;
-    traceHeaderBytesPos.CrosslineNumber = 20;
+bool SegyReader::readHeader(ifstream &in) {
+    formatCode = IOUtil::Instance()->readShortInteger(binaryHeaderBytesPos.FormatCode, in);
+    sampleCountPerTrace =  IOUtil::Instance()->readShortInteger(binaryHeaderBytesPos.NumSamplesPerTrace, in);
+    return true;
 }
 
-bool SegyReader::readBinaryHeader(ifstream &in) {
-    formatCode = getFormatCode(in);
-}
+#define PIXEL_TYPE float
 
-bool SegyReader::checkIfBigEndian(){
-    ushort a=0x1234;
-    if (*((unsigned char *)&a)==0x12)
-        return true;
-    return false;
-}
-
-void SegyReader::scanFile(ifstream &in) {
-    int startPos = 3600;
-    minTraceNumber = INT_MAX;
-    maxTraceNumber = INT_MIN;
-    minCrossLineNumber = INT_MAX;
-    maxCrossLineNumber = INT_MIN;
-
-    for(int i=0; i<traceCount; i++) {
-        in.seekg(startPos, in.beg);
-
-        int inlineNumber = readLongInteger(startPos + traceHeaderBytesPos.InlineNumber, in);
-        minTraceNumber = minTraceNumber < inlineNumber ? minTraceNumber : inlineNumber;
-        maxTraceNumber = maxTraceNumber > inlineNumber ? maxTraceNumber : inlineNumber;
-
-        int crosslineNum = readLongInteger(startPos + traceHeaderBytesPos.CrosslineNumber, in);
-        minCrossLineNumber = minCrossLineNumber < crosslineNum ? minCrossLineNumber : crosslineNum;
-        maxCrossLineNumber = maxCrossLineNumber > crosslineNum ? maxCrossLineNumber : crosslineNum;
-
-        int numSamples = readShortInteger(startPos + traceHeaderBytesPos.NumberSamples, in);
-        startPos += 240 + getTraceSize(numSamples, formatCode);
-
-        cout << inlineNumber << ", " << crosslineNum << ", " << numSamples << endl;
-    }
-
-    traceNumberCount = (maxTraceNumber - minTraceNumber) / traceNumberStep + 1;
-    crosslineNumberCount = (maxCrossLineNumber - minCrossLineNumber) / crossLineNumberStep + 1;
-
-    long dataSize = (long)traceNumberCount * crosslineNumberCount * sampleCount;
-    data.resize(dataSize);
-    for(long i=0; i < dataSize; i++)
-        data[i] = 0;
-}
-
-int SegyReader::getFileSize(ifstream &in) {
-    in.seekg(0, in.end);
-    return in.tellg();
-}
-
-char SegyReader::readChar(ifstream &in) {
-    char buffer;
-    in.read(&buffer, sizeof(buffer));
-    return buffer;
-}
-
-void SegyReader::printBinaryHeader(ifstream &in)
+bool SegyReader::ExportData3D(vtkImageData *imageData)
 {
-    cout << "file size:" << getFileSize(in) << endl;
 
-    int jobID = readLongInteger(binaryHeaderBytesPos.JobID, in);
-    cout << "Job identification number : " << jobID << endl;
-
-    int lineNumber = readLongInteger(binaryHeaderBytesPos.LineNumber, in);
-    cout << "Line number : " << lineNumber << endl;
-
-    int reelNumber = readLongInteger(binaryHeaderBytesPos.ReelNumber, in);
-    cout << "Reel number : " << reelNumber << endl;
-
-    int numTracesPerEnsemble = readShortInteger(binaryHeaderBytesPos.NumberTracesPerEnsemble, in);
-    cout << "Number of traces per ensemble: " << numTracesPerEnsemble << endl;
-
-    int numAuxTracesPerEnsemble = readShortInteger(binaryHeaderBytesPos.NumberAuxTracesPerEnsemble, in);
-    cout << "Number of auxiliary traces per ensemble : " << numAuxTracesPerEnsemble << endl;
-
-    int sampleInterval = readShortInteger(binaryHeaderBytesPos.SampleInterval, in);
-    cout << "Sample interval : " << sampleInterval << endl;
-
-    int sampleIntervalOriginal = readShortInteger(binaryHeaderBytesPos.SampleIntervalOriginal, in);
-    cout << "Sample interval original : " << sampleIntervalOriginal << endl;
-
-    int numSamplesPerTrace = readShortInteger(binaryHeaderBytesPos.NumSamplesPerTrace, in);
-    cout << "Number of samples per trace : " << numSamplesPerTrace << endl;
-
-    int numSamplesOriginal = readShortInteger(binaryHeaderBytesPos.NumSamplesPerTraceOriginal, in);
-    cout << "Number of samples per trace original : " << numSamplesOriginal << endl;
-
-    int formatCode = readShortInteger(binaryHeaderBytesPos.FormatCode, in);
-    cout << "format code : " << formatCode << endl;
-
-    int numberExtendedHeaders = readShortInteger(binaryHeaderBytesPos.NumberExtendedHeaders, in);
-    cout << "Number of extended headers : " << numberExtendedHeaders << endl;
-
-    int ensembleType = readShortInteger(binaryHeaderBytesPos.EnsembleType, in);
-    cout << "Ensemble type: " << ensembleType << endl;
-
-    int version = readShortInteger(binaryHeaderBytesPos.Version, in);
-    cout << "Version : " << version << endl;
-
-    int fixedLengthFlag = readShortInteger(binaryHeaderBytesPos.FixedLengthFlag, in);
-    cout << "Fixed length flag : " << fixedLengthFlag << endl;
-}
-
-void SegyReader::ExportData(vtkImageData* imageData)
-{
-    float minValue, maxValue;
-    minValue = maxValue = data[0];
-    for(float element : data)
+    set<int> crosslineNumbers, inlineNumbers;
+    for(auto trace : data)
     {
-        minValue = minValue < element ? minValue : element;
-        maxValue = maxValue > element ? maxValue : element;
+        crosslineNumbers.insert(trace->crosslineNumber);
+        inlineNumbers.insert(trace->inlineNumber);
     }
-    float bucketSize = (maxValue - minValue) / 256;
 
-    vector<unsigned char> pixels;
-    for(float element : data)
+    if(crosslineNumbers.size() < 3 || inlineNumbers.size() < 3)
     {
-        unsigned char pixel = (element - minValue) / bucketSize;
-        pixels.push_back(pixel);
+        return false;
     }
-    imageData->SetDimensions(traceNumberCount, crosslineNumberCount, sampleCount);
 
-    int type = VTK_UNSIGNED_CHAR;
+    map<int, vector<Trace*> > cross_inline_map;
+
+    float min_data = INT_MAX;
+    float max_data = INT_MIN;
+
+    for(auto trace : data)
+    {
+        int cross = trace->crosslineNumber;
+        auto pair = cross_inline_map.find(cross);
+        if( pair == cross_inline_map.end() )
+        {
+            cross_inline_map.insert(make_pair(cross, vector<Trace*>()));
+        }
+        pair = cross_inline_map.find(cross);
+        pair->second.push_back(trace);
+
+        for(auto m : trace->data)
+        {
+            if(m < min_data)
+                min_data = m;
+            if(m > max_data )
+                max_data = m;
+        }
+    }
+
+    int crossLineCount = cross_inline_map.size();
+
+    int inlineCount = INT_MAX;
+    for(auto pair : cross_inline_map)
+    {
+        int count = pair.second.size();
+        if(count < 3)
+            return false;
+
+        if(count < inlineCount)
+            inlineCount = count;
+    }
+
+    imageData->SetDimensions(inlineCount, crossLineCount, sampleCountPerTrace);
+
+    int type = VTK_FLOAT;
     imageData->SetScalarType(type, imageData->GetInformation());
     imageData->SetNumberOfScalarComponents(1, imageData->GetInformation());
     imageData->AllocateScalars(type, 1);
-    unsigned char *ptr=(unsigned char *)imageData->GetScalarPointer();
-    for(int k=0; k<sampleCount; k++)
-        for(int i=0;i<crosslineNumberCount;i++)
-            for(int j=0;j<traceNumberCount;j++)
+    float *ptr=(float *)imageData->GetScalarPointer();
+
+    cout << "sample count per trace : " << sampleCountPerTrace << endl;
+    cout << "cross line count: " << crossLineCount << endl;
+    cout << "inline count: " << inlineCount << endl;
+
+    cout << "min_data" << min_data << endl;
+    cout << "max_data" << max_data << endl;
+
+    int i = 0;
+    for(auto crossIter = cross_inline_map.begin(); crossIter != cross_inline_map.end(); crossIter++)
+    {
+        for (int j = 0; j < inlineCount; j++)
+        {
+            for (int k = 0; k < sampleCountPerTrace; k++)
             {
-                *(ptr + k * crosslineNumberCount * traceNumberCount + i * traceNumberCount + j)=
-                        pixels[j*crosslineNumberCount*sampleCount + i * sampleCount + k];
+                float normalizedData = (crossIter->second[j]->data[k] - min_data) * 255.0 / (max_data - min_data) ;
+
+                *(ptr + k * crossLineCount * inlineCount + i * inlineCount + j) = normalizedData;
             }
-}
-
-int SegyReader::readShortInteger(int pos, ifstream &in) {
-    in.seekg(pos, in.beg);
-    char buffer[2];
-    in.read(buffer, sizeof(buffer));
-
-    if (!isBigEndian) {
-        swap(buffer, buffer + 1);
+        }
+        i++;
     }
 
-    short num;
-    memcpy(&num, buffer, 2);
-    return num;
+    return true;
 }
 
-int SegyReader::getFormatCode(ifstream &in) {
-    return readShortInteger(3224, in);
-}
+bool SegyReader::ExportData2D(vtkPolyData * polyData)
+{
+    vtkSmartPointer<vtkPoints> points =
+            vtkSmartPointer<vtkPoints>::New();
 
-int SegyReader::readLongInteger(int pos, ifstream &in) {
-    in.seekg(pos, in.beg);
-    char buffer[4];
-    in.read(buffer, sizeof(buffer));
+    vtkSmartPointer<vtkFloatArray> textureCoordinates =
+            vtkSmartPointer<vtkFloatArray>::New();
+    textureCoordinates->SetNumberOfComponents(2);
+    textureCoordinates->SetName("TextureCoordinates");
 
-    if(!isBigEndian) {
-        swap(buffer, buffer + 3);
-        swap(buffer + 1, buffer + 2);
-    }
-
-    int num;
-    memcpy(&num, buffer, 4);
-    return num;
-}
-
-void SegyReader::swap(char *a, char *b) {
-    char temp = *a;
-    *a = *b;
-    *b = temp;
-}
-
-float SegyReader::readFloat(ifstream &in) {
-    char buffer[4];
-    in.read(buffer, sizeof(buffer));
-
-    if(!isBigEndian) {
-        swap(buffer, buffer + 3);
-        swap(buffer + 1, buffer + 2);
-    }
-
-    float num;
-    memcpy(&num, buffer, 4);
-    return num;
-}
-
-void SegyReader::printTraceHeader(ifstream &in, int startPos) {
-
-    cout << "Position:" << startPos << endl;
-
-    int traceSequenceNumberInLine = readLongInteger(startPos + traceHeaderBytesPos.TraceNumber, in);
-    cout << "Trace sequence number in line : " << traceSequenceNumberInLine << endl;
-
-    // Get number_of_samples from trace header position 115-116
-    int numSamples = readShortInteger(startPos + traceHeaderBytesPos.NumberSamples, in);
-    cout << "number of samples: "<< numSamples << endl;
-
-    // Get inline number from trace header position 189-192
-    int inlineNum = readLongInteger(startPos + traceHeaderBytesPos.InlineNumber, in);
-    cout << "in-line number : " << inlineNum << endl;
-
-    int crosslineNum = readLongInteger(startPos + traceHeaderBytesPos.CrosslineNumber, in);
-    cout << "cross-line number : " << crosslineNum << endl;
-
-    int xCoordinate = readLongInteger(startPos + traceHeaderBytesPos.XCoordinate, in);
-    cout << "X coordinate for ensemble position of the trace : " << xCoordinate << endl;
-
-    int yCoordinate = readLongInteger(startPos + traceHeaderBytesPos.YCoordinate, in);
-    cout << "Y coordinate for ensemble position of the trace : " << yCoordinate << endl;
-}
-
-bool SegyReader::readTrace(int &startPos, ifstream &in, int formatCode) {
-    //printTraceHeader(in, startPos);
-    int inlineNumber = readLongInteger(startPos + traceHeaderBytesPos.InlineNumber, in) ;
-    int crosslineNum = readLongInteger(startPos + traceHeaderBytesPos.CrosslineNumber, in);
-    int numSamples = readShortInteger(startPos + traceHeaderBytesPos.NumberSamples, in);
-
-    inlineNumber = ( inlineNumber - minTraceNumber) / traceNumberStep;
-    crosslineNum = ( crosslineNum - minCrossLineNumber ) / crossLineNumberStep;
-
-    in.seekg(startPos + 240, in.beg);
-    for(int i=0; i<numSamples; i++)
+    for(int k=0; k<sampleCountPerTrace; k++)
     {
-        unsigned char value = readChar(in); // TODO: readChar or readFloat according to format code
-        data[ inlineNumber * crosslineNumberCount * sampleCount + crosslineNum * sampleCount + i ]
-                = value;
+        for(int i=0;i < data.size(); i++)
+        {
+            auto trace = data[i];
+            float x = trace->xCoordinate / 100000.0;
+            float y = trace->yCoordinate / 100000.0;
+
+            float z = k * 100.0 / sampleCountPerTrace;
+            points->InsertNextPoint(x, y, z);
+            textureCoordinates->InsertNextTuple2(k * 1.0 / sampleCountPerTrace, i * 1.0 / data.size());
+        }
     }
-    startPos += 240 + getTraceSize(numSamples, formatCode);
+
+// Create a cell array to store the quad in
+    vtkSmartPointer<vtkCellArray> quads =
+            vtkSmartPointer<vtkCellArray>::New();
+
+    for (int k = 1; k < sampleCountPerTrace; k++)
+    {
+        for(int i=1;i < data.size(); i++)
+        {
+            auto trace = data[i];
+
+            vtkSmartPointer<vtkPolygon> polygon =
+                    vtkSmartPointer<vtkPolygon>::New();
+            polygon->GetPointIds()->SetNumberOfIds(4); //make a quad
+
+            int id1 = k * data.size() + i;
+            int id2 = (k - 1) * data.size() + i;
+            int id3 = (k - 1) * data.size() + i - 1;
+            int id4 = k * data.size() + i - 1;
+            polygon->GetPointIds()->SetId(0, id1);
+            polygon->GetPointIds()->SetId(1, id2);
+            polygon->GetPointIds()->SetId(2, id3);
+            polygon->GetPointIds()->SetId(3, id4);
+            quads->InsertNextCell(polygon);
+        }
+    }
+
+    //vtkSmartPointer<vtkTexture> texture =
+    //        vtkSmartPointer<vtkTexture>::New();
+
+    //vtkSmartPointer<vtkImageData> imageData = vtkSmartPointer<vtkImageData>::New();
+    //ExportData3D(imageData);
+    //texture->SetInputDataObject(imageData);
+
+    polyData->SetPoints(points);
+    polyData->SetPolys(quads);
+    //polyData->GetPointData()->SetTCoords(textureCoordinates);
+
+    return polyData;
 }
 
-int SegyReader::getTraceSize(int numSamples, int formatCode) {
-    if(formatCode == 1 || formatCode == 2 || formatCode == 4 || formatCode == 5)
-    {
-        return 4 * numSamples;
-    }
-    if(formatCode == 3)
-    {
-        return 2 * numSamples;
-    }
-    if(formatCode == 8)
-    {
-        return numSamples;
-    }
-    cout << "Unsupported data format code : " << formatCode << endl;
-    assert(false);
-}
+
+
+

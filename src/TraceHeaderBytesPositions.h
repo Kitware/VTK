@@ -22,11 +22,11 @@ private:
     void initDefaultValues()
     {
         TraceNumber = 0;
-        InlineNumber = 188;
+        InlineNumber = 8;
         NumberSamples = 114;
-        CrosslineNumber = 192;
-        XCoordinate = 180;
-        YCoordinate = 184;
+        CrosslineNumber = 20;
+        XCoordinate = 72;
+        YCoordinate = 76;
     }
 };
 #endif //SEGYVISUALIZER_TRACEHEADERBYTESPOSITIONS_H

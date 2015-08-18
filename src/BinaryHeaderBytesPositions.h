@@ -25,6 +25,7 @@ public:
 private:
     void initDefaultValues()
     {
+        // Default data field positions
         JobID = 3200;
         LineNumber = 3204;
         ReelNumber = 3208;

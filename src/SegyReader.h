@@ -1,64 +1,37 @@
-//
-// Created by jia chen on 6/30/15.
-//
-
 #ifndef SEGYVISUALIZER_SEGYREADER_H
 #define SEGYVISUALIZER_SEGYREADER_H
+
 #include <iostream>
 #include <fstream>
 #include <vector>
+
+#include <map>
+
 #include <vtkImageData.h>
+#include <vtkActor.h>
+#include <vtkPolyData.h>
+
 #include "BinaryHeaderBytesPositions.h"
 #include "TraceHeaderBytesPositions.h"
+#include "SegyTraceReader.h"
+#include "IOUtil.h"
+#include "Trace.h"
+
 using namespace std;
 
-class SegyReader {
+class SegyReader
+{
 public:
-    SegyReader();
-    void ExportData(vtkImageData* ); // export the data in segy file as 3D volume
+    bool ExportData3D(vtkImageData *); // export the data in segy file as 3D volume
     bool LoadFromFile(string path);
+    bool ExportData2D(vtkPolyData *);
 private:
-
-    void printBinaryHeader(ifstream& in);
-    void printTraceHeader(ifstream& in, int startPos);
-
-    bool readTextualHeader(ifstream& in);
-    bool readBinaryHeader(ifstream& in);
-
-    bool readTrace(int &startPos, ifstream &in, int formatCode);
-
-    int readShortInteger(int pos, ifstream &in);
-    int readLongInteger(int pos, ifstream &in);
-    float readFloat(ifstream &in);
-    char readChar(ifstream &in);
-
-    int getTraceSize(int numSamples, int formatCode);
-    int getFileSize(ifstream& in);
-    int getFormatCode(ifstream& in);
-
-    bool checkIfBigEndian();
-    void swap(char* a, char* b);
-    void scanFile(ifstream& in);
-private:
-    BinaryHeaderBytesPositions binaryHeaderBytesPos;
-    TraceHeaderBytesPositions traceHeaderBytesPos;
-
-    vector<float> data;
-    bool isBigEndian;
-    int crossLineNumberStep;
-    int traceNumberStep;
-    int traceCount;
+    bool readHeader(ifstream& in);
+    vector<Trace*> data;
     int formatCode;
-
-    int minTraceNumber;
-    int maxTraceNumber;
-    int minCrossLineNumber;
-    int maxCrossLineNumber;
-
-    int traceNumberCount;
-    int crosslineNumberCount;
-
-    int sampleCount;
+    BinaryHeaderBytesPositions binaryHeaderBytesPos;
+    SegyTraceReader traceReader;
+    int sampleCountPerTrace;
 };
 
 
