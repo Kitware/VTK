@@ -658,19 +658,21 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
     return;
     }
 
+  BYTE bpp_byte = static_cast<BYTE>(bpp);
+  BYTE zbpp_byte = static_cast<BYTE>(zbpp);
   PIXELFORMATDESCRIPTOR pfd2 = {
     sizeof(PIXELFORMATDESCRIPTOR),  /* size */
     1,                              /* version */
-    dwFlags         ,               /* support double-buffering */
+    dwFlags,                        /* support double-buffering */
     PFD_TYPE_RGBA,                  /* color type */
-    bpp,                             /* preferred color depth */
+    bpp_byte,                       /* preferred color depth */
     0, 0, 0, 0, 0, 0,               /* color bits (ignored) */
-    this->AlphaBitPlanes ? bpp/4 : 0, /* no alpha buffer */
+    static_cast<BYTE>(this->AlphaBitPlanes ? bpp/4 : 0), /* no alpha buffer */
     0,                              /* alpha bits (ignored) */
     0,                              /* no accumulation buffer */
     0, 0, 0, 0,                     /* accum bits (ignored) */
-    zbpp,                           /* depth buffer */
-    this->StencilCapable,           /* stencil buffer */
+    zbpp_byte,                      /* depth buffer */
+    static_cast<BYTE>(this->StencilCapable), /* stencil buffer */
     0,                              /* no auxiliary buffers */
     PFD_MAIN_PLANE,                 /* main layer */
     0,                              /* reserved */

@@ -141,7 +141,7 @@ int TestPeriodicTable(int , char * [])
     }
 
   float rgb[3];
-  float expectedRgb[3] = { 1, 0.05, 0.05 };
+  float expectedRgb[3] = { 1, 0.05f, 0.05f };
   pTab->GetDefaultRGBTuple(8, rgb);
   if (rgb[0] != expectedRgb[0] || rgb[1] != expectedRgb[1] ||
       rgb[2] != expectedRgb[2])

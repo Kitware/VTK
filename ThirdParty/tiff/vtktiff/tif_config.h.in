@@ -70,6 +70,9 @@
 /* Define if you have POSIX threads libraries and header files. */
 #cmakedefine HAVE_PTHREAD
 
+/* Define to 1 if you have the <search.h> header file. */
+#cmakedefine HAVE_SEARCH_H @HAVE_SEARCH_H@
+
 /* Define to 1 if you have the `sqrt' function. */
 #cmakedefine HAVE_SQRT @HAVE_SQRT@
 
