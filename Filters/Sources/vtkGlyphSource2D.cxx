@@ -530,14 +530,13 @@ void vtkGlyphSource2D::CreateDash(vtkPoints *pts, vtkCellArray *lines,
                                   vtkCellArray *polys, vtkUnsignedCharArray *colors,
                                                                   double scale)
 {
-  vtkIdType ptIds[5];
-  ptIds[0] = pts->InsertNextPoint(-0.5, -0.1, 0.0);
-  ptIds[1] = pts->InsertNextPoint( 0.5, -0.1, 0.0);
-  ptIds[2] = pts->InsertNextPoint( 0.5,  0.1, 0.0);
-  ptIds[3] = pts->InsertNextPoint(-0.5,  0.1, 0.0);
-
   if ( this->Filled )
     {
+    vtkIdType ptIds[4];
+    ptIds[0] = pts->InsertNextPoint(-0.5, -0.1, 0.0);
+    ptIds[1] = pts->InsertNextPoint( 0.5, -0.1, 0.0);
+    ptIds[2] = pts->InsertNextPoint( 0.5,  0.1, 0.0);
+    ptIds[3] = pts->InsertNextPoint(-0.5,  0.1, 0.0);
     polys->InsertNextCell(4,ptIds);
     }
   else
