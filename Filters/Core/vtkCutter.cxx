@@ -319,6 +319,31 @@ void vtkCutter::RectilinearGridCutter(vtkDataSet *dataSetInput,
   contourData->Delete();
 }
 
+namespace{
+//----------------------------------------------------------------------------
+// Find the first visible cell in a vtkStructuredGrid.
+//
+vtkIdType GetFirstVisibleCell(vtkDataSet *DataSetInput)
+{
+  vtkStructuredGrid *input = vtkStructuredGrid::SafeDownCast(DataSetInput);
+  if(input)
+    {
+    if(input->HasAnyBlankCells())
+      {
+      vtkIdType size = input->GetNumberOfElements(vtkDataSet::CELL);
+      for(vtkIdType i = 0; i < size; ++i)
+        {
+        if(input->IsCellVisible(i) != 0)
+          {
+          return i;
+          }
+        }
+      }
+    }
+  return 0;
+}
+}
+
 //----------------------------------------------------------------------------
 // Cut through data generating surface.
 //
@@ -368,7 +393,7 @@ int vtkCutter::RequestData(
     }
   else if (input->GetDataObjectType() == VTK_STRUCTURED_GRID &&
            input->GetCell(0) &&
-           input->GetCell(0)->GetCellDimension() >= 3)
+           input->GetCell(GetFirstVisibleCell(input))->GetCellDimension() >= 3)
     {
     this->StructuredGridCutter(input, output);
     }
