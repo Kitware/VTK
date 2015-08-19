@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 from vtk import *
 import os.path
+from vtk.util.misc import vtkGetDataRoot
+VTK_DATA_ROOT = vtkGetDataRoot()
 
-data_dir = "../../../../VTKData/Data/Infovis/SQLite/"
+data_dir = VTK_DATA_ROOT + "/Data/Infovis/SQLite/"
 if not os.path.exists(data_dir):
-  data_dir = "../../../../../VTKData/Data/Infovis/SQLite/"
+  data_dir = VTK_DATA_ROOT + "/Data/Infovis/SQLite/"
 if not os.path.exists(data_dir):
   data_dir = "../../../../../../VTKData/Data/Infovis/SQLite/"
 sqlite_file = data_dir + "SmallEmailTest.db"

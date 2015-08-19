@@ -4,6 +4,7 @@ This file contains Python code illustrating the creation and manipulation of
 vtkTable objects.
 """
 
+from __future__ import print_function
 from vtk import *
 
 #------------------------------------------------------------------------------
@@ -15,10 +16,10 @@ def add_row_to_vtkTable(vtk_table, new_row=None):
 
     # Just a couple of sanity checks.
     if new_row == None:
-        print "ERROR: No data provided for new table row."
+        print("ERROR: No data provided for new table row.")
         return False
     if len(new_row) != vtk_table.GetNumberOfColumns():
-        print "ERROR: Number of entries in new row does not match # of columns in table."
+        print("ERROR: Number of entries in new row does not match # of columns in table.")
         return False
 
     for i in range(vtk_table.GetNumberOfColumns()):
@@ -108,13 +109,13 @@ if __name__ == "__main__":
     # Python) We can just append to each of the column arrays.
 
     if not add_row_to_vtkTable(T, new_row):
-        print "Whoops!"
+        print("Whoops!")
 
     #----------------------------------------------------------
     # Call PrintSelf() on a VTK object is done simply by printing the object
-    print 25*"="
-    print "Calling PrintSelf():"
-    print T
+    print(25*"=")
+    print("Calling PrintSelf():")
+    print(T)
 
     #----------------------------------------------------------
 
@@ -124,15 +125,15 @@ if __name__ == "__main__":
     # things with a vtkTable from within Python.
 
     # print out our table
-    print 25*"="
-    print "Rows as lists:"
-    print get_vtkTableHeaders(T)
+    print(25*"=")
+    print("Rows as lists:")
+    print(get_vtkTableHeaders(T))
     for i in range(T.GetNumberOfRows()):
-        print get_vtkTableRow(T,i)
+        print(get_vtkTableRow(T,i))
 
-    print ""
-    print 25*"="
-    print "Delimited text:"
-    print get_vtkTableAsDelimitedText(T)
+    print("")
+    print(25*"=")
+    print("Delimited text:")
+    print(get_vtkTableAsDelimitedText(T))
 
-    print "vtkTable Python Example Completed."
+    print("vtkTable Python Example Completed.")

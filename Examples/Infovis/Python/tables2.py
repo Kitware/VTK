@@ -4,6 +4,7 @@ This file contains Python code illustrating the creation and manipulation of
 vtkTable objects.
 """
 
+from __future__ import print_function
 from vtk import *
 
 #------------------------------------------------------------------------------
@@ -12,7 +13,7 @@ from vtk import *
 
 if __name__ == "__main__":
     """ Main entry point of this python script """
-    print "vtkTable Example 2: Loading table data from a comma-separated value file."
+    print("vtkTable Example 2: Loading table data from a comma-separated value file.")
 
     # Create a Delimited Text Reader object
     csv_source = vtkDelimitedTextReader()
@@ -35,4 +36,4 @@ if __name__ == "__main__":
     # Note: tables loaded from DelimitedTextReader have all
     #       types defaulted to string data.
 
-    print "vtkTable Example 2: Finished."
+    print("vtkTable Example 2: Finished.")

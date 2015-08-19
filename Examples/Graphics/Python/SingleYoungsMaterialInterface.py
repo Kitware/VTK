@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 ############################################################
+from __future__ import print_function
 from vtk import *
 from vtk.util.misc import vtkGetDataRoot
 ############################################################
@@ -19,7 +20,7 @@ interactor.SetRenderWindow( window )
 
 # Retrieve data root
 VTK_DATA_ROOT = vtkGetDataRoot()
-print VTK_DATA_ROOT
+print(VTK_DATA_ROOT)
 # Read from AVS UCD data in binary form
 reader = vtkAVSucdReader()
 reader.SetFileName( VTK_DATA_ROOT + "/Data/UCD2D/UCD_00005.inp" )
@@ -93,7 +94,7 @@ interface.UseAllBlocksOn()
 interface.Update()
 
 # Create mappers and actors for surface rendering of all reconstructed interfaces
-interfaceIterator = vtkCompositeDataIterator()
+interfaceIterator = vtkDataObjectTreeIterator()
 interfaceIterator.SetDataSet( interface.GetOutput() )
 interfaceIterator.VisitOnlyLeavesOn()
 interfaceIterator.SkipEmptyNodesOn()
@@ -102,7 +103,7 @@ interfaceIterator.GoToFirstItem()
 while ( interfaceIterator.IsDoneWithTraversal() == 0 ):
     idx = interfaceIterator.GetCurrentFlatIndex()
     # Create mapper for leaf node
-    print "Creating mapper and actor for object with flat index", idx
+    print("Creating mapper and actor for object with flat index", idx)
     interfaceMapper = vtkDataSetMapper()
     interfaceMapper.SetInputData( interfaceIterator.GetCurrentDataObject() )
     interfaceIterator.GoToNextItem()
