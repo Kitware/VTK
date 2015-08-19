@@ -408,7 +408,7 @@ void vtkSphereRepresentation::CreateDefaultProperties()
 //----------------------------------------------------------------------------
 void vtkSphereRepresentation::PlaceWidget(double center[3], double handle[3])
 {
-  double r = vtkMath::Distance2BetweenPoints(center,handle);
+  double r = sqrt( vtkMath::Distance2BetweenPoints(center,handle) );
   this->SphereSource->SetCenter(center);
   this->SphereSource->SetRadius(r);
   this->SphereSource->Update();
@@ -451,8 +451,8 @@ void vtkSphereRepresentation::SetCenter(double center[3])
       this->HandleDirection[0] = handle[0] - center[0];
       this->HandleDirection[1] = handle[1] - center[1];
       this->HandleDirection[2] = handle[2] - center[2];
-      double r = static_cast<double>(
-        vtkMath::Distance2BetweenPoints(handle,center) );
+      double r = sqrt( static_cast<double>(
+        vtkMath::Distance2BetweenPoints(handle,center) ) );
       this->SphereSource->SetRadius(r);
       }
 
@@ -490,8 +490,8 @@ void vtkSphereRepresentation::SetHandlePosition(double handle[3])
     this->HandleDirection[0] = handle[0] - c[0];
     this->HandleDirection[1] = handle[1] - c[1];
     this->HandleDirection[2] = handle[2] - c[2];
-    double r = static_cast<double>(
-      vtkMath::Distance2BetweenPoints(handle,c) );
+    double r = sqrt( static_cast<double>(
+      vtkMath::Distance2BetweenPoints(handle,c) ) );
     this->SphereSource->SetRadius(sqrt(r));
     this->SphereSource->Update();
     this->HandleSource->Update();
