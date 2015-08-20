@@ -157,7 +157,7 @@ int TestDataArrayAPI(int, char *[])
 
 #define DataArrayAPIError(x) \
   DataArrayAPINonFatalError(x) \
-  return errors;
+  DataArrayAPIFinish();
 
 namespace {
 
