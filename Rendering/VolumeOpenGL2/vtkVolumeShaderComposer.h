@@ -1754,7 +1754,7 @@ namespace vtkvolume
     \nvec4 depthValue = in_projectionMatrix * in_modelViewMatrix *\
     \n                  in_volumeMatrix * in_textureDatasetMatrix *\
     \n                  vec4(g_dataPos, 1.0);\
-    \ngl_FragData[1] = vec4(vec3(1.0), 1.0);"
+    \ngl_FragData[1] = vec4(vec3((depthValue.z/depthValue.w) * 0.5 + 0.5), 1.0);"
   );
   }
 }
