@@ -45,6 +45,7 @@ vtkExtractGrid::~vtkExtractGrid()
     }
 }
 
+//------------------------------------------------------------------------------
 int vtkExtractGrid::RequestInformation(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
@@ -60,6 +61,13 @@ int vtkExtractGrid::RequestInformation(
 
   this->Internal->Initialize(
       this->VOI,wholeExtent,this->SampleRate,(this->IncludeBoundary==1));
+
+  if (!this->Internal->IsValid())
+    {
+    vtkWarningMacro("Error while initializing filter.");
+    return 0;
+    }
+
   this->Internal->GetOutputWholeExtent(outWholeExt);
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
@@ -72,6 +80,11 @@ int vtkExtractGrid::RequestUpdateExtent(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
+  if (!this->Internal->IsValid())
+    {
+    return 0;
+    }
+
   int i;
 
   // get the info objects
@@ -97,16 +110,18 @@ int vtkExtractGrid::RequestUpdateExtent(
     int oUExt[6];
     outputVector->GetInformationObject(0)->Get(
       vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), oUExt);
+    int oWExt[6]; // For parallel parititon this will be different.
+    this->Internal->GetOutputWholeExtent(oWExt);
     for (i=0; i<3; i++)
       {
-      int idx = oUExt[2*i];
-      if (idx < 0 || oUExt[2*i] >= (int)this->Internal->GetSize(i))
+      int idx = oUExt[2*i] - oWExt[2*i]; // Extent value to index
+      if (idx < 0 || idx >= (int)this->Internal->GetSize(i))
         {
         vtkWarningMacro("Requested extent outside whole extent.")
         idx = 0;
         }
       uExt[2*i] = this->Internal->GetMappedExtentValueFromIndex(i, idx);
-      int jdx = oUExt[2*i+1];
+      int jdx = oUExt[2*i+1] - oWExt[2*i]; // Extent value to index
       if (jdx < idx || jdx >= (int)this->Internal->GetSize(i))
         {
         vtkWarningMacro("Requested extent outside whole extent.")
@@ -128,12 +143,22 @@ int vtkExtractGrid::RequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-  return this->RequestDataImpl(this->VOI, inputVector, outputVector) ? 1 : 0;
+  if (!this->Internal->IsValid())
+    {
+    return 0;
+    }
+
+  // Set the output extent -- this is how RequestDataImpl knows what to copy.
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkStructuredGrid *output = vtkStructuredGrid::SafeDownCast(
+        outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  output->SetExtent(this->Internal->GetOutputWholeExtent());
+
+  return this->RequestDataImpl(inputVector, outputVector) ? 1 : 0;
 }
 
 //------------------------------------------------------------------------------
-bool vtkExtractGrid::RequestDataImpl(int vtkNotUsed(voi)[6],
-                                     vtkInformationVector **inputVector,
+bool vtkExtractGrid::RequestDataImpl(vtkInformationVector **inputVector,
                                      vtkInformationVector *outputVector)
 {
   if( (this->SampleRate[0] < 1) ||
@@ -154,31 +179,23 @@ bool vtkExtractGrid::RequestDataImpl(int vtkNotUsed(voi)[6],
   vtkStructuredGrid *output = vtkStructuredGrid::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkPointData *pd=input->GetPointData();
-  vtkCellData *cd=input->GetCellData();
-  vtkPointData *outPD=output->GetPointData();
-  vtkCellData *outCD=output->GetCellData();
-  int *inExt;
-  int *outExt;
-  vtkPoints *newPts, *inPts;
-
-  vtkDebugMacro(<< "Extracting Grid");
-
   if (input->GetNumberOfPoints() == 0)
     {
     return true;
     }
 
-  inPts = input->GetPoints();
-  inExt = input->GetExtent();
+  vtkPointData *pd=input->GetPointData();
+  vtkCellData *cd=input->GetCellData();
+  vtkPointData *outPD=output->GetPointData();
+  vtkCellData *outCD=output->GetCellData();
 
-  int begin[3];
-  int end[3];
-  this->Internal->ComputeBeginAndEnd(inExt,this->VOI,begin,end);
-  output->SetExtent(begin[0], end[0], begin[1], end[1], begin[2], end[2]);
+  vtkPoints *inPts = input->GetPoints();
+  int *inExt = input->GetExtent();
 
-  newPts = inPts->NewInstance();
-  outExt = output->GetExtent();
+  vtkPoints *newPts = inPts->NewInstance();
+  int *outExt = output->GetExtent();
+
+  vtkDebugMacro(<< "Extracting Grid");
 
   this->Internal->CopyPointsAndPointData(inExt,outExt,pd,inPts,outPD,newPts);
   output->SetPoints(newPts);
