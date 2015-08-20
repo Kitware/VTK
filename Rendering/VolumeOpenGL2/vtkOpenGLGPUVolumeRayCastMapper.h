@@ -20,6 +20,9 @@
 
 #include <vtkGPUVolumeRayCastMapper.h>
 
+// Forward declarations
+class vtkTextureObject;
+
 //----------------------------------------------------------------------------
 class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkOpenGLGPUVolumeRayCastMapper :
   public vtkGPUVolumeRayCastMapper
@@ -29,6 +32,23 @@ public:
 
   vtkTypeMacro(vtkOpenGLGPUVolumeRayCastMapper, vtkGPUVolumeRayCastMapper);
   void PrintSelf( ostream& os, vtkIndent indent );
+
+  // Description:
+  // Enable or disable setting output of volume rendering to be
+  // color and depth textures. By default this is set to 0 (off).
+  vtkSetMacro(RenderToTexture, int);
+  vtkGetMacro(RenderToTexture, int);
+  vtkBooleanMacro(RenderToTexture, int);
+
+  // Description:
+  // Low level API to enable access to depth texture in
+  // RenderToTexture mode.
+  vtkTextureObject* GetDepthTexture();
+
+  // Description:
+  // Low level API to enable access to color texture in
+  // RenderToTexture mode.
+  vtkTextureObject* GetColorTexture();
 
 protected:
   vtkOpenGLGPUVolumeRayCastMapper();
@@ -90,6 +110,7 @@ protected:
     return 1;
     }
 
+  int RenderToTexture;
   double ReductionFactor;
 
 private:
