@@ -30,7 +30,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkSmartPointer.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 #include <sys/stat.h>
 #include <string>
 #include <vector>

@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 #include <cassert>
 #include <locale>
 #include <vtksys/SystemTools.hxx>

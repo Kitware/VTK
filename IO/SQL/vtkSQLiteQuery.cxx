@@ -29,7 +29,7 @@
 
 #include <cassert>
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 #include <vector>
 
 #define BEGIN_TRANSACTION "BEGIN TRANSACTION"

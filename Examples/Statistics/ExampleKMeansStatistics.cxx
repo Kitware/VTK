@@ -20,7 +20,7 @@
 #include "vtkStdString.h"
 #include "vtkTimerLog.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 
 //=============================================================================

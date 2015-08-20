@@ -79,7 +79,7 @@
 #include "vtkCommand.h" // for VolumeMapperRender{Start|End|Progress}Event
 #include "vtkPerlinNoise.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 #include "vtkStdString.h"
 
 #include "vtkShaderProgram2.h"

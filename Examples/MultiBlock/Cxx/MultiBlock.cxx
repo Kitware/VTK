@@ -37,7 +37,7 @@
 #include "vtkStructuredGridOutlineFilter.h"
 #include "vtkTestUtilities.h"
 #include "vtkXMLStructuredGridReader.h"
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 int main(int argc, char* argv[])
 {

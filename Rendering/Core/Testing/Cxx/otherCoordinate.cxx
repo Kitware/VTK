@@ -22,7 +22,7 @@
 #include "vtkRenderer.h"
 #include "vtkCamera.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 #include "vtkDebugLeaks.h"
 

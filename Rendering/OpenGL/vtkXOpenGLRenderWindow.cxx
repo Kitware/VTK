@@ -53,7 +53,7 @@ typedef ptrdiff_t GLsizeiptr;
 
 #include "vtksys/SystemTools.hxx"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>

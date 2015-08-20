@@ -22,7 +22,7 @@
 #include <vtkSparseArray.h>
 #include <vtkSmartPointer.h>
 
-#include <vtksys/ios/iostream>
+#include <iostream>
 #include <stdexcept>
 
 template<typename T>

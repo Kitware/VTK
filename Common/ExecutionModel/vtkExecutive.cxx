@@ -29,7 +29,7 @@
 #include "vtkSmartPointer.h"
 
 #include <vector>
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 #include "vtkCompositeDataPipeline.h"
 

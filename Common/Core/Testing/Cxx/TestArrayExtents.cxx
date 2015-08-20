@@ -22,8 +22,8 @@
 #include <vtkArrayCoordinates.h>
 #include <vtkArrayExtents.h>
 
-#include <vtksys/ios/iostream>
-#include <vtksys/ios/sstream>
+#include <iostream>
+#include <sstream>
 #include <stdexcept>
 #include "vtkSetGet.h"
 

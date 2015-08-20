@@ -33,7 +33,7 @@
 #include <functional>
 #include <vector>
 #include <stdexcept>
-#include <vtksys/ios/iostream>
+#include <iostream>
 #include <stdlib.h>
 #include <string.h>
 

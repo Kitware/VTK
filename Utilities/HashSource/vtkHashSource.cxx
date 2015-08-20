@@ -14,13 +14,13 @@
 =========================================================================*/
 
 #include <string>
-#include <vtksys/ios/fstream>
-#include <vtksys/ios/iostream>
+#include <fstream>
+#include <iostream>
 #include <vtksys/MD5.h>
 #include <vtksys/SystemTools.hxx>
 #include <vtksys/RegularExpression.hxx>
 
-static std::string HashMD5(vtksys_ios::istream& in)
+static std::string HashMD5(std::istream& in)
 {
   char hash[33];
   vtksysMD5* hasher = vtksysMD5_New();
@@ -57,30 +57,30 @@ int main(int argc, char *argv[])
 {
   if(argc < 3)
     {
-    vtksys_ios::cerr << "Usage: vtkHashSource input.cxx name [output.h]\n";
+    std::cerr << "Usage: vtkHashSource input.cxx name [output.h]\n";
     return 1;
     }
   const char* inFile = argv[1];
   const char* name = argv[2];
   const char* outFile = argc > 3? argv[3] : 0;
 
-  vtksys_ios::ifstream fin(inFile);
+  std::ifstream fin(inFile);
   if(!fin)
     {
-    vtksys_ios::cerr << "Unable to read \"" << inFile << "\"\n";
+    std::cerr << "Unable to read \"" << inFile << "\"\n";
     return 1;
     }
 
   std::string md5 = HashMD5(fin);
 
-  vtksys_ios::ostream* out = &vtksys_ios::cout;
-  vtksys_ios::ofstream fout;
+  std::ostream* out = &std::cout;
+  std::ofstream fout;
   if(outFile)
     {
     fout.open(outFile);
     if(!fout)
       {
-      vtksys_ios::cerr << "Unable to write \"" << outFile << "\"\n";
+      std::cerr << "Unable to write \"" << outFile << "\"\n";
       return 1;
       }
     out = &fout;

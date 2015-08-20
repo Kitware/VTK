@@ -59,7 +59,7 @@
 #include "vtkQtLabelRenderStrategy.h"
 #endif
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 vtkStandardNewMacro(vtkRenderView);
 vtkCxxSetObjectMacro(vtkRenderView, Transform, vtkAbstractTransform);

@@ -45,7 +45,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 #include "vtkVariantArray.h"
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 // We only have vtkTypeUInt64Array if we have long long
 // or we have __int64 with conversion to double.

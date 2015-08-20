@@ -27,7 +27,7 @@
 #include "vtkSparseArray.h"
 #include "vtkUnicodeString.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 

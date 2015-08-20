@@ -34,7 +34,7 @@
 #include <QtSql/QSqlError>
 
 #include <vtksys/SystemTools.hxx>
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 vtkStandardNewMacro(vtkQtSQLDatabase);
 

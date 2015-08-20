@@ -31,7 +31,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 #include <stdexcept>
 
 template<typename ValueT, typename ValueColumnT>

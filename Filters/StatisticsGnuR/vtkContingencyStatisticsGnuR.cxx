@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <map>
 #include <vector>
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 
 vtkStandardNewMacro(vtkContingencyStatisticsGnuR);

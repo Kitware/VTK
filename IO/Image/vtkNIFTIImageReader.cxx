@@ -30,7 +30,7 @@
 #include "vtkVersion.h"
 
 #include "vtksys/SystemTools.hxx"
-#include "vtksys/ios/sstream"
+#include "sstream"
 
 // Header for NIFTI
 #include "vtkNIFTIImageHeader.h"

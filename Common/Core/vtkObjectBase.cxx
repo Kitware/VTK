@@ -18,7 +18,7 @@
 #include "vtkGarbageCollector.h"
 #include "vtkWeakPointerBase.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 #define vtkBaseDebugMacro(x)
 

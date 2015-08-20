@@ -20,7 +20,7 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkDebugLeaks.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 int Test(ostream& strm)
 {

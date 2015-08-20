@@ -28,7 +28,7 @@
 #include "vtkWeakPointer.h"
 #include "vtkWindows.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 #include <map>
 #include <vector>
 #include <string>

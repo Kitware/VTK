@@ -32,8 +32,8 @@
 #include <vtkDataSetAttributes.h>
 #include <vtkStringArray.h>
 
-#include <vtksys/ios/iostream>
-#include <vtksys/ios/sstream>
+#include <iostream>
+#include <sstream>
 #include <stdexcept>
 #include <stdio.h>
 #include <string.h>

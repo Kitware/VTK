@@ -27,7 +27,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkArrayNorm.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 #include <limits>
 #include <stdexcept>
 

@@ -1146,7 +1146,7 @@ int main(int argc, char *argv[])
   fprintf(fp,"#include \"vtkTclUtil.h\"\n");
   fprintf(fp,"#include \"vtkStdString.h\"\n");
   fprintf(fp,"#include <stdexcept>\n");
-  fprintf(fp,"#include <vtksys/ios/sstream>\n");
+  fprintf(fp,"#include <sstream>\n");
   if (!data->IsAbstract && strcmp(data->Name, "vtkObjectBase") != 0)
     {
     if (strcmp(data->Name, "vtkRenderWindowInteractor") == 0)

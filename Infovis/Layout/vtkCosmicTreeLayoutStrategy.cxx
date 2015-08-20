@@ -8,7 +8,7 @@
 #include "vtkPoints.h"
 #include "vtkTree.h"
 
-#include "vtksys/ios/sstream"
+#include "sstream"
 
 #include <vector>
 #include <algorithm>

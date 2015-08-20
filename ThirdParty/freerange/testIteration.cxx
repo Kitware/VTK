@@ -19,7 +19,7 @@
 #include "freerange"
 #include "vtkSystemIncludes.h"
 
-using namespace vtksys_ios;
+using namespace std;
 
 // A list of entries to free before iterating
 static int flist[] = {

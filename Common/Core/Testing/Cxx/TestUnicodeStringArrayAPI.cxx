@@ -27,8 +27,8 @@
 #include <vtkTestErrorObserver.h>
 
 #include <iterator>
-#include <vtksys/ios/iostream>
-#include <vtksys/ios/sstream>
+#include <iostream>
+#include <sstream>
 #include <stdexcept>
 
 static int TestErrorsAndWarnings();

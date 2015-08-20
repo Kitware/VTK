@@ -1,7 +1,7 @@
 #include <vtkArrayPrint.h>
 #include <vtkSparseArray.h>
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 int main(int argc, char* argv[])
 {

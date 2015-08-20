@@ -33,7 +33,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenGLExtensionManager.h"
 
 #include "vtksys/SystemTools.hxx"
-#include "vtksys/ios/sstream"
+#include "sstream"
 
 class vtkOSOpenGLRenderWindow;
 class vtkRenderWindow;

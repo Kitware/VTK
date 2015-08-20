@@ -26,8 +26,8 @@
 #include "vtkStringArray.h"
 
 #include <vtksys/SystemTools.hxx>
-#include <vtksys/ios/fstream>
-#include <vtksys/ios/sstream>
+#include <fstream>
+#include <sstream>
 
 #include <vtksqlite/vtk_sqlite3.h>
 

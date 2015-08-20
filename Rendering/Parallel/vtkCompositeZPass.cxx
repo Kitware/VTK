@@ -32,7 +32,7 @@
 #include "vtkPixelBufferObject.h"
 #include "vtkImageExtractComponents.h"
 #include "vtkMultiProcessController.h"
-#include <vtksys/ios/sstream>
+#include <sstream>
 #include "vtkTimerLog.h"
 #include "vtkStdString.h"
 #include "vtkImageData.h"

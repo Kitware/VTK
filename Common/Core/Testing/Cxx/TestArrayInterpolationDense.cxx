@@ -23,7 +23,7 @@
 #include <vtkDenseArray.h>
 #include <vtkSmartPointer.h>
 
-#include <vtksys/ios/iostream>
+#include <iostream>
 #include <stdexcept>
 
 void test_expression(const bool expression, const std::string& message)

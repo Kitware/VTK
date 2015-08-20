@@ -23,8 +23,8 @@
 #include <vtkSmartPointer.h>
 #include <vtkSparseArray.h>
 
-#include <vtksys/ios/iostream>
-#include <vtksys/ios/sstream>
+#include <iostream>
+#include <sstream>
 #include <stdexcept>
 
 #define test_expression(expression) \

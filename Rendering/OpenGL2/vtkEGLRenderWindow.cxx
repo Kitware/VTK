@@ -30,7 +30,7 @@
 
 #include "vtksys/SystemTools.hxx"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 #include "vtk_glew.h"
 

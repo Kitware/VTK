@@ -28,7 +28,7 @@
 #include "vtkShortArray.h"
 #include "vtkStructuredGrid.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 int TestOSG(ostream& strm)
 {

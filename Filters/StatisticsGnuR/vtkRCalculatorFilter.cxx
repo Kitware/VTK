@@ -44,7 +44,7 @@
 #include <cstdlib>
 #include <string>
 #include <vector>
-#include <vtksys/ios/sstream>
+#include <sstream>
 #include <sys/stat.h>
 
 #define BUFFER_SIZE 32768

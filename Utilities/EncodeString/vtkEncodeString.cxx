@@ -19,7 +19,7 @@
 
 #include "vtkSystemIncludes.h" // for cout,endl
 #include <string>
-#include <vtksys/ios/sstream>
+#include <sstream>
 //#include <vtksys/SystemTools.hxx>
 
 // Functions from kwsys SystemTools, as we cannot link vtkEncodeString
@@ -95,7 +95,7 @@ public:
   ~Output()
     {
     }
-  vtksys_ios::ostringstream Stream;
+  std::ostringstream Stream;
 
   bool ProcessFile(const char *inputFile,
                    const char *stringName,

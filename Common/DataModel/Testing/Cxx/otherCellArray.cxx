@@ -24,7 +24,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkQuad.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 int TestCellArray(ostream& strm)
 {

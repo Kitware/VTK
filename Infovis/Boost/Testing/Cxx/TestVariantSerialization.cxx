@@ -22,7 +22,7 @@
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 #include <string.h>
 
 #include <boost/archive/text_iarchive.hpp>

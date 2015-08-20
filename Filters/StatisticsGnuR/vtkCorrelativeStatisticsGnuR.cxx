@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRInterface.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 vtkStandardNewMacro(vtkCorrelativeStatisticsGnuR);
 

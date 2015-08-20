@@ -24,8 +24,8 @@
 #include <vtkSparseArray.h>
 #include <vtkTryDowncast.h>
 
-#include <vtksys/ios/iostream>
-#include <vtksys/ios/sstream>
+#include <iostream>
+#include <sstream>
 #include <stdexcept>
 
 #include <boost/algorithm/string.hpp>

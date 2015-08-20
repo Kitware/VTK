@@ -8,7 +8,7 @@
 #include "vtkIntArray.h"
 #include "vtkIdTypeArray.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 vtkStandardNewMacro(vtkKMeansDistanceFunctorCalculator);
 vtkCxxSetObjectMacro(vtkKMeansDistanceFunctorCalculator,FunctionParser,vtkFunctionParser);

@@ -20,7 +20,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRInterface.h"
 #include "vtkObjectFactory.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 vtkStandardNewMacro(vtkPCAStatisticsGnuR);
 

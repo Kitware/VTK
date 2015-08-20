@@ -24,7 +24,7 @@
 #include "vtkXMLParser.h"
 #include "vtkSmartPointer.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 #include <map>
 #include <vector>
 #include <set>
