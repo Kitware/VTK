@@ -23,7 +23,7 @@
 #include <vtkSmartPointer.h>
 
 #include <vtksys/ios/iostream>
-#include <vtksys/stl/stdexcept>
+#include <stdexcept>
 
 template<typename T>
 void VerifyType(const T& DefaultNull, const T& AlternateNull)

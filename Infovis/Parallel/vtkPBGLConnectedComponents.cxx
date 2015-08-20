@@ -54,7 +54,7 @@
 #include <boost/graph/strong_components.hpp>
 #include <boost/graph/distributed/strong_components.hpp>
 
-#include <vtksys/stl/utility> // for pair
+#include <utility> // for pair
 
 using namespace boost;
 

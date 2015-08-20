@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkXOpenGLRenderWindow.h"
 
-#include <vtksys/stl/map>
+#include <map>
 
 #include "vtkTk.h"
 

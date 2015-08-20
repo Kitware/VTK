@@ -25,8 +25,8 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-#include <vtksys/stl/algorithm>
-#include <vtksys/stl/vector>
+#include <algorithm>
+#include <vector>
 
 //
 // Standard functions

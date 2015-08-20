@@ -30,7 +30,7 @@
 
 #include <vtksys/ios/fstream>
 #include <vtksys/ios/sstream>
-#include <vtksys/stl/utility>
+#include <utility>
 
 vtkStandardNewMacro(vtkGeoFileTerrainSource);
 //----------------------------------------------------------------------------

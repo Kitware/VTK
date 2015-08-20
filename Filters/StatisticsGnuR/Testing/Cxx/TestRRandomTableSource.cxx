@@ -29,7 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtksys/ios/iostream>
 #include <vtksys/ios/sstream>
-#include <vtksys/stl/stdexcept>
+#include <stdexcept>
 
 namespace
 {

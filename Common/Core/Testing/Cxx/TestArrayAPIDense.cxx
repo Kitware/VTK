@@ -24,7 +24,7 @@
 
 #include <vtksys/ios/iostream>
 #include <vtksys/ios/sstream>
-#include <vtksys/stl/stdexcept>
+#include <stdexcept>
 
 #define test_expression(expression) \
 { \

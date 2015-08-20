@@ -29,7 +29,7 @@
 #include "vtkBoostGraphAdapter.h" // for the sequential BGL adapters
 
 //BTX
-#include <vtksys/stl/map> // required for Boost 1.54.0
+#include <map> // required for Boost 1.54.0
 #include <boost/graph/use_mpi.hpp>
 #include <boost/graph/distributed/mpi_process_group.hpp>
 #include <boost/graph/properties.hpp>

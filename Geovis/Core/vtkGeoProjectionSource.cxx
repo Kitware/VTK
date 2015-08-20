@@ -44,8 +44,8 @@
 #include "vtkTransform.h"
 #include "vtkTransformFilter.h"
 
-#include <vtksys/stl/stack>
-#include <vtksys/stl/utility>
+#include <stack>
+#include <utility>
 
 
 // Heap dump method used for debugging threading issues on windows.

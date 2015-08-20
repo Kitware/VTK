@@ -34,7 +34,7 @@
 
 #include <vtksys/ios/iostream>
 #include <vtksys/ios/sstream>
-#include <vtksys/stl/stdexcept>
+#include <stdexcept>
 #include <stdio.h>
 #include <string.h>
 #include <cassert>

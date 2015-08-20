@@ -26,10 +26,10 @@
 #include <vtkVariant.h>
 #include <vtkTestErrorObserver.h>
 
-#include <vtksys/stl/iterator>
+#include <iterator>
 #include <vtksys/ios/iostream>
 #include <vtksys/ios/sstream>
-#include <vtksys/stl/stdexcept>
+#include <stdexcept>
 
 static int TestErrorsAndWarnings();
 

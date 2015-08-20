@@ -13,14 +13,14 @@
 
 =========================================================================*/
 
-#include <vtksys/stl/string>
+#include <string>
 #include <vtksys/ios/fstream>
 #include <vtksys/ios/iostream>
 #include <vtksys/MD5.h>
 #include <vtksys/SystemTools.hxx>
 #include <vtksys/RegularExpression.hxx>
 
-static vtksys_stl::string HashMD5(vtksys_ios::istream& in)
+static std::string HashMD5(vtksys_ios::istream& in)
 {
   char hash[33];
   vtksysMD5* hasher = vtksysMD5_New();
@@ -28,13 +28,13 @@ static vtksys_stl::string HashMD5(vtksys_ios::istream& in)
 
   vtksys::RegularExpression key("\\$(Revision|Date|RCSfile):[^$]*\\$");
 
-  vtksys_stl::string line;
+  std::string line;
   while(vtksys::SystemTools::GetLineFromStream(in, line))
     {
     // Remove CVS key values from the line (simulate -kk).
     while(key.find(line))
       {
-      vtksys_stl::string tmp = line.substr(0, key.start());
+      std::string tmp = line.substr(0, key.start());
       tmp += "$";
       tmp += key.match(1);
       tmp += "$";
@@ -50,7 +50,7 @@ static vtksys_stl::string HashMD5(vtksys_ios::istream& in)
   vtksysMD5_FinalizeHex(hasher, hash);
   vtksysMD5_Delete(hasher);
   hash[32] = 0;
-  return vtksys_stl::string(hash);
+  return std::string(hash);
 }
 
 int main(int argc, char *argv[])
@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
     return 1;
     }
 
-  vtksys_stl::string md5 = HashMD5(fin);
+  std::string md5 = HashMD5(fin);
 
   vtksys_ios::ostream* out = &vtksys_ios::cout;
   vtksys_ios::ofstream fout;

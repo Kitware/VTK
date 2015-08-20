@@ -14,7 +14,7 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 
 #include "vtkTDxQtUnixDevices.h"
-#include <vtksys/stl/map>
+#include <map>
 #include <QApplication> // topLevelWidgets()
 #include <QWidget>
 #include <X11/Xlib.h> // Needed for X types used in the public interface

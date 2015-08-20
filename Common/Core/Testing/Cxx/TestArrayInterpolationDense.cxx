@@ -24,7 +24,7 @@
 #include <vtkSmartPointer.h>
 
 #include <vtksys/ios/iostream>
-#include <vtksys/stl/stdexcept>
+#include <stdexcept>
 
 void test_expression(const bool expression, const std::string& message)
 {

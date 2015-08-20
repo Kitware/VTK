@@ -47,8 +47,8 @@
 #include "vtkViewTheme.h"
 #include "vtkIntArray.h"
 
-#include <vtksys/stl/functional>
-#include <vtksys/stl/string>
+#include <functional>
+#include <string>
 
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
