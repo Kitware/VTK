@@ -29,6 +29,7 @@
 #include <vtkBoundingBox.h>
 #include <vtkCamera.h>
 #include <vtkCellArray.h>
+#include <vtkCellData.h>
 #include <vtkClipConvexPolyData.h>
 #include <vtkColorTransferFunction.h>
 #include <vtkCommand.h>
@@ -38,16 +39,19 @@
 #include <vtkFrameBufferObject2.h>
 #include <vtk_glew.h>
 #include <vtkImageData.h>
-#include <vtkLight.h>
 #include <vtkLightCollection.h>
+#include <vtkLight.h>
 #include <vtkMath.h>
 #include <vtkMatrix4x4.h>
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
 #include <vtkOpenGLError.h>
-#include <vtkOpenGLShaderCache.h>
 #include <vtkOpenGLRenderWindow.h>
+#include <vtkOpenGLShaderCache.h>
 #include <vtkPerlinNoise.h>
+#include <vtkPixelBufferObject.h>
+#include <vtkPixelExtent.h>
+#include <vtkPixelTransfer.h>
 #include <vtkPlaneCollection.h>
 #include <vtkPointData.h>
 #include <vtkPoints.h>
@@ -271,6 +275,9 @@ public:
 
   // Dispose / free GL buffers
   void DeleteBufferObjects();
+
+  // Convert vtkTextureObject to vtkImageData
+  vtkImageData* ConvertTextureToImageData(vtkTextureObject* texture);
 
   // Private member variables
   //--------------------------------------------------------------------------
@@ -2026,6 +2033,56 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::DeleteBufferObjects()
 }
 
 //----------------------------------------------------------------------------
+vtkImageData* vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
+                ConvertTextureToImageData(vtkTextureObject* texture)
+{
+  unsigned int tw = texture->GetWidth();
+  unsigned int th = texture->GetHeight();
+  unsigned int tnc = texture->GetComponents();
+  int tt = texture->GetVTKDataType();
+
+  vtkPixelExtent texExt(0U, tw-1U, 0U, th-1U);
+  vtkPixelExtent subExt(texExt);
+
+  vtkFloatArray* ta = vtkFloatArray::New();
+  ta->SetNumberOfComponents(tnc);
+  ta->SetNumberOfTuples(subExt.Size());
+  ta->SetName("tex");
+  float *pTa = ta->GetPointer(0);
+
+  vtkPixelBufferObject *pbo = texture->Download();
+
+  vtkPixelTransfer::Blit(texExt,
+                         subExt,
+                         subExt,
+                         subExt,
+                         tnc,
+                         tt,
+                         pbo->MapPackedBuffer(),
+                         tnc,
+                         VTK_FLOAT,
+                         pTa);
+
+  pbo->UnmapPackedBuffer();
+  pbo->Delete();
+
+  int dataExt[6]={0,0, 0,0, 0,0};
+  texExt.CellToNode();
+  texExt.GetData(dataExt);
+
+  double dataOrigin[6] = {0, 0, 0, 0, 0, 0};
+
+  vtkImageData *id = vtkImageData::New();
+  id->SetExtent(dataExt);
+  id->SetOrigin(dataOrigin);
+  id->SetDimensions(tw, th, 1);
+  id->GetPointData()->SetScalars(ta);
+  ta->Delete();
+
+  return id;
+}
+
+//----------------------------------------------------------------------------
 vtkOpenGLGPUVolumeRayCastMapper::vtkOpenGLGPUVolumeRayCastMapper() :
   vtkGPUVolumeRayCastMapper()
 {
@@ -2060,15 +2117,29 @@ void vtkOpenGLGPUVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
+vtkTextureObject* vtkOpenGLGPUVolumeRayCastMapper::GetDepthTexture()
+{
+  return this->Impl->RTTDepthTextureObject;
+}
+
+//----------------------------------------------------------------------------
+vtkImageData* vtkOpenGLGPUVolumeRayCastMapper::GetDepthTextureAsImageData()
+{
+  return this->Impl->ConvertTextureToImageData(
+                       this->Impl->RTTDepthTextureObject);
+}
+
+//----------------------------------------------------------------------------
 vtkTextureObject* vtkOpenGLGPUVolumeRayCastMapper::GetColorTexture()
 {
  return this->Impl->RTTColorTextureObject;
 }
 
 //----------------------------------------------------------------------------
-vtkTextureObject* vtkOpenGLGPUVolumeRayCastMapper::GetDepthTexture()
+vtkImageData* vtkOpenGLGPUVolumeRayCastMapper::GetColorTextureAsImageData()
 {
-  return this->Impl->RTTDepthTextureObject;
+  return this->Impl->ConvertTextureToImageData(
+                       this->Impl->RTTColorTextureObject);
 }
 
 //----------------------------------------------------------------------------
@@ -2683,6 +2754,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     vtkCheckFrameBufferStatusMacro(GL_FRAMEBUFFER);
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
     }
 
   // Allocate important variables
@@ -3208,7 +3280,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
       1.0f, 1.0f, 0.0f,
       -1.0f, 1.0f, 0.0f};
 
-    this->Impl->RTTDepthTextureObject->CopyToFrameBuffer(tcoords, verts, NULL, NULL);
+    this->Impl->RTTColorTextureObject->CopyToFrameBuffer(tcoords, verts, NULL, NULL);
     }
 
 
