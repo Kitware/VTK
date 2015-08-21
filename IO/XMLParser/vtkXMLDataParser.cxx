@@ -25,7 +25,7 @@
 #include "vtkXMLDataHeaderPrivate.h"
 #undef vtkXMLDataHeaderPrivate_DoNotInclude
 
-#include <vtksys/auto_ptr.hxx>
+#include <memory>
 #include <sstream>
 
 #include "vtkXMLUtilities.h"
@@ -468,7 +468,7 @@ void vtkXMLDataParser::PerformByteSwap(void* data, size_t numWords,
 //----------------------------------------------------------------------------
 int vtkXMLDataParser::ReadCompressionHeader()
 {
-  vtksys::auto_ptr<vtkXMLDataHeader>
+  std::auto_ptr<vtkXMLDataHeader>
     ch(vtkXMLDataHeader::New(this->HeaderType, 3));
 
   this->DataStream->StartReading();
@@ -589,7 +589,7 @@ size_t vtkXMLDataParser::ReadUncompressedData(unsigned char* data,
                                               size_t wordSize)
 {
   // First read the length of the data.
-  vtksys::auto_ptr<vtkXMLDataHeader>
+  std::auto_ptr<vtkXMLDataHeader>
     uh(vtkXMLDataHeader::New(this->HeaderType, 1));
   size_t const headerSize = uh->DataSize();
   size_t r = this->DataStream->Read(uh->Data(), headerSize);
