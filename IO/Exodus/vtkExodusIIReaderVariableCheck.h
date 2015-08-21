@@ -4,7 +4,7 @@
 #include "vtkExodusIIReaderPrivate.h" // for ArrayInfoType
 
 #include <vtksys/RegularExpression.hxx> // for integration point names
-#include <vtksys/String.hxx> // STL Header for Start/StartInternal/Add
+#include <string> // STL Header for Start/StartInternal/Add
 #include <vector> // STL Header for glommed array names
 #include <set> // STL Header for integration point names
 
