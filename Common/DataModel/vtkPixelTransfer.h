@@ -26,12 +26,12 @@
 #ifndef vtkPixelTransfer_h
 #define vtkPixelTransfer_h
 
-#include "vtkRenderingLICModule.h" // for export
+#include "vtkCommonDataModelModule.h" // for export
 #include "vtkSetGet.h" // for macros
 #include "vtkPixelExtent.h" // for pixel extent
 #include <cstring> // for memcpy
 
-class VTKRENDERINGLIC_EXPORT vtkPixelTransfer
+class VTKCOMMONDATAMODEL_EXPORT vtkPixelTransfer
 {
 public:
   vtkPixelTransfer(){}

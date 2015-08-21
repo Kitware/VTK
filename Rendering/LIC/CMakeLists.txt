@@ -1,7 +1,6 @@
 set(Module_SRCS
   vtkImageDataLIC2D.cxx
   vtkLineIntegralConvolution2D.cxx
-  vtkPixelTransfer.cxx
   vtkStructuredGridLIC2D.cxx
   vtkSurfaceLICComposite.cxx
   vtkSurfaceLICDefaultPainter.cxx
@@ -12,7 +11,6 @@ set(Module_SRCS
 set_source_files_properties(
   vtkLineIntegralConvolution2D.cxx
   vtkPainterCommunicator.cxx
-  vtkPixelTransfer.cxx
   vtkSurfaceLICComposite.cxx
   vtkTextureIO.cxx
   WRAP_EXCLUDE
