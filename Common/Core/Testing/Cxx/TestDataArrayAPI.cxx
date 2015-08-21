@@ -157,7 +157,7 @@ int TestDataArrayAPI(int, char *[])
 
 #define DataArrayAPIError(x) \
   DataArrayAPINonFatalError(x) \
-  return errors;
+  DataArrayAPIFinish();
 
 namespace {
 
@@ -1093,7 +1093,6 @@ int Test_doubleptr_GetTupleN_i()
 #undef vtkDataArrayAPIGetTupleNCase
       default:
         DataArrayAPIError("Unrecognized tuple size: GetTuple" << N << "().");
-        DataArrayAPIFinish();
       }
 
     for (int c = 0; c < comps; ++c)
