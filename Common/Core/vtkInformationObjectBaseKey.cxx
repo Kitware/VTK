@@ -32,6 +32,7 @@ vtkInformationObjectBaseKey
 //----------------------------------------------------------------------------
 vtkInformationObjectBaseKey::~vtkInformationObjectBaseKey()
 {
+  delete [] this->RequiredClass;
 }
 
 //----------------------------------------------------------------------------
