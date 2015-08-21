@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import sys
 import vtk
 from vtk.test import Testing
@@ -61,7 +63,7 @@ if __name__ == '__main__'  :
   feature_properties = {'prop0': prop0_default}
   polydata = load_geojson(input_string, feature_properties)
   if polydata is None:
-    print 'Failed to read input string and return vtkPolyData'
+    print('Failed to read input string and return vtkPolyData')
     sys.exit(1)
 
   num_errors = 0
@@ -73,20 +75,20 @@ if __name__ == '__main__'  :
 
   num_verts = polydata.GetNumberOfVerts()
   if num_verts != expected_verts:
-    print 'Wrong number of verts: returned %s, should be %s' % \
-      (num_verts, expected_verts)
+    print('Wrong number of verts: returned %s, should be %s' % \
+      (num_verts, expected_verts))
     num_errors += 1
 
   num_lines = polydata.GetNumberOfLines()
   if num_lines != expected_lines:
-    print 'Wrong number of lines: returned %s, should be %s' % \
-      (num_lines, expected_lines)
+    print('Wrong number of lines: returned %s, should be %s' % \
+      (num_lines, expected_lines))
     num_errors += 1
 
   num_polys = polydata.GetNumberOfPolys()
   if num_polys != expected_polys:
-    print 'Wrong number of polys: returned %s, should be %s' % \
-      (num_polys, expected_polys)
+    print('Wrong number of polys: returned %s, should be %s' % \
+      (num_polys, expected_polys))
     num_errors += 1
 
   # Check cell data
@@ -95,14 +97,14 @@ if __name__ == '__main__'  :
   # All polydata generated from GeoJSON have feature-id array
   feature_id_array = cell_data.GetAbstractArray('feature-id')
   if feature_id_array is None:
-    print 'feature-id array missing'
+    print('feature-id array missing')
     num_errors += 1
 
   # Test case also specified a prop0 array
   prop0_array = cell_data.GetAbstractArray('prop0')
   if prop0_array is None:
-    print 'prop0 array missing'
+    print('prop0 array missing')
     num_errors += 1
 
-  print 'num_errors:', num_errors
+  print('num_errors:', num_errors)
   sys.exit(num_errors)
