@@ -66,7 +66,6 @@
 #include <vtkVolumeMask.h>
 #include <vtkVolumeProperty.h>
 #include <vtkWeakPointer.h>
-#include <vtkTextureIO.h>
 
 // C/C++ includes
 #include <cassert>
@@ -3210,9 +3209,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
       -1.0f, 1.0f, 0.0f};
 
     this->Impl->RTTDepthTextureObject->CopyToFrameBuffer(tcoords, verts, NULL, NULL);
-    vtkTextureIO::Write(
-                "volumeRender.vtk",
-                this->Impl->RTTColorTextureObject);
     }
 
 

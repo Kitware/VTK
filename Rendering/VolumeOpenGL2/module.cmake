@@ -8,7 +8,6 @@ vtk_module(vtkRenderingVolumeOpenGL2
   DEPENDS
     vtkglew
     vtkRenderingOpenGL2
-    vtkRenderingLICOpenGL2
     vtkRenderingVolume
   PRIVATE_DEPENDS
     vtksys
