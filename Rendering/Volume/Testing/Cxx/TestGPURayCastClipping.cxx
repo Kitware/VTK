@@ -17,22 +17,18 @@
 #include <vtkActor.h>
 #include <vtkCamera.h>
 #include <vtkColorTransferFunction.h>
-#include <vtkCommand.h>
 #include <vtkGPUVolumeRayCastMapper.h>
 #include <vtkImageData.h>
 #include <vtkNew.h>
 #include <vtkPiecewiseFunction.h>
 #include <vtkPlane.h>
 #include <vtkPlaneCollection.h>
-#include <vtkPolyDataMapper.h>
 #include <vtkRegressionTestImage.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
-#include <vtkSphereSource.h>
 #include <vtkTestUtilities.h>
-#include <vtkTimerLog.h>
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
 
@@ -57,7 +53,6 @@ int TestGPURayCastClipping(int argc, char *argv[])
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetSize(400, 400);
 
-  // Intentional odd and NPOT  width/height
   vtkNew<vtkRenderer> ren;
   renWin->AddRenderer(ren.GetPointer());
 
