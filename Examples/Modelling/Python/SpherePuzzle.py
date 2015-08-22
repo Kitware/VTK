@@ -1,8 +1,14 @@
 #!/usr/bin/env python
 
-# A game with VTK and Tkinter. :)
+# A game with VTK and tkinter. :)
 
-import Tkinter
+import sys
+if sys.hexversion < 0x03000000:
+    # for Python2
+    import Tkinter as tkinter
+else:
+    # for Python3
+    import tkinter
 import vtk
 from vtk.tk.vtkTkRenderWindowInteractor import vtkTkRenderWindowInteractor
 
@@ -34,7 +40,7 @@ cam.Elevation(-40)
 
 
 ## Generate the GUI
-root = Tkinter.Tk()
+root = tkinter.Tk()
 root.withdraw()
 
 # Define a quit method that exits cleanly.
@@ -42,13 +48,13 @@ def quit(obj=root):
     obj.quit()
 
 # Create the toplevel window
-top = Tkinter.Toplevel(root)
+top = tkinter.Toplevel(root)
 top.title("Sphere Puzzle")
 top.protocol("WM_DELETE_WINDOW", quit)
 
 # Create some frames
-f1 = Tkinter.Frame(top)
-f2 = Tkinter.Frame(top)
+f1 = tkinter.Frame(top)
+f2 = tkinter.Frame(top)
 
 f1.pack(side="top", anchor="n", expand=1, fill="both")
 f2.pack(side="bottom", anchor="s", expand="t", fill="x")
@@ -62,12 +68,12 @@ def reset(evt=None):
     renWin.Render()
 
 # Display some information
-l1 = Tkinter.Label(f2, text="Position cursor over the rotation plane.")
-l2 = Tkinter.Label(f2, text="Moving pieces will be highlighted.")
-l3 = Tkinter.Label(f2, text="Press 'm' to make a move.")
-reset = Tkinter.Button(f2, text="Reset", command=reset)
+l1 = tkinter.Label(f2, text="Position cursor over the rotation plane.")
+l2 = tkinter.Label(f2, text="Moving pieces will be highlighted.")
+l3 = tkinter.Label(f2, text="Press 'm' to make a move.")
+reset = tkinter.Button(f2, text="Reset", command=reset)
 
-b1 = Tkinter.Button(f2, text="Quit", command=quit)
+b1 = tkinter.Button(f2, text="Quit", command=quit)
 
 for i in (l1, l2, l3, reset, b1):
     i.pack(side="top", expand="t", fill="x")

@@ -1,9 +1,17 @@
 #!/usr/bin/env python
 import vtk
 from vtk import *
-import Tkinter
-from Tkinter import *
 import sys, os
+#import Tkinter
+#from Tkinter import *
+if sys.hexversion < 0x03000000:
+    # for Python2
+    import Tkinter as tkinter
+    from Tkinter import *
+else:
+    # for Python3
+    import tkinter
+    from tkinter import *
 import vtk.tk
 import vtk.tk.vtkLoadPythonTkWidgets
 import vtk.tk.vtkTkImageViewerWidget
@@ -13,7 +21,7 @@ from vtk.util.misc import *
 
 class SampleViewer:
     def __init__ ( self ):
-        self.Tk = Tk = Tkinter.Tk();
+        self.Tk = Tk = tkinter.Tk();
         Tk.title ( 'Python Version of vtkImageDataToTkPhoto' );
 
         # Image pipeline

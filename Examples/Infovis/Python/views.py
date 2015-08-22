@@ -1,10 +1,13 @@
 #!/usr/bin/env python
+from __future__ import print_function
 from vtk import *
 import os.path
+from vtk.util.misc import vtkGetDataRoot
+VTK_DATA_ROOT = vtkGetDataRoot()
 
-xmlRootDir = "../../../../VTKData/Data/Infovis/XML/"
+xmlRootDir = VTK_DATA_ROOT + "/Data/Infovis/XML/"
 if not os.path.exists(xmlRootDir):
-  xmlRootDir = "../../../../../VTKData/Data/Infovis/XML/"
+  xmlRootDir = VTK_DATA_ROOT + "/Data/Infovis/XML/"
 
 treeReader = vtkXMLTreeReader()
 treeReader.SetFileName(xmlRootDir+"vtklibrary.xml")
@@ -17,7 +20,7 @@ graphReader.SetEdgePedigreeIdArrayName("graph edge")
 graphReader.GenerateVertexPedigreeIdsOff();
 graphReader.SetVertexPedigreeIdArrayName("id");
 graphReader.Update()
-print graphReader.GetOutput()
+print(graphReader.GetOutput())
 
 # Create a tree layout strategy
 treeStrat = vtkTreeLayoutStrategy();

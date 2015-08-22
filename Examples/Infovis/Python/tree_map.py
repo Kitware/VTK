@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 from vtk import *
 import os.path
+from vtk.util.misc import vtkGetDataRoot
+VTK_DATA_ROOT = vtkGetDataRoot()
 
-dataRootDir = "../../../../VTKData/Data/Infovis/XML/"
+dataRootDir = VTK_DATA_ROOT + "/Data/Infovis/XML/"
 if not os.path.exists(dataRootDir):
-  dataRootDir = "../../../../../VTKData/Data/Infovis/XML/"
-
+  dataRootDir = VTK_DATA_ROOT + "/Data/Infovis/XML/"
 
 reader1 = vtkXMLTreeReader()
 reader1.SetFileName(dataRootDir + "vtklibrary.xml")

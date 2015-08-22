@@ -5,7 +5,7 @@
 # result back to VTK.
 
 # VTK must be built with VTK_USE_MATLAB_MEX turned on for this example to work!
-
+from __future__ import print_function
 from vtk import *
 import math
 
@@ -32,8 +32,8 @@ if __name__ == "__main__":
   result = menginterface.GetVtkDataArray("y")
 
   # Display contents of result, should be all ones.
-  print "\n\nContents of result array copied to VTK from Matlab\n\n"
+  print("\n\nContents of result array copied to VTK from Matlab\n\n")
   for i in range(result.GetNumberOfTuples()):
     t = result.GetTuple1(i)
-    print'result[%d] = %6.4f' % (i,t)
+    print('result[%d] = %6.4f' % (i,t))
 

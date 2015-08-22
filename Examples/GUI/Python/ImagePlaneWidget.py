@@ -17,7 +17,13 @@
 #    the associated widget's reslice interpolation mode
 
 import vtk
-import Tkinter
+import sys
+if sys.hexversion < 0x03000000:
+    # for Python2
+    import Tkinter as tkinter
+else:
+    # for Python3
+    import tkinter
 from vtk.tk.vtkTkRenderWindowInteractor import \
      vtkTkRenderWindowInteractor
 from vtk.util.misc import vtkGetDataRoot
@@ -245,17 +251,19 @@ def SetSlice(sl):
 
 ###
 # Now actually create the GUI
-root = Tkinter.Tk()
+root = tkinter.Tk()
 root.withdraw()
-top = Tkinter.Toplevel(root)
+top = tkinter.Toplevel(root)
+# Define what to do when the user explicitly closes a window.
+root.protocol("WM_DELETE_WINDOW", quit)
 
 # Define a quit method that exits cleanly.
 def quit(obj=root):
     obj.quit()
 
 # Popup menu
-popm = Tkinter.Menu(top, tearoff=0)
-mode = Tkinter.IntVar()
+popm = tkinter.Menu(top, tearoff=0)
+mode = tkinter.IntVar()
 mode.set(1)
 popm.add_radiobutton(label="nearest", variable=mode, value=0,
                      command=SetInterpolation)
@@ -264,20 +272,20 @@ popm.add_radiobutton(label="linear", variable=mode, value=1,
 popm.add_radiobutton(label="cubic", variable=mode, value=2,
                      command=SetInterpolation)
 
-display_frame = Tkinter.Frame(top)
+display_frame = tkinter.Frame(top)
 display_frame.pack(side="top", anchor="n", fill="both", expand="false")
 
 # Buttons
-ctrl_buttons = Tkinter.Frame(top)
+ctrl_buttons = tkinter.Frame(top)
 ctrl_buttons.pack(side="top", anchor="n", fill="both", expand="false")
 
-quit_button = Tkinter.Button(ctrl_buttons, text="Quit", command=quit)
-capture_button = Tkinter.Button(ctrl_buttons, text="Tif",
+quit_button = tkinter.Button(ctrl_buttons, text="Quit", command=quit)
+capture_button = tkinter.Button(ctrl_buttons, text="Tif",
                                 command=CaptureImage)
 
-x_button = Tkinter.Button(ctrl_buttons, text="x", command=AlignXaxis)
-y_button = Tkinter.Button(ctrl_buttons, text="y", command=AlignYaxis)
-z_button = Tkinter.Button(ctrl_buttons, text="z", command=AlignZaxis)
+x_button = tkinter.Button(ctrl_buttons, text="x", command=AlignXaxis)
+y_button = tkinter.Button(ctrl_buttons, text="y", command=AlignYaxis)
+z_button = tkinter.Button(ctrl_buttons, text="z", command=AlignZaxis)
 x_button.bind("<Button-3>", lambda e: buttonEvent(e, 0))
 y_button.bind("<Button-3>", lambda e: buttonEvent(e, 1))
 z_button.bind("<Button-3>", lambda e: buttonEvent(e, 2))
@@ -287,7 +295,7 @@ for i in (quit_button, capture_button, x_button, y_button, z_button):
 
 
 # Create the render widget
-renderer_frame = Tkinter.Frame(display_frame)
+renderer_frame = tkinter.Frame(display_frame)
 renderer_frame.pack(padx=3, pady=3,side="left", anchor="n",
                     fill="both", expand="false")
 
@@ -298,9 +306,9 @@ for i in (render_widget, display_frame):
     i.pack(side="top", anchor="n",fill="both", expand="false")
 
 # Add a slice scale to browse the current slice stack
-slice_number = Tkinter.IntVar()
+slice_number = tkinter.IntVar()
 slice_number.set(current_widget.GetSliceIndex())
-slice = Tkinter.Scale(top, from_=zMin, to=zMax, orient="horizontal",
+slice = tkinter.Scale(top, from_=zMin, to=zMax, orient="horizontal",
                       command=SetSlice,variable=slice_number,
                       label="Slice")
 slice.pack(fill="x", expand="false")
@@ -331,5 +339,5 @@ iact.Initialize()
 renWin.Render()
 iact.Start()
 
-# Start Tkinter event loop
+# Start tkinter event loop
 root.mainloop()
