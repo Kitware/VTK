@@ -18,7 +18,7 @@ import sys
 import vtk
 from vtk.test import Testing
 
-if sys.hexversion > 0x03000000:
+if sys.hexversion >= 0x03000000:
     cedilla = 'Fran\xe7ois'
 else:
     cedilla = unicode('Fran\xe7ois', 'latin1')
@@ -126,16 +126,27 @@ class TestVariant(Testing.vtkTest):
         l.sort()
         self.assertEqual(l, s)
 
+    def testComparisonMethods(self):
+        v1 = vtk.vtkVariant(10)
+        v2 = vtk.vtkVariant("10")
+        # compare without regards to type
+        self.assertEqual(vtk.vtkVariantEqual(v1, v2), True)
+        self.assertEqual(vtk.vtkVariantLessThan(v1, v2), False)
+        # compare with different types being non-equivalent
+        self.assertEqual(vtk.vtkVariantStrictEquality(v1, v2), False)
+        if sys.hexversion >= 0x03000000:
+            self.assertEqual(vtk.vtkVariantStrictWeakOrder(v1, v2), True)
+        else:
+            # for Python 2, it worked like the cmp() function
+            self.assertEqual(vtk.vtkVariantStrictWeakOrder(v1, v2), -1)
+
     def testStrictWeakOrder(self):
         """Use vtkVariantStrictWeakOrder to sort a list of vtkVariants"""
-        if sys.hexversion > 0x03000000:
-            """sort() doesn't take comparator in py3k"""
-            return
         original = [1, 2.5, vtk.vtkVariant(), "0", cedilla]
         ordered = [vtk.vtkVariant(), 1, 2.5, "0", cedilla]
         l = [vtk.vtkVariant(x) for x in original]
         s = [vtk.vtkVariant(x) for x in ordered]
-        l.sort(vtk.vtkVariantStrictWeakOrder)
+        l.sort(key=vtk.vtkVariantStrictWeakOrderKey)
         self.assertEqual(l, s)
 
     def testVariantExtract(self):
