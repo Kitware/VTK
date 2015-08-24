@@ -107,6 +107,12 @@ void vtkContextScene::SetRenderer(vtkRenderer *r)
 }
 
 //-----------------------------------------------------------------------------
+vtkRenderer *vtkContextScene::GetRenderer()
+{
+  return this->Renderer;
+}
+
+//-----------------------------------------------------------------------------
 bool vtkContextScene::Paint(vtkContext2D *painter)
 {
   vtkDebugMacro("Paint event called.");

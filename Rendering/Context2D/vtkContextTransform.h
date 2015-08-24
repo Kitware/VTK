@@ -51,6 +51,10 @@ public:
   virtual bool Paint(vtkContext2D *painter);
 
   // Description:
+  // Reset the transform to the identity transformation.
+  virtual void Identity();
+
+  // Description:
   // Translate the item by the specified amounts dx and dy in the x and y
   // directions.
   virtual void Translate(float dx, float dy);

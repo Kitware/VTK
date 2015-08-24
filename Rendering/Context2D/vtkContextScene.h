@@ -144,6 +144,7 @@ public:
   // This should not be necessary as the context view should take care of
   // rendering.
   virtual void SetRenderer(vtkRenderer *renderer);
+  virtual vtkRenderer* GetRenderer();
 
   // Description:
   // Inform the scene that something changed that requires a repaint of the

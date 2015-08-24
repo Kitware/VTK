@@ -310,11 +310,13 @@ public:
   {
     this->ViewportSize = size;
   }
+  vtkGetMacro(ViewportSize, vtkVector2i)
 
   virtual void SetViewportRect(const vtkRecti &rect)
   {
     this->ViewportRect = rect;
   }
+  vtkGetMacro(ViewportRect, vtkRecti)
 
 //BTX
 protected:
