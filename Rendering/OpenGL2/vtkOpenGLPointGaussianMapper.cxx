@@ -175,7 +175,7 @@ void vtkOpenGLPointGaussianMapperHelper::ReplaceShaderColor(
     {
     std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
 
-    if (this->Owner->GetSplatShaderCode())
+    if (this->Owner->GetSplatShaderCode() && strcmp(this->Owner->GetSplatShaderCode(), "") != 0)
       {
       vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl",
         this->Owner->GetSplatShaderCode(), false);
