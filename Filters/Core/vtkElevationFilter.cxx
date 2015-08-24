@@ -51,10 +51,10 @@ public:
                       double v[3], double l2, TP *points, float *scalars);
 
   // Interface implicit function computation to SMP tools.
-  template <class TP> class ElevationOp
+  template <class T> class ElevationOp
     {
     public:
-      ElevationOp(vtkElevationAlgorithm<TP> *algo)
+      ElevationOp(vtkElevationAlgorithm<T> *algo)
         { this->Algo = algo;}
       vtkElevationAlgorithm *Algo;
       void  operator() (vtkIdType k, vtkIdType end)
