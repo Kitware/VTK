@@ -250,36 +250,37 @@ vectorType Normalized() const \
 
 #define vtkVectorDerivedMacro(vectorType, type, size) \
 vtkVectorNormalized(vectorType, type, size) \
+explicit vectorType(type s) : Superclass(s) {} \
+explicit vectorType(const type *i) : Superclass(i) {} \
+explicit vectorType(const vtkTuple<type, size> &o) : Superclass(o.GetData()) {} \
+vectorType(const vtkVector<type, size> &o) : Superclass(o.GetData()) {} \
 
 // Description:
 // Some derived classes for the different vectors commonly used.
 class vtkVector2i : public vtkVector2<int>
 {
 public:
+  typedef vtkVector2<int> Superclass;
   vtkVector2i() {}
   vtkVector2i(int x, int y) : vtkVector2<int>(x, y) {}
-  explicit vtkVector2i(int scalar) : vtkVector2<int>(scalar) {}
-  explicit vtkVector2i(const int *init) : vtkVector2<int>(init) {}
   vtkVectorDerivedMacro(vtkVector2i, int, 2)
 };
 
 class vtkVector2f : public vtkVector2<float>
 {
 public:
+  typedef vtkVector2<float> Superclass;
   vtkVector2f() {}
   vtkVector2f(float x, float y) : vtkVector2<float>(x, y) {}
-  explicit vtkVector2f(float scalar) : vtkVector2<float>(scalar) {}
-  explicit vtkVector2f(const float* i) : vtkVector2<float>(i) {}
   vtkVectorDerivedMacro(vtkVector2f, float, 2)
 };
 
 class vtkVector2d : public vtkVector2<double>
 {
 public:
+  typedef vtkVector2<double> Superclass;
   vtkVector2d() {}
   vtkVector2d(double x, double y) : vtkVector2<double>(x, y) {}
-  explicit vtkVector2d(double scalar) : vtkVector2<double>(scalar) {}
-  explicit vtkVector2d(const double *init) : vtkVector2<double>(init) {}
   vtkVectorDerivedMacro(vtkVector2d, double, 2)
 };
 
@@ -292,10 +293,9 @@ vectorType Cross(const vectorType& other) const \
 class vtkVector3i : public vtkVector3<int>
 {
 public:
+  typedef vtkVector3<int> Superclass;
   vtkVector3i() {}
   vtkVector3i(int x, int y, int z) : vtkVector3<int>(x, y, z) {}
-  explicit vtkVector3i(int scalar) : vtkVector3<int>(scalar) {}
-  explicit vtkVector3i(const int *init) : vtkVector3<int>(init) {}
   vtkVectorDerivedMacro(vtkVector3i, int, 3)
   vtkVector3Cross(vtkVector3i, int)
 };
@@ -303,10 +303,9 @@ public:
 class vtkVector3f : public vtkVector3<float>
 {
 public:
+  typedef vtkVector3<float> Superclass;
   vtkVector3f() {}
   vtkVector3f(float x, float y, float z) : vtkVector3<float>(x, y, z) {}
-  explicit vtkVector3f(float scalar) : vtkVector3<float>(scalar) {}
-  explicit vtkVector3f(const float *init) : vtkVector3<float>(init) {}
   vtkVectorDerivedMacro(vtkVector3f, float, 3)
   vtkVector3Cross(vtkVector3f, float)
 };
@@ -314,10 +313,9 @@ public:
 class vtkVector3d : public vtkVector3<double>
 {
 public:
+  typedef vtkVector3<double> Superclass;
   vtkVector3d() {}
   vtkVector3d(double x, double y, double z) : vtkVector3<double>(x, y, z) {}
-  explicit vtkVector3d(double scalar) : vtkVector3<double>(scalar) {}
-  explicit vtkVector3d(const double *init) : vtkVector3<double>(init) {}
   vtkVectorDerivedMacro(vtkVector3d, double, 3)
   vtkVector3Cross(vtkVector3d, double)
 };
