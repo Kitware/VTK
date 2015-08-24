@@ -50,12 +50,12 @@ public:
 
   bool UsingPoints;
   float *OpacityTable; // the table
-  float OpacityScale; // used for quick lookups
-  float OpacityOffset; // used for quick lookups
+  double OpacityScale; // used for quick lookups
+  double OpacityOffset; // used for quick lookups
 
   float *ScaleTable; // the table
-  float ScaleScale; // used for quick lookups
-  float ScaleOffset; // used for quick lookups
+  double ScaleScale; // used for quick lookups
+  double ScaleOffset; // used for quick lookups
 
 protected:
   vtkOpenGLPointGaussianMapperHelper();
@@ -341,15 +341,15 @@ void vtkOpenGLPointGaussianMapperHelperPackVBOTemplate3(
 
   if (opacities)
     {
-    float opacity = opacities->GetComponent(index,0);
+    double opacity = opacities->GetComponent(index,0);
     if (self->OpacityTable)
       {
-      float tindex = (opacity - self->OpacityOffset)*self->OpacityScale;
+      double tindex = (opacity - self->OpacityOffset)*self->OpacityScale;
       int itindex = static_cast<int>(tindex);
       opacity = (1.0 - tindex + itindex)*self->OpacityTable[itindex] +
         (tindex - itindex)*self->OpacityTable[itindex+1];
       }
-    rcolor.c[3] = opacity*255.0;
+    rcolor.c[3] = static_cast<float>(opacity*255.0);
     }
   else
     {
@@ -366,41 +366,41 @@ void vtkOpenGLPointGaussianMapperHelperPackVBOTemplate3(
     }
   else // otherwise splats
     {
-    float cos30 = cos(vtkMath::RadiansFromDegrees(30.0));
-
-    float radius = sizes ? sizes[index] : 1.0;
-    radius *= defaultScale;
+    double radius = sizes ? sizes[index] : 1.0;
     if (self->ScaleTable)
       {
-      float tindex = (radius - self->ScaleOffset)*self->ScaleScale;
+      double tindex = (radius - self->ScaleOffset)*self->ScaleScale;
       int itindex = static_cast<int>(tindex);
       radius = (1.0 - tindex + itindex)*self->ScaleTable[itindex] +
         (tindex - itindex)*self->ScaleTable[itindex+1];
       }
-
+    radius *= defaultScale;
     radius *= 3.0;
+
+    float radiusFloat = static_cast<float>(radius);
+    float cos30 = cos(vtkMath::RadiansFromDegrees(30.0));
 
     // Vertices
     *(it++) = pointPtr[0];
     *(it++) = pointPtr[1];
     *(it++) = pointPtr[2];
     *(it++) = rcolor.f;
-    *(it++) = -2.0f*radius*cos30;
-    *(it++) = -radius;
+    *(it++) = -2.0f*radiusFloat*cos30;
+    *(it++) = -radiusFloat;
 
     *(it++) = pointPtr[0];
     *(it++) = pointPtr[1];
     *(it++) = pointPtr[2];
     *(it++) = rcolor.f;
-    *(it++) = 2.0f*radius*cos30;
-    *(it++) = -radius;
+    *(it++) = 2.0f*radiusFloat*cos30;
+    *(it++) = -radiusFloat;
 
     *(it++) = pointPtr[0];
     *(it++) = pointPtr[1];
     *(it++) = pointPtr[2];
     *(it++) = rcolor.f;
     *(it++) = 0.0f;
-    *(it++) = 2.0f*radius;
+    *(it++) = 2.0f*radiusFloat;
     }
 }
 
