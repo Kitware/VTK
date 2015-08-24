@@ -155,8 +155,7 @@ int vtkSimpleElevationFilter::RequestData(
   // Create a fast path for point set input
   //
   vtkPointSet *ps = vtkPointSet::SafeDownCast(input);
-//  if ( ps )
-  if ( 0 )
+  if ( ps )
     {
     float *scalars =
       static_cast<float*>(newScalars->GetVoidPointer(0));
