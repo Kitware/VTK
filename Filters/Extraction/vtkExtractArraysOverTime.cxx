@@ -882,12 +882,6 @@ int vtkExtractArraysOverTime::RequestData(
     return 0;
     }
 
-  if (!inputVector[1]->GetInformationObject(0))
-    {
-    return 1;
-    }
-
-
   // get the output data object
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
@@ -895,7 +889,11 @@ int vtkExtractArraysOverTime::RequestData(
   if (!this->IsExecuting)
     {
     vtkInformation* inInfo2 = inputVector[1]->GetInformationObject(0);
-    vtkSelection* selection = vtkSelection::GetData(inInfo2);
+    vtkSelection* selection = this->GetSelection(inInfo2);
+    if (!selection)
+      {
+      return 1;
+      }
     if (!this->DetermineSelectionType(selection))
       {
       return 0;
@@ -961,7 +959,7 @@ void vtkExtractArraysOverTime::ExecuteAtTimeStep(
   vtkInformation *selInfo = inputVector[1]->GetInformationObject(0);
 
   vtkDataObject* input = vtkDataObject::GetData(inInfo);
-  vtkSelection* selInput = vtkSelection::GetData(selInfo);
+  vtkSelection* selInput = this->GetSelection(selInfo);
 
   vtkExtractSelection* filter = this->SelectionExtractor;
   if (!filter)
@@ -1039,4 +1037,9 @@ int vtkExtractArraysOverTime::DetermineSelectionType(vtkSelection* sel)
   this->ContentType = contentType;
   this->FieldType = fieldType;
   return 1;
+}
+//----------------------------------------------------------------------------
+vtkSelection* vtkExtractArraysOverTime::GetSelection(vtkInformation* info)
+{
+  return vtkSelection::GetData(info);
 }
