@@ -16,6 +16,7 @@ set(Module_SRCS
   vtkColorTransferFunctionItem.cxx
   vtkCompositeControlPointsItem.cxx
   vtkCompositeTransferFunctionItem.cxx
+  vtkContextArea.cxx
   vtkContextPolygon.cxx
   vtkControlPointsItem.cxx
   vtkLookupTableItem.cxx
