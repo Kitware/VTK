@@ -294,6 +294,14 @@ void vtkImplicitPlaneWidget2::MovePlaneAction(vtkAbstractWidget *w)
   int Y = self->Interactor->GetEventPosition()[1];
   self->WidgetRep->ComputeInteractionState(X, Y);
 
+  if ( self->WidgetRep->GetInteractionState() == vtkImplicitPlaneRepresentation::Outside )
+    {
+    return;
+    }
+
+  // Invoke all of the events associated with moving the plane
+  self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+
   // Move the plane
   double factor = ( self->Interactor->GetControlKey() ? 0.5 : 1.0);
   if (vtkStdString( self->Interactor->GetKeySym() ) == vtkStdString("Down") ||
@@ -305,9 +313,10 @@ void vtkImplicitPlaneWidget2::MovePlaneAction(vtkAbstractWidget *w)
     {
     self->GetImplicitPlaneRepresentation()->BumpPlane(1,factor);
     }
+  self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
 
   self->EventCallbackCommand->SetAbortFlag(1);
-  self->InvokeEvent(vtkCommand::UpdateEvent,NULL);
+  self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
   self->Render();
 }
 
