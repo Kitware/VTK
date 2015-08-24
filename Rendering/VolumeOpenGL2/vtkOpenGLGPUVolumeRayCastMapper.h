@@ -49,7 +49,7 @@ public:
   // Low level API to export the depth texture as vtkImageData in
   // RenderToTexture mode.
   // \sa GetDepthTexture(), RenderToTexture
-  vtkImageData* GetDepthTextureAsImageData();
+  void GetDepthTextureAsImageData(vtkImageData* im);
 
   // Description:
   // Low level API to enable access to color texture in
@@ -60,7 +60,7 @@ public:
   // Low level API to export the color texture as vtkImageData in
   // RenderToTexture mode.
   // \sa GetColorTexture(), RenderToTexture
-  vtkImageData* GetColorTextureAsImageData();
+  void GetColorTextureAsImageData(vtkImageData* im);
 
 protected:
   vtkOpenGLGPUVolumeRayCastMapper();

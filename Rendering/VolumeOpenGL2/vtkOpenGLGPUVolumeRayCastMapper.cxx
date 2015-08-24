@@ -277,7 +277,8 @@ public:
   void DeleteBufferObjects();
 
   // Convert vtkTextureObject to vtkImageData
-  vtkImageData* ConvertTextureToImageData(vtkTextureObject* texture);
+  void ConvertTextureToImageData(vtkTextureObject* texture,
+                                 vtkImageData* output);
 
   // Private member variables
   //--------------------------------------------------------------------------
@@ -2033,9 +2034,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::DeleteBufferObjects()
 }
 
 //----------------------------------------------------------------------------
-vtkImageData* vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
-                ConvertTextureToImageData(vtkTextureObject* texture)
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
+                ConvertTextureToImageData(vtkTextureObject* texture,
+                                          vtkImageData* output)
 {
+  if (!texture)
+    {
+    return;
+    }
   unsigned int tw = texture->GetWidth();
   unsigned int th = texture->GetHeight();
   unsigned int tnc = texture->GetComponents();
@@ -2079,7 +2085,12 @@ vtkImageData* vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
   id->GetPointData()->SetScalars(ta);
   ta->Delete();
 
-  return id;
+  if (!output)
+    {
+    output = vtkImageData::New();
+    }
+  output->DeepCopy(id);
+  id->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -2123,10 +2134,12 @@ vtkTextureObject* vtkOpenGLGPUVolumeRayCastMapper::GetDepthTexture()
 }
 
 //----------------------------------------------------------------------------
-vtkImageData* vtkOpenGLGPUVolumeRayCastMapper::GetDepthTextureAsImageData()
+void vtkOpenGLGPUVolumeRayCastMapper::GetDepthTextureAsImageData(
+                                                          vtkImageData* output)
 {
   return this->Impl->ConvertTextureToImageData(
-                       this->Impl->RTTDepthTextureObject);
+                       this->Impl->RTTDepthTextureObject,
+                       output);
 }
 
 //----------------------------------------------------------------------------
@@ -2136,10 +2149,12 @@ vtkTextureObject* vtkOpenGLGPUVolumeRayCastMapper::GetColorTexture()
 }
 
 //----------------------------------------------------------------------------
-vtkImageData* vtkOpenGLGPUVolumeRayCastMapper::GetColorTextureAsImageData()
+void vtkOpenGLGPUVolumeRayCastMapper::GetColorTextureAsImageData(
+                                                          vtkImageData* output)
 {
   return this->Impl->ConvertTextureToImageData(
-                       this->Impl->RTTColorTextureObject);
+                       this->Impl->RTTColorTextureObject,
+                       output);
 }
 
 //----------------------------------------------------------------------------
