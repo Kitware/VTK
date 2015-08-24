@@ -99,11 +99,18 @@ int TestGPURayCastRenderDepthToTexture(int argc, char *argv[])
   ren->GetActiveCamera()->Zoom(1.8);
   renWin->Render();
 
-  vtkImageData* im = mapper->GetDepthTextureAsImageData();
+  vtkNew<vtkImageData> im;
+  // Get color texture as image
+  mapper->GetColorTextureAsImageData(im.GetPointer());
+  // Get depth texture as image
+  mapper->GetDepthTextureAsImageData(im.GetPointer());
   vtkNew<vtkImageActor> ia;
-  ia->GetMapper()->SetInputData(im);
+  ia->GetMapper()->SetInputData(im.GetPointer());
   ren->AddActor(ia.GetPointer());
   ren->RemoveVolume(volume.GetPointer());
+  ren->GetActiveCamera()->SetPosition(0, 0, -1);
+  ren->GetActiveCamera()->SetFocalPoint(0, 0, 1);
+  ren->GetActiveCamera()->SetViewUp(0, 1, 0);
   ren->ResetCamera();
   renWin->Render();
 
