@@ -20,7 +20,7 @@
 #include "vtkInformationStringKey.h"
 #include "vtkCellType.h"
 #include "vtkXMLDataElement.h"
-#include "sstream"
+#include <sstream>
 using std::ostringstream;
 using std::istringstream;
 #include <string>

@@ -52,7 +52,7 @@
 #include <vector>
 #include <set>
 #include "fstream"
-#include "sstream"
+#include <sstream>
 #include <algorithm>
 
 #include <ctype.h>

@@ -34,7 +34,7 @@
 #include "vtkInformationQuadratureSchemeDefinitionVectorKey.h"
 #include "vtkObjectFactory.h"
 
-#include "sstream"
+#include <sstream>
 using std::ostringstream;
 
 #include "vtkQuadraturePointsUtilities.hxx"
