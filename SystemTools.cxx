@@ -68,6 +68,10 @@
 #include <sys/stat.h>
 #include <time.h>
 
+#ifdef _MSC_VER
+# define umask _umask // Note this is still umask on Borland
+#endif
+
 // support for realpath call
 #ifndef _WIN32
 #include <sys/time.h>
@@ -1233,13 +1237,11 @@ bool SystemTools::FileExists(const kwsys_stl::string& filename)
 //----------------------------------------------------------------------------
 bool SystemTools::FileExists(const char* filename, bool isFile)
 {
-  if(SystemTools::FileExists(filename))
+  if(!filename)
     {
-    // If isFile is set return not FileIsDirectory,
-    // so this will only be true if it is a file
-    return !isFile || !SystemTools::FileIsDirectory(filename);
+    return false;
     }
-  return false;
+  return SystemTools::FileExists(kwsys_stl::string(filename), isFile);
 }
 
 //----------------------------------------------------------------------------
@@ -1252,6 +1254,43 @@ bool SystemTools::FileExists(const kwsys_stl::string& filename, bool isFile)
     return !isFile || !SystemTools::FileIsDirectory(filename);
     }
   return false;
+}
+
+//----------------------------------------------------------------------------
+bool SystemTools::TestFileAccess(const char* filename,
+                                 TestFilePermissions permissions)
+{
+  if(!filename)
+    {
+    return false;
+    }
+  return SystemTools::TestFileAccess(kwsys_stl::string(filename),
+                                     permissions);
+}
+
+//----------------------------------------------------------------------------
+bool SystemTools::TestFileAccess(const kwsys_stl::string& filename,
+                                 TestFilePermissions permissions)
+{
+  if(filename.empty())
+    {
+    return false;
+    }
+#if defined(_WIN32) && !defined(__CYGWIN__)
+  // If execute set, change to read permission (all files on Windows
+  // are executable if they are readable).  The CRT will always fail
+  // if you pass an execute bit.
+  if(permissions & TEST_FILE_EXECUTE)
+    {
+    permissions &= ~TEST_FILE_EXECUTE;
+    permissions |= TEST_FILE_READ;
+    }
+  return _waccess(
+    SystemTools::ConvertToWindowsExtendedPath(filename).c_str(),
+    permissions) == 0;
+#else
+  return access(filename.c_str(), permissions) == 0;
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -3198,8 +3237,16 @@ bool SystemTools::FileIsDirectory(const kwsys_stl::string& inName)
 bool SystemTools::FileIsSymlink(const kwsys_stl::string& name)
 {
 #if defined( _WIN32 )
-  (void)name;
-  return false;
+  DWORD attr = GetFileAttributesW(
+    SystemTools::ConvertToWindowsExtendedPath(name).c_str());
+  if (attr != INVALID_FILE_ATTRIBUTES)
+    {
+    return (attr & FILE_ATTRIBUTE_REPARSE_POINT) != 0;
+    }
+  else
+    {
+    return false;
+    }
 #else
   struct stat fs;
   if(lstat(name.c_str(), &fs) == 0)
@@ -4230,6 +4277,11 @@ SystemTools::DetectFileType(const char *filename,
     return SystemTools::FileTypeUnknown;
     }
 
+  if (SystemTools::FileIsDirectory(filename))
+    {
+    return SystemTools::FileTypeUnknown;
+    }
+
   FILE *fp = Fopen(filename, "rb");
   if (!fp)
     {
@@ -4243,6 +4295,7 @@ SystemTools::DetectFileType(const char *filename,
   fclose(fp);
   if (read_length == 0)
     {
+    delete [] buffer;
     return SystemTools::FileTypeUnknown;
     }
 
@@ -4731,20 +4784,34 @@ bool SystemTools::GetPermissions(const kwsys_stl::string& file, mode_t& mode)
   return true;
 }
 
-bool SystemTools::SetPermissions(const char* file, mode_t mode)
+bool SystemTools::SetPermissions(const char* file,
+                                 mode_t mode,
+                                 bool honor_umask)
 {
   if ( !file )
     {
     return false;
     }
-  return SystemTools::SetPermissions(kwsys_stl::string(file), mode);
+  return SystemTools::SetPermissions(
+    kwsys_stl::string(file), mode, honor_umask);
 }
 
-bool SystemTools::SetPermissions(const kwsys_stl::string& file, mode_t mode)
+bool SystemTools::SetPermissions(const kwsys_stl::string& file,
+                                 mode_t mode,
+                                 bool honor_umask)
 {
-  if ( !SystemTools::FileExists(file) )
+  // TEMPORARY / TODO:  After FileExists calls lstat() instead of
+  // access(), change this call to FileExists instead of
+  // TestFileAccess so that we don't follow symlinks.
+  if ( !SystemTools::TestFileAccess(file, TEST_FILE_OK) )
     {
     return false;
+    }
+  if (honor_umask)
+    {
+    mode_t currentMask = umask(0);
+    umask(currentMask);
+    mode &= ~currentMask;
     }
 #ifdef _WIN32
   if ( _wchmod(SystemTools::ConvertToWindowsExtendedPath(file).c_str(),
