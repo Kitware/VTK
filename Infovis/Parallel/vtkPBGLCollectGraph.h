@@ -47,9 +47,9 @@
 #include "vtkInfovisParallelModule.h" // For export macro
 #include "vtkStdString.h" // For string type
 
-#include <vtksys/stl/utility> // for pair
-#include <vtksys/stl/numeric> // for accumulate, partial_sum
-#include <vtksys/stl/functional> // for plus
+#include <utility> // for pair
+#include <numeric> // for accumulate, partial_sum
+#include <functional> // for plus
 
 #include "vtkGraphAlgorithm.h"
 

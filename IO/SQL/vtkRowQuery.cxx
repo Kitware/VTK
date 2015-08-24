@@ -21,7 +21,7 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkStdString.h"
-#include "vtksys/stl/algorithm"
+#include "algorithm"
 #include "vtkVariantArray.h"
 
 #include <ctype.h>

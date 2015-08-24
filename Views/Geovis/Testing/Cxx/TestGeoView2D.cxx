@@ -39,7 +39,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkTIFFReader.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 #include <vtksys/SystemTools.hxx>
 
 int TestGeoView2D(int argc, char* argv[])

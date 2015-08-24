@@ -22,7 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 #include "vtkDebugLeaks.h"
 

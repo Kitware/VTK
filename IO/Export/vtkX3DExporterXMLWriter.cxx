@@ -22,8 +22,8 @@
 #include "vtkCellArray.h"
 #include "vtkMath.h"
 
-#include <vtksys/ios/sstream>
-#include <vtksys/ios/fstream>
+#include <sstream>
+#include <fstream>
 #include <string>
 #include <cassert>
 

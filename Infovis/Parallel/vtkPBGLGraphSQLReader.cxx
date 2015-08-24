@@ -35,7 +35,7 @@
 #include "vtkTimerLog.h"
 #include "vtkVariantArray.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()

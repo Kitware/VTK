@@ -32,7 +32,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStdString.h"
 
 #include <vtksys/SystemTools.hxx>
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 
 class vtkSQLDatabase::vtkCallbackVector :

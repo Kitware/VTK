@@ -24,7 +24,7 @@
 
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkAlgorithm.h"
-#include <vtksys/ios/sstream> // For ostringstream ivar
+#include <sstream> // For ostringstream ivar
 
 class vtkAbstractArray;
 class vtkArrayIterator;

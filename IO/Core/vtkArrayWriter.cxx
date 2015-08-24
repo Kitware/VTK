@@ -27,7 +27,7 @@
 #include <cmath>
 #include <limits>
 #include <stdexcept>
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 namespace {
 

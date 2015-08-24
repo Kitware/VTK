@@ -24,7 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 #include <stdexcept>
 
 vtkStandardNewMacro(vtkArrayDataReader);

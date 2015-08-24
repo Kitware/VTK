@@ -39,7 +39,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 int SLACParticleReader(int argc, char *argv[])
 {

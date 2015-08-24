@@ -36,7 +36,7 @@
 #include "vtkPentagonalPrism.h"
 #include "vtkHexagonalPrism.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 int TestOCB(ostream& strm)
 {

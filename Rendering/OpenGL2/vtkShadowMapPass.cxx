@@ -56,7 +56,7 @@
 //#include "vtkBreakPoint.h"
 
 #include <cassert>
-#include <vtksys/ios/sstream>
+#include <sstream>
 #include "vtkStdString.h"
 
 

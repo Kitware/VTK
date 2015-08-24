@@ -18,7 +18,7 @@
 #include <string>
 #include <vector>
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 class vtkGenericVertexAttributeMapping::vtkInternal
 {

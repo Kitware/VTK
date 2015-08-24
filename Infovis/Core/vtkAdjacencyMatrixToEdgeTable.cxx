@@ -32,8 +32,8 @@
 #include "vtkTable.h"
 
 #include <algorithm>
-#include <vtksys/stl/map>
-#include <vtksys/stl/functional>
+#include <map>
+#include <functional>
 
 // ----------------------------------------------------------------------
 

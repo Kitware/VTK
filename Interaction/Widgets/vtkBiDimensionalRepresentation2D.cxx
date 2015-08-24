@@ -32,7 +32,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkInteractorObserver.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 vtkStandardNewMacro(vtkBiDimensionalRepresentation2D);
 

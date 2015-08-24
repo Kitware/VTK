@@ -35,7 +35,7 @@
 #include "vtkShadowMapBakerPass.h"
 #include "vtkTextureObject.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 #include <cassert>
 #include "vtkStdString.h"
 

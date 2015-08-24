@@ -49,7 +49,7 @@
 #include "vtkPerspectiveTransform.h"
 #include "vtkTransform.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 #include "vtkStdString.h"
 
 #include "vtkImageShiftScale.h"

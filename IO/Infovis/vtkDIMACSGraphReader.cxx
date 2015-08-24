@@ -32,9 +32,9 @@
 #include "vtkStringArray.h"
 #include "vtkIntArray.h"
 
-#include <vtksys/ios/fstream>
-#include <vtksys/ios/sstream>
-#include <vtksys/ios/iostream>
+#include <fstream>
+#include <sstream>
+#include <iostream>
 using std::ifstream;
 using std::istringstream;
 

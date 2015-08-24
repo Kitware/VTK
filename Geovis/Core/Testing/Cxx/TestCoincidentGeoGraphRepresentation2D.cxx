@@ -49,7 +49,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkTIFFReader.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 int TestCoincidentGeoGraphRepresentation2D(int argc, char* argv[])
 {

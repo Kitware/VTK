@@ -27,7 +27,7 @@
 #include "vtkRInterface.h"
 #include "vtkStringArray.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 vtkStandardNewMacro(vtkDescriptiveStatisticsGnuR);
 

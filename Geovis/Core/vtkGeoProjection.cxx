@@ -22,7 +22,7 @@
 
 #include "vtkObjectFactory.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 #include <string>
 #include <map>
 #include <vector>

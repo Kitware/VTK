@@ -22,7 +22,7 @@
 #include "math.h"
 #include <algorithm>
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 vtkStandardNewMacro(vtkResliceCursorThickLineRepresentation);
 

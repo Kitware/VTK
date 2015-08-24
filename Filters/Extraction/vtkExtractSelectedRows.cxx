@@ -45,7 +45,7 @@
 #include "vtkTree.h"
 #include "vtkVertexListIterator.h"
 
-#include <vtksys/stl/map>
+#include <map>
 #include <vector>
 
 vtkStandardNewMacro(vtkExtractSelectedRows);

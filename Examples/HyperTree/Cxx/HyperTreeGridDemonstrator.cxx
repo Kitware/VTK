@@ -48,7 +48,7 @@ All rights reserved.
 
 #include "vtksys/CommandLineArguments.hxx"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 void SetInputParameters( int& dim,
                          int& branch,

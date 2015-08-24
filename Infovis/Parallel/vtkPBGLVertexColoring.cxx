@@ -51,7 +51,7 @@
 #include <boost/graph/parallel/algorithm.hpp>
 #include <boost/property_map/property_map.hpp>
 
-#include <vtksys/stl/utility> // for pair
+#include <utility> // for pair
 
 using namespace boost;
 

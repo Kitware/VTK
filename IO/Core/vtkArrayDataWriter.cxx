@@ -22,7 +22,7 @@
 #include "vtkSmartPointer.h"
 
 #include <stdexcept>
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 vtkStandardNewMacro(vtkArrayDataWriter);
 

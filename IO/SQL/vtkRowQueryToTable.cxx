@@ -29,7 +29,7 @@
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 vtkStandardNewMacro(vtkRowQueryToTable);
 

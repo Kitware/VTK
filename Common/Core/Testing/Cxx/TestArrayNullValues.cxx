@@ -22,8 +22,8 @@
 #include <vtkSparseArray.h>
 #include <vtkSmartPointer.h>
 
-#include <vtksys/ios/iostream>
-#include <vtksys/stl/stdexcept>
+#include <iostream>
+#include <stdexcept>
 
 template<typename T>
 void VerifyType(const T& DefaultNull, const T& AlternateNull)

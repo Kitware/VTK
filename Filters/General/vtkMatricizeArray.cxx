@@ -27,7 +27,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkSparseArray.h"
 
-#include <vtksys/stl/numeric>
+#include <numeric>
 
 ///////////////////////////////////////////////////////////////////////////////
 // vtkMatricizeArray

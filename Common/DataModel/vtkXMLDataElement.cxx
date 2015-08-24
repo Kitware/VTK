@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 
 #include <ctype.h>
-#include <vtksys/ios/sstream>
+#include <sstream>
 using std::ostringstream;
 using std::istringstream;
 #include <vtksys/SystemTools.hxx>

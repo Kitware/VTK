@@ -26,7 +26,7 @@
 #undef vtkXMLDataHeaderPrivate_DoNotInclude
 
 #include <vtksys/auto_ptr.hxx>
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 #include "vtkXMLUtilities.h"
 

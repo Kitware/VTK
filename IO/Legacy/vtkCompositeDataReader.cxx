@@ -34,7 +34,7 @@
 
 #include <vtksys/RegularExpression.hxx>
 #include <vtksys/SystemTools.hxx>
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 #include <vector>
 

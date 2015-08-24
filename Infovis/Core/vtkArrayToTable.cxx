@@ -43,8 +43,8 @@
 #include "vtkTable.h"
 #include "vtkUnicodeStringArray.h"
 
-#include <vtksys/ios/sstream>
-#include <vtksys/stl/stdexcept>
+#include <sstream>
+#include <stdexcept>
 
 /// Convert a 1D array to a table with one column ...
 template<typename ValueT, typename ColumnT>

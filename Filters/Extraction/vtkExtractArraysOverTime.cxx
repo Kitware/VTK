@@ -43,7 +43,7 @@
 #include <cassert>
 #include <map>
 #include <string>
-#include <vtksys/ios/sstream>
+#include <sstream>
 #include <vector>
 
 class vtkExtractArraysOverTime::vtkInternal

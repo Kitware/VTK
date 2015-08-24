@@ -23,7 +23,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <math.h>
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 vtkStandardNewMacro(vtkImageGradient);
 

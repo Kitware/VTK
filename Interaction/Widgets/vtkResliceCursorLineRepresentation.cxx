@@ -45,7 +45,7 @@
 #include "vtkImageReslice.h"
 #include "vtkSmartPointer.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 vtkStandardNewMacro(vtkResliceCursorLineRepresentation);
 

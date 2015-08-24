@@ -56,8 +56,8 @@
 #include <boost/property_map/vector_property_map.hpp>
 #include <boost/pending/queue.hpp>
 
-#include <vtksys/stl/utility> // for pair
-#include <vtksys/stl/iterator> // for back_inserter
+#include <utility> // for pair
+#include <iterator> // for back_inserter
 
 using namespace boost;
 

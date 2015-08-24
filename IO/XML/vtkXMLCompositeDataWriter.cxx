@@ -41,7 +41,7 @@
 #include "vtkXMLWriter.h"
 #include "vtkDataObjectTreeIterator.h"
 #include <vtksys/SystemTools.hxx>
-#include <vtksys/ios/sstream>
+#include <sstream>
 #include <string>
 #include <vector>
 

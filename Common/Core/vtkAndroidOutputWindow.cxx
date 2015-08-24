@@ -16,7 +16,7 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
-#include "vtksys/ios/sstream"
+#include "sstream"
 
 
 #include <android/log.h>

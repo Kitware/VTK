@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStdString.h"
 
-#include "vtksys/ios/sstream"
+#include "sstream"
 
 #if defined (__BORLANDC__)
 #include <ctype.h> // for isdigit

@@ -43,7 +43,7 @@
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkArrayExtents.h"
-#include <vtksys/stl/vector> // STL Header
+#include <vector> // STL Header
 
 class VTKCOMMONCORE_EXPORT vtkArrayExtentsList
 {

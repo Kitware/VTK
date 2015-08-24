@@ -83,7 +83,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTypeTraits.h"
 #include "vtkUnsignedCharArray.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 #include "vtkObjectFactory.h"
 

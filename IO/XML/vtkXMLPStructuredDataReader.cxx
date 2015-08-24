@@ -23,7 +23,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLStructuredDataReader.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 
 //----------------------------------------------------------------------------

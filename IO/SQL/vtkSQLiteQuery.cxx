@@ -29,8 +29,8 @@
 
 #include <cassert>
 
-#include <vtksys/ios/sstream>
-#include <vtksys/stl/vector>
+#include <sstream>
+#include <vector>
 
 #define BEGIN_TRANSACTION "BEGIN TRANSACTION"
 #define COMMIT_TRANSACTION "COMMIT"

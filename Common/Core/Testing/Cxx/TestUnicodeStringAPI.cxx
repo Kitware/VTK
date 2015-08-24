@@ -21,10 +21,10 @@
 
 #include <vtkUnicodeString.h>
 
-#include <vtksys/stl/iterator>
-#include <vtksys/ios/iostream>
-#include <vtksys/ios/sstream>
-#include <vtksys/stl/stdexcept>
+#include <iterator>
+#include <iostream>
+#include <sstream>
+#include <stdexcept>
 
 #define test_expression(expression) \
 { \

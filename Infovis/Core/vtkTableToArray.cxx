@@ -29,7 +29,7 @@
 #include "vtkTableToArray.h"
 #include "vtkVariant.h"
 
-#include <vtksys/stl/algorithm>
+#include <algorithm>
 
 class vtkTableToArray::implementation
 {

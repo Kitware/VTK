@@ -33,7 +33,7 @@
 #include "vtkQuadratureSchemeDefinition.h"
 #include "vtkInformationStringKey.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 #include <sys/stat.h>
 #include <cassert>
 #include <locale> // C++ locale

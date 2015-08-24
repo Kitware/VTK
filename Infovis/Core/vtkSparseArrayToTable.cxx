@@ -31,8 +31,8 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
-#include <vtksys/ios/sstream>
-#include <vtksys/stl/stdexcept>
+#include <sstream>
+#include <stdexcept>
 
 template<typename ValueT, typename ValueColumnT>
 static bool Convert(vtkArray* Array, const char* ValueColumn, vtkTable* Table)

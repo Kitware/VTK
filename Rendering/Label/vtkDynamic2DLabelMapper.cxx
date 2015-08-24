@@ -46,7 +46,7 @@
 #include "vtkUnicodeStringArray.h"
 #include "vtkViewport.h"
 
-#include <vtksys/ios/fstream>
+#include <fstream>
 using std::ofstream;
 
 #if defined(_WIN32) && !defined(__CYGWIN__)

@@ -22,7 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 #import "vtkObjectFactory.h"
 #import "vtkRendererCollection.h"
 
-#import <vtksys/ios/sstream>
+#import <sstream>
 
 #include "vtk_glew.h"
 

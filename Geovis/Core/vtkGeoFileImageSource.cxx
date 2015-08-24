@@ -32,9 +32,9 @@
 #include "vtkTransform.h"
 #include "vtkXMLImageDataReader.h"
 
-#include <vtksys/ios/fstream>
-#include <vtksys/ios/sstream>
-#include <vtksys/stl/utility>
+#include <fstream>
+#include <sstream>
+#include <utility>
 
 vtkStandardNewMacro(vtkGeoFileImageSource);
 //----------------------------------------------------------------------------

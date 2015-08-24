@@ -22,9 +22,9 @@
 #include <vtkArrayCoordinates.h>
 #include <vtkArrayExtents.h>
 
-#include <vtksys/ios/iostream>
-#include <vtksys/ios/sstream>
-#include <vtksys/stl/stdexcept>
+#include <iostream>
+#include <sstream>
+#include <stdexcept>
 #include "vtkSetGet.h"
 
 #define test_expression(expression) \

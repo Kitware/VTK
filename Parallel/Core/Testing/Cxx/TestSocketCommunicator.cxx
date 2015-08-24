@@ -21,7 +21,7 @@
 #include "vtkPolyData.h"
 #include "vtkDoubleArray.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 #define MESSAGE(x)\
   cout << (is_server? "SERVER" : "CLIENT") << ":" x << endl;

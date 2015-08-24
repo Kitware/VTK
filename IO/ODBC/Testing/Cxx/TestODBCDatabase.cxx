@@ -31,7 +31,7 @@
 #include "vtkToolkits.h"
 #include "vtkIOODBCTestingCxxConfigure.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 #define LONGSTRING "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
 

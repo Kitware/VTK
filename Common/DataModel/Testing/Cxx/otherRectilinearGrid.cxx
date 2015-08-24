@@ -28,7 +28,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkShortArray.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 int TestORG(ostream& strm)
 {

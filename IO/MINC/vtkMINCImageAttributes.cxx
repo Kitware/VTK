@@ -69,7 +69,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include <float.h>
 #include <string>
 #include <map>
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 //-------------------------------------------------------------------------
 // A container for mapping attribute names to arrays

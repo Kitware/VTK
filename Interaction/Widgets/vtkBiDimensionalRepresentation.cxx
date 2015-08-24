@@ -32,7 +32,7 @@
 #include "vtkTextProperty.h"
 #include "vtkWindow.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 
 //----------------------------------------------------------------------

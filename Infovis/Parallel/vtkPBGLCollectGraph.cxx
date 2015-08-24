@@ -49,9 +49,9 @@
 #include <boost/mpi/collectives/all_reduce.hpp>
 #include <boost/serialization/vector.hpp>
 
-#include <vtksys/stl/utility> // for pair
-#include <vtksys/stl/numeric> // for accumulate, partial_sum
-#include <vtksys/stl/functional> // for plus
+#include <utility> // for pair
+#include <numeric> // for accumulate, partial_sum
+#include <functional> // for plus
 
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()

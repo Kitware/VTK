@@ -40,7 +40,7 @@
 #include "vtkTIFFWriter.h"
 #include "vtkTexture.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 vtkStandardNewMacro(vtkRIBExporter);
 

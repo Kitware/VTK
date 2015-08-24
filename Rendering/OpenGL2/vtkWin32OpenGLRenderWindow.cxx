@@ -24,7 +24,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkWin32RenderWindowInteractor.h"
 
 #include <math.h>
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 #include "vtkOpenGLError.h"
 

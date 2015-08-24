@@ -20,7 +20,7 @@
 =========================================================================*/
 
 #include "vtkArrayWeights.h"
-#include <vtksys/stl/vector>
+#include <vector>
 
 class vtkArrayWeightsStorage
 {

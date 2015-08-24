@@ -22,7 +22,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkX3D.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 #include <cassert>
 #include <vector>
 

@@ -31,7 +31,7 @@
 #include "vtkUnstructuredGridReader.h"
 #include "vtkUnstructuredGridWriter.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 // Reference values
 const vtkIdType cardCellDistanceSelection3D[] =
