@@ -692,6 +692,61 @@ virtual double *Get##name() \
   vtkTemplateMacro(call);                                                   \
   vtkTemplateMacroCase(VTK_STRING, vtkStdString, call)
 
+// The vtkTemplate2Macro is used to dispatch like vtkTemplateMacro but
+// over two template arguments instead of one.
+//
+// Example usage:
+// switch(vtkTemplate2PackMacro(array1->GetDataType(),
+//                              array2->GetDataType()))
+//   {
+//   vtkTemplateMacro(myFunc(static_cast<VTK_T1*>(data1),
+//                           static_cast<VTK_T2*>(data2),
+//                           otherArg));
+//   }
+#define vtkTemplate2Macro(call) \
+  vtkTemplate2MacroCase1(VTK_DOUBLE, double, call);                           \
+  vtkTemplate2MacroCase1(VTK_FLOAT, float, call);                             \
+  vtkTemplate2MacroCase1_ll(VTK_LONG_LONG, long long, call)                   \
+  vtkTemplate2MacroCase1_ll(VTK_UNSIGNED_LONG_LONG, unsigned long long, call) \
+  vtkTemplate2MacroCase1_si64(VTK___INT64, __int64, call)                     \
+  vtkTemplate2MacroCase1_ui64(VTK_UNSIGNED___INT64, unsigned __int64, call)   \
+  vtkTemplate2MacroCase1(VTK_ID_TYPE, vtkIdType, call);                       \
+  vtkTemplate2MacroCase1(VTK_LONG, long, call);                               \
+  vtkTemplate2MacroCase1(VTK_UNSIGNED_LONG, unsigned long, call);             \
+  vtkTemplate2MacroCase1(VTK_INT, int, call);                                 \
+  vtkTemplate2MacroCase1(VTK_UNSIGNED_INT, unsigned int, call);               \
+  vtkTemplate2MacroCase1(VTK_SHORT, short, call);                             \
+  vtkTemplate2MacroCase1(VTK_UNSIGNED_SHORT, unsigned short, call);           \
+  vtkTemplate2MacroCase1(VTK_CHAR, char, call);                               \
+  vtkTemplate2MacroCase1(VTK_SIGNED_CHAR, signed char, call);                 \
+  vtkTemplate2MacroCase1(VTK_UNSIGNED_CHAR, unsigned char, call)
+#define vtkTemplate2MacroCase1(type1N, type1, call) \
+  vtkTemplate2MacroCase2(type1N, type1, VTK_DOUBLE, double, call);                 \
+  vtkTemplate2MacroCase2(type1N, type1, VTK_FLOAT, float, call);                   \
+  vtkTemplate2MacroCase2_ll(type1N, type1, VTK_LONG_LONG, long long, call)                   \
+  vtkTemplate2MacroCase2_ll(type1N, type1, VTK_UNSIGNED_LONG_LONG, unsigned long long, call) \
+  vtkTemplate2MacroCase2_si64(type1N, type1, VTK___INT64, __int64, call)                     \
+  vtkTemplate2MacroCase2_ui64(type1N, type1, VTK_UNSIGNED___INT64, unsigned __int64, call)   \
+  vtkTemplate2MacroCase2(type1N, type1, VTK_ID_TYPE, vtkIdType, call);             \
+  vtkTemplate2MacroCase2(type1N, type1, VTK_LONG, long, call);                     \
+  vtkTemplate2MacroCase2(type1N, type1, VTK_UNSIGNED_LONG, unsigned long, call);   \
+  vtkTemplate2MacroCase2(type1N, type1, VTK_INT, int, call);                       \
+  vtkTemplate2MacroCase2(type1N, type1, VTK_UNSIGNED_INT, unsigned int, call);     \
+  vtkTemplate2MacroCase2(type1N, type1, VTK_SHORT, short, call);                   \
+  vtkTemplate2MacroCase2(type1N, type1, VTK_UNSIGNED_SHORT, unsigned short, call); \
+  vtkTemplate2MacroCase2(type1N, type1, VTK_CHAR, char, call);                     \
+  vtkTemplate2MacroCase2(type1N, type1, VTK_SIGNED_CHAR, signed char, call);       \
+  vtkTemplate2MacroCase2(type1N, type1, VTK_UNSIGNED_CHAR, unsigned char, call)
+#define vtkTemplate2MacroCase2(type1N, type1, type2N, type2, call) \
+  case vtkTemplate2PackMacro(type1N, type2N): { \
+    typedef type1 VTK_T1; \
+    typedef type2 VTK_T2; \
+    call; \
+  }; break
+#define vtkTemplate2PackMacro(type1N, type2N) \
+  ((((type1N) & 0xFF) << 8) | \
+    ((type2N) & 0xFF))
+
 // The vtkArrayIteratorTemplateMacro is used to centralize the set of types
 // supported by Execute methods.  It also avoids duplication of long
 // switch statement case lists.
@@ -738,10 +793,16 @@ virtual double *Get##name() \
 #if defined(VTK_TYPE_USE_LONG_LONG)
 # define vtkTemplateMacroCase_ll(typeN, type, call) \
             vtkTemplateMacroCase(typeN, type, call);
+# define vtkTemplate2MacroCase1_ll(type1N, type1, call) \
+            vtkTemplate2MacroCase1(type1N, type1, call);
+# define vtkTemplate2MacroCase2_ll(type1N, type1, type2N, type2, call) \
+            vtkTemplate2MacroCase2(type1N, type1, type2N, type2, call);
 # define vtkArrayIteratorTemplateMacroCase_ll(typeN, type, call) \
             vtkArrayIteratorTemplateMacroCase(typeN, type, call)
 #else
 # define vtkTemplateMacroCase_ll(typeN, type, call)
+# define vtkTemplate2MacroCase1_ll(type1N, type1, call)
+# define vtkTemplate2MacroCase2_ll(type1N, type1, type2N, type2, call)
 # define vtkArrayIteratorTemplateMacroCase_ll(typeN, type, call)
 #endif
 
@@ -749,10 +810,16 @@ virtual double *Get##name() \
 #if defined(VTK_TYPE_USE___INT64)
 # define vtkTemplateMacroCase_si64(typeN, type, call) \
              vtkTemplateMacroCase(typeN, type, call);
+# define vtkTemplate2MacroCase1_si64(type1N, type1, call) \
+             vtkTemplate2MacroCase1(type1N, type1, call);
+# define vtkTemplate2MacroCase2_si64(type1N, type1, type2N, type2, call) \
+             vtkTemplate2MacroCase2(type1N, type1, type2N, type2, call);
 # define vtkArrayIteratorTemplateMacroCase_si64(typeN, type, call) \
              vtkArrayIteratorTemplateMacroCase(typeN, type, call)
 #else
 # define vtkTemplateMacroCase_si64(typeN, type, call)
+# define vtkTemplate2MacroCase1_si64(type1N, type1, call)
+# define vtkTemplate2MacroCase2_si64(type1N, type1, type2N, type2, call)
 # define vtkArrayIteratorTemplateMacroCase_si64(typeN, type, call)
 #endif
 
@@ -761,10 +828,16 @@ virtual double *Get##name() \
 #if defined(VTK_TYPE_USE___INT64) && defined(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
 # define vtkTemplateMacroCase_ui64(typeN, type, call) \
              vtkTemplateMacroCase(typeN, type, call);
+# define vtkTemplate2MacroCase1_ui64(type1N, type1, call) \
+             vtkTemplate2MacroCase1(type1N, type1, call);
+# define vtkTemplate2MacroCase2_ui64(type1N, type1, type2N, type2, call) \
+             vtkTemplate2MacroCase2(type1N, type1, type2N, type2, call);
 # define vtkArrayIteratorTemplateMacroCase_ui64(typeN, type, call) \
              vtkArrayIteratorTemplateMacroCase(typeN, type, call);
 #else
 # define vtkTemplateMacroCase_ui64(typeN, type, call)
+# define vtkTemplate2MacroCase1_ui64(type1N, type1, call)
+# define vtkTemplate2MacroCase2_ui64(type1N, type1, type2N, type2, call)
 # define vtkArrayIteratorTemplateMacroCase_ui64(typeN, type, call)
 #endif
 
