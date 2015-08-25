@@ -20,6 +20,17 @@
 // a line. The line can be oriented arbitrarily. A typical example is
 // to generate scalars based on elevation or height above a plane.
 
+// .SECTION Caveats
+// vtkSimpleElevationFilter may be easier to use in many cases; e.g.,
+// compute vertical elevation above zero z-point.
+//
+// This class has been threaded with vtkSMPTools. Using TBB or other
+// non-sequential type (set in the CMake variable
+// VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
+
+// .SECTION See Also
+// vtkSimpleElevationFilter
+
 #ifndef vtkElevationFilter_h
 #define vtkElevationFilter_h
 
@@ -61,6 +72,7 @@ protected:
   double LowPoint[3];
   double HighPoint[3];
   double ScalarRange[2];
+
 private:
   vtkElevationFilter(const vtkElevationFilter&);  // Not implemented.
   void operator=(const vtkElevationFilter&);  // Not implemented.

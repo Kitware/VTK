@@ -53,6 +53,11 @@ int vtkExtractVOI::RequestUpdateExtent(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
+  if (!this->Internal->IsValid())
+    {
+    return 0;
+    }
+
   int i;
 
   // get the info objects
@@ -87,16 +92,18 @@ int vtkExtractVOI::RequestUpdateExtent(
       } // END if sub-sampling
     else
       {
+      int oWExt[6]; // Account for partitioning
+      this->Internal->GetOutputWholeExtent(oWExt);
       for (i=0; i<3; i++)
         {
-        int idx = oUExt[2*i];
-        if (idx < 0 || oUExt[2*i] >= (int)this->Internal->GetSize(i))
+        int idx = oUExt[2*i] - oWExt[2*i]; // Extent value to index
+        if (idx < 0 || idx >= (int)this->Internal->GetSize(i))
           {
           vtkWarningMacro("Requested extent outside whole extent.")
           idx = 0;
           }
         uExt[2*i] = this->Internal->GetMappedExtentValueFromIndex(i, idx);
-        int jdx = oUExt[2*i+1];
+        int jdx = oUExt[2*i+1] - oWExt[2*i]; // Extent value to index
         if (jdx < idx || jdx >= (int)this->Internal->GetSize(i))
           {
           vtkWarningMacro("Requested extent outside whole extent.")
@@ -138,6 +145,13 @@ int vtkExtractVOI::RequestInformation(
 
   this->Internal->Initialize(
       this->VOI,wholeExtent,this->SampleRate,(this->IncludeBoundary==1));
+
+  if (!this->Internal->IsValid())
+    {
+    vtkWarningMacro("Error while initializing filter.");
+    return 0;
+    }
+
   this->Internal->GetOutputWholeExtent(outWholeExt);
 
   if( (this->SampleRate[0]==1) &&
@@ -172,12 +186,22 @@ int vtkExtractVOI::RequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-  return this->RequestDataImpl(this->VOI, inputVector, outputVector) ? 1 : 0;
+  if (!this->Internal->IsValid())
+    {
+    return 0;
+    }
+
+  // Set the output extent -- this is how RequestDataImpl knows what to copy.
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkImageData *output = vtkImageData::SafeDownCast(
+        outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  output->SetExtent(this->Internal->GetOutputWholeExtent());
+
+  return this->RequestDataImpl(inputVector, outputVector) ? 1 : 0;
 }
 
 //------------------------------------------------------------------------------
-bool vtkExtractVOI::RequestDataImpl(int voi[6],
-                                    vtkInformationVector **inputVector,
+bool vtkExtractVOI::RequestDataImpl(vtkInformationVector **inputVector,
                                     vtkInformationVector *outputVector)
 {
   if( (this->SampleRate[0] < 1) ||
@@ -203,23 +227,13 @@ bool vtkExtractVOI::RequestDataImpl(int voi[6],
     return 1;
     }
 
-  int *inExt = input->GetExtent();
-
-  this->Internal->Initialize(voi, inExt, this->SampleRate,
-                             (this->IncludeBoundary == 1));
-  if (!this->Internal->IsValid())
-    {
-    vtkErrorMacro("Error initializing index map.");
-    return 0;
-    }
-
   // compute output spacing
+  double inSpacing[3];
+  input->GetSpacing(inSpacing);
   double outSpacing[3];
-  input->GetSpacing(outSpacing);
-  outSpacing[0] *= this->SampleRate[0];
-  outSpacing[1] *= this->SampleRate[1];
-  outSpacing[2] *= this->SampleRate[2];
-
+  outSpacing[0] = inSpacing[0] * this->SampleRate[0];
+  outSpacing[1] = inSpacing[1] * this->SampleRate[1];
+  outSpacing[2] = inSpacing[2] * this->SampleRate[2];
   output->SetSpacing(outSpacing);
 
   vtkPointData *pd    = input->GetPointData();
@@ -227,48 +241,32 @@ bool vtkExtractVOI::RequestDataImpl(int voi[6],
   vtkPointData *outPD = output->GetPointData();
   vtkCellData *outCD  = output->GetCellData();
 
-  int *outExt;
+  int *inExt = input->GetExtent();
+  int *outExt = output->GetExtent();
+
+  // Compute output data origin:
+  double inOrigin[3];
+  input->GetOrigin(inOrigin);
+  double outOrigin[3];
+  for (int dim = 0; dim < 3; ++dim)
+    {
+    if (this->SampleRate[dim] == 1)
+      {
+      // Old origin will work for this dimension since we don't reset extents.
+      outOrigin[dim] = inOrigin[dim];
+      }
+    else
+      {
+      // Extent minimum is reset to 0, need to update origin.
+      // Get the input extent value matching output extent 0 (the origin)
+      int inExtVal = this->Internal->GetMappedExtentValue(dim, 0);
+      // Find the coordinate in dim of the inExtVal
+      outOrigin[dim] = inOrigin[dim] + inExtVal * inSpacing[dim];
+      }
+    }
+  output->SetOrigin( outOrigin );
 
   vtkDebugMacro(<< "Extracting Grid");
-
-  // set output extent
-  int begin[3];
-  int end[3];
-  this->Internal->ComputeBeginAndEnd(inExt, voi, begin, end);
-
-  int inBegin[3];
-  double outOrigin[3];
-  if( (this->SampleRate[0]==1) &&
-      (this->SampleRate[1]==1) &&
-      (this->SampleRate[2]==1) )
-    {
-    // convert to a global extent w.r.t. the input extent
-    for(int dim=0; dim < 3; ++dim)
-      {
-      int delta = end[ dim ]-begin[ dim ];
-      begin[ dim ] = voi[ dim*2 ];
-      end[ dim ]   = begin[ dim ]+delta;
-      }
-    memcpy(inBegin,begin,sizeof(int)*3);
-
-    // set output origin to be the same as the input
-    input->GetOrigin( outOrigin );
-    } // END if no sub-sampling
-  else
-    {
-    inBegin[0] = this->Internal->GetMappedExtentValue(0, begin[0]);
-    inBegin[1] = this->Internal->GetMappedExtentValue(1, begin[1]);
-    inBegin[2] = this->Internal->GetMappedExtentValue(2, begin[2]);
-
-    // shift the origin accordingly
-    // set output origin
-    vtkIdType idx = vtkStructuredData::ComputePointIdForExtent(inExt,inBegin);
-    input->GetPoint(idx,outOrigin);
-    } // END else if sub-sampling
-
-  output->SetExtent(begin[0], end[0], begin[1], end[1], begin[2], end[2]);
-  outExt = output->GetExtent();
-  output->SetOrigin( outOrigin );
   this->Internal->CopyPointsAndPointData(
       inExt,outExt,pd,NULL,outPD,NULL,this->SampleRate);
   this->Internal->CopyCellData(inExt,outExt,cd,outCD,this->SampleRate);

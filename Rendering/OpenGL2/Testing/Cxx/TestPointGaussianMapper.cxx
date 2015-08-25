@@ -16,7 +16,8 @@
 // .SECTION Thanks
 // <verbatim>
 //
-//  This file is part of the PointSprites plugin developed and contributed by
+// This file is based loosely on the PointSprites plugin developed
+// and contributed by
 //
 //  Copyright (c) CSCS - Swiss National Supercomputing Centre
 //                EDF - Electricite de France
@@ -25,8 +26,6 @@
 //  Stephane Ploix (EDF)
 //
 // </verbatim>
-// .SECTION Description
-// this program tests the point sprite support by vtkPointSpriteProperty.
 
 
 #include "vtkActor.h"

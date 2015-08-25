@@ -47,8 +47,8 @@ class TestSortFileNames(vtk.test.Testing.vtkTest):
         sortFileNames.GroupingOn()
 
         if sortFileNames.GetNumberOfGroups() != 2:
-            print "GetNumberOfGroups returned incorrect number"
-            exit(1)
+             print("GetNumberOfGroups returned incorrect number")
+             exit(1)
 
         fileNames1 = sortFileNames.GetNthGroup(0)
         fileNames2 = sortFileNames.GetNthGroup(1)
@@ -59,33 +59,33 @@ class TestSortFileNames(vtk.test.Testing.vtkTest):
         n = fileNames1.GetNumberOfValues()
         if n != numberOfFiles1:
             for i in range(0, n):
-                print fileNames1.GetValue(i)
-            print "GetNumberOfValues should return", numberOfFiles1, "not", n
+                print(fileNames1.GetValue(i))
+            print("GetNumberOfValues should return", numberOfFiles1, "not", n)
             exit(1)
 
         for i in range(0, numberOfFiles1):
             j = i + 1
             s = VTK_DATA_ROOT + "/Data/headsq/quarter." + str(j)
             if fileNames1.GetValue(i) != s:
-                print "string does not match pattern"
-                print fileNames1.GetValue(i)
-                print s
+                print("string does not match pattern")
+                print(fileNames1.GetValue(i))
+                print(s)
                 exit(1)
 
         n = fileNames2.GetNumberOfValues()
         if n != numberOfFiles2:
             for i in range(0, n):
-                print fileNames2.GetValue(i)
-            print "GetNumberOfValues should return", numberOfFiles2, "not", n
+                print(fileNames2.GetValue(i))
+            print("GetNumberOfValues should return", numberOfFiles2, "not", n)
             exit(1)
 
         for i in range(0, numberOfFiles2):
             j = i + 1
             s = VTK_DATA_ROOT + "/Data/track" + str(j) + ".binary.vtk"
             if fileNames2.GetValue(i) != s:
-                print "string does not match pattern"
-                print fileNames2.GetValue(i)
-                print s
+                print("string does not match pattern")
+                print(fileNames2.GetValue(i))
+                print(s)
                 exit(1)
 
         vtk.test.Testing.interact()

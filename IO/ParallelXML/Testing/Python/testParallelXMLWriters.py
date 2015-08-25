@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import vtk
 from vtk.test import Testing
 from vtk.util.misc import vtkGetTempDir
@@ -82,7 +84,7 @@ def GetSource(dataType):
         pts = vtk.vtkPoints()
         sg.SetPoints(pts)
         npts = input.GetNumberOfPoints()
-        for i in xrange(npts):
+        for i in range(npts):
             pts.InsertNextPoint(input.GetPoint(i))
         sg.GetPointData().ShallowCopy(input.GetPointData())
 
@@ -97,7 +99,7 @@ def TestDataType(dataType, reader, writer, ext, numTris):
     writer.SetInputConnection(s.GetOutputPort())
     npieces = 16
     writer.SetNumberOfPieces(npieces)
-    pperrank = npieces / nranks
+    pperrank = npieces // nranks
     start = pperrank * rank
     end = start + pperrank - 1
     writer.SetStartPiece(start)
@@ -130,7 +132,7 @@ def TestDataType(dataType, reader, writer, ext, numTris):
     contr.AllReduce(da, da2, vtk.vtkCommunicator.SUM_OP)
 
     if rank == 0:
-        print da2.GetValue(0)
+        print(da2.GetValue(0))
         import os
         os.remove(filename)
         for i in range(npieces):

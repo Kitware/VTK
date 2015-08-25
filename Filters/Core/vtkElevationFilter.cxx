@@ -16,6 +16,7 @@
 
 #include "vtkCellData.h"
 #include "vtkDataSet.h"
+#include "vtkPointSet.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -23,10 +24,103 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
+#include "vtkSMPTools.h"
 
 vtkStandardNewMacro(vtkElevationFilter);
 
+// The heart of the algorithm plus interface to the SMP tools. Double templated
+// over point and scalar types.
+template <class TP>
+class vtkElevationAlgorithm
+{
+public:
+  vtkIdType NumPts;
+  double LowPoint[3];
+  double HighPoint[3];
+  double ScalarRange[2];
+  const TP *Points;
+  float *Scalars;
+  const double *V;
+  double L2;
+
+  // Contructor
+  vtkElevationAlgorithm();
+
+  // Interface between VTK and templated functions
+  static void Elevate(vtkElevationFilter *self, vtkIdType numPts,
+                      double v[3], double l2, TP *points, float *scalars);
+
+  // Interface implicit function computation to SMP tools.
+  template <class T> class ElevationOp
+    {
+    public:
+      ElevationOp(vtkElevationAlgorithm<T> *algo)
+        { this->Algo = algo;}
+      vtkElevationAlgorithm *Algo;
+      void  operator() (vtkIdType k, vtkIdType end)
+        {
+        double ns, vec[3];
+        const double *range = this->Algo->ScalarRange;
+        const double diffScalar = range[1] - range[0];
+        const double *v = this->Algo->V;
+        const double l2 = this->Algo->L2;
+        const double *lp = this->Algo->LowPoint;
+        const TP *p = this->Algo->Points + 3*k;
+        float *s = this->Algo->Scalars + k;
+        for ( ; k < end; ++k)
+          {
+          vec[0] = p[0] - lp[0];
+          vec[1] = p[1] - lp[1];
+          vec[2] = p[2] - lp[2];
+          ns = (vec[0]*v[0] + vec[1]*v[1] + vec[2]*v[2]) / l2;
+          ns = (ns < 0.0 ? 0.0 : ns > 1.0 ? 1.0 : ns);
+
+          // Store the resulting scalar value.
+          *s = range[0] + ns*diffScalar;
+
+          p+=3;
+          ++s;
+          }
+        }
+    };
+};
+
 //----------------------------------------------------------------------------
+// Initialized mainly to eliminate compiler warnings.
+template <class TP> vtkElevationAlgorithm<TP>::
+vtkElevationAlgorithm():Points(NULL),Scalars(NULL)
+{
+  this->LowPoint[0] = this->LowPoint[1] = this->LowPoint[2] = 0.0;
+  this->HighPoint[0] = this->HighPoint[1] = 0.0;
+  this->HighPoint[2] = 1.0;
+  this->ScalarRange[0] = 0.0;
+  this->ScalarRange[1] = 1.0;
+}
+
+//----------------------------------------------------------------------------
+// Templated class is glue between VTK and templated algorithms.
+template <class TP> void vtkElevationAlgorithm<TP>::
+Elevate(vtkElevationFilter *self, vtkIdType numPts,
+        double *v, double l2, TP *points, float *scalars)
+{
+  // Populate data into local storage
+  vtkElevationAlgorithm<TP> algo;
+  algo.NumPts = numPts;
+  self->GetLowPoint(algo.LowPoint);
+  self->GetHighPoint(algo.HighPoint);
+  self->GetScalarRange(algo.ScalarRange);
+  algo.Points = points;
+  algo.Scalars = scalars;
+  algo.V = v;
+  algo.L2 = l2;
+
+  // Okay now generate samples using SMP tools
+  ElevationOp<TP> values(&algo);
+  vtkSMPTools::For(0,algo.NumPts, values);
+}
+
+//----------------------------------------------------------------------------
+// Begin the class proper
 vtkElevationFilter::vtkElevationFilter()
 {
   this->LowPoint[0] = 0.0;
@@ -100,34 +194,56 @@ int vtkElevationFilter::RequestData(vtkInformation*,
     length2 = 1.0;
     }
 
-  // Support progress and abort.
-  vtkIdType tenth = (numPts >= 10? numPts/10 : 1);
-  double numPtsInv = 1.0/numPts;
-  int abort = 0;
-
-  // Compute parametric coordinate and map into scalar range.
-  double diffScalar = this->ScalarRange[1] - this->ScalarRange[0];
   vtkDebugMacro("Generating elevation scalars!");
-  for(vtkIdType i=0; i < numPts && !abort; ++i)
+
+  // Create a fast path for point set input
+  //
+  vtkPointSet *ps = vtkPointSet::SafeDownCast(input);
+  if ( ps )
     {
-    // Periodically update progress and check for an abort request.
-    if(i % tenth == 0)
+    float *scalars =
+      static_cast<float*>(newScalars->GetVoidPointer(0));
+    vtkPoints *points = ps->GetPoints();
+    void *pts = points->GetData()->GetVoidPointer(0);
+    switch ( points->GetDataType() )
       {
-      this->UpdateProgress((i+1)*numPtsInv);
-      abort = this->GetAbortExecute();
+      vtkTemplateMacro(
+        vtkElevationAlgorithm<VTK_TT>::Elevate(this,numPts,diffVector,length2,
+                                               (VTK_TT *)pts,scalars));
       }
+    }//fast path
 
-    // Project this input point into the 1D system.
-    double x[3];
-    input->GetPoint(i, x);
-    double v[3] = { x[0] - this->LowPoint[0],
-                    x[1] - this->LowPoint[1],
-                    x[2] - this->LowPoint[2] };
-    double s = vtkMath::Dot(v, diffVector) / length2;
-    s = (s < 0.0 ? 0.0 : s > 1.0 ? 1.0 : s);
+  else
+    {
+    // Too bad, got to take the scenic route.
+    // Support progress and abort.
+    vtkIdType tenth = (numPts >= 10? numPts/10 : 1);
+    double numPtsInv = 1.0/numPts;
+    int abort = 0;
 
-    // Store the resulting scalar value.
-    newScalars->SetValue(i, this->ScalarRange[0] + s*diffScalar);
+    // Compute parametric coordinate and map into scalar range.
+    double diffScalar = this->ScalarRange[1] - this->ScalarRange[0];
+    for(vtkIdType i=0; i < numPts && !abort; ++i)
+      {
+      // Periodically update progress and check for an abort request.
+      if(i % tenth == 0)
+        {
+        this->UpdateProgress((i+1)*numPtsInv);
+        abort = this->GetAbortExecute();
+        }
+
+      // Project this input point into the 1D system.
+      double x[3];
+      input->GetPoint(i, x);
+      double v[3] = { x[0] - this->LowPoint[0],
+                      x[1] - this->LowPoint[1],
+                      x[2] - this->LowPoint[2] };
+      double s = vtkMath::Dot(v, diffVector) / length2;
+      s = (s < 0.0 ? 0.0 : s > 1.0 ? 1.0 : s);
+
+      // Store the resulting scalar value.
+      newScalars->SetValue(i, this->ScalarRange[0] + s*diffScalar);
+      }
     }
 
   // Copy all the input geometry and data to the output.

@@ -17,13 +17,14 @@ import sys
 import vtk
 from vtk.test import Testing
 
-if sys.hexversion > 0x03000000:
+if sys.hexversion >= 0x03000000:
     cedilla = 'Fran\xe7ois'
     nocedilla = 'Francois'
+    eightbit = 'Francois'.encode('ascii')
 else:
     cedilla = unicode('Fran\xe7ois', 'latin1')
     nocedilla = unicode('Francois')
-
+    eightbit = 'Francois'
 
 class TestString(Testing.vtkTest):
     def testPassByValue(self):
@@ -62,18 +63,47 @@ class TestString(Testing.vtkTest):
         u = a.GetValue(0)
         self.assertEqual(u, cedilla)
 
-    def testPassStringAsUnicode(self):
-        """Pass a string when unicode is expected.  Should fail."""
+    def testPassBytesAsUnicode(self):
+        """Pass 8-bit string when unicode is expected.  Should fail."""
         a = vtk.vtkUnicodeStringArray()
         self.assertRaises(TypeError,
-                          a.InsertNextValue, ('Francois',))
+                          a.InsertNextValue, eightbit)
 
     def testPassUnicodeAsString(self):
-        """Pass a unicode where a string is expected.  Should succeed."""
+        """Pass unicode where string is expected.  Should succeed."""
         a = vtk.vtkStringArray()
         a.InsertNextValue(nocedilla)
         s = a.GetValue(0)
         self.assertEqual(s, 'Francois')
+
+    def testPassBytesAsString(self):
+        """Pass 8-bit string where string is expected.  Should succeed."""
+        a = vtk.vtkStringArray()
+        a.InsertNextValue(eightbit)
+        s = a.GetValue(0)
+        self.assertEqual(s, 'Francois')
+
+    def testPassEncodedString(self):
+        """Pass encoded 8-bit strings."""
+        a = vtk.vtkStringArray()
+        # latin1 encoded string will be returned as "bytes", which is
+        # just a normal str object in Python 2
+        encoded = cedilla.encode('latin1')
+        a.InsertNextValue(encoded)
+        result = a.GetValue(0)
+        self.assertEqual(type(result), bytes)
+        self.assertEqual(result, encoded)
+        # utf-8 encoded string will be returned as "str", which is
+        # actually unicode in Python 3
+        a = vtk.vtkStringArray()
+        encoded = cedilla.encode('utf-8')
+        a.InsertNextValue(encoded)
+        result = a.GetValue(0)
+        self.assertEqual(type(result), str)
+        if sys.hexversion >= 0x03000000:
+            self.assertEqual(result.encode('utf-8'), encoded)
+        else:
+            self.assertEqual(result, encoded)
 
 if __name__ == "__main__":
     Testing.main([(TestString, 'test')])

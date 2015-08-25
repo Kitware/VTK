@@ -66,6 +66,8 @@
 namespace {
 template <typename ScalarT, typename ArrayT>
 int ExerciseDataArray();
+template <typename ScalarT, typename ArrayT>
+int ExerciseGetRange();
 } // end anon namespace
 
 //------------------------------------------------------------------------------
@@ -92,6 +94,21 @@ int TestDataArrayAPI(int, char *[])
   errors += ExerciseDataArray<unsigned long, vtkUnsignedLongArray>();
   errors += ExerciseDataArray<unsigned long long, vtkUnsignedLongLongArray>();
   errors += ExerciseDataArray<unsigned short, vtkUnsignedShortArray>();
+
+  errors += ExerciseGetRange<char, vtkCharArray>();
+  errors += ExerciseGetRange<float, vtkFloatArray>();
+  errors += ExerciseGetRange<double, vtkDoubleArray>();
+  errors += ExerciseGetRange<vtkIdType, vtkIdTypeArray>();
+  errors += ExerciseGetRange<int, vtkIntArray>();
+  errors += ExerciseGetRange<long, vtkLongArray>();
+  errors += ExerciseGetRange<long long, vtkLongLongArray>();
+  errors += ExerciseGetRange<short, vtkShortArray>();
+  errors += ExerciseGetRange<signed char, vtkSignedCharArray>();
+  errors += ExerciseGetRange<unsigned char, vtkUnsignedCharArray>();
+  errors += ExerciseGetRange<unsigned int, vtkUnsignedIntArray>();
+  errors += ExerciseGetRange<unsigned long, vtkUnsignedLongArray>();
+  errors += ExerciseGetRange<unsigned long long, vtkUnsignedLongLongArray>();
+  errors += ExerciseGetRange<unsigned short, vtkUnsignedShortArray>();
 
   if (errors > 0)
     {
@@ -140,7 +157,7 @@ int TestDataArrayAPI(int, char *[])
 
 #define DataArrayAPIError(x) \
   DataArrayAPINonFatalError(x) \
-  return errors;
+  DataArrayAPIFinish();
 
 namespace {
 
@@ -1076,7 +1093,6 @@ int Test_doubleptr_GetTupleN_i()
 #undef vtkDataArrayAPIGetTupleNCase
       default:
         DataArrayAPIError("Unrecognized tuple size: GetTuple" << N << "().");
-        DataArrayAPIFinish();
       }
 
     for (int c = 0; c < comps; ++c)
@@ -1894,7 +1910,6 @@ int Test_GetRange_all_overloads()
                                 << rangeArray[1] << "].");
       }
     }
-
   DataArrayAPIFinish();
 }
 
@@ -1986,9 +2001,18 @@ int ExerciseDataArray()
   errors += Test_void_DeepCopy_array<ScalarT, ArrayT, vtkDataArray, unsigned long long>();
   errors += Test_void_DeepCopy_array<ScalarT, ArrayT, vtkDataArray, unsigned short>();
   errors += Test_void_CopyComponent_j_from_fromComponent<ScalarT, ArrayT>();
-  errors += Test_GetRange_all_overloads<ScalarT, ArrayT>();
 
   return errors;
 } // end ExerciseDataArray
+
+template <typename ScalarT, typename ArrayT>
+int ExerciseGetRange()
+{
+  int errors = 0;
+
+  errors += Test_GetRange_all_overloads<ScalarT, ArrayT>();
+
+  return errors;
+} // end ExerciseGetRange
 
 } // end anon namespace

@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 #if _MSC_VER
 #define snprintf _snprintf

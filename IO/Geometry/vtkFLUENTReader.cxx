@@ -51,8 +51,8 @@
 #include <map>
 #include <vector>
 #include <set>
-#include "vtksys/ios/fstream"
-#include "vtksys/ios/sstream"
+#include "fstream"
+#include <sstream>
 #include <algorithm>
 
 #include <ctype.h>

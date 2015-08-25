@@ -49,7 +49,7 @@ really building the vtkVariant.o object.
 #include "vtkStringArray.h"
 #include "vtkMath.h"
 
-#include "vtksys/ios/sstream"
+#include <sstream>
 #include "vtksys/SystemTools.hxx"
 #include <locale> // C++ locale
 

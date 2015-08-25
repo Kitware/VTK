@@ -36,8 +36,7 @@
 #include "vtkPythonCommand.h"
 
 #include <stddef.h>
-#include <vtksys/ios/sstream>
-#include <vtksys/cstddef>
+#include <sstream>
 
 // This will be set to the python type struct for vtkObjectBase
 static PyTypeObject *PyVTKObject_Type = 0;

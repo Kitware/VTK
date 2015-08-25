@@ -105,6 +105,9 @@ protected:
                            vtkInformationVector** inputVector,
                            vtkInformationVector* outputVector);
 
+  // Add virtual method to be overwritten in the subclass. takes the
+  virtual vtkSelection* GetSelection(vtkInformation* info);
+
   // Description:
   // Determines the FieldType and ContentType for the selection. If the
   // selection is a vtkSelection::SELECTIONS selection, then this method ensures

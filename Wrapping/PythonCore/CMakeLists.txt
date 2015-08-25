@@ -7,6 +7,7 @@ set(Module_SRCS
   vtkPythonOverload.cxx
   vtkPythonUtil.cxx
   vtkSmartPyObject.cxx
+  PyVTKExtras.cxx
   PyVTKMethodDescriptor.cxx
   PyVTKMutableObject.cxx
   PyVTKNamespace.cxx

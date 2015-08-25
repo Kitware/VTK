@@ -28,7 +28,7 @@
 #include "vtkUnstructuredGrid.h"
 
 #include <ctype.h>
-#include <vtksys/ios/sstream>
+#include <sstream>
 #include <string>
 #include <vector>
 #include <map>

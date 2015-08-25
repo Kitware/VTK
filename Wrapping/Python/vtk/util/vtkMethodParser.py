@@ -41,7 +41,7 @@ class VtkDirMethodParser:
 
         for method in self.methods[:]:
             # finding all the methods that set the state.
-            if string.find (method[:3], "Set") >= 0 and \
+            if method[:3].find("Set") >= 0 and \
                  self.state_patn.search (method) is not None :
                 try:
                     eval ("vtk_obj.Get%s"%method[3:])
@@ -49,7 +49,7 @@ class VtkDirMethodParser:
                     self.state_meths.append (method)
                     self.methods.remove (method)
             # finding all the On/Off toggle methods
-            elif string.find (method[-2:], "On") >= 0:
+            elif method[-2:].find("On") >= 0:
                 try:
                     self.methods.index ("%sOff"%method[:-2])
                 except ValueError:
@@ -59,7 +59,7 @@ class VtkDirMethodParser:
                     self.methods.remove (method)
                     self.methods.remove ("%sOff"%method[:-2])
             # finding the Get/Set methods.
-            elif string.find (method[:3], "Get") == 0:
+            elif method[:3].find("Get") == 0:
                 set_m = "Set"+method[3:]
                 try:
                     self.methods.index (set_m)
@@ -108,7 +108,7 @@ class VtkDirMethodParser:
         debug ("VtkDirMethodParser:: clean_state_methods()")
         # Getting the remaining pure GetMethods
         for method in self.methods[:]:
-            if string.find (method[:3], "Get") == 0:
+            if method[:3].find("Get") == 0:
                 self.get_meths.append (method)
                 self.methods.remove (method)
 
@@ -121,7 +121,7 @@ class VtkDirMethodParser:
             # stores the method type common to all similar methods
             m = tmp[0][3:end]
             for i in range (1, len (tmp)):
-                if string.find (tmp[i], m) >= 0:
+                if tmp[i].find(m) >= 0:
                     state_group.append (tmp[i])
                 else:
                     self.state_meths.append (state_group)
@@ -165,9 +165,9 @@ class VtkDirMethodParser:
                 else:
                     self.get_meths.remove (method)
                     continue
-            if string.find (method[-8:], "MaxValue") > -1:
+            if method[-8:].find("MaxValue") > -1:
                 self.get_meths.remove( method)
-            elif string.find (method[-8:], "MinValue") > -1:
+            elif method[-8:].find("MinValue") > -1:
                 self.get_meths.remove( method)
 
         self.get_meths.sort ()
@@ -203,7 +203,7 @@ class VtkPrintMethodParser:
         for method in self.methods[:]:
             # removing methods that have nothing to the right of the ':'
             if (method[1] == '') or \
-               (string.find (method[1], "none") > -1) :
+               (method[1].find("none") > -1) :
                 self.methods.remove (method)
 
         for method in self.methods:
@@ -224,7 +224,7 @@ class VtkPrintMethodParser:
                 # checking if it is a state func.
                 # figure out the long names from the dir_state_meths
                 for sms in self.dir_state_meths[:]:
-                    if string.find (sms[0], method[0]) >= 0:
+                    if sms[0].find(method[0]) >= 0:
                         self.state_meths.append (sms)
                         self.dir_state_meths.remove (sms)
                         found = 1
@@ -257,10 +257,10 @@ class VtkPrintMethodParser:
                             self.get_meths.append ("Get"+method[0])
                         else:
                             try:
-                                apply (f, val)
+                                f(*val)
                             except TypeError:
                                 try:
-                                    apply (f, (val, ))
+                                    f(*(val, ))
                                 except TypeError:
                                     self.get_meths.append ("Get"+method[0])
                                 else:
@@ -273,7 +273,7 @@ class VtkPrintMethodParser:
     def _get_str_obj (self, vtk_obj):
         debug ("VtkPrintMethodParser:: _get_str_obj()")
         self.methods = str (vtk_obj)
-        self.methods = string.split (self.methods, "\n")
+        self.methods = self.methods.split ("\n")
         del self.methods[0]
 
     def _initialize_methods (self, vtk_obj):
@@ -308,13 +308,13 @@ class VtkPrintMethodParser:
                 self.methods.remove (method)
 
         for method in self.methods[:]:
-            if string.find (method, ":") == -1:
+            if method.find(":") == -1:
                 self.methods.remove (method)
 
         for i in range (0, len (self.methods)):
             strng = self.methods[i]
-            strng = string.replace (strng, " ", "")
-            self.methods[i] = string.split (strng, ":")
+            strng = strng.replace (" ", "")
+            self.methods[i] = strng.split (":")
 
 
         self.toggle_meths = []

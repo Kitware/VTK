@@ -30,7 +30,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 #define VTK_POLAR_AXES_ACTOR_RTOL ( 1. - 10. * VTK_DBL_EPSILON )
 

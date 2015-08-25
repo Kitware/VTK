@@ -23,7 +23,7 @@
 #include "vtkTexture.h"
 
 #include <cstdlib>
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 #include <map>
 #include <vtksys/SystemTools.hxx>

@@ -57,7 +57,7 @@
 #include <cassert>
 #include <functional>
 #include <algorithm>
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 class vtkXdmfDomain;
 class VTKIOXDMF2_EXPORT vtkXdmfDocument

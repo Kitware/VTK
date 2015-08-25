@@ -46,7 +46,7 @@
 #include <QImage>
 
 #include <set>
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 //----------------------------------------------------------------------------
 class vtkQtTableModelAdapter::vtkInternal {

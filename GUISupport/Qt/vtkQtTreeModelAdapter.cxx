@@ -45,7 +45,7 @@
 #include <QPixmap>
 #include <QMimeData>
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 #include <set>
 
 vtkQtTreeModelAdapter::vtkQtTreeModelAdapter(QObject* p, vtkTree* t)

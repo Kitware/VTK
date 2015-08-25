@@ -471,9 +471,10 @@ void vtkBorderRepresentation::UpdateShowBorder()
 //-------------------------------------------------------------------------
 void vtkBorderRepresentation::BuildRepresentation()
 {
-  if ( this->GetMTime() > this->BuildTime ||
-       (this->Renderer && this->Renderer->GetVTKWindow() &&
-        this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
+  if (this->Renderer &&
+      (this->GetMTime() > this->BuildTime ||
+       (this->Renderer->GetVTKWindow() &&
+        this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime)))
     {
     // Negotiate with subclasses
     if ( ! this->Negotiated )

@@ -105,6 +105,11 @@ int vtkPExtractRectilinearGrid::RequestData(
     return this->Superclass::RequestData(request, inputVector, outputVector);
     }
 
+    if (!this->Internal->IsValid())
+      {
+      return 0;
+      }
+
   // Collect information:
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
@@ -154,10 +159,10 @@ int vtkPExtractRectilinearGrid::RequestData(
   // 1) Compute ParititonedVOI that will allow the base class to produce as much
   //    of the output data set as possible from the partitioned piece.
   //
-  // 2) Extract PartitionedVOI using the base class's implementation.
-  //
-  // 3) Update the output dataset's extents to match PartitionedOutputExtent (it
+  // 2) Update the output dataset's extents to match PartitionedOutputExtent (it
   //    will be [0, L] in each dimension by default).
+  //
+  // 3) Extract PartitionedVOI using the base class's implementation.
   //
   // 4) Close gaps using vtkStructuredImplicitConnectivity (e.g. [3, 4] in the
   //    above example).
@@ -170,6 +175,7 @@ int vtkPExtractRectilinearGrid::RequestData(
     }
 
   DEBUG_EXTENT("InputWholeExtent", inputWholeExtent);
+  DEBUG_EXTENT("OutputWholeExtent", outputWholeExtent);
   DEBUG_EXTENT("GlobalVOI", globalVOI);
   DEBUG_EXTENT("InputPartitionedExtent", inputExtent);
 
@@ -184,30 +190,31 @@ int vtkPExtractRectilinearGrid::RequestData(
     vtkExtractStructuredGridHelper::GetPartitionedVOI(
           globalVOI, inputExtent, this->SampleRate, this->IncludeBoundary != 0,
           partitionedVOI);
+    }
+  DEBUG_EXTENT("PartitionedVOI", partitionedVOI);
 
-
-    ////////////////////////////////////////////////////////////
-    // 2) Extract actual VOI using superclass implementation: //
-    ////////////////////////////////////////////////////////////
-    if (!this->Superclass::RequestDataImpl(partitionedVOI, inputVector,
-                                           outputVector))
-      {
-      return 0;
-      }
-
+  if (partitionContainsVOI)
+    {
     ////////////////////////////////////////////////////////////////
-    // 3) Compute and update the output dataset's actual extents. //
+    // 2) Compute and update the output dataset's actual extents. //
     ////////////////////////////////////////////////////////////////
-
     vtkExtractStructuredGridHelper::GetPartitionedOutputExtent(
           globalVOI, partitionedVOI, outputWholeExtent, this->SampleRate,
           this->IncludeBoundary != 0, partitionedOutputExtent);
     output->SetExtent(partitionedOutputExtent);
     }
-
-  DEBUG_EXTENT("PartitionedVOI", partitionedVOI);
   DEBUG_EXTENT("PartitionedOutputExtent", partitionedOutputExtent);
-  DEBUG_EXTENT("OutputWholeExtent", outputWholeExtent);
+
+  if (partitionContainsVOI)
+    {
+    ////////////////////////////////////////////////////////////
+    // 3) Extract actual VOI using superclass implementation: //
+    ////////////////////////////////////////////////////////////
+    if (!this->Superclass::RequestDataImpl(inputVector, outputVector))
+      {
+      return 0;
+      }
+    }
 
   //////////////////////////////
   // 4: Detect & resolve gaps //

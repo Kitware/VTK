@@ -51,8 +51,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkStdString.h"
 
-#include <vtksys/ios/fstream>
-#include <vtksys/ios/sstream>
+#include <fstream>
+#include <sstream>
 
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()

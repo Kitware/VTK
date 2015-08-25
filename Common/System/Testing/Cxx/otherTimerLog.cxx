@@ -20,7 +20,7 @@
 #include "vtkTimerLog.h"
 #include "vtkDebugLeaks.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 // this is needed for the unlink call
 #if defined(__CYGWIN__)

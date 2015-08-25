@@ -17,7 +17,7 @@
 #include "vtkCompositeDataSet.h"
 #include "vtkCompositeDataIterator.h"
 
-#include <vtksys/stl/vector>
+#include <vector>
 
 vtkStandardNewMacro(vtkLinearSelector);
 vtkCxxSetObjectMacro(vtkLinearSelector,Points,vtkPoints);

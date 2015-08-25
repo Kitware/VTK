@@ -168,11 +168,10 @@ int main(int argc,char *argv[])
     return 1;
     }
 
-  /* extra object for the Common module */
+  /* extra functions, types, etc. for the CommonCore module */
   if (strcmp(libName, "vtkCommonCorePython") == 0)
     {
-    /* the PyVTKMutableObject */
-    files[numFiles] = strdup("mutable");
+    files[numFiles] = strdup("PyVTKExtras");
     numFiles++;
     }
 

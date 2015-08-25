@@ -39,7 +39,7 @@
 #include "vtkStringArray.h"
 
 #include <vtksys/SystemTools.hxx>
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 #include <cassert>
 #include <string.h>

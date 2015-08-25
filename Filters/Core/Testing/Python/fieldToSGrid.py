@@ -142,4 +142,4 @@ try:
 #    iren.Start()
 
 except IOError:
-    print  "Couldn't open combsg.vtk or SGridField.vtk for writing."
+    print("Couldn't open combsg.vtk or SGridField.vtk for writing.")

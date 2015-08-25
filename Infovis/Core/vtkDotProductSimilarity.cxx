@@ -31,7 +31,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTable.h"
 
-#include <vtksys/stl/algorithm>
+#include <algorithm>
 #include <map>
 #include <stdexcept>
 

@@ -19,7 +19,7 @@
 #include "vtkErrorCode.h"
 #include "vtkMultiProcessController.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 vtkCxxSetObjectMacro(vtkXMLPDataWriter,
                      Controller,

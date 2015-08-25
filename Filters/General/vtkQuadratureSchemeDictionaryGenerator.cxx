@@ -33,7 +33,7 @@
 #include "vtkInformationQuadratureSchemeDefinitionVectorKey.h"
 #include "vtkObjectFactory.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 #include <string>
 #include "vtkSmartPointer.h"
 using std::ostringstream;

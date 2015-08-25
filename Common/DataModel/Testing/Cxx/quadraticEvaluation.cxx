@@ -29,7 +29,7 @@
 #include "vtkQuadraticPyramid.h"
 #include "vtkPoints.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 // New quadratic cells
 #include "vtkBiQuadraticQuad.h"

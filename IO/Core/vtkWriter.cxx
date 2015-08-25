@@ -21,7 +21,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 
 // Construct with no start and end write methods or arguments.

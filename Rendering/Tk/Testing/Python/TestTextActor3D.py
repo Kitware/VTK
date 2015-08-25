@@ -6,36 +6,43 @@ from functools import partial
 import vtk
 from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
-from Tkinter import Pack
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-import Tkinter
+if sys.hexversion < 0x03000000:
+    # for Python2
+    import Tkinter as tkinter
+    from Tkinter import Pack
+else:
+    # for Python3
+    import tkinter
+    from tkinter import Pack
+
 #from vtk.tk.vtkTkRenderWindowInteractor import vtkTkRenderWindowInteractor
 from vtk.tk.vtkTkRenderWidget import vtkTkRenderWidget
 from vtk.tk.vtkTkImageViewerWidget import vtkTkImageViewerWidget
 
 # Tkinter constants.
-E = Tkinter.E
-W = Tkinter.W
-N = Tkinter.N
-S = Tkinter.S
-HORIZONTAL = Tkinter.HORIZONTAL
-VERTICAL = Tkinter.VERTICAL
-RIGHT = Tkinter.RIGHT
-LEFT = Tkinter.LEFT
-TOP = Tkinter.TOP
-BOTTOM = Tkinter.BOTTOM
-X = Tkinter.X
-BOTH = Tkinter.BOTH
-NO = Tkinter.NO
-YES = Tkinter.YES
-NORMAL = Tkinter.NORMAL
-DISABLED = Tkinter.DISABLED
-TRUE = Tkinter.TRUE
-FALSE = Tkinter.FALSE
-GROOVE = Tkinter.GROOVE
-INSERT = Tkinter.INSERT
-END = Tkinter.END
+E = tkinter.E
+W = tkinter.W
+N = tkinter.N
+S = tkinter.S
+HORIZONTAL = tkinter.HORIZONTAL
+VERTICAL = tkinter.VERTICAL
+RIGHT = tkinter.RIGHT
+LEFT = tkinter.LEFT
+TOP = tkinter.TOP
+BOTTOM = tkinter.BOTTOM
+X = tkinter.X
+BOTH = tkinter.BOTH
+NO = tkinter.NO
+YES = tkinter.YES
+NORMAL = tkinter.NORMAL
+DISABLED = tkinter.DISABLED
+TRUE = tkinter.TRUE
+FALSE = tkinter.FALSE
+GROOVE = tkinter.GROOVE
+INSERT = tkinter.INSERT
+END = tkinter.END
 
 class TestTextActor3DViewer(Testing.vtkTest):
     '''
@@ -66,7 +73,6 @@ class TestTextActor3DViewer(Testing.vtkTest):
             objActor = vtk.vtkActor()
             objActor.SetMapper(objMapper)
             objActor.GetProperty().SetRepresentationToWireframe()
-            print "Sphere:", objActor.GetOrigin()
 
             ren.AddActor(objActor)
 
@@ -130,7 +136,7 @@ class TestTextActor3DViewer(Testing.vtkTest):
         self.renWin.AddRenderer(ren)
         #self.renWin.SetSize(600, 600)
 
-        self.root = Tkinter.Tk()
+        self.root = tkinter.Tk()
         self.root.title("TestTextActor3D.py")
         # Define what to do when the user explicitly closes a window.
         self.root.protocol("WM_DELETE_WINDOW", OnClosing)
@@ -157,19 +163,19 @@ class TestTextActor3DViewer(Testing.vtkTest):
         self.textActors = dict()
 
         scaleLength = 200
-        controls = Tkinter.Frame(self.root, relief=GROOVE, bd=2)
+        controls = tkinter.Frame(self.root, relief=GROOVE, bd=2)
         controls.pack(
                 padx=2, pady=2, anchor=N+W, side=LEFT, fill=BOTH, expand=NO)
 
         # Add control of text.
-        self.entryText = Tkinter.Text(controls, height=1, width=25)
+        self.entryText = tkinter.Text(controls, height=1, width=25)
         self.entryText.insert(INSERT,baseText)
         self.entryText.pack(padx=4, pady=4, side=TOP, fill=X, expand=NO)
         self.entryText.bind('<Return>',UpdateTextActors)
         self.entryText.bind('<FocusOut>',UpdateTextActors)
 
         # Add control of orientation.
-        self.scaleOrientation = Tkinter.Scale(controls,
+        self.scaleOrientation = tkinter.Scale(controls,
                                 from_=0, to=360, res=1,
                                 length= scaleLength,
                                 orient=HORIZONTAL,
@@ -179,7 +185,7 @@ class TestTextActor3DViewer(Testing.vtkTest):
         self.scaleOrientation.pack(side=TOP, fill=X, expand=NO)
 
         # Add control of font size.
-        self.scaleFontSize = Tkinter.Scale(controls,
+        self.scaleFontSize = tkinter.Scale(controls,
                                 from_=5, to=150, res=1,
                                 length= scaleLength,
                                 orient=HORIZONTAL,
@@ -189,7 +195,7 @@ class TestTextActor3DViewer(Testing.vtkTest):
         self.scaleFontSize.pack(side=TOP, fill=X, expand=NO)
 
         # Add control of scale.
-        self.scaleScale = Tkinter.Scale(controls,
+        self.scaleScale = tkinter.Scale(controls,
                                 from_=0, to=100, res=1,
                                 length= scaleLength,
                                 orient=HORIZONTAL,
@@ -199,7 +205,7 @@ class TestTextActor3DViewer(Testing.vtkTest):
         self.scaleScale.pack(side=TOP, fill=X, expand=NO)
 
         # Add control of scale.
-        self.scaleOpacity = Tkinter.Scale(controls,
+        self.scaleOpacity = tkinter.Scale(controls,
                                 from_=0, to=1.0, res=0.01,
                                 length= scaleLength,
                                 orient=HORIZONTAL,
@@ -222,7 +228,7 @@ class TestTextActor3DViewer(Testing.vtkTest):
 
         UpdateTextActors(0)
 
-        for actor in self.textActors.itervalues():
+        for actor in self.textActors.values():
             ren.AddActor(actor)
 
     def DoIt(self):

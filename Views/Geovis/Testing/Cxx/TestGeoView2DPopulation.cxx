@@ -54,7 +54,7 @@
 #include "vtkTableToPolyData.h"
 #include "vtkTextProperty.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 int TestGeoView2DPopulation(int argc, char* argv[])
 {

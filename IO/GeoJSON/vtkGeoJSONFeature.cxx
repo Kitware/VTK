@@ -424,7 +424,7 @@ ExtractGeoJSONFeatureGeometry(const Json::Value& geometryRoot,
     {
     //For GeometryCollection
     Json::Value geometries = geometryRoot["geometries"];
-    for (int i = 0; i < geometries.size(); i++)
+    for (Json::Value::ArrayIndex i = 0; i < geometries.size(); i++)
       {
       Json::Value child = geometries[i];
       this->ExtractGeoJSONFeatureGeometry(child, outputData);
@@ -479,7 +479,7 @@ bool vtkGeoJSONFeature::IsLineString(const Json::Value& root)
     return false;
     }
 
-  for (int i = 0; i < root.size(); i++)
+  for (Json::Value::ArrayIndex i = 0; i < root.size(); i++)
     {
     Json::Value child = root[i];
     if ( ! IsPoint( child ) )
@@ -506,7 +506,7 @@ bool vtkGeoJSONFeature::IsMultiLineString(const Json::Value& root)
     return false;
     }
 
-  for (int i = 0; i < root.size(); i++)
+  for (Json::Value::ArrayIndex i = 0; i < root.size(); i++)
     {
     Json::Value child = root[i];
     if ( ! IsLineString( child ) )
@@ -533,7 +533,7 @@ bool vtkGeoJSONFeature::IsPoint(const Json::Value& root)
     return false;
     }
 
-  for (int i = 0; i < root.size(); i++)
+  for (Json::Value::ArrayIndex i = 0; i < root.size(); i++)
     {
     Json::Value child = root[i];
     if ( ! child.isNumeric() )
@@ -561,7 +561,7 @@ bool vtkGeoJSONFeature::IsMultiPoint(const Json::Value& root)
     return false;
     }
 
-  for (int i = 0; i < root.size(); i++)
+  for (Json::Value::ArrayIndex i = 0; i < root.size(); i++)
     {
     Json::Value child = root[i];
     if ( ! IsPoint( child ) )
@@ -588,7 +588,7 @@ bool vtkGeoJSONFeature::IsPolygon(const Json::Value& root)
     return false;
     }
 
-  for (int i = 0; i < root.size(); i++)
+  for (Json::Value::ArrayIndex i = 0; i < root.size(); i++)
     {
     Json::Value child = root[i];
     if( ! IsLineString( child ) )
@@ -617,7 +617,7 @@ bool vtkGeoJSONFeature::IsMultiPolygon(const Json::Value& root)
     return false;
     }
 
-  for (int i = 0; i < root.size(); i++)
+  for (Json::Value::ArrayIndex i = 0; i < root.size(); i++)
     {
     Json::Value child = root[i];
     if( ! IsPolygon( child ) )

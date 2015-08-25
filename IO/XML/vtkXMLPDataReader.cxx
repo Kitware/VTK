@@ -26,7 +26,7 @@
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 
 //----------------------------------------------------------------------------

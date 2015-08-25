@@ -166,6 +166,8 @@ void vtkXMLUnstructuredGridWriter::WriteAppendedPiece(int index,
   if (vtkUnstructuredGrid *grid = vtkUnstructuredGrid::SafeDownCast(input))
     {
     this->WriteCellsAppended("Cells", grid->GetCellTypesArray(),
+                             grid->GetFaces(),
+                             grid->GetFaceLocations(),
                              indent, &this->CellsOM->GetPiece(index));
     }
   else

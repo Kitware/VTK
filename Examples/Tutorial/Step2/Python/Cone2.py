@@ -12,6 +12,7 @@
 # is observed.
 #
 
+from __future__ import print_function
 import vtk
 import time
 
@@ -19,7 +20,7 @@ import time
 # define the callback
 #
 def myCallback(obj,string):
-    print "Starting a render"
+    print("Starting a render")
 
 
 #

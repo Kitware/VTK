@@ -24,7 +24,7 @@
 
 #include "vtkTestUtilities.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 // Callback for the broken line widget interaction
 class vtkBLWCallback : public vtkCommand

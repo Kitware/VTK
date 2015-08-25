@@ -16,7 +16,9 @@
 #include "vtkPeriodicFilter.h"
 
 #include "vtkDataObjectTreeIterator.h"
+#include "vtkDataSet.h"
 #include "vtkInformationVector.h"
+#include "vtkInformation.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
 
@@ -70,14 +72,36 @@ void vtkPeriodicFilter::RemoveAllIndices()
 }
 
 //----------------------------------------------------------------------------
+int vtkPeriodicFilter::FillInputPortInformation(
+  int vtkNotUsed(port), vtkInformation* info)
+{
+  // now add our info
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
+  return 1;
+}
+
+//----------------------------------------------------------------------------
 int vtkPeriodicFilter::RequestData(vtkInformation *vtkNotUsed(request),
                                    vtkInformationVector **inputVector,
                                    vtkInformationVector *outputVector)
 {
-  vtkMultiBlockDataSet *input = vtkMultiBlockDataSet::GetData(inputVector[0], 0);
+  // Recover casted dataset
+  vtkDataObject* inputObject = vtkDataObject::GetData(inputVector[0], 0);
+  vtkDataObjectTree *input = vtkDataObjectTree::SafeDownCast(inputObject);
+  vtkDataSet* dsInput = vtkDataSet::SafeDownCast(inputObject);
+  vtkMultiBlockDataSet* mb = NULL;
+
   vtkMultiBlockDataSet *output = vtkMultiBlockDataSet::GetData(outputVector, 0);
 
-  if (this->Indices.empty())
+  if (dsInput)
+    {
+    mb = vtkMultiBlockDataSet::New();
+    mb->SetNumberOfBlocks(1);
+    mb->SetBlock(0, dsInput);
+    this->AddIndex(1);
+    input = mb;
+    }
+  else if (this->Indices.empty())
     {
     // Trivial case
     output->ShallowCopy(input);
@@ -144,5 +168,10 @@ int vtkPeriodicFilter::RequestData(vtkInformation *vtkNotUsed(request),
     delete [] reducedPeriodNumbers;
     }
   iter->Delete();
+
+  if (mb != NULL)
+    {
+    mb->Delete();
+    }
   return 1;
 }

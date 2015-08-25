@@ -38,7 +38,7 @@ def parseFile():
     line = file.readline()
     numPts = int(getNumberFromLine(line)[0])
 
-    numLines = (numPts - 1)/8
+    numLines = (numPts - 1)//8
     # Get the data object's field data and allocate
     # room for 4, fields
     fieldData = dos.GetOutput().GetFieldData()

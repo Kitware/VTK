@@ -15,6 +15,7 @@ vtk_add_test_python(
   Delaunay3DAlphaTest.py
   QuadricDecimation.py
   StreamPolyData.py
+  TestElevationFilter.py
   TestGridSynchronizedTemplates3D.py
   TestMarchingSquares.py
   TestRectilinearSynchronizedTemplates.py

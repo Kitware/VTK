@@ -24,7 +24,7 @@
 
 #include "vtkNew.h"
 #include "vtkStdString.h"
-#include "vtksys/ios/sstream"
+#include <sstream>
 
 #include "vtkObjectFactory.h"
 

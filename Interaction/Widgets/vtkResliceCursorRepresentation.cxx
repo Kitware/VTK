@@ -47,7 +47,7 @@
 #include "vtkCamera.h"
 #include "vtkImageMapper3D.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 vtkCxxSetObjectMacro(vtkResliceCursorRepresentation, ColorMap, vtkImageMapToColors);
 

@@ -48,7 +48,7 @@
 #include <boost/graph/breadth_first_search.hpp>
 #include <boost/pending/queue.hpp>
 
-#include <vtksys/stl/utility> // for pair
+#include <utility> // for pair
 
 using namespace boost;
 

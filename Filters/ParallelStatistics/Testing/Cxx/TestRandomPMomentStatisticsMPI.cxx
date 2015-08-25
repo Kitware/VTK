@@ -49,7 +49,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtksys/CommandLineArguments.hxx"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 namespace
 {

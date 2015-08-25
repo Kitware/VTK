@@ -25,8 +25,8 @@
 #include "vtkPeriodicTable.h"
 #include "vtkXMLParser.h"
 
-#include <vtksys/stl/string>
-#include <vtksys/stl/vector>
+#include <string>
+#include <vector>
 
 // Subclass of vtkXMLParser -- definitions at end of file
 class vtkCMLParser : public vtkXMLParser

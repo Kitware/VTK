@@ -39,7 +39,7 @@
 
 #include <sys/stat.h>
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 #include <vtksys/SystemTools.hxx>
 
 vtkStandardNewMacro(vtkTesting);

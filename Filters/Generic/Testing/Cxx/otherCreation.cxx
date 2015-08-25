@@ -35,7 +35,7 @@
 #include "vtkGenericAttribute.h"
 #include <cassert>
 #include <string>
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 //-----------------------------------------------------------------------------
 // Description:

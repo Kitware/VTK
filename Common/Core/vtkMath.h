@@ -661,15 +661,12 @@ public:
   // The output is provided by overwriting the input A with a matrix of the same size as
   // A containing all of the information about L and U. If the output matrix is
   // \f$ A* = \left( \begin{array}{cc}
-  // a & b \\ %
-  // c & d \end{array} \right)\f$
+  // a & b \\ c & d \end{array} \right)\f$
   // then L and U can be obtained as:
   // \f$ L = \left( \begin{array}{cc}
-  // 1 & 0 \\ %
-  // c & 1 \end{array} \right)\f$
+  // 1 & 0 \\ c & 1 \end{array} \right)\f$
   // \f$ U = \left( \begin{array}{cc}
-  // a & b \\ %
-  // 0 & d \end{array} \right)\f$
+  // a & b \\ 0 & d \end{array} \right)\f$
   //
   // That is, the diagonal of the resulting A* is the diagonal of U. The upper right
   // triangle of A is the upper right triangle of U. The lower left triangle of A is

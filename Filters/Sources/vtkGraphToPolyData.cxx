@@ -37,9 +37,9 @@
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
 
-#include <vtksys/stl/map>
-#include <vtksys/stl/utility>
-#include <vtksys/stl/vector>
+#include <map>
+#include <utility>
+#include <vector>
 
 vtkStandardNewMacro(vtkGraphToPolyData);
 

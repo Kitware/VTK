@@ -1,4 +1,4 @@
-import sys, os, string
+import sys, os
 import vtkCommonCorePython
 
 def vtkLoadPythonTkWidgets(interp):
@@ -12,7 +12,7 @@ def vtkLoadPythonTkWidgets(interp):
     Y = vtkCommonCorePython.vtkVersion.GetVTKMinorVersion()
     modname = 'vtkRenderingPythonTkWidgets'
     name = '%s-%d.%d' % (modname,X,Y)
-    pkgname = string.capitalize(string.lower(modname))
+    pkgname = modname.lower().capitalize()
 
     # find out if the module is already loaded
     loadedpkgs = interp.call('info', 'loaded')
@@ -40,7 +40,7 @@ def vtkLoadPythonTkWidgets(interp):
     pathlist = sys.path
     # add tcl paths, ensure that {} is handled properly
     try:
-        auto_paths = string.split(interp.getvar('auto_path'))
+        auto_paths = interp.getvar('auto_path').split()
     except AttributeError:
         auto_paths = interp.getvar('auto_path')
     for path in auto_paths:
@@ -57,6 +57,10 @@ def vtkLoadPythonTkWidgets(interp):
     # a common place for these sorts of things
     if os.name == 'posix':
         pathlist.append('/usr/local/lib')
+
+    # if python 3, there is no separate "unicode" type
+    if sys.hexversion >= 0x03000000:
+        unicode = str
 
     # attempt to load
     for path in pathlist:

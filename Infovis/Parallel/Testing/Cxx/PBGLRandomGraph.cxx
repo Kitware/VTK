@@ -36,9 +36,9 @@
 #include "vtkVariantArray.h"
 #include "vtkDataSetAttributes.h"
 
-#include <vtksys/stl/algorithm>
-#include <vtksys/stl/functional>
-#include <vtksys/stl/vector>
+#include <algorithm>
+#include <functional>
+#include <vector>
 
 #include <boost/mpi/datatype.hpp> // for get_mpi_datatype
 

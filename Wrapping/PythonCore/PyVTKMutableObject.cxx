@@ -32,10 +32,6 @@
 #endif
 
 //--------------------------------------------------------------------
-// methods for adding this type to a module
-extern "C" { VTKWRAPPINGPYTHONCORE_EXPORT void PyVTKAddFile_mutable(PyObject *); }
-
-//--------------------------------------------------------------------
 
 static const char *PyVTKMutableObject_Doc =
   "A mutable wrapper for immutable objects.\n\n"
@@ -939,15 +935,3 @@ PyTypeObject PyVTKMutableObject_Type = {
   0,                                     // tp_weaklist
   VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED
 };
-
-//--------------------------------------------------------------------
-// Exported method for adding this type to a module's dict
-void PyVTKAddFile_mutable(PyObject *dict)
-{
-  PyObject *o = (PyObject *)&PyVTKMutableObject_Type;
-
-  if (o && PyDict_SetItemString(dict, "mutable", o) != 0)
-    {
-    Py_DECREF(o);
-    }
-}

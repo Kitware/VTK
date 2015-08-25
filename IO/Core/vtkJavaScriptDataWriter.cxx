@@ -32,7 +32,7 @@
 #include "vtkStringArray.h"
 
 #include <vector>
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 vtkStandardNewMacro(vtkJavaScriptDataWriter);
 //-----------------------------------------------------------------------------

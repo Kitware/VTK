@@ -24,7 +24,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkInformation.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 #include <vector>
 
 //----------------------------------------------------------------------------

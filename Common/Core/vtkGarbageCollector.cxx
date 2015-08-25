@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointerBase.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 #include <queue>
 #include <stack>
 #include <vector>

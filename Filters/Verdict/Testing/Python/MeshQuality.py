@@ -113,7 +113,7 @@ def main():
 
             res += '\n'
 
-        print res
+        print(res)
 
 if __name__ == '__main__':
      main()

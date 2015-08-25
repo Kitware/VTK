@@ -22,9 +22,9 @@
 #include <vtkDenseArray.h>
 #include <vtkSmartPointer.h>
 
-#include <vtksys/ios/iostream>
-#include <vtksys/ios/sstream>
-#include <vtksys/stl/stdexcept>
+#include <iostream>
+#include <sstream>
+#include <stdexcept>
 
 #define test_expression(expression) \
 { \

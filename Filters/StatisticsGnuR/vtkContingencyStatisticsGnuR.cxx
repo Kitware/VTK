@@ -33,10 +33,10 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
-#include <vtksys/stl/map>
-#include <vtksys/stl/vector>
+#include <map>
+#include <vector>
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 
 vtkStandardNewMacro(vtkContingencyStatisticsGnuR);

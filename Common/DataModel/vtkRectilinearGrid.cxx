@@ -1017,6 +1017,12 @@ void vtkRectilinearGrid::Crop(const int* updateExtent)
     {
     return;
     }
+  // Invalid extents would lead to unpleasant results:
+  else if (ext[1] < ext[0] || ext[3] < ext[2] || ext[5] < ext[4] ||
+           uExt[1] < uExt[0] || uExt[3] < uExt[2] || uExt[5] < uExt[4])
+    {
+    return;
+    }
   else
     {
     vtkRectilinearGrid *newGrid;

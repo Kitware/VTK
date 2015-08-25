@@ -401,6 +401,10 @@ void vtkCompositePolyDataMapper2::RenderPieceDraw(
     {
     // First we do the triangles, update the shader, set uniforms, etc.
     this->UpdateShaders(this->Tris, ren, actor);
+    if (!this->HaveWideLines(ren,actor) && representation == VTK_WIREFRAME)
+      {
+      glLineWidth(actor->GetProperty()->GetLineWidth());
+      }
     this->Tris.IBO->Bind();
     GLenum mode = (representation == VTK_POINTS) ? GL_POINTS :
       (representation == VTK_WIREFRAME) ? GL_LINES : GL_TRIANGLES;

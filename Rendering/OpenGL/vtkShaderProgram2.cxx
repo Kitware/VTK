@@ -25,7 +25,7 @@
 #include "vtkOpenGLError.h"
 
 #include <vector>
-#include <vtksys/ios/sstream>
+#include <sstream>
 #include <cassert>
 #include "vtkStdString.h"
 

@@ -97,6 +97,8 @@ SCALAR_FUNC(TestSqrt,sqrt,std::sqrt);
 SCALAR_FUNC(TestTan,tan,std::tan);
 SCALAR_FUNC(TestTanh,tanh,std::tanh);
 static int TestScalars();
+static int TestUnaryOperations();
+static int TestScientificNotation();
 static int TestVectors();
 static int TestMinMax();
 static int TestScalarLogic();
@@ -127,6 +129,8 @@ int UnitTestFunctionParser(int,char *[])
   status += TestTanh(-1.0, 1.0);
 
   status += TestScalars();
+  status += TestUnaryOperations();
+  status += TestScientificNotation();
   status += TestVectors();
   status += TestMinMax();
   status += TestScalarLogic();
@@ -148,6 +152,56 @@ int UnitTestFunctionParser(int,char *[])
   return EXIT_SUCCESS;
 }
 
+int TestUnaryOperations()
+{
+  std::cout << "Testing Scalar Unary" << "...";
+  std::string formula[4] = {
+    "-x * +y",
+    "+x + +y",
+    "+x - -y",
+    "-x - +y"};
+  double expected[4] = {-2.,3.,3.,-3.};
+
+  vtkSmartPointer<vtkFunctionParser> parser =
+    vtkSmartPointer<vtkFunctionParser>::New();
+  parser->SetScalarVariableValue("x", 1.0);
+  parser->SetScalarVariableValue("y", 2.0);
+  for (unsigned i=0;i<4;i++)
+    {
+    parser->SetFunction(&formula[i][0]);
+    double result = parser->GetScalarResult();
+    if (!vtkMathUtilities::FuzzyCompare(
+          result, expected[i],
+          std::numeric_limits<double>::epsilon() * 1.0))
+      {
+      std::cout << "FAILED\n";
+      return 1;
+      }
+    }
+
+  parser->SetScalarVariableValue("x", 3);
+  parser->SetScalarVariableValue("y", 2);
+  parser->SetFunction("-x ^ +y");
+  int result = parser->GetScalarResult();
+  std::cout<<"result: "<<result<<std::endl;
+  if (result != 9)
+    {
+    std::cout << "FAILED\n";
+    return 1;
+    }
+
+  parser->SetFunction("(-x)");
+  result = parser->GetScalarResult();
+  if (result != -3)
+    {
+    std::cout << "FAILED\n";
+    return 1;
+    }
+
+  std::cout << "PASSED\n";
+  return 0;
+}
+
 int TestScalars()
 {
   std::cout << "Testing Scalar Add / Subtract / Multiply / Divide" << "...";
@@ -155,10 +209,36 @@ int TestScalars()
     vtkSmartPointer<vtkFunctionParser>::New();
   parser->SetScalarVariableValue("x", 1.0);
   parser->SetScalarVariableValue("y", 2.0);
-  parser->SetFunction( "(x-y)/(x-y) * -(x-y)/(x-y) + (x - x)");
+  parser->SetFunction( "+(x-y)/(x-y) * -(x-y)/(x-y) + (x - x)");
   double result = parser->GetScalarResult();
   if (result != -1.0)
     {
+    std::cout << "FAILED\n";
+    return 1;
+    }
+  else
+    {
+    std::cout << "PASSED\n";
+    return 0;
+    }
+}
+
+int TestScientificNotation()
+{
+  std::cout << "Testing Scientific notation" << "...";
+  vtkSmartPointer<vtkFunctionParser> parser =
+    vtkSmartPointer<vtkFunctionParser>::New();
+  parser->SetFunction( "3.0e+01");
+  double expected = 3.0e+01;
+  double result = parser->GetScalarResult();
+  if (!vtkMathUtilities::FuzzyCompare(
+        result, expected,
+        std::numeric_limits<double>::epsilon() * 1.0))
+    {
+    std::cout << " Scientific notation expected " << expected
+              << " but got " << result;
+    std::cout << "eps ratio is: " << (result - expected)
+      / std::numeric_limits<double>::epsilon() << std::endl;
     std::cout << "FAILED\n";
     return 1;
     }

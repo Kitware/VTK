@@ -33,7 +33,7 @@
 #include "PyVTKMethodDescriptor.h"
 #include "vtkPythonUtil.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 // Silence warning like
 // "dereferencing type-punned pointer will break strict-aliasing rules"

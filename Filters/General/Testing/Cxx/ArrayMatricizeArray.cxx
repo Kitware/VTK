@@ -25,8 +25,8 @@
 #include <vtkSmartPointer.h>
 #include <vtkSparseArray.h>
 
-#include <vtksys/ios/iostream>
-#include <vtksys/stl/stdexcept>
+#include <iostream>
+#include <stdexcept>
 
 #define test_expression(expression) \
 { \

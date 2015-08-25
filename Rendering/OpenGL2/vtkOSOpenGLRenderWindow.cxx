@@ -42,7 +42,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRendererCollection.h"
 
 #include "vtksys/SystemTools.hxx"
-#include "vtksys/ios/sstream"
+#include <sstream>
 
 class vtkOSOpenGLRenderWindow;
 class vtkRenderWindow;

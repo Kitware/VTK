@@ -29,7 +29,7 @@
 #include <cassert>
 #include <limits> // man, I hope all platforms have this nowadays
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 #define BEGIN_TRANSACTION "BEGIN"
 #define COMMIT_TRANSACTION "COMMIT"

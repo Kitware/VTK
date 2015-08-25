@@ -42,9 +42,9 @@
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 
-#include <vtksys/stl/set>
-#include <vtksys/stl/algorithm>
-#include <vtksys/stl/functional>
+#include <set>
+#include <algorithm>
+#include <functional>
 
 #include <boost/mpi/communicator.hpp>
 #include <boost/mpi/collectives/scan.hpp>

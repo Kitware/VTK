@@ -1,16 +1,19 @@
 #!/usr/bin/env python
+from __future__ import print_function
 from vtk import *
 import os.path
 import sys
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+from vtk.util.misc import vtkGetDataRoot
+VTK_DATA_ROOT = vtkGetDataRoot()
 
 
-data_dir = "../../../../VTKData/Data/Infovis/SQLite/"
+data_dir = VTK_DATA_ROOT + "/Data/Infovis/SQLite/"
 if not os.path.exists(data_dir):
-  data_dir = "../../../../../VTKData/Data/Infovis/SQLite/"
+  data_dir = VTK_DATA_ROOT + "/Data/Infovis/SQLite/"
 if not os.path.exists(data_dir):
-  data_dir = "../../../../../../VTKData/Data/Infovis/SQLite/"
+  data_dir = VTK_DATA_ROOT + "/Data/Infovis/SQLite/"
 sqlite_file = data_dir + "temperatures.db"
 
 # I'm sure there's a better way then these global vars
@@ -36,7 +39,7 @@ def streamData():
     if (endRow >= input.GetNumberOfRows()):
         endRow = input.GetNumberOfRows()
         done = True;
-    print "streaming: ", startRow, "-", endRow
+    print("streaming: ", startRow, "-", endRow)
 
     for i in range(startRow, endRow):
         output.InsertNextRow(input.GetRow(i))
@@ -89,7 +92,7 @@ if __name__ == "__main__":
 
 
     # Calculate offline(non-streaming) descriptive statistics
-    print "# Calculate offline descriptive statistics:"
+    print("# Calculate offline descriptive statistics:")
     ds = vtkDescriptiveStatistics()
     ds.SetInputConnection(databaseToTable.GetOutputPort())
     ds.AddColumn("Temp1")
@@ -112,7 +115,7 @@ if __name__ == "__main__":
 
 
     # Calculate online(streaming) descriptive statistics
-    print "# Calculate online descriptive statistics:"
+    print("# Calculate online descriptive statistics:")
     ss = vtkStreamingStatistics()
     ss.SetStatisticsAlgorithm(inter)
     ss.SetInputConnection(psuedoStreamingData.GetOutputPort())

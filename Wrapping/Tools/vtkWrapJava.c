@@ -1300,7 +1300,7 @@ int main(int argc, char *argv[])
   fprintf(fp,"#include \"%s.h\"\n",data->Name);
   fprintf(fp,"#include \"vtkJavaUtil.h\"\n\n");
   fprintf(fp,"#include \"vtkStdString.h\"\n\n");
-  fprintf(fp,"#include <vtksys/ios/sstream>\n");
+  fprintf(fp,"#include <sstream>\n");
 
   for (i = 0; i < data->NumberOfSuperClasses; i++)
     {

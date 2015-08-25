@@ -32,7 +32,6 @@ import sys
 import re
 import os
 import stat
-import string
 
 # Get the path to the directory containing this script.
 if __name__ == '__main__':
@@ -41,11 +40,12 @@ else:
     selfpath = os.path.abspath(os.path.dirname(__file__))
 
 # Load the list of names mangled by windows.h.
-execfile(os.path.join(selfpath, 'WindowsMangleList.py'))
+exec(compile(open(os.path.join(selfpath, 'WindowsMangleList.py')).read(),
+     os.path.join(selfpath, 'WindowsMangleList.py'), 'exec'))
 
 ## If tested from dart, make sure to fix all the output strings
 test_from_dart = 0
-if os.environ.has_key("DART_TEST_FROM_DART"):
+if "DART_TEST_FROM_DART" in os.environ:
     test_from_dart = 1
 
 ## For backward compatibility
@@ -84,9 +84,9 @@ class TestVTKFiles:
     def Print(self, text=""):
         rtext = text
         if test_from_dart:
-            rtext = string.replace(rtext, "<", "&lt;")
-            rtext = string.replace(rtext, ">", "&gt;")
-        print rtext
+            rtext = rtext.replace("<", "&lt;")
+            rtext = rtext.replace(">", "&gt;")
+        print(rtext)
     def Error(self, error):
         self.ErrorValue = 1
         self.Errors[error] = 1
@@ -99,13 +99,13 @@ class TestVTKFiles:
         if self.ErrorValue:
             self.Print( )
             self.Print( "There were errors:" )
-        for a in self.Errors.keys():
+        for a in self.Errors:
             self.Print( "* %s" % a )
     def PrintWarnings(self):
         if self.WarningValue:
             self.Print( )
             self.Print( "There were warnings:" )
-        for a in self.Warnings.keys():
+        for a in self.Warnings:
             self.Print( "* %s" % a )
 
     def TestFile(self, filename):
@@ -114,11 +114,15 @@ class TestVTKFiles:
         self.ClassName = ""
         self.ParentName = ""
         try:
-            file = open(filename)
+            if sys.hexversion >= 0x03000000:
+                file = open(filename, encoding='ascii', errors='ignore')
+            else:
+                file = open(filename)
             self.FileLines = file.readlines()
             file.close()
         except:
-            self.Print( "Problem reading file: %s" % filename )
+            self.Print("Problem reading file %s:\n%s" %
+                       (filename, str(sys.exc_info()[1])))
             sys.exit(1)
         return not self.CheckExclude()
 
@@ -148,7 +152,7 @@ class TestVTKFiles:
         cc = 0
         includeparent = 0
         for a in self.FileLines:
-            line = string.strip(a)
+            line = a.strip()
             rm = regx.match(line)
             if rm and not regx1.match(line):
                 lines.append(" %4d: %s" % (cc, line))
@@ -195,13 +199,13 @@ class TestVTKFiles:
         cc = 0
         lastline = ""
         for a in self.FileLines:
-            line = string.strip(a)
+            line = a.strip()
             rm = regx.match(line)
             if not rm and not cname:
                 rm = regx.match(lastline + line)
             if rm:
                 export = rm.group(1)
-                export = string.strip(export)
+                export = export.strip()
                 cname = rm.group(2)
                 pname = rm.group(3)
                 classlines.append(" %4d: %s" % (cc, line))
@@ -244,7 +248,7 @@ class TestVTKFiles:
         cc = 0
         found = 0
         for a in range(len(self.FileLines)):
-            line = string.strip(self.FileLines[a])
+            line = self.FileLines[a].strip()
             rm = regx.match(line)
             if rm:
                 found = 1
@@ -258,8 +262,8 @@ class TestVTKFiles:
                 # Maybe it is in two lines
                 rm = regxs.match(line)
                 if rm:
-                    nline = line + " " + string.strip(self.FileLines[a+1])
-                    line = string.strip(nline)
+                    nline = nline = line + " " + self.FileLines[a+1].strip()
+                    line = nline.strip()
                     rm = regx.match(line)
                     if rm:
                         found = 1
@@ -304,7 +308,7 @@ class TestVTKFiles:
         foundcopy = 0
         foundasgn = 0
         for a in self.FileLines:
-            line = string.strip(a)
+            line = a.strip()
             if regx1.match(line):
                 foundcopy = foundcopy + 1
             if regx2.match(line):
@@ -312,14 +316,14 @@ class TestVTKFiles:
         lastline = ""
         if foundcopy < 1:
           for a in self.FileLines:
-            line = string.strip(a)
+            line = a.strip()
             if regx1.match(lastline + line):
                 foundcopy = foundcopy + 1
             lastline = a
         lastline = ""
         if foundasgn < 1:
           for a in self.FileLines:
-            line = string.strip(a)
+            line = a.strip()
             if regx2.match(lastline + line):
                 foundasgn = foundasgn + 1
             lastline = a
@@ -355,10 +359,10 @@ class TestVTKFiles:
         regx2 = re.compile(copyoperator)
         cc = 0
         for a in self.FileLines:
-            line = string.strip(a)
+            line = a.strip()
             rm = regx1.match(line)
             if rm:
-                arg = string.strip(rm.group(1))
+                arg = rm.group(1).strip()
                 if arg and not regx2.match(line):
                     lines.append(" %4d: %s" % (cc, line))
             cc = cc + 1
@@ -380,7 +384,7 @@ class TestVTKFiles:
         found = 0
         oldstyle = 0
         for a in self.FileLines:
-            line = string.strip(a)
+            line = a.strip()
             rm1 = regx1.match(line)
             rm2 = regx2.match(line)
             if rm1 or rm2:
@@ -403,10 +407,10 @@ class TestVTKFiles:
         # regx2 = re.compile("^(\s*//|\s*\*|.*VTK_LEGACY).*$")
         cc = 1
         for a in self.FileLines:
-            line = string.strip(a)
+            line = a.strip()
             rm = regx1.match(line)
             if rm:
-                arg = string.strip(rm.group(1))
+                arg =  rm.group(1).strip()
                 if arg and not regx2.match(line):
                     lines.append(" %4d: %s" % (cc, line))
             cc = cc + 1
@@ -422,8 +426,8 @@ test = TestVTKFiles()
 
 ## Check command line arguments
 if len(sys.argv) < 2:
-    print "Testing directory not specified..."
-    print "Usage: %s <directory> [ exception(s) ]" % sys.argv[0]
+    print("Testing directory not specified...")
+    print("Usage: %s <directory> [ exception(s) ]" % sys.argv[0])
     sys.exit(1)
 
 dirname = sys.argv[1]
@@ -431,7 +435,7 @@ exceptions = sys.argv[2:]
 if len(sys.argv) > 2:
   export = sys.argv[2]
   if export[:3] == "VTK" and export[len(export)-len("EXPORT"):] == "EXPORT":
-    print "Use export macro: %s" % export
+    print("Use export macro: %s" % export)
     exceptions = sys.argv[3:]
     test.SetExport(export)
 

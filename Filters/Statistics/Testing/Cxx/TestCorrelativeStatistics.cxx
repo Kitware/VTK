@@ -19,7 +19,7 @@
 #include "vtkTimerLog.h"
 #include "vtkCorrelativeStatistics.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 //=============================================================================
 // When changing this file, change the corresponding file in

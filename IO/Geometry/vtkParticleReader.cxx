@@ -31,7 +31,7 @@
 #include <algorithm>
 #include <vector>
 #include <string>
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 vtkStandardNewMacro(vtkParticleReader);
 

@@ -40,7 +40,7 @@
 #include "vtkStdString.h"
 #include "vtkTestUtilities.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 
 int TestLabeledGeoView2D(int argc, char* argv[])
 {

@@ -8,7 +8,7 @@
 #include "vtkExodusIIReaderVariableCheck.h"
 #include <vtksys/RegularExpression.hxx>
 #include <vtksys/SystemTools.hxx>
-#include <vtksys/String.hxx>
+#include <string>
 #include <vector>
 #include <set>
 

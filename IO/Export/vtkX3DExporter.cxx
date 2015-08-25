@@ -44,7 +44,7 @@
 #include "vtkX3DExporterXMLWriter.h"
 #include "vtkX3D.h"
 
-#include <vtksys/ios/sstream>
+#include <sstream>
 #include <cassert>
 
 using namespace vtkX3D;

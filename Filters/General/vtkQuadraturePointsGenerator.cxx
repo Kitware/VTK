@@ -37,7 +37,7 @@
 #include "vtkQuadratureSchemeDefinition.h"
 #include "vtkQuadraturePointsUtilities.hxx"
 
-#include "vtksys/ios/sstream"
+#include <sstream>
 using std::ostringstream;
 
 //-----------------------------------------------------------------------------
