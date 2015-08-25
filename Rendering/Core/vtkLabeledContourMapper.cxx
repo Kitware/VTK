@@ -1076,9 +1076,24 @@ bool vtkLabeledContourMapper::Private::SetViewInfo(vtkRenderer *ren,
                           mat->GetElement(2, 1),
                           mat->GetElement(2, 2));
 
+  // figure out the same aspect ratio used by the render engine
+  // (see vtkOpenGLCamera::Render())
+  int  lowerLeft[2];
+  int usize, vsize;
+  double aspect1[2];
+  double aspect2[2];
+  ren->GetTiledSizeAndOrigin(&usize, &vsize, lowerLeft, lowerLeft+1);
+  ren->ComputeAspect();
+  ren->GetAspect(aspect1);
+  ren->vtkViewport::ComputeAspect();
+  ren->vtkViewport::GetAspect(aspect2);
+  double aspectModification = (aspect1[0] * aspect2[1]) /
+                              (aspect1[1] * aspect2[0]);
+  double aspect = aspectModification * usize / vsize;
+
+  // Get the mvp (mcdc) matrix
   double mvp[16];
-  mat = ren->GetActiveCamera()->GetCompositeProjectionTransformMatrix(
-        ren->GetTiledAspectRatio(), 0., 1.);
+  mat = cam->GetCompositeProjectionTransformMatrix(aspect, -1, 1);
   vtkMatrix4x4::DeepCopy(mvp, mat);
 
   // Apply the actor's matrix:
