@@ -2580,9 +2580,14 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
      this->AppleBugPrimIDs, vtkOpenGLBufferObject::ArrayBuffer);
     this->AppleBugPrimIDBuffer->Release();
 
-    vtkWarningMacro("VTK is working around a bug in Apple-AMD hardware related to gl_PrimitiveID.  This may cause significant memory and performance impacts. Your hardware has been identified as vendor "
-      << (const char *)glGetString(GL_VENDOR) << " with renderer of "
-      << (const char *)glGetString(GL_RENDERER));
+    static bool warnedAboutBrokenAppleDriver = false;
+    if (!warnedAboutBrokenAppleDriver)
+      {
+      vtkWarningMacro("VTK is working around a bug in Apple-AMD hardware related to gl_PrimitiveID.  This may cause significant memory and performance impacts. Your hardware has been identified as vendor "
+        << (const char *)glGetString(GL_VENDOR) << " with renderer of "
+        << (const char *)glGetString(GL_RENDERER));
+      warnedAboutBrokenAppleDriver = true;
+      }
     if (n)
       {
       n = (act->GetProperty()->GetInterpolation() != VTK_FLAT) ?
