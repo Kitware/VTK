@@ -37,7 +37,6 @@
 
 #include <stddef.h>
 #include <sstream>
-#include <vtksys/cstddef>
 
 // This will be set to the python type struct for vtkObjectBase
 static PyTypeObject *PyVTKObject_Type = 0;
