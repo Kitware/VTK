@@ -419,6 +419,7 @@ public:
 
   // Description:
   // Build a string return value.
+  static PyObject *BuildValue(const char *v, size_t l);
   static PyObject *BuildValue(const char *v);
   static PyObject *BuildValue(const std::string &v);
   static PyObject *BuildValue(const vtkUnicodeString &v);
@@ -707,17 +708,31 @@ PyObject *vtkPythonArgs::BuildValue(const void *a)
 }
 
 inline
+PyObject *vtkPythonArgs::BuildValue(const char *a, size_t l)
+{
+#if PY_VERSION_HEX < 0x03000000
+  return PyString_FromStringAndSize(a, static_cast<Py_ssize_t>(l));
+#else
+#if PY_VERSION_HEX >= 0x03030000
+  PyObject *o = PyUnicode_FromStringAndSize(a, static_cast<Py_ssize_t>(l));
+#else
+  PyObject *o = PyUnicode_Decode(a, static_cast<Py_ssize_t>(l), NULL, NULL);
+#endif
+  if (o == NULL)
+    {
+    PyErr_Clear();
+    o = PyBytes_FromStringAndSize(a, static_cast<Py_ssize_t>(l));
+    }
+  return o;
+#endif
+}
+
+inline
 PyObject *vtkPythonArgs::BuildValue(const char *a)
 {
   if (a)
     {
-#if PY_VERSION_HEX >= 0x03030000
-    return PyUnicode_FromString(a);
-#elif PY_VERSION_HEX >= 0x03000000
-    return PyUnicode_Decode(a, static_cast<Py_ssize_t>(strlen(a)), NULL, NULL);
-#else
-    return PyString_FromString(a);
-#endif
+    return vtkPythonArgs::BuildValue(a, strlen(a));
     }
   Py_INCREF(Py_None);
   return Py_None;
@@ -726,13 +741,7 @@ PyObject *vtkPythonArgs::BuildValue(const char *a)
 inline
 PyObject *vtkPythonArgs::BuildValue(const std::string &a)
 {
-#if PY_VERSION_HEX >= 0x03030000
-  return PyUnicode_FromStringAndSize(a.c_str(), static_cast<Py_ssize_t>(a.size()));
-#elif PY_VERSION_HEX >= 0x03000000
-  return PyUnicode_Decode(a.c_str(), static_cast<Py_ssize_t>(a.size()), NULL, NULL);
-#else
-  return PyString_FromStringAndSize(a.c_str(), static_cast<Py_ssize_t>(a.size()));
-#endif
+  return vtkPythonArgs::BuildValue(a.data(), a.size());
 }
 
 inline
