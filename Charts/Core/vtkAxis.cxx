@@ -29,7 +29,7 @@
 #include "vtkStdString.h"
 #include "vtkAxisExtended.h"
 
-#include "sstream"
+#include <sstream>
 #include "vtkObjectFactory.h"
 
 #include "vtksys/RegularExpression.hxx"

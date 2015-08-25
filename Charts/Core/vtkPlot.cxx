@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
 #include "vtkNew.h"
-#include "sstream"
+#include <sstream>
 
 vtkCxxSetObjectMacro(vtkPlot, XAxis, vtkAxis);
 vtkCxxSetObjectMacro(vtkPlot, YAxis, vtkAxis);

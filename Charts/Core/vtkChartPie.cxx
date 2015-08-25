@@ -28,7 +28,7 @@
 #include "vtkChartLegend.h"
 #include "vtkTooltipItem.h"
 
-#include "sstream"
+#include <sstream>
 
 class vtkChartPiePrivate
 {

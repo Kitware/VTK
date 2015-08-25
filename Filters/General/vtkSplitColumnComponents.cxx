@@ -21,7 +21,7 @@
 #include "vtkStdString.h"
 #include "vtkTable.h"
 
-#include "sstream"
+#include <sstream>
 #include "math.h"
 
 vtkStandardNewMacro(vtkSplitColumnComponents);
