@@ -226,9 +226,11 @@ int vtkMRCReader::RequestInformation(vtkInformation* vtkNotUsed(request),
       return 0;
       }
     this->Internals->stream->read((char*)&this->Internals->header, sizeof(mrc_file_header));
-    if (this->Internals->header.stamp[0] == 'D')
-      // Officially, the next character should be 'A', but this appears to vary
-      // between implementations, so I only test the first one
+    if (this->Internals->header.stamp[0] != ((char)17))
+    // This is what the big-endian MRC files are supposed to look like.  I don't have one to
+    // test with though.  However, if it does not look like that, assume it is little endian.
+    // There are some non-conformant programs that don't correctly fill in this field, and
+    // assuming little endian is safer.
       {
       vtkByteSwap::Swap4LERange(&this->Internals->header,24);
       vtkByteSwap::Swap2LERange(&this->Internals->header.creatid,1);
@@ -388,7 +390,13 @@ void vtkMRCReader::ExecuteDataWithInformation(vtkDataObject *vtkNotUsed(output),
   inOffsets[1] = this->Internals->header.nx * numComponents;
   inOffsets[2] = this->Internals->header.ny * this->Internals->header.nx
               * numComponents;
-  bool fileIsLittleEndian = (this->Internals->header.stamp[0] == 'D');
+
+  // This is what the big-endian MRC files are supposed to look like.  I don't have one to
+  // test with though.  However, if it does not look like that, assume it is little endian.
+  // There are some non-conformant programs that don't correctly fill in this field, and
+  // assuming little endian is safer.
+  bool fileIsLittleEndian = (this->Internals->header.stamp[0] != ((char)17));
+
   ByteSwapFunction byteSwapFunction = getByteSwapFunction(vtkType,fileIsLittleEndian);
   switch (vtkType)
     {
