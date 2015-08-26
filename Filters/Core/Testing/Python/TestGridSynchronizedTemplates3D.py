@@ -29,7 +29,7 @@ class TestGridSynchronizedTemplates3D(Testing.vtkTest):
         self.failUnlessEqual(
           cf.GetOutputDataObject(0).GetNumberOfPoints(), 4674)
         self.failUnlessEqual(
-          cf.GetOutputDataObject(0).GetNumberOfCells(), 4011)
+          cf.GetOutputDataObject(0).GetNumberOfCells(), 4012)
 
         cf.GenerateTrianglesOn()
         cf.Update()

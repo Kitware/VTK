@@ -20,6 +20,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkGridSynchronizedTemplates3D.h"
+#include "vtkIdListCollection.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
@@ -411,7 +412,8 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
   vtkFloatArray *newNormals = NULL;
   vtkFloatArray *newGradients = NULL;
   vtkPolygonBuilder polyBuilder;
-  vtkSmartPointer<vtkIdList> poly = vtkSmartPointer<vtkIdList>::New();
+  vtkSmartPointer<vtkIdListCollection> polys =
+    vtkSmartPointer<vtkIdListCollection>::New();
 
   if (ComputeScalars)
     {
@@ -734,12 +736,19 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
                 }
               if(!outputTriangles)
                 {
-                polyBuilder.GetPolygon(poly);
-                if(poly->GetNumberOfIds()>0)
+                polyBuilder.GetPolygons(polys);
+                int nPolys = polys->GetNumberOfItems();
+                for (int polyId = 0; polyId < nPolys; ++polyId)
                   {
-                  outCellId = newPolys->InsertNextCell(poly);
-                  outCD->CopyData(inCD, inCellId, outCellId);
+                  vtkIdList* poly = polys->GetItem(polyId);
+                  if(poly->GetNumberOfIds()!=0)
+                    {
+                    outCellId = newPolys->InsertNextCell(poly);
+                    outCD->CopyData(inCD, inCellId, outCellId);
+                    }
+                  poly->Delete();
                   }
+                polys->RemoveAllItems();
                 }
               }
             }

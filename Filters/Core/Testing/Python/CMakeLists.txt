@@ -36,6 +36,8 @@ vtk_add_test_python(
   contourQuadraticTetra.py,NO_RT
   createBFont.py
   cutLoop.py
+  cutPolygons.py
+  cutter.py
   dispPlot.py
   fieldToPolyData.py
   fieldToRGrid.py

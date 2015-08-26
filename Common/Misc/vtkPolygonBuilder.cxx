@@ -13,84 +13,100 @@
 
 =========================================================================*/
 #include "vtkPolygonBuilder.h"
-#include "vtkIdList.h"
+#include "vtkIdListCollection.h"
 
 vtkPolygonBuilder::vtkPolygonBuilder()
 {
 }
 
-void vtkPolygonBuilder::Reset()
+void vtkPolygonBuilder::InsertTriangle(vtkIdType* abc)
 {
-  this->Poly.clear();
-}
+  // For each triangle edge, and for each direction (clockwise and
+  // counterclockwise): the number of instances of each edge are recorded, and
+  // edges with exactly one instance are stored
 
-bool vtkPolygonBuilder::InsertTriangle(vtkIdType* abc)
-{
-  if(this->Poly.size()==0)
+  for (int i=0;i<3;i++)
     {
-    this->Insert(0, abc[0]);
-    this->Insert(0, abc[1]);
-    this->Insert(1, abc[2]);
-    return true;
-    }
-
-  int i;
-  VertexRef v(0);
-  for(i=0; i<3; i++)
-    {
-    if(FindEdge(abc[(i+1)%3],abc[(i+2)%3],v))
+    for (int j=1;j>=-1;j-=2)
       {
-      break;
+      Edge edge(abc[i],abc[(i+j+3)%3]);
+      size_t nInstances = ++(this->EdgeCounter[edge]);
+
+      if (nInstances == 1)
+        {
+        this->Edges.insert(std::make_pair(edge.first,edge.second));
+        }
+      else if (nInstances == 2)
+        {
+        std::pair<EdgeMap::iterator, EdgeMap::iterator> range = Edges.equal_range(edge.first);
+
+        EdgeMap::iterator it = range.first;
+        for (; it != range.second; ++it)
+          {
+          if (it->second == edge.second)
+            {
+            Edges.erase(it);
+            break;
+            }
+          }
+        }
       }
     }
-
-  if(i==3)
-    {
-    return false;
-    }
-
-  this->Insert(v, abc[i]);
-  return true;
+  return;
 }
 
-void vtkPolygonBuilder::GetPolygon(vtkIdList* poly) const
+void vtkPolygonBuilder::GetPolygons(vtkIdListCollection* polys)
 {
-  poly->Reset();
-  if(this->Poly.size()==0)
+  polys->RemoveAllItems();
+
+  // We now have exactly two instances of each outer edge, corresponding to a
+  // clockwise and counterclockwise traversal
+  if (this->Edges.size()<6)
     {
     return;
     }
-  VertexRef v = 0;
-  do
-    {
-    poly->InsertNextId(this->GetVertexId(v));
-    v = this->GetNextVertex(v);
-    }while(v!=0);
-}
 
-bool vtkPolygonBuilder::FindEdge(vtkIdType a, vtkIdType b, VertexRef& v) const
-{
-  v = 0;
-  do
+  while (!(this->Edges.empty()))
     {
-    VertexRef u = this->GetNextVertex(v);
-    if( this->GetVertexId(u)==a && this->GetVertexId(v)==b )
+    vtkIdList* poly = vtkIdList::New();
+
+    Edge edge = *(this->Edges.begin());
+    EdgeMap::iterator edgeIt = this->Edges.begin();
+
+    vtkIdType firstVtx = edge.first;
+
+    do
       {
-      return true;
+      poly->InsertNextId(edge.first);
+
+      // we will find either the inverse to our current edge, or the next edge
+      // in the path.
+      std::pair<EdgeMap::iterator, EdgeMap::iterator> range =
+        this->Edges.equal_range(edge.second);
+
+      edgeIt = range.first;
+      vtkIdType previousVtx = edge.first;
+      while (edgeIt != range.second)
+        {
+        if ((*edgeIt).second != previousVtx)
+          {
+          // we have found the next edge in the path
+          edge.first = edge.second;
+          edge.second = edgeIt->second;
+          }
+        this->Edges.erase(edgeIt++);
+        }
       }
-    v = u;
-    }while(v!=0);
-  return false;
+    while (edge.first != firstVtx);
+
+    polys->AddItem(poly);
+    }
+
+  this->Reset();
 }
 
-vtkPolygonBuilder::VertexRef vtkPolygonBuilder::Insert(VertexRef i, vtkIdType vertexId)
+void vtkPolygonBuilder::Reset()
 {
-  //Allocate a vertex that points to itself
-  VertexRef j = this->Poly.size();
-  this->Poly.push_back(Vertex(j,vertexId));
-
-  //splice the cycle
-  this->Poly[j].Next = this->Poly[i].Next;
-  this->Poly[i].Next = j;
-  return j;
+  this->EdgeCounter.clear();
+  this->Edges.clear();
 }

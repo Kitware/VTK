@@ -19,7 +19,7 @@
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 #include "vtkPolygonBuilder.h"
-#include "vtkIdList.h"
+#include "vtkIdListCollection.h"
 #include "vtkCell.h"
 #include "vtkDataArray.h"
 
@@ -50,14 +50,14 @@ vtkContourHelper::vtkContourHelper(vtkIncrementalPointLocator *locator,
     this->Tris->Allocate(estimatedSize,estimatedSize/2);
     this->TriOutCd->Initialize();
     }
-  this->Poly = vtkIdList::New();
+  this->PolyCollection = vtkIdListCollection::New();
 }
 
 vtkContourHelper::~vtkContourHelper()
 {
   this->Tris->Delete();
   this->TriOutCd->Delete();
-  this->Poly->FastDelete();
+  this->PolyCollection->Delete();
 }
 
 void vtkContourHelper::Contour(vtkCell* cell, double value, vtkDataArray *cellScalars, vtkIdType cellId)
@@ -96,11 +96,18 @@ void vtkContourHelper::Contour(vtkCell* cell, double value, vtkDataArray *cellSc
         }
       }
 
-    this->PolyBuilder.GetPolygon(this->Poly);
-    if(this->Poly->GetNumberOfIds()!=0)
+    this->PolyBuilder.GetPolygons(this->PolyCollection);
+    int nPolys = this->PolyCollection->GetNumberOfItems();
+    for (int polyId = 0; polyId < nPolys; ++polyId)
       {
-      vtkIdType outCellId = this->Polys->InsertNextCell(this->Poly);
-      this->OutCd->CopyData(this->InCd, cellId, outCellId);
+      vtkIdList* poly = this->PolyCollection->GetItem(polyId);
+      if(poly->GetNumberOfIds()!=0)
+        {
+        vtkIdType outCellId = this->Polys->InsertNextCell(poly);
+        this->OutCd->CopyData(this->InCd, cellId, outCellId);
+        }
+      poly->Delete();
       }
+    this->PolyCollection->RemoveAllItems();
     }
 }

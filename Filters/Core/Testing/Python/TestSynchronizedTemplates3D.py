@@ -21,7 +21,7 @@ class TestSynchronizedTemplates3D(Testing.vtkTest):
     stemp.GenerateTrianglesOff()
     stemp.Update()
     self.failUnlessEqual(stemp.GetOutputDataObject(0).GetNumberOfPoints(),39315)
-    self.failUnlessEqual(stemp.GetOutputDataObject(0).GetNumberOfCells(),38380)
+    self.failUnlessEqual(stemp.GetOutputDataObject(0).GetNumberOfCells(),39067)
 
     stemp.GenerateTrianglesOn()
     stemp.Update()

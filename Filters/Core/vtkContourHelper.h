@@ -32,7 +32,7 @@ class vtkPointData;
 class vtkCellData;
 class vtkCell;
 class vtkDataArray;
-class vtkIdList;
+class vtkIdListCollection;
 
 class VTKFILTERSCORE_EXPORT vtkContourHelper
 {
@@ -63,7 +63,7 @@ public:
 
   vtkCellArray* Tris;
   vtkPolygonBuilder PolyBuilder;
-  vtkIdList* Poly;
+  vtkIdListCollection* PolyCollection;
   bool GenerateTriangles;
 };
 
