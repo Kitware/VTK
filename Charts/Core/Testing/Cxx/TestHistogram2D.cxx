@@ -29,7 +29,7 @@
 int TestHistogram2D(int, char * [])
 {
   // Set up a 2D scene, add an XY chart to it
-  int size = 401;
+  int size = 400;
   vtkNew<vtkContextView> view;
   view->GetRenderWindow()->SetSize(size, size);
   vtkNew<vtkChartHistogram2D> chart;
