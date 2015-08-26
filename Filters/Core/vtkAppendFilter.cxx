@@ -28,6 +28,7 @@
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <set>
 #include <string>
@@ -639,6 +640,29 @@ void vtkAppendFilter::AppendArrays(int attributesType,
       offset += dataSet->GetNumberOfCells();
       }
     }
+}
+
+//----------------------------------------------------------------------------
+int vtkAppendFilter::RequestUpdateExtent(vtkInformation *vtkNotUsed(request),
+                                         vtkInformationVector **inputVector,
+                                         vtkInformationVector *vtkNotUsed(outputVector))
+{
+  int numInputConnections = this->GetNumberOfInputConnections(0);
+
+  // Let downstream request a subset of connection 0, for connections >= 1
+  // send their WHOLE_EXTENT as UPDATE_EXTENT.
+  for (int idx = 1; idx < numInputConnections; ++idx)
+    {
+    vtkInformation * inputInfo = inputVector[0]->GetInformationObject(idx);
+    if (inputInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
+      {
+      int ext[6];
+      inputInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext);
+      inputInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
+      }
+    }
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
