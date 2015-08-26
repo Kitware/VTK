@@ -102,4 +102,70 @@ they are system headers.  Do NOT add any #undef lines here.  */
 #undef toupper
 #endif
 
+// Use vtkPythonScopeGilEnsurer to protect some parts of python code.
+// Some classes are already protected with it (mainly used in paraview):
+// vtkPythonInteractiveInterpreter
+// vtkPythonInterpreter
+// vtkPythonCommand
+// vtkSmartPyObject
+// 
+// others aren't:
+// PyVTKObject
+// PyVTKSpecialObject
+// PyVTKMethodDescriptor
+// vtkPythonOverload
+// vtkPythonUtil
+// PyVTKMutableObject
+// PyVTKNamespace
+// PyVTKTemplate
+// vtkPythonView ( paraview )
+// pqPythonDebugLeaksView (paraview)
+// 
+// others are not protected, but can be considered not 
+// in need of protection for different reasons
+// eg, used only in wrapping, not used, standalone executable, 3rd party :
+// vtkPythonAppInit
+// vtkPythonArgs
+// PyVTKExtras
+// vtkMatplotlibMathTextUtilities
+// vtkPythonAlgorithm
+// vtkWebUtilities
+// vtkMPI4PyCommunicator
+// vtkClientServerInterpreterPython ( paraview )
+// pqPythonEventSource (QtTesting)
+// pqPythonEventSourceImage (QtTesting)
+// Plugin code ( xdmf2, pvblot)
+
+class vtkPythonScopeGilEnsurer 
+{
+public:
+  vtkPythonScopeGilEnsurer(bool force = false)
+    {
+#ifdef VTK_PYTHON_FULL_THREADSAFE
+    this->Force = force;
+    this->Force = true;
+#else    
+    this->Force = force;
+#endif
+    if (this->Force)
+      {
+      this->State = PyGILState_Ensure();
+      }
+    }
+  ~vtkPythonScopeGilEnsurer()
+    {
+    if (this->Force)
+      {
+      PyGILState_Release(this->State);
+      }
+    }
+
+private:
+  PyGILState_STATE State;
+  bool Force;
+  vtkPythonScopeGilEnsurer(const vtkPythonScopeGilEnsurer&); // Not implemented.
+  void operator=(const vtkPythonScopeGilEnsurer&); // Not implemented.
+};
+
+
 #endif
