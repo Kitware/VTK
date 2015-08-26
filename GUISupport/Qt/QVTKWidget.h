@@ -55,19 +55,11 @@ class vtkTDxDevice;
 #if defined(Q_WS_MAC)
 # if defined(QT_MAC_USE_COCOA) && defined(VTK_USE_COCOA)
 #  define QVTK_USE_COCOA
-# elif !defined(QT_MAC_USE_COCOA) && defined(VTK_USE_CARBON)
-#  define QVTK_USE_CARBON
 # elif defined(VTK_USE_COCOA)
 #  error "VTK configured to use Cocoa, but Qt configured to use Carbon"
-# elif defined(VTK_USE_CARBON)
-#  error "VTK configured to use Carbon, but Qt configured to use Cocoa"
 # endif
 #endif
 
-
-#if defined(QVTK_USE_CARBON)
-#include <Carbon/Carbon.h>    // Event handling for dirty region
-#endif
 
 #include "QVTKWin32Header.h"
 
@@ -255,12 +247,6 @@ protected:
   bool nativeEvent(const QByteArray& eventType, void* message, long* result);
 #endif
 
-#endif
-
-#if defined(QVTK_USE_CARBON)
-  EventHandlerUPP DirtyRegionHandlerUPP;
-  EventHandlerRef DirtyRegionHandler;
-  static OSStatus DirtyRegionProcessor(EventHandlerCallRef er, EventRef event, void*);
 #endif
 
 protected:

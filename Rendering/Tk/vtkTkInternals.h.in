@@ -16,7 +16,7 @@
 #ifndef vtkTkInternals_h
 #define vtkTkInternals_h
 
-#include "vtkRenderingOpenGLConfigure.h" // for COCOA, CARBON, X11, WIN32
+#include "vtkRenderingOpenGLConfigure.h" // for COCOA, X11, WIN32
 
 #cmakedefine HAVE_LIMITS_H
 #cmakedefine HAVE_UNISTD_H
@@ -34,18 +34,6 @@ extern "C"
 #ifdef  __cplusplus
 }
 #endif
-#endif
-
-#ifdef VTK_USE_CARBON
-// Tk #defines Status in:
-// Tk.framework/Versions/8.4/Headers/X11/Xlib.h,
-// which conflicts with a member of the FPUInformationIntel
-// struct in Apple's new headers for i386:
-// CarbonCore.framework/Versions/A/Headers/MachineExceptions.h
-#if defined (i386)
-#undef Status
-#endif /* defined (i386) */
-#include "tkMacOSXInt.h"
 #endif
 
 #endif /* vtkTkInternals_h */

@@ -88,17 +88,6 @@ endif()
 # Create the vtk Tcl wrapper executable.
 VTK_ADD_EXECUTABLE(vtk vtkTkAppInit.cxx ${VTK_EXE_RESOURCE_FILES})
 
-IF(VTK_USE_CARBON)
-  FIND_PROGRAM(VTK_APPLE_RESOURCE Rez "${OSX_DEVELOPER_ROOT}/usr/bin")
-  IF(VTK_APPLE_RESOURCE)
-    ADD_CUSTOM_COMMAND(
-      TARGET vtk POST_BUILD
-      COMMAND ${VTK_APPLE_RESOURCE} Carbon.r -o $<TARGET_FILE:vtk>
-      VERBATIM
-      )
-  ENDIF()
-ENDIF()
-
 # Link to TCL static libraries
 if(BUILD_SHARED_LIBS)
   # vtkCommonCoreTCL is required even for shared builds
@@ -144,16 +133,6 @@ if(vtkParallelMPI_ENABLED)
 
   VTK_ADD_EXECUTABLE(pvtk vtkParaTkAppInit.cxx ${VTK_EXE_RESOURCE_FILES})
   vtk_mpi_link(pvtk)
-  IF(VTK_USE_CARBON)
-    FIND_PROGRAM(VTK_APPLE_RESOURCE Rez "${OSX_DEVELOPER_ROOT}/usr/bin")
-    IF(VTK_APPLE_RESOURCE)
-      ADD_CUSTOM_COMMAND(
-        TARGET pvtk POST_BUILD
-        COMMAND ${VTK_APPLE_RESOURCE} Carbon.r -o $<TARGET_FILE:pvtk>
-        VERBATIM
-        )
-    ENDIF()
-  ENDIF()
 
   target_link_libraries(pvtk LINK_PRIVATE ${PVTK_LIBRARIES})
   if(VTK_USE_TK)

@@ -14,18 +14,12 @@ IF (VTK_USE_MPI)
     if (MPI_CXX_LIBRARIES)
       TARGET_LINK_LIBRARIES(ParallelIso ${MPI_CXX_LIBRARIES})
     endif()
-    IF(APPLE AND VTK_USE_CARBON)
-      TARGET_LINK_LIBRARIES(ParallelIso "-framework Carbon")
-    ENDIF()
   ENDIF ()
 
   SET(TaskPara_SRCS TaskParallelism.cxx task1.cxx task2.cxx)
 
   ADD_EXECUTABLE(TaskParallelism          ${TaskPara_SRCS})
   TARGET_LINK_LIBRARIES (TaskParallelism vtkParallel)
-  IF(APPLE AND VTK_USE_CARBON)
-   TARGET_LINK_LIBRARIES(TaskParallelism "-framework Carbon")
-  ENDIF()
 
 #  ADD_EXECUTABLE(SimpleBenchmark SimpleBenchmark.cxx)
 #  TARGET_LINK_LIBRARIES(SimpleBenchmark vtkParallel ${MPI_LIBRARIES} )

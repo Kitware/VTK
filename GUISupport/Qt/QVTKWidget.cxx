@@ -55,9 +55,6 @@
 
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkRenderWindow.h"
-#if defined(QVTK_USE_CARBON)
-#  include "vtkCarbonRenderWindow.h"
-#endif
 #include "vtkCommand.h"
 #include "vtkOStrStreamWrapper.h"
 #include "vtkObjectFactory.h"
@@ -103,11 +100,6 @@ QVTKWidget::QVTKWidget(QWidget* p, Qt::WindowFlags f)
   this->mCachedImage = vtkImageData::New();
   this->mCachedImage->SetOrigin(0,0,0);
   this->mCachedImage->SetSpacing(1,1,1);
-
-#if defined(QVTK_USE_CARBON)
-  this->DirtyRegionHandler = 0;
-  this->DirtyRegionHandlerUPP = 0;
-#endif
 
   mIrenAdapter = new QVTKInteractorAdapter(this);
 
@@ -268,27 +260,6 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* w)
       this->mRenWin->AddObserver(vtkCommand::RenderEvent,
         this, &QVTKWidget::renderEventCallback);
     }
-
-#if defined(QVTK_USE_CARBON)
-  if(mRenWin && !this->DirtyRegionHandlerUPP)
-    {
-    this->DirtyRegionHandlerUPP = NewEventHandlerUPP(QVTKWidget::DirtyRegionProcessor);
-    static EventTypeSpec events[] = { {'cute', 20}, {'Cute', 20} };
-    // kEventClassQt, kEventQtRequestWindowChange from qt_mac_p.h
-    // Suggested by Sam Magnuson at Trolltech as best portabile hack
-    // around Apple's missing functionality in HI Toolbox.
-    InstallEventHandler(GetApplicationEventTarget(), this->DirtyRegionHandlerUPP,
-                        GetEventTypeCount(events), events,
-                        reinterpret_cast<void*>(this), &this->DirtyRegionHandler);
-    }
-  else if(!mRenWin && this->DirtyRegionHandlerUPP)
-    {
-    RemoveEventHandler(this->DirtyRegionHandler);
-    DisposeEventHandlerUPP(this->DirtyRegionHandlerUPP);
-    this->DirtyRegionHandler = 0;
-    this->DirtyRegionHandlerUPP = 0;
-    }
-#endif
 }
 
 
@@ -848,22 +819,6 @@ bool QVTKWidget::nativeEvent(const QByteArray& eventType, void* message, long* r
 }
 #endif
 #endif
-
-#if defined (QVTK_USE_CARBON)
-OSStatus QVTKWidget::DirtyRegionProcessor(EventHandlerCallRef, EventRef event, void* wid)
-{
-  QVTKWidget* widget = reinterpret_cast<QVTKWidget*>(wid);
-  UInt32 event_kind = GetEventKind(event);
-  UInt32 event_class = GetEventClass(event);
-  if((event_class == 'cute' || event_class == 'Cute') && event_kind == 20)
-    {
-    static_cast<vtkCarbonRenderWindow*>(widget->GetRenderWindow())->UpdateGLRegion();
-    }
-  return eventNotHandledErr;
-}
-
-#endif
-
 
 //-----------------------------------------------------------------------------
 bool QVTKWidget::paintCachedImage()

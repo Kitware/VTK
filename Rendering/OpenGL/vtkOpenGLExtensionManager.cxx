@@ -563,18 +563,6 @@ int vtkOpenGLExtensionManager::ExtensionSupported(const char *name)
 
   if (strcmp(name, "GL_VERSION_1_4") == 0)
     {
-    // Workaround for a bug on Mac PowerPC G5 with nVidia GeForce FX 5200
-    // Mac OS 10.3.9 and driver 1.5 NVIDIA-1.3.42. It reports it supports
-    // OpenGL>=1.4 but querying for glPointParameteri and glPointParameteriv
-    // return null pointers. So it does not actually supports fully OpenGL 1.4.
-    // It will make this method return false with "GL_VERSION_1_4" and true
-    // with "GL_VERSION_1_5".
-    if ( (this->GetProcAddress("glPointParameteri") == 0)
-      || (this->GetProcAddress("glPointParameteriv") == 0) )
-      {
-      return 0;
-      }
-
     // Workaround for a bug on renderer string="Quadro4 900 XGL/AGP/SSE2"
     // version string="1.5.8 NVIDIA 96.43.01" or "1.5.6 NVIDIA 87.56"
     // The driver reports it supports 1.5 but the 1.4 core promoted extension

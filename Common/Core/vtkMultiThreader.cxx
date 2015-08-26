@@ -99,9 +99,7 @@ int vtkMultiThreader::GetGlobalDefaultNumberOfThreads()
 #endif
 
 #ifdef __APPLE__
-    // Determine the number of CPU cores. Prefer sysctlbyname()
-    // over MPProcessors() because it doesn't require CoreServices
-    // (which is only available in 32bit on Mac OS X 10.4).
+    // Determine the number of CPU cores.
     // hw.logicalcpu takes into account cores/CPUs that are
     // disabled because of power management.
     size_t dataLen = sizeof(int); // 'num' is an 'int'

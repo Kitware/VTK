@@ -70,9 +70,6 @@ const char *vtkGraphicsFactory::GetRenderLibrary()
 #ifdef VTK_DISPLAY_WIN32_OGL
     temp = "Win32OpenGL";
 #endif
-#ifdef VTK_DISPLAY_CARBON
-    temp = "CarbonOpenGL";
-#endif
 #ifdef VTK_DISPLAY_COCOA
     temp = "CocoaOpenGL";
 #endif

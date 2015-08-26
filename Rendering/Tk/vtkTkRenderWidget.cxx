@@ -25,18 +25,13 @@
 #ifdef _WIN32
 #include "vtkWin32OpenGLRenderWindow.h"
 #else
-#if defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA)
-#ifdef VTK_USE_CARBON
-#include "vtkCarbonRenderWindow.h"
-#include "tkMacOSXInt.h"// Needed for XEvent.type == UnmapNotify
-#else
+#if defined(VTK_USE_COCOA)
 #include "vtkCocoaRenderWindow.h"
 #include "vtkCocoaTkUtilities.h"
 #ifndef MAC_OSX_TK
 #define MAC_OSX_TK 1
 #endif
 #include "tkInt.h"
-#endif
 #else
 #include "vtkXOpenGLRenderWindow.h"
 #endif
@@ -715,11 +710,11 @@ extern "C"
       //Tk_GeometryRequest(self->TkWin,self->Width,self->Height);
       if (self->RenderWindow)
         {
-#if defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA)
+#if defined(VTK_USE_COCOA)
         // Do not call SetSize or SetPosition until we're mapped.
         if (Tk_IsMapped(self->TkWin))
           {
-          // On Carbon and Cocoa, compute coordinates relative to toplevel
+          // On Cocoa, compute coordinates relative to toplevel
           int x = Tk_X(self->TkWin);
           int y = Tk_Y(self->TkWin);
           for (TkWindow *curPtr = ((TkWindow *)self->TkWin)->parentPtr;
@@ -732,13 +727,6 @@ extern "C"
           self->RenderWindow->SetPosition(x, y);
           self->RenderWindow->SetSize(self->Width, self->Height);
           }
-#ifdef VTK_USE_CARBON
-        // On Carbon, if we aren't mapped, clear the AGL_BUFFER_RECT.
-        else
-          {
-          self->RenderWindow->SetSize(0, 0);
-          }
-#endif
 #else
         self->RenderWindow->SetPosition(Tk_X(self->TkWin),Tk_Y(self->TkWin));
         self->RenderWindow->SetSize(self->Width, self->Height);
@@ -749,8 +737,8 @@ extern "C"
       break;
       case MapNotify:
       {
-#if defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA)
-      // On Carbon and Cocoa, compute coordinates relative to the toplevel
+#if defined(VTK_USE_COCOA)
+      // On Cocoa, compute coordinates relative to the toplevel
       int x = Tk_X(self->TkWin);
       int y = Tk_Y(self->TkWin);
       for (TkWindow *curPtr = ((TkWindow *)self->TkWin)->parentPtr;
@@ -765,13 +753,9 @@ extern "C"
 #endif
       break;
       }
-#if defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA)
+#if defined(VTK_USE_COCOA)
       case UnmapNotify:
       {
-#ifdef VTK_USE_CARBON
-      // On Carbon, clear the AGL_BUFFER_RECT by calling SetSize(0, 0).
-      self->RenderWindow->SetSize(0, 0);
-#endif
       break;
       }
 #endif
@@ -1123,8 +1107,8 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
 }
 #else
 
-// the cocoa and carbon versions
-#if defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA)
+// the cocoa version
+#if defined(VTK_USE_COCOA)
 //----------------------------------------------------------------------------
 // Creates a render window and forces Tk to use the window.
 static int
@@ -1190,69 +1174,10 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
 
   TkWindow *winPtr = reinterpret_cast<TkWindow *>(self->TkWin);
 
-#ifdef VTK_USE_CARBON
-  WindowPtr parentWin;
-  // Position should be set, but only if winPtr properly initialized
-  //
-  //self->RenderWindow->SetPosition(winPtr->privatePtr->xOff,
-  //                                winPtr->privatePtr->yOff);
-  self->RenderWindow->SetSize(self->Width, self->Height);
-
-  // Set the parent correctly and get the actual OS X window on the screen
-  // Window must be up so that the aglContext can be attached to it
-  if ((winPtr->parentPtr != NULL) && !(winPtr->flags & TK_TOP_LEVEL))
-    {
-    if (winPtr->parentPtr->window == None)
-      {
-      // Look at each parent TK window in order until we run out
-      // of windows or find the top level. Then the OS X window that will be
-      // the parent is created so that we have a window to pass to the
-      // vtkRenderWindow so it can attach its openGL context.
-      // Ideally the Tk_MakeWindowExist call would do the deed. (I think)
-      TkWindow *curWin = winPtr->parentPtr;
-      while ((NULL != curWin->parentPtr) && !(curWin->flags & TK_TOP_LEVEL))
-        {
-        curWin = curWin->parentPtr;
-        }
-      Tk_MakeWindowExist((Tk_Window) winPtr->parentPtr);
-      if (NULL != curWin)
-        {
-        TkMacOSXMakeRealWindowExist(curWin);
-        }
-      else
-        {
-        vtkGenericWarningMacro("Could not find the TK_TOP_LEVEL. This is bad.");
-        }
-      }
-
-    parentWin = GetWindowFromPort((CGrafPtr)TkMacOSXGetDrawablePort(
-                                  Tk_WindowId(winPtr->parentPtr)));
-    // Carbon does not have 'sub-windows', so the ParentId is used more
-    // as a flag to indicate that the renderwindow is being used as a sub-
-    // view of its 'parent' window.
-    vtkCarbonRenderWindow *carbonRenderWindow =
-      static_cast<vtkCarbonRenderWindow *>(renderWindow);
-    carbonRenderWindow->SetParentId(parentWin);
-    carbonRenderWindow->SetRootWindow(parentWin);
-    }
-
-  renderWindow->SetDisplayId(Tk_Display(self->TkWin));
-
-#else /* now the VTK_USE_COCOA section */
   Tk_MakeWindowExist(self->TkWin);
   // set the ParentId to the NSView of the Tk toplevel
   renderWindow->SetParentId(vtkCocoaTkUtilities::GetDrawableView(self->TkWin));
   renderWindow->SetSize(self->Width, self->Height);
-#endif
-
-#ifdef VTK_USE_CARBON
-  Display *dpy = Tk_Display(self->TkWin);
-
-  // Don't render yet, the widget isn't necessarily mapped
-  // self->RenderWindow->Render();
-
-  XSelectInput(dpy, Tk_WindowId(self->TkWin), VTK_ALL_EVENTS_MASK);
-#endif
 
   /*
    * Issue a ConfigureNotify event if there were deferred configuration
@@ -1289,21 +1214,6 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
       event.xconfigure.override_redirect = winPtr->atts.override_redirect;
       Tk_HandleEvent(&event);
     }
-#ifdef VTK_USE_CARBON
-  else
-    {
-    // Assume that vtkTkRenderWidget will be packed after this
-    // method is called.  Reset the AGL_BUFFER_RECT to avoid getting the
-    // initial 'black square'.
-
-    // Cast to a vtkCarbonRenderWindow so we can access the necessary members.
-    vtkCarbonRenderWindow *carbonRW =
-      static_cast<vtkCarbonRenderWindow *>(self->RenderWindow);
-    carbonRW->Initialize();
-    carbonRW->UpdateSizeAndPosition(0, 0, 0, 0);
-    carbonRW->UpdateGLRegion();
-    }
-#endif
 
   return TCL_OK;
 }

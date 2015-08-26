@@ -23,9 +23,6 @@ vtkBox                                GetBounds                         307  6
 vtkBoxRepresentation                  GetBounds                         307  6
 vtkCamera                             GetOrientation                    307  3
 vtkCamera                             GetOrientationWXYZ                307  4
-vtkCarbonRenderWindow                 GetPosition                       304  2
-vtkCarbonRenderWindow                 GetScreenSize                     304  2
-vtkCarbonRenderWindow                 GetSize                           304  2
 vtkCell                               GetBounds                         307  6
 vtkCharArray                          GetValueRange                     303  2
 vtkCocoaRenderWindow                  GetPosition                       304  2

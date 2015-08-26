@@ -85,10 +85,6 @@ if(TK_FOUND AND VTK_USE_TK)
       set(Module_TCL_LIBS vtksys vtkRendering${VTK_RENDERING_BACKEND} ${TK_LIBRARY} ${X11_LIBRARIES})
     endif()
 
-    if(VTK_USE_CARBON)
-      set(Module_TCL_LIBS "-framework Carbon")
-    endif()
-
     vtk_add_library(vtkRenderingTkTCL ${Module_TCL_SRCS})
 
     vtk_module_link_libraries(vtkRenderingTkTCL
@@ -128,10 +124,6 @@ if(TK_FOUND AND VTK_USE_TK)
     if(VTK_USE_X)
       set(Module_PYTHON_LIBS vtksys vtkRendering${VTK_RENDERING_BACKEND} ${Module_PYTHON_LIBS}
           ${X11_LIBRARIES})
-    endif()
-
-    if(VTK_USE_CARBON)
-      set(Module_PYTHON_LIBS ${Module_PYTHON_LIBS} "-framework Carbon")
     endif()
 
     vtk_module_link_libraries(vtkRenderingPythonTkWidgets

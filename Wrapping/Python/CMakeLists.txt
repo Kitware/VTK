@@ -50,10 +50,6 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR}
   ${VTK_SOURCE_DIR}/Utilities
   ${vtkPython_INCLUDE_DIRS}
   ${vtkWrappingPythonCore_INCLUDE_DIRS})
-# Needed for the vtkpython executable.
-if(VTK_USE_CARBON)
-  find_program(VTK_APPLE_RESOURCE Rez "${OSX_DEVELOPER_ROOT}/usr/bin")
-endif()
 
 if(UNIX)
   find_library(PYTHON_UTIL_LIBRARY
@@ -87,24 +83,6 @@ if(CMAKE_SYSTEM_NAME MATCHES "AIX")
   find_file(CMAKE_PYTHON_LIBRARY_EXPORT python.exp "${CMAKE_PYTHON_LIB_PREFIX}")
   if(CMAKE_PYTHON_LIBRARY_EXPORT)
     set(VTKPYTHON_LINK_FLAGS "-Wl,-bE:${CMAKE_PYTHON_LIBRARY_EXPORT}")
-  endif()
-endif()
-
-if(APPLE)
-  if(VTK_USE_CARBON AND VTK_APPLE_RESOURCE)
-    get_target_property(
-      VTKPYTHON_RUNTIME_DIR vtkpython RUNTIME_OUTPUT_DIRECTORY)
-    add_custom_command(
-      TARGET vtkpython POST_BUILD
-      COMMAND ${VTK_APPLE_RESOURCE} Carbon.r -o ${VTKPYTHON_RUNTIME_DIR}/vtkpython
-      )
-  endif()
-
-  if(VTK_USE_CARBON)
-    # MacOS python has a --enable-toolbox-glue option that is on by default,
-    # which adds the "-u _PyMac_Error" linker flag to force inclusion of some
-    # Carbon extension functions for Python.  It is irrelevant for Cocoa VTK.
-    set(VTKPYTHON_LINK_FLAGS "-u _PyMac_Error")
   endif()
 endif()
 
@@ -159,11 +137,6 @@ if(TARGET vtkParallelMPI)
   add_executable(pvtkpython vtkParaPythonAppInit.cxx)
   target_link_libraries(pvtkpython ${VTKPYTHON_LINK_LIBS} vtkParallelMPI
     ${MPI_LIBRARIES})
-
-  if(VTK_USE_CARBON AND VTK_APPLE_RESOURCE)
-    add_custom_command(TARGET pvtkpython POST_BUILD
-      COMMAND ${VTK_APPLE_RESOURCE} Carbon.r -o ${VTK_EXECUTABLE_DIR}/pvtkpython)
-  endif()
 endif()
 
 endif()

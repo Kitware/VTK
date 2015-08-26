@@ -16,11 +16,11 @@
 #define vtkOpenGL_h
 
 #include "vtkConfigure.h"
-#include "vtkRenderingOpenGLConfigure.h" // For VTK_USE_{CARBON|COCOA}
+#include "vtkRenderingOpenGLConfigure.h" // For VTK_USE_COCOA
 
 // To prevent gl.h to include glext.h provided by the system
 #define GL_GLEXT_LEGACY
-#if defined(__APPLE__) && (defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA))
+#if defined(__APPLE__) && defined(VTK_USE_COCOA)
 # include <OpenGL/gl.h> // Include OpenGL API.
 #else
 # include "vtkWindows.h" // Needed to include OpenGL header on Windows.
