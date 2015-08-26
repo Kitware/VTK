@@ -47,7 +47,6 @@ else()
     add_subdirectory(Tutorial/Step5/Cxx)
     add_subdirectory(Tutorial/Step6/Cxx)
     add_subdirectory(VolumeRendering/Cxx)
-    add_subdirectory(ParallelProcessing/SMP)
 
     if(VTK_RENDERING_BACKEND STREQUAL "OpenGL" AND vtkTestingCore_LOADED)
       add_subdirectory(LIC/Cxx)
