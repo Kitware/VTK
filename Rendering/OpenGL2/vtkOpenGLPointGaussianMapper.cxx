@@ -95,10 +95,10 @@ protected:
   virtual void RenderPieceDraw(vtkRenderer *ren, vtkActor *act);
 
   // create the table for opacity values
-  void BuildOpacityTable(vtkPolyData *);
+  void BuildOpacityTable();
 
   // create the table for scale values
-  void BuildScaleTable(vtkPolyData *);
+  void BuildScaleTable();
 
   // Description:
   // Does the shader source need to be recomputed
@@ -500,15 +500,13 @@ bool vtkOpenGLPointGaussianMapperHelper::GetNeedToRebuildBufferObjects(
 }
 
 //-------------------------------------------------------------------------
-void vtkOpenGLPointGaussianMapperHelper::BuildOpacityTable(vtkPolyData *poly)
+void vtkOpenGLPointGaussianMapperHelper::BuildOpacityTable()
 {
-  vtkDataArray *oda =
-    poly->GetPointData()->GetArray(this->Owner->GetOpacityArray());
   double range[2];
-  oda->GetRange(range,0);
 
   // if a piecewise function was provided, use it to map the opacities
   vtkPiecewiseFunction *pwf = this->Owner->GetScalarOpacityFunction();
+  pwf->GetRange(range);
   int tableSize = this->Owner->GetOpacityTableSize();
 
   if (this->OpacityTable)
@@ -529,15 +527,13 @@ void vtkOpenGLPointGaussianMapperHelper::BuildOpacityTable(vtkPolyData *poly)
 }
 
 //-------------------------------------------------------------------------
-void vtkOpenGLPointGaussianMapperHelper::BuildScaleTable(vtkPolyData *poly)
+void vtkOpenGLPointGaussianMapperHelper::BuildScaleTable()
 {
-  vtkDataArray *oda =
-    poly->GetPointData()->GetArray(this->Owner->GetScaleArray());
   double range[2];
-  oda->GetRange(range,0);
 
   // if a piecewise function was provided, use it to map the opacities
   vtkPiecewiseFunction *pwf = this->Owner->GetScaleFunction();
+  pwf->GetRange(range);
   int tableSize = this->Owner->GetScaleTableSize();
 
   if (this->ScaleTable)
@@ -571,7 +567,7 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
     poly->GetPointData()->HasArray(this->Owner->GetScaleArray());
   if (hasScaleArray && this->Owner->GetScaleFunction())
     {
-    this->BuildScaleTable(poly);
+    this->BuildScaleTable();
     }
   else
     {
@@ -597,7 +593,7 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
     poly->GetPointData()->HasArray(this->Owner->GetOpacityArray());
   if (hasOpacityArray && this->Owner->GetScalarOpacityFunction())
     {
-    this->BuildOpacityTable(poly);
+    this->BuildOpacityTable();
     }
   else
     {
@@ -676,12 +672,21 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
 void vtkOpenGLPointGaussianMapperHelper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
 {
   // draw polygons
-  if (this->Owner->GetEmissive() != 0)
-    {
-    glBlendFunc( GL_SRC_ALPHA, GL_ONE);  // additive for emissive sources
-    }
   if (this->VBO->VertexCount)
     {
+    // save off current state of src / dst blend functions
+    GLint blendSrcA = GL_SRC_ALPHA;
+    GLint blendDstA = GL_ONE;
+    GLint blendSrcC = GL_SRC_ALPHA;
+    GLint blendDstC = GL_ONE;
+    if (this->Owner->GetEmissive() != 0)
+      {
+      glGetIntegerv(GL_BLEND_SRC_ALPHA, &blendSrcA);
+      glGetIntegerv(GL_BLEND_DST_ALPHA, &blendDstA);
+      glGetIntegerv(GL_BLEND_SRC_RGB, &blendSrcC);
+      glGetIntegerv(GL_BLEND_DST_RGB, &blendDstC);
+      glBlendFunc( GL_SRC_ALPHA, GL_ONE);  // additive for emissive sources
+      }
     // First we do the triangles or points, update the shader, set uniforms, etc.
     this->UpdateShaders(this->Tris, ren, actor);
     if (this->UsingPoints)
@@ -693,6 +698,11 @@ void vtkOpenGLPointGaussianMapperHelper::RenderPieceDraw(vtkRenderer* ren, vtkAc
       {
       glDrawArrays(GL_TRIANGLES, 0,
         static_cast<GLuint>(this->VBO->VertexCount));
+      }
+    if (this->Owner->GetEmissive() != 0)
+      {
+      // restore blend func
+      glBlendFuncSeparate(blendSrcC, blendDstC, blendSrcA, blendDstA);
       }
     }
 }
