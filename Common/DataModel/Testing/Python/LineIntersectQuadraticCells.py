@@ -445,50 +445,64 @@ edgeCheck = vtk.vtkActor()
 edgeCheck.SetMapper(pmapper)
 edgeCheck.AddPosition(0.5, 2.5, 0)
 cellPicker.Pick(87, 71, 0, ren1)
-if (cellPicker.GetCellId() != "-1"):
-    ren1.AddActor(edgeCheck)
+cellId = cellPicker.GetCellId()
+if (cellId != -1):
+    if (pmapper.GetInput().GetCellType(cellId)==aEdge.GetCellType()):
+        ren1.AddActor(edgeCheck)
 
 triCheck = vtk.vtkActor()
 triCheck.SetMapper(pmapper)
 triCheck.AddPosition(2.5, 2.5, 0)
 cellPicker.Pick(139, 72, 0, ren1)
-if (cellPicker.GetCellId() != "-1"):
-    ren1.AddActor(triCheck)
+cellId = cellPicker.GetCellId()
+if (cellId != -1):
+    if (pmapper.GetInput().GetCellType(cellId)==aTri.GetCellType()):
+        ren1.AddActor(triCheck)
 
 quadCheck = vtk.vtkActor()
 quadCheck.SetMapper(pmapper)
 quadCheck.AddPosition(4.5, 2.5, 0)
 cellPicker.Pick(192, 78, 0, ren1)
-if (cellPicker.GetCellId() != "-1"):
-    ren1.AddActor(quadCheck)
+cellId = cellPicker.GetCellId()
+if (cellId != -1):
+    if (pmapper.GetInput().GetCellType(cellId)==aQuad.GetCellType()):
+        ren1.AddActor(quadCheck)
 
 tetCheck = vtk.vtkActor()
 tetCheck.SetMapper(pmapper)
 tetCheck.AddPosition(6.5, 2.5, 0)
 cellPicker.Pick(233, 70, 0, ren1)
-if (cellPicker.GetCellId() != "-1"):
-    ren1.AddActor(tetCheck)
+cellId = cellPicker.GetCellId()
+if (cellId != -1):
+    if (pmapper.GetInput().GetCellType(cellId)==aTet.GetCellType()):
+        ren1.AddActor(tetCheck)
 
 hexCheck = vtk.vtkActor()
 hexCheck.SetMapper(pmapper)
 hexCheck.AddPosition(8.5, 2.5, 0)
 cellPicker.Pick(287, 80, 0, ren1)
-if (cellPicker.GetCellId() != "-1"):
-    ren1.AddActor(hexCheck)
+cellId = cellPicker.GetCellId()
+if (cellId != -1):
+    if (pmapper.GetInput().GetCellType(cellId)==aHex.GetCellType()):
+        ren1.AddActor(hexCheck)
 
 wedgeCheck = vtk.vtkActor()
 wedgeCheck.SetMapper(pmapper)
 wedgeCheck.AddPosition(10.5, 2.5, 0)
 cellPicker.Pick(287, 80, 0, ren1)
-if (cellPicker.GetCellId() != "-1"):
-    ren1.AddActor(wedgeCheck)
+cellId = cellPicker.GetCellId()
+if (cellId != -1):
+    if (pmapper.GetInput().GetCellType(cellId)==aWedge.GetCellType()):
+        ren1.AddActor(wedgeCheck)
 
 pyraCheck = vtk.vtkActor()
 pyraCheck.SetMapper(pmapper)
 pyraCheck.AddPosition(12.5, 2.5, 0)
 cellPicker.Pick(287, 80, 0, ren1)
-if (cellPicker.GetCellId() != "-1"):
-    ren1.AddActor(pyraCheck)
+cellId = cellPicker.GetCellId()
+if (cellId != -1):
+    if (pmapper.GetInput().GetCellType(cellId)==aPyramid.GetCellType()):
+        ren1.AddActor(pyraCheck)
 
 # render the image
 #

@@ -325,7 +325,7 @@ int vtkQuadraticTetra::IntersectWithLine(double* p1, double* p2,
   t = VTK_DOUBLE_MAX;
   for (faceNum=0; faceNum<4; faceNum++)
     {
-    for (int i=0; i<4; i++)
+    for (int i=0; i<6; i++)
       {
       this->Face->Points->SetPoint(i,this->Points->GetPoint(TetraFaces[faceNum][i]));
       }

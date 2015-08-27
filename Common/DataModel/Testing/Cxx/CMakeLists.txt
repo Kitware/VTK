@@ -56,6 +56,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   UnitTestPlanesIntersection.cxx
   )
 vtk_add_test_cxx(${vtk-module}CxxTests data_tests
+  quadraticIntersection.cxx
   TestCellIterators.cxx,NO_VALID,NO_OUTPUT
   TestCellLocator.cxx,NO_DATA
   TestMeanValueCoordinatesInterpolation1.cxx
