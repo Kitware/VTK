@@ -2050,11 +2050,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
   vtkPixelExtent texExt(0U, tw-1U, 0U, th-1U);
   vtkPixelExtent subExt(texExt);
 
-  vtkFloatArray* ta = vtkFloatArray::New();
+  vtkUnsignedCharArray* ta = vtkUnsignedCharArray::New();
   ta->SetNumberOfComponents(tnc);
   ta->SetNumberOfTuples(subExt.Size());
   ta->SetName("tex");
-  float *pTa = ta->GetPointer(0);
+  unsigned char *pTa = ta->GetPointer(0);
 
   vtkPixelBufferObject *pbo = texture->Download();
 
@@ -2066,7 +2066,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
                          tt,
                          pbo->MapPackedBuffer(),
                          tnc,
-                         VTK_FLOAT,
+                         VTK_UNSIGNED_CHAR,
                          pTa);
 
   pbo->UnmapPackedBuffer();
