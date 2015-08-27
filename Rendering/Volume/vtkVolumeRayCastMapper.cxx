@@ -454,7 +454,10 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
     this->VolumeRayCastFunction->FunctionInitialize( ren, vol,
                                                      staticInfo );
 
-    vol->UpdateScalarOpacityforSampleSize( ren, this->SampleDistance );
+    double scalarOpacityUnitDistance =
+      vol->GetProperty()->GetScalarOpacityUnitDistance();
+    vol->UpdateScalarOpacityforSampleSize( ren, this->SampleDistance /
+                                           scalarOpacityUnitDistance);
 
     staticInfo->CameraThickness =
       static_cast<float>(ren->GetActiveCamera()->GetThickness());
