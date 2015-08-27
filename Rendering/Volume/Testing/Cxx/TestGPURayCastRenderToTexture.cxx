@@ -21,7 +21,9 @@
 #include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkGPUVolumeRayCastMapper.h"
+#include "vtkImageActor.h"
 #include "vtkImageData.h"
+#include "vtkImageMapper3D.h"
 #include "vtkNew.h"
 #include "vtkOpenGLGPUVolumeRayCastMapper.h"
 #include "vtkPiecewiseFunction.h"
@@ -94,6 +96,22 @@ int TestGPURayCastRenderToTexture(int argc, char *argv[])
   ren->GetActiveCamera()->Azimuth(-90);
   ren->ResetCamera();
   ren->GetActiveCamera()->Zoom(1.8);
+  renWin->Render();
+
+  vtkNew<vtkImageData> im;
+
+  // Get color texture as image
+  volumeMapper->GetColorImage(im.GetPointer());
+
+  ren->RemoveVolume(volume.GetPointer());
+
+  vtkNew<vtkImageActor> ia;
+  ia->GetMapper()->SetInputData(im.GetPointer());
+  ren->AddActor(ia.GetPointer());
+  ren->GetActiveCamera()->SetPosition(0, 0, -1);
+  ren->GetActiveCamera()->SetFocalPoint(0, 0, 1);
+  ren->GetActiveCamera()->SetViewUp(0, 1, 0);
+  ren->ResetCamera();
   renWin->Render();
   iren->Initialize();
 
