@@ -116,6 +116,7 @@ set(Module_SRCS
   vtkPiecewiseFunction.cxx
   vtkPixel.cxx
   vtkPixelExtent.cxx
+  vtkPixelTransfer.cxx
   vtkPlaneCollection.cxx
   vtkPlane.cxx
   vtkPlanes.cxx
@@ -268,6 +269,7 @@ set_source_files_properties(
   vtkImageIterator
   vtkImageProgressIterator
   vtkPixelExtent.cxx
+  vtkPixelTransfer.cxx
   vtkVector
   vtkColor
   vtkRect

@@ -1744,6 +1744,19 @@ namespace vtkvolume
       );
       }
   }
+
+  //--------------------------------------------------------------------------
+  std::string RenderToTextureDepthImplementation(vtkRenderer* vtkNotUsed(ren),
+                                                 vtkVolumeMapper* vtkNotUsed(mapper),
+                                                 vtkVolume* vtkNotUsed(vol))
+  {
+  return std::string("\
+    \nvec4 depthValue = in_projectionMatrix * in_modelViewMatrix *\
+    \n                  in_volumeMatrix * in_textureDatasetMatrix *\
+    \n                  vec4(g_dataPos, 1.0);\
+    \ngl_FragData[1] = vec4(vec3((depthValue.z/depthValue.w) * 0.5 + 0.5), 1.0);"
+  );
+  }
 }
 
 #endif // _vtkVolumeShaderComposer_h

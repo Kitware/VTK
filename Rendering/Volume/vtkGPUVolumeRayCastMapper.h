@@ -180,6 +180,27 @@ public:
   vtkSetClampMacro(MaskBlendFactor,float,0.0f,1.0f);
   vtkGetMacro(MaskBlendFactor,float);
 
+  // Description:
+  // Enable or disable setting output of volume rendering to be
+  // color and depth textures. By default this is set to 0 (off).
+  // It should be noted that it is possible that underlying API specific
+  // mapper may not supoport RenderToImage mode.
+  vtkSetMacro(RenderToImage, int);
+  vtkGetMacro(RenderToImage, int);
+  vtkBooleanMacro(RenderToImage, int);
+
+  // Description:
+  // Low level API to export the depth texture as vtkImageData in
+  // RenderToImage mode.
+  // Should be implemented by the graphics API specific mapper (GL or other).
+  virtual void GetDepthImage(vtkImageData* im) {};
+
+  // Description:
+  // Low level API to export the color texture as vtkImageData in
+  // RenderToImage mode.
+  // Should be implemented by the graphics API specific mapper (GL or other).
+  virtual void GetColorImage(vtkImageData* im) {};
+
 //BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -247,14 +268,16 @@ protected:
   // cell data (1).
   void SetCellFlag(int cellFlag);
 
-  // The distance between sample points along the ray
-  float  SampleDistance;
-
-
+  int    AutoAdjustSampleDistances;
   float  ImageSampleDistance;
   float  MinimumImageSampleDistance;
   float  MaximumImageSampleDistance;
-  int    AutoAdjustSampleDistances;
+
+  // Render to texture mode flag
+  int RenderToImage;
+
+  // The distance between sample points along the ray
+  float  SampleDistance;
 
   int    SmallVolumeRender;
   double BigTimeToDraw;
@@ -262,10 +285,6 @@ protected:
 
   float FinalColorWindow;
   float FinalColorLevel;
-
-  vtkIdType MaxMemoryInBytes;
-  float MaxMemoryFraction;
-
 
   // 1 if we are generating the canonical image, 0 otherwise
   int   GeneratingCanonicalView;
@@ -278,8 +297,14 @@ protected:
   vtkGetMacro(AMRMode,int);
   vtkBooleanMacro(AMRMode,int);
 
+  vtkImageData * MaskInput;
+  float          MaskBlendFactor;
+  int            MaskType;
+
   int AMRMode;
-  int CellFlag; // point data or cell data (or field data, not handled) ?
+
+  // Point data or cell data (or field data, not handled) ?
+  int CellFlag;
 
   // Description:
   // Compute the cropping planes clipped by the bounds of the volume.
@@ -295,10 +320,12 @@ protected:
   virtual void ClipCroppingRegionPlanes();
 
   double         ClippedCroppingRegionPlanes[6];
+
+  vtkIdType MaxMemoryInBytes;
+  float MaxMemoryFraction;
+
   bool           ReportProgress;
-  vtkImageData * MaskInput;
-  float          MaskBlendFactor;
-  int            MaskType;
+
   vtkImageData * TransformedInput;
 
   vtkGetObjectMacro(TransformedInput, vtkImageData);

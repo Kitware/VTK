@@ -20,6 +20,9 @@
 
 #include <vtkGPUVolumeRayCastMapper.h>
 
+// Forward declarations
+class vtkTextureObject;
+
 //----------------------------------------------------------------------------
 class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkOpenGLGPUVolumeRayCastMapper :
   public vtkGPUVolumeRayCastMapper
@@ -29,6 +32,26 @@ public:
 
   vtkTypeMacro(vtkOpenGLGPUVolumeRayCastMapper, vtkGPUVolumeRayCastMapper);
   void PrintSelf( ostream& os, vtkIndent indent );
+
+  // Description:
+  // Low level API to enable access to depth texture in
+  // RenderToTexture mode.
+  vtkTextureObject* GetDepthTexture();
+
+  // Description:
+  // Low level API to enable access to color texture in
+  // RenderToTexture mode.
+  vtkTextureObject* GetColorTexture();
+
+  // Description:
+  // Low level API to export the depth texture as vtkImageData in
+  // RenderToImage mode.
+  void GetDepthImage(vtkImageData* im);
+
+  // Description:
+  // Low level API to export the color texture as vtkImageData in
+  // RenderToImage mode.
+  void GetColorImage(vtkImageData* im);
 
 protected:
   vtkOpenGLGPUVolumeRayCastMapper();
