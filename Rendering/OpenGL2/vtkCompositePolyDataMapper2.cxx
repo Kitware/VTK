@@ -301,7 +301,8 @@ void vtkCompositePolyDataMapper2::BuildRenderValues(
     {
     double op = this->BlockState.Opacity.top();
     bool vis = this->BlockState.Visibility.top();
-    vtkColor3d color = this->BlockState.AmbientColor.top();
+    vtkColor3d acolor = this->BlockState.AmbientColor.top();
+    vtkColor3d dcolor = this->BlockState.DiffuseColor.top();
     if (this->RenderValues.size() == 0)
       {
       vtkCompositePolyDataMapper2::RenderValue rv;
@@ -310,7 +311,8 @@ void vtkCompositePolyDataMapper2::BuildRenderValues(
       rv.StartEdgeIndex = 0;
       rv.Opacity = op;
       rv.Visibility = vis;
-      rv.Color = color;
+      rv.AmbientColor = acolor;
+      rv.DiffuseColor = dcolor;
       rv.PickId = my_flat_index;
       rv.OverridesColor = (this->BlockState.AmbientColor.size() > 1);
       this->RenderValues.push_back(rv);
@@ -319,7 +321,8 @@ void vtkCompositePolyDataMapper2::BuildRenderValues(
     // has something changed?
     if (this->RenderValues.back().Opacity != op ||
         this->RenderValues.back().Visibility != vis ||
-        this->RenderValues.back().Color != color ||
+        this->RenderValues.back().AmbientColor != acolor ||
+        this->RenderValues.back().DiffuseColor != dcolor ||
         selector)
       {
       // close old group
@@ -333,7 +336,8 @@ void vtkCompositePolyDataMapper2::BuildRenderValues(
       rv.StartEdgeIndex = lastEdgeIndex;
       rv.Opacity = op;
       rv.Visibility = vis;
-      rv.Color = color;
+      rv.AmbientColor = acolor;
+      rv.DiffuseColor = dcolor;
       rv.PickId = my_flat_index;
       rv.OverridesColor = (this->BlockState.AmbientColor.size() > 1);
       this->RenderValues.push_back(rv);
@@ -377,6 +381,7 @@ void vtkCompositePolyDataMapper2::RenderPieceDraw(
 
   // rebuild the render values if needed
   if (this->RenderValuesBuildTime < this->GetMTime() ||
+      this->RenderValuesBuildTime < actor->GetProperty()->GetMTime() ||
       this->RenderValuesBuildTime < this->VBOBuildTime ||
       this->RenderValuesBuildTime < this->SelectionStateChanged)
     {
@@ -458,11 +463,11 @@ void vtkCompositePolyDataMapper2::RenderPieceDraw(
           }
         // override the opacity and color
         prog->SetUniformf("opacityUniform", it->Opacity);
-        vtkColor3d &aColor = it->Color;
+        vtkColor3d &aColor = it->AmbientColor;
         float ambientColor[3] = {static_cast<float>(aColor[0] * aIntensity),
           static_cast<float>(aColor[1] * aIntensity),
           static_cast<float>(aColor[2] * aIntensity)};
-        vtkColor3d &dColor = it->Color;
+        vtkColor3d &dColor = it->DiffuseColor;
         float diffuseColor[3] = {static_cast<float>(dColor[0] * dIntensity),
           static_cast<float>(dColor[1] * dIntensity),
           static_cast<float>(dColor[2] * dIntensity)};

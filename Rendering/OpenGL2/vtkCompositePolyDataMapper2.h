@@ -79,7 +79,8 @@ protected:
       double Opacity;
       bool OverridesColor;
       bool Visibility;
-      vtkColor3d Color;
+      vtkColor3d AmbientColor;
+      vtkColor3d DiffuseColor;
       unsigned int PickId;
     };
 
