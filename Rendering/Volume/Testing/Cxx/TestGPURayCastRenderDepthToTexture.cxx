@@ -53,9 +53,7 @@ int TestGPURayCastRenderDepthToTexture(int argc, char *argv[])
 
   vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
   volumeMapper->SetInputConnection(reader->GetOutputPort());
-  vtkOpenGLGPUVolumeRayCastMapper* mapper =
-    vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(volumeMapper.GetPointer());
-  mapper->RenderToTextureOn();
+  volumeMapper->RenderToImageOn();
 
   vtkNew<vtkColorTransferFunction> colorFunction;
   colorFunction->AddRGBPoint(900.0, 198/255.0, 134/255.0, 66/255.0);
@@ -100,10 +98,13 @@ int TestGPURayCastRenderDepthToTexture(int argc, char *argv[])
   renWin->Render();
 
   vtkNew<vtkImageData> im;
+
   // Get color texture as image
-  mapper->GetColorTextureAsImageData(im.GetPointer());
+  volumeMapper->GetColorImage(im.GetPointer());
+
   // Get depth texture as image
-  mapper->GetDepthTextureAsImageData(im.GetPointer());
+  volumeMapper->GetDepthImage(im.GetPointer());
+
   vtkNew<vtkImageActor> ia;
   ia->GetMapper()->SetInputData(im.GetPointer());
   ren->AddActor(ia.GetPointer());

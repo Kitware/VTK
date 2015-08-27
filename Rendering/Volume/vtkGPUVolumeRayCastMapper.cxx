@@ -44,6 +44,7 @@ vtkGPUVolumeRayCastMapper::vtkGPUVolumeRayCastMapper()
   this->ImageSampleDistance        = 1.0;
   this->MinimumImageSampleDistance = 1.0;
   this->MaximumImageSampleDistance = 10.0;
+  this->RenderToImage              = 0;
   this->SampleDistance             = 1.0;
   this->SmallVolumeRender          = 0;
   this->BigTimeToDraw              = 0.0;
@@ -58,7 +59,9 @@ vtkGPUVolumeRayCastMapper::vtkGPUVolumeRayCastMapper()
   this->MaskType
     = vtkGPUVolumeRayCastMapper::LabelMapMaskType;
 
-  this->AMRMode=0;
+  this->AMRMode = 0;
+  this->CellFlag = 0;
+
   this->ClippedCroppingRegionPlanes[0]=VTK_DOUBLE_MAX;
   this->ClippedCroppingRegionPlanes[1]=VTK_DOUBLE_MIN;
   this->ClippedCroppingRegionPlanes[2]=VTK_DOUBLE_MAX;
@@ -67,28 +70,28 @@ vtkGPUVolumeRayCastMapper::vtkGPUVolumeRayCastMapper()
   this->ClippedCroppingRegionPlanes[5]=VTK_DOUBLE_MIN;
 
   this->MaxMemoryInBytes=0;
-  vtkGPUInfoList *l=vtkGPUInfoList::New();
+  vtkGPUInfoList *l = vtkGPUInfoList::New();
   l->Probe();
   if(l->GetNumberOfGPUs()>0)
     {
     vtkGPUInfo *info=l->GetGPUInfo(0);
-    this->MaxMemoryInBytes=info->GetDedicatedVideoMemory();
-    if(this->MaxMemoryInBytes==0)
+    this->MaxMemoryInBytes = info->GetDedicatedVideoMemory();
+    if(this->MaxMemoryInBytes == 0)
       {
-      this->MaxMemoryInBytes=info->GetDedicatedSystemMemory();
+      this->MaxMemoryInBytes = info->GetDedicatedSystemMemory();
       }
     // we ignore info->GetSharedSystemMemory(); as this is very slow.
     }
   l->Delete();
 
-  if(this->MaxMemoryInBytes==0) // use some default value: 128MB.
+  if(this->MaxMemoryInBytes == 0) // use some default value: 128MB.
     {
-    this->MaxMemoryInBytes=128*1024*1024;
+    this->MaxMemoryInBytes = 128*1024*1024;
     }
 
   this->MaxMemoryFraction = 0.75;
 
-  this->ReportProgress=true;
+  this->ReportProgress = true;
 
   this->TransformedInput = NULL;
   this->LastInput = NULL;

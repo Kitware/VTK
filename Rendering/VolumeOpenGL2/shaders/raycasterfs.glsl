@@ -135,5 +135,5 @@ void main()
   g_fragColor.b = g_fragColor.b * in_scale + in_bias * g_fragColor.a;
   gl_FragData[0] = g_fragColor;
 
-  //VTK::RenderToTexture::Depth::Impl
+  //VTK::RenderToImage::Depth::Impl
   }

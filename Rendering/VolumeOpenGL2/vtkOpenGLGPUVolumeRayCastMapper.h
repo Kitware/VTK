@@ -34,22 +34,9 @@ public:
   void PrintSelf( ostream& os, vtkIndent indent );
 
   // Description:
-  // Enable or disable setting output of volume rendering to be
-  // color and depth textures. By default this is set to 0 (off).
-  vtkSetMacro(RenderToTexture, int);
-  vtkGetMacro(RenderToTexture, int);
-  vtkBooleanMacro(RenderToTexture, int);
-
-  // Description:
   // Low level API to enable access to depth texture in
   // RenderToTexture mode.
   vtkTextureObject* GetDepthTexture();
-
-  // Description:
-  // Low level API to export the depth texture as vtkImageData in
-  // RenderToTexture mode.
-  // \sa GetDepthTexture(), RenderToTexture
-  void GetDepthTextureAsImageData(vtkImageData* im);
 
   // Description:
   // Low level API to enable access to color texture in
@@ -57,10 +44,14 @@ public:
   vtkTextureObject* GetColorTexture();
 
   // Description:
+  // Low level API to export the depth texture as vtkImageData in
+  // RenderToImage mode.
+  void GetDepthImage(vtkImageData* im);
+
+  // Description:
   // Low level API to export the color texture as vtkImageData in
-  // RenderToTexture mode.
-  // \sa GetColorTexture(), RenderToTexture
-  void GetColorTextureAsImageData(vtkImageData* im);
+  // RenderToImage mode.
+  void GetColorImage(vtkImageData* im);
 
 protected:
   vtkOpenGLGPUVolumeRayCastMapper();
@@ -122,7 +113,6 @@ protected:
     return 1;
     }
 
-  int RenderToTexture;
   double ReductionFactor;
 
 private:

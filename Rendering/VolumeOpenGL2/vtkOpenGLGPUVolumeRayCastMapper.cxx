@@ -2098,7 +2098,6 @@ vtkOpenGLGPUVolumeRayCastMapper::vtkOpenGLGPUVolumeRayCastMapper() :
   vtkGPUVolumeRayCastMapper()
 {
   this->Impl = new vtkInternal(this);
-  this->RenderToTexture = 0;
   this->ReductionFactor = 1.0;
 }
 
@@ -2134,8 +2133,13 @@ vtkTextureObject* vtkOpenGLGPUVolumeRayCastMapper::GetDepthTexture()
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGLGPUVolumeRayCastMapper::GetDepthTextureAsImageData(
-                                                          vtkImageData* output)
+vtkTextureObject* vtkOpenGLGPUVolumeRayCastMapper::GetColorTexture()
+{
+ return this->Impl->RTTColorTextureObject;
+}
+
+//----------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::GetDepthImage(vtkImageData* output)
 {
   return this->Impl->ConvertTextureToImageData(
                        this->Impl->RTTDepthTextureObject,
@@ -2143,14 +2147,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GetDepthTextureAsImageData(
 }
 
 //----------------------------------------------------------------------------
-vtkTextureObject* vtkOpenGLGPUVolumeRayCastMapper::GetColorTexture()
-{
- return this->Impl->RTTColorTextureObject;
-}
-
-//----------------------------------------------------------------------------
-void vtkOpenGLGPUVolumeRayCastMapper::GetColorTextureAsImageData(
-                                                          vtkImageData* output)
+void vtkOpenGLGPUVolumeRayCastMapper::GetColorImage(vtkImageData* output)
 {
   return this->Impl->ConvertTextureToImageData(
                        this->Impl->RTTColorTextureObject,
@@ -2566,11 +2563,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
 
   // Render to texture
   //--------------------------------------------------------------------------
-  if (this->RenderToTexture)
+  if (this->RenderToImage)
     {
     fragmentShader = vtkvolume::replace(
       fragmentShader,
-      "//VTK::RenderToTexture::Depth::Impl",
+      "//VTK::RenderToImage::Depth::Impl",
       vtkvolume::RenderToTextureDepthImplementation(
         ren, this, vol), true);
     }
@@ -2696,7 +2693,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   // How many components are there?
   int noOfComponents = scalars->GetNumberOfComponents();
 
-  if (this->RenderToTexture)
+  if (this->RenderToImage)
     {
     if (!this->Impl->FBO)
       {
@@ -3280,7 +3277,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     this->Impl->InputUpdateTime.Modified();
     }
 
-  if (this->RenderToTexture)
+  if (this->RenderToImage)
     {
     this->Impl->FBO->UnBind(GL_FRAMEBUFFER);
     }

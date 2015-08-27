@@ -52,8 +52,7 @@ int TestGPURayCastRenderToTexture(int argc, char *argv[])
 
   vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
   volumeMapper->SetInputConnection(reader->GetOutputPort());
-  vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(
-    volumeMapper.GetPointer())->RenderToTextureOn();
+  volumeMapper->RenderToImageOn();
 
   vtkNew<vtkColorTransferFunction> colorFunction;
   colorFunction->AddRGBPoint(900.0, 198/255.0, 134/255.0, 66/255.0);
