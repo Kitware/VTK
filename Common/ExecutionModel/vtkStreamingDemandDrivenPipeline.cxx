@@ -953,7 +953,6 @@ vtkStreamingDemandDrivenPipeline
         dobj->GetInformation()->Set(vtkDataObject::ALL_PIECES_EXTENT(),
                                     outInfo->Get(vtkDataObject::ALL_PIECES_EXTENT()),
                                     6);
-        outInfo->Remove(vtkDataObject::ALL_PIECES_EXTENT());
         }
 
       if (outInfo->Has(vtkAlgorithm::CAN_PRODUCE_SUB_EXTENT()))
@@ -979,6 +978,20 @@ vtkStreamingDemandDrivenPipeline
             data->GenerateGhostArray(zeroExt);
             }
           }
+
+        // Restore the full update extent, as the subextent handling will
+        // clobber it
+        if (outInfo->Has(vtkDataObject::ALL_PIECES_EXTENT()))
+          {
+          outInfo->Set(UPDATE_EXTENT(),
+                       outInfo->Get(vtkDataObject::ALL_PIECES_EXTENT()), 6);
+          }
+        }
+      // Remove ALL_PIECES_EXTENT from outInfo (it was moved to the data obj
+      // earlier).
+      if (outInfo->Has(vtkDataObject::ALL_PIECES_EXTENT()))
+        {
+        outInfo->Remove(vtkDataObject::ALL_PIECES_EXTENT());
         }
       }
     }
