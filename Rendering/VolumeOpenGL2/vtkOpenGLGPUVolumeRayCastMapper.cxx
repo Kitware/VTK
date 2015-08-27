@@ -3287,24 +3287,5 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 
   glFinish();
 
-  if (this->RenderToTexture)
-    {
-    this->Impl->RTTColorTextureObject->Bind();
-    float tcoords[] = {
-      0, 0,
-      1, 0,
-      1, 1,
-      0, 1};
-
-    float verts[] = {
-      -1.0f, -1.0f, 0.0f,
-      1.0f, -1.0f, 0.0f,
-      1.0f, 1.0f, 0.0f,
-      -1.0f, 1.0f, 0.0f};
-
-    this->Impl->RTTColorTextureObject->CopyToFrameBuffer(tcoords, verts, NULL, NULL);
-    }
-
-
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
