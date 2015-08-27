@@ -34,8 +34,7 @@ vtkStandardNewMacro(vtk3DSImporter);
 // This file just has too many of them.
 // This is due to the use of (vtk3DSList **)&root in VTK_LIST_* macros
 // defined in vtk3DS.h
-// pragma GCC diagnostic is available since gcc>=4.2
-#if defined(__GNUC__) && (__GNUC__>4) || (__GNUC__==4 && __GNUC_MINOR__>=2)
+#if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif
 

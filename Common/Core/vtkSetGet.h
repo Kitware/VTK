@@ -35,8 +35,8 @@
 # error VTK requires MSVC++ 9.0 aka Visual Studio 2008 or newer
 #endif
 
-#if defined(__GNUC__) && (__GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 1))
-# error VTK requires gcc 4.1 or newer
+#if defined(__GNUC__) && (__GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 2))
+# error VTK requires GCC 4.2 or newer
 #endif
 
 // Convert a macro representing a value to a string.

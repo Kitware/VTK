@@ -34,10 +34,9 @@
 //
 // See http://gcc.gnu.org/wiki/Visibility for a discussion of the symbol
 // visibility support in GCC. The project must pass extra CFLAGS/CXXFLAGS in
-// order to change the default symbol visibility when using GCC. Using GCC 4.2
-// or later is recommended when using visibility supoprt, the attribute was
-// added in GCC 4.0. Currently hidden is not used, but it can be used to
-// explicitly hide symbols from external linkage.
+// order to change the default symbol visibility when using GCC.
+// Currently hidden is not used, but it can be used to explicitly hide
+// symbols from external linkage.
 
 #ifndef vtkABI_h
 #define vtkABI_h
