@@ -6,6 +6,32 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 import sys
 
 class TestClip(Testing.vtkTest):
+    def testImage2DScalar(self):
+        planes = ['XY', 'XZ', 'YZ']
+        expectedNCells = [38, 46, 42]
+        for plane, nCells in zip(planes,expectedNCells):
+            r = vtk.vtkRTAnalyticSource()
+            r.SetXFreq(600);
+            r.SetYFreq(400);
+            r.SetZFreq(900);
+            if plane == 'XY':
+                r.SetWholeExtent(-5, 5, -5, 5, 0, 0)
+            elif plane == 'XZ':
+                r.SetWholeExtent(-5, 5, 0, 0, -5, 5)
+            else:
+                r.SetWholeExtent(0, 0, -5, 5, -5, 5)
+            r.Update()
+
+            c = vtk.vtkTableBasedClipDataSet()
+            c.SetInputConnection(r.GetOutputPort())
+            c.SetUseValueAsOffset(0)
+            c.SetValue(150)
+            c.SetInsideOut(1)
+
+            c.Update()
+
+            self.assertEqual(c.GetOutput().GetNumberOfCells(), nCells)
+
     def testImage(self):
         r = vtk.vtkRTAnalyticSource()
         r.SetWholeExtent(-5, 5, -5, 5, -5, 5)
@@ -66,6 +92,47 @@ class TestClip(Testing.vtkTest):
         c.Update()
 
         self.assertEqual(c.GetOutput().GetNumberOfCells(), 64)
+
+    def testStructured2D(self):
+        planes = ['XY', 'XZ', 'YZ']
+        expectedNCells = [42, 34, 68]
+        for plane, nCells in zip(planes,expectedNCells):
+            rt = vtk.vtkRTAnalyticSource()
+            if plane == 'XY':
+                rt.SetWholeExtent(-5, 5, -5, 5, 0, 0)
+            elif plane == 'XZ':
+                rt.SetWholeExtent(-5, 5, 0, 0, -5, 5)
+            else:
+                rt.SetWholeExtent(0, 0, -5, 5, -5, 5)
+            rt.Update()
+            i = rt.GetOutput()
+
+            st = vtk.vtkStructuredGrid()
+            st.SetDimensions(i.GetDimensions())
+
+            nps = i.GetNumberOfPoints()
+            ps = vtk.vtkPoints()
+            ps.SetNumberOfPoints(nps)
+            for idx in range(nps):
+                ps.SetPoint(idx, i.GetPoint(idx))
+
+            st.SetPoints(ps)
+
+            cyl = vtk.vtkCylinder()
+            cyl.SetRadius(2)
+            cyl.SetCenter(0,0,0)
+            transform = vtk.vtkTransform()
+            transform.RotateWXYZ(45,20,1,10)
+            cyl.SetTransform(transform)
+
+            c = vtk.vtkTableBasedClipDataSet()
+            c.SetInputData(st)
+            c.SetClipFunction(cyl)
+            c.SetInsideOut(1)
+
+            c.Update()
+
+            self.assertEqual(c.GetOutput().GetNumberOfCells(), nCells)
 
     def testStructured(self):
         rt = vtk.vtkRTAnalyticSource()
