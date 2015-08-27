@@ -23,9 +23,6 @@ if(NOT ANDROID_EXECUTABLE)
   message(FATAL_ERROR "Can not find android command line tool: android")
 endif()
 
-set(ANDROID_TARGET "android-19"
-  CACHE STRING "The Android API to target")
-
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/AndroidManifest.xml"
   "${CMAKE_CURRENT_BINARY_DIR}/AndroidManifest.xml"
@@ -41,7 +38,7 @@ add_custom_target(JavaVTK-ant-configure ALL
           update project
           --name JavaVTK
           --path "${CMAKE_CURRENT_SOURCE_DIR}"
-          --target "${ANDROID_TARGET}"
+          --target "android-${ANDROID_NATIVE_API_LEVEL}"
   COMMAND "${CMAKE_COMMAND}" -E copy_if_different
           "${CMAKE_CURRENT_SOURCE_DIR}/build.xml"
           "${CMAKE_CURRENT_BINARY_DIR}/build.xml"

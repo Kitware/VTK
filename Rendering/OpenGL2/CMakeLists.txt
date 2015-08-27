@@ -25,6 +25,7 @@ set(Module_SRCS
   vtkCompositePolyDataMapper2.cxx
   vtkDefaultPass.cxx
   vtkDepthPeelingPass.cxx
+  vtkFrameBufferObject.cxx
   vtkGaussianBlurPass.cxx
   vtkGenericCompositePolyDataMapper2.cxx
   vtkGenericOpenGLRenderWindow.cxx
@@ -74,7 +75,6 @@ set(Module_SRCS
 if (NOT DEFINED OPENGL_ES_VERSION)
   set(Module_SRCS ${Module_SRCS}
     vtkDataTransferHelper.cxx
-    vtkFrameBufferObject.cxx
     vtkFrameBufferObject2.cxx
     vtkPixelBufferObject.cxx
     vtkRenderbuffer.cxx
@@ -82,7 +82,6 @@ if (NOT DEFINED OPENGL_ES_VERSION)
 else()
   if (${OPENGL_ES_VERSION} MATCHES 3.0)
     set(Module_SRCS ${Module_SRCS}
-      vtkFrameBufferObject.cxx
       vtkFrameBufferObject2.cxx
       vtkRenderbuffer.cxx
       )
