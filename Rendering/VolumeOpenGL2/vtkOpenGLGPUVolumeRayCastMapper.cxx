@@ -2712,11 +2712,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     this->Impl->FBO->Bind(GL_FRAMEBUFFER);
     this->Impl->FBO->InitializeViewport(viewsize[0], viewsize[1]);
 
-    if (!this->Impl->RTTDepthBufferTextureObject || !this->Impl->RTTColorTextureObject)
+    if (!this->Impl->RTTDepthBufferTextureObject ||
+        !this->Impl->RTTColorTextureObject)
       {
       this->Impl->RTTDepthBufferTextureObject = vtkTextureObject::New();
-      this->Impl->RTTDepthBufferTextureObject->SetContext(vtkOpenGLRenderWindow::SafeDownCast(
-                                                    ren->GetRenderWindow()));
+      this->Impl->RTTDepthBufferTextureObject->SetContext(
+        vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
       this->Impl->RTTDepthBufferTextureObject->AllocateDepth(
           viewsize[0], viewsize[1], vtkTextureObject::Float32);
       this->Impl->RTTDepthBufferTextureObject->SetMinificationFilter(
@@ -2727,9 +2728,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
       this->Impl->RTTDepthBufferTextureObject->Bind();
 
       this->Impl->RTTDepthTextureObject = vtkTextureObject::New();
-      this->Impl->RTTDepthTextureObject->SetContext(vtkOpenGLRenderWindow::SafeDownCast(
-                                                    ren->GetRenderWindow()));
-      this->Impl->RTTDepthTextureObject->Create2D(viewsize[0], viewsize[1], 3,
+      this->Impl->RTTDepthTextureObject->SetContext(
+        vtkOpenGLRenderWindow::SafeDownCast(
+        ren->GetRenderWindow()));
+      this->Impl->RTTDepthTextureObject->Create2D(viewsize[0], viewsize[1], 1,
                                                   VTK_UNSIGNED_CHAR, false);
       this->Impl->RTTDepthTextureObject->SetMinificationFilter(
         vtkTextureObject::Nearest);
@@ -2740,11 +2742,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 
       this->Impl->RTTColorTextureObject = vtkTextureObject::New();
 
-      this->Impl->RTTColorTextureObject->SetContext(vtkOpenGLRenderWindow::SafeDownCast(
-                                                    ren->GetRenderWindow()));
-      this->Impl->RTTColorTextureObject->SetMinificationFilter(vtkTextureObject::Nearest);
-      this->Impl->RTTColorTextureObject->SetMagnificationFilter(vtkTextureObject::Nearest);
-      this->Impl->RTTColorTextureObject->Create2D(viewsize[0], viewsize[1], 3,
+      this->Impl->RTTColorTextureObject->SetContext(
+        vtkOpenGLRenderWindow::SafeDownCast(
+        ren->GetRenderWindow()));
+      this->Impl->RTTColorTextureObject->SetMinificationFilter(
+        vtkTextureObject::Nearest);
+      this->Impl->RTTColorTextureObject->SetMagnificationFilter(
+        vtkTextureObject::Nearest);
+      this->Impl->RTTColorTextureObject->Create2D(viewsize[0], viewsize[1], 4,
                                                   VTK_UNSIGNED_CHAR, false);
       this->Impl->RTTColorTextureObject->SetAutoParameters(0);
       this->Impl->RTTColorTextureObject->Bind();
@@ -2784,7 +2789,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   vtkVolumeStateRAII glState;
 
   if (this->Impl->NeedToInitializeResources ||
-      (volumeProperty->GetMTime() > this->Impl->InitializationTime.GetMTime()))
+      (volumeProperty->GetMTime() >
+       this->Impl->InitializationTime.GetMTime()))
     {
     this->Impl->Initialize(ren, vol, noOfComponents,
                            independentComponents);
@@ -2821,7 +2827,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 
     // Update bounds, data, and geometry
     this->Impl->ComputeBounds(input);
-    this->Impl->LoadVolume(ren, input, volumeProperty, scalars, independentComponents);
+    this->Impl->LoadVolume(ren, input, volumeProperty,
+                           scalars, independentComponents);
     this->Impl->LoadMask(ren, input, this->MaskInput,
                          this->Impl->Extents, vol);
     }
