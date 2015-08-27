@@ -104,8 +104,11 @@ void vtkCompositePolyDataMapper2::Render(
 
   // do we need to do a generic render?
   bool lastUseGeneric = this->UseGeneric;
-  if (this->GenericTestTime < this->GetInputDataObject(0, 0)->GetMTime())
+  bool foundNoScalars = false;
+  if (this->GenericTestTime < this->GetInputDataObject(0, 0)->GetMTime() ||
+      this->GenericTestTime < this->MTime)
     {
+    int cellFlag = 0;
     this->UseGeneric = false;
 
     // is the data not composite
@@ -132,6 +135,25 @@ void vtkCompositePolyDataMapper2::Render(
           {
           this->UseGeneric = true;
           break;
+          }
+        // is the scalar coloring OK?  If some blocks are missing
+        // the scalars we switch to generic
+        if (pd && this->ScalarVisibility)
+          {
+          vtkAbstractArray *scalars =
+            vtkAbstractMapper::GetAbstractScalars(
+              pd, this->ScalarMode, this->ArrayAccessMode,
+              this->ArrayId, this->ArrayName,
+              cellFlag);
+          if (!scalars)
+            {
+            foundNoScalars = true;
+            }
+          if (scalars && foundNoScalars)
+            {
+            this->UseGeneric = true;
+            break;
+            }
           }
         }
       }
