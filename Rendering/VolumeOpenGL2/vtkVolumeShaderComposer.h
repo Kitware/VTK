@@ -1105,24 +1105,25 @@ namespace vtkvolume
            }
 
          shaderStr += std::string("\
-           \n      // Opacity calculation using compositing:\
-           \n      // here we use front to back compositing scheme whereby the current\
-           \n      // sample value is multiplied to the currently accumulated alpha\
-           \n      // and then this product is subtracted from the sample value to\
-           \n      // get the alpha from the previous steps.\
-           \n      // Next, this alpha is multiplied with the current sample colour\
-           \n      // and accumulated to the composited colour. The alpha value from\
-           \n      // the previous steps is then accumulated to the composited colour\
-           \n      // alpha.\
-           \n      g_srcColor.rgb *= g_srcColor.a;\
-           \n      g_fragColor = (1.0f - g_fragColor.a) * g_srcColor + g_fragColor;"
+           \n        // Opacity calculation using compositing:\
+           \n        // Here we use front to back compositing scheme whereby\
+           \n        // the current sample value is multiplied to the\
+           \n        // currently accumulated alpha and then this product\
+           \n        // is subtracted from the sample value to get the\
+           \n        // alpha from the previous steps. Next, this alpha is\
+           \n        // multiplied with the current sample colour\
+           \n        // and accumulated to the composited colour. The alpha\
+           \n        // value from\ the previous steps is then accumulated\
+           \n        // to the composited colour alpha.\
+           \n        g_srcColor.rgb *= g_srcColor.a;\
+           \n        g_fragColor = (1.0f - g_fragColor.a) * g_srcColor + g_fragColor;"
          );
 
          if (!mask || !maskInput ||
            maskType != vtkGPUVolumeRayCastMapper::LabelMapMaskType)
            {
            shaderStr += std::string("\
-             \n      }"
+             \n        }"
            );
            }
         }
