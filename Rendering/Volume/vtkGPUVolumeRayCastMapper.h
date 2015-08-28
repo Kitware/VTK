@@ -193,13 +193,13 @@ public:
   // Low level API to export the depth texture as vtkImageData in
   // RenderToImage mode.
   // Should be implemented by the graphics API specific mapper (GL or other).
-  virtual void GetDepthImage(vtkImageData* im) {};
+  virtual void GetDepthImage(vtkImageData*) {};
 
   // Description:
   // Low level API to export the color texture as vtkImageData in
   // RenderToImage mode.
   // Should be implemented by the graphics API specific mapper (GL or other).
-  virtual void GetColorImage(vtkImageData* im) {};
+  virtual void GetColorImage(vtkImageData*) {};
 
 //BTX
   // Description:
