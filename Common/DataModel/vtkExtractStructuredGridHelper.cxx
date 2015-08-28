@@ -466,8 +466,8 @@ void vtkExtractStructuredGridHelper::CopyCellData(int inExt[6], int outExt[6],
   outCD->CopyAllocate(cd,outSize,outSize);
 
   // Check if we can use some optimizations:
-  bool canCopyRange = sampleRate && I(sampleRate) == 1;
-  bool useMapping = !(canCopyRange && J(sampleRate) == 1 && K(sampleRate) == 1);
+  bool canCopyRange = this->SampleRate && I(this->SampleRate) == 1;
+  bool useMapping = !(canCopyRange && J(this->SampleRate) == 1 && K(this->SampleRate) == 1);
 
   int inpCellExt[6];
   vtkStructuredData::GetCellExtentFromPointExtent(inExt,inpCellExt);
