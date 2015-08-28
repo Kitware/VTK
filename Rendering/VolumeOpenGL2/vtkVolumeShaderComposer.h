@@ -1746,15 +1746,40 @@ namespace vtkvolume
   }
 
   //--------------------------------------------------------------------------
-  std::string RenderToTextureDepthImplementation(vtkRenderer* vtkNotUsed(ren),
-                                                 vtkVolumeMapper* vtkNotUsed(mapper),
-                                                 vtkVolume* vtkNotUsed(vol))
+  std::string RenderToImageDepthInit(vtkRenderer* vtkNotUsed(ren),
+                                     vtkVolumeMapper* vtkNotUsed(mapper),
+                                     vtkVolume* vtkNotUsed(vol))
   {
   return std::string("\
-    \nvec4 depthValue = in_projectionMatrix * in_modelViewMatrix *\
+    \n    vec3 l_opaqueFragPos = g_dataPos;\
+    \n    bool l_updateDepth = true;"
+  );
+  }
+
+  //--------------------------------------------------------------------------
+  std::string RenderToImageDepthImplementation(
+    vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* vtkNotUsed(mapper),
+    vtkVolume* vtkNotUsed(vol))
+  {
+  return std::string("\
+    \n    if(g_fragColor.a > 0.0 && l_updateDepth)\
+    \n      {\
+    \n      l_opaqueFragPos = g_dataPos;\
+    \n      l_updateDepth = false;\
+    \n      }"
+  );
+  }
+
+  //--------------------------------------------------------------------------
+  std::string RenderToImageDepthExit(vtkRenderer* vtkNotUsed(ren),
+                                     vtkVolumeMapper* vtkNotUsed(mapper),
+                                     vtkVolume* vtkNotUsed(vol))
+  {
+  return std::string("\
+    \n  vec4 depthValue = in_projectionMatrix * in_modelViewMatrix *\
     \n                  in_volumeMatrix * in_textureDatasetMatrix *\
-    \n                  vec4(g_dataPos, 1.0);\
-    \ngl_FragData[1] = vec4(vec3((depthValue.z/depthValue.w) * 0.5 + 0.5), 1.0);"
+    \n                  vec4(l_opaqueFragPos, 1.0);\
+    \n  gl_FragData[1] = vec4(vec3((depthValue.z/depthValue.w) * 0.5 + 0.5), 1.0);"
   );
   }
 }

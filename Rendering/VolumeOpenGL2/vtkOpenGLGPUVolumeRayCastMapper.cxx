@@ -2567,8 +2567,20 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
     {
     fragmentShader = vtkvolume::replace(
       fragmentShader,
+      "//VTK::RenderToImage::Depth::Init",
+      vtkvolume::RenderToImageDepthInit(
+        ren, this, vol), true);
+
+    fragmentShader = vtkvolume::replace(
+      fragmentShader,
       "//VTK::RenderToImage::Depth::Impl",
-      vtkvolume::RenderToTextureDepthImplementation(
+      vtkvolume::RenderToImageDepthImplementation(
+        ren, this, vol), true);
+
+    fragmentShader = vtkvolume::replace(
+      fragmentShader,
+      "//VTK::RenderToImage::Depth::Exit",
+      vtkvolume::RenderToImageDepthExit(
         ren, this, vol), true);
     }
 
