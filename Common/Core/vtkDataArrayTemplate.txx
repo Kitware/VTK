@@ -981,6 +981,22 @@ void vtkDataArrayTemplate<T>::SetVariantValue(vtkIdType id, vtkVariant value)
 
 //----------------------------------------------------------------------------
 template <class T>
+void vtkDataArrayTemplate<T>::InsertVariantValue(vtkIdType id, vtkVariant value)
+{
+  bool valid;
+  T toInsert = vtkVariantCast<T>(value, &valid);
+  if (valid)
+    {
+    this->InsertValue(id, toInsert);
+    }
+  else
+    {
+    vtkErrorMacro("unable to set value of type " << value.GetType());
+    }
+}
+
+//----------------------------------------------------------------------------
+template <class T>
 vtkIdType vtkDataArrayTemplate<T>::InsertNextValue(T f)
 {
   this->InsertValue (++this->MaxId,f);

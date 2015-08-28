@@ -213,6 +213,10 @@ public:
   void SetVariantValue(vtkIdType id, vtkVariant value);
 
   // Description:
+  // Insert a value in the array from a vtkVariant.
+  void InsertVariantValue(vtkIdType id, vtkVariant value);
+
+  // Description:
   // Insert data at the end of the array. Return its location in the array.
   vtkIdType InsertNextValue(T f);
 
