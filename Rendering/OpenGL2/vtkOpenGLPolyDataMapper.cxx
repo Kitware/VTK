@@ -1492,7 +1492,6 @@ void vtkOpenGLPolyDataMapper::SetLightingShaderParameters(
 
   // check for shadow maps
   vtkInformation *info = actor->GetPropertyKeys();
-  std::string shadowFactor = "";
   if (info && info->Has(vtkShadowMapPass::ShadowMapTextures()))
     {
     int *shadowMapTextures = info->Get(vtkShadowMapPass::ShadowMapTextures());

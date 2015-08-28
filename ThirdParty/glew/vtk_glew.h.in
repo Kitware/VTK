@@ -107,6 +107,10 @@
      assert("gles 2.0 glDrawRangeElements misuse " && start==0); \
      glDrawElements(mode, count, type, indicies)
 
+#ifndef GL_DRAW_FRAMEBUFFER
+#define GL_DRAW_FRAMEBUFFER GL_FRAMEBUFFER
+#endif
+
 #endif
 
 /*** deal with some GLES 3.0 specific issues ***/
