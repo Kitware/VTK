@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestGPURayCastRenderDepthToTexture.cxx
+  Module:    TestGPURayCastRenderDepthToImage.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -35,7 +35,7 @@
 #include "vtkVolume16Reader.h"
 #include "vtkVolumeProperty.h"
 
-int TestGPURayCastRenderDepthToTexture(int argc, char *argv[])
+int TestGPURayCastRenderDepthToImage(int argc, char *argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 

@@ -88,6 +88,7 @@ void main()
   /// Initialize g_fragColor (output) to 0
   g_fragColor = vec4(0.0);
   g_dirStep = vec3(0.0);
+  g_srcColor = vec4(0.0);
 
   //VTK::Base::Init
 
