@@ -54,11 +54,8 @@ int vtkLine::EvaluatePosition(double x[3], double* closestPoint,
   this->Points->GetPoint(0, a1);
   this->Points->GetPoint(1, a2);
 
-  if (closestPoint)
-    {
-    // DistanceToLine sets pcoords[0] to a value t, 0 <= t <= 1
-    dist2 = this->DistanceToLine(x,a1,a2,pcoords[0],closestPoint);
-    }
+  // DistanceToLine sets pcoords[0] to a value t, 0 <= t <= 1
+  dist2 = this->DistanceToLine(x,a1,a2,pcoords[0],closestPoint);
 
   // pcoords[0] == t, need weights to be 1-t and t
   weights[0] = 1.0 - pcoords[0];
@@ -520,7 +517,7 @@ double vtkLine::DistanceBetweenLineSegments(
 // Compute distance to finite line. Returns parametric coordinate t
 // and point location on line.
 double vtkLine::DistanceToLine(double x[3], double p1[3], double p2[3],
-                              double &t, double closestPoint[3])
+                              double &t, double* closestPoint)
 {
   double p21[3], denom, num;
   double *closest;
@@ -568,9 +565,12 @@ double vtkLine::DistanceToLine(double x[3], double p1[3], double p2[3],
     p21[2] = p1[2] + t*p21[2];
     }
 
-  closestPoint[0] = closest[0];
-  closestPoint[1] = closest[1];
-  closestPoint[2] = closest[2];
+  if (closestPoint)
+    {
+    closestPoint[0] = closest[0];
+    closestPoint[1] = closest[1];
+    closestPoint[2] = closest[2];
+    }
   return vtkMath::Distance2BetweenPoints(closest,x);
 }
 
