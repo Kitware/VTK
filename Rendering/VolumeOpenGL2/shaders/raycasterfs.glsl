@@ -88,6 +88,7 @@ void main()
   /// Initialize g_fragColor (output) to 0
   g_fragColor = vec4(0.0);
   g_dirStep = vec3(0.0);
+  g_srcColor = vec4(0.0);
 
   //VTK::Base::Init
 
@@ -98,6 +99,8 @@ void main()
   //VTK::Cropping::Init
 
   //VTK::Clipping::Init
+
+  //VTK::RenderToImage::Depth::Init
 
   /// For all samples along the ray
   while (true)
@@ -115,6 +118,8 @@ void main()
     //VTK::CompositeMask::Impl
 
     //VTK::Shading::Impl
+
+    //VTK::RenderToImage::Depth::Impl
 
     /// Advance ray
     g_dataPos += g_dirStep;
@@ -135,5 +140,5 @@ void main()
   g_fragColor.b = g_fragColor.b * in_scale + in_bias * g_fragColor.a;
   gl_FragData[0] = g_fragColor;
 
-  //VTK::RenderToImage::Depth::Impl
+  //VTK::RenderToImage::Depth::Exit
   }
