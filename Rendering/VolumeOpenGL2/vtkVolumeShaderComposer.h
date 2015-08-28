@@ -1080,7 +1080,7 @@ namespace vtkvolume
           \n        {\
           \n        for (int i = 0; i < in_noOfComponents; ++i)\
           \n          {\
-          \n          tmp.x += color[i].x * color[i].w * in_componentWeight[i] ;\
+          \n          tmp.x += color[i].x * color[i].w * in_componentWeight[i];\
           \n          tmp.y += color[i].y * color[i].w * in_componentWeight[i];\
           \n          tmp.z += color[i].z * color[i].w * in_componentWeight[i];\
           \n          tmp.w += ((color[i].w * color[i].w)/totalAlpha);\
@@ -1113,7 +1113,7 @@ namespace vtkvolume
            \n        // alpha from the previous steps. Next, this alpha is\
            \n        // multiplied with the current sample colour\
            \n        // and accumulated to the composited colour. The alpha\
-           \n        // value from\ the previous steps is then accumulated\
+           \n        // value from the previous steps is then accumulated\
            \n        // to the composited colour alpha.\
            \n        g_srcColor.rgb *= g_srcColor.a;\
            \n        g_fragColor = (1.0f - g_fragColor.a) * g_srcColor + g_fragColor;"

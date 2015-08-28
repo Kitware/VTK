@@ -46,7 +46,6 @@ int TestGPURayCastRenderDepthToImage2(int argc, char *argv[])
   volumeMapper->RenderToImageOn();
 
   vtkNew<vtkColorTransferFunction> colorFunction;
-  colorFunction->AddRGBPoint(900.0, 198/255.0, 134/255.0, 66/255.0);
   colorFunction->AddRGBPoint(37.35310363769531, 0.231373, 0.298039, 0.752941);
   colorFunction->AddRGBPoint(157.0909652709961, 0.865003, 0.865003, 0.865003);
   colorFunction->AddRGBPoint(276.8288269042969, 0.705882, 0.0156863, 0.14902);
@@ -59,7 +58,7 @@ int TestGPURayCastRenderDepthToImage2(int argc, char *argv[])
 
   vtkNew<vtkPiecewiseFunction> scalarOpacity;
   scalarOpacity->RemoveAllPoints();
-  scalarOpacity->AddPoint(center, 0.01);
+  scalarOpacity->AddPoint(center, 0.0);
   scalarOpacity->AddPoint(dataRange[1], 0.4);
 
   vtkNew<vtkVolumeProperty> volumeProperty;
