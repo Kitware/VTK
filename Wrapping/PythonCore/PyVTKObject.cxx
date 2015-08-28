@@ -173,24 +173,29 @@ int PyVTKObject_Traverse(PyObject *o, visitproc visit, void *arg)
 //--------------------------------------------------------------------
 PyObject *PyVTKObject_New(PyTypeObject *tp, PyObject *args, PyObject *kwds)
 {
-  if (kwds != NULL && PyDict_Size(kwds))
+  // If type was sublassed within python, then skip arg checks and
+  // simply create a new object.
+  if ((tp->tp_flags & Py_TPFLAGS_HEAPTYPE) == 0)
     {
-    PyErr_SetString(PyExc_TypeError,
-                    "this function takes no keyword arguments");
-    return NULL;
-    }
+    if (kwds != NULL && PyDict_Size(kwds))
+      {
+      PyErr_SetString(PyExc_TypeError,
+                      "this function takes no keyword arguments");
+      return NULL;
+      }
 
-  PyObject *o = 0;
-  if (!PyArg_UnpackTuple(args, tp->tp_name, 0, 1, &o))
-    {
-    return NULL;
-    }
+    PyObject *o = 0;
+    if (!PyArg_UnpackTuple(args, tp->tp_name, 0, 1, &o))
+      {
+      return NULL;
+      }
 
-  if (o)
-    {
-    // used to create a VTK object from a SWIG pointer
-    return vtkPythonUtil::GetObjectFromObject(
-      o, vtkPythonUtil::StripModule(tp->tp_name));
+    if (o)
+      {
+      // used to create a VTK object from a SWIG pointer
+      return vtkPythonUtil::GetObjectFromObject(
+        o, vtkPythonUtil::StripModule(tp->tp_name));
+      }
     }
 
   // if PyVTKObject_FromPointer gets NULL, it creates a new object.
