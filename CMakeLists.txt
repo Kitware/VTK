@@ -98,6 +98,10 @@ include(vtkVersion)
 set(VTK_VERSION
     "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}")
 
+#-----------------------------------------------------------------------------
+# Do we want examples built?
+OPTION(BUILD_EXAMPLES "Build VTK examples." OFF)
+
 option(VTK_IOS_BUILD "Build vtk.framework for iOS" OFF)
 if (VTK_IOS_BUILD)
   include(vtkiOS)
@@ -433,10 +437,6 @@ INCLUDE(vtkTestStreamsLibrary)
 #-----------------------------------------------------------------------------
 # Dispatch the build into the proper subdirectories.
 SET(VTK_HAS_EXODUS 1)
-
-#-----------------------------------------------------------------------------
-# Provide a few configuration options.
-OPTION(BUILD_EXAMPLES "Build VTK examples." OFF)
 
 #-----------------------------------------------------------------------------
 # Configure files with settings for use by the build.

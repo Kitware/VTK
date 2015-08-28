@@ -53,6 +53,11 @@ else()
   set(VTK_BUILD_COMMAND BUILD_COMMAND make)
 endif()
 
+set(BUILD_ALWAYS_STRING)
+if(${CMAKE_VERSION} GREATER 3.0)
+  set(BUILD_ALWAYS_STRING BUILD_ALWAYS 1)
+endif()
+
 # Compile a minimal VTK for its compile tools
 macro(compile_vtk_tools)
   ExternalProject_Add(
@@ -63,7 +68,7 @@ macro(compile_vtk_tools)
     ${VTK_BUILD_COMMAND} vtkCompileTools
     ${BUILD_ALWAYS_STRING}
     INSTALL_DIR ${INSTALL_DIR}/vtk-compile-tools
-    CMAKE_CACHE_ARGS
+    CMAKE_ARGS
       -DCMAKE_BUILD_TYPE:STRING=Release
       -DVTK_BUILD_ALL_MODULES:BOOL=OFF
       -DVTK_Group_Rendering:BOOL=OFF
@@ -124,11 +129,6 @@ set(android_cmake_flags
   -DModule_vtkRenderingFreeType:BOOL=OFF
 )
 
-set(BUILD_ALWAYS_STRING)
-if(${CMAKE_VERSION} GREATER 3.0)
-  set(BUILD_ALWAYS_STRING "BUILD_ALWAYS 1")
-endif()
-
 macro(crosscompile target toolchain_file)
   ExternalProject_Add(
     ${target}
@@ -142,7 +142,6 @@ macro(crosscompile target toolchain_file)
       -DCMAKE_INSTALL_PREFIX:PATH=${INSTALL_DIR}/${target}
       -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
       -DCMAKE_TOOLCHAIN_FILE:PATH=CMake/${toolchain_file}
-    CMAKE_CACHE_ARGS
       -DANDROID_NDK:PATH=${ANDROID_NDK}
       -DVTKCompileTools_DIR:PATH=${BUILD_DIR}/vtk-compile-tools
       ${android_cmake_flags}
