@@ -676,6 +676,18 @@ int vtkAppendPolyData::RequestUpdateExtent(vtkInformation *vtkNotUsed(request),
         }
       }
     }
+  // Let downstream request a subset of connection 0, for connections >= 1
+  // send their WHOLE_EXTENT as UPDATE_EXTENT.
+  for (idx = 1; idx < numInputs; ++idx)
+    {
+    vtkInformation * inputInfo = inputVector[0]->GetInformationObject(idx);
+    if (inputInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
+      {
+      int ext[6];
+      inputInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext);
+      inputInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
+      }
+    }
 
   return 1;
 }
