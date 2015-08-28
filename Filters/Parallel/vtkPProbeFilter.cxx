@@ -100,17 +100,28 @@ int vtkPProbeFilter::RequestData(vtkInformation *request,
         // and copy array values from all the pointIds which have the mask array
         // bit set to 1.
         vtkIdType numRemotePoints = remoteProbeOutput->GetNumberOfPoints();
-        for (pointId=0; (pointId < numRemotePoints) && maskArray; pointId++)
+        if (output->GetNumberOfCells() != remoteProbeOutput->GetNumberOfCells() ||
+            output->GetNumberOfPoints() != remoteProbeOutput->GetNumberOfPoints())
           {
-          if (maskArray->GetValue(pointId) == 1)
+          vtkErrorMacro("vtkPProbeFilter assumes the whole geometry dataset "
+                        "(which determines positions to probe) is available "
+                        "on all nodes, however nodes 0 is different than node "
+                        << i);
+          }
+        else if (maskArray)
+          {
+          for (pointId=0; pointId < numRemotePoints; ++pointId)
             {
-            for (k = 0; k < pointData->GetNumberOfArrays(); k++)
+            if (maskArray->GetValue(pointId) == 1)
               {
-              vtkAbstractArray *oaa = pointData->GetArray(k);
-              vtkAbstractArray *raa = remotePointData->GetArray(oaa->GetName());
-              if (raa != NULL)
+              for (k = 0; k < pointData->GetNumberOfArrays(); ++k)
                 {
-                oaa->SetTuple(pointId, pointId, raa);
+                vtkAbstractArray *oaa = pointData->GetArray(k);
+                vtkAbstractArray *raa = remotePointData->GetArray(oaa->GetName());
+                if (raa != NULL)
+                  {
+                  oaa->SetTuple(pointId, pointId, raa);
+                  }
                 }
               }
             }
