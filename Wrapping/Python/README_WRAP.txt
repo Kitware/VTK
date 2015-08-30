@@ -1,7 +1,7 @@
 Notes on the Python Wrappers for VTK
 
 First version by David Gobbi: Dec 19, 2002
-Last update was on Dec 2, 2014
+Last update was on Aug 30, 2015
 
 Abstract:
 =========
@@ -15,10 +15,9 @@ Overview:
 =========
 
 Nearly all the power of VTK objects are available through Python
-(with a few exceptions as noted below).  The C++ symantics are
-translated as directly as possible to Python symantics.  Currently,
-full support is provided for Python 2.3 through Python 2.6, though
-the full Python 2 series should work (but not Python 3, yet).
+(with a few exceptions as noted below).  The C++ semantics are
+translated as directly as possible to Python semantics.  Currently,
+full support is provided for Python 2.6, 2.7, 3.2, 3.3, and 3.4.
 
 
 The Basics:
@@ -80,6 +79,32 @@ None
 And perhaps one of the most pleasant features of Python is that all
 type-checking is performed at run time, so the type casts that are
 often necessary in VTK-C++ are never needed in VTK-Python.
+
+
+Strings (Python 3 vs. Python 2)
+---------------------
+
+The mapping of Python string types to C++ string types is different
+in Python 3 as compared to Python 2.  In Python 2, the basic str()
+type was for 8-bit strings, and a separate unicode() type was used
+for unicode strings.
+
+For Python 3, the basic str() type is unicode, and when you pass a
+str() as a VTK "std::string" or "const char *" parameter, VTK will
+receive the string in utf-8 encoding.  To use a different encoding,
+you must encode the string yourself and pass it to VTK as a bytes()
+object, e.g. writer.SetFileName("myfile".encode('latin1')).
+
+When VTK returns a "const char *" or "std::string" in Python 3, the
+wrappers will test to see of the string is utf-8 (or ascii), and if
+so they will pass the string to python as a unicode str() object.
+If the VTK string is not valid utf-8, then the wrappers will pass
+the string to python as a bytes() object.
+
+This means that using encodings other than utf-8 with VTK is risky.
+In rare cases, these other encodings might produce 8-bit data that
+the wrappers will detect as utf-8, causing them to produce a string
+with incorrect characters.
 
 
 Constants
@@ -298,7 +323,8 @@ vtk.VTK_OBJECT, vtk.VTK_INT, vtk.VTK_LONG, vtk.VTK_DOUBLE, vtk.VTK_FLOAT
 For example:
 
 >>> def onError(object, event, calldata):
->>>     print("object: %s - event: %s - msg: %s" % (object.GetClassName(), event, calldata))
+>>>     print("object: %s - event: %s - msg: %s" % (object.GetClassName(),
+                                                    event, calldata))
 >>>
 >>> onError.CallDataType = vtk.VTK_INT
 >>>
@@ -306,26 +332,29 @@ For example:
 >>> lt.AddObserver(vtkCommand.ErrorEvent, onError)
 1
 >>> lt.SetTableRange(2,1)
-object: vtkLookupTable - event: ErrorEvent - msg: ERROR: In /home/jchris/Projects/VTK6/Common/Core/vtkLookupTable.cxx, line 122
+object: vtkLookupTable - event: ErrorEvent - msg: ERROR:
+  In /home/jchris/Projects/VTK6/Common/Core/vtkLookupTable.cxx, line 122
 vtkLookupTable (0x6b40b30): Bad table range: [2, 1]
 
 
-For convenience, the CallDataType can also be specified where the function is first
-declared with the help of the "calldata_type" decorator:
+For convenience, the CallDataType can also be specified where the function
+is first declared with the help of the "calldata_type" decorator:
 
 >>> @calldata_type(vtk.VTK_INT)
 >>> def onError(object, event, calldata):
->>>     print("object: %s - event: %s - msg: %s" % (object.GetClassName(), event, calldata))
+>>>     print("object: %s - event: %s - msg: %s" % (object.GetClassName(),
+                                                    event, calldata))
 
 
 Subclassing a VTK class
 -----------------------
 
 It is possible to subclass a VTK class from within Python, but it
-is NOT possible to override the virtual methods of the class.
-The python-level code will be invisible to the VTK C++ code,
-the methods that you define will only be visible when you access
-the class from Python.
+is NOT possible to properly override the virtual methods of the class.
+The python-level code will be invisible to the VTK C++ code, so when
+the virtual method is called from C++, the method that you defined from
+within Python will not be called.  The method will only be executed if
+you call it from within Python.
 
 It is therefore not reasonable, for instance, to subclass the
 vtkInteractorStyle to provide custom python interaction.  Instead,
