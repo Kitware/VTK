@@ -14,6 +14,9 @@
 =========================================================================*/
 // .NAME vtkPProbeFilter - probe dataset in parallel
 // .SECTION Description
+// This filter works correctly only if the whole geometry dataset
+// (that specify the point locations used to probe input) is available on all
+// nodes.
 
 #ifndef vtkPProbeFilter_h
 #define vtkPProbeFilter_h
