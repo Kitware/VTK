@@ -958,6 +958,11 @@ void vtkStringArray::SetVariantValue( vtkIdType id, vtkVariant value )
   this->SetValue( id, value.ToString() );
 }
 
+void vtkStringArray::InsertVariantValue( vtkIdType id, vtkVariant value )
+{
+  this->InsertValue( id, value.ToString() );
+}
+
 vtkIdType vtkStringArray::InsertNextValue( const char *value )
 {
   if( value )

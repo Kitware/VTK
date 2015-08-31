@@ -659,6 +659,12 @@ void vtkVariantArray::SetVariantValue(vtkIdType id, vtkVariant value)
 }
 
 //----------------------------------------------------------------------------
+void vtkVariantArray::InsertVariantValue(vtkIdType id, vtkVariant value)
+{
+  this->InsertValue(id, value);
+}
+
+//----------------------------------------------------------------------------
 vtkIdType vtkVariantArray::InsertNextValue(vtkVariant value)
 {
   this->InsertValue(++this->MaxId, value);

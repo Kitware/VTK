@@ -186,6 +186,11 @@ public:
   // Insert a value into the array from a variant.
   void SetVariantValue(vtkIdType idx, vtkVariant value);
 
+  // Description:
+  // Safely set a value in the array form a variant.
+  // Safely insert a value into the array from a variant.
+  void InsertVariantValue(vtkIdType idx, vtkVariant value);
+
 //BTX
   // Description:
   // Insert data at the end of the array. Return its location in the array.

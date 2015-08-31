@@ -216,6 +216,10 @@ public:
   void SetVariantValue(vtkIdType idx, vtkVariant value);
 
   // Description:
+  // Safely insert a value into the array from a variant.
+  void InsertVariantValue(vtkIdType idx, vtkVariant value);
+
+  // Description:
   // Expand the array by one and set the value at that location.
   // Return the array index of the inserted value.
   vtkIdType InsertNextValue(vtkVariant value);
