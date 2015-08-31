@@ -18,9 +18,11 @@ import vtk
 from vtk.test import Testing
 
 class vtkCustomObject(vtk.vtkObject):
-    def __init__(self):
+    def __init__(self, extra=None):
         """Initialize all attributes."""
-        self._ExtraObject = vtk.vtkObject()
+        if extra is None:
+            extra = vtk.vtkObject()
+        self._ExtraObject = extra
 
     def GetClassName(self):
         """Get the class name."""
@@ -52,6 +54,13 @@ class TestSubclass(Testing.vtkTest):
         """Instantiate a python vtkObject subclass"""
         o = vtkCustomObject()
         self.assertEqual(o.GetClassName(), "vtkCustomObject")
+
+    def testConstructorArgs(self):
+        """Test the use of constructor arguments."""
+        extra = vtk.vtkObject()
+        o = vtkCustomObject(extra)
+        self.assertEqual(o.GetClassName(), "vtkCustomObject")
+        self.assertEqual(id(o.GetExtraObject()), id(extra))
 
     def testCallUnboundMethods(self):
         """Test calling an unbound method in an overridded method"""
