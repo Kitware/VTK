@@ -79,7 +79,8 @@ struct userData
 JNIEXPORT jlong JNICALL Java_com_kitware_JavaVTK_JavaVTKLib_init(JNIEnv * env, jobject obj,  jint width, jint height)
 {
   vtkRenderWindow *renWin = vtkRenderWindow::New();
-  renWin->SetWindowInfo("jni"); // tell the system that jni owns the window not us
+  char jniS[4] = {'j','n','i',0};
+  renWin->SetWindowInfo(jniS); // tell the system that jni owns the window not us
   renWin->SetSize(width,height);
   vtkNew<vtkRenderer> renderer;
   renWin->AddRenderer(renderer.Get());

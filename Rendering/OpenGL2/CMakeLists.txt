@@ -83,6 +83,7 @@ else()
   if (${OPENGL_ES_VERSION} MATCHES 3.0)
     set(Module_SRCS ${Module_SRCS}
       vtkFrameBufferObject2.cxx
+      vtkPixelBufferObject.cxx
       vtkRenderbuffer.cxx
       )
   endif()
