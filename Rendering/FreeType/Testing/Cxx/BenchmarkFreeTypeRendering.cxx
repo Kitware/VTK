@@ -65,7 +65,7 @@ int BenchmarkFreeTypeRendering(int , char *[])
 
     // Clock the time needed to render the string.
     startT = clock();
-    ftTools->RenderString(tprop.GetPointer(), str, image.GetPointer());
+    ftTools->RenderString(tprop.GetPointer(), str, 72, image.GetPointer());
     endT = clock();
     double iterSecs = static_cast<double>(endT - startT) /
         static_cast<double>(CLOCKS_PER_SEC);
@@ -95,7 +95,8 @@ int BenchmarkFreeTypeRendering(int , char *[])
 
     // Clock the time needed to render the string.
     startT = clock();
-    textRenderer->RenderString(tprop.GetPointer(), str, image.GetPointer());
+    textRenderer->RenderString(tprop.GetPointer(), str, image.GetPointer(),
+                               NULL, 72);
     endT = clock();
     double iterSecs = static_cast<double>(endT - startT) /
         static_cast<double>(CLOCKS_PER_SEC);
