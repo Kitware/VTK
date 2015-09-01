@@ -220,7 +220,7 @@ void vtkOpenGLPolyDataMapper::ClearShaderReplacement(
   spec.ReplaceFirst = replaceFirst;
 
   typedef std::map<const vtkOpenGLPolyDataMapper::ReplacementSpec,
-    vtkOpenGLPolyDataMapper::ReplacementValue>::const_iterator RIter;
+    vtkOpenGLPolyDataMapper::ReplacementValue>::iterator RIter;
   RIter found = this->UserShaderReplacements.find(spec);
   if (found == this->UserShaderReplacements.end())
     {
