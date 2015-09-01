@@ -195,6 +195,10 @@ public:
 
   // Description:
   // Read only container, not supported.
+  void InsertVariantValue(vtkIdType idx, vtkVariant value);
+
+  // Description:
+  // Read only container, not supported.
   void RemoveTuple(vtkIdType id);
 
   // Description:

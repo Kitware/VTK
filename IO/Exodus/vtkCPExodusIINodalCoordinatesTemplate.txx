@@ -397,6 +397,14 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 
 //------------------------------------------------------------------------------
 template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
+::InsertVariantValue(vtkIdType, vtkVariant)
+{
+  vtkErrorMacro("Read only container.")
+  return;
+}
+
+//------------------------------------------------------------------------------
+template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 ::RemoveTuple(vtkIdType)
 {
   vtkErrorMacro("Read only container.")

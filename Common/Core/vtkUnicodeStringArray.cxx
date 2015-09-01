@@ -363,6 +363,11 @@ void vtkUnicodeStringArray::SetVariantValue(vtkIdType id, vtkVariant value)
   this->SetValue( id, value.ToUnicodeString() );
 }
 
+void vtkUnicodeStringArray::InsertVariantValue(vtkIdType id, vtkVariant value)
+{
+  this->InsertValue( id, value.ToUnicodeString() );
+}
+
 void vtkUnicodeStringArray::DataChanged()
 {
   this->MaxId = static_cast<vtkIdType>(this->Internal->Storage.size()) - 1;

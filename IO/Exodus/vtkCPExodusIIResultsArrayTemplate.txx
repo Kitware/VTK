@@ -419,6 +419,14 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 
 //------------------------------------------------------------------------------
 template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
+::InsertVariantValue(vtkIdType, vtkVariant)
+{
+  vtkErrorMacro("Read only container.")
+  return;
+}
+
+//------------------------------------------------------------------------------
+template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 ::RemoveTuple(vtkIdType)
 {
   vtkErrorMacro("Read only container.")

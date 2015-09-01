@@ -149,12 +149,16 @@ public:
   void SetValue(vtkIdType id, int value);
 
   // Description:
-  // Insets values and checks to make sure there is enough memory
+  // Inserts values and checks to make sure there is enough memory
   void InsertValue(vtkIdType id, int i);
 
   // Description:
   // Set a value in the array from a variant.
   void SetVariantValue(vtkIdType idx, vtkVariant value);
+
+  // Description:
+  // Inserts values from a variant and checks to ensure there is enough memory
+  void InsertVariantValue(vtkIdType idx, vtkVariant value);
 
   vtkIdType InsertNextValue(int i);
 
@@ -305,6 +309,11 @@ inline void vtkBitArray::InsertValue(vtkIdType id, int i)
 inline void vtkBitArray::SetVariantValue(vtkIdType id, vtkVariant value)
 {
   this->SetValue(id, value.ToInt());
+}
+
+inline void vtkBitArray::InsertVariantValue(vtkIdType id, vtkVariant value)
+{
+  this->InsertValue(id, value.ToInt());
 }
 
 inline vtkIdType vtkBitArray::InsertNextValue(int i)

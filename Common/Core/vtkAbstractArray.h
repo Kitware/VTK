@@ -333,7 +333,7 @@ public:
   // Description:
   // Insert a value into the array from a variant.  This method does
   // bounds checking.
-  virtual void InsertVariantValue(vtkIdType idx, vtkVariant value);
+  virtual void InsertVariantValue(vtkIdType idx, vtkVariant value) = 0;
 
   // Description:
   // Set a value in the array from a variant.  This method does NOT do

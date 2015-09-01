@@ -72,6 +72,7 @@ public:
   virtual void LookupValue(vtkVariant value, vtkIdList* ids);
 
   virtual void SetVariantValue(vtkIdType idx, vtkVariant value);
+  virtual void InsertVariantValue(vtkIdType idx, vtkVariant value);
   virtual void DataChanged();
   virtual void ClearLookup();
 
