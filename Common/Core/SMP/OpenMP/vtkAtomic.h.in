@@ -65,7 +65,7 @@ public:
 #endif // __WRAP__
 
 
-template <typename T> class vtkAtomic : vtk::atomic::detail::IntegralType<T>
+template <typename T> class vtkAtomic : private vtk::atomic::detail::IntegralType<T>
 {
 private:
   typedef detail::AtomicOps<sizeof(T)> Impl;

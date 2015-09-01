@@ -25,7 +25,7 @@
 #include <cstddef>
 
 
-template <typename T> class vtkAtomic : vtk::atomic::detail::IntegralType<T>
+template <typename T> class vtkAtomic : private vtk::atomic::detail::IntegralType<T>
 {
 public:
   vtkAtomic()
