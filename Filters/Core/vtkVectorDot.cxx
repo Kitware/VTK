@@ -102,7 +102,8 @@ public:
         float *s = this->Algo->Scalars + k;
         for ( ; k < end; ++k)
           {
-          *s++ = srMin + ((*s - min)/dS)*dR;
+          *s = srMin + ((*s - min)/dS)*dR;
+          s++;
           }
         }
     };
