@@ -97,6 +97,10 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   this->AppleBugPrimIDBuffer = 0;
   this->HaveAppleBug = false;
   this->LastBoundBO = NULL;
+
+  this->VertexShaderCode = 0;
+  this->FragmentShaderCode = 0;
+  this->GeometryShaderCode = 0;
 }
 
 
@@ -144,6 +148,10 @@ vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
     {
     this->AppleBugPrimIDBuffer->Delete();
     }
+
+  this->SetVertexShaderCode(0);
+  this->SetFragmentShaderCode(0);
+  this->SetGeometryShaderCode(0);
 }
 
 //-----------------------------------------------------------------------------
@@ -302,15 +310,38 @@ void vtkOpenGLPolyDataMapper::GetShaderTemplate(
     std::map<vtkShader::Type, vtkShader *> shaders,
     vtkRenderer *ren, vtkActor *actor)
 {
-  shaders[vtkShader::Vertex]->SetSource(vtkPolyDataVS);
-  shaders[vtkShader::Fragment]->SetSource(vtkPolyDataFS);
-  if (this->HaveWideLines(ren, actor))
+  if (this->VertexShaderCode && strcmp(this->VertexShaderCode,"") != 0)
     {
-    shaders[vtkShader::Geometry]->SetSource(vtkPolyDataWideLineGS);
+    shaders[vtkShader::Vertex]->SetSource(this->VertexShaderCode);
     }
   else
     {
-    shaders[vtkShader::Geometry]->SetSource("");
+    shaders[vtkShader::Vertex]->SetSource(vtkPolyDataVS);
+    }
+
+  if (this->FragmentShaderCode && strcmp(this->FragmentShaderCode,"") != 0)
+    {
+    shaders[vtkShader::Fragment]->SetSource(this->FragmentShaderCode);
+    }
+  else
+    {
+    shaders[vtkShader::Fragment]->SetSource(vtkPolyDataFS);
+    }
+
+  if (this->GeometryShaderCode && strcmp(this->GeometryShaderCode,"") != 0)
+    {
+    shaders[vtkShader::Geometry]->SetSource(this->GeometryShaderCode);
+    }
+  else
+    {
+    if (this->HaveWideLines(ren, actor))
+      {
+      shaders[vtkShader::Geometry]->SetSource(vtkPolyDataWideLineGS);
+      }
+    else
+      {
+      shaders[vtkShader::Geometry]->SetSource("");
+      }
     }
 }
 

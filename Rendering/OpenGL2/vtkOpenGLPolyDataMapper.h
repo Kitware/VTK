@@ -129,6 +129,18 @@ public:
     std::string originalValue,
     bool replaceFirst);
 
+  // Description:
+  // Allow the program to set the shader codes used directly
+  // instead of using the built in templates. Be aware, if
+  // set, this template will be used for all cases,
+  // primitive types, picking etc.
+  vtkSetStringMacro(VertexShaderCode);
+  vtkGetStringMacro(VertexShaderCode);
+  vtkSetStringMacro(FragmentShaderCode);
+  vtkGetStringMacro(FragmentShaderCode);
+  vtkSetStringMacro(GeometryShaderCode);
+  vtkGetStringMacro(GeometryShaderCode);
+
   // the following is all extra stuff to work around the
   // fact that gl_PrimitiveID does not work correctly on
   // Apple devices with AMD graphics hardware. See apple
@@ -360,6 +372,10 @@ protected:
     };
 
   std::map<const ReplacementSpec,ReplacementValue> UserShaderReplacements;
+
+  char *VertexShaderCode;
+  char *FragmentShaderCode;
+  char *GeometryShaderCode;
 
 private:
   vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&); // Not implemented.
