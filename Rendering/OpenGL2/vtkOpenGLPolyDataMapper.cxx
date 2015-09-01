@@ -190,6 +190,44 @@ bool vtkOpenGLPolyDataMapper::IsShaderVariableUsed(const char *name)
         this->ShaderVariablesUsed.end(), name);
 }
 
+void vtkOpenGLPolyDataMapper::AddShaderReplacement(
+    vtkShader::Type shaderType, // vertex, fragment, etc
+    std::string originalValue,
+    bool replaceFirst,  // do this replacement before the default
+    std::string replacementValue,
+    bool replaceAll)
+{
+  vtkOpenGLPolyDataMapper::ReplacementSpec spec;
+  spec.ShaderType = shaderType;
+  spec.OriginalValue = originalValue;
+  spec.ReplaceFirst = replaceFirst;
+
+  vtkOpenGLPolyDataMapper::ReplacementValue values;
+  values.Replacement = replacementValue;
+  values.ReplaceAll = replaceAll;
+
+  this->UserShaderReplacements[spec] = values;
+}
+
+void vtkOpenGLPolyDataMapper::ClearShaderReplacement(
+    vtkShader::Type shaderType, // vertex, fragment, etc
+    std::string originalValue,
+    bool replaceFirst)
+{
+  vtkOpenGLPolyDataMapper::ReplacementSpec spec;
+  spec.ShaderType = shaderType;
+  spec.OriginalValue = originalValue;
+  spec.ReplaceFirst = replaceFirst;
+
+  typedef std::map<const vtkOpenGLPolyDataMapper::ReplacementSpec,
+    vtkOpenGLPolyDataMapper::ReplacementValue>::const_iterator RIter;
+  RIter found = this->UserShaderReplacements.find(spec);
+  if (found == this->UserShaderReplacements.end())
+    {
+    this->UserShaderReplacements.erase(found);
+    }
+}
+
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::BuildShaders(
     std::map<vtkShader::Type, vtkShader *> shaders,
@@ -197,7 +235,42 @@ void vtkOpenGLPolyDataMapper::BuildShaders(
 {
   this->ShaderVariablesUsed.clear();
   this->GetShaderTemplate(shaders, ren, actor);
+
+  typedef std::map<const vtkOpenGLPolyDataMapper::ReplacementSpec,
+    vtkOpenGLPolyDataMapper::ReplacementValue>::const_iterator RIter;
+
+  // user specified pre replacements
+  for (RIter i = this->UserShaderReplacements.begin();
+    i != this->UserShaderReplacements.end(); i++)
+    {
+    if (i->first.ReplaceFirst)
+      {
+      std::string ssrc = shaders[i->first.ShaderType]->GetSource();
+      vtkShaderProgram::Substitute(ssrc,
+        i->first.OriginalValue,
+        i->second.Replacement,
+        i->second.ReplaceAll);
+      shaders[i->first.ShaderType]->SetSource(ssrc);
+      }
+    }
+
   this->ReplaceShaderValues(shaders, ren, actor);
+
+  // user specified post replacements
+  for (RIter i = this->UserShaderReplacements.begin();
+    i != this->UserShaderReplacements.end(); i++)
+    {
+    if (!i->first.ReplaceFirst)
+      {
+      std::string ssrc = shaders[i->first.ShaderType]->GetSource();
+      vtkShaderProgram::Substitute(ssrc,
+        i->first.OriginalValue,
+        i->second.Replacement,
+        i->second.ReplaceAll);
+      shaders[i->first.ShaderType]->SetSource(ssrc);
+      }
+    }
+
   std::sort(this->ShaderVariablesUsed.begin(),this->ShaderVariablesUsed.end());
 }
 

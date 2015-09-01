@@ -84,7 +84,7 @@ public:
   vtkPolyData *CurrentInput;
 
   // Description:
-  // By default, this painters uses the dataset's point and cell ids during
+  // By default, this class uses the dataset's point and cell ids during
   // rendering. However, one can override those by specifying cell and point
   // data arrays to use instead. Currently, only vtkIdType array is supported.
   // Set to NULL string (default) to use the point ids instead.
@@ -94,14 +94,14 @@ public:
   vtkGetStringMacro(CellIdArrayName);
 
   // Description:
-  // If the painter should override the process id using a data-array,
+  // If this class should override the process id using a data-array,
   // set this variable to the name of the array to use. It must be a
   // point-array.
   vtkSetStringMacro(ProcessIdArrayName);
   vtkGetStringMacro(ProcessIdArrayName);
 
   // Description:
-  // Generally, vtkCompositePainter can render the composite id when iterating
+  // Generally, this class can render the composite id when iterating
   // over composite datasets. However in some cases (as in AMR), the rendered
   // structure may not correspond to the input data, in which case we need
   // to provide a cell array that can be used to render in the composite id in
@@ -110,6 +110,24 @@ public:
   // The array *MUST* be a cell array and of type vtkUnsignedIntArray.
   vtkSetStringMacro(CompositeIdArrayName);
   vtkGetStringMacro(CompositeIdArrayName);
+
+
+  // Description:
+  // This function enables you to apply your own substitutions
+  // to the shader creation process. The shader code in this class
+  // is created by applying a bunch of string replacements to a
+  // shader template. Using this function you can apply your
+  // own string replacements to add features you desire.
+  void AddShaderReplacement(
+    vtkShader::Type shaderType, // vertex, fragment, etc
+    std::string originalValue,
+    bool replaceFirst,  // do this replacement before the default
+    std::string replacementValue,
+    bool replaceAll);
+  void ClearShaderReplacement(
+    vtkShader::Type shaderType, // vertex, fragment, etc
+    std::string originalValue,
+    bool replaceFirst);
 
   // the following is all extra stuff to work around the
   // fact that gl_PrimitiveID does not work correctly on
@@ -314,6 +332,34 @@ protected:
   char* CompositeIdArrayName;
 
   int TextureComponents;
+
+  class ReplacementSpec
+    {
+    public:
+      std::string OriginalValue;
+      vtkShader::Type ShaderType;
+      bool ReplaceFirst;
+      bool operator<(const ReplacementSpec &v1) const
+        {
+        if (this->OriginalValue != v1.OriginalValue) { return this->OriginalValue < v1.OriginalValue; }
+        if (this->ShaderType != v1.ShaderType) { return this->ShaderType < v1.ShaderType; }
+        return (this->ReplaceFirst < v1.ReplaceFirst);
+        }
+      bool operator>(const ReplacementSpec &v1) const
+        {
+        if (this->OriginalValue != v1.OriginalValue) { return this->OriginalValue > v1.OriginalValue; }
+        if (this->ShaderType != v1.ShaderType) { return this->ShaderType > v1.ShaderType; }
+        return (this->ReplaceFirst > v1.ReplaceFirst);
+        }
+      };
+  class ReplacementValue
+    {
+    public:
+      std::string Replacement;
+      bool ReplaceAll;
+    };
+
+  std::map<const ReplacementSpec,ReplacementValue> UserShaderReplacements;
 
 private:
   vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&); // Not implemented.
