@@ -1953,7 +1953,8 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLPolyDataMapper::RenderPieceFinish(vtkRenderer* ren, vtkActor *vtkNotUsed(actor))
+void vtkOpenGLPolyDataMapper::RenderPieceFinish(vtkRenderer* ren,
+  vtkActor *actor)
 {
   vtkHardwareSelector* selector = ren->GetSelector();
   if (selector && this->PopulateSelectionSettings)
@@ -1975,7 +1976,11 @@ void vtkOpenGLPolyDataMapper::RenderPieceFinish(vtkRenderer* ren, vtkActor *vtkN
 
   this->VBO->Release();
 
-  if ( this->GetResolveCoincidentTopology() )
+  vtkProperty *prop = actor->GetProperty();
+  bool surface_offset =
+    (this->GetResolveCoincidentTopology() || prop->GetEdgeVisibility())
+    && prop->GetRepresentation() == VTK_SURFACE;
+  if (surface_offset)
     {
     glDisable(GL_POLYGON_OFFSET_FILL);
     }
