@@ -14,15 +14,20 @@
 =========================================================================*/
 // .NAME vtkCylinder - implicit function for a cylinder
 // .SECTION Description
-// vtkCylinder computes the implicit function and function gradient for a
-// cylinder. vtkCylinder is a concrete implementation of vtkImplicitFunction.
-// Cylinder is centered at Center and axes of rotation is along the
-// y-axis. (Use the superclass' vtkImplicitFunction transformation matrix if
-// necessary to reposition.)
+// vtkCylinder computes the implicit function and function gradient
+// for a cylinder using F(r)=r^2-Radius^2. vtkCylinder is a concrete
+// implementation of vtkImplicitFunction. By default the Cylinder is
+// centered at the origin and the axis of rotation is along the
+// y-axis. You can redefine the center and axis of rotation by setting
+// the Center and Axis data members. (Note that it is also possible to
+// use the superclass' vtkImplicitFunction transformation matrix if
+// necessary to reposition by using FunctionValue() and
+// FunctionGradient().)
 
 // .SECTION Caveats
-// The cylinder is infinite in extent. To truncate the cylinder use the
-// vtkImplicitBoolean in combination with clipping planes.
+// The cylinder is infinite in extent. To truncate the cylinder in
+// modeling operations use the vtkImplicitBoolean in combination with
+// clipping planes.
 
 
 #ifndef vtkCylinder_h
@@ -38,11 +43,12 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description
-  // Construct cylinder radius of 0.5.
+  // Construct cylinder radius of 0.5; centered at origin with axis
+  // along y coordinate axis.
   static vtkCylinder *New();
 
   // Description
-  // Evaluate cylinder equation F(x,y,z) = (x-x0)^2 + (z-z0)^2 - R^2.
+  // Evaluate cylinder equation F(r) = r^2 - Radius^2.
   double EvaluateFunction(double x[3]);
   double EvaluateFunction(double x, double y, double z)
     {return this->vtkImplicitFunction::EvaluateFunction(x, y, z); } ;
@@ -52,14 +58,22 @@ public:
   void EvaluateGradient(double x[3], double g[3]);
 
   // Description:
-  // Set/Get cylinder radius.
+  // Set/Get the cylinder radius.
   vtkSetMacro(Radius,double);
   vtkGetMacro(Radius,double);
 
   // Description:
-  // Set/Get cylinder center
+  // Set/Get the cylinder center.
   vtkSetVector3Macro(Center,double);
   vtkGetVector3Macro(Center,double);
+
+  // Description:
+  // Set/Get the axis of the cylinder. If the axis is not specified as
+  // a unit vector, it will be normalized. If zero-length axis vector
+  // is used as input to this method, it will be ignored.
+  void SetAxis(double ax, double ay, double az);
+  void SetAxis(double a[3]);
+  vtkGetVector3Macro(Axis,double);
 
 protected:
   vtkCylinder();
@@ -67,6 +81,7 @@ protected:
 
   double Radius;
   double Center[3];
+  double Axis[3];
 
 private:
   vtkCylinder(const vtkCylinder&);  // Not implemented.
@@ -74,5 +89,3 @@ private:
 };
 
 #endif
-
-

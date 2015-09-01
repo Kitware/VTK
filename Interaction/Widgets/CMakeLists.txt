@@ -61,6 +61,8 @@ set(Module_SRCS
   vtkImageOrthoPlanes.cxx
   vtkImagePlaneWidget.cxx
   vtkImageTracerWidget.cxx
+  vtkImplicitCylinderRepresentation.cxx
+  vtkImplicitCylinderWidget.cxx
   vtkImplicitPlaneRepresentation.cxx
   vtkImplicitPlaneWidget2.cxx
   vtkImplicitPlaneWidget.cxx
