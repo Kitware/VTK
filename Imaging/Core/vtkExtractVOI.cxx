@@ -267,9 +267,8 @@ bool vtkExtractVOI::RequestDataImpl(vtkInformationVector **inputVector,
   output->SetOrigin( outOrigin );
 
   vtkDebugMacro(<< "Extracting Grid");
-  this->Internal->CopyPointsAndPointData(
-      inExt,outExt,pd,NULL,outPD,NULL,this->SampleRate);
-  this->Internal->CopyCellData(inExt,outExt,cd,outCD,this->SampleRate);
+  this->Internal->CopyPointsAndPointData(inExt,outExt,pd,NULL,outPD,NULL);
+  this->Internal->CopyCellData(inExt,outExt,cd,outCD);
 
   return 1;
 }
