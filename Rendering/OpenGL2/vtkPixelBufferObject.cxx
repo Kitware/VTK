@@ -61,15 +61,20 @@ static const char *BufferObjectUsageAsString[9]=
 // access modes
 const GLenum OpenGLBufferObjectAccess[2]=
 {
+#if GL_ES_VERSION_3_0 == 1
+  GL_MAP_WRITE_BIT,
+  GL_MAP_READ_BIT
+#else
   GL_WRITE_ONLY,
   GL_READ_ONLY
+#endif
 };
 
 // targets
 const GLenum OpenGLBufferObjectTarget[2]=
 {
-  GL_PIXEL_UNPACK_BUFFER_ARB,
-  GL_PIXEL_PACK_BUFFER_ARB
+  GL_PIXEL_UNPACK_BUFFER,
+  GL_PIXEL_PACK_BUFFER
 };
 
 
@@ -183,11 +188,11 @@ void vtkPixelBufferObject::Bind(BufferType type)
   switch (type)
     {
     case vtkPixelBufferObject::PACKED_BUFFER:
-      target = GL_PIXEL_PACK_BUFFER_ARB;
+      target = GL_PIXEL_PACK_BUFFER;
       break;
 
     case vtkPixelBufferObject::UNPACKED_BUFFER:
-      target = GL_PIXEL_UNPACK_BUFFER_ARB;
+      target = GL_PIXEL_UNPACK_BUFFER;
       break;
 
     default:
@@ -407,7 +412,11 @@ void *vtkPixelBufferObject::MapBuffer(
   glBufferData(target, size, NULL, usage);
   vtkOpenGLCheckErrorMacro("failed at glBufferData");
 
+#if GL_ES_VERSION_3_0 == 1
+  void *pPBO = glMapBufferRange(target, 0, size, access);
+#else
   void *pPBO = glMapBuffer(target, access);
+#endif
   vtkOpenGLCheckErrorMacro("failed at glMapBuffer");
 
   glBindBuffer(target, 0);
@@ -448,7 +457,11 @@ void *vtkPixelBufferObject::MapBuffer(BufferType mode)
   glBindBuffer(target, ioBuf);
   vtkOpenGLCheckErrorMacro("failed at glBindBuffer");
 
+#if GL_ES_VERSION_3_0 == 1
+  void *pPBO = glMapBufferRange(this->BufferTarget, 0, this->Size, access);
+#else
   void *pPBO = glMapBuffer(target, access);
+#endif
   vtkOpenGLCheckErrorMacro("failed at glMapBuffer");
 
   glBindBuffer(target, 0);
@@ -533,7 +546,11 @@ bool vtkPixelBufferObject::Upload3D(
 
   if (data)
     {
+#if GL_ES_VERSION_3_0 == 1
+    void* ioMem = glMapBufferRange(this->BufferTarget, 0, size, GL_MAP_WRITE_BIT);
+#else
     void* ioMem = glMapBuffer(this->BufferTarget, GL_WRITE_ONLY);
+#endif
     vtkOpenGLCheckErrorMacro("");
     switch (type)
       {
@@ -710,7 +727,11 @@ bool vtkPixelBufferObject::Download3D(
   this->Bind(vtkPixelBufferObject::PACKED_BUFFER);
 
 
+#if GL_ES_VERSION_3_0 == 1
+  void* ioMem = glMapBufferRange(this->BufferTarget, 0, this->Size, GL_MAP_READ_BIT);
+#else
   void* ioMem = glMapBuffer(this->BufferTarget, GL_READ_ONLY);
+#endif
   vtkOpenGLCheckErrorMacro("failed at glMapBuffer");
 
   switch (type)
