@@ -3,6 +3,8 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
+include(vtkOpenGL)
+
 # For tests that actually use a vtkRenderWindow
 vtk_add_test_cxx(${vtk-module}CxxTests render_window_tests
   LoadOpenGLExtension.cxx
@@ -37,8 +39,6 @@ if(WIN32 AND NOT VTK_USE_X)
     TestWin32OpenGLRenderWindow.cxx NO_VALID)
 endif()
 
-include_directories(${OPENGL_INCLUDE_DIR})
-
 vtk_add_test_cxx(${vtk-module}CxxTests ogl_tests
   TestScenePicker.cxx,NO_VALID
   TestMultiblockDisplayProperties.cxx
@@ -61,6 +61,9 @@ set(all_tests
   ${render_window_tests}
   ${ogl_tests})
 vtk_test_cxx_executable(${vtk-module}CxxTests all_tests)
+# LoadOpenGLExtension and TestGenericVertexAttributesGLSLDepthPeelingPass
+# requires OpenGL
+vtk_opengl_link(${vtk-module}CxxTests)
 
 set(TEST_FBO_IMPLEMENTATION_EXE
   TestFBOImplementation)

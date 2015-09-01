@@ -31,3 +31,20 @@ else()
 endif()
 
 mark_as_advanced(VTK_USE_X VTK_OPENGL_HAS_OSMESA VTK_USE_OFFSCREEN)
+
+if(VTK_USE_OSMESA)
+  find_package(OSMesa REQUIRED)
+  include_directories(SYSTEM ${OSMESA_INCLUDE_DIR})
+else()
+  find_package(OpenGL REQUIRED)
+  include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
+endif()
+
+# Function to link a VTK target to the necessary OpenGL libraries.
+function(vtk_opengl_link target)
+  if(VTK_USE_OSMESA)
+    vtk_module_link_libraries(${target} LINK_PRIVATE ${OSMESA_LIBRARY})
+  else()
+    vtk_module_link_libraries(${target} LINK_PRIVATE ${OPENGL_LIBRARIES})
+  endif()
+endfunction()

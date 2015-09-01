@@ -1,7 +1,3 @@
-find_package(OpenGL REQUIRED)
-include_directories(SYSTEM
-  ${OPENGL_INCLUDE_DIR})
-
 include(vtkObjectFactory)
 
 set(module_SRCS
@@ -35,3 +31,5 @@ set_source_files_properties(${vtk-module}ObjectFactory WRAP_EXCLUDE)
 vtk_module_library(${vtk-module} ${module_SRCS})
 vtk_module_link_libraries(${vtk-module}
   LINK_PRIVATE ${GLEW_LIBRARY} ${OPENGL_LIBRARIES})
+include(vtkOpenGL)
+vtk_opengl_link(${vtk-module})

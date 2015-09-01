@@ -36,8 +36,10 @@ set(HYBRID_EXAMPLES_SRCS
   )
 
 if(vtkTestingCore_LOADED)
+  include(vtkOpenGL)
   foreach(name ${HYBRID_EXAMPLES_SRCS})
     add_executable(${name} MACOSX_BUNDLE ${name}.cxx)
-    target_link_libraries(${name} ${VTK_LIBRARIES})
+    target_link_libraries(${name} LINK_PRIVATE ${VTK_LIBRARIES})
+    vtk_opengl_link(${name})
   endforeach()
 endif()

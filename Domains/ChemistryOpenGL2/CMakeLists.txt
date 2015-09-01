@@ -49,3 +49,5 @@ list(APPEND Module_SRCS
 set_source_files_properties(${vtk-module}ObjectFactory.cxx WRAP_EXCLUDE)
 
 vtk_module_library(vtkDomainsChemistryOpenGL2 ${Module_SRCS})
+include(vtkOpenGL)
+vtk_opengl_link(vtkDomainsChemistryOpenGL2)

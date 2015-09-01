@@ -60,4 +60,5 @@ endforeach()
 
 vtk_module_library(${vtk-module} ${Module_SRCS})
 
-include_directories(${OPENGL_INCLUDE_DIR})
+include(vtkOpenGL)
+vtk_opengl_link(${vtk-module})

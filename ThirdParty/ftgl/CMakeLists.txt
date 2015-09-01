@@ -95,23 +95,9 @@ IF (UNIX)
   ENDIF()
 ENDIF ()
 
-#
-# We need OpenGL
-#
-# Use GL library provided by parent VTK if possible.
-#
-IF(NOT OPENGL_FOUND)
-  FIND_PACKAGE(OpenGL)
-ENDIF()
+include(vtkOpenGL)
 IF (OPENGL_INCLUDE_PATH)
   INCLUDE_DIRECTORIES (${OPENGL_INCLUDE_PATH})
-ENDIF ()
-IF(OPENGL_gl_LIBRARY)
-  SET (VTKFTGL_LIBS "${VTKFTGL_LIBS};${OPENGL_gl_LIBRARY}")
-ENDIF()
-
-IF (VTK_OPENGL_HAS_OSMESA AND OSMESA_LIBRARY)
-  SET (VTKFTGL_LIBS ${VTKFTGL_LIBS} ${OSMESA_LIBRARY} )
 ENDIF ()
 
 #
@@ -123,7 +109,8 @@ SET (VTKFTGL_LIBS "${VTKFTGL_LIBS};${VTK_FREETYPE_LIBRARIES}")
 # Define the library (and install it)
 #
 VTK_ADD_LIBRARY (vtkftgl ${FTGL_SRCS})
-TARGET_LINK_LIBRARIES(vtkftgl ${VTKFTGL_LIBS})
+vtk_opengl_link(vtkftgl)
+TARGET_LINK_LIBRARIES(vtkftgl LINK_PRIVATE ${VTKFTGL_LIBS})
 
 #
 # Create the configuration file
@@ -214,13 +201,15 @@ IF (FTGL_BUILD_EXAMPLES)
       demo/FTGLDemo.cpp
     )
     ADD_EXECUTABLE (ftgl_demo ${FTGL_DEMO_SRCS})
-    TARGET_LINK_LIBRARIES(ftgl_demo ${VTKFTGL_EXAMPLES_LIBS})
+    vtk_opengl_link(ftgl_demo)
+    TARGET_LINK_LIBRARIES(ftgl_demo LINK_PRIVATE ${VTKFTGL_EXAMPLES_LIBS})
 
     #
     # Example 2
     #
     ADD_EXECUTABLE (ftgl_demo2 demo/demo.cpp)
-    TARGET_LINK_LIBRARIES(ftgl_demo2 ${VTKFTGL_EXAMPLES_LIBS})
+    vtk_opengl_link(ftgl_demo2)
+    TARGET_LINK_LIBRARIES(ftgl_demo2 LINK_PRIVATE ${VTKFTGL_EXAMPLES_LIBS})
 
   ENDIF ()
 
