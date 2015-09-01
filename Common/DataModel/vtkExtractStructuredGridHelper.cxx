@@ -466,8 +466,8 @@ void vtkExtractStructuredGridHelper::CopyCellData(int inExt[6], int outExt[6],
   outCD->CopyAllocate(cd,outSize,outSize);
 
   // Check if we can use some optimizations:
-  bool canCopyRange = sampleRate && I(sampleRate) == 1;
-  bool useMapping = !(canCopyRange && J(sampleRate) == 1 && K(sampleRate) == 1);
+  bool canCopyRange = this->SampleRate && I(this->SampleRate) == 1;
+  bool useMapping = !(canCopyRange && J(this->SampleRate) == 1 && K(this->SampleRate) == 1);
 
   int inpCellExt[6];
   vtkStructuredData::GetCellExtentFromPointExtent(inExt,inpCellExt);
@@ -490,10 +490,18 @@ void vtkExtractStructuredGridHelper::CopyCellData(int inExt[6], int outExt[6],
   for( K(ijk)=KMIN(outCellExt); K(ijk) <= KMAX(outCellExt); ++K(ijk) )
     {
     K(src_ijk) = useMapping ? this->GetMappedExtentValue(2, K(ijk)) : K(ijk);
+    if (K(src_ijk) == KMAX(this->InputWholeExtent) && K(src_ijk) != 0)
+      {
+      --K(src_ijk);
+      }
 
     for( J(ijk)=JMIN(outCellExt); J(ijk) <= JMAX(outCellExt); ++J(ijk) )
       {
       J(src_ijk) = useMapping ? this->GetMappedExtentValue(1, J(ijk)) : J(ijk);
+      if (J(src_ijk) == JMAX(this->InputWholeExtent) && J(src_ijk) != 0)
+        {
+        --J(src_ijk);
+        }
 
       if (canCopyRange)
         {
@@ -523,6 +531,10 @@ void vtkExtractStructuredGridHelper::CopyCellData(int inExt[6], int outExt[6],
           {
           I(src_ijk) = useMapping ? this->GetMappedExtentValue(0, I(ijk))
                                   : I(ijk);
+          if (I(src_ijk) == IMAX(this->InputWholeExtent) && I(src_ijk) != 0)
+            {
+            --I(src_ijk);
+            }
 
           // NOTE: since we are operating on cell extents, ComputePointID below
           // really returns the cell ID
