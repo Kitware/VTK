@@ -25,6 +25,8 @@
 
 vtkStandardNewMacro(vtkVectorDot);
 
+// These are created to support a float,double fast path. They work in
+// tandem with vtkTemplate2Macro found in vtkSetGet.h.
 #define vtkTemplate2MacroFP(call) \
   vtkTemplate2MacroCase1FP(VTK_DOUBLE, double, call);                           \
   vtkTemplate2MacroCase1FP(VTK_FLOAT, float, call);
@@ -253,6 +255,7 @@ int vtkVectorDot::RequestData(
                                 inVectors->GetDataType()))
     {
     // Double explicit specification of multiple template arguments.
+    // Supports combinations of float and double.
     vtkTemplate2MacroFP((vtkVectorDotAlgorithm<VTK_T1,VTK_T2>::
       Dot(this,numPts,(VTK_T1*)normals,(VTK_T2*)vectors,
           scalars,range,actualRange)));
