@@ -194,6 +194,8 @@
 //  - A int* being the number of the button
 // - vtkCommand::TDxButtonReleaseEvent
 //  - A int* being the number of the button
+// - vtkCommand::UpdateShaderEvent
+//  - A vtkOpenGLHelper* currently being used
 //
 // .SECTION See Also
 // vtkObject vtkCallbackCommand vtkOldStyleCallbackCommand
@@ -309,6 +311,7 @@
     _vtk_add_event(WindowSupportsOpenGLEvent)\
     _vtk_add_event(WindowIsDirectEvent)\
     _vtk_add_event(UncheckedPropertyModifiedEvent)\
+    _vtk_add_event(UpdateShaderEvent)\
     _vtk_add_event(MessageEvent)
 
 #define vtkEventDeclarationMacro(_enum_name)\
