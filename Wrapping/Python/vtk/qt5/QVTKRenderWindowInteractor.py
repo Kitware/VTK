@@ -148,13 +148,13 @@ class QVTKRenderWindowInteractor(QWidget):
 
         stereo = 0
 
-        if kw.has_key('stereo'):
+        if 'stereo' in kw:
             if kw['stereo']:
                 stereo = 1
 
         rw = None
 
-        if kw.has_key('rw'):
+        if 'rw' in kw:
             rw = kw['rw']
 
         # create qt-level widget
@@ -181,7 +181,7 @@ class QVTKRenderWindowInteractor(QWidget):
             self._RenderWindow.StereoCapableWindowOn()
             self._RenderWindow.SetStereoTypeToCrystalEyes()
 
-        if kw.has_key('iren'):
+        if 'iren' in kw:
             self._Iren = kw['iren']
         else:
             self._Iren = vtk.vtkGenericRenderWindowInteractor()
@@ -218,8 +218,8 @@ class QVTKRenderWindowInteractor(QWidget):
         elif hasattr(self._Iren, attr):
             return getattr(self._Iren, attr)
         else:
-            raise AttributeError, self.__class__.__name__ + \
-                  " has no attribute named " + attr
+            raise AttributeError(self.__class__.__name__ + \
+                  " has no attribute named " + attr)
 
     def Finalize(self):
         '''
