@@ -97,6 +97,10 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   this->AppleBugPrimIDBuffer = 0;
   this->HaveAppleBug = false;
   this->LastBoundBO = NULL;
+
+  this->VertexShaderCode = 0;
+  this->FragmentShaderCode = 0;
+  this->GeometryShaderCode = 0;
 }
 
 
@@ -144,6 +148,10 @@ vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
     {
     this->AppleBugPrimIDBuffer->Delete();
     }
+
+  this->SetVertexShaderCode(0);
+  this->SetFragmentShaderCode(0);
+  this->SetGeometryShaderCode(0);
 }
 
 //-----------------------------------------------------------------------------
@@ -190,6 +198,44 @@ bool vtkOpenGLPolyDataMapper::IsShaderVariableUsed(const char *name)
         this->ShaderVariablesUsed.end(), name);
 }
 
+void vtkOpenGLPolyDataMapper::AddShaderReplacement(
+    vtkShader::Type shaderType, // vertex, fragment, etc
+    std::string originalValue,
+    bool replaceFirst,  // do this replacement before the default
+    std::string replacementValue,
+    bool replaceAll)
+{
+  vtkOpenGLPolyDataMapper::ReplacementSpec spec;
+  spec.ShaderType = shaderType;
+  spec.OriginalValue = originalValue;
+  spec.ReplaceFirst = replaceFirst;
+
+  vtkOpenGLPolyDataMapper::ReplacementValue values;
+  values.Replacement = replacementValue;
+  values.ReplaceAll = replaceAll;
+
+  this->UserShaderReplacements[spec] = values;
+}
+
+void vtkOpenGLPolyDataMapper::ClearShaderReplacement(
+    vtkShader::Type shaderType, // vertex, fragment, etc
+    std::string originalValue,
+    bool replaceFirst)
+{
+  vtkOpenGLPolyDataMapper::ReplacementSpec spec;
+  spec.ShaderType = shaderType;
+  spec.OriginalValue = originalValue;
+  spec.ReplaceFirst = replaceFirst;
+
+  typedef std::map<const vtkOpenGLPolyDataMapper::ReplacementSpec,
+    vtkOpenGLPolyDataMapper::ReplacementValue>::iterator RIter;
+  RIter found = this->UserShaderReplacements.find(spec);
+  if (found == this->UserShaderReplacements.end())
+    {
+    this->UserShaderReplacements.erase(found);
+    }
+}
+
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::BuildShaders(
     std::map<vtkShader::Type, vtkShader *> shaders,
@@ -197,7 +243,42 @@ void vtkOpenGLPolyDataMapper::BuildShaders(
 {
   this->ShaderVariablesUsed.clear();
   this->GetShaderTemplate(shaders, ren, actor);
+
+  typedef std::map<const vtkOpenGLPolyDataMapper::ReplacementSpec,
+    vtkOpenGLPolyDataMapper::ReplacementValue>::const_iterator RIter;
+
+  // user specified pre replacements
+  for (RIter i = this->UserShaderReplacements.begin();
+    i != this->UserShaderReplacements.end(); i++)
+    {
+    if (i->first.ReplaceFirst)
+      {
+      std::string ssrc = shaders[i->first.ShaderType]->GetSource();
+      vtkShaderProgram::Substitute(ssrc,
+        i->first.OriginalValue,
+        i->second.Replacement,
+        i->second.ReplaceAll);
+      shaders[i->first.ShaderType]->SetSource(ssrc);
+      }
+    }
+
   this->ReplaceShaderValues(shaders, ren, actor);
+
+  // user specified post replacements
+  for (RIter i = this->UserShaderReplacements.begin();
+    i != this->UserShaderReplacements.end(); i++)
+    {
+    if (!i->first.ReplaceFirst)
+      {
+      std::string ssrc = shaders[i->first.ShaderType]->GetSource();
+      vtkShaderProgram::Substitute(ssrc,
+        i->first.OriginalValue,
+        i->second.Replacement,
+        i->second.ReplaceAll);
+      shaders[i->first.ShaderType]->SetSource(ssrc);
+      }
+    }
+
   std::sort(this->ShaderVariablesUsed.begin(),this->ShaderVariablesUsed.end());
 }
 
@@ -229,15 +310,38 @@ void vtkOpenGLPolyDataMapper::GetShaderTemplate(
     std::map<vtkShader::Type, vtkShader *> shaders,
     vtkRenderer *ren, vtkActor *actor)
 {
-  shaders[vtkShader::Vertex]->SetSource(vtkPolyDataVS);
-  shaders[vtkShader::Fragment]->SetSource(vtkPolyDataFS);
-  if (this->HaveWideLines(ren, actor))
+  if (this->VertexShaderCode && strcmp(this->VertexShaderCode,"") != 0)
     {
-    shaders[vtkShader::Geometry]->SetSource(vtkPolyDataWideLineGS);
+    shaders[vtkShader::Vertex]->SetSource(this->VertexShaderCode);
     }
   else
     {
-    shaders[vtkShader::Geometry]->SetSource("");
+    shaders[vtkShader::Vertex]->SetSource(vtkPolyDataVS);
+    }
+
+  if (this->FragmentShaderCode && strcmp(this->FragmentShaderCode,"") != 0)
+    {
+    shaders[vtkShader::Fragment]->SetSource(this->FragmentShaderCode);
+    }
+  else
+    {
+    shaders[vtkShader::Fragment]->SetSource(vtkPolyDataFS);
+    }
+
+  if (this->GeometryShaderCode && strcmp(this->GeometryShaderCode,"") != 0)
+    {
+    shaders[vtkShader::Geometry]->SetSource(this->GeometryShaderCode);
+    }
+  else
+    {
+    if (this->HaveWideLines(ren, actor))
+      {
+      shaders[vtkShader::Geometry]->SetSource(vtkPolyDataWideLineGS);
+      }
+    else
+      {
+      shaders[vtkShader::Geometry]->SetSource("");
+      }
     }
 }
 
@@ -1285,6 +1389,9 @@ void vtkOpenGLPolyDataMapper::UpdateShaders(
   this->SetPropertyShaderParameters(cellBO, ren, actor);
   this->SetCameraShaderParameters(cellBO, ren, actor);
   this->SetLightingShaderParameters(cellBO, ren, actor);
+
+  // allow the program to set what it wants
+  this->InvokeEvent(vtkCommand::UpdateShaderEvent,&cellBO);
 
   vtkOpenGLCheckErrorMacro("failed after UpdateShader");
 }
