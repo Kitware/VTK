@@ -331,8 +331,7 @@ void vtkExtractStructuredGridHelper::ComputeBeginAndEnd(
 void vtkExtractStructuredGridHelper::CopyPointsAndPointData(
           int inExt[6], int outExt[6],
           vtkPointData* pd, vtkPoints* inpnts,
-          vtkPointData* outPD, vtkPoints* outpnts,
-          int sampleRate[3])
+          vtkPointData* outPD, vtkPoints* outpnts)
 {
   assert("pre: NULL input point-data!" && (pd != NULL) );
   assert("pre: NULL output point-data!" && (outPD != NULL) );
@@ -350,8 +349,10 @@ void vtkExtractStructuredGridHelper::CopyPointsAndPointData(
   (void)inSize; // Prevent warnings, this is only used in debug builds.
 
   // Check if we can use some optimizations:
-  bool canCopyRange = sampleRate && I(sampleRate) == 1;
-  bool useMapping = !(canCopyRange && J(sampleRate) == 1 && K(sampleRate) == 1);
+  bool canCopyRange = I(this->SampleRate) == 1;
+  bool useMapping = !(I(this->SampleRate) == 1 &&
+                      J(this->SampleRate) == 1 &&
+                      K(this->SampleRate) == 1);
 
   if( inpnts != NULL )
     {
@@ -446,8 +447,8 @@ void vtkExtractStructuredGridHelper::CopyPointsAndPointData(
 
 //-----------------------------------------------------------------------------
 void vtkExtractStructuredGridHelper::CopyCellData(int inExt[6], int outExt[6],
-           vtkCellData* cd, vtkCellData* outCD,
-           int sampleRate[3])
+                                                  vtkCellData* cd,
+                                                  vtkCellData* outCD)
 {
   assert("pre: NULL input cell-data!" && (cd != NULL) );
   assert("pre: NULL output cell-data!" && (outCD != NULL) );
@@ -466,8 +467,10 @@ void vtkExtractStructuredGridHelper::CopyCellData(int inExt[6], int outExt[6],
   outCD->CopyAllocate(cd,outSize,outSize);
 
   // Check if we can use some optimizations:
-  bool canCopyRange = this->SampleRate && I(this->SampleRate) == 1;
-  bool useMapping = !(canCopyRange && J(this->SampleRate) == 1 && K(this->SampleRate) == 1);
+  bool canCopyRange = I(this->SampleRate) == 1;
+  bool useMapping = !(I(this->SampleRate) == 1 &&
+                      J(this->SampleRate) == 1 &&
+                      K(this->SampleRate) == 1);
 
   int inpCellExt[6];
   vtkStructuredData::GetCellExtentFromPointExtent(inExt,inpCellExt);
