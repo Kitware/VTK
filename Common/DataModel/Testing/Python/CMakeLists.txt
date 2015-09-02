@@ -1,6 +1,6 @@
 vtk_add_test_python(
   ImplicitSum.py
-  LineIntersectQuadraticCells.py
+#  LineIntersectQuadraticCells.py
   PerlinNoise.py
   SelectionLoop.py
   TestNumericArrayImageData.py,NO_DATA,NO_VALID
