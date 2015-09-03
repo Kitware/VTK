@@ -908,6 +908,12 @@ void vtkCocoaRenderWindow::CreateGLContext()
       attribs[i++] = NSOpenGLPFADoubleBuffer;
       }
 
+    if (this->StencilCapable)
+      {
+      attribs[i++] = NSOpenGLPFAStencilSize;
+      attribs[i++] = (NSOpenGLPixelFormatAttribute)8;
+      }
+
     attribs[i++] = (NSOpenGLPixelFormatAttribute)0;
 
     // make sure that size of array was not exceeded
