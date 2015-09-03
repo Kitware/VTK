@@ -34,8 +34,6 @@ using namespace std;
 #include <vtkCallbackCommand.h>
 #include <vtkLegendScaleActor.h>
 #include <vtkColorLegend.h>
-#include <vtkChartLegend.h>
-
 
 #include <vtkContext2D.h>
 #include <vtkLegendBoxActor.h>
@@ -54,6 +52,13 @@ using namespace std;
 #include <vtkCubeSource.h>
 
 #include "RdvReader.h"
+
+#include "vtkSegy2DReader.h"
+#include "vtkSegy3DReader.h"
+
+#include <vtkPolyDataAlgorithm.h>
+#include <vtkInformation.h>
+#include <vtkInformationVector.h>
 
 void expandBounds(double* bounds)
 {
@@ -192,17 +197,22 @@ void demo2D()
     files.push_back("Data/lineC.sgy");
     files.push_back("Data/lineD.sgy");
     files.push_back("Data/lineE.sgy");
-    for(auto file : files)
+
+    auto file = files[0];
+    //for(auto file : files)
     {
-        SegyReader reader;
-        reader.LoadFromFile(file);
-        vtkPolyData* polyData = vtkPolyData::New();
+        vtkSmartPointer<vtkSegy2DReader> reader = vtkSmartPointer<vtkSegy2DReader>::New();
+        reader->SetFileName(file.c_str());
+        reader->Update();
+
         vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
-        reader.ExportData2D(polyData);
+
         vtkSmartPointer<vtkPolyDataMapper> mapper =
                 vtkSmartPointer<vtkPolyDataMapper>::New();
 
-        mapper->SetInputData(polyData);
+
+        mapper->SetInputConnection(reader->GetOutputPort());
+        mapper->ScalarVisibilityOn();
         mapper->SetLookupTable(colorTransferFunction);
         actor->SetMapper(mapper);
         //actor->SetTexture(texture);
@@ -217,19 +227,10 @@ void demo2D()
 
 void demo3D()
 {
-    SegyReader reader;
-    reader.LoadFromFile("Data/waha8.sgy");
-
-
-    vtkSmartPointer<vtkImageData> imageData = vtkSmartPointer<vtkImageData>::New();
-    vtkSmartPointer<vtkPolyData> polyData = vtkPolyData::New();
-    if(reader.ExportData3D(imageData))
-    {
-        render(imageData);
-    }
-
-    imageData->Delete();
-    polyData->Delete();
+    vtkSmartPointer<vtkSegy3DReader> reader = vtkSmartPointer<vtkSegy3DReader>::New();
+    reader->SetFileName("Data/waha8.sgy");
+    vtkSmartPointer<vtkImageData> imageData = reader->GetImage(0);
+    render(imageData);
 }
 
 void demoRDV()
@@ -312,7 +313,7 @@ int main(int argc, char** argv)
     }
     else
     {
-        demo3D();
+        demo2D();
     }
     return 0;
 }

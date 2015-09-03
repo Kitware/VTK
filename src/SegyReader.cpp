@@ -5,23 +5,28 @@
 #include <vtkCellArray.h>
 #include <vtkSmartPointer.h>
 #include <vtkPolygon.h>
-#include <vtkPolyData.h>
 #include <vtkStructuredPointsReader.h>
 #include <vtkVolumeTextureMapper3D.h>
 #include <vtkColorTransferFunction.h>
-#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
-#include <vtkVolumeProperty.h>
 #include <vtkAxesActor.h>
 #include <vtkImageShiftScale.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkFloatArray.h>
 #include <vtkPointData.h>
 #include <vtkArrayData.h>
-
+#include <vtkNew.h>
+#include <vtkObjectFactory.h>
 #include <set>
-#include "Trace.h"
-#include "IOUtil.h"
+#include <vtkInformationVector.h>
+#include <vtkInformation.h>
+
+
+SegyReader::~SegyReader()
+{
+    for(auto trace : data)
+        delete trace;
+}
 
 bool SegyReader::LoadFromFile(string path) {
     ifstream in(path, ifstream::binary);

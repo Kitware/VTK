@@ -6,7 +6,7 @@
 #include "TraceHeaderBytesPositions.h"
 using namespace std;
 
-/// Read Single Trace
+/// Single Trace Reader
 class SegyTraceReader {
 private:
     TraceHeaderBytesPositions traceHeaderBytesPos;

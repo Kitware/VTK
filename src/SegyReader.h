@@ -4,12 +4,12 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-
 #include <map>
 
 #include <vtkImageData.h>
 #include <vtkActor.h>
 #include <vtkPolyData.h>
+#include <vtkPolyDataAlgorithm.h>
 
 #include "BinaryHeaderBytesPositions.h"
 #include "TraceHeaderBytesPositions.h"
@@ -21,6 +21,11 @@ using namespace std;
 
 class SegyReader
 {
+public:
+    SegyReader(){}
+    virtual ~SegyReader();
+
+
 public:
     bool ExportData3D(vtkImageData *); // export the data in segy file as 3D volume
     bool LoadFromFile(string path);
