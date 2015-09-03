@@ -562,10 +562,11 @@ bool vtkExtractCTHPart::ExtractContourOnBlock(
     {
     return true;
     }
-  if (!this->RemoveGhostCells &&
-    output->GetCellData()->GetArray(vtkDataSetAttributes::GhostArrayName()))
+  if (!this->RemoveGhostCells)
     {
-    output->GetCellData()->GetArray(vtkDataSetAttributes::GhostArrayName())->SetName("OriginalGhostLevels");
+    // BUG #14291. Rather than renaming the array, we remove the GhostArray
+    // from the output since it may not be present on all ranks and will cause array count mismatch
+    output->GetCellData()->RemoveArray(vtkDataSetAttributes::GhostArrayName());
     }
 
   fragments.push_back(output);
