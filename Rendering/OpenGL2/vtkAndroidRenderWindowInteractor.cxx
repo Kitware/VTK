@@ -429,7 +429,6 @@ void vtkAndroidRenderWindowInteractor::HandleMotionEvent(
     }
 
   this->SetPointerIndex(actionId);
-  LOGI("INT: %d of %d while %d", actionId, numPtrs, actionType);
   switch(actionType)
     {
     case AMOTION_EVENT_ACTION_POINTER_DOWN:
