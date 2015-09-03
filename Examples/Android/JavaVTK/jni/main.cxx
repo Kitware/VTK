@@ -173,5 +173,6 @@ JNIEXPORT void JNICALL Java_com_kitware_JavaVTK_JavaVTKLib_onMotionEvent(JNIEnv 
   env->ReleaseFloatArrayElements(xPos, xJPtr, 0);
   env->ReleaseFloatArrayElements(yPos, yJPtr, 0);
 
+  LOGI("JNI: %d of %d while %d", eventPointer, numPtrs, action);
   foo->Interactor->HandleMotionEvent(action, eventPointer, numPtrs, xPtr, yPtr, idPtr, metaState);
 }

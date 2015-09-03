@@ -84,7 +84,7 @@ public:
 
   // Description:
   // Handle motion events
-  void HandleMotionEvent(int action, int eventPointer, int numPtrs,
+  void HandleMotionEvent(int actionType, int actionId, int numPtrs,
     int *xPtr, int *yPtr, int *idPtr, int metaState);
 
   // Description:
