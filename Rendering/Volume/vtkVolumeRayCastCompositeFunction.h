@@ -22,6 +22,7 @@
 
 // .SECTION See Also
 // vtkVolumeRayCastMapper vtkVolumeProperty vtkVolume
+// @deprecated
 
 #ifndef vtkVolumeRayCastCompositeFunction_h
 #define vtkVolumeRayCastCompositeFunction_h
@@ -29,6 +30,7 @@
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkVolumeRayCastFunction.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
 #define VTK_COMPOSITE_CLASSIFY_FIRST 0
 #define VTK_COMPOSITE_INTERPOLATE_FIRST 1
 
@@ -75,4 +77,5 @@ private:
 };
 
 
+#endif // VTK_LEGACY_REMOVE
 #endif

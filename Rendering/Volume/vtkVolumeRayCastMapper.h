@@ -19,6 +19,7 @@
 
 // .SECTION see also
 // vtkVolumeMapper
+// @deprecated
 
 #ifndef vtkVolumeRayCastMapper_h
 #define vtkVolumeRayCastMapper_h
@@ -36,10 +37,12 @@ class vtkPlaneCollection;
 class vtkRenderer;
 class vtkTimerLog;
 class vtkVolume;
-class vtkVolumeRayCastFunction;
 class vtkVolumeTransform;
 class vtkTransform;
 class vtkRayCastImageDisplayHelper;
+
+#if !defined(VTK_LEGACY_REMOVE)
+class vtkVolumeRayCastFunction;
 
 // Macro for tri-linear interpolation - do four linear interpolations on
 // edges, two linear interpolations between pairs of edges, then a final
@@ -262,6 +265,6 @@ private:
   vtkVolumeRayCastMapper(const vtkVolumeRayCastMapper&);  // Not implemented.
   void operator=(const vtkVolumeRayCastMapper&);  // Not implemented.
 };
-
+#endif // VTK_LEGACY_REMOVE
 #endif
 
