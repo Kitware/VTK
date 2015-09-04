@@ -320,6 +320,12 @@ int vtkParticleTracerBase::RequestUpdateExtent(
 
     for(int i=0; i<this->GetNumberOfInputPorts(); i++)
       {
+      vtkInformation* info = this->GetInputPortInformation(i);
+      if(info->Get(vtkAlgorithm::INPUT_IS_OPTIONAL()) &&
+         this->GetNumberOfInputConnections(i) == 0)
+        {
+        continue;
+        }
       vtkAlgorithm* inputAlgorithm = this->GetInputAlgorithm(i,0);
       vtkStreamingDemandDrivenPipeline* sddp = vtkStreamingDemandDrivenPipeline::SafeDownCast(inputAlgorithm->GetExecutive());
       if(sddp)
@@ -472,6 +478,23 @@ int vtkParticleTracerBase::InitializeInterpolator()
 
   //
   return VTK_OK;
+}
+
+//---------------------------------------------------------------------------
+std::vector<vtkDataSet*> vtkParticleTracerBase::GetSeedSources(
+  vtkInformationVector* inputVector, int vtkNotUsed(timeStep))
+{
+  int numSources = inputVector->GetNumberOfInformationObjects();
+  std::vector<vtkDataSet*> seedSources;
+  for (int idx=0; idx<numSources; ++idx)
+    {
+    if(vtkInformation *inInfo = inputVector->GetInformationObject(idx))
+      {
+      vtkDataObject* dobj   = inInfo->Get(vtkDataObject::DATA_OBJECT());
+      seedSources.push_back(vtkDataSet::SafeDownCast(dobj));
+      }
+    }
+  return seedSources;
 }
 
 //---------------------------------------------------------------------------
@@ -653,8 +676,6 @@ void vtkParticleTracerBase::AssignSeedsToProcessors(
   // Assign unique identifiers taking into account uneven distribution
   // across processes and seeds which were rejected
   this->AssignUniqueIds(localSeedPoints);
-  //
-
 }
 
 //---------------------------------------------------------------------------
@@ -776,23 +797,10 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
   output->SetVerts(this->ParticleCells);
   vtkDebugMacro(<< "Finished allocating point arrays ");
 
-///
   // How many Seed point sources are connected?
   // Copy the sources into a vector for later use
-  //
 
-  int numSources = inputVector[1]->GetNumberOfInformationObjects();
-  std::vector<vtkDataSet*> seedSources;
-  for (int idx=0; idx<numSources; ++idx)
-    {
-    vtkDataObject     *dobj   = 0;
-    vtkInformation    *inInfo = inputVector[1]->GetInformationObject(idx);
-    if (inInfo)
-      {
-      dobj   = inInfo->Get(vtkDataObject::DATA_OBJECT());
-      seedSources.push_back(vtkDataSet::SafeDownCast(dobj));
-      }
-    }
+  std::vector<vtkDataSet*> seedSources = this->GetSeedSources(inputVector[1], this->CurrentTimeStep);
 
   //
   // Setup some variables
@@ -813,6 +821,8 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
       // wipe the list and reclassify for each injection
       this->LocalSeeds.clear();
       }
+
+    this->AddRestartSeeds(inputVector);
 
     for (size_t i=0; i<seedSources.size(); i++)
       {

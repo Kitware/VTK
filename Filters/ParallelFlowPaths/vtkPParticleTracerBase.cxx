@@ -1,15 +1,15 @@
 /*=========================================================================
 
-Program:   Visualization Toolkit
-Module:    vtkParticleTracerBase.cxx
+  Program:   Visualization Toolkit
+  Module:    vtkParticleTracerBase.cxx
 
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 #include "vtkPParticleTracerBase.h"
@@ -118,8 +118,8 @@ bool vtkPParticleTracerBase::SendParticleToAnotherProcess(
       info.CurrentPosition.x[3]>(this->GetCacheDataTime(1)+eps))
     {
     vtkErrorMacro(<< "Unexpected time value in MPISendList - expected ("
-                   << this->GetCacheDataTime(0) << "-" << this->GetCacheDataTime(1) << ") got "
-                   << info.CurrentPosition.x[3]);
+                  << this->GetCacheDataTime(0) << "-" << this->GetCacheDataTime(1) << ") got "
+                  << info.CurrentPosition.x[3]);
     }
 
   if (this->MPISendList.capacity()<(this->MPISendList.size()+1))
@@ -171,7 +171,7 @@ void vtkPParticleTracerBase::AssignSeedsToProcessors(
     info.ErrorCode            = 0;
     info.PointId              = -1;
     info.TailPointId          = -1;
-  }
+    }
   //
   // Check all Seeds on all processors for classification
   //
@@ -248,14 +248,15 @@ void vtkPParticleTracerBase::AssignUniqueIds(
       this->UniqueIdCounter += recvNumParticles[i];
       }
     }
-  else {
+  else
+    {
     for (vtkIdType i=0; i<numParticles; i++)
       {
       localSeedPoints[i].UniqueParticleId =
         this->UniqueIdCounter + particleCountOffset + i;
       }
     this->UniqueIdCounter += numParticles;
-  }
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -416,6 +417,7 @@ int vtkPParticleTracerBase::RequestUpdateExtent(
     sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
                     1);
     }
+
   return Superclass::RequestUpdateExtent(request,inputVector,outputVector);
 }
 
@@ -451,7 +453,7 @@ bool vtkPParticleTracerBase::UpdateParticleListFromOtherProcesses()
     info.Current.TailPointId = info.Previous.TailPointId = this->Tail.size();
     this->Tail.push_back(info);
     this->ParticleHistories.push_back(info.Current);
-   }
+    }
 
   return particlesMoved;
 }

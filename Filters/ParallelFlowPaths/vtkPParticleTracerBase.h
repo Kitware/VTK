@@ -7,11 +7,11 @@
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-  This software is distributed WITHOUT ANY WARRANTY; without even
-  the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-  PURPOSE.  See the above copyright notice for more information.
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
 
-  =========================================================================*/
+=========================================================================*/
 // .NAME vtkParticleTracerBase - A parallel particle tracer for vector fields
 // .SECTION Description
 // vtkPParticleTracerBase is the base class for parallel filters that advect particles
@@ -70,7 +70,8 @@ protected:
                                             vtkParticleTracerBaseNamespace::ParticleInformation & previous,
                                             vtkPointData*);
 
-  // Description : Before starting the particle trace, classify
+  // Description:
+  // Before starting the particle trace, classify
   // all the injection/seed points according to which processor
   // they belong to. This saves us retesting at every injection time
   // providing 1) The volumes are static, 2) the seed points are static
@@ -112,10 +113,8 @@ protected:
   RemoteParticleVector MPISendList;
 
   RemoteParticleVector Tail; //this is to receive the "tails" of traces from other processes
- private:
+private:
   vtkPParticleTracerBase(const vtkPParticleTracerBase&);  // Not implemented.
   void operator=(const vtkPParticleTracerBase&);  // Not implemented.
-
 };
-
 #endif

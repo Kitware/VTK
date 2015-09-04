@@ -1,19 +1,19 @@
 /*=========================================================================
 
-Program:   Visualization Toolkit
-Module:    vtkPParticlePathFilter.cxx
+  Program:   Visualization Toolkit
+  Module:    vtkPParticlePathFilter.cxx
 
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 #include "vtkPParticlePathFilter.h"
-#include "vtkObjectFactory.h"
+
 #include "vtkPointData.h"
 #include "vtkCellArray.h"
 #include "vtkCharArray.h"
@@ -21,6 +21,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkNew.h"
+#include "vtkObjectFactory.h"
 #include <cassert>
 
 vtkStandardNewMacro(vtkPParticlePathFilter);
@@ -30,7 +31,6 @@ vtkPParticlePathFilter::vtkPParticlePathFilter()
   this->It.Initialize(this);
   this->SimulationTime = NULL;
   this->SimulationTimeStep = NULL;
-  this->ClearCache = false;
 }
 
 vtkPParticlePathFilter::~vtkPParticlePathFilter()
@@ -55,7 +55,6 @@ void vtkPParticlePathFilter::ResetCache()
 void vtkPParticlePathFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   Superclass::PrintSelf(os,indent);
-  os << indent << "ClearCache: " << this->ClearCache << endl;
 }
 
 int vtkPParticlePathFilter::OutputParticles(vtkPolyData* particles)
@@ -101,8 +100,9 @@ int vtkPParticlePathFilter::OutputParticles(vtkPolyData* particles)
       }
     }
 
-  this->It.OutputParticles(tailPoly.GetPointer(), this->ClearCache);
-  return this->It.OutputParticles(particles, false); // we've already cleared cache in the first call
+  this->It.OutputParticles(tailPoly.GetPointer());
+
+  return this->It.OutputParticles(particles); // we've already cleared cache in the first call
 }
 
 void vtkPParticlePathFilter::InitializeExtraPointDataArrays(vtkPointData* outputPD)
