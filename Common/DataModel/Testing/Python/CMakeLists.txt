@@ -15,4 +15,5 @@ vtk_add_test_python(
   quadricCut.py,NO_RT
   quadraticQuadDeriv.py,NO_VALID,NO_RT
   TestICPTransform.py,NO_RT
+  TestMolecule.py,NO_VALID,NO_RT
   )
