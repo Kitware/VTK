@@ -241,28 +241,32 @@ class JavaVTKView extends GLSurfaceView
         }
 
         // forward events to VTK for it to handle
-        public void onMotionEvent(MotionEvent me)
+        public void onMotionEvent(final MotionEvent me)
         {
-            int numPtrs = me.getPointerCount();
-            float [] xPos = new float[numPtrs];
-            float [] yPos = new float[numPtrs];
-            int [] ids = new int[numPtrs];
-            for (int i = 0; i < numPtrs; ++i)
-                {
-                xPos[i] = me.getX(i);
-                yPos[i] = me.getY(i);
-                ids[i] = me.getPointerId(i);
-                }
-            if (me.getActionMasked() != 2)
-                {
-                Log.w(TAG, String.format("motion action %d index %d ptrid %d numptrs %d\n",
-                    me.getActionMasked(), me.getActionIndex(), me.getPointerId(me.getActionIndex()), numPtrs));
-                }
-            JavaVTKLib.onMotionEvent(vtkContext,
-                me.getActionMasked(),
-                me.getActionIndex(),
-                numPtrs, xPos, yPos, ids,
-                me.getMetaState());
+            try {
+                int numPtrs = me.getPointerCount();
+                float [] xPos = new float[numPtrs];
+                float [] yPos = new float[numPtrs];
+                int [] ids = new int[numPtrs];
+                for (int i = 0; i < numPtrs; ++i)
+                    {
+                        ids[i] = me.getPointerId(i);
+                        xPos[i] = me.getX(i);
+                        yPos[i] = me.getY(i);
+                    }
+
+                int actionIndex = me.getActionIndex();
+                int actionMasked = me.getActionMasked();
+                int actionId = me.getPointerId(actionIndex);
+
+                JavaVTKLib.onMotionEvent(vtkContext,
+                                         actionMasked,
+                                         actionId,
+                                         numPtrs, xPos, yPos, ids,
+                                         me.getMetaState());
+            } catch (IllegalArgumentException e) {
+                Log.e(TAG, "Bogus motion event");
+            }
         }
 
         public void onSurfaceChanged(GL10 gl, int width, int height)

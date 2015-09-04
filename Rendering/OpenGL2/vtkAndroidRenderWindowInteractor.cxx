@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <assert.h>
 
 #include "vtkAndroidRenderWindowInteractor.h"
 #include "vtkEGLRenderWindow.h"
@@ -414,11 +415,9 @@ void vtkAndroidRenderWindowInteractor::HandleKeyEvent(bool down, int nChar, int 
 }
 
 void vtkAndroidRenderWindowInteractor::HandleMotionEvent(
-  int action, int eventPointer, int numPtrs,
+  int actionType, int actionId, int numPtrs,
   int *xPtr, int *yPtr, int *idPtr, int metaState)
 {
-  // update positions
-  //vtkWarningMacro(<< "handling motion event for action: " << action << " with num pointers: " << numPtrs);
   for (int i = 0; i < numPtrs; ++i)
     {
     this->SetEventInformationFlipY(xPtr[i],
@@ -428,15 +427,16 @@ void vtkAndroidRenderWindowInteractor::HandleMotionEvent(
                                    0,0,0,
                                    idPtr[i]);
     }
-  this->SetPointerIndex(idPtr[eventPointer]);
-  switch(action)
+
+  this->SetPointerIndex(actionId);
+  switch(actionType)
     {
-    case AMOTION_EVENT_ACTION_DOWN:
     case AMOTION_EVENT_ACTION_POINTER_DOWN:
+    case AMOTION_EVENT_ACTION_DOWN:
       this->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
       return;
-    case AMOTION_EVENT_ACTION_UP:
     case AMOTION_EVENT_ACTION_POINTER_UP:
+    case AMOTION_EVENT_ACTION_UP:
       this->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
       return;
     case AMOTION_EVENT_ACTION_MOVE:
@@ -471,7 +471,8 @@ int32_t vtkAndroidRenderWindowInteractor::HandleInput(AInputEvent* event)
         xPtr[i] = AMotionEvent_getX(event, i);
         yPtr[i] = AMotionEvent_getY(event, i);
         }
-      this->HandleMotionEvent(action, eventPointer, numPtrs,
+      int actionId = AMotionEvent_getPointerId(event, eventPointer);
+      this->HandleMotionEvent(action, actionId, numPtrs,
         xPtr, yPtr, idPtr, metaState);
       free(xPtr);
       free(yPtr);
