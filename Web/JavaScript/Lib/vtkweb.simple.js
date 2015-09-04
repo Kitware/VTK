@@ -22,7 +22,7 @@
             vtkWeb.start( connection, function(connection) {
                 if(connection.error) {
                     alert(connection.error);
-                    window.close();
+                    close("error", connection.error);
                 } else {
                     // The process successfuly started
                     // => Just connect to the WebSocket
@@ -30,9 +30,14 @@
                 }
             }, function(msg) {
                 // No launcher found or error
-                console.log("Try to connect using the direct WS url");
-                connection.sessionURL = vtkWeb.properties.sessionURL;
-                vtkWeb.connect(connection, ready, close);
+                try {
+                  var launcherResponse = JSON.parse(msg.responseText);
+                  close("launcher error", launcherResponse);
+                } catch (err) {
+                  console.log("No launcher found.  Attempting to connect using the direct WS url.");
+                  connection.sessionURL = vtkWeb.properties.sessionURL;
+                  vtkWeb.connect(connection, ready, close);
+                }
             });
         }
     }
@@ -80,7 +85,7 @@
                 autoConnect(realConnection, ready, close);
             }).fail(function(arg){
                 alert("Unable to connect to the given session: " + connection['session']);
-                window.close();
+                close("error", "Unable to connect to the given session: " + connection['session']);
             });
         } else {
             autoConnect(connection, ready, close);
