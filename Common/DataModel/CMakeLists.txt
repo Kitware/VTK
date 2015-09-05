@@ -254,6 +254,8 @@ set_source_files_properties(
 
 set_source_files_properties(
   vtkAMRBox
+  vtkAtom
+  vtkBond
   vtkBoundingBox
   vtkCellType
   vtkDataArrayDispatcher
