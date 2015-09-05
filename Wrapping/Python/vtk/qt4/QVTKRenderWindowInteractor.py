@@ -142,16 +142,15 @@ class QVTKRenderWindowInteractor(QtGui.QWidget):
         # do special handling of some keywords:
         # stereo, rw
 
-        stereo = 0
+        try:
+            stereo = bool(kw['stereo'])
+        except KeyError:
+            stereo = False
 
-        if kw.has_key('stereo'):
-            if kw['stereo']:
-                stereo = 1
-
-        rw = None
-
-        if kw.has_key('rw'):
+        try:
             rw = kw['rw']
+        except KeyError:
+            rw = None
 
         # create qt-level widget
         QtGui.QWidget.__init__(self, parent, wflags|QtCore.Qt.MSWindowsOwnDC)
@@ -177,9 +176,9 @@ class QVTKRenderWindowInteractor(QtGui.QWidget):
             self._RenderWindow.StereoCapableWindowOn()
             self._RenderWindow.SetStereoTypeToCrystalEyes()
 
-        if kw.has_key('iren'):
+        try:
             self._Iren = kw['iren']
-        else:
+        except KeyError:
             self._Iren = vtk.vtkGenericRenderWindowInteractor()
             self._Iren.SetRenderWindow(self._RenderWindow)
 
