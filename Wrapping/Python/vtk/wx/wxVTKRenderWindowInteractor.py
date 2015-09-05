@@ -101,35 +101,38 @@ class wxVTKRenderWindowInteractor(baseClass):
         self.__RenderWhenDisabled = 0
 
         # First do special handling of some keywords:
-        # stereo, position, size, style
+        # stereo, position, size, width, height, style
 
-        stereo = 0
-
-        if kw.has_key('stereo'):
-            if kw['stereo']:
-                stereo = 1
+        try:
+            stereo = bool(kw['stereo'])
             del kw['stereo']
+        except KeyError:
+            stereo = False
 
-        elif self.USE_STEREO:
-            stereo = 1
-
-        position, size = wx.DefaultPosition, wx.DefaultSize
-
-        if kw.has_key('position'):
+        try:
             position = kw['position']
             del kw['position']
+        except KeyError:
+            position = wx.DefaultPosition
 
-        if kw.has_key('size'):
+        try:
             size = kw['size']
             del kw['size']
+        except KeyError:
+            try:
+                size = parent.GetSize()
+            except AttributeError:
+                size = wx.DefaultSize
 
         # wx.WANTS_CHARS says to give us e.g. TAB
         # wx.NO_FULL_REPAINT_ON_RESIZE cuts down resize flicker under GTK
         style = wx.WANTS_CHARS | wx.NO_FULL_REPAINT_ON_RESIZE
 
-        if kw.has_key('style'):
+        try:
             style = style | kw['style']
             del kw['style']
+        except KeyError:
+            pass
 
         # the enclosing frame must be shown under GTK or the windows
         #  don't connect together properly
@@ -323,7 +326,7 @@ class wxVTKRenderWindowInteractor(baseClass):
         try:
             d = wx.GetXDisplay()
 
-        except NameError:
+        except AttributeError:
             # wx.GetXDisplay was added by Robin Dunn in wxPython 2.6.0.1
             # if it's not available, we can't pass it.  In general,
             # things will still work; on some setups, it'll break.
@@ -367,7 +370,7 @@ class wxVTKRenderWindowInteractor(baseClass):
         dc = wx.PaintDC(self)
 
         # make sure the RenderWindow is sized correctly
-        self._Iren.GetRenderWindow().SetSize(self.GetSizeTuple())
+        self._Iren.GetRenderWindow().SetSize(self.GetSize())
 
         # Tell the RenderWindow to render inside the wx.Window.
         if not self.__handle:

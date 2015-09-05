@@ -146,35 +146,36 @@ class wxVTKRenderWindow(baseClass):
         # First do special handling of some keywords:
         # stereo, position, size, width, height, style
 
-        stereo = 0
-
-        if kw.has_key('stereo'):
-            if kw['stereo']:
-                stereo = 1
+        try:
+            stereo = bool(kw['stereo'])
             del kw['stereo']
-
-        position = wx.DefaultPosition
-
-        if kw.has_key('position'):
-            position = kw['position']
-            del kw['position']
+        except KeyError:
+            stereo = False
 
         try:
-            size = parent.GetSize()
-        except AttributeError:
-            size = wx.DefaultSize
+            position = kw['position']
+            del kw['position']
+        except KeyError:
+            position = wx.DefaultPosition
 
-        if kw.has_key('size'):
+        try:
             size = kw['size']
             del kw['size']
+        except KeyError:
+            try:
+                size = parent.GetSize()
+            except AttributeError:
+                size = wx.DefaultSize
 
         # wx.WANTS_CHARS says to give us e.g. TAB
         # wx.NO_FULL_REPAINT_ON_RESIZE cuts down resize flicker under GTK
         style = wx.WANTS_CHARS | wx.NO_FULL_REPAINT_ON_RESIZE
 
-        if kw.has_key('style'):
+        try:
             style = style | kw['style']
             del kw['style']
+        except KeyError:
+            pass
 
         # the enclosing frame must be shown under GTK or the windows
         #  don't connect together properly

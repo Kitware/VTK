@@ -28,14 +28,18 @@ Changes by Phil Thompson, Mar. 2008
 
 Changes by Rodrigo Mologni, Sep. 2013 (Credit to Daniele Esposti)
  Bug fix to PySide: Converts PyCObject to void pointer.
-"""
 
+Changes by Greg Schussman, Aug. 2014
+ The keyPressEvent function now passes keysym instead of None.
+"""
 
 try:
     from PyQt4 import QtCore, QtGui
+    from PyQt4.QtCore import Qt
 except ImportError:
     try:
         from PySide import QtCore, QtGui
+        from PySide.QtCore import Qt
     except ImportError:
         raise ImportError("Cannot load either PyQt or PySide")
 
@@ -138,16 +142,15 @@ class QVTKRenderWindowInteractor(QtGui.QWidget):
         # do special handling of some keywords:
         # stereo, rw
 
-        stereo = 0
+        try:
+            stereo = bool(kw['stereo'])
+        except KeyError:
+            stereo = False
 
-        if kw.has_key('stereo'):
-            if kw['stereo']:
-                stereo = 1
-
-        rw = None
-
-        if kw.has_key('rw'):
+        try:
             rw = kw['rw']
+        except KeyError:
+            rw = None
 
         # create qt-level widget
         QtGui.QWidget.__init__(self, parent, wflags|QtCore.Qt.MSWindowsOwnDC)
@@ -173,9 +176,9 @@ class QVTKRenderWindowInteractor(QtGui.QWidget):
             self._RenderWindow.StereoCapableWindowOn()
             self._RenderWindow.SetStereoTypeToCrystalEyes()
 
-        if kw.has_key('iren'):
+        try:
             self._Iren = kw['iren']
-        else:
+        except KeyError:
             self._Iren = vtk.vtkGenericRenderWindowInteractor()
             self._Iren.SetRenderWindow(self._RenderWindow)
 
@@ -339,8 +342,12 @@ class QVTKRenderWindowInteractor(QtGui.QWidget):
         else:
             key = chr(0)
 
+        keySym = _qt_key_to_key_sym(ev.key())
+        if shift and len(keySym) == 1 and keySym.isalpha():
+            keySym = keySym.upper()
+
         self._Iren.SetEventInformationFlipY(self.__saveX, self.__saveY,
-                                            ctrl, shift, key, 0, None)
+                                            ctrl, shift, key, 0, keySym)
         self._Iren.KeyPressEvent()
         self._Iren.CharEvent()
 
@@ -399,6 +406,115 @@ def QVTKRenderWidgetConeExample():
     widget.show()
     # start event processing
     app.exec_()
+
+
+_keysyms = {
+    Qt.Key_Backspace: 'BackSpace',
+    Qt.Key_Tab: 'Tab',
+    Qt.Key_Backtab: 'Tab',
+    # Qt.Key_Clear : 'Clear',
+    Qt.Key_Return: 'Return',
+    Qt.Key_Enter: 'Return',
+    Qt.Key_Shift: 'Shift_L',
+    Qt.Key_Control: 'Control_L',
+    Qt.Key_Alt: 'Alt_L',
+    Qt.Key_Pause: 'Pause',
+    Qt.Key_CapsLock: 'Caps_Lock',
+    Qt.Key_Escape: 'Escape',
+    Qt.Key_Space: 'space',
+    # Qt.Key_Prior : 'Prior',
+    # Qt.Key_Next : 'Next',
+    Qt.Key_End: 'End',
+    Qt.Key_Home: 'Home',
+    Qt.Key_Left: 'Left',
+    Qt.Key_Up: 'Up',
+    Qt.Key_Right: 'Right',
+    Qt.Key_Down: 'Down',
+    Qt.Key_SysReq: 'Snapshot',
+    Qt.Key_Insert: 'Insert',
+    Qt.Key_Delete: 'Delete',
+    Qt.Key_Help: 'Help',
+    Qt.Key_0: '0',
+    Qt.Key_1: '1',
+    Qt.Key_2: '2',
+    Qt.Key_3: '3',
+    Qt.Key_4: '4',
+    Qt.Key_5: '5',
+    Qt.Key_6: '6',
+    Qt.Key_7: '7',
+    Qt.Key_8: '8',
+    Qt.Key_9: '9',
+    Qt.Key_A: 'a',
+    Qt.Key_B: 'b',
+    Qt.Key_C: 'c',
+    Qt.Key_D: 'd',
+    Qt.Key_E: 'e',
+    Qt.Key_F: 'f',
+    Qt.Key_G: 'g',
+    Qt.Key_H: 'h',
+    Qt.Key_I: 'i',
+    Qt.Key_J: 'j',
+    Qt.Key_K: 'k',
+    Qt.Key_L: 'l',
+    Qt.Key_M: 'm',
+    Qt.Key_N: 'n',
+    Qt.Key_O: 'o',
+    Qt.Key_P: 'p',
+    Qt.Key_Q: 'q',
+    Qt.Key_R: 'r',
+    Qt.Key_S: 's',
+    Qt.Key_T: 't',
+    Qt.Key_U: 'u',
+    Qt.Key_V: 'v',
+    Qt.Key_W: 'w',
+    Qt.Key_X: 'x',
+    Qt.Key_Y: 'y',
+    Qt.Key_Z: 'z',
+    Qt.Key_Asterisk: 'asterisk',
+    Qt.Key_Plus: 'plus',
+    Qt.Key_Minus: 'minus',
+    Qt.Key_Period: 'period',
+    Qt.Key_Slash: 'slash',
+    Qt.Key_F1: 'F1',
+    Qt.Key_F2: 'F2',
+    Qt.Key_F3: 'F3',
+    Qt.Key_F4: 'F4',
+    Qt.Key_F5: 'F5',
+    Qt.Key_F6: 'F6',
+    Qt.Key_F7: 'F7',
+    Qt.Key_F8: 'F8',
+    Qt.Key_F9: 'F9',
+    Qt.Key_F10: 'F10',
+    Qt.Key_F11: 'F11',
+    Qt.Key_F12: 'F12',
+    Qt.Key_F13: 'F13',
+    Qt.Key_F14: 'F14',
+    Qt.Key_F15: 'F15',
+    Qt.Key_F16: 'F16',
+    Qt.Key_F17: 'F17',
+    Qt.Key_F18: 'F18',
+    Qt.Key_F19: 'F19',
+    Qt.Key_F20: 'F20',
+    Qt.Key_F21: 'F21',
+    Qt.Key_F22: 'F22',
+    Qt.Key_F23: 'F23',
+    Qt.Key_F24: 'F24',
+    Qt.Key_NumLock: 'Num_Lock',
+    Qt.Key_ScrollLock: 'Scroll_Lock',
+    }
+
+def _qt_key_to_key_sym(key):
+    """ Convert a Qt key into a vtk keysym.
+
+    This is essentially copied from the c++ implementation in
+    GUISupport/Qt/QVTKInteractorAdapter.cxx.
+    """
+
+    if key not in _keysyms:
+        return None
+
+    return _keysyms[key]
+
 
 if __name__ == "__main__":
     QVTKRenderWidgetConeExample()
