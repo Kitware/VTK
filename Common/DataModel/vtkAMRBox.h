@@ -44,12 +44,6 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAMRBox
       int ilo,int jlo,int klo,
       int ihi,int jhi,int khi);
 
-  // Description:
-  // Construct a specific 2D box in the XY plane.
-  vtkAMRBox(
-      int ilo,int jlo,
-      int ihi,int jhi);
-
   // Description
   // Construct an AMR box from the description a vtkUniformGrid
   // Note that the dimensions specify the node dimensions, rather than the cell dimensions
