@@ -279,6 +279,8 @@ set_source_files_properties(
   )
 
 set_source_files_properties(
+  vtkAtom
+  vtkBond
   vtkCellType.h
   vtkBoundingBox.cxx
   vtkColor.h
