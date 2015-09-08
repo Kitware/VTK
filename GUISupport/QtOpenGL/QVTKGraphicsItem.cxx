@@ -18,7 +18,7 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#ifdef VTKGL2
+#ifdef VTK_OPENGL2
 #include "vtk_glew.h"
 #endif
 
@@ -31,7 +31,7 @@
 #include "QVTKInteractorAdapter.h"
 #include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkEventQtSlotConnect.h"
-#ifndef VTKGL2
+#ifndef VTK_OPENGL2
 #include "vtkgl.h"
 #endif
 #include "vtkOpenGLError.h"
@@ -83,7 +83,7 @@ void QVTKGraphicsItem::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
   {
     mWin->SetMapped(1);
     mWin->SetDoubleBuffer(0);
-#ifdef VTKGL2
+#ifdef VTK_OPENGL2
     mWin->SetFrontBuffer(GL_COLOR_ATTACHMENT0);
     mWin->SetFrontLeftBuffer(GL_COLOR_ATTACHMENT0);
     mWin->SetBackBuffer(GL_COLOR_ATTACHMENT0);

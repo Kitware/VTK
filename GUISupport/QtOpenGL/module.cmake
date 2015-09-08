@@ -8,5 +8,7 @@ vtk_module(vtkGUISupportQtOpenGL
     vtkRendering${VTK_RENDERING_BACKEND}
   TEST_DEPENDS
     vtkTestingCore
+    vtkTestingRendering
+    vtkFiltersSources
   EXCLUDE_FROM_WRAPPING
   )
