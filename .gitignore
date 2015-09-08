@@ -1,2 +1,7 @@
 # Do not add ExternalData module staging files
 .ExternalData*
+
+# Exclude compiled Python objects.
+*.pyc
+*.pyo
+__pycache__/
