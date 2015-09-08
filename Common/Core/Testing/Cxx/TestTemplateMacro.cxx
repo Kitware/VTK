@@ -32,7 +32,6 @@ static bool RunTemplate2Macro1(int tIn, void* pIn,
     default:
       // Unknown input or output VTK type id.
       return false;
-      break;
     }
   return true;
 }
@@ -53,7 +52,6 @@ static bool RunTemplate2Macro2(int tIn, void* pIn,
     default:
       // Unknown input or output VTK type id.
       return false;
-      break;
     }
   return true;
 }
