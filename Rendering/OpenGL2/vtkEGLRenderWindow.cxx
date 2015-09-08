@@ -18,7 +18,7 @@
 
 #include "vtkToolkits.h"
 
-#ifdef VTK_OPENGL_HAS_OSMESA
+#ifdef VTK_USE_OSMESA
 #include <GL/osmesa.h>
 #endif
 

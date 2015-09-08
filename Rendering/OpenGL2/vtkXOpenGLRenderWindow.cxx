@@ -32,7 +32,7 @@ typedef ptrdiff_t GLsizeiptr;
 
 #include "vtkToolkits.h"
 
-#ifdef VTK_OPENGL_HAS_OSMESA
+#ifdef VTK_USE_OSMESA
 #include <GL/osmesa.h>
 #endif
 
@@ -82,7 +82,7 @@ private:
   int ScreenDoubleBuffer;
   int ScreenMapped;
 
-#if defined( VTK_OPENGL_HAS_OSMESA )
+#if defined( VTK_USE_OSMESA )
   // OffScreen stuff
   OSMesaContext OffScreenContextId;
   void *OffScreenWindow;
@@ -104,7 +104,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
   this->ScreenDoubleBuffer = rw->GetDoubleBuffer();
 
   // OpenGL specific
-#ifdef VTK_OPENGL_HAS_OSMESA
+#ifdef VTK_USE_OSMESA
   this->OffScreenContextId = NULL;
   this->OffScreenWindow = NULL;
 #endif
@@ -114,7 +114,7 @@ vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 
 #define MAX_LIGHTS 8
 
-#ifdef VTK_OPENGL_HAS_OSMESA
+#ifdef VTK_USE_OSMESA
 // a couple of routines for offscreen rendering
 void vtkOSMesaDestroyWindow(void *Window)
 {
@@ -405,7 +405,7 @@ void vtkXOpenGLRenderWindow::SetStereoCapableWindow(int capable)
 {
   if (!this->Internal->ContextId && !this->Internal->PixmapContextId
       && !this->Internal->PbufferContextId
-#if defined( VTK_OPENGL_HAS_OSMESA )
+#if defined( VTK_USE_OSMESA )
       && !this->Internal->OffScreenContextId
 #endif
     )
@@ -744,7 +744,7 @@ void vtkXOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
   this->DoubleBuffer = 0;
 
   // always prefer OSMESA if we built with it
-#ifdef VTK_OPENGL_HAS_OSMESA
+#ifdef VTK_USE_OSMESA
   if(1)
     {
     if (!this->Internal->OffScreenWindow)
@@ -886,7 +886,7 @@ void vtkXOpenGLRenderWindow::DestroyOffScreenWindow()
     }
 
 
-#ifdef VTK_OPENGL_HAS_OSMESA
+#ifdef VTK_USE_OSMESA
   if (this->Internal->OffScreenContextId)
     {
     OSMesaDestroyContext(this->Internal->OffScreenContextId);
@@ -931,7 +931,7 @@ void vtkXOpenGLRenderWindow::ResizeOffScreenWindow(int width, int height)
 
   // Generally, we simply destroy and recreate the offscreen window/contexts.
   // However, that's totally unnecessary for OSMesa. So we avoid that.
-#ifdef VTK_OPENGL_HAS_OSMESA
+#ifdef VTK_USE_OSMESA
   if (this->Internal->OffScreenContextId && this->Internal->OffScreenWindow)
     {
     vtkOSMesaDestroyWindow(this->Internal->OffScreenWindow);
@@ -987,7 +987,7 @@ void vtkXOpenGLRenderWindow::Initialize (void)
   else if(this->OffScreenRendering &&
           ! (this->Internal->PixmapContextId ||
              this->Internal->PbufferContextId
-#ifdef VTK_OPENGL_HAS_OSMESA
+#ifdef VTK_USE_OSMESA
              || this->Internal->OffScreenContextId
 #endif
              || this->OffScreenUseFrameBuffer
@@ -1209,7 +1209,7 @@ void vtkXOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "ContextId: " << this->Internal->ContextId << "\n";
-#ifdef VTK_OPENGL_HAS_OSMESA
+#ifdef VTK_USE_OSMESA
   os << indent << "OffScreenContextId: " << this->Internal->OffScreenContextId << "\n";
 #endif
   os << indent << "Color Map: " << this->ColorMap << "\n";
@@ -1237,7 +1237,7 @@ void vtkXOpenGLRenderWindow::MakeCurrent()
 //        XSynchronize(this->DisplayId,1);
 //      }
 //     XSetErrorHandler(vtkXError);
-#ifdef VTK_OPENGL_HAS_OSMESA
+#ifdef VTK_USE_OSMESA
 
   // set the current window
   if (this->OffScreenRendering && this->Internal->OffScreenContextId)
@@ -1292,7 +1292,7 @@ void vtkXOpenGLRenderWindow::MakeCurrent()
 bool vtkXOpenGLRenderWindow::IsCurrent()
 {
   bool result=false;
-#ifdef VTK_OPENGL_HAS_OSMESA
+#ifdef VTK_USE_OSMESA
   if(this->OffScreenRendering && this->Internal->OffScreenContextId)
     {
     result=this->Internal->OffScreenContextId==OSMesaGetCurrentContext();
@@ -1311,7 +1311,7 @@ bool vtkXOpenGLRenderWindow::IsCurrent()
           result=this->Internal->ContextId==glXGetCurrentContext();
           }
         }
-#ifdef VTK_OPENGL_HAS_OSMESA
+#ifdef VTK_USE_OSMESA
     }
 #endif
   return result;
@@ -1344,7 +1344,7 @@ extern "C"
 
 void *vtkXOpenGLRenderWindow::GetGenericContext()
 {
-#if defined(MESA) && defined(VTK_OPENGL_HAS_OSMESA)
+#if defined(VTK_USE_OSMESA)
   if (this->OffScreenRendering && this->Internal->OffScreenContextId)
     {
     return (void *)this->Internal->OffScreenContextId;
@@ -1864,7 +1864,7 @@ void vtkXOpenGLRenderWindow::SetOffScreenRendering(int i)
 // This probably has been moved to superclass.
 void *vtkXOpenGLRenderWindow::GetGenericWindowId()
 {
-#ifdef VTK_OPENGL_HAS_OSMESA
+#ifdef VTK_USE_OSMESA
   if (this->OffScreenRendering && this->Internal->OffScreenWindow)
     {
     return reinterpret_cast<void*>(this->Internal->OffScreenWindow);

@@ -26,7 +26,7 @@
 /* Rendering Configuration                                                  */
 #cmakedefine VTK_USE_X
 #define VTK_USE_OPENGL_LIBRARY
-#cmakedefine VTK_OPENGL_HAS_OSMESA
+#cmakedefine VTK_USE_OSMESA
 #cmakedefine VTK_USE_OFFSCREEN
 
 #define VTK_USE_GLSL_SHADERS
@@ -46,11 +46,6 @@
      (defined(VTK_USE_X) && defined(_WIN32))) && \
      !defined(VTK_USE_COCOA)
 # define VTK_USE_OGLR
-#endif
-
-#if (defined(VTK_OPENGL_HAS_OSMESA) && !defined(VTK_USE_OGLR) &&  \
-    !defined(_WIN32) && !defined(VTK_USE_COCOA))
-# define VTK_USE_OSMESA
 #endif
 
 #endif

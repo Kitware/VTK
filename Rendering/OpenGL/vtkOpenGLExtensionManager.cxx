@@ -47,7 +47,7 @@ extern "C" vtkglX::__GLXextFuncPtr glXGetProcAddressARB(const GLubyte *);
 #include <dlfcn.h>
 #endif //VTK_USE_APPLE_LOADER
 
-#ifdef VTK_OPENGL_HAS_OSMESA
+#ifdef VTK_USE_OSMESA
 # include <GL/osmesa.h>
 #endif
 
@@ -720,7 +720,7 @@ vtkOpenGLExtensionManager::GetProcAddress(const char *fname)
   return NULL;
 #endif //VTK_USE_VTK_DYNAMIC_LOADER
 
-#ifdef VTK_OPENGL_HAS_OSMESA
+#ifdef VTK_USE_OSMESA
   return static_cast<vtkOpenGLExtensionManagerFunctionPointer>(
       OSMesaGetProcAddress(fname));
 #endif
