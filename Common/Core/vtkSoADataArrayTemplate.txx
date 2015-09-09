@@ -76,8 +76,10 @@ vtkArrayIterator* vtkSoADataArrayTemplate<ValueType>::NewIterator()
 
 //-----------------------------------------------------------------------------
 template<class ValueType>
-void vtkSoADataArrayTemplate<ValueType>::SetArray(
-  int comp, ValueType* array, vtkIdType size, bool save, int deleteMethod)
+void vtkSoADataArrayTemplate<ValueType>::SetArray(int comp, ValueType* array,
+                                                  vtkIdType size,
+                                                  bool updateMaxId,
+                                                  bool save, int deleteMethod)
 {
   const int numComps = this->GetNumberOfComponents();
   if (comp >= numComps || comp < 0)
@@ -88,8 +90,12 @@ void vtkSoADataArrayTemplate<ValueType>::SetArray(
     }
 
   this->Data[comp].SetBuffer(array, size, save, deleteMethod);
+  if (updateMaxId)
+    {
+    this->Size = numComps * size;
+    this->MaxId = this->Size - 1;
+    }
   this->DataChanged();
-  // FIXME: Should we update MaxId like vtkDataArrayTemplate does? If so, how?
 }
 
 //-----------------------------------------------------------------------------

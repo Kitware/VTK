@@ -96,9 +96,12 @@ public:
   // needed it will simply allow new memory buffers and "forget" the supplied
   // pointers. When save is set to false, this will be the \c deleteMethod
   // specified to release the array.
+  // If updateMaxId is true, the array's MaxId will be updated, and assumes
+  // that size is the number of tuples in the array.
   // \c size is specified in number of elements of ScalarType.
   void SetArray(int comp, ValueType* array, vtkIdType size,
-    bool save=false, int deleteMethod=VTK_DATA_ARRAY_FREE);
+                bool updateMaxId = false, bool save=false,
+                int deleteMethod=VTK_DATA_ARRAY_FREE);
 
   // Description:
   // Return a pointer to a contiguous block of memory containing all values for
