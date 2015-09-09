@@ -408,10 +408,6 @@ void vtkImageProbeFilter::ProbeEmptyPoints(vtkDataSet *input_,
     }
   }
 
-  if (mcs>256)
-    {
-    delete [] weights;
-    }
 }
 
 //----------------------------------------------------------------------------
