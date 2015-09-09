@@ -63,7 +63,7 @@ private:
   vtkXOpenGLRenderWindowInternal(vtkRenderWindow*);
 
   GLXContext ContextId;
-  GLXFBConfig *FBConfig;
+  GLXFBConfig FBConfig;
 
   // so we basically have 4 methods here for handling drawables
   // how about abstracting this a bit?
@@ -93,6 +93,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
   vtkRenderWindow *rw)
 {
   this->ContextId = NULL;
+  this->FBConfig = None;
 
   this->PixmapContextId = NULL;
   this->PixmapWindowId = 0;
@@ -127,13 +128,13 @@ void *vtkOSMesaCreateWindow(int width, int height)
 }
 #endif
 
-GLXFBConfig* vtkXOpenGLRenderWindowTryForFBConfig(Display *DisplayId,
-                                                          int drawable_type,
-                                                          int doublebuff,
-                                                          int stereo,
-                                                          int multisamples,
-                                                          int alphaBitPlanes,
-                                                          int stencil)
+GLXFBConfig vtkXOpenGLRenderWindowTryForFBConfig(Display *DisplayId,
+                                                  int drawable_type,
+                                                  int doublebuff,
+                                                  int stereo,
+                                                  int multisamples,
+                                                  int alphaBitPlanes,
+                                                  int stencil)
 {
   int           index;
   static int    attributes[50];
@@ -187,7 +188,13 @@ GLXFBConfig* vtkXOpenGLRenderWindowTryForFBConfig(Display *DisplayId,
   int tmp;
   GLXFBConfig* fb = glXChooseFBConfig(DisplayId, XDefaultScreen(DisplayId),
                                       attributes, &tmp);
-  return fb;
+  if (tmp > 0)
+    {
+    GLXFBConfig result = fb[0];
+    XFree(fb);
+    return result;
+    }
+  return None;
 }
 
 XVisualInfo *vtkXOpenGLRenderWindowTryForVisual(Display *DisplayId,
@@ -196,20 +203,19 @@ XVisualInfo *vtkXOpenGLRenderWindowTryForVisual(Display *DisplayId,
                                                 int alphaBitPlanes,
                                                 int stencil)
 {
-  GLXFBConfig *fbc = vtkXOpenGLRenderWindowTryForFBConfig(DisplayId,
+  GLXFBConfig fbc = vtkXOpenGLRenderWindowTryForFBConfig(DisplayId,
        GLX_WINDOW_BIT,
        doublebuff,
        stereo, multisamples,
        alphaBitPlanes,
        stencil);
 
-  XVisualInfo *v = glXGetVisualFromFBConfig( DisplayId, fbc[0]);
-  XFree (fbc);
+  XVisualInfo *v = glXGetVisualFromFBConfig( DisplayId, fbc);
 
   return v;
 }
 
-GLXFBConfig *vtkXOpenGLRenderWindowGetDesiredFBConfig(
+GLXFBConfig vtkXOpenGLRenderWindowGetDesiredFBConfig(
   Display *DisplayId,
   int &win_stereo,
   int &win_multisamples,
@@ -218,7 +224,7 @@ GLXFBConfig *vtkXOpenGLRenderWindowGetDesiredFBConfig(
   int drawable_type,
   int &stencil)
 {
-  GLXFBConfig   *fbc = NULL;
+  GLXFBConfig   fbc = None;
   int           multi;
   int           stereo = 0;
 
@@ -227,10 +233,6 @@ GLXFBConfig *vtkXOpenGLRenderWindowGetDesiredFBConfig(
     {
     for (multi = win_multisamples; !fbc && multi >= 0; multi--)
       {
-      if (fbc)
-        {
-        XFree(fbc);
-        }
       fbc = vtkXOpenGLRenderWindowTryForFBConfig(DisplayId,
                                                  drawable_type,
                                                  win_doublebuffer,
@@ -248,10 +250,6 @@ GLXFBConfig *vtkXOpenGLRenderWindowGetDesiredFBConfig(
     {
     for (multi = win_multisamples; !fbc && multi >= 0; multi--)
       {
-      if (fbc)
-        {
-        XFree(fbc);
-        }
       fbc = vtkXOpenGLRenderWindowTryForFBConfig(DisplayId,
                                                  drawable_type,
                                                  !win_doublebuffer,
@@ -308,7 +306,7 @@ XVisualInfo *vtkXOpenGLRenderWindow::GetDesiredVisualInfo()
   else
     {
     v = glXGetVisualFromFBConfig( this->DisplayId,
-      this->Internal->FBConfig[0]);
+      this->Internal->FBConfig);
     if (!v)
       {
       vtkErrorMacro(<< "Could not find a decent visual\n");
@@ -514,6 +512,25 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
     matcher.screen = XDefaultScreen(DisplayId);
     v = XGetVisualInfo(this->DisplayId, VisualIDMask | VisualScreenMask,
                        &matcher, &nItems);
+
+    // if FBConfig is not set, try to find it based on the window
+    if (!this->Internal->FBConfig)
+      {
+      int fbcount = 0;
+      GLXFBConfig* fbc =
+        glXGetFBConfigs(this->DisplayId, matcher.screen, &fbcount);
+      int i;
+      for (i=0; i<fbcount; ++i)
+        {
+        XVisualInfo *vi = glXGetVisualFromFBConfig( this->DisplayId, fbc[i] );
+        if ( vi && vi->visualid == matcher.visualid)
+          {
+          this->Internal->FBConfig = fbc[i];
+          }
+        }
+      XFree(fbc);
+      }
+
     }
 
   if (this->OwnWindow)
@@ -564,7 +581,7 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
       {
       this->Internal->ContextId =
         glXCreateContextAttribsARB( this->DisplayId,
-          this->Internal->FBConfig[0], 0,
+          this->Internal->FBConfig, 0,
           GL_TRUE, context_attribs );
 
       // Sync to ensure any errors generated are processed.
@@ -781,7 +798,7 @@ void vtkXOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
       if(!this->Internal->PbufferContextId)
         {
         // get FBConfig
-        GLXFBConfig* fb = vtkXOpenGLRenderWindowGetDesiredFBConfig(
+        GLXFBConfig fb = vtkXOpenGLRenderWindowGetDesiredFBConfig(
           this->DisplayId,this->StereoCapableWindow, this->MultiSamples,
           this->DoubleBuffer,this->AlphaBitPlanes, GLX_PBUFFER_BIT,
           this->StencilCapable);
@@ -806,7 +823,7 @@ void vtkXOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
           {
           this->Internal->PbufferContextId =
             glXCreateContextAttribsARB( this->DisplayId,
-              fb[0], 0,
+              fb, 0,
               GL_TRUE, context_attribs );
 
           // Sync to ensure any errors generated are processed.
@@ -821,7 +838,7 @@ void vtkXOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
         if (this->Internal->PbufferContextId == NULL)
           {
           this->Internal->PbufferContextId =
-            glXCreateNewContext(this->DisplayId, fb[0],
+            glXCreateNewContext(this->DisplayId, fb,
                                      GLX_RGBA_TYPE, NULL, true);
             }
           int atts [] =
@@ -831,12 +848,11 @@ void vtkXOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
               0
             };
           this->Internal->Pbuffer = glXCreatePbuffer(this->DisplayId,
-                                                          fb[0], atts);
+                                                          fb, atts);
           glXMakeContextCurrent( this->DisplayId,
                                       this->Internal->Pbuffer,
                                       this->Internal->Pbuffer,
                                       this->Internal->PbufferContextId );
-          XFree(fb);
           XSetErrorHandler(previousHandler);
           // failed to allocate Pbuffer, clean up
           if(PbufferAllocFail)
