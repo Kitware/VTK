@@ -144,12 +144,6 @@ protected:
     vtkInformationVector *);
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
     vtkInformationVector *);
-#if 0
-  virtual int RequestDataObject(
-    vtkInformation*,
-    vtkInformationVector** inputVector ,
-    vtkInformationVector* outputVector);
-#endif
 
   // Description:
   // Call at end of RequestData() to pass attribute data respecting the

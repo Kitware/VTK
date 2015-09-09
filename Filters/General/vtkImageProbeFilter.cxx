@@ -285,6 +285,7 @@ void vtkImageProbeFilter::ProbeEmptyPoints(vtkDataSet *input_,
   int subId;
   double pcoords[3], *weights;
   double fastweights[256];
+  std::vector<double> dynamicweights;
 
   vtkImageData *input= vtkImageData::SafeDownCast(input_);
   vtkImageData *output=vtkImageData::SafeDownCast(output_);
@@ -307,7 +308,8 @@ void vtkImageProbeFilter::ProbeEmptyPoints(vtkDataSet *input_,
     }
   else
     {
-    weights = new double[mcs];
+    dynamicweights.resize(mcs);
+    weights = &dynamicweights[0];
     }
 
   numPts = input->GetNumberOfPoints();
@@ -345,9 +347,6 @@ void vtkImageProbeFilter::ProbeEmptyPoints(vtkDataSet *input_,
 
     vtkCell * cell = source->GetCell(cellId);
 
-    //for (int i=0; i<4; i++)
-    //  printf("Cell points: %lf %lf %lf\n", cell->GetPoints()->GetPoint(i)[0], cell->GetPoints()->GetPoint(i)[1], cell->GetPoints()->GetPoint(i)[2]);
-
     // get coordinates of sampling grids
     double bounds[6] ;    cell->GetBounds(bounds);
     int nidx, nidy, nidz, minidx, minidy, minidz;
@@ -377,6 +376,10 @@ void vtkImageProbeFilter::ProbeEmptyPoints(vtkDataSet *input_,
           double closestPoint[3];
           double dist2;
           int inside = cell->EvaluatePosition(p, closestPoint, subId, pcoords, dist2, weights);
+
+          // Ensure the point really falls in the cell. Prevents extrapolation.
+          for (int k=0; k<cell->GetNumberOfPoints(); k++)
+            if (weights[k]<0) {inside=0; break;}
 
           if (inside && (dist2==0)) // ensure it's inside the cell
           {
