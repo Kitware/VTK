@@ -306,7 +306,8 @@ if(APPLE)
     CMAKE_OSX_SYSROOT
     )
 
-  if (CMAKE_OSX_DEPLOYMENT_TARGET AND CMAKE_OSX_DEPLOYMENT_TARGET VERSION_LESS 10.6)
+  if (CMAKE_OSX_DEPLOYMENT_TARGET AND
+      CMAKE_OSX_DEPLOYMENT_TARGET VERSION_LESS 10.6)
     message(FATAL_ERROR "Minimun OS X deployment target is 10.6, please update CMAKE_OSX_DEPLOYMENT_TARGET.")
   endif ()
 endif()
@@ -316,6 +317,34 @@ endif()
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND
     CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.2)
   message(FATAL_ERROR "GCC 4.2 or later is required.")
+endif ()
+
+#-----------------------------------------------------------------------------
+# Minimum compiler version check: LLVM Clang >= 2.8
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND
+    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 2.8)
+  message(FATAL_ERROR "LLVM Clang 2.8 or later is required.")
+endif ()
+
+#-----------------------------------------------------------------------------
+# Minimum compiler version check: Apple Clang >= 2.0 (Xcode 4.0.x)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" AND
+    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 2.0)
+  message(FATAL_ERROR "Apple Clang 2.0 or later is required.")
+endif ()
+
+#-----------------------------------------------------------------------------
+# Minimum compiler version check: Microsoft C/C++ >= 15.0 (aka VS 2008 aka VS 9.0)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" AND
+    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 15.0)
+  message(FATAL_ERROR "Microsoft Visual Studio 2008 or later is required.")
+endif ()
+
+#-----------------------------------------------------------------------------
+# Minimum compiler version check: Intel C++ (ICC) >= 10.0
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Intel" AND
+    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 10.0)
+  message(FATAL_ERROR "Intel C++ (ICC) 10.0 or later is required.")
 endif ()
 
 #-----------------------------------------------------------------------------
