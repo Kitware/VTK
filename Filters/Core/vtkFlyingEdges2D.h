@@ -25,19 +25,28 @@
 // which partial computational results can be used to eliminate future
 // computations.
 //
-// This is a three-pass algorithm. The first pass processes all x-edges and
+// This is a four-pass algorithm. The first pass processes all x-edges and
 // builds x-edge case values (which, when the two x-edges defining a pixel
 // are combined, are equivalent to vertex-based case table except edge-based
 // approaches are separable to parallel computing). Next x-pixel rows are
 // processed to gather information from y-edges (basically to count the
-// number of edge intersections and lines generated). Finally in the
-// third pass output primitives are generated into pre-allocated arrays. This
-// implementation uses pixel cell axes (a x-y dyad located at the pixel
-// origin) to ensure that each edge is intersected at most one time.
+// number of edge intersections and lines generated). In the third pass a
+// prefix sum is used to count and allocate memory for the output
+// primitives. Finally in the fourth pass output primitives are generated into
+// pre-allocated arrays. This implementation uses pixel cell axes (a x-y dyad
+// located at the pixel origin) to ensure that each edge is intersected at
+// most one time.
+//
+// See the paper "Flying Edges: A High-Performance Scalable Isocontouring
+// Algorithm" by Schroeder, Maynard, Geveci. Proc. of LDAV 2015. Chicago, IL.
 
 // .SECTION Caveats
 // This filter is specialized to 2D images. This implementation can produce
 // degenerate line segments (i.e., zero-length line segments).
+//
+// This class has been threaded with vtkSMPTools. Using TBB or other
+// non-sequential type (set in the CMake variable
+// VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
 
 // .SECTION See Also
 // vtkContourFilter vtkFlyingEdges3D vtkSynchronizedTemplates2D

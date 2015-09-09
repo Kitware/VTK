@@ -212,6 +212,7 @@ public:
       x[0] = x0[0] + t*(x1[0]-x0[0]);
       x[1] = x0[1] + t*(x1[1]-x0[1]);
       x[2] = x0[2] + t*(x1[2]-x0[2]);
+
       if ( this->NeedGradients )
         {
         float gTmp[3], g1[3];
@@ -337,10 +338,10 @@ public:
           }//for all slices in this batch
         }
     };
-  template <class TT> class Pass3
+  template <class TT> class Pass4
     {
     public:
-      Pass3(vtkFlyingEdges3DAlgorithm<TT> *algo, double value)
+      Pass4(vtkFlyingEdges3DAlgorithm<TT> *algo, double value)
         {this->Algo = algo; this->Value = value;}
       vtkFlyingEdges3DAlgorithm<TT> *Algo;
       double Value;
@@ -460,14 +461,10 @@ vtkFlyingEdges3DAlgorithm():XCases(NULL),EdgeMetaData(NULL),NewScalars(NULL),
             *edgeCase++ = numTris;
             for ( edge = triCase->edges; edge[0] > -1; edge += 3, edgeCase+=3 )
               {
-              // Build new case table. You're probably wondering why the
-              // crazy (0,2,1) edge order below. Simple: as originally
-              // presented the MC algorithm used a left-handed coordinate
-              // system, so we have to reverse the ordering of the triangle
-              // to make it consistent with any generated normals.
+              // Build new case table.
               edgeCase[0] = this->EdgeMap[edge[0]];
-              edgeCase[2] = this->EdgeMap[edge[1]];
-              edgeCase[1] = this->EdgeMap[edge[2]];
+              edgeCase[1] = this->EdgeMap[edge[1]];
+              edgeCase[2] = this->EdgeMap[edge[2]];
               }
             }
           }//x-edges
@@ -649,6 +646,7 @@ InterpolateEdge(double value, vtkIdType ijk[3],
   xPtr[0] = x0[0] + t*(x1[0]-x0[0]);
   xPtr[1] = x0[1] + t*(x1[1]-x0[1]);
   xPtr[2] = x0[2] + t*(x1[2]-x0[2]);
+
   if ( this->NeedGradients )
     {
     float gTmp[3], g0[3], g1[3];
@@ -700,6 +698,7 @@ GeneratePoints(double value, unsigned char loc, vtkIdType ijk[3],
                           g0);
     }
 
+  // Interpolate the cell axes edges
   for(int i=0; i < 3; ++i)
     {
     if(edgeUses[i*4])
@@ -708,7 +707,7 @@ GeneratePoints(double value, unsigned char loc, vtkIdType ijk[3],
       //edgesUses[4] == y axes edge
       //edgesUses[8] == z axes edge
       float x1[3] = {x[0], x[1], x[2] }; x1[i] += this->Spacing[i];
-      vtkIdType ijk1[3] = { ijk[0], ijk[1], ijk[2] }; ++ijk[i];
+      vtkIdType ijk1[3] = { ijk[0], ijk[1], ijk[2] }; ++ijk1[i];
 
       T const * const sPtr2 = (sPtr+incs[i]);
       double t = (value - *sPtr) / (*sPtr2 - *sPtr);
@@ -716,40 +715,43 @@ GeneratePoints(double value, unsigned char loc, vtkIdType ijk[3],
       }
     }
 
-  // Otherwise do more general gyrations. These are boundary situations where
-  // the voxel axes is not fully formed. These situations occur on the
-  // +x,+y,+z volume boundaries. (The other cases are handled by the default:
-  // case and are expected.)
-  switch (loc) //location is one of 27 regions in the volume
+  // On the boundary cells special work has to be done to cover the partial
+  // cell axes. These are boundary situations where the voxel axes is not
+  // fully formed. These situations occur on the +x,+y,+z volume
+  // boundaries. (The other cases fall through the default: case which is
+  // expected.)
+  //
+  // Note that loc is one of 27 regions in the volume, with (0,1,2)
+  // indicating (interior, min, max) along coordinate axes.
+  switch (loc)
     {
-    case 2: case 6: case 18:
-    case 22: case 26: //+x & +x -y & +x -z & +x -y -z +x +y -z
+    case 2: case 6: case 18: case 22: //+x
       this->InterpolateEdge(value, ijk, sPtr, incs, x, 5, edgeUses, eIds);
       this->InterpolateEdge(value, ijk, sPtr, incs, x, 9, edgeUses, eIds);
       break;
-    case 8: case 24: case 25: //+y & +y -z & +y -x -z
+    case 8: case 9: case 24: case 25: //+y
       this->InterpolateEdge(value, ijk, sPtr, incs, x, 1, edgeUses, eIds);
       this->InterpolateEdge(value, ijk, sPtr, incs, x, 10, edgeUses, eIds);
       break;
-    case 10://+x +y
+    case 32: case 33: case 36: case 37: //+z
+      this->InterpolateEdge(value, ijk, sPtr, incs, x, 2, edgeUses, eIds);
+      this->InterpolateEdge(value, ijk, sPtr, incs, x, 6, edgeUses, eIds);
+      break;
+    case 10: case 26: //+x +y
       this->InterpolateEdge(value, ijk, sPtr, incs, x, 1, edgeUses, eIds);
       this->InterpolateEdge(value, ijk, sPtr, incs, x, 5, edgeUses, eIds);
       this->InterpolateEdge(value, ijk, sPtr, incs, x, 9, edgeUses, eIds);
       this->InterpolateEdge(value, ijk, sPtr, incs, x, 10, edgeUses, eIds);
       this->InterpolateEdge(value, ijk, sPtr, incs, x, 11, edgeUses, eIds);
       break;
-    case 32: case 33: case 36: case 37: //+z & -x +z & -y +z & -x -y +z
-      this->InterpolateEdge(value, ijk, sPtr, incs, x, 2, edgeUses, eIds);
-      this->InterpolateEdge(value, ijk, sPtr, incs, x, 6, edgeUses, eIds);
-      break;
-    case 34: case 38: //+x +z & +x -y +z
+    case 34: case 38: //+x +z
       this->InterpolateEdge(value, ijk, sPtr, incs, x, 2, edgeUses, eIds);
       this->InterpolateEdge(value, ijk, sPtr, incs, x, 5, edgeUses, eIds);
       this->InterpolateEdge(value, ijk, sPtr, incs, x, 9, edgeUses, eIds);
       this->InterpolateEdge(value, ijk, sPtr, incs, x, 6, edgeUses, eIds);
       this->InterpolateEdge(value, ijk, sPtr, incs, x, 7, edgeUses, eIds);
       break;
-    case 9: case 40: case 41: //-x +y & +y +z & -x + y + z
+    case 40: case 41: //+y +z
       this->InterpolateEdge(value, ijk, sPtr, incs, x, 1, edgeUses, eIds);
       this->InterpolateEdge(value, ijk, sPtr, incs, x, 2, edgeUses, eIds);
       this->InterpolateEdge(value, ijk, sPtr, incs, x, 3, edgeUses, eIds);
@@ -767,7 +769,7 @@ GeneratePoints(double value, unsigned char loc, vtkIdType ijk[3],
       this->InterpolateEdge(value, ijk, sPtr, incs, x, 6, edgeUses, eIds);
       this->InterpolateEdge(value, ijk, sPtr, incs, x, 7, edgeUses, eIds);
       break;
-    default: //interior, or -x,-y,-z boundary
+    default: //interior, or -x,-y,-z boundaries
       return;
     }
 }
@@ -941,8 +943,9 @@ ProcessYZEdges(vtkIdType row, vtkIdType slice)
 }
 
 //----------------------------------------------------------------------------
-// PASS 3: Process the x-row cells to generate output primitives, including
-// point coordinates and triangles. This is the third pass of the algorithm.
+// PASS 4: Process the x-row cells to generate output primitives, including
+// point coordinates and triangles. This is the fourth and final pass of the
+// algorithm.
 template <class T> void vtkFlyingEdges3DAlgorithm<T>::
 GenerateOutput(double value, T* rowPtr, vtkIdType row, vtkIdType slice)
 {
@@ -975,14 +978,6 @@ GenerateOutput(double value, T* rowPtr, vtkIdType row, vtkIdType slice)
   ePtr[1] = ePtr[0] + this->Dims[0]-1;
   ePtr[2] = ePtr[0] + this->SliceOffset;
   ePtr[3] = ePtr[2] + this->Dims[0]-1;
-
-  // Update scalars along this x-row if necessary
-  vtkIdType numNewPts = eMD[1][0] - eMD[0][0];
-  if ( this->NewScalars && numNewPts > 0 )
-    {
-    T TValue = static_cast<T>(value);
-    std::fill_n(this->NewScalars+eMD[0][0], numNewPts, TValue);
-    }
 
   // Traverse all voxels in this row, those containing the contour are
   // further identified for processing, meaning generating points and
@@ -1121,7 +1116,10 @@ Contour(vtkFlyingEdges3D *self, vtkImageData *input, int extent[6],
     // independent threads can write without collisions. Once allocation is
     // complete, the volume is processed on a voxel row by row basis to
     // produce output points and triangles, and interpolate point attribute
-    // data (as necessary).
+    // data (as necessary). NOTE: This implementation is serial. It is
+    // possible to use a threaded prefix sum to make it even faster. Since
+    // this pass usually takes a small amount of time, we choose simplicity
+    // over performance.
     numOutXPts = startXPts;
     numOutYPts = startYPts;
     numOutZPts = startZPts;
@@ -1158,6 +1156,8 @@ Contour(vtkFlyingEdges3D *self, vtkImageData *input, int extent[6],
       {
       newScalars->WriteVoidPointer(0,(numOutXPts+numOutYPts+numOutZPts));
       algo.NewScalars = static_cast<T*>(newScalars->GetVoidPointer(0));
+      T TValue = static_cast<T>(value);
+      std::fill_n(algo.NewScalars, numOutXPts+numOutYPts+numOutZPts, TValue);
       }
     if (newGradients)
       {
@@ -1171,9 +1171,12 @@ Contour(vtkFlyingEdges3D *self, vtkImageData *input, int extent[6],
       }
     algo.NeedGradients = (algo.NewGradients || algo.NewNormals ? 1 : 0);
 
-    // Process voxel rows and generate output
-    Pass3<T> pass3(&algo,value);
-    vtkSMPTools::For(0,algo.Dims[2]-1, pass3);
+    // PASS 4: Fourth and final pass: Process voxel rows and generate output.
+    // Note that we are simultaneously generating triangles and interpolating
+    // points. These could be split into separate, parallel operations for
+    // maximum performance.
+    Pass4<T> pass4(&algo,value);
+    vtkSMPTools::For(0,algo.Dims[2]-1, pass4);
 
     // Handle multiple contours
     startXPts = numOutXPts;
@@ -1320,7 +1323,7 @@ int vtkFlyingEdges3D::RequestData(
     {
     newNormals = vtkFloatArray::New();
     newNormals->SetNumberOfComponents(3);
-    newNormals->SetName("Gradients");
+    newNormals->SetName("Normals");
     }
   if (this->ComputeGradients)
     {
@@ -1367,7 +1370,8 @@ int vtkFlyingEdges3D::RequestData(
 
   if (newGradients)
     {
-    output->GetPointData()->AddArray(newGradients);
+    int idx = output->GetPointData()->AddArray(newGradients);
+    output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::VECTORS);
     newGradients->Delete();
     }
 

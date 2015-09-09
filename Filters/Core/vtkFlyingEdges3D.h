@@ -25,22 +25,30 @@
 // which partial computational results can be used to eliminate future
 // computations.
 //
-// This is a three-pass algorithm. The first pass processes all x-edges and
+// This is a four-pass algorithm. The first pass processes all x-edges and
 // builds x-edge case values (which, when the four x-edges defining a voxel
 // are combined, are equivalent to vertex-based case table except edge-based
 // approaches are separable in support of parallel computing). Next x-voxel
 // rows are processed to gather information from yz-edges (basically to count
-// the number of edge intersections and triangles generated). Finally in the
-// third pass output primitives are generated into pre-allocated arrays. This
-// implementation uses voxel cell axes (a x-y-z triad located at the voxel
-// origin) to ensure that each edge is intersected at most one time. Note
-// that this implementation also reuses the VTK Marching Cubes case table,
-// although the vertex-based MC table is transformed into an edge-based
-// table.
+// the number of y-z edge intersections and triangles generated). In the third
+// pass a prefix sum is used to count and allocate memory for the output
+// primitives. Finally in the fourth pass output primitives are generated into
+// pre-allocated arrays. This implementation uses voxel cell axes (a x-y-z
+// triad located at the voxel origin) to ensure that each edge is intersected
+// at most one time. Note that this implementation also reuses the VTK
+// Marching Cubes case table, although the vertex-based MC table is
+// transformed into an edge-based table on object instantiation.
+//
+// See the paper "Flying Edges: A High-Performance Scalable Isocontouring
+// Algorithm" by Schroeder, Maynard, Geveci. Proc. of LDAV 2015. Chicago, IL.
 
 // .SECTION Caveats
 // This filter is specialized to 3D volumes. This implementation can produce
 // degenerate triangles (i.e., zero-area triangles).
+//
+// This class has been threaded with vtkSMPTools. Using TBB or other
+// non-sequential type (set in the CMake variable
+// VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
 
 // .SECTION See Also
 // vtkContourFilter vtkFlyingEdges2D vtkSynchronizedTemplates3D

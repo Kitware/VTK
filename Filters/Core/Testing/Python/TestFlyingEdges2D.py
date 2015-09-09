@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 import vtk
 from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
@@ -47,3 +47,4 @@ iren.Initialize()
 
 renWin.Render()
 # --- end of script --
+iren.Start()

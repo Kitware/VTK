@@ -106,7 +106,7 @@ public:
   // The three passes of the algorithm.
   void ProcessXEdge(double value, T* inPtr, vtkIdType row); //PASS 1
   void ProcessYEdges(vtkIdType row); //PASS 2
-  void GenerateOutput(double value, T* inPtr, vtkIdType row); //PASS 3
+  void GenerateOutput(double value, T* inPtr, vtkIdType row); //PASS 4
 
   // Place holder for now in case fancy bit fiddling is needed later.
   void SetXEdge(unsigned char *ePtr, unsigned char edgeCase)
@@ -230,10 +230,10 @@ public:
           }//for all rows in this batch
         }
     };
-  template <class TT> class Pass3
+  template <class TT> class Pass4
     {
     public:
-      Pass3(vtkFlyingEdges2DAlgorithm<TT> *algo, double value)
+      Pass4(vtkFlyingEdges2DAlgorithm<TT> *algo, double value)
         { this->Algo = algo; this->Value = value;}
       vtkFlyingEdges2DAlgorithm<TT> *Algo;
       double Value;
@@ -525,8 +525,8 @@ ProcessYEdges(vtkIdType row)
 }
 
 //----------------------------------------------------------------------------
-// PASS 3: Process the x-row cells to generate output primitives, including
-// point coordinates and line segments. This is the third pass of the
+// PASS 4: Process the x-row cells to generate output primitives, including
+// point coordinates and line segments. This is the fourth pass of the
 // algorithm.
 template <class T> void vtkFlyingEdges2DAlgorithm<T>::
 GenerateOutput(double value, T* rowPtr, vtkIdType row)
@@ -548,14 +548,6 @@ GenerateOutput(double value, T* rowPtr, vtkIdType row)
   unsigned char *ePtr0, *ePtr1;
   ePtr0 = this->XCases + row*(this->Dims[0]-1) + xL;
   ePtr1 = ePtr0 + this->Dims[0]-1;
-
-  // Update scalars along this x-row if necessary
-  vtkIdType numNewPts = eMD1[0] - eMD0[0];
-  if ( this->NewScalars && numNewPts > 0 )
-    {
-    T TValue = static_cast<T>(value);
-    std::fill_n(this->NewScalars+eMD0[0], numNewPts, TValue);
-    }
 
   // Traverse all pixels in this row, those containing the contour are
   // further identified for processing, meaning generating points and
@@ -751,11 +743,13 @@ ContourImage(vtkFlyingEdges2D *self, T *scalars, vtkPoints *newPts,
       {
       newScalars->WriteVoidPointer(0,numOutXPts+numOutYPts);
       algo.NewScalars = static_cast<T*>(newScalars->GetVoidPointer(0));
+      T TValue = static_cast<T>(value);
+      std::fill_n(algo.NewScalars, numOutXPts+numOutYPts, TValue);
       }
 
-    // Now process each x-row and produce the output primitives.
-    Pass3<T> pass3(&algo,value);
-    vtkSMPTools::For(0,algo.Dims[1]-1, pass3);
+    // PASS 4: Now process each x-row and produce the output primitives.
+    Pass4<T> pass4(&algo,value);
+    vtkSMPTools::For(0,algo.Dims[1]-1, pass4);
 
     // Handle multiple contours
     startXPts = numOutXPts;

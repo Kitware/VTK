@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 import vtk
 from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
@@ -18,15 +18,17 @@ sphere = vtk.vtkSphere()
 sphere.SetCenter( 0.0,0.0,0.0)
 sphere.SetRadius(0.25)
 
-# iso-surface to create geometry
+# iso-surface to create geometry. This uses a very small volume to stress
+# boundary conditions in vtkFlyingEdges; i.e., we want the sphere isosurface
+# to intersect the boundary.
 sample = vtk.vtkSampleFunction()
 sample.SetImplicitFunction(sphere)
 sample.SetModelBounds(-0.5,0.5, -0.5,0.5, -0.5,0.5)
-sample.SetSampleDimensions(25,35,40)
+sample.SetSampleDimensions(3,3,3)
 
 iso = vtk.vtkFlyingEdges3D()
 iso.SetInputConnection(sample.GetOutputPort())
-iso.GenerateValues(3,-.11,.11)
+iso.SetValue(0,0.25)
 iso.ComputeNormalsOn()
 iso.ComputeGradientsOn()
 
@@ -36,7 +38,7 @@ isoMapper.ScalarVisibilityOff()
 isoActor = vtk.vtkActor()
 isoActor.SetMapper(isoMapper)
 isoActor.GetProperty().SetColor(1,1,1)
-isoActor.GetProperty().SetOpacity(0.5)
+isoActor.GetProperty().SetOpacity(1)
 
 outline = vtk.vtkOutlineFilter()
 outline.SetInputConnection(sample.GetOutputPort())
