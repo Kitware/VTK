@@ -533,6 +533,10 @@ void vtkCompositePolyDataMapper2::RenderEdges(
     {
     // First we do the triangles, update the shader, set uniforms, etc.
     this->UpdateShaders(this->TrisEdges, ren, actor);
+    if (!this->HaveWideLines(ren,actor))
+      {
+      glLineWidth(actor->GetProperty()->GetLineWidth());
+      }
     this->TrisEdges.IBO->Bind();
     std::vector<
       vtkCompositePolyDataMapper2::RenderValue>::iterator it;
