@@ -275,9 +275,9 @@ protected:
   // do we have wide lines that require special handling
   virtual bool HaveWideLines(vtkRenderer *, vtkActor *);
 
-  // values we use to determine if we need to rebuild
-  int LastLightComplexity;
-  vtkTimeStamp LightComplexityChanged;
+  // values we use to determine if we need to rebuild shaders
+  std::map<const vtkOpenGLHelper *, int> LastLightComplexity;
+  std::map<const vtkOpenGLHelper *, vtkTimeStamp> LightComplexityChanged;
 
   int LastSelectionState;
   vtkTimeStamp SelectionStateChanged;

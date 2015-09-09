@@ -70,7 +70,6 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
 {
   this->InternalColorTexture = 0;
   this->PopulateSelectionSettings = 1;
-  this->LastLightComplexity = -1;
   this->LastSelectionState = vtkHardwareSelector::MIN_KNOWN_PASS - 1;
   this->LastDepthPeeling = 0;
   this->CurrentInput = 0;
@@ -101,6 +100,13 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   this->VertexShaderCode = 0;
   this->FragmentShaderCode = 0;
   this->GeometryShaderCode = 0;
+
+  this->LastLightComplexity[&this->Points] = -1;
+  this->LastLightComplexity[&this->Lines] = -1;
+  this->LastLightComplexity[&this->Tris] = -1;
+  this->LastLightComplexity[&this->TriStrips] = -1;
+  this->LastLightComplexity[&this->TrisEdges] = -1;
+  this->LastLightComplexity[&this->TriStripsEdges] = -1;
 }
 
 
@@ -368,7 +374,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
       "uniform vec3 diffuseColorUniformBF; // intensity weighted color\n";
     }
   // add more for specular
-  if (this->LastLightComplexity)
+  if (this->LastLightComplexity[this->LastBoundBO])
     {
     colorDec +=
       "uniform vec3 specularColorUniform; // intensity weighted color\n"
@@ -381,7 +387,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
       }
     }
   // add scalar vertex coloring
-  if (this->VBO->ColorComponents != 0)
+  if (this->VBO->ColorComponents != 0 && !this->DrawingEdges)
     {
     colorDec += "varying vec4 vertexColorVSOutput;\n";
     vtkShaderProgram::Substitute(VSSource,"//VTK::Color::Dec",
@@ -411,7 +417,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
     "vec3 ambientColor;\n"
     "  vec3 diffuseColor;\n"
     "  float opacity;\n";
-  if (this->LastLightComplexity)
+  if (this->LastLightComplexity[this->LastBoundBO])
     {
     colorImpl +=
       "  vec3 specularColor;\n"
@@ -419,7 +425,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
     }
   if (actor->GetBackfaceProperty())
     {
-    if (this->LastLightComplexity)
+    if (this->LastLightComplexity[this->LastBoundBO])
       {
       colorImpl +=
         "  if (int(gl_FrontFacing) == 0) {\n"
@@ -454,7 +460,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
       "  ambientColor = ambientColorUniform;\n"
       "  diffuseColor = diffuseColorUniform;\n"
       "  opacity = opacityUniform;\n";
-    if (this->LastLightComplexity)
+    if (this->LastLightComplexity[this->LastBoundBO])
       {
       colorImpl +=
         "  specularColor = specularColorUniform;\n"
@@ -463,7 +469,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
     }
 
   // now handle scalar coloring
-  if (this->VBO->ColorComponents != 0)
+  if (this->VBO->ColorComponents != 0 && !this->DrawingEdges)
     {
     if (this->ScalarMaterialMode == VTK_MATERIALMODE_AMBIENT ||
         (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT &&
@@ -493,7 +499,9 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
   else
     {
     // are we doing scalar coloring by texture?
-    if (this->InterpolateScalarsBeforeMapping && this->ColorCoordinates)
+    if (this->InterpolateScalarsBeforeMapping &&
+        this->ColorCoordinates &&
+        !this->DrawingEdges)
       {
       if (this->ScalarMaterialMode == VTK_MATERIALMODE_AMBIENT ||
           (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT &&
@@ -655,7 +663,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
     shadowFactor = "*factors[lightNum]";
     }
 
-  switch (this->LastLightComplexity)
+  switch (this->LastLightComplexity[this->LastBoundBO])
     {
     case 0: // no lighting
       vtkShaderProgram::Substitute(FSSource,"//VTK::Light::Impl",
@@ -772,6 +780,11 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
   std::map<vtkShader::Type, vtkShader *> shaders,
   vtkRenderer *, vtkActor *actor)
 {
+  if (this->DrawingEdges)
+    {
+    return;
+    }
+
   std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
   std::string GSSource = shaders[vtkShader::Geometry]->GetSource();
   std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
@@ -1012,7 +1025,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
   std::map<vtkShader::Type, vtkShader *> shaders,
   vtkRenderer *, vtkActor *actor)
 {
-  if (this->LastLightComplexity > 0)
+  if (this->LastLightComplexity[this->LastBoundBO] > 0)
     {
     std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
     std::string GSSource = shaders[vtkShader::Geometry]->GetSource();
@@ -1136,7 +1149,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPositionVC(
   std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
 
  // do we need the vertex in the shader in View Coordinates
-  if (this->LastLightComplexity > 0)
+  if (this->LastLightComplexity[this->LastBoundBO] > 0)
     {
     vtkShaderProgram::Substitute(VSSource,
       "//VTK::PositionVC::Dec",
@@ -1304,10 +1317,10 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
       }
     }
 
-  if (this->LastLightComplexity != lightComplexity)
+  if (this->LastLightComplexity[&cellBO] != lightComplexity)
     {
-    this->LightComplexityChanged.Modified();
-    this->LastLightComplexity = lightComplexity;
+    this->LightComplexityChanged[&cellBO].Modified();
+    this->LastLightComplexity[&cellBO] = lightComplexity;
     }
 
   if (this->LastDepthPeeling !=
@@ -1328,7 +1341,7 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
       cellBO.ShaderSourceTime < this->CurrentInput->GetMTime() ||
       cellBO.ShaderSourceTime < this->SelectionStateChanged ||
       cellBO.ShaderSourceTime < this->DepthPeelingChanged ||
-      cellBO.ShaderSourceTime < this->LightComplexityChanged)
+      cellBO.ShaderSourceTime < this->LightComplexityChanged[&cellBO])
     {
     return true;
     }
@@ -1413,7 +1426,7 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
       {
       vtkErrorMacro(<< "Error setting 'vertexMC' in shader VAO.");
       }
-    if (this->VBO->NormalOffset && this->LastLightComplexity > 0)
+    if (this->VBO->NormalOffset && this->LastLightComplexity[&cellBO] > 0)
       {
       if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
                                       "normalMC", this->VBO->NormalOffset,
@@ -1422,7 +1435,7 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
         vtkErrorMacro(<< "Error setting 'normalMC' in shader VAO.");
         }
       }
-    if (this->VBO->TCoordComponents)
+    if (this->VBO->TCoordComponents && !this->DrawingEdges)
       {
       if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
                                       "tcoordMC", this->VBO->TCoordOffset,
@@ -1431,7 +1444,7 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
         vtkErrorMacro(<< "Error setting 'tcoordMC' in shader VAO.");
         }
       }
-    if (this->VBO->ColorComponents != 0)
+    if (this->VBO->ColorComponents != 0 && !this->DrawingEdges)
       {
       if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
                                       "scalarColor", this->VBO->ColorOffset,
@@ -1590,7 +1603,7 @@ void vtkOpenGLPolyDataMapper::SetLightingShaderParameters(
   vtkActor *actor)
 {
   // for unlit and headlight there are no lighting parameters
-  if (this->LastLightComplexity < 2 || this->DrawingEdges)
+  if (this->LastLightComplexity[&cellBO] < 2 || this->DrawingEdges)
     {
     return;
     }
@@ -1676,7 +1689,7 @@ void vtkOpenGLPolyDataMapper::SetLightingShaderParameters(
   program->SetUniformi("numberOfLights", numberOfLights);
 
   // we are done unless we have positional lights
-  if (this->LastLightComplexity < 3)
+  if (this->LastLightComplexity[&cellBO] < 3)
     {
     return;
     }
@@ -1800,7 +1813,7 @@ void vtkOpenGLPolyDataMapper::SetPropertyShaderParameters(vtkOpenGLHelper &cellB
   program->SetUniform3f("ambientColorUniform", ambientColor);
   program->SetUniform3f("diffuseColorUniform", diffuseColor);
   // we are done unless we have lighting
-  if (this->LastLightComplexity < 1)
+  if (this->LastLightComplexity[&cellBO] < 1)
     {
     return;
     }
@@ -1835,7 +1848,7 @@ void vtkOpenGLPolyDataMapper::SetPropertyShaderParameters(vtkOpenGLHelper &cellB
     program->SetUniform3f("ambientColorUniformBF", ambientColor);
     program->SetUniform3f("diffuseColorUniformBF", diffuseColor);
     // we are done unless we have lighting
-    if (this->LastLightComplexity < 1)
+    if (this->LastLightComplexity[&cellBO] < 1)
       {
       return;
       }
