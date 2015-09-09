@@ -20,7 +20,9 @@ set_source_files_properties(
 set_source_files_properties(
   vtkMPI
   vtkMPIUtilities
-  WRAP_EXCLUDE
+  PROPERTIES
+    WRAP_EXCLUDE 1
+    WRAP_EXCLUDE_PYTHON 1
   )
 
 # Needed for mpich 2

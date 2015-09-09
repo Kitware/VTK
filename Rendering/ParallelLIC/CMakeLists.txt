@@ -76,7 +76,11 @@ foreach(file ${shader_files})
     vtkRenderingParallelLICModule.h
     )
   list(APPEND Module_SRCS ${res})
-  set_source_files_properties(${file_we} WRAP_EXCLUDE)
+  set_source_files_properties(${file_we}
+    PROPERTIES
+      WRAP_EXCLUDE 1
+      WRAP_EXCLUDE_PYTHON 1
+    )
 endforeach()
 
 vtk_add_override(vtkLineIntegralConvolution2D vtkPLineIntegralConvolution2D)

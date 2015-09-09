@@ -62,7 +62,9 @@ set_source_files_properties(
 
 set_source_files_properties(
   vtkXMLWriterC
-  WRAP_EXCLUDE
+  PROPERTIES
+    WRAP_EXCLUDE 1
+    WRAP_EXCLUDE_PYTHON 1
   )
 
 vtk_module_library(vtkIOXML ${Module_SRCS})

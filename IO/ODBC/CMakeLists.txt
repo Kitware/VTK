@@ -6,7 +6,12 @@ set(ODBC_SRCS
   vtkIOODBC_AutoInit.cxx
   )
 
-set_source_files_properties(vtkIOODBC_AutoInit WRAP_EXCLUDE)
+set_source_files_properties(
+  vtkIOODBC_AutoInit
+  PROPERTIES
+    WRAP_EXCLUDE 1
+    WRAP_EXCLUDE_PYTHON 1
+  )
 
 include_directories(${ODBC_INCLUDE_DIRECTORIES})
 

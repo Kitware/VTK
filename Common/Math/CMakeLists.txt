@@ -21,12 +21,6 @@ set_source_files_properties(
   WRAP_EXCLUDE
   )
 
-set_source_files_properties(
-  vtkQuaternion.h
-  vtkTuple.h
-  PROPERTIES WRAP_SPECIAL 1
-  )
-
 set(
   ${vtk-module}_HDRS
   vtkQuaternion.txx

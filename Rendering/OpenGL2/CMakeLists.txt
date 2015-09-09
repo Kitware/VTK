@@ -109,6 +109,12 @@ set_source_files_properties(
   WRAP_EXCLUDE)
 
 set_source_files_properties(
+  ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
+  vtkOpenGLGlyph3DHelper
+  vtkOpenGLHelper
+  PROPERTIES WRAP_EXCLUDE_PYTHON 1)
+
+set_source_files_properties(
   vtkOpenGLRenderWindow
   vtkRenderPass
   vtkRenderState
@@ -147,7 +153,11 @@ foreach(file ${shader_files})
       --build-header VTKRENDERINGOPENGL2_EXPORT vtkRenderingOpenGL2Module.h
     )
   list(APPEND Module_SRCS ${res})
-  set_source_files_properties(${file_we} WRAP_EXCLUDE)
+  set_source_files_properties(${file_we}
+    PROPERTIES
+      WRAP_EXCLUDE 1
+      WRAP_EXCLUDE_PYTHON 1
+    )
 endforeach()
 
 if(VTK_USE_X)
@@ -249,7 +259,12 @@ elseif(VTK_USE_COCOA)
                                 vtkCocoaGLView.mm
                                 PROPERTIES COMPILE_FLAGS "${VTK_REQUIRED_OBJCXX_FLAGS}")
   endif()
-  set_source_files_properties(vtkCocoaGLView WRAP_EXCLUDE)
+  set_source_files_properties(
+    vtkCocoaGLView
+    PROPERTIES
+      WRAP_EXCLUDE 1
+      WRAP_EXCLUDE_PYTHON 1
+    )
 elseif(ANDROID)
   # Add some custom overrides
   list(APPEND vtk_module_overrides "vtkRenderWindowInteractor")

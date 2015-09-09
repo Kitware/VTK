@@ -160,6 +160,15 @@ set_source_files_properties(
   WRAP_EXCLUDE
   )
 
+set_source_files_properties(
+  vtkgl
+  vtkLightingHelper
+  vtkOpenGLState
+  vtkOpenGLGL2PSHelper
+  vtkRenderingOpenGLObjectFactory
+  PROPERTIES WRAP_EXCLUDE_PYTHON 1
+  )
+
 include(vtkOpenGL)
 
 # Configuration for vtkOpenGLExtensionManager
@@ -272,7 +281,11 @@ foreach(file ${shader_files})
     ARGS ${res} ${src} ${file_we} --build-header VTKRENDERINGOPENGL_EXPORT vtkRenderingOpenGLModule.h
     )
   list(APPEND Module_SRCS ${res})
-  set_source_files_properties(${file_we} WRAP_EXCLUDE)
+  set_source_files_properties(${file_we}
+    PROPERTIES
+      WRAP_EXCLUDE 1
+      WRAP_EXCLUDE_PYTHON 1
+    )
 endforeach()
 
 set(opengl_overrides
@@ -354,7 +367,12 @@ elseif(VTK_USE_COCOA)
                                 vtkCocoaGLView.mm
                                 PROPERTIES COMPILE_FLAGS "${VTK_REQUIRED_OBJCXX_FLAGS}")
   endif()
-  set_source_files_properties(vtkCocoaGLView WRAP_EXCLUDE)
+  set_source_files_properties(
+    vtkCocoaGLView
+    PROPERTIES
+      WRAP_EXCLUDE 1
+      WRAP_EXCLUDE_PYTHON 1
+    )
 endif()
 
 # Now to see about the GPU info list.

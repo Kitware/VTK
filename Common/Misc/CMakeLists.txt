@@ -12,10 +12,4 @@ set_source_files_properties(
   WRAP_EXCLUDE
   )
 
-set_source_files_properties(
-  vtkErrorCode.cxx
-  vtkPolygonBuilder.cxx
-  PROPERTIES WRAP_SPECIAL 1
-  )
-
 vtk_module_library(vtkCommonMisc ${Module_SRCS})

@@ -55,7 +55,11 @@ foreach(file ${shader_files})
     --build-header VTKRENDERINGLIC_EXPORT vtkRenderingLICModule.h
     )
   list(APPEND Module_SRCS ${res})
-  set_source_files_properties(${file_we} WRAP_EXCLUDE)
+  set_source_files_properties(${file_we}
+    PROPERTIES
+      WRAP_EXCLUDE 1
+      WRAP_EXCLUDE_PYTHON 1
+    )
 endforeach()
 
 vtk_module_library(${vtk-module} ${Module_SRCS})

@@ -24,6 +24,7 @@ set_source_files_properties(
   private/LSDynaMetaData
   PROPERTIES
     WRAP_EXCLUDE 1
+    WRAP_EXCLUDE_PYTHON 1
   )
 
 set_source_files_properties(
