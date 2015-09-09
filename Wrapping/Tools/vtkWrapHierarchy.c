@@ -39,6 +39,7 @@
 
 #include "vtkParse.h"
 #include "vtkParseData.h"
+#include "vtkParseExtras.h"
 #include "vtkParseMain.h"
 #include "vtkParsePreprocess.h"
 #include <stdio.h>
@@ -56,14 +57,16 @@
  */
 static char **append_unique_line(char **lines, char *line, size_t *np)
 {
-  size_t l, n;
+  size_t l, n, m;
 
   n = *np;
+  m = vtkParse_NameLength(line);
 
   /* check to make sure this line isn't a duplicate */
   for (l = 0; l < n; l++)
     {
-    if (strcmp(line, lines[l]) == 0)
+    if (vtkParse_NameLength(lines[l]) == m &&
+        strncmp(line, lines[l], m) == 0)
       {
       break;
       }
