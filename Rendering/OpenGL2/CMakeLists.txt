@@ -27,6 +27,7 @@ set(Module_SRCS
   vtkGenericCompositePolyDataMapper2.cxx
   vtkGenericOpenGLRenderWindow.cxx
   vtkImageProcessingPass.cxx
+  vtkLightingMapPass.cxx
   vtkLightsPass.cxx
   vtkOpaquePass.cxx
   vtkOpenGLActor.cxx
