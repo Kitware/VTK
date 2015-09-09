@@ -25,7 +25,7 @@
 #include <typeinfo>
 
 // TODO the dynamic_cast is needed instead of:
-// if (typeid(*array) == typeid(arrayT<scalarT>)) \
+// if (typeid(*array) == typeid(arrayT<scalarT>))
 // so that e.g. vtkFloatArray will match vtkAoSDataArrayTemplate<float>
 // Might be slower, need to find the more performant way to do this that
 // covers all usecases. Then again...this should never be called in a tight

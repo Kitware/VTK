@@ -50,7 +50,7 @@ public:
     }
   inline void GetTupleValue(vtkIdType tupleIdx, ValueType* tuple) const
     {
-    for (int cc=0; cc < this->Data.size(); cc++)
+    for (size_t cc=0; cc < this->Data.size(); cc++)
       {
       tuple[cc] = this->Data[cc].GetBuffer()[tupleIdx];
       }
@@ -69,7 +69,7 @@ public:
     }
   inline void SetTupleValue(vtkIdType tupleIdx, const ValueType* tuple)
     {
-    for (int cc=0; cc < this->Data.size(); ++cc)
+    for (size_t cc=0; cc < this->Data.size(); ++cc)
       {
       this->Data[cc].GetBuffer()[tupleIdx] = tuple[cc];
       }

@@ -43,7 +43,7 @@ vtkSoADataArrayTemplate<ValueType>::vtkSoADataArrayTemplate()
 template<class ValueType>
 vtkSoADataArrayTemplate<ValueType>::~vtkSoADataArrayTemplate()
 {
-  for (int cc=0; cc < this->Data.size(); ++cc)
+  for (size_t cc=0; cc < this->Data.size(); ++cc)
     {
     this->Data[cc].SetBuffer(NULL, 0);
     }

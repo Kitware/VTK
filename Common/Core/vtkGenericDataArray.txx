@@ -187,8 +187,7 @@ vtkGenericDataArrayT(void)::RemoveTuple(vtkIdType id)
 
   // This is a very slow implementation since it uses generic API. Subclasses
   // are encouraged to provide a faster implementation.
-  const vtkIdType len = (this->GetNumberOfTuples() - id) - 1;
-  assert(len > 0);
+  assert(((this->GetNumberOfTuples() - id) - 1) /* (length) */ > 0);
 
   int numComps = this->GetNumberOfComponents();
   vtkIdType fromTuple = id + 1;
@@ -213,7 +212,7 @@ vtkGenericDataArrayT(void)::SetVoidArray(void*, vtkIdType, int)
 }
 
 //-----------------------------------------------------------------------------
-vtkGenericDataArrayT(void*)::WriteVoidPointer(vtkIdType id, vtkIdType number)
+vtkGenericDataArrayT(void*)::WriteVoidPointer(vtkIdType, vtkIdType)
 {
   vtkErrorMacro("WriteVoidPointer is not supported by this class.");
   return NULL;
