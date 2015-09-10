@@ -368,8 +368,8 @@ void vtkWin32OutputWindow::PrintStack( void )
     SymFromAddr( process, ( DWORD64 )( stack[ i ] ), 0, symbol );
     SymGetLineFromAddr64(process, (DWORD64)stack[i], &dwDisplacement, &line);
 
-    printf( "%i: %s - 0x%0X at line %d\n",
-      frames - i - 1, symbol->Name, symbol->Address, line.LineNumber );
+    printf( "%i: %s at line %d\n",
+      frames - i - 1, symbol->Name, line.LineNumber );
     }
 
   free( symbol );
