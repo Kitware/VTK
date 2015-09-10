@@ -490,8 +490,8 @@ void vtkSphereRepresentation::SetHandlePosition(double handle[3])
     this->HandleDirection[0] = handle[0] - c[0];
     this->HandleDirection[1] = handle[1] - c[1];
     this->HandleDirection[2] = handle[2] - c[2];
-    double r = sqrt( static_cast<double>(
-      vtkMath::Distance2BetweenPoints(handle,c) ) );
+    double r = static_cast<double>(
+      vtkMath::Distance2BetweenPoints(handle,c) );
     this->SphereSource->SetRadius(sqrt(r));
     this->SphereSource->Update();
     this->HandleSource->Update();
