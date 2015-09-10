@@ -2508,8 +2508,6 @@ void vtkSurfaceLICMapper::ReplaceShaderValues(
  //   "  gl_FragData[2] = vec4(19.0, 19.0, tcoordVC.x, gl_FragCoord.z);\n"
     , false);
 
-  this->ShaderVariablesUsed.push_back("normalMatrix");
-
   shaders[vtkShader::Vertex]->SetSource(VSSource);
   shaders[vtkShader::Fragment]->SetSource(FSSource);
 

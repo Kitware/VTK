@@ -198,12 +198,6 @@ void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
   this->Modified();
 }
 
-bool vtkOpenGLPolyDataMapper::IsShaderVariableUsed(const char *name)
-{
-  return std::binary_search(this->ShaderVariablesUsed.begin(),
-        this->ShaderVariablesUsed.end(), name);
-}
-
 void vtkOpenGLPolyDataMapper::AddShaderReplacement(
     vtkShader::Type shaderType, // vertex, fragment, etc
     std::string originalValue,
@@ -247,7 +241,6 @@ void vtkOpenGLPolyDataMapper::BuildShaders(
     std::map<vtkShader::Type, vtkShader *> shaders,
     vtkRenderer *ren, vtkActor *actor)
 {
-  this->ShaderVariablesUsed.clear();
   this->GetShaderTemplate(shaders, ren, actor);
 
   typedef std::map<const vtkOpenGLPolyDataMapper::ReplacementSpec,
@@ -284,8 +277,6 @@ void vtkOpenGLPolyDataMapper::BuildShaders(
       shaders[i->first.ShaderType]->SetSource(ssrc);
       }
     }
-
-  std::sort(this->ShaderVariablesUsed.begin(),this->ShaderVariablesUsed.end());
 }
 
 bool vtkOpenGLPolyDataMapper::HaveWideLines(
@@ -1033,14 +1024,11 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
 
     if (this->VBO->NormalOffset)
       {
-      if (vtkShaderProgram::Substitute(VSSource,
+      vtkShaderProgram::Substitute(VSSource,
         "//VTK::Normal::Dec",
         "attribute vec3 normalMC;\n"
         "uniform mat3 normalMatrix;\n"
-        "varying vec3 normalVCVSOutput;"))
-        {
-        this->ShaderVariablesUsed.push_back("normalMatrix");
-        }
+        "varying vec3 normalVCVSOutput;");
       vtkShaderProgram::Substitute(VSSource,
         "//VTK::Normal::Impl",
         "normalVCVSOutput = normalMatrix * normalMC;");
@@ -1067,13 +1055,10 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
       {
       if (this->HaveCellNormals)
         {
-        if (vtkShaderProgram::Substitute(FSSource,
-            "//VTK::Normal::Dec",
-            "uniform mat3 normalMatrix;\n"
-            "uniform samplerBuffer textureN;\n"))
-          {
-          this->ShaderVariablesUsed.push_back("normalMatrix");
-          }
+        vtkShaderProgram::Substitute(FSSource,
+          "//VTK::Normal::Dec",
+          "uniform mat3 normalMatrix;\n"
+          "uniform samplerBuffer textureN;\n");
         vtkShaderProgram::Substitute(FSSource,
           "//VTK::Normal::Impl",
           "vec3 normalVCVSOutput = normalize(normalMatrix *\n"
@@ -1119,7 +1104,6 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
           vtkShaderProgram::Substitute(FSSource,
             "//VTK::Normal::Dec",
             "uniform int cameraParallel;");
-          this->ShaderVariablesUsed.push_back("cameraParallel");
 
           vtkShaderProgram::Substitute(FSSource,"//VTK::Normal::Impl",
             "vec3 fdx = normalize(vec3(dFdx(vertexVC.x),dFdx(vertexVC.y),dFdx(vertexVC.z)));\n"
@@ -1158,13 +1142,10 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPositionVC(
       "//VTK::PositionVC::Impl",
       "vertexVCVSOutput = MCVCMatrix * vertexMC;\n"
       "  gl_Position = MCDCMatrix * vertexMC;\n");
-    if (vtkShaderProgram::Substitute(VSSource,
-        "//VTK::Camera::Dec",
-        "uniform mat4 MCDCMatrix;\n"
-        "uniform mat4 MCVCMatrix;"))
-      {
-      this->ShaderVariablesUsed.push_back("MCVCMatrix");
-      }
+    vtkShaderProgram::Substitute(VSSource,
+      "//VTK::Camera::Dec",
+      "uniform mat4 MCDCMatrix;\n"
+      "uniform mat4 MCVCMatrix;");
     vtkShaderProgram::Substitute(GSSource,
       "//VTK::PositionVC::Dec",
       "in vec4 vertexVCVSOutput[];\n"
@@ -1750,12 +1731,12 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(vtkOpenGLHelper &cellBO,
     ((vtkOpenGLActor *)actor)->GetKeyMatrices(mcwc,anorms);
     vtkMatrix4x4::Multiply4x4(mcwc, wcdc, this->TempMatrix4);
     program->SetUniformMatrix("MCDCMatrix", this->TempMatrix4);
-    if (this->IsShaderVariableUsed("MCVCMatrix"))
+    if (program->IsUniformUsed("MCVCMatrix"))
       {
       vtkMatrix4x4::Multiply4x4(mcwc, wcvc, this->TempMatrix4);
       program->SetUniformMatrix("MCVCMatrix", this->TempMatrix4);
       }
-    if (this->IsShaderVariableUsed("normalMatrix"))
+    if (program->IsUniformUsed("normalMatrix"))
       {
       vtkMatrix3x3::Multiply3x3(anorms, norms, this->TempMatrix3);
       program->SetUniformMatrix("normalMatrix", this->TempMatrix3);
@@ -1764,17 +1745,17 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(vtkOpenGLHelper &cellBO,
   else
     {
     program->SetUniformMatrix("MCDCMatrix", wcdc);
-    if (this->IsShaderVariableUsed("MCVCMatrix"))
+    if (program->IsUniformUsed("MCVCMatrix"))
       {
       program->SetUniformMatrix("MCVCMatrix", wcvc);
       }
-    if (this->IsShaderVariableUsed("normalMatrix"))
+    if (program->IsUniformUsed("normalMatrix"))
       {
       program->SetUniformMatrix("normalMatrix", norms);
       }
     }
 
-  if (this->IsShaderVariableUsed("cameraParallel"))
+  if (program->IsUniformUsed("cameraParallel"))
     {
     program->SetUniformi("cameraParallel", cam->GetParallelProjection());
     }

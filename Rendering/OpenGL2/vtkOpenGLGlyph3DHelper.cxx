@@ -307,7 +307,6 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderNormal(
       }
     vtkShaderProgram::Substitute(VSSource, "//VTK::Normal::Impl",
       "normalVCVSOutput = normalMatrix * glyphNormalMatrix * normalMC;");
-    this->ShaderVariablesUsed.push_back("normalMatrix");
     }
 
   shaders[vtkShader::Vertex]->SetSource(VSSource);
