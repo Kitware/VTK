@@ -663,6 +663,12 @@ void vtkXdmf3DataSet::VTKToXdmfAttributes(
     for (int cc=0; cc < numArrays; cc++)
       {
       vtkDataArray *vArray = fieldData->GetArray(cc);
+      if (!vArray)
+        {
+        // We're skipping non-numerical arrays for now because
+        // we do not support their serialization in the heavy data file.
+        continue;
+        }
       std::string attrName = vArray->GetName();
       if (attrName.length() == 0)
         {

@@ -1163,7 +1163,7 @@ int vtkXdmfWriter::WriteArrays(vtkFieldData* fd, xdmf2::XdmfGrid *grid, int asso
   attributeNames.reserve(nbOfArrays);
   for (int i = 0; i < nbOfArrays; i++)
     {
-    vtkDataArray *scalars = fd->GetArray(i);
+    vtkAbstractArray *scalars = fd->GetAbstractArray(i);
     attributeNames.push_back(std::pair<int, std::string>(i, scalars->GetName()));
     }
   std::sort(attributeNames.begin(), attributeNames.end());
