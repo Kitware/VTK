@@ -373,9 +373,6 @@ public:
           this->Input->GetCellPoints(cellid, pids.GetPointer());
           cs->SetNumberOfTuples(pids->GetNumberOfIds());
           this->InScalars->GetTuples(pids.GetPointer(), cs);
-          int numCellScalars = cs->GetNumberOfComponents() *
-            cs->GetNumberOfTuples();
-          T* cellScalarPtr = static_cast<T*>(cs->GetVoidPointer(0));
 
           //Okay let's grab the cell and contour it
           numCellsContoured++;
