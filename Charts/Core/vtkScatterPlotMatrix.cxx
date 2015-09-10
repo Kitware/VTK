@@ -1125,6 +1125,12 @@ bool vtkScatterPlotMatrix::MouseButtonPressEvent(const vtkContextMouseEvent &)
 bool vtkScatterPlotMatrix::MouseButtonReleaseEvent(
     const vtkContextMouseEvent &mouse)
 {
+  // Check we are not currently already animating
+  if (this->Private->TimerCallbackInitialized)
+    {
+    return true;
+    }
+
   // Work out which scatter plot was clicked - make that one the active plot.
   vtkVector2i pos = this->GetChartIndex(mouse.GetPos());
 
