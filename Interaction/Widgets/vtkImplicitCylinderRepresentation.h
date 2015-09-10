@@ -249,7 +249,7 @@ public:
   // is expressed in world coordinates.
   void PushCylinder(double distance);
 
-//BTX - manage the state of the widget
+  // Manage the state of the widget
   enum _InteractionState
   {
     Outside=0,
@@ -260,7 +260,6 @@ public:
     AdjustingRadius,
     Scaling
   };
-//ETX
 
   // Description:
   // The interaction state may be set from a widget (e.g.,

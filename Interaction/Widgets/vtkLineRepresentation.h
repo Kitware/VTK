@@ -158,9 +158,8 @@ public:
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
   virtual int HasTranslucentPolygonalGeometry();
 
-//BTX - manage the state of the widget
+  // Manage the state of the widget
   enum {Outside=0,OnP1,OnP2,TranslatingP1,TranslatingP2,OnLine,Scaling};
-//ETX
 
   // Description:
   // The interaction state may be set from a widget (e.g., vtkLineWidget2) or

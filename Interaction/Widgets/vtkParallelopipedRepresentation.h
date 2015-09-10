@@ -144,7 +144,7 @@ public:
   // the widget.
   virtual int ComputeInteractionState(int X, int Y, int modify=0);
 
-  //BTX - manage the state of the widget
+  // Manage the state of the widget
   enum _InteractionState
   {
     Outside = 0,
@@ -162,7 +162,6 @@ public:
     ScalingParallelopiped,
     RotatingParallelopiped
   };
-  //ETX
 
   // Methods to manipulate the piped.
   virtual void Translate( double translation[3] );

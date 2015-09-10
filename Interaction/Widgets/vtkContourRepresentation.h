@@ -64,7 +64,6 @@ class vtkPolyData;
 class vtkIdList;
 
 //----------------------------------------------------------------------
-//BTX
 class vtkContourRepresentationPoint
 {
 public:
@@ -108,13 +107,10 @@ public:
     this->Nodes.clear();
   }
 };
-//ETX
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkContourRepresentation : public vtkWidgetRepresentation
 {
-  //BTX
   friend class vtkContourWidget;
-  //ETX
 public:
   // Description:
   // Standard VTK methods.
@@ -204,11 +200,9 @@ public:
   // (n+1) nodes (0 based counting).
   virtual int GetNthNodeWorldPosition( int n, double pos[3] );
 
-  //BTX
   // Description:
   // Get the nth node.
   virtual vtkContourRepresentationNode *GetNthNode(int n);
-  //ETX
 
   // Description:
   // Get the nth node's world orientation. Will return
@@ -311,7 +305,7 @@ public:
   vtkSetClampMacro(WorldTolerance, double, 0.0, VTK_DOUBLE_MAX);
   vtkGetMacro(WorldTolerance, double);
 
-//BTX -- used to communicate about the state of the representation
+  // Used to communicate about the state of the representation
   enum {
     Outside=0,
     Nearby
@@ -323,7 +317,6 @@ public:
     Shift,
     Scale
   };
-//ETX
 
   // Description:
   // Set / get the current operation. The widget is either
@@ -385,11 +378,9 @@ public:
   vtkGetMacro( ShowSelectedNodes, int );
   vtkBooleanMacro( ShowSelectedNodes, int );
 
-//BTX
   // Description:
   // Get the points in this contour as a vtkPolyData.
   virtual vtkPolyData* GetContourRepresentationAsPolyData() = 0;
-//ETX
 
   // Description:
   // Get the nodes and not the intermediate points in this

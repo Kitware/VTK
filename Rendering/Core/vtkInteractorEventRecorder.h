@@ -113,7 +113,7 @@ protected:
 
   virtual void ReadEvent();
 
-//BTX - manage the state of the recorder
+  // Manage the state of the recorder
   int State;
   enum WidgetState
   {
@@ -121,7 +121,6 @@ protected:
     Playing,
     Recording
   };
-//ETX
 
   static float StreamVersion;
 

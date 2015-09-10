@@ -135,10 +135,9 @@ protected:
   vtkImplicitPlaneWidget2();
   ~vtkImplicitPlaneWidget2();
 
-//BTX - manage the state of the widget
+  // Manage the state of the widget
   int WidgetState;
   enum _WidgetState {Start=0,Active};
-//ETX
 
   // These methods handle events
   static void SelectAction(vtkAbstractWidget*);

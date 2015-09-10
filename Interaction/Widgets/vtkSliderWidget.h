@@ -123,7 +123,7 @@ protected:
   static void MoveAction(vtkAbstractWidget*);
   void AnimateSlider(int selectionState);
 
-//BTX - manage the state of the widget
+  // Manage the state of the widget
   int WidgetState;
   enum _WidgetState
   {
@@ -140,7 +140,6 @@ protected:
     Animate
   };
 
-//ETX
 
 
 private:

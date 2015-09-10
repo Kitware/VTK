@@ -248,7 +248,7 @@ protected:
   vtkSplineWidget();
   ~vtkSplineWidget();
 
-//BTX - manage the state of the widget
+  // Manage the state of the widget
   int State;
   enum WidgetState
   {
@@ -260,7 +260,6 @@ protected:
     Erasing,
     Outside
   };
-//ETX
 
   //handles the events
   static void ProcessEventsHandler(vtkObject* object,

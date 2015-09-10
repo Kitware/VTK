@@ -115,9 +115,8 @@ public:
   vtkSetClampMacro(NumberOfRulerTicks,int,1,VTK_INT_MAX);
   vtkGetMacro(NumberOfRulerTicks,int);
 
-//BTX -- used to communicate about the state of the representation
+  // Used to communicate about the state of the representation
   enum {Outside=0,NearP1,NearP2};
-//ETX
 
   // Description:
   // These are methods that satisfy vtkWidgetRepresentation's API.

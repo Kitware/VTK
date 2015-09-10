@@ -76,9 +76,8 @@ public:
   // labels.
   vtkGetObjectMacro(TextProperty,vtkTextProperty);
 
-//BTX -- used to communicate about the state of the representation
+  // Used to communicate about the state of the representation
   enum {Outside=0,NearP1,NearP2,NearP3,NearP4,OnL1Inner,OnL1Outer,OnL2Inner,OnL2Outer,OnCenter};
-//ETX
 
   // Description:
   // These are methods that satisfy vtkWidgetRepresentation's API.

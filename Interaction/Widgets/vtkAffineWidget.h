@@ -106,14 +106,13 @@ protected:
   // helper methods for cursor management
   void SetCursor(int state);
 
-//BTX - manage the state of the widget
+  // Manage the state of the widget
   int WidgetState;
   enum _WidgetState
   {
     Start=0,
     Active
   };
-//ETX
 
   // Keep track whether key modifier key is pressed
   int ModifierActive;

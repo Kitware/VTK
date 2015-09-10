@@ -204,13 +204,12 @@ protected:
   vtkMatrix4x4 *Matrix;
   vtkTransform *Transform;
 
-//BTX - manage the state of the widget
+  // Manage the state of the widget
   enum _SliderShape {
     SphereShape,
     CylinderShape
   };
 
-//ETX
 
 
 private:

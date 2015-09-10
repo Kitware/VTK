@@ -405,7 +405,6 @@ public:
   vtkGetMacro(Interaction,int);
   vtkBooleanMacro(Interaction,int);
 
-  //BTX
   // Description:
   // Set action associated to buttons.
   enum
@@ -414,7 +413,6 @@ public:
     VTK_SLICE_MOTION_ACTION = 1,
     VTK_WINDOW_LEVEL_ACTION = 2
   };
-  //ETX
   vtkSetClampMacro(LeftButtonAction,int, VTK_CURSOR_ACTION, VTK_WINDOW_LEVEL_ACTION);
   vtkGetMacro(LeftButtonAction, int);
   vtkSetClampMacro(MiddleButtonAction,int, VTK_CURSOR_ACTION, VTK_WINDOW_LEVEL_ACTION);
@@ -422,7 +420,6 @@ public:
   vtkSetClampMacro(RightButtonAction,int, VTK_CURSOR_ACTION, VTK_WINDOW_LEVEL_ACTION);
   vtkGetMacro(RightButtonAction, int);
 
-  //BTX
   // Description:
   // Set the auto-modifiers associated to buttons.
   // This allows users to bind some buttons to actions that are usually
@@ -436,7 +433,6 @@ public:
     VTK_SHIFT_MODIFIER      = 1,
     VTK_CONTROL_MODIFIER    = 2
   };
-  //ETX
   vtkSetClampMacro(LeftButtonAutoModifier,int, VTK_NO_MODIFIER, VTK_CONTROL_MODIFIER);
   vtkGetMacro(LeftButtonAutoModifier, int);
   vtkSetClampMacro(MiddleButtonAutoModifier,int, VTK_NO_MODIFIER, VTK_CONTROL_MODIFIER);
@@ -458,7 +454,6 @@ protected:
   int MiddleButtonAutoModifier;
   int RightButtonAutoModifier;
 
-  //BTX
   enum
   {
     VTK_NO_BUTTON     = 0,
@@ -466,10 +461,9 @@ protected:
     VTK_MIDDLE_BUTTON = 2,
     VTK_RIGHT_BUTTON  = 3
   };
-  //ETX
   int LastButtonPressed;
 
-  //BTX - manage the state of the widget
+  // Manage the state of the widget
   int State;
   enum WidgetState
   {
@@ -483,7 +477,6 @@ protected:
     Scaling,
     Outside
   };
-  //ETX
 
   // Handles the events
   static void ProcessEvents(vtkObject* object,
