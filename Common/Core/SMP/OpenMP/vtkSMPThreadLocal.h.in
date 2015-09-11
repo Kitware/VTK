@@ -51,7 +51,7 @@ public:
   // Constructor that allows the specification of an exemplar object
   // which is used when constructing objects when Local() is first called.
   // Note that a copy of the exemplar is created using its copy constructor.
-  vtkSMPThreadLocal(const T& exemplar)
+  explicit vtkSMPThreadLocal(const T& exemplar)
     : Backend(vtk::detail::smp::GetNumberOfThreads()), Exemplar(exemplar)
   {
   }
@@ -167,6 +167,10 @@ public:
 private:
   detail::ThreadSpecific Backend;
   T Exemplar;
+
+  // disable copying
+  vtkSMPThreadLocal(const vtkSMPThreadLocal&);
+  void operator=(const vtkSMPThreadLocal&);
 };
 
 #endif
