@@ -852,8 +852,8 @@ void vtkThreadedSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
   DoThreadedContour functor(this, exExt, data, inScalars, nPieces);
   vtkSMPTools::For( 0, nPieces, functor );
 
-  int p = 0;
-  for (int i = 0; i < functor.GetNumberOfOutputPieces(); ++i)
+  vtkIdType p = 0;
+  for (vtkIdType i = 0; i < functor.GetNumberOfOutputPieces(); ++i)
     {
     vtkPolyData* piece = functor.GetOutputPiece(i);
     output->SetBlock(p++, piece);

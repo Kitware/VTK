@@ -16,6 +16,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestDelaunay3D.cxx,NO_VALID
   TestExecutionTimer.cxx,NO_VALID
   TestFeatureEdges.cxx,NO_VALID
+  TestFlyingEdges.cxx
   TestGlyph3D.cxx
   TestHedgeHog.cxx,NO_VALID
   TestImplicitPolyDataDistance.cxx
