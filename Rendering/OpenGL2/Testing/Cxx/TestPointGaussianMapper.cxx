@@ -90,7 +90,7 @@ int TestPointGaussianMapper(int argc, char *argv[])
   mapper->SetInputConnection(randomAttr->GetOutputPort());
   mapper->SelectColorArray("RandomPointVectors");
   mapper->SetScalarModeToUsePointFieldData();
-  mapper->SetDefaultRadius(0.0);
+  mapper->SetScaleFactor(0.0);
   mapper->EmissiveOff();
 #endif
 
@@ -102,7 +102,7 @@ int TestPointGaussianMapper(int argc, char *argv[])
   mapper->SetInputConnection(reader->GetOutputPort());
   mapper->SelectColorArray("Color");
   mapper->SetScalarModeToUsePointFieldData();
-  mapper->SetDefaultRadius(0.0);
+  mapper->SetScalefactor(0.0);
   mapper->EmissiveOff();
 
   //actor->GetProperty()->SetPointSize(3.0);

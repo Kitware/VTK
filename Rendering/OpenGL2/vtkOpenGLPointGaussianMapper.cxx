@@ -56,6 +56,7 @@ public:
   float *ScaleTable; // the table
   double ScaleScale; // used for quick lookups
   double ScaleOffset; // used for quick lookups
+  double TriangleScale;
 
 protected:
   vtkOpenGLPointGaussianMapperHelper();
@@ -186,7 +187,6 @@ void vtkOpenGLPointGaussianMapperHelper::ReplaceShaderColor(
         // compute the eye position and unit direction
         "//VTK::Color::Impl\n"
         "  float dist2 = dot(offsetVCVSOutput.xy,offsetVCVSOutput.xy);\n"
-        "  if (dist2 > 9.0) { discard; }\n"
         "  float gaussian = exp(-0.5*dist2);\n"
         "  opacity = opacity*gaussian;"
         //  "  opacity = opacity*0.5;"
@@ -287,11 +287,13 @@ void vtkOpenGLPointGaussianMapperHelper::SetCameraShaderParameters(vtkOpenGLHelp
 }
 
 //-----------------------------------------------------------------------------
-void vtkOpenGLPointGaussianMapperHelper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
-                                                         vtkRenderer *ren, vtkActor *actor)
+void vtkOpenGLPointGaussianMapperHelper::SetMapperShaderParameters(
+  vtkOpenGLHelper &cellBO,
+  vtkRenderer *ren, vtkActor *actor)
 {
   if (!this->UsingPoints)
     {
+    cellBO.Program->SetUniformf("triangleScale",this->TriangleScale);
     if (cellBO.IBO->IndexCount && (this->VBOBuildTime > cellBO.AttributeUpdateTime ||
         cellBO.ShaderSourceTime > cellBO.AttributeUpdateTime))
       {
@@ -375,7 +377,7 @@ void vtkOpenGLPointGaussianMapperHelperPackVBOTemplate3(
         (tindex - itindex)*self->ScaleTable[itindex+1];
       }
     radius *= defaultScale;
-    radius *= 3.0;
+    radius *= self->TriangleScale;
 
     float radiusFloat = static_cast<float>(radius);
     float cos30 = cos(vtkMath::RadiansFromDegrees(30.0));
@@ -562,6 +564,9 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
     {
     return;
     }
+
+  // set the triangle scale
+  this->TriangleScale = this->Owner->GetTriangleScale();
 
   bool hasScaleArray = this->Owner->GetScaleArray() != NULL &&
     poly->GetPointData()->HasArray(this->Owner->GetScaleArray());

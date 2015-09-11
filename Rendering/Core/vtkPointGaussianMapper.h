@@ -13,9 +13,12 @@
 =========================================================================*/
 // .NAME vtkPointGaussianMapper - draw PointGaussians using imposters
 // .SECTION Description
-// An  mapper that uses imposters to draw PointGaussians. Supports
-// transparency and picking as well. It draws all the points and
-// does not require or look at any cell arrays
+
+// An  mapper that uses imposters to draw gaussian splats or other shapes if
+// custom shader code is set. Supports transparency and picking as well. It
+// draws all the points and does not require cell arrays.  If cell arrays are
+// provided it will only draw the points used by the Verts cell array. The shape
+// of the imposter is a triangle.
 
 #ifndef vtkPointGaussianMapper_h
 #define vtkPointGaussianMapper_h
@@ -94,6 +97,21 @@ public:
   vtkSetStringMacro(SplatShaderCode);
   vtkGetStringMacro(SplatShaderCode);
 
+  // Description:
+  // When drawing triangles as opposed too point mode
+  // (triangles are for splats shaders that are bigger than a pixel)
+  // this controls how large the triangle will be. By default it
+  // is large enough to contain a cicle of radius 3.0*scale which works
+  // well for gaussian splats as after 3.0 standard deviations the
+  // opacity is near zero. For custom shader codes a different
+  // value can be used. Generally you should use the lowest value you can
+  // as it will result in fewer fragments. For example if your custom
+  // shader only draws a disc of radius 1.0*scale, then set this to 1.0
+  // to avoid sending many fragments to the shader that will just get
+  // discarded.
+  vtkSetMacro(TriangleScale,float);
+  vtkGetMacro(TriangleScale,float);
+
 protected:
   vtkPointGaussianMapper();
   ~vtkPointGaussianMapper();
@@ -110,6 +128,8 @@ protected:
 
   double ScaleFactor;
   int Emissive;
+
+  float TriangleScale;
 
 private:
   vtkPointGaussianMapper(const vtkPointGaussianMapper&); // Not implemented.
