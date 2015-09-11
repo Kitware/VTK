@@ -94,7 +94,7 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderPositionVC(
 {
   std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
 
-  if (this->LastLightComplexity > 0)
+  if (this->LastLightComplexity[this->LastBoundBO] > 0)
     {
     // we use vertex instead of vertexMC
     vtkShaderProgram::Substitute(VSSource,
@@ -154,7 +154,7 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderColor(
       "uniform vec3 diffuseColorUniformBF; // intensity weighted color\n";
     }
   // add more for specular
-  if (this->LastLightComplexity)
+  if (this->LastLightComplexity[this->LastBoundBO])
     {
     colorDec +=
       "uniform vec3 specularColorUniform; // intensity weighted color\n"
@@ -176,7 +176,7 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderColor(
     "vec3 ambientColor;\n"
     "  vec3 diffuseColor;\n"
     "  float opacity;\n";
-  if (this->LastLightComplexity)
+  if (this->LastLightComplexity[this->LastBoundBO])
     {
     colorImpl +=
       "  vec3 specularColor;\n"
@@ -184,7 +184,7 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderColor(
     }
   if (actor->GetBackfaceProperty())
     {
-    if (this->LastLightComplexity)
+    if (this->LastLightComplexity[this->LastBoundBO])
       {
       colorImpl +=
         "  if (int(gl_FrontFacing) == 0) {\n"
@@ -219,7 +219,7 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderColor(
       "    ambientColor = ambientColorUniform;\n"
       "    diffuseColor = diffuseColorUniform;\n"
       "    opacity = opacityUniform;\n";
-    if (this->LastLightComplexity)
+    if (this->LastLightComplexity[this->LastBoundBO])
       {
       colorImpl +=
         "    specularColor = specularColorUniform;\n"
@@ -307,7 +307,6 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderNormal(
       }
     vtkShaderProgram::Substitute(VSSource, "//VTK::Normal::Impl",
       "normalVCVSOutput = normalMatrix * glyphNormalMatrix * normalMC;");
-    this->ShaderVariablesUsed.push_back("normalMatrix");
     }
 
   shaders[vtkShader::Vertex]->SetSource(VSSource);
@@ -404,7 +403,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
     program->SetUniformMatrix4x4("GCMCMatrix", &(matrices[inPtId*16]));
 
     // for lit shaders set normal matrix
-    if (this->LastLightComplexity > 0 && this->VBO->NormalOffset &&
+    if (this->LastLightComplexity[this->LastBoundBO] > 0 && this->VBO->NormalOffset &&
         !this->UsingInstancing)
       {
       program->SetUniformMatrix3x3("glyphNormalMatrix", &(normalMatrices[inPtId*9]));
@@ -469,7 +468,7 @@ void vtkOpenGLGlyph3DHelper::SetCameraShaderParameters(vtkOpenGLHelper &cellBO,
     }
 
   // for lit shaders set normal matrix
-  if (this->LastLightComplexity > 0 && this->ModelNormalMatrix &&
+  if (this->LastLightComplexity[&cellBO] > 0 && this->ModelNormalMatrix &&
      this->VBO->NormalOffset && !this->UsingInstancing)
     {
     program->SetUniformMatrix3x3("glyphNormalMatrix", this->ModelNormalMatrix);
@@ -532,7 +531,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
       }
     this->MatrixBuffer->Release();
 
-    if (this->VBO->NormalOffset && this->LastLightComplexity > 0)
+    if (this->VBO->NormalOffset && this->LastLightComplexity[this->LastBoundBO] > 0)
       {
       this->NormalMatrixBuffer->Bind();
       this->NormalMatrixBuffer->Upload(

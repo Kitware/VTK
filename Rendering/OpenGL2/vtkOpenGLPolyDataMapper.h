@@ -275,9 +275,9 @@ protected:
   // do we have wide lines that require special handling
   virtual bool HaveWideLines(vtkRenderer *, vtkActor *);
 
-  // values we use to determine if we need to rebuild
-  int LastLightComplexity;
-  vtkTimeStamp LightComplexityChanged;
+  // values we use to determine if we need to rebuild shaders
+  std::map<const vtkOpenGLHelper *, int> LastLightComplexity;
+  std::map<const vtkOpenGLHelper *, vtkTimeStamp> LightComplexityChanged;
 
   int LastSelectionState;
   vtkTimeStamp SelectionStateChanged;
@@ -294,19 +294,6 @@ protected:
 
   vtkMatrix4x4 *TempMatrix4;
   vtkMatrix3x3 *TempMatrix3;
-
-  // this vector can be used while building
-  // the shader program to record specific variables
-  // that are being used by the program. This is
-  // useful later on when setting uniforms. At
-  // that point IsShaderVariableUsed can be called
-  // to see if the uniform should be set or not.
-  std::vector<std::string> ShaderVariablesUsed;
-
-  // used to see if the shader building code indicated that
-  // a specific variable is being used. Only some variables
-  // are currently populated.
-  bool IsShaderVariableUsed(const char *);
 
   // if set to true, tcoords will be passed to the
   // VBO even if the mapper knows of no texture maps

@@ -191,7 +191,11 @@ public:
     const std::string replace,
     bool all = true);
 
-
+  // Description:
+  // methods to inquire as to what uniforms/attributes are used by
+  // this shader.  This can save some compute time if the uniforms
+  // or attributes are expensive to compute
+  bool IsUniformUsed(const char *);
 
 protected:
   vtkShaderProgram();
@@ -270,6 +274,9 @@ protected:
   std::string Error;
 
   std::map<std::string, int> Attributes;
+
+
+  std::map<std::string, bool> UniformsUsed;
 
   friend class VertexArrayObject;
 

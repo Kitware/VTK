@@ -203,7 +203,7 @@ void vtkOpenGLPointGaussianMapperHelper::ReplaceShaderColor(
 bool vtkOpenGLPointGaussianMapperHelper::GetNeedToRebuildShaders(
   vtkOpenGLHelper &cellBO, vtkRenderer* ren, vtkActor *actor)
 {
-  this->LastLightComplexity = 0;
+  this->LastLightComplexity[&cellBO] = 0;
 
   vtkHardwareSelector* selector = ren->GetSelector();
   int picking = selector ? selector->GetCurrentPass() : -1;
@@ -223,8 +223,7 @@ bool vtkOpenGLPointGaussianMapperHelper::GetNeedToRebuildShaders(
       cellBO.ShaderSourceTime < actor->GetMTime() ||
       cellBO.ShaderSourceTime < this->CurrentInput->GetMTime() ||
       cellBO.ShaderSourceTime < this->SelectionStateChanged ||
-      cellBO.ShaderSourceTime < this->DepthPeelingChanged ||
-      cellBO.ShaderSourceTime < this->LightComplexityChanged)
+      cellBO.ShaderSourceTime < this->DepthPeelingChanged)
     {
     return true;
     }
