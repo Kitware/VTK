@@ -639,11 +639,11 @@ void vtkFreeTypeTools::MapTextPropertyToId(vtkTextProperty *tprop,
     {
     angle += 3600;
     }
+  // We really should not use more than 12 bits
+  assert(angle >= 0 && (angle & 0xfffff000) == 0);
   angle <<= bits;
 
-  // We really should not use more than 32 bits
   vtkIdType merged = (bold | italic | angle);
-  assert(merged <= std::numeric_limits<vtkTypeUInt32>::max());
 
   // Now final id
   *id |= merged;
