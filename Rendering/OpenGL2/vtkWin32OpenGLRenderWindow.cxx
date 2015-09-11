@@ -692,7 +692,8 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
     if (!(pfd2.dwFlags & PFD_SUPPORT_OPENGL))
       { // @note see https://msdn.microsoft.com/en-us/library/windows/desktop/dd369049(v=vs.85).aspx
         // "Once a window's pixel format is set, it cannot be changed."
-        vtkErrorWithObjectMacro(this," call to DescribePixelFormat failed. Illegal duplicate invocation or no OpenGL support.");
+        vtkErrorMacro("Call to DescribePixelFormat failed. "
+                      "Illegal duplicate invocation or no OpenGL support.");
       if (this->HasObserver(vtkCommand::ExitEvent))
         {
         this->InvokeEvent(vtkCommand::ExitEvent, NULL);
