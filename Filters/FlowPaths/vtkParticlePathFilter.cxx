@@ -1,15 +1,15 @@
 /*=========================================================================
 
-Program:   Visualization Toolkit
-Module:    vtkParticlePathFilter.cxx
+  Program:   Visualization Toolkit
+  Module:    vtkParticlePathFilter.cxx
 
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 #include "vtkParticlePathFilter.h"
@@ -35,6 +35,7 @@ void ParticlePathFilterInternal::Initialize(vtkParticleTracerBase* filter)
   this->Filter = filter;
   this->Filter->SetForceReinjectionEveryNSteps(0);
   this->Filter->SetIgnorePipelineTime(1);
+  this->ClearCache = false;
 }
 
 void ParticlePathFilterInternal::Reset()
@@ -43,15 +44,15 @@ void ParticlePathFilterInternal::Reset()
   this->Paths.clear();
 }
 
-int ParticlePathFilterInternal::OutputParticles(vtkPolyData* particles, bool clearCache)
+int ParticlePathFilterInternal::OutputParticles(vtkPolyData* particles)
 {
-  if(!this->Filter->Output || clearCache)
+  if(!this->Filter->Output || this->ClearCache)
     {
     this->Filter->Output = vtkSmartPointer<vtkPolyData>::New();
     this->Filter->Output->SetPoints(vtkSmartPointer<vtkPoints>::New());
     this->Filter->Output->GetPointData()->CopyAllocate(particles->GetPointData());
     }
-  if(clearCache)
+  if(this->ClearCache)
     { // clear cache no matter what
     this->Paths.clear();
     }
@@ -137,7 +138,6 @@ vtkParticlePathFilter::vtkParticlePathFilter()
   this->It.Initialize(this);
   this->SimulationTime = NULL;
   this->SimulationTimeStep = NULL;
-  this->ClearCache = false;
 }
 
 vtkParticlePathFilter::~vtkParticlePathFilter()
@@ -163,12 +163,11 @@ void vtkParticlePathFilter::ResetCache()
 void vtkParticlePathFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   Superclass::PrintSelf(os,indent);
-  os << indent << "ClearCache: " << this->ClearCache << endl;
 }
 
 int vtkParticlePathFilter::OutputParticles(vtkPolyData* particles)
 {
-  return this->It.OutputParticles(particles, this->ClearCache);
+  return this->It.OutputParticles(particles);
 }
 
 void vtkParticlePathFilter::InitializeExtraPointDataArrays(vtkPointData* outputPD)

@@ -218,7 +218,7 @@ public:
   vtkBooleanMacro(DisableResetCache,int);
 
   // Description:
-  // Provide support for multiple see sources
+  // Provide support for multiple seed sources
   void AddSourceConnection(vtkAlgorithmOutput* input);
   void RemoveAllSources();
 
@@ -235,7 +235,6 @@ public:
   //Everything related to time
   int IgnorePipelineTime; //whether to use the pipeline time for termination
   int DisableResetCache; //whether to enable ResetCache() method
-
 
   vtkParticleTracerBase();
   virtual ~vtkParticleTracerBase();
@@ -292,6 +291,11 @@ public:
   virtual int OutputParticles(vtkPolyData* poly)=0; //every iteration
   virtual void Finalize(){} //the last iteration
 
+  // Description:
+  // Method to get the data set seed sources.
+  // For in situ we want to override how the seed sources are made available.
+  virtual std::vector<vtkDataSet*> GetSeedSources(vtkInformationVector* inputVector, int timeStep);
+
   //
   // Initialization of input (vector-field) geometry
   //
@@ -314,8 +318,8 @@ public:
   // they belong to. This saves us retesting at every injection time
   // providing 1) The volumes are static, 2) the seed points are static
   // If either are non static, then this step is skipped.
-  virtual void AssignSeedsToProcessors(double time,
-    vtkDataSet *source, int sourceID, int ptId,
+  virtual void AssignSeedsToProcessors(
+    double time, vtkDataSet *source, int sourceID, int ptId,
     vtkParticleTracerBaseNamespace::ParticleVector &localSeedPoints,
     int &localAssignedCount);
 
@@ -411,7 +415,13 @@ public:
   virtual void AppendToExtraPointDataArrays(vtkParticleTracerBaseNamespace::ParticleInformation &) {}
 
   vtkTemporalInterpolatedVelocityField* GetInterpolator();
-private:
+
+  // Description:
+  // For restarts of particle paths, we add in the ability to add in
+  // particles from a previous computation that we will still advect.
+  virtual void AddRestartSeeds(vtkInformationVector** /*inputVector*/) {}
+
+ private:
   // Description:
   // Hide this because we require a new interpolator type
   void SetInterpolatorPrototype(vtkAbstractInterpolatedVelocityField*) {}
@@ -509,7 +519,6 @@ private:
   friend class StreaklineFilterInternal;
 
   static const double Epsilon;
-
 };
 
 #endif
