@@ -89,12 +89,15 @@ void vtkOpenGLRenderUtilities::RenderTriangles(
   glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT,
     reinterpret_cast<const GLvoid *>(NULL));
   ibo->Release();
+  ibo->ReleaseGraphicsResources();
   vao->RemoveAttributeArray("vertexMC");
   vao->RemoveAttributeArray("tcoordMC");
   vao->Release();
   vbo->Release();
+  vbo->ReleaseGraphicsResources();
   if (tcoords)
     {
     tvbo->Release();
+    tvbo->ReleaseGraphicsResources();
     }
 }
