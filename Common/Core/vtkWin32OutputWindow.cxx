@@ -17,7 +17,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkWindows.h"
 
+#pragma warning(push)
+#pragma warning(disable:4091)
 #include "DbgHelp.h"
+#pragma warning(pop)
 #pragma comment(lib, "Dbghelp.lib")
 
 vtkStandardNewMacro(vtkWin32OutputWindow);
