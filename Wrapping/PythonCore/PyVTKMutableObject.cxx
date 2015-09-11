@@ -576,6 +576,10 @@ static PyNumberMethods PyVTKMutableObject_AsNumber = {
   PyVTKMutableObject_InPlaceFloorDivide,     // nb_inplace_floor_divide
   PyVTKMutableObject_InPlaceTrueDivide,      // nb_inplace_true_divide
   PyVTKMutableObject_Index,                  // nb_index
+#if PY_VERSION_HEX >= 0x03050000
+  0,                                         // nb_matrix_multiply
+  0,                                         // nb_inplace_matrix_multiply
+#endif
 };
 
 
