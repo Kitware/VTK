@@ -30,8 +30,6 @@
 
 int TestFlyingEdges(int argc, char *argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
-
   // Create the sample dataset
   vtkNew<vtkRTAnalyticSource> wavelet;
   wavelet->SetWholeExtent(-63, 64,
@@ -42,7 +40,7 @@ int TestFlyingEdges(int argc, char *argv[])
 
   vtkNew<vtkFlyingEdges3D> flyingEdges;
   flyingEdges->SetInputConnection(wavelet->GetOutputPort());
-  flyingEdges->GenerateValues(54, 128.0, 225.0);
+  flyingEdges->GenerateValues(6, 128.0, 225.0);
   flyingEdges->ComputeNormalsOn();
   flyingEdges->ComputeGradientsOn();
   flyingEdges->ComputeScalarsOn();
@@ -64,12 +62,11 @@ int TestFlyingEdges(int argc, char *argv[])
 
   ren->ResetCamera();
   renWin->Render();
-  iren->Initialize();
 
   int retVal = vtkRegressionTestImage(renWin.GetPointer());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     iren->Start();
     }
-  return !(retVal == vtkTesting::DO_INTERACTOR);
+  return !retVal;
 }
