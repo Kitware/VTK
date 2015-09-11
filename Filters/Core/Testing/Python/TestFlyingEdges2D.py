@@ -47,4 +47,3 @@ iren.Initialize()
 
 renWin.Render()
 # --- end of script --
-iren.Start()

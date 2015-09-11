@@ -18,7 +18,7 @@ sphere = vtk.vtkSphere()
 sphere.SetCenter( 0.0,0.0,0.0)
 sphere.SetRadius(0.25)
 
-# iso-surface to create geometry. This uses a very small volume to stress
+# Iso-surface to create geometry. This uses a very small volume to stress
 # boundary conditions in vtkFlyingEdges; i.e., we want the sphere isosurface
 # to intersect the boundary.
 sample = vtk.vtkSampleFunction()
