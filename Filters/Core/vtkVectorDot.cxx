@@ -63,12 +63,8 @@ public:
       vtkVectorDotAlgorithm *Algo;
       vtkSMPThreadLocal<double> Min;
       vtkSMPThreadLocal<double> Max;
-      DotOp(vtkVectorDotAlgorithm<T1,T2> *algo)
-        {
-        this->Algo = algo;
-        this->Min = VTK_DOUBLE_MAX;
-        this->Max = VTK_DOUBLE_MIN;
-        }
+      DotOp(vtkVectorDotAlgorithm<T1,T2> *algo) :
+        Algo(algo), Min(VTK_DOUBLE_MAX), Max(VTK_DOUBLE_MIN) {}
       void  operator() (vtkIdType k, vtkIdType end)
         {
         double &min = this->Min.Local();

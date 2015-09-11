@@ -52,11 +52,8 @@ public:
     public:
       vtkVectorNormAlgorithm *Algo;
       vtkSMPThreadLocal<double> Max;
-      NormOp(vtkVectorNormAlgorithm<T> *algo)
-        {
-        this->Algo = algo;
-        this->Max = VTK_DOUBLE_MIN;
-        }
+      NormOp(vtkVectorNormAlgorithm<T> *algo) :
+        Algo(algo), Max(VTK_DOUBLE_MIN) {}
       void  operator() (vtkIdType k, vtkIdType end)
         {
         double &max = this->Max.Local();
