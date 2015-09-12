@@ -155,6 +155,7 @@ if(PYTHON_EXECUTABLE)
     ${CMAKE_CURRENT_BINARY_DIR}/vtk/gtk
     ${CMAKE_CURRENT_BINARY_DIR}/vtk/qt4
     ${CMAKE_CURRENT_BINARY_DIR}/vtk/qt5
+    ${CMAKE_CURRENT_BINARY_DIR}/vtk/qt
     ${CMAKE_CURRENT_BINARY_DIR}/vtk/tk
     ${CMAKE_CURRENT_BINARY_DIR}/vtk/util
     ${CMAKE_CURRENT_BINARY_DIR}/vtk/wx
@@ -216,6 +217,8 @@ if(PYTHON_EXECUTABLE)
 
 # PyQt related files
   list(APPEND VTK_PYTHON_FILES
+    vtk/qt/__init__
+    vtk/qt/QVTKRenderWindowInteractor
     vtk/qt4/__init__
     vtk/qt4/QVTKRenderWindowInteractor
     vtk/qt5/__init__
