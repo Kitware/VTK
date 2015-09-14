@@ -49,7 +49,6 @@ class vtkTextPropertyLookup;
 class VTKRENDERINGFREETYPE_EXPORT vtkFreeTypeToolsCleanup
 {
 public:
-  vtkFreeTypeToolsCleanup();
   ~vtkFreeTypeToolsCleanup();
 };
 
@@ -303,6 +302,10 @@ protected:
   // Description:
   // Lookup table that maps free type font cache face ids to vtkTextProperties
   vtkTextPropertyLookup *TextPropertyLookup;
+
+  // Description:
+  // FreeType library instance.
+  FT_Library *Library;
 
   // Description:
   // The cache manager, image cache and charmap cache

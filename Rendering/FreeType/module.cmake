@@ -13,7 +13,6 @@ vtk_module(vtkRenderingFreeType
   DEPENDS
     vtkRenderingCore
     vtkfreetype
-    vtkftgl
   TEST_DEPENDS
     ${optional_test_depends}
     vtkTestingRendering
