@@ -109,6 +109,10 @@ int TestPointGaussianMapperOpacity(int argc, char *argv[])
     "  if (abs(offsetVCVSOutput.x) < 0.6 && abs(offsetVCVSOutput.y) < 0.6) { discard; }\n"
     );
 
+  // since this shader only uses a radus of sqrt(2) we will adjust the mapper
+  // to render a smaller area than the default radius of 3.0
+  mapper->SetTriangleScale(1.5);
+
   vtkNew<vtkColorTransferFunction> ctf;
   ctf->AddHSVPoint(0.0,0.1,0.7,1.0);
   ctf->AddHSVPoint(1.0,0.9,0.7,1.0);

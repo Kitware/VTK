@@ -39,6 +39,8 @@ attribute vec2 offsetMC;
 varying vec2 offsetVCVSOutput;
 uniform int cameraParallel;
 
+uniform float triangleScale;
+
 void main()
 {
   //VTK::Color::Impl
@@ -53,10 +55,10 @@ void main()
   vec4 vertexVC = MCVCMatrix * vertexMC;
 
   // the offsets sent down are positioned
-  // at 2.0*radius*3.0 from the center of the
+  // at 2.0*radius*triangleScale from the center of the
   // gaussian.  This has to be consistent
   // with the offsets we build into the VBO
-  float radius = sqrt(dot(offsetMC,offsetMC))/6.0;
+  float radius = 0.5*sqrt(dot(offsetMC,offsetMC))/triangleScale;
 
   // make the triangle face the camera
   if (cameraParallel == 0)
