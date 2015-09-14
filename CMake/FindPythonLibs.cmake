@@ -42,10 +42,16 @@ endif()
 # the user supplied additional versions to the front.
 set(_Python_VERSIONS
   ${Python_ADDITIONAL_VERSIONS} ${_PythonInterp_VERSION}
-  2.7 2.6 2.5 2.4 2.3 2.2 2.1 2.0 1.6 1.5)
+  2.7 2.6 2.5 3.6 3.5 3.4 3.3 3.2)
 
 FOREACH(_CURRENT_VERSION ${_Python_VERSIONS})
   STRING(REPLACE "." "" _CURRENT_VERSION_NO_DOTS ${_CURRENT_VERSION})
+
+  set(_FRAMEWORK_LIB_DIRS)
+  foreach(dir ${Python_FRAMEWORKS})
+    list(APPEND _FRAMEWORK_LIB_DIRS ${dir}/Versions/${_CURRENT_VERSION}/lib)
+  endforeach()
+
   IF(WIN32)
     FIND_LIBRARY(PYTHON_DEBUG_LIBRARY
       NAMES python${_CURRENT_VERSION_NO_DOTS}_d python
@@ -57,6 +63,7 @@ FOREACH(_CURRENT_VERSION ${_Python_VERSIONS})
   FIND_LIBRARY(PYTHON_LIBRARY
     NAMES python${_CURRENT_VERSION_NO_DOTS} python${_CURRENT_VERSION}
     PATHS
+      ${_FRAMEWORK_LIB_DIRS}
       [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\${_CURRENT_VERSION}\\InstallPath]/libs
     # Avoid finding the .dll in the PATH.  We want the .lib.
     NO_SYSTEM_ENVIRONMENT_PATH
@@ -76,8 +83,9 @@ FOREACH(_CURRENT_VERSION ${_Python_VERSIONS})
     SET(PYTHON_FRAMEWORK_INCLUDES)
     IF(Python_FRAMEWORKS AND NOT PYTHON_INCLUDE_DIR)
       FOREACH(dir ${Python_FRAMEWORKS})
-        SET(PYTHON_FRAMEWORK_INCLUDES ${PYTHON_FRAMEWORK_INCLUDES}
-          ${dir}/Versions/${_CURRENT_VERSION}/include/python${_CURRENT_VERSION})
+        LIST(APPEND PYTHON_FRAMEWORK_INCLUDES
+          ${dir}/Versions/${_CURRENT_VERSION}/include/python${_CURRENT_VERSION}
+          ${dir}/Versions/${_CURRENT_VERSION}/include/python${_CURRENT_VERSION}m)
       ENDFOREACH()
     ENDIF()
 

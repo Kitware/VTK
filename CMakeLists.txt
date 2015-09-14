@@ -452,7 +452,7 @@ include(VTKParallelCMakeTests)
 # Add the option for build the Python wrapping to VTK.
 option(VTK_WRAP_PYTHON "Should VTK Python wrapping be built?" OFF)
 set(VTK_PYTHON_VERSION 2 CACHE STRING
-    "Python version to use: 2, 2.x, or empty")
+    "Python version to use: 2, 2.x, 3, 3.x, or empty")
 
 # Add the option for build the Python wrapping to VTK.
 option(VTK_WRAP_JAVA "Should VTK Java wrapping be built?" OFF)
