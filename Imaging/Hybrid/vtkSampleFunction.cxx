@@ -400,6 +400,8 @@ int vtkSampleFunction::RequestInformation (
   vtkDataObject::
     SetPointDataActiveScalarInfo(outInfo,this->OutputScalarType,1);
 
+  outInfo->Set(vtkAlgorithm::CAN_PRODUCE_SUB_EXTENT(), 1);
+
   return 1;
 }
 
