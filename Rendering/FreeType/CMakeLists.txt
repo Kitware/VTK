@@ -2,7 +2,6 @@ include(vtkObjectFactory)
 
 set(Module_SRCS
   vtkFreeTypeStringToImage.cxx
-  vtkFreeTypeUtilities.cxx
   vtkFreeTypeTools.cxx
   vtkMathTextFreeTypeTextRenderer.cxx
   vtkMathTextUtilities.cxx
@@ -28,7 +27,6 @@ set(Module_SRCS
 
 set_source_files_properties(
   vtkFreeTypeTools
-  vtkFreeTypeUtilities
   fonts/face_arial_bold
   fonts/face_arial_bold_italic
   fonts/face_arial
