@@ -60,24 +60,24 @@ class BivariateContingenciesAndInformationFunctor : public vtkStatisticsAlgorith
 public:
   vtkDataArray* DataX;
   vtkDataArray* DataY;
-  std::map<Tuple,PDF> PdfX_Y;
-  std::map<Tuple,PDF> PdfYcX;
-  std::map<Tuple,PDF> PdfXcY;
-  std::map<Tuple,PDF> PmiX_Y;
+  const std::map<Tuple,PDF>& PdfX_Y;
+  const std::map<Tuple,PDF>& PdfYcX;
+  const std::map<Tuple,PDF>& PdfXcY;
+  const std::map<Tuple,PDF>& PmiX_Y;
 
   BivariateContingenciesAndInformationFunctor( vtkAbstractArray* valsX,
                                                vtkAbstractArray* valsY,
-                                               std::map<Tuple,PDF> pdfX_Y,
-                                               std::map<Tuple,PDF> pdfYcX,
-                                               std::map<Tuple,PDF> pdfXcY,
-                                               std::map<Tuple,PDF> pmiX_Y )
+                                               const std::map<Tuple,PDF>& pdfX_Y,
+                                               const std::map<Tuple,PDF>& pdfYcX,
+                                               const std::map<Tuple,PDF>& pdfXcY,
+                                               const std::map<Tuple,PDF>& pmiX_Y )
+    : PdfX_Y (pdfX_Y),
+      PdfYcX (pdfYcX),
+      PdfXcY (pdfXcY),
+      PmiX_Y (pmiX_Y)
   {
     this->DataX = vtkDataArray::SafeDownCast (valsX);
     this->DataY = vtkDataArray::SafeDownCast (valsY);
-    this->PdfX_Y = pdfX_Y;
-    this->PdfYcX = pdfYcX;
-    this->PdfXcY = pdfXcY;
-    this->PmiX_Y = pmiX_Y;
   }
   virtual ~BivariateContingenciesAndInformationFunctor() { }
   virtual void operator() ( vtkDoubleArray* result,
@@ -96,10 +96,10 @@ public:
       }
 
     result->SetNumberOfValues( 4 );
-    result->SetValue( 0, this->PdfX_Y[x][y] );
-    result->SetValue( 1, this->PdfYcX[x][y] );
-    result->SetValue( 2, this->PdfXcY[x][y] );
-    result->SetValue( 3, this->PmiX_Y[x][y] );
+    result->SetValue( 0, this->PdfX_Y.at(x).at(y) );
+    result->SetValue( 1, this->PdfYcX.at(x).at(y) );
+    result->SetValue( 2, this->PdfXcY.at(x).at(y) );
+    result->SetValue( 3, this->PmiX_Y.at(x).at(y) );
   }
 };
 
@@ -112,24 +112,24 @@ class BivariateContingenciesAndInformationFunctor<vtkStdString> : public vtkStat
 public:
   vtkAbstractArray* DataX;
   vtkAbstractArray* DataY;
-  std::map<TypeSpec,PDF> PdfX_Y;
-  std::map<TypeSpec,PDF> PdfYcX;
-  std::map<TypeSpec,PDF> PdfXcY;
-  std::map<TypeSpec,PDF> PmiX_Y;
+  const std::map<TypeSpec,PDF>& PdfX_Y;
+  const std::map<TypeSpec,PDF>& PdfYcX;
+  const std::map<TypeSpec,PDF>& PdfXcY;
+  const std::map<TypeSpec,PDF>& PmiX_Y;
 
   BivariateContingenciesAndInformationFunctor( vtkAbstractArray* valsX,
                                                vtkAbstractArray* valsY,
-                                               std::map<TypeSpec,PDF> pdfX_Y,
-                                               std::map<TypeSpec,PDF> pdfYcX,
-                                               std::map<TypeSpec,PDF> pdfXcY,
-                                               std::map<TypeSpec,PDF> pmiX_Y )
+                                               const std::map<TypeSpec,PDF>& pdfX_Y,
+                                               const std::map<TypeSpec,PDF>& pdfYcX,
+                                               const std::map<TypeSpec,PDF>& pdfXcY,
+                                               const std::map<TypeSpec,PDF>& pmiX_Y )
+    : PdfX_Y (pdfX_Y),
+      PdfYcX (pdfYcX),
+      PdfXcY (pdfXcY),
+      PmiX_Y (pmiX_Y)
   {
     this->DataX = valsX;
     this->DataY = valsY;
-    this->PdfX_Y = pdfX_Y;
-    this->PdfYcX = pdfYcX;
-    this->PdfXcY = pdfXcY;
-    this->PmiX_Y = pmiX_Y;
   }
   virtual ~BivariateContingenciesAndInformationFunctor() { }
   virtual void operator() ( vtkDoubleArray* result,
@@ -139,10 +139,10 @@ public:
     TypeSpec y = this->DataY->GetVariantValue( id ).ToString ();
 
     result->SetNumberOfValues( 4 );
-    result->SetValue( 0, this->PdfX_Y[x][y] );
-    result->SetValue( 1, this->PdfYcX[x][y] );
-    result->SetValue( 2, this->PdfXcY[x][y] );
-    result->SetValue( 3, this->PmiX_Y[x][y] );
+    result->SetValue( 0, this->PdfX_Y.at(x).at(y) );
+    result->SetValue( 1, this->PdfYcX.at(x).at(y) );
+    result->SetValue( 2, this->PdfXcY.at(x).at(y) );
+    result->SetValue( 3, this->PmiX_Y.at(x).at(y) );
   }
 };
 
@@ -1013,7 +1013,7 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
     if ( ! inData->GetColumnByName( colX ) )
       {
       vtkWarningMacro( "InData table does not have a column "
-                       << colX.c_str()
+                       << colX
                        << ". Ignoring this pair." );
       continue;
       }
@@ -1023,7 +1023,7 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
     if ( ! inData->GetColumnByName( colY ) )
       {
       vtkWarningMacro( "InData table does not have a column "
-                       << colY.c_str()
+                       << colY
                        << ". Ignoring this pair." );
       continue;
       }
@@ -1083,6 +1083,8 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
       abstractX = vtkLongArray::New ();
       abstractY = vtkLongArray::New ();
       break;
+    default:
+      vtkErrorMacro ("Invalid specialization, expected None, Double or Integer");
     }
 
   abstractX->SetName( "x" );
@@ -1134,7 +1136,7 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
     if ( ! inData->GetColumnByName( colX ) )
       {
       vtkWarningMacro( "InData table does not have a column "
-                       << colX.c_str()
+                       << colX
                        << ". Ignoring this pair." );
       continue;
       }
@@ -1144,7 +1146,7 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
     if ( ! inData->GetColumnByName( colY ) )
       {
       vtkWarningMacro( "InData table does not have a column "
-                       << colY.c_str()
+                       << colY
                        << ". Ignoring this pair." );
       continue;
       }
@@ -1172,6 +1174,8 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
       case Integer:
         ContingencyImpl<long>::CalculateContingencyRow (dataX, dataY, contingencyTab, summaryRow);
         break;
+      default:
+        vtkErrorMacro ("Invalid specialization, expected None, Double or Integer");
       }
     }
 
@@ -1360,7 +1364,7 @@ void vtkContingencyStatistics::Assess( vtkTable* inData,
     if ( ! inData->GetColumnByName( varNameX ) )
       {
       vtkWarningMacro( "InData table does not have a column "
-                       << varNameX.c_str()
+                       << varNameX
                        << ". Ignoring this pair." );
       continue;
       }
@@ -1370,7 +1374,7 @@ void vtkContingencyStatistics::Assess( vtkTable* inData,
     if ( ! inData->GetColumnByName( varNameY ) )
       {
       vtkWarningMacro( "InData table does not have a column "
-                       << varNameY.c_str()
+                       << varNameY
                        << ". Ignoring this pair." );
       continue;
       }
@@ -1413,7 +1417,7 @@ void vtkContingencyStatistics::Assess( vtkTable* inData,
                     << varNameY
                     << ")";
 
-      names[v] = assessColName.str().c_str();
+      names[v] = assessColName.str();
 
       vtkDoubleArray* assessValues = vtkDoubleArray::New();
       assessValues->SetName( names[v] );
@@ -1434,9 +1438,9 @@ void vtkContingencyStatistics::Assess( vtkTable* inData,
       {
       // Functor selection did not work. Do nothing.
       vtkWarningMacro( "AssessFunctors could not be allocated for column pair ("
-                       << varNameX.c_str()
+                       << varNameX
                        << ","
-                       << varNameY.c_str()
+                       << varNameY
                        << "). Ignoring it." );
       delete [] names;
       continue;
@@ -1567,7 +1571,7 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
     if ( ! inData->GetColumnByName( varNameX ) )
       {
       vtkWarningMacro( "InData table does not have a column "
-                       << varNameX.c_str()
+                       << varNameX
                        << ". Ignoring this pair." );
       continue;
       }
@@ -1577,7 +1581,7 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
     if ( ! inData->GetColumnByName( varNameY ) )
       {
       vtkWarningMacro( "InData table does not have a column "
-                       << varNameY.c_str()
+                       << varNameY
                        << ". Ignoring this pair." );
       continue;
       }
@@ -1634,9 +1638,9 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
     if ( sumij != n )
       {
       vtkWarningMacro( "Inconsistent sum of counts and grand total for column pair "
-                       << varNameX.c_str()
+                       << varNameX
                        << ","
-                       << varNameY.c_str()
+                       << varNameY
                        << "): "
                        << sumij
                        << " <> "
@@ -1688,7 +1692,7 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
     if ( ! ek[0].size() )
       {
       vtkErrorMacro( "Incomplete input: missing marginal count for "
-                     << varNameX.c_str()
+                     << varNameX
                      <<". Cannot test." );
       return;
       }
@@ -1696,7 +1700,7 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
     if ( ! ek[1].size() )
       {
       vtkErrorMacro( "Incomplete input: missing marginal count for "
-                     << varNameY.c_str()
+                     << varNameY
                      <<". Cannot test." );
       return;
       }
@@ -1813,9 +1817,9 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
   if ( fabs( cdf - 1. ) > 1.e-6 )
     {
     vtkWarningMacro( "Incorrect CDF for column pair:"
-                     << varNameX.c_str()
+                     << varNameX
                      << ","
-                     << varNameY.c_str()
+                     << varNameY
                      << "). Ignoring it." );
     }
 }
