@@ -99,7 +99,7 @@ public:
   // Constructor that allows the specification of an exemplar object
   // which is used when constructing objects when Local() is first called.
   // Note that a copy of the exemplar is created using its copy constructor.
-  vtkSMPThreadLocal(const T& exemplar) : Count(0), Exemplar(exemplar)
+  explicit vtkSMPThreadLocal(const T& exemplar) : Count(0), Exemplar(exemplar)
     {
       this->Initialize();
     }
@@ -261,6 +261,10 @@ private:
     {
       return kaapi_get_self_kid();
     }
+
+  // disable copying
+  vtkSMPThreadLocal(const vtkSMPThreadLocal&);
+  void operator=(const vtkSMPThreadLocal&);
 };
 #endif
 // VTK-HeaderTest-Exclude: vtkSMPThreadLocal.h
