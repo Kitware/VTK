@@ -669,6 +669,11 @@ void vtkGenericCompositePolyDataMapper2::FreeGenericStructures()
 //-----------------------------------------------------------------------------
 void vtkGenericCompositePolyDataMapper2::ReleaseGraphicsResources(vtkWindow* win)
 {
+  std::map<const vtkDataSet*, vtkCompositeMapperHelper *>::iterator miter = this->Helpers.begin();
+  for (;miter != this->Helpers.end(); miter++)
+    {
+    miter->second->ReleaseGraphicsResources(win);
+    }
   this->FreeGenericStructures();
   this->Superclass::ReleaseGraphicsResources(win);
 }

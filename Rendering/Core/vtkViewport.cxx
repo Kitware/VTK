@@ -144,6 +144,10 @@ void vtkViewport::RemoveViewProp(vtkProp *p)
 {
   if (p && this->HasViewProp(p))
     {
+    if (this->VTKWindow)
+      {
+      this->VTKWindow->MakeCurrent();
+      }
     p->ReleaseGraphicsResources(this->VTKWindow);
     p->RemoveConsumer(this);
     this->Props->RemoveItem(p);

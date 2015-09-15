@@ -1627,6 +1627,26 @@ void vtkScalarBarActor::ConfigureAnnotations()
 void vtkScalarBarActor::FreeLayoutStorage()
 {
   // Delete previously constructed objects
+  if (this->P->Viewport && this->P->Viewport->GetVTKWindow())
+    {
+    vtkWindow *win = this->P->Viewport->GetVTKWindow();
+    if (!this->P->TextActors.empty())
+      {
+      vtkScalarBarActorInternal::ActorVector::iterator it;
+      for (
+        it = this->P->TextActors.begin();
+        it != this->P->TextActors.end();
+        ++it)
+        {
+        (*it)->ReleaseGraphicsResources(win);
+        }
+      }
+    for (vtkScalarBarActorInternal::ActorVector::size_type i = 0; i < this->P->AnnotationLabels.size(); ++ i )
+      {
+      this->P->AnnotationLabels[i]->ReleaseGraphicsResources(win);
+      }
+    }
+
   this->P->TextActors.clear();
   this->P->AnnotationLabels.clear();
   this->P->AnnotationAnchors.clear();
