@@ -253,33 +253,41 @@ void  bindTexturedPolydataToRenderWindow( vtkRenderWindow* renderWindow,
     int bIsReadableJPEG = tex_jpg_Loader->CanReadFile( textureFilename.c_str() );
     int bIsReadablePNG  = tex_png_Loader->CanReadFile( textureFilename.c_str() );
 
-    // TODO: what if there is no texture image? seems required now?
-    if( bIsReadableJPEG )
+    bool haveTexture = false;
+    if (!textureFilename.empty())
       {
-      tex_jpg_Loader->SetFileName( textureFilename.c_str() );
-      tex_jpg_Loader->Update();
-      vtk_texture->AddInputConnection( tex_jpg_Loader->GetOutputPort() );
-      }
-    else if( bIsReadablePNG )
-      {
-      tex_png_Loader->SetFileName( textureFilename.c_str() );
-      tex_png_Loader->Update();
-      vtk_texture->AddInputConnection( tex_png_Loader->GetOutputPort() );
-      }
-    else
-      {
-        if(!textureFilename.empty()) // OK to have no texture image, but if its not empty it ought to exist.
+      if( bIsReadableJPEG )
         {
-          vtkErrorWithObjectMacro(reader, "Nonexistant texture image type!? imagefile: "
-                                  <<textureFilename);
+        tex_jpg_Loader->SetFileName( textureFilename.c_str() );
+        tex_jpg_Loader->Update();
+        vtk_texture->AddInputConnection( tex_jpg_Loader->GetOutputPort() );
+        haveTexture = true;
         }
+      else if( bIsReadablePNG )
+        {
+        tex_png_Loader->SetFileName( textureFilename.c_str() );
+        tex_png_Loader->Update();
+        vtk_texture->AddInputConnection( tex_png_Loader->GetOutputPort() );
+        haveTexture = true;
+        }
+      else
+        {
+        if(!textureFilename.empty()) // OK to have no texture image, but if its not empty it ought to exist.
+          {
+          vtkErrorWithObjectMacro(reader, "Nonexistent texture image type!? imagefile: "
+            <<textureFilename);
+          }
+        }
+      vtk_texture->InterpolateOff(); // Faster?? (yes clearly faster for largish texture)
       }
-    vtk_texture->InterpolateOff(); // Faster?? (yes clearly faster for largish texture)
 
     vtkSmartPointer<vtkActor> actor =
       vtkSmartPointer<vtkActor>::New();
     actor->SetMapper(mapper);
-    actor->SetTexture(vtk_texture);
+    if (haveTexture)
+      {
+      actor->SetTexture(vtk_texture);
+      }
     vtkSmartPointer<vtkProperty> properties =
       vtkSmartPointer<vtkProperty>::New();
 
