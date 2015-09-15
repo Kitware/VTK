@@ -313,31 +313,6 @@ void vtkOpenGLRenderWindow::StereoUpdate(void)
     }
 }
 
-#ifndef VTK_LEGACY_REMOVE
-//----------------------------------------------------------------------------
-void vtkOpenGLRenderWindow::CheckGraphicError()
-{
-  VTK_LEGACY_BODY(vtkRenderWindow::CheckGraphicError, "VTK 6.1");
-  this->LastGraphicError=static_cast<unsigned int>(glGetError());
-}
-
-//----------------------------------------------------------------------------
-int vtkOpenGLRenderWindow::HasGraphicError()
-{
-  VTK_LEGACY_BODY(vtkRenderWindow::HasGraphics, "VTK 6.1");
-  return static_cast<GLenum>(this->LastGraphicError)!=GL_NO_ERROR;
-}
-
-//----------------------------------------------------------------------------
-const char *vtkOpenGLRenderWindow::GetLastGraphicErrorString()
-{
-  VTK_LEGACY_BODY(vtkRenderWindow::GetLastGraphicErrorString, "VTK 6.1");
-  const char *result="Unknown error";
-  return result;
-}
-#endif
-
-
 void vtkOpenGLRenderWindow::OpenGLInit()
 {
   OpenGLInitContext();

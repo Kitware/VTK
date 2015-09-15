@@ -18,7 +18,7 @@ if (${_index} EQUAL -1)
   # has the application defined a desired default for the backend?
   # if not, use VTKs default of OpenGL
   if(NOT DEFINED VTK_RENDERING_BACKEND_DEFAULT)
-    set(VTK_RENDERING_BACKEND_DEFAULT "OpenGL")
+    set(VTK_RENDERING_BACKEND_DEFAULT "OpenGL2")
   endif()
 
   # if it is in the cache as a bad value we need to reset it

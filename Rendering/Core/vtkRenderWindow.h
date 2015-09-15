@@ -538,7 +538,8 @@ public:
 
   // Description:
   // Get the vtkPainterDeviceAdapter which can be used to paint on
-  // this render window.
+  // this render window.  Note the old OpenGL backend requires this
+  // method.
   vtkGetObjectMacro(PainterDeviceAdapter, vtkPainterDeviceAdapter);
 
   // Description:
