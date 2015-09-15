@@ -104,10 +104,11 @@ void vtkChartParallelCoordinates::Update()
     return;
     }
 
-  if (table->GetMTime() < this->BuildTime && this->MTime < this->BuildTime)
-  {
+  if (table->GetMTime() < this->BuildTime && this->MTime < this->BuildTime &&
+      this->GetScene()->GetMTime() < this->BuildTime)
+    {
     return;
-  }
+    }
 
   // Now we have a table, set up the axes accordingly, clear and build.
   if (static_cast<int>(this->Storage->Axes.size()) !=
@@ -190,7 +191,7 @@ bool vtkChartParallelCoordinates::Paint(vtkContext2D *painter)
     }
 
   painter->PushMatrix();
-  painter->SetTransform(this->Storage->Transform);
+  painter->AppendTransform(this->Storage->Transform);
   this->Storage->Plot->Paint(painter);
   painter->PopMatrix();
 

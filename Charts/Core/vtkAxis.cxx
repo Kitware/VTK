@@ -377,10 +377,25 @@ bool vtkAxis::Paint(vtkContext2D *painter)
     labelOffset *= -1.0;
     }
 
+  vtkVector2i tileScale(1);
+  if (!this->Scene)
+    {
+    vtkWarningMacro("vtkAxis needs a vtkContextScene to determine window "
+                    "properties. Assuming no tile scaling is set.");
+    }
+  else
+    {
+    tileScale = this->Scene->GetLogicalTileScale();
+    }
+
   // Horizontal or vertical axis.
   if (this->Position == vtkAxis::LEFT || this->Position == vtkAxis::PARALLEL ||
       this->Position == vtkAxis::RIGHT)
     {
+    // Adptating tickLength and labelOffset to the tiling of the scene
+    tickLength *= tileScale.GetX();
+    labelOffset *= tileScale.GetX();
+
     // Draw the tick marks and labels
     for (vtkIdType i = 0; i < numMarks; ++i)
       {
@@ -403,6 +418,11 @@ bool vtkAxis::Paint(vtkContext2D *painter)
     }
   else if (this->Position == vtkAxis::TOP || this->Position == vtkAxis::BOTTOM)
     {
+
+    // Adptating tickLength and labelOffset to the tiling of the scene
+    tickLength *= tileScale.GetY();
+    labelOffset *= tileScale.GetY();
+
     // Draw the tick marks and labels
     for (vtkIdType i = 0; i < numMarks; ++i)
       {
