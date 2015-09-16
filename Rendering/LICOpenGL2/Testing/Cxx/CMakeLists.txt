@@ -21,6 +21,9 @@ vtk_test_cxx_executable(${vtk-module}CxxTests tests
   vtkStructuredGridLIC2DTestDriver.cxx
   vtkSurfaceLICTestDriver.cxx
   )
+# vtkSurfaceLICTestDriver needs OpenGL
+include(vtkOpenGL)
+vtk_opengl_link(${vtk-module}CxxTests)
 
 # surface lic on a curved surface
 ExternalData_add_test(VTKData
