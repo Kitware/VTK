@@ -4,11 +4,13 @@ endif()
 
 vtk_module(vtkRenderingLIC
   ${_groups}
+  BACKEND
+    OpenGL
   DEPENDS
     vtkIOXML
     vtkIOLegacy
     vtkImagingSources
-    vtkRenderingOpenGL
+    vtkRendering${VTK_RENDERING_BACKEND}
   PRIVATE_DEPENDS
     vtksys
   TEST_DEPENDS
