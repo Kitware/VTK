@@ -38,7 +38,6 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <map>
 #include <vector>
-#include <type_traits>
 
 #include <sstream>
 
@@ -46,13 +45,13 @@ typedef std::map<vtkStdString,vtkIdType> StringCounts;
 typedef std::map<vtkIdType,double> Entropies;
 
 // ----------------------------------------------------------------------
-template<typename TypeSpec>
+template<typename TypeSpec, typename vtkType>
 class BivariateContingenciesAndInformationFunctor : public vtkStatisticsAlgorithm::AssessFunctor
 {
-  typedef typename std::conditional<
-            std::is_same<double,TypeSpec>::value, vtkDoubleArray, vtkStringArray>::type vtkType1;
-  typedef typename std::conditional<
-            std::is_same<long,TypeSpec>::value, vtkLongArray, vtkType1>::type vtkType;
+  // typedef typename std::conditional<
+            // std::is_same<double,TypeSpec>::value, vtkDoubleArray, vtkStringArray>::type vtkType1;
+  // typedef typename std::conditional<
+            // std::is_same<long,TypeSpec>::value, vtkLongArray, vtkType1>::type vtkType;
 
   typedef std::vector<TypeSpec> Tuple;
 
@@ -60,10 +59,10 @@ class BivariateContingenciesAndInformationFunctor : public vtkStatisticsAlgorith
 public:
   vtkDataArray* DataX;
   vtkDataArray* DataY;
-  const std::map<Tuple,PDF>& PdfX_Y;
-  const std::map<Tuple,PDF>& PdfYcX;
-  const std::map<Tuple,PDF>& PdfXcY;
-  const std::map<Tuple,PDF>& PmiX_Y;
+  std::map<Tuple,PDF> PdfX_Y;
+  std::map<Tuple,PDF> PdfYcX;
+  std::map<Tuple,PDF> PdfXcY;
+  std::map<Tuple,PDF> PmiX_Y;
 
   BivariateContingenciesAndInformationFunctor( vtkAbstractArray* valsX,
                                                vtkAbstractArray* valsY,
@@ -104,7 +103,7 @@ public:
 };
 
 template<>
-class BivariateContingenciesAndInformationFunctor<vtkStdString> : public vtkStatisticsAlgorithm::AssessFunctor
+class BivariateContingenciesAndInformationFunctor<vtkStdString,vtkStringArray> : public vtkStatisticsAlgorithm::AssessFunctor
 {
   typedef vtkStdString TypeSpec;
 
@@ -112,10 +111,10 @@ class BivariateContingenciesAndInformationFunctor<vtkStdString> : public vtkStat
 public:
   vtkAbstractArray* DataX;
   vtkAbstractArray* DataY;
-  const std::map<TypeSpec,PDF>& PdfX_Y;
-  const std::map<TypeSpec,PDF>& PdfYcX;
-  const std::map<TypeSpec,PDF>& PdfXcY;
-  const std::map<TypeSpec,PDF>& PmiX_Y;
+  std::map<TypeSpec,PDF> PdfX_Y;
+  std::map<TypeSpec,PDF> PdfYcX;
+  std::map<TypeSpec,PDF> PdfXcY;
+  std::map<TypeSpec,PDF> PmiX_Y;
 
   BivariateContingenciesAndInformationFunctor( vtkAbstractArray* valsX,
                                                vtkAbstractArray* valsY,
@@ -187,11 +186,11 @@ void Count (std::map<vtkStdString, std::map<vtkStdString,vtkIdType> >& table,
 }
 
 // ----------------------------------------------------------------------
-template<typename TypeSpec>
+template<typename TypeSpec, typename vtkType>
 class ContingencyImpl
 {
-  typedef typename std::conditional<
-            std::is_same<double,TypeSpec>::value, vtkDoubleArray, vtkLongArray>::type vtkType;
+  // typedef typename std::conditional<
+            // std::is_same<double,TypeSpec>::value, vtkDoubleArray, vtkLongArray>::type vtkType;
 
   typedef std::vector<TypeSpec> Tuple;
 
@@ -583,12 +582,12 @@ public:
     // Sanity check: verify that CDF = 1
     if ( fabs( cdf - 1. ) <= 1.e-6 )
       {
-      dfunc = new BivariateContingenciesAndInformationFunctor<TypeSpec>( valsX,
-                                                                         valsY,
-                                                                         pdfX_Y,
-                                                                         pdfYcX,
-                                                                         pdfXcY,
-                                                                         pmiX_Y );
+      dfunc = new BivariateContingenciesAndInformationFunctor<TypeSpec,vtkType>( valsX,
+                                                                                 valsY,
+                                                                                 pdfX_Y,
+                                                                                 pdfYcX,
+                                                                                 pdfXcY,
+                                                                                 pmiX_Y );
       }
     return cdf;
   }
@@ -598,7 +597,7 @@ private:
 };
 
 template<>
-class ContingencyImpl<vtkStdString>
+class ContingencyImpl<vtkStdString,vtkStringArray>
 {
   typedef vtkStringArray vtkType;
 
@@ -942,12 +941,12 @@ public:
     // Sanity check: verify that CDF = 1
     if ( fabs( cdf - 1. ) <= 1.e-6 )
       {
-      dfunc = new BivariateContingenciesAndInformationFunctor<TypeSpec>( valsX,
-                                                                         valsY,
-                                                                         pdfX_Y,
-                                                                         pdfYcX,
-                                                                         pdfXcY,
-                                                                         pmiX_Y );
+      dfunc = new BivariateContingenciesAndInformationFunctor<TypeSpec,vtkType>( valsX,
+                                                                                 valsY,
+                                                                                 pdfX_Y,
+                                                                                 pdfYcX,
+                                                                                 pdfXcY,
+                                                                                 pmiX_Y );
       }
     return cdf;
   }
@@ -1166,13 +1165,13 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
     switch (specialization)
       {
       case None:
-        ContingencyImpl<vtkStdString>::CalculateContingencyRow (valsX, valsY, contingencyTab, summaryRow);
+        ContingencyImpl<vtkStdString,vtkStringArray>::CalculateContingencyRow (valsX, valsY, contingencyTab, summaryRow);
         break;
       case Double:
-        ContingencyImpl<double>::CalculateContingencyRow (dataX, dataY, contingencyTab, summaryRow);
+        ContingencyImpl<double,vtkDoubleArray>::CalculateContingencyRow (dataX, dataY, contingencyTab, summaryRow);
         break;
       case Integer:
-        ContingencyImpl<long>::CalculateContingencyRow (dataX, dataY, contingencyTab, summaryRow);
+        ContingencyImpl<long,vtkLongArray>::CalculateContingencyRow (dataX, dataY, contingencyTab, summaryRow);
         break;
       default:
         vtkErrorMacro ("Invalid specialization, expected None, Double or Integer");
@@ -1292,21 +1291,21 @@ void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 
   if (dataX == 0)
     {
-    ContingencyImpl<vtkStdString> impl;
+    ContingencyImpl<vtkStdString,vtkStringArray> impl;
     impl.ComputeMarginals (keys, varX, varY, valsX, valsY, card, contingencyTab);
     impl.ComputePDFs (inMeta, contingencyTab);
     impl.ComputeDerivedValues (keys, varX, varY, valsX, valsY, card, contingencyTab, derivedCols, nDerivedVals, H, nEntropy);
     }
   else if (dataX->GetDataType () == VTK_DOUBLE)
     {
-    ContingencyImpl<double> impl;
+    ContingencyImpl<double,vtkDoubleArray> impl;
     impl.ComputeMarginals (keys, varX, varY, valsX, valsY, card, contingencyTab);
     impl.ComputePDFs (inMeta, contingencyTab);
     impl.ComputeDerivedValues (keys, varX, varY, valsX, valsY, card, contingencyTab, derivedCols, nDerivedVals, H, nEntropy);
     }
   else
     {
-    ContingencyImpl<long> impl;
+    ContingencyImpl<long,vtkLongArray> impl;
     impl.ComputeMarginals (keys, varX, varY, valsX, valsY, card, contingencyTab);
     impl.ComputePDFs (inMeta, contingencyTab);
     impl.ComputeDerivedValues (keys, varX, varY, valsX, valsY, card, contingencyTab, derivedCols, nDerivedVals, H, nEntropy);
@@ -1803,15 +1802,15 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
   double cdf;
   if (dubx && duby)
     {
-    cdf = ContingencyImpl<double>::SelectAssessFunctor (contingencyTab, pairKey, valsX, valsY, dfunc);
+    cdf = ContingencyImpl<double,vtkDoubleArray>::SelectAssessFunctor (contingencyTab, pairKey, valsX, valsY, dfunc);
     }
   else if (intx && inty)
     {
-    cdf = ContingencyImpl<long>::SelectAssessFunctor (contingencyTab, pairKey, valsX, valsY, dfunc);
+    cdf = ContingencyImpl<long,vtkLongArray>::SelectAssessFunctor (contingencyTab, pairKey, valsX, valsY, dfunc);
     }
   else
     {
-    cdf = ContingencyImpl<vtkStdString>::SelectAssessFunctor (contingencyTab, pairKey, valsX, valsY, dfunc);
+    cdf = ContingencyImpl<vtkStdString,vtkStringArray>::SelectAssessFunctor (contingencyTab, pairKey, valsX, valsY, dfunc);
     }
 
   if ( fabs( cdf - 1. ) > 1.e-6 )
