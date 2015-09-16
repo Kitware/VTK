@@ -29,7 +29,7 @@ endif()
 # chosen.
 if(NOT DEFINED VTK_RENDERING_BACKEND)
   # has the application defined a desired default for the backend?
-  # if not, use VTKs default of OpenGL
+  # if not, use VTKs default of OpenGL2
   if(DEFINED VTK_RENDERING_BACKEND_DEFAULT)
     set(VTK_RENDERING_BACKEND ${VTK_RENDERING_BACKEND_DEFAULT})
   else()

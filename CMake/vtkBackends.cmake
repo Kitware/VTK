@@ -16,7 +16,7 @@ list (FIND _options "${VTK_RENDERING_BACKEND}"  _index)
 if (${_index} EQUAL -1)
 
   # has the application defined a desired default for the backend?
-  # if not, use VTKs default of OpenGL
+  # if not, use VTKs default of OpenGL2
   if(NOT DEFINED VTK_RENDERING_BACKEND_DEFAULT)
     set(VTK_RENDERING_BACKEND_DEFAULT "OpenGL2")
   endif()
