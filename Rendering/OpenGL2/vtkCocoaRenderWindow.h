@@ -218,10 +218,6 @@ public:
   void Finalize();
 
   // Description:
-  // Get the size of the depth buffer.
-  int GetDepthBufferSize();
-
-  // Description:
   // Hide or Show the mouse cursor, it is nice to be able to hide the
   // default cursor if you want VTK to display a 3D cursor instead.
   // Set cursor position in window (note that (0,0) is the lower left

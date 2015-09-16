@@ -1200,22 +1200,6 @@ void vtkCocoaRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-int vtkCocoaRenderWindow::GetDepthBufferSize()
-{
-  if ( this->Mapped )
-    {
-    GLint size = 0;
-    glGetIntegerv( GL_DEPTH_BITS, &size );
-    return (int) size;
-    }
-  else
-    {
-    vtkDebugMacro(<< "Window is not mapped yet!" );
-    return 24;
-    }
-}
-
-//----------------------------------------------------------------------------
 // Returns the NSWindow* associated with this vtkRenderWindow.
 void *vtkCocoaRenderWindow::GetRootWindow()
 {
