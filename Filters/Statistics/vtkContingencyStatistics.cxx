@@ -90,10 +90,10 @@ public:
       }
 
     result->SetNumberOfValues( 4 );
-    result->SetValue( 0, this->PdfX_Y.at(x).at(y) );
-    result->SetValue( 1, this->PdfYcX.at(x).at(y) );
-    result->SetValue( 2, this->PdfXcY.at(x).at(y) );
-    result->SetValue( 3, this->PmiX_Y.at(x).at(y) );
+    result->SetValue( 0, this->PdfX_Y[x][y] );
+    result->SetValue( 1, this->PdfYcX[x][y] );
+    result->SetValue( 2, this->PdfXcY[x][y] );
+    result->SetValue( 3, this->PmiX_Y[x][y] );
   }
 };
 
@@ -133,10 +133,10 @@ public:
     TypeSpec y = this->DataY->GetVariantValue( id ).ToString ();
 
     result->SetNumberOfValues( 4 );
-    result->SetValue( 0, this->PdfX_Y.at(x).at(y) );
-    result->SetValue( 1, this->PdfYcX.at(x).at(y) );
-    result->SetValue( 2, this->PdfXcY.at(x).at(y) );
-    result->SetValue( 3, this->PmiX_Y.at(x).at(y) );
+    result->SetValue( 0, this->PdfX_Y[x][y] );
+    result->SetValue( 1, this->PdfYcX[x][y] );
+    result->SetValue( 2, this->PdfXcY[x][y] );
+    result->SetValue( 3, this->PmiX_Y[x][y] );
   }
 };
 
