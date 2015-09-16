@@ -48,11 +48,6 @@ typedef std::map<vtkIdType,double> Entropies;
 template<typename TypeSpec, typename vtkType>
 class BivariateContingenciesAndInformationFunctor : public vtkStatisticsAlgorithm::AssessFunctor
 {
-  // typedef typename std::conditional<
-            // std::is_same<double,TypeSpec>::value, vtkDoubleArray, vtkStringArray>::type vtkType1;
-  // typedef typename std::conditional<
-            // std::is_same<long,TypeSpec>::value, vtkLongArray, vtkType1>::type vtkType;
-
   typedef std::vector<TypeSpec> Tuple;
 
   typedef std::map<Tuple,double> PDF;
@@ -189,9 +184,6 @@ void Count (std::map<vtkStdString, std::map<vtkStdString,vtkIdType> >& table,
 template<typename TypeSpec, typename vtkType>
 class ContingencyImpl
 {
-  // typedef typename std::conditional<
-            // std::is_same<double,TypeSpec>::value, vtkDoubleArray, vtkLongArray>::type vtkType;
-
   typedef std::vector<TypeSpec> Tuple;
 
   typedef std::map<Tuple,vtkIdType> Counts;
@@ -398,7 +390,7 @@ public:
         marginalPDFs[sit->first][xit->first] = p;
 
         array->SetNumberOfValues (xit->first.size ());
-        for (int i = 0; i < xit->first.size (); i ++)
+        for (size_t i = 0; i < xit->first.size (); i ++)
           {
           array->SetValue (i, xit->first[i]);
           }
@@ -1084,6 +1076,7 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
       break;
     default:
       vtkErrorMacro ("Invalid specialization, expected None, Double or Integer");
+      return;
     }
 
   abstractX->SetName( "x" );
@@ -1125,7 +1118,6 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
   contingencyTab->SetValue ( 0, 3, -1 );
 
   // Loop over requests
-  vtkIdType nRow = inData->GetNumberOfRows();
   for ( std::set<std::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
         rit != this->Internals->Requests.end(); ++ rit )
     {
@@ -1175,6 +1167,7 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
         break;
       default:
         vtkErrorMacro ("Invalid specialization, expected None, Double or Integer");
+        continue;
       }
     }
 
@@ -1269,7 +1262,6 @@ void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
   vtkDataArray* dataX = vtkDataArray::SafeDownCast (valsX);
   vtkDataArray* dataY = vtkDataArray::SafeDownCast (valsY);
 
-
   // Fill cardinality row (0) with invalid values for derived statistics
   for ( int i = 0; i < nDerivedVals; ++ i )
     {
@@ -1289,7 +1281,7 @@ void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       }
     }
 
-  if (dataX == 0)
+  if (dataX == 0 || dataY == 0)
     {
     ContingencyImpl<vtkStdString,vtkStringArray> impl;
     impl.ComputeMarginals (keys, varX, varY, valsX, valsY, card, contingencyTab);
