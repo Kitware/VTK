@@ -56,3 +56,6 @@ endforeach()
 
 
 vtk_module_library(${vtk-module} ${Module_SRCS})
+
+include(vtkOpenGL)
+vtk_opengl_link(${vtk-module})
