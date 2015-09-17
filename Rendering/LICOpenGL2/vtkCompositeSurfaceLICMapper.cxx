@@ -21,6 +21,7 @@
 #include "vtkCompositeDataPipeline.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkCompositeDataDisplayAttributes.h"
+#include "vtkGarbageCollector.h"
 #include "vtkHardwareSelector.h"
 #include "vtkInformation.h"
 #include "vtkMath.h"
@@ -104,7 +105,12 @@ vtkCompositeSurfaceLICMapper::~vtkCompositeSurfaceLICMapper()
     this->Helpers.begin();
   for (;miter != this->Helpers.end(); miter++)
     {
-    miter->second->Delete();
+    if (miter->second)
+      {
+      vtkObjectBase *obj = miter->second;
+      miter->second = 0;
+      obj->UnRegister(this);
+      }
     }
   this->Helpers.clear();
 }
@@ -550,4 +556,29 @@ void vtkCompositeSurfaceLICMapper::Render(vtkRenderer *ren, vtkActor *actor)
   this->BlockState.SpecularColor.pop();
 
   this->UpdateProgress(1.0);
+}
+
+//-----------------------------------------------------------------------------
+void vtkCompositeSurfaceLICMapper::ReleaseGraphicsResources(vtkWindow* win)
+{
+  std::map<const vtkDataSet*, vtkCompositeLICHelper *>::iterator miter =
+    this->Helpers.begin();
+  for (;miter != this->Helpers.end(); miter++)
+    {
+    miter->second->ReleaseGraphicsResources(win);
+    }
+  this->Superclass::ReleaseGraphicsResources(win);
+}
+
+//-----------------------------------------------------------------------------
+void vtkCompositeSurfaceLICMapper::ReportReferences(vtkGarbageCollector *collector)
+{
+  this->Superclass::ReportReferences(collector);
+
+  std::map<const vtkDataSet*, vtkCompositeLICHelper *>::iterator miter =
+    this->Helpers.begin();
+  for (;miter != this->Helpers.end(); miter++)
+    {
+    vtkGarbageCollectorReport(collector, miter->second, "Helper Mapper");
+    }
 }
