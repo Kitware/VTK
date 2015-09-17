@@ -1,5 +1,7 @@
 vtk_module(vtkRenderingGL2PS
   TCL_NAME vtkRenderingGLtoPS
+  BACKEND
+    OpenGL
   DEPENDS
     vtkRenderingContext${VTK_RENDERING_BACKEND}
   PRIVATE_DEPENDS
