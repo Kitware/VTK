@@ -234,7 +234,7 @@ protected:
   vtkPlaneWidget();
   ~vtkPlaneWidget();
 
-//BTX - manage the state of the widget
+  // Manage the state of the widget
   int State;
   enum WidgetState
   {
@@ -246,7 +246,6 @@ protected:
     Spinning,
     Outside
   };
-//ETX
 
   //handles the events
   static void ProcessEvents(vtkObject* object,

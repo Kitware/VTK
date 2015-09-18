@@ -106,9 +106,8 @@ public:
   vtkGetMacro(ArcVisibility,int);
   vtkBooleanMacro(ArcVisibility,int);
 
-//BTX -- used to communicate about the state of the representation
+  // Used to communicate about the state of the representation
   enum {Outside=0,NearP1,NearCenter,NearP2};
-//ETX
 
   // Description:
   // These are methods that satisfy vtkWidgetRepresentation's API.

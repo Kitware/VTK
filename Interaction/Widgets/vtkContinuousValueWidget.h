@@ -100,7 +100,7 @@ protected:
   static void EndSelectAction(vtkAbstractWidget*);
   static void MoveAction(vtkAbstractWidget*);
 
-//BTX - manage the state of the widget
+  // Manage the state of the widget
   int WidgetState;
   enum _WidgetState
   {
@@ -108,7 +108,6 @@ protected:
     Highlighting,
     Adjusting
   };
-//ETX
 
   double Value;
 

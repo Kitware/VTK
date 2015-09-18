@@ -175,7 +175,7 @@ protected:
   vtkLineWidget();
   ~vtkLineWidget();
 
-//BTX - manage the state of the widget
+  // Manage the state of the widget
   friend class vtkPWCallback;
 
   int State;
@@ -187,7 +187,6 @@ protected:
     Scaling,
     Outside
   };
-//ETX
 
   //handles the events
   static void ProcessEvents(vtkObject* object,
@@ -207,14 +206,12 @@ protected:
   // controlling ivars
   int Align;
 
-//BTX
   enum AlignmentState {
     XAxis,
     YAxis,
     ZAxis,
     None
   };
-//ETX
 
   // the line
   vtkActor          *LineActor;

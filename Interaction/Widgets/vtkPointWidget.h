@@ -202,7 +202,7 @@ protected:
   vtkPointWidget();
   ~vtkPointWidget();
 
-//BTX - manage the state of the widget
+  // Manage the state of the widget
   friend class vtkLineWidget;
 
   int State;
@@ -214,7 +214,6 @@ protected:
     Translating,
     Outside
   };
-//ETX
 
   // Handles the events
   static void ProcessEvents(vtkObject* object,

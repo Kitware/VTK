@@ -80,9 +80,8 @@ public:
   vtkTypeMacro(vtkSphereRepresentation,vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-//BTX - used to manage the state of the widget
+  // Used to manage the state of the widget
   enum {Outside=0,MovingHandle,OnSphere,Translating,Scaling};
-//ETX
 
   // Description:
   // Set the representation (i.e., appearance) of the sphere. Different

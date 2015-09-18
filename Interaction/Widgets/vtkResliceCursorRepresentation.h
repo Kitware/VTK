@@ -80,12 +80,11 @@ public:
   vtkSetStringMacro(ThicknessLabelFormat);
   vtkGetStringMacro(ThicknessLabelFormat);
 
-//BTX -- used to communicate about the state of the representation
+  // Used to communicate about the state of the representation
   enum { Outside=0, NearCenter, NearAxis1, NearAxis2,
          OnCenter, OnAxis1, OnAxis2};
   enum { None=0, PanAndRotate, RotateBothAxes,
          ResizeThickness, WindowLevelling };
-//ETX
 
   // Description:
   // Get the text shown in the widget's label.

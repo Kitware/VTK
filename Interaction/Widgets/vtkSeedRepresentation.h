@@ -87,13 +87,12 @@ public:
   vtkSetClampMacro( Tolerance, int, 1, 100 );
   vtkGetMacro( Tolerance, int );
 
-//BTX -- used to communicate about the state of the representation
+  // Used to communicate about the state of the representation
   enum
     {
     Outside = 0,
     NearSeed
     };
-//ETX
 
   // Description:
   // These are methods specific to vtkSeedRepresentation and which are

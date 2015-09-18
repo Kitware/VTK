@@ -113,9 +113,8 @@ public:
   // Get the widget state.
   vtkGetMacro( WidgetState, int );
 
-  //BTX - manage the state of the widget
+  // Manage the state of the widget
   enum _WidgetState {Start=0,Active};
-  //ETX
 
 protected:
   vtkHandleWidget();

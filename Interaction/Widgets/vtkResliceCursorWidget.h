@@ -82,7 +82,6 @@ public:
 
   // Description:
   // Events
-  //BTX
   enum
     {
     WindowLevelEvent = 1055,
@@ -90,7 +89,6 @@ public:
     ResliceThicknessChangedEvent,
     ResetCursorEvent
     };
-  //ETX
 
   // Description:
   // Reset the cursor back to its initial state
@@ -118,14 +116,13 @@ protected:
   // Invoke the appropriate event based on state
   void InvokeAnEvent();
 
-//BTX - manage the state of the widget
+  // Manage the state of the widget
   int WidgetState;
   enum _WidgetState
   {
     Start=0,
     Active
   };
-//ETX
 
   // Keep track whether key modifier key is pressed
   int ModifierActive;

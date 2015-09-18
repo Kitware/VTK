@@ -72,7 +72,7 @@ protected:
   // used to compute relative movements
   float StartPosition[2];
 
-//BTX - manage the state of the widget
+  // Manage the state of the widget
   int State;
   enum WidgetState
   {
@@ -88,7 +88,6 @@ protected:
     Inside,
     Outside
   };
-//ETX
 
   // use to determine what state the mouse is over, edge1 p1, etc.
   // returns a state from the WidgetState enum above

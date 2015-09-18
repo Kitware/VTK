@@ -93,7 +93,7 @@ protected:
   static void MoveAction(vtkAbstractWidget*);
   static void EndSelectAction(vtkAbstractWidget*);
 
-//BTX - manage the state of the widget
+  // Manage the state of the widget
   int WidgetState;
   enum _WidgetState
   {
@@ -101,7 +101,6 @@ protected:
     Hovering,
     Selecting
   };
-  //ETX
 
 private:
   vtkButtonWidget(const vtkButtonWidget&);  //Not implemented
