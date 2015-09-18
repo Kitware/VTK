@@ -260,12 +260,17 @@ void vtkImageProbeFilter::Probe(vtkDataSet *input, vtkDataSet *source,
 }
 
 // find grid point ids within given bmin and bmax
-void vtkImageProbeFilter::get_intersect_idx(double bmin, double bmax, double origin, double stepsize, int steps, int &minidx, int &nidx)
+void vtkImageProbeFilter::GetIntersectIdx(double bmin, double bmax, double origin, double stepsize, int steps, int &minidx, int &nidx)
 {
-  minidx = ceil( (bmin - origin)/stepsize );
+  if (stepsize==0)
+    {
+    minidx = nidx = 0;
+    return;
+    }
+  minidx = vtkMath::Ceil( (bmin - origin)/stepsize );
   if ( minidx < 0 ) minidx = 0;
   int maxidx;
-  maxidx = floor( (bmax - origin)/stepsize );
+  maxidx = vtkMath::Floor( (bmax - origin)/stepsize );
   if (maxidx > steps-1) maxidx = steps-1;
   nidx = maxidx - minidx + 1;
   if (nidx < 0) nidx = 0;
@@ -289,10 +294,11 @@ void vtkImageProbeFilter::ProbeEmptyPoints(vtkDataSet *input_,
 
   vtkImageData *input= vtkImageData::SafeDownCast(input_);
   vtkImageData *output=vtkImageData::SafeDownCast(output_);
-  if (input==NULL || output == NULL) {
+  if (input==NULL || output == NULL)
+    {
     vtkErrorMacro("input and output should be in type vtkImageData.");
     return;
-  }
+    }
 
   vtkDebugMacro(<<"Probing data");
 
@@ -317,12 +323,14 @@ void vtkImageProbeFilter::ProbeEmptyPoints(vtkDataSet *input_,
 
   // initialize arrays
   for (int i=0; i<outPD->GetNumberOfArrays(); i++)
-  {
+    {
     outPD->GetArray(i)->SetNumberOfTuples(numPts);
     // initialize the values to 0
     for (int j = 0 ; j < outPD->GetArray(i)->GetNumberOfComponents(); j++)
+      {
       outPD->GetArray(i)->FillComponent(j, 0);
-  }
+      }
+    }
 
   char* maskArray = this->MaskPoints->GetPointer(0);
 
@@ -350,26 +358,28 @@ void vtkImageProbeFilter::ProbeEmptyPoints(vtkDataSet *input_,
     // get coordinates of sampling grids
     double bounds[6] ;    cell->GetBounds(bounds);
     int nidx, nidy, nidz, minidx, minidy, minidz;
-    get_intersect_idx(bounds[0], bounds[1], origin[0], spacing[0], dim[0],
+    GetIntersectIdx(bounds[0], bounds[1], origin[0], spacing[0], dim[0],
         /*output:*/minidx, nidx);
-    get_intersect_idx(bounds[2], bounds[3], origin[1], spacing[1], dim[1],
+    GetIntersectIdx(bounds[2], bounds[3], origin[1], spacing[1], dim[1],
         /*output:*/minidy, nidy);
-    get_intersect_idx(bounds[4], bounds[5], origin[2], spacing[2], dim[2],
+    GetIntersectIdx(bounds[4], bounds[5], origin[2], spacing[2], dim[2],
         /*output:*/minidz, nidz);
 
     if (nidx==0 || nidy==0 || nidz==0)
+      {
       continue;
+      }
 
     int ix,iy,iz;
     double p[3];
     for (iz=minidz; iz<minidz+nidz; iz++)
-    {
+      {
       p[2] = origin[2]+iz*spacing[2];
       for (iy=minidy; iy<minidy+nidy; iy++)
-      {
+        {
         p[1] = origin[1]+iy*spacing[1];
         for (ix=minidx; ix<minidx+nidx; ix++)
-        {
+          {
           // For each grid point within the cell bound, interpolate values
           p[0] = origin[0]+ix*spacing[0];
 
@@ -379,10 +389,16 @@ void vtkImageProbeFilter::ProbeEmptyPoints(vtkDataSet *input_,
 
           // Ensure the point really falls in the cell. Prevents extrapolation.
           for (int k=0; k<cell->GetNumberOfPoints(); k++)
-            if (weights[k]<0) {inside=0; break;}
+            {
+            if (weights[k]<0)
+              {
+              inside=0;
+              break;
+              }
+            }
 
           if (inside && (dist2==0)) // ensure it's inside the cell
-          {
+            {
             int global_id = ix+dim[0]*(iy + dim[1]*iz);
 
             // Interpolate the point data
@@ -392,21 +408,21 @@ void vtkImageProbeFilter::ProbeEmptyPoints(vtkDataSet *input_,
             // Assign cell data
             int i;
             for (i=0; i < this->CellArrays->size(); i++)
-            {
+              {
               vtkDataArray* inArray = cd->GetArray(i);
               vtkDataArray *outArray = this->CellArrays->at(i);
               if (inArray && outArray)
-              {
+                {
                 outPD->CopyTuple(inArray, outArray, cellId, global_id);
+                }
               }
-            }
 
             maskArray[global_id] = static_cast<char>(1);
+            }
           }
         }
       }
     }
-  }
 
 }
 

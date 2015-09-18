@@ -106,7 +106,6 @@ set(Module_SRCS
   vtkPassArrays.cxx
   vtkSplitColumnComponents.cxx
   vtkCellTreeLocator.cxx
-
   vtkImageProbeFilter.cxx
   )
 

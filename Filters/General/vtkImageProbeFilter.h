@@ -124,7 +124,6 @@ public:
   vtkBooleanMacro(ComputeTolerance, bool);
   vtkGetMacro(ComputeTolerance, bool);
 
-//BTX
 protected:
   vtkImageProbeFilter();
   ~vtkImageProbeFilter();
@@ -185,8 +184,8 @@ protected:
   vtkDataSetAttributes::FieldList* CellList;
   vtkDataSetAttributes::FieldList* PointList;
 
-  void get_intersect_idx(double bmin, double bmax, double origin, double stepsize, int steps,
-                         /*output*/ int &minidx, int &nidx);
+  void GetIntersectIdx(double bmin, double bmax, double origin, double stepsize, int steps,
+                      /*output*/ int &minidx, int &nidx);
 
 private:
   vtkImageProbeFilter(const vtkImageProbeFilter&);  // Not implemented.
@@ -194,7 +193,6 @@ private:
 
   class vtkVectorOfArrays;
   vtkVectorOfArrays* CellArrays;
-//ETX
 };
 
 #endif
