@@ -106,7 +106,6 @@ int vtkPolyDataNormals::RequestData(
     return 1;
     }
   output->GetCellData()->PassData(input->GetCellData());
-  output->SetFieldData(input->GetFieldData());
 
   // Load data into cell structure.  We need two copies: one is a
   // non-writable mesh used to perform topological queries.  The other
