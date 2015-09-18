@@ -47,6 +47,12 @@ public:
   virtual void Render(vtkRenderer *ren, vtkActor *act);
 
   // Description:
+  // Release any graphics resources that are being consumed by this mapper.
+  // The parameter window could be used to determine which graphic
+  // resources to release. In this case, releases the display lists.
+  virtual void ReleaseGraphicsResources(vtkWindow * win);
+
+  // Description:
   // Returns if the mapper does not expect to have translucent geometry. This
   // may happen when using ScalarMode is set to not map scalars i.e. render the
   // scalar array directly as colors and the scalar array has opacity i.e. alpha
@@ -94,6 +100,10 @@ public:
 protected:
   vtkCompositeSurfaceLICMapper();
   ~vtkCompositeSurfaceLICMapper();
+
+  // Description:
+  // Take part in garbage collection.
+  virtual void ReportReferences(vtkGarbageCollector *collector);
 
   // Description:
   // We need to override this method because the standard streaming
