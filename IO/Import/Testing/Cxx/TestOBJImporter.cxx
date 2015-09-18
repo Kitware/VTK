@@ -10,8 +10,10 @@
 #include "vtkPNGWriter.h"
 #include "vtkImageCanvasSource2D.h"
 #include "vtkImageCast.h"
+#include "vtkCamera.h"
 
 #include "vtkTestUtilities.h"
+#include "vtkRegressionTestImage.h"
 #include "vtksys/SystemTools.hxx"
 
 namespace
@@ -89,11 +91,20 @@ int TestOBJImporter( int argc, char * argv [] )
       std::cerr << "failed to get an actor created?!" << std::endl;
       return -1;
     }
-    if( bInteractive() )
+    ren->GetActiveCamera()->SetPosition(10,10,-10);
+    ren->ResetCamera();
+    int retVal = vtkRegressionTestImage(renWin.GetPointer());
+    if( retVal == vtkRegressionTester::DO_INTERACTOR )
     {
         renWin->SetSize(800,600);
         renWin->SetAAFrames(3);
         iren->Start();
     }
-    return 0;
+
+    // Some tests do not produce images... allow them to pass.
+    // But if we had an image, it must be within the threshold:
+    return (
+      retVal == vtkRegressionTester::PASSED ||
+      retVal == vtkRegressionTester::NOT_RUN) ?
+      0 : 1;
 }

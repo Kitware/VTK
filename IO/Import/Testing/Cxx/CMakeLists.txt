@@ -25,6 +25,15 @@ ExternalData_add_test(VTKData
   )
 
 ExternalData_add_test(VTKData
+  NAME ${vtk-module}Cxx-OBJImport-SolidAndTextured
+  COMMAND ${vtk-module}CxxTests TestOBJImporter
+    -D DATA{../Data/Input/cube-scene.obj}  DATA{../Data/Input/cube-scene.mtl}
+       DATA{../Data/Input/noise.png}       DATA{../Data/Input/noise.png}
+    -V DATA{../Data/Baseline/OBJImport-SolidAndTextured.png}
+    -T "${VTK_TEST_OUTPUT_DIR}"
+  )
+
+ExternalData_add_test(VTKData
   NAME ${vtk-module}Cxx-OBJImport-MTLwithoutTextureFile
   COMMAND ${vtk-module}CxxTests TestOBJImporter
     -D DATA{../Data/Input/boxes_4_mtl_no_texture.obj}  DATA{../Data/Input/boxes_4_mtl_no_texture.obj.mtl}
