@@ -685,11 +685,25 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToFrameBuffer(vtkRenderer *ren)
   vtkOpenGLClearErrorMacro();
 
 #ifdef VTK_OPENGL2
+  GLint blendSrcA = GL_ONE;
+  GLint blendDstA = GL_ONE_MINUS_SRC_ALPHA;
+  GLint blendSrcC = GL_SRC_ALPHA;
+  GLint blendDstC = GL_ONE_MINUS_SRC_ALPHA;
+  glGetIntegerv(GL_BLEND_SRC_ALPHA, &blendSrcA);
+  glGetIntegerv(GL_BLEND_DST_ALPHA, &blendDstA);
+  glGetIntegerv(GL_BLEND_SRC_RGB, &blendSrcC);
+  glGetIntegerv(GL_BLEND_DST_RGB, &blendDstC);
+  // framebuffers have their color premultiplied by alpha.
+  glBlendFuncSeparate(GL_ONE,GL_ONE_MINUS_SRC_ALPHA,
+    GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
+
   // always draw the entire image on the entire viewport
   vtkOpenGLRenderWindow *renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetVTKWindow());
   renWin->DrawPixels(this->GetWidth(), this->GetHeight(),
     this->Data->GetNumberOfComponents(), VTK_UNSIGNED_CHAR,
     this->GetRawPtr()->GetVoidPointer(0));
+  // restore the blend state
+  glBlendFuncSeparate(blendSrcC, blendDstC, blendSrcA, blendDstA);
 #else
   (void)ren;
   glPushAttrib(GL_ENABLE_BIT | GL_TRANSFORM_BIT| GL_TEXTURE_BIT);
