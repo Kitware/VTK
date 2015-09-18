@@ -1,7 +1,8 @@
 """
-A simple VTK widget for PyQt v5, the Qt v5 bindings for Python.
-See http://www.trolltech.com for Qt documentation, and
-http://www.riverbankcomputing.co.uk for PyQt.
+A simple VTK widget for PyQt or PySide.
+See http://www.trolltech.com for Qt documentation,
+http://www.riverbankcomputing.co.uk for PyQt, and
+http://pyside.github.io for PySide.
 
 This class is based on the vtkGenericRenderWindowInteractor and is
 therefore fairly powerful.  It should also play nicely with the
@@ -29,25 +30,65 @@ Changes by Phil Thompson, Mar. 2008
 Changes by Rodrigo Mologni, Sep. 2013 (Credit to Daniele Esposti)
  Bug fix to PySide: Converts PyCObject to void pointer.
 
+Changes by Greg Schussman, Aug. 2014
+ The keyPressEvent function now passes keysym instead of None.
+
 Changes by Alex Tsui, Apr. 2015
- Port from PyQt4 widget.
+ Port from PyQt4 to PyQt5.
 """
 
-
+# Check whether a specific PyQt implementation was chosen
 try:
+    import vtk.qt
+    PyQtImpl = vtk.qt.PyQtImpl
+except ImportError:
+    pass
+
+if PyQtImpl is None:
+    # Autodetect the PyQt implementation to use
+    try:
+        import PyQt5
+        PyQtImpl = "PyQt5"
+    except ImportError:
+        try:
+            import PyQt4
+            PyQtImpl = "PyQt4"
+        except ImportError:
+            try:
+                import PySide
+                PyQtImpl = "PySide"
+            except ImportError:
+                raise ImportError("Cannot load either PyQt or PySide")
+
+if PyQtImpl == "PyQt5":
     from PyQt5.QtWidgets import QWidget
     from PyQt5.QtWidgets import QSizePolicy
     from PyQt5.QtWidgets import QApplication
     from PyQt5.QtCore import Qt
-    from PyQt5.QtCore import pyqtSignal
     from PyQt5.QtCore import QTimer
     from PyQt5.QtCore import QObject
     from PyQt5.QtCore import QSize
     from PyQt5.QtCore import QEvent
-except ImportError:
-    raise ImportError("Cannot load PyQt5")
-
-import vtk
+elif PyQtImpl == "PyQt4":
+    from PyQt4.QtGui import QWidget
+    from PyQt4.QtGui import QSizePolicy
+    from PyQt4.QtGui import QApplication
+    from PyQt4.QtCore import Qt
+    from PyQt4.QtCore import QTimer
+    from PyQt4.QtCore import QObject
+    from PyQt4.QtCore import QSize
+    from PyQt4.QtCore import QEvent
+elif PyQtImpl == "PySide":
+    from PySide.QtGui import QWidget
+    from PySide.QtGui import QSizePolicy
+    from PySide.QtGui import QApplication
+    from PySide.QtCore import Qt
+    from PySide.QtCore import QTimer
+    from PySide.QtCore import QObject
+    from PySide.QtCore import QSize
+    from PySide.QtCore import QEvent
+else:
+    raise ImportError("Unknown PyQt implementation " + repr(PyQtImpl))
 
 class QVTKRenderWindowInteractor(QWidget):
 
@@ -146,16 +187,15 @@ class QVTKRenderWindowInteractor(QWidget):
         # do special handling of some keywords:
         # stereo, rw
 
-        stereo = 0
+        try:
+            stereo = bool(kw['stereo'])
+        except KeyError:
+            stereo = False
 
-        if 'stereo' in kw:
-            if kw['stereo']:
-                stereo = 1
-
-        rw = None
-
-        if 'rw' in kw:
+        try:
             rw = kw['rw']
+        except KeyError:
+            rw = None
 
         # create qt-level widget
         QWidget.__init__(self, parent, wflags|Qt.MSWindowsOwnDC)
@@ -181,9 +221,9 @@ class QVTKRenderWindowInteractor(QWidget):
             self._RenderWindow.StereoCapableWindowOn()
             self._RenderWindow.SetStereoTypeToCrystalEyes()
 
-        if 'iren' in kw:
+        try:
             self._Iren = kw['iren']
-        else:
+        except KeyError:
             self._Iren = vtk.vtkGenericRenderWindowInteractor()
             self._Iren.SetRenderWindow(self._RenderWindow)
 
@@ -205,11 +245,9 @@ class QVTKRenderWindowInteractor(QWidget):
         #Create a hidden child widget and connect its destroyed signal to its
         #parent ``Finalize`` slot. The hidden children will be destroyed before
         #its parent thus allowing cleanup of VTK elements.
-        #self._hidden = QtGui.QWidget(self)
         self._hidden = QWidget(self)
         self._hidden.hide()
         self._hidden.destroyed.connect(self.Finalize)
-
 
     def __getattr__(self, attr):
         """Makes the object behave like a vtkGenericRenderWindowInteractor"""
@@ -218,7 +256,7 @@ class QVTKRenderWindowInteractor(QWidget):
         elif hasattr(self._Iren, attr):
             return getattr(self._Iren, attr)
         else:
-            raise AttributeError(self.__class__.__name__ + \
+            raise AttributeError(self.__class__.__name__ +
                   " has no attribute named " + attr)
 
     def Finalize(self):
@@ -349,8 +387,12 @@ class QVTKRenderWindowInteractor(QWidget):
         else:
             key = chr(0)
 
+        keySym = _qt_key_to_key_sym(ev.key())
+        if shift and len(keySym) == 1 and keySym.isalpha():
+            keySym = keySym.upper()
+
         self._Iren.SetEventInformationFlipY(self.__saveX, self.__saveY,
-                                            ctrl, shift, key, 0, None)
+                                            ctrl, shift, key, 0, keySym)
         self._Iren.KeyPressEvent()
         self._Iren.CharEvent()
 
@@ -410,5 +452,115 @@ def QVTKRenderWidgetConeExample():
     # start event processing
     app.exec_()
 
+
+_keysyms = {
+    Qt.Key_Backspace: 'BackSpace',
+    Qt.Key_Tab: 'Tab',
+    Qt.Key_Backtab: 'Tab',
+    # Qt.Key_Clear : 'Clear',
+    Qt.Key_Return: 'Return',
+    Qt.Key_Enter: 'Return',
+    Qt.Key_Shift: 'Shift_L',
+    Qt.Key_Control: 'Control_L',
+    Qt.Key_Alt: 'Alt_L',
+    Qt.Key_Pause: 'Pause',
+    Qt.Key_CapsLock: 'Caps_Lock',
+    Qt.Key_Escape: 'Escape',
+    Qt.Key_Space: 'space',
+    # Qt.Key_Prior : 'Prior',
+    # Qt.Key_Next : 'Next',
+    Qt.Key_End: 'End',
+    Qt.Key_Home: 'Home',
+    Qt.Key_Left: 'Left',
+    Qt.Key_Up: 'Up',
+    Qt.Key_Right: 'Right',
+    Qt.Key_Down: 'Down',
+    Qt.Key_SysReq: 'Snapshot',
+    Qt.Key_Insert: 'Insert',
+    Qt.Key_Delete: 'Delete',
+    Qt.Key_Help: 'Help',
+    Qt.Key_0: '0',
+    Qt.Key_1: '1',
+    Qt.Key_2: '2',
+    Qt.Key_3: '3',
+    Qt.Key_4: '4',
+    Qt.Key_5: '5',
+    Qt.Key_6: '6',
+    Qt.Key_7: '7',
+    Qt.Key_8: '8',
+    Qt.Key_9: '9',
+    Qt.Key_A: 'a',
+    Qt.Key_B: 'b',
+    Qt.Key_C: 'c',
+    Qt.Key_D: 'd',
+    Qt.Key_E: 'e',
+    Qt.Key_F: 'f',
+    Qt.Key_G: 'g',
+    Qt.Key_H: 'h',
+    Qt.Key_I: 'i',
+    Qt.Key_J: 'j',
+    Qt.Key_K: 'k',
+    Qt.Key_L: 'l',
+    Qt.Key_M: 'm',
+    Qt.Key_N: 'n',
+    Qt.Key_O: 'o',
+    Qt.Key_P: 'p',
+    Qt.Key_Q: 'q',
+    Qt.Key_R: 'r',
+    Qt.Key_S: 's',
+    Qt.Key_T: 't',
+    Qt.Key_U: 'u',
+    Qt.Key_V: 'v',
+    Qt.Key_W: 'w',
+    Qt.Key_X: 'x',
+    Qt.Key_Y: 'y',
+    Qt.Key_Z: 'z',
+    Qt.Key_Asterisk: 'asterisk',
+    Qt.Key_Plus: 'plus',
+    Qt.Key_Minus: 'minus',
+    Qt.Key_Period: 'period',
+    Qt.Key_Slash: 'slash',
+    Qt.Key_F1: 'F1',
+    Qt.Key_F2: 'F2',
+    Qt.Key_F3: 'F3',
+    Qt.Key_F4: 'F4',
+    Qt.Key_F5: 'F5',
+    Qt.Key_F6: 'F6',
+    Qt.Key_F7: 'F7',
+    Qt.Key_F8: 'F8',
+    Qt.Key_F9: 'F9',
+    Qt.Key_F10: 'F10',
+    Qt.Key_F11: 'F11',
+    Qt.Key_F12: 'F12',
+    Qt.Key_F13: 'F13',
+    Qt.Key_F14: 'F14',
+    Qt.Key_F15: 'F15',
+    Qt.Key_F16: 'F16',
+    Qt.Key_F17: 'F17',
+    Qt.Key_F18: 'F18',
+    Qt.Key_F19: 'F19',
+    Qt.Key_F20: 'F20',
+    Qt.Key_F21: 'F21',
+    Qt.Key_F22: 'F22',
+    Qt.Key_F23: 'F23',
+    Qt.Key_F24: 'F24',
+    Qt.Key_NumLock: 'Num_Lock',
+    Qt.Key_ScrollLock: 'Scroll_Lock',
+    }
+
+def _qt_key_to_key_sym(key):
+    """ Convert a Qt key into a vtk keysym.
+
+    This is essentially copied from the c++ implementation in
+    GUISupport/Qt/QVTKInteractorAdapter.cxx.
+    """
+
+    if key not in _keysyms:
+        return None
+
+    return _keysyms[key]
+
+
 if __name__ == "__main__":
+    print PyQtImpl
     QVTKRenderWidgetConeExample()
