@@ -448,7 +448,7 @@ bool vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
           done = done || (fscanf(fp,"%s", line)==EOF);
           }
         }
-      if (!done)
+      else if (!done)
         {
         done = (fgets(line, 255, fp) == 0);
         lineCount++;

@@ -31,6 +31,14 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestSimplePointsReaderWriter.cxx,NO_VALID
   )
 
+vtk_add_test_cxx(${vtk-module}CxxTests tests
+  TestSTLReaderSinglePatch,TestSTLReader.cxx DATA{${VTK_TEST_INPUT_DIR}/42400-IDGH.stl}
+)
+
+vtk_add_test_cxx(${vtk-module}CxxTests tests
+  TestSTLReaderMultiplePatches,TestSTLReader.cxx DATA{${VTK_TEST_INPUT_DIR}/multiple_patches.stl}
+)
+
 set(_known_little_endian FALSE)
 if (DEFINED CMAKE_WORDS_BIGENDIAN)
   if (NOT CMAKE_WORDS_BIGENDIAN)
