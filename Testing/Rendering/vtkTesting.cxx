@@ -408,7 +408,18 @@ int vtkTesting::RegressionTest(double thresh, ostream &os)
       rtW2if->ReadFrontBufferOn();
       rtW2if->Update();
       res = this->RegressionTest(rtW2if.Get(), thresh, out2);
-      os << out2.str();
+      // If both tests fail, rerun the backbuffer tests to recreate the test
+      // image. Otherwise an incorrect image will be uploaded to CDash.
+      if (res == PASSED)
+        {
+        os << out2.str();
+        }
+      else
+        {
+        rtW2if->ReadFrontBufferOff();
+        rtW2if->Update();
+        return this->RegressionTest(rtW2if.Get(), thresh, os);
+        }
     }
   else
     {
