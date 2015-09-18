@@ -28,10 +28,6 @@
 #include "vtkStdString.h"
 #include "vtkUnicodeString.h"
 
-// FTGL
-#include "vtkftglConfig.h"
-#include "FTLibrary.h"
-
 // The embedded fonts
 #include "fonts/vtkEmbeddedFonts.h"
 
@@ -44,10 +40,6 @@
 #include <algorithm>
 #include <map>
 #include <vector>
-
-#ifdef FTGL_USE_NAMESPACE
-using namespace ftgl;
-#endif
 
 // Print debug info
 #define VTK_FTFC_DEBUG 0
@@ -133,41 +125,12 @@ struct EmbeddedFontStruct
   unsigned char *ptr;
 };
 
-//----------------------------------------------------------------------------
-// This callback will be called by the FTGLibrary singleton cleanup destructor
-// if it happens to be destroyed before our singleton (this order is not
-// deterministic). It will destroy our singleton, if needed.
-static void vtkFreeTypeToolsCleanupCallback ()
-{
-#if VTK_FTFC_DEBUG_CD
-  printf("vtkFreeTypeToolsCleanupCallback\n");
-#endif
-  vtkFreeTypeTools::SetInstance(NULL);
-}
-
-//----------------------------------------------------------------------------
-// Create the singleton cleanup
-// Register our singleton cleanup callback against the FTLibrary so that
-// it might be called before the FTLibrary singleton is destroyed.
-vtkFreeTypeToolsCleanup::vtkFreeTypeToolsCleanup()
-{
-#if VTK_FTFC_DEBUG_CD
-  printf("vtkFreeTypeToolsCleanup::vtkFreeTypeToolsCleanup\n");
-#endif
-  FTLibraryCleanup::AddDependency(&vtkFreeTypeToolsCleanupCallback);
-}
-
-//----------------------------------------------------------------------------
-// Delete the singleton cleanup
-// The callback called here might have been called by the FTLibrary singleton
-// cleanup first (depending on the destruction order), but in case ours is
-// destroyed first, let's call it too.
+//------------------------------------------------------------------------------
+// Clean up the vtkFreeTypeTools instance at exit. Using a separate class allows
+// us to delay initialization of the vtkFreeTypeTools class.
 vtkFreeTypeToolsCleanup::~vtkFreeTypeToolsCleanup()
 {
-#if VTK_FTFC_DEBUG_CD
-  printf("vtkFreeTypeToolsCleanup::~vtkFreeTypeToolsCleanup\n");
-#endif
-  vtkFreeTypeToolsCleanupCallback();
+  vtkFreeTypeTools::SetInstance(NULL);
 }
 
 //----------------------------------------------------------------------------
@@ -225,6 +188,18 @@ vtkFreeTypeTools::vtkFreeTypeTools()
   this->ImageCache   = NULL;
   this->CMapCache    = NULL;
   this->ScaleToPowerTwo = true;
+
+  // Ideally this should be thread-local to support SMP:
+  FT_Error err;
+  this->Library = new FT_Library;
+  err = FT_Init_FreeType(this->Library);
+  if (err)
+    {
+    vtkErrorMacro("FreeType library initialization failed with error code: "
+                  << err << ".");
+    delete this->Library;
+    this->Library = NULL;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -235,6 +210,9 @@ vtkFreeTypeTools::~vtkFreeTypeTools()
 #endif
   this->ReleaseCacheManager();
   delete TextPropertyLookup;
+
+  FT_Done_FreeType(*this->Library);
+  this->Library = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -244,13 +222,7 @@ FT_Library* vtkFreeTypeTools::GetLibrary()
   printf("vtkFreeTypeTools::GetLibrary\n");
 #endif
 
-  FTLibrary * ftgl_lib = FTLibrary::GetInstance();
-  if (ftgl_lib)
-    {
-    return ftgl_lib->GetLibrary();
-    }
-
-  return NULL;
+  return this->Library;
 }
 
 //----------------------------------------------------------------------------

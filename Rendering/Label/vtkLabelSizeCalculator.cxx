@@ -5,7 +5,6 @@
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkFieldData.h"
-#include "vtkFreeTypeUtilities.h"
 #include "vtkGraph.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -18,6 +17,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTextProperty.h"
+#include "vtkTextRenderer.h"
 
 #include <map>
 
@@ -28,16 +28,17 @@ public:
 };
 
 vtkStandardNewMacro(vtkLabelSizeCalculator);
-vtkCxxSetObjectMacro(vtkLabelSizeCalculator,FontUtil,vtkFreeTypeUtilities);
+vtkCxxSetObjectMacro(vtkLabelSizeCalculator,FontUtil,vtkTextRenderer);
 
 vtkLabelSizeCalculator::vtkLabelSizeCalculator()
 {
   this->Implementation = new Internals;
   // Always defined but user may set to NULL.
   this->Implementation->FontProperties[0] = vtkSmartPointer<vtkTextProperty>::New();
-  this->FontUtil = vtkFreeTypeUtilities::New(); // Never a NULL moment.
+  this->FontUtil = vtkTextRenderer::New(); // Never a NULL moment.
   this->LabelSizeArrayName = NULL;
   this->SetLabelSizeArrayName( "LabelSize" );
+  this->SetDPI(72);
   this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "LabelText");
   this->SetInputArrayToProcess(1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "Type");
 }
@@ -235,7 +236,7 @@ vtkIntArray* vtkLabelSizeCalculator::LabelSizesForArray(
       prop = this->Implementation->FontProperties[0];
       }
     this->FontUtil->GetBoundingBox(
-      prop, labels->GetVariantValue( i ).ToString().c_str(), bbox );
+          prop, labels->GetVariantValue(i).ToString().c_str(), bbox, this->DPI);
     bds[0] = bbox[1] - bbox[0];
     bds[1] = bbox[3] - bbox[2];
     bds[2] = bbox[0];

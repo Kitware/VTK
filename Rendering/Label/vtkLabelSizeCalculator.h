@@ -39,7 +39,7 @@
 #include "vtkPassInputTypeAlgorithm.h"
 
 class vtkIntArray;
-class vtkFreeTypeUtilities;
+class vtkTextRenderer;
 class vtkStringArray;
 class vtkTextProperty;
 
@@ -64,6 +64,12 @@ public:
   vtkSetStringMacro(LabelSizeArrayName);
   vtkGetStringMacro(LabelSizeArrayName);
 
+  // Description:
+  // Get/Set the DPI at which the labels are to be rendered. Defaults to 72.
+  // @sa vtkWindow::GetDPI()
+  vtkSetMacro(DPI, int)
+  vtkGetMacro(DPI, int)
+
 protected:
   vtkLabelSizeCalculator();
   virtual ~vtkLabelSizeCalculator();
@@ -76,11 +82,13 @@ protected:
 
   virtual vtkIntArray* LabelSizesForArray( vtkAbstractArray* labels, vtkIntArray* types );
 
-  virtual void SetFontUtil( vtkFreeTypeUtilities* fontProp );
-  vtkGetObjectMacro(FontUtil,vtkFreeTypeUtilities);
+  virtual void SetFontUtil( vtkTextRenderer* fontProp );
+  vtkGetObjectMacro(FontUtil,vtkTextRenderer);
 
-  vtkFreeTypeUtilities* FontUtil;
+  vtkTextRenderer* FontUtil;
   char* LabelSizeArrayName;
+
+  int DPI;
 
   //BTX
   class Internals;

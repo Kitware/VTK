@@ -14,7 +14,6 @@
 =========================================================================*/
 
 #include "vtkMathTextUtilities.h"
-#include "vtkFreeTypeUtilities.h"
 
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
