@@ -995,7 +995,7 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
     Integer
   } Specialization;
 
-  int specialization = Integer;
+  Specialization specialization = Integer;
   for ( std::set<std::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
         rit != this->Internals->Requests.end(); ++ rit )
     {
@@ -1035,8 +1035,6 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
       }
     }
 
-  cerr << "USING SPECIALIZATION " << specialization << endl;
-
   // Summary table: assigns a unique key to each (variable X,variable Y) pair
   vtkTable* summaryTab = vtkTable::New();
 
@@ -1075,7 +1073,7 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
       abstractY = vtkLongArray::New ();
       break;
     default:
-      vtkErrorMacro ("Invalid specialization, expected None, Double or Integer");
+      vtkErrorMacro ("Invalid specialization, " << specialization << ", expected None, Double or Integer");
       return;
     }
 
@@ -1166,7 +1164,7 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
         ContingencyImpl<long,vtkLongArray>::CalculateContingencyRow (dataX, dataY, contingencyTab, summaryRow);
         break;
       default:
-        vtkErrorMacro ("Invalid specialization, expected None, Double or Integer");
+        vtkErrorMacro ("Invalid specialization, " << specialization << ", expected None, Double or Integer");
         continue;
       }
     }
@@ -1187,7 +1185,6 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
 // ----------------------------------------------------------------------
 void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 {
-  cerr << "Derive 1\n";
   if ( ! inMeta || inMeta->GetNumberOfBlocks() < 2 )
     {
     return;
@@ -1210,7 +1207,6 @@ void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
                                   "H(Y|X)",
                                   "H(X|Y)" };
 
-  cerr << "Derive 2\n";
   // Create table for derived meta statistics
   vtkIdType nRowSumm = summaryTab->GetNumberOfRows();
   vtkDoubleArray* doubleCol;
@@ -1225,9 +1221,6 @@ void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       doubleCol->Delete();
       }
     }
-
-  // Container for information entropies
-  Entropies *H = new Entropies[nEntropy];
 
   // Create columns of derived statistics
   int nDerivedVals = 4;
@@ -1277,9 +1270,13 @@ void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     if ( ! derivedCols[j] )
       {
       vtkErrorWithObjectMacro(contingencyTab, "Empty model column(s). Cannot derive model.\n");
+      delete [] derivedCols;
       return;
       }
     }
+
+  // Container for information entropies
+  Entropies *H = new Entropies[nEntropy];
 
   if (dataX == 0 || dataY == 0)
     {
@@ -1303,9 +1300,6 @@ void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     impl.ComputeDerivedValues (keys, varX, varY, valsX, valsY, card, contingencyTab, derivedCols, nDerivedVals, H, nEntropy);
     }
 
-  delete [] derivedCols;
-
-  cerr << "Derive 8\n";
   // Store information entropies
   for ( Entropies::iterator eit = H[0].begin(); eit != H[0].end(); ++ eit )
     {
@@ -1316,6 +1310,7 @@ void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 
   // Clean up
   delete [] H;
+  delete [] derivedCols;
 }
 
 // ----------------------------------------------------------------------
