@@ -131,7 +131,9 @@ void vtkCompositePolyDataMapper2::Render(
         if (!pd ||
             pd->GetVerts()->GetNumberOfCells() ||
             pd->GetLines()->GetNumberOfCells() ||
-            pd->GetStrips()->GetNumberOfCells())
+            pd->GetStrips()->GetNumberOfCells() ||
+            pd->GetPointData()->GetAttribute(
+                        vtkDataSetAttributes::EDGEFLAG))
           {
           this->UseGeneric = true;
           break;
