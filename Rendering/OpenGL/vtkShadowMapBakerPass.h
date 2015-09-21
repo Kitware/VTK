@@ -45,11 +45,10 @@
 
 class vtkOpenGLRenderWindow;
 class vtkInformationIntegerKey;
+class vtkTextureObject;
 class vtkCamera;
 class vtkLight;
 class vtkFrameBufferObject;
-class vtkShadowMapBakerPassTextures; // internal
-class vtkShadowMapBakerPassLightCameras; // internal
 
 class VTKRENDERINGOPENGL_EXPORT vtkShadowMapBakerPass : public vtkRenderPass
 {
