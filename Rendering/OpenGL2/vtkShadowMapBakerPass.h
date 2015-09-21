@@ -47,6 +47,7 @@ class vtkInformationIntegerKey;
 class vtkCamera;
 class vtkLight;
 class vtkFrameBufferObject;
+class vtkTextureObject;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkShadowMapBakerPass : public vtkRenderPass
 {
