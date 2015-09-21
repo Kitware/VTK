@@ -196,6 +196,15 @@ public:
   vtkGetMacro(BarWidthFraction, float);
 
   // Description:
+  // Set the behavior of the mouse wheel.  If true, the mouse wheel zooms in/out
+  // on the chart.  Otherwise, unless MouseWheelEvent is overridden by a subclass
+  // the mouse wheel does nothing.
+  // The default value is true.
+  vtkSetMacro(ZoomWithMouseWheel, bool);
+  vtkGetMacro(ZoomWithMouseWheel, bool);
+  vtkBooleanMacro(ZoomWithMouseWheel, bool);
+
+  // Description:
   // Set the information passed to the tooltip.
   virtual void SetTooltipInfo(const vtkContextMouseEvent &,
                               const vtkVector2d &,
@@ -329,6 +338,11 @@ protected:
   // inside the plot boundaries. It constrains pan and zoom interaction.
   // False by default.
   bool ForceAxesToBounds;
+
+  // Desription:
+  // Property to enable zooming the chart with the mouse wheel.
+  // True by default.
+  bool ZoomWithMouseWheel;
 
 private:
   vtkChartXY(const vtkChartXY &); // Not implemented.

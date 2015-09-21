@@ -182,6 +182,7 @@ vtkChartXY::vtkChartXY()
   this->LayoutChanged = true;
 
   this->ForceAxesToBounds = false;
+  this->ZoomWithMouseWheel = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -2215,6 +2216,10 @@ bool vtkChartXY::MouseWheelEvent(const vtkContextMouseEvent &, int delta)
     {
     this->Tooltip->SetVisible(false);
     }
+  if (!this->ZoomWithMouseWheel)
+    {
+    return false;
+    }
 
   // Get the bounds of each plot.
   for (int i = 0; i < 4; ++i)
@@ -2333,5 +2338,6 @@ void vtkChartXY::PrintSelf(ostream &os, vtkIndent indent)
       this->ChartPrivate->plots[i]->PrintSelf(os, indent.GetNextIndent());
       }
     }
+  os << indent << "ZoomWithMouseWheel: " << this->ZoomWithMouseWheel << endl;
 
 }
