@@ -17,29 +17,27 @@
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
 
-#include "vtkCamera.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
 #include "vtkActor.h"
+#include "vtkCamera.h"
 #include "vtkCellArray.h"
+#include "vtkLightKit.h"
+#include "vtkNew.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLTexture.h"
+#include "vtkPLYReader.h"
+#include "vtkPlaneSource.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkPLYReader.h"
-#include "vtkNew.h"
 #include "vtkProperty.h"
-#include "vtkLightKit.h"
-#include "vtkTimerLog.h"
-#include "vtkOpenGLRenderer.h"
-#include "vtkPlaneSource.h"
-#include "vtkOpenGLTexture.h"
-
-#include "vtkShadowMapBakerPass.h"
-#include "vtkShadowMapPassInternal.h"
-
 #include "vtkRegressionTestImage.h"
-#include "vtkTestUtilities.h"
-
+#include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkShadowMapBakerPass.h"
+#include "vtkTestUtilities.h"
+#include "vtkTextureObject.h"
+#include "vtkTimerLog.h"
+
 
 //----------------------------------------------------------------------------
 int TestShadowMapBakerPass(int argc, char *argv[])
@@ -93,7 +91,7 @@ int TestShadowMapBakerPass(int argc, char *argv[])
   cerr << "baking time: " << firstRender << endl;
 
   // get a shadow map
-  vtkTextureObject *to = bakerPass->GetShadowMaps()->Vector[2];
+  vtkTextureObject *to = (*bakerPass->GetShadowMaps())[2];
   // by default the textures have depth comparison on
   // but for simple display we need to turn it off
   to->SetDepthTextureCompare(false);

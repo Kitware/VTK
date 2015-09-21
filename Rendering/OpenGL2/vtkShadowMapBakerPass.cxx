@@ -39,9 +39,6 @@
 #include <cassert>
 #include "vtkStdString.h"
 
-// For vtkShadowMapBakerPassTextures, vtkShadowMapBakerPassLightCameras
-#include "vtkShadowMapPassInternal.h"
-
 // debugging
 #include "vtkTimerLog.h"
 
@@ -220,13 +217,13 @@ bool vtkShadowMapBakerPass::LightCreatesShadow(vtkLight *l)
 }
 
 // ----------------------------------------------------------------------------
-vtkShadowMapBakerPassTextures *vtkShadowMapBakerPass::GetShadowMaps()
+std::vector<vtkSmartPointer<vtkTextureObject> > *vtkShadowMapBakerPass::GetShadowMaps()
 {
   return this->ShadowMaps;
 }
 
 // ----------------------------------------------------------------------------
-vtkShadowMapBakerPassLightCameras *vtkShadowMapBakerPass::GetLightCameras()
+std::vector<vtkSmartPointer<vtkCamera> > *vtkShadowMapBakerPass::GetLightCameras()
 {
   return this->LightCameras;
 }
@@ -402,7 +399,7 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
         }
 
       if(this->ShadowMaps!=0 &&
-         this->ShadowMaps->Vector.size()!=numberOfShadowLights)
+         this->ShadowMaps->size()!=numberOfShadowLights)
         {
         delete this->ShadowMaps;
         this->ShadowMaps=0;
@@ -410,12 +407,12 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
 
       if(this->ShadowMaps==0)
         {
-        this->ShadowMaps=new vtkShadowMapBakerPassTextures;
-        this->ShadowMaps->Vector.resize(numberOfShadowLights);
+        this->ShadowMaps = new std::vector<vtkSmartPointer<vtkTextureObject> >();
+        this->ShadowMaps->resize(numberOfShadowLights);
         }
 
       if(this->LightCameras!=0 &&
-         this->LightCameras->Vector.size()!=numberOfShadowLights)
+         this->LightCameras->size()!=numberOfShadowLights)
         {
         delete this->LightCameras;
         this->LightCameras=0;
@@ -423,8 +420,8 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
 
       if(this->LightCameras==0)
         {
-        this->LightCameras=new vtkShadowMapBakerPassLightCameras;
-        this->LightCameras->Vector.resize(numberOfShadowLights);
+        this->LightCameras = new std::vector<vtkSmartPointer<vtkCamera> >();
+        this->LightCameras->resize(numberOfShadowLights);
         }
 
       r->SetAutomaticLightCreation(false);
@@ -468,11 +465,11 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
         {
         if(l->GetSwitch() && this->LightCreatesShadow(l))
           {
-          vtkTextureObject *map=this->ShadowMaps->Vector[lightIndex];
+          vtkTextureObject *map = (*this->ShadowMaps)[lightIndex];
           if(map==0)
             {
             map=vtkTextureObject::New();
-            this->ShadowMaps->Vector[lightIndex]=map;
+            (*this->ShadowMaps)[lightIndex]=map;
             map->Delete();
             }
 
@@ -502,11 +499,11 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
             static_cast<int>(this->Resolution),
             static_cast<int>(this->Resolution),false);
 
-          vtkCamera *lightCamera=this->LightCameras->Vector[lightIndex];
+          vtkCamera *lightCamera = (*this->LightCameras)[lightIndex];
           if(lightCamera==0)
             {
             lightCamera=vtkCamera::New();
-            this->LightCameras->Vector[lightIndex]=lightCamera;
+            (*this->LightCameras)[lightIndex] = lightCamera;
             lightCamera->Delete();
             }
 

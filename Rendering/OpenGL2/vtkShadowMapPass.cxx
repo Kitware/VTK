@@ -44,8 +44,6 @@
 #include "vtkSampleFunction.h"
 #include "vtkSequencePass.h"
 #include "vtkShadowMapBakerPass.h"
-// For vtkShadowMapBakerPassTextures, vtkShadowMapBakerPassLightCameras
-#include "vtkShadowMapPassInternal.h"
 #include "vtkTextureObject.h"
 #include "vtkTextureUnitManager.h"
 #include "vtkTransform.h"
@@ -216,7 +214,7 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
          this->ShadowMapBakerPass->LightCreatesShadow(light) )
         {
         vtkTextureObject *map=
-          this->ShadowMapBakerPass->GetShadowMaps()->Vector[
+          (*this->ShadowMapBakerPass->GetShadowMaps())[
             static_cast<size_t>(shadowingLightIndex)];
         // activate the texture map
         map->Activate();
@@ -258,7 +256,7 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
       if (shadowTextureUnits[lightIndex] >= 0)
         {
         vtkCamera *lightCamera=
-          this->ShadowMapBakerPass->GetLightCameras()->Vector[
+          (*this->ShadowMapBakerPass->GetLightCameras())[
           static_cast<size_t>(shadowingLightIndex)];
         transform->Push();
         transform->Concatenate(
@@ -315,7 +313,7 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
          this->ShadowMapBakerPass->LightCreatesShadow(light) )
         {
         vtkTextureObject *map=
-          this->ShadowMapBakerPass->GetShadowMaps()->Vector[
+          (*this->ShadowMapBakerPass->GetShadowMaps())[
             static_cast<size_t>(shadowingLightIndex)];
         // activate the texture map
         map->Deactivate();
