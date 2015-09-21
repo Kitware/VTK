@@ -87,6 +87,8 @@ class vtkDoubleArray;
 class vtkStdString;
 class vtkStringArray;
 
+class NcVar;
+
 class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
 {
  public:
@@ -203,8 +205,8 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   vtkDataArraySelection* PointDataArraySelection;
   vtkDataArraySelection* CellDataArraySelection;
 
-  vtkDoubleArray** CellVarDataArray;    // Actual data arrays
-  vtkDoubleArray** PointVarDataArray;   // Actual data arrays
+  vtkDataArray** CellVarDataArray;    // Actual data arrays
+  vtkDataArray** PointVarDataArray;   // Actual data arrays
 
   int VerticalLevelSelected;
   int VerticalLevelRange[2];
@@ -252,7 +254,6 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   // vars
   int NumberOfCellVars;
   int NumberOfPointVars;
-  double* PointVarData;
 
   void SetDefaults();
   int GetNcDims();
@@ -278,9 +279,17 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
  private:
   vtkMPASReader(const vtkMPASReader&);    // Not implemented.
   void operator=(const vtkMPASReader&); // Not implemented.
+
   class Internal;
   Internal *Internals;
 
+  static int NcTypeToVtkType(int ncType);
+
+  template <typename ValueType>
+  int LoadPointVarDataImpl(NcVar *ncVar, vtkDataArray *array, int timeStep);
+
+  template <typename ValueType>
+  int LoadCellVarDataImpl(NcVar *ncVar, vtkDataArray *array, int timestep);
 };
 
 #endif
