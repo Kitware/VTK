@@ -17,12 +17,6 @@
 #include "vtkObjectFactory.h"
 #include "vtkWindows.h"
 
-#pragma warning(push)
-#pragma warning(disable:4091)
-#include "DbgHelp.h"
-#pragma warning(pop)
-#pragma comment(lib, "Dbghelp.lib")
-
 vtkStandardNewMacro(vtkWin32OutputWindow);
 
 HWND vtkWin32OutputWindowOutputWindow = 0;
@@ -344,36 +338,4 @@ void vtkWin32OutputWindow::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "SendToStdErr: " << this->SendToStdErr << "\n";
-}
-
-// super useful function to have sometimes
-void vtkWin32OutputWindow::PrintStack( void )
-{
-  unsigned int   i;
-  void         * stack[ 100 ];
-  unsigned short frames;
-  SYMBOL_INFO  * symbol;
-  HANDLE         process;
-
-  DWORD  dwDisplacement;
-  IMAGEHLP_LINE64 line;
-
-  process = GetCurrentProcess();
-  SymSetOptions(SYMOPT_LOAD_LINES);
-  SymInitialize( process, NULL, TRUE );
-  frames               = CaptureStackBackTrace( 0, 30, stack, NULL );
-  symbol               = ( SYMBOL_INFO * )calloc( sizeof( SYMBOL_INFO ) + 256 * sizeof( char ), 1 );
-  symbol->MaxNameLen   = 255;
-  symbol->SizeOfStruct = sizeof( SYMBOL_INFO );
-
-  for( i = 0; i < frames; i++ )
-    {
-    SymFromAddr( process, ( DWORD64 )( stack[ i ] ), 0, symbol );
-    SymGetLineFromAddr64(process, (DWORD64)stack[i], &dwDisplacement, &line);
-
-    printf( "%i: %s at line %d\n",
-      frames - i - 1, symbol->Name, line.LineNumber );
-    }
-
-  free( symbol );
 }

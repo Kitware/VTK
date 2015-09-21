@@ -51,9 +51,6 @@ public:
   vtkSetMacro(SendToStdErr, bool);
   vtkBooleanMacro(SendToStdErr, bool);
 
-  // print a stack trace
-  static void PrintStack();
-
 protected:
   vtkWin32OutputWindow();
   virtual ~vtkWin32OutputWindow();
