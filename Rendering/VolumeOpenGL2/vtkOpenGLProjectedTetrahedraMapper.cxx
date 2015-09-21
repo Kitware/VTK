@@ -683,7 +683,16 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
 
   glDisable(GL_CULL_FACE);
 
-  glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+  GLint blendSrcA = GL_ONE;
+  GLint blendDstA = GL_ONE_MINUS_SRC_ALPHA;
+  GLint blendSrcC = GL_SRC_ALPHA;
+  GLint blendDstC = GL_ONE_MINUS_SRC_ALPHA;
+  glGetIntegerv(GL_BLEND_SRC_ALPHA, &blendSrcA);
+  glGetIntegerv(GL_BLEND_DST_ALPHA, &blendDstA);
+  glGetIntegerv(GL_BLEND_SRC_RGB, &blendSrcC);
+  glGetIntegerv(GL_BLEND_DST_RGB, &blendDstC);
+  glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
+    GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
   float unit_distance = volume->GetProperty()->GetScalarOpacityUnitDistance();
 
@@ -925,7 +934,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
                                        + T3[0] + alpha*(T4[0]-T3[0]));
 
         // Record the depth at the intersection.
-        tet_texcoords[2*4 + 1] = depth/(unit_distance*this->MaxCellSize);
+        tet_texcoords[2*4 + 1] = depth/unit_distance;
 
         // Establish the order in which the points should be rendered.
         unsigned char indices[6];
@@ -999,7 +1008,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
         T2[0] = 0.5f*(facea + T2[0]);
 
         // Record thickness at thick point.
-        T2[1] = depth/this->MaxCellSize;
+        T2[1] = depth/unit_distance;
 
         // Establish the order in which the points should be rendered.
         unsigned char indices[5];
@@ -1123,6 +1132,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
   vtkOpenGLCheckErrorMacro("failed at glPopAttrib");
 
   glDepthMask(GL_TRUE);
+  glBlendFuncSeparate(blendSrcC, blendDstC, blendSrcA, blendDstA);
 
   vtkOpenGLCheckErrorMacro("failed after ProjectTetrahedra");
   this->UpdateProgress(1.0);
