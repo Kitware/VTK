@@ -39,6 +39,7 @@
 #define vtkShadowMapBakerPass_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkSmartPointer.h" // for ivars
 #include "vtkRenderPass.h"
 
 class vtkOpenGLRenderWindow;
@@ -46,8 +47,6 @@ class vtkInformationIntegerKey;
 class vtkCamera;
 class vtkLight;
 class vtkFrameBufferObject;
-class vtkShadowMapBakerPassTextures; // internal
-class vtkShadowMapBakerPassLightCameras; // internal
 
 class VTKRENDERINGOPENGL2_EXPORT vtkShadowMapBakerPass : public vtkRenderPass
 {
@@ -116,14 +115,14 @@ public:
   // Internally used by vtkShadowMapBakerPass and vtkShadowMapPass.
   //
   // Give access to the baked shadow maps.
-  vtkShadowMapBakerPassTextures *GetShadowMaps();
+  std::vector<vtkSmartPointer<vtkTextureObject> > *GetShadowMaps();
 
   // Description:
   // INTERNAL USE ONLY.
   // Internally used by vtkShadowMapBakerPass and vtkShadowMapPass.
   //
   // Give access the cameras builds from the ligths.
-  vtkShadowMapBakerPassLightCameras *GetLightCameras();
+  std::vector<vtkSmartPointer<vtkCamera> > *GetLightCameras();
 //ETX
 
   // Description:
@@ -202,8 +201,8 @@ public:
   // Graphics resources.
   vtkFrameBufferObject *FrameBufferObject;
 
-  vtkShadowMapBakerPassTextures *ShadowMaps;
-  vtkShadowMapBakerPassLightCameras *LightCameras;
+  std::vector<vtkSmartPointer<vtkTextureObject> > *ShadowMaps;
+  std::vector<vtkSmartPointer<vtkCamera> > *LightCameras;
 
 
   vtkTimeStamp LastRenderTime;

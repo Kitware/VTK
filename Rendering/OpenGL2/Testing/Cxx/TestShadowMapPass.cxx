@@ -38,7 +38,6 @@
 #include "vtkSequencePass.h"
 #include "vtkShadowMapBakerPass.h"
 #include "vtkShadowMapPass.h"
-#include "vtkShadowMapPassInternal.h"
 #include "vtkTestUtilities.h"
 #include "vtkTimerLog.h"
 
