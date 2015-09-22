@@ -50,8 +50,7 @@ version available from Los Alamos National Laboratory.
 // The variables that have time dim are available to ParaView.
 //
 // Assume all variables are of interest if they have dims
-// (Time, nCells|nVertices, nVertLevels, [nTracers])
-// Assume no more than 100 vars each for cell and point data
+// (Time, nCells|nVertices, nVertLevels, [nTracers]).
 // Does not deal with edge data.
 //
 // When using this reader, it is important that you remember to do the
@@ -74,9 +73,6 @@ version available from Los Alamos National Laboratory.
 
 #ifndef vtkMPASReader_h
 #define vtkMPASReader_h
-
-#define MAX_VARS 100
-#define MAX_VAR_NAME 100
 
 #include "vtkIONetCDFModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
@@ -111,8 +107,8 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
 
   // Description:
   // Get the number of data variables at the cell centers and points
-  vtkGetMacro(NumberOfCellVars, int);
-  vtkGetMacro(NumberOfPointVars, int);
+  virtual int GetNumberOfCellVars();
+  virtual int GetNumberOfPointVars();
 
   // Description:
   // Get the reader's output
@@ -205,9 +201,6 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   vtkDataArraySelection* PointDataArraySelection;
   vtkDataArraySelection* CellDataArraySelection;
 
-  vtkDataArray** CellVarDataArray;    // Actual data arrays
-  vtkDataArray** PointVarDataArray;   // Actual data arrays
-
   int VerticalLevelSelected;
   int VerticalLevelRange[2];
 
@@ -251,10 +244,6 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   int MaximumPoints;          // max points
   int VerticalIndex;      // for singleLayer, which vertical level
 
-  // vars
-  int NumberOfCellVars;
-  int NumberOfPointVars;
-
   void SetDefaults();
   int GetNcDims();
   int CheckParams();
@@ -272,9 +261,11 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   void OutputCells(bool init);
   unsigned char GetCellType();
   void LoadGeometryData(int var, double dTime);
-  int LoadPointVarData(int variable, double dTime);
-  int LoadCellVarData(int variable, double dTime);
+  vtkDataArray* LoadPointVarData(int variable, double dTime);
+  vtkDataArray* LoadCellVarData(int variable, double dTime);
   int RegenerateGeometry();
+  vtkDataArray* LookupPointDataArray(int varIdx);
+  vtkDataArray* LookupCellDataArray(int varIdx);
 
  private:
   vtkMPASReader(const vtkMPASReader&);    // Not implemented.

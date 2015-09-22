@@ -94,11 +94,10 @@ PURPOSE.  See the above copyright notice for more information.
 #include <cmath>
 #include <cfloat>
 #include <algorithm>
+#include <map>
 #include <vector>
 
 using namespace std;
-
-#define MAX_VARS 100
 
 // Restricted to the supported NcType-convertible types.
 #define vtkNcTemplateMacro(call)                                               \
@@ -122,25 +121,19 @@ using namespace std;
 // Internal class to avoid name pollution
 //----------------------------------------------------------------------------
 
-class vtkMPASReader::Internal {
-  public:
-  Internal() :
-    ncFile(NULL)
-  {
-    for (int i = 0; i < MAX_VARS; i++)
-      {
-      this->cellVars[i] = NULL;
-      this->pointVars[i] = NULL;
-      }
-  };
-  ~Internal()
-  {
-    delete ncFile;
-  };
+class vtkMPASReader::Internal
+{
+public:
+  // variableIndex --> vtkDataArray
+  typedef std::map<int, vtkSmartPointer<vtkDataArray> > ArrayMap;
+  Internal() : ncFile(NULL) {}
+  ~Internal() { delete ncFile; }
 
   NcFile* ncFile;
-  NcVar* cellVars[MAX_VARS];
-  NcVar* pointVars[MAX_VARS];
+  std::vector<NcVar*> pointVars;
+  std::vector<NcVar*> cellVars;
+  ArrayMap pointArrays;
+  ArrayMap cellArrays;
 };
 
 
@@ -309,8 +302,6 @@ vtkMPASReader::vtkMPASReader()
   this->PointDataArraySelection->AddObserver(vtkCommand::ModifiedEvent,
       this->SelectionObserver);
 
-  vtkDebugMacro(<< "MAX_VARS:" << MAX_VARS << endl);
-
   vtkDebugMacro(<< "Created vtkMPASReader" << endl);
 }
 
@@ -320,35 +311,12 @@ vtkMPASReader::vtkMPASReader()
 //----------------------------------------------------------------------------
 
 void vtkMPASReader::DestroyData()
+
 {
-  vtkDebugMacro(<< "DestroyData..." << endl);
-  // vars are okay, just delete var data storage
+  vtkDebugMacro(<<"DestroyData...");
 
-  vtkDebugMacro(<< "Destructing cell var data..." << endl);
-  if (this->CellVarDataArray)
-    {
-    for (int i = 0; i < this->NumberOfCellVars; i++)
-      {
-      if (this->CellVarDataArray[i] != NULL)
-        {
-        this->CellVarDataArray[i]->Delete();
-        this->CellVarDataArray[i] = NULL;
-        }
-      }
-    }
-
-  vtkDebugMacro(<< "Destructing point var array..." << endl);
-  if (this->PointVarDataArray)
-    {
-    for (int i = 0; i < this->NumberOfPointVars; i++)
-      {
-      if (this->PointVarDataArray[i] != NULL)
-        {
-        this->PointVarDataArray[i]->Delete();
-        this->PointVarDataArray[i] = NULL;
-        }
-      }
-    }
+  this->Internals->cellArrays.clear();
+  this->Internals->pointArrays.clear();
 
   // delete old geometry and create new
 
@@ -376,12 +344,6 @@ vtkMPASReader::~vtkMPASReader()
   this->Internals->ncFile = NULL;
 
   this->DestroyData();
-
-  delete [] this->CellVarDataArray;
-  this->CellVarDataArray = NULL;
-
-  delete [] this->PointVarDataArray;
-  this->PointVarDataArray = NULL;
 
   vtkDebugMacro(<< "Destructing other stuff..." << endl);
   if (this->PointDataArraySelection)
@@ -440,7 +402,9 @@ int vtkMPASReader::RequestInformation(
 
   if (!this->InfoRequested)
     {
-    this->InfoRequested = true;
+    // Release any references to old data arrays.
+    this->Internals->pointArrays.clear();
+    this->Internals->cellArrays.clear();
 
     vtkDebugMacro(<< "FileName: " << this->FileName << endl);
     delete this->Internals->ncFile;
@@ -474,21 +438,6 @@ int vtkMPASReader::RequestInformation(
       return 0;
       }
 
-
-    // Allocate the ParaView data arrays which will hold the variables
-    delete []this->PointVarDataArray;
-    this->PointVarDataArray = new vtkDataArray*[this->NumberOfPointVars];
-    for (int i = 0; i < this->NumberOfPointVars; i++)
-      {
-      this->PointVarDataArray[i] = NULL;
-      }
-    delete []this->CellVarDataArray;
-    this->CellVarDataArray = new vtkDataArray*[this->NumberOfCellVars];
-    for (int i = 0; i < this->NumberOfCellVars; i++)
-      {
-      this->CellVarDataArray[i] = NULL;
-      }
-
     // Collect temporal information
 
     // At this time, MPAS doesn't have fine-grained time value, just
@@ -509,6 +458,8 @@ int vtkMPASReader::RequestInformation(
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(),
                  tRange,
                  2);
+
+    this->InfoRequested = true;
     }
 
   return 1;
@@ -574,31 +525,30 @@ int vtkMPASReader::RequestData(vtkInformation *vtkNotUsed(reqInfo),
   this->DTime = dTimeTemp;
 
   // Examine each variable to see if it is selected
-  for (int var = 0; var < this->NumberOfPointVars; var++)
+  for (int var = 0; var < this->Internals->pointVars.size(); var++)
     {
-
     // Is this variable requested
     if (this->PointDataArraySelection->GetArraySetting(var))
       {
-      vtkDebugMacro( << "Loading Point Variable: " << var << endl);
-      if (!this->LoadPointVarData(var, this->DTime))
+      vtkDataArray *array = this->LoadPointVarData(var, this->DTime);
+      if (!array)
         {
         return 0;
         }
-      output->GetPointData()->AddArray(this->PointVarDataArray[var]);
-
+      output->GetPointData()->AddArray(array);
+      }
     }
-  }
 
-  for (int var = 0; var < this->NumberOfCellVars; var++)
+  for (int var = 0; var < this->Internals->cellVars.size(); var++)
     {
     if (this->CellDataArraySelection->GetArraySetting(var))
       {
-      vtkDebugMacro
-        ( << "Loading Cell Variable: "
-          << this->Internals->cellVars[var]->name() << endl);
-      this->LoadCellVarData(var, this->DTime);
-      output->GetCellData()->AddArray(this->CellVarDataArray[var]);
+      vtkDataArray *array = this->LoadCellVarData(var, this->DTime);
+      if (!array)
+        {
+        return 0;
+        }
+      output->GetCellData()->AddArray(array);
       }
     }
 
@@ -649,12 +599,8 @@ void vtkMPASReader::SetDefaults() {
 
   this->FileName = NULL;
   this->DTime = 0;
-  this->CellVarDataArray = NULL;
-  this->PointVarDataArray = NULL;
   this->TimeSteps = NULL;
 
-  this->NumberOfPointVars = 0;
-  this->NumberOfCellVars = 0;
   this->MaximumPoints = 0;
   this->MaximumCells = 0;
 }
@@ -732,13 +678,9 @@ int vtkMPASReader::CheckParams()
 
 int vtkMPASReader::GetNcVars (const char* cellDimName, const char* pointDimName)
 {
-  int cellVarIndex = -1;
-  int pointVarIndex = -1;
-
   NcFile* ncFile =  this->Internals->ncFile;
 
   int numVars = ncFile->num_vars();
-
   for (int i = 0; i < numVars; i++)
     {
     NcVar* aVar = ncFile->get_var(i);
@@ -815,31 +757,16 @@ int vtkMPASReader::GetNcVars (const char* cellDimName, const char* pointDimName)
     // Add to cell or point var array
     if (isCellData)
       {  // means it is cell data
-      cellVarIndex++;
-      if (cellVarIndex > MAX_VARS-1)
-        {
-        vtkErrorMacro( << "Exceeded number of cell vars." << endl);
-        return(0);
-        }
-      this->Internals->cellVars[cellVarIndex] = aVar;
+      this->Internals->cellVars.push_back(aVar);
       //cout << "Adding var " << aVar->name() << " to cellVars" << endl;
       }
     else if (isPointData)
       {
-
-      pointVarIndex++;
-      if (pointVarIndex > MAX_VARS-1)
-        {
-        vtkErrorMacro( << "Exceeded number of point vars." << endl);
-        return(0);
-        }
-      this->Internals->pointVars[pointVarIndex] = aVar;
+      this->Internals->pointVars.push_back(aVar);
       //cout << "Adding var " << aVar->name() << " to pointVars" << endl;
       }
     }
 
-  this->NumberOfPointVars = pointVarIndex+1;
-  this->NumberOfCellVars = cellVarIndex+1;
   return(1);
 }
 
@@ -850,40 +777,27 @@ int vtkMPASReader::GetNcVars (const char* cellDimName, const char* pointDimName)
 
 int vtkMPASReader::BuildVarArrays()
 {
-  vtkDebugMacro(<< "In vtkMPASReader::BuildVarArrays" << endl);
-
   // figure out what variables to visualize -
-  int retval = GetNcVars("nVertices", "nCells");
-
-  if (!retval)
+  if (!GetNcVars("nVertices", "nCells"))
     {
     return 0;
     }
 
-  vtkDebugMacro( << "NumberOfCellVars: " << this->NumberOfCellVars
-      << " NumberOfPointVars: " << this->NumberOfPointVars << endl);
-
-  for (int var = 0; var < this->NumberOfPointVars; var++)
+  for (int var = 0; var < this->Internals->pointVars.size(); var++)
     {
-    this->PointDataArraySelection->
-      EnableArray((const char*)(this->Internals->pointVars[var]->name()));
-    vtkDebugMacro
-      (<< "Adding point var: "
-       << this->Internals->pointVars[var]->name() << endl);
+    const char *name = this->Internals->pointVars[var]->name();
+    this->PointDataArraySelection->EnableArray(name);
+    vtkDebugMacro(<<"Adding point var: " << name);
     }
 
-  for (int var = 0; var < this->NumberOfCellVars; var++)
+  for (int var = 0; var < this->Internals->cellVars.size(); var++)
     {
-    vtkDebugMacro
-      (<< "Adding cell var: "
-       << this->Internals->cellVars[var]->name() << endl);
-    this->CellDataArraySelection->
-      EnableArray((const char*)(this->Internals->cellVars[var]->name()));
+    const char *name = this->Internals->cellVars[var]->name();
+    vtkDebugMacro(<<"Adding cell var: " << name);
+    this->CellDataArraySelection->EnableArray(name);
     }
 
-  vtkDebugMacro(<< "Leaving vtkMPASReader::BuildVarArrays" << endl);
-
-  return(1);
+  return 1;
 }
 
 
@@ -1865,8 +1779,8 @@ int vtkMPASReader::LoadPointVarDataImpl(NcVar *ncVar, vtkDataArray *array,
 //----------------------------------------------------------------------------
 //  Load the data for a point variable
 //----------------------------------------------------------------------------
-// TODO template this implementation, combine with LoadCellVarData?
-int vtkMPASReader::LoadPointVarData(int variableIndex, double dTimeStep)
+vtkDataArray *vtkMPASReader::LoadPointVarData(int variableIndex,
+                                              double dTimeStep)
 {
   NcVar* ncVar = this->Internals->pointVars[variableIndex];
   if (ncVar == NULL)
@@ -1882,12 +1796,13 @@ int vtkMPASReader::LoadPointVarData(int variableIndex, double dTimeStep)
   int typeVtk = this->NcTypeToVtkType(typeNc);
 
   // Allocate data array pointer for this variable:
-  vtkDataArray *array = this->PointVarDataArray[variableIndex];
+  vtkSmartPointer<vtkDataArray> array =
+      this->LookupPointDataArray(variableIndex);
   if (array == NULL)
     {
     vtkDebugMacro(<<"Allocating data array.");
-    array = vtkDataArray::CreateDataArray(typeVtk);
-    this->PointVarDataArray[variableIndex] = array;
+    array = vtkSmartPointer<vtkDataArray>::Take(
+          vtkDataArray::CreateDataArray(typeVtk));
     }
   array->SetName(ncVar->name());
   array->SetNumberOfComponents(1);
@@ -1898,9 +1813,17 @@ int vtkMPASReader::LoadPointVarData(int variableIndex, double dTimeStep)
                      (int)(this->NumberOfTimeSteps-1));
   vtkDebugMacro( << "Time: " << timestep << endl);
 
+  int success;
   vtkNcDispatch(typeVtk,
-                return this->LoadPointVarDataImpl<VTK_TT>(ncVar, array,
-                                                          timestep););
+                success = this->LoadPointVarDataImpl<VTK_TT>(ncVar, array,
+                                                             timestep););
+
+  if (success)
+    {
+    this->Internals->pointArrays[variableIndex] = array;
+    return array;
+    }
+  return NULL;
 }
 
 //------------------------------------------------------------------------------
@@ -1955,7 +1878,8 @@ int vtkMPASReader::LoadCellVarDataImpl(NcVar *ncVar, vtkDataArray *array,
 //  Load the data for a cell variable
 //----------------------------------------------------------------------------
 
-int vtkMPASReader::LoadCellVarData(int variableIndex, double dTimeStep)
+vtkDataArray* vtkMPASReader::LoadCellVarData(int variableIndex,
+                                             double dTimeStep)
 {
   NcVar* ncVar = this->Internals->cellVars[variableIndex];
   if (ncVar == NULL)
@@ -1971,12 +1895,13 @@ int vtkMPASReader::LoadCellVarData(int variableIndex, double dTimeStep)
   int typeVtk = this->NcTypeToVtkType(typeNc);
 
   // Allocate data array pointer for this variable:
-  vtkDataArray *array = this->CellVarDataArray[variableIndex];
+  vtkSmartPointer<vtkDataArray> array =
+      this->LookupCellDataArray(variableIndex);
   if (array == NULL)
     {
     vtkDebugMacro(<<"Allocating data array.");
-    array = vtkDataArray::CreateDataArray(typeVtk);
-    this->CellVarDataArray[variableIndex] = array;
+    array = vtkSmartPointer<vtkDataArray>::Take(
+          vtkDataArray::CreateDataArray(typeVtk));
     }
   array->SetName(ncVar->name());
   array->SetNumberOfComponents(1);
@@ -1987,9 +1912,16 @@ int vtkMPASReader::LoadCellVarData(int variableIndex, double dTimeStep)
                      (int)(this->NumberOfTimeSteps-1));
   vtkDebugMacro( << "Time: " << timestep << endl);
 
+  int success;
   vtkNcDispatch(typeVtk,
-                return this->LoadCellVarDataImpl<VTK_TT>(ncVar, array,
-                                                          timestep););
+                success = this->LoadCellVarDataImpl<VTK_TT>(ncVar, array,
+                                                            timestep););
+  if (success)
+    {
+    this->Internals->cellArrays[variableIndex] = array;
+    return array;
+    }
+  return NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -2014,33 +1946,32 @@ int vtkMPASReader::RegenerateGeometry()
 
   // fetch data selected using new geometry
   // Examine each variable to see if it is selected
-  for (int var = 0; var < this->NumberOfPointVars; var++)
+  for (int var = 0; var < this->Internals->pointVars.size(); var++)
     {
-
     // Is this variable requested
     if (this->PointDataArraySelection->GetArraySetting(var))
       {
-      vtkDebugMacro( << "Loading Point Variable: " << var << endl);
-      if (!LoadPointVarData(var, this->DTime))
+      vtkDebugMacro(<<"Loading Point Variable: " << var);
+      vtkDataArray *array = this->LoadPointVarData(var, this->DTime);
+      if (!array)
         {
         return 0;
         }
-      output->GetPointData()->AddArray(this->PointVarDataArray[var]);
+      output->GetPointData()->AddArray(array);
       }
     }
 
-  for (int var = 0; var < this->NumberOfCellVars; var++)
+  for (int var = 0; var < this->Internals->cellVars.size(); var++)
     {
     if (this->CellDataArraySelection->GetArraySetting(var))
       {
-      vtkDebugMacro
-        ( << "Loading Cell Variable: "
-          << this->Internals->cellVars[var]->name() << endl);
-      if (!LoadCellVarData(var, this->DTime))
+      vtkDebugMacro(<<"Loading Cell Variable: " << var);
+      vtkDataArray *array = this->LoadCellVarData(var, this->DTime);
+      if (!array)
         {
         return 0;
         }
-      output->GetCellData()->AddArray(this->CellVarDataArray[var]);
+      output->GetCellData()->AddArray(array);
       }
     }
 
@@ -2050,6 +1981,20 @@ int vtkMPASReader::RegenerateGeometry()
   this->Modified();
 
   return 1;
+}
+
+//------------------------------------------------------------------------------
+vtkDataArray *vtkMPASReader::LookupPointDataArray(int varIdx)
+{
+  Internal::ArrayMap::iterator it = this->Internals->pointArrays.find(varIdx);
+  return it != this->Internals->pointArrays.end() ? it->second : NULL;
+}
+
+//------------------------------------------------------------------------------
+vtkDataArray *vtkMPASReader::LookupCellDataArray(int varIdx)
+{
+  Internal::ArrayMap::iterator it = this->Internals->cellArrays.find(varIdx);
+  return it != this->Internals->cellArrays.end() ? it->second : NULL;
 }
 
 //------------------------------------------------------------------------------
@@ -2269,18 +2214,18 @@ void vtkMPASReader::SetVerticalLevel(int level)
     }
 
   // Examine each variable to see if it is selected
-  for (int var = 0; var < this->NumberOfPointVars; var++)
+  for (int var = 0; var < this->Internals->pointVars.size(); var++)
     {
     // Is this variable requested
     if (this->PointDataArraySelection->GetArraySetting(var))
       {
-      vtkDebugMacro( << "Loading Point Variable: "
-                     << this->Internals->pointVars[var]->name() << endl);
+      vtkDebugMacro(<< "Loading Point Variable: "
+                    << this->Internals->pointVars[var]->name());
       LoadPointVarData(var, this->DTime);
       }
     }
 
-  for (int var = 0; var < this->NumberOfCellVars; var++)
+  for (int var = 0; var < this->Internals->cellVars.size(); var++)
     {
     if (this->CellDataArraySelection->GetArraySetting(var))
       {
@@ -2480,8 +2425,6 @@ void vtkMPASReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "VerticalLevelRange: " 
      << this->VerticalLevelRange[0] << ","
      << this->VerticalLevelRange[1] << "\n";
-  os << indent << "this->NumberOfPointVars: " << this->NumberOfPointVars << "\n";
-  os << indent << "this->NumberOfCellVars: " << this->NumberOfCellVars << "\n";
   os << indent << "this->MaximumPoints: " << this->MaximumPoints << "\n";
   os << indent << "this->MaximumCells: " << this->MaximumCells << "\n";
   os << indent << "ProjectLatLon: "
@@ -2496,4 +2439,14 @@ void vtkMPASReader::PrintSelf(ostream& os, vtkIndent indent)
      << (this->IsZeroCentered?"ON":"OFF") << endl;
   os << indent << "LayerThicknessRange: "
      << this->LayerThicknessRange[0] << "," << this->LayerThicknessRange[1] << endl;
+}
+
+int vtkMPASReader::GetNumberOfCellVars()
+{
+  return this->Internals->cellVars.size();
+}
+
+int vtkMPASReader::GetNumberOfPointVars()
+{
+  return this->Internals->pointVars.size();
 }
