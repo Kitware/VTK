@@ -161,6 +161,12 @@ public:
   // Description:
   // Returns the number of devices (graphics cards) on a system.
   int GetNumberOfDevices();
+  // Description:
+  // Returns true if driver has an
+  // EGL/OpenGL bug that makes vtkChartsCoreCxx-TestChartDoubleColors and other tests to fail
+  // because point sprites don't work correctly (gl_PointCoord is undefined) unless
+  // glEnable(GL_POINT_SPRITE)
+  virtual bool IsPointSpriteBugPresent();
 
 protected:
   vtkEGLRenderWindow();
@@ -170,6 +176,8 @@ protected:
   int ScreenSize[2];
   int OwnWindow;
   int DeviceIndex;
+  bool IsPointSpriteBugTested;
+  bool IsPointSpriteBugPresent_;
   class vtkInternals;
   vtkInternals* Internals;
 

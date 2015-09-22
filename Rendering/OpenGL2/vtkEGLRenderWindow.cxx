@@ -114,6 +114,8 @@ vtkEGLRenderWindow::vtkEGLRenderWindow()
 #else
   this->OffScreenRendering = true;
 #endif
+  this->IsPointSpriteBugTested = false;
+  this->IsPointSpriteBugPresent_ = false;
 }
 
 // free up memory & close the window
@@ -611,4 +613,16 @@ void vtkEGLRenderWindow::SetOffScreenRendering (int)
 int vtkEGLRenderWindow::GetOffScreenRendering ()
 {
   return this->OffScreenRendering;
+}
+
+//----------------------------------------------------------------------------
+bool vtkEGLRenderWindow::IsPointSpriteBugPresent()
+{
+  if (! this->IsPointSpriteBugTested)
+    {
+    this->IsPointSpriteBugTested = true;
+    this->IsPointSpriteBugPresent_ =
+      (strcmp(reinterpret_cast<const char*>(glGetString(GL_VERSION)), "4.5.0 NVIDIA 355.11") == 0);
+    }
+  return this->IsPointSpriteBugPresent_;
 }
