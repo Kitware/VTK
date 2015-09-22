@@ -1620,10 +1620,10 @@ int vtkPSurfaceLICComposite::ExecuteShader(
       tex->GetTextureUnit());
     // may beed to divide by winExtSize here
     float verts[] = {
-      fext[0]*2.0-1.0, fext[2]*2.0-1.0, 0.0f,
-      fext[1]*2.0-1.0, fext[2]*2.0-1.0, 0.0f,
-      fext[1]*2.0-1.0, fext[3]*2.0-1.0, 0.0f,
-      fext[0]*2.0-1.0, fext[3]*2.0-1.0, 0.0f};
+      fext[0]*2.0f-1.0f, fext[2]*2.0f-1.0f, 0.0f,
+      fext[1]*2.0f-1.0f, fext[2]*2.0f-1.0f, 0.0f,
+      fext[1]*2.0f-1.0f, fext[3]*2.0f-1.0f, 0.0f,
+      fext[0]*2.0f-1.0f, fext[3]*2.0f-1.0f, 0.0f};
 
     vtkOpenGLRenderUtilities::RenderQuad(verts, tcoords,
       this->CompositeShader->Program, this->CompositeShader->VAO);
