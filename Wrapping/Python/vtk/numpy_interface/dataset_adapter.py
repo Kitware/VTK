@@ -977,9 +977,12 @@ class PointSet(DataSet):
     def SetPoints(self, pts):
         """Given a VTKArray instance, sets the points of the dataset."""
         from vtk.vtkCommonCore import vtkPoints
-        pts = numpyTovtkDataArray(pts)
-        p = vtkPoints()
-        p.SetData(pts)
+        if isinstance(pts, vtkPoints):
+            p = pts
+        else:
+            pts = numpyTovtkDataArray(pts)
+            p = vtkPoints()
+            p.SetData(pts)
         self.VTKObject.SetPoints(p)
 
     Points = property(GetPoints, SetPoints, None, "This property returns the point coordinates of dataset.")
