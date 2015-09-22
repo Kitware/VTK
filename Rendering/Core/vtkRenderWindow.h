@@ -553,6 +553,22 @@ public:
   vtkGetMacro(StencilCapable, int);
   vtkBooleanMacro(StencilCapable, int);
 
+  // Description:
+  // If there are several graphics card installed on a system,
+  // this index can be used to specify which card you want to render to.
+  // the default is 0. This may not work on all derived render window and
+  // it may need to be set before the first render.
+  vtkSetMacro(DeviceIndex,int);
+  vtkGetMacro(DeviceIndex,int);
+  // Description:
+  // Returns the number of devices (graphics cards) on a system.
+  // This may not work on all derived render windows.
+  virtual int GetNumberOfDevices()
+  {
+    return 0;
+  }
+
+
 protected:
   vtkRenderWindow();
   ~vtkRenderWindow();
@@ -599,6 +615,7 @@ protected:
   int MultiSamples;
   int StencilCapable;
   int CapturingGL2PSSpecialProps;
+  int DeviceIndex;
 
   // Description:
   // The universal time since the last abort check occurred.

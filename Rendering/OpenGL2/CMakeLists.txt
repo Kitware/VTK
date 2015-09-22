@@ -233,6 +233,13 @@ elseif(VTK_USE_OSMESA)
   list(APPEND vtk_module_overrides "vtkRenderWindow")
   set(vtk_module_vtkRenderWindow_override "vtkOSOpenGLRenderWindow")
   list(APPEND Module_SRCS vtkOSOpenGLRenderWindow.cxx)
+elseif(VTK_USE_OFFSCREEN_EGL)
+  list(APPEND vtk_module_overrides "vtkRenderWindow")
+  set(vtk_module_vtkRenderWindow_override "vtkEGLRenderWindow")
+  list(APPEND Module_SRCS vtkEGLRenderWindow.cxx)
+  set_source_files_properties(
+    vtkEGLRenderWindow.cxx
+    PROPERTIES COMPILE_DEFINITIONS "VTK_EGL_DEVICE_INDEX=${VTK_EGL_DEVICE_INDEX};VTK_USE_OFFSCREEN_EGL")
 elseif(WIN32)
   # Add some custom overrides
   list(APPEND vtk_module_overrides "vtkRenderWindowInteractor")

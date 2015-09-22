@@ -15,17 +15,16 @@
 // .NAME vtkEGLRenderWindow - OpenGL rendering window
 // .SECTION Description
 // vtkEGLRenderWindow is a concrete implementation of the abstract class
-// vtkRenderWindow. vtkOpenGLRenderer interfaces to the OpenGL graphics
-// library. Application programmers should normally use vtkRenderWindow
-// instead of the OpenGL specific version.
+// vtkRenderWindow. This class creates a window on Android platform and for client API OpenGL ES and
+// an offscreen pbuffer for OpenGL.
+// vtkOpenGLRenderer interfaces to the OpenGL graphics library.
+// Application programmers should normally use vtkRenderWindow instead of the OpenGL specific version.
 
 #ifndef vtkEGLRenderWindow_h
 #define vtkEGLRenderWindow_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkOpenGLRenderWindow.h"
-
-#include <EGL/egl.h> // required for EGL members
 
 class vtkIdList;
 
@@ -112,17 +111,17 @@ public:
   // Description:
   // Dummy stubs for vtkWindow API.
   virtual void SetDisplayId(void *) {};
-  virtual void SetWindowId(void *window)  { this->Window = (ANativeWindow *)window;};
-  virtual void SetNextWindowId(void *) {};
-  virtual void SetParentId(void *)  {};
-  virtual void *GetGenericDisplayId() { return this->Display; };
-  virtual void *GetGenericWindowId() {};
-  virtual void *GetGenericParentId() {};
-  virtual void *GetGenericContext() { return this->Context; };
-  virtual void *GetGenericDrawable() {};
+  virtual void SetWindowId(void *window) {this->Window = reinterpret_cast<unsigned long>(window);}
+  virtual void SetNextWindowId(void *) {}
+  virtual void SetParentId(void *)  {}
+  virtual void *GetGenericDisplayId();
+  virtual void *GetGenericWindowId() {return NULL;}
+  virtual void *GetGenericParentId() {return NULL;}
+  virtual void *GetGenericContext();
+  virtual void *GetGenericDrawable() {return NULL;}
   virtual void SetWindowInfo(char *);
-  virtual void SetNextWindowInfo(char *) {};
-  virtual void SetParentInfo(char *) {};
+  virtual void SetNextWindowInfo(char *) {}
+  virtual void SetParentInfo(char *) {}
 
   void     SetWindowName(const char *);
 
@@ -143,10 +142,6 @@ public:
   void Render();
 
   // Description:
-  // Render without displaying the window.
-  void SetOffScreenRendering(int i);
-
-  // Description:
   // Check to see if a mouse button has been pressed.  All other events
   // are ignored by this method.  Ideally, you want to abort the render
   // on any event which causes the DesiredUpdateRate to switch from
@@ -154,27 +149,45 @@ public:
   virtual int GetEventPending() { return 0;};
 
   int GetOwnWindow() { return this->OwnWindow; };
+  // Description:
+  // Render without displaying the window.
+  virtual void SetOffScreenRendering (int value);
+  virtual int GetOffScreenRendering ();
+
+  // Description:
+  // Returns the width and height of the allocated EGL surface.
+  // If no surface is allocated width and height are set to 0.
+  void GetEGLSurfaceSize(int* width, int* height);
+  // Description:
+  // Returns the number of devices (graphics cards) on a system.
+  int GetNumberOfDevices();
 
 protected:
   vtkEGLRenderWindow();
   ~vtkEGLRenderWindow();
 
-  ANativeWindow *Window;
-  EGLDisplay Display;
-  EGLSurface Surface;
-  EGLContext Context;
+  unsigned long Window;
   int ScreenSize[2];
   int OwnWindow;
+  int DeviceIndex;
+  class vtkInternals;
+  vtkInternals* Internals;
 
   void CreateAWindow();
   void DestroyWindow();
-  void CreateOffScreenWindow(int width, int height);
-  void DestroyOffScreenWindow();
-  void ResizeOffScreenWindow(int width, int height);
+  void ResizeWindow(int width, int height);
+
+  // Description:
+  // Use EGL_EXT_device_base, EGL_EXT_platform_device and EGL_EXT_platform_base
+  // extensions to set the display (output graphics card) to something different than
+  // EGL_DEFAULT_DISPLAY. Just use the default display if deviceIndex == 0.
+  void SetDeviceAsDisplay(int deviceIndex);
 
 private:
   vtkEGLRenderWindow(const vtkEGLRenderWindow&);  // Not implemented.
   void operator=(const vtkEGLRenderWindow&);  // Not implemented.
+
+  bool DeviceExtensionsPresent;
 };
 
 
