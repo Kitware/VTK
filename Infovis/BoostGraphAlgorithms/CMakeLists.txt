@@ -19,6 +19,11 @@ set(Module_SRCS
   vtkBoostGraphAdapter.h
   )
 
-set_source_files_properties(vtkBoostGraphAdapter WRAP_EXCLUDE)
+set_source_files_properties(
+  vtkBoostGraphAdapter
+  PROPERTIES
+    WRAP_EXCLUDE 1
+    WRAP_EXCLUDE_PYTHON 1
+  )
 
 vtk_module_library(vtkInfovisBoostGraphAlgorithms ${Module_SRCS})

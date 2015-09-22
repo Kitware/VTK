@@ -76,11 +76,10 @@ macro(VTK_WRAP_PYTHON3 TARGET SRC_LIST_NAME SOURCES)
   # for each class
   foreach(FILE ${SOURCES})
     # should we wrap the file?
-    get_source_file_property(TMP_WRAP_EXCLUDE ${FILE} WRAP_EXCLUDE)
-    get_source_file_property(TMP_WRAP_SPECIAL ${FILE} WRAP_SPECIAL)
+    get_source_file_property(TMP_EXCLUDE_PYTHON ${FILE} WRAP_EXCLUDE_PYTHON)
 
     # if we should wrap it
-    if(TMP_WRAP_SPECIAL OR NOT TMP_WRAP_EXCLUDE)
+    if(NOT TMP_EXCLUDE_PYTHON)
 
       # what is the filename without the extension
       get_filename_component(TMP_FILENAME ${FILE} NAME_WE)
@@ -287,8 +286,7 @@ macro(vtk_wrap_python TARGET SRC_LIST_NAME module)
   # Decide what to do for each header.
   foreach(header ${${module}_HEADERS})
     # Everything in this block is for headers that will be wrapped.
-    if(${module}_HEADER_${header}_WRAP_SPECIAL OR
-       NOT ${module}_HEADER_${header}_WRAP_EXCLUDE)
+    if(NOT ${module}_HEADER_${header}_WRAP_EXCLUDE_PYTHON)
 
       # Find the full path to the header file to be wrapped.
       vtk_find_header(${header}.h "${${module}_INCLUDE_DIRS}" class_header_path)
@@ -332,7 +330,7 @@ macro(vtk_wrap_python TARGET SRC_LIST_NAME module)
         endif()
       endif()
     else()
-      message("${header} will not be wrapped.")
+      # message("${header} will not be wrapped.")
     endif()
   endforeach()
 

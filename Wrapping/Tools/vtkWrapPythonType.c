@@ -122,6 +122,7 @@ static void vtkWrapPython_PrintProtocol(
           (func->Parameters[1]->Type & VTK_PARSE_BASE_TYPE) ==
               VTK_PARSE_OBJECT &&
           (func->Parameters[1]->Type & VTK_PARSE_POINTER_MASK) == 0 &&
+          !vtkWrap_IsNonConstRef(func->Parameters[1]) &&
           strcmp(func->Parameters[1]->Class, data->Name) == 0)
         {
         info->has_print = 1;

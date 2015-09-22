@@ -56,7 +56,9 @@ SET_SOURCE_FILES_PROPERTIES(
 SET_SOURCE_FILES_PROPERTIES(
   vtkImageStencilIterator
   vtkImageBSplineInternals
-  WRAP_EXCLUDE
+  PROPERTIES
+    WRAP_EXCLUDE 1
+    WRAP_EXCLUDE_PYTHON 1
 )
 
 vtk_module_library(vtkImagingCore ${Module_SRCS})

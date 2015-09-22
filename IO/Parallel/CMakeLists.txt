@@ -14,7 +14,9 @@ set(Module_SRCS
 
 set_source_files_properties(
   vtkMultiBlockPLOT3DReaderInternals
-  WRAP_EXCLUDE
+  PROPERTIES
+    WRAP_EXCLUDE 1
+    WRAP_EXCLUDE_PYTHON 1
   )
 
 vtk_module_library(vtkIOParallel ${Module_SRCS})

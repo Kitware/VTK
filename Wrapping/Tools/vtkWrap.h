@@ -118,7 +118,7 @@ int vtkWrap_IsVTKObjectBaseType(
   HierarchyInfo *hinfo, const char *classname);
 
 /**
- * Check if the WRAP_SPECIAL flag is set for the class.
+ * Check whether the class is not derived from vtkObjectBase.
  * If "hinfo" is NULL, it defaults to just checking if
  * the class starts with "vtk" and returns -1 if so.
  */

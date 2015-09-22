@@ -147,16 +147,11 @@ int vtkWrapPython_HasWrappedSuperClass(
       {
       break;
       }
-    else if (!vtkParseHierarchy_GetProperty(entry, "WRAP_EXCLUDE"))
-      {
-      result = 1;
-      break;
-      }
     else if (strncmp(entry->Name, "vtk", 3) != 0)
       {
       break;
       }
-    else if (vtkParseHierarchy_GetProperty(entry, "WRAP_SPECIAL"))
+    else if (!vtkParseHierarchy_GetProperty(entry, "WRAP_EXCLUDE_PYTHON"))
       {
       result = 1;
       break;

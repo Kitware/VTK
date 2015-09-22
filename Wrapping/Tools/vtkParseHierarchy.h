@@ -98,7 +98,7 @@ HierarchyEntry *vtkParseHierarchy_FindEntry(
  * Get properties for the class.  Returns NULL if the property
  * is not set, and returns either an empty string or a value string
  * if the property is set. The properties supported are as follows:
- * "WRAP_EXCLUDE", "WRAP_SPECIAL", and "ABSTRACT"
+ * "WRAP_EXCLUDE" and "ABSTRACT"
  */
 const char *vtkParseHierarchy_GetProperty(
   const HierarchyEntry *entry, const char *property);

@@ -51,7 +51,11 @@ foreach(file ${shader_files})
       --build-header VTKRENDERINGLICOPENGL2_EXPORT vtkRenderingLICOpenGL2Module.h
     )
   list(APPEND Module_SRCS ${res})
-  set_source_files_properties(${file_we} WRAP_EXCLUDE)
+  set_source_files_properties(${file_we}
+    PROPERTIES
+      WRAP_EXCLUDE 1
+      WRAP_EXCLUDE_PYTHON 1
+    )
 endforeach()
 
 

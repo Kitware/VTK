@@ -101,7 +101,9 @@ set_source_files_properties(
   ${headers}
   ${cpu_accelerator_srcs}
   ${CMAKE_CURRENT_BINARY_DIR}/vtkAcceleratorsDaxObjectFactory.cxx
-  WRAP_EXCLUDE
+  PROPERTIES
+    WRAP_EXCLUDE 1
+    WRAP_EXCLUDE_PYTHON 1
   )
 
 # Now for the object factory.

@@ -7,4 +7,4 @@ endforeach()
 
 @vtk-module-ABSTRACT@
 @vtk-module-WRAP_EXCLUDE@
-@vtk-module-WRAP_SPECIAL@
+@vtk-module-WRAP_EXCLUDE_PYTHON@

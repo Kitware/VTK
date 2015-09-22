@@ -45,7 +45,9 @@ cuda_compile(Module_CUDA_C_SRCS ${Module_CUDA_SRCS} ${GPGPU_BUILD_TYPE})
 
 set_source_files_properties(
   ${Module_CUDA_C_SRCS}
-  WRAP_EXCLUDE
+  PROPERTIES
+    WRAP_EXCLUDE 1
+    WRAP_EXCLUDE_PYTHON 1
   )
 
 list(APPEND Module_SRCS ${Module_CUDA_C_SRCS})

@@ -227,7 +227,5 @@ int vtkPixelTransfer::Blit(
   return 0;
 }
 
-ostream &operator<<(ostream &os, const vtkPixelTransfer &gt);
-
 #endif
 // VTK-HeaderTest-Exclude: vtkPixelTransfer.h

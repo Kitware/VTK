@@ -29,7 +29,9 @@ set(${vtk-module}_EXPORT_CODE "#include \"vtkFiltersStatisticsGnuRConfigure.h\""
 set_source_files_properties(
   vtkRAdapter.cxx
   ${vtk-module}ObjectFactory
-  WRAP_EXCLUDE
+  PROPERTIES
+    WRAP_EXCLUDE 1
+    WRAP_EXCLUDE_PYTHON 1
   )
 
 # Now to generate our object factory.

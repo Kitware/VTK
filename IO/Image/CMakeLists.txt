@@ -43,7 +43,9 @@ set_source_files_properties(
 
 set_source_files_properties(
   vtkNIFTIPrivate.h
-  WRAP_EXCLUDE
+  PROPERTIES
+    WRAP_EXCLUDE 1
+    WRAP_EXCLUDE_PYTHON 1
   )
 
 vtk_module_library(vtkIOImage ${Module_SRCS})

@@ -603,6 +603,32 @@ set_source_files_properties(
   WRAP_EXCLUDE
   )
 
+# python uses WRAP_EXCLUDE_PYTHON and ignores WRAP_EXCLUDE
+set_source_files_properties(
+  vtkABI.h
+  vtkAtomic.h
+  vtkAutoInit.h
+  vtkDataArrayTemplate.txx
+  vtkDataArrayTemplateHelper.cxx
+  vtkDataArrayTemplateImplicit.txx
+  vtkIOStream.cxx
+  vtkIOStreamFwd.h
+  vtkLargeInteger.cxx
+  vtkOldStyleCallbackCommand.cxx
+  vtkOStreamWrapper.cxx
+  vtkOStrStreamWrapper.cxx
+  vtkNew.h
+  vtkSetGet.h
+  vtkSmartPointer.h
+  vtkSmartPointerBase.h
+  vtkStdString.cxx
+  vtkUnicodeString.cxx
+  vtkWeakPointer.h
+  vtkWeakPointerBase.cxx
+  vtkWin32Header.h
+  PROPERTIES WRAP_EXCLUDE_PYTHON 1
+)
+
 set_source_files_properties(
   vtkDataArrayTemplate.h
   vtkDenseArray.h
@@ -611,27 +637,6 @@ set_source_files_properties(
   vtkTypeTemplate.h
   HEADER_FILE_ONLY
   )
-
-set_source_files_properties(
-  vtkArrayCoordinates.cxx
-  vtkArrayExtents.cxx
-  vtkArrayExtentsList.cxx
-  vtkArrayRange.cxx
-  vtkArraySort.cxx
-  vtkArrayWeights.cxx
-  vtkTimeStamp.cxx
-  vtkVariant.cxx
-  vtkDenseArray.txx
-  vtkSparseArray.txx
-  vtkTypedArray.txx
-  vtkTypeTemplate.h
-  vtkSystemIncludes.h
-  vtkType.h
-  vtkConfigure.h
-  vtkMathConfigure.h
-  vtkVersionMacros.h
-  PROPERTIES WRAP_SPECIAL 1
-)
 
 # Activate code in "vtkVariant.cxx".  See the comment in the source.
 set_source_files_properties(vtkVariant.cxx PROPERTIES

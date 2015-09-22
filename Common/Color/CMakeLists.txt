@@ -6,7 +6,6 @@ set(Module_SRCS
 #set_source_files_properties(
 #  ABSTRACT
 #  WRAP_EXCLUDE
-#  PROPERTIES WRAP_SPECIAL 1
 #)
 
 vtk_module_library(vtkCommonColor ${Module_SRCS})

@@ -279,14 +279,8 @@ set_source_files_properties(
   )
 
 set_source_files_properties(
-  vtkAtom
-  vtkBond
-  vtkCellType.h
-  vtkBoundingBox.cxx
-  vtkColor.h
-  vtkRect.h
-  vtkVector.h
-  PROPERTIES WRAP_SPECIAL 1
+  vtkDispatcher_Private
+  PROPERTIES WRAP_EXCLUDE_PYTHON 1
   )
 
 vtk_module_library(vtkCommonDataModel ${Module_SRCS})

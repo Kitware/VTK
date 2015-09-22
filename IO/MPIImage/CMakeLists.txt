@@ -6,7 +6,12 @@ set(Module_SRCS
   vtkMPIImageReader.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
   )
-set_source_files_properties(${vtk-module}ObjectFactory WRAP_EXCLUDE)
+set_source_files_properties(
+  ${vtk-module}ObjectFactory
+  PROPERTIES
+    WRAP_EXCLUDE 1
+    WRAP_EXCLUDE_PYTHON 1
+  )
 
 # Now to generate our object factory.
 vtk_add_override(vtkNrrdReader vtkPNrrdReader)

@@ -4,7 +4,12 @@ set(Module_SRCS
   vtkMatplotlibMathTextUtilities.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
   )
-set_source_files_properties(${vtk-module}ObjectFactory WRAP_EXCLUDE)
+set_source_files_properties(
+  ${vtk-module}ObjectFactory
+  PROPERTIES
+    WRAP_EXCLUDE 1
+    WRAP_EXCLUDE_PYTHON 1
+  )
 
 # Override some rendering classes. Create object factory:
 list(APPEND vtk_module_overrides "vtkMathTextUtilities")

@@ -29,8 +29,10 @@ set(${vtk-module}_HDRS
 
 set_source_files_properties(
   vtkScalarBarActorInternal.h
-  HEADER_FILE_ONLY
-  WRAP_EXCLUDE
+  PROPERTIES
+    HEADER_FILE_ONLY 1
+    WRAP_EXCLUDE 1
+    WRAP_EXCLUDE_PYTHON 1
   )
 
 vtk_module_library(vtkRenderingAnnotation ${Module_SRCS})
