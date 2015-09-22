@@ -40,6 +40,7 @@
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSmartPointer.h" // for ivars
+#include <vector> // STL Header
 #include "vtkRenderPass.h"
 
 class vtkOpenGLRenderWindow;
