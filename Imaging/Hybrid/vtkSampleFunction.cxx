@@ -62,22 +62,24 @@ public:
       FunctionValueOp(vtkSampleFunctionAlgorithm<TT> *algo)
         { this->Algo = algo;}
       vtkSampleFunctionAlgorithm *Algo;
+
       void  operator() (vtkIdType k, vtkIdType end)
         {
         double x[3];
+        vtkIdType *extent=this->Algo->Extent;
         vtkIdType i, j, jOffset, kOffset;
         for ( ; k < end; ++k)
           {
           x[2] = this->Algo->Origin[2] + k*this->Algo->Spacing[2];
-          kOffset = k*this->Algo->SliceSize;
-          for (j=0; j<this->Algo->Dims[1]; ++j)
+          kOffset = (k-extent[4]) * this->Algo->SliceSize;
+          for (j=extent[2]; j<=extent[3]; ++j)
             {
             x[1] = this->Algo->Origin[1] + j*this->Algo->Spacing[1];
-            jOffset = j*this->Algo->Dims[0];
-            for (i=0; i<this->Algo->Dims[0]; ++i)
+            jOffset = (j-extent[2])*this->Algo->Dims[0];
+            for (i=extent[0]; i<=extent[1]; ++i)
               {
               x[0] = this->Algo->Origin[0] + i*this->Algo->Spacing[0];
-              this->Algo->Scalars[i+jOffset+kOffset] =
+              this->Algo->Scalars[(i-extent[0])+jOffset+kOffset] =
                 static_cast<TT>(this->Algo->ImplicitFunction->FunctionValue(x));
               }
             }
@@ -92,24 +94,26 @@ public:
       FunctionGradientOp(vtkSampleFunctionAlgorithm<TT> *algo)
         { this->Algo = algo;}
       vtkSampleFunctionAlgorithm *Algo;
+
       void  operator() (vtkIdType k, vtkIdType end)
         {
         double x[3], n[3];
         float *nPtr;
+        vtkIdType *extent=this->Algo->Extent;
         vtkIdType i, j, jOffset, kOffset;
         for ( ; k < end; ++k)
           {
           x[2] = this->Algo->Origin[2] + k*this->Algo->Spacing[2];
-          kOffset = k*this->Algo->SliceSize;
-          for (j=0; j<this->Algo->Dims[1]; ++j)
+          kOffset = (k-extent[4]) * this->Algo->SliceSize;
+          for (j=extent[2]; j<=extent[3]; ++j)
             {
             x[1] = this->Algo->Origin[1] + j*this->Algo->Spacing[1];
-            jOffset = j*this->Algo->Dims[0];
-            for (i=0; i<this->Algo->Dims[0]; ++i)
+            jOffset = (j-extent[2]) * this->Algo->Dims[0];
+            for (i=extent[0]; i<=extent[1]; ++i)
               {
               x[0] = this->Algo->Origin[0] + i*this->Algo->Spacing[0];
               this->Algo->ImplicitFunction->FunctionGradient(x,n);
-              nPtr = this->Algo->Normals + 3*(i+jOffset+kOffset);
+              nPtr = this->Algo->Normals + 3*((i-extent[0])+jOffset+kOffset);
               nPtr[0] = static_cast<TT>(-n[0]);
               nPtr[1] = static_cast<TT>(-n[1]);
               nPtr[2] = static_cast<TT>(-n[2]);
@@ -159,13 +163,13 @@ SampleAcrossImage(vtkSampleFunction *self, vtkImageData *output,
 
   // Okay now generate samples using SMP tools
   FunctionValueOp<T> values(&algo);
-  vtkSMPTools::For(0,algo.Dims[2], values);
+  vtkSMPTools::For(extent[4],extent[5]+1, values);
 
   // If requested, generate normals
   if ( algo.Normals )
     {
     FunctionGradientOp<T> gradient(&algo);
-    vtkSMPTools::For(0,algo.Dims[2], gradient);
+    vtkSMPTools::For(extent[4],extent[5]+1, gradient);
     }
 
   // If requested, cap boundaries
