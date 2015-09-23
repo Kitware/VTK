@@ -600,7 +600,11 @@ bool vtkEDLShading::EDLCompose(const vtkRenderState *,
   //
   // Prepare blitting
   glClearColor(1., 1., 1., 1.);
-  glClearDepth(1.);
+#if GL_ES_VERSION_2_0 == 1
+  glClearDepthf(static_cast<GLclampf>(1.0));
+#else
+  glClearDepth(static_cast<GLclampf>(1.0));
+#endif
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   // IMPORTANT since we enable depth writing hereafter
   glDisable(GL_BLEND);
