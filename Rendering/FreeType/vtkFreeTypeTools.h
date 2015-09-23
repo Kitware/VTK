@@ -49,7 +49,7 @@ class vtkTextPropertyLookup;
 class VTKRENDERINGFREETYPE_EXPORT vtkFreeTypeToolsCleanup
 {
 public:
-  vtkFreeTypeToolsCleanup() {}
+  vtkFreeTypeToolsCleanup();
   ~vtkFreeTypeToolsCleanup();
 private:
   vtkFreeTypeToolsCleanup(const vtkFreeTypeToolsCleanup&);
@@ -299,9 +299,8 @@ protected:
                          FT_OutlineGlyph &outline_glyph);
 
   // Description:
-  // The singleton instance and the singleton cleanup instance
+  // The singleton instance
   static vtkFreeTypeTools* Instance;
-  static vtkFreeTypeToolsCleanup Cleanup;
 
   // Description:
   // Lookup table that maps free type font cache face ids to vtkTextProperties
@@ -397,5 +396,8 @@ private:
   void GetLineMetrics(T begin, T end, MetaData &metaData, int &width,
                       int bbox[4]);
 };
+
+// This is here to implement the Schwarz counter idiom.
+static vtkFreeTypeToolsCleanup vtkFreeTypeToolsCleanupInstance;
 
 #endif

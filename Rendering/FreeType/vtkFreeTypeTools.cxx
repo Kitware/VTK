@@ -111,9 +111,9 @@ public:
 };
 
 //----------------------------------------------------------------------------
-// The singleton, and the singleton cleanup
-vtkFreeTypeTools* vtkFreeTypeTools::Instance = NULL;
-vtkFreeTypeToolsCleanup vtkFreeTypeTools::Cleanup;
+// The singleton, and the singleton cleanup counter
+vtkFreeTypeTools* vtkFreeTypeTools::Instance;
+static unsigned int vtkFreeTypeToolsCleanupCounter;
 
 //----------------------------------------------------------------------------
 // The embedded fonts
@@ -128,9 +128,17 @@ struct EmbeddedFontStruct
 //------------------------------------------------------------------------------
 // Clean up the vtkFreeTypeTools instance at exit. Using a separate class allows
 // us to delay initialization of the vtkFreeTypeTools class.
+vtkFreeTypeToolsCleanup::vtkFreeTypeToolsCleanup()
+{
+  vtkFreeTypeToolsCleanupCounter++;
+}
+
 vtkFreeTypeToolsCleanup::~vtkFreeTypeToolsCleanup()
 {
-  vtkFreeTypeTools::SetInstance(NULL);
+  if (--vtkFreeTypeToolsCleanupCounter == 0)
+    {
+    vtkFreeTypeTools::SetInstance(NULL);
+    }
 }
 
 //----------------------------------------------------------------------------
