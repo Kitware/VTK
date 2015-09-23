@@ -35,7 +35,6 @@ class VTKCOMMONDATAMODEL_EXPORT vtkPixelTransfer
 {
 public:
   vtkPixelTransfer(){}
-  ~vtkPixelTransfer(){}
 
   // Description:
   // for  memory to memory transfers. Conveinience api for working

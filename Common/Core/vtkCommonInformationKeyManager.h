@@ -43,6 +43,11 @@ public:
   static void Register(vtkInformationKey* key);
 
 private:
+  // Unimplemented
+  vtkCommonInformationKeyManager(const vtkCommonInformationKeyManager&);
+  vtkCommonInformationKeyManager& operator=(
+    const vtkCommonInformationKeyManager&);
+
   static void ClassInitialize();
   static void ClassFinalize();
 };

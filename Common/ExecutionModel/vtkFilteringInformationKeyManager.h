@@ -43,6 +43,11 @@ public:
   static void Register(vtkInformationKey* key);
 
 private:
+  // Unimplemented
+  vtkFilteringInformationKeyManager(const vtkFilteringInformationKeyManager&);
+  vtkFilteringInformationKeyManager& operator=(
+    const vtkFilteringInformationKeyManager&);
+
   static void ClassInitialize();
   static void ClassFinalize();
 };

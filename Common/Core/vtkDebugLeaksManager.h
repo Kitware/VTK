@@ -30,6 +30,10 @@ class VTKCOMMONCORE_EXPORT vtkDebugLeaksManager
 public:
   vtkDebugLeaksManager();
   ~vtkDebugLeaksManager();
+private:
+  vtkDebugLeaksManager(const vtkDebugLeaksManager&);
+  vtkDebugLeaksManager& operator=(
+    const vtkDebugLeaksManager&);
 };
 
 // This instance will show up in any translation unit that uses

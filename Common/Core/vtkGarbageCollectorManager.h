@@ -33,6 +33,10 @@ class VTKCOMMONCORE_EXPORT vtkGarbageCollectorManager
 public:
   vtkGarbageCollectorManager();
   ~vtkGarbageCollectorManager();
+private:
+  vtkGarbageCollectorManager(const vtkGarbageCollectorManager&);
+  vtkGarbageCollectorManager& operator=(
+    const vtkGarbageCollectorManager&);
 };
 
 // This instance will show up in any translation unit that uses
