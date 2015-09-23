@@ -267,7 +267,9 @@ bool vtkOpenGLVertexArrayObject::AddAttributeArrayWithDivisor(vtkShaderProgram *
                                           int divisor, bool isMatrix)
 {
   if(!program)
+    {
     return false;
+    }
 
   // Check the program is bound, and the buffer is valid.
   if (!program->isBound() || buffer->GetHandle() == 0 ||

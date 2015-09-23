@@ -356,6 +356,10 @@ void vtkOpenGLGlyph3DMapper::Render(
     {
     vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry *entry =
       subarray->Entries[cc];
+    if (entry->NumberOfPoints <= 0)
+      {
+      continue;
+      }
     vtkOpenGLGlyph3DHelper *gh = entry->Mapper;
 
     // now draw, there is a fast path for a special case of
