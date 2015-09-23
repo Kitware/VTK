@@ -68,6 +68,7 @@ set(Module_SRCS
   vtkTextureObject.cxx
   vtkTextureUnitManager.cxx
   vtkTranslucentPass.cxx
+  vtkValuePass.cxx
   vtkVolumetricPass.cxx
   )
 
