@@ -49,7 +49,11 @@ class vtkTextPropertyLookup;
 class VTKRENDERINGFREETYPE_EXPORT vtkFreeTypeToolsCleanup
 {
 public:
+  vtkFreeTypeToolsCleanup() {}
   ~vtkFreeTypeToolsCleanup();
+private:
+  vtkFreeTypeToolsCleanup(const vtkFreeTypeToolsCleanup&);
+  vtkFreeTypeToolsCleanup& operator=(const vtkFreeTypeToolsCleanup&);
 };
 
 //----------------------------------------------------------------------------

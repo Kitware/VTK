@@ -51,6 +51,10 @@ public:
   void Contour(vtkCell* cell, double value, vtkDataArray *cellScalars, vtkIdType cellId);
 
  private:
+  // Not implemented
+  vtkContourHelper(const vtkContourHelper&);
+  vtkContourHelper& operator=(const vtkContourHelper&);
+
   vtkIncrementalPointLocator* Locator;
   vtkCellArray* Verts;
   vtkCellArray* Lines;
