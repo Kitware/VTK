@@ -887,8 +887,10 @@ void vtkCocoaRenderWindow::CreateGLContext()
     int i = 0;
     NSOpenGLPixelFormatAttribute attribs[20];
 
+#if defined(MAC_OS_X_VERSION_MIN_REQUIRED) && MAC_OS_X_VERSION_MIN_REQUIRED > MAC_OS_X_VERSION_10_6
     attribs[i++] = NSOpenGLPFAOpenGLProfile;
     attribs[i++] = NSOpenGLProfileVersion3_2Core;
+#endif
   //  OSX always preferrs an accelerated context
   //    attribs[i++] = NSOpenGLPFAAccelerated;
     attribs[i++] = NSOpenGLPFADepthSize;
@@ -934,7 +936,11 @@ void vtkCocoaRenderWindow::CreateGLContext()
       }
     else
       {
+#if defined(MAC_OS_X_VERSION_MIN_REQUIRED) && MAC_OS_X_VERSION_MIN_REQUIRED > MAC_OS_X_VERSION_10_6
       this->SetContextSupportsOpenGL32(true);
+#else
+      this->SetContextSupportsOpenGL32(false);
+#endif
       }
     }
 
