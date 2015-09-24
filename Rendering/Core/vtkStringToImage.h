@@ -13,7 +13,8 @@
 
 =========================================================================*/
 
-// .NAME vtkStringToImage - uses Qt to render the supplied text to an image.
+// .NAME vtkStringToImage - base class for classes that render supplied text
+// to an image.
 //
 // .SECTION Description
 //
