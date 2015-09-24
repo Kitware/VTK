@@ -15,6 +15,7 @@ vtk_module(vtkFiltersCore
     vtkImagingCore
     vtkFiltersGeneral
     vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingVolume${VTK_RENDERING_BACKEND}
   KIT
     vtkFilters
   )
