@@ -887,7 +887,7 @@ void vtkCocoaRenderWindow::CreateGLContext()
     int i = 0;
     NSOpenGLPixelFormatAttribute attribs[20];
 
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_7
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
     attribs[i++] = NSOpenGLPFAOpenGLProfile;
     attribs[i++] = NSOpenGLProfileVersion3_2Core;
 #endif
