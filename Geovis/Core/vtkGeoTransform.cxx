@@ -170,6 +170,7 @@ void vtkGeoTransform::InternalTransformPoints( double* x, vtkIdType numPts, int 
       xy.x = coord[0]; xy.y = coord[1];
       lp = proj_inv( xy, src );
       coord[0] = lp.lam; coord[1] = lp.phi;
+      coord += stride;
       }
     }
   else // ! src
@@ -210,4 +211,3 @@ void vtkGeoTransform::InternalTransformPoints( double* x, vtkIdType numPts, int 
       }
     }
 }
-
