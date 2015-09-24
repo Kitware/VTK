@@ -233,8 +233,6 @@ void vtkProbeFilter::InitializeForProbing(vtkDataSet* input,
     }
   tempCellData->Delete();
 
-  outPD->AddArray(this->MaskPoints);
-
   // Since we haven't resize the point arrays, we need to fill them up with
   // nulls whenever we have a miss when probing.
   this->UseNullPoint = true;
@@ -247,7 +245,17 @@ void vtkProbeFilter::Probe(vtkDataSet *input, vtkDataSet *source,
 {
   this->BuildFieldList(source);
   this->InitializeForProbing(input, output);
-  this->ProbeEmptyPoints(input, 0, source, output);
+  if (vtkImageData::SafeDownCast(input))
+    {
+    vtkImageData *inImage = vtkImageData::SafeDownCast(input);
+    vtkImageData *outImage = vtkImageData::SafeDownCast(output);
+    this->ProbePointsImageData(inImage, 0, source, outImage);
+    }
+  else
+    {
+    this->ProbeEmptyPoints(input, 0, source, output);
+    }
+  output->GetPointData()->AddArray(this->MaskPoints);
 }
 
 //----------------------------------------------------------------------------
@@ -396,6 +404,184 @@ void vtkProbeFilter::ProbeEmptyPoints(vtkDataSet *input,
   if (mcs>256)
     {
     delete [] weights;
+    }
+}
+
+static void GetPointIdsInRange(double rangeMin, double rangeMax, double start,
+  double stepsize, int numSteps, int &minid, int &maxid)
+{
+  if (stepsize == 0)
+    {
+    minid = maxid = 0;
+    return;
+    }
+
+  minid = vtkMath::Ceil((rangeMin - start)/stepsize);
+  if (minid < 0)
+    {
+    minid = 0;
+    }
+
+  maxid = vtkMath::Floor((rangeMax - start)/stepsize);
+  if (maxid > numSteps-1)
+    {
+    maxid = numSteps-1;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkProbeFilter::ProbePointsImageData(vtkImageData *input,
+  int srcIdx, vtkDataSet *source, vtkImageData *output)
+{
+  double pcoords[3], *weights;
+  double fastweights[256];
+  std::vector<double> dynamicweights;
+
+  // lets use a stack allocated array if possible for performance reasons
+  int mcs = source->GetMaxCellSize();
+  if (mcs<=256)
+    {
+    weights = fastweights;
+    }
+  else
+    {
+    dynamicweights.resize(mcs);
+    weights = &dynamicweights[0];
+    }
+
+  vtkPointData *pd = source->GetPointData();
+  vtkCellData *cd = source->GetCellData();
+
+  vtkIdType numPts = input->GetNumberOfPoints();
+  vtkPointData *outPD = output->GetPointData();
+
+  // initialize arrays
+  for (int i = 0; i < outPD->GetNumberOfArrays(); i++)
+    {
+    outPD->GetArray(i)->SetNumberOfTuples(numPts);
+    // initialize the values to 0
+    for (int j = 0; j < outPD->GetArray(i)->GetNumberOfComponents(); j++)
+      {
+      outPD->GetArray(i)->FillComponent(j, 0);
+      }
+    }
+
+  char* maskArray = this->MaskPoints->GetPointer(0);
+
+  //----------------------------------------
+  double spacing[3];
+  input->GetSpacing(spacing);
+  int extent[6];
+  input->GetExtent(extent);
+  int dim[3];
+  input->GetDimensions(dim);
+  double start[3];
+  input->GetOrigin(start);
+  start[0] += static_cast<double>(extent[0]) * spacing[0];
+  start[1] += static_cast<double>(extent[2]) * spacing[1];
+  start[2] += static_cast<double>(extent[4]) * spacing[2];
+
+  vtkIdType numSrcCells = source->GetNumberOfCells();
+  vtkIdType progressInterval = numSrcCells/20 + 1;
+
+  // Loop over all source cells
+  int abort = 0;
+  for (vtkIdType cellId = 0; cellId < numSrcCells && !abort; cellId++)
+  {
+    if ( !(cellId % progressInterval) )
+      {
+      this->UpdateProgress(static_cast<double>(cellId)/numSrcCells);
+      abort = GetAbortExecute();
+      }
+
+    vtkCell * cell = source->GetCell(cellId);
+
+    // get coordinates of sampling grids
+    double cellBounds[6];
+    cell->GetBounds(cellBounds);
+
+    int idxBounds[6];
+    GetPointIdsInRange(cellBounds[0], cellBounds[1], start[0], spacing[0],
+      dim[0], idxBounds[0], idxBounds[1]);
+    GetPointIdsInRange(cellBounds[2], cellBounds[3], start[1], spacing[1],
+      dim[1], idxBounds[2], idxBounds[3]);
+    GetPointIdsInRange(cellBounds[4], cellBounds[5], start[2], spacing[2],
+      dim[2], idxBounds[4], idxBounds[5]);
+
+    if ((idxBounds[1] - idxBounds[0]) < 0 ||
+        (idxBounds[3] - idxBounds[2]) < 0 ||
+        (idxBounds[5] - idxBounds[4]) < 0)
+      {
+      continue;
+      }
+
+    for (int iz=idxBounds[4]; iz<=idxBounds[5]; iz++)
+      {
+      double p[3];
+      p[2] = start[2] + iz*spacing[2];
+      for (int iy=idxBounds[2]; iy<=idxBounds[3]; iy++)
+        {
+        p[1] = start[1] + iy*spacing[1];
+        for (int ix=idxBounds[0]; ix<=idxBounds[1]; ix++)
+          {
+          // For each grid point within the cell bound, interpolate values
+          p[0] = start[0] + ix*spacing[0];
+
+          double closestPoint[3];
+          double dist2;
+          int subId;
+          int inside = cell->EvaluatePosition(p, closestPoint, subId, pcoords,
+            dist2, weights);
+
+          // Ensure the point really falls in the cell. Prevents extrapolation.
+          for (int k=0; k<cell->GetNumberOfPoints(); k++)
+            {
+            if (weights[k]<0)
+              {
+              inside=0;
+              break;
+              }
+            }
+
+          if (inside && (dist2==0)) // ensure it's inside the cell
+            {
+            vtkIdType ptId = ix + dim[0]*(iy + dim[1]*iz);
+
+            // Interpolate the point data
+            outPD->InterpolatePoint((*this->PointList), pd, srcIdx, ptId,
+              cell->PointIds, weights);
+
+            // Assign cell data
+            vtkVectorOfArrays::iterator iter;
+            for (iter = this->CellArrays->begin();
+               iter != this->CellArrays->end(); ++iter)
+              {
+              vtkDataArray* inArray = cd->GetArray((*iter)->GetName());
+              if (inArray)
+                {
+                outPD->CopyTuple(inArray, *iter, cellId, ptId);
+                }
+              }
+
+            maskArray[ptId] = static_cast<char>(1);
+            }
+          }
+        }
+      }
+    }
+
+  // populate ValidPoints
+  for (vtkIdType i = 0; i < numPts; ++i)
+    {
+    if (maskArray[i])
+      {
+      this->ValidPoints->InsertNextValue(i);
+      this->NumberOfValidPoints++;
+      }
+    else if (this->UseNullPoint)
+      {
+      outPD->NullPoint(i);
+      }
     }
 }
 
