@@ -266,9 +266,12 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
         transform->GetMatrix(tmp);
         transform->Pop();
         tmp->Transpose();
-        for (int i = 0; i < 16; i++)
+        for (int i = 0; i < 4; i++)
           {
-          shadowTransforms.push_back(*(tmp->Element[0] + i));
+          for (int j = 0; j < 4; j++)
+            {
+          shadowTransforms.push_back(tmp->Element[i][j]);
+            }
           }
         ++shadowingLightIndex;
         }
