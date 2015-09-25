@@ -269,6 +269,11 @@ protected:
   virtual bool Execute(vtkDataSet* input,
                        vtkInformationVector* sourceVector,
                        vtkPolyData* output);
+  virtual bool Execute(vtkDataSet* input,
+                       vtkInformationVector* sourceVector,
+                       vtkPolyData* output,
+                       vtkDataArray *inSScalars,
+                       vtkDataArray *inVectors);
 
   vtkPolyData **Source; // Geometry to copy to each point
   int Scaling; // Determine whether scaling of geometry is performed

@@ -113,6 +113,19 @@ bool vtkGlyph3D::Execute(
   vtkInformationVector* sourceVector,
   vtkPolyData* output)
 {
+  vtkDataArray *inSScalars = this->GetInputArrayToProcess(0, input);
+  vtkDataArray *inVectors = this->GetInputArrayToProcess(1, input);
+  return this->Execute(input, sourceVector, output, inSScalars, inVectors);
+}
+
+//----------------------------------------------------------------------------
+bool vtkGlyph3D::Execute(
+  vtkDataSet* input,
+  vtkInformationVector* sourceVector,
+  vtkPolyData* output,
+  vtkDataArray *inSScalars,
+  vtkDataArray *inVectors)
+{
   assert(input && output);
   if (input == NULL || output == NULL)
     {
@@ -124,9 +137,7 @@ bool vtkGlyph3D::Execute(
   vtkUniformGrid* inputUG = vtkUniformGrid::SafeDownCast(input);
 
   vtkPointData *pd;
-  vtkDataArray *inSScalars; // Scalars for Scaling
   vtkDataArray *inCScalars; // Scalars for Coloring
-  vtkDataArray *inVectors;
   unsigned char* inGhostLevels=0;
   vtkDataArray *inNormals, *sourceNormals = NULL;
   vtkDataArray *sourceTCoords = NULL;
@@ -164,8 +175,6 @@ bool vtkGlyph3D::Execute(
   pts->Allocate(VTK_CELL_SIZE);
 
   pd = input->GetPointData();
-  inSScalars = this->GetInputArrayToProcess(0, input);
-  inVectors = this->GetInputArrayToProcess(1, input);
   inNormals = this->GetInputArrayToProcess(2, input);
   inCScalars = this->GetInputArrayToProcess(3, input);
   if (inCScalars == NULL)
