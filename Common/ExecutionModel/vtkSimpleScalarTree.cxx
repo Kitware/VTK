@@ -115,6 +115,8 @@ void vtkSimpleScalarTree::BuildTree()
     vtkErrorMacro( << "No scalar data to build trees with");
     return;
     }
+  // Register usage for later destructor
+  this->Scalars->Register(this);
 
   this->Initialize();
   cellScalars = vtkDoubleArray::New();

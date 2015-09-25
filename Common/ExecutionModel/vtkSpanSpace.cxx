@@ -271,6 +271,8 @@ void vtkSpanSpace::BuildTree()
     vtkErrorMacro( << "No scalar data to build trees with");
     return;
     }
+  // Register usage for later destructor
+  this->Scalars->Register(this);
 
   // We need a range for the scalars
   double range[2];
