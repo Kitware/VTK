@@ -105,8 +105,12 @@
         "lib/js/paraview.ui.color.editor.js",
         "lib/css/paraview.ui.color.editor.css"
         ],
-        "pv-visualizer-main": [
+        "pv-visualizer-main-js": [
         "apps/Visualizer/main.js"
+        ],
+        "pv-visualizer-main-all": [
+        "apps/Visualizer/main.js",
+        "apps/Visualizer/main.css"
         ],
         "pv-visualizer-tpl": "apps/Visualizer/visualizer-tpl.html"
 
@@ -247,8 +251,10 @@
     // See if we have a main application template to load
     // ---------------------------------------------------------------------
     try {
-        templateKey = script.getAttribute("app-template");
-        loadGlobalTemplate(basePath + vtkWebLibs[templateKey]);
+        var templateKey = script.getAttribute("app-template");
+        if (templateKey !== null && templateKey !== '') {
+            loadGlobalTemplate(basePath + vtkWebLibs[templateKey]);
+        }
     } catch (e) {
         // This is fine, you may have defined your application inline
     }
