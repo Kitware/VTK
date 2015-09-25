@@ -30,6 +30,8 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
+#include "vtkTextActor.h"
+#include "vtkTextProperty.h"
 
 #include "vtkAndroidRenderWindowInteractor.h"
 
@@ -88,6 +90,13 @@ void android_main(struct android_app* state)
   renderer->AddActor(sphereActor.Get());
   renderer->AddActor(spikeActor.Get());
   renderer->SetBackground(0.4,0.5,0.6);
+
+  vtkNew<vtkTextActor> ta;
+  ta->SetInput("Droids Rock");
+  ta->GetTextProperty()->SetColor( 0.5, 1.0, 0.0 );
+  ta->SetDisplayPosition(50,50);
+  ta->GetTextProperty()->SetFontSize(32);
+  renderer->AddActor(ta.Get());
 
   renWin->Render();
   iren->Start();

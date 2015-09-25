@@ -8,6 +8,7 @@ endif ()
 find_package(VTK COMPONENTS
   vtkInteractionStyle
   vtkRenderingOpenGL2
+  vtkRenderingFreeType
 )
 include(${VTK_USE_FILE})
 

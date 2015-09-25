@@ -30,6 +30,7 @@
 
 #include <jni.h>
 #include <errno.h>
+#include <sstream>
 
 #include "vtkNew.h"
 
@@ -43,6 +44,8 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
+#include "vtkTextActor.h"
+#include "vtkTextProperty.h"
 
 #include "vtkAndroidRenderWindowInteractor.h"
 #include "vtkCommand.h"
@@ -71,6 +74,39 @@ struct userData
   vtkRenderWindow *RenderWindow;
   vtkRenderer *Renderer;
   vtkAndroidRenderWindowInteractor *Interactor;
+};
+
+// Example of updating text as we go
+class vtkExampleCallback : public vtkCommand
+{
+public:
+  static vtkExampleCallback *New()
+  { return new vtkExampleCallback; }
+  virtual void Execute( vtkObject *caller, unsigned long, void* )
+  {
+  // Update cardinality of selection
+  double *pos = this->Camera->GetPosition();
+  std::ostringstream txt;
+  txt << "Camera positioned at: "
+    << std::fixed
+    << std::setprecision( 2 )
+    << std::setw( 6 )
+    <<  pos[0] << ", "
+    << std::setw( 6 )
+    << pos[1] << ", "
+    << std::setw( 6 )
+    << pos[2];
+  this->Text->SetInput( txt.str().c_str() );
+  }
+
+  vtkExampleCallback()
+    {
+    this->Camera = 0;
+    this->Text = 0;
+    }
+
+  vtkCamera *Camera;
+  vtkTextActor* Text;
 };
 
 /*
@@ -116,6 +152,18 @@ JNIEXPORT jlong JNICALL Java_com_kitware_JavaVTK_JavaVTKLib_init(JNIEnv * env, j
   renderer->AddActor(sphereActor.Get());
   renderer->AddActor(spikeActor.Get());
   renderer->SetBackground(0.4,0.5,0.6);
+
+  vtkNew<vtkTextActor> ta;
+  ta->SetInput("Droids Rock");
+  ta->GetTextProperty()->SetColor( 0.5, 1.0, 0.0 );
+  ta->SetDisplayPosition(50,50);
+  ta->GetTextProperty()->SetFontSize(32);
+  renderer->AddActor(ta.Get());
+
+  vtkNew<vtkExampleCallback> cb;
+  cb->Camera = renderer->GetActiveCamera();
+  cb->Text = ta.Get();
+  iren->AddObserver( vtkCommand::InteractionEvent, cb.Get() );
 
   struct userData *foo = new struct userData();
   foo->RenderWindow = renWin;
