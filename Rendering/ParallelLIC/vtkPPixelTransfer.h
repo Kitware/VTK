@@ -518,6 +518,7 @@ int vtkPPixelTransfer::Execute(
   return iErr;
 }
 
+VTKRENDERINGPARALLELLIC_EXPORT
 ostream &operator<<(std::ostream &os, const vtkPPixelTransfer &gt);
 
 #endif
