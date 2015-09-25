@@ -46,7 +46,7 @@ public:
   vtkBooleanMacro(MergePieces, bool);
 
   // Description:
-  // see vtkAlgorithm for details
+  // Please see vtkAlgorithm for details.
   virtual int ProcessRequest(vtkInformation*,
                              vtkInformationVector**,
                              vtkInformationVector*);

@@ -96,8 +96,9 @@ public:
   // ComputeNormals is on, gradients will have to be calculated, but
   // will not be stored in the output dataset.  If the output data
   // will be processed by filters that modify topology or geometry, it
-  // may be wise to turn Normals and Gradients off.
-  // @deprecated ComputeGradients is not used so these methods don't affect anything (VTK 6.0).
+  // may be wise to turn Normals and Gradients off.  @deprecated
+  // ComputeGradients is not used so these methods don't affect
+  // anything (VTK 6.0).
   vtkSetMacro(ComputeGradients,int);
   vtkGetMacro(ComputeGradients,int);
   vtkBooleanMacro(ComputeGradients,int);
@@ -115,13 +116,18 @@ public:
   vtkBooleanMacro(UseScalarTree,int);
 
   // Description:
+  // Specify the instance of vtkScalarTree to use. If not specified
+  // and UseScalarTree is enabled, then a vtkSimpleScalarTree will be used.
+  void SetScalarTree(vtkScalarTree *sTree);
+  vtkGetObjectMacro(ScalarTree,vtkScalarTree);
+
+  // Description:
   // Set / get a spatial locator for merging points. By default,
   // an instance of vtkMergePoints is used.
   void SetLocator(vtkIncrementalPointLocator *locator);
   vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
 
-
- // Description:
+  // Description:
   // If this is enabled (by default), the output will be triangles
   // otherwise, the output will be the intersection polygons
   // WARNING: if the cutting function is not a plane, the output
@@ -131,8 +137,7 @@ public:
   vtkGetMacro(GenerateTriangles,int);
   vtkBooleanMacro(GenerateTriangles,int);
 
-
-// Description:
+  // Description:
   // Create default locator. Used to create one when none is
   // specified. The locator is used to merge coincident points.
   void CreateDefaultLocator();
@@ -158,9 +163,11 @@ protected:
   int GenerateTriangles;
 
   vtkIncrementalPointLocator *Locator;
+
   int UseScalarTree;
-  int OutputPointsPrecision;
   vtkScalarTree *ScalarTree;
+
+  int OutputPointsPrecision;
   vtkEdgeTable *EdgeTable;
 
 private:

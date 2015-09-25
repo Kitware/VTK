@@ -40,6 +40,7 @@ SET(Module_SRCS
   vtkScalarTree.cxx
   vtkSimpleImageToImageFilter.cxx
   vtkSimpleScalarTree.cxx
+  vtkSpanSpace.cxx
   vtkStreamingDemandDrivenPipeline.cxx
   vtkStructuredGridAlgorithm.cxx
   vtkTableAlgorithm.cxx

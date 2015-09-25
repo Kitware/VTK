@@ -50,6 +50,7 @@
 vtkStandardNewMacro(vtkContourFilter);
 vtkCxxSetObjectMacro(vtkContourFilter,ScalarTree,vtkScalarTree);
 
+//-----------------------------------------------------------------------------
 // Construct object with initial range (0,1) and single contour value
 // of 0.0.
 vtkContourFilter::vtkContourFilter()
@@ -96,6 +97,7 @@ vtkContourFilter::vtkContourFilter()
                                vtkDataSetAttributes::SCALARS);
 }
 
+//-----------------------------------------------------------------------------
 vtkContourFilter::~vtkContourFilter()
 {
   this->ContourValues->Delete();
@@ -107,7 +109,7 @@ vtkContourFilter::~vtkContourFilter()
   if ( this->ScalarTree )
     {
     this->ScalarTree->Delete();
-    this->ScalarTree = 0;
+    this->ScalarTree = NULL;
     }
   this->SynchronizedTemplates2D->Delete();
   this->SynchronizedTemplates3D->Delete();
@@ -116,6 +118,7 @@ vtkContourFilter::~vtkContourFilter()
   this->InternalProgressCallbackCommand->Delete();
 }
 
+//-----------------------------------------------------------------------------
 // Overload standard modified time function. If contour values are modified,
 // then this object is modified as well.
 unsigned long vtkContourFilter::GetMTime()
@@ -137,6 +140,7 @@ unsigned long vtkContourFilter::GetMTime()
   return mTime;
 }
 
+//-----------------------------------------------------------------------------
 int vtkContourFilter::RequestUpdateExtent(vtkInformation* request,
                                           vtkInformationVector** inputVector,
                                           vtkInformationVector* outputVector)
@@ -252,6 +256,7 @@ int vtkContourFilter::RequestUpdateExtent(vtkInformation* request,
   return 1;
 }
 
+//-----------------------------------------------------------------------------
 // General contouring filter.  Handles arbitrary input.
 //
 int vtkContourFilter::RequestData(
@@ -409,6 +414,16 @@ int vtkContourFilter::RequestData(
     cgrid->SetComputeScalars(this->ComputeScalars);
     cgrid->SetOutputPointsPrecision(this->OutputPointsPrecision);
     cgrid->SetGenerateTriangles(this->GenerateTriangles);
+    cgrid->SetUseScalarTree(this->UseScalarTree);
+    if ( this->UseScalarTree ) //special treatment to reuse it
+      {
+      if ( this->ScalarTree == NULL )
+        {
+        this->ScalarTree = vtkSimpleScalarTree::New();
+        }
+      this->ScalarTree->SetDataSet(input);
+      cgrid->SetScalarTree(this->ScalarTree);
+      }
     if ( this->Locator )
       {
       cgrid->SetLocator( this->Locator );
@@ -571,11 +586,6 @@ int vtkContourFilter::RequestData(
     else
       {
       vtkCell *cell;
-      if ( this->ScalarTree == NULL )
-        {
-        this->ScalarTree = vtkSimpleScalarTree::New();
-        }
-      this->ScalarTree->SetDataSet(input);
       // Note: This will have problems when input contains 2D and 3D cells.
       // CellData will get scrabled because of the implicit ordering of
       // verts, lines and polys in vtkPolyData.  The solution
@@ -653,6 +663,7 @@ int vtkContourFilter::RequestData(
   return 1;
 }
 
+//-----------------------------------------------------------------------------
 // Specify a spatial locator for merging points. By default,
 // an instance of vtkMergePoints is used.
 void vtkContourFilter::SetLocator(vtkIncrementalPointLocator *locator)
@@ -674,6 +685,7 @@ void vtkContourFilter::SetLocator(vtkIncrementalPointLocator *locator)
   this->Modified();
 }
 
+//-----------------------------------------------------------------------------
 void vtkContourFilter::CreateDefaultLocator()
 {
   if ( this->Locator == NULL )
@@ -684,6 +696,7 @@ void vtkContourFilter::CreateDefaultLocator()
     }
 }
 
+//-----------------------------------------------------------------------------
 void vtkContourFilter::SetArrayComponent( int comp )
 {
   this->SynchronizedTemplates2D->SetArrayComponent( comp );
@@ -691,22 +704,26 @@ void vtkContourFilter::SetArrayComponent( int comp )
   this->RectilinearSynchronizedTemplates->SetArrayComponent( comp );
 }
 
+//-----------------------------------------------------------------------------
 int vtkContourFilter::GetArrayComponent()
 {
   return( this->SynchronizedTemplates2D->GetArrayComponent() );
 }
 
+//-----------------------------------------------------------------------------
 void vtkContourFilter::SetOutputPointsPrecision(int precision)
 {
   this->OutputPointsPrecision = precision;
   this->Modified();
 }
 
+//-----------------------------------------------------------------------------
 int vtkContourFilter::GetOutputPointsPrecision() const
 {
   return this->OutputPointsPrecision;
 }
 
+//-----------------------------------------------------------------------------
 int vtkContourFilter::FillInputPortInformation(int, vtkInformation *info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");

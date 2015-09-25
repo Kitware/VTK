@@ -33,23 +33,40 @@ public:
   TScalar max;
 };
 
+//-----------------------------------------------------------------------------
 // Instantiate scalar tree with maximum level of 20 and branching
-// factor of 5.
+// factor of 3.
 vtkSimpleScalarTree::vtkSimpleScalarTree()
 {
-  this->DataSet = NULL;
-  this->Level = 0;
   this->MaxLevel = 20;
+  this->Level = 0;
   this->BranchingFactor = 3;
   this->Tree = NULL;
   this->TreeSize = 0;
+
+  // Variables that support serial traversal
+  this->NumCells = 0;
+  this->TreeIndex = 0;
+  this->ChildNumber = 0;
+  this->CellId = 0;
+
+  // For supporting parallel computing, list of possible candidates
+  this->CandidateCells = NULL;
+  this->NumCandidates = 0;
 }
 
+//-----------------------------------------------------------------------------
 vtkSimpleScalarTree::~vtkSimpleScalarTree()
 {
   delete [] this->Tree;
+  if ( this->CandidateCells )
+    {
+    delete [] this->CandidateCells;
+    this->CandidateCells = NULL;
+    }
 }
 
+//-----------------------------------------------------------------------------
 // Initialize locator. Frees memory and resets object as appropriate.
 void vtkSimpleScalarTree::Initialize()
 {
@@ -57,11 +74,12 @@ void vtkSimpleScalarTree::Initialize()
   this->Tree = NULL;
 }
 
+//-----------------------------------------------------------------------------
 // Construct the scalar tree from the dataset provided. Checks build times
 // and modified time from input and reconstructs the tree if necessaery.
 void vtkSimpleScalarTree::BuildTree()
 {
-  vtkIdType numCells, cellId, i, j, numScalars;
+  vtkIdType cellId, i, j, numScalars;
   int level, offset, parentOffset, prod;
   vtkIdType numNodes, node, numLeafs, leaf, numParentLeafs;
   vtkCell *cell;
@@ -72,7 +90,8 @@ void vtkSimpleScalarTree::BuildTree()
 
   // Check input...see whether we have to rebuild
   //
-  if ( !this->DataSet || (numCells = this->DataSet->GetNumberOfCells()) < 1 )
+  if ( !this->DataSet ||
+       (this->NumCells = this->DataSet->GetNumberOfCells()) < 1 )
     {
     vtkErrorMacro( << "No data to build tree with");
     return;
@@ -86,7 +105,11 @@ void vtkSimpleScalarTree::BuildTree()
 
   vtkDebugMacro( << "Building scalar tree..." );
 
-  this->Scalars = this->DataSet->GetPointData()->GetScalars();
+  // If no scalars set then try and grab them from dataset
+  if ( ! this->Scalars )
+    {
+    this->SetScalars(this->DataSet->GetPointData()->GetScalars());
+    }
   if ( ! this->Scalars )
     {
     vtkErrorMacro( << "No scalar data to build trees with");
@@ -100,7 +123,7 @@ void vtkSimpleScalarTree::BuildTree()
   // Compute the number of levels in the tree
   //
   numLeafs = static_cast<int>(
-    ceil(static_cast<double>(numCells)/this->BranchingFactor));
+    ceil(static_cast<double>(this->NumCells)/this->BranchingFactor));
   for (prod=1, numNodes=1, this->Level=0;
        prod < numLeafs && this->Level <= this->MaxLevel; this->Level++ )
     {
@@ -123,7 +146,7 @@ void vtkSimpleScalarTree::BuildTree()
   for ( cellId=0, node=0; node < numLeafs; node++ )
     {
     tree = TTree + offset + node;
-    for ( i=0; i < this->BranchingFactor && cellId < numCells; i++, cellId++ )
+    for ( i=0; i < this->BranchingFactor && cellId < this->NumCells; i++, cellId++ )
       {
       cell = this->DataSet->GetCell(cellId);
       cellPts = cell->GetPointIds();
@@ -180,6 +203,7 @@ void vtkSimpleScalarTree::BuildTree()
   cellScalars->Delete();
 }
 
+//-----------------------------------------------------------------------------
 // Begin to traverse the cells based on a scalar value. Returned cells
 // will have scalar values that span the scalar value specified.
 void vtkSimpleScalarTree::InitTraversal(double scalarValue)
@@ -198,12 +222,13 @@ void vtkSimpleScalarTree::InitTraversal(double scalarValue)
     return;
     }
 
-  else //find leaf that does overlap with scalar value
+  else //find leaf that overlaps the isocontour value
     {
     this->FindStartLeaf(0,0); //recursive function call
     }
 }
 
+//-----------------------------------------------------------------------------
 int vtkSimpleScalarTree::FindStartLeaf(vtkIdType index, int level)
 {
   if ( level < this->Level )
@@ -248,6 +273,7 @@ int vtkSimpleScalarTree::FindStartLeaf(vtkIdType index, int level)
     }
 }
 
+//-----------------------------------------------------------------------------
 int vtkSimpleScalarTree::FindNextLeaf(vtkIdType childIndex, int childLevel)
 {
   vtkIdType myIndex=(childIndex-1)/this->BranchingFactor;
@@ -285,6 +311,7 @@ int vtkSimpleScalarTree::FindNextLeaf(vtkIdType childIndex, int childLevel)
 }
 
 
+//-----------------------------------------------------------------------------
 // Return the next cell that may contain scalar value specified to
 // initialize traversal. The value NULL is returned if the list is
 // exhausted. Make sure that InitTraversal() has been invoked first or
@@ -296,7 +323,7 @@ vtkCell *vtkSimpleScalarTree::GetNextCell(vtkIdType& cellId,
   double s, min=VTK_DOUBLE_MAX, max=(-VTK_DOUBLE_MAX);
   vtkIdType i, numScalars;
   vtkCell *cell;
-  vtkIdType numCells = this->DataSet->GetNumberOfCells();
+  vtkIdType numCells = this->NumCells;
 
   while ( this->TreeIndex < this->TreeSize )
     {
@@ -336,6 +363,75 @@ vtkCell *vtkSimpleScalarTree::GetNextCell(vtkIdType& cellId,
   return NULL;
 }
 
+//-----------------------------------------------------------------------------
+// Return the number of cell batches.
+vtkIdType vtkSimpleScalarTree::GetNumberOfCellBatches()
+{
+  // Basically we do a traversal of the tree and identify potential candidates.
+  // It is essential that InitTraversal() has been called first.
+  this->NumCandidates = 0;
+  if ( this->CandidateCells )
+    {
+    delete [] this->CandidateCells;
+    this->CandidateCells = NULL;
+    }
+  if ( this->NumCells < 1 )
+    {
+    return 0;
+    }
+  this->CandidateCells = new vtkIdType [this->NumCells];
+
+  // Now begin traversing tree. InitTraversal() sets the first CellId.
+  while ( this->TreeIndex < this->TreeSize )
+    {
+    for ( ; this->ChildNumber < this->BranchingFactor && this->CellId < this->NumCells;
+          this->ChildNumber++, this->CellId++ )
+      {
+      this->CandidateCells[this->NumCandidates++] = this->CellId;
+      } //for each cell in this leaf
+
+    // If here, must have not found anything in this leaf
+    this->FindNextLeaf(this->TreeIndex, this->Level);
+    } //while not all leafs visited
+
+  // Watch for boundary conditions
+  if ( this->NumCandidates < 1 )
+    {
+    return 0;
+    }
+  else
+    {
+    return ( ((this->NumCandidates-1)/this->BranchingFactor) + 1);
+    }
+}
+
+//-----------------------------------------------------------------------------
+// Return the next batch of cells to process. Here we just use the branching
+// factor (i.e., group size) as the batch size.
+const vtkIdType* vtkSimpleScalarTree::
+GetCellBatch(vtkIdType batchNum, vtkIdType& numCells)
+{
+  // Make sure that everything is hunky dory
+  vtkIdType pos = batchNum * this->BranchingFactor;
+  if ( this->NumCells < 1 || ! this->CandidateCells ||
+       pos > this->NumCandidates )
+    {
+    numCells = 0;
+    return NULL;
+    }
+
+  if ( (this->NumCandidates - pos) >= this->BranchingFactor )
+    {
+    numCells = this->BranchingFactor;
+    }
+  else
+    {
+    numCells = this->NumCandidates % this->BranchingFactor;
+    }
+  return this->CandidateCells + pos;
+}
+
+//-----------------------------------------------------------------------------
 void vtkSimpleScalarTree::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -344,4 +440,3 @@ void vtkSimpleScalarTree::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Max Level: " << this->GetMaxLevel() << "\n" ;
   os << indent << "Branching Factor: " << this->GetBranchingFactor() << "\n" ;
 }
-

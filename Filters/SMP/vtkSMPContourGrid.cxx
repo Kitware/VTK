@@ -36,6 +36,7 @@
 #include "vtkSMPMergePolyDataHelper.h"
 #include "vtkInformationVector.h"
 #include "vtkDemandDrivenPipeline.h"
+#include "vtkSimpleScalarTree.h"
 
 #include "vtkTimerLog.h"
 
@@ -43,6 +44,7 @@
 
 vtkStandardNewMacro(vtkSMPContourGrid);
 
+//-----------------------------------------------------------------------------
 // Construct object with initial range (0,1) and single contour value
 // of 0.0.
 vtkSMPContourGrid::vtkSMPContourGrid()
@@ -50,10 +52,13 @@ vtkSMPContourGrid::vtkSMPContourGrid()
   this->MergePieces = true;
 }
 
+//-----------------------------------------------------------------------------
 vtkSMPContourGrid::~vtkSMPContourGrid()
 {
 }
 
+//-----------------------------------------------------------------------------
+// This is to support parallel processing and potential polydata merging.
 namespace
 {
 
@@ -70,6 +75,7 @@ struct vtkLocalDataType
     }
 };
 
+//-----------------------------------------------------------------------------
 // This functor uses thread local storage to create one vtkPolyData per
 // thread. Each execution of the functor adds to the vtkPolyData that is
 // local to the thread it is running on.
@@ -261,43 +267,50 @@ public:
 
     vtkNew<vtkIdList> pids;
     T range[2];
+    vtkIdType cellid;
 
-    for (vtkIdType cellid=begin; cellid<end; cellid++)
+    // If UseScalarTree is enabled at this point, we assume that a scalar
+    // tree has been computed and thus the way cells are traversed changes.
+    if ( ! this->Filter->GetUseScalarTree() )
       {
-      this->Input->GetCellPoints(cellid, pids.GetPointer());
-      cs->SetNumberOfTuples(pids->GetNumberOfIds());
-      this->InScalars->GetTuples(pids.GetPointer(), cs);
-      int numCellScalars = cs->GetNumberOfComponents()
-        * cs->GetNumberOfTuples();
-      T* cellScalarPtr = static_cast<T*>(cs->GetVoidPointer(0));
-
-      //find min and max values in scalar data
-      range[0] = range[1] = cellScalarPtr[0];
-
-      for (T *it = cellScalarPtr + 1, *itEnd = cellScalarPtr + numCellScalars;
-           it != itEnd;
-           ++it)
+      // This code assumes no scalar tree, thus it checks scalar range prior
+      // to invoking contour.
+      for ( cellid=begin; cellid < end; cellid++)
         {
-        if (*it <= range[0])
-          {
-          range[0] = *it;
-          } //if scalar <= min range value
-        if (*it >= range[1])
-          {
-          range[1] = *it;
-          } //if scalar >= max range value
-        } // for all cellScalars
+        this->Input->GetCellPoints(cellid, pids.GetPointer());
+        cs->SetNumberOfTuples(pids->GetNumberOfIds());
+        this->InScalars->GetTuples(pids.GetPointer(), cs);
+        int numCellScalars = cs->GetNumberOfComponents() *
+          cs->GetNumberOfTuples();
+        T* cellScalarPtr = static_cast<T*>(cs->GetVoidPointer(0));
 
-      bool needCell = false;
-      for (int i = 0; i < numValues; i++)
-        {
-        if ((values[i] >= range[0]) && (values[i] <= range[1]))
+        //find min and max values in scalar data
+        range[0] = range[1] = cellScalarPtr[0];
+
+        for (T *it = cellScalarPtr + 1, *itEnd = cellScalarPtr + numCellScalars;
+             it != itEnd;
+             ++it)
+          {
+          if (*it < range[0])
             {
-            needCell = true;
+            range[0] = *it;
+            } //if scalar <= min range value
+          if (*it > range[1])
+            {
+            range[1] = *it;
+            } //if scalar >= max range value
+          } // for all cellScalars
+
+        bool needCell = false;
+        for (int i = 0; i < numValues; i++)
+          {
+          if ((values[i] >= range[0]) && (values[i] <= range[1]))
+            {
+             needCell = true;
             } // if contour value in range for this cell
           } // end for numContours
 
-      if (needCell)
+        if (needCell)
           {
           this->Input->GetCell(cellid, cell);
 
@@ -340,9 +353,68 @@ public:
                 }
               }
             }
-          }
-      }
-  }
+          }//if cell need be contoured
+        }//for all cells
+      }//if no scalar tree requested
+    else
+      {//scalar tree provided
+      // The begin / end parameters to this function represent batches of candidate
+      // cells.
+      vtkIdType numCellsContoured=0;
+      vtkScalarTree *scalarTree = this->Filter->GetScalarTree();
+      const vtkIdType *cellIds;
+      vtkIdType numCells;
+      for ( vtkIdType batchNum=begin; batchNum < end; ++batchNum)
+        {
+        cellIds = scalarTree->GetCellBatch(batchNum,numCells);
+        for (vtkIdType idx=0; idx < numCells; ++idx)
+          {
+          cellid = cellIds[idx];
+          this->Input->GetCellPoints(cellid, pids.GetPointer());
+          cs->SetNumberOfTuples(pids->GetNumberOfIds());
+          this->InScalars->GetTuples(pids.GetPointer(), cs);
+
+          //Okay let's grab the cell and contour it
+          numCellsContoured++;
+          this->Input->GetCell(cellid, cell);
+          vtkIdType begVertSize = vrts->GetNumberOfConnectivityEntries();
+          vtkIdType begLineSize = lines->GetNumberOfConnectivityEntries();
+          vtkIdType begPolySize = polys->GetNumberOfConnectivityEntries();
+          cell->Contour(scalarTree->GetScalarValue(),
+                        cs,
+                        loc,
+                        vrts,
+                        lines,
+                        polys,
+                        inPd,
+                        outPd,
+                        inCd,
+                        cellid,
+                        outCd);
+          // We keep track of the insertion point of verts, lines and polys.
+          // This is later used when merging these data structures in parallel.
+          // The reason this is needed is that vtkCellArray is not normally
+          // random access with makes processing it in parallel very difficult.
+          // So we create a semi-random-access structures in parallel. This
+          // is only useful for merging since each of these indices can point
+          // to multiple cells.
+          if (vrts->GetNumberOfConnectivityEntries() > begVertSize)
+            {
+            vertOffsets->InsertNextId(begVertSize);
+            }
+          if (lines->GetNumberOfConnectivityEntries() > begLineSize)
+            {
+            lineOffsets->InsertNextId(begLineSize);
+            }
+          if (polys->GetNumberOfConnectivityEntries() > begPolySize)
+            {
+            polyOffsets->InsertNextId(begPolySize);
+            }
+          }//for all cells in this batch
+        }//for this batch of cells
+      }//using scalar tree
+
+  }//operator()
 
   void Reduce()
   {
@@ -388,6 +460,8 @@ public:
       }
   }
 };
+
+//-----------------------------------------------------------------------------
 template <typename T>
 void DoContour(vtkSMPContourGrid* filter,
                vtkUnstructuredGrid* input,
@@ -397,10 +471,33 @@ void DoContour(vtkSMPContourGrid* filter,
                double* values,
                vtkDataObject* output)
 {
-  // Contour in parallel
+  // Contour in parallel; create the processing functor
   vtkContourGridFunctor<T> functor(filter, input, inScalars, numContours, values, output);
-  vtkSMPTools::For(0, numCells, functor);
 
+  // If a scalar tree is used, then the way in which cells are iterated over changes.
+  // With a scalar tree, batches of candidate cells are provided. Without one, then all
+  // cells are iterated over one by one.
+  if ( filter->GetUseScalarTree() )
+    {//process in threaded using scalar tree
+    vtkScalarTree *scalarTree = filter->GetScalarTree();
+    vtkIdType numBatches;
+    for (int i=0; i < numContours; ++i)
+      {
+      scalarTree->InitTraversal(values[i]);
+      numBatches = scalarTree->GetNumberOfCellBatches();
+      if ( numBatches > 0 )
+        {
+        vtkSMPTools::For(0, numBatches, functor);
+        }
+      }
+    }
+  else
+    {//process all cells in parallel manner
+    vtkSMPTools::For(0, numCells, functor);
+    }
+
+  // Now process the output from the separate threads. Merging may or may not be
+  // required.
   if (output->IsA("vtkPolyData"))
     {
     // Do the merging.
@@ -424,8 +521,9 @@ void DoContour(vtkSMPContourGrid* filter,
     }
 }
 
-}
+}//end namespace
 
+//-----------------------------------------------------------------------------
 int vtkSMPContourGrid::RequestDataObject(
   vtkInformation* vtkNotUsed(request),
   vtkInformationVector**,
@@ -455,6 +553,7 @@ int vtkSMPContourGrid::RequestDataObject(
   return 1;
 }
 
+//-----------------------------------------------------------------------------
 int vtkSMPContourGrid::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
@@ -488,6 +587,20 @@ int vtkSMPContourGrid::RequestData(
 
   vtkIdType numCells = input->GetNumberOfCells();
 
+  // Create scalar tree if necessary and if requested
+  int useScalarTree = this->GetUseScalarTree();
+  vtkScalarTree *scalarTree = this->ScalarTree;
+  if ( useScalarTree )
+    {
+    if ( scalarTree == NULL )
+      {
+      scalarTree = vtkSimpleScalarTree::New();
+      }
+    scalarTree->SetDataSet(input);
+    scalarTree->SetScalars(inScalars);
+    }
+
+  // Actually execute the contouring operation
   if (inScalars->GetDataType() == VTK_FLOAT)
     {
     DoContour<float>(this, input, numCells, inScalars, numContours, values, output);
@@ -500,6 +613,7 @@ int vtkSMPContourGrid::RequestData(
   return 1;
 }
 
+//-----------------------------------------------------------------------------
 int vtkSMPContourGrid::FillOutputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
@@ -507,6 +621,7 @@ int vtkSMPContourGrid::FillOutputPortInformation(
   return 1;
 }
 
+//-----------------------------------------------------------------------------
 int vtkSMPContourGrid::ProcessRequest(vtkInformation* request,
                                       vtkInformationVector** inputVector,
                                       vtkInformationVector* outputVector)
@@ -520,7 +635,11 @@ int vtkSMPContourGrid::ProcessRequest(vtkInformation* request,
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
+//-----------------------------------------------------------------------------
 void vtkSMPContourGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "Merge Pieces: "
+     << (this->MergePieces ? "On\n" : "Off\n");
 }
