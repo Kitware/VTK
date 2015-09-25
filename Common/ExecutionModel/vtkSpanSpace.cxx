@@ -264,15 +264,13 @@ void vtkSpanSpace::BuildTree()
   // If no scalars set then try and grab them from dataset
   if ( ! this->Scalars )
     {
-    this->Scalars = this->DataSet->GetPointData()->GetScalars();
+    this->SetScalars(this->DataSet->GetPointData()->GetScalars());
     }
   if ( ! this->Scalars )
     {
     vtkErrorMacro( << "No scalar data to build trees with");
     return;
     }
-  // Register usage for later destructor
-  this->Scalars->Register(this);
 
   // We need a range for the scalars
   double range[2];
