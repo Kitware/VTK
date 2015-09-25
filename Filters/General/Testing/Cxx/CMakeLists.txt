@@ -51,3 +51,10 @@ set(all_tests
 
 vtk_test_cxx_executable(${vtk-module}CxxTests all_tests
   RENDERING_FACTORY)
+
+# On some machines this test takes some extra time
+if(NOT VTK_TEST_TIMEOUT_TestYoungsMaterialInterface)
+  set(VTK_TEST_TIMEOUT_TestYoungsMaterialInterface 300)
+endif()
+set_tests_properties(${vtk-module}Cxx-TestYoungsMaterialInterface
+  PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestYoungsMaterialInterface})
