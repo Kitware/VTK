@@ -110,7 +110,8 @@ private:
   void AppendArrays(int attributesType,
                     vtkInformationVector **inputVector,
                     vtkIdType* globalIds,
-                    vtkUnstructuredGrid* output);
+                    vtkUnstructuredGrid* output,
+                    vtkIdType totalNumberOfElements);
 };
 
 
