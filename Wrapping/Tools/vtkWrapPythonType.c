@@ -71,7 +71,23 @@ static void vtkWrapPython_NewDeleteProtocol(
     }
 
   /* the "new" method */
-  fprintf(fp,
+  if (data->IsAbstract)
+    {
+    fprintf(fp,
+    "static PyObject *\n"
+    "Py%s_New(PyTypeObject *, PyObject *, PyObject *)\n"
+    "{\n"
+    "  PyErr_SetString(PyExc_TypeError,\n"
+    "                  \"this abstract class cannot be instantiated\");\n"
+    "\n"
+    "  return NULL;\n"
+    "}\n"
+    "\n",
+    classname);
+    }
+  else
+    {
+    fprintf(fp,
     "static PyObject *\n"
     "Py%s_New(PyTypeObject *, PyObject *args, PyObject *kwds)\n"
     "{\n"
@@ -86,6 +102,7 @@ static void vtkWrapPython_NewDeleteProtocol(
     "}\n"
     "\n",
     classname, classname, (int)n, (int)n, constructor);
+    }
 
   /* the delete method */
   fprintf(fp,
@@ -589,12 +606,7 @@ int vtkWrapPython_IsSpecialTypeWrappable(ClassInfo *data)
     return 0;
     }
 
-  /* no abstract classes */
-  if (data->IsAbstract)
-    {
-    return 0;
-    }
-
+  /* restrict wrapping to classes that have a "vtk" prefix */
   if (strncmp(data->Name, "vtk", 3) != 0)
     {
     return 0;
@@ -653,7 +665,10 @@ void vtkWrapPython_GenerateSpecialType(
     }
 
   /* generate all constructor methods */
-  vtkWrapPython_GenerateMethods(fp, classname, data, finfo, hinfo, 0, 1);
+  if (!data->IsAbstract)
+    {
+    vtkWrapPython_GenerateMethods(fp, classname, data, finfo, hinfo, 0, 1);
+    }
 
   /* generate all functions and protocols needed for the type */
   vtkWrapPython_SpecialTypeProtocols(
@@ -778,7 +793,9 @@ void vtkWrapPython_GenerateSpecialType(
     }
 
   /* generate the copy constructor helper function */
-  fprintf(fp,
+  if (!data->IsAbstract)
+    {
+    fprintf(fp,
     "static void *Py%s_CCopy(const void *obj)\n"
     "{\n"
     "  if (obj)\n"
@@ -789,6 +806,7 @@ void vtkWrapPython_GenerateSpecialType(
     "}\n"
     "\n",
     classname, data->Name, data->Name);
+    }
 
   /* export New method for use by subclasses */
   fprintf(fp,
@@ -810,16 +828,33 @@ void vtkWrapPython_GenerateSpecialType(
    * the unused "const char *" arg is the module name */
   fprintf(fp,
     "PyObject *Py%s_TypeNew()\n"
-    "{\n"
+    "{\n",
+    classname);
+
+  if (data->IsAbstract)
+    {
+    fprintf(fp,
+    "  PyVTKSpecialType_Add(\n"
+    "    &Py%s_Type,\n"
+    "    Py%s_Methods,\n"
+    "    NULL,\n"
+    "    Py%s_Doc(), NULL);\n"
+    "\n",
+    classname, classname, classname);
+    }
+  else
+    {
+    fprintf(fp,
     "  PyVTKSpecialType_Add(\n"
     "    &Py%s_Type,\n"
     "    Py%s_Methods,\n"
     "    Py%s_%*.*s_Methods,\n"
     "    Py%s_Doc(), &Py%s_CCopy);\n"
     "\n",
-    classname, classname, classname,
+    classname, classname,
     classname, (int)n, (int)n, constructor,
     classname, classname);
+    }
 
   fprintf(fp,
     "  PyTypeObject *pytype = &Py%s_Type;\n\n",
