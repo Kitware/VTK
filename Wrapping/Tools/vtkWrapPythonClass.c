@@ -278,7 +278,7 @@ void vtkWrapPython_ClassDoc(
     }
 
   /* for special objects, add constructor signatures to the doc */
-  if (!is_vtkobject && !data->Template)
+  if (!is_vtkobject && !data->Template && !data->IsAbstract)
     {
     for (j = 0; j < data->NumberOfFunctions; j++)
       {
@@ -566,11 +566,8 @@ int vtkWrapPython_WrapOneClass(
     }
 
   /* now output all the methods are wrappable */
-  if (is_vtkobject || !data->IsAbstract)
-    {
-    vtkWrapPython_GenerateMethods(
-      fp, classname, data, finfo, hinfo, is_vtkobject, 0);
-    }
+  vtkWrapPython_GenerateMethods(
+    fp, classname, data, finfo, hinfo, is_vtkobject, 0);
 
   /* output the class initilization function for VTK objects */
   if (is_vtkobject)
@@ -582,31 +579,28 @@ int vtkWrapPython_WrapOneClass(
     }
 
   /* output the class initilization function for special objects */
-  else if (!data->IsAbstract)
+  else
     {
     vtkWrapPython_GenerateSpecialType(
       fp, module, classname, data, finfo, hinfo);
     }
 
   /* the docstring for the class, as a static var ending in "Doc" */
-  if (is_vtkobject || !data->IsAbstract)
-    {
-    fprintf(fp,
-            "const char **Py%s_Doc()\n"
-            "{\n"
-            "  static const char *docstring[] = {\n",
-            classname);
+  fprintf(fp,
+          "const char **Py%s_Doc()\n"
+          "{\n"
+          "  static const char *docstring[] = {\n",
+          classname);
 
-    vtkWrapPython_ClassDoc(fp, finfo, data, hinfo, is_vtkobject);
+  vtkWrapPython_ClassDoc(fp, finfo, data, hinfo, is_vtkobject);
 
-    fprintf(fp,
-            "    NULL\n"
-            "  };\n"
-            "\n"
-            "  return docstring;\n"
-            "}\n"
-            "\n");
-    }
+  fprintf(fp,
+          "    NULL\n"
+          "  };\n"
+          "\n"
+          "  return docstring;\n"
+          "}\n"
+          "\n");
 
   return 1;
 }
