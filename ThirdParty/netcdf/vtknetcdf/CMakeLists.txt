@@ -270,15 +270,15 @@ CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/ncconfig.h.in
 OPTION (NETCDF_DISABLE_COMPILER_WARNINGS "Disable compiler warnings" ON)
 MARK_AS_ADVANCED(NETCDF_DISABLE_COMPILER_WARNINGS)
 IF (NETCDF_DISABLE_COMPILER_WARNINGS)
-  # MSVC uses /w to suppress warnings.  It also complains if another
-  # warning level is given, so remove it.
+  # Visual Studio generators of CMake use /W0 to suppress warnings. 
+  # MSVC complains if another warning level is given, so remove it.
   IF (MSVC)
     STRING (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " "
         CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
     STRING (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " "
         CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /w")
-    SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /w")
+    SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W0")
+    SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W0")
   # Borland uses -w- to suppress warnings.
   ELSEIF (BORLAND)
     SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w-")
