@@ -24,6 +24,11 @@
 // input. Alternatively, you can choose to generate scalar norm values
 // for just cell or point data.
 
+// .SECTION Caveats
+// This class has been threaded with vtkSMPTools. Using TBB or other
+// non-sequential type (set in the CMake variable
+// VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
+
 #ifndef vtkVectorNorm_h
 #define vtkVectorNorm_h
 
@@ -33,6 +38,9 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+
+class vtkDataArray;
+class vtkFloatArray;
 
 class VTKFILTERSCORE_EXPORT vtkVectorNorm : public vtkDataSetAlgorithm
 {
@@ -45,7 +53,9 @@ public:
   static vtkVectorNorm *New();
 
   // Description:
-  // Specify whether to normalize scalar values.
+
+  // Specify whether to normalize scalar values. If the data is normalized,
+  // then it will fall in the range [0,1].
   vtkSetMacro(Normalize,int);
   vtkGetMacro(Normalize,int);
   vtkBooleanMacro(Normalize,int);
@@ -76,9 +86,13 @@ protected:
 
   int Normalize;  // normalize 0<=n<=1 if true.
   int AttributeMode; //control whether to use point or cell data, or both
+
 private:
   vtkVectorNorm(const vtkVectorNorm&);  // Not implemented.
   void operator=(const vtkVectorNorm&);  // Not implemented.
+
+  // Helper function
+  void GenerateScalars(vtkIdType num, vtkDataArray *v, vtkFloatArray *s);
 };
 
 #endif

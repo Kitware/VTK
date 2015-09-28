@@ -29,6 +29,7 @@ vtk_add_test_python(
   TestTensorGlyph.py,NO_RT
   TestTextureGlyph.py
   TestTriangleFilter.py
+  TestVectorDotNorm.py
   capCow.py
   capSphere.py
   clipArt.py
