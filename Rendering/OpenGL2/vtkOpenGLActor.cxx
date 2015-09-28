@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkOpenGLActor.h"
 
+#include "vtkDepthPeelingPass.h"
+#include "vtkInformation.h"
 #include "vtkMapper.h"
 #include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
@@ -65,7 +67,9 @@ void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
       }
     else
       {
-      if (ren->GetLastRenderingUsedDepthPeeling())
+      // check for deptgh peeling
+      vtkInformation *info = this->GetPropertyKeys();
+      if (info && info->Has(vtkDepthPeelingPass::OpaqueZTextureUnit()))
         {
         glDepthMask(GL_TRUE); // transparency with depth peeling
         }
