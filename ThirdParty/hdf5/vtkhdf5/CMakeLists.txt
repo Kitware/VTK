@@ -445,14 +445,14 @@ endif (HDF5_ENABLE_EMBEDDED_LIBINFO)
 #-----------------------------------------------------------------------------
 option (HDF5_DISABLE_COMPILER_WARNINGS "Disable compiler warnings" OFF)
 if (HDF5_DISABLE_COMPILER_WARNINGS)
-  # MSVC uses /w to suppress warnings.  It also complains if another
-  # warning level is given, so remove it.
+  # Visual Studio generators of CMake use /W0 to suppress warnings. 
+  # MSVC complains if another warning level is given, so remove it.
   if (MSVC)
     set (HDF5_WARNINGS_BLOCKED 1)
     string (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " " CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /w")
+    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W0")
     string (REGEX REPLACE "(^| )([/-])W[0-9]( |$)" " " CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /w")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W0")
   endif (MSVC)
   if (WIN32)
     add_definitions (-D_CRT_SECURE_NO_WARNINGS)
