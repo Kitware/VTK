@@ -20,6 +20,7 @@ vtk_add_test_python(
   TestFlyingEdges3D.py
   TestGridSynchronizedTemplates3D.py
   TestMarchingSquares.py
+  TestProbeFilterImageInput.py
   TestRectilinearSynchronizedTemplates.py
   TestScalarTrees.py
   TestSynchronizedTemplates2D.py

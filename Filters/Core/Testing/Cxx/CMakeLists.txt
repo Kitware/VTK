@@ -24,6 +24,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestNamedComponents.cxx,NO_VALID
   TestPolyDataConnectivityFilter.cxx,NO_VALID
   TestProbeFilter.cxx,NO_VALID
+  TestProbeFilterImageInput.cxx
   TestSmoothPolyDataFilter.cxx,NO_VALID
   TestSMPPipelineContour.cxx,NO_VALID
   TestStripper.cxx,NO_VALID

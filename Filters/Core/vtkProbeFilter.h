@@ -42,6 +42,7 @@
 class vtkIdTypeArray;
 class vtkCharArray;
 class vtkMaskPoints;
+class vtkImageData;
 
 class VTKFILTERSCORE_EXPORT vtkProbeFilter : public vtkDataSetAlgorithm
 {
@@ -168,6 +169,8 @@ protected:
   // srcIdx is the index in the PointList for the given source.
   void ProbeEmptyPoints(vtkDataSet *input, int srcIdx, vtkDataSet *source,
     vtkDataSet *output);
+  void ProbePointsImageData(vtkImageData *input, int srcIdx, vtkDataSet *source,
+    vtkImageData *output);
 
   char* ValidPointMaskArrayName;
   vtkIdTypeArray *ValidPoints;
