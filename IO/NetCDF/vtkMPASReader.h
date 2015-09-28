@@ -84,6 +84,7 @@ class vtkStdString;
 class vtkStringArray;
 
 class NcVar;
+class NcDim;
 
 class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
 {
@@ -114,6 +115,15 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   // Get the reader's output
   vtkUnstructuredGrid *GetOutput();
   vtkUnstructuredGrid *GetOutput(int index);
+
+  // Description:
+  // If true, dimension info is included in the array name. For instance,
+  // "tracers" will become "tracers(Time, nCells, nVertLevels, nTracers)".
+  // This is useful for user-visible array selection, but is disabled by default
+  // for backwards compatibility.
+  vtkSetMacro(UseDimensionedArrayNames, bool)
+  vtkGetMacro(UseDimensionedArrayNames, bool)
+  vtkBooleanMacro(UseDimensionedArrayNames, bool)
 
   // Description:
   // The following methods allow selective reading of solutions fields.
@@ -219,6 +229,7 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   bool DoBugFix;
   double CenterRad;
 
+  bool UseDimensionedArrayNames;
 
   // geometry
   int MaximumNVertLevels;
@@ -261,8 +272,28 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   void OutputCells(bool init);
   unsigned char GetCellType();
   void LoadGeometryData(int var, double dTime);
-  vtkDataArray* LoadPointVarData(int variable, double dTime);
-  vtkDataArray* LoadCellVarData(int variable, double dTime);
+
+  // Description:
+  // Return the cursor position for the specified dimension.
+  long GetCursorForDimension(const NcDim *dim);
+
+  // Description:
+  // Return the number of values to read for the specified dimension.
+  size_t GetCountForDimension(const NcDim *dim);
+
+  // Description:
+  // Add the dimension to the list of used dimensions. It will be shown to the
+  // user so that they can select a slice index.
+  void MarkDimensionAsUsed(const NcDim *dim);
+
+  // Description:
+  // For an arbitrary (i.e. not nCells, nVertices, or Time) dimension, extract
+  // the dimension's metadata into memory (if needed) and return the last used
+  // index into the dimension values, or 0 if the dimension is new.
+  long InitializeDimension(const NcDim *dim);
+
+  vtkDataArray* LoadPointVarData(int variable);
+  vtkDataArray* LoadCellVarData(int variable);
   int RegenerateGeometry();
   vtkDataArray* LookupPointDataArray(int varIdx);
   vtkDataArray* LookupCellDataArray(int varIdx);
@@ -277,10 +308,10 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   static int NcTypeToVtkType(int ncType);
 
   template <typename ValueType>
-  int LoadPointVarDataImpl(NcVar *ncVar, vtkDataArray *array, int timeStep);
+  int LoadPointVarDataImpl(NcVar *ncVar, vtkDataArray *array);
 
   template <typename ValueType>
-  int LoadCellVarDataImpl(NcVar *ncVar, vtkDataArray *array, int timestep);
+  int LoadCellVarDataImpl(NcVar *ncVar, vtkDataArray *array);
 };
 
 #endif
