@@ -23,8 +23,7 @@
                             ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
     #pragma GCC diagnostic push
   #endif
-  #if defined(__GNUC__) && ((__GNUC__ > 4) || \
-                            ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 2)))
+  #if defined(__GNUC__)
     #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   #endif
 #endif

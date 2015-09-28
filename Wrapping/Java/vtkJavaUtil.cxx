@@ -27,8 +27,7 @@
 // Silence warning like
 // "dereferencing type-punned pointer will break strict-aliasing rules"
 // it happens because this kind of expression: (void **)(&e)
-// pragma GCC diagnostic is available since gcc>=4.2
-#if defined(__GNUC__) && (__GNUC__>4) || (__GNUC__==4 && __GNUC_MINOR__>=2)
+#if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif
 
