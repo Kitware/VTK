@@ -98,19 +98,6 @@ void vtkRenderPass::UpdateGeometry(vtkRenderer *renderer)
 }
 
 // ----------------------------------------------------------------------------
-// Description:
-// Modify protected member LastRenderingUsedDepthPeeling on Renderer.
-// See note about UpdateCamera().
-// \pre renderer_exists: renderer!=0
-void vtkRenderPass::SetLastRenderingUsedDepthPeeling(vtkRenderer *renderer,
-                                                     bool value)
-{
-  assert("pre: renderer_exists" && renderer != 0);
-
-  renderer->LastRenderingUsedDepthPeeling = value;
-}
-
-// ----------------------------------------------------------------------------
 void vtkRenderPass::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os ,indent);

@@ -144,7 +144,6 @@ void vtkOpenGLRenderer::DeviceRender(void)
     }
   else
     {
-    this->LastRenderingUsedDepthPeeling=0;
     // Do not remove this MakeCurrent! Due to Start / End methods on
     // some objects which get executed during a pipeline update,
     // other windows might get rendered since the last time
@@ -273,7 +272,6 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
   if(!this->UseDepthPeeling)
     {
     // just alpha blending
-    this->LastRenderingUsedDepthPeeling=0;
     this->UpdateTranslucentPolygonalGeometry();
     }
   else   // depth peeling.
