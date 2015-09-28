@@ -1646,6 +1646,16 @@ void vtkImageData::CopyAndCastFrom(vtkImageData *inData, int extent[6])
 //----------------------------------------------------------------------------
 void vtkImageData::Crop(const int* updateExtent)
 {
+  // Do nothing for empty datasets:
+  for (int dim = 0; dim < 3; ++dim)
+    {
+    if (this->Extent[2*dim] > this->Extent[2*dim + 1])
+      {
+      vtkDebugMacro(<<"Refusing to crop empty dataset.");
+      return;
+      }
+    }
+
   int           nExt[6];
   int           idxX, idxY, idxZ;
   int           maxX, maxY, maxZ;
