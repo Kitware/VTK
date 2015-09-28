@@ -15,9 +15,9 @@
 // .NAME vtkSpanSpace - organize data according to scalar span space
 // .SECTION Description
 // This is a helper class used to accelerate contouring operations. Given an
-// unstructured grid, it organizes cells into a span space. The span space
-// can then be used by various contouring algorithms to quickly find the
-// cells containing a specified scalar value.
+// dataset, it organizes the dataset cells into a 2D binned space, with axes
+// (scalar_min,scalar_max). This so-called span space can then be traversed
+// quickly to find the cells that intersect a particular contour value.
 //
 // This class has an API that supports both serial and parallel
 // operation.  The parallel API enables the using class to grab arrays
