@@ -144,13 +144,18 @@ const char* vtkDirectory::GetCurrentWorkingDirectory(char* buf,
 #include <dirent.h>
 #include <unistd.h>
 
-/* There is a problem with the Portland compiler, large file
-support and glibc/Linux system headers:
-             http://www.pgroup.com/userforum/viewtopic.php?
-             p=1992&sid=f16167f51964f1a68fe5041b8eb213b6
-*/
-#if defined(__PGI) && defined(__USE_FILE_OFFSET64)
-# define dirent dirent64
+// PGI with glibc has trouble with dirent and large file support:
+//  http://www.pgroup.com/userforum/viewtopic.php?
+//  p=1992&sid=f16167f51964f1a68fe5041b8eb213b6
+// Work around the problem by mapping dirent the same way as readdir.
+#if defined(__PGI) && defined(__GLIBC__)
+# define vtkdirectory_dirent_readdir dirent
+# define vtkdirectory_dirent_readdir64 dirent64
+# define vtkdirectory_dirent vtkdirectory_dirent_lookup(readdir)
+# define vtkdirectory_dirent_lookup(x) vtkdirectory_dirent_lookup_delay(x)
+# define vtkdirectory_dirent_lookup_delay(x) vtkdirectory_dirent_##x
+#else
+# define vtkdirectory_dirent dirent
 #endif
 
 int vtkDirectory::Open(const char* name)
@@ -165,7 +170,7 @@ int vtkDirectory::Open(const char* name)
     return 0;
     }
 
-  dirent* d =0;
+  vtkdirectory_dirent* d =0;
 
   for (d = readdir(dir); d; d = readdir(dir))
     {
