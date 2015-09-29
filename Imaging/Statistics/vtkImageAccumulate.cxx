@@ -297,7 +297,7 @@ int vtkImageAccumulate::RequestData(
   if (inData->GetNumberOfScalarComponents() > 3)
     {
     vtkErrorMacro("This filter can handle up to 3 components");
-    return 1;
+    return 0;
     }
 
   // this filter expects that output is type int.
@@ -305,7 +305,7 @@ int vtkImageAccumulate::RequestData(
     {
     vtkErrorMacro(<< "Execute: out ScalarType " << outData->GetScalarType()
                   << " must be vtkIdType\n");
-    return 1;
+    return 0;
     }
 
   switch (inData->GetScalarType())
@@ -322,7 +322,7 @@ int vtkImageAccumulate::RequestData(
                                                 uExt ));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
-      return 1;
+      return 0;
     }
 
   return 1;
