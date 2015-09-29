@@ -714,9 +714,9 @@ void vtkCastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
           point_y = pos[1] + voxel_y;
           point_z = pos[2] + voxel_z;
 
-          if ((VTK_In_Range(point_x, ((float)(voxel_x) - 0.001 ), ((float)(voxel_x) + 1.001))) &&
-              (VTK_In_Range(point_y, ((float)(voxel_y) - 0.001 ), ((float)(voxel_y) + 1.001))) &&
-              (VTK_In_Range(point_z, ((float)(voxel_z) - 0.001 ), ((float)(voxel_z) + 1.001))))
+          if ((VTK_In_Range(point_x, (static_cast<double>(voxel_x) - 0.001), (static_cast<double>(voxel_x) + 1.001))) &&
+              (VTK_In_Range(point_y, (static_cast<double>(voxel_y) - 0.001), (static_cast<double>(voxel_y) + 1.001))) &&
+              (VTK_In_Range(point_z, (static_cast<double>(voxel_z) - 0.001), (static_cast<double>(voxel_z) + 1.001))))
             {
             break;
             }
