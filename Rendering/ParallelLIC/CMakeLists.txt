@@ -19,6 +19,13 @@ set_source_files_properties(
   WRAP_EXCLUDE
   )
 
+set_source_files_properties(
+  vtkMPIPixelTT.cxx
+  vtkPPixelTransfer.cxx
+  vtkPSurfaceLICComposite.cxx
+  PROPERTIES WRAP_EXCLUDE_PYTHON 1
+  )
+
 option(
   VTK_RENDERINGPARALLELLIC_SURFACELICPAINTER_TIMER
   "enable parallel timers for the surface lic painter"

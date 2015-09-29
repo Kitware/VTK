@@ -203,6 +203,7 @@ private:
   void operator=(const vtkPSurfaceLICComposite&); // Not implemented
 };
 
+VTKRENDERINGPARALLELLIC_EXPORT
 ostream &operator<<(ostream &os, vtkPSurfaceLICComposite &ss);
 
 #endif
