@@ -2049,7 +2049,7 @@ int vtkPolynomialSolversUnivariate::SolveCubic( double c0, double c1, double c2,
       }
     } //if cubic equation
 
-  else // Quadratic Equation: c1*t  + c2*t + c3 = 0
+  else // Quadratic Equation: c1*t^2  + c2*t + c3 = 0
     {
     // Okay this was not a cubic - lets try quadratic
     return vtkPolynomialSolversUnivariate::SolveQuadratic( c1, c2, c3, r1, r2, num_roots );
