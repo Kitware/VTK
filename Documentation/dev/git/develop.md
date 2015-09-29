@@ -315,10 +315,48 @@ succeeds.
 VTK has a [buildbot](http://buildbot.net) instance watching for merge requests
 to test.  A developer must issue a command to buildbot to enable builds:
 
-    @buildbot test
+    Do: test
 
 The buildbot user (@buildbot) will respond with a comment linking to the CDash
 results when it schedules builds.
+
+The `Do: test` command accepts the following arguments:
+
+  * `--oneshot`
+        only build the *current* hash of the branch; updates will not be built
+        using this command
+  * `--stop`
+        clear the list of commands for the merge request
+  * `--superbuild`
+        build the superbuilds related to the project
+  * `--clear`
+        clear previous commands before adding this command
+  * `--regex-include <arg>`
+        only build on builders matching `<arg>` (a Python regular expression)
+  * `--regex-exclude <arg>`
+        excludes builds on builders matching `<arg>` (a Python regular
+        expression)
+
+Multiple `Do: test` commands may be given. Upon each update to the branch,
+buildbot will reconsider all of the active commands to determine which builders
+to schedule.
+
+Builder names always follow this pattern:
+
+        project-host-os-libtype-buildtype+feature1+feature2
+
+  * project: always `vtk` for vtk
+  * host: the buildbot host
+  * os: one of `windows`, `osx`, or `linux`
+  * libtype: `shared` or `static`
+  * buildtype: `release` or `debug`
+  * feature: alphabetical list of features enabled for the build
+
+For a list of all builders, see:
+
+  * [vtk-expected](https://buildbot.kitware.com/builders?category=vtk-expected)
+  * [vtk-superbuild](https://buildbot.kitware.com/builders?category=vtk-superbuild)
+  * [vtk-experimental](https://buildbot.kitware.com/builders?category=vtk-experimental)
 
 Revise a Topic
 --------------
