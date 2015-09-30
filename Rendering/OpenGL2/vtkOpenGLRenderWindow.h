@@ -224,6 +224,16 @@ public:
   virtual float GetMaximumHardwareLineWidth() {
     return this->MaximumHardwareLineWidth; };
 
+  // Description:
+  // Returns true if driver has an
+  // EGL/OpenGL bug that makes vtkChartsCoreCxx-TestChartDoubleColors and other tests to fail
+  // because point sprites don't work correctly (gl_PointCoord is undefined) unless
+  // glEnable(GL_POINT_SPRITE)
+  virtual bool IsPointSpriteBugPresent()
+  {
+    return 0;
+  }
+
 protected:
   vtkOpenGLRenderWindow();
   ~vtkOpenGLRenderWindow();

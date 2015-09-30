@@ -16,6 +16,10 @@ if(VTK_USE_OSMESA AND UNIX AND NOT APPLE)
   add_definitions(-DGLEW_OSMESA)
 endif()
 
+if(VTK_USE_OFFSCREEN_EGL)
+  add_definitions(-DVTK_USE_OFFSCREEN_EGL)
+endif()
+
 vtk_add_library(vtkglew ${common_SRCS})
 vtk_opengl_link(vtkglew)
 if(VTK_USE_OSMESA AND UNIX AND NOT APPLE)

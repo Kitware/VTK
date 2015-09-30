@@ -92,6 +92,7 @@ vtkRenderWindow::vtkRenderWindow()
 #ifdef VTK_USE_OFFSCREEN
   this->OffScreenRendering = 1;
 #endif
+  this->DeviceIndex = 0;
 }
 
 //----------------------------------------------------------------------------
