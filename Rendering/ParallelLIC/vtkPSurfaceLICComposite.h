@@ -196,7 +196,7 @@ private:
   std::deque<vtkPPixelTransfer> GatherProgram;   // ordered steps required to move data to new decomp
   std::deque<vtkPPixelTransfer> ScatterProgram;  // ordered steps required to unmove data from new decomp
 
-  friend
+  friend VTKRENDERINGPARALLELLIC_EXPORT
   ostream &operator<<(ostream &os, vtkPSurfaceLICComposite &ss);
 
   vtkPSurfaceLICComposite(const vtkPSurfaceLICComposite&); // Not implemented
