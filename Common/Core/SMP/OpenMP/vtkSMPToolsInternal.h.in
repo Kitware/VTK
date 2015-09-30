@@ -69,9 +69,18 @@ static void vtkSMPTools_Impl_For(vtkIdType first, vtkIdType last,
     }
 }
 
+//--------------------------------------------------------------------------------
+template<typename RandomAccessIterator>
+static void vtkSMPTools_Impl_Sort(RandomAccessIterator begin,
+                                  RandomAccessIterator end)
+{
+  std::sort(begin, end);
 }
-}
-}
+
+}//namespace smp
+}//namespace detail
+}//namespace vtk
+
 #endif // __WRAP__
 
 #endif

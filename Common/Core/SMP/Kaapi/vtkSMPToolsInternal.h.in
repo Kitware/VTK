@@ -51,6 +51,15 @@ static void vtkSMPTools_Impl_For(
   kaapic_end_parallel(KAAPIC_FLAG_DEFAULT);
   kaapic_foreach_attr_destroy(&attr);
 }
+
+//--------------------------------------------------------------------------------
+template<typename RandomAccessIterator>
+static void vtkSMPTools_Impl_Sort(RandomAccessIterator begin,
+                                  RandomAccessIterator end)
+{
+  std::sort(begin, end);
 }
-}
-}
+
+}//namespace smp
+}//namespace detail
+}//namespace vtk

@@ -27,12 +27,6 @@
 
 #include <algorithm> //std::sort
 
-#undef VTK_USE_RAW_TBB
-#ifdef VTK_USE_RAW_TBB
-#include "tbb/parallel_sort.h"
-using namespace tbb;
-#endif
-
 //-----------------------------------------------------------------------------
 // The following tuple is an interface between VTK class and internal class
 struct vtkSpanTuple
@@ -211,11 +205,7 @@ Build()
   // space. The shape of the span space is upper diagonal (because
   // smax >= smin) but for simplicity sake (for now) we just use a
   // rectangular discretization (of dimensions Dim*Dim).
-#ifdef VTK_USE_RAW_TBB
-  parallel_sort(this->Space,this->Space+this->NumCells);
-#else
-  std::sort(this->Space,this->Space+this->NumCells);
-#endif
+  vtkSMPTools::Sort(this->Space,this->Space+this->NumCells);
 
   // Now that this is done, we create a matrix of offsets into the
   // sorted array. This enables rapid access into the sorted cellIds,
