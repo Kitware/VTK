@@ -15,6 +15,8 @@
 #include "vtkMultiThreader.h"
 #include "vtkNew.h"
 
+#include <algorithm> //for std::sort()
+
 VTKCOMMONCORE_EXPORT std::vector<vtkMultiThreaderIDType>& vtkSMPToolsGetThreadIds();
 VTKCOMMONCORE_EXPORT void vtkSMPToolsInitialize();
 VTKCOMMONCORE_EXPORT int vtkSMPToolsGetNumberOfThreads();

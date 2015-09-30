@@ -18,6 +18,8 @@
 
 #include "vtkCommonCoreModule.h" // For export macro
 
+#include <algorithm> //for std::sort()
+
 #ifndef __WRAP__
 namespace vtk
 {

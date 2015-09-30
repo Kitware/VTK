@@ -12,6 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include <algorithm> //for std::sort()
+
 namespace vtk
 {
 namespace detail

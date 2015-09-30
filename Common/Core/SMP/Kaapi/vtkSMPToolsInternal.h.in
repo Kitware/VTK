@@ -13,6 +13,7 @@
 
 =========================================================================*/
 #include <kaapic.h>
+#include <algorithm> //for std::sort()
 
 VTKCOMMONCORE_EXPORT void vtkSMPToolsInitialize();
 
