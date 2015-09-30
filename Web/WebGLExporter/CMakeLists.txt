@@ -36,6 +36,7 @@ foreach(file ${JAVASCRIPT_SRCS})
     )
   list(APPEND Module_SRCS ${res})
   set_source_files_properties(${res} WRAP_EXCLUDE)
+  set_source_files_properties(${res} PROPERTIES WRAP_EXCLUDE_PYTHON 1)
 endforeach()
 
 vtk_module_library(${vtk-module} ${Module_SRCS})
