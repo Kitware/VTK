@@ -77,6 +77,9 @@ void vtkCompositedSynchronizedRenderers::SlaveEndRender()
 
   this->Compositer->CompositeBuffer(rawImage.GetRawPtr(), depth_buffer,
     resultColor, result_depth);
+  depth_buffer->Delete();
+  resultColor->Delete();
+  result_depth->Delete();
 }
 
 //----------------------------------------------------------------------------
