@@ -1227,11 +1227,11 @@ int vtkDelaunay2D::RecoverEdge(vtkIdType p1, vtkIdType p2)
     this->Mesh->ReplaceLinkedCell(cellId, 3, leftTris);
 
     // Check if the added triangle contains edges which are not in the polygon edges set
-    for (i = 0; i < 3; i++)
+    for (k = 0; k < 3; k++)
       {
       std::set<vtkIdType> e;
-      vtkIdType vx1 = leftTris[i];
-      vtkIdType vx2 = leftTris[(i + 1)%3];
+      vtkIdType vx1 = leftTris[k];
+      vtkIdType vx2 = leftTris[(k + 1)%3];
       e.insert(vx1);
       e.insert(vx2);
       if (polysEdges.find(e) == polysEdges.end())
@@ -1242,7 +1242,7 @@ int vtkDelaunay2D::RecoverEdge(vtkIdType p1, vtkIdType p2)
         v[0] = cellId;
         v[1] = vx1;
         v[2] = vx2;
-        v[3] = leftTris[(i + 2)%3];
+        v[3] = leftTris[(k + 2)%3];
         newEdges.push_back(v);
         }
       }
@@ -1260,11 +1260,11 @@ int vtkDelaunay2D::RecoverEdge(vtkIdType p1, vtkIdType p2)
     this->Mesh->ReplaceLinkedCell(cellId, 3, rightTris);
 
     // Check if the added triangle contains edges which are not in the polygon edges set
-    for (i = 0; i < 3; i++)
+    for (k = 0; k < 3; k++)
       {
       std::set<vtkIdType> e;
-      vtkIdType vx1 = rightTris[i];
-      vtkIdType vx2 = rightTris[(i + 1)%3];
+      vtkIdType vx1 = rightTris[k];
+      vtkIdType vx2 = rightTris[(k + 1)%3];
       e.insert(vx1);
       e.insert(vx2);
       if (polysEdges.find(e) == polysEdges.end())
@@ -1275,7 +1275,7 @@ int vtkDelaunay2D::RecoverEdge(vtkIdType p1, vtkIdType p2)
         v[0] = cellId;
         v[1] = vx1;
         v[2] = vx2;
-        v[3] = rightTris[(i + 2)%3];
+        v[3] = rightTris[(k + 2)%3];
         newEdges.push_back(v);
         }
       }
