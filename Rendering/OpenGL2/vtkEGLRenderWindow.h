@@ -111,7 +111,7 @@ public:
   // Description:
   // Dummy stubs for vtkWindow API.
   virtual void SetDisplayId(void *) {};
-  virtual void SetWindowId(void *window) {this->Window = reinterpret_cast<unsigned long>(window);}
+  virtual void SetWindowId(void *window);
   virtual void SetNextWindowId(void *) {}
   virtual void SetParentId(void *)  {}
   virtual void *GetGenericDisplayId();
@@ -172,7 +172,6 @@ protected:
   vtkEGLRenderWindow();
   ~vtkEGLRenderWindow();
 
-  unsigned long Window;
   int ScreenSize[2];
   int OwnWindow;
   int DeviceIndex;

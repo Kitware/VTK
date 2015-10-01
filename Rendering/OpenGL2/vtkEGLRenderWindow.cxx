@@ -88,6 +88,7 @@ vtkStandardNewMacro(vtkEGLRenderWindow);
 
 struct vtkEGLRenderWindow::vtkInternals
 {
+  EGLNativeWindowType Window;
   EGLDisplay Display;
   EGLSurface Surface;
   EGLContext Context;
@@ -97,11 +98,11 @@ vtkEGLRenderWindow::vtkEGLRenderWindow()
 {
   this->Internals = new vtkInternals();
   vtkInternals* impl = this->Internals;
+  impl->Window = (EGLNativeWindowType)0;
   impl->Display = EGL_NO_DISPLAY;
   impl->Context = EGL_NO_CONTEXT;
   impl->Surface = EGL_NO_SURFACE;
   this->OwnWindow = 1;
-  this->Window = 0;
   this->ScreenSize[0] = 1920;
   this->ScreenSize[1] = 1080;
   // this is initialized in vtkRenderWindow
@@ -335,7 +336,7 @@ void vtkEGLRenderWindow::ResizeWindow(int width, int height)
    * ANativeWindow buffers to match, using EGL_NATIVE_VISUAL_ID. */
   eglGetConfigAttrib(impl->Display, config, EGL_NATIVE_VISUAL_ID, &format);
 
-  ANativeWindow_setBuffersGeometry((ANativeWindow*)this->Window, 0, 0, format);
+  ANativeWindow_setBuffersGeometry(impl->Window, 0, 0, format);
 #endif
 
 
@@ -350,7 +351,7 @@ void vtkEGLRenderWindow::ResizeWindow(int width, int height)
     }
   impl->Surface = this->OffScreenRendering ?
     impl->Surface = eglCreatePbufferSurface(impl->Display, config, surface_attribs):
-    eglCreateWindowSurface(impl->Display, config, this->Window, NULL);
+    eglCreateWindowSurface(impl->Display, config, impl->Window, NULL);
   this->Mapped = 1;
   this->OwnWindow = 1;
 
@@ -625,4 +626,11 @@ bool vtkEGLRenderWindow::IsPointSpriteBugPresent()
       (strcmp(reinterpret_cast<const char*>(glGetString(GL_VERSION)), "4.5.0 NVIDIA 355.11") == 0);
     }
   return this->IsPointSpriteBugPresent_;
+}
+
+//----------------------------------------------------------------------------
+void vtkEGLRenderWindow::SetWindowId(void *window)
+{
+  vtkInternals* impl = this->Internals;
+  impl->Window = reinterpret_cast<EGLNativeWindowType>(window);
 }
