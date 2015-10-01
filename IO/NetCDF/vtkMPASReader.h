@@ -143,6 +143,19 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   void DisableAllCellArrays();
   void EnableAllCellArrays();
 
+  // Description:
+  // If the point/cell arrays contain dimensions other than Time, nCells, or
+  // nVertices, they are configured here. Use GetNumberOfDimensions to get the
+  // number of arbitrary dimensions in the loaded arrays and GetDimensionName to
+  // retrieve the dimension names. GetDimensionSize returns the number of values
+  // in the dimensions, and Set/GetDimensionCurrentIndex controls the value
+  // to fix a given dimension at when extracting slices of data.
+  int GetNumberOfDimensions();
+  std::string GetDimensionName(int idx);
+  int GetDimensionCurrentIndex(const std::string &dim);
+  void SetDimensionCurrentIndex(const std::string &dim, int idx);
+  int GetDimensionSize(const std::string &dim);
+
   void SetVerticalLevel(int level);
   vtkGetVector2Macro(VerticalLevelRange, int);
 
@@ -167,6 +180,8 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   // Description:
   // Returns true if the given file can be read.
   static int CanReadFile(const char *filename);
+
+  unsigned long GetMTime();
 
  protected:
   vtkMPASReader();
@@ -210,6 +225,11 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   // Selected field of interest
   vtkDataArraySelection* PointDataArraySelection;
   vtkDataArraySelection* CellDataArraySelection;
+
+  // Description:
+  // Update the list of available dimensions. Only does work when
+  // PointDataArraySelection or CellDataArraySelection is changed.
+  void UpdateDimensions();
 
   int VerticalLevelSelected;
   int VerticalLevelRange[2];
@@ -280,11 +300,6 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   // Description:
   // Return the number of values to read for the specified dimension.
   size_t GetCountForDimension(const NcDim *dim);
-
-  // Description:
-  // Add the dimension to the list of used dimensions. It will be shown to the
-  // user so that they can select a slice index.
-  void MarkDimensionAsUsed(const NcDim *dim);
 
   // Description:
   // For an arbitrary (i.e. not nCells, nVertices, or Time) dimension, extract

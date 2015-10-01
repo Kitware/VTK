@@ -139,8 +139,8 @@ std::string dimensionedArrayName(NcVar *var)
 struct DimMetaData
 {
   long curIdx;
-  long idxRange[2];
-  std::vector<double> values;
+  long dimSize;
+  std::vector<double> values; // currently unused
 };
 
 } // end anon namespace
@@ -155,7 +155,7 @@ public:
   // variableIndex --> vtkDataArray
   typedef std::map<int, vtkSmartPointer<vtkDataArray> > ArrayMap;
   typedef std::map<std::string, DimMetaData> DimMetaDataMap;
-  typedef std::set<std::string> InUseDims;
+  typedef std::set<std::string> StringSet;
   Internal() : ncFile(NULL) {}
   ~Internal() { delete ncFile; }
 
@@ -165,12 +165,21 @@ public:
   ArrayMap pointArrays;
   ArrayMap cellArrays;
 
+  // Returns true if the dimension name is not nCells, nVertices, or Time.
+  bool isExtraDim(const std::string &name);
+
   // Indices at which arbitrary trailing dimensions are fixed:
   DimMetaDataMap dimMetaDataMap;
+  vtkTimeStamp dimMetaDataTime;
   // Set of dimensions currently used by the selected arrays:
-  InUseDims inUseDims;
+  StringSet extraDims;
+  vtkTimeStamp extraDimTime;
 };
 
+bool vtkMPASReader::Internal::isExtraDim(const string &name)
+{
+  return name != "nCells" && name != "nVertices" && name != "Time";
+}
 
 //----------------------------------------------------------------------------
 // Macro to check malloc didn't return an error
@@ -352,9 +361,6 @@ void vtkMPASReader::DestroyData()
 
   this->Internals->cellArrays.clear();
   this->Internals->pointArrays.clear();
-
-  // Reset the in-use dims, but preserve the fixed dimension values.
-  this->Internals->inUseDims.clear();
 
   // delete old geometry and create new
 
@@ -744,7 +750,7 @@ int vtkMPASReader::GetNcVars (const char* cellDimName, const char* pointDimName)
       continue;
       }
 
-    if (dimNames[0] == "Time")
+    if (dimNames[0] == "Time" && dimNames.size() >= 2)
       {
       if (dimNames[1] == pointDimName)
         {
@@ -791,21 +797,31 @@ int vtkMPASReader::BuildVarArrays()
     return 0;
     }
 
-  for (int var = 0; var < this->Internals->pointVars.size(); var++)
+  for (int v = 0; v < this->Internals->pointVars.size(); v++)
     {
     NcVar *var = this->Internals->pointVars[v];
     string name = this->UseDimensionedArrayNames ? dimensionedArrayName(var)
                                                  : var->name();
     this->PointDataArraySelection->EnableArray(name.c_str());
+    // Register the dimensions:
+    for (int d = 0; d < var->num_dims(); ++d)
+      {
+      this->InitializeDimension(var->get_dim(d));
+      }
     vtkDebugMacro(<<"Adding point var: " << name);
     }
 
-  for (int var = 0; var < this->Internals->cellVars.size(); var++)
+  for (int v = 0; v < this->Internals->cellVars.size(); v++)
     {
     NcVar *var = this->Internals->cellVars[v];
     string name = this->UseDimensionedArrayNames ? dimensionedArrayName(var)
                                                  : var->name();
     this->CellDataArraySelection->EnableArray(name.c_str());
+    // Register the dimensions:
+    for (int d = 0; d < var->num_dims(); ++d)
+      {
+      this->InitializeDimension(var->get_dim(d));
+      }
     vtkDebugMacro(<<"Adding cell var: " << name);
     }
 
@@ -1483,9 +1499,8 @@ long vtkMPASReader::GetCursorForDimension(const NcDim *dim)
     }
   else if (dimName == "Time")
     {
-    return std::min(static_cast<long>(std::floor(dTimeStep)),
+    return std::min(static_cast<long>(std::floor(this->DTime)),
                     static_cast<long>(this->NumberOfTimeSteps-1));
-    return 0;
     }
   else
     {
@@ -1512,12 +1527,6 @@ size_t vtkMPASReader::GetCountForDimension(const NcDim *dim)
 }
 
 //------------------------------------------------------------------------------
-void vtkMPASReader::MarkDimensionAsUsed(const NcDim *dim)
-{
-  this->Internals->inUseDims.insert(dim->name());
-}
-
-//------------------------------------------------------------------------------
 long vtkMPASReader::InitializeDimension(const NcDim *dim)
 {
   Internal::DimMetaDataMap::const_iterator match =
@@ -1528,8 +1537,7 @@ long vtkMPASReader::InitializeDimension(const NcDim *dim)
     {
     DimMetaData metaData;
     metaData.curIdx = result;
-    metaData.idxRange[0] = 0;
-    metaData.idxRange[1] = dim->size() - 1;
+    metaData.dimSize = dim->size();
 
     // extract values if available:
     if (isNcVar(this->Internals->ncFile, dim->name()))
@@ -1545,13 +1553,14 @@ long vtkMPASReader::InitializeDimension(const NcDim *dim)
         {
         // TODO if this is a common case, we can add some templated code to
         // extract and cast the values.
-        vtkWarningMacro(<<"Dimension '" << dim->name() << "' does not have "
-                        "double type. Values will not be extracted.");
+        vtkDebugMacro(<< "Dimension '" << dim->name() << "' does not have "
+                      << "double type. Values will not be extracted.");
         }
       }
 
     this->Internals->dimMetaDataMap.insert(
           std::make_pair(std::string(dim->name()), metaData));
+    this->Internals->dimMetaDataTime.Modified();
     }
   else
     {
@@ -1889,11 +1898,6 @@ vtkDataArray *vtkMPASReader::LoadPointVarData(int variableIndex)
   array->SetNumberOfComponents(1);
   array->SetNumberOfTuples(this->MaximumPoints);
 
-  vtkDebugMacro( << "dTimeStep requested: " << dTimeStep << endl);
-  int timestep = min((int)floor(dTimeStep),
-                     (int)(this->NumberOfTimeSteps-1));
-  vtkDebugMacro( << "Time: " << timestep << endl);
-
   int success;
   vtkNcDispatch(typeVtk,
                 success = this->LoadPointVarDataImpl<VTK_TT>(ncVar, array););
@@ -1994,11 +1998,6 @@ vtkDataArray* vtkMPASReader::LoadCellVarData(int variableIndex)
   array->SetName(ncVar->name());
   array->SetNumberOfComponents(1);
   array->SetNumberOfTuples(this->MaximumCells);
-
-  vtkDebugMacro( << "dTimeStep requested: " << dTimeStep << endl);
-  int timestep = min((int)floor(dTimeStep),
-                     (int)(this->NumberOfTimeSteps-1));
-  vtkDebugMacro( << "Time: " << timestep << endl);
 
   int success;
   vtkNcDispatch(typeVtk,
@@ -2120,6 +2119,34 @@ void vtkMPASReader::SelectionCallback(vtkObject*,
   static_cast<vtkMPASReader*>(clientdata)->Modified();
 }
 
+//----------------------------------------------------------------------------
+void vtkMPASReader::UpdateDimensions()
+{
+  if (this->Internals->dimMetaDataTime < this->Internals->extraDimTime)
+    {
+    return;
+    }
+
+  this->Internals->extraDims.clear();
+
+  if (!this->Internals->ncFile)
+    {
+    this->Internals->extraDimTime.Modified();
+    return;
+    }
+
+  typedef Internal::DimMetaDataMap::const_iterator Iter;
+  const Internal::DimMetaDataMap &map = this->Internals->dimMetaDataMap;
+  for (Iter it = map.begin(), itEnd = map.end(); it != itEnd; ++it)
+    {
+    if (this->Internals->isExtraDim(it->first))
+      {
+      this->Internals->extraDims.insert(it->first);
+      }
+    }
+
+  this->Internals->extraDimTime.Modified();
+}
 
 //----------------------------------------------------------------------------
 //  Return the output.
@@ -2194,7 +2221,6 @@ void vtkMPASReader::EnableAllCellArrays()
 {
   this->CellDataArraySelection->EnableAllArrays();
 }
-
 
 //----------------------------------------------------------------------------
 // Make all cell selections unavailable.
@@ -2278,6 +2304,71 @@ void vtkMPASReader::SetCellArrayStatus(const char* name, int status)
     }
 }
 
+//----------------------------------------------------------------------------
+int vtkMPASReader::GetNumberOfDimensions()
+{
+  this->UpdateDimensions();
+  return this->Internals->extraDims.size();
+}
+
+//----------------------------------------------------------------------------
+std::string vtkMPASReader::GetDimensionName(int idx)
+{
+  this->UpdateDimensions();
+
+  if (idx < this->Internals->extraDims.size())
+    {
+    Internal::StringSet::const_iterator it = this->Internals->extraDims.begin();
+    std::advance(it, idx);
+    return *it;
+    }
+
+  return std::string();
+}
+
+//----------------------------------------------------------------------------
+int vtkMPASReader::GetDimensionCurrentIndex(const std::string &dim)
+{
+  this->UpdateDimensions();
+
+  typedef Internal::DimMetaDataMap::const_iterator Iter;
+  Iter it = this->Internals->dimMetaDataMap.find(dim);
+  if (it == this->Internals->dimMetaDataMap.end())
+    {
+    return -1;
+    }
+  return it->second.curIdx;
+}
+
+//----------------------------------------------------------------------------
+void vtkMPASReader::SetDimensionCurrentIndex(const string &dim, int idx)
+{
+  this->UpdateDimensions();
+
+  typedef Internal::DimMetaDataMap::iterator Iter;
+  Iter it = this->Internals->dimMetaDataMap.find(dim);
+  if (it != this->Internals->dimMetaDataMap.end() &&
+      idx < it->second.dimSize)
+    {
+    it->second.curIdx = idx;
+    }
+
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+int vtkMPASReader::GetDimensionSize(const string &dim)
+{
+  this->UpdateDimensions();
+
+  typedef Internal::DimMetaDataMap::const_iterator Iter;
+  Iter it = this->Internals->dimMetaDataMap.find(dim);
+  if (it == this->Internals->dimMetaDataMap.end())
+    {
+    return -1;
+    }
+  return it->second.dimSize;
+}
 
 //----------------------------------------------------------------------------
 //  Set vertical level to be viewed.
@@ -2498,6 +2589,16 @@ int vtkMPASReader::CanReadFile(const char *filename)
   return ret;
 }
 
+//------------------------------------------------------------------------------
+unsigned long vtkMPASReader::GetMTime()
+{
+  unsigned long result = this->Superclass::GetMTime();
+  result = std::max(result, this->CellDataArraySelection->GetMTime());
+  result = std::max(result, this->PointDataArraySelection->GetMTime());
+  result = std::max(result, this->Internals->extraDimTime.GetMTime());
+  result = std::max(result, this->Internals->dimMetaDataTime.GetMTime());
+  return result;
+}
 
 //----------------------------------------------------------------------------
 //  Print self.
