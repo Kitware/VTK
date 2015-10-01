@@ -125,6 +125,7 @@ def reindent(filename):
     new_context = True
     in_else = False
     in_define = False
+    in_assign = False
     leaving_define = False
     save_stack = None
 
@@ -194,7 +195,10 @@ def reindent(filename):
                 # save delim, row, col, and current indentation
                 stack.append((delim, i, pos, newpos))
             elif delim == '{':
-                if ((in_else or in_define) and spaces.sub("", line) == "{"):
+                if in_assign:
+                    # do not adjust braces for initializer lists
+                    stack.append((delim, i, pos, pos))
+                elif ((in_else or in_define) and spaces.sub("", line) == "{"):
                     # for opening braces that might have no match
                     indent = " "*lastpos
                     lines[i] = spaces.sub(indent, lines[i], count=1)
@@ -221,6 +225,15 @@ def reindent(filename):
                     lines[i] = spaces.sub(indent, lines[i], count=1)
                     lines[j] = spaces.sub(indent, lines[j], count=1)
             pos += 1
+
+        # check for " = " and #define assignments for the sake of
+        # the { inializer list } that might be on the following line
+        if len(line) > 0:
+            if (line[-1] == '=' or
+                (is_directive and in_define and not leaving_define)):
+                in_assign = True
+            elif not is_directive:
+                in_assign = False
 
         lastpos = newpos
 
