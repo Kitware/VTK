@@ -15,17 +15,17 @@ def reindent(filename):
     # This first part of this function clears all strings and comments
     # where non-grammatical braces might be hiding.
 
-    keychar = re.compile("[/\"\']")
-    c_comment = re.compile("\\/\\*(\\*(?!\\/)|[^*])*\\*\\/")
-    c_comment_start = re.compile("\\/\\*(\\*(?!\\/)|[^*])*$")
-    c_comment_end = re.compile("^(\\*(?!\\/)|[^*])*\\*\\/")
-    cpp_comment = re.compile("\\/\\/.*")
-    string_literal = re.compile("\"([^\\\\\"]|\\\\.)*\"")
-    string_literal_start = re.compile("\"([^\\\\\"]|\\\\.)*\\\\$")
-    string_literal_end = re.compile("^([^\\\\\"]|\\\\.)*\"")
-    char_literal = re.compile("\'([^\\\\\']|\\\\.)*\'")
-    char_literal_start = re.compile("\'([^\\\\\']|\\\\.)*\\\\$")
-    char_literal_end = re.compile("^([^\\\\\']|\\\\.)*\'")
+    keychar = re.compile(r"""[/"']""")
+    c_comment = re.compile(r"\/\*(\*(?!\/)|[^*])*\*\/")
+    c_comment_start = re.compile(r"\/\*(\*(?!\/)|[^*])*$")
+    c_comment_end = re.compile(r"^(\*(?!\/)|[^*])*\*\/")
+    cpp_comment = re.compile(r"\/\/.*")
+    string_literal = re.compile(r'"([^\\"]|\\.)*"')
+    string_literal_start = re.compile(r'"([^\\"]|\\.)*\\$')
+    string_literal_end = re.compile(r'^([^\\"]|\\.)*"')
+    char_literal = re.compile(r"'([^\\']|\\.)*'")
+    char_literal_start = re.compile(r"'([^\\']|\\.)*\\$")
+    char_literal_end = re.compile(r"^([^\\']|\\.)*'")
 
     f = open(filename)
     lines = f.readlines()
@@ -114,11 +114,11 @@ def reindent(filename):
     # save the stack for conditional compilation blocks
     dstack = []
 
-    directive = re.compile(" *# *(..)")
-    label = re.compile(" *(case  *)?(' '|\"\"|[A-Za-z0-9_]| *:: *)+ *:$")
-    delims = re.compile("[{}()\\[\\]]")
-    spaces = re.compile(" *")
-    cplusplus = re.compile(" *# *ifdef  *__cplusplus")
+    directive = re.compile(r" *# *(..)")
+    label = re.compile(r""" *(case  *)?(' '|""|[A-Za-z0-9_]| *:: *)+ *:$""")
+    delims = re.compile(r"[{}()\[\]]")
+    spaces = re.compile(r" *")
+    cplusplus = re.compile(r" *# *ifdef  *__cplusplus")
 
     lastpos = 0
     newpos = 0
