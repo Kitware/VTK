@@ -115,6 +115,7 @@ def reindent(filename):
     dstack = []
 
     directive = re.compile(" *# *(..)")
+    label = re.compile(" *(case  *)?(' '|\"\"|[A-Za-z0-9_]| *:: *)+ *:$")
     delims = re.compile("[{}()\\[\\]]")
     spaces = re.compile(" *")
     cplusplus = re.compile(" *# *ifdef  *__cplusplus")
@@ -178,7 +179,8 @@ def reindent(filename):
 
         # all statements end with ':', ';', '{', or '}'
         if len(line) > 0:
-            if new_context or line[-1] in ('{', '}', ';', ':'):
+            if (new_context or line[-1] in ('{', '}', ';') or
+                (label.match(line) and not continuation)):
                 continuation = False
                 new_context = False
             elif not is_directive:
