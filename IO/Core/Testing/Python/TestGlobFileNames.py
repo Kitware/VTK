@@ -43,25 +43,25 @@ class TestGlobFileNames(vtk.test.Testing.vtkTest):
 
         if n != 93:
             for i in range(0, n):
-                print "File:", i, " ", fileNames.GetValue(i)
-            print "GetNumberOfValues should return 93, returned", n
+                print("File:", i, " ", fileNames.GetValue(i))
+            print("GetNumberOfValues should return 93, returned", n)
 
-            print"Listing of ", VTK_DATA_ROOT, "/Data/headsq"
+            print("Listing of ", VTK_DATA_ROOT, "/Data/headsq")
             directory = vtk.vtkDirectory()
             directory.Open(VTK_DATA_ROOT + "/Data/headsq")
             m = directory.GetNumberOfFiles()
             for j in range(0, m):
-                print directory.GetFile(j)
+                print(directory.GetFile(j))
             exit(1)
 
         for i in range(0, n):
             filename = fileNames.GetValue(i)
             if filename != globFileNames.GetNthFileName(i):
-                print "mismatched filename for pattern quarter.*:", filename
+                print("mismatched filename for pattern quarter.*:", filename)
                 exit(1)
             m = re.search("[\w|\W]*quarter.*", filename)
             if m == None:
-                print "string does not match pattern quarter.*:", filename
+                print("string does not match pattern quarter.*:", filename)
 
 
         # check that we can re-use the Glob object
@@ -75,12 +75,12 @@ class TestGlobFileNames(vtk.test.Testing.vtkTest):
             filename = fileNames.GetValue(i)
 
             if filename != globFileNames.GetNthFileName(i):
-                print "mismatched filename for pattern financial.*: ", filename
+                print("mismatched filename for pattern financial.*: ", filename)
                 exit(1)
 
             m = re.search("[\w|\W]*financial.*", filename)
             if m == None:
-                print "string does not match pattern financial.*:", filename
+                print("string does not match pattern financial.*:", filename)
                 exit(1)
 
         vtk.test.Testing.interact()

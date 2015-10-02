@@ -15,7 +15,7 @@ def Gather(c, arr, root):
     c.Gather(vtkArr, vtkResult, root)
     result = [vtkResult.GetValue(i) for i in range(vtkResult.GetNumberOfTuples())]
     return [ tuple(result[i : i + count]) \
-                for i in xrange(0, vtkResult.GetNumberOfTuples(), count) ]
+                for i in range(0, vtkResult.GetNumberOfTuples(), count) ]
 
 renWin = vtk.vtkRenderWindow()
 
@@ -43,10 +43,10 @@ bounds = r.GetOutput().GetBlock(block).GetBounds()
 bounds = Gather(c, bounds, root=0)
 
 if rank == 0:
-    print "Reader:", r.GetClassName()
-    print "Bounds:"
+    print("Reader:", r.GetClassName())
+    print("Bounds:")
     for i in range(size):
-        print bounds[i]
+        print(bounds[i])
 
 c.Barrier()
 aname = "StagnationEnergy"
@@ -54,8 +54,8 @@ rng = r.GetOutput().GetBlock(block).GetPointData().GetArray(aname).GetRange(0)
 
 rng = Gather(c, rng, root=0)
 if rank == 0:
-    print "StagnationEnergy Ranges:"
+    print("StagnationEnergy Ranges:")
     for i in range(size):
-        print rng[i]
+        print(rng[i])
         assert rng[i][0] > 1.1 and rng[i][0] < 24.1 and \
                rng[i][1] > 1.1 and rng[i][1] < 24.1

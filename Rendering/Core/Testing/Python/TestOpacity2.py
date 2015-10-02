@@ -93,10 +93,10 @@ ren1.ResetCameraClippingRange()
 
 renWin.Render()
 
-print ren1.GetLastRenderingUsedDepthPeeling()
+print(ren1.GetLastRenderingUsedDepthPeeling())
 if (ren1.GetLastRenderingUsedDepthPeeling()):
-    print "depth peeling was used"
+    print("depth peeling was used")
 else:
-    print "depth peeling was not used (alpha blending instead)"
+    print("depth peeling was not used (alpha blending instead)")
 
 #iren.Start()

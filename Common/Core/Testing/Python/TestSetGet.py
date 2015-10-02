@@ -227,8 +227,8 @@ def TestOne(cname):
                         except KeyError:
                             # Key is not present
                             setParameterFail[cname] = set(['Set' + m])
-                    except Exception, err:
-                        print cname, 'Set' + m, err
+                    except Exception as err:
+                        print(cname + 'Set' + m + ' ' + str(err))
                 except TypeError:
                     # Get...() takes 1 or more arguments.
                     try:
@@ -238,8 +238,8 @@ def TestOne(cname):
                     except KeyError:
                         # Key is not present
                         getParameterFail[cname] = set(['Get' + m])
-                except Exception, err:
-                    print cname, 'Get' + m, err
+                except Exception as err:
+                    print(cname + 'Get' + m + ' ' + str(err))
             ok = setGetStatus
         else:
             noGetSetPairs.add(cname)
@@ -292,32 +292,32 @@ def TestSetGet(batch, batchNo=0, batchSize=0):
         else:
             nextRes = "No next"
 #         if verbose:
-#             print res, nextRes
+#             print(res, nextRes)
         classesTested.add(a)
         ok = TestOne(a)
         if ok == 0:
             if verbose:
-                print res + ' - Fail'
+                print(res + ' - Fail')
         elif ok == 1:
             if verbose:
-                print res + ' - Ok'
+                print(res + ' - Ok')
         elif ok == 2:
             if verbose:
-                print res + ' - no observer could be added.'
+                print(res + ' - no observer could be added.')
         elif ok == 3:
             if verbose:
-                print res + ' - is Abstract'
+                print(res + ' - is Abstract')
         elif ok == 4:
             if verbose:
-                print res + ' - No concrete implementation'
+                print(res + ' - No concrete implementation')
         elif ok == 5:
             if verbose:
-                print res + ' - Does not exist'
+                print(res + ' - Does not exist')
         else:
             if verbose:
-                print res + ' - Unknown status'
+                print(res + ' - Unknown status')
         idx += 1
-#        print nextRes
+#        print(nextRes)
 
 def BatchTest(vtkClasses, batchNo, batchSize):
     '''
@@ -345,18 +345,18 @@ def BatchTest(vtkClasses, batchNo, batchSize):
         TestSetGet(batch, batchNo, batchSize)
 
 def PrintResultSummary():
-    print '-' * 40
-    print 'Set(Get()) worked:', len(setGetWorked)
-    print 'Set(Get()) failed:', len(setGetFailed)
-    print 'Abstract classes: ', len(abstractClasses)
-    print 'Non-existent classes: ', len(nonexistentClasses)
-    print 'No concrete implementation: ', len(noConcreteImplementation)
-    print 'No observer could be added: ', len(noObserver)
-    print '-' * 40
-    print 'Total number of classes tested: ', len(classesTested)
-    print '-' * 40
-    print 'Excluded from testing: ', len(classExceptions)
-    print '-' * 40
+    print('-' * 40)
+    print('Set(Get()) worked: %i' % len(setGetWorked))
+    print('Set(Get()) failed: %i' % len(setGetFailed))
+    print('Abstract classes: %i' % len(abstractClasses))
+    print('Non-existent classes: %i' % len(nonexistentClasses))
+    print('No concrete implementation: %i' % len(noConcreteImplementation))
+    print('No observer could be added: %i' % len(noObserver))
+    print('-' * 40)
+    print('Total number of classes tested: %i' % len(classesTested))
+    print('-' * 40)
+    print('Excluded from testing: %i' % len(classExceptions))
+    print('-' * 40)
 
 def ProgramOptions():
     desc = """
@@ -397,7 +397,7 @@ def CheckPythonVersion(ver):
 
 def main(argv=None):
     if not CheckPythonVersion(0x02060000):
-        print 'This program requires Python 2.6 or greater.'
+        print('This program requires Python 2.6 or greater.')
         return
 
     global classExceptions
@@ -415,7 +415,7 @@ def main(argv=None):
     if opts.verbose:
         verbose = opts.verbose
 
-    print 'CTEST_FULL_OUTPUT (Avoid ctest truncation of output)'
+    print('CTEST_FULL_OUTPUT (Avoid ctest truncation of output)')
 
     # RedirectVTKMessages()
     if classNames:
@@ -436,7 +436,7 @@ def main(argv=None):
 #         for j in intervals:
 #             for i in range(j[0], j[1]):
 #                 BatchTest(vtkClasses, i, 100)
-#                 print vtkClasses
+#                 print(vtkClasses)
 
     PrintResultSummary()
 

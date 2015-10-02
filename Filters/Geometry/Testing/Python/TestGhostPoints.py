@@ -1,5 +1,4 @@
 import sys
-import exceptions
 import vtk
 from vtk.test import Testing
 

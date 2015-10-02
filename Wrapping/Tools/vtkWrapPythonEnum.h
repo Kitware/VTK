@@ -24,9 +24,13 @@
 int vtkWrapPython_IsEnumWrapped(
   HierarchyInfo *hinfo, const char *enumname);
 
+/* find and mark all enum parameters by setting IsEnum=1 */
+void vtkWrapPython_MarkAllEnums(
+  NamespaceInfo *contents, HierarchyInfo *hinfo);
+
 /* write out an enum type wrapped in python */
 void vtkWrapPython_GenerateEnumType(
-  FILE *fp, const char *classname, EnumInfo *data);
+  FILE *fp, const char *module, const char *classname, EnumInfo *data);
 
 /* generate code that adds an enum type to a python dict */
 void vtkWrapPython_AddEnumType(

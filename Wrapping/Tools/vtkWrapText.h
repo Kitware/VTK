@@ -54,6 +54,15 @@ const char *vtkWrapText_FormatSignature(
  */
 const char *vtkWrapText_PythonSignature(FunctionInfo *currentFunction);
 
+
+/**
+ * Convert a C++ identifier into an identifier that can be used from Python.
+ * The "::" namespace separators are converted to ".", and template args
+ * are mangled and prefix with "T" according to the ia64 ABI. The output
+ * parameter "pname" must be large enough to accept the result.  If it is
+ * as long as the input name, that is sufficient. */
+void vtkWrapText_PythonName(const char *name, char *pname);
+
 #ifdef __cplusplus
 }
 #endif

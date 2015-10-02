@@ -68,9 +68,9 @@ const char *vtkWrapPython_GetSuperClass(
       supername = cp;
       }
 
-    // Add QVTKInteractor as the sole exception: It is derived
-    // from vtkObject but does not start with "vtk".  Given its
-    // name, it would be expected to be derived from QObject.
+    /* Add QVTKInteractor as the sole exception: It is derived
+     * from vtkObject but does not start with "vtk".  Given its
+     * name, it would be expected to be derived from QObject. */
     if (vtkWrap_IsVTKObjectBaseType(hinfo, data->Name) ||
         strcmp(data->Name, "QVTKInteractor") == 0)
       {
@@ -298,7 +298,6 @@ void vtkWrapPython_ClassDoc(
     }
 }
 
-
 /* -------------------------------------------------------------------- */
 /* Declare the exports and imports for a VTK/Python class */
 static void vtkWrapPython_ExportVTKClass(
@@ -308,23 +307,23 @@ static void vtkWrapPython_ExportVTKClass(
   const char *supername;
 
   /* mangle the classname if necessary */
-  vtkWrapPython_PythonicName(data->Name, classname);
+  vtkWrapText_PythonName(data->Name, classname);
 
   /* for vtkObjectBase objects: export New method for use by subclasses */
   fprintf(fp,
-          "extern \"C\" { %s PyObject *PyVTKClass_%sNew(const char *); }\n"
+          "extern \"C\" { %s PyObject *Py%s_ClassNew(); }\n"
           "\n",
-          "VTK_PYTHON_EXPORT", classname);
+          "VTK_ABI_EXPORT", classname);
 
   /* declare the New methods for all the superclasses */
   supername = vtkWrapPython_GetSuperClass(data, hinfo);
   if (supername)
     {
-    vtkWrapPython_PythonicName(supername, classname);
+    vtkWrapText_PythonName(supername, classname);
     fprintf(fp,
-      "#ifndef DECLARED_PyVTKClass_%sNew\n"
-      "extern \"C\" { PyObject *PyVTKClass_%sNew(const char *); }\n"
-      "#define DECLARED_PyVTKClass_%sNew\n"
+      "#ifndef DECLARED_Py%s_ClassNew\n"
+      "extern \"C\" { PyObject *Py%s_ClassNew(); }\n"
+      "#define DECLARED_Py%s_ClassNew\n"
       "#endif\n",
       classname, classname, classname);
     }
@@ -353,56 +352,68 @@ static void vtkWrapPython_GenerateObjectNew(
     }
 
   fprintf(fp,
-          "PyObject *PyVTKClass_%sNew(const char *modulename)\n"
-          "{\n",
-          classname);
-
-  if (class_has_new)
-    {
-    fprintf(fp,
-            "  PyObject *cls = PyVTKClass_New(&Py%s_StaticNew,\n",
-            classname);
-    }
-  else
-    {
-    fprintf(fp,
-            "  PyObject *cls = PyVTKClass_New(NULL,\n");
-    }
+          "PyObject *Py%s_ClassNew()\n"
+          "{\n"
+          "  PyVTKClass_Add(\n"
+          "    &Py%s_Type, Py%s_Methods,\n",
+          classname, classname, classname);
 
   if (strcmp(data->Name, classname) == 0)
     {
     fprintf(fp,
-            "    Py%s_Methods,\n"
-            "    \"%s\", modulename,\n"
-            "    NULL, NULL,\n"
+            "    \"%s\",\n"
             "    Py%s_Doc(),",
-            classname, classname, classname);
+            classname, classname);
     }
   else
     {
     /* use of typeid() matches vtkTypeTemplate */
     fprintf(fp,
-            "    Py%s_Methods,\n"
-            "    typeid(%s).name(), modulename,\n"
-            "    \"%s\", \"%s\",\n"
+            "    typeid(%s).name(),\n"
             "    Py%s_Doc(),",
-            classname, data->Name, classname, classname, classname);
+            data->Name, classname);
     }
 
-  /* find the first superclass that is a VTK class */
-  name = vtkWrapPython_GetSuperClass(data, hinfo);
-  if (name)
+  if (class_has_new)
     {
-    vtkWrapPython_PythonicName(name, superclassname);
-    fprintf(fp, "\n"
-            "    PyVTKClass_%sNew(modulename));\n",
-            superclassname);
+    fprintf(fp,
+            " &Py%s_StaticNew);\n\n",
+            classname);
     }
   else
     {
-    fprintf(fp, "0);\n");
+    fprintf(fp,
+            " NULL);\n\n");
     }
 
+  fprintf(fp,
+          "  PyTypeObject *pytype = &Py%s_Type;\n\n",
+          classname);
+
+  /* if type is already ready, then return */
+  fprintf(fp,
+          "  if ((pytype->tp_flags & Py_TPFLAGS_READY) != 0)\n"
+          "    {\n"
+          "    return (PyObject *)pytype;\n"
+          "    }\n\n");
+
+  /* add any flags specific to this type */
+  fprintf(fp,
+          "#if !defined(VTK_PY3K) && PY_VERSION_HEX >= 0x02060000\n"
+          "  pytype->tp_flags |= Py_TPFLAGS_HAVE_NEWBUFFER;\n"
+          "#endif\n\n");
+
+  /* find the first superclass that is a VTK class, create it first */
+  name = vtkWrapPython_GetSuperClass(data, hinfo);
+  if (name)
+    {
+    vtkWrapText_PythonName(name, superclassname);
+    fprintf(fp,
+            "  pytype->tp_base = (PyTypeObject *)Py%s_ClassNew();\n\n",
+            superclassname);
+    }
+
+  /* check if any constants need to be added to the class dict */
   for (i = 0; i < data->NumberOfConstants; i++)
     {
     if (data->Constants[i]->Access == VTK_ACCESS_PUBLIC)
@@ -415,35 +426,99 @@ static void vtkWrapPython_GenerateObjectNew(
   if (has_constants)
     {
     fprintf(fp,
-            "\n"
-            "  if (cls)\n"
-            "    {\n"
-            "    PyObject *d = PyVTKClass_GetDict(cls);\n"
-            "    PyObject *o;\n"
+            "  PyObject *d = pytype->tp_dict;\n"
+            "  PyObject *o;\n"
             "\n");
 
     /* add any enum types defined in the class to its dict */
-    vtkWrapPython_AddPublicEnumTypes(fp, "    ", "d", "o", data);
+    vtkWrapPython_AddPublicEnumTypes(fp, "  ", "d", "o", data);
 
     /* add any constants defined in the class to its dict */
-    vtkWrapPython_AddPublicConstants(fp, "    ", "d", "o", data);
-
-    fprintf(fp,
-            "    }\n"
-            "\n");
+    vtkWrapPython_AddPublicConstants(fp, "  ", "d", "o", data);
     }
 
   fprintf(fp,
-          "  return cls;\n"
-          "}\n"
-          "\n");
+          "  PyType_Ready(pytype);\n"
+          "  return (PyObject *)pytype;\n"
+          "}\n\n");
+}
+
+/* -------------------------------------------------------------------- */
+/* write out the type object */
+void vtkWrapPython_GenerateObjectType(
+  FILE *fp, const char *module, const char *classname)
+{
+  /* Generate the TypeObject */
+  fprintf(fp,
+    "static PyTypeObject Py%s_Type = {\n"
+    "  PyVarObject_HEAD_INIT(&PyType_Type, 0)\n"
+    "  \"%sPython.%s\", // tp_name\n"
+    "  sizeof(PyVTKObject), // tp_basicsize\n"
+    "  0, // tp_itemsize\n"
+    "  PyVTKObject_Delete, // tp_dealloc\n"
+    "  0, // tp_print\n"
+    "  0, // tp_getattr\n"
+    "  0, // tp_setattr\n"
+    "  0, // tp_compare\n"
+    "  PyVTKObject_Repr, // tp_repr\n",
+    classname, module, classname);
+
+  fprintf(fp,
+    "  0, // tp_as_number\n"
+    "  0, // tp_as_sequence\n"
+    "  0, // tp_as_mapping\n"
+    "  0, // tp_hash\n"
+    "  0, // tp_call\n"
+    "  PyVTKObject_String, // tp_str\n");
+
+  fprintf(fp,
+    "  PyObject_GenericGetAttr, // tp_getattro\n"
+    "  PyObject_GenericSetAttr, // tp_setattro\n"
+    "  &PyVTKObject_AsBuffer, // tp_as_buffer\n"
+    "  Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_GC|Py_TPFLAGS_BASETYPE,"
+      " // tp_flags\n"
+    "  0, // tp_doc\n"
+    "  PyVTKObject_Traverse, // tp_traverse\n"
+    "  0, // tp_clear\n"
+    "  0, // tp_richcompare\n"
+    "  offsetof(PyVTKObject, vtk_weakreflist), // tp_weaklistoffset\n"
+    "  0, // tp_iter\n"
+    "  0, // tp_iternext\n"
+    "  0, // tp_methods\n"
+    "  0, // tp_members\n"
+    "  PyVTKObject_GetSet, // tp_getset\n"
+    "  0, // tp_base\n"
+    "  0, // tp_dict\n"
+    "  0, // tp_descr_get\n"
+    "  0, // tp_descr_set\n"
+    "  offsetof(PyVTKObject, vtk_dict), // tp_dictoffset\n"
+    "  0, // tp_init\n"
+    "  0, // tp_alloc\n"
+    "  PyVTKObject_New, // tp_new\n"
+    "  PyObject_GC_Del, // tp_free\n"
+    "  0, // tp_is_gc\n");
+
+  /* fields set by python itself */
+  fprintf(fp,
+    "  0, // tp_bases\n"
+    "  0, // tp_mro\n"
+    "  0, // tp_cache\n"
+    "  0, // tp_subclasses\n"
+    "  0, // tp_weaklist\n");
+
+  /* internal struct members */
+  fprintf(fp,
+    "  VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED\n"
+    "};\n"
+    "\n");
 }
 
 /* -------------------------------------------------------------------- */
 /* Wrap one class */
 int vtkWrapPython_WrapOneClass(
-  FILE *fp, const char *classname, ClassInfo *data,
-  FileInfo *finfo, HierarchyInfo *hinfo, int is_vtkobject)
+  FILE *fp, const char *module, const char *classname,
+  ClassInfo *data, FileInfo *finfo, HierarchyInfo *hinfo,
+  int is_vtkobject)
 {
   int class_has_new = 0;
   int i;
@@ -491,7 +566,7 @@ int vtkWrapPython_WrapOneClass(
     if (data->Enums[i]->Access == VTK_ACCESS_PUBLIC)
       {
       vtkWrapPython_GenerateEnumType(
-        fp, classname, data->Enums[i]);
+        fp, module, classname, data->Enums[i]);
       }
     }
 
@@ -505,6 +580,8 @@ int vtkWrapPython_WrapOneClass(
   /* output the class initilization function for VTK objects */
   if (is_vtkobject)
     {
+    vtkWrapPython_GenerateObjectType(
+      fp, module, classname);
     vtkWrapPython_GenerateObjectNew(
       fp, classname, data, hinfo, class_has_new);
     }
@@ -513,7 +590,7 @@ int vtkWrapPython_WrapOneClass(
   else if (!data->IsAbstract)
     {
     vtkWrapPython_GenerateSpecialType(
-      fp, classname, data, finfo, hinfo);
+      fp, module, classname, data, finfo, hinfo);
     }
 
   /* the docstring for the class, as a static var ending in "Doc" */

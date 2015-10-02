@@ -150,7 +150,6 @@ void vtkWrapPython_AddConstantHelper(
       objcreated = 1;
       break;
 
-#ifndef VTK_PYTHON_NO_LONG_LONG
 #ifdef VTK_TYPE_USE___INT64
     case VTK_PARSE___INT64:
       fprintf(fp,
@@ -182,16 +181,11 @@ void vtkWrapPython_AddConstantHelper(
       objcreated = 1;
       break;
 #endif
-#endif
 
     case VTK_PARSE_BOOL:
       fprintf(fp,
-              "#if PY_VERSION_HEX >= 0x02030000\n"
-              "%s%s = PyBool_FromLong((long)(%s));\n"
-              "#else\n"
-              "%s%s = PyInt_FromLong((long)(%s));\n"
-              "#endif\n",
-              indent, objvar, valstring, indent, objvar, valstring);
+              "%s%s = PyBool_FromLong((long)(%s));\n",
+              indent, objvar, valstring);
       objcreated = 1;
       break;
     }
@@ -201,7 +195,7 @@ void vtkWrapPython_AddConstantHelper(
     fprintf(fp,
             "%sif (%s)\n"
             "%s  {\n"
-            "%s  PyDict_SetItemString(%s, (char *)%s%s%s, %s);\n"
+            "%s  PyDict_SetItemString(%s, %s%s%s, %s);\n"
             "%s  Py_DECREF(%s);\n"
             "%s  }\n",
             indent, objvar, indent, indent, dictvar,

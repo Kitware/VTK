@@ -274,132 +274,6 @@ static void vtkWrapPython_GenerateSpecialHeaders(
 }
 
 /* -------------------------------------------------------------------- */
-/* import any wrapped enum types that are used by this file */
-static void vtkWrapPython_ImportExportEnumTypes(
-  FILE *fp, FileInfo *file_info, HierarchyInfo *hinfo)
-{
-  const char **types;
-  int numTypes = 0;
-  FunctionInfo *currentFunction;
-  const char *thisModule = 0;
-  int i, j, k, n, m, ii, nn;
-  ClassInfo *data;
-  ValueInfo *val;
-
-  types = (const char **)malloc(1000*sizeof(const char *));
-
-  nn = file_info->Contents->NumberOfClasses;
-  for (ii = 0; ii < nn; ii++)
-    {
-    data = file_info->Contents->Classes[ii];
-    n = data->NumberOfFunctions;
-    for (i = 0; i < n; i++)
-      {
-      currentFunction = data->Functions[i];
-      if (currentFunction->Access == VTK_ACCESS_PUBLIC)
-        {
-        /* we start with the return value */
-        val = currentFunction->ReturnValue;
-        m = vtkWrap_CountWrappedParameters(currentFunction);
-
-        /* the -1 is for the return value */
-        for (j = (val ? -1 : 0); j < m; j++)
-          {
-          if (j >= 0)
-            {
-            val = currentFunction->Parameters[j];
-            }
-
-          if (vtkWrap_IsEnumMember(data, val))
-            {
-            /* enum is within the class namespace, no import needed */
-            val->IsEnum = 1;
-            }
-          else if (vtkWrapPython_IsEnumWrapped(hinfo, val->Class))
-            {
-            /* make a unique list of all enum types found */
-            val->IsEnum = 1;
-            for (k = 0; k < numTypes; k++)
-              {
-              if (strcmp(val->Class, types[k]) == 0)
-                {
-                break;
-                }
-              }
-            /* if not already in the list */
-            if (k == numTypes)
-              {
-              /* crude code to expand list as necessary */
-              if (numTypes > 0 && (numTypes % 1000) == 0)
-                {
-                types = (const char **)realloc((char **)types,
-                  (numTypes + 1000)*sizeof(const char *));
-                }
-              types[numTypes++] = val->Class;
-              }
-            }
-          }
-        }
-      }
-    }
-
-  /* get the module that is being wrapped */
-  data = file_info->MainClass;
-  if (!data && file_info->Contents->NumberOfClasses > 0)
-    {
-    data = file_info->Contents->Classes[0];
-    }
-  if (data)
-    {
-    thisModule = vtkWrapPython_ClassModule(hinfo, data->Name);
-    }
-
-  /* for each unique enum type found in the file */
-  for (i = 0; i < numTypes; i++)
-    {
-    int is_external = 0;
-    const char *module;
-    char enumname[1000];
-    const char *cp = types[i];
-
-    /* convert "::" to an underscore */
-    j = 0;
-    while (*cp && j < 1000-1)
-      {
-      if (cp[0] == ':' && cp[1] == ':')
-        {
-        cp += 2;
-        enumname[j++] = '_';
-        }
-      else
-        {
-        enumname[j++] = *cp++;
-        }
-      }
-    enumname[j] = '\0';
-
-    /* check whether types is external or internal */
-    module = vtkWrapPython_ClassModule(hinfo, types[i]);
-    if (module && thisModule && strcmp(module, thisModule) != 0)
-      {
-      is_external = 1;
-      }
-
-    fprintf(fp,
-      "\n"
-      "#ifndef DECLARED_Py%s_Type\n"
-      "extern %s PyTypeObject Py%s_Type;\n"
-      "#define DECLARED_Py%s_Type\n"
-      "#endif\n",
-      enumname,
-      (is_external ? "VTK_PYTHON_IMPORT" : "VTK_PYTHON_EXPORT"),
-      enumname, enumname);
-    }
-
-  free((char **)types);
-}
-
-/* -------------------------------------------------------------------- */
 /* This is the main entry point for the python wrappers.  When called,
  * it will print the vtkXXPython.c file contents to "fp".  */
 
@@ -415,6 +289,7 @@ int main(int argc, char *argv[])
   HierarchyInfo *hinfo = NULL;
   FileInfo *file_info;
   FILE *fp;
+  const char *module = "vtkCommonCore";
   const char *name;
   char *name_from_file = NULL;
   int numberOfWrappedClasses = 0;
@@ -517,28 +392,29 @@ int main(int argc, char *argv[])
           "#include \"%s.h\"\n\n",
           name);
 
-  /* define import/export macros for use in wrapper code */
-  fprintf(fp,
-          "#if defined(VTK_BUILD_SHARED_LIBS)\n"
-          "# define VTK_PYTHON_EXPORT VTK_ABI_EXPORT\n"
-          "# define VTK_PYTHON_IMPORT VTK_ABI_IMPORT\n"
-          "#else\n"
-          "# define VTK_PYTHON_EXPORT VTK_ABI_EXPORT\n"
-          "# define VTK_PYTHON_IMPORT VTK_ABI_EXPORT\n"
-          "#endif\n\n");
-
   /* do the export of the main entry point */
   fprintf(fp,
-          "extern \"C\" { %s void PyVTKAddFile_%s(PyObject *, const char *); }\n",
-          "VTK_PYTHON_EXPORT", name);
+          "extern \"C\" { %s void PyVTKAddFile_%s(PyObject *); }\n",
+          "VTK_ABI_EXPORT", name);
 
-  /* do the imports of any enum types that are used by methods */
-  vtkWrapPython_ImportExportEnumTypes(fp, file_info, hinfo);
+  /* get the module that is being wrapped */
+  data = file_info->MainClass;
+  if (!data && file_info->Contents->NumberOfClasses > 0)
+    {
+    data = file_info->Contents->Classes[0];
+    }
+  if (data && hinfo)
+    {
+    module = vtkWrapPython_ClassModule(hinfo, data->Name);
+    }
+
+  /* Identify all enum types that are used by methods */
+  vtkWrapPython_MarkAllEnums(file_info->Contents, hinfo);
 
   /* Wrap any enum types defined in the global namespace */
   for (i = 0; i < contents->NumberOfEnums; i++)
     {
-    vtkWrapPython_GenerateEnumType(fp, NULL, contents->Enums[i]);
+    vtkWrapPython_GenerateEnumType(fp, module, NULL, contents->Enums[i]);
     }
 
   /* Wrap any namespaces */
@@ -546,7 +422,7 @@ int main(int argc, char *argv[])
     {
     if (contents->Namespaces[i]->NumberOfConstants > 0)
       {
-      vtkWrapPython_WrapNamespace(fp, contents->Namespaces[i]);
+      vtkWrapPython_WrapNamespace(fp, module, contents->Namespaces[i]);
       numberOfWrappedNamespaces++;
       }
     }
@@ -592,7 +468,7 @@ int main(int argc, char *argv[])
     if (hinfo || data == file_info->MainClass)
       {
       if (vtkWrapPython_WrapOneClass(
-            fp, data->Name, data, file_info, hinfo, is_vtkobject))
+            fp, module, data->Name, data, file_info, hinfo, is_vtkobject))
         {
         /* re-index wrapAsVTKObject for wrapped classes */
         wrapAsVTKObject[numberOfWrappedClasses] = (is_vtkobject ? 1 : 0);
@@ -607,12 +483,11 @@ int main(int argc, char *argv[])
                       contents->NumberOfConstants);
   fprintf(fp,
           "void PyVTKAddFile_%s(\n"
-          "  PyObject *%s, const char *%s)\n"
+          "  PyObject *%s)\n"
           "{\n"
           "%s",
           name,
           (wrapped_anything ? "dict" : ""),
-          (numberOfWrappedClasses ? "modulename" : ""),
           (wrapped_anything ? "  PyObject *o;\n" : ""));
 
   /* Add all of the namespaces */
@@ -622,7 +497,7 @@ int main(int argc, char *argv[])
       {
       fprintf(fp,
             "  o = PyVTKNamespace_%s();\n"
-            "  if (o && PyDict_SetItemString(dict, (char *)\"%s\", o) != 0)\n"
+            "  if (o && PyDict_SetItemString(dict, \"%s\", o) != 0)\n"
             "    {\n"
             "    Py_DECREF(o);\n"
             "    }\n"
@@ -642,7 +517,7 @@ int main(int argc, char *argv[])
       {
       /* Template generator */
       fprintf(fp,
-             "  o = Py%s_TemplateNew(modulename);\n"
+             "  o = Py%s_TemplateNew();\n"
             "\n",
             data->Name);
 
@@ -656,11 +531,7 @@ int main(int argc, char *argv[])
              "      {\n"
              "      PyObject *ot = PyList_GET_ITEM(l, i);\n"
              "      const char *nt = NULL;\n"
-             "      if (PyVTKClass_Check(ot))\n"
-             "        {\n"
-             "        nt = PyString_AsString(((PyVTKClass *)ot)->vtk_name);\n"
-             "        }\n"
-             "      else if (PyType_Check(ot))\n"
+             "      if (PyType_Check(ot))\n"
              "        {\n"
              "        nt = ((PyTypeObject *)ot)->tp_name;\n"
              "        }\n"
@@ -670,7 +541,7 @@ int main(int argc, char *argv[])
              "        }\n"
              "      if (nt)\n"
              "        {\n"
-             "        PyDict_SetItemString(dict, (char *)nt, ot);\n"
+             "        PyDict_SetItemString(dict, nt, ot);\n"
              "        }\n"
              "      }\n"
              "    Py_DECREF(l);\n"
@@ -681,7 +552,7 @@ int main(int argc, char *argv[])
       {
       /* Class is derived from vtkObjectBase */
       fprintf(fp,
-            "  o = PyVTKClass_%sNew(modulename);\n"
+            "  o = Py%s_ClassNew();\n"
             "\n",
             data->Name);
       }
@@ -689,13 +560,13 @@ int main(int argc, char *argv[])
       {
       /* Classes that are not derived from vtkObjectBase */
       fprintf(fp,
-            "  o = Py%s_TypeNew(modulename);\n"
+            "  o = Py%s_TypeNew();\n"
             "\n",
             data->Name);
       }
 
     fprintf(fp,
-            "  if (o && PyDict_SetItemString(dict, (char *)\"%s\", o) != 0)\n"
+            "  if (o && PyDict_SetItemString(dict, \"%s\", o) != 0)\n"
             "    {\n"
             "    Py_DECREF(o);\n"
             "    }\n"

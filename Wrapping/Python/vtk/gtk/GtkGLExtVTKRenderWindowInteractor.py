@@ -92,8 +92,8 @@ class GtkGLExtVTKRenderWindowInteractor(gtk.gtkgl.DrawingArea):
         elif hasattr(self._Iren, attr):
             return getattr(self._Iren, attr)
         else:
-            raise AttributeError, self.__class__.__name__ + \
-                  " has no attribute named " + attr
+            raise AttributeError(self.__class__.__name__ +
+                  " has no attribute named " + attr)
 
     def CreateTimer(self, obj, event):
         gtk.timeout_add(10, self._Iren.TimerEvent)

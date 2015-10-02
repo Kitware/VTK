@@ -1,5 +1,5 @@
 """
-A simple vtkTkRenderWidget for Tkinter.
+A simple vtkTkRenderWidget for tkinter.
 
 Created by David Gobbi, April 1999
 
@@ -14,9 +14,7 @@ Aug 29, 1999  - Renamed file to vtkRenderWidget.py
 Nov 14, 1999  - Added support for keyword 'rw'
 Mar 23, 2000  - Extensive but backwards compatible changes,
                 improved documentation
-"""
 
-"""
 A few important notes:
 
 This class is meant to be used as a base-class widget for
@@ -44,13 +42,20 @@ i.e. set to some initial value.  Don't forget that 'None' means
 'NULL' - the python/vtk wrappers guarantee their equivalence.
 """
 
-import Tkinter
+from __future__ import absolute_import
 import math, os, sys
 import vtk
 
-from vtkLoadPythonTkWidgets import vtkLoadPythonTkWidgets
+if sys.hexversion < 0x03000000:
+    # for Python2
+    import Tkinter as tkinter
+else:
+    # for Python3
+    import tkinter
 
-class vtkTkRenderWidget(Tkinter.Widget):
+from .vtkLoadPythonTkWidgets import vtkLoadPythonTkWidgets
+
+class vtkTkRenderWidget(tkinter.Widget):
     """
     A vtkTkRenderWidget for Python.
 
@@ -100,7 +105,7 @@ class vtkTkRenderWidget(Tkinter.Widget):
             self._FocusOnEnter = 0
 
         kw['rw'] = renderWindow.GetAddressAsString("vtkRenderWindow")
-        Tkinter.Widget.__init__(self, master, 'vtkTkRenderWidget', cnf, kw)
+        tkinter.Widget.__init__(self, master, 'vtkTkRenderWidget', cnf, kw)
 
         self._CurrentRenderer = None
         self._CurrentCamera = None
@@ -139,8 +144,8 @@ class vtkTkRenderWidget(Tkinter.Widget):
         # as an attribute but instead have to get it from the tk-side
         if attr == '_RenderWindow':
             return self.GetRenderWindow()
-        raise AttributeError, self.__class__.__name__ + \
-              " has no attribute named " + attr
+        raise AttributeError(self.__class__.__name__ +
+              " has no attribute named " + attr)
 
     def BindTkRenderWidget(self):
         """
@@ -438,7 +443,7 @@ def vtkRenderWidgetConeExample():
     """Like it says, just a simple example
     """
     # create root window
-    root = Tkinter.Tk()
+    root = tkinter.Tk()
 
     # create vtkTkRenderWidget
     pane = vtkTkRenderWidget(root,width=300,height=300)

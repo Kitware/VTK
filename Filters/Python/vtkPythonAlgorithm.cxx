@@ -35,7 +35,18 @@ void vtkPythonAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Object: " << Object << std::endl;
   if (str)
     {
-    os << indent << "Object (string): " << PyString_AsString(str) << std::endl;
+    os << indent << "Object (string): ";
+#ifndef VTK_PY3K
+    os << PyString_AsString(str);
+#else
+    PyObject *bytes = PyUnicode_EncodeLocale(str, VTK_PYUNICODE_ENC);
+    if (bytes)
+      {
+      os << PyBytes_AsString(bytes);
+      Py_DECREF(bytes);
+      }
+#endif
+    os << std::endl;
     }
 }
 
@@ -131,7 +142,16 @@ static std::string GetPythonErrorString()
     for (Py_ssize_t i = 0; i < sz; ++i)
       {
       PyObject* str = lst[i];
+#ifndef VTK_PY3K
       exc_string += PyString_AsString(str);
+#else
+      PyObject *bytes = PyUnicode_EncodeLocale(str, VTK_PYUNICODE_ENC);
+      if (bytes)
+        {
+        exc_string += PyBytes_AsString(bytes);
+        Py_DECREF(bytes);
+        }
+#endif
       }
     }
   else
@@ -139,7 +159,17 @@ static std::string GetPythonErrorString()
     vtkSmartPyObject pyexc_string(PyObject_Str(sValue));
     if (pyexc_string)
       {
+#ifndef VTK_PY3K
       exc_string = PyString_AsString(pyexc_string);
+#else
+      PyObject *bytes = PyUnicode_EncodeLocale(
+        pyexc_string, VTK_PYUNICODE_ENC);
+      if (bytes)
+        {
+        exc_string = PyBytes_AsString(bytes);
+        Py_DECREF(bytes);
+        }
+#endif
       }
     else
       {

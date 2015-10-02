@@ -5,7 +5,13 @@
 # based GUI for VTK-Python.
 
 import vtk
-import Tkinter
+import sys
+if sys.hexversion < 0x03000000:
+    # for Python2
+    import Tkinter as tkinter
+else:
+    # for Python3
+    import tkinter
 from vtk.tk.vtkTkRenderWindowInteractor import \
      vtkTkRenderWindowInteractor
 import string
@@ -48,7 +54,7 @@ for family in ("Arial", "Courier", "Times"):
         face_name = family
         if len(attribs):
             face_name = face_name + "(" + \
-                        string.join(attribs, ",") + ")"
+                        ",".join(attribs) + ")"
 
         mapper.SetInput(face_name + ": " + default_text)
         tprop = mapper.GetTextProperty()
@@ -64,10 +70,10 @@ for family in ("Arial", "Courier", "Times"):
         ren.AddActor(actor)
 
 
-# Now setup the Tkinter GUI.
+# Now setup the tkinter GUI.
 
 # Create the root window.
-root = Tkinter.Tk()
+root = tkinter.Tk()
 
 # vtkTkRenderWindowInteractor is a Tk widget that we can render into.
 # It has a GetRenderWindow method that returns a vtkRenderWindow.
@@ -106,7 +112,7 @@ def set_font_size(sz):
 # the command option to the name of a Python function.  Whenever the
 # slider value changes this function will be called, enabling us to
 # propagate this GUI setting to the corresponding VTK object.
-size_slider = Tkinter.Scale(root, from_=min_font_size,
+size_slider = tkinter.Scale(root, from_=min_font_size,
                             to=max_font_size, res=1,
                             orient='horizontal', label="Font size:",
                             command=set_font_size)
@@ -133,5 +139,5 @@ root.protocol("WM_DELETE_WINDOW", quit)
 renWin.Render()
 vtkw.Start()
 
-# start the Tkinter event loop.
+# start the tkinter event loop.
 root.mainloop()

@@ -32,13 +32,15 @@ struct PyVTKTemplate {
   PyObject_HEAD
   PyObject *dict;
   PyObject *doc;
-  const char *name;
-  const char *module;
+  PyObject *name;
+  PyObject *module;
+  PyObject *bases; // this is just a hint for help()
 };
 
 extern VTKWRAPPINGPYTHONCORE_EXPORT PyTypeObject PyVTKTemplate_Type;
 
-#define PyVTKTemplate_Check(obj) ((obj)->ob_type == &PyVTKTemplate_Type)
+#define PyVTKTemplate_Check(obj) \
+  (Py_TYPE(obj) == &PyVTKTemplate_Type)
 
 extern "C"
 {

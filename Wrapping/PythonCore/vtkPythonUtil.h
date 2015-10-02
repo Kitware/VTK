@@ -19,7 +19,7 @@
 #define vtkPythonUtil_h
 
 #include "vtkPython.h"
-#include "PyVTKClass.h"
+#include "vtkPythonCompatibility.h"
 #include "PyVTKMutableObject.h"
 #include "PyVTKNamespace.h"
 #include "PyVTKObject.h"
@@ -32,6 +32,7 @@ class vtkPythonGhostMap;
 class vtkPythonObjectMap;
 class vtkPythonSpecialTypeMap;
 class vtkPythonNamespaceMap;
+class vtkPythonEnumMap;
 class vtkStdString;
 class vtkUnicodeString;
 class vtkVariant;
@@ -48,19 +49,25 @@ public:
   static const char *PythonicClassName(const char *classname);
 
   // Description:
+  // Given a qualified python name "module.name", remove "module.".
+  static const char *StripModule(const char *tpname);
+
+  // Description:
   // Add a PyVTKClass to the type lookup table, this allows us to later
   // create object given only the class name.
-  static void AddClassToMap(PyObject *obj, const char *classname);
+  static PyVTKClass *AddClassToMap(
+    PyTypeObject *pytype, PyMethodDef *methods,
+    const char *classname, vtknewfunc constructor);
 
   // Description:
   // Get information about a special VTK type, given the type name.
-  static PyObject *FindClass(const char *classname);
+  static PyVTKClass *FindClass(const char *classname);
 
   // Description:
   // For an VTK object whose class is not in the ClassMap, search
   // the whole ClassMap to find out which class is the closest base
   // class of the object.  Returns a PyVTKClass.
-  static PyObject *FindNearestBaseClass(vtkObjectBase *ptr);
+  static PyVTKClass *FindNearestBaseClass(vtkObjectBase *ptr);
 
   // Description:
   // Extract the vtkObjectBase from a PyVTKObject.  If the PyObject is
@@ -111,7 +118,7 @@ public:
   // later create object given only the class name.
   static PyVTKSpecialType *AddSpecialTypeToMap(
     PyTypeObject *pytype, PyMethodDef *methods, PyMethodDef *constructors,
-    const char *docstring[], PyVTKSpecialCopyFunc copyfunc);
+    vtkcopyfunc copyfunc);
 
   // Description:
   // Get information about a special VTK type, given the type name.
@@ -143,6 +150,14 @@ public:
   static PyObject *FindNamespace(const char *name);
 
   // Description:
+  // Add a wrapped C++ enum as a python type object.
+  static void AddEnumToMap(PyTypeObject *o);
+
+  // Description:
+  // Return an enum type object, or NULL if it doesn't exist.
+  static PyTypeObject *FindEnum(const char *name);
+
+  // Description:
   // Utility function to build a docstring by concatenating a series
   // of strings until a null string is found.
   static PyObject *BuildDocString(const char *docstring[]);
@@ -157,7 +172,7 @@ public:
 
   // Description:
   // Compute a hash for a vtkVariant.
-  static long VariantHash(const vtkVariant *variant);
+  static Py_hash_t VariantHash(const vtkVariant *variant);
 
   // Description:
   // Register a vtkPythonCommand. Registering vtkPythonCommand instances ensures
@@ -178,6 +193,7 @@ private:
   vtkPythonClassMap *ClassMap;
   vtkPythonSpecialTypeMap *SpecialTypeMap;
   vtkPythonNamespaceMap *NamespaceMap;
+  vtkPythonEnumMap *EnumMap;
   vtkPythonCommandList *PythonCommandList;
 
   friend void vtkPythonUtilDelete();
@@ -187,32 +203,5 @@ private:
 // For use by SetXXMethod() , SetXXMethodArgDelete()
 extern VTKWRAPPINGPYTHONCORE_EXPORT void vtkPythonVoidFunc(void *);
 extern VTKWRAPPINGPYTHONCORE_EXPORT void vtkPythonVoidFuncArgDelete(void *);
-
-// The following macro is used to suppress missing initializer
-// warnings.  Python documentation says these should not be necessary.
-// We define it as a macro in case the length needs to change across
-// python versions.
-#if   PY_VERSION_HEX >= 0x02060000 // for tp_version_tag
-#define VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED \
-  0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0, 0,
-#define VTK_WRAP_PYTHON_SUPRESS_UNINITIALIZED \
-  0, 0,
-#elif   PY_VERSION_HEX >= 0x02030000
-#define VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED \
-  0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,
-#define VTK_WRAP_PYTHON_SUPRESS_UNINITIALIZED \
-  0,
-#elif PY_VERSION_HEX >= 0x02020000
-#define VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED \
-  0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0,
-#define VTK_WRAP_PYTHON_SUPRESS_UNINITIALIZED
-#else
-#define VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED
-#define VTK_WRAP_PYTHON_SUPRESS_UNINITIALIZED
-#endif
-
-#if PY_VERSION_HEX < 0x02050000
-  typedef int Py_ssize_t;
-#endif
 
 #endif

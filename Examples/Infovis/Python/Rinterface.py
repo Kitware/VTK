@@ -5,7 +5,7 @@
 # back to VTK.
 
 # VTK must be built with VTK_USE_GNU_R turned on for this example to work!
-
+from __future__ import print_function
 from vtk import *
 import math
 
@@ -41,12 +41,12 @@ if __name__ == "__main__":
   bdarray = rinterface.AssignRVariableToVTKDataArray("d")
 
   # Display the contents of bdarray.
-  print "\n\nContents of bdarray copied to VTK from R\n\n"
+  print("\n\nContents of bdarray copied to VTK from R\n\n")
   for i in range(bdarray.GetNumberOfTuples()):
     t = bdarray.GetTuple2(i)
-    print'%6.4f   %6.4f' % (t[0], t[1])
+    print('%6.4f   %6.4f' % (t[0], t[1]))
 
   # Display the contents of R output echoed to the terminal.
-  print "\n\nOutput of R interpreter\n\n"
-  print Routput_buffer
+  print("\n\nOutput of R interpreter\n\n")
+  print(Routput_buffer)
 

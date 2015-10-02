@@ -64,12 +64,12 @@ Created: September, 2002
 
 Prabhu Ramachandran <prabhu@aero.iitb.ac.in>
 """
-
+from __future__ import absolute_import
 import sys, os, time
 import os.path
 import unittest, getopt
 import vtk
-import BlackBox
+from . import BlackBox
 
 # location of the VTK data files.  Set via command line args or
 # environment variable.
@@ -181,7 +181,7 @@ def compareImageWithSavedImage(src_img, img_fname, threshold=10):
         _printCDashImageNotFoundError(img_fname)
         msg = "Missing baseline image: " + img_fname + "\nTest image created: " + _getTempImagePath(img_fname)
         sys.tracebacklimit = 0
-        raise RuntimeError, msg
+        raise RuntimeError(msg)
 
     pngr = vtk.vtkPNGReader()
     pngr.SetFileName(img_fname)
@@ -234,7 +234,7 @@ def compareImageWithSavedImage(src_img, img_fname, threshold=10):
             _printCDashImageError(img_err, err_index, f_base)
             msg = "Failed image test: %f\n"%idiff.GetThresholdedError()
             sys.tracebacklimit = 0
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
     # output the image error even if a test passed
     _printCDashImageSuccess(img_err, err_index)
 
@@ -266,36 +266,36 @@ def compareImage(renwin, img_fname, threshold=10):
 def _printCDashImageError(img_err, err_index, img_base):
     """Prints the XML data necessary for CDash."""
     img_base = _getTempImagePath(img_base)
-    print "Failed image test with error: %f"%img_err
-    print "<DartMeasurement name=\"ImageError\" type=\"numeric/double\">",
-    print "%f </DartMeasurement>"%img_err
+    print("Failed image test with error: %f"%img_err)
+    print("<DartMeasurement name=\"ImageError\" type=\"numeric/double\"> "
+          "%f </DartMeasurement>"%img_err)
     if err_index <= 0:
-        print "<DartMeasurement name=\"BaselineImage\" type=\"text/string\">Standard</DartMeasurement>",
+        print("<DartMeasurement name=\"BaselineImage\" type=\"text/string\">Standard</DartMeasurement>")
     else:
-        print "<DartMeasurement name=\"BaselineImage\" type=\"numeric/integer\">",
-        print "%d </DartMeasurement>"%err_index
+        print("<DartMeasurement name=\"BaselineImage\" type=\"numeric/integer\"> "
+              "%d </DartMeasurement>"%err_index)
 
-    print "<DartMeasurementFile name=\"TestImage\" type=\"image/png\">",
-    print "%s </DartMeasurementFile>"%(img_base + '.png')
+    print("<DartMeasurementFile name=\"TestImage\" type=\"image/png\"> "
+          "%s </DartMeasurementFile>"%(img_base + '.png'))
 
-    print "<DartMeasurementFile name=\"DifferenceImage\" type=\"image/png\">",
-    print "%s </DartMeasurementFile>"%(img_base + '.diff.png')
-    print "<DartMeasurementFile name=\"ValidImage\" type=\"image/png\">",
-    print "%s </DartMeasurementFile>"%(img_base + '.valid.png')
+    print("<DartMeasurementFile name=\"DifferenceImage\" type=\"image/png\"> "
+          "%s </DartMeasurementFile>"%(img_base + '.diff.png'))
+    print("<DartMeasurementFile name=\"ValidImage\" type=\"image/png\"> "
+          "%s </DartMeasurementFile>"%(img_base + '.valid.png'))
 
 def _printCDashImageNotFoundError(img_fname):
     """Prints the XML data necessary for Dart when the baseline image is not found."""
-    print "<DartMeasurement name=\"ImageNotFound\" type=\"text/string\">" + img_fname + "</DartMeasurement>"
+    print("<DartMeasurement name=\"ImageNotFound\" type=\"text/string\">" + img_fname + "</DartMeasurement>")
 
 def _printCDashImageSuccess(img_err, err_index):
     "Prints XML data for Dart when image test succeeded."
-    print "<DartMeasurement name=\"ImageError\" type=\"numeric/double\">",
-    print "%f </DartMeasurement>"%img_err
+    print("<DartMeasurement name=\"ImageError\" type=\"numeric/double\"> "
+          "%f </DartMeasurement>"%img_err)
     if err_index <= 0:
-        print "<DartMeasurement name=\"BaselineImage\" type=\"text/string\">Standard</DartMeasurement>",
+        print("<DartMeasurement name=\"BaselineImage\" type=\"text/string\">Standard</DartMeasurement>")
     else:
-       print "<DartMeasurement name=\"BaselineImage\" type=\"numeric/integer\">",
-       print "%d </DartMeasurement>"%err_index
+       print("<DartMeasurement name=\"BaselineImage\" type=\"numeric/integer\"> "
+             "%d </DartMeasurement>"%err_index)
 
 
 def _handleFailedImage(idiff, pngr, img_fname):
@@ -348,10 +348,10 @@ def main(cases):
     tot_wall_time = float(time.time() - s_wall_time)
 
     # output measurements for CDash
-    print "<DartMeasurement name=\"WallTime\" type=\"numeric/double\">",
-    print " %f </DartMeasurement>"%tot_wall_time
-    print "<DartMeasurement name=\"CPUTime\" type=\"numeric/double\">",
-    print " %f </DartMeasurement>"%tot_time
+    print("<DartMeasurement name=\"WallTime\" type=\"numeric/double\"> "
+          " %f </DartMeasurement>"%tot_wall_time)
+    print("<DartMeasurement name=\"CPUTime\" type=\"numeric/double\"> "
+          " %f </DartMeasurement>"%tot_time)
 
     # Delete these to eliminate debug leaks warnings.
     del cases, timer
@@ -454,10 +454,10 @@ def parseCmdLine():
 
     try:
         opts, args = getopt.getopt(arguments, options, long_options)
-    except getopt.error, msg:
-        print usage()
-        print '-'*70
-        print msg
+    except getopt.error as msg:
+        print(usage())
+        print('-'*70)
+        print(msg)
         sys.exit (1)
 
     return opts, args
@@ -501,10 +501,10 @@ def processCmdLine():
                 _VERBOSE = int(a)
             except:
                 msg="Verbosity should be an integer.  0, 1, 2 are valid."
-                print msg
+                print(msg)
                 sys.exit(1)
         if o in ('-h', '--help'):
-            print usage()
+            print(usage())
             sys.exit()
 
     if not VTK_BASELINE_ROOT: # default value.

@@ -14,14 +14,15 @@ Created on Sept 26, 2010 by David Gobbi
 """
 
 import sys
-import exceptions
 import vtk
 from vtk.test import Testing
 
 class vtkCustomObject(vtk.vtkObject):
-    def __init__(self):
+    def __init__(self, extra=None):
         """Initialize all attributes."""
-        self._ExtraObject = vtk.vtkObject()
+        if extra is None:
+            extra = vtk.vtkObject()
+        self._ExtraObject = extra
 
     def GetClassName(self):
         """Get the class name."""
@@ -34,11 +35,11 @@ class vtkCustomObject(vtk.vtkObject):
     def SetExtraObject(self, o):
         """Setter method."""
         # make sure it is "None" or a vtkobject instance
-        if o == None or type(o) == type(self):
+        if o == None or isinstance(o, vtk.vtkObjectBase):
             self._ExtraObject = o
             self.Modified()
         else:
-            raise TypeError, "requires None or a vtkobject"
+            raise TypeError("requires None or a vtkobject")
 
     def GetMTime(self):
         """Override a method (only works when called from Python)"""
@@ -53,6 +54,13 @@ class TestSubclass(Testing.vtkTest):
         """Instantiate a python vtkObject subclass"""
         o = vtkCustomObject()
         self.assertEqual(o.GetClassName(), "vtkCustomObject")
+
+    def testConstructorArgs(self):
+        """Test the use of constructor arguments."""
+        extra = vtk.vtkObject()
+        o = vtkCustomObject(extra)
+        self.assertEqual(o.GetClassName(), "vtkCustomObject")
+        self.assertEqual(id(o.GetExtraObject()), id(extra))
 
     def testCallUnboundMethods(self):
         """Test calling an unbound method in an overridded method"""

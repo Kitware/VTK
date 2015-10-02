@@ -16,8 +16,8 @@ from vtk.test import Testing
 try:
     import weakref
 except ImportError:
-    print "No weakref in this version of Python.  Time to upgrade?"
-    print "Python version:", sys.version
+    print("No weakref in this version of Python.  Time to upgrade?")
+    print("Python version:", sys.version)
     sys.exit(0)
 
 
@@ -34,7 +34,7 @@ class TestWeakref(Testing.vtkTest):
         proxy = weakref.proxy(o)
         self.assertEqual(proxy.GetClassName(), 'vtkObject')
         del o
-        self.assertRaises(weakref.ReferenceError, getattr,
+        self.assertRaises(ReferenceError, getattr,
                           proxy, 'GetClassName')
 
 

@@ -21,6 +21,7 @@
 #include "vtkParseHierarchy.h"
 
 /* Wrap one class, returns zero if not wrappable */
-int vtkWrapPython_WrapNamespace(FILE *fp, NamespaceInfo *data);
+int vtkWrapPython_WrapNamespace(
+  FILE *fp, const char *module, NamespaceInfo *data);
 
 #endif /* VTK_WRAP_PYTHON_NAMESPACE_H */

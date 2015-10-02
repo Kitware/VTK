@@ -66,8 +66,8 @@ def get_vtk_array_type(numpy_array_type):
            numpy.issubdtype(numpy_array_type, key) or \
            numpy_array_type == numpy.dtype(key):
             return vtk_type
-    raise TypeError, \
-        'Could not find a suitable VTK type for %s' % (str(numpy_array_type))
+    raise TypeError(
+        'Could not find a suitable VTK type for %s' % (str(numpy_array_type)))
 
 def get_vtk_to_numpy_typemap():
     """Returns the VTK array type to numpy array type mapping."""
@@ -183,12 +183,12 @@ def numpy_to_vtkIdTypeArray(num_array, deep=0):
     dtype = num_array.dtype
     if isize == 4:
         if dtype != numpy.int32:
-            raise ValueError, \
-             'Expecting a numpy.int32 array, got %s instead.' % (str(dtype))
+            raise ValueError(
+             'Expecting a numpy.int32 array, got %s instead.' % (str(dtype)))
     else:
         if dtype != numpy.int64:
-            raise ValueError, \
-             'Expecting a numpy.int64 array, got %s instead.' % (str(dtype))
+            raise ValueError(
+             'Expecting a numpy.int64 array, got %s instead.' % (str(dtype)))
 
     return numpy_to_vtk(num_array, deep, vtk.VTK_ID_TYPE)
 
@@ -240,6 +240,6 @@ def vtk_to_numpy(vtk_array):
            # Refer to https://github.com/numpy/numpy/issues/2536 .
            # For empty array, reshape fails. Create the empty array explicitly
            # if that happens.
-	   result = numpy.empty(shape, dtype=dtype)
+           result = numpy.empty(shape, dtype=dtype)
         else: raise
     return result

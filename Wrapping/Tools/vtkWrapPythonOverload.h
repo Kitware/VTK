@@ -24,7 +24,7 @@
 void vtkWrapPython_OverloadMethodDef(
   FILE *fp, const char *classname, ClassInfo *data, int *overloadMap,
   FunctionInfo **wrappedFunctions, int numberOfWrappedFunctions, int fnum,
-  int numberOfOccurrences, int is_vtkobject, int all_legacy);
+  int numberOfOccurrences, int all_legacy);
 
 /* a master method to choose which overload to call */
 void vtkWrapPython_OverloadMasterMethod(

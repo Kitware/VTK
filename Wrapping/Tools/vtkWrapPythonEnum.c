@@ -15,6 +15,8 @@
 
 #include "vtkWrapPythonEnum.h"
 
+#include "vtkWrap.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -41,6 +43,49 @@ int vtkWrapPython_IsEnumWrapped(
 }
 
 /* -------------------------------------------------------------------- */
+/* find and mark all enum parameters by setting IsEnum=1 */
+void vtkWrapPython_MarkAllEnums(
+  NamespaceInfo *contents, HierarchyInfo *hinfo)
+{
+  FunctionInfo *currentFunction;
+  int i, j, n, m, ii, nn;
+  ClassInfo *data;
+  ValueInfo *val;
+
+  nn = contents->NumberOfClasses;
+  for (ii = 0; ii < nn; ii++)
+    {
+    data = contents->Classes[ii];
+    n = data->NumberOfFunctions;
+    for (i = 0; i < n; i++)
+      {
+      currentFunction = data->Functions[i];
+      if (currentFunction->Access == VTK_ACCESS_PUBLIC)
+        {
+        /* we start with the return value */
+        val = currentFunction->ReturnValue;
+        m = vtkWrap_CountWrappedParameters(currentFunction);
+
+        /* the -1 is for the return value */
+        for (j = (val ? -1 : 0); j < m; j++)
+          {
+          if (j >= 0)
+            {
+            val = currentFunction->Parameters[j];
+            }
+
+          if (vtkWrap_IsEnumMember(data, val) ||
+              vtkWrapPython_IsEnumWrapped(hinfo, val->Class))
+            {
+            val->IsEnum = 1;
+            }
+          }
+        }
+      }
+    }
+}
+
+/* -------------------------------------------------------------------- */
 /* generate a wrapped enum type */
 void vtkWrapPython_AddEnumType(
   FILE *fp, const char *indent, const char *dictvar, const char *objvar,
@@ -50,18 +95,20 @@ void vtkWrapPython_AddEnumType(
   fprintf(fp,
           "%sPyType_Ready(&Py%s%s%s_Type);\n"
           "%sPy%s%s%s_Type.tp_new = NULL;\n"
+          "%svtkPythonUtil::AddEnumToMap(&Py%s%s%s_Type);\n"
           "\n",
+          indent, (scope ? scope : ""), (scope ? "_" : ""), cls->Name,
           indent, (scope ? scope : ""), (scope ? "_" : ""), cls->Name,
           indent, (scope ? scope : ""), (scope ? "_" : ""), cls->Name);
   fprintf(fp,
           "%s%s = (PyObject *)&Py%s%s%s_Type;\n"
-          "%sif (%s && PyDict_SetItemString(%s, (char *)\"%s\", %s) != 0)\n"
+          "%sif (PyDict_SetItemString(%s, \"%s\", %s) != 0)\n"
           "%s  {\n"
           "%s  Py_DECREF(%s);\n"
           "%s  }\n",
           indent, objvar,
           (scope ? scope : ""), (scope ? "_" : ""), cls->Name,
-          indent, objvar, dictvar, cls->Name, objvar,
+          indent, dictvar, cls->Name, objvar,
           indent,
           indent, objvar,
           indent);
@@ -70,40 +117,30 @@ void vtkWrapPython_AddEnumType(
 /* -------------------------------------------------------------------- */
 /* write out an enum type object */
 void vtkWrapPython_GenerateEnumType(
-  FILE *fp, const char *classname, EnumInfo *data)
+  FILE *fp, const char *module, const char *classname, EnumInfo *data)
 {
-  char enumname[1024];
-  size_t classnamelen = 0;
+  char enumname[512];
+  char tpname[512];
 
   if (classname)
     {
-    classnamelen = strlen(classname);
-    strcpy(enumname, classname);
-    enumname[classnamelen] = '_';
-    strcpy(enumname+classnamelen+1, data->Name);
+    /* join with "_" for identifier, and with "." for type name */
+    sprintf(enumname, "%.200s_%.200s", classname, data->Name);
+    sprintf(tpname, "%.200s.%.200s", classname, data->Name);
     }
   else
     {
-    strcpy(enumname, data->Name);
+    sprintf(enumname, "%.200s", data->Name);
+    sprintf(tpname, "%.200s", data->Name);
     }
-
-  /* forward declaration of the type object */
-  fprintf(fp,
-    "#ifndef DECLARED_Py%s_Type\n"
-    "extern %s PyTypeObject Py%s_Type;\n"
-    "#define DECLARED_Py%s_Type\n"
-    "#endif\n"
-    "\n",
-    enumname, "VTK_PYTHON_EXPORT", enumname, enumname);
 
   /* generate all functions and protocols needed for the type */
 
   /* generate the TypeObject */
   fprintf(fp,
-    "PyTypeObject Py%s_Type = {\n"
-    "  PyObject_HEAD_INIT(&PyType_Type)\n"
-    "  0,\n"
-    "  (char*)\"%s\", // tp_name\n"
+    "static PyTypeObject Py%s_Type = {\n"
+    "  PyVarObject_HEAD_INIT(&PyType_Type, 0)\n"
+    "  \"%sPython.%s\", // tp_name\n"
     "  sizeof(PyIntObject), // tp_basicsize\n"
     "  0, // tp_itemsize\n"
     "  0, // tp_dealloc\n"
@@ -112,7 +149,7 @@ void vtkWrapPython_GenerateEnumType(
     "  0, // tp_setattr\n"
     "  0, // tp_compare\n"
     "  0, // tp_repr\n",
-    enumname, data->Name);
+    enumname, module, tpname);
 
   fprintf(fp,
     "  0, // tp_as_number\n"
@@ -158,22 +195,29 @@ void vtkWrapPython_GenerateEnumType(
 
   /* internal struct members */
   fprintf(fp,
-    "  VTK_WRAP_PYTHON_SUPRESS_UNINITIALIZED\n"
+    "  VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED\n"
     "};\n"
     "\n");
 
   /* conversion method: construct from enum value */
+  /* XXX the PY3K implementation is horridly inefficient */
   fprintf(fp,
     "PyObject *Py%s_FromEnum(int val)\n"
     "{\n"
+    "#ifdef VTK_PY3K\n"
+    "  PyObject *args = Py_BuildValue(\"(i)\", val);\n"
+    "  PyObject *obj = PyLong_Type.tp_new(&Py%s_Type, args, NULL);\n"
+    "  Py_DECREF(args);\n"
+    "  return obj;\n"
+    "#else\n"
     "  PyIntObject *self = PyObject_New(PyIntObject,\n"
     "    &Py%s_Type);\n"
     "  self->ob_ival = val;\n"
     "  return (PyObject *)self;\n"
+    "#endif\n"
     "}\n"
     "\n",
-    enumname,
-    enumname);
+    enumname, enumname, enumname);
 }
 
 /* generate code that adds all public enum types to a python dict */

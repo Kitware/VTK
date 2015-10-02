@@ -92,7 +92,7 @@ culler.SetSortingStyleToBackToFront()
 
 valid = volumeMapper_0_0.IsRenderSupported(volumeProperty, ren1)
 if (valid == 0):
-    print "Required Extensions Not Supported"
+    print("Required Extensions Not Supported")
     sys.exit(0)
 
 ren1.ResetCamera()

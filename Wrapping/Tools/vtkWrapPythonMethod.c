@@ -18,6 +18,7 @@
 #include "vtkWrapPythonTemplate.h"
 
 #include "vtkWrap.h"
+#include "vtkWrapText.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -48,14 +49,9 @@ static void vtkWrapPython_GenerateMethodCall(
 static void vtkWrapPython_WriteBackToArgs(
   FILE *fp, FunctionInfo *currentFunction);
 
-/* free any arrays that were allocated */
-static void vtkWrapPython_FreeAllocatedArrays(
+/* Free any arrays, object, or buffers that were allocated */
+static void vtkWrapPython_FreeTemporaries(
   FILE *fp, FunctionInfo *currentFunction);
-
-/* Delete object created by conversion constructors */
-static void vtkWrapPython_FreeConstructedObjects(
-  FILE *fp, FunctionInfo *currentFunction);
-
 
 /* -------------------------------------------------------------------- */
 /* prototypes for utility methods */
@@ -94,6 +90,14 @@ void vtkWrapPython_DeclareVariables(
 
     /* make a "temp" variable for the argument */
     vtkWrap_DeclareVariable(fp, data, arg, "temp", i, VTK_WRAP_ARG);
+
+    /* temps for buffer objects */
+    if (vtkWrap_IsVoidPointer(arg))
+      {
+      fprintf(fp,
+              "  Py_buffer pbuf%d = VTK_PYBUFFER_INITIALIZER;\n",
+              i);
+      }
 
     /* temps for conversion constructed objects, which only occur
      * for special objects */
@@ -245,7 +249,7 @@ void vtkWrapPython_GetSingleArgument(
 
   if (vtkWrap_IsEnumMember(data, arg))
     {
-    fprintf(fp, "%sGetEnumValue(%stemp%d, &Py%s_%s_Type)",
+    fprintf(fp, "%sGetEnumValue(%stemp%d, \"%s.%s\")",
             prefix, argname, i, data->Name, arg->Class);
     }
   else if (arg->IsEnum)
@@ -257,12 +261,12 @@ void vtkWrapPython_GetSingleArgument(
       }
     if (cp[l] == ':' && cp[l+1] == ':')
       {
-      fprintf(fp, "%sGetEnumValue(%stemp%d, &Py%*.*s_%s_Type)",
+      fprintf(fp, "%sGetEnumValue(%stemp%d, \"%*.*s.%s\")",
               prefix, argname, i, (int)l, (int)l, cp, &cp[l+2]);
       }
     else
       {
-      fprintf(fp, "%sGetEnumValue(%stemp%d, &Py%s_Type)",
+      fprintf(fp, "%sGetEnumValue(%stemp%d, \"%s\")",
               prefix, argname, i, cp);
       }
     }
@@ -273,7 +277,7 @@ void vtkWrapPython_GetSingleArgument(
     }
   else if (vtkWrap_IsVTKObject(arg))
     {
-    vtkWrapPython_PythonicName(arg->Class, pythonname);
+    vtkWrapText_PythonName(arg->Class, pythonname);
     if (strcmp(arg->Class, pythonname) != 0)
       {
       /* use typeid() for templated names */
@@ -289,14 +293,14 @@ void vtkWrapPython_GetSingleArgument(
   else if (vtkWrap_IsSpecialObject(arg) &&
            !vtkWrap_IsNonConstRef(arg))
     {
-    vtkWrapPython_PythonicName(arg->Class, pythonname);
+    vtkWrapText_PythonName(arg->Class, pythonname);
     fprintf(fp, "%sGetSpecialObject(%stemp%d, pobj%d, \"%s\")",
             prefix, argname, i, i, pythonname);
     }
   else if (vtkWrap_IsSpecialObject(arg) &&
            vtkWrap_IsNonConstRef(arg))
     {
-    vtkWrapPython_PythonicName(arg->Class, pythonname);
+    vtkWrapText_PythonName(arg->Class, pythonname);
     fprintf(fp, "%sGetSpecialObject(%stemp%d, \"%s\")",
             prefix, argname, i, pythonname);
     }
@@ -317,8 +321,8 @@ void vtkWrapPython_GetSingleArgument(
     }
   else if (vtkWrap_IsVoidPointer(arg))
     {
-    fprintf(fp, "%sGetValue(%stemp%d)",
-            prefix, argname, i);
+    fprintf(fp, "%sGetBuffer(%stemp%d, &pbuf%d)",
+            prefix, argname, i, i);
     }
   else if (vtkWrap_IsString(arg) ||
            vtkWrap_IsCharPointer(arg))
@@ -467,7 +471,7 @@ void vtkWrapPython_ReturnValue(
   else if (vtkWrap_IsSpecialObject(val) &&
            vtkWrap_IsRef(val))
     {
-    vtkWrapPython_PythonicName(val->Class, pythonname);
+    vtkWrapText_PythonName(val->Class, pythonname);
     fprintf(fp,
             "      result = %sBuildSpecialObject(tempr, \"%s\");\n",
             prefix, pythonname);
@@ -475,7 +479,7 @@ void vtkWrapPython_ReturnValue(
   else if (vtkWrap_IsSpecialObject(val) &&
            !vtkWrap_IsRef(val))
     {
-    vtkWrapPython_PythonicName(val->Class, pythonname);
+    vtkWrapText_PythonName(val->Class, pythonname);
     fprintf(fp,
             "      result = %sBuildSpecialObject(&tempr, \"%s\");\n",
             prefix, pythonname);
@@ -919,8 +923,8 @@ static void vtkWrapPython_WriteBackToArgs(
 }
 
 /* -------------------------------------------------------------------- */
-/* Free any arrays that were allocated */
-static void vtkWrapPython_FreeAllocatedArrays(
+/* Free any temporaries that were needed for the C++ method call*/
+static void vtkWrapPython_FreeTemporaries(
   FILE *fp, FunctionInfo *currentFunction)
 {
   ValueInfo *arg;
@@ -934,8 +938,30 @@ static void vtkWrapPython_FreeAllocatedArrays(
     {
     arg = currentFunction->Parameters[i];
 
-    if (arg->CountHint || vtkWrap_IsPODPointer(arg))
+    if (vtkWrap_IsVoidPointer(arg))
       {
+      /* release Py_buffer objects */
+      fprintf(fp,
+              "#if PY_VERSION_HEX >= 0x02060000\n"
+              "  if (pbuf%d.obj != 0)\n"
+              "    {\n"
+              "    PyBuffer_Release(&pbuf%d);\n"
+              "    }\n"
+              "#endif\n",
+              i, i);
+      }
+    else if (vtkWrap_IsSpecialObject(arg) &&
+             !vtkWrap_IsNonConstRef(arg))
+      {
+      /* decref any PyObjects created via conversion constructors */
+      fprintf(fp,
+              "  Py_XDECREF(pobj%d);\n",
+              i);
+      j = 1;
+      }
+    else if (arg->CountHint || vtkWrap_IsPODPointer(arg))
+      {
+      /* free any temporary arrays */
       fprintf(fp,
               "  if (temp%d != small%d)\n"
               "    {\n"
@@ -952,41 +978,6 @@ static void vtkWrapPython_FreeAllocatedArrays(
             "\n");
     }
 }
-
-/* -------------------------------------------------------------------- */
-/* If any conversion constructors might have been used, then delete
- * the objects that were created */
-static void vtkWrapPython_FreeConstructedObjects(
-  FILE *fp, FunctionInfo *currentFunction)
-{
-  ValueInfo *arg;
-  int i, j, n;
-
-  n = vtkWrap_CountWrappedParameters(currentFunction);
-
-  /* check array value change for args that are non-const */
-  j = 0;
-  for (i = 0; i < n; i++)
-    {
-    arg = currentFunction->Parameters[i];
-
-    if (vtkWrap_IsSpecialObject(arg) &&
-        !vtkWrap_IsNonConstRef(arg))
-      {
-      fprintf(fp,
-              "  Py_XDECREF(pobj%d);\n",
-              i);
-      j = 1;
-      }
-    }
-
-  if (j)
-    {
-    fprintf(fp,
-            "\n");
-    }
-}
-
 
 /* -------------------------------------------------------------------- */
 /* Write out the code for one method (including all its overloads) */
@@ -1061,8 +1052,8 @@ void vtkWrapPython_GenerateOneMethod(
       else if (!theOccurrence->IsStatic && !do_constructors)
         {
         fprintf(fp,
-                "  vtkPythonArgs ap(args, \"%s\");\n"
-                "  void *vp = ap.GetSelfPointer(self);\n"
+                "  vtkPythonArgs ap(self, args, \"%s\");\n"
+                "  void *vp = ap.GetSelfSpecialPointer(self, args);\n"
                 "  %s *op = static_cast<%s *>(vp);\n"
                 "\n",
                 theOccurrence->Name, data->Name, data->Name);
@@ -1085,13 +1076,18 @@ void vtkWrapPython_GenerateOneMethod(
       fprintf(fp,
               "  if (");
 
-      /* special things for vtkObject methods */
-      if (is_vtkobject && !theOccurrence->IsStatic)
+      if (!theOccurrence->IsStatic && !do_constructors)
         {
+        /* if not static, make sure the object is not null */
         fprintf(fp, "op && ");
-        if (theOccurrence->IsPureVirtual)
+
+        if (is_vtkobject)
           {
-          fprintf(fp, "!ap.IsPureVirtual() && ");
+          /* special things for vtkObject methods */
+          if (theOccurrence->IsPureVirtual)
+            {
+            fprintf(fp, "!ap.IsPureVirtual() && ");
+            }
           }
         }
 
@@ -1137,11 +1133,8 @@ void vtkWrapPython_GenerateOneMethod(
               "    }\n"
               "\n");
 
-      /* arrays might have been allocated */
-      vtkWrapPython_FreeAllocatedArrays(fp, theOccurrence);
-
-      /* conversion constructors might have been used */
-      vtkWrapPython_FreeConstructedObjects(fp, theOccurrence);
+      /* free any temporary values that were constructed or allocated */
+      vtkWrapPython_FreeTemporaries(fp, theOccurrence);
 
       /* it's all over... return the result */
       fprintf(fp,
@@ -1170,7 +1163,7 @@ void vtkWrapPython_GenerateOneMethod(
     vtkWrapPython_OverloadMethodDef(
       fp, classname, data, overloadMap,
       wrappedFunctions, numberOfWrappedFunctions,
-      fnum, numberOfOccurrences, is_vtkobject, all_legacy);
+      fnum, numberOfOccurrences, all_legacy);
     }
 
   if (numberOfOccurrences > 1)

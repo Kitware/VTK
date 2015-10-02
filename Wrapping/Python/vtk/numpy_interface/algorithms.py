@@ -7,14 +7,17 @@ data is partitioned according to VTK data parallel execution
 guidelines. For details, see the documentation of individual
 algorithms.
 """
+from __future__ import absolute_import
+import sys
+
 try:
     import numpy
 except ImportError:
     raise RuntimeError("This module depends on the numpy module. Please make\
 sure that it is installed properly.")
 
-import dataset_adapter as dsa
-import internal_algorithms as algs
+from . import dataset_adapter as dsa
+from . import internal_algorithms as algs
 import itertools
 try:
     from vtk.vtkParallelCore import vtkMultiProcessController
@@ -22,6 +25,11 @@ try:
 except ImportError:
     vtkMultiProcessController = None
     vtkMPI4PyCommunicator = None
+
+if sys.hexversion < 0x03000000:
+    izip = itertools.izip
+else:
+    izip = zip
 
 def _apply_func2(func, array, args):
     """Apply a function to each member of a VTKCompositeDataArray.
@@ -65,7 +73,7 @@ def apply_dfunc(dfunc, array1, val2):
     VTKArray and numpy arrays are also supported."""
     if type(array1) == dsa.VTKCompositeDataArray and type(val2) == dsa.VTKCompositeDataArray:
         res = []
-        for a1, a2 in itertools.izip(array1.Arrays, val2.Arrays):
+        for a1, a2 in izip(array1.Arrays, val2.Arrays):
             if a1 is dsa.NoneArray or a2 is dsa.NoneArray:
                 res.append(dsa.NoneArray)
             else:
@@ -419,7 +427,7 @@ def _global_per_block(impl, array, axis=None, controller=None):
                 it.GoToNextItem()
 
         # Fill the local array with available values.
-        for _id, _res in itertools.izip(ids, results):
+        for _id, _res in izip(ids, results):
             success = True
             try:
                 loc = reduce_ids.index(_id)
@@ -497,7 +505,7 @@ def count_per_block(array, axis=None, controller=None):
     """
 
     if axis > 0:
-        raise ValueError, "Only axis=None and axis=0 are supported for count"
+        raise ValueError("Only axis=None and axis=0 are supported for count")
 
     class CountPerBlockImpl:
         def op(self):
@@ -751,11 +759,11 @@ def shape(array):
                 else:
                     tmp = a.shape
                     if (len(shp) != len(tmp)):
-                        raise ValueError, "Expected arrays of same shape"
+                        raise ValueError("Expected arrays of same shape")
                     shp[0] += tmp[0]
                     for idx in range(1,len(tmp)):
                         if shp[idx] != tmp[idx]:
-                            raise ValueError, "Expected arrays of same shape"
+                            raise ValueError("Expected arrays of same shape")
         return tuple(shp)
     elif array is dsa.NoneArray:
         return ()
@@ -768,13 +776,13 @@ def make_vector(arrayx, arrayy, arrayz=None):
     if type(arrayx) == dsa.VTKCompositeDataArray and type(arrayy) == dsa.VTKCompositeDataArray and (type(arrayz) == dsa.VTKCompositeDataArray or arrayz is None):
         res = []
         if arrayz is None:
-            for ax, ay in itertools.izip(arrayx.Arrays, arrayy.Arrays):
+            for ax, ay in izip(arrayx.Arrays, arrayy.Arrays):
                 if ax is not dsa.NoneArray and ay is not dsa.NoneArray:
                     res.append(algs.make_vector(ax, ay))
                 else:
                     res.append(dsa.NoneArray)
         else:
-            for ax, ay, az in itertools.izip(arrayx.Arrays, arrayy.Arrays, arrayz.Arrays):
+            for ax, ay, az in izip(arrayx.Arrays, arrayy.Arrays, arrayz.Arrays):
                 if ax is not dsa.NoneArray and ay is not dsa.NoneArray and az is not dsa.NoneArray:
                     res.append(algs.make_vector(ax, ay, az))
                 else:
@@ -808,7 +816,7 @@ def unstructured_from_composite_arrays(points, arrays, controller=None):
         dataset = None
 
     if dataset is None and points is not dsa.NoneArray:
-        raise ValueError, "Expecting a points arrays with an associated dataset."
+        raise ValueError("Expecting a points arrays with an associated dataset.")
 
     if points is dsa.NoneArray:
         cpts = []

@@ -68,9 +68,16 @@ sure that it is installed properly.")
 
 import itertools
 import operator
+import sys
+from vtk import buffer_shared
 from vtk.util import numpy_support
 from vtk.vtkCommonDataModel import vtkDataObject
 import weakref
+
+if sys.hexversion < 0x03000000:
+    izip = itertools.izip
+else:
+    izip = zip
 
 def reshape_append_ones (a1, a2):
     """Returns a list with the two arguments, any of them may be
@@ -152,7 +159,7 @@ def numpyTovtkDataArray(array, name="numpy_array", array_type=None):
     return vtkarray
 
 def _make_tensor_array_contiguous(array):
-    if array == None:
+    if array is None:
         return None
     if array.flags.contiguous:
         return array
@@ -163,13 +170,17 @@ def _make_tensor_array_contiguous(array):
         return array.transpose(0, 2, 1)
     return array
 
-class VTKArray(numpy.ndarray):
-    """This is a sub-class of numpy ndarray that stores a
-    reference to a vtk array as well as the owning dataset.
-    The numpy array and vtk array should point to the same
-    memory location."""
+def _metaclass(mcs):
+    """For compatibility between python 2 and python 3."""
+    def decorator(cls):
+        body = vars(cls).copy()
+        body.pop('__dict__', None)
+        body.pop('__weakref__', None)
+        return mcs(cls.__name__, cls.__bases__, body)
+    return decorator
 
-    def __metaclass__(name, parent, attr):
+class VTKArrayMetaClass(type):
+    def __new__(mcs, name, parent, attr):
         """We overwrite numerical/comparison operators because we might need
         to reshape one of the arrays to perform the operation without
         broadcast errors. For instace:
@@ -218,7 +229,8 @@ class VTKArray(numpy.ndarray):
         add_default_numeric_ops("add")
         add_default_numeric_ops("sub")
         add_default_numeric_ops("mul")
-        add_default_numeric_ops("div")
+        if sys.hexversion < 0x03000000:
+            add_default_numeric_ops("div")
         add_default_numeric_ops("truediv")
         add_default_numeric_ops("floordiv")
         add_default_numeric_ops("mod")
@@ -235,8 +247,14 @@ class VTKArray(numpy.ndarray):
         add_default_numeric_op("ne")
         add_default_numeric_op("ge")
         add_default_numeric_op("gt")
-        return type(name, parent, attr)
+        return type.__new__(mcs, name, parent, attr)
 
+@_metaclass(VTKArrayMetaClass)
+class VTKArray(numpy.ndarray):
+    """This is a sub-class of numpy ndarray that stores a
+    reference to a vtk array as well as the owning dataset.
+    The numpy array and vtk array should point to the same
+    memory location."""
 
     def _numeric_op(self, other, attr_name):
         """Used to implement numpy-style numerical operations such as __add__,
@@ -273,7 +291,7 @@ class VTKArray(numpy.ndarray):
         try:
             # This line tells us that they are referring to the same buffer.
             # Much like two pointers referring to same memory location in C/C++.
-            if buffer(slf) == buffer(obj2):
+            if buffer_shared(slf, obj2):
                 self.VTKObject = getattr(obj, 'VTKObject', None)
         except TypeError:
             pass
@@ -283,23 +301,17 @@ class VTKArray(numpy.ndarray):
 
     def __getattr__(self, name):
         "Forwards unknown attribute requests to VTK array."
-        if not hasattr(self, "VTKObject") or not self.VTKObject:
-            raise AttributeError("class has no attribute %s" % name)
-        return getattr(self.VTKObject, name)
+        try:
+            o = self.__dict__["VTKObject"]
+        except KeyError:
+            o = None
+        if o is None:
+            raise AttributeError("'%s' object has no attribute '%s'" %
+                                 (self.__class__.__name__, name))
+        return getattr(o, name)
 
-class VTKNoneArray(object):
-    """VTKNoneArray is used to represent a "void" array. An instance
-    of this class (NoneArray) is returned instead of None when an
-    array that doesn't exist in a DataSetAttributes is requested.
-    All operations on the NoneArray return NoneArray. The main reason
-    for this is to support operations in parallel where one of the
-    processes may be working on an empty dataset. In such cases,
-    the process is still expected to evaluate a whole expression because
-    some of the functions may perform bulk MPI communication. None
-    cannot be used in these instances because it cannot properly override
-    operators such as __add__, __sub__ etc. This is the main raison
-    d'etre for VTKNoneArray."""
-    def __metaclass__(name, parent, attr):
+class VTKNoneArrayMetaClass(type):
+    def __new__(mcs, name, parent, attr):
         """Simplify the implementation of the numeric/logical sequence API."""
         def _add_op(attr_name, op):
             """Create an attribute named attr_name that calls
@@ -325,7 +337,8 @@ class VTKNoneArray(object):
         _add_default_ops("add")
         _add_default_ops("sub")
         _add_default_ops("mul")
-        _add_default_ops("div")
+        if sys.hexversion < 0x03000000:
+            _add_default_ops("div")
         _add_default_ops("truediv")
         _add_default_ops("floordiv")
         _add_default_ops("mod")
@@ -344,7 +357,21 @@ class VTKNoneArray(object):
         _add_default_op("ne")
         _add_default_op("ge")
         _add_default_op("gt")
-        return type(name, parent, attr)
+        return type.__new__(mcs, name, parent, attr)
+
+@_metaclass(VTKNoneArrayMetaClass)
+class VTKNoneArray(object):
+    """VTKNoneArray is used to represent a "void" array. An instance
+    of this class (NoneArray) is returned instead of None when an
+    array that doesn't exist in a DataSetAttributes is requested.
+    All operations on the NoneArray return NoneArray. The main reason
+    for this is to support operations in parallel where one of the
+    processes may be working on an empty dataset. In such cases,
+    the process is still expected to evaluate a whole expression because
+    some of the functions may perform bulk MPI communication. None
+    cannot be used in these instances because it cannot properly override
+    operators such as __add__, __sub__ etc. This is the main raison
+    d'etre for VTKNoneArray."""
 
     def __getitem__(self, index):
         return NoneArray
@@ -356,18 +383,8 @@ class VTKNoneArray(object):
 
 NoneArray = VTKNoneArray()
 
-class VTKCompositeDataArray(object):
-    """This class manages a set of arrays of the same name contained
-    within a composite dataset. Its main purpose is to provide a
-    Numpy-type interface to composite data arrays which are naturally
-    nothing but a collection of vtkDataArrays. A VTKCompositeDataArray
-    makes such a collection appear as a single Numpy array and support
-    all array operations that this module and the associated algorithm
-    module support. Note that this is not a subclass of a Numpy array
-    and as such cannot be passed to native Numpy functions. Instead
-    VTK modules should be used to process composite arrays.
-    """
-    def __metaclass__(name, parent, attr):
+class VTKCompositeDataArrayMetaClass(type):
+    def __new__(mcs, name, parent, attr):
         """Simplify the implementation of the numeric/logical sequence API."""
         def add_numeric_op(attr_name, op):
             """Create an attribute named attr_name that calls
@@ -401,7 +418,8 @@ class VTKCompositeDataArray(object):
         add_default_numeric_ops("add")
         add_default_numeric_ops("sub")
         add_default_numeric_ops("mul")
-        add_default_numeric_ops("div")
+        if sys.hexversion < 0x03000000:
+            add_default_numeric_ops("div")
         add_default_numeric_ops("truediv")
         add_default_numeric_ops("floordiv")
         add_default_numeric_ops("mod")
@@ -420,7 +438,20 @@ class VTKCompositeDataArray(object):
         add_default_numeric_op("ne")
         add_default_numeric_op("ge")
         add_default_numeric_op("gt")
-        return type(name, parent, attr)
+        return type.__new__(mcs, name, parent, attr)
+
+@_metaclass(VTKCompositeDataArrayMetaClass)
+class VTKCompositeDataArray(object):
+    """This class manages a set of arrays of the same name contained
+    within a composite dataset. Its main purpose is to provide a
+    Numpy-type interface to composite data arrays which are naturally
+    nothing but a collection of vtkDataArrays. A VTKCompositeDataArray
+    makes such a collection appear as a single Numpy array and support
+    all array operations that this module and the associated algorithm
+    module support. Note that this is not a subclass of a Numpy array
+    and as such cannot be passed to native Numpy functions. Instead
+    VTK modules should be used to process composite arrays.
+    """
 
     def __init__(self, arrays = [], dataset = None, name = None,
                  association = ArrayAssociation.FIELD):
@@ -482,7 +513,7 @@ class VTKCompositeDataArray(object):
         self.__init_from_composite()
         res = []
         if type(index) == VTKCompositeDataArray:
-            for a, idx in itertools.izip(self._Arrays, index.Arrays):
+            for a, idx in izip(self._Arrays, index.Arrays):
                 if a is not NoneArray:
                     res.append(a.__getitem__(idx))
                 else:
@@ -501,7 +532,7 @@ class VTKCompositeDataArray(object):
         self.__init_from_composite()
         res = []
         if type(other) == VTKCompositeDataArray:
-            for a1, a2 in itertools.izip(self._Arrays, other.Arrays):
+            for a1, a2 in izip(self._Arrays, other.Arrays):
                 if a1 is not NoneArray and a2 is not NoneArray:
                     l = reshape_append_ones(a1, a2)
                     res.append(op(l[0],l[1]))
@@ -522,7 +553,7 @@ class VTKCompositeDataArray(object):
         self.__init_from_composite()
         res = []
         if type(other) == VTKCompositeDataArray:
-            for a1, a2 in itertools.izip(self._Arrays, other.Arrays):
+            for a1, a2 in izip(self._Arrays, other.Arrays):
                 if a1 is not NoneArray and a2 is notNoneArray:
                     l = reshape_append_ones(a2,a1)
                     res.append(op(l[0],l[1]))
@@ -558,7 +589,7 @@ class DataSetAttributes(VTKObjectWrapper):
     def GetArray(self, idx):
         "Given an index or name, returns a VTKArray."
         if isinstance(idx, int) and idx >= self.VTKObject.GetNumberOfArrays():
-            raise IndexError, "array index out of range"
+            raise IndexError("array index out of range")
         vtkarray = self.VTKObject.GetArray(idx)
         if not vtkarray:
             vtkarray = self.VTKObject.GetAbstractArray(idx)
@@ -616,7 +647,9 @@ class DataSetAttributes(VTKObjectWrapper):
         if not isinstance(narray, numpy.ndarray) or numpy.ndim(narray) == 0: # Scalar input
             narray = narray * numpy.ones(arrLength)
         elif narray.shape[0] != arrLength: # Vector input
-            components = reduce(operator.mul, narray.shape)
+            components = 1
+            for l in narray.shape:
+                components *= l
             narray = narray.flatten() * numpy.ones((arrLength, components))
 
         shape = narray.shape
@@ -707,8 +740,8 @@ class CompositeDataSetAttributes():
                 # don't add the narray since it's a scalar. GetArray() will create a
                 # VTKCompositeArray on-demand.
         else:
-            for ds, array in itertools.izip(self.DataSet, narray.Arrays):
-                if array != None:
+            for ds, array in izip(self.DataSet, narray.Arrays):
+                if array is not None:
                     ds.GetAttributes(self.Association).append(array, name)
                     added = True
             if added:
@@ -750,7 +783,7 @@ class CompositeDataIterator(object):
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         if not self.Iterator:
             raise StopIteration
 
@@ -759,6 +792,9 @@ class CompositeDataIterator(object):
         retVal = self.Iterator.GetCurrentDataObject()
         self.Iterator.GoToNextItem()
         return WrapDataObject(retVal)
+
+    def next(self):
+        return self.__next__()
 
     def __getattr__(self, name):
         """Returns attributes from the vtkCompositeDataIterator."""
@@ -776,7 +812,7 @@ class MultiCompositeDataIterator(CompositeDataIterator):
         CompositeDataIterator.__init__(self, cds[0])
         self.Datasets = cds
 
-    def next(self):
+    def __next__(self):
         if not self.Iterator:
             raise StopIteration
 
@@ -789,6 +825,9 @@ class MultiCompositeDataIterator(CompositeDataIterator):
                 retVal.append(WrapDataObject(cd.GetDataSet(self.Iterator)))
         self.Iterator.GoToNextItem()
         return retVal
+
+    def next(self):
+        return self.__next__()
 
 class DataObject(VTKObjectWrapper):
     """A wrapper for vtkDataObject that makes it easier to access FielData
@@ -897,7 +936,7 @@ class CompositeDataSet(DataObject):
                     pts.append(NoneArray)
                 else:
                     pts.append(_pts)
-            if len(pts) == 0 or all(map(lambda a : a is NoneArray, pts)):
+            if len(pts) == 0 or all([a is NoneArray for a in pts]):
                 cpts = NoneArray
             else:
                 cpts = VTKCompositeDataArray(pts, dataset=self)

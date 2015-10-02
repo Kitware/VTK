@@ -22,7 +22,7 @@ class Tester:
         if obj != self.obj:
             self.testParse(obj)
         methods = self.parser.get_set_methods()
-        toggle = map(lambda x: x[:-2], self.parser.toggle_methods())
+        toggle = [x[:-2] for x in self.parser.toggle_methods()]
         methods.extend(toggle)
         for method in methods:
             if method in excluded_methods:
@@ -31,9 +31,9 @@ class Tester:
             getm = "Get%s"%method
             val = eval("obj.%s()"%getm)
             try:
-                apply(eval("obj.%s"%setm), val)
+                 eval("obj.%s"%setm)(*val)
             except TypeError:
-                apply(eval("obj.%s"%setm), (val,))
+                eval("obj.%s"%setm)(*(val,))
 
             val1 = eval("obj.%s()"%getm)
 
@@ -42,7 +42,7 @@ class Tester:
                 msg = "Failed test for %(name)s.Get/Set%(method)s\n"\
                       "Before Set, value = %(val)s; "\
                       "After Set, value = %(val1)s"%locals()
-                raise AssertionError, msg
+                raise AssertionError(msg)
 
     def testBoolean(self, obj, excluded_methods=[]):
         """ Testing boolean (On/Off) methods."""
@@ -67,7 +67,7 @@ class Tester:
                 name = obj.GetClassName()
                 msg = "Failed test for %(name)s.%(method)sOn\n"\
                       "Result not equal to 1 "%locals()
-                raise AssertionError, msg
+                raise AssertionError(msg)
 
             # Turn on
             eval("obj.%sOff()"%method)
@@ -77,7 +77,7 @@ class Tester:
                 name = obj.GetClassName()
                 msg = "Failed test for %(name)s.%(method)sOff\n"\
                       "Result not equal to 0 "%locals()
-                raise AssertionError, msg
+                raise AssertionError(msg)
 
             # set the value back to the original value.
             eval("obj.Set%s(orig_val)"%method)

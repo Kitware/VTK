@@ -32,17 +32,13 @@ resulting in wrapper code that is faster and more compact.
 // on unsigned values.
 
 // Macro to mimic a check done in PyArg_ParseTuple
-#if PY_VERSION_HEX >= 0x02030000
 #define VTK_PYTHON_FLOAT_CHECK()\
   if (PyFloat_Check(o)) \
     { \
     PyErr_SetString(PyExc_TypeError, \
-                      (char *)"integer argument expected, got float"); \
+                      "integer argument expected, got float"); \
     return false; \
     }
-#else
-#define VTK_PYTHON_FLOAT_CHECK()
-#endif
 
 inline
 bool vtkPythonGetValue(PyObject *o, long &a)
@@ -50,7 +46,7 @@ bool vtkPythonGetValue(PyObject *o, long &a)
   VTK_PYTHON_FLOAT_CHECK();
 
   a = PyInt_AsLong(o);
-  return (a != -1 || !PyErr_Occurred());
+  return (a != static_cast<long>(-1) || !PyErr_Occurred());
 }
 
 inline
@@ -58,32 +54,8 @@ bool vtkPythonGetValue(PyObject *o, unsigned long &a)
 {
   VTK_PYTHON_FLOAT_CHECK();
 
-#if PY_VERSION_HEX >= 0x02020000 && PY_VERSION_HEX < 0x2040000
-  if (PyInt_Check(o))
-    {
-#endif
-#if PY_VERSION_HEX < 0x2040000
-    long l = PyInt_AsLong(o);
-    if (l < 0)
-      {
-      PyErr_SetString(PyExc_OverflowError,
-                      "can't convert negative value to unsigned integer");
-      return false;
-      }
-    a = static_cast<unsigned long>(l);
-#endif
-#if PY_VERSION_HEX >= 0x02020000 && PY_VERSION_HEX < 0x2040000
-    }
-  else
-    {
-#endif
-#if PY_VERSION_HEX >= 0x2020000
-    a = PyLong_AsUnsignedLong(o);
-#endif
-#if PY_VERSION_HEX >= 0x02020000 && PY_VERSION_HEX < 0x2040000
-    }
-#endif
-  return (static_cast<long>(a) != -1 || !PyErr_Occurred());
+  a = PyLong_AsUnsignedLong(o);
+  return (a != static_cast<unsigned long>(-1) || !PyErr_Occurred());
 }
 
 template <class T> inline
@@ -91,13 +63,9 @@ bool vtkPythonGetLongLongValue(PyObject *o, T &a)
 {
   VTK_PYTHON_FLOAT_CHECK();
 
-#ifdef PY_LONG_LONG
   PY_LONG_LONG i = PyLong_AsLongLong(o);
-#else
-  long i = PyInt_AsLong(o);
-#endif
   a = static_cast<T>(i);
-  return (i != -1 || !PyErr_Occurred());
+  return (i != static_cast<PY_LONG_LONG>(-1) || !PyErr_Occurred());
 }
 
 template <class T> inline
@@ -105,73 +73,44 @@ bool vtkPythonGetUnsignedLongLongValue(PyObject *o, T &a)
 {
   VTK_PYTHON_FLOAT_CHECK();
 
-#ifdef PY_LONG_LONG
-  unsigned PY_LONG_LONG i;
-#else
-  unsigned long i;
-#endif
-#if PY_VERSION_HEX >= 0x02020000
-  if (PyInt_Check(o))
+  // PyLong_AsUnsignedLongLong will fail if "o" is not a PyLong
+  if (PyLong_Check(o))
     {
-#endif
-    long l = PyInt_AsLong(o);
-    if (l < 0)
-      {
-      PyErr_SetString(PyExc_OverflowError,
-                      "can't convert negative value to unsigned long");
-      return false;
-      }
-#ifdef PY_LONG_LONG
-    i = static_cast<unsigned PY_LONG_LONG>(l);
-#else
-    i = static_cast<unsigned long>(l);
-#endif
-#if PY_VERSION_HEX >= 0x02020000
+    unsigned PY_LONG_LONG i = PyLong_AsUnsignedLongLong(o);
+    a = static_cast<T>(i);
+    return (i != static_cast<unsigned PY_LONG_LONG>(-1) || !PyErr_Occurred());
     }
-  else
-    {
-#endif
-#if PY_VERSION_HEX >= 0x2020000
-#ifdef PY_LONG_LONG
-    i = PyLong_AsUnsignedLongLong(o);
-#else
-    i = PyLong_AsUnsignedLong(o);
-#endif
-#endif
-#if PY_VERSION_HEX >= 0x02020000
-    }
-#endif
-  a = static_cast<T>(i);
-  return (static_cast<int>(i) != -1 || !PyErr_Occurred());
+
+  unsigned long l = PyLong_AsUnsignedLong(o);
+  a = static_cast<T>(l);
+  return (l != static_cast<unsigned long>(-1) || !PyErr_Occurred());
 }
 
 
 template <class T> inline
 bool vtkPythonGetStringValue(PyObject *o, T *&a, const char *exctext)
 {
-  if (PyString_Check(o))
+  if (PyBytes_Check(o))
     {
-    a = PyString_AS_STRING(o);
+    a = PyBytes_AS_STRING(o);
     return true;
     }
 #ifdef Py_USING_UNICODE
   else if (PyUnicode_Check(o))
     {
-#ifdef _PyUnicode_AsDefaultEncodedString
-    PyObject *s = _PyUnicode_AsDefaultEncodedString(o, NULL);
+#if PY_VERSION_HEX >= 0x03030000
+    a = PyUnicode_AsUTF8(o);
+    return true;
 #else
-    PyObject *s = PyUnicode_AsEncodedString(o, 0, NULL);
-#endif
+    PyObject *s = _PyUnicode_AsDefaultEncodedString(o, NULL);
     if (s)
       {
-      a = PyString_AS_STRING(s);
-#ifndef _PyUnicode_AsDefaultEncodedString
-      Py_DECREF(s);
-#endif
+      a = PyBytes_AS_STRING(s);
       return true;
       }
 
     exctext = "(unicode conversion error)";
+#endif
     }
 #endif
 
@@ -181,35 +120,35 @@ bool vtkPythonGetStringValue(PyObject *o, T *&a, const char *exctext)
 
 inline bool vtkPythonGetStdStringValue(PyObject *o, std::string &a, const char *exctext)
 {
-  if (PyString_Check(o))
+  if (PyBytes_Check(o))
     {
     char* val;
     Py_ssize_t len;
-    PyString_AsStringAndSize(o, &val, &len);
+    PyBytes_AsStringAndSize(o, &val, &len);
     a = std::string(val, len);
     return true;
     }
 #ifdef Py_USING_UNICODE
   else if (PyUnicode_Check(o))
     {
-#ifdef _PyUnicode_AsDefaultEncodedString
-    PyObject *s = _PyUnicode_AsDefaultEncodedString(o, NULL);
+#if PY_VERSION_HEX >= 0x03030000
+    Py_ssize_t len;
+    const char* val = PyUnicode_AsUTF8AndSize(o, &len);
+    a = std::string(val, len);
+    return true;
 #else
-    PyObject *s = PyUnicode_AsEncodedString(o, 0, NULL);
-#endif
+    PyObject *s = _PyUnicode_AsDefaultEncodedString(o, NULL);
     if (s)
       {
       char* val;
       Py_ssize_t len;
-      PyString_AsStringAndSize(s, &val, &len);
+      PyBytes_AsStringAndSize(s, &val, &len);
       a = std::string(val, len);
-#ifndef _PyUnicode_AsDefaultEncodedString
-      Py_DECREF(s);
-#endif
       return true;
       }
 
     exctext = "(unicode conversion error)";
+#endif
     }
 #endif
 
@@ -220,59 +159,112 @@ inline bool vtkPythonGetStdStringValue(PyObject *o, std::string &a, const char *
 //--------------------------------------------------------------------
 // Overloaded methods, mostly based on the above templates
 
-static bool vtkPythonGetValue(PyObject *o, const void *&a)
+static bool vtkPythonGetValue(
+  PyObject *o, const void *&a, Py_buffer *view)
 {
-  PyBufferProcs *b = o->ob_type->tp_as_buffer;
+  void *p = 0;
+  Py_ssize_t sz = 0;
+#ifndef VTK_PY3K
+  const char *format = 0;
+  PyBufferProcs *b = Py_TYPE(o)->tp_as_buffer;
+#endif
+
+#if PY_VERSION_HEX < 0x02060000
+  (void)view;
+#else
+#ifdef VTK_PY3K
+  PyObject *bytes = NULL;
+  if (PyUnicode_Check(o))
+    {
+    bytes = PyUnicode_AsUTF8String(o);
+    PyBytes_AsStringAndSize(bytes, reinterpret_cast<char **>(&p), &sz);
+    }
+  else
+#endif
+  if (PyObject_CheckBuffer(o))
+    {
+    // use the new buffer interface
+    if (PyObject_GetBuffer(o, view, PyBUF_SIMPLE) == -1)
+      {
+      return false;
+      }
+    p = view->buf;
+    sz = view->len;
+#ifndef VTK_PY3K
+    format = view->format;
+#endif
+    }
+#ifndef VTK_PY3K
+  else
+#endif
+#endif
+#ifndef VTK_PY3K
+  // use the old buffer interface
   if (b && b->bf_getreadbuffer && b->bf_getsegcount)
     {
     if (b->bf_getsegcount(o, NULL) == 1)
       {
-      void *p;
-      Py_ssize_t sz = b->bf_getreadbuffer(o, 0, &p);
-      if (sz >= 0 && sz <= VTK_INT_MAX)
-        {
-        // check for pointer mangled as string
-        int s = static_cast<int>(sz);
-        a = vtkPythonUtil::UnmanglePointer(
-          reinterpret_cast<char *>(p), &s, "p_void");
-        if (s >= 0)
-          {
-          return true;
-          }
-        if (s == -1)
-          {
-          char buf[128];
-          sprintf(buf, "value is %.80s, required type is p_void",
-            reinterpret_cast<char *>(p));
-          PyErr_SetString(PyExc_TypeError, buf);
-          }
-        else
-          {
-          PyErr_SetString(PyExc_TypeError, "cannot get a void pointer");
-          }
-        }
-      else if (sz >= 0)
-        {
-        // directly use the pointer to the buffer contents
-        a = p;
-        return true;
-        }
+      sz = b->bf_getreadbuffer(o, 0, &p);
+      }
+    else
+      {
+      PyErr_SetString(PyExc_TypeError, "buffer must be single-segment");
       return false;
       }
-    PyErr_SetString(PyExc_TypeError, "buffer must be single-segment");
-    return false;
     }
-  PyErr_SetString(PyExc_TypeError, "object does not have a readable buffer");
+#endif
+
+#ifdef VTK_PY3K
+  if (bytes)
+#else
+  if (p && sz >= 0 && sz <= VTK_INT_MAX &&
+      (format == 0 || format[0] == 'c' || format[0] == 'B'))
+#endif
+    {
+    // check for pointer mangled as string
+    int s = static_cast<int>(sz);
+    a = vtkPythonUtil::UnmanglePointer(
+      reinterpret_cast<char *>(p), &s, "p_void");
+#ifdef VTK_PY3K
+    Py_DECREF(bytes);
+#endif
+    if (s >= 0)
+      {
+      return true;
+      }
+    if (s == -1)
+      {
+      char buf[128];
+      sprintf(buf, "value is %.80s, required type is p_void",
+        reinterpret_cast<char *>(p));
+      PyErr_SetString(PyExc_TypeError, buf);
+      return false;
+      }
+    else
+      {
+      PyErr_SetString(PyExc_TypeError, "cannot get a void pointer");
+      return false;
+      }
+    }
+  else if (p && sz >= 0)
+    {
+    // directly use the pointer to the buffer contents
+    a = p;
+    return true;
+    }
+
+  PyErr_SetString(PyExc_TypeError,
+    "object does not have a readable buffer");
   return false;
 }
 
 inline
-bool vtkPythonGetValue(PyObject *o, void *&a)
+bool vtkPythonGetValue(PyObject *o, void *&a, Py_buffer *buf)
 {
   // should have an alternate form for non-const "void *" that uses
   // writebuffer instead of readbuffer, but that would break existing code
   const void *b = NULL;
-  bool r = vtkPythonGetValue(o, b);
+  bool r = vtkPythonGetValue(o, b, buf);
   a = const_cast<void *>(b);
   return r;
 }
@@ -313,7 +305,7 @@ bool vtkPythonGetValue(PyObject *o, vtkUnicodeString &a)
   PyObject *s = PyUnicode_AsUTF8String(o);
   if (s)
     {
-    a = vtkUnicodeString::from_utf8(PyString_AS_STRING(s));
+    a = vtkUnicodeString::from_utf8(PyBytes_AS_STRING(s));
     Py_DECREF(s);
     return true;
     }
@@ -553,11 +545,7 @@ bool vtkPythonGetArray(PyObject *o, T *a, int n)
       }
     else if (PySequence_Check(o))
       {
-#if PY_MAJOR_VERSION >= 2
       m = PySequence_Size(o);
-#else
-      m = PySequence_Length(o);
-#endif
       if (m == n)
         {
         bool r = true;
@@ -626,11 +614,7 @@ bool vtkPythonGetNArray(PyObject *o, T *a, int ndim, const int *dims)
       }
     else if (PySequence_Check(o))
       {
-#if PY_MAJOR_VERSION >= 2
       m = PySequence_Size(o);
-#else
-      m = PySequence_Length(o);
-#endif
       if (m == n)
         {
         bool r = true;
@@ -694,11 +678,7 @@ bool vtkPythonSetArray(PyObject *o, const T *a, int n)
       }
     else if (PySequence_Check(o))
       {
-#if PY_MAJOR_VERSION >= 2
       m = PySequence_Size(o);
-#else
-      m = PySequence_Length(o);
-#endif
       if (m == n)
         {
         bool r = true;
@@ -774,11 +754,7 @@ bool vtkPythonSetNArray(
       }
     else if (PySequence_Check(o))
       {
-#if PY_MAJOR_VERSION >= 2
       m = PySequence_Size(o);
-#else
-      m = PySequence_Length(o);
-#endif
       if (m == n)
         {
         bool r = true;
@@ -868,30 +844,24 @@ VTK_PYTHON_BUILD_TUPLE(unsigned __int64)
 
 //--------------------------------------------------------------------
 // If "self" is a class, get real "self" from arg list
-vtkObjectBase *vtkPythonArgs::GetSelfFromFirstArg(
+PyObject *vtkPythonArgs::GetSelfFromFirstArg(
   PyObject *self, PyObject *args)
 {
- if (PyVTKClass_Check(self))
+  if (PyType_Check(self))
     {
-    PyVTKClass *vtkclass = (PyVTKClass *)self;
-    const char *classname = PyString_AS_STRING(vtkclass->vtk_name);
-
+    PyTypeObject *pytype = (PyTypeObject *)self;
     if (PyTuple_GET_SIZE(args) > 0)
       {
       self = PyTuple_GET_ITEM(args, 0);
-      if (PyVTKObject_Check(self))
+      if (PyObject_TypeCheck(self, pytype))
         {
-        vtkObjectBase *vtkself = ((PyVTKObject *)self)->vtk_ptr;
-        if (vtkself->IsA(vtkclass->vtk_cppname))
-          {
-          return vtkself;
-          }
+        return self;
         }
       }
 
     char buf[256];
     sprintf(buf, "unbound method requires a %.200s as the first argument",
-            classname);
+            pytype->tp_name);
     PyErr_SetString(PyExc_TypeError, buf);
     return NULL;
     }
@@ -957,10 +927,10 @@ void *vtkPythonArgs::GetArgAsSpecialObject(
   return r;
 }
 
-int vtkPythonArgs::GetArgAsEnum(PyTypeObject *enumtype, bool &valid)
+int vtkPythonArgs::GetArgAsEnum(const char *enumname, bool &valid)
 {
   PyObject *o = PyTuple_GET_ITEM(this->Args, this->I++);
-  int i = vtkPythonArgs::GetArgAsEnum(o, enumtype, valid);
+  int i = vtkPythonArgs::GetArgAsEnum(o, enumname, valid);
   if (!valid)
     {
     this->RefineArgTypeError(this->I - this->M - 1);
@@ -969,10 +939,11 @@ int vtkPythonArgs::GetArgAsEnum(PyTypeObject *enumtype, bool &valid)
 }
 
 int vtkPythonArgs::GetArgAsEnum(
-  PyObject *o, PyTypeObject *enumtype, bool &valid)
+  PyObject *o, const char *enumname, bool &valid)
 {
   long i = 0;
-  if (o->ob_type == enumtype)
+  PyTypeObject *pytype = vtkPythonUtil::FindEnum(enumname);
+  if (pytype && PyObject_TypeCheck(o, pytype))
     {
     i = PyInt_AsLong(o);
     valid = true;
@@ -980,9 +951,9 @@ int vtkPythonArgs::GetArgAsEnum(
   else
     {
     std::string errstring = "expected enum ";
-    errstring += enumtype->tp_name;
+    errstring += enumname;
     errstring += ", got ";
-    errstring += o->ob_type->tp_name;
+    errstring += Py_TYPE(o)->tp_name;
     PyErr_SetString(PyExc_TypeError, errstring.c_str());
     valid = false;
     }
@@ -1056,8 +1027,6 @@ bool vtkPythonArgs::GetValue(PyObject *o, T &a) \
   return vtkPythonGetValue(o, a); \
 }
 
-VTK_PYTHON_GET_ARG(void *)
-VTK_PYTHON_GET_ARG(const void *)
 VTK_PYTHON_GET_ARG(char *)
 VTK_PYTHON_GET_ARG(const char *)
 VTK_PYTHON_GET_ARG(std::string)
@@ -1156,7 +1125,7 @@ VTK_PYTHON_GET_NARRAY_ARG(unsigned __int64)
 #endif
 
 //--------------------------------------------------------------------
-// Define the special function pointer GetNextArg method
+// Define the special function pointer GetValue method
 
 bool vtkPythonArgs::GetFunction(PyObject *arg, PyObject *&o)
 {
@@ -1174,6 +1143,29 @@ bool vtkPythonArgs::GetFunction(PyObject *&o)
   PyObject *arg = PyTuple_GET_ITEM(this->Args, this->I++);
   return vtkPythonArgs::GetFunction(arg, o);
 }
+
+//--------------------------------------------------------------------
+// Define the void pointer GetValue method
+
+#define VTK_PYTHON_GET_BUFFER(T) \
+bool vtkPythonArgs::GetBuffer(T &a, Py_buffer *buf) \
+{ \
+  PyObject *o = PyTuple_GET_ITEM(this->Args, this->I++); \
+  if (vtkPythonGetValue(o, a, buf)) \
+    { \
+    return true; \
+    } \
+  this->RefineArgTypeError(this->I - this->M - 1); \
+  return false; \
+} \
+ \
+bool vtkPythonArgs::GetBuffer(PyObject *o, T &a, Py_buffer *buf) \
+{ \
+  return vtkPythonGetValue(o, a, buf); \
+}
+
+VTK_PYTHON_GET_BUFFER(void *)
+VTK_PYTHON_GET_BUFFER(const void *)
 
 //--------------------------------------------------------------------
 // Define all the SetArgValue methods for setting reference args
@@ -1352,21 +1344,32 @@ bool vtkPythonArgs::RefineArgTypeError(int i)
       PyErr_ExceptionMatches(PyExc_OverflowError))
     {
     PyObject *exc;
-    PyObject *val;
+    PyObject *val, *newval;
     PyObject *frame;
-    char text[480];
-    const char *cp = "";
 
     PyErr_Fetch(&exc, &val, &frame);
+
+#ifdef VTK_PY3K
+    const char *cp = "";
+    if (val && !PyUnicode_Check(val))
+      {
+      Py_DECREF(val);
+      val = 0;
+      }
+    newval = PyUnicode_FromFormat("%s argument %d: %V",
+      this->MethodName, i+1, val, cp);
+#else
+    const char *cp = "";
     if (val && PyString_Check(val))
       {
       cp = PyString_AsString(val);
       }
-    sprintf(text, "%.200s argument %d: %.200s",
-            this->MethodName, i+1, cp);
+    newval = PyString_FromFormat("%s argument %d: %s",
+      this->MethodName, i+1, cp);
+#endif
+
     Py_XDECREF(val);
-    val = PyString_FromString(text);
-    PyErr_Restore(exc, val, frame);
+    PyErr_Restore(exc, newval, frame);
     }
   return false;
 }
@@ -1379,7 +1382,7 @@ bool vtkPythonSequenceError(PyObject *o, Py_ssize_t n, Py_ssize_t m)
   if (m == n)
     {
     sprintf(text, "expected a sequence of %ld value%s, got %s",
-            (long)n, ((n == 1) ? "" : "s"), o->ob_type->tp_name);
+            (long)n, ((n == 1) ? "" : "s"), Py_TYPE(o)->tp_name);
     }
   else
     {

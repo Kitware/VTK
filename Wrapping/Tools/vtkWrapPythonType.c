@@ -22,6 +22,7 @@
 #include "vtkWrapPythonTemplate.h"
 
 #include "vtkWrap.h"
+#include "vtkWrapText.h"
 #include "vtkParseExtras.h"
 
 #include <stdio.h>
@@ -69,9 +70,8 @@ static void vtkWrapPython_NewDeleteProtocol(
       }
     }
 
-  /* the new method for python versions >= 2.2 */
+  /* the "new" method */
   fprintf(fp,
-    "#if PY_VERSION_HEX >= 0x02020000\n"
     "static PyObject *\n"
     "Py%s_New(PyTypeObject *, PyObject *args, PyObject *kwds)\n"
     "{\n"
@@ -84,7 +84,6 @@ static void vtkWrapPython_NewDeleteProtocol(
     "\n"
     "  return Py%s_%*.*s(NULL, args);\n"
     "}\n"
-    "#endif\n"
     "\n",
     classname, classname, (int)n, (int)n, constructor);
 
@@ -94,11 +93,7 @@ static void vtkWrapPython_NewDeleteProtocol(
     "{\n"
     "  PyVTKSpecialObject *obj = (PyVTKSpecialObject *)self;\n"
     "  delete static_cast<%s *>(obj->vtk_ptr);\n"
-    "#if PY_MAJOR_VERSION >= 2\n"
     "  PyObject_Del(self);\n"
-    "#else\n"
-    "  PyMem_DEL(self);\n"
-    "#endif\n"
     "}\n"
     "\n",
     classname, data->Name);
@@ -237,7 +232,10 @@ static void vtkWrapPython_RichCompareProtocol(
     info->has_compare = 1;
 
     fprintf(fp,
-      "#if PY_VERSION_HEX >= 0x02010000\n"
+      "static int Py%s_CheckExact(PyObject *ob);\n\n",
+      classname);
+
+    fprintf(fp,
       "static PyObject *Py%s_RichCompare(\n"
       "  PyObject *o1, PyObject *o2, int opid)\n"
       "{\n"
@@ -254,7 +252,7 @@ static void vtkWrapPython_RichCompareProtocol(
       /* use GetPointerFromSpecialObject to do type conversion, but
        * at least one of the args will already be the correct type */
       fprintf(fp,
-        "  if (o%d->ob_type == &Py%s_Type)\n"
+        "  if (Py%s_CheckExact(o%d))\n"
         "    {\n"
         "    PyVTKSpecialObject *s%d = (PyVTKSpecialObject *)o%d;\n"
         "    so%d = static_cast<const %s *>(s%d->vtk_ptr);\n"
@@ -272,7 +270,7 @@ static void vtkWrapPython_RichCompareProtocol(
         "      }\n"
         "    }\n"
         "\n",
-        i, classname, i, i, i, data->Name, i, i, data->Name,
+        classname, i, i, i, i, data->Name, i, i, data->Name,
         i, classname, i, i);
       }
 
@@ -320,24 +318,13 @@ static void vtkWrapPython_RichCompareProtocol(
     fprintf(fp,
       "  if (result == -1)\n"
       "    {\n"
-      "    PyErr_SetString(PyExc_TypeError, (char *)\"operation not available\");\n"
+      "    PyErr_SetString(PyExc_TypeError, \"operation not available\");\n"
       "    return NULL;\n"
       "    }\n"
       "\n"
-      "#if PY_VERSION_HEX >= 0x02030000\n"
       "  // avoids aliasing issues with Py_INCREF(Py_False)\n"
       "  return PyBool_FromLong((long)result);\n"
-      "#else\n"
-      "  if (result == 0)\n"
-      "    {\n"
-      "    Py_INCREF(Py_False);\n"
-      "    return Py_False;\n"
-      "    }\n"
-      "  Py_INCREF(Py_True);\n"
-      "  return Py_True;\n"
-      "#endif\n"
       "}\n"
-      "#endif\n"
       "\n");
     }
 }
@@ -384,7 +371,7 @@ static void vtkWrapPython_SequenceProtocol(
     fprintf(fp,
       "Py_ssize_t Py%s_SequenceSize(PyObject *self)\n"
       "{\n"
-      "  void *vp = vtkPythonArgs::GetSelfPointer(self);\n"
+      "  void *vp = vtkPythonArgs::GetSelfSpecialPointer(self);\n"
       "  %s *op = static_cast<%s *>(vp);\n"
       "\n"
       "  return static_cast<Py_ssize_t>(op->%s);\n"
@@ -394,7 +381,7 @@ static void vtkWrapPython_SequenceProtocol(
     fprintf(fp,
       "PyObject *Py%s_SequenceItem(PyObject *self, Py_ssize_t i)\n"
       "{\n"
-      "  void *vp = vtkPythonArgs::GetSelfPointer(self);\n"
+      "  void *vp = vtkPythonArgs::GetSelfSpecialPointer(self);\n"
       "  %s *op = static_cast<%s *>(vp);\n"
       "\n",
       classname, data->Name, data->Name);
@@ -435,7 +422,7 @@ static void vtkWrapPython_SequenceProtocol(
         "int Py%s_SequenceSetItem(\n"
         "  PyObject *self, Py_ssize_t i, PyObject *arg1)\n"
         "{\n"
-        "  void *vp = vtkPythonArgs::GetSelfPointer(self);\n"
+        "  void *vp = vtkPythonArgs::GetSelfSpecialPointer(self);\n"
         "  %s *op = static_cast<%s *>(vp);\n"
         "\n",
         classname, data->Name, data->Name);
@@ -503,10 +490,8 @@ static void vtkWrapPython_SequenceProtocol(
     fprintf(fp,
       "  0, // sq_ass_slice\n"
       "  0, // sq_contains\n"
-      "#if PY_VERSION_HEX >= 0x2000000\n"
       "  0, // sq_inplace_concat\n"
       "  0, // sq_inplace_repeat\n"
-      "#endif\n"
       "};\n\n");
     }
 }
@@ -518,7 +503,7 @@ static void vtkWrapPython_HashProtocol(
 {
   /* the hash function, defined only for specific types */
   fprintf(fp,
-    "static long Py%s_Hash(PyObject *self)\n",
+    "static Py_hash_t Py%s_Hash(PyObject *self)\n",
     classname);
 
   if (strcmp(data->Name, "vtkTimeStamp") == 0)
@@ -564,7 +549,7 @@ static void vtkWrapPython_HashProtocol(
       "  return PyObject_HashNotImplemented(self);\n"
       "#else\n"
       "  char text[256];\n"
-      "  sprintf(text, \"unhashable type: \'%%s\'\", self->ob_type->tp_name);\n"
+      "  sprintf(text, \"unhashable type: \'%%s\'\", Py_TYPE(self)->tp_name);\n"
       "  PyErr_SetString(PyExc_TypeError, text);\n"
       "  return -1;\n"
       "#endif\n"
@@ -627,8 +612,8 @@ int vtkWrapPython_IsSpecialTypeWrappable(ClassInfo *data)
 /* -------------------------------------------------------------------- */
 /* write out a special type object */
 void vtkWrapPython_GenerateSpecialType(
-  FILE *fp, const char *classname, ClassInfo *data,
-  FileInfo *finfo, HierarchyInfo *hinfo)
+  FILE *fp, const char *module, const char *classname,
+  ClassInfo *data, FileInfo *finfo, HierarchyInfo *hinfo)
 {
   char supername[1024];
   const char *name;
@@ -657,43 +642,17 @@ void vtkWrapPython_GenerateSpecialType(
       }
     }
 
-  /* forward declaration of the type object */
-  fprintf(fp,
-    "#ifndef DECLARED_Py%s_Type\n"
-    "extern %s PyTypeObject Py%s_Type;\n"
-    "#define DECLARED_Py%s_Type\n"
-    "#endif\n"
-    "\n",
-    classname, "VTK_PYTHON_EXPORT", classname, classname);
-
-  /* and the superclass */
+  /* get the superclass */
   has_superclass = vtkWrapPython_HasWrappedSuperClass(
     hinfo, data->Name, &is_external);
   if (has_superclass)
     {
     name = vtkWrapPython_GetSuperClass(data, hinfo);
-    vtkWrapPython_PythonicName(name, supername);
-    fprintf(fp,
-      "#ifndef DECLARED_Py%s_Type\n"
-      "extern %s PyTypeObject Py%s_Type;\n"
-      "#define DECLARED_Py%s_Type\n"
-      "#endif\n"
-      "\n",
-      supername, (is_external ? "VTK_PYTHON_IMPORT" : "VTK_PYTHON_EXPORT"),
-      supername, supername);
+    vtkWrapText_PythonName(name, supername);
     }
 
   /* generate all constructor methods */
   vtkWrapPython_GenerateMethods(fp, classname, data, finfo, hinfo, 0, 1);
-
-  /* generate the method table for the New method */
-  fprintf(fp,
-    "static PyMethodDef Py%s_NewMethod = \\\n"
-    "{ (char*)\"%s\", Py%s_%*.*s, 1,\n"
-    "  (char*)\"\" };\n"
-    "\n",
-    classname, classname, classname,
-    (int)n, (int)n, constructor);
 
   /* generate all functions and protocols needed for the type */
   vtkWrapPython_SpecialTypeProtocols(
@@ -701,10 +660,9 @@ void vtkWrapPython_GenerateSpecialType(
 
   /* Generate the TypeObject */
   fprintf(fp,
-    "PyTypeObject Py%s_Type = {\n"
-    "  PyObject_HEAD_INIT(&PyType_Type)\n"
-    "  0,\n"
-    "  (char*)\"%s\", // tp_name\n"
+    "static PyTypeObject Py%s_Type = {\n"
+    "  PyVarObject_HEAD_INIT(&PyType_Type, 0)\n"
+    "  \"%sPython.%s\", // tp_name\n"
     "  sizeof(PyVTKSpecialObject), // tp_basicsize\n"
     "  0, // tp_itemsize\n"
     "  Py%s_Delete, // tp_dealloc\n"
@@ -713,7 +671,7 @@ void vtkWrapPython_GenerateSpecialType(
     "  0, // tp_setattr\n"
     "  0, // tp_compare\n"
     "  PyVTKSpecialObject_Repr, // tp_repr\n",
-    classname, classname, classname);
+    classname, module, classname, classname);
 
   fprintf(fp,
     "  0, // tp_as_number\n");
@@ -754,11 +712,7 @@ void vtkWrapPython_GenerateSpecialType(
     }
 
   fprintf(fp,
-    "#if PY_VERSION_HEX >= 0x02020000\n"
     "  PyObject_GenericGetAttr, // tp_getattro\n"
-    "#else\n"
-    "  PyVTKSpecialObject_GetAttr, // tp_getattro\n"
-    "#endif\n"
     "  0, // tp_setattro\n"
     "  0, // tp_as_buffer\n"
     "  Py_TPFLAGS_DEFAULT, // tp_flags\n"
@@ -769,11 +723,7 @@ void vtkWrapPython_GenerateSpecialType(
   if (info.has_compare)
     {
     fprintf(fp,
-      "#if PY_VERSION_HEX >= 0x02010000\n"
-      "  Py%s_RichCompare, // tp_richcompare\n"
-      "#else\n"
-      "  0, // tp_richcompare\n"
-      "#endif\n",
+      "  Py%s_RichCompare, // tp_richcompare\n",
       classname);
     }
   else
@@ -784,30 +734,12 @@ void vtkWrapPython_GenerateSpecialType(
 
   fprintf(fp,
     "  0, // tp_weaklistoffset\n"
-    "#if PY_VERSION_HEX >= 0x02020000\n"
     "  0, // tp_iter\n"
-    "  0, // tp_iternext\n");
-
-  /* class methods introduced in python 2.2 */
-  fprintf(fp,
-    "  Py%s_Methods, // tp_methods\n"
+    "  0, // tp_iternext\n"
+    "  0, // tp_methods\n"
     "  0, // tp_members\n"
-    "  0, // tp_getset\n",
-    classname);
-
-  if (has_superclass)
-    {
-    fprintf(fp,
-      "  &Py%s_Type, // tp_base\n",
-      supername);
-    }
-  else
-    {
-    fprintf(fp,
-      "  0, // tp_base\n");
-    }
-
-  fprintf(fp,
+    "  0, // tp_getset\n"
+    "  0, // tp_base\n"
     "  0, // tp_dict\n"
     "  0, // tp_descr_get\n"
     "  0, // tp_descr_set\n"
@@ -815,11 +747,7 @@ void vtkWrapPython_GenerateSpecialType(
     "  0, // tp_init\n"
     "  0, // tp_alloc\n"
     "  Py%s_New, // tp_new\n"
-    "#if PY_VERSION_HEX >= 0x02030000\n"
     "  PyObject_Del, // tp_free\n"
-    "#else\n"
-    "  _PyObject_Del, // tp_free\n"
-    "#endif\n"
     "  0, // tp_is_gc\n",
     classname);
 
@@ -829,14 +757,24 @@ void vtkWrapPython_GenerateSpecialType(
     "  0, // tp_mro\n"
     "  0, // tp_cache\n"
     "  0, // tp_subclasses\n"
-    "  0, // tp_weaklist\n"
-    "#endif\n");
+    "  0, // tp_weaklist\n");
 
   /* internal struct members */
   fprintf(fp,
-    "  VTK_WRAP_PYTHON_SUPRESS_UNINITIALIZED\n"
+    "  VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED\n"
     "};\n"
     "\n");
+
+  /* need a check function for some protocols */
+  if (info.has_compare)
+    {
+    fprintf(fp,
+      "static int Py%s_CheckExact(PyObject *ob)\n"
+      "{\n"
+      "  return (Py_TYPE(ob) == &Py%s_Type);\n"
+      "}\n\n",
+      classname, classname);
+    }
 
   /* generate the copy constructor helper function */
   fprintf(fp,
@@ -851,21 +789,55 @@ void vtkWrapPython_GenerateSpecialType(
     "\n",
     classname, data->Name, data->Name);
 
+  /* export New method for use by subclasses */
+  fprintf(fp,
+    "extern \"C\" { %s PyObject *Py%s_TypeNew(); }\n\n",
+    "VTK_ABI_EXPORT", classname);
+
+  /* import New method of the superclass */
+  if (has_superclass)
+    {
+    fprintf(fp,
+      "#ifndef DECLARED_Py%s_TypeNew\n"
+      "extern \"C\" { PyObject *Py%s_TypeNew(); }\n"
+      "#define DECLARED_Py%s_TypeNew\n"
+      "#endif\n",
+      supername, supername, supername);
+    }
+
   /* the method for adding the VTK extras to the type,
    * the unused "const char *" arg is the module name */
   fprintf(fp,
-    "static PyObject *Py%s_TypeNew(const char *)\n"
+    "PyObject *Py%s_TypeNew()\n"
     "{\n"
-    "  PyObject *cls = PyVTKSpecialType_New(\n"
+    "  PyVTKSpecialType_Add(\n"
     "    &Py%s_Type,\n"
     "    Py%s_Methods,\n"
     "    Py%s_%*.*s_Methods,\n"
-    "    &Py%s_NewMethod,\n"
     "    Py%s_Doc(), &Py%s_CCopy);\n"
     "\n",
     classname, classname, classname,
-    classname, (int)n, (int)n, constructor, classname,
+    classname, (int)n, (int)n, constructor,
     classname, classname);
+
+  fprintf(fp,
+    "  PyTypeObject *pytype = &Py%s_Type;\n\n",
+    classname);
+
+  /* if type is already ready, then return */
+  fprintf(fp,
+    "  if ((pytype->tp_flags & Py_TPFLAGS_READY) != 0)\n"
+    "    {\n"
+    "    return (PyObject *)pytype;\n"
+    "    }\n\n");
+
+  /* call the superclass New (initialize in dependency order) */
+  if (has_superclass)
+    {
+    fprintf(fp,
+      "  pytype->tp_base = (PyTypeObject *)Py%s_TypeNew();\n\n",
+      supername);
+    }
 
   /* check whether the class has any constants as members */
   for (i = 0; i < data->NumberOfConstants; i++)
@@ -879,10 +851,8 @@ void vtkWrapPython_GenerateSpecialType(
   if (has_constants)
     {
     fprintf(fp,
-            "  PyObject *d = Py%s_Type.tp_dict;\n"
-            "  PyObject *o;\n"
-            "\n",
-            classname);
+      "  PyObject *d = pytype->tp_dict;\n"
+      "  PyObject *o;\n\n");
 
     /* add any enum types defined in the class to its dict */
     vtkWrapPython_AddPublicEnumTypes(fp, "  ", "d", "o", data);
@@ -892,7 +862,7 @@ void vtkWrapPython_GenerateSpecialType(
     }
 
   fprintf(fp,
-    "  return cls;\n"
-    "}\n"
-    "\n");
+    "  PyType_Ready(pytype);\n"
+    "  return (PyObject *)pytype;\n"
+    "}\n\n");
 }

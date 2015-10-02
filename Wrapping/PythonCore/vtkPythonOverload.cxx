@@ -34,9 +34,10 @@
 
 
 //--------------------------------------------------------------------
-// Enums for vtkPythonOverload::CheckArg, the values between VTK_PYTHON_GOOD_MATCH
-// and VTK_PYTHON_NEEDS_CONVERSION are reserved for checking how
-// many generations a vtkObject arg is from the requested arg type.
+// Enums for vtkPythonOverload::CheckArg().
+// Values between VTK_PYTHON_GOOD_MATCH and VTK_PYTHON_NEEDS_CONVERSION
+// are reserved for checking how many generations a vtkObject arg is from
+// the requested arg type.
 
 enum vtkPythonArgPenalties
 {
@@ -51,14 +52,14 @@ enum vtkPythonArgPenalties
 class vtkPythonOverloadHelper
 {
 public:
-  vtkPythonOverloadHelper() : m_format(0), m_classname(0), m_penalty(0) {};
+  vtkPythonOverloadHelper() : m_format(0), m_classname(0), m_penalty(0) {}
   void initialize(bool selfIsClass, const char *format);
   bool next(const char **format, const char **classname);
-  bool optional() { return m_optional; };
-  int penalty() { return m_penalty; };
+  bool optional() { return m_optional; }
+  int penalty() { return m_penalty; }
   int penalty(int p) {
-    if (p > m_penalty) { m_penalty = p; };
-    return m_penalty; };
+    if (p > m_penalty) { m_penalty = p; }
+    return m_penalty; }
 
 private:
   const char *m_format;
@@ -99,8 +100,10 @@ void vtkPythonOverloadHelper::initialize(bool selfIsClass, const char *format)
 }
 
 // Get the next format char and, if char is 'O', the classname.
-// The classname is terminated with space, not with null
-bool vtkPythonOverloadHelper::next(const char **format, const char **classname)
+// The classname is terminated with space, not with null.
+// If there is no classname for an arg, classname will be set to NULL.
+bool vtkPythonOverloadHelper::next(
+  const char **format, const char **classname)
 {
   if (*m_format == '|')
     {
@@ -113,9 +116,13 @@ bool vtkPythonOverloadHelper::next(const char **format, const char **classname)
     return false;
     }
 
+  // return the pointer to the current format character
   *format = m_format;
 
-  if (*m_format == 'O')
+  // check if the parameter has extended type information
+  char c = *m_format;
+  if (c == '0' || c == 'V' || c == 'W' || c == 'Q' || c == 'E' ||
+      c == 'A' || c == 'P')
     {
     *classname = m_classname;
 
@@ -128,38 +135,44 @@ bool vtkPythonOverloadHelper::next(const char **format, const char **classname)
       m_classname++;
       }
     }
-
-  m_format++;
-  if (!isalpha(*m_format) && *m_format != '(' && *m_format != ')' &&
-      *m_format != '|' && *m_format != '\0' && *m_format != ' ')
+  else
     {
-    m_format++;
+    *classname = 0;
     }
+
+  // increment to the next format character
+  m_format++;
 
   return true;
 }
 
 //--------------------------------------------------------------------
-// If tmpi > VTK_INT_MAX, then penalize unless format == 'l'
+// If tmpi > VTK_INT_MAX, then penalize types of int size or smaller
 
-#if VTK_SIZEOF_LONG != VTK_SIZEOF_INT
-#ifdef PY_LONG_LONG
 static int vtkPythonIntPenalty(PY_LONG_LONG tmpi, int penalty, char format)
-#else
-static int vtkPythonIntPenalty(long tmpi, int penalty, char format)
-#endif
 {
   if (tmpi > VTK_INT_MAX || tmpi < VTK_INT_MIN)
     {
-    if (format != 'l')
+    if (format != 'k')
       {
       if (penalty < VTK_PYTHON_GOOD_MATCH)
         {
         penalty = VTK_PYTHON_GOOD_MATCH;
+#if VTK_SIZEOF_LONG == VTK_SIZEOF_INT
         if (format != 'i')
           {
           penalty++;
           }
+#else
+        if (format != 'l')
+          {
+          penalty++;
+          if (format != 'i')
+            {
+            penalty++;
+            }
+          }
+#endif
         }
       else
         {
@@ -184,28 +197,87 @@ static int vtkPythonIntPenalty(long tmpi, int penalty, char format)
   return penalty;
 }
 
-#else
-#ifdef PY_LONG_LONG
-int vtkPythonIntPenalty(PY_LONG_LONG, int penalty, char)
-#else
-int vtkPythonIntPenalty(long, int penalty, char)
-#endif
+#ifdef VTK_PY3K
+//--------------------------------------------------------------------
+// Check if a unicode string is ascii, which makes it more suitable
+// as a match for "char *" or "std::string".
+
+static int vtkPythonStringPenalty(PyObject *u, char format, int penalty)
 {
+#if PY_VERSION_HEX > 0x03030000
+  int ascii = 0;
+  if (PyUnicode_READY(u) != -1)
+    {
+    if (PyUnicode_KIND(u) == PyUnicode_1BYTE_KIND)
+      {
+      Py_UCS1 *cp = PyUnicode_1BYTE_DATA(u);
+      Py_ssize_t l = PyUnicode_GET_LENGTH(u);
+      Py_UCS1 c = 0;
+      for (int i = 0; i < l; i++)
+        {
+        c |= cp[i];
+        }
+      ascii = ((c & 0x80) == 0);
+      }
+    }
+  else
+    {
+    PyErr_Clear();
+    }
+#else
+  PyObject *ascii = PyUnicode_AsASCIIString(u);
+  if (ascii == 0)
+    {
+    PyErr_Clear();
+    }
+  else
+    {
+    Py_DECREF(ascii);
+    }
+#endif
+
+  if ((format == 'u') ^ (ascii == 0))
+    {
+    if (penalty < VTK_PYTHON_GOOD_MATCH)
+      {
+      penalty = VTK_PYTHON_GOOD_MATCH;
+      }
+    else
+      {
+      penalty++;
+      }
+    }
+
   return penalty;
 }
 #endif
 
 //--------------------------------------------------------------------
 // This must check the same format chars that are used by
-// vtkWrapPython_FormatString() in vtkWrapPython.c
+// vtkWrapPython_ArgCheckString() in vtkWrapPythonOverload.c.
 //
 // The "level" parameter limits possible recursion of this method,
 // it is incremented every time recursion occurs.
 
 int vtkPythonOverload::CheckArg(
-  PyObject *arg, const char *format, const char *classname, int level)
+  PyObject *arg, const char *format, const char *name, int level)
 {
   int penalty = VTK_PYTHON_EXACT_MATCH;
+  bool badref = false;
+
+  // terminate the name string at the space delimiter
+  char classtext[256];
+  classtext[0] = '\0';
+  if (name)
+    {
+    int k = 0;
+    for (; k < 255 && name[k] != ' ' && name[k] != '\0'; k++)
+      {
+      classtext[k] = name[k];
+      }
+    classtext[k] = '\0';
+    }
+  const char *classname = classtext;
 
   // If mutable object, check the type of the value inside
   if (PyVTKMutableObject_Check(arg))
@@ -215,15 +287,37 @@ int vtkPythonOverload::CheckArg(
 
   switch (*format)
     {
+    case '@':
+      // "self" for methods (always matches)
+      break;
+
+    case 'q':
+      // boolean
+      if (!PyBool_Check(arg))
+        {
+        penalty = VTK_PYTHON_NEEDS_CONVERSION;
+        int tmpi = PyObject_IsTrue(arg);
+        if (tmpi == -1 || PyErr_Occurred())
+          {
+          PyErr_Clear();
+          penalty = VTK_PYTHON_INCOMPATIBLE;
+          }
+        }
+      break;
+
     case 'b':
     case 'B':
     case 'h':
     case 'H':
     case 'l':
-    case 'k':
+    case 'L':
     case 'i':
     case 'I':
-#if PY_VERSION_HEX >= 0x02030000
+#ifdef VTK_PY3K
+    case 'k':
+    case 'K':
+#endif
+      // integer types
       if (PyBool_Check(arg))
         {
         penalty = VTK_PYTHON_GOOD_MATCH;
@@ -232,9 +326,8 @@ int vtkPythonOverload::CheckArg(
           penalty++;
           }
         }
-      else
-#endif
-      if (PyInt_Check(arg))
+#ifndef VTK_PY3K
+      else if (PyInt_Check(arg))
         {
 #if VTK_SIZEOF_LONG == VTK_SIZEOF_INT
         if (*format != 'i')
@@ -245,20 +338,13 @@ int vtkPythonOverload::CheckArg(
         penalty = vtkPythonIntPenalty(PyInt_AsLong(arg), penalty, *format);
 #endif
         }
+#endif /* VTK_PY3K */
       else if (PyLong_Check(arg))
         {
+#ifndef VTK_PY3K
         penalty = VTK_PYTHON_GOOD_MATCH;
-#if VTK_SIZEOF_LONG == VTK_SIZEOF_INT
-        if (*format != 'i')
-          {
-          penalty++;
-          }
-#else
-# ifdef PY_LONG_LONG
+#endif
         PY_LONG_LONG tmpi = PyLong_AsLongLong(arg);
-# else
-        long tmpi = PyLong_AsLong(arg);
-# endif
         if (PyErr_Occurred())
           {
           PyErr_Clear();
@@ -266,14 +352,17 @@ int vtkPythonOverload::CheckArg(
           }
 
         penalty = vtkPythonIntPenalty(tmpi, penalty, *format);
-#endif
         }
       else // not PyInt or PyLong
         {
         if (level == 0)
           {
           penalty = VTK_PYTHON_NEEDS_CONVERSION;
+#ifdef VTK_PY3K
+          PY_LONG_LONG tmpi = PyLong_AsLongLong(arg);
+#else
           long tmpi = PyInt_AsLong(arg);
+#endif
           if (tmpi == -1 || PyErr_Occurred())
             {
             PyErr_Clear();
@@ -287,8 +376,8 @@ int vtkPythonOverload::CheckArg(
         }
       break;
 
-#ifdef PY_LONG_LONG
-    case 'L':
+#ifndef VTK_PY3K
+    case 'k':
     case 'K':
       if (!PyLong_Check(arg))
         {
@@ -315,10 +404,16 @@ int vtkPythonOverload::CheckArg(
 #endif
 
     case 'f':
-      penalty = VTK_PYTHON_GOOD_MATCH;
-      VTK_FALLTHROUGH;
     case 'd':
-      if (!PyFloat_Check(arg))
+      // double and float
+      if (PyFloat_Check(arg))
+        {
+        if (*format != 'd')
+          {
+          penalty = VTK_PYTHON_GOOD_MATCH;
+          }
+        }
+      else
         {
         penalty = VTK_PYTHON_NEEDS_CONVERSION;
         if (level == 0)
@@ -339,8 +434,15 @@ int vtkPythonOverload::CheckArg(
 
     case 'c':
       // penalize chars, they must be converted from strings
-      penalty = VTK_PYTHON_NEEDS_CONVERSION;
-      if (!PyString_Check(arg) || PyString_Size(arg) != 1)
+      if (PyUnicode_Check(arg) && PyUnicode_GetSize(arg) == 1)
+        {
+        penalty = VTK_PYTHON_NEEDS_CONVERSION;
+        }
+      else if (PyBytes_Check(arg) && PyBytes_Size(arg) == 1)
+        {
+        penalty = VTK_PYTHON_NEEDS_CONVERSION;
+        }
+      else
         {
         penalty = VTK_PYTHON_INCOMPATIBLE;
         }
@@ -348,27 +450,11 @@ int vtkPythonOverload::CheckArg(
 
     case 's':
     case 'z':
-      if (format[1] == '#') // memory buffer
-        {
-        penalty = VTK_PYTHON_GOOD_MATCH;
-        if (arg == Py_None)
-          {
-          penalty = VTK_PYTHON_NEEDS_CONVERSION;
-          if (format[0] == 's')
-            {
-            penalty = VTK_PYTHON_INCOMPATIBLE;
-            }
-          }
-        // make sure that arg can act as a buffer
-        else if (arg->ob_type->tp_as_buffer == 0)
-          {
-          penalty = VTK_PYTHON_INCOMPATIBLE;
-          }
-        }
-      else if (arg == Py_None)
+      // string and "char *"
+      if (arg == Py_None)
         {
         penalty = VTK_PYTHON_NEEDS_CONVERSION;
-        if (format[0] == 's')
+        if (*format == 's')
           {
           penalty = VTK_PYTHON_INCOMPATIBLE;
           }
@@ -376,76 +462,64 @@ int vtkPythonOverload::CheckArg(
 #ifdef Py_USING_UNICODE
       else if (PyUnicode_Check(arg))
         {
+#ifdef VTK_PY3K
+        penalty = vtkPythonStringPenalty(arg, *format, penalty);
+#else
         penalty = VTK_PYTHON_NEEDS_CONVERSION;
+#endif
         }
 #endif
-      else if (!PyString_Check(arg))
+      else if (!PyBytes_Check(arg))
         {
         penalty = VTK_PYTHON_INCOMPATIBLE;
         }
       break;
 
-    case '@':
-      // '@' is a placeholder that always succeeds
+#ifdef Py_USING_UNICODE
+    case 'u':
+      // unicode string
+      if (!PyUnicode_Check(arg))
+        {
+        penalty = VTK_PYTHON_INCOMPATIBLE;
+        }
+#ifdef VTK_PY3K
+      else
+        {
+        penalty = vtkPythonStringPenalty(arg, *format, penalty);
+        }
+#endif
+      break;
+#endif
+
+    case 'v':
+      // memory buffer (void pointer)
+      penalty = VTK_PYTHON_GOOD_MATCH;
+      if (arg == Py_None)
+        {
+        penalty = VTK_PYTHON_NEEDS_CONVERSION;
+        }
+      // make sure that arg can act as a buffer
+      else if (Py_TYPE(arg)->tp_as_buffer == 0)
+        {
+        penalty = VTK_PYTHON_INCOMPATIBLE;
+        }
       break;
 
-    case 'O':
-      {
-      // classname is terminated by a space, not a null
-      const char *cp = classname;
-      char name[128];
-      int i = 0;
-      for (; i < 127 && cp[i] != ' ' && cp[i] != '\0'; i++)
+    case 'F':
+      // callback function or None
+      if (arg == Py_None)
         {
-        name[i] = cp[i];
+        penalty = VTK_PYTHON_GOOD_MATCH;
         }
-      name[i] = '\0';
-      classname = name;
-
-      // booleans
-      if (name[0] == 'b' && strcmp(classname, "bool") == 0)
+      else if (!PyCallable_Check(arg))
         {
-#if PY_VERSION_HEX >= 0x02030000
-        if (!PyBool_Check(arg))
-#endif
-          {
-          penalty = VTK_PYTHON_NEEDS_CONVERSION;
-          int tmpi = PyObject_IsTrue(arg);
-          if (tmpi == -1 || PyErr_Occurred())
-            {
-            PyErr_Clear();
-            penalty = VTK_PYTHON_INCOMPATIBLE;
-            }
-          }
+        penalty = VTK_PYTHON_INCOMPATIBLE;
         }
+      break;
 
-      // unicode string
-#ifdef Py_USING_UNICODE
-      else if (name[0] == 'u' && strcmp(classname, "unicode") == 0)
-        {
-        if (!PyUnicode_Check(arg))
-          {
-          penalty = VTK_PYTHON_INCOMPATIBLE;
-          }
-        }
-#endif
-
-      // callback functions
-      else if (name[0] == 'f' && strcmp(classname, "func") == 0)
-        {
-        if (!PyCallable_Check(arg))
-          {
-          penalty = VTK_PYTHON_GOOD_MATCH;
-          if (arg != Py_None)
-            {
-            penalty = VTK_PYTHON_INCOMPATIBLE;
-            }
-          }
-        }
-
-      // Assume any pointers are vtkObjectBase-derived types
-      else if (classname[0] == '*' && classname[1] == 'v' &&
-               classname[2] == 't' && classname[3] == 'k')
+    case 'V':
+      // VTK object pointer (instance of vtkObjectBase or a subclass)
+      if (classname[0] == '*')
         {
         classname++;
 
@@ -455,37 +529,21 @@ int vtkPythonOverload::CheckArg(
           }
         else if (PyVTKObject_Check(arg))
           {
-          PyVTKObject *vobj = (PyVTKObject *)arg;
-          if (strncmp(vtkPythonUtil::PythonicClassName(
-                vobj->vtk_ptr->GetClassName()), classname, 127) != 0)
+          PyVTKClass *info = vtkPythonUtil::FindClass(classname);
+          PyTypeObject *pytype = (info ? info->py_type : NULL);
+          if (Py_TYPE(arg) != pytype)
             {
-            // Trace back through superclasses to look for a match
-            PyVTKClass *cls = vobj->vtk_class;
-            if (PyTuple_GET_SIZE(cls->vtk_bases) == 0)
+            // Check superclasses
+            PyTypeObject *basetype = Py_TYPE(arg)->tp_base;
+            penalty = VTK_PYTHON_GOOD_MATCH;
+            while (basetype && basetype != pytype)
+              {
+              penalty++;
+              basetype = basetype->tp_base;
+              }
+            if (!basetype)
               {
               penalty = VTK_PYTHON_INCOMPATIBLE;
-              }
-            else
-              {
-              penalty = VTK_PYTHON_GOOD_MATCH;
-              cls = (PyVTKClass *)PyTuple_GET_ITEM(cls->vtk_bases,0);
-              while (strncmp(PyString_AS_STRING(cls->vtk_name),
-                     classname, 127) != 0)
-                {
-                if (PyTuple_Size(cls->vtk_bases) > 0)
-                  {
-                  cls = (PyVTKClass *)PyTuple_GET_ITEM(cls->vtk_bases,0);
-                  }
-                else
-                  {
-                  penalty = VTK_PYTHON_INCOMPATIBLE;
-                  break;
-                  }
-                if (penalty+1 < VTK_PYTHON_NEEDS_CONVERSION)
-                  {
-                  penalty++;
-                  }
-                }
               }
             }
           }
@@ -494,36 +552,38 @@ int vtkPythonOverload::CheckArg(
           penalty = VTK_PYTHON_INCOMPATIBLE;
           }
         }
-
-      // Any other object starting with "vtk" is a special object
-      else if (classname[0] == 'v' && classname[1] == 't' &&
-               classname[2] == 'k')
+      else
         {
+        badref = true;
+        }
+      break;
+
+    case 'W':
+      // VTK special type (non reference counted)
+      if (classname[0] != '*' && classname[0] != '&')
+        {
+        // Look up the required type in the map
+        PyVTKSpecialType *info = vtkPythonUtil::FindSpecialType(classname);
+        PyTypeObject *pytype = (info ? info->py_type : NULL);
+
         // Check for an exact match
-        if (strncmp(arg->ob_type->tp_name, classname, 127) != 0)
+        if (Py_TYPE(arg) != pytype)
           {
-#if PY_VERSION_HEX >= 0x02020000
           // Check superclasses
-          PyTypeObject *basetype = arg->ob_type->tp_base;
+          PyTypeObject *basetype = Py_TYPE(arg)->tp_base;
           penalty = VTK_PYTHON_GOOD_MATCH;
-          while (basetype &&
-                 strncmp(basetype->tp_name, classname, 127) != 0)
+          while (basetype && basetype != pytype)
             {
             penalty++;
             basetype = basetype->tp_base;
             }
           if (!basetype)
-#endif
             {
             // If it didn't match, then maybe conversion is possible
             penalty = VTK_PYTHON_NEEDS_CONVERSION;
 
-            // Look up the required type in the map
-            PyVTKSpecialType *info = NULL;
-
             // The "level != 0" ensures that we don't chain conversions
-            if (level != 0 ||
-                (info = vtkPythonUtil::FindSpecialType(classname)) == NULL)
+            if (level != 0 || info == 0)
               {
               penalty = VTK_PYTHON_INCOMPATIBLE;
               }
@@ -531,7 +591,7 @@ int vtkPythonOverload::CheckArg(
               {
               // Try out all the constructor methods
               if (!vtkPythonOverload::FindConversionMethod(
-                     info->constructors, arg))
+                     info->vtk_constructors, arg))
                 {
                 penalty = VTK_PYTHON_INCOMPATIBLE;
                 }
@@ -539,36 +599,41 @@ int vtkPythonOverload::CheckArg(
             }
           }
         }
-      else if (classname[0] == '&' && classname[1] == 'v' &&
-               classname[2] == 't' && classname[3] == 'k')
+      else if (classname[0] == '&')
         {
         // Skip over the "&" that indicates a non-const reference
         classname++;
 
+        // Look up the required type in the map
+        PyVTKSpecialType *info = vtkPythonUtil::FindSpecialType(classname);
+        PyTypeObject *pytype = (info ? info->py_type : NULL);
+
         // Check for an exact match
-        if (strncmp(arg->ob_type->tp_name, classname, 127) != 0)
+        if (Py_TYPE(arg) != pytype)
           {
-#if PY_VERSION_HEX >= 0x02020000
           // Check superclasses
-          PyTypeObject *basetype = arg->ob_type->tp_base;
+          PyTypeObject *basetype = Py_TYPE(arg)->tp_base;
           penalty = VTK_PYTHON_GOOD_MATCH;
-          while (basetype &&
-                 strncmp(basetype->tp_name, classname, 127) != 0)
+          while (basetype && basetype != pytype)
             {
             penalty++;
             basetype = basetype->tp_base;
             }
           if (!basetype)
-#endif
             {
             penalty = VTK_PYTHON_INCOMPATIBLE;
             }
           }
         }
+      else
+        {
+        badref = true;
+        }
+      break;
 
+    case 'O':
       // Generic python objects
-      else if (classname[0] == '*' && classname[1] == 'P' &&
-               classname[2] == 'y')
+      if (classname[0] == '*')
         {
         // Skip over the "*"
         classname++;
@@ -580,42 +645,44 @@ int vtkPythonOverload::CheckArg(
         // this has to be done on a case-by-case basis because the "C"
         // name of a python type is different from its "Python" name.
         }
-
-      // Qt objects and enums
-      else if (((classname[0] == '*' || classname[0] == '&') &&
-                (classname[1] == 'Q' && isalpha(classname[2]))) ||
-               (classname[0] == 'Q' && isalpha(classname[1])))
+      else
         {
-        if (classname[0] == '*' && arg == Py_None)
+        badref = true;
+        }
+      break;
+
+    case 'Q':
+      // Qt objects and Qt enums
+      if (classname[0] == '*' && arg == Py_None)
+        {
+        penalty = VTK_PYTHON_GOOD_MATCH;
+        }
+      else
+        {
+        if (classname[0] == '&' || classname[0] == '*')
           {
-          penalty = VTK_PYTHON_GOOD_MATCH;
+          classname++;
+          }
+        if (vtkPythonUtil::SIPGetPointerFromObject(arg, classname))
+          {
+          // Qt enums keep exact match, but Qt objects just get
+          // a good match because they might have been converted
+          if (classname[0] == 'Q' && isupper(classname[1]))
+            {
+            penalty = VTK_PYTHON_GOOD_MATCH;
+            }
           }
         else
           {
-          if (classname[0] == '&' || classname[0] == '*')
-            {
-            classname++;
-            }
-          if (vtkPythonUtil::SIPGetPointerFromObject(arg, classname))
-            {
-            // Qt enums keep exact match, but Qt objects just get
-            // a good match because they might have been converted
-            if (classname[0] == 'Q' && isupper(classname[1]))
-              {
-              penalty = VTK_PYTHON_GOOD_MATCH;
-              }
-            }
-          else
-            {
-            penalty = VTK_PYTHON_INCOMPATIBLE;
-            PyErr_Clear();
-            }
+          penalty = VTK_PYTHON_INCOMPATIBLE;
+          PyErr_Clear();
           }
         }
+      break;
 
-      // Enum type
-      else if (isalpha(classname[0]) ||
-               (classname[0] == '&' && isalpha(classname[1])))
+    case 'E':
+      // enum type
+      if (classname[0] != '*')
         {
         if (classname[0] == '&')
           {
@@ -623,26 +690,14 @@ int vtkPythonOverload::CheckArg(
           }
         if (PyInt_Check(arg))
           {
-          if (strcmp(arg->ob_type->tp_name, classname) == 0)
+          PyTypeObject *pytype = vtkPythonUtil::FindEnum(classname);
+          if (pytype && PyObject_TypeCheck(arg, pytype))
             {
             penalty = VTK_PYTHON_EXACT_MATCH;
             }
           else
             {
-            /* tp_name doesn't include namespace, so we also allow
-               matches between "name" and "namespace.name" */
-            size_t l, m;
-            l = strlen(arg->ob_type->tp_name);
-            m = strlen(classname);
-            if (l < m && !isalnum(classname[m-l-1]) &&
-                strcmp(arg->ob_type->tp_name, &classname[m-l]) == 0)
-              {
-              penalty = VTK_PYTHON_GOOD_MATCH;
-              }
-            else
-              {
-              penalty = VTK_PYTHON_NEEDS_CONVERSION;
-              }
+            penalty = VTK_PYTHON_NEEDS_CONVERSION;
             }
           }
         else
@@ -650,9 +705,16 @@ int vtkPythonOverload::CheckArg(
           penalty = VTK_PYTHON_INCOMPATIBLE;
           }
         }
+      else
+        {
+        badref = true;
+        }
+      break;
 
+    case 'A':
+    case 'P':
       // An array
-      else if (classname[0] == '*')
+      if (classname[0] == '*')
         {
         // incompatible unless the type checks out
         penalty = VTK_PYTHON_INCOMPATIBLE;
@@ -661,11 +723,7 @@ int vtkPythonOverload::CheckArg(
         PyObject *sarg = arg;
         while (PySequence_Check(sarg))
           {
-#if PY_MAJOR_VERSION >= 2
           Py_ssize_t m = PySequence_Size(sarg);
-#else
-          Py_ssize_t m = PySequence_Length(sarg);
-#endif
           if (m <= 0 || (sizeneeded != 0 && m != sizeneeded))
             {
             break;
@@ -675,8 +733,7 @@ int vtkPythonOverload::CheckArg(
           sarg = PySequence_GetItem(sarg, 0);
           if (*cptr != '[')
             {
-            // the "bool" is really just a dummy
-            penalty = vtkPythonOverload::CheckArg(sarg, &classname[1], "bool");
+            penalty = vtkPythonOverload::CheckArg(sarg, &classname[1], "");
             Py_DECREF(sarg);
             break;
             }
@@ -693,19 +750,23 @@ int vtkPythonOverload::CheckArg(
             }
           }
         }
-
-      // An object of unrecognized type
       else
         {
-        penalty = VTK_PYTHON_INCOMPATIBLE;
+        badref = true;
         }
-      }
       break;
 
     default:
-      vtkGenericWarningMacro("Unrecognized python format character "
+      vtkGenericWarningMacro("Unrecognized arg format character "
                              << format[0]);
       penalty = VTK_PYTHON_INCOMPATIBLE;
+    }
+
+  if (badref)
+    {
+    vtkGenericWarningMacro("Illegal class ref for arg format character "
+                           << format[0] << " " << classname);
+    penalty = VTK_PYTHON_INCOMPATIBLE;
     }
 
   return penalty;
@@ -734,9 +795,9 @@ PyObject *vtkPythonOverload::CallMethod(
     bool selfIsClass = 0;
     int sig;
 
-    // Is self a PyVTKClass object, rather than a PyVTKObject?  If so,
-    // then first arg is an object, and other args should follow format.
-    if (self && PyVTKClass_Check(self))
+    // Is self a type object, rather than an instance?  If so, then the
+    // first arg is an object, and other args should follow format.
+    if (self && PyType_Check(self))
       {
       selfIsClass = true;
       }

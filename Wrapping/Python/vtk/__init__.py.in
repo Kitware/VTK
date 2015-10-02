@@ -62,10 +62,10 @@ def vtkImageScalarTypeNameMacro(type):
   return __vtkTypeNameDict[type]
 
 # import convenience decorators
-from util.misc import calldata_type
+from @LOCAL_IMPORT_DOT@util.misc import calldata_type
 
 # import the vtkVariant helpers
-from util.vtkVariant import *
+from @LOCAL_IMPORT_DOT@util.vtkVariant import *
 
 # reset the dlopen flags to the original state if possible.
 if dl and (os.name == 'posix') and orig_dlopen_flags:

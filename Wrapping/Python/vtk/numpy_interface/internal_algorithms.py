@@ -1,11 +1,12 @@
-import dataset_adapter as dsa
+from __future__ import absolute_import
+from . import dataset_adapter as dsa
 import numpy
 from vtk.util import numpy_support
 import vtk
 
 def _cell_derivatives (narray, dataset, attribute_type, filter):
     if not dataset :
-       raise RuntimeError, 'Need a dataset to compute _cell_derivatives.'
+       raise RuntimeError('Need a dataset to compute _cell_derivatives.')
 
     # Reshape n dimensional vector to n by 1 matrix
     if len(narray.shape) == 1 :
@@ -13,11 +14,11 @@ def _cell_derivatives (narray, dataset, attribute_type, filter):
 
     ncomp = narray.shape[1]
     if attribute_type == 'scalars' and ncomp != 1 :
-       raise RuntimeError, 'This function expects scalars.'\
-                           'Input shape ' + narray.shape
+       raise RuntimeError('This function expects scalars. ' +
+                           'Input shape ' + str(narray.shape))
     if attribute_type == 'vectors' and ncomp != 3 :
-       raise RuntimeError, 'This function expects vectors.'\
-                           'Input shape ' + narray.shape
+       raise RuntimeError('This function expects vectors. ' +
+                           'Input shape ' + str(narray.shape))
 
     # numpy_to_vtk converts only contiguous arrays
     if not narray.flags.contiguous : narray = narray.copy()
@@ -32,18 +33,18 @@ def _cell_derivatives (narray, dataset, attribute_type, filter):
     ds.CopyStructure(dataset.VTKObject)
 
     if dsa.ArrayAssociation.FIELD == narray.Association :
-       raise RuntimeError, 'Unknown data association. Data should be associated with points or cells.'
+       raise RuntimeError('Unknown data association. Data should be associated with points or cells.')
 
     if dsa.ArrayAssociation.POINT == narray.Association :
        # Work on point data
        if narray.shape[0] != dataset.GetNumberOfPoints() :
-          raise RuntimeError, 'The number of points does not match the number of tuples in the array'
+          raise RuntimeError('The number of points does not match the number of tuples in the array')
        if attribute_type == 'scalars': ds.GetPointData().SetScalars(varray)
        else : ds.GetPointData().SetVectors(varray)
     elif dsa.ArrayAssociation.CELL == narray.Association :
        # Work on cell data
        if narray.shape[0] != dataset.GetNumberOfCells() :
-          raise RuntimeError, 'The number of does not match the number of tuples in the array'
+          raise RuntimeError('The number of does not match the number of tuples in the array')
 
        # Since vtkCellDerivatives only works with point data, we need to convert
        # the cell data to point data first.
@@ -79,10 +80,10 @@ def _cell_derivatives (narray, dataset, attribute_type, filter):
        return filter.GetOutput().GetCellData()
     else :
        # We shall never reach here
-       raise RuntimeError, 'Unknown data association. Data should be associated with points or cells.'
+       raise RuntimeError('Unknown data association. Data should be associated with points or cells.')
 
 def _cell_quality (dataset, quality) :
-    if not dataset : raise RuntimeError, 'Need a dataset to compute _cell_quality'
+    if not dataset : raise RuntimeError('Need a dataset to compute _cell_quality')
 
     # create a dataset with only our array but the same geometry/topology
     ds = dataset.NewInstance()
@@ -103,7 +104,7 @@ def _cell_quality (dataset, quality) :
     elif "skew"         == quality : filter.SetQualityMeasureToSkew()
     elif "min_angle"    == quality : filter.SetQualityMeasureToMinAngle()
     elif "volume"       == quality : filter.SetQualityMeasureToVolume()
-    else : raise RuntimeError, 'Unknown cell quality ['+quality+'].'
+    else : raise RuntimeError('Unknown cell quality ['+quality+'].')
 
     filter.Update()
 
@@ -118,15 +119,15 @@ def _cell_quality (dataset, quality) :
 
 def _matrix_math_filter (narray, operation) :
     if operation not in ['Determinant', 'Inverse', 'Eigenvalue', 'Eigenvector'] :
-       raise RuntimeError, 'Unknown quality measure ['+operation+']'+\
-                           'Supported are [Determinant, Inverse, Eigenvalue, Eigenvector]'
+       raise RuntimeError('Unknown quality measure ['+operation+']'+
+                          ' Supported are [Determinant, Inverse, Eigenvalue, Eigenvector]')
 
     if narray.ndim != 3 :
-       raise RuntimeError, operation+' only works for an array of matrices(3D array).'\
-                           'Input shape ' + narray.shape
+       raise RuntimeError(operation+' only works for an array of matrices(3D array).'+
+                           ' Input shape ' + str(narray.shape))
     elif narray.shape[1] != narray.shape[2] :
-       raise RuntimeError, operation+' requires an array of 2D square matrices.'\
-                           'Input shape ' + narray.shape
+       raise RuntimeError(operation+' requires an array of 2D square matrices.' +
+                           ' Input shape ' + str(narray.shape))
 
     # numpy_to_vtk converts only contiguous arrays
     if not narray.flags.contiguous : narray = narray.copy()
@@ -199,31 +200,31 @@ def cross (x, y) :
       return dsa.NoneArray
 
     if x.ndim != y.ndim or x.shape != y.shape:
-       raise RuntimeError, 'Both operands must have same dimension and shape.'\
-                           'Input shapes ' + x.shape + ' and ' + y.shape
+       raise RuntimeError('Both operands must have same dimension and shape.' +
+                          ' Input shapes ' + str(x.shape) + ' and ' + str(y.shape))
 
     if x.ndim != 1 and x.ndim != 2 :
-       raise RuntimeError, 'Cross only works for 3D vectors or an array of 3D vectors.'\
-                           'Input shapes ' + x.shape + ' and ' + y.shape
+       raise RuntimeError('Cross only works for 3D vectors or an array of 3D vectors.' +
+                          ' Input shapes ' + str(x.shape) + ' and ' + str(y.shape))
 
     if x.ndim == 1 and x.shape[0] != 3 :
-       raise RuntimeError, 'Cross only works for 3D vectors.'\
-                           'Input shapes ' + x.shape + ' and ' + y.shape
+       raise RuntimeError('Cross only works for 3D vectors.' +
+                          ' Input shapes ' + str(x.shape) + ' and ' + str(y.shape))
 
     if x.ndim == 2 and x.shape[1] != 3 :
-       raise RuntimeError, 'Cross only works for an array of 3D vectors.'\
-                           'Input shapes ' + x.shape + ' and ' + y.shape
+       raise RuntimeError('Cross only works for an array of 3D vectors.' +
+                          'Input shapes ' + str(x.shape) + ' and ' + str(y.shape))
 
     return numpy.cross(x, y)
 
 def curl (narray, dataset=None):
     "Returns the curl of an array of 3D vectors."
     if not dataset : dataset = narray.DataSet
-    if not dataset : raise RuntimeError, 'Need a dataset to compute curl.'
+    if not dataset : raise RuntimeError('Need a dataset to compute curl.')
 
     if narray.ndim != 2 or narray.shape[1] != 3 :
-       raise RuntimeError, 'Curl only works with an array of 3D vectors.'\
-                           'Input shape ' + narray.shape
+       raise RuntimeError('Curl only works with an array of 3D vectors.' +
+                          'Input shape ' + str(narray.shape))
 
     cd = vtk.vtkCellDerivatives()
     cd.SetVectorModeToComputeVorticity()
@@ -244,11 +245,11 @@ def curl (narray, dataset=None):
 def divergence (narray, dataset=None):
     "Returns the divergence of an array of 3D vectors."
     if not dataset : dataset = narray.DataSet
-    if not dataset : raise RuntimeError, 'Need a dataset to compute divergence'
+    if not dataset : raise RuntimeError('Need a dataset to compute divergence')
 
     if narray.ndim != 2 or narray.shape[1] != 3 :
-       raise RuntimeError, 'Divergence only works with an array of 3D vectors.'\
-                           'Input shape ' + narray.shape
+       raise RuntimeError('Divergence only works with an array of 3D vectors.' +
+                          ' Input shape ' + str(narray.shape))
 
     g = gradient(narray, dataset)
     g = g.reshape(g.shape[0], 3, 3)
@@ -274,8 +275,8 @@ def dot (a1, a2):
       return dsa.NoneArray
 
     if a1.shape[1] != a2.shape[1] :
-     raise RuntimeError, 'Dot product only works with vectors of same dimension.'\
-                         'Input shapes ' + a1.shape + ' and ' + a2.shape
+     raise RuntimeError('Dot product only works with vectors of same dimension.' +
+                         ' Input shapes ' + str(a1.shape) + ' and ' + str(a2.shape))
     m = a1*a2
     va = dsa.VTKArray(numpy.add.reduce(m, 1))
     if a1.DataSet == a2.DataSet : va.DataSet = a1.DataSet
@@ -292,15 +293,15 @@ def eigenvector (narray) :
 def gradient(narray, dataset=None):
     "Returns the gradient of an array of scalars/vectors."
     if not dataset: dataset = narray.DataSet
-    if not dataset: raise RuntimeError, 'Need a dataset to compute gradient'
+    if not dataset: raise RuntimeError('Need a dataset to compute gradient')
 
     try:
       ncomp = narray.shape[1]
     except IndexError:
       ncomp = 1
     if ncomp != 1 and ncomp != 3:
-       raise RuntimeError, 'Gradient only works with scalars (1 component) and vectors (3 component)'\
-                           'Input shape ' + narray.shape
+       raise RuntimeError('Gradient only works with scalars (1 component) and vectors (3 component)' +
+                          ' Input shape ' + str(narray.shape))
 
     cd = vtk.vtkCellDerivatives()
     if ncomp == 1 : attribute_type = 'scalars'
@@ -339,7 +340,7 @@ def jacobian (dataset) :
 def laplacian (narray, dataset=None) :
     "Returns the jacobian of an array of scalars."
     if not dataset : dataset = narray.DataSet
-    if not dataset : raise RuntimeError, 'Need a dataset to compute laplacian'
+    if not dataset : raise RuntimeError('Need a dataset to compute laplacian')
     ans = gradient(narray, dataset)
     return divergence(ans)
 
@@ -406,11 +407,11 @@ def skew (dataset) :
 def strain (narray, dataset=None) :
     "Returns the strain of an array of 3D vectors."
     if not dataset : dataset = narray.DataSet
-    if not dataset : raise RuntimeError, 'Need a dataset to compute strain'
+    if not dataset : raise RuntimeError('Need a dataset to compute strain')
 
     if 2 != narray.ndim or 3 != narray.shape[1] :
-       raise RuntimeError, 'strain only works with an array of 3D vectors'\
-                           'Input shape ' + narray.shape
+       raise RuntimeError('strain only works with an array of 3D vectors' +
+                          'Input shape ' + str(narray.shape))
 
     cd = vtk.vtkCellDerivatives()
     cd.SetTensorModeToComputeStrain()
@@ -436,7 +437,7 @@ def sum (narray, axis=None):
 
 def surface_normal (dataset) :
     "Returns the surface normal of each cell in a dataset."
-    if not dataset : raise RuntimeError, 'Need a dataset to compute surface_normal'
+    if not dataset : raise RuntimeError('Need a dataset to compute surface_normal')
 
     ds = dataset.NewInstance()
     ds.UnRegister(None)
@@ -489,7 +490,7 @@ def vorticity(narray, dataset=None):
 
 def vertex_normal (dataset) :
     "Returns the vertex normal of each point in a dataset."
-    if not dataset : raise RuntimeError, 'Need a dataset to compute vertex_normal'
+    if not dataset : raise RuntimeError('Need a dataset to compute vertex_normal')
 
     ds = dataset.NewInstance()
     ds.UnRegister(None)
@@ -521,8 +522,8 @@ def make_vector(ax, ay, az=None):
     if ax is dsa.NoneArray or ay is dsa.NoneArray or ay is dsa.NoneArray:
       return dsa.NoneArray
 
-    if len(ax.shape) != 1 or len(ay.shape) != 1 or (az != None and len(az.shape) != 1):
-        raise ValueError, "Can only merge 1D arrays"
+    if len(ax.shape) != 1 or len(ay.shape) != 1 or (az is not None and len(az.shape) != 1):
+        raise ValueError("Can only merge 1D arrays")
 
     if az is None:
         az = numpy.zeros(ax.shape)
