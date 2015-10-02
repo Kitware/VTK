@@ -100,6 +100,17 @@ PURPOSE.  See the above copyright notice for more information.
 
 using namespace std;
 
+// In VTK commit 64cb89e3e6ae08f440eb6d4cbfb308c41ab7d258, a lot of signatures
+// in the netcdf library changed size values from 'long' to 'size_t'. However,
+// upstream versions of netcdf are using long. The following typedef resolves
+// this issue.
+#ifdef VTK_USE_SYSTEM_NETCDF
+typedef long nc_size_t;
+#else
+typedef size_t nc_size_t;
+#endif
+
+
 // Restricted to the supported NcType-convertible types.
 #define vtkNcTemplateMacro(call)                                               \
   vtkTemplateMacroCase(VTK_DOUBLE, double, call);                              \
@@ -569,7 +580,8 @@ int vtkMPASReader::RequestData(vtkInformation *vtkNotUsed(reqInfo),
   this->DTime = dTimeTemp;
 
   // Examine each variable to see if it is selected
-  for (int var = 0; var < this->Internals->pointVars.size(); var++)
+  int numPointVars = static_cast<int>(this->Internals->pointVars.size());
+  for (int var = 0; var < numPointVars; var++)
     {
     // Is this variable requested
     if (this->PointDataArraySelection->GetArraySetting(var))
@@ -583,7 +595,8 @@ int vtkMPASReader::RequestData(vtkInformation *vtkNotUsed(reqInfo),
       }
     }
 
-  for (int var = 0; var < this->Internals->cellVars.size(); var++)
+  int numCellVars = static_cast<int>(this->Internals->cellVars.size());
+  for (int var = 0; var < numCellVars; var++)
     {
     if (this->CellDataArraySelection->GetArraySetting(var))
       {
@@ -738,7 +751,7 @@ int vtkMPASReader::GetNcVars (const char* cellDimName, const char* pointDimName)
     bool isCellData = false;
     int numDims = var->num_dims();
     std::vector<std::string> dimNames;
-    for (size_t dim = 0; dim < std::min(numDims, 2); ++dim)
+    for (int dim = 0; dim < std::min(numDims, 2); ++dim)
       {
       dimNames.push_back(var->get_dim(dim)->name());
       }
@@ -797,7 +810,7 @@ int vtkMPASReader::BuildVarArrays()
     return 0;
     }
 
-  for (int v = 0; v < this->Internals->pointVars.size(); v++)
+  for (size_t v = 0; v < this->Internals->pointVars.size(); v++)
     {
     NcVar *var = this->Internals->pointVars[v];
     string name = this->UseDimensionedArrayNames ? dimensionedArrayName(var)
@@ -811,7 +824,7 @@ int vtkMPASReader::BuildVarArrays()
     vtkDebugMacro(<<"Adding point var: " << name);
     }
 
-  for (int v = 0; v < this->Internals->cellVars.size(); v++)
+  for (size_t v = 0; v < this->Internals->cellVars.size(); v++)
     {
     NcVar *var = this->Internals->cellVars[v];
     string name = this->UseDimensionedArrayNames ? dimensionedArrayName(var)
@@ -1741,12 +1754,13 @@ int vtkMPASReader::LoadPointVarDataImpl(NcVar *ncVar, vtkDataArray *array)
   int numDims = ncVar->num_dims();
   std::vector<ValueType> tempData; // Used for Multilayer
   std::vector<long> cursor;
-  std::vector<size_t> counts;
+  std::vector<nc_size_t> counts;
 
   for (int dim = 0; dim < ncVar->num_dims(); ++dim)
     {
     cursor.push_back(this->GetCursorForDimension(ncVar->get_dim(dim)));
-    counts.push_back(this->GetCountForDimension(ncVar->get_dim(dim)));
+    counts.push_back(static_cast<nc_size_t>(
+                       this->GetCountForDimension(ncVar->get_dim(dim))));
     }
 
   // singlelayer
@@ -1770,7 +1784,7 @@ int vtkMPASReader::LoadPointVarDataImpl(NcVar *ncVar, vtkDataArray *array)
     ncVar->get(dataPtr, &counts[0]);
 
     // TODO how to handle this? Let user specify which dimension is the
-    // vertical layer?
+    // vertical layer64cb89e3e6ae08f440eb6d4cbfb308c41ab7d258?
     if (numDims == 1 || numDims == 2)
       {
       // need to replicate data over all vertical layers
@@ -1917,12 +1931,13 @@ int vtkMPASReader::LoadCellVarDataImpl(NcVar *ncVar, vtkDataArray *array)
   ValueType *dataBlock = static_cast<ValueType*>(array->GetVoidPointer(0));
 
   std::vector<long> cursor;
-  std::vector<size_t> counts;
+  std::vector<nc_size_t> counts;
 
   for (int dim = 0; dim < ncVar->num_dims(); ++dim)
     {
     cursor.push_back(this->GetCursorForDimension(ncVar->get_dim(dim)));
-    counts.push_back(this->GetCountForDimension(ncVar->get_dim(dim)));
+    counts.push_back(static_cast<nc_size_t>(
+                       this->GetCountForDimension(ncVar->get_dim(dim))));
     }
 
   ncVar->set_cur(&cursor[0]);
@@ -2032,7 +2047,8 @@ int vtkMPASReader::RegenerateGeometry()
 
   // fetch data selected using new geometry
   // Examine each variable to see if it is selected
-  for (int var = 0; var < this->Internals->pointVars.size(); var++)
+  int numPointVars = static_cast<int>(this->Internals->pointVars.size());
+  for (int var = 0; var < numPointVars; var++)
     {
     // Is this variable requested
     if (this->PointDataArraySelection->GetArraySetting(var))
@@ -2047,7 +2063,8 @@ int vtkMPASReader::RegenerateGeometry()
       }
     }
 
-  for (int var = 0; var < this->Internals->cellVars.size(); var++)
+  int numCellVars = static_cast<int>(this->Internals->cellVars.size());
+  for (int var = 0; var < numCellVars; var++)
     {
     if (this->CellDataArraySelection->GetArraySetting(var))
       {
@@ -2316,7 +2333,7 @@ std::string vtkMPASReader::GetDimensionName(int idx)
 {
   this->UpdateDimensions();
 
-  if (idx < this->Internals->extraDims.size())
+  if (idx < static_cast<int>(this->Internals->extraDims.size()))
     {
     Internal::StringSet::const_iterator it = this->Internals->extraDims.begin();
     std::advance(it, idx);
@@ -2391,7 +2408,8 @@ void vtkMPASReader::SetVerticalLevel(int level)
     }
 
   // Examine each variable to see if it is selected
-  for (int var = 0; var < this->Internals->pointVars.size(); var++)
+  int numPointVars = static_cast<int>(this->Internals->pointVars.size());
+  for (int var = 0; var < numPointVars; var++)
     {
     // Is this variable requested
     if (this->PointDataArraySelection->GetArraySetting(var))
@@ -2402,7 +2420,8 @@ void vtkMPASReader::SetVerticalLevel(int level)
       }
     }
 
-  for (int var = 0; var < this->Internals->cellVars.size(); var++)
+  int numCellVars = static_cast<int>(this->Internals->cellVars.size());
+  for (int var = 0; var < numCellVars; var++)
     {
     if (this->CellDataArraySelection->GetArraySetting(var))
       {
@@ -2630,10 +2649,10 @@ void vtkMPASReader::PrintSelf(ostream& os, vtkIndent indent)
 
 int vtkMPASReader::GetNumberOfCellVars()
 {
-  return this->Internals->cellVars.size();
+  return static_cast<int>(this->Internals->cellVars.size());
 }
 
 int vtkMPASReader::GetNumberOfPointVars()
 {
-  return this->Internals->pointVars.size();
+  return static_cast<int>(this->Internals->pointVars.size());
 }

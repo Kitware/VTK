@@ -77,6 +77,8 @@ version available from Los Alamos National Laboratory.
 #include "vtkIONetCDFModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+#include <string> // for std::string
+
 class vtkCallbackCommand;
 class vtkDataArraySelection;
 class vtkDoubleArray;
