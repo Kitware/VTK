@@ -154,9 +154,16 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   // to fix a given dimension at when extracting slices of data.
   int GetNumberOfDimensions();
   std::string GetDimensionName(int idx);
+  vtkStringArray* GetAllDimensions();
   int GetDimensionCurrentIndex(const std::string &dim);
   void SetDimensionCurrentIndex(const std::string &dim, int idx);
   int GetDimensionSize(const std::string &dim);
+
+  // Description:
+  // Get/Set the name to the dimension that identifies the vertical dimension.
+  // Defaults to "nVertLevels".
+  vtkSetMacro(VerticalDimension, std::string)
+  vtkGetMacro(VerticalDimension, std::string)
 
   void SetVerticalLevel(int level);
   vtkGetVector2Macro(VerticalLevelRange, int);
@@ -233,6 +240,7 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   // PointDataArraySelection or CellDataArraySelection is changed.
   void UpdateDimensions();
 
+  std::string VerticalDimension;
   int VerticalLevelSelected;
   int VerticalLevelRange[2];
 

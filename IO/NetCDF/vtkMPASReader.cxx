@@ -76,6 +76,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkMath.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
@@ -166,7 +167,6 @@ public:
   // variableIndex --> vtkDataArray
   typedef std::map<int, vtkSmartPointer<vtkDataArray> > ArrayMap;
   typedef std::map<std::string, DimMetaData> DimMetaDataMap;
-  typedef std::set<std::string> StringSet;
   Internal() : ncFile(NULL) {}
   ~Internal() { delete ncFile; }
 
@@ -183,7 +183,7 @@ public:
   DimMetaDataMap dimMetaDataMap;
   vtkTimeStamp dimMetaDataTime;
   // Set of dimensions currently used by the selected arrays:
-  StringSet extraDims;
+  vtkNew<vtkStringArray> extraDims;
   vtkTimeStamp extraDimTime;
 };
 
@@ -622,6 +622,7 @@ int vtkMPASReader::RequestData(vtkInformation *vtkNotUsed(reqInfo),
 void vtkMPASReader::SetDefaults() {
 
   // put in defaults
+  this->VerticalDimension = "nVertLevels";
   this->VerticalLevelRange[0] = 0;
   this->VerticalLevelRange[1] = 1;
   this->VerticalLevelSelected = 0;
@@ -690,9 +691,12 @@ int vtkMPASReader::GetNcDims()
   NcDim* Time = pnf->get_dim("Time");
   this->NumberOfTimeSteps = Time->size();
 
-  CHECK_DIM(pnf, "nVertLevels");
-  NcDim* nVertLevels = pnf->get_dim("nVertLevels");
-  this->MaximumNVertLevels = nVertLevels->size();
+  if (!this->VerticalDimension.empty())
+    {
+    CHECK_DIM(pnf, this->VerticalDimension.c_str());
+    NcDim* nVertLevels = pnf->get_dim(this->VerticalDimension.c_str());
+    this->MaximumNVertLevels = nVertLevels->size();
+    }
 
   return 1;
 }
@@ -2144,7 +2148,7 @@ void vtkMPASReader::UpdateDimensions()
     return;
     }
 
-  this->Internals->extraDims.clear();
+  this->Internals->extraDims->Reset();
 
   if (!this->Internals->ncFile)
     {
@@ -2152,14 +2156,23 @@ void vtkMPASReader::UpdateDimensions()
     return;
     }
 
+  std::set<std::string> dimSet;
+
   typedef Internal::DimMetaDataMap::const_iterator Iter;
   const Internal::DimMetaDataMap &map = this->Internals->dimMetaDataMap;
   for (Iter it = map.begin(), itEnd = map.end(); it != itEnd; ++it)
     {
     if (this->Internals->isExtraDim(it->first))
       {
-      this->Internals->extraDims.insert(it->first);
+      dimSet.insert(it->first);
       }
+    }
+
+  typedef std::set<std::string>::const_iterator SetIter;
+  this->Internals->extraDims->Allocate(dimSet.size());
+  for (SetIter it = dimSet.begin(), itEnd = dimSet.end(); it != itEnd; ++it)
+    {
+    this->Internals->extraDims->InsertNextValue(it->c_str());
     }
 
   this->Internals->extraDimTime.Modified();
@@ -2325,22 +2338,21 @@ void vtkMPASReader::SetCellArrayStatus(const char* name, int status)
 int vtkMPASReader::GetNumberOfDimensions()
 {
   this->UpdateDimensions();
-  return this->Internals->extraDims.size();
+  return this->Internals->extraDims->GetNumberOfTuples();
 }
 
 //----------------------------------------------------------------------------
 std::string vtkMPASReader::GetDimensionName(int idx)
 {
   this->UpdateDimensions();
+  return this->Internals->extraDims->GetValue(idx);
+}
 
-  if (idx < static_cast<int>(this->Internals->extraDims.size()))
-    {
-    Internal::StringSet::const_iterator it = this->Internals->extraDims.begin();
-    std::advance(it, idx);
-    return *it;
-    }
-
-  return std::string();
+//----------------------------------------------------------------------------
+vtkStringArray *vtkMPASReader::GetAllDimensions()
+{
+  this->UpdateDimensions();
+  return this->Internals->extraDims.GetPointer();
 }
 
 //----------------------------------------------------------------------------
@@ -2604,7 +2616,6 @@ int vtkMPASReader::CanReadFile(const char *filename)
   ret &= isNcDim(&ncFile, "nVertices");
   ret &= isNcDim(&ncFile, "vertexDegree");
   ret &= isNcDim(&ncFile, "Time");
-  ret &= isNcDim(&ncFile, "nVertLevels");
   return ret;
 }
 
