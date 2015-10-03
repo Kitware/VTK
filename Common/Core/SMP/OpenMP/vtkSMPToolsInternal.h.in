@@ -79,6 +79,15 @@ static void vtkSMPTools_Impl_Sort(RandomAccessIterator begin,
   std::sort(begin, end);
 }
 
+//--------------------------------------------------------------------------------
+template<typename RandomAccessIterator, typename Compare>
+static void vtkSMPTools_Impl_Sort(RandomAccessIterator begin,
+                                  RandomAccessIterator end,
+                                  Compare comp)
+{
+  std::sort(begin, end, comp);
+}
+
 }//namespace smp
 }//namespace detail
 }//namespace vtk

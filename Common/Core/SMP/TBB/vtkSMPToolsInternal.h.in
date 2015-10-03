@@ -74,6 +74,15 @@ static void vtkSMPTools_Impl_Sort(RandomAccessIterator begin,
   tbb::parallel_sort(begin, end);
 }
 
+//--------------------------------------------------------------------------------
+template<typename RandomAccessIterator, typename Compare>
+static void vtkSMPTools_Impl_Sort(RandomAccessIterator begin,
+                                  RandomAccessIterator end,
+                                  Compare comp)
+{
+  tbb::parallel_sort(begin, end, comp);
+}
+
 
 }//namespace smp
 }//namespace detail
