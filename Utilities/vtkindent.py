@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 """
-This script takes "whitesmith" indented source files as input,
-and re-indents the braces according to the "allman" style.
+This script takes old-style "Whitesmiths" indented VTK source files as
+input, and re-indents the braces according to the new VTK style.
+Only the brace indentation is modified.
 
 Written by David Gobbi on Sep 30, 2015.
 """
@@ -10,7 +11,7 @@ import sys
 import re
 
 def reindent(filename):
-    """Reindent a file from whitesmith style to allman style"""
+    """Reindent a file from Whitesmiths style to Allman style"""
 
     # This first part of this function clears all strings and comments
     # where non-grammatical braces might be hiding.
@@ -27,9 +28,15 @@ def reindent(filename):
     char_literal_start = re.compile(r"'([^\\']|\\.)*\\$")
     char_literal_end = re.compile(r"^([^\\']|\\.)*'")
 
-    f = open(filename)
-    lines = f.readlines()
-    f.close()
+    try:
+        f = open(filename)
+        lines = f.readlines()
+        f.close()
+    except:
+        sys.stderr.write(filename + ": ")
+        sys.stderr.write(str(sys.exc_info()[1]) + "\n")
+        sys.exit(1)
+
     n = len(lines)
     newlines = []
 
