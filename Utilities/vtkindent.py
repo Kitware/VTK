@@ -108,6 +108,13 @@ def reindent(filename):
 
         newlines.append(line.rstrip())
 
+    # all changes go through this function
+    lines_changed = {}
+    def changeline(i, newtext, lines_changed=lines_changed):
+         if newtext != lines[i]:
+              lines[i] = newtext
+              lines_changed[i] = newtext
+
     # Use a stack to keep track of braces and, whenever a closing brace is
     # found, properly indent it and its opening brace.
     # For #if directives, check whether there are mismatched braces within
@@ -210,7 +217,7 @@ def reindent(filename):
                 elif ((in_else or in_define) and spaces.sub("", line) == "{"):
                     # for opening braces that might have no match
                     indent = " "*lastpos
-                    lines[i] = spaces.sub(indent, lines[i], count=1)
+                    changeline(i, spaces.sub(indent, lines[i], count=1))
                     stack.append((delim, i, lastpos, lastpos))
                 else:
                     # save delim, row, col, and previous indentation
@@ -231,8 +238,8 @@ def reindent(filename):
                     spaces.sub("", lines[i][0:pos]) == "" and
                     spaces.sub("", lines[j][0:k]) == ""):
                     indent = " "*newpos
-                    lines[i] = spaces.sub(indent, lines[i], count=1)
-                    lines[j] = spaces.sub(indent, lines[j], count=1)
+                    changeline(i, spaces.sub(indent, lines[i], count=1))
+                    changeline(j, spaces.sub(indent, lines[j], count=1))
             pos += 1
 
         # check for " = " and #define assignments for the sake of
@@ -255,9 +262,17 @@ def reindent(filename):
         sys.stderr.write("no match for " + stack[0][0] +
                          " before end of file.\n")
 
-    ofile = open(filename, 'w')
-    ofile.writelines(lines)
-    ofile.close()
+    if lines_changed:
+        # remove any trailing whitespace
+        trailing = re.compile(r" *$")
+        for i in range(n):
+            lines[i] = trailing.sub("", lines[i])
+        while n > 0 and lines[n-1].rstrip() == "":
+            n -= 1
+        # rewrite the file
+        ofile = open(filename, 'w')
+        ofile.writelines(lines)
+        ofile.close()
 
 
 if __name__ == "__main__":
