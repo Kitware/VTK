@@ -88,21 +88,30 @@ public:
     Py_INCREF(this->InteractiveConsole);
     Py_INCREF(this->InteractiveConsoleLocals);
 
-    PyRun_SimpleString(
-      const_cast<char*>("del __vtkConsole; del __vtkConsoleLocals"));
+    PyRun_SimpleString("del __vtkConsole; del __vtkConsoleLocals");
 
     // Maybe we need an API to enable developers to set the prompts.
-    PyObject* ps1 = PySys_GetObject(const_cast<char*>("ps1"));
+    PyObject* ps1 = PySys_GetObject("ps1");
     if (!ps1)
       {
-      PySys_SetObject(const_cast<char*>("ps1"), ps1 = PyString_FromString(">>> "));
+#if PY_VERSION_HEX >= 0x03000000
+      ps1 = PyUnicode_FromString(">>> ");
+#else
+      ps1 = PyString_FromString(">>> ");
+#endif
+      PySys_SetObject("ps1", ps1);
       Py_XDECREF(ps1);
       }
 
-    PyObject* ps2 = PySys_GetObject(const_cast<char*>("ps2"));
+    PyObject* ps2 = PySys_GetObject("ps2");
     if (!ps2)
       {
-      PySys_SetObject(const_cast<char*>("ps2"), ps2 = PyString_FromString("... "));
+#if PY_VERSION_HEX >= 0x03000000
+      ps2 = PyUnicode_FromString("... ");
+#else
+      ps2 = PyString_FromString("... ");
+#endif
+      PySys_SetObject("ps2", ps2);
       Py_XDECREF(ps2);
       }
 
@@ -200,10 +209,19 @@ int vtkPythonInteractiveInterpreter::RunStringWithConsoleLocals(const char* scri
     }
 
   Py_DECREF(result);
+#if PY_VERSION_HEX >= 0x03000000
+  PyObject *f = PySys_GetObject("stdout");
+  if (f == 0 || PyFile_WriteString("\n", f) != 0)
+    {
+    PyErr_Clear();
+    }
+#else
   if (Py_FlushLine())
     {
     PyErr_Clear();
     }
+#endif
+
   return 0;
 }
 
