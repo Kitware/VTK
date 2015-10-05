@@ -89,11 +89,13 @@ extern "C" {
 #endif
 }
 
-#if defined(VTK_PY3K) && defined(__APPLE__)
+#ifdef VTK_PY3K
+#if defined(__APPLE__) && PY_VERSION_HEX < 0x03050000
 extern "C" {
 extern wchar_t*
 _Py_DecodeUTF8_surrogateescape(const char *s, Py_ssize_t size);
 }
+#endif
 #endif
 
 static void vtkPythonAppInitEnableMSVCDebugHook();
@@ -161,7 +163,9 @@ int main(int argc, char **argv)
   std::string av0 = vtksys::SystemTools::CollapseFullPath(argv[0]);
 #ifdef VTK_PY3K
   wchar_t *argv0;
-#ifdef __APPLE__
+#if PY_VERSION_HEX >= 0x03050000
+  argv0 = Py_DecodeLocale(av0.c_str(), NULL);
+#elif defined(__APPLE__)
   argv0 = _Py_DecodeUTF8_surrogateescape(av0.data(), av0.length());
 #else
   argv0 = _Py_char2wchar(av0.c_str(), NULL);
@@ -218,7 +222,9 @@ int main(int argc, char **argv)
   wchar_t **argvWide2 = new wchar_t *[argc];
   for (int i = 0; i < argc; i++)
     {
-#ifdef __APPLE__
+#if PY_VERSION_HEX >= 0x03050000
+    argvWide[i] = Py_DecodeLocale(argv[i], NULL);
+#elif defined(__APPLE__)
     argvWide[i] = _Py_DecodeUTF8_surrogateescape(argv[i], strlen(argv[i]));
 #else
     argvWide[i] = _Py_char2wchar(argv[i], NULL);
