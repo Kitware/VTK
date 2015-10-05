@@ -17,19 +17,15 @@
 #include "vtkCell.h"
 #include "vtkGenericCell.h"
 #include "vtkDataSet.h"
+#include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSMPTools.h"
+#include "vtkSMPThreadLocalObject.h"
 
 #include <algorithm> //std::sort
-
-#undef VTK_USE_RAW_TBB
-#ifdef VTK_USE_RAW_TBB
-#include "tbb/parallel_sort.h"
-using namespace tbb;
-#endif
 
 //-----------------------------------------------------------------------------
 // The following tuple is an interface between VTK class and internal class
@@ -111,6 +107,65 @@ public:
     return this->CellIds + startOffset;
   }
 
+  class MapToSpanSpace
+  {
+  public:
+    vtkInternalSpanSpace *SpanSpace;
+    vtkDataSet *DataSet;
+    vtkDataArray *Scalars;
+    vtkSMPThreadLocalObject<vtkIdList> CellPts;
+    vtkSMPThreadLocalObject<vtkDoubleArray> CellScalars;
+
+    MapToSpanSpace(vtkInternalSpanSpace *ss, vtkDataSet *ds, vtkDataArray *s) :
+      SpanSpace(ss), DataSet(ds), Scalars(s)
+      {
+      }
+
+    void Initialize()
+      {
+      vtkIdList*& cellPts = this->CellPts.Local();
+      cellPts->SetNumberOfIds(12);
+      vtkDoubleArray*& cellScalars = this->CellScalars.Local();
+      cellScalars->SetNumberOfTuples(12);
+      }
+
+    void operator() (vtkIdType cellId, vtkIdType endCellId)
+      {
+      vtkIdType j, numScalars;
+      double *s, sMin, sMax;
+      vtkIdList*& cellPts = this->CellPts.Local();
+      vtkDoubleArray*& cellScalars = this->CellScalars.Local();
+
+      for ( ; cellId < endCellId; ++cellId )
+        {
+        this->DataSet->GetCellPoints(cellId,cellPts);
+        numScalars = cellPts->GetNumberOfIds();
+        cellScalars->SetNumberOfTuples(numScalars);
+        this->Scalars->GetTuples(cellPts, cellScalars);
+        s = cellScalars->GetPointer(0);
+
+        sMin = VTK_DOUBLE_MAX;
+        sMax = VTK_DOUBLE_MIN;
+        for ( j=0; j < numScalars; j++ )
+          {
+          if ( s[j] < sMin )
+            {
+            sMin = s[j];
+            }
+          if ( s[j] > sMax )
+            {
+            sMax = s[j];
+            }
+          }//for all cell scalars
+        // Compute span space id, and prepare to map
+        this->SpanSpace->SetSpanPoint(cellId, sMin, sMax);
+        }//for all cells in this thread
+      }
+
+    void Reduce()
+      {
+      }
+  };
  };
 
 //-----------------------------------------------------------------------------
@@ -150,11 +205,7 @@ Build()
   // space. The shape of the span space is upper diagonal (because
   // smax >= smin) but for simplicity sake (for now) we just use a
   // rectangular discretization (of dimensions Dim*Dim).
-#ifdef VTK_USE_RAW_TBB
-  parallel_sort(this->Space,this->Space+this->NumCells);
-#else
-  std::sort(this->Space,this->Space+this->NumCells);
-#endif
+  vtkSMPTools::Sort(this->Space,this->Space+this->NumCells);
 
   // Now that this is done, we create a matrix of offsets into the
   // sorted array. This enables rapid access into the sorted cellIds,
@@ -239,11 +290,7 @@ void vtkSpanSpace::Initialize()
 // reconstructs the tree if necessaery.
 void vtkSpanSpace::BuildTree()
 {
-  vtkIdType numCells, cellId, j, numScalars;
-  vtkCell *cell;
-  vtkIdList *cellPts;
-  double *s, sMin, sMax;
-  vtkDoubleArray *cellScalars;
+  vtkIdType numCells;
 
   // Check input...see whether we have to rebuild
   //
@@ -284,8 +331,6 @@ void vtkSpanSpace::BuildTree()
 
   // Prepare to process scalars
   this->Initialize(); //clears out old span space arrays
-  cellScalars = vtkDoubleArray::New();
-  cellScalars->Allocate(100);
 
   // The first pass loops over all cells, mapping them into span space
   // (i.e., an integer id into a gridded span space). Later this id will
@@ -294,37 +339,10 @@ void vtkSpanSpace::BuildTree()
   this->SpanSpace = new
     vtkInternalSpanSpace(this->Resolution,range[0],range[1],numCells);
 
-  // Loop over all cells getting range of scalar data, map to span space
-  //
-  for ( cellId=0; cellId < numCells; ++cellId )
-    {
-    cell = this->DataSet->GetCell(cellId);
-    cellPts = cell->GetPointIds();
-    numScalars = cellPts->GetNumberOfIds();
-    cellScalars->SetNumberOfTuples(numScalars);
-    this->Scalars->GetTuples(cellPts, cellScalars);
-    s = cellScalars->GetPointer(0);
-
-    sMin = VTK_DOUBLE_MAX;
-    sMax = VTK_DOUBLE_MIN;
-    for ( j=0; j < numScalars; j++ )
-      {
-      if ( s[j] < sMin )
-        {
-        sMin = s[j];
-        }
-      if ( s[j] > sMax )
-        {
-        sMax = s[j];
-        }
-      }//for all cell scalars
-
-    // Compute span space id, and prepare to map
-    this->SpanSpace->SetSpanPoint(cellId, sMin, sMax);
-    }//for all cells
-
-  // cleanup
-  cellScalars->Delete();
+  // Threaded processing of cells to produce span space
+  vtkInternalSpanSpace::
+    MapToSpanSpace map(this->SpanSpace,this->DataSet,this->Scalars);
+  vtkSMPTools::For(0,numCells,map);
 
   // Now sort and build span space
   this->SpanSpace->Build();

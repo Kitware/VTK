@@ -17,6 +17,7 @@
 
 #include <tbb/blocked_range.h>
 #include <tbb/parallel_for.h>
+#include <tbb/parallel_sort.h>
 
 namespace vtk
 {
@@ -24,6 +25,8 @@ namespace detail
 {
 namespace smp
 {
+
+//--------------------------------------------------------------------------------
 template <typename T>
 class FuncCall
 {
@@ -42,6 +45,7 @@ public:
     }
 };
 
+//--------------------------------------------------------------------------------
 template <typename FunctorInternal>
 static void vtkSMPTools_Impl_For(
   vtkIdType first, vtkIdType last, vtkIdType grain,
@@ -61,6 +65,25 @@ static void vtkSMPTools_Impl_For(
     tbb::parallel_for(tbb::blocked_range<vtkIdType>(first, last), FuncCall<FunctorInternal>(fi));
     }
 }
+
+//--------------------------------------------------------------------------------
+template<typename RandomAccessIterator>
+static void vtkSMPTools_Impl_Sort(RandomAccessIterator begin,
+                                  RandomAccessIterator end)
+{
+  tbb::parallel_sort(begin, end);
 }
+
+//--------------------------------------------------------------------------------
+template<typename RandomAccessIterator, typename Compare>
+static void vtkSMPTools_Impl_Sort(RandomAccessIterator begin,
+                                  RandomAccessIterator end,
+                                  Compare comp)
+{
+  tbb::parallel_sort(begin, end, comp);
 }
-}
+
+
+}//namespace smp
+}//namespace detail
+}//namespace vtk

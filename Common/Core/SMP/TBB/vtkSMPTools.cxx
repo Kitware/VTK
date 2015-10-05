@@ -50,6 +50,7 @@ void vtkSMPTools::Initialize(int numThreads)
   vtkSMPToolsCS.Unlock();
 }
 
+//--------------------------------------------------------------------------------
 int vtkSMPTools::GetEstimatedNumberOfThreads()
 {
   return vtkTBBNumSpecifiedThreads ? vtkTBBNumSpecifiedThreads

@@ -211,6 +211,29 @@ public:
   // vary dynamically and a particular task may not be executed on all the
   // available threads.
   static int GetEstimatedNumberOfThreads();
+
+  // Description:
+  // A convenience method for sorting data. It is a drop in replacement for
+  // std::sort(). Under the hood different methods are used. For example,
+  // tbb::parallel_sort is used in TBB.
+  template<typename RandomAccessIterator>
+    static void Sort(RandomAccessIterator begin, RandomAccessIterator end)
+  {
+    vtk::detail::smp::vtkSMPTools_Impl_Sort(begin,end);
+  }
+
+  // Description:
+  // A convenience method for sorting data. It is a drop in replacement for
+  // std::sort(). Under the hood different methods are used. For example,
+  // tbb::parallel_sort is used in TBB. This version of Sort() takes a
+  // comparison class.
+  template<typename RandomAccessIterator, typename Compare>
+    static void Sort(RandomAccessIterator begin, RandomAccessIterator end,
+      Compare comp)
+  {
+    vtk::detail::smp::vtkSMPTools_Impl_Sort(begin,end,comp);
+  }
+
 };
 
 #endif

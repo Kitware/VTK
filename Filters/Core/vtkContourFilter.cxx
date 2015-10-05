@@ -35,7 +35,7 @@
 #include "vtkPolyDataNormals.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkRectilinearSynchronizedTemplates.h"
-#include "vtkSimpleScalarTree.h"
+#include "vtkSpanSpace.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 #include "vtkSynchronizedTemplates2D.h"
@@ -419,7 +419,7 @@ int vtkContourFilter::RequestData(
       {
       if ( this->ScalarTree == NULL )
         {
-        this->ScalarTree = vtkSimpleScalarTree::New();
+        this->ScalarTree = vtkSpanSpace::New();
         }
       this->ScalarTree->SetDataSet(input);
       cgrid->SetScalarTree(this->ScalarTree);

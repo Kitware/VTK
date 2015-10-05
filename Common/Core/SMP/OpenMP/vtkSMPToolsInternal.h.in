@@ -18,6 +18,8 @@
 
 #include "vtkCommonCoreModule.h" // For export macro
 
+#include <algorithm> //for std::sort()
+
 #ifndef __WRAP__
 namespace vtk
 {
@@ -69,9 +71,27 @@ static void vtkSMPTools_Impl_For(vtkIdType first, vtkIdType last,
     }
 }
 
+//--------------------------------------------------------------------------------
+template<typename RandomAccessIterator>
+static void vtkSMPTools_Impl_Sort(RandomAccessIterator begin,
+                                  RandomAccessIterator end)
+{
+  std::sort(begin, end);
 }
+
+//--------------------------------------------------------------------------------
+template<typename RandomAccessIterator, typename Compare>
+static void vtkSMPTools_Impl_Sort(RandomAccessIterator begin,
+                                  RandomAccessIterator end,
+                                  Compare comp)
+{
+  std::sort(begin, end, comp);
 }
-}
+
+}//namespace smp
+}//namespace detail
+}//namespace vtk
+
 #endif // __WRAP__
 
 #endif

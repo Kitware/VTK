@@ -15,6 +15,8 @@
 #include "vtkMultiThreader.h"
 #include "vtkNew.h"
 
+#include <algorithm> //for std::sort()
+
 VTKCOMMONCORE_EXPORT std::vector<vtkMultiThreaderIDType>& vtkSMPToolsGetThreadIds();
 VTKCOMMONCORE_EXPORT void vtkSMPToolsInitialize();
 VTKCOMMONCORE_EXPORT int vtkSMPToolsGetNumberOfThreads();
@@ -134,6 +136,24 @@ static void vtkSMPTools_Impl_For(
 
   //pthread_barrier_destroy(&barr);
 }
+
+//--------------------------------------------------------------------------------
+template<typename RandomAccessIterator>
+static void vtkSMPTools_Impl_Sort(RandomAccessIterator begin,
+                                  RandomAccessIterator end)
+{
+  std::sort(begin, end);
 }
+
+//--------------------------------------------------------------------------------
+template<typename RandomAccessIterator, typename Compare>
+static void vtkSMPTools_Impl_Sort(RandomAccessIterator begin,
+                                  RandomAccessIterator end,
+                                  Compare comp)
+{
+  std::sort(begin, end, comp);
 }
-}
+
+}//namespace smp
+}//namespace detail
+}//namespace vtk

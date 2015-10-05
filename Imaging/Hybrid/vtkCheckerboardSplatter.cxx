@@ -31,12 +31,6 @@
 #include <algorithm>
 #include <math.h>
 
-#undef VTK_USE_RAW_TBB
-#ifdef VTK_USE_RAW_TBB
-#include "tbb/parallel_sort.h"
-using namespace tbb;
-#endif
-
 vtkStandardNewMacro(vtkCheckerboardSplatter);
 
 //----------------------------------------------------------------------------
@@ -528,13 +522,8 @@ SplatPoints(vtkCheckerboardSplatter *self, vtkIdType npts, TPoints *pts,
   vtkSMPTools::For(0,npts, assign);
 
   // Now sort points based on checkerboard address. This will separate
-  // points into squares which will be processed in parallel. At some point
-  // in the future this should be parallelized.
-#ifdef VTK_USE_RAW_TBB
-  parallel_sort(algo.SPts, algo.SPts+npts); //I'm seeing about 10% improvement
-#else
-  std::sort(algo.SPts, algo.SPts+npts);
-#endif
+  // points into squares which will be processed in parallel.
+  vtkSMPTools::Sort(algo.SPts, algo.SPts+npts);
 
   // Okay now run through the sorted points and build pointers to
   // each checkerboard square (and associated points, if any). This could be
