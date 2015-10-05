@@ -23,7 +23,7 @@ execute_process(COMMAND /usr/bin/xcrun -sdk iphonesimulator --show-sdk-path
 # If the we are on 7.0 or higher SDK we should add simulator version min to get
 # things to compile.  This is probably more properly handled with a compiler version
 # check but this works for now.
-if(CMAKE_OSX_SYSROOT MATCHES iPhoneSimulator[7-8].[0-9].sdk)
+if(CMAKE_OSX_SYSROOT MATCHES iPhoneSimulator[7-9].[0-9].sdk)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mios-simulator-version-min=5.0")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mios-simulator-version-min=5.0")
 else()
@@ -81,7 +81,16 @@ if (NOT CMAKE_OSX_SYSROOT)
     /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs
     )
   foreach(sdk_root ${possible_sdk_roots})
-    foreach(sdk iPhoneSimulator4.3.sdk iPhoneSimulator5.0.sdk iPhoneSimulator5.1.sdk iPhoneSimulator6.0.sdk iPhoneSimulator6.1.sdk iPhoneSimulator7.0.sdk iPhoneSimulator7.1.sdk iPhoneSimulator8.0.sdk)
+    foreach(sdk
+      iPhoneSimulator4.3.sdk
+      iPhoneSimulator5.0.sdk
+      iPhoneSimulator5.1.sdk
+      iPhoneSimulator6.0.sdk
+      iPhoneSimulator6.1.sdk
+      iPhoneSimulator7.0.sdk
+      iPhoneSimulator7.1.sdk
+      iPhoneSimulator8.0.sdk
+      iPhoneSimulator9.0.sdk)
       if (EXISTS ${sdk_root}/${sdk} AND IS_DIRECTORY ${sdk_root}/${sdk})
         set(CMAKE_OSX_SYSROOT ${sdk_root}/${sdk})
       endif()
