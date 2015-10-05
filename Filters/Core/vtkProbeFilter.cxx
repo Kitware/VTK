@@ -233,10 +233,28 @@ void vtkProbeFilter::InitializeForProbing(vtkDataSet* input,
     }
   tempCellData->Delete();
 
+  outPD->AddArray(this->MaskPoints);
+
   // Since we haven't resize the point arrays, we need to fill them up with
   // nulls whenever we have a miss when probing.
   this->UseNullPoint = true;
 
+}
+
+//----------------------------------------------------------------------------
+void vtkProbeFilter::DoProbing(vtkDataSet *input, int srcIdx, vtkDataSet *source,
+                               vtkDataSet *output)
+{
+  if (vtkImageData::SafeDownCast(input))
+    {
+    vtkImageData *inImage = vtkImageData::SafeDownCast(input);
+    vtkImageData *outImage = vtkImageData::SafeDownCast(output);
+    this->ProbePointsImageData(inImage, srcIdx, source, outImage);
+    }
+  else
+    {
+    this->ProbeEmptyPoints(input, srcIdx, source, output);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -245,17 +263,7 @@ void vtkProbeFilter::Probe(vtkDataSet *input, vtkDataSet *source,
 {
   this->BuildFieldList(source);
   this->InitializeForProbing(input, output);
-  if (vtkImageData::SafeDownCast(input))
-    {
-    vtkImageData *inImage = vtkImageData::SafeDownCast(input);
-    vtkImageData *outImage = vtkImageData::SafeDownCast(output);
-    this->ProbePointsImageData(inImage, 0, source, outImage);
-    }
-  else
-    {
-    this->ProbeEmptyPoints(input, 0, source, output);
-    }
-  output->GetPointData()->AddArray(this->MaskPoints);
+  this->DoProbing(input, 0, source, output);
 }
 
 //----------------------------------------------------------------------------
@@ -454,17 +462,6 @@ void vtkProbeFilter::ProbePointsImageData(vtkImageData *input,
 
   vtkIdType numPts = input->GetNumberOfPoints();
   vtkPointData *outPD = output->GetPointData();
-
-  // initialize arrays
-  for (int i = 0; i < outPD->GetNumberOfArrays(); i++)
-    {
-    outPD->GetArray(i)->SetNumberOfTuples(numPts);
-    // initialize the values to 0
-    for (int j = 0; j < outPD->GetArray(i)->GetNumberOfComponents(); j++)
-      {
-      outPD->GetArray(i)->FillComponent(j, 0);
-      }
-    }
 
   char* maskArray = this->MaskPoints->GetPointer(0);
 
