@@ -485,7 +485,8 @@ void vtkTextMapper::UpdateQuad(vtkActor2D *actor, int dpi)
     }
 
   if (this->CoordsTime < actor->GetMTime() ||
-      this->CoordsTime < this->TextProperty->GetMTime())
+      this->CoordsTime < this->TextProperty->GetMTime() ||
+      this->CoordsTime < this->TCoordsTime)
     {
     int text_bbox[4];
     vtkTextRenderer *tren = vtkTextRenderer::GetInstance();
