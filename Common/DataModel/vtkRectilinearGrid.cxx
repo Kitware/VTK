@@ -985,6 +985,16 @@ void vtkRectilinearGrid::DeepCopy(vtkDataObject *dataObject)
 //----------------------------------------------------------------------------
 void vtkRectilinearGrid::Crop(const int* updateExtent)
 {
+  // Do nothing for empty datasets:
+  for (int dim = 0; dim < 3; ++dim)
+    {
+    if (this->Extent[2*dim] > this->Extent[2*dim + 1])
+      {
+      vtkDebugMacro(<<"Refusing to crop empty dataset.");
+      return;
+      }
+    }
+
   int i, j, k;
   // What we want.
   int uExt[6];
