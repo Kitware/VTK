@@ -37,7 +37,13 @@
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 
+#include <map>
+
 vtkStandardNewMacro(vtkAVSucdReader);
+
+// Internal Classes/Structures
+struct vtkAVSucdReader::idMapping : public std::map<vtkIdType, vtkIdType>
+{};
 
 //----------------------------------------------------------------------------
 vtkAVSucdReader::vtkAVSucdReader()
@@ -51,7 +57,6 @@ vtkAVSucdReader::vtkAVSucdReader()
   this->NumberOfNodeComponents = 0;
   this->NumberOfCellComponents = 0;
   this->FileStream = NULL;
-  this->DecrementNodeIds = 0;
   this->NumberOfNodes = 0;
   this->NumberOfCells = 0;
 
@@ -155,16 +160,18 @@ void vtkAVSucdReader::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkAVSucdReader::ReadFile(vtkUnstructuredGrid *output)
 {
-  this->ReadGeometry(output);
+  idMapping nodeMap, cellMap;
+
+  this->ReadGeometry(output, nodeMap, cellMap);
 
   if(this->NumberOfNodeFields)
     {
-    this->ReadNodeData(output);
+    this->ReadNodeData(output, nodeMap);
     }
 
   if(this->NumberOfCellFields)
     {
-    this->ReadCellData(output);
+    this->ReadCellData(output, cellMap);
     }
 
   delete this->FileStream;
@@ -516,7 +523,9 @@ void vtkAVSucdReader::GetNodeDataRange(int nodeComp, int index, float *min, floa
 }
 
 //----------------------------------------------------------------------------
-void vtkAVSucdReader::ReadGeometry(vtkUnstructuredGrid *output)
+void vtkAVSucdReader::ReadGeometry(vtkUnstructuredGrid *output,
+                                   idMapping& nodeMap,
+                                   idMapping& cellMap)
 {
   // add a material array
   vtkIntArray *materials = vtkIntArray::New();
@@ -542,7 +551,7 @@ void vtkAVSucdReader::ReadGeometry(vtkUnstructuredGrid *output)
     listcells->SetNumberOfValues(this->NumberOfCells + this->NlistNodes);
 
     this->ReadBinaryCellTopology(materials, types, listcells);
-    this->ReadXYZCoords(coords);
+    this->ReadXYZCoords(coords, nodeMap);
 
     vtkCellArray *cells = vtkCellArray::New();
     cells->SetCells(this->NumberOfCells, listcells);
@@ -554,8 +563,8 @@ void vtkAVSucdReader::ReadGeometry(vtkUnstructuredGrid *output)
     }
   else
     {
-    this->ReadXYZCoords(coords);
-    this->ReadASCIICellTopology(materials, output);
+    this->ReadXYZCoords(coords, nodeMap);
+    this->ReadASCIICellTopology(materials, output, nodeMap, cellMap);
     }
 
   vtkPoints *points = vtkPoints::New();
@@ -651,7 +660,9 @@ void vtkAVSucdReader::ReadBinaryCellTopology(vtkIntArray *materials,
 
 //----------------------------------------------------------------------------
 void vtkAVSucdReader::ReadASCIICellTopology(vtkIntArray *materials,
-                                            vtkUnstructuredGrid *output)
+                                            vtkUnstructuredGrid *output,
+                                            const idMapping& nodeMap,
+                                            idMapping& cellMap)
 {
   int i, k;
   vtkIdType list[8];
@@ -661,8 +672,9 @@ void vtkAVSucdReader::ReadASCIICellTopology(vtkIntArray *materials,
   output->Allocate();
   for(i=0; i < this->NumberOfCells; i++)
     {
-    int id;  // no check is done to see that they are monotonously increasing
+    vtkIdType id;
     *(this->FileStream) >> id;
+    cellMap.insert(std::make_pair(id, static_cast<vtkIdType>(i)));
     *(this->FileStream) >> mat[i];
     *(this->FileStream) >> ctype;
     vtkDebugMacro( << mat[i] << ", " << ctype );
@@ -670,11 +682,8 @@ void vtkAVSucdReader::ReadASCIICellTopology(vtkIntArray *materials,
       {
       for(k=0; k < 1; k++)
         {
-        *(this->FileStream) >> list[k];
-        if(this->DecrementNodeIds)
-          {
-          list[k]--;
-          }
+        *(this->FileStream) >> id;
+        list[k] = nodeMap.find(id)->second;
         }
       output->InsertNextCell(VTK_VERTEX, 1, list);
       }
@@ -682,11 +691,8 @@ void vtkAVSucdReader::ReadASCIICellTopology(vtkIntArray *materials,
       {
       for(k=0; k < 2; k++)
         {
-        *(this->FileStream) >> list[k];
-        if(this->DecrementNodeIds)
-          {
-          list[k]--;
-          }
+        *(this->FileStream) >> id;
+        list[k] = nodeMap.find(id)->second;
         }
       output->InsertNextCell(VTK_LINE, 2, list);
       }
@@ -694,11 +700,8 @@ void vtkAVSucdReader::ReadASCIICellTopology(vtkIntArray *materials,
       {
       for(k=0; k < 3; k++)
         {
-        *(this->FileStream) >> list[k];
-        if(this->DecrementNodeIds)
-          {
-          list[k]--;
-          }
+        *(this->FileStream) >> id;
+        list[k] = nodeMap.find(id)->second;
         }
       output->InsertNextCell(VTK_TRIANGLE, 3, list);
       }
@@ -706,11 +709,8 @@ void vtkAVSucdReader::ReadASCIICellTopology(vtkIntArray *materials,
       {
       for(k=0; k < 4; k++)
         {
-        *(this->FileStream) >> list[k];
-        if(this->DecrementNodeIds)
-          {
-          list[k]--;
-          }
+        *(this->FileStream) >> id;
+        list[k] = nodeMap.find(id)->second;
         }
       output->InsertNextCell(VTK_QUAD, 4, list);
       }
@@ -718,11 +718,8 @@ void vtkAVSucdReader::ReadASCIICellTopology(vtkIntArray *materials,
       {
       for(k=0; k < 4; k++)
         {
-        *(this->FileStream) >> list[k];
-        if(this->DecrementNodeIds)
-          {
-          list[k]--;
-          }
+        *(this->FileStream) >> id;
+        list[k] = nodeMap.find(id)->second;
         }
       output->InsertNextCell(VTK_TETRA, 4, list);
       }
@@ -730,11 +727,8 @@ void vtkAVSucdReader::ReadASCIICellTopology(vtkIntArray *materials,
       {
       for(k=0; k < 5; k++)
         {
-        *(this->FileStream) >> list[k];
-        if(this->DecrementNodeIds)
-          {
-          list[k]--;
-          }
+        *(this->FileStream) >> id;
+        list[k] = nodeMap.find(id)->second;
         }
       int tmp;
       tmp = list[0];
@@ -746,11 +740,8 @@ void vtkAVSucdReader::ReadASCIICellTopology(vtkIntArray *materials,
       {
       for(k=0; k < 6; k++)
         {
-        *(this->FileStream) >> list[k];
-        if(this->DecrementNodeIds)
-          {
-          list[k]--;
-          }
+        *(this->FileStream) >> id;
+        list[k] = nodeMap.find(id)->second;
         }
       output->InsertNextCell(VTK_WEDGE, 6, list);
       }
@@ -758,11 +749,8 @@ void vtkAVSucdReader::ReadASCIICellTopology(vtkIntArray *materials,
       {
       for(k=0; k < 8; k++)
         {
-        *(this->FileStream) >> list[k];
-        if(this->DecrementNodeIds)
-          {
-          list[k]--;
-          }
+        *(this->FileStream) >> id;
+        list[k] = nodeMap.find(id)->second;
         }
       output->InsertNextCell(VTK_HEXAHEDRON, 8, list);
       }
@@ -776,7 +764,7 @@ void vtkAVSucdReader::ReadASCIICellTopology(vtkIntArray *materials,
 
 
 //----------------------------------------------------------------------------
-void vtkAVSucdReader::ReadXYZCoords(vtkFloatArray *coords)
+void vtkAVSucdReader::ReadXYZCoords(vtkFloatArray *coords, idMapping& nodeMap)
 {
   int i;
   float *ptr = coords->GetPointer(0);
@@ -809,28 +797,20 @@ void vtkAVSucdReader::ReadXYZCoords(vtkFloatArray *coords)
     }  // end of binary read
   else
     {
-    int id;  // no check is done to see that they are monotonously increasing
-    // read here the first node and check if its id number is 0
-
-    *(this->FileStream) >> id;
-    i=0;
-    *(this->FileStream) >> ptr[3*i] >> ptr[3*i+1] >> ptr[3*i+2];
-    if(id)
-      {
-      this->DecrementNodeIds = 1;
-      }
-
-    for(i=1; i < this->NumberOfNodes; i++)
+    vtkIdType id;
+    for(i=0; i < this->NumberOfNodes; i++)
       {
       *(this->FileStream) >> id;
       *(this->FileStream) >> ptr[3*i] >> ptr[3*i+1] >> ptr[3*i+2];
+      nodeMap.insert(std::make_pair(id, static_cast<vtkIdType>(i)));
       }
     } // end of ASCII read
 }
 
 
 //----------------------------------------------------------------------------
-void vtkAVSucdReader::ReadNodeData(vtkUnstructuredGrid *output)
+void vtkAVSucdReader::ReadNodeData(vtkUnstructuredGrid *output,
+                                   const idMapping& nodeMap)
 {
   int i, j, n;
   float *ptr;
@@ -868,7 +848,6 @@ void vtkAVSucdReader::ReadNodeData(vtkUnstructuredGrid *output)
   else
     {
     float value;
-    int id;
     char buf1[128], c='\0', buf2[128];
 
     *(this->FileStream) >> this->NumberOfNodeComponents;
@@ -899,13 +878,15 @@ void vtkAVSucdReader::ReadNodeData(vtkUnstructuredGrid *output)
       }
     for(n=0; n < this->NumberOfNodes; n++)
       {
+      vtkIdType id;
       *(this->FileStream) >> id;
+      id = nodeMap.find(id)->second;
       for(i=0; i < this->NumberOfNodeComponents; i++)
         {
         for(j=0; j < this->NodeDataInfo[i].veclen; j++)
           {
           *(this->FileStream) >> value;
-          scalars[i]->SetComponent(n, j, value);
+          scalars[i]->SetComponent(id, j, value);
           }
         }
       }
@@ -925,7 +906,8 @@ void vtkAVSucdReader::ReadNodeData(vtkUnstructuredGrid *output)
 
 
 //----------------------------------------------------------------------------
-void vtkAVSucdReader::ReadCellData(vtkUnstructuredGrid *output)
+void vtkAVSucdReader::ReadCellData(vtkUnstructuredGrid *output,
+                                   const idMapping& cellMap)
 {
   int i, j, n;
   float *ptr;
@@ -957,7 +939,6 @@ void vtkAVSucdReader::ReadCellData(vtkUnstructuredGrid *output)
   else
     {
     float value;
-    int id;
     char buf1[128], c='\0', buf2[128];
 
     *(this->FileStream) >> this->NumberOfCellComponents;
@@ -989,13 +970,15 @@ void vtkAVSucdReader::ReadCellData(vtkUnstructuredGrid *output)
       }
     for(n=0; n < this->NumberOfCells; n++)
       {
+      vtkIdType id;
       *(this->FileStream) >> id;
+      id = cellMap.find(id)->second;
       for(i=0; i < this->NumberOfCellComponents; i++)
         {
         for(j=0; j < this->CellDataInfo[i].veclen; j++)
           {
           *(this->FileStream) >> value;
-          scalars[i]->SetComponent(n, j, value);
+          scalars[i]->SetComponent(id, j, value);
           }
         }
       }
