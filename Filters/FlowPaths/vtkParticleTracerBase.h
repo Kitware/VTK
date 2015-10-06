@@ -64,9 +64,9 @@ namespace vtkParticleTracerBaseNamespace
     int           LocationState;
     // These are computed scalars we might display
     int           SourceID;
-    int           TimeStepAge;
+    int           TimeStepAge; // amount of time steps the particle has advanced
     int           InjectedPointId;
-    int           InjectedStepId;
+    int           InjectedStepId;  // time step the particle was injected
     int           UniqueParticleId;
     double        SimulationTime;
     // These are useful to track for debugging etc
