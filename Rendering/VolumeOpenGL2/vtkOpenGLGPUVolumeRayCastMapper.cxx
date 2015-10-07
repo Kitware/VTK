@@ -111,7 +111,6 @@ public:
     this->TextureSize[0] = this->TextureSize[1] = this->TextureSize[2] = -1;
     this->WindowLowerLeft[0] = this->WindowLowerLeft[1] = 0;
     this->WindowSize[0] = this->WindowSize[1] = 0;
-    this->LastWindowSize[0] = this->LastWindowSize[1] = 0;
 
     this->CellScale[0] = this->CellScale[1] = this->CellScale[2] = 0.0;
     this->NoiseTextureData = 0;
@@ -257,9 +256,6 @@ public:
   // Test if camera is inside the volume geometry
   bool IsCameraInside(vtkRenderer* ren, vtkVolume* vol);
 
-  // Check if window is resize
-  bool IsWindowResized();
-
   // Update the volume geometry
   void UpdateVolumeGeometry(vtkRenderer* ren, vtkVolume* vol,
                             vtkImageData* input);
@@ -321,7 +317,6 @@ public:
   int TextureSize[3];
   int WindowLowerLeft[2];
   int WindowSize[2];
-  int LastWindowSize[2];
 
   std::vector< std::vector<double> > ScalarsRange;
   double LoadedBounds[6];
@@ -1387,13 +1382,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateDepthTexture(
     return;
     }
 
-  if (this->IsWindowResized() && this->DepthTextureObject)
-    {
-    this->DepthTextureObject->ReleaseGraphicsResources(ren->GetRenderWindow());
-    this->DepthTextureObject->Delete();
-    this->DepthTextureObject = 0;
-    }
-
   if (!this->DepthTextureObject)
     {
     this->DepthTextureObject = vtkTextureObject::New();
@@ -1602,17 +1590,6 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::IsCameraInside(
     return true;
     }
 
-  return false;
-}
-
-//----------------------------------------------------------------------------
-bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::IsWindowResized()
-{
-  if (this->LastWindowSize[0] != this->WindowSize[0] ||
-      this->LastWindowSize[1] != this->WindowSize[1])
-    {
-    return true;
-    }
   return false;
 }
 
@@ -2277,7 +2254,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
 
   if (this->Impl->ShaderCache)
     {
-    this->Impl->ShaderCache->ReleaseGraphicsResources(window);
     this->Impl->ShaderCache = 0;
     }
 
@@ -2724,9 +2700,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   int independentComponents = volumeProperty->GetIndependentComponents();
 
   // Get window size and corners
-  this->Impl->LastWindowSize[0] = this->Impl->WindowSize[0];
-  this->Impl->LastWindowSize[1] = this->Impl->WindowSize[1];
-
   ren->GetTiledSizeAndOrigin(
     this->Impl->WindowSize, this->Impl->WindowSize + 1,
     this->Impl->WindowLowerLeft, this->Impl->WindowLowerLeft + 1);
@@ -2755,23 +2728,21 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     this->Impl->FBO->InitializeViewport(this->Impl->WindowSize[0],
                                         this->Impl->WindowSize[1]);
 
-    if (this->Impl->IsWindowResized())
-      {
-      if (this->Impl->RTTDepthBufferTextureObject)
-        {
-        this->Impl->RTTDepthBufferTextureObject->ReleaseGraphicsResources(
-          ren->GetRenderWindow());
-        this->Impl->RTTDepthBufferTextureObject->Delete();
-        this->Impl->RTTDepthBufferTextureObject = 0;
-        }
 
-      if (this->Impl->RTTColorTextureObject)
-        {
-        this->Impl->RTTColorTextureObject->ReleaseGraphicsResources(
-          ren->GetRenderWindow());
-        this->Impl->RTTColorTextureObject->Delete();
-        this->Impl->RTTColorTextureObject = 0;
-        }
+    if (this->Impl->RTTDepthBufferTextureObject)
+      {
+      this->Impl->RTTDepthBufferTextureObject->ReleaseGraphicsResources(
+        ren->GetRenderWindow());
+      this->Impl->RTTDepthBufferTextureObject->Delete();
+      this->Impl->RTTDepthBufferTextureObject = 0;
+      }
+
+    if (this->Impl->RTTColorTextureObject)
+      {
+      this->Impl->RTTColorTextureObject->ReleaseGraphicsResources(
+        ren->GetRenderWindow());
+      this->Impl->RTTColorTextureObject->Delete();
+      this->Impl->RTTColorTextureObject = 0;
       }
 
     if (!this->Impl->RTTDepthBufferTextureObject ||
