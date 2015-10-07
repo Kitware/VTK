@@ -132,13 +132,13 @@ public:
     this->Scale.clear();
     this->Bias.clear();
 
+    this->NeedToInitializeResources = false;
+    this->ShaderCache = 0;
+
+    this->FBO = 0;
     this->RTTDepthBufferTextureObject = 0;
     this->RTTDepthTextureObject = 0;
     this->RTTColorTextureObject = 0;
-
-    this->NeedToInitializeResources = false;
-
-    this->FBO = 0;
     }
 
   // Destructor
@@ -2275,6 +2275,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
     this->Impl->GradientOpacityTables = 0;
     }
 
+  if (this->Impl->ShaderCache)
+    {
+    this->Impl->ShaderCache->ReleaseGraphicsResources(window);
+    this->Impl->ShaderCache = 0;
+    }
+
   this->Impl->ReleaseResourcesTime.Modified();
 }
 
@@ -2934,10 +2940,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
       ren->GetActiveCamera()->GetParallelProjection();
     this->BuildShader(ren, vol, noOfComponents);
     }
-
-  // Bind the shader
-  this->Impl->ShaderCache->ReadyShaderProgram(
-    this->Impl->ShaderProgram);
+  else
+    {
+    // Bind the shader
+    this->Impl->ShaderCache->ReadyShaderProgram(
+      this->Impl->ShaderProgram);
+    }
 
   // And now update the geometry that will be used
   // to render the 3D texture
