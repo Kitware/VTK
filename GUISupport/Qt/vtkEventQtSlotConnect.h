@@ -94,10 +94,8 @@ class VTKGUISUPPORTQT_EXPORT vtkEventQtSlotConnect : public vtkObject
     ~vtkEventQtSlotConnect();
 
   private:
-    // unimplemented
-    vtkEventQtSlotConnect(const vtkEventQtSlotConnect&);
-    void operator=(const vtkEventQtSlotConnect&);
+    vtkEventQtSlotConnect(const vtkEventQtSlotConnect&); // Not implemented
+    void operator=(const vtkEventQtSlotConnect&); // Not implemented
 };
 
 #endif
-

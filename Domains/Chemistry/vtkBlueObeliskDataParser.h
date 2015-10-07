@@ -133,9 +133,8 @@ protected:
   unsigned int CurrentGroup;
 
 private:
-  // Not implemented
-  vtkBlueObeliskDataParser(const vtkBlueObeliskDataParser&);
-  void operator=(const vtkBlueObeliskDataParser&);
+  vtkBlueObeliskDataParser(const vtkBlueObeliskDataParser&); // Not implemented
+  void operator=(const vtkBlueObeliskDataParser&); // Not implemented
 
   // Description:
   // Resize array if needed and set the entry at ind to val.

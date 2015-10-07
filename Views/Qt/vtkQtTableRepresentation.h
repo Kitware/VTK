@@ -123,8 +123,8 @@ public:
   virtual void SetModelType() { };
 
 private:
-  vtkQtTableRepresentation(const vtkQtTableRepresentation &);
-  void operator=(const vtkQtTableRepresentation &);
+  vtkQtTableRepresentation(const vtkQtTableRepresentation &); // Not implemented
+  void operator=(const vtkQtTableRepresentation &); // Not implemented
 
 };
 
