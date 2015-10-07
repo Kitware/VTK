@@ -16,8 +16,8 @@
 //
 // .SECTION Description
 //  Empty class for backwards compatibility.
-#ifndef VTKLEVELIDSCALARS_H_
-#define VTKLEVELIDSCALARS_H_
+#ifndef vtkLevelIdScalars_h
+#define vtkLevelIdScalars_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkOverlappingAMRLevelIdScalars.h"

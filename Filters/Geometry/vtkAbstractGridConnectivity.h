@@ -37,8 +37,8 @@
 // .SECTION See Also
 //  vtkStructuredGridConnectivity vtkStructuredAMRGridConnectivity
 
-#ifndef VTKABSTRACTGRIDCONNECTIVITY_H_
-#define VTKABSTRACTGRIDCONNECTIVITY_H_
+#ifndef vtkAbstractGridConnectivity_h
+#define vtkAbstractGridConnectivity_h
 
 // VTK includes
 #include "vtkFiltersGeometryModule.h" // For export macro
@@ -490,4 +490,4 @@ inline void vtkAbstractGridConnectivity::RegisterGridNodes(
     }
 }
 
-#endif /* VTKABSTRACTGRIDCONNECTIVITY_H_ */
+#endif /* vtkAbstractGridConnectivity_h */

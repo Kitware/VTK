@@ -42,8 +42,8 @@
 // start at 1 and VTK ids start at 0, the vertex ids in the vtkGraph
 // will be 1 less than the Chaco ids.
 
-#ifndef _vtkChacoGraphReader_h
-#define _vtkChacoGraphReader_h
+#ifndef vtkChacoGraphReader_h
+#define vtkChacoGraphReader_h
 
 #include "vtkIOInfovisModule.h" // For export macro
 #include "vtkUndirectedGraphAlgorithm.h"
@@ -76,5 +76,4 @@ private:
   void operator=(const vtkChacoGraphReader&);  // Not implemented.
 };
 
-#endif // _vtkChacoGraphReader_h
-
+#endif // vtkChacoGraphReader_h

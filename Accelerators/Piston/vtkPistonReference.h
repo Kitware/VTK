@@ -25,8 +25,8 @@
 // .SECTION See Also
 // vtkPistonDataObject
 
-#ifndef VTKPistonReference_H_
-#define VTKPistonReference_H_
+#ifndef vtkPistonReference_h
+#define vtkPistonReference_h
 
 namespace vtkpiston {
   void DeleteData(vtkPistonReference *tr);
@@ -59,5 +59,5 @@ public:
     void *data; //the payload on GPU
 };
 
-#endif /* VTKPistonReference_H_ */
+#endif /* vtkPistonReference_h */
 // VTK-HeaderTest-Exclude: vtkPistonReference.h

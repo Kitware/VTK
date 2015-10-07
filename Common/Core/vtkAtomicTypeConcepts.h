@@ -13,6 +13,9 @@
 
 =========================================================================*/
 
+#ifndef vtkAtomicTypeConcepts_h
+#define vtkAtomicTypeConcepts_h
+
 #include <limits>
 
 namespace vtk
@@ -35,4 +38,6 @@ template <typename T> struct IntegralType
 } // detail
 } // atomic
 } // vtk
+
+#endif
 // VTK-HeaderTest-Exclude: vtkAtomicTypeConcepts.h

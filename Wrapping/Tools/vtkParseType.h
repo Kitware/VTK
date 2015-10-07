@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef VTK_PARSE_TYPE_H
-#define VTK_PARSE_TYPE_H
+#ifndef vtkParseType_h
+#define vtkParseType_h
 
 /**
  * The parser identifies VTK types with 32-bit hexidecimal numbers:

@@ -18,8 +18,8 @@
 // A concrete instance of vtkAMRBaseReader that implements functionality
 // for reading Flash AMR datasets.
 
-#ifndef VTKAMRFLASHREADER_H_
-#define VTKAMRFLASHREADER_H_
+#ifndef vtkAMRFlashReader_h
+#define vtkAMRFlashReader_h
 
 #include "vtkIOAMRModule.h" // For export macro
 #include "vtkAMRBaseReader.h"
@@ -90,4 +90,4 @@ private:
   vtkFlashReaderInternal *Internal;
 };
 
-#endif /* VTKAMRFLASHREADER_H_ */
+#endif /* vtkAMRFlashReader_h */

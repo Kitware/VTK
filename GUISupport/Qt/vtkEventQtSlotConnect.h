@@ -37,8 +37,8 @@
 // - MySlot(vtkObject* caller, unsigned long vtk_event, void* client_data, void* call_data, vtkCommand*)
 
 
-#ifndef VTK_EVENT_QT_SLOT_CONNECT
-#define VTK_EVENT_QT_SLOT_CONNECT
+#ifndef vtkEventQtSlotConnect_h
+#define vtkEventQtSlotConnect_h
 
 #include "vtkGUISupportQtModule.h" // For export macro
 #include "vtkObject.h"

@@ -1,3 +1,6 @@
+#ifndef vtkVariantInlineOperators_h
+#define vtkVariantInlineOperators_h
+
 #include <climits>
 
 // ----------------------------------------------------------------------
@@ -304,4 +307,5 @@ vtkVariant::operator>=(const vtkVariant &other) const
   return (!this->operator<(other));
 }
 
+#endif
 // VTK-HeaderTest-Exclude: vtkVariantInlineOperators.h

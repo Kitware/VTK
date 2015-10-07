@@ -19,8 +19,8 @@
 //  functionality for extracting slices from AMR data. Unlike the conventional
 //  slice filter, the output of this filter is a 2-D AMR dataset itself.
 
-#ifndef VTKAMRSLICEFILTER_H_
-#define VTKAMRSLICEFILTER_H_
+#ifndef vtkAMRSliceFilter_h
+#define vtkAMRSliceFilter_h
 
 #include "vtkFiltersAMRModule.h" // For export macro
 #include "vtkOverlappingAMRAlgorithm.h"
@@ -166,4 +166,4 @@ private:
   void operator=( const vtkAMRSliceFilter& ); // Not implemented
 };
 
-#endif /* VTKAMRSLICEFILTER_H_ */
+#endif /* vtkAMRSliceFilter_h */

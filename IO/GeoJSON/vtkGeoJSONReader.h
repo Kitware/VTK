@@ -17,8 +17,8 @@
 // Outputs a vtkPolyData from the input
 // Geo JSON Data (http://www.geojson.org)
 
-#ifndef __vtkGeoJSONReader_h
-#define __vtkGeoJSONReader_h
+#ifndef vtkGeoJSONReader_h
+#define vtkGeoJSONReader_h
 
 // VTK Includes
 #include "vtkIOGeoJSONModule.h" // For export macro
@@ -101,4 +101,4 @@ private:
   void operator=(const vtkGeoJSONReader&);    // Not implemented
 };
 
-#endif // __vtkGeoJSONReader_h
+#endif // vtkGeoJSONReader_h

@@ -34,8 +34,8 @@ PURPOSE.  See the above copyright notice for more information.
 // comparisons can be performed in the scaled space by setting the CustomRanges
 // ivar and enabling UseNormalizedDistance.
 
-#ifndef vtkBivariateLinearTableThreshold__h
-#define vtkBivariateLinearTableThreshold__h
+#ifndef vtkBivariateLinearTableThreshold_h
+#define vtkBivariateLinearTableThreshold_h
 
 #include "vtkFiltersStatisticsModule.h" // For export macro
 #include "vtkTableAlgorithm.h"

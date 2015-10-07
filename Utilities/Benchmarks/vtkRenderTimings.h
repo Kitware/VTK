@@ -13,6 +13,9 @@
 
 =========================================================================*/
 
+#ifndef vtkRenderTimings_h
+#define vtkRenderTimings_h
+
 /**
  * Define the classes we use for running timing benchmarks
  */
@@ -170,3 +173,5 @@ private:
   double SequenceStepTimeLimit;
   std::string DetailedResultsFileName;
 };
+
+#endif

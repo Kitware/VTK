@@ -20,8 +20,8 @@
 /*     for more information.                                       */
 /*                                                                 */
 /*******************************************************************/
-#ifndef _vtkXdmfDataArray_h
-#define _vtkXdmfDataArray_h
+#ifndef vtkXdmfDataArray_h
+#define vtkXdmfDataArray_h
 
 #include "vtkIOXdmf2Module.h" // For export macro
 #include "vtkObject.h"
@@ -66,4 +66,4 @@ private:
   void operator=(const vtkXdmfDataArray&); // Not implemented
 };
 
-#endif /* _vtkXdmfDataArray_h */
+#endif /* vtkXdmfDataArray_h */

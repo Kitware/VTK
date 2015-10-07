@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef VTK_WRAP_PYTHON_TYPE_H
-#define VTK_WRAP_PYTHON_TYPE_H
+#ifndef vtkWrapPythonType_h
+#define vtkWrapPythonType_h
 
 #include "vtkParse.h"
 #include "vtkParseData.h"
@@ -28,4 +28,4 @@ void vtkWrapPython_GenerateSpecialType(
   FILE *fp, const char *module, const char *classname,
   ClassInfo *data, FileInfo *finfo, HierarchyInfo *hinfo);
 
-#endif /* VTK_WRAP_PYTHON_TYPE_H */
+#endif /* vtkWrapPythonType_h */

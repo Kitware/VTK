@@ -137,8 +137,8 @@
 // as close as possible to the author's original.
 //
 
-#ifndef _vtkModifiedBSPTree_h
-#define _vtkModifiedBSPTree_h
+#ifndef vtkModifiedBSPTree_h
+#define vtkModifiedBSPTree_h
 
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkAbstractCellLocator.h"

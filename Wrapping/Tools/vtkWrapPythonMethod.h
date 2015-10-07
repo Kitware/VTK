@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef VTK_WRAP_PYTHON_METHOD_H
-#define VTK_WRAP_PYTHON_METHOD_H
+#ifndef vtkWrapPythonMethod_h
+#define vtkWrapPythonMethod_h
 
 #include "vtkParse.h"
 #include "vtkParseData.h"
@@ -38,4 +38,4 @@ void vtkWrapPython_GetSingleArgument(
 void vtkWrapPython_ReturnValue(
   FILE *fp, ClassInfo *data, ValueInfo *val, int static_call);
 
-#endif /* VTK_WRAP_PYTHON_METHOD_H */
+#endif /* vtkWrapPythonMethod_h */

@@ -40,8 +40,8 @@
   are vtkParse_CacheString() and vtkParse_FreeStringCache().
 */
 
-#ifndef VTK_PARSE_STRING_H
-#define VTK_PARSE_STRING_H
+#ifndef vtkParseString_h
+#define vtkParseString_h
 
 #include <stddef.h>
 

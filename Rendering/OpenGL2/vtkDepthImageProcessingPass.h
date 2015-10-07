@@ -46,8 +46,8 @@ Ph.D. thesis of Christian BOUCHENY.
 // .SECTION See Also
 // vtkRenderPass vtkDepthImageProcessingPass vtkEDLShading
 
-#ifndef __vtkDepthImageProcessingPass_h
-#define __vtkDepthImageProcessingPass_h
+#ifndef vtkDepthImageProcessingPass_h
+#define vtkDepthImageProcessingPass_h
 
 #include "vtkImageProcessingPass.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro

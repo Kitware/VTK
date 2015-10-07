@@ -19,8 +19,8 @@
 // A concrete instance of vtkStructuredGridAlgorithm which provides
 // functionality for converting instances of vtkImageData to vtkStructuredGrid.
 
-#ifndef VTKIMAGEDATATOSTRUCTUREDGRIDFILTER_H_
-#define VTKIMAGEDATATOSTRUCTUREDGRIDFILTER_H_
+#ifndef vtkImageToStructuredGrid_h
+#define vtkImageToStructuredGrid_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkStructuredGridAlgorithm.h"

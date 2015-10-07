@@ -25,6 +25,9 @@
 // is used in the internals of vtkRenderedHierarchyRepresentation and
 // vtkRenderedTreeAreaRepresentation.
 
+#ifndef vtkHierarchicalGraphPipeline_h
+#define vtkHierarchicalGraphPipeline_h
+
 #include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkObject.h"
 
@@ -163,3 +166,4 @@ private:
   void operator=(const vtkHierarchicalGraphPipeline&); // Not implemented
 };
 
+#endif

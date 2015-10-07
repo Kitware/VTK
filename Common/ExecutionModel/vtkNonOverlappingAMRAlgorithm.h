@@ -17,8 +17,8 @@
 //
 // .SECTION Description
 //
-#ifndef VTKNONOVERLAPPINGAMRALGORITHM_H_
-#define VTKNONOVERLAPPINGAMRALGORITHM_H_
+#ifndef vtkNonOverlappingAMRAlgorithm_h
+#define vtkNonOverlappingAMRAlgorithm_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkUniformGridAMRAlgorithm.h"

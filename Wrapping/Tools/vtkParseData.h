@@ -23,8 +23,8 @@
   Data structures used by vtkParse.
 */
 
-#ifndef VTK_PARSE_DATA_H
-#define VTK_PARSE_DATA_H
+#ifndef vtkParseData_h
+#define vtkParseData_h
 
 #include "vtkParseType.h"
 #include "vtkParseString.h"

@@ -17,8 +17,8 @@
 // The vtkWin32Header captures some system differences between Unix and
 // Windows operating systems.
 
-#ifndef vtkWIN32Header_h
-#define vtkWIN32Header_h
+#ifndef vtkWin32Header_h
+#define vtkWin32Header_h
 
 #ifndef __VTK_SYSTEM_INCLUDES__INSIDE
 Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;

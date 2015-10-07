@@ -28,8 +28,8 @@
 // Thanks to David Duke from the University of Leeds for providing this
 // implementation.
 
-#ifndef _vtkXGMLReader_h
-#define _vtkXGMLReader_h
+#ifndef vtkXGMLReader_h
+#define vtkXGMLReader_h
 
 #include "vtkIOInfovisModule.h" // For export macro
 #include "vtkUndirectedGraphAlgorithm.h"
@@ -62,5 +62,4 @@ private:
   void operator=(const vtkXGMLReader&);  // Not implemented.
 };
 
-#endif // _vtkXGMLReader_h
-
+#endif // vtkXGMLReader_h

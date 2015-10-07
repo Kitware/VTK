@@ -21,8 +21,8 @@
 // WindowIsCurrentEvent and WindowFrameEvent.  When this class sends a WindowIsCurrentEvent,
 // the call data is an bool* which one can use to return whether the context is current.
 
-#ifndef vtkGenericOpenGLRenderWindow_hpp
-#define vtkGenericOpenGLRenderWindow_hpp
+#ifndef vtkGenericOpenGLRenderWindow_h
+#define vtkGenericOpenGLRenderWindow_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkOpenGLRenderWindow.h"

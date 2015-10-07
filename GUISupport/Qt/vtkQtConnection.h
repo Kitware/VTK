@@ -28,8 +28,8 @@
 // vtkQtConnection is an internal class.
 
 
-#ifndef VTK_QT_CONNECTION
-#define VTK_QT_CONNECTION
+#ifndef vtkQtConnection_h
+#define vtkQtConnection_h
 
 #include "vtkObject.h"
 #include "vtkCommand.h"  // for event defines

@@ -20,8 +20,8 @@
 // .SECTION See Also
 // vtkAMREnzoReader vtkAMREnzoParticlesReader
 
-#ifndef VTKAMRENZOREADERINTERNAL_HPP_
-#define VTKAMRENZOREADERINTERNAL_HPP_
+#ifndef vtkAMREnzoReaderInternal_h
+#define vtkAMREnzoReaderInternal_h
 
 #include "vtksys/SystemTools.hxx"
 
@@ -161,5 +161,5 @@ public:
 //                     Class  vtkEnzoReaderInternal ( end )
 // ----------------------------------------------------------------------------
 
-#endif /* VTKAMRENZOREADERINTERNAL_HPP_ */
+#endif /* vtkAMREnzoReaderInternal_h */
 // VTK-HeaderTest-Exclude: vtkAMREnzoReaderInternal.h

@@ -29,8 +29,8 @@ PURPOSE.  See the above copyright notice for more information.
 // Modified and integrated into VTK, Kitware SAS 2012
 // Implementation by Thierry Carrard and Philippe Pebay
 
-#ifndef VTK_CELL_DISTANCE_SELECTOR_H
-#define VTK_CELL_DISTANCE_SELECTOR_H
+#ifndef vtkCellDistanceSelector_h
+#define vtkCellDistanceSelector_h
 
 #include "vtkFiltersSelectionModule.h" // For export macro
 #include "vtkSelectionAlgorithm.h"
@@ -125,4 +125,4 @@ class VTKFILTERSSELECTION_EXPORT vtkCellDistanceSelector : public vtkSelectionAl
   void operator= (const vtkCellDistanceSelector &); // Not implemented
 };
 
-#endif /* VTK_CELL_DISTANCE_SELECTOR_H */
+#endif /* vtkCellDistanceSelector_h */

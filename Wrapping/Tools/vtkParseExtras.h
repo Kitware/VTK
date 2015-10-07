@@ -23,8 +23,8 @@
  * This file contains extra utilities for parsing and wrapping.
  */
 
-#ifndef VTK_PARSE_EXTRAS_H
-#define VTK_PARSE_EXTRAS_H
+#ifndef vtkParseExtras_h
+#define vtkParseExtras_h
 
 #include "vtkParseData.h"
 #include <stddef.h>

@@ -19,8 +19,8 @@
 //  A base class for all algorithms that take as input any type of data object
 //  including composite datasets and produce vtkUniformGridAMR in the output.
 
-#ifndef VTKUNIFORMGRIDAMRALGORITHM_H_
-#define VTKUNIFORMGRIDAMRALGORITHM_H_
+#ifndef vtkUniformGridAMRAlgorithm_h
+#define vtkUniformGridAMRAlgorithm_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkAlgorithm.h"

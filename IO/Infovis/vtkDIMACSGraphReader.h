@@ -50,8 +50,8 @@
 // vtkDIMACSGraphWriter
 //
 
-#ifndef _vtkDIMACSGraphReader_h
-#define _vtkDIMACSGraphReader_h
+#ifndef vtkDIMACSGraphReader_h
+#define vtkDIMACSGraphReader_h
 
 #include "vtkIOInfovisModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"
@@ -121,4 +121,4 @@ private:
   void operator=(const vtkDIMACSGraphReader&);  // Not implemented.
 };
 
-#endif // _vtkDIMACSGraphReader_h
+#endif // vtkDIMACSGraphReader_h

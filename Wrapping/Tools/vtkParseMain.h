@@ -40,8 +40,8 @@
     "@file" will be passed as as a command-line parameter.
 */
 
-#ifndef VTK_PARSE_MAIN_H
-#define VTK_PARSE_MAIN_H
+#ifndef vtkParseMain_h
+#define vtkParseMain_h
 
 #include "vtkParseData.h"
 #include <stdio.h>

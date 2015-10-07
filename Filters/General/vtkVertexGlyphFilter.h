@@ -28,8 +28,8 @@
 // as input.
 //
 
-#ifndef _vtkVertexGlyphFilter_h
-#define _vtkVertexGlyphFilter_h
+#ifndef vtkVertexGlyphFilter_h
+#define vtkVertexGlyphFilter_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

@@ -18,8 +18,8 @@
 // A concrete instance of vtkAMRBaseReader that implements functionality
 // for reading Enzo AMR datasets.
 
-#ifndef VTKAMRENZOREADER_H_
-#define VTKAMRENZOREADER_H_
+#ifndef vtkAMREnzoReader_h
+#define vtkAMREnzoReader_h
 
 #include "vtkIOAMRModule.h" // For export macro
 #include "vtkAMRBaseReader.h"
@@ -131,4 +131,4 @@ private:
   std::map< int, double >    conversionFactors;
 };
 
-#endif /* VTKAMRENZOREADER_H_ */
+#endif /* vtkAMREnzoReader_h */

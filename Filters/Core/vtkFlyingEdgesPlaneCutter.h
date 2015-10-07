@@ -42,8 +42,8 @@
 // .SECTION See Also
 // vtkFlyingEdges2D vtkFlyingEdges3D
 
-#ifndef __vtkFlyingEdgesPlaneCutter_h
-#define __vtkFlyingEdgesPlaneCutter_h
+#ifndef vtkFlyingEdgesPlaneCutter_h
+#define vtkFlyingEdgesPlaneCutter_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

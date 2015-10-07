@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef _vtkProteinRibbonFilter_h
-#define _vtkProteinRibbonFilter_h
+#ifndef vtkProteinRibbonFilter_h
+#define vtkProteinRibbonFilter_h
 
 // .NAME vtkProteinRibbonFilter - generates protein ribbons
 // .SECTION Description
@@ -106,4 +106,4 @@ private:
   void operator=(const vtkProteinRibbonFilter&);  // Not implemented.
 };
 
-#endif // _vtkProteinRibbonFilter_h
+#endif // vtkProteinRibbonFilter_h

@@ -1,5 +1,5 @@
-#ifndef _NIFTI_HEADER_
-#define _NIFTI_HEADER_
+#ifndef vtkNIFTIImagePrivate_h
+#define vtkNIFTIImagePrivate_h
 
 /*****************************************************************************
       ** This file defines the "NIFTI-1" header format.               **
@@ -174,11 +174,6 @@ typedef struct nifti_1_header nifti_1_header;
 #endif
 /*=================*/
 
-#endif /* _NIFTI_HEADER_ */
-
-#ifndef __NIFTI2_HEADER
-#define __NIFTI2_HEADER
-
 /*---------------------------------------------------------------------------*/
 /* Changes to the header from NIFTI-1 to NIFTI-2 are intended to allow for
    larger and more accurate fields.  The changes are as follows:
@@ -273,5 +268,5 @@ typedef struct nifti_2_header nifti_2_header;
 #endif
 /*=================*/
 
-#endif /* __NIFTI2_HEADER */
+#endif /* vtkNIFTIImagePrivate_h */
 // VTK-HeaderTest-Exclude: vtkNIFTIImagePrivate.h

@@ -17,8 +17,8 @@
 // .SECTION Description
 // The vtkSmartPyObject class serves as a smart pointer for PyObjects.
 
-#ifndef _vtkSmartPyObject_h
-#define _vtkSmartPyObject_h
+#ifndef vtkSmartPyObject_h
+#define vtkSmartPyObject_h
 
 // this must be included first
 #include "vtkPython.h" // PyObject can't be forward declared

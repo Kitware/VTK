@@ -16,8 +16,8 @@
 //
 // .SECTION Description
 //  Empty class for backwards compatibility.
-#ifndef VTKHIERARCHICALBOXDATAITERATOR_H_
-#define VTKHIERARCHICALBOXDATAITERATOR_H_
+#ifndef vtkHierarchicalBoxDataIterator_h
+#define vtkHierarchicalBoxDataIterator_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkUniformGridAMRDataIterator.h"

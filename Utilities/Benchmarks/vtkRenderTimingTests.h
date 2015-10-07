@@ -13,6 +13,9 @@
 
 =========================================================================*/
 
+#ifndef vtkRenderTimingTests_h
+#define vtkRenderTimingTests_h
+
 /*
 To add a test you must define a subclass of vtkRTTest and implement the
 pure virtual functions. Then in the main section at the bottom of this
@@ -508,3 +511,5 @@ class volumeTest : public vtkRTTest
   protected:
   bool WithShading;
 };
+
+#endif

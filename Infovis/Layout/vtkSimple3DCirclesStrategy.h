@@ -33,8 +33,8 @@
 // .SECTION References
 // in 3D rotation was used: http://en.citizendium.org/wiki/Rotation_matrix
 
-#ifndef vtkSimple3DCirclesStrategyH
-#define vtkSimple3DCirclesStrategyH 1
+#ifndef vtkSimple3DCirclesStrategy_h
+#define vtkSimple3DCirclesStrategy_h
 
 #include "vtkInfovisLayoutModule.h" // For export macro
 #include "vtkGraphLayoutStrategy.h"

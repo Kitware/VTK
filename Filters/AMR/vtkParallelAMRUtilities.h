@@ -21,8 +21,8 @@
 // .SECTION See Also
 //  vtkOverlappingAMR, vtkAMRBox
 
-#ifndef VTKPARALLELAMRUTILITIES_H_
-#define VTKPARALLELAMRUTILITIES_H_
+#ifndef vtkParallelAMRUtilities_h
+#define vtkParallelAMRUtilities_h
 
 #include "vtkFiltersAMRModule.h" // For export macro
 #include "vtkAMRUtilities.h"
@@ -65,4 +65,4 @@ private:
   void operator=(const vtkParallelAMRUtilities&); // Not implemented
 };
 
-#endif /* VTKPARALLELAMRUTILITIES_H_ */
+#endif /* vtkParallelAMRUtilities_h */

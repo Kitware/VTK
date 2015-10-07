@@ -43,8 +43,8 @@
 // .SECTION See Also
 // vtkDataSetGhostGenerator, vtkPStructuredGridGhostDataGenerator
 
-#ifndef VTKSTRUCTUREDGRIDGHOSTDATAGENERATOR_H_
-#define VTKSTRUCTUREDGRIDGHOSTDATAGENERATOR_H_
+#ifndef vtkStructuredGridGhostDataGenerator_h
+#define vtkStructuredGridGhostDataGenerator_h
 
 #include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkDataSetGhostGenerator.h"
@@ -87,4 +87,4 @@ private:
   void operator=(const vtkStructuredGridGhostDataGenerator&); // Not implemented
 };
 
-#endif /* VTKSTRUCTUREDGRIDGHOSTDATAGENERATOR_H_ */
+#endif /* vtkStructuredGridGhostDataGenerator_h */

@@ -24,8 +24,8 @@
 // .SECTION See Also
 //  vtkGhostArray vtkPStructuredGridConnectivity
 
-#ifndef vtkStructuredGridConnectivity_H_
-#define vtkStructuredGridConnectivity_H_
+#ifndef vtkStructuredGridConnectivity_h
+#define vtkStructuredGridConnectivity_h
 
 #define VTK_NO_OVERLAP      0
 #define VTK_NODE_OVERLAP    1
@@ -986,4 +986,4 @@ inline void vtkStructuredGridConnectivity::SetNumberOfGrids(
   this->Neighbors.resize( N );
   this->BlockTopology.resize( N );
 }
-#endif /* vtkStructuredGridConnectivity_H_ */
+#endif /* vtkStructuredGridConnectivity_h */

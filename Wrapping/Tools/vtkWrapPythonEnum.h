@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef VTK_WRAP_PYTHON_ENUM_H
-#define VTK_WRAP_PYTHON_ENUM_H
+#ifndef vtkWrapPythonEnum_h
+#define vtkWrapPythonEnum_h
 
 #include "vtkParse.h"
 #include "vtkParseData.h"
@@ -42,4 +42,4 @@ void vtkWrapPython_AddPublicEnumTypes(
   FILE *fp, const char *indent, const char *dictvar, const char *objvar,
   NamespaceInfo *data);
 
-#endif /* VTK_WRAP_PYTHON_ENUM_H */
+#endif /* vtkWrapPythonEnum_h */

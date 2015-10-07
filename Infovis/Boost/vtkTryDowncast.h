@@ -19,6 +19,9 @@
 
 =========================================================================*/
 
+#ifndef vtkTryDowncast_h
+#define vtkTryDowncast_h
+
 #include "vtkDenseArray.h"
 #include "vtkSmartPointer.h"
 #include "vtkSparseArray.h"
@@ -180,4 +183,5 @@ bool vtkTryDowncast(vtkObject* source1, vtkObject* source2, vtkObject* source3, 
   return succeeded;
 }
 
+#endif
 // VTK-HeaderTest-Exclude: vtkTryDowncast.h

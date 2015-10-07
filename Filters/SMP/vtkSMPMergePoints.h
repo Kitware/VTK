@@ -25,8 +25,8 @@
 //  - Do bunch of merging with outLocator->Merge(inLocator[i], ...) (this can be done in parallel as long as no two bins are done at the same time)
 //  - Fix the size of points with outLocator->FixSizeOfPointArray()
 
-#ifndef vtkSMPMergePoints_h__
-#define vtkSMPMergePoints_h__
+#ifndef vtkSMPMergePoints_h
+#define vtkSMPMergePoints_h
 
 #include "vtkFiltersSMPModule.h" // For export macro
 #include "vtkMergePoints.h"
@@ -106,4 +106,4 @@ private:
   void operator=(const vtkSMPMergePoints&); // Not implemented
 };
 
-#endif // vtkSMPMergePoints_h__
+#endif // vtkSMPMergePoints_h

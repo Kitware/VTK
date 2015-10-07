@@ -24,8 +24,8 @@ PURPOSE.  See the above copyright notice for more information.
 // Perform the table filtering operations provided by
 // vtkBivariateLinearTableThreshold in parallel.
 
-#ifndef vtkPBivariateLinearTableThreshold__h
-#define vtkPBivariateLinearTableThreshold__h
+#ifndef vtkPBivariateLinearTableThreshold_h
+#define vtkPBivariateLinearTableThreshold_h
 
 #include "vtkFiltersParallelStatisticsModule.h" // For export macro
 #include "vtkBivariateLinearTableThreshold.h"

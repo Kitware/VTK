@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef VTK_WRAP_PYTHON_CLASS_H
-#define VTK_WRAP_PYTHON_CLASS_H
+#ifndef vtkWrapPythonClass_h
+#define vtkWrapPythonClass_h
 
 #include "vtkParse.h"
 #include "vtkParseData.h"
@@ -39,4 +39,4 @@ void vtkWrapPython_ClassDoc(
   FILE *fp, FileInfo *file_info, ClassInfo *data, HierarchyInfo *hinfo,
   int is_vtkobject);
 
-#endif /* VTK_WRAP_PYTHON_CLASS_H */
+#endif /* vtkWrapPythonClass_h */

@@ -47,8 +47,8 @@
 //
 
 
-#ifndef _vtkTemporalStatistics_h
-#define _vtkTemporalStatistics_h
+#ifndef vtkTemporalStatistics_h
+#define vtkTemporalStatistics_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"

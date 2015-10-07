@@ -18,8 +18,8 @@
 //  An abstract base class that implements all the common functionality for
 //  all particle readers.
 
-#ifndef VTKAMRBASEPARTICLESREADER_H_
-#define VTKAMRBASEPARTICLESREADER_H_
+#ifndef vtkAMRBaseParticlesReader_h
+#define vtkAMRBaseParticlesReader_h
 
 #include "vtkIOAMRModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
@@ -195,4 +195,4 @@ private:
   void operator=(const vtkAMRBaseParticlesReader& ); // Not implemented
 };
 
-#endif /* VTKAMRBASEPARTICLESREADER_H_ */
+#endif /* vtkAMRBaseParticlesReader_h */

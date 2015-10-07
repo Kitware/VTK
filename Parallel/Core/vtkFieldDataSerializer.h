@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkFieldData vtkPointData vtkCellData vtkMultiProcessStream
 
-#ifndef VTKFIELDDATASERIALIZER_H_
-#define VTKFIELDDATASERIALIZER_H_
+#ifndef vtkFieldDataSerializer_h
+#define vtkFieldDataSerializer_h
 
 #include "vtkParallelCoreModule.h" // For export macro
 #include "vtkObject.h"
@@ -132,4 +132,4 @@ class VTKPARALLELCORE_EXPORT vtkFieldDataSerializer : public vtkObject
     void operator=(const vtkFieldDataSerializer&); // Not implemented
 };
 
-#endif /* VTKFIELDDATASERIALIZER_H_ */
+#endif /* vtkFieldDataSerializer_h */

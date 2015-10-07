@@ -23,8 +23,8 @@
 // .SECTION See Also
 // vtkStructuredGridPartitioner vtkRectilinearGridPartitioner
 
-#ifndef VTKUNIFORMGRIDPARTITIONER_H_
-#define VTKUNIFORMGRIDPARTITIONER_H_
+#ifndef vtkUniformGridPartitioner_h
+#define vtkUniformGridPartitioner_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
