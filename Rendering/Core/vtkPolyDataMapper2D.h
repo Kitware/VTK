@@ -151,7 +151,8 @@ public:
   // Description:
   // Specify a vtkCoordinate object to be used to transform the vtkPolyData
   // point coordinates. By default (no vtkCoordinate specified), the point
-  // coordinates are taken as local display coordinates.
+  // coordinates are taken as viewport coordinates (pixels in the viewport
+  // into which the mapper is rendering).
   virtual void SetTransformCoordinate(vtkCoordinate*);
   vtkGetObjectMacro(TransformCoordinate, vtkCoordinate);
 
@@ -205,4 +206,3 @@ private:
 
 
 #endif
-

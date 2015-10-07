@@ -30,6 +30,7 @@
 
 class vtkProperty2D;
 class vtkActor2D;
+class vtkCoordinate;
 class vtkPolyDataMapper2D;
 class vtkPolyData;
 class vtkGlyph2D;
@@ -102,6 +103,7 @@ protected:
 
   // Render the cursor
   vtkActor2D           *Actor;
+  vtkCoordinate        *MapperCoordinate;
   vtkPolyDataMapper2D  *Mapper;
   vtkGlyph2D           *Glypher;
   vtkPolyData          *CursorShape;
@@ -116,9 +118,6 @@ protected:
   int  ConstraintAxis;
   void Translate(double eventPos[2]);
   void Scale(double eventPos[2]);
-
-
-
 
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.

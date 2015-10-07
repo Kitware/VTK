@@ -32,6 +32,7 @@ vtkAbstractObjectFactoryNewMacro(vtkPolyDataMapper2D)
 
 vtkCxxSetObjectMacro(vtkPolyDataMapper2D, TransformCoordinate, vtkCoordinate);
 
+//----------------------------------------------------------------------------
 vtkPolyDataMapper2D::vtkPolyDataMapper2D()
 {
   this->Colors = NULL;

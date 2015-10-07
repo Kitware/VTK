@@ -78,24 +78,16 @@ void vtkHandleRepresentation::SetDisplayPosition(double displyPos[3])
 //----------------------------------------------------------------------
 void vtkHandleRepresentation::GetDisplayPosition(double pos[3])
 {
-  // The world position maintains the position
-  if ( this->Renderer && (this->WorldPositionTime > this->DisplayPositionTime) )
-    {
-    int *p = this->WorldPosition->GetComputedDisplayValue(this->Renderer);
-    this->DisplayPosition->SetValue(p[0],p[1],0.0);
-    }
+  int *p = this->WorldPosition->GetComputedDisplayValue(this->Renderer);
+  this->DisplayPosition->SetValue(p[0],p[1],0.0);
   this->DisplayPosition->GetValue(pos);
 }
 
 //----------------------------------------------------------------------
 double* vtkHandleRepresentation::GetDisplayPosition()
 {
-  // The world position maintains the position
-  if ( this->Renderer && (this->WorldPositionTime > this->DisplayPositionTime) )
-    {
-    int *p = this->WorldPosition->GetComputedDisplayValue(this->Renderer);
-    this->DisplayPosition->SetValue(p[0],p[1],0.0);
-    }
+  int *p = this->WorldPosition->GetComputedDisplayValue(this->Renderer);
+  this->DisplayPosition->SetValue(p[0],p[1],0.0);
   return this->DisplayPosition->GetValue();
 }
 
@@ -111,10 +103,10 @@ void vtkHandleRepresentation::SetWorldPosition(double pos[3])
       }
     }
   else
-  {
-  this->WorldPosition->SetValue(pos);
-  this->WorldPositionTime.Modified();
-  }
+    {
+    this->WorldPosition->SetValue(pos);
+    this->WorldPositionTime.Modified();
+    }
 }
 
 //----------------------------------------------------------------------
@@ -123,6 +115,7 @@ void vtkHandleRepresentation::GetWorldPosition(double pos[3])
   this->WorldPosition->GetValue(pos);
 }
 
+//----------------------------------------------------------------------
 double* vtkHandleRepresentation::GetWorldPosition()
 {
   return this->WorldPosition->GetValue();

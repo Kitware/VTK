@@ -68,7 +68,11 @@ public:
   // Subclasses of vtkWidgetRepresentation must implement these methods. This is
   // considered the minimum API for a widget representation.
   // <pre>
-  // SetRenderer() - the renderer in which the widget is to appear must be set.
+  // SetRenderer() - the renderer in which the representations draws itself.
+  //                 Typically the renderer is set by the associated widget.
+  //                 Use the widget's SetCurrentRenderer() method in most cases;
+  //                 otherwise there is a risk of inconsistent behavior as events
+  //                 and drawing may be performed in different viewports.
   // BuildRepresentation() - update the geometry of the widget based on its
   //                         current state.
   // </pre>
