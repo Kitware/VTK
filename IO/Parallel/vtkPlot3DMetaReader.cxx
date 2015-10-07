@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   ParaView
-  Module:    $RCSfile: vtkPlot3DMetaReader.cxx,v $
+  Module:    vtkPlot3DMetaReader.cxx
 
   Copyright (c) Kitware, Inc.
   All rights reserved.

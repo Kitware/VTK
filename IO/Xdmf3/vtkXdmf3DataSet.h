@@ -3,8 +3,6 @@
   Program:   Visualization Toolkit
   Module:    vtkXdmf3DataSet.h
   Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
 
   Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.

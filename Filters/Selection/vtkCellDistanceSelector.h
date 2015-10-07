@@ -1,7 +1,7 @@
 /*=========================================================================
 
 Program:   Visualization Toolkit
-Module:    $RCSfile: vtkCellDistanceSelector,v $
+Module:    vtkCellDistanceSelector
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 All rights reserved.

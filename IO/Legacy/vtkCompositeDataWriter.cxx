@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   ParaView
-  Module:    $RCSfile$
+  Module:    vtkCompositeDataWriter.cxx
 
   Copyright (c) Kitware, Inc.
   All rights reserved.

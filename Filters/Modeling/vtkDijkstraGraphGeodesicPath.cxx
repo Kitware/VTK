@@ -3,8 +3,6 @@
   Program:   Visualization Toolkit
   Module:  vtkDijkstraGraphGeodesicPath.cxx
   Language:  C++
-  Date:    $Date$
-  Version:   $Revision$
 
   Made by Rasmus Paulsen
   email:  rrp(at)imm.dtu.dk
