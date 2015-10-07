@@ -78,16 +78,22 @@ void vtkHandleRepresentation::SetDisplayPosition(double displyPos[3])
 //----------------------------------------------------------------------
 void vtkHandleRepresentation::GetDisplayPosition(double pos[3])
 {
-  int *p = this->WorldPosition->GetComputedDisplayValue(this->Renderer);
-  this->DisplayPosition->SetValue(p[0],p[1],0.0);
+  if ( this->Renderer )
+    {
+    int *p = this->WorldPosition->GetComputedDisplayValue(this->Renderer);
+    this->DisplayPosition->SetValue(p[0],p[1],0.0);
+    }
   this->DisplayPosition->GetValue(pos);
 }
 
 //----------------------------------------------------------------------
 double* vtkHandleRepresentation::GetDisplayPosition()
 {
-  int *p = this->WorldPosition->GetComputedDisplayValue(this->Renderer);
-  this->DisplayPosition->SetValue(p[0],p[1],0.0);
+  if ( this->Renderer )
+    {
+    int *p = this->WorldPosition->GetComputedDisplayValue(this->Renderer);
+    this->DisplayPosition->SetValue(p[0],p[1],0.0);
+    }
   return this->DisplayPosition->GetValue();
 }
 
