@@ -170,4 +170,19 @@ void TestVectorFieldSource::ExecuteDataWithInformation(vtkDataObject *outData,vt
    outPtr += stepZ;
    }
   outArray->Delete();
+
+  // add a constant vector field in the z-direction
+  vtkDataArray* velocityArray =
+    vtkDataArray::SafeDownCast(vtkAbstractArray::CreateArray(VTK_FLOAT));
+  velocityArray->SetName("Velocity");
+  velocityArray->SetNumberOfComponents(3);
+  velocityArray->SetNumberOfTuples(outImage->GetNumberOfPoints());
+  outImage->GetPointData()->AddArray(velocityArray);
+  float velocity[3] = {0, 0, 1};
+  for(vtkIdType i=0;i<outImage->GetNumberOfPoints();i++)
+    {
+    velocityArray->SetTuple(i, velocity);
+    }
+
+  velocityArray->Delete();
 }

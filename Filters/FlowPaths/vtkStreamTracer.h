@@ -333,11 +333,12 @@ protected:
                  int vecType,
                  const char *vecFieldName,
                  double& propagation,
-                 vtkIdType& numSteps);
-  void SimpleIntegrate(double seed[3],
-                       double lastPoint[3],
-                       double stepSize,
-                       vtkAbstractInterpolatedVelocityField* func);
+                 vtkIdType& numSteps,
+                 double& integrationTime);
+  double SimpleIntegrate(double seed[3],
+                         double lastPoint[3],
+                         double stepSize,
+                         vtkAbstractInterpolatedVelocityField* func);
   int CheckInputs(vtkAbstractInterpolatedVelocityField*& func,
                   int* maxCellSize);
   void GenerateNormals(vtkPolyData* output, double* firstNormal, const char *vecName);

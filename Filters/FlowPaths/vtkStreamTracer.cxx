@@ -516,12 +516,13 @@ int vtkStreamTracer::RequestData(
       const char *vecName = vectors->GetName();
       double propagation = 0;
       vtkIdType numSteps = 0;
+      double integrationTime = 0;
       this->Integrate(input0->GetPointData(), output,
                       seeds, seedIds,
                       integrationDirections,
                       lastPoint, func,
                       maxCellSize, vecType,vecName,
-                      propagation, numSteps);
+                      propagation, numSteps, integrationTime);
       }
     func->Delete();
     seeds->Delete();
@@ -666,12 +667,14 @@ void vtkStreamTracer::Integrate(vtkPointData *input0Data,
                                 int vecType,
                                 const char *vecName,
                                 double& inPropagation,
-                                vtkIdType& inNumSteps)
+                                vtkIdType& inNumSteps,
+                                double &inIntegrationTime)
 {
   int i;
   vtkIdType numLines = seedIds->GetNumberOfIds();
   double propagation = inPropagation;
   vtkIdType numSteps = inNumSteps;
+  double integrationTime = inIntegrationTime;
 
   // Useful pointers
   vtkDataSetAttributes* outputPD = output->GetPointData();
@@ -834,7 +837,7 @@ void vtkStreamTracer::Integrate(vtkPointData *input0Data,
     vtkIdType nextPoint = outputPoints->InsertNextPoint(point1);
     double lastInsertedPoint[3];
     outputPoints->GetPoint(nextPoint, lastInsertedPoint);
-    time->InsertNextValue(0.0);
+    time->InsertNextValue(integrationTime);
 
     // We will always pass an arc-length step size to the integrator.
     // If the user specifies a step size in cell length unit, we will
@@ -845,7 +848,7 @@ void vtkStreamTracer::Integrate(vtkPointData *input0Data,
     IntervalInformation aStep; // always positive
     aStep.Unit = LENGTH_UNIT;
     double step, minStep=0, maxStep=0;
-    double stepTaken, accumTime=0;
+    double stepTaken;
     double speed;
     double cellLength;
     int retVal=OUT_OF_LENGTH, tmp;
@@ -1008,7 +1011,7 @@ void vtkStreamTracer::Integrate(vtkPointData *input0Data,
         break;
         }
 
-      accumTime += stepTaken / speed;
+      integrationTime += stepTaken / speed;
       // Calculate propagation (using the same units as MaximumPropagation
       propagation += fabs( stepSize.Interval );
 
@@ -1037,7 +1040,7 @@ void vtkStreamTracer::Integrate(vtkPointData *input0Data,
         numPtsTotal++;
         nextPoint = outputPoints->InsertNextPoint(point1);
         outputPoints->GetPoint(nextPoint, lastInsertedPoint);
-        time->InsertNextValue(accumTime);
+        time->InsertNextValue(integrationTime);
 
         // Interpolate all point attributes on current point
         func->GetLastWeights(weights);
@@ -1073,7 +1076,7 @@ void vtkStreamTracer::Integrate(vtkPointData *input0Data,
           index = angularVel->InsertNextValue(omega);
           rotation->InsertNextValue(rotation->GetValue(index-1) +
                                     (angularVel->GetValue(index-1) + omega)/2 *
-                                    (accumTime - time->GetValue(index-1)));
+                                    (integrationTime - time->GetValue(index-1)));
           }
         }
 
@@ -1135,9 +1138,11 @@ void vtkStreamTracer::Integrate(vtkPointData *input0Data,
     // for the first line.
     inPropagation = propagation;
     inNumSteps = numSteps;
+    inIntegrationTime = integrationTime;
 
     propagation = 0;
     numSteps = 0;
+    integrationTime = 0;
     }
 
   if (!shouldAbort)
@@ -1277,15 +1282,15 @@ void vtkStreamTracer::GenerateNormals(vtkPolyData* output, double* firstNormal,
 // This is used by sub-classes in certain situations. It
 // does a lot less (for example, does not compute attributes)
 // than Integrate.
-void vtkStreamTracer::SimpleIntegrate(double seed[3],
-                                      double lastPoint[3],
-                                      double stepSize,
-                                      vtkAbstractInterpolatedVelocityField* func)
+double vtkStreamTracer::SimpleIntegrate(double seed[3],
+                                        double lastPoint[3],
+                                        double stepSize,
+                                        vtkAbstractInterpolatedVelocityField* func)
 {
   vtkIdType numSteps = 0;
   vtkIdType maxSteps = 20;
   double error = 0;
-  double stepTaken;
+  double stepTaken = 0;
   double point1[3], point2[3];
   double velocity[3];
   double speed;
@@ -1311,8 +1316,10 @@ void vtkStreamTracer::SimpleIntegrate(double seed[3],
     // Calculate the next step using the integrator provided
     // Break if the next point is out of bounds.
     func->SetNormalizeVector( true );
+    double tmpStepTaken = 0;
     stepResult = integrator->ComputeNextStep( point1, point2, 0, stepSize,
-                                              stepTaken, 0, 0, 0, error );
+                                              tmpStepTaken, 0, 0, 0, error );
+    stepTaken += tmpStepTaken;
     func->SetNormalizeVector( false );
     if ( stepResult != 0 )
       {
@@ -1347,6 +1354,7 @@ void vtkStreamTracer::SimpleIntegrate(double seed[3],
     }
 
   integrator->Delete();
+  return stepTaken;
 }
 
 int vtkStreamTracer::FillInputPortInformation(int port, vtkInformation *info)

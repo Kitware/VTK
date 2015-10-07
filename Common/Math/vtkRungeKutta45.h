@@ -113,7 +113,7 @@ protected:
   double* NextDerivs[6];
 
   int ComputeAStep(double* xprev, double* dxprev, double* xnext, double t,
-                   double& delT,  double& error);
+                   double& delT,  double& delTActual, double& error);
 
 private:
   vtkRungeKutta45(const vtkRungeKutta45&);  // Not implemented.
