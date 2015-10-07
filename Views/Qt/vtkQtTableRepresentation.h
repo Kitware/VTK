@@ -50,7 +50,6 @@
 #define vtkQtTableRepresentation_h
 
 #include "vtkViewsQtModule.h" // For export macro
-#include "QVTKWin32Header.h"
 #include "vtkDataRepresentation.h"
 
 class vtkDoubleArray;

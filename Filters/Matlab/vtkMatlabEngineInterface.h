@@ -43,7 +43,7 @@
 #ifndef vtkMatlabEngineInterface_h
 #define vtkMatlabEngineInterface_h
 
-#include "vtkFiltersMatlabModule.h"
+#include "vtkFiltersMatlabModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkArray;

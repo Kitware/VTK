@@ -32,7 +32,6 @@
 #define vtkQtRichTextView_h
 
 #include "vtkGUISupportQtWebkitModule.h" // For export macro
-#include "QVTKWin32Header.h"
 #include "vtkQtView.h"
 
 class vtkStdString;

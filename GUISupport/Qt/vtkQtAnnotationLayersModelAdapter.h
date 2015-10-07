@@ -30,7 +30,6 @@
 #define vtkQtAnnotationLayersModelAdapter_h
 
 #include "vtkGUISupportQtModule.h" // For export macro
-#include "QVTKWin32Header.h"
 #include "vtkQtAbstractModelAdapter.h"
 
 class vtkAnnotationLayers;

@@ -16,7 +16,7 @@
 #define vtkTestErrorObserver_h
 
 #include <vtkCommand.h>
-#include <string>
+#include <string> // Needed for std::string
 
 namespace vtkTest
 {

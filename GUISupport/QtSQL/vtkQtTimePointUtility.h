@@ -25,9 +25,9 @@
 #ifndef vtkQtTimePointUtility_h
 #define vtkQtTimePointUtility_h
 
-#include "vtkGUISupportQtSQLModule.h"
+#include "vtkGUISupportQtSQLModule.h" // For export macro
 #include "vtkObject.h"
-#include <QDateTime>
+#include <QDateTime> // Needed for method return types
 
 class VTKGUISUPPORTQTSQL_EXPORT vtkQtTimePointUtility : public vtkObject
 {

@@ -30,19 +30,17 @@
 #define vtkQtTableView_h
 
 #include "vtkViewsQtModule.h" // For export macro
-#include "QVTKWin32Header.h"
 #include "vtkQtView.h"
 
-#include <QPointer>
-#include <QSortFilterProxyModel>
-#include "vtkQtAbstractModelAdapter.h"
-#include "vtkSmartPointer.h"
+#include <QPointer> // Needed to hold the view
+#include "vtkSmartPointer.h" // Needed for member variables
 
 class vtkAddMembershipArray;
 class vtkApplyColors;
 class vtkDataObjectToTable;
 class vtkIdTypeArray;
 class QItemSelection;
+class QSortFilterProxyModel;
 class QTableView;
 class vtkQtTableModelAdapter;
 

@@ -26,13 +26,13 @@
 #define vtkQtSQLDatabase_h
 
 // Check for Qt SQL module before defining this class.
-#include <qglobal.h>
+#include <qglobal.h> // Needed to check if SQL is available
 #if (QT_EDITION & QT_MODULE_SQL)
 
-#include "vtkGUISupportQtSQLModule.h"
+#include "vtkGUISupportQtSQLModule.h" // For export macro
 #include "vtkSQLDatabase.h"
 
-#include <QtSql/QSqlDatabase>
+#include <QtSql/QSqlDatabase> // For the database member
 
 class vtkSQLQuery;
 class vtkStringArray;

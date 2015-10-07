@@ -30,19 +30,18 @@
 #define vtkQtTreeView_h
 
 #include "vtkViewsQtModule.h" // For export macro
-#include "QVTKWin32Header.h"
 #include "vtkQtView.h"
 
-#include <QList>
-#include <QPointer>
-#include "vtkQtAbstractModelAdapter.h"
-#include "vtkSmartPointer.h"
-#include "QFilterTreeProxyModel.h"
+#include <QList> // Needed for member variables
+#include <QPointer> // Needed for member variables
+#include "vtkSmartPointer.h" // Needed for member variables
 
 class QAbstractItemDelegate;
 class QAbstractItemView;
+class QFilterTreeProxyModel;
 class QColumnView;
 class QItemSelection;
+class QModelIndex;
 class QTreeView;
 class vtkApplyColors;
 class QVBoxLayout;

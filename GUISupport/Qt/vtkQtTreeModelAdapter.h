@@ -30,17 +30,17 @@
 #define vtkQtTreeModelAdapter_h
 
 #include "vtkGUISupportQtModule.h" // For export macro
-#include "QVTKWin32Header.h"
-#include "vtkType.h"
-#include "vtkSelection.h"
 
 #include "vtkQtAbstractModelAdapter.h"
-#include <QHash>
-#include <QMimeData>
-#include <QVector>
+#include <QHash> // Needed for the decoration map
+#include <QVector> // Needed for the index map
+#include "vtkType.h" // Needed for vtkIdType
 
+class vtkSelection;
 class vtkTree;
 class vtkAdjacentVertexIterator;
+
+class QMimeData;
 
 class VTKGUISUPPORTQT_EXPORT vtkQtTreeModelAdapter : public vtkQtAbstractModelAdapter
 {

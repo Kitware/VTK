@@ -53,7 +53,7 @@
 #include "mex.h" // Needed for Matlab mex.h mxArray
 #include "matrix.h" // Needed for Matlab matrix.h mxArray
 #include "vtkObject.h"
-#include "vtkFiltersMatlabModule.h"
+#include "vtkFiltersMatlabModule.h" // For export macro
 
 class vtkInformation;
 class vtkInformationVector;

@@ -22,9 +22,11 @@
 
 #include <QAbstractItemView>
 #include <QColumnView>
+#include "QFilterTreeProxyModel.h"
 #include <QHeaderView>
 #include <QItemSelection>
 #include <QItemSelectionModel>
+#include <QSortFilterProxyModel>
 #include <QTreeView>
 #include <QVBoxLayout>
 

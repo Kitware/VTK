@@ -31,11 +31,10 @@
 #ifndef vtkQtConnection_h
 #define vtkQtConnection_h
 
-#include "vtkObject.h"
 #include "vtkCommand.h"  // for event defines
-#include "qobject.h"
+#include <QObject>
 
-class QObject;
+class vtkObject;
 class vtkCallbackCommand;
 class vtkEventQtSlotConnect;
 
@@ -99,4 +98,3 @@ class vtkQtConnection : public QObject
 };
 
 #endif
-

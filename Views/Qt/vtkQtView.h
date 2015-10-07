@@ -22,10 +22,9 @@
 #define vtkQtView_h
 
 #include "vtkViewsQtModule.h" // For export macro
-#include "QVTKWin32Header.h"
 #include "vtkView.h"
 
-#include <QObject>
+#include <QObject> // Needed to hook into Qt
 
 class VTKVIEWSQT_EXPORT vtkQtView : public QObject, public vtkView
 {
