@@ -190,6 +190,37 @@ class TestVTKFiles:
             self.Error("Does not include parent")
         pass
 
+    def CheckGuard(self):
+        guardre = r"^#ifndef\s+([^ ]*)_h$"
+        guardsetre = r"^#define\s+([^ ]*)_h$"
+        guardrex = re.compile(guardre)
+        guardsetrex = re.compile(guardsetre)
+
+        guard = None
+        guard_set = None
+        expect_trigger = False
+        for line in self.FileLines:
+            line = line.strip()
+            if expect_trigger:
+                gs = guardsetrex.match(line)
+                if gs:
+                    guard_set = gs.group(1)
+                break
+            g = guardrex.match(line)
+            if g:
+                guard = g.group(1)
+                expect_trigger = True
+
+        if not guard or not guard_set:
+            self.Print("File: %s is missing a header guard." % self.FileName)
+            self.Error("Missing header guard")
+        elif not guard == guard_set:
+            self.Print("File: %s is not guarded properly." % self.FileName)
+            self.Error("Guard does is not set properly")
+        elif not ('%s.h' % guard) == os.path.basename(self.FileName):
+            self.Print("File: %s has a guard (%s) which does not match its filename." % (self.FileName, guard))
+            self.Error("Guard does not match the filename")
+
     def CheckParent(self):
         classre = "^class(\s+[^\s]*_EXPORT)?\s+(vtk[A-Z0-9_][^ :\n]*)\s*:\s*public\s+(vtk[^ \n\{]*)"
         cname = ""
@@ -459,6 +490,7 @@ for a in os.listdir(dirname):
         continue
     elif stat.S_ISREG(mode) and test.TestFile(pathname):
         ## Do all the tests
+        test.CheckGuard()
         test.CheckParent()
         test.CheckIncludes()
         test.CheckTypeMacro()
