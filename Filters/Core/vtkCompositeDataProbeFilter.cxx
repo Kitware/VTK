@@ -127,7 +127,7 @@ int vtkCompositeDataProbeFilter::RequestData(
       {
       this->InitializeForProbing(input, output);
       }
-    this->ProbeEmptyPoints(input, idx, sourceDS, output);
+    this->DoProbing(input, idx, sourceDS, output);
     idx++;
     }
 
