@@ -89,9 +89,12 @@ static PyMemberDef vtkPythonStdStreamCaptureHelperMembers[] = {
 };
 
 static PyTypeObject vtkPythonStdStreamCaptureHelperType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         // ob_size
-    const_cast<char*>("vtkPythonStdStreamCaptureHelper"),   // tp_name
+#if PY_VERSION_HEX >= 0x02060000
+    PyVarObject_HEAD_INIT(&PyType_Type, 0)
+#else
+    PyObject_HEAD_INIT(&PyType_Type) 0,
+#endif
+    "vtkPythonStdStreamCaptureHelper",       // tp_name
     sizeof(vtkPythonStdStreamCaptureHelper), // tp_basicsize
     0,                         // tp_itemsize
     0,                         // tp_dealloc
@@ -110,7 +113,7 @@ static PyTypeObject vtkPythonStdStreamCaptureHelperType = {
     PyObject_GenericSetAttr,   // tp_setattro
     0,                         // tp_as_buffer
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, // tp_flags
-    const_cast<char*>("vtkPythonStdStreamCaptureHelper"),   //  tp_doc
+    "vtkPythonStdStreamCaptureHelper",   //  tp_doc
     0,                         //  tp_traverse
     0,                         //  tp_clear
     0,                         //  tp_richcompare
@@ -135,11 +138,12 @@ static PyTypeObject vtkPythonStdStreamCaptureHelperType = {
     0, // PyObject *tp_cache;
     0, // PyObject *tp_subclasses;
     0, // PyObject *tp_weaklist;
-#if PY_VERSION_HEX >= 0x02060000 // tp_version_tag shows up in python 2.6
     0, // tp_del
-    0  // tp_version_tag
-#elif PY_VERSION_HEX >= 0x02030000 // tp_del shows up in python 2.3
-    0  // tp_del
+#if PY_VERSION_HEX >= 0x02060000
+    0, // tp_version_tag
+#endif
+#if PY_VERSION_HEX >= 0x03040000
+    0, // tp_finalize
 #endif
 };
 
@@ -155,11 +159,11 @@ static PyObject* vtkWrite(PyObject* self, PyObject* args)
 
   char *string;
   // const_cast since older versions of python are not const correct.
-  if (wrapper && PyArg_ParseTuple(args, const_cast<char*>("s"), &string))
+  if (wrapper && PyArg_ParseTuple(args, "s", &string))
     {
     wrapper->Write(string);
     }
-  return Py_BuildValue(const_cast<char*>(""));
+  return Py_BuildValue("");
 }
 
 static PyObject* vtkRead(PyObject* self, PyObject* args)
@@ -178,7 +182,7 @@ static PyObject* vtkRead(PyObject* self, PyObject* args)
     {
     ret = wrapper->Read();
     }
-  return Py_BuildValue(const_cast<char*>("s"), const_cast<char*>(ret.c_str()));
+  return Py_BuildValue("s", ret.c_str());
 }
 
 static PyObject* vtkFlush(PyObject* self, PyObject* args)
@@ -195,7 +199,7 @@ static PyObject* vtkFlush(PyObject* self, PyObject* args)
     {
     wrapper->Flush();
     }
-  return Py_BuildValue(const_cast<char*>(""));
+  return Py_BuildValue("");
 }
 
 static PyObject* vtkClose(PyObject* self, PyObject* args)
@@ -212,7 +216,7 @@ static PyObject* vtkClose(PyObject* self, PyObject* args)
     {
     wrapper->Close();
     }
-  return Py_BuildValue(const_cast<char*>(""));
+  return Py_BuildValue("");
 }
 
 static vtkPythonStdStreamCaptureHelper* NewPythonStdStreamCaptureHelper(bool for_stderr=false)
