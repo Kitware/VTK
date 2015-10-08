@@ -25,6 +25,7 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderWindow.h"
 #include <map> // for ivar
+#include "vtkType.h" // for ivar
 
 class vtkIdList;
 class vtkOpenGLHardwareSupport;
@@ -234,11 +235,22 @@ public:
     return 0;
   }
 
+  // Description:
+  // Get a mapping of vtk data types to native texture formats for this window
+  // we put this on the RenderWindow so that every texture does not have to
+  // build these structures themselves
+  int GetDefaultTextureInternalFormat(
+    int vtktype, int numComponents,
+    bool needInteger, bool needFloat);
+
 protected:
   vtkOpenGLRenderWindow();
   ~vtkOpenGLRenderWindow();
 
   vtkOpenGLShaderCache *ShaderCache;
+
+  int TextureInternalFormats[VTK_UNICODE_STRING][3][5];
+  void InitializeTextureInternalFormats();
 
   long OldMonitorSetting;
 

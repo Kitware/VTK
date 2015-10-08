@@ -1,3 +1,5 @@
+//VTK::System::Dec
+
 //=========================================================================
 //
 //  Program:   Visualization Toolkit
@@ -16,10 +18,6 @@
 // high-pass filter stage employed by vtkLineIntegralConvolution2D
 // between LIC pass 1 and LIC pass 2. filtered LIC pass 1, becomes
 // noise for pass2.
-
-// The following line handles system declarations such as
-// default precisions, or defining precisions to null
-//VTK::System::Dec
 
 // the output of this shader
 //VTK::Output::Dec

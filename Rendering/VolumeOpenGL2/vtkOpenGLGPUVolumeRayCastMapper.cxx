@@ -317,6 +317,7 @@ public:
   int TextureSize[3];
   int WindowLowerLeft[2];
   int WindowSize[2];
+  int LastWindowSize[2];
 
   std::vector< std::vector<double> > ScalarsRange;
   double LoadedBounds[6];
@@ -448,15 +449,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::Initialize(
   vtkRenderer* vtkNotUsed(ren), vtkVolume* vol, int
   noOfComponents, int independentComponents)
 {
-  GLenum err = glewInit();
-  if (GLEW_OK != err)
-    {
-    cerr <<"Error: "<< glewGetErrorString(err)<<endl;
-    }
-
-  // This is to ignore INVALID ENUM error 1282
-  err = glGetError();
-
   this->DeleteTransferFunctions();
 
   // Create RGB lookup table
@@ -538,8 +530,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::Initialize(
 }
 
 //----------------------------------------------------------------------------
-bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
-  vtkImageData* imageData, vtkVolumeProperty* volumeProperty, vtkDataArray* scalars,
+bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(
+  vtkRenderer* ren,
+  vtkImageData* imageData,
+  vtkVolumeProperty* volumeProperty,
+  vtkDataArray* scalars,
   int vtkNotUsed(independentComponents))
 {
   // Allocate data with internal format and foramt as (GL_RED)
@@ -549,6 +544,36 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
 
   this->HandleLargeDataTypes = false;
   int noOfComponents = scalars->GetNumberOfComponents();
+
+  if (!this->VolumeTextureObject)
+    {
+    this->VolumeTextureObject = vtkTextureObject::New();
+    }
+
+  this->VolumeTextureObject->SetContext(vtkOpenGLRenderWindow::SafeDownCast(
+                                         ren->GetRenderWindow()));
+
+  int scalarType = scalars->GetDataType();
+
+  // get the default choices for format from the texture
+  format = this->VolumeTextureObject->GetDefaultFormat(
+    scalarType, noOfComponents,false);
+  internalFormat = this->VolumeTextureObject->GetDefaultInternalFormat(
+    scalarType, noOfComponents,false);
+  type = this->VolumeTextureObject->GetDefaultDataType(scalarType);
+
+  bool supportsFloat = false;
+#if GL_ES_VERSION_2_0 != 1
+  if (glewIsSupported("GL_ARB_texture_float") ||
+      vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
+    {
+    supportsFloat = true;
+    }
+#else
+#if GL_ES_VERSION_3_0 == 1
+  supportsFloat = true;
+#endif
+#endif
 
   // scale and bias
   // NP = P*scale + bias
@@ -561,14 +586,10 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
   double oglScale = 1.0;
   double oglBias = 0.0;
 
-  int scalarType = scalars->GetDataType();
-
   switch(scalarType)
     {
     case VTK_FLOAT:
-      type = GL_FLOAT;
-      if (glewIsSupported("GL_ARB_texture_float") ||
-          vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
+      if (supportsFloat)
         {
         switch(noOfComponents)
           {
@@ -595,7 +616,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
         switch(noOfComponents)
           {
           case 1:
-            internalFormat = GL_R16;
+            internalFormat = GL_RED;
             format = GL_RED;
             break;
           case 2:
@@ -614,52 +635,12 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
         }
       break;
     case VTK_UNSIGNED_CHAR:
-      type = GL_UNSIGNED_BYTE;
       oglScale = 1.0/VTK_UNSIGNED_CHAR_MAX;
       oglBias = 0.0;
-      switch(noOfComponents)
-        {
-        case 1:
-          internalFormat = GL_RED;
-          format = GL_RED;
-          break;
-        case 2:
-          internalFormat = GL_RG;
-          format = GL_RG;
-          break;
-        case 3:
-          internalFormat = GL_RGB;
-          format = GL_RGB;
-          break;
-        case 4:
-          internalFormat = GL_RGBA;
-          format = GL_RGBA;
-          break;
-        }
       break;
     case VTK_SIGNED_CHAR:
-      type = GL_BYTE;
       oglScale = 2.0/(VTK_SIGNED_CHAR_MAX - VTK_SIGNED_CHAR_MIN);
       oglBias = -1.0 - VTK_SIGNED_CHAR_MIN*oglScale;
-      switch(noOfComponents)
-        {
-        case 1:
-          internalFormat = GL_R8_SNORM;
-          format = GL_RED;
-          break;
-        case 2:
-          internalFormat = GL_RG;
-          format = GL_RG;
-          break;
-        case 3:
-          internalFormat = GL_RGB;
-          format = GL_RGB;
-          break;
-        case 4:
-          internalFormat = GL_RGBA;
-          format = GL_RGBA;
-          break;
-        }
       break;
     case VTK_CHAR:
       // not supported
@@ -687,14 +668,13 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
       switch(noOfComponents)
         {
         case 1:
-          if (glewIsSupported("GL_ARB_texture_float") ||
-              vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
+          if (supportsFloat)
             {
             internalFormat = GL_R16F;
             }
           else
             {
-            internalFormat = GL_R16;
+            internalFormat = GL_RED;
             }
           format = GL_RED;
           break;
@@ -713,56 +693,16 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
         }
       break;
     case VTK_SHORT:
-      type = GL_SHORT;
       oglScale = 2.0/(VTK_SHORT_MAX - VTK_SHORT_MIN);
       oglBias = -1.0 - VTK_SHORT_MIN*oglScale;
-      switch(noOfComponents)
-        {
-        case 1:
-          internalFormat = GL_R16_SNORM;
-          format = GL_RED;
-          break;
-        case 2:
-          internalFormat = GL_RG;
-          format = GL_RG;
-          break;
-        case 3:
-          internalFormat = GL_RGB;
-          format = GL_RGB;
-          break;
-        case 4:
-          internalFormat = GL_RGBA;
-          format = GL_RGBA;
-          break;
-        }
       break;
     case VTK_STRING:
       // not supported
       assert("check: impossible case" && 0);
       break;
     case VTK_UNSIGNED_SHORT:
-      type = GL_UNSIGNED_SHORT;
       oglScale = 1.0/VTK_UNSIGNED_SHORT_MAX;
       oglBias = 0.0;
-      switch(noOfComponents)
-        {
-        case 1:
-          internalFormat = GL_R16;
-          format = GL_RED;
-          break;
-        case 2:
-          internalFormat = GL_RG;
-          format = GL_RG;
-          break;
-        case 3:
-          internalFormat = GL_RGB;
-          format = GL_RGB;
-          break;
-        case 4:
-          internalFormat = GL_RGBA;
-          format = GL_RGBA;
-          break;
-        }
       break;
     default:
       assert("check: impossible case" && 0);
@@ -790,15 +730,6 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(vtkRenderer* ren,
     this->TextureSize[i] = this->Extents[2*i+1] - this->Extents[2*i] + 1;
     ++i;
     }
-
-  if (!this->VolumeTextureObject)
-    {
-    this->VolumeTextureObject = vtkTextureObject::New();
-
-    }
-
-  this->VolumeTextureObject->SetContext(vtkOpenGLRenderWindow::SafeDownCast(
-                                         ren->GetRenderWindow()));
 
   this->VolumeTextureObject->SetDataType(type);
   this->VolumeTextureObject->SetFormat(format);
@@ -1401,11 +1332,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateDepthTexture(
                                             4);
     }
 
+#if GL_ES_VERSION_2_0 != 1
+  // currently broken on ES
   this->DepthTextureObject->CopyFromFrameBuffer(this->WindowLowerLeft[0],
                                                 this->WindowLowerLeft[1],
                                                 0, 0,
                                                 this->WindowSize[0],
                                                 this->WindowSize[1]);
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -1961,21 +1895,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
   this->ExtensionsStringStream.str("");
   this->ExtensionsStringStream.clear();
 
-  if (!GLEW_VERSION_2_0)
-    {
-    this->ExtensionsStringStream << "Requires OpenGL 2.0 or higher";
-    return;
-    }
-
-  // Check for npot even though it should be supported since
-  // it is in core since 2.0 as per specification
-  if (!glewIsSupported("GL_ARB_texture_non_power_of_two"))
-    {
-    this->ExtensionsStringStream << "Required extension "
-      << " GL_ARB_texture_non_power_of_two is not supported";
-    return;
-    }
-
+#if GL_ES_VERSION_2_0 != 1
   // Check for float texture support. This extension became core
   // in 3.0
   if (!glewIsSupported("GL_ARB_texture_float"))
@@ -1984,6 +1904,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
       << " GL_ARB_texture_float is not supported";
     return;
     }
+#else
+#if GL_ES_VERSION_3_0 != 1
+  this->ExtensionsStringStream << "Requires ES version 3.0 or later";
+  return;
+#endif
+#endif
 
   // NOTE: Support for depth sampler texture made into the core since version
   // 1.4 and therefore we are no longer checking for it.
@@ -2250,11 +2176,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
     this->Impl->GradientOpacityTables->ReleaseGraphicsResources(window);
     delete this->Impl->GradientOpacityTables;
     this->Impl->GradientOpacityTables = 0;
-    }
-
-  if (this->Impl->ShaderCache)
-    {
-    this->Impl->ShaderCache = 0;
     }
 
   this->Impl->ReleaseResourcesTime.Modified();
@@ -2592,7 +2513,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
   //--------------------------------------------------------------------------
   this->Impl->ShaderProgram = this->Impl->ShaderCache->ReadyShaderProgram(
     vertexShader.c_str(), fragmentShader.c_str(), "");
-
+vtkErrorMacro(<< fragmentShader.c_str());
   if (!this->Impl->ShaderProgram->GetCompiled())
     {
     vtkErrorMacro("Shader failed to compile");
@@ -2727,7 +2648,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     this->Impl->FBO->Bind(GL_FRAMEBUFFER);
     this->Impl->FBO->InitializeViewport(this->Impl->WindowSize[0],
                                         this->Impl->WindowSize[1]);
-
 
     if (this->Impl->RTTDepthBufferTextureObject)
       {
@@ -2903,6 +2823,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   if (this->Impl->NeedToInitializeResources ||
       volumeProperty->GetMTime() >
       this->Impl->ShaderBuildTime.GetMTime() ||
+      this->Impl->ShaderBuildTime.GetMTime() < this->Impl->ReleaseResourcesTime.GetMTime() ||
       this->GetMTime() > this->Impl->ShaderBuildTime.GetMTime() ||
       ren->GetActiveCamera()->GetParallelProjection() !=
       this->Impl->LastProjectionParallel)
@@ -3077,9 +2998,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->ShaderProgram->SetUniformi("in_noiseSampler",
     this->Impl->NoiseTextureObject->GetTextureUnit());
 
+// currently broken on ES
+#if GL_ES_VERSION_2_0 != 1
   this->Impl->DepthTextureObject->Activate();
   this->Impl->ShaderProgram->SetUniformi("in_depthSampler",
     this->Impl->DepthTextureObject->GetTextureUnit());
+#endif
 
   if (this->Impl->CurrentMask)
     {

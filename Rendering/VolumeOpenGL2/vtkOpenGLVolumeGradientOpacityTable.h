@@ -109,8 +109,7 @@ public:
                               (this->LastRange[1] - this->LastRange[0]) * 0.25,
                               this->TextureWidth, this->Table);
 
-      this->TextureObject->CreateAlphaFromRaw(this->TextureWidth,
-                                              vtkTextureObject::alpha16,
+      this->TextureObject->Create2DFromRaw(this->TextureWidth,1,1,
                                               VTK_FLOAT,
                                               this->Table);
 

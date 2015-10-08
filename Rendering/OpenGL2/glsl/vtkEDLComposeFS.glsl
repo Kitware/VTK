@@ -1,3 +1,5 @@
+//VTK::System::Dec
+
 /*=========================================================================
 
    Program: VTK
@@ -43,10 +45,6 @@ Ph.D. thesis of Christian BOUCHENY.
 //    C.B. - 3 feb. 2009
 //
 //////////////////////////////////////////////////////////////////////////
-
-// The following line handle system declarations such a
-// default precisions, or defining precisions to null
-//VTK::System::Dec
 
 // the output of this shader
 //VTK::Output::Dec

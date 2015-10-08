@@ -1,3 +1,5 @@
+//VTK::System::Dec
+
 //=========================================================================
 //
 //  Program:   Visualization Toolkit
@@ -16,10 +18,6 @@
 // gray scale contrast enhance stage implemented via histogram stretching
 // if the min and max are tweaked it can generate out-of-range values
 // these will be clamped in 0 to 1
-
-// The following line handles system declarations such as
-// default precisions, or defining precisions to null
-//VTK::System::Dec
 
 // the output of this shader
 //VTK::Output::Dec

@@ -1,3 +1,5 @@
+//VTK::System::Dec
+
 /*=========================================================================
 
   Program:   Visualization Toolkit
@@ -12,9 +14,6 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// The following line handle system declarations such a
-// default precisions, or defining precisions to null
-//VTK::System::Dec
 
 //////////////////////////////////////////////////////////////////////////////
 ///

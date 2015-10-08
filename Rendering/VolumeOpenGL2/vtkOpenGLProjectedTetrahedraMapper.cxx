@@ -62,7 +62,6 @@
 #include "vtkglProjectedTetrahedraVS.h"
 #include "vtkglProjectedTetrahedraFS.h"
 
-// static int tet_faces[4][3] = { {1,2,3}, {2,0,3}, {0,1,3}, {0,2,1} };
 static int tet_edges[6][2] = { {0,1}, {1,2}, {2,0},
                                {0,3}, {1,3}, {2,3} };
 
@@ -142,9 +141,12 @@ bool vtkOpenGLProjectedTetrahedraMapper::IsSupported(vtkRenderWindow *rwin)
   if (this->UseFloatingPointFrameBuffer)
     {
     this->CanDoFloatingPointFrameBuffer
+#if GL_ES_VERSION_2_0 != 1
       = (glewIsSupported("GL_EXT_framebuffer_object") != 0)
-      && (glewIsSupported("GL_ARB_draw_buffers") != 0)
-      && (glewIsSupported("GL_ARB_texture_float") != 0);
+        && (glewIsSupported("GL_ARB_texture_float") != 0);
+#else
+      = true;
+#endif
     if (!this->CanDoFloatingPointFrameBuffer)
       {
       vtkWarningMacro(
@@ -201,36 +203,12 @@ bool vtkOpenGLProjectedTetrahedraMapper::AllocateFBOResources(vtkRenderer *r)
 
       this->FloatingPointFrameBufferResourcesAllocated = true;
       }
-    // handle multisampling
-    // the ARB says if SAMPLE_BUFFERS is greater than 1
-    // on both READ and DRAW FBO then SAMPLES has to match.
-    // but if either have SAMPLE_BUFFERS zero then conversions
-    // are made.
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    GLint winSampleBuffers = 0;
-    glGetIntegerv(GL_SAMPLE_BUFFERS, &winSampleBuffers);
-
-    GLint winSamples = 0;
-    glGetIntegerv(GL_SAMPLES, &winSamples);
-
+    // do not special handle multisampling, use the default.
+    // Multisampling is becoming less common as it
+    // is replaced with other techniques
     glBindFramebuffer(GL_FRAMEBUFFER,
           this->Internals->FrameBufferObjectId);
-
-    GLint fboSampleBuffers = 0;
-    glGetIntegerv(GL_SAMPLE_BUFFERS, &fboSampleBuffers);
-
-    vtkDebugMacro(
-      << "mutisample enabled "
-      << (glIsEnabled(GL_MULTISAMPLE)?"yes":"no")
-      << " winSampleBuffers=" << winSampleBuffers
-      << " winSamples=" << winSamples
-      << " fboSampleBuffers=" << fboSampleBuffers);
-
-    int fboSamples
-      = ((fboSampleBuffers >= 1)
-      && (winSampleBuffers >= 1)
-      && (winSamples >= 1))?winSamples:0;
 
     // allocate storage for renderbuffers
     glBindRenderbuffer(
@@ -238,26 +216,10 @@ bool vtkOpenGLProjectedTetrahedraMapper::AllocateFBOResources(vtkRenderer *r)
           this->Internals->RenderBufferObjectIds[0]);
     vtkOpenGLCheckErrorMacro("failed at glBindRenderBuffer color");
 
-    glRenderbufferStorageMultisample(
-          GL_RENDERBUFFER,
-          fboSamples,
-          GL_RGBA32F_ARB,
-          this->CurrentFBOWidth,
-          this->CurrentFBOHeight);
-    vtkOpenGLCheckErrorMacro("failed at glRenderBufferStorage color");
-
     glBindRenderbuffer(
           GL_RENDERBUFFER,
           this->Internals->RenderBufferObjectIds[1]);
     vtkOpenGLCheckErrorMacro("failed at glBindRenderBuffer depth");
-
-    glRenderbufferStorageMultisample(
-          GL_RENDERBUFFER,
-          fboSamples,
-          GL_DEPTH_COMPONENT,
-          this->CurrentFBOWidth,
-          this->CurrentFBOHeight);
-    vtkOpenGLCheckErrorMacro("failed at glRenderBufferStorage depth");
 
    // best way to make it complete: bind the fbo for both draw+read
    // durring setup
@@ -547,7 +509,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
 
     glReadBuffer(GL_NONE);
     GLenum dbuf = GL_COLOR_ATTACHMENT0;
-    glDrawBuffersARB(1, &dbuf);
+    glDrawBuffers(1, &dbuf);
 
     GLenum status = glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER);
     if (status!= GL_FRAMEBUFFER_COMPLETE)

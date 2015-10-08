@@ -1,3 +1,5 @@
+//VTK::System::Dec
+
 /*=========================================================================
 
   Program:   Visualization Toolkit
@@ -13,10 +15,6 @@
 
 =========================================================================*/
 // Template for the polydata mappers fragment shader
-
-// The following line handle system declarations such a
-// default precisions, or defining precisions to null
-//VTK::System::Dec
 
 uniform int PrimitiveIDOffset;
 

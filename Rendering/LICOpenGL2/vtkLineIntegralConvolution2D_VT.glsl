@@ -1,3 +1,5 @@
+//VTK::System::Dec
+
 //=========================================================================
 //
 //  Program:   Visualization Toolkit
@@ -15,10 +17,6 @@
 
 // move vector field to normalized image space
 // pre-procesing for vtkLineIntegralConvolution2D
-
-// The following line handles system declarations such as
-// default precisions, or defining precisions to null
-//VTK::System::Dec
 
 // the output of this shader
 //VTK::Output::Dec
