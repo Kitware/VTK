@@ -1643,9 +1643,7 @@ void vtkMPASReader::OutputCells(bool init)
       //check if it is a mirror cell, if so, get original
       if (j >= this->NumberOfCells + this->CellOffset)
         {
-        //cout << "setting origCell" << endl;
         int origCellNum = *(this->CellMap + (j - this->NumberOfCells - this->CellOffset));
-        //cout << "mirror cell: " <<j<< " origCell: "<< origCell << endl;
         connections = this->OrigConnections + (origCellNum*this->PointsPerCell);
         }
       else
@@ -1653,15 +1651,13 @@ void vtkMPASReader::OutputCells(bool init)
         connections = this->OrigConnections + (j * this->PointsPerCell);
         }
 
-      //cout << "calc minLevel" << endl;
       minLevel = this->MaximumLevelPoint[connections[0]];
-      //cout << "initial minLevel:" << minLevel << endl;
+
       // Take the min of the this->MaximumLevelPoint of each point
       for (int k = 1; k < this->PointsPerCell; k++)
         {
         minLevel = min(minLevel, this->MaximumLevelPoint[connections[k]]);
         }
-      //cout << endl;
       }
 
     // singlelayer
