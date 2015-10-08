@@ -22,5 +22,7 @@ vtk_add_test_python(
   EnSightRectGridASCII.py
   EnSightRectGridBin.py
   EnSightSelectArrays.py
+  EnSightTensorsInversion.py
+  EnSightTensorsInversionBin.py
   nacaBinary.py
   )
