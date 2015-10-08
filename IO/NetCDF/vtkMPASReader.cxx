@@ -743,6 +743,11 @@ int vtkMPASReader::CheckParams()
 
 int vtkMPASReader::GetNcVars (const char* cellDimName, const char* pointDimName)
 {
+  this->Internals->pointArrays.clear();
+  this->Internals->pointVars.clear();
+  this->Internals->cellArrays.clear();
+  this->Internals->cellVars.clear();
+
   NcFile* ncFile =  this->Internals->ncFile;
 
   int numVars = ncFile->num_vars();
@@ -2511,6 +2516,17 @@ int vtkMPASReader::GetDimensionSize(const string &dim)
     return -1;
     }
   return it->second.dimSize;
+}
+
+//----------------------------------------------------------------------------
+void vtkMPASReader::SetVerticalDimension(const string &str)
+{
+  if (str != this->VerticalDimension)
+    {
+    this->VerticalDimension = str;
+    this->InfoRequested = false; // invalidate cached vlevel data.
+    this->Modified();
+    }
 }
 
 //----------------------------------------------------------------------------

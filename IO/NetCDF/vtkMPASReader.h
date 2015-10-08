@@ -162,7 +162,7 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   // Description:
   // Get/Set the name to the dimension that identifies the vertical dimension.
   // Defaults to "nVertLevels".
-  vtkSetMacro(VerticalDimension, std::string)
+  void SetVerticalDimension(const std::string &str);
   vtkGetMacro(VerticalDimension, std::string)
 
   // Description:
@@ -170,7 +170,6 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   // for the dimension returned by GetVerticalDimension.
   void SetVerticalLevel(int level);
   int GetVerticalLevel();
-
 
   vtkGetVector2Macro(VerticalLevelRange, int);
 
