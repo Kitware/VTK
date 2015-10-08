@@ -115,7 +115,7 @@ int vtkThreshold::RequestData(
   double x[3];
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
-  int keepCell, usePointScalars;
+  int keepCell;
 
   vtkDebugMacro(<< "Executing threshold filter");
 
@@ -177,7 +177,8 @@ int vtkThreshold::RequestData(
   newCellPts = vtkIdList::New();
 
   // are we using pointScalars?
-  usePointScalars = (inScalars->GetNumberOfTuples() == numPts);
+  int fieldAssociation = this->GetInputArrayAssociation(0, inputVector);
+  bool usePointScalars = fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_POINTS;
 
   // Check that the scalars of each cell satisfy the threshold criterion
   for (cellId=0; cellId < input->GetNumberOfCells(); cellId++)
