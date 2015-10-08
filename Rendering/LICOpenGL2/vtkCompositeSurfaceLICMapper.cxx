@@ -468,6 +468,7 @@ void vtkCompositeSurfaceLICMapper::RenderBlock(vtkRenderer *renderer,
       else
         {
         helper = found->second;
+        helper->SetInputData(ds);
         }
       if (ds && ds->GetPoints())
         {
