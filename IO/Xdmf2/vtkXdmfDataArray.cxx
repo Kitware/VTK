@@ -3,8 +3,6 @@
 /*                   eXtensible Data Model and Format              */
 /*                                                                 */
 /*  Id : Id  */
-/*  Date : $Date$ */
-/*  Version : $Revision$ */
 /*                                                                 */
 /*  Author:                                                        */
 /*     Jerry A. Clarke                                             */

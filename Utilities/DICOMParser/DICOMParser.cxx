@@ -3,8 +3,6 @@
   Program:   DICOMParser
   Module:    DICOMParser.cxx
   Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
 
   Copyright (c) 2003 Matt Turek
   All rights reserved.

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   ParaView
-  Module:    $RCSfile$
+  Module:    TestClientServerRendering.cxx
 
   Copyright (c) Kitware, Inc.
   All rights reserved.

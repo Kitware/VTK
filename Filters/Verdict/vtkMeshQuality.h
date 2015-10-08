@@ -3,8 +3,6 @@
   Program:   Visualization Toolkit
   Module:    vtkMeshQuality.h
   Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
 
   Copyright 2003-2006 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive

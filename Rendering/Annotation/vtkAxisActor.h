@@ -3,8 +3,6 @@
 Program:   Visualization Toolkit
 Module:    vtkAxisActor.h
 Language:  C++
-Date:      $Date$
-Version:   $Revision$
 Thanks:    Kathleen Bonnell, B Division, Lawrence Livermore Nat'l Laboratory
 
 Copyright (c) 1993-2000 Ken Martin, Will Schroeder, Bill Lorensen
