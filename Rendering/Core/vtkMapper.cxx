@@ -612,6 +612,20 @@ const char *vtkMapper::GetScalarMaterialModeAsString(void)
     }
 }
 
+//-----------------------------------------------------------------------------
+bool vtkMapper::GetIsOpaque()
+{
+  vtkScalarsToColors* lut = this->GetLookupTable();
+  if (lut)
+    {
+    // Ensure that the lookup table is built
+    lut->Build();
+    return (lut->IsOpaque() == 1);
+    }
+
+  return true;
+}
+
 // anonymous namespace
 namespace {
 
