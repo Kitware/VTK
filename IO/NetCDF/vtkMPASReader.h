@@ -162,7 +162,7 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   // Description:
   // Get/Set the name to the dimension that identifies the vertical dimension.
   // Defaults to "nVertLevels".
-  void SetVerticalDimension(const std::string &str);
+  vtkSetMacro(VerticalDimension, std::string)
   vtkGetMacro(VerticalDimension, std::string)
 
   // Description:
@@ -171,25 +171,26 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   void SetVerticalLevel(int level);
   int GetVerticalLevel();
 
-  vtkGetVector2Macro(VerticalLevelRange, int);
+  vtkGetVector2Macro(VerticalLevelRange, int)
 
-  void SetLayerThickness(int val);
-  vtkGetVector2Macro(LayerThicknessRange, int);
+  vtkSetMacro(LayerThickness, int)
+  vtkGetMacro(LayerThickness, int)
+  vtkGetVector2Macro(LayerThicknessRange, int)
 
   void SetCenterLon(int val);
-  vtkGetVector2Macro(CenterLonRange, int);
+  vtkGetVector2Macro(CenterLonRange, int)
 
-  void SetProjectLatLon(bool val);
-  vtkGetMacro(ProjectLatLon, bool);
+  vtkSetMacro(ProjectLatLon, bool)
+  vtkGetMacro(ProjectLatLon, bool)
 
-  void SetIsAtmosphere(bool val);
-  vtkGetMacro(IsAtmosphere, bool);
+  vtkSetMacro(IsAtmosphere, bool)
+  vtkGetMacro(IsAtmosphere, bool)
 
-  void SetIsZeroCentered(bool val);
-  vtkGetMacro(IsZeroCentered, bool);
+  vtkSetMacro(IsZeroCentered, bool)
+  vtkGetMacro(IsZeroCentered, bool)
 
-  void SetShowMultilayerView(bool val);
-  vtkGetMacro(ShowMultilayerView, bool);
+  vtkSetMacro(ShowMultilayerView, bool)
+  vtkGetMacro(ShowMultilayerView, bool)
 
   // Description:
   // Returns true if the given file can be read.
@@ -200,14 +201,13 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
  protected:
   vtkMPASReader();
   ~vtkMPASReader();
+  void ReleaseNcData();
   void DestroyData();
 
   char *FileName;         // First field part file giving path
 
   int NumberOfTimeSteps;      // Temporal domain
   double DTime;               // The current time
-  double* TimeSteps;          // Times available for request
-
 
   // Observer to modify this object when array selections are modified
   vtkCallbackCommand* SelectionObserver;
@@ -221,11 +221,6 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   static void SelectionCallback(vtkObject* caller, unsigned long eid,
                                 void* clientdata, void* calldata);
 
-  bool InfoRequested;
-  bool DataRequested;
-
-  // params
-
   // Selected field of interest
   vtkDataArraySelection* PointDataArraySelection;
   vtkDataArraySelection* CellDataArraySelection;
@@ -233,7 +228,7 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   // Description:
   // Update the list of available dimensions. Only does work when
   // PointDataArraySelection or CellDataArraySelection is changed.
-  void UpdateDimensions();
+  void UpdateDimensions(bool force = false);
 
   std::string VerticalDimension;
   int VerticalLevelRange[2];
@@ -282,7 +277,7 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   int GetNcDims();
   int CheckParams();
   int GetNcVars(const char* cellDimName, const char* pointDimName);
-  int ReadAndOutputGrid(bool init);
+  int ReadAndOutputGrid();
   int BuildVarArrays();
   int AllocSphereGeometry();
   int AllocLatLonGeometry();
@@ -290,8 +285,8 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   int AddMirrorPoint(int index, double dividerX);
   void FixPoints();
   int EliminateXWrap();
-  void OutputPoints(bool init);
-  void OutputCells(bool init);
+  void OutputPoints();
+  void OutputCells();
   unsigned char GetCellType();
 
   // Description:
@@ -310,7 +305,6 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
 
   vtkDataArray* LoadPointVarData(int variable);
   vtkDataArray* LoadCellVarData(int variable);
-  int RegenerateGeometry();
   vtkDataArray* LookupPointDataArray(int varIdx);
   vtkDataArray* LookupCellDataArray(int varIdx);
 
