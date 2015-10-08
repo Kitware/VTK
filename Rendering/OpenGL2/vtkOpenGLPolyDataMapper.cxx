@@ -1840,6 +1840,26 @@ void vtkOpenGLPolyDataMapper::SetPropertyShaderParameters(vtkOpenGLHelper &cellB
 
 }
 
+namespace
+{
+// helper to get the state of picking
+int getPickState(vtkRenderer *ren)
+{
+  vtkHardwareSelector* selector = ren->GetSelector();
+  if (selector)
+    {
+    return selector->GetCurrentPass();
+    }
+
+  if (ren->GetRenderWindow()->GetIsPicking())
+    {
+    return vtkHardwareSelector::ACTOR_PASS;
+    }
+
+  return vtkHardwareSelector::MIN_KNOWN_PASS - 1;
+}
+}
+
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor)
 {
@@ -1849,8 +1869,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
 #endif
 
   vtkHardwareSelector* selector = ren->GetSelector();
-  int picking = selector ? selector->GetCurrentPass() :
-     vtkHardwareSelector::MIN_KNOWN_PASS - 1;
+  int picking = getPickState(ren);
   if (this->LastSelectionState != picking)
     {
     this->SelectionStateChanged.Modified();
