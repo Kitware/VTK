@@ -203,20 +203,10 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   void DestroyData();
 
   char *FileName;         // First field part file giving path
-  /*
-    int Rank;               // Number of this processor
-    int TotalRank;          // Number of processors
-  */
-
-  //  int NumberOfPieces;         // Number of files in dataset
-  // vtkIdType NumberOfTuples;        // Number of tuples in sub extent
-
-  vtkStdString* VariableName;     // Names of each variable
-  int* VariableType;          // Scalar, vector or tensor
 
   int NumberOfTimeSteps;      // Temporal domain
+  double DTime;               // The current time
   double* TimeSteps;          // Times available for request
-  double DTime;
 
 
   // Observer to modify this object when array selections are modified
@@ -287,14 +277,12 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   int* MaximumLevelPoint;      //
   int MaximumCells;           // max cells
   int MaximumPoints;          // max points
-  int VerticalIndex;      // for singleLayer, which vertical level
 
   void SetDefaults();
   int GetNcDims();
   int CheckParams();
   int GetNcVars(const char* cellDimName, const char* pointDimName);
   int ReadAndOutputGrid(bool init);
-  int ReadAndOutputVariableData();
   int BuildVarArrays();
   int AllocSphereGeometry();
   int AllocLatLonGeometry();
@@ -305,7 +293,6 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   void OutputPoints(bool init);
   void OutputCells(bool init);
   unsigned char GetCellType();
-  void LoadGeometryData(int var, double dTime);
 
   // Description:
   // Return the cursor position for the specified dimension.
