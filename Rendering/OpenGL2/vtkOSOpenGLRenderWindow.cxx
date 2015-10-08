@@ -216,8 +216,16 @@ void vtkOSOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
 
 void vtkOSOpenGLRenderWindow::DestroyOffScreenWindow()
 {
+  // Release graphic resources.
 
-  // release graphic resources.
+  // First release graphics resources on the window itself
+  // since call to Renderer's SetRenderWindow(NULL), just
+  // calls ReleaseGraphicsResources on vtkProps. And also
+  // this call invokes Renderer's ReleaseGraphicsResources
+  // method which only invokes ReleaseGraphicsResources on
+  // rendering passes.
+  this->ReleaseGraphicsResources();
+
   vtkRenderer *ren;
   vtkCollectionSimpleIterator rit;
   this->Renderers->InitTraversal(rit);
