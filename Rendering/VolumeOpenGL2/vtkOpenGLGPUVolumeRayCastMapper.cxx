@@ -1091,7 +1091,11 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateInterpolationType(
   this->RGBTables->GetTable(component)->Update(
     volumeProperty->GetRGBTransferFunction(component),
     scalarRange,
+#if GL_ES_VERSION_2_0 != 1
     filterVal,
+#else
+    vtkTextureObject::Nearest,
+#endif
     vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
 
   if (this->Parent->MaskInput != 0 &&
@@ -1159,7 +1163,11 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateOpacityTransferFunction(
     this->ActualSampleDistance,
     scalarRange,
     volumeProperty->GetScalarOpacityUnitDistance(component),
+#if GL_ES_VERSION_2_0 != 1
     filterVal,
+#else
+    vtkTextureObject::Nearest,
+#endif
     vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
 
   return 0;
@@ -1221,7 +1229,11 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
     this->ActualSampleDistance,
     scalarRange,
     volumeProperty->GetScalarOpacityUnitDistance(),
+#if GL_ES_VERSION_2_0 != 1
     filterVal,
+#else
+    vtkTextureObject::Nearest,
+#endif
     vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
 
   return 0;

@@ -34,9 +34,14 @@
 
 #include "vtkNew.h"
 
-#include "vtkNrrdReader.h"
+#define SYNTHETIC 1
+#ifdef SYNTHETIC
 #include "vtkImageCast.h"
 #include "vtkRTAnalyticSource.h"
+#else
+#include "vtkNrrdReader.h"
+#endif
+
 #include "vtkOpenGLGPUVolumeRayCastMapper.h"
 #include "vtkVolumeProperty.h"
 #include "vtkColorTransferFunction.h"
@@ -103,17 +108,22 @@ JNIEXPORT jlong JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_init(JNIEn
 
   vtkNew<vtkOpenGLGPUVolumeRayCastMapper> volumeMapper;
 
-#if 0
+  vtkNew<vtkPiecewiseFunction> pwf;
+
+#ifdef SYNTHETIC
   vtkNew<vtkRTAnalyticSource> wavelet;
-  wavelet->SetWholeExtent(-127, 128,
-                          -127, 128,
-                          -127, 128);
+  wavelet->SetWholeExtent(-63, 64,
+                          -63, 64,
+                          -63, 64);
   wavelet->SetCenter(0.0, 0.0, 0.0);
 
   vtkNew<vtkImageCast> ic;
   ic->SetInputConnection(wavelet->GetOutputPort());
   ic->SetOutputScalarTypeToUnsignedChar();
   volumeMapper->SetInputConnection(ic->GetOutputPort());
+
+  pwf->AddPoint(0, 0);
+  pwf->AddPoint(255, 0.1);
 #else
   vtkNew<vtkNrrdReader> mi;
   mi->SetFileName("/sdcard/CT-chest-quantized.nrrd");
@@ -124,8 +134,14 @@ JNIEXPORT jlong JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_init(JNIEn
   LOGI("Min %f Max %f type %s", range[0], range[1], mi->GetOutput()->GetScalarTypeAsString());
 
   volumeMapper->SetInputConnection(mi->GetOutputPort());
-#endif
 
+  double tweak = 80.0;
+  pwf->AddPoint(0, 0);
+  pwf->AddPoint(255*(67.0106+tweak)/3150.0, 0);
+  pwf->AddPoint(255*(251.105+tweak)/3150.0, 0.3);
+  pwf->AddPoint(255*(439.291+tweak)/3150.0, 0.5);
+  pwf->AddPoint(255*3071/3150.0, 0.616071);
+#endif
 
   volumeMapper->SetAutoAdjustSampleDistances(1);
   volumeMapper->SetSampleDistance(0.5);
@@ -135,28 +151,11 @@ JNIEXPORT jlong JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_init(JNIEn
   volumeProperty->SetInterpolationTypeToLinear();
 
   vtkNew<vtkColorTransferFunction> ctf;
-  // ctf->AddRGBPoint(90, 0.2, 0.29, 1);
-  // ctf->AddRGBPoint(157.091, 0.87, 0.87, 0.87);
-  // ctf->AddRGBPoint(250, 0.7, 0.015, 0.15);
-
   ctf->AddRGBPoint(0, 0, 0, 0);
   ctf->AddRGBPoint(255*67.0106/3150.0, 0.54902, 0.25098, 0.14902);
   ctf->AddRGBPoint(255*251.105/3150.0, 0.882353, 0.603922, 0.290196);
   ctf->AddRGBPoint(255*439.291/3150.0, 1, 0.937033, 0.954531);
   ctf->AddRGBPoint(255*3071/3150.0, 0.827451, 0.658824, 1);
-
-
-  // vtkNew<vtkPiecewiseFunction> pwf;
-  // pwf->AddPoint(0, 0.0);
-  // pwf->AddPoint(7000, 1.0);
-
-  double tweak = 80.0;
-  vtkNew<vtkPiecewiseFunction> pwf;
-  pwf->AddPoint(0, 0);
-  pwf->AddPoint(255*(67.0106+tweak)/3150.0, 0);
-  pwf->AddPoint(255*(251.105+tweak)/3150.0, 0.3);
-  pwf->AddPoint(255*(439.291+tweak)/3150.0, 0.5);
-  pwf->AddPoint(255*3071/3150.0, 0.616071);
 
   volumeProperty->SetColor(ctf.GetPointer());
   volumeProperty->SetScalarOpacity(pwf.GetPointer());
