@@ -165,7 +165,13 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   vtkSetMacro(VerticalDimension, std::string)
   vtkGetMacro(VerticalDimension, std::string)
 
+  // Description:
+  // Convenience functon for setting/querying [GS]etDimensionCurrentIndex
+  // for the dimension returned by GetVerticalDimension.
   void SetVerticalLevel(int level);
+  int GetVerticalLevel();
+
+
   vtkGetVector2Macro(VerticalLevelRange, int);
 
   void SetLayerThickness(int val);
@@ -241,7 +247,6 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   void UpdateDimensions();
 
   std::string VerticalDimension;
-  int VerticalLevelSelected;
   int VerticalLevelRange[2];
 
   int LayerThickness;
@@ -331,6 +336,12 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   Internal *Internals;
 
   static int NcTypeToVtkType(int ncType);
+
+  vtkDataArray* CreateDataArray(int ncType);
+  vtkIdType ComputeNumberOfTuples(NcVar *ncVar);
+
+  template <typename ValueType>
+  bool LoadDataArray(NcVar *ncVar, vtkDataArray *array, bool resize = true);
 
   template <typename ValueType>
   int LoadPointVarDataImpl(NcVar *ncVar, vtkDataArray *array);

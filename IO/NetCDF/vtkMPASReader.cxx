@@ -152,7 +152,6 @@ struct DimMetaData
 {
   long curIdx;
   long dimSize;
-  std::vector<double> values; // currently unused
 };
 
 } // end anon namespace
@@ -625,7 +624,6 @@ void vtkMPASReader::SetDefaults() {
   this->VerticalDimension = "nVertLevels";
   this->VerticalLevelRange[0] = 0;
   this->VerticalLevelRange[1] = 1;
-  this->VerticalLevelSelected = 0;
 
   this->LayerThicknessRange[0] = 0;
   this->LayerThicknessRange[1] = 200000;
@@ -696,6 +694,10 @@ int vtkMPASReader::GetNcDims()
     CHECK_DIM(pnf, this->VerticalDimension.c_str());
     NcDim* nVertLevels = pnf->get_dim(this->VerticalDimension.c_str());
     this->MaximumNVertLevels = nVertLevels->size();
+    }
+  else
+    {
+    this->MaximumNVertLevels = 0;
     }
 
   return 1;
@@ -965,7 +967,7 @@ int vtkMPASReader::AllocSphereGeometry()
       this->CellMask = (int*)malloc(this->NumberOfCells*sizeof(int));
       CHECK_MALLOC(this->CellMask);
       NcVar*  cellMask = ncFile->get_var("vertexMask");
-      cellMask->set_cur(0, this->VerticalLevelSelected);
+      cellMask->set_cur(0, this->GetVerticalLevel());
       cellMask->get(this->CellMask, this->NumberOfCells, 1);
       }
     else
@@ -1068,7 +1070,7 @@ int vtkMPASReader::AllocLatLonGeometry()
       this->CellMask = (int*)malloc(this->ModNumCells*sizeof(int));
       CHECK_MALLOC(this->CellMask);
       NcVar*  cellMask = ncFile->get_var("vertexMask");
-      cellMask->set_cur(0, this->VerticalLevelSelected);
+      cellMask->set_cur(0, this->GetVerticalLevel());
       cellMask->get(this->CellMask, this->NumberOfCells, 1);
       }
     else
@@ -1519,6 +1521,11 @@ long vtkMPASReader::GetCursorForDimension(const NcDim *dim)
     return std::min(static_cast<long>(std::floor(this->DTime)),
                     static_cast<long>(this->NumberOfTimeSteps-1));
     }
+  else if (this->ShowMultilayerView &&
+           dimName == this->VerticalDimension)
+    {
+    return 0;
+    }
   else
     {
     return this->InitializeDimension(dim);
@@ -1533,9 +1540,13 @@ size_t vtkMPASReader::GetCountForDimension(const NcDim *dim)
     {
     return this->NumberOfPoints;
     }
-  else if(dimName == "nVertices")
+  else if (dimName == "nVertices")
     {
     return this->NumberOfCells;
+    }
+  else if (this->ShowMultilayerView && dimName == this->VerticalDimension)
+    {
+    return this->MaximumNVertLevels;
     }
   else
     {
@@ -1555,25 +1566,6 @@ long vtkMPASReader::InitializeDimension(const NcDim *dim)
     DimMetaData metaData;
     metaData.curIdx = result;
     metaData.dimSize = dim->size();
-
-    // extract values if available:
-    if (isNcVar(this->Internals->ncFile, dim->name()))
-      {
-      NcVar *coordVar = this->Internals->ncFile->get_var(dim->name());
-      if (coordVar->type() == ncDouble &&
-          coordVar->num_vals() != 0)
-        {
-        metaData.values.resize(coordVar->num_vals());
-        coordVar->get(&metaData.values[0]);
-        }
-      else
-        {
-        // TODO if this is a common case, we can add some templated code to
-        // extract and cast the values.
-        vtkDebugMacro(<< "Dimension '" << dim->name() << "' does not have "
-                      << "double type. Values will not be extracted.");
-        }
-      }
 
     this->Internals->dimMetaDataMap.insert(
           std::make_pair(std::string(dim->name()), metaData));
@@ -1678,7 +1670,7 @@ void vtkMPASReader::OutputCells(bool init)
       // If that min is greater than or equal to this output level,
       // include the cell, otherwise set all points to zero.
 
-      if (this->IncludeTopography && ((minLevel-1) < this->VerticalLevelSelected))
+      if (this->IncludeTopography && ((minLevel-1) < this->GetVerticalLevel()))
         {
         //cerr << "Setting all points to zero" << endl;
         val = 0;
@@ -1751,27 +1743,158 @@ void vtkMPASReader::OutputCells(bool init)
 }
 
 //------------------------------------------------------------------------------
-template <typename ValueType>
-int vtkMPASReader::LoadPointVarDataImpl(NcVar *ncVar, vtkDataArray *array)
+vtkDataArray *vtkMPASReader::CreateDataArray(int typeNc)
 {
-  ValueType *dataBlock = static_cast<ValueType*>(array->GetVoidPointer(0));
+  int typeVtk = this->NcTypeToVtkType(static_cast<NcType>(typeNc));
+  return vtkDataArray::CreateDataArray(typeVtk);
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkMPASReader::ComputeNumberOfTuples(NcVar *ncVar)
+{
   int numDims = ncVar->num_dims();
-  std::vector<ValueType> tempData; // Used for Multilayer
+  vtkIdType size = 0;
+  for (int dim = 0; dim < numDims; ++dim)
+    {
+    vtkIdType count = static_cast<vtkIdType>(
+          this->GetCountForDimension(ncVar->get_dim(dim)));
+    if (size == 0)
+      {
+      size = count;
+      }
+    else
+      {
+      size *= count;
+      }
+    }
+  return size;
+}
+
+//------------------------------------------------------------------------------
+template <typename ValueType>
+bool vtkMPASReader::LoadDataArray(NcVar *ncVar, vtkDataArray *array,
+                                  bool resize)
+{
+  if (array->GetDataType() != this->NcTypeToVtkType(ncVar->type()))
+    {
+    vtkWarningMacro("Invalid array type.");
+    return false;
+    }
+
+  int numDims = ncVar->num_dims();
   std::vector<long> cursor;
   std::vector<nc_size_t> counts;
+  vtkIdType size = 0;
 
-  for (int dim = 0; dim < ncVar->num_dims(); ++dim)
+  for (int dim = 0; dim < numDims; ++dim)
     {
     cursor.push_back(this->GetCursorForDimension(ncVar->get_dim(dim)));
     counts.push_back(static_cast<nc_size_t>(
                        this->GetCountForDimension(ncVar->get_dim(dim))));
+    if (size == 0)
+      {
+      size = counts.back();
+      }
+    else
+      {
+      size *= counts.back();
+      }
     }
+
+  if (resize)
+    {
+    array->SetNumberOfComponents(1);
+    array->SetNumberOfTuples(size);
+    }
+  else
+    {
+    if (array->GetNumberOfComponents() != 1)
+      {
+      vtkWarningMacro("Invalid number of components: "
+                      << array->GetNumberOfComponents() << ".");
+      return false;
+      }
+    else if (array->GetNumberOfTuples() < size)
+      {
+      vtkWarningMacro("Array only has " << array->GetNumberOfTuples()
+                      << " allocated, but we need " << size << ".");
+      return false;
+      }
+    }
+
+  ValueType *dataBlock = static_cast<ValueType*>(array->GetVoidPointer(0));
+  if (!dataBlock)
+    {
+    vtkWarningMacro("GetVoidPointer returned NULL.");
+    return false;
+    }
+
+  if (!ncVar->set_cur(&cursor[0]))
+    {
+    vtkWarningMacro("Setting cursor failed.");
+    return false;
+    }
+
+  if (!ncVar->get(dataBlock, &counts[0]))
+    {
+    vtkWarningMacro("Reading " << size << " elements failed.");
+    return false;
+    }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
+template <typename ValueType>
+int vtkMPASReader::LoadPointVarDataImpl(NcVar *ncVar, vtkDataArray *array)
+{
+  // Don't resize, we've preallocated extra room for multilayer (if needed):
+  if (!this->LoadDataArray<ValueType>(ncVar, array, /*resize=*/false))
+    {
+    return 0;
+    }
+
+  // Check if this variable contains the vertical dimension:
+  bool hasVerticalDimension = false;
+  int numDims = ncVar->num_dims();
+  if (this->ShowMultilayerView)
+    {
+    for (int d = 0; d < numDims; ++d)
+      {
+      if (this->VerticalDimension == ncVar->get_dim(d)->name())
+        {
+        hasVerticalDimension = true;
+        break;
+        }
+      }
+    }
+
+  vtkIdType varSize = this->ComputeNumberOfTuples(ncVar);
+  ValueType *dataBlock = static_cast<ValueType*>(array->GetVoidPointer(0));
+  std::vector<ValueType> tempData; // Used for Multilayer
 
   // singlelayer
   if (!this->ShowMultilayerView)
     {
-    ncVar->set_cur(&cursor[0]);
-    ncVar->get(dataBlock + this->PointOffset, &counts[0]);
+    // Account for point offset:
+    if (this->PointOffset != 0)
+      {
+      assert(this->NumberOfPoints <= array->GetNumberOfTuples() &&
+             "Source array too small.");
+      assert(this->PointOffset + this->NumberOfPoints <=
+             array->GetNumberOfTuples() && "Destination array too small.");
+      if (this->PointOffset < this->NumberOfPoints)
+        {
+        std::copy_backward(dataBlock, dataBlock + this->NumberOfPoints,
+                           dataBlock + this->PointOffset +
+                           this->NumberOfPoints);
+        }
+      else
+        {
+        std::copy(dataBlock, dataBlock + this->NumberOfPoints,
+                  dataBlock + this->PointOffset);
+        }
+      }
     dataBlock[0] = dataBlock[1];
     // data is all in place, don't need to do next step
     }
@@ -1781,15 +1904,16 @@ int vtkMPASReader::LoadPointVarDataImpl(NcVar *ncVar, vtkDataArray *array)
       {
       return 0; // No points
       }
-    tempData.resize(this->MaximumPoints);
-    ValueType* dataPtr = &tempData[0] + (this->MaximumNVertLevels *
-                                         this->PointOffset);
-    ncVar->set_cur(&cursor[0]);
-    ncVar->get(dataPtr, &counts[0]);
 
-    // TODO how to handle this? Let user specify which dimension is the
-    // vertical layer64cb89e3e6ae08f440eb6d4cbfb308c41ab7d258?
-    if (numDims == 1 || numDims == 2)
+    tempData.resize(this->MaximumPoints);
+    size_t vertPointOffset = this->MaximumNVertLevels * this->PointOffset;
+    ValueType *dataPtr = &tempData[0] + vertPointOffset;
+
+    assert(varSize < array->GetNumberOfTuples());
+    assert(varSize < this->MaximumPoints - vertPointOffset);
+    std::copy(dataBlock, dataBlock + varSize, dataPtr);
+
+    if (!hasVerticalDimension)
       {
       // need to replicate data over all vertical layers
       // layout in memory needs to be:
@@ -1817,11 +1941,15 @@ int vtkMPASReader::LoadPointVarDataImpl(NcVar *ncVar, vtkDataArray *array)
   if (this->ShowMultilayerView)
     {
     // put in dummy points
+    assert(this->MaximumNVertLevels * 2 <= tempData.size());
+    assert(this->MaximumNVertLevels <= array->GetNumberOfTuples());
     std::copy(tempData.begin() + this->MaximumNVertLevels,
               tempData.begin() + (2*this->MaximumNVertLevels),
               dataBlock);
 
     // write highest level dummy point (duplicate of last level)
+    assert(this->MaximumNVertLevels < array->GetNumberOfTuples());
+    assert(2*this->MaximumNVertLevels - 1 < tempData.size());
     dataBlock[this->MaximumNVertLevels] =
         tempData[2*this->MaximumNVertLevels - 1];
 
@@ -1837,6 +1965,8 @@ int vtkMPASReader::LoadPointVarDataImpl(NcVar *ncVar, vtkDataArray *array)
       k = j*(this->MaximumNVertLevels);
 
       // write data for one point -- lowest level to highest
+      assert(k + this->MaximumNVertLevels <= tempData.size());
+      assert(i + this->MaximumNVertLevels <= array->GetNumberOfTuples());
       std::copy(tempData.begin() + k,
                 tempData.begin() + k + this->MaximumNVertLevels,
                 dataBlock + i);
@@ -1846,7 +1976,6 @@ int vtkMPASReader::LoadPointVarDataImpl(NcVar *ncVar, vtkDataArray *array)
       dataBlock[i++] = tempData[--k];
       //vtkDebugMacro (<< "Wrote j:" << j << endl);
       }
-
     }
 
   vtkDebugMacro(<<"Wrote next points.");
@@ -1863,6 +1992,8 @@ int vtkMPASReader::LoadPointVarDataImpl(NcVar *ncVar, vtkDataArray *array)
     if (!this->ShowMultilayerView)
       {
       k = this->PointMap[j - this->NumberOfPoints - this->PointOffset];
+      assert(j < array->GetNumberOfTuples());
+      assert(k < array->GetNumberOfTuples());
       dataBlock[j] = dataBlock[k];
       }
     else
@@ -1870,6 +2001,8 @@ int vtkMPASReader::LoadPointVarDataImpl(NcVar *ncVar, vtkDataArray *array)
       k = this->PointMap[j - this->NumberOfPoints - this->PointOffset] *
           this->MaximumNVertLevels;
       // write data for one point -- lowest level to highest
+      assert(k + this->MaximumNVertLevels <= tempData.size());
+      assert(i + this->MaximumNVertLevels <= array->GetNumberOfTuples());
       std::copy(tempData.begin() + k,
                 tempData.begin() + k + this->MaximumNVertLevels,
                 dataBlock + i);
@@ -1882,7 +2015,6 @@ int vtkMPASReader::LoadPointVarDataImpl(NcVar *ncVar, vtkDataArray *array)
 
   vtkDebugMacro(<<"wrote extra point data.");
   return 1;
-
 }
 
 //----------------------------------------------------------------------------
@@ -1932,31 +2064,13 @@ vtkDataArray *vtkMPASReader::LoadPointVarData(int variableIndex)
 template <typename ValueType>
 int vtkMPASReader::LoadCellVarDataImpl(NcVar *ncVar, vtkDataArray *array)
 {
+  // Don't resize, we've preallocated extra room for multilayer (if needed):
+  if (!this->LoadDataArray<ValueType>(ncVar, array, /*resize=*/false))
+    {
+    return 0;
+    }
+
   ValueType *dataBlock = static_cast<ValueType*>(array->GetVoidPointer(0));
-
-  std::vector<long> cursor;
-  std::vector<nc_size_t> counts;
-
-  for (int dim = 0; dim < ncVar->num_dims(); ++dim)
-    {
-    cursor.push_back(this->GetCursorForDimension(ncVar->get_dim(dim)));
-    counts.push_back(static_cast<nc_size_t>(
-                       this->GetCountForDimension(ncVar->get_dim(dim))));
-    }
-
-  ncVar->set_cur(&cursor[0]);
-
-  // TODO vert level refactor:
-  if (!ShowMultilayerView)
-    {
-    ncVar->get(dataBlock, &counts[0]);
-    }
-  else
-    {
-    ncVar->get(dataBlock, 1, this->NumberOfCells, this->MaximumNVertLevels);
-    }
-
-  vtkDebugMacro(<<"Got data.");
 
   // put out data for extra cells
   for (int j = this->CellOffset + this->NumberOfCells;
@@ -1967,6 +2081,8 @@ int vtkMPASReader::LoadCellVarDataImpl(NcVar *ncVar, vtkDataArray *array)
     if (!this->ShowMultilayerView)
       {
       int k = this->CellMap[j - this->NumberOfCells - this->CellOffset];
+      assert(j < array->GetNumberOfTuples());
+      assert(k < array->GetNumberOfTuples());
       dataBlock[j] = dataBlock[k];
       }
     else
@@ -1976,6 +2092,8 @@ int vtkMPASReader::LoadCellVarDataImpl(NcVar *ncVar, vtkDataArray *array)
               this->MaximumNVertLevels;
 
       // write data for one cell -- lowest level to highest
+      assert(i < array->GetNumberOfTuples());
+      assert(k + this->MaximumNVertLevels <= array->GetNumberOfTuples());
       std::copy(dataBlock + k, dataBlock + k + this->MaximumNVertLevels,
                 dataBlock + i);
       }
@@ -2380,9 +2498,9 @@ void vtkMPASReader::SetDimensionCurrentIndex(const string &dim, int idx)
       idx < it->second.dimSize)
     {
     it->second.curIdx = idx;
+    this->Modified();
     }
 
-  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -2405,10 +2523,14 @@ int vtkMPASReader::GetDimensionSize(const string &dim)
 
 void vtkMPASReader::SetVerticalLevel(int level)
 {
-  this->VerticalLevelSelected = level;
-  vtkDebugMacro( << "Set VerticalLevelSelected to: " << level);
+  int oldVerticalLevel = this->GetVerticalLevel();
+  this->SetDimensionCurrentIndex(this->VerticalDimension, level);
+  if (oldVerticalLevel == level)
+    {
+    return; // no actual change
+    }
 
-  vtkDebugMacro( << "InfoRequested?: " << this->InfoRequested);
+  vtkDebugMacro( << "Set VerticalLevel to: " << level);
 
   if (!this->InfoRequested)
     {
@@ -2447,6 +2569,11 @@ void vtkMPASReader::SetVerticalLevel(int level)
   this->CellDataArraySelection->Modified();
 }
 
+//------------------------------------------------------------------------------
+int vtkMPASReader::GetVerticalLevel()
+{
+  return this->GetDimensionCurrentIndex(this->VerticalDimension);
+}
 
 //----------------------------------------------------------------------------
 //  Set layer thickness for multilayer view.
