@@ -731,7 +731,11 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   // Update the VBO if needed.
   if (this->VBOUpdateTime < this->GetMTime() ||
       this->VBOUpdateTime < actor->GetMTime() ||
-      this->VBOUpdateTime < input->GetMTime() )
+      this->VBOUpdateTime < input->GetMTime()  ||
+      (this->TransformCoordinate && (
+       this->VBOUpdateTime < viewport->GetMTime() ||
+       this->VBOUpdateTime < viewport->GetVTKWindow()->GetMTime()))
+      )
     {
     this->UpdateVBO(actor, viewport);
     this->VBOUpdateTime.Modified();
