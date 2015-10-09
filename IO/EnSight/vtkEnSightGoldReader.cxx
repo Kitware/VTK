@@ -815,6 +815,7 @@ int vtkEnSightGoldReader::ReadTensorsPerNode(const char* fileName, const char* d
   int timeStep, vtkMultiBlockDataSet *compositeOutput)
 {
   char line[256];
+  int symmTensorOrder[6] = {0, 1, 2, 3, 5, 4};
   int partId, realId, numPts, i, j;
   vtkFloatArray *tensors;
   vtkDataSet *output;
@@ -913,7 +914,7 @@ int vtkEnSightGoldReader::ReadTensorsPerNode(const char* fileName, const char* d
         for (j = 0; j < numPts; j++)
           {
           this->ReadNextDataLine(line);
-          tensors->InsertComponent(j, i, atof(line));
+          tensors->InsertComponent(j, symmTensorOrder[i], atof(line));
           }
         }
       tensors->SetName(description);
@@ -1307,6 +1308,7 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(const char* fileName,
   vtkMultiBlockDataSet *compositeOutput)
 {
   char line[256];
+  int symmTensorOrder[6] = {0, 1, 2, 3, 5, 4};
   int partId, realId, numCells, numCellsPerElement, i, j, idx;
   vtkFloatArray *tensors;
   int lineRead, elementType;
@@ -1413,7 +1415,7 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(const char* fileName,
             {
             this->ReadNextDataLine(line);
             value = atof(line);
-            tensors->InsertComponent(j, i, value);
+            tensors->InsertComponent(j, symmTensorOrder[i], value);
             }
           }
         lineRead = this->ReadNextDataLine(line);
@@ -1442,7 +1444,7 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(const char* fileName,
               this->ReadNextDataLine(line);
               value = atof(line);
               tensors->InsertComponent(this->GetCellIds(idx, elementType)->GetId(j),
-                i, value);
+                symmTensorOrder[i], value);
               }
             }
           lineRead = this->ReadNextDataLine(line);

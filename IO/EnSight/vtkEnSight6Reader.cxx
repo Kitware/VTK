@@ -993,7 +993,7 @@ int vtkEnSight6Reader::ReadTensorsPerNode(
       {
       vtkEnSight6ReaderRead3(line, " %12e %12e %12e %12e %12e %12e",
                              &tensor[0], &tensor[1],
-                             &tensor[2], &tensor[3], &tensor[4], &tensor[5]);
+                             &tensor[2], &tensor[3], &tensor[5], &tensor[4]);
       tensors->InsertTuple(i, tensor);
       lineRead = this->ReadNextDataLine(line);
       }
@@ -1032,7 +1032,7 @@ int vtkEnSight6Reader::ReadTensorsPerNode(
         this->ReadNextDataLine(line);
         vtkEnSight6ReaderRead3(line, " %12e %12e %12e %12e %12e %12e",
                                &values[0], &values[1],
-                               &values[2], &values[3], &values[4], &values[5]);
+                               &values[2], &values[3], &values[5], &values[4]);
         for (j = 0; j < 6; j++)
           {
           tensors->InsertComponent(i*6 + j, k, values[j]);
@@ -1506,7 +1506,7 @@ int vtkEnSight6Reader::ReadTensorsPerElement(
           this->ReadNextDataLine(line);
           vtkEnSight6ReaderRead3(line, " %12e %12e %12e %12e %12e %12e",
                                  &values[0], &values[1], &values[2],
-                                 &values[3], &values[4], &values[5]);
+                                 &values[3], &values[5], &values[4]);
           for (j = 0; j < 6; j++)
             {
             tensors->InsertComponent(i*6 + j, k, values[j]);
@@ -1546,7 +1546,7 @@ int vtkEnSight6Reader::ReadTensorsPerElement(
           this->ReadNextDataLine(line);
           vtkEnSight6ReaderRead3(line, " %12e %12e %12e %12e %12e %12e",
                                  &tensor[0], &tensor[1], &tensor[2],
-                                 &tensor[3], &tensor[4], &tensor[5]);
+                                 &tensor[3], &tensor[5], &tensor[4]);
           tensors->InsertTuple(this->GetCellIds(idx, elementType)->GetId(i),
                                tensor);
           }

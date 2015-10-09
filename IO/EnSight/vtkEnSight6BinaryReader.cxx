@@ -1457,8 +1457,8 @@ int vtkEnSight6BinaryReader::ReadTensorsPerNode(
       tensor[1] = tensorsRead[6*i+1];
       tensor[2] = tensorsRead[6*i+2];
       tensor[3] = tensorsRead[6*i+3];
-      tensor[4] = tensorsRead[6*i+4];
-      tensor[5] = tensorsRead[6*i+5];
+      tensor[4] = tensorsRead[6*i+5];
+      tensor[5] = tensorsRead[6*i+4];
       tensors->InsertTuple(i, tensor);
       }
 
@@ -1495,8 +1495,8 @@ int vtkEnSight6BinaryReader::ReadTensorsPerNode(
       tensor[1] = tensorsRead[6*i+1];
       tensor[2] = tensorsRead[6*i+2];
       tensor[3] = tensorsRead[6*i+3];
-      tensor[4] = tensorsRead[6*i+4];
-      tensor[5] = tensorsRead[6*i+5];
+      tensor[4] = tensorsRead[6*i+5];
+      tensor[5] = tensorsRead[6*i+4];
       tensors->InsertTuple(i, tensor);
       }
 
@@ -2057,8 +2057,8 @@ int vtkEnSight6BinaryReader::ReadTensorsPerElement(
           tensor[1] = tensorsRead[6*i+1];
           tensor[2] = tensorsRead[6*i+2];
           tensor[3] = tensorsRead[6*i+3];
-          tensor[4] = tensorsRead[6*i+4];
-          tensor[5] = tensorsRead[6*i+5];
+          tensor[4] = tensorsRead[6*i+5];
+          tensor[5] = tensorsRead[6*i+4];
 
           tensors->InsertTuple(this->GetCellIds(idx, elementType)->GetId(i),
                                tensor);
@@ -2078,8 +2078,8 @@ int vtkEnSight6BinaryReader::ReadTensorsPerElement(
         tensor[1] = tensorsRead[6*i+1];
         tensor[2] = tensorsRead[6*i+2];
         tensor[3] = tensorsRead[6*i+3];
-        tensor[4] = tensorsRead[6*i+4];
-        tensor[5] = tensorsRead[6*i+5];
+        tensor[4] = tensorsRead[6*i+5];
+        tensor[5] = tensorsRead[6*i+4];
         tensors->InsertTuple(i, tensor);
         }
       delete [] tensorsRead;
