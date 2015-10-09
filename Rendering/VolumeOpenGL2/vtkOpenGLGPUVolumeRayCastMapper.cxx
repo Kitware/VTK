@@ -2525,7 +2525,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
   //--------------------------------------------------------------------------
   this->Impl->ShaderProgram = this->Impl->ShaderCache->ReadyShaderProgram(
     vertexShader.c_str(), fragmentShader.c_str(), "");
-vtkErrorMacro(<< fragmentShader.c_str());
   if (!this->Impl->ShaderProgram->GetCompiled())
     {
     vtkErrorMacro("Shader failed to compile");
@@ -2835,7 +2834,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   if (this->Impl->NeedToInitializeResources ||
       volumeProperty->GetMTime() >
       this->Impl->ShaderBuildTime.GetMTime() ||
-      this->Impl->ShaderBuildTime.GetMTime() < this->Impl->ReleaseResourcesTime.GetMTime() ||
       this->GetMTime() > this->Impl->ShaderBuildTime.GetMTime() ||
       ren->GetActiveCamera()->GetParallelProjection() !=
       this->Impl->LastProjectionParallel)
