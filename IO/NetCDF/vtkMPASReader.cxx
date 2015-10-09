@@ -676,9 +676,8 @@ int vtkMPASReader::GetNcDims()
   NcDim* Time = pnf->get_dim("Time");
   this->NumberOfTimeSteps = Time->size();
 
-  if (!this->VerticalDimension.empty())
+  if (isNcDim(pnf, this->VerticalDimension.c_str()))
     {
-    CHECK_DIM(pnf, this->VerticalDimension.c_str());
     NcDim* nVertLevels = pnf->get_dim(this->VerticalDimension.c_str());
     this->MaximumNVertLevels = nVertLevels->size();
     }
