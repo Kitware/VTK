@@ -52,7 +52,6 @@ vtkDepthPeelingPass::vtkDepthPeelingPass()
 
   this->OcclusionRatio=0.0;
   this->MaximumNumberOfPeels=4;
-  this->LastRenderingUsedDepthPeeling=false;
   this->DepthPeelingHigherLayer=0;
 
   this->IntermediateBlendProgram = 0;
@@ -155,16 +154,6 @@ void vtkDepthPeelingPass::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "MaximumNumberOfPeels: " << this->MaximumNumberOfPeels
      << endl;
-
-  os << indent << "LastRenderingUsedDepthPeeling: ";
-  if(this->LastRenderingUsedDepthPeeling)
-    {
-    os << "On" << endl;
-    }
-  else
-    {
-    os << "Off" << endl;
-    }
 
   os << indent << "TranslucentPass:";
   if(this->TranslucentPass!=0)
@@ -278,13 +267,19 @@ void vtkDepthPeelingPass::BlendFinalPeel(vtkOpenGLRenderWindow *renWin)
   this->FinalBlendProgram->Program->SetUniformi(
     "opaqueRGBATexture", this->OpaqueRGBATexture->GetTextureUnit());
 
+  this->OpaqueZTexture->Activate();
+  this->FinalBlendProgram->Program->SetUniformi(
+    "opaqueZTexture", this->OpaqueZTexture->GetTextureUnit());
+
   // blend in OpaqueRGBA
-  glDisable(GL_DEPTH_TEST);
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc( GL_ALWAYS );
   this->OpaqueRGBATexture->CopyToFrameBuffer(0, 0,
          this->ViewportWidth-1, this->ViewportHeight-1,
          0, 0, this->ViewportWidth, this->ViewportHeight,
          this->FinalBlendProgram->Program,
          this->FinalBlendProgram->VAO);
+  glDepthFunc( GL_LEQUAL );
 }
 
 
@@ -390,12 +385,6 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
 
   this->TranslucentZTexture = vtkDepthPeelingPassCreateTextureObject(
     renWin, this->ViewportWidth, this->ViewportHeight, 1, true, &((*this->DepthZData)[0]));
-
-  // Have to be set before a call to UpdateTranslucentPolygonalGeometry()
-  // because UpdateTranslucentPolygonalGeometry() will eventually call
-  // vtkOpenGLActor::Render() that uses this flag.
-  this->LastRenderingUsedDepthPeeling = true;
-  this->SetLastRenderingUsedDepthPeeling(s->GetRenderer(), true);
 
   glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
   glClearColor(0.0,0.0,0.0,0.0); // always clear to black
@@ -525,7 +514,6 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
 
   // unload the textures we are done with
   this->CurrentRGBATexture->Deactivate();
-  this->OpaqueZTexture->Deactivate();
   this->TranslucentZTexture->UnRegister(this);
   this->TranslucentZTexture = 0;
 
@@ -539,6 +527,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
       }
 #endif
 
+  this->OpaqueZTexture->Deactivate();
   // unload the last two textures
   this->TranslucentRGBATexture->Deactivate();
   this->OpaqueRGBATexture->Deactivate();

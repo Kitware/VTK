@@ -941,11 +941,13 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPicking(
 
 void vtkOpenGLPolyDataMapper::ReplaceShaderDepthPeeling(
   std::map<vtkShader::Type, vtkShader *> shaders,
-  vtkRenderer *ren, vtkActor *)
+  vtkRenderer *, vtkActor *actor)
 {
   std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
 
-  if (ren->GetLastRenderingUsedDepthPeeling())
+  // are we using depth peeling?
+  vtkInformation *info = actor->GetPropertyKeys();
+  if (info && info->Has(vtkDepthPeelingPass::OpaqueZTextureUnit()))
     {
     vtkShaderProgram::Substitute(FSSource, "//VTK::DepthPeeling::Dec",
       "uniform vec2 screenSize;\n"
@@ -1304,11 +1306,14 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
     this->LastLightComplexity[&cellBO] = lightComplexity;
     }
 
-  if (this->LastDepthPeeling !=
-      ren->GetLastRenderingUsedDepthPeeling())
+  // check for prop keys
+  vtkInformation *info = actor->GetPropertyKeys();
+  int dp = (info && info->Has(vtkDepthPeelingPass::OpaqueZTextureUnit())) ? 1 : 0;
+
+  if (this->LastDepthPeeling != dp)
     {
     this->DepthPeelingChanged.Modified();
-    this->LastDepthPeeling = ren->GetLastRenderingUsedDepthPeeling();
+    this->LastDepthPeeling = dp;
     }
 
   // has something changed that would require us to recreate the shader?
@@ -1496,24 +1501,20 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
     }
 
   // if depth peeling set the required uniforms
-  if (ren->GetLastRenderingUsedDepthPeeling())
+  vtkInformation *info = actor->GetPropertyKeys();
+  if (info && info->Has(vtkDepthPeelingPass::OpaqueZTextureUnit()) &&
+      info->Has(vtkDepthPeelingPass::TranslucentZTextureUnit()))
     {
-    // check for prop keys
-    vtkInformation *info = actor->GetPropertyKeys();
-    if (info && info->Has(vtkDepthPeelingPass::OpaqueZTextureUnit()) &&
-        info->Has(vtkDepthPeelingPass::TranslucentZTextureUnit()))
-      {
-      int otunit = info->Get(vtkDepthPeelingPass::OpaqueZTextureUnit());
-      int ttunit = info->Get(vtkDepthPeelingPass::TranslucentZTextureUnit());
-      cellBO.Program->SetUniformi("opaqueZTexture", otunit);
-      cellBO.Program->SetUniformi("translucentZTexture", ttunit);
+    int otunit = info->Get(vtkDepthPeelingPass::OpaqueZTextureUnit());
+    int ttunit = info->Get(vtkDepthPeelingPass::TranslucentZTextureUnit());
+    cellBO.Program->SetUniformi("opaqueZTexture", otunit);
+    cellBO.Program->SetUniformi("translucentZTexture", ttunit);
 
-      int *renSize = info->Get(vtkDepthPeelingPass::DestinationSize());
-      float screenSize[2];
-      screenSize[0] = renSize[0];
-      screenSize[1] = renSize[1];
-      cellBO.Program->SetUniform2f("screenSize", screenSize);
-      }
+    int *renSize = info->Get(vtkDepthPeelingPass::DestinationSize());
+    float screenSize[2];
+    screenSize[0] = renSize[0];
+    screenSize[1] = renSize[1];
+    cellBO.Program->SetUniform2f("screenSize", screenSize);
     }
 
   vtkHardwareSelector* selector = ren->GetSelector();
@@ -1839,6 +1840,26 @@ void vtkOpenGLPolyDataMapper::SetPropertyShaderParameters(vtkOpenGLHelper &cellB
 
 }
 
+namespace
+{
+// helper to get the state of picking
+int getPickState(vtkRenderer *ren)
+{
+  vtkHardwareSelector* selector = ren->GetSelector();
+  if (selector)
+    {
+    return selector->GetCurrentPass();
+    }
+
+  if (ren->GetRenderWindow()->GetIsPicking())
+    {
+    return vtkHardwareSelector::ACTOR_PASS;
+    }
+
+  return vtkHardwareSelector::MIN_KNOWN_PASS - 1;
+}
+}
+
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor)
 {
@@ -1848,8 +1869,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
 #endif
 
   vtkHardwareSelector* selector = ren->GetSelector();
-  int picking = selector ? selector->GetCurrentPass() :
-     vtkHardwareSelector::MIN_KNOWN_PASS - 1;
+  int picking = getPickState(ren);
   if (this->LastSelectionState != picking)
     {
     this->SelectionStateChanged.Modified();
