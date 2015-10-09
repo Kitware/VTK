@@ -775,7 +775,7 @@
   {                                                                     \
     EXERCISE_BASIC_REPRESENTATION_METHODS(className, object);          \
                                                                         \
-    double pos[3], dpos[3], wpos[3];                                     \
+    double dpos[3], wpos[3];                                     \
     wpos[0] = 0.1;                                                       \
     wpos[1] = -1.0;                                                      \
     wpos[2] = 3.6;                                                       \
@@ -794,20 +794,20 @@
         pos2[1] != wpos[1] ||                                            \
         pos2[2] != wpos[2])                                              \
       {                                                                 \
-      std::cerr << "Failure in Get WorldPosition pos2, expected " << pos[0] << ", " << pos[1] << ", " << pos[2] << ", instead got " << pos2[0] << ", " << pos2[1] << ", " << pos2[2] << std::endl; \
+      std::cerr << "Failure in Get WorldPosition pos2, expected " << wpos[0] << ", " << wpos[1] << ", " << wpos[2] << ", instead got " << pos2[0] << ", " << pos2[1] << ", " << pos2[2] << std::endl; \
       return EXIT_FAILURE;                                              \
       }                                                                 \
     pos3 = object->GetWorldPosition();                                  \
     if (!pos3)                                                          \
       {                                                                 \
-      std::cerr << "Failure in double * GetWorldPosition , expected " << pos[0] << ", " << pos[1] <<  ", " << pos[2] << ", instead got a null pointer." << std::endl; \
+      std::cerr << "Failure in double * GetWorldPosition , expected " << wpos[0] << ", " << wpos[1] <<  ", " << wpos[2] << ", instead got a null pointer." << std::endl; \
       return EXIT_FAILURE;                                              \
       }                                                                 \
     if (pos3[0] != wpos[0] ||                                            \
         pos3[1] != wpos[1] ||                                            \
         pos3[2] != wpos[2])                                              \
       {                                                                 \
-      std::cerr << "Failure in double * GetWorldyPosition , expected " << pos[0] << ", " << pos[1] <<  ", " << pos[2] << ", instead got " << pos3[0] << ", " << pos3[1] << ", " << pos3[2] << std::endl; \
+      std::cerr << "Failure in double * GetWorldyPosition , expected " << wpos[0] << ", " << wpos[1] <<  ", " << wpos[2] << ", instead got " << pos3[0] << ", " << pos3[1] << ", " << pos3[2] << std::endl; \
       return EXIT_FAILURE;                                              \
       }                                                                 \
     std::cout << "Done testing world position." << std::endl;           \
