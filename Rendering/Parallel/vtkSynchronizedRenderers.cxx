@@ -571,8 +571,12 @@ void vtkSynchronizedRenderers::RendererInfo::CopyTo(vtkRenderer* ren)
   cam->SetViewAngle(this->CameraViewAngle);
   cam->SetParallelScale(this->CameraParallelScale);
 
-  vtkMatrix4x4 *eyeTransformationMatrix = vtkMatrix4x4::New();
-  vtkMatrix4x4 *modelTransformationMatrix = vtkMatrix4x4::New();
+  // We reuse vtkMatrix4x4 objects present on the camera and then use
+  // vtkMatrix4x4::SetElement(). This avoids modifying the mtime of the
+  // camera unless anything truly changed.
+  vtkMatrix4x4 *eyeTransformationMatrix = cam->GetEyeTransformMatrix();
+  vtkMatrix4x4 *modelTransformationMatrix = cam->GetModelTransformMatrix();
+  assert(eyeTransformationMatrix && modelTransformationMatrix);
   for(int i=0; i < 4; ++i)
     {
     for(int j=0; j < 4; ++j)
@@ -581,12 +585,7 @@ void vtkSynchronizedRenderers::RendererInfo::CopyTo(vtkRenderer* ren)
       modelTransformationMatrix->SetElement(i, j, this->ModelTransformMatrix[i * 4 + j]);
       }
     }
-  cam->SetEyeTransformMatrix(eyeTransformationMatrix);
-  cam->SetModelTransformMatrix(modelTransformationMatrix);
-  eyeTransformationMatrix->Delete();
-  modelTransformationMatrix->Delete();
 }
-
 
 //****************************************************************************
 // vtkSynchronizedRenderers::vtkRawImage Methods
