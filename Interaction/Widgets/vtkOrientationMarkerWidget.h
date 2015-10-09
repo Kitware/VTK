@@ -114,6 +114,7 @@ public:
   // Set/get the viewport to position/size this widget.
   // Default is bottom left corner (0,0,0.2,0.2).
   void SetViewport(double minX, double minY, double maxX, double maxY);
+  void SetViewport(double viewport[4]);
   double* GetViewport();
 
   // Description:

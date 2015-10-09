@@ -37,6 +37,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestLogoWidget.cxx
   TestLogoWidgetDepthPeeling.cxx
   TestOrientationMarkerWidget.cxx
+  TestOrientationMarkerWidget2.cxx
   TestOrthoPlanes.cxx
   TestParallelopipedWidget.cxx
   TestPickingManagerSeedWidget.cxx

@@ -597,7 +597,12 @@ void vtkOrientationMarkerWidget::MoveWidget(int X, int Y)
   this->StartPosition[0] = X;
   this->StartPosition[1] = Y;
 
-  int *size = this->CurrentRenderer->GetSize();
+  double currentViewport[4];
+  this->CurrentRenderer->GetViewport( currentViewport );
+  this->CurrentRenderer->NormalizedDisplayToDisplay(
+    currentViewport[0], currentViewport[1] );
+  this->CurrentRenderer->NormalizedDisplayToDisplay(
+    currentViewport[2], currentViewport[3]);
 
   double vp[4];
   this->Renderer->GetViewport( vp );
@@ -606,29 +611,31 @@ void vtkOrientationMarkerWidget::MoveWidget(int X, int Y)
 
   double newPos[4] = { vp[0] + dx, vp[1] + dy, vp[2] + dx, vp[3] + dy };
 
-  if (newPos[0] < 0.0)
+  if (newPos[0] < currentViewport[0])
     {
-    newPos[0] = 0.0;
-    newPos[2] = vp[2] - vp[0];
-    this->StartPosition[0] = static_cast<int>( 0.5*newPos[2] );
+    newPos[0] = currentViewport[0];
+    newPos[2] = currentViewport[0] + (vp[2] - vp[0]);
+    this->StartPosition[0] = static_cast<int>((newPos[2] - \
+                             0.5*(vp[2] - vp[0])));
     }
-  if (newPos[1] < 0.0)
+  if (newPos[1] < currentViewport[1])
     {
-    newPos[1] = 0.0;
-    newPos[3] = vp[3] - vp[1];
-    this->StartPosition[1] = static_cast<int>( 0.5*newPos[3] );
+    newPos[1] = currentViewport[1];
+    newPos[3] = currentViewport[1] + (vp[3] - vp[1]);
+    this->StartPosition[1] = static_cast<int>((newPos[3] - \
+                             0.5*(vp[3] - vp[1])));
     }
-  if (newPos[2] >= size[0])
+  if (newPos[2] >= currentViewport[2])
     {
-    newPos[2] = size[0];
-    newPos[0] = newPos[2] - (vp[2] - vp[0]);
+    newPos[2] = currentViewport[2];
+    newPos[0] = currentViewport[2] - (vp[2] - vp[0]);
     this->StartPosition[0] = static_cast<int>( (newPos[0] + \
                              0.5*(vp[2] - vp[0])) );
     }
-  if (newPos[3] >= size[1])
+  if (newPos[3] >= currentViewport[3])
     {
-    newPos[3] = size[1];
-    newPos[1] = newPos[3] - (vp[3] - vp[1]);
+    newPos[3] = currentViewport[3];
+    newPos[1] = currentViewport[3] - (vp[3] - vp[1]);
     this->StartPosition[1] = static_cast<int>( (newPos[1] + \
                              0.5*(vp[3] - vp[1])) );
     }
@@ -661,7 +668,12 @@ void vtkOrientationMarkerWidget::ResizeTopLeft(int X, int Y)
     return;
     }
 
-  int *size = this->CurrentRenderer->GetSize();
+  double currentViewport[4];
+  this->CurrentRenderer->GetViewport(currentViewport);
+  this->CurrentRenderer->NormalizedDisplayToDisplay(
+    currentViewport[0], currentViewport[1]);
+  this->CurrentRenderer->NormalizedDisplayToDisplay(
+    currentViewport[2], currentViewport[3]);
 
   double vp[4];
   this->Renderer->GetViewport( vp );
@@ -670,17 +682,17 @@ void vtkOrientationMarkerWidget::ResizeTopLeft(int X, int Y)
 
   double newPos[4] = { vp[0] + dx, vp[1], vp[2], vp[3] + dy };
 
-  if (newPos[0] < 0.0)
+  if (newPos[0] < currentViewport[0])
     {
-    newPos[0] = 0.0;
+    newPos[0] = currentViewport[0];
     }
   if (newPos[0] > newPos[2] - this->Tolerance)  // keep from making it too small
     {
     newPos[0] = newPos[2] - this->Tolerance;
     }
-  if (newPos[3] > size[1])
+  if (newPos[3] > currentViewport[3])
     {
-    newPos[3] = size[1];
+    newPos[3] = currentViewport[3];
     }
   if (newPos[3] < newPos[1] + this->Tolerance)
     {
@@ -718,7 +730,12 @@ void vtkOrientationMarkerWidget::ResizeTopRight(int X, int Y)
     return;
     }
 
-  int *size = this->CurrentRenderer->GetSize();
+  double currentViewport[4];
+  this->CurrentRenderer->GetViewport(currentViewport);
+  this->CurrentRenderer->NormalizedDisplayToDisplay(
+    currentViewport[0], currentViewport[1]);
+  this->CurrentRenderer->NormalizedDisplayToDisplay(
+    currentViewport[2], currentViewport[3]);
 
   double vp[4];
   this->Renderer->GetViewport( vp );
@@ -727,17 +744,17 @@ void vtkOrientationMarkerWidget::ResizeTopRight(int X, int Y)
 
   double newPos[4] = { vp[0], vp[1], vp[2] + dx, vp[3] + dy };
 
-  if (newPos[2] > size[0])
+  if (newPos[2] > currentViewport[2])
     {
-    newPos[2] = size[0];
+    newPos[2] = currentViewport[2];
     }
   if (newPos[2] < newPos[0] + this->Tolerance)  // keep from making it too small
     {
     newPos[2] = newPos[0] + this->Tolerance;
     }
-  if (newPos[3] > size[1])
+  if (newPos[3] > currentViewport[3])
     {
-    newPos[3] = size[1];
+    newPos[3] = currentViewport[3];
     }
   if (newPos[3] < newPos[1] + this->Tolerance)
     {
@@ -775,7 +792,12 @@ void vtkOrientationMarkerWidget::ResizeBottomRight(int X, int Y)
     return;
     }
 
-  int *size = this->CurrentRenderer->GetSize();
+  double currentViewport[4];
+  this->CurrentRenderer->GetViewport(currentViewport);
+  this->CurrentRenderer->NormalizedDisplayToDisplay(
+    currentViewport[0], currentViewport[1]);
+  this->CurrentRenderer->NormalizedDisplayToDisplay(
+    currentViewport[2], currentViewport[3]);
 
   double vp[4];
   this->Renderer->GetViewport( vp );
@@ -784,17 +806,17 @@ void vtkOrientationMarkerWidget::ResizeBottomRight(int X, int Y)
 
   double newPos[4] = { vp[0], vp[1] + dy, vp[2] + dx, vp[3] };
 
-  if (newPos[2] > size[0])
+  if (newPos[2] > currentViewport[2])
     {
-    newPos[2] = size[0];
+    newPos[2] = currentViewport[2];
     }
   if (newPos[2] < newPos[0] + this->Tolerance)  // keep from making it too small
     {
     newPos[2] = newPos[0] + this->Tolerance;
     }
-  if (newPos[1] < 0.0)
+  if (newPos[1] < currentViewport[1])
     {
-    newPos[1] = 0.0;
+    newPos[1] = currentViewport[1];
     }
   if (newPos[1] > newPos[3] - this->Tolerance)
     {
@@ -832,6 +854,13 @@ void vtkOrientationMarkerWidget::ResizeBottomLeft(int X, int Y)
     return;
     }
 
+  double currentViewport[4];
+  this->CurrentRenderer->GetViewport(currentViewport);
+  this->CurrentRenderer->NormalizedDisplayToDisplay(
+    currentViewport[0], currentViewport[1]);
+  this->CurrentRenderer->NormalizedDisplayToDisplay(
+    currentViewport[2], currentViewport[3]);
+
   double vp[4];
   this->Renderer->GetViewport( vp );
   this->Renderer->NormalizedDisplayToDisplay( vp[0], vp[1] );
@@ -839,17 +868,17 @@ void vtkOrientationMarkerWidget::ResizeBottomLeft(int X, int Y)
 
   double newPos[4] = { vp[0] + dx, vp[1] + dy, vp[2], vp[3] };
 
-  if (newPos[0] < 0.0)
+  if (newPos[0] < currentViewport[0])
     {
-    newPos[0] = 0.0;
+    newPos[0] = currentViewport[0];
     }
   if (newPos[0] > newPos[2] - this->Tolerance)  // keep from making it too small
     {
     newPos[0] = newPos[2] - this->Tolerance;
     }
-  if (newPos[1] < 0.0)
+  if (newPos[1] < currentViewport[1])
     {
-    newPos[1] = 0.0;
+    newPos[1] = currentViewport[1];
     }
   if (newPos[1] > newPos[3] - this->Tolerance)
     {
@@ -886,6 +915,12 @@ void vtkOrientationMarkerWidget::SetViewport(double minX, double minY,
                                   double maxX, double maxY)
 {
   this->Renderer->SetViewport( minX, minY, maxX, maxY );
+}
+
+//-------------------------------------------------------------------------
+void vtkOrientationMarkerWidget::SetViewport(double viewport[4])
+{
+  this->Renderer->SetViewport(viewport);
 }
 
 //-------------------------------------------------------------------------
