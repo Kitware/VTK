@@ -264,7 +264,6 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   double* PointZ;      // z coord of point
   int ModNumPoints;
   int ModNumCells;
-  int* CellMask;
   int* OrigConnections;   // original connections
   int* ModConnections;    // modified connections
   int* CellMap;           // maps from added cell to original cell #
