@@ -104,14 +104,15 @@ int vtkRungeKutta45::ComputeNextStep(double* xprev, double* dxprev,
     maxStep = -maxStep;
     }
 
-  delTActual = delT;
+  delTActual = 0;
 
   // No step size control if minStep == maxStep == delT
   double absDT = fabs(delT);
   if ( ((minStep == absDT) && (maxStep == absDT)) ||
        (maxError <= 0.0) )
     {
-    return this->ComputeAStep(xprev, dxprev, xnext, t, delT, estErr);
+    int retVal = this->ComputeAStep(xprev, dxprev, xnext, t, delT, delTActual, estErr);
+    return retVal;
     }
   else if ( minStep > maxStep )
     {
@@ -125,9 +126,8 @@ int vtkRungeKutta45::ComputeNextStep(double* xprev, double* dxprev,
   while ( estErr > maxError )
     {
     if ((retVal =
-     this->ComputeAStep(xprev, dxprev, xnext, t, delT, estErr)))
+         this->ComputeAStep(xprev, dxprev, xnext, t, delT, delTActual, estErr)))
       {
-      delTActual = delT;
       return retVal;
       }
     // If the step just taken was either min, we are done,
@@ -188,9 +188,8 @@ int vtkRungeKutta45::ComputeNextStep(double* xprev, double* dxprev,
     if (shouldBreak)
       {
       if ( (retVal =
-            this->ComputeAStep(xprev, dxprev, xnext, t, delT, estErr)) )
+            this->ComputeAStep(xprev, dxprev, xnext, t, delT, delTActual, estErr)) )
         {
-        delTActual = delT;
         return retVal;
         }
       break;
@@ -203,12 +202,13 @@ int vtkRungeKutta45::ComputeNextStep(double* xprev, double* dxprev,
 
 //----------------------------------------------------------------------------
 // Calculate next time step
-int vtkRungeKutta45::ComputeAStep(double* xprev, double* dxprev,
-                  double* xnext, double t, double& delT,
-                  double& error)
+int vtkRungeKutta45::ComputeAStep(
+  double* xprev, double* dxprev, double* xnext, double t, double& delT,
+  double& actualDelT, double& error)
 {
   int i, j, k, numDerivs, numVals;
 
+  actualDelT = 0;
 
   if (!this->FunctionSet)
     {
@@ -272,6 +272,7 @@ int vtkRungeKutta45::ComputeAStep(double* xprev, double* dxprev,
         {
         xnext[i] = this->Vals[i];
         }
+      actualDelT = delT;
       return OUT_OF_DOMAIN;
       }
     }
@@ -287,6 +288,7 @@ int vtkRungeKutta45::ComputeAStep(double* xprev, double* dxprev,
       }
     xnext[i] = xprev[i] + delT*sum;
     }
+  actualDelT = delT;
 
   // Calculate norm of error vector
   double err=0;

@@ -64,7 +64,7 @@ int vtkRungeKutta4::ComputeNextStep(double* xprev, double* dxprev, double* xnext
 
   int i, numDerivs, numVals;
 
-  delTActual = delT;
+  delTActual = 0;
   error = 0;
 
   if (!this->FunctionSet)
@@ -144,7 +144,7 @@ int vtkRungeKutta4::ComputeNextStep(double* xprev, double* dxprev, double* xnext
                                 this->NextDerivs[1][i]/3.0 +
                                 this->NextDerivs[2][i]/6.0);
     }
-
+  delTActual = delT;
   return 0;
 }
 

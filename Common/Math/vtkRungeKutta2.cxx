@@ -34,7 +34,7 @@ int vtkRungeKutta2::ComputeNextStep(double* xprev, double* dxprev, double* xnext
 {
   int i, numDerivs, numVals;
 
-  delTActual = delT;
+  delTActual = 0.;
   error = 0.0;
 
   if (!this->FunctionSet)
@@ -82,6 +82,7 @@ int vtkRungeKutta2::ComputeNextStep(double* xprev, double* dxprev, double* xnext
   if (!this->FunctionSet->FunctionValues(this->Vals, this->Derivs))
     {
     memcpy(xnext, this->Vals, (numVals-1)*sizeof(double));
+    delTActual = delT/2.0; // we've only taken half of a time step
     return OUT_OF_DOMAIN;
     }
 
@@ -90,6 +91,8 @@ int vtkRungeKutta2::ComputeNextStep(double* xprev, double* dxprev, double* xnext
     {
     xnext[i] = xprev[i] + delT*this->Derivs[i];
     }
+
+  delTActual = delT;
 
   return 0;
 }

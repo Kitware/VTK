@@ -213,8 +213,6 @@ namespace
         }
       }
   }
-
-
 }
 
 class PStreamTracerPoint: public vtkObject
@@ -232,6 +230,7 @@ public:
   vtkGetMacro(NumSteps,int)
   vtkGetMacro(Propagation,double)
   vtkGetMacro(Rank,int)
+  vtkGetMacro(IntegrationTime,double);
 
   vtkSetMacro(Id,int)
   vtkSetMacro(Direction,int)
@@ -239,8 +238,10 @@ public:
   vtkSetMacro(NumSteps,int)
   vtkSetMacro(Propagation,double)
   vtkSetMacro(Rank,int)
+  vtkSetMacro(IntegrationTime,double);
 
-  void Reseed(double* seed, double* normal, vtkPolyData* poly, int id)
+  void Reseed(double* seed, double* normal, vtkPolyData* poly, int id,
+              double propagation, double integrationTime)
   {
     memcpy( this->Seed, seed, 3*sizeof(double));
     memcpy( this->Normal, normal,3*sizeof(double));
@@ -250,6 +251,8 @@ public:
     this->Tail->GetPoints()->SetPoint(0,x);
     this->Tail->GetPointData()->CopyData(poly->GetPointData(),id,0);
     this->Rank = -1; //someone else figure this out
+    this->IntegrationTime = integrationTime;
+    this->Propagation = propagation;
   }
 
   vtkPolyData* GetTail()
@@ -313,6 +316,7 @@ public:
     stream>> this->Direction;
     stream>> this->NumSteps;
     stream>> this->Propagation;
+    stream>> this->IntegrationTime;
 
     char hasTail(0);
     stream>> hasTail;
@@ -354,7 +358,8 @@ public:
            <<this->Seed[2]
            <<this->Direction
            <<this->NumSteps
-           <<this->Propagation;
+           <<this->Propagation
+           <<this->IntegrationTime;
 
     stream<<(char)(this->Tail!=NULL);
 
@@ -387,6 +392,7 @@ private:
   double Propagation;
   vtkSmartPointer<vtkPolyData> Tail;
   int Rank;
+  double IntegrationTime;
 
 protected:
   PStreamTracerPoint(): Id(-1)
@@ -394,6 +400,7 @@ protected:
                        ,NumSteps(0)
                        ,Propagation(0)
                        ,Rank(-1)
+                       ,IntegrationTime(0)
   {
     this->Seed[0] = this->Seed[1] = this->Seed[2] = -999;
   }
@@ -868,23 +875,6 @@ namespace
     return sqrt( ( x[0] - y[0] ) * ( x[0] - y[0] )
                  + ( x[1] - y[1] ) * ( x[1] - y[1] )
                  + ( x[2] - y[2] ) * ( x[2] - y[2] ) );
-  }
-
-
-  inline double FirstSegmentLength(vtkPolyData* pathPoly)
-  {
-    vtkCellArray* pathCells = pathPoly->GetLines();
-    AssertEq(pathCells->GetNumberOfCells(),1);
-    vtkIdType* path(0);
-    vtkIdType nPoints(0);
-    pathCells->InitTraversal();
-    pathCells->GetNextCell(nPoints,path);
-    AssertGe(nPoints,2);
-    double x0[3],x1[3];
-    pathPoly->GetPoint(path[0],x0);
-    pathPoly->GetPoint(path[1],x1);
-    double d =  normvec3(x0,x1);
-    return d;
   }
 
   inline vtkIdType LastPointIndex(vtkPolyData* pathPoly)
@@ -1519,7 +1509,7 @@ int vtkPStreamTracer::RequestData(
     }
 
   this->Rank = this->Controller->GetLocalProcessId();
-  NumProcs = this->Controller->GetNumberOfProcesses();
+  this->NumProcs = this->Controller->GetNumberOfProcesses();
 
 
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
@@ -1598,7 +1588,7 @@ int vtkPStreamTracer::RequestData(
     PStreamTracerPoint* point = task->GetPoint();
 
     vtkSmartPointer<vtkPolyData> traceOut;
-    Trace(this->Utils->GetInput0(),
+    this->Trace(this->Utils->GetInput0(),
           this->Utils->GetVecType(),
           this->Utils->GetVecName(),
           point,
@@ -1610,10 +1600,10 @@ int vtkPStreamTracer::RequestData(
 
     if(task->GetTraceExtended() && task->GetPoint()->GetTail())
       {
-      Prepend(traceOut,task->GetPoint()->GetTail());
-      double addedLength = FirstSegmentLength(traceOut);
-      point->SetPropagation(point->GetPropagation()+addedLength);
-      point->SetNumSteps(point->GetNumSteps()+1);
+      // if we got this streamline from another process then this
+      // process is responsible for filling in the gap over
+      // the subdomain boundary
+      this->Prepend(traceOut,task->GetPoint()->GetTail());
       }
 
     int resTerm=vtkStreamTracer::OUT_OF_DOMAIN;
@@ -1763,6 +1753,7 @@ void vtkPStreamTracer::Trace( vtkDataSet *input,
 
   double propagation = point->GetPropagation();
   vtkIdType numSteps = point->GetNumSteps();
+  double integrationTime = point->GetIntegrationTime();
 
   vtkStreamTracer::Integrate(input->GetPointData(),
                     traceOut,
@@ -1775,12 +1766,14 @@ void vtkPStreamTracer::Trace( vtkDataSet *input,
                     vecType,
                     vecName,
                     propagation,
-                    numSteps);
+                    numSteps,
+                    integrationTime);
   AssertGe(propagation, point->GetPropagation());
   AssertGe(numSteps, point->GetNumSteps());
 
   point->SetPropagation(propagation);
   point->SetNumSteps(numSteps);
+  point->SetIntegrationTime(integrationTime);
 
   if(this->GenerateNormalsInIntegrate)
     {
@@ -1835,9 +1828,9 @@ bool vtkPStreamTracer::TraceOneStep(vtkPolyData* traceOut,  vtkAbstractInterpola
 
   memcpy(outPoint,lastPoint,sizeof(double)*3);
 
-  this->SimpleIntegrate(0, outPoint, this->LastUsedStepSize, func);
+  double timeStepTaken = this->SimpleIntegrate(0, outPoint, this->LastUsedStepSize, func);
   PRINT("Simple Integrate from :"<<lastPoint[0]<<" "<<lastPoint[1]<<" "<<lastPoint[2]<<" to "<<outPoint[0]<<" "<<outPoint[1]<<" "<<outPoint[2]);
-  double d  =vtkMath::Distance2BetweenPoints(lastPoint,outPoint);
+  double d = sqrt(vtkMath::Distance2BetweenPoints(lastPoint,outPoint));
 
   this->SetIntegrator(ivp);
   ivp->UnRegister(this);
@@ -1852,9 +1845,11 @@ bool vtkPStreamTracer::TraceOneStep(vtkPolyData* traceOut,  vtkAbstractInterpola
   if(res)
     {
     Assert(SameShape(traceOut->GetPointData(),this->Utils->GetProto()->GetTail()->GetPointData()),"Point data mismatch");
-    point->Reseed(outPoint,outNormal,traceOut,lastPointIndex);
+    point->Reseed(outPoint,outNormal,traceOut,lastPointIndex,
+                  point->GetPropagation()+d, point->GetIntegrationTime()+timeStepTaken);
     AssertEq(point->GetTail()->GetPointData()->GetNumberOfTuples(),1);
     }
+
   return res;
 }
 
@@ -1873,7 +1868,6 @@ void vtkPStreamTracer::Prepend(vtkPolyData* pathPoly, vtkPolyData* headPoly)
   pathCells->GetNextCell(nPoints,path);
   AssertNe(path,NULL);
   AssertEq(nPoints,pathPoly->GetNumberOfPoints());
-
 
   vtkIdType newPointId = pathPoly->GetPoints()->InsertNextPoint(newPoint);
 

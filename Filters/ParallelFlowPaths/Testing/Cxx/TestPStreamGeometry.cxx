@@ -13,12 +13,14 @@
 
 =========================================================================*/
 #include "TestVectorFieldSource.h"
+#include <vtkDoubleArray.h>
 #include <vtkPStreamTracer.h>
 #include <vtkMPIController.h>
 #include <vtkIdList.h>
 #include <vtkPoints.h>
 #include <vtkMath.h>
 #include <vtkNew.h>
+#include <vtkPointData.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkCellArray.h>
 
@@ -126,6 +128,34 @@ int TestPStreamGeometry( int argc, char* argv[] )
     PRINT("Error in length is: "<<err)
     res = err<0.02;
     }
+
+  // Test IntegrationTime
+  tracer->SetInputArrayToProcess(
+    0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "Velocity");
+  vtkNew<vtkPolyData> singleSeed;
+    {
+    vtkNew<vtkPoints> seedPoints;
+    seedPoints->InsertNextPoint(.1, .1, 0);
+    singleSeed->SetPoints(seedPoints.GetPointer());
+    }
+  tracer->SetInputData(1,singleSeed.GetPointer());
+  tracer->SetIntegrationDirectionToBoth();
+  tracer->Update();
+  out = tracer->GetOutput();
+  vtkDoubleArray* integrationTime =
+    vtkDoubleArray::SafeDownCast(out->GetPointData()->GetArray("IntegrationTime"));
+  for(vtkIdType i=0;i<out->GetNumberOfPoints();i++)
+    {
+    double coord[3];
+    out->GetPoint(i, coord);
+    double diff = abs(coord[2] - integrationTime->GetValue(i));
+    if(diff != 0 && diff > abs(coord[2])*.0001)
+      {
+      PRINT("Bad integration time at z-coord "<< coord[2] << " " << integrationTime->GetValue(i))
+      res = false;
+      }
+    }
+
   c->Finalize();
 
   return res? EXIT_SUCCESS: EXIT_FAILURE;
