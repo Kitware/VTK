@@ -289,6 +289,14 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   unsigned char GetCellType();
 
   // Description:
+  // Returns true if the dimensions in var match the expected args, or prints a
+  // warning and returns false if any are incorrect.
+  // ndims is the number of dimensions, and the variatic args must be
+  // C-strings identifying the expected dimensions.
+  // If silent is true, no warnings are printed.
+  bool ValidateDimensions(NcVar *var, bool silent, int ndims, ...);
+
+  // Description:
   // Return the cursor position for the specified dimension.
   long GetCursorForDimension(const NcDim *dim);
 

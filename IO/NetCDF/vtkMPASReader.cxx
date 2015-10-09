@@ -90,6 +90,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <algorithm>
 #include <cfloat>
 #include <cmath>
+#include <cstdarg>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
@@ -893,6 +894,10 @@ int vtkMPASReader::AllocSphereGeometry()
                                  sizeof(double));
   CHECK_MALLOC(this->PointX);
   NcVar*  xCellVar = ncFile->get_var("xCell");
+  if (!this->ValidateDimensions(xCellVar, false, 1, "nCells"))
+    {
+    return 0;
+    }
   xCellVar->get(this->PointX + this->PointOffset, this->NumberOfPoints);
   // point 0 is 0.0
   this->PointX[0] = 0.0;
@@ -902,6 +907,10 @@ int vtkMPASReader::AllocSphereGeometry()
                                  sizeof(double));
   CHECK_MALLOC(this->PointY);
   NcVar*  yCellVar = ncFile->get_var("yCell");
+  if (!this->ValidateDimensions(yCellVar, false, 1, "nCells"))
+    {
+    return 0;
+    }
   yCellVar->get(this->PointY + this->PointOffset, this->NumberOfPoints);
   // point 0 is 0.0
   this->PointY[0] = 0.0;
@@ -911,6 +920,10 @@ int vtkMPASReader::AllocSphereGeometry()
                                  sizeof(double));
   CHECK_MALLOC(this->PointZ);
   NcVar*  zCellVar = ncFile->get_var("zCell");
+  if (!this->ValidateDimensions(zCellVar, false, 1, "nCells"))
+    {
+    return 0;
+    }
   zCellVar->get(this->PointZ + this->PointOffset, this->NumberOfPoints);
   // point 0 is 0.0
   this->PointZ[0] = 0.0;
@@ -920,6 +933,13 @@ int vtkMPASReader::AllocSphereGeometry()
                                          this->PointsPerCell * sizeof(int));
   CHECK_MALLOC(this->OrigConnections);
   NcVar *connectionsVar = ncFile->get_var("cellsOnVertex");
+  // TODO Spec says dims should be '3', 'nVertices', but my example files
+  // use nVertices, vertexDegree...
+  if (!this->ValidateDimensions(connectionsVar, false, 2,
+                                "nVertices", "vertexDegree"))
+    {
+    return 0;
+    }
   connectionsVar->get(this->OrigConnections, this->NumberOfCells,
                       this->PointsPerCell);
 
@@ -930,6 +950,10 @@ int vtkMPASReader::AllocSphereGeometry()
                                             this->PointOffset) * sizeof(int));
     CHECK_MALLOC(this->MaximumLevelPoint);
     NcVar *maxLevelPointVar = ncFile->get_var("maxLevelCell");
+    if (!this->ValidateDimensions(maxLevelPointVar, false, 1, "nCells"))
+      {
+      return 0;
+      }
     maxLevelPointVar->get(this->MaximumLevelPoint + this->PointOffset,
                           this->NumberOfPoints);
     }
@@ -975,6 +999,10 @@ int vtkMPASReader::AllocLatLonGeometry()
   this->PointX = (double*)malloc(this->ModNumPoints * sizeof(double));
   CHECK_MALLOC(this->PointX);
   NcVar*  xCellVar = ncFile->get_var("lonCell");
+  if (!this->ValidateDimensions(xCellVar, false, 1, "nCells"))
+    {
+    return 0;
+    }
   xCellVar->get(this->PointX + this->PointOffset, this->NumberOfPoints);
   // point 0 is 0.0
   this->PointX[0] = 0.0;
@@ -983,6 +1011,10 @@ int vtkMPASReader::AllocLatLonGeometry()
   this->PointY = (double*)malloc(this->ModNumPoints * sizeof(double));
   CHECK_MALLOC(this->PointY);
   NcVar*  yCellVar = ncFile->get_var("latCell");
+  if (!this->ValidateDimensions(yCellVar, false, 1, "nCells"))
+    {
+    return 0;
+    }
   yCellVar->get(this->PointY+this->PointOffset, this->NumberOfPoints);
   // point 0 is 0.0
   this->PointY[0] = 0.0;
@@ -992,6 +1024,13 @@ int vtkMPASReader::AllocLatLonGeometry()
                                          sizeof(int));
   CHECK_MALLOC(this->OrigConnections);
   NcVar *connectionsVar = ncFile->get_var("cellsOnVertex");
+  // TODO Spec says dims should be '3', 'nVertices', but my example files
+  // use nVertices, vertexDegree...
+  if (!this->ValidateDimensions(connectionsVar, false, 2,
+                                "nVertices", "vertexDegree"))
+    {
+    return 0;
+    }
   connectionsVar->get(this->OrigConnections, this->NumberOfCells,
                       this->PointsPerCell);
 
@@ -1018,6 +1057,10 @@ int vtkMPASReader::AllocLatLonGeometry()
     this->MaximumLevelPoint = (int*)malloc((this->NumberOfPoints + this->NumberOfPoints) * sizeof(int));
     CHECK_MALLOC(this->MaximumLevelPoint);
     NcVar *maxLevelPointVar = ncFile->get_var("maxLevelCell");
+    if (!this->ValidateDimensions(maxLevelPointVar, false, 1, "nCells"))
+      {
+      return 0;
+      }
     maxLevelPointVar->get(this->MaximumLevelPoint + this->PointOffset,
                           this->NumberOfPoints);
     }
@@ -1454,6 +1497,44 @@ unsigned char vtkMPASReader::GetCellType()
       break;
   }
   return cellType;
+}
+
+//------------------------------------------------------------------------------
+bool vtkMPASReader::ValidateDimensions(NcVar *var, bool silent, int ndims, ...)
+{
+  if (var->num_dims() != ndims)
+    {
+    if (!silent)
+      {
+      vtkWarningMacro(<< "Expected variable '" << var->name() << "' to have "
+                      << ndims << "dimension(s), but it has " << var->num_dims()
+                      << ".");
+      }
+    return false;
+    }
+
+  va_list args;
+  va_start(args, ndims);
+
+  for (int i = 0; i < ndims; ++i)
+    {
+    NcDim *dim = var->get_dim(i);
+    std::string dimName(va_arg(args, const char *));
+    if (dimName != dim->name())
+      {
+      if (!silent)
+        {
+        vtkWarningMacro(<< "Expected variable '" << var->name() << "' to have '"
+                        << dimName << "' at dimension index " << i << ", not '"
+                        << dim->name() << "'.");
+        }
+      return false;
+      }
+    }
+
+  va_end(args);
+
+  return true;
 }
 
 //------------------------------------------------------------------------------
