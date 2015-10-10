@@ -1074,7 +1074,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
           {
           vtkShaderProgram::Substitute(FSSource,"//VTK::System::Dec",
             "//VTK::System::Dec\n"
-            "#ifdef GL_ES\n"
+            "#if GL_ES==1 && __VERSION__<300\n"
             "#extension GL_OES_standard_derivatives : enable\n"
             "#endif\n",
             false);

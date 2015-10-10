@@ -1,3 +1,5 @@
+//VTK::System::Dec
+
 /*=========================================================================
 
   Program:   Visualization Toolkit
@@ -13,10 +15,6 @@
 
 =========================================================================*/
 // this shader implements imposters in OpenGL for Spheres
-
-// The following line handle system declarations such a
-// default precisions, or defining precisions to null
-//VTK::System::Dec
 
 attribute vec4 vertexMC;
 attribute vec3 orientMC;

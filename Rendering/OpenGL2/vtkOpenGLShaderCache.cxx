@@ -154,11 +154,6 @@ unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(
         }
       }
     vtkShaderProgram::Substitute(FSSource,"//VTK::Output::Dec",fragDecls);
-    vtkShaderProgram::Substitute(GSSource,"//VTK::System::Dec",
-      "#version 150\n"
-      "#define highp\n"
-      "#define mediump\n"
-      "#define lowp");
     }
   else
     {
@@ -181,6 +176,61 @@ unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(
     }
   return count;
 #else
+#if GL_ES_VERSION_3_0 == 1
+  unsigned int count = 0;
+  vtkShaderProgram::Substitute(VSSource,"//VTK::System::Dec",
+    "#version 300 es\n"
+    "#define attribute in\n"
+    "#define varying out\n"
+    );
+  vtkShaderProgram::Substitute(FSSource,"//VTK::System::Dec",
+    "#version 300 es\n"
+    "#define varying in\n"
+    "#ifdef GL_ES\n"
+    "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
+    "precision highp float;\n"
+    "precision highp sampler2D;\n"
+    "precision highp sampler3D;\n"
+    "#else\n"
+    "precision mediump float;\n"
+    "precision mediump sampler2D;\n"
+    "precision mediump sampler3D;\n"
+    "#endif\n"
+    "#endif\n"
+    "#define texelFetchBuffer texelFetch\n"
+    "#define texture1D texture\n"
+    "#define texture2D texture\n"
+    "#define texture3D texture\n"
+    );
+  vtkShaderProgram::Substitute(GSSource,"//VTK::System::Dec",
+    "#version 300 es\n"
+    "#ifdef GL_ES\n"
+    "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
+    "precision highp float;\n"
+    "#else\n"
+    "precision mediump float;\n"
+    "#endif\n"
+    "#endif\n"
+    );
+  std::string fragDecls;
+  bool done = false;
+  while (!done)
+    {
+    std::ostringstream src;
+    std::ostringstream dst;
+    src << "gl_FragData[" << count << "]";
+    // this naming has to match the bindings
+    // in vtkOpenGLShaderProgram.cxx
+    dst << "fragOutput" << count;
+    done = !vtkShaderProgram::Substitute(FSSource, src.str(),dst.str());
+    if (!done)
+      {
+      fragDecls += "out vec4 " + dst.str() + ";\n";
+      count++;
+      }
+    }
+  vtkShaderProgram::Substitute(FSSource,"//VTK::Output::Dec",fragDecls);
+#else
   vtkShaderProgram::Substitute(FSSource,"//VTK::System::Dec",
      "#ifdef GL_ES\n"
      "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
@@ -189,6 +239,7 @@ unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(
      "precision mediump float;\n"
      "#endif\n"
      "#endif\n");
+#endif
   return 0;
 #endif
 }

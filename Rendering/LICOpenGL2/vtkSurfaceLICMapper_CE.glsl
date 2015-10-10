@@ -1,3 +1,5 @@
+//VTK::System::Dec
+
 //=========================================================================
 //
 //  Program:   Visualization Toolkit
@@ -16,10 +18,6 @@
 // color contrast enhance stage implemented via histogram stretching
 // on lightness channel. if the min and max are tweaked it can generate
 // out-of-range values these will be clamped in 0 to 1
-
-// The following line handle system declarations such a
-// default precisions, or defining precisions to null
-//VTK::System::Dec
 
 // the output of this shader
 //VTK::Output::Dec

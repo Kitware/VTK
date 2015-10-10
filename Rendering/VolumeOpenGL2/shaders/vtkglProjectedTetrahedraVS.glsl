@@ -1,3 +1,5 @@
+//VTK::System::Dec
+
 /*=========================================================================
 
   Program:   Visualization Toolkit
@@ -12,9 +14,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// The following line handle system declarations such a
-// default precisions, or defining precisions to null
-//VTK::System::Dec
+
 
 // all variables that represent positions or directions have a suffix
 // indicating the coordinate system they are in. The possible values are

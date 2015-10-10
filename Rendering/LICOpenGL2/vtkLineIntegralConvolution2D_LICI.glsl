@@ -1,3 +1,5 @@
+//VTK::System::Dec
+
 //=========================================================================
 //
 //  Program:   Visualization Toolkit
@@ -12,10 +14,6 @@
 //     PURPOSE.  See the above copyright notice for more information.
 //
 //=========================================================================
-
-// The following line handles system declarations such as
-// default precisions, or defining precisions to null
-//VTK::System::Dec
 
 // the output of this shader
 //VTK::Output::Dec

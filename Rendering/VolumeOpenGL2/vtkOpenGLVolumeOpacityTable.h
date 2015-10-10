@@ -156,8 +156,7 @@ public:
       this->TextureObject->SetWrapS(vtkTextureObject::ClampToEdge);
       this->TextureObject->SetMagnificationFilter(filterValue);
       this->TextureObject->SetMinificationFilter(filterValue);
-      this->TextureObject->CreateAlphaFromRaw(this->TextureWidth,
-                                              vtkTextureObject::alpha16,
+      this->TextureObject->Create2DFromRaw(this->TextureWidth, 1, 1,
                                               VTK_FLOAT,
                                               this->Table);
       this->LastInterpolation = filterValue;

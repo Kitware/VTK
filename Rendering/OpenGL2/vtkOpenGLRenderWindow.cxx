@@ -370,6 +370,152 @@ void vtkOpenGLRenderWindow::OpenGLInitState()
   int rgba[4];
   this->GetColorBufferSizes(rgba);
   this->SetAlphaBitPlanes(rgba[3]);
+
+  this->InitializeTextureInternalFormats();
+}
+
+int vtkOpenGLRenderWindow::GetDefaultTextureInternalFormat(
+  int vtktype, int numComponents,
+  bool needInt, bool needFloat)
+{
+  // 0 = none
+  // 1 = float
+  // 2 = int
+  if (vtktype >= VTK_UNICODE_STRING)
+    {
+    return 0;
+    }
+  if (needInt)
+    {
+    return this->TextureInternalFormats[vtktype][2][numComponents];
+    }
+  if (needFloat)
+    {
+    return this->TextureInternalFormats[vtktype][1][numComponents];
+    }
+  return this->TextureInternalFormats[vtktype][0][numComponents];
+}
+
+void vtkOpenGLRenderWindow::InitializeTextureInternalFormats()
+{
+  // 0 = none
+  // 1 = float
+  // 2 = int
+
+  // initialize to zero
+  for (int dtype = 0; dtype < VTK_UNICODE_STRING; dtype++)
+    {
+    for (int ctype = 0; ctype < 3; ctype++)
+      {
+      for (int comp = 0; comp <= 4; comp++)
+        {
+        this->TextureInternalFormats[dtype][ctype][comp] = 0;
+        }
+      }
+    }
+
+  this->TextureInternalFormats[VTK_VOID][0][1] = GL_DEPTH_COMPONENT;
+
+#ifdef GL_R8
+  this->TextureInternalFormats[VTK_UNSIGNED_CHAR][0][1] = GL_R8;
+  this->TextureInternalFormats[VTK_UNSIGNED_CHAR][0][2] = GL_RG8;
+  this->TextureInternalFormats[VTK_UNSIGNED_CHAR][0][3] = GL_RGB8;
+  this->TextureInternalFormats[VTK_UNSIGNED_CHAR][0][4] = GL_RGBA8;
+#else
+  this->TextureInternalFormats[VTK_UNSIGNED_CHAR][0][1] = GL_LUMINANCE;
+  this->TextureInternalFormats[VTK_UNSIGNED_CHAR][0][2] = GL_LUMINANCE_ALPHA;
+  this->TextureInternalFormats[VTK_UNSIGNED_CHAR][0][3] = GL_RGB;
+  this->TextureInternalFormats[VTK_UNSIGNED_CHAR][0][4] = GL_RGBA;
+#endif
+
+#ifdef GL_R16
+  this->TextureInternalFormats[VTK_UNSIGNED_SHORT][0][1] = GL_R16;
+  this->TextureInternalFormats[VTK_UNSIGNED_SHORT][0][2] = GL_RG16;
+  this->TextureInternalFormats[VTK_UNSIGNED_SHORT][0][3] = GL_RGB16;
+  this->TextureInternalFormats[VTK_UNSIGNED_SHORT][0][4] = GL_RGBA16;
+#endif
+
+#ifdef GL_R8_SNORM
+  this->TextureInternalFormats[VTK_SIGNED_CHAR][0][1] = GL_R8_SNORM;
+  this->TextureInternalFormats[VTK_SIGNED_CHAR][0][2] = GL_RG8_SNORM;
+  this->TextureInternalFormats[VTK_SIGNED_CHAR][0][3] = GL_RGB8_SNORM;
+  this->TextureInternalFormats[VTK_SIGNED_CHAR][0][4] = GL_RGBA8_SNORM;
+#endif
+
+#ifdef GL_R16_SNORM
+  this->TextureInternalFormats[VTK_SHORT][0][1] = GL_R16_SNORM;
+  this->TextureInternalFormats[VTK_SHORT][0][2] = GL_RG16_SNORM;
+  this->TextureInternalFormats[VTK_SHORT][0][3] = GL_RGB16_SNORM;
+  this->TextureInternalFormats[VTK_SHORT][0][4] = GL_RGBA16_SNORM;
+#endif
+
+  bool haveFloatTextures = false;
+  bool haveIntTextures = false;
+#if GL_ES_VERSION_2_0 != 1
+  if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
+    {
+    haveFloatTextures = true;
+    haveIntTextures = true;
+    }
+  else
+    {
+    haveFloatTextures= (glewIsSupported("GL_ARB_texture_float") != 0
+     && glewIsSupported("GL_ARB_texture_rg") != 0);
+    haveIntTextures= (glewIsSupported("GL_EXT_texture_integer") != 0);
+    }
+#else
+  haveFloatTextures = true;
+#if GL_ES_VERSION_3_0 == 1
+  haveIntTextures = true;
+#endif
+#endif
+
+  if (haveIntTextures)
+    {
+#ifdef GL_R8I
+    this->TextureInternalFormats[VTK_SIGNED_CHAR][2][1] = GL_R8I;
+    this->TextureInternalFormats[VTK_SIGNED_CHAR][2][2] = GL_RG8I;
+    this->TextureInternalFormats[VTK_SIGNED_CHAR][2][3] = GL_RGB8I;
+    this->TextureInternalFormats[VTK_SIGNED_CHAR][2][4] = GL_RGBA8I;
+    this->TextureInternalFormats[VTK_UNSIGNED_CHAR][2][1] = GL_R8UI;
+    this->TextureInternalFormats[VTK_UNSIGNED_CHAR][2][2] = GL_RG8UI;
+    this->TextureInternalFormats[VTK_UNSIGNED_CHAR][2][3] = GL_RGB8UI;
+    this->TextureInternalFormats[VTK_UNSIGNED_CHAR][2][4] = GL_RGBA8UI;
+
+    this->TextureInternalFormats[VTK_SHORT][2][1] = GL_R16I;
+    this->TextureInternalFormats[VTK_SHORT][2][2] = GL_RG16I;
+    this->TextureInternalFormats[VTK_SHORT][2][3] = GL_RGB16I;
+    this->TextureInternalFormats[VTK_SHORT][2][4] = GL_RGBA16I;
+    this->TextureInternalFormats[VTK_UNSIGNED_SHORT][2][1] = GL_R16UI;
+    this->TextureInternalFormats[VTK_UNSIGNED_SHORT][2][2] = GL_RG16UI;
+    this->TextureInternalFormats[VTK_UNSIGNED_SHORT][2][3] = GL_RGB16UI;
+    this->TextureInternalFormats[VTK_UNSIGNED_SHORT][2][4] = GL_RGBA16UI;
+
+    this->TextureInternalFormats[VTK_INT][2][1] = GL_R32I;
+    this->TextureInternalFormats[VTK_INT][2][2] = GL_RG32I;
+    this->TextureInternalFormats[VTK_INT][2][3] = GL_RGB32I;
+    this->TextureInternalFormats[VTK_INT][2][4] = GL_RGBA32I;
+    this->TextureInternalFormats[VTK_UNSIGNED_INT][2][1] = GL_R32UI;
+    this->TextureInternalFormats[VTK_UNSIGNED_INT][2][2] = GL_RG32UI;
+    this->TextureInternalFormats[VTK_UNSIGNED_INT][2][3] = GL_RGB32UI;
+    this->TextureInternalFormats[VTK_UNSIGNED_INT][2][4] = GL_RGBA32UI;
+#endif
+    }
+
+  if (haveFloatTextures)
+    {
+#ifdef GL_R32F
+    this->TextureInternalFormats[VTK_FLOAT][1][1] = GL_R32F;
+    this->TextureInternalFormats[VTK_FLOAT][1][2] = GL_RG32F;
+    this->TextureInternalFormats[VTK_FLOAT][1][3] = GL_RGB32F;
+    this->TextureInternalFormats[VTK_FLOAT][1][4] = GL_RGBA32F;
+
+    this->TextureInternalFormats[VTK_SHORT][1][1] = GL_R32F;
+    this->TextureInternalFormats[VTK_SHORT][1][2] = GL_RG32F;
+    this->TextureInternalFormats[VTK_SHORT][1][3] = GL_RGB32F;
+    this->TextureInternalFormats[VTK_SHORT][1][4] = GL_RGBA32F;
+#endif
+    }
 }
 
 void vtkOpenGLRenderWindow::OpenGLInitContext()

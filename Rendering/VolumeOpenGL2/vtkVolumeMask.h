@@ -171,7 +171,7 @@ public:
               }
             if(!(textureExtent[3]-textureExtent[2]+cellFlag==dim[1]))
               {
-              glPixelStorei(GL_UNPACK_IMAGE_HEIGHT_EXT,
+              glPixelStorei(GL_UNPACK_IMAGE_HEIGHT,
                             dim[1]-cellFlag);
               }
             void* dataPtr = scalars->GetVoidPointer(
@@ -194,7 +194,7 @@ public:
 
             // Restore the default values.
             glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-            glPixelStorei(GL_UNPACK_IMAGE_HEIGHT_EXT, 0);
+            glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, 0);
 
             this->LoadedCellFlag = cellFlag;
             i = 0;

@@ -1,3 +1,5 @@
+//VTK::System::Dec
+
 /*=========================================================================
 
    Program: VTK
@@ -50,10 +52,6 @@ Ph.D. thesis of Christian BOUCHENY.
 //      OUT:   EDL shaded image
 //
 //////////////////////////////////////////////////////////////////////////
-
-// The following line handle system declarations such a
-// default precisions, or defining precisions to null
-//VTK::System::Dec
 
 // the output of this shader
 //VTK::Output::Dec
