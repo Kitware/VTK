@@ -2245,7 +2245,11 @@ init_declarator_id:
       if ((type & VTK_PARSE_TYPEDEF) != 0)
         {
         var->ItemType = VTK_TYPEDEF_INFO;
-        if (currentClass)
+        if (var->Class == NULL)
+          {
+          vtkParse_FreeValue(var);
+          }
+        else if (currentClass)
           {
           vtkParse_AddTypedefToClass(currentClass, var);
           }
