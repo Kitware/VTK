@@ -4,6 +4,9 @@ from vtk.test import Testing
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
+useFECutter = 1
+res = 750
+
 # Create the RenderWindow, Renderer and both Actors
 #
 ren1 = vtk.vtkRenderer()
@@ -24,7 +27,7 @@ sphere.SetRadius(0.25)
 sample = vtk.vtkSampleFunction()
 sample.SetImplicitFunction(sphere)
 sample.SetModelBounds(-0.5,0.5, -0.5,0.5, -0.5,0.5)
-sample.SetSampleDimensions(250,250,250)
+sample.SetSampleDimensions(res,res,res)
 sample.Update()
 
 # The cut plane
@@ -32,16 +35,17 @@ plane = vtk.vtkPlane()
 plane.SetOrigin(0,0,0)
 plane.SetNormal(1,1,1)
 
-cut = vtk.vtkFlyingEdgesPlaneCutter()
-cut.SetInputConnection(sample.GetOutputPort())
-cut.SetPlane(plane)
-cut.ComputeNormalsOff() #make it equivalent to vtkCutter
-
-# Compare against previous method
-#cut = vtk.vtkCutter()
-#cut.SetInputConnection(sample.GetOutputPort())
-#cut.SetCutFunction(plane)
-#cut.SetValue(0,0.0)
+if useFECutter:
+    cut = vtk.vtkFlyingEdgesPlaneCutter()
+    cut.SetInputConnection(sample.GetOutputPort())
+    cut.SetPlane(plane)
+    cut.ComputeNormalsOff() #make it equivalent to vtkCutter
+else:
+    # Compare against previous method
+    cut = vtk.vtkCutter()
+    cut.SetInputConnection(sample.GetOutputPort())
+    cut.SetCutFunction(plane)
+    cut.SetValue(0,0.0)
 
 # Time the execution of the filter w/out scalar tree
 CG_timer = vtk.vtkExecutionTimer()
@@ -79,4 +83,4 @@ iren.Initialize()
 
 renWin.Render()
 # --- end of script --
-iren.Start()
+#iren.Start()
