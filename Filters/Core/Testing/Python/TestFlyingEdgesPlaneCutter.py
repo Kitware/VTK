@@ -5,7 +5,7 @@ from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 useFECutter = 1
-res = 750
+res = 100
 
 # Create the RenderWindow, Renderer and both Actors
 #

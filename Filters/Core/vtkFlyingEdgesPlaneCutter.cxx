@@ -1221,7 +1221,7 @@ int vtkFlyingEdgesPlaneCutter::RequestData(
 
   if (newNormals)
     {
-    int idx = output->GetPointData()->AddArray(newNormals);
+    idx = output->GetPointData()->AddArray(newNormals);
     output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::NORMALS);
     newNormals->Delete();
     }
