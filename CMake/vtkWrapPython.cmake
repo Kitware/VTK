@@ -285,15 +285,19 @@ macro(vtk_wrap_python TARGET SRC_LIST_NAME module)
 
   # Decide what to do for each header.
   foreach(header ${${module}_HEADERS})
-    # Everything in this block is for headers that will be wrapped.
-    if(NOT ${module}_HEADER_${header}_WRAP_EXCLUDE_PYTHON)
-
+    set(_excluded ${${module}_HEADER_${header}_WRAP_EXCLUDE_PYTHON})
+    if(NOT _excluded)
       # Find the full path to the header file to be wrapped.
       vtk_find_header(${header}.h "${${module}_INCLUDE_DIRS}" class_header_path)
+      # Exclude with warning if not found
       if(NOT class_header_path)
-        message(FATAL_ERROR "Could not find the ${header} header file.")
+        set(_excluded 1)
+        message(WARNING "Could not find ${header}.h for Python wrapping!")
       endif()
+    endif()
 
+    # Everything in this block is for headers that will be wrapped.
+    if(NOT _excluded)
       # add the info to the init file
       set(VTK_WRAPPER_INIT_DATA
         "${VTK_WRAPPER_INIT_DATA}\n${header}")
