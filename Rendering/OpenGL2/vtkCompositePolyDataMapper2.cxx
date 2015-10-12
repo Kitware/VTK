@@ -104,7 +104,9 @@ void vtkCompositePolyDataMapper2::Render(
 
   // do we need to do a generic render?
   bool lastUseGeneric = this->UseGeneric;
-  bool foundNoScalars = false;
+  int foundScalars = 0;  // 0 = unknown, 1 has 2 doesn't
+  int foundNormals = 0;
+  int foundTCoords = 0;
   if (this->GenericTestTime < this->GetInputDataObject(0, 0)->GetMTime() ||
       this->GenericTestTime < this->MTime)
     {
@@ -147,15 +149,37 @@ void vtkCompositePolyDataMapper2::Render(
               pd, this->ScalarMode, this->ArrayAccessMode,
               this->ArrayId, this->ArrayName,
               cellFlag);
-          if (!scalars)
+          if (!foundScalars)
             {
-            foundNoScalars = true;
+            foundScalars = scalars ? 1 : 2;
             }
-          if (scalars && foundNoScalars)
+          if (foundScalars != (scalars ? 1 : 2))
             {
             this->UseGeneric = true;
             break;
             }
+          }
+        // watch for heterogeneous normals
+        if (!foundNormals)
+          {
+          foundNormals =
+            (pd->GetPointData()->GetNormals() || pd->GetCellData()->GetNormals()) ? 1 : 2;
+          }
+        if (foundNormals !=
+          ((pd->GetPointData()->GetNormals() || pd->GetCellData()->GetNormals()) ? 1 : 2))
+          {
+          this->UseGeneric = true;
+          break;
+          }
+        // watch for heterogeneous tcoords
+        if (!foundTCoords)
+          {
+          foundTCoords = pd->GetPointData()->GetTCoords() ? 1 : 2;
+          }
+        if (foundTCoords != (pd->GetPointData()->GetTCoords() ? 1 : 2))
+          {
+          this->UseGeneric = true;
+          break;
           }
         }
       }
