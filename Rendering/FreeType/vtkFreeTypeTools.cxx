@@ -220,6 +220,7 @@ vtkFreeTypeTools::~vtkFreeTypeTools()
   delete TextPropertyLookup;
 
   FT_Done_FreeType(*this->Library);
+  delete this->Library;
   this->Library = NULL;
 }
 
