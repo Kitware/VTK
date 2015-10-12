@@ -1,7 +1,7 @@
 /*=========================================================================
 
 Program:   Visualization Toolkit
-Module:    TestOrientationMarkerWidget.cxx
+Module:    TestOrientationMarkerWidget2.cxx
 
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 All rights reserved.
@@ -131,7 +131,7 @@ int TestOrientationMarkerWidget2(int argc, char *argv[])
   // testing option fails.
   recorder->Off();
 
-  //iren->Start();
+  iren->Start();
 
   int ret = vtkRegressionTestImage(renWin.GetPointer());
   return ret == vtkTesting::PASSED ? EXIT_SUCCESS : EXIT_FAILURE;
