@@ -321,7 +321,9 @@ function(vtk_module_export sources)
     get_filename_component(src "${arg}" ABSOLUTE)
 
     string(REGEX REPLACE "\\.(cxx|txx|mm)$" ".h" hdr "${src}")
-    if("${hdr}" MATCHES "\\.h$")
+    get_source_file_property(_skip_install ${src} SKIP_HEADER_INSTALL)
+
+    if("${hdr}" MATCHES "\\.h$" AND NOT _skip_install)
       if(EXISTS "${hdr}")
         get_filename_component(_filename "${hdr}" NAME)
         string(REGEX REPLACE "\\.h$" "" _cls "${_filename}")
