@@ -383,6 +383,10 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
 
 ("__cdecl"|"__clrcall"|"__stdcall"|"__fastcall"|"__thiscall") /* Windows */
 
+"__restrict__" /* gcc/clang/other extension */
+
+"__restrict" /* MSVC extension */
+
 "VTK_LEGACY" {
       const char *args = get_macro_arguments();
       if (args && args[0] != '\0' && args[1] != '\0')
