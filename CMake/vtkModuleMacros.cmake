@@ -747,7 +747,7 @@ VTK_AUTOINIT(${vtk-module})
   vtk_module_export("${ARGN}")
 
   # Figure out which headers to install.
-  if(NOT VTK_INSTALL_NO_DEVELOPMENT AND VTK_INSTALL_NO_HEADERS AND _hdrs)
+  if(NOT VTK_INSTALL_NO_DEVELOPMENT AND NOT VTK_INSTALL_NO_HEADERS AND _hdrs)
     install(FILES ${_hdrs}
       DESTINATION ${VTK_INSTALL_INCLUDE_DIR}
       COMPONENT Development
