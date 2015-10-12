@@ -17,7 +17,6 @@
 //
 
 #include "vtkPLYReader.h"
-#include "vtkDebugLeaks.h"
 
 #include "vtkActor.h"
 #include "vtkPNGReader.h"
@@ -29,8 +28,6 @@
 #include "vtkTestUtilities.h"
 #include "vtkTexture.h"
 
-#include "vtkWindowToImageFilter.h"
-
 int TestPLYReaderTextureUV( int argc, char *argv[] )
 {
   // Read file name.
@@ -38,9 +35,11 @@ int TestPLYReaderTextureUV( int argc, char *argv[] )
   const char* fnameImg = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vtk.png");
 
   // Test if the reader thinks it can open the file.
-  int canRead = vtkPLYReader::CanReadFile(fname);
-  canRead = vtkPLYReader::CanReadFile(fnameImg);
-  (void)canRead;
+  if (0 == vtkPLYReader::CanReadFile(fname))
+    {
+    std::cout << "The PLY reader can not read the input file." << std::endl;
+    return EXIT_FAILURE;
+    }
 
   // Create the reader.
   vtkPLYReader* reader = vtkPLYReader::New();
@@ -49,6 +48,11 @@ int TestPLYReaderTextureUV( int argc, char *argv[] )
   delete [] fname;
 
   vtkPNGReader* readerImg = vtkPNGReader::New();
+  if (0 == readerImg->CanReadFile(fnameImg))
+  {
+     std::cout << "The PNG reader can not read the input file." << std::endl;
+     return EXIT_FAILURE;
+  }
   readerImg->SetFileName(fnameImg);
   readerImg->Update();
   delete[] fnameImg;
