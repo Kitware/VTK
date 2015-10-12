@@ -516,7 +516,7 @@ int vtkMPASReader::RequestInformation(
       timeSteps.push_back(static_cast<double>(i));
       }
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
-                 &timeSteps[0], timeSteps.size());
+                 &timeSteps[0], static_cast<int>(timeSteps.size()));
 
     double tRange[2];
     tRange[0] = 0.;
@@ -1913,7 +1913,8 @@ int vtkMPASReader::LoadPointVarDataImpl(NcVar *ncVar, vtkDataArray *array)
     ValueType *dataPtr = &tempData[0] + vertPointOffset;
 
     assert(varSize < array->GetNumberOfTuples());
-    assert(varSize < this->MaximumPoints - vertPointOffset);
+    assert(varSize < static_cast<vtkIdType>(this->MaximumPoints -
+                                            vertPointOffset));
     std::copy(dataBlock, dataBlock + varSize, dataPtr);
 
     if (!hasVerticalDimension)
@@ -1944,7 +1945,7 @@ int vtkMPASReader::LoadPointVarDataImpl(NcVar *ncVar, vtkDataArray *array)
   if (this->ShowMultilayerView)
     {
     // put in dummy points
-    assert(this->MaximumNVertLevels * 2 <= tempData.size());
+    assert(this->MaximumNVertLevels * 2 <= this->MaximumPoints);
     assert(this->MaximumNVertLevels <= array->GetNumberOfTuples());
     std::copy(tempData.begin() + this->MaximumNVertLevels,
               tempData.begin() + (2*this->MaximumNVertLevels),
@@ -1952,7 +1953,7 @@ int vtkMPASReader::LoadPointVarDataImpl(NcVar *ncVar, vtkDataArray *array)
 
     // write highest level dummy point (duplicate of last level)
     assert(this->MaximumNVertLevels < array->GetNumberOfTuples());
-    assert(2*this->MaximumNVertLevels - 1 < tempData.size());
+    assert(2*this->MaximumNVertLevels - 1 < this->MaximumPoints);
     dataBlock[this->MaximumNVertLevels] =
         tempData[2*this->MaximumNVertLevels - 1];
 
@@ -1968,7 +1969,7 @@ int vtkMPASReader::LoadPointVarDataImpl(NcVar *ncVar, vtkDataArray *array)
       k = j*(this->MaximumNVertLevels);
 
       // write data for one point -- lowest level to highest
-      assert(k + this->MaximumNVertLevels <= tempData.size());
+      assert(k + this->MaximumNVertLevels <= this->MaximumPoints);
       assert(i + this->MaximumNVertLevels <= array->GetNumberOfTuples());
       std::copy(tempData.begin() + k,
                 tempData.begin() + k + this->MaximumNVertLevels,
@@ -2004,7 +2005,7 @@ int vtkMPASReader::LoadPointVarDataImpl(NcVar *ncVar, vtkDataArray *array)
       k = this->PointMap[j - this->NumberOfPoints - this->PointOffset] *
           this->MaximumNVertLevels;
       // write data for one point -- lowest level to highest
-      assert(k + this->MaximumNVertLevels <= tempData.size());
+      assert(k + this->MaximumNVertLevels <= this->MaximumPoints);
       assert(i + this->MaximumNVertLevels <= array->GetNumberOfTuples());
       std::copy(tempData.begin() + k,
                 tempData.begin() + k + this->MaximumNVertLevels,
@@ -2051,7 +2052,7 @@ vtkDataArray *vtkMPASReader::LoadPointVarData(int variableIndex)
   array->SetNumberOfComponents(1);
   array->SetNumberOfTuples(this->MaximumPoints);
 
-  int success;
+  int success = false;
   vtkNcDispatch(typeVtk,
                 success = this->LoadPointVarDataImpl<VTK_TT>(ncVar, array););
 
@@ -2139,7 +2140,7 @@ vtkDataArray* vtkMPASReader::LoadCellVarData(int variableIndex)
   array->SetNumberOfComponents(1);
   array->SetNumberOfTuples(this->MaximumCells);
 
-  int success;
+  int success = false;
   vtkNcDispatch(typeVtk,
                 success = this->LoadCellVarDataImpl<VTK_TT>(ncVar, array););
   if (success)
@@ -2182,9 +2183,9 @@ inline int vtkMPASReader::NcTypeToVtkType(int ncType)
     case ncDouble:
       return VTK_DOUBLE;
     case ncNoType:
-    default:
+    default: // Shouldn't happen...
       vtkGenericWarningMacro(<<"Invalid NcType: " << ncType);
-      abort();
+      return VTK_VOID;
     }
 }
 
