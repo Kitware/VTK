@@ -19,6 +19,14 @@
 // to cut a volume with a single plane. It is designed for performance and
 // an exploratory, fast workflow.
 //
+// This algorithm is not only fast because it uses flying edges, but also
+// because it plays some "tricks" during processing. For example, rather
+// than evaluate the cut (plane) function on all volume points like vtkCutter
+// and its ilk do, this algorithm intersects the volume x-edges against the
+// plane to (potentially) generate the single intersection point. It then
+// quickly classifies the voxel edges as above, below, or straddling the cut
+// plane. Thus the number of plane evaluations is greatly reduced.
+//
 // For more information see vtkFlyingEdges3D and/or the paper "Flying Edges:
 // A High-Performance Scalable Isocontouring Algorithm" by Schroeder,
 // Maynard, Geveci. Proc. of LDAV 2015. Chicago, IL.
@@ -32,7 +40,7 @@
 // VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
 
 // .SECTION See Also
-// vtkFlyingEdges2D
+// vtkFlyingEdges2D vtkFlyingEdges3D
 
 #ifndef __vtkFlyingEdgesPlaneCutter_h
 #define __vtkFlyingEdgesPlaneCutter_h
@@ -47,6 +55,8 @@ class vtkPlane;
 class VTKFILTERSCORE_EXPORT vtkFlyingEdgesPlaneCutter : public vtkPolyDataAlgorithm
 {
 public:
+  // Description:
+  // Standard construction and print methods
   static vtkFlyingEdgesPlaneCutter *New();
   vtkTypeMacro(vtkFlyingEdgesPlaneCutter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);

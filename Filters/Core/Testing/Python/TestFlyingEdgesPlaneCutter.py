@@ -16,14 +16,11 @@ renWin.AddRenderer(ren1)
 iren = vtk.vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
-# Create a synthetic source
+# Create a synthetic source: sample a sphere across a volume
 sphere = vtk.vtkSphere()
 sphere.SetCenter( 0.0,0.0,0.0)
 sphere.SetRadius(0.25)
 
-# Iso-surface to create geometry. This uses a very small volume to stress
-# boundary conditions in vtkFlyingEdges; i.e., we want the sphere isosurface
-# to intersect the boundary.
 sample = vtk.vtkSampleFunction()
 sample.SetImplicitFunction(sphere)
 sample.SetModelBounds(-0.5,0.5, -0.5,0.5, -0.5,0.5)

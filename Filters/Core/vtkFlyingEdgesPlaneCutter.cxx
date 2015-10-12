@@ -35,7 +35,6 @@ vtkStandardNewMacro(vtkFlyingEdgesPlaneCutter);
 vtkCxxSetObjectMacro(vtkFlyingEdgesPlaneCutter,Plane,vtkPlane);
 
 //----------------------------------------------------------------------------
-
 // This templated class implements the heart of the algorithm.
 // vtkFlyingEdgesPlaneCutter populates the information in this class and
 // then invokes Contour() to actually initiate execution.
@@ -45,8 +44,8 @@ class vtkFlyingEdgesPlaneCutterAlgorithm
 public:
   // Edge case table values.
   enum {
-    Below = 0, //below isovalue (always value=0.0 for plane)
-    Above = 1, //above plan
+    Below = 0, //below isovalue (always isovalue=0.0 for plane)
+    Above = 1, //above plane
     LeftAbove = 1, //left vertex is above plane
     RightAbove = 2, //right vertex is above pane
     BothAbove = 3 //entire edge is above plane
@@ -81,9 +80,9 @@ public:
 
   // This table is used to accelerate the generation of output triangles and
   // points. The EdgeUses array, a function of the voxel case number,
-  // indicates which voxel edges intersect with the contour (i.e., require
-  // interpolation). This array is filled in at instantiation during the case
-  // table generation process.
+  // indicates which voxel edges intersect with the contour (i.e., which
+  // edges require interpolation). This array is filled in at instantiation
+  // during the case table generation process.
   unsigned char EdgeUses[256][12];
 
   // Flags indicate whether a particular case requires voxel axes to be
@@ -515,7 +514,9 @@ InterpolateEdge(T const * const s,
     return;
     }
 
-  // build the edge information
+  // Build the edge information. Note that the information we have is the
+  // position of the lower-left corner of the voxel; the offsets tell us how
+  // to generate the interpolating edge.
   const unsigned char *vertMap = this->VertMap[edgeNum];
 
   double x0[3], x1[3];
@@ -543,7 +544,7 @@ InterpolateEdge(T const * const s,
   double sV = vtkPlane::Evaluate(this->Normal,this->Center,x0);
   double sV1 = vtkPlane::Evaluate(this->Normal,this->Center,x1);
 
-  // Okay interpolate
+  // Okay interpolate. Remember the plane value == 0.0.
   double t = -(sV) / (sV1 - sV);
   float *xPtr = this->NewPoints + 3*vId;
   xPtr[0] = static_cast<float>(x0[0] + t*(x1[0]-x0[0]));
@@ -570,7 +571,7 @@ GeneratePoints(unsigned char loc, vtkIdType ijk[3],
                double x[3], const double sV,
                unsigned char const * const edgeUses, vtkIdType *eIds)
 {
-  // Interpolate the cell axes edges
+  // Interpolate the three x-y-z cell axes edges.
   double sV1;
   for(int i=0; i < 3; ++i)
     {
@@ -656,7 +657,7 @@ GeneratePoints(unsigned char loc, vtkIdType ijk[3],
 // trimming).
 //
 // This method varies significantly from the first pass of vtkFlyingEdges3D
-// because the evaluation of the x-edges is performed by evaluating against
+// because the evaluation of the x-edges is performed by intersection against
 // the cutting plane.
 template <class T> void vtkFlyingEdgesPlaneCutterAlgorithm<T>::
 ProcessXEdge(double xL[3], double xR[3], vtkIdType row, vtkIdType slice)
@@ -689,14 +690,7 @@ ProcessXEdge(double xL[3], double xR[3], vtkIdType row, vtkIdType slice)
     numInts = 1;
     a = fabs(vL);
     b = fabs(vR);
-    if ( vL > vR ) // use the largest value to perform division
-      {
-      minInt = static_cast<vtkIdType>(nxcells/(1.0+(b/a)));
-      }
-    else
-      {
-      minInt = nxcells - static_cast<vtkIdType>(nxcells/(1.0+(a/b)));
-      }
+    minInt = static_cast<vtkIdType>((a*nxcells)/(a+b));
     minInt = minInt >= nxcells ? nxcells-1 : minInt;
     maxInt = minInt + 1;
     if ( vL < 0.0 ) //&& vR >= 0.0
@@ -962,9 +956,12 @@ Contour(vtkFlyingEdgesPlaneCutter *self, vtkImageData *input, int extent[6],
   algo.Min2 = extent[4];
   algo.Max2 = extent[5];
   algo.Inc2 = incs[2];
+
+  // The left and right bounds of the x-volume edges
   algo.XL = algo.Origin[0];
   algo.XR = algo.Origin[0] + (algo.Max0 - algo.Min0)*algo.Spacing[0];
 
+  // Copy down the plane definition
   algo.Center = self->GetPlane()->GetOrigin();
   algo.Normal = self->GetPlane()->GetNormal();
 
@@ -1207,8 +1204,7 @@ int vtkFlyingEdgesPlaneCutter::RequestData(
                 << newPts->GetNumberOfPoints() << " points, "
                 << newTris->GetNumberOfCells() << " triangles");
 
-  // Update ourselves.  Because we don't know up front how many lines
-  // we've created, take care to reclaim memory.
+  // Update ourselves.
   output->SetPoints(newPts);
   newPts->Delete();
 
@@ -1243,4 +1239,5 @@ void vtkFlyingEdgesPlaneCutter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Plane: " << this->Plane << "\n";
   os << indent << "Compute Normals: " << (this->ComputeNormals ? "On\n" : "Off\n");
+  os << indent << "ArrayComponent: " << this->ArrayComponent << endl;
 }
