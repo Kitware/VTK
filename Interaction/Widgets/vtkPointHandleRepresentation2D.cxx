@@ -71,9 +71,13 @@ vtkPointHandleRepresentation2D::vtkPointHandleRepresentation2D()
   this->Glypher->SetScaleModeToDataScalingOff();
   this->Glypher->SetScaleFactor(1.0);
 
+  this->MapperCoordinate = vtkCoordinate::New();
+  this->MapperCoordinate->SetCoordinateSystemToDisplay();
+
   this->Mapper = vtkPolyDataMapper2D::New();
   this->Mapper->SetInputConnection(
     this->Glypher->GetOutputPort());
+  this->Mapper->SetTransformCoordinate(this->MapperCoordinate);
 
   // Set up the initial properties
   this->CreateDefaultProperties();
@@ -95,6 +99,7 @@ vtkPointHandleRepresentation2D::~vtkPointHandleRepresentation2D()
 
   this->CursorShape->Delete();
   this->Glypher->Delete();
+  this->MapperCoordinate->Delete();
   this->Mapper->Delete();
   this->Actor->Delete();
 
@@ -156,7 +161,8 @@ void vtkPointHandleRepresentation2D::SetDisplayPosition(double p[3])
 }
 
 //-------------------------------------------------------------------------
-int vtkPointHandleRepresentation2D::ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
+int vtkPointHandleRepresentation2D::
+ComputeInteractionState(int X, int Y, int vtkNotUsed(modify))
 {
   double pos[3], xyz[3];
   this->FocalPoint->GetPoint(0,pos);

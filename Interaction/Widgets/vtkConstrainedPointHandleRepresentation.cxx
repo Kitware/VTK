@@ -92,6 +92,7 @@ vtkConstrainedPointHandleRepresentation::vtkConstrainedPointHandleRepresentation
     vtkSmartPointer<vtkCursor2D>::New();
   cursor2D->AllOff();
   cursor2D->PointOn();
+  cursor2D->Update();
   this->SetCursorShape( cursor2D->GetOutput() );
 
   vtkSmartPointer<vtkCylinderSource> cylinder =
@@ -116,6 +117,7 @@ vtkConstrainedPointHandleRepresentation::vtkConstrainedPointHandleRepresentation
     vtkSmartPointer<vtkTransformPolyDataFilter>::New();
   tpd->SetInputConnection( 0, clean->GetOutputPort(0) );
   tpd->SetTransform( t );
+  tpd->Update();
 
   this->SetActiveCursorShape(tpd->GetOutput());
 
@@ -318,7 +320,7 @@ void vtkConstrainedPointHandleRepresentation::SetDisplayPosition(double eventPos
       this->SetPosition(worldPos);
       }
     }
-   this->DisplayPositionTime.Modified();
+  this->DisplayPositionTime.Modified();
 }
 
 //-------------------------------------------------------------------------
@@ -467,10 +469,9 @@ void vtkConstrainedPointHandleRepresentation::Translate(double eventPos[2])
 }
 
 //----------------------------------------------------------------------
-int vtkConstrainedPointHandleRepresentation::GetIntersectionPosition(double eventPos[2],
-                                                                     double worldPos[3],
-                                                                     double tolerance,
-                                                                     vtkRenderer * renderer)
+int vtkConstrainedPointHandleRepresentation::
+GetIntersectionPosition(double eventPos[2],double worldPos[3],double tolerance,
+                        vtkRenderer * renderer)
 {
   double nearWorldPoint[4];
   double farWorldPoint[4];
@@ -511,7 +512,7 @@ int vtkConstrainedPointHandleRepresentation::GetIntersectionPosition(double even
    return 0;
    }
   double pickPos[3];
-  picker->GetPickPosition(pickPos);   
+  picker->GetPickPosition(pickPos);
   if ( this->BoundingPlanes )
     {
     vtkPlane *p;

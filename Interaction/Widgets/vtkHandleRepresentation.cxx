@@ -78,8 +78,13 @@ void vtkHandleRepresentation::SetDisplayPosition(double displyPos[3])
 //----------------------------------------------------------------------
 void vtkHandleRepresentation::GetDisplayPosition(double pos[3])
 {
-  // The world position maintains the position
-  if ( this->Renderer && (this->WorldPositionTime > this->DisplayPositionTime) )
+  // The position is really represented in the world position; the display
+  // position is a convenience to go back and forth between coordinate systems.
+  // Also note that the window size may have changed, so it's important to
+  // update the display position.
+  if ( this->Renderer && (this->WorldPositionTime > this->DisplayPositionTime ||
+                          (this->Renderer->GetVTKWindow() &&
+                           this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime)) )
     {
     int *p = this->WorldPosition->GetComputedDisplayValue(this->Renderer);
     this->DisplayPosition->SetValue(p[0],p[1],0.0);
@@ -90,8 +95,13 @@ void vtkHandleRepresentation::GetDisplayPosition(double pos[3])
 //----------------------------------------------------------------------
 double* vtkHandleRepresentation::GetDisplayPosition()
 {
-  // The world position maintains the position
-  if ( this->Renderer && (this->WorldPositionTime > this->DisplayPositionTime) )
+  // The position is really represented in the world position; the display
+  // position is a convenience to go back and forth between coordinate systems.
+  // Also note that the window size may have changed, so it's important to
+  // update the display position.
+  if ( this->Renderer && (this->WorldPositionTime > this->DisplayPositionTime ||
+                          (this->Renderer->GetVTKWindow() &&
+                           this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime)) )
     {
     int *p = this->WorldPosition->GetComputedDisplayValue(this->Renderer);
     this->DisplayPosition->SetValue(p[0],p[1],0.0);
@@ -111,10 +121,10 @@ void vtkHandleRepresentation::SetWorldPosition(double pos[3])
       }
     }
   else
-  {
-  this->WorldPosition->SetValue(pos);
-  this->WorldPositionTime.Modified();
-  }
+    {
+    this->WorldPosition->SetValue(pos);
+    this->WorldPositionTime.Modified();
+    }
 }
 
 //----------------------------------------------------------------------
@@ -123,6 +133,7 @@ void vtkHandleRepresentation::GetWorldPosition(double pos[3])
   this->WorldPosition->GetValue(pos);
 }
 
+//----------------------------------------------------------------------
 double* vtkHandleRepresentation::GetWorldPosition()
 {
   return this->WorldPosition->GetValue();
@@ -141,6 +152,16 @@ void vtkHandleRepresentation::SetRenderer(vtkRenderer *ren)
   this->DisplayPosition->SetViewport(ren);
   this->WorldPosition->SetViewport(ren);
   this->Superclass::SetRenderer(ren);
+
+  // Okay this is weird. If a display position was set previously before
+  // the renderer was specified, then the coordinate systems are not
+  // synchronized.
+  if ( this->DisplayPositionTime > this->WorldPositionTime )
+    {
+    double p[3];
+    this->DisplayPosition->GetValue(p);
+    this->SetDisplayPosition(p); //side affect updated world pos
+    }
 }
 
 //----------------------------------------------------------------------

@@ -135,7 +135,7 @@ public:
   // (SetEnabled(1) or when keypress activation takes place), the renderer
   // over which the mouse pointer is positioned is used and assigned to
   // this Ivar. Alternatively, you might want to set the CurrentRenderer
-  // explicitly.
+  // explicitly. This is especially true with multiple viewports (renderers).
   // WARNING: note that if the DefaultRenderer Ivar is set (see above),
   // it will always override the parameter passed to SetCurrentRenderer,
   // unless it is NULL.
