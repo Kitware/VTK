@@ -322,12 +322,8 @@ function(vtk_module_export sources)
 
     string(REGEX REPLACE "\\.(cxx|txx|mm)$" ".h" hdr "${src}")
     if("${hdr}" MATCHES "\\.h$")
-      get_filename_component(_filename "${hdr}" NAME)
-
-      # Make sure header is in one of the expected locations
-      if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${_filename}" OR
-         EXISTS "${CMAKE_CURRENT_BINARY_DIR}/${_filename}")
-
+      if(EXISTS "${hdr}")
+        get_filename_component(_filename "${hdr}" NAME)
         string(REGEX REPLACE "\\.h$" "" _cls "${_filename}")
 
         get_source_file_property(_wrap_exclude ${src} WRAP_EXCLUDE)
