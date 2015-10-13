@@ -13,6 +13,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestDecimatePolylineFilter.cxx
   TestDecimatePro.cxx,NO_VALID
   TestDelaunay2D.cxx
+  TestDelaunay2DFindTriangle.cxx
   TestDelaunay3D.cxx,NO_VALID
   TestExecutionTimer.cxx,NO_VALID
   TestFeatureEdges.cxx,NO_VALID
