@@ -197,15 +197,28 @@ int vtkPLYReader::RequestData(
 
   bool TexCoordsPointsAvailable = false;
   vtkSmartPointer<vtkFloatArray> TexCoordsPoints = NULL;
-  if ( (elem = vtkPLY::find_element (ply, "vertex")) != NULL &&
-        vtkPLY::find_property (elem, "u", &index) != NULL &&
-        vtkPLY::find_property (elem, "v", &index) != NULL)
+  if ( (elem = vtkPLY::find_element(ply, "vertex")) != NULL )
     {
-    TexCoordsPoints = vtkSmartPointer<vtkFloatArray>::New();
-    TexCoordsPointsAvailable = true;
-    TexCoordsPoints->SetName("TCoords");
-    TexCoordsPoints->SetNumberOfComponents(2);
-    output->GetPointData()->SetTCoords(TexCoordsPoints);
+    if ( vtkPLY::find_property(elem, "u", &index) != NULL &&
+         vtkPLY::find_property(elem, "v", &index) != NULL )
+      {
+      TexCoordsPointsAvailable = true;
+      }
+    else if ( vtkPLY::find_property(elem, "texture_u", &index) != NULL &&
+              vtkPLY::find_property(elem, "texture_v", &index) != NULL )
+      {
+      TexCoordsPointsAvailable = true;
+      vertProps[3].name = "texture_u";
+      vertProps[4].name = "texture_v";
+      }
+
+    if ( TexCoordsPointsAvailable )
+      {
+      TexCoordsPoints = vtkSmartPointer<vtkFloatArray>::New();
+      TexCoordsPoints->SetName("TCoords");
+      TexCoordsPoints->SetNumberOfComponents(2);
+      output->GetPointData()->SetTCoords(TexCoordsPoints);
+      }
     }
 
   // Okay, now we can grab the data
