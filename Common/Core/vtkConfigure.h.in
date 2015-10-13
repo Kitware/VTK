@@ -84,6 +84,9 @@
 /* Debug leaks support.  */
 #cmakedefine VTK_DEBUG_LEAKS
 
+/* Print warning on vtkArrayDispatch failure.  */
+#cmakedefine VTK_WARN_ON_DISPATCH_FAILURE
+
 /* Should all New methods use the object factory override. */
 #cmakedefine VTK_ALL_NEW_OBJECT_FACTORY
 

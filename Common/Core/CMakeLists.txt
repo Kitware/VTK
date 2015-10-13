@@ -98,6 +98,42 @@ endforeach()
 
 list(APPEND VTK_SMP_HEADERS vtkSMPTools.h vtkSMPThreadLocalObject.h)
 
+#-------------------------------------------------------------------------------
+# Generate the vtkTypeList_Create macros:
+include(vtkCreateTypeListMacros)
+CreateTypeListMacros(
+  VTK_TYPELISTMACRO_HEADER_CONTENTS
+  99
+  vtkTypeList_Create
+  "vtkTypeList::TypeList"
+  "vtkTypeList::NullType"
+)
+configure_file(vtkTypeListMacros.h.in vtkTypeListMacros.h)
+
+#-------------------------------------------------------------------------------
+# And the ArrayDispatch array list header:
+option(VTK_DISPATCH_AOS_ARRAYS
+  "Include array-of-structs vtkDataArray subclasses in dispatcher."
+  ON
+)
+option(VTK_DISPATCH_SOA_ARRAYS
+  "Include struct-of-arrays vtkDataArray subclasses in dispatcher."
+  OFF
+)
+option(VTK_DISPATCH_TYPED_ARRAYS
+  "Include vtkTypedDataArray subclasses (e.g. old mapped arrays) in dispatcher."
+  OFF
+)
+include(vtkCreateArrayDispatchArrayList)
+vtkArrayDispatch_default_array_setup()
+vtkArrayDispatch_generate_array_header(VTK_ARRAYDISPATCH_ARRAY_LIST)
+configure_file(vtkArrayDispatchArrayList.h.in vtkArrayDispatchArrayList.h)
+
+option(VTK_WARN_ON_DISPATCH_FAILURE
+  "If enabled, vtkArrayDispatch will print a warning when a dispatch fails."
+  OFF
+)
+
 #-----------------------------------------------------------------------------
 
 include_directories(${VTK_SOURCE_DIR}/ThirdParty/utf8/source)
@@ -240,6 +276,8 @@ set(${vtk-module}_HDRS
   vtkAngularPeriodicDataArray.h
   vtkAoSDataArrayTemplate.h
   vtkAoSDataArrayTemplate.txx
+  vtkArrayDispatch.h
+  vtkArrayDispatch.txx
   vtkArrayInterpolate.h
   vtkArrayInterpolate.txx
   vtkArrayIteratorIncludes.h
@@ -268,6 +306,8 @@ set(${vtk-module}_HDRS
   vtkSoADataArrayTemplate.h
   vtkSoADataArrayTemplate.txx
   vtkTemplateAliasMacro.h
+  vtkTypeList.h
+  vtkTypeList.txx
   vtkTypeTraits.h
   vtkTypedDataArray.h
   vtkTypedDataArrayIterator.h
@@ -278,7 +318,9 @@ set(${vtk-module}_HDRS
   vtkWeakPointer.h
   vtkWin32Header.h
   vtkWindows.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkArrayDispatchArrayList.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkToolkits.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkTypeListMacros.h
   )
 
 if(vtkCommonDataModel_ENABLED)
@@ -613,6 +655,7 @@ set_source_files_properties(
   vtkTypeTemplate.h
   ${VTK_SMP_SOURCES}
   ${VTK_SMP_HEADERS}
+  "${VTK_TYPELISTMACROS_HEADER}"
 
   WRAP_EXCLUDE
   )
@@ -649,6 +692,7 @@ set_source_files_properties(
   vtkSparseArray.h
   vtkTypedArray.h
   vtkTypeTemplate.h
+  "${VTK_TYPELISTMACROS_HEADER}"
   HEADER_FILE_ONLY
   )
 

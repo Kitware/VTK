@@ -14,6 +14,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestArrayAPIDense.cxx
   TestArrayAPISparse.cxx
   TestArrayBool.cxx
+  TestArrayDispatchers.cxx
   TestAtomic.cxx
   TestScalarsToColors.cxx
   # TestArrayCasting.cxx # Uses Boost in its own separate test.
