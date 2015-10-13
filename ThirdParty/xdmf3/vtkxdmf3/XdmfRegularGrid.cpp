@@ -311,17 +311,17 @@ XdmfRegularGrid::New(const double xBrickSize,
                      const double zOrigin)
 {
   shared_ptr<XdmfArray> brickSize = XdmfArray::New();
-  brickSize->resize<double>(3);
+  brickSize->initialize<double>(3);
   brickSize->insert(0, xBrickSize);
   brickSize->insert(1, yBrickSize);
   brickSize->insert(2, zBrickSize);
   shared_ptr<XdmfArray> numPoints = XdmfArray::New();
-  numPoints->resize<unsigned int>(3);
+  numPoints->initialize<unsigned int>(3);
   numPoints->insert(0, xNumPoints);
   numPoints->insert(1, yNumPoints);
   numPoints->insert(2, zNumPoints);
   shared_ptr<XdmfArray> origin = XdmfArray::New();
-  origin->resize<double>(3);
+  origin->initialize<double>(3);
   origin->insert(0, xOrigin);
   origin->insert(1, yOrigin);
   origin->insert(2, zOrigin);
