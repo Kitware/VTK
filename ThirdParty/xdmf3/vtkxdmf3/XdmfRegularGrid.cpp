@@ -282,15 +282,15 @@ XdmfRegularGrid::New(const double xBrickSize,
                      const double yOrigin)
 {
   shared_ptr<XdmfArray> brickSize = XdmfArray::New();
-  brickSize->resize<double>(2);
+  brickSize->initialize<double>(2);
   brickSize->insert(0, xBrickSize);
   brickSize->insert(1, yBrickSize);
   shared_ptr<XdmfArray> numPoints = XdmfArray::New();
-  numPoints->resize<unsigned int>(2);
+  numPoints->initialize<unsigned int>(2);
   numPoints->insert(0, xNumPoints);
   numPoints->insert(1, yNumPoints);
   shared_ptr<XdmfArray> origin = XdmfArray::New();
-  origin->resize<double>(2);
+  origin->initialize<double>(2);
   origin->insert(0, xOrigin);
   origin->insert(1, yOrigin);
   shared_ptr<XdmfRegularGrid> p(new XdmfRegularGrid(brickSize,
