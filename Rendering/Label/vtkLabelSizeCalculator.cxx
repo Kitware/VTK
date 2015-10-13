@@ -38,7 +38,7 @@ vtkLabelSizeCalculator::vtkLabelSizeCalculator()
   this->FontUtil = vtkTextRenderer::New(); // Never a NULL moment.
   this->LabelSizeArrayName = NULL;
   this->SetLabelSizeArrayName( "LabelSize" );
-  this->SetDPI(72);
+  this->DPI = 72;
   this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "LabelText");
   this->SetInputArrayToProcess(1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "Type");
 }
