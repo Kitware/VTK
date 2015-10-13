@@ -42,6 +42,10 @@
 
 #include <sstream>
 
+#if _MSC_VER && !defined(snprintf)
+#define snprintf _snprintf
+#endif
+
 vtkStandardNewMacro(vtkRIBExporter);
 
 typedef double RtColor[3];
@@ -1368,13 +1372,13 @@ static char textureName[4096];
 
 char *vtkRIBExporter::GetTIFFName (vtkTexture *aTexture)
 {
-    sprintf (tiffName, "%s_%p_%d.tif", this->TexturePrefix, (void *) aTexture, (int) aTexture->GetMTime ());
+    snprintf (tiffName, 4096, "%s_%p_%d.tif", this->TexturePrefix, (void *) aTexture, (int) aTexture->GetMTime ());
     return tiffName;
 }
 
 char *vtkRIBExporter::GetTextureName (vtkTexture *aTexture)
 {
-    sprintf (textureName, "%s_%p_%d.txt", this->TexturePrefix, (void *) aTexture, (int) aTexture->GetMTime ());
+    snprintf (textureName, 4096, "%s_%p_%d.txt", this->TexturePrefix, (void *) aTexture, (int) aTexture->GetMTime ());
     return textureName;
 }
 
