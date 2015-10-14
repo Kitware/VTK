@@ -737,30 +737,6 @@ void vtkWin32RenderWindowInteractor::OnKillFocus(HWND,UINT)
 #endif
 }
 
-// This function is used to return an index given an ID
-int vtkWin32RenderWindowInteractor::GetContactIndex(int dwID)
-{
-  for (int i=0; i < VTKI_MAX_POINTERS; i++)
-    {
-    if (this->IDLookup[i] == dwID)
-      {
-      return i;
-      }
-    }
-
-  for (int i=0; i < VTKI_MAX_POINTERS; i++)
-    {
-    if (this->IDLookup[i] == -1)
-      {
-      this->IDLookup[i] = dwID;
-      return i;
-      }
-    }
-
-  // Out of contacts
-  return -1;
-}
-
 //----------------------------------------------------------------------------
 void vtkWin32RenderWindowInteractor::OnTouch(HWND hWnd, UINT wParam, UINT lParam)
 {
@@ -784,7 +760,7 @@ void vtkWin32RenderWindowInteractor::OnTouch(HWND hWnd, UINT wParam, UINT lParam
       for (UINT i=0; i < cInputs; i++)
         {
         TOUCHINPUT ti = pInputs[i];
-        int index = this->GetContactIndex(ti.dwID);
+        int index = this->GetPointerIndexForContact(ti.dwID);
         if (ti.dwID != 0 && index < VTKI_MAX_POINTERS)
           {
             // Do something with your touch input handle
@@ -803,7 +779,7 @@ void vtkWin32RenderWindowInteractor::OnTouch(HWND hWnd, UINT wParam, UINT lParam
       for (UINT i=0; i < cInputs; i++)
         {
         TOUCHINPUT ti = pInputs[i];
-        int index = this->GetContactIndex(ti.dwID);
+        int index = this->GetPointerIndexForContact(ti.dwID);
         if (ti.dwID != 0 && index < VTKI_MAX_POINTERS)
           {
           if (ti.dwFlags & TOUCHEVENTF_UP)

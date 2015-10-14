@@ -587,6 +587,16 @@ public:
   virtual void CharEvent();
   virtual void ExitEvent();
 
+  // Description:
+  // Most multitouch systems use persistent contact/pointer ids to
+  // track events/motion during multitouch events. We keep an array
+  // that maps these system dependent contact ids to our pointer index
+  // These functions return -1 if the ID is not found or if there
+  // is no more room for contacts
+  void ClearContact(int contactID);
+  int GetPointerIndexForContact(int contactID);
+  int GetPointerIndexForExistingContact(int contactID);
+
 protected:
   vtkRenderWindowInteractor();
   ~vtkRenderWindowInteractor();
@@ -631,6 +641,8 @@ protected:
   int   EventPositions[VTKI_MAX_POINTERS][2];
   int   LastEventPositions[VTKI_MAX_POINTERS][2];
   int   PointerIndex;
+
+  int PointerIndexLookup[VTKI_MAX_POINTERS];
 
   // control the fly to
   int NumberOfFlyFrames;

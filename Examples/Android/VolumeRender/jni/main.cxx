@@ -169,7 +169,8 @@ JNIEXPORT jlong JNICALL Java_com_kitware_VolumeRender_VolumeRenderLib_init(JNIEn
   renderer->GradientBackgroundOn();
   renderer->AddVolume(volume.GetPointer());
   renderer->ResetCamera();
-  renderer->GetActiveCamera()->Zoom(1.4);
+//  renderer->GetActiveCamera()->Zoom(1.4);
+  renderer->GetActiveCamera()->Zoom(0.7);
 
   struct userData *foo = new struct userData();
   foo->RenderWindow = renWin;

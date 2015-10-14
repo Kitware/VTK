@@ -229,7 +229,7 @@ PURPOSE.  See the above copyright notice for more information.
     CGPoint location = [touch locationInView:self.view];
     location.y = bounds.size.height - location.y;
 
-    int index = interactor->GetContactIndex((__bridge void *)touch);
+    int index = interactor->GetPointerIndexForContact((__bridge void *)touch);
     if (index < VTKI_MAX_POINTERS)
       {
       interactor->SetEventInformation((int)round(location.x),
@@ -242,7 +242,7 @@ PURPOSE.  See the above copyright notice for more information.
   // handle begin events
   for (UITouch *touch in touches)
     {
-    int index = interactor->GetContactIndex((__bridge void *)touch);
+    int index = interactor->GetPointerIndexForContact((__bridge void *)touch);
     interactor->SetPointerIndex(index);
     interactor->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
     NSLog(@"Starting left mouse");
@@ -278,7 +278,7 @@ PURPOSE.  See the above copyright notice for more information.
     CGPoint location = [touch locationInView:self.view];
     location.y = bounds.size.height - location.y;
 
-    index = interactor->GetContactIndex((__bridge void *)touch);
+    index = interactor->GetPointerIndexForContact((__bridge void *)touch);
     if (index < VTKI_MAX_POINTERS)
       {
       interactor->SetEventInformation((int)round(location.x),
@@ -321,7 +321,7 @@ PURPOSE.  See the above copyright notice for more information.
     CGPoint location = [touch locationInView:self.view];
     location.y = bounds.size.height - location.y;
 
-    int index = interactor->GetContactIndex((__bridge void *)touch);
+    int index = interactor->GetPointerIndexForContact((__bridge void *)touch);
     if (index < VTKI_MAX_POINTERS)
       {
       interactor->SetEventInformation((int)round(location.x),
@@ -334,7 +334,7 @@ PURPOSE.  See the above copyright notice for more information.
   // handle begin events
   for (UITouch *touch in touches)
     {
-    int index = interactor->GetContactIndex((__bridge void *)touch);
+    int index = interactor->GetPointerIndexForContact((__bridge void *)touch);
     interactor->SetPointerIndex(index);
     interactor->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
     interactor->ClearContactIndex((__bridge void *)touch);

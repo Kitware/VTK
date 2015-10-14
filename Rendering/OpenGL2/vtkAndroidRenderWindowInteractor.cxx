@@ -428,16 +428,50 @@ void vtkAndroidRenderWindowInteractor::HandleMotionEvent(
                                    idPtr[i]);
     }
 
-  this->SetPointerIndex(actionId);
   switch(actionType)
     {
     case AMOTION_EVENT_ACTION_POINTER_DOWN:
     case AMOTION_EVENT_ACTION_DOWN:
-      this->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
+      {
+      // just return if it is already down
+      if (this->GetPointerIndexForExistingContact(actionId) > -1)
+        {
+        return;
+        }
+      int index = this->GetPointerIndexForContact(actionId);
+      if (index > -1)
+        {
+        this->SetPointerIndex(index);
+        this->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
+        }
+      }
       return;
-    case AMOTION_EVENT_ACTION_POINTER_UP:
+    // an up event ends all
     case AMOTION_EVENT_ACTION_UP:
-      this->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
+      {
+      // kill off all current pointers
+      for (int i=0; i < VTKI_MAX_POINTERS; i++)
+        {
+        if (this->PointerIndexLookup[i] != -1)
+          {
+          this->SetPointerIndex(i);
+          this->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
+          this->PointerIndexLookup[i] = -1;
+          }
+        }
+      return;
+      }
+    case AMOTION_EVENT_ACTION_POINTER_UP:
+      {
+      // is it already down?
+      int i = this->GetPointerIndexForExistingContact(actionId);
+      if (i > -1)
+        {
+        this->SetPointerIndex(i);
+        this->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
+        this->ClearContact(actionId);
+        }
+      }
       return;
     case AMOTION_EVENT_ACTION_MOVE:
       this->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);

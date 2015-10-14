@@ -31,10 +31,6 @@ void (*vtkIOSRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void (
 //----------------------------------------------------------------------------
 vtkIOSRenderWindowInteractor::vtkIOSRenderWindowInteractor()
 {
-  for (int i=0; i < VTKI_MAX_POINTERS; i++)
-    {
-    this->IDLookup[i] = NULL;
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -170,43 +166,6 @@ void vtkIOSRenderWindowInteractor::SetClassExitMethodArgDelete(void (*f)(void *)
     vtkIOSRenderWindowInteractor::ClassExitMethodArgDelete = f;
 
     // no call to this->Modified() since this is a class member function
-    }
-}
-
-// This function is used to return an index given an ID
-int vtkIOSRenderWindowInteractor::GetContactIndex(void *dwID)
-{
-  for (int i=0; i < VTKI_MAX_POINTERS; i++)
-    {
-    if (this->IDLookup[i] == dwID)
-      {
-      return i;
-      }
-    }
-
-  for (int i=0; i < VTKI_MAX_POINTERS; i++)
-    {
-    if (this->IDLookup[i] == NULL)
-      {
-      this->IDLookup[i] = dwID;
-      return i;
-      }
-    }
-
-  // Out of contacts
-  return -1;
-}
-
-// This function is used to return an index given an ID
-void vtkIOSRenderWindowInteractor::ClearContactIndex(void *dwID)
-{
-  for (int i=0; i < VTKI_MAX_POINTERS; i++)
-    {
-    if (this->IDLookup[i] == dwID)
-      {
-      this->IDLookup[i] = NULL;
-      return;
-      }
     }
 }
 

@@ -123,6 +123,12 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
   this->HandleEventLoop = false;
 
   this->UseTDx=false; // 3DConnexion device.
+
+  for (int i=0; i < VTKI_MAX_POINTERS; i++)
+    {
+    this->PointerIndexLookup[i] = -1;
+    }
+
 }
 
 //----------------------------------------------------------------------
@@ -277,6 +283,61 @@ void vtkRenderWindowInteractor::UpdateSize(int x,int y)
     this->RenderWindow->SetSize(x,y);
     }
 }
+
+// This function is used to return an index given an ID
+// and allocate one if needed
+int vtkRenderWindowInteractor::GetPointerIndexForContact(int dwID)
+{
+  for (int i=0; i < VTKI_MAX_POINTERS; i++)
+    {
+    if (this->PointerIndexLookup[i] == dwID)
+      {
+      return i;
+      }
+    }
+
+  for (int i=0; i < VTKI_MAX_POINTERS; i++)
+    {
+    if (this->PointerIndexLookup[i] == -1)
+      {
+      this->PointerIndexLookup[i] = dwID;
+      return i;
+      }
+    }
+
+  // Out of contacts
+  return -1;
+}
+
+// This function is used to return an index given an ID
+int vtkRenderWindowInteractor::GetPointerIndexForExistingContact(int dwID)
+{
+  for (int i=0; i < VTKI_MAX_POINTERS; i++)
+    {
+    if (this->PointerIndexLookup[i] == dwID)
+      {
+      return i;
+      }
+    }
+
+  // Not found
+  return -1;
+}
+
+// This function is used to return an index given an ID
+void vtkRenderWindowInteractor::ClearContact(int dwID)
+{
+  for (int i=0; i < VTKI_MAX_POINTERS; i++)
+    {
+    if (this->PointerIndexLookup[i] == dwID)
+      {
+      this->PointerIndexLookup[i] = NULL;
+      return;
+      }
+    }
+}
+
+
 
 //----------------------------------------------------------------------
 // Creates an instance of vtkPropPicker by default
