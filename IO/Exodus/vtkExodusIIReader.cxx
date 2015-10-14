@@ -408,6 +408,7 @@ vtkExodusIIReaderPrivate::vtkExodusIIReaderPrivate()
   this->Parser = 0;
 
   this->SIL = vtkMutableDirectedGraph::New();
+  this->SkipUpdateTimeInformation = false;
 
   memset( (void*)&this->ModelParameters, 0, sizeof(this->ModelParameters) );
 }
@@ -3804,6 +3805,16 @@ int vtkExodusIIReaderPrivate::CloseFile()
 
 int vtkExodusIIReaderPrivate::UpdateTimeInformation()
 {
+  // BUG #15632: For files with spatial partitions, vtkPExodusIIReader uses vtkExodusIIReader
+  // to read each of the files. Since time information between those files doesn't change and
+  // it can be quite time consuming to collect the time information, vtkPExodusIIReader forcibly passes
+  // time information from the first reader to all others. SkipUpdateTimeInformation helps us get that
+  // going without significant changes to the reader.
+  if (this->SkipUpdateTimeInformation)
+    {
+    return 0;
+    }
+
   int exoid = this->Exoid;
   int itmp[5];
   int num_timesteps;
