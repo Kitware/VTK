@@ -27,6 +27,9 @@
 
 #include <map> // for std::map
 
+class vtkBoundingBox;
+class vtkDataObject;
+
 class VTKRENDERINGCORE_EXPORT vtkCompositeDataDisplayAttributes : public vtkObject
 {
 public:
@@ -100,6 +103,15 @@ public:
   // Removes all block opacities.
   void RemoveBlockOpacities();
 
+  // If the input \a dobj is a vtkCompositeDataSet, we will loop over the
+  // hierarchy recursively starting from intial index 0 and use only visible
+  // blocks, which is specified in the vtkCompositeDataDisplayAttributes \a cda,
+  // to compute the \a bounds.
+  static void ComputeVisibleBounds(
+    vtkCompositeDataDisplayAttributes* cda,
+    vtkDataObject *dobj,
+    double bounds[6]);
+
 protected:
   vtkCompositeDataDisplayAttributes();
   ~vtkCompositeDataDisplayAttributes();
@@ -108,10 +120,25 @@ private:
   vtkCompositeDataDisplayAttributes(const vtkCompositeDataDisplayAttributes&); // Not implemented.
   void operator=(const vtkCompositeDataDisplayAttributes&); // Not implemented.
 
-private:
+  // Description:
+  // If the input data \a dobj is a vtkCompositeDataSet, we will
+  // loop over the hierarchy recursively starting from intial index
+  // \a flat_index and use only visible blocks, which is
+  // specified in the vtkCompositeDataDisplayAttributes \a cda,
+  // to compute bounds and the result bounds will be set to
+  // the vtkBoundingBox \a bbox. The \a paraentVisible is the
+  // visibility for the starting flat_index.
+  static void ComputeVisibleBoundsInternal(
+    vtkCompositeDataDisplayAttributes* cda,
+    vtkDataObject *dobj,
+    unsigned int& flat_index,
+    vtkBoundingBox* bbox,
+    bool parentVisible = true);
+
   std::map<unsigned int, bool> BlockVisibilities;
   std::map<unsigned int, vtkColor3d> BlockColors;
   std::map<unsigned int, double> BlockOpacities;
+
 };
 
 #endif // vtkCompositeDataDisplayAttributes_h

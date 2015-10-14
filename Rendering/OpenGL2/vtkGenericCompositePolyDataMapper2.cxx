@@ -274,7 +274,6 @@ vtkExecutive* vtkGenericCompositePolyDataMapper2::CreateDefaultExecutive()
 //Looks at each DataSet and finds the union of all the bounds
 void vtkGenericCompositePolyDataMapper2::ComputeBounds()
 {
-  vtkMath::UninitializeBounds(this->Bounds);
   vtkCompositeDataSet *input = vtkCompositeDataSet::SafeDownCast(
     this->GetInputDataObject(0, 0));
 
@@ -287,21 +286,16 @@ void vtkGenericCompositePolyDataMapper2::ComputeBounds()
     return;
     }
 
-  vtkCompositeDataIterator* iter = input->NewIterator();
-  vtkBoundingBox bbox;
-  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+  if (input->GetMTime() < this->BoundsMTime &&
+      this->GetMTime() < this->BoundsMTime)
     {
-    vtkPolyData *pd = vtkPolyData::SafeDownCast(iter->GetCurrentDataObject());
-    if (pd)
-      {
-      double bounds[6];
-      pd->GetBounds(bounds);
-      bbox.AddBounds(bounds);
-      }
+    return;
     }
-  iter->Delete();
-  bbox.GetBounds(this->Bounds);
-//  this->BoundsMTime.Modified();
+
+  // computing bounds with only visible blocks
+  vtkCompositeDataDisplayAttributes::ComputeVisibleBounds(
+    this->CompositeAttributes, input, this->Bounds);
+  this->BoundsMTime.Modified();
 }
 
 //-----------------------------------------------------------------------------
