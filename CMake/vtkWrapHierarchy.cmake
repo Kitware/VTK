@@ -57,8 +57,12 @@ macro(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
     # assume header file is in the same directory
     set(TMP_INPUT ${TMP_FILEPATH}/${TMP_FILENAME}.h)
 
-    # default to including all available headers in the hierarchy files
+    # include all non-private headers in the hierarchy files
     set(TMP_EXCLUDE_FROM_HIERARCHY OFF)
+    get_source_file_property(TMP_SKIP ${FILE} SKIP_HEADER_INSTALL)
+    if(TMP_SKIP)
+      set(TMP_EXCLUDE_FROM_HIERARCHY ON)
+    endif()
 
     # ensure that header exists (assume it exists if it is marked as wrapped)
     if(TMP_WRAP_EXCLUDE)
