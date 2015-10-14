@@ -534,8 +534,14 @@ void vtkCompositePolyDataMapper2::RenderPieceDraw(
       this->PrimitiveIDOffset +=
         ((it->EndIndex - it->StartIndex + 1)/modeDenom);
       }
-
     this->Tris.IBO->Release();
+    }
+  if (selector && (
+        selector->GetCurrentPass() == vtkHardwareSelector::ID_LOW24 ||
+        selector->GetCurrentPass() == vtkHardwareSelector::ID_MID24 ||
+        selector->GetCurrentPass() == vtkHardwareSelector::ID_HIGH16))
+    {
+    selector->RenderAttributeId(this->PrimitiveIDOffset);
     }
 
 }

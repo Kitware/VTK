@@ -914,7 +914,6 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPicking(
       {
       vtkShaderProgram::Substitute(FSSource,
         "//VTK::Picking::Dec",
-        "uniform vec3 mapperIndex;\n"
         "uniform samplerBuffer textureC;");
       vtkShaderProgram::Substitute(FSSource, "//VTK::Picking::Impl",
         "  gl_FragData[0] = texelFetchBuffer(textureC, gl_PrimitiveID + PrimitiveIDOffset);\n"
@@ -922,18 +921,28 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPicking(
       }
     else
       {
-      vtkShaderProgram::Substitute(FSSource, "//VTK::Picking::Dec",
-          "uniform vec3 mapperIndex;");
-      vtkShaderProgram::Substitute(FSSource, "//VTK::Picking::Impl",
-        "if (mapperIndex == vec3(0.0,0.0,0.0))\n"
-        "    {\n"
-        "    int idx = gl_PrimitiveID + 1 + PrimitiveIDOffset;\n"
-        "    gl_FragData[0] = vec4(float(idx%256)/255.0, float((idx/256)%256)/255.0, float(idx/65536)/255.0, 1.0);\n"
-        "    }\n"
-        "  else\n"
-        "    {\n"
-        "    gl_FragData[0] = vec4(mapperIndex,1.0);\n"
-        "    }");
+      switch (this->LastSelectionState)
+        {
+        case vtkHardwareSelector::ID_LOW24:
+          vtkShaderProgram::Substitute(FSSource,
+          "//VTK::Picking::Impl",
+          "  int idx = gl_PrimitiveID + 1 + PrimitiveIDOffset;\n"
+          "  gl_FragData[0] = vec4(float(idx%256)/255.0, float((idx/256)%256)/255.0, float((idx/65536)%256)/255.0, 1.0);\n");
+        break;
+        case vtkHardwareSelector::ID_MID24:
+          // this may yerk on openGL ES 2.0 so no really huge meshes in ES 2.0 OK
+          vtkShaderProgram::Substitute(FSSource,
+          "//VTK::Picking::Impl",
+          "  int idx = (gl_PrimitiveID + 1 + PrimitiveIDOffset);\n idx = ((idx & 0xff000000) >> 24);\n"
+          "  gl_FragData[0] = vec4(float(idx%256)/255.0, float((idx/256)%256)/255.0, float(idx/65536)/255.0, 1.0);\n");
+        break;
+        default:
+          vtkShaderProgram::Substitute(FSSource, "//VTK::Picking::Dec",
+            "uniform vec3 mapperIndex;");
+          vtkShaderProgram::Substitute(FSSource,
+            "//VTK::Picking::Impl",
+            "  gl_FragData[0] = vec4(mapperIndex,1.0);\n");
+        }
       }
     }
   shaders[vtkShader::Fragment]->SetSource(FSSource);
@@ -1523,12 +1532,7 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
     {
     if (selector)
       {
-      if (selector->GetCurrentPass() == vtkHardwareSelector::ID_LOW24)
-        {
-        float tmp[3] = {0,0,0};
-        cellBO.Program->SetUniform3f("mapperIndex", tmp);
-        }
-      else
+      if (selector->GetCurrentPass() < vtkHardwareSelector::ID_LOW24)
         {
         cellBO.Program->SetUniform3f("mapperIndex", selector->GetPropColorValue());
         }
@@ -2070,6 +2074,16 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
                           reinterpret_cast<const GLvoid *>(NULL));
       }
     this->TriStrips.IBO->Release();
+    // just be safe and divide by 3
+    this->PrimitiveIDOffset += (int)this->TriStrips.IBO->IndexCount/3;
+    }
+
+  if (selector && (
+        selector->GetCurrentPass() == vtkHardwareSelector::ID_LOW24 ||
+        selector->GetCurrentPass() == vtkHardwareSelector::ID_MID24 ||
+        selector->GetCurrentPass() == vtkHardwareSelector::ID_HIGH16))
+    {
+    selector->RenderAttributeId(this->PrimitiveIDOffset);
     }
 }
 
@@ -2297,6 +2311,7 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
             cd->GetArray(this->CompositeIdArrayName)) : NULL;
         break;
       case vtkHardwareSelector::ID_LOW24:
+      case vtkHardwareSelector::ID_MID24:
         if (selector->GetFieldAssociation() ==
           vtkDataObject::FIELD_ASSOCIATION_POINTS)
           {
@@ -2342,6 +2357,10 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
             value = mapArrayId->GetValue(indices[i]);
             }
           value++;
+          if (selector->GetCurrentPass() == vtkHardwareSelector::ID_MID24)
+            {
+            value = (value & 0xff000000) >> 24;
+            }
           newColors.push_back(value & 0xff);
           newColors.push_back((value & 0xff00) >> 8);
           newColors.push_back((value & 0xff0000) >> 16);
@@ -2412,6 +2431,10 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
             value = mapArrayId->GetValue(value);
             }
           value++; // see vtkHardwareSelector.cxx ID_OFFSET
+          if (selector->GetCurrentPass() == vtkHardwareSelector::ID_MID24)
+            {
+            value = (value & 0xff000000) >> 24;
+            }
           newColors.push_back(value & 0xff);
           newColors.push_back((value & 0xff00) >> 8);
           newColors.push_back((value & 0xff0000) >> 16);

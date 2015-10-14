@@ -15,6 +15,7 @@
 
 #include "vtkOpenGLHelper.h"
 
+#include "vtkHardwareSelector.h"
 #include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
 #include "vtkOpenGLActor.h"
@@ -167,28 +168,42 @@ void vtkOpenGLStickMapper::ReplaceShaderValues(
   bool picking = (ren->GetRenderWindow()->GetIsPicking() || selector != NULL);
   if (picking)
     {
-    vtkShaderProgram::Substitute(VSSource,
-      "//VTK::Picking::Dec",
-      "attribute vec4 selectionId;\n"
-      "varying vec4 selectionIdVSOutput;");
-    vtkShaderProgram::Substitute(VSSource,
-      "//VTK::Picking::Impl",
-      "selectionIdVSOutput = selectionId;");
-    vtkShaderProgram::Substitute(FSSource,
-      "//VTK::Picking::Dec",
-      "uniform vec3 mapperIndex;\n"
-      "varying vec4 selectionIdVSOutput;");
-    vtkShaderProgram::Substitute(FSSource,
-      "//VTK::Picking::Impl",
-      "if (mapperIndex == vec3(0.0,0.0,0.0))\n"
-      "    {\n"
-      "    gl_FragData[0] = vec4(selectionIdVSOutput.rgb, 1.0);\n"
-      "    }\n"
-      "  else\n"
-      "    {\n"
-      "    gl_FragData[0] = vec4(mapperIndex,1.0);\n"
-      "    }"
-      );
+    if (!selector || (selector &&
+        this->LastSelectionState >= vtkHardwareSelector::ID_LOW24))
+      {
+      vtkShaderProgram::Substitute(VSSource,
+        "//VTK::Picking::Dec",
+        "attribute vec4 selectionId;\n"
+        "varying vec4 selectionIdVSOutput;");
+      vtkShaderProgram::Substitute(VSSource,
+        "//VTK::Picking::Impl",
+        "selectionIdVSOutput = selectionId;");
+      vtkShaderProgram::Substitute(FSSource,
+        "//VTK::Picking::Dec",
+        "varying vec4 selectionIdVSOutput;");
+      vtkShaderProgram::Substitute(FSSource,
+        "//VTK::Picking::Impl",
+        "    gl_FragData[0] = vec4(selectionIdVSOutput.rgb, 1.0);\n"
+        );
+      }
+    else
+      {
+      vtkShaderProgram::Substitute(VSSource,
+        "//VTK::Picking::Dec",
+        "attribute vec4 selectionId;\n"
+        "varying vec4 selectionIdVSOutput;");
+      vtkShaderProgram::Substitute(VSSource,
+        "//VTK::Picking::Impl",
+        "selectionIdVSOutput = selectionId;");
+      vtkShaderProgram::Substitute(FSSource,
+        "//VTK::Picking::Dec",
+        "uniform vec3 mapperIndex;\n"
+        "varying vec4 selectionIdVSOutput;");
+      vtkShaderProgram::Substitute(FSSource,
+        "//VTK::Picking::Impl",
+        "  gl_FragData[0] = vec4(mapperIndex,1.0);\n"
+        );
+      }
     }
 
   if (ren->GetLastRenderingUsedDepthPeeling())
