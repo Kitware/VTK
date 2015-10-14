@@ -411,6 +411,15 @@ public:
   virtual void SetParser( vtkExodusIIReaderParser* );
   vtkGetObjectMacro(Parser,vtkExodusIIReaderParser);
 
+  // BUG #15632: This method allows vtkPExodusIIReader to pass time information
+  // from one spatial file to another and avoiding have to read it for each of
+  // the files.
+  void SetTimesOverrides(const std::vector<double>& times)
+    {
+    this->Times = times;
+    this->SkipUpdateTimeInformation = true;
+    }
+
   // Because Parts, Materials, and assemblies are not stored as arrays,
   // but rather as maps to the element blocks they make up,
   // we cannot use the Get|SetObject__() methods directly.
@@ -764,7 +773,7 @@ protected:
 
   /// A list of time steps for which results variables are stored.
   std::vector<double> Times;
-
+  bool SkipUpdateTimeInformation;
 
   /** The time value. This is used internally when HasModeShapes is true and
     * ignored otherwise.

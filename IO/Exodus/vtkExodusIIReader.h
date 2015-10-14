@@ -744,6 +744,8 @@ protected:
   vtkExodusIIReaderPrivate* Metadata;
 
   int SILUpdateStamp;
+
+  friend class vtkPExodusIIReader;
 private:
   vtkExodusIIReader(const vtkExodusIIReader&); // Not implemented
   void operator=(const vtkExodusIIReader&); // Not implemented

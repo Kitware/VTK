@@ -602,6 +602,13 @@ int vtkPExodusIIReader::RequestData(
     this->ReaderList[reader_idx]->SetFileName( this->MultiFileName );
     //this->ReaderList[reader_idx]->PackExodusModelOntoOutputOff();
 
+    // BUG #15632: Pass time information from first file to all others.
+    if (reader_idx > 1)
+      {
+      this->ReaderList[reader_idx]->Metadata->SetTimesOverrides(
+        this->ReaderList[0]->Metadata->Times);
+      }
+
     this->ReaderList[reader_idx]->UpdateInformation();
 #ifdef DBG_PEXOIIRDR
     cout << "\n\n ************************************* Reader " << reader_idx << " dump\n";
