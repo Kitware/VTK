@@ -134,7 +134,7 @@ vtkIdType vtkDelaunay2D::FindTriangle(double x[3], vtkIdType ptIds[3],
   srand(tri);
   ir = rand() % 3;
   // evaluate in/out of each edge
-  for (inside=1, minProj=0.0, ic=0; ic<3; ic++)
+  for (inside=1, minProj=VTK_DEL2D_TOLERANCE, ic=0; ic<3; ic++)
     {
     i  = (ir+ic) % 3;
     i2 = (i+1) % 3;
