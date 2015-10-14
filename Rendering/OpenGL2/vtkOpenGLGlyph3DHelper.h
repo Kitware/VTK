@@ -84,6 +84,9 @@ protected:
 
   // Description:
   // Perform string replacments on the shader templates
+  virtual void ReplaceShaderPicking(
+    std::map<vtkShader::Type, vtkShader *> shaders,
+    vtkRenderer *ren, vtkActor *act);
   virtual void ReplaceShaderColor(
     std::map<vtkShader::Type, vtkShader *> shaders,
     vtkRenderer *ren, vtkActor *act);
