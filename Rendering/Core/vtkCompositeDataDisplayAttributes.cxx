@@ -15,6 +15,11 @@
 
 #include "vtkCompositeDataDisplayAttributes.h"
 
+#include "vtkBoundingBox.h"
+#include "vtkDataSet.h"
+#include "vtkMath.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkMultiPieceDataSet.h"
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkCompositeDataDisplayAttributes)
@@ -158,4 +163,71 @@ void vtkCompositeDataDisplayAttributes::RemoveBlockOpacity(unsigned int flat_ind
 void vtkCompositeDataDisplayAttributes::RemoveBlockOpacities()
 {
   this->BlockOpacities.clear();
+}
+
+void vtkCompositeDataDisplayAttributes::ComputeVisibleBounds(
+  vtkCompositeDataDisplayAttributes* cda,
+  vtkDataObject *dobj,
+  double bounds[6])
+{
+  vtkMath::UninitializeBounds(bounds);
+  // computing bounds with only visible blocks
+  vtkBoundingBox bbox;
+  unsigned int flat_index = 0;
+  vtkCompositeDataDisplayAttributes::ComputeVisibleBoundsInternal(
+    cda, dobj, flat_index, &bbox);
+  if(bbox.IsValid())
+    {
+    bbox.GetBounds(bounds);
+    }
+}
+
+void vtkCompositeDataDisplayAttributes::ComputeVisibleBoundsInternal(
+  vtkCompositeDataDisplayAttributes* cda,
+  vtkDataObject *dobj,
+  unsigned int& flat_index,
+  vtkBoundingBox* bbox,
+  bool parentVisible)
+{
+  if(!dobj || !bbox)
+    {
+    return;
+    }
+
+  // A block always *has* a visibility state, either explicitly set or inherited.
+  bool blockVisible = (cda && cda->HasBlockVisibility(flat_index)) ?
+    cda->GetBlockVisibility(flat_index) : parentVisible;
+
+  // Advance flat-index. After this point, flat_index no longer points to this block.
+  flat_index++;
+
+  vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::SafeDownCast(dobj);
+  vtkMultiPieceDataSet *mpds = vtkMultiPieceDataSet::SafeDownCast(dobj);
+  if (mbds || mpds)
+    {
+    unsigned int numChildren = mbds? mbds->GetNumberOfBlocks() :
+      mpds->GetNumberOfPieces();
+    for (unsigned int cc=0 ; cc < numChildren; cc++)
+      {
+      vtkDataObject* child = mbds ? mbds->GetBlock(cc) : mpds->GetPiece(cc);
+      if (child == NULL)
+        {
+        // speeds things up when dealing with NULL blocks (which is common with AMRs).
+        flat_index++;
+        continue;
+        }
+      vtkCompositeDataDisplayAttributes::ComputeVisibleBoundsInternal(
+        cda, child, flat_index, bbox, blockVisible);
+      }
+    }
+  else if (dobj && blockVisible == true)
+    {
+    vtkDataSet *ds = vtkDataSet::SafeDownCast(dobj);
+    if(ds)
+      {
+      double bounds[6];
+      ds->GetBounds(bounds);
+      bbox->AddBounds(bounds);
+      }
+    }
 }
