@@ -101,6 +101,11 @@ public:
     bool save=false, int deleteMethod=VTK_DATA_ARRAY_FREE);
 
   // Description:
+  // Return a pointer to a contiguous block of memory containing all values for
+  // a particular components (ie. a single array of the struct-of-arrays).
+  ValueType* GetComponentArrayPointer(int comp);
+
+  // Description:
   // Use of this method is discouraged, it creates a deep copy of the data into
   // a contiguous AoS-ordered buffer and prints a warning.
   virtual void *GetVoidPointer(vtkIdType id);

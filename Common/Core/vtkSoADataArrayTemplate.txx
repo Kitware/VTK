@@ -93,6 +93,21 @@ void vtkSoADataArrayTemplate<ValueType>::SetArray(
 }
 
 //-----------------------------------------------------------------------------
+template <class ValueType>
+typename vtkSoADataArrayTemplate<ValueType>::ValueType*
+vtkSoADataArrayTemplate<ValueType>::GetComponentArrayPointer(int comp)
+{
+  const int numComps = this->GetNumberOfComponents();
+  if (comp >= numComps || comp < 0)
+    {
+    vtkErrorMacro("Invalid component number '" << comp << "' specified.");
+    return NULL;
+    }
+
+  return this->Data[comp].GetBuffer();
+}
+
+//-----------------------------------------------------------------------------
 template<class ValueType>
 bool vtkSoADataArrayTemplate<ValueType>::AllocateTuples(vtkIdType numTuples)
 {
