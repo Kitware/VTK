@@ -279,7 +279,7 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
   for (int i = 0; i < argc; i++)
     {
 #if PY_VERSION_HEX >= 0x03050000
-    argv0 = Py_DecodeLocale(argv[i], NULL);
+    argvWide[i] = Py_DecodeLocale(argv[i], NULL);
 #elif defined(__APPLE__)
     argvWide[i] = _Py_DecodeUTF8_surrogateescape(argv[i], strlen(argv[i]));
 #else
