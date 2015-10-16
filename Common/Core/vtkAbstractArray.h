@@ -515,9 +515,12 @@ public:
   enum {
     AbstractArray = 0,
     DataArray,
+    AoSDataArrayTemplate,
+    SoADataArrayTemplate,
     TypedDataArray,
-    DataArrayTemplate,
-    MappedDataArray
+    MappedDataArray,
+
+    DataArrayTemplate = AoSDataArrayTemplate //! Legacy
     };
 
   // Description:

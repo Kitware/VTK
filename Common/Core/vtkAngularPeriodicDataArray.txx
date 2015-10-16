@@ -90,7 +90,7 @@ SetCenter(double* center)
 
 //------------------------------------------------------------------------------
 template <class Scalar> void vtkAngularPeriodicDataArray<Scalar>::
-Transform(Scalar* pos)
+Transform(Scalar* pos) const
 {
   if (this->NumberOfComponents == 3)
     {

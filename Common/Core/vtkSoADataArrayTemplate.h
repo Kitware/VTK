@@ -133,6 +133,29 @@ public:
 
   virtual vtkArrayIterator *NewIterator();
 
+  // Description:
+  // Perform a fast, safe cast from a vtkAbstractArray to a vtkDataArray.
+  // This method checks if source->GetArrayType() returns DataArray
+  // or a more derived type, and performs a static_cast to return
+  // source as a vtkDataArray pointer. Otherwise, NULL is returned.
+  vtkSoADataArrayTemplate<ValueType>* FastDownCast(vtkAbstractArray *source)
+  {
+    switch (source->GetArrayType())
+      {
+      case vtkAbstractArray::SoADataArrayTemplate:
+        if (source->GetDataType() == vtkTypeTraits<ValueType>::VTK_TYPE_ID)
+          {
+          return static_cast<vtkSoADataArrayTemplate<ValueType>*>(source);
+          }
+        break;
+      }
+    return NULL;
+  }
+
+  // Description:
+  // Method for type-checking in FastDownCast implementations.
+  virtual int GetArrayType() { return vtkAbstractArray::SoADataArrayTemplate; }
+
 protected:
   vtkSoADataArrayTemplate();
   ~vtkSoADataArrayTemplate();

@@ -39,6 +39,11 @@ public:
   static vtkCPExodusIIResultsArrayTemplate *New();
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
+  typedef vtkTypeTemplate<vtkCPExodusIIResultsArrayTemplate<Scalar>,
+                          vtkMappedDataArray<Scalar> > Superclass;
+  typedef typename Superclass::ValueType ValueType;
+  typedef typename Superclass::ReferenceType ReferenceType;
+
   // Description:
   // Set the arrays to be used and the number of tuples in each array.
   // The save option can be set to true to indicate that this class
@@ -61,9 +66,9 @@ public:
   void GetTuple(vtkIdType i, double *tuple);
   vtkIdType LookupTypedValue(Scalar value);
   void LookupTypedValue(Scalar value, vtkIdList *ids);
-  Scalar GetValue(vtkIdType idx);
-  Scalar& GetValueReference(vtkIdType idx);
-  void GetTupleValue(vtkIdType idx, Scalar *t);
+  const ReferenceType GetValue(vtkIdType idx) const;
+  ReferenceType GetValueReference(vtkIdType idx);
+  void GetTupleValue(vtkIdType idx, Scalar *t) const;
 
   // Description:
   // This container is read only -- this method does nothing but print a

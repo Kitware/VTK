@@ -238,15 +238,18 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> Scalar vtkCPExodusIIResultsArrayTemplate<Scalar>
-::GetValue(vtkIdType idx)
+template <class Scalar>
+const typename vtkCPExodusIIResultsArrayTemplate<Scalar>::ReferenceType
+vtkCPExodusIIResultsArrayTemplate<Scalar>::GetValue(vtkIdType idx) const
 {
-  return this->GetValueReference(idx);
+  return const_cast<vtkCPExodusIIResultsArrayTemplate<Scalar>*>(
+        this)->GetValueReference(idx);
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> Scalar& vtkCPExodusIIResultsArrayTemplate<Scalar>
-::GetValueReference(vtkIdType idx)
+template <class Scalar>
+typename vtkCPExodusIIResultsArrayTemplate<Scalar>::ReferenceType
+vtkCPExodusIIResultsArrayTemplate<Scalar>::GetValueReference(vtkIdType idx)
 {
   const vtkIdType tuple = idx / this->NumberOfComponents;
   const vtkIdType comp = idx % this->NumberOfComponents;
@@ -255,7 +258,7 @@ template <class Scalar> Scalar& vtkCPExodusIIResultsArrayTemplate<Scalar>
 
 //------------------------------------------------------------------------------
 template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::GetTupleValue(vtkIdType tupleId, Scalar *tuple)
+::GetTupleValue(vtkIdType tupleId, Scalar *tuple) const
 {
   for (size_t comp = 0; comp < this->Arrays.size(); ++comp)
     {

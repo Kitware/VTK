@@ -28,7 +28,7 @@
 #ifndef vtkTypedDataArray_h
 #define vtkTypedDataArray_h
 
-#include "vtkDataArray.h"
+#include "vtkGenericDataArray.h"
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkTypeTemplate.h" // For vtkTypeTemplate
@@ -38,12 +38,18 @@ template <class Scalar> class vtkTypedDataArrayIterator;
 
 template <class Scalar>
 class vtkTypedDataArray :
-    public vtkTypeTemplate<vtkTypedDataArray<Scalar>, vtkDataArray>
+    public vtkTypeTemplate<vtkTypedDataArray<Scalar>,
+                           vtkGenericDataArray<vtkTypedDataArray<Scalar>,
+                                               Scalar> >
 {
 public:
   // Description:
   // Typedef to get the type of value stored in the array.
-  typedef Scalar ValueType;
+  typedef vtkTypeTemplate<vtkTypedDataArray<Scalar>,
+                          vtkGenericDataArray<vtkTypedDataArray<Scalar>,
+                                              Scalar> > Superclass;
+  typedef typename Superclass::ValueType ValueType;
+  typedef typename Superclass::ReferenceType ReferenceType;
 
   // Description:
   // Typedef to a suitable iterator class.
@@ -110,11 +116,11 @@ public:
 
   // Description:
   // Get the data at a particular index.
-  virtual ValueType GetValue(vtkIdType idx) = 0;
+  virtual const ReferenceType GetValue(vtkIdType idx) const = 0;
 
   // Description:
   // Get a reference to the scalar value at a particular index.
-  virtual ValueType& GetValueReference(vtkIdType idx) = 0;
+  virtual ReferenceType GetValueReference(vtkIdType idx) = 0;
 
   // Description:
   // Set the data at a particular index. Does not do range checking. Make sure
@@ -123,7 +129,7 @@ public:
 
   // Description:
   // Copy the tuple value into a user-provided array.
-  virtual void GetTupleValue(vtkIdType idx, ValueType *t) = 0;
+  virtual void GetTupleValue(vtkIdType idx, ValueType *t) const = 0;
 
   // Description:
   // Insert data at the end of the array. Return its location in the array.
@@ -133,17 +139,38 @@ public:
   // Insert data at a specified position in the array.
   virtual void InsertValue(vtkIdType idx, ValueType v) = 0;
 
+  virtual const ReferenceType GetComponentValue(vtkIdType tupleIdx, int comp) const;
+  virtual void SetComponentValue(vtkIdType tupleIdx, int comp, ValueType v);
+
   // Description:
   // Method for type-checking in FastDownCast implementations.
   virtual int GetArrayType() { return vtkAbstractArray::TypedDataArray; }
+
+  // Reintroduced as pure virtual since the base vtkGenericDataArray method
+  // requires new allocation/resize APIs, though existing MappedDataArrays
+  // would just use the vtkDataArray-level virtuals.
+  virtual int Allocate(vtkIdType size, vtkIdType ext = 1000) = 0;
+  virtual int Resize(vtkIdType numTuples) = 0;
 
 protected:
   vtkTypedDataArray();
   ~vtkTypedDataArray();
 
+  // Description:
+  // Needed for vtkGenericDataArray API, but just aborts. Override Allocate
+  // instead.
+  virtual bool AllocateTuples(vtkIdType numTuples);
+
+  // Description:
+  // Needed for vtkGenericDataArray API, but just aborts. Override Resize
+  // instead.
+  virtual bool ReallocateTuples(vtkIdType numTuples);
+
 private:
   vtkTypedDataArray(const vtkTypedDataArray &); // Not implemented.
   void operator=(const vtkTypedDataArray &);   // Not implemented.
+
+  friend class vtkGenericDataArray<vtkTypedDataArray<Scalar>, Scalar>;
 };
 
 // Included here to resolve chicken/egg issue with container/iterator:

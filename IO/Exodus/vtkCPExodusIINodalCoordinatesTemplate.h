@@ -41,6 +41,11 @@ public:
   static vtkCPExodusIINodalCoordinatesTemplate *New();
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
+  typedef vtkTypeTemplate<vtkCPExodusIINodalCoordinatesTemplate<Scalar>,
+                          vtkMappedDataArray<Scalar> > Superclass;
+  typedef typename Superclass::ValueType ValueType;
+  typedef typename Superclass::ReferenceType ReferenceType;
+
   // Description:
   // Set the raw scalar arrays for the coordinate set. This class takes
   // ownership of the arrays and deletes them with delete[].
@@ -61,9 +66,9 @@ public:
   void GetTuple(vtkIdType i, double *tuple);
   vtkIdType LookupTypedValue(Scalar value);
   void LookupTypedValue(Scalar value, vtkIdList *ids);
-  Scalar GetValue(vtkIdType idx);
-  Scalar& GetValueReference(vtkIdType idx);
-  void GetTupleValue(vtkIdType idx, Scalar *t);
+  const ReferenceType GetValue(vtkIdType idx) const;
+  ReferenceType GetValueReference(vtkIdType idx);
+  void GetTupleValue(vtkIdType idx, Scalar *t) const;
 
   // Description:
   // This container is read only -- this method does nothing but print a

@@ -34,6 +34,9 @@ class vtkPeriodicDataArray:
 public vtkTypeTemplate <vtkPeriodicDataArray <Scalar>, vtkMappedDataArray <Scalar> >
 {
 public:
+  typedef vtkTypeTemplate<vtkPeriodicDataArray<Scalar>, vtkMappedDataArray<Scalar> > Superclass;
+  typedef typename Superclass::ValueType ValueType;
+  typedef typename Superclass::ReferenceType ReferenceType;
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:
@@ -97,17 +100,17 @@ public:
   // Get value at index idx.
   // Warning, it internally call GetTupleValue,
   // so it is an inneficcient way if reading all data
-  Scalar GetValue(vtkIdType idx);
+  const ReferenceType GetValue(vtkIdType idx) const;
 
   // Description:
   // Get value at index idx as reference.
   // Warning, it internally call GetTupleValue,
   // so it is an inneficcient way if reading all data
-  Scalar& GetValueReference(vtkIdType idx);
+  ReferenceType GetValueReference(vtkIdType idx);
 
   // Description:
   // Copy tuple value at location idx into provided array
-  void GetTupleValue(vtkIdType idx, Scalar *t);
+  void GetTupleValue(vtkIdType idx, Scalar *t) const;
 
   // Description:
   // Return the memory in kilobytes consumed by this data array.
@@ -244,7 +247,7 @@ protected:
 
   // Description:
   // Transform the provided tuple
-  virtual void Transform(Scalar* tuple) = 0;
+  virtual void Transform(Scalar* tuple) const = 0;
 
   // Description:
   // Get the transformed range by components

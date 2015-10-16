@@ -351,15 +351,17 @@ template <class Scalar> void vtkPeriodicDataArray<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> Scalar vtkPeriodicDataArray<Scalar>
-::GetValue(vtkIdType idx)
+template <class Scalar>
+const typename vtkPeriodicDataArray<Scalar>::ReferenceType
+vtkPeriodicDataArray<Scalar>::GetValue(vtkIdType idx) const
 {
-  return this->GetValueReference(idx);
+  return const_cast<vtkPeriodicDataArray<Scalar>*>(this)->GetValueReference(idx);
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> Scalar& vtkPeriodicDataArray<Scalar>
-::GetValueReference(vtkIdType idx)
+template <class Scalar>
+typename vtkPeriodicDataArray<Scalar>::ReferenceType
+vtkPeriodicDataArray<Scalar>::GetValueReference(vtkIdType idx)
 {
   vtkIdType tupleIdx = idx / this->NumberOfComponents;
   if (tupleIdx != this->TempTupleIdx)
@@ -372,7 +374,7 @@ template <class Scalar> Scalar& vtkPeriodicDataArray<Scalar>
 
 //------------------------------------------------------------------------------
 template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::GetTupleValue(vtkIdType tupleId, Scalar *tuple)
+::GetTupleValue(vtkIdType tupleId, Scalar *tuple) const
 {
   this->Data->GetTupleValue(tupleId, tuple);
   this->Transform(tuple);

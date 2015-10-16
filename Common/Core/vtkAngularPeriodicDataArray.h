@@ -66,7 +66,7 @@ protected:
 
   // Description:
   // Transform the provided tuple
-  virtual void Transform(Scalar* tuple);
+  virtual void Transform(Scalar* tuple) const;
 
   // Description:
   // Update rotation matrix from Axis, Angle and Center

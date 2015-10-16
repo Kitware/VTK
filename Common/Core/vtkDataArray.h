@@ -51,7 +51,7 @@ public:
 
   // Description:
   // Perform a fast, safe cast from a vtkAbstractArray to a vtkDataArray.
-  // This method checks if source->GetArrayType() returns DataArrayFastCast
+  // This method checks if source->GetArrayType() returns DataArray
   // or a more derived type, and performs a static_cast to return
   // source as a vtkDataArray pointer. Otherwise, NULL is returned.
   static vtkDataArray* FastDownCast(vtkAbstractArray *source);
@@ -444,7 +444,8 @@ inline vtkDataArray* vtkDataArray::FastDownCast(vtkAbstractArray *source)
 {
   switch (source->GetArrayType())
     {
-    case DataArrayTemplate:
+    case AoSDataArrayTemplate:
+    case SoADataArrayTemplate:
     case TypedDataArray:
     case DataArray:
     case MappedDataArray:

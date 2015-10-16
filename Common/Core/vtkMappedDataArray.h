@@ -43,6 +43,7 @@ class vtkMappedDataArray : public vtkTypeTemplate<vtkMappedDataArray<Scalar>,
 public:
   typedef vtkTypedDataArray<Scalar> Superclass;
   typedef typename Superclass::ValueType ValueType;
+  typedef typename Superclass::ReferenceType ReferenceType;
 
   // Description:
   // Perform a fast, safe cast from a vtkAbstractArray to a vtkMappedDataArray.
