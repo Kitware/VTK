@@ -62,12 +62,11 @@ void main(void)
 
   if (dontUse)
     {
-    conv = texture2D(texLIC, lictc).r;
+    gl_FragData[0] = vec4(texture2D(texLIC, lictc).rg, 0.0, 1.0);
     }
   else
     {
     conv = clamp(conv, 0.0, 1.0);
+    gl_FragData[0] = vec4(conv,texture2D(texLIC, lictc).g, 0.0, 1.0);
     }
-
-  gl_FragData[0] = vec4(conv, 0.0, 0.0, 1.0);
 }
