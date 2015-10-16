@@ -17,6 +17,13 @@ set(Module_SRCS
   vtkParametricSuperEllipsoid.cxx
   vtkParametricSuperToroid.cxx
   vtkParametricTorus.cxx
+  vtkParametricKuen.cxx
+  vtkParametricPseudosphere.cxx
+  vtkParametricBohemianDome.cxx
+  vtkParametricHenneberg.cxx
+  vtkParametricCatalanMinimal.cxx
+  vtkParametricBour.cxx
+  vtkParametricPluckerConoid.cxx
   )
 
 set_source_files_properties(
