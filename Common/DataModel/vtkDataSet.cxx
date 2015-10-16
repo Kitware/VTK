@@ -489,6 +489,8 @@ void vtkDataSet::GenerateGhostArray(int zeroExt[6], bool cellOnly)
     }
 
   int extent[6];
+  this->Information->Get(vtkDataObject::DATA_EXTENT(), extent);
+
   int i, j, k, di, dj, dk, dist;
 
   bool sameExtent = true;
@@ -504,8 +506,6 @@ void vtkDataSet::GenerateGhostArray(int zeroExt[6], bool cellOnly)
     {
     return;
     }
-
-  this->Information->Get(vtkDataObject::DATA_EXTENT(), extent);
 
   vtkIdType index = 0;
 
