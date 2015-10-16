@@ -267,6 +267,122 @@ struct GetTuplesRangeWorker
   }
 };
 
+//----------------SetTuple (from array)-----------------------------------------
+struct SetTupleArrayWorker
+{
+  vtkIdType SrcTuple;
+  vtkIdType DstTuple;
+
+  SetTupleArrayWorker(vtkIdType srcTuple, vtkIdType dstTuple)
+    : SrcTuple(srcTuple), DstTuple(dstTuple)
+  {}
+
+  template <typename SrcArrayT, typename DstArrayT>
+  void operator()(SrcArrayT *src, DstArrayT *dst)
+  {
+    int numComps = src->GetNumberOfComponents();
+    for (int c = 0; c < numComps; ++c)
+      {
+      dst->SetComponentValue(this->DstTuple, c,
+                             src->GetComponentValue(this->SrcTuple, c));
+      }
+  }
+};
+
+//----------------SetTuples (from array+vtkIdList)------------------------------
+struct SetTuplesIdListWorker
+{
+  vtkIdList *SrcTuples;
+  vtkIdList *DstTuples;
+
+  SetTuplesIdListWorker(vtkIdList *srcTuples, vtkIdList *dstTuples)
+    : SrcTuples(srcTuples), DstTuples(dstTuples)
+  {}
+
+  template <typename SrcArrayT, typename DstArrayT>
+  void operator()(SrcArrayT *src, DstArrayT *dst)
+  {
+    vtkIdType numTuples = this->SrcTuples->GetNumberOfIds();
+    int numComps = src->GetNumberOfComponents();
+    for (vtkIdType t = 0; t < numTuples; ++t)
+      {
+      vtkIdType srcT = this->SrcTuples->GetId(t);
+      vtkIdType dstT = this->DstTuples->GetId(t);
+      for (int c = 0; c < numComps; ++c)
+        {
+        dst->SetComponentValue(dstT, c, src->GetComponentValue(srcT, c));
+        }
+      }
+  }
+};
+
+//----------------SetTuples (from array+range)----------------------------------
+struct SetTuplesRangeWorker
+{
+  vtkIdType SrcStartTuple;
+  vtkIdType DstStartTuple;
+  vtkIdType NumTuples;
+
+  SetTuplesRangeWorker(vtkIdType srcStartTuple, vtkIdType dstStartTuple,
+                       vtkIdType numTuples)
+    : SrcStartTuple(srcStartTuple), DstStartTuple(dstStartTuple),
+      NumTuples(numTuples)
+  {}
+
+  // Generic implementation:
+  template <typename SrcArrayT, typename DstArrayT>
+  void operator()(SrcArrayT *src, DstArrayT *dst)
+  {
+    int numComps = src->GetNumberOfComponents();
+    vtkIdType srcT = this->SrcStartTuple;
+    vtkIdType srcTEnd = srcT + this->NumTuples;
+    vtkIdType dstT = this->DstStartTuple;
+
+    while (srcT < srcTEnd)
+      {
+      for (vtkIdType t = 0; t < this->NumTuples; ++t)
+        {
+        for (int c = 0; c < numComps; ++c)
+          {
+          dst->SetComponentValue(dstT, c, src->GetComponentValue(srcT, c));
+          }
+        }
+      ++srcT;
+      ++dstT;
+      }
+  }
+
+  // Specialize for AoS
+  template <typename ValueType>
+  void operator()(vtkAoSDataArrayTemplate<ValueType> *src,
+                  vtkAoSDataArrayTemplate<ValueType> *dst)
+  {
+    int numComps = src->GetNumberOfComponents();
+    ValueType *srcBegin = src->GetPointer(this->SrcStartTuple * numComps);
+    ValueType *srcEnd = srcBegin + (this->NumTuples * numComps);
+    ValueType *dstBegin = dst->GetPointer(this->DstStartTuple * numComps);
+    std::copy(srcBegin, srcEnd, dstBegin);
+  }
+
+  // Specialize for SoA
+  template <typename ValueType>
+  void operator()(vtkSoADataArrayTemplate<ValueType> *src,
+                  vtkSoADataArrayTemplate<ValueType> *dst)
+  {
+    int numComps = src->GetNumberOfComponents();
+    for (int c = 0; c < numComps; ++c)
+      {
+      ValueType *srcBegin = src->GetComponentArrayPointer(c);
+      srcBegin += this->SrcStartTuple;
+      ValueType *srcEnd = srcBegin + this->NumTuples;
+      ValueType *dstBegin = dst->GetComponentArrayPointer(c);
+      dstBegin += this->DstStartTuple;
+
+      std::copy(srcBegin, srcEnd, dstBegin);
+      }
+  }
+};
+
 template<typename InfoType, typename KeyType>
 bool hasValidKey(InfoType info, KeyType key,
                    unsigned long mtime, double range[2] )
@@ -393,6 +509,218 @@ void vtkDataArray::DeepCopy(vtkDataArray *da)
     }
 
   this->Squeeze();
+}
+
+//------------------------------------------------------------------------------
+void vtkDataArray::SetTuple(vtkIdType thisTupleIdx, vtkIdType sourceTupleIdx,
+                            vtkAbstractArray *source)
+{
+  vtkDataArray *srcDA = vtkDataArray::FastDownCast(source);
+  if (!srcDA)
+    {
+    vtkErrorMacro("Source array must be a vtkDataArray subclass (got "
+                  << source->GetClassName() << ").");
+    return;
+    }
+
+  if (!vtkDataTypesCompare(source->GetDataType(), this->GetDataType()))
+    {
+    vtkErrorMacro("Type mismatch: Source: " << source->GetDataTypeAsString()
+                  << " Dest: " << this->GetDataTypeAsString());
+    return;
+    }
+
+  if (source->GetNumberOfComponents() != this->GetNumberOfComponents())
+    {
+    vtkErrorMacro("Number of components do not match: Source: "
+                  << source->GetNumberOfComponents() << " Dest: "
+                  << this->GetNumberOfComponents());
+    return;
+    }
+
+  SetTupleArrayWorker worker(sourceTupleIdx, thisTupleIdx);
+  if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(srcDA, this, worker))
+    {
+    vtkErrorMacro("Dispatch failed.");
+    return;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkDataArray::SetTuple(vtkIdType i, const float *source)
+{
+  for (int c = 0; c < this->NumberOfComponents; ++c)
+    {
+    this->SetComponent(i, c, static_cast<double>(source[c]));
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkDataArray::SetTuple(vtkIdType i, const double *source)
+{
+  for (int c = 0; c < this->NumberOfComponents; ++c)
+    {
+    this->SetComponent(i, c, source[c]);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkDataArray::InsertTuple(vtkIdType dstTuple, vtkIdType srcTuple,
+                               vtkAbstractArray *source)
+{
+  vtkIdType newSize = (dstTuple + 1) * this->NumberOfComponents;
+  if (this->Size < newSize)
+    {
+    if (!this->Resize(dstTuple + 1))
+      {
+      vtkErrorMacro("Resize failed.");
+      return;
+      }
+    }
+
+  this->MaxId = std::max(this->MaxId, newSize - 1);
+
+  this->SetTuple(dstTuple, srcTuple, source);
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkDataArray::InsertNextTuple(vtkIdType j, vtkAbstractArray *source)
+{
+  vtkIdType tupleIdx = this->GetNumberOfTuples();
+  this->InsertTuple(tupleIdx, j, source);
+  return tupleIdx;
+}
+
+//----------------------------------------------------------------------------
+void vtkDataArray::InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
+                                vtkAbstractArray *src)
+{
+  if (dstIds->GetNumberOfIds() == 0)
+    {
+    return;
+    }
+  if (dstIds->GetNumberOfIds() != srcIds->GetNumberOfIds())
+    {
+    vtkErrorMacro("Mismatched number of tuples ids. Source: "
+                  << srcIds->GetNumberOfIds() << " Dest: "
+                  << dstIds->GetNumberOfIds());
+    return;
+    }
+  if (!vtkDataTypesCompare(src->GetDataType(), this->GetDataType()))
+    {
+    vtkErrorMacro("Data type mismatch: Source: " << src->GetDataTypeAsString()
+                  << " Dest: " << this->GetDataTypeAsString());
+    return;
+    }
+  if (src->GetNumberOfComponents() != this->GetNumberOfComponents())
+    {
+    vtkErrorMacro("Number of components do not match: Source: "
+                  << src->GetNumberOfComponents() << " Dest: "
+                  << this->GetNumberOfComponents());
+    return;
+    }
+  vtkDataArray *srcDA = vtkDataArray::FastDownCast(src);
+  if (!srcDA)
+    {
+    vtkErrorMacro("Source array must be a subclass of vtkDataArray. Got: "
+                  << src->GetClassName());
+    return;
+    }
+
+  vtkIdType maxSrcTupleId = srcIds->GetId(0);
+  vtkIdType maxDstTupleId = dstIds->GetId(0);
+  for (int i = 0; i < dstIds->GetNumberOfIds(); ++i)
+    {
+    maxSrcTupleId = std::max(maxSrcTupleId, srcIds->GetId(i));
+    maxDstTupleId = std::max(maxDstTupleId, dstIds->GetId(i));
+    }
+
+  if (maxSrcTupleId >= src->GetNumberOfTuples())
+    {
+    vtkErrorMacro("Source array too small, requested tuple at index "
+                  << maxSrcTupleId << ", but there are only "
+                  << src->GetNumberOfTuples() << " tuples in the array.");
+    return;
+    }
+
+  vtkIdType newSize = (maxDstTupleId + 1) * this->NumberOfComponents;
+  if (this->Size < newSize)
+    {
+    if (!this->Resize(maxDstTupleId + 1))
+      {
+      vtkErrorMacro("Resize failed.");
+      return;
+      }
+    }
+
+  this->MaxId = std::max(this->MaxId, newSize - 1);
+
+  SetTuplesIdListWorker worker(srcIds, dstIds);
+  if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(srcDA, this, worker))
+    {
+    vtkErrorMacro("Dispatch failed.");
+    return;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkDataArray::InsertTuples(vtkIdType dstStart, vtkIdType n,
+                                vtkIdType srcStart, vtkAbstractArray *src)
+{
+  if (n == 0)
+    {
+    return;
+    }
+  if (!vtkDataTypesCompare(src->GetDataType(), this->GetDataType()))
+    {
+    vtkErrorMacro("Data type mismatch: Source: " << src->GetDataTypeAsString()
+                  << " Dest: " << this->GetDataTypeAsString());
+    return;
+    }
+  if (src->GetNumberOfComponents() != this->GetNumberOfComponents())
+    {
+    vtkErrorMacro("Number of components do not match: Source: "
+                  << src->GetNumberOfComponents() << " Dest: "
+                  << this->GetNumberOfComponents());
+    return;
+    }
+  vtkDataArray *srcDA = vtkDataArray::FastDownCast(src);
+  if (!srcDA)
+    {
+    vtkErrorMacro("Source array must be a subclass of vtkDataArray. Got: "
+                  << src->GetClassName());
+    return;
+    }
+
+  vtkIdType maxSrcTupleId = srcStart + n - 1;
+  vtkIdType maxDstTupleId = dstStart + n - 1;
+
+  if (maxSrcTupleId >= src->GetNumberOfTuples())
+    {
+    vtkErrorMacro("Source array too small, requested tuple at index "
+                  << maxSrcTupleId << ", but there are only "
+                  << src->GetNumberOfTuples() << " tuples in the array.");
+    return;
+    }
+
+  vtkIdType newSize = (maxDstTupleId + 1) * this->NumberOfComponents;
+  if (this->Size < newSize)
+    {
+    if (!this->Resize(maxDstTupleId + 1))
+      {
+      vtkErrorMacro("Resize failed.");
+      return;
+      }
+    }
+
+  this->MaxId = std::max(this->MaxId, newSize - 1);
+
+  SetTuplesRangeWorker worker(srcStart, dstStart, n);
+  if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(srcDA, this, worker))
+    {
+    vtkErrorMacro("Dispatch failed.");
+    return;
+    }
 }
 
 //----------------------------------------------------------------------------

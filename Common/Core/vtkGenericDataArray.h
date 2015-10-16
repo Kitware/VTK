@@ -23,7 +23,6 @@
 #include "vtkTypeTemplate.h"
 #include "vtkTypeTraits.h"
 #include "vtkGenericDataArrayLookupHelper.h"
-#include "vtkGenericDataArrayHelper.h"
 
 #include <cassert>
 
@@ -249,16 +248,6 @@ public:
     this->InsertTuple(nextTuple, source);
     return nextTuple;
     }
-  virtual void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
-                            vtkAbstractArray *source);
-  virtual void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
-                            vtkAbstractArray* source);
-
-  //----------------------------------------------------------------------------
-  // SetTuple methods.
-  virtual void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray *source);
-  virtual void SetTuple(vtkIdType i, const float *source);
-  virtual void SetTuple(vtkIdType i, const double *source);
 
   //----------------------------------------------------------------------------
   // GetTuple methods.

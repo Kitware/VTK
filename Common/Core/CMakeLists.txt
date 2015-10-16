@@ -178,7 +178,6 @@ SET(Module_SRCS
   vtkGarbageCollector.cxx
   vtkGarbageCollectorManager.cxx
   vtkGaussianRandomSequence.cxx
-  vtkGenericDataArrayHelper.cxx
   vtkIdListCollection.cxx
   vtkIdList.cxx
   vtkIdTypeArray.cxx
@@ -546,7 +545,6 @@ set_source_files_properties(
   vtkFloatingPointExceptions
   vtkFunctionSet
   vtkGaussianRandomSequence
-  vtkGenericDataArrayHelpers
   vtkInformationDataObjectKey
   vtkInformationDoubleKey
   vtkInformationDoubleVectorKey
@@ -623,9 +621,9 @@ set_source_files_properties(
   vtkDataArrayTemplateImplicit.txx
   vtkDenseArray.txx
   vtkGenericDataArrayHelpers.h
+  vtkInformationInternals.h
   vtkIOStream.h
   vtkIOStreamFwd.h
-  vtkInformationInternals.h
   vtkIOStreamFwd.h
   vtkMathUtilities.h
   vtkMappedDataArray.txx

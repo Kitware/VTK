@@ -72,18 +72,11 @@ public:
     { return this->GetDataTypeSize(); }
 
   // Description:
-  // Set the tuple at the ith location using the jth tuple in the source array.
-  // This method assumes that the two arrays have the same type
-  // and structure. Note that range checking and memory allocation is not
-  // performed; use in conjunction with SetNumberOfTuples() to allocate space.
-  virtual void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source) = 0;
-
-  // Description:
   // Insert the jth tuple in the source array, at ith location in this array.
   // Note that memory allocation is performed as necessary to hold the data.
   // This pure virtual function is redeclared here to avoid
   // declaration hidden warnings.
-  virtual void InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source) = 0;
+  virtual void InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source);
 
   // Description:
   // Insert the jth tuple in the source array, at the end in this array.
@@ -91,7 +84,21 @@ public:
   // Returns the location at which the data was inserted.
   // This pure virtual function is redeclared here to avoid
   // declaration hidden warnings.
-  virtual vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray* source) = 0;
+  virtual vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray* source);
+
+  // Description:
+  // Copy the tuples indexed in srcIds from the source array to the tuple
+  // locations indexed by dstIds in this array.
+  // Note that memory allocation is performed as necessary to hold the data.
+  virtual void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
+                            vtkAbstractArray *source);
+
+  // Description:
+  // Copy n consecutive tuples starting at srcStart from the source array to
+  // this array, starting at the dstStart location.
+  // Note that memory allocation is performed as necessary to hold the data.
+  virtual void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
+                            vtkAbstractArray* source);
 
   // Description:
   // Given a list of point ids, return an array of tuples.
@@ -152,11 +159,18 @@ public:
   double* GetTuple9(vtkIdType i);
 
   // Description:
+  // Set the tuple at the ith location using the jth tuple in the source array.
+  // This method assumes that the two arrays have the same type
+  // and structure. Note that range checking and memory allocation is not
+  // performed; use in conjunction with SetNumberOfTuples() to allocate space.
+  virtual void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source);
+
+  // Description:
   // Set the data tuple at ith location. Note that range checking or
   // memory allocation is not performed; use this method in conjunction
   // with SetNumberOfTuples() to allocate space.
-  virtual void SetTuple(vtkIdType i, const float * tuple) = 0;
-  virtual void SetTuple(vtkIdType i, const double * tuple) = 0;
+  virtual void SetTuple(vtkIdType i, const float * tuple);
+  virtual void SetTuple(vtkIdType i, const double * tuple);
 
   // Description:
   // These methods are included as convenience for the wrappers.

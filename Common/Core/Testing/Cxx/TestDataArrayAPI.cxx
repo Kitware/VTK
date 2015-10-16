@@ -696,8 +696,8 @@ int Test_void_InsertTuples_dstIds_srcIds_source()
 template <typename ScalarT, typename ArrayT>
 int Test_void_InsertTuples_dstStart_n_srcStart_source()
 {
-  DataArrayAPIInit("void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds, "
-                   "vtkAbstractArray* source)");
+  DataArrayAPIInit("void InsertTuples(vtkIdType dstStart, vtkIdType n, "
+                   "vtkIdType srcStart, vtkAbstractArray* source)");
   DataArrayAPICreateTestArray(src);
   DataArrayAPICreateTestArray(dst);
   vtkIdType comps = 9;
@@ -721,7 +721,7 @@ int Test_void_InsertTuples_dstStart_n_srcStart_source()
   dst->InsertTuples(dstStart, n, srcStart, src.GetPointer());
 
   DataArrayAPIAssert(dst->GetNumberOfTuples() == n,
-                     "Destination array too small! Expected " << n
+                     "Destination array size invalid. Expected " << n
                      << " tuples, got " << dst->GetNumberOfTuples() << ".");
 
   // Verify:
