@@ -13,49 +13,55 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 
 #import "MyGLKViewController.h"
-#import "vtkIOSRenderWindow.h"
-#import "vtkIOSRenderWindowInteractor.h"
-#include "vtkRenderingOpenGL2ObjectFactory.h"
+#include "vtk/vtkIOSRenderWindow.h"
+#include "vtk/vtkIOSRenderWindowInteractor.h"
+#include "vtk/vtkRenderingOpenGL2ObjectFactory.h"
 
-#include "vtkParametricTorus.h"
-#include "vtkParametricBoy.h"
-#include "vtkParametricConicSpiral.h"
-#include "vtkParametricCrossCap.h"
-#include "vtkParametricDini.h"
-#include "vtkParametricEllipsoid.h"
-#include "vtkParametricEnneper.h"
-#include "vtkParametricFigure8Klein.h"
-#include "vtkParametricKlein.h"
-#include "vtkParametricMobius.h"
-#include "vtkParametricRandomHills.h"
-#include "vtkParametricRoman.h"
-#include "vtkParametricSpline.h"
-#include "vtkParametricSuperEllipsoid.h"
-#include "vtkParametricSuperToroid.h"
-#include "vtkParametricTorus.h"
-#include "vtkSmartPointer.h"
+#include "vtk/vtkNew.h"
 
-#include "vtkActor.h"
-#include "vtkActor2D.h"
-#include "vtkCamera.h"
-#include "vtkCommand.h"
-#include "vtkInteractorStyleMultiTouchCamera.h"
-#include "vtkMath.h"
-#include "vtkParametricFunctionSource.h"
-#include "vtkPoints.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkRenderer.h"
-#include "vtkTextMapper.h"
-#include "vtkTextProperty.h"
+#include "vtk/vtkNrrdReader.h"
+#include "vtk/vtkImageCast.h"
+#include "vtk/vtkRTAnalyticSource.h"
+#include "vtk/vtkOpenGLGPUVolumeRayCastMapper.h"
+#include "vtk/vtkVolumeProperty.h"
+#include "vtk/vtkColorTransferFunction.h"
+#include "vtk/vtkPiecewiseFunction.h"
+#include "vtk/vtkVolume.h"
+#include "vtk/vtkActor.h"
+#include "vtk/vtkCamera.h"
+#include "vtk/vtkConeSource.h"
+#include "vtk/vtkDebugLeaks.h"
+#include "vtk/vtkGlyph3D.h"
+#include "vtk/vtkPolyData.h"
+#include "vtk/vtkPolyDataMapper.h"
+#include "vtk/vtkRenderWindow.h"
+#include "vtk/vtkRenderer.h"
+#include "vtk/vtkSphereSource.h"
+#include "vtk/vtkTextActor.h"
+#include "vtk/vtkTextProperty.h"
+#include "vtk/vtkImageData.h"
+#include "vtk/vtkPointData.h"
+#include "vtk/vtkSmartPointer.h"
+
+#include "vtk/vtkActor.h"
+#include "vtk/vtkActor2D.h"
+#include "vtk/vtkCamera.h"
+#include "vtk/vtkCommand.h"
+#include "vtk/vtkInteractorStyleMultiTouchCamera.h"
+#include "vtk/vtkMath.h"
+#include "vtk/vtkPoints.h"
+#include "vtk/vtkPolyDataMapper.h"
+#include "vtk/vtkRenderer.h"
+#include "vtk/vtkTextMapper.h"
+#include "vtk/vtkTextProperty.h"
 
 #include <deque>
 
 /* 2 or 3 -- needs to match VTK version */
-#define GL_ES_VERSION 2
+#define GL_ES_VERSION 3
 
 
 @interface MyGLKViewController () {
-  std::deque<vtkSmartPointer<vtkParametricFunction> > parametricObjects;
 }
 
 @property (strong, nonatomic) EAGLContext *context;
@@ -89,174 +95,99 @@ PURPOSE.  See the above copyright notice for more information.
     }
 }
 
-- (void)initializeParametricObjects
-{
-  parametricObjects.push_back(vtkSmartPointer<vtkParametricBoy>::New());
-  parametricObjects.push_back(vtkSmartPointer<vtkParametricConicSpiral>::New());
-  parametricObjects.push_back(vtkSmartPointer<vtkParametricCrossCap>::New());
-  parametricObjects.push_back(vtkSmartPointer<vtkParametricDini>::New());
-
-  auto ellipsoid = vtkSmartPointer<vtkParametricEllipsoid>::New();
-  ellipsoid->SetXRadius(0.5);
-  ellipsoid->SetYRadius(2.0);
-  parametricObjects.push_back(ellipsoid);
-
-  parametricObjects.push_back(vtkSmartPointer<vtkParametricEnneper>::New());
-  parametricObjects.push_back(vtkSmartPointer<vtkParametricFigure8Klein>::New());
-  parametricObjects.push_back(vtkSmartPointer<vtkParametricKlein>::New());
-  auto mobius = vtkSmartPointer<vtkParametricMobius>::New();
-  mobius->SetRadius(2.0);
-  mobius->SetMinimumV(-0.5);
-  mobius->SetMaximumV(0.5);
-  parametricObjects.push_back(mobius);
-
-  vtkSmartPointer<vtkParametricRandomHills> randomHills =
-    vtkSmartPointer<vtkParametricRandomHills>::New();
-  randomHills->AllowRandomGenerationOff();
-  parametricObjects.push_back(randomHills);
-
-  parametricObjects.push_back(vtkSmartPointer<vtkParametricRoman>::New());
-
-  auto superEllipsoid = vtkSmartPointer<vtkParametricSuperEllipsoid>::New();
-  superEllipsoid->SetN1(0.5);
-  superEllipsoid->SetN2(0.1);
-  parametricObjects.push_back(superEllipsoid);
-
-  auto superToroid = vtkSmartPointer<vtkParametricSuperToroid>::New();
-  superToroid->SetN1(0.2);
-  superToroid->SetN2(3.0);
-  parametricObjects.push_back(superToroid);
-
-  parametricObjects.push_back(vtkSmartPointer<vtkParametricTorus>::New());
-
-  // The spline needs points
-  vtkSmartPointer<vtkParametricSpline> spline =
-    vtkSmartPointer<vtkParametricSpline>::New();
-  vtkSmartPointer<vtkPoints> inputPoints =
-    vtkSmartPointer<vtkPoints>::New();
-  vtkMath::RandomSeed(8775070);
-  for (int p = 0; p < 10; p++)
-    {
-    double x = vtkMath::Random(0.0, 1.0);
-    double y = vtkMath::Random(0.0, 1.0);
-    double z = vtkMath::Random(0.0, 1.0);
-    inputPoints->InsertNextPoint(x, y, z);
-    }
-  spline->SetPoints(inputPoints);
-  parametricObjects.push_back(spline);
-}
-
 - (void)setupPipeline
 {
   // Register GL2 objects
   vtkObjectFactory::RegisterFactory(vtkRenderingOpenGL2ObjectFactory::New());
 
-  //
-  // Create the parametric objects
-  //
-  [self initializeParametricObjects];
+    vtkIOSRenderWindow *renWin = vtkIOSRenderWindow::New();
+    //renWin->DebugOn();
+    [self setVTKRenderWindow:renWin];
 
-  std::vector<vtkSmartPointer<vtkParametricFunctionSource> > parametricFunctionSources;
-  std::vector<vtkSmartPointer<vtkRenderer> > renderers;
-  std::vector<vtkSmartPointer<vtkPolyDataMapper> > mappers;
-  std::vector<vtkSmartPointer<vtkActor> > actors;
+    // this example uses VTK's built in interaction but you could choose
+    // to use your own instead.
+    vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+    vtkNew<vtkInteractorStyleMultiTouchCamera> ismt;
+    ismt->DebugOn();
+    iren->SetInteractorStyle(ismt.Get());
+    iren->SetRenderWindow(renWin);
 
-  // No text mappers/actors in VTK GL2 yet
+    vtkNew<vtkRenderer> renderer;
+    renWin->AddRenderer(renderer.Get());
+
+    vtkNew<vtkOpenGLGPUVolumeRayCastMapper> volumeMapper;
+
 #if 0
-  //std::vector<vtkSmartPointer<vtkTextMapper> > textmappers;
-  //std::vector<vtkSmartPointer<vtkActor2D> > textactors;
+    vtkNew<vtkRTAnalyticSource> wavelet;
+    wavelet->SetWholeExtent(-127, 128,
+                            -127, 128,
+                            -127, 128);
+    wavelet->SetCenter(0.0, 0.0, 0.0);
 
-  // Create one text property for all
-  //vtkSmartPointer<vtkTextProperty> textProperty =
-  //vtkSmartPointer<vtkTextProperty>::New();
-  //textProperty->SetFontSize(10);
-  //textProperty->SetJustificationToCentered();
+    vtkNew<vtkImageCast> ic;
+    ic->SetInputConnection(wavelet->GetOutputPort());
+    ic->SetOutputScalarTypeToUnsignedChar();
+    volumeMapper->SetInputConnection(ic->GetOutputPort());
+#else
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+        NSString *basePath = paths.firstObject;
+    std::string fname([basePath UTF8String]);
+    fname += "/CT-chest-quantized.nrrd";
+    vtkNew<vtkNrrdReader> mi;
+    mi->SetFileName(fname.c_str());
+    mi->Update();
+
+    double range[2];
+    mi->GetOutput()->GetPointData()->GetScalars()->GetRange(range);
+
+    volumeMapper->SetInputConnection(mi->GetOutputPort());
 #endif
 
-  // Create a parametric function source, renderer, mapper, and actor
-  // for each object
-  for(unsigned int i = 0; i < parametricObjects.size(); i++)
-  {
-    parametricFunctionSources.push_back(vtkSmartPointer<vtkParametricFunctionSource>::New());
-    parametricFunctionSources[i]->SetParametricFunction(parametricObjects[i]);
-    parametricFunctionSources[i]->Update();
 
-    auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-    assert(mapper);
-    mappers.push_back(mapper);
-    mappers[i]->SetInputConnection(parametricFunctionSources[i]->GetOutputPort());
+    volumeMapper->SetAutoAdjustSampleDistances(1);
+    volumeMapper->SetSampleDistance(0.5);
 
-    actors.push_back(vtkSmartPointer<vtkActor>::New());
-    actors[i]->SetMapper(mappers[i]);
+    vtkNew<vtkVolumeProperty> volumeProperty;
+    volumeProperty->SetShade(1);
+    volumeProperty->SetInterpolationTypeToLinear();
 
-    // No text mappers/actors in VTK GL2 yet
-#if 0
-    textmappers.push_back(vtkSmartPointer<vtkTextMapper>::New());
-    textmappers[i]->SetInput(parametricObjects[i]->GetClassName());
-    textmappers[i]->SetTextProperty(textProperty);
+    vtkNew<vtkColorTransferFunction> ctf;
+    // ctf->AddRGBPoint(90, 0.2, 0.29, 1);
+    // ctf->AddRGBPoint(157.091, 0.87, 0.87, 0.87);
+    // ctf->AddRGBPoint(250, 0.7, 0.015, 0.15);
 
-    textactors.push_back(vtkSmartPointer<vtkActor2D>::New());
-    textactors[i]->SetMapper(textmappers[i]);
-    textactors[i]->SetPosition(100, 16);
-#endif
-    renderers.push_back(vtkSmartPointer<vtkRenderer>::New());
-  }
-  unsigned int gridDimensions = 4;
+    ctf->AddRGBPoint(0, 0, 0, 0);
+    ctf->AddRGBPoint(255*67.0106/3150.0, 0.54902, 0.25098, 0.14902);
+    ctf->AddRGBPoint(255*251.105/3150.0, 0.882353, 0.603922, 0.290196);
+    ctf->AddRGBPoint(255*439.291/3150.0, 1, 0.937033, 0.954531);
+    ctf->AddRGBPoint(255*3071/3150.0, 0.827451, 0.658824, 1);
 
-  // Need a renderer even if there is no actor
-  for(size_t i = parametricObjects.size();
-      i < gridDimensions * gridDimensions;
-      i++)
-  {
-    renderers.push_back(vtkSmartPointer<vtkRenderer>::New());
-  }
 
-  vtkIOSRenderWindow *renWin = vtkIOSRenderWindow::New();
-  //renWin->DebugOn();
-  [self setVTKRenderWindow:renWin];
+    // vtkNew<vtkPiecewiseFunction> pwf;
+    // pwf->AddPoint(0, 0.0);
+    // pwf->AddPoint(7000, 1.0);
 
-  int rendererSize = 200;
-  renWin->SetSize(rendererSize*gridDimensions, rendererSize*gridDimensions);
+    double tweak = 80.0;
+    vtkNew<vtkPiecewiseFunction> pwf;
+    pwf->AddPoint(0, 0);
+    pwf->AddPoint(255*(67.0106+tweak)/3150.0, 0);
+    pwf->AddPoint(255*(251.105+tweak)/3150.0, 0.3);
+    pwf->AddPoint(255*(439.291+tweak)/3150.0, 0.5);
+    pwf->AddPoint(255*3071/3150.0, 0.616071);
 
-  for(int row = 0; row < static_cast<int>(gridDimensions); row++)
-  {
-    for(int col = 0; col < static_cast<int>(gridDimensions); col++)
-    {
-      int index = row*gridDimensions + col;
+    volumeProperty->SetColor(ctf.GetPointer());
+    volumeProperty->SetScalarOpacity(pwf.GetPointer());
 
-      // (xmin, ymin, xmax, ymax)
-      double viewport[4] =
-      {static_cast<double>(col) * rendererSize / (gridDimensions * rendererSize),
-        static_cast<double>(gridDimensions - (row+1)) * rendererSize / (gridDimensions * rendererSize),
-        static_cast<double>(col+1)*rendererSize / (gridDimensions * rendererSize),
-        static_cast<double>(gridDimensions - row) * rendererSize / (gridDimensions * rendererSize)};
+    vtkNew<vtkVolume> volume;
+    volume->SetMapper(volumeMapper.GetPointer());
+    volume->SetProperty(volumeProperty.GetPointer());
 
-      renWin->AddRenderer(renderers[index]);
-      renderers[index]->SetViewport(viewport);
-      if(index > static_cast<int>(parametricObjects.size() - 1))
-      {
-        continue;
-      }
-      renderers[index]->AddActor(actors[index]);
-      //renderers[index]->AddActor(textactors[index]);
-      renderers[index]->SetBackground(.2, .3, .4);
-      renderers[index]->ResetCamera();
-      renderers[index]->GetActiveCamera()->Azimuth(30);
-      renderers[index]->GetActiveCamera()->Elevation(-30);
-      renderers[index]->GetActiveCamera()->Zoom(0.9);
-      renderers[index]->ResetCameraClippingRange();
-    }
-  }
-
-  // this example uses VTK's built in interaction but you could choose
-  // to use your own instead.
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
-  iren->SetRenderWindow(renWin);
-
-  vtkInteractorStyleMultiTouchCamera *ismt = vtkInteractorStyleMultiTouchCamera::New();
-  iren->SetInteractorStyle(ismt);
-  ismt->Delete();
-  iren->Start();
+    renderer->SetBackground2(0.2,0.3,0.4);
+    renderer->SetBackground(0.1,0.1,0.1);
+    renderer->GradientBackgroundOn();
+    renderer->AddVolume(volume.GetPointer());
+    renderer->ResetCamera();
+    renderer->GetActiveCamera()->Zoom(1.4);
 }
 
 
@@ -276,7 +207,7 @@ PURPOSE.  See the above copyright notice for more information.
 
   GLKView *view = (GLKView *)self.view;
   view.context = self.context;
-  view.drawableDepthFormat = GLKViewDrawableDepthFormat24;
+  view.drawableDepthFormat = GLKViewDrawableDepthFormat16;
   //view.drawableMultisample = GLKViewDrawableMultisample4X;
 
   // setup the vis pipeline
@@ -393,6 +324,7 @@ PURPOSE.  See the above copyright notice for more information.
   for (UITouch *touch in touches)
     {
     int index = interactor->GetPointerIndexForContact((size_t)(__bridge void *)touch);
+        vtkGenericWarningMacro("down touch  " << (size_t)(__bridge void *)touch << " index " << index);
     interactor->SetPointerIndex(index);
     interactor->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
     //NSLog(@"Starting left mouse");
@@ -446,7 +378,7 @@ PURPOSE.  See the above copyright notice for more information.
   // fire move event on last index
   interactor->SetPointerIndex(index);
   interactor->InvokeEvent(vtkCommand::MouseMoveEvent,NULL);
-  //  NSLog(@"Moved left mouse");
+NSLog(@"Moved left mouse");
 
   // Display the buffer
   [(GLKView *)self.view display];
@@ -496,10 +428,11 @@ PURPOSE.  See the above copyright notice for more information.
   for (UITouch *touch in touches)
     {
     int index = interactor->GetPointerIndexForContact((size_t)(__bridge void *)touch);
+        vtkGenericWarningMacro("up touch  " << (size_t)(__bridge void *)touch << " index " << index);
     interactor->SetPointerIndex(index);
     interactor->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
     interactor->ClearContact((size_t)(__bridge void *)touch);
-      //NSLog(@"lifting left mouse");
+     // NSLog(@"lifting left mouse");
     }
 
   // Display the buffer

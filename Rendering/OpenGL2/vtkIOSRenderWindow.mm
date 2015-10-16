@@ -409,6 +409,8 @@ void vtkIOSRenderWindow::CreateGLContext()
 // Initialize the rendering window.
 void vtkIOSRenderWindow::Initialize ()
 {
+  this->OpenGLInit();
+  this->Mapped = 1;
 }
 
 //-----------------------------------------------------------------------------

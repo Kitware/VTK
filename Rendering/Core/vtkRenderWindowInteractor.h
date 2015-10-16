@@ -593,9 +593,11 @@ public:
   // that maps these system dependent contact ids to our pointer index
   // These functions return -1 if the ID is not found or if there
   // is no more room for contacts
-  void ClearContact(int contactID);
-  int GetPointerIndexForContact(int contactID);
-  int GetPointerIndexForExistingContact(int contactID);
+  void ClearContact(size_t contactID);
+  int GetPointerIndexForContact(size_t contactID);
+  int GetPointerIndexForExistingContact(size_t contactID);
+  bool IsPointerIndexSet(int i);
+  void ClearPointerIndex(int i);
 
 protected:
   vtkRenderWindowInteractor();
@@ -642,7 +644,7 @@ protected:
   int   LastEventPositions[VTKI_MAX_POINTERS][2];
   int   PointerIndex;
 
-  int PointerIndexLookup[VTKI_MAX_POINTERS];
+  size_t PointerIndexLookup[VTKI_MAX_POINTERS];
 
   // control the fly to
   int NumberOfFlyFrames;

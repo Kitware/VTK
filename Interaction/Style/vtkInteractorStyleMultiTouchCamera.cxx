@@ -63,6 +63,8 @@ void vtkInteractorStyleMultiTouchCamera::OnLeftButtonDown()
 {
   int pointer = this->Interactor->GetPointerIndex();
 
+  vtkDebugMacro("pointer index down for " << pointer);
+
   // if it is already down ignore this event
   if (this->PointersDown[pointer])
     {
@@ -125,6 +127,8 @@ void vtkInteractorStyleMultiTouchCamera::OnLeftButtonDown()
 void vtkInteractorStyleMultiTouchCamera::OnLeftButtonUp()
 {
   int pointer = this->Interactor->GetPointerIndex();
+
+  vtkDebugMacro("pointer index up for " << pointer);
 
   // if it is already up, ignore this event
   if (!this->PointersDown[pointer])

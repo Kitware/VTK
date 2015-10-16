@@ -18,7 +18,7 @@
 
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 
-#include <vtkGPUVolumeRayCastMapper.h>
+#include "vtkGPUVolumeRayCastMapper.h"
 
 // Forward declarations
 class vtkTextureObject;

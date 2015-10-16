@@ -452,11 +452,11 @@ void vtkAndroidRenderWindowInteractor::HandleMotionEvent(
       // kill off all current pointers
       for (int i=0; i < VTKI_MAX_POINTERS; i++)
         {
-        if (this->PointerIndexLookup[i] != -1)
+        if (this->IsPointerIndexSet(i))
           {
           this->SetPointerIndex(i);
           this->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
-          this->PointerIndexLookup[i] = -1;
+          this->ClearPointerIndex(i);
           }
         }
       return;

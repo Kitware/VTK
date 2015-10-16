@@ -126,7 +126,7 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
 
   for (int i=0; i < VTKI_MAX_POINTERS; i++)
     {
-    this->PointerIndexLookup[i] = -1;
+    this->PointerIndexLookup[i] = 0;
     }
 
 }
@@ -286,11 +286,11 @@ void vtkRenderWindowInteractor::UpdateSize(int x,int y)
 
 // This function is used to return an index given an ID
 // and allocate one if needed
-int vtkRenderWindowInteractor::GetPointerIndexForContact(int dwID)
+int vtkRenderWindowInteractor::GetPointerIndexForContact(size_t dwID)
 {
   for (int i=0; i < VTKI_MAX_POINTERS; i++)
     {
-    if (this->PointerIndexLookup[i] == dwID)
+    if (this->PointerIndexLookup[i] == dwID+1)
       {
       return i;
       }
@@ -298,9 +298,9 @@ int vtkRenderWindowInteractor::GetPointerIndexForContact(int dwID)
 
   for (int i=0; i < VTKI_MAX_POINTERS; i++)
     {
-    if (this->PointerIndexLookup[i] == -1)
+    if (this->PointerIndexLookup[i] == 0)
       {
-      this->PointerIndexLookup[i] = dwID;
+      this->PointerIndexLookup[i] = dwID+1;
       return i;
       }
     }
@@ -310,11 +310,11 @@ int vtkRenderWindowInteractor::GetPointerIndexForContact(int dwID)
 }
 
 // This function is used to return an index given an ID
-int vtkRenderWindowInteractor::GetPointerIndexForExistingContact(int dwID)
+int vtkRenderWindowInteractor::GetPointerIndexForExistingContact(size_t dwID)
 {
   for (int i=0; i < VTKI_MAX_POINTERS; i++)
     {
-    if (this->PointerIndexLookup[i] == dwID)
+    if (this->PointerIndexLookup[i] == dwID+1)
       {
       return i;
       }
@@ -324,20 +324,35 @@ int vtkRenderWindowInteractor::GetPointerIndexForExistingContact(int dwID)
   return -1;
 }
 
-// This function is used to return an index given an ID
-void vtkRenderWindowInteractor::ClearContact(int dwID)
+void vtkRenderWindowInteractor::ClearContact(size_t dwID)
 {
   for (int i=0; i < VTKI_MAX_POINTERS; i++)
     {
-    if (this->PointerIndexLookup[i] == dwID)
+    if (this->PointerIndexLookup[i] == dwID+1)
       {
-      this->PointerIndexLookup[i] = NULL;
+      this->PointerIndexLookup[i] = 0;
       return;
       }
     }
 }
 
+void vtkRenderWindowInteractor::ClearPointerIndex(int i)
+{
+  if (i < VTKI_MAX_POINTERS)
+    {
+    this->PointerIndexLookup[i] = 0;
+    }
+}
 
+// This function is used to return an index given an ID
+bool vtkRenderWindowInteractor::IsPointerIndexSet(int i)
+{
+  if (i < VTKI_MAX_POINTERS)
+    {
+    return (this->PointerIndexLookup[i] != 0);
+    }
+  return false;
+}
 
 //----------------------------------------------------------------------
 // Creates an instance of vtkPropPicker by default
