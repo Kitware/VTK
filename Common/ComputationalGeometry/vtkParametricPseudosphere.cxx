@@ -22,7 +22,7 @@ vtkParametricPseudosphere::vtkParametricPseudosphere()
   {
   // Preset triangulation parameters
   this->MinimumU = -5.0;
-  this->MinimumV = vtkMath::Pi();
+  this->MinimumV = -vtkMath::Pi();
   this->MaximumU = 5.0;
   this->MaximumV = vtkMath::Pi();
 
