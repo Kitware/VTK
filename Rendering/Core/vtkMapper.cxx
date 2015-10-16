@@ -282,6 +282,13 @@ int vtkMapper::CanUseTextureMapForColoring(vtkDataObject* input)
     return 0; // user doesn't want us to use texture maps at all.
     }
 
+  // index color does not use textures
+  if (this->LookupTable &&
+      this->LookupTable->GetIndexedLookup())
+    {
+    return 0;
+    }
+
   if (input->IsA("vtkDataSet"))
     {
     int cellFlag=0;
@@ -309,12 +316,6 @@ int vtkMapper::CanUseTextureMapForColoring(vtkDataObject* input)
       // requested.
       return 0;
       }
-    }
-
-  if (this->LookupTable &&
-      this->LookupTable->GetIndexedLookup())
-    {
-    return 0;
     }
 
   return 1;
