@@ -346,6 +346,23 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderClip(
   this->Superclass::ReplaceShaderClip(shaders,ren,actor);
 }
 
+void vtkOpenGLGlyph3DHelper::ReplaceShaderPicking(
+  std::map<vtkShader::Type, vtkShader *> shaders,
+  vtkRenderer *, vtkActor *)
+{
+  std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
+
+  if (this->LastSelectionState >= vtkHardwareSelector::MIN_KNOWN_PASS)
+    {
+    vtkShaderProgram::Substitute(FSSource, "//VTK::Picking::Dec",
+      "uniform vec3 mapperIndex;");
+    vtkShaderProgram::Substitute(FSSource,
+      "//VTK::Picking::Impl",
+      "  gl_FragData[0] = vec4(mapperIndex,1.0);\n");
+    }
+  shaders[vtkShader::Fragment]->SetSource(FSSource);
+}
+
 void vtkOpenGLGlyph3DHelper::GlyphRender(
   vtkRenderer* ren,
   vtkActor* actor,
