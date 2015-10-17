@@ -1171,7 +1171,7 @@ const char *raw_string(const char *begin)
       *dp++ = c;
       c = input();
       }
-    while (vtkParse_CharType(c, CPRE_IDGIT));
+    while (vtkParse_CharType(c, CPRE_XID));
     }
   unput(c);
 
