@@ -392,25 +392,25 @@ static int preproc_evaluate_char(
     else if (*cp != '\'' && *cp != '\n' && *cp != '\0')
       {
       cp++;
-      if (*cp == 'a') { *val = '\a'; }
-      else if (*cp == 'b') { *val = '\b'; }
-      else if (*cp == 'f') { *val = '\f'; }
-      else if (*cp == 'n') { *val = '\n'; }
-      else if (*cp == 'r') { *val = '\r'; }
-      else if (*cp == 't') { *val = '\t'; }
-      else if (*cp == 'v') { *val = '\v'; }
-      else if (*cp == '\'') { *val = '\''; }
-      else if (*cp == '\"') { *val = '\"'; }
-      else if (*cp == '\\') { *val = '\\'; }
-      else if (*cp == '\?') { *val = '\?'; }
-      else if (*cp == '0')
+      if (*cp == 'a') { *val = '\a'; cp++; }
+      else if (*cp == 'b') { *val = '\b'; cp++; }
+      else if (*cp == 'f') { *val = '\f'; cp++; }
+      else if (*cp == 'n') { *val = '\n'; cp++; }
+      else if (*cp == 'r') { *val = '\r'; cp++; }
+      else if (*cp == 't') { *val = '\t'; cp++; }
+      else if (*cp == 'v') { *val = '\v'; cp++; }
+      else if (*cp == '\'') { *val = '\''; cp++; }
+      else if (*cp == '\"') { *val = '\"'; cp++; }
+      else if (*cp == '\\') { *val = '\\'; cp++; }
+      else if (*cp == '\?') { *val = '\?'; cp++; }
+      else if (*cp >= '0' && *cp <= '7')
         {
-        *val = string_to_preproc_int(cp, 8);
+        *val = (char)string_to_preproc_int(cp, 8);
         do { cp++; } while (*cp >= '0' && *cp <= '7');
         }
       else if (*cp == 'x')
         {
-        *val = string_to_preproc_int(cp+1, 16);
+        *val = (char)string_to_preproc_int(cp+1, 16);
         do { cp++; } while (vtkParse_CharType(*cp, CPRE_HEX));
         }
       }
