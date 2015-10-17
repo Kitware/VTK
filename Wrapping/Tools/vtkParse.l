@@ -128,7 +128,7 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
       return(STRING_LITERAL);
     }
 
-[uUL]?\'([^\']|\\\')+\'(_{ID})?  {
+("u8"|"u"|"U"|"L")?\'([^\']|\\\')+\'(_{ID})?  {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(CHAR_LITERAL);
     }
@@ -493,32 +493,42 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
         }
     }
 
-[0-9]*"."[0-9]+([eE][+-]?[0-9]+)?{ID}?  {
+"."[0-9]([0-9]|\'[0-9])*([eE][+-]?[0-9]([0-9]|\'[0-9])*)?{ID}?  {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(FLOAT_LITERAL);
     }
 
-[0-9]+"."([eE][+-]?[0-9]+)?{ID}?  {
+[0-9]([0-9]|\'[0-9])*"."([eE][+-]?[0-9]([0-9]|\'[0-9])*)?{ID}?  {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(FLOAT_LITERAL);
     }
 
-[0-9]+[eE][+-]?[0-9]+{ID}?  {
+[0-9]([0-9]|\'[0-9])*"."[0-9]([0-9]|\'[0-9])*([eE][+-]?[0-9]([0-9]|\'[0-9])*)?{ID}?  {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(FLOAT_LITERAL);
     }
 
-"0"[xX][0-9a-fA-F]+{ID}?  {
+[0-9]([0-9]|\'[0-9])*[eE][+-]?[0-9]([0-9]|\'[0-9])*{ID}?  {
+      yylval.str = vtkstrndup(yytext, yyleng);
+      return(FLOAT_LITERAL);
+    }
+
+"0"[xX][0-9a-fA-F]([0-9a-fA-F]|\'[0-9a-fA-F])*{ID}?  {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(HEX_LITERAL);
     }
 
-"0"[0-9]+{ID}? {
+"0"[bB][0-1]([0-1]|\'[0-1])*{ID}?  {
+      yylval.str = vtkstrndup(yytext, yyleng);
+      return(BIN_LITERAL);
+    }
+
+"0"([0-8]|\'[0-8])+{ID}? {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(OCT_LITERAL);
     }
 
-[1-9][0-9]*{ID}? {
+[1-9]([0-9]|\'[0-9])*{ID}? {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(INT_LITERAL);
     }
