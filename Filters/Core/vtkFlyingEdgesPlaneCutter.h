@@ -47,7 +47,6 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkContourValues.h" // Passes calls through
 
 class vtkImageData;
 class vtkPlane;
@@ -56,17 +55,19 @@ class VTKFILTERSCORE_EXPORT vtkFlyingEdgesPlaneCutter : public vtkPolyDataAlgori
 {
 public:
   // Description:
-  // Standard construction and print methods
+  // Standard construction and print methods.
   static vtkFlyingEdgesPlaneCutter *New();
   vtkTypeMacro(vtkFlyingEdgesPlaneCutter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Because we delegate to the cut plane.
+  // The modified time depends on the delegated cut plane.
   unsigned long int GetMTime();
 
   // Description
-  // Specify the plane (an implicit function) to perform the cutting.
+  // Specify the plane (an implicit function) to perform the cutting. The
+  // definition of the plane (its origin and normal) is controlled via this
+  // instance of vtkPlane.
   virtual void SetPlane(vtkPlane*);
   vtkGetObjectMacro(Plane,vtkPlane);
 

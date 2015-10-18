@@ -80,7 +80,7 @@ public:
 
   // This table is used to accelerate the generation of output triangles and
   // points. The EdgeUses array, a function of the voxel case number,
-  // indicates which voxel edges intersect with the contour (i.e., which
+  // indicates which voxel edges intersect with the plane  (i.e., which
   // edges require interpolation). This array is filled in at instantiation
   // during the case table generation process.
   unsigned char EdgeUses[256][12];
@@ -1110,7 +1110,7 @@ vtkFlyingEdgesPlaneCutter::~vtkFlyingEdgesPlaneCutter()
 }
 
 //----------------------------------------------------------------------------
-// Overload standard modified time function. If contour values are modified,
+// Overload standard modified time function. If the plane definition is modified,
 // then this object is modified as well.
 unsigned long vtkFlyingEdgesPlaneCutter::GetMTime()
 {
@@ -1141,7 +1141,7 @@ int vtkFlyingEdgesPlaneCutter::RequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-   vtkDebugMacro(<< "Executing 3D structured contour");
+  vtkDebugMacro(<< "Executing plane cutter");
 
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
