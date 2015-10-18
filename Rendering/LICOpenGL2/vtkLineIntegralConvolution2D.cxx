@@ -1582,7 +1582,7 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
     }
 
   #if (vtkLineIntegralConvolution2DDEBUG >= 2)
-  bufs.WriteBuffers(rank,"lic2d_licib_a.vtm", "lic2d_licib_s.vtm", computeExten ts1);
+  bufs.WriteBuffers(rank,"lic2d_licib_a.vtm", "lic2d_licib_s.vtm", computeExtents1);
   #endif
 
   // initialize seeds

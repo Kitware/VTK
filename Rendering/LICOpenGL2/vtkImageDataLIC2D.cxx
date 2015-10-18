@@ -458,21 +458,11 @@ int vtkImageDataLIC2D::RequestData(
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    float minXTexCoord=static_cast<float>(
-      static_cast<double>(0.5)/magVectorSize[0]);
-    float minYTexCoord=static_cast<float>(
-      static_cast<double>(0.5)/magVectorSize[1]);
-
-    float maxXTexCoord=static_cast<float>(
-      static_cast<double>(magVectorSize[0]-0.5)/magVectorSize[0]);
-    float maxYTexCoord=static_cast<float>(
-      static_cast<double>(magVectorSize[1]-0.5)/magVectorSize[1]);
-
     float tcoords[] = {
-      minXTexCoord, minYTexCoord,
-      maxXTexCoord, minYTexCoord,
-      maxXTexCoord, maxYTexCoord,
-      minXTexCoord, maxYTexCoord};
+      0.0f, 0.0f,
+      1.0f, 0.0f,
+      1.0f, 1.0f,
+      0.0f, 1.0f};
 
     float verts[] = {
       -1.0f, -1.0f, 0.0f,

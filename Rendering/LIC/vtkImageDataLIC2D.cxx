@@ -508,11 +508,11 @@ int vtkImageDataLIC2D::RequestData(
     vtkgl::MultiTexCoord2f(vtkgl::TEXTURE0, 0.0f, 0.0f);
     glVertex2f(0.0f, 0.0f);
     vtkgl::MultiTexCoord2f(vtkgl::TEXTURE0, 1.0f, 0.0f);
-    glVertex2f((float)magVectorSize[0]+1.0f, 0.0f);
+    glVertex2f((float)magVectorSize[0], 0.0f);
     vtkgl::MultiTexCoord2f(vtkgl::TEXTURE0, 1.0f, 1.0f);
-    glVertex2f((float)magVectorSize[0]+1.0f, (float)magVectorSize[1]+1.0f);
+    glVertex2f((float)magVectorSize[0], (float)magVectorSize[1]);
     vtkgl::MultiTexCoord2f(vtkgl::TEXTURE0, 0.0f, 1.0f);
-    glVertex2f(0.0f, (float)magVectorSize[1]+1.0f);
+    glVertex2f(0.0f, (float)magVectorSize[1]);
     glEnd();
 
     vectorTex->UnBind();
