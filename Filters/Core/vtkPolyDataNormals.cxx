@@ -44,6 +44,15 @@ vtkPolyDataNormals::vtkPolyDataNormals()
   // some internal data
   this->NumFlips = 0;
   this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
+  this->Wave = 0;
+  this->Wave2 = 0;
+  this->CellIds = 0;
+  this->Map = 0;
+  this->OldMesh = 0;
+  this->NewMesh = 0;
+  this->Visited = 0;
+  this->PolyNormals = 0;
+  this->CosAngle = 0.0;
 }
 
 #define VTK_CELL_NOT_VISITED     0
@@ -65,12 +74,10 @@ int vtkPolyDataNormals::RequestData(
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  int j;
   vtkIdType npts = 0;
   vtkIdType i;
   vtkIdType *pts = 0;
   vtkIdType numNewPts;
-  double polyNormal[3], vertNormal[3], length;
   double flipDirection=1.0;
   vtkIdType numPolys, numStrips;
   vtkIdType cellId;
@@ -424,42 +431,36 @@ int vtkPolyDataNormals::RequestData(
   newNormals->SetNumberOfComponents(3);
   newNormals->SetNumberOfTuples(numNewPts);
   newNormals->SetName("Normals");
-  n[0] = n[1] = n[2] = 0.0;
-  for (i=0; i < numNewPts; i++)
-    {
-    newNormals->SetTuple(i,n);
-    }
+  float *fNormals = newNormals->WritePointer(0, 3 * numNewPts);
+  std::fill_n(fNormals, 3 * numNewPts, 0);
+
+  float *fPolyNormals = this->PolyNormals->WritePointer(0, 3 * numPolys);
 
   if (this->ComputePointNormals)
     {
-    for (cellId=0, newPolys->InitTraversal(); newPolys->GetNextCell(npts,pts);
-          cellId++ )
+    for (cellId=0, newPolys->InitTraversal(); newPolys->GetNextCell(npts, pts);
+         ++cellId)
       {
-      this->PolyNormals->GetTuple(cellId, polyNormal);
-
-      for (i=0; i < npts; i++)
+      for (i = 0; i < npts; ++i)
         {
-        newNormals->GetTuple(pts[i], vertNormal);
-        for (j=0; j < 3; j++)
-          {
-          n[j] = vertNormal[j] + polyNormal[j];
-          }
-        newNormals->SetTuple(pts[i],n);
+        fNormals[3 * pts[i]] += fPolyNormals[3 * cellId];
+        fNormals[3 * pts[i] + 1] += fPolyNormals[3 * cellId + 1];
+        fNormals[3 * pts[i] + 2] += fPolyNormals[3 * cellId + 2];
         }
       }
 
-    for (i=0; i < numNewPts; i++)
+    for (i = 0; i < numNewPts; ++i)
       {
-      newNormals->GetTuple(i, vertNormal);
-      length = vtkMath::Norm(vertNormal);
+      const double length = sqrt(fNormals[3 * i] * fNormals[3 * i] +
+                                 fNormals[3 * i + 1] * fNormals[3 * i + 1] +
+                                 fNormals[3 * i + 2] * fNormals[3 * i + 2]
+                                 ) * flipDirection;
       if (length != 0.0)
         {
-        for (j=0; j < 3; j++)
-          {
-          n[j] = vertNormal[j] / length * flipDirection;
-          }
+        fNormals[3 * i] /= length;
+        fNormals[3 * i + 1] /= length;
+        fNormals[3 * i + 2] /= length;
         }
-      newNormals->SetTuple(i,n);
       }
     }
 
@@ -508,8 +509,8 @@ int vtkPolyDataNormals::RequestData(
 //
 void vtkPolyDataNormals::TraverseAndOrder (void)
 {
-  vtkIdType p1, p2, i, k;
-  int j, l;
+  vtkIdType i, k;
+  int j, l, j1;
   vtkIdType numIds, cellId;
   vtkIdType *pts, *neiPts, npts, numNeiPts;
   vtkIdType neighbor;
@@ -524,12 +525,9 @@ void vtkPolyDataNormals::TraverseAndOrder (void)
 
       this->NewMesh->GetCellPoints(cellId, npts, pts);
 
-      for (j=0; j < npts; j++) //for each edge neighbor
+      for (j = 0, j1 = 1; j < npts; ++j, (j1 = (++j1 < npts) ? j1 : 0)) //for each edge neighbor
         {
-        p1 = pts[j];
-        p2 = pts[(j+1)%npts];
-
-        this->OldMesh->GetCellEdgeNeighbors(cellId, p1, p2, this->CellIds);
+        this->OldMesh->GetCellEdgeNeighbors(cellId, pts[j], pts[j1], this->CellIds);
 
         //  Check the direction of the neighbor ordering.  Should be
         //  consistent with us (i.e., if we are n1->n2,
@@ -545,7 +543,7 @@ void vtkPolyDataNormals::TraverseAndOrder (void)
               this->NewMesh->GetCellPoints(neighbor,numNeiPts,neiPts);
               for (l=0; l < numNeiPts; l++)
                 {
-                if (neiPts[l] == p2)
+                if (neiPts[l] == pts[j1])
                   {
                   break;
                   }
@@ -553,7 +551,7 @@ void vtkPolyDataNormals::TraverseAndOrder (void)
 
               //  Have to reverse ordering if neighbor not consistent
               //
-              if ( neiPts[(l+1)%numNeiPts] != p1 )
+              if ( neiPts[(l+1)%numNeiPts] != pts[j] )
                 {
                 this->NumFlips++;
                 this->NewMesh->ReverseCell(neighbor);
