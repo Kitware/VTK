@@ -1189,6 +1189,18 @@ void vtkImplicitPlaneRepresentation::GetPlane(vtkPlane *plane)
 }
 
 //----------------------------------------------------------------------------
+void vtkImplicitPlaneRepresentation::SetPlane(vtkPlane *plane)
+{
+  if ( plane == NULL )
+    {
+    return;
+    }
+
+  this->Plane->SetNormal(plane->GetNormal());
+  this->Plane->SetOrigin(plane->GetOrigin());
+}
+
+//----------------------------------------------------------------------------
 void vtkImplicitPlaneRepresentation::UpdatePlacement()
 {
   this->Outline->Update();
