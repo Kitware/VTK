@@ -775,16 +775,12 @@ unsigned int vtkTextureObject::GetDefaultFormat(int vtktype, int numComps,
       {
       case 1:
         return GL_RED_INTEGER;
-        break;
       case 2:
         return GL_RG_INTEGER;
-        break;
       case 3:
         return GL_RGB_INTEGER_EXT;
-        break;
       case 4:
         return GL_RGBA_INTEGER_EXT;
-        break;
       }
     }
   else
@@ -793,16 +789,12 @@ unsigned int vtkTextureObject::GetDefaultFormat(int vtktype, int numComps,
       {
       case 1:
         return GL_RED;
-        break;
       case 2:
         return GL_RG;
-        break;
       case 3:
         return GL_RGB;
-        break;
       case 4:
         return GL_RGBA;
-        break;
       }
 #else
     {
@@ -811,24 +803,18 @@ unsigned int vtkTextureObject::GetDefaultFormat(int vtktype, int numComps,
 #ifdef GL_RED
       case 1:
         return GL_RED;
-        break;
       case 2:
         return GL_RG;
-        break;
 #else
       case 1:
         return GL_LUMINANCE;
-        break;
       case 2:
         return GL_LUMINANCE_ALPHA;
-        break;
 #endif
       case 3:
         return GL_RGB;
-        break;
       case 4:
         return GL_RGBA;
-        break;
       }
 #endif
     }
