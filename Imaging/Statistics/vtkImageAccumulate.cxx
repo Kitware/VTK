@@ -126,14 +126,14 @@ vtkImageStencilData *vtkImageAccumulate::GetStencil()
 //----------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class T>
-void vtkImageAccumulateExecute(vtkImageAccumulate *self,
-                               vtkImageData *inData, T *,
-                               vtkImageData *outData, vtkIdType *outPtr,
-                               double min[3], double max[3],
-                               double mean[3],
-                               double standardDeviation[3],
-                               vtkIdType *voxelCount,
-                               int* updateExtent)
+int vtkImageAccumulateExecute(vtkImageAccumulate *self,
+                              vtkImageData *inData, T *,
+                              vtkImageData *outData, vtkIdType *outPtr,
+                              double min[3], double max[3],
+                              double mean[3],
+                              double standardDeviation[3],
+                              vtkIdType *voxelCount,
+                              int* updateExtent)
 {
   // variables used to compute statistics (filter handles max 3 components)
   double sum[3];
@@ -147,6 +147,10 @@ void vtkImageAccumulateExecute(vtkImageAccumulate *self,
 
   // input's number of components is used as output dimensionality
   int numC = inData->GetNumberOfScalarComponents();
+  if (numC > 3)
+    {
+    return 0;
+    }
 
   // get information for output data
   int outExtent[6];
@@ -255,6 +259,7 @@ void vtkImageAccumulateExecute(vtkImageAccumulate *self,
       }
     }
 
+  return 1;
 }
 
 
@@ -297,7 +302,7 @@ int vtkImageAccumulate::RequestData(
   if (inData->GetNumberOfScalarComponents() > 3)
     {
     vtkErrorMacro("This filter can handle up to 3 components");
-    return 1;
+    return 0;
     }
 
   // this filter expects that output is type int.
@@ -305,12 +310,13 @@ int vtkImageAccumulate::RequestData(
     {
     vtkErrorMacro(<< "Execute: out ScalarType " << outData->GetScalarType()
                   << " must be vtkIdType\n");
-    return 1;
+    return 0;
     }
 
+  int retVal = 0;
   switch (inData->GetScalarType())
     {
-    vtkTemplateMacro(vtkImageAccumulateExecute( this,
+    vtkTemplateMacro(retVal = vtkImageAccumulateExecute( this,
                                                 inData,
                                                 static_cast<VTK_TT *>(inPtr),
                                                 outData,
@@ -322,10 +328,10 @@ int vtkImageAccumulate::RequestData(
                                                 uExt ));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
-      return 1;
+      return 0;
     }
 
-  return 1;
+  return retVal;
 }
 
 

@@ -578,7 +578,7 @@ void vtkFixedPointCompositeShadeHelperGenerateImageFourDependentTrilin( T *data,
       }
 
     VTKKWRCHelper_ComputeWeights(pos);
-    VTKKWRCHelper_InterpolateScalarComponent( val, c, components );
+    VTKKWRCHelper_InterpolateScalarComponent( val, c, 4 );
 
     tmp[3] = scalarOpacityTable[0][val[3]];
     if ( !tmp[3] )
