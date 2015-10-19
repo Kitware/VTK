@@ -94,11 +94,6 @@ vtkWin32RenderWindowInteractor::vtkWin32RenderWindowInteractor()
   this->MouseInWindow = 0;
   this->StartedMessageLoop = 0;
 
-  for (int i=0; i < VTKI_MAX_POINTERS; i++)
-    {
-    this->IDLookup[i] = -1;
-    }
-
 #ifdef VTK_USE_TDX
   this->Device=vtkTDxWinDevice::New();
 #endif
@@ -787,7 +782,7 @@ void vtkWin32RenderWindowInteractor::OnTouch(HWND hWnd, UINT wParam, UINT lParam
             this->SetPointerIndex(index);
             didUpOrDown = true;
             this->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
-            this->IDLookup[index] = -1;
+            this->ClearPointerIndex(index);
             }
           if (ti.dwFlags & TOUCHEVENTF_DOWN)
             {
