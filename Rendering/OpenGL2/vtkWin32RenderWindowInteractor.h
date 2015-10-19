@@ -143,9 +143,6 @@ protected:
   // application is exited.
   virtual void StartEventLoop();
 
-  int GetContactIndex(int id);
-  int IDLookup[VTKI_MAX_POINTERS];
-
 #ifdef VTK_USE_TDX
   vtkTDxWinDevice *Device;
 #endif

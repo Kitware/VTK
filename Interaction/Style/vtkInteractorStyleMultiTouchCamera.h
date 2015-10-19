@@ -65,6 +65,7 @@ protected:
   int PointersDown[VTKI_MAX_POINTERS];
 
   double MotionFactor;
+  int LastState;
 
 private:
   vtkInteractorStyleMultiTouchCamera(const vtkInteractorStyleMultiTouchCamera&);  // Not implemented.

@@ -259,6 +259,10 @@ class JavaVTKView extends GLSurfaceView
                 int actionMasked = me.getActionMasked();
                 int actionId = me.getPointerId(actionIndex);
 
+                if (actionMasked != 2)
+                {
+                    Log.e(TAG, "Got action " + actionMasked + " on index " + actionIndex + " has id " + actionId);
+                }
                 JavaVTKLib.onMotionEvent(vtkContext,
                                          actionMasked,
                                          actionId,

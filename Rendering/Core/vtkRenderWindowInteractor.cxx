@@ -123,6 +123,12 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
   this->HandleEventLoop = false;
 
   this->UseTDx=false; // 3DConnexion device.
+
+  for (int i=0; i < VTKI_MAX_POINTERS; i++)
+    {
+    this->PointerIndexLookup[i] = 0;
+    }
+
 }
 
 //----------------------------------------------------------------------
@@ -276,6 +282,76 @@ void vtkRenderWindowInteractor::UpdateSize(int x,int y)
     this->Size[1] = this->EventSize[1] = y;
     this->RenderWindow->SetSize(x,y);
     }
+}
+
+// This function is used to return an index given an ID
+// and allocate one if needed
+int vtkRenderWindowInteractor::GetPointerIndexForContact(size_t dwID)
+{
+  for (int i=0; i < VTKI_MAX_POINTERS; i++)
+    {
+    if (this->PointerIndexLookup[i] == dwID+1)
+      {
+      return i;
+      }
+    }
+
+  for (int i=0; i < VTKI_MAX_POINTERS; i++)
+    {
+    if (this->PointerIndexLookup[i] == 0)
+      {
+      this->PointerIndexLookup[i] = dwID+1;
+      return i;
+      }
+    }
+
+  // Out of contacts
+  return -1;
+}
+
+// This function is used to return an index given an ID
+int vtkRenderWindowInteractor::GetPointerIndexForExistingContact(size_t dwID)
+{
+  for (int i=0; i < VTKI_MAX_POINTERS; i++)
+    {
+    if (this->PointerIndexLookup[i] == dwID+1)
+      {
+      return i;
+      }
+    }
+
+  // Not found
+  return -1;
+}
+
+void vtkRenderWindowInteractor::ClearContact(size_t dwID)
+{
+  for (int i=0; i < VTKI_MAX_POINTERS; i++)
+    {
+    if (this->PointerIndexLookup[i] == dwID+1)
+      {
+      this->PointerIndexLookup[i] = 0;
+      return;
+      }
+    }
+}
+
+void vtkRenderWindowInteractor::ClearPointerIndex(int i)
+{
+  if (i < VTKI_MAX_POINTERS)
+    {
+    this->PointerIndexLookup[i] = 0;
+    }
+}
+
+// This function is used to return an index given an ID
+bool vtkRenderWindowInteractor::IsPointerIndexSet(int i)
+{
+  if (i < VTKI_MAX_POINTERS)
+    {
+    return (this->PointerIndexLookup[i] != 0);
+    }
+  return false;
 }
 
 //----------------------------------------------------------------------

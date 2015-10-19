@@ -63,6 +63,8 @@ void vtkInteractorStyleMultiTouchCamera::OnLeftButtonDown()
 {
   int pointer = this->Interactor->GetPointerIndex();
 
+  vtkDebugMacro("pointer index down for " << pointer);
+
   // if it is already down ignore this event
   if (this->PointersDown[pointer])
     {
@@ -89,6 +91,7 @@ void vtkInteractorStyleMultiTouchCamera::OnLeftButtonDown()
   // if going from 1 to 2 pointers stop the one pointer action
   if (this->PointersDownCount == 2)
     {
+    this->LastState = this->State;
     switch (this->State)
       {
       case VTKIS_DOLLY:
@@ -125,6 +128,8 @@ void vtkInteractorStyleMultiTouchCamera::OnLeftButtonUp()
 {
   int pointer = this->Interactor->GetPointerIndex();
 
+  vtkDebugMacro("pointer index up for " << pointer);
+
   // if it is already up, ignore this event
   if (!this->PointersDown[pointer])
     {
@@ -145,6 +150,29 @@ void vtkInteractorStyleMultiTouchCamera::OnLeftButtonUp()
     {
     case VTKIS_TWO_POINTER:
       this->EndTwoPointer();
+      for (int i = 0; i < VTKI_MAX_POINTERS; ++i)
+        {
+        if (this->PointersDown[i] != 0)
+        this->Interactor->SetPointerIndex(i);
+        switch (this->LastState)
+          {
+          case VTKIS_DOLLY:
+            this->StartDolly();
+            break;
+
+          case VTKIS_PAN:
+            this->StartPan();
+            break;
+
+          case VTKIS_SPIN:
+            this->StartSpin();
+            break;
+
+          case VTKIS_ROTATE:
+            this->StartRotate();
+            break;
+          }
+        }
       break;
     }
 

@@ -94,11 +94,6 @@ vtkWin32RenderWindowInteractor::vtkWin32RenderWindowInteractor()
   this->MouseInWindow = 0;
   this->StartedMessageLoop = 0;
 
-  for (int i=0; i < VTKI_MAX_POINTERS; i++)
-    {
-    this->IDLookup[i] = -1;
-    }
-
 #ifdef VTK_USE_TDX
   this->Device=vtkTDxWinDevice::New();
 #endif
@@ -737,30 +732,6 @@ void vtkWin32RenderWindowInteractor::OnKillFocus(HWND,UINT)
 #endif
 }
 
-// This function is used to return an index given an ID
-int vtkWin32RenderWindowInteractor::GetContactIndex(int dwID)
-{
-  for (int i=0; i < VTKI_MAX_POINTERS; i++)
-    {
-    if (this->IDLookup[i] == dwID)
-      {
-      return i;
-      }
-    }
-
-  for (int i=0; i < VTKI_MAX_POINTERS; i++)
-    {
-    if (this->IDLookup[i] == -1)
-      {
-      this->IDLookup[i] = dwID;
-      return i;
-      }
-    }
-
-  // Out of contacts
-  return -1;
-}
-
 //----------------------------------------------------------------------------
 void vtkWin32RenderWindowInteractor::OnTouch(HWND hWnd, UINT wParam, UINT lParam)
 {
@@ -784,7 +755,7 @@ void vtkWin32RenderWindowInteractor::OnTouch(HWND hWnd, UINT wParam, UINT lParam
       for (UINT i=0; i < cInputs; i++)
         {
         TOUCHINPUT ti = pInputs[i];
-        int index = this->GetContactIndex(ti.dwID);
+        int index = this->GetPointerIndexForContact(ti.dwID);
         if (ti.dwID != 0 && index < VTKI_MAX_POINTERS)
           {
             // Do something with your touch input handle
@@ -803,7 +774,7 @@ void vtkWin32RenderWindowInteractor::OnTouch(HWND hWnd, UINT wParam, UINT lParam
       for (UINT i=0; i < cInputs; i++)
         {
         TOUCHINPUT ti = pInputs[i];
-        int index = this->GetContactIndex(ti.dwID);
+        int index = this->GetPointerIndexForContact(ti.dwID);
         if (ti.dwID != 0 && index < VTKI_MAX_POINTERS)
           {
           if (ti.dwFlags & TOUCHEVENTF_UP)
@@ -811,7 +782,7 @@ void vtkWin32RenderWindowInteractor::OnTouch(HWND hWnd, UINT wParam, UINT lParam
             this->SetPointerIndex(index);
             didUpOrDown = true;
             this->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
-            this->IDLookup[index] = -1;
+            this->ClearPointerIndex(index);
             }
           if (ti.dwFlags & TOUCHEVENTF_DOWN)
             {

@@ -112,6 +112,13 @@ set(ios_cmake_flags
   -DModule_vtkRenderingFreeType:BOOL=OFF
 )
 
+# add volume rendering for ES 3.0
+if (OPENGL_ES_VERSION STREQUAL "3.0")
+  set(ios_cmake_flags ${ios_cmake_flags}
+    -DModule_vtkRenderingVolumeOpenGL2:BOOL=ON
+    )
+endif()
+
 macro(crosscompile target toolchain_file archs)
   ExternalProject_Add(
     ${target}
