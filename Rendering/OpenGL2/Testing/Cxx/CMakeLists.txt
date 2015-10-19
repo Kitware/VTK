@@ -7,6 +7,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestVBOPLYMapper.cxx
   TestVBOPointsLines.cxx
   TestGaussianBlurPass.cxx
+  TestSSAAPass.cxx
   TestBlurAndSobelPasses.cxx
   TestShadowMapBakerPass.cxx
   TestShadowMapPass.cxx

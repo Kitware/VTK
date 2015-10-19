@@ -56,6 +56,7 @@ set(Module_SRCS
   vtkRenderPassCollection.cxx
   vtkRenderState.cxx
   vtkRenderStepsPass.cxx
+  vtkSSAAPass.cxx
   vtkSequencePass.cxx
   vtkShader.cxx
   vtkShaderProgram.cxx
@@ -126,22 +127,24 @@ set_source_files_properties(
 set(shader_files
   glsl/vtkDepthPeelingPassFinalFS.glsl
   glsl/vtkDepthPeelingPassIntermediateFS.glsl
+  glsl/vtkEDLBilateralFilterFS.glsl
   glsl/vtkEDLComposeFS.glsl
   glsl/vtkEDLShadeFS.glsl
-  glsl/vtkEDLBilateralFilterFS.glsl
   glsl/vtkGaussianBlurPassFS.glsl
   glsl/vtkGaussianBlurPassVS.glsl
-  glsl/vtkSobelGradientMagnitudePass1FS.glsl
-  glsl/vtkSobelGradientMagnitudePass2FS.glsl
-  glsl/vtkPointGaussianVS.glsl
-  glsl/vtkTextureObjectFS.glsl
-  glsl/vtkTextureObjectVS.glsl
   glsl/vtkGlyph3DVS.glsl
+  glsl/vtkPointGaussianVS.glsl
   glsl/vtkPolyData2DFS.glsl
   glsl/vtkPolyData2DVS.glsl
   glsl/vtkPolyDataFS.glsl
-  glsl/vtkPolyDataWideLineGS.glsl
   glsl/vtkPolyDataVS.glsl
+  glsl/vtkPolyDataWideLineGS.glsl
+  glsl/vtkSSAAPassFS.glsl
+  glsl/vtkSSAAPassVS.glsl
+  glsl/vtkSobelGradientMagnitudePass1FS.glsl
+  glsl/vtkSobelGradientMagnitudePass2FS.glsl
+  glsl/vtkTextureObjectFS.glsl
+  glsl/vtkTextureObjectVS.glsl
   )
 unset(shader_h_files)
 foreach(file ${shader_files})
