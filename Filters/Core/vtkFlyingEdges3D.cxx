@@ -42,7 +42,7 @@ class vtkFlyingEdges3DAlgorithm
 {
 public:
   // Edge case table values.
-  enum {
+  enum EdgeClass {
     Below = 0, //below isovalue
     Above = 1, //above isovalue
     LeftAbove = 1, //left vertex is above isovalue
@@ -51,11 +51,11 @@ public:
   };
 
   // Dealing with boundary situations when processing volumes.
-  enum {
+  enum CellClass {
     Interior = 0,
     MinBoundary = 1,
     MaxBoundary = 2
-  } vtkBoundarySituations;
+  };
 
   // Edge-based case table to generate output triangle primitives. It is
   // equivalent to the vertex-based Marching Cubes case table but provides
@@ -100,8 +100,8 @@ public:
   // image data in a form more convenient to the algorithm.
   T        *Scalars;
   vtkIdType Dims[3];
-  double   *Origin;
-  double   *Spacing;
+  double    Origin[3];
+  double    Spacing[3];
   vtkIdType NumberOfEdges;
   vtkIdType SliceOffset;
   int Min0;
@@ -124,6 +124,14 @@ public:
 
   // Setup algorithm
   vtkFlyingEdges3DAlgorithm();
+
+  // Adjust the origin to the lower-left corner of the volume (if necessary)
+  void AdjustOrigin()
+    {
+    this->Origin[0] = this->Origin[0] + this->Spacing[0]*this->Min0;
+    this->Origin[1] = this->Origin[1] + this->Spacing[1]*this->Min1;
+    this->Origin[2] = this->Origin[2] + this->Spacing[2]*this->Min2;;
+    }
 
   // The three main passes of the algorithm.
   void ProcessXEdge(double value, T const * const inPtr, vtkIdType row, vtkIdType slice); //PASS 1
@@ -844,7 +852,7 @@ template <class T> void vtkFlyingEdges3DAlgorithm<T>::
 ProcessYZEdges(vtkIdType row, vtkIdType slice)
 {
   // Grab the four edge cases bounding this voxel x-row.
-  unsigned char *ePtr[4], ec0, ec1, ec2, ec3;
+  unsigned char *ePtr[4], ec0, ec1, ec2, ec3, xInts=1;
   ePtr[0] = this->XCases + slice*this->SliceOffset + row*(this->Dims[0]-1);
   ePtr[1] = ePtr[0] + this->Dims[0]-1;
   ePtr[2] = ePtr[0] + this->SliceOffset;
@@ -867,6 +875,10 @@ ProcessYZEdges(vtkIdType row, vtkIdType slice)
       {
       return; //there are no y- or z-ints, thus no contour, skip voxel row
       }
+    else
+      {
+      xInts = 0; //there are y- or z- edge ints however
+      }
     }
 
   // Determine proximity to the boundary of volume. This information is used
@@ -883,32 +895,40 @@ ProcessYZEdges(vtkIdType row, vtkIdType slice)
   // row trim edges, need to check all four x-edges.
   vtkIdType xL=eMD[0][4], xR=eMD[0][5];
   vtkIdType i;
-  for (i=1; i < 4; ++i)
+  if ( xInts )
     {
-    xL = ( eMD[i][4] < xL ? eMD[i][4] : xL);
-    xR = ( eMD[i][5] > xR ? eMD[i][5] : xR);
-    }
-
-  if ( xL > 0 ) //if trimmed in the -x direction
-    {
-    ec0 = *(ePtr[0]+xL); ec1 = *(ePtr[1]+xL);
-    ec2 = *(ePtr[2]+xL); ec3 = *(ePtr[3]+xL);
-    if ( (ec0 & 0x1) != (ec1 & 0x1) || (ec1 & 0x1) != (ec2 & 0x1) ||
-         (ec2 & 0x1) != (ec3 & 0x1) )
+    for (i=1; i < 4; ++i)
       {
-      xL = eMD[0][4] = 0; //reset left trim
+      xL = ( eMD[i][4] < xL ? eMD[i][4] : xL);
+      xR = ( eMD[i][5] > xR ? eMD[i][5] : xR);
+      }
+
+    if ( xL > 0 ) //if trimmed in the -x direction
+      {
+      ec0 = *(ePtr[0]+xL); ec1 = *(ePtr[1]+xL);
+      ec2 = *(ePtr[2]+xL); ec3 = *(ePtr[3]+xL);
+      if ( (ec0 & 0x1) != (ec1 & 0x1) || (ec1 & 0x1) != (ec2 & 0x1) ||
+           (ec2 & 0x1) != (ec3 & 0x1) )
+        {
+        xL = eMD[0][4] = 0; //reset left trim
+        }
+      }
+
+    if ( xR < (this->Dims[0]-1) ) //if trimmed in the +x direction
+      {
+      ec0 = *(ePtr[0]+xR); ec1 = *(ePtr[1]+xR);
+      ec2 = *(ePtr[2]+xR); ec3 = *(ePtr[3]+xR);
+      if ( (ec0 & 0x2) != (ec1 & 0x2) || (ec1 & 0x2) != (ec2 & 0x2) ||
+           (ec2 & 0x2) != (ec3 & 0x2) )
+        {
+        xR = eMD[0][5] = this->Dims[0]-1; //reset right trim
+        }
       }
     }
-
-  if ( xR < (this->Dims[0]-1) ) //if trimmed in the +x direction
+  else //contour cuts through without intersecting x-edges, reset trim edges
     {
-    ec0 = *(ePtr[0]+xR); ec1 = *(ePtr[1]+xR);
-    ec2 = *(ePtr[2]+xR); ec3 = *(ePtr[3]+xR);
-    if ( (ec0 & 0x2) != (ec1 & 0x2) || (ec1 & 0x2) != (ec2 & 0x2) ||
-         (ec2 & 0x2) != (ec3 & 0x2) )
-      {
-      xR = eMD[0][5] = this->Dims[0]-1; //reset right trim
-      }
+    xL = eMD[0][4] = 0;
+    xR = eMD[0][5] = this->Dims[0]-1;
     }
 
   // Okay run along the x-voxels and count the number of y- and
@@ -1065,8 +1085,8 @@ Contour(vtkFlyingEdges3D *self, vtkImageData *input, int extent[6],
   // subsequent processing.
   vtkFlyingEdges3DAlgorithm<T> algo;
   algo.Scalars = scalars;
-  algo.Origin = input->GetOrigin();
-  algo.Spacing = input->GetSpacing();
+  input->GetOrigin(algo.Origin);
+  input->GetSpacing(algo.Spacing);
   algo.Min0 = extent[0];
   algo.Max0 = extent[1];
   algo.Inc0 = incs[0];
@@ -1076,6 +1096,7 @@ Contour(vtkFlyingEdges3D *self, vtkImageData *input, int extent[6],
   algo.Min2 = extent[4];
   algo.Max2 = extent[5];
   algo.Inc2 = incs[2];
+  algo.AdjustOrigin();
 
   // Now allocate working arrays. The XCases array tracks x-edge cases.
   algo.Dims[0] = algo.Max0 - algo.Min0 + 1;
@@ -1148,35 +1169,39 @@ Contour(vtkFlyingEdges3D *self, vtkImageData *input, int extent[6],
       }
 
     // Output can now be allocated.
-    newPts->GetData()->WriteVoidPointer(0,3*(numOutXPts+numOutYPts+numOutZPts));
-    algo.NewPoints = static_cast<float*>(newPts->GetVoidPointer(0));
-    newTris->WritePointer(numOutTris,4*numOutTris);
-    algo.NewTris = static_cast<vtkIdType*>(newTris->GetPointer());
-    if (newScalars)
+    vtkIdType totalPts = numOutXPts + numOutYPts + numOutZPts;
+    if ( totalPts > 0 )
       {
-      newScalars->WriteVoidPointer(0,(numOutXPts+numOutYPts+numOutZPts));
-      algo.NewScalars = static_cast<T*>(newScalars->GetVoidPointer(0));
-      T TValue = static_cast<T>(value);
-      std::fill_n(algo.NewScalars, numOutXPts+numOutYPts+numOutZPts, TValue);
-      }
-    if (newGradients)
-      {
-      newGradients->WriteVoidPointer(0,3*(numOutXPts+numOutYPts+numOutZPts));
-      algo.NewGradients = static_cast<float*>(newGradients->GetVoidPointer(0));
-      }
-    if (newNormals)
-      {
-      newNormals->WriteVoidPointer(0,3*(numOutXPts+numOutYPts+numOutZPts));
-      algo.NewNormals = static_cast<float*>(newNormals->GetVoidPointer(0));
-      }
-    algo.NeedGradients = (algo.NewGradients || algo.NewNormals ? 1 : 0);
+      newPts->GetData()->WriteVoidPointer(0,3*totalPts);
+      algo.NewPoints = static_cast<float*>(newPts->GetVoidPointer(0));
+      newTris->WritePointer(numOutTris,4*numOutTris);
+      algo.NewTris = static_cast<vtkIdType*>(newTris->GetPointer());
+      if (newScalars)
+        {
+        newScalars->WriteVoidPointer(0,totalPts);
+        algo.NewScalars = static_cast<T*>(newScalars->GetVoidPointer(0));
+        T TValue = static_cast<T>(value);
+        std::fill_n(algo.NewScalars, totalPts, TValue);
+        }
+      if (newGradients)
+        {
+        newGradients->WriteVoidPointer(0,3*totalPts);
+        algo.NewGradients = static_cast<float*>(newGradients->GetVoidPointer(0));
+        }
+      if (newNormals)
+        {
+        newNormals->WriteVoidPointer(0,3*totalPts);
+        algo.NewNormals = static_cast<float*>(newNormals->GetVoidPointer(0));
+        }
+      algo.NeedGradients = (algo.NewGradients || algo.NewNormals ? 1 : 0);
 
-    // PASS 4: Fourth and final pass: Process voxel rows and generate output.
-    // Note that we are simultaneously generating triangles and interpolating
-    // points. These could be split into separate, parallel operations for
-    // maximum performance.
-    Pass4<T> pass4(&algo,value);
-    vtkSMPTools::For(0,algo.Dims[2]-1, pass4);
+      // PASS 4: Fourth and final pass: Process voxel rows and generate output.
+      // Note that we are simultaneously generating triangles and interpolating
+      // points. These could be split into separate, parallel operations for
+      // maximum performance.
+      Pass4<T> pass4(&algo,value);
+      vtkSMPTools::For(0,algo.Dims[2]-1, pass4);
+      }//if anything generated
 
     // Handle multiple contours
     startXPts = numOutXPts;

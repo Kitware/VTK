@@ -18,6 +18,7 @@ vtk_add_test_python(
   TestElevationFilter.py
   TestFlyingEdges2D.py
   TestFlyingEdges3D.py
+  TestFlyingEdgesExtents.py
   TestFlyingEdgesPlaneCutter.py
   TestGridSynchronizedTemplates3D.py
   TestMarchingSquares.py
