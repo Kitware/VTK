@@ -1178,10 +1178,12 @@ Contour(vtkFlyingEdges3D *self, vtkImageData *input, int extent[6],
       algo.NewTris = static_cast<vtkIdType*>(newTris->GetPointer());
       if (newScalars)
         {
+        vtkIdType numPrevPts = newScalars->GetNumberOfTuples();
+        vtkIdType numNewPts = totalPts - numPrevPts;
         newScalars->WriteVoidPointer(0,totalPts);
         algo.NewScalars = static_cast<T*>(newScalars->GetVoidPointer(0));
         T TValue = static_cast<T>(value);
-        std::fill_n(algo.NewScalars, totalPts, TValue);
+        std::fill_n(algo.NewScalars+numPrevPts, numNewPts, TValue);
         }
       if (newGradients)
         {
