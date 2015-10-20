@@ -239,7 +239,17 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   int CenterLon;
   int CenterLonRange[2];
 
-  bool ProjectLatLon;
+  enum GeometryType
+    {
+    Spherical,
+    Projected,
+    Planar
+    };
+
+  GeometryType Geometry;
+
+  bool ProjectLatLon; // User option
+  bool OnASphere; // Data file attribute
   bool IsAtmosphere;
   bool IsZeroCentered;
   bool ShowMultilayerView;
@@ -274,14 +284,16 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
 
   void SetDefaults();
   int GetNcDims();
+  int GetNcAtts();
   int CheckParams();
   int GetNcVars(const char* cellDimName, const char* pointDimName);
   int ReadAndOutputGrid();
   int BuildVarArrays();
-  int AllocSphereGeometry();
-  int AllocLatLonGeometry();
+  int AllocSphericalGeometry();
+  int AllocProjectedGeometry();
+  int AllocPlanarGeometry();
   void ShiftLonData();
-  int AddMirrorPoint(int index, double dividerX);
+  int AddMirrorPoint(int index, double dividerX, double offset);
   void FixPoints();
   int EliminateXWrap();
   void OutputPoints();

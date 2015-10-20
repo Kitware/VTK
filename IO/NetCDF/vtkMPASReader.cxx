@@ -215,7 +215,6 @@ bool vtkMPASReader::Internal::isExtraDim(const string &name)
   return 0;                                                         \
 }
 
-
 //----------------------------------------------------------------------------
 // Macro to check if the named NetCDF variable exists
 //----------------------------------------------------------------------------
@@ -270,6 +269,23 @@ static bool isNcDim(NcFile *ncFile, NcToken name)
   return false;
 }
 
+//----------------------------------------------------------------------------
+// Check if there is a NetCDF attribute by that name
+//----------------------------------------------------------------------------
+
+static bool isNcAtt(NcFile *ncFile, NcToken name)
+{
+  int num_atts = ncFile->num_atts();
+  for (int i = 0; i < num_atts; i++)
+    {
+    NcAtt *ncAtt = ncFile->get_att(i);
+    if ((strcmp(ncAtt->name(), name)) == 0)
+      {
+      return true;
+      }
+    }
+  return false;
+}
 
 //-----------------------------------------------------------------------------
 //  Function to convert cartesian coordinates to spherical, for use in
@@ -491,6 +507,12 @@ int vtkMPASReader::RequestInformation(
     return 0;
     }
 
+  if (!this->GetNcAtts())
+    {
+    this->ReleaseNcData();
+    return 0;
+    }
+
   if (!this->CheckParams())
     {
     this->ReleaseNcData();
@@ -624,8 +646,11 @@ void vtkMPASReader::SetDefaults() {
   this->CenterLonRange[1] = 360;
   this->CenterLon = 180;
 
+  this->Geometry = Spherical;
+
   this->IsAtmosphere = false;
   this->ProjectLatLon = false;
+  this->OnASphere = false;
   this->ShowMultilayerView = false;
   this->IsZeroCentered = false;
 
@@ -691,6 +716,29 @@ int vtkMPASReader::GetNcDims()
 }
 
 //----------------------------------------------------------------------------
+int vtkMPASReader::GetNcAtts()
+{
+  NcFile *pnf = this->Internals->ncFile;
+
+  if (!isNcAtt(pnf, "on_a_sphere"))
+    {
+    vtkWarningMacro("Attribute 'on_a_sphere' missing in file " << this->FileName
+                    << ". Assuming \"YES\".");
+    this->OnASphere = true;
+    }
+  else
+    {
+    NcAtt *onASphere = pnf->get_att("on_a_sphere");
+    char *onASphereString = onASphere->as_string(0);
+    this->OnASphere = (strcmp(onASphereString, "YES") == 0);
+    delete [] onASphereString;
+    onASphereString = NULL;
+    }
+
+  return 1;
+}
+
+//----------------------------------------------------------------------------
 //  Check parameters are valid
 //----------------------------------------------------------------------------
 
@@ -704,22 +752,28 @@ int vtkMPASReader::CheckParams()
     return(0);
     }
 
-  /*
-  // double-check we can do multilayer
-  if ((ShowMultilayerView) && (maxNVertLevels == 1))
-  {
-  ShowMultilayerView = false;
-  }
-
-  if (!ShowMultilayerView)
-  {
-  maxNVertLevels = 1;
-  }
-
-   */
-  // check params make sense
   this->VerticalLevelRange[0] = 0;
   this->VerticalLevelRange[1] = this->MaximumNVertLevels-1;
+
+  if (this->OnASphere)
+    {
+    if (this->ProjectLatLon)
+      {
+      this->Geometry = Projected;
+      }
+    else
+      {
+      this->Geometry = Spherical;
+      }
+    }
+  else
+    {
+    this->Geometry = Planar;
+    if (this->ProjectLatLon)
+      {
+      vtkWarningMacro("Ignoring ProjectLatLong -- Data is not on_a_sphere.");
+      }
+    }
 
   return(1);
 }
@@ -847,46 +901,58 @@ int vtkMPASReader::BuildVarArrays()
 
 int vtkMPASReader::ReadAndOutputGrid()
 {
-
-  vtkDebugMacro(<< "In vtkMPASReader::ReadAndOutputGrid" << endl);
-
-  if (!ProjectLatLon)
+  switch (this->Geometry)
     {
-    if (!AllocSphereGeometry())
-      {
+    case vtkMPASReader::Spherical:
+      if (!this->AllocSphericalGeometry())
+        {
+        return 0;
+        }
+      this->FixPoints();
+      break;
+
+    case vtkMPASReader::Projected:
+      if (!this->AllocProjectedGeometry())
+        {
+        return 0;
+        }
+      this->ShiftLonData();
+      this->FixPoints();
+      if (!this->EliminateXWrap())
+        {
+        return 0;
+        }
+      break;
+
+    case vtkMPASReader::Planar:
+      if (!this->AllocPlanarGeometry())
+        {
+        return 0;
+        }
+      this->FixPoints();
+      if (!this->EliminateXWrap())
+        {
+        return 0;
+        }
+      break;
+
+    default:
+      vtkErrorMacro("Invalid geometry type (" << this->Geometry << ").");
       return 0;
-      }
-    FixPoints();
-    }
-  else
-    {
-    if (!AllocLatLonGeometry())
-      {
-      return 0;
-      }
-    ShiftLonData();
-    FixPoints();
-    if (!EliminateXWrap())
-      {
-      return 0;
-      }
     }
 
   this->OutputPoints();
   this->OutputCells();
 
-  vtkDebugMacro(<< "Leaving vtkMPASReader::ReadAndOutputGrid" << endl);
-
-  return(1);
+  return 1;
 }
 
 //----------------------------------------------------------------------------
 // Allocate into sphere view of dual geometry
 //----------------------------------------------------------------------------
 
-int vtkMPASReader::AllocSphereGeometry()
+int vtkMPASReader::AllocSphericalGeometry()
 {
-  vtkDebugMacro(<< "In AllocSphereGeometry..." << endl);
   NcFile* ncFile = this->Internals->ncFile;
 
   CHECK_VAR(ncFile, "xCell");
@@ -977,7 +1043,6 @@ int vtkMPASReader::AllocSphereGeometry()
     vtkDebugMacro
       (<< "alloc sphere: singlelayer: setting MaximumPoints to " << this->MaximumPoints);
     }
-  vtkDebugMacro(<< "Leaving AllocSphereGeometry...");
 
   return 1;
 }
@@ -987,9 +1052,8 @@ int vtkMPASReader::AllocSphereGeometry()
 // Allocate the lat/lon projection of dual geometry.
 //----------------------------------------------------------------------------
 
-int vtkMPASReader::AllocLatLonGeometry()
+int vtkMPASReader::AllocProjectedGeometry()
 {
-  vtkDebugMacro(<< "In AllocLatLonGeometry..." << endl);
   NcFile* ncFile = this->Internals->ncFile;
   const float BLOATFACTOR = .5;
   this->ModNumPoints = (int)floor(this->NumberOfPoints*(1.0 + BLOATFACTOR));
@@ -1084,11 +1148,118 @@ int vtkMPASReader::AllocLatLonGeometry()
       (<< "alloc latlon: singlelayer: setting this->MaximumPoints to " << this->MaximumPoints
        << endl);
     }
-  vtkDebugMacro(<< "Leaving AllocLatLonGeometry..." << endl);
 
   return 1;
 }
 
+int vtkMPASReader::AllocPlanarGeometry()
+{
+  NcFile* ncFile = this->Internals->ncFile;
+
+  const float BLOATFACTOR = .5f;
+  this->ModNumPoints = (int)floor(this->NumberOfPoints*(1.0 + BLOATFACTOR));
+  this->ModNumCells = (int)floor(this->NumberOfCells*(1.0 + BLOATFACTOR))+1;
+
+  CHECK_VAR(ncFile, "xCell");
+  this->PointX = (double*)malloc(this->ModNumPoints * sizeof(double));
+  CHECK_MALLOC(this->PointX);
+  NcVar*  xCellVar = ncFile->get_var("xCell");
+  if (!this->ValidateDimensions(xCellVar, false, 1, "nCells"))
+    {
+    return 0;
+    }
+  xCellVar->get(this->PointX + this->PointOffset, this->NumberOfPoints);
+  // point 0 is 0.0
+  this->PointX[0] = 0.0;
+
+  CHECK_VAR(ncFile, "yCell");
+  this->PointY = (double*)malloc(this->ModNumPoints * sizeof(double));
+  CHECK_MALLOC(this->PointY);
+  NcVar*  yCellVar = ncFile->get_var("yCell");
+  if (!this->ValidateDimensions(yCellVar, false, 1, "nCells"))
+    {
+    return 0;
+    }
+  yCellVar->get(this->PointY + this->PointOffset, this->NumberOfPoints);
+  // point 0 is 0.0
+  this->PointY[0] = 0.0;
+
+  CHECK_VAR(ncFile, "zCell");
+  this->PointZ = (double*)malloc(this->ModNumPoints * sizeof(double));
+  CHECK_MALLOC(this->PointZ);
+  NcVar *zCellVar = ncFile->get_var("zCell");
+  if (!this->ValidateDimensions(zCellVar, false, 1, "nCells"))
+    {
+    return 0;
+    }
+  zCellVar->get(this->PointZ + this->PointOffset, this->NumberOfPoints);
+  // point 0 is 0.0
+  this->PointZ[0] = 0.0;
+
+  CHECK_VAR(ncFile, "cellsOnVertex");
+  this->OrigConnections = (int *) malloc(this->NumberOfCells * this->PointsPerCell *
+                                         sizeof(int));
+  CHECK_MALLOC(this->OrigConnections);
+  NcVar *connectionsVar = ncFile->get_var("cellsOnVertex");
+  // TODO Spec says dims should be '3', 'nVertices', but my example files
+  // use nVertices, vertexDegree...
+  if (!this->ValidateDimensions(connectionsVar, false, 2,
+                                "nVertices", "vertexDegree"))
+    {
+    return 0;
+    }
+  connectionsVar->get(this->OrigConnections, this->NumberOfCells,
+                      this->PointsPerCell);
+
+  // create list to include modified origConnections (due to eliminating
+  // wraparound) plus additional cells added when mirroring cells that had
+  // previously wrapped around
+
+  this->ModConnections = (int *) malloc(this->ModNumCells * this->PointsPerCell
+                                        * sizeof(int));
+  CHECK_MALLOC(this->ModConnections);
+
+  // allocate an array to map the extra points and cells to the original
+  // so that when obtaining data, we know where to get it
+  this->PointMap = (int*)malloc((int)floor(this->NumberOfPoints*BLOATFACTOR)
+                                * sizeof(int));
+  CHECK_MALLOC(this->PointMap);
+  this->CellMap = (int*)malloc((int)floor(this->NumberOfCells*BLOATFACTOR)
+                               * sizeof(int));
+  CHECK_MALLOC(this->CellMap);
+
+  if (isNcVar(ncFile, "maxLevelCell"))
+    {
+    this->IncludeTopography = true;
+    this->MaximumLevelPoint = (int*)malloc(2 * this->NumberOfPoints *
+                                           sizeof(int));
+    CHECK_MALLOC(this->MaximumLevelPoint);
+    NcVar *maxLevelPointVar = ncFile->get_var("maxLevelCell");
+    if (!this->ValidateDimensions(maxLevelPointVar, false, 1, "nCells"))
+      {
+      return 0;
+      }
+    maxLevelPointVar->get(this->MaximumLevelPoint + this->PointOffset,
+                          this->NumberOfPoints);
+    }
+
+  this->CurrentExtraPoint = this->NumberOfPoints + this->PointOffset;
+  this->CurrentExtraCell = this->NumberOfCells + this->CellOffset;
+
+  if (this->ShowMultilayerView)
+    {
+    this->MaximumCells = this->CurrentExtraCell * this->MaximumNVertLevels;
+    this->MaximumPoints = this->CurrentExtraPoint *
+        (this->MaximumNVertLevels + 1);
+    }
+  else
+    {
+    this->MaximumCells = this->CurrentExtraCell;
+    this->MaximumPoints = this->CurrentExtraPoint;
+    }
+
+  return 1;
+}
 
 //----------------------------------------------------------------------------
 //  Shift data if center longitude needs to change.
@@ -1140,23 +1311,23 @@ void vtkMPASReader::ShiftLonData()
 // projection.
 //----------------------------------------------------------------------------
 
-int vtkMPASReader::AddMirrorPoint(int index, double dividerX)
+int vtkMPASReader::AddMirrorPoint(int index, double dividerX, double offset)
 {
-  //vtkDebugMacro(<< "In AddMirrorPoint..." << endl);
   double X = this->PointX[index];
   double Y = this->PointY[index];
 
   // add on east
   if (X < dividerX)
     {
-    X += 2*vtkMath::Pi();
+    X += offset;
     }
   else
     {
     // add on west
-    X -= 2*vtkMath::Pi();
+    X -= offset;
     }
 
+  assert(this->CurrentExtraPoint < this->ModNumPoints);
   this->PointX[this->CurrentExtraPoint] = X;
   this->PointY[this->CurrentExtraPoint] = Y;
 
@@ -1166,7 +1337,6 @@ int vtkMPASReader::AddMirrorPoint(int index, double dividerX)
   *(this->PointMap + (this->CurrentExtraPoint - this->NumberOfPoints - this->PointOffset)) = index;
   this->CurrentExtraPoint++;
 
-  //vtkDebugMacro(<< "Leaving AddMirrorPoint..." << endl);
   return mirrorPoint;
 }
 
@@ -1227,9 +1397,50 @@ void vtkMPASReader::FixPoints()
 // Eliminate wraparound at east/west edges of lat/lon projection
 //----------------------------------------------------------------------------
 
-int vtkMPASReader::EliminateXWrap ()
+int vtkMPASReader::EliminateXWrap()
 {
-  vtkDebugMacro(<< "In EliminateXWrap..." << endl);
+  if (this->NumberOfPoints == 0)
+    {
+    return 1;
+    }
+
+  double xLength;
+  double xCenter;
+  switch (this->Geometry)
+    {
+    case vtkMPASReader::Spherical:
+      vtkErrorMacro("EliminateXWrap called for spherical geometry.");
+      return 0;
+
+    case vtkMPASReader::Projected:
+      xLength = 2 * vtkMath::Pi();
+      xCenter = this->CenterRad;
+      break;
+
+    case vtkMPASReader::Planar:
+      {
+      // Determine the bounds in the x-dimension
+      double xRange[2] = { this->PointX[this->PointOffset],
+                           this->PointX[this->PointOffset] };
+      for (int i = 1; i < this->NumberOfPoints; ++i)
+        {
+        double x = this->PointX[this->PointOffset + i];
+        xRange[0] = std::min(xRange[0], x);
+        xRange[1] = std::max(xRange[1], x);
+        }
+
+      xLength = xRange[1] - xRange[0];
+      xCenter = (xRange[0] + xRange[1]) * 0.5;
+      }
+      break;
+
+    default:
+      vtkErrorMacro("Unrecognized geometry type (" << this->Geometry << ").");
+      return 0;
+    }
+
+  // Assume a point is wrapped if it is more than 3/4 across the dataset:
+  double tolerance = xLength * 0.75;
 
   // For each cell, examine vertices
   // Add new points and cells where needed to account for wraparound.
@@ -1243,10 +1454,10 @@ int vtkMPASReader::EliminateXWrap ()
     bool xWrap = false;
     for (int k = 0; k < this->PointsPerCell; k++)
       {
-      if (abs(this->PointX[conns[k]]
-              - this->PointX[conns[lastk]]) > 5.5)
+      if (abs(this->PointX[conns[k]] - this->PointX[conns[lastk]]) > tolerance)
         {
         xWrap = true;
+        break;
         }
       lastk = k;
       }
@@ -1254,7 +1465,6 @@ int vtkMPASReader::EliminateXWrap ()
     // If we wrapped in X direction, modify cell and add mirror cell
     if (xWrap)
       {
-
       // first point is anchor it doesn't move
       double anchorX = this->PointX[conns[0]];
       modConns[0] = conns[0];
@@ -1266,10 +1476,9 @@ int vtkMPASReader::EliminateXWrap ()
         int neigh = conns[k];
 
         // add a new point, figure out east or west
-
-        if (abs(this->PointX[neigh] - anchorX) > 5.5)
+        if (abs(this->PointX[neigh] - anchorX) > tolerance)
           {
-          modConns[k] = AddMirrorPoint(neigh, anchorX);
+          modConns[k] = this->AddMirrorPoint(neigh, anchorX, xLength);
           }
         else
           {
@@ -1285,7 +1494,7 @@ int vtkMPASReader::EliminateXWrap ()
       // add a mirroring cell to other side
 
       // add mirrored anchor first
-      addedConns[0] = AddMirrorPoint(conns[0], this->CenterRad);
+      addedConns[0] = this->AddMirrorPoint(conns[0], xCenter, xLength);
       anchorX = this->PointX[addedConns[0]];
 
       // add mirror cell points if needed
@@ -1294,9 +1503,9 @@ int vtkMPASReader::EliminateXWrap ()
         int neigh = conns[k];
 
         // add a new point for neighbor, figure out east or west
-        if (abs(this->PointX[neigh] - anchorX) > 5.5)
+        if (abs(this->PointX[neigh] - anchorX) > tolerance)
           {
-          addedConns[k] = AddMirrorPoint(neigh, anchorX);
+          addedConns[k] = this->AddMirrorPoint(neigh, anchorX, xLength);
           }
         else
           {
@@ -1344,7 +1553,6 @@ int vtkMPASReader::EliminateXWrap ()
       (<< "elim xwrap: multilayer: setting this->MaximumPoints to " <<
        this->MaximumPoints << endl);
     }
-  vtkDebugMacro(<< "Leaving EliminateXWrap..." << endl);
 
   return 1;
 }
@@ -1356,77 +1564,65 @@ int vtkMPASReader::EliminateXWrap ()
 
 void vtkMPASReader::OutputPoints()
 {
-  vtkDebugMacro(<< "In OutputPoints..." << endl);
+  vtkUnstructuredGrid* output = this->GetOutput();
 
-  vtkUnstructuredGrid* output = GetOutput();
+  double adjustedLayerThickness = this->IsAtmosphere
+      ? static_cast<double>(-this->LayerThickness)
+      : static_cast<double>(this->LayerThickness);
 
-  vtkSmartPointer<vtkPoints> points;
 
-  float adjustedLayerThickness = LayerThickness;
-
-  if (IsAtmosphere)
-    {
-    adjustedLayerThickness = -LayerThickness;
-    }
-
-  vtkDebugMacro
-    (<< "OutputPoints: this->MaximumPoints: " << this->MaximumPoints << " this->MaximumNVertLevels: "
-     << this->MaximumNVertLevels << " LayerThickness: " << LayerThickness
-     <<"ProjectLatLon: " << ProjectLatLon << " ShowMultilayerView: "
-     << ShowMultilayerView << endl);
-
-  points = vtkSmartPointer<vtkPoints>::New();
-  points->Allocate(this->MaximumPoints, this->MaximumPoints);
+  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+  points->Allocate(this->MaximumPoints);
   output->SetPoints(points);
 
   for (int j = 0; j < this->CurrentExtraPoint; j++ )
     {
-
     double x, y, z;
 
-    if (ProjectLatLon)
+    switch (this->Geometry)
       {
-      x = this->PointX[j] * 180.0 / vtkMath::Pi();
-      y = this->PointY[j] * 180.0 / vtkMath::Pi();
-      z = 0.0;
-      }
-    else
-      {
-      x = this->PointX[j];
-      y = this->PointY[j];
-      z = this->PointZ[j];
+      case vtkMPASReader::Planar:
+      case vtkMPASReader::Spherical:
+        x = this->PointX[j];
+        y = this->PointY[j];
+        z = this->PointZ[j];
+        break;
+
+      case vtkMPASReader::Projected:
+        x = this->PointX[j] * 180.0 / vtkMath::Pi();
+        y = this->PointY[j] * 180.0 / vtkMath::Pi();
+        z = 0.0;
+        break;
+
+      default:
+        vtkErrorMacro("Unrecognized geometry type (" << this->Geometry << ").");
+        return;
       }
 
-    if (!ShowMultilayerView)
+    if (!this->ShowMultilayerView)
       {
       points->InsertNextPoint(x, y, z);
-      //    points->SetPoint(j, x, y, z);
       }
     else
       {
       double rho=0.0, rholevel=0.0, theta=0.0, phi=0.0;
       int retval = -1;
 
-      if (!ProjectLatLon)
+      if (this->Geometry == Spherical)
         {
         if ((x != 0.0) || (y != 0.0) || (z != 0.0))
           {
           retval = CartesianToSpherical(x, y, z, &rho, &phi, &theta);
           if (retval)
             {
-            vtkDebugMacro("Can't create point for layered view." << endl);
+            vtkWarningMacro("Can't create point for layered view.");
             }
           }
         }
 
       for (int levelNum = 0; levelNum < this->MaximumNVertLevels+1; levelNum++)
         {
-
-        if (ProjectLatLon)
-          {
-          z = -(double)((levelNum)*adjustedLayerThickness);
-          }
-        else
+        if (this->Geometry == Spherical)
           {
           if (!retval && ((x != 0.0) || (y != 0.0) || (z != 0.0)))
             {
@@ -1434,11 +1630,14 @@ void vtkMPASReader::OutputPoints()
             retval = SphericalToCartesian(rholevel, phi, theta, &x, &y, &z);
             if (retval)
               {
-              vtkDebugMacro("Can't create point for layered view." << endl);
+              vtkWarningMacro("Can't create point for layered view.");
               }
             }
           }
-        //   points->SetPoint(j*(this->MaximumNVertLevels+1) + levelNum, x, y, z);
+        else
+          {
+          z = -levelNum * adjustedLayerThickness;
+          }
         points->InsertNextPoint(x, y, z);
         }
       }
@@ -1459,9 +1658,7 @@ void vtkMPASReader::OutputPoints()
     free(this->PointZ);
     this->PointZ = NULL;
     }
-  vtkDebugMacro(<< "Leaving OutputPoints..." << endl);
 }
-
 
 //----------------------------------------------------------------------------
 // Determine if cell is one of VTK_TRIANGLE, VTK_WEDGE, VTK_QUAD or
@@ -1644,13 +1841,13 @@ void vtkMPASReader::OutputCells()
     {
 
     int* conns;
-    if (this->ProjectLatLon)
+    if (this->Geometry == Spherical)
       {
-      conns = this->ModConnections + (j * this->PointsPerCell);
+      conns = this->OrigConnections + (j * this->PointsPerCell);
       }
     else
       {
-      conns = this->OrigConnections + (j * this->PointsPerCell);
+      conns = this->ModConnections + (j * this->PointsPerCell);
       }
 
     int minLevel= 0;
@@ -1703,7 +1900,7 @@ void vtkMPASReader::OutputCells()
         }
       output->InsertNextCell(cellType, pointsPerPolygon, &polygon[0]);
 
-    }
+      }
     else
       { // multilayer
       // for each level, write the cell
@@ -2542,6 +2739,8 @@ void vtkMPASReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "this->MaximumCells: " << this->MaximumCells << "\n";
   os << indent << "ProjectLatLon: "
      << (this->ProjectLatLon?"ON":"OFF") << endl;
+  os << indent << "OnASphere: "
+     << (this->OnASphere?"ON":"OFF") << endl;
   os << indent << "ShowMultilayerView: "
      << (this->ShowMultilayerView?"ON":"OFF") << endl;
   os << indent << "CenterLonRange: "
