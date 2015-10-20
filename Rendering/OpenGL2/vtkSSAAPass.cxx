@@ -30,7 +30,7 @@
 #include "vtkOpenGLHelper.h"
 
 #include "vtkSSAAPassFS.h"
-#include "vtkSSAAPassVS.h"
+#include "vtkTextureObjectVS.h"  // a pass through shader
 
 vtkStandardNewMacro(vtkSSAAPass);
 
@@ -245,7 +245,8 @@ void vtkSSAAPass::Render(const vtkRenderState *s)
     {
     this->SSAAProgram = new vtkOpenGLHelper;
     // build the shader source code
-    std::string VSSource = vtkSSAAPassVS;
+//    std::string VSSource = vtkSSAAPassVS;
+    std::string VSSource = vtkTextureObjectVS;
     std::string FSSource = vtkSSAAPassFS;
     std::string GSSource;
 

@@ -140,7 +140,6 @@ set(shader_files
   glsl/vtkPolyDataVS.glsl
   glsl/vtkPolyDataWideLineGS.glsl
   glsl/vtkSSAAPassFS.glsl
-  glsl/vtkSSAAPassVS.glsl
   glsl/vtkSobelGradientMagnitudePass1FS.glsl
   glsl/vtkSobelGradientMagnitudePass2FS.glsl
   glsl/vtkTextureObjectFS.glsl

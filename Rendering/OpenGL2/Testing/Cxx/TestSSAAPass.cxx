@@ -37,6 +37,8 @@
 #include "vtkSSAAPass.h"
 #include "vtkRenderStepsPass.h"
 
+#include "vtkCellArray.h"
+#include "vtkTimerLog.h"
 
 int TestSSAAPass(int argc, char* argv[])
 {
@@ -87,6 +89,32 @@ int TestSSAAPass(int argc, char* argv[])
   actor->GetProperty()->SetSpecularPower(20.0);
   actor->GetProperty()->SetOpacity(1.0);
 
+ vtkNew<vtkTimerLog> timer;
+  timer->StartTimer();
+  renWin->Render();
+  timer->StopTimer();
+  double firstRender = timer->GetElapsedTime();
+  cerr << "first render time: " << firstRender << endl;
+
+  timer->StartTimer();
+  int numRenders = 4;
+  for (int i = 0; i < numRenders; ++i)
+    {
+    renderer->GetActiveCamera()->Azimuth(80.0/numRenders);
+    renderer->GetActiveCamera()->Elevation(88.0/numRenders);
+    renWin->Render();
+    }
+  timer->StopTimer();
+  double elapsed = timer->GetElapsedTime();
+  cerr << "interactive render time: " << elapsed / numRenders << endl;
+  unsigned int numTris = reader->GetOutput()->GetPolys()->GetNumberOfCells();
+  cerr << "number of triangles: " <<  numTris << endl;
+  cerr << "triangles per second: " <<  numTris*(numRenders/elapsed) << endl;
+
+  renderer->GetActiveCamera()->SetPosition(0,0,1);
+  renderer->GetActiveCamera()->SetFocalPoint(0,0,0);
+  renderer->GetActiveCamera()->SetViewUp(0,1,0);
+  renderer->ResetCamera();
   renWin->Render();
 
   int retVal = vtkRegressionTestImage( renWin.Get() );
