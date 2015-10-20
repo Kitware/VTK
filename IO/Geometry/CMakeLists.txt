@@ -18,6 +18,7 @@ SET(Module_SRCS
   vtkParticleReader.cxx
   vtkPDBReader.cxx
   vtkProStarReader.cxx
+  vtkPTSReader.cxx
   vtkSTLReader.cxx
   vtkSTLWriter.cxx
   vtkTecplotReader.cxx
