@@ -453,6 +453,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
   bool done = false;
   GLuint nbPixels = threshold + 1;
   int peelCount = 0;
+  glDepthFunc( GL_LEQUAL );
   while(!done)
     {
     glDepthMask(GL_TRUE);
