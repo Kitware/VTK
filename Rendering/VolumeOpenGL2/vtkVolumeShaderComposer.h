@@ -1248,10 +1248,9 @@ namespace vtkvolume
     {
     return std::string("\
       \n  // Minimum texture access coordinate\
-      \n  const vec3 l_tex_min = vec3(0);\
-      \n\
-      \n  // Maximum texture access coordinate\
-      \n  const vec3 l_tex_max = vec3(1);\
+      \n  vec3 delta = in_textureExtentsMax - in_textureExtentsMin;\
+      \n  vec3 l_tex_min = vec3(0.5) / delta;\
+      \n  vec3 l_tex_max = (1.0 * (delta - vec3(1.0)) + vec3(0.5)) / delta;\
       \n\
       \n  // Flag to indicate if the raymarch loop should terminate \
       \n  bool stop = false;\
@@ -1317,20 +1316,8 @@ namespace vtkvolume
                                         vtkVolume* vtkNotUsed(vol))
     {
     return std::string("\
-      \n    // The two constants l_tex_min and l_tex_max have a value of\
-      \n    // vec3(-1,-1,-1) and vec3(1,1,1) respectively. To determine if the\
-      \n    // data value is outside the in_volume data, we use the sign function.\
-      \n    // The sign function return -1 if the value is less than 0, 0 if the\
-      \n    // value is equal to 0 and 1 if value is greater than 0. Hence, the\
-      \n    // sign function for the calculation (sign(g_dataPos-l_tex_min) and\
-      \n    // sign (l_tex_max-g_dataPos)) will give us vec3(1,1,1) at the\
-      \n    // possible minimum and maximum position.\
-      \n    // When we do a dot product between two vec3(1,1,1) we get answer 3.\
-      \n    // So to be within the dataset limits, the dot product will return a\
-      \n    // value less than 3. If it is greater than 3, we are already out of\
-      \n    // the in_volume dataset\
       \n    stop = dot(sign(g_dataPos - l_tex_min), sign(l_tex_max - g_dataPos))\
-      \n           < 3.0;\
+      \n             < 3.0;\
       \n\
       \n    // If the stopping condition is true we brek out of the ray marching\
       \n    // loop\
