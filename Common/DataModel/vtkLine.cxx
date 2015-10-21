@@ -126,6 +126,25 @@ int vtkLine::Intersection (double a1[3], double a2[3],
   //  Solve the system of equations
   if ( vtkMath::SolveLinearSystem(A,c,2) == 0 )
     {
+    // The lines are colinear. Therefore, one of the four endpoints is the
+    // point of closest approach
+    double minDist = VTK_DOUBLE_MAX;
+    double* p[4] = {a1,a2,b1,b2};
+    double* l1[4] = {b1,b1,a1,a1};
+    double* l2[4] = {b2,b2,a2,a2};
+    double* uv1[4] = {&v,&v,&u,&u};
+    double* uv2[4] = {&u,&u,&v,&v};
+    double dist,t;
+    for (unsigned i=0;i<4;i++)
+      {
+      dist = vtkLine::DistanceToLine(p[i],l1[i],l2[i],t);
+      if (dist < minDist)
+        {
+        minDist = dist;
+        *(uv1[i]) = t;
+        *(uv2[i]) = static_cast<double>(i%2);
+        }
+      }
     return VTK_ON_LINE;
     }
   else
@@ -875,4 +894,3 @@ void vtkLine::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }
-
