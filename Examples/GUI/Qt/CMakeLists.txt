@@ -4,7 +4,10 @@ add_subdirectory(ImageViewer)
 add_subdirectory(SimpleView)
 
 if(TARGET vtkGUISupportQtOpenGL)
-  add_subdirectory(GraphicsView)
+  find_package(Qt5 COMPONENTS WebKitWidgets QUIET)
+  if(Qt5WebKitWidgets_FOUND)
+    add_subdirectory(GraphicsView)
+  endif()
 endif()
 
 CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/CTestCustom.ctest.in"
