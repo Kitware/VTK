@@ -225,11 +225,15 @@ vtkOBJImportedMaterial*  vtkOBJPolyDataProcessor::GetMaterial(int k)
 //----------------------------------------------------------------------------
 std::string vtkOBJPolyDataProcessor::GetTextureFilename( int idx )
 {
+  if (outVector_of_textureFilnames[idx].empty())
+    {
+    return std::string();
+    }
   std::vector<std::string> path_and_filename(2);
   path_and_filename[0] = this->TexturePath;
   path_and_filename[1] = outVector_of_textureFilnames[idx];
   std::string joined   = vtksys::SystemTools::JoinPath( path_and_filename );
-  return  joined;
+  return joined;
 }
 
 
