@@ -94,6 +94,7 @@ void PrepArray(bool byName,
     minmax = values->GetRange(arrayComponent);
     }
   valuePass->SetInputComponentToProcess(arrayComponent);
+  valuePass->SetScalarRange(minmax[0], minmax[1]);
 }
 
 int TestValuePass2(int argc, char* argv[])
@@ -341,6 +342,5 @@ int TestValuePass2(int argc, char* argv[])
     renderWindowInteractor->Start();
     }
 
-  //return fail;
-  return false;
+  return fail;
 }

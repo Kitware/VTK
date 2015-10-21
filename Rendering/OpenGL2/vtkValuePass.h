@@ -41,6 +41,7 @@ public:
   void SetInputArrayToProcess(int fieldAssociation, const char *name);
   void SetInputArrayToProcess(int fieldAssociation, int fieldAttributeType);
   void SetInputComponentToProcess(int component);
+  void SetScalarRange(double min, double max);
 
   // Description:
   // Passed down the rendering pipeline to control what data array to draw.
@@ -49,6 +50,7 @@ public:
   static vtkInformationIntegerKey *ARRAY_ID();
   static vtkInformationStringKey *ARRAY_NAME();
   static vtkInformationIntegerKey *ARRAY_COMPONENT();
+  static vtkInformationDoubleVectorKey *SCALAR_RANGE();
 
   // Description:
   // Perform rendering according to a render state \p s.

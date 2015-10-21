@@ -405,13 +405,7 @@ vtkUnsignedCharArray *vtkMapper::MapScalars(vtkDataSet *input,
   else
     {
     scalars = this->InvertibleScalars;
-    double range[2] = { 0.0, 1.0 };
-    vtkDataArray *da = vtkDataArray::SafeDownCast(scalars);
-    if (da)
-      {
-        da->GetRange(range, this->ArrayComponent);
-      }
-    this->LookupTable->SetRange(range[0], range[1]);
+    this->LookupTable->SetRange(this->ScalarRange);
     }
 
   // Decide betweeen texture color or vertex color.
@@ -642,7 +636,8 @@ void vtkMapper::UseInvertibleColorFor(int scalarMode,
                                       int arrayAccessMode,
                                       int arrayId,
                                       const char *arrayName,
-                                      int arrayComponent)
+                                      int arrayComponent,
+                                      double *scalarRange)
 {
   //find and hold onto the array to use later
   int cellFlag = 0; // not used
@@ -660,6 +655,7 @@ void vtkMapper::UseInvertibleColorFor(int scalarMode,
 
   this->ScalarMode = scalarMode;
   this->ArrayComponent = arrayComponent;
+  this->SetScalarRange(scalarRange);
 
   // Set the new array, if present
   if (this->InvertibleScalars)

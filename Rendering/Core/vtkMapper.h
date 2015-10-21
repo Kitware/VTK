@@ -426,7 +426,8 @@ public:
     int arrayAccessMode,
     int arrayId,
     const char *arrayName,
-    int arrayComponent);
+    int arrayComponent,
+    double *scalarRange);
 
   // Description:
   // Used internally by vtkValuePass.

@@ -2260,7 +2260,8 @@ void vtkOpenGLPolyDataMapper::UpdateBufferObjects(vtkRenderer *ren, vtkActor *ac
                                 info->Get(vtkValuePass::ARRAY_MODE()),
                                 info->Get(vtkValuePass::ARRAY_ID()),
                                 info->Get(vtkValuePass::ARRAY_NAME()),
-                                info->Get(vtkValuePass::ARRAY_COMPONENT()));
+                                info->Get(vtkValuePass::ARRAY_COMPONENT()),
+                                info->Get(vtkValuePass::SCALAR_RANGE()));
     }
   else
     {

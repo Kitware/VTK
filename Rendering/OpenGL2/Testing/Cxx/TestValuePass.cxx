@@ -114,6 +114,7 @@ int TestValuePass(int argc, char *argv[])
     vtkSmartPointer<vtkValuePass>::New();
   valuePass->SetInputArrayToProcess(VTK_SCALAR_MODE_USE_CELL_FIELD_DATA, 0);
   valuePass->SetInputComponentToProcess(0);
+  valuePass->SetScalarRange(-0.11, 0.1);
 
   vtkSmartPointer<vtkRenderPassCollection> passes =
     vtkSmartPointer<vtkRenderPassCollection>::New();
