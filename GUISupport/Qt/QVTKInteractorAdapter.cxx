@@ -69,6 +69,7 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
     QResizeEvent* e2 = static_cast<QResizeEvent*>(e);
     QSize size = e2->size();
     iren->SetSize(size.width(), size.height());
+    iren->InvokeEvent(vtkCommand::ConfigureEvent, e2);
     return true;
     }
 
