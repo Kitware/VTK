@@ -4,6 +4,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestCaptionActor2D.cxx
   TestConvexHull2D.cxx,NO_VALID
   TestCornerAnnotation.cxx
+  TestEmptyCornerAnnotation.cxx
   TestCubeAxes2DMode.cxx
   TestCubeAxes3.cxx
   TestCubeAxesWithGridLines.cxx

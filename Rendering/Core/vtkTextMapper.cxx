@@ -367,7 +367,7 @@ void vtkTextMapper::RenderOverlay(vtkViewport *viewport, vtkActor2D *actor)
   vtkDebugMacro(<<"RenderOverlay called");
 
   vtkRenderer *ren = NULL;
-  if (this->Input && this->Input[0])
+  if (this->Input)
     {
     vtkWindow *win = viewport->GetVTKWindow();
     if (!win)
