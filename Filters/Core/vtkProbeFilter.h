@@ -52,14 +52,18 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Specify the point locations used to probe input. Any geometry
-  // can be used.
+  // Specify the data set that will be probed at the input points.
+  // The Input gives the geometry (the points and cells) for the output,
+  // while the Source is probed (interpolated) to generate the scalars,
+  // vectors, etc. for the output points based on the point locations.
   void SetSourceData(vtkDataObject *source);
   vtkDataObject *GetSource();
 
   // Description:
-  // Specify the point locations used to probe input. Any geometry
-  // can be used. New style. Equivalent to SetInputConnection(1, algOutput).
+  // Specify the data set that will be probed at the input points.
+  // The Input gives the geometry (the points and cells) for the output,
+  // while the Source is probed (interpolated) to generate the scalars,
+  // vectors, etc. for the output points based on the point locations.
   void SetSourceConnection(vtkAlgorithmOutput* algOutput);
 
   // Description:
