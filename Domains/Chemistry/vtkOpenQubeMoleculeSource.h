@@ -87,9 +87,8 @@ protected:
                                    vtkMolecule *mol);
 
 private:
-  // Not implemented:
-  vtkOpenQubeMoleculeSource(const vtkOpenQubeMoleculeSource&);
-  void operator=(const vtkOpenQubeMoleculeSource&);
+  vtkOpenQubeMoleculeSource(const vtkOpenQubeMoleculeSource&); // Not implemented
+  void operator=(const vtkOpenQubeMoleculeSource&); // Not implemented
 };
 
 #endif

@@ -18,8 +18,8 @@
 // .SECTION Description
 // This defines the interface for a 2D histogram chart.
 
-#ifndef vtkChart2DHistogram_h
-#define vtkChart2DHistogram_h
+#ifndef vtkChartHistogram2D_h
+#define vtkChartHistogram2D_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkChartXY.h"
@@ -77,4 +77,4 @@ private:
   void operator=(const vtkChartHistogram2D &);   // Not implemented.
 };
 
-#endif //vtkChart2DHistogram_h
+#endif //vtkChartHistogram2D_h

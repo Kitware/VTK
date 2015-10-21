@@ -26,8 +26,8 @@
 
 #include "vtkDataArrayTemplate.h"
 
-#ifndef VTKDATAARRAYTEMPLATEHELPER_H
-#define VTKDATAARRAYTEMPLATEHELPER_H
+#ifndef vtkDataArrayTemplateHelper_h
+#define vtkDataArrayTemplateHelper_h
 
 class vtkDataArrayTemplateHelper
 {
@@ -39,6 +39,6 @@ public:
 
 };
 
-#endif // VTKDATAARRAYTEMPLATEHELPER_H
+#endif // vtkDataArrayTemplateHelper_h
 
 // VTK-HeaderTest-Exclude: vtkDataArrayTemplateHelper.h

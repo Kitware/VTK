@@ -46,8 +46,8 @@
 // vtkDataSetGhostGenerator,vtkUniformGhostDataGenerator,
 // vtkPDataSetGhostGenerator
 
-#ifndef VTKPUNIFORMGRIDGHOSTDATAGENERATOR_H_
-#define VTKPUNIFORMGRIDGHOSTDATAGENERATOR_H_
+#ifndef vtkPUniformGridGhostDataGenerator_h
+#define vtkPUniformGridGhostDataGenerator_h
 
 #include "vtkFiltersParallelGeometryModule.h" // For export macro
 #include "vtkPDataSetGhostGenerator.h"
@@ -99,4 +99,4 @@ private:
   void operator=(const vtkPUniformGridGhostDataGenerator&); // Not implemented
 };
 
-#endif /* VTKPUNIFORMGRIDGHOSTDATAGENERATOR_H_ */
+#endif /* vtkPUniformGridGhostDataGenerator_h */

@@ -1,5 +1,5 @@
-#ifndef __vtkstd_@VTK_STL_HEADER@
-#define __vtkstd_@VTK_STL_HEADER@
+#ifndef vtkstd_@VTK_STL_HEADER@
+#define vtkstd_@VTK_STL_HEADER@
 
 #include "vtkConfigure.h"
 

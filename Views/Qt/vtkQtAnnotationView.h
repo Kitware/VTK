@@ -29,12 +29,12 @@
 #define vtkQtAnnotationView_h
 
 #include "vtkViewsQtModule.h" // For export macro
-#include "QVTKWin32Header.h"
 #include "vtkQtView.h"
-#include <QObject>
+#include <QObject> // Needed for the Q_OBJECT macro
 
-#include <QPointer>
-#include "vtkQtAnnotationLayersModelAdapter.h"
+#include <QPointer> // Needed to hold the view
+
+class vtkQtAnnotationLayersModelAdapter;
 
 class QItemSelection;
 class QTableView;

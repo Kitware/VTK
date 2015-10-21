@@ -19,8 +19,8 @@
 // cutting an AMR dataset (an instance of vtkOverlappingAMR) with user supplied
 // implicit plane function defined by a normal and center.
 
-#ifndef VTKAMRCUTPLANE_H_
-#define VTKAMRCUTPLANE_H_
+#ifndef vtkAMRCutPlane_h
+#define vtkAMRCutPlane_h
 
 #include "vtkFiltersAMRModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
@@ -176,4 +176,4 @@ private:
   void operator=(const vtkAMRCutPlane& ); // Not implemented
 };
 
-#endif /* VTKAMRCUTPLANE_H_ */
+#endif /* vtkAMRCutPlane_h */

@@ -17,8 +17,8 @@
 // This class is used by the vtkGeoJSONReader when parsing GeoJSON input.
 // It is not intended to be instantiated by applications directly.
 
-#ifndef __vtkGeoJSONFeature_h
-#define __vtkGeoJSONFeature_h
+#ifndef vtkGeoJSONFeature_h
+#define vtkGeoJSONFeature_h
 
 // VTK Includes
 #include "vtkIOGeoJSONModule.h" // For export macro
@@ -119,4 +119,4 @@ private:
   void operator=(const vtkGeoJSONFeature&); //Not implemented
 };
 
-#endif // __vtkGeoJSONFeature_h
+#endif // vtkGeoJSONFeature_h

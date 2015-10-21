@@ -17,8 +17,8 @@
 // .SECTION Description
 //  An internal, light-weight class used to store neighbor information.
 
-#ifndef VTKSTRUCTUREDNEIGHBOR_H_
-#define VTKSTRUCTUREDNEIGHBOR_H_
+#ifndef vtkStructuredNeighbor_h
+#define vtkStructuredNeighbor_h
 
 #include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkObject.h"
@@ -116,5 +116,5 @@ public:
       int WholeExtent[6], const int N);
 };
 
-#endif /* VTKSTRUCTUREDNEIGHBOR_H_ */
+#endif /* vtkStructuredNeighbor_h */
 // VTK-HeaderTest-Exclude: vtkStructuredNeighbor.h

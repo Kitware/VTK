@@ -17,8 +17,8 @@
   Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
-#ifndef __QVTKWin32Header_h
-#define __QVTKWin32Header_h
+#ifndef QVTKWin32Header_h
+#define QVTKWin32Header_h
 
 #include "vtkSystemIncludes.h"
 #include "vtkABI.h"
@@ -33,4 +33,4 @@
 # define QVTK_EXPORT
 #endif
 
-#endif /*__QVTKWin32Header_h*/
+#endif /*QVTKWin32Header_h*/

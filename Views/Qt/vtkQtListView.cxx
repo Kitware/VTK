@@ -22,6 +22,7 @@
 
 #include <QItemSelection>
 #include <QListView>
+#include <QSortFilterProxyModel>
 
 #include "vtkAbstractArray.h"
 #include "vtkAddMembershipArray.h"

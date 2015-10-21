@@ -20,8 +20,8 @@
 //  AMR reader infrastructure for caching blocks/data in memory to minimize
 //  out-of-core operations.
 
-#ifndef VTKAMRDATASETCACHE_H_
-#define VTKAMRDATASETCACHE_H_
+#ifndef vtkAMRDataSetCache_h
+#define vtkAMRDataSetCache_h
 
 #include "vtkIOAMRModule.h" // For export macro
 #include "vtkObject.h"
@@ -100,4 +100,4 @@ private:
   void operator=( const vtkAMRDataSetCache& ); // Not implemented
 };
 
-#endif /* VTKAMRDATASETCACHE_H_ */
+#endif /* vtkAMRDataSetCache_h */

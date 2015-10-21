@@ -20,8 +20,8 @@
 // (currently Sequential, TBB and X-Kaapi) that actual execution is
 // delegated to.
 
-#ifndef vtkSMPTools_h__
-#define vtkSMPTools_h__
+#ifndef vtkSMPTools_h
+#define vtkSMPTools_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"

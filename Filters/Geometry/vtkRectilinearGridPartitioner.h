@@ -22,8 +22,8 @@
 //
 // .SECTION See Also
 //  vtkUniformGridPartitioner vtkStructuredGridPartitioner
-#ifndef VTKRECTILINEARGRIDPARTITIONER_H_
-#define VTKRECTILINEARGRIDPARTITIONER_H_
+#ifndef vtkRectilinearGridPartitioner_h
+#define vtkRectilinearGridPartitioner_h
 
 #include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
@@ -84,4 +84,4 @@ private:
   void operator=(const vtkRectilinearGridPartitioner &); // Not implemented
 };
 
-#endif /* VTKRECTILINEARGRIDPARTITIONER_H_ */
+#endif /* vtkRectilinearGridPartitioner_h */

@@ -18,8 +18,8 @@
 //  This method partitions a global extent to N partitions where N is a user
 //  supplied parameter.
 
-#ifndef VTKEXTENTRCBPARTITIONER_H_
-#define VTKEXTENTRCBPARTITIONER_H_
+#ifndef vtkExtentRCBPartitioner_h
+#define vtkExtentRCBPartitioner_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkObject.h"

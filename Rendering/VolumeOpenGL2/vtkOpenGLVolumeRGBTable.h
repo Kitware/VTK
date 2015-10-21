@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef vtkOpenGLVolumeRGBTable_h_
-#define vtkOpenGLVolumeRGBTable_h_
+#ifndef vtkOpenGLVolumeRGBTable_h
+#define vtkOpenGLVolumeRGBTable_h
 
 #include <vtkColorTransferFunction.h>
 #include <vtkTextureObject.h>
@@ -216,5 +216,5 @@ private:
   vtkOpenGLVolumeRGBTables &operator=(const vtkOpenGLVolumeRGBTables &other);
 };
 
-#endif // vtkOpenGLVolumeRGBTable_h_
+#endif // vtkOpenGLVolumeRGBTable_h
 // VTK-HeaderTest-Exclude: vtkOpenGLVolumeRGBTable.h

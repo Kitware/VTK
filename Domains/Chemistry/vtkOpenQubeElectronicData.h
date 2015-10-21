@@ -108,9 +108,8 @@ protected:
   double Spacing;
 
 private:
-  // Not implemented:
-  vtkOpenQubeElectronicData(const vtkOpenQubeElectronicData&);
-  void operator=(const vtkOpenQubeElectronicData&);
+  vtkOpenQubeElectronicData(const vtkOpenQubeElectronicData&); // Not implemented
+  void operator=(const vtkOpenQubeElectronicData&); // Not implemented
 };
 
 #endif

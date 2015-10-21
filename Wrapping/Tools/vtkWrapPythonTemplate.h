@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef VTK_WRAP_PYTHON_TEMPLATE_H
-#define VTK_WRAP_PYTHON_TEMPLATE_H
+#ifndef vtkWrapPythonTemplate_h
+#define vtkWrapPythonTemplate_h
 
 #include "vtkParse.h"
 #include "vtkParseData.h"
@@ -27,4 +27,4 @@ size_t vtkWrapPython_PyTemplateName(const char *name, char *pname);
 int vtkWrapPython_WrapTemplatedClass(
   FILE *fp, ClassInfo *data, FileInfo *file_info, HierarchyInfo *hinfo);
 
-#endif /* VTK_WRAP_PYTHON_TEMPLATE_H */
+#endif /* vtkWrapPythonTemplate_h */

@@ -17,8 +17,8 @@
 // .SECTION Description
 //  A concrete instance of vtkAMRBaseParticlesReader that implements
 //  functionality for reading flash particle datasets.
-#ifndef VTKAMRFLASHPARTICLESREADER_H_
-#define VTKAMRFLASHPARTICLESREADER_H_
+#ifndef vtkAMRFlashParticlesReader_h
+#define vtkAMRFlashParticlesReader_h
 
 #include "vtkIOAMRModule.h" // For export macro
 #include "vtkAMRBaseParticlesReader.h"
@@ -68,4 +68,4 @@ private:
   void operator=(const vtkAMRFlashParticlesReader& ); // Not implemented
 };
 
-#endif /* VTKAMRFLASHPARTICLESREADER_H_ */
+#endif /* vtkAMRFlashParticlesReader_h */

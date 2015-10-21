@@ -24,8 +24,8 @@
  methods for a class with those inherited from all superclasses.
 */
 
-#ifndef VTK_PARSE_MERGE_H
-#define VTK_PARSE_MERGE_H
+#ifndef vtkParseMerge_h
+#define vtkParseMerge_h
 
 #include "vtkParseData.h"
 #include "vtkParseHierarchy.h"

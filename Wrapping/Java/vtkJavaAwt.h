@@ -12,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+
+#ifndef vtkJavaAwt_h
+#define vtkJavaAwt_h
+
 // for use with JAWT
 #include "jawt_md.h"
 
@@ -369,4 +373,5 @@ Java_vtk_vtkPanel_UnLock(JNIEnv *env,
   #endif
 #endif
 
+#endif
 // VTK-HeaderTest-Exclude: vtkJavaAwt.h

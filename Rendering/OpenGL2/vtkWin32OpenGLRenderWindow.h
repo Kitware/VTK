@@ -18,8 +18,8 @@ PURPOSE.  See the above copyright notice for more information.
 // class vtkRenderWindow. vtkWin32OpenGL2Renderer interfaces to the standard
 // OpenGL graphics library in the Windows/NT environment..
 
-#ifndef vtkWin32OpenGL2RenderWindow_h
-#define vtkWin32OpenGL2RenderWindow_h
+#ifndef vtkWin32OpenGLRenderWindow_h
+#define vtkWin32OpenGLRenderWindow_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkOpenGLRenderWindow.h"

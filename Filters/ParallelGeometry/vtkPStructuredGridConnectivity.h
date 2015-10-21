@@ -26,8 +26,8 @@
 // .SECTION See Also
 //  vtkStructuredGridConnectivity vtkGhostArray
 
-#ifndef VTKPSTRUCTUREDGRIDCONNECTIVITY_H_
-#define VTKPSTRUCTUREDGRIDCONNECTIVITY_H_
+#ifndef vtkPStructuredGridConnectivity_h
+#define vtkPStructuredGridConnectivity_h
 
 // VTK include directives
 #include "vtkFiltersParallelGeometryModule.h" // For export macro
@@ -516,4 +516,4 @@ inline int vtkPStructuredGridConnectivity::GetGridRank( const int gridID )
           (gridID >= 0  && gridID < static_cast<int>(this->NumberOfGrids)));
   return( this->GridRanks[ gridID ] );
 }
-#endif /* VTKPSTRUCTUREDGRIDCONNECTIVITY_H_ */
+#endif /* vtkPStructuredGridConnectivity_h */

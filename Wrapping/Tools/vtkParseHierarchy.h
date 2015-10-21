@@ -36,8 +36,8 @@
 
 */
 
-#ifndef VTK_PARSE_HIERARCHY_H
-#define VTK_PARSE_HIERARCHY_H
+#ifndef vtkParseHierarchy_h
+#define vtkParseHierarchy_h
 
 /* Need the ValueInfo struct for typedefs */
 #include "vtkParseData.h"

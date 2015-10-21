@@ -19,8 +19,8 @@
 // .SECTION See Also
 // vtkUniformGridAM vtkOverlappingAMR vtkNonOverlappingAMR
 
-#ifndef VTKHIERARCHICALBOXDATASET_H_
-#define VTKHIERARCHICALBOXDATASET_H_
+#ifndef vtkHierarchicalBoxDataSet_h
+#define vtkHierarchicalBoxDataSet_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkOverlappingAMR.h"

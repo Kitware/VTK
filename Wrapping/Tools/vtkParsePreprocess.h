@@ -40,8 +40,8 @@
   of code be skipped.
 */
 
-#ifndef VTK_PARSE_PREPROCESS_H
-#define VTK_PARSE_PREPROCESS_H
+#ifndef vtkParsePreprocess_h
+#define vtkParsePreprocess_h
 
 #include "vtkParseString.h"
 

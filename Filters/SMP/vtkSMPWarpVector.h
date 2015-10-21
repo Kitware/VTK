@@ -16,8 +16,8 @@
 // .SECTION Description
 // Just like parent, but uses the SMP framework to do the work on many threads.
 
-#ifndef vtkSMPWarpVector_h__
-#define vtkSMPWarpVector_h__
+#ifndef vtkSMPWarpVector_h
+#define vtkSMPWarpVector_h
 
 #include "vtkFiltersSMPModule.h" // For export macro
 #include "vtkWarpVector.h"
@@ -49,4 +49,4 @@ private :
 
 };
 
-#endif //vtkSMPWarpVector_h__
+#endif //vtkSMPWarpVector_h

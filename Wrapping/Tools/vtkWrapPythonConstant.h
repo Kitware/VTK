@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef VTK_WRAP_PYTHON_CONSTANT_H
-#define VTK_WRAP_PYTHON_CONSTANT_H
+#ifndef vtkWrapPythonConstant_h
+#define vtkWrapPythonConstant_h
 
 #include "vtkParse.h"
 #include "vtkParseData.h"
@@ -30,4 +30,4 @@ void vtkWrapPython_AddPublicConstants(
   FILE *fp, const char *indent, const char *dictvar, const char *objvar,
   NamespaceInfo *data);
 
-#endif /* VTK_WRAP_PYTHON_CONSTANT_H */
+#endif /* vtkWrapPythonConstant_h */

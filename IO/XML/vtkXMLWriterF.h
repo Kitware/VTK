@@ -12,6 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#ifndef vtkXMLWriterF_h
+#define vtkXMLWriterF_h
 /*
  * vtkXMLWriterF.h helps fortran programs call the C interface for
  * writing VTK XML files.  A program can use this by writing one
@@ -505,4 +507,5 @@ void VTK_FORTRAN_NAME(vtkxmlwriterf_stop, VTKXMLWRITERF_STOP)(
             *self);
     }
 }
+#endif
 // VTK-HeaderTest-Exclude: vtkXMLWriterF.h

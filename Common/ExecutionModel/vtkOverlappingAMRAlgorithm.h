@@ -18,8 +18,8 @@
 //  A base class for all algorithms that take as input vtkOverlappingAMR and
 //  produce vtkOverlappingAMR.
 
-#ifndef VTKOVERLAPPINGAMRALGORITHM_H_
-#define VTKOVERLAPPINGAMRALGORITHM_H_
+#ifndef vtkOverlappingAMRAlgorithm_h
+#define vtkOverlappingAMRAlgorithm_h
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkUniformGridAMRAlgorithm.h"

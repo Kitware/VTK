@@ -13,6 +13,9 @@
 
 =========================================================================*/
 
+#ifndef vtk3DS_h
+#define vtk3DS_h
+
 #include <ctype.h>
 
 class vtkLight;
@@ -171,5 +174,5 @@ typedef struct {
 } vtk3DSColour_24;
 
 
-
+#endif
 // VTK-HeaderTest-Exclude: vtk3DS.h

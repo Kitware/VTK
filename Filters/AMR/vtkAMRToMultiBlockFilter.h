@@ -21,8 +21,8 @@
 // .SECTION See Also
 // vtkOverlappingAMR vtkMultiBlockDataSet
 
-#ifndef VTKAMRTOMULTIBLOCKFILTER_H_
-#define VTKAMRTOMULTIBLOCKFILTER_H_
+#ifndef vtkAMRToMultiBlockFilter_h
+#define vtkAMRToMultiBlockFilter_h
 
 #include "vtkFiltersAMRModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
@@ -70,4 +70,4 @@ private:
   void operator=(const vtkAMRToMultiBlockFilter& ); // Not implemented
 };
 
-#endif /* VTKAMRTOMULTIBLOCKFILTER_H_ */
+#endif /* vtkAMRToMultiBlockFilter_h */

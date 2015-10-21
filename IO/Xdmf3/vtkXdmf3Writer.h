@@ -20,8 +20,8 @@
 // newer XDMF3 library. This writer understands VTK's composite data types and
 // produces full trees in the output XDMF files.
 
-#ifndef _vtkXdmf3Writer_h
-#define _vtkXdmf3Writer_h
+#ifndef vtkXdmf3Writer_h
+#define vtkXdmf3Writer_h
 
 #include "vtkIOXdmf3Module.h" // For export macro
 
@@ -92,4 +92,4 @@ private:
   Internals *Internal;
 };
 
-#endif /* _vtkXdmf3Writer_h */
+#endif /* vtkXdmf3Writer_h */

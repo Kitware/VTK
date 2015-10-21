@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef vtkOpenGLVolumeGradientOpacityTable_h_
-#define vtkOpenGLVolumeGradientOpacityTable_h_
+#ifndef vtkOpenGLVolumeGradientOpacityTable_h
+#define vtkOpenGLVolumeGradientOpacityTable_h
 
 #include <vtkPiecewiseFunction.h>
 #include <vtkTextureObject.h>
@@ -221,5 +221,5 @@ private:
   vtkOpenGLVolumeGradientOpacityTables &operator=(const vtkOpenGLVolumeGradientOpacityTables &other);
 };
 
-#endif // vtkOpenGLVolumeGradientOpacityTable_h_
+#endif // vtkOpenGLVolumeGradientOpacityTable_h
 // VTK-HeaderTest-Exclude: vtkOpenGLVolumeGradientOpacityTable.h

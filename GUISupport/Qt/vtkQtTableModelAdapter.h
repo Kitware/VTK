@@ -31,12 +31,13 @@
 
 #include "vtkGUISupportQtModule.h" // For export macro
 #include "vtkQtAbstractModelAdapter.h"
-#include <QMimeData>
-#include <QImage>
+#include <QImage> // Needed for icon support
 
 class vtkSelection;
 class vtkTable;
 class vtkVariant;
+
+class QMimeData;
 
 class VTKGUISUPPORTQT_EXPORT vtkQtTableModelAdapter : public vtkQtAbstractModelAdapter
 {

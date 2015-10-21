@@ -17,8 +17,8 @@
 // .SECTION Description
 // An abstract class that encapsulates common functionality for all AMR readers.
 
-#ifndef VTKAMRBASEREADER_H_
-#define VTKAMRBASEREADER_H_
+#ifndef vtkAMRBaseReader_h
+#define vtkAMRBaseReader_h
 
 #include "vtkIOAMRModule.h" // For export macro
 #include "vtkOverlappingAMRAlgorithm.h"
@@ -264,4 +264,4 @@ private:
   void operator=( const vtkAMRBaseReader& ); // Not implemented
 };
 
-#endif /* VTKAMRBASEREADER_H_ */
+#endif /* vtkAMRBaseReader_h */

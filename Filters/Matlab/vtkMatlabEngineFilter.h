@@ -35,7 +35,7 @@
 #ifndef vtkMatlabEngineFilter_h
 #define vtkMatlabEngineFilter_h
 
-#include "vtkFiltersMatlabModule.h"
+#include "vtkFiltersMatlabModule.h" // For export macro
 #include "vtkDataObjectAlgorithm.h"
 
 class vtkMatlabEngineInterface;

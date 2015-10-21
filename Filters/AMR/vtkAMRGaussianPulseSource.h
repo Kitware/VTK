@@ -21,8 +21,8 @@
 //
 // .SECTION See Also
 //  vtkOverlappingAMR
-#ifndef VTKAMRGAUSSIANPULSESOURCE_H_
-#define VTKAMRGAUSSIANPULSESOURCE_H_
+#ifndef vtkAMRGaussianPulseSource_h
+#define vtkAMRGaussianPulseSource_h
 
 #include "vtkFiltersAMRModule.h" // For export macro
 #include "vtkOverlappingAMRAlgorithm.h"
@@ -162,4 +162,4 @@ private:
   void operator=(const vtkAMRGaussianPulseSource&); // Not implemented
 };
 
-#endif /* VTKAMRGAUSSIANPULSESOURCE_H_ */
+#endif /* vtkAMRGaussianPulseSource_h */

@@ -26,8 +26,8 @@
 // vtkUniformGridGhostDataGenerator, vtkStructuredGridGhostDataGenerator,
 // vtkRectilinearGridGhostDataGenerator
 
-#ifndef VTKDATASETGHOSTGENERATOR_H_
-#define VTKDATASETGHOSTGENERATOR_H_
+#ifndef vtkDataSetGhostGenerator_h
+#define vtkDataSetGhostGenerator_h
 
 #include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
@@ -75,4 +75,4 @@ private:
 
 };
 
-#endif /* VTKDATASETGHOSTGENERATOR_H_ */
+#endif /* vtkDataSetGhostGenerator_h */

@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef VTK_WRAP_PYTHON_NAMESPACE_H
-#define VTK_WRAP_PYTHON_NAMESPACE_H
+#ifndef vtkWrapPythonNamespace_h
+#define vtkWrapPythonNamespace_h
 
 #include "vtkParse.h"
 #include "vtkParseData.h"
@@ -24,4 +24,4 @@
 int vtkWrapPython_WrapNamespace(
   FILE *fp, const char *module, NamespaceInfo *data);
 
-#endif /* VTK_WRAP_PYTHON_NAMESPACE_H */
+#endif /* vtkWrapPythonNamespace_h */

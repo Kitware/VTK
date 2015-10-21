@@ -30,8 +30,8 @@
 // CSCS - Swiss National Supercomputing Centre
 // for creating and contributing this class.
 
-#ifndef _vtkTemporalPathLineFilter_h
-#define _vtkTemporalPathLineFilter_h
+#ifndef vtkTemporalPathLineFilter_h
+#define vtkTemporalPathLineFilter_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

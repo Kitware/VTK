@@ -54,8 +54,8 @@
 // vtkContourFilter vtkFlyingEdges2D vtkSynchronizedTemplates3D
 // vtkMarchingCubes vtkSMPFlyingEdges3D
 
-#ifndef __vtkFlyingEdges3D_h
-#define __vtkFlyingEdges3D_h
+#ifndef vtkFlyingEdges3D_h
+#define vtkFlyingEdges3D_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"

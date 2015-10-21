@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef VTK_WRAP_PYTHON_METHODDEF_H
-#define VTK_WRAP_PYTHON_METHODDEF_H
+#ifndef vtkWrapPythonMethodDef_h
+#define vtkWrapPythonMethodDef_h
 
 #include "vtkParse.h"
 #include "vtkParseData.h"
@@ -30,4 +30,4 @@ void vtkWrapPython_GenerateMethods(
   FileInfo *finfo, HierarchyInfo *hinfo,
   int is_vtkobject, int do_constructors);
 
-#endif /* VTK_WRAP_PYTHON_METHODDEF_H */
+#endif /* vtkWrapPythonMethodDef_h */

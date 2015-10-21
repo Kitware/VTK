@@ -30,18 +30,16 @@
 #define vtkQtListView_h
 
 #include "vtkViewsQtModule.h" // For export macro
-#include "QVTKWin32Header.h"
 #include "vtkQtView.h"
 
-#include <QPointer>
-#include <QImage>
-#include <QSortFilterProxyModel>
-#include "vtkQtAbstractModelAdapter.h"
-#include "vtkSmartPointer.h"
+#include <QPointer> // Needed for the internal list view
+#include <QImage> // Needed for the icon methods
+#include "vtkSmartPointer.h" // Needed for member variables
 
 class vtkApplyColors;
 class vtkDataObjectToTable;
 class QItemSelection;
+class QSortFilterProxyModel;
 class QListView;
 class vtkQtTableModelAdapter;
 

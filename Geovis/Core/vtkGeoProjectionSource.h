@@ -25,6 +25,9 @@
 // multiple resolutions. Each patch covers a specific region in projected
 // space.
 
+#ifndef vtkGeoProjectionSource_h
+#define vtkGeoProjectionSource_h
+
 #include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkGeoSource.h"
 
@@ -75,3 +78,4 @@ private:
   void operator=(const vtkGeoProjectionSource&); // Not implemented
 };
 
+#endif

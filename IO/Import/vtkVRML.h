@@ -29,8 +29,8 @@
                         citrit@rpi.edu
 
 =======================================================================*/
-#ifndef _VTKVRML_H_
-#define _VTKVRML_H_
+#ifndef vtkVRML_h
+#define vtkVRML_h
 
 #define DEFAULTINCREMENT 100
 

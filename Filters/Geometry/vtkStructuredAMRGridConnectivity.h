@@ -25,8 +25,8 @@
 //
 // .SECTION See Also
 //  vtkGhostArray vtkPStructuredAMRGridConnectivity vtkAbstractGridConnectivity
-#ifndef VTKSTRUCTUREDAMRGRIDCONNECTIVITY_H_
-#define VTKSTRUCTUREDAMRGRIDCONNECTIVITY_H_
+#ifndef vtkStructuredAMRGridConnectivity_h
+#define vtkStructuredAMRGridConnectivity_h
 
 #include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkAbstractGridConnectivity.h"

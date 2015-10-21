@@ -18,8 +18,8 @@
   from vtkParse.y with the "yacc" compiler-compiler.
 */
 
-#ifndef VTK_PARSE_H
-#define VTK_PARSE_H
+#ifndef vtkParse_h
+#define vtkParse_h
 
 #include "vtkParseType.h"
 #include "vtkParseData.h"

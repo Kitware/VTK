@@ -18,8 +18,8 @@
 // .SECTION Description
 //
 
-#ifndef vtk2DHistogramItem_h
-#define vtk2DHistogramItem_h
+#ifndef vtkPlotHistogram2D_h
+#define vtkPlotHistogram2D_h
 
 #include "vtkChartsCoreModule.h" // For export macro
 #include "vtkPlot.h"
@@ -128,4 +128,4 @@ private:
 //ETX
 };
 
-#endif //vtk2DHistogramItem_h
+#endif //vtkPlotHistogram2D_h

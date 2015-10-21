@@ -32,8 +32,8 @@
 // .SECTION See Also
 //  vtkPUnstructuredGridConnectivity
 
-#ifndef VTKPUNSTRUCTUREDGRIDGHOSTDATAGENERATOR_H_
-#define VTKPUNSTRUCTUREDGRIDGHOSTDATAGENERATOR_H_
+#ifndef vtkPUnstructuredGridGhostDataGenerator_h
+#define vtkPUnstructuredGridGhostDataGenerator_h
 
 #include "vtkFiltersParallelGeometryModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
@@ -72,4 +72,4 @@ private:
   void operator=(const vtkPUnstructuredGridGhostDataGenerator&); // Not implemented
 };
 
-#endif /* VTKPUNSTRUCTUREDGRIDGHOSTDATAGENERATOR_H_ */
+#endif /* vtkPUnstructuredGridGhostDataGenerator_h */

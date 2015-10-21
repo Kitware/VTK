@@ -20,8 +20,8 @@
 //
 // .SECTION See Also
 //  vtkStructuredNeighbor vtkStructuredAMRGridConnectivity
-#ifndef VTKSTRUCTUREDAMRNEIGHBOR_H_
-#define VTKSTRUCTUREDAMRNEIGHBOR_H_
+#ifndef vtkStructuredAMRNeighbor_h
+#define vtkStructuredAMRNeighbor_h
 
 #include "vtkFiltersGeometryModule.h" // For export macro
 #include "vtkStructuredNeighbor.h"
@@ -99,5 +99,5 @@ public:
       int WholeExtent[6], const int N);
 };
 
-#endif /* VTKSTRUCTUREDAMRNEIGHBOR_H_ */
+#endif /* vtkStructuredAMRNeighbor_h */
 // VTK-HeaderTest-Exclude: vtkStructuredAMRNeighbor.h

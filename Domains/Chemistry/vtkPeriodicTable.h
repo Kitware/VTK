@@ -25,7 +25,7 @@
 
 #include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkNew.h"
+#include "vtkNew.h" // Needed for the static data member
 
 class vtkBlueObeliskData;
 class vtkColor3f;

@@ -37,6 +37,9 @@
 // .SECTION See Also
 // vtkGeoTerrain2D vtkGeoAlignedImageRepresentation vtkGeoSource
 
+#ifndef vtkGeoView2D_h
+#define vtkGeoView2D_h
+
 #include "vtkViewsGeovisModule.h" // For export macro
 #include "vtkRenderView.h"
 
@@ -80,3 +83,4 @@ private:
   void operator=(const vtkGeoView2D&); // Not implemented
 };
 
+#endif

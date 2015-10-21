@@ -25,8 +25,8 @@
 // .SECTION Thanks
 //
 
-#ifndef vtkCollapseVerticesByArray_h__
-#define vtkCollapseVerticesByArray_h__
+#ifndef vtkCollapseVerticesByArray_h
+#define vtkCollapseVerticesByArray_h
 
 #include "vtkInfovisCoreModule.h" // For export macro
 #include "vtkGraphAlgorithm.h"

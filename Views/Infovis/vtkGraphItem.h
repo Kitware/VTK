@@ -22,8 +22,8 @@
 // subclass this item and override the property functions you wish to
 // customize.
 
-#ifndef vtkMultiLineItem_h
-#define vtkMultiLineItem_h
+#ifndef vtkGraphItem_h
+#define vtkGraphItem_h
 
 #include "vtkViewsInfovisModule.h" // For export macro
 #include "vtkContextItem.h"

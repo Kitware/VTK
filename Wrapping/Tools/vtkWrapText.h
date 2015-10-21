@@ -17,8 +17,8 @@
  * vtkWrap provides useful functions for generating wrapping code.
 */
 
-#ifndef VTK_WRAP_TEXT_H
-#define VTK_WRAP_TEXT_H
+#ifndef vtkWrapText_h
+#define vtkWrapText_h
 
 #include "vtkParse.h"
 #include "vtkParseHierarchy.h"

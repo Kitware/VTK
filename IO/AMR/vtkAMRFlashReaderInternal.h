@@ -20,8 +20,8 @@
 // .SECTION See Also
 //  vtkAMRFlashReader
 
-#ifndef VTKAMRFLASHREADERINTERNAL_HPP_
-#define VTKAMRFLASHREADERINTERNAL_HPP_
+#ifndef vtkAMRFlashReaderInternal_h
+#define vtkAMRFlashReaderInternal_h
 
 #include <cassert>
 #include <vector>
@@ -207,5 +207,5 @@ public:
 // ----------------------------------------------------------------------------
 //                     Class  vtkFlashReaderInternal ( end )
 // ----------------------------------------------------------------------------
-#endif /* VTKAMRFLASHREADERINTERNAL_HPP_ */
+#endif /* vtkAMRFlashReaderInternal_h */
 // VTK-HeaderTest-Exclude: vtkAMRFlashReaderInternal.h

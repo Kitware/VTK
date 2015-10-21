@@ -21,8 +21,8 @@
 // .SECTION See Also
 //  vtkAMRBaseParticlesReader
 
-#ifndef VTKAMRENZOPARTICLESREADER_H_
-#define VTKAMRENZOPARTICLESREADER_H_
+#ifndef vtkAMREnzoParticlesReader_h
+#define vtkAMREnzoParticlesReader_h
 
 #include "vtkIOAMRModule.h" // For export macro
 #include "vtkAMRBaseParticlesReader.h"
@@ -89,4 +89,4 @@ private:
   void operator=( const vtkAMREnzoParticlesReader& ); // Not implemented
 };
 
-#endif /* VTKAMRENZOPARTICLESREADER_H_ */
+#endif /* vtkAMREnzoParticlesReader_h */

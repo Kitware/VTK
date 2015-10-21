@@ -51,8 +51,8 @@ Ph.D. thesis of Christian BOUCHENY.
 // Its delegate is usually set to a vtkCameraPass or to a post-processing pass.
 //
 
-#ifndef __vtkEDLShading_h
-#define __vtkEDLShading_h
+#ifndef vtkEDLShading_h
+#define vtkEDLShading_h
 
 #define EDL_HIGH_RESOLUTION_ON 1
 #define EDL_LOW_RESOLUTION_ON 1

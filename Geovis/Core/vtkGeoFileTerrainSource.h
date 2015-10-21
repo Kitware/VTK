@@ -25,6 +25,9 @@
 // of the patch and the position within that level. Use vtkGeoTerrain's
 // SaveDatabase method to create a database of files in this format.
 
+#ifndef vtkGeoFileTerrainSource_h
+#define vtkGeoFileTerrainSource_h
+
 #include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkGeoSource.h"
 #include "vtkSmartPointer.h" // For smart pointer ivars
@@ -66,3 +69,4 @@ private:
   char* Path;
 };
 
+#endif

@@ -60,8 +60,8 @@
 // Thanks to Colin Myers, University of Leeds for extending this implementation.
 
 
-#ifndef _vtkTulipReader_h
-#define _vtkTulipReader_h
+#ifndef vtkTulipReader_h
+#define vtkTulipReader_h
 
 #include "vtkIOInfovisModule.h" // For export macro
 #include "vtkUndirectedGraphAlgorithm.h"
@@ -98,5 +98,4 @@ private:
   void operator=(const vtkTulipReader&);  // Not implemented.
 };
 
-#endif // _vtkTulipReader_h
-
+#endif // vtkTulipReader_h

@@ -23,6 +23,9 @@
 // vtkGeoGlobeSource is a 3D vtkGeoSource suitable for use in vtkGeoTerrain.
 // It uses the vtkGlobeSource filter to produce terrain patches.
 
+#ifndef vtkGeoGlobeSource_h
+#define vtkGeoGlobeSource_h
+
 #include "vtkGeovisCoreModule.h" // For export macro
 #include "vtkGeoSource.h"
 
@@ -52,3 +55,4 @@ private:
   void operator=(const vtkGeoGlobeSource&); // Not implemented
 };
 
+#endif

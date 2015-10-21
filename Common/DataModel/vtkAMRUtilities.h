@@ -21,8 +21,8 @@
 // .SECTION See Also
 //  vtkOverlappingAMR, vtkAMRBox
 
-#ifndef VTKAMRUTILITIES_H_
-#define VTKAMRUTILITIES_H_
+#ifndef vtkAMRUtilities_h
+#define vtkAMRUtilities_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
@@ -98,4 +98,4 @@ private:
   void operator=(const vtkAMRUtilities&); // Not implemented
 };
 
-#endif /* VTKAMRUTILITIES_H_ */
+#endif /* vtkAMRUtilities_h */

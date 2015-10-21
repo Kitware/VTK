@@ -28,8 +28,8 @@
 // structures and create the actual output.
 
 
-#ifndef _vtkStreamerBase_h
-#define _vtkStreamerBase_h
+#ifndef vtkStreamerBase_h
+#define vtkStreamerBase_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkAlgorithm.h"

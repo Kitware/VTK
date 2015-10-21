@@ -23,7 +23,6 @@
 #define vtkQtDebugLeaksModel_h
 
 #include "vtkGUISupportQtModule.h" // For export macro
-#include "QVTKWin32Header.h"
 #include <QStandardItemModel>
 
 class vtkObjectBase;

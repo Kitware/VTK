@@ -12,8 +12,8 @@
 
 =========================================================================*/
 
-#ifndef vtkOpenGLHelpher_h
-#define vtkOpenGLHelpher_h
+#ifndef vtkOpenGLHelper_h
+#define vtkOpenGLHelper_h
 
 #include "vtkRenderingOpenGL2Module.h" // for export macro
 #include "vtkTimeStamp.h"
@@ -42,6 +42,6 @@ public:
   void ReleaseGraphicsResources(vtkWindow *win);
 };
 
-#endif // vtkOpenGLHelpher_h
+#endif // vtkOpenGLHelper_h
 
 // VTK-HeaderTest-Exclude: vtkOpenGLHelper.h
