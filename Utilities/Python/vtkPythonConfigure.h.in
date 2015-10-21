@@ -17,12 +17,6 @@
 
 /* This header is configured by VTK's build process.  */
 
-/* Python version that VTK was configured with */
-#define VTK_PYTHON_MAJOR_VERSION @PYTHON_MAJOR_VERSION@
-#define VTK_PYTHON_MINOR_VERSION @PYTHON_MINOR_VERSION@
-#define VTK_PYTHON_MICRO_VERSION @PYTHON_MICRO_VERSION@
-#define VTK_PYTHON_VERSION_HEX ((@PYTHON_MAJOR_VERSION@ << 24) | (@PYTHON_MINOR_VERSION@ << 16) | (@PYTHON_MICRO_VERSION@ << 8))
-
 /* E.g. on BlueGene and Cray there is no multithreading */
 #cmakedefine VTK_NO_PYTHON_THREADS
 

@@ -91,8 +91,4 @@ they are system headers.  Do NOT add any #undef lines here.  */
 # undef VTK_PYTHON_UNDEF_DEBUG
 #endif
 
-#if (PY_VERSION_HEX & 0xFFFF0000) != (VTK_PYTHON_VERSION_HEX & 0xFFFF0000)
-#error "Python.h is different version from what VTK was configured with!!"
-#endif
-
 #endif
