@@ -882,7 +882,8 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
 // ----------------------------------------------------------------------------
 int vtkTextActor::UpdateRectangle(vtkViewport* viewport)
 {
-  if (this->TextProperty->GetMTime() > this->ScaledTextProperty->GetMTime())
+  if (this->TextProperty->GetMTime() > this->ScaledTextProperty->GetMTime() ||
+      this->GetMTime() > this->BuildTime)
     {
     this->ComputeScaledFont(viewport);
     }
