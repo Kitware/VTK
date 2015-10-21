@@ -70,8 +70,7 @@ public:
       "__vtkConsoleLocals={'__name__':'__vtkconsole__','__doc__':None}\n"
       "__vtkConsole=code.InteractiveConsole(__vtkConsoleLocals)\n";
 
-    // The cast is necessary because PyRun_SimpleString() hasn't always been
-    // const-correct
+    // The const_cast can be removed for Python 3.3 or later.
     PyRun_SimpleString(const_cast<char*>(code));
 
     // Now get the reference to __vtkConsole and save the pointer.
@@ -88,10 +87,13 @@ public:
     Py_INCREF(this->InteractiveConsole);
     Py_INCREF(this->InteractiveConsoleLocals);
 
-    PyRun_SimpleString("del __vtkConsole; del __vtkConsoleLocals");
+    // The const_cast can be removed for Python 3.3 or later.
+    PyRun_SimpleString(
+      const_cast<char *>("del __vtkConsole; del __vtkConsoleLocals"));
 
     // Maybe we need an API to enable developers to set the prompts.
-    PyObject* ps1 = PySys_GetObject("ps1");
+    // (The const_cast can be removed for Python 3.3 or later).
+    PyObject* ps1 = PySys_GetObject(const_cast<char*>("ps1"));
     if (!ps1)
       {
 #if PY_VERSION_HEX >= 0x03000000
@@ -99,11 +101,13 @@ public:
 #else
       ps1 = PyString_FromString(">>> ");
 #endif
-      PySys_SetObject("ps1", ps1);
+      // The const_cast can be removed for Python 3.3 or later.
+      PySys_SetObject(const_cast<char*>("ps1"), ps1);
       Py_XDECREF(ps1);
       }
 
-    PyObject* ps2 = PySys_GetObject("ps2");
+    // The const_cast can be removed for Python 3.3 or later.
+    PyObject* ps2 = PySys_GetObject(const_cast<char*>("ps2"));
     if (!ps2)
       {
 #if PY_VERSION_HEX >= 0x03000000
@@ -111,7 +115,8 @@ public:
 #else
       ps2 = PyString_FromString("... ");
 #endif
-      PySys_SetObject("ps2", ps2);
+      // The const_cast can be removed for Python 3.3 or later.
+      PySys_SetObject(const_cast<char*>("ps2"), ps2);
       Py_XDECREF(ps2);
       }
 
@@ -177,6 +182,7 @@ bool vtkPythonInteractiveInterpreter::Push(const char* const code)
     }
 
   bool ret_value = false;
+  // The const_cast can be removed for Python 3.4 or later.
   PyObject *res = PyObject_CallMethod(console,
     const_cast<char*>("push"), const_cast<char*>("z"), buffer.c_str());
   if (res)
@@ -200,7 +206,9 @@ int vtkPythonInteractiveInterpreter::RunStringWithConsoleLocals(const char* scri
   this->Internals->GetInteractiveConsole(); //ensure the console is initialized
 
   PyObject* context = this->Internals->GetInteractiveConsoleLocalsPyObject();
-  PyObject* result = PyRun_String(const_cast<char*>(script), Py_file_input, context, context);
+  // The const_cast can be removed for Python 3.3 or later.
+  PyObject* result = PyRun_String(const_cast<char*>(script),
+                                  Py_file_input, context, context);
 
   if (result == NULL)
     {
@@ -210,7 +218,8 @@ int vtkPythonInteractiveInterpreter::RunStringWithConsoleLocals(const char* scri
 
   Py_DECREF(result);
 #if PY_VERSION_HEX >= 0x03000000
-  PyObject *f = PySys_GetObject("stdout");
+  // The const_cast can be removed for Python 3.3 or later.
+  PyObject *f = PySys_GetObject(const_cast<char*>("stdout"));
   if (f == 0 || PyFile_WriteString("\n", f) != 0)
     {
     PyErr_Clear();
