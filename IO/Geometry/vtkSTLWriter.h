@@ -51,6 +51,11 @@ public:
   vtkGetStringMacro(FileName);
 
   // Description:
+  // Set the header for the file.
+  vtkSetStringMacro(Header);
+  vtkGetStringMacro(Header);
+
+  // Description:
   // Specify file type (ASCII or BINARY) for vtk data file.
   vtkSetClampMacro(FileType,int,VTK_ASCII,VTK_BINARY);
   vtkGetMacro(FileType,int);
@@ -67,12 +72,14 @@ protected:
 
   void WriteData();
 
-  void WriteBinarySTL(vtkPoints *pts, vtkCellArray *polys);
-  void WriteAsciiSTL(vtkPoints *pts, vtkCellArray *polys);
+  void WriteBinarySTL(
+    vtkPoints *pts, vtkCellArray *polys, vtkCellArray *strips);
+  void WriteAsciiSTL(
+    vtkPoints *pts, vtkCellArray *polys, vtkCellArray *strips);
 
   char* FileName;
   char *Header;
-  int FileType;
+  int   FileType;
 
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 

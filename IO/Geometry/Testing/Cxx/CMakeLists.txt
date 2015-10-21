@@ -29,6 +29,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestTecplotReader.cxx
   TestAMRReadWrite.cxx,NO_VALID
   TestSimplePointsReaderWriter.cxx,NO_VALID
+  UnitTestSTLWriter.cxx,NO_VALID
   )
 
 vtk_add_test_cxx(${vtk-module}CxxTests tests
