@@ -110,7 +110,7 @@ struct WriteBinaryDataBlockWorker
   //----------------------------------------------------------------------------
   // Specialize for AoS arrays.
   template <class ValueType>
-  int operator()(vtkAoSDataArrayTemplate<ValueType>* array)
+  void operator()(vtkAoSDataArrayTemplate<ValueType>* array)
   {
     // Get the raw pointer to the array data:
     ValueType *iter = array->GetPointer(0);
@@ -1305,6 +1305,7 @@ int vtkXMLWriter::WriteBinaryDataInternal(vtkAbstractArray* a)
     {
     vtkWarningMacro("Not writing array '" << a->GetName() << "': Unsupported "
                     "array type: " << a->GetClassName());
+    ret = 0;
     }
 
   // Free the byte swap buffer if it was allocated.

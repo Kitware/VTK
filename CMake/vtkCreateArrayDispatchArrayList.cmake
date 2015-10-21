@@ -187,7 +187,7 @@ list(APPEND temp
   "\n"
   "namespace vtkArrayDispatch {\n"
   "\n"
-  "typedef typename vtkTypeList::Unique<\n"
+  "typedef vtkTypeList::Unique<\n"
   "  vtkTypeList_Create_${vtkAD_numArrays}(\n"
 )
 

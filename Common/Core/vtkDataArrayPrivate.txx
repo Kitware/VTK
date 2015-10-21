@@ -166,7 +166,7 @@ bool DoComputeScalarRange(ArrayT *array, double *ranges)
       }
 
     //compute the range for each component of the data array at the same time
-    for (vtkIdType tupleIdx; tupleIdx < numTuples; ++tupleIdx)
+    for (vtkIdType tupleIdx = 0; tupleIdx < numTuples; ++tupleIdx)
       {
       for(int compIdx = 0, j = 0; compIdx < numComp; ++compIdx, j+=2)
         {
@@ -208,7 +208,7 @@ bool DoComputeVectorRange(ArrayT *array, double range[2])
     }
 
   //iterate over all the tuples
-  for (vtkIdType tupleIdx; tupleIdx < numTuples; ++tupleIdx)
+  for (vtkIdType tupleIdx = 0; tupleIdx < numTuples; ++tupleIdx)
     {
     double squaredSum = 0.0;
     for (int compIdx = 0; compIdx < numComps; ++compIdx)

@@ -53,6 +53,9 @@
 #include "vtkUnsignedLongLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
+// Needed for portable setenv on MSVC...
+#include "vtksys/SystemTools.hxx"
+
 // About this test:
 //
 // This test runs a battery of unit tests that exercise the vtkDataArray API
@@ -965,19 +968,22 @@ int Test_voidPtr_GetVoidPointer()
   for (vtkIdType t = 0; t < tuples; ++t)
     {
     // Silence the void pointer warnings for these calls
-    const char *oldWarning = getenv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS");
-    setenv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS", "1", 1);
+    const char *oldWarning =
+        vtksys::SystemTools::GetEnv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS");
+    vtksys::SystemTools::PutEnv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS=1");
 
     ScalarT *ptr = static_cast<ScalarT*>(source->GetVoidPointer(t * comps));
 
     // Restore state:
     if (oldWarning)
       {
-      setenv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS", oldWarning, 1);
+      std::ostringstream envArg;
+      envArg << "VTK_SILENCE_GET_VOID_POINTER_WARNINGS=" << oldWarning;
+      vtksys::SystemTools::PutEnv(envArg.str());
       }
     else
       {
-      unsetenv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS");
+      vtksys::SystemTools::UnPutEnv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS");
       }
 
     DataArrayAPIAssert(ptr != NULL, "GetVoidPointer returned NULL!");
@@ -1487,21 +1493,23 @@ int Test_vtkArrayIteratorPtr_NewIterator()
 
   // Silence the void pointer warnings for these calls. The
   // vtkArrayIteratorTemplate implementation relies on GetVoidPointer.
-  const char *oldWarning = getenv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS");
-  setenv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS", "1", 1);
+  const char *oldWarning =
+      vtksys::SystemTools::GetEnv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS");
+  vtksys::SystemTools::PutEnv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS=1");
 
   vtkArrayIterator *iter = source->NewIterator();
 
   // Restore state:
   if (oldWarning)
     {
-    setenv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS", oldWarning, 1);
+    std::ostringstream envArg;
+    envArg << "VTK_SILENCE_GET_VOID_POINTER_WARNINGS=" << oldWarning;
+    vtksys::SystemTools::PutEnv(envArg.str());
     }
   else
     {
-    unsetenv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS");
+    vtksys::SystemTools::UnPutEnv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS");
     }
-
 
   DataArrayAPIAssert(iter != NULL,
                      "NewIterator() returns NULL.");

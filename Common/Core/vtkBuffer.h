@@ -143,3 +143,4 @@ protected:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkBuffer.h

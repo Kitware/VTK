@@ -53,7 +53,7 @@ void Test()
   array->Delete();
 }
 
-int TestGenericDataArray(int, char**)
+int TestGenericDataArray(int, char*[])
 {
   Test<vtkSoADataArrayTemplate<float> >();
   Test<vtkAoSDataArrayTemplate<float> >();

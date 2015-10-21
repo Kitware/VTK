@@ -196,7 +196,9 @@ private:
 
 #include "vtkAoSDataArrayTemplate.txx"
 
-// Ported over from vtkDataArrayTemplate:
+#endif // header guard
+
+// TODO clean this up, more or less copy/pasted from vtkDataArrayTemplate.h:
 
 #if !defined(VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
 # define VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATE(T) \
@@ -204,12 +206,8 @@ private:
 #else
 // TODO Not sure what this does, need to dig some:
 //# include "vtkDataArrayTemplateImplicit.txx"
-//# define VTK_DATA_ARRAY_TEMPLATE_INSTANTIATE(T)
+//# define VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATE(T)
 #endif
-
-#endif // header guard
-
-// TODO clean this up, more or less copy/pasted from vtkDataArrayTemplate.h:
 
 // This portion must be OUTSIDE the include blockers.  Each
 // vtkDataArray subclass uses this to give its instantiation of this

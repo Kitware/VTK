@@ -144,8 +144,7 @@ typedef vtkTypeList_Create_5(vtkSoADataArrayTemplate<double>,
                              vtkSoADataArrayTemplate<unsigned char>,
                              vtkSoADataArrayTemplate<vtkIdType>) SoAArrayList;
 
-typedef typename vtkTypeList::Append<AoSArrayList, SoAArrayList>::Result
-        AllArrayList;
+typedef vtkTypeList::Append<AoSArrayList, SoAArrayList>::Result AllArrayList;
 
 //------------------------------------------------------------------------------
 // Return true if the VTK type tag is an integral type.
@@ -452,7 +451,7 @@ int TestDispatch2BySameValueType()
       {
       vtkDataArray *array2 = *it2;
       bool array2Valid = vtkDataTypesCompare(array1->GetDataType(),
-                                             array2->GetDataType());
+                                             array2->GetDataType()) != 0;
 
       if (array1Valid && array2Valid)
         {
@@ -571,7 +570,7 @@ int TestDispatch3ByValueType()
         {
         vtkDataArray *array3 = *it3;
         bool array3Valid = vtkDataTypesCompare(array3->GetDataType(),
-                                               VTK_UNSIGNED_CHAR);
+                                               VTK_UNSIGNED_CHAR) != 0;
 
         if (array1Valid && array2Valid && array3Valid)
           {
@@ -634,8 +633,8 @@ int TestDispatch3ByArrayWithSameValueType()
            itEnd3 = Arrays::allArrays.end(); it3 != itEnd3; ++it3)
         {
         vtkDataArray *array3 = *it3;
-        bool array3Valid =
-            vtkDataTypesCompare(array1->GetDataType(), array3->GetDataType());
+        bool array3Valid = vtkDataTypesCompare(array1->GetDataType(),
+                                               array3->GetDataType()) != 0;
 
         if (array1Valid && array2Valid && array3Valid)
           {
@@ -688,14 +687,14 @@ int TestDispatch3BySameValueType()
       {
       vtkDataArray *array2 = *it2;
       bool array2Valid = vtkDataTypesCompare(array1->GetDataType(),
-                                             array2->GetDataType());
+                                             array2->GetDataType()) != 0;
 
       for (ArrayIter it3 = Arrays::allArrays.begin(),
            itEnd3 = Arrays::allArrays.end(); it3 != itEnd3; ++it3)
         {
         vtkDataArray *array3 = *it3;
         bool array3Valid = vtkDataTypesCompare(array1->GetDataType(),
-                                               array3->GetDataType());
+                                               array3->GetDataType()) != 0;
 
         if (array1Valid && array2Valid && array3Valid)
           {

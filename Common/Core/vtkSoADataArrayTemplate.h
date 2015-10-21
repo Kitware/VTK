@@ -191,3 +191,4 @@ private:
 
 #include "vtkSoADataArrayTemplate.txx"
 #endif
+// VTK-HeaderTest-Exclude: vtkSoADataArrayTemplate.h

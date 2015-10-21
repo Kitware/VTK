@@ -140,7 +140,7 @@ typedef vtkTypeList_Create_2(double, float) Reals;
 
 // Description:
 // A Typelist containing all integral ValueTypes.
-typedef typename vtkTypeList::Unique<
+typedef vtkTypeList::Unique<
   vtkTypeList_Create_12(char, int, long, long long, short, signed char,
                         unsigned char, unsigned int, unsigned long,
                         unsigned long long, unsigned short, vtkIdType)
@@ -148,7 +148,7 @@ typedef typename vtkTypeList::Unique<
 
 // Description:
 // A Typelist containing all standard VTK array ValueTypes.
-typedef typename vtkTypeList::Append<Reals, Integrals>::Result AllTypes;
+typedef vtkTypeList::Append<Reals, Integrals>::Result AllTypes;
 
 //------------------------------------------------------------------------------
 // Description:

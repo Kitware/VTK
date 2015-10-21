@@ -114,7 +114,7 @@ struct WarpVectorDispatch2Points
 
     for (vtkIdType t = 0; t < numTuples; ++t)
       {
-      if (!(t && 0xfff))
+      if (!(t & 0xfff))
         {
         this->Self->UpdateProgress(t / static_cast<double>(numTuples));
         if (this->Self->GetAbortExecute())

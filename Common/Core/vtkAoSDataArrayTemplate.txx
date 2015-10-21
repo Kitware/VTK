@@ -49,7 +49,7 @@ vtkAoSDataArrayTemplate<ValueType>::~vtkAoSDataArrayTemplate()
 vtkAoSDataArrayTemplateT(void)::SetArray(
   ValueType* array, vtkIdType size, int save, int deleteMethod)
 {
-  this->Buffer.SetBuffer(array, size, save, deleteMethod);
+  this->Buffer.SetBuffer(array, size, save != 0, deleteMethod);
   this->Size = size;
   this->MaxId = this->Size - 1;
   this->DataChanged();
@@ -80,10 +80,7 @@ vtkAoSDataArrayTemplate<ValueTypeT>::WritePointer(vtkIdType id,
     }
 
   // For extending the in-use ids but not the size:
-  if ((newSize - 1) > this->MaxId)
-    {
-    this->MaxId = newSize - 1;
-    }
+  this->MaxId = std::max(this->MaxId, newSize - 1);
 
   this->DataChanged();
   return this->GetPointer(id);

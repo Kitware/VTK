@@ -37,7 +37,6 @@ bool vtkTypedDataArray<Scalar>::AllocateTuples(vtkIdType)
   vtkErrorMacro(<<"This method is not preferred for vtkTypedDataArray "
                 "implementations. Either add an appropriate implementation, or "
                 "use Allocate instead.");
-  abort();
   return false;
 }
 
@@ -48,7 +47,6 @@ bool vtkTypedDataArray<Scalar>::ReallocateTuples(vtkIdType)
   vtkErrorMacro(<<"This method is not preferred for vtkTypedDataArray "
                 "implementations. Either add an appropriate implementation, or "
                 "use Resize instead.");
-  abort();
   return false;
 }
 

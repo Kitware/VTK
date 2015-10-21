@@ -453,9 +453,9 @@ public:
 
 protected:
   vtkGenericDataArray()
-    : Lookup(*this)
     {
     // Initialize internal data structures:
+    this->Lookup.SetArray(this);
     this->SetNumberOfComponents(this->NumberOfComponents);
     }
 
@@ -497,3 +497,4 @@ private:
 
 #include "vtkGenericDataArray.txx"
 #endif
+// VTK-HeaderTest-Exclude: vtkGenericDataArray.h
