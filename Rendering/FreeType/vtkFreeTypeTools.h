@@ -155,6 +155,11 @@ public:
   static vtkTypeUInt16 HashString(const char *str);
 
   // Description:
+  // Hash a string of a given length. This function hashes n chars and does
+  // not depend on a terminating null character.
+  static vtkTypeUInt32 HashBuffer(const void* str, size_t n, vtkTypeUInt32 hash = 0);
+
+  // Description:
   // Given a text property 'tprop', get its unique ID in our cache framework.
   // In the same way, given a unique ID in our cache, retrieve the
   // corresponding text property and assign its parameters to 'tprop'.

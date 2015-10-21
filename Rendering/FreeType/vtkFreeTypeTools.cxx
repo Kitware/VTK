@@ -582,6 +582,27 @@ vtkTypeUInt16 vtkFreeTypeTools::HashString(const char *str)
 }
 
 //----------------------------------------------------------------------------
+vtkTypeUInt32 vtkFreeTypeTools::HashBuffer(const void *buffer, size_t n, vtkTypeUInt32 hash)
+{
+  if (buffer == NULL)
+    {
+    return 0;
+    }
+
+  const char* key = reinterpret_cast<const char*>(buffer);
+
+  // Jenkins hash function
+  for (size_t i = 0; i < n; ++i)
+    {
+    hash += key[i];
+    hash += (hash << 10);
+    hash += (hash << 15);
+    }
+
+  return hash;
+}
+
+//----------------------------------------------------------------------------
 void vtkFreeTypeTools::MapTextPropertyToId(vtkTextProperty *tprop,
                                            size_t *id)
 {
@@ -591,43 +612,52 @@ void vtkFreeTypeTools::MapTextPropertyToId(vtkTextProperty *tprop,
     return;
     }
 
+  // The font family is hashed into 16 bits (= 17 bits so far)
+  const char* fontFamily = tprop->GetFontFamily() != VTK_FONT_FILE
+    ? tprop->GetFontFamilyAsString()
+    : tprop->GetFontFile();
+  size_t fontFamilyLength = 0;
+  if (fontFamily)
+    {
+    fontFamilyLength = strlen(fontFamily);
+    }
+  vtkTypeUInt32 hash =
+    vtkFreeTypeTools::HashBuffer(fontFamily, fontFamilyLength);
+
+  // Create a "string" of text properties
+  unsigned char ucValue = tprop->GetBold();
+  hash = vtkFreeTypeTools::HashBuffer(&ucValue, sizeof(unsigned char), hash);
+  ucValue = tprop->GetItalic();
+  hash = vtkFreeTypeTools::HashBuffer(&ucValue, sizeof(unsigned char), hash);
+  ucValue = tprop->GetShadow();
+  hash = vtkFreeTypeTools::HashBuffer(&ucValue, sizeof(unsigned char), hash);
+  hash = vtkFreeTypeTools::HashBuffer(
+    tprop->GetColor(), 3*sizeof(double), hash);
+  double dValue = tprop->GetOpacity();
+  hash = vtkFreeTypeTools::HashBuffer(&dValue, sizeof(double), hash);
+  hash = vtkFreeTypeTools::HashBuffer(
+    tprop->GetBackgroundColor(), 3*sizeof(double), hash);
+  dValue = tprop->GetBackgroundOpacity();
+  hash = vtkFreeTypeTools::HashBuffer(&dValue, sizeof(double), hash);
+  int iValue = tprop->GetFontSize();
+  hash = vtkFreeTypeTools::HashBuffer(&iValue, sizeof(int), hash);
+  hash = vtkFreeTypeTools::HashBuffer(
+    tprop->GetShadowOffset(), 2*sizeof(int), hash);
+  dValue = tprop->GetOrientation();
+  hash = vtkFreeTypeTools::HashBuffer(&dValue, sizeof(double), hash);
+  hash = vtkFreeTypeTools::HashBuffer(&dValue, sizeof(double), hash);
+  dValue = tprop->GetLineSpacing();
+  hash = vtkFreeTypeTools::HashBuffer(&dValue, sizeof(double), hash);
+  dValue = tprop->GetLineOffset();
+  hash = vtkFreeTypeTools::HashBuffer(&dValue, sizeof(double), hash);
+
   // Set the first bit to avoid id = 0
   // (the id will be mapped to a pointer, FTC_FaceID, so let's avoid NULL)
   *id = 1;
-  unsigned int bits = 1;
 
-  // The font family is hashed into 16 bits (= 17 bits so far)
-  vtkTypeUInt16 familyHash =
-      vtkFreeTypeTools::HashString(tprop->GetFontFamily() != VTK_FONT_FILE
-                                   ? tprop->GetFontFamilyAsString()
-                                   : tprop->GetFontFile());
-  *id |= familyHash << bits;
-  bits += 16;
-
-  // Bold is in 1 bit (= 18 bits so far)
-  vtkIdType bold = (tprop->GetBold() ? 1 : 0) << bits;
-  ++bits;
-
-  // Italic is in 1 bit (= 19 bits so far)
-  vtkIdType italic = (tprop->GetItalic() ? 1 : 0) << bits;
-  ++bits;
-
-  // Orientation (in degrees)
-  // We need 9 bits for 0 to 360. What do we need for more precisions:
-  // - 1/10th degree: 12 bits (11.8) (31 bits)
-  long angle = vtkMath::Round(tprop->GetOrientation() * 10.0) % 3600;
-  if (angle < 0)
-    {
-    angle += 3600;
-    }
-  // We really should not use more than 12 bits
-  assert(angle >= 0 && (angle & 0xfffff000) == 0);
-  angle <<= bits;
-
-  vtkIdType merged = (bold | italic | angle);
-
-  // Now final id
-  *id |= merged;
+  // Add in the hash.
+  // We're dropping a bit here, but that should be okay.
+  *id |= hash << 1;
 
   // Insert the TextProperty into the lookup table
   if (!this->TextPropertyLookup->contains(*id))
