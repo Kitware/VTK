@@ -15,6 +15,8 @@
 #ifndef vtkConfigure_h
 #define vtkConfigure_h
 
+#include "vtkCompilerFeatureDetection.h"
+
 /* This header is configured by VTK's build process.  */
 
 /*--------------------------------------------------------------------------*/

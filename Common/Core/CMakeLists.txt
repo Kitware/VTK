@@ -250,6 +250,7 @@ SET(Module_SRCS
   ${VTK_SMP_SOURCES}
   ${VTK_SMP_HEADERS}
   ${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkCompilerFeatureDetection.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h
   )
@@ -351,6 +352,43 @@ if (WIN32)
   check_symbol_exists(InterlockedAdd "windows.h" VTK_HAS_INTERLOCKEDADD)
 endif()
 
+if (NOT CMAKE_VERSION VERSION_LESS "3.3")
+  include(WriteCompilerDetectionHeader)
+  write_compiler_detection_header(
+    FILE "${CMAKE_CURRENT_BINARY_DIR}/vtkCompilerFeatureDetection.h"
+    PREFIX VTK
+    COMPILERS GNU Clang AppleClang MSVC
+    FEATURES cxx_final cxx_override cxx_nullptr
+    VERSION "3.3.0"
+  )
+  # MSVC newer than 2012 always supports C++11, so turn it on by default
+  if(MSVC AND ( MSVC11 OR MSVC12 OR MSVC14) )
+   set(VTK_USE_CXX11_DEFAULT ON)
+  else()
+   set(VTK_USE_CXX11_DEFAULT OFF)
+  endif()
+
+  option(VTK_USE_CXX11_FEATURES "Build VTK using C++11 features (if available)"
+    ${VTK_USE_CXX11_DEFAULT})
+
+  if (VTK_USE_CXX11_FEATURES)
+    target_compile_features(vtkCommonCore PUBLIC cxx_final cxx_override cxx_nullptr)
+  endif()
+else()
+  FILE(WRITE "${CMAKE_CURRENT_BINARY_DIR}/vtkCompilerFeatureDetection.h"
+"
+#ifndef vtk_compiler_detection_h
+#define vtk_compiler_detection_h
+
+// default implementations in case CMake is too old to generate the file
+#define VTK_OVERRIDE
+#define VTK_FINAL
+#define VTK_NULLPTR 0
+#endif
+"
+  )
+  set(VTK_USE_CXX11_FEATURES OFF)
+endif()
 
 configure_file(vtkVersionMacros.h.in vtkVersionMacros.h @ONLY)
 configure_file(vtkConfigure.h.in vtkConfigure.h @ONLY)
