@@ -503,20 +503,33 @@ vtkDataSet *vtkTemporalInterpolator
         arrays.push_back(dataarray);
         }
       }
-    // do a quick check to see if all arrays have the same number of tuples
-    if (!this->VerifyArrays(&arrays[0], 2))
+    if (arrays[1])
       {
-      vtkWarningMacro(<<"Interpolation aborted for array "
-        << (scalarname ? scalarname : "(unnamed array)")
-        << " because the number of tuples/components"
-        << " in each time step are different");
+      // do a quick check to see if all arrays have the same number of tuples
+      if (!this->VerifyArrays(&arrays[0], 2))
+        {
+        vtkWarningMacro(<<"Interpolation aborted for array "
+                        << (scalarname ? scalarname : "(unnamed array)")
+                        << " because the number of tuples/components"
+                        << " in each time step are different");
+        }
+      else
+        {
+        // allocate double for output if input is double - otherwise float
+        vtkDataArray *outarray =
+          this->InterpolateDataArray(ratio, &arrays[0],
+                                     arrays[0]->GetNumberOfTuples());
+        output->GetPointData()->AddArray(outarray);
+        outarray->Delete();
+        }
       }
-    // allocate double for output if input is double - otherwise float
-    vtkDataArray *outarray =
-      this->InterpolateDataArray(ratio, &arrays[0],
-                                 arrays[0]->GetNumberOfTuples());
-    output->GetPointData()->AddArray(outarray);
-    outarray->Delete();
+    else
+      {
+      vtkDebugMacro(<<"Interpolation aborted for point array "
+                    << (scalarname ? scalarname : "(unnamed array)")
+                    << " because the array was not found"
+                    << " in the second time step");
+      }
     }
   //
   // Interpolate celldata if present
@@ -547,20 +560,31 @@ vtkDataSet *vtkTemporalInterpolator
         arrays.push_back(dataarray);
         }
       }
-    // do a quick check to see if all arrays have the same number of tuples
-    if (!this->VerifyArrays(&arrays[0], 2))
+    if (arrays[1])
       {
-      vtkWarningMacro(<<"Interpolation aborted for array "
-                      << (scalarname ? scalarname : "(unnamed array)")
-                      << " because the number of tuples/components"
-                      << " in each time step are different");
+      // do a quick check to see if all arrays have the same number of tuples
+      if (!this->VerifyArrays(&arrays[0], 2))
+        {
+        vtkWarningMacro(<<"Interpolation aborted for array "
+                        << (scalarname ? scalarname : "(unnamed array)")
+                        << " because the number of tuples/components"
+                        << " in each time step are different");
+        }
+      // allocate double for output if input is double - otherwise float
+      vtkDataArray *outarray =
+        this->InterpolateDataArray(ratio, &arrays[0],
+                                   arrays[0]->GetNumberOfTuples());
+      output->GetCellData()->AddArray(outarray);
+      outarray->Delete();
       }
-    // allocate double for output if input is double - otherwise float
-    vtkDataArray *outarray =
-      this->InterpolateDataArray(ratio, &arrays[0],
-                                 arrays[0]->GetNumberOfTuples());
-    output->GetCellData()->AddArray(outarray);
-    outarray->Delete();
+    else
+      {
+      vtkDebugMacro(<<"Interpolation aborted for cell array "
+                    << (scalarname ? scalarname : "(unnamed array)")
+                    << " because the array was not found"
+                    << " in the second time step");
+      }
+
     }
   return output;
 }
