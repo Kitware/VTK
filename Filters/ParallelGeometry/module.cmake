@@ -2,6 +2,7 @@ vtk_module(vtkFiltersParallelGeometry
   GROUPS
     MPI
   DEPENDS
+    vtkFiltersExtraction
     vtkFiltersGeometry
     vtkParallelMPI
   TEST_DEPENDS
@@ -11,6 +12,7 @@ vtk_module(vtkFiltersParallelGeometry
     vtkCommonDataModel
     vtkParallelMPI
     vtkTestingCore
+    vtkImagingCore
   KIT
     vtkParallel
   )

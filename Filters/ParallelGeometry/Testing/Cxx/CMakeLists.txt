@@ -4,6 +4,7 @@ vtk_add_test_mpi(${vtk-module}CxxTests-MPI tests
   TestPStructuredGridConnectivity.cxx
   TestPStructuredGridGhostDataGenerator.cxx
   TestPUnstructuredGridConnectivity.cxx
+  TestPUnstructuredGridGhostCellsGenerator.cxx
   TestPUnstructuredGridGhostDataGenerator.cxx
   TestPUniformGridGhostDataGenerator.cxx
   )
