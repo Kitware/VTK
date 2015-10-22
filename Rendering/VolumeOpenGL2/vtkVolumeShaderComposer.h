@@ -79,8 +79,15 @@ namespace vtkvolume
        \n  // to account for OpenGL treating voxel at the center of the cell.\
        \n  vec3 uvx = (in_vertexPos - in_volumeExtentsMin) /\
        \n             (in_volumeExtentsMax - in_volumeExtentsMin);\
-       \n  vec3 delta = in_textureExtentsMax - in_textureExtentsMin;\
-       \n  ip_textureCoords = (uvx * (delta - vec3(1.0)) + vec3(0.5)) / delta;"
+       \n  if (in_cellFlag)\
+       \n    {\
+       \n    ip_textureCoords = uvx;\
+       \n    }\
+       \n  else\
+       \n    {\
+       \n    vec3 delta = in_textureExtentsMax - in_textureExtentsMin;\
+       \n    ip_textureCoords = (uvx * (delta - vec3(1.0)) + vec3(0.5)) / delta;\
+       \n    }"
     );
     }
 
@@ -90,6 +97,7 @@ namespace vtkvolume
                                     vtkVolume* vtkNotUsed(vol))
     {
     return std::string("\
+      \n  uniform int in_cellFlag;\
       \n  uniform mat4 in_modelViewMatrix;\
       \n  uniform mat4 in_projectionMatrix;\
       \n  uniform mat4 in_volumeMatrix;\
@@ -157,6 +165,7 @@ namespace vtkvolume
       \nuniform vec3 in_ambient;\
       \nuniform vec3 in_specular;\
       \nuniform float in_shininess;\
+      \nuniform int in_cellFlag;\
       ");
 
     if (lightingComplexity > 0)
@@ -1248,9 +1257,14 @@ namespace vtkvolume
     {
     return std::string("\
       \n  // Minimum texture access coordinate\
-      \n  vec3 delta = in_textureExtentsMax - in_textureExtentsMin;\
-      \n  vec3 l_tex_min = vec3(0.5) / delta;\
-      \n  vec3 l_tex_max = (1.0 * (delta - vec3(1.0)) + vec3(0.5)) / delta;\
+      \n  vec3 l_tex_min = vec3(0.0);\
+      \n  vec3 l_tex_max = vec3(1.0);\
+      \n  if (!in_cellFlag)\
+      \n    {\
+      \n    vec3 delta = in_textureExtentsMax - in_textureExtentsMin;\
+      \n    l_tex_min = vec3(0.5) / delta;\
+      \n    l_tex_max = (1.0 * (delta - vec3(1.0)) + vec3(0.5)) / delta;\
+      \n    }\
       \n\
       \n  // Flag to indicate if the raymarch loop should terminate \
       \n  bool stop = false;\
