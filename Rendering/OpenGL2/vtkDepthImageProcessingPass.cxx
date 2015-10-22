@@ -156,19 +156,6 @@ void vtkDepthImageProcessingPass::RenderDelegate(const vtkRenderState *s,
 
   s2.SetFrameBuffer(fbo);
 
-  // NOTE : it seems cleaner to do this in child class, since the child
-  //        creates the texture, and may manage creation/resizing of others
-  //        otherwise we should declare the fbo and main color and depth
-  //        textures in this abstract class
-  //        --> The point is that doing it here prevents from control on
-  //            Texture Format!!!
-  //
-  //if(colortarget->GetWidth()!=static_cast<unsigned int>(newWidth) ||
-  //     colortarget->GetHeight()!=static_cast<unsigned int>(newHeight))
-  //    {
-  //    colortarget->Create2D(newWidth,newHeight,4,VTK_UNSIGNED_CHAR,false);
-  //    }
-
   fbo->SetNumberOfRenderTargets(1);
   fbo->SetColorBuffer(0,colortarget);
 

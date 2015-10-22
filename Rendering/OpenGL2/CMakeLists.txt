@@ -18,6 +18,7 @@ set(Module_SRCS
   vtkClearZPass.cxx
   vtkCompositePolyDataMapper2.cxx
   vtkDefaultPass.cxx
+  vtkDepthOfFieldPass.cxx
   vtkDepthImageProcessingPass.cxx
   vtkDepthPeelingPass.cxx
   vtkEDLShading.cxx
@@ -124,6 +125,7 @@ set_source_files_properties(
   )
 
 set(shader_files
+  glsl/vtkDepthOfFieldPassFS.glsl
   glsl/vtkDepthPeelingPassFinalFS.glsl
   glsl/vtkDepthPeelingPassIntermediateFS.glsl
   glsl/vtkEDLComposeFS.glsl

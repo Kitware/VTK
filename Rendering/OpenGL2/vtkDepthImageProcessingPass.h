@@ -36,7 +36,7 @@ CNRS, Collège de France and Université J. Fourier as part of the
 Ph.D. thesis of Christian BOUCHENY.
 ------------------------------------------------------------------------*/
 // .NAME vtkDepthImageProcessingPass - Convenient class for post-processing
-// passes. Based on vtkDepthImageProcessingPass, but writes depth as well
+// passes. Based on vtkImageProcessingPass, but writes depth as well
 // in a texture
 // .SECTION Description
 // Abstract class with some convenient methods frequently used in subclasses.
