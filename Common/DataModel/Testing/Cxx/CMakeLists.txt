@@ -29,6 +29,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestPolyhedron0.cxx
   TestPolyhedron1.cxx
   TestQuadraticPolygon.cxx
+  TestRect.cxx
   TestSelectionSubtract.cxx
   TestTable.cxx
   TestTreeBFSIterator.cxx

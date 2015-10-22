@@ -381,6 +381,36 @@ int TestMath(int,char *[])
       }
     }
 
+  // test Min
+  int iMin = 0;
+  int iMax = 1;
+  if (iMin != vtkMath::Min(iMin, iMax))
+    {
+    vtkGenericWarningMacro("Min(" << iMin << ", " << iMax << " != " << iMin);
+    return 1;
+    }
+
+  double dMin = 3.0;
+  double dMax = 4.1;
+  if (dMin != vtkMath::Min(dMin, dMax))
+    {
+    vtkGenericWarningMacro("Min(" << dMin << ", " << dMax << " != " << dMin);
+    return 1;
+    }
+
+  // test Max
+  if (iMax != vtkMath::Max(iMin, iMax))
+    {
+    vtkGenericWarningMacro("Max(" << iMin << ", " << iMax << " != " << iMax);
+    return 1;
+    }
+
+  if (dMax != vtkMath::Max(dMin, dMax))
+    {
+    vtkGenericWarningMacro("Max(" << dMin << ", " << dMax << " != " << dMax);
+    return 1;
+    }
+
   // test is-power-of-two
   const static vtkTypeUInt64 isPowerOfTwoInputs[16] = {
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 255, 256, 257,
