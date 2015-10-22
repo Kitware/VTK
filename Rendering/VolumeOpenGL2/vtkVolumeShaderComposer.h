@@ -75,18 +75,18 @@ namespace vtkvolume
                                         vtkVolume* vtkNotUsed(vol))
     {
     return std::string(
-      "\n  // Assuming point data only. Also, we offset the texture coordinate\
+      "\n  // For point dataset, we offset the texture coordinate\
        \n  // to account for OpenGL treating voxel at the center of the cell.\
        \n  vec3 spacingSign = vec3(1.0);\
-       \n  if (in_cellSpacing[0] < 0.0)\
+       \n  if (in_cellSpacing.x < 0.0)\
        \n    {\
       \n     spacingSign.x = -1.0;\
        \n    }\
-       \n  if (in_cellSpacing[1] < 0.0)\
+       \n  if (in_cellSpacing.y < 0.0)\
        \n    {\
        \n     spacingSign.y = -1.0;\
        \n    }\
-       \n  if (in_cellSpacing[2] < 0.0)\
+       \n  if (in_cellSpacing.z < 0.0)\
        \n    {\
        \n     spacingSign.z = -1.0;\
        \n    }\
