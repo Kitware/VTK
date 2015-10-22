@@ -130,33 +130,46 @@ macro(crosscompile target toolchain_file archs)
     ${BUILD_ALWAYS_STRING}
     CMAKE_ARGS
       -DCMAKE_CROSSCOMPILING:BOOL=ON
-      #-DCMAKE_OSX_ARCHITECTURES:STRING=${archs}
+      -DCMAKE_OSX_ARCHITECTURES:STRING=${archs}
       -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-      -DCMAKE_TOOLCHAIN_FILE:FILEPATH=CMake/${toolchain_file}
+      -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${toolchain_file}
       -DVTKCompileTools_DIR:PATH=${BUILD_DIR}/vtk-compile-tools
       -DCMAKE_INSTALL_PREFIX:PATH=${INSTALL_DIR}/${target}
       ${ios_cmake_flags}
   )
 endmacro()
+
 crosscompile(vtk-ios-simulator
-  ios.simulator.toolchain.cmake
+  CMake/ios.simulator.toolchain.cmake
   "${IOS_SIMULATOR_ARCHITECTURES}"
  )
-crosscompile(vtk-ios-device
-  ios.device.toolchain.cmake
-  "${IOS_DEVICE_ARCHITECTURES}"
-)
+
+# for each architecture
+set(IOS_ARCHITECTURES arm64 armv7 armv7s)
+foreach (arch ${IOS_ARCHITECTURES})
+  set(CMAKE_CC_ARCH ${arch})
+  configure_file(CMake/ios.device.toolchain.cmake.in
+               ${CMAKE_CURRENT_BINARY_DIR}/CMake/ios.device.toolchain.${arch}.cmake
+               @ONLY)
+  crosscompile(vtk-ios-device-${arch}
+    ${CMAKE_CURRENT_BINARY_DIR}/CMake/ios.device.toolchain.${arch}.cmake
+    ${arch}
+  )
+  set(VTK_DEVICE_LIBS "${VTK_DEVICE_LIBS}
+    \"${INSTALL_DIR}/vtk-ios-device-${arch}/lib/libvtk*.a\"" )
+  set(VTK_DEVICE_DEPENDS ${VTK_DEVICE_DEPENDS}
+    vtk-ios-device-${arch} )
+endforeach()
 
 # Pile it all into a framework
-set(VTK_DEVICE_LIBS
-    "${INSTALL_DIR}/vtk-ios-device/lib/libvtk*.a")
 set(VTK_SIMULATOR_LIBS
-    "${INSTALL_DIR}/vtk-ios-simulator/lib/libvtk*.a")
+    "${INSTALL_DIR}/vtk-ios-simulator/lib/libvtk*.a" )
 set(VTK_INSTALLED_HEADERS
-    "${INSTALL_DIR}/vtk-ios-device/include/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
+    "${INSTALL_DIR}/vtk-ios-device-arm64/include/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
+set(VTK_GLOB_LIBS "${VTK_DEVICE_LIBS} \"${VTK_SIMULATOR_LIBS}\"")
 configure_file(CMake/MakeFramework.cmake.in
                ${CMAKE_CURRENT_BINARY_DIR}/CMake/MakeFramework.cmake
                @ONLY)
 add_custom_target(vtk-framework ALL
   COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/CMake/MakeFramework.cmake
-  DEPENDS vtk-ios-device vtk-ios-simulator)
+  DEPENDS ${VTK_DEVICE_DEPENDS} vtk-ios-simulator)
