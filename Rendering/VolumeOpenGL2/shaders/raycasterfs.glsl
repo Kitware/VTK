@@ -106,8 +106,6 @@ void main()
     {
     //VTK::Base::Impl
 
-    //VTK::Terminate::Impl
-
     //VTK::Cropping::Impl
 
     //VTK::Clipping::Impl
@@ -122,6 +120,8 @@ void main()
 
     /// Advance ray
     g_dataPos += g_dirStep;
+
+    //VTK::Terminate::Impl
     }
 
   //VTK::Base::Exit

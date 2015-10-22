@@ -1277,7 +1277,7 @@ namespace vtkvolume
       \n    {\
       \n    vec3 delta = in_textureExtentsMax - in_textureExtentsMin;\
       \n    l_tex_min = vec3(0.5) / delta;\
-      \n    l_tex_max = (1.0 * (delta - vec3(1.0)) + vec3(0.5)) / delta;\
+      \n    l_tex_max = (delta - vec3(0.5)) / delta;\
       \n    }\
       \n\
       \n  // Flag to indicate if the raymarch loop should terminate \
@@ -1344,6 +1344,10 @@ namespace vtkvolume
                                         vtkVolume* vtkNotUsed(vol))
     {
     return std::string("\
+      \n    // sign function performs component wise operation and returns -1\
+      \n    // if the difference is less than 0, 0 if equal to 0, and 1 if\
+      \n    // above 0. So if the ray is inside the volume, dot product will\
+      \n    // always be 3.\
       \n    stop = dot(sign(g_dataPos - l_tex_min), sign(l_tex_max - g_dataPos))\
       \n             < 3.0;\
       \n\
