@@ -194,7 +194,8 @@ static bool isNcDim(NcFile *ncFile, NcToken name)
   {
     NcDim* ncDim = ncFile->get_dim(i);
     //cerr << "checking " << ncDim->name() << endl;
-    if ((strcmp(ncDim->name(), name)) == 0)
+    const char* ncDimName = ncDim->name();
+    if ((ncDimName && strcmp(ncDimName, name)) == 0)
     {
       // we have a match, so return
       return true;
