@@ -11,6 +11,8 @@ vtk_module(vtkRenderingContext2D
     vtkRenderingFreeType
   TEST_DEPENDS
     vtkRenderingContext${VTK_RENDERING_BACKEND}
+    vtkTestingRendering
+    vtkViewsContext2D
   KIT
     vtkRendering
   )

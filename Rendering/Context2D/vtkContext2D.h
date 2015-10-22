@@ -309,12 +309,20 @@ public:
   // supplied bounds variable, the first two elements are the bottom corner of
   // the string, and the second two elements are the width and height of the
   // bounding box.
+  //
+  // NOTE:the text justification from the current text property is
+  // NOT considered when computing these bounds.
   void ComputeStringBounds(const vtkStdString &string, vtkPoints2D *bounds);
   void ComputeStringBounds(const vtkStdString &string, float bounds[4]);
   void ComputeStringBounds(const vtkUnicodeString &string, vtkPoints2D *bounds);
   void ComputeStringBounds(const vtkUnicodeString &string, float bounds[4]);
   void ComputeStringBounds(const char* string, vtkPoints2D *bounds);
   void ComputeStringBounds(const char* string, float bounds[4]);
+
+  // Description:
+  // Compute the bounds of the supplied string while considering the justification
+  // of the current text property.
+  void ComputeJustifiedStringBounds(const char* string, float bounds[4]);
 
   // Description:
   // Calculate the largest possible font size where the supplied string will fit
@@ -445,7 +453,17 @@ private:
 
   // Description:
   // Calculate position of text for rendering in a rectangle.
+  // The first point in rect is the bottom left corner of
+  // the text box, and the second point is the width and
+  // height of the rect.
   vtkVector2f CalculateTextPosition(vtkPoints2D* rect);
+
+  // Description:
+  // Calculate position of text for rendering in a rectangle.
+  // The first two elements of rect represent the lower left
+  // corner of the text box, and the 3rd and 4th elements
+  // represent width and height.
+  vtkVector2f CalculateTextPosition(float rect[4]);
 
 //ETX
 };
