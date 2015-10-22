@@ -61,9 +61,6 @@ void vtkDefaultPass::RenderOpaqueGeometry(const vtkRenderState *s)
 {
   assert("pre s_exits" && s!=0);
 
-  // initialize to false
-  this->SetLastRenderingUsedDepthPeeling(s->GetRenderer(), false);
-
   int c=s->GetPropArrayCount();
   int i=0;
   while(i<c)
@@ -81,9 +78,6 @@ void vtkDefaultPass::RenderOpaqueGeometry(const vtkRenderState *s)
 void vtkDefaultPass::RenderFilteredOpaqueGeometry(const vtkRenderState *s)
 {
   assert("pre: s_exists" && s!=0);
-
-  // initialize to false
-  this->SetLastRenderingUsedDepthPeeling(s->GetRenderer(), false);
 
   int c=s->GetPropArrayCount();
   int i=0;

@@ -106,13 +106,6 @@ class VTKRENDERINGOPENGL2_EXPORT vtkRenderPass : public vtkObject
   // \pre renderer_exists: renderer!=0
   void UpdateGeometry(vtkRenderer *renderer);
 
-  // Description:
-  // Modify protected member LastRenderingUsedDepthPeeling on Renderer.
-  // See note about UpdateCamera().
-  // \pre renderer_exists: renderer!=0
-  void SetLastRenderingUsedDepthPeeling(vtkRenderer *renderer,
-                                        bool value);
-
   int NumberOfRenderedProps;
 
  private:
