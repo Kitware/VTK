@@ -233,6 +233,15 @@ vtkLabeledContourMapper::~vtkLabeledContourMapper()
 //------------------------------------------------------------------------------
 void vtkLabeledContourMapper::Render(vtkRenderer *ren, vtkActor *act)
 {
+  if (vtkRenderWindow *renderWindow = ren->GetRenderWindow())
+    {
+    // Is the viewport's RenderWindow capturing GL2PS-special props?
+    if (renderWindow->GetCapturingGL2PSSpecialProps())
+      {
+        ren->CaptureGL2PSSpecialProp(act);
+      }
+    }
+
   // Make sure input data is synced
   if (vtkAlgorithm *inputAlgorithm = this->GetInputAlgorithm())
     {
@@ -869,6 +878,9 @@ bool vtkLabeledContourMapper::RenderLabels(vtkRenderer *ren, vtkActor *)
 {
   for (vtkIdType i = 0; i < this->NumberOfUsedTextActors; ++i)
     {
+    // Needed for GL2PS capture:
+    this->TextActors[i]->RenderOpaqueGeometry(ren);
+    // Actually draw:
     this->TextActors[i]->RenderTranslucentPolygonalGeometry(ren);
     }
   return true;
