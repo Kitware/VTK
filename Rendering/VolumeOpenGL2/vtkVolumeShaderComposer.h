@@ -77,8 +77,21 @@ namespace vtkvolume
     return std::string(
       "\n  // Assuming point data only. Also, we offset the texture coordinate\
        \n  // to account for OpenGL treating voxel at the center of the cell.\
-       \n  vec3 uvx = (in_vertexPos - in_volumeExtentsMin) /\
-       \n             (in_volumeExtentsMax - in_volumeExtentsMin);\
+       \n  vec3 spacingSign = vec3(1.0);\
+       \n  if (in_cellSpacing[0] < 0.0)\
+       \n    {\
+      \n     spacingSign.x = -1.0;\
+       \n    }\
+       \n  if (in_cellSpacing[1] < 0.0)\
+       \n    {\
+       \n     spacingSign.y = -1.0;\
+       \n    }\
+       \n  if (in_cellSpacing[2] < 0.0)\
+       \n    {\
+       \n     spacingSign.z = -1.0;\
+       \n    }\
+       \n  vec3 uvx = spacingSign * (in_vertexPos - in_volumeExtentsMin) /\
+       \n               (in_volumeExtentsMax - in_volumeExtentsMin);\
        \n  if (in_cellFlag)\
        \n    {\
        \n    ip_textureCoords = uvx;\
@@ -97,7 +110,8 @@ namespace vtkvolume
                                     vtkVolume* vtkNotUsed(vol))
     {
     return std::string("\
-      \n  uniform int in_cellFlag;\
+      \n  uniform bool in_cellFlag;\
+      \n  uniform vec3 in_cellSpacing;\
       \n  uniform mat4 in_modelViewMatrix;\
       \n  uniform mat4 in_projectionMatrix;\
       \n  uniform mat4 in_volumeMatrix;\
@@ -165,7 +179,7 @@ namespace vtkvolume
       \nuniform vec3 in_ambient;\
       \nuniform vec3 in_specular;\
       \nuniform float in_shininess;\
-      \nuniform int in_cellFlag;\
+      \nuniform bool in_cellFlag;\
       ");
 
     if (lightingComplexity > 0)
