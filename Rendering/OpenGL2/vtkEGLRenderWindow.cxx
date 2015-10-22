@@ -92,16 +92,17 @@ struct vtkEGLRenderWindow::vtkInternals
   EGLDisplay Display;
   EGLSurface Surface;
   EGLContext Context;
+  vtkInternals() : Window((EGLNativeWindowType)0),
+                   Display(EGL_NO_DISPLAY),
+                   Context(EGL_NO_CONTEXT),
+                   Surface(EGL_NO_SURFACE)
+  {
+  }
 };
 
 vtkEGLRenderWindow::vtkEGLRenderWindow()
 {
   this->Internals = new vtkInternals();
-  vtkInternals* impl = this->Internals;
-  impl->Window = (EGLNativeWindowType)0;
-  impl->Display = EGL_NO_DISPLAY;
-  impl->Context = EGL_NO_CONTEXT;
-  impl->Surface = EGL_NO_SURFACE;
   this->OwnWindow = 1;
   this->ScreenSize[0] = 1920;
   this->ScreenSize[1] = 1080;
@@ -414,12 +415,18 @@ void vtkEGLRenderWindow::WindowInitialize (void)
 void vtkEGLRenderWindow::Initialize (void)
 {
   vtkInternals* impl = this->Internals;
-  int w, h;
-  this->GetEGLSurfaceSize(&w, &h);
-  if (w != this->Size[0] || h != this->Size[1])
+  if (impl->Context == EGL_NO_CONTEXT)
     {
-    // initialize the window
     this->WindowInitialize();
+    }
+  else
+    {
+    int w, h;
+    this->GetEGLSurfaceSize(&w, &h);
+    if (w != this->Size[0] || h != this->Size[1])
+      {
+      this->ResizeWindow(this->Size[0], this->Size[1]);
+      }
     }
 }
 
