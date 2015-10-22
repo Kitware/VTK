@@ -80,12 +80,14 @@
 
 #include "vtkNew.h" // For vtkNew
 
+class vtkActor;
 class vtkActor2D;
 class vtkCollection;
 class vtkCoordinate;
 class vtkImageData;
 class vtkIntArray;
 class vtkLabeledDataMapper;
+class vtkLabeledContourMapper;
 class vtkMatrix4x4;
 class vtkPath;
 class vtkProp;
@@ -335,6 +337,8 @@ protected:
   void DrawTextMapper(vtkTextMapper *textMap, vtkActor2D *textAct,
                       vtkRenderer *ren);
   void DrawLabeledDataMapper(vtkLabeledDataMapper *mapper, vtkRenderer *ren);
+  void DrawLabeledContourMapper(vtkActor *act, vtkLabeledContourMapper *mapper,
+                                vtkRenderer *ren);
   void DrawScalarBarActor(vtkScalarBarActor *bar, vtkRenderer *ren);
   void DrawViewportTextOverlay(const char *string, vtkTextProperty *tprop,
                                vtkCoordinate *coord, vtkRenderer *ren);
