@@ -63,6 +63,10 @@ public:
   void EvaluateGradient(double x[3], double g[3]);
 
   // Description:
+  // Evaluate plane equation of nearest triangle to point x[3] and provides closest point on an input vtkPolyData.
+  double EvaluateFunctionAndGetClosestPoint (double x[3], double closestPoint[3]);
+
+  // Description:
   // Set the input vtkPolyData used for the implicit function
   // evaluation.  Passes input through an internal instance of
   // vtkTriangleFilter to remove vertices and lines, leaving only
@@ -82,6 +86,12 @@ public:
   vtkGetVector3Macro(NoGradient, double);
 
   // Description:
+  // Set/get the closest point to use if no input vtkPolyData
+  // specified.
+  vtkSetVector3Macro(NoClosestPoint, double);
+  vtkGetVector3Macro(NoClosestPoint, double);
+
+  // Description:
   // Set/get the tolerance usued for the locator.
   vtkGetMacro(Tolerance, double);
   vtkSetMacro(Tolerance, double);
@@ -90,19 +100,23 @@ protected:
   vtkImplicitPolyDataDistance();
   ~vtkImplicitPolyDataDistance();
 
-  double SharedEvaluate( double x[3], double n[3] );
+  // Description:
+  // Create default locator. Used to create one when none is specified.
+  void CreateDefaultLocator(void);
+
+  double SharedEvaluate(double x[3], double g[3], double p[3]);
+
+  double NoGradient[3];
+  double NoClosestPoint[3];
+  double NoValue;
+  double Tolerance;
+
+  vtkPolyData *Input;
+  vtkCellLocator *Locator;
 
 private:
   vtkImplicitPolyDataDistance(const vtkImplicitPolyDataDistance&);  // Not implemented.
   void operator=(const vtkImplicitPolyDataDistance&);  // Not implemented.
-
-  double NoValue;
-  double NoGradient[3];
-  double Tolerance;
-
-  vtkPolyData       *Input;
-  vtkCellLocator    *Locator;
-
 };
 
 #endif

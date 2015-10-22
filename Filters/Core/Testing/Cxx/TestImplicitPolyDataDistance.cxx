@@ -54,8 +54,18 @@ int TestImplicitPolyDataDistance(int argc, char* argv[])
   vtkNew<vtkImplicitPolyDataDistance> implicitDistance;
   implicitDistance->SetInput(reader->GetOutput());
 
+  // Test SetNoClosestPoint() and GetNoClosestPoint()
+  double noClosestPoint[3] = {1.0, 1.0, 1.0};
+  implicitDistance->SetNoClosestPoint(noClosestPoint);
+  implicitDistance->GetNoClosestPoint(noClosestPoint);
+  if(noClosestPoint[0] != 1.0 && noClosestPoint[1] != 1.0 && noClosestPoint[2] != 1.0)
+    {
+    return EXIT_FAILURE;
+    }
+
   // Compute distances to test points, saving those within the cuspy surface for display
-  vtkNew<vtkPoints> points;
+  vtkNew<vtkPoints> insidePoints;
+  vtkNew<vtkPoints> surfacePoints;
   double xRange[2] = {-47.6, 46.9};
   double yRange[2] = {-18.2, 82.1};
   double zRange[2] = {1.63, 102};
@@ -66,34 +76,55 @@ int TestImplicitPolyDataDistance(int argc, char* argv[])
       {
       for (double x = xRange[0]; x < xRange[1]; x += spacing)
         {
-        double pt[3] = {x, y, z};
-        double distance = implicitDistance->EvaluateFunction(pt);
+        double point[3] = {x, y, z};
+        double surfacePoint[3];
+        double distance = implicitDistance->EvaluateFunctionAndGetClosestPoint(point, surfacePoint);
         if (distance <= 0.0)
           {
-          points->InsertNextPoint(pt);
+          insidePoints->InsertNextPoint(point);
+          surfacePoints->InsertNextPoint(surfacePoint);
           }
         }
       }
     }
 
-  // Set up the point data structure
-  vtkNew<vtkPolyData> insidePoints;
-  insidePoints->SetPoints(points.GetPointer());
+  // Set up inside points data structure
+  vtkNew<vtkPolyData> insidePointsPolyData;
+  insidePointsPolyData->SetPoints(insidePoints.GetPointer());
 
   // Glyph the points
-  vtkNew<vtkSphereSource> sphere;
-  sphere->SetRadius(3);
-  vtkNew<vtkGlyph3D> glypher;
-  glypher->SetInputData(insidePoints.GetPointer());
-  glypher->SetSourceConnection(sphere->GetOutputPort());
+  vtkNew<vtkSphereSource> insidePointSphere;
+  insidePointSphere->SetRadius(3);
+  vtkNew<vtkGlyph3D> insidePointsGlypher;
+  insidePointsGlypher->SetInputData(insidePointsPolyData.GetPointer());
+  insidePointsGlypher->SetSourceConnection(insidePointSphere->GetOutputPort());
 
   // Display the glyphs
-  vtkNew<vtkPolyDataMapper> mapper;
-  mapper->SetInputConnection(glypher->GetOutputPort());
+  vtkNew<vtkPolyDataMapper> insidePointMapper;
+  insidePointMapper->SetInputConnection(insidePointsGlypher->GetOutputPort());
 
-  vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.GetPointer());
-  actor->GetProperty()->SetColor(1.0, 0.0, 0.0);
+  vtkNew<vtkActor> insidePointActor;
+  insidePointActor->SetMapper(insidePointMapper.GetPointer());
+  insidePointActor->GetProperty()->SetColor(1.0, 0.0, 0.0);
+
+  // Set up surface points data structure
+  vtkNew<vtkPolyData> surfacePointsPolyData;
+  surfacePointsPolyData->SetPoints(surfacePoints.GetPointer());
+
+  // Glyph the points
+  vtkNew<vtkSphereSource> surfacePointSphere;
+  surfacePointSphere->SetRadius(3);
+  vtkNew<vtkGlyph3D> surfacePointsGlypher;
+  surfacePointsGlypher->SetInputData(surfacePointsPolyData.GetPointer());
+  surfacePointsGlypher->SetSourceConnection(surfacePointSphere->GetOutputPort());
+
+  // Display the glyphs
+  vtkNew<vtkPolyDataMapper> surfacePointMapper;
+  surfacePointMapper->SetInputConnection(surfacePointsGlypher->GetOutputPort());
+
+  vtkNew<vtkActor> surfacePointActor;
+  surfacePointActor->SetMapper(surfacePointMapper.GetPointer());
+  surfacePointActor->GetProperty()->SetColor(0.0, 0.0, 1.0);
 
   // Display the bounding surface
   vtkNew<vtkPolyDataMapper> surfaceMapper;
@@ -114,7 +145,8 @@ int TestImplicitPolyDataDistance(int argc, char* argv[])
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow(renWin);
 
-  renderer->AddActor(actor.GetPointer());
+  renderer->AddActor(insidePointActor.GetPointer());
+  renderer->AddActor(surfacePointActor.GetPointer());
   renderer->AddActor(surfaceActor.GetPointer());
 
   // Standard testing code.
