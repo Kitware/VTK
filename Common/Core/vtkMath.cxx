@@ -27,6 +27,7 @@
 #include "vtkDataArray.h"
 #include <cassert>
 #include <cmath>
+#include <limits>
 #include <vector>
 
 #include "vtkBoxMuellerRandomSequence.h"
@@ -378,7 +379,9 @@ int vtkMath::SolveLinearSystem(double **A, double *x, int size)
 
     det = vtkMath::Determinant2x2(A[0][0], A[0][1], A[1][0], A[1][1]);
 
-    if (det == 0.0)
+    static const double eps = 256*std::numeric_limits<double>::epsilon();
+
+    if (std::fabs(det) < eps)
       {
       // Unable to solve linear system
       return 0;
