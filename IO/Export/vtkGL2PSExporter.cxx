@@ -31,6 +31,7 @@
 #include "vtkImageShiftScale.h"
 #include "vtkIntArray.h"
 #include "vtkLabeledDataMapper.h"
+#include "vtkLabeledContourMapper.h"
 #include "vtkMapper2D.h"
 #include "vtkMath.h"
 #include "vtkMathTextUtilities.h"
@@ -706,6 +707,14 @@ void vtkGL2PSExporter::HandleSpecialProp(vtkProp *prop, vtkRenderer *ren)
       return;
       }
     }
+  else if (vtkActor *act = vtkActor::SafeDownCast(prop))
+    {
+    if (vtkLabeledContourMapper *lcm =
+        vtkLabeledContourMapper::SafeDownCast(act->GetMapper()))
+      {
+      this->DrawLabeledContourMapper(act, lcm, ren);
+      }
+    }
   else if (vtkTextActor3D *textAct3D =
            vtkTextActor3D::SafeDownCast(prop))
     {
@@ -860,6 +869,18 @@ void vtkGL2PSExporter::DrawLabeledDataMapper(vtkLabeledDataMapper *mapper,
     this->DrawViewportTextOverlay(text, mapper->GetLabelTextProperty(),
                                   coord.GetPointer(), ren);
     }
+}
+
+void vtkGL2PSExporter::DrawLabeledContourMapper(vtkActor *act,
+                                                vtkLabeledContourMapper *mapper,
+                                                vtkRenderer *ren)
+{
+  bool oldLabelVisibility = mapper->GetLabelVisibility();
+  mapper->LabelVisibilityOff();
+  act->RenderOpaqueGeometry(ren);
+  act->RenderTranslucentPolygonalGeometry(ren);
+  act->RenderOverlay(ren);
+  mapper->SetLabelVisibility(oldLabelVisibility);
 }
 
 void vtkGL2PSExporter::DrawScalarBarActor(vtkScalarBarActor *bar,
