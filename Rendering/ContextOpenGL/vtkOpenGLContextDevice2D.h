@@ -224,8 +224,8 @@ public:
   virtual void PopMatrix();
 
   // Description:
-  // Supply an int array of length 4 with x1, y1, x2, y2 specifying clipping
-  // for the display.
+  // Supply an int array of length 4 with x1, y1, width, height specifying
+  // clipping for the display.
   virtual void SetClipping(int *x);
 
   // Description:

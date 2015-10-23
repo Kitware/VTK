@@ -21,6 +21,10 @@
 // matrix.  When you create a new vtkTransform2D, it is always initialized
 // to the identity transformation.
 //
+// All multiplicitive operations (Translate, Rotate, Scale, etc) are
+// post-multiplied in this class (i.e. add them in the reverse of the order
+// that they should be applied).
+//
 // This class performs all of its operations in a right handed
 // coordinate system with right handed rotations. Some other graphics
 // libraries use left handed coordinate systems and rotations.

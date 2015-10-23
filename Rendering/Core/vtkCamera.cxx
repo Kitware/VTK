@@ -854,14 +854,6 @@ void vtkCamera::SetClippingRange(double nearz, double farz)
     farz = temp;
     }
 
-  // front should be greater than 1e-20
-  if (nearz < 1e-20)
-    {
-    farz += 1e-20 - nearz;
-    nearz = 1e-20;
-    vtkDebugMacro(<< " Front clipping range is set to minimum.");
-    }
-
   thickness = farz - nearz;
 
   // thickness should be greater than 1e-20

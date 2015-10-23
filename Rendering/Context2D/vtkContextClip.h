@@ -52,6 +52,14 @@ public:
   // pixel coordinates.
   virtual void SetClip(float x, float y, float width, float height);
 
+  // Description:
+  // Get the clipping rectangle parameters in pixel coordinates:
+  virtual void GetRect(float rect[4]);
+  virtual float GetX() { return Dims[0]; }
+  virtual float GetY() { return Dims[1]; }
+  virtual float GetWidth() { return Dims[2]; }
+  virtual float GetHeight() { return Dims[3]; }
+
 //BTX
 protected:
   vtkContextClip();
@@ -62,7 +70,15 @@ protected:
 private:
   vtkContextClip(const vtkContextClip &); // Not implemented.
   void operator=(const vtkContextClip &);   // Not implemented.
-//ETX
+  //ETX
 };
+
+inline void vtkContextClip::GetRect(float rect[4])
+{
+  rect[0] = this->Dims[0];
+  rect[1] = this->Dims[1];
+  rect[2] = this->Dims[2];
+  rect[3] = this->Dims[3];
+}
 
 #endif //vtkContextClip_h

@@ -5,19 +5,23 @@ set(module_SRCS
   vtkOpenGLContextBufferId.cxx
   vtkOpenGLContextDevice2D.cxx
   vtkOpenGLContextDevice3D.cxx
+  vtkOpenGLPropItem.cxx
   )
 
 set_source_files_properties(
   vtkOpenGLContextBufferId
   vtkOpenGLContextDevice2D
   vtkOpenGLContextDevice3D
+  vtkOpenGLPropItem
   WRAP_EXCLUDE
   )
 
 set(_opengl_overrides
   "ContextActor"
   "ContextDevice2D"
-  "ContextDevice3D")
+  "ContextDevice3D"
+  "PropItem"
+)
 foreach(_override ${_opengl_overrides})
   vtk_add_override("vtk${_override}" "vtkOpenGL${_override}")
 endforeach()

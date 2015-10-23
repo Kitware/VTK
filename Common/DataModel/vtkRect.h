@@ -85,6 +85,50 @@ public:
   // Description:
   // Get the height of the rectangle, i.e. element 3.
   const T& GetHeight() const { return this->Data[3]; }
+
+  // Description:
+  // Get the left boundary of the rectangle along the X direction.
+  const T& GetLeft() const { return this->Data[0]; }
+
+  // Description:
+  // Get the right boundary of the rectangle along the X direction.
+  T GetRight() const { return this->Data[0] + this->Data[2]; }
+
+  // Description:
+  // Get the top boundary of the rectangle along the Y direction.
+  T GetTop() const { return this->Data[1] + this->Data[3]; }
+
+  // Description:
+  // Get the bottom boundary of the rectangle along the Y direction.
+  const T& GetBottom() const { return this->Data[1]; }
+
+  // Description:
+  // Get the bottom left corner of the rect as a vtkVector.
+  vtkVector2<T> GetBottomLeft() const
+  {
+    return vtkVector2<T>(this->GetLeft(), this->GetBottom());
+  }
+
+  // Description:
+  // Get the top left corner of the rect as a vtkVector.
+  vtkVector<T, 2> GetTopLeft() const
+  {
+    return vtkVector2<T>(this->GetLeft(), this->GetTop());
+  }
+
+  // Description:
+  // Get the bottom right corner of the rect as a vtkVector.
+  vtkVector<T, 2> GetBottomRight() const
+  {
+    return vtkVector2<T>(this->GetRight(), this->GetBottom());
+  }
+
+  // Description:
+  // Get the bottom left corner of the rect as a vtkVector.
+  vtkVector<T, 2> GetTopRight() const
+  {
+    return vtkVector2<T>(this->GetRight(), this->GetTop());
+  }
 };
 
 class vtkRecti : public vtkRect<int>

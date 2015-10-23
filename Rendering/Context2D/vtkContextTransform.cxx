@@ -61,6 +61,12 @@ bool vtkContextTransform::Paint(vtkContext2D *painter)
 }
 
 //-----------------------------------------------------------------------------
+void vtkContextTransform::Identity()
+{
+  this->Transform->Identity();
+}
+
+//-----------------------------------------------------------------------------
 void vtkContextTransform::Update()
 {
 }
@@ -252,4 +258,6 @@ bool vtkContextTransform::MouseWheelEvent(const vtkContextMouseEvent &mouse, int
 void vtkContextTransform::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Transform:\n";
+  this->Transform->PrintSelf(os, indent.GetNextIndent());
 }
