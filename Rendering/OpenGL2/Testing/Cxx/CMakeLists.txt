@@ -1,5 +1,6 @@
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   #TestRenderWidget.cxx # Very experimental, fails, does nothing useful yet.
+  TestDepthOfFieldPass.cxx
   TestPointGaussianMapper.cxx
   TestPointGaussianMapperOpacity.cxx
   TestUserShader.cxx
