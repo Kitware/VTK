@@ -177,10 +177,13 @@ struct vtkLabeledContourMapper::Private
                         const vtkIdType *ids, const LabelMetric &metrics);
 
   // Determine the first smooth position on the line defined by ids that is
-  // 1.5x the length of the label (in display coordinates).
+  // 1.2x the length of the label (in display coordinates).
+  // The position will be no less than skipDistance along the line from the
+  // starting location. This can be used to ensure that labels are placed a
+  // minimum distance apart.
   bool NextLabel(vtkPoints *points, vtkIdType &numIds, vtkIdType *&ids,
                  const LabelMetric &metrics, LabelInfo &info,
-                 double targetSmoothness);
+                 double targetSmoothness, double skipDistance);
 
   // Configure the text actor:
   bool BuildLabel(vtkTextActor3D *actor, const LabelMetric &metric,
@@ -199,6 +202,7 @@ vtkObjectFactoryNewMacro(vtkLabeledContourMapper)
 //------------------------------------------------------------------------------
 vtkLabeledContourMapper::vtkLabeledContourMapper()
 {
+  this->SkipDistance = 0.;
   this->LabelVisibility = true;
   this->TextActors = NULL;
   this->NumberOfTextActors = 0;
@@ -418,7 +422,8 @@ void vtkLabeledContourMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "LabelVisiblity: " << (this->LabelVisibility ? "On\n"
+  os << indent << "SkipDistance: " << this->SkipDistance << "\n"
+     << indent << "LabelVisiblity: " << (this->LabelVisibility ? "On\n"
                                                                : "Off\n")
      << indent << "NumberOfTextActors: " << this->NumberOfTextActors << "\n"
      << indent << "NumberOfUsedTextActors: "
@@ -714,7 +719,8 @@ bool vtkLabeledContourMapper::PlaceLabels()
         {
         vtkIdType nIds = numIds;
         vtkIdType *ids = origIds;
-        while (this->Internal->NextLabel(points, nIds, ids, *metric, info, *it))
+        while (this->Internal->NextLabel(points, nIds, ids, *metric, info, *it,
+                                         this->SkipDistance))
           {
           infos.push_back(info);
           }
@@ -1213,12 +1219,20 @@ bool vtkLabeledContourMapper::Private::PixelIsVisible(
 //------------------------------------------------------------------------------
 bool vtkLabeledContourMapper::Private::NextLabel(
     vtkPoints *points, vtkIdType &numIds, vtkIdType *&ids,
-    const LabelMetric &metrics, LabelInfo &info, double targetSmoothness)
+    const LabelMetric &metrics, LabelInfo &info, double targetSmoothness,
+    double skipDistance)
 {
   if (numIds < 3)
     {
     return false;
     }
+
+  // First point in this call to NextLabel (index into ids).
+  vtkIdType firstIdx = 0;
+  vtkVector3d firstPoint;
+  vtkVector2d firstPointDisplay;
+  points->GetPoint(ids[firstIdx], firstPoint.GetData());
+  this->ActorToDisplay(firstPoint, firstPointDisplay);
 
   // Start of current smooth run (index into ids).
   vtkIdType startIdx = 0;
@@ -1226,23 +1240,6 @@ bool vtkLabeledContourMapper::Private::NextLabel(
   vtkVector2d startPointDisplay;
   points->GetPoint(ids[startIdx], startPoint.GetData());
   this->ActorToDisplay(startPoint, startPointDisplay);
-
-  // Find the first visible point:
-  while (startIdx + 1 < numIds && !this->PixelIsVisible(startPointDisplay))
-    {
-    ++startIdx;
-    points->GetPoint(ids[startIdx], startPoint.GetData());
-    this->ActorToDisplay(startPoint, startPointDisplay);
-    }
-
-  // Start point in current segment.
-  vtkVector3d prevPoint = startPoint;
-  vtkVector2d prevPointDisplay = startPointDisplay;
-
-  // End point of current segment (index into ids).
-  vtkIdType curIdx = startIdx + 1;
-  vtkVector3d curPoint = prevPoint;
-  vtkVector2d curPointDisplay = prevPointDisplay;
 
   // Accumulated length of segments since startId
   std::vector<double> segmentLengths;
@@ -1269,6 +1266,33 @@ bool vtkLabeledContourMapper::Private::NextLabel(
 
   // Smoothness of start --> current
   double smoothness = 0;
+
+  // Account for skip distance:
+  while (segment.Norm() < skipDistance)
+    {
+    ++startIdx;
+    points->GetPoint(ids[startIdx], startPoint.GetData());
+    this->ActorToDisplay(startPoint, startPointDisplay);
+
+    segment = startPointDisplay - firstPointDisplay;
+    }
+
+  // Find the first visible point
+  while (startIdx + 1 < numIds && !this->PixelIsVisible(startPointDisplay))
+    {
+    ++startIdx;
+    points->GetPoint(ids[startIdx], startPoint.GetData());
+    this->ActorToDisplay(startPoint, startPointDisplay);
+    }
+
+  // Start point in current segment.
+  vtkVector3d prevPoint = startPoint;
+  vtkVector2d prevPointDisplay = startPointDisplay;
+
+  // End point of current segment (index into ids).
+  vtkIdType curIdx = startIdx + 1;
+  vtkVector3d curPoint = prevPoint;
+  vtkVector2d curPointDisplay = prevPointDisplay;
 
   while (curIdx < numIds)
     {
