@@ -107,21 +107,5 @@ class TestTensorGlyph(Testing.vtkTest):
         Testing.compareImage(renWin, Testing.getAbsImagePath(img_file))
         Testing.interact()
 
-    def testParse(self):
-        "Test if vtkTensorGlyph is parseable"
-        tg = vtk.vtkTensorGlyph()
-        self._testParse(tg)
-
-    def testGetSet(self):
-        "Testing Get/Set methods of vtkTensorGlyph"
-        tg = vtk.vtkTensorGlyph()
-        self._testGetSet(tg)
-
-    def testParse(self):
-        "Testing Boolean methods of vtkTensorGlyph"
-        tg = vtk.vtkTensorGlyph()
-        self._testBoolean(tg)
-
-
 if __name__ == "__main__":
     Testing.main([(TestTensorGlyph, 'test')])
