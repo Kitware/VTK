@@ -65,6 +65,13 @@ vtk_test_cxx_executable(${vtk-module}CxxTests all_tests)
 # requires OpenGL
 vtk_opengl_link(${vtk-module}CxxTests)
 
+if (WIN32 AND NOT VTK_USE_X)
+  # This test should not take more than 5 seconds.
+  set_tests_properties(${vtk-module}CxxTests-TestWin32OpenGLRenderWindow
+    PROPERTIES
+      TIMEOUT 5)
+endif ()
+
 set(TEST_FBO_IMPLEMENTATION_EXE
   TestFBOImplementation)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/TestFBOInclude.h.in
