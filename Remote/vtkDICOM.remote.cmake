@@ -4,7 +4,7 @@
 
 vtk_fetch_module(vtkDICOM
   "Dicom classes and utilities"
-  GIT_REPOSITORY https://github.com/lorensen/vtk-dicom
-  # September 3, 2015 - vtksys changes
-  GIT_TAG f4556b282b1f9e3f3adb98a7ad618b0bb57dc6ab
+  GIT_REPOSITORY https://github.com/dgobbi/vtk-dicom
+  # vtk-dicom tag v0.7.0 plus 2 (Oct 23, 2015)
+  GIT_TAG e32ec575b084735b90cfacff589db35ce4cfc017
   )
