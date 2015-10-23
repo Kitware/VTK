@@ -21,8 +21,7 @@ endif()
 
 # Glob all input libs
 file(GLOB VTK_LIB_GLOB
-  "@VTK_DEVICE_LIBS@"
-  "@VTK_SIMULATOR_LIBS@"
+  @VTK_GLOB_LIBS@
 )
 
 # Set framework output path
