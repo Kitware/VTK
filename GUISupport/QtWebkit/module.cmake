@@ -1,6 +1,4 @@
 vtk_module(vtkGUISupportQtWebkit
-  GROUPS
-    Qt
   DEPENDS
     vtkViewsQt
   TEST_DEPENDS
