@@ -616,10 +616,6 @@ INCLUDE_DIRECTORIES (${CMAKE_BINARY_DIR})
 # Setup the H5Detect utility which generates H5Tinit with platform
 # specific type checks inside
 #-----------------------------------------------------------------------------
-SET (CMD ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}${CFG_INIT}/H5detect${EXE_EXT})
-IF (XCODE)
-  SET (CMD "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\${CONFIGURATION}/H5detect")
-ENDIF ()
 ADD_EXECUTABLE (H5detect ${HDF5_SRC_DIR}/H5detect.c)
 SET_TARGET_PROPERTIES(H5detect
   PROPERTIES
@@ -630,15 +626,11 @@ ENDIF ()
 
 ADD_CUSTOM_COMMAND (
     OUTPUT ${HDF5_BINARY_DIR}/H5Tinit.c
-    COMMAND ${CMD}
+    COMMAND $<TARGET_FILE:H5detect>
     ARGS > ${HDF5_BINARY_DIR}/H5Tinit.c
     DEPENDS H5detect
 )
 
-SET (CMDL ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}${CFG_INIT}/H5make_libsettings${EXE_EXT})
-IF (XCODE)
-  SET (CMDL "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\${CONFIGURATION}/H5make_libsettings")
-ENDIF ()
 ADD_EXECUTABLE (H5make_libsettings ${HDF5_SRC_DIR}/H5make_libsettings.c)
 SET_TARGET_PROPERTIES(H5make_libsettings
   PROPERTIES
@@ -647,10 +639,9 @@ IF (WIN32)
   TARGET_LINK_LIBRARIES (H5make_libsettings "ws2_32.lib")
 ENDIF ()
 
-set (CMD $<TARGET_FILE:H5make_libsettings>)
 add_custom_command (
     OUTPUT ${HDF5_BINARY_DIR}/H5lib_settings.c
-    COMMAND ${CMD}
+    COMMAND $<TARGET_FILE:H5make_libsettings>
     ARGS > ${HDF5_BINARY_DIR}/H5lib_settings.c
     DEPENDS H5make_libsettings
     WORKING_DIRECTORY ${HDF5_BINARY_DIR}
