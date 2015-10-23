@@ -20,8 +20,8 @@
 // This is especially useful for constructing layered scenes that need to ignore
 // depth testing.
 
-#ifndef __vtkPropItem_h
-#define __vtkPropItem_h
+#ifndef vtkPropItem_h
+#define vtkPropItem_h
 
 #include "vtkRenderingContext2DModule.h" // For export macro
 #include "vtkAbstractContextItem.h"
@@ -60,4 +60,4 @@ private:
   void operator=(const vtkPropItem &); // Not implemented.
 };
 
-#endif //__vtkPropItem_h
+#endif //vtkPropItem_h
