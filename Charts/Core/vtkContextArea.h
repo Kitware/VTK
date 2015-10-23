@@ -34,8 +34,8 @@
 // - FixedRect: Rect used to enforce for FixedRect resize behavior.
 // - FixedMargins: Margins to enforce for FixedMargins resize behavior.
 
-#ifndef __vtkContextArea_h
-#define __vtkContextArea_h
+#ifndef vtkContextArea_h
+#define vtkContextArea_h
 
 #include "vtkAbstractContextItem.h"
 
@@ -244,4 +244,4 @@ private:
   vtkNew<vtkAxis> RightAxis;
 };
 
-#endif //__vtkContextArea_h
+#endif //vtkContextArea_h

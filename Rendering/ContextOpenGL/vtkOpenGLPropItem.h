@@ -21,8 +21,8 @@
 // class is a layer between the two that updates the camera with the current
 // OpenGL state.
 
-#ifndef __vtkOpenGLPropItem_h
-#define __vtkOpenGLPropItem_h
+#ifndef vtkOpenGLPropItem_h
+#define vtkOpenGLPropItem_h
 
 #include "vtkRenderingContextOpenGLModule.h" // For export macro
 #include "vtkPropItem.h"
@@ -53,4 +53,4 @@ private:
   void operator=(const vtkOpenGLPropItem &); // Not implemented.
 };
 
-#endif //__vtkOpenGLPropItem_h
+#endif //vtkOpenGLPropItem_h
