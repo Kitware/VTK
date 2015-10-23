@@ -9,6 +9,7 @@ vtk_module(vtkCommonTransforms
     vtkCommonMath
   TEST_DEPENDS
     vtkTestingCore
+    vtkRendering${VTK_RENDERING_BACKEND}
   KIT
     vtkCommon
   )

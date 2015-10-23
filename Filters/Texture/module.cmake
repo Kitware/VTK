@@ -3,6 +3,8 @@ vtk_module(vtkFiltersTexture
     StandAlone
   DEPENDS
     vtkFiltersGeneral
+  TEST_DEPENDS
+    vtkRendering${VTK_RENDERING_BACKEND}
   KIT
     vtkFilters
   )

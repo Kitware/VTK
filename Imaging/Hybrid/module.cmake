@@ -9,4 +9,5 @@ vtk_module(vtkImagingHybrid
     vtkTestingCore
     vtkCommonCore
     vtkCommonDataModel
+    vtkRendering${VTK_RENDERING_BACKEND}
   )
