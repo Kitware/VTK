@@ -75,12 +75,32 @@ namespace vtkvolume
                                         vtkVolume* vtkNotUsed(vol))
     {
     return std::string(
-      "\n  // Assuming point data only. Also, we offset the texture coordinate\
+      "\n  // For point dataset, we offset the texture coordinate\
        \n  // to account for OpenGL treating voxel at the center of the cell.\
-       \n  vec3 uvx = (in_vertexPos - in_volumeExtentsMin) /\
-       \n             (in_volumeExtentsMax - in_volumeExtentsMin);\
-       \n  vec3 delta = in_textureExtentsMax - in_textureExtentsMin;\
-       \n  ip_textureCoords = (uvx * (delta - vec3(1.0)) + vec3(0.5)) / delta;"
+       \n  vec3 spacingSign = vec3(1.0);\
+       \n  if (in_cellSpacing.x < 0.0)\
+       \n    {\
+      \n     spacingSign.x = -1.0;\
+       \n    }\
+       \n  if (in_cellSpacing.y < 0.0)\
+       \n    {\
+       \n     spacingSign.y = -1.0;\
+       \n    }\
+       \n  if (in_cellSpacing.z < 0.0)\
+       \n    {\
+       \n     spacingSign.z = -1.0;\
+       \n    }\
+       \n  vec3 uvx = spacingSign * (in_vertexPos - in_volumeExtentsMin) /\
+       \n               (in_volumeExtentsMax - in_volumeExtentsMin);\
+       \n  if (in_cellFlag)\
+       \n    {\
+       \n    ip_textureCoords = uvx;\
+       \n    }\
+       \n  else\
+       \n    {\
+       \n    vec3 delta = in_textureExtentsMax - in_textureExtentsMin;\
+       \n    ip_textureCoords = (uvx * (delta - vec3(1.0)) + vec3(0.5)) / delta;\
+       \n    }"
     );
     }
 
@@ -90,6 +110,8 @@ namespace vtkvolume
                                     vtkVolume* vtkNotUsed(vol))
     {
     return std::string("\
+      \n  uniform bool in_cellFlag;\
+      \n  uniform vec3 in_cellSpacing;\
       \n  uniform mat4 in_modelViewMatrix;\
       \n  uniform mat4 in_projectionMatrix;\
       \n  uniform mat4 in_volumeMatrix;\
@@ -157,6 +179,7 @@ namespace vtkvolume
       \nuniform vec3 in_ambient;\
       \nuniform vec3 in_specular;\
       \nuniform float in_shininess;\
+      \nuniform bool in_cellFlag;\
       ");
 
     if (lightingComplexity > 0)
@@ -1248,10 +1271,14 @@ namespace vtkvolume
     {
     return std::string("\
       \n  // Minimum texture access coordinate\
-      \n  const vec3 l_tex_min = vec3(0);\
-      \n\
-      \n  // Maximum texture access coordinate\
-      \n  const vec3 l_tex_max = vec3(1);\
+      \n  vec3 l_tex_min = vec3(0.0);\
+      \n  vec3 l_tex_max = vec3(1.0);\
+      \n  if (!in_cellFlag)\
+      \n    {\
+      \n    vec3 delta = in_textureExtentsMax - in_textureExtentsMin;\
+      \n    l_tex_min = vec3(0.5) / delta;\
+      \n    l_tex_max = (delta - vec3(0.5)) / delta;\
+      \n    }\
       \n\
       \n  // Flag to indicate if the raymarch loop should terminate \
       \n  bool stop = false;\
@@ -1317,20 +1344,12 @@ namespace vtkvolume
                                         vtkVolume* vtkNotUsed(vol))
     {
     return std::string("\
-      \n    // The two constants l_tex_min and l_tex_max have a value of\
-      \n    // vec3(-1,-1,-1) and vec3(1,1,1) respectively. To determine if the\
-      \n    // data value is outside the in_volume data, we use the sign function.\
-      \n    // The sign function return -1 if the value is less than 0, 0 if the\
-      \n    // value is equal to 0 and 1 if value is greater than 0. Hence, the\
-      \n    // sign function for the calculation (sign(g_dataPos-l_tex_min) and\
-      \n    // sign (l_tex_max-g_dataPos)) will give us vec3(1,1,1) at the\
-      \n    // possible minimum and maximum position.\
-      \n    // When we do a dot product between two vec3(1,1,1) we get answer 3.\
-      \n    // So to be within the dataset limits, the dot product will return a\
-      \n    // value less than 3. If it is greater than 3, we are already out of\
-      \n    // the in_volume dataset\
+      \n    // sign function performs component wise operation and returns -1\
+      \n    // if the difference is less than 0, 0 if equal to 0, and 1 if\
+      \n    // above 0. So if the ray is inside the volume, dot product will\
+      \n    // always be 3.\
       \n    stop = dot(sign(g_dataPos - l_tex_min), sign(l_tex_max - g_dataPos))\
-      \n           < 3.0;\
+      \n             < 3.0;\
       \n\
       \n    // If the stopping condition is true we brek out of the ray marching\
       \n    // loop\
