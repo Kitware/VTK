@@ -416,6 +416,12 @@ int vtkTesting::RegressionTest(double thresh, ostream &os)
         }
       else
         {
+        // we failed both back and front buffers so
+        // to help us debug, write out renderwindow capabilities
+        if (this->RenderWindow)
+          {
+          os << this->RenderWindow->ReportCapabilities();
+          }
         rtW2if->ReadFrontBufferOff();
         rtW2if->Update();
         return this->RegressionTest(rtW2if.Get(), thresh, os);

@@ -13,6 +13,8 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 
+#include "vtk_glew.h"
+
 #include "vtkOpenGLRenderWindow.h"
 #import <Cocoa/Cocoa.h>
 #import "vtkCocoaMacOSXSDKCompatibility.h" // Needed to support old SDKs
@@ -25,6 +27,7 @@ PURPOSE.  See the above copyright notice for more information.
 #import "vtkObjectFactory.h"
 #import "vtkRendererCollection.h"
 #import "vtkCocoaGLView.h"
+
 
 #import <sstream>
 
@@ -414,13 +417,20 @@ const char* vtkCocoaRenderWindow::ReportCapabilities()
   const char* glVendor = (const char*) glGetString(GL_VENDOR);
   const char* glRenderer = (const char*) glGetString(GL_RENDERER);
   const char* glVersion = (const char*) glGetString(GL_VERSION);
-  const char* glExtensions = (const char*) glGetString(GL_EXTENSIONS);
 
   std::ostringstream strm;
   strm << "OpenGL vendor string:  " << glVendor
        << "\nOpenGL renderer string:  " << glRenderer
-       << "\nOpenGL version string:  " << glVersion
-       << "\nOpenGL extensions:  " << glExtensions << endl;
+       << "\nOpenGL version string:  " << glVersion << endl;
+
+  strm << "OpenGL extensions:  " << endl;
+  GLint n, i;
+  glGetIntegerv(GL_NUM_EXTENSIONS, &n);
+  for (i = 0; i < n; i++)
+    {
+    const char *ext = (const char *)glGetStringi(GL_EXTENSIONS, i);
+    strm << "  " << ext << endl;
+    }
 
   // Obtain the OpenGL context in order to keep track of the current screen.
   NSOpenGLContext* context = (NSOpenGLContext*)this->GetContextId();
