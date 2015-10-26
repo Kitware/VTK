@@ -163,9 +163,8 @@ void vtkImageResliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
   // delegate to vtkImageSliceMapper
   this->SliceMapper->SetInputConnection(
     this->ImageReslice->GetOutputPort());
-  vtkMatrix4x4::DeepCopy(
-    *this->SliceMapper->GetDataToWorldMatrix()->Element,
-    *this->SliceToWorldMatrix->Element);
+  this->SliceMapper->GetDataToWorldMatrix()->DeepCopy(
+    this->SliceToWorldMatrix);
   // the mapper uses SliceFacesCamera to decide whether to use a polygon
   // for the texture versus using a quad the size of the window
   this->SliceMapper->SetSliceFacesCamera(
