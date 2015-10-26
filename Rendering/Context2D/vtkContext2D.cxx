@@ -681,6 +681,32 @@ void vtkContext2D::ComputeStringBounds(const char* string,
 }
 
 //-----------------------------------------------------------------------------
+void vtkContext2D::ComputeJustifiedStringBounds(const char* string, float bounds[4])
+{
+  this->ComputeStringBounds(string, bounds);
+
+  // Shift according to the text property justification
+  vtkTextProperty* textProp = this->Device->GetTextProp();
+  if (textProp->GetJustification() == VTK_TEXT_CENTERED)
+    {
+    bounds[0] -= 0.5f*bounds[2];
+    }
+  else if (textProp->GetJustification() == VTK_TEXT_RIGHT)
+    {
+    bounds[0] -= bounds[2];
+    }
+
+  if (textProp->GetVerticalJustification() == VTK_TEXT_CENTERED)
+    {
+    bounds[1] -= 0.5f*bounds[3];
+    }
+  else if (textProp->GetVerticalJustification() == VTK_TEXT_TOP)
+    {
+    bounds[1] -= bounds[3];
+    }
+}
+
+//-----------------------------------------------------------------------------
 int vtkContext2D::ComputeFontSizeForBoundedString(const vtkStdString &string,
                                                   float width, float height)
 {
@@ -970,41 +996,47 @@ void vtkContext2D::SetContext3D(vtkContext3D *context)
 //-----------------------------------------------------------------------------
 vtkVector2f vtkContext2D::CalculateTextPosition(vtkPoints2D* rect)
 {
-  // Draw the text at the appropriate point inside the rect for the alignment
-  // specified. This is a convenience when an area of the screen should have
-  // text drawn that is aligned to the entire area.
   if (rect->GetNumberOfPoints() < 2)
     {
     return vtkVector2f();
     }
 
-  vtkVector2f p(0, 0);
   float *f = vtkFloatArray::SafeDownCast(rect->GetData())->GetPointer(0);
+  return this->CalculateTextPosition(f);
+}
+
+//-----------------------------------------------------------------------------
+vtkVector2f vtkContext2D::CalculateTextPosition(float rect[4])
+{
+  // Draw the text at the appropriate point inside the rect for the alignment
+  // specified. This is a convenience when an area of the screen should have
+  // text drawn that is aligned to the entire area.
+  vtkVector2f p(0, 0);
 
   if (this->Device->GetTextProp()->GetJustification() == VTK_TEXT_LEFT)
     {
-    p.SetX(f[0]);
+    p.SetX(rect[0]);
     }
   else if (this->Device->GetTextProp()->GetJustification() == VTK_TEXT_CENTERED)
     {
-    p.SetX(f[0] + 0.5f*f[2]);
+    p.SetX(rect[0] + 0.5f*rect[2]);
     }
   else
     {
-    p.SetX(f[0] + f[2]);
+    p.SetX(rect[0] + rect[2]);
     }
 
   if (this->Device->GetTextProp()->GetVerticalJustification() == VTK_TEXT_BOTTOM)
     {
-    p.SetY(f[1]);
+    p.SetY(rect[1]);
     }
   else if (this->Device->GetTextProp()->GetVerticalJustification() == VTK_TEXT_CENTERED)
     {
-    p.SetY(f[1] + 0.5f*f[3]);
+    p.SetY(rect[1] + 0.5f*rect[3]);
     }
   else
     {
-    p.SetY(f[1] + f[3]);
+    p.SetY(rect[1] + rect[3]);
     }
   return p;
 }
