@@ -92,7 +92,8 @@ public:
   // has effect if the direction is set to front-to-back or back-to-front,
   // and a camera is specified. Specifying the vtkProp3D is optional.
   void SetProp3D(vtkProp3D *);
-  vtkProp3D *GetProp3D();
+  vtkProp3D *GetProp3D()
+  { return this->Prop3D; }
 
   // Description:
   // Set/Get the sort direction. This ivar only has effect if the sort
