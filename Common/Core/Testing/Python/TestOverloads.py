@@ -24,12 +24,15 @@ class TestOverloads(Testing.vtkTest):
         self.assertEqual(t.GetMatrix().GetElement(0, 0), 2)
         t.SetMatrix([0,1,0,0, 1,0,0,0, 0,0,-1,0, 0,0,0,1])
         self.assertEqual(t.GetMatrix().GetElement(0, 0), 0)
-        # mixed number of arguments
-        w = vtk.vtkRenderWindow()
-        w.SetTileScale(2)
-        self.assertEqual(w.GetTileScale(), (2,2))
-        w.SetTileScale(3,4)
-        self.assertEqual(w.GetTileScale(), (3,4))
+        try:
+            w = vtk.vtkRenderWindow()
+        except:
+            print('Info: No concrete rendering backend')
+        else:
+            w.SetTileScale(2)
+            self.assertEqual(w.GetTileScale(), (2,2))
+            w.SetTileScale(3,4)
+            self.assertEqual(w.GetTileScale(), (3,4))
 
     def testConstructors(self):
         """Test overloaded constructors"""
