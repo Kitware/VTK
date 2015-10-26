@@ -67,7 +67,7 @@ vtk_opengl_link(${vtk-module}CxxTests)
 
 if (WIN32 AND NOT VTK_USE_X)
   # This test should not take more than 5 seconds.
-  set_tests_properties(${vtk-module}CxxTests-TestWin32OpenGLRenderWindow
+  set_tests_properties(${vtk-module}Cxx-TestWin32OpenGLRenderWindow
     PROPERTIES
       TIMEOUT 5)
 endif ()
