@@ -33,9 +33,9 @@
 #define vtkPLYWriter_h
 
 #include "vtkIOPLYModule.h" // For export macro
+#include "vtkSmartPointer.h"
+#include "vtkStringArray.h"
 #include "vtkWriter.h"
-
-#include <list>
 
 class vtkScalarsToColors;
 class vtkDataSetAttributes;
@@ -159,7 +159,7 @@ protected:
 
   void WriteData();
   unsigned char *GetColors(vtkIdType num, vtkDataSetAttributes *dsa);
-  float *GetTextureCoordinates(vtkIdType num, vtkDataSetAttributes *dsa);
+  const float *GetTextureCoordinates(vtkIdType num, vtkDataSetAttributes *dsa);
 
   int DataByteOrder;
   char *ArrayName;
@@ -173,8 +173,7 @@ protected:
   int FileType;
   int TextureCoordinatesName;
 
-  typedef std::list< std::string > Comments;
-  Comments HeaderComments;
+  vtkSmartPointer<vtkStringArray> HeaderComments;
 
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 

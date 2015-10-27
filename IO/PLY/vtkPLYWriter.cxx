@@ -41,7 +41,9 @@ vtkPLYWriter::vtkPLYWriter()
   this->LookupTable = NULL;
   this->Color[0] = this->Color[1] = this->Color[2] = 255;
   this->TextureCoordinatesName = VTK_TEXTURECOORDS_UV;
-  this->HeaderComments.push_back("VTK generated PLY File");
+
+  this->HeaderComments = vtkSmartPointer<vtkStringArray>::New();
+  this->HeaderComments->InsertNextValue("VTK generated PLY File");
 }
 
 vtkPLYWriter::~vtkPLYWriter()
@@ -78,7 +80,6 @@ void vtkPLYWriter::WriteData()
   vtkPolyData *input = this->GetInput();
 
   unsigned char *cellColors, *pointColors;
-  float *textureCoords;
   PlyFile *ply;
   float version;
   static const char *elemNames[] = { "vertex", "face" };
@@ -160,7 +161,7 @@ void vtkPLYWriter::WriteData()
   cellColors = this->GetColors(numPolys,input->GetCellData());
 
   // get texture coordinates, if any
-  textureCoords = this->GetTextureCoordinates(numPts,input->GetPointData());
+  const float *textureCoords = this->GetTextureCoordinates(numPts,input->GetPointData());
 
   // describe what properties go into the vertex and face elements
   vtkPLY::ply_element_count (ply, "vertex", numPts);
@@ -189,10 +190,9 @@ void vtkPLYWriter::WriteData()
     }
 
   // write comments and an object information field
-  for (Comments::const_iterator it = this->HeaderComments.begin();
-       it != this->HeaderComments.end(); ++it)
+  for (idx = 0; idx < this->HeaderComments->GetNumberOfValues(); ++idx)
     {
-    vtkPLY::ply_put_comment(ply, it->c_str());
+    vtkPLY::ply_put_comment(ply, this->HeaderComments->GetValue(idx));
     }
   vtkPLY::ply_put_obj_info (ply, "vtkPolyData points and polygons: vtk4.0");
 
@@ -259,7 +259,6 @@ void vtkPLYWriter::WriteData()
 
   delete [] pointColors;
   delete [] cellColors;
-  delete [] textureCoords;
 
   // close the PLY file
   vtkPLY::ply_close (ply);
@@ -338,22 +337,18 @@ unsigned char *vtkPLYWriter::GetColors(vtkIdType num,
     }
 }
 
-float *vtkPLYWriter::GetTextureCoordinates(vtkIdType num, vtkDataSetAttributes *dsa)
+const float *vtkPLYWriter::GetTextureCoordinates(vtkIdType num, vtkDataSetAttributes *dsa)
 {
-  vtkDataArray *textures = dsa->GetTCoords();
-  if ( !textures || (textures->GetNumberOfTuples() != num) ||
-       (textures->GetNumberOfComponents() != 2) )
+  vtkDataArray *tCoords = dsa->GetTCoords();
+  if ( !tCoords || (tCoords->GetNumberOfTuples() != num) ||
+       (tCoords->GetNumberOfComponents() != 2) )
     return NULL;
 
   vtkFloatArray *textureArray;
-  if ( (textureArray = vtkFloatArray::SafeDownCast(textures)) == NULL )
+  if ( (textureArray = vtkFloatArray::SafeDownCast(tCoords)) == NULL )
     vtkErrorMacro(<< "PLY writer only supports float texture coordinates");
 
-  const float *tCoords = textureArray->GetPointer(0);
-  float *textureCoords = new float[2*num];
-  memcpy(textureCoords, tCoords, 2*num*sizeof(float));
-
-  return textureCoords;
+  return textureArray->GetPointer(0);
 }
 
 void vtkPLYWriter::PrintSelf(ostream& os, vtkIndent indent)
@@ -406,7 +401,7 @@ void vtkPLYWriter::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkPLYWriter::AddComment(const std::string &comment)
 {
-  this->HeaderComments.push_back(comment);
+  this->HeaderComments->InsertNextValue(comment.c_str());
 }
 
 vtkPolyData* vtkPLYWriter::GetInput()
