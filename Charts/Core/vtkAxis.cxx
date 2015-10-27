@@ -86,10 +86,12 @@ vtkAxis::vtkAxis()
   this->LogScaleActive = false;
   this->GridVisible = true;
   this->LabelsVisible = true;
+  this->RangeLabelsVisible = false;
   this->TicksVisible = true;
   this->AxisVisible = true;
   this->Precision = 2;
   this->LabelFormat = "%g";
+  this->RangeLabelFormat = "%g";
   this->Notation = vtkAxis::STANDARD_NOTATION;
   this->Behavior = vtkAxis::AUTO;
   this->Pen = vtkPen::New();
@@ -165,6 +167,7 @@ void vtkAxis::SetPosition(int position)
     }
 }
 
+//-----------------------------------------------------------------------------
 void vtkAxis::SetPoint1(const vtkVector2f &pos)
 {
   if (this->Position1 != pos)
@@ -175,16 +178,19 @@ void vtkAxis::SetPoint1(const vtkVector2f &pos)
     }
 }
 
+//-----------------------------------------------------------------------------
 void vtkAxis::SetPoint1(float x, float y)
 {
   this->SetPoint1(vtkVector2f(x, y));
 }
 
+//-----------------------------------------------------------------------------
 vtkVector2f vtkAxis::GetPosition1()
 {
   return this->Position1;
 }
 
+//-----------------------------------------------------------------------------
 void vtkAxis::SetPoint2(const vtkVector2f &pos)
 {
   if (this->Position2 != pos)
@@ -195,16 +201,19 @@ void vtkAxis::SetPoint2(const vtkVector2f &pos)
     }
 }
 
+//-----------------------------------------------------------------------------
 void vtkAxis::SetPoint2(float x, float y)
 {
   this->SetPoint2(vtkVector2f(x, y));
 }
 
+//-----------------------------------------------------------------------------
 vtkVector2f vtkAxis::GetPosition2()
 {
   return this->Position2;
 }
 
+//-----------------------------------------------------------------------------
 void vtkAxis::SetNumberOfTicks(int numberOfTicks)
 {
   if (this->NumberOfTicks != numberOfTicks)
@@ -388,6 +397,76 @@ bool vtkAxis::Paint(vtkContext2D *painter)
     tileScale = this->Scene->GetLogicalTileScale();
     }
 
+  vtkRectf minLabelRect(0, 0, 0, 0);
+  vtkRectf maxLabelRect(0, 0, 0, 0);
+  float* minLabelBounds = minLabelRect.GetData();
+  float* maxLabelBounds = maxLabelRect.GetData();
+
+  // Optionally draw min/max labels
+  if (this->RangeLabelsVisible)
+    {
+    vtkStdString minString = this->GenerateSprintfLabel(this->UnscaledMinimum, this->RangeLabelFormat);
+    vtkStdString maxString = this->GenerateSprintfLabel(this->UnscaledMaximum, this->RangeLabelFormat);
+
+    painter->ComputeJustifiedStringBounds(minString, minLabelBounds);
+    painter->ComputeJustifiedStringBounds(maxString, maxLabelBounds);
+
+    float minLabelShift[2] = {0, 0};
+    float maxLabelShift[2] = {0, 0};
+
+    // Compute where the string should go...
+    if (this->Position == vtkAxis::LEFT || this->Position == vtkAxis::PARALLEL ||
+        this->Position == vtkAxis::RIGHT)
+      {
+      minLabelShift[0] = this->Point1[0] + labelOffset;
+      minLabelShift[1] = this->Point1[1];
+      maxLabelShift[0] = this->Point2[0] + labelOffset;
+      maxLabelShift[1] = this->Point2[1];
+      if (this->TicksVisible)
+        {
+        painter->DrawLine(this->Point1[0] + tickLength, this->Point1[1],
+                          this->Point1[0]             , this->Point1[1]);
+        painter->DrawLine(this->Point2[0] + tickLength, this->Point2[1],
+                          this->Point2[0]             , this->Point2[1]);
+        }
+      }
+    else if (this->Position == vtkAxis::TOP || this->Position == vtkAxis::BOTTOM)
+      {
+      minLabelShift[0] = this->Point1[0];
+      minLabelShift[1] = this->Point1[1] + labelOffset;
+      maxLabelShift[0] = this->Point2[0];
+      maxLabelShift[1] = this->Point2[1] + labelOffset;
+      if (this->TicksVisible)
+        {
+        painter->DrawLine(this->Point1[0], this->Point1[1] + tickLength,
+                          this->Point1[0], this->Point1[1]);
+        painter->DrawLine(this->Point2[0], this->Point2[1] + tickLength,
+                          this->Point2[0], this->Point2[1]             );
+        }
+      }
+
+    // Now draw the labels
+    painter->DrawString(minLabelShift[0], minLabelShift[1], minString);
+    painter->DrawString(maxLabelShift[0], maxLabelShift[1], maxString);
+
+    minLabelBounds[0] += minLabelShift[0];
+    minLabelBounds[1] += minLabelShift[1];
+    maxLabelBounds[0] += maxLabelShift[0];
+    maxLabelBounds[1] += maxLabelShift[1];
+
+    // Pad the range label bounds by a few pixels.
+    float pad = 4;
+    minLabelBounds[0] -= pad;
+    minLabelBounds[1] -= pad;
+    minLabelBounds[2] += 2*pad;
+    minLabelBounds[3] += 2*pad;
+
+    maxLabelBounds[0] -= pad;
+    maxLabelBounds[1] -= pad;
+    maxLabelBounds[2] += 2*pad;
+    maxLabelBounds[3] += 2*pad;
+    }
+
   // Horizontal or vertical axis.
   if (this->Position == vtkAxis::LEFT || this->Position == vtkAxis::PARALLEL ||
       this->Position == vtkAxis::RIGHT)
@@ -404,15 +483,30 @@ bool vtkAxis::Paint(vtkContext2D *painter)
         {
         continue;
         }
-      if (this->TicksVisible)
+
+      // Don't skip if range labels aren't visible
+      bool skipTick = this->RangeLabelsVisible;
+      if (this->LabelsVisible)
+        {
+        float bounds[4];
+        painter->ComputeJustifiedStringBounds(tickLabel[i], bounds);
+        float pos[2] = { this->Point1[0] + labelOffset, tickPos[i] };
+        bounds[0] += pos[0];
+        bounds[1] += pos[1];
+
+        vtkRectf boundsRect(bounds[0], bounds[1], bounds[2], bounds[3]);
+        if (!boundsRect.IntersectsWith(minLabelRect) &&
+            !boundsRect.IntersectsWith(maxLabelRect))
+          {
+          painter->DrawString(pos[0], pos[1], tickLabel[i]);
+          skipTick = false;
+          }
+        }
+
+      if (this->TicksVisible && !skipTick)
         {
         painter->DrawLine(this->Point1[0] + tickLength, tickPos[i],
                           this->Point1[0]             , tickPos[i]);
-        }
-      if (this->LabelsVisible)
-        {
-        painter->DrawString(this->Point1[0] + labelOffset, tickPos[i],
-                            tickLabel[i]);
         }
       }
     }
@@ -431,16 +525,30 @@ bool vtkAxis::Paint(vtkContext2D *painter)
         {
         continue;
         }
-      if (this->TicksVisible)
+
+      bool skipTick = this->RangeLabelsVisible;
+      if (this->LabelsVisible)
+        {
+        float bounds[4];
+        painter->ComputeJustifiedStringBounds(tickLabel[i], bounds);
+        float pos[2] = { tickPos[i], this->Point1[1] + labelOffset };
+        bounds[0] += pos[0];
+        bounds[1] += pos[1];
+        vtkRectf boundsRect(bounds[0], bounds[1], bounds[2], bounds[3]);
+        if (!boundsRect.IntersectsWith(minLabelRect) &&
+            !boundsRect.IntersectsWith(maxLabelRect))
+          {
+          painter->DrawString(pos[0], pos[1], tickLabel[i]);
+          skipTick = false;
+          }
+        }
+
+      if (this->TicksVisible && !skipTick)
         {
         painter->DrawLine(tickPos[i], this->Point1[1] + tickLength,
                           tickPos[i], this->Point1[1]);
         }
-      if (this->LabelsVisible)
-        {
-        painter->DrawString(tickPos[i], this->Point1[1] + labelOffset,
-                            tickLabel[i]);
-        }
+
       }
     }
   else
@@ -890,6 +998,22 @@ vtkRectf vtkAxis::GetBoundingRect(vtkContext2D* painter)
       tallest = bounds.GetHeight() > tallest ? bounds.GetHeight() : tallest;
       }
     }
+
+  if (this->RangeLabelsVisible)
+    {
+    // Add in the range labels
+    vtkStdString minLabel = this->GenerateSprintfLabel(this->UnscaledMinimum, this->RangeLabelFormat);
+    vtkStdString maxLabel = this->GenerateSprintfLabel(this->UnscaledMaximum, this->RangeLabelFormat);
+
+    painter->ComputeStringBounds(minLabel, bounds.GetData());
+    widest = bounds.GetWidth() > widest ? bounds.GetWidth() : widest;
+    tallest = bounds.GetHeight() > tallest ? bounds.GetHeight() : tallest;
+
+    painter->ComputeStringBounds(maxLabel, bounds.GetData());
+    widest = bounds.GetWidth() > widest ? bounds.GetWidth() : widest;
+    tallest = bounds.GetHeight() > tallest ? bounds.GetHeight() : tallest;
+    }
+
   this->MaxLabel[0] = widest;
   this->MaxLabel[1] = tallest;
 
@@ -1181,6 +1305,7 @@ void vtkAxis::GenerateTickLabels(double min, double max)
         }
       else
         {
+        // The following call inserts a label into this->TickLabels
         this->GenerateLabelFormat(this->Notation, value);
         }
       }
@@ -1211,27 +1336,7 @@ vtkStdString vtkAxis::GenerateSimpleLabel(double val)
   vtkStdString result;
   if (this->Notation == PRINTF_NOTATION)
     { // Use the C-style printf specification:
-    const int buffSize = 1024;
-    char buffer[buffSize];
-
-    // On Windows, formats with exponents have three digits by default
-    // whereas on other systems, exponents have two digits. Set to two
-    // digits on Windows for consistent behavior.
-#if defined(_MSC_VER) && _MSC_VER < 1900
-    unsigned int oldWin32ExponentFormat = _set_output_format(_TWO_DIGIT_EXPONENT);
-#endif
-
-    int len = SNPRINTF(buffer, buffSize, this->LabelFormat.c_str(), val);
-    if (len < 0) // Overrun on windows
-      {
-      len = buffSize;
-      }
-
-#if defined(_MSC_VER) && _MSC_VER < 1900
-  _set_output_format(oldWin32ExponentFormat);
-#endif
-
-    result = vtkStdString(buffer, std::min(len, buffSize));
+    result = this->GenerateSprintfLabel(val, this->LabelFormat);
     }
   else
     { // Use the C++ style stream format specification:
@@ -1378,6 +1483,35 @@ void vtkAxis::GenerateLabelFormat(int notation, double n)
       this->TickLabels->InsertNextValue(ostr.str());
       break;
     }
+}
+
+//-----------------------------------------------------------------------------
+vtkStdString vtkAxis::GenerateSprintfLabel(double value, const std::string & format)
+{
+  // Use the C-style printf specification:
+  const int buffSize = 1024;
+  char buffer[buffSize];
+
+  // On Windows, formats with exponents have three digits by default
+  // whereas on other systems, exponents have two digits. Set to two
+  // digits on Windows for consistent behavior.
+#if defined(_MSC_VER) && _MSC_VER < 1900
+  unsigned int oldWin32ExponentFormat = _set_output_format(_TWO_DIGIT_EXPONENT);
+#endif
+
+  int len = SNPRINTF(buffer, buffSize, format.c_str(), value);
+  if (len < 0) // Overrun on windows
+    {
+    len = buffSize;
+    }
+
+#if defined(_MSC_VER) && _MSC_VER < 1900
+  _set_output_format(oldWin32ExponentFormat);
+#endif
+
+  vtkStdString result = vtkStdString(buffer, std::min(len, buffSize));
+
+  return result;
 }
 
 //-----------------------------------------------------------------------------
@@ -1678,6 +1812,7 @@ void vtkAxis::GenerateLogScaleTickMarks(int order,
     }
 }
 
+//-----------------------------------------------------------------------------
 inline bool vtkAxis::InRange(double value)
 {
   // Figure out which way around the axes are, then see if the value is inside.
@@ -1716,10 +1851,64 @@ void vtkAxis::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "Number of tick marks: " << this->NumberOfTicks << endl;
   os << indent << "LogScale: " << (this->LogScale ? "TRUE" : "FALSE") << endl;
   os << indent << "LogScaleActive: " << (this->LogScaleActive ? "TRUE" : "FALSE") << endl;
+  os << indent << "GridVisible: " << (this->GridVisible ? "TRUE" : "FALSE") << endl;
+  os << indent << "LabelsVisible: " << (this->LabelsVisible ? "TRUE" : "FALSE") << endl;
+  os << indent << "RangeLabelsVisible: " << (this->RangeLabelsVisible ? "TRUE" : "FALSE") << endl;
+  os << indent << "TicksVisible: " << (this->TicksVisible ? "TRUE" : "FALSE") << endl;
+  os << indent << "AxisVisible: " << (this->AxisVisible ? "TRUE" : "FALSE") << endl;
+  os << indent << "Precision: " << this->Precision << endl;
+  os << indent << "Notation: ";
+  switch (this->Notation)
+    {
+    case STANDARD_NOTATION:
+      os << "STANDARD_NOTATION";
+      break;
+
+    case SCIENTIFIC_NOTATION:
+      os << "SCIENTIFIC_NOTATION";
+      break;
+
+    case FIXED_NOTATION:
+      os << "FIXED_NOTATION";
+      break;
+
+    case PRINTF_NOTATION:
+      os << "PRINTF_NOTATION";
+      break;
+
+    default:
+      os << "<unknown>";
+      break;
+    }
+  os << endl;
+  os << indent << "LabelFormat: " << this->LabelFormat << endl;
+  os << indent << "Behavior: ";
+  switch (this->Behavior)
+    {
+    case AUTO:
+      os << "AUTO";
+      break;
+
+    case FIXED:
+      os << "FIXED";
+      break;
+
+    case CUSTOM:
+      os << "CUSTOM";
+      break;
+
+    default:
+      os << "<unknown>";
+      break;
+    }
+  os << endl;
+
   os << indent << "Unscaled range: "
     << this->UnscaledMinimum << " - " << this->UnscaledMaximum << endl;
   os << indent << "Unscaled range limits: "
     << this->UnscaledMinimumLimit << " - " << this->UnscaledMaximumLimit << endl;
   os << indent << "Fallback unscaled range limits: "
     << this->NonLogUnscaledMinLimit << " - " << this->NonLogUnscaledMaxLimit << endl;
+  os << indent << "ScalingFactor: " << this->ScalingFactor << endl;
+  os << indent << "Shift: " << this->Shift << endl;
 }
