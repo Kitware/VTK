@@ -475,8 +475,10 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
 
           map->SetContext(context);
 //          map->SetDepthTextureCompare(true);
-          map->SetLinearMagnification(true);
-          map->SetMinificationFilter(vtkTextureObject::Linear);
+//          map->SetLinearMagnification(true);
+//          map->SetMinificationFilter(vtkTextureObject::Linear);
+          map->SetLinearMagnification(false);
+          map->SetMinificationFilter(vtkTextureObject::Nearest);
           map->SetWrapS(vtkTextureObject::ClampToEdge);
           map->SetWrapT(vtkTextureObject::ClampToEdge);
           map->SetWrapR(vtkTextureObject::ClampToEdge);
