@@ -146,7 +146,7 @@ void vtkImageResliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
     this->ImageReslice->SetInputConnection(
       this->GetInputConnection(0, 0));
     this->ImageReslice->UpdateWholeExtent();
-    this->ResliceNeedUpdate = 1;
+    this->ResliceNeedUpdate = 0;
     }
 
   // apply checkerboard pattern (should have timestamps)
