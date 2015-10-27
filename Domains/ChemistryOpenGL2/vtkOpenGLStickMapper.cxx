@@ -188,17 +188,9 @@ void vtkOpenGLStickMapper::ReplaceShaderValues(
       }
     else
       {
-      vtkShaderProgram::Substitute(VSSource,
-        "//VTK::Picking::Dec",
-        "attribute vec4 selectionId;\n"
-        "varying vec4 selectionIdVSOutput;");
-      vtkShaderProgram::Substitute(VSSource,
-        "//VTK::Picking::Impl",
-        "selectionIdVSOutput = selectionId;");
       vtkShaderProgram::Substitute(FSSource,
         "//VTK::Picking::Dec",
-        "uniform vec3 mapperIndex;\n"
-        "varying vec4 selectionIdVSOutput;");
+        "uniform vec3 mapperIndex;");
       vtkShaderProgram::Substitute(FSSource,
         "//VTK::Picking::Impl",
         "  gl_FragData[0] = vec4(mapperIndex,1.0);\n"
@@ -297,7 +289,9 @@ void vtkOpenGLStickMapper::SetMapperShaderParameters(
       {
       vtkErrorMacro(<< "Error setting 'radiusMC' in shader VAO.");
       }
-    if (picking)
+    if (picking &&
+        (!selector || (selector &&
+         this->LastSelectionState >= vtkHardwareSelector::ID_LOW24)))
       {
       if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
                                       "selectionId", this->VBO->ColorOffset+6*sizeof(float),
