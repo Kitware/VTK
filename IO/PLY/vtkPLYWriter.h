@@ -35,6 +35,8 @@
 #include "vtkIOPLYModule.h" // For export macro
 #include "vtkWriter.h"
 
+#include <list>
+
 class vtkScalarsToColors;
 class vtkDataSetAttributes;
 
@@ -147,6 +149,10 @@ public:
   void SetTextureCoordinatesNameToTextureUV()
     {this->SetTextureCoordinatesName(VTK_TEXTURECOORDS_TEXTUREUV);}
 
+  // Description:
+  // Add a comment in the header part.
+  void AddComment(const std::string &comment);
+
 protected:
   vtkPLYWriter();
   ~vtkPLYWriter();
@@ -166,6 +172,9 @@ protected:
 
   int FileType;
   int TextureCoordinatesName;
+
+  typedef std::list< std::string > Comments;
+  Comments HeaderComments;
 
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 

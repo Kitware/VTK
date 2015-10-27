@@ -41,6 +41,7 @@ vtkPLYWriter::vtkPLYWriter()
   this->LookupTable = NULL;
   this->Color[0] = this->Color[1] = this->Color[2] = 255;
   this->TextureCoordinatesName = VTK_TEXTURECOORDS_UV;
+  this->HeaderComments.push_back("VTK generated PLY File");
 }
 
 vtkPLYWriter::~vtkPLYWriter()
@@ -187,8 +188,12 @@ void vtkPLYWriter::WriteData()
     vtkPLY::ply_describe_property (ply, "face", &faceProps[3]);
     }
 
-  // write a comment and an object information field
-  vtkPLY::ply_put_comment (ply, "VTK generated PLY File");
+  // write comments and an object information field
+  for (Comments::const_iterator it = this->HeaderComments.begin();
+       it != this->HeaderComments.end(); ++it)
+    {
+    vtkPLY::ply_put_comment(ply, it->c_str());
+    }
   vtkPLY::ply_put_obj_info (ply, "vtkPolyData points and polygons: vtk4.0");
 
   // complete the header
@@ -399,6 +404,10 @@ void vtkPLYWriter::PrintSelf(ostream& os, vtkIndent indent)
 
 }
 
+void vtkPLYWriter::AddComment(const std::string &comment)
+{
+  this->HeaderComments.push_back(comment);
+}
 
 vtkPolyData* vtkPLYWriter::GetInput()
 {
