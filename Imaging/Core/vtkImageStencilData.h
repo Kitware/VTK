@@ -124,8 +124,8 @@ public:
   // Description:
   // Override these to handle origin, spacing, scalar type, and scalar
   // number of components.  See vtkDataObject for details.
-  virtual void CopyInformationFromPipeline(vtkInformation* meta_data);
-  virtual void CopyInformationToPipeline(vtkInformation* meta_data);
+  virtual void CopyInformationFromPipeline(vtkInformation *info);
+  virtual void CopyInformationToPipeline(vtkInformation *info);
 
   //BTX
   // Description:
@@ -136,38 +136,48 @@ public:
 
   // Description:
   // Add merges the stencil supplied as argument into Self.
-  virtual void Add     ( vtkImageStencilData * );
+  virtual void Add(vtkImageStencilData *);
 
   // Description:
   // Subtract removes the portion of the stencil, supplied as argument,
   // that lies within Self from Self.
-  virtual void Subtract( vtkImageStencilData * );
+  virtual void Subtract(vtkImageStencilData *);
 
   // Description:
   // Replaces the portion of the stencil, supplied as argument,
   // that lies within Self from Self.
-  virtual void Replace( vtkImageStencilData * );
+  virtual void Replace(vtkImageStencilData *);
 
   // Description:
   // Clip the stencil with the supplied extents. In other words, discard data
   // outside the specified extents. Return 1 if something changed.
-  virtual int Clip( int extent[6] );
+  virtual int Clip(int extent[6]);
 
 protected:
   vtkImageStencilData();
   ~vtkImageStencilData();
 
+  enum Operation { Merge, Erase };
+
+  // Description:
+  // Apply the given operation over the given (r1, r2) extent.
+  void LogicalOperationExtent(
+    int r1, int r2, int yIdx, int zIdx, Operation operation);
+
+  // Description:
+  // Combine with the given stencil, using the given operation.
+  void LogicalOperationInPlace(
+    vtkImageStencilData *stencil, Operation operation);
+
+  // Description:
+  // Change the extent while preserving the data.
+  // This can be used to either expand or clip the extent.  The new extent
+  // does not have to overlap the current extent.
+  void ChangeExtent(const int extent[6]);
+
   // Description:
   // Get important info from pipeline.
-  void CopyOriginAndSpacingFromPipeline(vtkInformation* meta_data);
-
-  // Description:
-  // Merges portions of the stencil that are within Self's extents into
-  // itself.
-  virtual void InternalAdd( vtkImageStencilData * );
-
-  void CollapseAdditionalIntersections(int r2, int idx, int *clist,
-    int &clistlen);
+  void CopyOriginAndSpacingFromPipeline(vtkInformation *info);
 
   // Description:
   // The Spacing and Origin of the data.
