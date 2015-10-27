@@ -16,6 +16,7 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPLY.h"
@@ -39,6 +40,7 @@ vtkPLYWriter::vtkPLYWriter()
   this->ColorMode = VTK_COLOR_MODE_DEFAULT;
   this->LookupTable = NULL;
   this->Color[0] = this->Color[1] = this->Color[2] = 255;
+  this->TextureCoordinatesName = VTK_TEXTURECOORDS_UV;
 }
 
 vtkPLYWriter::~vtkPLYWriter()
@@ -56,6 +58,7 @@ typedef struct _plyVertex {
   unsigned char red;
   unsigned char green;
   unsigned char blue;
+  float tex[2];
 } plyVertex;
 
 typedef struct _plyFace {
@@ -74,6 +77,7 @@ void vtkPLYWriter::WriteData()
   vtkPolyData *input = this->GetInput();
 
   unsigned char *cellColors, *pointColors;
+  float *textureCoords;
   PlyFile *ply;
   float version;
   static const char *elemNames[] = { "vertex", "face" };
@@ -90,6 +94,10 @@ void vtkPLYWriter::WriteData()
      static_cast<int>(offsetof(plyVertex,green)), 0, 0, 0, 0},
     {"blue", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyVertex,blue)),
      0, 0, 0, 0},
+    {(TextureCoordinatesName==1)?"texture_u":"u", PLY_FLOAT, PLY_FLOAT,
+     static_cast<int>(offsetof(plyVertex,tex)), 0, 0, 0, 0},
+    {(TextureCoordinatesName==1)?"texture_v":"v", PLY_FLOAT, PLY_FLOAT,
+     static_cast<int>(offsetof(plyVertex,tex)+sizeof(float)), 0, 0, 0, 0},
   };
   static PlyProperty faceProps[] = { // property information for a face
     {"vertex_indices", PLY_INT, PLY_INT,
@@ -150,6 +158,9 @@ void vtkPLYWriter::WriteData()
   pointColors = this->GetColors(numPts,input->GetPointData());
   cellColors = this->GetColors(numPolys,input->GetCellData());
 
+  // get texture coordinates, if any
+  textureCoords = this->GetTextureCoordinates(numPts,input->GetPointData());
+
   // describe what properties go into the vertex and face elements
   vtkPLY::ply_element_count (ply, "vertex", numPts);
   vtkPLY::ply_describe_property (ply, "vertex", &vertProps[0]);
@@ -160,6 +171,11 @@ void vtkPLYWriter::WriteData()
     vtkPLY::ply_describe_property (ply, "vertex", &vertProps[3]);
     vtkPLY::ply_describe_property (ply, "vertex", &vertProps[4]);
     vtkPLY::ply_describe_property (ply, "vertex", &vertProps[5]);
+    }
+  if ( textureCoords )
+    {
+    vtkPLY::ply_describe_property(ply, "vertex", &vertProps[6]);
+    vtkPLY::ply_describe_property(ply, "vertex", &vertProps[7]);
     }
 
   vtkPLY::ply_element_count (ply, "face", numPolys);
@@ -194,6 +210,12 @@ void vtkPLYWriter::WriteData()
       vert.red = *(pointColors + idx);
       vert.green = *(pointColors + idx + 1);
       vert.blue = *(pointColors + idx + 2);
+      }
+    if ( textureCoords )
+      {
+      idx = 2*i;
+      vert.tex[0] = *(textureCoords + idx);
+      vert.tex[1] = *(textureCoords + idx + 1);
       }
     vtkPLY::ply_put_element (ply, (void *) &vert);
     }
@@ -232,6 +254,7 @@ void vtkPLYWriter::WriteData()
 
   delete [] pointColors;
   delete [] cellColors;
+  delete [] textureCoords;
 
   // close the PLY file
   vtkPLY::ply_close (ply);
@@ -308,6 +331,24 @@ unsigned char *vtkPLYWriter::GetColors(vtkIdType num,
       return NULL;
       }
     }
+}
+
+float *vtkPLYWriter::GetTextureCoordinates(vtkIdType num, vtkDataSetAttributes *dsa)
+{
+  vtkDataArray *textures = dsa->GetTCoords();
+  if ( !textures || (textures->GetNumberOfTuples() != num) ||
+       (textures->GetNumberOfComponents() != 2) )
+    return NULL;
+
+  vtkFloatArray *textureArray;
+  if ( (textureArray = vtkFloatArray::SafeDownCast(textures)) == NULL )
+    vtkErrorMacro(<< "PLY writer only supports float texture coordinates");
+
+  const float *tCoords = textureArray->GetPointer(0);
+  float *textureCoords = new float[2*num];
+  memcpy(textureCoords, tCoords, 2*num*sizeof(float));
+
+  return textureCoords;
 }
 
 void vtkPLYWriter::PrintSelf(ostream& os, vtkIndent indent)

@@ -47,6 +47,9 @@ class vtkDataSetAttributes;
 #define VTK_COLOR_MODE_UNIFORM_COLOR 3
 #define VTK_COLOR_MODE_OFF 4
 
+#define VTK_TEXTURECOORDS_UV 0
+#define VTK_TEXTURECOORDS_TEXTUREUV 1
+
 class vtkPolyData;
 
 class VTKIOPLY_EXPORT vtkPLYWriter : public vtkWriter
@@ -134,12 +137,23 @@ public:
   void SetFileTypeToASCII() {this->SetFileType(VTK_ASCII);};
   void SetFileTypeToBinary() {this->SetFileType(VTK_BINARY);};
 
+  // Description:
+  // Choose the name used for the texture coordinates.
+  // (u, v) or (texture_u, texture_v)
+  vtkSetClampMacro(TextureCoordinatesName,int,VTK_TEXTURECOORDS_UV, VTK_TEXTURECOORDS_TEXTUREUV);
+  vtkGetMacro(TextureCoordinatesName,int);
+  void SetTextureCoordinatesNameToUV()
+    {this->SetTextureCoordinatesName(VTK_TEXTURECOORDS_UV);}
+  void SetTextureCoordinatesNameToTextureUV()
+    {this->SetTextureCoordinatesName(VTK_TEXTURECOORDS_TEXTUREUV);}
+
 protected:
   vtkPLYWriter();
   ~vtkPLYWriter();
 
   void WriteData();
   unsigned char *GetColors(vtkIdType num, vtkDataSetAttributes *dsa);
+  float *GetTextureCoordinates(vtkIdType num, vtkDataSetAttributes *dsa);
 
   int DataByteOrder;
   char *ArrayName;
@@ -151,6 +165,7 @@ protected:
   char* FileName;
 
   int FileType;
+  int TextureCoordinatesName;
 
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
