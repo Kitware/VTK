@@ -300,6 +300,7 @@ void vtkDepthOfFieldPass::Render(const vtkRenderState *s)
                                 this->BlurProgram->VAO);
 
   this->Pass1->Deactivate();
+  this->Pass1Depth->Deactivate();
 
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
