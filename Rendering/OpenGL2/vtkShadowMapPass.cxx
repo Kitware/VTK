@@ -419,7 +419,7 @@ void vtkShadowMapPass::BuildShaderCode()
   // build the code for the lighting factors
   std::string fimpl = "float factors[6];\n";
   numSMT = 0;
-  for (int i = 0; i < 6; i++)
+  for (size_t i = 0; i < 6; i++)
     {
     toString.str("");
     toString.clear();
