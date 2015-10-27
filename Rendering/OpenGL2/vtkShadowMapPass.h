@@ -159,7 +159,7 @@ public:
   vtkTimeStamp LastRenderTime;
 
   // to store the shader code and settings
-  void vtkShadowMapPass::BuildShaderCode();
+  void BuildShaderCode();
   std::string FragmentDeclaration;
   std::string FragmentImplementation;
   std::vector<int> ShadowTextureUnits;
