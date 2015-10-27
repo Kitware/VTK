@@ -95,13 +95,15 @@ public:
   // Description:
   // get the matricies for all the
   // shadow maps.
-  double *ShadowMapTransforms();
+  std::vector<double> ShadowMapTransforms() {
+    return this->ShadowTransforms; }
 
   // Description:
   // get the texture units for the shadow maps
   // for each light. If a light does not cast a shadow
   // it is set to -1
-  int *ShadowMapTextures();
+  std::vector<int> GetShadowMapTextureUnits() {
+    return this->ShadowTextureUnits; }
 
   // Description:
   // this key will contain the shadow map pass
