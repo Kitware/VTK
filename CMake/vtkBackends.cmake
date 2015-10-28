@@ -48,3 +48,15 @@ foreach(backend ${VTK_BACKENDS})
     endforeach()
   endif()
 endforeach()
+
+# check for None with rendering turned on
+if(VTK_RENDERING_BACKEND STREQUAL "None" AND VTK_Group_Rendering)
+  message(FATAL_ERROR "VTK_Group_Rendering is on when the rendering backend is set to None. Please either turn off the rendering group or set the rendering backend to a different value")
+endif()
+
+if (VTK_RENDERING_BACKEND STREQUAL "None")
+  # with no backend make a dummy None modules
+  vtk_module(vtkRenderingNone )
+  vtk_module(vtkRenderingContextNone )
+  vtk_module(vtkRenderingVolumeNone )
+endif()
