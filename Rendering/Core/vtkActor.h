@@ -151,6 +151,15 @@ public:
   virtual unsigned long GetRedrawMTime();
 
   // Description:
+  // Force the actor to be treated as opaque or translucent
+  vtkGetMacro(ForceOpaque, bool);
+  vtkSetMacro(ForceOpaque, bool);
+  vtkBooleanMacro(ForceOpaque, bool);
+  vtkGetMacro(ForceTranslucent, bool);
+  vtkSetMacro(ForceTranslucent, bool);
+  vtkBooleanMacro(ForceTranslucent, bool);
+
+  // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
   // Used by vtkHardwareSelector to determine if the prop supports hardware
@@ -163,6 +172,8 @@ protected:
 
   // is this actor opaque
   int GetIsOpaque();
+  bool ForceOpaque;
+  bool ForceTranslucent;
 
   vtkProperty *Property;
   vtkProperty *BackfaceProperty;
