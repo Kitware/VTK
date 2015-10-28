@@ -555,7 +555,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(
 
   int scalarType = scalars->GetDataType();
 
-  // get the default choices for format from the texture
+  // Get the default choices for format from the texture
   format = this->VolumeTextureObject->GetDefaultFormat(
     scalarType, noOfComponents,false);
   internalFormat = this->VolumeTextureObject->GetDefaultInternalFormat(

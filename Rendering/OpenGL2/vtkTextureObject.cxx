@@ -684,8 +684,9 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
 
   if (!this->InternalFormat)
     {
-    vtkErrorMacro("Unable to find suitable internal format for T="
-      << vtktype << " NC=" << numComps << " SSTI=" << shaderSupportsTextureInt);
+    vtkDebugMacro("Unable to find suitable internal format for T="
+                  << vtktype << " NC=" << numComps << " SSTI="
+                  << shaderSupportsTextureInt);
     }
 
   return this->InternalFormat;
@@ -705,7 +706,7 @@ unsigned int vtkTextureObject::GetDefaultInternalFormat(
       vtktype,numComps,true,false);
     if (!result)
       {
-      vtkGenericWarningMacro("Unsupported internal texture type!");
+      vtkDebugMacro("Unsupported internal texture type!");
       }
     return result;
     }
@@ -724,8 +725,8 @@ unsigned int vtkTextureObject::GetDefaultInternalFormat(
 
   if (!result)
     {
-    vtkGenericWarningMacro("Unsupported internal texture type!");
-    vtkErrorMacro("Unable to find suitable internal format for T="
+    vtkDebugMacro("Unsupported internal texture type!");
+    vtkDebugMacro("Unable to find suitable internal format for T="
       << vtktype << " NC=" << numComps << " SSTI=" << shaderSupportsTextureInt);
     }
 
