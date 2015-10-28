@@ -201,8 +201,6 @@ public:
   static void ToFloat(T (&in)[2], float (&out)[2]);
   template<typename T>
   static void ToFloat(T& in, float& out);
-  static void VtkToGlMatrix(vtkMatrix4x4* in, float (&out)[16],
-                            int row = 4, int col = 4);
 
   void Initialize(vtkRenderer* ren, vtkVolume* vol,
                   int noOfComponents, int independentComponents);
@@ -355,6 +353,8 @@ public:
 
   vtkNew<vtkMatrix4x4> TextureToEyeTransposeInverse;
 
+  vtkNew<vtkMatrix4x4> TempMatrix4x4;
+
   vtkSmartPointer<vtkPolyData> BBoxPolyData;
 
   vtkMapMaskTextureId* MaskTextures;
@@ -430,19 +430,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ToFloat(
   T& in, float& out)
 {
   out = static_cast<float>(in);
-}
-
-//----------------------------------------------------------------------------
-void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::VtkToGlMatrix(
-  vtkMatrix4x4* in, float (&out)[16], int row, int col)
-{
-  for (int i = 0; i < row; ++i)
-    {
-    for (int j = 0; j < col; ++j)
-      {
-      out[j * row + i] = in->Element[i][j];
-      }
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -1475,10 +1462,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateLightingParameters(
 bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::IsCameraInside(
   vtkRenderer* ren, vtkVolume* vtkNotUsed(vol))
 {
-  vtkNew<vtkMatrix4x4> tempMat;
-
   vtkMatrix4x4::Transpose(this->InverseVolumeMat.GetPointer(),
-                          tempMat.GetPointer());
+                          this->TempMatrix4x4.GetPointer());
 
   vtkCamera* cam = ren->GetActiveCamera();
   double camWorldRange[2];
@@ -1509,7 +1494,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::IsCameraInside(
   camWorldDirection[3] = 1.0;
 
   // Compute the normalized near plane normal
-  tempMat->MultiplyPoint( camWorldDirection, camPlaneNormal );
+  this->TempMatrix4x4->MultiplyPoint( camWorldDirection, camPlaneNormal );
 
   vtkMath::Normalize(camWorldDirection);
   vtkMath::Normalize(camPlaneNormal);
@@ -2614,6 +2599,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 {
   vtkOpenGLClearErrorMacro();
 
+  this->Impl->TempMatrix4x4->Identity();
+
   this->Impl->NeedToInitializeResources  =
     (this->Impl->ReleaseResourcesTime.GetMTime() >
     this->Impl->InitializationTime.GetMTime());
@@ -2630,7 +2617,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   vtkVolumeProperty* volumeProperty = vol->GetProperty();
 
   // Get the camera
-  vtkOpenGLCamera* cam = (vtkOpenGLCamera *)(ren->GetActiveCamera());
+  vtkOpenGLCamera* cam = vtkOpenGLCamera::SafeDownCast(ren->GetActiveCamera());
 
   // Check whether we have independent components or not
   int independentComponents = volumeProperty->GetIndependentComponents();
@@ -2899,7 +2886,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   float fvalue2[2];
   float fvalue3[3];
   float fvalue4[4];
-  float fvalue16[16];
 
   // Update sampling distance
   int* loadedExtent = input->GetExtent();
@@ -3062,50 +3048,32 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   vtkMatrix4x4* modelviewMatrix;
   vtkMatrix3x3* normalMatrix;
   vtkMatrix4x4* projectionMatrix;
-
   cam->GetKeyMatrices(ren, modelviewMatrix, normalMatrix,
                       projectionMatrix, glTransformMatrix);
 
-  projectionMatrix->Transpose();
   this->Impl->InverseProjectionMat->DeepCopy(projectionMatrix);
   this->Impl->InverseProjectionMat->Invert();
-  vtkInternal::VtkToGlMatrix(projectionMatrix, fvalue16);
-  this->Impl->ShaderProgram->SetUniformMatrix4x4(
-    "in_projectionMatrix", &(fvalue16[0]));
+  this->Impl->ShaderProgram->SetUniformMatrix(
+    "in_projectionMatrix", projectionMatrix);
+  this->Impl->ShaderProgram->SetUniformMatrix(
+    "in_inverseProjectionMatrix", this->Impl->InverseProjectionMat.GetPointer());
 
-  vtkInternal::VtkToGlMatrix(this->Impl->InverseProjectionMat.GetPointer(),
-                             fvalue16);
-  this->Impl->ShaderProgram->SetUniformMatrix4x4(
-    "in_inverseProjectionMatrix", &(fvalue16[0]));
-
-  // Will require transpose of this matrix for OpenGL
-  modelviewMatrix->Transpose();
   this->Impl->InverseModelViewMat->DeepCopy(modelviewMatrix);
   this->Impl->InverseModelViewMat->Invert();
+  this->Impl->ShaderProgram->SetUniformMatrix(
+    "in_modelViewMatrix", modelviewMatrix);
+  this->Impl->ShaderProgram->SetUniformMatrix(
+    "in_inverseModelViewMatrix", this->Impl->InverseModelViewMat.GetPointer());
 
-  vtkInternal::VtkToGlMatrix(modelviewMatrix, fvalue16);
-  this->Impl->ShaderProgram->SetUniformMatrix4x4(
-    "in_modelViewMatrix", &(fvalue16[0]));
-
-  vtkInternal::VtkToGlMatrix(this->Impl->InverseModelViewMat.GetPointer(),
-                             fvalue16);
-  this->Impl->ShaderProgram->SetUniformMatrix4x4(
-    "in_inverseModelViewMatrix", &(fvalue16[0]));
-
-  // Will require transpose of this matrix for OpenGL
-  // Scene matrix
   vtkMatrix4x4* volumeMatrix4x4 = vol->GetMatrix();
-  this->Impl->InverseVolumeMat->DeepCopy(volumeMatrix4x4);
+  this->Impl->TempMatrix4x4->DeepCopy(volumeMatrix4x4);
+  this->Impl->TempMatrix4x4->Transpose();
+  this->Impl->InverseVolumeMat->DeepCopy(this->Impl->TempMatrix4x4.GetPointer());
   this->Impl->InverseVolumeMat->Invert();
-
-  vtkInternal::VtkToGlMatrix(volumeMatrix4x4, fvalue16);
-  this->Impl->ShaderProgram->SetUniformMatrix4x4(
-    "in_volumeMatrix", &(fvalue16[0]));
-
-  vtkInternal::VtkToGlMatrix(this->Impl->InverseVolumeMat.GetPointer(),
-                             fvalue16);
-  this->Impl->ShaderProgram->SetUniformMatrix4x4(
-    "in_inverseVolumeMatrix", &(fvalue16[0]));
+  this->Impl->ShaderProgram->SetUniformMatrix(
+    "in_volumeMatrix", this->Impl->TempMatrix4x4.GetPointer());
+  this->Impl->ShaderProgram->SetUniformMatrix(
+    "in_inverseVolumeMatrix", this->Impl->InverseVolumeMat.GetPointer());
 
   // Compute texture to dataset matrix
   this->Impl->TextureToDataSetMat->Identity();
@@ -3124,32 +3092,28 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->TextureToDataSetMat->SetElement(2, 3,
     this->Impl->LoadedBounds[4]);
 
+  this->Impl->TextureToDataSetMat->Transpose();
   this->Impl->InverseTextureToDataSetMat->DeepCopy(
     this->Impl->TextureToDataSetMat.GetPointer());
   this->Impl->InverseTextureToDataSetMat->Invert();
-  vtkInternal::VtkToGlMatrix(this->Impl->TextureToDataSetMat.GetPointer(),
-                             fvalue16);
-  this->Impl->ShaderProgram->SetUniformMatrix4x4(
-  "in_textureDatasetMatrix", &(fvalue16[0]));
+  this->Impl->ShaderProgram->SetUniformMatrix(
+    "in_textureDatasetMatrix", this->Impl->TextureToDataSetMat.GetPointer());
+  this->Impl->ShaderProgram->SetUniformMatrix(
+    "in_inverseTextureDatasetMatrix", this->Impl->InverseTextureToDataSetMat.GetPointer());
 
-  // NOTE : VTK martices are row-major, and hence do pre-multiplication
-  // of matrices
-  vtkInternal::VtkToGlMatrix(
-    this->Impl->InverseTextureToDataSetMat.GetPointer(), fvalue16);
-  this->Impl->ShaderProgram->SetUniformMatrix4x4(
-    "in_inverseTextureDatasetMatrix", &(fvalue16[0]));
-  vtkMatrix4x4::Multiply4x4(volumeMatrix4x4,
+
+  vtkMatrix4x4::Multiply4x4(this->Impl->TempMatrix4x4.GetPointer(),
                             modelviewMatrix,
                             this->Impl->TextureToEyeTransposeInverse.GetPointer());
+
   vtkMatrix4x4::Multiply4x4(this->Impl->TextureToDataSetMat.GetPointer(),
                             this->Impl->TextureToEyeTransposeInverse.GetPointer(),
                             this->Impl->TextureToEyeTransposeInverse.GetPointer());
+
+
   this->Impl->TextureToEyeTransposeInverse->Invert();
-  this->Impl->TextureToEyeTransposeInverse->Transpose();
-  vtkInternal::VtkToGlMatrix(
-    this->Impl->TextureToEyeTransposeInverse.GetPointer(), fvalue16, 3, 3);
-  this->Impl->ShaderProgram->SetUniformMatrix3x3(
-    "in_texureToEyeIt", &(fvalue16[0]));
+  this->Impl->ShaderProgram->SetUniformMatrix(
+    "in_texureToEyeIt", this->Impl->TextureToEyeTransposeInverse.GetPointer());
 
   vtkInternal::ToFloat(cam->GetPosition(), fvalue3, 3);
   this->Impl->ShaderProgram->SetUniform3fv("in_cameraPos", 1, &fvalue3);

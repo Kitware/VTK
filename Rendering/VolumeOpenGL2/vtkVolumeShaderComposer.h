@@ -156,7 +156,7 @@ namespace vtkvolume
       \nuniform mat4 in_inverseModelViewMatrix;\
       \nuniform mat4 in_textureDatasetMatrix;\
       \nuniform mat4 in_inverseTextureDatasetMatrix;\
-      \nuniform mat3 in_texureToEyeIt;\
+      \nuniform mat4 in_texureToEyeIt;\
       \n\
       \n// Ray step size\
       \nuniform vec3 in_cellStep;\
@@ -550,7 +550,7 @@ namespace vtkvolume
           \n  float normalLength = length(normal);\
           \n  if (normalLength > 0.0)\
           \n    {\
-          \n    normal = normalize(in_texureToEyeIt * normal);\
+          \n    normal = normalize((in_texureToEyeIt * vec4(normal, 0.0)).xyz);\
           \n    }\
           \n  else\
           \n    {\
@@ -599,7 +599,7 @@ namespace vtkvolume
           \n  vec3 diffuse = vec3(0,0,0);\
           \n  vec3 specular = vec3(0,0,0);\
           \n  vec3 vertLightDirection;\
-          \n  vec3 normal = normalize(in_texureToEyeIt * gradient.xyz);\
+          \n  vec3 normal = normalize((in_texureToEyeIt * vec4(gradient.xyz, 0.0)).xyz);\
           \n  vec3 lightDir;\
           \n  for (int lightNum = 0; lightNum < in_numberOfLights; lightNum++)\
           \n    {\
