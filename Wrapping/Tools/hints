@@ -127,6 +127,9 @@ vtkImplicitPlaneWidget                GetNormal                         307  3
 vtkImplicitPlaneWidget                GetOrigin                         307  3
 vtk__Int64Array                       GetValueRange                     30C  2
 vtkIntArray                           GetValueRange                     304  2
+vtkIOSRenderWindow                    GetPosition                       304  2
+vtkIOSRenderWindow                    GetScreenSize                     304  2
+vtkIOSRenderWindow                    GetSize                           304  2
 vtkKdNode                             GetMaxBounds                      307  3
 vtkKdNode                             GetMaxDataBounds                  307  3
 vtkKdNode                             GetMinBounds                      307  3
@@ -277,8 +280,6 @@ vtkWindow                             GetSize                           304  2
 vtkWindow                             GetScreenSize                     304  2
 vtkWindowLevelLookupTable             GetMaximumTableValue              307  4
 vtkWindowLevelLookupTable             GetMinimumTableValue              307  4
-vtkXImageWindow                       GetPosition                       304  2
-vtkXImageWindow                       GetSize                           304  2
 vtkXOpenGLRenderWindow                GetPosition                       304  2
 vtkXOpenGLRenderWindow                GetScreenSize                     304  2
 vtkXOpenGLRenderWindow                GetSize                           304  2
