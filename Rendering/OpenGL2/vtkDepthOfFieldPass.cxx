@@ -243,8 +243,8 @@ void vtkDepthOfFieldPass::Render(const vtkRenderState *s)
     renWin->GetShaderCache()->ReadyShaderProgram(this->BlurProgram->Program);
     }
 
-    glDisable(GL_BLEND);
-    glDisable(GL_DEPTH_TEST);
+  glDisable(GL_BLEND);
+  glDisable(GL_DEPTH_TEST);
 
   this->Pass1->Activate();
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

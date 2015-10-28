@@ -40,6 +40,8 @@
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderPass.h"
+#include <vector>  // STL Header
+#include <string> // For member variables.
 
 class vtkOpenGLRenderWindow;
 class vtkInformationIntegerKey;
@@ -53,8 +55,8 @@ class vtkTextureObject;
 class vtkImplicitHalo;
 class vtkSampleFunction;
 class vtkShadowMapBakerPass;
-class vtkInformationDoubleVectorKey;
-class vtkInformationIntegerVectorKey;
+class vtkInformationObjectBaseKey;
+class vtkShaderProgram;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkShadowMapPass : public vtkRenderPass
 {
@@ -92,16 +94,34 @@ public:
   virtual void SetOpaqueSequence(vtkRenderPass *opaqueSequence);
 
   // Description:
-  // this key will contain the matricies for all the
+  // get the matricies for all the
   // shadow maps.
-  static vtkInformationDoubleVectorKey *ShadowMapTransforms();
+  std::vector<double> ShadowMapTransforms() {
+    return this->ShadowTransforms; }
 
   // Description:
-  // Key contaning the texture units for the shadow maps
+  // get the texture units for the shadow maps
   // for each light. If a light does not cast a shadow
   // it is set to -1
-  static vtkInformationIntegerVectorKey *ShadowMapTextures();
+  std::vector<int> GetShadowMapTextureUnits() {
+    return this->ShadowTextureUnits; }
 
+  // Description:
+  // this key will contain the shadow map pass
+  static vtkInformationObjectBaseKey *ShadowMapPass();
+
+  // Description:
+  // Get the shader code to compute light factors based
+  // on a mappers vertexVC variable
+  std::string GetFragmentDeclaration() {
+    return this->FragmentDeclaration; }
+  std::string GetFragmentImplementation() {
+    return this->FragmentImplementation; }
+
+  // Description:
+  // A mapper can call this to set the uniforms that this
+  // pass uses
+  void SetUniforms(vtkShaderProgram *program);
 
  protected:
   // Description:
@@ -140,6 +160,13 @@ public:
   vtkImplicitHalo *Halo;
 
   vtkTimeStamp LastRenderTime;
+
+  // to store the shader code and settings
+  void BuildShaderCode();
+  std::string FragmentDeclaration;
+  std::string FragmentImplementation;
+  std::vector<int> ShadowTextureUnits;
+  std::vector<double> ShadowTransforms;
 
 private:
   vtkShadowMapPass(const vtkShadowMapPass&);  // Not implemented.

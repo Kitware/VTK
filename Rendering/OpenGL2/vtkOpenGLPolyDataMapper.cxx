@@ -580,78 +580,18 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
   // check for shadow maps
   vtkInformation *info = actor->GetPropertyKeys();
   std::string shadowFactor = "";
-  if (info && info->Has(vtkShadowMapPass::ShadowMapTextures()))
+  if (info && info->Has(vtkShadowMapPass::ShadowMapPass()))
     {
-    int *shadowMapTextures = 0;
-    int numLights = 0;
-
-    shadowMapTextures = info->Get(vtkShadowMapPass::ShadowMapTextures());
-    numLights = info->Length(vtkShadowMapPass::ShadowMapTextures());
-
-    // count how many lights have shadow maps
-    int numSMT = 0;
-    for (int i = 0; i < numLights; i++)
+    vtkShadowMapPass *smp = vtkShadowMapPass::SafeDownCast(
+      info->Get(vtkShadowMapPass::ShadowMapPass()));
+    if (smp)
       {
-      if (shadowMapTextures[i] >= 0)
-        {
-        numSMT++;
-        }
+      vtkShaderProgram::Substitute(FSSource,"//VTK::Light::Dec",
+        smp->GetFragmentDeclaration(), false);
+      vtkShaderProgram::Substitute(FSSource,"//VTK::Light::Impl",
+        smp->GetFragmentImplementation(), false);
+      shadowFactor = "*factors[lightNum]";
       }
-    std::ostringstream toString;
-    toString << numSMT;
-
-    vtkShaderProgram::Substitute(FSSource,"//VTK::Light::Dec",
-      "//VTK::Light::Dec\n"
-      "#define VTK_NUM_SHADOW_MAPS " + toString.str() + "\n"
-//      "uniform sampler2DShadow shadowMaps[VTK_NUM_SHADOW_MAPS];\n"
-      "uniform sampler2D shadowMaps[VTK_NUM_SHADOW_MAPS];\n"
-      "uniform mat4 shadowTransforms[VTK_NUM_SHADOW_MAPS];\n"
-      , false);
-
-    // build the code for the lighting factors
-    std::string lfc =
-      "float factors[6];\n"
-      "vec4 shadowCoord;\n"
-      "float result;\n";
-    numSMT = 0;
-    for (int i = 0; i < 6; i++)
-      {
-      toString.str("");
-      toString.clear();
-      toString << i;
-      if (shadowMapTextures[i] >= 0 && i < numLights)
-        {
-        std::ostringstream toString2;
-        toString2 << numSMT;
-        lfc +=
-        "  shadowCoord = shadowTransforms[" + toString2.str() + "]*vertexVC;\n"
-        "  result = 1.0;\n"
-        "  if(shadowCoord.w > 0.0)\n"
-        "    {\n"
-        "    vec2 projected = shadowCoord.xy/shadowCoord.w;\n"
-        "    if(projected.x >= 0.0 && projected.x <= 1.0\n"
-        "       && projected.y >= 0.0 && projected.y <= 1.0)\n"
-        "      {\n"
-        "      result = 0.0;\n"
-        "      float zval = shadowCoord.z - 0.005;\n"
-        "      if (textureProjOffset(shadowMaps[" + toString2.str() + "],shadowCoord,ivec2( 0, 0)).r - zval > 0) { result += 0.34; }\n"
-        "      if (textureProjOffset(shadowMaps[" + toString2.str() + "],shadowCoord,ivec2( 0, 1)).r - zval > 0) { result += 0.33; }\n"
-        "      if (textureProjOffset(shadowMaps[" + toString2.str() + "],shadowCoord,ivec2( 1, 0)).r - zval > 0) { result += 0.33; }\n"
-        "      }\n"
-        "    }\n"
-        "  factors[" + toString.str() + "] = result;\n";
-        numSMT++;
-        }
-      else
-        {
-        lfc += "  factors[" + toString.str() + "] = 1.0;\n";
-        }
-      }
-    lfc += "//VTK::Light::Impl";
-    vtkShaderProgram::Substitute(FSSource,"//VTK::Light::Impl",
-      lfc.c_str(), false);
-
-    shadowFactor = "*factors[lightNum]";
     }
 
   switch (this->LastLightComplexity[this->LastBoundBO])
@@ -1598,30 +1538,14 @@ void vtkOpenGLPolyDataMapper::SetLightingShaderParameters(
 
   // check for shadow maps
   vtkInformation *info = actor->GetPropertyKeys();
-  if (info && info->Has(vtkShadowMapPass::ShadowMapTextures()))
+  if (info && info->Has(vtkShadowMapPass::ShadowMapPass()))
     {
-    int *shadowMapTextures = info->Get(vtkShadowMapPass::ShadowMapTextures());
-    double *shadowTransforms = info->Get(vtkShadowMapPass::ShadowMapTransforms());
-    int numLights = info->Length(vtkShadowMapPass::ShadowMapTextures());
-
-    // how many lights have shadow maps
-    int numSMT = 0;
-    int tunits[6];
-    float transforms[6*16];
-    for (int i = 0; i < numLights; i++)
+    vtkShadowMapPass *smp = vtkShadowMapPass::SafeDownCast(
+      info->Get(vtkShadowMapPass::ShadowMapPass()));
+    if (smp)
       {
-      if (shadowMapTextures[i] >= 0)
-        {
-        tunits[numSMT] = shadowMapTextures[i];
-        for (int j = 0; j < 16; j++)
-          {
-          transforms[numSMT*16+j] = shadowTransforms[numSMT*16+j];
-          }
-        numSMT++;
-        }
+      smp->SetUniforms(program);
       }
-    program->SetUniform1iv("shadowMaps", numSMT, tunits);
-    program->SetUniformMatrix4x4v("shadowTransforms", numSMT, transforms);
     }
 
   // for lightkit case there are some parameters to set
