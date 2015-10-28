@@ -116,6 +116,16 @@ public:
   static int CeilLog2(vtkTypeUInt64 x);
 
   // Description:
+  // Returns the minimum of the two arguments provided.
+  template<class T>
+  static T Min(const T & a, const T & b);
+
+  // Description:
+  // Returns the maximum of the two arugments provided.
+  template<class T>
+  static T Max(const T & a, const T & b);
+
+  // Description:
   // Returns true if integer is a power of two.
   static bool IsPowerOfTwo(vtkTypeUInt64 x);
 
@@ -1019,6 +1029,20 @@ inline int vtkMath::Ceil(double x)
 {
   int i = static_cast<int>(x);
   return i + ( i < x );
+}
+
+//----------------------------------------------------------------------------
+template<class T>
+inline T vtkMath::Min(const T & a, const T & b)
+{
+  return (a < b ? a : b);
+}
+
+//----------------------------------------------------------------------------
+template<class T>
+inline T vtkMath::Max(const T & a, const T & b)
+{
+  return (a > b ? a : b);
 }
 
 //----------------------------------------------------------------------------
