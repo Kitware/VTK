@@ -41,6 +41,7 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderPass.h"
 #include <vector>  // STL Header
+#include <string> // For member variables.
 
 class vtkOpenGLRenderWindow;
 class vtkInformationIntegerKey;
