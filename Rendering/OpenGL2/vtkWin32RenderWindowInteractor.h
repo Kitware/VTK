@@ -81,24 +81,24 @@ public:
   // Description:
   // Various methods that a Win32 window can redirect to this class to be
   // handled.
-  virtual void OnMouseMove  (HWND wnd, UINT nFlags, int X, int Y);
-  virtual void OnNCMouseMove(HWND wnd, UINT nFlags, int X, int Y);
-  virtual void OnRButtonDown(HWND wnd, UINT nFlags, int X, int Y, int repeat=0);
-  virtual void OnRButtonUp  (HWND wnd, UINT nFlags, int X, int Y);
-  virtual void OnMButtonDown(HWND wnd, UINT nFlags, int X, int Y, int repeat=0);
-  virtual void OnMButtonUp  (HWND wnd, UINT nFlags, int X, int Y);
-  virtual void OnLButtonDown(HWND wnd, UINT nFlags, int X, int Y, int repeat=0);
-  virtual void OnLButtonUp  (HWND wnd, UINT nFlags, int X, int Y);
-  virtual void OnSize       (HWND wnd, UINT nType,  int X, int Y);
-  virtual void OnTimer      (HWND wnd, UINT nIDEvent);
-  virtual void OnKeyDown    (HWND wnd, UINT nChar, UINT nRepCnt, UINT nFlags);
-  virtual void OnKeyUp      (HWND wnd, UINT nChar, UINT nRepCnt, UINT nFlags);
-  virtual void OnChar       (HWND wnd, UINT nChar, UINT nRepCnt, UINT nFlags);
-  virtual void OnMouseWheelForward (HWND wnd, UINT nFlags, int X, int Y);
-  virtual void OnMouseWheelBackward(HWND wnd, UINT nFlags, int X, int Y);
-  virtual void OnFocus(HWND wnd, UINT nFlags);
-  virtual void OnKillFocus(HWND wnd, UINT nFlags);
-  virtual void OnTouch(HWND wnd, UINT wParam, UINT lParam);
+  virtual int OnMouseMove(HWND wnd, UINT nFlags, int X, int Y);
+  virtual int OnNCMouseMove(HWND wnd, UINT nFlags, int X, int Y);
+  virtual int OnRButtonDown(HWND wnd, UINT nFlags, int X, int Y, int repeat = 0);
+  virtual int OnRButtonUp(HWND wnd, UINT nFlags, int X, int Y);
+  virtual int OnMButtonDown(HWND wnd, UINT nFlags, int X, int Y, int repeat = 0);
+  virtual int OnMButtonUp(HWND wnd, UINT nFlags, int X, int Y);
+  virtual int OnLButtonDown(HWND wnd, UINT nFlags, int X, int Y, int repeat = 0);
+  virtual int OnLButtonUp(HWND wnd, UINT nFlags, int X, int Y);
+  virtual int OnSize(HWND wnd, UINT nType, int X, int Y);
+  virtual int OnTimer(HWND wnd, UINT nIDEvent);
+  virtual int OnKeyDown(HWND wnd, UINT nChar, UINT nRepCnt, UINT nFlags);
+  virtual int OnKeyUp(HWND wnd, UINT nChar, UINT nRepCnt, UINT nFlags);
+  virtual int OnChar(HWND wnd, UINT nChar, UINT nRepCnt, UINT nFlags);
+  virtual int OnMouseWheelForward(HWND wnd, UINT nFlags, int X, int Y);
+  virtual int OnMouseWheelBackward(HWND wnd, UINT nFlags, int X, int Y);
+  virtual int OnFocus(HWND wnd, UINT nFlags);
+  virtual int OnKillFocus(HWND wnd, UINT nFlags);
+  virtual int OnTouch(HWND wnd, UINT wParam, UINT lParam);
 
   // Description:
   // Methods to set the default exit method for the class. This method is
