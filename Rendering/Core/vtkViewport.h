@@ -89,7 +89,7 @@ public:
 
   // Description:
   // Set/Get whether this viewport should have a gradient background
-  // using the Background (top) and Background2 (bottom) colors.
+  // using the Background (bottom) and Background2 (top) colors.
   // Default is off.
   vtkSetMacro(GradientBackground,bool);
   vtkGetMacro(GradientBackground,bool);
