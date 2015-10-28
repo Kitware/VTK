@@ -279,7 +279,7 @@ vtkWindowLevelLookupTable             GetMaximumTableValue              307  4
 vtkWindowLevelLookupTable             GetMinimumTableValue              307  4
 vtkXImageWindow                       GetPosition                       304  2
 vtkXImageWindow                       GetSize                           304  2
-vtkXRenderWindow                      GetPosition                       304  2
-vtkXRenderWindow                      GetScreenSize                     304  2
-vtkXRenderWindow                      GetSize                           304  2
+vtkXOpenGLRenderWindow                GetPosition                       304  2
+vtkXOpenGLRenderWindow                GetScreenSize                     304  2
+vtkXOpenGLRenderWindow                GetSize                           304  2
 vtkXYPlotActor                        GetPlotColor                      307  3
