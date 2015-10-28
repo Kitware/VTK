@@ -19,7 +19,8 @@
 #include "vtkCamera.h"
 #include "vtkMolecule.h"
 #include "vtkLight.h"
-#include "vtkMoleculeMapper.h"
+#include "vtkOpenGLMoleculeMapper.h"
+#include "vtkOpenGLSphereMapper.h"
 #include "vtkNew.h"
 #include "vtkProperty.h"
 #include "vtkRenderWindowInteractor.h"
@@ -28,6 +29,15 @@
 #include "vtkPDBReader.h"
 #include "vtkPlaneSource.h"
 #include "vtkPolyDataMapper.h"
+
+#include "vtkDepthOfFieldPass.h"
+#include "vtkRenderStepsPass.h"
+#include "vtkSequencePass.h"
+#include "vtkShadowMapBakerPass.h"
+#include "vtkShadowMapPass.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkCameraPass.h"
+#include "vtkRenderPassCollection.h"
 
 #include "vtkTimerLog.h"
 #include "vtkCamera.h"
@@ -44,21 +54,33 @@ int TestPDBBallAndStickShadows(int argc, char *argv[])
 
   delete [] fileName;
 
-  vtkNew<vtkMoleculeMapper> molmapper;
+  vtkNew<vtkOpenGLMoleculeMapper> molmapper;
   molmapper->SetInputConnection(reader->GetOutputPort(1));
 
   cerr << "Class: " << molmapper->GetClassName() << endl;
   cerr << "Atoms: " << molmapper->GetInput()->GetNumberOfAtoms() << endl;
   cerr << "Bonds: " << molmapper->GetInput()->GetNumberOfBonds() << endl;
 
-  molmapper->UseBallAndStickSettings();
+//  molmapper->UseBallAndStickSettings();
+  molmapper->SetRenderBonds(false);
+  molmapper->SetAtomicRadiusType( vtkMoleculeMapper::VDWRadius );
+  molmapper->SetAtomicRadiusScaleFactor( 1.0 );
 
   vtkNew<vtkActor> actor;
   actor->SetMapper(molmapper.GetPointer());
-  actor->GetProperty()->SetAmbient(0.2);
   actor->GetProperty()->SetDiffuse(0.7);
   actor->GetProperty()->SetSpecular(0.3);
   actor->GetProperty()->SetSpecularPower(40);
+  molmapper->SetScalarMaterialModeToAmbientAndDiffuse();
+
+  molmapper->GetFastAtomMapper()->AddShaderReplacement(
+    vtkShader::Fragment,  // in the fragment shader
+    "//VTK::Color::Impl",
+    true, // before the standard replacements
+    "//VTK::Color::Impl\n" // we still want the default
+    "  ambientColor *= 0.3;\n", //but we add this
+    false // only do it once
+    );
 
   vtkNew<vtkRenderer> ren;
   vtkNew<vtkRenderWindow> win;
@@ -69,7 +91,9 @@ int TestPDBBallAndStickShadows(int argc, char *argv[])
   ren->AddActor(actor.GetPointer());
   ren->ResetCamera();
   ren->GetActiveCamera()->Zoom(1.7);
-  ren->SetBackground(0.4, 0.5, 0.6);
+  ren->SetBackground2(0.4, 0.5, 0.6);
+  ren->SetBackground(0.3, 0.3, 0.3);
+  ren->GradientBackgroundOn();
   win->SetSize(450, 450);
 
   // add a plane
@@ -88,18 +112,41 @@ int TestPDBBallAndStickShadows(int argc, char *argv[])
   light1->SetFocalPoint(0,0,0);
   light1->SetPosition(0,1,0.2);
   light1->SetColor(0.95,0.97,1.0);
-  light1->SetIntensity(0.8);
+  light1->SetIntensity(0.7);
   ren->AddLight(light1.Get());
 
   vtkNew<vtkLight> light2;
   light2->SetFocalPoint(0,0,0);
   light2->SetPosition(1.0,1.0,1.0);
   light2->SetColor(1.0,0.8,0.7);
-  light2->SetIntensity(0.3);
+  light2->SetIntensity(0.4);
   ren->AddLight(light2.Get());
 
-  ren->UseShadowsOn();
+  vtkNew<vtkShadowMapPass> shadows;
 
+  vtkNew<vtkSequencePass> seq;
+  vtkNew<vtkRenderPassCollection> passes;
+  passes->AddItem(shadows->GetShadowMapBakerPass());
+  passes->AddItem(shadows.Get());
+  seq->SetPasses(passes.Get());
+
+  vtkNew<vtkCameraPass> cameraP;
+  cameraP->SetDelegatePass(seq.Get());
+
+  // create the basic VTK render steps
+  vtkNew<vtkRenderStepsPass> basicPasses;
+
+  vtkOpenGLRenderer *glrenderer =
+      vtkOpenGLRenderer::SafeDownCast(ren.GetPointer());
+
+  // finally add the DOF passs
+  vtkNew<vtkDepthOfFieldPass> dofp;
+  dofp->SetDelegatePass(cameraP.Get());
+  // tell the renderer to use our render pass pipeline
+  glrenderer->SetPass(dofp.Get());
+
+
+  // tell the renderer to use our render pass pipeline
   vtkNew<vtkTimerLog> timer;
   timer->StartTimer();
   win->Render();

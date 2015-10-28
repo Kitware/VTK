@@ -37,6 +37,11 @@ public:
   virtual void Render(vtkRenderer *, vtkActor *);
   virtual void ReleaseGraphicsResources(vtkWindow *);
 
+  // Description:
+  // provide access to the underlying mappers
+  vtkOpenGLSphereMapper *GetFastAtomMapper() {
+      return this->FastAtomMapper.Get(); }
+
 protected:
   vtkOpenGLMoleculeMapper();
   ~vtkOpenGLMoleculeMapper();
