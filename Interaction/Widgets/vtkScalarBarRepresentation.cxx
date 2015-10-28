@@ -129,7 +129,7 @@ void vtkScalarBarRepresentation::WidgetInteraction(double eventPos[2])
   this->Superclass::WidgetInteraction(eventPos);
 
   // Check to see if we need to change the orientation.
-  if (this->AutoOrient)
+  if (this->Moving && this->AutoOrient)
     {
     double *fpos1 = this->PositionCoordinate->GetValue();
     double *fpos2 = this->Position2Coordinate->GetValue();
