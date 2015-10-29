@@ -15,13 +15,13 @@ if(NOT VTK_INSTALL_NO_DEVELOPMENT)
     COMPONENT Development)
 endif()
 
-include_directories(${FFMPEG_INCLUDE_DIR})
+include_directories(${FFMPEG_INCLUDE_DIRS})
 
 set_source_files_properties( vtkFFMPEGWriter.cxx
   PROPERTIES COMPILE_DEFINITIONS __STDC_CONSTANT_MACROS
   )
 
-set(_ffmpeg_libs ${FFMPEG_avformat_LIBRARY} ${FFMPEG_avcodec_LIBRARY}
+set(_ffmpeg_libs ${FFMPEG_AVFORMAT_LIBRARIES} ${FFMPEG_AVCODED_LIBRARIES}
   ${FFMPEG_LIBAVUTIL_LIBRARIES}
   )
 
