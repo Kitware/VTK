@@ -22,11 +22,11 @@ set_source_files_properties( vtkFFMPEGWriter.cxx
   )
 
 set(_ffmpeg_libs ${FFMPEG_avformat_LIBRARY} ${FFMPEG_avcodec_LIBRARY}
-  ${FFMPEG_avutil_LIBRARY}
+  ${FFMPEG_LIBAVUTIL_LIBRARIES}
   )
 
 if(NOT VTK_FFMPEG_HAS_IMG_CONVERT)
-  list(APPEND _ffmpeg_libs ${FFMPEG_swscale_LIBRARY})
+  list(APPEND _ffmpeg_libs ${FFMPEG_SWSCALE_LIBRARIES})
 endif()
 
 vtk_module_library(vtkIOFFMPEG ${Module_SRCS})
