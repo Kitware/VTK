@@ -327,6 +327,15 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   vtkDataArray* LookupPointDataArray(int varIdx);
   vtkDataArray* LookupCellDataArray(int varIdx);
 
+  // Description:
+  // Update the "Time" vtkStringArray in dataset's FieldData to contain the
+  // xtime string for the current timestep.
+  // If there is an error getting xtime, the current timestep number is inserted
+  // instead.
+  // If a non-string array named Time already exists in the FieldData, dataset
+  // is not modified in any way.
+  void LoadTimeFieldData(vtkUnstructuredGrid *dataset);
+
  private:
   vtkMPASReader(const vtkMPASReader&);    // Not implemented.
   void operator=(const vtkMPASReader&); // Not implemented.

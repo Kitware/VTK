@@ -621,6 +621,8 @@ int vtkMPASReader::RequestData(vtkInformation *vtkNotUsed(reqInfo),
       }
     }
 
+  this->LoadTimeFieldData(output);
+
   vtkDebugMacro( << "Returning from RequestData" << endl);
   return 1;
 }
@@ -2360,6 +2362,83 @@ vtkDataArray *vtkMPASReader::LookupCellDataArray(int varIdx)
 {
   Internal::ArrayMap::iterator it = this->Internals->cellArrays.find(varIdx);
   return it != this->Internals->cellArrays.end() ? it->second : NULL;
+}
+
+//------------------------------------------------------------------------------
+void vtkMPASReader::LoadTimeFieldData(vtkUnstructuredGrid *dataset)
+{
+  vtkStringArray *array = NULL;
+  vtkFieldData *fd = dataset->GetFieldData();
+  if (!fd)
+    {
+    fd = vtkFieldData::New();
+    dataset->SetFieldData(fd);
+    fd->Delete();
+    }
+
+  if (vtkDataArray *da = fd->GetArray("Time"))
+    {
+    if (!(array = vtkStringArray::SafeDownCast(da)))
+      {
+      vtkWarningMacro("Not creating \"Time\" field data array: a data array "
+                      "with this name already exists.");
+      return;
+      }
+    }
+
+  if (!array)
+    {
+    array = vtkStringArray::New();
+    array->SetName("Time");
+    fd->AddArray(array);
+    array->Delete();
+    }
+
+  // If the xtime variable exists, use its value at the current timestep:
+  vtkStdString time;
+  if (isNcVar(this->Internals->ncFile, "xtime"))
+    {
+    NcVar *var = this->Internals->ncFile->get_var("xtime");
+    if (var && this->ValidateDimensions(var, false, 2, "Time", "StrLen"))
+      {
+      NcDim *strLenDim = this->Internals->ncFile->get_dim("StrLen");
+      assert(strLenDim);
+      long strLen = strLenDim->size();
+      if (strLen > 0)
+        {
+        time.resize(strLen);
+        var->set_cur(this->GetCursorForDimension(var->get_dim(0)), 0);
+        if (var->get(&time[0], 1, strLen))
+          {
+          // Trim off trailing whitespace:
+          size_t realLength = time.find_last_not_of(" ");
+          if (realLength != vtkStdString::npos)
+            {
+            time.resize(realLength + 1);
+            }
+          }
+        else
+          {
+          vtkWarningMacro("Error reading xtime variable from file.");
+          time.clear();
+          }
+        }
+      }
+    }
+
+  // If no string time is available or the read fails, just insert the timestep:
+  if (time.empty())
+    {
+    std::ostringstream timeStr;
+    timeStr << "Timestep " << std::floor(this->DTime)
+            << "/" << this->NumberOfTimeSteps;
+    time = timeStr.str();
+    }
+
+  assert(array != NULL);
+  array->SetNumberOfComponents(1);
+  array->SetNumberOfTuples(1);
+  array->SetValue(0, time);
 }
 
 //------------------------------------------------------------------------------
