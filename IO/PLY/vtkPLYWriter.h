@@ -33,10 +33,15 @@
 #define vtkPLYWriter_h
 
 #include "vtkIOPLYModule.h" // For export macro
+#include "vtkSmartPointer.h" // For protected ivars
 #include "vtkWriter.h"
 
-class vtkScalarsToColors;
+#include <string> // For string parameter
+
 class vtkDataSetAttributes;
+class vtkPolyData;
+class vtkScalarsToColors;
+class vtkStringArray;
 
 #define VTK_LITTLE_ENDIAN 0
 #define VTK_BIG_ENDIAN    1
@@ -47,7 +52,8 @@ class vtkDataSetAttributes;
 #define VTK_COLOR_MODE_UNIFORM_COLOR 3
 #define VTK_COLOR_MODE_OFF 4
 
-class vtkPolyData;
+#define VTK_TEXTURECOORDS_UV 0
+#define VTK_TEXTURECOORDS_TEXTUREUV 1
 
 class VTKIOPLY_EXPORT vtkPLYWriter : public vtkWriter
 {
@@ -134,12 +140,27 @@ public:
   void SetFileTypeToASCII() {this->SetFileType(VTK_ASCII);};
   void SetFileTypeToBinary() {this->SetFileType(VTK_BINARY);};
 
+  // Description:
+  // Choose the name used for the texture coordinates.
+  // (u, v) or (texture_u, texture_v)
+  vtkSetClampMacro(TextureCoordinatesName,int,VTK_TEXTURECOORDS_UV, VTK_TEXTURECOORDS_TEXTUREUV);
+  vtkGetMacro(TextureCoordinatesName,int);
+  void SetTextureCoordinatesNameToUV()
+    {this->SetTextureCoordinatesName(VTK_TEXTURECOORDS_UV);}
+  void SetTextureCoordinatesNameToTextureUV()
+    {this->SetTextureCoordinatesName(VTK_TEXTURECOORDS_TEXTUREUV);}
+
+  // Description:
+  // Add a comment in the header part.
+  void AddComment(const std::string &comment);
+
 protected:
   vtkPLYWriter();
   ~vtkPLYWriter();
 
   void WriteData();
   unsigned char *GetColors(vtkIdType num, vtkDataSetAttributes *dsa);
+  const float *GetTextureCoordinates(vtkIdType num, vtkDataSetAttributes *dsa);
 
   int DataByteOrder;
   char *ArrayName;
@@ -151,6 +172,9 @@ protected:
   char* FileName;
 
   int FileType;
+  int TextureCoordinatesName;
+
+  vtkSmartPointer<vtkStringArray> HeaderComments;
 
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 

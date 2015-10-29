@@ -16,12 +16,14 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPLY.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkScalarsToColors.h"
+#include "vtkStringArray.h"
 
 #include <cstddef>
 
@@ -39,6 +41,10 @@ vtkPLYWriter::vtkPLYWriter()
   this->ColorMode = VTK_COLOR_MODE_DEFAULT;
   this->LookupTable = NULL;
   this->Color[0] = this->Color[1] = this->Color[2] = 255;
+  this->TextureCoordinatesName = VTK_TEXTURECOORDS_UV;
+
+  this->HeaderComments = vtkSmartPointer<vtkStringArray>::New();
+  this->HeaderComments->InsertNextValue("VTK generated PLY File");
 }
 
 vtkPLYWriter::~vtkPLYWriter()
@@ -56,6 +62,7 @@ typedef struct _plyVertex {
   unsigned char red;
   unsigned char green;
   unsigned char blue;
+  float tex[2];
 } plyVertex;
 
 typedef struct _plyFace {
@@ -90,6 +97,10 @@ void vtkPLYWriter::WriteData()
      static_cast<int>(offsetof(plyVertex,green)), 0, 0, 0, 0},
     {"blue", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyVertex,blue)),
      0, 0, 0, 0},
+    {(TextureCoordinatesName==1)?"texture_u":"u", PLY_FLOAT, PLY_FLOAT,
+     static_cast<int>(offsetof(plyVertex,tex)), 0, 0, 0, 0},
+    {(TextureCoordinatesName==1)?"texture_v":"v", PLY_FLOAT, PLY_FLOAT,
+     static_cast<int>(offsetof(plyVertex,tex)+sizeof(float)), 0, 0, 0, 0},
   };
   static PlyProperty faceProps[] = { // property information for a face
     {"vertex_indices", PLY_INT, PLY_INT,
@@ -150,6 +161,9 @@ void vtkPLYWriter::WriteData()
   pointColors = this->GetColors(numPts,input->GetPointData());
   cellColors = this->GetColors(numPolys,input->GetCellData());
 
+  // get texture coordinates, if any
+  const float *textureCoords = this->GetTextureCoordinates(numPts,input->GetPointData());
+
   // describe what properties go into the vertex and face elements
   vtkPLY::ply_element_count (ply, "vertex", numPts);
   vtkPLY::ply_describe_property (ply, "vertex", &vertProps[0]);
@@ -161,6 +175,11 @@ void vtkPLYWriter::WriteData()
     vtkPLY::ply_describe_property (ply, "vertex", &vertProps[4]);
     vtkPLY::ply_describe_property (ply, "vertex", &vertProps[5]);
     }
+  if ( textureCoords )
+    {
+    vtkPLY::ply_describe_property(ply, "vertex", &vertProps[6]);
+    vtkPLY::ply_describe_property(ply, "vertex", &vertProps[7]);
+    }
 
   vtkPLY::ply_element_count (ply, "face", numPolys);
   vtkPLY::ply_describe_property (ply, "face", &faceProps[0]);
@@ -171,8 +190,11 @@ void vtkPLYWriter::WriteData()
     vtkPLY::ply_describe_property (ply, "face", &faceProps[3]);
     }
 
-  // write a comment and an object information field
-  vtkPLY::ply_put_comment (ply, "VTK generated PLY File");
+  // write comments and an object information field
+  for (idx = 0; idx < this->HeaderComments->GetNumberOfValues(); ++idx)
+    {
+    vtkPLY::ply_put_comment(ply, this->HeaderComments->GetValue(idx));
+    }
   vtkPLY::ply_put_obj_info (ply, "vtkPolyData points and polygons: vtk4.0");
 
   // complete the header
@@ -194,6 +216,12 @@ void vtkPLYWriter::WriteData()
       vert.red = *(pointColors + idx);
       vert.green = *(pointColors + idx + 1);
       vert.blue = *(pointColors + idx + 2);
+      }
+    if ( textureCoords )
+      {
+      idx = 2*i;
+      vert.tex[0] = *(textureCoords + idx);
+      vert.tex[1] = *(textureCoords + idx + 1);
       }
     vtkPLY::ply_put_element (ply, (void *) &vert);
     }
@@ -310,6 +338,20 @@ unsigned char *vtkPLYWriter::GetColors(vtkIdType num,
     }
 }
 
+const float *vtkPLYWriter::GetTextureCoordinates(vtkIdType num, vtkDataSetAttributes *dsa)
+{
+  vtkDataArray *tCoords = dsa->GetTCoords();
+  if ( !tCoords || (tCoords->GetNumberOfTuples() != num) ||
+       (tCoords->GetNumberOfComponents() != 2) )
+    return NULL;
+
+  vtkFloatArray *textureArray;
+  if ( (textureArray = vtkFloatArray::SafeDownCast(tCoords)) == NULL )
+    vtkErrorMacro(<< "PLY writer only supports float texture coordinates");
+
+  return textureArray->GetPointer(0);
+}
+
 void vtkPLYWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -358,6 +400,10 @@ void vtkPLYWriter::PrintSelf(ostream& os, vtkIndent indent)
 
 }
 
+void vtkPLYWriter::AddComment(const std::string &comment)
+{
+  this->HeaderComments->InsertNextValue(comment.c_str());
+}
 
 vtkPolyData* vtkPLYWriter::GetInput()
 {
