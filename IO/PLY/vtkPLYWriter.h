@@ -36,6 +36,8 @@
 #include "vtkSmartPointer.h" // For protected ivars
 #include "vtkWriter.h"
 
+#include <string> // For string parameter
+
 class vtkDataSetAttributes;
 class vtkPolyData;
 class vtkScalarsToColors;
