@@ -23,9 +23,10 @@ uniform sampler2D depth;
 
 uniform vec2  worldToTCoord;
 uniform vec2  pixelToTCoord;
-uniform float focalDistVC;
-uniform float CoCScale;
-uniform float CoCBias;
+uniform float nearC;
+uniform float farC;
+uniform float focalDisk;
+uniform float focalDistance;
 
 // the output of this shader
 //VTK::Output::Dec
@@ -47,6 +48,16 @@ void main(void)
   // original pixel
   vec4 fcolor = texture2D(source,tcoordVC);
   float fsum = 1.0;
+
+  float fdist = focalDistance;
+  // use automatic focalDistance?  when focalDistance = 0
+  if (fdist == 0.0)
+    {
+    fdist = -farC * nearC / (texture2D(depth,vec2(0.5,0.5)).r * (farC - nearC) - farC);
+    }
+
+  float CoCScale = focalDisk*fdist*(farC - nearC)/(farC*nearC);
+  float CoCBias = focalDisk*(nearC - fdist)/nearC;
 
   float cdepth = texture2D(depth,tcoordVC).r;
   float CoC = CoCScale*cdepth + CoCBias;

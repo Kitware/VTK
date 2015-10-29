@@ -50,6 +50,14 @@ public:
   vtkTypeMacro(vtkDepthOfFieldPass,vtkDepthImageProcessingPass);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Use automatic focal distance calculation, this is on by default
+  // When on the center of the viewport will always be in focus
+  // regardless of where the focal point is.
+  vtkSetMacro(AutomaticFocalDistance,bool);
+  vtkGetMacro(AutomaticFocalDistance,bool);
+  vtkBooleanMacro(AutomaticFocalDistance,bool);
+
   //BTX
   // Description:
   // Perform rendering according to a render state \p s.
@@ -83,6 +91,8 @@ public:
 
   bool Supported;
   bool SupportProbed;
+
+  bool AutomaticFocalDistance;
 
  private:
   vtkDepthOfFieldPass(const vtkDepthOfFieldPass&);  // Not implemented.

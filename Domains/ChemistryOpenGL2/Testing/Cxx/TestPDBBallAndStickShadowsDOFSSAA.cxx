@@ -46,7 +46,7 @@
 #include "vtkTimerLog.h"
 #include "vtkCamera.h"
 
-int TestPDBBallAndStickShadows(int argc, char *argv[])
+int TestPDBBallAndStickShadowsDOFSSAA(int argc, char *argv[])
 {
   char* fileName =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/2LYZ.pdb");
@@ -125,14 +125,14 @@ int TestPDBBallAndStickShadows(int argc, char *argv[])
 
   vtkNew<vtkLight> light1;
   light1->SetFocalPoint(0,0,0);
-  light1->SetPosition(0, 0.9, 0.3);
+  light1->SetPosition(-0.3, 0.9, 0.3);
   light1->SetIntensity(0.5);
   light1->SetShadowAttenuation(0.6);
   ren->AddLight(light1.Get());
 
   vtkNew<vtkLight> light2;
   light2->SetFocalPoint(0,0,0);
-  light2->SetPosition(0.0,0.9,-0.3);
+  light2->SetPosition(0.3,0.9,0.3);
   light2->SetIntensity(0.5);
   light2->SetShadowAttenuation(0.6);
   ren->AddLight(light2.Get());
@@ -156,7 +156,7 @@ int TestPDBBallAndStickShadows(int argc, char *argv[])
 
   // finally add the DOF passs
   vtkNew<vtkDepthOfFieldPass> dofp;
-  dofp->AutomaticFocalDistanceOff();
+  //dofp->AutomaticFocalDistanceOff();
   dofp->SetDelegatePass(cameraP.Get());
 
   // finally blur the resulting image
@@ -164,11 +164,10 @@ int TestPDBBallAndStickShadows(int argc, char *argv[])
   // to the basicPasses
   vtkNew<vtkSSAAPass> ssaa;
   ssaa->SetDelegatePass(dofp.Get());
-  //ssaa->SetDelegatePass(cameraP.Get());
 
   // tell the renderer to use our render pass pipeline
-//  glrenderer->SetPass(ssaa.Get());
-  glrenderer->SetPass(dofp.Get());
+  glrenderer->SetPass(ssaa.Get());
+//  glrenderer->SetPass(dofp.Get());
 //  glrenderer->SetPass(cameraP.Get());
 
   // tell the renderer to use our render pass pipeline
@@ -179,6 +178,15 @@ int TestPDBBallAndStickShadows(int argc, char *argv[])
   double firstRender = timer->GetElapsedTime();
   cerr << "first render time: " << firstRender << endl;
 
+
+  // this example will suck the life out of your fragment shaders
+  // until we provide some optimizations. The DOF pass is a brute force
+  // approach which takes 81 tlookups per pixel. Combine that with
+  // 5x SSAA and you have around 400 texture lookups per final pixel
+  // we ust have everything on here to make sure it all works together.
+  // We will likely want to provide a second quality setting for the DOF
+  // pass that is designed to work with SSAA where we know we can tolerate more
+  // DOF noise as the SSAA will be averaging it anyhow.
   int numRenders = 5;
   timer->StartTimer();
   for (int i = 0; i < numRenders; ++i)
@@ -195,14 +203,20 @@ int TestPDBBallAndStickShadows(int argc, char *argv[])
   ren->GetActiveCamera()->SetFocalPoint(0,0,0);
   ren->GetActiveCamera()->SetViewUp(0,1,0);
   ren->ResetCamera();
-  ren->GetActiveCamera()->Zoom(1.7);
+  ren->GetActiveCamera()->Elevation(40.0);
+  ren->GetActiveCamera()->Zoom(2.0);
 
   win->Render();
 
   // Finally render the scene and compare the image to a reference image
   win->SetMultiSamples(0);
   win->GetInteractor()->Initialize();
-  win->GetInteractor()->Start();
 
-  return EXIT_SUCCESS;
+  int retVal = vtkRegressionTestImage( win.Get() );
+
+  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+    {
+    iren->Start();
+    }
+  return !retVal;
 }

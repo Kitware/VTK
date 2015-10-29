@@ -167,6 +167,7 @@ public:
   std::string FragmentImplementation;
   std::vector<int> ShadowTextureUnits;
   std::vector<double> ShadowTransforms;
+  std::vector<float> ShadowAttenuation;
 
 private:
   vtkShadowMapPass(const vtkShadowMapPass&);  // Not implemented.

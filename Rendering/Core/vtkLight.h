@@ -220,6 +220,15 @@ public:
   void ReadSelf(istream& is);
   void WriteSelf(ostream& os);
 
+  // Description:
+  // Set/Get the shadow intensity
+  // By default a light will be completely blocked when in shadow
+  // by setting this value to less than 1.0 you can control how much
+  // light is attenuated when in shadow
+  vtkSetMacro(ShadowAttenuation,float);
+  vtkGetMacro(ShadowAttenuation,float);
+
+
 protected:
   vtkLight();
   ~vtkLight();
@@ -239,6 +248,7 @@ protected:
   double TransformedFocalPointReturn[3];
   double TransformedPositionReturn[3];
   int    LightType;
+  float  ShadowAttenuation;
 
 private:
   vtkLight(const vtkLight&);  // Not implemented.
