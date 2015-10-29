@@ -24,6 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkTestUtilities.h"
 
+#include <cmath>
 #include <limits>
 
 int TestPLYWriter(int argc, char *argv[])
