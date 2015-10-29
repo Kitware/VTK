@@ -793,7 +793,7 @@
 
 //BTX
 #define VTKKWRCHelper_InitializeWeights()                       \
-  float weights[4];                                             \
+  float weights[4] = {};                                        \
   weights[0] = vol->GetProperty()->GetComponentWeight(0);       \
   weights[1] = vol->GetProperty()->GetComponentWeight(1);       \
   weights[2] = vol->GetProperty()->GetComponentWeight(2);       \
@@ -945,7 +945,7 @@
 #define VTKKWRCHelper_InitializeMIPMultiNN()                            \
   mapper->ShiftVectorDown( pos, spos );                                 \
   T *dptr = data +  spos[0]*inc[0] + spos[1]*inc[1] + spos[2]*inc[2];   \
-  T maxValue[4];                                                        \
+  T maxValue[4] = {};                                                   \
   for ( c = 0; c < components; c++ )                                    \
     {                                                                   \
     maxValue[c] = *(dptr+c);                                            \
@@ -1013,8 +1013,8 @@
   T *dptr = data +  spos[0]*inc[0] + spos[1]*inc[1] + spos[2]*inc[2];   \
   unsigned int color[3] = {0,0,0};                                      \
   unsigned int remainingOpacity = 0x7fff;                               \
-  unsigned short tmp[4];                                                \
-  unsigned short val[4];
+  unsigned short tmp[4] = {};                                           \
+  unsigned short val[4] = {};
 //ETX
 
 //BTX
@@ -1065,15 +1065,15 @@
   unsigned int w2X, w2Y, w2Z;                                   \
   unsigned int w1Xw1Y, w2Xw1Y, w1Xw2Y, w2Xw2Y;                  \
                                                                 \
-  unsigned short  val[4];                                       \
-  unsigned int    A[4] = {0,0,0,0};                             \
-  unsigned int    B[4] = {0,0,0,0};                             \
-  unsigned int    C[4] = {0,0,0,0};                             \
-  unsigned int    D[4] = {0,0,0,0};                             \
-  unsigned int    E[4] = {0,0,0,0};                             \
-  unsigned int    F[4] = {0,0,0,0};                             \
-  unsigned int    G[4] = {0,0,0,0};                             \
-  unsigned int    H[4] = {0,0,0,0};                             \
+  unsigned short  val[4] = {0, 0, 0, 0};                        \
+  unsigned int    A[4]   = {0, 0, 0, 0};                        \
+  unsigned int    B[4]   = {0, 0, 0, 0};                        \
+  unsigned int    C[4]   = {0, 0, 0, 0};                        \
+  unsigned int    D[4]   = {0, 0, 0, 0};                        \
+  unsigned int    E[4]   = {0, 0, 0, 0};                        \
+  unsigned int    F[4]   = {0, 0, 0, 0};                        \
+  unsigned int    G[4]   = {0, 0, 0, 0};                        \
+  unsigned int    H[4]   = {0, 0, 0, 0};                        \
                                                                 \
   unsigned int color[3] = {0,0,0};                              \
   unsigned short remainingOpacity = 0x7fff;                     \
