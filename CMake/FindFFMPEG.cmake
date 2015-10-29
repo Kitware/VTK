@@ -26,7 +26,7 @@
 MACRO(FFMPEG_FIND varname shortname headername)
     # old version of ffmpeg put header in $prefix/include/[ffmpeg]
     # so try to find header in include directory
-    FIND_PATH(FFMPEG_${varname}_INCLUDE_DIRS ${headername}
+    FIND_PATH(FFMPEG_${varname}_INCLUDE_DIRS lib${shortname}/${headername}
         PATHS        
         ${FFMPEG_ROOT}/include/lib${shortname}
         $ENV{FFMPEG_DIR}/include/lib${shortname}
@@ -43,7 +43,7 @@ MACRO(FFMPEG_FIND varname shortname headername)
         DOC "Location of FFMPEG Headers"
     )
 
-    FIND_PATH(FFMPEG_${varname}_INCLUDE_DIRS ${headername}
+    FIND_PATH(FFMPEG_${varname}_INCLUDE_DIRS lib${shortname}/${headername}
         PATHS
         ${FFMPEG_ROOT}/include
         $ENV{FFMPEG_DIR}/include
@@ -113,7 +113,7 @@ IF(WIN32)
 
 ELSE()
 
-    # SET(STDINT_OK TRUE)
+    SET(STDINT_OK TRUE)
 
 ENDIF()
 
