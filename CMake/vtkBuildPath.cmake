@@ -5,14 +5,19 @@
 #
 # Note: Now only setting the path to the latest configuration used (for MSVC/Xcode)
 
-if (NOT CMAKE_CONFIGURATION_TYPES OR NOT CMAKE_VERSION VERSION_LESS "2.8.12")
+if (NOT CMAKE_VERSION VERSION_LESS "2.8.12")
+  set(cfg_bit "")
+  if (CMAKE_CONFIGURATION_TYPES)
+    set(cfg_bit ".$<CONFIGURATION>")
+  endif ()
+
   if(WIN32)
-    set(VTK_PATH_SHELL_SCRIPT "windows_path.bat")
+    set(VTK_PATH_SHELL_SCRIPT "windows_path${cfg_bit}.bat")
     set(PATH_FORMAT "set xxx_path_var=xxx_add_path;%xxx_path_var%\r\n")
     set(PATH_VARIABLE "PATH")
     set(PATH_SEPARATOR ";")
   elseif(UNIX)
-    set(VTK_PATH_SHELL_SCRIPT "unix_path.sh")
+    set(VTK_PATH_SHELL_SCRIPT "unix_path${cfg_bit}.sh")
     if(APPLE)
       set(DYLD "DYLD")
     else()
