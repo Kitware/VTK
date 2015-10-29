@@ -23,6 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkScalarsToColors.h"
+#include "vtkStringArray.h"
 
 #include <cstddef>
 

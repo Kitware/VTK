@@ -33,12 +33,13 @@
 #define vtkPLYWriter_h
 
 #include "vtkIOPLYModule.h" // For export macro
-#include "vtkSmartPointer.h"
-#include "vtkStringArray.h"
+#include "vtkSmartPointer.h" // For protected ivars
 #include "vtkWriter.h"
 
-class vtkScalarsToColors;
 class vtkDataSetAttributes;
+class vtkPolyData;
+class vtkScalarsToColors;
+class vtkStringArray;
 
 #define VTK_LITTLE_ENDIAN 0
 #define VTK_BIG_ENDIAN    1
@@ -51,8 +52,6 @@ class vtkDataSetAttributes;
 
 #define VTK_TEXTURECOORDS_UV 0
 #define VTK_TEXTURECOORDS_TEXTUREUV 1
-
-class vtkPolyData;
 
 class VTKIOPLY_EXPORT vtkPLYWriter : public vtkWriter
 {
