@@ -337,7 +337,6 @@ macro(VTK_PREPARE_CMAKEDEFINE not invar outvar)
 endmacro()
 
 vtk_prepare_cmakedefine("" CMAKE_WORDS_BIGENDIAN VTK_WORDS_BIGENDIAN)
-vtk_prepare_cmakedefine("" CMAKE_NO_ANSI_STRING_STREAM VTK_NO_ANSI_STRING_STREAM)
 vtk_prepare_cmakedefine(NOT VTK_EXPLICIT_TEMPLATES
                   VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
 vtk_prepare_cmakedefine(NOT VTK_COMPILER_HAS_FULL_SPECIALIZATION

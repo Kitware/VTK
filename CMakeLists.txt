@@ -451,9 +451,6 @@ include(TestForSTDNamespace)
 include(TestForANSIForScope)
 include(CheckTypeSize)
 
-# Simulate old CMakeBackwardCompatibilityCXX test.
-include(TestForSSTREAM)
-
 # Tests for various integer, bool and float types
 include(vtkTestTypes)
 
