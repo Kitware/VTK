@@ -228,7 +228,7 @@ protected:
     vtkRenderer *ren, vtkActor *act);
 
   // Description:
-  // Set the shader parameteres related to the mapper/input data, called by UpdateShader
+  // Set the shader parameters related to the mapper/input data, called by UpdateShader
   virtual void SetMapperShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
 
   // Description:

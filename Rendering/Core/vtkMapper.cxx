@@ -39,6 +39,8 @@ static double vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetFactor = 1.0;
 static double vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetUnits = 1.0;
 static int vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetFaces = 1;
 
+vtkScalarsToColors *vtkMapper::InvertibleLookupTable = NULL;
+
 // Construct with initial range (0,1).
 vtkMapper::vtkMapper()
 {
@@ -73,6 +75,11 @@ vtkMapper::vtkMapper()
   this->ColorTextureMap = 0;
 
   this->ForceCompileOnly=0;
+
+  this->UseInvertibleColors = false;
+  this->InvertibleScalars = NULL;
+
+  this->AcquireInvertibleLookupTable();
 }
 
 vtkMapper::~vtkMapper()
@@ -81,6 +88,14 @@ vtkMapper::~vtkMapper()
     {
     this->LookupTable->UnRegister(this);
     }
+  assert(vtkMapper::InvertibleLookupTable);
+  bool clear = vtkMapper::InvertibleLookupTable->GetReferenceCount() == 1;
+  vtkMapper::InvertibleLookupTable->UnRegister(this);
+  if (clear)
+    {
+    vtkMapper::InvertibleLookupTable = NULL;
+    }
+
   if ( this->Colors != 0 )
     {
     this->Colors->UnRegister(this);
@@ -92,6 +107,10 @@ vtkMapper::~vtkMapper()
   if ( this->ColorTextureMap != 0 )
     {
     this->ColorTextureMap->UnRegister(this);
+    }
+  if (this->InvertibleScalars != NULL)
+    {
+    this->InvertibleScalars->UnRegister(this);
     }
 }
 
@@ -328,62 +347,70 @@ vtkUnsignedCharArray *vtkMapper::MapScalars(vtkDataSet *input,
 {
   int cellFlag = 0;
 
-  vtkAbstractArray *scalars = vtkAbstractMapper::
-    GetAbstractScalars(input, this->ScalarMode, this->ArrayAccessMode,
-                       this->ArrayId, this->ArrayName, cellFlag);
-
-  // This is for a legacy feature: selection of the array component to color by
-  // from the mapper.  It is now in the lookuptable.  When this feature
-  // is removed, we can remove this condition.
-  if (scalars == 0 || scalars->GetNumberOfComponents() <= this->ArrayComponent)
+  vtkAbstractArray *scalars = NULL;
+  if (!this->UseInvertibleColors)
     {
-    this->ArrayComponent = 0;
-    }
+    scalars = vtkAbstractMapper::
+      GetAbstractScalars(input, this->ScalarMode, this->ArrayAccessMode,
+                         this->ArrayId, this->ArrayName, cellFlag);
 
-  if ( !this->ScalarVisibility || scalars==0 || input==0)
-    { // No scalar colors.
-    if ( this->ColorCoordinates )
+    // This is for a legacy feature: selection of the array component to color by
+    // from the mapper.  It is now in the lookuptable.  When this feature
+    // is removed, we can remove this condition.
+    if (scalars == 0 || scalars->GetNumberOfComponents() <= this->ArrayComponent)
       {
-      this->ColorCoordinates->UnRegister(this);
-      this->ColorCoordinates = 0;
+      this->ArrayComponent = 0;
       }
-    if ( this->ColorTextureMap )
-      {
-      this->ColorTextureMap->UnRegister(this);
-      this->ColorTextureMap = 0;
-      }
-    if ( this->Colors )
-      {
-      this->Colors->UnRegister(this);
-      this->Colors = 0;
-      }
-    return 0;
-    }
 
-  // Get the lookup table.
-  vtkDataArray *dataArray = vtkDataArray::SafeDownCast(scalars);
-  if (dataArray && dataArray->GetLookupTable())
-    {
-    this->SetLookupTable(dataArray->GetLookupTable());
+    if ( !this->ScalarVisibility || scalars==0 || input==0)
+      { // No scalar colors.
+      if ( this->ColorCoordinates )
+        {
+        this->ColorCoordinates->UnRegister(this);
+        this->ColorCoordinates = 0;
+        }
+      if ( this->ColorTextureMap )
+        {
+        this->ColorTextureMap->UnRegister(this);
+        this->ColorTextureMap = 0;
+        }
+      if ( this->Colors )
+        {
+        this->Colors->UnRegister(this);
+        this->Colors = 0;
+        }
+      return 0;
+      }
+
+    // Get the lookup table.
+    vtkDataArray *dataArray = vtkDataArray::SafeDownCast(scalars);
+    if (dataArray && dataArray->GetLookupTable())
+      {
+      this->SetLookupTable(dataArray->GetLookupTable());
+      }
+    else
+      {
+      // make sure we have a lookup table
+      if ( this->LookupTable == 0 )
+        {
+        this->CreateDefaultLookupTable();
+        }
+      this->LookupTable->Build();
+      }
+    if ( !this->UseLookupTableScalarRange )
+      {
+      this->LookupTable->SetRange(this->ScalarRange);
+      }
     }
   else
     {
-    // make sure we have a lookup table
-    if ( this->LookupTable == 0 )
-      {
-      this->CreateDefaultLookupTable();
-      }
-    this->LookupTable->Build();
-    }
-
-  if ( !this->UseLookupTableScalarRange )
-    {
+    scalars = this->InvertibleScalars;
     this->LookupTable->SetRange(this->ScalarRange);
     }
 
   // Decide betweeen texture color or vertex color.
-  // Cell data always uses vertext color.
-  // Only point data can use both texture and vertext coloring.
+  // Cell data always uses vertex color.
+  // Only point data can use both texture and vertex coloring.
   if (this->CanUseTextureMapForColoring(input))
     {
     this->MapScalarsToTexture(scalars, alpha);
@@ -548,6 +575,144 @@ void vtkMapper::CreateDefaultLookupTable()
     colorSeries->SetColorScheme(vtkColorSeries::BREWER_QUALITATIVE_PAIRED);
     colorSeries->BuildLookupTable(table, vtkColorSeries::CATEGORICAL);
     colorSeries->Delete();
+    }
+}
+
+void vtkMapper::AcquireInvertibleLookupTable()
+{
+  if (!vtkMapper::InvertibleLookupTable)
+  {
+    vtkLookupTable *table = vtkLookupTable::New();
+    const int MML = 0x1000;
+    table->SetNumberOfTableValues(MML);
+    table->SetBelowRangeColor(0.0, 0.0, 0.0, 1.0);
+    table->SetAboveRangeColor(0.0, 0.0, 0.0, 1.0);
+    table->SetNanColor(0.0, 0.0, 0.0, 1.0);
+    unsigned char color[3] = { 0 };
+    for (int i = 0; i < MML; ++i)
+      {
+      ValueToColor(i, 0, MML, color);
+      table->SetTableValue(i,
+          (double)color[0] / 255.0,
+          (double)color[1] / 255.0,
+          (double)color[2] / 255.0,
+          1);
+      }
+    table->Register(this);
+    table->Delete();
+    vtkMapper::InvertibleLookupTable = table;
+  }
+  else
+  {
+    vtkMapper::InvertibleLookupTable->Register(this);
+  }
+}
+
+void vtkMapper::ValueToColor(double value, double min, double scale,
+  unsigned char *color)
+{
+  //TODO: make this configurable
+  double valueS = (value - min)/scale;
+  valueS = (valueS<0.0?0.0:valueS); //prevent underflow
+  valueS = (valueS>1.0?1.0:valueS); //prevent overflow
+  int valueI = valueS * 0xfffffe + 0x1; //0 is reserved as "nothing"
+
+  color[0] = (unsigned char)((valueI & 0xff0000)>>16);
+  color[1] = (unsigned char)((valueI & 0x00ff00)>>8);
+  color[2] = (unsigned char)((valueI & 0x0000ff));
+}
+
+void vtkMapper::ColorToValue(unsigned char *color, double min, double scale,
+  double &value)
+{
+  //TODO: make this configurable
+  int valueI = ((int)(*(color+0)))<<16 | ((int)(*(color+1)))<<8 | ((int)(*(color+2)));
+  double valueS = (valueI-0x1)/(double)0xfffffe; // 0 is reserved as "nothing"
+  value = valueS * scale + min;
+}
+
+//-------------------------------------------------------------------
+void vtkMapper::UseInvertibleColorFor(int scalarMode,
+                                      int arrayAccessMode,
+                                      int arrayId,
+                                      const char *arrayName,
+                                      int arrayComponent,
+                                      double *scalarRange)
+{
+  //find and hold onto the array to use later
+  int cellFlag = 0; // not used
+  vtkAbstractArray* abstractArray = vtkAbstractMapper::
+    GetAbstractScalars(this->GetInput(), scalarMode, arrayAccessMode,
+                       arrayId, arrayName, cellFlag);
+
+  if (!abstractArray)
+  {
+    vtkErrorMacro(<< "Scalar array " << arrayName
+                  << "with Id = " << arrayId << " not found.");
+  }
+
+  this->Modified();
+
+  this->ScalarMode = scalarMode;
+  this->ArrayComponent = arrayComponent;
+  this->SetScalarRange(scalarRange);
+
+  // Set the new array, if present
+  if (this->InvertibleScalars)
+    {
+    this->InvertibleScalars->UnRegister(this);
+    }
+  this->InvertibleScalars = abstractArray;
+  if (this->InvertibleScalars)
+    {
+    this->InvertibleScalars->Register(this);
+    }
+
+  // Determine whether to use invertible colors
+  this->UseInvertibleColors = this->InvertibleScalars != NULL;
+  if (!this->UseInvertibleColors)
+    {
+      return;
+    }
+
+  //make up new table
+  if (this->LookupTable)
+    {
+    this->LookupTable->UnRegister(this);
+    this->LookupTable = NULL;
+    }
+
+  vtkDataArray *dataArray = vtkDataArray::SafeDownCast(abstractArray);
+  if (!dataArray)
+    {
+    vtkLookupTable* table = vtkLookupTable::New();
+    this->LookupTable = table;
+    this->LookupTable->Register(this);
+    this->LookupTable->Delete();
+    table->SetNumberOfTableValues(1);
+    table->SetTableValue(0, 0.0, 0.0, 0.0, 1);
+    }
+  else
+    {
+    // Just grab a reference to the invertible lookup table
+    this->LookupTable = vtkMapper::InvertibleLookupTable;
+    this->LookupTable->Register(this);
+    }
+}
+
+//-------------------------------------------------------------------
+void vtkMapper::ClearInvertibleColor()
+{
+  if (!this->UseInvertibleColors)
+    {
+    return;
+    }
+  this->Modified();
+  this->UseInvertibleColors = false;
+  if (this->LookupTable)
+    {
+    this->LookupTable->UnRegister(this);
+    this->LookupTable = NULL;
     }
 }
 
