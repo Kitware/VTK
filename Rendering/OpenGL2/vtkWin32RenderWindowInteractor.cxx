@@ -870,8 +870,11 @@ LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam,
   switch (uMsg)
     {
     case WM_PAINT:
-      me->Render();
-      break;
+      {
+      const LRESULT ret(CallWindowProc(me->OldProc, hWnd, uMsg, wParam, lParam));
+      me->InvokeEvent(vtkCommand::RenderEvent, NULL);
+      return ret;
+      }
 
     case WM_SIZE:
       handled = me->OnSize(hWnd,wParam,LOWORD(lParam),HIWORD(lParam));
