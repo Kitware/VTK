@@ -981,7 +981,7 @@ int vtkXMLDataElement::GetWordTypeAttribute(const char* name, int& value)
 #elif defined(VTK_TYPE_USE_LONG_LONG) && VTK_SIZEOF_LONG_LONG == 8
     value = VTK_UNSIGNED_LONG_LONG;
     return 1;
-#elif defined(VTK_TYPE_USE___INT64) && defined(VTK_TYPE_CONVERT_UI64_TO_DOUBLE) && VTK_SIZEOF___INT64 == 8
+#elif defined(VTK_TYPE_USE___INT64) && VTK_SIZEOF___INT64 == 8
     value = VTK_UNSIGNED___INT64;
     return 1;
 #else

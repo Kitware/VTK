@@ -823,9 +823,8 @@ virtual double *Get##name() \
 # define vtkArrayIteratorTemplateMacroCase_si64(typeN, type, call)
 #endif
 
-// Add "unsigned __int64" to the template macro if it is enabled and
-// can be converted to double.
-#if defined(VTK_TYPE_USE___INT64) && defined(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
+// Add "unsigned __int64" to the template macro if it is enabled.
+#if defined(VTK_TYPE_USE___INT64)
 # define vtkTemplateMacroCase_ui64(typeN, type, call) \
              vtkTemplateMacroCase(typeN, type, call);
 # define vtkTemplate2MacroCase1_ui64(type1N, type1, call) \

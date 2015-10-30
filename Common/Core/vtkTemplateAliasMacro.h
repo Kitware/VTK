@@ -51,12 +51,6 @@
 #define VTK_USE_FLOAT32 1
 #define VTK_USE_FLOAT64 1
 
-// Force UINT64 off if we cannot implement support for it.
-#if defined(VTK_TYPE_USE___INT64) && !defined(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
-# undef VTK_USE_UINT64
-# define VTK_USE_UINT64 0
-#endif
-
 //--------------------------------------------------------------------------
 
 // Define helper macros to switch types on and off.

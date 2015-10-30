@@ -93,7 +93,6 @@
 /* Some properties of the available types.  */
 #cmakedefine VTK_TYPE_SAME_LONG_AND___INT64
 #cmakedefine VTK_TYPE_SAME_LONG_LONG_AND___INT64
-#cmakedefine VTK_TYPE_CONVERT_UI64_TO_DOUBLE
 
 /* Whether type "char" is signed (it may be signed or unsigned).  */
 #define VTK_TYPE_CHAR_IS_SIGNED @VTK_TYPE_CHAR_IS_SIGNED@

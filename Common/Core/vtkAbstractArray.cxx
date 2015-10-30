@@ -49,9 +49,7 @@
 
 #if defined(VTK_TYPE_USE___INT64)
 # include "vtk__Int64Array.h"
-# if defined(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
-#  include "vtkUnsigned__Int64Array.h"
-# endif
+# include "vtkUnsigned__Int64Array.h"
 #endif
 
 #include <algorithm>
@@ -373,10 +371,8 @@ vtkAbstractArray* vtkAbstractArray::CreateArray(int dataType)
     case VTK___INT64:
       return vtk__Int64Array::New();
 
-# if defined(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
     case VTK_UNSIGNED___INT64:
       return vtkUnsigned__Int64Array::New();
-# endif
 #endif
 
     case VTK_FLOAT:

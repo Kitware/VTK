@@ -77,38 +77,6 @@ IF(VTK_SIZEOF___INT64)
       ENDIF()
     ENDIF()
   ENDIF()
-  IF(NOT VTK_TYPE_SAME_LONG_AND___INT64)
-    IF(NOT VTK_TYPE_SAME_LONG_LONG_AND___INT64)
-#  VS 6 cannot convert unsigned __int64 to double unless the
-# "Visual C++ Processor Pack" is installed.
-      IF(NOT DEFINED VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
-        MESSAGE(STATUS "Checking whether unsigned __int64 can convert to double")
-        TRY_COMPILE(VTK_TYPE_CONVERT_UI64_TO_DOUBLE
-          ${VTK_BINARY_DIR}/CMakeTmp
-          ${VTK_CMAKE_DIR}/vtkTestConvertTypes.cxx
-          COMPILE_DEFINITIONS
-          -DVTK_TEST_CONVERT_TYPE_FROM=TYPE_UNSIGNED___INT64
-          -DVTK_TEST_CONVERT_TYPE_TO=double
-          ${_HAVE_DEFS}
-          OUTPUT_VARIABLE OUTPUT)
-        IF(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
-          MESSAGE(STATUS "Checking whether unsigned __int64 can convert to double -- yes")
-          SET(VTK_TYPE_CONVERT_UI64_TO_DOUBLE 1 CACHE INTERNAL "Whether unsigned __int64 can convert to double")
-          FILE(APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
-            "Determining whether unsigned __int64 can convert to double "
-            "passed with the following output:\n"
-            "${OUTPUT}\n")
-        ELSE()
-          MESSAGE(STATUS "Checking whether unsigned __int64 can convert to double -- no")
-          SET(VTK_TYPE_CONVERT_UI64_TO_DOUBLE 0 CACHE INTERNAL "Whether unsigned __int64 can convert to double")
-          FILE(APPEND ${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
-            "Determining whether unsigned __int64 can convert to double "
-            "failed with the following output:\n"
-            "${OUTPUT}\n")
-        ENDIF()
-      ENDIF()
-    ENDIF()
-  ENDIF()
 ENDIF()
 
 # Enable the "long long" type if it is available.  It is standard in

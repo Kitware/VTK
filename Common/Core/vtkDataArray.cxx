@@ -1248,9 +1248,7 @@ double vtkDataArray::GetDataTypeMin(int type)
 #endif
 #if defined(VTK_TYPE_USE___INT64)
     case VTK___INT64:            return static_cast<double>(VTK___INT64_MIN);
-# if defined(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
     case VTK_UNSIGNED___INT64:   return static_cast<double>(VTK_UNSIGNED___INT64_MIN);
-# endif
 #endif
     case VTK_FLOAT:              return static_cast<double>(VTK_FLOAT_MIN);
     case VTK_DOUBLE:             return static_cast<double>(VTK_DOUBLE_MIN);
@@ -1280,9 +1278,7 @@ double vtkDataArray::GetDataTypeMax(int type)
 #endif
 #if defined(VTK_TYPE_USE___INT64)
     case VTK___INT64:            return static_cast<double>(VTK___INT64_MAX);
-# if defined(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
     case VTK_UNSIGNED___INT64:   return static_cast<double>(VTK_UNSIGNED___INT64_MAX);
-# endif
 #endif
     case VTK_FLOAT:              return static_cast<double>(VTK_FLOAT_MAX);
     case VTK_DOUBLE:             return static_cast<double>(VTK_DOUBLE_MAX);
