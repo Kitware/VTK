@@ -88,7 +88,7 @@ void vtkValuePass::SetInputArrayToProcess(int fieldAssociation,
 {
   if (!this->Internals->FieldNameSet ||
       this->Internals->FieldAssociation != fieldAssociation ||
-      this->Internals->FieldName != name)
+      this->Internals->FieldName.compare(name) != 0)
     {
     this->Internals->FieldAssociation = fieldAssociation;
     this->Internals->FieldName = name;
