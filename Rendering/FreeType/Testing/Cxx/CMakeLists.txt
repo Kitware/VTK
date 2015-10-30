@@ -6,6 +6,7 @@ set(TestMathTextFreeTypeTextRendererNoMath_ARGS
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestFTStringToPath.cxx
   TestFreeTypeTextMapperNoMath.cxx
+  TestFreeTypeTools.cxx,NO_VALID
   TestMathTextFreeTypeTextRendererNoMath.cxx
   TestTextActor.cxx
   TestTextActor3D.cxx
