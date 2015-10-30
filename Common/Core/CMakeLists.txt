@@ -191,7 +191,6 @@ SET(Module_SRCS
   vtkInformationVector.cxx
   vtkInstantiator.cxx
   vtkIntArray.cxx
-  vtkIOStream.cxx
   vtkLargeInteger.cxx
   vtkLongArray.cxx
   vtkLookupTable.cxx
@@ -271,6 +270,7 @@ set(${vtk-module}_HDRS
   vtkAutoInit.h
   vtkDataArrayIteratorMacro.h
   vtkDataArrayTemplateImplicit.txx
+  vtkIOStream.h
   vtkIOStreamFwd.h
   vtkInformationInternals.h
   vtkMappedDataArray.h
@@ -537,7 +537,6 @@ set_source_files_properties(
   vtkEventForwarderCommand.cxx
   vtkFloatingPointExceptions
   vtkGarbageCollectorManager.cxx
-  vtkIOStream.cxx
   vtkIndent.cxx
   vtkLargeInteger.cxx
   vtkOStrStreamWrapper.cxx
@@ -570,6 +569,7 @@ set_source_files_properties(
   vtkDataArrayTemplateHelper.cxx
   vtkDataArrayTemplateImplicit.txx
   vtkDenseArray.txx
+  vtkIOStream.h
   vtkIOStreamFwd.h
   vtkInformationInternals.h
   vtkMathUtilities.h
@@ -611,7 +611,7 @@ set_source_files_properties(
   vtkDataArrayTemplate.txx
   vtkDataArrayTemplateHelper.cxx
   vtkDataArrayTemplateImplicit.txx
-  vtkIOStream.cxx
+  vtkIOStream.h
   vtkIOStreamFwd.h
   vtkLargeInteger.cxx
   vtkOldStyleCallbackCommand.cxx
