@@ -25,8 +25,8 @@
 // .SECTION Thanks
 // Tim Meehan
 
-#ifndef __vtkParametricPluckerConoid_h
-#define __vtkParametricPluckerConoid_h
+#ifndef vtkParametricPluckerConoid_h
+#define vtkParametricPluckerConoid_h
 
 #include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkParametricFunction.h"

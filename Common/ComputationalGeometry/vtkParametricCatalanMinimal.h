@@ -21,8 +21,8 @@
 // .SECTION Thanks
 // Tim Meehan
 
-#ifndef __vtkParametricCatalanMinimal_h
-#define __vtkParametricCatalanMinimal_h
+#ifndef vtkParametricCatalanMinimal_h
+#define vtkParametricCatalanMinimal_h
 
 #include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkParametricFunction.h"

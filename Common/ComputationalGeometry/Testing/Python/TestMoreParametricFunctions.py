@@ -10,8 +10,8 @@ import vtk.test.Testing
 # Purpose: Test more parametric functions.
 # ------------------------------------------------------------
 
-class TestParametricFunctions(vtk.test.Testing.vtkTest):
-    def testParametricFunctions(self):
+class TestMoreParametricFunctions(vtk.test.Testing.vtkTest):
+    def testMoreParametricFunctions(self):
         # ------------------------------------------------------------
         # For each parametric surface:
         # 1) Create it
@@ -239,7 +239,7 @@ class TestParametricFunctions(vtk.test.Testing.vtkTest):
         ren.AddViewProp(bourTextActor)
         ren.AddViewProp(pluckerTextActor)
 
-        ren.SetBackground(0.7, 0.7, .7)
+        ren.SetBackground(0.9, 0.9, 0.9)
         renWin.SetSize(500, 500)
         ren.ResetCamera()
 
@@ -251,4 +251,4 @@ class TestParametricFunctions(vtk.test.Testing.vtkTest):
         vtk.test.Testing.interact()
 
 if __name__ == "__main__":
-    vtk.test.Testing.main([(TestParametricFunctions, 'test')])
+    vtk.test.Testing.main([(TestMoreParametricFunctions, 'test')])

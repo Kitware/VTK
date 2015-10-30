@@ -60,7 +60,7 @@ void vtkParametricKuen::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
   double denom_1 = 1. + u*u*sinv*sinv;
   double denom_2 = u*u + 1./(sinv*sinv);
 
-  // Location of the point, this parametrization was take from:
+  // Location of the point. This parametrization was taken from:
   // http://mathworld.wolfram.com/KuenSurface.html
   Pt[0] = 2.*sinv*(cosu + u*sinu)/denom_1;
   Pt[1] = 2.*sinv*(sinu - u*cosu)/denom_1;
@@ -68,8 +68,18 @@ void vtkParametricKuen::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 
   // The derivative with respect to u:
   Du[0] = (2.*u*sinv*(cosu + ((u*u - 2.)*cosu - 2.*u*sinu)*sinv*sinv))/(denom_1*denom_1);
-  Du[1] = (2.*u/sinv*(2.*u*cosu + (u*u - 2. + 1/(sinv*sinv))*sinu))/(denom_2*denom_2);
-  Du[2] = -4.*u*cosv/(denom_2*denom_2*sinv*sinv);
+
+  // Avoid division by 0
+  if (denom_2 == 0.0 || sinv == 0.0)
+    {
+    Du[1] = 0.0;
+    Du[2] = 0.0;
+    }
+  else
+    {
+    Du[1] = (2.*u/sinv*(2.*u*cosu + (u*u - 2. + 1/(sinv*sinv))*sinu))/(denom_2*denom_2);
+    Du[2] = -4.*u*cosv/(denom_2*denom_2*sinv*sinv);
+    }
 
   // The derivative with respect to v:
   Dv[0] = 2.*cosv*(1. - u*u*sinv*sinv)*(cosu + u*sinu)/(denom_1*denom_1);

@@ -51,7 +51,7 @@ void vtkParametricHenneberg::Evaluate(double uvw[3], double Pt[3], double Duvw[9
   double *Du = Duvw;
   double *Dv = Duvw + 3;
 
-  // Location of the point, this parametrization was take from:
+  // Location of the point. This parametrization was taken from:
   // http://mathworld.wolfram.com/HennebergsMinimalSurface.html
   Pt[0] = 2.*sinh(u)*cos(v) - 2./3.*sinh(3.*u)*cos(3.*v);
   Pt[1] = 2.*sinh(u)*sin(v) + 2./3.*sinh(3.*u)*sin(3.*v);

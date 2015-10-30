@@ -20,8 +20,8 @@
 // .SECTION Thanks
 // Tim Meehan
 
-#ifndef __vtkParametricHenneberg_h
-#define __vtkParametricHenneberg_h
+#ifndef vtkParametricHenneberg_h
+#define vtkParametricHenneberg_h
 
 #include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkParametricFunction.h"

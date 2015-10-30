@@ -51,7 +51,7 @@ void vtkParametricBour::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
   double *Du = Duvw;
   double *Dv = Duvw + 3;
 
-  // Location of the point, this parametrization was take from:
+  // Location of the point. This parametrization was taken from:
   // https://en.wikipedia.org/wiki/Bour%27s_minimal_surface
   Pt[0] = u*cos(v) - u*u*cos(2.*v)/2.;
   Pt[1] = -u*sin(v)*(u*cos(v) + 1.);

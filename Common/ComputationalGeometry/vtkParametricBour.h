@@ -20,8 +20,8 @@
 // .SECTION Thanks
 // Tim Meehan
 
-#ifndef __vtkParametricBour_h
-#define __vtkParametricBour_h
+#ifndef vtkParametricBour_h
+#define vtkParametricBour_h
 
 #include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkParametricFunction.h"

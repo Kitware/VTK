@@ -61,7 +61,7 @@ void vtkParametricBohemianDome::Evaluate(double uvw[3], double Pt[3], double Duv
   double cosv   = cos(v);
   double sinv   = sin(v);
 
-  // Location of the point, this parametrization was take from:
+  // Location of the point. This parametrization was taken from:
   // http://mathworld.wolfram.com/BohemianDome.html
   Pt[0] = this->A*cosu;
   Pt[1] = this->A*sinu + this->B*cosv;

@@ -53,14 +53,12 @@ void vtkParametricPseudosphere::Evaluate(double uvw[3], double Pt[3], double Duv
 
   // Instead of a bunch of calls to the trig library,
   // just call it once and store the results.
-  double cosu   = cos(u);
   double cosv   = cos(v);
-  double sinu   = sin(u);
   double sinv   = sin(v);
   double sechu  = 1./cosh(u);
   double tanhu  = tanh(u);
 
-  // Location of the point, this parametrization was take from:
+  // Location of the point. This parametrization was taken from:
   // http://mathworld.wolfram.com/Pseudosphere.html
   Pt[0] = sechu*cosv;
   Pt[1] = sechu*sinv;

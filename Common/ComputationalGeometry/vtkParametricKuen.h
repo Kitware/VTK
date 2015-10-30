@@ -21,8 +21,8 @@
 // .SECTION Thanks
 // Tim Meehan
 
-#ifndef __vtkParametricKuen_h
-#define __vtkParametricKuen_h
+#ifndef vtkParametricKuen_h
+#define vtkParametricKuen_h
 
 #include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkParametricFunction.h"

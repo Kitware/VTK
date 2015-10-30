@@ -22,8 +22,8 @@
 // .SECTION Thanks
 // Tim Meehan
 
-#ifndef __vtkParametricBohemianDome
-#define __vtkParametricBohemianDome
+#ifndef vtkParametricBohemianDome_h
+#define vtkParametricBohemianDome_h
 
 #include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkParametricFunction.h"

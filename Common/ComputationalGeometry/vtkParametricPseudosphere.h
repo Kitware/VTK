@@ -22,8 +22,8 @@
 // .SECTION Thanks
 // Tim Meehan
 
-#ifndef __vtkParametricPseudosphere_h
-#define __vtkParametricPseudosphere_h
+#ifndef vtkParametricPseudosphere_h
+#define vtkParametricPseudosphere_h
 
 #include "vtkCommonComputationalGeometryModule.h" // For export macro
 #include "vtkParametricFunction.h"
