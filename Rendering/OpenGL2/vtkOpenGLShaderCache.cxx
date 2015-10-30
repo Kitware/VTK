@@ -233,6 +233,7 @@ unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(
 #else
   vtkShaderProgram::Substitute(FSSource,"//VTK::System::Dec",
      "#ifdef GL_ES\n"
+     "#extension GL_OES_standard_derivatives : enable\n"
      "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
      "precision highp float;\n"
      "#else\n"
