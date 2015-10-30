@@ -28,7 +28,7 @@
 #include "vtkTexture.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper2D.h"
-#include "vtkActor2D.h"
+#include "vtkTexturedActor2D.h"
 #include "vtkFloatArray.h"
 #include "vtkPointData.h"
 #include "vtkWindow.h"
@@ -84,8 +84,9 @@ vtkBalloonRepresentation::vtkBalloonRepresentation()
   tc->Delete();
   this->TextureMapper = vtkPolyDataMapper2D::New();
   this->TextureMapper->SetInputData(this->TexturePolyData);
-  this->TextureActor = vtkActor2D::New();
+  this->TextureActor = vtkTexturedActor2D::New();
   this->TextureActor->SetMapper(this->TextureMapper);
+  this->TextureActor->SetTexture(this->Texture);
   this->ImageProperty = vtkProperty2D::New();
   this->ImageProperty->SetOpacity(1.0);
   this->TextureActor->SetProperty(this->ImageProperty);
@@ -412,7 +413,6 @@ int vtkBalloonRepresentation::RenderOverlay(vtkViewport *v)
     vtkRenderer* ren = vtkRenderer::SafeDownCast(v);
     if (ren)
       {
-      this->Texture->Render(ren);
       count += this->TextureActor->RenderOverlay(v);
       }
     }
