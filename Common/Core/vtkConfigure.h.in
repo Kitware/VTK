@@ -100,7 +100,6 @@
 
 /* Compiler features.  */
 #cmakedefine VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
-#cmakedefine VTK_NO_FULL_TEMPLATE_SPECIALIZATION
 #cmakedefine VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T
 #cmakedefine VTK_HAVE_SO_REUSEADDR
 
@@ -157,17 +156,6 @@
   typedef bool vtkstd_bool;
 # else
   typedef int vtkstd_bool;
-# endif
-#endif
-
-/* Define a macro to help define template specializations.  Skip if
-   compiling a windows resource file because the resource compiler
-   warns about truncating the long symbol.  */
-#if !defined(RC_INVOKED)
-# if defined(VTK_NO_FULL_TEMPLATE_SPECIALIZATION)
-#  define VTK_TEMPLATE_SPECIALIZE
-# else
-#  define VTK_TEMPLATE_SPECIALIZE template <>
 # endif
 #endif
 

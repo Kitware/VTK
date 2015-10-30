@@ -31,11 +31,11 @@ vtkByteSwap::~vtkByteSwap()
 //----------------------------------------------------------------------------
 // Define swap functions for each type size.
 template <size_t s> struct vtkByteSwapper;
-VTK_TEMPLATE_SPECIALIZE struct vtkByteSwapper<1>
+template<> struct vtkByteSwapper<1>
 {
   static inline void Swap(char*) {}
 };
-VTK_TEMPLATE_SPECIALIZE struct vtkByteSwapper<2>
+template<> struct vtkByteSwapper<2>
 {
   static inline void Swap(char* data)
     {
@@ -43,7 +43,7 @@ VTK_TEMPLATE_SPECIALIZE struct vtkByteSwapper<2>
     one_byte = data[0]; data[0] = data[1]; data[1] = one_byte;
     }
 };
-VTK_TEMPLATE_SPECIALIZE struct vtkByteSwapper<4>
+template<> struct vtkByteSwapper<4>
 {
   static inline void Swap(char* data)
     {
@@ -52,7 +52,7 @@ VTK_TEMPLATE_SPECIALIZE struct vtkByteSwapper<4>
     one_byte = data[1]; data[1] = data[2]; data[2] = one_byte;
     }
 };
-VTK_TEMPLATE_SPECIALIZE struct vtkByteSwapper<8>
+template<> struct vtkByteSwapper<8>
 {
   static inline void Swap(char* data)
     {

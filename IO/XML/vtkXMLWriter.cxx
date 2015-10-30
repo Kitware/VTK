@@ -1789,7 +1789,7 @@ inline ostream& vtkXMLWriteAsciiValue(ostream& os, const T& value)
 }
 
 //----------------------------------------------------------------------------
-VTK_TEMPLATE_SPECIALIZE
+template<>
 inline ostream& vtkXMLWriteAsciiValue(ostream& os, const char &c)
 {
   os << short(c);
@@ -1797,7 +1797,7 @@ inline ostream& vtkXMLWriteAsciiValue(ostream& os, const char &c)
 }
 
 //----------------------------------------------------------------------------
-VTK_TEMPLATE_SPECIALIZE
+template<>
 inline ostream& vtkXMLWriteAsciiValue(ostream& os, const unsigned char &c)
 {
   os << static_cast<unsigned short>(c);
@@ -1805,7 +1805,7 @@ inline ostream& vtkXMLWriteAsciiValue(ostream& os, const unsigned char &c)
 }
 
 //----------------------------------------------------------------------------
-VTK_TEMPLATE_SPECIALIZE
+template<>
 inline ostream& vtkXMLWriteAsciiValue(ostream& os, const signed char &c)
 {
   os << short(c);
@@ -1813,7 +1813,7 @@ inline ostream& vtkXMLWriteAsciiValue(ostream& os, const signed char &c)
 }
 
 //----------------------------------------------------------------------------
-VTK_TEMPLATE_SPECIALIZE
+template<>
 inline ostream& vtkXMLWriteAsciiValue(ostream& os, const vtkStdString& str)
 {
   vtkStdString::const_iterator iter;

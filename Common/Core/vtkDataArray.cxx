@@ -67,14 +67,14 @@ inline void vtkDataArrayRoundIfNecessary(double val, T* retVal)
 }
 
 //--------------------------------------------------------------------------
-VTK_TEMPLATE_SPECIALIZE
+template<>
 inline void vtkDataArrayRoundIfNecessary(double val, double* retVal)
 {
   *retVal = val;
 }
 
 //--------------------------------------------------------------------------
-VTK_TEMPLATE_SPECIALIZE
+template<>
 inline void vtkDataArrayRoundIfNecessary(double val, float* retVal)
 {
   *retVal = static_cast<float>(val);

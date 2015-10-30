@@ -585,7 +585,7 @@ int vtkXMLDataReaderReadArrayValues(vtkXMLDataElement* da,
 }
 
 //----------------------------------------------------------------------------
-VTK_TEMPLATE_SPECIALIZE
+template<>
 int vtkXMLDataReaderReadArrayValues(
   vtkXMLDataElement* da,
   vtkXMLDataParser* xmlparser, vtkIdType arrayIndex,

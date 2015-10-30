@@ -457,9 +457,6 @@ include(vtkTestTypes)
 # Socket tests etc.
 #INCLUDE(Parallel/VTKParallelCMakeTests.cmake)
 
-# Check for full template specialization support by compiler.
-include(vtkTestFullSpecialization)
-
 # Check for explicit template instantiation support by compiler.
 include(vtkTestExplicitInstantiation)
 

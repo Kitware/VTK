@@ -399,7 +399,7 @@ void vtkXMLStructuredDataReaderSubExtentCopyValues(
     numValues);
 }
 //----------------------------------------------------------------------------
-VTK_TEMPLATE_SPECIALIZE
+template<>
 void vtkXMLStructuredDataReaderSubExtentCopyValues(
   vtkArrayIteratorTemplate<vtkStdString>* destIter, vtkIdType destIndex,
   vtkArrayIteratorTemplate<vtkStdString>* srcIter, vtkIdType srcIndex,

@@ -78,7 +78,7 @@ void MatrixMultArray(const T *A, T *B, vtkIdType length)
 }
 
 // Specialize for floats for greater precision.
-VTK_TEMPLATE_SPECIALIZE
+template<>
 void MatrixMultArray(const float *A, float *B, vtkIdType length)
 {
   double *tmpA = new double[length];
@@ -123,13 +123,13 @@ inline T myAbs(T x)
   return (x < 0) ? -x : x;
 }
 
-VTK_TEMPLATE_SPECIALIZE inline int AreEqual(float a, float b)
+template<> inline int AreEqual(float a, float b)
 {
   float tolerance = myAbs(0.01f*a);
   return (myAbs(a-b) <= tolerance);
 }
 
-VTK_TEMPLATE_SPECIALIZE inline int AreEqual(double a, double b)
+template<> inline int AreEqual(double a, double b)
 {
   double tolerance = myAbs(0.000001f*a);
   return (myAbs(a-b) <= tolerance);

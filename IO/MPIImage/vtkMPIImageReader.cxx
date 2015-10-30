@@ -97,12 +97,12 @@ inline void vtkMPIImageReaderMaskBits(T *data, vtkIdType length,
 }
 
 // Override float and double because masking bits for them makes no sense.
-VTK_TEMPLATE_SPECIALIZE
+template<>
 void vtkMPIImageReaderMaskBits(float *, vtkIdType, vtkTypeUInt64)
 {
   return;
 }
-VTK_TEMPLATE_SPECIALIZE
+template<>
 void vtkMPIImageReaderMaskBits(double *, vtkIdType, vtkTypeUInt64)
 {
   return;

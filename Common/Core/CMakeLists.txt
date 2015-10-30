@@ -339,8 +339,6 @@ endmacro()
 vtk_prepare_cmakedefine("" CMAKE_WORDS_BIGENDIAN VTK_WORDS_BIGENDIAN)
 vtk_prepare_cmakedefine(NOT VTK_EXPLICIT_TEMPLATES
                   VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
-vtk_prepare_cmakedefine(NOT VTK_COMPILER_HAS_FULL_SPECIALIZATION
-                        VTK_NO_FULL_TEMPLATE_SPECIALIZATION)
 
 # Provide version macros through vtkConfigure.h for compatibility.
 if(VTK_LEGACY_REMOVE)

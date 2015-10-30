@@ -26,7 +26,7 @@ template <class T> struct vtkTypeTraits;
 
 // Define a macro to simplify trait definitions.
 #define VTK_TYPE_TRAITS(type, macro, isSigned, name, print, format)           \
-  VTK_TEMPLATE_SPECIALIZE struct vtkTypeTraits< type >                        \
+  template <> struct vtkTypeTraits< type >                                    \
   {                                                                           \
     /* The type itself.  */                                                   \
     typedef type ValueType;                                                   \

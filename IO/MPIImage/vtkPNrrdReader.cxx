@@ -111,12 +111,12 @@ inline void vtkPNrrdReaderMaskBits(T *data, vtkIdType length,
 }
 
 // Override float and double because masking bits for them makes no sense.
-VTK_TEMPLATE_SPECIALIZE
+template<>
 void vtkPNrrdReaderMaskBits(float *, vtkIdType, vtkTypeUInt64)
 {
   return;
 }
-VTK_TEMPLATE_SPECIALIZE
+template<>
 void vtkPNrrdReaderMaskBits(double *, vtkIdType, vtkTypeUInt64)
 {
   return;
