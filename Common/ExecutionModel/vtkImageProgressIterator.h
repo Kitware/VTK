@@ -58,9 +58,5 @@ protected:
   int               ID;
 };
 
-#ifdef VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
-#include "vtkImageProgressIterator.txx"
-#endif
-
 #endif
 // VTK-HeaderTest-Exclude: vtkImageProgressIterator.h

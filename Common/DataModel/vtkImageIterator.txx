@@ -12,9 +12,6 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// Include blockers needed since vtkImageIterator.h includes this file
-// when VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION is defined.
-
 #ifndef vtkImageIterator_txx
 #define vtkImageIterator_txx
 

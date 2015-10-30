@@ -30,8 +30,6 @@
 
 #include "vtkImageProgressIterator.txx"
 
-#ifndef VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
-
 template class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator<signed char>;
 template class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator<char>;
 template class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator<int>;
@@ -51,6 +49,3 @@ template class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator<unsigned 
 template class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator<__int64>;
 template class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator<unsigned __int64>;
 #endif
-
-#endif
-

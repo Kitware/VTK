@@ -457,9 +457,6 @@ include(vtkTestTypes)
 # Socket tests etc.
 #INCLUDE(Parallel/VTKParallelCMakeTests.cmake)
 
-# Check for explicit template instantiation support by compiler.
-include(vtkTestExplicitInstantiation)
-
 # Test for atomics and other compiler intrinsics
 include(vtkTestBuiltins)
 
