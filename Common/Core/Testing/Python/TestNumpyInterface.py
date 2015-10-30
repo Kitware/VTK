@@ -126,7 +126,7 @@ assert algs.all(algs.mag(sn) - 1 < 1E-6)
 
 dot = algs.dot(vn, vn)
 assert dot.DataSet is sphere
-assert algs.all(dot == 1)
+assert algs.all(dot - 1 < 1E-6)
 assert algs.all(algs.cross(vn, vn) == [0, 0, 0])
 
 fd = sphere.FieldData['field array']
