@@ -470,12 +470,6 @@ include(vtkTestExplicitInstantiation)
 include(vtkTestBuiltins)
 
 #-----------------------------------------------------------------------------
-
-# Check the severity of EOF bugs in the streams library.
-# this must be after the test for the long types
-INCLUDE(vtkTestStreamsLibrary)
-
-#-----------------------------------------------------------------------------
 # Dispatch the build into the proper subdirectories.
 SET(VTK_HAS_EXODUS 1)
 

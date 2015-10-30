@@ -12,21 +12,6 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// Hack access to the fstream implementation if necessary.  This is
-// only needed on a few SGI MIPSpro compiler versions.
-#if defined(__sgi) && !defined(__GNUC__) && defined(_COMPILER_VERSION)
-# if _COMPILER_VERSION == 730
-#  include "vtkConfigure.h"
-#  if VTK_STREAM_EOF_SEVERITY == 3
-#   define protected public
-#   define private public
-#   include <fstream>
-#   undef private
-#   undef protected
-#  endif
-# endif
-#endif
-
 #include "vtkXMLParser.h"
 #include "vtkObjectFactory.h"
 #include "vtk_expat.h"
@@ -97,45 +82,7 @@ vtkTypeInt64 vtkXMLParser::TellG()
     {
     return -1;
     }
-#if VTK_STREAM_EOF_SEVERITY == 0
-  // No work-around required.  Just return the position.
   return this->Stream->tellg();
-#else
-  std::streampos pos = this->Stream->tellg();
-  if(pos < 0)
-    {
-    // Clear the fail bit from failing tellg.
-    this->Stream->clear(this->Stream->rdstate() & ~ios::failbit);
-
-    // Save the eof bit.
-    int eof = this->Stream->eof()?1:0;
-
-    // Clear the eof bit.
-    if(eof)
-      {
-      this->Stream->clear(this->Stream->rdstate() & ~ios::eofbit);
-      }
-
-# if VTK_STREAM_EOF_SEVERITY == 2
-    // Re-seek to the end to escape the buggy stream state.
-    this->Stream->seekg(0, ios::end);
-# elif VTK_STREAM_EOF_SEVERITY == 3
-    // Call an internal filebuf method to escape the buggy stream
-    // state.  This is a very ugly hack.
-    static_cast<ifstream*>(this->Stream)->rdbuf()->_M_seek_return(0,0);
-# endif
-
-    // Call tellg to get the position.
-    pos = this->Stream->tellg();
-
-    // Restore the eof bit.
-    if(eof)
-      {
-      this->Stream->clear(this->Stream->rdstate() | ios::eofbit);
-      }
-    }
-  return pos;
-#endif
 }
 
 //----------------------------------------------------------------------------
@@ -146,40 +93,7 @@ void vtkXMLParser::SeekG(vtkTypeInt64 position)
     {
     return;
     }
-#if VTK_STREAM_EOF_SEVERITY == 0
-  // No work-around required.  Just seek to the position.
   this->Stream->seekg(std::streampos(position));
-#else
-  // Save the eof bit.
-  int eof = this->Stream->eof()?1:0;
-
-  // Clear the eof bit.
-  if(eof)
-    {
-    this->Stream->clear(this->Stream->rdstate() & ~ios::eofbit);
-    }
-
-# if VTK_STREAM_EOF_SEVERITY == 3
-  // Check if the stream is in the buggy state.
-  if(this->Stream->tellg() < 0)
-    {
-    // Call an internal filebuf method to escape the buggy stream
-    // state.  This is a very ugly hack.
-    this->Stream->clear(this->Stream->rdstate() & ~ios::failbit);
-    this->Stream->clear(this->Stream->rdstate() & ~ios::eofbit);
-    static_cast<ifstream*>(this->Stream)->rdbuf()->_M_seek_return(0,0);
-    }
-# endif
-
-  // Seek to the given position.
-  this->Stream->seekg(std::streampos(position));
-
-  // Restore the eof bit.
-  if(eof)
-    {
-    this->Stream->clear(this->Stream->rdstate() | ios::eofbit);
-    }
-#endif
 }
 
 //----------------------------------------------------------------------------

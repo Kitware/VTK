@@ -72,23 +72,6 @@ SET( VTK_TYPE_CHAR_IS_SIGNED
      CACHE STRING "Result from TRY_RUN" FORCE)
 
 
-# VTK_ANSI_STREAM_EOF_RESULT
-#    indicates whether the executable would have been able to run on its
-#    target platform. If so, set VTK_ANSI_STREAM_EOF_RESULT to
-#    the exit code (in many cases 0 for success), otherwise enter "FAILED_TO_RUN".
-# The VTK_ANSI_STREAM_EOF_COMPILED variable holds the build result for this TRY_RUN().
-#
-# Source file   : /gpfs/gpfs0/home/gevecb/alex/paraview/build/VTK-head-bgl-new/CMake/vtkTestStreamEOF.cxx
-# Executable    : /gpfs/gpfs0/home/gevecb/alex/paraview/build/VTK-head-bgl-new/cmTryCompileExec-VTK_ANSI_STREAM_EOF_RESULT
-# Run arguments :
-#    Called from: [2]   /gpfs/gpfs0/home/gevecb/alex/paraview/src/ParaView3/VTK/CMake/vtkTestStreamsLibrary.cmake
-#                 [1]   /gpfs/gpfs0/home/gevecb/alex/paraview/src/ParaView3/VTK/CMakeLists.txt
-
-SET( VTK_ANSI_STREAM_EOF_RESULT
-     "0"
-     CACHE STRING "Result from TRY_RUN" FORCE)
-
-
 # KWSYS_LFS_WORKS
 #    indicates whether the executable would have been able to run on its
 #    target platform. If so, set KWSYS_LFS_WORKS to
