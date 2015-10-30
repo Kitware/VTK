@@ -113,7 +113,7 @@ void vtkScalarBarWidget::MoveAction(vtkAbstractWidget *w)
   vtkScalarBarWidget::Superclass::MoveAction(w);
 
   vtkScalarBarWidget *self = reinterpret_cast<vtkScalarBarWidget*>(w);
-  vtkScalarBarRepresentation *representation=self->GetScalarBarRepresentation();
+  vtkScalarBarRepresentation *representation = self->GetScalarBarRepresentation();
 
   // Handle the case where we suppress widget translation.
   if (   !self->Repositionable
