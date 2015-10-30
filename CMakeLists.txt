@@ -446,9 +446,6 @@ set(VTK_MAX_THREADS "64" CACHE STRING
   "Max number of threads vktMultiThreader will allocate.")
 mark_as_advanced(VTK_MAX_THREADS)
 
-include(TestForANSIStreamHeaders)
-include(TestForSTDNamespace)
-include(TestForANSIForScope)
 include(CheckTypeSize)
 
 # Tests for various integer, bool and float types
