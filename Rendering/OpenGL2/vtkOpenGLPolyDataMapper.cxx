@@ -1078,15 +1078,6 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
         }
       else
         {
-        if (!vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
-          {
-          vtkShaderProgram::Substitute(FSSource,"//VTK::System::Dec",
-            "//VTK::System::Dec\n"
-            "#if GL_ES==1 && __VERSION__<300\n"
-            "#extension GL_OES_standard_derivatives : enable\n"
-            "#endif\n",
-            false);
-          }
         if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
           {
           // generate a normal for lines, it will be perpendicular to the line
