@@ -69,7 +69,7 @@ class vtkTexture;
 class vtkPoints;
 class vtkPolyData;
 class vtkPolyDataMapper2D;
-class vtkActor2D;
+class vtkTexturedActor2D;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkBalloonRepresentation : public vtkWidgetRepresentation
 {
@@ -193,7 +193,7 @@ protected:
   vtkPolyData         *TexturePolyData;
   vtkPoints           *TexturePoints;
   vtkPolyDataMapper2D *TextureMapper;
-  vtkActor2D          *TextureActor;
+  vtkTexturedActor2D  *TextureActor;
   vtkProperty2D       *ImageProperty;
 
   // The frame
