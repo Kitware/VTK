@@ -2568,18 +2568,25 @@ void vtkOpenGLGPUVolumeRayCastMapper::ComputeReductionFactor(
     double newFactor = allocatedTime / fullTime;
 
     // Compute average factor
-    this->ReductionFactor = (newFactor+oldFactor)/2.0;
+    this->ReductionFactor = (newFactor + oldFactor)/2.0;
 
     // Discretize reduction factor so that it doesn't cause
     // visual artifacts when used to reduce the sample distance
     this->ReductionFactor = (this->ReductionFactor > 1.0) ? 1.0 :
                               (this->ReductionFactor);
-    this->ReductionFactor = (this->ReductionFactor < 1.0) ? (0.5) :
-                              (this->ReductionFactor);
-    this->ReductionFactor = (this->ReductionFactor < 0.5) ? (0.25) :
-                              (this->ReductionFactor);
-    this->ReductionFactor = (this->ReductionFactor < 0.25) ? (0.1) :
-                              (this->ReductionFactor);
+
+    if (this->ReductionFactor < 0.20)
+      {
+      this->ReductionFactor = 0.10;
+      }
+    else if (this->ReductionFactor < 0.50)
+      {
+      this->ReductionFactor = 0.20;
+      }
+    else if (this->ReductionFactor < 1.0)
+      {
+      this->ReductionFactor = 0.50;
+      }
 
     // Clamp it
     if ( 1.0/this->ReductionFactor > this->MaximumImageSampleDistance )
