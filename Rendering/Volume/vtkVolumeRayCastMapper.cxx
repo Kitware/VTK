@@ -696,9 +696,13 @@ VTK_THREAD_RETURN_TYPE VolumeRayCastMapper_CastRays( void *arg )
   float fullRayEnd[3];
   float fullRayDirection[3];
   int bitLoop, bitFlag;
-  float rgbaArray[40], distanceArray[10], scalarArray[10];
   float tmp, tmpArray[4];
   int arrayCount;
+
+  // Need room for potentially 27 subvolumes.
+  float rgbaArray[27*4] = {};
+  float distanceArray[27] = {};
+  float scalarArray[27] = {};
 
   for ( j = 0; j < imageInUseSize[1]; j++ )
     {
