@@ -288,7 +288,7 @@ int ImageDataLIC2D(int argc, char* argv[])
 
   if (filter->SetContext( renWin ) == 0)
     {
-    cerr << "WARNING: Required OpenGL not supported, test passes." << endl;
+    std::cout << "Required OpenGL extensions not supported."  << std::endl;
     return 0;
     }
   filter->SetSteps(num_steps);
