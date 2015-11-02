@@ -26,4 +26,4 @@ extract_source () {
         tar -C "$extractdir" -x
 }
 
-. "$( dirname "${BASH_SOURCE[0]}" )/../update-common.sh"
+. "${BASH_SOURCE%/*}/../update-common.sh"
