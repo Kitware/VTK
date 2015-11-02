@@ -66,14 +66,13 @@
 #include "vtkArrayCoordinates.h"
 #include "vtkArraySort.h"
 #include "vtkObjectFactory.h"
-#include "vtkTypeTemplate.h"
 #include "vtkTypedArray.h"
 
 template<typename T>
-class vtkSparseArray :
-  public vtkTypeTemplate<vtkSparseArray<T>, vtkTypedArray<T> >
+class vtkSparseArray : public vtkTypedArray<T>
 {
 public:
+  vtkTemplateTypeMacro(vtkSparseArray<T>, vtkTypedArray<T>)
   static vtkSparseArray<T>* New();
   void PrintSelf(ostream &os, vtkIndent indent);
 

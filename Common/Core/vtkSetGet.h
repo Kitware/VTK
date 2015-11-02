@@ -28,6 +28,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"
 #include <math.h>
+#include <typeinfo>
 
 //----------------------------------------------------------------------------
 // Check for unsupported old compilers.
@@ -602,14 +603,17 @@ virtual double *Get##name() \
 
 // Allows definition of vtkObject API such that NewInstance may return a
 // superclass of thisClass.
-#define vtkAbstractTypeMacroWithNewInstanceType(thisClass,superclass,instanceType) \
-  typedef superclass Superclass; \
-  private: \
-  virtual const char* GetClassNameInternal() const { return #thisClass; } \
+#define vtkAbstractTypeMacroWithNewInstanceType(thisClass,superclass,instanceType,thisClassName) \
+  protected: \
+  virtual const char* GetClassNameInternal() const \
+  { \
+    return thisClassName; \
+  } \
   public: \
+  typedef superclass Superclass; \
   static int IsTypeOf(const char *type) \
   { \
-    if ( !strcmp(#thisClass,type) ) \
+    if ( !strcmp(thisClassName,type) ) \
       { \
       return 1; \
       } \
@@ -621,7 +625,7 @@ virtual double *Get##name() \
   } \
   static thisClass* SafeDownCast(vtkObjectBase *o) \
   { \
-    if ( o && o->IsA(#thisClass) ) \
+    if ( o && o->IsA(thisClassName) ) \
       { \
       return static_cast<thisClass *>(o); \
       } \
@@ -632,14 +636,41 @@ virtual double *Get##name() \
     return instanceType::SafeDownCast(this->NewInstanceInternal()); \
   }
 
-// Same as vtkTypeMacro, but adapted for cases where thisClass is abstact.
+// Same as vtkTypeMacro, but adapted for cases where thisClass is abstract.
 #define vtkAbstractTypeMacro(thisClass,superclass) \
-  vtkAbstractTypeMacroWithNewInstanceType(thisClass, superclass, thisClass)
+  vtkAbstractTypeMacroWithNewInstanceType(thisClass, superclass, thisClass, #thisClass) \
+  public:
 
 // Macro used to determine whether a class is the same class or
 // a subclass of the named class.
 #define vtkTypeMacro(thisClass,superclass) \
   vtkAbstractTypeMacro(thisClass, superclass) \
+  protected: \
+  virtual vtkObjectBase *NewInstanceInternal() const \
+  { \
+    return thisClass::New(); \
+  } \
+  public:
+
+// Version of vtkAbstractTypeMacro for when thisClass is templated.
+// For templates, we use the compiler generated typeid(...).name() identifier
+// to distinguish classes. Otherwise, the template parameter names would appear
+// in the class name, rather than the actual parameters. The resulting name may
+// not be human readable on some platforms, but it will at least be unique. On
+// GCC 4.9.2 release builds, this ends up being the same performance-wise as
+// returning a string literal as the name() string is resolved at compile time.
+//
+// If either class has multiple template parameters, the commas will interfere
+// with the macro call. In this case, create a typedef to the multi-parameter
+// template class and pass that into the macro instead.
+#define vtkAbstractTemplateTypeMacro(thisClass,superclass) \
+  vtkAbstractTypeMacroWithNewInstanceType(thisClass, superclass, thisClass, typeid(thisClass).name()) \
+  public:
+
+// Version of vtkTypeMacro for when thisClass is templated.
+// See vtkAbstractTemplateTypeMacro for more info.
+#define vtkTemplateTypeMacro(thisClass,superclass) \
+  vtkAbstractTemplateTypeMacro(thisClass, superclass) \
   protected: \
   virtual vtkObjectBase *NewInstanceInternal() const \
   { \

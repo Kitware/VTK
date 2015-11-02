@@ -46,14 +46,13 @@
 #include "vtkArrayCoordinates.h"
 #include "vtkObjectFactory.h"
 #include "vtkTypedArray.h"
-#include "vtkTypeTemplate.h"
 
 template<typename T>
-class vtkDenseArray :
-  public vtkTypeTemplate<vtkDenseArray<T>, vtkTypedArray<T> >
+class vtkDenseArray : public vtkTypedArray<T>
 {
 public:
   static vtkDenseArray<T>* New();
+  vtkTemplateTypeMacro(vtkDenseArray<T>, vtkTypedArray<T>)
   void PrintSelf(ostream &os, vtkIndent indent);
 
   typedef typename vtkArray::CoordinateT CoordinateT;

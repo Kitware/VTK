@@ -20,7 +20,6 @@
 
 #include "vtkDataArray.h"
 #include "vtkSmartPointer.h"
-#include "vtkTypeTemplate.h"
 #include "vtkTypeTraits.h"
 #include "vtkGenericDataArrayLookupHelper.h"
 
@@ -29,13 +28,12 @@
 template<class DerivedT,
          class ValueTypeT,
          class ReferenceTypeT=ValueTypeT&>
-class vtkGenericDataArray : public vtkTypeTemplate<
-                     vtkGenericDataArray<DerivedT, ValueTypeT, ReferenceTypeT>,
-                     vtkDataArray>
+class vtkGenericDataArray : public vtkDataArray
 {
   typedef
     vtkGenericDataArray<DerivedT, ValueTypeT, ReferenceTypeT> SelfType;
 public:
+  vtkTemplateTypeMacro(SelfType, vtkDataArray)
   typedef ValueTypeT     ValueType;
   typedef ReferenceTypeT ReferenceType;
 

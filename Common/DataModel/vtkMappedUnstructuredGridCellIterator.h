@@ -26,17 +26,16 @@
 
 #include "vtkCellIterator.h"
 #include "vtkSmartPointer.h" // For vtkSmartPointer
-#include "vtkTypeTemplate.h" // For vtkTypeTemplate
 
 template <class Implementation, class CellIterator>
 class vtkMappedUnstructuredGrid;
 
 template <class Implementation>
-class vtkMappedUnstructuredGridCellIterator :
-    public vtkTypeTemplate<vtkMappedUnstructuredGridCellIterator<Implementation>,
-      vtkCellIterator>
+class vtkMappedUnstructuredGridCellIterator : public vtkCellIterator
 {
 public:
+  vtkTemplateTypeMacro(vtkMappedUnstructuredGridCellIterator<Implementation>,
+                       vtkCellIterator)
   typedef Implementation ImplementationType;
   typedef vtkMappedUnstructuredGridCellIterator<ImplementationType> ThisType;
   static vtkMappedUnstructuredGridCellIterator<ImplementationType> *New();

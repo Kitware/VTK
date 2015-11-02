@@ -27,16 +27,13 @@
 
 template <class ValueTypeT>
 class vtkAoSDataArrayTemplate :
-  public vtkTypeTemplate<
-          vtkAoSDataArrayTemplate<ValueTypeT>,
-          vtkGenericDataArray<vtkAoSDataArrayTemplate<ValueTypeT>, ValueTypeT>
-         >
+    public vtkGenericDataArray<vtkAoSDataArrayTemplate<ValueTypeT>, ValueTypeT>
 {
   typedef vtkGenericDataArray<vtkAoSDataArrayTemplate<ValueTypeT>, ValueTypeT >
           GenericDataArrayType;
 public:
-  typedef GenericDataArrayType Superclass;
   typedef vtkAoSDataArrayTemplate<ValueTypeT> SelfType;
+  vtkTemplateTypeMacro(SelfType, GenericDataArrayType)
   typedef typename Superclass::ValueType ValueType;
   typedef typename Superclass::ReferenceType ReferenceType;
 

@@ -26,21 +26,18 @@
 
 #include "vtkMappedDataArray.h"
 
-#include "vtkTypeTemplate.h" // For templated vtkObject API
 #include "vtkObjectFactory.h" // for vtkStandardNewMacro
 
 template <class Scalar>
-class vtkCPExodusIIResultsArrayTemplate:
-    public vtkTypeTemplate<vtkCPExodusIIResultsArrayTemplate<Scalar>,
-                           vtkMappedDataArray<Scalar> >
+class vtkCPExodusIIResultsArrayTemplate: public vtkMappedDataArray<Scalar>
 {
 public:
+  vtkAbstractTemplateTypeMacro(vtkCPExodusIIResultsArrayTemplate<Scalar>,
+                               vtkMappedDataArray<Scalar>)
   vtkMappedDataArrayNewInstanceMacro(vtkCPExodusIIResultsArrayTemplate<Scalar>)
   static vtkCPExodusIIResultsArrayTemplate *New();
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  typedef vtkTypeTemplate<vtkCPExodusIIResultsArrayTemplate<Scalar>,
-                          vtkMappedDataArray<Scalar> > Superclass;
   typedef typename Superclass::ValueType ValueType;
   typedef typename Superclass::ReferenceType ReferenceType;
 

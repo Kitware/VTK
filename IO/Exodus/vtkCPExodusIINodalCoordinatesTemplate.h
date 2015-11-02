@@ -27,22 +27,19 @@
 #include "vtkMappedDataArray.h"
 #include "vtkIOExodusModule.h" // For export macro
 
-#include "vtkTypeTemplate.h" // For templated vtkObject API
 #include "vtkObjectFactory.h" // for vtkStandardNewMacro
 
 template <class Scalar>
-class vtkCPExodusIINodalCoordinatesTemplate:
-    public vtkTypeTemplate<vtkCPExodusIINodalCoordinatesTemplate<Scalar>,
-                           vtkMappedDataArray<Scalar> >
+class vtkCPExodusIINodalCoordinatesTemplate: public vtkMappedDataArray<Scalar>
 {
 public:
+  vtkAbstractTemplateTypeMacro(vtkCPExodusIINodalCoordinatesTemplate<Scalar>,
+                               vtkMappedDataArray<Scalar>)
   vtkMappedDataArrayNewInstanceMacro(
       vtkCPExodusIINodalCoordinatesTemplate<Scalar>)
   static vtkCPExodusIINodalCoordinatesTemplate *New();
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  typedef vtkTypeTemplate<vtkCPExodusIINodalCoordinatesTemplate<Scalar>,
-                          vtkMappedDataArray<Scalar> > Superclass;
   typedef typename Superclass::ValueType ValueType;
   typedef typename Superclass::ReferenceType ReferenceType;
 

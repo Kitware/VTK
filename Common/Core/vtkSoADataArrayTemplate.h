@@ -23,15 +23,14 @@
 #include "vtkBuffer.h"
 
 template <class ValueTypeT>
-class vtkSoADataArrayTemplate : public vtkTypeTemplate<
-           vtkSoADataArrayTemplate<ValueTypeT>,
-           vtkGenericDataArray<vtkSoADataArrayTemplate<ValueTypeT>, ValueTypeT>
-           >
+class vtkSoADataArrayTemplate :
+    public vtkGenericDataArray<vtkSoADataArrayTemplate<ValueTypeT>, ValueTypeT>
 {
 public:
   typedef vtkGenericDataArray<vtkSoADataArrayTemplate<ValueTypeT>, ValueTypeT>
           GenericDataArrayType;
   typedef vtkSoADataArrayTemplate<ValueTypeT> SelfType;
+  vtkTemplateTypeMacro(SelfType, GenericDataArrayType)
   typedef typename GenericDataArrayType::ValueType ValueType;
   typedef typename GenericDataArrayType::ReferenceType ReferenceType;
 

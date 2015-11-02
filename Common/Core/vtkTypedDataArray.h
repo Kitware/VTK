@@ -31,23 +31,18 @@
 #include "vtkGenericDataArray.h"
 
 #include "vtkCommonCoreModule.h" // For export macro
-#include "vtkTypeTemplate.h" // For vtkTypeTemplate
 #include "vtkTypeTraits.h"   // For type metadata
 
 template <class Scalar> class vtkTypedDataArrayIterator;
 
 template <class Scalar>
 class vtkTypedDataArray :
-    public vtkTypeTemplate<vtkTypedDataArray<Scalar>,
-                           vtkGenericDataArray<vtkTypedDataArray<Scalar>,
-                                               Scalar> >
+    public vtkGenericDataArray<vtkTypedDataArray<Scalar>, Scalar>
 {
+  typedef vtkGenericDataArray<vtkTypedDataArray<Scalar>, Scalar>
+    GenericDataArrayType;
 public:
-  // Description:
-  // Typedef to get the type of value stored in the array.
-  typedef vtkTypeTemplate<vtkTypedDataArray<Scalar>,
-                          vtkGenericDataArray<vtkTypedDataArray<Scalar>,
-                                              Scalar> > Superclass;
+  vtkTemplateTypeMacro(vtkTypedDataArray<Scalar>, GenericDataArrayType)
   typedef typename Superclass::ValueType ValueType;
   typedef typename Superclass::ReferenceType ReferenceType;
 

@@ -30,11 +30,10 @@
 #include "vtkAoSDataArrayTemplate.h" // Template
 
 template <class Scalar>
-class vtkPeriodicDataArray:
-public vtkTypeTemplate <vtkPeriodicDataArray <Scalar>, vtkMappedDataArray <Scalar> >
+class vtkPeriodicDataArray: public vtkMappedDataArray<Scalar>
 {
 public:
-  typedef vtkTypeTemplate<vtkPeriodicDataArray<Scalar>, vtkMappedDataArray<Scalar> > Superclass;
+  vtkTemplateTypeMacro(vtkPeriodicDataArray<Scalar>, vtkMappedDataArray<Scalar>)
   typedef typename Superclass::ValueType ValueType;
   typedef typename Superclass::ReferenceType ReferenceType;
   virtual void PrintSelf(ostream &os, vtkIndent indent);

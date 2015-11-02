@@ -145,18 +145,15 @@
 #include "vtkMappedUnstructuredGridCellIterator.h" // For default cell iterator
 #include "vtkNew.h" // For vtkNew
 #include "vtkSmartPointer.h" // For vtkSmartPointer
-#include "vtkTypeTemplate.h" // For vtkTypeTemplate
 
 template <class Implementation,
           class CellIterator = vtkMappedUnstructuredGridCellIterator<Implementation> >
 class vtkMappedUnstructuredGrid:
-    public vtkTypeTemplate<vtkMappedUnstructuredGrid<Implementation, CellIterator>,
-                           vtkUnstructuredGridBase>
+    public vtkUnstructuredGridBase
 {
+  typedef vtkMappedUnstructuredGrid<Implementation, CellIterator> SelfType;
 public:
-  typedef
-    vtkTypeTemplate<vtkMappedUnstructuredGrid<Implementation, CellIterator>,
-      vtkUnstructuredGridBase> Superclass;
+  vtkTemplateTypeMacro(SelfType, vtkUnstructuredGridBase)
   typedef Implementation ImplementationType;
   typedef CellIterator CellIteratorType;
 

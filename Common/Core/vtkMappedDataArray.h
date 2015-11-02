@@ -34,14 +34,11 @@
 
 #include "vtkTypedDataArray.h"
 
-#include "vtkTypeTemplate.h" // for vtkTypeTemplate
-
 template <class Scalar>
-class vtkMappedDataArray : public vtkTypeTemplate<vtkMappedDataArray<Scalar>,
-                                                  vtkTypedDataArray<Scalar> >
+class vtkMappedDataArray : public vtkTypedDataArray<Scalar>
 {
 public:
-  typedef vtkTypedDataArray<Scalar> Superclass;
+  vtkTemplateTypeMacro(vtkMappedDataArray<Scalar>, vtkTypedDataArray<Scalar>)
   typedef typename Superclass::ValueType ValueType;
   typedef typename Superclass::ReferenceType ReferenceType;
 
@@ -134,8 +131,9 @@ private:
 #include "vtkMappedDataArray.txx"
 
 // Adds an implementation of NewInstanceInternal() that returns a standard
-// (unmapped) VTK array, if possible. Use this with classes that derive from
-// vtkTypeTemplate, otherwise, use vtkMappedDataArrayTypeMacro.
+// (unmapped) VTK array, if possible. Use this in combination with
+// vtkAbstractTemplateTypeMacro when your subclass is a template class.
+// Otherwise, use vtkMappedDataArrayTypeMacro.
 #define vtkMappedDataArrayNewInstanceMacro(thisClass) \
   protected: \
   vtkObjectBase *NewInstanceInternal() const \
