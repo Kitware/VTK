@@ -22,6 +22,7 @@
 // this test.
 
 #include "vtkSQLiteDatabase.h"
+#include "vtkSmartPointer.h"
 #include "vtkSQLQuery.h"
 #include "vtkSQLDatabaseSchema.h"
 #include "vtkRowQueryToTable.h"
@@ -31,7 +32,27 @@
 #include "vtkVariantArray.h"
 #include "DatabaseSchemaWith2Tables.h"
 
+#include "vtkTestErrorObserver.h"
+
 #include <vector>
+
+#define CHECK_ERROR_MSG(observer, msg)   \
+  { \
+  std::string expectedMsg(msg); \
+  if (!observer->GetError()) \
+    { \
+    std::cout << "ERROR: Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
+    } \
+  else \
+    { \
+    std::string gotMsg(observer->GetErrorMessage()); \
+    if (gotMsg.find(expectedMsg) == std::string::npos) \
+      { \
+      std::cout << "ERROR: Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
+      } \
+    } \
+  } \
+  observer->Clear()
 
 int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
 {
@@ -49,7 +70,13 @@ int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
 
   cerr << ">>>>> Testing creation modes." << endl;
 
+  vtkSmartPointer<vtkTest::ErrorObserver> errorObserver =
+    vtkSmartPointer<vtkTest::ErrorObserver>::New();
+  vtkSmartPointer<vtkTest::ErrorObserver> queryObserver =
+    vtkSmartPointer<vtkTest::ErrorObserver>::New();
+
   vtkSQLiteDatabase* db1 = vtkSQLiteDatabase::SafeDownCast( vtkSQLDatabase::CreateFromURL( "sqlite://local.db" ) );
+
   status = db1->Open("", vtkSQLiteDatabase::CREATE_OR_CLEAR);
   vtkSQLQuery* query1 = db1->GetQueryInstance();
   query1->SetQuery("CREATE TABLE test (id INTEGER)");
@@ -67,12 +94,15 @@ int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
   query1->Delete();
 
   vtkSQLiteDatabase* db2 = vtkSQLiteDatabase::SafeDownCast( vtkSQLDatabase::CreateFromURL( "sqlite://local.db" ) );
+  db2->AddObserver(vtkCommand::ErrorEvent, errorObserver);
   status = db2->Open("", vtkSQLiteDatabase::CREATE);
   if ( status )
     {
     cerr << "Using CREATE on an existing file should have failed but did not.\n";
     return 1;
     }
+  CHECK_ERROR_MSG(errorObserver,
+                  "You specified creating a database but the file exists");
   db2->Delete();
 
   vtkSQLiteDatabase* db3 = vtkSQLiteDatabase::SafeDownCast( vtkSQLDatabase::CreateFromURL( "sqlite://local.db" ) );
@@ -100,12 +130,15 @@ int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
     return 1;
     }
   vtkSQLQuery* query4 = db4->GetQueryInstance();
+  query4->AddObserver(vtkCommand::ErrorEvent, queryObserver);
   query4->SetQuery("SELECT * from test");
   if (query4->Execute())
     {
       cerr << "Select query succeeded when it shouldn't have." << endl;
       return 1;
     }
+  CHECK_ERROR_MSG(queryObserver,
+                  "Query is not null but prepared statement is");
   db4->Delete();
   query4->Delete();
 

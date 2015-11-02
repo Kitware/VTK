@@ -49,6 +49,8 @@
 #include "vtkSobelGradientMagnitudePass.h"
 #include "vtkConeSource.h"
 
+#include <vtkTestErrorObserver.h>
+
 int TestBlurAndSobelPasses(int argc, char* argv[])
 {
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
@@ -108,9 +110,17 @@ int TestBlurAndSobelPasses(int argc, char* argv[])
     vtkSmartPointer<vtkGaussianBlurPass>::New();
   blurP->SetDelegatePass(cameraP);
 
+  vtkSmartPointer<vtkTest::ErrorObserver> errorObserver =
+    vtkSmartPointer<vtkTest::ErrorObserver>::New();
   vtkSmartPointer<vtkSobelGradientMagnitudePass> sobelP =
     vtkSmartPointer<vtkSobelGradientMagnitudePass>::New();
+  sobelP->AddObserver(vtkCommand::ErrorEvent, errorObserver);
   sobelP->SetDelegatePass(blurP);
+  if (!errorObserver->GetError())
+    {
+    std::cout << "The required extensions are not supported."  << std::endl;
+    return 0;
+    }
 
   glrenderer->SetPass(sobelP);
 

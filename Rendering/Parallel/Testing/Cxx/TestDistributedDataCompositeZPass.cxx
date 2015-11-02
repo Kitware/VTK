@@ -31,7 +31,9 @@
 #include "vtkCompositeRenderManager.h"
 
 #include "vtkTestUtilities.h"
+#include "vtkTestErrorObserver.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkNew.h"
 
 #include "vtkRenderWindowInteractor.h"
 #include "vtkOpenGLRenderWindow.h"
@@ -157,8 +159,11 @@ void MyProcess::Execute()
 
   vtkLightsPass *lights=vtkLightsPass::New();
 
+  vtkNew<vtkTest::ErrorObserver> errorObserver;
+
   vtkCompositeZPass *compositeZPass=vtkCompositeZPass::New();
   compositeZPass->SetController(this->Controller);
+  compositeZPass->AddObserver(vtkCommand::ErrorEvent, errorObserver.GetPointer());
 
   vtkSequencePass *seq=vtkSequencePass::New();
   vtkRenderPassCollection *passes=vtkRenderPassCollection::New();

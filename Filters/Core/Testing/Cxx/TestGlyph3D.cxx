@@ -21,6 +21,7 @@
 #include "vtkRegressionTestImage.h"
 #include "vtkTestUtilities.h"
 #include "vtkTestErrorObserver.h"
+#include "vtkExecutive.h"
 #include "vtkGlyph3D.h"
 #include "vtkSmartPointer.h"
 #include "vtkDoubleArray.h"
@@ -28,6 +29,24 @@
 #include "vtkConeSource.h"
 #include "vtkCamera.h"
 #include "vtkCommand.h"
+
+#define CHECK_ERROR_MSG(observer, msg)   \
+  { \
+  std::string expectedMsg(msg); \
+  if (!observer->GetError()) \
+    { \
+    std::cout << "ERROR: Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
+    } \
+  else \
+    { \
+    std::string gotMsg(observer->GetErrorMessage()); \
+    if (gotMsg.find(expectedMsg) == std::string::npos) \
+      { \
+      std::cout << "ERROR: Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
+      } \
+    } \
+  } \
+  observer->Clear()
 
 static bool TestGlyph3D_WithBadArray()
 {
@@ -58,12 +77,16 @@ static bool TestGlyph3D_WithBadArray()
   glyph3D->SetInputData(polydata);
   glyph3D->SetInputArrayToProcess(1,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,"Normals");
   glyph3D->SetVectorModeToUseVector();
-  vtkSmartPointer<vtkTest::ErrorObserver> errorObserver =
+  vtkSmartPointer<vtkTest::ErrorObserver> errorObserver1 =
     vtkSmartPointer<vtkTest::ErrorObserver>::New();
-  glyph3D->AddObserver(vtkCommand::ErrorEvent,errorObserver);
+  vtkSmartPointer<vtkTest::ErrorObserver> errorObserver2 =
+    vtkSmartPointer<vtkTest::ErrorObserver>::New();
+  glyph3D->AddObserver(vtkCommand::ErrorEvent,errorObserver1);
+  glyph3D->GetExecutive()->AddObserver(vtkCommand::ErrorEvent,errorObserver2);
   glyph3D->Update();
-  bool res = errorObserver->GetError();
-  return res;
+  CHECK_ERROR_MSG(errorObserver1, "vtkDataArray Normals has more than 3 components");
+  CHECK_ERROR_MSG(errorObserver2, "Algorithm vtkGlyph3D");
+  return true;
 }
 
 int TestGlyph3D(int argc, char* argv[])

@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "TestImageDataLIC2D.h"
 
+#include <vtkTestErrorObserver.h>
 #include "vtkGenericDataObjectReader.h"
 #include "vtkImageDataLIC2D.h"
 #include "vtkPixelExtent.h"
@@ -283,14 +284,17 @@ int ImageDataLIC2D(int argc, char* argv[])
   renWin->Render();
 
   // create and initialize the image lic'er
+  vtkSmartPointer<vtkTest::ErrorObserver> errorObserver =
+    vtkSmartPointer<vtkTest::ErrorObserver>::New();
   vtkSmartPointer<vtkImageDataLIC2D> filter
     = vtkSmartPointer<vtkImageDataLIC2D>::New();
-
+  filter->AddObserver(vtkCommand::ErrorEvent, errorObserver);
   if (filter->SetContext( renWin ) == 0)
     {
     std::cout << "Required OpenGL extensions not supported."  << std::endl;
     return 0;
     }
+
   filter->SetSteps(num_steps);
   filter->SetStepSize(0.8/magnification);
   filter->SetMagnification(magnification);

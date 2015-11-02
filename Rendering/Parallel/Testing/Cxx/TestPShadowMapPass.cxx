@@ -32,6 +32,7 @@
 
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkNew.h"
 
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderWindow.h"
@@ -77,6 +78,8 @@
 #include "vtkLightActor.h"
 #include "vtkProcess.h"
 #include "vtkTreeCompositer.h"
+
+#include "vtkTestErrorObserver.h"
 
 namespace
 {
@@ -175,12 +178,15 @@ void MyProcess::Execute()
   opaqueCameraPass->SetDelegatePass(opaqueSequence);
 
 
+  vtkNew<vtkTest::ErrorObserver> errorObserver2;
   vtkShadowMapBakerPass *shadowsBaker=vtkShadowMapBakerPass::New();
   shadowsBaker->SetOpaquePass(opaqueCameraPass);
   shadowsBaker->SetResolution(1024);
   // To cancel self-shadowing.
   shadowsBaker->SetPolygonOffsetFactor(3.1f);
   shadowsBaker->SetPolygonOffsetUnits(10.0f);
+  shadowsBaker->AddObserver(
+    vtkCommand::ErrorEvent, errorObserver2.GetPointer());
 
   vtkCompositeZPass *compositeZPass=vtkCompositeZPass::New();
   compositeZPass->SetController(this->Controller);
@@ -190,6 +196,8 @@ void MyProcess::Execute()
   vtkShadowMapPass *shadows=vtkShadowMapPass::New();
   shadows->SetShadowMapBakerPass(shadowsBaker);
   shadows->SetOpaquePass(opaqueSequence);
+  shadows->AddObserver(
+    vtkCommand::ErrorEvent, errorObserver2.GetPointer());
 
   vtkSequencePass *seq=vtkSequencePass::New();
   vtkRenderPassCollection *passes=vtkRenderPassCollection::New();
@@ -221,11 +229,14 @@ void MyProcess::Execute()
   rectangleKeyProperties->Set(vtkShadowMapBakerPass::OCCLUDER(),0); // dummy val.
   rectangleKeyProperties->Set(vtkShadowMapBakerPass::RECEIVER(),0); // dummy val.
   rectangleActor->SetPropertyKeys(rectangleKeyProperties);
+  vtkNew<vtkTest::ErrorObserver> errorObserver1;
   rectangleKeyProperties->Delete();
   rectangleActor->SetMapper(rectangleMapper);
   rectangleMapper->Delete();
   rectangleActor->SetVisibility(1);
   rectangleActor->GetProperty()->SetColor(1.0,1.0,1.0);
+  rectangleActor->GetProperty()->AddObserver(
+    vtkCommand::ErrorEvent, errorObserver1.GetPointer());
 
   vtkCubeSource *boxSource=vtkCubeSource::New();
   boxSource->SetXLength(2.0);
@@ -254,6 +265,8 @@ void MyProcess::Execute()
   boxActor->SetVisibility(1);
   boxActor->SetPosition(-2.0,2.0,0.0);
   boxActor->GetProperty()->SetColor(1.0,0.0,0.0);
+  boxActor->GetProperty()->AddObserver(
+    vtkCommand::ErrorEvent, errorObserver1.GetPointer());
 
   vtkConeSource *coneSource=vtkConeSource::New();
   coneSource->SetResolution(24);
@@ -274,6 +287,8 @@ void MyProcess::Execute()
   coneActor->SetVisibility(1);
   coneActor->SetPosition(0.0,1.0,1.0);
   coneActor->GetProperty()->SetColor(0.0,0.0,1.0);
+  coneActor->GetProperty()->AddObserver(
+    vtkCommand::ErrorEvent, errorObserver1.GetPointer());
 //  coneActor->GetProperty()->SetLighting(false);
 
   vtkSphereSource *sphereSource=vtkSphereSource::New();
@@ -295,6 +310,8 @@ void MyProcess::Execute()
   sphereActor->SetVisibility(1);
   sphereActor->SetPosition(2.0,2.0,-1.0);
   sphereActor->GetProperty()->SetColor(1.0,1.0,0.0);
+  sphereActor->GetProperty()->AddObserver(
+    vtkCommand::ErrorEvent, errorObserver1.GetPointer());
 
   renderer->AddViewProp(rectangleActor);
   rectangleActor->Delete();

@@ -31,6 +31,7 @@
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
+#include "vtkTestErrorObserver.h"
 
 static const char * TestGPUVolumeRayCastMapperLog =
 "# StreamVersion 1\n"
@@ -1250,10 +1251,13 @@ int TestGPUVolumeRayCastMapper(int argc, char *argv[])
                           -10, 10);
   wavelet->SetCenter(0.0, 0.0, 0.0);
 
+  vtkNew<vtkTest::ErrorObserver> errorObserver;
+
   vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
   volumeMapper->SetAutoAdjustSampleDistances(0);
   volumeMapper->SetSampleDistance(0.5);
   volumeMapper->SetInputConnection(wavelet->GetOutputPort());
+  volumeMapper->AddObserver(vtkCommand::ErrorEvent, errorObserver.GetPointer());
 
   vtkNew<vtkVolumeProperty> volumeProperty;
   vtkNew<vtkColorTransferFunction> ctf;

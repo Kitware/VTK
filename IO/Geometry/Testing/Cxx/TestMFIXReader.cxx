@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestSimplePointsReaderWriter.cxx
+  Module:    TestMFIXReader.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,6 +13,7 @@
 
 =========================================================================*/
 #include <vtkSmartPointer.h>
+#include <vtkExecutive.h>
 #include <vtkDataSetMapper.h>
 #include <vtkActor.h>
 #include <vtkRenderWindow.h>
@@ -26,34 +27,44 @@
 #include <vtkTestErrorObserver.h>
 #include <vtkRegressionTestImage.h>
 
+#define CHECK_ERROR_MSG(observer, msg)   \
+  { \
+  std::string expectedMsg(msg); \
+  if (!observer->GetError()) \
+    { \
+    std::cout << "ERROR: Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
+    } \
+  else \
+    { \
+    std::string gotMsg(observer->GetErrorMessage()); \
+    if (gotMsg.find(expectedMsg) == std::string::npos) \
+      { \
+      std::cout << "ERROR: Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
+      } \
+    } \
+  } \
+  observer->Clear()
+
 int TestMFIXReader(int argc, char *argv[])
 {
   // Read file name.
   char* filename =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/MFIXReader/BUB01.RES");
 
-  vtkSmartPointer<vtkTest::ErrorObserver>  errorObserver =
+  vtkSmartPointer<vtkTest::ErrorObserver>  errorObserver1 =
+    vtkSmartPointer<vtkTest::ErrorObserver>::New();
+  vtkSmartPointer<vtkTest::ErrorObserver>  errorObserver2 =
     vtkSmartPointer<vtkTest::ErrorObserver>::New();
 
   vtkSmartPointer<vtkMFIXReader> reader =
     vtkSmartPointer<vtkMFIXReader>::New();
-  reader->AddObserver(vtkCommand::ErrorEvent, errorObserver);
+  reader->AddObserver(vtkCommand::ErrorEvent, errorObserver1);
+  reader->GetExecutive()->AddObserver(vtkCommand::ErrorEvent, errorObserver2);
 
   // Update without a filename should cause an error
   reader->Update();
-
-  // Check for model bounds error
-  if (errorObserver->GetError())
-    {
-    std::cout << "Caught expected error: "
-              << errorObserver->GetErrorMessage();
-    }
-  else
-    {
-    std::cout << "Failed to catch expected error regarding missing file name" << std::endl;
-    return EXIT_FAILURE;
-    }
-  errorObserver->Clear();
+  CHECK_ERROR_MSG(errorObserver1,
+                  "No filename specified");
 
   reader->SetFileName(filename);
   delete [] filename;

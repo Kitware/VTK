@@ -14,12 +14,16 @@
 =========================================================================*/
 #include "vtkGenericCell.h"
 #include "vtkMath.h"
+#include "vtkSmartPointer.h"
+#include "vtkTestErrorObserver.h"
 
 int TestGenericCell(int , char *[])
 {
   int rval = 0;
   vtkGenericCell *cell = vtkGenericCell::New();
-
+  vtkSmartPointer<vtkTest::ErrorObserver>  errorObserver =
+    vtkSmartPointer<vtkTest::ErrorObserver>::New();
+  cell->AddObserver(vtkCommand::ErrorEvent, errorObserver);
   for(int i=0; i<VTK_NUMBER_OF_CELL_TYPES;++i)
     {
     cell->SetCellType( i );
