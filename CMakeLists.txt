@@ -446,13 +446,7 @@ set(VTK_MAX_THREADS "64" CACHE STRING
   "Max number of threads vktMultiThreader will allocate.")
 mark_as_advanced(VTK_MAX_THREADS)
 
-include(TestForANSIStreamHeaders)
-include(TestForSTDNamespace)
-include(TestForANSIForScope)
 include(CheckTypeSize)
-
-# Simulate old CMakeBackwardCompatibilityCXX test.
-include(TestForSSTREAM)
 
 # Tests for various integer, bool and float types
 include(vtkTestTypes)
@@ -460,20 +454,8 @@ include(vtkTestTypes)
 # Socket tests etc.
 #INCLUDE(Parallel/VTKParallelCMakeTests.cmake)
 
-# Check for full template specialization support by compiler.
-include(vtkTestFullSpecialization)
-
-# Check for explicit template instantiation support by compiler.
-include(vtkTestExplicitInstantiation)
-
 # Test for atomics and other compiler intrinsics
 include(vtkTestBuiltins)
-
-#-----------------------------------------------------------------------------
-
-# Check the severity of EOF bugs in the streams library.
-# this must be after the test for the long types
-INCLUDE(vtkTestStreamsLibrary)
 
 #-----------------------------------------------------------------------------
 # Dispatch the build into the proper subdirectories.

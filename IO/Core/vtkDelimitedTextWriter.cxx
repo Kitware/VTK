@@ -131,7 +131,7 @@ void vtkDelimitedTextWriterGetDataString(
 }
 
 //-----------------------------------------------------------------------------
-VTK_TEMPLATE_SPECIALIZE
+template<>
 void vtkDelimitedTextWriterGetDataString(
   vtkArrayIteratorTemplate<vtkStdString>* iter, vtkIdType tupleIndex,
   ostream* stream, vtkDelimitedTextWriter* writer, bool* first)

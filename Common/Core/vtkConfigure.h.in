@@ -93,18 +93,11 @@
 /* Some properties of the available types.  */
 #cmakedefine VTK_TYPE_SAME_LONG_AND___INT64
 #cmakedefine VTK_TYPE_SAME_LONG_LONG_AND___INT64
-#cmakedefine VTK_TYPE_CONVERT_UI64_TO_DOUBLE
 
 /* Whether type "char" is signed (it may be signed or unsigned).  */
 #define VTK_TYPE_CHAR_IS_SIGNED @VTK_TYPE_CHAR_IS_SIGNED@
 
 /* Compiler features.  */
-#cmakedefine VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
-#cmakedefine VTK_NO_FULL_TEMPLATE_SPECIALIZATION
-#cmakedefine VTK_NO_ANSI_STRING_STREAM
-#cmakedefine VTK_ISTREAM_SUPPORTS_LONG_LONG
-#cmakedefine VTK_OSTREAM_SUPPORTS_LONG_LONG
-#define VTK_STREAM_EOF_SEVERITY @VTK_STREAM_EOF_SEVERITY@
 #cmakedefine VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T
 #cmakedefine VTK_HAVE_SO_REUSEADDR
 
@@ -161,30 +154,6 @@
   typedef bool vtkstd_bool;
 # else
   typedef int vtkstd_bool;
-# endif
-#endif
-
-/* Define a macro to help define template specializations.  Skip if
-   compiling a windows resource file because the resource compiler
-   warns about truncating the long symbol.  */
-#if !defined(RC_INVOKED)
-# if defined(VTK_NO_FULL_TEMPLATE_SPECIALIZATION)
-#  define VTK_TEMPLATE_SPECIALIZE
-# else
-#  define VTK_TEMPLATE_SPECIALIZE template <>
-# endif
-#endif
-
-/* Provide missing streaming operators.  */
-#if defined(VTK_SIZEOF_LONG_LONG)
-# if !defined(VTK_OSTREAM_SUPPORTS_LONG_LONG)
-#  define VTK_IOSTREAM_NEED_OPERATORS_LL
-# elif !defined(VTK_ISTREAM_SUPPORTS_LONG_LONG)
-#  define VTK_IOSTREAM_NEED_OPERATORS_LL
-# endif
-# if defined(VTK_IOSTREAM_NEED_OPERATORS_LL)
-   typedef long long vtkIOStreamSLL;
-   typedef unsigned long long vtkIOStreamULL;
 # endif
 #endif
 

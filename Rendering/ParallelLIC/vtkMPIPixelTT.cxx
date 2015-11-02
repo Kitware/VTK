@@ -37,7 +37,5 @@ vtkMPIPixelTTMacro2(unsigned long long, MPI_UNSIGNED_LONG_LONG, VTK_UNSIGNED_LON
 #endif
 #ifdef VTK_TYPE_USE___INT64
 vtkMPIPixelTTMacro2(__int64, MPI_LONG_LONG, VTK___INT64)
-# ifdef VTK_TYPE_CONVERT_UI64_TO_DOUBLE
 vtkMPIPixelTTMacro2(unsigned __int64, MPI_UNSIGNED_LONG_LONG, VTK_UNSIGNED___INT64)
-# endif
 #endif

@@ -80,9 +80,5 @@ protected:
   vtkIdType    ContinuousIncrements[3];
 };
 
-#ifdef VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
-#include "vtkImageIterator.txx"
-#endif
-
 #endif
 // VTK-HeaderTest-Exclude: vtkImageIterator.h

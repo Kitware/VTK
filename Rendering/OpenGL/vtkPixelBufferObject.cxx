@@ -370,7 +370,7 @@ public:
     }
 };
 
-VTK_TEMPLATE_SPECIALIZE
+template<>
 class vtkUpload3D< double >
 {
 public:

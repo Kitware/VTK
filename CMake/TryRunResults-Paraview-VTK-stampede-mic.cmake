@@ -72,23 +72,6 @@ SET( VTK_TYPE_CHAR_IS_SIGNED
      CACHE STRING "Result from TRY_RUN" FORCE)
 
 
-# VTK_ANSI_STREAM_EOF_RESULT
-#    indicates whether the executable would have been able to run on its
-#    target platform. If so, set VTK_ANSI_STREAM_EOF_RESULT to
-#    the exit code (in many cases 0 for success), otherwise enter "FAILED_TO_RUN".
-# The VTK_ANSI_STREAM_EOF_COMPILED variable holds the build result for this TRY_RUN().
-#
-# Source file   : /work/01642/sujin/Projects/Paraview/Master/builds/base/mic/VTK/CMake/vtkTestStreamEOF.cxx
-# Executable    : /work/01642/sujin/Projects/Paraview/Master/builds/base/mic/CMakeFiles/cmTryCompileExec1781768933-VTK_ANSI_STREAM_EOF_RESULT
-# Run arguments :
-#    Called from: [2]	/work/01642/sujin/Projects/Paraview/Master/ParaView/VTK/CMake/vtkTestStreamsLibrary.cmake
-#                 [1]	/work/01642/sujin/Projects/Paraview/Master/ParaView/VTK/CMakeLists.txt
-
-SET( VTK_ANSI_STREAM_EOF_RESULT
-     "1"
-     CACHE STRING "Result from TRY_RUN" FORCE)
-
-
 # KWSYS_LFS_WORKS
 #    indicates whether the executable would have been able to run on its
 #    target platform. If so, set KWSYS_LFS_WORKS to

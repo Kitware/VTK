@@ -191,7 +191,6 @@ SET(Module_SRCS
   vtkInformationVector.cxx
   vtkInstantiator.cxx
   vtkIntArray.cxx
-  vtkIOStream.cxx
   vtkLargeInteger.cxx
   vtkLongArray.cxx
   vtkLookupTable.cxx
@@ -271,6 +270,7 @@ set(${vtk-module}_HDRS
   vtkAutoInit.h
   vtkDataArrayIteratorMacro.h
   vtkDataArrayTemplateImplicit.txx
+  vtkIOStream.h
   vtkIOStreamFwd.h
   vtkInformationInternals.h
   vtkMappedDataArray.h
@@ -337,11 +337,6 @@ macro(VTK_PREPARE_CMAKEDEFINE not invar outvar)
 endmacro()
 
 vtk_prepare_cmakedefine("" CMAKE_WORDS_BIGENDIAN VTK_WORDS_BIGENDIAN)
-vtk_prepare_cmakedefine("" CMAKE_NO_ANSI_STRING_STREAM VTK_NO_ANSI_STRING_STREAM)
-vtk_prepare_cmakedefine(NOT VTK_EXPLICIT_TEMPLATES
-                  VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
-vtk_prepare_cmakedefine(NOT VTK_COMPILER_HAS_FULL_SPECIALIZATION
-                        VTK_NO_FULL_TEMPLATE_SPECIALIZATION)
 
 # Provide version macros through vtkConfigure.h for compatibility.
 if(VTK_LEGACY_REMOVE)
@@ -382,9 +377,7 @@ endif()
 
 if(VTK_TYPE_USE___INT64)
   list(APPEND Module_SRCS vtk__Int64Array.cxx)
-  if(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
-    list(APPEND Module_SRCS vtkUnsigned__Int64Array.cxx)
-  endif()
+  list(APPEND Module_SRCS vtkUnsigned__Int64Array.cxx)
 endif()
 
 # Configure data arrays for platform-independent fixed-size types.
@@ -410,9 +403,7 @@ else()
   else()
     if(VTK_SIZEOF___INT64 MATCHES "^8$")
       set(VTK_TYPE_NATIVE_Int64 __Int64)
-      if(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
-        set(VTK_TYPE_NATIVE_UInt64 Unsigned__Int64)
-      endif()
+      set(VTK_TYPE_NATIVE_UInt64 Unsigned__Int64)
     endif()
   endif()
 endif()
@@ -537,7 +528,6 @@ set_source_files_properties(
   vtkEventForwarderCommand.cxx
   vtkFloatingPointExceptions
   vtkGarbageCollectorManager.cxx
-  vtkIOStream.cxx
   vtkIndent.cxx
   vtkLargeInteger.cxx
   vtkOStrStreamWrapper.cxx
@@ -570,6 +560,7 @@ set_source_files_properties(
   vtkDataArrayTemplateHelper.cxx
   vtkDataArrayTemplateImplicit.txx
   vtkDenseArray.txx
+  vtkIOStream.h
   vtkIOStreamFwd.h
   vtkInformationInternals.h
   vtkMathUtilities.h
@@ -611,7 +602,7 @@ set_source_files_properties(
   vtkDataArrayTemplate.txx
   vtkDataArrayTemplateHelper.cxx
   vtkDataArrayTemplateImplicit.txx
-  vtkIOStream.cxx
+  vtkIOStream.h
   vtkIOStreamFwd.h
   vtkLargeInteger.cxx
   vtkOldStyleCallbackCommand.cxx

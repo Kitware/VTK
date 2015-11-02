@@ -527,7 +527,7 @@ void vtkDataSetAttributesCopyValues(
 }
 
 //----------------------------------------------------------------------------
-VTK_TEMPLATE_SPECIALIZE
+template<>
 void vtkDataSetAttributesCopyValues(
   vtkArrayIteratorTemplate<vtkStdString>* destIter, const int* outExt,
   vtkIdType outIncs[3],

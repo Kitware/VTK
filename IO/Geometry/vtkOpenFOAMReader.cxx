@@ -542,12 +542,12 @@ public:
   template <typename T> T To() const;
 #if defined(_MSC_VER)
   // workaround for Win32-64ids-nmake70
-  VTK_TEMPLATE_SPECIALIZE bool Is<int>() const;
-  VTK_TEMPLATE_SPECIALIZE bool Is<float>() const;
-  VTK_TEMPLATE_SPECIALIZE bool Is<double>() const;
-  VTK_TEMPLATE_SPECIALIZE int To<int>() const;
-  VTK_TEMPLATE_SPECIALIZE float To<float>() const;
-  VTK_TEMPLATE_SPECIALIZE double To<double>() const;
+  template<> bool Is<int>() const;
+  template<> bool Is<float>() const;
+  template<> bool Is<double>() const;
+  template<> int To<int>() const;
+  template<> float To<float>() const;
+  template<> double To<double>() const;
 #endif
 
   // workaround for SunOS-CC5.6-dbg
@@ -675,32 +675,32 @@ public:
   }
 };
 
-VTK_TEMPLATE_SPECIALIZE inline bool vtkFoamToken::Is<int>() const
+template<> inline bool vtkFoamToken::Is<int>() const
 {
   return this->Type == LABEL;
 }
 
-VTK_TEMPLATE_SPECIALIZE inline bool vtkFoamToken::Is<float>() const
+template<> inline bool vtkFoamToken::Is<float>() const
 {
   return this->Type == LABEL || this->Type == SCALAR;
 }
 
-VTK_TEMPLATE_SPECIALIZE inline bool vtkFoamToken::Is<double>() const
+template<> inline bool vtkFoamToken::Is<double>() const
 {
   return this->Type == SCALAR;
 }
 
-VTK_TEMPLATE_SPECIALIZE inline int vtkFoamToken::To<int>() const
+template<> inline int vtkFoamToken::To<int>() const
 {
   return this->Int;
 }
 
-VTK_TEMPLATE_SPECIALIZE inline float vtkFoamToken::To<float>() const
+template<> inline float vtkFoamToken::To<float>() const
 {
   return this->Type == LABEL ? this->Int : this->Double;
 }
 
-VTK_TEMPLATE_SPECIALIZE inline double vtkFoamToken::To<double>() const
+template<> inline double vtkFoamToken::To<double>() const
 {
   return this->Type == LABEL ? this->Int : this->Double;
 }
@@ -2009,12 +2009,12 @@ public:
   static T ReadValue(vtkFoamIOobject &io);
 };
 
-VTK_TEMPLATE_SPECIALIZE inline int vtkFoamReadValue<int>::ReadValue(vtkFoamIOobject& io)
+template<> inline int vtkFoamReadValue<int>::ReadValue(vtkFoamIOobject& io)
 {
   return io.ReadIntValue();
 }
 
-VTK_TEMPLATE_SPECIALIZE inline float vtkFoamReadValue<float>::ReadValue(vtkFoamIOobject& io)
+template<> inline float vtkFoamReadValue<float>::ReadValue(vtkFoamIOobject& io)
 {
   return io.ReadFloatValue();
 }
@@ -2510,7 +2510,7 @@ public:
 
 // specialization for reading double precision binary into vtkFloatArray.
 // Must precede ReadNonuniformList() below (HP-UXia64-aCC).
-VTK_TEMPLATE_SPECIALIZE
+template<>
 void vtkFoamEntryValue::listTraits<vtkFloatArray, float>::ReadBinaryList(
     vtkFoamIOobject& io, const int size)
 {

@@ -12,8 +12,6 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// Include blockers needed since vtkImageProgressIterator.h includes
-// this file when VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION is defined.
 #ifndef vtkImageProgressIterator_txx
 #define vtkImageProgressIterator_txx
 

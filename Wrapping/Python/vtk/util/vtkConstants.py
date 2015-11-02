@@ -36,8 +36,7 @@ VTK_UNSIGNED_LONG_LONG =17
 # This type is enabled if VTK_TYPE_USE___INT64 is defined.
 VTK___INT64            =18
 
-# This type is enabled if VTK_TYPE_USE___INT64 and
-#  VTK_TYPE_CONVERT_UI64_TO_DOUBLE are both defined.
+# This type is enabled if VTK_TYPE_USE___INT64 is defined.
 VTK_UNSIGNED___INT64   =19
 
 # These types are required by vtkVariant and vtkVariantArray

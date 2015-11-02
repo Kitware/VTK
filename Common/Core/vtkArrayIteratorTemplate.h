@@ -108,13 +108,8 @@ private:
  vtkAbstractArray* Array;
 };
 
-#if !defined(VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
-# define VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(T) \
-   template class VTKCOMMONCORE_EXPORT vtkArrayIteratorTemplate< T >
-#else
-# include "vtkArrayIteratorTemplateImplicit.txx" // needed for templates.
-# define VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(T)
-#endif // !defined(VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
+#define VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(T) \
+  template class VTKCOMMONCORE_EXPORT vtkArrayIteratorTemplate< T >
 
 #endif // !defined(vtkArrayIteratorTemplate_h)
 

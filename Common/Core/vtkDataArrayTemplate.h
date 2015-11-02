@@ -368,13 +368,8 @@ private:
   void DeleteArray();
 };
 
-#if !defined(VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
-# define VTK_DATA_ARRAY_TEMPLATE_INSTANTIATE(T) \
-   template class VTKCOMMONCORE_EXPORT vtkDataArrayTemplate< T >
-#else
-# include "vtkDataArrayTemplateImplicit.txx"
-# define VTK_DATA_ARRAY_TEMPLATE_INSTANTIATE(T)
-#endif
+#define VTK_DATA_ARRAY_TEMPLATE_INSTANTIATE(T) \
+  template class VTKCOMMONCORE_EXPORT vtkDataArrayTemplate< T >
 
 // This macro is used by the subclasses to create dummy
 // declarations for these functions such that the wrapper
@@ -410,7 +405,7 @@ private:
 // This portion must be OUTSIDE the include blockers.  Each
 // vtkDataArray subclass uses this to give its instantiation of this
 // template a DLL interface.
-#if defined(VTK_DATA_ARRAY_TEMPLATE_TYPE) && !defined(VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
+#if defined(VTK_DATA_ARRAY_TEMPLATE_TYPE)
 # if defined(VTK_BUILD_SHARED_LIBS) && defined(_MSC_VER)
 #  pragma warning (push)
 #  pragma warning (disable: 4091) // warning C4091: 'extern ' :

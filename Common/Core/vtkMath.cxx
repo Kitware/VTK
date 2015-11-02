@@ -2866,12 +2866,10 @@ int vtkMath::GetScalarTypeFittingRange(
       { VTK___INT64,
         static_cast<double>(VTK___INT64_MIN),
         static_cast<double>(VTK___INT64_MAX) }
-# if defined(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
       ,
       { VTK_UNSIGNED___INT64,
         static_cast<double>(VTK_UNSIGNED___INT64_MIN),
         static_cast<double>(VTK_UNSIGNED___INT64_MAX) }
-# endif
 #endif
     };
 

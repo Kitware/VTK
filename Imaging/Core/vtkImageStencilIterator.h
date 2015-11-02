@@ -136,9 +136,5 @@ protected:
   vtkIdType  Target;
 };
 
-#ifdef VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
-#include "vtkImageStencilIterator.txx"
-#endif
-
 #endif
 // VTK-HeaderTest-Exclude: vtkImageStencilIterator.h
