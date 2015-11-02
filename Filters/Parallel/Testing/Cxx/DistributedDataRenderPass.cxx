@@ -297,10 +297,10 @@ void MyProcess::Execute()
     camera->ParallelProjectionOn();
     camera->SetParallelScale(16);
 
-    renWin->Render();
     if(compositeRGBAPass->IsSupported(
          static_cast<vtkOpenGLRenderWindow *>(renWin)))
       {
+      renWin->Render();
       this->ReturnValue=vtkRegressionTester::Test(this->Argc,this->Argv,renWin,
                                                   10);
       }
