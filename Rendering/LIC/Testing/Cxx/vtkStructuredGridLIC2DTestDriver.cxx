@@ -24,6 +24,7 @@
 #include "vtkTexture.h"
 #include "vtkDataSetMapper.h"
 #include "vtkTestUtilities.h"
+#include "vtkTestErrorObserver.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkPNGWriter.h"
 #include "vtkImageShiftScale.h"
@@ -202,6 +203,9 @@ int vtkStructuredGridLIC2DTestDriver(int argc, char* argv[])
 
   vtkSmartPointer<vtkStructuredGridLIC2D> filter
     = vtkSmartPointer<vtkStructuredGridLIC2D>::New();
+  vtkSmartPointer<vtkTest::ErrorObserver> errorObserver =
+    vtkSmartPointer<vtkTest::ErrorObserver>::New();
+  filter->AddObserver(vtkCommand::ErrorEvent, errorObserver);
 
   if (  filter->SetContext( renWin ) == 0  )
     {

@@ -23,6 +23,7 @@
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkCommand.h"
 #include "vtkPointData.h"
 #include "vtkInformation.h"
 #include "vtkStringArray.h"
@@ -36,6 +37,7 @@
 #include <ctype.h>
 
 vtkStandardNewMacro(vtkFixedWidthTextReader);
+vtkCxxSetObjectMacro(vtkFixedWidthTextReader,TableErrorObserver,vtkCommand);
 
 // Function body at bottom of file
 static int splitString(const vtkStdString& input,
@@ -60,6 +62,7 @@ vtkFixedWidthTextReader::vtkFixedWidthTextReader()
   this->FieldWidth = 10;
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
+  this->TableErrorObserver = NULL;
 }
 
 // ----------------------------------------------------------------------
@@ -67,6 +70,10 @@ vtkFixedWidthTextReader::vtkFixedWidthTextReader()
 vtkFixedWidthTextReader::~vtkFixedWidthTextReader()
 {
   this->SetFileName(0);
+  if (this->TableErrorObserver)
+    {
+    this->TableErrorObserver->Delete();
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -143,6 +150,10 @@ int vtkFixedWidthTextReader::RequestData(
     }
 
   vtkTable *table = vtkTable::GetData(outputVector);
+  if (this->TableErrorObserver)
+    {
+    table->AddObserver(vtkCommand::ErrorEvent, this->TableErrorObserver);
+    }
 
   // Now we can create the arrays that will hold the data for each
   // field.

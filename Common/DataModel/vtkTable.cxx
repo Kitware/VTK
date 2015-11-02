@@ -286,7 +286,9 @@ vtkIdType vtkTable::InsertNextRow(vtkVariantArray* values)
   vtkIdType ncol = this->GetNumberOfColumns();
   if (values->GetNumberOfTuples() != ncol)
     {
-    vtkErrorMacro(<< "Incorrect number of tuples in SetRow");
+    vtkErrorMacro(<< "Incorrect number of tuples in SetRow."
+                  << " Expected " << ncol
+                  << ", but got " << values->GetNumberOfTuples());
     }
   vtkIdType row = this->InsertNextBlankRow();
   for (vtkIdType i = 0; i < ncol; i++)

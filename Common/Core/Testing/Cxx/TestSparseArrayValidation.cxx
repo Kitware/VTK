@@ -22,9 +22,28 @@
 #include <vtkArrayPrint.h>
 #include <vtkSparseArray.h>
 #include <vtkSmartPointer.h>
+#include <vtkTestErrorObserver.h>
 
 #include <iostream>
 #include <stdexcept>
+
+#define CHECK_ERROR_MSG(observer, msg)   \
+  { \
+  std::string expectedMsg(msg); \
+  if (!observer->GetError()) \
+    { \
+    std::cout << "ERROR: Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
+    } \
+  else \
+    { \
+    std::string gotMsg(observer->GetErrorMessage()); \
+    if (gotMsg.find(expectedMsg) == std::string::npos) \
+      { \
+      std::cout << "ERROR: Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
+      } \
+    } \
+  } \
+  observer->Clear()
 
 #define test_expression(expression) \
 { \
@@ -49,11 +68,16 @@ int TestSparseArrayValidation(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     array->AddValue(0, 1, 3);
     test_expression(array->Validate());
 
+    vtkSmartPointer<vtkTest::ErrorObserver> errorObserver =
+      vtkSmartPointer<vtkTest::ErrorObserver>::New();
+    array->AddObserver(vtkCommand::ErrorEvent, errorObserver);
     array->Clear();
     array->AddValue(0, 0, 1);
     array->AddValue(1, 2, 2);
     array->AddValue(0, 0, 4);
     test_expression(!array->Validate());
+    CHECK_ERROR_MSG(errorObserver,
+                    "Array contains 1 duplicate coordinates");
 
     array->Clear();
     array->AddValue(0, 0, 1);

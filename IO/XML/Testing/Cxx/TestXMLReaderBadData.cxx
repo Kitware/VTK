@@ -15,6 +15,26 @@
 
 #include <vtkSmartPointer.h>
 #include <vtkXMLGenericDataObjectReader.h>
+#include <vtkXMLDataParser.h>
+#include "vtkTestErrorObserver.h"
+
+#define CHECK_ERROR_MSG(observer, msg)   \
+  { \
+  std::string expectedMsg(msg); \
+  if (!observer->GetError()) \
+    { \
+    std::cout << "ERROR: Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
+    } \
+  else \
+    { \
+    std::string gotMsg(observer->GetErrorMessage()); \
+    if (gotMsg.find(expectedMsg) == std::string::npos) \
+      { \
+      std::cout << "ERROR: Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
+      } \
+    } \
+  } \
+  observer->Clear()
 
 int TestXMLReaderBadData(int argc, char* argv[])
 {
@@ -28,11 +48,23 @@ int TestXMLReaderBadData(int argc, char* argv[])
 
   std::string inputFilename = argv[1];
 
+  // Observe errors
+  vtkSmartPointer<vtkTest::ErrorObserver>  errorObserver0 =
+    vtkSmartPointer<vtkTest::ErrorObserver>::New();
+  vtkSmartPointer<vtkTest::ErrorObserver>  errorObserver1 =
+    vtkSmartPointer<vtkTest::ErrorObserver>::New();
+  vtkSmartPointer<vtkTest::ErrorObserver>  errorObserver2 =
+    vtkSmartPointer<vtkTest::ErrorObserver>::New();
+
   // Read the file
   vtkSmartPointer<vtkXMLGenericDataObjectReader> reader =
     vtkSmartPointer<vtkXMLGenericDataObjectReader>::New();
   reader->SetFileName(inputFilename.c_str());
+  reader->AddObserver(vtkCommand::ErrorEvent, errorObserver0);
+  reader->SetReaderErrorObserver(errorObserver1);
+  reader->SetParserErrorObserver(errorObserver2);
   reader->Update();
-
+  CHECK_ERROR_MSG(errorObserver2,
+                  "vtkXMLDataParser");
   return EXIT_SUCCESS;
 }

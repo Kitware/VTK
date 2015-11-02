@@ -186,6 +186,7 @@ function(vtk_add_test_mpi exename _tests)
       PROPERTIES
         LABELS "${${vtk-module}_TEST_LABELS}"
         PROCESSORS ${numprocs}
+        FAIL_REGULAR_EXPRESSION "(\n|^)ERROR: "
       )
     list(APPEND ${_tests} "${test_file}")
 
@@ -297,6 +298,7 @@ function(vtk_add_test_cxx exename _tests)
     set_tests_properties(${prefix}Cxx-${vtk_test_prefix}${test_name}
       PROPERTIES
         LABELS "${${prefix}_TEST_LABELS}"
+        FAIL_REGULAR_EXPRESSION "(\n|^)ERROR: "
       )
 
     list(APPEND ${_tests} "${test_file}")
@@ -448,6 +450,7 @@ function(vtk_add_test_python)
     set_tests_properties(${vtk-module}Python${_vtk_test_python_suffix}-${vtk_test_prefix}${test_name}
       PROPERTIES
         LABELS "${${vtk-module}_TEST_LABELS}"
+        FAIL_REGULAR_EXPRESSION "(\n|^)ERROR: "
       )
   endforeach()
 endfunction()
@@ -559,6 +562,7 @@ function(vtk_add_test_tcl)
     set_tests_properties(${vtk-module}Tcl-${vtk_test_prefix}${test_name}
       PROPERTIES
         LABELS "${${vtk-module}_TEST_LABELS}"
+        FAIL_REGULAR_EXPRESSION "(\n|^)ERROR: "
       )
   endforeach()
 

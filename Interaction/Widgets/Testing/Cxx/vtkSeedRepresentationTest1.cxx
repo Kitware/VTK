@@ -1,3 +1,17 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkSeedRepresentationTest1.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
 #include "vtkSeedRepresentation.h"
 
 #include <cstdlib>
@@ -8,9 +22,28 @@
 #include "vtkProperty2D.h"
 
 #include "WidgetTestingMacros.h"
+#include "vtkTestErrorObserver.h"
 
 #include <vtkTextActor.h>
 #include <vtkPointHandleRepresentation3D.h>
+
+#define CHECK_ERROR_MSG(observer, msg)   \
+  { \
+  std::string expectedMsg(msg); \
+  if (!observer->GetError()) \
+    { \
+    std::cout << "Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
+    } \
+  else \
+    { \
+    std::string gotMsg(observer->GetErrorMessage()); \
+    if (gotMsg.find(expectedMsg) == std::string::npos) \
+      { \
+      std::cout << "Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
+      } \
+    } \
+  } \
+  observer->Clear()
 
 int vtkSeedRepresentationTest1(int , char * [] )
 {
@@ -23,10 +56,18 @@ int vtkSeedRepresentationTest1(int , char * [] )
   double pos[3] = {1.0, 2.0, -3.0};
   double pos2[3];
   int s = 0;
-  node1->SetSeedDisplayPosition(s, pos);
-  node1->GetSeedWorldPosition(s, pos2);
-  node1->GetSeedDisplayPosition(s,pos);
 
+  // set/get display and world should fail without seeds
+  vtkSmartPointer<vtkTest::ErrorObserver> errorObserver =
+    vtkSmartPointer<vtkTest::ErrorObserver>::New();
+  node1->AddObserver(vtkCommand::ErrorEvent, errorObserver);
+  node1->SetSeedDisplayPosition(s, pos);
+
+  CHECK_ERROR_MSG(errorObserver, "Trying to access non-existent handle");
+  node1->GetSeedWorldPosition(s, pos2);
+  CHECK_ERROR_MSG(errorObserver, "Trying to access non-existent handle");
+  node1->GetSeedDisplayPosition(s,pos);
+  CHECK_ERROR_MSG(errorObserver, "Trying to access non-existent handle");
 
   // set/get display and world position will fail without seeds having been
   // created, so add some and then do the testing of return values.

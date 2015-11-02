@@ -29,8 +29,10 @@
 #include "vtkMPICommunicator.h"
 #include "vtkMPIController.h"
 #include "vtkCompositeRenderManager.h"
+#include "vtkNew.h"
 
 #include "vtkTestUtilities.h"
+#include "vtkTestErrorObserver.h"
 #include "vtkRegressionTestImage.h"
 
 #include "vtkRenderWindowInteractor.h"
@@ -157,8 +159,11 @@ void MyProcess::Execute()
 
   vtkLightsPass *lights=vtkLightsPass::New();
 
+  vtkNew<vtkTest::ErrorObserver> errorObserver;
+
   vtkCompositeZPass *compositeZPass=vtkCompositeZPass::New();
   compositeZPass->SetController(this->Controller);
+  compositeZPass->AddObserver(vtkCommand::ErrorEvent, errorObserver.GetPointer());
 
   vtkSequencePass *seq=vtkSequencePass::New();
   vtkRenderPassCollection *passes=vtkRenderPassCollection::New();
@@ -404,6 +409,7 @@ void MyProcess::Execute()
           }
         else
           {
+          std::cout << "FBOs are not supported by the context. Cannot perform z-compositing" << std::endl;
           retVal=vtkTesting::PASSED; // not supported.
           }
         }

@@ -22,7 +22,28 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
+#include "vtkTestErrorObserver.h"
+#include "vtkExecutive.h"
+
 #include <sstream>
+
+#define CHECK_ERROR_MSG(observer, msg)   \
+  { \
+  std::string expectedMsg(msg); \
+  if (!observer->GetError()) \
+    { \
+    std::cout << "ERROR: Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
+    } \
+  else \
+    { \
+    std::string gotMsg(observer->GetErrorMessage()); \
+    if (gotMsg.find(expectedMsg) == std::string::npos) \
+      { \
+      std::cout << "Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
+      } \
+    } \
+  } \
+  observer->Clear()
 
 //----------------------------------------------------------------------------
 const double densities[] = {
@@ -99,8 +120,11 @@ int TestExtractFunctionalBagPlot(int , char * [])
 
   vtkNew<vtkExtractFunctionalBagPlot> ebp;
 
+  vtkNew<vtkTest::ErrorObserver> errorObserver1;
    // First verify that absence of input does not cause trouble
+  ebp->GetExecutive()->AddObserver(vtkCommand::ErrorEvent,errorObserver1.GetPointer());
   ebp->Update();
+  CHECK_ERROR_MSG(errorObserver1, "Input port 0 of algorithm vtkExtractFunctionalBagPlot");
 
   ebp->SetInputData(0, table.GetPointer());
   ebp->SetInputData(1, inTableDensity.GetPointer());

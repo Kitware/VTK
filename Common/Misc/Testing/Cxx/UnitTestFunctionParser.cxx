@@ -89,7 +89,6 @@ SCALAR_FUNC(TestCosh,cosh,std::cosh);
 SCALAR_FUNC(TestExp,exp,std::exp);
 SCALAR_FUNC(TestFloor,floor,std::floor);
 SCALAR_FUNC(TestLn,ln,std::log);
-SCALAR_FUNC(TestLog,log,std::log);
 SCALAR_FUNC(TestLog10,log10,std::log10);
 SCALAR_FUNC(TestSin,sin,std::sin);
 SCALAR_FUNC(TestSinh,sinh,std::sinh);
@@ -120,7 +119,6 @@ int UnitTestFunctionParser(int,char *[])
   status += TestExp(0, 2.0);
   status += TestFloor(-1000.0, 1000.0);
   status += TestLn(0.0, 1000.0);
-  status += TestLog(0.0, 1000.0);
   status += TestLog10(0.0, 1000.0);
   status += TestSin(-1000.0, 1000.0);
   status += TestSinh(-1.0, 1.0);
@@ -845,7 +843,6 @@ int TestMiscFunctions()
   // test functions that can use ReplaceInvalidValue
   std::vector<std::string> testFuncs;
   testFuncs.push_back("sqrt(s)");
-  testFuncs.push_back("log(s)");
   testFuncs.push_back("ln(s)");
   testFuncs.push_back("log10(s)");
   testFuncs.push_back("asin(s)");
@@ -991,11 +988,6 @@ int TestErrors()
   parser->IsScalarResult();
   CHECK_ERROR_MSG("Trying to take a log10 of a negative value");
 
-  // Trying to take a log of a negative value
-  parser->SetFunction("log(s)");
-  parser->IsScalarResult();
-  CHECK_ERROR_MSG("Trying to take a log of a negative value");
-
   // Trying to take a square root of a negative value
   parser->SetFunction("sqrt(s)");
   parser->IsScalarResult();
@@ -1046,11 +1038,6 @@ int TestErrors()
   parser->SetFunction("acos()");
   parser->IsScalarResult();
   CHECK_ERROR_MSG("Syntax error: expecting a variable name");
-
-  // The use of log function is being deprecated
-  parser->SetFunction("log(1.0)");
-  parser->IsScalarResult();
-  CHECK_ERROR_MSG("The use of log function is being deprecated");
 
   // Parse errors
   parser->SetFunction("-");

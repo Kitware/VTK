@@ -45,6 +45,7 @@
 #include "vtkIOInfovisModule.h" // For export macro
 #include "vtkTableAlgorithm.h"
 
+class vtkCommand;
 class vtkTable;
 
 class VTKIOINFOVIS_EXPORT vtkFixedWidthTextReader : public vtkTableAlgorithm
@@ -75,6 +76,12 @@ public:
   vtkSetMacro(HaveHeaders,bool);
   vtkBooleanMacro(HaveHeaders, bool);
 
+  // Description:
+  // Set/get the ErrorObserver for the internal vtkTable
+  // This is useful for applications that want to catch error messages.
+  void SetTableErrorObserver(vtkCommand *);
+  vtkGetObjectMacro(TableErrorObserver,vtkCommand);
+
  protected:
   vtkFixedWidthTextReader();
   ~vtkFixedWidthTextReader();
@@ -94,6 +101,7 @@ public:
 private:
   vtkFixedWidthTextReader(const vtkFixedWidthTextReader&); // Not implemented
   void operator=(const vtkFixedWidthTextReader&);   // Not implemented
+  vtkCommand *TableErrorObserver;
 };
 
 #endif

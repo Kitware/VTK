@@ -35,6 +35,7 @@ class vtkXMLDataElement;
 class vtkXMLDataParser;
 class vtkInformationVector;
 class vtkInformation;
+class vtkCommand;
 
 class VTKIOXML_EXPORT vtkXMLReader : public vtkAlgorithm
 {
@@ -119,6 +120,18 @@ public:
   virtual int ProcessRequest(vtkInformation *request,
                              vtkInformationVector **inputVector,
                              vtkInformationVector *outputVector);
+
+  // Description:
+  // Set/get the ErrorObserver for the internal reader
+  // This is useful for applications that want to catch error messages.
+  void SetReaderErrorObserver(vtkCommand *);
+  vtkGetObjectMacro(ReaderErrorObserver,vtkCommand);
+
+  // Description:
+  // Set/get the ErrorObserver for the internal xml parser
+  // This is useful for applications that want to catch error messages.
+  void SetParserErrorObserver(vtkCommand *);
+  vtkGetObjectMacro(ParserErrorObserver,vtkCommand);
 
 protected:
   vtkXMLReader();
@@ -315,6 +328,9 @@ private:
 private:
   vtkXMLReader(const vtkXMLReader&);  // Not implemented.
   void operator=(const vtkXMLReader&);  // Not implemented.
+
+  vtkCommand *ReaderErrorObserver;
+  vtkCommand *ParserErrorObserver;
 };
 
 #endif

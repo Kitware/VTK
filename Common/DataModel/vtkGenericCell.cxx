@@ -369,7 +369,8 @@ void vtkGenericCell::SetCellType(int cellType)
 
     if( !cell )
       {
-      vtkErrorMacro( << "Unsupported cell type! Setting to vtkEmptyCell" );
+      vtkErrorMacro( << "Unsupported cell type: " << cellType
+                     << " Setting to vtkEmptyCell" );
       cell = vtkEmptyCell::New();
       }
 

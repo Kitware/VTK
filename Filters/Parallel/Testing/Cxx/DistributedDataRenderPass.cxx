@@ -25,6 +25,8 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkTestUtilities.h"
+#include "vtkTestErrorObserver.h"
+#include "vtkNew.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkCompositeRenderManager.h"
 #include "vtkDataSetReader.h"
@@ -224,7 +226,10 @@ void MyProcess::Execute()
   vtkClearZPass *clearZ=vtkClearZPass::New();
   clearZ->SetDepth(0.9);
 
+  vtkNew<vtkTest::ErrorObserver> errorObserver1;
   vtkCompositeRGBAPass *compositeRGBAPass=vtkCompositeRGBAPass::New();
+  compositeRGBAPass->AddObserver(vtkCommand::ErrorEvent,
+                                 errorObserver1.GetPointer());
   compositeRGBAPass->SetController(this->Controller);
   compositeRGBAPass->SetKdtree(dd->GetKdtree());
   vtkRenderPassCollection *passes=vtkRenderPassCollection::New();
@@ -297,15 +302,26 @@ void MyProcess::Execute()
     camera->ParallelProjectionOn();
     camera->SetParallelScale(16);
 
-    renWin->Render();
     if(compositeRGBAPass->IsSupported(
          static_cast<vtkOpenGLRenderWindow *>(renWin)))
       {
+      renWin->Render();
       this->ReturnValue=vtkRegressionTester::Test(this->Argc,this->Argv,renWin,
                                                   10);
       }
     else
       {
+      std::string gotMsg(errorObserver1->GetErrorMessage());
+      std::string expectedMsg("Missing required OpenGL extensions");
+      if (gotMsg.find(expectedMsg) == std::string::npos)    \
+        {
+        std::cout << "ERROR: Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl;
+        this->ReturnValue=vtkTesting::FAILED;
+        }
+      else
+        {
+        std::cout << expectedMsg << std::endl;
+        }
       this->ReturnValue=vtkTesting::PASSED; // not supported.
       }
 
