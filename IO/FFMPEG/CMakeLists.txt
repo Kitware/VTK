@@ -15,18 +15,18 @@ if(NOT VTK_INSTALL_NO_DEVELOPMENT)
     COMPONENT Development)
 endif()
 
-include_directories(${FFMPEG_INCLUDE_DIRS})
+include_directories(${FFMPEG_INCLUDE_DIR})
 
 set_source_files_properties( vtkFFMPEGWriter.cxx
   PROPERTIES COMPILE_DEFINITIONS __STDC_CONSTANT_MACROS
   )
 
-set(_ffmpeg_libs ${FFMPEG_AVFORMAT_LIBRARIES} ${FFMPEG_AVCODED_LIBRARIES}
+set(_ffmpeg_libs ${FFMPEG_LIBAVFORMAT_LIBRARIES} ${FFMPEG_LIBAVCODEC_LIBRARIES}
   ${FFMPEG_LIBAVUTIL_LIBRARIES}
   )
 
 if(NOT VTK_FFMPEG_HAS_IMG_CONVERT)
-  list(APPEND _ffmpeg_libs ${FFMPEG_SWSCALE_LIBRARIES})
+  list(APPEND _ffmpeg_libs ${FFMPEG_LIBSWSCALE_LIBRARIES})
 endif()
 
 vtk_module_library(vtkIOFFMPEG ${Module_SRCS})
