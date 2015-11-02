@@ -30,6 +30,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkRectilinearGrid.h"
 #include "vtkSmartPointer.h"
 #include "vtkStructuredGrid.h"
 #include "vtkTable.h"
@@ -165,6 +166,13 @@ int vtkAppendCompositeDataLeaves::RequestData(
       {
       vtkStructuredGrid* clone = sg->NewInstance();
       clone->ShallowCopy(sg);
+      output->SetDataSet(iter, clone);
+      clone->FastDelete();
+      }
+    else if (vtkRectilinearGrid* rg = vtkRectilinearGrid::SafeDownCast(obj))
+      {
+      vtkRectilinearGrid* clone = rg->NewInstance();
+      clone->ShallowCopy(rg);
       output->SetDataSet(iter, clone);
       clone->FastDelete();
       }
