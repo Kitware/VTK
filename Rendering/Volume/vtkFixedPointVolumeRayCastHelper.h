@@ -477,7 +477,7 @@
   unsigned int _tmp[4] = {0,0,0,0};                                                                                             \
   unsigned short _alpha[4] = {0,0,0,0};                                                                                         \
   unsigned int _totalAlpha = 0;                                                                                                 \
-                                                                                                                                \
+  COMPONENTS = (COMPONENTS < 4) ? COMPONENTS : 4;                                                                               \
   {for ( int _idx = 0; _idx < COMPONENTS; _idx++ )                                                                              \
     {                                                                                                                           \
     _alpha[_idx] =  static_cast<unsigned short>(SOTABLE[_idx][SCALAR[_idx]]*WEIGHTS[_idx]);                                     \
@@ -774,6 +774,7 @@
   int cropping                       = (mapper->GetCropping() &&                                \
                                         mapper->GetCroppingRegionFlags() != 0x2000 );           \
                                                                                                 \
+  components = (components < 4) ? components : 4;                                               \
   unsigned short *colorTable[4];                                                                \
   unsigned short *scalarOpacityTable[4];                                                        \
                                                                                                 \
@@ -961,9 +962,9 @@
   oldSPos[1] = 0;                                       \
   oldSPos[2] = 0;                                       \
                                                         \
-  unsigned int w1X, w1Y, w1Z;                              \
-  unsigned int w2X, w2Y, w2Z;                              \
-  unsigned int w1Xw1Y, w2Xw1Y, w1Xw2Y, w2Xw2Y;             \
+  unsigned int w1X, w1Y, w1Z;                           \
+  unsigned int w2X, w2Y, w2Z;                           \
+  unsigned int w1Xw1Y, w2Xw1Y, w1Xw2Y, w2Xw2Y;          \
                                                         \
   unsigned short  maxValue=0;                           \
   unsigned short  val;                                  \
@@ -979,13 +980,14 @@
   oldSPos[1] = 0;                                               \
   oldSPos[2] = 0;                                               \
                                                                 \
-  unsigned int w1X, w1Y, w1Z;                                      \
-  unsigned int w2X, w2Y, w2Z;                                      \
-  unsigned int w1Xw1Y, w2Xw1Y, w1Xw2Y, w2Xw2Y;                     \
+  unsigned int w1X, w1Y, w1Z;                                   \
+  unsigned int w2X, w2Y, w2Z;                                   \
+  unsigned int w1Xw1Y, w2Xw1Y, w1Xw2Y, w2Xw2Y;                  \
                                                                 \
-  unsigned short  maxValue[4];                                  \
-  unsigned short  val[4];                                       \
-  unsigned int    A[4],B[4],C[4],D[4],E[4],F[4],G[4],H[4];
+  unsigned short  maxValue[4] = {};                             \
+  unsigned short  val[4] = {};                                  \
+  unsigned int    A[4] = {}, B[4] = {}, C[4] = {}, D[4] = {},   \
+                  E[4] = {}, F[4] = {}, G[4] = {}, H[4] = {};
 //ETX
 
 //BTX
@@ -1083,8 +1085,10 @@
 //BTX
 #define VTKKWRCHelper_InitializeCompositeMultiGOTrilin()                \
   unsigned char  *magPtrABCD = 0, *magPtrEFGH = 0;                      \
-  unsigned short  mag[4];                                               \
-  unsigned int    mA[4],mB[4],mC[4],mD[4],mE[4],mF[4],mG[4],mH[4];
+  unsigned short  mag[4] = {};                                          \
+  unsigned int    mA[4] = {}, mB[4] = {}, mC[4] = {},                   \
+                  mD[4] = {}, mE[4] = {}, mF[4] = {},                   \
+                  mG[4] = {}, mH[4] = {};
 //ETX
 
 //BTX
