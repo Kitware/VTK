@@ -1041,7 +1041,8 @@ template<typename T> int TestOneCell(const VTKCellType cellType,
     std::cout << "PASSED" << std::endl;
     }
 
-  if (aCell->GetNumberOfPoints() > 0)
+  if (aCell->GetNumberOfPoints() > 0 &&
+      strcmp(aCell->GetClassName(), "vtkQuadraticEdge") != 0 )
     {
     std::cout << "  Testing Derivatives...";
     // Create scalars and set first scalar to 1.0
