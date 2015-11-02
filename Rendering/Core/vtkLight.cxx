@@ -63,6 +63,8 @@ vtkLight::vtkLight()
   this->LightType = VTK_LIGHT_TYPE_SCENE_LIGHT;
 
   this->TransformMatrix = NULL;
+
+  this->ShadowAttenuation = 1.0;
 }
 
 vtkLight::~vtkLight()
@@ -291,6 +293,7 @@ void vtkLight::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "(none)\n";
     }
+  os << indent << "ShadowAttenuation: " << this->ShadowAttenuation << "\n";
 }
 
 void vtkLight::WriteSelf(ostream& os)
@@ -313,6 +316,7 @@ void vtkLight::WriteSelf(ostream& os)
   os << this->ConeAngle << " ";
   os << this->AttenuationValues[0] << " " << this->AttenuationValues[1] << " "
      << this->AttenuationValues[2] << " ";
+  os << this->ShadowAttenuation << " ";
   // XXX - LightType, TransformMatrix ???
 }
 
@@ -330,6 +334,7 @@ void vtkLight::ReadSelf(istream& is)
   is >> this->ConeAngle;
   is >> this->AttenuationValues[0] >> this->AttenuationValues[1]
      >> this->AttenuationValues[2];
+  is >> this->ShadowAttenuation;
   // XXX - LightType, TransformMatrix ???
 }
 

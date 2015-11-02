@@ -106,6 +106,7 @@ int TestDepthOfFieldPass(int argc, char* argv[])
   // finally add the DOF passs
   vtkNew<vtkDepthOfFieldPass> dofp;
   dofp->SetDelegatePass(basicPasses.Get());
+  dofp->AutomaticFocalDistanceOff();
   // tell the renderer to use our render pass pipeline
   glrenderer->SetPass(dofp.Get());
 

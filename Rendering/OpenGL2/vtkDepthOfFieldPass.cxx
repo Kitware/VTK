@@ -45,6 +45,7 @@ vtkDepthOfFieldPass::vtkDepthOfFieldPass()
   this->Supported=false;
   this->SupportProbed=false;
   this->BlurProgram = NULL;
+  this->AutomaticFocalDistance = true;
 }
 
 // ----------------------------------------------------------------------------
@@ -254,17 +255,11 @@ void vtkDepthOfFieldPass::Render(const vtkRenderState *s)
   this->Pass1Depth->Activate();
   this->BlurProgram->Program->SetUniformi("depth",this->Pass1Depth->GetTextureUnit());
 
-  // CoCScale = (aperture * focallength * planeinfocus * (zfar - znear)) /
-  //              ((planeinfocus - focallength) * znear * zfar)
-  // CoCBias = (aperture * focallength * (znear - planeinfocus)) /
-  //             ((planeinfocus - focallength) * znear)
-
   vtkCamera *cam = r->GetActiveCamera();
   double *frange = cam->GetClippingRange();
   float fdist = cam->GetDistance();
+//  fdist = fdist - 0.1*(frange[1] - frange[0]);
   float focalDisk = cam->GetFocalDisk();
-  float CoCScale = focalDisk*fdist*(frange[1] - frange[0])/(frange[1]*frange[0]);
-  float CoCBias = focalDisk*(frange[0] - fdist)/frange[0];
   float vAngle = cam->GetViewAngle();
   double *aspect = r->GetAspect();
 
@@ -288,10 +283,18 @@ void vtkDepthOfFieldPass::Render(const vtkRenderState *s)
   offset[0] = 1.0/w;
   offset[1] = 1.0/h;
   this->BlurProgram->Program->SetUniform2f("pixelToTCoord", offset);
-  // this is a factor of the lense size
-  this->BlurProgram->Program->SetUniformf("focalDistVC", fdist);
-  this->BlurProgram->Program->SetUniformf("CoCScale", CoCScale);
-  this->BlurProgram->Program->SetUniformf("CoCBias", CoCBias);
+  this->BlurProgram->Program->SetUniformf("nearC",frange[0]);
+  this->BlurProgram->Program->SetUniformf("farC",frange[1]);
+  this->BlurProgram->Program->SetUniformf("focalDisk",focalDisk);
+
+  if (this->AutomaticFocalDistance)
+    {
+    this->BlurProgram->Program->SetUniformf("focalDistance",0.0);
+    }
+  else
+    {
+    this->BlurProgram->Program->SetUniformf("focalDistance",fdist);
+    }
 
   this->Pass1->CopyToFrameBuffer(extraPixels, extraPixels,
                                 w-1-extraPixels,h-1-extraPixels,

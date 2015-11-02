@@ -199,6 +199,8 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
     vtkLightCollection *lights=r->GetLights();
     this->ShadowTextureUnits.clear();
     this->ShadowTextureUnits.resize(lights->GetNumberOfItems());
+    this->ShadowAttenuation.clear();
+    this->ShadowAttenuation.resize(lights->GetNumberOfItems());
 
     // get the shadow maps and activate them
     int shadowingLightIndex = 0;
@@ -217,6 +219,7 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
         // activate the texture map
         map->Activate();
         this->ShadowTextureUnits[lightIndex] = map->GetTextureUnit();
+        this->ShadowAttenuation[lightIndex] = light->GetShadowAttenuation();
         shadowingLightIndex++;
         }
       }
@@ -335,6 +338,7 @@ void vtkShadowMapPass::SetUniforms(vtkShaderProgram *program)
   int numSMT = 0;
   float transform[16];
   std::ostringstream toString;
+
   for (size_t i = 0; i < numLights; i++)
     {
     if (this->ShadowTextureUnits[i] >= 0)
@@ -346,6 +350,9 @@ void vtkShadowMapPass::SetUniforms(vtkShaderProgram *program)
       toString.str("");
       toString.clear();
       toString << numSMT;
+      program->SetUniformf(
+        std::string("shadowAttenuation"+toString.str()).c_str(),
+        this->ShadowAttenuation[i]);
       program->SetUniformi(
         std::string("shadowMap"+toString.str()).c_str(),
         this->ShadowTextureUnits[i]);
@@ -377,7 +384,10 @@ void vtkShadowMapPass::BuildShaderCode()
   toString << this->ShadowMapBakerPass->GetResolution();
 
   std::string fdec = "//VTK::Light::Dec\n"
-    "float calcShadow(in vec4 vert, in sampler2D shadowMap, in mat4 shadowTransform)\n"
+    "float calcShadow(in vec4 vert,\n"
+    "                  in sampler2D shadowMap,\n"
+    "                  in mat4 shadowTransform,\n"
+    "                  in float attenuation)\n"
     "{\n"
     "  vec4 shadowCoord = shadowTransform*vert;\n"
     "  float result = 1.0;\n"
@@ -403,7 +413,8 @@ void vtkShadowMapPass::BuildShaderCode()
     "      result /= 4.0;\n"
     "      }\n"
     "    }\n"
-    "  return result;\n"
+    "  return (1.0 - attenuation + attenuation*result);\n"
+//    "  return result;\n"
     "}\n";
 
   for (int i = 0; i < numSMT; i++)
@@ -412,6 +423,7 @@ void vtkShadowMapPass::BuildShaderCode()
     toString.clear();
     toString << i;
     fdec +=
+    "uniform float shadowAttenuation" + toString.str() + ";\n"
     "uniform sampler2D shadowMap" + toString.str() + ";\n"
     "uniform mat4 shadowTransform" + toString.str() + ";\n";
     }
@@ -429,7 +441,9 @@ void vtkShadowMapPass::BuildShaderCode()
       {
       std::ostringstream toString2;
       toString2 << numSMT;
-      fimpl += "calcShadow(vertexVC, shadowMap" +toString2.str() + ", shadowTransform" + toString2.str() + ");\n";
+      fimpl += "calcShadow(vertexVC, shadowMap" +toString2.str() +
+        ", shadowTransform" + toString2.str() +
+        ", shadowAttenuation" + toString2.str() +");\n";
       numSMT++;
       }
     else
