@@ -222,75 +222,15 @@ int vtkQuadraticEdge::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 
 //----------------------------------------------------------------------------
 void vtkQuadraticEdge::Derivatives(int vtkNotUsed(subId),
-                                   double pcoords[3], double *values,
-                                   int dim, double *derivs)
+                                       double vtkNotUsed(pcoords)[3],
+                                       double *vtkNotUsed(values),
+                                       int vtkNotUsed(dim),
+                                       double *vtkNotUsed(derivs))
 {
-  double x0[3], x1[3], x2[3];
-  this->Points->GetPoint(0, x0);
-  this->Points->GetPoint(1, x1);
-  this->Points->GetPoint(2, x2); //midside node
-
-  // set up Jacobian matrix and inverse matrix
-  double *jTj[3], jTj0[3], jTj1[3], jTj2[3];
-  jTj[0] = jTj0; jTj[1] = jTj1; jTj[2] = jTj2;
-  double *jI[3], jI0[3], jI1[3], jI2[3];
-  jI[0] = jI0; jI[1] = jI1; jI[2] = jI2;
-  /*
-  double *iI[3], iI0[3], iI1[3], iI2[3];
-  iI[0] = iI0; iI[1] = iI1; iI[2] = iI2;
-  */
-  // Compute dx/dt, dy/dt, dz/dt
-  this->InterpolationDerivs(pcoords,derivs);
-  double dxdt = x0[0]*derivs[0] + x1[0]*derivs[1] + x2[0]*derivs[2];
-  double dydt = x0[1]*derivs[0] + x1[1]*derivs[1] + x2[1]*derivs[2];
-  double dzdt = x0[2]*derivs[0] + x1[2]*derivs[1] + x2[2]*derivs[2];
-
-  // Compute the pseudo inverse (we are dealing with an overconstrained system,
-  // i.e., a non-square Jacobian matrix). The pseudo inverse is ((jT*j)-1)*jT
-  // with jT Jacobian transpose, -1 notation means inverse.
-  // Compute jT * j
-  jTj[0][0] = dxdt*dxdt;
-  jTj[0][1] = dxdt*dydt;
-  jTj[0][2] = dxdt*dzdt;
-  jTj[1][0] = dydt*dxdt;
-  jTj[1][1] = dydt*dydt;
-  jTj[1][2] = dydt*dzdt;
-  jTj[2][0] = dzdt*dxdt;
-  jTj[2][1] = dzdt*dydt;
-  jTj[2][2] = dzdt*dzdt;
-
-  // Compute (jT * j) inverse
-  // now find the inverse
-  if ( vtkMath::InvertMatrix(jTj,jI,3) == 0 )
-    {
-    vtkErrorMacro(<<"Jacobian inverse not found");
-    return;
-    }
-
-  // Multiply inverse by transpose (jT * j) * jT to yield pseudo inverse.
-  // Here the pseudo inverse is a 3x1 matrix.
-  double inv[3];
-  inv[0] = jI[0][0]*dxdt + jI[0][1]*dydt + jI[0][2]*dzdt;
-  inv[1] = jI[1][0]*dxdt + jI[1][1]*dydt + jI[1][2]*dzdt;
-  inv[2] = jI[2][0]*dxdt + jI[2][1]*dydt + jI[2][2]*dzdt;
-
-  //now compute the derivates of the data values
-  double sum;
-  int i, j, k;
-  for (k=0; k<dim; k++)
-    {
-    sum = 0.0;
-    for ( i=0; i < 3; i++) //loop over interp. function derivatives
-      {
-      sum += derivs[i] * values[dim*i + k];
-      }
-    for (j=0; j < 3; j++) //loop over derivative directions
-      {
-      derivs[3*k + j] = sum*inv[j];
-      }
-    }
+  // TODO - if the effort is justified, someone should implement a correct
+  // version of this method
+  vtkErrorMacro( "Derivatives() is not implemented for this cell.");
 }
-
 
 //----------------------------------------------------------------------------
 // Clip this quadratic edge using scalar value provided. Like contouring,
