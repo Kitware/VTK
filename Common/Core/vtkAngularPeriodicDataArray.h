@@ -38,9 +38,15 @@ template <class Scalar>
 class vtkAngularPeriodicDataArray: public vtkPeriodicDataArray<Scalar>
 {
 public:
+  vtkAbstractTemplateTypeMacro(vtkAngularPeriodicDataArray<Scalar>,
+                               vtkPeriodicDataArray<Scalar>)
   vtkMappedDataArrayNewInstanceMacro(vtkAngularPeriodicDataArray<Scalar>);
   static vtkAngularPeriodicDataArray *New();
   virtual void PrintSelf(ostream &os, vtkIndent indent);
+
+  // Description:
+  // Initialize the mapped array with the original input data array.
+  virtual void InitializeArray(vtkAoSDataArrayTemplate<Scalar>* inputData);
 
   // Description:
   // Set/Get the rotation angle in degrees. Default is 0.

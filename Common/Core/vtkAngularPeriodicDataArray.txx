@@ -39,6 +39,27 @@ template <class Scalar> void vtkAngularPeriodicDataArray<Scalar>
 }
 
 //------------------------------------------------------------------------------
+template <class Scalar> void vtkAngularPeriodicDataArray<Scalar>
+::InitializeArray(vtkAoSDataArrayTemplate<Scalar>* data)
+{
+  this->Initialize();
+  if (!data)
+    {
+    vtkErrorMacro(<< "No original data provided.");
+    return;
+    }
+
+  if (data->GetNumberOfComponents() != 3 && data->GetNumberOfComponents() != 9)
+    {
+    vtkWarningMacro(<< "Original data has " << data->GetNumberOfComponents() <<
+                    " components, Expecting 3 or 9.");
+    return;
+    }
+
+  this->Superclass::InitializeArray(data);
+}
+
+//------------------------------------------------------------------------------
 template <class Scalar> void vtkAngularPeriodicDataArray<Scalar>::
 SetAngle(double angle)
 {

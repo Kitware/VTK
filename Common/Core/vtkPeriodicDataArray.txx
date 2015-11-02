@@ -61,13 +61,6 @@ template <class Scalar> void vtkPeriodicDataArray<Scalar>
     return;
     }
 
-  if (data->GetNumberOfComponents() != 3 && data->GetNumberOfComponents() != 9)
-    {
-    vtkWarningMacro(<< "Original data has " << data->GetNumberOfComponents() <<
-                    " components, Expecting 3 or 9.");
-    return;
-    }
-
   this->NumberOfComponents = data->GetNumberOfComponents();
   this->Size = data->GetSize();
   this->MaxId = data->GetMaxId();

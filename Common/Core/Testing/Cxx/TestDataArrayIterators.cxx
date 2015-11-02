@@ -18,12 +18,28 @@
 #include "vtkTypedDataArray.h"
 #include "vtkTypedDataArrayIterator.h"
 #include "vtkNew.h"
+#include "vtkPeriodicDataArray.h" // a typed data array subclass implementation
 
 #include <cassert>
 #include <iostream>
 
 // undefine this to print benchmark results:
 #define SILENT
+
+// Since vtkFloatArray etc are no longer derived from vtkTypedDataArray,
+// create a simple class that is:
+namespace
+{
+class MyArray : public vtkPeriodicDataArray<float>
+{
+public:
+  vtkTypeMacro(MyArray, vtkPeriodicDataArray<float>)
+  static MyArray *New();
+  void Transform(float *) const {/*no op*/}
+};
+
+vtkStandardNewMacro(MyArray)
+}
 
 int TestDataArrayIterators(int, char *[])
 {
@@ -42,6 +58,11 @@ int TestDataArrayIterators(int, char *[])
     array->SetValue(i, i % 97);
     }
 
+  // Create the vtkTypedDataArray testing implementation:
+  vtkNew<MyArray> tdaContainer;
+  MyArray *tda = tdaContainer.GetPointer();
+  tda->InitializeArray(array);
+
   // should be vtkDataArrayTemplate<float>::Iterator (float*):
   vtkFloatArray::Iterator datBegin = array->Begin();
   vtkFloatArray::Iterator datIter = array->Begin();
@@ -53,9 +74,9 @@ int TestDataArrayIterators(int, char *[])
 
   // should be vtkTypedDataArrayIterator<float>:
   vtkTypedDataArray<float>::Iterator tdaBegin =
-      vtkTypedDataArray<float>::FastDownCast(array)->Begin();
+      vtkTypedDataArray<float>::FastDownCast(tda)->Begin();
   vtkTypedDataArray<float>::Iterator tdaIter =
-      vtkTypedDataArray<float>::FastDownCast(array)->Begin();
+      vtkTypedDataArray<float>::FastDownCast(tda)->Begin();
   if (typeid(tdaBegin) != typeid(vtkTypedDataArrayIterator<float>))
     {
     std::cerr << "Error: vtkTypedDataArray<float>::Iterator is not a "

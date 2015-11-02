@@ -40,7 +40,7 @@ public:
 
   // Description:
   // Initialize the mapped array with the original input data array.
-  void InitializeArray(vtkAoSDataArrayTemplate<Scalar>* inputData);
+  virtual void InitializeArray(vtkAoSDataArrayTemplate<Scalar>* inputData);
 
   // Description:
   // Initialize array with zero values
