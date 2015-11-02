@@ -408,6 +408,7 @@ void MyProcess::Execute()
           }
         else
           {
+          std::cout << "FBOs are not supported by the context. Cannot perform z-compositing" << std::endl;
           retVal=vtkTesting::PASSED; // not supported.
           }
         }
