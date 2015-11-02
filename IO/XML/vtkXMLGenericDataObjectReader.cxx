@@ -42,6 +42,7 @@
 #include "vtkXMLStructuredGridReader.h"
 #include "vtkXMLUniformGridAMRReader.h"
 #include "vtkXMLUnstructuredGridReader.h"
+#include "vtkCommand.h"
 
 #include <cassert>
 
@@ -262,6 +263,15 @@ int vtkXMLGenericDataObjectReader::RequestDataObject(
     {
     this->Reader->SetFileName(this->GetFileName());
 //    this->Reader->SetStream(this->GetStream());
+    // Delegate the error observers
+    if (this->GetReaderErrorObserver())
+      {
+      this->Reader->AddObserver(vtkCommand::ErrorEvent, this->GetReaderErrorObserver());
+      }
+    if (this->GetParserErrorObserver())
+      {
+      this->Reader->SetParserErrorObserver(this->GetParserErrorObserver());
+      }
     // Delegate call. RequestDataObject() would be more appropriate but it is
     // protected.
     int result=this->Reader->ProcessRequest(request,inputVector,outputVector);

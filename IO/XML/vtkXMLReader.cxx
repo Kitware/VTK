@@ -38,6 +38,9 @@
 #include <cassert>
 #include <locale> // C++ locale
 
+vtkCxxSetObjectMacro(vtkXMLReader,ReaderErrorObserver,vtkCommand);
+vtkCxxSetObjectMacro(vtkXMLReader,ParserErrorObserver,vtkCommand);
+
 //-----------------------------------------------------------------------------
 static void ReadStringVersion(const char* version, int& major, int& minor)
 {
@@ -89,6 +92,8 @@ vtkXMLReader::vtkXMLReader()
   this->ReadFromInputString = 0;
   this->InputString = "";
   this->XMLParser = 0;
+  this->ReaderErrorObserver = 0;
+  this->ParserErrorObserver = 0;
   this->FieldDataElement = 0;
   this->PointDataArraySelection = vtkDataArraySelection::New();
   this->CellDataArraySelection = vtkDataArraySelection::New();
@@ -144,6 +149,14 @@ vtkXMLReader::~vtkXMLReader()
   this->SelectionObserver->Delete();
   this->CellDataArraySelection->Delete();
   this->PointDataArraySelection->Delete();
+  if (this->ReaderErrorObserver)
+    {
+    this->ReaderErrorObserver->Delete();
+    }
+  if (this->ParserErrorObserver)
+    {
+    this->ParserErrorObserver->Delete();
+    }
   delete[] this->TimeSteps;
 }
 
