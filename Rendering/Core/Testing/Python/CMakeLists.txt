@@ -13,7 +13,7 @@ vtk_add_test_python(
   PolyDataMapperAllWireframe.py
   ScalarBar.py
   TestCameraInterpolator.py
-  TestMapperLUT.py,NO_DATA,NO_VALID
+  TestMapperLUT.py,NO_VALID
   TestOnePoint.py
   # TestParallelCoordinates.py) # disabled in TCL too
   TestRotate.py
