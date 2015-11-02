@@ -7,6 +7,9 @@ import os
 import os.path
 import vtk
 from vtk.test import Testing
+from vtk.util.misc import vtkGetDataRoot
+
+VTK_DATA_ROOT = vtkGetDataRoot()
 
 class TestImagePlaneWidget(Testing.vtkTest):
     def testBug(self):
@@ -18,7 +21,7 @@ class TestImagePlaneWidget(Testing.vtkTest):
         v16 = vtk.vtkVolume16Reader()
         v16.SetDataDimensions(64, 64)
         v16.SetDataByteOrderToLittleEndian()
-        v16.SetFilePrefix(os.path.join(Testing.VTK_DATA_ROOT,
+        v16.SetFilePrefix(os.path.join(VTK_DATA_ROOT,
                                        "Data", "headsq", "quarter"))
         v16.SetImageRange(1, 93)
         v16.SetDataSpacing(3.2, 3.2, 1.5)
