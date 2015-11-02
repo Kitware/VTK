@@ -26,16 +26,15 @@
 #include <vtkTestUtilities.h>
 #include <vtkIOStream.h>
 
-int
-TestFixedWidthTextReader(int argc, char *argv[])
+int TestFixedWidthTextReader(int argc, char *argv[])
 {
-  cout << "### Pass 1: No headers, field width 10, do not strip whitespace" << endl;
+  std::cout << "### Pass 1: No headers, field width 10, do not strip whitespace" << std::endl;
 
   vtkIdType i, j;
   char *filename = vtkTestUtilities::ExpandDataFileName(argc, argv,
                                                         "Data/fixedwidth.txt");
 
-  cout << "Filename: " << filename << endl;
+  std::cout << "Filename: " << filename << std::endl;
 
   vtkFixedWidthTextReader *reader = vtkFixedWidthTextReader::New();
   reader->SetHaveHeaders(false);
@@ -43,24 +42,24 @@ TestFixedWidthTextReader(int argc, char *argv[])
   reader->StripWhiteSpaceOff();
   reader->SetFileName(filename);
   reader->Update();
-
-  cout << "Printing reader info..." << endl;
-  reader->Print(cout);
+  std::cout << "Printing reader info..." << std::endl;
+  reader->Print(std::cout);
 
   vtkTable *table = reader->GetOutput();
 
-  cout << "FixedWidth text file has " << table->GetNumberOfRows()
-       << " rows" << endl;
-  cout << "FixedWidth text file has " << table->GetNumberOfColumns()
-       << " columns" << endl;
-  cout << "Column names: " << endl;
+  std::cout << "FixedWidth text file has " << table->GetNumberOfRows()
+            << " rows" << std::endl;
+  std::cout << "FixedWidth text file has " << table->GetNumberOfColumns()
+            << " columns" << std::endl;
+  std::cout << "Column names: " << std::endl;
 
   for (i = 0; i < table->GetNumberOfColumns(); ++i)
     {
-    cout << "\tColumn " << i << ": " << table->GetColumn(i)->GetName() << endl;
+    std::cout << "\tColumn " << i << ": "
+              << table->GetColumn(i)->GetName() << std::endl;
     }
 
-  cout << "Table contents:" << endl;
+  std::cout << "Table contents:" << std::endl;
 
   for (i = 0; i < table->GetNumberOfRows(); ++i)
     {
@@ -68,17 +67,17 @@ TestFixedWidthTextReader(int argc, char *argv[])
 
     for (j = 0; j < row->GetNumberOfTuples(); ++j)
       {
-      cout << "Row " << i << " column " << j << ": ";
+      std::cout << "Row " << i << " column " << j << ": ";
 
       vtkVariant value = row->GetValue(j);
       if (! value.IsValid())
         {
-        cout << "invalid value" << endl;
+        std::cout << "invalid value" << std::endl;
         }
       else
         {
-        cout << "type " << value.GetTypeAsString() << " value "
-             << value.ToString() << endl;
+        std::cout << "type " << value.GetTypeAsString() << " value "
+             << value.ToString() << std::endl;
         }
       }
     }
@@ -98,22 +97,22 @@ TestFixedWidthTextReader(int argc, char *argv[])
   table = reader->GetOutput();
 
 
-  cout << endl << "### Test 2: headers, field width 10, strip whitespace" << endl;
+  std::cout << std::endl << "### Test 2: headers, field width 10, strip whitespace" << std::endl;
 
-  cout << "Printing reader info..." << endl;
-  reader->Print(cout);
+  std::cout << "Printing reader info..." << std::endl;
+  reader->Print(std::cout);
 
-  cout << "FixedWidth text file has " << table->GetNumberOfRows()
-       << " rows" << endl;
-  cout << "FixedWidth text file has " << table->GetNumberOfColumns()
-       << " columns" << endl;
-  cout << "Column names: " << endl;
+  std::cout << "FixedWidth text file has " << table->GetNumberOfRows()
+       << " rows" << std::endl;
+  std::cout << "FixedWidth text file has " << table->GetNumberOfColumns()
+       << " columns" << std::endl;
+  std::cout << "Column names: " << std::endl;
   for (i = 0; i < table->GetNumberOfColumns(); ++i)
     {
-    cout << "\tColumn " << i << ": " << table->GetColumn(i)->GetName() << endl;
+    std::cout << "\tColumn " << i << ": " << table->GetColumn(i)->GetName() << std::endl;
     }
 
-  cout << "Table contents:" << endl;
+  std::cout << "Table contents:" << std::endl;
 
   for (i = 0; i < table->GetNumberOfRows(); ++i)
     {
@@ -121,17 +120,17 @@ TestFixedWidthTextReader(int argc, char *argv[])
 
     for (j = 0; j < row->GetNumberOfTuples(); ++j)
       {
-      cout << "Row " << i << " column " << j << ": ";
+      std::cout << "Row " << i << " column " << j << ": ";
 
       vtkVariant value = row->GetValue(j);
       if (! value.IsValid())
         {
-        cout << "invalid value" << endl;
+        std::cout << "invalid value" << std::endl;
         }
       else
         {
-        cout << "type " << value.GetTypeAsString() << " value "
-             << value.ToString() << endl;
+        std::cout << "type " << value.GetTypeAsString() << " value "
+             << value.ToString() << std::endl;
         }
       }
     }
