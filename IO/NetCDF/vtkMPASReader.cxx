@@ -2395,7 +2395,7 @@ void vtkMPASReader::LoadTimeFieldData(vtkUnstructuredGrid *dataset)
     }
 
   // If the xtime variable exists, use its value at the current timestep:
-  vtkStdString time;
+  std::string time;
   if (isNcVar(this->Internals->ncFile, "xtime"))
     {
     NcVar *var = this->Internals->ncFile->get_var("xtime");
