@@ -20,7 +20,7 @@ vtkVolume16Reader v16
     v16 SetDataSpacing 3.2 3.2 1.5
 vtkExtractVOI extract
     extract SetInputConnection [v16 GetOutputPort]
-    extract SetVOI 32 32 0 63 0 93
+    extract SetVOI 32 32 0 63 0 92
 vtkTexture atext
     atext SetInputConnection [extract GetOutputPort]
     atext InterpolateOn
