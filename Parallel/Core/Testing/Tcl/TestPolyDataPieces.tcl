@@ -50,7 +50,7 @@ vtkPipelineSize psize
 if {[psize GetEstimatedSize extract2 0 0] > 100} {
    puts stderr "ERROR: Pipeline Size increased"
 }
-if {[psize GetNumberOfSubPieces 10 mapper2] != 2} {
+if {[psize GetNumberOfSubPieces 10 mapper2] != 1} {
    puts stderr "ERROR: Number of sub pieces changed"
 }
 
