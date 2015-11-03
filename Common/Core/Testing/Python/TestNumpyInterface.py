@@ -65,18 +65,21 @@ elev3 = cd3.PointData['Elevation']
 
 npa = randomVec.Arrays[0]
 
+def compare(arr, tol):
+    assert algs.all(algs.abs(arr) < tol)
+
 # Test operators
-assert algs.all(1 + randomVec - 1 - randomVec < 1E-4)
+compare(1 + randomVec - 1 - randomVec, 1E-4)
 
 assert (1 + randomVec).DataSet is randomVec.DataSet
 
 # Test slicing and indexing
-assert algs.all(randomVec[randomVec[:,0] > 0.2].Arrays[0] - npa[npa[:,0] > 0.2] < 1E-7)
-assert algs.all(randomVec[algs.where(randomVec[:,0] > 0.2)].Arrays[0] - npa[numpy.where(npa[:,0] > 0.2)] < 1E-7)
-assert algs.all(randomVec[dsa.VTKCompositeDataArray([(slice(None, None, None), slice(0,2,None)), 2])].Arrays[0] - npa[:, 0:2] < 1E-6)
+compare(randomVec[randomVec[:,0] > 0.2].Arrays[0] - npa[npa[:,0] > 0.2], 1E-7)
+compare(randomVec[algs.where(randomVec[:,0] > 0.2)].Arrays[0] - npa[numpy.where(npa[:,0] > 0.2)], 1E-7)
+compare(randomVec[dsa.VTKCompositeDataArray([(slice(None, None, None), slice(0,2,None)), 2])].Arrays[0] - npa[:, 0:2], 1E-6)
 
 # Test ufunc
-assert algs.all(algs.cos(randomVec) - numpy.cos(npa) < 1E-7)
+compare(algs.cos(randomVec) - numpy.cos(npa), 1E-7)
 assert algs.cos(randomVec).DataSet is randomVec.DataSet
 
 # Various numerical ops implemented in VTK
@@ -119,14 +122,14 @@ g2.Update()
 sphere = dsa.CompositeDataSet(g2.GetOutput())
 
 vn = algs.vertex_normal(sphere)
-assert algs.all(algs.mag(vn) - 1 < 1E-6)
+compare(algs.mag(vn) - 1, 1E-6)
 
 sn = algs.surface_normal(sphere)
-assert algs.all(algs.mag(sn) - 1 < 1E-6)
+compare(algs.mag(sn) - 1, 1E-6)
 
 dot = algs.dot(vn, vn)
 assert dot.DataSet is sphere
-assert algs.all(dot == 1)
+compare(dot - 1, 1E-6)
 assert algs.all(algs.cross(vn, vn) == [0, 0, 0])
 
 fd = sphere.FieldData['field array']
