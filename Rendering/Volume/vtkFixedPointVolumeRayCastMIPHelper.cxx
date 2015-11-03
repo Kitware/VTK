@@ -228,7 +228,7 @@ void vtkFixedPointMIPHelperGenerateImageIndependentNN(
   VTKKWRCHelper_SpaceLeapSetupMulti();
 
   int maxValueDefined = 0;
-  unsigned short maxIdx[4];
+  unsigned short maxIdx[4] = {0, 0, 0, 0};
 
   for ( k = 0; k < numSteps; k++ )
     {
