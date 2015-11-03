@@ -55,6 +55,9 @@ public:
   /** Determine if the buffer object is ready to be used. */
   bool IsReady() const { return this->Dirty == false; }
 
+  /** Generate the the opengl buffer for this Handle */
+  bool GenerateBuffer(ObjectType type);
+
   /**
    * Upload data to the buffer object. The BufferObject::type() must match
    * @a type or be uninitialized.
