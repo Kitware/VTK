@@ -156,6 +156,8 @@ vtkPolyData *vtkSmoothPolyDataFilter::GetSource()
 #define VTK_FEATURE_EDGE_VERTEX 2
 #define VTK_BOUNDARY_EDGE_VERTEX 3
 
+namespace {
+
 // Special structure for marking vertices
 typedef struct _vtkMeshVertex
   {
@@ -200,35 +202,42 @@ template<typename T> void vtkSPDF_MovePoints(vtkSPDF_InternalParams<T>& params)
       }
 
     maxDist = 0.0;
-    T* dataP = static_cast<T*>(params.newPts->GetVoidPointer(0));
-    T* start = dataP;
+    T* newPtsCoords = static_cast<T*>(params.newPts->GetVoidPointer(0));
+    T* start = newPtsCoords;
     vtkMeshVertexPtr vertsPtr = params.vertexPtr;
     vtkIdType npts, *edgeIdPtr;
-    T dist, deltaX[3], y[3];
+    T dist, deltaX[3];
     double dist2, xNew[3], closestPt[3];
 
+    // For each non-fixed vertex of the mesh, move the point toward the mean
+    // position of its connected neighbors using the relaxation factor.
     for (vtkIdType i = 0; i < params.numPts; ++i)
       {
       if (vertsPtr->type != VTK_FIXED_VERTEX && vertsPtr->edges != NULL &&
          (npts = vertsPtr->edges->GetNumberOfIds()) > 0)
         {
+        deltaX[0] = deltaX[1] = deltaX[2] = 0.0;
         edgeIdPtr = vertsPtr->edges->GetPointer(0);
-        memcpy(deltaX, start + 3 * (*edgeIdPtr++), 3 * sizeof(T));
-
-        for (vtkIdType j = 1; j < npts; ++j)
+        // Compute the mean (cumulated) direction vector
+        for (vtkIdType j = 0; j < npts; ++j)
           {
-          memcpy(y, start + 3 * (*edgeIdPtr++), 3 * sizeof(T));
-          deltaX[0] += y[0];
-          deltaX[1] += y[1];
-          deltaX[2] += y[2];
+          for (unsigned short k = 0; k < 3; ++k)
+            {
+            deltaX[k] += *(start + 3 * (*edgeIdPtr) + k);
+            }
+          ++edgeIdPtr;
           }//for all connected points
 
-        *dataP += params.factor * (deltaX[0] / npts - (*dataP));
-        xNew[0] = *dataP++;
-        *dataP += params.factor * (deltaX[1] / npts - (*dataP));
-        xNew[1] = *dataP++;
-        *dataP += params.factor * (deltaX[2] / npts - (*dataP));
-        xNew[2] = *dataP++;
+        // Move the point
+        *newPtsCoords += params.factor * (deltaX[0] / npts - (*newPtsCoords));
+        xNew[0] = *newPtsCoords;
+        ++newPtsCoords;
+        *newPtsCoords += params.factor * (deltaX[1] / npts - (*newPtsCoords));
+        xNew[1] = *newPtsCoords;
+        ++newPtsCoords;
+        *newPtsCoords += params.factor * (deltaX[2] / npts - (*newPtsCoords));
+        xNew[2] = *newPtsCoords;
+        ++newPtsCoords;
 
         // Constrain point to surface
         if (params.source)
@@ -261,7 +270,7 @@ template<typename T> void vtkSPDF_MovePoints(vtkSPDF_InternalParams<T>& params)
         }//if can move point
         else
           {
-          dataP += 3;
+          newPtsCoords += 3;
           }
         ++vertsPtr;
       }//for all points
@@ -269,6 +278,8 @@ template<typename T> void vtkSPDF_MovePoints(vtkSPDF_InternalParams<T>& params)
 
   vtkDebugWithObjectMacro(params.spdf, << "Performed " << iterationNumber << " smoothing passes");
 }
+
+}// namespace
 
 int vtkSmoothPolyDataFilter::RequestData(
   vtkInformation *vtkNotUsed(request),
