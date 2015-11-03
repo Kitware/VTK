@@ -25,11 +25,6 @@
 #ifndef vtkUnsignedIntArray_h
 #define vtkUnsignedIntArray_h
 
-// Tell the template header how to give our superclass a DLL interface.
-#if !defined(vtkUnsignedIntArray_cxx)
-# define VTK_DATA_ARRAY_TEMPLATE_TYPE unsigned int
-#endif
-
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkDataArray.h"
 #include "vtkAoSDataArrayTemplate.h" // Real Superclass

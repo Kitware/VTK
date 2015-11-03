@@ -25,11 +25,6 @@
 #ifndef vtkLongLongArray_h
 #define vtkLongLongArray_h
 
-// Tell the template header how to give our superclass a DLL interface.
-#if !defined(vtkLongLongArray_cxx)
-# define VTK_DATA_ARRAY_TEMPLATE_TYPE long long
-#endif
-
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkDataArray.h"
 #include "vtkAoSDataArrayTemplate.h" // Real Superclass

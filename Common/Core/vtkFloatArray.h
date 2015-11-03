@@ -21,11 +21,6 @@
 #ifndef vtkFloatArray_h
 #define vtkFloatArray_h
 
-// Tell the template header how to give our superclass a DLL interface.
-#if !defined(vtkFloatArray_cxx)
-# define VTK_DATA_ARRAY_TEMPLATE_TYPE float
-#endif
-
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkDataArray.h"
 #include "vtkAoSDataArrayTemplate.h" // Real Superclass

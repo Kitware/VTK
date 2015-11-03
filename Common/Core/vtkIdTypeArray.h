@@ -21,11 +21,6 @@
 #ifndef vtkIdTypeArray_h
 #define vtkIdTypeArray_h
 
-// Tell the template header how to give our superclass a DLL interface.
-#if !(defined(vtkIdTypeArray_cxx) && defined(VTK_USE_64BIT_IDS)) && (defined(VTK_USE_64BIT_IDS) || !defined(vtkIntArray_h))
-# define VTK_DATA_ARRAY_TEMPLATE_TYPE vtkIdType
-#endif
-
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkDataArray.h"
 #include "vtkAoSDataArrayTemplate.h" // Real Superclass

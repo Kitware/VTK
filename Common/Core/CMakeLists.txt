@@ -142,6 +142,7 @@ SET(Module_SRCS
   vtkAbstractArray.cxx
   vtkAngularPeriodicDataArray.txx
   vtkAnimationCue.cxx
+  vtkAoSDataArrayTemplate.txx
   vtkArrayCoordinates.cxx
   vtkArray.cxx
   vtkArrayExtents.cxx
@@ -273,8 +274,6 @@ SET(Module_SRCS
 set(${vtk-module}_HDRS
   vtkABI.h
   vtkAngularPeriodicDataArray.h
-  vtkAoSDataArrayTemplate.h
-  vtkAoSDataArrayTemplate.txx
   vtkArrayDispatch.h
   vtkArrayDispatch.txx
   vtkArrayInterpolate.h
@@ -574,6 +573,8 @@ set_source_files_properties(
   )
 
 set_source_files_properties(
+  vtkAoSDataArrayTemplate.h
+  vtkAoSDataArrayTemplate.txx
   vtkArrayCoordinates.cxx
   vtkArrayExtents.cxx
   vtkArrayExtentsList.cxx
@@ -601,7 +602,6 @@ set_source_files_properties(
   vtkVariant.cxx
   vtkWeakPointerBase.cxx
   vtkUnicodeString.cxx
-  vtkDataArrayTemplate.h
   vtkDataArrayPrivate.txx
 
   vtkABI.h
@@ -617,8 +617,6 @@ set_source_files_properties(
   vtkAtomicTypeConcepts.h
   vtkAtomicTypes.h
   vtkAutoInit.h
-  vtkDataArrayTemplateHelper.cxx
-  vtkDataArrayTemplateImplicit.txx
   vtkDenseArray.txx
   vtkGenericDataArrayHelpers.h
   vtkInformationInternals.h
@@ -660,12 +658,10 @@ set_source_files_properties(
 # python uses WRAP_EXCLUDE_PYTHON and ignores WRAP_EXCLUDE
 set_source_files_properties(
   vtkABI.h
+  vtkAoSDataArrayTemplate.txx
   vtkAtomic.h
   vtkAutoInit.h
-  vtkDataArrayTemplate.txx
-  vtkDataArrayTemplateHelper.cxx
-  vtkDataArrayTemplateImplicit.txx
-  vtkIOStream.h
+  vtkIOStream.cxx
   vtkIOStreamFwd.h
   vtkLargeInteger.cxx
   vtkOldStyleCallbackCommand.cxx
@@ -684,7 +680,7 @@ set_source_files_properties(
 )
 
 set_source_files_properties(
-  vtkDataArrayTemplate.h
+  vtkAoSDataArrayTemplate.h
   vtkDenseArray.h
   vtkSparseArray.h
   vtkTypedArray.h

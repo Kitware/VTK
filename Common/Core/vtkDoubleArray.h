@@ -21,11 +21,6 @@
 #ifndef vtkDoubleArray_h
 #define vtkDoubleArray_h
 
-// Tell the template header how to give our superclass a DLL interface.
-#if !defined(vtkDoubleArray_cxx)
-# define VTK_DATA_ARRAY_TEMPLATE_TYPE double
-#endif
-
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkDataArray.h"
 #include "vtkAoSDataArrayTemplate.h" // Real Superclass

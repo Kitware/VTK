@@ -221,8 +221,11 @@ public:
     {
     // Update MaxId to the inserted component (not the complete tuple) for
     // compatibility with InsertNextValue.
-    vtkIdType newMaxId = std::max(tupleIdx * this->NumberOfComponents + compIdx,
-                                  this->MaxId);
+    vtkIdType newMaxId = tupleIdx * this->NumberOfComponents + compIdx;
+    if (newMaxId < this->MaxId)
+      {
+      newMaxId = this->MaxId;
+      }
     this->EnsureAccessToTuple(tupleIdx);
     assert("Sufficient space allocated." && this->MaxId >= newMaxId);
     this->MaxId = newMaxId;
@@ -363,7 +366,7 @@ public:
     vtkIdType tuple = idx / this->NumberOfComponents;
     // Update MaxId to the inserted component (not the complete tuple) for
     // compatibility with InsertNextValue.
-    vtkIdType newMaxId = std::max(idx, this->MaxId);
+    vtkIdType newMaxId = idx > this->MaxId ? idx : this->MaxId;
     if (this->EnsureAccessToTuple(tuple))
       {
       assert("Sufficient space allocated." && this->MaxId >= newMaxId);
