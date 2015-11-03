@@ -236,7 +236,8 @@ class TestVTKFiles:
                 rm = regx.match(lastline + line)
             if rm:
                 export = rm.group(1)
-                export = export.strip()
+                if export:
+                    export = export.strip()
                 cname = rm.group(2)
                 pname = rm.group(3)
                 classlines.append(" %4d: %s" % (cc, line))
