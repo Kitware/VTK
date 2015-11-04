@@ -14,6 +14,8 @@
  =========================================================================*/
 #include "vtkPUnstructuredGridGhostDataGenerator.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
+
 // VTK includes
 #include "vtkDataObject.h"
 #include "vtkInformation.h"
@@ -33,6 +35,9 @@ vtkStandardNewMacro(vtkPUnstructuredGridGhostDataGenerator);
 //------------------------------------------------------------------------------
 vtkPUnstructuredGridGhostDataGenerator::vtkPUnstructuredGridGhostDataGenerator()
 {
+  VTK_LEGACY_BODY(
+    vtkPUnstructuredGridGhostDataGenerator::vtkPUnstructuredGridGhostDataGenerator,
+    "VTK 7.0");
   this->GhostZoneBuilder = NULL;
   this->Controller = vtkMultiProcessController::GetGlobalController();
   this->SetNumberOfInputPorts(1);
@@ -118,3 +123,5 @@ int vtkPUnstructuredGridGhostDataGenerator::RequestData(
   ghostedGrid->DeepCopy(this->GhostZoneBuilder->GetGhostedGrid());
   return 1;
 }
+
+#endif //VTK_LEGACY_REMOVE

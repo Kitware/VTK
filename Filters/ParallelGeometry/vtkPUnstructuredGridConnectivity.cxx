@@ -14,6 +14,8 @@
  =========================================================================*/
 #include "vtkPUnstructuredGridConnectivity.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
+
 // VTK includes
 #include "vtkBoundingBox.h"
 #include "vtkCell.h"
@@ -583,6 +585,10 @@ vtkStandardNewMacro(vtkPUnstructuredGridConnectivity);
 //------------------------------------------------------------------------------
 vtkPUnstructuredGridConnectivity::vtkPUnstructuredGridConnectivity()
 {
+  VTK_LEGACY_BODY(
+    vtkPUnstructuredGridConnectivity::vtkPUnstructuredGridConnectivity,
+    "VTK 7.0");
+
  this->InputGrid         = NULL;
  this->GhostedGrid       = NULL;
  this->Controller        = NULL;
@@ -2050,3 +2056,5 @@ void vtkPUnstructuredGridConnectivity::WriteUnstructuredGrid(
   writer->Update();
   writer->Delete();
 }
+
+#endif //VTK_LEGACY_REMOVE

@@ -18,6 +18,8 @@
 // .SECTION Description
 //  This filter uses internally the vtkPUnstructuredGridConnectivity helper
 //  class to construct ghost zones for a distributed unstructured grid.
+// @deprecated Not maintained as of VTK 7.0 and will be removed eventually.
+// Use vtkPUnstructuredGridGhostCellsGenerator instead.
 //
 // .SECTION Caveats
 //  <ul>
@@ -30,13 +32,15 @@
 //  </ul>
 //
 // .SECTION See Also
-//  vtkPUnstructuredGridConnectivity
+//  vtkPUnstructuredGridConnectivity vtkPUnstructuredGridGhostCellsGenerator
 
 #ifndef vtkPUnstructuredGridGhostDataGenerator_h
 #define vtkPUnstructuredGridGhostDataGenerator_h
 
 #include "vtkFiltersParallelGeometryModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
+
+#if !defined(VTK_LEGACY_REMOVE)
 
 // Forward Declarations
 class vtkIndent;
@@ -72,4 +76,5 @@ private:
   void operator=(const vtkPUnstructuredGridGhostDataGenerator&); // Not implemented
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif /* vtkPUnstructuredGridGhostDataGenerator_h */
