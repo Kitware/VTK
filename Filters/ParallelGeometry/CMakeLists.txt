@@ -4,6 +4,7 @@ set(Module_SRCS
   vtkPStructuredGridGhostDataGenerator.cxx
   vtkPUniformGridGhostDataGenerator.cxx
   vtkPUnstructuredGridConnectivity.cxx
+  vtkPUnstructuredGridGhostCellsGenerator.cxx
   vtkPUnstructuredGridGhostDataGenerator.cxx
   )
 
