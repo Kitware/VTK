@@ -657,7 +657,15 @@ void vtkGenericCompositePolyDataMapper2::RenderBlock(vtkRenderer *renderer,
 
 void vtkGenericCompositePolyDataMapper2::CopyMapperValuesToHelper(vtkCompositeMapperHelper *helper)
 {
-  helper->vtkOpenGLPolyDataMapper::ShallowCopy(this);
+  // We avoid PolyDataMapper::ShallowCopy because it copies the input
+  helper->vtkMapper::ShallowCopy(this);
+  helper->SetPointIdArrayName(this->GetPointIdArrayName());
+  helper->SetCompositeIdArrayName(this->GetCompositeIdArrayName());
+  helper->SetProcessIdArrayName(this->GetProcessIdArrayName());
+  helper->SetCellIdArrayName(this->GetCellIdArrayName());
+  helper->SetVertexShaderCode(this->GetVertexShaderCode());
+  helper->SetGeometryShaderCode(this->GetGeometryShaderCode());
+  helper->SetFragmentShaderCode(this->GetFragmentShaderCode());
   helper->SetStatic(1);
 }
 
