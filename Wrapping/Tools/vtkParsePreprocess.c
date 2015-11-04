@@ -377,41 +377,66 @@ static int preproc_skip_parentheses(StringTokenizer *tokens)
   return VTK_PARSE_SYNTAX_ERROR;
 }
 
-
 /** Evaluate a char literal to an integer value. */
 static int preproc_evaluate_char(
   const char *cp, preproc_int_t *val, int *is_unsigned)
 {
-  if (cp[0] == '\'')
+  size_t i = 0;
+  preproc_int_t code = 0;
+  int typecode = 0;
+
+  if (cp[0] == 'u' && cp[1] == '8')
+    {
+    cp += 2;
+    }
+  else if (cp[0] == 'u' || cp[0] == 'U' || cp[0] == 'L')
+    {
+    typecode = cp[0];
+    cp++;
+    }
+
+  if (*cp == '\'')
     {
     cp++;
     if (*cp != '\\')
       {
-      *val = *cp;
+      code = vtkParse_DecodeUtf8(&cp, NULL);
       }
     else if (*cp != '\'' && *cp != '\n' && *cp != '\0')
       {
       cp++;
-      if (*cp == 'a') { *val = '\a'; }
-      else if (*cp == 'b') { *val = '\b'; }
-      else if (*cp == 'f') { *val = '\f'; }
-      else if (*cp == 'n') { *val = '\n'; }
-      else if (*cp == 'r') { *val = '\r'; }
-      else if (*cp == 't') { *val = '\t'; }
-      else if (*cp == 'v') { *val = '\v'; }
-      else if (*cp == '\'') { *val = '\''; }
-      else if (*cp == '\"') { *val = '\"'; }
-      else if (*cp == '\\') { *val = '\\'; }
-      else if (*cp == '\?') { *val = '\?'; }
-      else if (*cp == '0')
+      if (*cp == 'a') { *val = '\a'; cp++; }
+      else if (*cp == 'b') { *val = '\b'; cp++; }
+      else if (*cp == 'f') { *val = '\f'; cp++; }
+      else if (*cp == 'n') { *val = '\n'; cp++; }
+      else if (*cp == 'r') { *val = '\r'; cp++; }
+      else if (*cp == 't') { *val = '\t'; cp++; }
+      else if (*cp == 'v') { *val = '\v'; cp++; }
+      else if (*cp == '\'') { *val = '\''; cp++; }
+      else if (*cp == '\"') { *val = '\"'; cp++; }
+      else if (*cp == '\\') { *val = '\\'; cp++; }
+      else if (*cp == '\?') { *val = '\?'; cp++; }
+      else if (*cp >= '0' && *cp <= '7')
         {
-        *val = string_to_preproc_int(cp, 8);
-        do { cp++; } while (*cp >= '0' && *cp <= '7');
+        code = string_to_preproc_int(cp, 8);
+        do { cp++; i++; } while (i < 4 && *cp >= '0' && *cp <= '7');
         }
       else if (*cp == 'x')
         {
-        *val = string_to_preproc_int(cp+1, 16);
+        code = string_to_preproc_int(cp+1, 16);
         do { cp++; } while (vtkParse_CharType(*cp, CPRE_HEX));
+        }
+      else if (*cp == 'u')
+        {
+        code = string_to_preproc_int(cp+1, 16);
+        do { cp++; i++; } while (i < 5 && vtkParse_CharType(*cp, CPRE_HEX));
+        if (i != 5) { cp -= i; }
+        }
+      else if (*cp == 'U')
+        {
+        code = string_to_preproc_int(cp+1, 16);
+        do { cp++; i++; } while (i < 9 && vtkParse_CharType(*cp, CPRE_HEX));
+        if (i != 9) { cp -= i; }
         }
       }
     if (*cp != '\'')
@@ -421,10 +446,21 @@ static int preproc_evaluate_char(
 #endif
       return VTK_PARSE_SYNTAX_ERROR;
       }
+    if (typecode == 0)
+      {
+      *val = (char)code;
+      }
+    else if (typecode == 'L')
+      {
+      *val = (wchar_t)code;
+      }
+    else
+      {
+      *val = code;
+      }
     *is_unsigned = 0;
     return VTK_PARSE_OK;
     }
-
 #if PREPROC_DEBUG
   fprintf(stderr, "syntax error %d\n", __LINE__);
 #endif
@@ -435,7 +471,10 @@ static int preproc_evaluate_char(
 static int preproc_evaluate_integer(
   const char *cp, preproc_int_t *val, int *is_unsigned)
 {
+  char temp[72];
   const char *ep;
+  size_t apos = 0;
+  size_t i = 0;
   int base = 0;
   ep = cp;
 
@@ -448,6 +487,27 @@ static int preproc_evaluate_integer(
     while (vtkParse_CharType(*ep, CPRE_HEX))
       {
       ep++;
+      if (*ep == '\'' && vtkParse_CharType(ep[1], CPRE_HEX))
+        {
+        apos++;
+        ep += 2;
+        }
+      }
+    }
+  else if (cp[0] == '0' && (cp[1] == 'b' || cp[1] == 'B'))
+    {
+    cp += 2;
+    base = 2;
+    *is_unsigned = 1;
+    ep = cp;
+    while (*ep >= '0' && *ep <= '1')
+      {
+      ep++;
+      if (*ep == '\'' && ep[1] >= '0' && ep[1] <= '1')
+        {
+        apos++;
+        ep += 2;
+        }
       }
     }
   else if (cp[0] == '0' && vtkParse_CharType(cp[1], CPRE_DIGIT))
@@ -459,6 +519,11 @@ static int preproc_evaluate_integer(
     while (*ep >= '0' && *ep <= '7')
       {
       ep++;
+      if (*ep == '\'' && ep[1] >= '0' && ep[1] <= '7')
+        {
+        apos++;
+        ep += 2;
+        }
       }
     }
   else
@@ -468,7 +533,35 @@ static int preproc_evaluate_integer(
     while (vtkParse_CharType(*ep, CPRE_DIGIT))
       {
       ep++;
+      if (*ep == '\'' && vtkParse_CharType(ep[1], CPRE_DIGIT))
+        {
+        apos++;
+        ep += 2;
+        }
       }
+    }
+
+  if (*ep == '.' ||
+      ((ep[0] == 'e' || ep[0] == 'E') &&
+       (vtkParse_CharType(ep[1], CPRE_SIGN) ||
+        vtkParse_CharType(ep[1], CPRE_DIGIT))))
+    {
+    *val = 0;
+    return VTK_PARSE_PREPROC_DOUBLE;
+    }
+
+  if (apos > 0 && ep-cp-apos < sizeof(temp))
+    {
+    while (cp != ep)
+      {
+      if (*cp != '\'')
+        {
+        temp[i++] = *cp;
+        }
+      ++cp;
+      }
+    temp[i++] = '\0';
+    cp = temp;
     }
 
   for (;;)
@@ -486,11 +579,6 @@ static int preproc_evaluate_integer(
   else
     {
     *val = string_to_preproc_int(cp, base);
-    }
-
-  if (*ep == '.' || *ep == 'e' || *ep == 'E')
-    {
-    return VTK_PARSE_PREPROC_DOUBLE;
     }
 
   return VTK_PARSE_OK;
@@ -1551,7 +1639,7 @@ const char *preproc_find_include_file(
 
   /* check for absolute path of form DRIVE: or /path/to/file */
   j = 0;
-  while (vtkParse_CharType(filename[j], CPRE_IDGIT)) { j++; }
+  while (vtkParse_CharType(filename[j], CPRE_XID)) { j++; }
 
   if (filename[j] == ':' || filename[0] == '/' || filename[0] == '\\')
     {
@@ -2066,13 +2154,13 @@ static int preproc_include_file(
             ((j > 2 &&
               (line[j-3] == 'u' || line[j-2] == '8') &&
               (j == 3 ||
-               !vtkParse_CharType(line[j-4], CPRE_IDGIT|CPRE_QUOTE))) ||
+               !vtkParse_CharType(line[j-4], CPRE_XID|CPRE_QUOTE))) ||
              (j > 1 &&
               (line[j-2] == 'u' || line[j-2] == 'U' || line[j-2] == 'L') &&
               (j == 2 ||
-               !vtkParse_CharType(line[j-3], CPRE_IDGIT|CPRE_QUOTE))) ||
+               !vtkParse_CharType(line[j-3], CPRE_XID|CPRE_QUOTE))) ||
              (j == 1 ||
-              !vtkParse_CharType(line[j-2], CPRE_IDGIT|CPRE_QUOTE))))
+              !vtkParse_CharType(line[j-2], CPRE_XID|CPRE_QUOTE))))
           {
           state = '(';
           d = j + 1;

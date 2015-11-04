@@ -779,7 +779,7 @@ size_t vtkParse_ValueInfoFromString(
     pointer_bits = (pointer_bits << 2);
     while (vtkParse_CharType(*cp, CPRE_HSPACE)) { cp++; }
     if (strncmp(cp, "const", 5) == 0 &&
-        !vtkParse_CharType(cp[5], CPRE_IDGIT))
+        !vtkParse_CharType(cp[5], CPRE_XID))
       {
       cp += 5;
       while (vtkParse_CharType(*cp, CPRE_HSPACE)) { cp++; }

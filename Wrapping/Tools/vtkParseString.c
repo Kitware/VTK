@@ -50,33 +50,35 @@ unsigned char parse_charbits[256] = {
   CPRE_DIGIT|CPRE_HEX, CPRE_DIGIT|CPRE_HEX,
   CPRE_DIGIT|CPRE_HEX, /* 9 */
   0, 0, 0, 0, 0, 0, 0, /* :;<=>?@ */
-  CPRE_ID|CPRE_HEX, /* A */
-  CPRE_ID|CPRE_HEX, CPRE_ID|CPRE_HEX, CPRE_ID|CPRE_HEX, /* BCD */
-  CPRE_ID|CPRE_HEX|CPRE_EXP, /* E */
-  CPRE_ID|CPRE_HEX, CPRE_ID, CPRE_ID, CPRE_ID, /* FGHI */
+  CPRE_ID|CPRE_HEX, CPRE_ID|CPRE_HEX, CPRE_ID|CPRE_HEX, /* ABC */
+  CPRE_ID|CPRE_HEX, CPRE_ID|CPRE_HEX, CPRE_ID|CPRE_HEX, /* DEF */
+  CPRE_ID, CPRE_ID, CPRE_ID, /* GHI */
   CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, /* JKLM */
-  CPRE_ID, CPRE_ID, CPRE_ID|CPRE_EXP, CPRE_ID, /* NOPQ */
+  CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, /* NOPQ */
   CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, /* RSTU */
   CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, /* VWXY */
   CPRE_ID, /* Z */
   0, 0, 0, 0, /* [\\]^ */
   CPRE_ID, /* _ */
   0, /* ` */
-  CPRE_ID|CPRE_HEX, /* a */
-  CPRE_ID|CPRE_HEX, CPRE_ID|CPRE_HEX, CPRE_ID|CPRE_HEX, /* bcd */
-  CPRE_ID|CPRE_HEX|CPRE_EXP, /* e */
-  CPRE_ID|CPRE_HEX, CPRE_ID, CPRE_ID, CPRE_ID, /* fghi */
+  CPRE_ID|CPRE_HEX, CPRE_ID|CPRE_HEX, CPRE_ID|CPRE_HEX, /* abc */
+  CPRE_ID|CPRE_HEX, CPRE_ID|CPRE_HEX, CPRE_ID|CPRE_HEX, /* def */
+  CPRE_ID, CPRE_ID, CPRE_ID, /* ghi */
   CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, /* jklm */
-  CPRE_ID, CPRE_ID, CPRE_ID|CPRE_EXP, CPRE_ID, /* nopq */
+  CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, /* nopq */
   CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, /* rstu */
   CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, /* vwxy */
   CPRE_ID, /* z */
   0, 0, 0, 0, /* {|}~ */
   0, /* '\x7f' */
-  CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID,
-  CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID,
-  CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID,
-  CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID, CPRE_ID,
+  CPRE_EXTEND, CPRE_EXTEND, CPRE_EXTEND, CPRE_EXTEND,
+  CPRE_EXTEND, CPRE_EXTEND, CPRE_EXTEND, CPRE_EXTEND,
+  CPRE_EXTEND, CPRE_EXTEND, CPRE_EXTEND, CPRE_EXTEND,
+  CPRE_EXTEND, CPRE_EXTEND, CPRE_EXTEND, CPRE_EXTEND,
+  CPRE_EXTEND, CPRE_EXTEND, CPRE_EXTEND, CPRE_EXTEND,
+  CPRE_EXTEND, CPRE_EXTEND, CPRE_EXTEND, CPRE_EXTEND,
+  CPRE_EXTEND, CPRE_EXTEND, CPRE_EXTEND, CPRE_EXTEND,
+  CPRE_EXTEND, CPRE_EXTEND, CPRE_EXTEND, CPRE_EXTEND,
 };
 
 #define parse_chartype(c, bits) \
@@ -200,16 +202,17 @@ size_t vtkParse_SkipNumber(const char *text)
   if (parse_chartype(cp[0], CPRE_DIGIT) ||
       (cp[0] == '.' && parse_chartype(cp[1], CPRE_DIGIT)))
     {
+    if (cp[0] == '.') { cp++; }
     do
       {
       char c = *cp++;
-      if (parse_chartype(c, CPRE_EXP) &&
-          parse_chartype(*cp, CPRE_SIGN))
+      if ((*cp == '\'' && parse_chartype(cp[1], CPRE_XDIGIT)) ||
+          (parse_chartype(*cp, CPRE_SIGN) && (c == 'e' || c == 'E')))
         {
         cp++;
         }
       }
-    while (parse_chartype(*cp, CPRE_IDGIT) || *cp == '.');
+    while (parse_chartype(*cp, CPRE_XID) || *cp == '.');
     }
 
   return cp - text;
@@ -226,7 +229,7 @@ size_t vtkParse_SkipId(const char *text)
       {
       cp++;
       }
-    while (parse_chartype(*cp, CPRE_IDGIT));
+    while (parse_chartype(*cp, CPRE_XID));
     }
 
   return cp - text;
@@ -236,7 +239,7 @@ size_t vtkParse_SkipId(const char *text)
 #define parse_hash_name(cp, h) \
   h = 5381; \
   do { h = (h << 5) + h + (unsigned char)*cp++; } \
-  while (parse_chartype(*cp, CPRE_IDGIT));
+  while (parse_chartype(*cp, CPRE_XID));
 
 unsigned int vtkParse_HashId(const char *cp)
 {
@@ -250,7 +253,77 @@ unsigned int vtkParse_HashId(const char *cp)
   return h;
 }
 
-/** Skip a string or */
+/** Decode a single unicode character from utf8, but if utf8 decoding
+ *  fails, assume assume ISO-8859 and return the first octet. */
+unsigned int vtkParse_DecodeUtf8(const char **cpp, int *error_flag)
+{
+  const unsigned char *cp = (const unsigned char *)(*cpp);
+  unsigned int code = *cp++;
+  unsigned int s = 0;
+  int good = 1;
+
+  if ((code & 0x80) != 0)
+    {
+    good = 0;
+    if ((code & 0xE0) == 0xC0)
+      {
+      code &= 0x1F;
+      code <<= 6;
+      s = *cp;
+      good = ((s & 0xC0) == 0x80);
+      cp += good;
+      code |= (s & 0x3F);
+      }
+    else if ((code & 0xF0) == 0xE0)
+      {
+      code &= 0x0F;
+      code <<= 6;
+      s = *cp;
+      good = ((s & 0xC0) == 0x80);
+      cp += good;
+      code |= (s & 0x3F);
+      code <<= 6;
+      s = *cp;
+      good = ((s & 0xC0) == 0x80);
+      cp += good;
+      code |= (s & 0x3F);
+      }
+    else if ((code & 0xF8) == 0xF0)
+      {
+      code &= 0x07;
+      code <<= 6;
+      s = *cp;
+      good = ((s & 0xC0) == 0x80);
+      cp += good;
+      code |= (s & 0x3F);
+      code <<= 6;
+      s = *cp;
+      good = ((s & 0xC0) == 0x80);
+      cp += good;
+      code |= (s & 0x3F);
+      code <<= 6;
+      s = *cp;
+      good = ((s & 0xC0) == 0x80);
+      cp += good;
+      code |= (s & 0x3F);
+      }
+
+    if (!good)
+      {
+      cp = (const unsigned char *)(*cpp);
+      code = *cp++;
+      }
+    }
+
+  if (error_flag)
+    {
+    *error_flag = !good;
+    }
+  *cpp = (const char *)(cp);
+  return code;
+}
+
+/** Skip a string or char literal */
 size_t parse_skip_quotes_with_suffix(const char *cp)
 {
   size_t l = vtkParse_SkipQuotes(cp);
@@ -292,11 +365,9 @@ int vtkParse_NextToken(StringTokenizer *tokens)
 
     /* check if this is a prefixed string */
     if (parse_chartype(*ep, CPRE_QUOTE) &&
-        ((*ep == '\'' && tokens->len == 1 &&
-          (*cp == 'u' || *cp == 'U' || *cp == 'L')) ||
-         (*ep == '\"' && tokens->len == 1 &&
-          (*cp == 'U' || *cp == 'u' || *cp == 'L')) ||
-         (*ep == '\"' && tokens->len == 2 && cp[0] == 'u' && cp[1] == '8')))
+        ((*ep == '\'' || *ep == '\"') &&
+         ((tokens->len == 1 && (*cp == 'U' || *cp == 'u' || *cp == 'L')) ||
+          (tokens->len == 2 && cp[0] == 'u' && cp[1] == '8'))))
       {
       tokens->tok = (*ep == '\"' ? TOK_STRING : TOK_CHAR);
       tokens->hash = 0;
