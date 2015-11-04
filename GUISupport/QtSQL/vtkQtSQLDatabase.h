@@ -121,7 +121,7 @@ public:
 
   // Description:
   // The port used for connecting to the database.
-  vtkSetClampMacro(Port, int, 0, VTK_INT_MAX);
+  vtkSetClampMacro(Port, int, 0, 65535);
   vtkGetMacro(Port, int);
 
   // Description:
