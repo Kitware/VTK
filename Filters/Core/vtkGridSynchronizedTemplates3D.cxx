@@ -359,6 +359,52 @@ if (ComputeScalars) \
   newScalars->InsertNextTuple(&value); \
 }
 
+namespace
+{
+class CellVisibility
+{
+public:
+  CellVisibility(vtkStructuredGrid *structuredGrid) : MASKED_CELL_VALUE(vtkDataSetAttributes::HIDDENCELL | vtkDataSetAttributes::REFINEDCELL),
+                                                      InputStructuredGrid(structuredGrid), InputCellGhostArray(NULL)
+    {
+    if (this->InputStructuredGrid->HasAnyBlankCells() && !this->InputStructuredGrid->HasAnyBlankPoints())
+      {
+      //Using direct pointer access to ghost cell array;
+      this->Procedure = CELLS;
+      this->InputCellGhostArray = this->InputStructuredGrid->GetCellGhostArray()->GetPointer(0);
+      }
+    else if (this->InputStructuredGrid->HasAnyBlankPoints())
+      {
+      //If blank points or a combination are present, fall back to vtkStructuredGrid::IsCellVisible;
+      this->Procedure = POINTS;
+      }
+    else
+      {
+       //All cells are visible
+       this->Procedure = NONE;
+      }
+    }
+  bool operator()(vtkIdType id) const
+    {
+    switch(Procedure)
+      {
+      case CELLS:
+        return !(this->InputCellGhostArray[id] & this->MASKED_CELL_VALUE);
+      case POINTS:
+        return this->InputStructuredGrid->IsCellVisible(id) ? true : false;
+      default:
+        return 1;
+      }
+    }
+private:
+  unsigned char MASKED_CELL_VALUE;
+  vtkStructuredGrid *InputStructuredGrid;
+  unsigned char *InputCellGhostArray;
+  enum MatchingMethod {CELLS,POINTS,NONE};
+  MatchingMethod Procedure;
+};
+}
+
 //----------------------------------------------------------------------------
 // Contouring filter specialized for structured grids
 template <class T, class PointsType>
@@ -399,6 +445,7 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
   vtkIdType edgePtId, inCellId, outCellId;
   vtkPointData *inPD = input->GetPointData();
   vtkCellData *inCD = input->GetCellData();
+  CellVisibility isCellVisible(input);
   vtkPointData *outPD = output->GetPointData();
   vtkCellData *outCD = output->GetCellData();
   // Temporary point data.
@@ -705,7 +752,7 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
             tablePtr = VTK_SYNCHRONIZED_TEMPLATES_3D_TABLE_2
               + VTK_SYNCHRONIZED_TEMPLATES_3D_TABLE_1[idx];
             // to protect data against multiple threads
-            if (  input->IsCellVisible(inCellId) )
+            if (isCellVisible(inCellId))
               {
               if (!outputTriangles)
                 {
