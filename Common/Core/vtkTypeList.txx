@@ -47,12 +47,12 @@ struct CanConvert
 private:
   typedef char Small;
   class Big { char dummy[2]; };
-  static Small Test(const To&); // Not implemented
-  static Big Test(...); // Not implemented
+  static Small DoTest(const To&); // Not implemented
+  static Big DoTest(...); // Not implemented
   static From* MakeFrom(); // Not implemented
 public:
   enum {
-    Result = (sizeof(Test(*MakeFrom())) == sizeof(Small)),
+    Result = (sizeof(DoTest(*MakeFrom())) == sizeof(Small)),
     SameType = false
     };
 };
