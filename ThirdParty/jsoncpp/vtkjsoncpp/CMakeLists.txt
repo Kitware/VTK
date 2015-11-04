@@ -14,20 +14,16 @@ if(VTK_REQUIRE_LARGE_FILE_SUPPORT)
 endif()
 
 set(JSONCPP_SOURCES
-  json_tool.h
-  json_reader.cpp
-  json_batchallocator.h
-  json_valueiterator.inl
-  json_value.cpp
-  json_writer.cpp
+  json/json.h
+  jsoncpp.cpp
 )
 
 include_directories(${JsonCpp_SOURCE_DIR})
 
-if(BUILD_SHARED_LIBS AND WIN32)
-  add_definitions(-DJSON_DLL_BUILD)
-endif()
 vtk_add_library(vtkjsoncpp ${JSONCPP_SOURCES})
+set_target_properties(vtkjsoncpp
+  PROPERTIES
+    DEFINE_SYMBOL JSON_DLL_BUILD)
 
 if(NOT VTK_INSTALL_NO_DEVELOPMENT)
   install(DIRECTORY
