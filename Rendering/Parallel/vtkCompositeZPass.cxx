@@ -753,7 +753,6 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
                                 this->PBO);
 
     // TO to FB: apply TO on quad with special zcomposite fragment shader.
-    glPushAttrib(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
     glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
     glEnable(GL_DEPTH_TEST);
     glDepthMask(GL_TRUE);
@@ -774,6 +773,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
                                       this->Program->VAO);
     this->ZTexture->Deactivate();
 #else
+    glPushAttrib(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
     vtkTextureUnitManager *tu=context->GetTextureUnitManager();
     int sourceId=tu->Allocate();
 
@@ -789,8 +789,8 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
 
     tu->Free(sourceId);
     vtkgl::ActiveTexture(vtkgl::TEXTURE0);
-#endif
     glPopAttrib();
+#endif
 
     }
 #ifdef VTK_COMPOSITE_ZPASS_DEBUG
