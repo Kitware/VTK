@@ -28,6 +28,8 @@
 #include "vtkPNMWriter.h"
 #include "vtkImageImport.h"
 #include "vtkNew.h"
+#include <sstream>
+#include "vtkWindows.h"  // OK on UNix etc
 #endif
 
 #define ID_OFFSET 1
@@ -160,14 +162,28 @@ void vtkOpenGLHardwareSelector::SavePixelBuffer(int passNo)
   ii->SetDataScalarTypeToUnsignedChar();
   ii->SetNumberOfScalarComponents(3);
   ii->SetDataExtent(this->Area[0], this->Area[2], this->Area[1], this->Area[3], 0, 0);
+  ii->SetWholeExtent(this->Area[0], this->Area[2], this->Area[1], this->Area[3], 0, 0);
 
-  std::string fname = "pickbuffer_";
+  // change this to somewhere on your system
+  // hardcoded as with MPI/parallel/client server it can be hard to
+  // find these images sometimes.
+  std::string fname = "C:/Users/ken.martin/Documents/pickbuffer_";
+
+#if defined(_WIN32)
+  std::ostringstream toString;
+  toString.str("");
+  toString.clear();
+  toString << GetCurrentProcessId();
+  fname += toString.str();
+  fname += "_";
+#endif
   fname += ('0'+passNo);
   fname += ".pnm";
   vtkNew<vtkPNMWriter> pw;
   pw->SetInputConnection(ii->GetOutputPort());
   pw->SetFileName(fname.c_str());
   pw->Write();
+  cerr << "=====vtkOpenGLHardwareSelector wrote " << fname << "\n";
 #endif
 }
 

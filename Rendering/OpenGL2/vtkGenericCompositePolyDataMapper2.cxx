@@ -15,6 +15,7 @@
 #include "vtkGenericCompositePolyDataMapper2.h"
 
 #include "vtkBoundingBox.h"
+#include "vtkCellData.h"
 #include "vtkCommand.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataPipeline.h"
@@ -32,6 +33,7 @@
 #include "vtkScalarsToColors.h"
 #include "vtkShaderProgram.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkUnsignedIntArray.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
 
@@ -578,7 +580,7 @@ void vtkGenericCompositePolyDataMapper2::RenderBlock(vtkRenderer *renderer,
     // Implies that the block is a non-null leaf node.
     // The top of the "stacks" have the state that this block must be rendered
     // with.
-    if (selector)
+    if (selector && selector->GetCurrentPass() == vtkHardwareSelector::COMPOSITE_INDEX_PASS)
       {
       selector->BeginRenderProp();
       selector->RenderCompositeIndex(my_flat_index);
@@ -608,6 +610,17 @@ void vtkGenericCompositePolyDataMapper2::RenderBlock(vtkRenderer *renderer,
       helper->CurrentInput = ds;
       if (ds && ds->GetPoints())
         {
+        if (selector && selector->GetCurrentPass() == vtkHardwareSelector::COMPOSITE_INDEX_PASS &&
+            (!this->CompositeIdArrayName || !ds->GetCellData() ||
+            vtkUnsignedIntArray::SafeDownCast(
+            ds->GetCellData()->GetArray(this->CompositeIdArrayName)) == NULL))
+          {
+          helper->SetPopulateSelectionSettings(0);
+          }
+        else
+          {
+          helper->SetPopulateSelectionSettings(1);
+          }
         helper->RenderPieceStart(renderer,actor);
         helper->RenderPieceDraw(renderer,actor);
         if (draw_surface_with_edges)
@@ -644,9 +657,8 @@ void vtkGenericCompositePolyDataMapper2::RenderBlock(vtkRenderer *renderer,
 
 void vtkGenericCompositePolyDataMapper2::CopyMapperValuesToHelper(vtkCompositeMapperHelper *helper)
 {
-  helper->vtkMapper::ShallowCopy(this);
+  helper->vtkOpenGLPolyDataMapper::ShallowCopy(this);
   helper->SetStatic(1);
-  helper->SetPopulateSelectionSettings(0);
 }
 
 void vtkGenericCompositePolyDataMapper2::FreeGenericStructures()

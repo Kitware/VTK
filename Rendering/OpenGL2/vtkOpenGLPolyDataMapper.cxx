@@ -2305,9 +2305,12 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
       {
       // point data is used for process_pass which seems odd
       case vtkHardwareSelector::PROCESS_PASS:
+       if (selector->GetUseProcessIdFromData())
+        {
         mapArray = this->ProcessIdArrayName ?
           vtkUnsignedIntArray::SafeDownCast(
             pd->GetArray(this->ProcessIdArrayName)) : NULL;
+        }
         break;
       case vtkHardwareSelector::COMPOSITE_INDEX_PASS:
         mapArray = this->CompositeIdArrayName ?
@@ -2379,22 +2382,51 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
   if (this->HavePickScalars &&
       selector->GetCurrentPass() == vtkHardwareSelector::PROCESS_PASS)
     {
+    std::vector<unsigned char> tmpColors;
+    // process id is stored in point data which if we were not already
+    // dealing with cell picking would be fine, but we are, so it makes our
+    // job that much harder.  So we first traverse all the cells to
+    // find their first point id and then use the point id to
+    // lookup a process values. Then we use the map of opengl cells
+    // to vtk cells to map into the first array
     vtkIdType* indices(NULL);
     vtkIdType npts(0);
-
+    // for each prim type
     for (int j = 0; j < 4; j++)
       {
-      // for each cell, lookup the process value for it's first vertex
-      // and use that as cell data
       for (prims[j]->InitTraversal(); prims[j]->GetNextCell(npts, indices); )
         {
-        unsigned int value = indices[0];
-        value = mapArray->GetValue(value) + 1;
-        newColors.push_back(value & 0xff);
-        newColors.push_back((value & 0xff00) >> 8);
-        newColors.push_back((value & 0xff0000) >> 16);
-        newColors.push_back(0xff);
+        unsigned int value = mapArray->GetValue(indices[0]);
+        value++;
+        tmpColors.push_back(value & 0xff);
+        tmpColors.push_back((value & 0xff00) >> 8);
+        tmpColors.push_back((value & 0xff0000) >> 16);
+        tmpColors.push_back(0xff);
         } // for cell
+      }
+    // now traverse the opengl to vtk mapping
+    std::vector<unsigned int> cellCellMap;
+    if (this->HaveAppleBug)
+      {
+      unsigned int numCells = poly->GetNumberOfCells();
+      for (unsigned int i = 0; i < numCells; i++)
+        {
+        cellCellMap.push_back(i);
+        }
+      }
+    else
+      {
+      vtkOpenGLIndexBufferObject::CreateCellSupportArrays(
+        prims, cellCellMap, representation);
+      }
+
+    for (unsigned int i = 0; i < cellCellMap.size(); i++)
+      {
+      unsigned int value = cellCellMap[i];
+      newColors.push_back(tmpColors[value*4]);
+      newColors.push_back(tmpColors[value*4+1]);
+      newColors.push_back(tmpColors[value*4+2]);
+      newColors.push_back(tmpColors[value*4+3]);
       }
     return;
     }
@@ -2953,6 +2985,25 @@ bool vtkOpenGLPolyDataMapper::GetIsOpaque()
       }
     }
   return this->Superclass::GetIsOpaque();
+}
+
+//----------------------------------------------------------------------------
+void vtkOpenGLPolyDataMapper::ShallowCopy(vtkAbstractMapper *mapper)
+{
+  vtkOpenGLPolyDataMapper *m = vtkOpenGLPolyDataMapper::SafeDownCast(mapper);
+  if (m != NULL)
+    {
+    this->SetPointIdArrayName(m->GetPointIdArrayName());
+    this->SetCompositeIdArrayName(m->GetCompositeIdArrayName());
+    this->SetProcessIdArrayName(m->GetProcessIdArrayName());
+    this->SetCellIdArrayName(m->GetCellIdArrayName());
+    this->SetVertexShaderCode(m->GetVertexShaderCode());
+    this->SetGeometryShaderCode(m->GetGeometryShaderCode());
+    this->SetFragmentShaderCode(m->GetFragmentShaderCode());
+    }
+
+  // Now do superclass
+  this->vtkPolyDataMapper::ShallowCopy(mapper);
 }
 
 //-----------------------------------------------------------------------------

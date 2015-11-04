@@ -149,6 +149,11 @@ public:
     vtkPolyData *poly,
     std::vector<float> &buffData);
 
+  // Description:
+  // Make a shallow copy of this mapper.
+  void ShallowCopy(vtkAbstractMapper *m);
+
+
 protected:
   vtkOpenGLPolyDataMapper();
   ~vtkOpenGLPolyDataMapper();
