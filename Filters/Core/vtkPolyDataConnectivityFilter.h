@@ -216,8 +216,8 @@ protected:
   vtkIdType NumCellsInRegion;
   vtkDataArray *InScalars;
   vtkPolyData *Mesh;
-  vtkIdList *Wave;
-  vtkIdList *Wave2;
+  std::vector<vtkIdType> Wave;
+  std::vector<vtkIdType> Wave2;
   vtkIdList *PointIds;
   vtkIdList *CellIds;
   vtkIdList *VisitedPointIds;
