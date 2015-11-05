@@ -240,7 +240,7 @@ GeoJSONReaderInternal::CanParseFile(const char *filename, Json::Value &root)
     {
     // Report failures and their locations in the document
     vtkGenericWarningMacro(<<"Failed to parse JSON" << endl
-                           << reader.getFormatedErrorMessages());
+                           << reader.getFormattedErrorMessages());
     return VTK_ERROR;
     }
 
@@ -266,7 +266,7 @@ GeoJSONReaderInternal::CanParseString(char *input, Json::Value &root)
     {
     // Report failures and their locations in the document
     vtkGenericWarningMacro(<<"Failed to parse JSON" << endl
-                           << reader.getFormatedErrorMessages());
+                           << reader.getFormattedErrorMessages());
     return VTK_ERROR;
     }
 
@@ -326,8 +326,11 @@ void vtkGeoJSONReader::GeoJSONReaderInternal::ParseFeatureProperties(
     {
     property.Name = serializedPropertiesArrayName;
     Json::FastWriter writer;
-    writer.omitEndingLineFeed();
     std::string propString = writer.write(propertiesNode);
+    if (!propString.empty() && *propString.rbegin() == '\n')
+      {
+      propString.resize(propString.size() - 1);
+      }
     property.Value = vtkVariant(propString);
     featureProperties.push_back(property);
     }
