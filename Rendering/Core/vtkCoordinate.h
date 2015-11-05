@@ -107,10 +107,9 @@ public:
 
   // Description:
   // If you want this coordinate to be relative to a specific
-  // vtkViewport (vtkRenderer) then you can specify
-  // that here.
-  // NOTE: this is a raw pointer, not a weak pointer not a reference counted
-  // object to avoid reference cycle loop between rendering classes and filter
+  // vtkViewport (vtkRenderer) then you can specify that here.
+  // NOTE: this is a raw pointer, not a weak pointer nor a reference counted
+  // object, to avoid reference cycle loop between rendering classes and filter
   // classes.
   void SetViewport(vtkViewport *viewport);
   vtkGetObjectMacro(Viewport, vtkViewport);
@@ -164,5 +163,3 @@ private:
 };
 
 #endif
-
-
