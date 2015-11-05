@@ -20,6 +20,7 @@
 #include "vtkContourValues.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
+#include "vtkDataArrayIteratorMacro.h"
 #include "vtkFloatArray.h"
 #include "vtkGenericCell.h"
 #include "vtkGridSynchronizedTemplates3D.h"
@@ -198,6 +199,21 @@ void vtkCutter::StructuredPointsCutter(vtkDataSet *dataSetInput,
   contourData->Delete();
 }
 
+namespace {
+template<typename Iterator>
+void ExecuteFunction(vtkImplicitFunction* CutFunction, Iterator begin, Iterator end, float *output)
+  {
+  for (Iterator input = begin; input < end; std::advance(input,3), std::advance(output,1))
+    {
+    double in[3];
+    in[0] = static_cast<double>(input[0]);
+    in[1] = static_cast<double>(input[1]);
+    in[2] = static_cast<double>(input[2]);
+    *output = static_cast<float>(CutFunction->FunctionValue(in));
+    }
+  }
+}
+
 //----------------------------------------------------------------------------
 void vtkCutter::StructuredGridCutter(vtkDataSet *dataSetInput,
                                      vtkPolyData *thisOutput)
@@ -212,7 +228,6 @@ void vtkCutter::StructuredGridCutter(vtkDataSet *dataSetInput,
     }
 
   vtkFloatArray *cutScalars = vtkFloatArray::New();
-  cutScalars->SetNumberOfTuples(numPts);
   cutScalars->SetName("cutScalars");
 
   vtkStructuredGrid *contourData = vtkStructuredGrid::New();
@@ -226,12 +241,11 @@ void vtkCutter::StructuredGridCutter(vtkDataSet *dataSetInput,
     contourData->GetPointData()->AddArray(cutScalars);
     }
 
-  int i;
-  double scalar;
-  for (i = 0; i < numPts; i++)
+  float* ptrCutScalars = cutScalars->WritePointer(0, numPts);
+  vtkDataArray* dataArrayInput = input->GetPoints()->GetData();
+  switch(dataArrayInput->GetDataType())
     {
-    scalar = this->CutFunction->FunctionValue(input->GetPoint(i));
-    cutScalars->SetComponent(i, 0, scalar);
+    vtkDataArrayIteratorMacro(dataArrayInput,ExecuteFunction(this->CutFunction,vtkDABegin,vtkDAEnd,ptrCutScalars););
     }
   int numContours = this->GetNumberOfContours();
 
@@ -242,7 +256,7 @@ void vtkCutter::StructuredGridCutter(vtkDataSet *dataSetInput,
   this->GridSynchronizedTemplates->
     SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,"cutScalars");
   this->GridSynchronizedTemplates->SetNumberOfContours(numContours);
-  for (i = 0; i < numContours; i++)
+  for (int i = 0; i < numContours; i++)
     {
     this->GridSynchronizedTemplates->SetValue(i, this->GetValue(i));
     }
