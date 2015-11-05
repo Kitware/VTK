@@ -629,10 +629,6 @@ set_source_files_properties(
   HEADER_FILE_ONLY
   )
 
-# Activate code in "vtkVariant.cxx".  See the comment in the source.
-set_source_files_properties(vtkVariant.cxx PROPERTIES
-  COMPILE_FLAGS -DVTK_VARIANT_IMPL)
-
 # Need nsl to resolve gethostbyname on SunOS-5.8
 # and socket also
 if(CMAKE_SYSTEM MATCHES "SunOS.*")

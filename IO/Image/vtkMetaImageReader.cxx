@@ -295,11 +295,7 @@ int vtkMetaImageReader::CanReadFile(const char* fname)
   // Now check the file content
   ifstream inputStream;
 
-#ifdef __sgi
-  inputStream.open( fname, ios::in );
-#else
   inputStream.open( fname, ios::in | ios::binary );
-#endif
 
   if( inputStream.fail() )
     {
