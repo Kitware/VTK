@@ -240,7 +240,7 @@ GeoJSONReaderInternal::CanParseFile(const char *filename, Json::Value &root)
     {
     // Report failures and their locations in the document
     vtkGenericWarningMacro(<<"Failed to parse JSON" << endl
-                           << reader.getFormatedErrorMessages());
+                           << reader.getFormattedErrorMessages());
     return VTK_ERROR;
     }
 
@@ -266,7 +266,7 @@ GeoJSONReaderInternal::CanParseString(char *input, Json::Value &root)
     {
     // Report failures and their locations in the document
     vtkGenericWarningMacro(<<"Failed to parse JSON" << endl
-                           << reader.getFormatedErrorMessages());
+                           << reader.getFormattedErrorMessages());
     return VTK_ERROR;
     }
 
