@@ -121,6 +121,7 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "[Qq]t([Cc]ore|[Gg]ui).*warning C4127: conditional expression is constant"
   "[Qq]t.*h.*warning.*declaration of .* shadows a member of .this"
   "[Qq]t.*h.*warning.*(copy constructor|assignment operator) could not be generated"
+  "warning C4244: 'initializing' : conversion from 'qint64' to 'int', possible loss of data"
   # gcc -Wstric-aliasing
   "[Qq]t.*q.*h.*warning: dereferencing pointer .* does break strict-aliasing rules"
   "[Qq]t.*q.*h.*note: initialized from here"
