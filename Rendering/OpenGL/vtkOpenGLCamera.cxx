@@ -110,8 +110,11 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
     }
 
   glViewport(lowerLeft[0], lowerLeft[1], usize, vsize);
-  glEnable(GL_SCISSOR_TEST);
-  glScissor(lowerLeft[0], lowerLeft[1], usize, vsize);
+  if(this->UseScissor)
+  {
+    glEnable(GL_SCISSOR_TEST);
+    glScissor(this->ScissorRect.GetX(),this->ScissorRect.GetY(), this->ScissorRect.GetWidth(), this->ScissorRect.GetHeight());
+  }
 
   // some renderer subclasses may have more complicated computations for the
   // aspect ratio. So take that into account by computing the difference
@@ -177,8 +180,11 @@ void vtkOpenGLCamera::UpdateViewport(vtkRenderer *ren)
   ren->GetTiledSizeAndOrigin(&usize, &vsize, lowerLeft, lowerLeft+1);
 
   glViewport(lowerLeft[0], lowerLeft[1], usize, vsize);
-  glEnable(GL_SCISSOR_TEST);
-  glScissor(lowerLeft[0], lowerLeft[1], usize, vsize);
+  if(this->UseScissor)
+  {
+    glEnable(GL_SCISSOR_TEST);
+    glScissor(this->ScissorRect.GetX(),this->ScissorRect.GetY(), this->ScissorRect.GetWidth(), this->ScissorRect.GetHeight());
+  }
 
   vtkOpenGLCheckErrorMacro("failed after UpdateViewport");
 }

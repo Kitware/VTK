@@ -138,6 +138,7 @@ vtkCamera::vtkCamera()
   this->ComputeCameraLightTransform();
 
   this->FreezeFocalPoint = false;
+  this->UseScissor = false;
 }
 
 //----------------------------------------------------------------------------
@@ -174,6 +175,17 @@ vtkCamera::~vtkCamera()
     this->UserViewTransformCallbackCommand->Delete();
     }
 }
+
+void vtkCamera::SetScissorRect(const vtkRecti& scissorRect)
+{
+  this->ScissorRect = scissorRect;
+}
+
+void vtkCamera::GetScissorRect(vtkRecti& scissorRect)
+{
+  scissorRect = this->ScissorRect;
+}
+
 
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
