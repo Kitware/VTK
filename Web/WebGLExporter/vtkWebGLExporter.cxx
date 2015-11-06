@@ -150,7 +150,7 @@ void vtkWebGLExporter::parseRenderer(vtkRenderer *renderer, const char* vtkNotUs
         vtkActor* actor = vtkActor::SafeDownCast(allactors->GetItemAsObject(j));
         vtkActor* key = actor;
         unsigned long previousValue = this->Internal->OldActorTimestamp[key];
-        this->parseActor(actor, previousValue, (long)renderer, renderer->GetLayer(), trt != NULL);
+        this->parseActor(actor, previousValue, (size_t)renderer, renderer->GetLayer(), trt != NULL);
         }
       allactors->Delete();
       }
@@ -163,14 +163,14 @@ void vtkWebGLExporter::parseRenderer(vtkRenderer *renderer, const char* vtkNotUs
         vtkActor2D* actor = vtkActor2D::SafeDownCast(all2dactors->GetItemAsObject(k));
         unsigned long key = (unsigned long)actor;
         unsigned long previousValue = this->Internal->OldActorTimestamp[key];
-        this->parseActor2D(actor, previousValue, (long)renderer, renderer->GetLayer(), trt != NULL);
+        this->parseActor2D(actor, previousValue, (size_t)renderer, renderer->GetLayer(), trt != NULL);
         }
       all2dactors->Delete();
       }
     }
   }
 
-void vtkWebGLExporter::parseActor2D(vtkActor2D *actor, long actorTime, long renderId, int layer, bool isWidget)
+void vtkWebGLExporter::parseActor2D(vtkActor2D *actor, long actorTime, size_t renderId, int layer, bool isWidget)
   {
   vtkActor* key = actor;
   vtkScalarBarActor* scalarbar = vtkScalarBarActor::SafeDownCast(actor);
@@ -197,7 +197,7 @@ void vtkWebGLExporter::parseActor2D(vtkActor2D *actor, long actorTime, long rend
         obj->GetDataFromColorMap(actor);
 
         std::stringstream ss;
-        ss << (long)actor;
+        ss << (size_t)actor;
         obj->SetId(ss.str());
         obj->SetRendererId(renderId);
         this->Internal->Objects.push_back(obj);
@@ -227,7 +227,7 @@ void vtkWebGLExporter::parseActor2D(vtkActor2D *actor, long actorTime, long rend
     }
   }
 
-void vtkWebGLExporter::parseActor(vtkActor* actor, unsigned long actorTime, long rendererId, int layer, bool isWidget)
+void vtkWebGLExporter::parseActor(vtkActor* actor, unsigned long actorTime, size_t rendererId, int layer, bool isWidget)
   {
   vtkMapper* mapper = actor->GetMapper();
   if (mapper)
@@ -257,7 +257,7 @@ void vtkWebGLExporter::parseActor(vtkActor* actor, unsigned long actorTime, long
       this->Internal->ActorTimestamp[key] = dataMTime;
       vtkWebGLObject* obj = NULL;
       std::stringstream ss;
-      ss << (long)actor;
+      ss << (size_t)actor;
       for (size_t i=0; i<this->Internal->tempObj.size(); i++)
         {
         if (this->Internal->tempObj[i]->GetId().compare(ss.str()) == 0)
@@ -374,7 +374,7 @@ void vtkWebGLExporter::parseActor(vtkActor* actor, unsigned long actorTime, long
       {
       this->Internal->ActorTimestamp[key] = actorTime;
       std::stringstream ss;
-      ss << (long)actor;
+      ss << (size_t)actor;
       for (size_t i=0; i<this->Internal->tempObj.size(); i++)
         {
         if (this->Internal->tempObj[i]->GetId().compare(ss.str()) == 0)

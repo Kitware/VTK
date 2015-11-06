@@ -71,8 +71,8 @@ protected:
 
   void parseRenderer(vtkRenderer* render, const char* viewId, bool onlyWidget, void* mapTime);
   void generateRendererData(vtkRendererCollection* renderers, const char* viewId);
-  void parseActor(vtkActor* actor, unsigned long actorTime, long rendererId, int layer, bool isWidget);
-  void parseActor2D(vtkActor2D* actor, long actorTime, long renderId, int layer, bool isWidget);
+  void parseActor(vtkActor* actor, unsigned long actorTime, size_t rendererId, int layer, bool isWidget);
+  void parseActor2D(vtkActor2D* actor, long actorTime, size_t renderId, int layer, bool isWidget);
   const char* GenerateExportMetadata();
 
   // Get the dataset from the mapper
