@@ -101,8 +101,9 @@ public:
         this->FieldName = 0;
         if (name)
           {
-          this->FieldName = new char[strlen(name)+1];
-          strcpy(this->FieldName, name);
+          size_t len = strlen(name)+1;
+          this->FieldName = new char[len];
+          strncpy(this->FieldName, name, len);
           }
       }
     Component() { FieldName = 0; }
