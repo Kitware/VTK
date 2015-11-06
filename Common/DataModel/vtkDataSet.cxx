@@ -43,11 +43,13 @@ vtkDataSet::vtkDataSet ()
 
   this->PointData = vtkPointData::New();
   this->PointGhostArray = NULL;
+  this->PointGhostArrayCached = false;
   // when point data is modified, we update the point data ghost array cache
   this->PointData->AddObserver(vtkCommand::ModifiedEvent, this->DataObserver);
 
   this->CellData = vtkCellData::New();
   this->CellGhostArray = NULL;
+  this->CellGhostArrayCached = false;
   // when cell data is modified, we update the cell data ghost array cache
   this->CellData->AddObserver(vtkCommand::ModifiedEvent, this->DataObserver);
 
@@ -750,10 +752,11 @@ bool vtkDataSet::HasAnyGhostCells()
 //----------------------------------------------------------------------------
 vtkUnsignedCharArray* vtkDataSet::GetPointGhostArray()
 {
-  if(!this->PointGhostArray)
+  if(!this->PointGhostArrayCached)
     {
     this->PointGhostArray = vtkUnsignedCharArray::SafeDownCast(
       this->GetPointData()->GetArray(vtkDataSetAttributes::GhostArrayName()));
+    this->PointGhostArrayCached = true;
     }
   assert (this->PointGhostArray ==
           vtkUnsignedCharArray::SafeDownCast(
@@ -767,6 +770,7 @@ void vtkDataSet::UpdatePointGhostArrayCache()
 {
   this->PointGhostArray = vtkUnsignedCharArray::SafeDownCast(
     this->GetPointData()->GetArray(vtkDataSetAttributes::GhostArrayName()));
+  this->PointGhostArrayCached = true;
 }
 
 //----------------------------------------------------------------------------
@@ -782,6 +786,7 @@ vtkUnsignedCharArray* vtkDataSet::AllocatePointGhostArray()
     this->GetPointData()->AddArray(ghosts);
     ghosts->Delete();
     this->PointGhostArray = ghosts;
+    this->PointGhostArrayCached = true;
     }
   return this->PointGhostArray;
 }
@@ -789,10 +794,11 @@ vtkUnsignedCharArray* vtkDataSet::AllocatePointGhostArray()
 //----------------------------------------------------------------------------
 vtkUnsignedCharArray* vtkDataSet::GetCellGhostArray()
 {
-  if(!this->CellGhostArray)
+  if(!this->CellGhostArrayCached)
     {
     this->CellGhostArray = vtkUnsignedCharArray::SafeDownCast(
       this->GetCellData()->GetArray(vtkDataSetAttributes::GhostArrayName()));
+    this->CellGhostArrayCached = true;
     }
   assert (
     this->CellGhostArray ==
@@ -806,6 +812,7 @@ void vtkDataSet::UpdateCellGhostArrayCache()
 {
   this->CellGhostArray = vtkUnsignedCharArray::SafeDownCast(
     this->GetCellData()->GetArray(vtkDataSetAttributes::GhostArrayName()));
+  this->CellGhostArrayCached = true;
 }
 
 
@@ -822,6 +829,7 @@ vtkUnsignedCharArray* vtkDataSet::AllocateCellGhostArray()
     this->GetCellData()->AddArray(ghosts);
     ghosts->Delete();
     this->CellGhostArray = ghosts;
+    this->CellGhostArrayCached = true;
     }
   return this->CellGhostArray;
 }
