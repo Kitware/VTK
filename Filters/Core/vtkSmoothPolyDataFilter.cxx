@@ -28,6 +28,8 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTriangleFilter.h"
 
+#include <limits>
+
 vtkStandardNewMacro(vtkSmoothPolyDataFilter);
 
 // The following code defines a helper class for performing mesh smoothing
@@ -128,6 +130,8 @@ vtkSmoothPolyDataFilter::vtkSmoothPolyDataFilter()
 
   this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 
+  this->SmoothPoints = NULL;
+
   // optional second input
   this->SetNumberOfInputPorts(2);
 }
@@ -152,12 +156,130 @@ vtkPolyData *vtkSmoothPolyDataFilter::GetSource()
 #define VTK_FEATURE_EDGE_VERTEX 2
 #define VTK_BOUNDARY_EDGE_VERTEX 3
 
+namespace {
+
 // Special structure for marking vertices
 typedef struct _vtkMeshVertex
   {
   char      type;
   vtkIdList *edges; // connected edges (list of connected point ids)
+  _vtkMeshVertex()
+    {
+    type = VTK_SIMPLE_VERTEX; //can smooth
+    edges = NULL;
+    }
 } vtkMeshVertex, *vtkMeshVertexPtr;
+
+template<typename T> struct vtkSPDF_InternalParams
+{
+  vtkSmoothPolyDataFilter* spdf;
+  int numberOfIterations;
+  vtkPoints *newPts;
+  T factor;
+  T conv;
+  vtkIdType numPts;
+  vtkMeshVertexPtr vertexPtr;
+  vtkPolyData *source;
+  vtkSmoothPoints *SmoothPoints;
+  double *w;
+  vtkCellLocator *cellLocator;
+};
+
+template<typename T> void vtkSPDF_MovePoints(vtkSPDF_InternalParams<T>& params)
+{
+  int iterationNumber = 0;
+  for (T maxDist = std::numeric_limits<T>::max();
+       maxDist > params.conv && iterationNumber < params.numberOfIterations;
+       ++iterationNumber)
+    {
+    if (iterationNumber && !(iterationNumber % 5))
+      {
+      params.spdf->UpdateProgress(0.5 + 0.5*iterationNumber / params.numberOfIterations);
+      if (params.spdf->GetAbortExecute())
+        {
+        break;
+        }
+      }
+
+    maxDist = 0.0;
+    T* newPtsCoords = static_cast<T*>(params.newPts->GetVoidPointer(0));
+    T* start = newPtsCoords;
+    vtkMeshVertexPtr vertsPtr = params.vertexPtr;
+    vtkIdType npts, *edgeIdPtr;
+    T dist, deltaX[3];
+    double dist2, xNew[3], closestPt[3];
+
+    // For each non-fixed vertex of the mesh, move the point toward the mean
+    // position of its connected neighbors using the relaxation factor.
+    for (vtkIdType i = 0; i < params.numPts; ++i)
+      {
+      if (vertsPtr->type != VTK_FIXED_VERTEX && vertsPtr->edges != NULL &&
+         (npts = vertsPtr->edges->GetNumberOfIds()) > 0)
+        {
+        deltaX[0] = deltaX[1] = deltaX[2] = 0.0;
+        edgeIdPtr = vertsPtr->edges->GetPointer(0);
+        // Compute the mean (cumulated) direction vector
+        for (vtkIdType j = 0; j < npts; ++j)
+          {
+          for (unsigned short k = 0; k < 3; ++k)
+            {
+            deltaX[k] += *(start + 3 * (*edgeIdPtr) + k);
+            }
+          ++edgeIdPtr;
+          }//for all connected points
+
+        // Move the point
+        *newPtsCoords += params.factor * (deltaX[0] / npts - (*newPtsCoords));
+        xNew[0] = *newPtsCoords;
+        ++newPtsCoords;
+        *newPtsCoords += params.factor * (deltaX[1] / npts - (*newPtsCoords));
+        xNew[1] = *newPtsCoords;
+        ++newPtsCoords;
+        *newPtsCoords += params.factor * (deltaX[2] / npts - (*newPtsCoords));
+        xNew[2] = *newPtsCoords;
+        ++newPtsCoords;
+
+        // Constrain point to surface
+        if (params.source)
+          {
+          vtkSmoothPoint *sPtr = params.SmoothPoints->GetSmoothPoint(i);
+          vtkCell *cell = NULL;
+
+          if (sPtr->cellId >= 0) //in cell
+            {
+            cell = params.source->GetCell(sPtr->cellId);
+            }
+
+          if (!cell || cell->EvaluatePosition(xNew, closestPt,
+              sPtr->subId, sPtr->p, dist2, params.w) == 0)
+            { // not in cell anymore
+            params.cellLocator->FindClosestPoint(xNew, closestPt, sPtr->cellId,
+                                                 sPtr->subId, dist2);
+            }
+          for (int k = 0; k < 3; ++k)
+            {
+            xNew[k] = closestPt[k];
+            }
+          params.newPts->SetPoint(i, xNew);
+          }
+
+        if ((dist = vtkMath::Norm(deltaX)) > maxDist)
+          {
+          maxDist = dist;
+          }
+        }//if can move point
+        else
+          {
+          newPtsCoords += 3;
+          }
+        ++vertsPtr;
+      }//for all points
+    }//for not converged or within iteration count
+
+  vtkDebugWithObjectMacro(params.spdf, << "Performed " << iterationNumber << " smoothing passes");
+}
+
+}// namespace
 
 int vtkSmoothPolyDataFilter::RequestData(
   vtkInformation *vtkNotUsed(request),
@@ -186,12 +308,11 @@ int vtkSmoothPolyDataFilter::RequestData(
   vtkIdType npts = 0;
   vtkIdType *pts = 0;
   vtkIdType p1, p2;
-  double x[3], y[3], deltaX[3], xNew[3], conv, maxDist, dist, factor;
+  double conv;
   double x1[3], x2[3], x3[3], l1[3], l2[3];
   double CosFeatureAngle; //Cosine of angle between adjacent polys
   double CosEdgeAngle; // Cosine of angle between adjacent edges
   double closestPt[3], dist2, *w = NULL;
-  int iterationNumber;
   vtkIdType numSimple=0, numBEdges=0, numFixed=0, numFEdges=0;
   vtkPolyData *inMesh, *Mesh;
   vtkPoints *inPts;
@@ -242,11 +363,6 @@ int vtkSmoothPolyDataFilter::RequestData(
   //
   vtkDebugMacro(<<"Analyzing topology...");
   Verts = new vtkMeshVertex[numPts];
-  for (i=0; i<numPts; i++)
-    {
-    Verts[i].type = VTK_SIMPLE_VERTEX; //can smooth
-    Verts[i].edges = NULL;
-    }
 
   inPts = input->GetPoints();
   conv = this->Convergence * input->GetLength();
@@ -384,14 +500,16 @@ int vtkSmoothPolyDataFilter::RequestData(
 
         else if ( numNei == 1 && (nei=neighbors->GetId(0)) > cellId )
           {
-          vtkPolygon::ComputeNormal(inPts,npts,pts,normal);
-          Mesh->GetCellPoints(nei,numNeiPts,neiPts);
-          vtkPolygon::ComputeNormal(inPts,numNeiPts,neiPts,neiNormal);
-
-          if ( this->FeatureEdgeSmoothing &&
-          vtkMath::Dot(normal,neiNormal) <= CosFeatureAngle )
+          if (this->FeatureEdgeSmoothing)
             {
-            edge = VTK_FEATURE_EDGE_VERTEX;
+            vtkPolygon::ComputeNormal(inPts,npts,pts,normal);
+            Mesh->GetCellPoints(nei,numNeiPts,neiPts);
+            vtkPolygon::ComputeNormal(inPts,numNeiPts,neiPts,neiNormal);
+
+            if (vtkMath::Dot(normal,neiNormal) <= CosFeatureAngle)
+              {
+              edge = VTK_FEATURE_EDGE_VERTEX;
+              }
             }
           }
         else // a visited edge; skip rest of analysis
@@ -561,76 +679,25 @@ int vtkSmoothPolyDataFilter::RequestData(
       }
     }
 
-  factor = this->RelaxationFactor;
-  for ( maxDist=VTK_DOUBLE_MAX, iterationNumber=0;
-  maxDist > conv && iterationNumber < this->NumberOfIterations;
-  iterationNumber++ )
+  if (newPts->GetDataType() == VTK_DOUBLE)
     {
+    vtkSPDF_InternalParams<double> params = { this, this->NumberOfIterations, newPts,
+                                              this->RelaxationFactor, conv, numPts,
+                                              Verts, source, this->SmoothPoints,
+                                              w, cellLocator };
 
-    if ( iterationNumber && !(iterationNumber % 5) )
-      {
-      this->UpdateProgress (0.5 + 0.5*iterationNumber/this->NumberOfIterations);
-      if (this->GetAbortExecute())
-        {
-        break;
-        }
-      }
+    vtkSPDF_MovePoints(params);
+    }
+  else
+    {
+    vtkSPDF_InternalParams<float> params = { this, this->NumberOfIterations, newPts,
+                                             static_cast<float>(this->RelaxationFactor),
+                                             static_cast<float>(conv), numPts, Verts,
+                                             source, this->SmoothPoints, w, cellLocator };
 
-    maxDist=0.0;
-    for (i=0; i<numPts; i++)
-      {
-      if ( Verts[i].type != VTK_FIXED_VERTEX && Verts[i].edges != NULL &&
-      (npts = Verts[i].edges->GetNumberOfIds()) > 0 )
-        {
-        newPts->GetPoint(i, x); //use current points
-        deltaX[0] = deltaX[1] = deltaX[2] = 0.0;
-        for (j=0; j<npts; j++)
-          {
-          newPts->GetPoint(Verts[i].edges->GetId(j), y);
-          for (k=0; k<3; k++)
-            {
-            deltaX[k] += (y[k] - x[k]) / npts;
-            }
-          }//for all connected points
+    vtkSPDF_MovePoints(params);
+    }
 
-        for (k=0;k<3;k++)
-          {
-          xNew[k] = x[k] + factor * deltaX[k];
-          }
-
-        // Constrain point to surface
-        if ( source )
-          {
-          vtkSmoothPoint *sPtr = this->SmoothPoints->GetSmoothPoint(i);
-          vtkCell *cell=NULL;
-
-          if ( sPtr->cellId >= 0 ) //in cell
-            {
-            cell = source->GetCell(sPtr->cellId);
-            }
-
-          if ( !cell || cell->EvaluatePosition(xNew, closestPt,
-          sPtr->subId, sPtr->p, dist2, w) == 0)
-            { // not in cell anymore
-            cellLocator->FindClosestPoint(xNew, closestPt, sPtr->cellId,
-                                          sPtr->subId, dist2);
-            }
-          for (k=0; k<3; k++)
-            {
-            xNew[k] = closestPt[k];
-            }
-          }
-
-        newPts->SetPoint(i,xNew);
-        if ( (dist = vtkMath::Norm(deltaX)) > maxDist )
-          {
-          maxDist = dist;
-          }
-        }//if can move point
-      }//for all points
-    } //for not converged or within iteration count
-
-  vtkDebugMacro(<<"Performed " << iterationNumber << " smoothing passes");
   if ( source )
     {
     cellLocator->Delete();
