@@ -733,6 +733,7 @@ void vtkOpenGLPointGaussianMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
   if (this->GetMTime() > this->HelperUpdateTime)
     {
     this->Helper->vtkPolyDataMapper::ShallowCopy(this);
+    this->Helper->Modified();
     this->HelperUpdateTime.Modified();
     }
   this->Helper->RenderPiece(ren,act);
