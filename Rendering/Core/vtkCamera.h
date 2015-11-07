@@ -235,7 +235,7 @@ public:
 
   // Description:
   // Get the ViewPlaneNormal.  This vector will point opposite to
-  // the direction of projection, unless you have created an sheared output
+  // the direction of projection, unless you have created a sheared output
   // view using SetViewShear/SetObliqueAngles.
   vtkGetVector3Macro(ViewPlaneNormal, double);
 
