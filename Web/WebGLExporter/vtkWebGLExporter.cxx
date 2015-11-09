@@ -70,8 +70,8 @@ class vtkWebGLExporter::vtkInternal
 {
 public:
   std::string LastMetaData;
-  std::map<vtkActor*, unsigned long> ActorTimestamp;
-  std::map<vtkActor*, unsigned long> OldActorTimestamp;
+  std::map<vtkProp*, unsigned long> ActorTimestamp;
+  std::map<vtkProp*, unsigned long> OldActorTimestamp;
   std::vector<vtkWebGLObject*> Objects;
   std::vector<vtkWebGLObject*> tempObj;
 };
@@ -161,7 +161,7 @@ void vtkWebGLExporter::parseRenderer(vtkRenderer *renderer, const char* vtkNotUs
       for (int k=0; k<all2dactors->GetNumberOfItems(); k++)
         {
         vtkActor2D* actor = vtkActor2D::SafeDownCast(all2dactors->GetItemAsObject(k));
-        unsigned long key = (unsigned long)actor;
+        vtkActor2D* key = actor;
         unsigned long previousValue = this->Internal->OldActorTimestamp[key];
         this->parseActor2D(actor, previousValue, (size_t)renderer, renderer->GetLayer(), trt != NULL);
         }
@@ -172,7 +172,7 @@ void vtkWebGLExporter::parseRenderer(vtkRenderer *renderer, const char* vtkNotUs
 
 void vtkWebGLExporter::parseActor2D(vtkActor2D *actor, long actorTime, size_t renderId, int layer, bool isWidget)
   {
-  vtkActor* key = actor;
+  vtkActor2D* key = actor;
   vtkScalarBarActor* scalarbar = vtkScalarBarActor::SafeDownCast(actor);
 
   long dataMTime = actor->GetMTime() + actor->GetRedrawMTime() + actor->GetProperty()->GetMTime();
