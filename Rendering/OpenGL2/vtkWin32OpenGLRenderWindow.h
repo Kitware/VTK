@@ -178,7 +178,7 @@ public:
   int IsDirect();
 
   // Description:
-  // Check to see if a mouse button has been pressed.
+  // Check to see if a mouse button has been pressed or mouse wheel activated.
   // All other events are ignored by this method.
   // This is a useful check to abort a long render.
   virtual  int GetEventPending();
