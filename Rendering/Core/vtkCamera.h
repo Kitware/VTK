@@ -501,7 +501,7 @@ public:
 
   // Description:
   // Set/Get the vtkRect value of the scissor
-  void SetScissorRect(const vtkRecti& scissorRect);
+  void SetScissorRect(vtkRecti scissorRect);
   void GetScissorRect(vtkRecti& scissorRect);
 
 protected:
