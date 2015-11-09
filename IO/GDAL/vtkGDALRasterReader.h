@@ -88,6 +88,8 @@ public:
   const std::string& GetDriverShortName();
   const std::string& GetDriverLongName();
 
+  vtkIdType GetNumberOfPoints();
+
 protected:
 
   virtual int RequestData(vtkInformation* request,
