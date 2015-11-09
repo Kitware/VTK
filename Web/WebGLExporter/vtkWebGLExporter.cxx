@@ -70,8 +70,8 @@ class vtkWebGLExporter::vtkInternal
 {
 public:
   std::string LastMetaData;
-  std::map<unsigned long,unsigned long> ActorTimestamp;
-  std::map<unsigned long,unsigned long> OldActorTimestamp;
+  std::map<vtkActor*, unsigned long> ActorTimestamp;
+  std::map<vtkActor*, unsigned long> OldActorTimestamp;
   std::vector<vtkWebGLObject*> Objects;
   std::vector<vtkWebGLObject*> tempObj;
 };
@@ -148,9 +148,9 @@ void vtkWebGLExporter::parseRenderer(vtkRenderer *renderer, const char* vtkNotUs
       for (int j=0; j<allactors->GetNumberOfItems(); j++)
         {
         vtkActor* actor = vtkActor::SafeDownCast(allactors->GetItemAsObject(j));
-        unsigned long key = (unsigned long)actor;
+        vtkActor* key = actor;
         unsigned long previousValue = this->Internal->OldActorTimestamp[key];
-        this->parseActor(actor, previousValue, (long)renderer, renderer->GetLayer(), trt != NULL);
+        this->parseActor(actor, previousValue, (size_t)renderer, renderer->GetLayer(), trt != NULL);
         }
       allactors->Delete();
       }
@@ -163,16 +163,16 @@ void vtkWebGLExporter::parseRenderer(vtkRenderer *renderer, const char* vtkNotUs
         vtkActor2D* actor = vtkActor2D::SafeDownCast(all2dactors->GetItemAsObject(k));
         unsigned long key = (unsigned long)actor;
         unsigned long previousValue = this->Internal->OldActorTimestamp[key];
-        this->parseActor2D(actor, previousValue, (long)renderer, renderer->GetLayer(), trt != NULL);
+        this->parseActor2D(actor, previousValue, (size_t)renderer, renderer->GetLayer(), trt != NULL);
         }
       all2dactors->Delete();
       }
     }
   }
 
-void vtkWebGLExporter::parseActor2D(vtkActor2D *actor, long actorTime, long renderId, int layer, bool isWidget)
+void vtkWebGLExporter::parseActor2D(vtkActor2D *actor, long actorTime, size_t renderId, int layer, bool isWidget)
   {
-  unsigned long key = (unsigned long)actor;
+  vtkActor* key = actor;
   vtkScalarBarActor* scalarbar = vtkScalarBarActor::SafeDownCast(actor);
 
   long dataMTime = actor->GetMTime() + actor->GetRedrawMTime() + actor->GetProperty()->GetMTime();
@@ -197,7 +197,7 @@ void vtkWebGLExporter::parseActor2D(vtkActor2D *actor, long actorTime, long rend
         obj->GetDataFromColorMap(actor);
 
         std::stringstream ss;
-        ss << (long)actor;
+        ss << (size_t)actor;
         obj->SetId(ss.str());
         obj->SetRendererId(renderId);
         this->Internal->Objects.push_back(obj);
@@ -227,14 +227,14 @@ void vtkWebGLExporter::parseActor2D(vtkActor2D *actor, long actorTime, long rend
     }
   }
 
-void vtkWebGLExporter::parseActor(vtkActor* actor, unsigned long actorTime, long rendererId, int layer, bool isWidget)
+void vtkWebGLExporter::parseActor(vtkActor* actor, unsigned long actorTime, size_t rendererId, int layer, bool isWidget)
   {
   vtkMapper* mapper = actor->GetMapper();
   if (mapper)
     {
     unsigned long dataMTime;
     vtkTriangleFilter* polydata = this->GetPolyData(mapper, dataMTime);
-    unsigned long key = (unsigned long)actor;
+    vtkActor* key = actor;
     dataMTime = actor->GetMTime() + mapper->GetLookupTable()->GetMTime();
     dataMTime += actor->GetProperty()->GetMTime() + mapper->GetMTime() + actor->GetRedrawMTime();
     dataMTime += polydata->GetOutput()->GetNumberOfLines() + polydata->GetOutput()->GetNumberOfPolys();
@@ -257,7 +257,7 @@ void vtkWebGLExporter::parseActor(vtkActor* actor, unsigned long actorTime, long
       this->Internal->ActorTimestamp[key] = dataMTime;
       vtkWebGLObject* obj = NULL;
       std::stringstream ss;
-      ss << (long)actor;
+      ss << (size_t)actor;
       for (size_t i=0; i<this->Internal->tempObj.size(); i++)
         {
         if (this->Internal->tempObj[i]->GetId().compare(ss.str()) == 0)
@@ -374,7 +374,7 @@ void vtkWebGLExporter::parseActor(vtkActor* actor, unsigned long actorTime, long
       {
       this->Internal->ActorTimestamp[key] = actorTime;
       std::stringstream ss;
-      ss << (long)actor;
+      ss << (size_t)actor;
       for (size_t i=0; i<this->Internal->tempObj.size(); i++)
         {
         if (this->Internal->tempObj[i]->GetId().compare(ss.str()) == 0)
