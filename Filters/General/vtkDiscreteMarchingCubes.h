@@ -43,6 +43,14 @@
 // filters that can handle non-manifold polydata
 // (e.g. vtkWindowedSincPolyDataFilter).
 // Also note, Normals and Gradients are not computed.
+// If ComputeNeighbours is on (the default), each output point will have
+// point data that contains the label value of the neighbouring voxel.
+// This allows to remove regions of the resulting vtkPolyData that are
+// adjacent to specific label meshes. For example, if the input is a label
+// image that was created by running a watershed transformation on a distance
+// map followed by masking with the original binary segmentation. For further
+// details and images see https://github.com/Kitware/VTK/pull/18. This
+// extension to vtkDiscreteMarchingCubes was contributed by Roman Grothausmann.
 // .SECTION Caveats
 // This filter is specialized to volumes. If you are interested in
 // contouring other types of data, use the general vtkContourFilter. If you
