@@ -133,7 +133,7 @@ int vtkArcSource::RequestData( vtkInformation* vtkNotUsed(request),
     // Calculate radius
     radius = vtkMath::Normalize( v1 );
     }
-  else // if ( this->UseNormalAndRadius )
+  else // if ( this->UseNormalAndAngle )
     {
     // Compute the cross product of the two vectors.
     for ( int i = 0; i < 3; ++ i )

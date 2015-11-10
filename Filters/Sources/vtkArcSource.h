@@ -59,19 +59,19 @@ public:
 
   // Description:
   // Set normal vector.
-  // Note: This is only used when UseNormalAndRadius is ON.
+  // Note: This is only used when UseNormalAndAngle is ON.
   vtkSetVector3Macro(Normal,double);
   vtkGetVectorMacro(Normal,double,3);
 
   // Description:
   // Set polar vector.
-  // Note: This is only used when UseNormalAndRadius is ON.
+  // Note: This is only used when UseNormalAndAngle is ON.
   vtkSetVector3Macro(PolarVector,double);
   vtkGetVectorMacro(PolarVector,double,3);
 
   // Description:
   // Angular sector occupied by the arc, beginning at Point1.
-  // Note: This is only used when UseNormalAndRadius is ON.
+  // Note: This is only used when UseNormalAndAngle is ON.
   vtkSetClampMacro(Angle,double,-360.0,360.0);
   vtkGetMacro(Angle,double);
 
