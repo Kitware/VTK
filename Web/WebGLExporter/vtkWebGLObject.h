@@ -52,7 +52,7 @@ public:
   void GetBinaryData(int part, vtkUnsignedCharArray* buffer);
 
   void SetLayer(int l);
-  void SetRendererId(long int i);
+  void SetRendererId(size_t i);
   void SetId(std::string i);
   void SetWireframeMode(bool wireframe);
   void SetVisibility(bool vis);
@@ -71,7 +71,7 @@ public:
   std::string GetMD5();
   std::string GetId();
   //ETX
-  long int GetRendererId();
+  size_t GetRendererId();
   int GetLayer();
 
 protected:
@@ -79,7 +79,7 @@ protected:
     ~vtkWebGLObject();
 
     float Matrix[16];
-    long int rendererId;
+    size_t rendererId;
     int layer;                  // Renderer Layer
     std::string id;          // Id of the object
     std::string MD5;

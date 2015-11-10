@@ -132,13 +132,13 @@ bool vtkWebGLObject::HasTransparency()
   }
 
 //-----------------------------------------------------------------------------
-void vtkWebGLObject::SetRendererId(long i)
+void vtkWebGLObject::SetRendererId(size_t i)
   {
   this->rendererId = i;
   }
 
 //-----------------------------------------------------------------------------
-long vtkWebGLObject::GetRendererId()
+size_t vtkWebGLObject::GetRendererId()
   {
   return this->rendererId;
   }
