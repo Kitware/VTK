@@ -60,12 +60,14 @@ public:
 
   // Description:
   // Set the normal vector to the plane of the arc.
+  // By default it points in the positive Z direction.
   // Note: This is only used when UseNormalAndAngle is ON.
   vtkSetVector3Macro(Normal,double);
   vtkGetVectorMacro(Normal,double,3);
 
   // Description:
   // Set polar vector (starting point of the arc).
+  // By default it is the unit vector in the positive X direction.
   // Note: This is only used when UseNormalAndAngle is ON.
   vtkSetVector3Macro(PolarVector,double);
   vtkGetVectorMacro(PolarVector,double,3);

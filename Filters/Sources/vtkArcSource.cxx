@@ -47,15 +47,15 @@ vtkArcSource::vtkArcSource(int res)
   this->Center[1] =  0.0;
   this->Center[2] =  0.0;
 
-  // Default normal vector is unit in Oz direction
-  this->Normal[0] =  1.0;
+  // Default normal vector is unit in the positive Z direction.
+  this->Normal[0] =  0.0;
   this->Normal[1] =  0.0;
-  this->Normal[2] =  0.0;
+  this->Normal[2] =  1.0;
 
-  // Default polar vector
-  this->PolarVector[0] =  0.0;
+  // Default polar vector is unit in the positive X direction.
+  this->PolarVector[0] =  1.0;
   this->PolarVector[1] =  0.0;
-  this->PolarVector[2] =  1.0;
+  this->PolarVector[2] =  0.0;
 
   // Default arc is a quarter-circle
   this->Angle =  90.;
@@ -256,4 +256,3 @@ void vtkArcSource::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
-
