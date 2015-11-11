@@ -7,6 +7,7 @@ vtk_add_test_python(
   dem.py
   TestMetaImage2D.py
   TestNIFTIReaderWriter.py
+  TestPNGTextChunks.py,NO_VALID
   TestSetFileNames.py
   TestImageJSONWriter.py,NO_VALID
   )
