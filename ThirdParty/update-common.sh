@@ -117,7 +117,7 @@ pushd "$extractdir"
 mv -v "$name-reduced/"* .
 rmdir "$name-reduced/"
 git add -A .
-git commit --author="$ownership" --date="$upstream_date" -F - <<-EOF
+git commit -n --author="$ownership" --date="$upstream_date" -F - <<-EOF
 $commit_summary
 
 Code extracted from:
