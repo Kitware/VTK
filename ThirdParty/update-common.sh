@@ -115,7 +115,7 @@ fi
 # Commit the subset
 pushd "$extractdir"
 mv -v "$name-reduced/"* .
-rmdir -v "$name-reduced/"
+rmdir "$name-reduced/"
 git add -A .
 git commit --author="$ownership" --date="$upstream_date" -F - <<-EOF
 $commit_summary
