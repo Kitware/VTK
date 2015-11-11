@@ -1777,4 +1777,3 @@ void MET_SwapByteIfSystemMSB(void* val, MET_ValueEnumType _type)
 #if (METAIO_USE_NAMESPACE)
 };
 #endif
-

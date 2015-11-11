@@ -1964,4 +1964,3 @@ void MetaObject::M_PrepareNewReadStream()
 #if (METAIO_USE_NAMESPACE)
 };
 #endif
-
