@@ -112,5 +112,5 @@ int TestVBOPLYMapper(int argc, char *argv[])
     iren->Start();
     }
 
-  return retVal;
+  return !retVal;
 }
