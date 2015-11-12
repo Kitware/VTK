@@ -25,9 +25,9 @@
 // Zooming affects the camera's parallel scale only, and assumes
 // that the camera is in parallel projection mode.
 // The style also allows draws a rubber band using the left button.
-// All camera changes invoke InteractionBeginEvent when the button
+// All camera changes invoke StartInteractionEvent when the button
 // is pressed, InteractionEvent when the mouse (or wheel) is moved,
-// and InteractionEndEvent when the button is released.  The bindings
+// and EndInteractionEvent when the button is released.  The bindings
 // are as follows:
 // Left mouse - Select (invokes a SelectionChangedEvent).
 // Right mouse - Zoom.
