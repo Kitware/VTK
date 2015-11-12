@@ -123,12 +123,15 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
     }
 
   glViewport(lowerLeft[0], lowerLeft[1], usize, vsize);
+  glEnable(GL_SCISSOR_TEST);
   if (this->UseScissor)
   {
-    glEnable(GL_SCISSOR_TEST);
     glScissor(this->ScissorRect.GetX(),this->ScissorRect.GetY(),
               this->ScissorRect.GetWidth(), this->ScissorRect.GetHeight());
     this->UseScissor = false;
+  }
+  else{
+    glScissor(lowerLeft[0], lowerLeft[1], usize, vsize);
   }
 
   if ((ren->GetRenderWindow())->GetErase() && ren->GetErase()
@@ -150,12 +153,15 @@ void vtkOpenGLCamera::UpdateViewport(vtkRenderer *ren)
   ren->GetTiledSizeAndOrigin(&usize, &vsize, lowerLeft, lowerLeft+1);
 
   glViewport(lowerLeft[0], lowerLeft[1], usize, vsize);
+  glEnable(GL_SCISSOR_TEST);
   if (this->UseScissor)
   {
-    glEnable(GL_SCISSOR_TEST);
     glScissor(this->ScissorRect.GetX(),this->ScissorRect.GetY(),
               this->ScissorRect.GetWidth(), this->ScissorRect.GetHeight());
     this->UseScissor = false;
+  }
+  else{
+    glScissor(lowerLeft[0], lowerLeft[1], usize, vsize);
   }
 
   vtkOpenGLCheckErrorMacro("failed after UpdateViewport");
