@@ -284,6 +284,10 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
 
   #ignore clangs documentation warnings from libxml, which uses gtk-doc natively, not doxygen
   "vtklibxml2.*warning: unknown command tag name"
+
+  # Ignore warnings about inheriting std::exception when the dll-interface
+  # doesn't match. There's no other way to really do exceptions properly.
+  "warning C4275: non dll-interface class 'std::exception' used as base"
   )
 
 IF(APPLE)
