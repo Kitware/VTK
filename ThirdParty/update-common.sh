@@ -130,13 +130,10 @@ readonly newhash="$( git rev-parse HEAD )"
 popd
 
 # Merge the subset into this repository
-if [ -n "$basehash" ]; then
-    git merge -s recursive "-Xsubtree=$subtree/" --no-commit "$newhash"
-else
+if [ -z "$basehash" ]; then
     git fetch "$extractdir"
-    git merge -s ours --no-commit "$newhash"
-    git read-tree -u --prefix="$subtree/" "$newhash"
 fi
+git merge -s recursive "-Xsubtree=$subtree/" --no-commit "$newhash"
 sed -i -e "/NEWHASH$/s/='.*'/='$newhash'/" "$update"
 git add "$update"
 git commit -m "$name: update to $tag"
