@@ -587,4 +587,3 @@ M_Write(void)
 #if (METAIO_USE_NAMESPACE)
 };
 #endif
-

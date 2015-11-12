@@ -345,7 +345,7 @@ M_Read(void)
   // we read 1)node, 2) material, 3) element and 4) load  and the input should be in the afore
   // mentioned order.
 
-  int segment_read = 0;	// to keep track of what is being read. corresponds to enumerated types in the header file
+  int segment_read = 0; // to keep track of what is being read. corresponds to enumerated types in the header file
   /* then we start reading objects from stream */
   do
     {
@@ -360,7 +360,7 @@ M_Read(void)
     if(segment_read > 3)
       {
       this->SkipWhiteSpace();
-      return true;	// end of FEM segment in spatial object reader.
+      return true; // end of FEM segment in spatial object reader.
       }
 
     l = this->m_ReadStream->tellg();     // remember the stream position
@@ -405,8 +405,8 @@ M_Read(void)
     if ( s == "END" )
       {
       /*
-		 * We can ignore this token. Start again by reading the next object.
-		 */
+       * We can ignore this token. Start again by reading the next object.
+       */
       segment_read++;
       }
     else
@@ -421,9 +421,9 @@ M_Read(void)
         return false;  // class not found
         }
       /*
-	     * Now we have to read additional data, which is
-	     * specific to the class of object we just created
-	     */
+       * Now we have to read additional data, which is
+       * specific to the class of object we just created
+       */
 
       switch ( segment_read )
         {
@@ -441,7 +441,7 @@ M_Read(void)
           break;
         }
       }
-    }while(segment_read <= 3);	// end of FEM segment in spatial object reader.
+    }while(segment_read <= 3); // end of FEM segment in spatial object reader.
   return true;
 }
 
@@ -1354,40 +1354,46 @@ int* MetaFEMObject::GetElementDimensionAndNumberOfNodes(std::string c_string, in
 {
   if((c_string == "Element2DC0LinearLineStress") || (c_string == "Element2DC1Beam"))
     {
-    info[0] = 2;	info[1] = 2;
+    info[0] = 2;
+    info[1] = 2;
     }
 
   if((c_string == "Element2DC0LinearTriangularMembrane") ||
      (c_string == "Element2DC0LinearTriangularStrain") ||
      (c_string == "Element2DC0LinearTriangularStress"))
     {
-    info[0] = 3;	info[1] = 2;
+    info[0] = 3;
+    info[1] = 2;
     }
 
   if((c_string == "Element2DC0LinearQuadrilateralMembrane") ||
      (c_string == "Element2DC0LinearQuadrilateralStrain") ||
      (c_string == "Element2DC0LinearQuadrilateralStress"))
     {
-    info[0] = 4;	info[1] = 2;
+    info[0] = 4;
+    info[1] = 2;
     }
 
 
   if((c_string == "Element2DC0QuadraticTriangularStrain") ||
      (c_string == "Element2DC0QuadraticTriangularStress"))
     {
-    info[0] = 6;	info[1] = 2;
+    info[0] = 6;
+    info[1] = 2;
     }
 
   if((c_string == "Element3DC0LinearHexahedronMembrane") ||
      (c_string == "Element3DC0LinearHexahedronStrain"))
     {
-    info[0] = 8;	info[1] = 3;
+    info[0] = 8;
+    info[1] = 3;
     }
 
   if((c_string == "Element3DC0LinearTetrahedronMembrane") ||
      (c_string == "Element3DC0LinearTetrahedronStrain"))
     {
-    info[0] = 4;	info[1] = 3;
+    info[0] = 4;
+    info[1] = 3;
     }
 
   return info;
