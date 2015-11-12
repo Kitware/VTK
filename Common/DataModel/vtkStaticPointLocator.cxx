@@ -517,16 +517,16 @@ public:
 
       void  operator()(vtkIdType ptId, vtkIdType end)
         {
-        double xD[3];
+        double p[3];
         const TPts *x = this->Points + 3*ptId;
         LocatorTuple<T> *t = this->BList->Map + ptId;
         for ( ; ptId < end; ++ptId, x+=3, ++t )
           {
-          xD[0] = static_cast<double>(x[0]);
-          xD[1] = static_cast<double>(x[1]);
-          xD[2] = static_cast<double>(x[2]);
+          p[0] = static_cast<double>(x[0]);
+          p[1] = static_cast<double>(x[1]);
+          p[2] = static_cast<double>(x[2]);
           t->PtId = ptId;
-          t->Bucket = this->BList->GetBucketIndex(xD);
+          t->Bucket = this->BList->GetBucketIndex(p);
           }//for all points in this batch
         }
    };
@@ -1368,7 +1368,6 @@ void vtkStaticPointLocator::BuildLocator()
   int ndivs[3];
   int i;
   vtkIdType numPts;
-  typedef vtkIdList *vtkIdListPtr;
 
   if ( (this->Buckets != NULL) && (this->BuildTime > this->MTime)
        && (this->BuildTime > this->DataSet->GetMTime()) )
