@@ -1267,4 +1267,3 @@ M_WriteElements(METAIO_STREAM::ofstream * _fstream, const void * _data,
 #if (METAIO_USE_NAMESPACE)
 };
 #endif
-
