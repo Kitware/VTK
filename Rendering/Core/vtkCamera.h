@@ -28,7 +28,7 @@
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkRect.h"
+#include "vtkRect.h" // for ivar
 
 class vtkHomogeneousTransform;
 class vtkMatrix4x4;
