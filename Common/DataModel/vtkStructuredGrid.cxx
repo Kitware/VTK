@@ -587,7 +587,8 @@ void vtkStructuredGrid::UnBlankCell(vtkIdType cellId)
 //----------------------------------------------------------------------------
 unsigned char vtkStructuredGrid::IsPointVisible(vtkIdType pointId)
 {
-  if(this->GetPointGhostArray() && (this->GetPointGhostArray()->GetValue(pointId) & vtkDataSetAttributes::HIDDENPOINT))
+  vtkUnsignedCharArray* ghosts = this->GetPointGhostArray();
+  if(ghosts && (ghosts->GetValue(pointId) & vtkDataSetAttributes::HIDDENPOINT))
     {
     return 0;
     }
@@ -607,7 +608,8 @@ void vtkStructuredGrid::GetCellDims( int cellDims[3] )
 // Return non-zero if the specified cell is visible (i.e., not blanked)
 unsigned char vtkStructuredGrid::IsCellVisible(vtkIdType cellId)
 {
-  if(this->GetCellGhostArray() && (this->GetCellGhostArray()->GetValue(cellId) & MASKED_CELL_VALUE))
+  vtkUnsignedCharArray* ghosts = this->GetCellGhostArray();
+  if(ghosts && (ghosts->GetValue(cellId) & MASKED_CELL_VALUE))
     {
     return 0;
     }

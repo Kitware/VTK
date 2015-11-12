@@ -441,6 +441,8 @@ protected:
   // getting ghost arrays using GetArray(name))
   vtkUnsignedCharArray* PointGhostArray;
   vtkUnsignedCharArray* CellGhostArray;
+  bool PointGhostArrayCached;
+  bool CellGhostArrayCached;
 
 
 private:
