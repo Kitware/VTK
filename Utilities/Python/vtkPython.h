@@ -91,4 +91,15 @@ they are system headers.  Do NOT add any #undef lines here.  */
 # undef VTK_PYTHON_UNDEF_DEBUG
 #endif
 
+/* undo some macro defs in pyport.h */
+#if defined(_PY_PORT_CTYPE_UTF8_ISSUE) && defined(__cplusplus)
+#undef isalnum
+#undef isalpha
+#undef islower
+#undef isspace
+#undef isupper
+#undef tolower
+#undef toupper
+#endif
+
 #endif
