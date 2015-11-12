@@ -224,18 +224,16 @@ protected:
   int Divisions[3]; // Number of sub-divisions in x-y-z directions
   int NumberOfPointsPerBucket; //Used with previous boolean to control subdivide
   vtkIdList **HashTable; // lists of point ids in buckets
-  vtkIdType NumberOfBuckets; // total size of hash table
   double H[3]; // width of each bucket in x-y-z directions
 
   double InsertionTol2;
   vtkIdType InsertionPointId;
 
   double InsertionLevel;
+
 private:
   vtkPointLocator(const vtkPointLocator&);  // Not implemented.
   void operator=(const vtkPointLocator&);  // Not implemented.
 };
 
 #endif
-
-

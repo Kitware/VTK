@@ -156,6 +156,7 @@ set(Module_SRCS
   vtkSmoothErrorMetric.cxx
   vtkSphere.cxx
   vtkSpline.cxx
+  vtkStaticPointLocator.cxx
   vtkStructuredData.cxx
   vtkStructuredExtent.cxx
   vtkStructuredGrid.cxx

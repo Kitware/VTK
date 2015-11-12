@@ -21,6 +21,9 @@
 // and finding the closest point.  The points are provided from the specified
 // dataset input.
 
+// .SECTION See Also
+// vtkPointLocator vtkStaticPointLocator vtkMergePoints
+
 #ifndef vtkAbstractPointLocator_h
 #define vtkAbstractPointLocator_h
 
@@ -32,6 +35,8 @@ class vtkIdList;
 class VTKCOMMONDATAMODEL_EXPORT vtkAbstractPointLocator : public vtkLocator
 {
 public:
+  // Description:
+  // Standard type and print methods.
   vtkTypeMacro(vtkAbstractPointLocator,vtkLocator);
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -78,6 +83,11 @@ public:
   virtual void GetBounds(double*);
 
   // Description:
+  // Return the total number of buckets in the locator. This has meaning only
+  // after the locator is constructed.
+  vtkGetMacro(NumberOfBuckets,vtkIdType);
+
+  // Description:
   // See vtkLocator interface documentation.
   // These methods are not thread safe.
   virtual void FreeSearchStructure() = 0;
@@ -89,6 +99,7 @@ protected:
   virtual ~vtkAbstractPointLocator();
 
   double Bounds[6]; // bounds of points
+  vtkIdType NumberOfBuckets; // total size of locator
 
 private:
   vtkAbstractPointLocator(const vtkAbstractPointLocator&);  // Not implemented.
@@ -96,5 +107,3 @@ private:
 };
 
 #endif
-
-

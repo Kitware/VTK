@@ -99,7 +99,6 @@ vtkPointLocator::vtkPointLocator()
   this->Divisions[0] = this->Divisions[1] = this->Divisions[2] = 50;
   this->NumberOfPointsPerBucket = 3;
   this->HashTable = NULL;
-  this->NumberOfBuckets = 0;
   this->H[0] = this->H[1] = this->H[2] = 0.0;
   this->InsertionPointId = 0;
   this->InsertionTol2 = 0.0001;
@@ -207,9 +206,9 @@ vtkIdType vtkPointLocator::FindClosestPoint(const double x[3])
   // point found previously may not be the closest point.  Have to
   // search those bucket neighbors that might also contain point.
   //
-  if ( dist2 > 0.0 )
+  if ( minDist2 > 0.0 )
     {
-    this->GetOverlappingBuckets (&buckets, x, ijk, sqrt(dist2),0);
+    this->GetOverlappingBuckets (&buckets, x, ijk, sqrt(minDist2),0);
     for (i=0; i<buckets.GetNumberOfNeighbors(); i++)
       {
       nei = buckets.GetPoint(i);
@@ -300,7 +299,6 @@ vtkIdType vtkPointLocator::FindClosestPointWithinRadius(double radius,
       }
     }
 
-
   // Now, search only those buckets that are within a radius. The radius used
   // is the smaller of sqrt(dist2) and the radius that is passed in. To avoid
   // checking a large number of buckets unnecessarily, if the radius is
@@ -309,7 +307,7 @@ vtkIdType vtkPointLocator::FindClosestPointWithinRadius(double radius,
   // buckets multiple times, but this only happens in the case where these
   // buckets are empty, so they are discarded quickly.
   //
-  if (dist2 < radius2 && dist2 >= 0.0)
+  if ( minDist2 < radius2 )
     {
     refinedRadius = sqrt(dist2);
     refinedRadius2 = dist2;
@@ -1797,4 +1795,3 @@ void vtkPointLocator::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Points: (none)\n";
     }
 }
-
