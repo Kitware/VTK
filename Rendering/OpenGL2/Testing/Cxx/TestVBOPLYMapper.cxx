@@ -101,6 +101,9 @@ int TestVBOPLYMapper(int argc, char *argv[])
   renderer->ResetCamera();
 
   renderWindow->SetSize(300, 300);
+  // render a few times to get the resize to flush out
+  renderWindow->Render();
+  renderWindow->Render();
   renderWindow->Render();
 
   int retVal = vtkRegressionTestImage( renderWindow.Get() );
@@ -109,5 +112,5 @@ int TestVBOPLYMapper(int argc, char *argv[])
     iren->Start();
     }
 
-  return EXIT_SUCCESS;
+  return !retVal;
 }
