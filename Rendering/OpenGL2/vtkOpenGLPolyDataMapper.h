@@ -167,9 +167,8 @@ protected:
   vtkOpenGLBufferObject *AppleBugPrimIDBuffer;
 
   // Description:
-  // helper function to get the net polygonal offsets
-  void vtkOpenGLPolyDataMapper::GetCoincidentParameters(
-    vtkActor *actor, float &factor, float &offset);
+  // helper function to get the appropriate coincident params
+  void GetCoincidentParameters(vtkActor *actor, float &factor, float &offset);
 
   // Description:
   // Called in GetBounds(). When this method is called, the consider the input
