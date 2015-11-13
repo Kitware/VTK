@@ -323,11 +323,19 @@ public:
   static void GetResolveCoincidentTopologyPolygonOffsetParameters(
     double& factor, double& units);
 
+  // Description:
+  // Used to set the line offset scale factor and units.
+  // Used when ResolveCoincidentTopology is set to PolygonOffset.
+  // These are global variables.
   static void SetResolveCoincidentTopologyLineOffsetParameters(
     double factor, double units);
   static void GetResolveCoincidentTopologyLineOffsetParameters(
     double& factor, double& units);
 
+  // Description:
+  // Used to set the point offset value
+  // Used when ResolveCoincidentTopology is set to PolygonOffset.
+  // These are global variables.
   static void SetResolveCoincidentTopologyPointOffsetParameter(
     double units);
   static void GetResolveCoincidentTopologyPointOffsetParameter(
