@@ -1218,6 +1218,46 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPrimID(
   shaders[vtkShader::Fragment]->SetSource(FSSource);
 }
 
+void vtkOpenGLPolyDataMapper::ReplaceShaderCoincidentOffset(
+  std::map<vtkShader::Type, vtkShader *> shaders,
+  vtkRenderer *, vtkActor *actor)
+{
+  float factor = 0.0;
+  float offset = 0.0;
+  this->GetCoincidentParameters(actor,factor,offset);
+
+  // if we need an offset handle it here
+  // The value of .000016 is suitable for depth buffers
+  // of at least 16 bit depth. We do not query the depth
+  // right now because we would need some mechanism to
+  // cache the result taking into account FBO changes etc.
+  if (factor != 0.0 || offset != 0.0)
+    {
+    std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
+
+    vtkShaderProgram::Substitute(FSSource,
+      "//VTK::Coincident::Dec",
+      "uniform float cfactor;\n"
+      "uniform float coffset;");
+    if (factor != 0.0)
+      {
+      vtkShaderProgram::Substitute(FSSource,
+        "//VTK::Coincident::Impl",
+        "float cscale = length(vec2(dFdx(gl_FragCoord.z),dFdy(gl_FragCoord.z)));\n"
+        "  gl_FragDepth = gl_FragCoord.z + cfactor*cscale + 0.000016*coffset;\n"
+        );
+      }
+    else
+      {
+      vtkShaderProgram::Substitute(FSSource,
+        "//VTK::Coincident::Impl",
+        "gl_FragDepth = gl_FragCoord.z + 0.000016*coffset;\n"
+        );
+      }
+    shaders[vtkShader::Fragment]->SetSource(FSSource);
+    }
+}
+
 void vtkOpenGLPolyDataMapper::ReplaceShaderValues(
   std::map<vtkShader::Type, vtkShader *> shaders,
   vtkRenderer *ren, vtkActor *actor)
@@ -1231,6 +1271,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(
   this->ReplaceShaderClip(shaders, ren, actor);
   this->ReplaceShaderPrimID(shaders, ren, actor);
   this->ReplaceShaderPositionVC(shaders, ren, actor);
+  this->ReplaceShaderCoincidentOffset(shaders, ren, actor);
 
   //cout << "VS: " << shaders[vtkShader::Vertex]->GetSource() << endl;
   //cout << "GS: " << shaders[vtkShader::Geometry]->GetSource() << endl;
@@ -1571,6 +1612,15 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
       lineWidth[1] = 2.0*actor->GetProperty()->GetLineWidth()/vp[3];
       cellBO.Program->SetUniform2f("lineWidthNVC",lineWidth);
     }
+
+  // handle coincident
+  if (cellBO.Program->IsUniformUsed("coffset"))
+    {
+    float factor, offset;
+    this->GetCoincidentParameters(actor,factor,offset);
+    cellBO.Program->SetUniformf("coffset",offset);
+    cellBO.Program->SetUniformf("cfactor",factor);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -1851,6 +1901,54 @@ int getPickState(vtkRenderer *ren)
 }
 }
 
+void vtkOpenGLPolyDataMapper::GetCoincidentParameters(
+  vtkActor *actor, float &factor, float &offset)
+{
+  // 1. ResolveCoincidentTopology is On and non zero for this primitive
+  // type
+  factor = 0.0;
+  offset = 0.0;
+  if ( this->GetResolveCoincidentTopology() == VTK_RESOLVE_SHIFT_ZBUFFER )
+    {
+    // do something rough is better than nothing
+    double zRes = this->GetResolveCoincidentTopologyZShift(); // 0 is no shift 1 is big shift
+    double f = zRes*4.0;
+    factor = f;
+    }
+
+  vtkProperty *prop = actor->GetProperty();
+  if ((this->GetResolveCoincidentTopology() == VTK_RESOLVE_POLYGON_OFFSET) ||
+      (prop->GetEdgeVisibility() && prop->GetRepresentation() == VTK_SURFACE))
+    {
+    double f = 0.0;
+    double u = 0.0;
+    if (this->LastBoundBO == &this->Points ||
+        prop->GetRepresentation() == VTK_POINTS)
+      {
+      this->GetResolveCoincidentTopologyPointOffsetParameter(u);
+      }
+    else if (this->LastBoundBO == &this->Lines ||
+        prop->GetRepresentation() == VTK_WIREFRAME)
+      {
+      this->GetResolveCoincidentTopologyLineOffsetParameters(f,u);
+      }
+    else if (this->LastBoundBO == &this->Tris ||
+          this->LastBoundBO == &this->TriStrips)
+      {
+      this->GetResolveCoincidentTopologyPolygonOffsetParameters(f,u);
+      }
+    if (this->LastBoundBO == &this->TrisEdges ||
+        this->LastBoundBO == &this->TriStripsEdges)
+      {
+      this->GetResolveCoincidentTopologyPolygonOffsetParameters(f,u);
+      f /= 2;
+      u /= 2;
+      }
+    factor = f;
+    offset = u;
+    }
+}
+
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor)
 {
@@ -1877,8 +1975,6 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
 #if GL_ES_VERSION_2_0 != 1
       glPointSize(4.0); //make verts large enough to be sure to overlap cell
 #endif
-      glEnable(GL_POLYGON_OFFSET_FILL);
-      glPolygonOffset(0,2.0);  // supported on ES2/3/etc
       glDepthMask(GL_FALSE); //prevent verts from interfering with each other
       }
     if (selector->GetCurrentPass() == vtkHardwareSelector::COMPOSITE_INDEX_PASS)
@@ -1918,7 +2014,6 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
   // Bind the OpenGL, this is shared between the different primitive/cell types.
   this->VBO->Bind();
   this->LastBoundBO = NULL;
-
 }
 
 //-----------------------------------------------------------------------------
@@ -1978,31 +2073,6 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
       }
     this->Lines.IBO->Release();
     this->PrimitiveIDOffset += (int)this->Lines.IBO->IndexCount/2;
-    }
-
-  vtkProperty *prop = actor->GetProperty();
-  bool surface_offset =
-    (this->GetResolveCoincidentTopology() || prop->GetEdgeVisibility())
-    && prop->GetRepresentation() == VTK_SURFACE;
-
-  if (surface_offset)
-    {
-    glEnable(GL_POLYGON_OFFSET_FILL);
-    if ( this->GetResolveCoincidentTopology() == VTK_RESOLVE_SHIFT_ZBUFFER )
-      {
-      // do something rough is better than nothing
-      double zRes = this->GetResolveCoincidentTopologyZShift(); // 0 is no shift 1 is big shift
-      double f = zRes*4.0;
-      glPolygonOffset(f + (prop->GetEdgeVisibility() ? 1.0 : 0.0),
-        prop->GetEdgeVisibility() ? 1.0 : 0.0);  // supported on ES2/3/etc
-      }
-    else
-      {
-      double f, u;
-      this->GetResolveCoincidentTopologyPolygonOffsetParameters(f,u);
-      glPolygonOffset(f + (prop->GetEdgeVisibility() ? 1.0 : 0.0),
-        u + (prop->GetEdgeVisibility() ? 1.0 : 0.0));  // supported on ES2/3/etc
-      }
     }
 
   // draw polygons

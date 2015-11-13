@@ -107,7 +107,7 @@ int main( int argc, char *argv[] )
   // If no radius is defined, then take the number of grid points along X axis
   if (R == 0.0) R = nx;
   Cell::setR(R);
-   
+
   Node * n1 = new Node (0.0,           0.0,           0.0);
   Node * n2 = new Node ((double) nx+1, 0.0,           0.0);
   Node * n3 = new Node ((double) nx+1, 0.0,           (double) nz+1);
@@ -156,11 +156,9 @@ int main( int argc, char *argv[] )
   vtkPolyDataMapper * polyDataMapper1 = vtkPolyDataMapper::New();
   polyDataMapper1->SetInputConnection(dataSetSurfaceFilter->GetOutputPort());
   polyDataMapper1->SetResolveCoincidentTopologyToPolygonOffset();
-  polyDataMapper1->SetResolveCoincidentTopologyPolygonOffsetParameters( 0, 1 );
   vtkPolyDataMapper * polyDataMapper2 = vtkPolyDataMapper::New();
   polyDataMapper2->SetInputConnection(dataSetSurfaceFilter->GetOutputPort());
   polyDataMapper2->SetResolveCoincidentTopologyToPolygonOffset();
-  polyDataMapper2->SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
 
   // Actors
   vtkActor *actor1 = vtkActor::New();
@@ -189,7 +187,7 @@ int main( int argc, char *argv[] )
   // Render
   //renWindow->Render();
   //interacteur->Start();
-   
+
   // Clean up
   delete mesh;
   delete n1;

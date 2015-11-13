@@ -323,6 +323,16 @@ public:
   static void GetResolveCoincidentTopologyPolygonOffsetParameters(
     double& factor, double& units);
 
+  static void SetResolveCoincidentTopologyLineOffsetParameters(
+    double factor, double units);
+  static void GetResolveCoincidentTopologyLineOffsetParameters(
+    double& factor, double& units);
+
+  static void SetResolveCoincidentTopologyPointOffsetParameter(
+    double units);
+  static void GetResolveCoincidentTopologyPointOffsetParameter(
+    double& units);
+
   // Description:
   // Used when ResolveCoincidentTopology is set to PolygonOffset. The polygon
   // offset can be applied either to the solid polygonal faces or the
