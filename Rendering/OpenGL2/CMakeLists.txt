@@ -177,19 +177,6 @@ if(VTK_USE_X)
     message(FATAL_ERROR "X11_Xt_LIB could not be found. Required for VTK X lib.")
   endif()
   include_directories(${X11_INCLUDE_DIR} ${X11_Xt_INCLUDE_PATH})
-  # Add some custom overrides
-  list(APPEND vtk_module_overrides "vtkAbstractInteractionDevice")
-  set(vtk_module_vtkAbstractInteractionDevice_override "vtkXInteractionDevice")
-  list(APPEND vtk_module_overrides "vtkAbstractRenderDevice")
-  set(vtk_module_vtkAbstractRenderDevice_override "vtkXOpenGLRenderDevice")
-  list(APPEND Module_SRCS
-    vtkXInteractionDevice.cxx
-    vtkXOpenGLRenderDevice.cxx
-    )
-  set_source_files_properties(
-    vtkXInteractionDevice
-    vtkXOpenGLRenderDevice
-    WRAP_EXCLUDE)
 endif()
 
 # setup factory overrides
