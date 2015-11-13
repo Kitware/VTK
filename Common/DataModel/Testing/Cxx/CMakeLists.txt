@@ -48,6 +48,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   quadraticEvaluation.cxx
   TestBoundingBox.cxx
   TestPlane.cxx
+  TestStaticCellLinks.cxx
   TestStructuredData.cxx
   TestDataObjectTypes.cxx
   TestPolyDataRemoveDeletedCells.cxx
