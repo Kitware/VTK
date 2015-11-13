@@ -1030,8 +1030,9 @@ bool vtkTextureObject::Create1D(int numComps,
     }
 
   this->Target = target;
+  this->Context->ActivateTexture(this);
   this->CreateTexture();
-  this->Activate();
+  this->Bind();
 
   pbo->Bind(vtkPixelBufferObject::UNPACKED_BUFFER);
 
@@ -1081,8 +1082,9 @@ bool vtkTextureObject::Create1DFromRaw(unsigned int width, int numComps,
   this->Height = 1;
   this->Depth = 1;
   this->NumberOfDimensions = 1;
+  this->Context->ActivateTexture(this);
   this->CreateTexture();
-  this->Activate();
+  this->Bind();
 
   glTexImage1D(this->Target,
                0,
@@ -1137,8 +1139,9 @@ bool vtkTextureObject::CreateAlphaFromRaw(unsigned int width,
   this->NumberOfDimensions = 1;
   this->Components = 1;
 
+  this->Context->ActivateTexture(this);
   this->CreateTexture();
-  this->Activate();
+  this->Bind();
 
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   glTexImage1D(this->Target, 0, static_cast<GLint>(this->InternalFormat),
@@ -1176,8 +1179,9 @@ bool vtkTextureObject::CreateTextureBuffer(unsigned int numValues, int numComps,
   this->NumberOfDimensions = 1;
   this->BufferObject = bo;
 
+  this->Context->ActivateTexture(this);
   this->CreateTexture();
-  this->Activate();
+  this->Bind();
 
   // Source texture data from the PBO.
   glTexBuffer(
@@ -1246,8 +1250,9 @@ bool vtkTextureObject::Create2D(unsigned int width, unsigned int height,
 
   GLenum target = GL_TEXTURE_2D;
   this->Target = target;
+  this->Context->ActivateTexture(this);
   this->CreateTexture();
-  this->Activate();
+  this->Bind();
 
   // Source texture data from the PBO.
   pbo->Bind(vtkPixelBufferObject::UNPACKED_BUFFER);
@@ -1308,8 +1313,9 @@ bool vtkTextureObject::CreateDepth(unsigned int width,
   this->NumberOfDimensions=2;
   this->Components=1;
 
+  this->Context->ActivateTexture(this);
   this->CreateTexture();
-  this->Activate();
+  this->Bind();
 
   pbo->Bind(vtkPixelBufferObject::UNPACKED_BUFFER);
 
@@ -1362,8 +1368,9 @@ bool vtkTextureObject::Create3D(unsigned int width, unsigned int height,
     }
 
   this->Target = target;
+  this->Context->ActivateTexture(this);
   this->CreateTexture();
-  this->Activate();
+  this->Bind();
 
   pbo->Bind(vtkPixelBufferObject::UNPACKED_BUFFER);
 
@@ -1464,8 +1471,9 @@ bool vtkTextureObject::Create3DFromRaw(unsigned int width, unsigned int height,
   this->Depth = depth;
   this->NumberOfDimensions = 3;
 
+  this->Context->ActivateTexture(this);
   this->CreateTexture();
-  this->Activate();
+  this->Bind();
 
   // Source texture data from the PBO.
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -1517,8 +1525,9 @@ bool vtkTextureObject::Create2DFromRaw(unsigned int width, unsigned int height,
   this->Height = height;
   this->Depth = 1;
   this->NumberOfDimensions = 2;
+  this->Context->ActivateTexture(this);
   this->CreateTexture();
-  this->Activate();
+  this->Bind();
 
   // Source texture data from the PBO.
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -1579,8 +1588,9 @@ bool vtkTextureObject::CreateDepthFromRaw(unsigned int width,
   this->NumberOfDimensions = 2;
   this->Components = 1;
 
+  this->Context->ActivateTexture(this);
   this->CreateTexture();
-  this->Activate();
+  this->Bind();
 
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   glTexImage2D(this->Target, 0, static_cast<GLint>(this->InternalFormat),
@@ -1620,8 +1630,9 @@ bool vtkTextureObject::AllocateDepth(unsigned int width, unsigned int height,
   this->NumberOfDimensions = 2;
   this->Components = 1;
 
+  this->Context->ActivateTexture(this);
   this->CreateTexture();
-  this->Activate();
+  this->Bind();
 
   glTexImage2D(
           this->Target,
@@ -1659,8 +1670,9 @@ bool vtkTextureObject::Allocate1D(unsigned int width, int numComps,
   this->Depth = 1;
   this->NumberOfDimensions = 1;
 
+  this->Context->ActivateTexture(this);
   this->CreateTexture();
-  this->Activate();
+  this->Bind();
   glTexImage1D(this->Target, 0, static_cast<GLint>(this->InternalFormat),
                static_cast<GLsizei>(this->Width), 0, this->Format,
                this->Type,0);
@@ -1693,8 +1705,9 @@ bool vtkTextureObject::Allocate2D(unsigned int width,unsigned int height,
   this->Depth =1;
   this->NumberOfDimensions=2;
 
+  this->Context->ActivateTexture(this);
   this->CreateTexture();
-  this->Activate();
+  this->Bind();
   glTexImage2D(this->Target, 0, static_cast<GLint>(this->InternalFormat),
                static_cast<GLsizei>(this->Width),
                static_cast<GLsizei>(this->Height),
@@ -1731,8 +1744,9 @@ bool vtkTextureObject::Allocate3D(unsigned int width,unsigned int height,
   this->Depth = depth;
   this->NumberOfDimensions = 3;
 
+  this->Context->ActivateTexture(this);
   this->CreateTexture();
-  this->Activate();
+  this->Bind();
   glTexImage3D(this->Target, 0,
                static_cast<GLint>(this->InternalFormat),
                static_cast<GLsizei>(this->Width),
@@ -1775,8 +1789,9 @@ bool vtkTextureObject::Create2D(unsigned int width, unsigned int height,
   this->Depth = 1;
   this->NumberOfDimensions = 2;
 
+  this->Context->ActivateTexture(this);
   this->CreateTexture();
-  this->Activate();
+  this->Bind();
 
   // Allocate space for texture, don't upload any data.
   glTexImage2D(target, 0,
@@ -1817,8 +1832,9 @@ bool vtkTextureObject::Create3D(unsigned int width, unsigned int height,
   this->Height = height;
   this->Depth = depth;
   this->NumberOfDimensions = 3;
+  this->Context->ActivateTexture(this);
   this->CreateTexture();
-  this->Activate();
+  this->Bind();
 
   // Allocate space for texture, don't upload any data.
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
