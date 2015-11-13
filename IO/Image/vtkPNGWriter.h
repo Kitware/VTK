@@ -61,6 +61,26 @@ public:
   virtual void SetResult(vtkUnsignedCharArray*);
   vtkGetObjectMacro(Result, vtkUnsignedCharArray);
 
+  // Description:
+  // Adds a text chunk to the PNG. More than one text chunk with the same key is permissible.
+  // There are a number of predefined keywords that should be used
+  // when appropriate. See
+  // http://www.libpng.org/pub/png/spec/1.2/PNG-Chunks.html
+  // for more information.
+  void AddText(const char* key, const char* value);
+  // Description:
+  // Standard keys
+  static const char* TITLE;
+  static const char* AUTHOR;
+  static const char* DESCRIPTION;
+  static const char* COPYRIGHT;
+  static const char* CREATION_TIME;
+  static const char* SOFTWARE;
+  static const char* DISCLAIMER;
+  static const char* WARNING;
+  static const char* SOURCE;
+  static const char* COMMENT;
+
 protected:
   vtkPNGWriter();
   ~vtkPNGWriter();
@@ -70,6 +90,9 @@ protected:
   unsigned int WriteToMemory;
   vtkUnsignedCharArray *Result;
   FILE *TempFP;
+  class vtkInternals;
+  vtkInternals* Internals;
+
 
 private:
   vtkPNGWriter(const vtkPNGWriter&);  // Not implemented.
@@ -77,5 +100,3 @@ private:
 };
 
 #endif
-
-
