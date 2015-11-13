@@ -1436,15 +1436,10 @@ int vtkCubeAxesActor::LabelExponent(double min, double max)
   double range = (fabs(min) > fabs(max) ? fabs(min) : fabs(max));
   double pow10 = log10(range);
 
-  //
-  // Cutoffs for using scientific notation.  The following 4 variables
-  // should all be static for maximum performance but were made non-static
-  // to get around a compiler bug with the MIPSpro 7.2.1.3 compiler.
-  //
-  double eformat_cut_min = -1.5;
-  double eformat_cut_max =  3.0;
-  double cut_min = pow(10., eformat_cut_min);
-  double cut_max = pow(10., eformat_cut_max);
+  const double eformat_cut_min = -1.5;
+  const double eformat_cut_max =  3.0;
+  const/*expr*/ double cut_min = pow(10., eformat_cut_min);
+  const/*expr*/ double cut_max = pow(10., eformat_cut_max);
   double ipow10;
   if (range < cut_min || range > cut_max)
     {

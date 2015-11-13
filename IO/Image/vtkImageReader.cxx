@@ -358,14 +358,10 @@ void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
         filePos = self->GetFile()->tellg();
         }
 */
-#if ((defined(__sgi) && !defined(__GNUC__)) \
-    || defined(__BORLANDC__) \
-    || defined (__APPLE_CC__))
-      // this check is required for SGI's
+#if (defined(__BORLANDC__) || defined (__APPLE_CC__))
+      // With Borland CBuilder 6 and Apple's gcc3:
       // seems that after a read that just reaches EOF, tellg reports a -1.
       // clear() does not work, so we have to reopen the file.
-      // NB: Also Borland CBuilder 6 suffers from same trouble
-      // As does Apple's gcc3
       if (filePos == -1)
         {
         self->OpenFile();

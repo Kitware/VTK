@@ -24,13 +24,6 @@
 
 /* Check for known compilers.  */
 
-#if defined(__sgi) && !defined(__GNUC__)
-# define VTK_CXX_SGI
-# if !defined(_COMPILER_VERSION)
-#  define VTK_CXX_SGI_6
-# endif
-#endif
-
 #if defined(__HP_aCC)
 # define VTK_CXX_ACC
 #endif
@@ -42,12 +35,6 @@
 //----------------------------------------------------------------------------
 
 /* Check for known compiler limitations.  */
-
-// Check for IRIX64-6.5-CC-o32 (old SGI compiler).
-#if defined(VTK_CXX_SGI_6)
-# define VTK_TYPENAME /* empty */
-# define VTK_CLASS_TEMPLATE_SPECIALIZATION /* empty */
-#endif
 
 // Assume standard behavior if symbol is not already defined.
 #if !defined(VTK_TYPENAME)
@@ -68,22 +55,6 @@
 /* Test inclusion of typeinfo header.  */
 
 #include <typeinfo>
-
-//----------------------------------------------------------------------------
-
-/* Test use of namespaces.  */
-
-#if !defined(VTK_CXX_SGI_6)
-// Fails on kulu.crd IRIX64-6.5-CC-o32 (old SGI compiler).
-namespace NamespaceTest {}
-namespace {}
-void NamespaceTestFunc() {}
-namespace NamespaceTest
-{
-  using ::NamespaceTestFunc;
-}
-using namespace NamespaceTest;
-#endif
 
 //----------------------------------------------------------------------------
 
@@ -129,15 +100,6 @@ NestedTestOuter::~NestedTestOuter()
 #pragma warning(pop)
 #endif
 
-#if !defined(VTK_CXX_SGI_6)
-// Fails on kulu.crd IRIX64-6.5-CC-o32 (old SGI compiler).
-void UsingStdVector()
-{
-  using std::vector;
-  vector<int>();
-}
-#endif
-
 //----------------------------------------------------------------------------
 
 /* Test full template specialization of functions.  */
@@ -147,21 +109,11 @@ int FullySpecializedFunction(T*)
   return 0;
 }
 
-#if !defined(VTK_CXX_SGI)
-// Fails on kulu.crd IRIX64-6.5-CC-o32 (old SGI compiler).
-// Fails on manifold.crd IRIX64-6.5-CC-n32 (new SGI compiler).
 template <>
 int FullySpecializedFunction<int>(int*)
 {
   return 1;
 }
-#else
-// Let overload resolution pick this one instead.
-int FullySpecializedFunction(int*)
-{
-  return 1;
-}
-#endif
 
 int TestFullySpecializedFunction()
 {
@@ -228,39 +180,6 @@ int TestTemplateMemberTemplate()
   return (*px == 123);
 }
 
-//----------------------------------------------------------------------------
-
-/* Test use of standard "bool" type and values.  */
-
-#if !defined(VTK_CXX_SGI_6)
-bool GetFalse()
-{
-  return false;
-}
-
-bool GetTrue()
-{
-  return true;
-}
-
-int TestBool()
-{
-  int result = 1;
-  bool should_be_false = GetFalse();
-  bool should_be_true = GetTrue();
-  if(should_be_false)
-    {
-    cerr << "GetFalse() returned " << should_be_false << ", not false.\n";
-    result = 0;
-    }
-  if(!should_be_true)
-    {
-    cerr << "GetTrue() returned " << should_be_true << ", not true.\n";
-    result = 0;
-    }
-  return result;
-}
-#endif
 //----------------------------------------------------------------------------
 
 /* Test full template specialization of classes.  */
@@ -419,30 +338,6 @@ int TestMixedTypeTemplate()
 
 //----------------------------------------------------------------------------
 
-int TestBinaryWriting()
-{
-  int result = 1;
-  // ios::binary does not exist on SGI and OSF cxx (DEC)
-  // it failed to compile on these machines:
-  // ct02_oc.crd IRIX64-6.5-CC-64
-  // manifold IRIX64-6.5-CC-n32
-  // kulu.crd IRIX64-6.5-CC-o32
-  // a62.iue.tuwien.ac.at OSF1-V5.1-cxx
-#if defined(VTK_CXX_SGI) || defined( __DECCXX_VER)
-  ofstream fout_with_warning_C4701("TestCxxFeatures_TestBinaryWriting", ios::out );
-#else
-  ofstream fout_with_warning_C4701("TestCxxFeatures_TestBinaryWriting", ios::out | ios::binary);
-#endif
-  if(!fout_with_warning_C4701)
-    {
-    cerr << "Error opening TestCxxFeatures_TestBinaryWriting for binary writing.\n";
-    result = 0;
-    }
-  return result;
-}
-
-//----------------------------------------------------------------------------
-
 class SafeBoolIdiomClass
 {
 private:
@@ -555,19 +450,6 @@ int TestException()
 
 /* Test void return type syntax.  */
 
-void TestVoidReturnInner() {}
-void TestVoidReturnOuter()
-{
-  // MIPSpro 7.3 does not support void returns.
-#if !(defined(_COMPILER_VERSION) && (_COMPILER_VERSION < 740))
-  return TestVoidReturnInner();
-#endif
-}
-
-// MIPSpro warns about type qualifiers on return types.
-#if defined(_COMPILER_VERSION)
-# pragma set woff 3303 // type qualifier on return is meaningless
-#endif
 // Intel C++ warns about type qualifiers on return types.
 #if defined(__INTEL_COMPILER)
 # pragma warning (push)
@@ -606,11 +488,6 @@ void const TestVoidConstReturn() {}
 #if defined(__INTEL_COMPILER)
 # pragma warning (pop)
 #endif
-
-#if defined(_COMPILER_VERSION)
-# pragma reset woff 3303 // type qualifier on return is meaningless
-#endif
-
 
 //-------------------------------------------------------------------
 // See if the following code works on all platforms
@@ -657,16 +534,12 @@ int main()
   DO_TEST(TestFullySpecializedFunction);
   DO_TEST(TestNonTemplateMemberTemplate);
   DO_TEST(TestTemplateMemberTemplate);
-#if !defined(VTK_CXX_SGI_6)
-  DO_TEST(TestBool);
-#endif
   DO_TEST(TestFullySpecializedClass);
   DO_TEST(TestIfScope);
   DO_TEST(TestNonTypeTemplate);
 #if !defined(__BORLANDC__)
   DO_TEST(TestMixedTypeTemplate);
 #endif
-  DO_TEST(TestBinaryWriting);
   DO_TEST(TestSafeBoolIdiom);
   DO_TEST(TestException);
   DO_TEST(TestSetLocale);
