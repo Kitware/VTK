@@ -721,11 +721,10 @@ void vtkCocoaRenderWindow::CreateAWindow()
   //
   // So here we call +sharedApplication which will create the NSApplication
   // if it does not exist.  If it does exist, this does nothing.
-  // We are not actually interested in the return value.
   // This call is intentionally delayed until this CreateAWindow call
   // to prevent Cocoa-window related stuff from happening in scenarios
   // where vtkRenderWindows are created but never shown.
-  (void)[NSApplication sharedApplication];
+  NSApplication* app = [NSApplication sharedApplication];
 
   // create an NSWindow only if neither an NSView nor an NSWindow have
   // been specified already.  This is the case for a 'pure vtk application'.
@@ -733,6 +732,11 @@ void vtkCocoaRenderWindow::CreateAWindow()
   // SetRootWindow() and SetWindowId() so that a window is not created here.
   if (!this->GetRootWindow() && !this->GetWindowId() && !this->GetParentId())
     {
+    // Ordinarily, only .app bundles get proper mouse and keyboard interaction,
+    // but here we change the 'activation policy' to behave as if we were a
+    // .app bundle (which we may or may not be).
+    (void)[app setActivationPolicy:NSApplicationActivationPolicyRegular];
+
     NSWindow* theWindow = nil;
 
 #if MAC_OS_X_VERSION_MIN_REQUIRED >= 1060
