@@ -21,15 +21,10 @@
 // points. vtkStaticCellLinks is an array of links, each link represents a
 // list of cell id's using a particular point. The information provided by
 // this object can be used to determine neighbors and construct other local
-// topological information. This class is a fast, threaded implementation of
+// topological information. This class is a faster implementation of
 // vtkCellLinks. However, it cannot be incrementally constructed; it is meant
 // to be constructed once (statically) and must be rebuilt if the cells
 // change.
-
-// .SECTION Caveats
-// This class uses vtkSMPTools to create the links quickly. Use
-// VTK_SMP_IMPLEMENTATION_TYPE=TBB or other non-sequential type
-// to get better performance.
 
 // .SECTION See Also
 // vtkCellLinks
@@ -44,31 +39,14 @@
 class vtkPolyData;
 class vtkUnstructuredGrid;
 
-//-----------------------------------------------------------------------------
-// The following tuple consists of a point id and cell id. Taken together they
-// represent a link from a point to a using cell. The tuple is templated on an
-// id type as it can result in significant performance and memory increases.
-template <typename IdType>
-class PointCellTuple
-{
-public:
-  IdType PtId;
-  IdType CellId;
-
-  //Operator< used to support the subsequent sort operation.
-  bool operator< (const PointCellTuple& tuple) const
-    {return PtId < tuple.PtId;}
-};
-
 template <typename TIds>
-class vtkStaticCellLinks :
-  public vtkTypeTemplate<vtkStaticCellLinks<TIds>, vtkObject>
+class vtkStaticCellLinks
 {
 public:
   // Description:
   // Default constructor. BuildLinks() does most of the work.
   vtkStaticCellLinks() :
-    NumTuples(0), NumPts(0), NumCells(0), Links(NULL), Offsets(NULL)
+    LinksSize(0), NumPts(0), NumCells(0), Links(NULL), Offsets(NULL)
     {
     }
 
@@ -103,22 +81,23 @@ public:
 
   // Description:
   // Return a list of cell ids using the point.
-  const PointCellTuple<TIds> *GetCells(vtkIdType ptId)
+  const TIds *GetCells(vtkIdType ptId)
     {
       return this->Links + this->Offsets[ptId];
     }
 
-private:
-  vtkStaticCellLinks(const vtkStaticCellLinks&);  // Not implemented.
-  void operator=(const vtkStaticCellLinks&);  // Not implemented.
-
+protected:
   // Okay the various ivars
-  TIds NumTuples;
+  TIds LinksSize;
   TIds NumPts;
   TIds NumCells;
 
-  PointCellTuple<TIds> *Links; //the map to be sorted
-  TIds                 *Offsets; //offsets for each point into the map
+  TIds *Links; //contiguous runs of cells
+  TIds *Offsets; //offsets for each point into the link array
+
+private:
+  vtkStaticCellLinks(const vtkStaticCellLinks&);  // Not implemented.
+  void operator=(const vtkStaticCellLinks&);  // Not implemented.
 
 };
 
