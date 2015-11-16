@@ -19,12 +19,16 @@
 #include "vtkPolyData.h"
 #include "vtkExtractGeometry.h"
 #include "vtkSphere.h"
+#include "vtkSphereSource.h"
 #include "vtkTimerLog.h"
 
+// Test the building of static cell links in both unstructured and structured
+// grids.
 int TestStaticCellLinks( int, char *[] )
 {
   int dataDim = 3;
 
+  // First create an instructured grid
   vtkSmartPointer<vtkImageData> volume =
     vtkSmartPointer<vtkImageData>::New();
   volume->SetDimensions(dataDim,dataDim,dataDim);
@@ -52,7 +56,8 @@ int TestStaticCellLinks( int, char *[] )
 
   int numCells = slinks.GetNumberOfCells(0);
   const int *cells = slinks.GetCells(0);
-  cout << "Lower Left corner (numCells, cells): " << numCells << " (";
+  cout << "Unstructured Grid:\n";
+  cout << "   Lower Left corner (numCells, cells): " << numCells << " (";
   for (int i=0; i<numCells; ++i)
     {
     cout << cells[i];
@@ -64,10 +69,9 @@ int TestStaticCellLinks( int, char *[] )
     return EXIT_FAILURE;
     }
 
-
   numCells = slinks.GetNumberOfCells(13);
   cells = slinks.GetCells(13);
-  cout << "Center (numCells, cells): " << numCells << " (";
+  cout << "   Center (numCells, cells): " << numCells << " (";
   for (int i=0; i<numCells; ++i)
     {
     cout << cells[i];
@@ -81,7 +85,7 @@ int TestStaticCellLinks( int, char *[] )
 
   numCells = slinks.GetNumberOfCells(26);
   cells = slinks.GetCells(26);
-  cout << "Upper Right corner (numCells, cells): " << numCells << " (";
+  cout << "   Upper Right corner (numCells, cells): " << numCells << " (";
   for (int i=0; i<numCells; ++i)
     {
     cout << cells[i];
@@ -92,6 +96,51 @@ int TestStaticCellLinks( int, char *[] )
     {
     return EXIT_FAILURE;
     }
+
+  // Okay now create a polydata
+  vtkSmartPointer<vtkSphereSource> ss =
+    vtkSmartPointer<vtkSphereSource>::New();
+  ss->SetThetaResolution(12);
+  ss->SetPhiResolution(10);
+  ss->Update();
+
+  vtkSmartPointer<vtkPolyData> pdata =
+    vtkSmartPointer<vtkPolyData>::New();
+  pdata = ss->GetOutput();
+
+  slinks.BuildLinks(pdata);
+
+  // The first point is at the pole
+  numCells = slinks.GetNumberOfCells(0);
+  cells = slinks.GetCells(0);
+  cout << "\nPolydata:\n";
+  cout << "   Pole: (numCells, cells): " << numCells << " (";
+  for (int i=0; i<numCells; ++i)
+    {
+    cout << cells[i];
+    if ( i < (numCells-1) ) cout << "," ;
+    }
+  cout << ")\n";
+  if ( numCells != 12 )
+    {
+    return EXIT_FAILURE;
+    }
+
+  // The next point is at near the equator
+  numCells = slinks.GetNumberOfCells(5);
+  cells = slinks.GetCells(5);
+  cout << "   Equator: (numCells, cells): " << numCells << " (";
+  for (int i=0; i<numCells; ++i)
+    {
+    cout << cells[i];
+    if ( i < (numCells-1) ) cout << "," ;
+    }
+  cout << ")\n";
+  if ( numCells != 6 )
+    {
+    return EXIT_FAILURE;
+    }
+
 
   return EXIT_SUCCESS;
 }

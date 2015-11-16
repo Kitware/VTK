@@ -95,9 +95,10 @@ BuildLinks(vtkPolyData *pd)
   this->NumCells = pd->GetNumberOfCells();
   this->NumPts = pd->GetNumberOfPoints();
 
-  const vtkCellArray *cellArrays[4];
+  vtkCellArray *cellArrays[4];
   vtkIdType numCells[4];
   vtkIdType sizes[4];
+  int i, j;
 
   cellArrays[0] = pd->GetVerts();
   cellArrays[1] = pd->GetLines();
@@ -120,7 +121,7 @@ BuildLinks(vtkPolyData *pd)
 
   // Allocate
   this->LinksSize = sizes[0] + sizes[1] + sizes[2] + sizes[3];
-  this->Links = new TIds[this->LinksSize];
+  this->Links = new TIds[this->LinksSize+1];
   this->Links[this->LinksSize] = this->NumPts;
   this->Offsets = new TIds[this->NumPts+1];
   this->Offsets[this->NumPts] = this->LinksSize;
@@ -129,19 +130,18 @@ BuildLinks(vtkPolyData *pd)
   // Now create the links.
   vtkIdType npts, cellId, CellId, ptId;
   const vtkIdType *cell;
-  int i, j;
 
   // Visit the four arrays
   for ( CellId=0, j=0; j < 4; ++j )
     {
     // Count number of point uses
-    cell = cellArrays[j];
-    for ( cellId=0; cellId < numCells[i]; ++cellId )
+    cell = cellArrays[j]->GetPointer();
+    for ( cellId=0; cellId < numCells[j]; ++cellId )
       {
       npts = *cell++;
       for (i=0; i<npts; ++i)
         {
-        this->Offsets[CellId+(*cell)++]++;
+        this->Offsets[CellId+(*cell++)]++;
         }
       }
     CellId += numCells[j];
@@ -160,8 +160,8 @@ BuildLinks(vtkPolyData *pd)
   // points to the beginning of each cell run.
   for ( CellId=0, j=0; j < 4; ++j )
     {
-    cell = cellArrays[j];
-    for ( cellId=0; cellId < numCells[i]; ++cellId )
+    cell = cellArrays[j]->GetPointer();
+    for ( cellId=0; cellId < numCells[j]; ++cellId )
       {
       npts = *cell++;
       for (i=0; i<npts; ++i)
@@ -172,6 +172,7 @@ BuildLinks(vtkPolyData *pd)
       }
     CellId += numCells[j];
     }//for each of the four polydata arrays
+  this->Offsets[this->NumPts] = this->LinksSize;
 }
 
 #endif
