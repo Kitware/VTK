@@ -1925,22 +1925,22 @@ void vtkOpenGLPolyDataMapper::GetCoincidentParameters(
     if (this->LastBoundBO == &this->Points ||
         prop->GetRepresentation() == VTK_POINTS)
       {
-      this->GetResolveCoincidentTopologyPointOffsetParameter(u);
+      this->GetCoincidentTopologyPointOffsetParameter(u);
       }
     else if (this->LastBoundBO == &this->Lines ||
         prop->GetRepresentation() == VTK_WIREFRAME)
       {
-      this->GetResolveCoincidentTopologyLineOffsetParameters(f,u);
+      this->GetCoincidentTopologyLineOffsetParameters(f,u);
       }
     else if (this->LastBoundBO == &this->Tris ||
           this->LastBoundBO == &this->TriStrips)
       {
-      this->GetResolveCoincidentTopologyPolygonOffsetParameters(f,u);
+      this->GetCoincidentTopologyPolygonOffsetParameters(f,u);
       }
     if (this->LastBoundBO == &this->TrisEdges ||
         this->LastBoundBO == &this->TriStripsEdges)
       {
-      this->GetResolveCoincidentTopologyPolygonOffsetParameters(f,u);
+      this->GetCoincidentTopologyPolygonOffsetParameters(f,u);
       f /= 2;
       u /= 2;
       }

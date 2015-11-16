@@ -324,12 +324,28 @@ public:
     double& factor, double& units);
 
   // Description:
+  // Used to set the polygon offset values relative to the global
+  // Used when ResolveCoincidentTopology is set to PolygonOffset.
+  void SetRelativeCoincidentTopologyPolygonOffsetParameters(
+    double factor, double units);
+  void GetRelativeCoincidentTopologyPolygonOffsetParameters(
+    double& factor, double& units);
+
+  // Description:
   // Used to set the line offset scale factor and units.
   // Used when ResolveCoincidentTopology is set to PolygonOffset.
   // These are global variables.
   static void SetResolveCoincidentTopologyLineOffsetParameters(
     double factor, double units);
   static void GetResolveCoincidentTopologyLineOffsetParameters(
+    double& factor, double& units);
+
+  // Description:
+  // Used to set the line offset values relative to the global
+  // Used when ResolveCoincidentTopology is set to PolygonOffset.
+  void SetRelativeCoincidentTopologyLineOffsetParameters(
+    double factor, double units);
+  void GetRelativeCoincidentTopologyLineOffsetParameters(
     double& factor, double& units);
 
   // Description:
@@ -340,6 +356,21 @@ public:
     double units);
   static void GetResolveCoincidentTopologyPointOffsetParameter(
     double& units);
+
+  // Description:
+  // Used to set the point offset value relative to the global
+  // Used when ResolveCoincidentTopology is set to PolygonOffset.
+  void SetRelativeCoincidentTopologyPointOffsetParameter(double units);
+  void GetRelativeCoincidentTopologyPointOffsetParameter(double& units);
+
+  // Description:
+  // Get the net paramters for handlig coincident topology
+  // obtained by summing the global values with the relative values.
+  void GetCoincidentTopologyPolygonOffsetParameters(
+    double& factor, double& units);
+  void GetCoincidentTopologyLineOffsetParameters(
+    double& factor, double& units);
+  void GetCoincidentTopologyPointOffsetParameter(double& units);
 
   // Description:
   // Used when ResolveCoincidentTopology is set to PolygonOffset. The polygon
@@ -507,6 +538,12 @@ protected:
   int ForceCompileOnly;
 
   vtkAbstractArray *InvertibleScalars;
+
+  double CoincidentPolygonFactor;
+  double CoincidentPolygonOffset;
+  double CoincidentLineFactor;
+  double CoincidentLineOffset;
+  double CoincidentPointOffset;
 
 private:
   vtkMapper(const vtkMapper&);  // Not implemented.
