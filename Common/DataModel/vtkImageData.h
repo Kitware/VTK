@@ -101,7 +101,14 @@ public:
   // Get dimensions of this structured points dataset.
   // It is the number of points on each axis.
   // Dimensions are computed from Extents during this call.
+  // \warning Non thread-safe, use second signature if you want it to be.
   virtual int *GetDimensions();
+
+  // Description:
+  // Get dimensions of this structured points dataset.
+  // It is the number of points on each axis.
+  // This method is thread-safe.
+  // \warning The Dimensions member variable is not updated during this call.
   virtual void GetDimensions(int dims[3]);
 
   // Description:
