@@ -39,6 +39,7 @@ int TestCoincident(int argc, char *argv[])
   renderWindow->AddRenderer(renderer.Get());
   vtkNew<vtkRenderWindowInteractor>  iren;
   iren->SetRenderWindow(renderWindow.Get());
+  renderWindow->SetMultiSamples(0);
 
   const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
                                                                "Data/dragon.ply");
