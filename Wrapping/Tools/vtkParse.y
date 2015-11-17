@@ -29,6 +29,9 @@ Modify vtkParse.tab.c:
   - remove YY_ATTRIBUTE_UNUSED from yyfillin, yyfill, and yynormal
   - remove the "break;" after "return yyreportAmbiguity"
   - replace "(1-yyrhslen)" with "(1-(int)yyrhslen)"
+  - remove dead store "yynewStates = YY_NULLPTR;"
+  - replace "sizeof yynewStates[0] with "sizeof (yyGLRState*)"
+  - remove 'struct yy_trans_info', which is unneeded (despite the comment)
 */
 
 /*

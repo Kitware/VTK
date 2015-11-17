@@ -18,6 +18,8 @@ Modify lex.yy.c:
   - replace "#line" lines with blank lines
   - remove usage of the "register" keyword
   - add a prototype for isatty
+  - fixed 2 cppcheck warnings about "checking if unsigned variable
+    is less than zero" around lines 3670 and 3683 by changing <= to ==
 
 */
 
