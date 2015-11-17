@@ -65,6 +65,9 @@ public:
   vtkSetClampMacro(NumberOfPointsPerBucket,int,1,VTK_INT_MAX);
   vtkGetMacro(NumberOfPointsPerBucket,int);
 
+  // Re-use any superclass signatures that we don't override.
+  using vtkAbstractPointLocator::FindClosestPoint;
+
   // Description:
   // Given a position x, return the id of the point closest to it. Alternative
   // method requires separate x-y-z values.
@@ -80,8 +83,8 @@ public:
   // distance to the point.
   virtual vtkIdType FindClosestPointWithinRadius(
     double radius, const double x[3], double& dist2);
-  virtual vtkIdType FindClosestPointWithinRadius(double radius, const double x[3],
-                                         double inputDataLength, double& dist2);
+  virtual vtkIdType FindClosestPointWithinRadius(
+    double radius, const double x[3], double inputDataLength, double& dist2);
 
   // Description:
   // Initialize the point insertion process. The newPts is an object
