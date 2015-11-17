@@ -53,6 +53,13 @@ public:
 #endif
 
   // Description:
+  // A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+  static vtkUnsignedLongArray* FastDownCast(vtkAbstractArray *source)
+  {
+    return static_cast<vtkUnsignedLongArray*>(Superclass::FastDownCast(source));
+  }
+
+  // Description:
   // Get the minimum data value in its native type.
   static unsigned long GetDataTypeValueMin() { return VTK_UNSIGNED_LONG_MIN; }
 
@@ -71,5 +78,8 @@ private:
   vtkUnsignedLongArray(const vtkUnsignedLongArray&);  // Not implemented.
   void operator=(const vtkUnsignedLongArray&);  // Not implemented.
 };
+
+// Define vtkArrayDownCast implementation:
+vtkArrayDownCast_FastCastMacro(vtkUnsignedLongArray)
 
 #endif

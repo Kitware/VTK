@@ -524,7 +524,8 @@ public:
     };
 
   // Description:
-  // Method for type-checking in FastDownCast implementations.
+  // Method for type-checking in FastDownCast implementations. See also
+  // vtkArrayDownCast.
   virtual int GetArrayType()
   {
     return AbstractArray;
@@ -575,5 +576,65 @@ private:
   vtkAbstractArray(const vtkAbstractArray&);  // Not implemented.
   void operator=(const vtkAbstractArray&);  // Not implemented.
 };
+
+// Description:
+// Implementation of vtkArrayDownCast. The templating/etc is moved to this
+// worker struct to get around limitations of template functions (no partial
+// specialization, ambiguities, etc).
+template <typename ArrayT>
+struct vtkArrayDownCast_impl
+{
+  inline ArrayT* operator()(vtkAbstractArray* array)
+  {
+    return ArrayT::SafeDownCast(array);
+  }
+};
+
+// Description:
+// vtkArrayDownCast is to be used by generic (e.g. templated) code for quickly
+// downcasting vtkAbstractArray pointers to more derived classes.
+// The typical VTK downcast pattern (SafeDownCast) performs a string comparison
+// on the class names in the object's inheritance hierarchy, which is quite
+// expensive and can dominate computational resource usage when downcasting is
+// needed in a worker function.
+// To address this, certain arrays support a FastDownCast method, which replaces
+// the chain of string comparisons with 1-2 integer comparisons and thus is
+// significantly more efficient.
+// However, not all arrays support the FastDownCast mechanism. vtkArrayDownCast
+// exists to select between the two; Arrays that support FastDownCast will use
+// it, while others will fallback to the slower SafeDownCast.
+template <typename ArrayT>
+ArrayT* vtkArrayDownCast(vtkAbstractArray *array)
+{
+  // The default vtkArrayDownCast_impl struct uses SafeDownCast, but is
+  // specialized for arrays that support FastDownCast.
+  return vtkArrayDownCast_impl<ArrayT>()(array);
+}
+
+// Description:
+// This macro is used to tell vtkArrayDownCast to use FastDownCast instead of
+// SafeDownCast.
+#define vtkArrayDownCast_FastCastMacro(ArrayT) \
+  template <> struct vtkArrayDownCast_impl<ArrayT> \
+  { \
+    inline ArrayT* operator()(vtkAbstractArray *array) \
+    { \
+      return ArrayT::FastDownCast(array); \
+    } \
+  };
+
+// Description:
+// Same as vtkArrayDownCast_FastCastMacro, but treats ArrayT as a
+// single-parameter template (the parameter is the value type). Defines a
+// vtkArrayDownCast implementation that uses the specified array template class
+// with any value type.
+#define vtkArrayDownCast_TemplateFastCastMacro(ArrayT) \
+  template <typename ValueT> struct vtkArrayDownCast_impl<ArrayT<ValueT> > \
+  { \
+    inline ArrayT<ValueT>* operator()(vtkAbstractArray *array) \
+    { \
+      return ArrayT<ValueT>::FastDownCast(array); \
+    } \
+  };
 
 #endif

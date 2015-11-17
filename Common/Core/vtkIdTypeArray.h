@@ -60,6 +60,13 @@ public:
 #endif
 
   // Description:
+  // A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+  static vtkIdTypeArray* FastDownCast(vtkAbstractArray *source)
+  {
+    return static_cast<vtkIdTypeArray*>(Superclass::FastDownCast(source));
+  }
+
+  // Description:
   // Get the minimum data value in its native type.
   static vtkIdType GetDataTypeValueMin() { return VTK_ID_MIN; }
 
@@ -78,5 +85,8 @@ private:
   vtkIdTypeArray(const vtkIdTypeArray&);  // Not implemented.
   void operator=(const vtkIdTypeArray&);  // Not implemented.
 };
+
+// Define vtkArrayDownCast implementation:
+vtkArrayDownCast_FastCastMacro(vtkIdTypeArray)
 
 #endif

@@ -168,6 +168,9 @@ private:
   friend class vtkGenericDataArray<vtkTypedDataArray<Scalar>, Scalar>;
 };
 
+// Declare vtkArrayDownCast implementations for typed containers:
+vtkArrayDownCast_TemplateFastCastMacro(vtkTypedDataArray)
+
 // Included here to resolve chicken/egg issue with container/iterator:
 #include "vtkTypedDataArrayIterator.h" // For iterator
 

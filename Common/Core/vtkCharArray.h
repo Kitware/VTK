@@ -47,6 +47,13 @@ public:
 #endif
 
   // Description:
+  // A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+  static vtkCharArray* FastDownCast(vtkAbstractArray *source)
+  {
+    return static_cast<vtkCharArray*>(Superclass::FastDownCast(source));
+  }
+
+  // Description:
   // Get the minimum data value in its native type.
   static char GetDataTypeValueMin() { return VTK_CHAR_MIN; }
 
@@ -65,5 +72,8 @@ private:
   vtkCharArray(const vtkCharArray&);  // Not implemented.
   void operator=(const vtkCharArray&);  // Not implemented.
 };
+
+// Define vtkArrayDownCast implementation:
+vtkArrayDownCast_FastCastMacro(vtkCharArray)
 
 #endif

@@ -49,6 +49,14 @@ public:
 #if defined(__WRAP__) || defined (__WRAP_GCCXML__)
   vtkCreateWrappedArrayInterface(long long);
 #endif
+
+  // Description:
+  // A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+  static vtkLongLongArray* FastDownCast(vtkAbstractArray *source)
+  {
+    return static_cast<vtkLongLongArray*>(Superclass::FastDownCast(source));
+  }
+
   // Description:
   // Get the minimum data value in its native type.
   static long long GetDataTypeValueMin() { return VTK_LONG_LONG_MIN; }
@@ -68,5 +76,8 @@ private:
   vtkLongLongArray(const vtkLongLongArray&);  // Not implemented.
   void operator=(const vtkLongLongArray&);  // Not implemented.
 };
+
+// Define vtkArrayDownCast implementation:
+vtkArrayDownCast_FastCastMacro(vtkLongLongArray)
 
 #endif

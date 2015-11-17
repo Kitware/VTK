@@ -137,12 +137,14 @@ public:
   // This method checks if source->GetArrayType() returns DataArray
   // or a more derived type, and performs a static_cast to return
   // source as a vtkDataArray pointer. Otherwise, NULL is returned.
-  vtkSoADataArrayTemplate<ValueType>* FastDownCast(vtkAbstractArray *source)
+  static vtkSoADataArrayTemplate<ValueType>*
+  FastDownCast(vtkAbstractArray *source)
   {
     switch (source->GetArrayType())
       {
       case vtkAbstractArray::SoADataArrayTemplate:
-        if (source->GetDataType() == vtkTypeTraits<ValueType>::VTK_TYPE_ID)
+        if (vtkDataTypesCompare(source->GetDataType(),
+                                vtkTypeTraits<ValueType>::VTK_TYPE_ID))
           {
           return static_cast<vtkSoADataArrayTemplate<ValueType>*>(source);
           }
@@ -187,6 +189,9 @@ private:
   friend class vtkGenericDataArray<vtkSoADataArrayTemplate<ValueTypeT>,
                                    ValueTypeT>;
 };
+
+// Declare vtkArrayDownCast implementations for SoA containers:
+vtkArrayDownCast_TemplateFastCastMacro(vtkSoADataArrayTemplate)
 
 #include "vtkSoADataArrayTemplate.txx"
 #endif

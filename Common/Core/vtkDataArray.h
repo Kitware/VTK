@@ -469,4 +469,6 @@ inline vtkDataArray* vtkDataArray::FastDownCast(vtkAbstractArray *source)
     }
 }
 
+vtkArrayDownCast_FastCastMacro(vtkDataArray)
+
 #endif

@@ -128,6 +128,9 @@ private:
   size_t TemporaryScalarPointerSize;
 };
 
+// Declare vtkArrayDownCast implementations for mapped containers:
+vtkArrayDownCast_TemplateFastCastMacro(vtkMappedDataArray)
+
 #include "vtkMappedDataArray.txx"
 
 // Adds an implementation of NewInstanceInternal() that returns a standard
