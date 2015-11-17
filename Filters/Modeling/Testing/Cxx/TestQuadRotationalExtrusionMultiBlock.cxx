@@ -140,6 +140,7 @@ int TestQuadRotationalExtrusionMultiBlock( int argc, char * argv [] )
   camera->SetViewUp( -0.40432906992858864, 0.8891923825021084, 0.21413759621072337 );
   camera->SetViewAngle( 30. );
   ren1->SetActiveCamera( camera.GetPointer() );
+  ren1->ResetCameraClippingRange();
 
   // Create interactor
   vtkNew<vtkRenderWindowInteractor> iren;
