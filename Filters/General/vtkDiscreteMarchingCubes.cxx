@@ -42,13 +42,13 @@ vtkStandardNewMacro(vtkDiscreteMarchingCubes);
 
 // Description:
 // Construct object with initial range (0,1) and single contour value
-// of 0.0. ComputeNormals is off, ComputeGradients is off, ComputeScalars is on and ComputeNeighbours is on.
+// of 0.0. ComputeNormals is off, ComputeGradients is off, ComputeScalars is on and ComputeNeighbours is off.
 vtkDiscreteMarchingCubes::vtkDiscreteMarchingCubes()
 {
   this->ComputeNormals = 0;
   this->ComputeGradients = 0;
   this->ComputeScalars = 1;
-  this->ComputeNeighbours = 1;
+  this->ComputeNeighbours = 0;
 }
 
 vtkDiscreteMarchingCubes::~vtkDiscreteMarchingCubes()
@@ -226,9 +226,13 @@ void vtkDiscreteMarchingCubesComputeGradient(
                     {
                     // check which vert holds the neighbour value
                     if (s[vert[0]] == value)
+                       {
                        newNeighbours->InsertTuple(ptIds[ii],&s[vert[1]]);
+                       }
                     else
+                       {
                        newNeighbours->InsertTuple(ptIds[ii],&s[vert[0]]);
+                       }
                     }
                  }
               }

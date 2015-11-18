@@ -43,7 +43,7 @@
 // filters that can handle non-manifold polydata
 // (e.g. vtkWindowedSincPolyDataFilter).
 // Also note, Normals and Gradients are not computed.
-// If ComputeNeighbours is on (the default), each output point will have
+// If ComputeNeighbours is on (default is off), each output point will have
 // point data that contains the label value of the neighbouring voxel.
 // This allows to remove regions of the resulting vtkPolyData that are
 // adjacent to specific label meshes. For example, if the input is a label
