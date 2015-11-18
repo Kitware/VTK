@@ -22,11 +22,12 @@
 #ifndef vtkAoSDataArrayTemplate_h
 #define vtkAoSDataArrayTemplate_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkGenericDataArray.h"
 #include "vtkBuffer.h"
 
 template <class ValueTypeT>
-class vtkAoSDataArrayTemplate :
+class VTKCOMMONCORE_EXPORT vtkAoSDataArrayTemplate :
     public vtkGenericDataArray<vtkAoSDataArrayTemplate<ValueTypeT>, ValueTypeT>
 {
   typedef vtkGenericDataArray<vtkAoSDataArrayTemplate<ValueTypeT>, ValueTypeT >
