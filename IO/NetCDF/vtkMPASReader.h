@@ -50,8 +50,7 @@ version available from Los Alamos National Laboratory.
 // The variables that have time dim are available to ParaView.
 //
 // Assume all variables are of interest if they have dims
-// (Time, nCells|nVertices, nVertLevels, [nTracers])
-// Assume no more than 100 vars each for cell and point data
+// (Time, nCells|nVertices, nVertLevels, [nTracers]).
 // Does not deal with edge data.
 //
 // When using this reader, it is important that you remember to do the
@@ -75,17 +74,19 @@ version available from Los Alamos National Laboratory.
 #ifndef vtkMPASReader_h
 #define vtkMPASReader_h
 
-#define MAX_VARS 100
-#define MAX_VAR_NAME 100
-
 #include "vtkIONetCDFModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
+
+#include <string> // for std::string
 
 class vtkCallbackCommand;
 class vtkDataArraySelection;
 class vtkDoubleArray;
 class vtkStdString;
 class vtkStringArray;
+
+class NcVar;
+class NcDim;
 
 class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
 {
@@ -109,13 +110,22 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
 
   // Description:
   // Get the number of data variables at the cell centers and points
-  vtkGetMacro(NumberOfCellVars, int);
-  vtkGetMacro(NumberOfPointVars, int);
+  virtual int GetNumberOfCellVars();
+  virtual int GetNumberOfPointVars();
 
   // Description:
   // Get the reader's output
   vtkUnstructuredGrid *GetOutput();
   vtkUnstructuredGrid *GetOutput(int index);
+
+  // Description:
+  // If true, dimension info is included in the array name. For instance,
+  // "tracers" will become "tracers(Time, nCells, nVertLevels, nTracers)".
+  // This is useful for user-visible array selection, but is disabled by default
+  // for backwards compatibility.
+  vtkSetMacro(UseDimensionedArrayNames, bool)
+  vtkGetMacro(UseDimensionedArrayNames, bool)
+  vtkBooleanMacro(UseDimensionedArrayNames, bool)
 
   // Description:
   // The following methods allow selective reading of solutions fields.
@@ -135,52 +145,69 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   void DisableAllCellArrays();
   void EnableAllCellArrays();
 
-  void SetVerticalLevel(int level);
-  vtkGetVector2Macro(VerticalLevelRange, int);
+  // Description:
+  // If the point/cell arrays contain dimensions other than Time, nCells, or
+  // nVertices, they are configured here. Use GetNumberOfDimensions to get the
+  // number of arbitrary dimensions in the loaded arrays and GetDimensionName to
+  // retrieve the dimension names. GetDimensionSize returns the number of values
+  // in the dimensions, and Set/GetDimensionCurrentIndex controls the value
+  // to fix a given dimension at when extracting slices of data.
+  int GetNumberOfDimensions();
+  std::string GetDimensionName(int idx);
+  vtkStringArray* GetAllDimensions();
+  int GetDimensionCurrentIndex(const std::string &dim);
+  void SetDimensionCurrentIndex(const std::string &dim, int idx);
+  int GetDimensionSize(const std::string &dim);
 
-  void SetLayerThickness(int val);
-  vtkGetVector2Macro(LayerThicknessRange, int);
+  // Description:
+  // Get/Set the name to the dimension that identifies the vertical dimension.
+  // Defaults to "nVertLevels".
+  vtkSetMacro(VerticalDimension, std::string)
+  vtkGetMacro(VerticalDimension, std::string)
+
+  // Description:
+  // Convenience functon for setting/querying [GS]etDimensionCurrentIndex
+  // for the dimension returned by GetVerticalDimension.
+  void SetVerticalLevel(int level);
+  int GetVerticalLevel();
+
+  vtkGetVector2Macro(VerticalLevelRange, int)
+
+  vtkSetMacro(LayerThickness, int)
+  vtkGetMacro(LayerThickness, int)
+  vtkGetVector2Macro(LayerThicknessRange, int)
 
   void SetCenterLon(int val);
-  vtkGetVector2Macro(CenterLonRange, int);
+  vtkGetVector2Macro(CenterLonRange, int)
 
-  void SetProjectLatLon(bool val);
-  vtkGetMacro(ProjectLatLon, bool);
+  vtkSetMacro(ProjectLatLon, bool)
+  vtkGetMacro(ProjectLatLon, bool)
 
-  void SetIsAtmosphere(bool val);
-  vtkGetMacro(IsAtmosphere, bool);
+  vtkSetMacro(IsAtmosphere, bool)
+  vtkGetMacro(IsAtmosphere, bool)
 
-  void SetIsZeroCentered(bool val);
-  vtkGetMacro(IsZeroCentered, bool);
+  vtkSetMacro(IsZeroCentered, bool)
+  vtkGetMacro(IsZeroCentered, bool)
 
-  void SetShowMultilayerView(bool val);
-  vtkGetMacro(ShowMultilayerView, bool);
+  vtkSetMacro(ShowMultilayerView, bool)
+  vtkGetMacro(ShowMultilayerView, bool)
 
   // Description:
   // Returns true if the given file can be read.
   static int CanReadFile(const char *filename);
 
+  unsigned long GetMTime();
+
  protected:
   vtkMPASReader();
   ~vtkMPASReader();
+  void ReleaseNcData();
   void DestroyData();
 
   char *FileName;         // First field part file giving path
-  /*
-    int Rank;               // Number of this processor
-    int TotalRank;          // Number of processors
-  */
-
-  //  int NumberOfPieces;         // Number of files in dataset
-  // vtkIdType NumberOfTuples;        // Number of tuples in sub extent
-
-  vtkStdString* VariableName;     // Names of each variable
-  int* VariableType;          // Scalar, vector or tensor
 
   int NumberOfTimeSteps;      // Temporal domain
-  double* TimeSteps;          // Times available for request
-  double DTime;
-
+  double DTime;               // The current time
 
   // Observer to modify this object when array selections are modified
   vtkCallbackCommand* SelectionObserver;
@@ -194,19 +221,16 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   static void SelectionCallback(vtkObject* caller, unsigned long eid,
                                 void* clientdata, void* calldata);
 
-  bool InfoRequested;
-  bool DataRequested;
-
-  // params
-
   // Selected field of interest
   vtkDataArraySelection* PointDataArraySelection;
   vtkDataArraySelection* CellDataArraySelection;
 
-  vtkDoubleArray** CellVarDataArray;    // Actual data arrays
-  vtkDoubleArray** PointVarDataArray;   // Actual data arrays
+  // Description:
+  // Update the list of available dimensions. Only does work when
+  // PointDataArraySelection or CellDataArraySelection is changed.
+  void UpdateDimensions(bool force = false);
 
-  int VerticalLevelSelected;
+  std::string VerticalDimension;
   int VerticalLevelRange[2];
 
   int LayerThickness;
@@ -215,7 +239,17 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   int CenterLon;
   int CenterLonRange[2];
 
-  bool ProjectLatLon;
+  enum GeometryType
+    {
+    Spherical,
+    Projected,
+    Planar
+    };
+
+  GeometryType Geometry;
+
+  bool ProjectLatLon; // User option
+  bool OnASphere; // Data file attribute
   bool IsAtmosphere;
   bool IsZeroCentered;
   bool ShowMultilayerView;
@@ -224,6 +258,7 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   bool DoBugFix;
   double CenterRad;
 
+  bool UseDimensionedArrayNames;
 
   // geometry
   int MaximumNVertLevels;
@@ -239,7 +274,6 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   double* PointZ;      // z coord of point
   int ModNumPoints;
   int ModNumCells;
-  int* CellMask;
   int* OrigConnections;   // original connections
   int* ModConnections;    // modified connections
   int* CellMap;           // maps from added cell to original cell #
@@ -247,40 +281,81 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   int* MaximumLevelPoint;      //
   int MaximumCells;           // max cells
   int MaximumPoints;          // max points
-  int VerticalIndex;      // for singleLayer, which vertical level
-
-  // vars
-  int NumberOfCellVars;
-  int NumberOfPointVars;
-  double* PointVarData;
 
   void SetDefaults();
   int GetNcDims();
+  int GetNcAtts();
   int CheckParams();
   int GetNcVars(const char* cellDimName, const char* pointDimName);
-  int ReadAndOutputGrid(bool init);
-  int ReadAndOutputVariableData();
+  int ReadAndOutputGrid();
   int BuildVarArrays();
-  int AllocSphereGeometry();
-  int AllocLatLonGeometry();
+  int AllocSphericalGeometry();
+  int AllocProjectedGeometry();
+  int AllocPlanarGeometry();
   void ShiftLonData();
-  int AddMirrorPoint(int index, double dividerX);
+  int AddMirrorPoint(int index, double dividerX, double offset);
   void FixPoints();
   int EliminateXWrap();
-  void OutputPoints(bool init);
-  void OutputCells(bool init);
+  void OutputPoints();
+  void OutputCells();
   unsigned char GetCellType();
-  void LoadGeometryData(int var, double dTime);
-  int LoadPointVarData(int variable, double dTime);
-  int LoadCellVarData(int variable, double dTime);
-  int RegenerateGeometry();
+
+  // Description:
+  // Returns true if the dimensions in var match the expected args, or prints a
+  // warning and returns false if any are incorrect.
+  // ndims is the number of dimensions, and the variatic args must be
+  // C-strings identifying the expected dimensions.
+  // If silent is true, no warnings are printed.
+  bool ValidateDimensions(NcVar *var, bool silent, int ndims, ...);
+
+  // Description:
+  // Return the cursor position for the specified dimension.
+  long GetCursorForDimension(const NcDim *dim);
+
+  // Description:
+  // Return the number of values to read for the specified dimension.
+  size_t GetCountForDimension(const NcDim *dim);
+
+  // Description:
+  // For an arbitrary (i.e. not nCells, nVertices, or Time) dimension, extract
+  // the dimension's metadata into memory (if needed) and return the last used
+  // index into the dimension values, or 0 if the dimension is new.
+  long InitializeDimension(const NcDim *dim);
+
+  vtkDataArray* LoadPointVarData(int variable);
+  vtkDataArray* LoadCellVarData(int variable);
+  vtkDataArray* LookupPointDataArray(int varIdx);
+  vtkDataArray* LookupCellDataArray(int varIdx);
+
+  // Description:
+  // Update the "Time" vtkStringArray in dataset's FieldData to contain the
+  // xtime string for the current timestep.
+  // If there is an error getting xtime, the current timestep number is inserted
+  // instead.
+  // If a non-string array named Time already exists in the FieldData, dataset
+  // is not modified in any way.
+  void LoadTimeFieldData(vtkUnstructuredGrid *dataset);
 
  private:
   vtkMPASReader(const vtkMPASReader&);    // Not implemented.
   void operator=(const vtkMPASReader&); // Not implemented.
+
   class Internal;
   Internal *Internals;
 
+  static int NcTypeToVtkType(int ncType);
+
+  vtkDataArray* CreateDataArray(int ncType);
+  vtkIdType ComputeNumberOfTuples(NcVar *ncVar);
+
+  template <typename ValueType>
+  bool LoadDataArray(NcVar *ncVar, vtkDataArray *array, bool resize = true);
+
+  template <typename ValueType>
+  int LoadPointVarDataImpl(NcVar *ncVar, vtkDataArray *array);
+
+  template <typename ValueType>
+  int LoadCellVarDataImpl(NcVar *ncVar, vtkDataArray *array);
 };
 
 #endif
