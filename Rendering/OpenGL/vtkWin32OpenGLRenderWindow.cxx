@@ -31,6 +31,13 @@
 #include "vtkOpenGLError.h"
 #include "vtkgl.h"
 
+// Mouse wheel support
+// In an ideal world we would just have to include <zmouse.h>, but it is not
+// always available with all compilers/headers
+#ifndef WM_MOUSEWHEEL
+#  define WM_MOUSEWHEEL                   0x020A
+#endif  //WM_MOUSEWHEEL
+
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -201,7 +208,8 @@ int vtkWin32OpenGLRenderWindow::GetEventPending()
       }
     if ((msg.message == WM_LBUTTONDOWN) ||
         (msg.message == WM_RBUTTONDOWN) ||
-        (msg.message == WM_MBUTTONDOWN))
+        (msg.message == WM_MBUTTONDOWN) ||
+        (msg.message == WM_MOUSEWHEEL))
       {
       return 1;
       }

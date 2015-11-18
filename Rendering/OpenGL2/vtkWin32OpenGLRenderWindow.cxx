@@ -28,6 +28,13 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkOpenGLError.h"
 
+// Mouse wheel support
+// In an ideal world we would just have to include <zmouse.h>, but it is not
+// always available with all compilers/headers
+#ifndef WM_MOUSEWHEEL
+#  define WM_MOUSEWHEEL                   0x020A
+#endif  //WM_MOUSEWHEEL
+
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 vtkWin32OpenGLRenderWindow::vtkWin32OpenGLRenderWindow()
@@ -168,7 +175,8 @@ int vtkWin32OpenGLRenderWindow::GetEventPending()
       }
     if ((msg.message == WM_LBUTTONDOWN) ||
         (msg.message == WM_RBUTTONDOWN) ||
-        (msg.message == WM_MBUTTONDOWN))
+        (msg.message == WM_MBUTTONDOWN) ||
+        (msg.message == WM_MOUSEWHEEL))
       {
       return 1;
       }
