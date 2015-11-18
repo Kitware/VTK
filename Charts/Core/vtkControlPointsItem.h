@@ -49,7 +49,7 @@ public:
   // to mark groups of changes to control points.
   enum {
     CurrentPointChangedEvent = vtkCommand::UserEvent,
-    CurrentPointEditEvent,
+    CurrentPointEditEvent
   };
 
   // Description:
