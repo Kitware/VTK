@@ -49,7 +49,7 @@ FAQ
 INDEX
 "
 
-readonly basehash='' # NEWHASH
+readonly basehash='ef8ea7482fcb9765901abe35bda78789e4a0f6db' # NEWHASH
 
 extract_source () {
     git_archive
