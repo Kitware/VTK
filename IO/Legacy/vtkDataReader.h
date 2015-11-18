@@ -50,10 +50,8 @@ public:
   {
     POINT_DATA,
     CELL_DATA,
-    FIELD_DATA,
+    FIELD_DATA
   };
-
-
 
   static vtkDataReader *New();
   vtkTypeMacro(vtkDataReader,vtkAlgorithm);

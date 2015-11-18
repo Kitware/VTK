@@ -33,7 +33,7 @@ public:
     {
     LEFT_BUTTON = 0x01,
     MIDDLE_BUTTON = 0x02,
-    RIGHT_BUTTON = 0x04,
+    RIGHT_BUTTON = 0x04
     };
 
   enum ModifierKeys
