@@ -319,6 +319,7 @@ void vtkOpenGLGlyph3DMapper::Render(
   // rebuild all entries for this DataSet if it
   // has been modified
   if (subarray->BuildTime < dataset->GetMTime() ||
+      subarray->BuildTime < this->GetMTime() ||
       subarray->LastSelectingState != selecting_points )
     {
     rebuild = true;
