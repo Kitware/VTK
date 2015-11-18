@@ -18,10 +18,14 @@
 // Helpers:
 #include "vtkAoSDataArrayTemplate.h"
 #include "vtkArrayDispatch.h"
+#include "vtkArrayIterator.h"
+#include "vtkDoubleArray.h"
 #include "vtkIdList.h"
+#include "vtkIdTypeArray.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkSmartPointer.h"
+#include "vtkSoADataArrayTemplate.h"
 #include "vtkType.h"
 #include "vtkTypeTraits.h"
 #include "vtkVariant.h"
@@ -36,22 +40,7 @@
 #include <vector>
 
 // Concrete classes for testing:
-#include "vtkAoSDataArrayTemplate.h"
-#include "vtkCharArray.h"
-#include "vtkFloatArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkIdTypeArray.h"
-#include "vtkIntArray.h"
-#include "vtkLongArray.h"
-#include "vtkLongLongArray.h"
-#include "vtkShortArray.h"
-#include "vtkSignedCharArray.h"
-#include "vtkSoADataArrayTemplate.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkUnsignedIntArray.h"
-#include "vtkUnsignedLongArray.h"
-#include "vtkUnsignedLongLongArray.h"
-#include "vtkUnsignedShortArray.h"
+#include "@VTK_TESTDATAARRAYAPI_HEADER@"
 
 // Needed for portable setenv on MSVC...
 #include "vtksys/SystemTools.hxx"
@@ -66,7 +55,7 @@
 // tested in TestGenericDataArrayAPI.
 //
 // This test has three main components:
-// - Entry point: TestDataArrayAPI(). Add new array classes here.
+// - Entry point: TestDataArrayAPI_[ARRAYNAME]()
 // - Unit test caller: ExerciseDataArray(). Templated on value and array types.
 //   Calls individual unit test functions to excerise the array methods.
 //   Add new unit test calls here. Note that the ExerciseGetRange runner has
@@ -88,64 +77,14 @@ int ExerciseGetRange();
 //-------------Test Entry Point-------------------------------------------------
 //------------------------------------------------------------------------------
 
-int TestDataArrayAPI(int, char *[])
+int @VTK_TESTDATAARRAYAPI_TESTNAME@(int, char *[])
 {
   int errors = 0;
 
-#define TEST_ARRAY(scalarT, arrayT) \
-  errors += ExerciseDataArray<scalarT, arrayT>(); \
-  errors += ExerciseGetRange<scalarT, arrayT>()
-
-  // Add array classes here:
-  // Defaults:
-  TEST_ARRAY(char,               vtkCharArray);
-  TEST_ARRAY(double,             vtkDoubleArray);
-  TEST_ARRAY(float,              vtkFloatArray);
-  TEST_ARRAY(int,                vtkIntArray);
-  TEST_ARRAY(long long,          vtkLongLongArray);
-  TEST_ARRAY(long,               vtkLongArray);
-  TEST_ARRAY(short,              vtkShortArray);
-  TEST_ARRAY(signed char,        vtkSignedCharArray);
-  TEST_ARRAY(unsigned char,      vtkUnsignedCharArray);
-  TEST_ARRAY(unsigned int,       vtkUnsignedIntArray);
-  TEST_ARRAY(unsigned long long, vtkUnsignedLongLongArray);
-  TEST_ARRAY(unsigned long,      vtkUnsignedLongArray);
-  TEST_ARRAY(unsigned short,     vtkUnsignedShortArray);
-  TEST_ARRAY(vtkIdType,          vtkIdTypeArray);
-
-  // Explicit AoS arrays:
-  TEST_ARRAY(char,               vtkAoSDataArrayTemplate<char>);
-  TEST_ARRAY(double,             vtkAoSDataArrayTemplate<double>);
-  TEST_ARRAY(float,              vtkAoSDataArrayTemplate<float>);
-  TEST_ARRAY(int,                vtkAoSDataArrayTemplate<int>);
-  TEST_ARRAY(long long,          vtkAoSDataArrayTemplate<long long>);
-  TEST_ARRAY(long,               vtkAoSDataArrayTemplate<long>);
-  TEST_ARRAY(short,              vtkAoSDataArrayTemplate<short>);
-  TEST_ARRAY(signed char,        vtkAoSDataArrayTemplate<signed char>);
-  TEST_ARRAY(unsigned char,      vtkAoSDataArrayTemplate<unsigned char>);
-  TEST_ARRAY(unsigned int,       vtkAoSDataArrayTemplate<unsigned int>);
-  TEST_ARRAY(unsigned long long, vtkAoSDataArrayTemplate<unsigned long long>);
-  TEST_ARRAY(unsigned long,      vtkAoSDataArrayTemplate<unsigned long>);
-  TEST_ARRAY(unsigned short,     vtkAoSDataArrayTemplate<unsigned short>);
-  TEST_ARRAY(vtkIdType,          vtkAoSDataArrayTemplate<vtkIdType>);
-
-  // Explicit SoA arrays:
-  TEST_ARRAY(char,               vtkSoADataArrayTemplate<char>);
-  TEST_ARRAY(double,             vtkSoADataArrayTemplate<double>);
-  TEST_ARRAY(float,              vtkSoADataArrayTemplate<float>);
-  TEST_ARRAY(int,                vtkSoADataArrayTemplate<int>);
-  TEST_ARRAY(long long,          vtkSoADataArrayTemplate<long long>);
-  TEST_ARRAY(long,               vtkSoADataArrayTemplate<long>);
-  TEST_ARRAY(short,              vtkSoADataArrayTemplate<short>);
-  TEST_ARRAY(signed char,        vtkSoADataArrayTemplate<signed char>);
-  TEST_ARRAY(unsigned char,      vtkSoADataArrayTemplate<unsigned char>);
-  TEST_ARRAY(unsigned int,       vtkSoADataArrayTemplate<unsigned int>);
-  TEST_ARRAY(unsigned long long, vtkSoADataArrayTemplate<unsigned long long>);
-  TEST_ARRAY(unsigned long,      vtkSoADataArrayTemplate<unsigned long>);
-  TEST_ARRAY(unsigned short,     vtkSoADataArrayTemplate<unsigned short>);
-  TEST_ARRAY(vtkIdType,          vtkSoADataArrayTemplate<vtkIdType>);
-
-#undef TEST_ARRAY
+  errors += ExerciseDataArray<@VTK_TESTDATAARRAYAPI_VALUETYPE@,
+                              @VTK_TESTDATAARRAYAPI_ARRAYTYPE@ >();
+  errors += ExerciseGetRange<@VTK_TESTDATAARRAYAPI_VALUETYPE@,
+                             @VTK_TESTDATAARRAYAPI_ARRAYTYPE@ >();
 
   if (errors > 0)
     {
