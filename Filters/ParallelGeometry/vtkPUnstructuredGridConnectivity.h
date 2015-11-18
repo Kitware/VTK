@@ -44,6 +44,8 @@
 //         point-to-point communication by processing the communication
 //         links. </li>
 //  </ol>
+// @deprecated Not maintained as of VTK 7.0 and will be removed eventually.
+// Use vtkPUnstructuredGridGhostCellsGenerator instead.
 //
 // .SECTION Caveats
 //  <ul>
@@ -55,13 +57,15 @@
 //  </ul>
 //
 // .SECTION See Also
-//  vtkPUnstructuredGridGhostDataGenerator
+//  vtkPUnstructuredGridGhostDataGenerator vtkPUnstructuredGridGhostCellsGenerator
 
 #ifndef vtkPUnstructuredGridConnectivity_h
 #define vtkPUnstructuredGridConnectivity_h
 
 #include "vtkFiltersParallelGeometryModule.h" // For export macro
 #include "vtkObject.h"
+
+#if !defined(VTK_LEGACY_REMOVE)
 
 // Forward Declarations
 class vtkCell;
@@ -291,4 +295,5 @@ private:
   void operator=(const vtkPUnstructuredGridConnectivity&); // Not implemented
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif /* vtkPUnstructuredGridConnectivity_h */
