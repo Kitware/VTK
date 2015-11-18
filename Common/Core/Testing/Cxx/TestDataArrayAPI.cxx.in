@@ -2879,21 +2879,6 @@ int ExerciseDataArray()
 {
   int errors = 0;
 
-  // Check to see if ArrayT is supported by the dispatch mechanism (this is
-  // controlled by the VTK_DISPATCH_* CMake settings). If not, skip testing it
-  // as many internal methods in vtkDataArray use it.
-  vtkNew<ArrayT> testArray;
-  CanDispatch testWorker;
-  if (!vtkArrayDispatch::Dispatch::Execute(testArray.GetPointer(), testWorker))
-    {
-    std::cerr << "Skipping tests for '" << typeid(ArrayT).name()
-              << "' with data type '" << vtkTypeTraits<ScalarT>::Name()
-              << "', as dispatch is disabled for this array. Modify the "
-                 "VTK_DISPATCH_* CMake settings to enable tests for this "
-                 "class." << std::endl;
-    return errors;
-    }
-
   // vtkAbstractArray API:
   errors += Test_int_Allocate_numValues_ext<ScalarT, ArrayT>();
   errors += Test_void_Initialize<ScalarT, ArrayT>();
@@ -3005,17 +2990,6 @@ template <typename ScalarT, typename ArrayT>
 int ExerciseGetRange()
 {
   int errors = 0;
-
-  // Check to see if ArrayT is supported by the dispatch mechanism (this is
-  // controlled by the VTK_DISPATCH_* CMake settings). If not, skip testing it
-  // as many internal methods in vtkDataArray use it.
-  vtkNew<ArrayT> testArray;
-  CanDispatch testWorker;
-  if (!vtkArrayDispatch::Dispatch::Execute(testArray.GetPointer(), testWorker))
-    {
-    // A warning is printed when this test fails in ExerciseDataArray.
-    return errors;
-    }
 
   errors += Test_GetRange_all_overloads<ScalarT, ArrayT>();
 

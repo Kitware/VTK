@@ -874,21 +874,6 @@ int ExerciseGenericDataArray()
 {
   int errors = 0;
 
-  // Check to see if ArrayT is supported by the dispatch mechanism (this is
-  // controlled by the VTK_DISPATCH_* CMake settings). If not, skip testing it
-  // as many internal methods in vtkDataArray use it.
-  vtkNew<ArrayT> testArray;
-  CanDispatch testWorker;
-  if (!vtkArrayDispatch::Dispatch::Execute(testArray.GetPointer(), testWorker))
-    {
-    std::cerr << "Skipping tests for '" << typeid(ArrayT).name()
-              << "' with data type '" << vtkTypeTraits<ScalarT>::Name()
-              << "', as dispatch is disabled for this array. Modify the "
-                 "VTK_DISPATCH_* CMake settings to enable tests for this "
-                 "class." << std::endl;
-    return errors;
-    }
-
   errors += Test_constRefT_GetValue_valueIdx_const<ScalarT, ArrayT>();
   errors += Test_void_GetTupleValue_tupleIdx_tuple<ScalarT, ArrayT>();
   errors += Test_constRefT_GetComponentValue_tupleIdx_comp_const<ScalarT, ArrayT>();

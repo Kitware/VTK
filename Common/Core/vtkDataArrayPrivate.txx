@@ -15,7 +15,7 @@
 #ifndef vtkDataArrayPrivate_txx
 #define vtkDataArrayPrivate_txx
 
-
+#include "vtkDataArray.h"
 #include "vtkTypeTraits.h"
 #include <algorithm>
 #include <cassert> // for assert()
@@ -192,8 +192,78 @@ bool DoComputeScalarRange(ArrayT *array, double *ranges)
 }
 
 //----------------------------------------------------------------------------
+bool DoComputeScalarRangeFallback(vtkDataArray *array, double *ranges)
+{
+  const int numTuples = array->GetNumberOfTuples();
+  const int numComp = array->GetNumberOfComponents();
+
+  //setup the initial ranges to be the max,min for double
+  for (int i = 0, j = 0; i < numComp; ++i, j+=2)
+    {
+    ranges[j] =  vtkTypeTraits<double>::Max();
+    ranges[j+1] = vtkTypeTraits<double>::Min();
+    }
+
+  //do this after we make sure range is max to min
+  if (numTuples == 0)
+    {
+    return false;
+    }
+
+  //compute the range for each component of the data array at the same time
+  for (vtkIdType tupleIdx = 0; tupleIdx < numTuples; ++tupleIdx)
+    {
+    for(int compIdx = 0, j = 0; compIdx < numComp; ++compIdx, j+=2)
+      {
+      double val = array->GetComponent(tupleIdx, compIdx);
+      ranges[j] = detail::min(ranges[j], val);
+      ranges[j+1] = detail::max(ranges[j+1], val);
+      }
+    }
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
 template <typename ArrayT>
 bool DoComputeVectorRange(ArrayT *array, double range[2])
+{
+  const int numTuples = array->GetNumberOfTuples();
+  const int numComps = array->GetNumberOfComponents();
+
+  range[0] = vtkTypeTraits<double>::Max();
+  range[1] = vtkTypeTraits<double>::Min();
+
+  //do this after we make sure range is max to min
+  if (numTuples == 0)
+    {
+    return false;
+    }
+
+  //iterate over all the tuples
+  for (vtkIdType tupleIdx = 0; tupleIdx < numTuples; ++tupleIdx)
+    {
+    double squaredSum = 0.0;
+    for (int compIdx = 0; compIdx < numComps; ++compIdx)
+      {
+      const double t =
+          static_cast<double>(array->GetComponentValue(tupleIdx, compIdx));
+      squaredSum += t * t;
+      }
+    range[0] = detail::min(range[0], squaredSum);
+    range[1] = detail::max(range[1], squaredSum);
+    }
+
+  //now that we have computed the smallest and largest value, take the
+  //square root of that value.
+  range[0] = sqrt(range[0]);
+  range[1] = sqrt(range[1]);
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool DoComputeVectorRangeFallback(vtkDataArray *array, double range[2])
 {
   const int numTuples = array->GetNumberOfTuples();
   const int numComps = array->GetNumberOfComponents();

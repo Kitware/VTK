@@ -287,6 +287,16 @@ struct SetTupleArrayWorker
                              src->GetComponentValue(this->SrcTuple, c));
       }
   }
+
+  void Fallback(vtkDataArray *src, vtkDataArray *dst)
+  {
+    int numComps = src->GetNumberOfComponents();
+    for (int c = 0; c < numComps; ++c)
+      {
+      dst->SetComponent(this->DstTuple, c,
+                        src->GetComponent(this->SrcTuple, c));
+      }
+  }
 };
 
 //----------------SetTuples (from array+vtkIdList)------------------------------
@@ -311,6 +321,21 @@ struct SetTuplesIdListWorker
       for (int c = 0; c < numComps; ++c)
         {
         dst->SetComponentValue(dstT, c, src->GetComponentValue(srcT, c));
+        }
+      }
+  }
+
+  void Fallback(vtkDataArray *src, vtkDataArray *dst)
+  {
+    vtkIdType numTuples = this->SrcTuples->GetNumberOfIds();
+    int numComps = src->GetNumberOfComponents();
+    for (vtkIdType t = 0; t < numTuples; ++t)
+      {
+      vtkIdType srcT = this->SrcTuples->GetId(t);
+      vtkIdType dstT = this->DstTuples->GetId(t);
+      for (int c = 0; c < numComps; ++c)
+        {
+        dst->SetComponent(dstT, c, src->GetComponent(srcT, c));
         }
       }
   }
@@ -381,6 +406,29 @@ struct SetTuplesRangeWorker
       std::copy(srcBegin, srcEnd, dstBegin);
       }
   }
+
+  // Fallback
+  void Fallback(vtkDataArray *src, vtkDataArray *dst)
+  {
+    int numComps = src->GetNumberOfComponents();
+    vtkIdType srcT = this->SrcStartTuple;
+    vtkIdType srcTEnd = srcT + this->NumTuples;
+    vtkIdType dstT = this->DstStartTuple;
+
+    while (srcT < srcTEnd)
+      {
+      for (vtkIdType t = 0; t < this->NumTuples; ++t)
+        {
+        for (int c = 0; c < numComps; ++c)
+          {
+          dst->SetComponent(dstT, c, src->GetComponent(srcT, c));
+          }
+        }
+      ++srcT;
+      ++dstT;
+      }
+  }
+
 };
 
 template<typename InfoType, typename KeyType>
@@ -541,8 +589,7 @@ void vtkDataArray::SetTuple(vtkIdType thisTupleIdx, vtkIdType sourceTupleIdx,
   SetTupleArrayWorker worker(sourceTupleIdx, thisTupleIdx);
   if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(srcDA, this, worker))
     {
-    vtkErrorMacro("Dispatch failed.");
-    return;
+    worker.Fallback(srcDA, this);
     }
 }
 
@@ -658,8 +705,7 @@ void vtkDataArray::InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
   SetTuplesIdListWorker worker(srcIds, dstIds);
   if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(srcDA, this, worker))
     {
-    vtkErrorMacro("Dispatch failed.");
-    return;
+    worker.Fallback(srcDA, this);
     }
 }
 
@@ -718,8 +764,7 @@ void vtkDataArray::InsertTuples(vtkIdType dstStart, vtkIdType n,
   SetTuplesRangeWorker worker(srcStart, dstStart, n);
   if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(srcDA, this, worker))
     {
-    vtkErrorMacro("Dispatch failed.");
-    return;
+    worker.Fallback(srcDA, this);
     }
 }
 
@@ -840,6 +885,11 @@ void vtkDataArray::InterpolateTuple(vtkIdType dstTuple, vtkIdList *tupleIds,
 
   if (fallback)
     {
+    bool doRound = !(this->GetDataType() == VTK_FLOAT ||
+                     this->GetDataType() == VTK_DOUBLE);
+    double typeMin = this->GetDataTypeMin();
+    double typeMax = this->GetDataTypeMax();
+
     for (int c = 0; c < numComp; ++c)
       {
       double val = 0.;
@@ -847,6 +897,17 @@ void vtkDataArray::InterpolateTuple(vtkIdType dstTuple, vtkIdList *tupleIds,
         {
         val += weights[j] * da->GetComponent(ids[j], c);
         }
+
+      // Clamp to data type range:
+      val = std::max(val, typeMin);
+      val = std::min(val, typeMax);
+
+      // Round for floating point types:
+      if (doRound)
+        {
+        val = std::floor((val >= 0.) ? (val + 0.5) : (val - 0.5));
+        }
+
       this->InsertComponent(dstTuple, c, val);
       }
     }
@@ -906,6 +967,10 @@ void vtkDataArray::InterpolateTuple(vtkIdType dstTuple,
 
   if (fallback)
     {
+    bool doRound = !(this->GetDataType() == VTK_FLOAT ||
+                     this->GetDataType() == VTK_DOUBLE);
+    double typeMin = this->GetDataTypeMin();
+    double typeMax = this->GetDataTypeMax();
     int numComp = source1->GetNumberOfComponents();
     double in1;
     double in2;
@@ -915,6 +980,14 @@ void vtkDataArray::InterpolateTuple(vtkIdType dstTuple,
       in1 = src1DA->GetComponent(srcTuple1, c);
       in2 = src2DA->GetComponent(srcTuple2, c);
       out = in1 + t * (in2 - in1);
+      // Clamp to datatype range:
+      out = std::max(out, typeMin);
+      out = std::min(out, typeMax);
+      // Round if needed:
+      if (doRound)
+        {
+        out = std::floor((out >= 0.) ? (out + 0.5) : (out - 0.5));
+        }
       this->InsertComponent(dstTuple, c, out);
       }
     }
@@ -1596,30 +1669,26 @@ struct VectorRangeDispatchWrapper
 bool vtkDataArray::ComputeScalarRange(double* ranges)
 {
   ScalarRangeDispatchWrapper worker(ranges);
-  if (!vtkArrayDispatch::Dispatch::Execute(this, worker))
+  if (vtkArrayDispatch::Dispatch::Execute(this, worker))
     {
-    vtkErrorMacro("Unsupported array type for dispatch: "
-                  << this->GetClassName()
-                  << " (" << this->GetDataTypeAsString() << ").");
-    return false;
+    return worker.Success;
     }
 
-  return worker.Success;
+  // When dispatch fails:
+  return vtkDataArrayPrivate::DoComputeScalarRangeFallback(this, ranges);
 }
 
 //-----------------------------------------------------------------------------
 bool vtkDataArray::ComputeVectorRange(double range[2])
 {
   VectorRangeDispatchWrapper worker(range);
-  if (!vtkArrayDispatch::Dispatch::Execute(this, worker))
+  if (vtkArrayDispatch::Dispatch::Execute(this, worker))
     {
-    vtkErrorMacro("Unsupported array type for dispatch: "
-                  << this->GetClassName()
-                  << " (" << this->GetDataTypeAsString() << ").");
-    return false;
+    return worker.Success;
     }
 
-  return worker.Success;
+  // When dispatch fails:
+  return vtkDataArrayPrivate::DoComputeVectorRangeFallback(this, range);
 }
 
 //----------------------------------------------------------------------------
