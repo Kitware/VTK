@@ -518,6 +518,7 @@ PyObject *PyVTKObject_FromPointer(
         return NULL;
         }
       classname = vtkname_classname;
+      Py_DECREF(s);
       }
     cls = vtkPythonUtil::FindClass(classname.c_str());
     if (cls == 0)
@@ -525,10 +526,8 @@ PyObject *PyVTKObject_FromPointer(
       PyErr_Format(PyExc_ValueError,
                    "internal error, unknown VTK class %.200s",
                    classname);
-      Py_XDECREF(s);
       return NULL;
       }
-    Py_XDECREF(s);
     }
 
   if (!ptr)
