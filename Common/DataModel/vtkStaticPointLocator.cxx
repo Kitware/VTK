@@ -491,13 +491,13 @@ public:
 
       void  operator()(vtkIdType ptId, vtkIdType end)
         {
-        double xD[3];
+        double p[3];
         LocatorTuple<T> *t = this->BList->Map + ptId;
         for ( ; ptId < end; ++ptId, ++t )
           {
-          this->DataSet->GetPoint(ptId,xD);
+          this->DataSet->GetPoint(ptId,p);
           t->PtId = ptId;
-          t->Bucket = this->BList->GetBucketIndex(xD);
+          t->Bucket = this->BList->GetBucketIndex(p);
           }//for all points in this batch
         }
     };

@@ -80,6 +80,12 @@ public:
   vtkSetVector3Macro(Divisions,int);
   vtkGetVectorMacro(Divisions,int,3);
 
+  // Re-use any superclass signatures that we don't override.
+  using vtkAbstractPointLocator::FindClosestPoint;
+  using vtkAbstractPointLocator::FindClosestNPoints;
+  using vtkAbstractPointLocator::FindPointsWithinRadius;
+  using vtkAbstractPointLocator::GetBounds;
+
   // Description:
   // Given a position x, return the id of the point closest to it. An
   // alternative method (defined in superclass) requires separate x-y-z
@@ -114,12 +120,6 @@ public:
   // indirectly called from a single thread first.
   virtual void FindPointsWithinRadius(double R, const double x[3],
                                       vtkIdList *result);
-
-  // Re-use any superclass signatures that we don't override.
-  using vtkAbstractPointLocator::FindClosestPoint;
-  using vtkAbstractPointLocator::FindClosestNPoints;
-  using vtkAbstractPointLocator::FindPointsWithinRadius;
-  using vtkAbstractPointLocator::GetBounds;
 
   // Description:
   // See vtkLocator and vtkAbstractPointLocator interface documentation.
