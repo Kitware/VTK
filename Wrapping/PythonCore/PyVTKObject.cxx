@@ -486,14 +486,14 @@ PyObject *PyVTKObject_FromPointer(
 {
   // This will be set if we create a new C++ object
   bool created = false;
-  const char *classname = vtkPythonUtil::StripModule(pytype->tp_name);
+  std::string classname = vtkPythonUtil::StripModule(pytype->tp_name);
   PyVTKClass *cls = 0;
 
   if (ptr)
     {
     // If constructing from an existing C++ object, use its actual class
     classname = ptr->GetClassName();
-    cls = vtkPythonUtil::FindClass(classname);
+    cls = vtkPythonUtil::FindClass(classname.c_str());
     }
 
   if (cls == 0)
@@ -510,23 +510,23 @@ PyObject *PyVTKObject_FromPointer(
         s = tmp;
         }
 #endif
-      classname = PyBytes_AsString(s);
-      if (classname == 0)
+      const char *vtkname_classname = PyBytes_AsString(s);
+      if (vtkname_classname == 0)
         {
         Py_DECREF(s);
         return NULL;
         }
+      classname = vtkname_classname;
+      Py_DECREF(s);
       }
-    cls = vtkPythonUtil::FindClass(classname);
+    cls = vtkPythonUtil::FindClass(classname.c_str());
     if (cls == 0)
       {
       PyErr_Format(PyExc_ValueError,
                    "internal error, unknown VTK class %.200s",
                    classname);
-      Py_XDECREF(s);
       return NULL;
       }
-    Py_XDECREF(s);
     }
 
   if (!ptr)
@@ -549,7 +549,7 @@ PyObject *PyVTKObject_FromPointer(
 
       // Check the type of the newly-created object
       const char *newclassname = ptr->GetClassName();
-      if (strcmp(newclassname, classname) != 0)
+      if (newclassname == classname)
         {
         PyVTKClass *newclass = vtkPythonUtil::FindClass(newclassname);
         if (newclass)
