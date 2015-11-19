@@ -289,6 +289,7 @@ void vtkCocoaRenderWindow::DestroyWindow()
       ren->SetRenderWindow(NULL);
       ren->SetRenderWindow(this);
       }
+    this->ReleaseGraphicsResources();
   }
   this->SetContextId(NULL);
   this->SetPixelFormat(NULL);
