@@ -239,7 +239,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 
 //------------------------------------------------------------------------------
 template <class Scalar>
-const typename vtkCPExodusIIResultsArrayTemplate<Scalar>::ReferenceType
+typename vtkCPExodusIIResultsArrayTemplate<Scalar>::ConstReferenceType
 vtkCPExodusIIResultsArrayTemplate<Scalar>::GetValue(vtkIdType idx) const
 {
   return const_cast<vtkCPExodusIIResultsArrayTemplate<Scalar>*>(

@@ -212,7 +212,7 @@ int Test_constRefT_GetValue_valueIdx_const()
   // Verify:
   for (vtkIdType i = 0; i < comps * tuples; ++i)
     {
-    const typename ArrayT::ReferenceType test = array->GetValue(i);
+    typename ArrayT::ConstReferenceType test = array->GetValue(i);
     ScalarT ref = static_cast<ScalarT>(i % 16);
     if (test != ref)
       {
@@ -367,7 +367,7 @@ int Test_void_SetTupleValue_tupleIdx_tuple()
     for (int c = 0; c < comps; ++c)
       {
       ScalarT ref = static_cast<ScalarT>(((t * comps) + c) % 17);
-      const typename ArrayT::ReferenceType test =
+      typename ArrayT::ConstReferenceType test =
           source->GetComponentValue(t, c);
       if (ref != test)
         {
@@ -541,7 +541,7 @@ int Test_RefT_GetValueReference_valueIdx()
   // Verify:
   for (vtkIdType i = 0; i < comps * tuples; ++i)
     {
-    const typename ArrayT::ReferenceType test = array->GetValueReference(i);
+    typename ArrayT::ConstReferenceType test = array->GetValueReference(i);
     ScalarT ref = static_cast<ScalarT>(i % 16);
     if (test != ref)
       {

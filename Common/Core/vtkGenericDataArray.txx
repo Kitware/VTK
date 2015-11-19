@@ -22,8 +22,8 @@
 #include "vtkVariantCast.h"
 
 #define vtkGenericDataArrayT(returnType) \
-  template <class DerivedT, class ValueTypeT, class ReferenceTypeT> \
-  returnType vtkGenericDataArray<DerivedT, ValueTypeT, ReferenceTypeT>
+  template <class DerivedT, class ValueTypeT> \
+  returnType vtkGenericDataArray<DerivedT, ValueTypeT>
 
 //-----------------------------------------------------------------------------
 vtkGenericDataArrayT(double *)::GetTuple(vtkIdType i)

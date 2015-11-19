@@ -40,6 +40,7 @@ public:
 
   typedef typename Superclass::ValueType ValueType;
   typedef typename Superclass::ReferenceType ReferenceType;
+  typedef typename Superclass::ConstReferenceType ConstReferenceType;
 
   // Description:
   // Set the arrays to be used and the number of tuples in each array.
@@ -63,7 +64,7 @@ public:
   void GetTuple(vtkIdType i, double *tuple);
   vtkIdType LookupTypedValue(Scalar value);
   void LookupTypedValue(Scalar value, vtkIdList *ids);
-  const ReferenceType GetValue(vtkIdType idx) const;
+  ConstReferenceType GetValue(vtkIdType idx) const;
   ReferenceType GetValueReference(vtkIdType idx);
   void GetTupleValue(vtkIdType idx, Scalar *t) const;
 

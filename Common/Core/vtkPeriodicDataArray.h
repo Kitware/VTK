@@ -36,6 +36,7 @@ public:
   vtkTemplateTypeMacro(vtkPeriodicDataArray<Scalar>, vtkMappedDataArray<Scalar>)
   typedef typename Superclass::ValueType ValueType;
   typedef typename Superclass::ReferenceType ReferenceType;
+  typedef typename Superclass::ConstReferenceType ConstReferenceType;
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:
@@ -99,7 +100,7 @@ public:
   // Get value at index idx.
   // Warning, it internally call GetTupleValue,
   // so it is an inneficcient way if reading all data
-  const ReferenceType GetValue(vtkIdType idx) const;
+  ConstReferenceType GetValue(vtkIdType idx) const;
 
   // Description:
   // Get value at index idx as reference.

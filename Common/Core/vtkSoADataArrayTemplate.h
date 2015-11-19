@@ -31,8 +31,9 @@ public:
           GenericDataArrayType;
   typedef vtkSoADataArrayTemplate<ValueTypeT> SelfType;
   vtkTemplateTypeMacro(SelfType, GenericDataArrayType)
-  typedef typename GenericDataArrayType::ValueType ValueType;
-  typedef typename GenericDataArrayType::ReferenceType ReferenceType;
+  typedef typename Superclass::ValueType ValueType;
+  typedef typename Superclass::ReferenceType ReferenceType;
+  typedef typename Superclass::ConstReferenceType ConstReferenceType;
 
   static vtkSoADataArrayTemplate* New();
 
@@ -40,7 +41,7 @@ public:
   // Methods that are needed to be implemented by every vtkGenericDataArray
   // subclass.
   // **************************************************************************
-  inline const ReferenceType GetValue(vtkIdType valueIdx) const
+  inline ConstReferenceType GetValue(vtkIdType valueIdx) const
     {
     vtkIdType tupleIdx;
     int comp;
@@ -54,8 +55,8 @@ public:
       tuple[cc] = this->Data[cc].GetBuffer()[tupleIdx];
       }
     }
-  inline const ReferenceType GetComponentValue(vtkIdType tupleIdx,
-                                               int comp) const
+  inline ConstReferenceType GetComponentValue(vtkIdType tupleIdx,
+                                              int comp) const
     {
     return this->Data[comp].GetBuffer()[tupleIdx];
     }

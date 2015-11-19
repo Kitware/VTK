@@ -41,6 +41,7 @@ public:
   vtkTemplateTypeMacro(vtkMappedDataArray<Scalar>, vtkTypedDataArray<Scalar>)
   typedef typename Superclass::ValueType ValueType;
   typedef typename Superclass::ReferenceType ReferenceType;
+  typedef typename Superclass::ConstReferenceType ConstReferenceType;
 
   // Description:
   // Perform a fast, safe cast from a vtkAbstractArray to a vtkMappedDataArray.

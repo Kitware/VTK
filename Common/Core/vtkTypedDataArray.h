@@ -45,6 +45,7 @@ public:
   vtkTemplateTypeMacro(vtkTypedDataArray<Scalar>, GenericDataArrayType)
   typedef typename Superclass::ValueType ValueType;
   typedef typename Superclass::ReferenceType ReferenceType;
+  typedef typename Superclass::ConstReferenceType ConstReferenceType;
 
   // Description:
   // Typedef to a suitable iterator class.
@@ -111,7 +112,7 @@ public:
 
   // Description:
   // Get the data at a particular index.
-  virtual const ReferenceType GetValue(vtkIdType idx) const = 0;
+  virtual ConstReferenceType GetValue(vtkIdType idx) const = 0;
 
   // Description:
   // Get a reference to the scalar value at a particular index.
@@ -134,7 +135,7 @@ public:
   // Insert data at a specified position in the array.
   virtual void InsertValue(vtkIdType idx, ValueType v) = 0;
 
-  virtual const ReferenceType GetComponentValue(vtkIdType tupleIdx, int comp) const;
+  virtual ConstReferenceType GetComponentValue(vtkIdType tupleIdx, int comp) const;
   virtual void SetComponentValue(vtkIdType tupleIdx, int comp, ValueType v);
 
   // Description:

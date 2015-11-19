@@ -26,21 +26,21 @@
 #include <cassert>
 
 template<class DerivedT,
-         class ValueTypeT,
-         class ReferenceTypeT=ValueTypeT&>
+         class ValueTypeT>
 class vtkGenericDataArray : public vtkDataArray
 {
   typedef
-    vtkGenericDataArray<DerivedT, ValueTypeT, ReferenceTypeT> SelfType;
+    vtkGenericDataArray<DerivedT, ValueTypeT> SelfType;
 public:
   vtkTemplateTypeMacro(SelfType, vtkDataArray)
-  typedef ValueTypeT     ValueType;
-  typedef ReferenceTypeT ReferenceType;
+  typedef ValueTypeT        ValueType;
+  typedef ValueTypeT&       ReferenceType;
+  typedef const ValueTypeT& ConstReferenceType;
 
   //----------------------------------------------------------------------------
   // Methods that must be defined by the subclasses.
   // Let's call these GenericDataArray concept methods.
-  inline const ReferenceType GetValue(vtkIdType valueIdx) const
+  inline ConstReferenceType GetValue(vtkIdType valueIdx) const
     {
     // TODO this method shadows a non-const method in vtkDataArrayTemplate
     // that returns a value. Prolly won't matter for most cases, but we should
@@ -51,8 +51,8 @@ public:
     {
     static_cast<const DerivedT*>(this)->GetTupleValue(tupleIdx, tuple);
     }
-  inline const ReferenceType GetComponentValue(vtkIdType tupleIdx,
-                                               int comp) const
+  inline ConstReferenceType GetComponentValue(vtkIdType tupleIdx,
+                                              int comp) const
     {
     return static_cast<const DerivedT*>(this)->GetComponentValue(tupleIdx,
                                                                  comp);
@@ -331,7 +331,7 @@ public:
   // traditional VTK memory layout (array-of-structures).
   ReferenceType GetValueReference(vtkIdType idx)
     {
-    return this->GetValue(idx);
+    return const_cast<ReferenceType>(this->GetValue(idx));
     }
 
   // Description:

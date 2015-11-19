@@ -203,7 +203,7 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 
 //------------------------------------------------------------------------------
 template <class Scalar>
-const typename vtkCPExodusIINodalCoordinatesTemplate<Scalar>::ReferenceType
+typename vtkCPExodusIINodalCoordinatesTemplate<Scalar>::ConstReferenceType
 vtkCPExodusIINodalCoordinatesTemplate<Scalar>::GetValue(vtkIdType idx) const
 {
   return const_cast<vtkCPExodusIINodalCoordinatesTemplate<Scalar>*>(

@@ -37,6 +37,7 @@ public:
   vtkTemplateTypeMacro(SelfType, GenericDataArrayType)
   typedef typename Superclass::ValueType ValueType;
   typedef typename Superclass::ReferenceType ReferenceType;
+  typedef typename Superclass::ConstReferenceType ConstReferenceType;
 
   // Description:
   // Legacy support for array-of-structs value iteration.
@@ -51,7 +52,7 @@ public:
   // Methods that are needed to be implemented by every vtkGenericDataArray
   // subclass.
   // **************************************************************************
-  inline const ReferenceType GetValue(vtkIdType valueIdx) const
+  inline ConstReferenceType GetValue(vtkIdType valueIdx) const
     {
     return this->Buffer.GetBuffer()[valueIdx];
     }
@@ -62,7 +63,7 @@ public:
               this->Buffer.GetBuffer() + valueIdx + this->NumberOfComponents,
               tuple);
     }
-  inline const ReferenceType GetComponentValue(vtkIdType index, int comp) const
+  inline ConstReferenceType GetComponentValue(vtkIdType index, int comp) const
     {
     return this->Buffer.GetBuffer()[this->NumberOfComponents*index + comp];
     }

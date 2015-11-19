@@ -77,7 +77,7 @@ void vtkTypedDataArray<Scalar>::SetNumberOfValues(vtkIdType number)
 
 //------------------------------------------------------------------------------
 template <typename Scalar> inline
-const typename vtkTypedDataArray<Scalar>::ReferenceType
+typename vtkTypedDataArray<Scalar>::ConstReferenceType
 vtkTypedDataArray<Scalar>::GetComponentValue(vtkIdType tupleIdx, int comp) const
 {
   return this->GetValue(tupleIdx * this->NumberOfComponents + comp);

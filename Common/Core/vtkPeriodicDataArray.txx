@@ -345,7 +345,7 @@ template <class Scalar> void vtkPeriodicDataArray<Scalar>
 
 //------------------------------------------------------------------------------
 template <class Scalar>
-const typename vtkPeriodicDataArray<Scalar>::ReferenceType
+typename vtkPeriodicDataArray<Scalar>::ConstReferenceType
 vtkPeriodicDataArray<Scalar>::GetValue(vtkIdType idx) const
 {
   return const_cast<vtkPeriodicDataArray<Scalar>*>(this)->GetValueReference(idx);
