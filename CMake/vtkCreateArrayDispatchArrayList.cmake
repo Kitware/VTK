@@ -103,16 +103,29 @@ set(vtkArrayDispatch_all_types
   "float"
   "int"
   "long"
-  "long long"
   "short"
   "signed char"
   "unsigned char"
   "unsigned int"
   "unsigned long"
-  "unsigned long long"
   "unsigned short"
   "vtkIdType"
 )
+
+
+if(VTK_TYPE_USE_LONG_LONG)
+  list(APPEND vtkArrayDispatch_all_types
+    "long long"
+    "unsigned long long"
+  )
+endif()
+
+if(VTK_TYPE_USE___INT64)
+  list(APPEND vtkArrayDispatch_all_types
+    "__int64"
+    "unsigned __int64"
+  )
+endif()
 
 # For each container, define a header and a list of types:
 if (VTK_DISPATCH_AOS_ARRAYS)

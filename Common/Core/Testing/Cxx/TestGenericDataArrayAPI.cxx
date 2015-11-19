@@ -37,15 +37,23 @@
 #include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
-#include "vtkLongLongArray.h"
 #include "vtkShortArray.h"
 #include "vtkSignedCharArray.h"
 #include "vtkSoADataArrayTemplate.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
-#include "vtkUnsignedLongLongArray.h"
 #include "vtkUnsignedShortArray.h"
+
+#ifdef VTK_TYPE_USE_LONG_LONG
+#include "vtkLongLongArray.h"
+#include "vtkUnsignedLongLongArray.h"
+#endif // VTK_TYPE_USE_LONG_LONG
+
+#ifdef VTK_TYPE_USE___INT64
+#include "vtk__Int64Array.h"
+#include "vtkUnsigned__Int64Array.h"
+#endif // VTK_TYPE_USE___INT64
 
 // About this test:
 //
@@ -81,48 +89,66 @@ int TestGenericDataArrayAPI(int, char *[])
   errors += ExerciseGenericDataArray<double,             vtkDoubleArray>();
   errors += ExerciseGenericDataArray<float,              vtkFloatArray>();
   errors += ExerciseGenericDataArray<int,                vtkIntArray>();
-  errors += ExerciseGenericDataArray<long long,          vtkLongLongArray>();
   errors += ExerciseGenericDataArray<long,               vtkLongArray>();
   errors += ExerciseGenericDataArray<short,              vtkShortArray>();
   errors += ExerciseGenericDataArray<signed char,        vtkSignedCharArray>();
   errors += ExerciseGenericDataArray<unsigned char,      vtkUnsignedCharArray>();
   errors += ExerciseGenericDataArray<unsigned int,       vtkUnsignedIntArray>();
-  errors += ExerciseGenericDataArray<unsigned long long, vtkUnsignedLongLongArray>();
   errors += ExerciseGenericDataArray<unsigned long,      vtkUnsignedLongArray>();
   errors += ExerciseGenericDataArray<unsigned short,     vtkUnsignedShortArray>();
   errors += ExerciseGenericDataArray<vtkIdType,          vtkIdTypeArray>();
+#ifdef VTK_TYPE_USE_LONG_LONG
+  errors += ExerciseGenericDataArray<long long,          vtkLongLongArray>();
+  errors += ExerciseGenericDataArray<unsigned long long, vtkUnsignedLongLongArray>();
+#endif // VTK_TYPE_USE_LONG_LONG
+#ifdef VTK_TYPE_USE__INT64
+  errors += ExerciseGenericDataArray<__int64,            vtk__Int64Array>();
+  errors += ExerciseGenericDataArray<unsigned __int64,   vtkUnsigned__Int64Array>();
+#endif // VTK_TYPE_USE___INT64
 
   // Explicit AoS arrays:
   errors += ExerciseGenericDataArray<char,               vtkAoSDataArrayTemplate<char> >();
   errors += ExerciseGenericDataArray<double,             vtkAoSDataArrayTemplate<double> >();
   errors += ExerciseGenericDataArray<float,              vtkAoSDataArrayTemplate<float> >();
   errors += ExerciseGenericDataArray<int,                vtkAoSDataArrayTemplate<int> >();
-  errors += ExerciseGenericDataArray<long long,          vtkAoSDataArrayTemplate<long long> >();
   errors += ExerciseGenericDataArray<long,               vtkAoSDataArrayTemplate<long> >();
   errors += ExerciseGenericDataArray<short,              vtkAoSDataArrayTemplate<short> >();
   errors += ExerciseGenericDataArray<signed char,        vtkAoSDataArrayTemplate<signed char> >();
   errors += ExerciseGenericDataArray<unsigned char,      vtkAoSDataArrayTemplate<unsigned char> >();
   errors += ExerciseGenericDataArray<unsigned int,       vtkAoSDataArrayTemplate<unsigned int> >();
-  errors += ExerciseGenericDataArray<unsigned long long, vtkAoSDataArrayTemplate<unsigned long long> >();
   errors += ExerciseGenericDataArray<unsigned long,      vtkAoSDataArrayTemplate<unsigned long> >();
   errors += ExerciseGenericDataArray<unsigned short,     vtkAoSDataArrayTemplate<unsigned short> >();
   errors += ExerciseGenericDataArray<vtkIdType,          vtkAoSDataArrayTemplate<vtkIdType> >();
+#ifdef VTK_TYPE_USE_LONG_LONG
+  errors += ExerciseGenericDataArray<long long,          vtkAoSDataArrayTemplate<long long> >();
+  errors += ExerciseGenericDataArray<unsigned long long, vtkAoSDataArrayTemplate<unsigned long long> >();
+#endif // VTK_TYPE_USE_LONG_LONG
+#ifdef VTK_TYPE_USE___INT64
+  errors += ExerciseGenericDataArray<__int64,            vtkAoSDataArrayTemplate<__int64> >();
+  errors += ExerciseGenericDataArray<unsigned __int64,   vtkAoSDataArrayTemplate<unsigned __int64> >();
+#endif // VTK_TYPE_USE___INT64
 
   // Explicit SoA arrays:
   errors += ExerciseGenericDataArray<char,               vtkSoADataArrayTemplate<char> >();
   errors += ExerciseGenericDataArray<double,             vtkSoADataArrayTemplate<double> >();
   errors += ExerciseGenericDataArray<float,              vtkSoADataArrayTemplate<float> >();
   errors += ExerciseGenericDataArray<int,                vtkSoADataArrayTemplate<int> >();
-  errors += ExerciseGenericDataArray<long long,          vtkSoADataArrayTemplate<long long> >();
   errors += ExerciseGenericDataArray<long,               vtkSoADataArrayTemplate<long> >();
   errors += ExerciseGenericDataArray<short,              vtkSoADataArrayTemplate<short> >();
   errors += ExerciseGenericDataArray<signed char,        vtkSoADataArrayTemplate<signed char> >();
   errors += ExerciseGenericDataArray<unsigned char,      vtkSoADataArrayTemplate<unsigned char> >();
   errors += ExerciseGenericDataArray<unsigned int,       vtkSoADataArrayTemplate<unsigned int> >();
-  errors += ExerciseGenericDataArray<unsigned long long, vtkSoADataArrayTemplate<unsigned long long> >();
   errors += ExerciseGenericDataArray<unsigned long,      vtkSoADataArrayTemplate<unsigned long> >();
   errors += ExerciseGenericDataArray<unsigned short,     vtkSoADataArrayTemplate<unsigned short> >();
   errors += ExerciseGenericDataArray<vtkIdType,          vtkSoADataArrayTemplate<vtkIdType> >();
+#ifdef VTK_TYPE_USE_LONG_LONG
+  errors += ExerciseGenericDataArray<long long,          vtkSoADataArrayTemplate<long long> >();
+  errors += ExerciseGenericDataArray<unsigned long long, vtkSoADataArrayTemplate<unsigned long long> >();
+#endif // VTK_TYPE_USE_LONG_LONG
+#ifdef VTK_TYPE_USE___INT64
+  errors += ExerciseGenericDataArray<__int64,            vtkSoADataArrayTemplate<__int64> >();
+  errors += ExerciseGenericDataArray<unsigned __int64,   vtkSoADataArrayTemplate<unsigned __int64> >();
+#endif // VTK_TYPE_USE___INT64
 
   if (errors > 0)
     {

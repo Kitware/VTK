@@ -129,6 +129,7 @@
 #define vtkArrayDispatch_h
 
 #include "vtkArrayDispatchArrayList.h"
+#include "vtkConfigure.h"
 #include "vtkType.h"
 #include "vtkTypeList.h"
 
@@ -138,13 +139,35 @@ namespace vtkArrayDispatch {
 // A TypeList containing all real ValueTypes.
 typedef vtkTypeList_Create_2(double, float) Reals;
 
+// Build a list of all compiler supported integral types:
+namespace impl {
+typedef vtkTypeList::Unique<
+  vtkTypeList_Create_10(char, int, long, short, signed char, unsigned char,
+                        unsigned int, unsigned long, unsigned short, vtkIdType)
+  >::Result BaseIntegrals;
+
+#ifdef VTK_TYPE_USE_LONG_LONG
+typedef vtkTypeList_Create_2(long long, unsigned long long) LongLongIntegrals;
+#else // VTK_TYPE_USE_LONG_LONG
+typedef vtkTypeList::NullType LongLongIntegrals;
+#endif // VTK_TYPE_USE_LONG_LONG
+
+#ifdef VTK_TYPE_USE___INT64
+typedef vtkTypeList_Create_2(__int64, unsigned __int64) I64Integrals;
+#else // VTK_TYPE_USE___INT64
+typedef vtkTypeList::NullType I64Integrals;
+#endif // VTK_TYPE_USE___INT64
+
+typedef vtkTypeList::Append<LongLongIntegrals,
+                            I64Integrals>::Result ExtraIntegrals;
+typedef vtkTypeList::Append<BaseIntegrals,
+                            ExtraIntegrals>::Result AllIntegrals;
+
+} // end impl namespace
+
 // Description:
 // A Typelist containing all integral ValueTypes.
-typedef vtkTypeList::Unique<
-  vtkTypeList_Create_12(char, int, long, long long, short, signed char,
-                        unsigned char, unsigned int, unsigned long,
-                        unsigned long long, unsigned short, vtkIdType)
-  >::Result Integrals;
+typedef impl::AllIntegrals Integrals;
 
 // Description:
 // A Typelist containing all standard VTK array ValueTypes.
