@@ -45,8 +45,8 @@
 // .SECTION See Also
 // vtkArrayDispatch vtkTypeListMacros
 
-#ifndef __vtkTypeList_h
-#define __vtkTypeList_h
+#ifndef vtkTypeList_h
+#define vtkTypeList_h
 
 #include "vtkTypeListMacros.h"
 
@@ -148,5 +148,5 @@ struct Append;
 
 #include "vtkTypeList.txx"
 
-#endif //__vtkTypeList_h
+#endif // vtkTypeList_h
 // VTK-HeaderTest-Exclude: vtkTypeList.h

@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __vtkTypeList_txx
-#define __vtkTypeList_txx
+#ifndef vtkTypeList_txx
+#define vtkTypeList_txx
 
 #include "vtkTypeList.h"
 
@@ -313,4 +313,4 @@ struct Append<vtkTypeList::TypeList<Head, Tail>, T>
 
 }
 
-#endif // __vtkTypeList_txx
+#endif // vtkTypeList_txx

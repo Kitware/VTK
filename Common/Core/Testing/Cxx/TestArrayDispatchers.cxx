@@ -17,7 +17,7 @@
 // to run regardless of the compiled dispatch configuration. Note that this is
 // only possible because we do not use dispatches that are compiled into other
 // translation units, but only explicit dispatches that we generate here.
-#define __vtkArrayDispatchArrayList // Skip loading the actual header
+#define vtkArrayDispatchArrayList_h // Skip loading the actual header
 
 #include "vtkAoSDataArrayTemplate.h"
 #include "vtkSoADataArrayTemplate.h"
