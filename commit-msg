@@ -53,6 +53,7 @@ msg_is_revert() {
 
 msg_first() {
 	len=$(echo -n "$line" | wc -c)
+	max_len=$(hooks_config --get hooks.commit-msg.maxLength || echo 78) &&
 	if test $len -eq 0; then
 		# not yet first line
 		return
@@ -61,8 +62,8 @@ msg_first() {
 --------
 '"$line"'
 --------'
-	elif test $len -gt 78 && ! msg_is_merge && ! msg_is_revert; then
-		die 'The first line may be at most 78 characters:
+	elif test $len -gt "$max_len" && ! msg_is_merge && ! msg_is_revert; then
+		die 'The first line may be at most '"$max_len"' characters:
 ------------------------------------------------------------------------------
 '"$line"'
 ------------------------------------------------------------------------------'
