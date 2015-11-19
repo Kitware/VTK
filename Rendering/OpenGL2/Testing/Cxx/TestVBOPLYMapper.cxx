@@ -39,7 +39,7 @@ int TestVBOPLYMapper(int argc, char *argv[])
   vtkNew<vtkPolyDataMapper> mapper;
   renderer->SetBackground(0.0, 0.0, 0.0);
   vtkNew<vtkRenderWindow> renderWindow;
-  renderWindow->SetSize(900, 900);
+  renderWindow->SetSize(300, 300);
   renderWindow->AddRenderer(renderer.Get());
   renderer->AddActor(actor.Get());
   vtkNew<vtkRenderWindowInteractor>  iren;
@@ -99,10 +99,6 @@ int TestVBOPLYMapper(int argc, char *argv[])
   renderer->GetActiveCamera()->SetFocalPoint(0,0,0);
   renderer->GetActiveCamera()->SetViewUp(0,1,0);
   renderer->ResetCamera();
-
-  renderWindow->SetSize(300, 300);
-  // render a few times to get the resize to flush out
-  renderWindow->Render();
   renderWindow->Render();
   renderWindow->Render();
 
