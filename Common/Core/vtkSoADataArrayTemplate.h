@@ -19,16 +19,17 @@
 #ifndef vtkSoADataArrayTemplate_h
 #define vtkSoADataArrayTemplate_h
 
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkGenericDataArray.h"
 #include "vtkBuffer.h"
 
 template <class ValueTypeT>
-class vtkSoADataArrayTemplate :
+class VTKCOMMONCORE_EXPORT vtkSoADataArrayTemplate :
     public vtkGenericDataArray<vtkSoADataArrayTemplate<ValueTypeT>, ValueTypeT>
 {
-public:
   typedef vtkGenericDataArray<vtkSoADataArrayTemplate<ValueTypeT>, ValueTypeT>
           GenericDataArrayType;
+public:
   typedef vtkSoADataArrayTemplate<ValueTypeT> SelfType;
   vtkTemplateTypeMacro(SelfType, GenericDataArrayType)
   typedef typename Superclass::ValueType ValueType;
@@ -194,6 +195,63 @@ private:
 // Declare vtkArrayDownCast implementations for SoA containers:
 vtkArrayDownCast_TemplateFastCastMacro(vtkSoADataArrayTemplate)
 
-#include "vtkSoADataArrayTemplate.txx"
-#endif
+# define VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(T) \
+   template class VTKCOMMONCORE_EXPORT vtkSoADataArrayTemplate< T >
+
+#endif // header guard
+
+// This portion must be OUTSIDE the include blockers. This is used to tell
+// libraries other than vtkCommonCore that instantiations of
+// vtkSoADataArrayTemplate can be found externally. This prevents each library
+// from instantiating these on their own.
+#ifndef VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATING
+#if defined(VTK_BUILD_SHARED_LIBS) && defined(_MSC_VER)
+#pragma warning (push)
+
+// C4091: 'extern ' : ignored on left of 'int' when no variable is declared
+#pragma warning (disable: 4091)
+
+// Compiler-specific extension warning.
+#pragma warning (disable: 4231)
+
+// We need to disable warning 4910 and do an extern dllexport
+// anyway.  When deriving new arrays from an
+// instantiation of this template the compiler does an explicit
+// instantiation of the base class.  From outside the vtkCommon
+// library we block this using an extern dllimport instantiation.
+// For classes inside vtkCommon we should be able to just do an
+// extern instantiation, but VS 2008 complains about missing
+// definitions.  We cannot do an extern dllimport inside vtkCommon
+// since the symbols are local to the dll.  An extern dllexport
+// seems to be the only way to convince VS 2008 to do the right
+// thing, so we just disable the warning.
+#pragma warning (disable: 4910) // extern and dllexport incompatible
+
+// Use an "extern explicit instantiation" to give the class a DLL
+// interface.  This is a compiler-specific extension.
+extern VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(char);
+extern VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(double);
+extern VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(float);
+extern VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(int);
+extern VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(long);
+extern VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(short);
+extern VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(signed char);
+extern VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(unsigned char);
+extern VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(unsigned int);
+extern VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(unsigned long);
+extern VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(unsigned short);
+#ifdef VTK_TYPE_USE_LONG_LONG
+extern VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(long long);
+extern VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(unsigned long long);
+#endif // VTK_TYPE_USE_LONG_LONG
+#ifdef VTK_TYPE_USE___INT64
+extern VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(__int64);
+extern VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(unsigned __int64);
+#endif // VTK_TYPE_USE___INT64
+
+#pragma warning (pop)
+
+#endif // VTK_BUILD_SHARED_LIBS && _MSC_VER
+#endif // VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATING
+
 // VTK-HeaderTest-Exclude: vtkSoADataArrayTemplate.h

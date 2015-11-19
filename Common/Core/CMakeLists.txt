@@ -237,6 +237,8 @@ SET(Module_SRCS
   vtkSignedCharArray.cxx
   vtkSimpleCriticalSection.cxx
   vtkSmartPointerBase.cxx
+  vtkSoADataArrayTemplate.txx
+  vtkSoADataArrayTemplateInstantiate.cxx
   vtkSortDataArray.cxx
   vtkStdString.cxx
   vtkStringArray.cxx
@@ -597,6 +599,9 @@ set_source_files_properties(
   vtkOldStyleCallbackCommand.cxx
   vtkSimpleCriticalSection.cxx
   vtkSmartPointerBase.cxx
+  vtkSoADataArrayTemplate.h
+  vtkSoADataArrayTemplate.txx
+  vtkSoADataArrayTemplateInstantiate.cxx # Has no API
   vtkStdString.cxx
   vtkTimeStamp.cxx
   vtkVariant.cxx
@@ -671,6 +676,8 @@ set_source_files_properties(
   vtkSetGet.h
   vtkSmartPointer.h
   vtkSmartPointerBase.h
+  vtkSoADataArrayTemplate.txx
+  vtkSoADataArrayTemplateInstantiate.cxx # Has no API
   vtkStdString.cxx
   vtkUnicodeString.cxx
   vtkWeakPointer.h
@@ -680,7 +687,6 @@ set_source_files_properties(
 )
 
 set_source_files_properties(
-  vtkAoSDataArrayTemplate.h
   vtkDenseArray.h
   vtkSparseArray.h
   vtkTypedArray.h
@@ -688,6 +694,11 @@ set_source_files_properties(
   "${VTK_TYPELISTMACROS_HEADER}"
   HEADER_FILE_ONLY
   )
+
+set_source_files_properties(
+  vtkSoADataArrayTemplateInstantiate.cxx # Has no header
+  PROPERTIES SKIP_HEADER_INSTALL 1
+)
 
 # Need nsl to resolve gethostbyname on SunOS-5.8
 # and socket also
