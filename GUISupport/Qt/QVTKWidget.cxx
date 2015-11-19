@@ -23,7 +23,7 @@
 
 /*========================================================================
  For general information about using VTK and Qt, see:
- http://www.trolltech.com/products/3rdparty/vtksupport.html
+ http://www.vtk.org/Wiki/VTK/Examples/Cxx#Qt
 =========================================================================*/
 
 #ifdef _MSC_VER
