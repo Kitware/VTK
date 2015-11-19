@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// We never need to instantiate vtkDataArrayTemplate<vtkIdType> or
+// We never need to instantiate vtkAoSDataArrayTemplate<vtkIdType> or
 // vtkArrayIteratorTemplate<vtkIdType> because they are instantiated
 // by the corresponding array for its native type.  Therefore this
 // code should not be uncommented and is here for reference:

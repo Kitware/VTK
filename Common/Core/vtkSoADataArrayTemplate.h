@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkSoADataArrayTemplate
 // .SECTION Description
-// vtkSoADataArrayTemplate is the counterpart of vtkDataArrayTemplate.
+// vtkSoADataArrayTemplate is the counterpart of vtkAoSDataArrayTemplate.
 
 #ifndef vtkSoADataArrayTemplate_h
 #define vtkSoADataArrayTemplate_h

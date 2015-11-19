@@ -63,7 +63,7 @@ int TestDataArrayIterators(int, char *[])
   MyArray *tda = tdaContainer.GetPointer();
   tda->InitializeArray(array);
 
-  // should be vtkDataArrayTemplate<float>::Iterator (float*):
+  // should be vtkAoSDataArrayTemplate<float>::Iterator (float*):
   vtkFloatArray::Iterator datBegin = array->Begin();
   vtkFloatArray::Iterator datIter = array->Begin();
   if (typeid(datBegin) != typeid(float*))
