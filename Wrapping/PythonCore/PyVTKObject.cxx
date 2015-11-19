@@ -524,7 +524,7 @@ PyObject *PyVTKObject_FromPointer(
       {
       PyErr_Format(PyExc_ValueError,
                    "internal error, unknown VTK class %.200s",
-                   classname);
+                   classname.c_str());
       return NULL;
       }
     }
