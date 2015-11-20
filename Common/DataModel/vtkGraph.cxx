@@ -1923,7 +1923,6 @@ bool vtkGraph::ToDirectedGraph(vtkDirectedGraph* g)
     }
   else
     {
-    g = NULL;
     return false;
     }
 }
@@ -1973,7 +1972,6 @@ bool vtkGraph::ToUndirectedGraph(vtkUndirectedGraph* g)
     }
   else
     {
-    g = NULL;
     return false;
     }
 }
