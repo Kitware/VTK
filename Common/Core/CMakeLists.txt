@@ -628,6 +628,7 @@ set_source_files_properties(
   vtkTypeTemplate.h
   ${VTK_SMP_SOURCES}
   ${VTK_SMP_HEADERS}
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkCompilerFeatureDetection.h
 
   WRAP_EXCLUDE
   )
@@ -655,6 +656,7 @@ set_source_files_properties(
   vtkWeakPointer.h
   vtkWeakPointerBase.cxx
   vtkWin32Header.h
+  ${CMAKE_CURRENT_BINARY_DIR}/vtkCompilerFeatureDetection.h
   PROPERTIES WRAP_EXCLUDE_PYTHON 1
 )
 
