@@ -1220,15 +1220,15 @@ void vtkXdmf3DataSet::VTKToXdmf(
 
   bool OK = true;
   vCoords = dataSet->GetXCoordinates();
-  OK |= vtkXdmf3DataSet::VTKToXdmfArray(vCoords, xZCoords.get());
+  OK &= vtkXdmf3DataSet::VTKToXdmfArray(vCoords, xZCoords.get());
   if (OK)
     {
     vCoords = dataSet->GetYCoordinates();
-    OK |= vtkXdmf3DataSet::VTKToXdmfArray(vCoords, xYCoords.get());
+    OK &= vtkXdmf3DataSet::VTKToXdmfArray(vCoords, xYCoords.get());
     if (OK)
       {
       vCoords = dataSet->GetZCoordinates();
-      OK |= vtkXdmf3DataSet::VTKToXdmfArray(vCoords, xXCoords.get());
+      OK &= vtkXdmf3DataSet::VTKToXdmfArray(vCoords, xXCoords.get());
       }
     }
 
