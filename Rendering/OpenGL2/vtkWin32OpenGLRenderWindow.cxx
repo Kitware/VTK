@@ -386,29 +386,82 @@ void vtkWin32OpenGLRenderWindow::Frame(void)
     }
 }
 
+void vtkWin32OpenGLRenderWindow::VTKRegisterClass()
+{
+  // has the class been registered ?
+  WNDCLASS wndClass;
+#ifdef UNICODE
+  if (!GetClassInfo(this->ApplicationInstance,L"vtkOpenGL",&wndClass))
+#else
+  if (!GetClassInfo(this->ApplicationInstance,"vtkOpenGL",&wndClass))
+#endif
+    {
+    wndClass.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS;
+    wndClass.lpfnWndProc = vtkWin32OpenGLRenderWindow::WndProc;
+    wndClass.cbClsExtra = 0;
+    wndClass.hInstance = this->ApplicationInstance;
+    wndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+    wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wndClass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
+    wndClass.lpszMenuName = NULL;
+#ifdef UNICODE
+    wndClass.lpszClassName = L"vtkOpenGL";
+#else
+    wndClass.lpszClassName = "vtkOpenGL";
+#endif
+    // vtk doesn't use the first extra vtkLONG's worth of bytes,
+    // but app writers may want them, so we provide them. VTK
+    // does use the second vtkLONG's worth of bytes of extra space.
+    wndClass.cbWndExtra = 2 * sizeof(vtkLONG);
+    RegisterClass(&wndClass);
+    }
+}
+
 int vtkWin32OpenGLRenderWindow::SupportsOpenGL()
 {
-  MakeCurrent();
-  if (!this->DeviceContext)
+#ifdef GLEW_OK
+  this->InitializeApplication();
+  this->VTKRegisterClass();
+
+  // Create a dummy window, needed for calling wglGetProcAddress.
+#ifdef UNICODE
+  HWND tempId = CreateWindow(L"vtkOpenGL", 0, 0, 0, 0, 1, 1, 0, 0, this->ApplicationInstance, 0);
+#else
+  HWND tempId = CreateWindow("vtkOpenGL", 0, 0, 0, 0, 1, 1, 0, 0, this->ApplicationInstance, 0);
+#endif
+  HDC tempDC = GetDC(tempId);
+  PIXELFORMATDESCRIPTOR tempPfd;
+  memset(&tempPfd, 0, sizeof(PIXELFORMATDESCRIPTOR));
+  tempPfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
+  tempPfd.nVersion = 1;
+  tempPfd.dwFlags = PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW;
+  tempPfd.iPixelType = PFD_TYPE_RGBA;
+  int tempPixelFormat = ChoosePixelFormat(tempDC, &tempPfd);
+  SetPixelFormat(tempDC, tempPixelFormat, &tempPfd);
+  HGLRC tempContext = wglCreateContext(tempDC);
+  wglMakeCurrent(tempDC, tempContext);
+
+  GLenum result = glewInit();
+  bool m_valid = (result == GLEW_OK);
+  if (!m_valid)
     {
     return 0;
     }
 
-  int pixelFormat = GetPixelFormat(this->DeviceContext);
-  PIXELFORMATDESCRIPTOR pfd;
+  if (GLEW_VERSION_3_2 || (GLEW_VERSION_2_1 && GLEW_EXT_gpu_shader4))
+    {
+    return 1;
+    }
 
-  DescribePixelFormat(this->DeviceContext, pixelFormat,
-                      sizeof(PIXELFORMATDESCRIPTOR), &pfd);
+#endif
 
-  return (pfd.dwFlags & PFD_SUPPORT_OPENGL) ? 1:0;
-
+  return 0;
 }
 
 
 int vtkWin32OpenGLRenderWindow::IsDirect()
 {
-
-  MakeCurrent();
+  this->MakeCurrent();
   if (!this->DeviceContext)
     {
     return 0;
@@ -427,7 +480,7 @@ int vtkWin32OpenGLRenderWindow::IsDirect()
 
 const char* vtkWin32OpenGLRenderWindow::ReportCapabilities()
 {
-  MakeCurrent();
+  this->MakeCurrent();
 
   if (!this->DeviceContext)
     {
@@ -616,15 +669,12 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
       }
     }
 
-  // If we got a valid pixel format in the process, we are done.
-  // Otherwise, we use the old approach of using ChoosePixelFormat.
+  // see if we can get a 3.2 context
   if (pixelFormat)
     {
     this->SetupPalette(hDC);
 
     // create a context
-#define USE_32_CONTEXT
-#ifdef USE_32_CONTEXT
     PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB =
       reinterpret_cast<PFNWGLCREATECONTEXTATTRIBSARBPROC>(wglGetProcAddress("wglCreateContextAttribsARB"));
     if (wglCreateContextAttribsARB)
@@ -634,8 +684,8 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
         WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
         WGL_CONTEXT_MINOR_VERSION_ARB, 2,
         WGL_CONTEXT_FLAGS_ARB, 0,
-  //      WGL_CONTEXT_PROFILE_MASK_ARB,
-  //    WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
+        // WGL_CONTEXT_PROFILE_MASK_ARB,
+        // WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
         // WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
         0 // End of attributes list
         };
@@ -647,7 +697,6 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
       this->SetContextSupportsOpenGL32(true);
       }
     else
-#endif
       {
       this->ContextId = wglCreateContext(hDC);
       }
@@ -664,110 +713,13 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
   ::DestroyWindow(tempId); // windows api
 
   // If we got a valid pixel format in the process, we are done.
-  // Otherwise, we use the old approach of using ChoosePixelFormat.
-  if (pixelFormat)
+  // Otherwise fail as the OpenGL does not support even 2.1
+  if (!pixelFormat)
     {
-    return;
+    vtkErrorMacro("wglChoosePixelFormatARB not defined. OpenGL not supported.");
     }
 
-  BYTE bpp_byte = static_cast<BYTE>(bpp);
-  BYTE zbpp_byte = static_cast<BYTE>(zbpp);
-  PIXELFORMATDESCRIPTOR pfd2 = {
-    sizeof(PIXELFORMATDESCRIPTOR),  /* size */
-    1,                              /* version */
-    dwFlags,                        /* support double-buffering */
-    PFD_TYPE_RGBA,                  /* color type */
-    bpp_byte,                       /* preferred color depth */
-    0, 0, 0, 0, 0, 0,               /* color bits (ignored) */
-    static_cast<BYTE>(this->AlphaBitPlanes ? bpp/4 : 0), /* no alpha buffer */
-    0,                              /* alpha bits (ignored) */
-    0,                              /* no accumulation buffer */
-    0, 0, 0, 0,                     /* accum bits (ignored) */
-    zbpp_byte,                      /* depth buffer */
-    static_cast<BYTE>(this->StencilCapable), /* stencil buffer */
-    0,                              /* no auxiliary buffers */
-    PFD_MAIN_PLANE,                 /* main layer */
-    0,                              /* reserved */
-    0, 0, 0,                        /* no layer, visible, damage masks */
-  };
-  // Only try to set pixel format if we do not currently have one
-  int currentPixelFormat = GetPixelFormat(hDC);
-  // if there is a current pixel format, then make sure it
-  // supports OpenGL
-  if (currentPixelFormat != 0)
-    {
-    DescribePixelFormat(hDC, currentPixelFormat,sizeof(pfd2), &pfd2);
-    if (!(pfd2.dwFlags & PFD_SUPPORT_OPENGL))
-      { // @note see https://msdn.microsoft.com/en-us/library/windows/desktop/dd369049(v=vs.85).aspx
-        // "Once a window's pixel format is set, it cannot be changed."
-        vtkErrorMacro("Call to DescribePixelFormat failed. "
-                      "Illegal duplicate invocation or no OpenGL support.");
-      if (this->HasObserver(vtkCommand::ExitEvent))
-        {
-        this->InvokeEvent(vtkCommand::ExitEvent, NULL);
-        return;
-        }
-      }
-    }
-  else
-    {
-    // hDC has no current PixelFormat, so
-    pixelFormat = ChoosePixelFormat(hDC, &pfd2);
-    if (pixelFormat == 0)
-      {
-#ifdef UNICODE
-      MessageBox(WindowFromDC(hDC), L"ChoosePixelFormat failed.", L"Error",
-                 MB_ICONERROR | MB_OK);
-#else
-      MessageBox(WindowFromDC(hDC), "ChoosePixelFormat failed.", "Error",
-                 MB_ICONERROR | MB_OK);
-#endif
-      if (this->HasObserver(vtkCommand::ExitEvent))
-        {
-        this->InvokeEvent(vtkCommand::ExitEvent, NULL);
-        return;
-        }
-      else
-        {
-        exit(1);
-        }
-      }
-    DescribePixelFormat(hDC, pixelFormat,sizeof(pfd2), &pfd2);
-    if (SetPixelFormat(hDC, pixelFormat, &pfd2) != TRUE)
-      {
-      // int err = GetLastError();
-#ifdef UNICODE
-      MessageBox(WindowFromDC(hDC), L"SetPixelFormat failed.", L"Error",
-                 MB_ICONERROR | MB_OK);
-#else
-      MessageBox(WindowFromDC(hDC), "SetPixelFormat failed.", "Error",
-                 MB_ICONERROR | MB_OK);
-#endif
-      if (this->HasObserver(vtkCommand::ExitEvent))
-        {
-        this->InvokeEvent(vtkCommand::ExitEvent, NULL);
-        return;
-        }
-      else
-        {
-        exit(1);
-        }
-      }
-    }
-  if (debug && (dwFlags & PFD_STEREO) && !(pfd2.dwFlags & PFD_STEREO))
-    {
-    vtkGenericWarningMacro("No Stereo Available!");
-    this->StereoCapableWindow = 0;
-    }
-
-  this->SetupPalette(hDC);
-
-  // create a context
-  this->ContextId = wglCreateContext(hDC);
-  if (this->ContextId == NULL)
-    {
-    vtkErrorMacro("wglCreateContext failed in CreateAWindow(), error: " << GetLastError());
-    }
+  return;
 }
 
 void vtkWin32OpenGLRenderWindow::SetupPalette(HDC hDC)
@@ -923,34 +875,7 @@ void vtkWin32OpenGLRenderWindow::InitializeApplication()
 
 void vtkWin32OpenGLRenderWindow::CreateAWindow()
 {
-
-  WNDCLASS wndClass;
-  // has the class been registered ?
-#ifdef UNICODE
-  if (!GetClassInfo(this->ApplicationInstance,L"vtkOpenGL",&wndClass))
-#else
-  if (!GetClassInfo(this->ApplicationInstance,"vtkOpenGL",&wndClass))
-#endif
-    {
-    wndClass.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS;
-    wndClass.lpfnWndProc = vtkWin32OpenGLRenderWindow::WndProc;
-    wndClass.cbClsExtra = 0;
-    wndClass.hInstance = this->ApplicationInstance;
-    wndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-    wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
-    wndClass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-    wndClass.lpszMenuName = NULL;
-#ifdef UNICODE
-    wndClass.lpszClassName = L"vtkOpenGL";
-#else
-    wndClass.lpszClassName = "vtkOpenGL";
-#endif
-    // vtk doesn't use the first extra vtkLONG's worth of bytes,
-    // but app writers may want them, so we provide them. VTK
-    // does use the second vtkLONG's worth of bytes of extra space.
-    wndClass.cbWndExtra = 2 * sizeof(vtkLONG);
-    RegisterClass(&wndClass);
-    }
+  this->VTKRegisterClass();
 
   if(this->WindowIdReferenceCount == 0)
     {
@@ -1059,14 +984,7 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow()
     this->MakeCurrent();
 
     // wipe out any existing display lists
-    vtkRenderer* ren;
-    vtkCollectionSimpleIterator rsit;
-    for (this->Renderers->InitTraversal(rsit);
-         (ren = this->Renderers->GetNextRenderer(rsit));)
-      {
-      ren->SetRenderWindow(0);
-      ren->SetRenderWindow(this);
-      }
+    this->ReleaseGraphicsResources();
     this->OpenGLInit();
     this->Mapped = 1;
     this->WindowIdReferenceCount = 1;

@@ -275,6 +275,7 @@ protected:
   void CreateOffScreenWindow(int width,int height);
   void SaveScreenRendering();
   void CleanUpRenderers();
+  void VTKRegisterClass();
 
 private:
   vtkWin32OpenGLRenderWindow(const vtkWin32OpenGLRenderWindow&);  // Not implemented.
