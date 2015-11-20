@@ -16,7 +16,7 @@
 // .SECTION Description
 // vtkStaticPointLocator is a spatial search object to quickly locate points
 // in 3D.  vtkStaticPointLocator works by dividing a specified region of
-// space into a regular array of "rectangular" buckets, and then keeping a
+// space into a regular array of cuboid buckets, and then keeping a
 // list of points that lie in each bucket. Typical operation involves giving
 // a position in 3D and finding the closest point; or finding the N closest
 // points.
@@ -28,7 +28,7 @@
 
 // .SECTION Caveats
 // This class is templated. It may run slower than serial execution if the code
-// is not optimized during compilation.
+// is not optimized during compilation. Build in Release or ReleaseWithDebugInfo.
 //
 // Make sure that you review the documentation for the superclasses
 // vtkAbstactPointLocator and vtkLocator. In particular the Automatic
@@ -88,7 +88,7 @@ public:
 
   // Description:
   // Given a position x, return the id of the point closest to it. An
-  // alternative method (defined in superclass) requires separate x-y-z
+  // alternative method (defined in the superclass) requires separate x-y-z
   // values. These methods are thread safe if BuildLocator() is directly or
   // indirectly called from a single thread first.
   virtual vtkIdType FindClosestPoint(const double x[3]);
@@ -97,7 +97,9 @@ public:
   // Given a position x and a radius r, return the id of the point closest to
   // the point in that radius.  These methods are thread safe if
   // BuildLocator() is directly or indirectly called from a single thread
-  // first. dist2 returns the squared distance to the point.
+  // first. dist2 returns the squared distance to the point. Note that if multiple
+  // points are located the same distance away, the actual point returned is a
+  // function in which order the points are processed (i.e., indeterminate).
   virtual vtkIdType FindClosestPointWithinRadius(
     double radius, const double x[3], double& dist2);
   virtual vtkIdType FindClosestPointWithinRadius(double radius, const double x[3],

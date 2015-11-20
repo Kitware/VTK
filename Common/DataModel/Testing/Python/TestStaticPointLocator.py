@@ -69,7 +69,7 @@ for i in range (0,numProbes):
     closest.SetId(i, locator.FindClosestPoint(probePoints.GetPoint(i)))
 timer.StopTimer()
 opTime = timer.GetElapsedTime()
-print("    Closest point probing: ".format(opTime))
+print("    Closest point probing: {0}".format(opTime))
 
 # Time the deletion of the locator. The incremental locator is quite slow due
 # to fragmented memory.
@@ -104,11 +104,12 @@ staticTimer.StopTimer()
 staticOpTime = staticTimer.GetElapsedTime()
 print("    Static Closest point probing: {0}".format(staticOpTime))
 
-# Check that closest point op gives same answer. Note that it is possible to
-# realize different results because buckets (and hence points) are processed
-# in a different order, and if the distance apart is the same then the order
-# decides which point is selected (from FindClosestPoint()). For small
-# datasets this is unlikely to happen.
+# Check that closest point operation gives the same answer and the
+# incremental point locator. Note that it is possible to realize different
+# results because buckets (and hence points) are processed in a different
+# order, and if the distance apart is the same then the order decides which
+# point is selected (from FindClosestPoint()). For small random datasets this
+# is unlikely to happen.
 error = 0
 for i in range (0,numProbes):
     if closest.GetId(i) != staticClosest.GetId(i):
