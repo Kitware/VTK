@@ -1205,7 +1205,7 @@ CanRead(const char *_headerName) const
 
   char* buf = new char[8001];
   inputStream.read(buf,8000);
-  unsigned long fileSize = inputStream.gcount();
+  unsigned long fileSize = static_cast<unsigned long>(inputStream.gcount());
   buf[fileSize] = 0;
   METAIO_STL::string header(buf);
   header.resize(fileSize);

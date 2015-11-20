@@ -446,7 +446,7 @@ M_Read(void)
     char* _data = new char[readSize];
     m_ReadStream->read((char *)_data, readSize);
 
-    int gc = m_ReadStream->gcount();
+    int gc = static_cast<int>(m_ReadStream->gcount());
     if(gc != readSize)
     {
       METAIO_STREAM::cout << "MetaMesh: m_Read: Points not read completely"
@@ -569,7 +569,7 @@ M_Read(void)
     char c = ' ';
     while( (c!='\n') && (!m_ReadStream->eof()))
       {
-      c = m_ReadStream->get();// to avoid unrecognize charactere
+      c = static_cast<char>(m_ReadStream->get());// to avoid unrecognize charactere
       }
     }
 
@@ -625,7 +625,7 @@ M_Read(void)
       char* _data = new char[readSize];
       m_ReadStream->read((char *)_data, readSize);
 
-      int gc = m_ReadStream->gcount();
+      int gc = static_cast<int>(m_ReadStream->gcount());
       if(gc != readSize)
         {
         METAIO_STREAM::cout << "MetaMesh: m_Read: Cells not read completely"
@@ -695,7 +695,7 @@ M_Read(void)
       char c = ' ';
       while( (c!='\n') && (!m_ReadStream->eof()))
       {
-        c = m_ReadStream->get();// to avoid unrecognized characters
+        c = static_cast<char>(m_ReadStream->get());// to avoid unrecognized characters
       }
     }
     }
@@ -747,7 +747,7 @@ M_Read(void)
     char* _data = new char[readSize];
     m_ReadStream->read((char *)_data, readSize);
 
-    int gc = m_ReadStream->gcount();
+    int gc = static_cast<int>(m_ReadStream->gcount());
     if(gc != readSize)
       {
       METAIO_STREAM::cout << "MetaMesh: m_Read: Cell Link not read completely"
@@ -830,7 +830,7 @@ M_Read(void)
       char c = ' ';
       while( (c!='\n') && (!m_ReadStream->eof()))
         {
-        c = m_ReadStream->get();// to avoid unrecognized characters
+        c = static_cast<char>(m_ReadStream->get());// to avoid unrecognized characters
         }
       }
     }
@@ -880,7 +880,7 @@ M_Read(void)
   char* _data = new char[pointDataSize];
   m_ReadStream->read((char *)_data, pointDataSize);
 
-  unsigned int gc = m_ReadStream->gcount();
+  unsigned int gc = static_cast<unsigned int>(m_ReadStream->gcount());
   if(gc != pointDataSize)
     {
     METAIO_STREAM::cout << "MetaMesh: m_Read: PointData not read completely"
@@ -1046,7 +1046,7 @@ M_Read(void)
   char* _celldata = new char[cellDataSize];
   m_ReadStream->read((char *)_celldata, cellDataSize);
 
-  unsigned int gcCell = m_ReadStream->gcount();
+  unsigned int gcCell = static_cast<unsigned int>(m_ReadStream->gcount());
   if(gcCell != cellDataSize)
     {
     METAIO_STREAM::cout << "MetaMesh: m_Read: data not read completely"

@@ -16,7 +16,7 @@ src/doc
 License.txt
 "
 
-readonly basehash='fc3537673c92fe781cb9ab0242ee95cba2f87b0e' # NEWHASH
+readonly basehash='8bd5a1ff2294ae8a480b6fd24536957ba8adddcd' # NEWHASH
 
 extract_source () {
     git_archive
