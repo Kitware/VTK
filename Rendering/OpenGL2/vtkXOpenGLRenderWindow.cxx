@@ -711,19 +711,7 @@ void vtkXOpenGLRenderWindow::DestroyWindow()
   if (this->OwnContext && this->Internal->ContextId)
     {
     this->MakeCurrent();
-    // tell each of the renderers that this render window/graphics context
-    // is being removed (the RendererCollection is removed by vtkRenderWindow's
-    // destructor)
-    vtkRenderer* ren;
-    this->Renderers->InitTraversal();
-    for ( ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject());
-          ren != NULL;
-          ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject())  )
-      {
-      ren->SetRenderWindow(NULL);
-      ren->SetRenderWindow(this);
-      }
-    this->ReleaseGraphicsResources();
+    this->ReleaseGraphicsResources(this);
 
     if (this->Internal->ContextId)
       {
@@ -890,17 +878,8 @@ void vtkXOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
 
 void vtkXOpenGLRenderWindow::DestroyOffScreenWindow()
 {
-
   // release graphic resources.
-  vtkRenderer *ren;
-  vtkCollectionSimpleIterator rit;
-  this->Renderers->InitTraversal(rit);
-  while ( (ren = this->Renderers->GetNextRenderer(rit)) )
-    {
-    ren->SetRenderWindow(NULL);
-    ren->SetRenderWindow(this);
-    }
-
+  this->ReleaseGraphicsResources(this);
 
 #ifdef VTK_USE_OSMESA
   if (this->Internal->OffScreenContextId)

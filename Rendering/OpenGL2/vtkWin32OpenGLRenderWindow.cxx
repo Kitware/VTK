@@ -115,14 +115,7 @@ void vtkWin32OpenGLRenderWindow::CleanUpRenderers()
   // tell each of the renderers that this render window/graphics context
   // is being removed (the RendererCollection is removed by vtkRenderWindow's
   // destructor)
-  vtkRenderer *ren;
-  vtkCollectionSimpleIterator rsit;
-  for (this->Renderers->InitTraversal(rsit);
-       (ren = this->Renderers->GetNextRenderer(rsit));)
-    {
-    ren->SetRenderWindow(NULL);
-    }
-  this->ReleaseGraphicsResources();
+  this->ReleaseGraphicsResources(this);
 }
 
 LRESULT APIENTRY vtkWin32OpenGLRenderWindow::WndProc(HWND hWnd, UINT message,
@@ -595,9 +588,7 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
   // features like multisamples.
   PIXELFORMATDESCRIPTOR pfd;
   int pixelFormat = 0;
-  wglChoosePixelFormatARBType wglChoosePixelFormatARB =
-    reinterpret_cast<wglChoosePixelFormatARBType>(wglGetProcAddress("wglChoosePixelFormatARB"));
-  if ((dwFlags & PFD_DRAW_TO_WINDOW) && wglChoosePixelFormatARB)
+  if (wglChoosePixelFormatARB)
     {
     int attrib[] = {
       WGL_ACCELERATION_ARB, WGL_FULL_ACCELERATION_ARB,
@@ -668,6 +659,10 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
         }
       }
     }
+  else
+    {
+    vtkErrorMacro("failed to get wglChoosePixelFormatARB");
+    }
 
   // see if we can get a 3.2 context
   if (pixelFormat)
@@ -716,7 +711,7 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
   // Otherwise fail as the OpenGL does not support even 2.1
   if (!pixelFormat)
     {
-    vtkErrorMacro("wglChoosePixelFormatARB not defined. OpenGL not supported.");
+    vtkErrorMacro("failed to get valid pixel format.");
     }
 
   return;
@@ -984,7 +979,7 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow()
     this->MakeCurrent();
 
     // wipe out any existing display lists
-    this->ReleaseGraphicsResources();
+    this->ReleaseGraphicsResources(this);
     this->OpenGLInit();
     this->Mapped = 1;
     this->WindowIdReferenceCount = 1;
@@ -1049,12 +1044,12 @@ void vtkWin32OpenGLRenderWindow::Finalize (void)
 
 void vtkWin32OpenGLRenderWindow::DestroyWindow()
 {
+  this->Clean();
   if(this->WindowIdReferenceCount > 0)
     {
     --this->WindowIdReferenceCount;
     if(this->WindowIdReferenceCount == 0)
       {
-      this->Clean();
       if (this->WindowId)
         {
         ReleaseDC(this->WindowId, this->DeviceContext);
@@ -1445,6 +1440,9 @@ void vtkWin32OpenGLRenderWindow::CreateOffScreenDC(int xsize, int ysize,
 
 void vtkWin32OpenGLRenderWindow::CreateOffScreenDC(HBITMAP hbmp, HDC aHdc)
 {
+  this->InitializeApplication();
+  this->VTKRegisterClass();
+
   BITMAP bm;
   GetObject(hbmp, sizeof(BITMAP), &bm);
 
@@ -1456,15 +1454,7 @@ void vtkWin32OpenGLRenderWindow::CreateOffScreenDC(HBITMAP hbmp, HDC aHdc)
   // Put the bitmap into the device context
   SelectObject(this->MemoryHdc, this->MemoryBuffer);
 
-  // Renderers will need to redraw anything cached in display lists
-  vtkRenderer *ren;
-  vtkCollectionSimpleIterator rsit;
-  for (this->Renderers->InitTraversal(rsit);
-       (ren = this->Renderers->GetNextRenderer(rsit));)
-    {
-    ren->SetRenderWindow(NULL);
-    ren->SetRenderWindow(this);
-    }
+  this->ReleaseGraphicsResources(this);
 
   // adjust settings for renderwindow
   this->Mapped =0;
@@ -1552,16 +1542,8 @@ void vtkWin32OpenGLRenderWindow::ResumeScreenRendering(void)
   // release OpenGL graphics resources before switch back to on-screen.
   if(this->ContextId!=0)
     {
-      this->MakeCurrent();
-      // Renderers will need to redraw anything cached in display lists
-      vtkRenderer *ren;
-      vtkCollectionSimpleIterator rsit;
-      for (this->Renderers->InitTraversal(rsit);
-           (ren = this->Renderers->GetNextRenderer(rsit));)
-        {
-        ren->SetRenderWindow(NULL);
-        ren->SetRenderWindow(this);
-        }
+    this->MakeCurrent();
+    this->ReleaseGraphicsResources(this);
     }
 
   this->Mapped = this->ScreenMapped;

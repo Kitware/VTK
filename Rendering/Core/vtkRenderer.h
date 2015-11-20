@@ -505,7 +505,7 @@ public:
   vtkBooleanMacro(TexturedBackground,bool);
 
   // method to release graphics resources in any derived renderers.
-  virtual void ReleaseGraphicsResources(vtkWindow *) { }
+  virtual void ReleaseGraphicsResources(vtkWindow *);
 
   // Description:
   // Turn on/off rendering of shadows if supported

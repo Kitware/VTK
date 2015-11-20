@@ -141,7 +141,7 @@ vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
 }
 
 // ----------------------------------------------------------------------------
-void vtkOpenGLRenderWindow::ReleaseGraphicsResources()
+void vtkOpenGLRenderWindow::ReleaseGraphicsResources(vtkRenderWindow *renWin)
 {
   vtkCollectionSimpleIterator rsit;
   this->Renderers->InitTraversal(rsit);
@@ -150,16 +150,16 @@ void vtkOpenGLRenderWindow::ReleaseGraphicsResources()
     {
     if (aren->GetRenderWindow() == this)
       {
-      aren->ReleaseGraphicsResources(this);
+      aren->ReleaseGraphicsResources(renWin);
       }
     }
 
   if(this->DrawPixelsTextureObject != 0)
      {
-     this->DrawPixelsTextureObject->ReleaseGraphicsResources(this);
+     this->DrawPixelsTextureObject->ReleaseGraphicsResources(renWin);
      }
 
-  this->ShaderCache->ReleaseGraphicsResources(this);
+  this->ShaderCache->ReleaseGraphicsResources(renWin);
 
   if (this->TextureResourceIds.size())
     {

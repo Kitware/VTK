@@ -516,6 +516,7 @@ void vtkOpenGLRenderer::ReleaseGraphicsResources(vtkWindow *w)
     {
     this->ShadowMapPass->ReleaseGraphicsResources(w);
     }
+  this->Superclass::ReleaseGraphicsResources(w);
 }
 
 void vtkOpenGLRenderer::UpdatePickId()

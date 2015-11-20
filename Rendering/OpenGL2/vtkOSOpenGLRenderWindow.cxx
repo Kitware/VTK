@@ -153,20 +153,7 @@ void vtkOSOpenGLRenderWindow::CreateAWindow()
 void vtkOSOpenGLRenderWindow::DestroyWindow()
 {
   this->MakeCurrent();
-
-  // tell each of the renderers that this render window/graphics context
-  // is being removed (the RendererCollection is removed by vtkRenderWindow's
-  // destructor)
-  vtkRenderer* ren;
-  this->Renderers->InitTraversal();
-  for ( ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject());
-        ren != NULL;
-        ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject())  )
-    {
-    ren->SetRenderWindow(NULL);
-    ren->SetRenderWindow(this);
-    }
-
+  this->ReleaseGraphicsResources(this);
 
   delete[] this->Capabilities;
   this->Capabilities = 0;
@@ -224,17 +211,7 @@ void vtkOSOpenGLRenderWindow::DestroyOffScreenWindow()
   // this call invokes Renderer's ReleaseGraphicsResources
   // method which only invokes ReleaseGraphicsResources on
   // rendering passes.
-  this->ReleaseGraphicsResources();
-
-  vtkRenderer *ren;
-  vtkCollectionSimpleIterator rit;
-  this->Renderers->InitTraversal(rit);
-  while ( (ren = this->Renderers->GetNextRenderer(rit)) )
-    {
-    ren->SetRenderWindow(NULL);
-    ren->SetRenderWindow(this);
-    }
-
+  this->ReleaseGraphicsResources(this);
 
   if (this->Internal->OffScreenContextId)
     {

@@ -277,20 +277,8 @@ void vtkCocoaRenderWindow::DestroyWindow()
   if (this->OwnContext && this->GetContextId())
     {
     this->MakeCurrent();
-
-    // tell each of the renderers that this render window/graphics context
-    // is being removed (the RendererCollection is removed by vtkRenderWindow's
-    // destructor)
-    vtkCollectionSimpleIterator rsit;
-    vtkRenderer *ren;
-    for ( this->Renderers->InitTraversal(rsit);
-          (ren = this->Renderers->GetNextRenderer(rsit));)
-      {
-      ren->SetRenderWindow(NULL);
-      ren->SetRenderWindow(this);
-      }
-    this->ReleaseGraphicsResources();
-  }
+    this->ReleaseGraphicsResources(this);
+    }
   this->SetContextId(NULL);
   this->SetPixelFormat(NULL);
 

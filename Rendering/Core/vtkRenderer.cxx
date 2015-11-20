@@ -163,6 +163,23 @@ vtkRenderer::~vtkRenderer()
     }
 }
 
+void vtkRenderer::ReleaseGraphicsResources(vtkWindow *renWin)
+{
+  if(this->BackgroundTexture != 0)
+    {
+    this->BackgroundTexture->ReleaseGraphicsResources(renWin);
+    }
+  vtkProp *aProp;
+  vtkCollectionSimpleIterator pit;
+  this->Props->InitTraversal(pit);
+  for ( aProp = this->Props->GetNextProp(pit);
+        aProp != NULL;
+        aProp = this->Props->GetNextProp(pit) )
+    {
+    aProp->ReleaseGraphicsResources(renWin);
+    }
+}
+
 // Concrete render method.
 void vtkRenderer::Render(void)
 {

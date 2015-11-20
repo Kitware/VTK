@@ -298,7 +298,8 @@ protected:
 
   // Description:
   // Free up any graphics resources associated with this window
-  virtual void ReleaseGraphicsResources();
+  // a value of NULL means the context may already be destroyed
+  virtual void ReleaseGraphicsResources(vtkRenderWindow *);
 
   // Description:
   // Set the texture unit manager.
