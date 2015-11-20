@@ -42,10 +42,6 @@ vtkSmartPyObject::~vtkSmartPyObject()
     vtkPythonScopeGilEnsurer gilEnsurer;
     Py_XDECREF(this->Object);
     }
-  else
-    {
-    Py_XDECREF(this->Object);
-    }
 }
 
 //--------------------------------------------------------------------

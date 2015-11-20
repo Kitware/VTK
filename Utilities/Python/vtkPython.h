@@ -142,11 +142,9 @@ public:
   vtkPythonScopeGilEnsurer(bool force = false)
     {
 #ifdef VTK_PYTHON_FULL_THREADSAFE
-    this->Force = force;
-    this->Force = true;
-#else    
-    this->Force = force;
+    force = true;
 #endif
+    this->Force = force;
     if (this->Force)
       {
       this->State = PyGILState_Ensure();

@@ -143,14 +143,11 @@ bool vtkPythonInterpreter::Initialize(int initsigs /*=0*/)
 
   if (!vtkPythonInterpreter::InitializedOnce)
     {
-#ifndef VTK_NO_PYTHON_THREADS
-    int threadInit = PyEval_ThreadsInitialized();
-    PyEval_InitThreads(); // safe to call this multiple time
-#endif
-
     vtkPythonInterpreter::InitializedOnce = true;
 
 #ifndef VTK_NO_PYTHON_THREADS
+    int threadInit = PyEval_ThreadsInitialized();
+    PyEval_InitThreads(); // safe to call this multiple time
     if(!threadInit)
       {
       PyEval_SaveThread(); // release GIL
