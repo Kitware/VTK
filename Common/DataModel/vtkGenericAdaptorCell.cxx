@@ -430,6 +430,7 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
     {
     assert("check: valid number of points" && npts == ptsCount);
     range[1] = range[0] = scalars->GetComponent(dataIndex,currComp);
+    secondaryPd->Reset();
     for(i=0; i<ptsCount; i++, point+=3)
       {
       linearCell->PointIds->SetId(i, pts[i]);
@@ -448,7 +449,6 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
       range[0] = range[0] < contVal ? range[0] : contVal;
       range[1] = range[1] > contVal ? range[1] : contVal;
       // for each point-centered attribute
-      secondaryPd->Reset();
       j=0;
       while(j<c)
         {
@@ -651,6 +651,7 @@ void vtkGenericAdaptorCell::Clip(double value,
       this->InternalCellArray->GetNextCell(npts, pts);)
     {
     assert("check: valid number of points" && npts == ptsCount);
+    secondaryPd->Reset();
     for(i=0; i<ptsCount; i++, point+=3)
       {
       linearCell->PointIds->SetId(i, pts[i]);
@@ -667,7 +668,6 @@ void vtkGenericAdaptorCell::Clip(double value,
       // current linear simplex.
 
       // for each point-centered attribute
-      secondaryPd->Reset();
       j=0;
       while(j<c)
         {
