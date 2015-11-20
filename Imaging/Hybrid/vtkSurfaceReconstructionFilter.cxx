@@ -73,10 +73,10 @@ static void vtkDivideBy(double* a,double f)
 }
 
 // Routines for matrix creation
-void vtkSRFreeMatrix(double **m, long nrl, long nrh, long ncl, long nch);
-double **vtkSRMatrix(long nrl, long nrh, long ncl, long nch);
-void vtkSRFreeVector(double *v, long nl, long nh);
-double *vtkSRVector(long nl, long nh);
+static void vtkSRFreeMatrix(double **m, long nrl, long nrh, long ncl, long nch);
+static double **vtkSRMatrix(long nrl, long nrh, long ncl, long nch);
+static void vtkSRFreeVector(double *v, long nl, long nh);
+static double *vtkSRVector(long nl, long nh);
 
 // set a matrix to zero
 static void vtkSRMakeZero(double **m,long nrl, long nrh, long ncl, long nch)
@@ -519,11 +519,10 @@ void vtkSRAddOuterProduct(double **m,double *v)
 #define VTK_NR_END 1
 
 // allocate a float vector with subscript range v[nl..nh]
-double *vtkSRVector(long nl, long nh)
+// must be balanced with vtkSRFreeVector.
+static double *vtkSRVector(long nl, long nh)
 {
-  double *v;
-
-  v = new double [nh-nl+1+VTK_NR_END];
+  double *v = new double [nh-nl+1+VTK_NR_END];
   if (!v)
     {
     vtkGenericWarningMacro(<<"allocation failure in vector()");
@@ -534,7 +533,8 @@ double *vtkSRVector(long nl, long nh)
 }
 
 // allocate a float matrix with subscript range m[nrl..nrh][ncl..nch]
-double **vtkSRMatrix(long nrl, long nrh, long ncl, long nch)
+// must be balanced with vtkSRFreeMatrix.
+static double **vtkSRMatrix(long nrl, long nrh, long ncl, long nch)
 {
   long i, nrow=nrh-nrl+1,ncol=nch-ncl+1;
   double **m;
@@ -570,14 +570,14 @@ double **vtkSRMatrix(long nrl, long nrh, long ncl, long nch)
 }
 
 // free a double vector allocated with SRVector()
-void vtkSRFreeVector(double *v, long nl, long vtkNotUsed(nh))
+static void vtkSRFreeVector(double *v, long nl, long vtkNotUsed(nh))
 {
   delete [] (v+nl-VTK_NR_END);
 }
 
 // free a double matrix allocated by Matrix()
-void vtkSRFreeMatrix(double **m, long nrl, long vtkNotUsed(nrh),
-                     long ncl, long vtkNotUsed(nch))
+static void vtkSRFreeMatrix(double **m, long nrl, long vtkNotUsed(nrh),
+                            long ncl, long vtkNotUsed(nch))
 
 {
   delete [] (m[nrl]+ncl-VTK_NR_END);
