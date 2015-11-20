@@ -254,7 +254,10 @@ void vtkEnSightWriter::WriteData()
       this->TimeStep,fileBuffer);
     FILE* ftemp=OpenFile(charBuffer);
     if (!ftemp)
+      {
+      fclose(fd);
       return;
+      }
     pointArrayFiles.push_back(ftemp);
 
     //write the description line to the file
@@ -273,7 +276,10 @@ void vtkEnSightWriter::WriteData()
       this->TimeStep,fileBuffer);
     FILE* ftemp=OpenFile(charBuffer);
     if (!ftemp)
+      {
+      fclose(fd);
       return;
+      }
     cellArrayFiles.push_back(ftemp);
 
     //write the description line to the file
