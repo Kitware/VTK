@@ -411,7 +411,7 @@ M_Read(void)
     char c = ' ';
     while( (c!='\n') && (!m_ReadStream->eof()))
     {
-      c = m_ReadStream->get();// to avoid unrecognize charactere
+      c = static_cast<char>(m_ReadStream->get());// to avoid unrecognize charactere
     }
   }
 

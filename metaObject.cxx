@@ -1405,7 +1405,7 @@ M_SetupWriteFields(void)
         {
         mF = new MET_FieldRecordType;
         MET_InitWriteField(mF, "CompressedDataSize", MET_UINT,
-                           m_CompressedDataSize);
+                           static_cast<double>(m_CompressedDataSize));
         m_Fields.push_back(mF);
         }
       }

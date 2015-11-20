@@ -1171,7 +1171,7 @@ M_ReadElements(METAIO_STREAM::ifstream * _fstream, void * _data,
     else
       {
       _fstream->read((char *)_data, readSize);
-      int gc = _fstream->gcount();
+      int gc = static_cast<int>(_fstream->gcount());
       if(gc != readSize)
         {
         METAIO_STREAM::cout

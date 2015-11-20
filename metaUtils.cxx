@@ -602,7 +602,7 @@ METAIO_STL::streamoff MET_UncompressStream(METAIO_STREAM::ifstream * stream,
     stream->read((char *)inputBuffer, (size_t)inputBufferSize);
 
     d_stream->next_in  = inputBuffer;
-    d_stream->avail_in = stream->gcount();
+    d_stream->avail_in = static_cast<int>(stream->gcount());
     d_stream->next_out = outdata;
 
     int inflate_error = inflate(d_stream, Z_NO_FLUSH);
@@ -1022,7 +1022,7 @@ static bool MET_SkipToVal(METAIO_STREAM::istream &fp)
     return false;
     }
 
-  fp.putback(c);
+  fp.putback(static_cast<char>(c));
 
   return true;
   }
@@ -1066,17 +1066,17 @@ bool MET_Read(METAIO_STREAM::istream &fp,
   while(!fp.eof())
     {
     i = 0;
-    c = fp.get();
+    c = static_cast<unsigned char>(fp.get());
     while(!fp.eof() && c != MET_SeperatorChar && c != ':'
           && isspace(c))
       {
-      c = fp.get();
+      c = static_cast<unsigned char>(fp.get());
       }
     // save name up to separator or end of line
     while(!fp.eof() && c != MET_SeperatorChar && c != ':' && c != '\r' && c != '\n' && i<500)
       {
       s[i++] = c;
-      c = fp.get();
+      c = static_cast<unsigned char>(fp.get());
       }
     if(fp.eof() || i >= 500)
       {
@@ -1118,7 +1118,7 @@ bool MET_Read(METAIO_STREAM::istream &fp,
               {
               break;
               }
-            c = fp.get();
+            c = static_cast<unsigned char>(fp.get());
             (*fieldIter)->value[0] = (double)c;
             fp.getline( s, 500 );
             break;
