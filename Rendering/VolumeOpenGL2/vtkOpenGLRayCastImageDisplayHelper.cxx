@@ -241,6 +241,17 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
     }
 
   glEnable(GL_BLEND);
+
+  // backup current GL blend state
+  GLint blendSrcA = GL_SRC_ALPHA;
+  GLint blendDstA = GL_ONE;
+  GLint blendSrcC = GL_SRC_ALPHA;
+  GLint blendDstC = GL_ONE;
+  glGetIntegerv(GL_BLEND_SRC_ALPHA, &blendSrcA);
+  glGetIntegerv(GL_BLEND_DST_ALPHA, &blendDstA);
+  glGetIntegerv(GL_BLEND_SRC_RGB, &blendSrcC);
+  glGetIntegerv(GL_BLEND_DST_RGB, &blendDstC);
+
   if (this->PreMultipliedColors)
     {
     // make the blend function correct for textures premultiplied by alpha.
@@ -255,6 +266,9 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
   vtkOpenGLRenderUtilities::RenderQuad(verts, tcoords, this->ShaderProgram->Program,
     this->ShaderProgram->VAO);
   this->TextureObject->Deactivate();
+
+  // restore GL blend state
+  glBlendFuncSeparate(blendSrcC,blendDstC,blendSrcA,blendDstA);
 
   vtkOpenGLCheckErrorMacro("failed after RenderTextureInternal");
 }
