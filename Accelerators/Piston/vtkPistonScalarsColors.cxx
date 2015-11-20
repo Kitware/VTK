@@ -48,7 +48,7 @@ void vtkPistonScalarsColors::PrintSelf(ostream &os, vtkIndent indent)
 //-----------------------------------------------------------------------------
 void vtkPistonScalarsColors::SetTableRange(double range[2])
 {
-  this->SetTableRange(range[1], range[2]);
+  this->SetTableRange(range[0], range[1]);
 }
 
 //-----------------------------------------------------------------------------

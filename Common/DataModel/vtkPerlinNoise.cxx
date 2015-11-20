@@ -15,6 +15,7 @@
 #include "vtkPerlinNoise.h"
 #include "vtkObjectFactory.h"
 #include <math.h>
+#include <cassert>
 
 vtkStandardNewMacro(vtkPerlinNoise);
 
@@ -52,7 +53,7 @@ static void rand3abcd(int x, int y, int z, double outv[4])
 }
 
 static void interpolate(double f[4], int i, int n,
-                        int xlim[3][2], double xarg[2])
+                        int xlim[3][2], const double xarg[3])
 {
   double f0[4], f1[4];
 
@@ -62,6 +63,7 @@ static void interpolate(double f[4], int i, int n,
     return;
     }
   n--;
+  assert((n>=0)&&(n<=2));
   interpolate(f0, i, n, xlim, xarg);
   interpolate(f1, i | (1<<n), n, xlim, xarg);
 

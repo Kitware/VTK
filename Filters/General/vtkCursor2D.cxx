@@ -299,7 +299,7 @@ void vtkCursor2D::SetFocalPoint(double x[3])
 //---------------------------------------------------------------------------
 void vtkCursor2D::SetModelBounds(const double bounds[6])
 {
-  this->SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[6], bounds[5]);
+  this->SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
 }
 
 //---------------------------------------------------------------------------
