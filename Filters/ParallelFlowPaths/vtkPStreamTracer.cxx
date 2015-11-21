@@ -1265,7 +1265,7 @@ namespace
 
     void Send(int msg, int rank, Task* task)
     {
-      if(msg==TaskFinished)
+      if(task && (msg==TaskFinished))
         {
         PRINT("Done in "<<task->Point->GetNumSteps()<<" steps "<<task->NumHops<<" hops");
         }
