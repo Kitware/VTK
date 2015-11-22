@@ -26,74 +26,63 @@
 // to be constructed once (statically) and must be rebuilt if the cells
 // change.
 
+// .SECTION Caveats
+// This is a drop-in replacement for vtkCellLinks using static link
+// construction. It uses the templated vtkStaticCellLinksTemplate class,
+// instantiating vtkStaticCellLinksTemplate with a vtkIdType template
+// parameter. Note that for best performance, the vtkStaticCellLinksTemplate
+// class may be used directly, instantiating it with the appropriate id
+// type. This class is also wrappable and can be used from an interpreted
+// language such as Python.
+
 // .SECTION See Also
-// vtkCellLinks
+// vtkCellLinks vtkStaticCellLinksTemplate
 
 #ifndef vtkStaticCellLinks_h
 #define vtkStaticCellLinks_h
 
-#include "vtkObject.h"
-#include "vtkSmartPointer.h" // For vtkSmartPointer
-#include "vtkTypeTemplate.h" // For vtkTypeTemplate
+#include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkAbstractCellLinks.h"
+#include "vtkStaticCellLinksTemplate.h" // For implementations
 
-class vtkPolyData;
-class vtkUnstructuredGrid;
+class vtkDataSet;
+class vtkCellArray;
 
-template <typename TIds>
-class vtkStaticCellLinks
+
+class VTKCOMMONDATAMODEL_EXPORT vtkStaticCellLinks : public vtkAbstractCellLinks
 {
 public:
   // Description:
-  // Default constructor. BuildLinks() does most of the work.
-  vtkStaticCellLinks() :
-    LinksSize(0), NumPts(0), NumCells(0), Links(NULL), Offsets(NULL)
-    {
-    }
+  // Standard methods for instantiation, type manipulation and printing.
+  static vtkStaticCellLinks *New();
+  vtkTypeMacro(vtkStaticCellLinks,vtkAbstractCellLinks);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Release memory if necessary.
-  ~vtkStaticCellLinks()
-    {
-      if ( this->Links )
-        {
-        delete [] this->Links;
-        }
-      if ( this->Offsets )
-        {
-        delete [] this->Offsets;
-        }
-    }
-
-  // Description:
-  // Build the link list array.
-  void BuildLinks(vtkPolyData *pd);
-
-  // Description:
-  // Build the link list array.
-  void BuildLinks(vtkUnstructuredGrid *ugrid);
+  // Build the link list array. Satisfy the superclass API.
+  virtual void BuildLinks(vtkDataSet *data);
 
   // Description:
   // Get the number of cells using the point specified by ptId.
-  TIds GetNumberOfCells(vtkIdType ptId)
-    {
-      return (this->Offsets[ptId+1] - this->Offsets[ptId]);
-    }
+  vtkIdType GetNumberOfCells(vtkIdType ptId)
+    { return 0;}
 
   // Description:
-  // Return a list of cell ids using the point.
-  const TIds *GetCells(vtkIdType ptId)
-    {
-      return this->Links + this->Offsets[ptId];
-    }
+  // Get the number of cells using the point specified by ptId. This is an
+  // alias for GetNumberOfCells(); consistent with the vtkCellLinks API.
+  unsigned short GetNcells(vtkIdType ptId)
+    { return static_cast<unsigned short>(this->GetNumberOfCells()); }
+
+  // Description:
+  // Return a list of cell ids using the specified point.
+  vtkIdType *GetCells(vtkIdType ptId)
+    {return NULL;}
+
 
 protected:
-  // Okay the various ivars
-  TIds LinksSize;
-  TIds NumPts;
-  TIds NumCells;
+  vtkStaticCellLinks();
+  ~vtkStaticCellLinks();
 
-  TIds *Links; //contiguous runs of cells
-  TIds *Offsets; //offsets for each point into the link array
 
 private:
   vtkStaticCellLinks(const vtkStaticCellLinks&);  // Not implemented.
@@ -101,7 +90,5 @@ private:
 
 };
 
-#include "vtkStaticCellLinks.txx"
 
 #endif
-// VTK-HeaderTest-Exclude: vtkStaticCellLinks.h

@@ -26,11 +26,12 @@
 #define vtkCellLinks_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkObject.h"
+#include "vtkAbstractCellLinks.h"
+
 class vtkDataSet;
 class vtkCellArray;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkCellLinks : public vtkObject
+class VTKCOMMONDATAMODEL_EXPORT vtkCellLinks : public vtkAbstractCellLinks
 {
 public:
 
@@ -42,9 +43,20 @@ public:
   };
   //ETX
 
+  // Description:
+  // Standard methods to instantiate, print, and obtain type information.
   static vtkCellLinks *New();
-  vtkTypeMacro(vtkCellLinks,vtkObject);
+  vtkTypeMacro(vtkCellLinks,vtkAbstractCellLinks);
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Build the link list array. All subclasses of vtkAbstractCellLinks
+  // must support this method.
+  virtual void BuildLinks(vtkDataSet *data);
+
+  // Description:
+  // Build the link list array.
+  void BuildLinks(vtkDataSet *data, vtkCellArray *Connectivity);
 
   // Description:
   // Allocate the specified number of links (i.e., number of points) that
@@ -58,14 +70,6 @@ public:
   // Description:
   // Get the number of cells using the point specified by ptId.
   unsigned short GetNcells(vtkIdType ptId) { return this->Array[ptId].ncells;};
-
-  // Description:
-  // Build the link list array.
-  void BuildLinks(vtkDataSet *data);
-
-  // Description:
-  // Build the link list array.
-  void BuildLinks(vtkDataSet *data, vtkCellArray *Connectivity);
 
   // Description:
   // Return a list of cell ids using the point.
@@ -214,4 +218,3 @@ inline void vtkCellLinks::ResizeCellList(vtkIdType ptId, int size)
 }
 
 #endif
-

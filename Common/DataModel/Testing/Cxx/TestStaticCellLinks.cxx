@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkStaticCellLinks.h"
+#include "vtkStaticCellLinksTemplate.h"
 #include "vtkSmartPointer.h"
 #include "vtkImageData.h"
 #include "vtkUnstructuredGrid.h"
@@ -51,7 +51,7 @@ int TestStaticCellLinks( int, char *[] )
     vtkSmartPointer<vtkUnstructuredGrid>::New();
   ugrid = extract->GetOutput();
 
-  vtkStaticCellLinks<int> slinks;
+  vtkStaticCellLinksTemplate<int> slinks;
   slinks.BuildLinks(ugrid);
 
   int numCells = slinks.GetNumberOfCells(0);
