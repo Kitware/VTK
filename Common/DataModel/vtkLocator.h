@@ -16,25 +16,26 @@
 // .SECTION Description
 // vtkLocator is an abstract base class for spatial search objects, or
 // locators. The principle behind locators is that they divide 3-space into
-// small pieces (or "buckets") that can be quickly found in response to
-// queries like point location, line intersection, or object-object
+// small regions (or "buckets") that can be quickly found in response to
+// queries about point location, line intersection, or object-object
 // intersection.
 //
-// The purpose of this base class is to provide ivars and methods shared by
-// all locators. The GenerateRepresentation() is one such interesting method.
-// This method works in conjunction with vtkLocatorFilter to create polygonal
-// representations for the locator. For example, if the locator is an OBB tree
-// (i.e., vtkOBBTree.h), then the representation is a set of one or more
-// oriented bounding boxes, depending upon the specified level.
+// The purpose of this base class is to provide data members and methods
+// shared by all locators. The GenerateRepresentation() is one such
+// interesting method.  This method works in conjunction with
+// vtkLocatorFilter to create polygonal representations for the locator. For
+// example, if the locator is an OBB tree (i.e., vtkOBBTree.h), then the
+// representation is a set of one or more oriented bounding boxes, depending
+// upon the specified level.
 //
-// Locators typically work as follows. One or more "entities", such as
-// points or cells, are inserted into the tree. These entities are associated
-// with one or more buckets. Then, when performing geometric operations, the
-// operations are performed first on the buckets, and then if the operation
-// tests positive, then on the entities in the bucket. For example, during
-// collision tests, the locators are collided first to identify intersecting
-// buckets. If an intersection is found, more expensive operations are then
-// carried out on the entities in the bucket.
+// Locators typically work as follows. One or more "entities", such as points
+// or cells, are inserted into the locator structure. These entities are
+// associated with one or more buckets. Then, when performing geometric
+// operations, the operations are performed first on the buckets, and then if
+// the operation tests positive, then on the entities in the bucket. For
+// example, during collision tests, the locators are collided first to
+// identify intersecting buckets. If an intersection is found, more expensive
+// operations are then carried out on the entities in the bucket.
 //
 // To obtain good performance, locators are often organized in a tree
 // structure.  In such a structure, there are frequently multiple "levels"
@@ -43,6 +44,12 @@
 // in the tree.  For example, in an octree (which is a tree with 8 children),
 // level 0 is the bounding box, or root octant, and level 1 consists of its
 // eight children.
+
+// .SECTION Caveats
+// There is a concept of static and incremental locators. Static locators are
+// constructed one time, and then support appropriate queries. Incremental
+// locators may have data inserted into them over time (e.g., adding new
+// points during the process of isocontouring).
 
 // .SECTION See Also
 // vtkPointLocator vtkCellLocator vtkOBBTree vtkMergePoints
@@ -59,6 +66,8 @@ class vtkPolyData;
 class VTKCOMMONDATAMODEL_EXPORT vtkLocator : public vtkObject
 {
 public:
+  // Description:
+  // Standard type and print methods.
   vtkTypeMacro(vtkLocator,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -127,6 +136,7 @@ public:
   // Handle the PointSet <-> Locator loop.
   virtual void Register(vtkObjectBase *o);
   virtual void UnRegister(vtkObjectBase *o);
+
 protected:
   vtkLocator();
   ~vtkLocator();
@@ -140,11 +150,10 @@ protected:
   vtkTimeStamp BuildTime;  // time at which locator was built
 
   virtual void ReportReferences(vtkGarbageCollector*);
+
 private:
   vtkLocator(const vtkLocator&);  // Not implemented.
   void operator=(const vtkLocator&);  // Not implemented.
 };
 
 #endif
-
-

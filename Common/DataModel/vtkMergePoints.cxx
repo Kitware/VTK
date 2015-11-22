@@ -22,6 +22,7 @@
 
 vtkStandardNewMacro(vtkMergePoints);
 
+//----------------------------------------------------------------------------
 // Determine whether point given by x[3] has been inserted into points list.
 // Return id of previously inserted point if this is true, otherwise return
 // -1.
@@ -89,6 +90,7 @@ vtkIdType vtkMergePoints::IsInsertedPoint(const double x[3])
 }
 
 
+//----------------------------------------------------------------------------
 int vtkMergePoints::InsertUniquePoint(const double x[3], vtkIdType &id)
 {
   //
