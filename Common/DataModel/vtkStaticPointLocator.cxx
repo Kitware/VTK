@@ -908,35 +908,16 @@ FindClosestPointWithinRadius(double radius, const double x[3],
   }
 
 //-----------------------------------------------------------------------------
-struct idsort
+// Obtaining closest points requires sorting nearby points
+class IdTuple
 {
-  vtkIdType id;
-  double dist;
-};
+public:
+  vtkIdType PtId;
+  double    Dist2;
 
-#ifdef _WIN32_WCE
-static int __cdecl vtkidsortcompare(const void *arg1, const void *arg2)
-#else
-extern "C"
-{
-  static int vtkidsortcompare(const void *arg1, const void *arg2)
-#endif
-{
-  idsort *v1 = (idsort *)arg1;
-  idsort *v2 = (idsort *)arg2;
-  if (v1->dist < v2->dist)
-    {
-    return -1;
-    }
-  if (v1->dist > v2->dist)
-    {
-    return 1;
-    }
-  return 0;
-}
-#ifndef _WIN32_WCE
-} // close extern "C"
-#endif
+  bool operator< (const IdTuple& tuple) const
+    {return Dist2 < tuple.Dist2;}
+};
 
 //-----------------------------------------------------------------------------
 template <typename TIds> void BucketList<TIds>::
@@ -964,7 +945,7 @@ FindClosestNPoints(int N, const double x[3], vtkIdList *result)
   level = 0;
   double maxDistance = 0.0;
   int currentCount = 0;
-  idsort *res = new idsort [N];
+  IdTuple *res = new IdTuple [N];
 
   this->GetBucketNeighbors (&buckets, ijk, this->Divisions, level);
   while (buckets.GetNumberOfNeighbors() && currentCount < N)
@@ -984,8 +965,8 @@ FindClosestNPoints(int N, const double x[3], vtkIdList *result)
           dist2 = vtkMath::Distance2BetweenPoints(x,pt);
           if (currentCount < N)
             {
-            res[currentCount].dist = dist2;
-            res[currentCount].id = ptId;
+            res[currentCount].Dist2 = dist2;
+            res[currentCount].PtId = ptId;
             if (dist2 > maxDistance)
               {
               maxDistance = dist2;
@@ -993,15 +974,15 @@ FindClosestNPoints(int N, const double x[3], vtkIdList *result)
             currentCount++;
             if (currentCount == N)
               {
-              qsort(res, currentCount, sizeof(idsort), vtkidsortcompare);
+              std::sort(res, res+currentCount);
               }
             }
           else if (dist2 < maxDistance)
             {
-            res[N-1].dist = dist2;
-            res[N-1].id = ptId;
-            qsort(res, N, sizeof(idsort), vtkidsortcompare);
-            maxDistance = res[N-1].dist;
+            res[N-1].Dist2 = dist2;
+            res[N-1].PtId = ptId;
+            std::sort(res, res+N);
+            maxDistance = res[N-1].Dist2;
             }
           }
         }
@@ -1011,7 +992,7 @@ FindClosestNPoints(int N, const double x[3], vtkIdList *result)
     }
 
   // do a sort
-  qsort(res, currentCount, sizeof(idsort), vtkidsortcompare);
+  std::sort(res, res+currentCount);
 
   // Now do the refinement
   this->GetOverlappingBuckets (&buckets, x, ijk, sqrt(maxDistance),level-1);
@@ -1031,10 +1012,10 @@ FindClosestNPoints(int N, const double x[3], vtkIdList *result)
         dist2 = vtkMath::Distance2BetweenPoints(x,pt);
         if (dist2 < maxDistance)
           {
-          res[N-1].dist = dist2;
-          res[N-1].id = ptId;
-          qsort(res, N, sizeof(idsort), vtkidsortcompare);
-          maxDistance = res[N-1].dist;
+          res[N-1].Dist2 = dist2;
+          res[N-1].PtId = ptId;
+          std::sort(res, res+N);
+          maxDistance = res[N-1].Dist2;
           }
         }
       }
@@ -1044,7 +1025,7 @@ FindClosestNPoints(int N, const double x[3], vtkIdList *result)
   result->SetNumberOfIds(currentCount);
   for (i = 0; i < currentCount; i++)
     {
-    result->SetId(i,res[i].id);
+    result->SetId(i,res[i].PtId);
     }
 
   delete [] res;
