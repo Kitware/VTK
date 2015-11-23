@@ -30,6 +30,7 @@ vtkPythonCommand::~vtkPythonCommand()
   vtkPythonUtil::UnRegisterPythonCommand(this);
   if (this->obj && Py_IsInitialized())
     {
+    vtkPythonScopeGilEnsurer gilEnsurer;
     Py_DECREF(this->obj);
     }
   this->obj = NULL;
@@ -37,6 +38,7 @@ vtkPythonCommand::~vtkPythonCommand()
 
 void vtkPythonCommand::SetObject(PyObject *o)
 {
+  vtkPythonScopeGilEnsurer gilEnsurer;
   Py_INCREF(o);
   this->obj = o;
 }
