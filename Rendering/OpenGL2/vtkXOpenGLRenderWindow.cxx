@@ -1642,23 +1642,100 @@ const char* vtkXOpenGLRenderWindow::ReportCapabilities()
 
 int vtkXOpenGLRenderWindow::SupportsOpenGL()
 {
-  this->MakeCurrent();
-  if (!this->DisplayId)
+#ifdef GLEW_OK
+
+  if(!this->OffScreenRendering)
     {
-    return 0;
+    // get the default display connection
+    if (!this->DisplayId)
+      {
+      this->DisplayId = XOpenDisplay(static_cast<char *>(NULL));
+      if (this->DisplayId == NULL)
+        {
+        vtkErrorMacro(<< "bad X server connection. DISPLAY="
+          << vtksys::SystemTools::GetEnv("DISPLAY") << ". Aborting.\n");
+        return 0;
+        }
+      this->OwnDisplay = 1;
+      }
+
+    int value = 0;
+    XVisualInfo *v = this->GetDesiredVisualInfo();
+    if (!v)
+      {
+      return 0;
+      }
+    else
+      {
+      glXGetConfig(this->DisplayId, v, GLX_USE_GL, &value);
+      XFree(v);
+      }
+
+    // try for 32 context
+    if (this->Internal->FBConfig)
+      {
+      // NOTE: It is not necessary to create or make current to a context before
+      // calling glXGetProcAddressARB
+      glXCreateContextAttribsARBProc glXCreateContextAttribsARB = 0;
+      glXCreateContextAttribsARB = (glXCreateContextAttribsARBProc)
+        glXGetProcAddressARB( (const GLubyte *) "glXCreateContextAttribsARB" );
+
+      int context_attribs[] =
+        {
+        GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
+        GLX_CONTEXT_MINOR_VERSION_ARB, 2,
+        //GLX_CONTEXT_FLAGS_ARB        , GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+        0
+        };
+
+      if (glXCreateContextAttribsARB)
+        {
+        this->Internal->ContextId =
+          glXCreateContextAttribsARB( this->DisplayId,
+            this->Internal->FBConfig, 0,
+            GL_TRUE, context_attribs );
+
+        // Sync to ensure any errors generated are processed.
+        XSync( this->DisplayId, False );
+        if ( this->Internal->ContextId )
+          {
+          this->SetContextSupportsOpenGL32(true);
+          }
+        }
+      }
+
+    // old failsafe
+    if (this->Internal->ContextId == NULL)
+      {
+      this->Internal->ContextId =
+        glXCreateContext(this->DisplayId, v, 0, GL_TRUE);
+      }
+
+    if(!this->Internal->ContextId)
+      {
+      return 0;
+      }
+
+    this->MakeCurrent();
+    GLenum result = glewInit();
+    glFinish();
+    glXDestroyContext(this->DisplayId, this->Internal->ContextId);
+    this->Internal->ContextId = 0;
+    bool m_valid = (result == GLEW_OK);
+    if (!m_valid)
+      {
+      return 0;
+      }
+
+    if (GLEW_VERSION_3_2 || (GLEW_VERSION_2_1 && GLEW_EXT_gpu_shader4))
+      {
+      return 1;
+      }
     }
 
-  int value = 0;
-  XVisualInfo *v = this->GetDesiredVisualInfo();
-  if (v)
-    {
-    glXGetConfig(this->DisplayId, v, GLX_USE_GL, &value);
-    XFree(v);
-    }
-
-  return value;
+#endif
+  return 0;
 }
-
 
 int vtkXOpenGLRenderWindow::IsDirect()
 {
