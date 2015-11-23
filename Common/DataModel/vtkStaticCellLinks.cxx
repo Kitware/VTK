@@ -25,12 +25,14 @@ vtkStandardNewMacro(vtkStaticCellLinks);
 //----------------------------------------------------------------------------
 vtkStaticCellLinks::vtkStaticCellLinks()
 {
+  this->Impl = new vtkStaticCellLinksTemplate<vtkIdType>;
 }
 
 
 //----------------------------------------------------------------------------
 vtkStaticCellLinks::~vtkStaticCellLinks()
 {
+  delete this->Impl;
 }
 
 
@@ -38,12 +40,7 @@ vtkStaticCellLinks::~vtkStaticCellLinks()
 // Build the link list array.
 void vtkStaticCellLinks::BuildLinks(vtkDataSet *data)
 {
-}
-
-//----------------------------------------------------------------------------
-// Build the link list array.
-void vtkStaticCellLinks::BuildLinks(vtkDataSet *data, vtkCellArray *Connectivity)
-{
+  this->Impl->BuildLinks(data);
 }
 
 //----------------------------------------------------------------------------

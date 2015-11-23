@@ -65,24 +65,25 @@ public:
   // Description:
   // Get the number of cells using the point specified by ptId.
   vtkIdType GetNumberOfCells(vtkIdType ptId)
-    { return 0;}
+    {return this->Impl->GetNumberOfCells(ptId);}
 
   // Description:
   // Get the number of cells using the point specified by ptId. This is an
   // alias for GetNumberOfCells(); consistent with the vtkCellLinks API.
   unsigned short GetNcells(vtkIdType ptId)
-    { return static_cast<unsigned short>(this->GetNumberOfCells()); }
+    { return static_cast<unsigned short>(this->GetNumberOfCells(ptId)); }
 
   // Description:
   // Return a list of cell ids using the specified point.
-  vtkIdType *GetCells(vtkIdType ptId)
-    {return NULL;}
+  const vtkIdType *GetCells(vtkIdType ptId)
+    {return this->Impl->GetCells(ptId);}
 
 
 protected:
   vtkStaticCellLinks();
   ~vtkStaticCellLinks();
 
+  vtkStaticCellLinksTemplate<vtkIdType> *Impl;
 
 private:
   vtkStaticCellLinks(const vtkStaticCellLinks&);  // Not implemented.

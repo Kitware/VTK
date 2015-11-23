@@ -39,46 +39,57 @@ BuildLinks(vtkDataSet *ds)
     return this->BuildLinks(static_cast<vtkUnstructuredGrid*>(ds));
     }
 
-  // Any other type of dataset. Generally this is not called as there are
-  // more efficient ways of getting similar information.
+  // Any other type of dataset. Generally this is not called as datasets have
+  // their own, more efficient ways of getting similar information.
   this->NumCells = ds->GetNumberOfCells();
   this->NumPts = ds->GetNumberOfPoints();
 
-  vtkIdType numberOfPoints, ptId;
-  vtkGenericCell *cell=vtkGenericCell::New();
+  vtkIdType npts, ptId;
   vtkIdType cellId, j;
+  vtkIdList *cellPts = vtkIdList::New();
 
-  // traverse data to determine number of uses of each point
-  for (cellId=0; cellId < numCells; cellId++)
+  // Traverse data to determine number of uses of each point. Also count the
+  // number of links to allocate.
+  this->Offsets = new TIds[this->NumPts+1];
+  std::fill_n(this->Offsets, this->NumPts, 0);
+
+  for (this->LinksSize=0, cellId=0; cellId < this->NumCells; cellId++)
     {
-    data->GetCell(cellId,cell);
-    numberOfPoints = cell->GetNumberOfPoints();
-    for (j=0; j < numberOfPoints; j++)
+    ds->GetCellPoints(cellId,cellPts);
+    npts = cellPts->GetNumberOfIds();
+    for (j=0; j < npts; j++)
       {
-      this->IncrementLinkCount(cell->PointIds->GetId(j));
+      this->Offsets[cellPts->GetId(j)]++;
+      this->LinksSize++;
       }
     }
 
-  // now allocate storage for the links
-  this->AllocateLinks(numPts);
-  this->MaxId = numPts - 1;
+  // Allocate space for links. Perform prefix sum.
+  this->Links = new TIds[this->LinksSize+1];
+  this->Links[this->LinksSize] = this->NumPts;
 
-  for (cellId=0; cellId < numCells; cellId++)
+  for ( ptId=0; ptId < this->NumPts; ++ptId )
     {
-    data->GetCell(cellId,cell);
-    numberOfPoints = cell->GetNumberOfPoints();
-    for (j=0; j < numberOfPoints; j++)
+    npts = this->Offsets[ptId+1];
+    this->Offsets[ptId+1] = this->Offsets[ptId] + npts;
+    }
+
+  // Now build the links. The summation from the prefix sum indicates where
+  // the cells are to be inserted. Each time a cell is inserted, the offset
+  // is decremented. In the end, the offset array is also constructed as it
+  // points to the beginning of each cell run.
+  for ( cellId=0; cellId < this->NumCells; ++cellId )
+    {
+    ds->GetCellPoints(cellId,cellPts);
+    npts = cellPts->GetNumberOfIds();
+    for (j=0; j<npts; ++j)
       {
-      ptId = cell->PointIds->GetId(j);
-      this->InsertCellReference(ptId, (linkLoc[ptId])++, cellId);
+      ptId = cellPts->GetId(j);
+      this->Offsets[ptId]--;
+      this->Links[this->Offsets[ptId]] = cellId;
       }
     }
-  cell->Delete();
-
-
-
-
-
+  this->Offsets[this->NumPts] = this->LinksSize;
 }
 
 //----------------------------------------------------------------------------

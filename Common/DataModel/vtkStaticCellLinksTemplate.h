@@ -50,7 +50,7 @@ class vtkCellArray;
 
 
 template <typename TIds>
-class vtkStaticCellLinksTemplate : vtkAbstractCellLinks
+class vtkStaticCellLinksTemplate : public vtkAbstractCellLinks
 {
 public:
   // Description:

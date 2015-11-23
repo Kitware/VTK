@@ -32,9 +32,9 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
-class vtkPolyData;
-class vtkUnstructuredGrid;
+class vtkDataSet;
 class vtkCellArray;
+
 
 class VTKCOMMONDATAMODEL_EXPORT vtkAbstractCellLinks : public vtkObject
 {

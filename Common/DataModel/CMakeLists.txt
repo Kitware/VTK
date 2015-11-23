@@ -157,7 +157,6 @@ set(Module_SRCS
   vtkSmoothErrorMetric.cxx
   vtkSphere.cxx
   vtkSpline.cxx
-  vtkStaticCellLinks.txx
   vtkStaticCellLinks.cxx
   vtkStaticCellLinksTemplate.txx
   vtkStaticPointLocator.cxx
