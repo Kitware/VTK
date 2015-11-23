@@ -28,19 +28,10 @@ vtkStaticCellLinks::vtkStaticCellLinks()
   this->Impl = new vtkStaticCellLinksTemplate<vtkIdType>;
 }
 
-
 //----------------------------------------------------------------------------
 vtkStaticCellLinks::~vtkStaticCellLinks()
 {
   delete this->Impl;
-}
-
-
-//----------------------------------------------------------------------------
-// Build the link list array.
-void vtkStaticCellLinks::BuildLinks(vtkDataSet *data)
-{
-  this->Impl->BuildLinks(data);
 }
 
 //----------------------------------------------------------------------------

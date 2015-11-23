@@ -64,6 +64,10 @@ public:
   void Allocate(vtkIdType numLinks, vtkIdType ext=1000);
 
   // Description:
+  // Clear out any previously allocated data structures
+  void Initialize();
+
+  // Description:
   // Get a link structure given a point id.
   Link &GetLink(vtkIdType ptId) {return this->Array[ptId];};
 
@@ -149,6 +153,7 @@ protected:
   vtkIdType MaxId;     // maximum index inserted thus far
   vtkIdType Extend;     // grow array by this point
   Link *Resize(vtkIdType sz);  // function to resize data
+
 private:
   vtkCellLinks(const vtkCellLinks&);  // Not implemented.
   void operator=(const vtkCellLinks&);  // Not implemented.

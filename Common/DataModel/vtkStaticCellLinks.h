@@ -60,7 +60,8 @@ public:
 
   // Description:
   // Build the link list array. Satisfy the superclass API.
-  virtual void BuildLinks(vtkDataSet *data);
+  virtual void BuildLinks(vtkDataSet *ds)
+    {this->Impl->BuildLinks(ds);}
 
   // Description:
   // Get the number of cells using the point specified by ptId.
@@ -78,10 +79,14 @@ public:
   const vtkIdType *GetCells(vtkIdType ptId)
     {return this->Impl->GetCells(ptId);}
 
+  // Description:
+  // Make sure any previously created links are cleaned up.
+  void Initialize()
+    {this->Impl->Initialize();}
 
 protected:
   vtkStaticCellLinks();
-  ~vtkStaticCellLinks();
+  virtual ~vtkStaticCellLinks();
 
   vtkStaticCellLinksTemplate<vtkIdType> *Impl;
 

@@ -22,6 +22,22 @@
 #include "vtkPolyData.h"
 #include "vtkUnstructuredGrid.h"
 
+//----------------------------------------------------------------------------
+// Clean up any previously allocated memory
+template <typename TIds> void vtkStaticCellLinksTemplate<TIds>::
+Initialize()
+{
+  if ( this->Links )
+    {
+    delete [] this->Links;
+    this->Links = NULL;
+    }
+  if ( this->Offsets )
+    {
+    delete [] this->Offsets;
+    this->Offsets = NULL;
+    }
+}
 
 //----------------------------------------------------------------------------
 // Build the link list array for any dataset type
@@ -41,6 +57,8 @@ BuildLinks(vtkDataSet *ds)
 
   // Any other type of dataset. Generally this is not called as datasets have
   // their own, more efficient ways of getting similar information.
+  // Make sure that we clear out previous allocation.
+  this->Initialize();
   this->NumCells = ds->GetNumberOfCells();
   this->NumPts = ds->GetNumberOfPoints();
 
@@ -99,6 +117,9 @@ BuildLinks(vtkDataSet *ds)
 template <typename TIds> void vtkStaticCellLinksTemplate<TIds>::
 BuildLinks(vtkUnstructuredGrid *ugrid)
 {
+  // Make sure that we clear out previous allocation.
+  this->Initialize();
+
   // Basic information about the grid
   this->NumCells = ugrid->GetNumberOfCells();
   this->NumPts = ugrid->GetNumberOfPoints();
@@ -162,6 +183,9 @@ BuildLinks(vtkUnstructuredGrid *ugrid)
 template <typename TIds> void vtkStaticCellLinksTemplate<TIds>::
 BuildLinks(vtkPolyData *pd)
 {
+  // Make sure that we clear out previous allocation.
+  this->Initialize();
+
   // Basic information about the grid
   this->NumCells = pd->GetNumberOfCells();
   this->NumPts = pd->GetNumberOfPoints();

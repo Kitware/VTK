@@ -58,8 +58,8 @@ public:
   static int GetIdType(vtkIdType maxPtId, vtkIdType maxCellId, vtkCellArray *ca);
 
 protected:
-   vtkAbstractCellLinks();
-  ~vtkAbstractCellLinks();
+  vtkAbstractCellLinks();
+  virtual ~vtkAbstractCellLinks();
 
 private:
   vtkAbstractCellLinks(const vtkAbstractCellLinks&);  // Not implemented.

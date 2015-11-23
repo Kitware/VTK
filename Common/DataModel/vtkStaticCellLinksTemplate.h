@@ -42,15 +42,14 @@
 #ifndef vtkStaticCellLinksTemplate_h
 #define vtkStaticCellLinksTemplate_h
 
-#include "vtkAbstractCellLinks.h"
-
+class vtkDataSet;
 class vtkPolyData;
 class vtkUnstructuredGrid;
 class vtkCellArray;
 
 
 template <typename TIds>
-class vtkStaticCellLinksTemplate : public vtkAbstractCellLinks
+class vtkStaticCellLinksTemplate
 {
 public:
   // Description:
@@ -58,20 +57,6 @@ public:
   vtkStaticCellLinksTemplate() :
     LinksSize(0), NumPts(0), NumCells(0), Links(NULL), Offsets(NULL)
     {
-    }
-
-  // Description:
-  // Release memory if necessary.
-  ~vtkStaticCellLinksTemplate()
-    {
-      if ( this->Links )
-        {
-        delete [] this->Links;
-        }
-      if ( this->Offsets )
-        {
-        delete [] this->Offsets;
-        }
     }
 
   // Description:
@@ -85,6 +70,10 @@ public:
   // Description:
   // Build the link list array for vtkUnstructuredGrid.
   void BuildLinks(vtkUnstructuredGrid *ugrid);
+
+  // Description:
+  // Make sure any previously created links are cleaned up.
+  void Initialize();
 
   // Description:
   // Get the number of cells using the point specified by ptId.

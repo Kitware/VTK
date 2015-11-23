@@ -23,6 +23,27 @@
 vtkStandardNewMacro(vtkCellLinks);
 
 //----------------------------------------------------------------------------
+vtkCellLinks::~vtkCellLinks()
+{
+  this->Initialize();
+}
+
+//----------------------------------------------------------------------------
+void vtkCellLinks::Initialize()
+{
+  if ( this->Array != NULL )
+    {
+    for (vtkIdType i=0; i<=this->MaxId; i++)
+      {
+      delete [] this->Array[i].cells;
+      }
+
+    delete [] this->Array;
+    this->Array = NULL;
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkCellLinks::Allocate(vtkIdType sz, vtkIdType ext)
 {
   static vtkCellLinks::Link linkInit = {0,NULL};
@@ -37,22 +58,6 @@ void vtkCellLinks::Allocate(vtkIdType sz, vtkIdType ext)
     {
     this->Array[i] = linkInit;
     }
-}
-
-//----------------------------------------------------------------------------
-vtkCellLinks::~vtkCellLinks()
-{
-  if ( this->Array == NULL )
-    {
-    return;
-    }
-
-  for (vtkIdType i=0; i<=this->MaxId; i++)
-    {
-    delete [] this->Array[i].cells;
-    }
-
-  delete [] this->Array;
 }
 
 //----------------------------------------------------------------------------
@@ -127,6 +132,9 @@ void vtkCellLinks::BuildLinks(vtkDataSet *data)
   int j;
   vtkIdType cellId;
   unsigned short *linkLoc;
+
+  // Make sure that we clear out previous allocation
+  this->Initialize();
 
   // fill out lists with number of references to cells
   linkLoc = new unsigned short[numPts];
@@ -208,6 +216,9 @@ void vtkCellLinks::BuildLinks(vtkDataSet *data, vtkCellArray *Connectivity)
   vtkIdType npts=0;
   vtkIdType *pts=0;
   vtkIdType loc = Connectivity->GetTraversalLocation();
+
+  // Make sure that we clear out previous allocation
+  this->Initialize();
 
   // traverse data to determine number of uses of each point
   for (Connectivity->InitTraversal();
