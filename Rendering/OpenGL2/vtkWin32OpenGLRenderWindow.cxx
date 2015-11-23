@@ -612,10 +612,12 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
       attrib[n+1] = 8;
       n += 2;
       }
+    unsigned int stereoAttributeIndex = 0;
     if (dwFlags & PFD_STEREO)
       {
       attrib[n] = WGL_STEREO_ARB;
       attrib[n+1] = TRUE;
+      stereoAttributeIndex = n+1;
       n += 2;
       }
     unsigned int multiSampleAttributeIndex = 0;
@@ -630,18 +632,26 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
       n += 4;
       }
     unsigned int numFormats;
-    if (!wglChoosePixelFormatARB(hDC, attrib, 0, 1, &pixelFormat, &numFormats))
+    if (!wglChoosePixelFormatARB(hDC, attrib, 0, 1, &pixelFormat, &numFormats)
+      || numFormats == 0)
       {
       // If the requested number of multisamples does not work, try
       // scaling down the number of multisamples a few times.
       if (multiSampleAttributeIndex)
         {
         attrib[multiSampleAttributeIndex] /= 2;
-        if (!wglChoosePixelFormatARB(hDC, attrib, 0, 1, &pixelFormat, &numFormats))
+        if (!wglChoosePixelFormatARB(hDC, attrib, 0, 1,
+              &pixelFormat, &numFormats) || numFormats == 0)
           {
           attrib[multiSampleAttributeIndex] /= 2;
           wglChoosePixelFormatARB(hDC, attrib, 0, 1, &pixelFormat, &numFormats);
           }
+        }
+      // try dropping stereo
+      if (stereoAttributeIndex && numFormats == 0)
+        {
+        attrib[stereoAttributeIndex] = FALSE;
+        wglChoosePixelFormatARB(hDC, attrib, 0, 1, &pixelFormat, &numFormats);
         }
       }
 
