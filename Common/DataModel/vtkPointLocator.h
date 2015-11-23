@@ -31,7 +31,7 @@
 // operations described here.
 
 // .SECTION See Also
-// vtkCellPicker vtkPointPicker
+// vtkCellPicker vtkPointPicker vtkStaticPointLocator
 
 #ifndef vtkPointLocator_h
 #define vtkPointLocator_h
@@ -52,6 +52,8 @@ public:
   // 25 points per bucket.
   static vtkPointLocator *New();
 
+  // Description:
+  // Standard methods for type management and printing.
   vtkTypeMacro(vtkPointLocator,vtkIncrementalPointLocator);
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -218,11 +220,6 @@ protected:
   double Distance2ToBucket(const double x[3], const int nei[3]);
   double Distance2ToBounds(const double x[3], const double bounds[6]);
 
-  // Description:
-  // Give the bucket index that point is located in.
-  vtkIdType GetBucketIndex(const double x[3]);
-  void GetBucketIndices(const double x[3], int ijk[3]);
-
   vtkPoints *Points; // Used for merging points
   int Divisions[3]; // Number of sub-divisions in x-y-z directions
   int NumberOfPointsPerBucket; //Used with previous boolean to control subdivide
@@ -231,8 +228,33 @@ protected:
 
   double InsertionTol2;
   vtkIdType InsertionPointId;
-
   double InsertionLevel;
+
+  // These are inlined methods and data members for performance reasons
+  double HX, HY, HZ;
+  double FX, FY, FZ, BX, BY, BZ;
+  vtkIdType XD, YD, ZD, SliceSize;
+
+  void GetBucketIndices(const double *x, int ijk[3]) const
+    {
+    // Compute point index. Make sure it lies within range of locator.
+    ijk[0] = static_cast<int>(((x[0] - this->BX) * this->FX));
+    ijk[1] = static_cast<int>(((x[1] - this->BY) * this->FY));
+    ijk[2] = static_cast<int>(((x[2] - this->BZ) * this->FZ));
+
+    ijk[0] = (ijk[0] < 0 ? 0 : (ijk[0] >= XD ? XD-1 : ijk[0]));
+    ijk[1] = (ijk[1] < 0 ? 0 : (ijk[1] >= YD ? YD-1 : ijk[1]));
+    ijk[2] = (ijk[2] < 0 ? 0 : (ijk[2] >= ZD ? ZD-1 : ijk[2]));
+    }
+
+  vtkIdType GetBucketIndex(const double *x) const
+    {
+    int ijk[3];
+    this->GetBucketIndices(x, ijk);
+    return ijk[0] + ijk[1]*this->XD + ijk[2]*this->SliceSize;
+    }
+
+  void ComputePerformanceFactors();
 
 private:
   vtkPointLocator(const vtkPointLocator&);  // Not implemented.
