@@ -1150,7 +1150,7 @@ M_ReadElements(METAIO_STREAM::ifstream * _fstream, void * _data,
       _fstream->seekg(0, METAIO_STREAM::ios::beg);
       }
 
-    unsigned char* compr = new unsigned char[m_CompressedElementDataSize];
+    unsigned char* compr = new unsigned char[static_cast<size_t>(m_CompressedElementDataSize)];
     _fstream->read((char *)compr, (size_t)m_CompressedElementDataSize);
 
     MET_PerformUncompression(compr, m_CompressedElementDataSize,
