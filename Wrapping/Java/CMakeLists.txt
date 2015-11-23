@@ -319,9 +319,9 @@ if(JOGL_GLUE)
 endif()
 
 # Set the javac source version
-set(VTK_JAVA_SOURCE_VERSION "1.5" CACHE STRING "javac source version")
+set(VTK_JAVA_SOURCE_VERSION "1.6" CACHE STRING "javac source version")
 mark_as_advanced(VTK_JAVA_SOURCE_VERSION)
-set(VTK_JAVA_TARGET_VERSION "1.5" CACHE STRING "javac target version")
+set(VTK_JAVA_TARGET_VERSION "1.6" CACHE STRING "javac target version")
 mark_as_advanced(VTK_JAVA_TARGET_VERSION)
 
 # On machines with long paths to VTK (or windows where the command line length
