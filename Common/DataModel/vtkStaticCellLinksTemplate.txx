@@ -90,6 +90,8 @@ BuildLinks(vtkDataSet *ds)
       }
     }
   this->Offsets[this->NumPts] = this->LinksSize;
+
+  cellPts->Delete();
 }
 
 //----------------------------------------------------------------------------
