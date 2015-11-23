@@ -229,7 +229,7 @@ namespace
     grid->GetCellData()->Initialize();
     const char fieldName[] = "LinearField";
     int offset = 1;
-    int numberOfComponents = 3;
+    const int numberOfComponents = 3;
     CreateCellData(grid, numberOfComponents, offset, fieldName);
     CreatePointData(grid, numberOfComponents, offset, fieldName);
 
@@ -272,52 +272,49 @@ namespace
       return EXIT_FAILURE;
       }
 
-    if(numberOfComponents == 3)
+    // now check on the vorticity calculations
+    VTK_CREATE(vtkGradientFilter, cellVorticity);
+    cellVorticity->SetInputData(grid);
+    cellVorticity->SetInputScalars(
+      vtkDataObject::FIELD_ASSOCIATION_CELLS, fieldName);
+    cellVorticity->SetResultArrayName(resultName);
+    cellVorticity->SetComputeVorticity(1);
+    cellVorticity->Update();
+
+    VTK_CREATE(vtkGradientFilter, pointVorticity);
+    pointVorticity->SetInputData(grid);
+    pointVorticity->SetInputScalars(
+      vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldName);
+    pointVorticity->SetResultArrayName(resultName);
+    pointVorticity->SetComputeVorticity(1);
+    pointVorticity->SetComputeQCriterion(1);
+    pointVorticity->Update();
+
+    // cell stuff
+    vtkDoubleArray* vorticityCellArray = vtkDoubleArray::SafeDownCast(
+      vtkDataSet::SafeDownCast(
+        cellVorticity->GetOutput())->GetCellData()->GetArray("Vorticity"));
+
+    if(!IsVorticityCorrect(gradCellArray, vorticityCellArray))
       {
-      // now check on the vorticity calculations
-      VTK_CREATE(vtkGradientFilter, cellVorticity);
-      cellVorticity->SetInputData(grid);
-      cellVorticity->SetInputScalars(
-        vtkDataObject::FIELD_ASSOCIATION_CELLS, fieldName);
-      cellVorticity->SetResultArrayName(resultName);
-      cellVorticity->SetComputeVorticity(1);
-      cellVorticity->Update();
+      return EXIT_FAILURE;
+      }
 
-      VTK_CREATE(vtkGradientFilter, pointVorticity);
-      pointVorticity->SetInputData(grid);
-      pointVorticity->SetInputScalars(
-        vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldName);
-      pointVorticity->SetResultArrayName(resultName);
-      pointVorticity->SetComputeVorticity(1);
-      pointVorticity->SetComputeQCriterion(1);
-      pointVorticity->Update();
+    // point stuff
+    vtkDoubleArray* vorticityPointArray = vtkDoubleArray::SafeDownCast(
+      vtkDataSet::SafeDownCast(
+        pointVorticity->GetOutput())->GetPointData()->GetArray("Vorticity"));
 
-      // cell stuff
-      vtkDoubleArray* vorticityCellArray = vtkDoubleArray::SafeDownCast(
-        vtkDataSet::SafeDownCast(
-          cellVorticity->GetOutput())->GetCellData()->GetArray("Vorticity"));
-
-      if(!IsVorticityCorrect(gradCellArray, vorticityCellArray))
-        {
-        return EXIT_FAILURE;
-        }
-
-      // point stuff
-      vtkDoubleArray* vorticityPointArray = vtkDoubleArray::SafeDownCast(
-        vtkDataSet::SafeDownCast(
-          pointVorticity->GetOutput())->GetPointData()->GetArray("Vorticity"));
-
-      if(!IsVorticityCorrect(gradPointArray, vorticityPointArray))
-        {
-        return EXIT_FAILURE;
-        }
-      vtkDoubleArray* qCriterionPointArray = vtkDoubleArray::SafeDownCast(
-        vtkDataSet::SafeDownCast(
-          pointVorticity->GetOutput())->GetPointData()->GetArray("Q-criterion"));
-      if(!IsQCriterionCorrect(gradPointArray, qCriterionPointArray))
-        {
-        return EXIT_FAILURE;
-        }
+    if(!IsVorticityCorrect(gradPointArray, vorticityPointArray))
+      {
+      return EXIT_FAILURE;
+      }
+    vtkDoubleArray* qCriterionPointArray = vtkDoubleArray::SafeDownCast(
+      vtkDataSet::SafeDownCast(
+        pointVorticity->GetOutput())->GetPointData()->GetArray("Q-criterion"));
+    if(!IsQCriterionCorrect(gradPointArray, qCriterionPointArray))
+      {
+      return EXIT_FAILURE;
       }
 
     return EXIT_SUCCESS;

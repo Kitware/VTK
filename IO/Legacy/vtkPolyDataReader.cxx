@@ -97,7 +97,6 @@ int vtkPolyDataReader::RequestData(
   int numPts=0;
   char line[256];
   int npts, size = 0, ncells, i;
-  int done=0;
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
   int *tempArray;
@@ -140,7 +139,7 @@ int vtkPolyDataReader::RequestData(
 //
 // Might find points, vertices, lines, polygons, or triangle strips
 //
-    while (!done)
+    while (true)
       {
       if (!this->ReadString(line))
         {

@@ -578,7 +578,7 @@ void vtkVolume16Reader::AdjustSpacingAndOrigin (int dimensions[3], double spacin
 }
 
 //----------------------------------------------------------------------------
-void vtkVolume16Reader::TransformSlice (unsigned short *slice, unsigned short *pixels, int k, int dimensions[3], int bounds[3])
+void vtkVolume16Reader::TransformSlice (unsigned short *slice, unsigned short *pixels, int k, int dimensions[3], int bounds[6])
 {
   int iSize = this->DataDimensions[0];
   int jSize = this->DataDimensions[1];

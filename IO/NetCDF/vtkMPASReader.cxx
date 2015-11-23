@@ -1727,6 +1727,7 @@ bool vtkMPASReader::ValidateDimensions(NcVar *var, bool silent, int ndims, ...)
                         << dimName << "' at dimension index " << i << ", not '"
                         << dim->name() << "'.");
         }
+      va_end(args);
       return false;
       }
     }

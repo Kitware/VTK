@@ -245,7 +245,6 @@ void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
   vtkTimerLog          *timer;
   int                  totalCount;
   double                weight;
-  int                  done=0;
 
   timer = vtkTimerLog::New();
   timer->StartTimer();
@@ -352,7 +351,7 @@ void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
           rgbPtr++;
           }
         tmp = root;
-        while( !done )
+        while( true )
           {
           if ( tmp->GetIndex() != -1 )
             {

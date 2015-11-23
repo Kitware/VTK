@@ -73,7 +73,6 @@ int vtkStructuredGridReader::RequestInformation(
 int vtkStructuredGridReader::ReadMetaData(vtkInformation *outInfo)
 {
   char line[256];
-  int done=0;
 
   if (!this->OpenVTKFile() || !this->ReadHeader())
     {
@@ -109,7 +108,7 @@ int vtkStructuredGridReader::ReadMetaData(vtkInformation *outInfo)
 
     // Read keyword and dimensions
     //
-    while (!done)
+    while (true)
       {
       if (!this->ReadString(line))
         {
@@ -164,7 +163,6 @@ int vtkStructuredGridReader::RequestData(
   int numPts=0, npts=0, numCells=0, ncells;
   char line[256];
   int dimsRead=0;
-  int done=0;
   vtkStructuredGrid *output = vtkStructuredGrid::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
@@ -204,7 +202,7 @@ int vtkStructuredGridReader::RequestData(
 
     // Read keyword and number of points
     //
-    while (!done)
+    while (true)
       {
       if (!this->ReadString(line))
         {

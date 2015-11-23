@@ -112,6 +112,8 @@ void vtkWarpVectorExecute2(vtkWarpVector *self,
     *outPts++ = *begin++ + scaleFactor * static_cast<OutputType>(*inVec++);
     *outPts++ = *begin++ + scaleFactor * static_cast<OutputType>(*inVec++);
     *outPts++ = *begin++ + scaleFactor * static_cast<OutputType>(*inVec++);
+
+    counter++;
     }
 }
 

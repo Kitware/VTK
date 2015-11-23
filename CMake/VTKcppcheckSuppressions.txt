@@ -13,11 +13,11 @@
 //=========================================================================
 
 // This file contains enough suppressions to result in no cppcheck warnings,
-// at least on Mac OS X 10.9 with cppcheck 1.68.
+// at least on Mac OS X 10.9 with cppcheck 1.71.
 
 // To run:
 // cd /path/to/VTK/
-// cppcheck --platform=unix64 --enable=style -q --suppressions-list=CMake/VTKcppcheckSuppressions.txt --template='{file}:{line},{severity},{id},{message}' .
+// cppcheck --platform=unix64 --enable=style -q --suppressions-list=CMake/VTKcppcheckSuppressions.txt --template='{id},{file}:{line},{severity},{message}' -j8 .
 
 // Suppress everything from ThirdParty.
 *:ThirdParty/*
@@ -31,12 +31,16 @@ duplicateExpression:IO/PostgreSQL/vtkPostgreSQLQuery.cxx
 obsoleteFunctionsasctime
 unpreciseMathCall
 
+// VTK assumes IEEE 754 floats, so this warning isn't useful.
+memsetClassFloat
+
 // There are just too many of these to manage, so suppress them all.  Can look again one day.
 clarifyCalculation
 cstyleCast
 invalidscanf
 invalidscanf_libc
 noCopyConstructor
+noExplicitConstructor
 operatorEqVarError
 passedByValue
 redundantAssignment
@@ -52,29 +56,47 @@ argumentSize
 // False positives.
 argumentSize:Common/DataModel/vtkAMRBox.cxx
 argumentSize:Common/DataModel/vtkStructuredGrid.h
+arrayIndexOutOfBounds:Common/DataModel/vtkCell.h
+assignBoolToPointer:Common/Math/vtkMatrix4x4.h
 comparisonOfBoolWithInvalidComparator:Rendering/Label/vtkLabeledTreeMapDataMapper.cxx
 deallocDealloc:Wrapping/Tools/vtkParseMerge.c
 duplicateExpression:Common/Math/Testing/Cxx/TestPolynomialSolversUnivariate.cxx
 duplicateExpression:Filters/General/vtkContourTriangulator.cxx
 duplicateExpression:Filters/General/vtkVoxelContoursToSurfaceFilter.cxx
 invalidPrintfArgType_int:Wrapping/PythonCore/vtkPythonUtil.cxx
+knownConditionTrueFalse:Common/Core/Testing/Cxx/TestDataArrayIterators.cxx
 memleak:Common/Core/Testing/Cxx/TestGarbageCollector.cxx
 memleak:Examples/Infovis/Cxx/MultiView.cxx
+memleak:Imaging/Hybrid/vtkSurfaceReconstructionFilter.cxx
 multiCondition:Filters/Matlab/vtkMatlabMexAdapter.cxx
+negativeIndex:Common/DataModel/vtkPerlinNoise.cxx
+nullPointer:Interaction/Style/vtkInteractorStyleJoystickActor.cxx
+nullPointer:Interaction/Style/vtkInteractorStyleTrackballActor.cxx
 nullPointer:IO/Exodus/vtkExodusIIReaderParser.cxx
 oppositeInnerCondition:Rendering/VolumeOpenGL/vtkOpenGLVolumeTextureMapper3D.cxx
+pointerPositive:Common/DataModel/vtkUnstructuredGridCellIterator.cxx
 redundantAssignInSwitch:Wrapping/Tools/vtkWrapPythonOverload.c
 unassignedVariable:Common/Transforms/vtkHomogeneousTransform.cxx
 unassignedVariable:Rendering/Core/vtkCamera.cxx
 uninitdata:IO/Import/vtk3DSImporter.cxx
 uninitvar:IO/Exodus/vtkExodusIIReader.cxx
+unsafeClassCanLeak:Filters/General/vtkDensifyPolyData.cxx
+unsafeClassCanLeak:Interaction/Widgets/vtkBiDimensionalRepresentation.h
+unsafeClassCanLeak:Views/Qt/vtkQtListView.h:
 unusedAllocatedMemory:IO/Legacy/vtkDataWriter.cxx
 unusedStructMember:Common/Misc/vtkHeap.cxx
 uselessAssignmentPtrArg:Filters/General/vtkYoungsMaterialInterface.cxx
+uselessAssignmentPtrArg:IO/Parallel/vtkPImageWriter.cxx
 uselessAssignmentPtrArg:Wrapping/Tools/vtkParse.tab.c
 zerodiv:Filters/ParallelFlowPaths/Testing/Cxx/TestPStreamGeometry.cxx
 
 // There are a fair number of these, but they are probably worth working through.
+nullPointerRedundantCheck
+duplInheritedMember
+uninitvar
+unusedStructMember
+redundantCondition
+stlIfStrFind
 catchExceptionByValue
 clarifyCondition
 invalidPointerCast

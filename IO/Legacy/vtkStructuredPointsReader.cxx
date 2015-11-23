@@ -77,7 +77,6 @@ int vtkStructuredPointsReader::ReadMetaData(vtkInformation *outInfo)
 
   char line[256];
   int dimsRead=0, arRead=0, originRead=0;
-  int done=0;
 
   if (!this->OpenVTKFile() || !this->ReadHeader())
     {
@@ -113,7 +112,7 @@ int vtkStructuredPointsReader::ReadMetaData(vtkInformation *outInfo)
       }
 
     // Read keyword and number of points
-    while (!done)
+    while (true)
       {
       if (!this->ReadString(line))
         {
@@ -311,7 +310,6 @@ int vtkStructuredPointsReader::RequestData(
   char line[256];
   int npts, ncells;
   int dimsRead=0, arRead=0, originRead=0;
-  int done=0;
   vtkStructuredPoints *output = vtkStructuredPoints::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
@@ -358,7 +356,7 @@ int vtkStructuredPointsReader::RequestData(
     // Read keyword and number of points
     //
     numPts = output->GetNumberOfPoints(); // get default
-    while (!done)
+    while (true)
       {
       if (!this->ReadString(line))
         {
