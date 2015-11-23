@@ -907,6 +907,7 @@ FindClosestPointWithinRadius(double radius, const double x[3],
   return closest;
   }
 
+namespace {
 //-----------------------------------------------------------------------------
 // Obtaining closest points requires sorting nearby points
 class IdTuple
@@ -918,6 +919,7 @@ public:
   bool operator< (const IdTuple& tuple) const
     {return Dist2 < tuple.Dist2;}
 };
+}
 
 //-----------------------------------------------------------------------------
 template <typename TIds> void BucketList<TIds>::

@@ -449,6 +449,7 @@ vtkIdType vtkPointLocator::FindClosestPointWithinRadius(double radius,
 
 
 
+namespace {
 //-----------------------------------------------------------------------------
 // Sorting closest points
 class IdTuple
@@ -460,6 +461,8 @@ public:
   bool operator< (const IdTuple& tuple) const
     {return Dist2 < tuple.Dist2;}
 };
+}
+
 
 //-----------------------------------------------------------------------------
 void vtkPointLocator::FindDistributedPoints(int N, double x,
