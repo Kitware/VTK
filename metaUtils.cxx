@@ -581,7 +581,7 @@ METAIO_STL::streamoff MET_UncompressStream(METAIO_STREAM::ifstream * stream,
       firstchunk = false;
       }
 
-    unsigned char* outdata = new unsigned char[buffersize];
+    unsigned char* outdata = new unsigned char[static_cast<size_t>(buffersize)];
 
     d_stream->avail_out = (uInt)( buffersize );
 
@@ -597,7 +597,7 @@ METAIO_STL::streamoff MET_UncompressStream(METAIO_STREAM::ifstream * stream,
       inputBufferSize = compressedDataSize-zseekpos;
       }
 
-    unsigned char* inputBuffer = new unsigned char[inputBufferSize];
+    unsigned char* inputBuffer = new unsigned char[static_cast<size_t>(inputBufferSize)];
     stream->seekg(currentPos+zseekpos,METAIO_STREAM::ios::beg);
     stream->read((char *)inputBuffer, (size_t)inputBufferSize);
 
@@ -701,9 +701,9 @@ unsigned char * MET_PerformCompression(const unsigned char * source,
 
   METAIO_STL::streamoff             buffer_size     = sourceSize;
   unsigned char * input_buffer    = const_cast<unsigned char *>(source);
-  unsigned char * output_buffer   = new unsigned char[buffer_size];
+  unsigned char * output_buffer   = new unsigned char[static_cast<size_t>(buffer_size)];
 
-  compressedData                  = new unsigned char[buffer_size];
+  compressedData                  = new unsigned char[static_cast<size_t>(buffer_size)];
 
   deflateInit(&z, compression_rate);
 
@@ -727,7 +727,7 @@ unsigned char * MET_PerformCompression(const unsigned char * source,
         // when the output is bigger than the input (true for small images)
         if(j+count>=buffer_size)
           {
-          unsigned char* compressedDataTemp = new unsigned char[j+count+1];
+          unsigned char* compressedDataTemp = new unsigned char[static_cast<size_t>(j+count+1)];
           memcpy(compressedDataTemp,compressedData,(size_t)buffer_size);
           delete [] compressedData;
           compressedData = compressedDataTemp;
@@ -744,7 +744,7 @@ unsigned char * MET_PerformCompression(const unsigned char * source,
       {
       if(j+count>=buffer_size)
         {
-        unsigned char* compressedDataTemp = new unsigned char[j+count+1];
+        unsigned char* compressedDataTemp = new unsigned char[static_cast<size_t>(j+count+1)];
         memcpy(compressedDataTemp,compressedData,(size_t)buffer_size);
         delete [] compressedData;
         compressedData = compressedDataTemp;
