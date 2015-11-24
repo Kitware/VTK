@@ -133,9 +133,6 @@ void vtkCellLinks::BuildLinks(vtkDataSet *data)
   vtkIdType cellId;
   unsigned short *linkLoc;
 
-  // Make sure that we clear out previous allocation
-  this->Initialize();
-
   // fill out lists with number of references to cells
   linkLoc = new unsigned short[numPts];
   memset(linkLoc, 0, numPts*sizeof(unsigned short));
@@ -216,9 +213,6 @@ void vtkCellLinks::BuildLinks(vtkDataSet *data, vtkCellArray *Connectivity)
   vtkIdType npts=0;
   vtkIdType *pts=0;
   vtkIdType loc = Connectivity->GetTraversalLocation();
-
-  // Make sure that we clear out previous allocation
-  this->Initialize();
 
   // traverse data to determine number of uses of each point
   for (Connectivity->InitTraversal();

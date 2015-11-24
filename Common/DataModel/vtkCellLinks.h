@@ -55,7 +55,7 @@ public:
   virtual void BuildLinks(vtkDataSet *data);
 
   // Description:
-  // Build the link list array.
+  // Build the link list array with a provided connectivity array.
   void BuildLinks(vtkDataSet *data, vtkCellArray *Connectivity);
 
   // Description:

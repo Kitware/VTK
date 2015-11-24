@@ -161,6 +161,7 @@ int TestStaticCellLinks( int, char *[] )
     vtkSmartPointer<vtkPolyData>::New();
   pdata = ss->GetOutput();
 
+  slinks.Initialize(); //reuse
   slinks.BuildLinks(pdata);
 
   // The first point is at the pole
