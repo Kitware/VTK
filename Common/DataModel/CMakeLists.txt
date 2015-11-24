@@ -1,4 +1,5 @@
 set(Module_SRCS
+  vtkAbstractCellLinks.cxx
   vtkAbstractCellLocator.cxx
   vtkAbstractPointLocator.cxx
   vtkAdjacentVertexIterator.cxx
@@ -156,6 +157,8 @@ set(Module_SRCS
   vtkSmoothErrorMetric.cxx
   vtkSphere.cxx
   vtkSpline.cxx
+  vtkStaticCellLinks.cxx
+  vtkStaticCellLinksTemplate.txx
   vtkStaticPointLocator.cxx
   vtkStructuredData.cxx
   vtkStructuredExtent.cxx
@@ -213,9 +216,11 @@ set(${vtk-module}_HDRS
   vtkCellType.h
   vtkMappedUnstructuredGrid.h
   vtkMappedUnstructuredGridCellIterator.h
+  vtkStaticCellLinksTemplate.h
   )
 
 set_source_files_properties(
+  vtkAbstractCellLinks
   vtkAbstractCellLocator
   vtkAbstractPointLocator
   vtkCell
@@ -271,6 +276,7 @@ set_source_files_properties(
   vtkImageProgressIterator
   vtkPixelExtent.cxx
   vtkPixelTransfer.cxx
+  vtkStaticCellLinksTemplate.txx
   vtkVector
   vtkColor
   vtkRect
