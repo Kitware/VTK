@@ -53,10 +53,18 @@ public:
   virtual void SetInputScalars(int fieldAssociation, int fieldAttributeType);
 
   // Description:
-  // Get/Set the name of the gradient array to create.  If NULL (the
+  // Get/Set the name of the gradient array to create.  This is only
+  // used if ComputeGradient is non-zero. If NULL (the
   // default) then the output array will be named "Gradients".
   vtkGetStringMacro(ResultArrayName);
   vtkSetStringMacro(ResultArrayName);
+
+  // Description:
+  // Get/Set the name of the divergence array to create. This is only
+  // used if ComputeDivergence is non-zero. If NULL (the
+  // default) then the output array will be named "Divergence".
+  vtkGetStringMacro(DivergenceArrayName);
+  vtkSetStringMacro(DivergenceArrayName);
 
   // Description:
   // Get/Set the name of the vorticity array to create. This is only
@@ -85,18 +93,37 @@ public:
   vtkBooleanMacro(FasterApproximation, int);
 
   // Description:
-  // Set the resultant array to be vorticity/curl of the input
-  // array.  The input array must have 3 components.
+  // Add the gradient to the output field data.  The name of the array
+  // will be ResultArrayName and will be the same type as the input
+  // array. The default is on.
+  vtkSetMacro(ComputeGradient, int);
+  vtkGetMacro(ComputeGradient, int);
+  vtkBooleanMacro(ComputeGradient, int);
+
+  // Description:
+  // Add divergence to the output field data.  The name of the array
+  // will be DivergenceArrayName and will be the same type as the input
+  // array.  The input array must have 3 components in order to
+  // compute this. The default is off.
+  vtkSetMacro(ComputeDivergence, int);
+  vtkGetMacro(ComputeDivergence, int);
+  vtkBooleanMacro(ComputeDivergence, int);
+
+  // Description:
+  // Add voriticity/curl to the output field data.  The name of the array
+  // will be VorticityArrayName and will be the same type as the input
+  // array.  The input array must have 3 components in order to
+  // compute this. The default is off.
   vtkSetMacro(ComputeVorticity, int);
   vtkGetMacro(ComputeVorticity, int);
   vtkBooleanMacro(ComputeVorticity, int);
 
   // Description:
   // Add Q-criterion to the output field data.  The name of the array
-  // will be "Q-Criterion" and will be the same type as the input
+  // will be QCriterionArrayName and will be the same type as the input
   // array.  The input array must have 3 components in order to
   // compute this.  Note that Q-citerion is a balance of the rate
-  // of vorticity and the rate of strain.
+  // of vorticity and the rate of strain. The default is off.
   vtkSetMacro(ComputeQCriterion, int);
   vtkGetMacro(ComputeQCriterion, int);
   vtkBooleanMacro(ComputeQCriterion, int);
@@ -117,7 +144,8 @@ protected:
   // Returns non-zero if the operation was successful.
   virtual int ComputeUnstructuredGridGradient(
     vtkDataArray* Array, int fieldAssociation, vtkDataSet* input,
-    bool computeVorticity, bool computeQCriterion, vtkDataSet* output);
+    bool computeVorticity, bool computeQCriterion, bool computeDivergence,
+    vtkDataSet* output);
 
   // Description:
   // Compute the gradients for either a vtkImageData, vtkRectilinearGrid or
@@ -125,12 +153,17 @@ protected:
   // Returns non-zero if the operation was successful.
   virtual int ComputeRegularGridGradient(
     vtkDataArray* Array, int fieldAssociation, bool computeVorticity,
-    bool computeQCriterion, vtkDataSet* output);
+    bool computeQCriterion, bool computeDivergence, vtkDataSet* output);
 
   // Description:
   // If non-null then it contains the name of the outputted gradient array.
   // By derault it is "Gradients".
   char *ResultArrayName;
+
+  // Description:
+  // If non-null then it contains the name of the outputted divergence array.
+  // By derault it is "Divergence".
+  char *DivergenceArrayName;
 
   // Description:
   // If non-null then it contains the name of the outputted vorticity array.
@@ -151,6 +184,17 @@ protected:
   // This only applies if the input grid is a vtkUnstructuredGrid or a
   // vtkPolyData.
   int FasterApproximation;
+
+  // Description:
+  // Flag to indicate that the gradient of the input vector is to
+  // be computed. By default ComputeDivergence is on.
+  int ComputeGradient;
+
+  // Description:
+  // Flag to indicate that the divergence of the input vector is to
+  // be computed.  The input array to be processed must have
+  // 3 components.  By default ComputeDivergence is off.
+  int ComputeDivergence;
 
   // Description:
   // Flag to indicate that the Q-criterion of the input vector is to
