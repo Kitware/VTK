@@ -907,6 +907,7 @@ FindClosestPointWithinRadius(double radius, const double x[3],
   return closest;
   }
 
+namespace {
 //-----------------------------------------------------------------------------
 // Obtaining closest points requires sorting nearby points
 class IdTuple
@@ -918,6 +919,7 @@ public:
   bool operator< (const IdTuple& tuple) const
     {return Dist2 < tuple.Dist2;}
 };
+}
 
 //-----------------------------------------------------------------------------
 template <typename TIds> void BucketList<TIds>::
@@ -1157,7 +1159,7 @@ GetOverlappingBuckets(NeighborBuckets* buckets, const double x[3], double dist,
 
   for ( k= minLevel[2]; k <= maxLevel[2]; k++ )
     {
-    kFactor = k*this->Divisions[0]*this->Divisions[1];
+    kFactor = k * this->xyD;
     if (k >= prevMinLevel[2] && k <= prevMaxLevel[2])
       {
       kSkipFlag = 1;
@@ -1176,7 +1178,7 @@ GetOverlappingBuckets(NeighborBuckets* buckets, const double x[3], double dist,
         {
         jkSkipFlag = 0;
         }
-      jFactor = j*this->Divisions[0];
+      jFactor = j * this->xD;
       for ( i= minLevel[0]; i <= maxLevel[0]; i++ )
         {
         if ( jkSkipFlag && i == prevMinLevel[0] )

@@ -34,7 +34,7 @@
 //
 // .SECTION See Also
 //  vtkLocator, vtkIncrementalOctreePointLocator, vtkPointLocator,
-//  vtkMergePoints
+//  vtkMergePoints vtkStaticPointLocator
 
 #ifndef vtkIncrementalPointLocator_h
 #define vtkIncrementalPointLocator_h
