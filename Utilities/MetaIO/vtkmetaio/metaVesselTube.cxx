@@ -614,7 +614,7 @@ M_Read(void)
     char* _data = new char[readSize];
     m_ReadStream->read((char *)_data, readSize);
 
-    int gc = m_ReadStream->gcount();
+    int gc = static_cast<int>(m_ReadStream->gcount());
     if(gc != readSize)
       {
       METAIO_STREAM::cout << "MetaLine: m_Read: data not read completely"
@@ -950,7 +950,7 @@ M_Read(void)
       char c = ' ';
       while( (c!='\n') && (m_ReadStream->good()))
         {
-        c = m_ReadStream->get();// to avoid unrecognized characters
+        c = static_cast<char>(m_ReadStream->get());// to avoid unrecognized characters
         }
       }
     }

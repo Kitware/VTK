@@ -581,7 +581,7 @@ METAIO_STL::streamoff MET_UncompressStream(METAIO_STREAM::ifstream * stream,
       firstchunk = false;
       }
 
-    unsigned char* outdata = new unsigned char[buffersize];
+    unsigned char* outdata = new unsigned char[static_cast<size_t>(buffersize)];
 
     d_stream->avail_out = (uInt)( buffersize );
 
@@ -597,12 +597,12 @@ METAIO_STL::streamoff MET_UncompressStream(METAIO_STREAM::ifstream * stream,
       inputBufferSize = compressedDataSize-zseekpos;
       }
 
-    unsigned char* inputBuffer = new unsigned char[inputBufferSize];
+    unsigned char* inputBuffer = new unsigned char[static_cast<size_t>(inputBufferSize)];
     stream->seekg(currentPos+zseekpos,METAIO_STREAM::ios::beg);
     stream->read((char *)inputBuffer, (size_t)inputBufferSize);
 
     d_stream->next_in  = inputBuffer;
-    d_stream->avail_in = stream->gcount();
+    d_stream->avail_in = static_cast<int>(stream->gcount());
     d_stream->next_out = outdata;
 
     int inflate_error = inflate(d_stream, Z_NO_FLUSH);
@@ -701,9 +701,9 @@ unsigned char * MET_PerformCompression(const unsigned char * source,
 
   METAIO_STL::streamoff             buffer_size     = sourceSize;
   unsigned char * input_buffer    = const_cast<unsigned char *>(source);
-  unsigned char * output_buffer   = new unsigned char[buffer_size];
+  unsigned char * output_buffer   = new unsigned char[static_cast<size_t>(buffer_size)];
 
-  compressedData                  = new unsigned char[buffer_size];
+  compressedData                  = new unsigned char[static_cast<size_t>(buffer_size)];
 
   deflateInit(&z, compression_rate);
 
@@ -727,7 +727,7 @@ unsigned char * MET_PerformCompression(const unsigned char * source,
         // when the output is bigger than the input (true for small images)
         if(j+count>=buffer_size)
           {
-          unsigned char* compressedDataTemp = new unsigned char[j+count+1];
+          unsigned char* compressedDataTemp = new unsigned char[static_cast<size_t>(j+count+1)];
           memcpy(compressedDataTemp,compressedData,(size_t)buffer_size);
           delete [] compressedData;
           compressedData = compressedDataTemp;
@@ -744,7 +744,7 @@ unsigned char * MET_PerformCompression(const unsigned char * source,
       {
       if(j+count>=buffer_size)
         {
-        unsigned char* compressedDataTemp = new unsigned char[j+count+1];
+        unsigned char* compressedDataTemp = new unsigned char[static_cast<size_t>(j+count+1)];
         memcpy(compressedDataTemp,compressedData,(size_t)buffer_size);
         delete [] compressedData;
         compressedData = compressedDataTemp;
@@ -1022,7 +1022,7 @@ static bool MET_SkipToVal(METAIO_STREAM::istream &fp)
     return false;
     }
 
-  fp.putback(c);
+  fp.putback(static_cast<char>(c));
 
   return true;
   }
@@ -1066,17 +1066,17 @@ bool MET_Read(METAIO_STREAM::istream &fp,
   while(!fp.eof())
     {
     i = 0;
-    c = fp.get();
+    c = static_cast<unsigned char>(fp.get());
     while(!fp.eof() && c != MET_SeperatorChar && c != ':'
           && isspace(c))
       {
-      c = fp.get();
+      c = static_cast<unsigned char>(fp.get());
       }
     // save name up to separator or end of line
     while(!fp.eof() && c != MET_SeperatorChar && c != ':' && c != '\r' && c != '\n' && i<500)
       {
       s[i++] = c;
-      c = fp.get();
+      c = static_cast<unsigned char>(fp.get());
       }
     if(fp.eof() || i >= 500)
       {
@@ -1118,7 +1118,7 @@ bool MET_Read(METAIO_STREAM::istream &fp,
               {
               break;
               }
-            c = fp.get();
+            c = static_cast<unsigned char>(fp.get());
             (*fieldIter)->value[0] = (double)c;
             fp.getline( s, 500 );
             break;

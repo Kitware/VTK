@@ -370,7 +370,7 @@ M_Read(void)
       return 0;              // end of stream. all was good
       }
     char c;
-    if ( ( c = this->m_ReadStream->get() ) != '<' )
+    if ( ( c = static_cast<char>(this->m_ReadStream->get()) ) != '<' )
       {
       std::string rest;
       std::getline(*this->m_ReadStream, rest);
@@ -1146,7 +1146,7 @@ bool MetaFEMObject::M_Read_Load(std::string load_name)
         }
 
       /** add a new MFCTerm to the lhs */
-      FEMObjectMFCTerm *mfcTerm = new FEMObjectMFCTerm(elementGN, DOF, Value);
+      FEMObjectMFCTerm *mfcTerm = new FEMObjectMFCTerm(elementGN, DOF, static_cast<float>(Value));
       load->m_LHS.push_back(mfcTerm);
       }
 
