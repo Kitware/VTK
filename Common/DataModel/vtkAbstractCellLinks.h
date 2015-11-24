@@ -17,8 +17,8 @@
 // .SECTION Description
 // vtkAbstractCellLinks is a family of supplemental objects to vtkCellArray and
 // vtkCellTypes, enabling fast access from points to the cells using the
-// points. vtkStaticCellLinksTemplate is an array of links, each link represents a
-// list of cell id's using a particular point. The information provided by
+// points. vtkAbstractCellLinks is an array of links, each link representing a
+// list of cell ids using a particular point. The information provided by
 // this object can be used to determine neighbors and construct other local
 // topological information.
 
@@ -51,9 +51,10 @@ public:
   // Description:
   // Based on the input (i.e., number of points, number of cells, and length
   // of connectivity array) this helper method returns the integral type to
-  // use when instantiating the class in order to properly represent the data.
-  // The return value is one of the types (VTK_ID_TYPE,VTK_INT,VTK_SHORT) defined
-  // in the file vtkType.h. Subclasses may choose to instantiate themselves with
+  // use when instantiating cell link-related classes in order to properly
+  // represent the data.  The return value is one of the types
+  // (VTK_ID_TYPE,VTK_INT,VTK_SHORT) defined in the file
+  // vtkType.h. Subclasses may choose to instantiate themselves with
   // different integral types for performance and/or memory reasons.
   static int GetIdType(vtkIdType maxPtId, vtkIdType maxCellId, vtkCellArray *ca);
 

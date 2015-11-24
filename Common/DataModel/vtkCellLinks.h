@@ -16,11 +16,18 @@
 // .SECTION Description
 // vtkCellLinks is a supplemental object to vtkCellArray and vtkCellTypes,
 // enabling access from points to the cells using the points. vtkCellLinks is
-// a list of Links, each link represents a dynamic list of cell id's using the
-// point. The information provided by this object can be used to determine
-// neighbors and construct other local topological information.
+// a list of cell ids, each such link representing a dynamic list of cell ids
+// using the point. The information provided by this object can be used to
+// determine neighbors and construct other local topological information.
+
+// .SECTION Caveats
+// Note that this class is designed to support incremental link construction.
+// More efficient cell links structures can be built with vtkStaticCellLinks
+// (and vtkStaticCellLinksTemplate). However these other classes are typically
+// meant for one-time (static) construction.
+
 // .SECTION See Also
-// vtkCellArray vtkCellTypes
+// vtkCellArray vtkCellTypes vtkStaticCellLinks vtkStaticCellLinksTemplate
 
 #ifndef vtkCellLinks_h
 #define vtkCellLinks_h
@@ -135,7 +142,7 @@ public:
 
 protected:
   vtkCellLinks():Array(NULL),Size(0),MaxId(-1),Extend(1000) {}
-  ~vtkCellLinks();
+  virtual ~vtkCellLinks();
 
   // Description:
   // Increment the count of the number of cells using the point.

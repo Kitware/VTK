@@ -19,7 +19,7 @@
 // vtkStaticCellLinks is a supplemental object to vtkCellArray and
 // vtkCellTypes, enabling access from points to the cells using the
 // points. vtkStaticCellLinks is an array of links, each link represents a
-// list of cell id's using a particular point. The information provided by
+// list of cell ids using a particular point. The information provided by
 // this object can be used to determine neighbors and construct other local
 // topological information. This class is a faster implementation of
 // vtkCellLinks. However, it cannot be incrementally constructed; it is meant

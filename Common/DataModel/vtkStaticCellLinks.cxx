@@ -13,12 +13,7 @@
 
 =========================================================================*/
 #include "vtkStaticCellLinks.h"
-
 #include "vtkObjectFactory.h"
-#include "vtkCellArray.h"
-#include "vtkDataSet.h"
-#include "vtkPolyData.h"
-#include "vtkUnstructuredGrid.h"
 
 vtkStandardNewMacro(vtkStaticCellLinks);
 
@@ -38,5 +33,4 @@ vtkStaticCellLinks::~vtkStaticCellLinks()
 void vtkStaticCellLinks::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-
 }

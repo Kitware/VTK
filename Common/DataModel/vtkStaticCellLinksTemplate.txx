@@ -23,6 +23,12 @@
 #include "vtkUnstructuredGrid.h"
 
 //----------------------------------------------------------------------------
+// Note: this class is a faster, serial version of vtkCellLinks. Future work
+// to parallelize this class is possible. This includes:
+// = using a parallel prefix sum operation
+// = using atomics to update counts (i.e., number of cells using a point)
+
+//----------------------------------------------------------------------------
 // Clean up any previously allocated memory
 template <typename TIds> void vtkStaticCellLinksTemplate<TIds>::
 Initialize()
@@ -40,7 +46,8 @@ Initialize()
 }
 
 //----------------------------------------------------------------------------
-// Build the link list array for any dataset type
+// Build the link list array for any dataset type. Specialized methods are
+// used for dataset types that use vtkCellArrays to represent cells.
 template <typename TIds> void vtkStaticCellLinksTemplate<TIds>::
 BuildLinks(vtkDataSet *ds)
 {
