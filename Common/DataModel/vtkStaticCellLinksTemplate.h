@@ -60,6 +60,15 @@ public:
     }
 
   // Description:
+  // Virtual destructor, anticipating future subclassing.
+  virtual ~vtkStaticCellLinksTemplate()
+    {this->Initialize();}
+
+  // Description:
+  // Make sure any previously created links are cleaned up.
+  virtual void Initialize();
+
+  // Description:
   // Build the link list array. Satisfy superclass' API.
   virtual void BuildLinks(vtkDataSet *ds);
 
@@ -70,10 +79,6 @@ public:
   // Description:
   // Build the link list array for vtkUnstructuredGrid.
   void BuildLinks(vtkUnstructuredGrid *ugrid);
-
-  // Description:
-  // Make sure any previously created links are cleaned up.
-  void Initialize();
 
   // Description:
   // Get the number of cells using the point specified by ptId.
