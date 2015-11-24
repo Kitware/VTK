@@ -403,7 +403,7 @@ void vtkAppendFilter::AppendArrays(int attributesType,
       firstInputData = inputData;
       for (int arrayIndex = 0; arrayIndex < inputData->GetNumberOfArrays(); ++arrayIndex)
         {
-        vtkDataArray* array = inputData->GetArray(arrayIndex);
+        vtkAbstractArray* array = inputData->GetAbstractArray(arrayIndex);
         if (array && array->GetName())
           {
           // NOTE - it is possible for an array to not have a name,
@@ -419,8 +419,8 @@ void vtkAppendFilter::AppendArrays(int attributesType,
       while (it != dataArrayNames.end())
         {
         const char* arrayName = it->c_str();
-        vtkDataArray* array = inputData->GetArray(arrayName);
-        vtkDataArray* firstArray = firstInputData->GetArray(arrayName);
+        vtkAbstractArray* array = inputData->GetAbstractArray(arrayName);
+        vtkAbstractArray* firstArray = firstInputData->GetAbstractArray(arrayName);
         if (!array ||
             array->GetDataType() != firstArray->GetDataType() ||
             array->GetNumberOfComponents() != firstArray->GetNumberOfComponents())
@@ -439,7 +439,7 @@ void vtkAppendFilter::AppendArrays(int attributesType,
   // Allocate arrays for the output
   for (std::set<std::string>::iterator it = dataArrayNames.begin(); it != dataArrayNames.end(); ++it)
     {
-    vtkAbstractArray* srcArray = firstInputData->GetArray((*it).c_str());
+    vtkAbstractArray* srcArray = firstInputData->GetAbstractArray((*it).c_str());
     vtkAbstractArray* dstArray = vtkAbstractArray::CreateArray(srcArray->GetDataType());
     dstArray->SetName(srcArray->GetName());
     dstArray->SetNumberOfComponents(srcArray->GetNumberOfComponents());
@@ -572,8 +572,8 @@ void vtkAppendFilter::AppendArrays(int attributesType,
     for (std::set<std::string>::iterator it = dataArrayNames.begin(); it != dataArrayNames.end(); ++it)
       {
       const char* arrayName = it->c_str();
-      vtkAbstractArray* srcArray = inputData->GetArray(arrayName);
-      vtkAbstractArray* dstArray = outputData->GetArray(arrayName);
+      vtkAbstractArray* srcArray = inputData->GetAbstractArray(arrayName);
+      vtkAbstractArray* dstArray = outputData->GetAbstractArray(arrayName);
 
       for (vtkIdType id = 0; id < srcArray->GetNumberOfTuples(); ++id)
         {
