@@ -549,7 +549,7 @@ PyObject *PyVTKObject_FromPointer(
 
       // Check the type of the newly-created object
       const char *newclassname = ptr->GetClassName();
-      if (newclassname == classname)
+      if (std::string(newclassname) != classname)
         {
         PyVTKClass *newclass = vtkPythonUtil::FindClass(newclassname);
         if (newclass)
