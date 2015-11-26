@@ -755,7 +755,7 @@ int vtkClipClosedSurface::RequestData(
     }
   else if (this->ScalarMode == VTK_CCS_SCALAR_MODE_LABELS)
     {
-    // Don't use UNSIGNED_CHAR or they will look like color scalars
+    // Don't use VTK_UNSIGNED_CHAR or they will look like color scalars
     vtkSignedCharArray *categories = vtkSignedCharArray::New();
     categories->DeepCopy(scalars);
     categories->SetName("Labels");

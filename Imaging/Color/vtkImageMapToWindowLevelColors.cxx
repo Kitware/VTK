@@ -115,7 +115,7 @@ int vtkImageMapToWindowLevelColors::RequestInformation (
       }
     else
       {
-      // no lookup table, pass the input if it was UNSIGNED_CHAR
+      // no lookup table, pass the input if it was VTK_UNSIGNED_CHAR
       vtkDataObject::SetPointDataActiveScalarInfo
         (outInfo, VTK_UNSIGNED_CHAR,
          inScalarInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS()));
