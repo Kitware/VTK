@@ -140,8 +140,10 @@ class vtkPythonScopeGilEnsurer
 {
 public:
   vtkPythonScopeGilEnsurer(bool force = false)
+    : State(PyGILState_UNLOCKED)
     {
 #ifdef VTK_PYTHON_FULL_THREADSAFE
+    // Force is always true with FULL_THREADSAFE
     force = true;
 #endif
     this->Force = force;
@@ -161,6 +163,7 @@ public:
 private:
   PyGILState_STATE State;
   bool Force;
+
   vtkPythonScopeGilEnsurer(const vtkPythonScopeGilEnsurer&); // Not implemented.
   void operator=(const vtkPythonScopeGilEnsurer&); // Not implemented.
 };
