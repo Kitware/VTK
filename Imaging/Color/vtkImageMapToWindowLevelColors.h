@@ -20,7 +20,7 @@
 // by a window / level operation. The result is an image of type
 // VTK_UNSIGNED_CHAR. If the lookup table is not set, or is set to NULL, then
 // the input data will be passed through if it is already of type
-// UNSIGNED_CHAR.
+// VTK_UNSIGNED_CHAR.
 //
 // .SECTION See Also
 // vtkLookupTable vtkScalarsToColors
