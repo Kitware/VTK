@@ -3,7 +3,7 @@ WAMP related class for the purpose of vtkWeb.
 
 """
 
-import inspect, types, string, random, logging, six, json, re
+import inspect, types, string, random, logging, six, json, re, base64
 
 from threading import Timer
 
@@ -22,6 +22,9 @@ from autobahn.wamp          import register as exportRpc
 from autobahn.twisted.wamp import ApplicationSession, RouterSession
 from autobahn.twisted.websocket import WampWebSocketServerFactory
 from autobahn.twisted.websocket import WampWebSocketServerProtocol
+from autobahn.twisted.websocket import WebSocketServerProtocol
+
+from vtk.web import protocols
 
 try:
     from vtkWebCore import vtkWebApplication
@@ -31,6 +34,7 @@ except:
 # =============================================================================
 salt = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
 application = None
+imageCapture = None
 
 # =============================================================================
 #
@@ -56,6 +60,11 @@ class ServerProtocol(ApplicationSession):
         self.secret = None
         self.Application = self.initApplication()
         self.initialize()
+
+        # Init Binary WebSocket image renderer
+        global imageCapture
+        imageCapture = protocols.vtkWebViewPortImageDelivery()
+        imageCapture.setApplication(self.Application)
 
     def setAuthDB(self, db):
         self.authdb = db
@@ -87,6 +96,10 @@ class ServerProtocol(ApplicationSession):
 
     def setApplication(self, application):
         self.Application = application
+
+        # Init Binary WebSocket image renderer
+        global imageCapture
+        imageCapture.setApplication(self.Application)
 
     def registerVtkWebProtocol(self, protocol):
         protocol.setApplication(self.Application)
@@ -326,3 +339,70 @@ class HttpRpcResource(resource.Resource, object):
         obj,func = self.functionMap[methodName]
         results = func(obj, *args)
         return json.dumps(results)
+
+# =============================================================================
+# Binary WebSocket image push protocol
+# =============================================================================
+
+class ImagePushBinaryWebSocketServerProtocol(WebSocketServerProtocol):
+
+    def onOpen(self):
+        global imageCapture
+        self.helper = imageCapture
+        self.app = imageCapture.getApplication()
+        self.deltaT = 0.015
+        self.viewToCapture = {}
+        self.renderLoop = False
+
+    def onMessage(self, msg, isBinary):
+        request = json.loads(msg)
+        if 'view_id' in request:
+            viewId = str(request['view_id'])
+            if viewId not in self.viewToCapture:
+                self.viewToCapture[viewId] = { 'quality': 100, 'enabled': True, 'view': self.helper.getView(viewId), 'view_id': viewId, 'mtime': 0 }
+
+            # Update fields
+            objToUpdate = self.viewToCapture[viewId]
+            for key in request:
+                objToUpdate[key] = request[key]
+
+            # Trigger new render loop if needed
+            self.startRenderLoop()
+
+    def onClose(self, wasClean, code, reason):
+        self.viewToCapture = {}
+        self.renderLoop = False
+
+    def connectionLost(self, reason):
+        self.viewToCapture = []
+        self.renderLoop = False
+
+    def startRenderLoop(self):
+        if self.renderLoop:
+            return
+        self.renderLoop = True
+        reactor.callLater(self.deltaT, lambda: self.processNextRender())
+
+    def processNextRender(self):
+        keepGoing = False
+        for k, v in self.viewToCapture.iteritems():
+            if v['enabled']:
+                keepGoing = True
+                view = v['view']
+                if hasattr(view,'SMProxy'):
+                    view = view.SMProxy
+                quality = v['quality']
+                mtime = v['mtime']
+                base64Image = self.app.StillRenderToString(view, mtime, quality)
+                if base64Image:
+                    v['mtime'] = self.app.GetLastStillRenderToStringMTime()
+                    meta = {
+                        'size': self.app.GetLastStillRenderImageSize(),
+                        'id': k
+                    }
+                    self.sendMessage(json.dumps(meta), False)
+                    self.sendMessage(base64.standard_b64decode(base64Image), True)
+
+        self.renderLoop = keepGoing
+        if self.renderLoop:
+            reactor.callLater(self.deltaT, lambda: self.processNextRender())
