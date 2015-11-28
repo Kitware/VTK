@@ -46,6 +46,7 @@
 #include "vtkPolyData2DFS.h"
 #include "vtkPolyDataWideLineGS.h"
 
+//-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper2D);
 
 //-----------------------------------------------------------------------------
@@ -560,9 +561,15 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
      this->AppleBugPrimIDs, vtkOpenGLBufferObject::ArrayBuffer);
     this->AppleBugPrimIDBuffer->Release();
 
-    vtkWarningMacro("VTK is working around a bug in Apple-AMD hardware related to gl_PrimitiveID.  This may cause significant memory and performance impacts. Your hardware has been identified as vendor "
-      << (const char *)glGetString(GL_VENDOR) << " with renderer of "
-      << (const char *)glGetString(GL_RENDERER));
+    static bool warnAppleBugOnce = true;
+    if (warnAppleBugOnce)
+      {
+      vtkWarningMacro("VTK is working around a bug in Apple-AMD hardware related to gl_PrimitiveID.  This may cause significant memory and performance impacts. Your hardware has been identified as vendor "
+                      << (const char *)glGetString(GL_VENDOR) << " with renderer of "
+                      << (const char *)glGetString(GL_RENDERER));
+      warnAppleBugOnce = false;
+      }
+
     }
 
   // if we have cell scalars then we have to
