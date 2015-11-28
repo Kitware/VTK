@@ -536,10 +536,13 @@ void vtkOpenGLRenderWindow::OpenGLInitContext()
 
     if (!GLEW_VERSION_3_2)
       {
-      if (!GLEW_VERSION_2_1)
+      if (!GLEW_VERSION_2_1 || !GLEW_EXT_gpu_shader4)
         {
-        vtkErrorMacro("GL version 2.1 is not supported by your graphics driver.");
-        //m_valid = false;
+        vtkErrorMacro("GL version 2.1 with the gpu_shader4 extension is not "
+        "supported by your graphics driver but is required for the new "
+        "OpenGL rendering backend. Please update your OpenGL driver. "
+        "If you are using Mesa please make sure you have version 10.6.5 or "
+        "later and make sure your driver in Mesa supports OpenGL 3.2.");
         return;
         }
       vtkWarningMacro(
