@@ -1716,10 +1716,26 @@ int vtkXOpenGLRenderWindow::SupportsOpenGL()
       return 0;
       }
 
-    this->MakeCurrent();
+    int pbufferAttribs[] =
+      {
+      GLX_PBUFFER_WIDTH,  32,
+      GLX_PBUFFER_HEIGHT, 32,
+      None
+      };
+    GLXPbuffer pbuffer = glXCreatePbuffer(
+      this->DisplayId, this->Internal->FBConfig, pbufferAttribs);
+
+    XSync( this->DisplayId, False );
+
+    if ( !glXMakeContextCurrent( this->DisplayId, pbuffer, pbuffer, this->Internal->ContextId) )
+      {
+      return 0;
+      }
+
     GLenum result = glewInit();
     glFinish();
     glXDestroyContext(this->DisplayId, this->Internal->ContextId);
+    glXDestroyPbuffer(this->DisplayId, pbuffer);
     this->Internal->ContextId = 0;
     bool m_valid = (result == GLEW_OK);
     if (!m_valid)
