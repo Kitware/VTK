@@ -368,7 +368,7 @@ void vtkEGLRenderWindow::ResizeWindow(int width, int height)
 void vtkEGLRenderWindow::DestroyWindow()
 {
   vtkInternals* impl = this->Internals;
-  this->ReleaseGraphicsResources();
+  this->ReleaseGraphicsResources(this);
   if (this->OwnWindow && this->Mapped && impl->Display != EGL_NO_DISPLAY)
     {
     // make sure all other code knows we're not mapped anymore

@@ -47,6 +47,13 @@ int TestVBOPLYMapper(int argc, char *argv[])
   vtkNew<vtkLightKit> lightKit;
   lightKit->AddLightsToRenderer(renderer.Get());
 
+  if (!renderWindow->SupportsOpenGL())
+    {
+    cerr << "The platform does not support OpenGL as required\n";
+    cerr << renderWindow->ReportCapabilities();
+    return 1;
+    }
+
   const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
                                                                "Data/dragon.ply");
   vtkNew<vtkPLYReader> reader;

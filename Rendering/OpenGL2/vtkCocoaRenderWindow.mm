@@ -277,20 +277,8 @@ void vtkCocoaRenderWindow::DestroyWindow()
   if (this->OwnContext && this->GetContextId())
     {
     this->MakeCurrent();
-
-    // tell each of the renderers that this render window/graphics context
-    // is being removed (the RendererCollection is removed by vtkRenderWindow's
-    // destructor)
-    vtkCollectionSimpleIterator rsit;
-    vtkRenderer *ren;
-    for ( this->Renderers->InitTraversal(rsit);
-          (ren = this->Renderers->GetNextRenderer(rsit));)
-      {
-      ren->SetRenderWindow(NULL);
-      ren->SetRenderWindow(this);
-      }
-    this->ReleaseGraphicsResources();
-  }
+    this->ReleaseGraphicsResources(this);
+    }
   this->SetContextId(NULL);
   this->SetPixelFormat(NULL);
 
@@ -482,12 +470,25 @@ const char* vtkCocoaRenderWindow::ReportCapabilities()
 //----------------------------------------------------------------------------
 int vtkCocoaRenderWindow::SupportsOpenGL()
 {
+#ifdef GLEW_OK
+  this->CreateGLContext();
   this->MakeCurrent();
-  if (!this->GetContextId() || !this->GetPixelFormat())
+
+  GLenum result = glewInit();
+  bool m_valid = (result == GLEW_OK);
+  if (!m_valid)
     {
     return 0;
     }
-  return 1;
+
+  if (GLEW_VERSION_3_2 || (GLEW_VERSION_2_1 && GLEW_EXT_gpu_shader4))
+    {
+    return 1;
+    }
+
+#endif
+
+  return 0;
 }
 
 //----------------------------------------------------------------------------
