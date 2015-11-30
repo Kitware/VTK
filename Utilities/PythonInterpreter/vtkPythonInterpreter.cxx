@@ -145,14 +145,14 @@ bool vtkPythonInterpreter::Initialize(int initsigs /*=0*/)
     {
     vtkPythonInterpreter::InitializedOnce = true;
 
-#ifndef VTK_NO_PYTHON_THREADS
+#ifdef VTK_PYTHON_FULL_THREADSAFE
     int threadInit = PyEval_ThreadsInitialized();
     PyEval_InitThreads(); // safe to call this multiple time
     if(!threadInit)
       {
       PyEval_SaveThread(); // release GIL
       }
-#endif
+#endif    
 
     // HACK: Calling PyRun_SimpleString for the first time for some reason results in
     // a "\n" message being generated which is causing the error dialog to
