@@ -465,6 +465,22 @@ void vtkDataArray::InterpolateTuple(vtkIdType i,
     return;
     }
 
+  if (id1 >= source1->GetNumberOfTuples())
+    {
+    vtkErrorMacro("Tuple 1 out of range for provided array. "
+                  "Requested tuple: " << id1 << " "
+                  "Tuples: " << source1->GetNumberOfTuples());
+    return;
+    }
+
+  if (id2 >= source2->GetNumberOfTuples())
+    {
+    vtkErrorMacro("Tuple 2 out of range for provided array. "
+                  "Requested tuple: " << id2 << " "
+                  "Tuples: " << source2->GetNumberOfTuples());
+    return;
+    }
+
   int k, numComp = source1->GetNumberOfComponents();
   double c;
   vtkIdType loc = i * numComp;

@@ -339,7 +339,7 @@ int vtkHyperOctreeContourFilter::RequestData(
   this->OutCD->CopyAllocate(this->InCD,estimatedSize,estimatedSize/2);
 
   this->OutPD=this->Output->GetPointData();
-  this->OutPD->CopyAllocate(this->Input->GetPointData(),estimatedSize,estimatedSize/2);
+  this->OutPD->CopyAllocate(this->InPD,estimatedSize,estimatedSize/2);
   this->OutPD->CopyScalarsOn();
 
   static double bounds[6]={0,1,0,1,0,1};
