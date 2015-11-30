@@ -427,6 +427,17 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
     den = 1.0;
     }
 
+  unsigned char color[4];
+    {
+    const double *actorColor = actor->GetProperty()->GetColor();
+    for (int i = 0; i != 3; ++i)
+      {
+      color[i] = static_cast<unsigned char>(actorColor[i] * 255. + 0.5);
+      }
+    color[3] =
+      static_cast<unsigned char>(actor->GetProperty()->GetOpacity()*255. + 0.5);
+    }
+
   vtkDataArray* orientArray = this->GetOrientationArray(dataset);
   if (orientArray !=0 && orientArray->GetNumberOfComponents() != 3)
     {
@@ -537,10 +548,10 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
       vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry *entry =
         subarray->Entries[index];
 
-      entry->Colors[entry->NumberOfPoints*4] = 255;
-      entry->Colors[entry->NumberOfPoints*4+1] = 255;
-      entry->Colors[entry->NumberOfPoints*4+2] = 255;
-      entry->Colors[entry->NumberOfPoints*4+3] = 255;
+      entry->Colors[entry->NumberOfPoints*4] = color[0];
+      entry->Colors[entry->NumberOfPoints*4+1] = color[1];
+      entry->Colors[entry->NumberOfPoints*4+2] = color[2];
+      entry->Colors[entry->NumberOfPoints*4+3] = color[3];
 
       double scalex = 1.0;
       double scaley = 1.0;
