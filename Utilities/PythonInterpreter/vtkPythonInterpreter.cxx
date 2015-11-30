@@ -197,6 +197,7 @@ void vtkPythonInterpreter::Finalize()
   if (Py_IsInitialized() != 0)
     {
     NotifyInterpreters(vtkCommand::ExitEvent);
+    vtkPythonScopeGilEnsurer gilEnsurer(false, true);  
     Py_Finalize();
     }
 }
@@ -331,7 +332,7 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
   return res;
 #else
     
-  vtkPythonScopeGilEnsurer gilEnsurer;  
+  vtkPythonScopeGilEnsurer gilEnsurer( false, true);  
   return Py_Main(argc, argv);
 #endif
 }

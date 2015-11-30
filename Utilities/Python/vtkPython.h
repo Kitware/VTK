@@ -139,7 +139,7 @@ they are system headers.  Do NOT add any #undef lines here.  */
 class vtkPythonScopeGilEnsurer 
 {
 public:
-  vtkPythonScopeGilEnsurer(bool force = false)
+  vtkPythonScopeGilEnsurer(bool force = false, bool noRelease = false)
     : State(PyGILState_UNLOCKED)
     {
 #ifdef VTK_PYTHON_FULL_THREADSAFE
@@ -147,6 +147,7 @@ public:
     force = true;
 #endif
     this->Force = force;
+    this->NoRelease = noRelease;
     if (this->Force)
       {
       this->State = PyGILState_Ensure();
@@ -154,7 +155,7 @@ public:
     }
   ~vtkPythonScopeGilEnsurer()
     {
-    if (this->Force)
+    if (this->Force && !this->NoRelease)
       {
       PyGILState_Release(this->State);
       }
@@ -163,6 +164,7 @@ public:
 private:
   PyGILState_STATE State;
   bool Force;
+  bool NoRelease;
 
   vtkPythonScopeGilEnsurer(const vtkPythonScopeGilEnsurer&); // Not implemented.
   void operator=(const vtkPythonScopeGilEnsurer&); // Not implemented.
