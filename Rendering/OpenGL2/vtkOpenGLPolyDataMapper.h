@@ -167,6 +167,10 @@ protected:
   vtkOpenGLBufferObject *AppleBugPrimIDBuffer;
 
   // Description:
+  // helper function to get the appropriate coincident params
+  void GetCoincidentParameters(vtkActor *actor, float &factor, float &offset);
+
+  // Description:
   // Called in GetBounds(). When this method is called, the consider the input
   // to be updated depending on whether this->Static is set or not. This method
   // simply obtains the bounds from the data-object and returns it.
@@ -229,6 +233,9 @@ protected:
     std::map<vtkShader::Type, vtkShader *> shaders,
     vtkRenderer *ren, vtkActor *act);
   virtual void ReplaceShaderPositionVC(
+    std::map<vtkShader::Type, vtkShader *> shaders,
+    vtkRenderer *ren, vtkActor *act);
+  virtual void ReplaceShaderCoincidentOffset(
     std::map<vtkShader::Type, vtkShader *> shaders,
     vtkRenderer *ren, vtkActor *act);
 

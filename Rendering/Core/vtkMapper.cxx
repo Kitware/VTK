@@ -35,9 +35,13 @@ static int vtkMapperGlobalImmediateModeRendering = 0;
 // Initialize static member that controls global coincidence resolution
 static int vtkMapperGlobalResolveCoincidentTopology = VTK_RESOLVE_OFF;
 static double vtkMapperGlobalResolveCoincidentTopologyZShift = 0.01;
-static double vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetFactor = 1.0;
-static double vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetUnits = 1.0;
 static int vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetFaces = 1;
+
+static double vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetFactor = 2.0;
+static double vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetUnits = 2.0;
+static double vtkMapperGlobalResolveCoincidentTopologyLineOffsetFactor = 1.0;
+static double vtkMapperGlobalResolveCoincidentTopologyLineOffsetUnits = 1.0;
+static double vtkMapperGlobalResolveCoincidentTopologyPointOffsetUnits = 0.0;
 
 vtkScalarsToColors *vtkMapper::InvertibleLookupTable = NULL;
 
@@ -78,6 +82,12 @@ vtkMapper::vtkMapper()
 
   this->UseInvertibleColors = false;
   this->InvertibleScalars = NULL;
+
+  this->CoincidentPolygonFactor = 0.0;
+  this->CoincidentPolygonOffset = 0.0;
+  this->CoincidentLineFactor = 0.0;
+  this->CoincidentLineOffset = 0.0;
+  this->CoincidentPointOffset = 0.0;
 
   this->AcquireInvertibleLookupTable();
 }
@@ -218,6 +228,119 @@ void vtkMapper::GetResolveCoincidentTopologyPolygonOffsetParameters(
 {
   factor = vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetFactor;
   units = vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetUnits;
+}
+
+void vtkMapper::SetRelativeCoincidentTopologyPolygonOffsetParameters(
+                                          double factor, double units)
+{
+  if (factor == this->CoincidentPolygonFactor &&
+      units == this->CoincidentPolygonOffset )
+    {
+    return;
+    }
+  this->CoincidentPolygonFactor = factor;
+  this->CoincidentPolygonOffset = units;
+}
+
+void vtkMapper::GetRelativeCoincidentTopologyPolygonOffsetParameters(
+                           double& factor, double& units)
+{
+  factor = this->CoincidentPolygonFactor;
+  units = this->CoincidentPolygonOffset;
+}
+
+void vtkMapper::GetCoincidentTopologyPolygonOffsetParameters(
+                           double& factor, double& units)
+{
+  factor = vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetFactor
+    + this->CoincidentPolygonFactor;
+  units = vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetUnits
+    + this->CoincidentPolygonOffset;
+}
+
+void vtkMapper::SetResolveCoincidentTopologyLineOffsetParameters(
+                                            double factor, double units)
+{
+  if (factor == vtkMapperGlobalResolveCoincidentTopologyLineOffsetFactor &&
+      units == vtkMapperGlobalResolveCoincidentTopologyLineOffsetUnits )
+    {
+    return;
+    }
+  vtkMapperGlobalResolveCoincidentTopologyLineOffsetFactor = factor;
+  vtkMapperGlobalResolveCoincidentTopologyLineOffsetUnits = units;
+}
+
+void vtkMapper::GetResolveCoincidentTopologyLineOffsetParameters(
+                           double& factor, double& units)
+{
+  factor = vtkMapperGlobalResolveCoincidentTopologyLineOffsetFactor;
+  units = vtkMapperGlobalResolveCoincidentTopologyLineOffsetUnits;
+}
+
+void vtkMapper::SetRelativeCoincidentTopologyLineOffsetParameters(
+                                          double factor, double units)
+{
+  if (factor == this->CoincidentLineFactor &&
+      units == this->CoincidentLineOffset )
+    {
+    return;
+    }
+  this->CoincidentLineFactor = factor;
+  this->CoincidentLineOffset = units;
+}
+
+void vtkMapper::GetRelativeCoincidentTopologyLineOffsetParameters(
+                           double& factor, double& units)
+{
+  factor = this->CoincidentLineFactor;
+  units = this->CoincidentLineOffset;
+}
+
+void vtkMapper::GetCoincidentTopologyLineOffsetParameters(
+                           double& factor, double& units)
+{
+  factor = vtkMapperGlobalResolveCoincidentTopologyLineOffsetFactor
+    + this->CoincidentLineFactor;
+  units = vtkMapperGlobalResolveCoincidentTopologyLineOffsetUnits
+    + this->CoincidentLineOffset;
+}
+
+void vtkMapper::SetResolveCoincidentTopologyPointOffsetParameter(
+                                            double units)
+{
+  if (units == vtkMapperGlobalResolveCoincidentTopologyPointOffsetUnits )
+    {
+    return;
+    }
+  vtkMapperGlobalResolveCoincidentTopologyPointOffsetUnits = units;
+}
+
+void vtkMapper::GetResolveCoincidentTopologyPointOffsetParameter(
+                           double& units)
+{
+  units = vtkMapperGlobalResolveCoincidentTopologyPointOffsetUnits;
+}
+
+void vtkMapper::SetRelativeCoincidentTopologyPointOffsetParameter(
+                                            double units)
+{
+  if (units == this->CoincidentPointOffset )
+    {
+    return;
+    }
+  this->CoincidentPointOffset = units;
+}
+
+void vtkMapper::GetRelativeCoincidentTopologyPointOffsetParameter(
+                           double& units)
+{
+  units = this->CoincidentPointOffset;
+}
+
+void vtkMapper::GetCoincidentTopologyPointOffsetParameter(double& units)
+{
+  units = vtkMapperGlobalResolveCoincidentTopologyPointOffsetUnits
+    + this->CoincidentPointOffset;
 }
 
 void vtkMapper::SetResolveCoincidentTopologyPolygonOffsetFaces(int faces)
@@ -1094,4 +1217,15 @@ void vtkMapper::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "Shift Z-Buffer" << endl;
     }
+
+  os << indent << "CoincidentPointOffset: "
+     << this->CoincidentPointOffset << "\n";
+  os << indent << "CoincidentLineOffset: "
+     << this->CoincidentLineOffset << "\n";
+  os << indent << "CoincidentPolygonOffset: "
+     << this->CoincidentPolygonOffset << "\n";
+  os << indent << "CoincidentLineFactor: "
+     << this->CoincidentLineFactor << "\n";
+  os << indent << "CoincidentPolygonFactor: "
+     << this->CoincidentPolygonFactor << "\n";
 }

@@ -48,6 +48,9 @@ uniform int PrimitiveIDOffset;
 // Apple Bug
 //VTK::PrimID::Dec
 
+// handle coincident offsets
+//VTK::Coincident::Dec
+
 void main()
 {
   // Apple Bug
@@ -76,4 +79,6 @@ void main()
 
   //VTK::Picking::Impl
 
+  // handle coincident offsets
+  //VTK::Coincident::Impl
 }
