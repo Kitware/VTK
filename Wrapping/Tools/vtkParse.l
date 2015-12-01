@@ -125,12 +125,12 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
       preprocessor_directive(yytext, yyleng);
    }
 
-("u8"|"u"|"U"|"L")?\"([^\"]|\\\")*\"(_{ID})?  {
+("u8"|"u"|"U"|"L")?\"([^\\"]|\\\r\n|\\\n|\\.)*\"(_{ID})?  {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(STRING_LITERAL);
     }
 
-("u8"|"u"|"U"|"L")?\'([^\']|\\\')+\'(_{ID})?  {
+("u8"|"u"|"U"|"L")?\'([^\\']|\\.)+\'(_{ID})?  {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(CHAR_LITERAL);
     }
