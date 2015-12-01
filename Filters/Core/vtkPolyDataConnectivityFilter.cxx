@@ -27,6 +27,8 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
+#include <algorithm> // for fill_n
+
 vtkStandardNewMacro(vtkPolyDataConnectivityFilter);
 
 // Construct with default extraction mode to extract largest regions.
@@ -84,8 +86,6 @@ int vtkPolyDataConnectivityFilter::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkIdType cellId, newCellId, i, pt;
-  int j;
-  vtkIdType numPts, numCells;
   vtkPoints *inPts;
   vtkPoints *newPts;
   vtkIdType *cells, *pts, npts, id, n;
@@ -107,8 +107,8 @@ int vtkPolyDataConnectivityFilter::RequestData(
     return 1;
     }
 
-  numPts = inPts->GetNumberOfPoints();
-  numCells = input->GetNumberOfCells();
+  const vtkIdType numPts = inPts->GetNumberOfPoints();
+  const vtkIdType numCells = input->GetNumberOfCells();
 
   if ( numPts < 1 || numCells < 1 )
     {
@@ -145,15 +145,9 @@ int vtkPolyDataConnectivityFilter::RequestData(
   //
   this->RegionSizes->Reset();
   this->Visited = new vtkIdType[numCells];
-  for ( i=0; i < numCells; i++ )
-    {
-    this->Visited[i] = -1;
-    }
+  std::fill_n(this->Visited, numCells, -1);
   this->PointMap = new vtkIdType[numPts];
-  for ( i=0; i < numPts; i++ )
-    {
-    this->PointMap[i] = -1;
-    }
+  std::fill_n(this->PointMap, numPts, -1);
 
   this->NewScalars = vtkIdTypeArray::New();
   this->NewScalars->SetName("RegionId");
@@ -180,10 +174,8 @@ int vtkPolyDataConnectivityFilter::RequestData(
   // starts a new connected region. Connected region grows
   // using a connected wave propagation.
   //
-  this->Wave = vtkIdList::New();
-  this->Wave->Allocate(numPts/4+1,numPts);
-  this->Wave2 = vtkIdList::New();
-  this->Wave2->Allocate(numPts/4+1,numPts);
+  this->Wave.reserve(numPts);
+  this->Wave2.reserve(numPts);
 
   this->PointNumber = 0;
   this->RegionNumber = 0;
@@ -208,7 +200,7 @@ int vtkPolyDataConnectivityFilter::RequestData(
       if ( this->Visited[cellId] < 0 )
         {
         this->NumCellsInRegion = 0;
-        this->Wave->InsertNextId(cellId);
+        this->Wave.push_back(cellId);
         this->TraverseAndMark ();
 
         if ( this->NumCellsInRegion > maxCellsInRegion )
@@ -219,8 +211,8 @@ int vtkPolyDataConnectivityFilter::RequestData(
 
         this->RegionSizes->InsertValue(this->RegionNumber++,
                                        this->NumCellsInRegion);
-        this->Wave->Reset();
-        this->Wave2->Reset();
+        this->Wave.clear();
+        this->Wave2.clear();
        }
       }
     }
@@ -236,9 +228,9 @@ int vtkPolyDataConnectivityFilter::RequestData(
         if ( pt >= 0 )
           {
           this->Mesh->GetPointCells(pt,ncells,cells);
-          for (j=0; j < ncells; j++)
+          for (unsigned short j = 0; j < ncells; ++j)
             {
-            this->Wave->InsertNextId(cells[j]);
+            this->Wave.push_back(cells[j]);
             }
           }
         }
@@ -250,7 +242,7 @@ int vtkPolyDataConnectivityFilter::RequestData(
         cellId = this->Seeds->GetId(i);
         if ( cellId >= 0 )
           {
-          this->Wave->InsertNextId(cellId);
+          this->Wave.push_back(cellId);
           }
         }
       }
@@ -269,9 +261,9 @@ int vtkPolyDataConnectivityFilter::RequestData(
           }
         }
       this->Mesh->GetPointCells(minId,ncells,cells);
-      for (j=0; j < ncells; j++)
+      for (unsigned short j=0; j < ncells; ++j)
         {
-        this->Wave->InsertNextId(cells[j]);
+        this->Wave.push_back(cells[j]);
         }
       }
     this->UpdateProgress (0.5);
@@ -283,8 +275,6 @@ int vtkPolyDataConnectivityFilter::RequestData(
     }//else extracted seeded cells
 
   vtkDebugMacro (<<"Extracted " << this->RegionNumber << " region(s)");
-  this->Wave->Delete();
-  this->Wave2->Delete();
 
   // Now that points and cells have been marked, traverse these lists pulling
   // everything that has been visited.
@@ -464,14 +454,14 @@ void vtkPolyDataConnectivityFilter::TraverseAndMark ()
   vtkIdType cellId, ptId, numIds, i;
   int j, k;
   vtkIdType *pts, *cells, npts;
-  vtkIdList *tmpWave;
   unsigned short ncells;
+  const vtkIdType numCells = this->Mesh->GetNumberOfCells();
 
-  while ( (numIds=this->Wave->GetNumberOfIds()) > 0 )
+  while ( (numIds=static_cast<vtkIdType>(this->Wave.size())) > 0 )
     {
     for ( i=0; i < numIds; i++ )
       {
-      cellId = this->Wave->GetId(i);
+      cellId = this->Wave[i];
       if ( this->Visited[cellId] < 0 )
         {
         this->Visited[cellId] = this->RegionNumber;
@@ -485,34 +475,35 @@ void vtkPolyDataConnectivityFilter::TraverseAndMark ()
             this->PointMap[ptId] = this->PointNumber++;
             vtkIdTypeArray::SafeDownCast(this->NewScalars)->SetValue(
               this->PointMap[ptId], this->RegionNumber);
-            }
 
-          this->Mesh->GetPointCells(ptId,ncells,cells);
+            this->Mesh->GetPointCells(ptId,ncells,cells);
 
-          // check connectivity criterion (geometric + scalar)
-          for (k=0; k < ncells; k++)
-            {
-            cellId = cells[k];
+            // check connectivity criterion (geometric + scalar)
             if ( this->InScalars )
               {
-              if (this->IsScalarConnected(cellId))
+              for (k = 0; k < ncells; ++k)
                 {
-                this->Wave2->InsertNextId(cellId);
+                if (this->IsScalarConnected(cells[k]))
+                  {
+                  this->Wave2.push_back(cells[k]);
+                  }
                 }
               }
             else
               {
-              this->Wave2->InsertNextId(cellId);
+              for (k = 0; k < ncells; ++k)
+                {
+                this->Wave2.push_back(cells[k]);
+                }
               }
-            }//for all cells using this point
+            }
           }//for all points of this cell
         }//if cell not yet visited
       }//for all cells in this wave
 
-    tmpWave = this->Wave;
     this->Wave = this->Wave2;
-    this->Wave2 = tmpWave;
-    tmpWave->Reset();
+    this->Wave2.clear();
+    this->Wave2.reserve(numCells);
     } //while wave is not empty
 
   return;
