@@ -52,6 +52,61 @@ int TestPolygon(int,char *[])
     return EXIT_FAILURE;
     }
 
+  // Test convexity. First, ensure the square is convex.
+  {
+  vtkIdType idTypeArray[4] = {0,1,2,3};
+
+  vtkSmartPointer<vtkIdTypeArray> idArray =
+    vtkSmartPointer<vtkIdTypeArray>::New();
+  for(int i = 0; i < polygon->GetNumberOfPoints(); i++)
+    {
+    idArray->InsertNextValue(i);
+    }
+
+  bool convex;
+  convex = polygon->IsConvex();
+  convex &= vtkPolygon::IsConvex(polygon->GetNumberOfPoints(),idTypeArray,
+                                 polygon->GetPoints());
+  convex &= vtkPolygon::IsConvex(idArray,polygon->GetPoints());
+  convex &= vtkPolygon::IsConvex(polygon->GetPoints());
+
+  if (!convex)
+    {
+    cerr << "ERROR:  polygon should be classified as convex" << endl;
+    return EXIT_FAILURE;
+    }
+  }
+
+  // Next, create a nonconvex element and test it.
+  {
+  polygon->GetPoints()->SetPoint(3, 1.5, 0.5, 0.0);
+
+  vtkIdType idTypeArray[4] = {0,1,2,3};
+
+  vtkSmartPointer<vtkIdTypeArray> idArray =
+    vtkSmartPointer<vtkIdTypeArray>::New();
+  for(int i = 0; i < polygon->GetNumberOfPoints(); i++)
+    {
+    idArray->InsertNextValue(i);
+    }
+
+  bool nonconvex;
+  nonconvex = !polygon->IsConvex();
+  nonconvex &= !vtkPolygon::IsConvex(polygon->GetNumberOfPoints(),idTypeArray,
+                                     polygon->GetPoints());
+  nonconvex &= !vtkPolygon::IsConvex(idArray,polygon->GetPoints());
+  nonconvex &= !vtkPolygon::IsConvex(polygon->GetPoints());
+
+  if (!nonconvex)
+    {
+    cerr << "ERROR:  polygon should be classified as nonconvex" << endl;
+    return EXIT_FAILURE;
+    }
+  }
+
+  // return the element to its original state.
+  polygon->GetPoints()->SetPoint(3, 0.0, 2.0, 0.0);
+
   //////// Test Normal : void vtkPolygon::ComputeNormal (int numPts, double *pts, double n[3]) ///////////
   double normal[3];
   double points[12];
