@@ -100,8 +100,12 @@ int vtkPExtractGrid::RequestData(
 {
   DEBUG_OUT("########### RequestData\n");
 
-  // No MPI? Just run the serial implementation.
-  if (!this->Controller)
+  bool isSubSampling = this->SampleRate[0] != 1 ||
+                       this->SampleRate[1] != 1 ||
+                       this->SampleRate[2] != 1;
+
+  // No MPI, or no subsampling? Just run the serial implementation.
+  if (!this->Controller || !isSubSampling)
     {
     return this->Superclass::RequestData(request, inputVector, outputVector);
     }
