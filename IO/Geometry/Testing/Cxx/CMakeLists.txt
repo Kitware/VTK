@@ -44,6 +44,16 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestPTSReader,TestPTSReader.cxx DATA{${VTK_TEST_INPUT_DIR}/samplePTS.pts}
 )
 
+vtk_add_test_cxx(${vtk-module}CxxTests tests
+  TestAVSucdReaderContiguousASCII,TestAVSucdReader.cxx DATA{${VTK_TEST_INPUT_DIR}/cellsnd.ascii.inp}
+)
+vtk_add_test_cxx(${vtk-module}CxxTests tests
+  TestAVSucdReaderNonContiguousASCII,TestAVSucdReader.cxx DATA{${VTK_TEST_INPUT_DIR}/cellsnd.noncontiguous.ascii.inp}
+)
+vtk_add_test_cxx(${vtk-module}CxxTests tests
+  TestAVSucdReaderBinary,TestAVSucdReader.cxx DATA{${VTK_TEST_INPUT_DIR}/cellsnd.bin.inp}
+)
+
 set(_known_little_endian FALSE)
 if (DEFINED CMAKE_WORDS_BIGENDIAN)
   if (NOT CMAKE_WORDS_BIGENDIAN)
