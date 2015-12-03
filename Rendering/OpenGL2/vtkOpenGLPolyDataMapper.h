@@ -299,6 +299,8 @@ protected:
 
   bool UsingScalarColoring;
   vtkTimeStamp VBOBuildTime; // When was the OpenGL VBO updated?
+  std::string VBOBuildString; // used for determining whento rebuild the VBO
+  std::string IBOBuildString; // used for determining whento rebuild the IBOs
   vtkOpenGLTexture* InternalColorTexture;
 
   int PopulateSelectionSettings;

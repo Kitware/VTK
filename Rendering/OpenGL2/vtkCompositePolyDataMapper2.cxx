@@ -750,6 +750,7 @@ void vtkCompositePolyDataMapper2::BuildBufferObjects(
       4, VTK_FLOAT,
       this->CellNormalBuffer);
     }
+  this->VBOBuildTime.Modified();
 }
 
 //-------------------------------------------------------------------------

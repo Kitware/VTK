@@ -328,6 +328,7 @@ void vtkOpenGLSphereMapper::BuildBufferObjects(
   this->Lines.IBO->IndexCount = 0;
   this->TriStrips.IBO->IndexCount = 0;
   this->Tris.IBO->IndexCount = this->VBO->VertexCount;
+  this->VBOBuildTime.Modified();
 }
 
 

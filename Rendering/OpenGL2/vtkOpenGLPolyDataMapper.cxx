@@ -197,6 +197,8 @@ void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
     {
     this->AppleBugPrimIDBuffer->ReleaseGraphicsResources();
     }
+  this->VBOBuildString = "";
+  this->IBOBuildString = "";
   this->Modified();
 }
 
@@ -2333,7 +2335,6 @@ void vtkOpenGLPolyDataMapper::UpdateBufferObjects(vtkRenderer *ren, vtkActor *ac
   if (this->GetNeedToRebuildBufferObjects(ren,act))
     {
     this->BuildBufferObjects(ren,act);
-    this->VBOBuildTime.Modified();
     }
 }
 
@@ -2341,6 +2342,7 @@ void vtkOpenGLPolyDataMapper::UpdateBufferObjects(vtkRenderer *ren, vtkActor *ac
 bool vtkOpenGLPolyDataMapper::GetNeedToRebuildBufferObjects(
   vtkRenderer *vtkNotUsed(ren), vtkActor *act)
 {
+  // first do a coarse check
   if (this->VBOBuildTime < this->GetMTime() ||
       this->VBOBuildTime < act->GetMTime() ||
       this->VBOBuildTime < this->CurrentInput->GetMTime() ||
@@ -2800,7 +2802,6 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
     }
 #endif
 
-  // if we have cell scalars then we have to
   vtkCellArray *prims[4];
   prims[0] =  poly->GetVerts();
   prims[1] =  poly->GetLines();
@@ -2856,13 +2857,6 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
       }
     }
 
-  // rebuild the VBO if the data has changed
-  if (this->VBOBuildTime < this->SelectionStateChanged ||
-      this->VBOBuildTime < this->GetMTime() ||
-      this->VBOBuildTime < act->GetMTime() ||
-      (c && this->VBOBuildTime < c->GetMTime()) ||
-      this->VBOBuildTime < this->CurrentInput->GetMTime())
-    {
     // do we have texture maps?
     bool haveTextures = (this->ColorTextureMap || act->GetTexture() ||
       act->GetProperty()->GetNumberOfTextures() ||
@@ -2885,25 +2879,34 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
         }
       }
 
+  // rebuild the VBO if the data has changed we create a string for the VBO what
+  // can change the VBO? points normals tcoords colors so what can change those?
+  // the input data is clearly one as it can change all four items tcoords may
+  // haveTextures or not colors may change based on quite a few mapping
+  // parameters in the mapper
+  std::ostringstream toString;
+  toString.str("");
+  toString.clear();
+  toString << poly->GetMTime() <<
+    'A' << (c ? c->GetMTime() : 1) <<
+    'B' << (n ? n->GetMTime() : 1) <<
+    'C' << (tcoords ? tcoords->GetMTime() : 1);
+
+  if (true || this->VBOBuildString != toString.str())
+    {
     // Build the VBO
     this->VBO->CreateVBO(poly->GetPoints(),
         poly->GetPoints()->GetNumberOfPoints(),
         n, tcoords,
         c ? (unsigned char *)c->GetVoidPointer(0) : NULL,
         c ? c->GetNumberOfComponents() : 0);
-    }
 
+    this->VBOBuildTime.Modified();
+    this->VBOBuildString = toString.str();
+    }
 
   // now create the IBOs
-  vtkProperty *prop = act->GetProperty();
-  if (
-      this->VBOBuildTime < this->GetMTime() ||
-      this->VBOBuildTime < this->CurrentInput->GetMTime() ||
-      this->VBOBuildTime < prop->GetMTime() ||
-      this->VBOBuildTime < this->SelectionStateChanged)
-    {
-    this->BuildIBO(ren, act, poly);
-    }
+  this->BuildIBO(ren, act, poly);
 
   // free up polydata if allocated due to apple bug
   if (poly != this->CurrentInput)
@@ -2929,8 +2932,6 @@ void vtkOpenGLPolyDataMapper::BuildIBO(
 
   vtkHardwareSelector* selector = ren->GetSelector();
 
-  this->Points.IBO->CreatePointIndexBuffer(prims[0]);
-
   if (selector && this->PopulateSelectionSettings &&
       selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS &&
       selector->GetCurrentPass() >= vtkHardwareSelector::ID_LOW24)
@@ -2938,20 +2939,80 @@ void vtkOpenGLPolyDataMapper::BuildIBO(
     representation = VTK_POINTS;
     }
 
-  if (representation == VTK_POINTS)
-    {
-    this->Lines.IBO->CreatePointIndexBuffer(prims[1]);
-    this->Tris.IBO->CreatePointIndexBuffer(prims[2]);
-    this->TriStrips.IBO->CreatePointIndexBuffer(prims[3]);
-    }
-  else // WIREFRAME OR SURFACE
-    {
-    this->Lines.IBO->CreateLineIndexBuffer(prims[1]);
+  vtkDataArray *ef = poly->GetPointData()->GetAttribute(
+                    vtkDataSetAttributes::EDGEFLAG);
+  vtkProperty *prop = act->GetProperty();
 
-    if (representation == VTK_WIREFRAME)
+  bool draw_surface_with_edges =
+    (prop->GetEdgeVisibility() && prop->GetRepresentation() == VTK_SURFACE);
+
+  // do we realy need to rebuild the IBO? Since the operation is costly we
+  // construst a string of values that impact the IBO and see if that string has
+  // changed
+
+  // So...polydata can return a dummy CellArray when there are no lines
+  std::ostringstream toString;
+  toString.str("");
+  toString.clear();
+  toString << (prims[0]->GetNumberOfCells() ? prims[0]->GetMTime() : 0) <<
+    'A' << (prims[1]->GetNumberOfCells() ? prims[1]->GetMTime() : 0) <<
+    'B' << (prims[2]->GetNumberOfCells() ? prims[2]->GetMTime() : 0) <<
+    'C' << (prims[3]->GetNumberOfCells() ? prims[3]->GetMTime() : 0) <<
+    'D' << representation <<
+    'E' << (ef ? ef->GetMTime() : 0) <<
+    'F' << draw_surface_with_edges;
+
+  if (this->IBOBuildString != toString.str())
+    {
+    this->Points.IBO->CreatePointIndexBuffer(prims[0]);
+
+    if (representation == VTK_POINTS)
+      {
+      this->Lines.IBO->CreatePointIndexBuffer(prims[1]);
+      this->Tris.IBO->CreatePointIndexBuffer(prims[2]);
+      this->TriStrips.IBO->CreatePointIndexBuffer(prims[3]);
+      }
+    else // WIREFRAME OR SURFACE
+      {
+      this->Lines.IBO->CreateLineIndexBuffer(prims[1]);
+
+      if (representation == VTK_WIREFRAME)
+        {
+        if (ef)
+          {
+          if (ef->GetNumberOfComponents() != 1)
+            {
+            vtkDebugMacro(<< "Currently only 1d edge flags are supported.");
+            ef = NULL;
+            }
+          if (!ef->IsA("vtkUnsignedCharArray"))
+            {
+            vtkDebugMacro(<< "Currently only unsigned char edge flags are suported.");
+            ef = NULL;
+            }
+          }
+        if (ef)
+          {
+          this->Tris.IBO->CreateEdgeFlagIndexBuffer(prims[2], ef);
+          }
+        else
+          {
+          this->Tris.IBO->CreateTriangleLineIndexBuffer(prims[2]);
+          }
+        this->TriStrips.IBO->CreateStripIndexBuffer(prims[3], true);
+        }
+     else // SURFACE
+        {
+        this->Tris.IBO->CreateTriangleIndexBuffer(prims[2], poly->GetPoints());
+        this->TriStrips.IBO->CreateStripIndexBuffer(prims[3], false);
+        }
+      }
+
+    // when drawing edges also build the edge IBOs
+    if (draw_surface_with_edges)
       {
       vtkDataArray *ef = poly->GetPointData()->GetAttribute(
-                        vtkDataSetAttributes::EDGEFLAG);
+                          vtkDataSetAttributes::EDGEFLAG);
       if (ef)
         {
         if (ef->GetNumberOfComponents() != 1)
@@ -2967,51 +3028,16 @@ void vtkOpenGLPolyDataMapper::BuildIBO(
         }
       if (ef)
         {
-        this->Tris.IBO->CreateEdgeFlagIndexBuffer(prims[2], ef);
+        this->TrisEdges.IBO->CreateEdgeFlagIndexBuffer(prims[2], ef);
         }
       else
         {
-        this->Tris.IBO->CreateTriangleLineIndexBuffer(prims[2]);
+        this->TrisEdges.IBO->CreateTriangleLineIndexBuffer(prims[2]);
         }
-      this->TriStrips.IBO->CreateStripIndexBuffer(prims[3], true);
+      this->TriStripsEdges.IBO->CreateStripIndexBuffer(prims[3], true);
       }
-   else // SURFACE
-      {
-      this->Tris.IBO->CreateTriangleIndexBuffer(prims[2], poly->GetPoints());
-      this->TriStrips.IBO->CreateStripIndexBuffer(prims[3], false);
-      }
-    }
 
-  // when drawing edges also build the edge IBOs
-  vtkProperty *prop = act->GetProperty();
-  bool draw_surface_with_edges =
-    (prop->GetEdgeVisibility() && prop->GetRepresentation() == VTK_SURFACE);
-  if (draw_surface_with_edges)
-    {
-    vtkDataArray *ef = poly->GetPointData()->GetAttribute(
-                        vtkDataSetAttributes::EDGEFLAG);
-    if (ef)
-      {
-      if (ef->GetNumberOfComponents() != 1)
-        {
-        vtkDebugMacro(<< "Currently only 1d edge flags are supported.");
-        ef = NULL;
-        }
-      if (!ef->IsA("vtkUnsignedCharArray"))
-        {
-        vtkDebugMacro(<< "Currently only unsigned char edge flags are suported.");
-        ef = NULL;
-        }
-      }
-    if (ef)
-      {
-      this->TrisEdges.IBO->CreateEdgeFlagIndexBuffer(prims[2], ef);
-      }
-    else
-      {
-      this->TrisEdges.IBO->CreateTriangleLineIndexBuffer(prims[2]);
-      }
-    this->TriStripsEdges.IBO->CreateStripIndexBuffer(prims[3], true);
+    this->IBOBuildString = toString.str();
     }
 }
 //-----------------------------------------------------------------------------
