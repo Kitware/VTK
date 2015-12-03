@@ -330,7 +330,31 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
     {
     this->TimeToDraw = 0.0;
     this->Timer->StartTimer();
+
+    int numClipPlanes = this->GetNumberOfClippingPlanes();
+    if (numClipPlanes > 6)
+      {
+      vtkErrorMacro(<< "OpenGL has a limit of 6 clipping planes");
+      numClipPlanes = 6;
+      }
+
+    for (int i = 0; i < numClipPlanes; i++)
+      {
+      double planeEquation[4];
+      this->GetClippingPlaneInDataCoords(actor->GetMatrix(), i, planeEquation);
+      GLenum clipPlaneId = static_cast<GLenum>(GL_CLIP_PLANE0 + i);
+      glEnable(clipPlaneId);
+      glClipPlane(clipPlaneId, planeEquation);
+      }
+
     glCallList(this->DisplayListId);
+
+    for (int c = 0; c < numClipPlanes; c++)
+      {
+      GLenum clipPlaneId = static_cast<GLenum>(GL_CLIP_PLANE0 + c);
+      glDisable(clipPlaneId);
+      }
+
     this->Timer->StopTimer();
     this->TimeToDraw += this->Timer->GetElapsedTime();
     }
