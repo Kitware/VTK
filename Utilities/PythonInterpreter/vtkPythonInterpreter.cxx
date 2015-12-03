@@ -69,7 +69,7 @@ namespace
 
   inline void vtkPrependPythonPath(const char* pathtoadd)
     {
-    vtkPythonScopeGilEnsurer gilEnsurer(true);  
+    vtkPythonScopeGilEnsurer gilEnsurer(true);
     PyObject* path = PySys_GetObject(const_cast<char*>("path"));
 #if PY_VERSION_HEX >= 0x03000000
     PyObject* newpath = PyUnicode_FromString(pathtoadd);
@@ -86,7 +86,6 @@ bool vtkPythonInterpreter::CaptureStdin = false;
 bool vtkPythonInterpreter::ConsoleBuffering = false;
 std::string vtkPythonInterpreter::StdErrBuffer;
 std::string vtkPythonInterpreter::StdOutBuffer;
-
 
 vtkStandardNewMacro(vtkPythonInterpreter);
 //----------------------------------------------------------------------------
@@ -145,7 +144,7 @@ bool vtkPythonInterpreter::Initialize(int initsigs /*=0*/)
     {
     vtkPythonInterpreter::InitializedOnce = true;
 
-#ifndef VTK_NO_PYTHON_THREADS
+#ifdef VTK_PYTHON_FULL_THREADSAFE
     int threadInit = PyEval_ThreadsInitialized();
     PyEval_InitThreads(); // safe to call this multiple time
     if(!threadInit)
@@ -168,7 +167,7 @@ bool vtkPythonInterpreter::Initialize(int initsigs /*=0*/)
 
     // Redirect Python's stdout and stderr and stdin - GIL protected operation
     {
-    vtkPythonScopeGilEnsurer gilEnsurer;  
+    vtkPythonScopeGilEnsurer gilEnsurer;
     PySys_SetObject(const_cast<char*>("stdout"),
       reinterpret_cast<PyObject*>(wrapperOut));
     PySys_SetObject(const_cast<char*>("stderr"),
@@ -197,6 +196,8 @@ void vtkPythonInterpreter::Finalize()
   if (Py_IsInitialized() != 0)
     {
     NotifyInterpreters(vtkCommand::ExitEvent);
+    vtkPythonScopeGilEnsurer gilEnsurer(false, true); 
+    // Py_Finalize will take care of relasing gil
     Py_Finalize();
     }
 }
@@ -319,7 +320,7 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
       return 1;
       }
     }
-  vtkPythonScopeGilEnsurer gilEnsurer;  
+  vtkPythonScopeGilEnsurer gilEnsurer;
   int res = Py_Main(argc, argvWide);
   PyMem_Free(argv0);
   for (int i = 0; i < argc; i++)
@@ -330,8 +331,8 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
   delete [] argvWide2;
   return res;
 #else
-    
-  vtkPythonScopeGilEnsurer gilEnsurer;  
+
+  vtkPythonScopeGilEnsurer gilEnsurer(false, true);
   return Py_Main(argc, argv);
 #endif
 }
@@ -350,7 +351,7 @@ int vtkPythonInterpreter::RunSimpleString(const char* script)
   // The cast is necessary because PyRun_SimpleString() hasn't always been const-correct
   int pyReturn;
     {
-    vtkPythonScopeGilEnsurer gilEnsurer;  
+    vtkPythonScopeGilEnsurer gilEnsurer;
     pyReturn = PyRun_SimpleString(const_cast<char*>(buffer.c_str()));
     }
 
