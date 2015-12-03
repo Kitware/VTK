@@ -199,7 +199,7 @@ void vtkWebGLExporter::parseActor2D(vtkActor2D *actor, long actorTime, size_t re
         std::stringstream ss;
         ss << (size_t)actor;
         obj->SetId(ss.str());
-        obj->SetRendererId(renderId);
+        obj->SetRendererId(static_cast<int>(renderId));
         this->Internal->Objects.push_back(obj);
         obj->SetLayer(layer);
         obj->SetVisibility(actor->GetVisibility() != 0);
@@ -283,7 +283,7 @@ void vtkWebGLExporter::parseActor(vtkActor* actor, unsigned long actorTime, size
             double ccc[3]; actor->GetProperty()->GetEdgeColor(&ccc[0]);
             ((vtkWebGLPolyData*)newobj)->GetLinesFromPolygon(mapper, actor, this->lineObjMaxSize, ccc);
             newobj->SetId(ss.str() + "1");
-            newobj->SetRendererId(rendererId);
+            newobj->SetRendererId(static_cast<int>(rendererId));
             this->Internal->Objects.push_back(newobj);
             newobj->SetLayer(layer);
             newobj->SetTransformationMatrix(actor->GetMatrix());
@@ -309,7 +309,7 @@ void vtkWebGLExporter::parseActor(vtkActor* actor, unsigned long actorTime, size
             }
           }
         obj->SetId(ss.str());
-        obj->SetRendererId(rendererId);
+        obj->SetRendererId(static_cast<int>(rendererId));
         this->Internal->Objects.push_back(obj);
         obj->SetLayer(layer);
         obj->SetTransformationMatrix(actor->GetMatrix());
@@ -323,7 +323,7 @@ void vtkWebGLExporter::parseActor(vtkActor* actor, unsigned long actorTime, size
         {
         ((vtkWebGLPolyData*)obj)->GetLines(polydata, actor, this->lineObjMaxSize);
         obj->SetId(ss.str());
-        obj->SetRendererId(rendererId);
+        obj->SetRendererId(static_cast<int>(rendererId));
         this->Internal->Objects.push_back(obj);
         obj->SetLayer(layer);
         obj->SetTransformationMatrix(actor->GetMatrix());
@@ -337,7 +337,7 @@ void vtkWebGLExporter::parseActor(vtkActor* actor, unsigned long actorTime, size
         {
         ((vtkWebGLPolyData*)obj)->GetPoints(polydata, actor, 65534);//Wendel
         obj->SetId(ss.str());
-        obj->SetRendererId(rendererId);
+        obj->SetRendererId(static_cast<int>(rendererId));
         this->Internal->Objects.push_back(obj);
         obj->SetLayer(layer);
         obj->SetTransformationMatrix(actor->GetMatrix());
@@ -354,7 +354,7 @@ void vtkWebGLExporter::parseActor(vtkActor* actor, unsigned long actorTime, size
         ((vtkWebGLPolyData*)obj)->GetLines(polydata, actor, this->lineObjMaxSize);
         ss << "1";
         obj->SetId(ss.str());
-        obj->SetRendererId(rendererId);
+        obj->SetRendererId(static_cast<int>(rendererId));
         this->Internal->Objects.push_back(obj);
         obj->SetLayer(layer);
         obj->SetTransformationMatrix(actor->GetMatrix());
