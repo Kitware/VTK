@@ -1766,6 +1766,7 @@ int vtkTableBasedClipDataSet::RequestData( vtkInformation * vtkNotUsed( request 
   // get the output (the remaining and the clipped parts)
   vtkUnstructuredGrid * outputUG = vtkUnstructuredGrid::SafeDownCast
                         (  outInfor->Get( vtkDataObject::DATA_OBJECT() )  );
+  vtkUnstructuredGrid * clippedOutputUG = this->GetClippedOutput();
 
   inputInf = NULL;
   outInfor = NULL;
@@ -1833,36 +1834,82 @@ int vtkTableBasedClipDataSet::RequestData( vtkInformation * vtkNotUsed( request 
   if ( gridType == VTK_IMAGE_DATA || gridType == VTK_STRUCTURED_POINTS )
     {
     this->ClipImageData( cpyInput.GetPointer(), clipAray, isoValue, outputUG );
+    if (clippedOutputUG)
+      {
+      this->InsideOut = !(this->InsideOut);
+      this->ClipImageData( cpyInput.GetPointer(), clipAray, isoValue,
+                         clippedOutputUG );
+      this->InsideOut = !(this->InsideOut);
+      }
     }
   else
   if ( gridType == VTK_POLY_DATA )
     {
     this->ClipPolyData( cpyInput.GetPointer(), clipAray, isoValue, outputUG );
+    if (clippedOutputUG)
+      {
+      this->InsideOut = !(this->InsideOut);
+      this->ClipPolyData( cpyInput.GetPointer(), clipAray, isoValue,
+                          clippedOutputUG );
+      this->InsideOut = !(this->InsideOut);
+      }
     }
   else
   if ( gridType == VTK_RECTILINEAR_GRID )
     {
     this->ClipRectilinearGridData( cpyInput.GetPointer(), clipAray,
                                    isoValue, outputUG );
+    if (clippedOutputUG)
+      {
+      this->InsideOut = !(this->InsideOut);
+      this->ClipRectilinearGridData( cpyInput.GetPointer(), clipAray, isoValue,
+                                     clippedOutputUG );
+      this->InsideOut = !(this->InsideOut);
+      }
     }
   else
   if ( gridType == VTK_STRUCTURED_GRID )
     {
     this->ClipStructuredGridData( cpyInput.GetPointer(), clipAray,
                                   isoValue, outputUG );
+    if (clippedOutputUG)
+      {
+      this->InsideOut = !(this->InsideOut);
+      this->ClipStructuredGridData( cpyInput.GetPointer(), clipAray, isoValue,
+                                    clippedOutputUG );
+      this->InsideOut = !(this->InsideOut);
+      }
     }
   else
   if ( gridType == VTK_UNSTRUCTURED_GRID )
     {
     this->ClipUnstructuredGridData( cpyInput.GetPointer(), clipAray,
                                     isoValue, outputUG );
+    if (clippedOutputUG)
+      {
+      this->InsideOut = !(this->InsideOut);
+      this->ClipUnstructuredGridData( cpyInput.GetPointer(), clipAray, isoValue,
+                                      clippedOutputUG );
+      this->InsideOut = !(this->InsideOut);
+      }
     }
   else
     {
     this->ClipDataSet( cpyInput.GetPointer(), clipAray, outputUG );
+    if (clippedOutputUG)
+      {
+      this->InsideOut = !(this->InsideOut);
+      this->ClipDataSet( cpyInput.GetPointer(), clipAray, clippedOutputUG );
+      this->InsideOut = !(this->InsideOut);
+      }
     }
 
   outputUG->Squeeze();
+
+  if (clippedOutputUG)
+    {
+    clippedOutputUG->Squeeze();
+    }
 
   if ( pScalars )
     {
@@ -1870,6 +1917,7 @@ int vtkTableBasedClipDataSet::RequestData( vtkInformation * vtkNotUsed( request 
     }
   pScalars = NULL;
   outputUG = NULL;
+  clippedOutputUG = NULL;
   clipAray = NULL;
 
   return 1;
