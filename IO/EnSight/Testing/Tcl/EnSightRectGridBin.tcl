@@ -60,14 +60,13 @@ vtkActor isoActor
     eval [isoActor GetProperty] SetColor $bisque
     eval [isoActor GetProperty] SetRepresentationToWireframe
 
-vtkStreamLine streamer
+vtkStreamTracer streamer
 #    streamer SetInputConnection [reader GetOutputPort]
 streamer SetInputData [[reader GetOutput] GetBlock 0]
     streamer SetStartPosition -1.2 -0.1 1.3
-    streamer SetMaximumPropagationTime 500
-    streamer SetStepLength 0.05
-    streamer SetIntegrationStepLength 0.05
-    streamer SetIntegrationDirectionToIntegrateBothDirections
+    streamer SetMaximumPropagation 500
+    streamer SetInitialIntegrationStep 0.05
+    streamer SetIntegrationDirectionToBoth
 
 vtkTubeFilter streamTube
     streamTube SetInputConnection [streamer GetOutputPort]

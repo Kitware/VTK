@@ -36,7 +36,6 @@ vtk_add_test_python(
   capSphere.py
   clipArt.py
   combStreamers.py
-  combStreamers2.py
   constrainedDelaunay.py
   contourCells.py
   contourQuadraticCells.py

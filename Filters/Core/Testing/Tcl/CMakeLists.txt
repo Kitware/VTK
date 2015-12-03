@@ -8,7 +8,6 @@ vtk_add_test_tcl(
   capCow.tcl
   clipArt.tcl
   combStreamers.tcl
-  combStreamers2.tcl
   createBFont.tcl
   deciFranFace.tcl
   dispPlot.tcl

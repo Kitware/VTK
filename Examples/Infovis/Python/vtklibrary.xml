@@ -1928,14 +1928,6 @@
     </node>
     <node id="vtkStreamTracer">
     </node>
-    <node id="vtkStreamer">
-    </node>
-    <node id="vtkStreamLine">
-    </node>
-    <node id="vtkDashedStreamLine">
-    </node>
-    <node id="vtkStreamPoints">
-    </node>
     <node id="vtkStripper">
     </node>
     <node id="vtkStructuredGridGeometryFilter">
