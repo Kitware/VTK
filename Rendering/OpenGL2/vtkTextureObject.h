@@ -529,6 +529,21 @@ public:
   vtkSetMacro(GenerateMipmap,bool);
 
   // Description:
+  // Query and return maximum 1D texture size supported by the OpenGL
+  // driver for a particular context.
+  int GetMaximumTextureSize1D(vtkOpenGLRenderWindow* context);
+
+  // Description:
+  // Query and return maximum 2D texture size supported by the OpenGL
+  // driver for a particular context.
+  int GetMaximumTextureSize2D(vtkOpenGLRenderWindow* context);
+
+  // Description:
+  // Query and return maximum 3D texture size supported by the OpenGL
+  // driver for a particular context.
+  int GetMaximumTextureSize3D(vtkOpenGLRenderWindow* context);
+
+  // Description:
   // Returns if the context supports the required extensions. If flags
   // for optional extenisons are set then the test fails when support
   // for them is not found.
@@ -589,8 +604,6 @@ public:
                            int dstYmin,
                            int width,
                            int height);
-
-
 
 protected:
   vtkTextureObject();
@@ -654,6 +667,9 @@ protected:
 
   // for texturebuffers we hold on to the Buffer
   vtkOpenGLBufferObject *BufferObject;
+
+  class vtkInternal;
+  vtkInternal* Impl;
 
 private:
   vtkTextureObject(const vtkTextureObject&); // Not implemented.

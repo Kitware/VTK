@@ -216,6 +216,42 @@ static const char *DepthInternalFormatFilterAsString[6]=
 */
 
 //----------------------------------------------------------------------------
+class vtkTextureObject::vtkInternal
+{
+public:
+  // Constructor
+  //--------------------------------------------------------------------------
+  vtkInternal(vtkTextureObject* parent)
+    {
+    this->Parent = parent;
+    }
+
+  // Query maximum texture size
+  //--------------------------------------------------------------------------
+  int GetMaximumTextureSize(int param, vtkRenderWindow* context)
+    {
+    int maxSize = -1;
+    if (context and context->IsCurrent())
+      {
+      bool textureEnabled = glIsEnabled(param);
+      if (!textureEnabled)
+        {
+        glEnable(param);
+        }
+      glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxSize);
+
+      if (!textureEnabled)
+        {
+        glDisable(param);
+        }
+      }
+     return maxSize;
+    }
+
+   vtkTextureObject* Parent;
+};
+
+//----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTextureObject);
 
 //----------------------------------------------------------------------------
@@ -2033,6 +2069,24 @@ void vtkTextureObject::CopyFromFrameBuffer(int srcXmin,
   this->Activate();
   glCopyTexImage2D(this->Target,0,this->Format,srcXmin,srcYmin,width,height,0);
   vtkOpenGLCheckErrorMacro("failed at glCopyTexImage2D " << this->Format);
+}
+
+//----------------------------------------------------------------------------
+int vtkTextureObject::GetMaximumTextureSize1D(vtkOpenGLRenderWindow* context)
+{
+  return this->Impl->GetMaximumTextureSize(GL_TEXTURE_1D, context);
+}
+
+//----------------------------------------------------------------------------
+int vtkTextureObject::GetMaximumTextureSize2D(vtkOpenGLRenderWindow* context)
+{
+  return this->Impl->GetMaximumTextureSize(GL_TEXTURE_2D, context);
+}
+
+//----------------------------------------------------------------------------
+int vtkTextureObject::GetMaximumTextureSize3D(vtkOpenGLRenderWindow* context)
+{
+  return this->Impl->GetMaximumTextureSize(GL_TEXTURE_3D, context);
 }
 
 //----------------------------------------------------------------------------
