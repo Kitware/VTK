@@ -106,10 +106,12 @@ using namespace std;
 // in the netcdf library changed size values from 'long' to 'size_t'. However,
 // upstream versions of netcdf are using long. The following typedef resolves
 // this issue.
-#ifdef VTK_USE_SYSTEM_NETCDF
-typedef long nc_size_t;
-#else
+// We cannot just check for VTK_USE_SYSTEM_NETCDF because ParaView's superbuild
+// installs a "system" netcdf with the same modifications...
+#ifdef VTK_NETCDF_USE_SIZE_T
 typedef size_t nc_size_t;
+#else
+typedef long nc_size_t;
 #endif
 
 
