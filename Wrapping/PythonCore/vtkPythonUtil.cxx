@@ -1114,7 +1114,7 @@ void vtkPythonVoidFunc(void *arg)
     }
 
 #ifndef VTK_NO_PYTHON_THREADS
-  PyGILState_STATE state = PyGILState_Ensure();
+  vtkPythonScopeGilEnsurer gilEnsurer(true);
 #endif
 
   arglist = Py_BuildValue("()");
@@ -1135,10 +1135,6 @@ void vtkPythonVoidFunc(void *arg)
       }
     PyErr_Print();
     }
-
-#ifndef VTK_NO_PYTHON_THREADS
-  PyGILState_Release(state);
-#endif
 }
 
 //--------------------------------------------------------------------
@@ -1155,17 +1151,13 @@ void vtkPythonVoidFuncArgDelete(void *arg)
     }
 
 #ifndef VTK_NO_PYTHON_THREADS
-  PyGILState_STATE state = PyGILState_Ensure();
+  vtkPythonScopeGilEnsurer gilEnsurer(true);
 #endif
 
   if (func)
     {
     Py_DECREF(func);
     }
-
-#ifndef VTK_NO_PYTHON_THREADS
-  PyGILState_Release(state);
-#endif
 }
 
 
