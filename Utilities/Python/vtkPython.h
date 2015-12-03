@@ -102,48 +102,25 @@ they are system headers.  Do NOT add any #undef lines here.  */
 #undef toupper
 #endif
 
-// Use vtkPythonScopeGilEnsurer to protect some parts of python code.
-// Some classes are already protected with it (mainly used in paraview):
-// vtkPythonInteractiveInterpreter
-// vtkPythonInterpreter
-// vtkPythonCommand
-// vtkSmartPyObject
-// 
-// others aren't:
-// PyVTKObject
-// PyVTKSpecialObject
-// PyVTKMethodDescriptor
-// vtkPythonOverload
-// vtkPythonUtil
-// PyVTKMutableObject
-// PyVTKNamespace
-// PyVTKTemplate
-// vtkPythonView ( paraview )
-// pqPythonDebugLeaksView (paraview)
-// 
-// others are not protected, but can be considered not 
-// in need of protection for different reasons
-// eg, used only in wrapping, not used, standalone executable, 3rd party :
-// vtkPythonAppInit
-// vtkPythonArgs
-// PyVTKExtras
-// vtkMatplotlibMathTextUtilities
-// vtkPythonAlgorithm
-// vtkWebUtilities
-// vtkMPI4PyCommunicator
-// vtkClientServerInterpreterPython ( paraview )
-// pqPythonEventSource (QtTesting)
-// pqPythonEventSourceImage (QtTesting)
-// Plugin code ( xdmf2, pvblot)
-
+// Description:
+// RAII class to manage Python threading using GIL (Global Interpreter Lock).
+// GIL is locked at object creation and unlocked at destruction.
+// Note: behaviour of this class depends on VTK_PYTHON_FULL_THREADSAFE.
 class vtkPythonScopeGilEnsurer 
 {
 public:
+  // Description:
+  // If force is TRUE, lock/unlock even if VTK_PYTHON_FULL_THREADSAFE is not defined.
+  // If force is FALSE, lock/unlock is only performed if VTK_PYTHON_FULL_THREADSAFE is
+  // defined.
+  // If noRelease is TRUE, unlock will not be called at object destruction. This is used
+  // for specific python function calls like PyFinalize which already take 
+  // care of releasing the GIL.
   vtkPythonScopeGilEnsurer(bool force = false, bool noRelease = false)
     : State(PyGILState_UNLOCKED)
-    {
+  {
 #ifdef VTK_PYTHON_FULL_THREADSAFE
-    // Force is always true with FULL_THREADSAFE
+    // Force is always true with VTK_PYTHON_FULL_THREADSAFE
     force = true;
 #endif
     this->Force = force;
@@ -152,14 +129,15 @@ public:
       {
       this->State = PyGILState_Ensure();
       }
-    }
+  }
+ 
   ~vtkPythonScopeGilEnsurer()
-    {
+  {
     if (this->Force && !this->NoRelease)
       {
       PyGILState_Release(this->State);
       }
-    }
+  }
 
 private:
   PyGILState_STATE State;
