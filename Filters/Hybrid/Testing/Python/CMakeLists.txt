@@ -18,6 +18,7 @@ vtk_add_test_python(
   depthSort.py
   earth.py
   imageToPolyData.py
+  largeImageGradientBackground.py
   largeImageOffset.py
   largeImageParallel.py
   TestProcrustesRigidCentroid.py

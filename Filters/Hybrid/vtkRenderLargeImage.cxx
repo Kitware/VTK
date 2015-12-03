@@ -194,6 +194,9 @@ void vtkRenderLargeImage::RequestData(
   int rowSize, rowStart, rowEnd, colStart, colEnd;
   int doublebuffer;
   int swapbuffers = 0;
+  bool gradientBackground;
+  double background1[3];
+  double background2[3];
 
   if (this->GetOutput()->GetScalarType() != VTK_UNSIGNED_CHAR)
     {
@@ -219,6 +222,18 @@ void vtkRenderLargeImage::RequestData(
 
   this->Rescale2DActors();
 
+  // save original background colors
+  gradientBackground = this->Input->GetGradientBackground();
+  if (gradientBackground)
+    {
+    background1[0] = this->Input->GetBackground()[0];
+    background1[1] = this->Input->GetBackground()[1];
+    background1[2] = this->Input->GetBackground()[2];
+    background2[0] = this->Input->GetBackground2()[0];
+    background2[1] = this->Input->GetBackground2()[1];
+    background2[2] = this->Input->GetBackground2()[2];
+    }
+
   // store the old view angle & set the new
   cam = this->Input->GetActiveCamera();
   cam->GetWindowCenter(windowCenter);
@@ -239,6 +254,7 @@ void vtkRenderLargeImage::RequestData(
     }
 
   // render each of the tiles required to fill this request
+  double ySize = static_cast<double>(inWindowExtent[3] - inWindowExtent[2] + 1);
   for (y = inWindowExtent[2]; y <= inWindowExtent[3]; y++)
     {
     for (x = inWindowExtent[0]; x <= inWindowExtent[1]; x++)
@@ -247,6 +263,23 @@ void vtkRenderLargeImage::RequestData(
                            y*2 - this->Magnification*(1-windowCenter[1]) + 1);
       // shift 2D actors to correct origin for this tile
       this->Shift2DActors(size[0]*x, size[1]*y);
+
+      // update gradient background colors for this tile
+      if (gradientBackground)
+        {
+        double t1 = y / ySize;
+        double t2 = (y + 1) / ySize;
+        double tileBackground1[3] = { (1.0 - t1) * background1[0] + t1 * background2[0],
+                                      (1.0 - t1) * background1[1] + t1 * background2[1],
+                                      (1.0 - t1) * background1[2] + t1 * background2[2] };
+        double tileBackground2[3] = { (1.0 - t2) * background1[0] + t2 * background2[0],
+                                      (1.0 - t2) * background1[1] + t2 * background2[1],
+                                      (1.0 - t2) * background1[2] + t2 * background2[2] };
+
+        this->Input->SetBackground(tileBackground1);
+        this->Input->SetBackground2(tileBackground2);
+        }
+
       // Render
       this->Input->GetRenderWindow()->Render();
       pixels = this->Input->GetRenderWindow()->GetPixelData(0,0,size[0] - 1,
@@ -302,6 +335,13 @@ void vtkRenderLargeImage::RequestData(
   cam->SetParallelScale(parallelScale);
   cam->SetWindowCenter(windowCenter[0],windowCenter[1]);
   this->Restore2DActors();
+
+  // restore original background colors
+  if (gradientBackground)
+    {
+    this->Input->SetBackground(background1);
+    this->Input->SetBackground2(background2);
+    }
 }
 //----------------------------------------------------------------------------
 int vtkRenderLargeImage::FillOutputPortInformation(
