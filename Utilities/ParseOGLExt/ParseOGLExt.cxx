@@ -26,16 +26,24 @@
  * statement of authorship are reproduced on all copies.
  */
 
-#include "vtkSystemIncludes.h"
-
 #include "Tokenizer.h"
 
+#include <iostream>
+#include <fstream>
 #include <list>
 #include <set>
 #include <map>
 
+#include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+
+using std::cerr;
+using std::endl;
+using std::ofstream;
+using std::ifstream;
+using std::istream;
+using std::ostream;
 
 // #define this if you want debug output as the parser does its work
 
