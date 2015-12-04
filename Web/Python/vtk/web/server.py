@@ -19,7 +19,7 @@ from vtk.web import wamp as vtk_wamp
 from autobahn.wamp              import types
 
 from autobahn.twisted.resource  import WebSocketResource
-from autobahn.twisted.websocket import listenWS
+from autobahn.twisted.websocket import listenWS, WebSocketServerFactory
 from autobahn.twisted.longpoll  import WampLongPollResource
 
 from twisted.web                import resource
@@ -74,6 +74,8 @@ def add_arguments(parser):
         help="Specify an HTTP endpoint.  (e.g. foo/bar/hp, Default: hp)")
     parser.add_argument("--no-ws-endpoint", action="store_true", dest='nows',
         help="If provided, disables the websocket endpoint")
+    parser.add_argument("--no-bws-endpoint", action="store_true", dest='nobws',
+        help="If provided, disables the binary websocket endpoint for pushing images")
     parser.add_argument("--no-lp-endpoint", action="store_true", dest='nolp',
         help="If provided, disables the longpoll endpoint")
 
@@ -200,6 +202,15 @@ def start_webserver(options, protocol=vtk_wamp.ServerProtocol, disableLogging=Fa
     if not options.nows:
         wsResource = WebSocketResource(transport_factory)
         handle_complex_resource_path(options.ws, root, wsResource)
+
+    # Handle binary push WebSocket for images
+    if not options.nobws:
+        wsbFactory = WebSocketServerFactory( \
+            url   = "%s://%s:%d" % (wsProtocol, options.host, options.port), \
+            debug = options.debug)
+        wsbFactory.protocol = vtk_wamp.ImagePushBinaryWebSocketServerProtocol
+        wsbResource = WebSocketResource(wsbFactory)
+        handle_complex_resource_path('wsb', root, wsbResource)
 
     # Handle possibly complex lp endpoint
     if not options.nolp:
