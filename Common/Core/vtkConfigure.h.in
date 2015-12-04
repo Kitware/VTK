@@ -46,50 +46,6 @@
  #cmakedefine VTK_HAS_INTERLOCKEDADD
 #endif
 
-/* Size of fundamental data types.  */
-/* Mac OS X uses two data models, ILP32 (in which integers, long integers,
-   and pointers are 32-bit quantities) and LP64 (in which integers are 32-bit
-   quantities and long integers and pointers are 64-bit quantities). In order
-   to support Universal Binaries on Mac OS X, we rely on this knowledge
-   instead of testing the sizes of the building machine.
-   On other platforms we use the result of the TRY_RUN. */
-#if !defined(__APPLE__)
-# define VTK_SIZEOF_CHAR   @VTK_SIZEOF_CHAR@
-# define VTK_SIZEOF_SHORT  @VTK_SIZEOF_SHORT@
-# define VTK_SIZEOF_INT    @VTK_SIZEOF_INT@
-# define VTK_SIZEOF_LONG   @VTK_SIZEOF_LONG@
-# define VTK_SIZEOF_FLOAT  @VTK_SIZEOF_FLOAT@
-# define VTK_SIZEOF_DOUBLE @VTK_SIZEOF_DOUBLE@
-# define VTK_SIZEOF_VOID_P @VTK_SIZEOF_VOID_P@
-#else
-# define VTK_SIZEOF_CHAR   1
-# define VTK_SIZEOF_SHORT  2
-# define VTK_SIZEOF_INT    4
-# if defined(__LP64__) && __LP64__
-#  define VTK_SIZEOF_LONG  8
-#  define VTK_SIZEOF_VOID_P 8
-# else
-#  define VTK_SIZEOF_LONG  4
-#  define VTK_SIZEOF_VOID_P 4
-# endif
-# define VTK_SIZEOF_FLOAT  4
-# define VTK_SIZEOF_DOUBLE 8
-#endif
-
-/* Define size of long long and/or __int64 bit integer type only if the type
-   exists.  */
-#if !defined(__APPLE__)
- #cmakedefine VTK_SIZEOF_LONG_LONG @VTK_SIZEOF_LONG_LONG@
-#else
- #cmakedefine VTK_SIZEOF_LONG_LONG 8
-#endif
-
-/* Whether type "long long" is enabled as a unique fundamental type.  */
-#define VTK_TYPE_USE_LONG_LONG
-
-/* Whether type "char" is signed (it may be signed or unsigned).  */
-#define VTK_TYPE_CHAR_IS_SIGNED @VTK_TYPE_CHAR_IS_SIGNED@
-
 /* Compiler features.  */
 #cmakedefine VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T
 #cmakedefine VTK_HAVE_SO_REUSEADDR
