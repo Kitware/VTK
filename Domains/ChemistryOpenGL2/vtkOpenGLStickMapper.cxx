@@ -569,6 +569,7 @@ void vtkOpenGLStickMapper::BuildBufferObjects(vtkRenderer *ren,
   this->Tris.IBO->IndexCount =
     vtkOpenGLStickMapperCreateTriangleIndexBuffer(this->Tris.IBO,
       poly->GetPoints()->GetNumberOfPoints());
+  this->VBOBuildTime.Modified();
 }
 
 //-----------------------------------------------------------------------------
