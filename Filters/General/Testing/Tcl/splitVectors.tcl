@@ -93,13 +93,12 @@ vtkAssignAttribute aa
 vtkAssignAttribute aa2
    aa2 SetInputConnection [aa GetOutputPort]
    aa2 Assign "SCALARS" "VECTORS" "POINT_DATA"
-vtkStreamLine sl
+vtkStreamTracer sl
    sl SetInputConnection [aa2 GetOutputPort]
    sl SetStartPosition 2 -2 26
-   sl SetMaximumPropagationTime 40
-   sl SetIntegrationStepLength 0.2
+   sl SetMaximumPropagation 40
+   sl SetInitialIntegrationStep 0.2
    sl SetIntegrationDirectionToForward
-   sl SetStepLength 0.001
 vtkRibbonFilter rf
    rf SetInputConnection [sl GetOutputPort]
    rf SetWidth 1.0

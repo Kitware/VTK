@@ -37,7 +37,7 @@
 // in the other direction by repeating the first and last point in the
 // polylines defining the surface.)
 //
-// An important use of this filter is to combine it with vtkStreamLine to
+// An important use of this filter is to combine it with vtkStreamTracer to
 // generate stream surfaces. It can also be used to create surfaces from
 // contours.
 
@@ -46,7 +46,7 @@
 // generated.  sides (i.e., a ribbon), use vtkRibbonFilter.
 
 // .SECTION See Also
-// vtkRibbonFilter vtkStreamLine
+// vtkRibbonFilter vtkStreamTracer
 
 #ifndef vtkRuledSurfaceFilter_h
 #define vtkRuledSurfaceFilter_h

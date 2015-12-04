@@ -41,7 +41,7 @@
 // .SECTION See Also
 //  vtkCompositeInterpolatedVelocityField vtkInterpolatedVelocityField
 //  vtkGenericInterpolatedVelocityField vtkCachingInterpolatedVelocityField
-//  vtkTemporalInterpolatedVelocityField vtkFunctionSet vtkStreamer vtkStreamTracer
+//  vtkTemporalInterpolatedVelocityField vtkFunctionSet vtkStreamTracer
 
 #ifndef vtkCellLocatorInterpolatedVelocityField_h
 #define vtkCellLocatorInterpolatedVelocityField_h

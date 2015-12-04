@@ -27,7 +27,7 @@
 // ellipsoids alog the polyline).
 
 // .SECTION See Also
-// vtkTensorGlyph vtkStreamer
+// vtkTensorGlyph vtkStreamTracer
 
 #ifndef vtkUncertaintyTubeFilter_h
 #define vtkUncertaintyTubeFilter_h

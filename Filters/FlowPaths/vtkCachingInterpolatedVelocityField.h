@@ -33,7 +33,7 @@
 // be created by each thread.
 
 // .SECTION See Also
-// vtkFunctionSet vtkStreamer
+// vtkFunctionSet vtkStreamTracer
 
 // .SECTION TODO
 // Need to clean up style to match vtk/Kitware standards. Please help.

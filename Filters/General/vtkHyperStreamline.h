@@ -40,7 +40,7 @@
 // value controls the initial radius of the tube.
 
 // .SECTION See Also
-// vtkTensorGlyph vtkStreamer
+// vtkTensorGlyph
 
 #ifndef vtkHyperStreamline_h
 #define vtkHyperStreamline_h
