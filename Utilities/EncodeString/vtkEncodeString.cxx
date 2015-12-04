@@ -17,13 +17,13 @@
 // For example, it can be used to encode a GLSL source file (in Rendering or
 // VolumeRendering) or an event log (in Widgets/Testing).
 
-#include "vtkSystemIncludes.h" // for cout,endl
+#include <iostream>
 #include <string>
 #include <sstream>
-//#include <vtksys/SystemTools.hxx>
+#include <stdio.h>
 
-// Functions from kwsys SystemTools, as we cannot link vtkEncodeString
-// against vtksys because of installation isssues.
+using std::cout;
+using std::endl;
 
 /**
  * Return file name of a full filename (i.e. file name without path).
