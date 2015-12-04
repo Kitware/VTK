@@ -288,6 +288,10 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   # Ignore warnings about inheriting std::exception when the dll-interface
   # doesn't match. There's no other way to really do exceptions properly.
   "warning C4275: non dll-interface class 'std::exception' used as base"
+
+  # This warning occurs when building Java with -source x.y with compiler a.b's
+  # runtime library (rt.jar).
+  "bootstrap class path not set in conjunction with -source"
   )
 
 IF(APPLE)
