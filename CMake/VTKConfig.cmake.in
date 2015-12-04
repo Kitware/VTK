@@ -6,6 +6,12 @@
 # to load VTK's settings for an external project.
 @VTK_CONFIG_CODE@
 
+if (@VTK_USE_CXX11_FEATURES@)
+  if (CMAKE_VERSION VERSION_LESS "3.2")
+    message(FATAL_ERROR "VTK was built with C++11 features using CMake's target_compile_features.  Configuring projects this way requires a newer version of CMake.  Please update to CMake 3.2 or newer")
+  endif()
+endif()
+
 # The C and C++ flags added by VTK to the cmake-configured flags.
 SET(VTK_REQUIRED_C_FLAGS "@VTK_REQUIRED_C_FLAGS@")
 SET(VTK_REQUIRED_CXX_FLAGS "@VTK_REQUIRED_CXX_FLAGS@")
