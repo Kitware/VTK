@@ -196,12 +196,14 @@ void vtkLogoRepresentation::ReleaseGraphicsResources(vtkWindow *w)
 //-------------------------------------------------------------------------
 int vtkLogoRepresentation::RenderOverlay(vtkViewport *v)
 {
-  int count = this->Superclass::RenderOverlay(v);
+  int count = 0;
   vtkRenderer* ren = vtkRenderer::SafeDownCast(v);
   if (ren)
     {
     count += this->TextureActor->RenderOverlay(v);
     }
+  // Display border on top of logo
+  count += this->Superclass::RenderOverlay(v);
   return count;
 }
 
