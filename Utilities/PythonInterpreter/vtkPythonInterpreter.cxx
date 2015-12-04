@@ -69,7 +69,7 @@ namespace
 
   inline void vtkPrependPythonPath(const char* pathtoadd)
     {
-    vtkPythonScopeGilEnsurer gilEnsurer(true);
+    vtkPythonScopeGilEnsurer gilEnsurer;
     PyObject* path = PySys_GetObject(const_cast<char*>("path"));
 #if PY_VERSION_HEX >= 0x03000000
     PyObject* newpath = PyUnicode_FromString(pathtoadd);

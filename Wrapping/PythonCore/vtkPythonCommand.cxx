@@ -85,7 +85,7 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
     }
 
 #ifndef VTK_NO_PYTHON_THREADS
-  PyGILState_STATE state = PyGILState_Ensure();
+  vtkPythonScopeGilEnsurer gilEnsurer(true);
 #endif
 
   // If a threadstate has been set using vtkPythonCommand::SetThreadState,
@@ -253,8 +253,4 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
     {
     PyThreadState_Swap(prevThreadState);
     }
-
-#ifndef VTK_NO_PYTHON_THREADS
-  PyGILState_Release(state);
-#endif
 }

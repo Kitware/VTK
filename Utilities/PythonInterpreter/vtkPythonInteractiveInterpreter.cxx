@@ -45,7 +45,7 @@ public:
 
   void CleanupPythonObjects()
     {
-    vtkPythonScopeGilEnsurer gilEnsurer(true);  
+    vtkPythonScopeGilEnsurer gilEnsurer;  
     Py_XDECREF(this->InteractiveConsoleLocals);
     Py_XDECREF(this->InteractiveConsole);
     this->InteractiveConsole = NULL;
@@ -66,7 +66,7 @@ public:
 
     vtkPythonInterpreter::Initialize();
 
-    vtkPythonScopeGilEnsurer gilEnsurer(true);  
+    vtkPythonScopeGilEnsurer gilEnsurer;  
     // set up the code.InteractiveConsole instance that we'll use.
     const char* code = "import code\n"
       "__vtkConsoleLocals={'__name__':'__vtkconsole__','__doc__':None}\n"
@@ -183,7 +183,7 @@ bool vtkPythonInteractiveInterpreter::Push(const char* const code)
     i++;
     }
 
-  vtkPythonScopeGilEnsurer gilEnsurer(true);  
+  vtkPythonScopeGilEnsurer gilEnsurer;  
   bool ret_value = false;
   // The const_cast can be removed for Python 3.4 or later.
   PyObject *res = PyObject_CallMethod(console,
@@ -208,7 +208,7 @@ int vtkPythonInteractiveInterpreter::RunStringWithConsoleLocals(const char* scri
 
   this->Internals->GetInteractiveConsole(); //ensure the console is initialized
 
-  vtkPythonScopeGilEnsurer gilEnsurer(true);  
+  vtkPythonScopeGilEnsurer gilEnsurer;  
   PyObject* context = this->Internals->GetInteractiveConsoleLocalsPyObject();
   // The const_cast can be removed for Python 3.3 or later.
   PyObject* result = PyRun_String(const_cast<char*>(script),
