@@ -3011,8 +3011,6 @@ void vtkOpenGLPolyDataMapper::BuildIBO(
     // when drawing edges also build the edge IBOs
     if (draw_surface_with_edges)
       {
-      vtkDataArray *ef = poly->GetPointData()->GetAttribute(
-                          vtkDataSetAttributes::EDGEFLAG);
       if (ef)
         {
         if (ef->GetNumberOfComponents() != 1)
