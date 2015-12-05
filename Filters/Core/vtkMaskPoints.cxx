@@ -612,8 +612,7 @@ int vtkMaskPoints::RequestData(
 
   output->Squeeze();
 
-  vtkDebugMacro(<<"Masked " << numPts << " original points to "
-                << id+1 << " points");
+  vtkDebugMacro(<<"Masked " << numPts << " original points to " << id+1 << " points");
 
   return 1;
 }
@@ -631,17 +630,18 @@ void vtkMaskPoints::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Generate Vertices: "
-     << (this->GenerateVertices ? "On\n" : "Off\n");
+     << (this->GetGenerateVertices() ? "On\n" : "Off\n");
   os << indent << "SingleVertexPerCell: "
-     << (this->SingleVertexPerCell ? "On\n" : "Off\n");
+     << (this->GetSingleVertexPerCell() ? "On\n" : "Off\n");
   os << indent << "MaximumNumberOfPoints: "
-     << this->MaximumNumberOfPoints << "\n";
-  os << indent << "On Ratio: " << this->OnRatio << "\n";
-  os << indent << "Offset: " << this->Offset << "\n";
-  os << indent << "Random Mode: " << (this->RandomMode ? "On\n" : "Off\n");
-  os << indent << "Random Mode Type: " << this->RandomModeType << "\n";
+     << this->GetMaximumNumberOfPoints() << "\n";
+  os << indent << "On Ratio: " << this->GetOnRatio() << "\n";
+  os << indent << "Offset: " << this->GetOffset() << "\n";
+  os << indent << "Random Mode: " << (this->GetRandomMode() ? "On\n" : "Off\n");
+  os << indent << "Random Mode Type: " << this->GetRandomModeType() << "\n";
   os << indent << "Proportional Maximum Number of Points: " <<
-                  this->ProportionalMaximumNumberOfPoints << "\n";
+    this->GetProportionalMaximumNumberOfPoints() << "\n";
 
-  os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
+  os << indent << "Output Points Precision: "
+     << this->GetOutputPointsPrecision() << "\n";
 }

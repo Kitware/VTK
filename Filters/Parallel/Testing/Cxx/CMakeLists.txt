@@ -15,6 +15,7 @@ vtk_add_test_mpi(${vtk-module}CxxTests-MPI tests
   )
 vtk_add_test_mpi(${vtk-module}CxxTests-MPI no_data_tests
   ParallelResampling.cxx
+  UnitTestPMaskPoints.cxx
   )
 
 set(all_tests
