@@ -347,8 +347,18 @@ void vtkOpenGLPointGaussianMapperHelperPackVBOTemplate3(
       {
       double tindex = (opacity - self->OpacityOffset)*self->OpacityScale;
       int itindex = static_cast<int>(tindex);
-      opacity = (1.0 - tindex + itindex)*self->OpacityTable[itindex] +
-        (tindex - itindex)*self->OpacityTable[itindex+1];
+      if (itindex >= self->Owner->GetOpacityTableSize() - 1)
+        {
+        opacity = self->OpacityTable[self->Owner->GetOpacityTableSize() - 1];
+        }
+      else if (itindex < 0)
+        {
+        opacity = self->OpacityTable[0];
+        }
+      else
+        {
+        opacity = (1.0 - tindex + itindex)*self->OpacityTable[itindex] + (tindex - itindex)*self->OpacityTable[itindex+1];
+        }
       }
     rcolor.c[3] = static_cast<float>(opacity*255.0);
     }
@@ -372,8 +382,18 @@ void vtkOpenGLPointGaussianMapperHelperPackVBOTemplate3(
       {
       double tindex = (radius - self->ScaleOffset)*self->ScaleScale;
       int itindex = static_cast<int>(tindex);
-      radius = (1.0 - tindex + itindex)*self->ScaleTable[itindex] +
-        (tindex - itindex)*self->ScaleTable[itindex+1];
+      if (itindex >= self->Owner->GetScaleTableSize() - 1)
+        {
+        radius = self->ScaleTable[self->Owner->GetScaleTableSize() - 1];
+        }
+      else if (itindex < 0)
+        {
+        radius = self->ScaleTable[0];
+        }
+      else
+        {
+        radius = (1.0 - tindex + itindex)*self->ScaleTable[itindex] + (tindex - itindex)*self->ScaleTable[itindex+1];
+        }
       }
     radius *= defaultScale;
     radius *= self->TriangleScale;
