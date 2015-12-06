@@ -1,0 +1,56 @@
+
+Libpng 1.0.65 - December 3, 2015
+
+This is a public release of libpng, intended for use in production codes.
+
+Files available for download:
+
+Source files with LF line endings (for Unix/Linux) and with a
+"configure" script
+
+   libpng-1.0.65.tar.xz (LZMA-compressed, recommended)
+   libpng-1.0.65.tar.gz
+
+Source files with LF line endings (for Unix/Linux) without the
+"configure" script
+
+   libpng-1.0.65-no-config.tar.xz (LZMA-compressed, recommended)
+   libpng-1.0.65-no-config.tar.gz
+
+Source files with CRLF line endings (for Windows), without the
+"configure" script
+
+   lpng1065.zip
+   lpng1065.7z
+
+Project files
+
+   libpng-1.0.65-project-netware.zip
+   libpng-1.0.65-project-wince.zip
+
+Other information:
+
+   libpng-1.0.65-README.txt
+   libpng-1.0.65-KNOWNBUGS.txt
+   libpng-1.0.65-LICENSE.txt
+   libpng-1.0.65-Y2K-compliance.txt
+   libpng-1.0.65-*.asc (armored detached GPG signatures)
+
+Changes since the last public release (1.0.64):
+
+  Avoid potential pointer overflow in png_handle_iTXt(), png_handle_zTXt(),
+    png_handle_sPLT(), and png_handle_pCAL() (Bug report by John Regehr).
+  Fixed incorrect implementation of png_set_PLTE() that uses png_ptr
+    not info_ptr, that left png_set_PLTE() open to the CVE-2015-8126
+    vulnerability.
+  Discontinued distributing tar.bz2 archives.
+  Discontinued distributing libpng-oldversion-newversion-diff.txt
+
+Send comments/corrections/commendations to png-mng-implement at lists.sf.net
+(subscription required; visit
+https://lists.sourceforge.net/lists/listinfo/png-mng-implement
+to subscribe)
+or to glennrp at users.sourceforge.net
+
+Glenn R-P
+#endif

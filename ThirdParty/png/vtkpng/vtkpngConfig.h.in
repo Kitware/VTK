@@ -1,5 +1,5 @@
-#ifndef _pngDllConfig_h
-#define _pngDllConfig_h
+#ifndef vtkpngConfig_h
+#define vtkpngConfig_h
 
 #cmakedefine PNG_STATIC
 #cmakedefine PNG_NO_MODULEDEF
