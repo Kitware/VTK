@@ -735,6 +735,19 @@ struct AppendDataWorker
         }
       }
   }
+
+  void Fallback(vtkDataArray *dest, vtkDataArray *src)
+  {
+    const vtkIdType numTuples = src->GetNumberOfTuples();
+    const int numComps = src->GetNumberOfComponents();
+    for (vtkIdType t = 0; t < numTuples; ++t)
+      {
+      for (int c = 0; c < numComps; ++c)
+        {
+        dest->SetComponent(t + this->Offset, c, src->GetComponent(t, c));
+        }
+      }
+  }
 };
 } // end anon namespace
 
@@ -750,7 +763,8 @@ void vtkAppendPolyData::AppendData(vtkDataArray *dest, vtkDataArray *src,
   AppendDataWorker worker(offset);
   if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(dest, src, worker))
     {
-    vtkWarningMacro("Dispatch failed for array " << src->GetName());
+    // Use vtkDataArray API when fast-path dispatch fails.
+    worker.Fallback(dest, src);
     }
 }
 
