@@ -371,9 +371,6 @@ if (NOT CMAKE_VERSION VERSION_LESS "3.3")
   option(VTK_USE_CXX11_FEATURES "Build VTK using C++11 features (if available)"
     ${VTK_USE_CXX11_DEFAULT})
 
-  if (VTK_USE_CXX11_FEATURES)
-    target_compile_features(vtkCommonCore PUBLIC cxx_final cxx_override cxx_nullptr)
-  endif()
 else()
   FILE(WRITE "${CMAKE_CURRENT_BINARY_DIR}/vtkCompilerFeatureDetection.h"
 "
@@ -676,5 +673,9 @@ if(CMAKE_SYSTEM MATCHES "SunOS.*")
 endif()
 
 vtk_module_library(vtkCommonCore ${Module_SRCS})
+
+if (VTK_USE_CXX11_FEATURES)
+  target_compile_features(vtkCommonCore PUBLIC cxx_final cxx_override cxx_nullptr)
+endif()
 
 vtk_module_link_libraries(vtkCommonCore LINK_PRIVATE ${CMAKE_THREAD_LIBS} LINK_PUBLIC ${VTK_SMP_IMPLEMENTATION_LIBRARIES})
