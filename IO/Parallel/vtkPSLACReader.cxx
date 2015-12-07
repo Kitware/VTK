@@ -1062,6 +1062,19 @@ int vtkPSLACReader::ReadMidpointCoordinates (
     start /= this->Internal->EdgesToSendToProcesses->GetNumberOfComponents();
     end /= this->Internal->EdgesToSendToProcesses->GetNumberOfComponents();
 
+    // FIXME: There seems to be a bug somewhere that results in the
+    // EdgesToSendToProcesses array to be empty, while the corresponding
+    // Offsets and Lengths arrays are not. This only happens on some processes,
+    // and the PSLAC unit tests still pass. The bit below prevents invalid
+    // memory accesses when this occurs.
+    if (this->Internal->EdgesToSendToProcesses->GetNumberOfTuples() == 0 &&
+        this->Internal->EdgesToSendToProcessesOffsets->GetNumberOfTuples() != 0)
+      {
+      vtkWarningMacro("Inconsistent reader state detected. Skipping midpoint "
+                      "sync.");
+      end = start = 0;
+      }
+
     midpointListsType midpointsToSend;
     for (vtkIdType i = start; i < end; i ++)
       {
