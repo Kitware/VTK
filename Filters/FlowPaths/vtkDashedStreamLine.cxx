@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkDashedStreamLine.h"
 
+#ifndef VTK_LEGACY_REMOVE
+
 #include "vtkCellArray.h"
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
@@ -28,6 +30,8 @@ vtkStandardNewMacro(vtkDashedStreamLine);
 vtkDashedStreamLine::vtkDashedStreamLine()
 {
   this->DashFactor = 0.75;
+
+  VTK_LEGACY_BODY(vtkDashedStreamLine::vtkDashedStreamLine, "VTK 6.3");
 }
 
 int vtkDashedStreamLine::RequestData(vtkInformation *,
@@ -195,3 +199,5 @@ void vtkDashedStreamLine::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Dash Factor: " << this->DashFactor << " <<\n";
 
 }
+
+#endif // VTK_LEGACY_REMOVE

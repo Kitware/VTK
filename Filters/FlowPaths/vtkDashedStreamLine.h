@@ -35,6 +35,8 @@
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkStreamLine.h"
 
+#ifndef VTK_LEGACY_REMOVE
+
 class VTKFILTERSFLOWPATHS_EXPORT vtkDashedStreamLine : public vtkStreamLine
 {
 public:
@@ -64,4 +66,5 @@ private:
   void operator=(const vtkDashedStreamLine&);  // Not implemented.
 };
 
+#endif // VTK_LEGACY_REMOVE
 #endif

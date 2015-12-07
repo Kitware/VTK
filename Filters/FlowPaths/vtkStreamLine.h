@@ -47,6 +47,8 @@
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkStreamer.h"
 
+#ifndef VTK_LEGACY_REMOVE
+
 class VTKFILTERSFLOWPATHS_EXPORT vtkStreamLine : public vtkStreamer
 {
 public:
@@ -79,4 +81,5 @@ private:
   void operator=(const vtkStreamLine&);  // Not implemented.
 };
 
+#endif // VTK_LEGACY_REMOVE
 #endif

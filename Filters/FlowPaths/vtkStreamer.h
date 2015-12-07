@@ -56,6 +56,8 @@
 class vtkInitialValueProblemSolver;
 class vtkMultiThreader;
 
+#ifndef VTK_LEGACY_REMOVE
+
 #define VTK_INTEGRATE_FORWARD 0
 #define VTK_INTEGRATE_BACKWARD 1
 #define VTK_INTEGRATE_BOTH_DIRECTIONS 2
@@ -332,4 +334,5 @@ inline const char *vtkStreamer::GetIntegrationDirectionAsString()
     }
 }
 
+#endif // VTK_LEGACY_REMOVE
 #endif
