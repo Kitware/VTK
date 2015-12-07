@@ -2071,11 +2071,13 @@ void vtkTextureObject::CopyFromFrameBuffer(int srcXmin,
   vtkOpenGLCheckErrorMacro("failed at glCopyTexImage2D " << this->Format);
 }
 
+#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
 //----------------------------------------------------------------------------
 int vtkTextureObject::GetMaximumTextureSize1D(vtkOpenGLRenderWindow* context)
 {
   return this->Impl->GetMaximumTextureSize(GL_TEXTURE_1D, context);
 }
+#endif
 
 //----------------------------------------------------------------------------
 int vtkTextureObject::GetMaximumTextureSize2D(vtkOpenGLRenderWindow* context)

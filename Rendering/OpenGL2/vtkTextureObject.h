@@ -528,10 +528,12 @@ public:
   vtkGetMacro(GenerateMipmap,bool);
   vtkSetMacro(GenerateMipmap,bool);
 
+#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
   // Description:
   // Query and return maximum 1D texture size supported by the OpenGL
   // driver for a particular context.
   int GetMaximumTextureSize1D(vtkOpenGLRenderWindow* context);
+#endif
 
   // Description:
   // Query and return maximum 2D texture size supported by the OpenGL
