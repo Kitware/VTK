@@ -51,8 +51,12 @@ int TestMaximumTextureSize(int argc, char* argv[])
     int maxTextureSize3D =
       textureObject->GetMaximumTextureSize1D(glContext);
 
+#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
     if (maxTextureSize1D != -1 && maxTextureSize2D != -1 &&
         maxTextureSize3D != -1)
+#else
+    if (maxTextureSize2D != -1 && maxTextureSize3D != -1)
+#endif
       {
       return 0;
       }
