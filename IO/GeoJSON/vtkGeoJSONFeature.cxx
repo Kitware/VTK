@@ -183,41 +183,28 @@ vtkPolyData *vtkGeoJSONFeature::
 ExtractLineString(const Json::Value& coordinates, vtkPolyData *outputData)
 {
   //Check if Coordinates corresponds to Line String
-  if ( ! IsLineString( coordinates ) )
+  if (!IsLineString(coordinates))
     {
     vtkErrorMacro (<< "Wrong data format for a Line String!");
     return NULL;
     }
 
-  vtkCellArray *lines = outputData->GetLines();
   vtkPoints *points = outputData->GetPoints();
+  vtkNew<vtkPolyLine> polyLine;
+  double xyz[3];
+  vtkIdList *pointIdList = polyLine->GetPointIds();
+  vtkIdType pointId;
+  for (Json::Value::ArrayIndex i = 0; i < coordinates.size(); i++)
+    {
+    this->CreatePoint(coordinates[i], xyz);
+    pointId = points->InsertNextPoint(xyz);
+    pointIdList->InsertNextId(pointId);
+    }
+  outputData->GetLines()->InsertNextCell(polyLine.GetPointer());
   vtkAbstractArray *array =
     outputData->GetCellData()->GetAbstractArray("feature-id");
   vtkStringArray *ids = vtkStringArray::SafeDownCast(array);
-
-  int LINE_COUNT = coordinates.size();
-
-  double start[3], end[3];
-  CreatePoint(coordinates[0], start);
-
-  vtkIdType lineId[2];
-  lineId[0] = points->InsertNextPoint(start);
-
-  for (int i = 1; i < LINE_COUNT; i++)
-    {
-    CreatePoint(coordinates[i], end);
-
-    lineId[1] = points->InsertNextPoint(end);
-
-    vtkNew<vtkLine> line;
-    line->GetPointIds()->SetId(0, lineId[0]);
-    line->GetPointIds()->SetId(1, lineId[1]);
-
-    lines->InsertNextCell(line.GetPointer());
-    ids->InsertNextValue(this->FeatureId);
-
-    lineId[0] = lineId[1];
-    }
+  ids->InsertNextValue(this->FeatureId);
 
   return outputData;
 }
@@ -234,11 +221,9 @@ ExtractMultiLineString(const Json::Value& coordinateArray,
     return NULL;
     }
 
-  int LINE_STRING_COUNT = coordinateArray.size();
-
-  for (int i = 0; i < LINE_STRING_COUNT; i++)
+  for (Json::Value::ArrayIndex i = 0; i < coordinateArray.size(); i++)
     {
-    this->ExtractLineString( coordinateArray[i], outputData);
+    this->ExtractLineString(coordinateArray[i], outputData);
     }
 
   return outputData;
@@ -326,12 +311,10 @@ ExtractMultiPolygon(const Json::Value& coordinateArray, vtkPolyData *outputData)
     return NULL;
     }
 
-  int POLYGON_COUNT = coordinateArray.size();
-
-  for (int i = 0; i < POLYGON_COUNT; i++)
+  for (Json::Value::ArrayIndex i = 0; i < coordinateArray.size(); i++)
     {
     //Extract polygon into different polyData and append into a common polyData using the appendPolyData Filter
-    this->ExtractPolygon( coordinateArray[i], outputData);
+    this->ExtractPolygon(coordinateArray[i], outputData);
     }
 
   return outputData;
