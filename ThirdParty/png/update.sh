@@ -46,7 +46,7 @@ pngwtran.c
 pngwutil.c
 "
 
-readonly basehash='' # NEWHASH
+readonly basehash='0c4d66f3ed7cc9994b1c830f63c1b890d1985221' # NEWHASH
 
 extract_source () {
     git_archive
