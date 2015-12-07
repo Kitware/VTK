@@ -20,12 +20,11 @@
 
 #include "vtkRInterface.h"
 
-#undef HAVE_UINTPTR_T
-#ifdef HAVE_VTK_UINTPTR_T
-#define HAVE_UINTPTR_T HAVE_VTK_UINTPTR_T
-#ifndef WIN32
+// for uintptr_t
+#ifdef _MSC_VER
+#include <stddef.h>
+#else
 #include <stdint.h>
-#endif
 #endif
 
 #include "vtkInformation.h"
