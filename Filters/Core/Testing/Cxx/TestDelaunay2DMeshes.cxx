@@ -29,6 +29,8 @@
 #include "vtkTestUtilities.h"
 #include "vtkSmartPointer.h"
 
+#define VTK_FAILURE 1
+
 bool CompareMeshes(vtkPolyData* p1, vtkPolyData* p2)
 {
   vtkIdType nbPoints1 = p1->GetNumberOfPoints();
@@ -192,8 +194,17 @@ bool TessellationTestWithTransform(const std::string& dataPath)
 
 int TestDelaunay2DMeshes(int argc, char* argv[])
 {
+
+  char* data_dir = vtkTestUtilities::GetDataRoot(argc, argv);
+  if (!data_dir)
+    {
+    cerr << "Could not determine data directory." << endl;
+    return VTK_FAILURE;
+    }
+
   std::string dataPath =
-    std::string(vtkTestUtilities::GetDataRoot(argc, argv)) + "/Data/Delaunay/";
+    std::string(data_dir) + "/Data/Delaunay/";
+  delete[] data_dir;
 
   bool result = true;
   result &= TriangulationTest(dataPath + "DomainWithHole");
