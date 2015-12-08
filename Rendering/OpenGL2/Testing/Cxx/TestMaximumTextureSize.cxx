@@ -26,7 +26,8 @@
 #include <vtkRenderer.h>
 #include <vtkTextureObject.h>
 
-int TestMaximumTextureSize(int argc, char* argv[])
+int TestMaximumTextureSize(int vtkNotUsed(argc),
+                           char* vtkNotUsed(argv)[])
 {
   vtkNew<vtkRenderWindowInteractor> iren;
   vtkNew<vtkRenderWindow> renWin;
