@@ -6,6 +6,8 @@
 #    the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 #    PURPOSE.  See the above copyright notice for more information.
 #
+
+set(VTK_BUILD_FORWARDING_EXECUTABLES FALSE)
 vtk_module_export_info()
 
 IF(NOT CMAKE_CROSSCOMPILING)
