@@ -50,10 +50,6 @@ vtkMPIPixelTTMacro1(double)
 vtkMPIPixelTTMacro1(long long)
 vtkMPIPixelTTMacro1(unsigned long long)
 #endif
-#ifdef VTK_TYPE_USE___INT64
-vtkMPIPixelTTMacro1(__int64)
-vtkMPIPixelTTMacro1(unsigned __int64)
-#endif
 //ETX
 #endif
 // VTK-HeaderTest-Exclude: vtkMPIPixelTT.h

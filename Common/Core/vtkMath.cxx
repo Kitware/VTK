@@ -2861,16 +2861,6 @@ int vtkMath::GetScalarTypeFittingRange(
         static_cast<double>(VTK_UNSIGNED_LONG_LONG_MIN),
         static_cast<double>(VTK_UNSIGNED_LONG_LONG_MAX) }
 #endif
-#if defined(VTK_TYPE_USE___INT64)
-      ,
-      { VTK___INT64,
-        static_cast<double>(VTK___INT64_MIN),
-        static_cast<double>(VTK___INT64_MAX) }
-      ,
-      { VTK_UNSIGNED___INT64,
-        static_cast<double>(VTK_UNSIGNED___INT64_MIN),
-        static_cast<double>(VTK_UNSIGNED___INT64_MAX) }
-#endif
     };
 
   // If the range, scale or shift are decimal number, just browse

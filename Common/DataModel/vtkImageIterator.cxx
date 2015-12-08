@@ -30,7 +30,3 @@ template class VTKCOMMONDATAMODEL_EXPORT vtkImageIterator<unsigned int>;
 template class VTKCOMMONDATAMODEL_EXPORT vtkImageIterator<long long>;
 template class VTKCOMMONDATAMODEL_EXPORT vtkImageIterator<unsigned long long>;
 #endif
-#if defined(VTK_TYPE_USE___INT64)
-template class VTKCOMMONDATAMODEL_EXPORT vtkImageIterator<__int64>;
-template class VTKCOMMONDATAMODEL_EXPORT vtkImageIterator<unsigned __int64>;
-#endif

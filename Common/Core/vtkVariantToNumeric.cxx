@@ -78,16 +78,6 @@ T vtkVariant::ToNumeric(bool* valid, T* vtkNotUsed(ignored)) const
     {
     return static_cast<T>(this->Data.UnsignedLong);
     }
-#if defined(VTK_TYPE_USE___INT64)
-  if (this->Is__Int64())
-    {
-    return static_cast<T>(this->Data.__Int64);
-    }
-  if (this->IsUnsigned__Int64())
-    {
-    return static_cast<T>(static_cast<__int64>(this->Data.Unsigned__Int64));
-    }
-#endif
 #if defined(VTK_TYPE_USE_LONG_LONG)
   if (this->IsLongLong())
     {

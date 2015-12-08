@@ -300,14 +300,6 @@ if(vtkCommonDataModel_ENABLED)
     PROPERTY COMPILE_DEFINITIONS vtkCommonDataModel_ENABLED)
 endif()
 
-# __int64 seems to be platform specific, turning on if
-if(HAVE_VTK_SIZEOF__INT64)
-  list(APPEND Module_SRCS
-    vtkUnsigned__Int64Array.cxx
-    vtk__Int64Array.cxx
-    )
-endif()
-
 if(WIN32)
   # TODO: VTK_USE_X was once tested here but is now in another module
   list(APPEND Module_SRCS
@@ -410,11 +402,6 @@ if(VTK_TYPE_USE_LONG_LONG)
     )
 endif()
 
-if(VTK_TYPE_USE___INT64)
-  list(APPEND Module_SRCS vtk__Int64Array.cxx)
-  list(APPEND Module_SRCS vtkUnsigned__Int64Array.cxx)
-endif()
-
 # Configure data arrays for platform-independent fixed-size types.
 # Match the type selection here to that in vtkType.h.
 if(VTK_TYPE_CHAR_IS_SIGNED)
@@ -435,11 +422,6 @@ else()
   if(VTK_SIZEOF_LONG MATCHES "^8$")
     set(VTK_TYPE_NATIVE_Int64 Long)
     set(VTK_TYPE_NATIVE_UInt64 UnsignedLong)
-  else()
-    if(VTK_SIZEOF___INT64 MATCHES "^8$")
-      set(VTK_TYPE_NATIVE_Int64 __Int64)
-      set(VTK_TYPE_NATIVE_UInt64 Unsigned__Int64)
-    endif()
   endif()
 endif()
 set(VTK_TYPE_NATIVE_Float32 Float)

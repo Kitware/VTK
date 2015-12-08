@@ -16,7 +16,7 @@
 #include "vtkWrapPythonConstant.h"
 #include "vtkWrap.h"
 
-/* for VTK_TYPE_USE_LONG_LONG vs VTK_TYPE_USE___INT64 */
+/* for VTK_TYPE_USE_LONG_LONG */
 #include "vtkConfigure.h"
 
 #include <stdio.h>
@@ -149,22 +149,6 @@ void vtkWrapPython_AddConstantHelper(
               indent, objvar, valstring);
       objcreated = 1;
       break;
-
-#ifdef VTK_TYPE_USE___INT64
-    case VTK_PARSE___INT64:
-      fprintf(fp,
-              "%s%s = PyLong_FromLongLong(%s);\n",
-              indent, objvar, valstring);
-      objcreated = 1;
-      break;
-
-    case VTK_PARSE_UNSIGNED___INT64:
-      fprintf(fp,
-              "%s%s = PyLong_FromUnsignedLongLong(%s);\n",
-              indent, objvar, valstring);
-      objcreated = 1;
-      break;
-#endif
 
 #ifdef VTK_TYPE_USE_LONG_LONG
     case VTK_PARSE_LONG_LONG:

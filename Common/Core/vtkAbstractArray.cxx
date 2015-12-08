@@ -47,11 +47,6 @@
 # include "vtkUnsignedLongLongArray.h"
 #endif
 
-#if defined(VTK_TYPE_USE___INT64)
-# include "vtk__Int64Array.h"
-# include "vtkUnsigned__Int64Array.h"
-#endif
-
 #include <algorithm>
 #include <iterator>
 #include <set>
@@ -365,14 +360,6 @@ vtkAbstractArray* vtkAbstractArray::CreateArray(int dataType)
 
     case VTK_UNSIGNED_LONG_LONG:
       return vtkUnsignedLongLongArray::New();
-#endif
-
-#if defined(VTK_TYPE_USE___INT64)
-    case VTK___INT64:
-      return vtk__Int64Array::New();
-
-    case VTK_UNSIGNED___INT64:
-      return vtkUnsigned__Int64Array::New();
 #endif
 
     case VTK_FLOAT:

@@ -3824,8 +3824,6 @@ unsigned int guess_constant_type(const char *valstring)
           {
 #if defined(VTK_TYPE_USE_LONG_LONG)
           return VTK_PARSE_UNSIGNED_LONG_LONG;
-#elif defined(VTK_TYPE_USE___INT64)
-          return VTK_PARSE_UNSIGNED___INT64;
 #else
           return VTK_PARSE_UNSIGNED_LONG;
 #endif
@@ -3841,8 +3839,6 @@ unsigned int guess_constant_type(const char *valstring)
           {
 #if defined(VTK_TYPE_USE_LONG_LONG)
           return VTK_PARSE_LONG_LONG;
-#elif defined(VTK_TYPE_USE___INT64)
-          return VTK_PARSE___INT64;
 #else
           return VTK_PARSE_LONG;
 #endif

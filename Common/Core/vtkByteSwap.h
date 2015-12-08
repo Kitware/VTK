@@ -58,10 +58,6 @@ public:
   VTK_BYTE_SWAP_DECL(long long);
   VTK_BYTE_SWAP_DECL(unsigned long long);
 #endif
-#if defined(VTK_TYPE_USE___INT64)
-  VTK_BYTE_SWAP_DECL(__int64);
-  VTK_BYTE_SWAP_DECL(unsigned __int64);
-#endif
 #undef VTK_BYTE_SWAP_DECL
   //ETX
 

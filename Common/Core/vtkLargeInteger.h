@@ -33,10 +33,6 @@ public:
   vtkLargeInteger(long long n);
   vtkLargeInteger(unsigned long long n);
 #endif
-#if defined(VTK_TYPE_USE___INT64)
-  vtkLargeInteger(__int64 n);
-  vtkLargeInteger(unsigned __int64 n);
-#endif
 
   ~vtkLargeInteger(void);
 

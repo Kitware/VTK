@@ -91,23 +91,6 @@ inline vtkVariant vtkVariantCreate<unsigned long>(const unsigned long& value)
   return value;
 }
 
-#ifdef VTK_TYPE_USE___INT64
-
-template<>
-inline vtkVariant vtkVariantCreate<__int64>(const __int64& value)
-{
-  return value;
-}
-
-template<>
-inline vtkVariant vtkVariantCreate<unsigned __int64>(const unsigned __int64& value)
-{
-  return value;
-}
-
-#endif
-
-
 #ifdef VTK_TYPE_USE_LONG_LONG
 
 template<>

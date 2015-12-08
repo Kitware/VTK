@@ -1587,10 +1587,6 @@ const char* vtkXMLWriter::GetWordTypeName(int dataType)
     case VTK_LONG_LONG:          isSigned = 1; size = sizeof(long long); break;
     case VTK_UNSIGNED_LONG_LONG: isSigned = 0; size = sizeof(unsigned long long); break;
 #endif
-#if defined(VTK_TYPE_USE___INT64)
-    case VTK___INT64:            isSigned = 1; size = sizeof(__int64); break;
-    case VTK_UNSIGNED___INT64:   isSigned = 0; size = sizeof(unsigned __int64); break;
-#endif
     default:
     {
     vtkWarningMacro("Unsupported data type: " << dataType); } break;

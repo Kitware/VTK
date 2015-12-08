@@ -45,10 +45,10 @@
 #define VTK_LONG_LONG          16
 #define VTK_UNSIGNED_LONG_LONG 17
 
-/* This type is enabled if VTK_TYPE_USE___INT64 is defined.  */
+/* Legacy.  This type is never enabled.  */
 #define VTK___INT64            18
 
-/* This type is enabled if VTK_TYPE_USE___INT64 is defined.  */
+/* Legacy.  This type is never enabled.  */
 #define VTK_UNSIGNED___INT64   19
 
 /* These types are required by vtkVariant and vtkVariantArray */
@@ -145,24 +145,6 @@
 # define VTK_UNSIGNED_LONG_LONG_MIN VTK_TYPE_CAST(unsigned long long, 0ull)
 # define VTK_UNSIGNED_LONG_LONG_MAX VTK_TYPE_CAST(unsigned long long, ~0ull)
 #endif
-#if defined(VTK_SIZEOF___INT64)
-# if defined(VTK_TYPE_SAME_LONG_AND___INT64)
-#  define VTK___INT64_MIN           VTK_TYPE_CAST(__int64, ~(~0ul >> 1))
-#  define VTK___INT64_MAX           VTK_TYPE_CAST(__int64, ~0ul >> 1)
-#  define VTK_UNSIGNED___INT64_MIN  VTK_TYPE_CAST(unsigned __int64, 0ul)
-#  define VTK_UNSIGNED___INT64_MAX  VTK_TYPE_CAST(unsigned __int64, ~0ul)
-# elif defined(VTK_TYPE_SAME_LONG_LONG_AND___INT64)
-#  define VTK___INT64_MIN           VTK_TYPE_CAST(__int64, ~(~0ull >> 1))
-#  define VTK___INT64_MAX           VTK_TYPE_CAST(__int64, ~0ull >> 1)
-#  define VTK_UNSIGNED___INT64_MIN  VTK_TYPE_CAST(unsigned __int64, 0ull)
-#  define VTK_UNSIGNED___INT64_MAX  VTK_TYPE_CAST(unsigned __int64, ~0ull)
-# else
-#  define VTK___INT64_MIN           VTK_TYPE_CAST(__int64, ~(~0ui64 >> 1))
-#  define VTK___INT64_MAX           VTK_TYPE_CAST(__int64, ~0ui64 >> 1)
-#  define VTK_UNSIGNED___INT64_MIN  VTK_TYPE_CAST(unsigned __int64, 0ui64)
-#  define VTK_UNSIGNED___INT64_MAX  VTK_TYPE_CAST(unsigned __int64, ~0ui64)
-# endif
-#endif
 
 /*--------------------------------------------------------------------------*/
 /* Define named types and constants corresponding to specific integer
@@ -223,11 +205,6 @@ typedef unsigned long vtkTypeUInt64;
 typedef signed long   vtkTypeInt64;
 # define VTK_TYPE_UINT64 VTK_UNSIGNED_LONG
 # define VTK_TYPE_INT64 VTK_LONG
-#elif defined(VTK_TYPE_USE___INT64) && VTK_SIZEOF___INT64 == 8
-typedef unsigned __int64 vtkTypeUInt64;
-typedef signed __int64   vtkTypeInt64;
-# define VTK_TYPE_UINT64 VTK_UNSIGNED___INT64
-# define VTK_TYPE_INT64 VTK___INT64
 #else
 # error "No native data type can represent a 64-bit integer."
 #endif
@@ -264,12 +241,6 @@ typedef long vtkIdType;
 #  define VTK_SIZEOF_ID_TYPE VTK_SIZEOF_LONG
 #  define VTK_ID_MIN VTK_LONG_MIN
 #  define VTK_ID_MAX VTK_LONG_MAX
-# elif defined(VTK_TYPE_USE___INT64) && VTK_SIZEOF___INT64 == 8
-typedef __int64 vtkIdType;
-#  define VTK_ID_TYPE_IMPL VTK___INT64
-#  define VTK_SIZEOF_ID_TYPE VTK_SIZEOF___INT64
-#  define VTK_ID_MIN VTK___INT64_MIN
-#  define VTK_ID_MAX VTK___INT64_MAX
 # else
 #  error "VTK_USE_64BIT_IDS is ON but no 64-bit integer type is available."
 # endif

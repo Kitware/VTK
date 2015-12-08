@@ -145,11 +145,6 @@ void use_hints(FILE *fp)
               MAX_ARGS, currentFunction->HintSize);
       break;
 
-    case VTK_PARSE___INT64_PTR:
-      fprintf(fp,"    return vtkJavaMakeJArrayOfIntFrom__Int64(env,temp%i,%i);\n",
-              MAX_ARGS, currentFunction->HintSize);
-      break;
-
     case VTK_PARSE_SIGNED_CHAR_PTR:
       fprintf(fp,"    return vtkJavaMakeJArrayOfIntFromSignedChar(env,temp%i,%i);\n",
               MAX_ARGS, currentFunction->HintSize);

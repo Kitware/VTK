@@ -249,10 +249,6 @@ VTK_BYTE_SWAP_IMPL(unsigned long)
 VTK_BYTE_SWAP_IMPL(long long)
 VTK_BYTE_SWAP_IMPL(unsigned long long)
 #endif
-#if defined(VTK_TYPE_USE___INT64)
-VTK_BYTE_SWAP_IMPL(__int64)
-VTK_BYTE_SWAP_IMPL(unsigned __int64)
-#endif
 #undef VTK_BYTE_SWAP_IMPL
 
 #if VTK_SIZEOF_SHORT == 2

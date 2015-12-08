@@ -175,33 +175,6 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromLongLong(JNIEnv *env, long long *ptr,
 }
 #endif
 
-#if defined(VTK_TYPE_USE___INT64)
-JNIEXPORT jarray vtkJavaMakeJArrayOfIntFrom__Int64(JNIEnv *env, __int64 *ptr, int size)
-{
-  jintArray ret;
-  int i;
-  jint *array;
-
-  ret = env->NewIntArray(size);
-  if (ret == 0)
-    {
-    // should throw an exception here
-    return 0;
-    }
-
-  array = env->GetIntArrayElements(ret,NULL);
-
-  // copy the data
-  for (i = 0; i < size; i++)
-    {
-    array[i] = (int)ptr[i];
-    }
-
-  env->ReleaseIntArrayElements(ret,array,0);
-  return ret;
-}
-#endif
-
 JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromSignedChar(JNIEnv *env, signed char *ptr, int size)
 {
   jintArray ret;

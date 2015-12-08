@@ -124,15 +124,6 @@ public:
   // Create an unsigned long variant.
   vtkVariant(unsigned long value);
 
-#if defined(VTK_TYPE_USE___INT64)
-  // Description:
-  // Create an __int64 variant.
-  vtkVariant(__int64 value);
-
-  // Description:
-  // Create an unsigned __int64 variant.
-  vtkVariant(unsigned __int64 value);
-#endif
 #if defined(VTK_TYPE_USE_LONG_LONG)
   // Description:
   // Create a long long variant.
@@ -236,11 +227,11 @@ public:
   bool IsUnsignedLong() const;
 
   // Description:
-  // Get whether the variant is an __int64.
+  // Legacy.  Returns false.  The variant is never an __int64.
   bool Is__Int64() const;
 
   // Description:
-  // Get whether the variant is an unsigned __int64.
+  // Legacy.  Returns false.  The variant is never an unsigned __int64.
   bool IsUnsigned__Int64() const;
 
   // Description:
@@ -316,14 +307,6 @@ public:
   unsigned long ToUnsignedLong(bool *valid) const;
   unsigned long ToUnsignedLong() const {
     return this->ToUnsignedLong(0); };
-#if defined(VTK_TYPE_USE___INT64)
-  __int64 To__Int64(bool *valid) const;
-  __int64 To__Int64() const {
-    return this->To__Int64(0); };
-  unsigned __int64 ToUnsigned__Int64(bool *valid) const;
-  unsigned __int64 ToUnsigned__Int64() const {
-    return this->ToUnsigned__Int64(0); };
-#endif
 #if defined(VTK_TYPE_USE_LONG_LONG)
   long long ToLongLong(bool *valid) const;
   long long ToLongLong() const {
@@ -418,10 +401,6 @@ private:
     unsigned int UnsignedInt;
     long Long;
     unsigned long UnsignedLong;
-#if defined(VTK_TYPE_USE___INT64)
-    __int64 __Int64;
-    unsigned __int64 Unsigned__Int64;
-#endif
 #if defined(VTK_TYPE_USE_LONG_LONG)
     long long LongLong;
     unsigned long long UnsignedLongLong;

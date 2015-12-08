@@ -82,37 +82,6 @@ vtkLargeInteger::vtkLargeInteger(unsigned long long n)
 }
 #endif
 
-#if defined(VTK_TYPE_USE___INT64)
-vtkLargeInteger::vtkLargeInteger(__int64 n)
-{
-  this->Negative = n < 0 ? 1 : 0;
-  n = n < 0 ? -n : n; // strip of sign
-  this->Number = new char[BIT_INCREMENT];
-  for (unsigned int i = 0; i < BIT_INCREMENT; i++)
-    {
-    this->Number[i] = n & 1;
-    n >>= 1;
-    }
-  this->Max = BIT_INCREMENT - 1;
-  this->Sig = BIT_INCREMENT - 1;
-  this->Contract(); // remove leading 0s
-}
-
-vtkLargeInteger::vtkLargeInteger(unsigned __int64 n)
-{
-  this->Negative = 0;
-  this->Number = new char[BIT_INCREMENT];
-  for (unsigned int i = 0; i < BIT_INCREMENT; i++)
-    {
-    this->Number[i] = n & 1;
-    n >>= 1;
-    }
-  this->Max = BIT_INCREMENT - 1;
-  this->Sig = BIT_INCREMENT - 1;
-  this->Contract(); // remove leading 0s
-}
-#endif
-
 vtkLargeInteger::vtkLargeInteger(long n)
 {
   this->Negative = n < 0 ? 1 : 0;

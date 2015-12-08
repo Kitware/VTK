@@ -137,21 +137,6 @@ VTK_TYPE_TRAITS(unsigned long long, UNSIGNED_LONG_LONG, 0, UInt64,
 # endif
 #endif
 
-// Define traits for __int64 types if they are enabled.
-#if defined(VTK_TYPE_USE___INT64)
-# define VTK_TYPE_NAME___INT64 __int64
-# define VTK_TYPE_NAME_UNSIGNED___INT64 unsigned __int64
-# if VTK_SIZEOF___INT64 == 8
-#  define VTK_TYPE_SIZED___INT64 INT64
-#  define VTK_TYPE_SIZED_UNSIGNED___INT64 UINT64
-VTK_TYPE_TRAITS(__int64, __INT64, 1, Int64, __int64, "%I64d");
-VTK_TYPE_TRAITS(unsigned __int64, UNSIGNED___INT64, 0, UInt64,
-                unsigned __int64, "%I64u");
-# else
-#  error "Type __int64 is not 8 bytes in size."
-# endif
-#endif
-
 // Define traits for vtkIdType.  The template specialization is
 // already defined for the corresponding native type.
 #define VTK_TYPE_NAME_ID_TYPE vtkIdType

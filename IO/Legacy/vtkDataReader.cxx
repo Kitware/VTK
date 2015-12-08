@@ -48,8 +48,7 @@
 #include <sstream>
 
 // We only have vtkTypeUInt64Array if we have long long
-// or we have __int64 with conversion to double.
-#if defined(VTK_TYPE_USE_LONG_LONG) || defined(VTK_TYPE_USE___INT64)
+#if defined(VTK_TYPE_USE_LONG_LONG)
 #include "vtkTypeUInt64Array.h"
 #endif
 
@@ -319,28 +318,6 @@ int vtkDataReader::Read(unsigned long *result)
     }
   return 1;
 }
-
-#if defined(VTK_TYPE_USE___INT64)
-int vtkDataReader::Read(__int64 *result)
-{
-  *this->IS >> *result;
-  if (this->IS->fail())
-    {
-    return 0;
-    }
-  return 1;
-}
-
-int vtkDataReader::Read(unsigned __int64 *result)
-{
-  *this->IS >> *result;
-  if (this->IS->fail())
-    {
-    return 0;
-    }
-  return 1;
-}
-#endif
 
 #if defined(VTK_TYPE_USE_LONG_LONG)
 int vtkDataReader::Read(long long *result)
@@ -1611,8 +1588,7 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, 
   else if ( ! strncmp(type, "vtktypeuint64", 13) )
     {
 // We only have vtkTypeUInt64Array if we have long long
-// or we have __int64.
-#if defined(VTK_TYPE_USE_LONG_LONG) || defined(VTK_TYPE_USE___INT64)
+#if defined(VTK_TYPE_USE_LONG_LONG)
     array = vtkTypeUInt64Array::New();
     array->SetNumberOfComponents(numComp);
     vtkTypeUInt64 *ptr = ((vtkTypeUInt64Array *)array)->WritePointer(0,numTuples*numComp);
@@ -1885,14 +1861,6 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, 
             break;
           case VTK_UNSIGNED_LONG_LONG:
             v = sv.ToUnsignedLongLong();
-            break;
-#endif
-#ifdef VTK_TYPE_USE___INT64
-          case VTK___INT64:
-            v = sv.To__Int64();
-            break;
-          case VTK_UNSIGNED___INT64:
-            v = sv.ToUnsigned__Int64();
             break;
 #endif
           case VTK_STRING:

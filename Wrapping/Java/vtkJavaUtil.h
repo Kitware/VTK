@@ -42,9 +42,6 @@ extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfIntFromIdType(JNIEnv *en
 #if defined(VTK_TYPE_USE_LONG_LONG)
 extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfIntFromLongLong(JNIEnv *env, long long *arr, int size);
 #endif
-#if defined(VTK_TYPE_USE___INT64)
-extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfIntFrom__Int64(JNIEnv *env, __int64 *arr, int size);
-#endif
 extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfIntFromSignedChar(JNIEnv *env, signed char *arr, int size);
 extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfLongFromLong(JNIEnv *env, long *arr, int size);
 extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfByteFromUnsignedChar(JNIEnv *env, unsigned char *arr, int size);

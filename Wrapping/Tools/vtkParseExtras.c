@@ -1775,9 +1775,6 @@ const char **vtkParse_GetTemplateMacroTypes()
 #ifdef VTK_TYPE_USE_LONG_LONG
     "long long", "unsigned long long",
 #endif
-#ifdef VTK_TYPE_USE___INT64
-    "__int64", "unsigned __int64",
-#endif
     "float", "double", NULL };
 
   return types;
@@ -1791,9 +1788,6 @@ const char **vtkParse_GetArrayTypes()
     "int", "unsigned int", "long", "unsigned long",
 #ifdef VTK_TYPE_USE_LONG_LONG
     "long long", "unsigned long long",
-#endif
-#ifdef VTK_TYPE_USE___INT64
-    "__int64", "unsigned __int64",
 #endif
     "float", "double",
     "vtkStdString", "vtkUnicodeString", "vtkVariant", NULL };
