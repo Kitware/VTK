@@ -1196,9 +1196,9 @@ vtkDataArray* vtkXdmfHeavyData::ReadAttribute(XdmfAttribute* xmfAttribute,
     if (attrCenter == XDMF_ATTRIBUTE_CENTER_NODE)
       {
       // Point count is 1 + cell extent if not a single layer
-      count[0] += (update_extents[5] - update_extents[4] > 0)? 1 : 1;
-      count[1] += (update_extents[3] - update_extents[2] > 0)? 1 : 1;
-      count[2] += (update_extents[1] - update_extents[0] > 0)? 1 : 1;
+      count[0] += ((update_extents[5] - update_extents[4]) > 0)? 1 : 0;
+      count[1] += ((update_extents[3] - update_extents[2]) > 0)? 1 : 0;
+      count[2] += ((update_extents[1] - update_extents[0]) > 0)? 1 : 0;
       }
     xmfDataItem.GetDataDesc()->SelectHyperSlab(start, stride, count);
     }
