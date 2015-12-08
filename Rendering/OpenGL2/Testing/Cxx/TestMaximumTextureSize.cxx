@@ -44,13 +44,12 @@ int TestMaximumTextureSize(int vtkNotUsed(argc),
 
   if (glContext)
     {
-    vtkNew<vtkTextureObject> textureObject;
     int maxTextureSize1D =
-      textureObject->GetMaximumTextureSize1D(glContext);
+      vtkTextureObject::GetMaximumTextureSize1D(glContext);
     int maxTextureSize2D =
-      textureObject->GetMaximumTextureSize1D(glContext);
+      vtkTextureObject::GetMaximumTextureSize1D(glContext);
     int maxTextureSize3D =
-      textureObject->GetMaximumTextureSize1D(glContext);
+      vtkTextureObject::GetMaximumTextureSize1D(glContext);
 
 #if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
     if (maxTextureSize1D != -1 && maxTextureSize2D != -1 &&
