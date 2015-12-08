@@ -228,7 +228,7 @@ public:
 
   // Query maximum texture size
   //--------------------------------------------------------------------------
-  int GetMaximumTextureSize(int param, vtkRenderWindow* context)
+  static int GetMaximumTextureSize(int param, vtkRenderWindow* context)
     {
     int maxSize = -1;
     if (context and context->IsCurrent())
@@ -2075,20 +2075,20 @@ void vtkTextureObject::CopyFromFrameBuffer(int srcXmin,
 //----------------------------------------------------------------------------
 int vtkTextureObject::GetMaximumTextureSize1D(vtkOpenGLRenderWindow* context)
 {
-  return this->Impl->GetMaximumTextureSize(GL_TEXTURE_1D, context);
+  return vtkInternal::GetMaximumTextureSize(GL_TEXTURE_1D, context);
 }
 #endif
 
 //----------------------------------------------------------------------------
 int vtkTextureObject::GetMaximumTextureSize2D(vtkOpenGLRenderWindow* context)
 {
-  return this->Impl->GetMaximumTextureSize(GL_TEXTURE_2D, context);
+  return vtkInternal::GetMaximumTextureSize(GL_TEXTURE_2D, context);
 }
 
 //----------------------------------------------------------------------------
 int vtkTextureObject::GetMaximumTextureSize3D(vtkOpenGLRenderWindow* context)
 {
-  return this->Impl->GetMaximumTextureSize(GL_TEXTURE_3D, context);
+  return vtkInternal::GetMaximumTextureSize(GL_TEXTURE_3D, context);
 }
 
 //----------------------------------------------------------------------------

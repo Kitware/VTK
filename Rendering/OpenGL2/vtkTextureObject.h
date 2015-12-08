@@ -532,18 +532,18 @@ public:
   // Description:
   // Query and return maximum 1D texture size supported by the OpenGL
   // driver for a particular context.
-  int GetMaximumTextureSize1D(vtkOpenGLRenderWindow* context);
+  static int GetMaximumTextureSize1D(vtkOpenGLRenderWindow* context);
 #endif
 
   // Description:
   // Query and return maximum 2D texture size supported by the OpenGL
   // driver for a particular context.
-  int GetMaximumTextureSize2D(vtkOpenGLRenderWindow* context);
+  static int GetMaximumTextureSize2D(vtkOpenGLRenderWindow* context);
 
   // Description:
   // Query and return maximum 3D texture size supported by the OpenGL
   // driver for a particular context.
-  int GetMaximumTextureSize3D(vtkOpenGLRenderWindow* context);
+  static int GetMaximumTextureSize3D(vtkOpenGLRenderWindow* context);
 
   // Description:
   // Returns if the context supports the required extensions. If flags
