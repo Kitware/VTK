@@ -250,7 +250,6 @@ SET(Module_SRCS
   ${VTK_SMP_SOURCES}
   ${VTK_SMP_HEADERS}
   ${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkCompilerFeatureDetection.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h
   )
@@ -352,40 +351,16 @@ if (WIN32)
   check_symbol_exists(InterlockedAdd "windows.h" VTK_HAS_INTERLOCKEDADD)
 endif()
 
-if (NOT CMAKE_VERSION VERSION_LESS "3.3")
-  include(WriteCompilerDetectionHeader)
-  write_compiler_detection_header(
-    FILE "${CMAKE_CURRENT_BINARY_DIR}/vtkCompilerFeatureDetection.h"
-    PREFIX VTK
-    COMPILERS GNU Clang AppleClang MSVC
-    FEATURES cxx_final cxx_override cxx_nullptr
-    VERSION "3.3.0"
-  )
-  # MSVC newer than 2012 always supports C++11, so turn it on by default
-  if(MSVC AND ( MSVC11 OR MSVC12 OR MSVC14) )
-   set(VTK_USE_CXX11_DEFAULT ON)
-  else()
-   set(VTK_USE_CXX11_DEFAULT OFF)
-  endif()
-
+if (NOT CMAKE_VERSION VERSION_LESS "3.1")
   option(VTK_USE_CXX11_FEATURES "Build VTK using C++11 features (if available)"
-    ${VTK_USE_CXX11_DEFAULT})
-
+         OFF)
 else()
-  FILE(WRITE "${CMAKE_CURRENT_BINARY_DIR}/vtkCompilerFeatureDetection.h"
-"
-#ifndef vtk_compiler_detection_h
-#define vtk_compiler_detection_h
-
-// default implementations in case CMake is too old to generate the file
-#define VTK_OVERRIDE
-#define VTK_FINAL
-#define VTK_NULLPTR 0
-#endif
-"
-  )
   set(VTK_USE_CXX11_FEATURES OFF)
 endif()
+if (VTK_USE_CXX11_FEATURES)
+  set(CMAKE_CXX_STANDARD_REQUIRED 11)
+endif()
+
 
 configure_file(vtkVersionMacros.h.in vtkVersionMacros.h @ONLY)
 configure_file(vtkConfigure.h.in vtkConfigure.h @ONLY)
@@ -625,7 +600,6 @@ set_source_files_properties(
   vtkTypeTemplate.h
   ${VTK_SMP_SOURCES}
   ${VTK_SMP_HEADERS}
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkCompilerFeatureDetection.h
 
   WRAP_EXCLUDE
   )
@@ -653,7 +627,6 @@ set_source_files_properties(
   vtkWeakPointer.h
   vtkWeakPointerBase.cxx
   vtkWin32Header.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkCompilerFeatureDetection.h
   PROPERTIES WRAP_EXCLUDE_PYTHON 1
 )
 
@@ -673,9 +646,5 @@ if(CMAKE_SYSTEM MATCHES "SunOS.*")
 endif()
 
 vtk_module_library(vtkCommonCore ${Module_SRCS})
-
-if (VTK_USE_CXX11_FEATURES)
-  target_compile_features(vtkCommonCore PUBLIC cxx_final cxx_override cxx_nullptr)
-endif()
 
 vtk_module_link_libraries(vtkCommonCore LINK_PRIVATE ${CMAKE_THREAD_LIBS} LINK_PUBLIC ${VTK_SMP_IMPLEMENTATION_LIBRARIES})
