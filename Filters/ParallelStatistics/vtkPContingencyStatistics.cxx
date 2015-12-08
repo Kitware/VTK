@@ -90,8 +90,8 @@ static bool StringArrayToStringBuffer( vtkTable* contingencyTab,
 {
   // Downcast meta columns to string arrays for efficient data access
   vtkIdTypeArray* keys = vtkIdTypeArray::SafeDownCast( contingencyTab->GetColumnByName( "Key" ) );
-  vtkStringArray* valx = vtkStringArray::SafeDownCast( contingencyTab->GetColumnByName( "x" ) );
-  vtkStringArray* valy = vtkStringArray::SafeDownCast( contingencyTab->GetColumnByName( "y" ) );
+  vtkAbstractArray* valx = contingencyTab->GetColumnByName( "x" );
+  vtkAbstractArray* valy = contingencyTab->GetColumnByName( "y" );
   vtkIdTypeArray* card = vtkIdTypeArray::SafeDownCast( contingencyTab->GetColumnByName( "Cardinality" ) );
   if ( ! keys || ! valx || ! valy || ! card )
     {
@@ -104,8 +104,8 @@ static bool StringArrayToStringBuffer( vtkTable* contingencyTab,
   for ( vtkIdType r = 1; r < nRowCont; ++ r ) // Skip first row which is reserved for data set cardinality
     {
     // Push back x and y to list of strings
-    xyValues.push_back( valx->GetValue( r ) );
-    xyValues.push_back( valy->GetValue( r ) );
+    xyValues.push_back( valx->GetVariantValue( r ).ToString () );
+    xyValues.push_back( valy->GetVariantValue( r ).ToString () );
 
     // Push back (X,Y) index and #(x,y) to list of strings
     kcValues.push_back( keys->GetValue( r ) );

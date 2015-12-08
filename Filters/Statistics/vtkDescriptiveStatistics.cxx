@@ -623,7 +623,7 @@ public:
     this->Nominal = nominal;
   }
   virtual ~ZedDeviationDeviantFunctor() { }
-  virtual void operator() ( vtkVariantArray* result,
+  virtual void operator() ( vtkDoubleArray* result,
                             vtkIdType id )
   {
     result->SetNumberOfValues( 1 );
@@ -643,7 +643,7 @@ public:
     this->Deviation = deviation;
   }
   virtual ~SignedTableColumnDeviantFunctor() { }
-  virtual void operator() ( vtkVariantArray* result,
+  virtual void operator() ( vtkDoubleArray* result,
                             vtkIdType id )
   {
     result->SetNumberOfValues( 1 );
@@ -663,7 +663,7 @@ public:
     this->Deviation = deviation;
   }
   virtual ~UnsignedTableColumnDeviantFunctor() { }
-  virtual void operator() ( vtkVariantArray* result,
+  virtual void operator() ( vtkDoubleArray* result,
                             vtkIdType id )
   {
     result->SetNumberOfValues( 1 );

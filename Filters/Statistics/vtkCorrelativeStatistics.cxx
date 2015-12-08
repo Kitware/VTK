@@ -820,7 +820,7 @@ public:
     this->InterXY = interXY;
   }
   virtual ~BivariateRegressionDeviationsFunctor() { }
-  virtual void operator() ( vtkVariantArray* result,
+  virtual void operator() ( vtkDoubleArray* result,
                             vtkIdType id )
   {
     // First retrieve 2-d observation

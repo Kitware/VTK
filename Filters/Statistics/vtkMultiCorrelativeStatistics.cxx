@@ -107,7 +107,7 @@ static void vtkMultiCorrelativeTransposeTriangular( std::vector<double>& a, vtkI
 }
 
 // ----------------------------------------------------------------------
-void vtkMultiCorrelativeAssessFunctor::operator () ( vtkVariantArray* result, vtkIdType row )
+void vtkMultiCorrelativeAssessFunctor::operator () ( vtkDoubleArray* result, vtkIdType row )
 {
   vtkIdType m = static_cast<vtkIdType>( this->Columns.size() );
   vtkIdType i, j;
@@ -736,7 +736,7 @@ void vtkMultiCorrelativeStatistics::Assess( vtkTable* inData,
       }
 
     // Assess each entry of the column
-    vtkVariantArray* assessResult = vtkVariantArray::New();
+    vtkDoubleArray* assessResult = vtkDoubleArray::New();
     for ( vtkIdType r = 0; r < nRow; ++ r )
       {
       (*dfunc)( assessResult, r );

@@ -393,7 +393,7 @@ void vtkStatisticsAlgorithm::Assess( vtkTable* inData,
     else
       {
       // Assess each entry of the column
-      vtkVariantArray* assessResult = vtkVariantArray::New();
+      vtkDoubleArray* assessResult = vtkDoubleArray::New();
       for ( vtkIdType r = 0; r < nRowData; ++ r )
         {
         // Apply functor

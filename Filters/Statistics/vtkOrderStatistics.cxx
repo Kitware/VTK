@@ -849,7 +849,7 @@ public:
   virtual ~DataArrayQuantizer()
   {
   }
-  virtual void operator() ( vtkVariantArray* result,
+  virtual void operator() ( vtkDoubleArray* result,
                             vtkIdType id )
   {
     result->SetNumberOfValues( 1 );
@@ -890,7 +890,7 @@ public:
   virtual ~StringArrayQuantizer()
   {
   }
-  virtual void operator() ( vtkVariantArray* result,
+  virtual void operator() ( vtkDoubleArray* result,
                             vtkIdType id )
   {
     result->SetNumberOfValues( 1 );
@@ -931,7 +931,7 @@ public:
   virtual ~VariantArrayQuantizer()
   {
   }
-  virtual void operator() ( vtkVariantArray* result,
+  virtual void operator() ( vtkDoubleArray* result,
                             vtkIdType id )
   {
     result->SetNumberOfValues( 1 );

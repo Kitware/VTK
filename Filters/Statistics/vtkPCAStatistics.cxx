@@ -204,7 +204,7 @@ public:
                              vtkTable* inData, vtkTable* reqModel,
                              int normScheme, int basisScheme, int basisSize, double basisEnergy );
 
-  virtual void operator () ( vtkVariantArray* result, vtkIdType row );
+  virtual void operator () ( vtkDoubleArray* result, vtkIdType row );
 
   std::vector<double> EigenValues;
   std::vector<std::vector<double> > EigenVectors;
@@ -334,7 +334,7 @@ bool vtkPCAAssessFunctor::InitializePCA( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
-void vtkPCAAssessFunctor::operator () ( vtkVariantArray* result, vtkIdType row )
+void vtkPCAAssessFunctor::operator () ( vtkDoubleArray* result, vtkIdType row )
 {
   vtkIdType i;
   result->SetNumberOfValues( this->BasisSize );
@@ -1043,14 +1043,14 @@ void vtkPCAStatistics::Assess( vtkTable* inData,
       }
 
     // Something to hold assessed values for a single input datum
-    vtkVariantArray* singleResult = vtkVariantArray::New();
+    vtkDoubleArray* singleResult = vtkDoubleArray::New();
     // Loop over all the input data and assess each datum:
     for ( vtkIdType row = 0; row < nRow; ++ row )
       {
       (*dfunc)( singleResult, row );
       for ( comp = 0; comp < pcafunc->BasisSize; ++ comp )
         {
-        assessValues[comp][row] = singleResult->GetValue( comp ).ToDouble();
+        assessValues[comp][row] = singleResult->GetValue( comp );
         }
       }
     delete dfunc;
