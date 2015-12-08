@@ -16,9 +16,6 @@
 #include "vtkWrapPythonConstant.h"
 #include "vtkWrap.h"
 
-/* for VTK_TYPE_USE_LONG_LONG */
-#include "vtkConfigure.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -150,7 +147,6 @@ void vtkWrapPython_AddConstantHelper(
       objcreated = 1;
       break;
 
-#ifdef VTK_TYPE_USE_LONG_LONG
     case VTK_PARSE_LONG_LONG:
       fprintf(fp,
               "%s%s = PyLong_FromLongLong(%s);\n",
@@ -164,7 +160,6 @@ void vtkWrapPython_AddConstantHelper(
               indent, objvar, valstring);
       objcreated = 1;
       break;
-#endif
 
     case VTK_PARSE_BOOL:
       fprintf(fp,

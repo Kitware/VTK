@@ -1122,7 +1122,6 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
       }
     break;
 
-#if defined(VTK_TYPE_USE_LONG_LONG)
     case VTK_LONG_LONG:
       {
       sprintf (str, format, "vtktypeint64"); *fp << str;
@@ -1143,7 +1142,6 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
       vtkWriteDataArray(fp, s, this->FileType, outputFormat, num, numComp);
       }
     break;
-#endif
 
     case VTK_FLOAT:
       {

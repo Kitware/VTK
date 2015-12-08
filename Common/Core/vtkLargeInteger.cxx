@@ -51,7 +51,6 @@ vtkLargeInteger::vtkLargeInteger(void)
     this->Sig = 0;
 }
 
-#if defined(VTK_TYPE_USE_LONG_LONG)
 vtkLargeInteger::vtkLargeInteger(long long n)
 {
   this->Negative = n < 0 ? 1 : 0;
@@ -80,7 +79,6 @@ vtkLargeInteger::vtkLargeInteger(unsigned long long n)
   this->Sig = BIT_INCREMENT - 1;
   this->Contract(); // remove leading 0s
 }
-#endif
 
 vtkLargeInteger::vtkLargeInteger(long n)
 {

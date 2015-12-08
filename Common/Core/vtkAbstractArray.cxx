@@ -23,6 +23,7 @@
 #include "vtkInformation.h"
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
+#include "vtkLongLongArray.h"
 #include "vtkMath.h"
 #include "vtkMinimalStandardRandomSequence.h"
 #include "vtkShortArray.h"
@@ -32,6 +33,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
+#include "vtkUnsignedLongLongArray.h"
 #include "vtkUnsignedShortArray.h"
 #include "vtkVariantArray.h"
 #include "vtkInformationVector.h"
@@ -41,11 +43,6 @@
 #include "vtkInformationVariantVectorKey.h"
 #include "vtkNew.h"
 #include "vtkUnicodeString.h" // for vtkSuperExtraExtendedTemplateMacro
-
-#if defined(VTK_TYPE_USE_LONG_LONG)
-# include "vtkLongLongArray.h"
-# include "vtkUnsignedLongLongArray.h"
-#endif
 
 #include <algorithm>
 #include <iterator>
@@ -354,13 +351,11 @@ vtkAbstractArray* vtkAbstractArray::CreateArray(int dataType)
     case VTK_UNSIGNED_LONG:
       return vtkUnsignedLongArray::New();
 
-#if defined(VTK_TYPE_USE_LONG_LONG)
     case VTK_LONG_LONG:
       return vtkLongLongArray::New();
 
     case VTK_UNSIGNED_LONG_LONG:
       return vtkUnsignedLongLongArray::New();
-#endif
 
     case VTK_FLOAT:
       return vtkFloatArray::New();

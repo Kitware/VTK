@@ -41,7 +41,6 @@
 #define VTK_STRING         13
 #define VTK_OPAQUE         14
 
-/* These types are enabled if VTK_TYPE_USE_LONG_LONG is defined.  */
 #define VTK_LONG_LONG          16
 #define VTK_UNSIGNED_LONG_LONG 17
 
@@ -195,7 +194,7 @@ typedef signed long   vtkTypeInt32;
 #endif
 
 /* Select a 64-bit integer type.  */
-#if defined(VTK_TYPE_USE_LONG_LONG) && VTK_SIZEOF_LONG_LONG == 8
+#if VTK_SIZEOF_LONG_LONG == 8
 typedef unsigned long long vtkTypeUInt64;
 typedef signed long long   vtkTypeInt64;
 # define VTK_TYPE_UINT64 VTK_UNSIGNED_LONG_LONG
@@ -229,13 +228,13 @@ typedef double vtkTypeFloat64;
 /* Choose an implementation for vtkIdType.  */
 #define VTK_HAS_ID_TYPE
 #ifdef VTK_USE_64BIT_IDS
-# if defined(VTK_TYPE_USE_LONG_LONG) && VTK_SIZEOF_LONG_LONG == 8
+# if VTK_SIZEOF_LONG_LONG == 8
 typedef long long vtkIdType;
 #  define VTK_ID_TYPE_IMPL VTK_LONG_LONG
 #  define VTK_SIZEOF_ID_TYPE VTK_SIZEOF_LONG_LONG
 #  define VTK_ID_MIN VTK_LONG_LONG_MIN
 #  define VTK_ID_MAX VTK_LONG_LONG_MAX
-# elif defined(VTK_SIZEOF_LONG) && VTK_SIZEOF_LONG == 8
+# elif VTK_SIZEOF_LONG == 8
 typedef long vtkIdType;
 #  define VTK_ID_TYPE_IMPL VTK_LONG
 #  define VTK_SIZEOF_ID_TYPE VTK_SIZEOF_LONG

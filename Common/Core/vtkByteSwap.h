@@ -49,15 +49,13 @@ public:
   VTK_BYTE_SWAP_DECL(short);
   VTK_BYTE_SWAP_DECL(int);
   VTK_BYTE_SWAP_DECL(long);
+  VTK_BYTE_SWAP_DECL(long long);
   VTK_BYTE_SWAP_DECL(signed char);
   VTK_BYTE_SWAP_DECL(unsigned char);
   VTK_BYTE_SWAP_DECL(unsigned short);
   VTK_BYTE_SWAP_DECL(unsigned int);
   VTK_BYTE_SWAP_DECL(unsigned long);
-#if defined(VTK_TYPE_USE_LONG_LONG)
-  VTK_BYTE_SWAP_DECL(long long);
   VTK_BYTE_SWAP_DECL(unsigned long long);
-#endif
 #undef VTK_BYTE_SWAP_DECL
   //ETX
 

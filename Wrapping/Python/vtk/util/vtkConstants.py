@@ -29,7 +29,6 @@ VTK_ID_TYPE         =12
 VTK_STRING          =13
 VTK_OPAQUE          =14
 
-# These types are enabled if VTK_TYPE_USE_LONG_LONG is defined.
 VTK_LONG_LONG          =16
 VTK_UNSIGNED_LONG_LONG =17
 

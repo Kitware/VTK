@@ -172,13 +172,8 @@ extern "C" {
     // Find the image
 #ifdef VTK_PYTHON_BUILD
     char typeCheck[256];
-#if defined(VTK_TYPE_USE_LONG_LONG)
     unsigned long long l;
     sscanf ( argv[1], "_%llx_%s", &l, typeCheck);
-#else
-    unsigned long l;
-    sscanf ( argv[1], "_%lx_%s", &l, typeCheck);
-#endif
     union { void *p; uintptr_t l; } u;
     u.l = static_cast<uintptr_t>(l);
     // Various historical pointer manglings

@@ -3822,11 +3822,7 @@ unsigned int guess_constant_type(const char *valstring)
           }
         else
           {
-#if defined(VTK_TYPE_USE_LONG_LONG)
           return VTK_PARSE_UNSIGNED_LONG_LONG;
-#else
-          return VTK_PARSE_UNSIGNED_LONG;
-#endif
           }
         }
       else
@@ -3837,11 +3833,7 @@ unsigned int guess_constant_type(const char *valstring)
           }
         else
           {
-#if defined(VTK_TYPE_USE_LONG_LONG)
           return VTK_PARSE_LONG_LONG;
-#else
-          return VTK_PARSE_LONG;
-#endif
           }
         }
       }

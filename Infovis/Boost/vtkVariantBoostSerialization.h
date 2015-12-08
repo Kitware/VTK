@@ -120,11 +120,9 @@ void save(Archiver& ar, const vtkVariant& variant,
     VTK_VARIANT_SAVE(VTK_UNSIGNED_INT,unsigned int,ToUnsignedInt);
     VTK_VARIANT_SAVE(VTK_LONG,long,ToLong);
     VTK_VARIANT_SAVE(VTK_UNSIGNED_LONG,unsigned long,ToUnsignedLong);
-#if defined(VTK_TYPE_USE_LONG_LONG)
     VTK_VARIANT_SAVE(VTK_LONG_LONG,long long,ToLongLong);
     VTK_VARIANT_SAVE(VTK_UNSIGNED_LONG_LONG,unsigned long long,
                      ToUnsignedLongLong);
-#endif
     default:
       cerr << "cannot serialize variant with type " << variant.GetType()
            << '\n';
@@ -163,10 +161,8 @@ void load(Archiver& ar, vtkVariant& variant,
     VTK_VARIANT_LOAD(VTK_UNSIGNED_INT,unsigned int);
     VTK_VARIANT_LOAD(VTK_LONG,long);
     VTK_VARIANT_LOAD(VTK_UNSIGNED_LONG,unsigned long);
-#if defined(VTK_TYPE_USE_LONG_LONG)
     VTK_VARIANT_LOAD(VTK_LONG_LONG,long long);
     VTK_VARIANT_LOAD(VTK_UNSIGNED_LONG_LONG,unsigned long long);
-#endif
     default:
       cerr << "cannot deserialize variant with type " << static_cast<unsigned int>(Type) << '\n';
       variant = vtkVariant();

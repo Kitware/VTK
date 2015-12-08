@@ -1583,10 +1583,8 @@ const char* vtkXMLWriter::GetWordTypeName(int dataType)
     case VTK_UNSIGNED_INT:   isSigned = 0; size = sizeof(unsigned int); break;
     case VTK_UNSIGNED_LONG:  isSigned = 0; size = sizeof(unsigned long); break;
     case VTK_UNSIGNED_SHORT: isSigned = 0; size = sizeof(unsigned short); break;
-#if defined(VTK_TYPE_USE_LONG_LONG)
     case VTK_LONG_LONG:          isSigned = 1; size = sizeof(long long); break;
     case VTK_UNSIGNED_LONG_LONG: isSigned = 0; size = sizeof(unsigned long long); break;
-#endif
     default:
     {
     vtkWarningMacro("Unsupported data type: " << dataType); } break;

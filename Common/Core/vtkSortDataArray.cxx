@@ -290,7 +290,6 @@ static int vtkSortDataArrayComponentCompare_VTK_FLOAT( const void* a, const void
     (((float*)a)[vtkSortDataArrayComp] == ((float*)b)[vtkSortDataArrayComp] ? 0 : 1);
 }
 
-#ifdef VTK_TYPE_USE_LONG_LONG
 static int vtkSortDataArrayComponentCompare_VTK_LONG_LONG( const void* a, const void* b )
 {
   return ((long long*)a)[vtkSortDataArrayComp] < ((long long*)b)[vtkSortDataArrayComp] ? -1 :
@@ -302,7 +301,6 @@ static int vtkSortDataArrayComponentCompare_VTK_UNSIGNED_LONG_LONG( const void* 
   return ((unsigned long long*)a)[vtkSortDataArrayComp] < ((unsigned long long*)b)[vtkSortDataArrayComp] ? -1 :
     (((unsigned long long*)a)[vtkSortDataArrayComp] == ((unsigned long long*)b)[vtkSortDataArrayComp] ? 0 : 1);
 }
-#endif // VTK_TYPE_USE_LONG_LONG
 
 static int vtkSortDataArrayComponentCompare_VTK_ID_TYPE( const void* a, const void* b )
 {
@@ -431,7 +429,6 @@ void vtkSortDataArray::SortArrayByComponent( vtkAbstractArray* arr, int k )
             static_cast<size_t>(arr->GetDataTypeSize()*nc),
             vtkSortDataArrayComponentCompare_VTK_FLOAT);
       break;
-#ifdef VTK_TYPE_USE_LONG_LONG
     case VTK_LONG_LONG:
       qsort(static_cast<void*>(arr->GetVoidPointer(0)),
             static_cast<size_t>(arr->GetNumberOfTuples()),
@@ -444,7 +441,6 @@ void vtkSortDataArray::SortArrayByComponent( vtkAbstractArray* arr, int k )
             static_cast<size_t>(arr->GetDataTypeSize()*nc),
             vtkSortDataArrayComponentCompare_VTK_UNSIGNED_LONG_LONG);
       break;
-#endif // VTK_TYPE_USE_LONG_LONG
     case VTK_ID_TYPE:
       qsort(static_cast<void*>(arr->GetVoidPointer(0)),
             static_cast<size_t>(arr->GetNumberOfTuples()),

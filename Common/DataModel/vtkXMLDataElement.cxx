@@ -722,7 +722,6 @@ int vtkXMLDataElement::GetScalarAttribute(const char* name,
 }
 
 //----------------------------------------------------------------------------
-#ifdef VTK_TYPE_USE_LONG_LONG
 int vtkXMLDataElement::GetScalarAttribute(const char* name,
                                           long long& value)
 {
@@ -733,7 +732,6 @@ int vtkXMLDataElement::GetScalarAttribute(const char* name,
 {
   return this->GetVectorAttribute(name, 1, &value);
 }
-#endif
 
 //----------------------------------------------------------------------------
 template <class T>
@@ -785,7 +783,6 @@ int vtkXMLDataElement::GetVectorAttribute(const char* name, int length,
 }
 
 //----------------------------------------------------------------------------
-#ifdef VTK_TYPE_USE_LONG_LONG
 int vtkXMLDataElement::GetVectorAttribute(const char* name, int length,
                                           long long* data)
 {
@@ -798,7 +795,6 @@ int vtkXMLDataElement::GetVectorAttribute(const char* name, int length,
   return vtkXMLDataElementVectorAttributeParse(this->GetAttribute(name),
                                                length, data);
 }
-#endif
 
 //----------------------------------------------------------------------------
 int vtkXMLDataElement::GetWordTypeAttribute(const char* name, int& value)
@@ -926,7 +922,7 @@ int vtkXMLDataElement::GetWordTypeAttribute(const char* name, int& value)
 #elif VTK_SIZEOF_LONG == 8
     value = VTK_LONG;
     return 1;
-#elif defined(VTK_TYPE_USE_LONG_LONG) && VTK_SIZEOF_LONG_LONG == 8
+#elif VTK_SIZEOF_LONG_LONG == 8
     value = VTK_LONG_LONG;
     return 1;
 #else
@@ -945,7 +941,7 @@ int vtkXMLDataElement::GetWordTypeAttribute(const char* name, int& value)
 #elif VTK_SIZEOF_LONG == 8
     value = VTK_UNSIGNED_LONG;
     return 1;
-#elif defined(VTK_TYPE_USE_LONG_LONG) && VTK_SIZEOF_LONG_LONG == 8
+#elif VTK_SIZEOF_LONG_LONG == 8
     value = VTK_UNSIGNED_LONG_LONG;
     return 1;
 #else
@@ -1042,7 +1038,6 @@ void vtkXMLDataElement::SetVectorAttribute(const char* name, int length,
 }
 
 //----------------------------------------------------------------------------
-#ifdef VTK_TYPE_USE_LONG_LONG
 void vtkXMLDataElement::SetVectorAttribute(const char* name, int length,
                                            long long const* data)
 {
@@ -1053,7 +1048,6 @@ void vtkXMLDataElement::SetVectorAttribute(const char* name, int length,
 {
   vtkXMLDataElementVectorAttributeSet(this, name, length, data);
 }
-#endif
 
 //----------------------------------------------------------------------------
 int vtkXMLDataElement::IsSpace(char c)

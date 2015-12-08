@@ -87,7 +87,7 @@
 #endif
 
 /* Whether type "long long" is enabled as a unique fundamental type.  */
-#cmakedefine VTK_TYPE_USE_LONG_LONG
+#define VTK_TYPE_USE_LONG_LONG
 
 /* Whether type "char" is signed (it may be signed or unsigned).  */
 #define VTK_TYPE_CHAR_IS_SIGNED @VTK_TYPE_CHAR_IS_SIGNED@

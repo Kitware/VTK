@@ -97,14 +97,12 @@ public:
   void SetVectorAttribute(const char* name, int length, const unsigned long* value);
 
   //BTX
-#ifdef VTK_TYPE_USE_LONG_LONG
   int  GetScalarAttribute(const char* name, long long& value);
   int  GetVectorAttribute(const char* name, int length, long long* value);
   void SetVectorAttribute(const char* name, int length, long long const* value);
   int  GetScalarAttribute(const char* name, unsigned long long& value);
   int  GetVectorAttribute(const char* name, int length, unsigned long long* value);
   void SetVectorAttribute(const char* name, int length, unsigned long long const* value);
-#endif
   //ETX
 
   // Description:

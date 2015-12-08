@@ -78,7 +78,6 @@ T vtkVariant::ToNumeric(bool* valid, T* vtkNotUsed(ignored)) const
     {
     return static_cast<T>(this->Data.UnsignedLong);
     }
-#if defined(VTK_TYPE_USE_LONG_LONG)
   if (this->IsLongLong())
     {
     return static_cast<T>(this->Data.LongLong);
@@ -87,7 +86,6 @@ T vtkVariant::ToNumeric(bool* valid, T* vtkNotUsed(ignored)) const
     {
     return static_cast<T>(this->Data.UnsignedLongLong);
     }
-#endif
   // For arrays, convert the first value to the appropriate type.
   if (this->IsArray())
     {

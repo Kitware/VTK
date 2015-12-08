@@ -213,10 +213,8 @@ bool vtkSQLQuery::BindParameter(int index, vtkVariant data)
     VTK_VARIANT_BIND_PARAMETER(VTK_UNSIGNED_INT,ToUnsignedInt);
     VTK_VARIANT_BIND_PARAMETER(VTK_LONG,ToLong);
     VTK_VARIANT_BIND_PARAMETER(VTK_UNSIGNED_LONG,ToUnsignedLong);
-#if defined(VTK_TYPE_USE_LONG_LONG)
     VTK_VARIANT_BIND_PARAMETER(VTK_LONG_LONG,ToLongLong);
     VTK_VARIANT_BIND_PARAMETER(VTK_UNSIGNED_LONG_LONG,ToUnsignedLongLong);
-#endif
     case VTK_OBJECT:
       vtkErrorMacro(<<"Variants of type VTK_OBJECT cannot be inserted into a database.");
       return false;

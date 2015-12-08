@@ -124,7 +124,6 @@ public:
   // Create an unsigned long variant.
   vtkVariant(unsigned long value);
 
-#if defined(VTK_TYPE_USE_LONG_LONG)
   // Description:
   // Create a long long variant.
   vtkVariant(long long value);
@@ -132,7 +131,6 @@ public:
   // Description:
   // Create an unsigned long long variant.
   vtkVariant(unsigned long long value);
-#endif
 
   // Description:
   // Create a float variant.
@@ -307,14 +305,12 @@ public:
   unsigned long ToUnsignedLong(bool *valid) const;
   unsigned long ToUnsignedLong() const {
     return this->ToUnsignedLong(0); };
-#if defined(VTK_TYPE_USE_LONG_LONG)
   long long ToLongLong(bool *valid) const;
   long long ToLongLong() const {
     return this->ToLongLong(0); };
   unsigned long long ToUnsignedLongLong(bool *valid) const;
   unsigned long long ToUnsignedLongLong() const {
     return this->ToUnsignedLongLong(0); };
-#endif
   vtkTypeInt64 ToTypeInt64(bool *valid) const;
   vtkTypeInt64 ToTypeInt64() const {
     return this->ToTypeInt64(0); };
@@ -401,10 +397,8 @@ private:
     unsigned int UnsignedInt;
     long Long;
     unsigned long UnsignedLong;
-#if defined(VTK_TYPE_USE_LONG_LONG)
     long long LongLong;
     unsigned long long UnsignedLongLong;
-#endif
     vtkObjectBase* VTKObject;
   } Data;
 

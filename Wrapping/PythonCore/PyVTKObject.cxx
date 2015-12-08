@@ -356,10 +356,8 @@ static const char *pythonTypeFormat(int t)
     case VTK_DOUBLE: b = "d"; break;
 #ifndef VTK_USE_64BIT_IDS
     case VTK_ID_TYPE: b = "i"; break;
-#elif defined(VTK_TYPE_USE_LONG_LONG) || (VTK_SIZEOF_LONG != 8)
-    case VTK_ID_TYPE: b = "q"; break;
 #else
-    case VTK_ID_TYPE: b = "l"; break;
+    case VTK_ID_TYPE: b = "q"; break;
 #endif
     }
 

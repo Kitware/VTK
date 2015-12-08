@@ -103,13 +103,11 @@ bool vtkVariantStrictWeakOrder::operator()(const vtkVariant& s1, const vtkVarian
     case VTK_UNSIGNED_LONG:
       return (s1.Data.UnsignedLong < s2.Data.UnsignedLong);
 
-#if defined(VTK_TYPE_USE_LONG_LONG)
     case VTK_LONG_LONG:
       return (s1.Data.LongLong < s2.Data.LongLong);
 
     case VTK_UNSIGNED_LONG_LONG:
       return (s1.Data.UnsignedLongLong < s2.Data.UnsignedLongLong);
-#endif
 
     case VTK_FLOAT:
       return (s1.Data.Float < s2.Data.Float);
@@ -189,13 +187,11 @@ vtkVariantStrictEquality::operator()(const vtkVariant &s1, const vtkVariant &s2)
     case VTK_UNSIGNED_LONG:
       return (s1.Data.UnsignedLong == s2.Data.UnsignedLong);
 
-#if defined(VTK_TYPE_USE_LONG_LONG)
     case VTK_LONG_LONG:
       return (s1.Data.LongLong == s2.Data.LongLong);
 
     case VTK_UNSIGNED_LONG_LONG:
       return (s1.Data.UnsignedLongLong == s2.Data.UnsignedLongLong);
-#endif
 
     case VTK_FLOAT:
       return (s1.Data.Float == s2.Data.Float);
@@ -318,7 +314,6 @@ vtkVariant::vtkVariant(const vtkVariant &s2, unsigned int type)
         this->Data.UnsignedLong = s2.ToUnsignedLong(&valid);
         break;
 
-#if defined(VTK_TYPE_USE_LONG_LONG)
       case VTK_LONG_LONG:
         this->Data.LongLong = s2.ToLongLong(&valid);
         break;
@@ -326,7 +321,6 @@ vtkVariant::vtkVariant(const vtkVariant &s2, unsigned int type)
       case VTK_UNSIGNED_LONG_LONG:
         this->Data.UnsignedLongLong = s2.ToUnsignedLongLong(&valid);
         break;
-#endif
 
       case VTK_FLOAT:
         this->Data.Float = s2.ToFloat(&valid);
@@ -478,7 +472,6 @@ vtkVariant::vtkVariant(unsigned long value)
   this->Type = VTK_UNSIGNED_LONG;
 }
 
-#if defined(VTK_TYPE_USE_LONG_LONG)
 vtkVariant::vtkVariant(long long value)
 {
   this->Data.LongLong = value;
@@ -492,7 +485,6 @@ vtkVariant::vtkVariant(unsigned long long value)
   this->Valid = 1;
   this->Type = VTK_UNSIGNED_LONG_LONG;
 }
-#endif
 
 vtkVariant::vtkVariant(float value)
 {
@@ -782,7 +774,6 @@ vtkStdString vtkVariant::ToString() const
     ostr << this->Data.UnsignedLong;
     return vtkStdString(ostr.str());
     }
-#if defined(VTK_TYPE_USE_LONG_LONG)
   if (this->IsLongLong())
     {
     std::ostringstream ostr;
@@ -797,7 +788,6 @@ vtkStdString vtkVariant::ToString() const
     ostr << this->Data.UnsignedLongLong;
     return vtkStdString(ostr.str());
     }
-#endif
   if (this->IsArray())
     {
     vtkAbstractArray* arr = vtkAbstractArray::SafeDownCast(this->Data.VTKObject);
@@ -940,11 +930,8 @@ vtkVariantToNumericInstantiateMacro(int);
 vtkVariantToNumericInstantiateMacro(unsigned int);
 vtkVariantToNumericInstantiateMacro(long);
 vtkVariantToNumericInstantiateMacro(unsigned long);
-
-#if defined(VTK_TYPE_USE_LONG_LONG)
 vtkVariantToNumericInstantiateMacro(long long);
 vtkVariantToNumericInstantiateMacro(unsigned long long);
-#endif
 
 #endif
 
@@ -1006,7 +993,6 @@ unsigned long vtkVariant::ToUnsignedLong(bool *valid) const
   return this->ToNumeric(valid, static_cast<unsigned long *>(0));
 }
 
-#if defined(VTK_TYPE_USE_LONG_LONG)
 long long vtkVariant::ToLongLong(bool *valid) const
 {
   return this->ToNumeric(valid, static_cast<long long *>(0));
@@ -1016,7 +1002,6 @@ unsigned long long vtkVariant::ToUnsignedLongLong(bool *valid) const
 {
   return this->ToNumeric(valid, static_cast<unsigned long long *>(0));
 }
-#endif
 
 vtkTypeInt64 vtkVariant::ToTypeInt64(bool *valid) const
 {
@@ -1095,14 +1080,12 @@ ostream& operator << ( ostream& os, const vtkVariant& val )
   case VTK_UNSIGNED_LONG:
     os << val.Data.UnsignedLong;
     break;
-#if defined(VTK_TYPE_USE_LONG_LONG)
   case VTK_LONG_LONG:
     os << val.Data.LongLong;
     break;
   case VTK_UNSIGNED_LONG_LONG:
     os << val.Data.UnsignedLongLong;
     break;
-#endif
   case VTK_OBJECT:
     if ( val.Data.VTKObject )
       {

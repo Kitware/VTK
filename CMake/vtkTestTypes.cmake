@@ -7,15 +7,7 @@ CHECK_TYPE_SIZE(char     VTK_SIZEOF_CHAR)
 CHECK_TYPE_SIZE(short    VTK_SIZEOF_SHORT)
 CHECK_TYPE_SIZE(float    VTK_SIZEOF_FLOAT)
 CHECK_TYPE_SIZE(double   VTK_SIZEOF_DOUBLE)
-
 CHECK_TYPE_SIZE("long long" VTK_SIZEOF_LONG_LONG)
-
-# Enable the "long long" type if it is available.  It is standard in
-# C99 and C++03 but not in earlier standards.
-SET(VTK_TYPE_USE_LONG_LONG)
-IF(VTK_SIZEOF_LONG_LONG)
-  SET(VTK_TYPE_USE_LONG_LONG 1)
-ENDIF()
 
 IF(NOT DEFINED VTK_TYPE_CHAR_IS_SIGNED)
   MESSAGE(STATUS "Checking signedness of char")

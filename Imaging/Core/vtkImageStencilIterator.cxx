@@ -26,7 +26,5 @@ template class VTKIMAGINGCORE_EXPORT vtkImageStencilIterator<unsigned long>;
 template class VTKIMAGINGCORE_EXPORT vtkImageStencilIterator<unsigned short>;
 template class VTKIMAGINGCORE_EXPORT vtkImageStencilIterator<unsigned char>;
 template class VTKIMAGINGCORE_EXPORT vtkImageStencilIterator<unsigned int>;
-#if defined(VTK_TYPE_USE_LONG_LONG)
 template class VTKIMAGINGCORE_EXPORT vtkImageStencilIterator<long long>;
 template class VTKIMAGINGCORE_EXPORT vtkImageStencilIterator<unsigned long long>;
-#endif

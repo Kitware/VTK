@@ -47,10 +47,7 @@
 #include "vtkVariantArray.h"
 #include <sstream>
 
-// We only have vtkTypeUInt64Array if we have long long
-#if defined(VTK_TYPE_USE_LONG_LONG)
 #include "vtkTypeUInt64Array.h"
-#endif
 
 #include <ctype.h>
 #include <sys/stat.h>
@@ -319,7 +316,6 @@ int vtkDataReader::Read(unsigned long *result)
   return 1;
 }
 
-#if defined(VTK_TYPE_USE_LONG_LONG)
 int vtkDataReader::Read(long long *result)
 {
   *this->IS >> *result;
@@ -339,7 +335,6 @@ int vtkDataReader::Read(unsigned long long *result)
     }
   return 1;
 }
-#endif
 
 int vtkDataReader::Read(float *result)
 {
@@ -1587,8 +1582,6 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, 
 
   else if ( ! strncmp(type, "vtktypeuint64", 13) )
     {
-// We only have vtkTypeUInt64Array if we have long long
-#if defined(VTK_TYPE_USE_LONG_LONG)
     array = vtkTypeUInt64Array::New();
     array->SetNumberOfComponents(numComp);
     vtkTypeUInt64 *ptr = ((vtkTypeUInt64Array *)array)->WritePointer(0,numTuples*numComp);
@@ -1602,11 +1595,6 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, 
       {
       vtkReadASCIIData(this, ptr, numTuples, numComp);
       }
-#else
-    vtkErrorMacro("This version of VTK cannot read unsigned 64-bit integers.");
-    free(type);
-    return NULL;
-#endif
     }
 
   else if ( ! strncmp(type, "float", 5) )
@@ -1855,14 +1843,12 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, 
           case VTK_DOUBLE:
             v = sv.ToDouble();
             break;
-#ifdef VTK_TYPE_USE_LONG_LONG
           case VTK_LONG_LONG:
             v = sv.ToLongLong();
             break;
           case VTK_UNSIGNED_LONG_LONG:
             v = sv.ToUnsignedLongLong();
             break;
-#endif
           case VTK_STRING:
             v = sv.ToString();
             break;

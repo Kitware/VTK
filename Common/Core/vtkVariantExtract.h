@@ -106,8 +106,6 @@ inline unsigned long vtkVariantExtract<unsigned long>(const vtkVariant& value, b
   return valid ? value.ToUnsignedLong() : 0;
 }
 
-#ifdef VTK_TYPE_USE_LONG_LONG
-
 template<>
 inline long long vtkVariantExtract<long long>(const vtkVariant& value, bool& valid)
 {
@@ -121,8 +119,6 @@ inline unsigned long long vtkVariantExtract<unsigned long long>(const vtkVariant
   valid = value.IsUnsignedLongLong();
   return valid ? value.ToUnsignedLongLong() : 0;
 }
-
-#endif
 
 template<>
 inline float vtkVariantExtract<float>(const vtkVariant& value, bool& valid)

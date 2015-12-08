@@ -29,10 +29,8 @@ public:
   vtkLargeInteger(int n);
   vtkLargeInteger(unsigned int n);
   vtkLargeInteger(const vtkLargeInteger& n);
-#if defined(VTK_TYPE_USE_LONG_LONG)
   vtkLargeInteger(long long n);
   vtkLargeInteger(unsigned long long n);
-#endif
 
   ~vtkLargeInteger(void);
 

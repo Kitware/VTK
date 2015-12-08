@@ -1258,10 +1258,8 @@ double vtkDataArray::GetDataTypeMin(int type)
     case VTK_INT:                return static_cast<double>(VTK_INT_MIN);
     case VTK_UNSIGNED_LONG:      return static_cast<double>(VTK_UNSIGNED_LONG_MIN);
     case VTK_LONG:               return static_cast<double>(VTK_LONG_MIN);
-#if defined(VTK_TYPE_USE_LONG_LONG)
     case VTK_UNSIGNED_LONG_LONG: return static_cast<double>(VTK_UNSIGNED_LONG_LONG_MIN);
     case VTK_LONG_LONG:          return static_cast<double>(VTK_LONG_LONG_MIN);
-#endif
     case VTK_FLOAT:              return static_cast<double>(VTK_FLOAT_MIN);
     case VTK_DOUBLE:             return static_cast<double>(VTK_DOUBLE_MIN);
     case VTK_ID_TYPE:            return static_cast<double>(VTK_ID_MIN);
@@ -1284,10 +1282,8 @@ double vtkDataArray::GetDataTypeMax(int type)
     case VTK_INT:                return static_cast<double>(VTK_INT_MAX);
     case VTK_UNSIGNED_LONG:      return static_cast<double>(VTK_UNSIGNED_LONG_MAX);
     case VTK_LONG:               return static_cast<double>(VTK_LONG_MAX);
-#if defined(VTK_TYPE_USE_LONG_LONG)
     case VTK_UNSIGNED_LONG_LONG: return static_cast<double>(VTK_UNSIGNED_LONG_LONG_MAX);
     case VTK_LONG_LONG:          return static_cast<double>(VTK_LONG_LONG_MAX);
-#endif
     case VTK_FLOAT:              return static_cast<double>(VTK_FLOAT_MAX);
     case VTK_DOUBLE:             return static_cast<double>(VTK_DOUBLE_MAX);
     case VTK_ID_TYPE:            return static_cast<double>(VTK_ID_MAX);

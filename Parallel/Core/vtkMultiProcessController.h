@@ -369,12 +369,10 @@ public:
   int Send(const double* data, vtkIdType length, int remoteProcessId, int tag);
 #ifdef VTK_USE_64BIT_IDS
   int Send(const vtkIdType* data, vtkIdType length, int remoteProcessId, int tag);
-#elif defined(VTK_TYPE_USE_LONG_LONG)
+#else
   int Send(const long long* data, vtkIdType length, int remoteProcessId, int tag);
 #endif
-#ifdef VTK_TYPE_USE_LONG_LONG
   int Send(const unsigned long long* data, vtkIdType length, int remoteProcessId, int tag);
-#endif
   int Send(vtkDataObject *data, int remoteId, int tag);
   int Send(vtkDataArray *data, int remoteId, int tag);
 
@@ -410,12 +408,10 @@ public:
   int Receive(double* data, vtkIdType maxlength, int remoteProcessId, int tag);
 #ifdef VTK_USE_64BIT_IDS
   int Receive(vtkIdType* data, vtkIdType maxlength, int remoteProcessId, int tag);
-#elif defined(VTK_TYPE_USE_LONG_LONG)
+#else
   int Receive(long long* data, vtkIdType maxLength, int remoteProcessId, int tag);
 #endif
-#ifdef VTK_TYPE_USE_LONG_LONG
   int Receive(unsigned long long* data, vtkIdType maxLength, int remoteProcessId, int tag);
-#endif
   int Receive(vtkDataObject* data, int remoteId, int tag);
   int Receive(vtkDataArray* data, int remoteId, int tag);
 //BTX
@@ -478,16 +474,14 @@ public:
   int Broadcast(vtkIdType *data, vtkIdType length, int srcProcessId) {
     return this->Communicator->Broadcast(data, length, srcProcessId);
   }
-#elif defined(VTK_TYPE_USE_LONG_LONG)
+#else
   int Broadcast(long long *data, vtkIdType length, int srcProcessId) {
     return this->Communicator->Broadcast(data, length, srcProcessId);
   }
 #endif
-#ifdef VTK_TYPE_USE_LONG_LONG
   int Broadcast(unsigned long long *data, vtkIdType length, int srcProcessId) {
     return this->Communicator->Broadcast(data, length, srcProcessId);
   }
-#endif
   int Broadcast(vtkDataObject *data, int srcProcessId) {
     return this->Communicator->Broadcast(data, srcProcessId);
   }
@@ -569,20 +563,18 @@ public:
     return this->Communicator->Gather(sendBuffer, recvBuffer, length,
                                       destProcessId);
   }
-#elif defined(VTK_TYPE_USE_LONG_LONG)
+#else
   int Gather(const long long *sendBuffer, long long *recvBuffer,
              vtkIdType length, int destProcessId) {
     return this->Communicator->Gather(sendBuffer, recvBuffer, length,
                                       destProcessId);
   }
 #endif
-#ifdef VTK_TYPE_USE_LONG_LONG
   int Gather(const unsigned long long *sendBuffer, unsigned long long *recvBuffer,
              vtkIdType length, int destProcessId) {
     return this->Communicator->Gather(sendBuffer, recvBuffer, length,
                                       destProcessId);
   }
-#endif
   int Gather(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
              int destProcessId) {
     return this->Communicator->Gather(sendBuffer, recvBuffer, destProcessId);
@@ -683,7 +675,7 @@ public:
                                        sendLength, recvLengths,
                                        offsets, destProcessId);
   }
-#elif defined(VTK_TYPE_USE_LONG_LONG)
+#else
   int GatherV(const long long* sendBuffer, long long* recvBuffer,
               vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
               int destProcessId) {
@@ -692,7 +684,6 @@ public:
                                        offsets, destProcessId);
   }
 #endif
-#ifdef VTK_TYPE_USE_LONG_LONG
   int GatherV(const unsigned long long* sendBuffer, unsigned long long* recvBuffer,
               vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
               int destProcessId) {
@@ -701,7 +692,6 @@ public:
                                        offsets, destProcessId);
   }
 
-#endif
   int GatherV(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
               vtkIdType *recvLengths, vtkIdType *offsets, int destProcessId) {
     return this->Communicator->GatherV(sendBuffer, recvBuffer,
@@ -800,20 +790,18 @@ public:
     return this->Communicator->Scatter(sendBuffer, recvBuffer, length,
                                        srcProcessId);
   }
-#elif defined(VTK_TYPE_USE_LONG_LONG)
+#else
   int Scatter(const long long *sendBuffer, long long *recvBuffer,
               vtkIdType length, int srcProcessId) {
     return this->Communicator->Scatter(sendBuffer, recvBuffer, length,
                                        srcProcessId);
   }
 #endif
-#ifdef VTK_TYPE_USE_LONG_LONG
   int Scatter(const unsigned long long *sendBuffer, unsigned long long *recvBuffer,
               vtkIdType length, int srcProcessId) {
     return this->Communicator->Scatter(sendBuffer, recvBuffer, length,
                                        srcProcessId);
   }
-#endif
   int Scatter(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
               int srcProcessId) {
     return this->Communicator->Scatter(sendBuffer, recvBuffer, srcProcessId);
@@ -910,7 +898,7 @@ public:
                                         sendLengths, offsets, recvLength,
                                         srcProcessId);
   }
-#elif defined(VTK_TYPE_USE_LONG_LONG)
+#else
   int ScatterV(const long long *sendBuffer, long long *recvBuffer,
                vtkIdType *sendLengths, vtkIdType *offsets,
                vtkIdType recvLength, int srcProcessId) {
@@ -919,7 +907,6 @@ public:
                                         srcProcessId);
   }
 #endif
-#ifdef VTK_TYPE_USE_LONG_LONG
   int ScatterV(const unsigned long long *sendBuffer, unsigned long long *recvBuffer,
                vtkIdType *sendLengths, vtkIdType *offsets,
                vtkIdType recvLength, int srcProcessId) {
@@ -927,7 +914,6 @@ public:
                                         sendLengths, offsets, recvLength,
                                         srcProcessId);
   }
-#endif
 
   // Description:
   // Same as gather except that the result ends up on all processes.
@@ -972,16 +958,14 @@ public:
                 vtkIdType length) {
     return this->Communicator->AllGather(sendBuffer, recvBuffer, length);
   }
-#elif defined(VTK_TYPE_USE_LONG_LONG)
+#else
   int AllGather(const long long *sendBuffer, long long *recvBuffer, vtkIdType length) {
     return this->Communicator->AllGather(sendBuffer, recvBuffer, length);
   }
 #endif
-#ifdef VTK_TYPE_USE_LONG_LONG
   int AllGather(const unsigned long long *sendBuffer, unsigned long long *recvBuffer, vtkIdType length) {
     return this->Communicator->AllGather(sendBuffer, recvBuffer, length);
   }
-#endif
   int AllGather(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer) {
     return this->Communicator->AllGather(sendBuffer, recvBuffer);
   }
@@ -1073,7 +1057,7 @@ public:
                                           sendLength, recvLengths,
                                           offsets);
   }
-#elif defined(VTK_TYPE_USE_LONG_LONG)
+#else
   int AllGatherV(const long long* sendBuffer, long long* recvBuffer,
                  vtkIdType sendLength, vtkIdType* recvLengths,
                  vtkIdType* offsets) {
@@ -1082,7 +1066,6 @@ public:
                                           offsets);
   }
 #endif
-#ifdef VTK_TYPE_USE_LONG_LONG
   int AllGatherV(const unsigned long long* sendBuffer, unsigned long long* recvBuffer,
                  vtkIdType sendLength, vtkIdType* recvLengths,
                  vtkIdType* offsets) {
@@ -1090,7 +1073,6 @@ public:
                                           sendLength, recvLengths,
                                           offsets);
   }
-#endif
   int AllGatherV(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
                  vtkIdType *recvLengths, vtkIdType *offsets) {
     return this->Communicator->AllGatherV(sendBuffer, recvBuffer,
@@ -1171,20 +1153,18 @@ public:
     return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
                                       operation, destProcessId);
   }
-#elif defined(VTK_TYPE_USE_LONG_LONG)
+#else
   int Reduce(const long long *sendBuffer, long long *recvBuffer,
              vtkIdType length, int operation, int destProcessId) {
     return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
                                       operation, destProcessId);
   }
 #endif
-#ifdef VTK_TYPE_USE_LONG_LONG
   int Reduce(const unsigned long long *sendBuffer, unsigned long long *recvBuffer,
              vtkIdType length, int operation, int destProcessId) {
     return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
                                       operation, destProcessId);
   }
-#endif
   int Reduce(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
              int operation, int destProcessId) {
     return this->Communicator->Reduce(sendBuffer, recvBuffer,
@@ -1268,7 +1248,7 @@ public:
     return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
                                       operation, destProcessId);
   }
-#elif defined(VTK_TYPE_USE_LONG_LONG)
+#else
   int Reduce(const long long *sendBuffer, long long *recvBuffer,
              vtkIdType length, vtkCommunicator::Operation *operation,
              int destProcessId) {
@@ -1276,14 +1256,12 @@ public:
                                       operation, destProcessId);
   }
 #endif
-#ifdef VTK_TYPE_USE_LONG_LONG
   int Reduce(const unsigned long long *sendBuffer, unsigned long long *recvBuffer,
              vtkIdType length, vtkCommunicator::Operation *operation,
              int destProcessId) {
     return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
                                       operation, destProcessId);
   }
-#endif
   int Reduce(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
              vtkCommunicator::Operation *operation, int destProcessId) {
     return this->Communicator->Reduce(sendBuffer, recvBuffer,
@@ -1354,20 +1332,18 @@ public:
     return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
                                          operation);
   }
-#elif defined(VTK_TYPE_USE_LONG_LONG)
+#else
   int AllReduce(const long long *sendBuffer, long long *recvBuffer,
                 vtkIdType length, int operation) {
     return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
                                          operation);
   }
 #endif
-#ifdef VTK_TYPE_USE_LONG_LONG
   int AllReduce(const unsigned long long *sendBuffer, unsigned long long *recvBuffer,
                 vtkIdType length, int operation) {
     return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
                                          operation);
   }
-#endif
   int AllReduce(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
                 int operation) {
     return this->Communicator->AllReduce(sendBuffer, recvBuffer, operation);
@@ -1434,20 +1410,18 @@ public:
     return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
                                          operation);
   }
-#elif defined(VTK_TYPE_USE_LONG_LONG)
+#else
   int AllReduce(const long long *sendBuffer, long long *recvBuffer,
                 vtkIdType length, vtkCommunicator::Operation *operation) {
     return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
                                          operation);
   }
 #endif
-#ifdef VTK_TYPE_USE_LONG_LONG
   int AllReduce(const unsigned long long *sendBuffer, unsigned long long *recvBuffer,
                 vtkIdType length, vtkCommunicator::Operation *operation) {
     return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
                                          operation);
   }
-#endif
   int AllReduce(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
                 vtkCommunicator::Operation *operation) {
     return this->Communicator->AllReduce(sendBuffer, recvBuffer, operation);
@@ -1708,7 +1682,7 @@ inline int vtkMultiProcessController::Send(const vtkIdType* data,
     return 0;
     }
 }
-#elif defined(VTK_TYPE_USE_LONG_LONG)
+#else
 inline int vtkMultiProcessController::Send(const long long* data,
                                            vtkIdType length,
                                            int remoteProcessId, int tag)
@@ -1723,7 +1697,6 @@ inline int vtkMultiProcessController::Send(const long long* data,
     }
 }
 #endif
-#ifdef VTK_TYPE_USE_LONG_LONG
 
 inline int vtkMultiProcessController::Send(const unsigned long long* data,
                                            vtkIdType length,
@@ -1738,8 +1711,6 @@ inline int vtkMultiProcessController::Send(const unsigned long long* data,
     return 0;
     }
 }
-
-#endif
 
 inline int vtkMultiProcessController::Send(const vtkMultiProcessStream& stream,
   int remoteId, int tag)
@@ -1952,7 +1923,7 @@ inline int vtkMultiProcessController::Receive(vtkIdType* data,
     return 0;
     }
 }
-#elif defined(VTK_TYPE_USE_LONG_LONG)
+#else
 inline int vtkMultiProcessController::Receive(long long* data, vtkIdType length,
                                               int remoteProcessId, int tag)
 {
@@ -1967,7 +1938,6 @@ inline int vtkMultiProcessController::Receive(long long* data, vtkIdType length,
 }
 #endif
 
-#ifdef VTK_TYPE_USE_LONG_LONG
 inline int vtkMultiProcessController::Receive(unsigned long long* data, vtkIdType length,
                                               int remoteProcessId, int tag)
 {
@@ -1980,8 +1950,6 @@ inline int vtkMultiProcessController::Receive(unsigned long long* data, vtkIdTyp
     return 0;
     }
 }
-#endif
-
 
 inline int vtkMultiProcessController::Receive(vtkMultiProcessStream& stream,
   int remoteId, int tag)

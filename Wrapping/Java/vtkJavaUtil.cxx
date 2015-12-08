@@ -148,7 +148,6 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromIdType(JNIEnv *env, vtkIdType *ptr, i
   return ret;
 }
 
-#if defined(VTK_TYPE_USE_LONG_LONG)
 JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromLongLong(JNIEnv *env, long long *ptr, int size)
 {
   jintArray ret;
@@ -173,7 +172,6 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromLongLong(JNIEnv *env, long long *ptr,
   env->ReleaseIntArrayElements(ret,array,0);
   return ret;
 }
-#endif
 
 JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromSignedChar(JNIEnv *env, signed char *ptr, int size)
 {

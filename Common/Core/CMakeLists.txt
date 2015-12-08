@@ -193,6 +193,7 @@ SET(Module_SRCS
   vtkIntArray.cxx
   vtkLargeInteger.cxx
   vtkLongArray.cxx
+  vtkLongLongArray.cxx
   vtkLookupTable.cxx
   vtkMappedDataArray.txx
   vtkMath.cxx
@@ -231,6 +232,7 @@ SET(Module_SRCS
   vtkUnsignedCharArray.cxx
   vtkUnsignedIntArray.cxx
   vtkUnsignedLongArray.cxx
+  vtkUnsignedLongLongArray.cxx
   vtkUnsignedShortArray.cxx
   vtkVariantArray.cxx
   vtkVariant.cxx
@@ -394,13 +396,6 @@ set_source_files_properties(
   vtkUnicodeString.cxx
   OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/vtkUnicodeCaseFoldData.h
   )
-
-if(VTK_TYPE_USE_LONG_LONG)
-  list(APPEND Module_SRCS
-    vtkLongLongArray.cxx
-    vtkUnsignedLongLongArray.cxx
-    )
-endif()
 
 # Configure data arrays for platform-independent fixed-size types.
 # Match the type selection here to that in vtkType.h.

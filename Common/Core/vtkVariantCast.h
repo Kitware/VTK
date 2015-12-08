@@ -101,8 +101,6 @@ inline unsigned long vtkVariantCast<unsigned long>(const vtkVariant& value, bool
   return value.ToUnsignedLong(valid);
 }
 
-#ifdef VTK_TYPE_USE_LONG_LONG
-
 template<>
 inline long long vtkVariantCast<long long>(const vtkVariant& value, bool* valid)
 {
@@ -114,8 +112,6 @@ inline unsigned long long vtkVariantCast<unsigned long long>(const vtkVariant& v
 {
   return value.ToUnsignedLongLong(valid);
 }
-
-#endif
 
 template<>
 inline float vtkVariantCast<float>(const vtkVariant& value, bool* valid)
