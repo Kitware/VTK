@@ -143,6 +143,12 @@ int vtkExtractGrid::RequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
+  // Reset internal helper to the actual extents of the piece we're working on:
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkStructuredGrid *inGrid = vtkStructuredGrid::GetData(inInfo);
+  this->Internal->Initialize(this->VOI, inGrid->GetExtent(), this->SampleRate,
+                             (this->IncludeBoundary != 0));
+
   if (!this->Internal->IsValid())
     {
     return 0;
