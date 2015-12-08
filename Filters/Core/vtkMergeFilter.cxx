@@ -402,45 +402,86 @@ int vtkMergeFilter::RequestData(
     {
     outputPD->SetScalars(scalars);
     }
+  else
+    {
+    vtkWarningMacro("Scalars for point data cannot be merged because the number of points in the input geometry do not match the number of point scalars " << numPts << " != " << numScalars);
+    }
   if ( numCells == numCellScalars )
     {
     outputCD->SetScalars(cellScalars);
+    }
+  else
+    {
+    vtkWarningMacro("Scalars for cell data cannot be merged because the number of cells in the input geometry do not match the number of cell scalars " << numCells << " != " << numCellScalars);
     }
 
   if ( numPts == numVectors )
     {
     outputPD->SetVectors(vectors);
     }
+  else
+    {
+    vtkWarningMacro("Vectors for point data cannot be merged because the number of points in the input geometry do not match the number of point vectors " << numPts << " != " << numVectors);
+    }
   if ( numCells == numCellVectors )
     {
     outputCD->SetVectors(cellVectors);
+    }
+  else
+    {
+    vtkWarningMacro("Vectors for cell data cannot be merged because the number of cells in the input geometry do not match the number of cell vectors " << numCells << " != " << numCellVectors);
     }
 
   if ( numPts == numNormals )
     {
     outputPD->SetNormals(normals);
     }
+  else
+    {
+    vtkWarningMacro("Normals for point data cannot be merged because the number of points in the input geometry do not match the number of point normals " << numPts << " != " << numNormals);
+    }
   if ( numCells == numCellNormals )
     {
     outputCD->SetNormals(cellNormals);
+    }
+  else
+    {
+    vtkWarningMacro("Normals for cell data cannot be merged because the number of cells in the input geometry do not match the number of cell normals " << numCells << " != " << numCellNormals);
     }
 
   if ( numPts == numTCoords )
     {
     outputPD->SetTCoords(tcoords);
     }
+  else
+    {
+    vtkWarningMacro("TCoords for point data cannot be merged because the number of points in the input geometry do not match the number of point tcoords " << numPts << " != " << numTCoords);
+    }
   if ( numCells == numCellTCoords )
     {
     outputCD->SetTCoords(cellTCoords);
+    }
+  else
+    {
+    vtkWarningMacro("TCoords for cell data cannot be merged because the number of cells in the input geometry do not match the number of cell tcoords " << numCells << " != " << numCellTCoords);
     }
 
   if ( numPts == numTensors )
     {
     outputPD->SetTensors(tensors);
     }
+  else
+    {
+    vtkWarningMacro("Tensors for point data cannot be merged because the number of points in the input geometry do not match the number of point tensors " << numPts << " != " << numTensors);
+    }
+
   if ( numCells == numCellTensors )
     {
     outputCD->SetTensors(cellTensors);
+    }
+  else
+    {
+    vtkWarningMacro("Tensors for cell data cannot be merged because the number of cells in the input geometry do not match the number of cell tcoords " << numCells << " != " << numTCoords);
     }
 
   vtkFieldListIterator it(this->FieldList);
@@ -463,7 +504,7 @@ int vtkMergeFilter::RequestData(
     if ( (da=cd->GetArray(name)) )
       {
       num = da->GetNumberOfTuples();
-      if (num == numPts)
+      if (num == numCells)
         {
         outputCD->AddArray(da);
         }
