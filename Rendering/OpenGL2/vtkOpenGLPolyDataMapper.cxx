@@ -2892,7 +2892,7 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
     'B' << (n ? n->GetMTime() : 1) <<
     'C' << (tcoords ? tcoords->GetMTime() : 1);
 
-  if (true || this->VBOBuildString != toString.str())
+  if (this->VBOBuildString != toString.str())
     {
     // Build the VBO
     this->VBO->CreateVBO(poly->GetPoints(),
