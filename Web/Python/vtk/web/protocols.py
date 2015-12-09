@@ -8,7 +8,6 @@ import os, sys, logging, types, inspect, traceback, logging, re
 
 from vtkWebCorePython import vtkWebApplication, vtkWebInteractionEvent
 from autobahn.wamp import register as exportRpc
-import wamp as vtk_wamp
 
 # =============================================================================
 #
