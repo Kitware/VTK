@@ -36,7 +36,7 @@ endif()
 
 if(WIN32 AND NOT VTK_USE_X)
   vtk_add_test_cxx(${vtk-module}CxxTests render_window_tests
-    TestWin32OpenGLRenderWindow.cxx NO_VALID)
+    TestWin32OpenGLRenderWindow.cxx)
 endif()
 
 vtk_add_test_cxx(${vtk-module}CxxTests ogl_tests

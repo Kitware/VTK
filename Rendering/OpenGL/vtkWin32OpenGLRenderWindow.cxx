@@ -1491,6 +1491,10 @@ void vtkWin32OpenGLRenderWindow::CreateOffScreenWindow(int width,
     this->CreateOffScreenDC(width, height, dc);
     DeleteDC(dc);
     }
+    else
+    {
+    this->Mapped = 0;
+    }
   this->CreatingOffScreenWindow = status;
 }
 

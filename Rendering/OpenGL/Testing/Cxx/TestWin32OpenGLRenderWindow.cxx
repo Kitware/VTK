@@ -20,48 +20,64 @@
 #include "vtkActor.h"
 #include "vtkConeSource.h"
 #include "vtkWin32OpenGLRenderWindow.h"
-#include <vtkConeSource.h>
-#include <vtkPolyData.h>
-#include <vtkPolyDataMapper.h>
-#include <vtkNew.h>
+#include "vtkPolyDataMapper.h"
+#include "vtkNew.h"
+#include "vtkRegressionTestImage.h"
 
-//This tests if the offscreen rendering works
-static bool TestWin32OpenGLRenderWindowOffScreen(vtkWin32OpenGLRenderWindow* renderWindow)
+int TestWin32OpenGLRenderWindow(int argc, char* argv[])
 {
-  //Create a cone
+  vtkNew<vtkRenderWindow> renWin;
+  if (!vtkWin32OpenGLRenderWindow::SafeDownCast(renWin.GetPointer()))
+    {
+    std::cout << "Expected vtkRenderWindow to be a vtkWin32OpenGLRenderWindow"
+              << std::endl;
+    return EXIT_FAILURE;
+    }
+
+  // Set multisamples to 0 to allow using
+  // vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow() implementation
+  // (see check near top of function)
+  renWin->SetMultiSamples(0);
+
+  vtkNew<vtkRenderWindowInteractor> iren;
+  iren->SetRenderWindow(renWin.GetPointer());
+
+  vtkNew<vtkRenderer> renderer;
+  renWin->AddRenderer(renderer.GetPointer());
+
   vtkNew<vtkConeSource> coneSource;
   coneSource->Update();
 
-  //Create a mapper and actor
-  vtkNew<vtkPolyDataMapper> mapper;
-  mapper->SetInputConnection(coneSource->GetOutputPort());
+  vtkNew<vtkPolyDataMapper> coneMapper;
+  coneMapper->SetInputConnection(coneSource->GetOutputPort());
 
-  vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.GetPointer());
+  vtkNew<vtkActor> coneActor;
+  coneActor->SetMapper(coneMapper.GetPointer());
 
-  //Create a renderer, render window, and interactor
-  vtkNew<vtkRenderer> renderer;
-  renderWindow->AddRenderer(renderer.GetPointer());
+  renderer->AddActor(coneActor.GetPointer());
 
-  //Add the actors to the scene
-  renderer->AddActor(actor.GetPointer());
-  renderer->SetBackground(.3, .2, .1); // Background color dark red
+  int width = 100;
+  int height = 75;
 
-  //Render and interact
-  renderWindow->SetOffScreenRendering(1);
-  renderWindow->SetSize(100,100);
-  renderWindow->Render();
-  return 1;
-}
+  float scale = 4.0f;
+  int scaledWidth = width * scale;
+  int scaledHeight = height * scale;
 
-int TestWin32OpenGLRenderWindow(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
-{
-  vtkWin32OpenGLRenderWindow* renderWindow(NULL);
+  renderer->SetGradientBackground(1);
+  renderer->SetBackground(0.0, 0.37, 0.62);
+  renderer->SetBackground2(0.0, 0.62, 0.29);
+  renWin->SetSize(width, height);
+  renWin->Render();
 
-  vtkNew<vtkRenderWindow> renderWindowBase;
-  renderWindow = vtkWin32OpenGLRenderWindow::SafeDownCast(renderWindowBase.GetPointer());
+  // Render offscreen at a larger size
+  renWin->SetOffScreenRendering(1);
+  renWin->SetSize(scaledWidth, scaledHeight);
+  renWin->Render();
 
-  TestWin32OpenGLRenderWindowOffScreen(renderWindow);
-
-  return EXIT_SUCCESS;
+  int retVal = vtkRegressionTestImage(renWin.GetPointer());
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
+    {
+    iren->Start();
+    }
+  return !retVal;
 }
