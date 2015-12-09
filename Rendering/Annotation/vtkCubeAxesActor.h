@@ -56,22 +56,6 @@ All rights reserve
 #ifndef vtkCubeAxesActor_h
 #define vtkCubeAxesActor_h
 
-#define VTK_FLY_OUTER_EDGES     0
-#define VTK_FLY_CLOSEST_TRIAD   1
-#define VTK_FLY_FURTHEST_TRIAD  2
-#define VTK_FLY_STATIC_TRIAD    3
-#define VTK_FLY_STATIC_EDGES    4
-
-#define VTK_TICKS_INSIDE        0
-#define VTK_TICKS_OUTSIDE       1
-#define VTK_TICKS_BOTH          2
-
-#define VTK_GRID_LINES_ALL      0
-#define VTK_GRID_LINES_CLOSEST  1
-#define VTK_GRID_LINES_FURTHEST 2
-
-#define NUMBER_OF_ALIGNED_AXIS 4
-
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor.h"
 
@@ -162,6 +146,15 @@ public:
   // vtkCubeAxesActor.
   virtual void SetCamera(vtkCamera*);
   vtkGetObjectMacro(Camera,vtkCamera);
+
+  enum FlyMode
+  {
+    VTK_FLY_OUTER_EDGES = 0,
+    VTK_FLY_CLOSEST_TRIAD = 1,
+    VTK_FLY_FURTHEST_TRIAD = 2,
+    VTK_FLY_STATIC_TRIAD = 3,
+    VTK_FLY_STATIC_EDGES = 4
+  };
 
   // Description:
   // Specify a mode to control how the axes are drawn: either static,
@@ -380,6 +373,13 @@ public:
   void SetZAxesGridpolysProperty(vtkProperty *);
   vtkProperty* GetZAxesGridpolysProperty();
 
+  enum TickLocation
+  {
+    VTK_TICKS_INSIDE = 0,
+    VTK_TICKS_OUTSIDE = 1,
+    VTK_TICKS_BOTH = 2
+  };
+
   // Description:
   // Set/Get the location of ticks marks.
   vtkSetClampMacro(TickLocation, int, VTK_TICKS_INSIDE, VTK_TICKS_BOTH);
@@ -527,6 +527,13 @@ protected:
   void FindBoundaryEdge(int &indexOfAxisX, int &indexOfAxisY, int &indexOfAxisZ,
                         double pts[8][3]);
 
+  enum GridVisibility
+  {
+    VTK_GRID_LINES_ALL = 0,
+    VTK_GRID_LINES_CLOSEST = 1,
+    VTK_GRID_LINES_FURTHEST =  2
+  };
+
   // Description:
   // This will Update AxisActors with GridVisibility when those should be
   // dynamaic regarding the viewport.
@@ -565,6 +572,11 @@ protected:
   // This determines at what view angle to geometry will make the geometry not visibile.
   // Default is 0.3.
   double ViewAngleLODThreshold;
+
+  enum NumberOfAlignedAxis
+  {
+    NUMBER_OF_ALIGNED_AXIS = 4
+  };
 
   // Description:
   // Control variables for all axes
