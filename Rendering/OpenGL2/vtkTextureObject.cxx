@@ -216,42 +216,6 @@ static const char *DepthInternalFormatFilterAsString[6]=
 */
 
 //----------------------------------------------------------------------------
-class vtkTextureObject::vtkInternal
-{
-public:
-  // Constructor
-  //--------------------------------------------------------------------------
-  vtkInternal(vtkTextureObject* parent)
-    {
-    this->Parent = parent;
-    }
-
-  // Query maximum texture size
-  //--------------------------------------------------------------------------
-  static int GetMaximumTextureSize(int param, vtkRenderWindow* context)
-    {
-    int maxSize = -1;
-    if (context and context->IsCurrent())
-      {
-      bool textureEnabled = glIsEnabled(param);
-      if (!textureEnabled)
-        {
-        glEnable(param);
-        }
-      glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxSize);
-
-      if (!textureEnabled)
-        {
-        glDisable(param);
-        }
-      }
-     return maxSize;
-    }
-
-   vtkTextureObject* Parent;
-};
-
-//----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTextureObject);
 
 //----------------------------------------------------------------------------
@@ -2071,24 +2035,17 @@ void vtkTextureObject::CopyFromFrameBuffer(int srcXmin,
   vtkOpenGLCheckErrorMacro("failed at glCopyTexImage2D " << this->Format);
 }
 
-#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
 //----------------------------------------------------------------------------
-int vtkTextureObject::GetMaximumTextureSize1D(vtkOpenGLRenderWindow* context)
+int vtkTextureObject::GetMaximumTextureSize(vtkOpenGLRenderWindow* context)
 {
-  return vtkInternal::GetMaximumTextureSize(GL_TEXTURE_1D, context);
-}
-#endif
+  int maxSize = -1;
 
-//----------------------------------------------------------------------------
-int vtkTextureObject::GetMaximumTextureSize2D(vtkOpenGLRenderWindow* context)
-{
-  return vtkInternal::GetMaximumTextureSize(GL_TEXTURE_2D, context);
-}
+  if (context && context->IsCurrent())
+    {
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxSize);
+    }
 
-//----------------------------------------------------------------------------
-int vtkTextureObject::GetMaximumTextureSize3D(vtkOpenGLRenderWindow* context)
-{
-  return vtkInternal::GetMaximumTextureSize(GL_TEXTURE_3D, context);
+  return maxSize;
 }
 
 //----------------------------------------------------------------------------
