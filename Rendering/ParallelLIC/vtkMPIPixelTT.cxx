@@ -31,11 +31,5 @@ vtkMPIPixelTTMacro2(unsigned long, MPI_UNSIGNED_LONG, VTK_UNSIGNED_LONG)
 vtkMPIPixelTTMacro2(float, MPI_FLOAT, VTK_FLOAT)
 vtkMPIPixelTTMacro2(double, MPI_DOUBLE, VTK_DOUBLE)
 //vtkMPIPixelTTMacro2(vtkIdType, MPI_LONG_LONG, VTK_IDTYPE)
-#ifdef VTK_TYPE_USE_LONG_LONG
 vtkMPIPixelTTMacro2(long long, MPI_LONG_LONG, VTK_LONG_LONG)
 vtkMPIPixelTTMacro2(unsigned long long, MPI_UNSIGNED_LONG_LONG, VTK_UNSIGNED_LONG_LONG)
-#endif
-#ifdef VTK_TYPE_USE___INT64
-vtkMPIPixelTTMacro2(__int64, MPI_LONG_LONG, VTK___INT64)
-vtkMPIPixelTTMacro2(unsigned __int64, MPI_UNSIGNED_LONG_LONG, VTK_UNSIGNED___INT64)
-#endif

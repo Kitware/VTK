@@ -736,27 +736,13 @@ PyObject *vtkPythonUtil::GetObjectFromObject(
     char *ptrText = PyBytes_AsString(arg);
 
     char typeCheck[1024];  // typeCheck is currently not used
-#if defined(VTK_TYPE_USE_LONG_LONG)
     unsigned long long l;
     int i = sscanf(ptrText,"_%llx_%s", &l, typeCheck);
-#elif defined(VTK_TYPE_USE___INT64)
-    unsigned __int64 l;
-    int i = sscanf(ptrText,"_%I64x_%s", &l, typeCheck);
-#else
-    unsigned long l;
-    int i = sscanf(ptrText,"_%lx_%s", &l, typeCheck);
-#endif
     u.l = static_cast<uintptr_t>(l);
 
     if (i <= 0)
       {
-#if defined(VTK_TYPE_USE_LONG_LONG)
       i = sscanf(ptrText,"Addr=0x%llx", &l);
-#elif defined(VTK_TYPE_USE___INT64)
-      i = sscanf(ptrText,"Addr=0x%I64x", &l);
-#else
-      i = sscanf(ptrText,"Addr=0x%lx", &l);
-#endif
       u.l = static_cast<uintptr_t>(l);
       }
     if (i <= 0)
@@ -977,16 +963,8 @@ char *vtkPythonUtil::ManglePointer(const void *ptr, const char *type)
   int ndigits = 2*(int)sizeof(void *);
   union vtkPythonUtilConstPointerUnion u;
   u.p = ptr;
-#if defined(VTK_TYPE_USE_LONG_LONG)
   sprintf(ptrText, "_%*.*llx_%s", ndigits, ndigits,
           static_cast<unsigned long long>(u.l), type);
-#elif defined(VTK_TYPE_USE___INT64)
-  sprintf(ptrText, "_%*.*I64x_%s", ndigits, ndigits,
-          static_cast<unsigned __int64>(u.l), type);
-#else
-  sprintf(ptrText, "_%*.*lx_%s", ndigits, ndigits,
-          static_cast<unsigned long>(u.l), type);
-#endif
 
   return ptrText;
 }
@@ -1021,16 +999,8 @@ void *vtkPythonUtil::UnmanglePointer(char *ptrText, int *len, const char *type)
     // If no null bytes, then do a full check for a swig pointer
     if (i == 0)
       {
-#if defined(VTK_TYPE_USE_LONG_LONG)
       unsigned long long l;
       i = sscanf(text, "_%llx_%s", &l ,typeCheck);
-#elif defined(VTK_TYPE_USE___INT64)
-      unsigned __int64 l;
-      i = sscanf(text, "_%I64x_%s", &l ,typeCheck);
-#else
-      unsigned long l;
-      i = sscanf(text, "_%lx_%s", &l ,typeCheck);
-#endif
       u.l = static_cast<uintptr_t>(l);
 
       if (strcmp(type,typeCheck) == 0)

@@ -491,19 +491,10 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
           case VTK_ID_TYPE:
             FormatString = vtkTypeTraits<vtkIdType>::ParseFormat(); break;
 
-#if defined(VTK_TYPE_USE_LONG_LONG)
           case VTK_LONG_LONG:
             FormatString = vtkTypeTraits<long long>::ParseFormat(); break;
           case VTK_UNSIGNED_LONG_LONG:
             FormatString = vtkTypeTraits<unsigned long long>::ParseFormat(); break;
-#endif
-
-#if defined(VTK_TYPE_USE___INT64)
-          case VTK___INT64:
-            FormatString = vtkTypeTraits<__int64>::ParseFormat(); break;
-          case VTK_UNSIGNED___INT64:
-            FormatString = vtkTypeTraits<unsigned __int64>::ParseFormat(); break;
-#endif
 
           case VTK_FLOAT:
             FormatString = vtkTypeTraits<float>::ParseFormat(); break;

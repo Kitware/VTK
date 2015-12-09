@@ -75,31 +75,13 @@
     typedef vtkTypeTraits<VTK_TYPE_NAME_##typeN>::SizedType VTK_TT; call;     \
     }; break
 
-// Add "long long" to the template macro if it is enabled.
-#if defined(VTK_TYPE_USE_LONG_LONG)
-# define vtkTemplateAliasMacroCase_ll(typeN, call)                            \
-             vtkTemplateAliasMacroCase(typeN, call);
-#else
-# define vtkTemplateAliasMacroCase_ll(typeN, call)
-#endif
-
-// Add "__int64" to the template macro if it is enabled.
-#if defined(VTK_TYPE_USE___INT64)
-# define vtkTemplateAliasMacroCase_i64(typeN, call)                           \
-             vtkTemplateAliasMacroCase(typeN, call);
-#else
-# define vtkTemplateAliasMacroCase_i64(typeN, call)
-#endif
-
 // Define a macro to dispatch calls to a template instantiated over
 // the aliased scalar types.
 #define vtkTemplateAliasMacro(call)                                           \
   vtkTemplateAliasMacroCase(DOUBLE, call);                                    \
   vtkTemplateAliasMacroCase(FLOAT, call);                                     \
-  vtkTemplateAliasMacroCase_ll(LONG_LONG, call)                               \
-  vtkTemplateAliasMacroCase_ll(UNSIGNED_LONG_LONG, call)                      \
-  vtkTemplateAliasMacroCase_i64(__INT64, call)                                \
-  vtkTemplateAliasMacroCase_i64(UNSIGNED___INT64, call)                       \
+  vtkTemplateAliasMacroCase(LONG_LONG, call);                                 \
+  vtkTemplateAliasMacroCase(UNSIGNED_LONG_LONG, call);                        \
   vtkTemplateAliasMacroCase(ID_TYPE, call);                                   \
   vtkTemplateAliasMacroCase(LONG, call);                                      \
   vtkTemplateAliasMacroCase(UNSIGNED_LONG, call);                             \

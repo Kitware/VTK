@@ -256,18 +256,10 @@ public:
   static bool GetValue(PyObject *o, long &v);
   bool GetValue(unsigned long &v);
   static bool GetValue(PyObject *o, unsigned long &v);
-#ifdef VTK_TYPE_USE_LONG_LONG
   bool GetValue(long long &v);
   static bool GetValue(PyObject *o, long long &v);
   bool GetValue(unsigned long long &v);
   static bool GetValue(PyObject *o, unsigned long long &v);
-#endif
-#ifdef VTK_TYPE_USE___INT64
-  bool GetValue(__int64 &v);
-  static bool GetValue(PyObject *o, __int64 &v);
-  bool GetValue(unsigned __int64 &v);
-  static bool GetValue(PyObject *o, unsigned __int64 &v);
-#endif
 
   // Description:
   // Get the next argument as an array.
@@ -283,14 +275,8 @@ public:
   bool GetArray(unsigned int *v, int n);
   bool GetArray(long *v, int n);
   bool GetArray(unsigned long *v, int n);
-#ifdef VTK_TYPE_USE_LONG_LONG
   bool GetArray(long long *v, int n);
   bool GetArray(unsigned long long *v, int n);
-#endif
-#ifdef VTK_TYPE_USE___INT64
-  bool GetArray(__int64 *v, int n);
-  bool GetArray(unsigned __int64 *v, int n);
-#endif
 
   // Description:
   // Get the next argument as a multi-dimensional array.
@@ -306,14 +292,8 @@ public:
   bool GetNArray(unsigned int *v, int ndims, const int *dims);
   bool GetNArray(long *v, int ndims, const int *dims);
   bool GetNArray(unsigned long *v, int ndims, const int *dims);
-#ifdef VTK_TYPE_USE_LONG_LONG
   bool GetNArray(long long *v, int ndims, const int *dims);
   bool GetNArray(unsigned long long *v, int ndims, const int *dims);
-#endif
-#ifdef VTK_TYPE_USE___INT64
-  bool GetNArray(__int64 *v, int ndims, const int *dims);
-  bool GetNArray(unsigned __int64 *v, int ndims, const int *dims);
-#endif
 
   // Description:
   // Set the value of an argument if it is an assignable type.
@@ -331,14 +311,8 @@ public:
   bool SetArgValue(int i, unsigned int v);
   bool SetArgValue(int i, long v);
   bool SetArgValue(int i, unsigned long v);
-#ifdef VTK_TYPE_USE_LONG_LONG
   bool SetArgValue(int i, long long v);
   bool SetArgValue(int i, unsigned long long v);
-#endif
-#ifdef VTK_TYPE_USE___INT64
-  bool SetArgValue(int i, __int64 v);
-  bool SetArgValue(int i, unsigned __int64 v);
-#endif
 
   // Description:
   // Set the values in an array argument.
@@ -354,14 +328,8 @@ public:
   bool SetArray(int i, const unsigned int *v, int n);
   bool SetArray(int i, const long *v, int n);
   bool SetArray(int i, const unsigned long *v, int n);
-#ifdef VTK_TYPE_USE_LONG_LONG
   bool SetArray(int i, const long long *v, int n);
   bool SetArray(int i, const unsigned long long *v, int n);
-#endif
-#ifdef VTK_TYPE_USE___INT64
-  bool SetArray(int i, const __int64 *v, int n);
-  bool SetArray(int i, const unsigned __int64 *v, int n);
-#endif
 
   // Description:
   // Set the values in a multi-dimensional array argument.
@@ -377,14 +345,8 @@ public:
   bool SetNArray(int i, const unsigned int *v, int n, const int *d);
   bool SetNArray(int i, const long *v, int n, const int *d);
   bool SetNArray(int i, const unsigned long *v, int n, const int *d);
-#ifdef VTK_TYPE_USE_LONG_LONG
   bool SetNArray(int i, const long long *v, int n, const int *d);
   bool SetNArray(int i, const unsigned long long *v, int n, const int *d);
-#endif
-#ifdef VTK_TYPE_USE___INT64
-  bool SetNArray(int i, const __int64 *v, int n, const int *d);
-  bool SetNArray(int i, const unsigned __int64 *v, int n, const int *d);
-#endif
 
   // Description:
   // Build a value of None.
@@ -436,14 +398,8 @@ public:
   static PyObject *BuildValue(unsigned int v);
   static PyObject *BuildValue(long v);
   static PyObject *BuildValue(unsigned long v);
-#ifdef VTK_TYPE_USE_LONG_LONG
   static PyObject *BuildValue(long long v);
   static PyObject *BuildValue(unsigned long long v);
-#endif
-#ifdef VTK_TYPE_USE___INT64
-  static PyObject *BuildValue(__int64 v);
-  static PyObject *BuildValue(unsigned __int64 v);
-#endif
 
   // Description:
   // Build a bytes object (or string).
@@ -462,14 +418,8 @@ public:
   static PyObject *BuildTuple(const unsigned int *v, int n);
   static PyObject *BuildTuple(const long *v, int n);
   static PyObject *BuildTuple(const unsigned long *v, int n);
-#ifdef VTK_TYPE_USE_LONG_LONG
   static PyObject *BuildTuple(const long long *v, int n);
   static PyObject *BuildTuple(const unsigned long long *v, int n);
-#endif
-#ifdef VTK_TYPE_USE___INT64
-  static PyObject *BuildTuple(const __int64 *v, int n);
-  static PyObject *BuildTuple(const unsigned __int64 *v, int n);
-#endif
 
   // Description:
   // Copy an array.
@@ -813,7 +763,6 @@ PyObject *vtkPythonArgs::BuildValue(unsigned long a)
   return PyLong_FromUnsignedLong(a);
 }
 
-#if defined(VTK_TYPE_USE_LONG_LONG)
 inline
 PyObject *vtkPythonArgs::BuildValue(long long a)
 {
@@ -825,21 +774,6 @@ PyObject *vtkPythonArgs::BuildValue(unsigned long long a)
 {
   return PyLong_FromUnsignedLongLong(a);
 }
-#endif
-
-#if defined(VTK_TYPE_USE___INT64)
-inline
-PyObject *vtkPythonArgs::BuildValue(__int64 a)
-{
-  return PyLong_FromLongLong(a);
-}
-
-inline
-PyObject *vtkPythonArgs::BuildValue(unsigned __int64 a)
-{
-  return PyLong_FromUnsignedLongLong(a);
-}
-#endif
 
 inline
 PyObject *vtkPythonArgs::BuildBytes(const char *a, int n)

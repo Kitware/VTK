@@ -310,14 +310,8 @@ public:
   int Read(unsigned int *);
   int Read(long *);
   int Read(unsigned long *);
-#if defined(VTK_TYPE_USE___INT64)
-  int Read(__int64 *result);
-  int Read(unsigned __int64 *result);
-#endif
-#if defined(VTK_TYPE_USE_LONG_LONG)
   int Read(long long *result);
   int Read(unsigned long long *result);
-#endif
   int Read(float *);
   int Read(double *);
 //ETX

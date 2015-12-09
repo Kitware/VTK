@@ -44,19 +44,8 @@ namespace
   DEFINE_MPI_TYPE(unsigned long, MPI_UNSIGNED_LONG);
   DEFINE_MPI_TYPE(float, MPI_FLOAT);
   DEFINE_MPI_TYPE(double, MPI_DOUBLE);
-#if defined(VTK_TYPE_USE_LONG_LONG)
   DEFINE_MPI_TYPE(long long, MPI_LONG_LONG);
   DEFINE_MPI_TYPE(unsigned long long, MPI_UNSIGNED_LONG_LONG);
-#endif
-#if defined(VTK_TYPE_USE___INT64)
-# if VTK_SIZEOF_LONG == 8
-  DEFINE_MPI_TYPE(__int64, MPI_LONG);
-  DEFINE_MPI_TYPE(unsigned __int64, MPI_UNSIGNED_LONG);
-# elif defined(MPI_LONG_LONG)
-  DEFINE_MPI_TYPE(__int64, MPI_LONG_LONG);
-  DEFINE_MPI_TYPE(__int64, MPI_UNSIGNED_LONG_LONG);
-# endif
-#endif
 
   class MPIPlot3DException : public std::exception
   {

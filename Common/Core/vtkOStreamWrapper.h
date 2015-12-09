@@ -72,20 +72,14 @@ public:
   vtkOStreamWrapper& operator << (short);
   vtkOStreamWrapper& operator << (int);
   vtkOStreamWrapper& operator << (long);
+  vtkOStreamWrapper& operator << (long long);
   vtkOStreamWrapper& operator << (unsigned char);
   vtkOStreamWrapper& operator << (unsigned short);
   vtkOStreamWrapper& operator << (unsigned int);
   vtkOStreamWrapper& operator << (unsigned long);
+  vtkOStreamWrapper& operator << (unsigned long long);
   vtkOStreamWrapper& operator << (float);
   vtkOStreamWrapper& operator << (double);
-#if defined(VTK_TYPE_USE_LONG_LONG)
-  vtkOStreamWrapper& operator << (long long);
-  vtkOStreamWrapper& operator << (unsigned long long);
-#endif
-#if defined(VTK_TYPE_USE___INT64)
-  vtkOStreamWrapper& operator << (__int64);
-  vtkOStreamWrapper& operator << (unsigned __int64);
-#endif
   vtkOStreamWrapper& operator << (bool);
 
   // Work-around for IBM Visual Age bug in overload resolution.

@@ -125,7 +125,6 @@ vtkImplicitPlaneRepresentation        GetNormal                         307  3
 vtkImplicitPlaneRepresentation        GetOrigin                         307  3
 vtkImplicitPlaneWidget                GetNormal                         307  3
 vtkImplicitPlaneWidget                GetOrigin                         307  3
-vtk__Int64Array                       GetValueRange                     30C  2
 vtkIntArray                           GetValueRange                     304  2
 vtkIOSRenderWindow                    GetPosition                       304  2
 vtkIOSRenderWindow                    GetScreenSize                     304  2
@@ -253,7 +252,6 @@ vtkTypeInt64Array                     GetValueRange                     30C  2
 vtkTypeUInt64Array                    GetValueRange                     31B  2
 vtkTypeUInt64Array                    GetValueRange                     31C  2
 vtkUnsignedCharArray                  GetValueRange                     313  2
-vtkUnsigned__Int64Array               GetValueRange                     31C  2
 vtkUnsignedIntArray                   GetValueRange                     314  2
 vtkUnsignedLongArray                  GetValueRange                     316  2
 vtkUnsignedLongLongArray              GetValueRange                     31B  2
