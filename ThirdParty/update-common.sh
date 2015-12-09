@@ -16,14 +16,6 @@
 #   tag
 #       The tag, branch or commit hash to use for upstream.
 #
-# The script must also contain a line the following:
-#
-#   readonly basehash='<optional git hash>' # NEWHASH
-#
-# where the current tracking branch hash will be stored. Leaving it
-# empty will cause a new tracking branch to be created for the project.
-# It will be updated by this script.
-#
 # Additionally, an "extract_source" function must be defined. It will be
 # run within the checkout of the project on the requested tag. It should
 # should place the desired tree into $extractdir/$name-reduced. This
@@ -52,6 +44,8 @@ warn () {
 }
 
 readonly regex_date='20[0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
+readonly basehash_regex="$name $regex_date ([0-9a-f]*)"
+readonly basehash="$( git rev-list --author="$ownership" --grep="$basehash_regex" -n 1 HEAD )"
 
 ########################################################################
 # Sanity checking
@@ -114,7 +108,7 @@ pushd "$extractdir"
 mv -v "$name-reduced/"* .
 rmdir "$name-reduced/"
 git add -A .
-git commit --allow-empty -n --author="$ownership" --date="$upstream_datetime" -F - <<-EOF
+git commit -n --author="$ownership" --date="$upstream_datetime" -F - <<-EOF
 $commit_summary
 
 Code extracted from:

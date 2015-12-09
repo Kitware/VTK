@@ -14,8 +14,6 @@ readonly paths="
 LICENSE
 " # We amalgamate jsoncpp
 
-readonly basehash='f3f68fdbe67acd1a18ac2f93085d43069c3b569f' # NEWHASH
-
 extract_source () {
     python amalgamate.py
     [ -n "$paths" ] && \

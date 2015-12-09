@@ -15,8 +15,6 @@ src/doc
 License.txt
 "
 
-readonly basehash='3972c2cc59a575f420dde9ba9e3dd85e52bf34e6' # NEWHASH
-
 extract_source () {
     git_archive
     pushd "$extractdir/$name-reduced"
