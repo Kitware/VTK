@@ -55,14 +55,6 @@ MACRO(VTK_WRAP_TCL3 TARGET SRC_LIST_NAME SOURCES COMMANDS)
     endif()
   endif()
 
-  IF(CMAKE_GENERATOR MATCHES "NMake Makefiles")
-    SET(verbatim "")
-    SET(quote "\"")
-  ELSE()
-    SET(verbatim "VERBATIM")
-    SET(quote "")
-  ENDIF()
-
   # Initialize the custom target counter.
   IF(VTK_WRAP_TCL_NEED_CUSTOM_TARGETS)
     SET(VTK_WRAP_TCL_CUSTOM_COUNT "")
@@ -138,16 +130,18 @@ MACRO(VTK_WRAP_TCL3 TARGET SRC_LIST_NAME SOURCES COMMANDS)
       # add custom command to output
       ADD_CUSTOM_COMMAND(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Tcl.cxx
-        DEPENDS ${VTK_WRAP_TCL_EXE} ${VTK_WRAP_HINTS} ${TMP_INPUT} ${_args_file}
-        ${KIT_HIERARCHY_FILE}
+        DEPENDS ${VTK_WRAP_TCL_EXE}
+                ${VTK_WRAP_HINTS}
+                ${TMP_INPUT}
+                ${_args_file}
+                ${KIT_HIERARCHY_FILE}
         COMMAND ${VTK_WRAP_TCL_EXE}
-        ARGS
-        ${TMP_HINTS}
-        "${quote}@${_args_file}${quote}"
-        "-o" "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Tcl.cxx${quote}"
-        "${quote}${TMP_INPUT}${quote}"
+                ${TMP_HINTS}
+                @${_args_file}
+                -o ${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Tcl.cxx
+                ${TMP_INPUT}
         COMMENT "Tcl Wrapping - generating ${TMP_FILENAME}Tcl.cxx"
-        ${verbatim}
+        VERBATIM
         )
 
       # Add this output to a custom target if needed.
@@ -182,13 +176,12 @@ MACRO(VTK_WRAP_TCL3 TARGET SRC_LIST_NAME SOURCES COMMANDS)
   ADD_CUSTOM_COMMAND(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.cxx
     DEPENDS ${VTK_WRAP_TCL_INIT_EXE}
-    ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data
+            ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data
     COMMAND ${VTK_WRAP_TCL_INIT_EXE}
-    ARGS
-    "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data${quote}"
-    "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.cxx${quote}"
+            ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data
+            ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.cxx
     COMMENT "Tcl Wrapping - generating ${TARGET}Init.cxx"
-    ${verbatim}
+    VERBATIM
     )
 
   # Create the Init File

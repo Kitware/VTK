@@ -25,14 +25,6 @@ macro(vtk_wrap_java3 TARGET SRC_LIST_NAME SOURCES)
     endif()
   endif()
 
-  IF(CMAKE_GENERATOR MATCHES "NMake Makefiles")
-    SET(verbatim "")
-    SET(quote "\"")
-  ELSE()
-    SET(verbatim "VERBATIM")
-    SET(quote "")
-  ENDIF()
-
   # Initialize the custom target counter.
   IF(VTK_WRAP_JAVA_NEED_CUSTOM_TARGETS)
     SET(VTK_WRAP_JAVA_CUSTOM_COUNT "")
@@ -110,27 +102,33 @@ macro(vtk_wrap_java3 TARGET SRC_LIST_NAME SOURCES)
       # add custom command to output
       ADD_CUSTOM_COMMAND(
         OUTPUT ${VTK_JAVA_HOME}/${TMP_FILENAME}.java
-        DEPENDS ${VTK_PARSE_JAVA_EXE} ${VTK_WRAP_HINTS} ${TMP_INPUT} ${_args_file}
-        ${KIT_HIERARCHY_FILE}
+        DEPENDS ${VTK_PARSE_JAVA_EXE}
+                ${VTK_WRAP_HINTS}
+                ${TMP_INPUT}
+                ${_args_file}
+                ${KIT_HIERARCHY_FILE}
         COMMAND ${VTK_PARSE_JAVA_EXE}
-        ARGS
-        "${quote}@${_args_file}${quote}"
-        "-o" "${quote}${VTK_JAVA_HOME}/${TMP_FILENAME}.java${quote}"
-        "${quote}${TMP_INPUT}${quote}"
+                @${_args_file}
+                -o ${VTK_JAVA_HOME}/${TMP_FILENAME}.java
+                ${TMP_INPUT}
         COMMENT "Java Wrappings - generating ${TMP_FILENAME}.java"
+        VERBATIM
         )
 
       # add custom command to output
       ADD_CUSTOM_COMMAND(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${TMP_WRAPPED_FILENAME}
-        DEPENDS ${VTK_WRAP_JAVA_EXE} ${VTK_WRAP_HINTS} ${TMP_INPUT} ${_args_file}
-        ${KIT_HIERARCHY_FILE}
+        DEPENDS ${VTK_WRAP_JAVA_EXE}
+                ${VTK_WRAP_HINTS}
+                ${TMP_INPUT}
+                ${_args_file}
+                ${KIT_HIERARCHY_FILE}
         COMMAND ${VTK_WRAP_JAVA_EXE}
-        ARGS
-        "${quote}@${_args_file}${quote}"
-        "-o" "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TMP_WRAPPED_FILENAME}${quote}"
-        "${quote}${TMP_INPUT}${quote}"
+                @${_args_file}
+                -o ${CMAKE_CURRENT_BINARY_DIR}/${TMP_WRAPPED_FILENAME}
+                ${TMP_INPUT}
         COMMENT "Java Wrappings - generating ${TMP_WRAPPED_FILENAME}"
+        VERBATIM
         )
 
       SET(VTK_JAVA_DEPENDENCIES ${VTK_JAVA_DEPENDENCIES} "${VTK_JAVA_HOME}/${TMP_FILENAME}.java")

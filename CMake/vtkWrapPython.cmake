@@ -24,16 +24,6 @@ macro(VTK_WRAP_PYTHON3 TARGET SRC_LIST_NAME SOURCES)
     endif()
   endif()
 
-  # The shell into which nmake.exe executes the custom command has some issues
-  # with mixing quoted and unquoted arguments :( Let's help.
-  if(CMAKE_GENERATOR MATCHES "NMake Makefiles")
-    set(verbatim "")
-    set(quote "\"")
-  else()
-    set(verbatim "VERBATIM")
-    set(quote "")
-  endif()
-
   # Initialize the custom target counter.
   if(VTK_WRAP_PYTHON_NEED_CUSTOM_TARGETS)
     set(VTK_WRAP_PYTHON_CUSTOM_COUNT "")
@@ -105,15 +95,17 @@ macro(VTK_WRAP_PYTHON3 TARGET SRC_LIST_NAME SOURCES)
       # add custom command to output
       add_custom_command(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Python.cxx
-        DEPENDS ${VTK_WRAP_PYTHON_EXE} ${VTK_WRAP_HINTS} ${TMP_INPUT} ${_args_file}
-          ${KIT_HIERARCHY_FILE}
+        DEPENDS ${VTK_WRAP_PYTHON_EXE}
+                ${VTK_WRAP_HINTS}
+                ${TMP_INPUT}
+                ${_args_file}
+                ${KIT_HIERARCHY_FILE}
         COMMAND ${VTK_WRAP_PYTHON_EXE}
-          ARGS
-          "${quote}@${_args_file}${quote}"
-          "-o" "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Python.cxx${quote}"
-          "${quote}${TMP_INPUT}${quote}"
+                @${_args_file}
+                -o ${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Python.cxx
+                ${TMP_INPUT}
         COMMENT "Python Wrapping - generating ${TMP_FILENAME}Python.cxx"
-          ${verbatim}
+        VERBATIM
         )
 
       # Add this output to a custom target if needed.
@@ -144,14 +136,13 @@ macro(VTK_WRAP_PYTHON3 TARGET SRC_LIST_NAME SOURCES)
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.cxx
            ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}InitImpl.cxx
     DEPENDS ${VTK_WRAP_PYTHON_INIT_EXE}
-      ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data
+            ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data
     COMMAND ${VTK_WRAP_PYTHON_INIT_EXE}
-    ARGS
-      "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data${quote}"
-      "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.cxx${quote}"
-      "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TARGET}InitImpl.cxx${quote}"
+            ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data
+            ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.cxx
+            ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}InitImpl.cxx
     COMMENT "Python Wrapping - generating ${TARGET}Init.cxx"
-      ${verbatim}
+    VERBATIM
     )
 
   # Create the Init File
@@ -229,16 +220,6 @@ macro(vtk_wrap_python TARGET SRC_LIST_NAME module)
     endif()
   endif()
 
-  # The shell into which nmake.exe executes the custom command has some issues
-  # with mixing quoted and unquoted arguments :( Let's help.
-  if(CMAKE_GENERATOR MATCHES "NMake Makefiles")
-    set(verbatim "")
-    set(quote "\"")
-  else()
-    set(verbatim "VERBATIM")
-    set(quote "")
-  endif()
-
   # Initialize the custom target counter.
   if(VTK_WRAP_PYTHON_NEED_CUSTOM_TARGETS)
     set(VTK_WRAP_PYTHON_CUSTOM_COUNT "")
@@ -304,15 +285,17 @@ macro(vtk_wrap_python TARGET SRC_LIST_NAME module)
       # add custom command to output
       add_custom_command(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${header}Python.cxx
-        DEPENDS ${VTK_WRAP_PYTHON_EXE} ${VTK_WRAP_HINTS} ${class_header_path}
-          ${_args_file} ${KIT_HIERARCHY_FILE}
+        DEPENDS ${VTK_WRAP_PYTHON_EXE}
+                ${VTK_WRAP_HINTS}
+                ${class_header_path}
+                ${_args_file}
+                ${KIT_HIERARCHY_FILE}
         COMMAND ${VTK_WRAP_PYTHON_EXE}
-          ARGS
-          "${quote}@${_args_file}${quote}"
-          "-o" "${quote}${CMAKE_CURRENT_BINARY_DIR}/${header}Python.cxx${quote}"
-          "${quote}${class_header_path}${quote}"
+                @${_args_file}
+                -o ${CMAKE_CURRENT_BINARY_DIR}/${header}Python.cxx
+                ${class_header_path}
         COMMENT "Python Wrapping - generating ${header}Python.cxx"
-          ${verbatim}
+        VERBATIM
         )
 
       # Add this output to a custom target if needed.
@@ -345,14 +328,13 @@ macro(vtk_wrap_python TARGET SRC_LIST_NAME module)
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.cxx
            ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}InitImpl.cxx
     DEPENDS ${VTK_WRAP_PYTHON_INIT_EXE}
-      ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data
+            ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data
     COMMAND ${VTK_WRAP_PYTHON_INIT_EXE}
-    ARGS
-      "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data${quote}"
-      "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.cxx${quote}"
-      "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TARGET}InitImpl.cxx${quote}"
+            ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data
+            ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.cxx
+            ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}InitImpl.cxx
     COMMENT "Python Wrapping - generating ${TARGET}Init.cxx"
-      ${verbatim}
+    VERBATIM
     )
 
   # Create the Init File
