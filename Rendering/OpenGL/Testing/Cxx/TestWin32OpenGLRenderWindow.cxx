@@ -72,6 +72,25 @@ int TestWin32OpenGLRenderWindow(int argc, char* argv[])
   // Render offscreen at a larger size
   renWin->SetOffScreenRendering(1);
   renWin->SetSize(scaledWidth, scaledHeight);
+
+  int* screenSize = renWin->GetScreenSize();
+  if (screenSize[0] != scaledWidth || screenSize[1] != scaledHeight)
+    {
+    std::cout << "Expected calling vtkWin32OpenGLRenderWindow::GetScreenSize()"
+                 " not to change render window size"
+              << std::endl;
+    return EXIT_FAILURE;
+    }
+
+  int* windowSize = renWin->GetSize();
+  if (windowSize[0] != scaledWidth || windowSize[1] != scaledHeight)
+    {
+    std::cout << "Expected calling vtkWin32OpenGLRenderWindow::GetScreenSize()"
+                 " not to change render window size"
+              << std::endl;
+    return EXIT_FAILURE;
+    }
+
   renWin->Render();
 
   int retVal = vtkRegressionTestImage(renWin.GetPointer());

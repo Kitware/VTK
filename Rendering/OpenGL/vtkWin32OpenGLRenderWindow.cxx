@@ -1195,6 +1195,11 @@ int *vtkWin32OpenGLRenderWindow::GetSize(void)
 // Get the size of the whole screen.
 int *vtkWin32OpenGLRenderWindow::GetScreenSize(void)
 {
+  if (this->OffScreenRendering)
+    {
+    return this->Size;
+    }
+
   HDC hDC = ::GetDC(NULL);
   if (hDC)
     {
