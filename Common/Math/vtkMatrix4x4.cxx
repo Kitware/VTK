@@ -22,9 +22,9 @@
 vtkStandardNewMacro(vtkMatrix4x4);
 
 //----------------------------------------------------------------------------
-void vtkMatrix4x4::Zero(double Elements[16])
+void vtkMatrix4x4::Zero(double elements[16])
 {
-  SqMatPtr elem  = (SqMatPtr)Elements;
+  SqMatPtr elem  = (SqMatPtr)elements;
   for (int i = 0; i < 4; i++)
     {
     for (int j = 0; j < 4; j++)
@@ -35,12 +35,12 @@ void vtkMatrix4x4::Zero(double Elements[16])
 }
 
 //----------------------------------------------------------------------------
-void vtkMatrix4x4::Identity(double Elements[16])
+void vtkMatrix4x4::Identity(double elements[16])
 {
-  Elements[0] = Elements[5] = Elements[10] = Elements[15] = 1.0;
-  Elements[1] = Elements[2] = Elements[3] = Elements[4] =
-    Elements[6] = Elements[7] = Elements[8] = Elements[9] =
-    Elements[11] = Elements[12] = Elements[13] = Elements[14] = 0.0;
+  elements[0] = elements[5] = elements[10] = elements[15] = 1.0;
+  elements[1] = elements[2] = elements[3] = elements[4] =
+    elements[6] = elements[7] = elements[8] = elements[9] =
+    elements[11] = elements[12] = elements[13] = elements[14] = 0.0;
 }
 
 //----------------------------------------------------------------------------
@@ -66,17 +66,17 @@ void vtkMatrix4x4MultiplyPoint(T1 elem[16], T2 in[4], T3 out[4])
 // Multiply this matrix by a point (in homogeneous coordinates).
 // and return the result in result. The in[4] and result[4]
 // arrays must both be allocated but they can be the same array.
-void vtkMatrix4x4::MultiplyPoint(const double Elements[16],
+void vtkMatrix4x4::MultiplyPoint(const double elements[16],
                                  const float in[4], float result[4])
 {
-  vtkMatrix4x4MultiplyPoint(Elements, in, result);
+  vtkMatrix4x4MultiplyPoint(elements, in, result);
 }
 
 //----------------------------------------------------------------------------
-void vtkMatrix4x4::MultiplyPoint(const double Elements[16],
+void vtkMatrix4x4::MultiplyPoint(const double elements[16],
                                  const double in[4], double result[4])
 {
-  vtkMatrix4x4MultiplyPoint(Elements, in, result);
+  vtkMatrix4x4MultiplyPoint(elements, in, result);
 }
 
 //----------------------------------------------------------------------------
@@ -144,24 +144,24 @@ void vtkMatrix4x4::Transpose(vtkMatrix4x4 &in, vtkMatrix4x4 &out)
 
 //----------------------------------------------------------------------------
 #ifndef VTK_LEGACY_REMOVE
-void vtkMatrix4x4::PointMultiply(const double Elements[16],
+void vtkMatrix4x4::PointMultiply(const double elements[16],
                                  const float in[4], float result[4])
 {
   VTK_LEGACY_BODY(vtkMatrix4x4::PointMultiply, "VTK 7.1");
   double newElements[16];
-  vtkMatrix4x4::Transpose(Elements, newElements);
+  vtkMatrix4x4::Transpose(elements, newElements);
   vtkMatrix4x4::MultiplyPoint(newElements, in, result);
 }
 #endif
 
 //----------------------------------------------------------------------------
 #ifndef VTK_LEGACY_REMOVE
-void vtkMatrix4x4::PointMultiply(const double Elements[16],
+void vtkMatrix4x4::PointMultiply(const double elements[16],
                                  const double in[4], double result[4])
 {
   VTK_LEGACY_BODY(vtkMatrix4x4::PointMultiply, "VTK 7.1");
   double newElements[16];
-  vtkMatrix4x4::Transpose(Elements, newElements);
+  vtkMatrix4x4::Transpose(elements, newElements);
   vtkMatrix4x4::MultiplyPoint(newElements, in, result);
 }
 #endif
@@ -206,9 +206,9 @@ void vtkMatrix4x4::Invert(const double inElements[16],
 }
 
 //----------------------------------------------------------------------------
-double vtkMatrix4x4::Determinant(const double Elements[16])
+double vtkMatrix4x4::Determinant(const double elements[16])
 {
-  SqMatPtr elem = (SqMatPtr)Elements;
+  SqMatPtr elem = (SqMatPtr)elements;
 
   double a1, a2, a3, a4, b1, b2, b3, b4, c1, c2, c3, c4, d1, d2, d3, d4;
 

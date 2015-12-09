@@ -47,26 +47,26 @@ public:
   // of the source Matrix.
   void DeepCopy(const vtkMatrix4x4 *source)
     {vtkMatrix4x4::DeepCopy(*this->Element,source); this->Modified(); }
-  static void DeepCopy(double Elements[16], const vtkMatrix4x4 *source)
-    {vtkMatrix4x4::DeepCopy(Elements,*source->Element); }
-  static void DeepCopy(double Elements[16], const double newElements[16]);
+  static void DeepCopy(double elements[16], const vtkMatrix4x4 *source)
+    {vtkMatrix4x4::DeepCopy(elements,*source->Element); }
+  static void DeepCopy(double elements[16], const double newElements[16]);
 
   // Description:
   // Non-static member function. Assigns *from* elements array
-  void DeepCopy(const double Elements[16])
-    { this->DeepCopy(*this->Element,Elements); this->Modified(); }
+  void DeepCopy(const double elements[16])
+    { this->DeepCopy(*this->Element,elements); this->Modified(); }
 
   // Description:
   // Set all of the elements to zero.
   void Zero()
     { vtkMatrix4x4::Zero(*this->Element); this->Modified(); }
-  static void Zero(double Elements[16]);
+  static void Zero(double elements[16]);
 
   // Description:
   // Set equal to Identity matrix
   void Identity()
     { vtkMatrix4x4::Identity(*this->Element); this->Modified();}
-  static void Identity(double Elements[16]);
+  static void Identity(double elements[16]);
 
   // Description:
   // Matrix Inversion (adapted from Richard Carling in "Graphics Gems,"
@@ -93,9 +93,9 @@ public:
   void MultiplyPoint(const double in[4], double out[4])
     {vtkMatrix4x4::MultiplyPoint(*this->Element,in,out); }
 
-  static void MultiplyPoint(const double Elements[16],
+  static void MultiplyPoint(const double elements[16],
                             const float in[4], float out[4]);
-  static void MultiplyPoint(const double Elements[16],
+  static void MultiplyPoint(const double elements[16],
                             const double in[4], double out[4]);
 
   // Description:
@@ -124,7 +124,7 @@ public:
   // Description:
   // Compute the determinant of the matrix and return it.
   double Determinant() {return vtkMatrix4x4::Determinant(*this->Element);}
-  static double Determinant(const double Elements[16]);
+  static double Determinant(const double elements[16]);
 
   // Description:
   // Sets the element i,j in the matrix.
