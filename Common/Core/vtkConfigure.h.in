@@ -15,8 +15,6 @@
 #ifndef vtkConfigure_h
 #define vtkConfigure_h
 
-#include "vtkCompilerFeatureDetection.h"
-
 /* This header is configured by VTK's build process.  */
 
 /*--------------------------------------------------------------------------*/
@@ -161,6 +159,15 @@
 # define VTK_MAXPATH MAXPATHLEN
 #else
 # define VTK_MAXPATH 32767 // Possible with Windows "extended paths"
+#endif
+
+#cmakedefine VTK_USE_CXX11_FEATURES
+#ifdef VTK_USE_CXX11_FEATURES
+# define VTK_OVERRIDE override
+# define VTK_FINAL final
+#else
+# define VTK_OVERRIDE
+# define VTK_FINAL
 #endif
 
 #endif
