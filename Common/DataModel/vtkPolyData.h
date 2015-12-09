@@ -59,6 +59,7 @@
 
 #include "vtkCellTypes.h" // Needed for inline methods
 #include "vtkCellLinks.h" // Needed for inline methods
+#include "vtkCellArray.h" // Needed for inline methods
 
 class vtkVertex;
 class vtkPolyVertex;
@@ -215,8 +216,16 @@ public:
   void Reset();
 
   // Description:
-  // Create data structure that allows random access of cells.
+  // Create data structure that allows random access of cells. BuildCells is
+  // expensive but necessary to make use of the faster  non-virtual implementations
+  // of GetCell/GetCellPoints. One may check if cells need to be built via
+  // NeedToBuilds before invoking. Cells always need to be built/re-built after
+  // low level direct modifications to verts, lines, polys or strips cell arrays.
   void BuildCells();
+
+  // Description:
+  // Check if BuildCells is needed.
+  bool NeedToBuildCells() { return this->Cells == 0; }
 
   // Description:
   // Create upward links from points to cells that use each point. Enables
@@ -248,9 +257,19 @@ public:
                             vtkIdList *cellIds);
 
   // Description:
-  // Return a pointer to a list of point ids defining cell. (More efficient.)
-  // Assumes that cells have been built (with BuildCells()).
-  void GetCellPoints(vtkIdType cellId, vtkIdType& npts, vtkIdType* &pts);
+  // Get a pointer to a list of point ids defining cell. More efficient
+  // because pointer points directly to cell array internals and this
+  // is not a virtual call. However, this requires that cells have been
+  // built (with BuildCells()). The cell type is returned.
+  unsigned char GetCellPoints(vtkIdType cellId,
+      vtkIdType& npts, vtkIdType* &pts);
+
+  // Description:
+  // Get a pointer to the cell, ie [npts pid1 .. pidn]. More efficient
+  // because pointer points directly to cell array internals and this
+  // is not a virtual call. However, this requires that cells have been
+  // built (with BuildCells()). The cell type is returned.
+  unsigned char GetCell(vtkIdType cellId, vtkIdType* &pts);
 
   // Description:
   // Given three vertices, determine whether it's a triangle. Make sure
@@ -580,6 +599,73 @@ inline void vtkPolyData::ReplaceCellPoint(vtkIdType cellId, vtkIdType oldPtId,
       return;
       }
     }
+}
+
+inline unsigned char vtkPolyData::GetCellPoints(
+    vtkIdType cellId, vtkIdType& npts, vtkIdType* &pts)
+{
+  unsigned char type = this->Cells->GetCellType(cellId);
+  vtkCellArray *cells;
+  switch (type)
+    {
+    case VTK_VERTEX: case VTK_POLY_VERTEX:
+      cells = this->Verts;
+      break;
+
+    case VTK_LINE: case VTK_POLY_LINE:
+      cells = this->Lines;
+      break;
+
+    case VTK_TRIANGLE: case VTK_QUAD: case VTK_POLYGON:
+      cells = this->Polys;
+      break;
+
+    case VTK_TRIANGLE_STRIP:
+      cells = this->Strips;
+      break;
+
+    default:
+      cells = NULL;
+      npts = 0;
+      pts = NULL;
+      return 0;
+    }
+  int loc = this->Cells->GetCellLocation(cellId);
+  cells->GetCell(loc, npts, pts);
+  return type;
+}
+
+inline unsigned char vtkPolyData::GetCell(
+    vtkIdType cellId, vtkIdType* &cell)
+{
+  unsigned char type = this->Cells->GetCellType(cellId);
+  vtkCellArray *cells;
+  switch (type)
+    {
+    case VTK_VERTEX: case VTK_POLY_VERTEX:
+      cells = this->Verts;
+      break;
+
+    case VTK_LINE: case VTK_POLY_LINE:
+      cells = this->Lines;
+      break;
+
+    case VTK_TRIANGLE: case VTK_QUAD: case VTK_POLYGON:
+      cells = this->Polys;
+      break;
+
+    case VTK_TRIANGLE_STRIP:
+      cells = this->Strips;
+      break;
+
+    default:
+      cells = NULL;
+      cell = NULL;
+      return 0;
+    }
+  int loc = this->Cells->GetCellLocation(cellId);
+  cell = cells->GetData()->GetPointer(loc);
+  return type;
 }
 
 #endif

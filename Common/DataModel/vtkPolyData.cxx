@@ -56,32 +56,16 @@ struct vtkPolyDataDummyContainter
 
 vtkPolyDataDummyContainter vtkPolyData::DummyContainer;
 
-vtkPolyData::vtkPolyData ()
+vtkPolyData::vtkPolyData () :
+  Vertex(NULL), PolyVertex(NULL), Line(NULL), PolyLine(NULL),
+  Triangle(NULL), Quad(NULL), Polygon(NULL), TriangleStrip(NULL),
+  EmptyCell(NULL), Verts(NULL), Lines(NULL), Polys(NULL),
+  Strips(NULL), Cells(NULL), Links(NULL)
 {
-  // Create these guys only when needed. This saves a huge amount
-  // of memory and time spent in memory allocation.
-  this->Vertex = NULL;
-  this->PolyVertex = NULL;
-  this->Line = NULL;
-  this->PolyLine = NULL;
-  this->Triangle = NULL;
-  this->Quad = NULL;
-  this->Polygon = NULL;
-  this->TriangleStrip = NULL;
-  this->EmptyCell = NULL;
-
-  this->Verts = NULL;
-  this->Lines = NULL;
-  this->Polys = NULL;
-  this->Strips = NULL;
-
   this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_PIECES_EXTENT);
   this->Information->Set(vtkDataObject::DATA_PIECE_NUMBER(), -1);
   this->Information->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), 1);
   this->Information->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), 0);
-
-  this->Cells = NULL;
-  this->Links = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -938,80 +922,116 @@ void vtkPolyData::DeleteCells()
 // Create data structure that allows random access of cells.
 void vtkPolyData::BuildCells()
 {
-  vtkIdType numCells;
-  vtkCellArray *inVerts=this->GetVerts();
-  vtkCellArray *inLines=this->GetLines();
-  vtkCellArray *inPolys=this->GetPolys();
-  vtkCellArray *inStrips=this->GetStrips();
-  vtkIdType npts=0;
-  vtkIdType *pts=0;
-  vtkCellTypes *cells;
-
-  vtkDebugMacro (<< "Building PolyData cells.");
-
-  if ( (numCells = this->GetNumberOfCells()) < 1 )
-    {
-    numCells = 1000; //may be allocating empty list to begin with
-    }
-
   if (this->Cells)
     {
     this->DeleteCells();
     }
 
-  this->Cells = cells = vtkCellTypes::New();
-  this->Cells->Allocate(numCells,3*numCells);
+  vtkCellArray *vertCells = this->GetVerts();
+  vtkCellArray *lineCells = this->GetLines();
+  vtkCellArray *polyCells = this->GetPolys();
+  vtkCellArray *stripCells = this->GetStrips();
+
+  // here are the number of cells we have
+  vtkIdType nVerts = vertCells->GetNumberOfCells();
+  vtkIdType nLines = lineCells->GetNumberOfCells();
+  vtkIdType nPolys = polyCells->GetNumberOfCells();
+  vtkIdType nStrips = stripCells->GetNumberOfCells();
+
+  // pre-allocate the space we need
+  vtkIdType nCells = nVerts + nLines + nPolys + nStrips;
+
+  vtkUnsignedCharArray *types = vtkUnsignedCharArray::New();
+  unsigned char *pTypes = types->WritePointer(0, nCells);
+
+  vtkIntArray *locs = vtkIntArray::New();
+  int *pLocs = locs->WritePointer(0, nCells);
+
+  // record locations and type of each cell.
+  // verts
+  vtkIdType numCellPts;
+  vtkIdType nextCellPts;
+  if (nVerts)
+    {
+    vtkIdType *pVerts = vertCells->GetData()->GetPointer(0);
+    numCellPts = pVerts[0];
+    nextCellPts = numCellPts + 1;
+    pLocs[0] = 0;
+    pTypes[0] = numCellPts > 1 ? VTK_POLY_VERTEX : VTK_VERTEX;
+    for (vtkIdType i = 1; i < nVerts; ++i)
+      {
+      numCellPts = pVerts[nextCellPts];
+      pLocs[i] = nextCellPts;
+      pTypes[i] = numCellPts > 1 ? VTK_POLY_VERTEX : VTK_VERTEX;
+      nextCellPts += numCellPts + 1;
+      }
+    pLocs += nVerts;
+    pTypes += nVerts;
+    }
+
+  // lines
+  if (nLines)
+    {
+    vtkIdType *pLines = lineCells->GetData()->GetPointer(0);
+    numCellPts = pLines[0];
+    pLocs[0] = 0;
+    pTypes[0] = numCellPts > 2 ? VTK_POLY_LINE : VTK_LINE;
+    nextCellPts = numCellPts + 1;
+    for (vtkIdType i = 1; i < nLines; ++i)
+      {
+      numCellPts = pLines[nextCellPts];
+      pLocs[i] = nextCellPts;
+      pTypes[i] = numCellPts > 2 ? VTK_POLY_LINE : VTK_LINE;
+      nextCellPts += numCellPts + 1;
+      }
+    pLocs += nLines;
+    pTypes += nLines;
+    }
+
+  // polys
+  if (nPolys)
+    {
+    vtkIdType *pPolys = polyCells->GetData()->GetPointer(0);
+    numCellPts = pPolys[0];
+    pLocs[0] = 0;
+    pTypes[0] = numCellPts == 3 ? VTK_TRIANGLE :
+      numCellPts == 4 ? VTK_QUAD : VTK_POLYGON;
+    nextCellPts = numCellPts + 1;
+    for (vtkIdType i = 1; i < nPolys; ++i)
+      {
+      numCellPts = pPolys[nextCellPts];
+      pLocs[i] = nextCellPts;
+      pTypes[i] = numCellPts == 3 ? VTK_TRIANGLE :
+        numCellPts == 4 ? VTK_QUAD : VTK_POLYGON;
+      nextCellPts += numCellPts + 1;
+      }
+    pLocs += nPolys;
+    pTypes += nPolys;
+    }
+
+  // strips
+  if (nStrips)
+    {
+    std::fill_n(pTypes, nStrips, VTK_TRIANGLE_STRIP);
+    vtkIdType *pStrips = stripCells->GetData()->GetPointer(0);
+    numCellPts = pStrips[0];
+    pLocs[0] = 0;
+    nextCellPts = numCellPts + 1;
+    for (vtkIdType i = 1; i < nStrips; ++i)
+      {
+      numCellPts = pStrips[nextCellPts];
+      pLocs[i] = nextCellPts;
+      nextCellPts += numCellPts + 1;
+      }
+    }
+
+  // set up the cell types data structure
+  this->Cells = vtkCellTypes::New();
+  this->Cells->SetCellTypes(nCells, types, locs);
   this->Cells->Register(this);
-  cells->Delete();
-  //
-  // Traverse various lists to create cell array
-  //
-  for (inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts); )
-    {
-    if ( npts > 1 )
-      {
-      cells->InsertNextCell(VTK_POLY_VERTEX,
-                            inVerts->GetTraversalLocation(npts));
-      }
-    else
-      {
-      cells->InsertNextCell(VTK_VERTEX,inVerts->GetTraversalLocation(npts));
-      }
-    }
-
-  for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
-    {
-    if ( npts > 2 )
-      {
-      cells->InsertNextCell(VTK_POLY_LINE,inLines->GetTraversalLocation(npts));
-      }
-    else
-      {
-      cells->InsertNextCell(VTK_LINE,inLines->GetTraversalLocation(npts));
-      }
-    }
-
-  for (inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
-    {
-    if ( npts == 3 )
-      {
-      cells->InsertNextCell(VTK_TRIANGLE,inPolys->GetTraversalLocation(npts));
-      }
-    else if ( npts == 4 )
-      {
-      cells->InsertNextCell(VTK_QUAD,inPolys->GetTraversalLocation(npts));
-      }
-    else
-      {
-      cells->InsertNextCell(VTK_POLYGON,inPolys->GetTraversalLocation(npts));
-      }
-    }
-
-  for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
-    {
-    cells->InsertNextCell(VTK_TRIANGLE_STRIP,
-                          inStrips->GetTraversalLocation(npts));
-    }
+  this->Cells->Delete();
+  types->Delete();
+  locs->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -1072,42 +1092,6 @@ void vtkPolyData::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
   for (i=0; i<npts-1; i++)
     {
     ptIds->SetId(i,pts[i]);
-    }
-}
-
-//----------------------------------------------------------------------------
-// Return a pointer to a list of point ids defining cell. (More efficient.)
-// Assumes that cells have been built (with BuildCells()).
-void vtkPolyData::GetCellPoints(vtkIdType cellId, vtkIdType& npts,
-                                vtkIdType* &pts)
-{
-  int loc;
-  unsigned char type;
-
-  type = this->Cells->GetCellType(cellId);
-  loc = this->Cells->GetCellLocation(cellId);
-
-  switch (type)
-    {
-    case VTK_VERTEX: case VTK_POLY_VERTEX:
-      this->Verts->GetCell(loc,npts,pts);
-      break;
-
-    case VTK_LINE: case VTK_POLY_LINE:
-      this->Lines->GetCell(loc,npts,pts);
-      break;
-
-    case VTK_TRIANGLE: case VTK_QUAD: case VTK_POLYGON:
-      this->Polys->GetCell(loc,npts,pts);
-      break;
-
-    case VTK_TRIANGLE_STRIP:
-      this->Strips->GetCell(loc,npts,pts);
-      break;
-
-    default:
-      npts = 0;
-      pts = NULL;
     }
 }
 
