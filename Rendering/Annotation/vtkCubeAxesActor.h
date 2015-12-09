@@ -470,6 +470,13 @@ public:
   vtkGetMacro(CenterStickyAxes,int);
   vtkBooleanMacro(CenterStickyAxes,int);
 
+  enum GridVisibility
+  {
+    VTK_GRID_LINES_ALL = 0,
+    VTK_GRID_LINES_CLOSEST = 1,
+    VTK_GRID_LINES_FURTHEST =  2
+  };
+
 protected:
   vtkCubeAxesActor();
   ~vtkCubeAxesActor();
@@ -526,13 +533,6 @@ protected:
   // Expose internally the boundary edge fly mode axis index computation
   void FindBoundaryEdge(int &indexOfAxisX, int &indexOfAxisY, int &indexOfAxisZ,
                         double pts[8][3]);
-
-  enum GridVisibility
-  {
-    VTK_GRID_LINES_ALL = 0,
-    VTK_GRID_LINES_CLOSEST = 1,
-    VTK_GRID_LINES_FURTHEST =  2
-  };
 
   // Description:
   // This will Update AxisActors with GridVisibility when those should be
