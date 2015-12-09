@@ -7,7 +7,6 @@ shopt -s dotglob
 readonly name="jsoncpp"
 readonly ownership="JsonCpp Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
-readonly update="ThirdParty/$name/update.sh"
 readonly repo="https://gitlab.kitware.com/third-party/jsoncpp.git"
 readonly tag="for/vtk"
 readonly paths="

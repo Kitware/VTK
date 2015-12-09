@@ -7,7 +7,6 @@ shopt -s dotglob
 readonly name="metaio"
 readonly ownership="MetaIO Upstream <kwrobot@kitware.com>"
 readonly subtree="Utilities/MetaIO/vtk$name"
-readonly update="Utilities/MetaIO/update.sh"
 readonly repo="https://github.com/Kitware/MetaIO.git"
 readonly tag="master"
 readonly paths="

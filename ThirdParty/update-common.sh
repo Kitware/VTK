@@ -11,8 +11,6 @@
 #   subtree
 #       The location of the thirdparty package within the main source
 #       tree.
-#   update
-#       The location of the update script within the main source tree.
 #   repo
 #       The git repository to use as upstream.
 #   tag
@@ -53,6 +51,8 @@ warn () {
     echo >&2 "warning: $@"
 }
 
+readonly regex_date='20[0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
+
 ########################################################################
 # Sanity checking
 ########################################################################
@@ -62,8 +62,6 @@ warn () {
     die "'ownership' is empty"
 [ -n "$subtree" ] || \
     die "'subtree' is empty"
-[ -n "$update" ] || \
-    die "'update' is empty"
 [ -n "$repo" ] || \
     die "'repo' is empty"
 [ -n "$tag" ] || \
@@ -100,43 +98,41 @@ fi
 pushd "$upstreamdir"
 git checkout "$tag"
 readonly upstream_hash="$( git rev-parse HEAD )"
-readonly upstream_date="$( git show -s --format=%cd HEAD )"
+readonly upstream_hash_short="$( git rev-parse --short=8 "$upstream_hash" )"
+readonly upstream_datetime="$( git rev-list "$upstream_hash" --format='%ci' -n 1 | grep -e "^$regex_date" )"
+readonly upstream_date="$( echo "$upstream_datetime" | grep -o -e "$regex_date" )"
 extract_source || \
     die "failed to extract source"
 popd
 
 [ -d "$extractdir/$name-reduced" ] || \
     die "expected directory to extract does not exist"
-if [ -z "$commit_summary" ]; then
-    warn "summary not set; using default"
-    readonly commit_summary="$name: update to $tag"
-fi
+readonly commit_summary="$name $upstream_date ($upstream_hash_short)"
 
 # Commit the subset
 pushd "$extractdir"
 mv -v "$name-reduced/"* .
 rmdir "$name-reduced/"
 git add -A .
-git commit -n --author="$ownership" --date="$upstream_date" -F - <<-EOF
+git commit --allow-empty -n --author="$ownership" --date="$upstream_datetime" -F - <<-EOF
 $commit_summary
 
 Code extracted from:
 
     $repo
 
-at commit $upstream_hash.
+at commit $upstream_hash ($tag).
 EOF
-readonly newhash="$( git rev-parse HEAD )"
+git branch -f "upstream-$name"
 popd
 
 # Merge the subset into this repository
 if [ -n "$basehash" ]; then
-    git merge -s recursive "-Xsubtree=$subtree/" --no-commit "$newhash"
+    git merge -s recursive "-Xsubtree=$subtree/" --no-commit "upstream-$name"
 else
-    git fetch "$extractdir"
-    git merge -s ours --no-commit "$newhash"
-    git read-tree -u --prefix="$subtree/" "$newhash"
+    git fetch "$extractdir" "upstream-$name:upstream-$name"
+    git merge -s ours --no-commit "upstream-$name"
+    git read-tree -u --prefix="$subtree/" "upstream-$name"
 fi
-sed -i -e "/NEWHASH$/s/='.*'/='$newhash'/" "$update"
-git add "$update"
-git commit -m "$name: update to $tag"
+git commit
+git branch -d "upstream-$name"
