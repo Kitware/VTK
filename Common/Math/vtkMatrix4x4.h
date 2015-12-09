@@ -47,11 +47,9 @@ public:
   // of the source Matrix.
   void DeepCopy(const vtkMatrix4x4 *source)
     {vtkMatrix4x4::DeepCopy(*this->Element,source); this->Modified(); }
-//BTX
   static void DeepCopy(double Elements[16], const vtkMatrix4x4 *source)
     {vtkMatrix4x4::DeepCopy(Elements,*source->Element); }
   static void DeepCopy(double Elements[16], const double newElements[16]);
-//ETX
 
   // Description:
   // Non-static member function. Assigns *from* elements array
@@ -62,17 +60,13 @@ public:
   // Set all of the elements to zero.
   void Zero()
     { vtkMatrix4x4::Zero(*this->Element); this->Modified(); }
-//BTX
   static void Zero(double Elements[16]);
-//ETX
 
   // Description:
   // Set equal to Identity matrix
   void Identity()
     { vtkMatrix4x4::Identity(*this->Element); this->Modified();}
-//BTX
   static void Identity(double Elements[16]);
-//ETX
 
   // Description:
   // Matrix Inversion (adapted from Richard Carling in "Graphics Gems,"
@@ -81,10 +75,7 @@ public:
     {vtkMatrix4x4::Invert(*in->Element,*out->Element); out->Modified(); }
   void Invert()
     { vtkMatrix4x4::Invert(this,this); }
-//BTX
   static void Invert(const double inElements[16], double outElements[16]);
-//ETX
-
 
   // Description:
   // Transpose the matrix and put it into out.
@@ -92,9 +83,7 @@ public:
     {vtkMatrix4x4::Transpose(*in->Element,*out->Element); out->Modified(); }
   void Transpose()
     { vtkMatrix4x4::Transpose(this,this); }
-//BTX
   static void Transpose(const double inElements[16], double outElements[16]);
-//ETX
 
   // Description:
   // Multiply a homogeneous coordinate by this matrix, i.e. out = A*in.
@@ -104,12 +93,10 @@ public:
   void MultiplyPoint(const double in[4], double out[4])
     {vtkMatrix4x4::MultiplyPoint(*this->Element,in,out); }
 
-//BTX
   static void MultiplyPoint(const double Elements[16],
                             const float in[4], float out[4]);
   static void MultiplyPoint(const double Elements[16],
                             const double in[4], double out[4]);
-//ETX
 
   // Description:
   // For use in Java, Python or Tcl.  The default MultiplyPoint() uses
@@ -125,25 +112,19 @@ public:
   // Multiplies matrices a and b and stores the result in c.
   static void Multiply4x4(const vtkMatrix4x4 *a, const vtkMatrix4x4 *b,
                           vtkMatrix4x4 *c);
-//BTX
   static void Multiply4x4(const double a[16], const double b[16],
                           double c[16]);
-//ETX
 
   // Description:
   // Compute adjoint of the matrix and put it into out.
   void Adjoint(const vtkMatrix4x4 *in, vtkMatrix4x4 *out)
     {vtkMatrix4x4::Adjoint(*in->Element,*out->Element);}
-//BTX
   static void Adjoint(const double inElements[16], double outElements[16]);
-//ETX
 
   // Description:
   // Compute the determinant of the matrix and return it.
   double Determinant() {return vtkMatrix4x4::Determinant(*this->Element);}
-//BTX
   static double Determinant(const double Elements[16]);
-//ETX
 
   // Description:
   // Sets the element i,j in the matrix.
@@ -154,7 +135,6 @@ public:
   double GetElement(int i, int j) const
     {return this->Element[i][j];}
 
-//BTX
   double *operator[](const unsigned int i)
     {return &(this->Element[i][0]);}
   const double *operator[](unsigned int i) const
@@ -173,7 +153,6 @@ public:
                             const float in[4], float out[4]);
   static void PointMultiply(const double Elements[16],
                             const double in[4], double out[4]);
-//ETX
 
 protected:
   vtkMatrix4x4() { vtkMatrix4x4::Identity(*this->Element); };
