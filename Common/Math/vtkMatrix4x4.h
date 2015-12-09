@@ -17,7 +17,9 @@
 // vtkMatrix4x4 is a class to represent and manipulate 4x4 matrices.
 // Specifically, it is designed to work on 4x4 transformation matrices
 // found in 3D rendering using homogeneous coordinates [x y z w].
-
+// Many of the methods take an array of 16 doubles in row-major format.
+// Note that OpenGL stores matrices in column-major format, so the matrix
+// contents must be transposed when they are moved between OpenGL and VTK.
 // .SECTION See Also
 // vtkTransform
 
@@ -29,16 +31,8 @@
 
 class VTKCOMMONMATH_EXPORT vtkMatrix4x4 : public vtkObject
 {
-  // Some of the methods in here have a corresponding static (class)
-  // method taking a pointer to 16 doubles that constitutes a user
-  // supplied matrix. This allows C++ clients to allocate double arrays
-  // on the stack and manipulate them using vtkMatrix4x4 methods.
-  // This is an alternative to allowing vtkMatrix4x4 instances to be
-  // created on the stack (which is frowned upon) or doing lots of
-  // temporary heap allocation within vtkTransform and vtkActor methods,
-  // which is inefficient.
-
 public:
+  /// The internal data is public for historical reasons. Do not use!
   double Element[4][4];
 
   // Description:
@@ -187,6 +181,7 @@ protected:
 
   float FloatPoint[4];
   double DoublePoint[4];
+
 private:
   // Useful for viewing a double[16] as a double[4][4]
   typedef double (*SqMatPtr)[4];
