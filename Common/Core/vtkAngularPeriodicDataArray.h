@@ -46,7 +46,7 @@ public:
 
   // Description:
   // Initialize the mapped array with the original input data array.
-  virtual void InitializeArray(vtkAoSDataArrayTemplate<Scalar>* inputData);
+  virtual void InitializeArray(vtkAOSDataArrayTemplate<Scalar>* inputData);
 
   // Description:
   // Set/Get the rotation angle in degrees. Default is 0.

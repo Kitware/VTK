@@ -90,9 +90,9 @@ struct TemplateCastRayWorker
   // Execute the algorithm with all arrays set to NULL.
   void operator()()
   {
-    (*this)(static_cast<vtkAoSDataArrayTemplate<float>*>(NULL),
-            static_cast<vtkAoSDataArrayTemplate<float>*>(NULL),
-            static_cast<vtkAoSDataArrayTemplate<float>*>(NULL));
+    (*this)(static_cast<vtkAOSDataArrayTemplate<float>*>(NULL),
+            static_cast<vtkAOSDataArrayTemplate<float>*>(NULL),
+            static_cast<vtkAOSDataArrayTemplate<float>*>(NULL));
   }
 
   template <typename ScalarArrayT, typename NearArrayT, typename FarArrayT>

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSoADataArrayTemplate.h
+  Module:    vtkSOADataArrayTemplate.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,10 +13,10 @@
 
 =========================================================================*/
 
-#ifndef vtkSoADataArrayTemplate_txx
-#define vtkSoADataArrayTemplate_txx
+#ifndef vtkSOADataArrayTemplate_txx
+#define vtkSOADataArrayTemplate_txx
 
-#include "vtkSoADataArrayTemplate.h"
+#include "vtkSOADataArrayTemplate.h"
 
 #include "vtkArrayIteratorTemplate.h"
 #include "vtkBuffer.h"
@@ -25,15 +25,15 @@
 
 //-----------------------------------------------------------------------------
 template<class ValueType>
-vtkSoADataArrayTemplate<ValueType>*
-vtkSoADataArrayTemplate<ValueType>::New()
+vtkSOADataArrayTemplate<ValueType>*
+vtkSOADataArrayTemplate<ValueType>::New()
 {
-  VTK_STANDARD_NEW_BODY(vtkSoADataArrayTemplate<ValueType>);
+  VTK_STANDARD_NEW_BODY(vtkSOADataArrayTemplate<ValueType>);
 }
 
 //-----------------------------------------------------------------------------
 template<class ValueType>
-vtkSoADataArrayTemplate<ValueType>::vtkSoADataArrayTemplate()
+vtkSOADataArrayTemplate<ValueType>::vtkSOADataArrayTemplate()
   : Resizeable(true),
   NumberOfComponentsReciprocal(1.0)
 {
@@ -41,7 +41,7 @@ vtkSoADataArrayTemplate<ValueType>::vtkSoADataArrayTemplate()
 
 //-----------------------------------------------------------------------------
 template<class ValueType>
-vtkSoADataArrayTemplate<ValueType>::~vtkSoADataArrayTemplate()
+vtkSOADataArrayTemplate<ValueType>::~vtkSOADataArrayTemplate()
 {
   for (size_t cc = 0; cc < this->Data.size(); ++cc)
     {
@@ -51,7 +51,7 @@ vtkSoADataArrayTemplate<ValueType>::~vtkSoADataArrayTemplate()
 
 //-----------------------------------------------------------------------------
 template<class ValueType>
-void vtkSoADataArrayTemplate<ValueType>::SetNumberOfComponents(int val)
+void vtkSOADataArrayTemplate<ValueType>::SetNumberOfComponents(int val)
 {
   this->GenericDataArrayType::SetNumberOfComponents(val);
   size_t numComps = static_cast<size_t>(this->GetNumberOfComponents());
@@ -67,7 +67,7 @@ void vtkSoADataArrayTemplate<ValueType>::SetNumberOfComponents(int val)
 
 //-----------------------------------------------------------------------------
 template<class ValueType>
-vtkArrayIterator* vtkSoADataArrayTemplate<ValueType>::NewIterator()
+vtkArrayIterator* vtkSOADataArrayTemplate<ValueType>::NewIterator()
 {
   vtkArrayIterator *iter = vtkArrayIteratorTemplate<ValueType>::New();
   iter->Initialize(this);
@@ -76,7 +76,7 @@ vtkArrayIterator* vtkSoADataArrayTemplate<ValueType>::NewIterator()
 
 //-----------------------------------------------------------------------------
 template<class ValueType>
-void vtkSoADataArrayTemplate<ValueType>::SetArray(int comp, ValueType* array,
+void vtkSOADataArrayTemplate<ValueType>::SetArray(int comp, ValueType* array,
                                                   vtkIdType size,
                                                   bool updateMaxId,
                                                   bool save, int deleteMethod)
@@ -100,8 +100,8 @@ void vtkSoADataArrayTemplate<ValueType>::SetArray(int comp, ValueType* array,
 
 //-----------------------------------------------------------------------------
 template <class ValueType>
-typename vtkSoADataArrayTemplate<ValueType>::ValueType*
-vtkSoADataArrayTemplate<ValueType>::GetComponentArrayPointer(int comp)
+typename vtkSOADataArrayTemplate<ValueType>::ValueType*
+vtkSOADataArrayTemplate<ValueType>::GetComponentArrayPointer(int comp)
 {
   const int numComps = this->GetNumberOfComponents();
   if (comp >= numComps || comp < 0)
@@ -115,7 +115,7 @@ vtkSoADataArrayTemplate<ValueType>::GetComponentArrayPointer(int comp)
 
 //-----------------------------------------------------------------------------
 template<class ValueType>
-bool vtkSoADataArrayTemplate<ValueType>::AllocateTuples(vtkIdType numTuples)
+bool vtkSOADataArrayTemplate<ValueType>::AllocateTuples(vtkIdType numTuples)
 {
   if (!this->Resizeable)
     {
@@ -148,7 +148,7 @@ bool vtkSoADataArrayTemplate<ValueType>::AllocateTuples(vtkIdType numTuples)
 
 //-----------------------------------------------------------------------------
 template<class ValueType>
-bool vtkSoADataArrayTemplate<ValueType>::ReallocateTuples(vtkIdType numTuples)
+bool vtkSOADataArrayTemplate<ValueType>::ReallocateTuples(vtkIdType numTuples)
 {
   if (!this->Resizeable)
     {
@@ -177,7 +177,7 @@ bool vtkSoADataArrayTemplate<ValueType>::ReallocateTuples(vtkIdType numTuples)
 
 //-----------------------------------------------------------------------------
 template<class ValueType>
-void *vtkSoADataArrayTemplate<ValueType>::GetVoidPointer(vtkIdType id)
+void *vtkSOADataArrayTemplate<ValueType>::GetVoidPointer(vtkIdType id)
 {
   // Allow warnings to be silenced:
   const char *silence = getenv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS");
@@ -208,7 +208,7 @@ void *vtkSoADataArrayTemplate<ValueType>::GetVoidPointer(vtkIdType id)
 
 //-----------------------------------------------------------------------------
 template<class ValueType>
-void vtkSoADataArrayTemplate<ValueType>::ExportToVoidPointer(void *voidPtr)
+void vtkSOADataArrayTemplate<ValueType>::ExportToVoidPointer(void *voidPtr)
 {
   vtkIdType numTuples = this->GetNumberOfTuples();
   if (this->NumberOfComponents * numTuples == 0)

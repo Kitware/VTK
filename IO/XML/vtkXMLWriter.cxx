@@ -16,7 +16,7 @@
 
 #include "vtkArrayDispatch.h"
 #include "vtkArrayIteratorIncludes.h"
-#include "vtkAoSDataArrayTemplate.h"
+#include "vtkAOSDataArrayTemplate.h"
 #include "vtkBase64OutputStream.h"
 #include "vtkByteSwap.h"
 #include "vtkCellData.h"
@@ -110,7 +110,7 @@ struct WriteBinaryDataBlockWorker
   //----------------------------------------------------------------------------
   // Specialize for AoS arrays.
   template <class ValueType>
-  void operator()(vtkAoSDataArrayTemplate<ValueType>* array)
+  void operator()(vtkAOSDataArrayTemplate<ValueType>* array)
   {
     // Get the raw pointer to the array data:
     ValueType *iter = array->GetPointer(0);

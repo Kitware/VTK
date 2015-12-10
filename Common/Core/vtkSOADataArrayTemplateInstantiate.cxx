@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSoADataArrayTemplateInstantiate.cxx
+  Module:    vtkSOADataArrayTemplateInstantiate.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,15 +13,14 @@
 
 =========================================================================*/
 
-// This file generates instantiations of vtkSoADataArrayTemplate for the
+// This file generates instantiations of vtkSOADataArrayTemplate for the
 // common data types. For AoS arrays, this is done in the more derived classes
 // (e.g. vtkFloatArray.cxx.o contains the instantiation of
-// vtkAoSDataArrayTemplate<float>), but since these aren't derived from in VTK
+// vtkAOSDataArrayTemplate<float>), but since these aren't derived from in VTK
 // (yet), we instantiate them here.
 
 #define VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATING
-#include "vtkSoADataArrayTemplate.txx"
-
+#include "vtkSOADataArrayTemplate.txx"
 
 VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(char);
 VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(double);

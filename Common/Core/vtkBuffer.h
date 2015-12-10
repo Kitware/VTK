@@ -12,8 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBuffer - internal storage class used by vtkSoADataArrayTemplate,
-// vtkAoSDataArrayTemplate, and others.
+// .NAME vtkBuffer - internal storage class used by vtkSOADataArrayTemplate,
+// vtkAOSDataArrayTemplate, and others.
 // .SECTION Description
 // vtkBuffer makes it easier to keep data pointers in vtkDataArray subclasses.
 // This is an internal class and not intended for direct use expect when writing

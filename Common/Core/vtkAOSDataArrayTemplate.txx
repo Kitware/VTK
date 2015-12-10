@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkAoSDataArrayTemplate.txx
+  Module:    vtkAOSDataArrayTemplate.txx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,26 +12,26 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#ifndef vtkAoSDataArrayTemplate_txx
-#define vtkAoSDataArrayTemplate_txx
+#ifndef vtkAOSDataArrayTemplate_txx
+#define vtkAOSDataArrayTemplate_txx
 
-#include "vtkAoSDataArrayTemplate.h"
+#include "vtkAOSDataArrayTemplate.h"
 
 #include "vtkArrayIteratorTemplate.h"
 
-#define vtkAoSDataArrayTemplateT(returnType) \
+#define vtkAOSDataArrayTemplateT(returnType) \
   template <class ValueType> \
-  returnType vtkAoSDataArrayTemplate<ValueType>
+  returnType vtkAOSDataArrayTemplate<ValueType>
 
 //-----------------------------------------------------------------------------
-vtkAoSDataArrayTemplateT(vtkAoSDataArrayTemplate<ValueType>*)::New()
+vtkAOSDataArrayTemplateT(vtkAOSDataArrayTemplate<ValueType>*)::New()
 {
-  VTK_STANDARD_NEW_BODY(vtkAoSDataArrayTemplate<ValueType>);
+  VTK_STANDARD_NEW_BODY(vtkAOSDataArrayTemplate<ValueType>);
 }
 
 //-----------------------------------------------------------------------------
 template <class ValueType>
-vtkAoSDataArrayTemplate<ValueType>::vtkAoSDataArrayTemplate()
+vtkAOSDataArrayTemplate<ValueType>::vtkAOSDataArrayTemplate()
 {
   this->SaveUserArray = false;
   this->DeleteMethod = VTK_DATA_ARRAY_FREE;
@@ -39,14 +39,14 @@ vtkAoSDataArrayTemplate<ValueType>::vtkAoSDataArrayTemplate()
 
 //-----------------------------------------------------------------------------
 template <class ValueType>
-vtkAoSDataArrayTemplate<ValueType>::~vtkAoSDataArrayTemplate()
+vtkAOSDataArrayTemplate<ValueType>::~vtkAOSDataArrayTemplate()
 {
   this->SetArray(NULL, 0, 0);
   this->Buffer.SetBuffer(NULL, 0);
 }
 
 //-----------------------------------------------------------------------------
-vtkAoSDataArrayTemplateT(void)::SetArray(
+vtkAOSDataArrayTemplateT(void)::SetArray(
   ValueType* array, vtkIdType size, int save, int deleteMethod)
 {
   this->Buffer.SetBuffer(array, size, save != 0, deleteMethod);
@@ -56,7 +56,7 @@ vtkAoSDataArrayTemplateT(void)::SetArray(
 }
 
 //-----------------------------------------------------------------------------
-vtkAoSDataArrayTemplateT(vtkArrayIterator*)::NewIterator()
+vtkAOSDataArrayTemplateT(vtkArrayIterator*)::NewIterator()
 {
   vtkArrayIterator *iter = vtkArrayIteratorTemplate<ValueType>::New();
   iter->Initialize(this);
@@ -65,8 +65,8 @@ vtkAoSDataArrayTemplateT(vtkArrayIterator*)::NewIterator()
 
 //-----------------------------------------------------------------------------
 template <class ValueTypeT>
-typename vtkAoSDataArrayTemplate<ValueTypeT>::ValueType*
-vtkAoSDataArrayTemplate<ValueTypeT>::WritePointer(vtkIdType id,
+typename vtkAOSDataArrayTemplate<ValueTypeT>::ValueType*
+vtkAOSDataArrayTemplate<ValueTypeT>::WritePointer(vtkIdType id,
                                                   vtkIdType number)
 {
   vtkIdType newSize = id + number;
@@ -87,7 +87,7 @@ vtkAoSDataArrayTemplate<ValueTypeT>::WritePointer(vtkIdType id,
 }
 
 //-----------------------------------------------------------------------------
-vtkAoSDataArrayTemplateT(bool)::AllocateTuples(vtkIdType numTuples)
+vtkAOSDataArrayTemplateT(bool)::AllocateTuples(vtkIdType numTuples)
 {
   vtkIdType numValues = numTuples * this->GetNumberOfComponents();
   if (this->Buffer.Allocate(numValues))
@@ -99,7 +99,7 @@ vtkAoSDataArrayTemplateT(bool)::AllocateTuples(vtkIdType numTuples)
 }
 
 //-----------------------------------------------------------------------------
-vtkAoSDataArrayTemplateT(bool)::ReallocateTuples(vtkIdType numTuples)
+vtkAOSDataArrayTemplateT(bool)::ReallocateTuples(vtkIdType numTuples)
 {
   if (this->Buffer.Reallocate(numTuples * this->GetNumberOfComponents()))
     {

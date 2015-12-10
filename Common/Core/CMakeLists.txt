@@ -142,7 +142,7 @@ SET(Module_SRCS
   vtkAbstractArray.cxx
   vtkAngularPeriodicDataArray.txx
   vtkAnimationCue.cxx
-  vtkAoSDataArrayTemplate.txx
+  vtkAOSDataArrayTemplate.txx
   vtkArrayCoordinates.cxx
   vtkArray.cxx
   vtkArrayExtents.cxx
@@ -237,8 +237,8 @@ SET(Module_SRCS
   vtkSignedCharArray.cxx
   vtkSimpleCriticalSection.cxx
   vtkSmartPointerBase.cxx
-  vtkSoADataArrayTemplate.txx
-  vtkSoADataArrayTemplateInstantiate.cxx
+  vtkSOADataArrayTemplate.txx
+  vtkSOADataArrayTemplateInstantiate.cxx
   vtkSortDataArray.cxx
   vtkStdString.cxx
   vtkStringArray.cxx
@@ -302,8 +302,8 @@ set(${vtk-module}_HDRS
   vtkPeriodicDataArray.h
   vtkSetGet.h
   vtkSmartPointer.h
-  vtkSoADataArrayTemplate.h
-  vtkSoADataArrayTemplate.txx
+  vtkSOADataArrayTemplate.h
+  vtkSOADataArrayTemplate.txx
   vtkTemplateAliasMacro.h
   vtkTypeList.h
   vtkTypeList.txx
@@ -575,8 +575,8 @@ set_source_files_properties(
   )
 
 set_source_files_properties(
-  vtkAoSDataArrayTemplate.h
-  vtkAoSDataArrayTemplate.txx
+  vtkAOSDataArrayTemplate.h
+  vtkAOSDataArrayTemplate.txx
   vtkArrayCoordinates.cxx
   vtkArrayExtents.cxx
   vtkArrayExtentsList.cxx
@@ -599,9 +599,9 @@ set_source_files_properties(
   vtkOldStyleCallbackCommand.cxx
   vtkSimpleCriticalSection.cxx
   vtkSmartPointerBase.cxx
-  vtkSoADataArrayTemplate.h
-  vtkSoADataArrayTemplate.txx
-  vtkSoADataArrayTemplateInstantiate.cxx # Has no API
+  vtkSOADataArrayTemplate.h
+  vtkSOADataArrayTemplate.txx
+  vtkSOADataArrayTemplateInstantiate.cxx # Has no API
   vtkStdString.cxx
   vtkTimeStamp.cxx
   vtkVariant.cxx
@@ -663,7 +663,7 @@ set_source_files_properties(
 # python uses WRAP_EXCLUDE_PYTHON and ignores WRAP_EXCLUDE
 set_source_files_properties(
   vtkABI.h
-  vtkAoSDataArrayTemplate.txx
+  vtkAOSDataArrayTemplate.txx
   vtkAtomic.h
   vtkAutoInit.h
   vtkIOStream.cxx
@@ -676,8 +676,8 @@ set_source_files_properties(
   vtkSetGet.h
   vtkSmartPointer.h
   vtkSmartPointerBase.h
-  vtkSoADataArrayTemplate.txx
-  vtkSoADataArrayTemplateInstantiate.cxx # Has no API
+  vtkSOADataArrayTemplate.txx
+  vtkSOADataArrayTemplateInstantiate.cxx # Has no API
   vtkStdString.cxx
   vtkUnicodeString.cxx
   vtkWeakPointer.h
@@ -696,7 +696,7 @@ set_source_files_properties(
   )
 
 set_source_files_properties(
-  vtkSoADataArrayTemplateInstantiate.cxx # Has no header
+  vtkSOADataArrayTemplateInstantiate.cxx # Has no header
   PROPERTIES SKIP_HEADER_INSTALL 1
 )
 

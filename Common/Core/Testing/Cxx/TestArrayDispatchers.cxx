@@ -19,23 +19,23 @@
 // translation units, but only explicit dispatches that we generate here.
 #define vtkArrayDispatchArrayList_h // Skip loading the actual header
 
-#include "vtkAoSDataArrayTemplate.h"
-#include "vtkSoADataArrayTemplate.h"
+#include "vtkAOSDataArrayTemplate.h"
+#include "vtkSOADataArrayTemplate.h"
 #include "vtkTypeList.h"
 
 namespace vtkArrayDispatch {
 typedef vtkTypeList::Unique<
   vtkTypeList_Create_10(
-    vtkAoSDataArrayTemplate<double>,
-    vtkAoSDataArrayTemplate<float>,
-    vtkAoSDataArrayTemplate<int>,
-    vtkAoSDataArrayTemplate<unsigned char>,
-    vtkAoSDataArrayTemplate<vtkIdType>,
-    vtkSoADataArrayTemplate<double>,
-    vtkSoADataArrayTemplate<float>,
-    vtkSoADataArrayTemplate<int>,
-    vtkSoADataArrayTemplate<unsigned char>,
-    vtkSoADataArrayTemplate<vtkIdType>
+    vtkAOSDataArrayTemplate<double>,
+    vtkAOSDataArrayTemplate<float>,
+    vtkAOSDataArrayTemplate<int>,
+    vtkAOSDataArrayTemplate<unsigned char>,
+    vtkAOSDataArrayTemplate<vtkIdType>,
+    vtkSOADataArrayTemplate<double>,
+    vtkSOADataArrayTemplate<float>,
+    vtkSOADataArrayTemplate<int>,
+    vtkSOADataArrayTemplate<unsigned char>,
+    vtkSOADataArrayTemplate<vtkIdType>
   )
 >::Result Arrays;
 } // end namespace vtkArrayDispatch
@@ -97,33 +97,33 @@ struct Arrays
   Arrays();
   ~Arrays();
 
-  static vtkAoSDataArrayTemplate<double>        *aosDouble;
-  static vtkAoSDataArrayTemplate<float>         *aosFloat;
-  static vtkAoSDataArrayTemplate<int>           *aosInt;
-  static vtkAoSDataArrayTemplate<unsigned char> *aosUnsignedChar;
-  static vtkAoSDataArrayTemplate<vtkIdType>     *aosIdType;
+  static vtkAOSDataArrayTemplate<double>        *aosDouble;
+  static vtkAOSDataArrayTemplate<float>         *aosFloat;
+  static vtkAOSDataArrayTemplate<int>           *aosInt;
+  static vtkAOSDataArrayTemplate<unsigned char> *aosUnsignedChar;
+  static vtkAOSDataArrayTemplate<vtkIdType>     *aosIdType;
 
-  static vtkSoADataArrayTemplate<double>        *soaDouble;
-  static vtkSoADataArrayTemplate<float>         *soaFloat;
-  static vtkSoADataArrayTemplate<int>           *soaInt;
-  static vtkSoADataArrayTemplate<unsigned char> *soaUnsignedChar;
-  static vtkSoADataArrayTemplate<vtkIdType>     *soaIdType;
+  static vtkSOADataArrayTemplate<double>        *soaDouble;
+  static vtkSOADataArrayTemplate<float>         *soaFloat;
+  static vtkSOADataArrayTemplate<int>           *soaInt;
+  static vtkSOADataArrayTemplate<unsigned char> *soaUnsignedChar;
+  static vtkSOADataArrayTemplate<vtkIdType>     *soaIdType;
 
   static std::vector<vtkDataArray*> aosArrays;
   static std::vector<vtkDataArray*> soaArrays;
   static std::vector<vtkDataArray*> allArrays;
 };
 
-vtkAoSDataArrayTemplate<double>        *Arrays::aosDouble;
-vtkAoSDataArrayTemplate<float>         *Arrays::aosFloat;
-vtkAoSDataArrayTemplate<int>           *Arrays::aosInt;
-vtkAoSDataArrayTemplate<unsigned char> *Arrays::aosUnsignedChar;
-vtkAoSDataArrayTemplate<vtkIdType>     *Arrays::aosIdType;
-vtkSoADataArrayTemplate<double>        *Arrays::soaDouble;
-vtkSoADataArrayTemplate<float>         *Arrays::soaFloat;
-vtkSoADataArrayTemplate<int>           *Arrays::soaInt;
-vtkSoADataArrayTemplate<unsigned char> *Arrays::soaUnsignedChar;
-vtkSoADataArrayTemplate<vtkIdType>     *Arrays::soaIdType;
+vtkAOSDataArrayTemplate<double>        *Arrays::aosDouble;
+vtkAOSDataArrayTemplate<float>         *Arrays::aosFloat;
+vtkAOSDataArrayTemplate<int>           *Arrays::aosInt;
+vtkAOSDataArrayTemplate<unsigned char> *Arrays::aosUnsignedChar;
+vtkAOSDataArrayTemplate<vtkIdType>     *Arrays::aosIdType;
+vtkSOADataArrayTemplate<double>        *Arrays::soaDouble;
+vtkSOADataArrayTemplate<float>         *Arrays::soaFloat;
+vtkSOADataArrayTemplate<int>           *Arrays::soaInt;
+vtkSOADataArrayTemplate<unsigned char> *Arrays::soaUnsignedChar;
+vtkSOADataArrayTemplate<vtkIdType>     *Arrays::soaIdType;
 
 std::vector<vtkDataArray*> Arrays::aosArrays;
 std::vector<vtkDataArray*> Arrays::soaArrays;
@@ -133,16 +133,16 @@ std::vector<vtkDataArray*> Arrays::allArrays;
 // Miscellaneous Debris
 typedef std::vector<vtkDataArray*>::iterator ArrayIter;
 
-typedef vtkTypeList_Create_5(vtkAoSDataArrayTemplate<double>,
-                             vtkAoSDataArrayTemplate<float>,
-                             vtkAoSDataArrayTemplate<int>,
-                             vtkAoSDataArrayTemplate<unsigned char>,
-                             vtkAoSDataArrayTemplate<vtkIdType>) AoSArrayList;
-typedef vtkTypeList_Create_5(vtkSoADataArrayTemplate<double>,
-                             vtkSoADataArrayTemplate<float>,
-                             vtkSoADataArrayTemplate<int>,
-                             vtkSoADataArrayTemplate<unsigned char>,
-                             vtkSoADataArrayTemplate<vtkIdType>) SoAArrayList;
+typedef vtkTypeList_Create_5(vtkAOSDataArrayTemplate<double>,
+                             vtkAOSDataArrayTemplate<float>,
+                             vtkAOSDataArrayTemplate<int>,
+                             vtkAOSDataArrayTemplate<unsigned char>,
+                             vtkAOSDataArrayTemplate<vtkIdType>) AoSArrayList;
+typedef vtkTypeList_Create_5(vtkSOADataArrayTemplate<double>,
+                             vtkSOADataArrayTemplate<float>,
+                             vtkSOADataArrayTemplate<int>,
+                             vtkSOADataArrayTemplate<unsigned char>,
+                             vtkSOADataArrayTemplate<vtkIdType>) SoAArrayList;
 
 typedef vtkTypeList::Append<AoSArrayList, SoAArrayList>::Result AllArrayList;
 
@@ -487,8 +487,8 @@ int TestDispatch3ByArray()
   vtkArrayDispatch::Dispatch3ByArray<
       SoAArrayList,
       AoSArrayList,
-      vtkTypeList_Create_2(vtkAoSDataArrayTemplate<float>,
-                           vtkSoADataArrayTemplate<float>)
+      vtkTypeList_Create_2(vtkAOSDataArrayTemplate<float>,
+                           vtkSOADataArrayTemplate<float>)
       > dispatcher;
   TestWorker worker;
 
@@ -724,17 +724,17 @@ int TestDispatch3BySameValueType()
 //------------------------------------------------------------------------------
 Arrays::Arrays()
 {
-  aosDouble = vtkAoSDataArrayTemplate<double>::New();
-  aosFloat = vtkAoSDataArrayTemplate<float>::New();
-  aosInt = vtkAoSDataArrayTemplate<int>::New();
-  aosUnsignedChar = vtkAoSDataArrayTemplate<unsigned char>::New();
-  aosIdType = vtkAoSDataArrayTemplate<vtkIdType>::New();
+  aosDouble = vtkAOSDataArrayTemplate<double>::New();
+  aosFloat = vtkAOSDataArrayTemplate<float>::New();
+  aosInt = vtkAOSDataArrayTemplate<int>::New();
+  aosUnsignedChar = vtkAOSDataArrayTemplate<unsigned char>::New();
+  aosIdType = vtkAOSDataArrayTemplate<vtkIdType>::New();
 
-  soaDouble = vtkSoADataArrayTemplate<double>::New();
-  soaFloat = vtkSoADataArrayTemplate<float>::New();
-  soaInt = vtkSoADataArrayTemplate<int>::New();
-  soaUnsignedChar = vtkSoADataArrayTemplate<unsigned char>::New();
-  soaIdType = vtkSoADataArrayTemplate<vtkIdType>::New();
+  soaDouble = vtkSOADataArrayTemplate<double>::New();
+  soaFloat = vtkSOADataArrayTemplate<float>::New();
+  soaInt = vtkSOADataArrayTemplate<int>::New();
+  soaUnsignedChar = vtkSOADataArrayTemplate<unsigned char>::New();
+  soaIdType = vtkSOADataArrayTemplate<vtkIdType>::New();
 
   aosArrays.push_back(aosDouble);
   aosArrays.push_back(aosFloat);

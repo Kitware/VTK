@@ -16,7 +16,7 @@
 #include "vtkGenericDataArray.h"
 
 // Helpers:
-#include "vtkAoSDataArrayTemplate.h"
+#include "vtkAOSDataArrayTemplate.h"
 #include "vtkArrayDispatch.h"
 #include "vtkNew.h"
 #include "vtkSmartPointer.h"
@@ -30,7 +30,7 @@
 #include <vector>
 
 // Concrete classes for testing:
-#include "vtkAoSDataArrayTemplate.h"
+#include "vtkAOSDataArrayTemplate.h"
 #include "vtkCharArray.h"
 #include "vtkFloatArray.h"
 #include "vtkDoubleArray.h"
@@ -39,7 +39,7 @@
 #include "vtkLongArray.h"
 #include "vtkShortArray.h"
 #include "vtkSignedCharArray.h"
-#include "vtkSoADataArrayTemplate.h"
+#include "vtkSOADataArrayTemplate.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
@@ -107,47 +107,47 @@ int TestGenericDataArrayAPI(int, char *[])
 #endif // VTK_TYPE_USE___INT64
 
   // Explicit AoS arrays:
-  errors += ExerciseGenericDataArray<char,               vtkAoSDataArrayTemplate<char> >();
-  errors += ExerciseGenericDataArray<double,             vtkAoSDataArrayTemplate<double> >();
-  errors += ExerciseGenericDataArray<float,              vtkAoSDataArrayTemplate<float> >();
-  errors += ExerciseGenericDataArray<int,                vtkAoSDataArrayTemplate<int> >();
-  errors += ExerciseGenericDataArray<long,               vtkAoSDataArrayTemplate<long> >();
-  errors += ExerciseGenericDataArray<short,              vtkAoSDataArrayTemplate<short> >();
-  errors += ExerciseGenericDataArray<signed char,        vtkAoSDataArrayTemplate<signed char> >();
-  errors += ExerciseGenericDataArray<unsigned char,      vtkAoSDataArrayTemplate<unsigned char> >();
-  errors += ExerciseGenericDataArray<unsigned int,       vtkAoSDataArrayTemplate<unsigned int> >();
-  errors += ExerciseGenericDataArray<unsigned long,      vtkAoSDataArrayTemplate<unsigned long> >();
-  errors += ExerciseGenericDataArray<unsigned short,     vtkAoSDataArrayTemplate<unsigned short> >();
-  errors += ExerciseGenericDataArray<vtkIdType,          vtkAoSDataArrayTemplate<vtkIdType> >();
+  errors += ExerciseGenericDataArray<char,               vtkAOSDataArrayTemplate<char> >();
+  errors += ExerciseGenericDataArray<double,             vtkAOSDataArrayTemplate<double> >();
+  errors += ExerciseGenericDataArray<float,              vtkAOSDataArrayTemplate<float> >();
+  errors += ExerciseGenericDataArray<int,                vtkAOSDataArrayTemplate<int> >();
+  errors += ExerciseGenericDataArray<long,               vtkAOSDataArrayTemplate<long> >();
+  errors += ExerciseGenericDataArray<short,              vtkAOSDataArrayTemplate<short> >();
+  errors += ExerciseGenericDataArray<signed char,        vtkAOSDataArrayTemplate<signed char> >();
+  errors += ExerciseGenericDataArray<unsigned char,      vtkAOSDataArrayTemplate<unsigned char> >();
+  errors += ExerciseGenericDataArray<unsigned int,       vtkAOSDataArrayTemplate<unsigned int> >();
+  errors += ExerciseGenericDataArray<unsigned long,      vtkAOSDataArrayTemplate<unsigned long> >();
+  errors += ExerciseGenericDataArray<unsigned short,     vtkAOSDataArrayTemplate<unsigned short> >();
+  errors += ExerciseGenericDataArray<vtkIdType,          vtkAOSDataArrayTemplate<vtkIdType> >();
 #ifdef VTK_TYPE_USE_LONG_LONG
-  errors += ExerciseGenericDataArray<long long,          vtkAoSDataArrayTemplate<long long> >();
-  errors += ExerciseGenericDataArray<unsigned long long, vtkAoSDataArrayTemplate<unsigned long long> >();
+  errors += ExerciseGenericDataArray<long long,          vtkAOSDataArrayTemplate<long long> >();
+  errors += ExerciseGenericDataArray<unsigned long long, vtkAOSDataArrayTemplate<unsigned long long> >();
 #endif // VTK_TYPE_USE_LONG_LONG
 #ifdef VTK_TYPE_USE___INT64
-  errors += ExerciseGenericDataArray<__int64,            vtkAoSDataArrayTemplate<__int64> >();
-  errors += ExerciseGenericDataArray<unsigned __int64,   vtkAoSDataArrayTemplate<unsigned __int64> >();
+  errors += ExerciseGenericDataArray<__int64,            vtkAOSDataArrayTemplate<__int64> >();
+  errors += ExerciseGenericDataArray<unsigned __int64,   vtkAOSDataArrayTemplate<unsigned __int64> >();
 #endif // VTK_TYPE_USE___INT64
 
   // Explicit SoA arrays:
-  errors += ExerciseGenericDataArray<char,               vtkSoADataArrayTemplate<char> >();
-  errors += ExerciseGenericDataArray<double,             vtkSoADataArrayTemplate<double> >();
-  errors += ExerciseGenericDataArray<float,              vtkSoADataArrayTemplate<float> >();
-  errors += ExerciseGenericDataArray<int,                vtkSoADataArrayTemplate<int> >();
-  errors += ExerciseGenericDataArray<long,               vtkSoADataArrayTemplate<long> >();
-  errors += ExerciseGenericDataArray<short,              vtkSoADataArrayTemplate<short> >();
-  errors += ExerciseGenericDataArray<signed char,        vtkSoADataArrayTemplate<signed char> >();
-  errors += ExerciseGenericDataArray<unsigned char,      vtkSoADataArrayTemplate<unsigned char> >();
-  errors += ExerciseGenericDataArray<unsigned int,       vtkSoADataArrayTemplate<unsigned int> >();
-  errors += ExerciseGenericDataArray<unsigned long,      vtkSoADataArrayTemplate<unsigned long> >();
-  errors += ExerciseGenericDataArray<unsigned short,     vtkSoADataArrayTemplate<unsigned short> >();
-  errors += ExerciseGenericDataArray<vtkIdType,          vtkSoADataArrayTemplate<vtkIdType> >();
+  errors += ExerciseGenericDataArray<char,               vtkSOADataArrayTemplate<char> >();
+  errors += ExerciseGenericDataArray<double,             vtkSOADataArrayTemplate<double> >();
+  errors += ExerciseGenericDataArray<float,              vtkSOADataArrayTemplate<float> >();
+  errors += ExerciseGenericDataArray<int,                vtkSOADataArrayTemplate<int> >();
+  errors += ExerciseGenericDataArray<long,               vtkSOADataArrayTemplate<long> >();
+  errors += ExerciseGenericDataArray<short,              vtkSOADataArrayTemplate<short> >();
+  errors += ExerciseGenericDataArray<signed char,        vtkSOADataArrayTemplate<signed char> >();
+  errors += ExerciseGenericDataArray<unsigned char,      vtkSOADataArrayTemplate<unsigned char> >();
+  errors += ExerciseGenericDataArray<unsigned int,       vtkSOADataArrayTemplate<unsigned int> >();
+  errors += ExerciseGenericDataArray<unsigned long,      vtkSOADataArrayTemplate<unsigned long> >();
+  errors += ExerciseGenericDataArray<unsigned short,     vtkSOADataArrayTemplate<unsigned short> >();
+  errors += ExerciseGenericDataArray<vtkIdType,          vtkSOADataArrayTemplate<vtkIdType> >();
 #ifdef VTK_TYPE_USE_LONG_LONG
-  errors += ExerciseGenericDataArray<long long,          vtkSoADataArrayTemplate<long long> >();
-  errors += ExerciseGenericDataArray<unsigned long long, vtkSoADataArrayTemplate<unsigned long long> >();
+  errors += ExerciseGenericDataArray<long long,          vtkSOADataArrayTemplate<long long> >();
+  errors += ExerciseGenericDataArray<unsigned long long, vtkSOADataArrayTemplate<unsigned long long> >();
 #endif // VTK_TYPE_USE_LONG_LONG
 #ifdef VTK_TYPE_USE___INT64
-  errors += ExerciseGenericDataArray<__int64,            vtkSoADataArrayTemplate<__int64> >();
-  errors += ExerciseGenericDataArray<unsigned __int64,   vtkSoADataArrayTemplate<unsigned __int64> >();
+  errors += ExerciseGenericDataArray<__int64,            vtkSOADataArrayTemplate<__int64> >();
+  errors += ExerciseGenericDataArray<unsigned __int64,   vtkSOADataArrayTemplate<unsigned __int64> >();
 #endif // VTK_TYPE_USE___INT64
 
   if (errors > 0)
@@ -174,15 +174,15 @@ int TestGenericDataArrayAPI(int, char *[])
 
 #define DataArrayAPICreateReferenceArray(name) \
   vtkSmartPointer<vtkDataArray> name##DA = CreateDataArray<ScalarT>(); \
-  vtkAoSDataArrayTemplate<ScalarT> *name = \
-  vtkAoSDataArrayTemplate<ScalarT>::SafeDownCast(name##DA.GetPointer()); \
-  assert("Reference array is vtkAoSDataArrayTemplate" && name != NULL)
+  vtkAOSDataArrayTemplate<ScalarT> *name = \
+  vtkAOSDataArrayTemplate<ScalarT>::SafeDownCast(name##DA.GetPointer()); \
+  assert("Reference array is vtkAOSDataArrayTemplate" && name != NULL)
 
 #define DataArrayAPICreateReferenceArrayWithType(name, valueType) \
   vtkSmartPointer<vtkDataArray> name##DA = CreateDataArray<valueType>(); \
-  vtkAoSDataArrayTemplate<valueType> *name = \
-    vtkAoSDataArrayTemplate<valueType>::SafeDownCast(name##DA.GetPointer()); \
-  assert("Reference array is vtkAoSDataArrayTemplate" && name != NULL)
+  vtkAOSDataArrayTemplate<valueType> *name = \
+    vtkAOSDataArrayTemplate<valueType>::SafeDownCast(name##DA.GetPointer()); \
+  assert("Reference array is vtkAOSDataArrayTemplate" && name != NULL)
 
 #define DataArrayAPINonFatalError(x) \
   { \

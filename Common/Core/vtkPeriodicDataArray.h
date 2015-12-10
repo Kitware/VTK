@@ -27,7 +27,7 @@
 #define vtkPeriodicDataArray_h
 
 #include "vtkMappedDataArray.h"   // Parent
-#include "vtkAoSDataArrayTemplate.h" // Template
+#include "vtkAOSDataArrayTemplate.h" // Template
 
 template <class Scalar>
 class vtkPeriodicDataArray: public vtkMappedDataArray<Scalar>
@@ -41,7 +41,7 @@ public:
 
   // Description:
   // Initialize the mapped array with the original input data array.
-  virtual void InitializeArray(vtkAoSDataArrayTemplate<Scalar>* inputData);
+  virtual void InitializeArray(vtkAOSDataArrayTemplate<Scalar>* inputData);
 
   // Description:
   // Initialize array with zero values
@@ -274,7 +274,7 @@ private:
   Scalar* TempScalarArray; // Temporary array used by GetTupleValue methods
   double* TempDoubleArray; // Temporary array used by GetTuple vethods
   vtkIdType TempTupleIdx;  // Location of currently stored Temp Tuple to use as cache
-  vtkAoSDataArrayTemplate<Scalar>* Data; // Original data
+  vtkAOSDataArrayTemplate<Scalar>* Data; // Original data
 
   bool InvalidRange;
   double PeriodicRange[6]; // Transformed periodic range

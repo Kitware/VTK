@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkAoSDataArrayTemplate.h
+  Module:    vtkAOSDataArrayTemplate.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,28 +12,28 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAoSDataArrayTemplate - vtkGenericDataArray specialization that
+// .NAME vtkAOSDataArrayTemplate - vtkGenericDataArray specialization that
 // stores data array in the traditional VTK memory layout where a 3 component is
 // stored in contiguous memory as \c A1A2A2B1B2B3C1C2C3 ... where A,B,C,... are
 // tuples.
 // .SECTION Description
 // This replaces vtkDataArrayTemplate.
 
-#ifndef vtkAoSDataArrayTemplate_h
-#define vtkAoSDataArrayTemplate_h
+#ifndef vtkAOSDataArrayTemplate_h
+#define vtkAOSDataArrayTemplate_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkGenericDataArray.h"
 #include "vtkBuffer.h"
 
 template <class ValueTypeT>
-class VTKCOMMONCORE_EXPORT vtkAoSDataArrayTemplate :
-    public vtkGenericDataArray<vtkAoSDataArrayTemplate<ValueTypeT>, ValueTypeT>
+class VTKCOMMONCORE_EXPORT vtkAOSDataArrayTemplate :
+    public vtkGenericDataArray<vtkAOSDataArrayTemplate<ValueTypeT>, ValueTypeT>
 {
-  typedef vtkGenericDataArray<vtkAoSDataArrayTemplate<ValueTypeT>, ValueTypeT >
+  typedef vtkGenericDataArray<vtkAOSDataArrayTemplate<ValueTypeT>, ValueTypeT >
           GenericDataArrayType;
 public:
-  typedef vtkAoSDataArrayTemplate<ValueTypeT> SelfType;
+  typedef vtkAOSDataArrayTemplate<ValueTypeT> SelfType;
   vtkTemplateTypeMacro(SelfType, GenericDataArrayType)
   typedef typename Superclass::ValueType ValueType;
   typedef typename Superclass::ReferenceType ReferenceType;
@@ -46,7 +46,7 @@ public:
   Iterator Begin() { return Iterator(this->GetVoidPointer(0)); }
   Iterator End() { return Iterator(this->GetVoidPointer(this->MaxId + 1)); }
 
-  static vtkAoSDataArrayTemplate* New();
+  static vtkAOSDataArrayTemplate* New();
 
   // **************************************************************************
   // Methods that are needed to be implemented by every vtkGenericDataArray
@@ -144,11 +144,11 @@ public:
 
   // Description:
   // Perform a fast, safe cast from a vtkAbstractArray to a
-  // vtkAoSDataArrayTemplate.
+  // vtkAOSDataArrayTemplate.
   // This method checks if source->GetArrayType() returns DataArray
   // or a more derived type, and performs a static_cast to return
   // source as a vtkDataArray pointer. Otherwise, NULL is returned.
-  static vtkAoSDataArrayTemplate<ValueType>*
+  static vtkAOSDataArrayTemplate<ValueType>*
   FastDownCast(vtkAbstractArray *source)
   {
     switch (source->GetArrayType())
@@ -157,7 +157,7 @@ public:
         if (vtkDataTypesCompare(source->GetDataType(),
                                 vtkTypeTraits<ValueType>::VTK_TYPE_ID))
           {
-          return static_cast<vtkAoSDataArrayTemplate<ValueType>*>(source);
+          return static_cast<vtkAOSDataArrayTemplate<ValueType>*>(source);
           }
         break;
       }
@@ -172,8 +172,8 @@ public:
 
 //BTX
 protected:
-  vtkAoSDataArrayTemplate();
-  ~vtkAoSDataArrayTemplate();
+  vtkAOSDataArrayTemplate();
+  ~vtkAOSDataArrayTemplate();
 
   // **************************************************************************
   // Methods that are needed to be implemented by every vtkGenericDataArray
@@ -190,22 +190,22 @@ protected:
   int DeleteMethod;
 
 private:
-  vtkAoSDataArrayTemplate(const vtkAoSDataArrayTemplate&); // Not implemented.
-  void operator=(const vtkAoSDataArrayTemplate&); // Not implemented.
-  friend class vtkGenericDataArray<vtkAoSDataArrayTemplate<ValueTypeT>,
+  vtkAOSDataArrayTemplate(const vtkAOSDataArrayTemplate&); // Not implemented.
+  void operator=(const vtkAOSDataArrayTemplate&); // Not implemented.
+  friend class vtkGenericDataArray<vtkAOSDataArrayTemplate<ValueTypeT>,
                                    ValueTypeT>;
 //ETX
 };
 
 // Declare vtkArrayDownCast implementations for AoS containers:
-vtkArrayDownCast_TemplateFastCastMacro(vtkAoSDataArrayTemplate)
+vtkArrayDownCast_TemplateFastCastMacro(vtkAOSDataArrayTemplate)
 
 # define VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATE(T) \
-   template class VTKCOMMONCORE_EXPORT vtkAoSDataArrayTemplate< T >
+   template class VTKCOMMONCORE_EXPORT vtkAOSDataArrayTemplate< T >
 
 // This macro is used by the subclasses to create dummy
 // declarations for these functions such that the wrapper
-// can see them. The wrappers ignore vtkAoSDataArrayTemplate.
+// can see them. The wrappers ignore vtkAOSDataArrayTemplate.
 #define vtkCreateWrappedArrayInterface(T) \
   int GetDataType(); \
   void GetTupleValue(vtkIdType i, T* tuple); \
@@ -236,7 +236,7 @@ vtkArrayDownCast_TemplateFastCastMacro(vtkAoSDataArrayTemplate)
 
 // This portion must be OUTSIDE the include blockers. This is used to tell
 // libraries other than vtkCommonCore that instantiations of
-// vtkAoSDataArrayTemplate can be found externally. This prevents each library
+// vtkAOSDataArrayTemplate can be found externally. This prevents each library
 // from instantiating these on their own.
 #ifndef VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATING
 #if defined(VTK_BUILD_SHARED_LIBS) && defined(_MSC_VER)
@@ -288,4 +288,4 @@ extern VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATE(unsigned __int64);
 #endif // VTK_BUILD_SHARED_LIBS && _MSC_VER
 #endif // VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATING
 
-// VTK-HeaderTest-Exclude: vtkAoSDataArrayTemplate.h
+// VTK-HeaderTest-Exclude: vtkAOSDataArrayTemplate.h

@@ -23,11 +23,11 @@
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkDataArray.h"
-#include "vtkAoSDataArrayTemplate.h" // Real Superclass
+#include "vtkAOSDataArrayTemplate.h" // Real Superclass
 
 // Fake the superclass for the wrappers.
 #ifndef __WRAP__
-#define vtkDataArray vtkAoSDataArrayTemplate<char>
+#define vtkDataArray vtkAOSDataArrayTemplate<char>
 #endif
 class VTKCOMMONCORE_EXPORT vtkCharArray : public vtkDataArray
 {
@@ -40,7 +40,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // This macro expands to the set of method declarations that
-  // make up the interface of vtkAoSDataArrayTemplate, which is ignored
+  // make up the interface of vtkAOSDataArrayTemplate, which is ignored
   // by the wrappers.
 #if defined(__WRAP__) || defined (__WRAP_GCCXML__)
   vtkCreateWrappedArrayInterface(char);
@@ -67,7 +67,7 @@ protected:
 
 private:
   //BTX
-  typedef vtkAoSDataArrayTemplate<char> RealSuperclass;
+  typedef vtkAOSDataArrayTemplate<char> RealSuperclass;
   //ETX
   vtkCharArray(const vtkCharArray&);  // Not implemented.
   void operator=(const vtkCharArray&);  // Not implemented.

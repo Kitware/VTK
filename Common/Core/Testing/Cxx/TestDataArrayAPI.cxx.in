@@ -16,7 +16,7 @@
 #include "vtkDataArray.h"
 
 // Helpers:
-#include "vtkAoSDataArrayTemplate.h"
+#include "vtkAOSDataArrayTemplate.h"
 #include "vtkArrayDispatch.h"
 #include "vtkArrayIterator.h"
 #include "vtkConfigure.h"
@@ -26,7 +26,7 @@
 #include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkSmartPointer.h"
-#include "vtkSoADataArrayTemplate.h"
+#include "vtkSOADataArrayTemplate.h"
 #include "vtkType.h"
 #include "vtkTypeTraits.h"
 #include "vtkVariant.h"
@@ -112,15 +112,15 @@ int @VTK_TESTDATAARRAYAPI_TESTNAME@(int, char *[])
 
 #define DataArrayAPICreateReferenceArray(name) \
   vtkSmartPointer<vtkDataArray> name##DA = CreateDataArray<ScalarT>(); \
-  vtkAoSDataArrayTemplate<ScalarT> *name = \
-  vtkAoSDataArrayTemplate<ScalarT>::SafeDownCast(name##DA.GetPointer()); \
-  assert("Reference array is vtkAoSDataArrayTemplate" && name != NULL)
+  vtkAOSDataArrayTemplate<ScalarT> *name = \
+  vtkAOSDataArrayTemplate<ScalarT>::SafeDownCast(name##DA.GetPointer()); \
+  assert("Reference array is vtkAOSDataArrayTemplate" && name != NULL)
 
 #define DataArrayAPICreateReferenceArrayWithType(name, valueType) \
   vtkSmartPointer<vtkDataArray> name##DA = CreateDataArray<valueType>(); \
-  vtkAoSDataArrayTemplate<valueType> *name = \
-    vtkAoSDataArrayTemplate<valueType>::SafeDownCast(name##DA.GetPointer()); \
-  assert("Reference array is vtkAoSDataArrayTemplate" && name != NULL)
+  vtkAOSDataArrayTemplate<valueType> *name = \
+    vtkAOSDataArrayTemplate<valueType>::SafeDownCast(name##DA.GetPointer()); \
+  assert("Reference array is vtkAOSDataArrayTemplate" && name != NULL)
 
 #define DataArrayAPINonFatalError(x) \
   { \
@@ -1964,10 +1964,10 @@ int Test_voidptr_WriteVoidPointer_id_number()
   DataArrayAPIInit("void* WriteVoidPointer(vtkIdType id, vtkIdType number)");
 
   // Skip SoA arrays, as they do not allow this:
-  if (typeid(ArrayT) == typeid(vtkSoADataArrayTemplate<ScalarT>))
+  if (typeid(ArrayT) == typeid(vtkSOADataArrayTemplate<ScalarT>))
     {
     std::cerr << "Skipping WriteVoidPointer for "
-              << "vtkSoADataArrayTemplate<" << vtkTypeTraits<ScalarT>::Name()
+              << "vtkSOADataArrayTemplate<" << vtkTypeTraits<ScalarT>::Name()
               << ">.\n";
     DataArrayAPIFinish();
     }

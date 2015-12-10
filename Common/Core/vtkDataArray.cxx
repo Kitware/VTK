@@ -14,7 +14,7 @@
 =========================================================================*/
 
 #include "vtkArrayDispatch.h"
-#include "vtkAoSDataArrayTemplate.h" // For fast paths
+#include "vtkAOSDataArrayTemplate.h" // For fast paths
 #include "vtkDataArray.h"
 #include "vtkDataArrayPrivate.txx"
 #include "vtkBitArray.h"
@@ -32,7 +32,7 @@
 #include "vtkLookupTable.h"
 #include "vtkLongArray.h"
 #include "vtkMath.h"
-#include "vtkSoADataArrayTemplate.h" // For fast paths
+#include "vtkSOADataArrayTemplate.h" // For fast paths
 #include "vtkShortArray.h"
 #include "vtkSignedCharArray.h"
 #include "vtkTypeTraits.h"
@@ -50,16 +50,16 @@ struct DeepCopyWorker
 {
   // AoS --> AoS same-type specialization:
   template <typename ValueType>
-  void operator()(vtkAoSDataArrayTemplate<ValueType> *src,
-                  vtkAoSDataArrayTemplate<ValueType> *dst)
+  void operator()(vtkAOSDataArrayTemplate<ValueType> *src,
+                  vtkAOSDataArrayTemplate<ValueType> *dst)
   {
     std::copy(src->Begin(), src->End(), dst->Begin());
   }
 
   // SoA --> SoA same-type specialization:
   template <typename ValueType>
-  void operator()(vtkSoADataArrayTemplate<ValueType> *src,
-                  vtkSoADataArrayTemplate<ValueType> *dst)
+  void operator()(vtkSOADataArrayTemplate<ValueType> *src,
+                  vtkSOADataArrayTemplate<ValueType> *dst)
   {
     vtkIdType numTuples = src->GetNumberOfTuples();
     for (int comp; comp < src->GetNumberOfComponents(); ++comp)
@@ -379,8 +379,8 @@ struct SetTuplesRangeWorker
 
   // Specialize for AoS
   template <typename ValueType>
-  void operator()(vtkAoSDataArrayTemplate<ValueType> *src,
-                  vtkAoSDataArrayTemplate<ValueType> *dst)
+  void operator()(vtkAOSDataArrayTemplate<ValueType> *src,
+                  vtkAOSDataArrayTemplate<ValueType> *dst)
   {
     int numComps = src->GetNumberOfComponents();
     ValueType *srcBegin = src->GetPointer(this->SrcStartTuple * numComps);
@@ -391,8 +391,8 @@ struct SetTuplesRangeWorker
 
   // Specialize for SoA
   template <typename ValueType>
-  void operator()(vtkSoADataArrayTemplate<ValueType> *src,
-                  vtkSoADataArrayTemplate<ValueType> *dst)
+  void operator()(vtkSOADataArrayTemplate<ValueType> *src,
+                  vtkSOADataArrayTemplate<ValueType> *dst)
   {
     int numComps = src->GetNumberOfComponents();
     for (int c = 0; c < numComps; ++c)

@@ -59,14 +59,14 @@ foreach(value_type ${value_types})
   string(REPLACE " " "_" pretty_value_type "${value_type}")
   add_data_array_test(
     "AoS_${pretty_value_type}"
-    vtkAoSDataArrayTemplate.h
+    vtkAOSDataArrayTemplate.h
     "${value_type}"
-    "vtkAoSDataArrayTemplate<${value_type}>")
+    "vtkAOSDataArrayTemplate<${value_type}>")
   add_data_array_test(
     "SoA_${pretty_value_type}"
-    vtkSoADataArrayTemplate.h
+    vtkSOADataArrayTemplate.h
     "${value_type}"
-    "vtkSoADataArrayTemplate<${value_type}>")
+    "vtkSOADataArrayTemplate<${value_type}>")
 endforeach()
 
 # Tell TestSystemInformation where to find the build trees.

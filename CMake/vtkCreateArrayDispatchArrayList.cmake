@@ -6,10 +6,10 @@
 # arrays:
 #
 # - VTK_DISPATCH_AOS_ARRAYS (default: ON)
-#   Include vtkAoSDataArrayTemplate<ValueType> for the basic types supported
+#   Include vtkAOSDataArrayTemplate<ValueType> for the basic types supported
 #   by VTK. This should probably not be turned off.
 # - VTK_DISPATCH_SOA_ARRAYS (default: OFF)
-#   Include vtkSoADataArrayTemplate<ValueType> for the basic types supported
+#   Include vtkSOADataArrayTemplate<ValueType> for the basic types supported
 #   by VTK.
 # - VTK_DISPATCH_TYPED_ARRAYS (default: OFF)
 #   Include vtkTypedDataArray<ValueType> for the basic types supported
@@ -55,7 +55,7 @@
 # #include "vtkTypeList.h"
 # #include "MyCustomArray1.h"
 # #include "MyCustomArray2.h"
-# #include "vtkAoSDataArrayTemplate.h"
+# #include "vtkAOSDataArrayTemplate.h"
 # #include "ExtraHeader1.h"
 # #include "ExtraHeader2.h"
 #
@@ -67,20 +67,20 @@
 #     MyCustomArray1<double>,
 #     MyCustomArray2<int>,
 #     MyCustomArray2<unsigned char>,
-#     vtkAoSDataArrayTemplate<char>,
-#     vtkAoSDataArrayTemplate<double>,
-#     vtkAoSDataArrayTemplate<float>,
-#     vtkAoSDataArrayTemplate<int>,
-#     vtkAoSDataArrayTemplate<long>,
-#     vtkAoSDataArrayTemplate<short>,
-#     vtkAoSDataArrayTemplate<signed char>,
-#     vtkAoSDataArrayTemplate<unsigned char>,
-#     vtkAoSDataArrayTemplate<unsigned int>,
-#     vtkAoSDataArrayTemplate<unsigned long>,
-#     vtkAoSDataArrayTemplate<unsigned short>,
-#     vtkAoSDataArrayTemplate<vtkIdType>,
-#     vtkAoSDataArrayTemplate<long long>,
-#     vtkAoSDataArrayTemplate<unsigned long long>,
+#     vtkAOSDataArrayTemplate<char>,
+#     vtkAOSDataArrayTemplate<double>,
+#     vtkAOSDataArrayTemplate<float>,
+#     vtkAOSDataArrayTemplate<int>,
+#     vtkAOSDataArrayTemplate<long>,
+#     vtkAOSDataArrayTemplate<short>,
+#     vtkAOSDataArrayTemplate<signed char>,
+#     vtkAOSDataArrayTemplate<unsigned char>,
+#     vtkAOSDataArrayTemplate<unsigned int>,
+#     vtkAOSDataArrayTemplate<unsigned long>,
+#     vtkAOSDataArrayTemplate<unsigned short>,
+#     vtkAOSDataArrayTemplate<vtkIdType>,
+#     vtkAOSDataArrayTemplate<long long>,
+#     vtkAOSDataArrayTemplate<unsigned long long>,
 #     ExtraArray1,
 #     ExtraArray2<float>,
 #     ExtraArray2<char>
@@ -129,17 +129,17 @@ endif()
 
 # For each container, define a header and a list of types:
 if (VTK_DISPATCH_AOS_ARRAYS)
-  list(APPEND vtkArrayDispatch_containers vtkAoSDataArrayTemplate)
-  set(vtkArrayDispatch_vtkAoSDataArrayTemplate_header vtkAoSDataArrayTemplate.h)
-  set(vtkArrayDispatch_vtkAoSDataArrayTemplate_types
+  list(APPEND vtkArrayDispatch_containers vtkAOSDataArrayTemplate)
+  set(vtkArrayDispatch_vtkAOSDataArrayTemplate_header vtkAOSDataArrayTemplate.h)
+  set(vtkArrayDispatch_vtkAOSDataArrayTemplate_types
     ${vtkArrayDispatch_all_types}
   )
 endif()
 
 if (VTK_DISPATCH_SOA_ARRAYS)
-  list(APPEND vtkArrayDispatch_containers vtkSoADataArrayTemplate)
-  set(vtkArrayDispatch_vtkSoADataArrayTemplate_header vtkSoADataArrayTemplate.h)
-  set(vtkArrayDispatch_vtkSoADataArrayTemplate_types
+  list(APPEND vtkArrayDispatch_containers vtkSOADataArrayTemplate)
+  set(vtkArrayDispatch_vtkSOADataArrayTemplate_header vtkSOADataArrayTemplate.h)
+  set(vtkArrayDispatch_vtkSOADataArrayTemplate_types
     ${vtkArrayDispatch_all_types}
   )
 endif()

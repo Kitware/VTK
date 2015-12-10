@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSoADataArrayTemplate.h
+  Module:    vtkSOADataArrayTemplate.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,31 +12,31 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSoADataArrayTemplate
+// .NAME vtkSOADataArrayTemplate
 // .SECTION Description
-// vtkSoADataArrayTemplate is the counterpart of vtkAoSDataArrayTemplate.
+// vtkSOADataArrayTemplate is the counterpart of vtkAOSDataArrayTemplate.
 
-#ifndef vtkSoADataArrayTemplate_h
-#define vtkSoADataArrayTemplate_h
+#ifndef vtkSOADataArrayTemplate_h
+#define vtkSOADataArrayTemplate_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkGenericDataArray.h"
 #include "vtkBuffer.h"
 
 template <class ValueTypeT>
-class VTKCOMMONCORE_EXPORT vtkSoADataArrayTemplate :
-    public vtkGenericDataArray<vtkSoADataArrayTemplate<ValueTypeT>, ValueTypeT>
+class VTKCOMMONCORE_EXPORT vtkSOADataArrayTemplate :
+    public vtkGenericDataArray<vtkSOADataArrayTemplate<ValueTypeT>, ValueTypeT>
 {
-  typedef vtkGenericDataArray<vtkSoADataArrayTemplate<ValueTypeT>, ValueTypeT>
+  typedef vtkGenericDataArray<vtkSOADataArrayTemplate<ValueTypeT>, ValueTypeT>
           GenericDataArrayType;
 public:
-  typedef vtkSoADataArrayTemplate<ValueTypeT> SelfType;
+  typedef vtkSOADataArrayTemplate<ValueTypeT> SelfType;
   vtkTemplateTypeMacro(SelfType, GenericDataArrayType)
   typedef typename Superclass::ValueType ValueType;
   typedef typename Superclass::ReferenceType ReferenceType;
   typedef typename Superclass::ConstReferenceType ConstReferenceType;
 
-  static vtkSoADataArrayTemplate* New();
+  static vtkSOADataArrayTemplate* New();
 
   // **************************************************************************
   // Methods that are needed to be implemented by every vtkGenericDataArray
@@ -90,9 +90,9 @@ public:
 
   // Description:
   // Use this API to pass externally allocated memory to this instance. Since
-  // vtkSoADataArrayTemplate uses separate contiguous regions for each
+  // vtkSOADataArrayTemplate uses separate contiguous regions for each
   // component, use this API to add arrays for each of the component.
-  // \c save: When set to true, vtkSoADataArrayTemplate will not release or
+  // \c save: When set to true, vtkSOADataArrayTemplate will not release or
   // realloc the memory even when the AllocatorType is set to RESIZABLE. If
   // needed it will simply allow new memory buffers and "forget" the supplied
   // pointers. When save is set to false, this will be the \c deleteMethod
@@ -139,7 +139,7 @@ public:
   // This method checks if source->GetArrayType() returns DataArray
   // or a more derived type, and performs a static_cast to return
   // source as a vtkDataArray pointer. Otherwise, NULL is returned.
-  static vtkSoADataArrayTemplate<ValueType>*
+  static vtkSOADataArrayTemplate<ValueType>*
   FastDownCast(vtkAbstractArray *source)
   {
     switch (source->GetArrayType())
@@ -148,7 +148,7 @@ public:
         if (vtkDataTypesCompare(source->GetDataType(),
                                 vtkTypeTraits<ValueType>::VTK_TYPE_ID))
           {
-          return static_cast<vtkSoADataArrayTemplate<ValueType>*>(source);
+          return static_cast<vtkSOADataArrayTemplate<ValueType>*>(source);
           }
         break;
       }
@@ -160,8 +160,8 @@ public:
   virtual int GetArrayType() { return vtkAbstractArray::SoADataArrayTemplate; }
 
 protected:
-  vtkSoADataArrayTemplate();
-  ~vtkSoADataArrayTemplate();
+  vtkSOADataArrayTemplate();
+  ~vtkSOADataArrayTemplate();
 
   // **************************************************************************
   // Methods that are needed to be implemented by every vtkGenericDataArray
@@ -177,8 +177,8 @@ protected:
   bool Resizeable;
   double NumberOfComponentsReciprocal;
 private:
-  vtkSoADataArrayTemplate(const vtkSoADataArrayTemplate&); // Not implemented.
-  void operator=(const vtkSoADataArrayTemplate&); // Not implemented.
+  vtkSOADataArrayTemplate(const vtkSOADataArrayTemplate&); // Not implemented.
+  void operator=(const vtkSOADataArrayTemplate&); // Not implemented.
 
   inline void GetTupleIndexFromValueIndex(vtkIdType valueIdx,
                                           vtkIdType& tupleIdx, int& comp) const
@@ -188,21 +188,21 @@ private:
     comp = valueIdx - (tupleIdx * this->NumberOfComponents);
     }
 
-  friend class vtkGenericDataArray<vtkSoADataArrayTemplate<ValueTypeT>,
+  friend class vtkGenericDataArray<vtkSOADataArrayTemplate<ValueTypeT>,
                                    ValueTypeT>;
 };
 
 // Declare vtkArrayDownCast implementations for SoA containers:
-vtkArrayDownCast_TemplateFastCastMacro(vtkSoADataArrayTemplate)
+vtkArrayDownCast_TemplateFastCastMacro(vtkSOADataArrayTemplate)
 
 # define VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(T) \
-   template class VTKCOMMONCORE_EXPORT vtkSoADataArrayTemplate< T >
+   template class VTKCOMMONCORE_EXPORT vtkSOADataArrayTemplate< T >
 
 #endif // header guard
 
 // This portion must be OUTSIDE the include blockers. This is used to tell
 // libraries other than vtkCommonCore that instantiations of
-// vtkSoADataArrayTemplate can be found externally. This prevents each library
+// vtkSOADataArrayTemplate can be found externally. This prevents each library
 // from instantiating these on their own.
 #ifndef VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATING
 #if defined(VTK_BUILD_SHARED_LIBS) && defined(_MSC_VER)
@@ -254,4 +254,4 @@ extern VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(unsigned __int64);
 #endif // VTK_BUILD_SHARED_LIBS && _MSC_VER
 #endif // VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATING
 
-// VTK-HeaderTest-Exclude: vtkSoADataArrayTemplate.h
+// VTK-HeaderTest-Exclude: vtkSOADataArrayTemplate.h
