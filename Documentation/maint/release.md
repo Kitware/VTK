@@ -203,25 +203,53 @@ depending on the version being built.
 
 #### Linux
 
+##### VTK 6
+
 Find the VM which is used to build. Ben has it archived if a new instance is
 needed (`vtkpython_maker`). The superbuild is in
 `$HOME/Desktop/vtkbuild/VTK-superbuild` and `$HOME/Desktop/vtkbuild/build`.
 Update the superbuild source and run `make` in the build tree. To generate the
 binary, run `cpack -G TGZ`.
 
+##### VTK 7
+
+Find the VM which is used to build. Ben has it archived if a new instance is
+needed (`vtk7-release`). The superbuild is in `$HOME/code/vtk/src-sb` and
+`$HOME/code/vtk/build-sb-release`. Update the superbuild source and run `make`
+in the build tree. To generate the binary, run `cpack -G TGZ`.
+
 #### OS X
+
+##### VTK 6
 
 On `karego-at` (in Dave DeMarle's office), reboot into the `10.6-dev`
 installation. The superbuild is in `$HOME/Source/VTKSB` and
 `$HOME/Source/buildVTKSB`. Update the superbuild source as necessary and run
 `make` in the build tree. To generate the binary, run `cpack -G DragNDrop`.
 
+##### VTK 7
+
+SSH into `bigmac`. The superbuild is in `$HOME/code/vtk/src-sb` and
+`$HOME/code/vtk/build-sb-release`. Update the superbuild source as necessary
+and run `make` in the build tree. To generate the binary, run `cpack -G
+DragNDrop`.
+
 #### Windows
+
+##### VTK 6
 
 VNC into `miranda`. The source lives in `%USERPROFILE%/DeMarle/VTKSB`. Use the
 Visual Studio 2008 command shells (in the Start menu) to compile from
 `%USERPROFILE%/DeMarle/build` and `%USERPROFILE%/DeMarle/build32`. Run `cmake
 --build . --config Release`. To generate the binary, run `cpack -G NSIS`.
+
+##### VTK 7
+
+VNC into `nemesis` (hostname `nemesis-win64`). The source lives in
+`%USERPROFILE%/code/depot/group-kitware/vtk/src-sb`. Use the Visual Studio
+2013 command shells (in the Start menu) to compile from
+`%USERPROFILE%/code/depot/group-kitware/vtk/build-sb-release`. Use `ninja` to
+build the tree. To generate the binary, run `cpack -G NSIS`.
 
 ### Uploading
 
