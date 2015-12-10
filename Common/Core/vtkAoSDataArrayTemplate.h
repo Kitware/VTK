@@ -168,6 +168,8 @@ public:
   // Method for type-checking in FastDownCast implementations.
   virtual int GetArrayType() { return vtkAbstractArray::AoSDataArrayTemplate; }
 
+  virtual bool HasStandardMemoryLayout() { return true; }
+
 //BTX
 protected:
   vtkAoSDataArrayTemplate();

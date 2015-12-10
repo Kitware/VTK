@@ -82,8 +82,10 @@ public:
     {
     return static_cast<int>(sizeof(ValueType));
     }
-  // FIXME: Let's do this for testing.
+
+  // False by default, AoS should set true.
   virtual bool HasStandardMemoryLayout() { return false; }
+
   //----------------------------------------------------------------------------
   // Pointer access methods.
   // These are considered legacy and are not implemented. New arrays types keep
