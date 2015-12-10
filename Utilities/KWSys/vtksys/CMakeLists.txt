@@ -124,7 +124,6 @@ IF(KWSYS_STANDALONE OR CMake_SOURCE_DIR)
   SET(KWSYS_USE_FStream 1)
   SET(KWSYS_USE_String 1)
   SET(KWSYS_USE_SystemInformation 1)
-  SET(KWSYS_USE_CPU 1)
 ENDIF()
 
 # Enforce component dependencies.
@@ -342,11 +341,6 @@ ENDIF()
 # capabilities and parent project's request.  Enforce 0/1 as only
 # possible values for configuration into Configure.hxx.
 
-IF(UNIX)
-  KWSYS_PLATFORM_CXX_TEST(KWSYS_STAT_HAS_ST_MTIM
-    "Checking whether struct stat has st_mtim member" DIRECT)
-ENDIF()
-
 # Check existence and uniqueness of long long and __int64.
 KWSYS_PLATFORM_CXX_TEST(KWSYS_CXX_HAS_LONG_LONG
   "Checking whether C++ compiler has 'long long'" DIRECT)
@@ -430,13 +424,6 @@ IF(KWSYS_USE_FundamentalType)
     ENDIF()
   ENDFOREACH()
 
-  IF(KWSYS_USE___INT64)
-    KWSYS_PLATFORM_CXX_TEST(KWSYS_CAN_CONVERT_UI64_TO_DOUBLE
-      "Checking whether unsigned __int64 can convert to double" DIRECT)
-  ELSE()
-    SET(KWSYS_CAN_CONVERT_UI64_TO_DOUBLE 1)
-  ENDIF()
-
   # Check signedness of "char" type.
   KWSYS_PLATFORM_CXX_TEST_RUN(KWSYS_CHAR_IS_SIGNED
     "Checking whether char is signed" DIRECT)
@@ -511,12 +498,18 @@ IF(KWSYS_USE_SystemTools)
     "Checking whether CXX compiler has utimes" DIRECT)
   KWSYS_PLATFORM_CXX_TEST(KWSYS_CXX_HAS_UTIMENSAT
     "Checking whether CXX compiler has utimensat" DIRECT)
+  KWSYS_PLATFORM_CXX_TEST(KWSYS_CXX_STAT_HAS_ST_MTIM
+    "Checking whether CXX compiler struct stat has st_mtim member" DIRECT)
+  KWSYS_PLATFORM_CXX_TEST(KWSYS_CXX_STAT_HAS_ST_MTIMESPEC
+    "Checking whether CXX compiler struct stat has st_mtimespec member" DIRECT)
   SET_PROPERTY(SOURCE SystemTools.cxx APPEND PROPERTY COMPILE_DEFINITIONS
     KWSYS_CXX_HAS_SETENV=${KWSYS_CXX_HAS_SETENV}
     KWSYS_CXX_HAS_UNSETENV=${KWSYS_CXX_HAS_UNSETENV}
     KWSYS_CXX_HAS_ENVIRON_IN_STDLIB_H=${KWSYS_CXX_HAS_ENVIRON_IN_STDLIB_H}
     KWSYS_CXX_HAS_UTIMES=${KWSYS_CXX_HAS_UTIMES}
     KWSYS_CXX_HAS_UTIMENSAT=${KWSYS_CXX_HAS_UTIMENSAT}
+    KWSYS_CXX_STAT_HAS_ST_MTIM=${KWSYS_CXX_STAT_HAS_ST_MTIM}
+    KWSYS_CXX_STAT_HAS_ST_MTIMESPEC=${KWSYS_CXX_STAT_HAS_ST_MTIMESPEC}
     )
 ENDIF()
 
@@ -748,7 +741,7 @@ ENDFOREACH()
 
 # Add selected C components.
 FOREACH(c
-    Process Base64 Encoding FundamentalType MD5 Terminal System String CPU
+    Process Base64 Encoding FundamentalType MD5 Terminal System String
     )
   IF(KWSYS_USE_${c})
     # Use the corresponding header file.

@@ -32,7 +32,7 @@ int main()
 }
 #endif
 
-#ifdef TEST_KWSYS_STAT_HAS_ST_MTIM
+#ifdef TEST_KWSYS_CXX_STAT_HAS_ST_MTIM
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -41,6 +41,19 @@ int main()
   struct stat stat1;
   (void)stat1.st_mtim.tv_sec;
   (void)stat1.st_mtim.tv_nsec;
+  return 0;
+}
+#endif
+
+#ifdef TEST_KWSYS_CXX_STAT_HAS_ST_MTIMESPEC
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+int main()
+{
+  struct stat stat1;
+  (void)stat1.st_mtimespec.tv_sec;
+  (void)stat1.st_mtimespec.tv_nsec;
   return 0;
 }
 #endif
@@ -61,21 +74,6 @@ int main()
 {
   __int64** p = 0;
   function(p);
-  return 0;
-}
-#endif
-
-#ifdef TEST_KWSYS_CAN_CONVERT_UI64_TO_DOUBLE
-void function(double& l, unsigned __int64 const& r)
-{
-  l = static_cast<double>(r);
-}
-
-int main()
-{
-  double tTo = 0.0;
-  unsigned __int64 tFrom = 0;
-  function(tTo, tFrom);
   return 0;
 }
 #endif
