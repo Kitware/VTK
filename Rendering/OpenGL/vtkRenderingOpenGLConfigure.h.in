@@ -18,6 +18,8 @@
 
 /* This header contains build settings for the vtkRenderingOpenGL module. */
 
+#define VTK_OPENGL1
+
 /* Whether VTK was built to support Cocoa on the Mac.  */
 #cmakedefine VTK_USE_COCOA
 

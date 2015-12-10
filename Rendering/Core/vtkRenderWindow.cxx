@@ -1427,6 +1427,12 @@ const char *vtkRenderWindow::GetRenderLibrary()
 }
 
 //----------------------------------------------------------------------------
+vtkRenderingBackend vtkRenderWindow::GetRenderingBackend()
+{
+  return vtkRenderingBackend::Unknown;
+}
+
+//----------------------------------------------------------------------------
 void vtkRenderWindow::CaptureGL2PSSpecialProps(vtkCollection *result)
 {
   if (result == NULL)

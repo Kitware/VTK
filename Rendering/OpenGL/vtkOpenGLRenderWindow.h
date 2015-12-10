@@ -44,6 +44,10 @@ public:
   static int  GetGlobalMaximumNumberOfMultiSamples();
 
   // Description:
+  // What rendering backend has the user requested
+  virtual vtkRenderingBackend GetRenderingBackend();
+
+  // Description:
   // Update system if needed due to stereo rendering.
   virtual void StereoUpdate();
 

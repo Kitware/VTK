@@ -86,6 +86,13 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->OwnContext=1;
 }
 
+//----------------------------------------------------------------------------
+vtkRenderingBackend vtkOpenGLRenderWindow::GetRenderingBackend()
+{
+  return vtkRenderingBackend::OpenGL1;
+}
+
+
 // free up memory & close the window
 // ----------------------------------------------------------------------------
 vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()

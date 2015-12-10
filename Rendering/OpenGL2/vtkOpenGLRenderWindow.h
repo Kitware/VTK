@@ -49,6 +49,10 @@ public:
   void Render();
 
   // Description:
+  // What rendering backend has the user requested
+  virtual vtkRenderingBackend GetRenderingBackend();
+
+  // Description:
   // Set/Get the maximum number of multisamples
   static void SetGlobalMaximumNumberOfMultiSamples(int val);
   static int  GetGlobalMaximumNumberOfMultiSamples();

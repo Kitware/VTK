@@ -82,9 +82,6 @@ if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
   vtk_test_cxx_executable(${vtk-module}CxxTests tests
     RENDERING_FACTORY
     )
-  set_target_properties (${vtk-module}CxxTests
-    PROPERTIES COMPILE_FLAGS -DVTK_OPENGL2
-    )
   return()
 endif ()
 
