@@ -62,8 +62,6 @@ class vtkPolyData;
 class vtkTextMapper;
 class vtkTextProperty;
 
-#define VTK_MAX_LABELS 25
-
 class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor2D : public vtkActor2D
 {
 public:
@@ -113,6 +111,11 @@ public:
   // This ivar only has effect when the RulerMode is on.
   vtkSetClampMacro(RulerDistance,double,0,VTK_FLOAT_MAX);
   vtkGetMacro(RulerDistance,double);
+
+  enum LabelMax
+  {
+    VTK_MAX_LABELS = 25
+  };
 
   // Description:
   // Set/Get the number of annotation labels to show. This also controls the

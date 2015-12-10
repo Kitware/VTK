@@ -560,7 +560,7 @@ void vtkPolarAxesActor::BuildAxes( vtkViewport *viewport )
 
   // Set polar axis ticks (major only)
   axis->SetTickVisibility( this->PolarTickVisibility );
-  axis->SetTickLocation( VTK_TICKS_BOTH );
+  axis->SetTickLocation( vtkAxisActor::VTK_TICKS_BOTH );
   axis->SetMajorTickSize( .02 * this->MaximumRadius );
 
   // Set polar axis labels
@@ -767,11 +767,11 @@ void vtkPolarAxesActor::BuildPolarAxisTicks( double x0 )
   // Set major start and delta corresponding to range and coordinates
   this->PolarAxis->SetMajorRangeStart( 0. );
   this->PolarAxis->SetDeltaRangeMajor( delta );
-  this->PolarAxis->SetMajorStart( VTK_AXIS_TYPE_X, x0 );
+  this->PolarAxis->SetMajorStart( vtkAxisActor::VTK_AXIS_TYPE_X, x0 );
 
   // Build in numerical robustness to avoid truncation errors at endpoint
   delta *= VTK_POLAR_AXES_ACTOR_RTOL;
-  this->PolarAxis->SetDeltaMajor( VTK_AXIS_TYPE_X, delta );
+  this->PolarAxis->SetDeltaMajor( vtkAxisActor::VTK_AXIS_TYPE_X, delta );
 }
 
 //-----------------------------------------------------------------------------
@@ -801,7 +801,7 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs()
 
   // Retreave label features
   vtkAxisActor* axis = this->PolarAxis;
-  double delta = axis->GetDeltaMajor( VTK_AXIS_TYPE_X );
+  double delta = axis->GetDeltaMajor( vtkAxisActor::VTK_AXIS_TYPE_X );
   double value = axis->GetMajorRangeStart();
 
   // Now create labels and polar arcs
