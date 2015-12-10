@@ -374,31 +374,79 @@ set_source_files_properties(
 
 # Configure data arrays for platform-independent fixed-size types.
 # Match the type selection here to that in vtkType.h.
-if(VTK_TYPE_CHAR_IS_SIGNED)
-  set(VTK_TYPE_NATIVE_Int8 Char)
-else()
-  set(VTK_TYPE_NATIVE_Int8 SignedChar)
-endif()
-set(VTK_TYPE_NATIVE_Int16 Short)
-set(VTK_TYPE_NATIVE_Int32 Int)
-set(VTK_TYPE_NATIVE_UInt8 UnsignedChar)
-set(VTK_TYPE_NATIVE_UInt16 UnsignedShort)
-set(VTK_TYPE_NATIVE_UInt32 UnsignedInt)
+set(VTK_TYPE_NATIVE_Int8 "
+#if VTK_TYPE_INT8 == VTK_CHAR
+# include \"vtkCharArray.h\"
+# define vtkTypeArrayBase vtkCharArray
+#else
+# include \"vtkSignedCharArray.h\"
+# define vtkTypeArrayBase vtkSignedCharArray
+#endif
+")
+set(VTK_TYPE_NATIVE_UInt8 "
+#if VTK_TYPE_UINT8 == VTK_UNSIGNED_CHAR
+# include \"vtkUnsignedCharArray.h\"
+# define vtkTypeArrayBase vtkUnsignedCharArray
+#endif
+")
+set(VTK_TYPE_NATIVE_Int16 "
+#if VTK_TYPE_INT16 == VTK_SHORT
+# include \"vtkShortArray.h\"
+# define vtkTypeArrayBase vtkShortArray
+#endif
+")
+set(VTK_TYPE_NATIVE_UInt16 "
+#if VTK_TYPE_UINT16 == VTK_UNSIGNED_SHORT
+# include \"vtkUnsignedShortArray.h\"
+# define vtkTypeArrayBase vtkUnsignedShortArray
+#endif
+")
+set(VTK_TYPE_NATIVE_Int32 "
+#if VTK_TYPE_INT32 == VTK_INT
+# include \"vtkIntArray.h\"
+# define vtkTypeArrayBase vtkIntArray
+#endif
+")
+set(VTK_TYPE_NATIVE_UInt32 "
+#if VTK_TYPE_UINT32 == VTK_UNSIGNED_INT
+# include \"vtkUnsignedIntArray.h\"
+# define vtkTypeArrayBase vtkUnsignedIntArray
+#endif
+")
+set(VTK_TYPE_NATIVE_Int64 "
+#if VTK_TYPE_INT64 == VTK_LONG
+# include \"vtkLongArray.h\"
+# define vtkTypeArrayBase vtkLongArray
+#elif VTK_TYPE_INT64 == VTK_LONG_LONG
+# include \"vtkLongLongArray.h\"
+# define vtkTypeArrayBase vtkLongLongArray
+#endif
+")
+set(VTK_TYPE_NATIVE_UInt64 "
+#if VTK_TYPE_UINT64 == VTK_UNSIGNED_LONG
+# include \"vtkUnsignedLongArray.h\"
+# define vtkTypeArrayBase vtkUnsignedLongArray
+#elif VTK_TYPE_UINT64 == VTK_UNSIGNED_LONG_LONG
+# include \"vtkUnsignedLongLongArray.h\"
+# define vtkTypeArrayBase vtkUnsignedLongLongArray
+#endif
+")
+set(VTK_TYPE_NATIVE_Float32 "
+#if VTK_TYPE_FLOAT32 == VTK_FLOAT
+# include \"vtkFloatArray.h\"
+# define vtkTypeArrayBase vtkFloatArray
+#endif
+")
+set(VTK_TYPE_NATIVE_Float64 "
+#if VTK_TYPE_FLOAT64 == VTK_DOUBLE
+# include \"vtkDoubleArray.h\"
+# define vtkTypeArrayBase vtkDoubleArray
+#endif
+")
 
-if(VTK_SIZEOF_LONG_LONG MATCHES "^8$")
-  set(VTK_TYPE_NATIVE_Int64 LongLong)
-  set(VTK_TYPE_NATIVE_UInt64 UnsignedLongLong)
-else()
-  if(VTK_SIZEOF_LONG MATCHES "^8$")
-    set(VTK_TYPE_NATIVE_Int64 Long)
-    set(VTK_TYPE_NATIVE_UInt64 UnsignedLong)
-  endif()
-endif()
-set(VTK_TYPE_NATIVE_Float32 Float)
-set(VTK_TYPE_NATIVE_Float64 Double)
 foreach(t Int8 Int16 Int32 Int64 UInt8 UInt16 UInt32 UInt64 Float32 Float64)
   set(VTK_TYPE_NAME ${t})
-  set(VTK_TYPE_NATIVE ${VTK_TYPE_NATIVE_${t}})
+  set(VTK_TYPE_NATIVE "${VTK_TYPE_NATIVE_${t}}")
   if(VTK_TYPE_NATIVE)
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkTypedArray.h.in
                    ${CMAKE_CURRENT_BINARY_DIR}/vtkType${t}Array.h
