@@ -135,24 +135,19 @@ public:
   double GetElement(int i, int j) const
     {return this->Element[i][j];}
 
-  double *operator[](const unsigned int i)
-    {return &(this->Element[i][0]);}
-  const double *operator[](unsigned int i) const
-    { return &(this->Element[i][0]); }
-  void Adjoint(vtkMatrix4x4 &in,vtkMatrix4x4 &out)
-    {this->Adjoint(&in,&out);}
-  double Determinant(vtkMatrix4x4 &in)
-    {return this->Determinant(&in);}
-  double Determinant(vtkMatrix4x4 *in)
-    {return vtkMatrix4x4::Determinant(*in->Element);}
-  void Invert(vtkMatrix4x4 &in,vtkMatrix4x4 &out)
-    {this->Invert(&in,&out);}
-  void Transpose(vtkMatrix4x4 &in,vtkMatrix4x4 &out)
-    {this->Transpose(&in,&out);}
-  static void PointMultiply(const double Elements[16],
-                            const float in[4], float out[4]);
-  static void PointMultiply(const double Elements[16],
-                            const double in[4], double out[4]);
+  // Description:
+  // Legacy methods. Do not use.
+  VTK_LEGACY(double *operator[](const unsigned int i));
+  VTK_LEGACY(const double *operator[](unsigned int i) const);
+  VTK_LEGACY(void Adjoint(vtkMatrix4x4 &in,vtkMatrix4x4 &out));
+  VTK_LEGACY(double Determinant(vtkMatrix4x4 &in));
+  VTK_LEGACY(double Determinant(vtkMatrix4x4 *));
+  VTK_LEGACY(void Invert(vtkMatrix4x4 &in,vtkMatrix4x4 &out));
+  VTK_LEGACY(void Transpose(vtkMatrix4x4 &in,vtkMatrix4x4 &out));
+  VTK_LEGACY(static void PointMultiply(const double [16],
+                                       const float [4], float [4]));
+  VTK_LEGACY(static void PointMultiply(const double [16],
+                                       const double [4], double [4]));
 
 protected:
   vtkMatrix4x4() { vtkMatrix4x4::Identity(*this->Element); };

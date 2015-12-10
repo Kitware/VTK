@@ -80,22 +80,91 @@ void vtkMatrix4x4::MultiplyPoint(const double Elements[16],
 }
 
 //----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+double *vtkMatrix4x4::operator[](const unsigned int i)
+{
+  VTK_LEGACY_BODY(vtkMatrix4x4::operator[], "VTK 7.1");
+  return &(this->Element[i][0]);
+}
+#endif
+
+//----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+const double *vtkMatrix4x4::operator[](unsigned int i) const
+{
+  VTK_LEGACY_BODY(vtkMatrix4x4::operator[], "VTK 7.1");
+  return &(this->Element[i][0]);
+}
+#endif
+
+//----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+void vtkMatrix4x4::Adjoint(vtkMatrix4x4 &in, vtkMatrix4x4 &out)
+{
+  VTK_LEGACY_BODY(vtkMatrix4x4::Adjoint, "VTK 7.1");
+  this->Adjoint(&in, &out);
+}
+#endif
+
+//----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+double vtkMatrix4x4::Determinant(vtkMatrix4x4 &in)
+{
+  VTK_LEGACY_BODY(vtkMatrix4x4::Determinant, "VTK 7.1");
+  return this->Determinant(&in);
+}
+#endif
+
+//----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+double vtkMatrix4x4::Determinant(vtkMatrix4x4 *in)
+{
+  VTK_LEGACY_BODY(vtkMatrix4x4::Determinant, "VTK 7.1");
+  return vtkMatrix4x4::Determinant(*in->Element);
+}
+#endif
+
+//----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+void vtkMatrix4x4::Invert(vtkMatrix4x4 &in, vtkMatrix4x4 &out)
+{
+  VTK_LEGACY_BODY(vtkMatrix4x4::Invert, "VTK 7.1");
+  this->Invert(&in, &out);
+}
+#endif
+
+//----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+void vtkMatrix4x4::Transpose(vtkMatrix4x4 &in, vtkMatrix4x4 &out)
+{
+  VTK_LEGACY_BODY(vtkMatrix4x4::Transpose, "VTK 7.1");
+  this->Transpose(&in, &out);
+}
+#endif
+
+//----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
 void vtkMatrix4x4::PointMultiply(const double Elements[16],
                                  const float in[4], float result[4])
 {
+  VTK_LEGACY_BODY(vtkMatrix4x4::PointMultiply, "VTK 7.1");
   double newElements[16];
   vtkMatrix4x4::Transpose(Elements, newElements);
   vtkMatrix4x4::MultiplyPoint(newElements, in, result);
 }
+#endif
 
 //----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
 void vtkMatrix4x4::PointMultiply(const double Elements[16],
                                  const double in[4], double result[4])
 {
+  VTK_LEGACY_BODY(vtkMatrix4x4::PointMultiply, "VTK 7.1");
   double newElements[16];
   vtkMatrix4x4::Transpose(Elements, newElements);
   vtkMatrix4x4::MultiplyPoint(newElements, in, result);
 }
+#endif
 
 //----------------------------------------------------------------------------
 // Matrix Inversion (adapted from Richard Carling in "Graphics Gems,"
