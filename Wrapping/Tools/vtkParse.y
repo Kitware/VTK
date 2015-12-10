@@ -378,21 +378,59 @@ static const char *vtkstrcat7(const char *str1, const char *str2,
  * Comments
  */
 
+enum comment_enum
+{
+  ClosedComment = -2,
+  StickyComment = -1,
+  NoComment = 0,
+  NormalComment = 1,
+  DescriptionComment = 2,
+  SeeAlsoComment = 3,
+  CaveatsComment = 4,
+  DoxygenComment = 5,
+  UnwantedComment = 6
+};
+
 /* "private" variables */
 char          *commentText = NULL;
 size_t         commentLength = 0;
 size_t         commentAllocatedLength = 0;
 int            commentState = 0;
+int            commentGroup = 0;
 
-const char *getComment()
+/* Struct for recognizing certain doxygen commands */
+struct DoxygenCommandInfo
 {
-  if (commentState != 0)
-    {
-    return commentText;
-    }
-  return NULL;
-}
+  const char *name;
+  size_t length;
+  int type;
+};
 
+/* List of doxygen commands (for now, just list ones to skip) */
+struct DoxygenCommandInfo doxygenCommands[] = {
+  { "def", 3, 0 },
+  { "defgroup", 8, 0 },
+  { "example", 7, 0 },
+  { "file", 4, 0 },
+  { "internal", 8, 0 },
+  { "mainpage", 8, 0 },
+  { "name", 4, 0 },
+  { "page", 4, 0 },
+  { "privatesection", 14, 0 },
+  { "protectedsection", 16, 0 },
+  { "publicsection", 13, 0 },
+  { "subpage", 7, 0 },
+  { "tableofcontents", 15, 0 },
+  { "section", 7, 0 },
+  { "subsection", 10, 0 },
+  { "subsubsection", 13, 0 },
+  { "paragraph", 9, 0 },
+  { NULL, 0, 0 }
+};
+
+void closeComment();
+
+/* Clear the comment buffer */
 void clearComment()
 {
   commentLength = 0;
@@ -403,9 +441,113 @@ void clearComment()
   commentState = 0;
 }
 
-void addCommentLine(const char *line, size_t n)
+/* This is called when entering or leaving a comment block */
+void setCommentState(int state)
 {
-  if (commentState <= 0)
+  switch (state)
+    {
+    case 0:
+      closeComment();
+      break;
+    default:
+      closeComment();
+      clearComment();
+      break;
+    }
+
+  commentState = state;
+}
+
+/* Get the text from the comment buffer */
+const char *getComment()
+{
+  const char *text = commentText;
+  const char *cp = commentText;
+  size_t l = commentLength;
+
+  if (commentText != NULL && commentState != 0)
+    {
+    /* strip trailing blank lines */
+    while (l > 0 && (cp[l-1] == ' ' || cp[l-1] == '\t' ||
+                     cp[l-1] == '\r' || cp[l-1] == '\n'))
+      {
+      if (cp[l-1] == '\n')
+        {
+        commentLength = l;
+        }
+      l--;
+      }
+    commentText[commentLength] = '\0';
+    /* strip leading blank lines */
+    while (*cp == ' ' || *cp == '\t' || *cp == '\r' || *cp == '\n')
+      {
+      if (*cp == '\n')
+        {
+        text = cp + 1;
+        }
+      cp++;
+      }
+    return text;
+    }
+
+  return NULL;
+}
+
+/* Check for doxygen commands that mark unwanted comments */
+int checkDoxygenCommand(const char *text, size_t n)
+{
+  struct DoxygenCommandInfo *info;
+  for (info = doxygenCommands; info->name; info++)
+    {
+    if (info->length == n && strncmp(text, info->name, n) == 0)
+      {
+      return info->type;
+      }
+    }
+  return 1;
+}
+
+/* This is called whenever a comment line is encountered */
+void addCommentLine(const char *line, size_t n, int type)
+{
+  size_t i, j;
+
+  if (type == DoxygenComment || commentState == DoxygenComment)
+    {
+    if (type == DoxygenComment)
+      {
+      /* search for '@' and backslash */
+      for (i = 0; i+1 < n; i++)
+        {
+        if (line[i] == '@' || line[i] == '\\')
+          {
+          j = ++i;
+          while (i < n && line[i] >= 'a' && line[i] <= 'z')
+            {
+            i++;
+            }
+          if (checkDoxygenCommand(&line[j], i-j) == 0 ||
+              (line[i-1] == '@' && (line[i] == '{' || line[i] == '}')))
+            {
+            /* skip this comment block */
+            commentState = UnwantedComment;
+            }
+          }
+        }
+      }
+    else if (commentState == DoxygenComment)
+      {
+      return;
+      }
+    if (commentState != type && commentState != UnwantedComment)
+      {
+      setCommentState(type);
+      }
+    }
+  else if (commentState == 0 ||
+           commentState == StickyComment ||
+           commentState == ClosedComment ||
+           commentState == UnwantedComment)
     {
     clearComment();
     return;
@@ -438,57 +580,64 @@ void addCommentLine(const char *line, size_t n)
   commentText[commentLength] = '\0';
 }
 
+/* This is called when a comment block ends */
 void closeComment()
 {
   switch (commentState)
     {
-    case 1:
-      /* Make comment persist until a new comment starts */
-      commentState = -1;
+    case ClosedComment:
+      clearComment();
       break;
-    case 2:
+    case NormalComment:
+      /* Make comment persist until a new comment starts */
+      commentState = StickyComment;
+      break;
+    case DescriptionComment:
       data->Description = vtkstrdup(getComment());
       clearComment();
       break;
-    case 3:
+    case SeeAlsoComment:
       data->SeeAlso = vtkstrdup(getComment());
       clearComment();
       break;
-    case 4:
+    case CaveatsComment:
       data->Caveats = vtkstrdup(getComment());
+      clearComment();
+      break;
+    case DoxygenComment:
+      /* Comment can only be used once */
+      commentState = (commentGroup ? StickyComment : ClosedComment);
+      break;
+    case UnwantedComment:
       clearComment();
       break;
     }
 }
 
-void closeOrClearComment()
+/* This is called when a blank line occurs in the header file */
+void commentBreak()
 {
-  if (commentState < 0)
+  if (!commentGroup && commentState == StickyComment)
     {
     clearComment();
     }
-  else
+  else if (commentState == UnwantedComment)
     {
+    clearComment();
+    }
+  else if (commentState != DoxygenComment)
+    {
+    /* blank lines end of VTK comments, buy not doxygen comments */
     closeComment();
     }
 }
 
-void setCommentState(int state)
+/* This is called when doxygen @{ or @} are encountered */
+void setCommentGroup(int g)
 {
-  switch (state)
-    {
-    case 0:
-      closeComment();
-      break;
-    default:
-      closeComment();
-      clearComment();
-      break;
-    }
-
-  commentState = state;
+  commentGroup = g;
+  clearComment();
 }
-
 
 /*----------------------------------------------------------------
  * Macros
