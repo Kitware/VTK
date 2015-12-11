@@ -33,6 +33,7 @@ enum vtkRenderingBackend
 {
   OpenGL1 = 0,
   OpenGL2,
+  None,
   Unknown  // keep last for loops etc
 };
 
