@@ -26,4 +26,8 @@ uniform sampler2D source;
 void main(void)
 {
   gl_FragData[0] = texture2D(source,tcoordVC);
+  if (gl_FragData[0].a <= 0.0)
+    {
+    discard;
+    }
 }
