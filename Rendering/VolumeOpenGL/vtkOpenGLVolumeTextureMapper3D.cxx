@@ -15,6 +15,8 @@
 #include "vtkWindows.h"
 #include "vtkOpenGLVolumeTextureMapper3D.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
+
 #include "vtkImageData.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
@@ -52,6 +54,7 @@ vtkOpenGLVolumeTextureMapper3D::vtkOpenGLVolumeTextureMapper3D()
   this->AlphaLookupIndex             =  0;
   this->RenderWindow                 = NULL;
   this->SupportsCompressedTexture    = false;
+  VTK_LEGACY_BODY(vtkOpenGLVolumeTextureMapper3D::vtkOpenGLVolumeTextureMapper3D,"VTK 7.0");
 }
 
 vtkOpenGLVolumeTextureMapper3D::~vtkOpenGLVolumeTextureMapper3D()
@@ -2120,3 +2123,5 @@ void vtkOpenGLVolumeTextureMapper3D::PrintSelf(ostream& os, vtkIndent indent)
 
   this->Superclass::PrintSelf(os,indent);
 }
+
+#endif // VTK_LEGACY_REMOVE

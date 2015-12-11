@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkVolumeTextureMapper2D.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
+
 #include "vtkCamera.h"
 #include "vtkDataArray.h"
 #include "vtkObjectFactory.h"
@@ -475,6 +477,8 @@ vtkVolumeTextureMapper2D::vtkVolumeTextureMapper2D()
   this->MaximumStorageSize    =   0;
   this->Texture               = NULL;
   this->TextureSize           = 0;
+
+  VTK_LEGACY_BODY(vtkVolumeTextureMapper2D::vtkVolumeTextureMapper2D,"VTK 7.0");
 }
 
 vtkVolumeTextureMapper2D::~vtkVolumeTextureMapper2D()
@@ -1150,4 +1154,4 @@ void vtkVolumeTextureMapper2D::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 }
 
-
+#endif // VTK_LEGACY_REMOVE

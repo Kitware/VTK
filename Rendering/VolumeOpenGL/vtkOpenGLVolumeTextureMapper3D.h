@@ -20,6 +20,7 @@
 
 // .SECTION see also
 // vtkVolumeTextureMapper3D vtkVolumeMapper
+// @deprecated
 
 #ifndef vtkOpenGLVolumeTextureMapper3D_h
 #define vtkOpenGLVolumeTextureMapper3D_h
@@ -31,6 +32,7 @@
 class vtkRenderWindow;
 class vtkVolumeProperty;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKRENDERINGVOLUMEOPENGL_EXPORT vtkOpenGLVolumeTextureMapper3D
   : public vtkVolumeTextureMapper3D
 {
@@ -156,5 +158,5 @@ private:
   vtkOpenGLVolumeTextureMapper3D(const vtkOpenGLVolumeTextureMapper3D&);  // Not implemented.
   void operator=(const vtkOpenGLVolumeTextureMapper3D&);  // Not implemented.
 };
-
+#endif // VTK_LEGACY_REMOVE
 #endif

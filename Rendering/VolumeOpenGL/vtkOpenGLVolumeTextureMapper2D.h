@@ -20,6 +20,7 @@
 
 // .SECTION see also
 // vtkVolumeMapper
+// @deprecated
 
 #ifndef vtkOpenGLVolumeTextureMapper2D_h
 #define vtkOpenGLVolumeTextureMapper2D_h
@@ -27,6 +28,7 @@
 #include "vtkRenderingVolumeOpenGLModule.h" // For export macro
 #include "vtkVolumeTextureMapper2D.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKRENDERINGVOLUMEOPENGL_EXPORT vtkOpenGLVolumeTextureMapper2D
   : public vtkVolumeTextureMapper2D
 {
@@ -57,5 +59,5 @@ private:
   vtkOpenGLVolumeTextureMapper2D(const vtkOpenGLVolumeTextureMapper2D&);  // Not implemented.
   void operator=(const vtkOpenGLVolumeTextureMapper2D&);  // Not implemented.
 };
-
+#endif // VTK_LEGACY_REMOVE
 #endif

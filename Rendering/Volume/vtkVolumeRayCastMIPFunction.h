@@ -27,12 +27,15 @@
 // vtkVolumeRayCastFunction vtkVolumeRayCastMapper vtkVolumeProperty
 // vtkVolumeRayCastCompositeFunction vtkVolumeRayCastIsosurfaceFunction
 // vtkVolume vtkVolumeProperty
+// @deprecated
 
 #ifndef vtkVolumeRayCastMIPFunction_h
 #define vtkVolumeRayCastMIPFunction_h
 
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkVolumeRayCastFunction.h"
+
+#if !defined(VTK_LEGACY_REMOVE)
 
 #define VTK_MAXIMIZE_SCALAR_VALUE 0
 #define VTK_MAXIMIZE_OPACITY      1
@@ -86,5 +89,5 @@ private:
 };
 
 
-
+#endif // VTK_LEGACY_REMOVE
 #endif

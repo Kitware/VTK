@@ -69,6 +69,7 @@
 //
 // .SECTION see also
 // vtkVolumeMapper
+// @deprecated
 
 #ifndef vtkVolumeTextureMapper3D_h
 #define vtkVolumeTextureMapper3D_h
@@ -80,7 +81,7 @@ class vtkImageData;
 class vtkColorTransferFunction;
 class vtkPiecewiseFunction;
 class vtkVolumeProperty;
-
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKRENDERINGVOLUME_EXPORT vtkVolumeTextureMapper3D : public vtkVolumeMapper
 {
 public:
@@ -247,7 +248,7 @@ private:
   void operator=(const vtkVolumeTextureMapper3D&);  // Not implemented.
 };
 
-
+#endif // VTK_LEGACY_REMOVE
 #endif
 
 

@@ -24,12 +24,16 @@ include(${VTK_USE_FILE})
 add_executable(Medical1 MACOSX_BUNDLE Medical1.cxx)
 add_executable(Medical2 MACOSX_BUNDLE Medical2.cxx)
 add_executable(Medical3 MACOSX_BUNDLE Medical3.cxx)
+if (NOT VTK_LEGACY_REMOVE)
 add_executable(Medical4 MACOSX_BUNDLE Medical4.cxx)
+endif()
 
 target_link_libraries(Medical1 ${VTK_LIBRARIES})
 target_link_libraries(Medical2 ${VTK_LIBRARIES})
 target_link_libraries(Medical3 ${VTK_LIBRARIES})
+if (NOT VTK_LEGACY_REMOVE)
 target_link_libraries(Medical4 ${VTK_LIBRARIES})
+endif()
 
 add_executable(GenerateModelsFromLabels MACOSX_BUNDLE GenerateModelsFromLabels.cxx)
 add_executable(GenerateCubesFromLabels MACOSX_BUNDLE  GenerateCubesFromLabels.cxx)
@@ -43,13 +47,19 @@ if(BUILD_TESTING)
     set(TestMedical1_ARGS ${VTK_TEST_DATA_DIR}/Data/headsq/quarter)
     set(TestMedical2_ARGS ${VTK_TEST_DATA_DIR}/Data/headsq/quarter)
     set(TestMedical3_ARGS ${VTK_TEST_DATA_DIR}/Data/headsq/quarter)
+if (NOT VTK_LEGACY_REMOVE)
     set(TestMedical4_ARGS ${VTK_TEST_DATA_DIR}/Data/headsq/quarter)
+endif()
     vtk_add_test_cxx(${vtk-example}CxxTests tests
       TestMedical1.cxx
       TestMedical2.cxx
       TestMedical3.cxx
+      )
+if (NOT VTK_LEGACY_REMOVE)
+    vtk_add_test_cxx(${vtk-example}CxxTests tests
       TestMedical4.cxx
       )
+endif()
     vtk_test_cxx_executable(${vtk-example}CxxTests tests
       RENDERING_FACTORY
       )

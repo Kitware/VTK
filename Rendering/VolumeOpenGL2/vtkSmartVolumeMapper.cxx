@@ -534,12 +534,14 @@ void vtkSmartVolumeMapper::SetRequestedRenderMode(int mode)
     return;
     }
 
+#if !defined(VTK_LEGACY_REMOVE)
   if (mode == RayCastAndTextureRenderMode || mode == TextureRenderMode)
     {
     vtkErrorMacro("RayCastAndTextureRenderMode and \
                   TextureRenderMode no longer supported");
     return;
     }
+#endif // VTK_LEGACY_REMOVE
 
   // Make sure it is a valid mode
   if ( mode < vtkSmartVolumeMapper::DefaultRenderMode ||

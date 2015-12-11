@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkOpenGLVolumeTextureMapper2D.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
+
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkTimerLog.h"
@@ -26,6 +28,7 @@ vtkStandardNewMacro(vtkOpenGLVolumeTextureMapper2D);
 
 vtkOpenGLVolumeTextureMapper2D::vtkOpenGLVolumeTextureMapper2D()
 {
+  VTK_LEGACY_BODY(vtkOpenGLVolumeTextureMapper2D::vtkOpenGLVolumeTextureMapper2D,"VTK 7.0");
 }
 
 vtkOpenGLVolumeTextureMapper2D::~vtkOpenGLVolumeTextureMapper2D()
@@ -184,3 +187,5 @@ void vtkOpenGLVolumeTextureMapper2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }
+
+#endif // VTK_LEGACY_REMOVE

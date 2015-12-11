@@ -24,6 +24,7 @@
 // .SECTION See Also
 // vtkVolumeRayCastCompositeFunction vtkVolumeRayCastMIPFunction
 // vtkVolumeRayCastIsosurfaceFunction vtkVolumeRayCastMapper
+// @deprecated
 
 #ifndef vtkVolumeRayCastFunction_h
 #define vtkVolumeRayCastFunction_h
@@ -35,6 +36,7 @@ class vtkRenderer;
 class vtkVolume;
 class vtkVolumeRayCastMapper;
 
+#if !defined(VTK_LEGACY_REMOVE)
 // Define a couple of structures we need to hold all the important information
 // This first structure hold the dynamic information - stuff that changes per
 // ray
@@ -155,7 +157,10 @@ public:
   virtual float GetZeroOpacityThreshold( vtkVolume *vol )=0;
 
 protected:
-  vtkVolumeRayCastFunction() {}
+  vtkVolumeRayCastFunction()
+    {
+    VTK_LEGACY_BODY(vtkVolumeRayCastMapper::vtkVolumeRayCastMapper,"VTK 7.0");
+    }
   ~vtkVolumeRayCastFunction() {}
 
 //BTX
@@ -171,5 +176,5 @@ private:
   vtkVolumeRayCastFunction(const vtkVolumeRayCastFunction&);  // Not implemented.
   void operator=(const vtkVolumeRayCastFunction&);  // Not implemented.
 };
-
+#endif // VTK_LEGACY_REMOVE
 #endif

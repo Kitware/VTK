@@ -26,6 +26,7 @@
 // vtkVolumeRayCastFunction vtkVolumeRayCastMapper vtkVolumeProperty
 // vtkVolumeRayCastCompositeFunction vtkVolumeRayCastMIPFunction
 // vtkVolume vtkVolumeProperty
+// @deprecated
 
 #ifndef vtkVolumeRayCastIsosurfaceFunction_h
 #define vtkVolumeRayCastIsosurfaceFunction_h
@@ -33,6 +34,7 @@
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkVolumeRayCastFunction.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKRENDERINGVOLUME_EXPORT vtkVolumeRayCastIsosurfaceFunction : public vtkVolumeRayCastFunction
 {
 public:
@@ -80,4 +82,5 @@ private:
   vtkVolumeRayCastIsosurfaceFunction(const vtkVolumeRayCastIsosurfaceFunction&);  // Not implemented.
   void operator=(const vtkVolumeRayCastIsosurfaceFunction&);  // Not implemented.
 };
+#endif // VTK_LEGACY_REMOVE
 #endif
