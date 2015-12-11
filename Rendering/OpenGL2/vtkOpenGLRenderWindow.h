@@ -50,7 +50,7 @@ public:
 
   // Description:
   // What rendering backend has the user requested
-  virtual vtkRenderingBackend GetRenderingBackend();
+  virtual vtkRenderWindow::Backend GetRenderingBackend();
 
   // Description:
   // Set/Get the maximum number of multisamples

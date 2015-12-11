@@ -29,13 +29,5 @@ enum
   VTK_MARKER_UNKNOWN  // Must be last.
 };
 
-enum vtkRenderingBackend
-{
-  OpenGL1 = 0,
-  OpenGL2,
-  None,
-  Unknown  // keep last for loops etc
-};
-
 #endif // vtkRenderingCoreEnums_h
 // VTK-HeaderTest-Exclude: vtkRenderingCoreEnums.h

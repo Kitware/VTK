@@ -59,14 +59,14 @@ int RGrid( int argc, char *argv[] )
     iren->SetRenderWindow(renWin);
 
 #ifdef VTK_OPENGL1
-  if (renWin->GetRenderingBackend() != vtkRenderingBackend::OpenGL1)
+  if (renWin->GetRenderingBackend() != vtkRenderWindow::Backend::OpenGL1)
     {
     return vtkTesting::FAILED;
     }
 #endif
 
 #ifdef VTK_OPENGL2
-  if (renWin->GetRenderingBackend() != vtkRenderingBackend::OpenGL2)
+  if (renWin->GetRenderingBackend() != vtkRenderWindow::Backend::OpenGL2)
     {
     return vtkTesting::FAILED;
     }

@@ -85,9 +85,9 @@ void vtkOpenGLRenderWindow::SetContextSupportsOpenGL32(bool val)
 }
 
 //----------------------------------------------------------------------------
-vtkRenderingBackend vtkOpenGLRenderWindow::GetRenderingBackend()
+vtkRenderWindow::Backend vtkOpenGLRenderWindow::GetRenderingBackend()
 {
-  return vtkRenderingBackend::OpenGL2;
+  return vtkRenderWindow::Backend::OpenGL2;
 }
 
 // ----------------------------------------------------------------------------

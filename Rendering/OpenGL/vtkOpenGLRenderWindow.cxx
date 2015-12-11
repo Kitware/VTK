@@ -87,9 +87,9 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
 }
 
 //----------------------------------------------------------------------------
-vtkRenderingBackend vtkOpenGLRenderWindow::GetRenderingBackend()
+vtkRenderWindow::Backend vtkOpenGLRenderWindow::GetRenderingBackend()
 {
-  return vtkRenderingBackend::OpenGL1;
+  return vtkRenderWindow::Backend::OpenGL1;
 }
 
 

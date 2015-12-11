@@ -39,7 +39,6 @@
 #define vtkRenderWindow_h
 
 #include "vtkRenderingCoreModule.h" // For export macro
-#include "vtkRenderingCoreEnums.h" // for shared enums
 #include "vtkWindow.h"
 
 class vtkFloatArray;
@@ -105,7 +104,14 @@ public:
 
   // Description:
   // What rendering backend has the user requested
-  virtual vtkRenderingBackend GetRenderingBackend();
+  enum Backend
+    {
+    OpenGL1 = 0,
+    OpenGL2,
+    None,
+    Unknown // always last
+    };
+  virtual vtkRenderWindow::Backend GetRenderingBackend();
 
   // Description:
   // Return the collection of renderers in the render window.
