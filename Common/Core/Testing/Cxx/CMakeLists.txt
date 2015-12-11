@@ -14,6 +14,16 @@ function(add_data_array_test test_name array_header array_valuetype array_type)
   set(data_array_tests ${data_array_tests} "${test_source}.cxx" PARENT_SCOPE)
 endfunction()
 
+# Legacy -- test that the vtkDataArrayTemplate interface still works:
+if(NOT VTK_LEGACY_REMOVE)
+  add_data_array_test(
+    vtkDataArrayTemplate_LEGACY
+    vtkDataArrayTemplate.h
+    float
+    vtkDataArrayTemplate<float>
+  )
+endif()
+
 # Non-templated classes:
 add_data_array_test(vtkCharArray vtkCharArray.h "char" vtkCharArray)
 add_data_array_test(vtkDoubleArray vtkDoubleArray.h "double" vtkDoubleArray)

@@ -290,6 +290,7 @@ set(${vtk-module}_HDRS
   vtkAtomicTypes.h
   vtkAutoInit.h
   vtkDataArrayIteratorMacro.h
+  vtkDataArrayTemplate.h
   vtkGenericDataArray.h
   vtkGenericDataArrayLookupHelper.h
   vtkGenericDataArray.txx
@@ -687,6 +688,7 @@ set_source_files_properties(
 )
 
 set_source_files_properties(
+  vtkDataArrayTemplate.h
   vtkDenseArray.h
   vtkSparseArray.h
   vtkTypedArray.h
