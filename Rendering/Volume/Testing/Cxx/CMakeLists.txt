@@ -59,6 +59,7 @@ set (VolumeOpenGL2CxxTests
   TestGPURayCastRenderToTexture.cxx
   TestGPURayCastThreeComponentsIndependent.cxx
   TestGPURayCastTwoComponentsDependent.cxx
+  TestGPURayCastTwoComponentsGradient.cxx
   TestGPURayCastTwoComponentsIndependent.cxx
   TestGPURayCastVolumeLightKit.cxx
   TestGPURayCastVolumePolyData.cxx
