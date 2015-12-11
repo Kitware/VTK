@@ -128,7 +128,6 @@ public:
 
     this->MaskTextures = new vtkMapMaskTextureId;
 
-    this->ScalarsRange.clear();
     this->Scale.clear();
     this->Bias.clear();
 
@@ -181,7 +180,6 @@ public:
 
     delete this->MaskTextures;
 
-    this->ScalarsRange.clear();
     this->Scale.clear();
     this->Bias.clear();
     }
@@ -201,6 +199,8 @@ public:
   static void ToFloat(T (&in)[2], float (&out)[2]);
   template<typename T>
   static void ToFloat(T& in, float& out);
+  template<typename T>
+  static void ToFloat(T (&in)[4][2], float (&out)[4][2]);
 
   void Initialize(vtkRenderer* ren, vtkVolume* vol,
                   int noOfComponents, int independentComponents);
@@ -318,7 +318,7 @@ public:
   int WindowSize[2];
   int LastWindowSize[2];
 
-  std::vector< std::vector<double> > ScalarsRange;
+  double ScalarsRange[4][2];
   double LoadedBounds[6];
   int Extents[6];
   double DatasetStepSize[3];
@@ -430,6 +430,21 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ToFloat(
   T& in, float& out)
 {
   out = static_cast<float>(in);
+}
+
+//----------------------------------------------------------------------------
+template<typename T>
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ToFloat(
+  T (&in)[4][2], float (&out)[4][2])
+{
+  out[0][0] = static_cast<float>(in[0][0]);
+  out[0][1] = static_cast<float>(in[0][1]);
+  out[1][0] = static_cast<float>(in[1][0]);
+  out[1][1] = static_cast<float>(in[1][1]);
+  out[2][0] = static_cast<float>(in[2][0]);
+  out[2][1] = static_cast<float>(in[2][1]);
+  out[3][0] = static_cast<float>(in[3][0]);
+  out[3][1] = static_cast<float>(in[3][1]);
 }
 
 //----------------------------------------------------------------------------
@@ -699,8 +714,8 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(
 
   for (int n = 0; n < noOfComponents; ++n)
     {
-    double oglA = this->ScalarsRange[n][0]*oglScale + oglBias;
-    double oglB = this->ScalarsRange[n][1]*oglScale + oglBias;
+    double oglA = this->ScalarsRange[n][0] * oglScale + oglBias;
+    double oglB = this->ScalarsRange[n][1] * oglScale + oglBias;
     scale[n] = 1.0/ (oglB - oglA);
     bias[n] = 0.0 - oglA*scale[n];
     }
@@ -2252,8 +2267,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
     fragmentShader,
     "//VTK::Base::Dec",
     vtkvolume::BaseDeclarationFragment(ren, this, vol, this->Impl->NumberOfLights,
-                                       this->Impl->LightComplexity, noOfComponents,
-                                       independentComponents),
+                                       this->Impl->LightComplexity,
+                                       vol->GetProperty()->HasGradientOpacity(),
+                                       noOfComponents, independentComponents),
     true);
 
   fragmentShader = vtkvolume::replace(
@@ -2390,7 +2406,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
     "//VTK::Cropping::Dec",
     vtkvolume::CroppingDeclarationVertex(ren, this, vol),
     true);
-
   fragmentShader = vtkvolume::replace(
     fragmentShader,
     "//VTK::Cropping::Dec",
@@ -2516,6 +2531,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
     vtkErrorMacro("Shader failed to compile");
     }
 
+  std:cerr << "fragment shader " << fragmentShader << std::endl;
   this->Impl->ShaderBuildTime.Modified();
 }
 
@@ -2743,11 +2759,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 
   // Allocate important variables
   this->Impl->Bias.resize(noOfComponents, 0.0);
-  this->Impl->ScalarsRange.resize(noOfComponents);
-  for (int n = 0; n < noOfComponents; ++n)
-    {
-    this->Impl->ScalarsRange[n].resize(2, 0.0);
-    }
 
   // Set OpenGL states
   vtkVolumeStateRAII glState;
@@ -2961,13 +2972,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->ShaderProgram->SetUniformf("in_sampleDistance",
                                          this->Impl->ActualSampleDistance);
 
-  double scalarRange[2];
-  for (int i = 0; i < 2; ++i)
-    {
-    scalarRange[i] = this->Impl->ScalarsRange[noOfComponents - 1][i];
-    }
-  vtkInternal::ToFloat(scalarRange, fvalue2);
-  this->Impl->ShaderProgram->SetUniform2fv("in_scalarsRange", 1, &fvalue2);
+  float scalarsRange[4][2];
+  vtkInternal::ToFloat(this->Impl->ScalarsRange, scalarsRange);
+  this->Impl->ShaderProgram->SetUniform2fv("in_scalarsRange", 4,
+                                           scalarsRange);
 
   // Bind textures
   this->Impl->VolumeTextureObject->Activate();
