@@ -104,14 +104,7 @@ public:
 
   // Description:
   // What rendering backend has the user requested
-  enum Backend
-    {
-    OpenGL1 = 0,
-    OpenGL2,
-    None,
-    Unknown // always last
-    };
-  virtual vtkRenderWindow::Backend GetRenderingBackend();
+  virtual const char *GetRenderingBackend();
 
   // Description:
   // Return the collection of renderers in the render window.

@@ -45,7 +45,7 @@ public:
 
   // Description:
   // What rendering backend has the user requested
-  virtual vtkRenderWindow::Backend GetRenderingBackend();
+  virtual const char *GetRenderingBackend();
 
   // Description:
   // Update system if needed due to stereo rendering.

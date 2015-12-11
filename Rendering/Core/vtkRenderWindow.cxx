@@ -1427,9 +1427,9 @@ const char *vtkRenderWindow::GetRenderLibrary()
 }
 
 //----------------------------------------------------------------------------
-vtkRenderWindow::Backend vtkRenderWindow::GetRenderingBackend()
+const char *vtkRenderWindow::GetRenderingBackend()
 {
-  return vtkRenderWindow::Backend::Unknown;
+  return "Unknown";
 }
 
 //----------------------------------------------------------------------------

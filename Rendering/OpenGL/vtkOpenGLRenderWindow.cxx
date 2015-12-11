@@ -87,9 +87,9 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
 }
 
 //----------------------------------------------------------------------------
-vtkRenderWindow::Backend vtkOpenGLRenderWindow::GetRenderingBackend()
+const char *vtkOpenGLRenderWindow::GetRenderingBackend()
 {
-  return vtkRenderWindow::Backend::OpenGL1;
+  return "OpenGL1";
 }
 
 
