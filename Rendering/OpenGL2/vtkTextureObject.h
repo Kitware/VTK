@@ -529,6 +529,16 @@ public:
   vtkSetMacro(GenerateMipmap,bool);
 
   // Description:
+  // Query and return maximum texture size (dimension) supported by the
+  // OpenGL driver for a particular context. It should be noted that this
+  // size does not consider the internal format of the texture and therefore
+  // there is no guarentee that a texture of this size will be allocated by
+  // the driver. Also, the method does not make the context current so
+  // if the passed context is not valid or current, a value of -1 will
+  // be returned.
+  static int GetMaximumTextureSize(vtkOpenGLRenderWindow* context);
+
+  // Description:
   // Returns if the context supports the required extensions. If flags
   // for optional extenisons are set then the test fails when support
   // for them is not found.
@@ -589,8 +599,6 @@ public:
                            int dstYmin,
                            int width,
                            int height);
-
-
 
 protected:
   vtkTextureObject();

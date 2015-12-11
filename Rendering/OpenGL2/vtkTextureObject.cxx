@@ -2036,6 +2036,19 @@ void vtkTextureObject::CopyFromFrameBuffer(int srcXmin,
 }
 
 //----------------------------------------------------------------------------
+int vtkTextureObject::GetMaximumTextureSize(vtkOpenGLRenderWindow* context)
+{
+  int maxSize = -1;
+
+  if (context && context->IsCurrent())
+    {
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxSize);
+    }
+
+  return maxSize;
+}
+
+//----------------------------------------------------------------------------
 void vtkTextureObject::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
