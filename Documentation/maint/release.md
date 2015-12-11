@@ -203,6 +203,8 @@ depending on the version being built.
 
 #### Linux
 
+Also pass `ENABLE_python=ON` to the superbuild.
+
 ##### VTK 6
 
 Find the VM which is used to build. Ben has it archived if a new instance is
@@ -235,6 +237,8 @@ and run `make` in the build tree. To generate the binary, run `cpack -G
 DragNDrop`.
 
 #### Windows
+
+Also pass `ENABLE_python=ON` to the superbuild.
 
 ##### VTK 6
 
