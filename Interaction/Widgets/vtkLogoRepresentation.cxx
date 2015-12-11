@@ -172,6 +172,8 @@ void vtkLogoRepresentation::BuildRepresentation()
       this->TexturePoints->SetPoint(1, o[0]+imageSize[0],o[1],0.0);
       this->TexturePoints->SetPoint(2, o[0]+imageSize[0],o[1]+imageSize[1],0.0);
       this->TexturePoints->SetPoint(3, o[0],o[1]+imageSize[1],0.0);
+      // For GL backend 2 it is important to modify the point array
+      this->TexturePoints->Modified();
       }
     }
 
