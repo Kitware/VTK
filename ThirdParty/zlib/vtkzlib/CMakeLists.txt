@@ -190,8 +190,12 @@ if(MINGW)
                             -D GCC_WINDRES
                             -I ${CMAKE_CURRENT_SOURCE_DIR}
                             -I ${CMAKE_CURRENT_BINARY_DIR}
+                            # XXX(kitware): add the vtkzlib directories for vtkzlib.h
+                            -I ${vtkzlib_SOURCE_DIR}
+                            -I ${vtkzlib_BINARY_DIR}
                             -o ${CMAKE_CURRENT_BINARY_DIR}/zlib1rc.obj
-                            -i ${CMAKE_CURRENT_SOURCE_DIR}/win32/zlib1.rc)
+                            -i ${CMAKE_CURRENT_SOURCE_DIR}/win32/zlib1.rc
+                       VERBATIM)
     set(ZLIB_DLL_SRCS ${CMAKE_CURRENT_BINARY_DIR}/zlib1rc.obj)
 endif(MINGW)
 
