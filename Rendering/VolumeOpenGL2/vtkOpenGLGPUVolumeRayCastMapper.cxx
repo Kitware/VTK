@@ -112,6 +112,11 @@ public:
     this->TextureSize[0] = this->TextureSize[1] = this->TextureSize[2] = -1;
     this->WindowLowerLeft[0] = this->WindowLowerLeft[1] = 0;
     this->WindowSize[0] = this->WindowSize[1] = 0;
+    this->ScalarsRange[0][0] = this->ScalarsRange[0][1] = 0.0;
+    this->ScalarsRange[1][0] = this->ScalarsRange[1][1] = 0.0;
+    this->ScalarsRange[2][0] = this->ScalarsRange[2][1] = 0.0;
+    this->ScalarsRange[3][0] = this->ScalarsRange[3][1] = 0.0;
+
 
     this->CellScale[0] = this->CellScale[1] = this->CellScale[2] = 0.0;
     this->NoiseTextureData = 0;
@@ -316,7 +321,6 @@ public:
   int TextureSize[3];
   int WindowLowerLeft[2];
   int WindowSize[2];
-  int LastWindowSize[2];
 
   double ScalarsRange[4][2];
   double LoadedBounds[6];
@@ -2531,7 +2535,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
     vtkErrorMacro("Shader failed to compile");
     }
 
-  std:cerr << "fragment shader " << fragmentShader << std::endl;
   this->Impl->ShaderBuildTime.Modified();
 }
 
