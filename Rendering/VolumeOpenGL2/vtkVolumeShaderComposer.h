@@ -192,7 +192,7 @@ namespace vtkvolume
       );
       }
 
-    if (lightingComplexity > 0)
+    if (lightingComplexity > 0 || hasGradientOpacity)
       {
       shaderStr += std::string("\
         \nuniform bool in_twoSidedLighting;\
@@ -299,22 +299,23 @@ namespace vtkvolume
           \n    }\
           \n  g_ldir = normalize(g_lightPosObj.xyz - ip_vertexPos);\
           \n  g_vdir = normalize(g_eyePosObj.xyz - ip_vertexPos);\
-          \n  g_h = normalize(g_ldir + g_vdir);\
-          \n  g_cellSpacing = vec3(in_cellSpacing[0],\
-          \n                       in_cellSpacing[1],\
-          \n                       in_cellSpacing[2]);\
-          \n  g_avgSpacing = (g_cellSpacing[0] +\
-          \n                  g_cellSpacing[1] +\
-          \n                  g_cellSpacing[2])/3.0;\
-          \n  // Adjust the aspect\
-          \n  g_aspect.x = g_cellSpacing[0] * 2.0 / g_avgSpacing;\
-          \n  g_aspect.y = g_cellSpacing[1] * 2.0 / g_avgSpacing;\
-          \n  g_aspect.z = g_cellSpacing[2] * 2.0 / g_avgSpacing;"
+          \n  g_h = normalize(g_ldir + g_vdir);"
         );
       }
-    if (vol->GetProperty()->GetShade())
+    if (vol->GetProperty()->GetShade() ||
+        vol->GetProperty()->HasGradientOpacity())
       {
       shaderStr += std::string("\
+        \n  g_cellSpacing = vec3(in_cellSpacing[0],\
+        \n                       in_cellSpacing[1],\
+        \n                       in_cellSpacing[2]);\
+        \n  g_avgSpacing = (g_cellSpacing[0] +\
+        \n                  g_cellSpacing[1] +\
+        \n                  g_cellSpacing[2])/3.0;\
+        \n  // Adjust the aspect\
+        \n  g_aspect.x = g_cellSpacing[0] * 2.0 / g_avgSpacing;\
+        \n  g_aspect.y = g_cellSpacing[1] * 2.0 / g_avgSpacing;\
+        \n  g_aspect.z = g_cellSpacing[2] * 2.0 / g_avgSpacing;\
         \n  g_xvec = vec3(in_cellStep[0], 0.0, 0.0);\
         \n  g_yvec = vec3(0.0, in_cellStep[1], 0.0);\
         \n  g_zvec = vec3(0.0, 0.0, in_cellStep[2]);"
@@ -431,8 +432,8 @@ namespace vtkvolume
         \n  g2.x = texture3D(in_volume, vec3(g_dataPos - g_xvec)).x;\
         \n  g2.y = texture3D(in_volume, vec3(g_dataPos - g_yvec)).x;\
         \n  g2.z = texture3D(in_volume, vec3(g_dataPos - g_zvec)).x;\
-        \n  g1 = g1*in_volume_scale.r + in_volume_bias.r;\
-        \n  g2 = g2*in_volume_scale.r + in_volume_bias.r;\
+        \n  g1 = g1 * in_volume_scale.r + in_volume_bias.r;\
+        \n  g2 = g2 * in_volume_scale.r + in_volume_bias.r;\
         \n  g1.x = in_scalarsRange[c][0] + (\
         \n         in_scalarsRange[c][1] - in_scalarsRange[c][0]) * g1.x;\
         \n  g1.y = in_scalarsRange[c][0] + (\
@@ -449,9 +450,8 @@ namespace vtkvolume
         \n  g2.x /= g_aspect.x;\
         \n  g2.y /= g_aspect.y;\
         \n  g2.z /= g_aspect.z;\
-        \n  float grad_mag = sqrt(g2.x * g2.x  +\
-        \n                        g2.y * g2.y +\
-        \n                        g2.z * g2.z);\
+        \n  g2.w = 0.0;\
+        \n  float grad_mag = length(g2);\
         \n  if (grad_mag > 0.0)\
         \n    {\
         \n    g2.x /= grad_mag;\

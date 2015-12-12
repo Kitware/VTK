@@ -610,20 +610,20 @@ int TestGPURayCastTwoComponentsGradient(int argc, char *argv[])
   // Opacity functions
   vtkNew<vtkPiecewiseFunction> pf1;
   pf1->AddPoint(0.0, 0.0);
-  pf1->AddPoint(1.0, 0.5);
+  pf1->AddPoint(1.0, 1.0);
 
   vtkNew<vtkPiecewiseFunction> pf2;
   pf2->AddPoint(0.0, 0.0);
-  pf2->AddPoint(1.0, 0.5);
+  pf2->AddPoint(1.0, 1.0);
 
   // Gradient Opacity function
   vtkNew<vtkPiecewiseFunction> pf3;
   pf3->AddPoint(0.0, 0.0);
-  pf3->AddPoint(1.0, 0.5);
+  pf3->AddPoint(1.0, 1.0);
 
   vtkNew<vtkPiecewiseFunction> pf4;
   pf4->AddPoint(0.0, 0.0);
-  pf4->AddPoint(1.0, 0.5);
+  pf4->AddPoint(1.0, 1.0);
 
   // Volume property with independent components ON
   vtkNew<vtkVolumeProperty> property;
