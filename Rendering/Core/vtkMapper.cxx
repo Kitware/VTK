@@ -16,8 +16,10 @@
 
 #include "vtkAbstractArray.h"
 #include "vtkColorSeries.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
+#include "vtkDataObjectTreeIterator.h"
 #include "vtkDoubleArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkExecutive.h"
@@ -26,6 +28,7 @@
 #include "vtkLookupTable.h"
 #include "vtkMath.h"
 #include "vtkPointData.h"
+#include "vtkPolyData.h"
 #include "vtkVariantArray.h"
 
 
@@ -764,9 +767,48 @@ void vtkMapper::UseInvertibleColorFor(int scalarMode,
 {
   //find and hold onto the array to use later
   int cellFlag = 0; // not used
-  vtkAbstractArray* abstractArray = vtkAbstractMapper::
-    GetAbstractScalars(this->GetInput(), scalarMode, arrayAccessMode,
-                       arrayId, arrayName, cellFlag);
+
+  vtkAbstractArray *abstractArray = NULL;
+
+  vtkDataObject *dataObject = this->GetExecutive()->GetInputData(0, 0);
+
+  // Check for a regular data set
+  vtkDataSet *input = vtkDataSet::SafeDownCast(dataObject);
+  if (input)
+    {
+    abstractArray = vtkAbstractMapper::
+      GetAbstractScalars(input, scalarMode, arrayAccessMode,
+                         arrayId, arrayName, cellFlag);
+    }
+
+  // Check for a composite data set
+  vtkCompositeDataSet *compositeInput =
+    vtkCompositeDataSet::SafeDownCast(dataObject);
+  if (compositeInput)
+    {
+    vtkSmartPointer<vtkDataObjectTreeIterator> iter =
+      vtkSmartPointer<vtkDataObjectTreeIterator>::New();
+    iter->SetDataSet(compositeInput);
+    iter->SkipEmptyNodesOn();
+    iter->VisitOnlyLeavesOn();
+    for (iter->InitTraversal();
+         !iter->IsDoneWithTraversal();
+         iter->GoToNextItem())
+      {
+      vtkDataObject *dso = iter->GetCurrentDataObject();
+      vtkPolyData *pd = vtkPolyData::SafeDownCast(dso);
+      if (pd)
+        {
+        abstractArray = vtkAbstractMapper::
+          GetAbstractScalars(pd, scalarMode, arrayAccessMode,
+                             arrayId, arrayName, cellFlag);
+        if (abstractArray)
+          {
+          break;
+          }
+        }
+      }
+    }
 
   if (!abstractArray)
   {
