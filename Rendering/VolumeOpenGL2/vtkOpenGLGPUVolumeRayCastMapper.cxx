@@ -2666,6 +2666,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
       this->Impl->RTTDepthBufferTextureObject = 0;
       }
 
+    if (this->Impl->RTTDepthTextureObject)
+      {
+      this->Impl->RTTDepthTextureObject->ReleaseGraphicsResources(
+        ren->GetRenderWindow());
+      this->Impl->RTTDepthTextureObject->Delete();
+      this->Impl->RTTDepthTextureObject = 0;
+      }
+
     if (this->Impl->RTTColorTextureObject)
       {
       this->Impl->RTTColorTextureObject->ReleaseGraphicsResources(
@@ -2675,6 +2683,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
       }
 
     if (!this->Impl->RTTDepthBufferTextureObject ||
+        !this->Impl->RTTDepthTextureObject ||
         !this->Impl->RTTColorTextureObject)
       {
       this->Impl->RTTDepthBufferTextureObject = vtkTextureObject::New();
