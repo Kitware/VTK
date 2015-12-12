@@ -32,6 +32,7 @@ existing tests to get an idea of what to do.
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkRenderingOpenGLConfigure.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkNew.h"

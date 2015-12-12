@@ -103,6 +103,10 @@ public:
   static const char *GetRenderLibrary();
 
   // Description:
+  // What rendering backend has the user requested
+  virtual const char *GetRenderingBackend();
+
+  // Description:
   // Return the collection of renderers in the render window.
   vtkRendererCollection *GetRenderers() {return this->Renderers;};
 

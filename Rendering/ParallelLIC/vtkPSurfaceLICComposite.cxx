@@ -19,6 +19,7 @@
 #include "vtkPPixelTransfer.h"
 #include "vtkPainterCommunicator.h"
 #include "vtkPPainterCommunicator.h"
+#include "vtkRenderingOpenGLConfigure.h"
 #include "vtkRenderWindow.h"
 #ifdef VTK_OPENGL2
 # include "vtkOpenGLRenderUtilities.h"
