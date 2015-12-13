@@ -21,9 +21,6 @@
 
 vtkStandardNewMacro(vtkMatrix3x3);
 
-// Useful for viewing a double[9] as a double[3][3]
-typedef double (*SqMatPtr)[3];
-
 //----------------------------------------------------------------------------
 vtkMatrix3x3::vtkMatrix3x3()
 {
@@ -36,25 +33,20 @@ vtkMatrix3x3::~vtkMatrix3x3()
 }
 
 //----------------------------------------------------------------------------
-void vtkMatrix3x3::Zero(double Elements[9])
+void vtkMatrix3x3::Zero(double elements[9])
 {
-  SqMatPtr elem  = (SqMatPtr)Elements;
-  int i,j;
-  for (i = 0; i < 3; ++i)
+  for (int i = 0; i < 9; ++i)
     {
-    for (j = 0; j < 3; ++j)
-      {
-      elem[i][j] = 0.0;
-      }
+    elements[i] = 0.0;
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkMatrix3x3::Identity(double Elements[9])
+void vtkMatrix3x3::Identity(double elements[9])
 {
-  Elements[0] = Elements[4] = Elements[8] = 1.0;
-  Elements[1] = Elements[2] = Elements[3] = Elements[5] =
-    Elements[6] = Elements[7] = 0.0;
+  elements[0] = elements[4] = elements[8] = 1.0;
+  elements[1] = elements[2] = elements[3] = elements[5] =
+    elements[6] = elements[7] = 0.0;
 }
 
 //----------------------------------------------------------------------------
@@ -78,66 +70,164 @@ void vtkMatrix3x3MultiplyPoint(T1 elem[9], T2 in[3], T3 out[3])
 // Multiply this matrix by a point (in homogeneous coordinates).
 // and return the result in result. The in[3] and result[3]
 // arrays must both be allocated but they can be the same array.
-void vtkMatrix3x3::MultiplyPoint(const double Elements[9],
+void vtkMatrix3x3::MultiplyPoint(const double elements[9],
                                  const float in[3], float result[3])
 {
-  vtkMatrix3x3MultiplyPoint(Elements,in,result);
+  vtkMatrix3x3MultiplyPoint(elements,in,result);
 }
 
 //----------------------------------------------------------------------------
-void vtkMatrix3x3::MultiplyPoint(const double Elements[9],
+void vtkMatrix3x3::MultiplyPoint(const double elements[9],
                                  const double in[3], double result[3])
 {
-  vtkMatrix3x3MultiplyPoint(Elements,in,result);
+  vtkMatrix3x3MultiplyPoint(elements,in,result);
 }
 
 //----------------------------------------------------------------------------
-void vtkMatrix3x3::PointMultiply(const double Elements[9],
+#ifndef VTK_LEGACY_REMOVE
+double *vtkMatrix3x3::operator[](const unsigned int i)
+{
+  VTK_LEGACY_BODY(vtkMatrix3x3::operator[], "VTK 7.1");
+  return &(this->Element[i][0]);
+}
+#endif
+
+//----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+const double *vtkMatrix3x3::operator[](unsigned int i) const
+{
+  VTK_LEGACY_BODY(vtkMatrix3x3::operator[], "VTK 7.1");
+  return &(this->Element[i][0]);
+}
+#endif
+
+//----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+bool vtkMatrix3x3::operator==(const vtkMatrix3x3 &other)
+{
+  for (int i = 0; i < 3; ++i)
+    {
+    for (int j = 0; j < 3; ++j)
+      {
+      if (Element[i][j] != other.Element[i][j])
+        {
+        return false;
+        }
+      }
+    }
+  return true;
+}
+#endif
+
+//----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+bool vtkMatrix3x3::operator!=(const vtkMatrix3x3 &other)
+{
+  for (int i = 0; i < 3; ++i)
+    {
+    for (int j = 0; j < 3; ++j)
+      {
+      if (Element[i][j] != other.Element[i][j])
+        {
+        return true;
+        }
+      }
+    }
+  return false;
+}
+#endif
+
+//----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+void vtkMatrix3x3::Adjoint(vtkMatrix3x3 &in, vtkMatrix3x3 &out)
+{
+  VTK_LEGACY_BODY(vtkMatrix3x3::Adjoint, "VTK 7.1");
+  this->Adjoint(&in, &out);
+}
+#endif
+
+//----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+double vtkMatrix3x3::Determinant(vtkMatrix3x3 &in)
+{
+  VTK_LEGACY_BODY(vtkMatrix3x3::Determinant, "VTK 7.1");
+  return vtkMatrix3x3::Determinant(*in.Element);
+}
+#endif
+
+//----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+double vtkMatrix3x3::Determinant(vtkMatrix3x3 *in)
+{
+  VTK_LEGACY_BODY(vtkMatrix3x3::Determinant, "VTK 7.1");
+  return vtkMatrix3x3::Determinant(*in->Element);
+}
+#endif
+
+//----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+void vtkMatrix3x3::Invert(vtkMatrix3x3 &in, vtkMatrix3x3 &out)
+{
+  VTK_LEGACY_BODY(vtkMatrix3x3::Invert, "VTK 7.1");
+  this->Invert(&in, &out);
+}
+#endif
+
+//----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+void vtkMatrix3x3::Transpose(vtkMatrix3x3 &in, vtkMatrix3x3 &out)
+{
+  VTK_LEGACY_BODY(vtkMatrix3x3::Transpose, "VTK 7.1");
+  this->Transpose(&in, &out);
+}
+#endif
+
+//----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+void vtkMatrix3x3::PointMultiply(const double elements[9],
                                  const float in[3], float result[3])
 {
+  VTK_LEGACY_BODY(vtkMatrix3x3::PointMultiply, "VTK 7.1");
   double newElements[9];
-  vtkMatrix3x3::Transpose(Elements,newElements);
-  vtkMatrix3x3::MultiplyPoint(newElements,in,result);
+  vtkMatrix3x3::Transpose(elements, newElements);
+  vtkMatrix3x3::MultiplyPoint(newElements, in, result);
 }
+#endif
 
 //----------------------------------------------------------------------------
-void vtkMatrix3x3::PointMultiply(const double Elements[9],
+#ifndef VTK_LEGACY_REMOVE
+void vtkMatrix3x3::PointMultiply(const double elements[9],
                                  const double in[3], double result[3])
 {
+  VTK_LEGACY_BODY(vtkMatrix3x3::PointMultiply, "VTK 7.1");
   double newElements[9];
-  vtkMatrix3x3::Transpose(Elements,newElements);
-  vtkMatrix3x3::MultiplyPoint(newElements,in,result);
+  vtkMatrix3x3::Transpose(elements, newElements);
+  vtkMatrix3x3::MultiplyPoint(newElements, in, result);
 }
+#endif
 
 //----------------------------------------------------------------------------
 // Multiplies matrices a and b and stores the result in c.
 void vtkMatrix3x3::Multiply3x3(const double a[9], const double b[9],
                                double c[9])
 {
-  SqMatPtr aMat = (SqMatPtr) a;
-  SqMatPtr bMat = (SqMatPtr) b;
-  SqMatPtr cMat = (SqMatPtr) c;
-  int i, k;
-  double Accum[3][3];
+  double accum[9];
 
-  for (i = 0; i < 3; ++i)
+  for (int i = 0; i < 9; i += 3)
     {
-    for (k = 0; k < 3; ++k)
+    for (int k = 0; k < 3; k++)
       {
-      Accum[i][k] = aMat[i][0] * bMat[0][k] +
-                    aMat[i][1] * bMat[1][k] +
-                    aMat[i][2] * bMat[2][k];
+      accum[i + k] = a[i + 0] * b[k + 0] +
+                     a[i + 1] * b[k + 3] +
+                     a[i + 2] * b[k + 6];
       }
     }
 
   // Copy to final dest
-  for (i = 0; i < 3; ++i)
+  for (int j = 0; j < 9; j++)
     {
-    cMat[i][0] = Accum[i][0];
-    cMat[i][1] = Accum[i][1];
-    cMat[i][2] = Accum[i][2];
+    c[j] = accum[j];
     }
-
 }
 
 //----------------------------------------------------------------------------
@@ -146,8 +236,6 @@ void vtkMatrix3x3::Multiply3x3(const double a[9], const double b[9],
 void vtkMatrix3x3::Invert(const double inElements[9],
                           double outElements[9])
 {
-  SqMatPtr outElem = (SqMatPtr)outElements;
-
   // inverse( original_matrix, inverse_matrix )
   // calculate the inverse of a 3x3 matrix
   //
@@ -156,46 +244,38 @@ void vtkMatrix3x3::Invert(const double inElements[9],
   //         det A
   //
 
-  int i, j;
-  double det;
-
   // calculate the 3x3 determinent
   // if the determinent is zero,
   // then the inverse matrix is not unique.
 
-  det = vtkMatrix3x3::Determinant(inElements);
-  if ( det == 0.0 )
+  double det = vtkMatrix3x3::Determinant(inElements);
+  if (det == 0.0)
     {
     return;
     }
 
   // calculate the adjoint matrix
-  vtkMatrix3x3::Adjoint(inElements, outElements );
+  vtkMatrix3x3::Adjoint(inElements, outElements);
 
   // scale the adjoint matrix to get the inverse
-  for (i=0; i<3; ++i)
+  for (int i = 0; i < 9; i++)
     {
-    for(j=0; j<3; ++j)
-      {
-      outElem[i][j] = outElem[i][j] / det;
-      }
+    outElements[i] /= det;
     }
 }
 
 //----------------------------------------------------------------------------
-double vtkMatrix3x3::Determinant(const double Elements[9])
+double vtkMatrix3x3::Determinant(const double elements[9])
 {
-  SqMatPtr elem = (SqMatPtr)Elements;
-
-  return vtkMath::Determinant3x3(elem);
+  return vtkMath::Determinant3x3(
+    elements[0], elements[1], elements[2],
+    elements[3], elements[4], elements[5],
+    elements[6], elements[7], elements[8]);
 }
 
 //----------------------------------------------------------------------------
 void vtkMatrix3x3::Adjoint(const double inElements[9], double outElements[9])
 {
-  SqMatPtr inElem = (SqMatPtr) inElements;
-  SqMatPtr outElem = (SqMatPtr) outElements;
-
   //
   //   adjoint( original_matrix, inverse_matrix )
   //
@@ -217,31 +297,31 @@ void vtkMatrix3x3::Adjoint(const double inElements[9], double outElements[9])
 
   // assign to individual variable names to aid
   // selecting correct values
-  a1 = inElem[0][0]; b1 = inElem[0][1]; c1 = inElem[0][2];
-  a2 = inElem[1][0]; b2 = inElem[1][1]; c2 = inElem[1][2];
-  a3 = inElem[2][0]; b3 = inElem[2][1]; c3 = inElem[2][2];
+  a1 = inElements[0]; b1 = inElements[1]; c1 = inElements[2];
+  a2 = inElements[3]; b2 = inElements[4]; c2 = inElements[5];
+  a3 = inElements[6]; b3 = inElements[7]; c3 = inElements[8];
 
   // row column labeling reversed since we transpose rows & columns
 
-  outElem[0][0]  =   vtkMath::Determinant2x2( b2, b3, c2, c3);
-  outElem[1][0]  = - vtkMath::Determinant2x2( a2, a3, c2, c3);
-  outElem[2][0]  =   vtkMath::Determinant2x2( a2, a3, b2, b3);
+  outElements[0] =   vtkMath::Determinant2x2(b2, b3, c2, c3);
+  outElements[3] = - vtkMath::Determinant2x2(a2, a3, c2, c3);
+  outElements[6] =   vtkMath::Determinant2x2(a2, a3, b2, b3);
 
-  outElem[0][1]  = - vtkMath::Determinant2x2( b1, b3, c1, c3);
-  outElem[1][1]  =   vtkMath::Determinant2x2( a1, a3, c1, c3);
-  outElem[2][1]  = - vtkMath::Determinant2x2( a1, a3, b1, b3);
+  outElements[1] = - vtkMath::Determinant2x2(b1, b3, c1, c3);
+  outElements[4] =   vtkMath::Determinant2x2(a1, a3, c1, c3);
+  outElements[7] = - vtkMath::Determinant2x2(a1, a3, b1, b3);
 
-  outElem[0][2]  =   vtkMath::Determinant2x2( b1, b2, c1, c2);
-  outElem[1][2]  = - vtkMath::Determinant2x2( a1, a2, c1, c2);
-  outElem[2][2]  =   vtkMath::Determinant2x2( a1, a2, b1, b2);
+  outElements[2] =   vtkMath::Determinant2x2(b1, b2, c1, c2);
+  outElements[5] = - vtkMath::Determinant2x2(a1, a2, c1, c2);
+  outElements[8] =   vtkMath::Determinant2x2(a1, a2, b1, b2);
 }
 
 //----------------------------------------------------------------------------
-void vtkMatrix3x3::DeepCopy(double Elements[9], const double newElements[9])
+void vtkMatrix3x3::DeepCopy(double elements[9], const double newElements[9])
 {
   for (int i = 0; i < 9; ++i)
     {
-    Elements[i] = newElements[i];
+    elements[i] = newElements[i];
     }
 }
 
@@ -250,17 +330,13 @@ void vtkMatrix3x3::DeepCopy(double Elements[9], const double newElements[9])
 void vtkMatrix3x3::Transpose(const double inElements[9],
                              double outElements[9])
 {
-  SqMatPtr inElem = (SqMatPtr)inElements;
-  SqMatPtr outElem = (SqMatPtr)outElements;
-  double temp;
-
-  for (int i=0; i<3; ++i)
+  for (int i = 0; i < 3; ++i)
     {
-    for(int j=i; j<3; ++j)
+    for(int j = i; j < 3; ++j)
       {
-      temp = inElem[i][j];
-      outElem[i][j] = inElem[j][i];
-      outElem[j][i] = temp;
+      double temp = inElements[3*i + j];
+      outElements[3*i + j] = inElements[3*j + i];
+      outElements[3*j + i] = temp;
       }
     }
 }

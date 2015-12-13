@@ -38,28 +38,16 @@ int TestMatrix3x3(int,char *[])
   // Check copying and comparison
   vtkNew<vtkMatrix3x3> matrix2;
   matrix2->DeepCopy(matrix.GetPointer());
-  if (*matrix.GetPointer() != *matrix2.GetPointer())
+  for (int i = 0; i < 3; ++i)
     {
-    vtkGenericWarningMacro("DeepCopy of vtkMatrix3x3 failed.");
-    return 1;
-    }
-  if (!(*matrix.GetPointer() == *matrix2.GetPointer()))
-    {
-    vtkGenericWarningMacro("Problem with vtkMatrix3x3::operator==");
-    return 1;
+    for (int j = 0; j < 3; ++j)
+    if (matrix->GetElement(i, j) != matrix2->GetElement(i, j))
+      {
+      vtkGenericWarningMacro("DeepCopy of vtkMatrix3x3 failed.");
+      return 1;
+      }
     }
   matrix2->SetElement(0, 0, 5.0);
-  if (!(*matrix.GetPointer() != *matrix2.GetPointer()))
-    {
-    vtkGenericWarningMacro("Problem with vtkMatrix3x3::operator!=");
-    return 1;
-    }
-  if (*matrix.GetPointer() == *matrix2.GetPointer())
-    {
-    vtkGenericWarningMacro("Problem with vtkMatrix3x3::operator==");
-    return 1;
-    }
-
   if (!vtkMathUtilities::FuzzyCompare(matrix2->GetElement(0, 0), 5.0))
     {
     vtkGenericWarningMacro("Value not stored in matrix properly.");
