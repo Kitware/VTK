@@ -107,7 +107,7 @@ void vtkMatrix4x4::Adjoint(vtkMatrix4x4 &in, vtkMatrix4x4 &out)
 double vtkMatrix4x4::Determinant(vtkMatrix4x4 &in)
 {
   VTK_LEGACY_BODY(vtkMatrix4x4::Determinant, "VTK 7.1");
-  return this->Determinant(&in);
+  return vtkMatrix4x4::Determinant(*in.Element);
 }
 #endif
 
