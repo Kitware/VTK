@@ -312,15 +312,22 @@ namespace vtkvolume
         \n  g_avgSpacing = (g_cellSpacing[0] +\
         \n                  g_cellSpacing[1] +\
         \n                  g_cellSpacing[2])/3.0;\
-        \n  // Adjust the aspect\
-        \n  g_aspect.x = g_cellSpacing[0] * 2.0 / g_avgSpacing;\
-        \n  g_aspect.y = g_cellSpacing[1] * 2.0 / g_avgSpacing;\
-        \n  g_aspect.z = g_cellSpacing[2] * 2.0 / g_avgSpacing;\
         \n  g_xvec = vec3(in_cellStep[0], 0.0, 0.0);\
         \n  g_yvec = vec3(0.0, in_cellStep[1], 0.0);\
         \n  g_zvec = vec3(0.0, 0.0, in_cellStep[2]);"
       );
       }
+
+    if (vol->GetProperty()->HasGradientOpacity())
+      {
+      shaderStr += std::string("\
+        \n  // Adjust the aspect\
+        \n  g_aspect.x = g_cellSpacing[0] * 2.0 / g_avgSpacing;\
+        \n  g_aspect.y = g_cellSpacing[1] * 2.0 / g_avgSpacing;\
+        \n  g_aspect.z = g_cellSpacing[2] * 2.0 / g_avgSpacing;"
+      );
+      }
+
       return shaderStr;
     }
 
