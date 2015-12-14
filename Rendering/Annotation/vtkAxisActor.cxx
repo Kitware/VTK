@@ -35,8 +35,6 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-#define VTK_MAX_TICKS     1000
-
 vtkStandardNewMacro(vtkAxisActor);
 vtkCxxSetObjectMacro(vtkAxisActor, Camera, vtkCamera);
 vtkCxxSetObjectMacro(vtkAxisActor,LabelTextProperty,vtkTextProperty);
