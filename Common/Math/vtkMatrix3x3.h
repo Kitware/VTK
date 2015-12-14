@@ -51,32 +51,26 @@ public:
   // of the source Matrix.
   void DeepCopy(vtkMatrix3x3 *source)
     {vtkMatrix3x3::DeepCopy(*this->Element,source); this->Modified(); }
-//BTX
-  static void DeepCopy(double Elements[9], vtkMatrix3x3 *source)
-    {vtkMatrix3x3::DeepCopy(Elements,*source->Element); }
-  static void DeepCopy(double Elements[9], const double newElements[9]);
-//ETX
+  static void DeepCopy(double elements[9], vtkMatrix3x3 *source)
+    {vtkMatrix3x3::DeepCopy(elements,*source->Element); }
+  static void DeepCopy(double elements[9], const double newElements[9]);
 
   // Description:
   // Non-static member function. Assigns *from* elements array
-  void DeepCopy(const double Elements[9])
-    { this->DeepCopy(*this->Element,Elements); this->Modified(); }
+  void DeepCopy(const double elements[9])
+    { this->DeepCopy(*this->Element,elements); this->Modified(); }
 
   // Description:
   // Set all of the elements to zero.
   void Zero()
     { vtkMatrix3x3::Zero(*this->Element); this->Modified(); }
-//BTX
-  static void Zero(double Elements[9]);
-//ETX
+  static void Zero(double elements[9]);
 
   // Description:
   // Set equal to Identity matrix
   void Identity()
     { vtkMatrix3x3::Identity(*this->Element); this->Modified();}
-//BTX
-  static void Identity(double Elements[9]);
-//ETX
+  static void Identity(double elements[9]);
 
   // Description:
   // Matrix Inversion (adapted from Richard Carling in "Graphics Gems,"
@@ -85,10 +79,7 @@ public:
     {vtkMatrix3x3::Invert(*in->Element,*out->Element); out->Modified(); }
   void Invert()
     { vtkMatrix3x3::Invert(this,this); }
-//BTX
   static void Invert(const double inElements[9], double outElements[9]);
-//ETX
-
 
   // Description:
   // Transpose the matrix and put it into out.
@@ -96,9 +87,7 @@ public:
     {vtkMatrix3x3::Transpose(*in->Element,*out->Element); out->Modified(); }
   void Transpose()
     { vtkMatrix3x3::Transpose(this,this); }
-//BTX
   static void Transpose(const double inElements[9], double outElements[9]);
-//ETX
 
   // Description:
   // Multiply a homogeneous coordinate by this matrix, i.e. out = A*in.
@@ -108,36 +97,28 @@ public:
   void MultiplyPoint(const double in[3], double out[3])
     {vtkMatrix3x3::MultiplyPoint(*this->Element,in,out); }
 
-//BTX
-  static void MultiplyPoint(const double Elements[9],
+  static void MultiplyPoint(const double elements[9],
                             const float in[3], float out[3]);
-  static void MultiplyPoint(const double Elements[9],
+  static void MultiplyPoint(const double elements[9],
                             const double in[3], double out[3]);
-//ETX
 
   // Description:
   // Multiplies matrices a and b and stores the result in c (c=a*b).
   static void Multiply3x3(vtkMatrix3x3 *a, vtkMatrix3x3 *b, vtkMatrix3x3 *c) {
     vtkMatrix3x3::Multiply3x3(*a->Element,*b->Element,*c->Element); }
-//BTX
   static void Multiply3x3(const double a[9], const double b[9],
                           double c[9]);
-//ETX
 
   // Description:
   // Compute adjoint of the matrix and put it into out.
   void Adjoint(vtkMatrix3x3 *in, vtkMatrix3x3 *out)
     {vtkMatrix3x3::Adjoint(*in->Element,*out->Element);}
-//BTX
   static void Adjoint(const double inElements[9], double outElements[9]);
-//ETX
 
   // Description:
   // Compute the determinant of the matrix and return it.
   double Determinant() {return vtkMatrix3x3::Determinant(*this->Element);}
-//BTX
-  static double Determinant(const double Elements[9]);
-//ETX
+  static double Determinant(const double elements[9]);
 
   // Description:
   // Sets the element i,j in the matrix.
@@ -148,28 +129,21 @@ public:
   double GetElement(int i, int j) const
     {return this->Element[i][j];}
 
-//BTX
-  double *operator[](const unsigned int i)
-    {return &(this->Element[i][0]);}
-  const double *operator[](unsigned int i) const
-    { return &(this->Element[i][0]); }
-  bool operator==(const vtkMatrix3x3&);
-  bool operator!=(const vtkMatrix3x3&);
-  void Adjoint(vtkMatrix3x3 &in,vtkMatrix3x3 &out)
-    {this->Adjoint(&in,&out);}
-  double Determinant(vtkMatrix3x3 &in)
-    {return this->Determinant(&in);}
-  double Determinant(vtkMatrix3x3 *in)
-    {return vtkMatrix3x3::Determinant(*in->Element);}
-  void Invert(vtkMatrix3x3 &in,vtkMatrix3x3 &out)
-    {this->Invert(&in,&out);}
-  void Transpose(vtkMatrix3x3 &in,vtkMatrix3x3 &out)
-    {this->Transpose(&in,&out);}
-  static void PointMultiply(const double Elements[9],
-                            const float in[3], float out[3]);
-  static void PointMultiply(const double Elements[9],
-                            const double in[3], double out[3]);
-//ETX
+  // Description:
+  // Legacy methods. Do not use.
+  VTK_LEGACY(double *operator[](const unsigned int i));
+  VTK_LEGACY(const double *operator[](unsigned int i) const);
+  VTK_LEGACY(bool operator==(const vtkMatrix3x3&));
+  VTK_LEGACY(bool operator!=(const vtkMatrix3x3&));
+  VTK_LEGACY(void Adjoint(vtkMatrix3x3 &in,vtkMatrix3x3 &out));
+  VTK_LEGACY(double Determinant(vtkMatrix3x3 &in));
+  VTK_LEGACY(double Determinant(vtkMatrix3x3 *));
+  VTK_LEGACY(void Invert(vtkMatrix3x3 &in,vtkMatrix3x3 &out));
+  VTK_LEGACY(void Transpose(vtkMatrix3x3 &in,vtkMatrix3x3 &out));
+  VTK_LEGACY(static void PointMultiply(const double [9],
+                                       const float [3], float [3]));
+  VTK_LEGACY(static void PointMultiply(const double [9],
+                                       const double [3], double [3]));
 
   // Descption:
   // Returns true if this matrix is equal to the identity matrix.
@@ -179,7 +153,6 @@ public:
   // Return a pointer to the first element of the matrix (double[9]).
   double * GetData() { return *this->Element; }
 
-//BTX
 protected:
   vtkMatrix3x3();
   ~vtkMatrix3x3();
@@ -189,7 +162,6 @@ protected:
 private:
   vtkMatrix3x3(const vtkMatrix3x3&);  // Not implemented
   void operator=(const vtkMatrix3x3&);  // Not implemented
-//ETX
 };
 
 inline void vtkMatrix3x3::SetElement(int i, int j, double value)
@@ -214,36 +186,6 @@ inline bool vtkMatrix3x3::IsIdentity()
     {
     return false;
     }
-}
-
-inline bool vtkMatrix3x3::operator==(const vtkMatrix3x3 &other)
-{
-  for (int i = 0; i < 3; ++i)
-    {
-    for (int j = 0; j < 3; ++j)
-      {
-      if (Element[i][j] != other.Element[i][j])
-        {
-        return false;
-        }
-      }
-    }
-  return true;
-}
-
-inline bool vtkMatrix3x3::operator!=(const vtkMatrix3x3 &other)
-{
-  for (int i = 0; i < 3; ++i)
-    {
-    for (int j = 0; j < 3; ++j)
-      {
-      if (Element[i][j] != other.Element[i][j])
-        {
-        return true;
-        }
-      }
-    }
-  return false;
 }
 
 #endif
