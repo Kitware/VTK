@@ -4,6 +4,7 @@ vtk_add_test_python(
   KlineBottle.py
   TenEllip.py
   TestBandedContourFilter.py
+  TestBandedContourFilter2.py
   TestBoxFunction.py
   TestImageMarchingCubes.py
   TestRibbonAndTube.py
