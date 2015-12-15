@@ -728,12 +728,7 @@ void vtkXOpenGLRenderWindow::DestroyWindow()
     this->WindowId = static_cast<Window>(NULL);
     }
 
-  // if we create the display, we'll delete it
-  if (this->OwnDisplay && this->DisplayId)
-    {
-    XCloseDisplay(this->DisplayId);
-    this->DisplayId = NULL;
-    }
+  this->CloseDisplay();
 
   delete[] this->Capabilities;
   this->Capabilities = 0;
@@ -1640,29 +1635,31 @@ const char* vtkXOpenGLRenderWindow::ReportCapabilities()
   return this->Capabilities;
 }
 
+void vtkXOpenGLRenderWindow::CloseDisplay()
+{
+  // if we create the display, we'll delete it
+  if (this->OwnDisplay && this->DisplayId)
+    {
+    XCloseDisplay(this->DisplayId);
+    this->DisplayId = NULL;
+    this->OwnDisplay = 0;
+    }
+}
+
 int vtkXOpenGLRenderWindow::SupportsOpenGL()
 {
 #ifdef GLEW_OK
 
   if(!this->OffScreenRendering)
     {
-    // get the default display connection
-    if (!this->DisplayId)
-      {
-      this->DisplayId = XOpenDisplay(static_cast<char *>(NULL));
-      if (this->DisplayId == NULL)
-        {
-        vtkErrorMacro(<< "bad X server connection. DISPLAY="
-          << vtksys::SystemTools::GetEnv("DISPLAY") << ". Aborting.\n");
-        return 0;
-        }
-      this->OwnDisplay = 1;
-      }
+    // save the original status of having a display
+    Display *origDIsplayId = this->DisplayId;
 
     int value = 0;
     XVisualInfo *v = this->GetDesiredVisualInfo();
     if (!v)
       {
+      this->CloseDisplay();
       return 0;
       }
     else
@@ -1713,6 +1710,7 @@ int vtkXOpenGLRenderWindow::SupportsOpenGL()
 
     if(!this->Internal->ContextId)
       {
+      this->CloseDisplay();
       return 0;
       }
 
@@ -1729,6 +1727,7 @@ int vtkXOpenGLRenderWindow::SupportsOpenGL()
 
     if ( !glXMakeContextCurrent( this->DisplayId, pbuffer, pbuffer, this->Internal->ContextId) )
       {
+      this->CloseDisplay();
       return 0;
       }
 
@@ -1740,11 +1739,13 @@ int vtkXOpenGLRenderWindow::SupportsOpenGL()
     bool m_valid = (result == GLEW_OK);
     if (!m_valid)
       {
+      this->CloseDisplay();
       return 0;
       }
 
     if (GLEW_VERSION_3_2 || (GLEW_VERSION_2_1 && GLEW_EXT_gpu_shader4))
       {
+      this->CloseDisplay();
       return 1;
       }
     }
