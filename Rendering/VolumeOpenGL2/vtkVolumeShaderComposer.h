@@ -695,7 +695,7 @@ namespace vtkvolume
         \n  if (gradient.w >= 0.0)\
         \n    {\
         \n    color.a = color.a *\
-        \n      computeGradientOpacity(gradient);\
+        \n              computeGradientOpacity(gradient);\
         \n    }"
       );
       }
