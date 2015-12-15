@@ -4810,8 +4810,8 @@ void vtkParse_DefineMacro(const char *name, const char *definition)
     definition = "";
     }
 
-  l = n + strlen(definition) + 3;
-  cp = (char *)malloc(l);
+  l = n + strlen(definition) + 2;
+  cp = (char *)malloc(l + 1);
   cp[0] = 'D';
   strncpy(&cp[1], name, n);
   cp[n+1] = '\0';
