@@ -1653,13 +1653,16 @@ int vtkXOpenGLRenderWindow::SupportsOpenGL()
   if(!this->OffScreenRendering)
     {
     // save the original status of having a display
-    Display *origDIsplayId = this->DisplayId;
+    Display *origDisplayId = this->DisplayId;
 
     int value = 0;
     XVisualInfo *v = this->GetDesiredVisualInfo();
     if (!v)
       {
-      this->CloseDisplay();
+      if (!origDisplayId)
+        {
+        this->CloseDisplay();
+        }
       return 0;
       }
     else
@@ -1710,7 +1713,10 @@ int vtkXOpenGLRenderWindow::SupportsOpenGL()
 
     if(!this->Internal->ContextId)
       {
-      this->CloseDisplay();
+      if (!origDisplayId)
+        {
+        this->CloseDisplay();
+        }
       return 0;
       }
 
@@ -1727,7 +1733,10 @@ int vtkXOpenGLRenderWindow::SupportsOpenGL()
 
     if ( !glXMakeContextCurrent( this->DisplayId, pbuffer, pbuffer, this->Internal->ContextId) )
       {
-      this->CloseDisplay();
+      if (!origDisplayId)
+        {
+        this->CloseDisplay();
+        }
       return 0;
       }
 
@@ -1739,13 +1748,19 @@ int vtkXOpenGLRenderWindow::SupportsOpenGL()
     bool m_valid = (result == GLEW_OK);
     if (!m_valid)
       {
-      this->CloseDisplay();
+      if (!origDisplayId)
+        {
+        this->CloseDisplay();
+        }
       return 0;
       }
 
     if (GLEW_VERSION_3_2 || (GLEW_VERSION_2_1 && GLEW_EXT_gpu_shader4))
       {
-      this->CloseDisplay();
+      if (!origDisplayId)
+        {
+        this->CloseDisplay();
+        }
       return 1;
       }
     }
