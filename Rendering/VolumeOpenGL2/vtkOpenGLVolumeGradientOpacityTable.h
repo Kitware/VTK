@@ -106,12 +106,12 @@ public:
         }
 
       gradientOpacity->GetTable(0,
-                              (this->LastRange[1] - this->LastRange[0]) * 0.25,
-                              this->TextureWidth, this->Table);
+                                (this->LastRange[1] - this->LastRange[0]) * 0.25,
+                                this->TextureWidth, this->Table);
 
-      this->TextureObject->Create2DFromRaw(this->TextureWidth,1,1,
-                                              VTK_FLOAT,
-                                              this->Table);
+      this->TextureObject->Create2DFromRaw(this->TextureWidth, 1, 1,
+                                           VTK_FLOAT,
+                                           this->Table);
 
       this->TextureObject->SetWrapS(vtkTextureObject::ClampToEdge);
       this->TextureObject->SetMagnificationFilter(filterValue);
