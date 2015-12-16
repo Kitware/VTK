@@ -1653,26 +1653,30 @@ int vtkXOpenGLRenderWindow::SupportsOpenGL()
   if(!this->OffScreenRendering)
     {
     // save the original status of having a display
-    Display *origDisplayId = this->DisplayId;
+    Display *displayId = this->DisplayId;
 
-    int value = 0;
-    XVisualInfo *v = this->GetDesiredVisualInfo();
-    if (!v)
+   // get the default display connection
+    if (!displayId)
       {
-      if (!origDisplayId)
+      displayId = XOpenDisplay(static_cast<char *>(NULL));
+
+      if (displayId == NULL)
         {
-        this->CloseDisplay();
+        vtkErrorMacro(<< "bad X server connection. DISPLAY="
+          << vtksys::SystemTools::GetEnv("DISPLAY") << ". Aborting.\n");
+        abort();
         }
-      return 0;
       }
-    else
-      {
-      glXGetConfig(this->DisplayId, v, GLX_USE_GL, &value);
-      XFree(v);
-      }
+
+    int doubleBuffer = 0;
+     GLXFBConfig fb = vtkXOpenGLRenderWindowGetDesiredFBConfig(
+        displayId, this->StereoCapableWindow, this->MultiSamples,
+        doubleBuffer, this->AlphaBitPlanes, GLX_PBUFFER_BIT,
+        this->StencilCapable);
 
     // try for 32 context
-    if (this->Internal->FBConfig)
+    GLXContext contextId = NULL;
+    if (fb)
       {
       // NOTE: It is not necessary to create or make current to a context before
       // calling glXGetProcAddressARB
@@ -1690,14 +1694,13 @@ int vtkXOpenGLRenderWindow::SupportsOpenGL()
 
       if (glXCreateContextAttribsARB)
         {
-        this->Internal->ContextId =
-          glXCreateContextAttribsARB( this->DisplayId,
-            this->Internal->FBConfig, 0,
+        contextId =
+          glXCreateContextAttribsARB( displayId, fb, 0,
             GL_TRUE, context_attribs );
 
         // Sync to ensure any errors generated are processed.
-        XSync( this->DisplayId, False );
-        if ( this->Internal->ContextId )
+        XSync( displayId, False );
+        if ( contextId )
           {
           this->SetContextSupportsOpenGL32(true);
           }
@@ -1705,17 +1708,17 @@ int vtkXOpenGLRenderWindow::SupportsOpenGL()
       }
 
     // old failsafe
-    if (this->Internal->ContextId == NULL)
+    if (contextId == NULL)
       {
-      this->Internal->ContextId =
-        glXCreateContext(this->DisplayId, v, 0, GL_TRUE);
+      contextId = glXCreateNewContext(displayId, fb,
+                          GLX_RGBA_TYPE, NULL, true);
       }
 
-    if(!this->Internal->ContextId)
+    if(!contextId)
       {
-      if (!origDisplayId)
+      if (!this->DisplayId)
         {
-        this->CloseDisplay();
+        XCloseDisplay(displayId);
         }
       return 0;
       }
@@ -1727,39 +1730,38 @@ int vtkXOpenGLRenderWindow::SupportsOpenGL()
       None
       };
     GLXPbuffer pbuffer = glXCreatePbuffer(
-      this->DisplayId, this->Internal->FBConfig, pbufferAttribs);
+      displayId, fb, pbufferAttribs);
 
-    XSync( this->DisplayId, False );
+    XSync( displayId, False );
 
-    if ( !glXMakeContextCurrent( this->DisplayId, pbuffer, pbuffer, this->Internal->ContextId) )
+    if ( !glXMakeContextCurrent(displayId, pbuffer, pbuffer, contextId) )
       {
-      if (!origDisplayId)
+      if (!this->DisplayId)
         {
-        this->CloseDisplay();
+        XCloseDisplay(displayId);
         }
       return 0;
       }
 
     GLenum result = glewInit();
     glFinish();
-    glXDestroyContext(this->DisplayId, this->Internal->ContextId);
-    glXDestroyPbuffer(this->DisplayId, pbuffer);
-    this->Internal->ContextId = 0;
+    glXDestroyContext(displayId, contextId);
+    glXDestroyPbuffer(displayId, pbuffer);
     bool m_valid = (result == GLEW_OK);
     if (!m_valid)
       {
-      if (!origDisplayId)
+      if (!this->DisplayId)
         {
-        this->CloseDisplay();
+        XCloseDisplay(displayId);
         }
       return 0;
       }
 
     if (GLEW_VERSION_3_2 || (GLEW_VERSION_2_1 && GLEW_EXT_gpu_shader4))
       {
-      if (!origDisplayId)
+      if (!this->DisplayId)
         {
-        this->CloseDisplay();
+        XCloseDisplay(displayId);
         }
       return 1;
       }
