@@ -216,9 +216,14 @@ int vtkPUnstructuredGridGhostCellsGenerator::RequestData(
 
   vtkPointData *inputPD = input->GetPointData();
   this->Internals->InputGlobalPointIds = inputPD->GetGlobalIds();
+  vtkUnstructuredGridBase* inputGridCopy = NULL;
 
   if (!this->Internals->InputGlobalPointIds)
     {
+    inputGridCopy = input->NewInstance();
+    inputGridCopy->ShallowCopy(input);
+    this->Internals->Input = inputGridCopy;
+    inputPD = inputGridCopy->GetPointData();
     this->Internals->InputGlobalPointIds =
       inputPD->GetArray(this->GlobalPointIdsArrayName);
     inputPD->SetGlobalIds(this->Internals->InputGlobalPointIds);
@@ -246,7 +251,11 @@ int vtkPUnstructuredGridGhostCellsGenerator::RequestData(
   this->Controller->Barrier();
 
   delete this->Internals;
-  this->Internals = 0;
+  this->Internals = NULL;
+  if (inputGridCopy)
+    {
+    inputGridCopy->Delete();
+    }
 
   return 1;
 }
