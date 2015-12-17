@@ -20,6 +20,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLShaderCache.h"
 #include "vtkRendererCollection.h"
 #include "vtkWin32RenderWindowInteractor.h"
 
@@ -412,43 +413,63 @@ void vtkWin32OpenGLRenderWindow::VTKRegisterClass()
 
 int vtkWin32OpenGLRenderWindow::SupportsOpenGL()
 {
+  if (this->OpenGLSupportTested)
+    {
+    return this->OpenGLSupportResult;
+    }
+
+  vtkWin32OpenGLRenderWindow *rw = vtkWin32OpenGLRenderWindow::New();
+  rw->SetOffScreenRendering(1);
+  rw->Initialize();
+  if (rw->GetContextSupportsOpenGL32())
+    {
+    this->OpenGLSupportResult = 1;
+    this->OpenGLSupportMessage =
+      "The system appears to support OpenGL 3.2";
+    }
+
 #ifdef GLEW_OK
-  this->InitializeApplication();
-  this->VTKRegisterClass();
 
-  // Create a dummy window, needed for calling wglGetProcAddress.
-#ifdef UNICODE
-  HWND tempId = CreateWindow(L"vtkOpenGL", 0, 0, 0, 0, 1, 1, 0, 0, this->ApplicationInstance, 0);
-#else
-  HWND tempId = CreateWindow("vtkOpenGL", 0, 0, 0, 0, 1, 1, 0, 0, this->ApplicationInstance, 0);
-#endif
-  HDC tempDC = GetDC(tempId);
-  PIXELFORMATDESCRIPTOR tempPfd;
-  memset(&tempPfd, 0, sizeof(PIXELFORMATDESCRIPTOR));
-  tempPfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
-  tempPfd.nVersion = 1;
-  tempPfd.dwFlags = PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW;
-  tempPfd.iPixelType = PFD_TYPE_RGBA;
-  int tempPixelFormat = ChoosePixelFormat(tempDC, &tempPfd);
-  SetPixelFormat(tempDC, tempPixelFormat, &tempPfd);
-  HGLRC tempContext = wglCreateContext(tempDC);
-  wglMakeCurrent(tempDC, tempContext);
-
-  GLenum result = glewInit();
-  bool m_valid = (result == GLEW_OK);
-  if (!m_valid)
+  else if (GLEW_VERSION_3_2 || (GLEW_VERSION_2_1 && GLEW_EXT_gpu_shader4))
     {
-    return 0;
-    }
-
-  if (GLEW_VERSION_3_2 || (GLEW_VERSION_2_1 && GLEW_EXT_gpu_shader4))
-    {
-    return 1;
+    this->OpenGLSupportResult = 1;
+    this->OpenGLSupportMessage =
+      "The system appears to support OpenGL 3.2 or has 2.1 with the required extension";
     }
 
 #endif
 
-  return 0;
+  if (this->OpenGLSupportResult)
+    {
+    // even if glew thinks we have support we should actually try linking a
+    // shader program to make sure
+    vtkShaderProgram *newShader =
+      rw->GetShaderCache()->ReadyShaderProgram(
+        // simple vert shader
+        "//VTK::System::Dec\n"
+        "attribute vec4 vertexMC;\n"
+        "void main() { gl_Position = vertexMC; }\n",
+        // frag shader that used gl_PrimitiveId
+        "//VTK::System::Dec\n"
+        "//VTK::Output::Dec\n"
+        "void main(void) {\n"
+        "  gl_FragData[0] = vec4(float(gl_PrimitiveID)/100.0,1.0,1.0,1.0);\n"
+        "}\n",
+        // no geom shader
+        "");
+    if (newShader == NULL)
+      {
+      this->OpenGLSupportResult = 0;
+      this->OpenGLSupportMessage =
+        "The system appeared to have OpenGL Support but a test shader program failed to compile and link";
+      }
+    }
+
+  rw->Delete();
+
+  this->OpenGLSupportTested = true;
+
+  return this->OpenGLSupportResult;
 }
 
 
