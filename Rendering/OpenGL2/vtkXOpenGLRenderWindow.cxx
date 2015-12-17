@@ -39,6 +39,7 @@ typedef ptrdiff_t GLsizeiptr;
 #include "vtkCommand.h"
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLShaderCache.h"
 #include "vtkRendererCollection.h"
 #include "vtkRenderWindowInteractor.h"
 
@@ -1648,7 +1649,10 @@ void vtkXOpenGLRenderWindow::CloseDisplay()
 
 int vtkXOpenGLRenderWindow::SupportsOpenGL()
 {
-  int result = 0;
+  if (this->OpenGLSupportTested)
+    {
+    return this->OpenGLSupportResult;
+    }
 
   vtkXOpenGLRenderWindow *rw = vtkXOpenGLRenderWindow::New();
   rw->SetDisplayId(this->DisplayId);
@@ -1656,20 +1660,53 @@ int vtkXOpenGLRenderWindow::SupportsOpenGL()
   rw->Initialize();
   if (rw->GetContextSupportsOpenGL32())
     {
-    result = 1;
+    this->OpenGLSupportResult = 1;
+    this->OpenGLSupportMessage =
+      "The system appears to support OpenGL 3.2";
     }
 
 #ifdef GLEW_OK
 
   else if (GLEW_VERSION_3_2 || (GLEW_VERSION_2_1 && GLEW_EXT_gpu_shader4))
     {
-    result = 1;
+    this->OpenGLSupportResult = 1;
+    this->OpenGLSupportMessage =
+      "The system appears to support OpenGL 3.2 or has 2.1 with the required extension";
     }
 
 #endif
 
+  if (this->OpenGLSupportResult)
+    {
+    // even if glew thinks we have support we should actually try linking a
+    // shader program to make sure
+    vtkShaderProgram *newShader =
+      rw->GetShaderCache()->ReadyShaderProgram(
+        // simple vert shader
+        "//VTK::System::Dec\n"
+        "attribute vec4 vertexMC;\n"
+        "void main() { gl_Position = vertexMC; }\n",
+        // frag shader that used gl_PrimitiveId
+        "//VTK::System::Dec\n"
+        "//VTK::Output::Dec\n"
+        "void main(void) {\n"
+        "  gl_FragData[0] = vec4(float(gl_PrimitiveID)/100.0,1.0,1.0,1.0);\n"
+        "}\n",
+        // no geom shader
+        "");
+    if (newShader == NULL)
+      {
+      this->OpenGLSupportResult = 0;
+      this->OpenGLSupportMessage =
+        "The system appeared to have OpenGL Support but a test shader program failed to compile and link";
+      }
+    }
+
   rw->Delete();
-  return result;
+
+  this->OpenGLSupportTested = true;
+
+  return this->OpenGLSupportResult;
 }
 
 int vtkXOpenGLRenderWindow::IsDirect()

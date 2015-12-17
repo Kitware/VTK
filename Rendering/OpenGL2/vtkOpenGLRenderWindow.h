@@ -24,6 +24,7 @@
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderWindow.h"
+#include <string> // for ivar
 #include <map> // for ivar
 #include "vtkType.h" // for ivar
 
@@ -243,11 +244,26 @@ public:
     int vtktype, int numComponents,
     bool needInteger, bool needFloat);
 
+  // Description:
+  // Return a message profiding additional details about the
+  // results of calling SupportsOpenGL()  This can be used
+  // to retrieve more specifics about what failed
+  std::string GetOpenGLSupportMessage()
+  {
+    return this->OpenGLSupportMessage;
+  }
+
 protected:
   vtkOpenGLRenderWindow();
   ~vtkOpenGLRenderWindow();
 
   vtkOpenGLShaderCache *ShaderCache;
+
+  // used in testing for opengl support
+  // in the SupportsOpenGL() method
+  bool OpenGLSupportTested;
+  int OpenGLSupportResult;
+  std::string OpenGLSupportMessage;
 
   int TextureInternalFormats[VTK_UNICODE_STRING][3][5];
   void InitializeTextureInternalFormats();

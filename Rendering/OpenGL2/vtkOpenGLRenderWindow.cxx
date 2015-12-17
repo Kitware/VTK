@@ -116,6 +116,10 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
 
   this->OwnContext = 1;
   this->MaximumHardwareLineWidth = 1.0;
+
+  this->OpenGLSupportTested = false;
+  this->OpenGLSupportResult = 0;
+  this->OpenGLSupportMessage = "Not tested yet";
 }
 
 // free up memory & close the window
