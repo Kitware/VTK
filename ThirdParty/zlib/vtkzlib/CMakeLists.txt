@@ -135,6 +135,19 @@ set(ZLIB_SRCS
     zutil.c
 )
 
+# XXX(kitware): create the third-party library for VTK
+vtk_add_library(vtkzlib ${ZLIB_SRCS} ${ZLIB_ASMS} ${ZLIB_DLL_SRCS} ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS})
+set_target_properties(vtkzlib PROPERTIES DEFINE_SYMBOL ZLIB_DLL)
+
+if (NOT VTK_INSTALL_NO_DEVELOPMENT)
+    install(FILES
+        ${ZLIB_PUBLIC_HDRS}
+        DESTINATION "${INSTALL_INC_DIR}"
+        COMPONENT Development)
+endif ()
+
+if (FALSE) # XXX(kitware): skip all the original build/install commands
+
 if(NOT MINGW)
     set(ZLIB_DLL_SRCS
         win32/zlib1.rc # If present will override custom build rule below.
@@ -190,24 +203,15 @@ if(MINGW)
                             -D GCC_WINDRES
                             -I ${CMAKE_CURRENT_SOURCE_DIR}
                             -I ${CMAKE_CURRENT_BINARY_DIR}
-                            # XXX(kitware): add the vtkzlib directories for vtkzlib.h
-                            -I ${vtkzlib_SOURCE_DIR}
-                            -I ${vtkzlib_BINARY_DIR}
                             -o ${CMAKE_CURRENT_BINARY_DIR}/zlib1rc.obj
-                            -i ${CMAKE_CURRENT_SOURCE_DIR}/win32/zlib1.rc
-                       VERBATIM)
+                            -i ${CMAKE_CURRENT_SOURCE_DIR}/win32/zlib1.rc)
     set(ZLIB_DLL_SRCS ${CMAKE_CURRENT_BINARY_DIR}/zlib1rc.obj)
 endif(MINGW)
 
-if (FALSE) # XXX(kitware): build using VTK's magic.
 add_library(zlib SHARED ${ZLIB_SRCS} ${ZLIB_ASMS} ${ZLIB_DLL_SRCS} ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS})
 add_library(zlibstatic STATIC ${ZLIB_SRCS} ${ZLIB_ASMS} ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS})
-endif ()
-
-vtk_add_library(vtkzlib ${ZLIB_SRCS} ${ZLIB_ASMS} ${ZLIB_DLL_SRCS} ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS})
-
-set_target_properties(vtkzlib PROPERTIES DEFINE_SYMBOL ZLIB_DLL)
-set_target_properties(vtkzlib PROPERTIES SOVERSION 1)
+set_target_properties(zlib PROPERTIES DEFINE_SYMBOL ZLIB_DLL)
+set_target_properties(zlib PROPERTIES SOVERSION 1)
 
 if(NOT CYGWIN)
     # This property causes shared libraries on Linux to have the full version
@@ -217,17 +221,8 @@ if(NOT CYGWIN)
     #
     # This has no effect with MSVC, on that platform the version info for
     # the DLL comes from the resource file win32/zlib1.rc
-    set_target_properties(vtkzlib PROPERTIES VERSION ${ZLIB_FULL_VERSION})
+    set_target_properties(zlib PROPERTIES VERSION ${ZLIB_FULL_VERSION})
 endif()
-
-if (NOT VTK_INSTALL_NO_DEVELOPMENT)
-    install(FILES
-        ${ZLIB_PUBLIC_HDRS}
-        DESTINATION "${INSTALL_INC_DIR}"
-        COMPONENT Development)
-endif ()
-
-if (FALSE) # XXX(kitware): Disable upstream install and examples bits.
 
 if(UNIX)
     # On unix-like platforms the library is almost always called libz

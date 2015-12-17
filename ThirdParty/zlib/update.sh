@@ -40,7 +40,6 @@ zlib.h
 zutil.h
 
 zconf.h.cmakein
-win32/zlib1.rc
 
 ChangeLog
 README
