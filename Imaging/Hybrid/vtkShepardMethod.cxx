@@ -22,9 +22,72 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
+#include "vtkSMPTools.h"
 
 vtkStandardNewMacro(vtkShepardMethod);
 
+//-----------------------------------------------------------------------------
+// Thread the algorithm by processing each z-slice independently as each
+// point is procssed. (As input points are processed, their influence is felt
+// across a cuboid domain - a splat footprint. The slices that make up the
+// cuboid splat are processed in parallel.) Note also that the scalar data is
+// processed via templating.
+template <typename TIn, typename TOut>
+class vtkShepardMethodAlgorithm
+{
+public:
+  vtkShepardMethod *ShepardMethod;
+  TIn  *InScalars;
+  TOut *OutScalars;
+  vtkIdType Dims[3], SliceSize;
+  double Origin[3], Spacing[3], Radius2;
+
+  class Splat
+    {
+    public:
+      vtkShepardMethodAlgorithm *Algo;
+      vtkIdType XMin, XMax, YMin, YMax, ZMin, ZMax;
+      Splat(vtkShepardMethodAlgorithm *algo)
+        {this->Algo = algo;}
+      void SetBounds(int min[3], int max[3])
+        {
+          this->XMin = min[0]; this->XMax = max[0];
+          this->YMin = min[1]; this->YMax = max[1];
+          this->ZMin = min[2]; this->ZMax = max[2];
+        }
+      void  operator()(vtkIdType slice, vtkIdType end)
+        {
+        vtkIdType i, j, jOffset, kOffset, idx;
+        double cx[3], dist2;
+        for ( ; slice < end; ++slice )
+          {
+          // Loop over all sample points in volume within footprint and
+          // evaluate the splat
+          cx[2] = this->Algo->Origin[2] + this->Algo->Spacing[2]*slice;
+          kOffset = slice*this->Algo->SliceSize;
+          for (j=this->YMin; j<=this->YMax; j++)
+            {
+            cx[1] = this->Algo->Origin[1] + this->Algo->Spacing[1]*j;
+            jOffset = j*this->Algo->Dims[0];
+            for (i=this->XMin; i<=this->XMax; i++)
+              {
+              cx[0] = this->Algo->Origin[0] + this->Algo->Spacing[0]*i;
+              dist2 = this->Algo->Splatter->SamplePoint(cx);
+              if ( dist2 <= this->Algo->Radius2 )
+                {
+                idx = i + jOffset + kOffset;
+
+                }//if within splat radius
+              }//i
+            }//j
+          }//k within splat footprint
+        }
+    };
+
+};
+
+
+//-----------------------------------------------------------------------------
 // Construct with sample dimensions=(50,50,50) and so that model bounds are
 // automatically computed from input. Null value for each unvisited output
 // point is 0.0. Maximum distance is 0.25.
@@ -44,8 +107,11 @@ vtkShepardMethod::vtkShepardMethod()
   this->SampleDimensions[2] = 50;
 
   this->NullValue = 0.0;
+
+  this->PowerParameter = 2.0;
 }
 
+//-----------------------------------------------------------------------------
 // Compute ModelBounds from input geometry.
 double vtkShepardMethod::ComputeModelBounds(double origin[3],
                                             double spacing[3])
@@ -98,6 +164,7 @@ double vtkShepardMethod::ComputeModelBounds(double origin[3],
   return maxDist;
 }
 
+//-----------------------------------------------------------------------------
 int vtkShepardMethod::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector ** vtkNotUsed( inputVector ),
@@ -134,6 +201,7 @@ int vtkShepardMethod::RequestInformation (
   return 1;
 }
 
+//-----------------------------------------------------------------------------
 int vtkShepardMethod::RequestData(
   vtkInformation* vtkNotUsed( request ),
   vtkInformationVector** inputVector,
@@ -222,34 +290,6 @@ int vtkShepardMethod::RequestData(
 
     for (i=0; i<3; i++) //compute dimensional bounds in data set
       {
-      double amin = static_cast<double>(
-        (px[i] - maxDistance) - origin[i]) / spacing[i];
-      double amax = static_cast<double>(
-        (px[i] + maxDistance) - origin[i]) / spacing[i];
-      min[i] = static_cast<int>(amin);
-      max[i] = static_cast<int>(amax);
-
-      if (min[i] < amin)
-        {
-        min[i]++; // round upward to nearest integer to get min[i]
-        }
-      if (max[i] > amax)
-        {
-        max[i]--; // round downward to nearest integer to get max[i]
-        }
-
-      if (min[i] < 0)
-        {
-        min[i] = 0; // valid range check
-        }
-      if (max[i] >= this->SampleDimensions[i])
-        {
-        max[i] = this->SampleDimensions[i] - 1;
-        }
-      }
-
-    for (i=0; i<3; i++) //compute dimensional bounds in data set
-      {
       min[i] = static_cast<int>(
         static_cast<double>((px[i] - maxDistance) - origin[i]) / spacing[i]);
       max[i] = static_cast<int>(
@@ -281,9 +321,9 @@ int vtkShepardMethod::RequestData(
           if ( distance2 == 0.0 )
             {
             sum[idx] = VTK_DOUBLE_MAX;
-            newScalars->SetComponent(idx,0,VTK_FLOAT_MAX);
+            newScalars->SetComponent(idx,0,inScalar);
             }
-          else
+          else if ( sum[idx] < VTK_DOUBLE_MAX ) //check for precise hit
             {
             s = newScalars->GetComponent(idx,0);
             sum[idx] += 1.0 / distance2;
@@ -296,10 +336,16 @@ int vtkShepardMethod::RequestData(
 
   // Run through scalars and compute final values
   //
+  int numExacts = 0;
   for (ptId=0; ptId<numNewPts; ptId++)
     {
     s = newScalars->GetComponent(ptId,0);
-    if ( sum[ptId] != 0.0 )
+
+    if ( sum[ptId] >= VTK_DOUBLE_MAX )
+      {
+      numExacts++; // Value previously set
+      }
+    else if ( sum[ptId] != 0.0 )
       {
       newScalars->SetComponent(ptId,0,s/sum[ptId]);
       }
@@ -316,6 +362,7 @@ int vtkShepardMethod::RequestData(
   return 1;
 }
 
+//-----------------------------------------------------------------------------
 // Set the i-j-k dimensions on which to sample the distance function.
 void vtkShepardMethod::SetSampleDimensions(int i, int j, int k)
 {
@@ -328,6 +375,7 @@ void vtkShepardMethod::SetSampleDimensions(int i, int j, int k)
   this->SetSampleDimensions(dim);
 }
 
+//-----------------------------------------------------------------------------
 // Set the i-j-k dimensions on which to sample the distance function.
 void vtkShepardMethod::SetSampleDimensions(int dim[3])
 {
@@ -356,7 +404,7 @@ void vtkShepardMethod::SetSampleDimensions(int dim[3])
 
     if ( dataDim  < 3 )
       {
-      vtkErrorMacro(<<"Sample dimensions must define a volume!");
+      vtkErrorMacro(<<"Sample dimensions must define a 3D volume!");
       return;
       }
 
@@ -369,6 +417,7 @@ void vtkShepardMethod::SetSampleDimensions(int dim[3])
     }
 }
 
+//-----------------------------------------------------------------------------
 int vtkShepardMethod::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
@@ -376,6 +425,7 @@ int vtkShepardMethod::FillInputPortInformation(
   return 1;
 }
 
+//-----------------------------------------------------------------------------
 void vtkShepardMethod::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -387,10 +437,15 @@ void vtkShepardMethod::PrintSelf(ostream& os, vtkIndent indent)
                << this->SampleDimensions[2] << ")\n";
 
   os << indent << "ModelBounds: \n";
-  os << indent << "  Xmin,Xmax: (" << this->ModelBounds[0] << ", " << this->ModelBounds[1] << ")\n";
-  os << indent << "  Ymin,Ymax: (" << this->ModelBounds[2] << ", " << this->ModelBounds[3] << ")\n";
-  os << indent << "  Zmin,Zmax: (" << this->ModelBounds[4] << ", " << this->ModelBounds[5] << ")\n";
+  os << indent << "  Xmin,Xmax: ("
+     << this->ModelBounds[0] << ", " << this->ModelBounds[1] << ")\n";
+  os << indent << "  Ymin,Ymax: ("
+     << this->ModelBounds[2] << ", " << this->ModelBounds[3] << ")\n";
+  os << indent << "  Zmin,Zmax: ("
+     << this->ModelBounds[4] << ", " << this->ModelBounds[5] << ")\n";
 
   os << indent << "Null Value: " << this->NullValue << "\n";
+
+  os << indent << "Power Parameter: " << this->PowerParameter << "\n";
 
 }
