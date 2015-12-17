@@ -10,19 +10,19 @@ macro(VTK_WRAP_HIERARCHY module_name OUTPUT_DIR SOURCES)
     endif()
   endif()
 
-  # all the include directories
-  if(VTK_WRAP_INCLUDE_DIRS)
-    set(TMP_INCLUDE_DIRS ${VTK_WRAP_INCLUDE_DIRS})
-  else()
-    set(TMP_INCLUDE_DIRS ${VTK_INCLUDE_DIRS})
-  endif()
-
   # collect the common wrapper-tool arguments
   set(_common_args)
   get_directory_property(_def_list DEFINITION COMPILE_DEFINITIONS)
   foreach(TMP_DEF ${_def_list})
     set(_common_args "${_common_args}-D${TMP_DEF}\n")
   endforeach()
+
+  # all the include directories
+  if(VTK_WRAP_INCLUDE_DIRS)
+    set(TMP_INCLUDE_DIRS ${VTK_WRAP_INCLUDE_DIRS})
+  else()
+    set(TMP_INCLUDE_DIRS ${VTK_INCLUDE_DIRS})
+  endif()
   foreach(INCLUDE_DIR ${TMP_INCLUDE_DIRS})
     set(_common_args "${_common_args}-I\"${INCLUDE_DIR}\"\n")
   endforeach()
