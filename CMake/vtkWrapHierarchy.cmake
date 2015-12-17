@@ -28,9 +28,10 @@ macro(VTK_WRAP_HIERARCHY module_name OUTPUT_DIR SOURCES)
   endforeach()
 
   # write wrapper-tool arguments to a file
+  set(_args_file ${module_name}Hierarchy.args)
   string(STRIP "${_common_args}" CMAKE_CONFIGURABLE_FILE_CONTENT)
   configure_file(${CMAKE_ROOT}/Modules/CMakeConfigurableFile.in
-                 ${module_name}Hierarchy.args @ONLY)
+                 ${_args_file} @ONLY)
 
   # list of all files to wrap
   set(VTK_WRAPPER_INIT_DATA)
@@ -135,13 +136,13 @@ macro(VTK_WRAP_HIERARCHY module_name OUTPUT_DIR SOURCES)
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${module_name}Hierarchy.stamp.txt
            ${help_ninja}
     COMMAND ${VTK_WRAP_HIERARCHY_EXE}
-            @${module_name}Hierarchy.args -o ${OUTPUT_DIR}/${module_name}Hierarchy.txt
+            @${_args_file} -o ${OUTPUT_DIR}/${module_name}Hierarchy.txt
             ${module_name}Hierarchy.data
             ${OTHER_HIERARCHY_FILES}
     COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/${module_name}Hierarchy.stamp.txt
     COMMENT "For ${module_name} - updating ${module_name}Hierarchy.txt"
     DEPENDS ${VTK_WRAP_HIERARCHY_EXE}
-            ${CMAKE_CURRENT_BINARY_DIR}/${module_name}Hierarchy.args
+            ${CMAKE_CURRENT_BINARY_DIR}/${_args_file}
             ${CMAKE_CURRENT_BINARY_DIR}/${module_name}Hierarchy.data
             ${OTHER_HIERARCHY_FILES}
             ${INPUT_FILES}
