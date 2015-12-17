@@ -1648,127 +1648,28 @@ void vtkXOpenGLRenderWindow::CloseDisplay()
 
 int vtkXOpenGLRenderWindow::SupportsOpenGL()
 {
+  int result = 0;
+
+  vtkXOpenGLRenderWindow *rw = vtkXOpenGLRenderWindow::New();
+  rw->SetDisplayId(this->DisplayId);
+  rw->SetOffScreenRendering(1);
+  rw->Initialize();
+  if (rw->GetContextSupportsOpenGL32())
+    {
+    result = 1;
+    }
+
 #ifdef GLEW_OK
 
-  if(!this->OffScreenRendering)
+  else if (GLEW_VERSION_3_2 || (GLEW_VERSION_2_1 && GLEW_EXT_gpu_shader4))
     {
-    // save the original status of having a display
-    Display *displayId = this->DisplayId;
-
-   // get the default display connection
-    if (!displayId)
-      {
-      displayId = XOpenDisplay(static_cast<char *>(NULL));
-
-      if (displayId == NULL)
-        {
-        vtkErrorMacro(<< "bad X server connection. DISPLAY="
-          << vtksys::SystemTools::GetEnv("DISPLAY") << ". Aborting.\n");
-        abort();
-        }
-      }
-
-    int doubleBuffer = 0;
-     GLXFBConfig fb = vtkXOpenGLRenderWindowGetDesiredFBConfig(
-        displayId, this->StereoCapableWindow, this->MultiSamples,
-        doubleBuffer, this->AlphaBitPlanes, GLX_PBUFFER_BIT,
-        this->StencilCapable);
-
-    // try for 32 context
-    GLXContext contextId = NULL;
-    if (fb)
-      {
-      // NOTE: It is not necessary to create or make current to a context before
-      // calling glXGetProcAddressARB
-      glXCreateContextAttribsARBProc glXCreateContextAttribsARB = 0;
-      glXCreateContextAttribsARB = (glXCreateContextAttribsARBProc)
-        glXGetProcAddressARB( (const GLubyte *) "glXCreateContextAttribsARB" );
-
-      int context_attribs[] =
-        {
-        GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
-        GLX_CONTEXT_MINOR_VERSION_ARB, 2,
-        //GLX_CONTEXT_FLAGS_ARB        , GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
-        0
-        };
-
-      if (glXCreateContextAttribsARB)
-        {
-        contextId =
-          glXCreateContextAttribsARB( displayId, fb, 0,
-            GL_TRUE, context_attribs );
-
-        // Sync to ensure any errors generated are processed.
-        XSync( displayId, False );
-        if ( contextId )
-          {
-          this->SetContextSupportsOpenGL32(true);
-          }
-        }
-      }
-
-    // old failsafe
-    if (contextId == NULL)
-      {
-      contextId = glXCreateNewContext(displayId, fb,
-                          GLX_RGBA_TYPE, NULL, true);
-      }
-
-    if(!contextId)
-      {
-      if (!this->DisplayId)
-        {
-        XCloseDisplay(displayId);
-        }
-      return 0;
-      }
-
-    int pbufferAttribs[] =
-      {
-      GLX_PBUFFER_WIDTH,  32,
-      GLX_PBUFFER_HEIGHT, 32,
-      None
-      };
-    GLXPbuffer pbuffer = glXCreatePbuffer(
-      displayId, fb, pbufferAttribs);
-
-    XSync( displayId, False );
-
-    if ( !glXMakeContextCurrent(displayId, pbuffer, pbuffer, contextId) )
-      {
-      if (!this->DisplayId)
-        {
-        XCloseDisplay(displayId);
-        }
-      return 0;
-      }
-
-    GLenum result = glewInit();
-    glFinish();
-    glXDestroyContext(displayId, contextId);
-    glXDestroyPbuffer(displayId, pbuffer);
-    bool m_valid = (result == GLEW_OK);
-    if (!m_valid)
-      {
-      if (!this->DisplayId)
-        {
-        XCloseDisplay(displayId);
-        }
-      return 0;
-      }
-
-    if (GLEW_VERSION_3_2 || (GLEW_VERSION_2_1 && GLEW_EXT_gpu_shader4))
-      {
-      if (!this->DisplayId)
-        {
-        XCloseDisplay(displayId);
-        }
-      return 1;
-      }
+    result = 1;
     }
 
 #endif
-  return 0;
+
+  rw->Delete();
+  return result;
 }
 
 int vtkXOpenGLRenderWindow::IsDirect()
