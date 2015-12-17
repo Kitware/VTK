@@ -11,27 +11,40 @@ macro(VTK_WRAP_HIERARCHY module_name OUTPUT_DIR SOURCES)
   endif()
 
   # collect the common wrapper-tool arguments
-  set(_common_args)
-  get_directory_property(_def_list DEFINITION COMPILE_DEFINITIONS)
-  foreach(TMP_DEF ${_def_list})
-    set(_common_args "${_common_args}-D${TMP_DEF}\n")
-  endforeach()
-
-  # all the include directories
-  if(VTK_WRAP_INCLUDE_DIRS)
-    set(TMP_INCLUDE_DIRS ${VTK_WRAP_INCLUDE_DIRS})
+  if(NOT CMAKE_VERSION VERSION_LESS 3.1)
+    # write wrapper-tool arguments to a file
+    set(_args_file ${module_name}Hierarchy.$<CONFIGURATION>.args)
+    file(GENERATE OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${_args_file} CONTENT "
+$<$<BOOL:$<TARGET_PROPERTY:${module_name},COMPILE_DEFINITIONS>>:
+-D\"$<JOIN:$<TARGET_PROPERTY:${module_name},COMPILE_DEFINITIONS>,\"
+-D\">\">
+$<$<BOOL:$<TARGET_PROPERTY:${module_name},INCLUDE_DIRECTORIES>>:
+-I\"$<JOIN:$<TARGET_PROPERTY:${module_name},INCLUDE_DIRECTORIES>,\"
+-I\">\">
+")
   else()
-    set(TMP_INCLUDE_DIRS ${VTK_INCLUDE_DIRS})
-  endif()
-  foreach(INCLUDE_DIR ${TMP_INCLUDE_DIRS})
-    set(_common_args "${_common_args}-I\"${INCLUDE_DIR}\"\n")
-  endforeach()
+    set(_common_args)
+    get_directory_property(_def_list DEFINITION COMPILE_DEFINITIONS)
+    foreach(TMP_DEF ${_def_list})
+      set(_common_args "${_common_args}-D${TMP_DEF}\n")
+    endforeach()
 
-  # write wrapper-tool arguments to a file
-  set(_args_file ${module_name}Hierarchy.args)
-  string(STRIP "${_common_args}" CMAKE_CONFIGURABLE_FILE_CONTENT)
-  configure_file(${CMAKE_ROOT}/Modules/CMakeConfigurableFile.in
-                 ${_args_file} @ONLY)
+    # all the include directories
+    if(VTK_WRAP_INCLUDE_DIRS)
+      set(TMP_INCLUDE_DIRS ${VTK_WRAP_INCLUDE_DIRS})
+    else()
+      set(TMP_INCLUDE_DIRS ${VTK_INCLUDE_DIRS})
+    endif()
+    foreach(INCLUDE_DIR ${TMP_INCLUDE_DIRS})
+      set(_common_args "${_common_args}-I\"${INCLUDE_DIR}\"\n")
+    endforeach()
+
+    # write wrapper-tool arguments to a file
+    set(_args_file ${module_name}Hierarchy.args)
+    string(STRIP "${_common_args}" CMAKE_CONFIGURABLE_FILE_CONTENT)
+    configure_file(${CMAKE_ROOT}/Modules/CMakeConfigurableFile.in
+      ${_args_file} @ONLY)
+  endif()
 
   # list of all files to wrap
   set(VTK_WRAPPER_INIT_DATA)
