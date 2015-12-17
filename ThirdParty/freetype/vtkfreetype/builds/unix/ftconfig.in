@@ -76,8 +76,9 @@ FT_BEGIN_HEADER
 #endif
 
 /* VTK_FREETYPE_CHANGE use VTK's sizes instead of the big test */
-#define FT_SIZEOF_INT   ${VTK_SIZEOF_INT}
-#define FT_SIZEOF_LONG  ${VTK_SIZEOF_LONG}
+#include "vtk_kwiml.h"
+#define FT_SIZEOF_INT   KWIML_ABI_SIZEOF_INT
+#define FT_SIZEOF_LONG  KWIML_ABI_SIZEOF_LONG
 
 
   /* FT_UNUSED is a macro used to indicate that a given parameter is not  */
