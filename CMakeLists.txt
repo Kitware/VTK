@@ -122,8 +122,6 @@ if (ANDROID OR APPLE_IOS)
        CACHE STRING "Result from TRY_RUN" FORCE)
   SET( CMAKE_REQUIRE_LARGE_FILE_SUPPORT__TRYRUN_OUTPUT ""
        CACHE STRING "Output from TRY_RUN" FORCE)
-  SET( VTK_TYPE_CHAR_IS_SIGNED 1
-     CACHE STRING "Result from TRY_RUN" FORCE)
   SET( KWSYS_CHAR_IS_SIGNED 1
      CACHE STRING "Result from TRY_RUN" FORCE)
   SET( KWSYS_LFS_WORKS 2
@@ -445,9 +443,6 @@ set(VTK_MAX_THREADS "64" CACHE STRING
 mark_as_advanced(VTK_MAX_THREADS)
 
 include(CheckTypeSize)
-
-# Tests for various integer, bool and float types
-include(vtkTestTypes)
 
 # Socket tests etc.
 #INCLUDE(Parallel/VTKParallelCMakeTests.cmake)

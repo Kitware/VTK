@@ -55,23 +55,6 @@ SET( SHARED_LIBRARY_PATH_TYPE__TRYRUN_OUTPUT
      CACHE STRING "Output from TRY_RUN" FORCE)
 
 
-# VTK_TYPE_CHAR_IS_SIGNED
-#    indicates whether the executable would have been able to run on its
-#    target platform. If so, set VTK_TYPE_CHAR_IS_SIGNED to
-#    the exit code (in many cases 0 for success), otherwise enter "FAILED_TO_RUN".
-# The VTK_TYPE_CHAR_IS_SIGNED_COMPILED variable holds the build result for this TRY_RUN().
-#
-# Source file   : /gpfs/gpfs0/home/gevecb/alex/paraview/src/ParaView3/VTK/CMake/vtkTestCharSignedness.cxx
-# Executable    : /gpfs/gpfs0/home/gevecb/alex/paraview/build/VTK-head-bgl-new/cmTryCompileExec-VTK_TYPE_CHAR_IS_SIGNED
-# Run arguments :
-#    Called from: [2]   /gpfs/gpfs0/home/gevecb/alex/paraview/src/ParaView3/VTK/CMake/vtkTestTypes.cmake
-#                 [1]   /gpfs/gpfs0/home/gevecb/alex/paraview/src/ParaView3/VTK/CMakeLists.txt
-
-SET( VTK_TYPE_CHAR_IS_SIGNED
-     "1"
-     CACHE STRING "Result from TRY_RUN" FORCE)
-
-
 # KWSYS_LFS_WORKS
 #    indicates whether the executable would have been able to run on its
 #    target platform. If so, set KWSYS_LFS_WORKS to
