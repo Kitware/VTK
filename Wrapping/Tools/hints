@@ -120,6 +120,8 @@ vtkImageVectorConvolve                GetKernel                         301  3
 vtkImageViewer                        GetPosition                       304  2
 vtkImageViewer                        GetSize                           304  2
 vtkImplicitFunction                   FunctionGradient                  307  3
+vtkImplicitCylinderRepresentation     GetCenter                         307  3
+vtkImplicitCylinderRepresentation     GetAxis                           307  3
 vtkImplicitPlaneRepresentation        GetBounds                         307  6
 vtkImplicitPlaneRepresentation        GetNormal                         307  3
 vtkImplicitPlaneRepresentation        GetOrigin                         307  3
