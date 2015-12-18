@@ -1,7 +1,7 @@
 #
 # a cmake macro to generate a text file with the class hierarchy
 #
-macro(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
+macro(VTK_WRAP_HIERARCHY module_name OUTPUT_DIR SOURCES)
   if(NOT VTK_WRAP_HIERARCHY_EXE)
     if(TARGET vtkWrapHierarchy)
       set(VTK_WRAP_HIERARCHY_EXE vtkWrapHierarchy)
@@ -10,27 +10,41 @@ macro(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
     endif()
   endif()
 
-  # all the include directories
-  if(VTK_WRAP_INCLUDE_DIRS)
-    set(TMP_INCLUDE_DIRS ${VTK_WRAP_INCLUDE_DIRS})
-  else()
-    set(TMP_INCLUDE_DIRS ${VTK_INCLUDE_DIRS})
-  endif()
-
   # collect the common wrapper-tool arguments
-  set(_common_args)
-  get_directory_property(_def_list DEFINITION COMPILE_DEFINITIONS)
-  foreach(TMP_DEF ${_def_list})
-    set(_common_args "${_common_args}-D${TMP_DEF}\n")
-  endforeach()
-  foreach(INCLUDE_DIR ${TMP_INCLUDE_DIRS})
-    set(_common_args "${_common_args}-I\"${INCLUDE_DIR}\"\n")
-  endforeach()
+  if(NOT CMAKE_VERSION VERSION_LESS 3.1)
+    # write wrapper-tool arguments to a file
+    set(_args_file ${module_name}Hierarchy.$<CONFIGURATION>.args)
+    file(GENERATE OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${_args_file} CONTENT "
+$<$<BOOL:$<TARGET_PROPERTY:${module_name},COMPILE_DEFINITIONS>>:
+-D\"$<JOIN:$<TARGET_PROPERTY:${module_name},COMPILE_DEFINITIONS>,\"
+-D\">\">
+$<$<BOOL:$<TARGET_PROPERTY:${module_name},INCLUDE_DIRECTORIES>>:
+-I\"$<JOIN:$<TARGET_PROPERTY:${module_name},INCLUDE_DIRECTORIES>,\"
+-I\">\">
+")
+  else()
+    set(_common_args)
+    get_directory_property(_def_list DEFINITION COMPILE_DEFINITIONS)
+    foreach(TMP_DEF ${_def_list})
+      set(_common_args "${_common_args}-D${TMP_DEF}\n")
+    endforeach()
 
-  # write wrapper-tool arguments to a file
-  string(STRIP "${_common_args}" CMAKE_CONFIGURABLE_FILE_CONTENT)
-  configure_file(${CMAKE_ROOT}/Modules/CMakeConfigurableFile.in
-                 ${vtk-module}Hierarchy.args @ONLY)
+    # all the include directories
+    if(VTK_WRAP_INCLUDE_DIRS)
+      set(TMP_INCLUDE_DIRS ${VTK_WRAP_INCLUDE_DIRS})
+    else()
+      set(TMP_INCLUDE_DIRS ${VTK_INCLUDE_DIRS})
+    endif()
+    foreach(INCLUDE_DIR ${TMP_INCLUDE_DIRS})
+      set(_common_args "${_common_args}-I\"${INCLUDE_DIR}\"\n")
+    endforeach()
+
+    # write wrapper-tool arguments to a file
+    set(_args_file ${module_name}Hierarchy.args)
+    string(STRIP "${_common_args}" CMAKE_CONFIGURABLE_FILE_CONTENT)
+    configure_file(${CMAKE_ROOT}/Modules/CMakeConfigurableFile.in
+      ${_args_file} @ONLY)
+  endif()
 
   # list of all files to wrap
   set(VTK_WRAPPER_INIT_DATA)
@@ -82,7 +96,7 @@ macro(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
 
       # add the info to the init file
       set(VTK_WRAPPER_INIT_DATA
-        "${VTK_WRAPPER_INIT_DATA}${TMP_INPUT};${vtk-module}")
+        "${VTK_WRAPPER_INIT_DATA}${TMP_INPUT};${module_name}")
 
       if(TMP_ABSTRACT)
         set(VTK_WRAPPER_INIT_DATA "${VTK_WRAPPER_INIT_DATA};ABSTRACT")
@@ -104,18 +118,18 @@ macro(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
   # finish the data file for the init file
   configure_file(
     ${VTK_CMAKE_DIR}/vtkWrapperInit.data.in
-    ${vtk-module}Hierarchy.data
+    ${module_name}Hierarchy.data
     @ONLY
     )
 
   # search through the deps to find modules we depend on
   set(OTHER_HIERARCHY_FILES)
-  # Don't use ${vtk-module}_DEPENDS. That list also includes COMPILE_DEPENDS,
+  # Don't use ${module_name}_DEPENDS. That list also includes COMPILE_DEPENDS,
   # which aren't library dependencies, merely dependencies for generators and
   # such. The dependecies specified under "DEPENDS" in the vtk_module(..) macro
   # call are located under _LINK_DEPENDS.
-  foreach(dep ${${vtk-module}_LINK_DEPENDS})
-    if(NOT "${vtk-module}" STREQUAL "${dep}")
+  foreach(dep ${${module_name}_LINK_DEPENDS})
+    if(NOT "${module_name}" STREQUAL "${dep}")
       if(NOT ${dep}_EXCLUDE_FROM_WRAPPING)
         list(APPEND OTHER_HIERARCHY_FILES "${${dep}_WRAP_HIERARCHY_FILE}")
       endif()
@@ -126,23 +140,23 @@ macro(VTK_WRAP_HIERARCHY TARGET OUTPUT_DIR SOURCES)
   # existence of explicit dependencies that those order-only dependencies
   # might have produced.  Specify the real output to help it out.
   if(CMAKE_GENERATOR MATCHES "Ninja")
-    set(help_ninja ${OUTPUT_DIR}/${vtk-module}Hierarchy.txt)
+    set(help_ninja ${OUTPUT_DIR}/${module_name}Hierarchy.txt)
   else()
     set(help_ninja "")
   endif()
 
   add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Hierarchy.stamp.txt
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${module_name}Hierarchy.stamp.txt
            ${help_ninja}
     COMMAND ${VTK_WRAP_HIERARCHY_EXE}
-            @${vtk-module}Hierarchy.args -o ${OUTPUT_DIR}/${vtk-module}Hierarchy.txt
-            ${vtk-module}Hierarchy.data
+            @${_args_file} -o ${OUTPUT_DIR}/${module_name}Hierarchy.txt
+            ${module_name}Hierarchy.data
             ${OTHER_HIERARCHY_FILES}
-    COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Hierarchy.stamp.txt
-    COMMENT "For ${vtk-module} - updating ${vtk-module}Hierarchy.txt"
+    COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/${module_name}Hierarchy.stamp.txt
+    COMMENT "For ${module_name} - updating ${module_name}Hierarchy.txt"
     DEPENDS ${VTK_WRAP_HIERARCHY_EXE}
-            ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Hierarchy.args
-            ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Hierarchy.data
+            ${CMAKE_CURRENT_BINARY_DIR}/${_args_file}
+            ${CMAKE_CURRENT_BINARY_DIR}/${module_name}Hierarchy.data
             ${OTHER_HIERARCHY_FILES}
             ${INPUT_FILES}
     VERBATIM

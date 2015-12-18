@@ -69,22 +69,8 @@ MACRO(VTK_WRAP_TCL3 TARGET SRC_LIST_NAME SOURCES COMMANDS)
       "${VTK_WRAPPER_INIT_DATA}\nVERSION ${ARGV4}")
   ENDIF ()
 
-  # all the include directories
-  if(VTK_WRAP_INCLUDE_DIRS)
-    set(TMP_INCLUDE_DIRS ${VTK_WRAP_INCLUDE_DIRS})
-  else()
-    set(TMP_INCLUDE_DIRS ${VTK_INCLUDE_DIRS})
-  endif()
-
   # collect the common wrapper-tool arguments
   set(_common_args)
-  get_directory_property(_def_list DEFINITION COMPILE_DEFINITIONS)
-  foreach(TMP_DEF ${_def_list})
-    set(_common_args "${_common_args}-D${TMP_DEF}\n")
-  endforeach()
-  foreach(INCLUDE_DIR ${TMP_INCLUDE_DIRS})
-    set(_common_args "${_common_args}-I\"${INCLUDE_DIR}\"\n")
-  endforeach()
   if(VTK_WRAP_HINTS)
     set(_common_args "${_common_args}--hints \"${VTK_WRAP_HINTS}\"\n")
   endif()
@@ -92,11 +78,37 @@ MACRO(VTK_WRAP_TCL3 TARGET SRC_LIST_NAME SOURCES COMMANDS)
     set(_common_args "${_common_args}--types \"${KIT_HIERARCHY_FILE}\"\n")
   endif()
 
-  # write wrapper-tool arguments to a file
-  string(STRIP "${_common_args}" CMAKE_CONFIGURABLE_FILE_CONTENT)
-  set(_args_file ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.args)
-  configure_file(${CMAKE_ROOT}/Modules/CMakeConfigurableFile.in
-                 ${_args_file} @ONLY)
+  if(NOT CMAKE_VERSION VERSION_LESS 3.1)
+    # write wrapper-tool arguments to a file
+    set(_args_file ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.$<CONFIGURATION>.args)
+    file(GENERATE OUTPUT ${_args_file} CONTENT "${_common_args}
+$<$<BOOL:$<TARGET_PROPERTY:${TARGET},COMPILE_DEFINITIONS>>:
+-D\"$<JOIN:$<TARGET_PROPERTY:${TARGET},COMPILE_DEFINITIONS>,\"
+-D\">\">
+$<$<BOOL:$<TARGET_PROPERTY:${TARGET},INCLUDE_DIRECTORIES>>:
+-I\"$<JOIN:$<TARGET_PROPERTY:${TARGET},INCLUDE_DIRECTORIES>,\"
+-I\">\">
+")
+  else()
+    # all the include directories
+    if(VTK_WRAP_INCLUDE_DIRS)
+      set(TMP_INCLUDE_DIRS ${VTK_WRAP_INCLUDE_DIRS})
+    else()
+      set(TMP_INCLUDE_DIRS ${VTK_INCLUDE_DIRS})
+    endif()
+    foreach(INCLUDE_DIR ${TMP_INCLUDE_DIRS})
+      set(_common_args "${_common_args}-I\"${INCLUDE_DIR}\"\n")
+    endforeach()
+    get_directory_property(_def_list DEFINITION COMPILE_DEFINITIONS)
+    foreach(TMP_DEF ${_def_list})
+      set(_common_args "${_common_args}-D${TMP_DEF}\n")
+    endforeach()
+    # write wrapper-tool arguments to a file
+    string(STRIP "${_common_args}" CMAKE_CONFIGURABLE_FILE_CONTENT)
+    set(_args_file ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.args)
+    configure_file(${CMAKE_ROOT}/Modules/CMakeConfigurableFile.in
+                   ${_args_file} @ONLY)
+  endif()
 
   # for each class
   FOREACH(FILE ${SOURCES})
