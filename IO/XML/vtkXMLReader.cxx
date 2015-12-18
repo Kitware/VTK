@@ -475,6 +475,11 @@ int vtkXMLReader::RequestInformation(vtkInformation *request,
   if (this->ReadXMLInformation())
     {
     this->InformationError = 0;
+
+    // Clear cell and point selection arrays
+    this->CellDataArraySelection->RemoveAllArrays();
+    this->PointDataArraySelection->RemoveAllArrays();
+
     // Let the subclasses read the information they want.
     int outputPort =
       request->Get( vtkDemandDrivenPipeline::FROM_OUTPUT_PORT() );
