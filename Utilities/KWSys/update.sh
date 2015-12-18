@@ -9,6 +9,7 @@ readonly ownership="KWSys Upstream <kwrobot@kitware.com>"
 readonly subtree="Utilities/KWSys/vtksys"
 readonly repo="http://public.kitware.com/KWSys.git"
 readonly tag="master"
+readonly shortlog="true"
 readonly paths="
 "
 
