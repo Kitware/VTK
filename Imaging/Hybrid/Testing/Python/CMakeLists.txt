@@ -4,4 +4,5 @@ vtk_add_test_python(
   shepards.py
   triangularTexture.py
   TestCheckerboardSplatter.py
+  TestShepardsMethod.py
   )
