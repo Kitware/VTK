@@ -80,31 +80,6 @@ SET( KWSYS_LFS_WORKS__TRYRUN_OUTPUT
      CACHE STRING "Output from TRY_RUN" FORCE)
 
 
-# KWSYS_CHAR_IS_SIGNED
-#    indicates whether the executable would have been able to run on its
-#    target platform. If so, set KWSYS_CHAR_IS_SIGNED to
-#    the exit code (in many cases 0 for success), otherwise enter "FAILED_TO_RUN".
-# KWSYS_CHAR_IS_SIGNED__TRYRUN_OUTPUT
-#    contains the text the executable would have printed on stdout and stderr.
-#    If the executable would not have been able to run, set KWSYS_CHAR_IS_SIGNED__TRYRUN_OUTPUT empty.
-#    Otherwise check if the output is evaluated by the calling CMake code. If so,
-#    check what the source file would have printed when called with the given arguments.
-# The KWSYS_CHAR_IS_SIGNED_COMPILED variable holds the build result for this TRY_RUN().
-#
-# Source file   : /work/01642/sujin/Projects/Paraview/Master/ParaView/VTK/Utilities/KWSys/vtksys/kwsysPlatformTestsCXX.cxx
-# Executable    : /work/01642/sujin/Projects/Paraview/Master/builds/base/mic/CMakeFiles/cmTryCompileExec3553328623-KWSYS_CHAR_IS_SIGNED
-# Run arguments :
-#    Called from: [1]	/work/01642/sujin/Projects/Paraview/Master/ParaView/VTK/Utilities/KWSys/vtksys/CMakeLists.txt
-
-SET( KWSYS_CHAR_IS_SIGNED
-     "0"
-     CACHE STRING "Result from TRY_RUN" FORCE)
-
-SET( KWSYS_CHAR_IS_SIGNED__TRYRUN_OUTPUT
-     ""
-     CACHE STRING "Output from TRY_RUN" FORCE)
-
-
 # HDF5_PRINTF_LL_TEST_RUN
 #    indicates whether the executable would have been able to run on its
 #    target platform. If so, set HDF5_PRINTF_LL_TEST_RUN to
