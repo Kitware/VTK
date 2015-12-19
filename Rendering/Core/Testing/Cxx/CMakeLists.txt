@@ -74,6 +74,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestTStripsNormalsColorsTCoords.cxx
   TestTStripsNormalsTCoords.cxx
   TestTStripsTCoords.cxx
+  TestWindowToImageFilter.cxx
   otherLookupTable.cxx,NO_VALID
   otherLookupTableWithEnabling.cxx,NO_VALID
   RenderNonFinite.cxx
