@@ -96,6 +96,11 @@ vtkStandardNewMacro(vtkCompositeSurfaceLICMapper);
 //----------------------------------------------------------------------------
 vtkCompositeSurfaceLICMapper::vtkCompositeSurfaceLICMapper()
 {
+  this->LastOpaqueCheckTime = 0;
+  this->LastOpaqueCheckValue = false;
+  this->ColorResult[0] = 0;
+  this->ColorResult[1] = 0;
+  this->ColorResult[2] = 0;
 }
 
 //----------------------------------------------------------------------------
