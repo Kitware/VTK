@@ -60,9 +60,7 @@ static int skip_to_next_directive();
 static int skip_conditional_block();
 
 static void doxygen_comment();
-static void doxygen_trailing();
 static void doxygen_cpp_comment();
-static void doxygen_cpp_trailing();
 static void doxygen_group_start();
 static void doxygen_group_end();
 static void vtk_comment();
@@ -95,7 +93,7 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
 
 %%
 
-"/*"[*!]"<" { doxygen_trailing(); }
+"/*"[*!]"<" { doxygen_comment(); }
 
 ^[\t ]*"/*"[*!] { doxygen_comment(); }
 
@@ -113,7 +111,7 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
       skip_ahead_until("@end");
     }
 
-"//"[/!]"<".* { doxygen_cpp_trailing(); }
+"//"[/!]"<".* { doxygen_cpp_comment(); }
 
 ^[\t ]*"//"[/!].* { doxygen_cpp_comment(); }
 ^[\t ]*"//@{".* { doxygen_group_start(); }
@@ -1084,18 +1082,23 @@ int skip_ahead_until(const char *text)
 
 
 /*
- * Called for / + ** and / + *! doxygen comments (handles entire comment)
+ * Called for doxygen C-style comments
  */
 void doxygen_comment()
 {
   char linetext[256];
   int savelineno = yylineno;
   int asterisk, isfirstline = 1;
+  int type = DoxygenComment;
   size_t l = 0, i = 0, base = yyleng;
   int c1 = 0, c2 = input();
   for (l = 0; l < yyleng; l++)
     {
     linetext[l] = yytext[l];
+    }
+  if (l > 0 && yytext[l-1] == '<')
+    {
+    type = TrailingComment;
     }
   for (;;)
     {
@@ -1152,13 +1155,17 @@ void doxygen_comment()
         {
         i = base;
         l -= base;
-        addCommentLine(&linetext[i], l, DoxygenComment);
+        addCommentLine(&linetext[i], l, type);
         }
-      else if (!isfirstline && (c1 != '*' || c2 != '/'))
+      else if (c1 != '*' || c2 != '/')
         {
-        addCommentLine("", 0, DoxygenComment);
+        addCommentLine("", 0, type);
         }
-      isfirstline = 0;
+      if (isfirstline)
+        {
+        isfirstline = 0;
+        base = 256;
+        }
       l = 0;
       if (c1 == '*' && c2 == '/')
         {
@@ -1170,50 +1177,39 @@ void doxygen_comment()
 }
 
 /*
- * Called for / + **< and / + *!< doxygen trailing comments
- */
-void doxygen_trailing()
-{
-  /* add a comment to the previous entity */
-  skip_comment();
-}
-
-/*
  * Called for //! and /// doxygen comments (handles just one line)
  */
 void doxygen_cpp_comment()
 {
+  int type = DoxygenComment;
   size_t pos = 2;
   while (yytext[pos-2] != '/' || yytext[pos-1] != '/') pos++;
   while (pos < yyleng && yytext[pos-1] == '/' && yytext[pos] == '/') pos++;
   if (pos < yyleng && yytext[pos] == '!') pos++;
-  addCommentLine(&yytext[pos], yyleng - pos, DoxygenComment);
+  if (pos < yyleng && yytext[pos] == '<')
+    {
+    pos++;
+    type = TrailingComment;
+    }
+  addCommentLine(&yytext[pos], yyleng - pos, type);
 }
 
 /*
- * Called for / + **< and / + *!< doxygen trailing comments
- */
-void doxygen_cpp_trailing()
-{
-  /* add a comment to the previous entity */
-}
-
-/*
- * Called for // + *{
+ * Called for //@{
  */
 void doxygen_group_start()
 {
   /* Set the "ingroup" marker */
-  setCommentGroup(1);
+  setCommentMemberGroup(1);
 }
 
 /*
- * Called for // + *}
+ * Called for //@}
  */
 void doxygen_group_end()
 {
   /* Clear the "ingroup" marker */
-  setCommentGroup(0);
+  setCommentMemberGroup(0);
 }
 
 /*
@@ -1235,7 +1231,8 @@ void vtk_name_comment()
     pos++;
     }
   pos++;
-  data->NameComment = vtkstrndup(&yytext[pos], yyleng - pos);
+  setCommentState(NameComment);
+  addCommentLine(&yytext[pos], yyleng - pos, NormalComment);
 }
 
 /*
@@ -1782,26 +1779,30 @@ void preprocessor_directive(const char *text, size_t l)
       exit(1);
       }
     }
-  else if (n == 6 && strncmp(directive, "define", n) == 0 &&
-           ep - cp > 4 && strncmp(cp, "VTK", 3) == 0)
+  else if (n == 6 && strncmp(directive, "define", n) == 0)
     {
-    /* macros that start with "VTK" */
-    MacroInfo *macro;
-
-    macro = vtkParsePreprocess_GetMacro(preprocessor, cp);
-    if (macro && macro->Definition && !macro->IsFunction)
+    closeComment();
+    if (ep - cp > 4 && strncmp(cp, "VTK", 3) == 0)
       {
-      /* if macro evaluates to a constant, add it as a constant */
-      macro->IsExcluded = 1;
-      if (guess_constant_type(macro->Definition) == 0)
+      /* macros that start with "VTK" */
+      MacroInfo *macro;
+
+      macro = vtkParsePreprocess_GetMacro(preprocessor, cp);
+      if (macro && macro->Definition && !macro->IsFunction)
         {
-        result = VTK_PARSE_MACRO_UNDEFINED;
-        }
-      macro->IsExcluded = 0;
-      if (result < VTK_PARSE_MACRO_UNDEFINED)
-        {
-        add_constant(
-          vtkstrdup(macro->Name), vtkstrdup(macro->Definition), 0, NULL, 1);
+        /* if macro evaluates to a constant, add it as a constant */
+        macro->IsExcluded = 1;
+        if (guess_constant_type(macro->Definition) == 0)
+          {
+          result = VTK_PARSE_MACRO_UNDEFINED;
+          }
+        macro->IsExcluded = 0;
+        if (result < VTK_PARSE_MACRO_UNDEFINED)
+          {
+          add_constant(
+            vtkstrdup(macro->Name), vtkstrdup(macro->Definition),
+            0, NULL, 1);
+          }
         }
       }
     }

@@ -384,11 +384,12 @@ enum comment_enum
   StickyComment = -1,
   NoComment = 0,
   NormalComment = 1,
-  DescriptionComment = 2,
-  SeeAlsoComment = 3,
-  CaveatsComment = 4,
-  DoxygenComment = 5,
-  UnwantedComment = 6
+  NameComment = 2,
+  DescriptionComment = 3,
+  SeeAlsoComment = 4,
+  CaveatsComment = 5,
+  DoxygenComment = 6,
+  TrailingComment = 7
 };
 
 /* "private" variables */
@@ -396,36 +397,50 @@ char          *commentText = NULL;
 size_t         commentLength = 0;
 size_t         commentAllocatedLength = 0;
 int            commentState = 0;
-int            commentGroup = 0;
+int            commentMemberGroup = 0;
+int            commentGroupDepth = 0;
+parse_dox_t    commentType = DOX_COMMAND_OTHER;
+const char    *commentTarget = NULL;
 
 /* Struct for recognizing certain doxygen commands */
 struct DoxygenCommandInfo
 {
   const char *name;
   size_t length;
-  int type;
+  parse_dox_t type;
 };
 
-/* List of doxygen commands (for now, just list ones to skip) */
+/* List of doxygen commands (@cond is not handled yet) */
 struct DoxygenCommandInfo doxygenCommands[] = {
-  { "def", 3, 0 },
-  { "defgroup", 8, 0 },
-  { "example", 7, 0 },
-  { "file", 4, 0 },
-  { "internal", 8, 0 },
-  { "mainpage", 8, 0 },
-  { "name", 4, 0 },
-  { "page", 4, 0 },
-  { "privatesection", 14, 0 },
-  { "protectedsection", 16, 0 },
-  { "publicsection", 13, 0 },
-  { "subpage", 7, 0 },
-  { "tableofcontents", 15, 0 },
-  { "section", 7, 0 },
-  { "subsection", 10, 0 },
-  { "subsubsection", 13, 0 },
-  { "paragraph", 9, 0 },
-  { NULL, 0, 0 }
+  { "def", 3, DOX_COMMAND_DEF },
+  { "category", 8, DOX_COMMAND_CATEGORY },
+  { "interface", 9, DOX_COMMAND_INTERFACE },
+  { "protocol", 8, DOX_COMMAND_PROTOCOL },
+  { "class", 5, DOX_COMMAND_CLASS },
+  { "enum", 4, DOX_COMMAND_ENUM },
+  { "struct", 6, DOX_COMMAND_STRUCT },
+  { "union", 5, DOX_COMMAND_UNION },
+  { "namespace", 9, DOX_COMMAND_NAMESPACE },
+  { "typedef", 7, DOX_COMMAND_TYPEDEF },
+  { "fn", 2, DOX_COMMAND_FN },
+  { "property", 8, DOX_COMMAND_PROPERTY },
+  { "var", 3, DOX_COMMAND_VAR },
+  { "name", 4, DOX_COMMAND_NAME },
+  { "defgroup", 8, DOX_COMMAND_DEFGROUP },
+  { "addtogroup", 10, DOX_COMMAND_ADDTOGROUP },
+  { "weakgroup", 9, DOX_COMMAND_WEAKGROUP },
+  { "example", 7, DOX_COMMAND_EXAMPLE },
+  { "file", 4, DOX_COMMAND_FILE },
+  { "dir", 3, DOX_COMMAND_DIR },
+  { "mainpage", 8, DOX_COMMAND_MAINPAGE },
+  { "page", 4, DOX_COMMAND_PAGE },
+  { "subpage", 7, DOX_COMMAND_SUBPAGE },
+  { "internal", 8, DOX_COMMAND_INTERNAL },
+  { "package", 7, DOX_COMMAND_PACKAGE },
+  { "privatesection", 14, DOX_COMMAND_PRIVATESECTION },
+  { "protectedsection", 16, DOX_COMMAND_PROTECTEDSECTION },
+  { "publicsection", 13, DOX_COMMAND_PUBLICSECTION },
+  { NULL, 0, DOX_COMMAND_OTHER }
 };
 
 void closeComment();
@@ -439,6 +454,7 @@ void clearComment()
     commentText[commentLength] = '\0';
     }
   commentState = 0;
+  commentType = DOX_COMMAND_OTHER;
 }
 
 /* This is called when entering or leaving a comment block */
@@ -494,7 +510,7 @@ const char *getComment()
 }
 
 /* Check for doxygen commands that mark unwanted comments */
-int checkDoxygenCommand(const char *text, size_t n)
+parse_dox_t checkDoxygenCommand(const char *text, size_t n)
 {
   struct DoxygenCommandInfo *info;
   for (info = doxygenCommands; info->name; info++)
@@ -504,13 +520,14 @@ int checkDoxygenCommand(const char *text, size_t n)
       return info->type;
       }
     }
-  return 1;
+  return DOX_COMMAND_OTHER;
 }
 
 /* This is called whenever a comment line is encountered */
 void addCommentLine(const char *line, size_t n, int type)
 {
   size_t i, j;
+  parse_dox_t t = DOX_COMMAND_OTHER;
 
   if (type == DoxygenComment || commentState == DoxygenComment)
     {
@@ -526,11 +543,38 @@ void addCommentLine(const char *line, size_t n, int type)
             {
             i++;
             }
-          if (checkDoxygenCommand(&line[j], i-j) == 0 ||
-              (line[i-1] == '@' && (line[i] == '{' || line[i] == '}')))
+          if (line[i-1] == '@' && (line[i] == '{' || line[i] == '}'))
             {
-            /* skip this comment block */
-            commentState = UnwantedComment;
+            if (line[i] == '{')
+              {
+              commentGroupDepth++;
+              }
+            else
+              {
+              --commentGroupDepth;
+              }
+            closeComment();
+            return;
+            }
+          else
+            {
+            /* record the type of this comment */
+            t = checkDoxygenCommand(&line[j], i-j);
+            if (t != DOX_COMMAND_OTHER)
+              {
+              while (i < n && line[i] == ' ')
+                {
+                i++;
+                }
+              j = i;
+              while (i < n && vtkParse_CharType(line[i], CPRE_XID))
+                {
+                i++;
+                }
+              commentTarget = vtkstrndup(&line[j], i-j);
+              /* remove this line from the comment */
+              n = 0;
+              }
             }
           }
         }
@@ -539,15 +583,25 @@ void addCommentLine(const char *line, size_t n, int type)
       {
       return;
       }
-    if (commentState != type && commentState != UnwantedComment)
+    if (commentState != type)
+      {
+      setCommentState(type);
+      }
+    if (t != DOX_COMMAND_OTHER)
+      {
+      commentType = t;
+      }
+    }
+  else if (type == TrailingComment)
+    {
+    if (commentState != type)
       {
       setCommentState(type);
       }
     }
   else if (commentState == 0 ||
            commentState == StickyComment ||
-           commentState == ClosedComment ||
-           commentState == UnwantedComment)
+           commentState == ClosedComment)
     {
     clearComment();
     return;
@@ -580,9 +634,88 @@ void addCommentLine(const char *line, size_t n, int type)
   commentText[commentLength] = '\0';
 }
 
+/* Store a doxygen comment */
+void storeComment()
+{
+  CommentInfo *info = (CommentInfo *)malloc(sizeof(CommentInfo));
+  vtkParse_InitComment(info);
+  info->Type = commentType;
+  info->Name = commentTarget;
+  info->Comment = vtkstrdup(getComment());
+
+  if (commentType >= DOX_COMMAND_DEFGROUP)
+    {
+    /* comment has no scope, it is global to the project */
+    vtkParse_AddCommentToNamespace(data->Contents, info);
+    }
+  else
+    {
+    /* comment is scoped to current namespace */
+    if (currentClass)
+      {
+      vtkParse_AddCommentToClass(currentClass, info);
+      }
+    else
+      {
+      vtkParse_AddCommentToNamespace(currentNamespace, info);
+      }
+    }
+}
+
+/* Apply a doxygen trailing comment to the previous item */
+void applyComment(ClassInfo *cls)
+{
+  int i;
+  ItemInfo *item;
+  const char *comment = vtkstrdup(getComment());
+
+  i = cls->NumberOfItems;
+  if (i > 0)
+    {
+    item = &cls->Items[--i];
+    if (item->Type == VTK_NAMESPACE_INFO)
+      {
+      cls->Namespaces[item->Index]->Comment = comment;
+      }
+    else if (item->Type == VTK_CLASS_INFO ||
+             item->Type == VTK_STRUCT_INFO ||
+             item->Type == VTK_UNION_INFO)
+      {
+      cls->Classes[item->Index]->Comment = comment;
+      }
+    else if (item->Type == VTK_ENUM_INFO)
+      {
+      cls->Enums[item->Index]->Comment = comment;
+      }
+    else if (item->Type == VTK_FUNCTION_INFO)
+      {
+      cls->Functions[item->Index]->Comment = comment;
+      }
+    else if (item->Type == VTK_VARIABLE_INFO)
+      {
+      cls->Variables[item->Index]->Comment = comment;
+      }
+    else if (item->Type == VTK_CONSTANT_INFO)
+      {
+      cls->Constants[item->Index]->Comment = comment;
+      }
+    else if (item->Type == VTK_TYPEDEF_INFO)
+      {
+      cls->Typedefs[item->Index]->Comment = comment;
+      }
+    else if (item->Type == VTK_USING_INFO)
+      {
+      cls->Usings[item->Index]->Comment = comment;
+      }
+    }
+}
+
 /* This is called when a comment block ends */
 void closeComment()
 {
+  const char *cp;
+  size_t l;
+
   switch (commentState)
     {
     case ClosedComment:
@@ -591,6 +724,18 @@ void closeComment()
     case NormalComment:
       /* Make comment persist until a new comment starts */
       commentState = StickyComment;
+      break;
+    case NameComment:
+      /* For NameComment, strip the comment */
+      cp = getComment();
+      l = strlen(cp);
+      while (l > 0 &&
+             (cp[l-1] == '\n' || cp[l-1] == '\r' || cp[l-1] == ' '))
+        {
+        l--;
+        }
+      data->NameComment = vtkstrndup(cp, l);
+      clearComment();
       break;
     case DescriptionComment:
       data->Description = vtkstrdup(getComment());
@@ -605,10 +750,27 @@ void closeComment()
       clearComment();
       break;
     case DoxygenComment:
-      /* Comment can only be used once */
-      commentState = (commentGroup ? StickyComment : ClosedComment);
+      if (commentType == DOX_COMMAND_OTHER)
+        {
+        /* Apply only to next item unless within a member group */
+        commentState = (commentMemberGroup ? StickyComment : ClosedComment);
+        }
+      else
+        {
+        /* Comment might not apply to next item, so store it */
+        storeComment();
+        clearComment();
+        }
       break;
-    case UnwantedComment:
+    case TrailingComment:
+      if (currentClass)
+        {
+        applyComment(currentClass);
+        }
+      else
+        {
+        applyComment(currentNamespace);
+        }
       clearComment();
       break;
     }
@@ -617,26 +779,148 @@ void closeComment()
 /* This is called when a blank line occurs in the header file */
 void commentBreak()
 {
-  if (!commentGroup && commentState == StickyComment)
+  if (!commentMemberGroup && commentState == StickyComment)
     {
     clearComment();
     }
-  else if (commentState == UnwantedComment)
+  else if (commentState == DoxygenComment)
     {
-    clearComment();
+    /* blank lines only end targeted doxygen comments */
+    if (commentType != DOX_COMMAND_OTHER)
+      {
+      closeComment();
+      }
     }
-  else if (commentState != DoxygenComment)
+  else
     {
-    /* blank lines end of VTK comments, buy not doxygen comments */
+    /* blank lines end VTK comments */
     closeComment();
     }
 }
 
 /* This is called when doxygen @{ or @} are encountered */
-void setCommentGroup(int g)
+void setCommentMemberGroup(int g)
 {
-  commentGroup = g;
+  commentMemberGroup = g;
   clearComment();
+}
+
+/* Assign comments to the items that they apply to */
+void assignComments(ClassInfo *cls)
+{
+  int i, j;
+  int t;
+  const char *name;
+  const char *comment;
+
+  for (i = 0; i < cls->NumberOfComments; i++)
+    {
+    t = cls->Comments[i]->Type;
+    name = cls->Comments[i]->Name;
+    comment = cls->Comments[i]->Comment;
+    /* find the item the comment applies to */
+    if (t == DOX_COMMAND_CLASS ||
+        t == DOX_COMMAND_STRUCT ||
+        t == DOX_COMMAND_UNION)
+      {
+      for (j = 0; j < cls->NumberOfClasses; j++)
+        {
+        if (cls->Classes[j]->Name && name &&
+            strcmp(cls->Classes[j]->Name, name) == 0)
+          {
+          cls->Classes[j]->Comment = comment;
+          break;
+          }
+        }
+      }
+    else if (t == DOX_COMMAND_ENUM)
+      {
+      for (j = 0; j < cls->NumberOfEnums; j++)
+        {
+        if (cls->Enums[j]->Name && name &&
+            strcmp(cls->Enums[j]->Name, name) == 0)
+          {
+          cls->Enums[j]->Comment = comment;
+          break;
+          }
+        }
+      }
+    else if (t == DOX_COMMAND_TYPEDEF)
+      {
+      for (j = 0; j < cls->NumberOfTypedefs; j++)
+        {
+        if (cls->Typedefs[j]->Name && name &&
+            strcmp(cls->Typedefs[j]->Name, name) == 0)
+          {
+          cls->Typedefs[j]->Comment = comment;
+          break;
+          }
+        }
+      }
+    else if (t == DOX_COMMAND_FN)
+      {
+      for (j = 0; j < cls->NumberOfFunctions; j++)
+        {
+        if (cls->Functions[j]->Name && name &&
+            strcmp(cls->Functions[j]->Name, name) == 0)
+          {
+          cls->Functions[j]->Comment = comment;
+          break;
+          }
+        }
+      }
+    else if (t == DOX_COMMAND_VAR)
+      {
+      for (j = 0; j < cls->NumberOfVariables; j++)
+        {
+        if (cls->Variables[j]->Name && name &&
+            strcmp(cls->Variables[j]->Name, name) == 0)
+          {
+          cls->Variables[j]->Comment = comment;
+          break;
+          }
+        }
+      for (j = 0; j < cls->NumberOfConstants; j++)
+        {
+        if (cls->Constants[j]->Name && name &&
+            strcmp(cls->Constants[j]->Name, name) == 0)
+          {
+          cls->Constants[j]->Comment = comment;
+          break;
+          }
+        }
+      }
+    else if (t == DOX_COMMAND_NAMESPACE)
+      {
+      for (j = 0; j < cls->NumberOfNamespaces; j++)
+        {
+        if (cls->Namespaces[j]->Name && name &&
+            strcmp(cls->Namespaces[j]->Name, name) == 0)
+          {
+          cls->Namespaces[j]->Comment = comment;
+          break;
+          }
+        }
+      }
+    }
+
+  /* recurse into child classes */
+  for (i = 0; i < cls->NumberOfClasses; i++)
+    {
+    if (cls->Classes[i])
+      {
+      assignComments(cls->Classes[i]);
+      }
+    }
+
+  /* recurse into child namespaces */
+  for (i = 0; i < cls->NumberOfNamespaces; i++)
+    {
+    if (cls->Namespaces[i])
+      {
+      assignComments(cls->Namespaces[i]);
+      }
+    }
 }
 
 /*----------------------------------------------------------------
@@ -1899,8 +2183,8 @@ enumerator_list:
   | enumerator_list ',' enumerator_definition
 
 enumerator_definition:
-  | simple_id { add_enum($<str>1, NULL); }
-  | simple_id '=' { postSig("="); markSig(); }
+  | simple_id { closeComment(); add_enum($<str>1, NULL); }
+  | simple_id '=' { postSig("="); markSig(); closeComment(); }
     constant_expression { chopSig(); add_enum($<str>1, copySig()); }
 
 /*
@@ -1984,6 +2268,7 @@ typedef_declarator_id:
       if (getVarName())
         {
         item->Name = getVarName();
+        item->Comment = vtkstrdup(getComment());
         }
 
       if (item->Class == NULL)
@@ -2035,6 +2320,7 @@ alias_declaration:
       handle_complex_type(item, getType(), $<integer>6, copySig());
 
       item->Name = $<str>2;
+      item->Comment = vtkstrdup(getComment());
 
       if (currentTemplate)
         {
@@ -2402,6 +2688,7 @@ init_declarator_id:
         }
 
       var->Name = getVarName();
+      var->Comment = vtkstrdup(getComment());
 
       if (getVarValue())
         {
@@ -3728,6 +4015,7 @@ void start_enum(const char *name, int is_scoped,
     item = (EnumInfo *)malloc(sizeof(EnumInfo));
     vtkParse_InitEnum(item);
     item->Name = name;
+    item->Comment = vtkstrdup(getComment());
     item->Access = access_level;
 
     if (currentClass)
@@ -3999,6 +4287,7 @@ void add_constant(const char *name, const char *value,
   vtkParse_InitValue(con);
   con->ItemType = VTK_CONSTANT_INFO;
   con->Name = name;
+  con->Comment = vtkstrdup(getComment());
   con->Value = value;
   con->Type = type;
   con->Class = type_class(type, typeclass);
@@ -4826,6 +5115,9 @@ FileInfo *vtkParse_ParseFile(
       }
     }
   free(main_class);
+
+  /* assign doxygen comments to their targets */
+  assignComments(data->Contents);
 
   vtkParsePreprocess_Free(preprocessor);
   preprocessor = NULL;
