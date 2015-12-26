@@ -231,6 +231,9 @@ public:
   void SetArray(vtkStdString* array, vtkIdType size, int save);
   virtual void SetVoidArray(void* array, vtkIdType size, int save)
     { this->SetArray(static_cast<vtkStdString*>(array), size, save); }
+  virtual void SetVoidArray(void* array, vtkIdType size, int save,
+                            int vtkNotUsed(deleteMethod))
+    { this->SetArray(static_cast<vtkStdString*>(array), size, save); }
 //ETX
 
   // Description:

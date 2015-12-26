@@ -64,6 +64,7 @@ public:
   virtual void Squeeze();
   virtual int Resize(vtkIdType numTuples);
   virtual void SetVoidArray(void *array, vtkIdType size, int save);
+  virtual void SetVoidArray(void *array, vtkIdType size, int save, int deleteMethod);
   virtual unsigned long GetActualMemorySize(); // in bytes
   virtual int IsNumeric();
   virtual vtkArrayIterator* NewIterator();
@@ -100,4 +101,3 @@ private:
 };
 
 #endif
-
