@@ -224,6 +224,7 @@ SET(Module_SRCS
   vtkSortDataArray.cxx
   vtkStdString.cxx
   vtkStringArray.cxx
+  vtkStringOutputWindow.cxx
   vtkTimePointUtility.cxx
   vtkTimeStamp.cxx
   vtkTypedDataArray.txx

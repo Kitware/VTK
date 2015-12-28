@@ -38,10 +38,12 @@ typedef ptrdiff_t GLsizeiptr;
 
 #include "vtkCommand.h"
 #include "vtkIdList.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkRendererCollection.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkStringOutputWindow.h"
 
 #include "vtksys/SystemTools.hxx"
 
@@ -1654,6 +1656,11 @@ int vtkXOpenGLRenderWindow::SupportsOpenGL()
     return this->OpenGLSupportResult;
     }
 
+  vtkOutputWindow *oldOW = vtkOutputWindow::GetInstance();
+  oldOW->Register(this);
+  vtkNew<vtkStringOutputWindow> sow;
+  vtkOutputWindow::SetInstance(sow.Get());
+
   vtkXOpenGLRenderWindow *rw = vtkXOpenGLRenderWindow::New();
   rw->SetDisplayId(this->DisplayId);
   rw->SetOffScreenRendering(1);
@@ -1703,6 +1710,12 @@ int vtkXOpenGLRenderWindow::SupportsOpenGL()
     }
 
   rw->Delete();
+
+  this->OpenGLSupportMessage +=
+    "vtkOutputWindow Text Folows:\n\n" +
+    sow->GetOutput();
+  vtkOutputWindow::SetInstance(oldOW);
+  oldOW->Delete();
 
   this->OpenGLSupportTested = true;
 
