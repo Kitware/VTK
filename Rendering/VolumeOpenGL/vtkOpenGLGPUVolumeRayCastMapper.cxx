@@ -368,10 +368,8 @@ public:
         {
         this->Loaded=false;
         const int tableSize = this->ComputeTableSize(scalarOpacity);
-        if(this->Table==0)
-          {
-          this->Table= new float[tableSize];
-          }
+        delete[] this->Table;
+        this->Table = new float[tableSize];
 
         scalarOpacity->GetTable(range[0],range[1],tableSize,this->Table);
 
@@ -524,11 +522,8 @@ public:
         {
         this->Loaded=false;
         const int tableSize = this->ComputeTableSize(scalarRGB);
-
-        if(this->Table==0)
-          {
-          this->Table = new float[tableSize*3];
-          }
+        delete[] this->Table;
+        this->Table = new float[tableSize * 3];
 
         scalarRGB->GetTable(range[0],range[1],
                             tableSize,
