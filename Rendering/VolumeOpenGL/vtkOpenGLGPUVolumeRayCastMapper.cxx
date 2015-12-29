@@ -310,17 +310,9 @@ private:
 
   int ComputeTableSize(int functionSize)
     {
-    unsigned int v = std::max(functionSize,
-                              vtkOpenGLGPUVolumeRayCastMapperOpacityTableSize);
-    // Compute the next highest power of 2 of 32-bit v
-    // http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
-    --v;
-    v |= v >> 1;
-    v |= v >> 2;
-    v |= v >> 4;
-    v |= v >> 8;
-    v |= v >> 16;
-    return static_cast<int>(++v);
+    functionSize = std::max(functionSize,
+                            vtkOpenGLGPUVolumeRayCastMapperOpacityTableSize);
+    return vtkMath::NearestPowerOfTwo(functionSize);
     }
 };
 
