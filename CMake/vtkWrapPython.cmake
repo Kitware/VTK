@@ -12,7 +12,7 @@ macro(VTK_WRAP_PYTHON3 TARGET SRC_LIST_NAME SOURCES)
       set(VTK_WRAP_PYTHON_INIT_EXE vtkWrapPythonInit)
     else()
       message(SEND_ERROR
-        "VTK_WRAP_PYTHON_INIT_EXE not specified when calling VTK_WRAP_PYTHON3")
+        "VTK_WRAP_PYTHON_INIT_EXE not specified when calling vtk_wrap_python")
     endif()
   endif()
   if(NOT VTK_WRAP_PYTHON_EXE)
@@ -20,7 +20,7 @@ macro(VTK_WRAP_PYTHON3 TARGET SRC_LIST_NAME SOURCES)
       set(VTK_WRAP_PYTHON_EXE vtkWrapPython)
     else()
       message(SEND_ERROR
-        "VTK_WRAP_PYTHON_EXE not specified when calling VTK_WRAP_PYTHON3")
+        "VTK_WRAP_PYTHON_EXE not specified when calling vtk_wrap_python")
     endif()
   endif()
 
@@ -56,10 +56,16 @@ $<$<BOOL:$<TARGET_PROPERTY:${TARGET},INCLUDE_DIRECTORIES>>:
 ")
   else()
     # all the include directories
-    if(VTK_WRAP_INCLUDE_DIRS)
+    string(REGEX REPLACE "Python\$" "" module "${TARGET}")
+    if(${module}_INCLUDE_DIRS)
+      set(TMP_INCLUDE_DIRS ${${module}_INCLUDE_DIRS})
+    elseif(VTK_WRAP_INCLUDE_DIRS)
       set(TMP_INCLUDE_DIRS ${VTK_WRAP_INCLUDE_DIRS})
     else()
       set(TMP_INCLUDE_DIRS ${VTK_INCLUDE_DIRS})
+    endif()
+    if(EXTRA_PYTHON_INCLUDE_DIRS)
+      list(APPEND TMP_INCLUDE_DIRS ${EXTRA_PYTHON_INCLUDE_DIRS})
     endif()
     foreach(INCLUDE_DIR ${TMP_INCLUDE_DIRS})
       set(_common_args "${_common_args}-I\"${INCLUDE_DIR}\"\n")
@@ -101,8 +107,7 @@ $<$<BOOL:$<TARGET_PROPERTY:${TARGET},INCLUDE_DIRECTORIES>>:
         "${VTK_WRAPPER_INIT_DATA}\n${TMP_FILENAME}")
 
       # new source file is namePython.cxx, add to resulting list
-      set(${SRC_LIST_NAME} ${${SRC_LIST_NAME}}
-        ${TMP_FILENAME}Python.cxx)
+      list(APPEND ${SRC_LIST_NAME} ${TMP_FILENAME}Python.cxx)
 
       # add custom command to output
       add_custom_command(
@@ -134,6 +139,8 @@ $<$<BOOL:$<TARGET_PROPERTY:${TARGET},INCLUDE_DIRECTORIES>>:
           set(VTK_WRAP_PYTHON_CUSTOM_COUNT)
         endif()
       endif()
+    else()
+      # message("${TMP_FILENAME} will not be wrapped.")
     endif()
   endforeach()
 
@@ -215,66 +222,8 @@ endmacro()
 
 # Macro that just takes the name of the module, figure the rest out from there.
 macro(vtk_wrap_python TARGET SRC_LIST_NAME module)
-  if(NOT VTK_WRAP_PYTHON_INIT_EXE)
-    if(TARGET vtkWrapPythonInit)
-      set(VTK_WRAP_PYTHON_INIT_EXE vtkWrapPythonInit)
-    else()
-      message(SEND_ERROR
-        "VTK_WRAP_PYTHON_INIT_EXE not specified when calling VTK_WRAP_PYTHON3")
-    endif()
-  endif()
-  if(NOT VTK_WRAP_PYTHON_EXE)
-    if(TARGET vtkWrapPython)
-      set(VTK_WRAP_PYTHON_EXE vtkWrapPython)
-    else()
-      message(SEND_ERROR
-        "VTK_WRAP_PYTHON_EXE not specified when calling vtk_wrap_python")
-    endif()
-  endif()
-
-  # Initialize the custom target counter.
-  if(VTK_WRAP_PYTHON_NEED_CUSTOM_TARGETS)
-    set(VTK_WRAP_PYTHON_CUSTOM_COUNT "")
-    set(VTK_WRAP_PYTHON_CUSTOM_NAME ${TARGET})
-    set(VTK_WRAP_PYTHON_CUSTOM_LIST)
-  endif()
-
-  # start writing the input file for the init file
-  set(VTK_WRAPPER_INIT_DATA "${TARGET}")
-
-  # all the include directories
-  if(${module}_INCLUDE_DIRS)
-    set(TMP_INCLUDE_DIRS ${${module}_INCLUDE_DIRS})
-  elseif(VTK_WRAP_INCLUDE_DIRS)
-    set(TMP_INCLUDE_DIRS ${VTK_WRAP_INCLUDE_DIRS})
-  else()
-    set(TMP_INCLUDE_DIRS ${VTK_INCLUDE_DIRS})
-  endif()
-  if(EXTRA_PYTHON_INCLUDE_DIRS)
-    list(APPEND TMP_INCLUDE_DIRS ${EXTRA_PYTHON_INCLUDE_DIRS})
-  endif()
-
-  # collect the common wrapper-tool arguments
-  set(_common_args)
-  get_directory_property(_def_list DEFINITION COMPILE_DEFINITIONS)
-  foreach(TMP_DEF ${_def_list})
-    set(_common_args "${_common_args}-D${TMP_DEF}\n")
-  endforeach()
-  foreach(INCLUDE_DIR ${TMP_INCLUDE_DIRS})
-    set(_common_args "${_common_args}-I\"${INCLUDE_DIR}\"\n")
-  endforeach()
-  if(VTK_WRAP_HINTS)
-    set(_common_args "${_common_args}--hints \"${VTK_WRAP_HINTS}\"\n")
-  endif()
-  if(KIT_HIERARCHY_FILE)
-    set(_common_args "${_common_args}--types \"${KIT_HIERARCHY_FILE}\"\n")
-  endif()
-
-  # write wrapper-tool arguments to a file
-  string(STRIP "${_common_args}" CMAKE_CONFIGURABLE_FILE_CONTENT)
-  set(_args_file ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.args)
-  configure_file(${CMAKE_ROOT}/Modules/CMakeConfigurableFile.in
-                 ${_args_file} @ONLY)
+  # List of all headers to wrap.
+  set(headers_to_wrap)
 
   # Decide what to do for each header.
   foreach(header ${${module}_HEADERS})
@@ -287,69 +236,11 @@ macro(vtk_wrap_python TARGET SRC_LIST_NAME module)
         message(FATAL_ERROR "Could not find ${header}.h for Python wrapping!")
       endif()
 
-      # add the info to the init file
-      set(VTK_WRAPPER_INIT_DATA
-        "${VTK_WRAPPER_INIT_DATA}\n${header}")
-
-      # new source file is namePython.cxx, add to resulting list
-      set(${SRC_LIST_NAME} ${${SRC_LIST_NAME}} ${header}Python.cxx)
-
-      # add custom command to output
-      add_custom_command(
-        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${header}Python.cxx
-        DEPENDS ${VTK_WRAP_PYTHON_EXE}
-                ${VTK_WRAP_HINTS}
-                ${class_header_path}
-                ${_args_file}
-                ${KIT_HIERARCHY_FILE}
-        COMMAND ${VTK_WRAP_PYTHON_EXE}
-                @${_args_file}
-                -o ${CMAKE_CURRENT_BINARY_DIR}/${header}Python.cxx
-                ${class_header_path}
-        COMMENT "Python Wrapping - generating ${header}Python.cxx"
-        VERBATIM
-        )
-
-      # Add this output to a custom target if needed.
-      if(VTK_WRAP_PYTHON_NEED_CUSTOM_TARGETS)
-        set(VTK_WRAP_PYTHON_CUSTOM_LIST ${VTK_WRAP_PYTHON_CUSTOM_LIST}
-          ${CMAKE_CURRENT_BINARY_DIR}/${header}Python.cxx)
-        set(VTK_WRAP_PYTHON_CUSTOM_COUNT ${VTK_WRAP_PYTHON_CUSTOM_COUNT}x)
-        if(VTK_WRAP_PYTHON_CUSTOM_COUNT MATCHES "^${VTK_WRAP_PYTHON_CUSTOM_LIMIT}$")
-          set(VTK_WRAP_PYTHON_CUSTOM_NAME ${VTK_WRAP_PYTHON_CUSTOM_NAME}Hack)
-          add_custom_target(${VTK_WRAP_PYTHON_CUSTOM_NAME}
-            DEPENDS ${VTK_WRAP_PYTHON_CUSTOM_LIST})
-          set(KIT_PYTHON_DEPS ${VTK_WRAP_PYTHON_CUSTOM_NAME})
-          set(VTK_WRAP_PYTHON_CUSTOM_LIST)
-          set(VTK_WRAP_PYTHON_CUSTOM_COUNT)
-        endif()
-      endif()
-    else()
-      # message("${header} will not be wrapped.")
+      # The new list of headers has the full path to each file.
+      list(APPEND headers_to_wrap ${class_header_path})
     endif()
   endforeach()
 
-  # finish the data file for the init file
-  configure_file(
-    ${VTK_CMAKE_DIR}/vtkWrapperInit.data.in
-    ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data
-    @ONLY
-    )
-
-  add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.cxx
-           ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}InitImpl.cxx
-    DEPENDS ${VTK_WRAP_PYTHON_INIT_EXE}
-            ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data
-    COMMAND ${VTK_WRAP_PYTHON_INIT_EXE}
-            ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data
-            ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.cxx
-            ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}InitImpl.cxx
-    COMMENT "Python Wrapping - generating ${TARGET}Init.cxx"
-    VERBATIM
-    )
-
-  # Create the Init File
-  set(${SRC_LIST_NAME} ${${SRC_LIST_NAME}} ${TARGET}InitImpl.cxx)
-
+  # Delegate to vtk_wrap_python3
+  vtk_wrap_python3(${TARGET} ${SRC_LIST_NAME} "${headers_to_wrap}")
 endmacro()
