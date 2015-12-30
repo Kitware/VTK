@@ -17,6 +17,7 @@ set (GenericVolumeCxxTests
   TestGPURayCastFourComponentsMinIP.cxx
   TestGPURayCastFourComponentsMIP.cxx
   TestGPURayCastMapperBenchmark.cxx
+  TestGPURayCastMapperLargeColorTransferFunction.cxx
   TestGPURayCastMapperSampleDistance.cxx
   TestGPURayCastMIPBinaryMask.cxx
   TestGPURayCastMIPToComposite.cxx
