@@ -1970,15 +1970,6 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
   if (selector && this->PopulateSelectionSettings)
     {
     selector->BeginRenderProp();
-    // render points for point picking in a special way
-    if (selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS &&
-        selector->GetCurrentPass() >= vtkHardwareSelector::ID_LOW24)
-      {
-#if GL_ES_VERSION_2_0 != 1
-      glPointSize(4.0); //make verts large enough to be sure to overlap cell
-#endif
-      glDepthMask(GL_FALSE); //prevent verts from interfering with each other
-      }
     if (selector->GetCurrentPass() == vtkHardwareSelector::COMPOSITE_INDEX_PASS)
       {
       selector->RenderCompositeIndex(1);
@@ -2021,9 +2012,31 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
 {
+  int representation = actor->GetProperty()->GetRepresentation();
+
+  // render points for point picking in a special way
+  // all cell types should be rendered as points
+  vtkHardwareSelector* selector = ren->GetSelector();
+  bool pointPicking = false;
+  if (selector && this->PopulateSelectionSettings &&
+      selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS &&
+      selector->GetCurrentPass() >= vtkHardwareSelector::ID_LOW24)
+    {
+    representation = VTK_POINTS;
+    pointPicking = true;
+    }
+
   // draw points
   if (this->Points.IBO->IndexCount)
     {
+    // render points for point picking in a special way
+    if (pointPicking)
+      {
+#if GL_ES_VERSION_2_0 != 1
+      glPointSize(2.0);
+#endif
+      }
+
     // Update/build/etc the shader.
     this->UpdateShaders(this->Points, ren, actor);
     this->Points.IBO->Bind();
@@ -2034,18 +2047,6 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
                         reinterpret_cast<const GLvoid *>(NULL));
     this->Points.IBO->Release();
     this->PrimitiveIDOffset += (int)this->Points.IBO->IndexCount;
-    }
-
-  int representation = actor->GetProperty()->GetRepresentation();
-
-  // render points for point picking in a special way
-  // all cell types should be rendered as points
-  vtkHardwareSelector* selector = ren->GetSelector();
-  if (selector && this->PopulateSelectionSettings &&
-      selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS &&
-      selector->GetCurrentPass() >= vtkHardwareSelector::ID_LOW24)
-    {
-    representation = VTK_POINTS;
     }
 
   // draw lines
@@ -2059,6 +2060,12 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
     this->Lines.IBO->Bind();
     if (representation == VTK_POINTS)
       {
+      if (pointPicking)
+        {
+  #if GL_ES_VERSION_2_0 != 1
+        glPointSize(4.0);
+  #endif
+        }
       glDrawRangeElements(GL_POINTS, 0,
                           static_cast<GLuint>(this->VBO->VertexCount - 1),
                           static_cast<GLsizei>(this->Lines.IBO->IndexCount),
@@ -2089,6 +2096,12 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
     this->Tris.IBO->Bind();
     GLenum mode = (representation == VTK_POINTS) ? GL_POINTS :
       (representation == VTK_WIREFRAME) ? GL_LINES : GL_TRIANGLES;
+    if (pointPicking)
+      {
+#if GL_ES_VERSION_2_0 != 1
+      glPointSize(6.0);
+#endif
+      }
     glDrawRangeElements(mode, 0,
                       static_cast<GLuint>(this->VBO->VertexCount - 1),
                       static_cast<GLsizei>(this->Tris.IBO->IndexCount),
@@ -2106,6 +2119,12 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
     this->TriStrips.IBO->Bind();
     if (representation == VTK_POINTS)
       {
+      if (pointPicking)
+        {
+  #if GL_ES_VERSION_2_0 != 1
+        glPointSize(6.0);
+  #endif
+        }
       glDrawRangeElements(GL_POINTS, 0,
                           static_cast<GLuint>(this->VBO->VertexCount - 1),
                           static_cast<GLsizei>(this->TriStrips.IBO->IndexCount),
