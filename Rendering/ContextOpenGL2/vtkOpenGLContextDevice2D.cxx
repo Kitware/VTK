@@ -54,6 +54,74 @@
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
+namespace
+{
+  void copyColors(std::vector<unsigned char> &newColors,
+    unsigned char *colors, int nc)
+    {
+    for (int j = 0; j < nc; j++)
+      {
+      newColors.push_back(colors[j]);
+      }
+    }
+
+  const char *myVertShader =
+    "attribute vec2 vertexMC;\n"
+    "uniform mat4 WCDCMatrix;\n"
+    "uniform mat4 MCWCMatrix;\n"
+    "#ifdef haveColors\n"
+    "attribute vec4 vertexScalar;\n"
+    "varying vec4 vertexColor;\n"
+    "#endif\n"
+    "#ifdef haveTCoords\n"
+    "attribute vec2 tcoordMC;\n"
+    "varying vec2 tcoord;\n"
+    "#endif\n"
+    "#ifdef haveLines\n"
+    "attribute vec2 tcoordMC;\n"
+    "varying float ldistance;\n"
+    "#endif\n"
+    "void main() {\n"
+    "#ifdef haveColors\n"
+    "vertexColor = vertexScalar;\n"
+    "#endif\n"
+    "#ifdef haveTCoords\n"
+    "tcoord = tcoordMC;\n"
+    "#endif\n"
+    "#ifdef haveLines\n"
+    "ldistance = tcoordMC.x;\n"
+    "#endif\n"
+    "vec4 vertex = vec4(vertexMC.xy, 0.0, 1.0);\n"
+    "gl_Position = vertex*MCWCMatrix*WCDCMatrix; }\n";
+
+  const char *myFragShader =
+    "//VTK::Output::Dec\n"
+    "#ifdef haveColors\n"
+    "varying vec4 vertexColor;\n"
+    "#else\n"
+    "uniform vec4 vertexColor;\n"
+    "#endif\n"
+    "#ifdef haveTCoords\n"
+    "varying vec2 tcoord;\n"
+    "uniform sampler2D texture1;\n"
+    "#endif\n"
+    "#ifdef haveLines\n"
+    "varying float ldistance;\n"
+    "uniform int stipple;\n"
+    "#endif\n"
+    "void main() {\n"
+    "#ifdef haveLines\n"
+    "if ((0x01 << int(mod(ldistance,16.0)) & stipple) == 0) { discard; }\n"
+    "#endif\n"
+    "#ifdef haveTCoords\n"
+    " gl_FragData[0] = texture2D(texture1, tcoord);\n"
+    "#else\n"
+    " gl_FragData[0] = vertexColor;\n"
+    "#endif\n"
+    "}\n";
+
+}
+
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLContextDevice2D)
@@ -71,9 +139,12 @@ vtkOpenGLContextDevice2D::vtkOpenGLContextDevice2D()
   this->ModelMatrix = vtkTransform::New();
   this->VBO =  new vtkOpenGLHelper;
   this->VCBO =  new vtkOpenGLHelper;
+  this->LinesBO =  new vtkOpenGLHelper;
+  this->LinesCBO =  new vtkOpenGLHelper;
   this->VTBO =  new vtkOpenGLHelper;
   this->SBO =  new vtkOpenGLHelper;
   this->SCBO =  new vtkOpenGLHelper;
+  this->LinePattern = 0xFFFF;
 }
 
 //-----------------------------------------------------------------------------
@@ -83,6 +154,10 @@ vtkOpenGLContextDevice2D::~vtkOpenGLContextDevice2D()
   this->VBO = 0;
   delete this->VCBO;
   this->VCBO = 0;
+  delete this->LinesBO;
+  this->LinesBO = 0;
+  delete this->LinesCBO;
+  this->LinesCBO = 0;
   delete this->SBO;
   this->SBO = 0;
   delete this->SCBO;
@@ -383,23 +458,13 @@ void vtkOpenGLContextDevice2D::ReadyVBOProgram()
 {
   if (!this->VBO->Program)
     {
+    std::string vs = "//VTK::System::Dec\n";
+    vs += myVertShader;
+    std::string fs = "//VTK::System::Dec\n";
+    fs +=myFragShader;
     this->VBO->Program  =
         this->RenderWindow->GetShaderCache()->ReadyShaderProgram(
-        // vertex shader
-        "//VTK::System::Dec\n"
-        "attribute vec2 vertexMC;\n"
-        "uniform mat4 WCDCMatrix;\n"
-        "uniform mat4 MCWCMatrix;\n"
-        "void main() {\n"
-        "vec4 vertex = vec4(vertexMC.xy, 0.0, 1.0);\n"
-        "gl_Position = vertex*MCWCMatrix*WCDCMatrix; }\n",
-        // fragment shader
-        "//VTK::System::Dec\n"
-        "//VTK::Output::Dec\n"
-        "uniform vec4 vertexColor;\n"
-        "void main() { gl_FragData[0] = vertexColor; }",
-        // geometry shader
-        "");
+        vs.c_str(), fs.c_str(),"");
     }
   else
     {
@@ -411,26 +476,13 @@ void vtkOpenGLContextDevice2D::ReadyVCBOProgram()
 {
   if (!this->VCBO->Program)
     {
+    std::string vs = "//VTK::System::Dec\n#define haveColors\n";
+    vs += myVertShader;
+    std::string fs = "//VTK::System::Dec\n#define haveColors\n";
+    fs +=myFragShader;
     this->VCBO->Program  =
         this->RenderWindow->GetShaderCache()->ReadyShaderProgram(
-        // vertex shader
-        "//VTK::System::Dec\n"
-        "attribute vec2 vertexMC;\n"
-        "attribute vec4 vertexScalar;\n"
-        "uniform mat4 WCDCMatrix;\n"
-        "uniform mat4 MCWCMatrix;\n"
-        "varying vec4 vertexColor;\n"
-        "void main() {\n"
-        "vec4 vertex = vec4(vertexMC.xy, 0.0, 1.0);\n"
-        "vertexColor = vertexScalar;\n"
-        "gl_Position = vertex*MCWCMatrix*WCDCMatrix; }\n",
-        // fragment shader
-        "//VTK::System::Dec\n"
-        "//VTK::Output::Dec\n"
-        "varying vec4 vertexColor;\n"
-        "void main() { gl_FragData[0] = vertexColor; }",
-        // geometry shader
-        "");
+        vs.c_str(), fs.c_str(),"");
     }
   else
     {
@@ -438,31 +490,56 @@ void vtkOpenGLContextDevice2D::ReadyVCBOProgram()
     }
 }
 
+void vtkOpenGLContextDevice2D::ReadyLinesBOProgram()
+{
+  if (!this->LinesBO->Program)
+    {
+    std::string vs = "//VTK::System::Dec\n#define haveLines\n";
+    vs += myVertShader;
+    std::string fs = "//VTK::System::Dec\n#define haveLines\n";
+    fs +=myFragShader;
+    this->LinesBO->Program  =
+        this->RenderWindow->GetShaderCache()->ReadyShaderProgram(
+        vs.c_str(), fs.c_str(),"");
+    }
+  else
+    {
+    this->RenderWindow->GetShaderCache()->ReadyShaderProgram(
+      this->LinesBO->Program);
+    }
+}
+
+void vtkOpenGLContextDevice2D::ReadyLinesCBOProgram()
+{
+  if (!this->LinesCBO->Program)
+    {
+    std::string vs =
+      "//VTK::System::Dec\n#define haveColors\n#define haveLines\n";
+    vs += myVertShader;
+    std::string fs =
+      "//VTK::System::Dec\n#define haveColors\n#define haveLines\n";
+    fs +=myFragShader;
+    this->LinesCBO->Program  =
+        this->RenderWindow->GetShaderCache()->ReadyShaderProgram(
+        vs.c_str(), fs.c_str(),"");
+    }
+  else
+    {
+    this->RenderWindow->GetShaderCache()->ReadyShaderProgram(this->LinesCBO->Program);
+    }
+}
+
 void vtkOpenGLContextDevice2D::ReadyVTBOProgram()
 {
   if (!this->VTBO->Program)
     {
+    std::string vs = "//VTK::System::Dec\n#define haveTCoords\n";
+    vs += myVertShader;
+    std::string fs = "//VTK::System::Dec\n#define haveTCoords\n";
+    fs +=myFragShader;
     this->VTBO->Program  =
         this->RenderWindow->GetShaderCache()->ReadyShaderProgram(
-        // vertex shader
-        "//VTK::System::Dec\n"
-        "attribute vec2 vertexMC;\n"
-        "attribute vec2 tcoordMC;\n"
-        "uniform mat4 WCDCMatrix;\n"
-        "uniform mat4 MCWCMatrix;\n"
-        "varying vec2 tcoord;\n"
-        "void main() {\n"
-        "vec4 vertex = vec4(vertexMC.xy, 0.0, 1.0);\n"
-        "tcoord = tcoordMC;\n"
-        "gl_Position = vertex*MCWCMatrix*WCDCMatrix; }\n",
-        // fragment shader
-        "//VTK::System::Dec\n"
-        "//VTK::Output::Dec\n"
-        "varying vec2 tcoord;\n"
-        "uniform sampler2D texture1;\n"
-        "void main() { gl_FragData[0] = texture2D(texture1, tcoord); }",
-        // geometry shader
-        "");
+        vs.c_str(), fs.c_str(),"");
     }
   else
     {
@@ -475,23 +552,23 @@ void vtkOpenGLContextDevice2D::ReadySBOProgram()
   if (!this->SBO->Program)
     {
     this->SBO->Program  =
-        this->RenderWindow->GetShaderCache()->ReadyShaderProgram(
-        // vertex shader
-        "//VTK::System::Dec\n"
-        "attribute vec2 vertexMC;\n"
-        "uniform mat4 WCDCMatrix;\n"
-        "uniform mat4 MCWCMatrix;\n"
-        "void main() {\n"
-        "vec4 vertex = vec4(vertexMC.xy, 0.0, 1.0);\n"
-        "gl_Position = vertex*MCWCMatrix*WCDCMatrix; }\n",
-        // fragment shader
-        "//VTK::System::Dec\n"
-        "//VTK::Output::Dec\n"
-        "uniform vec4 vertexColor;\n"
-        "uniform sampler2D texture1;\n"
-        "void main() { gl_FragData[0] = vertexColor*texture2D(texture1, gl_PointCoord); }",
-        // geometry shader
-        "");
+      this->RenderWindow->GetShaderCache()->ReadyShaderProgram(
+      // vertex shader
+      "//VTK::System::Dec\n"
+      "attribute vec2 vertexMC;\n"
+      "uniform mat4 WCDCMatrix;\n"
+      "uniform mat4 MCWCMatrix;\n"
+      "void main() {\n"
+      "vec4 vertex = vec4(vertexMC.xy, 0.0, 1.0);\n"
+      "gl_Position = vertex*MCWCMatrix*WCDCMatrix; }\n",
+      // fragment shader
+      "//VTK::System::Dec\n"
+      "//VTK::Output::Dec\n"
+      "uniform vec4 vertexColor;\n"
+      "uniform sampler2D texture1;\n"
+      "void main() { gl_FragData[0] = vertexColor*texture2D(texture1, gl_PointCoord); }",
+      // geometry shader
+      "");
     }
   else
     {
@@ -531,18 +608,6 @@ void vtkOpenGLContextDevice2D::ReadySCBOProgram()
     }
 }
 
-namespace
-{
-  void copyColors(std::vector<unsigned char> &newColors,
-    unsigned char *colors, int nc)
-    {
-    for (int j = 0; j < nc; j++)
-      {
-      newColors.push_back(colors[j]);
-      }
-    }
-}
-
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n, unsigned char *colors,
                                         int nc)
@@ -561,27 +626,45 @@ void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n, unsigned char *colors,
   vtkOpenGLHelper *cbo = 0;
   if (colors)
     {
-    this->ReadyVCBOProgram();
-    cbo = this->VCBO;
+    this->ReadyLinesCBOProgram();
+    cbo = this->LinesCBO;
     }
   else
     {
-    this->ReadyVBOProgram();
-    cbo = this->VBO;
+    this->ReadyLinesBOProgram();
+    cbo = this->LinesBO;
     cbo->Program->SetUniform4uc("vertexColor",
       this->Pen->GetColor());
     }
+  cbo->Program->SetUniformi("stipple",this->LinePattern);
 
   this->SetMatrices(cbo->Program);
 
+  // for line stipple we need to compute the scaled
+  // cumulative linear distance
+  double *scale = this->ModelMatrix->GetScale();
+  std::vector<float> distances;
+  distances.resize(n*2);
+  float totDist = 0.0;
+  distances[0] = 0.0;
+  for (int i = 1; i < n; i++)
+    {
+    float xDel = scale[0]*(f[i*2] - f[i*2-2]);
+    float yDel = scale[1]*(f[i*2+1] - f[i*2-1]);
+    totDist += sqrt(xDel*xDel + yDel*yDel);
+    distances[i*2] = totDist;
+    }
+
+
   if (this->Pen->GetWidth() > 1.0)
     {
-    double *scale = this->ModelMatrix->GetScale();
     // convert to triangles and draw, this is because
     // OpenGL no longer supports wide lines directly
     float hwidth = this->Pen->GetWidth()/2.0;
     std::vector<float> newVerts;
     std::vector<unsigned char> newColors;
+    std::vector<float> newDistances;
+    newDistances.resize((n-1)*12);
     for (int i = 0; i < n-1; i++)
       {
       // for each line segment draw two triangles
@@ -616,16 +699,23 @@ void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n, unsigned char *colors,
         copyColors(newColors, colors+(i+1)*nc, nc);
         copyColors(newColors, colors+(i+1)*nc, nc);
         }
+
+      newDistances[i*12] = distances[i*2];
+      newDistances[i*12+2] = distances[i*2];
+      newDistances[i*12+4] = distances[i*2+2];
+      newDistances[i*12+6] = distances[i*2];
+      newDistances[i*12+8] = distances[i*2+2];
+      newDistances[i*12+10] = distances[i*2+2];
       }
 
     this->BuildVBO(cbo, &(newVerts[0]), newVerts.size()/2,
-      colors ? &(newColors[0]) : NULL, nc, NULL);
+      colors ? &(newColors[0]) : NULL, nc, &(newDistances[0]));
     glDrawArrays(GL_TRIANGLES, 0, newVerts.size()/2);
     }
   else
     {
     this->SetLineWidth(this->Pen->GetWidth());
-    this->BuildVBO(cbo, f, n, colors, nc, NULL);
+    this->BuildVBO(cbo, f, n, colors, nc, &(distances[0]));
     glDrawArrays(GL_LINE_STRIP, 0, n);
     this->SetLineWidth(1.0);
     }
@@ -655,27 +745,44 @@ void vtkOpenGLContextDevice2D::DrawLines(float *f, int n, unsigned char *colors,
   vtkOpenGLHelper *cbo = 0;
   if (colors)
     {
-    this->ReadyVCBOProgram();
-    cbo = this->VCBO;
+    this->ReadyLinesCBOProgram();
+    cbo = this->LinesCBO;
     }
   else
     {
-    this->ReadyVBOProgram();
-    cbo = this->VBO;
+    this->ReadyLinesBOProgram();
+    cbo = this->LinesBO;
     cbo->Program->SetUniform4uc("vertexColor",
       this->Pen->GetColor());
     }
+  cbo->Program->SetUniformi("stipple",this->LinePattern);
 
   this->SetMatrices(cbo->Program);
 
+  // for line stipple we need to compute the scaled
+  // cumulative linear distance
+  double *scale = this->ModelMatrix->GetScale();
+  std::vector<float> distances;
+  distances.resize(n*2);
+  float totDist = 0.0;
+  distances[0] = 0.0;
+  for (int i = 1; i < n; i++)
+    {
+    float xDel = scale[0]*(f[i*2] - f[i*2-2]);
+    float yDel = scale[1]*(f[i*2+1] - f[i*2-1]);
+    totDist += sqrt(xDel*xDel + yDel*yDel);
+    distances[i*2] = totDist;
+    }
+
   if (this->Pen->GetWidth() > 1.0)
     {
-    double *scale = this->ModelMatrix->GetScale();
     // convert to triangles and draw, this is because
     // OpenGL no longer supports wide lines directly
     float hwidth = this->Pen->GetWidth()/2.0;
     std::vector<float> newVerts;
     std::vector<unsigned char> newColors;
+    std::vector<float> newDistances;
+    newDistances.resize((n-1)*12);
     for (int i = 0; i < n-1; i += 2)
       {
       // for each line segment draw two triangles
@@ -710,16 +817,23 @@ void vtkOpenGLContextDevice2D::DrawLines(float *f, int n, unsigned char *colors,
         copyColors(newColors, colors+(i+1)*nc, nc);
         copyColors(newColors, colors+(i+1)*nc, nc);
         }
+
+      newDistances[i*12] = distances[i*2];
+      newDistances[i*12+2] = distances[i*2];
+      newDistances[i*12+4] = distances[i*2+2];
+      newDistances[i*12+6] = distances[i*2];
+      newDistances[i*12+8] = distances[i*2+2];
+      newDistances[i*12+10] = distances[i*2+2];
       }
 
     this->BuildVBO(cbo, &(newVerts[0]), newVerts.size()/2,
-      colors ? &(newColors[0]) : NULL, nc, NULL);
+      colors ? &(newColors[0]) : NULL, nc, &(newDistances[0]));
     glDrawArrays(GL_TRIANGLES, 0, newVerts.size()/2);
     }
   else
     {
     this->SetLineWidth(this->Pen->GetWidth());
-    this->BuildVBO(cbo, f, n, colors, nc, NULL);
+    this->BuildVBO(cbo, f, n, colors, nc, &(distances[0]));
     glDrawArrays(GL_LINES, 0, n);
     this->SetLineWidth(1.0);
     }
@@ -1605,11 +1719,27 @@ void vtkOpenGLContextDevice2D::SetLineWidth(float width)
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::SetLineType(int type)
 {
-  if (type == vtkPen::SOLID_LINE || type == vtkPen::NO_PEN)
+  this->LinePattern = 0x0000;
+  switch (type)
     {
-    return;
+    case vtkPen::NO_PEN:
+      this->LinePattern = 0x0000;
+      break;
+    case vtkPen::DASH_LINE:
+      this->LinePattern = 0x00FF;
+      break;
+    case vtkPen::DOT_LINE:
+      this->LinePattern = 0x0101;
+      break;
+    case vtkPen::DASH_DOT_LINE:
+      this->LinePattern = 0x0C0F;
+      break;
+    case vtkPen::DASH_DOT_DOT_LINE:
+      this->LinePattern = 0x1C47;
+      break;
+    default:
+      this->LinePattern = 0xFFFF;
     }
-  vtkWarningMacro(<< "Line Stipples are no longer supported");
 }
 
 //-----------------------------------------------------------------------------
@@ -1758,6 +1888,8 @@ void vtkOpenGLContextDevice2D::ReleaseGraphicsResources(vtkWindow *window)
 {
   this->VBO->ReleaseGraphicsResources(window);
   this->VCBO->ReleaseGraphicsResources(window);
+  this->LinesBO->ReleaseGraphicsResources(window);
+  this->LinesCBO->ReleaseGraphicsResources(window);
   this->SBO->ReleaseGraphicsResources(window);
   this->SCBO->ReleaseGraphicsResources(window);
   this->VTBO->ReleaseGraphicsResources(window);
