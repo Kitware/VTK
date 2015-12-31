@@ -581,6 +581,7 @@ double vtkCellPicker::IntersectActorWithLine(const double p1[3],
         if (weights[i] > maxWeight)
           {
           iMaxWeight = i;
+          maxWeight = weights[i];
           }
         }
 

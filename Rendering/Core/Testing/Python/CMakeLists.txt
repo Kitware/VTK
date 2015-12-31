@@ -68,3 +68,9 @@ vtk_add_test_python(
 vtk_add_test_python(
   TestOutOfRangeColorTransferFunction.py --useBelowRangeColor --useAboveRangeColor
 )
+
+# Tests that do not use a baseline image
+vtk_add_test_python(
+  NO_DATA NO_VALID NO_OUTPUT
+  pickCellPoints.py
+)
