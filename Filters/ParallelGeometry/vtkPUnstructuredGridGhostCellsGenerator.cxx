@@ -149,8 +149,9 @@ vtkPUnstructuredGridGhostCellsGenerator::vtkPUnstructuredGridGhostCellsGenerator
   this->SetController(vtkMultiProcessController::GetGlobalController());
 
   this->Internals = NULL;
-  this->GlobalPointIdsArrayName = NULL;
   this->UseGlobalPointIds = true;
+  this->BuildIfRequired = true;
+  this->GlobalPointIdsArrayName = NULL;
   this->SetGlobalPointIdsArrayName(UGGCG_GLOBAL_POINT_IDS);
 }
 
@@ -168,6 +169,10 @@ vtkPUnstructuredGridGhostCellsGenerator::~vtkPUnstructuredGridGhostCellsGenerato
 void vtkPUnstructuredGridGhostCellsGenerator::PrintSelf(ostream& os, vtkIndent indent)
 {
   Superclass::PrintSelf(os, indent);
+
+  os << indent << "UseGlobalPointIds:" << UseGlobalPointIds << endl;
+  os << indent << "GlobalPointIdsArrayName:" << GlobalPointIdsArrayName << endl;
+  os << indent << "BuildIfRequired:" << BuildIfRequired << endl;
 }
 
 //-----------------------------------------------------------------------------
@@ -187,25 +192,32 @@ int vtkPUnstructuredGridGhostCellsGenerator::RequestData(
   vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  int ghostLevels = 1;
-  //ghostLevels = outInfo->Get(
-  //  vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+  if (!input)
+    {
+    vtkErrorMacro(<< "No input data!");
+    return 0;
+    }
+
+  if (input->GetCellGhostArray())
+    {
+    vtkDebugMacro(<< "Ghost cells already exist in the input. Nothing more to do.");
+    output->ShallowCopy(input);
+    return 1;
+    }
 
   if (!this->Controller)
     {
     this->Controller = vtkMultiProcessController::GetGlobalController();
     }
-  output->Reset();
-
   this->NumRanks = this->Controller ? this->Controller->GetNumberOfProcesses() : 1;
   this->RankId = this->Controller ? this->Controller->GetLocalProcessId() : 0;
+
+  int ghostLevels = this->BuildIfRequired ? outInfo->Get(
+   vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()) : 1;
+
   if (ghostLevels == 0 || !this->Controller || this->NumRanks == 1)
     {
-    // Ghost levels are not requested. Nothing to do but pass the dataset.
-    if (this->RankId == 0)
-      {
-      vtkWarningMacro(<< "Ghost cells not requested or not needed.");
-      }
+    vtkDebugMacro(<< "Ghost levels are not requested. Nothing more to do.");
     output->ShallowCopy(input);
     return 1;
     }
@@ -233,7 +245,13 @@ int vtkPUnstructuredGridGhostCellsGenerator::RequestData(
     {
     this->Internals->InputGlobalPointIds = NULL;
     }
-
+  int useGlobalPointIds = this->Internals->InputGlobalPointIds != 0 ? 1 : 0;
+  int allUseGlobalPointIds;
+  this->Controller->AllReduce(&useGlobalPointIds, &allUseGlobalPointIds, 1, vtkCommunicator::MIN_OP);
+  if (!allUseGlobalPointIds)
+    {
+    this->Internals->InputGlobalPointIds = NULL;
+    }
   this->ExtractAndReduceSurfacePoints();
   this->UpdateProgress(0.3);
 
@@ -315,8 +333,13 @@ void vtkPUnstructuredGridGhostCellsGenerator::ExtractAndReduceSurfacePoints()
     vtkNew<vtkPoints> surfacePoints;
     surfacePoints->SetDataTypeToDouble();
     surfacePoints->Allocate(nbSurfacePoints);
+    double bounds[6] = { 0., 1., 0., 1., 0., 1. };
+    if (surface->GetPoints())
+      {
+      surface->GetPoints()->GetBounds(bounds);
+      }
     this->Internals->LocalPoints->InitPointInsertion(
-      surfacePoints.Get(), surface->GetPoints()->GetBounds());
+      surfacePoints.Get(), bounds);
     this->Internals->LocalPointsMap.reserve(nbSurfacePoints);
 
     // Browse surface cells and push point coordinates to the locator
@@ -564,6 +587,12 @@ void vtkPUnstructuredGridGhostCellsGenerator::ReceiveAndMergeGhostCells(
   inputCopy->ShallowCopy(this->Internals->Input);
   inputCopy->AllocatePointGhostArray();
   inputCopy->AllocateCellGhostArray();
+
+  if (totalNbCells == 0)
+    {
+    output->ShallowCopy(inputCopy.Get());
+    return;
+    }
 
   // MergeCells merge input + grids that contains ghost cells to the output grid
   vtkNew<vtkMergeCells> mergeCells;
