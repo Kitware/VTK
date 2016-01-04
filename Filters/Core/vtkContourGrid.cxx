@@ -122,11 +122,34 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
   vtkCellArray *newVerts, *newLines, *newPolys;
   vtkPoints *newPts;
   vtkIdType numCells, estimatedSize;
-  vtkPointData *inPd=input->GetPointData(), *outPd=output->GetPointData();
-  vtkCellData *inCd=input->GetCellData(), *outCd=output->GetCellData();
   vtkDataArray *cellScalars;
   Scalar *cellScalarPtr;
   vtkIdType numCellScalars;
+
+  vtkPointData *inPdOriginal = input->GetPointData();
+
+  // We don't want to change the active scalars in the input, but we
+  // need to set the active scalars to match the input array to
+  // process so that the point data copying works as expected. Create
+  // a shallow copy of point data so that we can do this without
+  // changing the input.
+  vtkSmartPointer<vtkPointData> inPd = vtkSmartPointer<vtkPointData>::New();
+  inPd->ShallowCopy(inPdOriginal);
+
+  // Keep track of the old active scalars because when we set the new
+  // scalars, the old scalars are removed from the point data entirely
+  // and we have to add them back.
+  vtkAbstractArray* oldScalars = inPd->GetScalars();
+  inPd->SetScalars(inScalars);
+  if (oldScalars)
+    {
+    inPd->AddArray(oldScalars);
+    }
+  vtkPointData *outPd = output->GetPointData();
+
+  vtkCellData *inCd = input->GetCellData();
+  vtkCellData *outCd = output->GetCellData();
+
   //In this case, we know that the input is an unstructured grid.
   vtkUnstructuredGridBase *grid = static_cast<vtkUnstructuredGridBase *>(input);
   int needCell = 0;

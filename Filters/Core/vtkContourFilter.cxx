@@ -274,17 +274,18 @@ int vtkContourFilter::RequestData(
     }
 
   // get the contours
-  int numContours=this->ContourValues->GetNumberOfContours();
-  double *values=this->ContourValues->GetValues();
+  int numContours = this->ContourValues->GetNumberOfContours();
+  double *values = this->ContourValues->GetValues();
   int i;
 
   // is there data to process?
-  if (!this->GetInputArrayToProcess(0, inputVector))
+  vtkDataArray *inScalars = this->GetInputArrayToProcess(0, inputVector);
+  if (!inScalars)
     {
     return 1;
     }
 
-  int sType = this->GetInputArrayToProcess(0, inputVector)->GetDataType();
+  int sType = inScalars->GetDataType();
 
   // handle 2D images
   if (vtkImageData::SafeDownCast(input) && sType != VTK_BIT &&
@@ -385,7 +386,6 @@ int vtkContourFilter::RequestData(
   vtkIdType cellId;
   int abortExecute=0;
   vtkIdList *cellPts;
-  vtkDataArray *inScalars;
   vtkCellArray *newVerts, *newLines, *newPolys;
   vtkPoints *newPts;
   vtkIdType numCells, estimatedSize;
@@ -396,9 +396,29 @@ int vtkContourFilter::RequestData(
     info->Get(vtkDataObject::DATA_OBJECT()));
   if (!output) {return 0;}
 
+  vtkPointData *inPdOriginal = input->GetPointData();
 
-  vtkPointData *inPd=input->GetPointData(), *outPd=output->GetPointData();
-  vtkCellData *inCd=input->GetCellData(), *outCd=output->GetCellData();
+  // We don't want to change the active scalars in the input, but we
+  // need to set the active scalars to match the input array to
+  // process so that the point data copying works as expected. Create
+  // a shallow copy of point data so that we can do this without
+  // changing the input.
+  vtkSmartPointer<vtkPointData> inPd = vtkSmartPointer<vtkPointData>::New();
+  inPd->ShallowCopy(inPdOriginal);
+
+  // Keep track of the old active scalars because when we set the new
+  // scalars, the old scalars are removed from the point data entirely
+  // and we have to add them back.
+  vtkAbstractArray* oldScalars = inPd->GetScalars();
+  inPd->SetScalars(inScalars);
+  if (oldScalars)
+    {
+    inPd->AddArray(oldScalars);
+    }
+  vtkPointData *outPd = output->GetPointData();
+
+  vtkCellData *inCd = input->GetCellData();
+  vtkCellData *outCd = output->GetCellData();
 
   vtkDebugMacro(<< "Executing contour filter");
   if (input->IsA("vtkUnstructuredGridBase"))
@@ -516,7 +536,7 @@ int vtkContourFilter::RequestData(
     outPd->InterpolateAllocate(inPd,estimatedSize,estimatedSize);
     outCd->CopyAllocate(inCd,estimatedSize,estimatedSize);
 
-    vtkContourHelper helper(this->Locator, newVerts, newLines, newPolys,inPd, inCd, outPd,outCd, estimatedSize, this->GenerateTriangles!=0);
+    vtkContourHelper helper(this->Locator, newVerts, newLines, newPolys, inPd, inCd, outPd,outCd, estimatedSize, this->GenerateTriangles!=0);
     // If enabled, build a scalar tree to accelerate search
     //
     if ( !this->UseScalarTree )
