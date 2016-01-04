@@ -57,7 +57,7 @@ int TestOBJReaderRelative( int argc, char *argv[] )
 #define CHECK_ARRAY(obj, idx)                                              \
   if (obj##_rel[idx] != obj##_abs[idx])                                    \
     {                                                                      \
-    cerr << "Error: different values for " #obj "[" << idx << "]" << endl; \
+    cerr << "Error: different values for " #obj "[" << (idx) << "]" << endl; \
     retVal = 1;                                                            \
     }
 #define CHECK_SCALAR(obj)                                \

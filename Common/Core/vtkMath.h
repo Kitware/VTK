@@ -93,9 +93,9 @@ public:
   // Description:
   // Rounds a float to the nearest integer.
   static int Round(float f) {
-    return static_cast<int>( f + ( f >= 0 ? 0.5 : -0.5 ) ); }
+    return static_cast<int>( f + ( f >= 0.0 ? 0.5 : -0.5 ) ); }
   static int Round(double f) {
-    return static_cast<int>( f + ( f >= 0 ? 0.5 : -0.5 ) ); }
+    return static_cast<int>( f + ( f >= 0.0 ? 0.5 : -0.5 ) ); }
 
   // Description:
   // Rounds a double to the nearest integer not greater than itself.

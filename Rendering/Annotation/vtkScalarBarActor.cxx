@@ -1806,8 +1806,8 @@ int vtkScalarBarActor::PlaceAnnotationsVertically(
     ll[0] = lpts->InsertNextPoint(xl0, ctr, 0.); \
     this->P->AnnotationLabels[j]->GetSize(this->P->Viewport, tsz); \
     hh = (tsz[1] + pad) / 2.; /* label half-height, incl. padding */ \
-    if ((dir < 0 && ctr + hh > dnCum) || (dir > 0 && ctr - hh < upCum)) \
-      ctr = delt + dir * hh; \
+    if (((dir) < 0 && ctr + hh > dnCum) || ((dir) > 0 && ctr - hh < upCum)) \
+      ctr = (delt) + (dir) * hh; \
     this->P->AnnotationLabels[j]->GetTextProperty()->SetJustification( \
       this->TextPosition == PrecedeScalarBar ? VTK_TEXT_LEFT : VTK_TEXT_RIGHT);\
     this->P->AnnotationLabels[j]->GetTextProperty()\

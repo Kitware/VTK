@@ -34,7 +34,6 @@
 #define JMAX(ext) ext[3]
 #define KMIN(ext) ext[4]
 #define KMAX(ext) ext[5]
-#define PRINT(x) cout<<"("<<myRank<<")"<<x<<endl;
 
 //------------------------------------------------------------------------------
 void vtkAMRUtilities::PrintSelf( std::ostream& os, vtkIndent indent )

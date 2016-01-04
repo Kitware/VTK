@@ -19,6 +19,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkGenericCell.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
@@ -130,12 +131,11 @@ vtkCachingInterpolatedVelocityField::~vtkCachingInterpolatedVelocityField()
 //---------------------------------------------------------------------------
 void vtkCachingInterpolatedVelocityField::SetDataSet(int I, vtkDataSet* dataset, bool staticdataset, vtkAbstractCellLocator *locator)
 {
-#define max(x,y) ((x>y) ? (x) : (y))
-  int N = max(I+1, static_cast<int>(this->CacheList.size()));
+  int N = vtkMath::Max(I+1, static_cast<int>(this->CacheList.size()));
   this->CacheList.resize(N);
   this->CacheList[I].SetDataSet(dataset, this->VectorsSelection, staticdataset, locator);
   //
-  int maxsize = max(static_cast<int>(this->Weights.size()), dataset->GetMaxCellSize());
+  int maxsize = vtkMath::Max(static_cast<int>(this->Weights.size()), dataset->GetMaxCellSize());
   this->Weights.assign(maxsize, 0.0);
 }
 //---------------------------------------------------------------------------

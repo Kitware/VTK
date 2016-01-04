@@ -218,7 +218,7 @@ int vtkMINCImageWriter::CloseNetCDFFile(int ncid)
 // this is a macro so the vtkErrorMacro will report a useful line number
 #define vtkMINCImageWriterFailAndClose(ncid, status) \
 { \
-  if (status != NC_NOERR) \
+  if ((status) != NC_NOERR) \
     { \
     vtkErrorMacro("There was an error with the MINC file \"" \
                   << this->GetFileName() << "\":\n" \
