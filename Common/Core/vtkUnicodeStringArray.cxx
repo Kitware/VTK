@@ -304,6 +304,11 @@ void vtkUnicodeStringArray::SetVoidArray(void*, vtkIdType, int)
   vtkErrorMacro("Not implemented.");
 }
 
+void vtkUnicodeStringArray::SetVoidArray(void*, vtkIdType, int, int)
+{
+  vtkErrorMacro("Not implemented.");
+}
+
 unsigned long vtkUnicodeStringArray::GetActualMemorySize()
 {
   unsigned long count = 0;
@@ -416,4 +421,3 @@ const char* vtkUnicodeStringArray::GetUTF8Value(vtkIdType i)
 {
   return this->Internal->Storage[i].utf8_str();
 }
-

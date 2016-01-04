@@ -204,6 +204,11 @@ public:
     {
       this->SetArray(static_cast<unsigned char *>(array), size, save);
     }
+  void SetVoidArray(void *array, vtkIdType size, int save,
+                    int vtkNotUsed(deleteMethod))
+    {
+      this->SetArray(static_cast<unsigned char *>(array), size, save);
+    }
 
   // Description:
   // Returns a new vtkBitArrayIterator instance.
@@ -326,4 +331,3 @@ inline vtkIdType vtkBitArray::InsertNextValue(int i)
 inline void vtkBitArray::Squeeze() {this->ResizeAndExtend (this->MaxId+1);}
 
 #endif
-

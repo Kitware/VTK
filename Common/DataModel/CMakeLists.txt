@@ -155,6 +155,7 @@ set(Module_SRCS
   vtkSelectionNode.cxx
   vtkSimpleCellTessellator.cxx
   vtkSmoothErrorMetric.cxx
+  vtkSortFieldData.cxx
   vtkSphere.cxx
   vtkSpline.cxx
   vtkStaticCellLinks.cxx

@@ -588,6 +588,14 @@ void vtkVariantArray::SetVoidArray(void *arr, vtkIdType size, int save)
 }
 
 //----------------------------------------------------------------------------
+void vtkVariantArray::SetVoidArray(void *arr, vtkIdType size, int save,
+                                   int vtkNotUsed(deleteM))
+{
+  this->SetArray(static_cast<vtkVariant*>(arr), size, save);
+  this->DataChanged();
+}
+
+//----------------------------------------------------------------------------
 unsigned long vtkVariantArray::GetActualMemorySize()
 {
   // NOTE: Currently does not take into account the "pointed to" data.
