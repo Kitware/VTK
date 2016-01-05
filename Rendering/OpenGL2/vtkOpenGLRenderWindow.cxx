@@ -32,10 +32,13 @@
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkRendererCollection.h"
+#include "vtkShaderProgram.h"
 #include "vtkStdString.h"
 #include "vtkTextureObject.h"
 #include "vtkTextureUnitManager.h"
 #include "vtkUnsignedCharArray.h"
+
+#include "vtkTextureObjectVS.h"  // a pass through shader
 
 #include <sstream>
 using std::ostringstream;
@@ -1660,14 +1663,57 @@ int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
   return this->SetZbufferData(x1, y1, x2, y2, buffer->GetPointer(0));
 }
 
-int vtkOpenGLRenderWindow::SetZbufferData( int vtkNotUsed(x1), int vtkNotUsed(y1),
-                                           int vtkNotUsed(x2), int vtkNotUsed(y2),
-                                           float *vtkNotUsed(buffer) )
+int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1,
+                                           int x2, int y2,
+                                           float *buffer )
 {
-  // Todo: not sure this can be done in the new opengl, either implement or remove
-  return VTK_ERROR;
-}
+//  glDrawBuffer(this->GetBackBuffer());
+  glDisable( GL_SCISSOR_TEST );
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_ALWAYS);
+  glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+  if (!this->DrawPixelsTextureObject)
+    {
+    this->DrawPixelsTextureObject = vtkTextureObject::New();
+    }
+  else
+    {
+    this->DrawPixelsTextureObject->ReleaseGraphicsResources(this);
+    }
+  this->DrawPixelsTextureObject->SetContext(this);
+  this->DrawPixelsTextureObject->CreateDepthFromRaw(x2-x1+1, y2-y1+1,
+        vtkTextureObject::Float32, VTK_FLOAT, buffer);
 
+  // compile and bind it if needed
+  vtkShaderProgram *program =
+    this->GetShaderCache()->ReadyShaderProgram(
+      vtkTextureObjectVS,
+      "//VTK::System::Dec\n"
+      "varying vec2 tcoordVC;\n"
+      "uniform sampler2D source;\n"
+      "//VTK::Output::Dec\n"
+      "void main(void) {\n"
+      "  gl_FragDepth = texture2D(source,tcoordVC).r; }\n",
+      "");
+  vtkOpenGLVertexArrayObject *VAO = vtkOpenGLVertexArrayObject::New();
+
+  // bind and activate this texture
+  this->DrawPixelsTextureObject->Activate();
+  program->SetUniformi("source",
+    this->DrawPixelsTextureObject->GetTextureUnit());
+
+  this->DrawPixelsTextureObject->CopyToFrameBuffer(
+    0, 0, x2-x1, y2-y1,
+    x1, y1, x2, y2,
+    this->GetSize()[0], this->GetSize()[1],
+    program, VAO);
+  this->DrawPixelsTextureObject->Deactivate();
+  VAO->Delete();
+  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  glDepthFunc(GL_LEQUAL);
+
+  return VTK_OK;
+}
 
 void vtkOpenGLRenderWindow::ActivateTexture(vtkTextureObject *texture)
 {
