@@ -1,7 +1,7 @@
 include(vtkGhostscript)
 
 # Only run GL2PS tests if GhostScript is available
-if(VTK_GHOSTSCRIPT_EXECUTABLE AND (VTK_RENDERING_BACKEND STREQUAL "OpenGL"))
+if(VTK_GHOSTSCRIPT_EXECUTABLE)
   set(GL2PSTests
     TestContextGL2PS.cxx
     TestGL2PSExporterMultipleRenderers.cxx
@@ -14,7 +14,7 @@ if(VTK_GHOSTSCRIPT_EXECUTABLE AND (VTK_RENDERING_BACKEND STREQUAL "OpenGL"))
     TestGL2PSLabeledDataMapper.cxx
     TestLinePlotGL2PS.cxx
     TestStackedPlotGL2PS.cxx
-          )
+  )
 endif()
 
 vtk_add_test_cxx(${vtk-module}CxxTests tests

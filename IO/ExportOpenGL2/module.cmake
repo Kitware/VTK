@@ -1,0 +1,12 @@
+vtk_module(vtkIOExportOpenGL2
+  IMPLEMENTS
+    vtkIOExport
+  BACKEND
+    OpenGL2
+  DEPENDS
+    vtkCommonCore
+    vtkIOExport
+  PRIVATE_DEPENDS
+    vtkgl2ps
+  EXCLUDE_FROM_WRAPPING
+)
