@@ -1198,8 +1198,7 @@ void vtkXOpenGLRenderWindow::SetSize(int width,int height)
 {
   if ((this->Size[0] != width)||(this->Size[1] != height))
     {
-    this->Size[0] = width;
-    this->Size[1] = height;
+    this->Superclass::SetSize(width, height);
 
     if (this->Interactor)
       {

@@ -106,6 +106,11 @@ public:
   int GetColorBufferSizes(int *rgba);
 
   // Description:
+  // Set the size of the window in screen coordinates in pixels.
+  virtual void SetSize(int a[2]);
+  virtual void SetSize(int,int);
+
+  // Description:
   // Initialize OpenGL for this window.
   virtual void OpenGLInit();
 
@@ -189,6 +194,16 @@ public:
   // Useful for measurement only.
   virtual void WaitForCompletion();
 
+  // Description:
+  // Create and bind offscreen rendering buffers without destroying the current
+  // OpenGL context. This allows to temporary switch to offscreen rendering
+  // (ie. to make a screenshot even if the window is hidden).
+  // Return if the creation was successful (1) or not (0).
+  // Note: This function requires that the device supports OpenGL framebuffer extension.
+  // The function has no effect if OffScreenRendering is ON.
+  virtual int SetUseOffScreenBuffers(bool offScreen);
+  virtual bool GetUseOffScreenBuffers();
+
 protected:
   vtkOpenGLRenderWindow();
   ~vtkOpenGLRenderWindow();
@@ -211,11 +226,17 @@ protected:
   //                     && (result implies OffScreenUseFrameBuffer)
   int CreateHardwareOffScreenWindow(int width, int height);
 
+  int CreateHardwareOffScreenBuffers(int width, int height, bool bind = false);
+  void BindHardwareOffScreenBuffers();
+
   // Description:
   // Destroy an offscreen window based on OpenGL framebuffer extension.
   // \pre initialized: OffScreenUseFrameBuffer
   // \post destroyed: !OffScreenUseFrameBuffer
   void DestroyHardwareOffScreenWindow();
+
+  void UnbindHardwareOffScreenBuffers();
+  void DestroyHardwareOffScreenBuffers();
 
   // Description:
   // Flag telling if a framebuffer-based offscreen is currently in use.
@@ -227,6 +248,8 @@ protected:
   unsigned int TextureObjects[4]; // really GLuint
   unsigned int FrameBufferObject; // really GLuint
   unsigned int DepthRenderBufferObject; // really GLuint
+  int HardwareBufferSize[2];
+  bool HardwareOffScreenBuffersBind;
 
   // Description:
   // Create a not-off-screen window.
