@@ -102,9 +102,9 @@ vtkLogoRepresentation::~vtkLogoRepresentation()
 }
 
 //----------------------------------------------------------------------
-inline void vtkLogoRepresentation::AdjustImageSize(double o[2],
-                                                   double borderSize[2],
-                                                   double imageSize[2])
+void vtkLogoRepresentation::AdjustImageSize(double o[2],
+                                            double borderSize[2],
+                                            double imageSize[2])
 {
   // Scale the image to fit with in the border.
   // Also update the origin so the image is centered.
