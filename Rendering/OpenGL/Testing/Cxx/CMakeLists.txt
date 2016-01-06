@@ -17,6 +17,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests render_window_tests
   TestTDx.cxx
   TestValuePainter.cxx,NO_VALID
   TestValuePasses.cxx
+  TestRenderToImage.cxx
   )
 vtk_add_test_cxx(${vtk-module}CxxTests render_window_tests
   TestScalarsToColorsPainterFieldDataCells,TestScalarsToColorsPainterFieldData.cxx -1
