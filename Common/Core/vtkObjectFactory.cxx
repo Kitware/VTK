@@ -46,7 +46,8 @@ static vtkCleanUpObjectFactory vtkCleanUpObjectFactoryGlobal;
 // Create an instance of a named vtk object using the loaded
 // factories
 
-vtkObject* vtkObjectFactory::CreateInstance(const char* vtkclassname)
+vtkObject* vtkObjectFactory::CreateInstance(const char* vtkclassname,
+                                            bool isAbstract)
 {
   if(!vtkObjectFactory::RegisteredFactories)
     {
@@ -68,9 +69,12 @@ vtkObject* vtkObjectFactory::CreateInstance(const char* vtkclassname)
   // if the factory does not create the object, then
   // the object will be created with the name passed in,
   // so register the construction
+  if (!isAbstract)
+    {
 #ifdef VTK_DEBUG_LEAKS
-  vtkDebugLeaks::ConstructClass(vtkclassname);
+    vtkDebugLeaks::ConstructClass(vtkclassname);
 #endif
+    }
 
   return 0;
 }
