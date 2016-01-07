@@ -68,6 +68,7 @@ public:
     this->Mapper->SetInputData(ss);
     ss->Delete();
     this->Mapper->SetPopulateSelectionSettings(0);
+    this->NumberOfPoints = 0;
   };
   ~vtkOpenGLGlyph3DMapperEntry()
   {
@@ -129,13 +130,14 @@ vtkOpenGLGlyph3DMapper::~vtkOpenGLGlyph3DMapper()
 {
   this->ColorMapper->Delete();
 
-  delete this->GlyphValues;
-
   if (this->LastWindow)
     {
     this->ReleaseGraphicsResources(this->LastWindow);
     this->LastWindow = 0;
     }
+
+  delete this->GlyphValues;
+  this->GlyphValues = 0;
 }
 
 // ---------------------------------------------------------------------------
@@ -725,13 +727,16 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
 // Release any graphics resources that are being consumed by this mapper.
 void vtkOpenGLGlyph3DMapper::ReleaseGraphicsResources(vtkWindow *window)
 {
-  std::map<const vtkDataSet *, vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperSubArray *>::iterator miter = this->GlyphValues->Entries.begin();
-  for (;miter != this->GlyphValues->Entries.end(); miter++)
+  if (this->GlyphValues)
     {
-    std::map<size_t, vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry *>::iterator miter2 = miter->second->Entries.begin();
-    for (;miter2 != miter->second->Entries.end(); miter2++)
+    std::map<const vtkDataSet *, vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperSubArray *>::iterator miter = this->GlyphValues->Entries.begin();
+    for (;miter != this->GlyphValues->Entries.end(); miter++)
       {
-      miter2->second->Mapper->ReleaseGraphicsResources(window);
+      std::map<size_t, vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry *>::iterator miter2 = miter->second->Entries.begin();
+      for (;miter2 != miter->second->Entries.end(); miter2++)
+        {
+        miter2->second->Mapper->ReleaseGraphicsResources(window);
+        }
       }
     }
 }
