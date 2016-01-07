@@ -682,6 +682,8 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
         ));
     }
   this->VBO->Upload(this->VBO->PackedVBO, vtkOpenGLBufferObject::ArrayBuffer);
+  // free the memory using a swap because OO gone bad
+  std::vector<float>().swap(this->VBO->PackedVBO);
 
   this->VBO->VertexCount = splatCount;
 
