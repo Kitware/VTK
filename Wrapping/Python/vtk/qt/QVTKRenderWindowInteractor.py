@@ -35,6 +35,9 @@ Changes by Greg Schussman, Aug. 2014
 
 Changes by Alex Tsui, Apr. 2015
  Port from PyQt4 to PyQt5.
+
+Changes by Fabian Wenzel, Jan. 2016
+ Support for Python3
 """
 
 # Check whether a specific PyQt implementation was chosen
@@ -207,6 +210,7 @@ class QVTKRenderWindowInteractor(QWidget):
 
         WId = self.winId()
 
+        # Python2
         if type(WId).__name__ == 'PyCObject':
             from ctypes import pythonapi, c_void_p, py_object
 
@@ -214,6 +218,20 @@ class QVTKRenderWindowInteractor(QWidget):
             pythonapi.PyCObject_AsVoidPtr.argtypes = [py_object]
 
             WId = pythonapi.PyCObject_AsVoidPtr(WId)
+
+        # Python3
+        elif type(WId).__name__ == 'PyCapsule':
+            from ctypes import pythonapi, c_void_p, py_object, c_char_p
+
+            pythonapi.PyCapsule_GetName.restype = c_char_p
+            pythonapi.PyCapsule_GetName.argtypes = [py_object]
+
+            name = pythonapi.PyCapsule_GetName(WId)
+
+            pythonapi.PyCapsule_GetPointer.restype  = c_void_p
+            pythonapi.PyCapsule_GetPointer.argtypes = [py_object, c_char_p]
+
+            WId = pythonapi.PyCapsule_GetPointer(WId, name)
 
         self._RenderWindow.SetWindowInfo(str(int(WId)))
 
@@ -562,5 +580,5 @@ def _qt_key_to_key_sym(key):
 
 
 if __name__ == "__main__":
-    print PyQtImpl
+    print(PyQtImpl)
     QVTKRenderWidgetConeExample()
