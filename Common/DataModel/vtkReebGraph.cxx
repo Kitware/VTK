@@ -62,7 +62,7 @@ inline static bool vtkReebGraphVertexSoS(const std::pair<int, double> v0,
 #define vtkReebGraphInitialStreamSize 1000
 
 #define vtkReebGraphIsSmaller(myReebGraph, nodeId0, nodeId1, node0, node1) \
-((node0->Value < node1->Value) || (node0->Value == node1->Value && nodeId0 < nodeId1))
+((node0->Value < node1->Value) || (node0->Value == node1->Value && (nodeId0) < (nodeId1)))
 
 #define vtkReebGraphGetArcPersistence(rg,a)  \
 ((this->GetNode(a->NodeId1)->Value - this->GetNode(a->NodeId0)->Value) \

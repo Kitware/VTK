@@ -42,10 +42,10 @@ if (this->BuildRegionList()) \
   {                          \
   return err;                \
   }                          \
-if ((id < 0) || (id >= this->NumberOfRegions)) \
-  {                                            \
-  vtkErrorMacro(<< "Invalid region ID");       \
-  return err;                                  \
+if (((id) < 0) || ((id) >= this->NumberOfRegions))  \
+  {                                                 \
+  vtkErrorMacro(<< "Invalid region ID");            \
+  return (err);                                     \
   }
 
 //----------------------------------------------------------------------------

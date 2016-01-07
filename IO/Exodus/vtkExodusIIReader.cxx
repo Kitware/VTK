@@ -152,10 +152,10 @@ static const char* obj_typestr[] = {
   "N"
 };
 
-#define OBJTYPE_IS_BLOCK(i) ((i>=0)&&(i<3))
-#define OBJTYPE_IS_SET(i) ((i>2)&&(i<8))
-#define OBJTYPE_IS_MAP(i) ((i>7)&&(i<12))
-#define OBJTYPE_IS_NODAL(i) (i==12)
+#define OBJTYPE_IS_BLOCK(i) (((i)>=0)&&((i)<3))
+#define OBJTYPE_IS_SET(i) (((i)>2)&&((i)<8))
+#define OBJTYPE_IS_MAP(i) (((i)>7)&&((i)<12))
+#define OBJTYPE_IS_NODAL(i) ((i)==12)
 
 // Unlike obj* items above:
 // - conn* arrays only reference objects that generate connectivity information
@@ -189,8 +189,8 @@ static int conn_obj_idx_cvt[] = {
   2, 1, 0, 7, 6, 5, 4, 3
 };
 
-#define CONNTYPE_IS_BLOCK(i) ((i>=0)&&(i<3))
-#define CONNTYPE_IS_SET(i) ((i>2)&&(i<8))
+#define CONNTYPE_IS_BLOCK(i) (((i)>=0)&&((i)<3))
+#define CONNTYPE_IS_SET(i) (((i)>2)&&((i)<8))
 
 static const char* glomTypeNames[] = {
   "Scalar",

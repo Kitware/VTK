@@ -691,11 +691,11 @@ bool vtkFunctionParser::Evaluate()
         break;
       case VTK_PARSER_CROSS:
         // Cross Product
-        #define Ux stackPosition-5
-        #define Uy stackPosition-4
-        #define Uz stackPosition-3
-        #define Vx stackPosition-2
-        #define Vy stackPosition-1
+        #define Ux (stackPosition-5)
+        #define Uy (stackPosition-4)
+        #define Uz (stackPosition-3)
+        #define Vx (stackPosition-2)
+        #define Vy (stackPosition-1)
         #define Vz stackPosition
         temp[0] = this->Stack[Uy]*this->Stack[Vz] -
                   this->Stack[Uz]*this->Stack[Vy];

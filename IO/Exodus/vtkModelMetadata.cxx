@@ -56,9 +56,9 @@ public:
     }
 
 #define FREELIST(x, len)       \
-  if (x && len)                \
+  if (x && (len))              \
     {                          \
-    for (i=0; i<len; i++)      \
+    for (i=0; i<(len); i++)    \
       {                        \
       delete [] x[i];          \
       }                        \

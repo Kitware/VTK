@@ -91,7 +91,7 @@ static const int ply_type_size[] = {
   0, 1, 2, 4, 4, 1, 2, 4, 1, 4, 4, 8
 };
 
-#define NO_OTHER_PROPS  -1
+#define NO_OTHER_PROPS  (-1)
 
 #define DONT_STORE_PROP  0
 #define STORE_PROP       1

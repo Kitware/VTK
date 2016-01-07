@@ -37,6 +37,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkDoubleArray.h"
+#include "vtkMath.h"
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \
@@ -45,10 +46,6 @@
 #include "vtk_netcdf.h"
 
 #include <vtksys/hash_map.hxx>
-
-//=============================================================================
-#define MY_MIN(x, y)    ((x) < (y) ? (x) : (y))
-#define MY_MAX(x, y)    ((x) < (y) ? (y) : (x))
 
 //=============================================================================
 #define CALL_NETCDF(call)                       \
@@ -1006,8 +1003,8 @@ int vtkPSLACReader::ReadMidpointCoordinates (
     position.coord[2] = mp[4];
 
     midpointTopologyType topology;
-    topology.minEdgePoint = static_cast<vtkIdType>(MY_MIN(mp[0], mp[1]));
-    topology.maxEdgePoint = static_cast<vtkIdType>(MY_MAX(mp[0], mp[1]));
+    topology.minEdgePoint = static_cast<vtkIdType>(vtkMath::Min(mp[0], mp[1]));
+    topology.maxEdgePoint = static_cast<vtkIdType>(vtkMath::Max(mp[0], mp[1]));
     topology.globalId = i + startMidpoint + this->NumberOfGlobalPoints;
 
     // find the processor the minimum edge point belongs to (by global id)

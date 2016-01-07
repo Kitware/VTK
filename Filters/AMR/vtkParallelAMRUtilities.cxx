@@ -24,8 +24,6 @@
 #include <limits>
 #include <cassert>
 
-#define PRINT(x) cout<<"("<<myRank<<")"<<x<<endl;
-
 //------------------------------------------------------------------------------
 void vtkParallelAMRUtilities::PrintSelf( std::ostream& os, vtkIndent indent )
 {
@@ -77,7 +75,7 @@ void vtkParallelAMRUtilities::DistributeProcessInformation(vtkOverlappingAMR* am
     offsets[i] = currentOffset;
     currentOffset+=numBlocks[i];
     }
-  PRINT("total # of active blocks: "<<currentOffset<<" out of total "<<amrInfo->GetTotalNumberOfBlocks());
+  cout<<"("<<myRank<<")"<<"total # of active blocks: "<<currentOffset<<" out of total "<<amrInfo->GetTotalNumberOfBlocks()<<endl;
   std::vector<int> allBlocks(currentOffset,-1);
   controller->AllGatherV(&myBlocks[0], &allBlocks[0], (vtkIdType)myBlocks.size(), &numBlocks[0], &offsets[0] );
 

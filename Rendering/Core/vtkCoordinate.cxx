@@ -15,12 +15,11 @@
 #include "vtkCoordinate.h"
 #include "vtkViewport.h"
 #include "vtkObjectFactory.h"
+#include "vtkMath.h"
 
 vtkStandardNewMacro(vtkCoordinate);
 
 vtkCxxSetObjectMacro(vtkCoordinate,ReferenceCoordinate,vtkCoordinate);
-
-#define VTK_RINT(x) ((x > 0.0) ? static_cast<int>(x + 0.5) : static_cast<int>(x - 0.5))
 
 //----------------------------------------------------------------------------
 // Creates an Coordinate with the following defaults:
@@ -267,8 +266,8 @@ int *vtkCoordinate::GetComputedViewportValue(vtkViewport* viewport)
 {
   double *f = this->GetComputedDoubleViewportValue(viewport);
 
-  this->ComputedViewportValue[0] = static_cast<int>(VTK_RINT(f[0]));
-  this->ComputedViewportValue[1] = static_cast<int>(VTK_RINT(f[1]));
+  this->ComputedViewportValue[0] = vtkMath::Round(f[0]);
+  this->ComputedViewportValue[1] = vtkMath::Round(f[1]);
 
   return this->ComputedViewportValue;
 }
@@ -296,8 +295,8 @@ int *vtkCoordinate::GetComputedLocalDisplayValue(vtkViewport* viewport)
 
   viewport->DisplayToLocalDisplay(a[0],a[1]);
 
-this->ComputedDisplayValue[0] = static_cast<int>(VTK_RINT(a[0]));
-this->ComputedDisplayValue[1] = static_cast<int>(VTK_RINT(a[1]));
+  this->ComputedDisplayValue[0] = vtkMath::Round(a[0]);
+  this->ComputedDisplayValue[1] = vtkMath::Round(a[1]);
 
   vtkDebugMacro("Returning LocalDisplayValue of : " <<
                 this->ComputedDisplayValue[0] << " , " <<

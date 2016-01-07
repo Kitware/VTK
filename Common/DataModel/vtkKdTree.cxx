@@ -1391,13 +1391,7 @@ void vtkKdTree::AddNewRegions(vtkKdNode *kd, float *c1, int midpt, int dim, doub
     }                               \
 }
 
-#define sign(x) ((x<0) ? (-1) : (1))
-#ifndef max
-#define max(x,y) ((x>y) ? (x) : (y))
-#endif
-#ifndef min
-#define min(x,y) ((x<y) ? (x) : (y))
-#endif
+#define sign(x) (((x)<0) ? (-1) : (1))
 
 //----------------------------------------------------------------------------
 int vtkKdTree::Select(int dim, float *c1, int *ids, int nvals, double &coord)
@@ -1497,8 +1491,8 @@ void vtkKdTree::_Select(int dim, float *X, int *ids,
       Z = static_cast<float>(log(static_cast<float>(N)));
       S = static_cast<int>(.5 * exp(2*Z/3));
       SD = static_cast<int>(.5 * sqrt(Z*S*static_cast<float>(N-S)/N) * sign(I - N/2));
-      LL = max(L, K - static_cast<int>(I*static_cast<float>(S)/N) + SD);
-      RR = min(R, K + static_cast<int>((N-I)*static_cast<float>(S)/N) + SD);
+      LL = vtkMath::Max(L, K - static_cast<int>(I*static_cast<float>(S)/N) + SD);
+      RR = vtkMath::Min(R, K + static_cast<int>((N-I)*static_cast<float>(S)/N) + SD);
       _Select(dim, X, ids, LL, RR, K);
       }
 
@@ -3480,12 +3474,12 @@ void vtkKdTree::GenerateRepresentation(int *regions, int len, vtkPolyData *pd)
 //----------------------------------------------------------------------------
 //  Cell ID lists
 //
-#define SORTLIST(l, lsize) std::sort(l, l + lsize)
+#define SORTLIST(l, lsize) std::sort(l, (l) + (lsize))
 
 #define REMOVEDUPLICATES(l, lsize, newsize) \
 {                                     \
 int ii,jj;                            \
-for (ii=0, jj=0; ii<lsize; ii++)      \
+for (ii=0, jj=0; ii<(lsize); ii++)      \
   {                                   \
   if ((ii > 0) && (l[ii] == l[jj-1])) \
     {         \
