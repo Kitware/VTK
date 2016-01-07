@@ -1,4 +1,5 @@
 vtk_add_test_cxx(${vtk-module}CxxTests tests
+  TestAppleBug.cxx
   TestDepthOfFieldPass.cxx
   TestLightingMapLuminancePass.cxx
   TestLightingMapNormalsPass.cxx
