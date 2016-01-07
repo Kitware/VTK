@@ -59,6 +59,16 @@ static int skip_ahead_until(const char *text);
 static int skip_to_next_directive();
 static int skip_conditional_block();
 
+static void doxygen_comment();
+static void doxygen_cpp_comment();
+static void doxygen_group_start();
+static void doxygen_group_end();
+static void vtk_comment();
+static void vtk_name_comment();
+static void vtk_section_comment();
+static void cpp_comment_line();
+static void blank_line();
+
 static const char *raw_string(const char *begin);
 
 static void preprocessor_directive(const char *text, size_t l);
@@ -83,6 +93,10 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
 
 %%
 
+"/*"[*!]"<" { doxygen_comment(); }
+
+^[\t ]*"/*"[*!] { doxygen_comment(); }
+
 "/*" { skip_comment(); }
 
 ^[\t ]*"//BTX".* {
@@ -97,28 +111,21 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
       skip_ahead_until("@end");
     }
 
-^[\t ]*"// .NAME".* {
-      size_t pos = 1;
-      while (yytext[pos-1] != 'M' || yytext[pos] != 'E')
-        {
-        pos++;
-        }
-      data->NameComment = vtkstrndup(&yytext[pos + 1], yyleng - pos - 1);
-    }
+"//"[/!]"<".* { doxygen_cpp_comment(); }
 
-^[\t ]*"// Description:".*         { setCommentState(1); }
-^[\t ]*"// .SECTION Description".* { setCommentState(2); }
-^[\t ]*"// .SECTION See Also".*    { setCommentState(3); }
-^[\t ]*"// .SECTION see also".*    { setCommentState(3); }
-^[\t ]*"// .SECTION Caveats".*     { setCommentState(4); }
-^[\t ]*[\r\n]                      { closeOrClearComment(); }
-^[\t ]*"//".*  {
-      size_t pos = 2;
-      while (yytext[pos-2] != '/' || yytext[pos-1] != '/') pos++;
-      addCommentLine(&yytext[pos], yyleng - pos);
-    }
+^[\t ]*"//"[/!].* { doxygen_cpp_comment(); }
+^[\t ]*"//@{".* { doxygen_group_start(); }
+^[\t ]*"//@}".* { doxygen_group_end(); }
 
-"//".*  /* eat C++ comments */
+^[\t ]*"// Description:".* { vtk_comment(); }
+^[\t ]*"// .NAME ".* { vtk_name_comment(); }
+^[\t ]*"// .SECTION ".* { vtk_section_comment(); }
+
+^[\t ]*"//".* { cpp_comment_line(); }
+
+^[\t ]*[\r\n] { blank_line(); }
+
+"//".*  /* eat trailing C++ comments */
 
 ^[\t ]*"#"(\\\n|\\\r\n|[^\n])*  {
       skip_trailing_comment(yytext, yyleng);
@@ -1073,6 +1080,219 @@ int skip_ahead_until(const char *text)
   return skip_ahead_multi(strings);
 }
 
+
+/*
+ * Called for doxygen C-style comments
+ */
+void doxygen_comment()
+{
+  char linetext[256];
+  int savelineno = yylineno;
+  int asterisk, isfirstline = 1;
+  int type = DoxygenComment;
+  size_t l = 0, i = 0, base = yyleng;
+  int c1 = 0, c2 = input();
+  for (l = 0; l < yyleng; l++)
+    {
+    linetext[l] = yytext[l];
+    }
+  if (l > 0 && yytext[l-1] == '<')
+    {
+    type = TrailingComment;
+    }
+  for (;;)
+    {
+    if (c2 == 0 || c2 == EOF)
+      {
+      yylineno = savelineno;
+      print_preprocessor_error(VTK_PARSE_SYNTAX_ERROR,
+        "Cannot find end of comment.", 27);
+      exit(1);
+      }
+    if (l < 256)
+      {
+      linetext[l++] = c2;
+      }
+    if (c2 == '\n' || (c1 == '*' && c2 == '/'))
+      {
+      if (l >= 2 &&
+          linetext[l-2] == '*' &&
+          linetext[l-1] == '/')
+        {
+        l -= 2;
+        }
+      while (l > 0 &&
+             (linetext[l-1] == '\n' ||
+              linetext[l-1] == '\r' ||
+              linetext[l-1] == '\t' ||
+              linetext[l-1] == ' '))
+        {
+        l--;
+        }
+      if (!isfirstline)
+        {
+        /* reduce the base indentation if chars occur before base */
+        asterisk = 0;
+        for (i = yyleng-3; i < base && i < l; i++)
+          {
+          if (linetext[i] == '*' && asterisk == 0)
+            {
+            asterisk = 1;
+            }
+          else if (linetext[i] != ' ')
+            {
+            break;
+            }
+          }
+        if (i > yyleng-3 && i < l &&
+            linetext[i] != ' ' && linetext[i-1] == ' ')
+          {
+          i--;
+          }
+        base = i;
+        }
+      if (l > base)
+        {
+        i = base;
+        l -= base;
+        addCommentLine(&linetext[i], l, type);
+        }
+      else if (c1 != '*' || c2 != '/')
+        {
+        addCommentLine("", 0, type);
+        }
+      if (isfirstline)
+        {
+        isfirstline = 0;
+        base = 256;
+        }
+      l = 0;
+      if (c1 == '*' && c2 == '/')
+        {
+        break;
+        }
+      }
+    c1 = c2; c2 = input();
+    }
+}
+
+/*
+ * Called for //! and /// doxygen comments (handles just one line)
+ */
+void doxygen_cpp_comment()
+{
+  int type = DoxygenComment;
+  size_t pos = 2;
+  while (yytext[pos-2] != '/' || yytext[pos-1] != '/') pos++;
+  while (pos < yyleng && yytext[pos-1] == '/' && yytext[pos] == '/') pos++;
+  if (pos < yyleng && yytext[pos] == '!') pos++;
+  if (pos < yyleng && yytext[pos] == '<')
+    {
+    pos++;
+    type = TrailingComment;
+    }
+  addCommentLine(&yytext[pos], yyleng - pos, type);
+}
+
+/*
+ * Called for //@{
+ */
+void doxygen_group_start()
+{
+  /* Set the "ingroup" marker */
+  setCommentMemberGroup(1);
+}
+
+/*
+ * Called for //@}
+ */
+void doxygen_group_end()
+{
+  /* Clear the "ingroup" marker */
+  setCommentMemberGroup(0);
+}
+
+/*
+ * Called for // Description:
+ */
+void vtk_comment()
+{
+  setCommentState(NormalComment);
+}
+
+/*
+ * Called for // .NAME
+ */
+void vtk_name_comment()
+{
+  size_t pos = 1;
+  while (yytext[pos-1] != 'M' || yytext[pos] != 'E')
+    {
+    pos++;
+    }
+  pos++;
+  setCommentState(NameComment);
+  addCommentLine(&yytext[pos], yyleng - pos, NormalComment);
+}
+
+/*
+ * Called for // .SECTION
+ */
+void vtk_section_comment()
+{
+  size_t pos = 1;
+  while (yytext[pos-1] != 'O' || yytext[pos] != 'N')
+    {
+    pos++;
+    }
+  pos++;
+  if (pos < yyleng && yytext[pos] == ' ')
+    {
+    pos++;
+    }
+
+  if (yyleng - pos >= 11 &&
+      strncmp(&yytext[pos], "Description", 11) == 0)
+    {
+    setCommentState(DescriptionComment);
+    }
+  else if (yyleng - pos >= 8 &&
+           (strncmp(&yytext[pos], "See Also", 8) == 0 ||
+            strncmp(&yytext[pos], "see also", 8) == 0))
+    {
+    setCommentState(SeeAlsoComment);
+    }
+  else if (yyleng - pos >= 7 &&
+           strncmp(&yytext[pos], "Caveats", 7) == 0)
+    {
+    setCommentState(CaveatsComment);
+    }
+  else
+    {
+    cpp_comment_line();
+    }
+}
+
+/*
+ * Called for each line that has a C++ comment but no code, unless the
+ * comment is recognized as beginning a VTK or doxygen comment.
+ */
+void cpp_comment_line()
+{
+  size_t pos = 2;
+  while (yytext[pos-2] != '/' || yytext[pos-1] != '/') pos++;
+  addCommentLine(&yytext[pos], yyleng - pos, NormalComment);
+}
+
+/*
+ * Called whenever a blank line is encountered.
+ */
+void blank_line()
+{
+  commentBreak();
+}
+
+
 /*
  * Convert a raw string into a non-raw string.
  */
@@ -1559,26 +1779,30 @@ void preprocessor_directive(const char *text, size_t l)
       exit(1);
       }
     }
-  else if (n == 6 && strncmp(directive, "define", n) == 0 &&
-           ep - cp > 4 && strncmp(cp, "VTK", 3) == 0)
+  else if (n == 6 && strncmp(directive, "define", n) == 0)
     {
-    /* macros that start with "VTK" */
-    MacroInfo *macro;
-
-    macro = vtkParsePreprocess_GetMacro(preprocessor, cp);
-    if (macro && macro->Definition && !macro->IsFunction)
+    closeComment();
+    if (ep - cp > 4 && strncmp(cp, "VTK", 3) == 0)
       {
-      /* if macro evaluates to a constant, add it as a constant */
-      macro->IsExcluded = 1;
-      if (guess_constant_type(macro->Definition) == 0)
+      /* macros that start with "VTK" */
+      MacroInfo *macro;
+
+      macro = vtkParsePreprocess_GetMacro(preprocessor, cp);
+      if (macro && macro->Definition && !macro->IsFunction)
         {
-        result = VTK_PARSE_MACRO_UNDEFINED;
-        }
-      macro->IsExcluded = 0;
-      if (result < VTK_PARSE_MACRO_UNDEFINED)
-        {
-        add_constant(
-          vtkstrdup(macro->Name), vtkstrdup(macro->Definition), 0, NULL, 1);
+        /* if macro evaluates to a constant, add it as a constant */
+        macro->IsExcluded = 1;
+        if (guess_constant_type(macro->Definition) == 0)
+          {
+          result = VTK_PARSE_MACRO_UNDEFINED;
+          }
+        macro->IsExcluded = 0;
+        if (result < VTK_PARSE_MACRO_UNDEFINED)
+          {
+          add_constant(
+            vtkstrdup(macro->Name), vtkstrdup(macro->Definition),
+            0, NULL, 1);
+          }
         }
       }
     }

@@ -68,6 +68,9 @@ Modify vtkParse.tab.c:
   - remove YY_ATTRIBUTE_UNUSED from yyfillin, yyfill, and yynormal
   - remove the "break;" after "return yyreportAmbiguity"
   - replace "(1-yyrhslen)" with "(1-(int)yyrhslen)"
+  - remove dead store "yynewStates = YY_NULLPTR;"
+  - replace "sizeof yynewStates[0] with "sizeof (yyGLRState*)"
+  - remove 'struct yy_trans_info', which is unneeded (despite the comment)
 */
 
 /*
@@ -414,21 +417,74 @@ static const char *vtkstrcat7(const char *str1, const char *str2,
  * Comments
  */
 
+enum comment_enum
+{
+  ClosedComment = -2,
+  StickyComment = -1,
+  NoComment = 0,
+  NormalComment = 1,
+  NameComment = 2,
+  DescriptionComment = 3,
+  SeeAlsoComment = 4,
+  CaveatsComment = 5,
+  DoxygenComment = 6,
+  TrailingComment = 7
+};
+
 /* "private" variables */
 char          *commentText = NULL;
 size_t         commentLength = 0;
 size_t         commentAllocatedLength = 0;
 int            commentState = 0;
+int            commentMemberGroup = 0;
+int            commentGroupDepth = 0;
+parse_dox_t    commentType = DOX_COMMAND_OTHER;
+const char    *commentTarget = NULL;
 
-const char *getComment()
+/* Struct for recognizing certain doxygen commands */
+struct DoxygenCommandInfo
 {
-  if (commentState != 0)
-    {
-    return commentText;
-    }
-  return NULL;
-}
+  const char *name;
+  size_t length;
+  parse_dox_t type;
+};
 
+/* List of doxygen commands (@cond is not handled yet) */
+struct DoxygenCommandInfo doxygenCommands[] = {
+  { "def", 3, DOX_COMMAND_DEF },
+  { "category", 8, DOX_COMMAND_CATEGORY },
+  { "interface", 9, DOX_COMMAND_INTERFACE },
+  { "protocol", 8, DOX_COMMAND_PROTOCOL },
+  { "class", 5, DOX_COMMAND_CLASS },
+  { "enum", 4, DOX_COMMAND_ENUM },
+  { "struct", 6, DOX_COMMAND_STRUCT },
+  { "union", 5, DOX_COMMAND_UNION },
+  { "namespace", 9, DOX_COMMAND_NAMESPACE },
+  { "typedef", 7, DOX_COMMAND_TYPEDEF },
+  { "fn", 2, DOX_COMMAND_FN },
+  { "property", 8, DOX_COMMAND_PROPERTY },
+  { "var", 3, DOX_COMMAND_VAR },
+  { "name", 4, DOX_COMMAND_NAME },
+  { "defgroup", 8, DOX_COMMAND_DEFGROUP },
+  { "addtogroup", 10, DOX_COMMAND_ADDTOGROUP },
+  { "weakgroup", 9, DOX_COMMAND_WEAKGROUP },
+  { "example", 7, DOX_COMMAND_EXAMPLE },
+  { "file", 4, DOX_COMMAND_FILE },
+  { "dir", 3, DOX_COMMAND_DIR },
+  { "mainpage", 8, DOX_COMMAND_MAINPAGE },
+  { "page", 4, DOX_COMMAND_PAGE },
+  { "subpage", 7, DOX_COMMAND_SUBPAGE },
+  { "internal", 8, DOX_COMMAND_INTERNAL },
+  { "package", 7, DOX_COMMAND_PACKAGE },
+  { "privatesection", 14, DOX_COMMAND_PRIVATESECTION },
+  { "protectedsection", 16, DOX_COMMAND_PROTECTEDSECTION },
+  { "publicsection", 13, DOX_COMMAND_PUBLICSECTION },
+  { NULL, 0, DOX_COMMAND_OTHER }
+};
+
+void closeComment();
+
+/* Clear the comment buffer */
 void clearComment()
 {
   commentLength = 0;
@@ -437,11 +493,154 @@ void clearComment()
     commentText[commentLength] = '\0';
     }
   commentState = 0;
+  commentType = DOX_COMMAND_OTHER;
 }
 
-void addCommentLine(const char *line, size_t n)
+/* This is called when entering or leaving a comment block */
+void setCommentState(int state)
 {
-  if (commentState <= 0)
+  switch (state)
+    {
+    case 0:
+      closeComment();
+      break;
+    default:
+      closeComment();
+      clearComment();
+      break;
+    }
+
+  commentState = state;
+}
+
+/* Get the text from the comment buffer */
+const char *getComment()
+{
+  const char *text = commentText;
+  const char *cp = commentText;
+  size_t l = commentLength;
+
+  if (commentText != NULL && commentState != 0)
+    {
+    /* strip trailing blank lines */
+    while (l > 0 && (cp[l-1] == ' ' || cp[l-1] == '\t' ||
+                     cp[l-1] == '\r' || cp[l-1] == '\n'))
+      {
+      if (cp[l-1] == '\n')
+        {
+        commentLength = l;
+        }
+      l--;
+      }
+    commentText[commentLength] = '\0';
+    /* strip leading blank lines */
+    while (*cp == ' ' || *cp == '\t' || *cp == '\r' || *cp == '\n')
+      {
+      if (*cp == '\n')
+        {
+        text = cp + 1;
+        }
+      cp++;
+      }
+    return text;
+    }
+
+  return NULL;
+}
+
+/* Check for doxygen commands that mark unwanted comments */
+parse_dox_t checkDoxygenCommand(const char *text, size_t n)
+{
+  struct DoxygenCommandInfo *info;
+  for (info = doxygenCommands; info->name; info++)
+    {
+    if (info->length == n && strncmp(text, info->name, n) == 0)
+      {
+      return info->type;
+      }
+    }
+  return DOX_COMMAND_OTHER;
+}
+
+/* This is called whenever a comment line is encountered */
+void addCommentLine(const char *line, size_t n, int type)
+{
+  size_t i, j;
+  parse_dox_t t = DOX_COMMAND_OTHER;
+
+  if (type == DoxygenComment || commentState == DoxygenComment)
+    {
+    if (type == DoxygenComment)
+      {
+      /* search for '@' and backslash */
+      for (i = 0; i+1 < n; i++)
+        {
+        if (line[i] == '@' || line[i] == '\\')
+          {
+          j = ++i;
+          while (i < n && line[i] >= 'a' && line[i] <= 'z')
+            {
+            i++;
+            }
+          if (line[i-1] == '@' && (line[i] == '{' || line[i] == '}'))
+            {
+            if (line[i] == '{')
+              {
+              commentGroupDepth++;
+              }
+            else
+              {
+              --commentGroupDepth;
+              }
+            closeComment();
+            return;
+            }
+          else
+            {
+            /* record the type of this comment */
+            t = checkDoxygenCommand(&line[j], i-j);
+            if (t != DOX_COMMAND_OTHER)
+              {
+              while (i < n && line[i] == ' ')
+                {
+                i++;
+                }
+              j = i;
+              while (i < n && vtkParse_CharType(line[i], CPRE_XID))
+                {
+                i++;
+                }
+              commentTarget = vtkstrndup(&line[j], i-j);
+              /* remove this line from the comment */
+              n = 0;
+              }
+            }
+          }
+        }
+      }
+    else if (commentState == DoxygenComment)
+      {
+      return;
+      }
+    if (commentState != type)
+      {
+      setCommentState(type);
+      }
+    if (t != DOX_COMMAND_OTHER)
+      {
+      commentType = t;
+      }
+    }
+  else if (type == TrailingComment)
+    {
+    if (commentState != type)
+      {
+      setCommentState(type);
+      }
+    }
+  else if (commentState == 0 ||
+           commentState == StickyComment ||
+           commentState == ClosedComment)
     {
     clearComment();
     return;
@@ -474,57 +673,294 @@ void addCommentLine(const char *line, size_t n)
   commentText[commentLength] = '\0';
 }
 
+/* Store a doxygen comment */
+void storeComment()
+{
+  CommentInfo *info = (CommentInfo *)malloc(sizeof(CommentInfo));
+  vtkParse_InitComment(info);
+  info->Type = commentType;
+  info->Name = commentTarget;
+  info->Comment = vtkstrdup(getComment());
+
+  if (commentType >= DOX_COMMAND_DEFGROUP)
+    {
+    /* comment has no scope, it is global to the project */
+    vtkParse_AddCommentToNamespace(data->Contents, info);
+    }
+  else
+    {
+    /* comment is scoped to current namespace */
+    if (currentClass)
+      {
+      vtkParse_AddCommentToClass(currentClass, info);
+      }
+    else
+      {
+      vtkParse_AddCommentToNamespace(currentNamespace, info);
+      }
+    }
+}
+
+/* Apply a doxygen trailing comment to the previous item */
+void applyComment(ClassInfo *cls)
+{
+  int i;
+  ItemInfo *item;
+  const char *comment = vtkstrdup(getComment());
+
+  i = cls->NumberOfItems;
+  if (i > 0)
+    {
+    item = &cls->Items[--i];
+    if (item->Type == VTK_NAMESPACE_INFO)
+      {
+      cls->Namespaces[item->Index]->Comment = comment;
+      }
+    else if (item->Type == VTK_CLASS_INFO ||
+             item->Type == VTK_STRUCT_INFO ||
+             item->Type == VTK_UNION_INFO)
+      {
+      cls->Classes[item->Index]->Comment = comment;
+      }
+    else if (item->Type == VTK_ENUM_INFO)
+      {
+      cls->Enums[item->Index]->Comment = comment;
+      }
+    else if (item->Type == VTK_FUNCTION_INFO)
+      {
+      cls->Functions[item->Index]->Comment = comment;
+      }
+    else if (item->Type == VTK_VARIABLE_INFO)
+      {
+      cls->Variables[item->Index]->Comment = comment;
+      }
+    else if (item->Type == VTK_CONSTANT_INFO)
+      {
+      cls->Constants[item->Index]->Comment = comment;
+      }
+    else if (item->Type == VTK_TYPEDEF_INFO)
+      {
+      cls->Typedefs[item->Index]->Comment = comment;
+      }
+    else if (item->Type == VTK_USING_INFO)
+      {
+      cls->Usings[item->Index]->Comment = comment;
+      }
+    }
+}
+
+/* This is called when a comment block ends */
 void closeComment()
 {
+  const char *cp;
+  size_t l;
+
   switch (commentState)
     {
-    case 1:
-      /* Make comment persist until a new comment starts */
-      commentState = -1;
+    case ClosedComment:
+      clearComment();
       break;
-    case 2:
+    case NormalComment:
+      /* Make comment persist until a new comment starts */
+      commentState = StickyComment;
+      break;
+    case NameComment:
+      /* For NameComment, strip the comment */
+      cp = getComment();
+      l = strlen(cp);
+      while (l > 0 &&
+             (cp[l-1] == '\n' || cp[l-1] == '\r' || cp[l-1] == ' '))
+        {
+        l--;
+        }
+      data->NameComment = vtkstrndup(cp, l);
+      clearComment();
+      break;
+    case DescriptionComment:
       data->Description = vtkstrdup(getComment());
       clearComment();
       break;
-    case 3:
+    case SeeAlsoComment:
       data->SeeAlso = vtkstrdup(getComment());
       clearComment();
       break;
-    case 4:
+    case CaveatsComment:
       data->Caveats = vtkstrdup(getComment());
+      clearComment();
+      break;
+    case DoxygenComment:
+      if (commentType == DOX_COMMAND_OTHER)
+        {
+        /* Apply only to next item unless within a member group */
+        commentState = (commentMemberGroup ? StickyComment : ClosedComment);
+        }
+      else
+        {
+        /* Comment might not apply to next item, so store it */
+        storeComment();
+        clearComment();
+        }
+      break;
+    case TrailingComment:
+      if (currentClass)
+        {
+        applyComment(currentClass);
+        }
+      else
+        {
+        applyComment(currentNamespace);
+        }
       clearComment();
       break;
     }
 }
 
-void closeOrClearComment()
+/* This is called when a blank line occurs in the header file */
+void commentBreak()
 {
-  if (commentState < 0)
+  if (!commentMemberGroup && commentState == StickyComment)
     {
     clearComment();
     }
+  else if (commentState == DoxygenComment)
+    {
+    /* blank lines only end targeted doxygen comments */
+    if (commentType != DOX_COMMAND_OTHER)
+      {
+      closeComment();
+      }
+    }
   else
     {
+    /* blank lines end VTK comments */
     closeComment();
     }
 }
 
-void setCommentState(int state)
+/* This is called when doxygen @{ or @} are encountered */
+void setCommentMemberGroup(int g)
 {
-  switch (state)
-    {
-    case 0:
-      closeComment();
-      break;
-    default:
-      closeComment();
-      clearComment();
-      break;
-    }
-
-  commentState = state;
+  commentMemberGroup = g;
+  clearComment();
 }
 
+/* Assign comments to the items that they apply to */
+void assignComments(ClassInfo *cls)
+{
+  int i, j;
+  int t;
+  const char *name;
+  const char *comment;
+
+  for (i = 0; i < cls->NumberOfComments; i++)
+    {
+    t = cls->Comments[i]->Type;
+    name = cls->Comments[i]->Name;
+    comment = cls->Comments[i]->Comment;
+    /* find the item the comment applies to */
+    if (t == DOX_COMMAND_CLASS ||
+        t == DOX_COMMAND_STRUCT ||
+        t == DOX_COMMAND_UNION)
+      {
+      for (j = 0; j < cls->NumberOfClasses; j++)
+        {
+        if (cls->Classes[j]->Name && name &&
+            strcmp(cls->Classes[j]->Name, name) == 0)
+          {
+          cls->Classes[j]->Comment = comment;
+          break;
+          }
+        }
+      }
+    else if (t == DOX_COMMAND_ENUM)
+      {
+      for (j = 0; j < cls->NumberOfEnums; j++)
+        {
+        if (cls->Enums[j]->Name && name &&
+            strcmp(cls->Enums[j]->Name, name) == 0)
+          {
+          cls->Enums[j]->Comment = comment;
+          break;
+          }
+        }
+      }
+    else if (t == DOX_COMMAND_TYPEDEF)
+      {
+      for (j = 0; j < cls->NumberOfTypedefs; j++)
+        {
+        if (cls->Typedefs[j]->Name && name &&
+            strcmp(cls->Typedefs[j]->Name, name) == 0)
+          {
+          cls->Typedefs[j]->Comment = comment;
+          break;
+          }
+        }
+      }
+    else if (t == DOX_COMMAND_FN)
+      {
+      for (j = 0; j < cls->NumberOfFunctions; j++)
+        {
+        if (cls->Functions[j]->Name && name &&
+            strcmp(cls->Functions[j]->Name, name) == 0)
+          {
+          cls->Functions[j]->Comment = comment;
+          break;
+          }
+        }
+      }
+    else if (t == DOX_COMMAND_VAR)
+      {
+      for (j = 0; j < cls->NumberOfVariables; j++)
+        {
+        if (cls->Variables[j]->Name && name &&
+            strcmp(cls->Variables[j]->Name, name) == 0)
+          {
+          cls->Variables[j]->Comment = comment;
+          break;
+          }
+        }
+      for (j = 0; j < cls->NumberOfConstants; j++)
+        {
+        if (cls->Constants[j]->Name && name &&
+            strcmp(cls->Constants[j]->Name, name) == 0)
+          {
+          cls->Constants[j]->Comment = comment;
+          break;
+          }
+        }
+      }
+    else if (t == DOX_COMMAND_NAMESPACE)
+      {
+      for (j = 0; j < cls->NumberOfNamespaces; j++)
+        {
+        if (cls->Namespaces[j]->Name && name &&
+            strcmp(cls->Namespaces[j]->Name, name) == 0)
+          {
+          cls->Namespaces[j]->Comment = comment;
+          break;
+          }
+        }
+      }
+    }
+
+  /* recurse into child classes */
+  for (i = 0; i < cls->NumberOfClasses; i++)
+    {
+    if (cls->Classes[i])
+      {
+      assignComments(cls->Classes[i]);
+      }
+    }
+
+  /* recurse into child namespaces */
+  for (i = 0; i < cls->NumberOfNamespaces; i++)
+    {
+    if (cls->Namespaces[i])
+      {
+      assignComments(cls->Namespaces[i]);
+      }
+    }
+}
 
 /*----------------------------------------------------------------
  * Macros
@@ -1693,77 +2129,77 @@ static const unsigned char yytranslate[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const unsigned short int yyrline[] =
 {
-       0,  1476,  1476,  1478,  1480,  1479,  1490,  1491,  1492,  1493,
-    1494,  1495,  1496,  1497,  1498,  1499,  1500,  1501,  1502,  1503,
-    1504,  1505,  1506,  1507,  1510,  1511,  1512,  1513,  1514,  1515,
-    1518,  1519,  1526,  1533,  1534,  1534,  1538,  1545,  1546,  1549,
-    1550,  1551,  1554,  1555,  1558,  1558,  1573,  1572,  1578,  1584,
-    1583,  1588,  1594,  1595,  1596,  1599,  1601,  1603,  1606,  1607,
-    1610,  1611,  1613,  1615,  1614,  1623,  1627,  1628,  1629,  1632,
-    1633,  1634,  1635,  1636,  1637,  1638,  1639,  1640,  1641,  1642,
-    1643,  1644,  1645,  1646,  1647,  1650,  1651,  1652,  1653,  1654,
-    1657,  1658,  1659,  1660,  1663,  1664,  1667,  1669,  1672,  1677,
-    1678,  1681,  1682,  1685,  1686,  1687,  1698,  1699,  1700,  1704,
-    1705,  1709,  1709,  1722,  1728,  1736,  1737,  1738,  1741,  1742,
-    1742,  1746,  1747,  1749,  1750,  1751,  1751,  1759,  1763,  1764,
-    1767,  1769,  1771,  1772,  1775,  1776,  1784,  1785,  1788,  1789,
-    1791,  1793,  1795,  1799,  1801,  1802,  1805,  1808,  1809,  1812,
-    1813,  1812,  1817,  1857,  1860,  1861,  1862,  1864,  1866,  1868,
-    1872,  1875,  1875,  1906,  1909,  1908,  1926,  1928,  1927,  1932,
-    1934,  1932,  1936,  1938,  1936,  1940,  1943,  1940,  1954,  1955,
-    1958,  1959,  1961,  1962,  1965,  1965,  1975,  1976,  1984,  1985,
-    1986,  1987,  1990,  1993,  1994,  1995,  1998,  1999,  2000,  2003,
-    2004,  2005,  2009,  2010,  2011,  2012,  2015,  2016,  2017,  2021,
-    2026,  2020,  2038,  2042,  2042,  2054,  2053,  2062,  2066,  2069,
-    2078,  2079,  2082,  2082,  2083,  2084,  2090,  2095,  2096,  2097,
-    2100,  2103,  2104,  2106,  2107,  2110,  2110,  2118,  2119,  2120,
-    2123,  2125,  2126,  2130,  2129,  2142,  2143,  2142,  2162,  2162,
-    2166,  2167,  2170,  2171,  2174,  2180,  2181,  2181,  2184,  2185,
-    2185,  2187,  2189,  2193,  2195,  2193,  2219,  2220,  2223,  2223,
-    2225,  2225,  2233,  2236,  2305,  2306,  2308,  2309,  2309,  2312,
-    2315,  2316,  2320,  2331,  2331,  2350,  2352,  2352,  2370,  2370,
-    2372,  2376,  2377,  2378,  2377,  2383,  2385,  2386,  2387,  2388,
-    2389,  2390,  2393,  2394,  2398,  2399,  2403,  2404,  2407,  2408,
-    2412,  2413,  2414,  2415,  2418,  2419,  2422,  2422,  2425,  2426,
-    2429,  2429,  2433,  2434,  2434,  2441,  2442,  2445,  2446,  2447,
-    2448,  2449,  2452,  2454,  2456,  2460,  2462,  2464,  2466,  2468,
-    2470,  2472,  2472,  2477,  2480,  2483,  2486,  2486,  2494,  2494,
-    2503,  2504,  2505,  2506,  2507,  2508,  2509,  2510,  2511,  2512,
-    2513,  2514,  2515,  2516,  2517,  2518,  2519,  2520,  2521,  2522,
-    2523,  2530,  2531,  2532,  2533,  2534,  2535,  2536,  2542,  2543,
-    2546,  2547,  2549,  2550,  2553,  2554,  2557,  2558,  2559,  2560,
-    2563,  2564,  2565,  2566,  2567,  2571,  2572,  2573,  2576,  2577,
-    2580,  2581,  2589,  2592,  2592,  2594,  2594,  2598,  2599,  2601,
-    2605,  2606,  2608,  2608,  2610,  2612,  2616,  2619,  2619,  2621,
-    2621,  2625,  2628,  2628,  2630,  2630,  2634,  2635,  2637,  2639,
-    2641,  2643,  2645,  2649,  2650,  2653,  2654,  2655,  2656,  2657,
-    2658,  2659,  2660,  2661,  2662,  2663,  2664,  2665,  2666,  2667,
-    2668,  2669,  2670,  2671,  2672,  2673,  2676,  2677,  2678,  2679,
-    2680,  2681,  2682,  2683,  2684,  2685,  2686,  2687,  2688,  2689,
-    2690,  2710,  2711,  2712,  2713,  2716,  2720,  2724,  2724,  2728,
-    2729,  2744,  2745,  2761,  2762,  2765,  2765,  2765,  2772,  2772,
-    2782,  2783,  2783,  2782,  2792,  2792,  2802,  2802,  2811,  2811,
-    2811,  2844,  2843,  2854,  2855,  2855,  2854,  2864,  2882,  2882,
-    2887,  2887,  2892,  2892,  2897,  2897,  2902,  2902,  2907,  2907,
-    2912,  2912,  2917,  2917,  2922,  2922,  2939,  2939,  2953,  2990,
-    3028,  3065,  3066,  3073,  3074,  3075,  3076,  3077,  3078,  3079,
-    3080,  3081,  3082,  3083,  3084,  3087,  3088,  3089,  3090,  3091,
-    3092,  3093,  3094,  3095,  3096,  3097,  3098,  3099,  3100,  3101,
-    3102,  3103,  3104,  3105,  3106,  3107,  3108,  3109,  3110,  3111,
-    3112,  3113,  3114,  3115,  3116,  3117,  3118,  3119,  3120,  3123,
-    3124,  3125,  3126,  3127,  3128,  3129,  3130,  3131,  3132,  3133,
-    3134,  3135,  3136,  3137,  3138,  3139,  3140,  3141,  3142,  3143,
-    3144,  3145,  3146,  3147,  3148,  3149,  3150,  3151,  3154,  3155,
-    3156,  3157,  3158,  3159,  3160,  3161,  3162,  3169,  3170,  3173,
-    3174,  3175,  3176,  3176,  3177,  3180,  3181,  3184,  3185,  3186,
-    3187,  3217,  3217,  3218,  3219,  3220,  3221,  3244,  3245,  3248,
-    3249,  3250,  3251,  3254,  3255,  3256,  3259,  3260,  3262,  3263,
-    3265,  3266,  3269,  3270,  3273,  3274,  3275,  3279,  3278,  3292,
-    3293,  3296,  3296,  3298,  3298,  3302,  3302,  3304,  3304,  3306,
-    3306,  3310,  3310,  3315,  3316,  3318,  3319,  3322,  3323,  3326,
-    3327,  3330,  3331,  3332,  3333,  3334,  3335,  3336,  3337,  3337,
-    3337,  3337,  3337,  3338,  3339,  3340,  3341,  3342,  3345,  3348,
-    3349,  3352,  3355,  3355,  3355
+       0,  1912,  1912,  1914,  1916,  1915,  1926,  1927,  1928,  1929,
+    1930,  1931,  1932,  1933,  1934,  1935,  1936,  1937,  1938,  1939,
+    1940,  1941,  1942,  1943,  1946,  1947,  1948,  1949,  1950,  1951,
+    1954,  1955,  1962,  1969,  1970,  1970,  1974,  1981,  1982,  1985,
+    1986,  1987,  1990,  1991,  1994,  1994,  2009,  2008,  2014,  2020,
+    2019,  2024,  2030,  2031,  2032,  2035,  2037,  2039,  2042,  2043,
+    2046,  2047,  2049,  2051,  2050,  2059,  2063,  2064,  2065,  2068,
+    2069,  2070,  2071,  2072,  2073,  2074,  2075,  2076,  2077,  2078,
+    2079,  2080,  2081,  2082,  2083,  2086,  2087,  2088,  2089,  2090,
+    2093,  2094,  2095,  2096,  2099,  2100,  2103,  2105,  2108,  2113,
+    2114,  2117,  2118,  2121,  2122,  2123,  2134,  2135,  2136,  2140,
+    2141,  2145,  2145,  2158,  2164,  2172,  2173,  2174,  2177,  2178,
+    2178,  2182,  2183,  2185,  2186,  2187,  2187,  2195,  2199,  2200,
+    2203,  2205,  2207,  2208,  2211,  2212,  2220,  2221,  2224,  2225,
+    2227,  2229,  2231,  2235,  2237,  2238,  2241,  2244,  2245,  2248,
+    2249,  2248,  2253,  2294,  2297,  2298,  2299,  2301,  2303,  2305,
+    2309,  2312,  2312,  2344,  2347,  2346,  2364,  2366,  2365,  2370,
+    2372,  2370,  2374,  2376,  2374,  2378,  2381,  2378,  2392,  2393,
+    2396,  2397,  2399,  2400,  2403,  2403,  2413,  2414,  2422,  2423,
+    2424,  2425,  2428,  2431,  2432,  2433,  2436,  2437,  2438,  2441,
+    2442,  2443,  2447,  2448,  2449,  2450,  2453,  2454,  2455,  2459,
+    2464,  2458,  2476,  2480,  2480,  2492,  2491,  2500,  2504,  2507,
+    2516,  2517,  2520,  2520,  2521,  2522,  2528,  2533,  2534,  2535,
+    2538,  2541,  2542,  2544,  2545,  2548,  2548,  2556,  2557,  2558,
+    2561,  2563,  2564,  2568,  2567,  2580,  2581,  2580,  2600,  2600,
+    2604,  2605,  2608,  2609,  2612,  2618,  2619,  2619,  2622,  2623,
+    2623,  2625,  2627,  2631,  2633,  2631,  2657,  2658,  2661,  2661,
+    2663,  2663,  2671,  2674,  2744,  2745,  2747,  2748,  2748,  2751,
+    2754,  2755,  2759,  2770,  2770,  2789,  2791,  2791,  2809,  2809,
+    2811,  2815,  2816,  2817,  2816,  2822,  2824,  2825,  2826,  2827,
+    2828,  2829,  2832,  2833,  2837,  2838,  2842,  2843,  2846,  2847,
+    2851,  2852,  2853,  2854,  2857,  2858,  2861,  2861,  2864,  2865,
+    2868,  2868,  2872,  2873,  2873,  2880,  2881,  2884,  2885,  2886,
+    2887,  2888,  2891,  2893,  2895,  2899,  2901,  2903,  2905,  2907,
+    2909,  2911,  2911,  2916,  2919,  2922,  2925,  2925,  2933,  2933,
+    2942,  2943,  2944,  2945,  2946,  2947,  2948,  2949,  2950,  2951,
+    2952,  2953,  2954,  2955,  2956,  2957,  2958,  2959,  2960,  2961,
+    2962,  2969,  2970,  2971,  2972,  2973,  2974,  2975,  2981,  2982,
+    2985,  2986,  2988,  2989,  2992,  2993,  2996,  2997,  2998,  2999,
+    3002,  3003,  3004,  3005,  3006,  3010,  3011,  3012,  3015,  3016,
+    3019,  3020,  3028,  3031,  3031,  3033,  3033,  3037,  3038,  3040,
+    3044,  3045,  3047,  3047,  3049,  3051,  3055,  3058,  3058,  3060,
+    3060,  3064,  3067,  3067,  3069,  3069,  3073,  3074,  3076,  3078,
+    3080,  3082,  3084,  3088,  3089,  3092,  3093,  3094,  3095,  3096,
+    3097,  3098,  3099,  3100,  3101,  3102,  3103,  3104,  3105,  3106,
+    3107,  3108,  3109,  3110,  3111,  3112,  3115,  3116,  3117,  3118,
+    3119,  3120,  3121,  3122,  3123,  3124,  3125,  3126,  3127,  3128,
+    3129,  3149,  3150,  3151,  3152,  3155,  3159,  3163,  3163,  3167,
+    3168,  3183,  3184,  3200,  3201,  3204,  3204,  3204,  3211,  3211,
+    3221,  3222,  3222,  3221,  3231,  3231,  3241,  3241,  3250,  3250,
+    3250,  3283,  3282,  3293,  3294,  3294,  3293,  3303,  3321,  3321,
+    3326,  3326,  3331,  3331,  3336,  3336,  3341,  3341,  3346,  3346,
+    3351,  3351,  3356,  3356,  3361,  3361,  3378,  3378,  3392,  3429,
+    3467,  3504,  3505,  3512,  3513,  3514,  3515,  3516,  3517,  3518,
+    3519,  3520,  3521,  3522,  3523,  3526,  3527,  3528,  3529,  3530,
+    3531,  3532,  3533,  3534,  3535,  3536,  3537,  3538,  3539,  3540,
+    3541,  3542,  3543,  3544,  3545,  3546,  3547,  3548,  3549,  3550,
+    3551,  3552,  3553,  3554,  3555,  3556,  3557,  3558,  3559,  3562,
+    3563,  3564,  3565,  3566,  3567,  3568,  3569,  3570,  3571,  3572,
+    3573,  3574,  3575,  3576,  3577,  3578,  3579,  3580,  3581,  3582,
+    3583,  3584,  3585,  3586,  3587,  3588,  3589,  3590,  3593,  3594,
+    3595,  3596,  3597,  3598,  3599,  3600,  3601,  3608,  3609,  3612,
+    3613,  3614,  3615,  3615,  3616,  3619,  3620,  3623,  3624,  3625,
+    3626,  3656,  3656,  3657,  3658,  3659,  3660,  3683,  3684,  3687,
+    3688,  3689,  3690,  3693,  3694,  3695,  3698,  3699,  3701,  3702,
+    3704,  3705,  3708,  3709,  3712,  3713,  3714,  3718,  3717,  3731,
+    3732,  3735,  3735,  3737,  3737,  3741,  3741,  3743,  3743,  3745,
+    3745,  3749,  3749,  3754,  3755,  3757,  3758,  3761,  3762,  3765,
+    3766,  3769,  3770,  3771,  3772,  3773,  3774,  3775,  3776,  3776,
+    3776,  3776,  3776,  3777,  3778,  3779,  3780,  3781,  3784,  3787,
+    3788,  3791,  3794,  3794,  3794
 };
 #endif
 
@@ -6208,13 +6644,13 @@ yyuserAction (yyRuleNum yyn, size_t yyrhslen, yyGLRStackItem* yyvsp,
 
   case 124:
 
-    { add_enum((((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.str), NULL); }
+    { closeComment(); add_enum((((yyGLRStackItem const *)yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.str), NULL); }
 
     break;
 
   case 125:
 
-    { postSig("="); markSig(); }
+    { postSig("="); markSig(); closeComment(); }
 
     break;
 
@@ -6261,6 +6697,7 @@ yyuserAction (yyRuleNum yyn, size_t yyrhslen, yyGLRStackItem* yyvsp,
       if (getVarName())
         {
         item->Name = getVarName();
+        item->Comment = vtkstrdup(getComment());
         }
 
       if (item->Class == NULL)
@@ -6338,6 +6775,7 @@ yyuserAction (yyRuleNum yyn, size_t yyrhslen, yyGLRStackItem* yyvsp,
       handle_complex_type(item, getType(), (((yyGLRStackItem const *)yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval.integer), copySig());
 
       item->Name = (((yyGLRStackItem const *)yyvsp)[YYFILL (-6)].yystate.yysemantics.yysval.str);
+      item->Comment = vtkstrdup(getComment());
 
       if (currentTemplate)
         {
@@ -6836,6 +7274,7 @@ yyuserAction (yyRuleNum yyn, size_t yyrhslen, yyGLRStackItem* yyvsp,
         }
 
       var->Name = getVarName();
+      var->Comment = vtkstrdup(getComment());
 
       if (getVarValue())
         {
@@ -9694,6 +10133,8 @@ yysplitStack (yyGLRStack* yystackp, size_t yyk)
       yyGLRState** yynewStates;
       yybool* yynewLookaheadNeeds;
 
+      /* yynewStates = YY_NULLPTR; */
+
       if (yystackp->yytops.yycapacity
           > (YYSIZEMAX / (2 * sizeof (yyGLRState*))))
         yyMemoryExhausted (yystackp);
@@ -10977,6 +11418,7 @@ void start_enum(const char *name, int is_scoped,
     item = (EnumInfo *)malloc(sizeof(EnumInfo));
     vtkParse_InitEnum(item);
     item->Name = name;
+    item->Comment = vtkstrdup(getComment());
     item->Access = access_level;
 
     if (currentClass)
@@ -11248,6 +11690,7 @@ void add_constant(const char *name, const char *value,
   vtkParse_InitValue(con);
   con->ItemType = VTK_CONSTANT_INFO;
   con->Name = name;
+  con->Comment = vtkstrdup(getComment());
   con->Value = value;
   con->Type = type;
   con->Class = type_class(type, typeclass);
@@ -12075,6 +12518,9 @@ FileInfo *vtkParse_ParseFile(
       }
     }
   free(main_class);
+
+  /* assign doxygen comments to their targets */
+  assignComments(data->Contents);
 
   vtkParsePreprocess_Free(preprocessor);
   preprocessor = NULL;

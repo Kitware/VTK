@@ -180,18 +180,79 @@ void vtkWrapPython_ClassDoc(
   char pythonname[1024];
   const char *supername;
   char *cp;
-  const char *ccp;
+  const char *ccp = NULL;
   size_t i, n;
+  size_t briefmax = 255;
   int j;
   char temp[500];
   char *comment;
 
-  if (file_info->NameComment)
+  if (data == file_info->MainClass && file_info->NameComment)
     {
+    /* use the old VTK-style class description */
     fprintf(fp,
             "    \"%s\\n\",\n",
             vtkWrapText_QuoteString(
               vtkWrapText_FormatComment(file_info->NameComment, 70), 500));
+    }
+  else if (data->Comment)
+    {
+    strncpy(temp, data->Name, briefmax);
+    temp[briefmax] = '\0';
+    i = strlen(temp);
+    temp[i++] = ' ';
+    temp[i++] = '-';
+    if (data->Comment[0] != ' ')
+      {
+      temp[i++] = ' ';
+      }
+
+    /* extract the brief comment, if present */
+    ccp = data->Comment;
+    while (i < briefmax && *ccp != '\0')
+      {
+      /* a blank line ends the brief comment */
+      if (ccp[0] == '\n' && ccp[1] == '\n')
+        {
+        break;
+        }
+      /* fuzzy: capital letter or a new command on next line ends brief */
+      if (ccp[0] == '\n' && ccp[1] == ' ' &&
+          ((ccp[2] >= 'A' && ccp[2] <= 'Z') ||
+           ccp[2] == '@' || ccp[2] == '\\'))
+        {
+        break;
+        }
+      temp[i] = *ccp;
+      /* a sentence-ending period ends the brief comment */
+      if (ccp[0] == '.' && (ccp[1] == ' ' || ccp[1] == '\n'))
+        {
+        i++;
+        ccp++;
+        while (*ccp == ' ')
+          {
+          ccp++;
+          }
+        break;
+        }
+      ccp++;
+      i++;
+      }
+    /* skip all blank lines */
+    while (*ccp == '\n')
+      {
+      ccp++;
+      }
+    if (*ccp == '\0')
+      {
+      ccp = NULL;
+      }
+
+    temp[i] = '\0';
+    fprintf(fp,
+            "    \"%s\\n\",\n",
+            vtkWrapText_QuoteString(
+              vtkWrapText_FormatComment(temp, 70), 500));
     }
   else
     {
@@ -210,70 +271,83 @@ void vtkWrapPython_ClassDoc(
             vtkWrapText_QuoteString(pythonname, 500));
     }
 
-  n = 100;
-  if (file_info->Description)
+  if (data == file_info->MainClass &&
+      (file_info->Description ||
+       file_info->Caveats ||
+       file_info->SeeAlso))
     {
-    n += strlen(file_info->Description);
-    }
-
-  if (file_info->Caveats)
-    {
-    n += strlen(file_info->Caveats);
-    }
-
-  if (file_info->SeeAlso)
-    {
-    n += strlen(file_info->SeeAlso);
-    }
-
-  comment = (char *)malloc(n);
-  cp = comment;
-  *cp = '\0';
-
-  if (file_info->Description)
-    {
-    strcpy(cp, file_info->Description);
-    cp += strlen(cp);
-    *cp++ = '\n'; *cp++ = '\n'; *cp = '\0';
-    }
-
-  if (file_info->Caveats)
-    {
-    sprintf(cp, ".SECTION Caveats\n\n");
-    cp += strlen(cp);
-    strcpy(cp, file_info->Caveats);
-    cp += strlen(cp);
-    *cp++ = '\n'; *cp++ = '\n'; *cp = '\0';
-    }
-
-  if (file_info->SeeAlso)
-    {
-    sprintf(cp, ".SECTION See Also\n\n");
-    cp += strlen(cp);
-    strcpy(cp, file_info->SeeAlso);
-    cp += strlen(cp);
-    *cp = '\0';
-    }
-
-  ccp = vtkWrapText_FormatComment(comment, 70);
-  free(comment);
-
-  n = (strlen(ccp) + 400-1)/400;
-  for (i = 0; i < n; i++)
-    {
-    strncpy(temp, &ccp[400*i], 400);
-    temp[400] = '\0';
-    if (i < n-1)
+    n = 100;
+    if (file_info->Description)
       {
-      fprintf(fp,
-              "    \"%s\",\n",
-              vtkWrapText_QuoteString(temp, 500));
+      n += strlen(file_info->Description);
       }
-    else
-      { /* just for the last time */
-      fprintf(fp,
-              "    \"%s\\n\",\n",
-              vtkWrapText_QuoteString(temp, 500));
+
+    if (file_info->Caveats)
+      {
+      n += strlen(file_info->Caveats);
+      }
+
+    if (file_info->SeeAlso)
+      {
+      n += strlen(file_info->SeeAlso);
+      }
+
+    comment = (char *)malloc(n);
+    cp = comment;
+    *cp = '\0';
+
+    if (file_info->Description)
+      {
+      strcpy(cp, file_info->Description);
+      cp += strlen(cp);
+      *cp++ = '\n'; *cp++ = '\n'; *cp = '\0';
+      }
+
+    if (file_info->Caveats)
+      {
+      sprintf(cp, ".SECTION Caveats\n\n");
+      cp += strlen(cp);
+      strcpy(cp, file_info->Caveats);
+      cp += strlen(cp);
+      *cp++ = '\n'; *cp++ = '\n'; *cp = '\0';
+      }
+
+    if (file_info->SeeAlso)
+      {
+      sprintf(cp, ".SECTION See Also\n\n");
+      cp += strlen(cp);
+      strcpy(cp, file_info->SeeAlso);
+      cp += strlen(cp);
+      *cp = '\0';
+      }
+
+    ccp = vtkWrapText_FormatComment(comment, 70);
+    free(comment);
+    }
+  else if (ccp)
+    {
+    ccp = vtkWrapText_FormatComment(ccp, 70);
+    }
+
+  if (ccp)
+    {
+    n = (strlen(ccp) + 400-1)/400;
+    for (i = 0; i < n; i++)
+      {
+      strncpy(temp, &ccp[400*i], 400);
+      temp[400] = '\0';
+      if (i < n-1)
+        {
+        fprintf(fp,
+                "    \"%s\",\n",
+                vtkWrapText_QuoteString(temp, 500));
+        }
+      else
+        { /* just for the last time */
+        fprintf(fp,
+                "    \"%s\\n\",\n",
+                vtkWrapText_QuoteString(temp, 500));
+        }
       }
     }
 
