@@ -59,17 +59,20 @@ public:
     vtkMath::HSVToRGB(inputHSV,diffuseColor);
     cellBO->Program->SetUniform3f("diffuseColorUniform", diffuseColor);
 
-    inputHSV[0] = sin(twopi*fmod(theTime,5.0)/5.0)/4.0 + 0.75;
-    inputHSV[1] = sin(twopi*fmod(theTime,7.0)/7.0)/2.0 + 0.5;
-    inputHSV[2] = 0.5*(sin(twopi*fmod(theTime,17.0)/17.0)/2.0 + 0.5);
-    vtkMath::HSVToRGB(inputHSV,diffuseColor);
-    this->Renderer->SetBackground(diffuseColor[0], diffuseColor[1], diffuseColor[2]);
+    if (this->Renderer)
+      {
+      inputHSV[0] = sin(twopi*fmod(theTime,5.0)/5.0)/4.0 + 0.75;
+      inputHSV[1] = sin(twopi*fmod(theTime,7.0)/7.0)/2.0 + 0.5;
+      inputHSV[2] = 0.5*(sin(twopi*fmod(theTime,17.0)/17.0)/2.0 + 0.5);
+      vtkMath::HSVToRGB(inputHSV,diffuseColor);
+      this->Renderer->SetBackground(diffuseColor[0], diffuseColor[1], diffuseColor[2]);
 
-    inputHSV[0] = sin(twopi*fmod(theTime,11.0)/11.0)/2.0+0.5;
-    inputHSV[1] = sin(twopi*fmod(theTime,13.0)/13.0)/2.0 + 0.5;
-    inputHSV[2] = 0.5*(sin(twopi*fmod(theTime,17.0)/17.0)/2.0 + 0.5);
-    vtkMath::HSVToRGB(inputHSV,diffuseColor);
-    this->Renderer->SetBackground2(diffuseColor[0], diffuseColor[1], diffuseColor[2]);
+      inputHSV[0] = sin(twopi*fmod(theTime,11.0)/11.0)/2.0+0.5;
+      inputHSV[1] = sin(twopi*fmod(theTime,13.0)/13.0)/2.0 + 0.5;
+      inputHSV[2] = 0.5*(sin(twopi*fmod(theTime,17.0)/17.0)/2.0 + 0.5);
+      vtkMath::HSVToRGB(inputHSV,diffuseColor);
+      this->Renderer->SetBackground2(diffuseColor[0], diffuseColor[1], diffuseColor[2]);
+      }
 #else
     diffuseColor[0] = 0.4;
     diffuseColor[1] = 0.7;
@@ -78,7 +81,7 @@ public:
 #endif
     }
 
-  vtkShaderCallback() {}
+  vtkShaderCallback() { this->Renderer = 0; }
 };
 
 //----------------------------------------------------------------------------

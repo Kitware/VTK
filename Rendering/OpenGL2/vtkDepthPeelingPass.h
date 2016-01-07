@@ -132,11 +132,6 @@ public:
   int ViewportHeight;
 
   // Description:
-  // Actual depth format: vtkgl::DEPTH_COMPONENT16_ARB
-  // or vtkgl::DEPTH_COMPONENT24_ARB
-  unsigned int DepthFormat;
-
-  // Description:
   // In case of use of depth peeling technique for rendering translucent
   // material, define the threshold under which the algorithm stops to
   // iterate over peel layers. This is the ratio of the number of pixels

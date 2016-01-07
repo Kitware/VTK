@@ -63,6 +63,12 @@ vtkDepthPeelingPass::vtkDepthPeelingPass()
   this->OpaqueRGBATexture = NULL;
   this->TranslucentRGBATexture = NULL;
   this->CurrentRGBATexture = NULL;
+
+  this->ViewportX = 0;
+  this->ViewportY = 0;
+  this->ViewportWidth = 100;
+  this->ViewportHeight = 100;
+
 }
 
 // ----------------------------------------------------------------------------
@@ -370,7 +376,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
     }
 
   // create textures we need if not done already
-  if (this->OpaqueZTexture == NULL)
+  if (this->OpaqueRGBATexture == NULL)
     {
     this->OpaqueZTexture = vtkDepthPeelingPassCreateTextureObject(
       renWin, this->ViewportWidth, this->ViewportHeight, 1, true, NULL);

@@ -61,6 +61,7 @@ void vtkOpenGLRenderUtilities::RenderTriangles(
   if (!program || !vao || !verts)
     {
     vtkGenericWarningMacro(<< "Error must have verts, program and vao");
+    return;
     }
 
   vtkNew<vtkOpenGLBufferObject> vbo;
