@@ -398,6 +398,7 @@ void vtkOpenGLImageSliceMapper::RenderPolygon(
     tris->InsertCellPoint(0);
     tris->InsertCellPoint(2);
     tris->InsertCellPoint(3);
+    tris->Modified();
 
     polyPoints->SetNumberOfPoints(4);
     if (textured)
@@ -452,6 +453,7 @@ void vtkOpenGLImageSliceMapper::RenderPolygon(
         tris->InsertCellPoint((i % 2 == 0) ? ncoords - 1 - i/2 : i/2);
         }
       }
+    tris->Modified();
     }
 
   if (textured)
