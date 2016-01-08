@@ -63,6 +63,9 @@ struct BaseInterpolationPair
   BaseInterpolationPair(vtkIdType num, int numComp) : Num(num), NumComp(numComp)
     {
     }
+  virtual ~BaseInterpolationPair()
+    {
+    }
 
   virtual void Interpolate(int numWeights, const vtkIdType *ids,
                            const double *weights, vtkIdType outPtId) = 0;
@@ -77,6 +80,9 @@ struct InterpolationPair : public BaseInterpolationPair
 
   InterpolationPair(T *in, T *out, vtkIdType num, int numComp) :
     BaseInterpolationPair(num,numComp), Input(in), Output(out)
+    {
+    }
+  virtual ~InterpolationPair()  //calm down some finicky compilers
     {
     }
 
@@ -197,7 +203,8 @@ struct ProbePoints
 
   ProbePoints(vtkDataSet *input, vtkInterpolationKernel *kernel,vtkAbstractPointLocator *loc,
               vtkPointData *inPD, vtkPointData *outPD, int strategy, char *valid) :
-    Input(input), Kernel(kernel), Locator(loc), InPD(inPD), OutPD(outPD), Strategy(strategy), Valid(valid)
+    Input(input), Kernel(kernel), Locator(loc), InPD(inPD), OutPD(outPD),
+    Valid(valid), Strategy(strategy)
     {
       this->Arrays.AddArrays(input->GetNumberOfPoints(), inPD, outPD);
     }
