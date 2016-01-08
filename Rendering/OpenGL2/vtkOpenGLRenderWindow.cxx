@@ -1879,9 +1879,10 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenBuffers(int width, int height,
   this->HardwareBufferSize[0] = 0;
   this->HardwareBufferSize[1] = 0;
 
-  int glMajorVersion = 0;
+  int glMajorVersion = 2;
+#if GL_ES_VERSION_2_0 != 1
   glGetIntegerv(GL_MAJOR_VERSION, & glMajorVersion);
-
+#endif
   // test for FBO support
 #if GL_ES_VERSION_2_0 != 1
   if (glMajorVersion < 3 &&
@@ -2022,7 +2023,7 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenBuffers(int width, int height,
 
         if (this->NumberOfFrameBuffers == 2)
           {
-          buffer = static_cast<unsigned int>(GL_COLOR_ATTACHMENT1);
+          buffer = static_cast<unsigned int>(GL_COLOR_ATTACHMENT0+1);
           this->BackRightBuffer = buffer;
           this->FrontRightBuffer = buffer;
           }
@@ -2063,7 +2064,7 @@ void vtkOpenGLRenderWindow::BindHardwareOffScreenBuffers()
 
   if (this->NumberOfFrameBuffers == 2)
     {
-    buffer = static_cast<unsigned int>(GL_COLOR_ATTACHMENT1);
+    buffer = static_cast<unsigned int>(GL_COLOR_ATTACHMENT0+1);
     this->BackRightBuffer = buffer;
     this->FrontRightBuffer = buffer;
     }
