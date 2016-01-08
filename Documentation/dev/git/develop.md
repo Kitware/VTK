@@ -110,13 +110,8 @@ A reader should have a general idea of the feature or fix to be developed given 
 
     Caveats:
     * To add data follow [these instructions](data.md).
-    * If your change modifies the `Utilities/KWSys/vtksys` directory please
-      contribute directly to [KWSys][] instead.
-    * If your change modifies the `Utilities/MetaIO/vtkmetaio` directory please
-      contribute directly to [MetaIO][] instead.
-
-[KWSys]: http://public.kitware.com/Wiki/KWSys/Git
-[MetaIO]: https://github.com/Kitware/MetaIO
+    * If your change modifies third party code, see [its
+      documentation](../../../ThirdParty/UPDATING.md).
 
 Share a Topic
 -------------
