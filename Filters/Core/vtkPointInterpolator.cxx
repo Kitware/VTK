@@ -68,7 +68,7 @@ struct BaseInterpolationPair
                            const double *weights, vtkIdType outPtId) = 0;
 };
 
-// Type specific
+// Type specific interpolation pair
 template <typename T>
 struct InterpolationPair : public BaseInterpolationPair
 {
@@ -95,24 +95,20 @@ struct InterpolationPair : public BaseInterpolationPair
     }
 };
 
+// Forward declarations. This makes working with vtkTemplateMacro easier.
 struct ArrayList;
 
-// Sort of a little object factory (in conjunction w/ vtkTemplateMacro())
 template <typename T>
-void CreateArrayPair(ArrayList *list, T *inData, T *outData, vtkIdType numPts, int numComp)
-{
-  InterpolationPair<T> *pair = new InterpolationPair<T>(inData,outData,numPts,numComp);
-  list->Arrays.push_back(pair);
-}
+void CreateArrayPair(ArrayList *list, T *inData, T *outData, vtkIdType numPts, int numComp);
 
 
-// A list of the arrays to interpolate
+// A list of the arrays to interpolate, and a method to invoke interpolation on the list
 struct ArrayList
 {
   // The list of arrays
   std::vector<BaseInterpolationPair*> Arrays;
 
-  // These are the arrays to interpolate
+  // Add the arrays to interpolate here
   void AddArrays(vtkIdType numOutPts, vtkPointData *inPD, vtkPointData *outPD)
     {
       // Build the vector of interpolation pairs. Note that InterpolateAllocate should have
@@ -163,7 +159,7 @@ struct ArrayList
         }
     }
 
-  // Only you can prevent memory leaks
+  // Only you can prevent memory leaks!
   ~ArrayList()
     {
       for (std::vector<BaseInterpolationPair*>::iterator it = Arrays.begin();
@@ -174,6 +170,13 @@ struct ArrayList
     }
 };
 
+// Sort of a little object factory (in conjunction w/ vtkTemplateMacro())
+template <typename T>
+void CreateArrayPair(ArrayList *list, T *inData, T *outData, vtkIdType numPts, int numComp)
+{
+  InterpolationPair<T> *pair = new InterpolationPair<T>(inData,outData,numPts,numComp);
+  list->Arrays.push_back(pair);
+}
 
 // The threaded core of the algorithm
 struct ProbePoints
@@ -187,7 +190,8 @@ struct ProbePoints
   char *Valid;
   int Strategy;
 
-  // Don't want to allocate this working arrays on every thread invocation.
+  // Don't want to allocate these working arrays on every thread invocation,
+  // so make them thread local.
   vtkSMPThreadLocalObject<vtkIdList> PIds;
   vtkSMPThreadLocalObject<vtkDoubleArray> Weights;
 
@@ -207,6 +211,7 @@ struct ProbePoints
     weights->Allocate(128);
     }
 
+  // Threaded interpolation method
   void operator() (vtkIdType ptId, vtkIdType endPtId)
     {
       double x[3];
@@ -228,7 +233,7 @@ struct ProbePoints
               //purposely fall through to set null value
             case vtkPointInterpolator::NULL_VALUE:
               this->OutPD->NullPoint(ptId);
-              continue; //got to next point
+              continue; //go to next point, jump to end of for loop
             default: case vtkPointInterpolator::CLOSEST_POINT:
               numWeights = 1;
               pIds->SetNumberOfIds(1);
@@ -305,7 +310,7 @@ vtkDataObject *vtkPointInterpolator::GetSource()
 }
 
 //----------------------------------------------------------------------------
-// The meat of the algorithm
+// The driver of the algorithm
 void vtkPointInterpolator::Probe(vtkDataSet *input, vtkDataSet *source,
                                  vtkDataSet *output)
 {
