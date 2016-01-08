@@ -240,6 +240,7 @@ endif()
 
 # gzip compression
 option(XDMF_USE_GZIP "Build GZip Compression" OFF)
+mark_as_advanced(XDMF_USE_GZIP)
 if(XDMF_USE_GZIP)
   set(XdmfSources ${XdmfSources} ${XdmfGzipSource})
   add_definitions("-DXDMF_USE_GZIP")
@@ -247,6 +248,7 @@ endif()
 
 # bz2lib compression
 option(XDMF_USE_BZIP2 "Use bzip2" OFF)
+mark_as_advanced(XDMF_USE_BZIP2)
 if(XDMF_USE_BZIP2)
   find_package(BZip2)
   set(XDMF_BZIP2_LIBRARIES ${BZIP2_LIBRARIES})

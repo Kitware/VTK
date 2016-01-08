@@ -32,6 +32,7 @@ find_path(RMANTREE bin/prman HINTS
           /Applications/Pixar/RenderManProServer-19.0
           /opt/pixar/RenderManProServer-19.0
 )
+mark_as_advanced(RMANTREE)
 
 # Tests to run if Renderman is present
 if(RMANTREE)
