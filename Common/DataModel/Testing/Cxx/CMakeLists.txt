@@ -36,6 +36,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestTreeBFSIterator.cxx
   TestTreeDFSIterator.cxx
   TestTriangle.cxx
+  TimePointLocators.cxx
   otherCellArray.cxx
   otherCellBoundaries.cxx
   otherCellPosition.cxx

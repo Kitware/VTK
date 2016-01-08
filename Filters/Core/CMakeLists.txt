@@ -28,11 +28,13 @@ set(Module_SRCS
   vtkFlyingEdges2D.cxx
   vtkFlyingEdges3D.cxx
   vtkFlyingEdgesPlaneCutter.cxx
+  vtkGaussianKernel.cxx
   vtkGlyph2D.cxx
   vtkGlyph3D.cxx
   vtkHedgeHog.cxx
   vtkHull.cxx
   vtkIdFilter.cxx
+  vtkInterpolationKernel.cxx
   vtkMarchingCubes.cxx
   vtkMarchingSquares.cxx
   vtkMaskFields.cxx
@@ -43,6 +45,7 @@ set(Module_SRCS
   vtkMergeFields.cxx
   vtkMergeFilter.cxx
   vtkPointDataToCellData.cxx
+  vtkPointInterpolator.cxx
   vtkPolyDataConnectivityFilter.cxx
   vtkPolyDataNormals.cxx
   vtkProbeFilter.cxx
@@ -51,6 +54,8 @@ set(Module_SRCS
   vtkRearrangeFields.cxx
   vtkResampleToImage.cxx
   vtkReverseSense.cxx
+  vtkSPHKernel.cxx
+  vtkShepardKernel.cxx
   vtkSimpleElevationFilter.cxx
   vtkSmoothPolyDataFilter.cxx
   vtkStripper.cxx
@@ -66,6 +71,7 @@ set(Module_SRCS
   vtkTubeFilter.cxx
   vtkVectorDot.cxx
   vtkVectorNorm.cxx
+  vtkVoronoiKernel.cxx
   vtkWindowedSincPolyDataFilter.cxx
 
   vtkCutter.cxx
@@ -85,6 +91,7 @@ set(Module_SRCS
 
 set_source_files_properties(
   vtkEdgeSubdivisionCriterion
+  vtkInterpolationFunction
   vtkStreamerBase
   ABSTRACT
   )
