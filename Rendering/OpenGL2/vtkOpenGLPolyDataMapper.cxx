@@ -2794,12 +2794,32 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
   this->HaveAppleBug = false;
 
 #ifdef __APPLE__
+  // working AMD APPLE systems
+  // OpenGL vendor string:  ATI Technologies Inc.
+  // OpenGL renderer string:  AMD Radeon R9 M370X OpenGL Engine
+  // OpenGL version string:  4.1 ATI-1.40.15
+
+  // known bad APPLE AMD systems
+  // OpenGL vendor string:  ATI Technologies Inc.
+  // OpenGL renderer string:  ATI Radeon HD 2600 PRO OpenGL Engine
+  // OpenGL version string:  3.3 ATI-10.0.40
+
   std::string vendor = (const char *)glGetString(GL_VENDOR);
   if (vendor.find("ATI") != std::string::npos ||
       vendor.find("AMD") != std::string::npos ||
       vendor.find("amd") != std::string::npos)
     {
+    // assume we have the bug
     this->HaveAppleBug = true;
+
+    // but exclude systems we know do not have it
+    std::string renderer = (const char *)glGetString(GL_RENDERER);
+    std::string version = (const char *)glGetString(GL_VERSION);
+    if (renderer.find("AMD Radeon R9 M370X OpenGL Engine") != std::string::npos
+        && version.find("4.1 ATI-1.40.15") != std::string::npos)
+      {
+      this->HaveAppleBug = false;
+      }
     }
 #endif
 

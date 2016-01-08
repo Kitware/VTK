@@ -105,6 +105,8 @@ int TestAppleBug(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage(renderWindow.Get());
 
+  cerr << renderWindow->ReportCapabilities();
+
   // if it thinks it has the bug, try it
   // without the code
   if (mapper->GetHaveAppleBug())
@@ -114,8 +116,7 @@ int TestAppleBug(int argc, char* argv[])
     int offRetVal = vtkRegressionTestImage(renderWindow.Get());
     if (offRetVal == vtkRegressionTester::PASSED)
       {
-      cerr << "FIX!!!! This system is using the apple bug does not need it\n\n";
-      cerr << renderWindow->ReportCapabilities();
+      cerr << "FIX!!!! This system is using the apple bug but does not need it\n\n";
       return !vtkRegressionTester::FAILED;
       }
     }
@@ -130,7 +131,6 @@ int TestAppleBug(int argc, char* argv[])
       if (retVal == vtkRegressionTester::PASSED)
         {
         cerr << "FIX!!! This system needs the AppleBug Code but doesn't have it\n\n";
-        cerr << renderWindow->ReportCapabilities();
         return !vtkRegressionTester::FAILED;
         }
       }
