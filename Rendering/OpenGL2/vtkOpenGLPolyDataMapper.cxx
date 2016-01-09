@@ -418,7 +418,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
       "  vec3 specularColor;\n"
       "  float specularPower;\n";
     }
-  if (actor->GetBackfaceProperty())
+  if (actor->GetBackfaceProperty() && !this->DrawingEdges)
     {
     if (this->LastLightComplexity[this->LastBoundBO])
       {
