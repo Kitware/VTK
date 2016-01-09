@@ -69,6 +69,7 @@ outlineActor.SetMapper(outlineMapper)
 
 # Gaussian kernel-------------------------------------------------------
 gaussianKernel = vtk.vtkGaussianKernel()
+#gaussianKernel = vtk.vtkEllipsoidalGaussianKernel()
 gaussianKernel.SetSharpness(4);
 
 interpolator1 = vtk.vtkPointInterpolator()

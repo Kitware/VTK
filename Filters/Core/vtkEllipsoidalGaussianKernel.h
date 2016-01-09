@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkGaussianKernel.h
+  Module:    vtkEllipsoidalGaussianKernel.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,50 +12,62 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGaussianKernel - a spherical Gaussian interpolation kernel
+// .NAME vtkEllipsoidalGaussianKernel - an ellipsoidal Gaussian interpolation kernel
 
 // .SECTION Description
-// vtkGaussianKernel is an interpolation kernel that simply returns the
-// weights for all points found in the sphere defined by radius R. The
-// weights are computed as: exp(-(s*r/R)^2) where r is the distance from the
-// point to be interpolated to a neighboring point within R. The sharpness s
-// simply affects the rate of fall off of the Gaussian. (A more general
-// Gaussian kernel is available from vtkEllipsoidalGaussianKernel.)
+// vtkEllipsoidalGaussianKernel is an interpolation kernel that returns the
+// weights for all points found in the ellipsoid defined by radius R in
+// combination with local data (normals and/or scalars). For example, "pancake"
+// weightings (the local normal parallel to the minimum ellisoidal axis); or
+// "needle" weightings (the local normal parallel to the maximum ellipsoidal
+// axis) are possible. (Note that spherical Gaussian weightings are more
+// efficiently computed using vtkGaussianKernel.)
+//
+// The ellipsoidal Gaussian can be described by:
+//
+//     W(x) = S * exp( -( Sharpness^2 * ((rxy/E)**2 + z**2)/R**2) )
+//
+// where S is the local scalar value; E is a user-defined eccentricity factor
+// that controls the elliptical shape of the splat; z is the distance of the
+// current voxel sample point along the local normal N; and rxy is the
+// distance to neigbor point x in the direction prependicular to N.
 
 // .SECTION Caveats
-// The weights are normalized sp that SUM(Wi) = 1. If a neighbor point p
+// The weights are normalized so that SUM(Wi) = 1. If a neighbor point p
 // precisely lies on the point to be interpolated, then the interpolated
 // point takes on the values associated with p.
 
 // .SECTION See Also
-// vtkPointInterpolator vtkInterpolationKernel vtkEllipsoidalGaussianKernel
+// vtkPointInterpolator vtkInterpolationKernel vtkGaussianKernel
 // vtkVoronoiKernel vtkSPHKernel vtkShepardKernel
 
 
-#ifndef vtkGaussianKernel_h
-#define vtkGaussianKernel_h
+#ifndef vtkEllipsoidalGaussianKernel_h
+#define vtkEllipsoidalGaussianKernel_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkInterpolationKernel.h"
 
 class vtkIdList;
+class vtkDataArray;
 class vtkDoubleArray;
 
 
-class VTKFILTERSCORE_EXPORT vtkGaussianKernel : public vtkInterpolationKernel
+class VTKFILTERSCORE_EXPORT vtkEllipsoidalGaussianKernel : public vtkInterpolationKernel
 {
 public:
   // Description:
   // Standard methods for instantiation, obtaining type information, and printing.
-  static vtkGaussianKernel *New();
-  vtkTypeMacro(vtkGaussianKernel,vtkInterpolationKernel);
+  static vtkEllipsoidalGaussianKernel *New();
+  vtkTypeMacro(vtkEllipsoidalGaussianKernel,vtkInterpolationKernel);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Initialize the kernel. Overload the superclass to set up internal
-  // computational values.
+  // Initialize the kernel. Overload the superclass to set up scalars and
+  // vectors.
   virtual void Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds,
                           vtkPointData *pd);
+
   // Description:
   // Given a point x, compute interpolation weights associated with nearby
   // points. The method returns the number of nearby points N (i.e., the
@@ -79,19 +91,33 @@ public:
   vtkSetClampMacro(Sharpness,double,1,VTK_FLOAT_MAX);
   vtkGetMacro(Sharpness,double);
 
+  // Description:
+  // Set / Get the eccentricity of the ellipsoidal Gaussian. A value=1.0
+  // produces a spherical distribution. Values < 1 produce a needle like
+  // distribution (in the direction of the normal); values > 1 produce a
+  // pancake like distribution (orthogonal to the normal).
+  vtkSetClampMacro(Eccentricity,double,0.000001,VTK_FLOAT_MAX);
+  vtkGetMacro(Eccentricity,double);
+
 protected:
-  vtkGaussianKernel();
-  ~vtkGaussianKernel();
+  vtkEllipsoidalGaussianKernel();
+  ~vtkEllipsoidalGaussianKernel();
 
   double Radius;
   double Sharpness;
+  double Eccentricity;
+
+  vtkDataArray *Normals;
+  vtkDataArray *Scalars;
 
   // Internal structure to reduce computation
-  double F2;
+  double F2, E2;
+
+  virtual void FreeStructures();
 
 private:
-  vtkGaussianKernel(const vtkGaussianKernel&);  // Not implemented.
-  void operator=(const vtkGaussianKernel&);  // Not implemented.
+  vtkEllipsoidalGaussianKernel(const vtkEllipsoidalGaussianKernel&);  // Not implemented.
+  void operator=(const vtkEllipsoidalGaussianKernel&);  // Not implemented.
 };
 
 #endif
