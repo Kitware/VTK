@@ -19,7 +19,7 @@
 #include "vtkProp.h"
 #include "vtkPropCollection.h"
 #include "vtkWindow.h"
-
+#include "vtkMath.h"
 
 //----------------------------------------------------------------------------
 // Create a vtkViewport with a black background, a white ambient light,
@@ -730,27 +730,6 @@ vtkAssemblyPath* vtkViewport::PickPropFrom(double selectionX1, double selectionY
 }
 
 //----------------------------------------------------------------------------
-#define vtkViewportBound(vpu, vpv) \
-{ \
-  if (vpu > 1.0) \
-    { \
-    vpu = 1.0; \
-    } \
-  if (vpu < 0.0) \
-    { \
-    vpu = 0.0; \
-    } \
-  if (vpv > 1.0) \
-    { \
-    vpv = 1.0; \
-    } \
-  if (vpv < 0.0) \
-    { \
-    vpv = 0.0; \
-    }  \
-}
-
-//----------------------------------------------------------------------------
 // This complicated method determines the size of the current tile in pixels
 // this is useful in computeing the actual aspcet ration of the current tile
 void vtkViewport::GetTiledSize(int *usize, int *vsize)
@@ -782,22 +761,19 @@ void vtkViewport::GetTiledSizeAndOrigin(int *usize, int *vsize,
     tileViewPort[3] = 1;
     }
 
-  double vpu, vpv;
   // find the lower left corner of the viewport, taking into account the
   // lower left boundary of this tile
-  vpu = (vport[0] - tileViewPort[0]);
-  vpv = (vport[1] - tileViewPort[1]);
-  vtkViewportBound(vpu,vpv);
+  double vpu = vtkMath::ClampValue(vport[0] - tileViewPort[0], 0.0, 1.0);
+  double vpv = vtkMath::ClampValue(vport[1] - tileViewPort[1], 0.0, 1.0);
   // store the result as a pixel value
   this->NormalizedDisplayToDisplay(vpu,vpv);
   *lowerLeftU = static_cast<int>(vpu+0.5);
   *lowerLeftV = static_cast<int>(vpv+0.5);
-  double vpu2, vpv2;
+
   // find the upper right corner of the viewport, taking into account the
   // lower left boundary of this tile
-  vpu2 = (vport[2] - tileViewPort[0]);
-  vpv2 = (vport[3] - tileViewPort[1]);
-  vtkViewportBound(vpu2,vpv2);
+  double vpu2 = vtkMath::ClampValue(vport[2] - tileViewPort[0], 0.0, 1.0);
+  double vpv2 = vtkMath::ClampValue(vport[3] - tileViewPort[1], 0.0, 1.0);
   // also watch for the upper right boundary of the tile
   if (vpu2 > (tileViewPort[2] - tileViewPort[0]))
     {
