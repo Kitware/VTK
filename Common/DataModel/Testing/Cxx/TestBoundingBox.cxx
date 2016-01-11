@@ -72,5 +72,12 @@ int TestBoundingBox(int,char *[])
       && bb[2] ==-1 && bb[3]==1
       && bb[4] ==-1 && bb[5] ==1,"Intersect Plane Failed!")
     }
+    {
+    double bb[6];
+    vtkBoundingBox invalidBBox;
+    invalidBBox.GetBounds(bb);
+    vtkBoundingBox bbox(bb);
+    TestBoundingBoxFailMacro(!bbox.IsValid(), "Bounding box from invalid bounds Failed!");
+    }
   return EXIT_SUCCESS;
 }

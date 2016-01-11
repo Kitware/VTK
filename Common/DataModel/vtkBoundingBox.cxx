@@ -126,15 +126,6 @@ void vtkBoundingBox::SetBounds(double xMin, double xMax,
   this->MaxPnt[1] = yMax;
   this->MinPnt[2] = zMin;
   this->MaxPnt[2] = zMax;
-
-  int i;
-  for (i = 0; i < 3; i++)
-    {
-    if (this->MaxPnt[i] < this->MinPnt[i])
-      {
-      this->MaxPnt[i] = this->MinPnt[i];
-      }
-    }
 }
 
 // ---------------------------------------------------------------------------
