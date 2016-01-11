@@ -18,33 +18,39 @@
 #include "vtkContextItem.h"
 #include "vtkContextScene.h"
 #include "vtkContextView.h"
+#include "vtkFloatArray.h"
 #include "vtkGL2PSExporter.h"
+#include "vtkImageData.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLContextDevice2D.h"
 #include "vtkPen.h"
+#include "vtkPointData.h"
 #include "vtkPoints2D.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkRTAnalyticSource.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestingInteractor.h"
 #include "vtkTextProperty.h"
 #include "vtkTransform2D.h"
+#include "vtkUnsignedCharArray.h"
 
 #include <string>
+
 //----------------------------------------------------------------------------
 class ContextGL2PSTest : public vtkContextItem
 {
 public:
   static ContextGL2PSTest *New();
-  vtkTypeMacro(ContextGL2PSTest, vtkContextItem);
+  vtkTypeMacro(ContextGL2PSTest, vtkContextItem)
   // Paint event for the chart, called whenever the chart needs to be drawn
   virtual bool Paint(vtkContext2D *painter);
 };
 
 //----------------------------------------------------------------------------
-int TestContextGL2PS( int, char *[] )
+int TestGL2PSContext( int, char *[] )
 {
   // Set up a 2D context view, context test object and add it to the scene
   vtkNew<vtkContextView> view;
@@ -68,9 +74,10 @@ int TestContextGL2PS( int, char *[] )
   exp->DrawBackgroundOn();
   exp->SetLineWidthFactor(1.0);
   exp->SetPointSizeFactor(1.0);
+  exp->SetTextAsPath(true);
 
   std::string fileprefix = vtkTestingInteractor::TempDirectory +
-      std::string("/TestContextGL2PS");
+      std::string("/TestGL2PSContext");
 
   exp->SetFilePrefix(fileprefix.c_str());
   exp->Write();
@@ -85,7 +92,7 @@ int TestContextGL2PS( int, char *[] )
 }
 
 // Make our new derived class to draw a diagram
-vtkStandardNewMacro(ContextGL2PSTest);
+vtkStandardNewMacro(ContextGL2PSTest)
 // This function aims to test the primitives provided by the 2D API.
 bool ContextGL2PSTest::Paint(vtkContext2D *painter)
 {
@@ -111,9 +118,11 @@ bool ContextGL2PSTest::Paint(vtkContext2D *painter)
 
   // Draw some individual lines of different thicknesses.
   painter->GetPen()->SetWidth(10);
+  painter->GetPen()->SetLineType(vtkPen::SOLID_LINE);
   for (int i = 0; i < 10; ++i)
     {
-    painter->GetPen()->SetLineType(i % (vtkPen::DASH_DOT_DOT_LINE+1));
+    // Removed for OpenGL2 backend -- stippling is not supported.
+//    painter->GetPen()->SetLineType(i % (vtkPen::DASH_DOT_DOT_LINE+1));
     painter->GetPen()->SetColor(255,
                                 static_cast<unsigned char>(float(i)*25.0),
                                 0);
@@ -168,7 +177,11 @@ bool ContextGL2PSTest::Paint(vtkContext2D *painter)
     painter->GetPen()->SetWidth(style * 5 + 5);
     // Not highlighted:
     painter->DrawMarkers(style, false, markerPoints, 10, markerColors, 4);
-    // Highlight the middle 4 points
+    // Highlight the middle 4 points.
+    // Note that the colors will not be correct for these points in the
+    // postscript output -- They are drawn yellow with alpha=0.5 over the
+    // existing colored points, but PS doesn't support transparency, so they
+    // just come out yellow.
     painter->GetPen()->SetColorF(0.9, 0.8, 0.1, 0.5);
     painter->DrawMarkers(style, true, markerPoints + 3*2, 4);
     }
@@ -203,19 +216,19 @@ bool ContextGL2PSTest::Paint(vtkContext2D *painter)
   // Now to test out the transform...
   vtkNew<vtkTransform2D> transform;
   transform->Translate(20, 200);
-  painter->GetDevice()->SetMatrix(transform->GetMatrix());
+  painter->SetTransform(transform.GetPointer());
   painter->GetPen()->SetColor(255, 0, 0);
   painter->GetPen()->SetWidth(6.0);
   painter->DrawPoly(points);
 
   transform->Translate(0, 10);
-  painter->GetDevice()->SetMatrix(transform->GetMatrix());
+  painter->SetTransform(transform.GetPointer());
   painter->GetPen()->SetColor(0, 0, 200);
   painter->GetPen()->SetWidth(2.0);
   painter->DrawPoints(points);
 
   transform->Translate(0, -20);
-  painter->GetDevice()->SetMatrix(transform->GetMatrix());
+  painter->SetTransform(transform.GetPointer());
   painter->GetPen()->SetColor(100, 0, 200);
   painter->GetPen()->SetWidth(5.0);
   painter->DrawPoints(points);
@@ -224,8 +237,48 @@ bool ContextGL2PSTest::Paint(vtkContext2D *painter)
   painter->GetPen()->SetColor(0, 0, 0);
   painter->GetPen()->SetWidth(1.0);
   painter->GetBrush()->SetColor(0, 0, 100, 69);
-  painter->DrawEllipse(110.0, 89.0, 20, 100);
-  painter->DrawEllipseWedge(250.0, 89.0, 100, 20, 50, 10, 0, 360);
+  // Draws smooth path (Full circle, testing oddball angles):
+  painter->DrawEllipseWedge(100.0, 89.0, 20, 100, 15, 75, -26.23, 333.77);
+  // Polygon approximation:
+  painter->DrawEllipseWedge(150.0, 89.0, 20, 100, 15, 75, 43, 181);
+  // Smooth path:
+  painter->DrawEllipticArc(200.0, 89.0, 20, 100, 0, 360);
+  // Polygon approximation:
+  painter->DrawEllipticArc(250.0, 89.0, 20, 100, 43, 181);
+
+  // Remove the transform:
+  transform->Identity();
+  painter->SetTransform(transform.GetPointer());
+
+  // Toss some images in:
+  vtkNew<vtkRTAnalyticSource> imageSrc;
+  imageSrc->SetWholeExtent(0, 49, 0, 49, 0, 0);
+  imageSrc->SetMaximum(1.0);
+  imageSrc->Update();
+  vtkImageData *image = imageSrc->GetOutput();
+
+  // convert to RGB bytes:
+  vtkFloatArray *vals = static_cast<vtkFloatArray*>(
+        image->GetPointData()->GetScalars());
+  float imgRange[2];
+  vals->GetValueRange(imgRange);
+  float invRange = 1.f / (imgRange[1] - imgRange[0]);
+  vtkUnsignedCharArray *scalars = vtkUnsignedCharArray::New();
+  scalars->SetNumberOfComponents(3);
+  scalars->SetNumberOfTuples(vals->GetNumberOfTuples());
+  for (vtkIdType i = 0; i < vals->GetNumberOfTuples(); ++i)
+    {
+    float val = vals->GetValue(i);
+    val = (val - imgRange[0]) * invRange; // normalize to (0, 1)
+    scalars->SetComponent(i, 0, val * 255);
+    scalars->SetComponent(i, 1, (1.f - val) * 255);
+    scalars->SetComponent(i, 2, (val*val) * 255);
+    }
+  image->GetPointData()->SetScalars(scalars);
+  scalars->Delete();
+  painter->DrawImage(10, 525, image);
+  painter->DrawImage(65, 500, 2.f, image);
+  painter->DrawImage(vtkRectf(170, 537.5f, 25, 25), image);
 
   return true;
 }

@@ -15,5 +15,8 @@ vtk_module(vtkIOExportOpenGL
     vtkRendering${VTK_RENDERING_BACKEND}
   PRIVATE_DEPENDS
     vtkgl2ps
+  TEST_DEPENDS
+    vtkTestingRendering
+    vtkViewsContext2D
   EXCLUDE_FROM_WRAPPING
 )
