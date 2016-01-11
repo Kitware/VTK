@@ -47,6 +47,9 @@ PURPOSE.  See the above copyright notice for more information.
 class vtkOSOpenGLRenderWindow;
 class vtkRenderWindow;
 
+typedef OSMesaContext GLAPIENTRY (*OSMesaCreateContextAttribs_func)( const int *attribList, OSMesaContext sharelist );
+
+
 class vtkOSOpenGLRenderWindowInternal
 {
   friend class vtkOSOpenGLRenderWindow;
@@ -176,7 +179,31 @@ void vtkOSOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
     }
   if (!this->Internal->OffScreenContextId)
     {
-    this->Internal->OffScreenContextId = OSMesaCreateContext(GL_RGBA, NULL);
+#if (OSMESA_MAJOR_VERSION * 100 + OSMESA_MINOR_VERSION >= 1102) && defined(OSMESA_CONTEXT_MAJOR_VERSION)
+    static const int attribs[] = {
+       OSMESA_FORMAT, OSMESA_RGBA,
+       OSMESA_DEPTH_BITS, 32,
+       OSMESA_STENCIL_BITS, 0,
+       OSMESA_ACCUM_BITS, 0,
+       OSMESA_PROFILE, OSMESA_CORE_PROFILE,
+       OSMESA_CONTEXT_MAJOR_VERSION, 3,
+       OSMESA_CONTEXT_MINOR_VERSION, 2,
+       0 };
+
+    OSMesaCreateContextAttribs_func OSMesaCreateContextAttribs =
+       (OSMesaCreateContextAttribs_func)
+       OSMesaGetProcAddress("OSMesaCreateContextAttribs");
+
+    if (OSMesaCreateContextAttribs != NULL)
+      {
+      this->Internal->OffScreenContextId = OSMesaCreateContextAttribs(attribs, NULL);
+      }
+#endif
+    // if we still have no context fall back to the generic signature
+    if (!this->Internal->OffScreenContextId)
+      {
+      this->Internal->OffScreenContextId = OSMesaCreateContext(GL_RGBA, NULL);
+      }
     }
   this->MakeCurrent();
 

@@ -120,6 +120,12 @@ vtkOpenGLPointGaussianMapperHelper::vtkOpenGLPointGaussianMapperHelper()
   this->Owner = NULL;
   this->OpacityTable = 0;
   this->ScaleTable = 0;
+  this->UsingPoints = false;
+  this->OpacityScale = 1.0;
+  this->ScaleScale = 1.0;
+  this->OpacityOffset = 0.0;
+  this->ScaleOffset = 0.0;
+  this->TriangleScale = 0.0;
 }
 
 
@@ -682,6 +688,8 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
         ));
     }
   this->VBO->Upload(this->VBO->PackedVBO, vtkOpenGLBufferObject::ArrayBuffer);
+  // free the memory using a swap because OO gone bad
+  std::vector<float>().swap(this->VBO->PackedVBO);
 
   this->VBO->VertexCount = splatCount;
 

@@ -300,7 +300,6 @@ protected:
   unsigned int FBOIndex;
   unsigned int PreviousDrawFBO;
   unsigned int PreviousReadFBO;
-  unsigned int DepthBuffer;
   unsigned int PreviousDrawBuffer;
   unsigned int PreviousReadBuffer;
 

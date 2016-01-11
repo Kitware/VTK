@@ -55,7 +55,13 @@ public:
   int LastTCoordComponents;
 
 protected:
-  vtkCompositeMapperHelper() {};
+  vtkCompositeMapperHelper()
+    {
+    this->Parent = 0;
+    this->LastColorCoordinates = 0;
+    this->LastNormalsOffset = 0;
+    this->LastTCoordComponents = 0;
+    };
   ~vtkCompositeMapperHelper() {};
 
   // Description:
@@ -215,6 +221,8 @@ vtkStandardNewMacro(vtkGenericCompositePolyDataMapper2);
 vtkGenericCompositePolyDataMapper2::vtkGenericCompositePolyDataMapper2()
 {
   this->LastOpaqueCheckTime = 0;
+  this->CurrentFlatIndex = 0;
+  this->LastOpaqueCheckValue = true;
 }
 
 //----------------------------------------------------------------------------

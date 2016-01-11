@@ -111,9 +111,14 @@ endif()
 # These tests depend on volume rendering classes not build for OpenGL2
 if(VTK_RENDERING_BACKEND STREQUAL "OpenGL")
   vtk_add_test_cxx(${vtk-module}CxxTests tests
-    TestButtonWidget.cxx
     TestImageCroppingRegionsWidget.cxx
     )
+
+  if(NOT VTK_LEGACY_REMOVE)
+    vtk_add_test_cxx(${vtk-module}CxxTests tests
+      TestButtonWidget.cxx
+      )
+  endif()
 endif()
 
 set(all_tests

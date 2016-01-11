@@ -344,8 +344,6 @@ protected:
   char* ProcessIdArrayName;
   char* CompositeIdArrayName;
 
-  int TextureComponents;
-
   class ReplacementSpec
     {
     public:

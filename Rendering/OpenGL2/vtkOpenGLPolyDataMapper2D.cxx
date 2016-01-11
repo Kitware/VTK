@@ -57,6 +57,10 @@ vtkOpenGLPolyDataMapper2D::vtkOpenGLPolyDataMapper2D()
   this->CellScalarBuffer = NULL;
   this->VBO = vtkOpenGLVertexBufferObject::New();
   this->AppleBugPrimIDBuffer = 0;
+  this->HaveAppleBug = false;
+  this->LastBoundBO = 0;
+  this->HaveCellScalars = false;
+  this->PrimitiveIDOffset = 0;
 }
 
 //-----------------------------------------------------------------------------

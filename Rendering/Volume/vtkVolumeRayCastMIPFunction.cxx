@@ -13,6 +13,9 @@
 
 =========================================================================*/
 #include "vtkVolumeRayCastMIPFunction.h"
+
+#if !defined(VTK_LEGACY_REMOVE)
+
 #include "vtkVolumeRayCastMapper.h"
 #include "vtkVolume.h"
 #include "vtkObjectFactory.h"
@@ -438,6 +441,8 @@ void vtkCastMaxOpacityRay( T *data_ptr, vtkVolumeRayCastDynamicInfo *dynamicInfo
 vtkVolumeRayCastMIPFunction::vtkVolumeRayCastMIPFunction()
 {
   this->MaximizeMethod = VTK_MAXIMIZE_SCALAR_VALUE;
+  VTK_LEGACY_BODY(vtkVolumeRayCastMIPFunction::vtkVolumeRayCastMIPFunction,
+                  "VTK 7.0");
 }
 
 // Destruct the vtkVolumeRayCastMIPFunction
@@ -535,3 +540,5 @@ void vtkVolumeRayCastMIPFunction::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Maximize Method: " << this->GetMaximizeMethodAsString()
      << "\n";
 }
+
+#endif // VTK_LEGACY_REMOVE

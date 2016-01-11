@@ -502,6 +502,8 @@ void vtkTextMapper::UpdateQuad(vtkActor2D *actor, int dpi)
     else
       {
       vtkErrorMacro(<<"Could not locate vtkTextRenderer object.");
+      text_bbox[0] = 0;
+      text_bbox[2] = 0;
       }
 
     double x = static_cast<double>(text_bbox[0]);

@@ -47,6 +47,9 @@ vtkStandardNewMacro(vtkCompositePolyDataMapper2);
 vtkCompositePolyDataMapper2::vtkCompositePolyDataMapper2()
 {
   this->UseGeneric = true;
+  this->MaximumFlatIndex = 0;
+  this->CanUseTextureMapForColoringSet = false;
+  this->CanUseTextureMapForColoringValue = false;
 }
 
 //----------------------------------------------------------------------------

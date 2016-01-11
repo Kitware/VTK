@@ -633,7 +633,6 @@ protected:
   int WrapR;
   int MinificationFilter;
   int MagnificationFilter;
-  bool LinearMagnification;
 
   float MinLOD;
   float MaxLOD;

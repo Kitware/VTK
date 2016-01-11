@@ -80,6 +80,8 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   this->DrawingEdges = false;
   this->ForceTextureCoordinates = false;
 
+  this->PrimitiveIDOffset = 0;
+
   this->CellScalarTexture = NULL;
   this->CellScalarBuffer = NULL;
   this->CellNormalTexture = NULL;
@@ -2866,7 +2868,6 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
     // for coloring with a point attribute.
     // fixme ... make the existence of the coordinate array the signal.
     vtkDataArray *tcoords = NULL;
-    this->TextureComponents = 4;
     if (haveTextures)
       {
       if (this->InterpolateScalarsBeforeMapping && this->ColorCoordinates)
@@ -3018,7 +3019,7 @@ void vtkOpenGLPolyDataMapper::BuildIBO(
           vtkDebugMacro(<< "Currently only 1d edge flags are supported.");
           ef = NULL;
           }
-        if (!ef->IsA("vtkUnsignedCharArray"))
+        else if (!ef->IsA("vtkUnsignedCharArray"))
           {
           vtkDebugMacro(<< "Currently only unsigned char edge flags are suported.");
           ef = NULL;

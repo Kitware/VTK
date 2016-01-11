@@ -7,7 +7,6 @@ shopt -s dotglob
 readonly name="zlib"
 readonly ownership="Zlib Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
-readonly update="ThirdParty/$name/update.sh"
 readonly repo="https://gitlab.kitware.com/third-party/zlib.git"
 readonly tag="for/vtk"
 readonly paths="
@@ -41,15 +40,12 @@ zlib.h
 zutil.h
 
 zconf.h.cmakein
-win32/zlib1.rc
 
 ChangeLog
 README
 FAQ
 INDEX
 "
-
-readonly basehash='ef8ea7482fcb9765901abe35bda78789e4a0f6db' # NEWHASH
 
 extract_source () {
     git_archive

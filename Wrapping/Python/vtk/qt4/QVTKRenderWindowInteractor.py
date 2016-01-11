@@ -13,5 +13,5 @@ except ImportError:
 from vtk.qt.QVTKRenderWindowInteractor import *
 
 if __name__ == "__main__":
-    print PyQtImpl
+    print(PyQtImpl)
     QVTKRenderWidgetConeExample()

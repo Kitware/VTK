@@ -86,7 +86,13 @@ if (NOT CMAKE_OSX_SYSROOT)
       iPhoneSimulator7.1.sdk
       iPhoneSimulator8.0.sdk
       iPhoneSimulator9.0.sdk
-      iPhoneSimulator9.1.sdk)
+      iPhoneSimulator9.1.sdk
+      iPhoneSimulator9.2.sdk
+      iPhoneSimulator9.3.sdk  # guess
+      iPhoneSimulator9.4.sdk  # guess
+      iPhoneSimulator10.0.sdk # guess
+      iPhoneSimulator10.1.sdk # guess
+      )
       if (EXISTS ${sdk_root}/${sdk} AND IS_DIRECTORY ${sdk_root}/${sdk})
         set(CMAKE_OSX_SYSROOT ${sdk_root}/${sdk})
       endif()

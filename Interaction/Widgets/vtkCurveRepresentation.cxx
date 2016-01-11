@@ -458,18 +458,24 @@ void vtkCurveRepresentation::Spin(double *p1, double *p2, double *vpn)
 
   if ( this->ProjectToPlane )
     {
-    if ( this->ProjectionNormal == VTK_PROJECTION_OBLIQUE && \
-         this->PlaneSource != NULL )
+    if ( this->ProjectionNormal == VTK_PROJECTION_OBLIQUE)
       {
-      double* normal = this->PlaneSource->GetNormal();
-      axis[0] = normal[0];
-      axis[1] = normal[1];
-      axis[2] = normal[2];
-      vtkMath::Normalize(axis);
+      if (this->PlaneSource != NULL )
+        {
+        double* normal = this->PlaneSource->GetNormal();
+        axis[0] = normal[0];
+        axis[1] = normal[1];
+        axis[2] = normal[2];
+        vtkMath::Normalize( axis );
+        }
+      else
+        {
+        axis[0] = 1.;
+        }
       }
     else
       {
-      axis[ this->ProjectionNormal ] = 1.0;
+      axis[ this->ProjectionNormal ] = 1.;
       }
     }
   else
