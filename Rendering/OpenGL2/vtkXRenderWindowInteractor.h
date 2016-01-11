@@ -169,7 +169,6 @@ protected:
   int OwnApp;
   int PositionBeforeStereo[2];
   Widget TopLevelShell;
-  int TimerId;
   vtkXRenderWindowInteractorInternals* Internal;
 
   // Description:

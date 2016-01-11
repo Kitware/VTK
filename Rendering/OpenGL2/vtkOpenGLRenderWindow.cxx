@@ -134,6 +134,9 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->OpenGLSupportTested = false;
   this->OpenGLSupportResult = 0;
   this->OpenGLSupportMessage = "Not tested yet";
+
+  this->NumberOfFrameBuffers = 0;
+  this->DepthRenderBufferObject = 0;
 }
 
 // free up memory & close the window

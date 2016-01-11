@@ -286,8 +286,6 @@ protected:
   int TextureInternalFormats[VTK_UNICODE_STRING][3][5];
   void InitializeTextureInternalFormats();
 
-  long OldMonitorSetting;
-
   std::map<const vtkTextureObject *, int> TextureResourceIds;
 
   int GetPixelData(int x, int y, int x2, int y2, int front, unsigned char* data);
