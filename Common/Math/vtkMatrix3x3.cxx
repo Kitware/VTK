@@ -87,7 +87,7 @@ void vtkMatrix3x3::MultiplyPoint(const double elements[9],
 #ifndef VTK_LEGACY_REMOVE
 double *vtkMatrix3x3::operator[](const unsigned int i)
 {
-  VTK_LEGACY_BODY(vtkMatrix3x3::operator[], "VTK 7.1");
+  VTK_LEGACY_BODY(vtkMatrix3x3::operator[], "VTK 7.0");
   return &(this->Element[i][0]);
 }
 #endif
@@ -96,7 +96,7 @@ double *vtkMatrix3x3::operator[](const unsigned int i)
 #ifndef VTK_LEGACY_REMOVE
 const double *vtkMatrix3x3::operator[](unsigned int i) const
 {
-  VTK_LEGACY_BODY(vtkMatrix3x3::operator[], "VTK 7.1");
+  VTK_LEGACY_BODY(vtkMatrix3x3::operator[], "VTK 7.0");
   return &(this->Element[i][0]);
 }
 #endif
@@ -141,7 +141,7 @@ bool vtkMatrix3x3::operator!=(const vtkMatrix3x3 &other)
 #ifndef VTK_LEGACY_REMOVE
 void vtkMatrix3x3::Adjoint(vtkMatrix3x3 &in, vtkMatrix3x3 &out)
 {
-  VTK_LEGACY_BODY(vtkMatrix3x3::Adjoint, "VTK 7.1");
+  VTK_LEGACY_BODY(vtkMatrix3x3::Adjoint, "VTK 7.0");
   this->Adjoint(&in, &out);
 }
 #endif
@@ -150,7 +150,7 @@ void vtkMatrix3x3::Adjoint(vtkMatrix3x3 &in, vtkMatrix3x3 &out)
 #ifndef VTK_LEGACY_REMOVE
 double vtkMatrix3x3::Determinant(vtkMatrix3x3 &in)
 {
-  VTK_LEGACY_BODY(vtkMatrix3x3::Determinant, "VTK 7.1");
+  VTK_LEGACY_BODY(vtkMatrix3x3::Determinant, "VTK 7.0");
   return vtkMatrix3x3::Determinant(*in.Element);
 }
 #endif
@@ -159,7 +159,7 @@ double vtkMatrix3x3::Determinant(vtkMatrix3x3 &in)
 #ifndef VTK_LEGACY_REMOVE
 double vtkMatrix3x3::Determinant(vtkMatrix3x3 *in)
 {
-  VTK_LEGACY_BODY(vtkMatrix3x3::Determinant, "VTK 7.1");
+  VTK_LEGACY_BODY(vtkMatrix3x3::Determinant, "VTK 7.0");
   return vtkMatrix3x3::Determinant(*in->Element);
 }
 #endif
@@ -168,7 +168,7 @@ double vtkMatrix3x3::Determinant(vtkMatrix3x3 *in)
 #ifndef VTK_LEGACY_REMOVE
 void vtkMatrix3x3::Invert(vtkMatrix3x3 &in, vtkMatrix3x3 &out)
 {
-  VTK_LEGACY_BODY(vtkMatrix3x3::Invert, "VTK 7.1");
+  VTK_LEGACY_BODY(vtkMatrix3x3::Invert, "VTK 7.0");
   this->Invert(&in, &out);
 }
 #endif
@@ -177,7 +177,7 @@ void vtkMatrix3x3::Invert(vtkMatrix3x3 &in, vtkMatrix3x3 &out)
 #ifndef VTK_LEGACY_REMOVE
 void vtkMatrix3x3::Transpose(vtkMatrix3x3 &in, vtkMatrix3x3 &out)
 {
-  VTK_LEGACY_BODY(vtkMatrix3x3::Transpose, "VTK 7.1");
+  VTK_LEGACY_BODY(vtkMatrix3x3::Transpose, "VTK 7.0");
   this->Transpose(&in, &out);
 }
 #endif
@@ -187,7 +187,7 @@ void vtkMatrix3x3::Transpose(vtkMatrix3x3 &in, vtkMatrix3x3 &out)
 void vtkMatrix3x3::PointMultiply(const double elements[9],
                                  const float in[3], float result[3])
 {
-  VTK_LEGACY_BODY(vtkMatrix3x3::PointMultiply, "VTK 7.1");
+  VTK_LEGACY_BODY(vtkMatrix3x3::PointMultiply, "VTK 7.0");
   double newElements[9];
   vtkMatrix3x3::Transpose(elements, newElements);
   vtkMatrix3x3::MultiplyPoint(newElements, in, result);
@@ -199,7 +199,7 @@ void vtkMatrix3x3::PointMultiply(const double elements[9],
 void vtkMatrix3x3::PointMultiply(const double elements[9],
                                  const double in[3], double result[3])
 {
-  VTK_LEGACY_BODY(vtkMatrix3x3::PointMultiply, "VTK 7.1");
+  VTK_LEGACY_BODY(vtkMatrix3x3::PointMultiply, "VTK 7.0");
   double newElements[9];
   vtkMatrix3x3::Transpose(elements, newElements);
   vtkMatrix3x3::MultiplyPoint(newElements, in, result);
