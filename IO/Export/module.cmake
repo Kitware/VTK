@@ -1,5 +1,7 @@
 if(VTK_RENDERING_BACKEND STREQUAL "OpenGL")
   set(opengl_depends vtkRenderingGL2PS)
+elseif(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+  set(opengl_depends vtkRenderingGL2PSOpenGL2)
 endif()
 
 vtk_module(vtkIOExport
@@ -13,7 +15,6 @@ vtk_module(vtkIOExport
   PRIVATE_DEPENDS
     vtkIOImage
     vtkFiltersGeometry
-    ${private_opengl_depends}
   TEST_DEPENDS
     vtkCommonColor
     vtkChartsCore
