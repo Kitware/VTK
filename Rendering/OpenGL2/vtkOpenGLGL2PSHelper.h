@@ -49,6 +49,10 @@ public:
   static void SetInstance(vtkOpenGLGL2PSHelper *);
 
   // Description:
+  // Get the renderwindow that's being exported.
+  vtkGetMacro(RenderWindow, vtkRenderWindow*)
+
+  // Description:
   // If true, GL2PS is ready to accept data.
   vtkGetMacro(Capturing, bool)
   vtkSetMacro(Capturing, bool)
@@ -80,8 +84,10 @@ public:
 
   // Description:
   // Format the text in str according to tprop and instruct GL2PS to draw it at
-  // world coordinate pos. Background depth is the z value for the background
+  // pixel coordinate pos. Background depth is the z value for the background
   // quad, and should be in NDC space.
+  // The drawing is always done in the overlay plane.
+  // @sa TextAsPath
   virtual void DrawString(const std::string &str, vtkTextProperty *tprop,
                           double pos[3], double backgroundDepth,
                           vtkRenderer *ren) = 0;
@@ -113,7 +119,6 @@ public:
   // Draw the image at pos.
   // Image must be RGB or RGBA with float scalars.
   virtual void DrawImage(vtkImageData *image, double pos[3]) = 0;
-
 
 protected:
   friend class vtkOpenGLGL2PSExporter;

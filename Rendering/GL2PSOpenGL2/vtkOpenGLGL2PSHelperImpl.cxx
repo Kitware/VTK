@@ -240,38 +240,43 @@ void vtkOpenGLGL2PSHelperImpl::DrawString(const std::string &str,
     if (tren->GetMetrics(tprop, str, metrics, dpi))
       {
       double bgPos[3] = { pos[0], pos[1], backgroundDepth };
-      this->ProjectPoint(bgPos, ren);
 
-      double bgVerts[12];
-      bgVerts[0] = bgPos[0] + static_cast<double>(metrics.TopLeft[0]);
-      bgVerts[1] = bgPos[1] + static_cast<double>(metrics.TopLeft[1]);
-      bgVerts[2] = bgPos[2];
-      bgVerts[3] = bgPos[0] + static_cast<double>(metrics.BottomLeft[0]);
-      bgVerts[4] = bgPos[1] + static_cast<double>(metrics.BottomLeft[1]);
-      bgVerts[5] = bgPos[2];
-      bgVerts[6] = bgPos[0] + static_cast<double>(metrics.BottomRight[0]);
-      bgVerts[7] = bgPos[1] + static_cast<double>(metrics.BottomRight[1]);
-      bgVerts[8] = bgPos[2];
-      bgVerts[9]  = bgPos[0] + static_cast<double>(metrics.TopRight[0]);
-      bgVerts[10] = bgPos[1] + static_cast<double>(metrics.TopRight[1]);
-      bgVerts[11] = bgPos[2];
+      GL2PSvertex bgVerts[5];
 
-      this->UnprojectPoints(bgVerts, 4, ren);
+      double bgColor[4];
+      tprop->GetBackgroundColor(bgColor);
+      bgColor[3] = tprop->GetBackgroundOpacity();
+      std::copy(bgColor, bgColor + 4, bgVerts[0].rgba);
+      std::copy(bgColor, bgColor + 4, bgVerts[1].rgba);
+      std::copy(bgColor, bgColor + 4, bgVerts[2].rgba);
+      std::copy(bgColor, bgColor + 4, bgVerts[3].rgba);
+      std::copy(bgColor, bgColor + 4, bgVerts[4].rgba);
 
-      // TODO just shove this straight into GL2PS
-      glDisable(GL_LIGHTING);
-      glDisableClientState(GL_COLOR_ARRAY);
-      glEnableClientState(GL_VERTEX_ARRAY);
-      glColor4d(tprop->GetBackgroundColor()[0],
-                tprop->GetBackgroundColor()[1],
-                tprop->GetBackgroundColor()[2],
-                tprop->GetBackgroundOpacity());
-      glVertexPointer(3, GL_DOUBLE, 0, bgVerts);
-      glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+      bgVerts[0].xyz[0] = static_cast<float>(bgPos[0] + metrics.TopLeft[0]);
+      bgVerts[0].xyz[1] = static_cast<float>(bgPos[1] + metrics.TopLeft[1]);
+      bgVerts[0].xyz[2] = static_cast<float>(bgPos[2]);
+      bgVerts[1].xyz[0] = static_cast<float>(bgPos[0] + metrics.BottomLeft[0]);
+      bgVerts[1].xyz[1] = static_cast<float>(bgPos[1] + metrics.BottomLeft[1]);
+      bgVerts[1].xyz[2] = static_cast<float>(bgPos[2]);
+      bgVerts[2].xyz[0] = static_cast<float>(bgPos[0] + metrics.BottomRight[0]);
+      bgVerts[2].xyz[1] = static_cast<float>(bgPos[1] + metrics.BottomRight[1]);
+      bgVerts[2].xyz[2] = static_cast<float>(bgPos[2]);
+      bgVerts[3].xyz[0] = static_cast<float>(bgPos[0] + metrics.TopRight[0]);
+      bgVerts[3].xyz[1] = static_cast<float>(bgPos[1] + metrics.TopRight[1]);
+      bgVerts[3].xyz[2] = static_cast<float>(bgPos[2]);
+      bgVerts[4].xyz[0] = bgVerts[0].xyz[0];
+      bgVerts[4].xyz[1] = bgVerts[0].xyz[1];
+      bgVerts[4].xyz[2] = bgVerts[0].xyz[2];
+
+      gl2psAddPolyPrimitive(GL2PS_TRIANGLE, 3, bgVerts,     0, 0xffff, 0, 0, 0);
+      gl2psAddPolyPrimitive(GL2PS_TRIANGLE, 3, bgVerts + 2, 0, 0xffff, 0, 0, 0);
       }
     }
 
+  // Is this mathtext?
   bool isMath = tren->DetectBackend(str) == vtkTextRenderer::MathText;
+
+  // Export text as either a path or a text object.
   if (!isMath && !this->TextAsPath)
     {
     const char *fontname = this->TextPropertyToPSFontName(tprop);

@@ -51,6 +51,9 @@ set(Module_SRCS
   vtkOpenGLRenderUtilities.cxx
   vtkOpenGLRenderer.cxx
   vtkOpenGLShaderCache.cxx
+  vtkOpenGLTextActor.cxx
+  vtkOpenGLTextActor3D.cxx
+  vtkOpenGLTextMapper.cxx
   vtkOpenGLTexture.cxx
   vtkOpenGLVertexArrayObject.cxx
   vtkOpenGLVertexBufferObject.cxx
@@ -200,6 +203,9 @@ set(opengl_overrides
   PolyDataMapper2D
   Property
   Renderer
+  TextActor
+  TextActor3D
+  TextMapper
   Texture
   )
 
