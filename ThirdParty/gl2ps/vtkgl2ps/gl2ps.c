@@ -70,20 +70,6 @@
 #define GL2PS_ZOFFSET_LARGE 20.0F
 #define GL2PS_ZERO(arg)     (fabs(arg) < 1.e-20)
 
-/* Primitive types */
-
-#define GL2PS_NO_TYPE          -1
-#define GL2PS_TEXT             1
-#define GL2PS_POINT            2
-#define GL2PS_LINE             3
-#define GL2PS_QUADRANGLE       4
-#define GL2PS_TRIANGLE         5
-#define GL2PS_PIXMAP           6
-#define GL2PS_IMAGEMAP         7
-#define GL2PS_IMAGEMAP_WRITTEN 8
-#define GL2PS_IMAGEMAP_VISIBLE 9
-#define GL2PS_SPECIAL          10
-
 /* BSP tree primitive comparison */
 
 #define GL2PS_COINCIDENT  1
@@ -124,7 +110,6 @@ typedef enum {
   T_VAR_ALPHA    = 1<<4
 } GL2PS_TRIANGLE_PROPERTY;
 
-typedef GLfloat GL2PSxyz[3];
 typedef GLfloat GL2PSplane[4];
 
 typedef struct _GL2PSbsptree2d GL2PSbsptree2d;
@@ -146,11 +131,6 @@ struct _GL2PSbsptree {
   GL2PSlist *primitives;
   GL2PSbsptree *front, *back;
 };
-
-typedef struct {
-  GL2PSxyz xyz;
-  GL2PSrgba rgba;
-} GL2PSvertex;
 
 typedef struct {
   GL2PSvertex vertex[3];
@@ -225,6 +205,8 @@ typedef struct {
   FILE *stream;
   GL2PScompress *compress;
   GLboolean header;
+  GL2PSvertex rasterpos;
+  GLboolean forcerasterpos;
 
   /* BSP-specific */
   GLint maxbestroot;
@@ -883,10 +865,17 @@ static GLint gl2psAddText(GLint type, const char *str, const char *fontname,
 
   if(gl2ps->options & GL2PS_NO_TEXT) return GL2PS_SUCCESS;
 
-  glGetBooleanv(GL_CURRENT_RASTER_POSITION_VALID, &valid);
-  if(GL_FALSE == valid) return GL2PS_SUCCESS; /* the primitive is culled */
-
-  glGetFloatv(GL_CURRENT_RASTER_POSITION, pos);
+  if (gl2ps->forcerasterpos) {
+    pos[0] = gl2ps->rasterpos.xyz[0];
+    pos[1] = gl2ps->rasterpos.xyz[1];
+    pos[2] = gl2ps->rasterpos.xyz[2];
+    pos[3] = 1.f;
+  }
+  else {
+    glGetBooleanv(GL_CURRENT_RASTER_POSITION_VALID, &valid);
+    if(GL_FALSE == valid) return GL2PS_SUCCESS; /* the primitive is culled */
+    glGetFloatv(GL_CURRENT_RASTER_POSITION, pos);
+  }
 
   prim = (GL2PSprimitive*)gl2psMalloc(sizeof(GL2PSprimitive));
   prim->type = type;
@@ -901,10 +890,20 @@ static GLint gl2psAddText(GLint type, const char *str, const char *fontname,
   prim->pattern = 0;
   prim->factor = 0;
   prim->width = 1;
-  if (color)
+  if (color) {
     memcpy(prim->verts[0].rgba, color, 4 * sizeof(float));
-  else
-    glGetFloatv(GL_CURRENT_RASTER_COLOR, prim->verts[0].rgba);
+  }
+  else {
+    if (gl2ps->forcerasterpos) {
+      prim->verts[0].rgba[0] = gl2ps->rasterpos.rgba[0];
+      prim->verts[0].rgba[1] = gl2ps->rasterpos.rgba[1];
+      prim->verts[0].rgba[2] = gl2ps->rasterpos.rgba[2];
+      prim->verts[0].rgba[3] = gl2ps->rasterpos.rgba[3];
+    }
+    else {
+      glGetFloatv(GL_CURRENT_RASTER_COLOR, prim->verts[0].rgba);
+    }
+  }
   prim->data.text = (GL2PSstring*)gl2psMalloc(sizeof(GL2PSstring));
   prim->data.text->str = (char*)gl2psMalloc((strlen(str)+1)*sizeof(char));
   strcpy(prim->data.text->str, str);
@@ -914,8 +913,16 @@ static GLint gl2psAddText(GLint type, const char *str, const char *fontname,
   prim->data.text->alignment = alignment;
   prim->data.text->angle = angle;
 
-  gl2psListAdd(gl2ps->auxprimitives, &prim);
-  glPassThrough(GL2PS_TEXT_TOKEN);
+  gl2ps->forcerasterpos = GL_FALSE;
+
+  /* If no buffer, just add directly to primitives */
+  if (gl2ps->buffersize > 0) {
+    gl2psListAdd(gl2ps->auxprimitives, &prim);
+    glPassThrough(GL2PS_TEXT_TOKEN);
+  }
+  else {
+    gl2psListAdd(gl2ps->primitives, &prim);
+  }
 
   return GL2PS_SUCCESS;
 }
@@ -2178,10 +2185,10 @@ static void gl2psBuildPolygonBoundary(GL2PSbsptree *tree)
  *
  *********************************************************************/
 
-static void gl2psAddPolyPrimitive(GLshort type, GLshort numverts,
-                                  GL2PSvertex *verts, GLint offset,
-                                  GLushort pattern, GLint factor,
-                                  GLfloat width, char boundary)
+GL2PSDLL_API void gl2psAddPolyPrimitive(GLshort type, GLshort numverts,
+                                        GL2PSvertex *verts, GLint offset,
+                                        GLushort pattern, GLint factor,
+                                        GLfloat width, char boundary)
 {
   GL2PSprimitive *prim;
 
@@ -3889,7 +3896,6 @@ static int gl2psPDFgroupListWriteShaderResources(void)
 }
 
 /* Images & Mask Shader XObject names */
-
 static int gl2psPDFgroupListWriteXObjectResources(void)
 {
   int i;
@@ -5576,9 +5582,11 @@ static GLint gl2psPrintPrimitives(void)
 {
   GL2PSbsptree *root;
   GL2PSxyz eye = {0.0F, 0.0F, 100.0F * GL2PS_ZSCALE};
-  GLint used;
+  GLint used = 0;
 
-  used = glRenderMode(GL_RENDER);
+  if (gl2ps->buffersize > 0) {
+    used = glRenderMode(GL_RENDER);
+  }
 
   if(used < 0){
     gl2psMsg(GL2PS_INFO, "OpenGL feedback buffer overflow");
@@ -5703,6 +5711,7 @@ GL2PSDLL_API GLint gl2psBeginPage(const char *title, const char *producer,
   }
 
   gl2ps->header = GL_TRUE;
+  gl2ps->forcerasterpos = GL_FALSE;
   gl2ps->maxbestroot = 10;
   gl2ps->options = options;
   gl2ps->compress = NULL;
@@ -5731,7 +5740,7 @@ GL2PSDLL_API GLint gl2psBeginPage(const char *title, const char *producer,
   gl2ps->threshold[1] = ng ? 1.0F / (GLfloat)ng : 0.034F;
   gl2ps->threshold[2] = nb ? 1.0F / (GLfloat)nb : 0.100F;
   gl2ps->colormode = colormode;
-  gl2ps->buffersize = buffersize > 0 ? buffersize : 2048 * 2048;
+  gl2ps->buffersize = buffersize;
   for(i = 0; i < 3; i++){
     gl2ps->lastvertex.xyz[i] = -1.0F;
   }
@@ -5751,9 +5760,15 @@ GL2PSDLL_API GLint gl2psBeginPage(const char *title, const char *producer,
 
   /* get default blending mode from current OpenGL state (enabled by
      default for SVG) */
-  gl2ps->blending = (gl2ps->format == GL2PS_SVG) ? GL_TRUE : glIsEnabled(GL_BLEND);
-  glGetIntegerv(GL_BLEND_SRC, &gl2ps->blendfunc[0]);
-  glGetIntegerv(GL_BLEND_DST, &gl2ps->blendfunc[1]);
+  if (gl2ps->buffersize > 0) {
+    gl2ps->blending = (gl2ps->format == GL2PS_SVG) ? GL_TRUE
+                                                   : glIsEnabled(GL_BLEND);
+    glGetIntegerv(GL_BLEND_SRC, &gl2ps->blendfunc[0]);
+    glGetIntegerv(GL_BLEND_DST, &gl2ps->blendfunc[1]);
+  }
+  else {
+    gl2ps->blending = GL_FALSE;
+  }
 
   if(gl2ps->colormode == GL_RGBA){
     gl2ps->colorsize = 0;
@@ -5813,8 +5828,11 @@ GL2PSDLL_API GLint gl2psBeginPage(const char *title, const char *producer,
   gl2ps->primitives = gl2psListCreate(500, 500, sizeof(GL2PSprimitive*));
   gl2ps->auxprimitives = gl2psListCreate(100, 100, sizeof(GL2PSprimitive*));
   gl2ps->feedback = (GLfloat*)gl2psMalloc(gl2ps->buffersize * sizeof(GLfloat));
-  glFeedbackBuffer(gl2ps->buffersize, GL_3D_COLOR, gl2ps->feedback);
-  glRenderMode(GL_FEEDBACK);
+
+  if (gl2ps->buffersize > 0) {
+    glFeedbackBuffer(gl2ps->buffersize, GL_3D_COLOR, gl2ps->feedback);
+    glRenderMode(GL_FEEDBACK);
+  }
 
   return GL2PS_SUCCESS;
 }
@@ -5917,12 +5935,22 @@ GL2PSDLL_API GLint gl2psDrawPixels(GLsizei width, GLsizei height,
     return GL2PS_ERROR;
   }
 
-  glGetBooleanv(GL_CURRENT_RASTER_POSITION_VALID, &valid);
-  if(GL_FALSE == valid) return GL2PS_SUCCESS; /* the primitive is culled */
-
-  glGetFloatv(GL_CURRENT_RASTER_POSITION, pos);
-  glGetFloatv(GL_ZOOM_X, &zoom_x);
-  glGetFloatv(GL_ZOOM_Y, &zoom_y);
+  if (gl2ps->forcerasterpos) {
+    pos[0] = gl2ps->rasterpos.xyz[0];
+    pos[1] = gl2ps->rasterpos.xyz[1];
+    pos[2] = gl2ps->rasterpos.xyz[2];
+    pos[3] = 1.f;
+    /* Hardcode zoom factors (for now?) */
+    zoom_x = 1.f;
+    zoom_y = 1.f;
+  }
+  else {
+    glGetBooleanv(GL_CURRENT_RASTER_POSITION_VALID, &valid);
+    if(GL_FALSE == valid) return GL2PS_SUCCESS; /* the primitive is culled */
+    glGetFloatv(GL_CURRENT_RASTER_POSITION, pos);
+    glGetFloatv(GL_ZOOM_X, &zoom_x);
+    glGetFloatv(GL_ZOOM_Y, &zoom_y);
+  }
 
   prim = (GL2PSprimitive*)gl2psMalloc(sizeof(GL2PSprimitive));
   prim->type = GL2PS_PIXMAP;
@@ -5937,7 +5965,15 @@ GL2PSDLL_API GLint gl2psDrawPixels(GLsizei width, GLsizei height,
   prim->pattern = 0;
   prim->factor = 0;
   prim->width = 1;
-  glGetFloatv(GL_CURRENT_RASTER_COLOR, prim->verts[0].rgba);
+  if (gl2ps->forcerasterpos) {
+    prim->verts[0].rgba[0] = gl2ps->rasterpos.rgba[0];
+    prim->verts[0].rgba[1] = gl2ps->rasterpos.rgba[1];
+    prim->verts[0].rgba[2] = gl2ps->rasterpos.rgba[2];
+    prim->verts[0].rgba[3] = gl2ps->rasterpos.rgba[3];
+  }
+  else {
+    glGetFloatv(GL_CURRENT_RASTER_COLOR, prim->verts[0].rgba);
+  }
   prim->data.image = (GL2PSimage*)gl2psMalloc(sizeof(GL2PSimage));
   prim->data.image->width = width;
   prim->data.image->height = height;
@@ -5945,6 +5981,8 @@ GL2PSDLL_API GLint gl2psDrawPixels(GLsizei width, GLsizei height,
   prim->data.image->zoom_y = zoom_y;
   prim->data.image->format = format;
   prim->data.image->type = type;
+
+  gl2ps->forcerasterpos = GL_FALSE;
 
   switch(format){
   case GL_RGBA:
@@ -5974,8 +6012,14 @@ GL2PSDLL_API GLint gl2psDrawPixels(GLsizei width, GLsizei height,
     break;
   }
 
-  gl2psListAdd(gl2ps->auxprimitives, &prim);
-  glPassThrough(GL2PS_DRAW_PIXELS_TOKEN);
+  /* If no buffer, just add directly to primitives */
+  if (gl2ps->buffersize > 0) {
+    gl2psListAdd(gl2ps->auxprimitives, &prim);
+    glPassThrough(GL2PS_DRAW_PIXELS_TOKEN);
+  }
+  else {
+    gl2psListAdd(gl2ps->primitives, &prim);
+  }
 
   return GL2PS_SUCCESS;
 }
@@ -6138,4 +6182,23 @@ GL2PSDLL_API const char *gl2psGetFormatDescription(GLint format)
 GL2PSDLL_API GLint gl2psGetFileFormat()
 {
   return gl2ps->format;
+}
+
+GL2PSDLL_API GLint gl2psForceRasterPos(GL2PSvertex *vert)
+{
+
+  if(!gl2ps) {
+    return GL2PS_UNINITIALIZED;
+  }
+
+  gl2ps->forcerasterpos = GL_TRUE;
+  gl2ps->rasterpos.xyz[0] = vert->xyz[0];
+  gl2ps->rasterpos.xyz[1] = vert->xyz[1];
+  gl2ps->rasterpos.xyz[2] = vert->xyz[2];
+  gl2ps->rasterpos.rgba[0] = vert->rgba[0];
+  gl2ps->rasterpos.rgba[1] = vert->rgba[1];
+  gl2ps->rasterpos.rgba[2] = vert->rgba[2];
+  gl2ps->rasterpos.rgba[3] = vert->rgba[3];
+
+  return GL2PS_SUCCESS;
 }
