@@ -252,6 +252,8 @@ public:
   // rendered using vector graphics primitives.  If you have hi-res
   // actors and are using transparency you probably need to turn this
   // on.  Defaults to Off.
+  // This option has no effect when the OpenGL2 backend is in use, as all
+  // 3D props (excluding vtkTextActor3D) are rasterized into the background.
   vtkSetMacro(Write3DPropsAsRasterImage, int);
   vtkGetMacro(Write3DPropsAsRasterImage, int);
   vtkBooleanMacro(Write3DPropsAsRasterImage, int);

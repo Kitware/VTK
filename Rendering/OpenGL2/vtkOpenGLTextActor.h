@@ -21,6 +21,8 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkTextActor.h"
 
+class vtkOpenGLGL2PSHelper;
+
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLTextActor: public vtkTextActor
 {
 public:
@@ -33,6 +35,8 @@ public:
 protected:
   vtkOpenGLTextActor();
   ~vtkOpenGLTextActor();
+
+  int RenderGL2PS(vtkViewport *viewport, vtkOpenGLGL2PSHelper *gl2ps);
 
 private:
   vtkOpenGLTextActor(const vtkOpenGLTextActor&); // Not implemented

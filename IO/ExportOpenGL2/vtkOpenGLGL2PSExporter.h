@@ -24,6 +24,8 @@
 #include "vtkIOExportOpenGL2Module.h" // For export macro
 #include "vtkGL2PSExporter.h"
 
+class vtkImageData;
+
 class VTKIOEXPORTOPENGL2_EXPORT vtkOpenGLGL2PSExporter: public vtkGL2PSExporter
 {
 public:
@@ -36,6 +38,9 @@ protected:
   ~vtkOpenGLGL2PSExporter();
 
   void WriteData();
+
+  bool RasterizeBackground(vtkImageData *image);
+  bool CaptureVectorProps();
 
 private:
   vtkOpenGLGL2PSExporter(const vtkOpenGLGL2PSExporter &); // Not implemented.

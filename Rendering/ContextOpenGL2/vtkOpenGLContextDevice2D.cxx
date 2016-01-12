@@ -128,12 +128,25 @@ namespace
     "}\n";
 
 //-----------------------------------------------------------------------------
+// Returns true when rendering the GL2PS background raster image. Vectorizable
+// primitives should not be drawn during these passes.
+bool SkipDraw()
+{
+  vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
+  if (gl2ps && gl2ps->GetActiveState() == vtkOpenGLGL2PSHelper::Background)
+    {
+    return true;
+    }
+  return false;
+}
+
+//-----------------------------------------------------------------------------
 // Releases the current shader program if it is inconsistent with the GL2PS
 // capture state. Returns the current OpenGLGL2PSHelper instance if one exists.
 vtkOpenGLGL2PSHelper* PrepProgramForGL2PS(vtkOpenGLHelper &helper)
 {
   vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
-  if (gl2ps && gl2ps->GetCapturing())
+  if (gl2ps && gl2ps->GetActiveState() == vtkOpenGLGL2PSHelper::Capture)
     {
     // Always recreate the program when doing GL2PS capture.
     if (helper.Program)
@@ -162,7 +175,8 @@ vtkOpenGLGL2PSHelper* PrepProgramForGL2PS(vtkOpenGLHelper &helper)
 void PreDraw(vtkOpenGLHelper &helper, int drawMode, size_t numVerts)
 {
   vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
-  if (gl2ps && gl2ps->GetCapturing() && helper.Program)
+  if (gl2ps && gl2ps->GetActiveState() == vtkOpenGLGL2PSHelper::Capture &&
+      helper.Program)
     {
     if (vtkTransformFeedback *tfc = helper.Program->GetTransformFeedback())
       {
@@ -178,7 +192,8 @@ void PreDraw(vtkOpenGLHelper &helper, int drawMode, size_t numVerts)
 void PostDraw(vtkOpenGLHelper &helper, vtkRenderer *ren, unsigned char col[4])
 {
   vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
-  if (gl2ps && gl2ps->GetCapturing() && helper.Program)
+  if (gl2ps && gl2ps->GetActiveState() == vtkOpenGLGL2PSHelper::Capture &&
+      helper.Program)
     {
     if (vtkTransformFeedback *tfc = helper.Program->GetTransformFeedback())
       {
@@ -541,7 +556,7 @@ void vtkOpenGLContextDevice2D::ReadyVBOProgram()
   if (!this->VBO->Program)
     {
     vtkTransformFeedback *tf = NULL;
-    if (gl2ps && gl2ps->GetCapturing())
+    if (gl2ps && gl2ps->GetActiveState() == vtkOpenGLGL2PSHelper::Capture)
       {
       tf = vtkTransformFeedback::New();
       tf->AddVarying(vtkTransformFeedback::Vertex_ClipCoordinate_F,
@@ -573,7 +588,7 @@ void vtkOpenGLContextDevice2D::ReadyVCBOProgram()
   if (!this->VCBO->Program)
     {
     vtkTransformFeedback *tf = NULL;
-    if (gl2ps && gl2ps->GetCapturing())
+    if (gl2ps && gl2ps->GetActiveState() == vtkOpenGLGL2PSHelper::Capture)
       {
       tf = vtkTransformFeedback::New();
       tf->AddVarying(vtkTransformFeedback::Vertex_ClipCoordinate_F,
@@ -725,6 +740,11 @@ void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n, unsigned char *colors,
   assert("f must be non-null" && f != NULL);
   assert("n must be greater than 0" && n > 0);
 
+  if (SkipDraw())
+    {
+    return;
+    }
+
   if (this->Pen->GetLineType() == vtkPen::NO_PEN)
     {
     return;
@@ -854,6 +874,11 @@ void vtkOpenGLContextDevice2D::DrawLines(float *f, int n, unsigned char *colors,
   assert("f must be non-null" && f != NULL);
   assert("n must be greater than 0" && n > 0);
 
+  if (SkipDraw())
+    {
+    return;
+    }
+
   if (this->Pen->GetLineType() == vtkPen::NO_PEN)
     {
     return;
@@ -979,6 +1004,11 @@ void vtkOpenGLContextDevice2D::DrawLines(float *f, int n, unsigned char *colors,
 void vtkOpenGLContextDevice2D::DrawPoints(float *f, int n, unsigned char *c,
                                           int nc)
 {
+  if (SkipDraw())
+    {
+    return;
+    }
+
   // Skip transparent elements.
   if (!c && this->Pen->GetColorObject().GetAlpha() == 0)
     {
@@ -1022,14 +1052,11 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
                                                 unsigned char *colors,
                                                 int nc_comps)
 {
-  vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
-  if (gl2ps && gl2ps->GetCapturing())
-    {
-    // TODO: GL2PS -- implement point sprite export via gl2ps->DrawImage(...).
-    vtkWarningMacro("GL2PS export of Context2D point sprites is currently "
-                    "unimplemented.");
-    return;
-    }
+//  // Draw these to the background -- we don't currently export them to GL2PS.
+//  if (SkipDraw())
+//    {
+//    return;
+//    }
 
   vtkOpenGLClearErrorMacro();
   if (points && n > 0)
@@ -1107,10 +1134,18 @@ void vtkOpenGLContextDevice2D::DrawMarkers(int shape, bool highlight,
                                            unsigned char *colors, int nc_comps)
 {
   vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
-  if (gl2ps && gl2ps->GetCapturing())
+  if (gl2ps)
     {
-    this->DrawMarkersGL2PS(shape, highlight, points, n, colors, nc_comps);
-    return;
+    switch (gl2ps->GetActiveState())
+      {
+      case vtkOpenGLGL2PSHelper::Capture:
+        this->DrawMarkersGL2PS(shape, highlight, points, n, colors, nc_comps);
+        return;
+      case vtkOpenGLGL2PSHelper::Background:
+        return; // Do nothing.
+      case vtkOpenGLGL2PSHelper::Inactive:
+        break; // Render as normal.
+      }
     }
 
   // Get a point sprite for the shape
@@ -1122,6 +1157,11 @@ void vtkOpenGLContextDevice2D::DrawMarkers(int shape, bool highlight,
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::DrawQuad(float *f, int n)
 {
+  if (SkipDraw())
+    {
+    return;
+    }
+
   if (!f || n <= 0)
     {
     vtkWarningMacro(<< "Points supplied that were not of type float.");
@@ -1146,6 +1186,11 @@ void vtkOpenGLContextDevice2D::DrawQuad(float *f, int n)
 void vtkOpenGLContextDevice2D::CoreDrawTriangles(
   std::vector<float> &tverts)
 {
+  if (SkipDraw())
+    {
+    return;
+    }
+
   vtkOpenGLClearErrorMacro();
 
   float* texCoord = 0;
@@ -1196,6 +1241,11 @@ void vtkOpenGLContextDevice2D::CoreDrawTriangles(
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::DrawQuadStrip(float *f, int n)
 {
+  if (SkipDraw())
+    {
+    return;
+    }
+
   if (!f || n <= 0)
     {
     vtkWarningMacro(<< "Points supplied that were not of type float.");
@@ -1220,6 +1270,11 @@ void vtkOpenGLContextDevice2D::DrawQuadStrip(float *f, int n)
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::DrawPolygon(float *f, int n)
 {
+  if (SkipDraw())
+    {
+    return;
+    }
+
   if (!f || n <= 0)
     {
     vtkWarningMacro(<< "Points supplied that were not of type float.");
@@ -1257,6 +1312,11 @@ void vtkOpenGLContextDevice2D::DrawEllipseWedge(float x, float y, float outRx,
   assert("pre: ordered_rx" && inRx<=outRx);
   assert("pre: ordered_ry" && inRy<=outRy);
 
+  if (SkipDraw())
+    {
+    return;
+    }
+
   if(outRy==0.0f && outRx==0.0f)
     {
     // we make sure maxRadius will never be null.
@@ -1268,7 +1328,7 @@ void vtkOpenGLContextDevice2D::DrawEllipseWedge(float x, float y, float outRx,
   if (IsFullCircle(startAngle, stopAngle))
     {
     vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
-    if (gl2ps && gl2ps->GetCapturing())
+    if (gl2ps && gl2ps->GetActiveState() == vtkOpenGLGL2PSHelper::Capture)
       {
       this->DrawWedgeGL2PS(x, y, outRx, outRy, inRx, inRy);
       return;
@@ -1319,6 +1379,11 @@ void vtkOpenGLContextDevice2D::DrawEllipticArc(float x, float y, float rX,
   assert("pre: positive_rX" && rX>=0);
   assert("pre: positive_rY" && rY>=0);
 
+  if (SkipDraw())
+    {
+    return;
+    }
+
   if(rX==0.0f && rY==0.0f)
     {
     // we make sure maxRadius will never be null.
@@ -1330,7 +1395,7 @@ void vtkOpenGLContextDevice2D::DrawEllipticArc(float x, float y, float rX,
   if (IsFullCircle(startAngle, stopAngle))
     {
     vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
-    if (gl2ps && gl2ps->GetCapturing())
+    if (gl2ps && gl2ps->GetActiveState() == vtkOpenGLGL2PSHelper::Capture)
       {
       this->DrawCircleGL2PS(x, y, rX, rY);
       return;
@@ -1532,12 +1597,23 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
                                           const vtkUnicodeString &string)
 {
   vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
-  if (gl2ps && gl2ps->GetCapturing())
+  if (gl2ps)
     {
-    double x[3] = { static_cast<double>(point[0]),
-                    static_cast<double>(point[1]), 0. };
-    gl2ps->DrawString(string.utf8_str(), this->TextProp, x, 0., this->Renderer);
-    return;
+    switch (gl2ps->GetActiveState())
+      {
+      case vtkOpenGLGL2PSHelper::Capture:
+        {
+        double x[3] = { static_cast<double>(point[0]),
+                        static_cast<double>(point[1]), 0. };
+        gl2ps->DrawString(string.utf8_str(), this->TextProp, x, 0.,
+                          this->Renderer);
+        return;
+        }
+      case vtkOpenGLGL2PSHelper::Background:
+        return; // Do nothing.
+      case vtkOpenGLGL2PSHelper::Inactive:
+        break; // Render as normal.
+      }
     }
 
   vtkOpenGLClearErrorMacro();
@@ -1671,36 +1747,18 @@ void vtkOpenGLContextDevice2D::DrawMathTextString(float point[2],
     }
 
   vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
-  if (gl2ps && gl2ps->GetCapturing())
+  if (gl2ps)
     {
-    vtkNew<vtkPath> path;
-    bool ok = mathText->StringToPath(string.c_str(), path.GetPointer(),
-                                     this->TextProp,
-                                     this->RenderWindow->GetDPI());
-    if (!ok)
+    switch (gl2ps->GetActiveState())
       {
-      return;
+      case vtkOpenGLGL2PSHelper::Capture:
+        this->DrawMathTextStringGL2PS(point, string);
+        return;
+      case vtkOpenGLGL2PSHelper::Background:
+        return; // Do nothing.
+      case vtkOpenGLGL2PSHelper::Inactive:
+        break; // Render as normal.
       }
-
-    double origin[3] = { point[0], point[1], 0.f };
-    double rotateAngle = this->TextProp->GetOrientation();
-    double dcolor[3];
-    this->TextProp->GetColor(dcolor);
-    unsigned char color[4];
-    color[0] = static_cast<unsigned char>(dcolor[0]*255);
-    color[1] = static_cast<unsigned char>(dcolor[1]*255);
-    color[2] = static_cast<unsigned char>(dcolor[2]*255);
-    color[3] = static_cast<unsigned char>(this->TextProp->GetOpacity()*255);
-
-    this->TransformPath(path.GetPointer());
-
-    std::ostringstream label;
-    label << "vtkOpenGLContextDevice2D::DrawMathTextString: string: "
-          << string;
-    gl2ps->DrawPath(path.GetPointer(), origin, origin, color, NULL,
-                    rotateAngle, -1.f, label.str().c_str());
-
-    return;
     }
 
   vtkOpenGLClearErrorMacro();
@@ -1791,10 +1849,18 @@ void vtkOpenGLContextDevice2D::DrawImage(float p[2], float scale,
                                          vtkImageData *image)
 {
   vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
-  if (gl2ps && gl2ps->GetCapturing())
+  if (gl2ps)
     {
-    this->DrawImageGL2PS(p, scale, image);
-    return;
+    switch (gl2ps->GetActiveState())
+      {
+      case vtkOpenGLGL2PSHelper::Capture:
+        this->DrawImageGL2PS(p, scale, image);
+        return;
+      case vtkOpenGLGL2PSHelper::Background:
+        return; // Do nothing.
+      case vtkOpenGLGL2PSHelper::Inactive:
+        break; // Draw as normal.
+      }
     }
 
   vtkOpenGLClearErrorMacro();
@@ -1849,10 +1915,18 @@ void vtkOpenGLContextDevice2D::DrawImage(const vtkRectf& pos,
                                          vtkImageData *image)
 {
   vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
-  if (gl2ps && gl2ps->GetCapturing())
+  if (gl2ps)
     {
-    this->DrawImageGL2PS(pos, image);
-    return;
+    switch (gl2ps->GetActiveState())
+      {
+      case vtkOpenGLGL2PSHelper::Capture:
+        this->DrawImageGL2PS(pos, image);
+        return;
+      case vtkOpenGLGL2PSHelper::Background:
+        return; // Do nothing.
+      case vtkOpenGLGL2PSHelper::Inactive:
+        break; // Draw as normal.
+      }
     }
 
   vtkVector2f tex(1.0, 1.0);
@@ -1950,7 +2024,7 @@ void vtkOpenGLContextDevice2D::SetTexture(vtkImageData* image, int properties)
 void vtkOpenGLContextDevice2D::SetPointSize(float size)
 {
   vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
-  if (gl2ps && gl2ps->GetCapturing())
+  if (gl2ps && gl2ps->GetActiveState() == vtkOpenGLGL2PSHelper::Capture)
     {
     gl2ps->SetPointSize(size);
     }
@@ -1961,7 +2035,7 @@ void vtkOpenGLContextDevice2D::SetPointSize(float size)
 void vtkOpenGLContextDevice2D::SetLineWidth(float width)
 {
   vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
-  if (gl2ps && gl2ps->GetCapturing())
+  if (gl2ps && gl2ps->GetActiveState() == vtkOpenGLGL2PSHelper::Capture)
     {
     gl2ps->SetLineWidth(width);
     }
@@ -2842,6 +2916,47 @@ void vtkOpenGLContextDevice2D::DrawWedgeGL2PS(
   vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
   gl2ps->DrawPath(path.GetPointer(), rasterPos, windowPos, color, NULL, 0.0,
                   -1.f, label.str().c_str());
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawMathTextStringGL2PS(
+    float point[2], const vtkStdString &string)
+{
+  // Always valid when this method is called:
+  vtkMathTextUtilities *mathText = vtkMathTextUtilities::GetInstance();
+
+  vtkNew<vtkPath> path;
+  bool ok = mathText->StringToPath(string.c_str(), path.GetPointer(),
+                                   this->TextProp,
+                                   this->RenderWindow->GetDPI());
+  if (!ok)
+    {
+    vtkErrorMacro("Error generating path info for mathtext string: " << string);
+    return;
+    }
+
+  double origin[3] = { point[0], point[1], 0.f };
+  double rotateAngle = this->TextProp->GetOrientation();
+  double dcolor[3];
+  this->TextProp->GetColor(dcolor);
+  unsigned char color[4];
+  color[0] = static_cast<unsigned char>(dcolor[0]*255);
+  color[1] = static_cast<unsigned char>(dcolor[1]*255);
+  color[2] = static_cast<unsigned char>(dcolor[2]*255);
+  color[3] = static_cast<unsigned char>(this->TextProp->GetOpacity()*255);
+
+  this->TransformPath(path.GetPointer());
+
+  std::ostringstream label;
+  label << "vtkOpenGLContextDevice2D::DrawMathTextString: string: "
+        << string;
+
+  // Instance always exists when this method is called.
+  vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
+  gl2ps->DrawPath(path.GetPointer(), origin, origin, color, NULL,
+                  rotateAngle, -1.f, label.str().c_str());
+
+  return;
 }
 
 //------------------------------------------------------------------------------

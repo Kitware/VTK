@@ -59,8 +59,8 @@ void vtkOpenGLGL2PSHelper::SetInstance(vtkOpenGLGL2PSHelper *obj)
 //------------------------------------------------------------------------------
 vtkOpenGLGL2PSHelper::vtkOpenGLGL2PSHelper()
   : RenderWindow(NULL),
+    ActiveState(Inactive),
     TextAsPath(false),
-    Capturing(false),
     PointSize(1.f),
     LineWidth(1.f),
     PointSizeFactor(5.f / 7.f),

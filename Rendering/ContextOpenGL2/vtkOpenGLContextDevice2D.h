@@ -386,6 +386,10 @@ protected:
                       float inRx, float inRy);
 
   // Description:
+  // Implement DrawMathTextString for the GL2PS exporter.
+  void DrawMathTextStringGL2PS(float point[2], const vtkStdString &string);
+
+  // Description:
   // Add an ellipse to a vtkPath. Used during GL2PS export.
   void AddEllipseToPath(vtkPath *path, float x, float y, float rx, float ry,
                         bool reverse);

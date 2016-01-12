@@ -15,12 +15,17 @@
 
 #include "vtkOpenGLGL2PSExporter.h"
 
+#include "vtkImageData.h"
+#include "vtkImageShiftScale.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLGL2PSHelper.h"
 #include "vtkRenderWindow.h"
+#include "vtkWindowToImageFilter.h"
 
 #include "vtk_gl2ps.h"
 
+#include <algorithm>
 #include <cstdio>
 #include <sstream>
 #include <string>
@@ -77,11 +82,20 @@ void vtkOpenGLGL2PSExporter::WriteData()
                        static_cast<GLint>(winsize[1])};
 
   // Setup helper class:
-  vtkNew<vtkOpenGLGL2PSHelper> helper;
-  helper->SetInstance(helper.GetPointer());
-  helper->SetCapturing(true);
-  helper->SetTextAsPath(this->TextAsPath);
-  helper->SetRenderWindow(this->RenderWindow);
+  vtkNew<vtkOpenGLGL2PSHelper> gl2ps;
+  gl2ps->SetInstance(gl2ps.GetPointer());
+  gl2ps->SetTextAsPath(this->TextAsPath);
+  gl2ps->SetRenderWindow(this->RenderWindow);
+
+  // Grab the image background:
+  vtkNew<vtkImageData> background;
+  if (!this->RasterizeBackground(background.GetPointer()))
+    {
+    vtkErrorMacro("Error rasterizing background image. Exported image may be "
+                  "incorrect.");
+    background->Initialize();
+    // Continue with export.
+    }
 
   // Export file. No worries about buffersize, since we're manually adding
   // geometry through vtkOpenGLGL2PSHelper::ProcessTransformFeedback.
@@ -91,25 +105,86 @@ void vtkOpenGLGL2PSExporter::WriteData()
   if (err != GL2PS_SUCCESS)
     {
     vtkErrorMacro("Error calling gl2psBeginPage. Error code: " << err);
-    helper->SetCapturing(false);
-    helper->SetInstance(NULL);
+    gl2ps->SetInstance(NULL);
     fclose(file);
     return;
     }
 
-  // Render the scene:
-  this->RenderWindow->Render();
+  if (background->GetNumberOfPoints() > 0)
+    {
+    int dims[3];
+    background->GetDimensions(dims);
+    GL2PSvertex rasterPos;
+    rasterPos.xyz[0] = 0.f;
+    rasterPos.xyz[1] = 0.f;
+    rasterPos.xyz[2] = 1.f;
+    std::fill(rasterPos.rgba, rasterPos.rgba + 4, 0.f);
 
+    gl2psForceRasterPos(&rasterPos);
+    gl2psDrawPixels(dims[0], dims[1], 0, 0, GL_RGB, GL_FLOAT,
+                    background->GetScalarPointer());
+    background->ReleaseData();
+    }
+
+  // Render the scene:
+  if (!this->CaptureVectorProps())
+    {
+    vtkErrorMacro("Error capturing vectorizable props. Resulting image "
+                  "may be incorrect.");
+    }
+
+  // Cleanup
   err = gl2psEndPage();
+  gl2ps->SetInstance(NULL);
   fclose(file);
 
-  // Cleanup helper.
-  helper->SetCapturing(false);
-  helper->SetInstance(NULL);
-
-  if (err != GL2PS_SUCCESS)
+  switch (err)
     {
-    vtkErrorMacro("Error calling gl2psEndPage. Error code: " << err);
-    return;
+    case GL2PS_SUCCESS:
+      break;
+    case GL2PS_NO_FEEDBACK:
+      vtkErrorMacro("No data captured by GL2PS for vector graphics export.");
+      break;
+    default:
+      vtkErrorMacro("Error calling gl2psEndPage. Error code: " << err);
+      break;
     }
+
+  // Re-render the window to remove any lingering after-effects...
+  this->RenderWindow->Render();
+}
+
+bool vtkOpenGLGL2PSExporter::RasterizeBackground(vtkImageData *image)
+{
+  vtkNew<vtkWindowToImageFilter> windowToImage;
+  windowToImage->SetInput(this->RenderWindow);
+  windowToImage->SetInputBufferTypeToRGB();
+  windowToImage->SetReadFrontBuffer(false);
+
+  vtkNew<vtkImageShiftScale> byteToFloat;
+  byteToFloat->SetOutputScalarTypeToFloat();
+  byteToFloat->SetScale(1.0 / 255.0);
+  byteToFloat->SetInputConnection(windowToImage->GetOutputPort());
+
+  vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
+  gl2ps->SetActiveState(vtkOpenGLGL2PSHelper::Background);
+  // Render twice to set the backbuffer:
+  this->RenderWindow->Render();
+  this->RenderWindow->Render();
+  byteToFloat->Update();
+  gl2ps->SetActiveState(vtkOpenGLGL2PSHelper::Inactive);
+
+  image->ShallowCopy(byteToFloat->GetOutput());
+
+  return true;
+}
+
+bool vtkOpenGLGL2PSExporter::CaptureVectorProps()
+{
+  vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
+  gl2ps->SetActiveState(vtkOpenGLGL2PSHelper::Capture);
+  this->RenderWindow->Render();
+  gl2ps->SetActiveState(vtkOpenGLGL2PSHelper::Inactive);
+
+  return true;
 }

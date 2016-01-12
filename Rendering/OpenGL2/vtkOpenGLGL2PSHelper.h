@@ -52,11 +52,23 @@ public:
   // Get the renderwindow that's being exported.
   vtkGetMacro(RenderWindow, vtkRenderWindow*)
 
+  enum State
+    {
+    Inactive = 0, //! No export active
+    Background, //! Rendering rasterized props for the background.
+    Capture //! Capturing vectorized objects.
+    };
+
   // Description:
-  // If true, GL2PS is ready to accept data.
-  vtkGetMacro(Capturing, bool)
-  vtkSetMacro(Capturing, bool)
-  vtkBooleanMacro(Capturing, bool)
+  // Get the current export state. Vector images are rendered in two passes:
+  // First, all non-vectorizable props are rendered, and the resulting image
+  // is inserted as a raster image into the background of the exported file
+  // (ActiveState == Background). Next, all vectorizable props are drawn
+  // and captured into GL2PS, where they are drawn over the background image.
+  // Vectorizable props should not draw themselves during the background pass,
+  // and use the vtkOpenGLGL2PSHelper API to draw themselves during the capture
+  // pass.
+  vtkGetMacro(ActiveState, State)
 
   // Description:
   // Set/Get the current point size.
@@ -126,6 +138,7 @@ protected:
   vtkOpenGLGL2PSHelper();
   ~vtkOpenGLGL2PSHelper();
 
+  vtkSetMacro(ActiveState, State)
   vtkSetMacro(TextAsPath, bool)
   vtkSetMacro(RenderWindow, vtkRenderWindow*) // Doesn't ref count, not needed.
   vtkSetMacro(PointSizeFactor, float)
@@ -134,8 +147,8 @@ protected:
   static vtkOpenGLGL2PSHelper *Instance;
 
   vtkRenderWindow *RenderWindow;
+  State ActiveState;
   bool TextAsPath;
-  bool Capturing;
   float PointSize;
   float LineWidth;
   float PointSizeFactor;

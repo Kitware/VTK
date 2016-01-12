@@ -21,6 +21,8 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkTextMapper.h"
 
+class vtkOpenGLGL2PSHelper;
+
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLTextMapper: public vtkTextMapper
 {
 public:
@@ -33,6 +35,9 @@ public:
 protected:
   vtkOpenGLTextMapper();
   ~vtkOpenGLTextMapper();
+
+  void RenderGL2PS(vtkViewport *vp, vtkActor2D *act,
+                   vtkOpenGLGL2PSHelper *gl2ps);
 
 private:
   vtkOpenGLTextMapper(const vtkOpenGLTextMapper&); // Not implemented

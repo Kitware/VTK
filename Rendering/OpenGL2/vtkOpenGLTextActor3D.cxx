@@ -40,14 +40,20 @@ void vtkOpenGLTextActor3D::PrintSelf(std::ostream &os, vtkIndent indent)
 int vtkOpenGLTextActor3D::RenderTranslucentPolygonalGeometry(vtkViewport *vp)
 {
   vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
-  if (gl2ps && gl2ps->GetCapturing())
+  if (gl2ps)
     {
-    return this->RenderGL2PS(vp, gl2ps);
+    switch (gl2ps->GetActiveState())
+      {
+      case vtkOpenGLGL2PSHelper::Capture:
+        return this->RenderGL2PS(vp, gl2ps);
+      case vtkOpenGLGL2PSHelper::Background:
+        return 0; // No render.
+      case vtkOpenGLGL2PSHelper::Inactive:
+        break; // normal render.
+      }
     }
-  else
-    {
-    return this->Superclass::RenderTranslucentPolygonalGeometry(vp);
-    }
+
+  return this->Superclass::RenderTranslucentPolygonalGeometry(vp);
 }
 
 //------------------------------------------------------------------------------
