@@ -122,7 +122,6 @@ void vtkTransformFeedback::BindVaryings(vtkShaderProgram *prog)
   vars.reserve(this->Varyings.size());
   for (size_t i = 0; i < this->Varyings.size(); ++i)
     {
-    std::cout << "Adding varying: " << this->Varyings[i].Identifier << std::endl;
     vars.push_back(this->Varyings[i].Identifier.c_str());
     }
 
@@ -130,7 +129,6 @@ void vtkTransformFeedback::BindVaryings(vtkShaderProgram *prog)
                               static_cast<GLsizei>(vars.size()),
                               &vars[0], static_cast<GLenum>(this->BufferMode));
 
-  std::cout << "Varyings bound." << std::endl;
   this->VaryingsBound = true;
 
   vtkOpenGLCheckErrorMacro("OpenGL errors detected after "
@@ -158,8 +156,6 @@ void vtkTransformFeedback::BindBuffer()
   glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, tbo);
   glBeginTransformFeedback(static_cast<GLenum>(this->PrimitiveMode));
 
-  std::cout << "Buffer bound." << std::endl;
-
   vtkOpenGLCheckErrorMacro("OpenGL errors detected.");
 }
 
@@ -183,8 +179,6 @@ void vtkTransformFeedback::ReadBuffer()
                      static_cast<void*>(this->BufferData));
 
   this->ReleaseGraphicsResources();
-
-  std::cout << "Buffer read." << std::endl;
 
   vtkOpenGLCheckErrorMacro("OpenGL errors detected.");
 }
