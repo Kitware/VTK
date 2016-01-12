@@ -277,7 +277,7 @@ int vtkVRMLImporter::ImportBegin()
     this->Parser->yyparse(this);
     this->Parser->popNameSpace();
     }
-  catch (std::exception)
+  catch (const std::exception&)
     {
     vtkErrorMacro(<< "Unable to read VRML file! Error at line " <<
       this->Parser->currentLineNumber);
