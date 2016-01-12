@@ -763,7 +763,11 @@ void vtkPlotBar::SetColor(double r, double g, double b)
 //-----------------------------------------------------------------------------
 void vtkPlotBar::GetColor(double rgb[3])
 {
-  this->Brush->GetColorF(rgb);
+  double rgba[4];
+  this->Brush->GetColorF(rgba);
+  rgb[0] = rgba[0];
+  rgb[1] = rgba[1];
+  rgb[2] = rgba[2];
 }
 
 //-----------------------------------------------------------------------------
