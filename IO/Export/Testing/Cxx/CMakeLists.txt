@@ -5,8 +5,6 @@ if(VTK_GHOSTSCRIPT_EXECUTABLE)
   set(GL2PSTests
     TestGL2PSExporterMultipleRenderers.cxx
     TestGL2PSExporterRaster.cxx
-    TestGL2PSExporterRasterExclusion.cxx
-    TestGL2PSExporterVector.cxx
     TestGL2PSExporterVolumeRaster.cxx
     TestGL2PSScalarBar.cxx
     TestGL2PSTextActor.cxx

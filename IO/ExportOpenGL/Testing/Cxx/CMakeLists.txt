@@ -4,7 +4,10 @@ include(vtkTestingGL2PS)
 set(GL2PSTests)
 if(VTK_GHOSTSCRIPT_EXECUTABLE)
   set(GL2PSTests
-    TestGL2PSContext.cxx
+    # These tests differ from OpenGL2, hence they're in this submodule.
+    TestGL2PSContext.cxx # No line stipple in OGL2, no image export in OGL
+    TestGL2PSExporterVector.cxx # All 3D geom is rasterized in OGL2.
+    TestGL2PSExporterRasterExclusion.cxx # All 3D geom is rasterized in OGL2.
   )
 endif()
 
