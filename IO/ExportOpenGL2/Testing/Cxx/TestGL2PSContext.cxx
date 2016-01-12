@@ -118,11 +118,9 @@ bool ContextGL2PSTest::Paint(vtkContext2D *painter)
 
   // Draw some individual lines of different thicknesses.
   painter->GetPen()->SetWidth(10);
-  painter->GetPen()->SetLineType(vtkPen::SOLID_LINE);
   for (int i = 0; i < 10; ++i)
     {
-    // Removed for OpenGL2 backend -- stippling is not supported.
-//    painter->GetPen()->SetLineType(i % (vtkPen::DASH_DOT_DOT_LINE+1));
+    painter->GetPen()->SetLineType(i % (vtkPen::DASH_DOT_DOT_LINE+1));
     painter->GetPen()->SetColor(255,
                                 static_cast<unsigned char>(float(i)*25.0),
                                 0);

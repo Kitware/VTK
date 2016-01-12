@@ -190,8 +190,8 @@ void vtkOpenGLGL2PSHelperImpl::ProcessTransformFeedback(
         curVert = (curVert + 1) % 2;
         if (curVert == 0)
           {
-          gl2psAddPolyPrimitive(GL2PS_LINE, 2, verts, 0, 0xffff, 1, lineWidth,
-                                0);
+          gl2psAddPolyPrimitive(GL2PS_LINE, 2, verts, 0, this->LineStipple, 1,
+                                lineWidth, 0);
           }
         break;
 

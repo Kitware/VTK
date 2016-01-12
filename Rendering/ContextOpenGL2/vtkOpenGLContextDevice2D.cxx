@@ -617,15 +617,29 @@ void vtkOpenGLContextDevice2D::ReadyVCBOProgram()
 
 void vtkOpenGLContextDevice2D::ReadyLinesBOProgram()
 {
+  vtkOpenGLGL2PSHelper *gl2ps = PrepProgramForGL2PS(*this->VCBO);
+
   if (!this->LinesBO->Program)
     {
+    vtkTransformFeedback *tf = NULL;
+    if (gl2ps && gl2ps->GetActiveState() == vtkOpenGLGL2PSHelper::Capture)
+      {
+      tf = vtkTransformFeedback::New();
+      tf->AddVarying(vtkTransformFeedback::Vertex_ClipCoordinate_F,
+                     "gl_Position");
+      }
     std::string vs = "//VTK::System::Dec\n#define haveLines\n";
     vs += myVertShader;
     std::string fs = "//VTK::System::Dec\n#define haveLines\n";
     fs +=myFragShader;
     this->LinesBO->Program  =
         this->RenderWindow->GetShaderCache()->ReadyShaderProgram(
-        vs.c_str(), fs.c_str(),"");
+        vs.c_str(), fs.c_str(),"",tf);
+    if (tf)
+      {
+      tf->Delete();
+      tf = NULL;
+      }
     }
   else
     {
@@ -636,8 +650,19 @@ void vtkOpenGLContextDevice2D::ReadyLinesBOProgram()
 
 void vtkOpenGLContextDevice2D::ReadyLinesCBOProgram()
 {
+  vtkOpenGLGL2PSHelper *gl2ps = PrepProgramForGL2PS(*this->VCBO);
+
   if (!this->LinesCBO->Program)
     {
+    vtkTransformFeedback *tf = NULL;
+    if (gl2ps && gl2ps->GetActiveState() == vtkOpenGLGL2PSHelper::Capture)
+      {
+      tf = vtkTransformFeedback::New();
+      tf->AddVarying(vtkTransformFeedback::Vertex_ClipCoordinate_F,
+                     "gl_Position");
+      tf->AddVarying(vtkTransformFeedback::Color_RGBA_F,
+                     "vertexColor");
+      }
     std::string vs =
       "//VTK::System::Dec\n#define haveColors\n#define haveLines\n";
     vs += myVertShader;
@@ -646,7 +671,12 @@ void vtkOpenGLContextDevice2D::ReadyLinesCBOProgram()
     fs +=myFragShader;
     this->LinesCBO->Program  =
         this->RenderWindow->GetShaderCache()->ReadyShaderProgram(
-        vs.c_str(), fs.c_str(),"");
+        vs.c_str(), fs.c_str(),"",tf);
+    if (tf)
+      {
+      tf->Delete();
+      tf = NULL;
+      }
     }
   else
     {
@@ -791,8 +821,12 @@ void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n, unsigned char *colors,
     distances[i*2] = totDist;
     }
 
+  // For GL2PS captures, use the path that draws lines instead of triangles --
+  // GL2PS can handle stipples and linewidths just fine.
+  vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
 
-  if (this->Pen->GetWidth() > 1.0)
+  if (this->Pen->GetWidth() > 1.0 &&
+      !(gl2ps && gl2ps->GetActiveState() == vtkOpenGLGL2PSHelper::Capture))
     {
     // convert to triangles and draw, this is because
     // OpenGL no longer supports wide lines directly
@@ -2065,6 +2099,12 @@ void vtkOpenGLContextDevice2D::SetLineType(int type)
       break;
     default:
       this->LinePattern = 0xFFFF;
+    }
+
+  vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
+  if (gl2ps && gl2ps->GetActiveState() == vtkOpenGLGL2PSHelper::Capture)
+    {
+    gl2ps->SetLineStipple(this->LinePattern);
     }
 }
 

@@ -81,6 +81,12 @@ public:
   vtkGetMacro(LineWidth, float)
 
   // Description:
+  // Set/Get the current line stipple pattern per OpenGL convention. Default is
+  // 0xffff.
+  vtkSetMacro(LineStipple, unsigned short)
+  vtkGetMacro(LineStipple, unsigned short)
+
+  // Description:
   // Parse the vertex information in tfc and inject primitives into GL2PS.
   // ren is used to obtain viewport information to complete the vertex
   // tranformation into pixel coordinates, and act/col are used to color the
@@ -153,6 +159,7 @@ protected:
   float LineWidth;
   float PointSizeFactor;
   float LineWidthFactor;
+  unsigned short LineStipple;
 
 private:
   vtkOpenGLGL2PSHelper(const vtkOpenGLGL2PSHelper &); // Not implemented.

@@ -64,7 +64,8 @@ vtkOpenGLGL2PSHelper::vtkOpenGLGL2PSHelper()
     PointSize(1.f),
     LineWidth(1.f),
     PointSizeFactor(5.f / 7.f),
-    LineWidthFactor(5.f / 7.f)
+    LineWidthFactor(5.f / 7.f),
+    LineStipple(0xffff)
 {
 }
 

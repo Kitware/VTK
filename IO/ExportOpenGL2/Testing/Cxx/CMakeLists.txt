@@ -5,7 +5,7 @@ set(GL2PSTests)
 if(VTK_GHOSTSCRIPT_EXECUTABLE)
   set(GL2PSTests
     # These tests differ from OpenGL1, hence they're in this submodule.
-    TestGL2PSContext.cxx # No line stipple in OGL2, no image export in OGL
+    TestGL2PSContext.cxx # No image export supported in OGL
   )
 endif()
 
