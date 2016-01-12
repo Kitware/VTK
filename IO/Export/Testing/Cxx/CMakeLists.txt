@@ -8,6 +8,7 @@ if(VTK_GHOSTSCRIPT_EXECUTABLE)
     TestGL2PSExporterRasterExclusion.cxx
     TestGL2PSExporterVector.cxx
     TestGL2PSExporterVolumeRaster.cxx
+    TestGL2PSScalarBar.cxx
     TestGL2PSTextActor.cxx
     TestGL2PSTextActor3D.cxx
     TestGL2PSTextMapper.cxx

@@ -177,6 +177,10 @@ void vtkOpenGLGL2PSExporter::WriteData()
     windowToImage->Modified();
     imageConverter->Update();
     rasterImage->DeepCopy(imageConverter->GetOutput());
+
+    // Turn off GL2PS_DRAW_BACKGROUND if we're rasterizing 3D geometry -- the
+    // background will be (hidden by) and (embedded in) the raster image.
+    options &= ~GL2PS_DRAW_BACKGROUND;
     }
 
   // Disable depth peeling. It uses textures that turn into large opaque quads
@@ -188,6 +192,22 @@ void vtkOpenGLGL2PSExporter::WriteData()
     {
     origDepthPeeling.push_back(ren->GetUseDepthPeeling() != 0);
     ren->UseDepthPeelingOff();
+    }
+
+  // Disable background gradients and textures when rasterizing 3D geometry, as
+  // these will obscure the rasterized image (Which would contain them anyway).
+  std::vector<bool> origGradientBg;
+  std::vector<bool> origTexturedBg;
+  if (this->Write3DPropsAsRasterImage)
+    {
+    for (renCol->InitTraversal(); (ren = renCol->GetNextItem());)
+      {
+      origGradientBg.push_back(ren->GetGradientBackground() != 0);
+      ren->GradientBackgroundOff();
+
+      origTexturedBg.push_back(ren->GetTexturedBackground() != 0);
+      ren->TexturedBackgroundOff();
+      }
     }
 
   vtkDebugMacro(<<"Writing file using GL2PS");
@@ -268,6 +288,14 @@ void vtkOpenGLGL2PSExporter::WriteData()
     // Reset the visibility.
     this->RestorePropVisibility(renCol, volVis.GetPointer(),
                                 actVis.GetPointer(), act2dVis.GetPointer());
+    // Restore textured/gradient backgrounds:
+    size_t renIdx = 0;
+    for (renCol->InitTraversal(); (ren = renCol->GetNextItem());)
+      {
+      ren->SetGradientBackground(origGradientBg[renIdx]);
+      ren->SetTexturedBackground(origTexturedBg[renIdx]);
+        ++renIdx;
+      }
     }
   // Turn the special props back on
   for (specialPropCol->InitTraversal();

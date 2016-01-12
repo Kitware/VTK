@@ -20,11 +20,12 @@ vtk_module(vtkIOExport
     vtkChartsCore
     vtkInteractionImage
     vtkIOExport${VTK_RENDERING_BACKEND}
+    vtkIOParallel
     vtkTestingRendering
     vtkInteractionStyle
     vtkRenderingAnnotation
+    vtkRenderingContext${VTK_RENDERING_BACKEND}
     vtkRenderingLabel
     vtkRenderingVolume${VTK_RENDERING_BACKEND}
-    vtkRenderingContext${VTK_RENDERING_BACKEND}
     vtkViewsContext2D
   )
