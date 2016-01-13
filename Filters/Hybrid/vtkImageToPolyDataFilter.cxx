@@ -1198,6 +1198,7 @@ void vtkImageToPolyDataFilter::BuildPolygons(vtkUnsignedCharArray *vtkNotUsed(po
     if (ncells < 2)
       {
       vtkErrorMacro(<<"Bad mojo");
+      delete [] polyVisited;
       return;
       }
     //for each edge, walk around polygon (if not visited before)

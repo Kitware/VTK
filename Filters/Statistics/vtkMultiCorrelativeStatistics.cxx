@@ -890,6 +890,7 @@ void vtkMultiCorrelativeStatistics::SelectAssessFunctor( vtkTable* inData,
   if ( ! mcfunc->Initialize( inData, reqModel ) )
     {
     delete mcfunc;
+    return;
     }
   dfunc = mcfunc;
 }
