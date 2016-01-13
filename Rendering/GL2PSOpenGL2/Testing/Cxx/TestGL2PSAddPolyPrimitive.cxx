@@ -85,6 +85,8 @@ int TestGL2PSAddPolyPrimitive(int , char * [])
   GLint offset = 0; // line offset
   GLushort pattern = 0xffff; // glLineStipple pattern
   GLint factor = 1; // glLineStipple repeat factor
+  GLfloat ofactor = 0.f; // glPolygonOffset factor
+  GLfloat ounits = 0.f; // glPolygonOffset units
   GLfloat width = 1; // linewidth or pointsize
   // Something to do with gl2psEnable(GL2PS_POLYGON_BOUNDARY), which is not
   // implemented according to the docs.
@@ -92,22 +94,22 @@ int TestGL2PSAddPolyPrimitive(int , char * [])
 
   // Point:
   setVertex(vertices[0], 200, 307.5, 0, 0.f, 0.f, 1.f, 1.f);
-  gl2psAddPolyPrimitive(GL2PS_POINT, 1, vertices, offset, pattern, factor,
-                        /*width=*/15, boundary);
+  gl2psAddPolyPrimitive(GL2PS_POINT, 1, vertices, offset, ofactor, ounits,
+                        pattern, factor, /*width=*/15, boundary);
 
   // Line:
   // Note that the first vertex's color is used for the entire line.
   setVertex(vertices[0], 100, 50, 0, 1.f, 0.f, 0.f, 1.f);
   setVertex(vertices[1], 300, 50, 0, 0.f, 0.f, 1.f, 1.f);
-  gl2psAddPolyPrimitive(GL2PS_LINE, 2, vertices, offset, pattern, factor,
-                        width, boundary);
+  gl2psAddPolyPrimitive(GL2PS_LINE, 2, vertices, offset, ofactor, ounits,
+                        pattern, factor, width, boundary);
 
   // Triangle:
   setVertex(vertices[0], 100, 100, 0, 1.f, 0.f, 0.f, 1.f);
   setVertex(vertices[1], 300, 100, 0, 0.f, 1.f, 0.f, 1.f);
   setVertex(vertices[2], 200, 300, 0, 0.f, 0.f, 1.f, 1.f);
-  gl2psAddPolyPrimitive(GL2PS_TRIANGLE, 3, vertices, offset, pattern, factor,
-                        width, boundary);
+  gl2psAddPolyPrimitive(GL2PS_TRIANGLE, 3, vertices, offset, ofactor, ounits,
+                        pattern, factor, width, boundary);
 
   // Text:
   setVertex(vertices[0], 200, 325, 0, 0.f, 0.f, 0.f, 1.f);
