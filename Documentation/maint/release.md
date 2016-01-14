@@ -198,13 +198,11 @@ The VTK superbuild project should first be updated to build the release.
 Update the `versions.cmake` and `CMake/vtk_version.cmake` files. Make a merge
 request to the vtk-superbuild project's `master` branch.
 
-To build VTK, set `ENABLE_vtk=ON`, `CMAKE_BUILD_TYPE=Release`, and
-`USE_VTK_MASTER=OFF`. Additionally, set `BUILD_VTK7` to `ON` or `OFF`
-depending on the version being built.
+To build VTK, set `ENABLE_vtk=ON`, `CMAKE_BUILD_TYPE=Release`,
+`ENABLE_python=ON`, and `USE_VTK_MASTER=OFF`. Additionally, set `BUILD_VTK7`
+to `ON` or `OFF` depending on the version being built.
 
 #### Linux
-
-Also pass `ENABLE_python=ON` to the superbuild.
 
 ##### VTK 6
 
@@ -238,8 +236,6 @@ and run `make` in the build tree. To generate the binary, run `cpack -G
 DragNDrop`.
 
 #### Windows
-
-Also pass `ENABLE_python=ON` to the superbuild.
 
 ##### VTK 6
 
