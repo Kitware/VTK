@@ -278,7 +278,7 @@ and then upload with (where `$release` is analogous to `6.3` or `7.0`):
 
     ```sh
     $ chmod -R o+r vtk-$release$suffix/
-    $ rsync -rptv vtk-$release$suffix/ vtk.release/$release
+    $ rsync -rptv vtk-$release$suffix/ vtk.release:$release
     ```
 
 ### Updating the Website
