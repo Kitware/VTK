@@ -258,8 +258,12 @@ class vtkTkImageViewerWidget(tkinter.Widget):
         # Get the extent in viewer
         z = viewer.GetZSlice()
 
-        input.SetUpdateExtent(-99999,99999,-99999,99999,z,z)
-        input.Update()
+        input.UpdateInformation()
+        info = input.GetOutputInformation(0)
+        ext = info.Get(vtk.vtkStreamingDemandDrivenPipeline.WHOLE_EXTENT())
+        ext[4] = z
+        ext[5] = z
+        input.Update(0, 1, 0, ext)
 
         (low,high) = input.GetScalarRange()
 

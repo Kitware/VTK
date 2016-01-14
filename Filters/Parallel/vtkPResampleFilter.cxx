@@ -132,7 +132,8 @@ int vtkPResampleFilter::RequestUpdateExtent(vtkInformation *,
   // necessarily related. The output extent is controlled by the
   // resampled dataset whereas the input extent is controlled by
   // input data.
-  vtkStreamingDemandDrivenPipeline::SetUpdateExtentToWholeExtent(inInfo);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()), 6);
   return 1;
 }
 

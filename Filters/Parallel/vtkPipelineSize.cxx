@@ -352,8 +352,13 @@ unsigned long vtkPipelineSize::GetNumberOfSubPieces(unsigned long memoryLimit,
   do
     {
     oldSize = size;
-    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
-      mapper->GetInputInformation(), piece*subDivisions, numPieces*subDivisions, 0);
+    vtkInformation* inInfo = mapper->GetInputInformation();
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+      piece*subDivisions);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+      numPieces*subDivisions);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+      0);
     mapper->GetInputAlgorithm()->PropagateUpdateExtent();
     size = this->GetEstimatedSize(mapper,0,0);
     // watch for the first time through

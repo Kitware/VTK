@@ -115,8 +115,6 @@ void vtkPNGWriter::Write()
     int uExt[6];
     memcpy(uExt, wExtent, 4*sizeof(int));
     uExt[4] = uExt[5] = this->FileNumber;
-    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
-      this->GetInputInformation(0, 0), uExt);
     if (!this->WriteToMemory)
       {
       int bytes_printed = 0;
@@ -146,9 +144,7 @@ void vtkPNGWriter::Write()
         vtkWarningMacro("Filename has been truncated.");
         }
       }
-    vtkDemandDrivenPipeline::SafeDownCast(
-      this->GetInputExecutive(0, 0))->UpdateData(
-        this->GetInputConnection(0, 0)->GetIndex());
+    this->GetInputAlgorithm()->UpdateExtent(uExt);
     this->WriteSlice(this->GetInput(), uExt);
     if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
       {

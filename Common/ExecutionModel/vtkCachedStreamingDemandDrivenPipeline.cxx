@@ -97,38 +97,6 @@ void vtkCachedStreamingDemandDrivenPipeline
 }
 
 //----------------------------------------------------------------------------
-int vtkCachedStreamingDemandDrivenPipeline::Update()
-{
-  return this->Superclass::Update();
-}
-
-//----------------------------------------------------------------------------
-int vtkCachedStreamingDemandDrivenPipeline::Update(int port)
-{
-  if(!this->UpdateInformation())
-    {
-    return 0;
-    }
-  if(port >= 0 && port < this->Algorithm->GetNumberOfOutputPorts())
-    {
-    int retval = 1;
-    // some streaming filters can request that the pipeline execute multiple
-    // times for a single update
-    do
-      {
-      retval =
-        this->PropagateUpdateExtent(port) && this->UpdateData(port) && retval;
-      }
-    while (this->ContinueExecuting);
-    return retval;
-    }
-  else
-    {
-    return 1;
-    }
-}
-
-//----------------------------------------------------------------------------
 int vtkCachedStreamingDemandDrivenPipeline
 ::NeedToExecuteData(int outputPort,
                     vtkInformationVector** inInfoVec,

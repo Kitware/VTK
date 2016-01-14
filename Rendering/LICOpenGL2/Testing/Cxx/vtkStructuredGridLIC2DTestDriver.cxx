@@ -226,10 +226,8 @@ int vtkStructuredGridLIC2DTestDriver(int argc, char* argv[])
 
   for (int kk=0; kk < num_partitions; kk++)
     {
-    filter->SetUpdateExtent(0, kk, num_partitions, 0);
-
     cout << "*****************" << endl;
-    filter->Update();
+    filter->UpdatePiece(kk, num_partitions, 0);
     if (  filter->GetFBOSuccess() == 0 ||
           filter->GetLICSuccess() == 0  )
       {

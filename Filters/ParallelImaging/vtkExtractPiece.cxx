@@ -164,8 +164,6 @@ void vtkExtractPiece::ExtractImageData(
   int piece, int numberOfPieces, int ghostLevel,
   vtkCompositeDataIterator* iter)
 {
-  vtkStreamingDemandDrivenPipeline *extractExecutive;
-  vtkInformation *extractInfo;
   int ext[6];
 
   vtkImageClip *extractID = vtkImageClip::New();
@@ -182,15 +180,7 @@ void vtkExtractPiece::ExtractImageData(
 
   extractID->SetInputData(imageData);
   extractID->SetOutputWholeExtent(ext);
-  extractExecutive = vtkStreamingDemandDrivenPipeline::SafeDownCast(
-    extractID->GetExecutive());
-  extractInfo = extractExecutive->GetOutputInformation(0);
-  extractExecutive->UpdateDataObject();
-  extractInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-                   ext, 6);
-  extractInfo->Set(
-    vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(), 1);
-  extractID->Update();
+  extractID->UpdateExtent(ext);
   vtkImageData *extractOutput = vtkImageData::New();
   extractOutput->ShallowCopy(extractID->GetOutput());
   output->SetDataSet(iter, extractOutput);
@@ -205,24 +195,9 @@ void vtkExtractPiece::ExtractPolyData(
   int piece, int numberOfPieces, int ghostLevel,
   vtkCompositeDataIterator* iter)
 {
-  vtkStreamingDemandDrivenPipeline *extractExecutive;
-  vtkInformation *extractInfo;
-
   vtkExtractPolyDataPiece *extractPD = vtkExtractPolyDataPiece::New();
   extractPD->SetInputData(polyData);
-  extractExecutive = vtkStreamingDemandDrivenPipeline::SafeDownCast(
-    extractPD->GetExecutive());
-  extractInfo = extractExecutive->GetOutputInformation(0);
-  extractExecutive->UpdateDataObject();
-  extractInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-                   numberOfPieces);
-  extractInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
-                   piece);
-  extractInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
-                   ghostLevel);
-  extractInfo->Set(
-    vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(), 1);
-  extractPD->Update();
+  extractPD->UpdatePiece(piece, numberOfPieces, ghostLevel);
   vtkPolyData *extractOutput = vtkPolyData::New();
   extractOutput->ShallowCopy(extractPD->GetOutput());
   output->SetDataSet(iter, extractOutput);
@@ -235,8 +210,6 @@ void vtkExtractPiece::ExtractRectilinearGrid(
   int piece, int numberOfPieces, int ghostLevel,
   vtkCompositeDataIterator* iter)
 {
-  vtkStreamingDemandDrivenPipeline *extractExecutive;
-  vtkInformation *extractInfo;
   int ext[6];
 
   vtkExtractRectilinearGrid *extractRG =
@@ -252,15 +225,7 @@ void vtkExtractPiece::ExtractRectilinearGrid(
   translate->GetExtent(ext);
 
   extractRG->SetInputData(rGrid);
-  extractExecutive = vtkStreamingDemandDrivenPipeline::SafeDownCast(
-    extractRG->GetExecutive());
-  extractInfo = extractExecutive->GetOutputInformation(0);
-  extractExecutive->UpdateDataObject();
-  extractInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-                   ext, 6);
-  extractInfo->Set(
-    vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(), 1);
-  extractRG->Update();
+  extractRG->UpdateExtent(ext);
   vtkRectilinearGrid *extractOutput = vtkRectilinearGrid::New();
   extractOutput->ShallowCopy(extractRG->GetOutput());
   output->SetDataSet(iter, extractOutput);
@@ -275,7 +240,6 @@ void vtkExtractPiece::ExtractStructuredGrid(
   int piece, int numberOfPieces, int ghostLevel,
   vtkCompositeDataIterator* iter)
 {
-  vtkStreamingDemandDrivenPipeline *extractExecutive;
   vtkInformation *extractInfo;
   int ext[6];
 
@@ -291,16 +255,10 @@ void vtkExtractPiece::ExtractStructuredGrid(
   translate->GetExtent(ext);
 
   extractSG->SetInputData(sGrid);
-  extractExecutive = vtkStreamingDemandDrivenPipeline::SafeDownCast(
-    extractSG->GetExecutive());
-  extractInfo = extractExecutive->GetOutputInformation(0);
-  extractExecutive->UpdateDataObject();
-  extractInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-                   ext, 6);
+  extractInfo = extractSG->GetOutputInformation(0);
+  extractSG->UpdateInformation();
   extractInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
-  extractInfo->Set(
-    vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(), 1);
-  extractSG->Update();
+  extractSG->UpdateExtent(ext);
   vtkStructuredGrid *extractOutput = vtkStructuredGrid::New();
   extractOutput->ShallowCopy(extractSG->GetOutput());
   output->SetDataSet(iter, extractOutput);
@@ -315,25 +273,10 @@ void vtkExtractPiece::ExtractUnstructuredGrid(
   int piece, int numberOfPieces, int ghostLevel,
   vtkCompositeDataIterator* iter)
 {
-  vtkStreamingDemandDrivenPipeline *extractExecutive;
-  vtkInformation *extractInfo;
-
   vtkExtractUnstructuredGridPiece *extractUG =
     vtkExtractUnstructuredGridPiece::New();
   extractUG->SetInputData(uGrid);
-  extractExecutive = vtkStreamingDemandDrivenPipeline::SafeDownCast(
-    extractUG->GetExecutive());
-  extractInfo = extractExecutive->GetOutputInformation(0);
-  extractExecutive->UpdateDataObject();
-  extractInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-                   numberOfPieces);
-  extractInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
-                   piece);
-  extractInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
-                   ghostLevel);
-  extractInfo->Set(
-    vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(), 1);
-  extractUG->Update();
+  extractUG->UpdatePiece(piece, numberOfPieces, ghostLevel);
   vtkUnstructuredGrid *extractOutput = vtkUnstructuredGrid::New();
   extractOutput->ShallowCopy(extractUG->GetOutput());
   output->SetDataSet(iter, extractOutput);

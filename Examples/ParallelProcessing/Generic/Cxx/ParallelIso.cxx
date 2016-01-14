@@ -73,12 +73,15 @@ void SetIsoValueRMI(void *localArg, void* vtkNotUsed(remoteArg),
 
   float val;
 
+  vtkMultiProcessController* contrl = args->Controller;
+  int myid = contrl->GetLocalProcessId();
+  int numProcs = contrl->GetNumberOfProcesses();
+
   vtkContourFilter *iso = args->ContourFilter;
   val = iso->GetValue(0);
   iso->SetValue(0, val + ISO_STEP);
-  args->Elevation->Update();
+  args->Elevation->Update(myid, numProcs, 0));
 
-  vtkMultiProcessController* contrl = args->Controller;
   contrl->Send(args->Elevation->GetOutput(), 0, ISO_OUTPUT_TAG);
 }
 
@@ -121,12 +124,6 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   elev->SetInputConnection(iso->GetOutputPort());
   val = (myid+1) / static_cast<float>(numProcs);
   elev->SetScalarRange(val, val+0.001);
-
-  // Tell the pipeline which piece we want to update.
-  vtkStreamingDemandDrivenPipeline* exec =
-    vtkStreamingDemandDrivenPipeline::SafeDownCast(elev->GetExecutive());
-  exec->SetUpdateNumberOfPieces(exec->GetOutputInformation(0), numProcs);
-  exec->SetUpdatePiece(exec->GetOutputInformation(0), myid);
 
   if (myid != 0)
     {
@@ -171,7 +168,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
       {
       // set the local value
       iso->SetValue(0, iso->GetValue(0) + ISO_STEP);
-      elev->Update();
+      elev->Update(myid, numProcs, 0));
 
       for (int i = 1; i < numProcs; ++i)
         {

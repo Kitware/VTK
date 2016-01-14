@@ -140,7 +140,7 @@ int TestPStreamGeometry( int argc, char* argv[] )
     }
   tracer->SetInputData(1,singleSeed.GetPointer());
   tracer->SetIntegrationDirectionToBoth();
-  tracer->Update();
+  traceMapper->Update();
   out = tracer->GetOutput();
   vtkDoubleArray* integrationTime =
     vtkDoubleArray::SafeDownCast(out->GetPointData()->GetArray("IntegrationTime"));

@@ -101,16 +101,11 @@ void TestPSQLGraphReader()
   reader->SetVertexIdField("id");
   reader->SetSourceField("source");
   reader->SetTargetField("target");
-  vtkStreamingDemandDrivenPipeline* exec =
-    vtkStreamingDemandDrivenPipeline::SafeDownCast(reader->GetExecutive());
   vtkSmartPointer<vtkPBGLDistributedGraphHelper> helper =
     vtkSmartPointer<vtkPBGLDistributedGraphHelper>::New();
   int total = num_processes(helper->GetProcessGroup());
   int rank = process_id(helper->GetProcessGroup());
-  reader->UpdateInformation();
-  exec->SetUpdateNumberOfPieces(exec->GetOutputInformation(0), total);
-  exec->SetUpdatePiece(exec->GetOutputInformation(0), rank);
-  reader->Update();
+  reader->Update(rank, total, 0);
   vtkGraph* output = reader->GetOutput();
   vtkAbstractArray* idArr = vtkAbstractArray::SafeDownCast(output->GetVertexData()->GetAbstractArray("id"));
   vtkStringArray* nameArr = vtkStringArray::SafeDownCast(output->GetVertexData()->GetAbstractArray("name"));

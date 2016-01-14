@@ -36,9 +36,7 @@ class TestImagePlaneWidget(Testing.vtkTest):
         # Lets create this data using the data from the reader.
         my_img_data = vtk.vtkImageData()
         my_img_data.SetDimensions(img_data.GetDimensions())
-#        my_img_data.SetWholeExtent(img_data.GetWholeExtent())
         my_img_data.SetExtent(img_data.GetExtent())
-#        my_img_data.SetUpdateExtent(img_data.GetUpdateExtent())
         my_img_data.SetSpacing(img_data.GetSpacing())
         my_img_data.SetOrigin(img_data.GetOrigin())
         my_img_data.SetScalarType(img_data.GetScalarType(), my_img_data.GetInformation())

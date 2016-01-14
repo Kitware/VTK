@@ -214,6 +214,6 @@ class VTKPythonAlgorithmBase(vtkPythonAlgorithm):
         to upstream pipeline."""
         return 1
 
-    def RequestData(self, vtkself, request, inInfo, outInfo):
+    def RequestData(self, request, inInfo, outInfo):
         """Overwritten by subclass to execute the algorithm."""
         raise NotImplementedError('RequestData must be implemented')

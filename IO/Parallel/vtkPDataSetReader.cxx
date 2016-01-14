@@ -884,7 +884,8 @@ int vtkPDataSetReader::RequestData(vtkInformation* request,
 
   if (this->VTKFileFlag)
     {
-    int updatePiece = vtkStreamingDemandDrivenPipeline::GetUpdatePiece(info);
+    int updatePiece =
+     info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
     if (updatePiece == 0)
       {
       vtkDataSetReader *reader = vtkDataSetReader::New();
@@ -953,9 +954,10 @@ int vtkPDataSetReader::PolyDataExecute(vtkInformation*,
   int startPiece, endPiece;
   int idx;
 
-  updatePiece = vtkStreamingDemandDrivenPipeline::GetUpdatePiece(info);
+  updatePiece =
+    info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());;
   updateNumberOfPieces =
-    vtkStreamingDemandDrivenPipeline::GetUpdateNumberOfPieces(info);
+    info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
 
   // Only the first N pieces have anything in them.
   if (updateNumberOfPieces > this->NumberOfPieces)
@@ -1027,9 +1029,10 @@ int vtkPDataSetReader::UnstructuredGridExecute(
   int startPiece, endPiece;
   int idx;
 
-  updatePiece = vtkStreamingDemandDrivenPipeline::GetUpdatePiece(info);
+  updatePiece =
+    info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
   updateNumberOfPieces =
-    vtkStreamingDemandDrivenPipeline::GetUpdateNumberOfPieces(info);
+    info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
 
   // Only the first N pieces have anything in them.
   if (updateNumberOfPieces > this->NumberOfPieces)
@@ -1099,7 +1102,7 @@ int vtkPDataSetReader::ImageDataExecute(
 
   // Allocate the data object.
   int wUExt[6];
-  vtkStreamingDemandDrivenPipeline::GetUpdateExtent(info, wUExt);
+  info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), wUExt);
   vtkNew<vtkExtentTranslator> et;
   et->SetWholeExtent(wUExt);
   et->SetPiece(info->Get(
@@ -1221,7 +1224,7 @@ int vtkPDataSetReader::StructuredGridExecute(
     pieceMask[i] = 0;
     }
   int wUExt[6];
-  vtkStreamingDemandDrivenPipeline::GetUpdateExtent(info, wUExt);
+  info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), wUExt);
   vtkNew<vtkExtentTranslator> et;
   et->SetWholeExtent(wUExt);
   et->SetPiece(info->Get(

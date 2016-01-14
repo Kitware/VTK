@@ -63,6 +63,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkSmartPointer.h"
 #include "vtkMath.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkInformation.h"
 
 #include "vtkType.h"
 
@@ -1136,8 +1137,8 @@ void vtkMINCImageReader::ExecuteDataWithInformation(vtkDataObject *output,
   int scalarSize = data->GetScalarSize();
   int numComponents = data->GetNumberOfScalarComponents();
   int outExt[6];
-  memcpy(outExt, vtkStreamingDemandDrivenPipeline::GetUpdateExtent(
-           this->GetOutputInformation(0)), 6*sizeof(int));
+  this->GetOutputInformation(0)->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), outExt);
   vtkIdType outInc[3];
   data->GetIncrements(outInc);
   int outSize[3];

@@ -251,10 +251,7 @@ void vtkTexture::Render(vtkRenderer *ren)
       vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
 
     // Updating the whole extent may not be necessary.
-    inputAlg->UpdateInformation();
-    vtkStreamingDemandDrivenPipeline::SetUpdateExtentToWholeExtent(
-      inInfo);
-    inputAlg->Update();
+    inputAlg->UpdateWholeExtent();
     this->Load(ren);
     }
 }
@@ -270,11 +267,7 @@ int vtkTexture::IsTranslucent()
   if(this->GetInputAlgorithm())
     {
     vtkAlgorithm* inpAlg = this->GetInputAlgorithm();
-    vtkInformation* inInfo = this->GetInputInformation();
-    inpAlg->UpdateInformation();
-    vtkStreamingDemandDrivenPipeline::SetUpdateExtentToWholeExtent(
-      inInfo);
-    inpAlg->Update();
+    inpAlg->UpdateWholeExtent();
     }
 
   if(this->GetInput() == NULL ||

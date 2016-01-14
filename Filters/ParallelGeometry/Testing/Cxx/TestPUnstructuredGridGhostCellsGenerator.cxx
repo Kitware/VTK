@@ -106,9 +106,7 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
   wavelet->SetWholeExtent(0, gridSize, 0, gridSize, 0, gridSize);
   vtkNew<vtkDataSetTriangleFilter> tetrahedralize;
   tetrahedralize->SetInputConnection(wavelet->GetOutputPort());
-  tetrahedralize->UpdateInformation();
-  tetrahedralize->SetUpdateExtent(rankId, nbRanks, 0);
-  tetrahedralize->Update();
+  tetrahedralize->UpdatePiece(rankId, nbRanks, 0);
 
   vtkUnstructuredGrid* initialGrid = tetrahedralize->GetOutput();
 
@@ -117,12 +115,10 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
   ghostGenerator->SetInputData(initialGrid);
   ghostGenerator->SetController(controller.Get());
   ghostGenerator->UseGlobalPointIdsOn();
-  ghostGenerator->UpdateInformation();
 
   // Check BuildIfRequired option
-  ghostGenerator->SetUpdateExtent(rankId, nbRanks, 0); // piece, nbPieces, # ghost levels
   ghostGenerator->BuildIfRequiredOff();
-  ghostGenerator->Update();
+  ghostGenerator->UpdatePiece(rankId, nbRanks, 0);
 
   if (ghostGenerator->GetOutput()->GetCellGhostArray() == NULL)
     {
@@ -132,7 +128,7 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
     }
 
   ghostGenerator->BuildIfRequiredOn();
-  ghostGenerator->Update();
+  ghostGenerator->UpdatePiece(rankId, nbRanks, 0);
 
   if (ghostGenerator->GetOutput()->GetCellGhostArray())
     {
@@ -141,12 +137,10 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
     ret = EXIT_FAILURE;
     }
 
-  ghostGenerator->SetUpdateExtent(rankId, nbRanks, 1); // piece, nbPieces, # ghost levels
-
   // Check if algorithm works with empty input on all nodes except first one
   vtkNew<vtkUnstructuredGrid> emptyGrid;
   ghostGenerator->SetInputData(rankId == 0 ? initialGrid : emptyGrid.Get());
-  ghostGenerator->Update();
+  ghostGenerator->UpdatePiece(rankId, nbRanks, 1);
   ghostGenerator->SetInputData(initialGrid);
   ghostGenerator->Modified();
 
@@ -158,7 +152,7 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
 
     vtkNew<vtkTimerLog> timer;
     timer->StartTimer();
-    ghostGenerator->Update();
+    ghostGenerator->UpdatePiece(rankId, nbRanks, 1);
     timer->StopTimer();
 
     // Save the grid for further analyze

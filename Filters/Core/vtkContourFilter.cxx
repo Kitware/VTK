@@ -453,13 +453,12 @@ int vtkContourFilter::RequestData(
       {
       cgrid->SetValue(i, values[i]);
       }
-    cgrid->SetUpdateExtent(
-      0,
+    cgrid->SetInputArrayToProcess(0,this->GetInputArrayInformation(0));
+    cgrid->UpdatePiece(
       info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()),
       info->Get(vtkStreamingDemandDrivenPipeline:: UPDATE_NUMBER_OF_PIECES()),
       info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
-    cgrid->SetInputArrayToProcess(0,this->GetInputArrayInformation(0));
-    cgrid->Update();
+
     output->ShallowCopy(cgrid->GetOutput());
     cgrid->Delete();
     } //if type VTK_UNSTRUCTURED_GRID
@@ -666,13 +665,11 @@ int vtkContourFilter::RequestData(
       tempInput->ShallowCopy(output);
       normalsFilter->SetInputData(tempInput.GetPointer());
       normalsFilter->SetFeatureAngle(180.);
-      normalsFilter->SetUpdateExtent(
-        0,
+      normalsFilter->UpdatePiece(
         info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()),
         info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()),
         info->Get(vtkStreamingDemandDrivenPipeline::
                   UPDATE_NUMBER_OF_GHOST_LEVELS()));
-      normalsFilter->Update();
       output->ShallowCopy(normalsFilter->GetOutput());
       }
 

@@ -202,8 +202,10 @@ protected:
 
   // Description:
   // Override Update to handle some tricky details.
-  void Update();
-  void Update(int port);
+  virtual void Update(int port);
+  virtual void Update();
+  virtual int Update(int port, vtkInformationVector* requests);
+  virtual int Update(vtkInformation* requests);
 
   // Description:
   // Garbage collection for reference loops.

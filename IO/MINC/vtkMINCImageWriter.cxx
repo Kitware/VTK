@@ -2144,7 +2144,7 @@ int vtkMINCImageWriter::RequestData(
           input,
           timeStep,
           vtkStreamingDemandDrivenPipeline::GetWholeExtent(inInfo),
-          vtkStreamingDemandDrivenPipeline::GetUpdateExtent(inInfo)) == 0)
+          inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT())) == 0)
       {
       return 0;
       }
