@@ -202,6 +202,11 @@ To build VTK, set `ENABLE_vtk=ON`, `CMAKE_BUILD_TYPE=Release`,
 `ENABLE_python=ON`, and `USE_VTK_MASTER=OFF`. Additionally, set `BUILD_VTK7`
 to `ON` or `OFF` depending on the version being built.
 
+If using one of the existing build trees, the build tree should be cleared if
+it was not used for a release candidate of the same version being built (e.g.,
+if building 7.0.x, ensure that the install tree either doesn't exist or only
+has libraries ending in `-vtk7.0`).
+
 #### Linux
 
 ##### VTK 6
