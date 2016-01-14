@@ -1525,14 +1525,6 @@ void vtkWin32OpenGLRenderWindow::CreateOffScreenDC(HBITMAP hbmp, HDC aHdc)
   BITMAP bm;
   GetObject(hbmp, sizeof(BITMAP), &bm);
 
-  this->MemoryBuffer = hbmp;
-
-  // Create a compatible device context
-  this->MemoryHdc = (HDC)CreateCompatibleDC(aHdc);
-
-  // Put the bitmap into the device context
-  SelectObject(this->MemoryHdc, this->MemoryBuffer);
-
   // Renderers will need to redraw anything cached in display lists
   vtkRenderer *ren;
   vtkCollectionSimpleIterator rsit;
@@ -1542,6 +1534,14 @@ void vtkWin32OpenGLRenderWindow::CreateOffScreenDC(HBITMAP hbmp, HDC aHdc)
     ren->SetRenderWindow(NULL);
     ren->SetRenderWindow(this);
     }
+
+  this->MemoryBuffer = hbmp;
+
+  // Create a compatible device context
+  this->MemoryHdc = (HDC)CreateCompatibleDC(aHdc);
+
+  // Put the bitmap into the device context
+  SelectObject(this->MemoryHdc, this->MemoryBuffer);
 
   // adjust settings for renderwindow
   this->Mapped = 0;
@@ -1554,6 +1554,7 @@ void vtkWin32OpenGLRenderWindow::CreateOffScreenDC(HBITMAP hbmp, HDC aHdc)
                          PFD_SUPPORT_OPENGL | PFD_SUPPORT_GDI |
                          PFD_DRAW_TO_BITMAP, this->GetDebug(), 24, 32);
   this->SetupPalette(this->DeviceContext);
+
   this->ContextId = wglCreateContext(this->DeviceContext);
   if (this->ContextId == NULL)
     {
@@ -1645,6 +1646,21 @@ void vtkWin32OpenGLRenderWindow::ResumeScreenRendering(void)
         ren->SetRenderWindow(NULL);
         ren->SetRenderWindow(this);
         }
+    }
+
+  if (this->MemoryBuffer)
+    {
+    DeleteObject(this->MemoryBuffer);
+    this->MemoryBuffer = 0;
+    }
+  if (this->MemoryHdc)
+    {
+    DeleteDC(this->MemoryHdc);
+    this->MemoryHdc = 0;
+    }
+  if (this->ContextId && wglDeleteContext(this->ContextId) != TRUE)
+    {
+    vtkErrorMacro("wglDeleteContext failed in CleanUpOffScreenRendering(), error: " << GetLastError());
     }
 
   this->Mapped = this->ScreenMapped;
