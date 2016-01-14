@@ -65,11 +65,11 @@ Here are some places to look for patches:
 
 Pick a viable first-parent commit from master and run:
 
-    ```sh
-    $ git checkout $release_root
-    $ git checkout -B release
-    $ git push origin release
-    ```
+```sh
+$ git checkout $release_root
+$ git checkout -B release
+$ git push origin release
+```
 
 Email `brad.king@kitware.com` and `ben.boeckel@kitware.com` with the
 `release_root` hash and version number so that kwrobot may be updated to check
@@ -89,16 +89,16 @@ In `Utilities/Maintenance/release`, there are the following scripts:
 First, create the `changes.txt` file by giving a commit range to
 `make-changelog.sh`:
 
-    ```sh
-    $ make-changelog.sh $previous_release $release
-    ```
+```sh
+$ make-changelog.sh $previous_release $release
+```
 
 This file contains all of the changes in the commit range grouped by author.
 It is then processed by `prep-emails.py`:
 
-    ```sh
-    $ ./prep-emails.py $version
-    ```
+```sh
+$ ./prep-emails.py $version
+```
 
 It takes `changes.txt` and creates a file for each email address:
 `user@domain.tld.txt`. You should delete any files which point to upstream or
@@ -107,15 +107,15 @@ updates or wide, sweeping changes.
 
 Once that is complete, run `send-emails.sh`:
 
-    ```sh
-    $ mailer=mutt ./send-emails.sh $version
-    ```
+```sh
+$ mailer=mutt ./send-emails.sh $version
+```
 
 The `mailer` environment variable should support this command line:
 
-    ```sh
-    $ $mailer -s "$subject" $cc_list "$to" < "$body"
-    ```
+```sh
+$ $mailer -s "$subject" $cc_list "$to" < "$body"
+```
 
 which is any `sendmail`-compatible program.
 
@@ -137,21 +137,21 @@ Steps for managing branches on GitLab for the release are documented
 
 Merging into the `release` branch is done by:
 
-    ```sh
-    $ git remote add gl/$user https://gitlab.kitware.com/$user/vtk.git
-    $ git fetch -p gl/$user
-    $ git checkout $release_branch
-    $ git merge --no-ff gl/$user/$branch
-    $ git push origin $release_branch
-    ```
+```sh
+$ git remote add gl/$user https://gitlab.kitware.com/$user/vtk.git
+$ git fetch -p gl/$user
+$ git checkout $release_branch
+$ git merge --no-ff gl/$user/$branch
+$ git push origin $release_branch
+```
 
 If the release branch is still being merged into `master`:
 
-    ```sh
-    $ git checkout master
-    $ git merge --no-ff --no-log $release_branch
-    $ git push origin master
-    ```
+```sh
+$ git checkout master
+$ git merge --no-ff --no-log $release_branch
+$ git push origin master
+```
 
 ## Creating Tarballs
 
@@ -166,9 +166,9 @@ endings.
 
 Run (where `$version` is, e.g., 7.0.0.rc2):
 
-    ```sh
-    $ Utilities/Maintenance/SourceTarball.bash --tgz -v $version v$version
-    ```
+```sh
+$ Utilities/Maintenance/SourceTarball.bash --tgz -v $version v$version
+```
 
 This will generate tarballs for the source and testing data.
 
@@ -177,9 +177,9 @@ This will generate tarballs for the source and testing data.
 From a `git bash` shell with `wget` in `PATH`, run (where `$version` is, e.g.,
 7.0.0.rc2):
 
-    ```sh
-    $ Utilities/Maintenance/SourceTarball.bash --zip -v $version v$version
-    ```
+```sh
+$ Utilities/Maintenance/SourceTarball.bash --zip -v $version v$version
+```
 
 This should be done on Windows so that the sources have Windows-style newline
 endings.
@@ -190,9 +190,9 @@ On a machine with `doxygen` installed, configure a build with
 `BUILD_DOCUMENTATION=ON` and run the `DoxygenDoc` target. To create the
 documentation tarball, run:
 
-    ```sh
-    $ tar -C Utilities/Doxygen/doc -czf vtkDocHtml-$version.tar.gz html
-    ```
+```sh
+$ tar -C Utilities/Doxygen/doc -czf vtkDocHtml-$version.tar.gz html
+```
 
 from the top of the build tree.
 
@@ -267,19 +267,19 @@ Upload the files to vtk.org using a public key with access to `vtk.org/files`.
 Ask sysadmin to add a key for you. Make sure this is a *new* SSH key and not a
 day-to-day use one. In `.ssh/config`:
 
-    ```conf
-    Host vtk.release
-        User         kitware
-        HostName     public.kitware.com
-        IdentityFile ~/.ssh/vtk-release
-    ```
+```conf
+Host vtk.release
+    User         kitware
+    HostName     public.kitware.com
+    IdentityFile ~/.ssh/vtk-release
+```
 
 and then upload with (where `$release` is analogous to `6.3` or `7.0`):
 
-    ```sh
-    $ chmod -R o+r vtk-$release$suffix/
-    $ rsync -rptv vtk-$release$suffix/ vtk.release:$release
-    ```
+```sh
+$ chmod -R o+r vtk-$release$suffix/
+$ rsync -rptv vtk-$release$suffix/ vtk.release:$release
+```
 
 ### Updating the Website
 
@@ -297,9 +297,9 @@ The wiki hosts a page which lists API changes between two versions. The
 `$workdir` variable should be an *empty* directory, `$srcdir` is usually `.`,
 and the release variables are the tags to diff.
 
-    ```sh
-    Utilities/Maintenance/semanticDiffVersion.py -w -t $workdir $srcdir $old_release $release
-    ```
+```sh
+Utilities/Maintenance/semanticDiffVersion.py -w -t $workdir $srcdir $old_release $release
+```
 
 The content output by this script should be uploaded to a page on the wiki.
 Previous examples:
