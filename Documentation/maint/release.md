@@ -164,21 +164,24 @@ endings.
 
 #### Unix
 
-Run:
+Run (where `$version` is, e.g., 7.0.0.rc2):
 
     ```sh
-    $ Utilities/Maintenance/SourceTarball.bash --tgz -v $version $version
+    $ Utilities/Maintenance/SourceTarball.bash --tgz -v $version v$version
     ```
 
 This will generate tarballs for the source and testing data.
 
 #### Windows
 
-From a `git bash` shell, run:
+From a `git bash` shell, run (where `$version` is, e.g., 7.0.0.rc2):
 
     ```sh
-    $ Utilities/Maintenance/SourceTarball.bash --zip -v $version $version
+    $ Utilities/Maintenance/SourceTarball.bash --zip -v $version v$version
     ```
+
+This should be done on Windows so that the sources have Windows-style newline
+endings.
 
 ### Documentation
 
