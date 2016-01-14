@@ -298,7 +298,7 @@ The wiki hosts a page which lists API changes between two versions. The
 and the release variables are the tags to diff.
 
 ```sh
-Utilities/Maintenance/semanticDiffVersion.py -w -t $workdir $srcdir $old_release $release
+Utilities/Maintenance/semanticDiffVersion.py -w -t $workdir $srcdir $old_release $release > output.wiki
 ```
 
 The content output by this script should be uploaded to a page on the wiki.
