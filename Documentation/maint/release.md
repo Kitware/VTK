@@ -233,7 +233,7 @@ installation. The superbuild is in `$HOME/Source/VTKSB` and
 SSH into `bigmac`. The superbuild is in `$HOME/code/vtk/src-sb` and
 `$HOME/code/vtk/build-sb-release`. Update the superbuild source as necessary
 and run `make` in the build tree. To generate the binary, run `cpack -G
-DragNDrop`.
+DragNDrop`. The deployment target and SDK should be for 10.7.
 
 #### Windows
 
