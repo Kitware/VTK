@@ -174,7 +174,8 @@ This will generate tarballs for the source and testing data.
 
 #### Windows
 
-From a `git bash` shell, run (where `$version` is, e.g., 7.0.0.rc2):
+From a `git bash` shell with `wget` in `PATH`, run (where `$version` is, e.g.,
+7.0.0.rc2):
 
     ```sh
     $ Utilities/Maintenance/SourceTarball.bash --zip -v $version v$version
