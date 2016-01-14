@@ -7,6 +7,7 @@ all of the tribal knowledge around it.
 
   - Ben Boeckel (@ben.boeckel) <ben.boeckel@kitware.com>
   - Dave DeMarle (@demarle) <dave.demarle@kitware.com>
+  - Chuck Atkins (@chuck.atkins) <chuck.atkins@kitware.com>
 
 ## Initial steps
 
