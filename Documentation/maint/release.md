@@ -274,7 +274,7 @@ day-to-day use one. In `.ssh/config`:
         IdentityFile ~/.ssh/vtk-release
     ```
 
-and then upload with:
+and then upload with (where `$release` is analogous to `6.3` or `7.0`):
 
     ```sh
     $ chmod -R o+r vtk-$release$suffix/
