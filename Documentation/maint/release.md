@@ -293,7 +293,9 @@ Communications:
 
 ### Updating the Wiki
 
-The wiki hosts a page which lists API changes between two versions.
+The wiki hosts a page which lists API changes between two versions. The
+`$workdir` variable should be an *empty* directory, `$srcdir` is usually `.`,
+and the release variables are the tags to diff.
 
     ```sh
     Utilities/Maintenance/semanticDiffVersion.py -w -t $workdir $srcdir $old_release $release
