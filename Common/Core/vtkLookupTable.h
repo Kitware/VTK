@@ -104,6 +104,10 @@ public:
   virtual void ForceBuild();
 
   // Description:
+  // Copies the "special" colors into the given table.
+  void BuildSpecialColors();
+
+  // Description:
   // Set the shape of the table ramp to either linear or S-curve.
   // The default is S-curve, which tails off gradually at either end.
   // The equation used for the S-curve is y = (sin((x - 1/2)*pi) + 1)/2,
