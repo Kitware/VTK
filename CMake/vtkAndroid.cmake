@@ -132,6 +132,8 @@ set(android_cmake_flags
   -DModule_vtkParallelCore:BOOL=ON
   -DModule_vtkRenderingCore:BOOL=ON
   -DModule_vtkRenderingFreeType:BOOL=ON
+  -DModule_vtkTestingCore:BOOL=ON
+  -DModule_vtkTestingRendering:BOOL=ON
 )
 
 # add volume rendering for ES 3.0
@@ -160,3 +162,10 @@ macro(crosscompile target toolchain_file)
   )
 endmacro()
 crosscompile(vtk-android android.toolchain.cmake)
+
+add_test(NAME AndroidNative
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeExternals/Build/vtk-android/Examples/Android/NativeVTK/bin
+    COMMAND ${CMAKE_COMMAND}
+    -DWORKINGDIR=${CMAKE_CURRENT_BINARY_DIR}/CMakeExternals/Build/vtk-android/Examples/Android/NativeVTK/bin
+    -P ${CMAKE_CURRENT_SOURCE_DIR}/Examples/Android/NativeVTK/runtest.cmake
+  )
