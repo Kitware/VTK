@@ -11084,7 +11084,7 @@ unsigned int guess_constant_type(const char *valstring)
     return VTK_PARSE_BOOL;
     }
 
-  if (strcmp(valstring, "nullptr") == 0)
+  if (strcmp(valstring, "nullptr") == 0 || strcmp(valstring, "NULL") == 0)
     {
     return VTK_PARSE_NULLPTR_T;
     }
