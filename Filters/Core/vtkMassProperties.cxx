@@ -26,11 +26,9 @@
 vtkStandardNewMacro(vtkMassProperties);
 
 //----------------------------------------------------------------------------
+// TODO: replace with std::cbrt() when C++11 is minimum requirement.
 static inline double vtkCubeRoot(double x)
 {
-#if __cplusplus > 199711L
-  return std::cbrt(x);
-#else
   if (x > 0.0)
     {
     return pow(x, 1.0/3.0);
@@ -43,7 +41,6 @@ static inline double vtkCubeRoot(double x)
     {
     return x;
     }
-#endif
 }
 
 //----------------------------------------------------------------------------
