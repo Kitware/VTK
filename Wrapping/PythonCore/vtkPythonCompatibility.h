@@ -49,6 +49,9 @@
 #define PyUnicode_DecodeLocaleAndSize PyUnicode_DecodeFSDefaultAndSize
 #define PyUnicode_DecodeLocale PyUnicode_DecodeFSDefault
 #define PyUnicode_EncodeLocale(o,e) PyUnicode_EncodeFSDefault(o)
+#define PyString_AsString _PyUnicode_AsString
+#else
+#define PyString_AsString PyUnicode_AsUTF8
 #endif
 
 // Buffer compatibility
