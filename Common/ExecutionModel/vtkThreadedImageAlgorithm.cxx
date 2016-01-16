@@ -24,13 +24,18 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkSMPTools.h"
 
+bool vtkThreadedImageAlgorithm::GlobalDefaultEnableSMP = false;
 
 //----------------------------------------------------------------------------
 vtkThreadedImageAlgorithm::vtkThreadedImageAlgorithm()
 {
   this->Threader = vtkMultiThreader::New();
   this->NumberOfThreads = this->Threader->GetNumberOfThreads();
+
+  // SMP default settings
+  this->EnableSMP = vtkThreadedImageAlgorithm::GlobalDefaultEnableSMP;
 }
 
 //----------------------------------------------------------------------------
@@ -40,13 +45,33 @@ vtkThreadedImageAlgorithm::~vtkThreadedImageAlgorithm()
 }
 
 //----------------------------------------------------------------------------
+void vtkThreadedImageAlgorithm::SetGlobalDefaultEnableSMP(bool enable)
+{
+  if (enable != vtkThreadedImageAlgorithm::GlobalDefaultEnableSMP)
+    {
+    vtkThreadedImageAlgorithm::GlobalDefaultEnableSMP = enable;
+    }
+}
+
+//----------------------------------------------------------------------------
+bool vtkThreadedImageAlgorithm::GetGlobalDefaultEnableSMP()
+{
+  return vtkThreadedImageAlgorithm::GlobalDefaultEnableSMP;
+}
+
+//----------------------------------------------------------------------------
 void vtkThreadedImageAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "NumberOfThreads: " << this->NumberOfThreads << "\n";
+  os << indent << "EnableSMP: " << (this->EnableSMP ? "On\n" : "Off\n");
+  os << indent << "GlobalDefaultEnableSMP: "
+     << (vtkThreadedImageAlgorithm::GlobalDefaultEnableSMP ?
+         "On\n" : "Off\n");
 }
 
+//----------------------------------------------------------------------------
 struct vtkImageThreadStruct
 {
   vtkThreadedImageAlgorithm *Filter;
@@ -120,7 +145,8 @@ int vtkThreadedImageAlgorithm::SplitExtent(int splitExt[6],
   return maxThreadIdUsed + 1;
 }
 
-
+//----------------------------------------------------------------------------
+// The old way to thread an image filter, before vtkSMPTools existed:
 // this mess is really a simple function. All it does is call
 // the ThreadedExecute method after setting the correct
 // extent for this thread. Its just a pain to calculate
@@ -212,6 +238,80 @@ static VTK_THREAD_RETURN_TYPE vtkThreadedImageAlgorithmThreadedExecute( void *ar
   return VTK_THREAD_RETURN_VALUE;
 }
 
+//----------------------------------------------------------------------------
+// This functor is used with vtkSMPTools to execute the algorithm in pieces
+// split over the extent of the data.
+class vtkThreadedImageAlgorithmFunctor
+{
+public:
+  // Create the functor by providing all of the information that will be
+  // needed by the ThreadedRequestData method that the functor will call.
+  vtkThreadedImageAlgorithmFunctor(
+    vtkThreadedImageAlgorithm *algo,
+    vtkInformation *request,
+    vtkInformationVector **inputsInfo,
+    vtkInformationVector *outputsInfo,
+    vtkImageData ***inputs,
+    vtkImageData **outputs,
+    const int extent[6],
+    vtkIdType pieces)
+    : Algorithm(algo), Request(request),
+      InputsInfo(inputsInfo), OutputsInfo(outputsInfo),
+      Inputs(inputs), Outputs(outputs),
+      NumberOfPieces(pieces)
+  {
+    for (int i = 0; i < 6; i++)
+      {
+      this->Extent[i] = extent[i];
+      }
+  }
+
+  // Called by vtkSMPTools prior to starting the multi-threading.
+  void Initialize()
+  {
+  }
+
+  // Called by vtkSMPTools once the multi-threading has finished.
+  void Reduce()
+  {
+  }
+
+  // Called by vtkSMPTools to execute the algorithm over specific pieces.
+  void operator()(vtkIdType begin, vtkIdType end);
+
+private:
+  vtkThreadedImageAlgorithmFunctor();
+
+  vtkThreadedImageAlgorithm *Algorithm;
+  vtkInformation *Request;
+  vtkInformationVector **InputsInfo;
+  vtkInformationVector *OutputsInfo;
+  vtkImageData ***Inputs;
+  vtkImageData **Outputs;
+  int Extent[6];
+  vtkIdType NumberOfPieces;
+};
+
+void vtkThreadedImageAlgorithmFunctor::operator()(
+  vtkIdType begin, vtkIdType end)
+{
+  for (vtkIdType piece = begin; piece < end; piece++)
+    {
+    int splitExt[6] = { 0, -1, 0, -1, 0, -1 };
+    vtkIdType total = this->Algorithm->SplitExtent(
+      splitExt, this->Extent, piece, this->NumberOfPieces);
+
+    if (piece < total &&
+        splitExt[0] <= splitExt[1] &&
+        splitExt[2] <= splitExt[3] &&
+        splitExt[4] <= splitExt[5])
+      {
+      this->Algorithm->ThreadedRequestData(
+        this->Request, this->InputsInfo, this->OutputsInfo,
+        this->Inputs, this->Outputs, splitExt, piece);
+      }
+    }
+}
 
 //----------------------------------------------------------------------------
 // This is the superclasses style of Execute method.  Convert it into
@@ -285,14 +385,72 @@ int vtkThreadedImageAlgorithm::RequestData(
     this->CopyAttributeData(str.Inputs[0][0],str.Outputs[0],inputVector);
     }
 
-  this->Threader->SetNumberOfThreads(this->NumberOfThreads);
-  this->Threader->SetSingleMethod(vtkThreadedImageAlgorithmThreadedExecute, &str);
+  if (this->EnableSMP)
+    {
+    // SMP is enabled, use vtkSMPTools to thread the filter
+    int updateExtent[6] = { 0, -1, 0, -1, 0, -1 };
 
-  // always shut off debugging to avoid threading problems with GetMacros
-  bool debug = this->Debug;
-  this->Debug = false;
-  this->Threader->SingleMethodExecute();
-  this->Debug = debug;
+    // get the update extent from the output, if there is an output
+    if (this->GetNumberOfOutputPorts())
+      {
+      int outputPort =
+        request->Get(vtkDemandDrivenPipeline::FROM_OUTPUT_PORT());
+      vtkInformation *outInfo =
+        outputVector->GetInformationObject(outputPort);
+
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+                   updateExtent);
+      }
+    else
+      {
+      // if no output, get update extent from the first input
+      for (int inPort = 0; inPort < this->GetNumberOfInputPorts(); ++inPort)
+        {
+        if (this->GetNumberOfInputConnections(inPort))
+          {
+          inputVector[inPort]->GetInformationObject(0)->Get(
+            vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), updateExtent);
+          break;
+          }
+        }
+      }
+
+    // verify that there is an extent for execution
+    if (updateExtent[0] <= updateExtent[1] &&
+        updateExtent[2] <= updateExtent[3] &&
+        updateExtent[4] <= updateExtent[5])
+      {
+      // do a dummy execution of SplitExtent to compute the number of pieces,
+      // for backwards compatibility limit number of pieces to NumberOfThreads
+      // which should be set to VTK_MAX_THREADS for good performance
+      int subExtent[6];
+      vtkIdType pieces =
+        this->SplitExtent(subExtent, updateExtent, 0, this->NumberOfThreads);
+
+      // always shut off debugging to avoid threading problems with GetMacros
+      bool debug = this->Debug;
+      this->Debug = false;
+
+      vtkThreadedImageAlgorithmFunctor functor(
+        this, request, inputVector, outputVector,
+        str.Inputs, str.Outputs, updateExtent, pieces);
+
+      vtkSMPTools::For(0, pieces, functor);
+
+      this->Debug = debug;
+      }
+    }
+  else
+    {
+    // if SMP is not enabled, use the vtkMultiThreader
+    this->Threader->SetNumberOfThreads(this->NumberOfThreads);
+    this->Threader->SetSingleMethod(vtkThreadedImageAlgorithmThreadedExecute, &str);
+    // always shut off debugging to avoid threading problems with GetMacros
+    bool debug = this->Debug;
+    this->Debug = false;
+    this->Threader->SingleMethodExecute();
+    this->Debug = debug;
+    }
 
   // free up the arrays
   for (i = 0; i < this->GetNumberOfInputPorts(); ++i)
@@ -333,4 +491,3 @@ void vtkThreadedImageAlgorithm::ThreadedExecute(
   (void)threadId;
   vtkErrorMacro("Subclass should override this method!!!");
 }
-

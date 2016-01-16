@@ -55,7 +55,18 @@ public:
                                int extent[6], int threadId);
 
   // Description:
-  // Get/Set the number of threads to create when rendering
+  // Enable/Disable SMP for threading.
+  vtkGetMacro(EnableSMP, bool);
+  vtkSetMacro(EnableSMP, bool);
+
+  // Description:
+  // Global Disable SMP for all derived Imaging filters.
+  static void SetGlobalDefaultEnableSMP(bool enable);
+  static bool GetGlobalDefaultEnableSMP();
+
+  // Description:
+  // Get/Set the number of threads to create when rendering.
+  // This is ignored if EnableSMP is On.
   vtkSetClampMacro( NumberOfThreads, int, 1, VTK_MAX_THREADS );
   vtkGetMacro( NumberOfThreads, int );
 
@@ -71,6 +82,9 @@ protected:
   vtkMultiThreader *Threader;
   int NumberOfThreads;
 
+  bool EnableSMP;
+  static bool GlobalDefaultEnableSMP;
+
   // Description:
   // This is called by the superclass.
   // This is the method you should override.
@@ -81,13 +95,8 @@ protected:
 private:
   vtkThreadedImageAlgorithm(const vtkThreadedImageAlgorithm&);  // Not implemented.
   void operator=(const vtkThreadedImageAlgorithm&);  // Not implemented.
+
+  friend class vtkThreadedImageAlgorithmFunctor;
 };
 
 #endif
-
-
-
-
-
-
-
