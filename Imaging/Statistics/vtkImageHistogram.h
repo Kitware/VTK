@@ -33,6 +33,8 @@
 
 class vtkImageStencilData;
 class vtkIdTypeArray;
+class vtkImageHistogramThreadData;
+class vtkImageHistogramSMPThreadLocal;
 
 class VTKIMAGINGSTATISTICS_EXPORT vtkImageHistogram : public vtkThreadedImageAlgorithm
 {
@@ -192,8 +194,11 @@ protected:
   vtkIdTypeArray *Histogram;
   vtkIdType Total;
 
-  vtkIdType *ThreadOutput[VTK_MAX_THREADS];
-  int ThreadBinRange[VTK_MAX_THREADS][2];
+  // Used for vtkMultiThreader operation.
+  vtkImageHistogramThreadData *ThreadData;
+
+  // Used for vtkSMPTools operation.
+  vtkImageHistogramSMPThreadLocal *SMPThreadData;
 
 private:
   vtkImageHistogram(const vtkImageHistogram&);  // Not implemented.

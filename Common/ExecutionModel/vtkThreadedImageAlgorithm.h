@@ -92,6 +92,18 @@ protected:
                           vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector);
 
+  // Description:
+  // Called once from each thread when SMP execution begins.
+  // Override this in subclasses if any special behavior is needed,
+  // by default this does nothing.
+  virtual void SMPInitialize() {}
+
+  // Description:
+  // Called immediately after SMP execution completes.
+  // Override this in subclasses if any special behavior is needed,
+  // by default this does nothing.
+  virtual void SMPReduce() {}
+
 private:
   vtkThreadedImageAlgorithm(const vtkThreadedImageAlgorithm&);  // Not implemented.
   void operator=(const vtkThreadedImageAlgorithm&);  // Not implemented.
