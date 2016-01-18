@@ -377,7 +377,7 @@ int BoxClipTetrahedra(int, char *[])
     TestBox(renwin, 6, -2.0, 0.0, -2.0, 2.0, -2.0, 2.0);
     TestBox(renwin, 7, 0.0, 2.0, -2.0, 2.0, -2.0, 2.0);
     }
-  catch (const BadWinding& bw)
+  catch (const BadWinding&)
     {
     std::cout << "Encountered a bad winding.  Aborting test." << std::endl;
     return EXIT_FAILURE;
