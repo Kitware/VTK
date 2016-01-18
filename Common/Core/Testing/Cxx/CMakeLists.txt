@@ -30,11 +30,13 @@ add_data_array_test(vtkDoubleArray vtkDoubleArray.h "double" vtkDoubleArray)
 add_data_array_test(vtkFloatArray vtkFloatArray.h "float" vtkFloatArray)
 add_data_array_test(vtkIntArray vtkIntArray.h "int" vtkIntArray)
 add_data_array_test(vtkLongArray vtkLongArray.h "long" vtkLongArray)
+add_data_array_test(vtkLongLongArray vtkLongLongArray.h "long long" vtkLongLongArray)
 add_data_array_test(vtkShortArray vtkShortArray.h "short" vtkShortArray)
 add_data_array_test(vtkSignedCharArray vtkSignedCharArray.h "signed char" vtkSignedCharArray)
 add_data_array_test(vtkUnsignedCharArray vtkUnsignedCharArray.h "unsigned char" vtkUnsignedCharArray)
 add_data_array_test(vtkUnsignedIntArray vtkUnsignedIntArray.h "unsigned int" vtkUnsignedIntArray)
 add_data_array_test(vtkUnsignedLongArray vtkUnsignedLongArray.h "unsigned long" vtkUnsignedLongArray)
+add_data_array_test(vtkUnsignedLongLongArray vtkUnsignedLongLongArray.h "unsigned long long" vtkUnsignedLongLongArray)
 add_data_array_test(vtkUnsignedShortArray vtkUnsignedShortArray.h "unsigned short" vtkUnsignedShortArray)
 add_data_array_test(vtkIdTypeArray vtkIdTypeArray.h "vtkIdType" vtkIdTypeArray)
 set(value_types
@@ -43,26 +45,16 @@ set(value_types
   float
   int
   long
+  "long long"
   short
   "signed char"
   "unsigned char"
   "unsigned int"
   "unsigned long"
+  "unsigned long long"
   "unsigned short"
   vtkIdType
 )
-
-if(VTK_TYPE_USE_LONG_LONG)
-  add_data_array_test(vtkLongLongArray vtkLongLongArray.h "long long" vtkLongLongArray)
-  add_data_array_test(vtkUnsignedLongLongArray vtkUnsignedLongLongArray.h "unsigned long long" vtkUnsignedLongLongArray)
-  set(value_types ${value_types} "long long" "unsigned long long")
-endif()
-
-if(VTK_TYPE_USE___INT64)
-  add_data_array_test(vtk__Int64Array vtk__Int64Array.h "__int64" vtk__Int64Array)
-  add_data_array_test(vtkUnsigned__Int64Array vtkUnsigned__Int64Array.h "unsigned __int64" vtkUnsigned__Int64Array)
-  set(value_types ${value_types} "__int64" "unsigned __int64")
-endif()
 
 # Templated data array subclasses can be done in a loop:
 foreach(value_type ${value_types})

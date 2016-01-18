@@ -37,23 +37,15 @@
 #include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
+#include "vtkLongLongArray.h"
 #include "vtkShortArray.h"
 #include "vtkSignedCharArray.h"
 #include "vtkSOADataArrayTemplate.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
-#include "vtkUnsignedShortArray.h"
-
-#ifdef VTK_TYPE_USE_LONG_LONG
-#include "vtkLongLongArray.h"
 #include "vtkUnsignedLongLongArray.h"
-#endif // VTK_TYPE_USE_LONG_LONG
-
-#ifdef VTK_TYPE_USE___INT64
-#include "vtk__Int64Array.h"
-#include "vtkUnsigned__Int64Array.h"
-#endif // VTK_TYPE_USE___INT64
+#include "vtkUnsignedShortArray.h"
 
 // About this test:
 //
@@ -90,21 +82,15 @@ int TestGenericDataArrayAPI(int, char *[])
   errors += ExerciseGenericDataArray<float,              vtkFloatArray>();
   errors += ExerciseGenericDataArray<int,                vtkIntArray>();
   errors += ExerciseGenericDataArray<long,               vtkLongArray>();
+  errors += ExerciseGenericDataArray<long long,          vtkLongLongArray>();
   errors += ExerciseGenericDataArray<short,              vtkShortArray>();
   errors += ExerciseGenericDataArray<signed char,        vtkSignedCharArray>();
   errors += ExerciseGenericDataArray<unsigned char,      vtkUnsignedCharArray>();
   errors += ExerciseGenericDataArray<unsigned int,       vtkUnsignedIntArray>();
   errors += ExerciseGenericDataArray<unsigned long,      vtkUnsignedLongArray>();
+  errors += ExerciseGenericDataArray<unsigned long long, vtkUnsignedLongLongArray>();
   errors += ExerciseGenericDataArray<unsigned short,     vtkUnsignedShortArray>();
   errors += ExerciseGenericDataArray<vtkIdType,          vtkIdTypeArray>();
-#ifdef VTK_TYPE_USE_LONG_LONG
-  errors += ExerciseGenericDataArray<long long,          vtkLongLongArray>();
-  errors += ExerciseGenericDataArray<unsigned long long, vtkUnsignedLongLongArray>();
-#endif // VTK_TYPE_USE_LONG_LONG
-#ifdef VTK_TYPE_USE__INT64
-  errors += ExerciseGenericDataArray<__int64,            vtk__Int64Array>();
-  errors += ExerciseGenericDataArray<unsigned __int64,   vtkUnsigned__Int64Array>();
-#endif // VTK_TYPE_USE___INT64
 
   // Explicit AoS arrays:
   errors += ExerciseGenericDataArray<char,               vtkAOSDataArrayTemplate<char> >();
@@ -112,21 +98,15 @@ int TestGenericDataArrayAPI(int, char *[])
   errors += ExerciseGenericDataArray<float,              vtkAOSDataArrayTemplate<float> >();
   errors += ExerciseGenericDataArray<int,                vtkAOSDataArrayTemplate<int> >();
   errors += ExerciseGenericDataArray<long,               vtkAOSDataArrayTemplate<long> >();
+  errors += ExerciseGenericDataArray<long long,          vtkAOSDataArrayTemplate<long long> >();
   errors += ExerciseGenericDataArray<short,              vtkAOSDataArrayTemplate<short> >();
   errors += ExerciseGenericDataArray<signed char,        vtkAOSDataArrayTemplate<signed char> >();
   errors += ExerciseGenericDataArray<unsigned char,      vtkAOSDataArrayTemplate<unsigned char> >();
   errors += ExerciseGenericDataArray<unsigned int,       vtkAOSDataArrayTemplate<unsigned int> >();
   errors += ExerciseGenericDataArray<unsigned long,      vtkAOSDataArrayTemplate<unsigned long> >();
+  errors += ExerciseGenericDataArray<unsigned long long, vtkAOSDataArrayTemplate<unsigned long long> >();
   errors += ExerciseGenericDataArray<unsigned short,     vtkAOSDataArrayTemplate<unsigned short> >();
   errors += ExerciseGenericDataArray<vtkIdType,          vtkAOSDataArrayTemplate<vtkIdType> >();
-#ifdef VTK_TYPE_USE_LONG_LONG
-  errors += ExerciseGenericDataArray<long long,          vtkAOSDataArrayTemplate<long long> >();
-  errors += ExerciseGenericDataArray<unsigned long long, vtkAOSDataArrayTemplate<unsigned long long> >();
-#endif // VTK_TYPE_USE_LONG_LONG
-#ifdef VTK_TYPE_USE___INT64
-  errors += ExerciseGenericDataArray<__int64,            vtkAOSDataArrayTemplate<__int64> >();
-  errors += ExerciseGenericDataArray<unsigned __int64,   vtkAOSDataArrayTemplate<unsigned __int64> >();
-#endif // VTK_TYPE_USE___INT64
 
   // Explicit SoA arrays:
   errors += ExerciseGenericDataArray<char,               vtkSOADataArrayTemplate<char> >();
@@ -134,21 +114,15 @@ int TestGenericDataArrayAPI(int, char *[])
   errors += ExerciseGenericDataArray<float,              vtkSOADataArrayTemplate<float> >();
   errors += ExerciseGenericDataArray<int,                vtkSOADataArrayTemplate<int> >();
   errors += ExerciseGenericDataArray<long,               vtkSOADataArrayTemplate<long> >();
+  errors += ExerciseGenericDataArray<long long,          vtkSOADataArrayTemplate<long long> >();
   errors += ExerciseGenericDataArray<short,              vtkSOADataArrayTemplate<short> >();
   errors += ExerciseGenericDataArray<signed char,        vtkSOADataArrayTemplate<signed char> >();
   errors += ExerciseGenericDataArray<unsigned char,      vtkSOADataArrayTemplate<unsigned char> >();
   errors += ExerciseGenericDataArray<unsigned int,       vtkSOADataArrayTemplate<unsigned int> >();
   errors += ExerciseGenericDataArray<unsigned long,      vtkSOADataArrayTemplate<unsigned long> >();
+  errors += ExerciseGenericDataArray<unsigned long long, vtkSOADataArrayTemplate<unsigned long long> >();
   errors += ExerciseGenericDataArray<unsigned short,     vtkSOADataArrayTemplate<unsigned short> >();
   errors += ExerciseGenericDataArray<vtkIdType,          vtkSOADataArrayTemplate<vtkIdType> >();
-#ifdef VTK_TYPE_USE_LONG_LONG
-  errors += ExerciseGenericDataArray<long long,          vtkSOADataArrayTemplate<long long> >();
-  errors += ExerciseGenericDataArray<unsigned long long, vtkSOADataArrayTemplate<unsigned long long> >();
-#endif // VTK_TYPE_USE_LONG_LONG
-#ifdef VTK_TYPE_USE___INT64
-  errors += ExerciseGenericDataArray<__int64,            vtkSOADataArrayTemplate<__int64> >();
-  errors += ExerciseGenericDataArray<unsigned __int64,   vtkSOADataArrayTemplate<unsigned __int64> >();
-#endif // VTK_TYPE_USE___INT64
 
   if (errors > 0)
     {
