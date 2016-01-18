@@ -97,6 +97,19 @@ void vtkOpenGLGL2PSExporter::WriteData()
     // Continue with export.
     }
 
+  // Fixup options for no-opengl-context GL2PS rendering (we don't use the
+  // context since we inject all geometry manually):
+  options |= GL2PS_NO_OPENGL_CONTEXT | GL2PS_NO_BLENDING;
+  // Print warning if the user requested no background -- we always draw it.
+  if ((options & GL2PS_DRAW_BACKGROUND) == GL2PS_NONE)
+    {
+    vtkWarningMacro("Ignoring DrawBackground=false setting. The background is "
+                    "always drawn on the OpenGL2 backend for GL2PS exports.");
+    }
+  // Turn the option off -- we don't want GL2PS drawing the background, it
+  // comes from the raster image we draw in the image.
+  options &= ~GL2PS_DRAW_BACKGROUND;
+
   // Export file. No worries about buffersize, since we're manually adding
   // geometry through vtkOpenGLGL2PSHelper::ProcessTransformFeedback.
   GLint err = gl2psBeginPage(title.c_str(), "VTK", viewport, format, sort,

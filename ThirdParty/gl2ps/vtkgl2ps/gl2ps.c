@@ -917,13 +917,13 @@ static GLint gl2psAddText(GLint type, const char *str, const char *fontname,
 
   gl2ps->forcerasterpos = GL_FALSE;
 
-  /* If no buffer, just add directly to primitives */
-  if (gl2ps->buffersize > 0) {
-    gl2psListAdd(gl2ps->auxprimitives, &prim);
-    glPassThrough(GL2PS_TEXT_TOKEN);
+  /* If no OpenGL context, just add directly to primitives */
+  if (gl2ps->options & GL2PS_NO_OPENGL_CONTEXT) {
+    gl2psListAdd(gl2ps->primitives, &prim);
   }
   else {
-    gl2psListAdd(gl2ps->primitives, &prim);
+    gl2psListAdd(gl2ps->auxprimitives, &prim);
+    glPassThrough(GL2PS_TEXT_TOKEN);
   }
 
   return GL2PS_SUCCESS;
@@ -5624,7 +5624,7 @@ static GLint gl2psPrintPrimitives(void)
   GL2PSxyz eye = {0.0F, 0.0F, 100.0F * GL2PS_ZSCALE};
   GLint used = 0;
 
-  if (gl2ps->buffersize > 0) {
+  if ((gl2ps->options & GL2PS_NO_OPENGL_CONTEXT) == GL2PS_NONE) {
     used = glRenderMode(GL_RENDER);
   }
 
@@ -5694,6 +5694,34 @@ static GLint gl2psPrintPrimitives(void)
   return GL2PS_SUCCESS;
 }
 
+static GLboolean gl2psCheckOptions(GLint options, GLint colormode)
+{
+  if (options & GL2PS_NO_OPENGL_CONTEXT) {
+    if (options & GL2PS_DRAW_BACKGROUND) {
+      gl2psMsg(GL2PS_ERROR, "Options GL2PS_NO_OPENGL_CONTEXT and "
+                            "GL2PS_DRAW_BACKGROUND are incompatible.");
+      return GL_FALSE;
+    }
+    if (options & GL2PS_USE_CURRENT_VIEWPORT) {
+      gl2psMsg(GL2PS_ERROR, "Options GL2PS_NO_OPENGL_CONTEXT and "
+                            "GL2PS_USE_CURRENT_VIEWPORT are incompatible.");
+      return GL_FALSE;
+    }
+    if ((options & GL2PS_NO_BLENDING) == GL2PS_NONE) {
+      gl2psMsg(GL2PS_ERROR, "Option GL2PS_NO_OPENGL_CONTEXT requires "
+                            "option GL2PS_NO_BLENDING.");
+      return GL_FALSE;
+    }
+    if (colormode != GL_RGBA) {
+      gl2psMsg(GL2PS_ERROR, "Option GL2PS_NO_OPENGL_CONTEXT requires colormode "
+                            "to be GL_RGBA.");
+      return GL_FALSE;
+    }
+  }
+
+  return GL_TRUE;
+}
+
 /*********************************************************************
  *
  * Public routines
@@ -5716,6 +5744,13 @@ GL2PSDLL_API GLint gl2psBeginPage(const char *title, const char *producer,
   }
 
   gl2ps = (GL2PScontext*)gl2psMalloc(sizeof(GL2PScontext));
+
+  /* Validate options */
+  if (gl2psCheckOptions(options, colormode) == GL_FALSE) {
+    gl2psFree(gl2ps);
+    gl2ps = NULL;
+    return GL2PS_ERROR;
+  }
 
   if(format >= 0 && format < (GLint)(sizeof(gl2psbackends) / sizeof(gl2psbackends[0]))){
     gl2ps->format = format;
@@ -5780,7 +5815,7 @@ GL2PSDLL_API GLint gl2psBeginPage(const char *title, const char *producer,
   gl2ps->threshold[1] = ng ? 1.0F / (GLfloat)ng : 0.034F;
   gl2ps->threshold[2] = nb ? 1.0F / (GLfloat)nb : 0.100F;
   gl2ps->colormode = colormode;
-  gl2ps->buffersize = buffersize;
+  gl2ps->buffersize = buffersize > 0 ? buffersize : 2048 * 2048;
   for(i = 0; i < 3; i++){
     gl2ps->lastvertex.xyz[i] = -1.0F;
   }
@@ -5800,7 +5835,7 @@ GL2PSDLL_API GLint gl2psBeginPage(const char *title, const char *producer,
 
   /* get default blending mode from current OpenGL state (enabled by
      default for SVG) */
-  if (gl2ps->buffersize > 0) {
+  if ((gl2ps->options & GL2PS_NO_BLENDING) == GL2PS_NONE) {
     gl2ps->blending = (gl2ps->format == GL2PS_SVG) ? GL_TRUE
                                                    : glIsEnabled(GL_BLEND);
     glGetIntegerv(GL_BLEND_SRC, &gl2ps->blendfunc[0]);
@@ -5813,7 +5848,9 @@ GL2PSDLL_API GLint gl2psBeginPage(const char *title, const char *producer,
   if(gl2ps->colormode == GL_RGBA){
     gl2ps->colorsize = 0;
     gl2ps->colormap = NULL;
-    glGetFloatv(GL_COLOR_CLEAR_VALUE, gl2ps->bgcolor);
+    if ((gl2ps->options & GL2PS_NO_OPENGL_CONTEXT) == GL2PS_NONE) {
+      glGetFloatv(GL_COLOR_CLEAR_VALUE, gl2ps->bgcolor);
+    }
   }
   else if(gl2ps->colormode == GL_COLOR_INDEX){
     if(!colorsize || !colormap){
@@ -5867,11 +5904,15 @@ GL2PSDLL_API GLint gl2psBeginPage(const char *title, const char *producer,
 
   gl2ps->primitives = gl2psListCreate(500, 500, sizeof(GL2PSprimitive*));
   gl2ps->auxprimitives = gl2psListCreate(100, 100, sizeof(GL2PSprimitive*));
-  gl2ps->feedback = (GLfloat*)gl2psMalloc(gl2ps->buffersize * sizeof(GLfloat));
 
-  if (gl2ps->buffersize > 0) {
+  if ((gl2ps->options & GL2PS_NO_OPENGL_CONTEXT) == GL2PS_NONE) {
+    gl2ps->feedback = (GLfloat*)gl2psMalloc(gl2ps->buffersize * sizeof(GLfloat));
     glFeedbackBuffer(gl2ps->buffersize, GL_3D_COLOR, gl2ps->feedback);
     glRenderMode(GL_FEEDBACK);
+  }
+  else {
+    gl2ps->feedback = NULL;
+    gl2ps->buffersize = 0;
   }
 
   return GL2PS_SUCCESS;
@@ -6054,8 +6095,8 @@ GL2PSDLL_API GLint gl2psDrawPixels(GLsizei width, GLsizei height,
     break;
   }
 
-  /* If no buffer, just add directly to primitives */
-  if (gl2ps->buffersize > 0) {
+  /* If no OpenGL context, just add directly to primitives */
+  if ((gl2ps->options & GL2PS_NO_OPENGL_CONTEXT) == GL2PS_NONE) {
     gl2psListAdd(gl2ps->auxprimitives, &prim);
     glPassThrough(GL2PS_DRAW_PIXELS_TOKEN);
   }
@@ -6190,6 +6231,10 @@ GL2PSDLL_API GLint gl2psBlendFunc(GLenum sfactor, GLenum dfactor)
 GL2PSDLL_API GLint gl2psSetOptions(GLint options)
 {
   if(!gl2ps) return GL2PS_UNINITIALIZED;
+
+  if(gl2psCheckOptions(options, gl2ps->colormode) == GL_FALSE) {
+    return GL2PS_ERROR;
+  }
 
   gl2ps->options = options;
 

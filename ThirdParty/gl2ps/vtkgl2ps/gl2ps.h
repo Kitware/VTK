@@ -134,6 +134,7 @@
 #define GL2PS_COMPRESS             (1<<10)
 #define GL2PS_NO_BLENDING          (1<<11)
 #define GL2PS_TIGHT_BOUNDING_BOX   (1<<12)
+#define GL2PS_NO_OPENGL_CONTEXT    (1<<13)
 
 /* Arguments for gl2psEnable/gl2psDisable */
 

@@ -186,6 +186,7 @@ public:
   // Description:
   // Turn on/off drawing the background frame.  If off the background
   // is treated as white.  By default the background is drawn.
+  // On the OpenGL2 backend, the background is always drawn.
   vtkSetMacro(DrawBackground, int);
   vtkGetMacro(DrawBackground, int);
   vtkBooleanMacro(DrawBackground, int);

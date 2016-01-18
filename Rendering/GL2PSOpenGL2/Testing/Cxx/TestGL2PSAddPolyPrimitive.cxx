@@ -72,7 +72,8 @@ int TestGL2PSAddPolyPrimitive(int , char * [])
 
   GLint viewport[4] = { 0, 0, 400, 400 };
   GLint result = gl2psBeginPage("AddPolyPrimitive Test", "VTK", viewport,
-                                GL2PS_PS, GL2PS_SIMPLE_SORT, GL2PS_NONE,
+                                GL2PS_PS, GL2PS_SIMPLE_SORT,
+                                GL2PS_NO_OPENGL_CONTEXT | GL2PS_NO_BLENDING,
                                 GL_RGBA, 0, NULL, 0, 0, 0, 0, stream, 0);
   if (result != GL2PS_SUCCESS)
     {
