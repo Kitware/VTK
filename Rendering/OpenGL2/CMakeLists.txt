@@ -54,6 +54,7 @@ set(Module_SRCS
   vtkOpenGLVertexArrayObject.cxx
   vtkOpenGLVertexBufferObject.cxx
   vtkOverlayPass.cxx
+  vtkPointFillPass.cxx
   vtkRenderPass.cxx
   vtkRenderPassCollection.cxx
   vtkRenderState.cxx
@@ -138,6 +139,7 @@ set(shader_files
   glsl/vtkGaussianBlurPassVS.glsl
   glsl/vtkGlyph3DVS.glsl
   glsl/vtkPointGaussianVS.glsl
+  glsl/vtkPointFillPassFS.glsl
   glsl/vtkPolyData2DFS.glsl
   glsl/vtkPolyData2DVS.glsl
   glsl/vtkPolyDataFS.glsl

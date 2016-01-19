@@ -324,7 +324,7 @@ namespace
 // otherwise we draw all the points
 template< typename PointDataType, typename SizeDataType >
 void vtkOpenGLPointGaussianMapperHelperPackVBOTemplate3(
-              std::vector< float >::iterator& it,
+              float *&it,
               PointDataType* points,
               SizeDataType* sizes,
               vtkIdType index,
@@ -436,7 +436,7 @@ void vtkOpenGLPointGaussianMapperHelperPackVBOTemplate3(
 // otherwise we draw all the points
 template< typename PointDataType, typename SizeDataType >
 void vtkOpenGLPointGaussianMapperHelperPackVBOTemplate2(
-              std::vector< float >::iterator& it,
+              float *&it,
               PointDataType* points, vtkIdType numPts,
               vtkOpenGLPointGaussianMapperHelper *self,
               vtkCellArray *verts,
@@ -473,7 +473,7 @@ void vtkOpenGLPointGaussianMapperHelperPackVBOTemplate2(
 
 template< typename PointDataType >
 void vtkOpenGLPointGaussianMapperHelperPackVBOTemplate(
-    std::vector< float >::iterator& it,
+    float *&it,
     PointDataType* points, vtkIdType numPts,
     vtkOpenGLPointGaussianMapperHelper *self,
     vtkCellArray *verts,
@@ -669,7 +669,7 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
   this->VBO->Stride = sizeof(float) * blockSize;
 
   // Create a buffer, and copy the data over.
-  std::vector<float>::iterator it = this->VBO->PackedVBO.begin();
+  float *it = &(this->VBO->PackedVBO.begin()[0]);
 
   switch(poly->GetPoints()->GetDataType())
     {
