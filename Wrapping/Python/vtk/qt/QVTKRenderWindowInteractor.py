@@ -61,6 +61,7 @@ if PyQtImpl is None:
                 raise ImportError("Cannot load either PyQt or PySide")
 
 if PyQtImpl == "PyQt5":
+    from PyQt5.QtOpenGL import QGLWidget
     from PyQt5.QtWidgets import QWidget
     from PyQt5.QtWidgets import QSizePolicy
     from PyQt5.QtWidgets import QApplication
@@ -70,6 +71,7 @@ if PyQtImpl == "PyQt5":
     from PyQt5.QtCore import QSize
     from PyQt5.QtCore import QEvent
 elif PyQtImpl == "PyQt4":
+    from PyQt4.QtOpenGL import QGLWidget
     from PyQt4.QtGui import QWidget
     from PyQt4.QtGui import QSizePolicy
     from PyQt4.QtGui import QApplication
@@ -79,6 +81,7 @@ elif PyQtImpl == "PyQt4":
     from PyQt4.QtCore import QSize
     from PyQt4.QtCore import QEvent
 elif PyQtImpl == "PySide":
+    from PySide.QtOpenGL import QGLWidget
     from PySide.QtGui import QWidget
     from PySide.QtGui import QSizePolicy
     from PySide.QtGui import QApplication
@@ -90,7 +93,7 @@ elif PyQtImpl == "PySide":
 else:
     raise ImportError("Unknown PyQt implementation " + repr(PyQtImpl))
 
-class QVTKRenderWindowInteractor(QWidget):
+class QVTKRenderWindowInteractor(QGLWidget):
 
     """ A QVTKRenderWindowInteractor for Python and Qt.  Uses a
     vtkGenericRenderWindowInteractor to handle the interactions.  Use
@@ -174,7 +177,7 @@ class QVTKRenderWindowInteractor(QWidget):
         10: Qt.CrossCursor,          # VTK_CURSOR_CROSSHAIR
     }
 
-    def __init__(self, parent=None, wflags=Qt.WindowFlags(), **kw):
+    def __init__(self, parent=None, **kw):
         # the current button
         self._ActiveButton = Qt.NoButton
 
@@ -198,7 +201,7 @@ class QVTKRenderWindowInteractor(QWidget):
             rw = None
 
         # create qt-level widget
-        QWidget.__init__(self, parent, wflags|Qt.MSWindowsOwnDC)
+        QGLWidget.__init__(self, parent)
 
         if rw: # user-supplied render window
             self._RenderWindow = rw
