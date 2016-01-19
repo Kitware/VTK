@@ -103,6 +103,17 @@ set(VTK_VERSION
 # Do we want examples built?
 OPTION(BUILD_EXAMPLES "Build VTK examples." OFF)
 
+#-----------------------------------------------------------------------------
+if(NOT EXISTS "${VTK_SOURCE_DIR}/.ExternalData/README.rst")
+  # This file is always present in version-controlled source trees
+  # so we must have been extracted from a source tarball with no
+  # data objects needed for testing.  Turn off tests by default
+  # since enabling them requires network access or manual data
+  # store configuration.
+  option(BUILD_TESTING "Build the testing tree." OFF)
+endif()
+include(CTest)
+
 option(VTK_IOS_BUILD "Build vtk.framework for iOS" OFF)
 if (VTK_IOS_BUILD)
   include(vtkiOS)
@@ -281,17 +292,6 @@ include(vtkThirdParty)
 #-----------------------------------------------------------------------------
 include(vtkCompilerExtras)
 include(vtkBuildPath)
-
-#-----------------------------------------------------------------------------
-if(NOT EXISTS "${VTK_SOURCE_DIR}/.ExternalData/README.rst")
-  # This file is always present in version-controlled source trees
-  # so we must have been extracted from a source tarball with no
-  # data objects needed for testing.  Turn off tests by default
-  # since enabling them requires network access or manual data
-  # store configuration.
-  option(BUILD_TESTING "Build the testing tree." OFF)
-endif()
-include(CTest)
 
 #-----------------------------------------------------------------------------
 if(APPLE)
