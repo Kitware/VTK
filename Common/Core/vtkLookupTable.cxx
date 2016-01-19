@@ -269,6 +269,8 @@ void vtkLookupTable::ForceBuild()
       }
     }
 
+  this->BuildSpecialColors();
+
   this->BuildTime.Modified();
 }
 
@@ -283,6 +285,64 @@ void vtkLookupTable::Build()
     {
     this->ForceBuild();
     }
+}
+
+
+//----------------------------------------------------------------------------
+void vtkLookupTable::BuildSpecialColors()
+{
+  // Add "special" colors (NaN, below range, above range) to table here.
+  unsigned char *table = this->GetTable()->GetPointer(0);
+  vtkIdType numberOfColors = this->GetTable()->GetNumberOfTuples();
+  unsigned char *tptr = table + 4*(numberOfColors + vtkLookupTable::BELOW_RANGE_COLOR_INDEX);
+  unsigned char color[4];
+
+  this->ResizeTableForSpecialColors();
+
+  // Below range color
+  if (this->GetUseBelowRangeColor())
+    {
+    vtkLookupTable::GetColorAsUnsignedChars(this->GetBelowRangeColor(), color);
+    tptr[0] = color[0];
+    tptr[1] = color[1];
+    tptr[2] = color[2];
+    tptr[3] = color[3];
+    }
+  else
+    {
+    // Duplicate the first color in the table.
+    tptr[0] = table[0];
+    tptr[1] = table[1];
+    tptr[2] = table[2];
+    tptr[3] = table[3];
+    }
+
+  // Above range color
+  tptr = table + 4*(numberOfColors + vtkLookupTable::ABOVE_RANGE_COLOR_INDEX);
+  if (this->GetUseAboveRangeColor())
+    {
+    vtkLookupTable::GetColorAsUnsignedChars(this->GetAboveRangeColor(), color);
+    tptr[0] = color[0];
+    tptr[1] = color[1];
+    tptr[2] = color[2];
+    tptr[3] = color[3];
+    }
+  else
+    {
+    // Duplicate the last color in the table.
+    tptr[0] = table[4*(numberOfColors-1) + 0];
+    tptr[1] = table[4*(numberOfColors-1) + 1];
+    tptr[2] = table[4*(numberOfColors-1) + 2];
+    tptr[3] = table[4*(numberOfColors-1) + 3];
+    }
+
+  // Always use NanColor
+  vtkLookupTable::GetColorAsUnsignedChars(this->GetNanColor(), color);
+  tptr = table + 4*(numberOfColors + vtkLookupTable::NAN_COLOR_INDEX);
+  tptr[0] = color[0];
+  tptr[1] = color[1];
+  tptr[2] = color[2];
+  tptr[3] = color[3];
 }
 
 //----------------------------------------------------------------------------
@@ -656,61 +716,8 @@ void vtkLookupTableMapData(vtkLookupTable *self,
   // call if at all.
 
   vtkUnsignedCharArray* lookupTable = self->GetTable();
-  vtkIdType numberOfColors = lookupTable->GetNumberOfTuples();
 
   unsigned char* table = lookupTable->GetPointer(0);
-
-  // Writing directly to the memory location instead of adding them
-  // with the InsertNextTupleValue() method does not affect how many
-  // tuples lookupTable reports having, and it should be somewhat
-  // faster.
-
-  // Below range color
-  unsigned char *tptr = table + 4*(numberOfColors + vtkLookupTable::BELOW_RANGE_COLOR_INDEX);
-  unsigned char color[4];
-  if (self->GetUseBelowRangeColor())
-    {
-    vtkLookupTable::GetColorAsUnsignedChars(self->GetBelowRangeColor(), color);
-    tptr[0] = color[0];
-    tptr[1] = color[1];
-    tptr[2] = color[2];
-    tptr[3] = color[3];
-    }
-  else
-    {
-    // Duplicate the first color in the table.
-    tptr[0] = table[0];
-    tptr[1] = table[1];
-    tptr[2] = table[2];
-    tptr[3] = table[3];
-    }
-
-  // Above range color
-  tptr = table + 4*(numberOfColors + vtkLookupTable::ABOVE_RANGE_COLOR_INDEX);
-  if (self->GetUseAboveRangeColor())
-    {
-    vtkLookupTable::GetColorAsUnsignedChars(self->GetAboveRangeColor(), color);
-    tptr[0] = color[0];
-    tptr[1] = color[1];
-    tptr[2] = color[2];
-    tptr[3] = color[3];
-    }
-  else
-    {
-    // Duplicate the last color in the table.
-    tptr[0] = table[4*(numberOfColors-1) + 0];
-    tptr[1] = table[4*(numberOfColors-1) + 1];
-    tptr[2] = table[4*(numberOfColors-1) + 2];
-    tptr[3] = table[4*(numberOfColors-1) + 3];
-    }
-
-  // Always use NanColor
-  vtkLookupTable::GetColorAsUnsignedChars(self->GetNanColor(), color);
-  tptr = table + 4*(numberOfColors + vtkLookupTable::NAN_COLOR_INDEX);
-  tptr[0] = color[0];
-  tptr[1] = color[1];
-  tptr[2] = color[2];
-  tptr[3] = color[3];
 
   if ( (alpha=self->GetAlpha()) >= 1.0 ) //no blending required
     {
@@ -1217,6 +1224,17 @@ void vtkLookupTable::SetTableValue(vtkIdType indx, double rgba[4])
   _rgba[1] = static_cast<unsigned char>(rgba[1]*255.0 + 0.5);
   _rgba[2] = static_cast<unsigned char>(rgba[2]*255.0 + 0.5);
   _rgba[3] = static_cast<unsigned char>(rgba[3]*255.0 + 0.5);
+
+  if (indx == 0 || indx == this->NumberOfColors - 1)
+    {
+    // This is needed due to the way the special colors are stored in
+    // the internal table. If Above/BelowRangeColors are not used and
+    // the min/max colors are changed in the table with this member
+    // function, then the colors used for values outside the range may
+    // be incorrect. Calling this here ensures the out-of-range colors
+    // are set correctly.
+    this->BuildSpecialColors();
+    }
 
   this->InsertTime.Modified();
   this->Modified();
