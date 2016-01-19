@@ -44,6 +44,15 @@ try:
 except ImportError:
     pass
 
+# Check whether a specific QVTKRenderWindowInteractor base
+# class was chosen, can be set to "QGLWidget"
+QVTKRWIBase = "QWidget"
+try:
+    import vtk.qt
+    QVTKRWIBase = vtk.qt.QVTKRWIBase
+except ImportError:
+    pass
+
 if PyQtImpl is None:
     # Autodetect the PyQt implementation to use
     try:
@@ -93,7 +102,15 @@ elif PyQtImpl == "PySide":
 else:
     raise ImportError("Unknown PyQt implementation " + repr(PyQtImpl))
 
-class QVTKRenderWindowInteractor(QGLWidget):
+# Define types for base class, based on string
+if QVTKRWIBase == "QWidget":
+    QVTKRWIBaseClass = QWidget
+elif QVTKRWIBase == "QGLWidget":
+    QVTKRWIBaseClass = QGLWidget
+else:
+    ImportError("Unknown base class for QVTKRenderWindowInteractor " + QVTKRWIBase)
+
+class QVTKRenderWindowInteractor(QVTKRWIBaseClass):
 
     """ A QVTKRenderWindowInteractor for Python and Qt.  Uses a
     vtkGenericRenderWindowInteractor to handle the interactions.  Use
@@ -200,8 +217,15 @@ class QVTKRenderWindowInteractor(QGLWidget):
         except KeyError:
             rw = None
 
-        # create qt-level widget
-        QGLWidget.__init__(self, parent)
+        # create base qt-level widget
+        if QVTKRWIBase == "QWidget":
+            if "wflags" in kw:
+                wflags = kw['wflags']
+            else:
+                wflags = Qt.WindowFlags()
+            QWidget.__init__(self, parent, wflags | Qt.MSWindowsOwnDC)
+        elif QVTKRWIBase == "QGLWidget":
+            QGLWidget.__init__(self, parent)
 
         if rw: # user-supplied render window
             self._RenderWindow = rw
