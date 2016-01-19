@@ -70,7 +70,8 @@ if PyQtImpl is None:
                 raise ImportError("Cannot load either PyQt or PySide")
 
 if PyQtImpl == "PyQt5":
-    from PyQt5.QtOpenGL import QGLWidget
+    if QVTKRWIBase == "QGLWidget":
+        from PyQt5.QtOpenGL import QGLWidget
     from PyQt5.QtWidgets import QWidget
     from PyQt5.QtWidgets import QSizePolicy
     from PyQt5.QtWidgets import QApplication
@@ -80,7 +81,8 @@ if PyQtImpl == "PyQt5":
     from PyQt5.QtCore import QSize
     from PyQt5.QtCore import QEvent
 elif PyQtImpl == "PyQt4":
-    from PyQt4.QtOpenGL import QGLWidget
+    if QVTKRWIBase == "QGLWidget":
+        from PyQt4.QtOpenGL import QGLWidget
     from PyQt4.QtGui import QWidget
     from PyQt4.QtGui import QSizePolicy
     from PyQt4.QtGui import QApplication
@@ -90,7 +92,8 @@ elif PyQtImpl == "PyQt4":
     from PyQt4.QtCore import QSize
     from PyQt4.QtCore import QEvent
 elif PyQtImpl == "PySide":
-    from PySide.QtOpenGL import QGLWidget
+    if QVTKRWIBase == "QGLWidget":
+        from PySide.QtOpenGL import QGLWidget
     from PySide.QtGui import QWidget
     from PySide.QtGui import QSizePolicy
     from PySide.QtGui import QApplication
@@ -108,7 +111,7 @@ if QVTKRWIBase == "QWidget":
 elif QVTKRWIBase == "QGLWidget":
     QVTKRWIBaseClass = QGLWidget
 else:
-    ImportError("Unknown base class for QVTKRenderWindowInteractor " + QVTKRWIBase)
+    raise ImportError("Unknown base class for QVTKRenderWindowInteractor " + QVTKRWIBase)
 
 class QVTKRenderWindowInteractor(QVTKRWIBaseClass):
 
