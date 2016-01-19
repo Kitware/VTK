@@ -105,6 +105,7 @@ public:
   // Implementation provided simply raises a runtime error. If subclasses are
   // keep on supporting this API, they should override the method.
   virtual void SetVoidArray(void*, vtkIdType, int);
+  virtual void SetVoidArray(void*, vtkIdType, int, int);
 
   // Description:
   // Implementation provided simply raises a runtime error. If subclasses are

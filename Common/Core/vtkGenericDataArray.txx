@@ -84,6 +84,12 @@ vtkGenericDataArrayT(void)::SetVoidArray(void*, vtkIdType, int)
 }
 
 //-----------------------------------------------------------------------------
+vtkGenericDataArrayT(void)::SetVoidArray(void*, vtkIdType, int, int)
+{
+  vtkErrorMacro("SetVoidArray is not supported by this class.");
+}
+
+//-----------------------------------------------------------------------------
 vtkGenericDataArrayT(void*)::WriteVoidPointer(vtkIdType, vtkIdType)
 {
   vtkErrorMacro("WriteVoidPointer is not supported by this class.");
