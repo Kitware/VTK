@@ -342,40 +342,14 @@ vtkStdString vtkXMLPMultiBlockDataWriter::CreatePieceFileName(
   std::string fname;
   std::string extension;
 
-  switch (dataSetType)
+  if (const char* cext = this->GetDefaultFileExtensionForDataSet(dataSetType))
     {
-    case VTK_POLY_DATA:
-    {
-    extension = "vtp";
-    break;
+    extension = cext;
     }
-    case VTK_STRUCTURED_POINTS:
-    case VTK_IMAGE_DATA:
-    case VTK_UNIFORM_GRID:
-    {
-    extension = "vti";
-    break;
-    }
-    case VTK_UNSTRUCTURED_GRID:
-    {
-    extension = "vtu";
-    break;
-    }
-    case VTK_STRUCTURED_GRID:
-    {
-    extension = "vts";
-    break;
-    }
-    case VTK_RECTILINEAR_GRID:
-    {
-    extension = "vtr";
-    break;
-    }
-    default:
+  else
     {
     vtkErrorMacro(<<this->Controller->GetLocalProcessId() << " Unknown data set type.");
     return fname;
-    }
     }
 
   std::ostringstream fn_with_warning_C4701;
