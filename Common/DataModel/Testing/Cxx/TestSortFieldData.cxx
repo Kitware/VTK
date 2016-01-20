@@ -84,9 +84,11 @@ int TestSortFieldData(int, char*[])
     if (idx[i] != permute[i])
       {
       cout << "Bad sort order!\n";
+      delete [] idx;
       return 1;
       }
     }
+  delete [] idx;
   cout << ")";
 
   cout << "\n\nInteger Array (sorted by component==1):\n";
