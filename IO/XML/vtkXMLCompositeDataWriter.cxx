@@ -401,7 +401,9 @@ void vtkXMLCompositeDataWriter::FillDataTypes(vtkCompositeDataSet* hdInput)
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {
     vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
-    if (ds)
+    // BUG #0015942: Datasets with no cells or points are considered empty and
+    // we'll skip then in our serialization code.
+    if (ds && (ds->GetNumberOfPoints() > 0 || ds->GetNumberOfCells() > 0))
       {
       this->Internal->DataTypes.push_back(ds->GetDataObjectType());
       }

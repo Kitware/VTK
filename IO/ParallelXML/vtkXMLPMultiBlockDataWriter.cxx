@@ -325,10 +325,12 @@ int vtkXMLPMultiBlockDataWriter::ParallelWriteNonCompositeData(
         }
       }
     }
-  if(dObj)
+
+  const int* datatypes_ptr = this->GetDataTypesPointer();
+  if(dObj && datatypes_ptr[currentFileIndex] != -1)
     {
     vtkStdString fName = this->CreatePieceFileName(
-      currentFileIndex, myProcId, this->GetDataTypesPointer()[currentFileIndex]);
+      currentFileIndex, myProcId, datatypes_ptr[currentFileIndex]);
     return this->Superclass::WriteNonCompositeData(
       dObj, NULL, currentFileIndex, fName.c_str());
     }
