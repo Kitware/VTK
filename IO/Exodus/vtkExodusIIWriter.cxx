@@ -1185,8 +1185,7 @@ int vtkExodusIIWriter::CreateDefaultMetadata ()
 
   char *title = new char [MAX_LINE_LENGTH + 1];
   time_t currentTime = time(NULL);
-  struct tm *td = localtime(&currentTime);
-  char *stime = asctime(td);
+  char *stime = ctime(&currentTime);
 
   sprintf(title, "Created by vtkExodusIIWriter, %s", stime);
 
