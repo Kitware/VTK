@@ -2064,6 +2064,7 @@ int vtkExodusIIWriter::WriteVariableArrayNames()
       {
       vtkErrorMacro(<<
         "vtkExodusIIWriter::WriteVariableArrayNames cell variables");
+      delete [] outputArrayNames;
       return 0;
       }
 
@@ -2072,6 +2073,7 @@ int vtkExodusIIWriter::WriteVariableArrayNames()
                           // This should be treating this read only... hopefully
     if (rc < 0)
       {
+      delete [] outputArrayNames;
       vtkErrorMacro(<<
         "vtkExodusIIWriter::WriteVariableArrayNames cell variables");
       return 0;
@@ -2100,6 +2102,7 @@ int vtkExodusIIWriter::WriteVariableArrayNames()
     rc = ex_put_var_param(this->fid, "E", this->NumberOfScalarElementArrays);
     if (rc < 0)
       {
+      delete [] outputArrayNames;
       vtkErrorMacro(<<
         "vtkExodusIIWriter::WriteVariableArrayNames cell variables");
       return 0;
@@ -2110,6 +2113,7 @@ int vtkExodusIIWriter::WriteVariableArrayNames()
                           // This should be treating this read only... hopefully
     if (rc < 0)
       {
+      delete [] outputArrayNames;
       vtkErrorMacro(<<
         "vtkExodusIIWriter::WriteVariableArrayNames cell variables");
       return 0;
@@ -2121,6 +2125,7 @@ int vtkExodusIIWriter::WriteVariableArrayNames()
                              this->BlockElementVariableTruthTable);
     if (rc < 0)
       {
+      delete [] outputArrayNames;
       vtkErrorMacro(<<
         "vtkExodusIIWriter::WriteVariableArrayNames cell variables");
       return 0;
@@ -2161,6 +2166,7 @@ int vtkExodusIIWriter::WriteVariableArrayNames()
       vtkErrorMacro(<<
         "vtkExodusIIWriter::WriteVariableArrayNames " <<
         "failure to write " << this->NumberOfScalarNodeArrays << " arrays");
+      delete [] outputArrayNames;
       return 0;
       }
 
@@ -2172,6 +2178,7 @@ int vtkExodusIIWriter::WriteVariableArrayNames()
       vtkErrorMacro(<<
         "vtkExodusIIWriter::WriteVariableArrayNames " <<
         "failure to write the array names");
+      delete [] outputArrayNames;
       return 0;
       }
 

@@ -686,6 +686,7 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
               break;
             default:
               vtkErrorMacro(<<"Unexpected DataSet type!");
+              delete [] info.Input;
               return;
             }
           info.Input[i]->CopyStructure(input);
