@@ -62,12 +62,6 @@
 
 #include <libxml/tree.h> // always after std::blah stuff
 
-#if defined(_WIN32) && !defined(__CYGWIN__)
-# define SNPRINTF _snprintf
-#else
-# define SNPRINTF snprintf
-#endif
-
 using namespace xdmf2;
 
 struct  _xmlNode;
