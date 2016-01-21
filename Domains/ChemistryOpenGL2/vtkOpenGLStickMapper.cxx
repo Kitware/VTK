@@ -168,8 +168,8 @@ void vtkOpenGLStickMapper::ReplaceShaderValues(
   bool picking = (ren->GetRenderWindow()->GetIsPicking() || selector != NULL);
   if (picking)
     {
-    if (!selector || (selector &&
-        this->LastSelectionState >= vtkHardwareSelector::ID_LOW24))
+    if (!selector ||
+        (this->LastSelectionState >= vtkHardwareSelector::ID_LOW24))
       {
       vtkShaderProgram::Substitute(VSSource,
         "//VTK::Picking::Dec",
@@ -290,8 +290,8 @@ void vtkOpenGLStickMapper::SetMapperShaderParameters(
       vtkErrorMacro(<< "Error setting 'radiusMC' in shader VAO.");
       }
     if (picking &&
-        (!selector || (selector &&
-         this->LastSelectionState >= vtkHardwareSelector::ID_LOW24)))
+        (!selector ||
+         (this->LastSelectionState >= vtkHardwareSelector::ID_LOW24)))
       {
       if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
                                       "selectionId", this->VBO->ColorOffset+6*sizeof(float),

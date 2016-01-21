@@ -548,7 +548,7 @@ void vtkCellTreeLocator::BuildLocatorIfNeeded()
 {
   if (this->LazyEvaluation)
     {
-    if (!this->Tree || (this->Tree && (this->MTime>this->BuildTime)))
+    if (!this->Tree || (this->MTime>this->BuildTime))
       {
       this->Modified();
       vtkDebugMacro(<< "Forcing BuildLocator");

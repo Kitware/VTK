@@ -176,8 +176,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
              /* and the next comment either doesn't exist */
              (!data->Functions[i+1].Comment ||
               /* or it does exist but is different */
-              (data->Functions[i+1].Comment &&
-               strcmp(data->Functions[i].Comment,
+              (strcmp(data->Functions[i].Comment,
                       data->Functions[i+1].Comment)))))
           {
           closed = 1;

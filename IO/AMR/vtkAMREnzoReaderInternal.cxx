@@ -981,7 +981,7 @@ void vtkEnzoReaderInternal::GetAttributeNames()
        )
       {
       if (  !wasFound ||
-           ( wasFound && tmpBlock.NumberOfParticles > 0 )
+           ( tmpBlock.NumberOfParticles > 0 )
          )
         {
         numCells = tempNumb;
