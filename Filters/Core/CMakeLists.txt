@@ -49,6 +49,7 @@ set(Module_SRCS
   vtkQuadricClustering.cxx
   vtkQuadricDecimation.cxx
   vtkRearrangeFields.cxx
+  vtkResampleToImage.cxx
   vtkReverseSense.cxx
   vtkSimpleElevationFilter.cxx
   vtkSmoothPolyDataFilter.cxx
