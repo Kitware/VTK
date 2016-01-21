@@ -292,6 +292,11 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   # This warning occurs when building Java with -source x.y with compiler a.b's
   # runtime library (rt.jar).
   "bootstrap class path not set in conjunction with -source"
+
+  #supress diy2 warnings
+  "include.diy"
+  "diy::"
+  "expanded from macro 'diy'"
   )
 
 IF(APPLE)
