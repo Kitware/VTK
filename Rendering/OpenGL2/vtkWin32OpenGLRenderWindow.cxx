@@ -256,17 +256,12 @@ bool vtkWin32OpenGLRenderWindow::IsCurrent()
 }
 
 // ----------------------------------------------------------------------------
-void AdjustWindowRectForBorders(const int borders, const int x, const int y,
+void AdjustWindowRectForBorders(HWND hwnd, DWORD style, const int x, const int y,
                                 const int width, const int height, RECT &r)
 {
-  DWORD style = WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/;
-  if (borders)
+  if (!style && hwnd)
     {
-    style |= WS_OVERLAPPEDWINDOW;
-    }
-  else
-    {
-    style |= WS_POPUP;
+    style = GetWindowLong(hwnd, GWL_STYLE);
     }
   r.left = x;
   r.top = y;
@@ -323,7 +318,7 @@ void vtkWin32OpenGLRenderWindow::SetSize(int x, int y)
         else
           {
           RECT r;
-          AdjustWindowRectForBorders(this->Borders, 0, 0, x, y, r);
+          AdjustWindowRectForBorders(this->WindowId, 0, 0, 0, x, y, r);
           SetWindowPos(this->WindowId, HWND_TOP, 0, 0,
                        r.right - r.left,
                        r.bottom - r.top,
@@ -969,7 +964,7 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow()
           style = WS_POPUP | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/;
           }
         RECT r;
-        AdjustWindowRectForBorders(this->Borders, x, y, width, height, r);
+        AdjustWindowRectForBorders(0, style, x, y, width, height, r);
 #ifdef UNICODE
         this->WindowId = CreateWindow(
           L"vtkOpenGL", wname, style,
@@ -1250,7 +1245,7 @@ void vtkWin32OpenGLRenderWindow::PrefFullScreen()
   this->Borders = 0;
 
   RECT r;
-  AdjustWindowRectForBorders(this->Borders, 0, 0, size[0], size[1], r);
+  AdjustWindowRectForBorders(this->WindowId, 0, 0, 0, size[0], size[1], r);
 
   // use full screen
   this->Position[0] = 0;
