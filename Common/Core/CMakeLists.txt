@@ -286,6 +286,7 @@ set(${vtk-module}_HDRS
   vtkArrayIteratorTemplate.txx
   vtkArrayPrint.h
   vtkArrayPrint.txx
+  vtkAssume.h
   vtkAtomicTypeConcepts.h
   vtkAtomicTypes.h
   vtkAutoInit.h
