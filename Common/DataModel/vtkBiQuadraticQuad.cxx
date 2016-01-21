@@ -144,7 +144,7 @@ int vtkBiQuadraticQuad::EvaluatePosition (double *x,
     else
       {
       // Compute weigths only
-      this->InterpolationFunctions(pcoords,weights);
+      this->InterpolationFunctionsPrivate(pcoords,weights);
       }
     }
 
@@ -159,7 +159,7 @@ void vtkBiQuadraticQuad::EvaluateLocation (int& vtkNotUsed(subId),
   int i, j;
   double pt[3];
 
-  this->InterpolationFunctions(pcoords,weights);
+  this->InterpolationFunctionsPrivate(pcoords,weights);
 
   x[0] = x[1] = x[2] = 0.0;
   for (i=0; i<9; i++)
@@ -346,8 +346,8 @@ vtkBiQuadraticQuad::Derivatives (int vtkNotUsed (subId),
     this->Points->GetPoint(i, elemNodes[i]);
     }
 
-  this->InterpolationFunctions(pcoords,weights);
-  this->InterpolationDerivs(pcoords,functionDerivs);
+  this->InterpolationFunctionsPrivate(pcoords,weights);
+  this->InterpolationDerivsPrivate(pcoords,functionDerivs);
 
   // Compute transposed Jacobian and inverse Jacobian
   J[0] = J0; J[1] = J1; J[2] = J2;
@@ -411,8 +411,8 @@ vtkBiQuadraticQuad::Derivatives (int vtkNotUsed (subId),
 // Compute interpolation functions. The first four nodes are the corner
 // vertices; the others are mid-edge nodes, the last one is the mid-center
 // node.
-void vtkBiQuadraticQuad::InterpolationFunctions (double pcoords[3],
-                                                 double weights[9])
+void vtkBiQuadraticQuad::InterpolationFunctionsPrivate (double pcoords[3],
+                                                        double weights[9])
 {
   //Normally these coordinates are named r and s, but I chose x and y,
   //because you can easily mark and paste these functions to the
@@ -435,8 +435,21 @@ void vtkBiQuadraticQuad::InterpolationFunctions (double pcoords[3],
 }
 
 //----------------------------------------------------------------------------
+#if !defined(VTK_LEGACY_REMOVE)
+void vtkBiQuadraticQuad::InterpolationFunctions (double pcoords[3],
+                                                 double weights[9])
+{
+  VTK_LEGACY_REPLACED_BODY(InterpolationFunctions, "VTK 5.2",
+                           InterpolateFunctions);
+
+  vtkBiQuadraticQuad::InterpolationFunctionsPrivate(pcoords, weights);
+}
+#endif
+
+//----------------------------------------------------------------------------
 // Derivatives in parametric space.
-void vtkBiQuadraticQuad::InterpolationDerivs (double pcoords[3], double derivs[18])
+void vtkBiQuadraticQuad::InterpolationDerivsPrivate (double pcoords[3],
+                                                     double derivs[18])
 {
   // Coordinate conversion
   double x = pcoords[0];
@@ -471,6 +484,18 @@ void vtkBiQuadraticQuad::InterpolationDerivs (double pcoords[3], double derivs[1
   derivs[17]=16.0 *       (x) * (1.0 - x) * (1.0 - 2.0 * y);
 
 }
+
+//----------------------------------------------------------------------------
+#if !defined(VTK_LEGACY_REMOVE)
+void vtkBiQuadraticQuad::InterpolationDerivs (double pcoords[3],
+                                              double derivs[18])
+{
+  VTK_LEGACY_REPLACED_BODY(InterpolationDerivs, "VTK 5.2",
+                           InterpolateDerivs);
+
+  vtkBiQuadraticQuad::InterpolationDerivsPrivate(pcoords, derivs);
+}
+#endif
 
 //----------------------------------------------------------------------------
 static double vtkQQuadCellPCoords[27] = { 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,

@@ -715,7 +715,7 @@ void vtkLineWidget::OnMiddleButtonDown()
     this->HighlightHandles(1);
     this->HighlightLine(1);
     this->EnablePointWidget();
-    this->ForwardEvent(vtkCommand::LeftButtonPressEvent);
+    forward = this->ForwardEvent(vtkCommand::LeftButtonPressEvent);
     }
   else
     {
@@ -731,7 +731,7 @@ void vtkLineWidget::OnMiddleButtonDown()
       this->HighlightLine(1);
       this->State = vtkLineWidget::MovingLine;
       this->EnablePointWidget();
-      this->ForwardEvent(vtkCommand::LeftButtonPressEvent);
+      forward = this->ForwardEvent(vtkCommand::LeftButtonPressEvent);
       }
     else
       {
