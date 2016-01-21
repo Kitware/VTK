@@ -145,83 +145,94 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
   ghostGenerator->Modified();
 
   // Check ghost cells generated with and without the global point ids
+  // for several ghost layer levels
+  int maxGhostLevel = 2;
   vtkUnstructuredGrid* outGrids[2];
-  for(int step = 0; step < 2; ++step)
+  for(int ghostLevel = 1; ghostLevel <= maxGhostLevel; ++ghostLevel)
     {
-    ghostGenerator->SetUseGlobalPointIds(step == 0 ? 1 : 0);
+    for(int step = 0; step < 2; ++step)
+      {
+      ghostGenerator->SetUseGlobalPointIds(step == 0 ? 1 : 0);
 
-    vtkNew<vtkTimerLog> timer;
-    timer->StartTimer();
-    ghostGenerator->UpdatePiece(rankId, nbRanks, 1);
-    timer->StopTimer();
+      vtkNew<vtkTimerLog> timer;
+      timer->StartTimer();
+      ghostGenerator->UpdatePiece(rankId, nbRanks, ghostLevel);
+      timer->StopTimer();
 
-    // Save the grid for further analyze
-    outGrids[step] = ghostGenerator->GetOutput();
-    outGrids[step]->Register(0);
+      // Save the grid for further analysis
+      outGrids[step] = ghostGenerator->GetOutput();
+      outGrids[step]->Register(0);
 
-    double ellapsed = timer->GetElapsedTime();
+      double elapsed = timer->GetElapsedTime();
 
-    // get some performance statistics
-    double minGhostUpdateTime = 0.0;
-    double maxGhostUpdateTime = 0.0;
-    double avgGhostUpdateTime = 0.0;
-    controller->Reduce(&ellapsed, &minGhostUpdateTime, 1, vtkCommunicator::MIN_OP, 0);
-    controller->Reduce(&ellapsed, &maxGhostUpdateTime, 1, vtkCommunicator::MAX_OP, 0);
-    controller->Reduce(&ellapsed, &avgGhostUpdateTime, 1, vtkCommunicator::SUM_OP, 0);
-    avgGhostUpdateTime /= static_cast<double>(nbRanks);
-    vtkMPIUtilities::Printf(controller.Get(),
-      "-- Ellapsed Time: min=%f, avg=%f, max=%f\n",
-      minGhostUpdateTime, avgGhostUpdateTime, maxGhostUpdateTime);
-    }
+      // get some performance statistics
+      double minGhostUpdateTime = 0.0;
+      double maxGhostUpdateTime = 0.0;
+      double avgGhostUpdateTime = 0.0;
+      controller->Reduce(&elapsed, &minGhostUpdateTime, 1, vtkCommunicator::MIN_OP, 0);
+      controller->Reduce(&elapsed, &maxGhostUpdateTime, 1, vtkCommunicator::MAX_OP, 0);
+      controller->Reduce(&elapsed, &avgGhostUpdateTime, 1, vtkCommunicator::SUM_OP, 0);
+      avgGhostUpdateTime /= static_cast<double>(nbRanks);
+      vtkMPIUtilities::Printf(controller.Get(),
+        "-- Ghost Level: %i Elapsed Time: min=%f, avg=%f, max=%f\n",
+        ghostLevel, minGhostUpdateTime, avgGhostUpdateTime, maxGhostUpdateTime);
+      }
 
-  vtkIdType initialNbOfCells = initialGrid->GetNumberOfCells();
-  if (outGrids[0]->GetNumberOfCells() != outGrids[1]->GetNumberOfCells())
-    {
-    vtkMPIUtilities::Printf(controller.Get(),
-      "Grids obtained with and without global ids do not have the same number of cells!\n");
-    ret = EXIT_FAILURE;
-    }
-
-  for (int step = 0; step < 2; ++step)
-    {
-    vtkUnsignedCharArray* ghosts = vtkUnsignedCharArray::SafeDownCast(
-      outGrids[step]->GetCellGhostArray());
-    if (initialNbOfCells >= outGrids[step]->GetNumberOfCells())
+    vtkIdType initialNbOfCells = initialGrid->GetNumberOfCells();
+    if (outGrids[0]->GetNumberOfCells() != outGrids[1]->GetNumberOfCells())
       {
       vtkMPIUtilities::Printf(controller.Get(),
-        "Obtained grids has less or as many cells as the input grid!\n");
+        "Grids obtained with and without global ids for ghost level %i do not have the same number of cells!\n",
+        ghostLevel);
       ret = EXIT_FAILURE;
-      }
-    if (!ghosts)
-      {
-      vtkMPIUtilities::Printf(controller.Get(),
-        "Ghost cells array not found at step %d!\n", step);
-      ret = EXIT_FAILURE;
-      continue;
       }
 
-    for (vtkIdType i = 0; i < ghosts->GetNumberOfTuples(); ++i)
+    for (int step = 0; step < 2; ++step)
       {
-      unsigned char val = ghosts->GetValue(i);
-      if (i < initialNbOfCells && val != 0)
+      vtkUnsignedCharArray* ghosts = vtkUnsignedCharArray::SafeDownCast(
+        outGrids[step]->GetCellGhostArray());
+      if (initialNbOfCells >= outGrids[step]->GetNumberOfCells())
         {
         vtkMPIUtilities::Printf(controller.Get(),
-          "Cell %d is not supposed to be a ghost cell but it is!\n", i);
+          "Obtained grids for ghost level %i has less or as many cells as the input grid!\n",
+          ghostLevel);
         ret = EXIT_FAILURE;
-        break;
         }
-      if (i >= initialNbOfCells && val != 1)
+      if (!ghosts)
         {
         vtkMPIUtilities::Printf(controller.Get(),
-          "Cell %d is supposed to be a ghost cell but it's not!\n", i);
+          "Ghost cells array not found at ghost level %i, step %d!\n",
+          ghostLevel, step);
         ret = EXIT_FAILURE;
-        break;
+        continue;
+        }
+
+      for (vtkIdType i = 0; i < ghosts->GetNumberOfTuples(); ++i)
+        {
+        unsigned char val = ghosts->GetValue(i);
+        if (i < initialNbOfCells && val != 0)
+          {
+          vtkMPIUtilities::Printf(controller.Get(),
+            "Ghost Level %i Cell %d is not supposed to be a ghost cell but it is!\n",
+            ghostLevel, i);
+          ret = EXIT_FAILURE;
+          break;
+          }
+        if (i >= initialNbOfCells && val != 1)
+          {
+          vtkMPIUtilities::Printf(controller.Get(),
+            "Ghost Level %i Cell %d is supposed to be a ghost cell but it's not!\n",
+            ghostLevel, i);
+          ret = EXIT_FAILURE;
+          break;
+          }
         }
       }
+
+    outGrids[0]->Delete();
+    outGrids[1]->Delete();
     }
 
-  outGrids[0]->Delete();
-  outGrids[1]->Delete();
 
   controller->Finalize();
   return ret;
