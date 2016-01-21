@@ -16,6 +16,7 @@
 #include "vtkArrayDispatch.h"
 #include "vtkAOSDataArrayTemplate.h" // For fast paths
 #include "vtkDataArray.h"
+#include "vtkDataArrayAccessor.h"
 #include "vtkDataArrayPrivate.txx"
 #include "vtkBitArray.h"
 #include "vtkCharArray.h"
@@ -76,6 +77,11 @@ struct DeepCopyWorker
   template <typename Array1T, typename Array2T>
   void operator()(Array1T *src, Array2T *dst)
   {
+    vtkDataArrayAccessor<Array1T> s(src);
+    vtkDataArrayAccessor<Array2T> d(dst);
+
+    typedef typename vtkDataArrayAccessor<Array2T>::APIType DestType;
+
     vtkIdType tuples = src->GetNumberOfTuples();
     int comps = src->GetNumberOfComponents();
 
@@ -83,9 +89,7 @@ struct DeepCopyWorker
       {
       for (int c = 0; c < comps; ++c)
         {
-        dst->SetTypedComponent(
-              t, c,  static_cast<typename Array2T::ValueType>(
-                src->GetTypedComponent(t, c)));
+        d.Set(t, c, static_cast<DestType>(s.Get(t, c)));
         }
       }
   }
@@ -132,6 +136,11 @@ struct InterpolateMultiTupleWorker
   template <typename Array1T, typename Array2T>
   void operator()(Array1T *src, Array2T *dst)
   {
+    vtkDataArrayAccessor<Array1T> s(src);
+    vtkDataArrayAccessor<Array2T> d(dst);
+
+    typedef typename vtkDataArrayAccessor<Array2T>::APIType DestType;
+
     int numComp = src->GetNumberOfComponents();
 
     for (int c = 0; c < numComp; ++c)
@@ -141,11 +150,11 @@ struct InterpolateMultiTupleWorker
         {
         vtkIdType t = this->TupleIds[tupleId];
         double weight = this->Weights[tupleId];
-        val += weight * static_cast<double>(src->GetTypedComponent(t, c));
+        val += weight * static_cast<double>(s.Get(t, c));
         }
-      typename Array2T::ValueType valT;
+      DestType valT;
       vtkDataArrayRoundIfNecessary(val, &valT);
-      dst->InsertTypedComponent(this->DestTuple, c, valT);
+      d.Insert(this->DestTuple, c, valT);
       }
   }
 };
@@ -166,16 +175,23 @@ struct InterpolateTupleWorker
   template <typename Array1T, typename Array2T, typename Array3T>
   void operator()(Array1T *src1, Array2T *src2, Array3T *dst)
   {
+    vtkDataArrayAccessor<Array1T> s1(src1);
+    vtkDataArrayAccessor<Array2T> s2(src2);
+    vtkDataArrayAccessor<Array3T> d(dst);
+
+    typedef typename vtkDataArrayAccessor<Array3T>::APIType DestType;
+
     const int numComps = dst->GetNumberOfComponents();
     const double oneMinusT = 1. - this->Weight;
     double val;
-    typename Array3T::ValueType valT;
+    DestType valT;
+
     for (int c = 0; c < numComps; ++c)
       {
-      val = src1->GetTypedComponent(this->SrcTuple1, c) * oneMinusT +
-            src2->GetTypedComponent(this->SrcTuple2, c) * this->Weight;
+      val = s1.Get(this->SrcTuple1, c) * oneMinusT +
+            s2.Get(this->SrcTuple2, c) * this->Weight;
       vtkDataArrayRoundIfNecessary(val, &valT);
-      dst->InsertTypedComponent(this->DstTuple, c, valT);
+      d.Insert(this->DstTuple, c, valT);
       }
   }
 };
@@ -190,34 +206,21 @@ struct GetTuplesFromListWorker
   template <typename Array1T, typename Array2T>
   void operator()(Array1T *src, Array2T *dst)
   {
-    int numComps = src->GetNumberOfComponents();
-    vtkIdType *srcTuple = this->Ids->GetPointer(0);
-    vtkIdType *srcTupleEnd = this->Ids->GetPointer(Ids->GetNumberOfIds());
-    vtkIdType dstTuple = 0;
-    while (srcTuple != srcTupleEnd)
-      {
-      for (int c = 0; c < numComps; ++c)
-        {
-        dst->SetTypedComponent(dstTuple, c,
-                               static_cast<typename Array2T::ValueType>(
-                                 src->GetTypedComponent(*srcTuple, c)));
-        }
-      ++srcTuple;
-      ++dstTuple;
-      }
-  }
+    vtkDataArrayAccessor<Array1T> s(src);
+    vtkDataArrayAccessor<Array2T> d(dst);
 
-  void Fallback(vtkDataArray *src, vtkDataArray *dst)
-  {
+    typedef typename vtkDataArrayAccessor<Array2T>::APIType DestType;
+
     int numComps = src->GetNumberOfComponents();
     vtkIdType *srcTuple = this->Ids->GetPointer(0);
     vtkIdType *srcTupleEnd = this->Ids->GetPointer(Ids->GetNumberOfIds());
     vtkIdType dstTuple = 0;
+
     while (srcTuple != srcTupleEnd)
       {
       for (int c = 0; c < numComps; ++c)
         {
-        dst->SetComponent(dstTuple, c, src->GetComponent(*srcTuple, c));
+        d.Set(dstTuple, c, static_cast<DestType>(s.Get(*srcTuple, c)));
         }
       ++srcTuple;
       ++dstTuple;
@@ -238,22 +241,11 @@ struct GetTuplesRangeWorker
   template <typename Array1T, typename Array2T>
   void operator()(Array1T *src, Array2T *dst)
   {
-    int numComps = src->GetNumberOfComponents();
-    for (vtkIdType srcT = this->Start, dstT = 0;
-         srcT <= this->End;
-         ++srcT, ++dstT)
-      {
-      for (int c = 0; c < numComps; ++c)
-        {
-        dst->SetTypedComponent(dstT, c,
-                               static_cast<typename Array2T::ValueType>(
-                                 src->GetTypedComponent(srcT, c)));
-        }
-      }
-  }
+    vtkDataArrayAccessor<Array1T> s(src);
+    vtkDataArrayAccessor<Array2T> d(dst);
 
-  void Fallback(vtkDataArray *src, vtkDataArray *dst)
-  {
+    typedef typename vtkDataArrayAccessor<Array2T>::APIType DestType;
+
     int numComps = src->GetNumberOfComponents();
     for (vtkIdType srcT = this->Start, dstT = 0;
          srcT <= this->End;
@@ -261,7 +253,7 @@ struct GetTuplesRangeWorker
       {
       for (int c = 0; c < numComps; ++c)
         {
-        dst->SetComponent(dstT, c, src->GetComponent(srcT, c));
+        d.Set(dstT, c, static_cast<DestType>(s.Get(srcT, c)));
         }
       }
   }
@@ -280,21 +272,15 @@ struct SetTupleArrayWorker
   template <typename SrcArrayT, typename DstArrayT>
   void operator()(SrcArrayT *src, DstArrayT *dst)
   {
-    int numComps = src->GetNumberOfComponents();
-    for (int c = 0; c < numComps; ++c)
-      {
-      dst->SetTypedComponent(this->DstTuple, c,
-                             src->GetTypedComponent(this->SrcTuple, c));
-      }
-  }
+    vtkDataArrayAccessor<SrcArrayT> s(src);
+    vtkDataArrayAccessor<DstArrayT> d(dst);
 
-  void Fallback(vtkDataArray *src, vtkDataArray *dst)
-  {
+    typedef typename vtkDataArrayAccessor<DstArrayT>::APIType DestType;
+
     int numComps = src->GetNumberOfComponents();
     for (int c = 0; c < numComps; ++c)
       {
-      dst->SetComponent(this->DstTuple, c,
-                        src->GetComponent(this->SrcTuple, c));
+      d.Set(this->DstTuple, c, static_cast<DestType>(s.Get(this->SrcTuple, c)));
       }
   }
 };
@@ -312,21 +298,11 @@ struct SetTuplesIdListWorker
   template <typename SrcArrayT, typename DstArrayT>
   void operator()(SrcArrayT *src, DstArrayT *dst)
   {
-    vtkIdType numTuples = this->SrcTuples->GetNumberOfIds();
-    int numComps = src->GetNumberOfComponents();
-    for (vtkIdType t = 0; t < numTuples; ++t)
-      {
-      vtkIdType srcT = this->SrcTuples->GetId(t);
-      vtkIdType dstT = this->DstTuples->GetId(t);
-      for (int c = 0; c < numComps; ++c)
-        {
-        dst->SetTypedComponent(dstT, c, src->GetTypedComponent(srcT, c));
-        }
-      }
-  }
+    vtkDataArrayAccessor<SrcArrayT> s(src);
+    vtkDataArrayAccessor<DstArrayT> d(dst);
 
-  void Fallback(vtkDataArray *src, vtkDataArray *dst)
-  {
+    typedef typename vtkDataArrayAccessor<DstArrayT>::APIType DestType;
+
     vtkIdType numTuples = this->SrcTuples->GetNumberOfIds();
     int numComps = src->GetNumberOfComponents();
     for (vtkIdType t = 0; t < numTuples; ++t)
@@ -335,7 +311,7 @@ struct SetTuplesIdListWorker
       vtkIdType dstT = this->DstTuples->GetId(t);
       for (int c = 0; c < numComps; ++c)
         {
-        dst->SetComponent(dstT, c, src->GetComponent(srcT, c));
+        d.Set(dstT, c, static_cast<DestType>(s.Get(srcT, c)));
         }
       }
   }
@@ -358,6 +334,11 @@ struct SetTuplesRangeWorker
   template <typename SrcArrayT, typename DstArrayT>
   void operator()(SrcArrayT *src, DstArrayT *dst)
   {
+    vtkDataArrayAccessor<SrcArrayT> s(src);
+    vtkDataArrayAccessor<DstArrayT> d(dst);
+
+    typedef typename vtkDataArrayAccessor<DstArrayT>::APIType DestType;
+
     int numComps = src->GetNumberOfComponents();
     vtkIdType srcT = this->SrcStartTuple;
     vtkIdType srcTEnd = srcT + this->NumTuples;
@@ -369,7 +350,7 @@ struct SetTuplesRangeWorker
         {
         for (int c = 0; c < numComps; ++c)
           {
-          dst->SetTypedComponent(dstT, c, src->GetTypedComponent(srcT, c));
+          d.Set(dstT, c, static_cast<DestType>(s.Get(srcT, c)));
           }
         }
       ++srcT;
@@ -386,6 +367,7 @@ struct SetTuplesRangeWorker
     ValueType *srcBegin = src->GetPointer(this->SrcStartTuple * numComps);
     ValueType *srcEnd = srcBegin + (this->NumTuples * numComps);
     ValueType *dstBegin = dst->GetPointer(this->DstStartTuple * numComps);
+
     std::copy(srcBegin, srcEnd, dstBegin);
   }
 
@@ -406,29 +388,6 @@ struct SetTuplesRangeWorker
       std::copy(srcBegin, srcEnd, dstBegin);
       }
   }
-
-  // Fallback
-  void Fallback(vtkDataArray *src, vtkDataArray *dst)
-  {
-    int numComps = src->GetNumberOfComponents();
-    vtkIdType srcT = this->SrcStartTuple;
-    vtkIdType srcTEnd = srcT + this->NumTuples;
-    vtkIdType dstT = this->DstStartTuple;
-
-    while (srcT < srcTEnd)
-      {
-      for (vtkIdType t = 0; t < this->NumTuples; ++t)
-        {
-        for (int c = 0; c < numComps; ++c)
-          {
-          dst->SetComponent(dstT, c, src->GetComponent(srcT, c));
-          }
-        }
-      ++srcT;
-      ++dstT;
-      }
-  }
-
 };
 
 template<typename InfoType, typename KeyType>
@@ -526,26 +485,11 @@ void vtkDataArray::DeepCopy(vtkDataArray *da)
     this->SetNumberOfComponents(numComps);
     this->SetNumberOfTuples(numTuples);
 
-    // If true, use the fallback double interface for copying
-    bool fallback = da->GetDataType() == VTK_BIT ||
-                    this->GetDataType() == VTK_BIT;
-
-    if (!fallback)
+    DeepCopyWorker worker;
+    if (!vtkArrayDispatch::Dispatch2::Execute(da, this, worker))
       {
-      DeepCopyWorker worker;
       // If dispatch fails, use fallback:
-      fallback = !vtkArrayDispatch::Dispatch2::Execute(da, this, worker);
-      }
-
-    if (fallback)
-      {
-      for (vtkIdType t = 0; t < numTuples; ++t)
-        {
-        for (int c = 0; c < numComps; ++c)
-          {
-          this->SetComponent(t, c, da->GetComponent(t, c));
-          }
-        }
+      worker(da, this);
       }
 
     this->SetLookupTable(0);
@@ -589,7 +533,7 @@ void vtkDataArray::SetTuple(vtkIdType thisTupleIdx, vtkIdType sourceTupleIdx,
   SetTupleArrayWorker worker(sourceTupleIdx, thisTupleIdx);
   if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(srcDA, this, worker))
     {
-    worker.Fallback(srcDA, this);
+    worker(srcDA, this);
     }
 }
 
@@ -705,7 +649,7 @@ void vtkDataArray::InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
   SetTuplesIdListWorker worker(srcIds, dstIds);
   if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(srcDA, this, worker))
     {
-    worker.Fallback(srcDA, this);
+    worker(srcDA, this);
     }
 }
 
@@ -764,7 +708,7 @@ void vtkDataArray::InsertTuples(vtkIdType dstStart, vtkIdType n,
   SetTuplesRangeWorker worker(srcStart, dstStart, n);
   if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(srcDA, this, worker))
     {
-    worker.Fallback(srcDA, this);
+    worker(srcDA, this);
     }
 }
 
@@ -883,6 +827,9 @@ void vtkDataArray::InterpolateTuple(vtkIdType dstTuple, vtkIdList *tupleIds,
                                                                   worker);
     }
 
+  // Fallback to a separate implementation that checks vtkDataArray::GetDataType
+  // rather than relying on API types, since we'll need to round differently
+  // depending on type, and the API type for vtkDataArray is always double.
   if (fallback)
     {
     bool doRound = !(this->GetDataType() == VTK_FLOAT ||
@@ -965,6 +912,9 @@ void vtkDataArray::InterpolateTuple(vtkIdType dstTuple,
           src1DA, src2DA, this, worker);
     }
 
+  // Fallback to a separate implementation that checks vtkDataArray::GetDataType
+  // rather than relying on API types, since we'll need to round differently
+  // depending on type, and the API type for vtkDataArray is always double.
   if (fallback)
     {
     bool doRound = !(this->GetDataType() == VTK_FLOAT ||
@@ -1418,20 +1368,10 @@ void vtkDataArray::GetTuples(vtkIdList *ptIds, vtkAbstractArray *aa)
     }
 
   GetTuplesFromListWorker worker(ptIds);
-
-  bool fallback = this->GetDataType() == VTK_BIT ||
-                  da->GetDataType() == VTK_BIT;
-
-  if (!fallback)
+  if (!vtkArrayDispatch::Dispatch2::Execute(this, da, worker))
     {
     // Use fallback if dispatch fails.
-    fallback = !vtkArrayDispatch::Dispatch2::Execute(this, da, worker);
-    }
-
-  if (fallback)
-    {
-    // Uses vtkDataArray double interface:
-    worker.Fallback(this, da);
+    worker(this, da);
     }
 }
 
@@ -1452,20 +1392,10 @@ void vtkDataArray::GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray *aa)
     }
 
   GetTuplesRangeWorker worker(p1, p2);
-
-  bool fallback = this->GetDataType() == VTK_BIT ||
-                  da->GetDataType() == VTK_BIT;
-
-  if (!fallback)
+  if (!vtkArrayDispatch::Dispatch2::Execute(this, da, worker))
     {
     // Use fallback if dispatch fails.
-    fallback = !vtkArrayDispatch::Dispatch2::Execute(this, da, worker);
-    }
-
-  if (fallback)
-    {
-    // Uses vtkDataArray double interface:
-    worker.Fallback(this, da);
+    worker(this, da);
     }
 }
 
@@ -1669,26 +1599,22 @@ struct VectorRangeDispatchWrapper
 bool vtkDataArray::ComputeScalarRange(double* ranges)
 {
   ScalarRangeDispatchWrapper worker(ranges);
-  if (vtkArrayDispatch::Dispatch::Execute(this, worker))
+  if (!vtkArrayDispatch::Dispatch::Execute(this, worker))
     {
-    return worker.Success;
+    worker(this);
     }
-
-  // When dispatch fails:
-  return vtkDataArrayPrivate::DoComputeScalarRangeFallback(this, ranges);
+  return worker.Success;
 }
 
 //-----------------------------------------------------------------------------
 bool vtkDataArray::ComputeVectorRange(double range[2])
 {
   VectorRangeDispatchWrapper worker(range);
-  if (vtkArrayDispatch::Dispatch::Execute(this, worker))
+  if (!vtkArrayDispatch::Dispatch::Execute(this, worker))
     {
-    return worker.Success;
+    worker(this);
     }
-
-  // When dispatch fails:
-  return vtkDataArrayPrivate::DoComputeVectorRangeFallback(this, range);
+  return worker.Success;
 }
 
 //----------------------------------------------------------------------------

@@ -14,10 +14,12 @@
 =========================================================================*/
 #include "vtkAppendPolyData.h"
 
+#include "vtkAssume.h"
 #include "vtkArrayDispatch.h"
 #include "vtkAlgorithmOutput.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkDataArrayAccessor.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -724,27 +726,18 @@ struct AppendDataWorker
   template <typename Array1T, typename Array2T>
   void operator()(Array1T *dest, Array2T *src)
   {
-    const vtkIdType numTuples = src->GetNumberOfTuples();
-    const int numComps = src->GetNumberOfComponents();
-    for (vtkIdType t = 0; t < numTuples; ++t)
-      {
-      for (int c = 0; c < numComps; ++c)
-        {
-        dest->SetTypedComponent(t + this->Offset, c,
-                                src->GetTypedComponent(t, c));
-        }
-      }
-  }
+    vtkDataArrayAccessor<Array1T> d(dest);
+    vtkDataArrayAccessor<Array2T> s(src);
+    VTK_ASSUME(src->GetNumberOfComponents() == dest->GetNumberOfComponents());
 
-  void Fallback(vtkDataArray *dest, vtkDataArray *src)
-  {
     const vtkIdType numTuples = src->GetNumberOfTuples();
     const int numComps = src->GetNumberOfComponents();
+
     for (vtkIdType t = 0; t < numTuples; ++t)
       {
       for (int c = 0; c < numComps; ++c)
         {
-        dest->SetComponent(t + this->Offset, c, src->GetComponent(t, c));
+        d.Set(t + this->Offset, c, s.Get(t, c));
         }
       }
   }
@@ -764,7 +757,7 @@ void vtkAppendPolyData::AppendData(vtkDataArray *dest, vtkDataArray *src,
   if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(dest, src, worker))
     {
     // Use vtkDataArray API when fast-path dispatch fails.
-    worker.Fallback(dest, src);
+    worker(dest, src);
     }
 }
 

@@ -124,6 +124,9 @@
 //
 // Examples:
 // See TestArrayDispatchers.cxx for examples of each dispatch type.
+//
+// .SEE ALSO
+// vtkDataArrayAccessor
 
 #ifndef vtkArrayDispatch_h
 #define vtkArrayDispatch_h

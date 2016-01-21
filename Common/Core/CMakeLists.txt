@@ -290,6 +290,7 @@ set(${vtk-module}_HDRS
   vtkAtomicTypeConcepts.h
   vtkAtomicTypes.h
   vtkAutoInit.h
+  vtkDataArrayAccessor.h
   vtkDataArrayIteratorMacro.h
   vtkDataArrayTemplate.h
   vtkGenericDataArray.h

@@ -15,7 +15,9 @@
 #ifndef vtkDataArrayPrivate_txx
 #define vtkDataArrayPrivate_txx
 
+#include "vtkAssume.h"
 #include "vtkDataArray.h"
+#include "vtkDataArrayAccessor.h"
 #include "vtkTypeTraits.h"
 #include <algorithm>
 #include <cassert> // for assert()
@@ -60,17 +62,21 @@ using std::max;
 }
 
 //----------------------------------------------------------------------------
-template <class ValueType, int NumComps, int RangeSize>
+template <class APIType, int NumComps, int RangeSize>
 struct ComputeScalarRange
 {
   template<class ArrayT>
   bool operator()(ArrayT *array, double *ranges)
   {
-    ValueType tempRange[RangeSize];
+    VTK_ASSUME(array->GetNumberOfComponents() == NumComps);
+
+    vtkDataArrayAccessor<ArrayT> access(array);
+    APIType tempRange[RangeSize];
+
     for(int i = 0, j = 0; i < NumComps; ++i, j+=2)
       {
-      tempRange[j] = vtkTypeTraits<ValueType>::Max();
-      tempRange[j+1] = vtkTypeTraits<ValueType>::Min();
+      tempRange[j] = vtkTypeTraits<APIType>::Max();
+      tempRange[j+1] = vtkTypeTraits<APIType>::Min();
       }
 
     //compute the range for each component of the data array at the same time
@@ -79,10 +85,10 @@ struct ComputeScalarRange
       {
       for(int compIdx = 0, j = 0; compIdx < NumComps; ++compIdx, j+=2)
         {
-        tempRange[j] = detail::min(tempRange[j],
-          array->GetTypedComponent(tupleIdx, compIdx));
+        tempRange[j]   = detail::min(tempRange[j],
+                                     access.Get(tupleIdx, compIdx));
         tempRange[j+1] = detail::max(tempRange[j+1],
-          array->GetTypedComponent(tupleIdx, compIdx));
+                                     access.Get(tupleIdx, compIdx));
         }
       }
 
@@ -100,7 +106,9 @@ struct ComputeScalarRange
 template <typename ArrayT>
 bool DoComputeScalarRange(ArrayT *array, double *ranges)
 {
-  typedef typename ArrayT::ValueType ValueType;
+  vtkDataArrayAccessor<ArrayT> access(array);
+  typedef typename vtkDataArrayAccessor<ArrayT>::APIType APIType;
+
   const int numTuples = array->GetNumberOfTuples();
   const int numComp = array->GetNumberOfComponents();
 
@@ -121,48 +129,48 @@ bool DoComputeScalarRange(ArrayT *array, double *ranges)
   //compiler detect it can perform loop optimizations.
   if (numComp == 1)
     {
-    return ComputeScalarRange<ValueType,1,2>()(array, ranges);
+    return ComputeScalarRange<APIType,1,2>()(array, ranges);
     }
   else if (numComp == 2)
     {
-    return ComputeScalarRange<ValueType,2,4>()(array, ranges);
+    return ComputeScalarRange<APIType,2,4>()(array, ranges);
     }
   else if (numComp == 3)
     {
-    return ComputeScalarRange<ValueType,3,6>()(array, ranges);
+    return ComputeScalarRange<APIType,3,6>()(array, ranges);
     }
   else if (numComp == 4)
     {
-    return ComputeScalarRange<ValueType,4,8>()(array, ranges);
+    return ComputeScalarRange<APIType,4,8>()(array, ranges);
     }
   else if (numComp == 5)
     {
-    return ComputeScalarRange<ValueType,5,10>()(array, ranges);
+    return ComputeScalarRange<APIType,5,10>()(array, ranges);
     }
   else if (numComp == 6)
     {
-    return ComputeScalarRange<ValueType,6,12>()(array, ranges);
+    return ComputeScalarRange<APIType,6,12>()(array, ranges);
     }
   else if (numComp == 7)
     {
-    return ComputeScalarRange<ValueType,7,14>()(array, ranges);
+    return ComputeScalarRange<APIType,7,14>()(array, ranges);
     }
   else if (numComp == 8)
     {
-    return ComputeScalarRange<ValueType,8,16>()(array, ranges);
+    return ComputeScalarRange<APIType,8,16>()(array, ranges);
     }
   else if (numComp == 9)
     {
-    return ComputeScalarRange<ValueType,9,18>()(array, ranges);
+    return ComputeScalarRange<APIType,9,18>()(array, ranges);
     }
   else
     {
     //initialize the temp range storage to min/max pairs
-    ValueType* tempRange = new ValueType[numComp*2];
+    APIType* tempRange = new APIType[numComp*2];
     for (int i = 0, j = 0; i < numComp; ++i, j+=2)
       {
-      tempRange[j] = vtkTypeTraits<ValueType>::Max();
-      tempRange[j+1] = vtkTypeTraits<ValueType>::Min();
+      tempRange[j] = vtkTypeTraits<APIType>::Max();
+      tempRange[j+1] = vtkTypeTraits<APIType>::Min();
       }
 
     //compute the range for each component of the data array at the same time
@@ -170,10 +178,10 @@ bool DoComputeScalarRange(ArrayT *array, double *ranges)
       {
       for(int compIdx = 0, j = 0; compIdx < numComp; ++compIdx, j+=2)
         {
-        tempRange[j] = detail::min(tempRange[j],
-          array->GetTypedComponent(tupleIdx, compIdx));
+        tempRange[j]   = detail::min(tempRange[j],
+                                     access.Get(tupleIdx, compIdx));
         tempRange[j+1] = detail::max(tempRange[j+1],
-          array->GetTypedComponent(tupleIdx, compIdx));
+                                     access.Get(tupleIdx, compIdx));
         }
       }
 
@@ -192,42 +200,11 @@ bool DoComputeScalarRange(ArrayT *array, double *ranges)
 }
 
 //----------------------------------------------------------------------------
-bool DoComputeScalarRangeFallback(vtkDataArray *array, double *ranges)
-{
-  const int numTuples = array->GetNumberOfTuples();
-  const int numComp = array->GetNumberOfComponents();
-
-  //setup the initial ranges to be the max,min for double
-  for (int i = 0, j = 0; i < numComp; ++i, j+=2)
-    {
-    ranges[j] =  vtkTypeTraits<double>::Max();
-    ranges[j+1] = vtkTypeTraits<double>::Min();
-    }
-
-  //do this after we make sure range is max to min
-  if (numTuples == 0)
-    {
-    return false;
-    }
-
-  //compute the range for each component of the data array at the same time
-  for (vtkIdType tupleIdx = 0; tupleIdx < numTuples; ++tupleIdx)
-    {
-    for(int compIdx = 0, j = 0; compIdx < numComp; ++compIdx, j+=2)
-      {
-      double val = array->GetComponent(tupleIdx, compIdx);
-      ranges[j] = detail::min(ranges[j], val);
-      ranges[j+1] = detail::max(ranges[j+1], val);
-      }
-    }
-
-  return true;
-}
-
-//----------------------------------------------------------------------------
 template <typename ArrayT>
 bool DoComputeVectorRange(ArrayT *array, double range[2])
 {
+  vtkDataArrayAccessor<ArrayT> access(array);
+
   const int numTuples = array->GetNumberOfTuples();
   const int numComps = array->GetNumberOfComponents();
 
@@ -246,8 +223,7 @@ bool DoComputeVectorRange(ArrayT *array, double range[2])
     double squaredSum = 0.0;
     for (int compIdx = 0; compIdx < numComps; ++compIdx)
       {
-      const double t =
-          static_cast<double>(array->GetTypedComponent(tupleIdx, compIdx));
+      const double t = static_cast<double>(access.Get(tupleIdx, compIdx));
       squaredSum += t * t;
       }
     range[0] = detail::min(range[0], squaredSum);
@@ -262,42 +238,6 @@ bool DoComputeVectorRange(ArrayT *array, double range[2])
   return true;
 }
 
-//----------------------------------------------------------------------------
-bool DoComputeVectorRangeFallback(vtkDataArray *array, double range[2])
-{
-  const int numTuples = array->GetNumberOfTuples();
-  const int numComps = array->GetNumberOfComponents();
-
-  range[0] = vtkTypeTraits<double>::Max();
-  range[1] = vtkTypeTraits<double>::Min();
-
-  //do this after we make sure range is max to min
-  if (numTuples == 0)
-    {
-    return false;
-    }
-
-  //iterate over all the tuples
-  for (vtkIdType tupleIdx = 0; tupleIdx < numTuples; ++tupleIdx)
-    {
-    double squaredSum = 0.0;
-    for (int compIdx = 0; compIdx < numComps; ++compIdx)
-      {
-      const double t = array->GetComponent(tupleIdx, compIdx);
-      squaredSum += t * t;
-      }
-    range[0] = detail::min(range[0], squaredSum);
-    range[1] = detail::max(range[1], squaredSum);
-    }
-
-  //now that we have computed the smallest and largest value, take the
-  //square root of that value.
-  range[0] = sqrt(range[0]);
-  range[1] = sqrt(range[1]);
-
-  return true;
-}
-
-}
+} // end namespace vtkDataArrayPrivate
 #endif
 // VTK-HeaderTest-Exclude: vtkDataArrayPrivate.txx
