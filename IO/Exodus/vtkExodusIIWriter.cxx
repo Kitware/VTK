@@ -813,6 +813,10 @@ int vtkExodusIIWriter::CheckInputArrays ()
 
     // Trying to find global element id
     vtkDataArray *da = cd->GetGlobalIds();
+    if (!da)
+      { // try finding the array explicitly named
+      da = cd->GetArray ("GlobalElementId");
+      }
     if (da)
       {
       vtkIdTypeArray *ia = vtkIdTypeArray::SafeDownCast(da);
@@ -829,8 +833,13 @@ int vtkExodusIIWriter::CheckInputArrays ()
         }
       }
 
+
     // Trying to find global node id
     da = pd->GetGlobalIds();
+    if (!da)
+      { // try finding the array explicitly named
+      da = pd->GetArray ("GlobalNodeId");
+      }
     if (da)
       {
       vtkIdTypeArray *ia = vtkIdTypeArray::SafeDownCast(da);
