@@ -916,7 +916,9 @@ int vtkMultiBlockPLOT3DReader::ReadFunctionHeader(FILE* fp, int* nFunctions)
 
 void vtkMultiBlockPLOT3DReader::SetXYZFileName( const char* name )
 {
-  if ( this->XYZFileName && ! strcmp( this->XYZFileName, name ) )
+  if ( this->XYZFileName &&
+       name &&
+       ! strcmp( this->XYZFileName, name ) )
     {
     return;
     }
