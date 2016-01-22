@@ -81,7 +81,8 @@ int TestGPURayCastClipping(int argc, char *argv[])
   clipPlane1->SetNormal(0.8, 0.0, 0.0);
 
   vtkNew<vtkPlane> clipPlane2;
-  clipPlane2->SetOrigin(0.0, 0.35 * (bounds[2] + bounds[3]), 0.0);
+  clipPlane2->SetOrigin(0.45 * (bounds[0] + bounds[1]),
+                        0.35 * (bounds[2] + bounds[3]), 0.0);
   clipPlane2->SetNormal(0.2, -0.2, 0.0);
 
   vtkNew<vtkPlaneCollection> clipPlaneCollection;
