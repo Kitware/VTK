@@ -23,11 +23,13 @@
 #define vtkBuffer_h
 
 #include "vtkObject.h"
+#include "vtkObjectFactory.h" // New() implementation
 
 template <class ScalarTypeT>
-class vtkBuffer
+class vtkBuffer : public vtkObject
 {
 public:
+  vtkTypeMacro(vtkBuffer, vtkObject)
   typedef ScalarTypeT ScalarType;
   enum DeleteMethod
     {
@@ -35,17 +37,7 @@ public:
     VTK_DATA_ARRAY_DELETE
     };
 
-  vtkBuffer()
-    : Pointer(NULL),
-    Size(0),
-    Save(false),
-    DeleteMethod(VTK_DATA_ARRAY_FREE)
-    {
-    }
-
-  ~vtkBuffer()
-    {
-    }
+  static vtkBuffer<ScalarTypeT>* New();
 
   inline ScalarType* GetBuffer() const
     { return this->Pointer; }
@@ -136,11 +128,33 @@ public:
     }
 
 protected:
+  vtkBuffer()
+    : Pointer(NULL),
+      Size(0),
+      Save(false),
+      DeleteMethod(VTK_DATA_ARRAY_FREE)
+    {
+    }
+
+  ~vtkBuffer()
+    {
+    this->SetBuffer(NULL, 0);
+    }
+
   ScalarType *Pointer;
   vtkIdType Size;
   bool Save;
   int DeleteMethod;
+private:
+  vtkBuffer(const vtkBuffer&);  // Not implemented.
+  void operator=(const vtkBuffer&);  // Not implemented.
 };
+
+template <class ScalarT>
+inline vtkBuffer<ScalarT> *vtkBuffer<ScalarT>::New()
+{
+  VTK_STANDARD_NEW_BODY(vtkBuffer<ScalarT>)
+}
 
 #endif
 // VTK-HeaderTest-Exclude: vtkBuffer.h

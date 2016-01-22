@@ -34,8 +34,9 @@ vtkSOADataArrayTemplate<ValueType>::New()
 //-----------------------------------------------------------------------------
 template<class ValueType>
 vtkSOADataArrayTemplate<ValueType>::vtkSOADataArrayTemplate()
-  : Resizeable(true),
-  NumberOfComponentsReciprocal(1.0)
+  : AoSCopy(NULL),
+    Resizeable(true),
+    NumberOfComponentsReciprocal(1.0)
 {
 }
 
@@ -45,7 +46,13 @@ vtkSOADataArrayTemplate<ValueType>::~vtkSOADataArrayTemplate()
 {
   for (size_t cc = 0; cc < this->Data.size(); ++cc)
     {
-    this->Data[cc].SetBuffer(NULL, 0);
+    this->Data[cc]->Delete();
+    }
+  this->Data.clear();
+  if (this->AoSCopy)
+    {
+    this->AoSCopy->Delete();
+    this->AoSCopy = NULL;
     }
 }
 
@@ -58,10 +65,13 @@ void vtkSOADataArrayTemplate<ValueType>::SetNumberOfComponents(int val)
   assert(numComps >= 1);
   while (this->Data.size() > numComps)
     {
-    this->Data.back().SetBuffer(NULL, 0);
+    this->Data.back()->Delete();
     this->Data.pop_back();
     }
-  this->Data.resize(numComps);
+  while (this->Data.size() < numComps)
+    {
+    this->Data.push_back(vtkBuffer<ValueType>::New());
+    }
   this->NumberOfComponentsReciprocal = 1.0 / this->NumberOfComponents;
 }
 
@@ -72,6 +82,38 @@ vtkArrayIterator* vtkSOADataArrayTemplate<ValueType>::NewIterator()
   vtkArrayIterator *iter = vtkArrayIteratorTemplate<ValueType>::New();
   iter->Initialize(this);
   return iter;
+}
+
+//-----------------------------------------------------------------------------
+template<class ValueType>
+void vtkSOADataArrayTemplate<ValueType>::ShallowCopy(vtkDataArray *other)
+{
+  SelfType *o = SelfType::FastDownCast(other);
+  if (o)
+    {
+    this->Size = o->Size;
+    this->MaxId = o->MaxId;
+    this->SetName(o->Name);
+    this->SetNumberOfComponents(o->NumberOfComponents);
+    this->CopyComponentNames(o);
+    assert(this->Data.size() == o->Data.size());
+    for (size_t cc = 0; cc < this->Data.size(); ++cc)
+      {
+      vtkBuffer<ValueType> *thisBuffer = this->Data[cc];
+      vtkBuffer<ValueType> *otherBuffer = o->Data[cc];
+      if (thisBuffer != otherBuffer)
+        {
+        thisBuffer->Delete();
+        this->Data[cc] = otherBuffer;
+        otherBuffer->Register(NULL);
+        }
+      }
+    this->DataChanged();
+    }
+  else
+    {
+    this->Superclass::ShallowCopy(other);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -89,7 +131,7 @@ void vtkSOADataArrayTemplate<ValueType>::SetArray(int comp, ValueType* array,
     return;
     }
 
-  this->Data[comp].SetBuffer(array, size, save, deleteMethod);
+  this->Data[comp]->SetBuffer(array, size, save, deleteMethod);
   if (updateMaxId)
     {
     this->Size = numComps * size;
@@ -110,7 +152,7 @@ vtkSOADataArrayTemplate<ValueType>::GetComponentArrayPointer(int comp)
     return NULL;
     }
 
-  return this->Data[comp].GetBuffer();
+  return this->Data[comp]->GetBuffer();
 }
 
 //-----------------------------------------------------------------------------
@@ -122,7 +164,7 @@ bool vtkSOADataArrayTemplate<ValueType>::AllocateTuples(vtkIdType numTuples)
     vtkIdType minTuples = VTK_ID_MAX;
     for (size_t cc = 0, max = this->Data.size(); cc < max; cc++)
       {
-      minTuples = std::min(minTuples, this->Data[cc].GetSize());
+      minTuples = std::min(minTuples, this->Data[cc]->GetSize());
       }
     if (numTuples <= minTuples)
       {
@@ -138,7 +180,7 @@ bool vtkSOADataArrayTemplate<ValueType>::AllocateTuples(vtkIdType numTuples)
 
   for (size_t cc = 0, max = this->Data.size(); cc < max; ++cc)
     {
-    if (!this->Data[cc].Allocate(numTuples))
+    if (!this->Data[cc]->Allocate(numTuples))
       {
       return false;
       }
@@ -155,7 +197,7 @@ bool vtkSOADataArrayTemplate<ValueType>::ReallocateTuples(vtkIdType numTuples)
     vtkIdType minTuples = VTK_ID_MAX;
     for (size_t cc = 0, max = this->Data.size(); cc < max; cc++)
       {
-      minTuples = std::min(minTuples, this->Data[cc].GetSize());
+      minTuples = std::min(minTuples, this->Data[cc]->GetSize());
       }
     if (numTuples <= minTuples)
       {
@@ -167,7 +209,7 @@ bool vtkSOADataArrayTemplate<ValueType>::ReallocateTuples(vtkIdType numTuples)
 
   for (size_t cc = 0, max = this->Data.size(); cc < max; ++cc)
     {
-    if (!this->Data[cc].Reallocate(numTuples))
+    if (!this->Data[cc]->Reallocate(numTuples))
       {
       return false;
       }
@@ -194,16 +236,21 @@ void *vtkSOADataArrayTemplate<ValueType>::GetVoidPointer(vtkIdType id)
 
   size_t numValues = this->GetNumberOfValues();
 
-  if (!this->AoSCopy.Allocate(numValues))
+  if (!this->AoSCopy)
+    {
+    this->AoSCopy = vtkBuffer<ValueType>::New();
+    }
+
+  if (!this->AoSCopy->Allocate(numValues))
     {
     vtkErrorMacro(<<"Error allocating a buffer of " << numValues << " '"
                   << this->GetDataTypeAsString() << "' elements.");
     return NULL;
     }
 
-  this->ExportToVoidPointer(static_cast<void*>(this->AoSCopy.GetBuffer()));
+  this->ExportToVoidPointer(static_cast<void*>(this->AoSCopy->GetBuffer()));
 
-  return static_cast<void*>(this->AoSCopy.GetBuffer() + id);
+  return static_cast<void*>(this->AoSCopy->GetBuffer() + id);
 }
 
 //-----------------------------------------------------------------------------
@@ -228,7 +275,7 @@ void vtkSOADataArrayTemplate<ValueType>::ExportToVoidPointer(void *voidPtr)
     {
     for (int c = 0; c < this->NumberOfComponents; ++c)
       {
-      *ptr++ = this->Data[c].GetBuffer()[t];
+      *ptr++ = this->Data[c]->GetBuffer()[t];
       }
     }
 }

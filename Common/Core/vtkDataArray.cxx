@@ -504,6 +504,13 @@ void vtkDataArray::DeepCopy(vtkDataArray *da)
 }
 
 //------------------------------------------------------------------------------
+void vtkDataArray::ShallowCopy(vtkDataArray *other)
+{
+  // Deep copy by default. Subclasses may override this behavior.
+  this->DeepCopy(other);
+}
+
+//------------------------------------------------------------------------------
 void vtkDataArray::SetTuple(vtkIdType thisTupleIdx, vtkIdType sourceTupleIdx,
                             vtkAbstractArray *source)
 {

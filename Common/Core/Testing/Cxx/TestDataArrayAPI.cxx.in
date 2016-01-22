@@ -109,6 +109,7 @@ int @VTK_TESTDATAARRAYAPI_TESTNAME@(int, char *[])
 #define DataArrayAPIFinish() return errors
 
 #define DataArrayAPICreateTestArray(name) vtkNew<ArrayT> name
+#define DataArrayAPICreateTestArrayByType(name, type) vtkNew<type> name
 
 #define DataArrayAPICreateReferenceArray(name) \
   vtkSmartPointer<vtkDataArray> name##DA = CreateDataArray<ScalarT>(); \
@@ -937,6 +938,169 @@ int Test_voidPtr_GetVoidPointer()
         }
       }
 
+
+  DataArrayAPIFinish();
+}
+
+// operator() returns true if the memory is shared between two arrays, if
+// the arrays support true shallow copies.
+// NOTE: This will NOT properly test the case where, e.g., vtkFloatArray is
+// used, as template resolution will not cast vtkFloatArray into
+// vtkAOSDataArrayTemplate<float>. This will go through the generic
+// implementation which always returns true. This is fine, however, since
+// we explicitly test vtkAOSDataArrayTemplates as well as the vtk{type}Arrays,
+// so the explicit AOS tests will detect failures.
+struct CheckShallowCopy
+{
+  // Mismatched arrays -- these will not shallow copy, always return true.
+  template <typename Array1T, typename Array2T>
+  bool operator()(Array1T *, Array2T *) { return true; }
+
+  // AOS same-ValueType case:
+  template <typename ValueType>
+  bool operator()(vtkAOSDataArrayTemplate<ValueType> *a1,
+                  vtkAOSDataArrayTemplate<ValueType> *a2)
+  {
+    return a1->GetPointer(0) == a2->GetPointer(0);
+  }
+
+  // SOA same-ValueType case:
+  template <typename ValueType>
+  bool operator()(vtkSOADataArrayTemplate<ValueType> *a1,
+                  vtkSOADataArrayTemplate<ValueType> *a2)
+  {
+    assert(a1->GetNumberOfComponents() == a2->GetNumberOfComponents());
+    for (int c = 0; c < a1->GetNumberOfComponents(); ++c)
+      {
+      if (a1->GetComponentArrayPointer(c) != a2->GetComponentArrayPointer(c))
+        {
+        return false;
+        }
+      }
+    return true;
+  }
+};
+
+// void ShallowCopy(vtkDataArray *other)
+// Shallow copies AOS/SOA arrays if and only if arrays are the same type,
+// otherwise deep copies.
+// Test copying into and from the target array type.
+// Allocates memory as needed.
+// ArgT switches between the two overloads.
+// OtherT is the type of array that will be copied to/from.
+template <typename ScalarT, typename ArrayT, typename OtherArrayT>
+int Test_void_ShallowCopy_array()
+{
+  DataArrayAPIInit("void ShallowCopy(vtkDataArray *other)");
+
+  typedef typename OtherArrayT::ValueType OtherScalarT;
+
+  std::string testType = vtkTypeTraits<ScalarT>::Name();
+  std::string otherType = vtkTypeTraits<OtherScalarT>::Name();
+
+  DataArrayAPICreateTestArray(source);
+  DataArrayAPICreateTestArrayByType(middle, OtherArrayT);
+  DataArrayAPICreateTestArray(target);
+
+  CheckShallowCopy memChecker;
+
+  // Initialize source array:
+  vtkIdType comps = 9;
+  vtkIdType tuples = 40;
+  source->SetNumberOfComponents(comps);
+  source->SetNumberOfTuples(tuples);
+  for (vtkIdType t = 0; t < tuples; ++t)
+    {
+    for (int c = 0; c < comps; ++c)
+      {
+      source->SetComponent(t, c, static_cast<double>(((t * comps) + c) % 17));
+      }
+    }
+
+  // Copy to intermediate:
+  middle->ShallowCopy(source.GetPointer());
+
+  // Verify intermediate:
+  if (middle->GetNumberOfComponents() != comps ||
+      middle->GetNumberOfTuples() != tuples)
+    {
+    DataArrayAPIError("Incorrect size of array after copying from test array "
+                      "(scalar type: '" << testType << "') to reference array "
+                      "(scalar type: '" << otherType << "'): Expected number "
+                      "of (tuples, components): " << "(" << tuples << ", "
+                      << comps << "), got (" << middle->GetNumberOfTuples()
+                      << ", " << middle->GetNumberOfComponents() << ").");
+    }
+
+  for (vtkIdType t = 0; t < tuples; ++t)
+    {
+    for (int c = 0; c < comps; ++c)
+      {
+      double ref = ((t * comps) + c) % 17;
+      double test = middle->GetComponent(t, c);
+      if (ref != test)
+        {
+        DataArrayAPIError("Data mismatch after copying from test array (scalar "
+                          "type: '" << testType << "') to reference array "
+                          "(scalar type: '" << otherType << "'): " "Data "
+                          "mismatch at tuple " << t << " component " << c
+                          << ": Expected " << ref << ", got " << test << ".");
+        }
+      }
+    }
+
+  if (!memChecker(source.GetPointer(), middle.GetPointer()))
+    {
+    DataArrayAPIError("Memory is not shared following shallow copy.\n"
+                      "Copying source --> middle;\n"
+                      "source = " << source->GetClassName() << " ("
+                      << testType << ")\n"
+                      "middle = " << middle->GetClassName() << " ("
+                      << otherType << ")");
+    }
+
+  // Copy to final:
+  target->ShallowCopy(middle.GetPointer());
+
+  // Verify final:
+  if (target->GetNumberOfComponents() != comps ||
+      target->GetNumberOfTuples() != tuples)
+    {
+    DataArrayAPIError("Incorrect size of array after copying from reference "
+                      "array (scalar type: '" << otherType << "') to test "
+                      "array (scalar type: '" << testType << "'): "
+                      "Expected number of (tuples, components): "
+                      << "(" << tuples << ", " << comps << "), got ("
+                      << target->GetNumberOfTuples() << ", "
+                      << target->GetNumberOfComponents() << ").");
+    }
+
+  for (vtkIdType t = 0; t < tuples; ++t)
+    {
+    for (int c = 0; c < comps; ++c)
+      {
+      double ref = ((t * comps) + c) % 17;
+      double test = target->GetComponent(t, c);
+      if (ref != test)
+        {
+        DataArrayAPIError("Data mismatch after copying from reference array "
+                          "(scalar type: '" << otherType << "') to test array "
+                          "(scalar type: '" << testType << "'): " "Data "
+                          "mismatch at tuple " << t << " component " << c
+                          << ": Expected " << ref << ", got " << test << ".");
+        }
+      }
+    }
+
+  if (!memChecker(middle.GetPointer(), target.GetPointer()))
+    {
+    DataArrayAPIError("Memory is not shared following shallow copy.\n"
+                      "Copying middle --> target;\n"
+                      "middle = " << middle->GetClassName() << " ("
+                      << otherType << ")\n"
+                      "target = " << target->GetClassName() << " ("
+                      << testType << ")");
+    }
 
   DataArrayAPIFinish();
 }
@@ -2948,6 +3112,34 @@ int ExerciseDataArray()
   errors += Test_void_InsertComponent_i_j_c<ScalarT, ArrayT>();
   errors += Test_voidptr_WriteVoidPointer_id_number<ScalarT, ArrayT>();
   errors += Test_void_CreateDefaultLookupTable<ScalarT, ArrayT>();
+  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkAOSDataArrayTemplate<char> >();
+  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkAOSDataArrayTemplate<float> >();
+  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkAOSDataArrayTemplate<double> >();
+  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkAOSDataArrayTemplate<vtkIdType> >();
+  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkAOSDataArrayTemplate<int> >();
+  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkAOSDataArrayTemplate<long> >();
+  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkAOSDataArrayTemplate<long long> >();
+  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkAOSDataArrayTemplate<short> >();
+  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkAOSDataArrayTemplate<signed char> >();
+  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkAOSDataArrayTemplate<unsigned char> >();
+  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkAOSDataArrayTemplate<unsigned int> >();
+  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkAOSDataArrayTemplate<unsigned long> >();
+  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkAOSDataArrayTemplate<unsigned long long> >();
+  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkAOSDataArrayTemplate<unsigned short> >();
+  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkSOADataArrayTemplate<char> >();
+  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkSOADataArrayTemplate<float> >();
+  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkSOADataArrayTemplate<double> >();
+  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkSOADataArrayTemplate<vtkIdType> >();
+  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkSOADataArrayTemplate<int> >();
+  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkSOADataArrayTemplate<long> >();
+  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkSOADataArrayTemplate<long long> >();
+  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkSOADataArrayTemplate<short> >();
+  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkSOADataArrayTemplate<signed char> >();
+  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkSOADataArrayTemplate<unsigned char> >();
+  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkSOADataArrayTemplate<unsigned int> >();
+  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkSOADataArrayTemplate<unsigned long> >();
+  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkSOADataArrayTemplate<unsigned long long> >();
+  errors += Test_void_ShallowCopy_array<ScalarT, ArrayT, vtkSOADataArrayTemplate<unsigned short> >();
   errors += Test_doubleptr_GetTupleN_i<ScalarT, ArrayT, 1>();
   errors += Test_doubleptr_GetTupleN_i<ScalarT, ArrayT, 2>();
   errors += Test_doubleptr_GetTupleN_i<ScalarT, ArrayT, 3>();

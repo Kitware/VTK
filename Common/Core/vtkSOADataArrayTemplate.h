@@ -51,12 +51,12 @@ public:
     {
     for (size_t cc=0; cc < this->Data.size(); cc++)
       {
-      tuple[cc] = this->Data[cc].GetBuffer()[tupleIdx];
+      tuple[cc] = this->Data[cc]->GetBuffer()[tupleIdx];
       }
     }
   inline ValueType GetTypedComponent(vtkIdType tupleIdx, int comp) const
     {
-    return this->Data[comp].GetBuffer()[tupleIdx];
+    return this->Data[comp]->GetBuffer()[tupleIdx];
     }
   inline void SetValue(vtkIdType valueIdx, ValueType value)
     {
@@ -69,15 +69,17 @@ public:
     {
     for (size_t cc=0; cc < this->Data.size(); ++cc)
       {
-      this->Data[cc].GetBuffer()[tupleIdx] = tuple[cc];
+      this->Data[cc]->GetBuffer()[tupleIdx] = tuple[cc];
       }
     }
   inline void SetTypedComponent(vtkIdType tupleIdx, int comp, ValueType value)
     {
-    this->Data[comp].GetBuffer()[tupleIdx] = value;
+    this->Data[comp]->GetBuffer()[tupleIdx] = value;
     }
 
   // **************************************************************************
+
+  virtual void ShallowCopy(vtkDataArray *other);
 
   enum DeleteMethod
     {
@@ -169,8 +171,8 @@ protected:
   bool ReallocateTuples(vtkIdType numTuples);
   // **************************************************************************
 
-  std::vector<vtkBuffer<ValueType> > Data;
-  vtkBuffer<ValueType> AoSCopy;
+  std::vector<vtkBuffer<ValueType>*> Data;
+  vtkBuffer<ValueType> *AoSCopy;
   bool Resizeable;
   double NumberOfComponentsReciprocal;
 private:

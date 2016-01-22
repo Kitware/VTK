@@ -52,34 +52,36 @@ public:
   // **************************************************************************
   inline ValueType GetValue(vtkIdType valueIdx) const
     {
-    return this->Buffer.GetBuffer()[valueIdx];
+    return this->Buffer->GetBuffer()[valueIdx];
     }
   inline void GetTypedTuple(vtkIdType tupleIdx, ValueType* tuple) const
     {
     const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
-    std::copy(this->Buffer.GetBuffer() + valueIdx,
-              this->Buffer.GetBuffer() + valueIdx + this->NumberOfComponents,
+    std::copy(this->Buffer->GetBuffer() + valueIdx,
+              this->Buffer->GetBuffer() + valueIdx + this->NumberOfComponents,
               tuple);
     }
   inline ValueType GetTypedComponent(vtkIdType index, int comp) const
     {
-    return this->Buffer.GetBuffer()[this->NumberOfComponents*index + comp];
+    return this->Buffer->GetBuffer()[this->NumberOfComponents*index + comp];
     }
   inline void SetValue(vtkIdType valueIdx, ValueType value)
     {
-    this->Buffer.GetBuffer()[valueIdx] = value;
+    this->Buffer->GetBuffer()[valueIdx] = value;
     }
   inline void SetTypedTuple(vtkIdType tupleIdx, const ValueType* tuple)
     {
     const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
     std::copy(tuple, tuple + this->NumberOfComponents,
-              this->Buffer.GetBuffer() + valueIdx);
+              this->Buffer->GetBuffer() + valueIdx);
     }
   inline void SetTypedComponent(vtkIdType tupleIdx, int comp, ValueType value)
     {
     const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents + comp;
     this->SetValue(valueIdx, value);
     }
+
+  virtual void ShallowCopy(vtkDataArray *other);
 
   // **************************************************************************
   // Description:
@@ -96,7 +98,7 @@ public:
   // If the data is simply being iterated over, consider using
   // vtkDataArrayIteratorMacro for safety and efficiency, rather than using this
   // member directly.
-  ValueType* GetPointer(vtkIdType id) { return this->Buffer.GetBuffer() + id; }
+  ValueType* GetPointer(vtkIdType id) { return this->Buffer->GetBuffer() + id; }
   virtual void* GetVoidPointer(vtkIdType id) { return this->GetPointer(id); }
 
   enum DeleteMethod
@@ -182,10 +184,8 @@ protected:
   bool ReallocateTuples(vtkIdType numTuples);
   // **************************************************************************
 
-  vtkBuffer<ValueType> Buffer;
+  vtkBuffer<ValueType> *Buffer;
   ValueType ValueRange[2]; // XXX
-  bool SaveUserArray;
-  int DeleteMethod;
 
 private:
   vtkAOSDataArrayTemplate(const vtkAOSDataArrayTemplate&); // Not implemented.

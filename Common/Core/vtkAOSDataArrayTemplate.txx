@@ -33,8 +33,7 @@ vtkAOSDataArrayTemplateT(vtkAOSDataArrayTemplate<ValueType>*)::New()
 template <class ValueType>
 vtkAOSDataArrayTemplate<ValueType>::vtkAOSDataArrayTemplate()
 {
-  this->SaveUserArray = false;
-  this->DeleteMethod = VTK_DATA_ARRAY_FREE;
+  this->Buffer = vtkBuffer<ValueType>::New();
 }
 
 //-----------------------------------------------------------------------------
@@ -42,14 +41,14 @@ template <class ValueType>
 vtkAOSDataArrayTemplate<ValueType>::~vtkAOSDataArrayTemplate()
 {
   this->SetArray(NULL, 0, 0);
-  this->Buffer.SetBuffer(NULL, 0);
+  this->Buffer->Delete();
 }
 
 //-----------------------------------------------------------------------------
 vtkAOSDataArrayTemplateT(void)::SetArray(
   ValueType* array, vtkIdType size, int save, int deleteMethod)
 {
-  this->Buffer.SetBuffer(array, size, save != 0, deleteMethod);
+  this->Buffer->SetBuffer(array, size, save != 0, deleteMethod);
   this->Size = size;
   this->MaxId = this->Size - 1;
   this->DataChanged();
@@ -61,6 +60,32 @@ vtkAOSDataArrayTemplateT(vtkArrayIterator*)::NewIterator()
   vtkArrayIterator *iter = vtkArrayIteratorTemplate<ValueType>::New();
   iter->Initialize(this);
   return iter;
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueTypeT>
+void vtkAOSDataArrayTemplate<ValueTypeT>::ShallowCopy(vtkDataArray *other)
+{
+  SelfType *o = SelfType::FastDownCast(other);
+  if (o)
+    {
+    this->Size = o->Size;
+    this->MaxId = o->MaxId;
+    this->SetName(o->Name);
+    this->SetNumberOfComponents(o->NumberOfComponents);
+    this->CopyComponentNames(o);
+    if (this->Buffer != o->Buffer)
+      {
+      this->Buffer->Delete();
+      this->Buffer = o->Buffer;
+      this->Buffer->Register(NULL);
+      }
+    this->DataChanged();
+    }
+  else
+    {
+    this->Superclass::ShallowCopy(other);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -90,9 +115,9 @@ vtkAOSDataArrayTemplate<ValueTypeT>::WritePointer(vtkIdType id,
 vtkAOSDataArrayTemplateT(bool)::AllocateTuples(vtkIdType numTuples)
 {
   vtkIdType numValues = numTuples * this->GetNumberOfComponents();
-  if (this->Buffer.Allocate(numValues))
+  if (this->Buffer->Allocate(numValues))
     {
-    this->Size = this->Buffer.GetSize();
+    this->Size = this->Buffer->GetSize();
     return true;
     }
   return false;
@@ -101,9 +126,9 @@ vtkAOSDataArrayTemplateT(bool)::AllocateTuples(vtkIdType numTuples)
 //-----------------------------------------------------------------------------
 vtkAOSDataArrayTemplateT(bool)::ReallocateTuples(vtkIdType numTuples)
 {
-  if (this->Buffer.Reallocate(numTuples * this->GetNumberOfComponents()))
+  if (this->Buffer->Reallocate(numTuples * this->GetNumberOfComponents()))
     {
-    this->Size = this->Buffer.GetSize();
+    this->Size = this->Buffer->GetSize();
     return true;
     }
   return false;
