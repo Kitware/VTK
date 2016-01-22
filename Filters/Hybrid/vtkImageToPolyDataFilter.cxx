@@ -635,7 +635,7 @@ unsigned char *vtkImageToPolyDataFilter::GetColor(unsigned char *rgb)
   return this->Table->GetPointer(3*(red + green*8 + blue*64));
 }
 
-void vtkImageToPolyDataFilter::GetIJ(int id, int &i, int &j, int dims[3])
+void vtkImageToPolyDataFilter::GetIJ(int id, int &i, int &j, int dims[2])
 {
   i = id % dims[0];
   j = id / dims[0];

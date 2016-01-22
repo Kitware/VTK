@@ -221,7 +221,7 @@ private:
   int GetNeighbors(unsigned char *ptr, int &i, int &j, int dims[3],
                    unsigned char *neighbors[4], int mode);
 
-  void GetIJ(int id, int &i, int &j, int dims[3]);
+  void GetIJ(int id, int &i, int &j, int dims[2]);
   unsigned char *GetColor(unsigned char *rgb);
   int IsSameColor(unsigned char *p1, unsigned char *p2);
 
