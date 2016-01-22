@@ -1998,7 +1998,9 @@ int vtkPolyhedron::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
     {
     if (faceIter.CurrentPolygonSize < 3)
       {
-      continue;
+      vtkErrorMacro("Find a face with " << faceIter.CurrentPolygonSize <<
+        " vertices. Cannot return CellBoundary due to this degenerate case.");
+      break;
       }
 
     vtkPolygon::ComputeNormal(this->Points, faceIter.CurrentPolygonSize,
