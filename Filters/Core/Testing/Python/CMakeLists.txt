@@ -23,6 +23,7 @@ vtk_add_test_python(
   TestGridSynchronizedTemplates3D.py
   TestMarchingSquares.py
   TestPointInterpolator.py
+  TestPointInterpolator2.py
   TestProbeFilterImageInput.py
   TestRectilinearSynchronizedTemplates.py
   TestScalarTrees.py

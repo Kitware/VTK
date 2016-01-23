@@ -32,6 +32,8 @@ vtkEllipsoidalGaussianKernel::vtkEllipsoidalGaussianKernel()
 
   this->Normals = NULL;
   this->Scalars = NULL;
+  this->UseNormals = true;
+  this->UseScalars = false;
 
   this->F2 = this->Sharpness / this->Radius;
   this->E2 = this->Eccentricity * this->Eccentricity;
@@ -71,7 +73,8 @@ Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds, vtkPointData *pd)
   this->Superclass::Initialize(loc, ds, pd);
 
   this->Scalars = pd->GetScalars();
-  if ( this->Scalars && this->Scalars->GetNumberOfComponents() == 1 )
+  if ( this->UseScalars && this->Scalars &&
+       this->Scalars->GetNumberOfComponents() == 1 )
     {
     this->Scalars->Register(this);
     }
@@ -81,7 +84,7 @@ Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds, vtkPointData *pd)
     }
 
   this->Normals = pd->GetNormals();
-  if ( this->Normals )
+  if ( this->UseNormals && this->Normals )
     {
     this->Normals->Register(this);
     }
@@ -187,4 +190,8 @@ void vtkEllipsoidalGaussianKernel::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Radius: " << this->Radius << endl;
   os << indent << "Sharpness: " << this->Sharpness << endl;
   os << indent << "Eccentricity: " << this->Eccentricity << endl;
+  os << indent << "Use Normals: "
+     << (this->UseNormals? "On" : " Off") << "\n";
+  os << indent << "Use Scalars: "
+     << (this->UseScalars? "On" : " Off") << "\n";
 }

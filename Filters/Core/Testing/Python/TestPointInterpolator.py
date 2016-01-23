@@ -70,7 +70,10 @@ outlineActor.SetMapper(outlineMapper)
 # Gaussian kernel-------------------------------------------------------
 gaussianKernel = vtk.vtkGaussianKernel()
 #gaussianKernel = vtk.vtkEllipsoidalGaussianKernel()
-gaussianKernel.SetSharpness(4);
+#gaussianKernel.UseScalarsOn()
+#gaussianKernel.UseNormalsOn()
+gaussianKernel.SetSharpness(4)
+gaussianKernel.SetRadius(0.25)
 
 interpolator1 = vtk.vtkPointInterpolator()
 interpolator1.SetInputConnection(plane.GetOutputPort())
@@ -105,6 +108,7 @@ outlineActor1.SetMapper(outlineMapper1)
 # Shepard kernel-------------------------------------------------------
 shepardKernel = vtk.vtkShepardKernel()
 shepardKernel.SetPowerParameter(2)
+shepardKernel.SetRadius(0.25)
 
 interpolator2 = vtk.vtkPointInterpolator()
 interpolator2.SetInputConnection(plane.GetOutputPort())

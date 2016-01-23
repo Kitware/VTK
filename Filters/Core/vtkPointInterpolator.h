@@ -146,23 +146,23 @@ public:
   // Description:
   // Shallow copy the input point data arrays to the output.
   // On by default.
-  vtkSetMacro(PassPointArrays, int);
-  vtkBooleanMacro(PassPointArrays, int);
-  vtkGetMacro(PassPointArrays, int);
+  vtkSetMacro(PassPointArrays, bool);
+  vtkBooleanMacro(PassPointArrays, bool);
+  vtkGetMacro(PassPointArrays, bool);
 
   // Description:
   // Shallow copy the input cell data arrays to the output.
   // On by default.
-  vtkSetMacro(PassCellArrays, int);
-  vtkBooleanMacro(PassCellArrays, int);
-  vtkGetMacro(PassCellArrays, int);
+  vtkSetMacro(PassCellArrays, bool);
+  vtkBooleanMacro(PassCellArrays, bool);
+  vtkGetMacro(PassCellArrays, bool);
 
   // Description:
   // Indicate whether to pass the field-data arrays from the input to the
   // output. On by default.
-  vtkSetMacro(PassFieldArrays, int);
-  vtkBooleanMacro(PassFieldArrays, int);
-  vtkGetMacro(PassFieldArrays, int);
+  vtkSetMacro(PassFieldArrays, bool);
+  vtkBooleanMacro(PassFieldArrays, bool);
+  vtkGetMacro(PassFieldArrays, bool);
 
 protected:
   vtkPointInterpolator();
@@ -175,9 +175,9 @@ protected:
   char* ValidPointsMaskArrayName;
   vtkCharArray *ValidPointsMask;
 
-  int PassCellArrays;
-  int PassPointArrays;
-  int PassFieldArrays;
+  bool PassCellArrays;
+  bool PassPointArrays;
+  bool PassFieldArrays;
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
     vtkInformationVector *);
@@ -195,6 +195,11 @@ protected:
   // PassCellArrays, PassPointArrays, PassFieldArrays flags.
   void PassAttributeData(
     vtkDataSet* input, vtkDataObject* source, vtkDataSet* output);
+
+  // Description:
+  // Internal method to extract image metadata
+  void ExtractImageDescription(vtkImageData *input, int dims[3],
+                               double origin[3], double spacing[3]);
 
 private:
   vtkPointInterpolator(const vtkPointInterpolator&);  // Not implemented.

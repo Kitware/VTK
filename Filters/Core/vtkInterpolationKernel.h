@@ -72,8 +72,9 @@ public:
   // member is true, and using classes will invoke Initialize() on the
   // kernel. However, if the user takes over initialization manually, then
   // set RequiresInitialization to false (0).
-  vtkSetMacro(RequiresInitialization, int);
-  vtkGetMacro(RequiresInitialization, int);
+  vtkSetMacro(RequiresInitialization, bool);
+  vtkGetMacro(RequiresInitialization, bool);
+  vtkBooleanMacro(RequiresInitialization, bool);
 
   // Description:
   // Given a point x, compute interpolation weights associated with nearby
@@ -88,7 +89,7 @@ protected:
   vtkInterpolationKernel();
   ~vtkInterpolationKernel();
 
-  int RequiresInitialization;
+  bool RequiresInitialization;
   vtkAbstractPointLocator *Locator;
   vtkDataSet *DataSet;
   vtkPointData *PointData;

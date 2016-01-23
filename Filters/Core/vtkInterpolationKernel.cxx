@@ -20,7 +20,7 @@
 //----------------------------------------------------------------------------
 vtkInterpolationKernel::vtkInterpolationKernel()
 {
-  this->RequiresInitialization = 1;
+  this->RequiresInitialization = true;
 
   this->Locator = NULL;
   this->DataSet = NULL;

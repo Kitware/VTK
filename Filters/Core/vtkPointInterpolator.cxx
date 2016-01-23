@@ -218,6 +218,32 @@ struct ProbePoints
     weights->Allocate(128);
     }
 
+  // When null point is encountered
+  void AssignNullPoint(const double x[3], vtkIdType numWeights,
+                       vtkIdList *pIds, vtkDoubleArray *weights, vtkIdType ptId)
+    {
+      if ( this->Strategy == vtkPointInterpolator::MASK_POINTS)
+        {
+        this->Valid[ptId] = 0;
+        this->OutPD->NullPoint(ptId);
+        }
+      else if ( this->Strategy == vtkPointInterpolator::NULL_VALUE)
+        {
+        this->OutPD->NullPoint(ptId);
+        }
+      else //vtkPointInterpolator::CLOSEST_POINT:
+        {
+        numWeights = 1;
+        pIds->SetNumberOfIds(1);
+        vtkIdType pId = this->Locator->FindClosestPoint(x);
+        pIds->SetId(0,pId);
+        weights->SetNumberOfTuples(1);
+        weights->SetValue(0,1.0);
+        this->Arrays.Interpolate(numWeights, pIds->GetPointer(0),
+                                 weights->GetPointer(0), ptId);
+        }
+    }
+
   // Threaded interpolation method
   void operator() (vtkIdType ptId, vtkIdType endPtId)
     {
@@ -231,30 +257,17 @@ struct ProbePoints
         this->Input->GetPoint(ptId,x);
 
         numWeights = this->Kernel->ComputeWeights(x, pIds, weights);
-        if ( numWeights < 1)
-          {
-          switch ( this->Strategy )
-            {
-            case vtkPointInterpolator::MASK_POINTS:
-              this->Valid[ptId] = 0;
-              //purposely fall through to set null value
-            case vtkPointInterpolator::NULL_VALUE:
-              this->OutPD->NullPoint(ptId);
-              continue; //go to next point, jump to end of for loop
-            default: case vtkPointInterpolator::CLOSEST_POINT:
-              numWeights = 1;
-              pIds->SetNumberOfIds(1);
-              vtkIdType pId = this->Locator->FindClosestPoint(x);
-              pIds->SetId(0,pId);
-              weights->SetNumberOfTuples(1);
-              weights->SetValue(0,1.0);
-              //purposely fall through to Interpolate()
-            }
-          }// null point
 
-        this->Arrays.Interpolate(numWeights, pIds->GetPointer(0),
-                                 weights->GetPointer(0), ptId);
-        }
+        if ( numWeights > 0)
+          {
+          this->Arrays.Interpolate(numWeights, pIds->GetPointer(0),
+                                   weights->GetPointer(0), ptId);
+          }
+        else
+          {
+          this->AssignNullPoint(x, numWeights, pIds, weights, ptId);
+          }// null point
+        }//for all dataset points
     }
 
   void Reduce()
@@ -262,6 +275,72 @@ struct ProbePoints
     }
 
 }; //ProbePoints
+
+// Probe points using an image. Uses a more efficient iteration scheme.
+struct ImageProbePoints : public ProbePoints
+{
+  int Dims[3];
+  double Origin[3];
+  double Spacing[3];
+
+  ImageProbePoints(vtkImageData *image, int dims[3], double origin[3],
+                   double spacing[3], vtkInterpolationKernel *kernel,
+                   vtkAbstractPointLocator *loc, vtkPointData *inPD,
+                   vtkPointData *outPD, int strategy, char *valid) :
+    ProbePoints(image, kernel, loc, inPD, outPD, strategy, valid)
+    {
+      for (int i=0; i < 3; ++i)
+        {
+        this->Dims[i] = dims[i];
+        this->Origin[i] = origin[i];
+        this->Spacing[i] = spacing[i];
+        }
+    }
+
+  // Threaded interpolation method specialized to image traversal
+  void operator() (vtkIdType slice, vtkIdType sliceEnd)
+    {
+      double x[3];
+      vtkIdType numWeights;
+      double *origin=this->Origin;
+      double *spacing=this->Spacing;
+      int *dims=this->Dims;
+      vtkIdType ptId, jOffset, kOffset, sliceSize=dims[0]*dims[1];
+      vtkIdList*& pIds = this->PIds.Local();
+      vtkDoubleArray*& weights = this->Weights.Local();
+
+      for ( ; slice < sliceEnd; ++slice)
+        {
+        x[2] = origin[2] + slice*spacing[2];
+        kOffset = slice*sliceSize;
+
+        for ( int j=0;  j < dims[1]; ++j)
+          {
+          x[1] = origin[1] + j*spacing[1];
+          jOffset = j*dims[0];
+
+          for ( int i=0; i < dims[0]; ++i)
+            {
+            x[0] = origin[0] + i*spacing[0];
+            ptId = i + jOffset + kOffset;
+
+            numWeights = this->Kernel->ComputeWeights(x, pIds, weights);
+
+            if ( numWeights > 0)
+              {
+              this->Arrays.Interpolate(numWeights, pIds->GetPointer(0),
+                                       weights->GetPointer(0), ptId);
+              }
+            else
+              {
+              this->AssignNullPoint(x, numWeights, pIds, weights, ptId);
+              }// null point
+
+            }//over i
+          }//over j
+        }//over slices
+    }
+}; //ImageProbePoints
 
 } //anonymous namespace
 
@@ -281,9 +360,9 @@ vtkPointInterpolator::vtkPointInterpolator()
   this->ValidPointsMaskArrayName = 0;
   this->SetValidPointsMaskArrayName("vtkValidPointMask");
 
-  this->PassPointArrays = 1;
-  this->PassCellArrays = 1;
-  this->PassFieldArrays = 1;
+  this->PassPointArrays = true;
+  this->PassCellArrays = true;
+  this->PassFieldArrays = true;
 }
 
 //----------------------------------------------------------------------------
@@ -317,9 +396,19 @@ vtkDataObject *vtkPointInterpolator::GetSource()
 }
 
 //----------------------------------------------------------------------------
+void vtkPointInterpolator::
+ExtractImageDescription(vtkImageData *input, int dims[3], double origin[3],
+                        double spacing[3])
+{
+  input->GetDimensions(dims);
+  input->GetOrigin(origin);
+  input->GetSpacing(spacing);
+}
+
+//----------------------------------------------------------------------------
 // The driver of the algorithm
-void vtkPointInterpolator::Probe(vtkDataSet *input, vtkDataSet *source,
-                                 vtkDataSet *output)
+void vtkPointInterpolator::
+Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
 {
   // Make sure there is a kernel
   if ( !this->Kernel )
@@ -359,9 +448,24 @@ void vtkPointInterpolator::Probe(vtkDataSet *input, vtkDataSet *source,
     this->Kernel->Initialize(this->Locator, source, inPD);
     }
 
-  ProbePoints probe(input,this->Kernel,this->Locator,inPD,outPD,
-                    this->NullPointsStrategy,mask);
-  vtkSMPTools::For(0, numPts, probe);
+  // If the input is image data then there is a faster path
+  vtkImageData *imgInput = vtkImageData::SafeDownCast(input);
+  if ( imgInput )
+    {
+    int dims[3];
+    double origin[3], spacing[3];
+    this->ExtractImageDescription(imgInput,dims,origin,spacing);
+    ImageProbePoints imageProbe(imgInput, dims, origin, spacing,
+                                this->Kernel,this->Locator,inPD,outPD,
+                                this->NullPointsStrategy,mask);
+    vtkSMPTools::For(0, dims[2], imageProbe);//over slices
+    }
+  else
+    {
+    ProbePoints probe(input,this->Kernel,this->Locator,inPD,outPD,
+                      this->NullPointsStrategy,mask);
+    vtkSMPTools::For(0, numPts, probe);
+    }
 
   // Clean up
   if ( mask )

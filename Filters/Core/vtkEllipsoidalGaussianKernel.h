@@ -78,6 +78,20 @@ public:
                                    vtkDoubleArray *weights);
 
   // Description:
+  // Specify whether vector values should be used to affect the shape
+  // of the Gaussian distribution. By default this is on.
+  vtkSetMacro(UseNormals,bool);
+  vtkGetMacro(UseNormals,bool);
+  vtkBooleanMacro(UseNormals,bool);
+
+  // Description:
+  // Specify whether scalar values should be used to scale the weights.
+  // By default this is off.
+  vtkSetMacro(UseScalars,bool);
+  vtkGetMacro(UseScalars,bool);
+  vtkBooleanMacro(UseScalars,bool);
+
+  // Description:
   // Specify the radius of the kernel. Points within this radius will be
   // used for interpolation. If no point is found, then the closest point
   // will be used.
@@ -106,6 +120,9 @@ protected:
   double Radius;
   double Sharpness;
   double Eccentricity;
+
+  bool UseNormals;
+  bool UseScalars;
 
   vtkDataArray *Normals;
   vtkDataArray *Scalars;
