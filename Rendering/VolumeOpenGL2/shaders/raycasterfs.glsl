@@ -42,6 +42,7 @@ vec3 g_dataPos;
 vec3 g_dirStep;
 vec4 g_srcColor;
 vec4 g_eyePosObj;
+bool g_exit = false;
 
 uniform vec4 in_volume_scale;
 uniform vec4 in_volume_bias;

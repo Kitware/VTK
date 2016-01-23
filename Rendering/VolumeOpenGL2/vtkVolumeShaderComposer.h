@@ -1583,9 +1583,15 @@ namespace vtkvolume
         \n    int clippingPlanesSize = int(in_clippingPlanes[0]);\
         \n    mat4 texture_to_world_mat = in_volumeMatrix *\
         \n                                  in_textureDatasetMatrix;\
-        \n    vec4 world_data_pos = texture_to_world_mat * vec4(g_dataPos,1.0);\
+        \n    vec4 world_data_pos = texture_to_world_mat * vec4(g_dataPos,1.0); vec4 worldRayDir = (in_volumeMatrix * vec4(rayDir, 0.0));\
+        \n    if (worldRayDir.w != 0) { worldRayDir = worldRayDir/worldRayDir.w;}\
+        \n    vec3 v = normalize(rayDir);\
         \n    for (int i = 0; i < clippingPlanesSize && !l_skip; i = i + 6)\
         \n      {\
+        \n      vec3 dir = world_data_pos.xyz - vec3(in_clippingPlanes[i + 1],\
+        \n                                           in_clippingPlanes[i + 2],\
+        \n                                           in_clippingPlanes[i + 3]);\
+        \n      if ((dot(dir, rayDir.xyz) >= 0) && dot(rayDir.xyz, vec3(in_clippingPlanes[i + 1], in_clippingPlanes[i + 2], in_clippingPlanes[i + 3])) >= 0) {g_exit=true; l_skip=true;}\
         \n      if (dot(vec3(world_data_pos.xyz - vec3(in_clippingPlanes[i + 1],\
         \n                                             in_clippingPlanes[i + 2],\
         \n                                             in_clippingPlanes[i + 3])),\
@@ -1593,10 +1599,20 @@ namespace vtkvolume
         \n                   in_clippingPlanes[i + 5],\
         \n                   in_clippingPlanes[i + 6])) < 0)\
         \n        {\
-        \n        l_skip = true;\
-        \n        break;\
+        \n        l_skip=true;\
+        \n        if ((dot(dir, rayDir.xyz) < 0) && dot(rayDir.xyz, vec3(in_clippingPlanes[i + 1], in_clippingPlanes[i + 2], in_clippingPlanes[i + 3])) < 0) {\
+        \n          vec3 n = normalize(vec3(in_clippingPlanes[i+4], in_clippingPlanes[i+5], in_clippingPlanes[i+6]));\
+        \n          float d = -in_clippingPlanes[i + 1] * in_clippingPlanes[i + 4] - in_clippingPlanes[i + 2] * in_clippingPlanes[i + 5] - in_clippingPlanes[i + 3] * in_clippingPlanes[i + 6];\
+        \n          float t = -(dot(world_data_pos.xyz, n) + d) /\
+        \n                      (dot(v, n))  ;\
+        \n            vec3 newWorldPos = world_data_pos.xyz + t * v;\
+        \n            vec4 temp = vec4(newWorldPos.xyz, 1.0) * in_inverseTextureDatasetMatrix * in_inverseVolumeMatrix;\
+        \n            if (temp.w != 0.0) { temp = temp/temp.w; }\
+        \n            g_dataPos = temp.xyz;\
         \n        }\
-        \n      }"
+        \n      break;\
+        \n      }\
+        \n    }"
       );
       }
   }
