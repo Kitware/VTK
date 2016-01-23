@@ -38,7 +38,7 @@
 #ifndef vtkInterpolationKernel_h
 #define vtkInterpolationKernel_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
+#include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkAbstractPointLocator;
@@ -48,7 +48,7 @@ class vtkDataSet;
 class vtkPointData;
 
 
-class VTKFILTERSCORE_EXPORT vtkInterpolationKernel : public vtkObject
+class VTKFILTERSPOINTS_EXPORT vtkInterpolationKernel : public vtkObject
 {
 public:
   // Description:

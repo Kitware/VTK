@@ -45,7 +45,7 @@
 #ifndef vtkEllipsoidalGaussianKernel_h
 #define vtkEllipsoidalGaussianKernel_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
+#include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkInterpolationKernel.h"
 
 class vtkIdList;
@@ -53,7 +53,7 @@ class vtkDataArray;
 class vtkDoubleArray;
 
 
-class VTKFILTERSCORE_EXPORT vtkEllipsoidalGaussianKernel : public vtkInterpolationKernel
+class VTKFILTERSPOINTS_EXPORT vtkEllipsoidalGaussianKernel : public vtkInterpolationKernel
 {
 public:
   // Description:

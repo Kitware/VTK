@@ -35,14 +35,14 @@
 #ifndef vtkGaussianKernel_h
 #define vtkGaussianKernel_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
+#include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkInterpolationKernel.h"
 
 class vtkIdList;
 class vtkDoubleArray;
 
 
-class VTKFILTERSCORE_EXPORT vtkGaussianKernel : public vtkInterpolationKernel
+class VTKFILTERSPOINTS_EXPORT vtkGaussianKernel : public vtkInterpolationKernel
 {
 public:
   // Description:

@@ -60,7 +60,7 @@
 #ifndef vtkPointInterpolator_h
 #define vtkPointInterpolator_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
+#include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 
 class vtkAbstractPointLocator;
@@ -70,7 +70,7 @@ class vtkInterpolationKernel;
 class vtkCharArray;
 
 
-class VTKFILTERSCORE_EXPORT vtkPointInterpolator : public vtkDataSetAlgorithm
+class VTKFILTERSPOINTS_EXPORT vtkPointInterpolator : public vtkDataSetAlgorithm
 {
 public:
   // Description:

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkVoronoiKernel.h
+  Module:    vtkSPHKernel.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,10 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkVoronoiKernel - a Voronoi interpolation kernel
+// .NAME vtkSPHKernel - a Voronoi interpolation kernel
 
 // .SECTION Description
-// vtkVoronoiKernel is an interpolation kernel that simply returns the
+// vtkSPHKernel is an interpolation kernel that simply returns the
 // closest point to a point to be interpolated. A single weight ise returned
 // with value=1.0.
 
@@ -27,23 +27,23 @@
 // vtkInterpolationKernel vtkGaussianKernel vtkSPHKernel vtkShepardKernel
 
 
-#ifndef vtkVoronoiKernel_h
-#define vtkVoronoiKernel_h
+#ifndef vtkSPHKernel_h
+#define vtkSPHKernel_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
+#include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkInterpolationKernel.h"
 
 class vtkIdList;
 class vtkDoubleArray;
 
 
-class VTKFILTERSCORE_EXPORT vtkVoronoiKernel : public vtkInterpolationKernel
+class VTKFILTERSPOINTS_EXPORT vtkSPHKernel : public vtkInterpolationKernel
 {
 public:
   // Description:
   // Standard methods for instantiation, obtaining type information, and printing.
-  static vtkVoronoiKernel *New();
-  vtkTypeMacro(vtkVoronoiKernel,vtkInterpolationKernel);
+  static vtkSPHKernel *New();
+  vtkTypeMacro(vtkSPHKernel,vtkInterpolationKernel);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -56,12 +56,12 @@ public:
                                    vtkDoubleArray *weights);
 
 protected:
-  vtkVoronoiKernel();
-  ~vtkVoronoiKernel();
+  vtkSPHKernel();
+  ~vtkSPHKernel();
 
 private:
-  vtkVoronoiKernel(const vtkVoronoiKernel&);  // Not implemented.
-  void operator=(const vtkVoronoiKernel&);  // Not implemented.
+  vtkSPHKernel(const vtkSPHKernel&);  // Not implemented.
+  void operator=(const vtkSPHKernel&);  // Not implemented.
 };
 
 #endif

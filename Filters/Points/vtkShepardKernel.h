@@ -33,14 +33,14 @@
 #ifndef vtkShepardKernel_h
 #define vtkShepardKernel_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
+#include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkInterpolationKernel.h"
 
 class vtkIdList;
 class vtkDoubleArray;
 
 
-class VTKFILTERSCORE_EXPORT vtkShepardKernel : public vtkInterpolationKernel
+class VTKFILTERSPOINTS_EXPORT vtkShepardKernel : public vtkInterpolationKernel
 {
 public:
   // Description:
