@@ -1211,7 +1211,7 @@ namespace vtkvolume
         {
         return std::string("\
          \n  g_srcColor = computeColor(l_maxValue,\
-                                            computeOpacity(l_maxValue));\
+         \n                            computeOpacity(l_maxValue));\
          \n  g_fragColor.rgb = g_srcColor.rgb * g_srcColor.a;\
          \n  g_fragColor.a = g_srcColor.a;"
         );
@@ -1562,56 +1562,14 @@ namespace vtkvolume
 
   //--------------------------------------------------------------------------
   std::string ClippingInit(vtkRenderer* vtkNotUsed(ren),
-                           vtkVolumeMapper* mapper,
+                           vtkVolumeMapper* vtkNotUsed(mapper),
                            vtkVolume* vtkNotUsed(vol))
   {
-    if (!mapper->GetClippingPlanes())
-      {
-      return std::string();
-      }
-   else
-      {
-      return std::string("\
-        \nfloat clippingPlanesTexture[48];\
-        \nint clippingPlanesSize = int(in_clippingPlanes[0]);\
-        \n\
-        \nmat4 world_to_texture_mat = in_inverseTextureDatasetMatrix *\
-        \n                            in_inverseVolumeMatrix;\
-        \nfor (int i = 0; i < clippingPlanesSize; i = i + 6)\
-        \n  {\
-        \n  vec4 origin = vec4(in_clippingPlanes[i + 1],\
-        \n                     in_clippingPlanes[i + 2],\
-        \n                     in_clippingPlanes[i + 3], 1.0);\
-        \n  vec4 normal = vec4(in_clippingPlanes[i + 4],\
-        \n                     in_clippingPlanes[i + 5],\
-        \n                     in_clippingPlanes[i + 6], 0.0);\
-        \n\
-        \n  origin = world_to_texture_mat * origin;\
-        \n  normal = world_to_texture_mat * normal;\
-        \n\
-        \n  if (origin[3] != 0.0)\
-        \n    {\
-        \n    origin[0] = origin[0] / origin[3];\
-        \n    origin[1] = origin[1] / origin[3];\
-        \n    origin[2] = origin[2] / origin[3];\
-        \n    }\
-        \n  if (normal[3] != 0.0)\
-        \n    {\
-        \n    normal[0] = normal[0] / normal[3];\
-        \n    normal[1] = normal[1] / normal[3];\
-        \n    normal[2] = normal[2] / normal[3];\
-        \n    }\
-        \n\
-        \n  clippingPlanesTexture[i]     = origin[0];\
-        \n  clippingPlanesTexture[i + 1] = origin[1];\
-        \n  clippingPlanesTexture[i + 2] = origin[2];\
-        \n\
-        \n  clippingPlanesTexture[i + 3] = normal[0];\
-        \n  clippingPlanesTexture[i + 4] = normal[1];\
-        \n  clippingPlanesTexture[i + 5] = normal[2];\
-        \n  }"
-      );
-      }
+    return std::string("\
+      \n  int clippingPlanesSize = int(in_clippingPlanes[0]);\
+      \n  mat4 textureToWorldMat = in_volumeMatrix *\
+      \n                             in_textureDatasetMatrix;\
+      \n  vec3 normalizedRayDir = normalize(rayDir);");
   }
 
   //--------------------------------------------------------------------------
@@ -1626,19 +1584,41 @@ namespace vtkvolume
     else
       {
       return std::string("\
-        \n    for (int i = 0; i < (clippingPlanesSize) && !l_skip; i = i + 6)\
+        \n    vec4 world_data_pos = textureToWorldMat * vec4(g_dataPos,1.0);\
+        \n    for (int i = 0; i < clippingPlanesSize && !l_skip; i = i + 6)\
         \n      {\
-        \n      if (dot(vec3(g_dataPos - vec3(clippingPlanesTexture[i],\
-        \n                                    clippingPlanesTexture[i + 1],\
-        \n                                    clippingPlanesTexture[i + 2])),\
-        \n              vec3(clippingPlanesTexture[i + 3],\
-        \n                   clippingPlanesTexture[i + 4],\
-        \n                   clippingPlanesTexture[i + 5])) < 0)\
+        \n      vec3 planeOrigin = vec3(in_clippingPlanes[i + 1],\
+        \n                              in_clippingPlanes[i + 2],\
+        \n                              in_clippingPlanes[i + 3]);\
+        \n      vec3 planeNormal = vec3(in_clippingPlanes[i + 4],\
+        \n                              in_clippingPlanes[i + 5],\
+        \n                              in_clippingPlanes[i + 6]);\
+        \n\
+        \n      vec3 dir = world_data_pos.xyz - planeOrigin;\
+        \n      if ((dot(dir, rayDir.xyz) >= 0) && (dot(rayDir.xyz, planeOrigin) >= 0)) \
         \n        {\
-        \n        l_skip = true;\
-        \n        break;\
+        \n         l_skip = true;\
+        \n         g_exit = true;\
         \n        }\
-        \n      }"
+        \n      if (dot(vec3(world_data_pos.xyz - planeOrigin),\
+        \n              planeNormal) < 0)\
+        \n        {\
+        \n        l_skip=true;\
+        \n        if ((dot(dir, rayDir.xyz) < 0) && (dot(rayDir.xyz, planeOrigin) < 0)) {\
+        \n          vec3 normalizedPlaneNormal = normalize(planeNormal);\
+        \n          float planeD = -planeOrigin[0] * planeNormal[0] - planeOrigin[1]\
+        \n                      * planeNormal[1] - planeOrigin[2] * planeNormal[2];\
+        \n          float paraT = -(dot(world_data_pos.xyz, normalizedPlaneNormal) + planeD) /\
+        \n                      (dot(normalizedRayDir, normalizedPlaneNormal))  ;\
+        \n            vec3 newWorldPos = world_data_pos.xyz + paraT * normalizedRayDir;\
+        \n            vec4 texturePos = vec4(newWorldPos.xyz, 1.0) * in_inverseTextureDatasetMatrix\
+        \n                          * in_inverseVolumeMatrix;\
+        \n            if (texturePos.w != 0.0) { texturePos = texturePos/texturePos.w; }\
+        \n            g_dataPos = texturePos.xyz;\
+        \n        }\
+        \n      break;\
+        \n      }\
+        \n    }"
       );
       }
   }

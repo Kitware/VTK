@@ -42,6 +42,7 @@ vec3 g_dataPos;
 vec3 g_dirStep;
 vec4 g_srcColor;
 vec4 g_eyePosObj;
+bool g_exit;
 
 uniform vec4 in_volume_scale;
 uniform vec4 in_volume_bias;
@@ -88,6 +89,7 @@ void main()
   g_fragColor = vec4(0.0);
   g_dirStep = vec3(0.0);
   g_srcColor = vec4(0.0);
+  g_exit = false;
 
   //VTK::Base::Init
 
@@ -102,7 +104,7 @@ void main()
   //VTK::RenderToImage::Depth::Init
 
   /// For all samples along the ray
-  while (true)
+  while (!g_exit)
     {
     //VTK::Base::Impl
 
