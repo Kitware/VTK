@@ -1562,7 +1562,7 @@ namespace vtkvolume
 
   //--------------------------------------------------------------------------
   std::string ClippingInit(vtkRenderer* vtkNotUsed(ren),
-                           vtkVolumeMapper* mapper,
+                           vtkVolumeMapper* vtkNotUsed(mapper),
                            vtkVolume* vtkNotUsed(vol))
   {
     return std::string();
