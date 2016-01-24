@@ -1,5 +1,4 @@
 set(Module_SRCS
-  vtkImageStencilIterator.cxx
   vtkExtractVOI.cxx
   vtkImageAppendComponents.cxx
   vtkImageBlend.cxx
@@ -27,6 +26,7 @@ set(Module_SRCS
   vtkImageResliceToColors.cxx
   vtkImageShiftScale.cxx
   vtkImageShrink3D.cxx
+  vtkImageStencilIterator.h
   vtkImageThreshold.cxx
   vtkImageTranslateExtent.cxx
   vtkImageWrapPad.cxx
