@@ -1415,8 +1415,8 @@ namespace vtkvolume
     }
 
     return std::string("\
-      \nuniform float croppingPlanes[6];\
-      \nuniform int croppingFlags [32];\
+      \nuniform float in_croppingPlanes[6];\
+      \nuniform int in_croppingFlags [32];\
       \n// X: axis = 0, Y: axis = 1, Z: axis = 2\
       \n// cp Cropping plane bounds (minX, maxX, minY, maxY, minZ, maxZ)\
       \nint computeRegionCoord(float cp[6], vec3 pos, int axis)\
@@ -1460,56 +1460,56 @@ namespace vtkvolume
 
     return std::string("\
       \n  // Convert cropping region to texture space\
-      \n  float croppingPlanes_ts[6];\
+      \n  float croppingPlanesTexture[6];\
       \n  mat4  datasetToTextureMat = in_inverseTextureDatasetMatrix;\
       \n\
-      \n  vec4 temp = vec4(croppingPlanes[0], 0.0, 0.0, 1.0);\
+      \n  vec4 temp = vec4(in_croppingPlanes[0], 0.0, 0.0, 1.0);\
       \n  temp = datasetToTextureMat * temp;\
       \n  if (temp[3] != 0.0)\
       \n   {\
       \n   temp[0] /= temp[3];\
       \n   }\
-      \n  croppingPlanes_ts[0] = temp[0];\
+      \n  croppingPlanesTexture[0] = temp[0];\
       \n\
-      \n  temp = vec4(croppingPlanes[1], 0.0, 0.0, 1.0);\
+      \n  temp = vec4(in_croppingPlanes[1], 0.0, 0.0, 1.0);\
       \n  temp = datasetToTextureMat * temp;\
       \n  if (temp[3] != 0.0)\
       \n   {\
       \n   temp[0] /= temp[3];\
       \n   }\
-      \n  croppingPlanes_ts[1] = temp[0];\
+      \n  croppingPlanesTexture[1] = temp[0];\
       \n\
-      \n  temp = vec4(0.0, croppingPlanes[2], 0.0, 1.0);\
+      \n  temp = vec4(0.0, in_croppingPlanes[2], 0.0, 1.0);\
       \n  temp = datasetToTextureMat * temp;\
       \n  if (temp[3] != 0.0)\
       \n   {\
       \n   temp[1] /= temp[3];\
       \n   }\
-      \n  croppingPlanes_ts[2] = temp[1];\
+      \n  croppingPlanesTexture[2] = temp[1];\
       \n\
-      \n  temp = vec4(0.0, croppingPlanes[3], 0.0, 1.0);\
+      \n  temp = vec4(0.0, in_croppingPlanes[3], 0.0, 1.0);\
       \n  temp = datasetToTextureMat * temp;\
       \n  if (temp[3] != 0.0)\
       \n   {\
       \n   temp[1] /= temp[3];\
       \n   }\
-      \n  croppingPlanes_ts[3] = temp[1];\
+      \n  croppingPlanesTexture[3] = temp[1];\
       \n\
-      \n  temp = vec4(0.0, 0.0, croppingPlanes[4], 1.0);\
+      \n  temp = vec4(0.0, 0.0, in_croppingPlanes[4], 1.0);\
       \n  temp = datasetToTextureMat * temp;\
       \n  if (temp[3] != 0.0)\
       \n   {\
       \n   temp[2] /= temp[3];\
       \n   }\
-      \n  croppingPlanes_ts[4] = temp[2];\
+      \n  croppingPlanesTexture[4] = temp[2];\
       \n\
-      \n  temp = vec4(0.0, 0.0, croppingPlanes[5], 1.0);\
+      \n  temp = vec4(0.0, 0.0, in_croppingPlanes[5], 1.0);\
       \n  temp = datasetToTextureMat * temp;\
       \n  if (temp[3] != 0.0)\
       \n   {\
       \n   temp[2] /= temp[3];\
       \n   }\
-      \n  croppingPlanes_ts[5] = temp[2];"
+      \n  croppingPlanesTexture[5] = temp[2];"
     );
   }
 
@@ -1524,11 +1524,11 @@ namespace vtkvolume
 
     return std::string("\
       \n    // Determine region\
-      \n    int regionNo = computeRegion(croppingPlanes_ts, g_dataPos);\
+      \n    int regionNo = computeRegion(croppingPlanesTexture, g_dataPos);\
       \n\
       \n    // Do & operation with cropping flags\
       \n    // Pass the flag that its Ok to sample or not to sample\
-      \n    if (croppingFlags[regionNo] == 0)\
+      \n    if (in_croppingFlags[regionNo] == 0)\
       \n      {\
       \n      // Skip this voxel\
       \n      l_skip = true;\
@@ -1595,13 +1595,12 @@ namespace vtkvolume
         \n                              in_clippingPlanes[i + 6]);\
         \n\
         \n      vec3 dir = worldDataPos.xyz - planeOrigin;\
-        \n      if ((dot(dir, rayDir.xyz) >= 0) && (dot(rayDir.xyz, planeOrigin) >= 0)) \
+        \n      if ((dot(dir, rayDir.xyz) > 0) && (dot(rayDir.xyz, planeOrigin) > 0)) \
         \n        {\
         \n         l_skip = true;\
         \n         g_exit = true;\
         \n        }\
-        \n      if (dot(vec3(worldDataPos.xyz - planeOrigin),\
-        \n              planeNormal) < 0)\
+        \n      if (dot(vec3(worldDataPos.xyz - planeOrigin), planeNormal) < 0)\
         \n        {\
         \n        l_skip=true;\
         \n        if ((dot(dir, rayDir.xyz) < 0) && (dot(rayDir.xyz, planeOrigin) < 0))\
