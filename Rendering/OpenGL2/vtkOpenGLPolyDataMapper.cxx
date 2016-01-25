@@ -2841,6 +2841,11 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
       {
       this->HaveAppleBug = false;
       }
+    else if (renderer.find("ATI Radeon HD 5770 OpenGL Engine") != std::string::npos
+        && version.find("4.1 ATI-1.40.16") != std::string::npos)
+      {
+      this->HaveAppleBug = false;
+      }
     }
 #endif
 
