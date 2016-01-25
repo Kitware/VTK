@@ -1,6 +1,6 @@
 /*
  * GL2PS, an OpenGL to PostScript Printing Library
- * Copyright (C) 1999-2012 C. Geuzaine
+ * Copyright (C) 1999-2015 C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of either:
@@ -84,14 +84,14 @@
 
 #define GL2PS_MAJOR_VERSION 1
 #define GL2PS_MINOR_VERSION 3
-#define GL2PS_PATCH_VERSION 8
+#define GL2PS_PATCH_VERSION 9
 #define GL2PS_EXTRA_VERSION ""
 
 #define GL2PS_VERSION (GL2PS_MAJOR_VERSION + \
                        0.01 * GL2PS_MINOR_VERSION + \
                        0.0001 * GL2PS_PATCH_VERSION)
 
-#define GL2PS_COPYRIGHT "(C) 1999-2012 C. Geuzaine"
+#define GL2PS_COPYRIGHT "(C) 1999-2015 C. Geuzaine"
 
 /* Output file formats (the values and the ordering are important!) */
 
@@ -134,6 +134,7 @@
 #define GL2PS_COMPRESS             (1<<10)
 #define GL2PS_NO_BLENDING          (1<<11)
 #define GL2PS_TIGHT_BOUNDING_BOX   (1<<12)
+#define GL2PS_NO_OPENGL_CONTEXT    (1<<13)
 
 /* Arguments for gl2psEnable/gl2psDisable */
 
@@ -159,6 +160,25 @@
 #define GL2PS_TEXT_TR 9
 
 typedef GLfloat GL2PSrgba[4];
+typedef GLfloat GL2PSxyz[3];
+
+typedef struct {
+  GL2PSxyz xyz;
+  GL2PSrgba rgba;
+} GL2PSvertex;
+
+/* Primitive types */
+#define GL2PS_NO_TYPE          -1
+#define GL2PS_TEXT             1
+#define GL2PS_POINT            2
+#define GL2PS_LINE             3
+#define GL2PS_QUADRANGLE       4
+#define GL2PS_TRIANGLE         5
+#define GL2PS_PIXMAP           6
+#define GL2PS_IMAGEMAP         7
+#define GL2PS_IMAGEMAP_WRITTEN 8
+#define GL2PS_IMAGEMAP_VISIBLE 9
+#define GL2PS_SPECIAL          10
 
 #if defined(__cplusplus)
 extern "C" {
@@ -175,6 +195,7 @@ GL2PSDLL_API GLint gl2psSetOptions(GLint options);
 GL2PSDLL_API GLint gl2psGetOptions(GLint *options);
 GL2PSDLL_API GLint gl2psBeginViewport(GLint viewport[4]);
 GL2PSDLL_API GLint gl2psEndViewport(void);
+GL2PSDLL_API GLint gl2psForceRasterPos(GL2PSvertex *vert);
 GL2PSDLL_API GLint gl2psText(const char *str, const char *fontname,
                              GLshort fontsize);
 GL2PSDLL_API GLint gl2psTextOpt(const char *str, const char *fontname,
@@ -199,6 +220,11 @@ GL2PSDLL_API GLint gl2psDrawImageMap(GLsizei width, GLsizei height,
 GL2PSDLL_API const char *gl2psGetFileExtension(GLint format);
 GL2PSDLL_API const char *gl2psGetFormatDescription(GLint format);
 GL2PSDLL_API GLint gl2psGetFileFormat();
+GL2PSDLL_API void gl2psAddPolyPrimitive(GLshort type, GLshort numverts,
+                                        GL2PSvertex *verts, GLint offset,
+                                        GLfloat ofactor, GLfloat ounits,
+                                        GLushort pattern, GLint factor,
+                                        GLfloat width, char boundary);
 
 #if defined(__cplusplus)
 }

@@ -59,4 +59,5 @@ if (VTK_RENDERING_BACKEND STREQUAL "None")
   vtk_module(vtkRenderingNone )
   vtk_module(vtkRenderingContextNone )
   vtk_module(vtkRenderingVolumeNone )
+  vtk_module(vtkIOExportNone ) # GL2PSExporter differs on OGL backends
 endif()

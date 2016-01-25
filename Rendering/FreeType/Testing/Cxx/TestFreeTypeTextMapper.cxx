@@ -36,29 +36,6 @@ int TestFreeTypeTextMapper(int argc, char *argv[])
     }
 
   vtkStdString uncodeFontFile(argv[1]);
-
-  // Remove any override to the class to ensure that the actual vtkTextMapper
-  // class is being tested:
-  vtkNew<vtkOverrideInformationCollection> overrides;
-  vtkObjectFactory::GetOverrideInformation("vtkTextMapper",
-                                           overrides.GetPointer());
-  overrides->InitTraversal();
-  while (vtkOverrideInformation *override = overrides->GetNextItem())
-    {
-    if (vtkObjectFactory *factory = override->GetObjectFactory())
-      {
-      vtkObjectFactory::UnRegisterFactory(factory);
-      }
-    }
-
-  vtkNew<vtkTextMapper> nameChecker;
-  if (vtkStdString(nameChecker->GetClassName()) != "vtkTextMapper")
-    {
-    cerr << "Needed a vtkTextMapper instance, got "
-         << nameChecker->GetClassName() << " instead!" << endl;
-    return EXIT_FAILURE;
-    }
-
   vtkStdString str = "Sample multiline\ntext rendered\nusing FreeTypeTools.";
 
   vtkNew<vtkTextMapper> mapper1;

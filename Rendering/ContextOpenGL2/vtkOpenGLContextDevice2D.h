@@ -37,6 +37,7 @@ class vtkMatrix4x4;
 class vtkOpenGLExtensionManager;
 class vtkOpenGLHelper;
 class vtkOpenGLRenderWindow;
+class vtkPath;
 class vtkRenderer;
 class vtkShaderProgram;
 class vtkStringToImage;
@@ -355,6 +356,55 @@ protected:
 
   // used for stipples
   unsigned short LinePattern;
+
+  // Description:
+  // Draw the markers as paths/polydata instead of sprites for detailed GL2PS
+  // capture.
+  void DrawMarkersGL2PS(int shape, bool highlight, float *points, int n,
+                        unsigned char *colors, int nc_comps);
+  void DrawCrossMarkersGL2PS(bool highlight, float *points, int n,
+                             unsigned char *colors, int nc_comps);
+  void DrawPlusMarkersGL2PS(bool highlight, float *points, int n,
+                            unsigned char *colors, int nc_comps);
+  void DrawSquareMarkersGL2PS(bool highlight, float *points, int n,
+                              unsigned char *colors, int nc_comps);
+  void DrawCircleMarkersGL2PS(bool highlight, float *points, int n,
+                              unsigned char *colors, int nc_comps);
+  void DrawDiamondMarkersGL2PS(bool highlight, float *points, int n,
+                               unsigned char *colors, int nc_comps);
+
+  // Description:
+  // Embed an RGBA image in the GL2PS output at the supplied point.
+  void DrawImageGL2PS(float p[2], vtkImageData *image);
+  void DrawImageGL2PS(float p[2], float scale, vtkImageData *image);
+  void DrawImageGL2PS(const vtkRectf &rect, vtkImageData *image);
+
+  // Description:
+  // Inject smooth primitives into the GL2PS stream.
+  void DrawCircleGL2PS(float x, float y, float rX, float rY);
+  void DrawWedgeGL2PS(float x, float y, float outRx, float outRy,
+                      float inRx, float inRy);
+
+  // Description:
+  // Implement DrawMathTextString for the GL2PS exporter.
+  void DrawMathTextStringGL2PS(float point[2], const vtkStdString &string);
+
+  // Description:
+  // Add an ellipse to a vtkPath. Used during GL2PS export.
+  void AddEllipseToPath(vtkPath *path, float x, float y, float rx, float ry,
+                        bool reverse);
+
+  // Description:
+  // Transform the path using the current modelview matrix.
+  void TransformPath(vtkPath *path) const;
+
+  // Description:
+  // Transform the 2D point using the current modelview matrix.
+  void TransformPoint(float &x, float &y) const;
+
+  // Description:
+  // Transform the width and height from pixels to data units.
+  void TransformSize(float &dx, float &dy) const;
 
 private:
   vtkOpenGLContextDevice2D(const vtkOpenGLContextDevice2D &); // Not implemented.

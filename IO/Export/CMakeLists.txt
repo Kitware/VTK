@@ -1,5 +1,6 @@
 set(Module_SRCS
   vtkExporter.cxx
+  vtkGL2PSExporter.cxx
   vtkIVExporter.cxx
   vtkOBJExporter.cxx
   vtkOOGLExporter.cxx
@@ -15,12 +16,6 @@ set(Module_SRCS
   vtkX3DExporterWriter.cxx
   vtkX3DExporterXMLWriter.cxx
   )
-
-if(VTK_RENDERING_BACKEND STREQUAL "OpenGL")
-  list (APPEND Module_SRCS
-    vtkGL2PSExporter.cxx
-    )
-endif()
 
 set_source_files_properties(
   vtkX3D

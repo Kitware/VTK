@@ -25,6 +25,7 @@
 
 class vtkMatrix3x3;
 class vtkMatrix4x4;
+class vtkTransformFeedback;
 class vtkShader;
 class VertexArrayObject;
 class vtkWindow;
@@ -57,6 +58,11 @@ public:
   // Get the geometry shader for this program
   vtkGetObjectMacro(GeometryShader, vtkShader);
   void SetGeometryShader(vtkShader*);
+
+  // Description:
+  // Get/Set a TransformFeedbackCapture object on this shader program.
+  vtkGetObjectMacro(TransformFeedback, vtkTransformFeedback);
+  void SetTransformFeedback(vtkTransformFeedback *tfc);
 
   // Description:
   // Set/Get flag for if this program is compiled
@@ -249,6 +255,7 @@ protected:
   vtkShader *VertexShader;
   vtkShader *FragmentShader;
   vtkShader *GeometryShader;
+  vtkTransformFeedback *TransformFeedback;
 
   // hash of the shader program
   std::string MD5Hash;

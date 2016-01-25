@@ -2,6 +2,7 @@ vtk_module(vtkRenderingContextOpenGL2
   TCL_NAME
     vtkRenderingContextOpenGLII
   DEPENDS
+    vtkImagingCore
     vtkRenderingOpenGL2
   IMPLEMENTS
     vtkRenderingContext2D

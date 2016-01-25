@@ -101,7 +101,7 @@ public:
     { return vtkGL2PSUtilities::LineWidthFactor; }
 
 protected:
-  friend class vtkGL2PSExporter;
+  friend class vtkOpenGLGL2PSExporter;
 
   static void StartExport();
   static void FinishExport();

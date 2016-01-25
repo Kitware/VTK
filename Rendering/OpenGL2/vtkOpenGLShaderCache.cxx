@@ -261,7 +261,8 @@ unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(
 }
 
 vtkShaderProgram *vtkOpenGLShaderCache::ReadyShaderProgram(
-  std::map<vtkShader::Type,vtkShader *> shaders)
+    std::map<vtkShader::Type,vtkShader *> shaders,
+    vtkTransformFeedback *cap)
 {
   std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
   std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
@@ -276,14 +277,13 @@ vtkShaderProgram *vtkOpenGLShaderCache::ReadyShaderProgram(
   vtkShaderProgram *shader = this->GetShaderProgram(shaders);
   shader->SetNumberOfOutputs(count);
 
-  return this->ReadyShaderProgram(shader);
+  return this->ReadyShaderProgram(shader, cap);
 }
 
 // return NULL if there is an issue
 vtkShaderProgram *vtkOpenGLShaderCache::ReadyShaderProgram(
-  const char *vertexCode,
-  const char *fragmentCode,
-  const char *geometryCode)
+  const char *vertexCode, const char *fragmentCode, const char *geometryCode,
+  vtkTransformFeedback *cap)
 {
   // perform system wide shader replacements
   // desktops to not use percision statements
@@ -298,13 +298,20 @@ vtkShaderProgram *vtkOpenGLShaderCache::ReadyShaderProgram(
       VSSource.c_str(), FSSource.c_str(), GSSource.c_str());
   shader->SetNumberOfOutputs(count);
 
-  return this->ReadyShaderProgram(shader);
+  return this->ReadyShaderProgram(shader, cap);
 }
 
 // return NULL if there is an issue
 vtkShaderProgram *vtkOpenGLShaderCache::ReadyShaderProgram(
-    vtkShaderProgram *shader)
+    vtkShaderProgram *shader, vtkTransformFeedback *cap)
 {
+  if (shader->GetTransformFeedback() != cap)
+    {
+    this->ReleaseCurrentShader();
+    shader->ReleaseGraphicsResources(NULL);
+    shader->SetTransformFeedback(cap);
+    }
+
   if (!shader)
     {
     return NULL;

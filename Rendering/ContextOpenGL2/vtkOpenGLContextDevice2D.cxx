@@ -19,11 +19,14 @@
 #include "vtkBrush.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
+#include "vtkImageResize.h"
 #include "vtkMath.h"
 #include "vtkMathTextUtilities.h"
 #include "vtkMatrix3x3.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLGL2PSHelper.h"
 #include "vtkOpenGLIndexBufferObject.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
@@ -31,8 +34,10 @@
 #include "vtkOpenGLTexture.h"
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkOpenGLVertexBufferObject.h"
+#include "vtkPath.h"
 #include "vtkPen.h"
 #include "vtkPoints2D.h"
+#include "vtkPointData.h"
 #include "vtkRect.h"
 #include "vtkShaderProgram.h"
 #include "vtkSmartPointer.h"
@@ -41,6 +46,7 @@
 #include "vtkTexture.h"
 #include "vtkTextureUnitManager.h"
 #include "vtkTransform.h"
+#include "vtkTransformFeedback.h"
 #include "vtkVector.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
@@ -51,6 +57,7 @@
 #include "vtkOpenGLContextDevice2DPrivate.h"
 
 #include <algorithm>
+#include <sstream>
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
@@ -120,8 +127,96 @@ namespace
     "#endif\n"
     "}\n";
 
+//-----------------------------------------------------------------------------
+// Returns true when rendering the GL2PS background raster image. Vectorizable
+// primitives should not be drawn during these passes.
+bool SkipDraw()
+{
+  vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
+  if (gl2ps && gl2ps->GetActiveState() == vtkOpenGLGL2PSHelper::Background)
+    {
+    return true;
+    }
+  return false;
 }
 
+//-----------------------------------------------------------------------------
+// Releases the current shader program if it is inconsistent with the GL2PS
+// capture state. Returns the current OpenGLGL2PSHelper instance if one exists.
+vtkOpenGLGL2PSHelper* PrepProgramForGL2PS(vtkOpenGLHelper &helper)
+{
+  vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
+  if (gl2ps && gl2ps->GetActiveState() == vtkOpenGLGL2PSHelper::Capture)
+    {
+    // Always recreate the program when doing GL2PS capture.
+    if (helper.Program)
+      {
+      helper.Program->Delete();
+      helper.Program = NULL;
+      }
+    }
+  else
+    {
+    // If there is a feedback transform capturer set on the current shader
+    // program and we're not capturing, recreate the program.
+    if (helper.Program && helper.Program->GetTransformFeedback())
+      {
+      helper.Program->Delete();
+      helper.Program = NULL;
+      }
+    }
+
+  return gl2ps;
+}
+
+//-----------------------------------------------------------------------------
+// Call before glDraw* commands to ensure that vertices are properly captured
+// for GL2PS export.
+void PreDraw(vtkOpenGLHelper &helper, int drawMode, size_t numVerts)
+{
+  vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
+  if (gl2ps && gl2ps->GetActiveState() == vtkOpenGLGL2PSHelper::Capture &&
+      helper.Program)
+    {
+    if (vtkTransformFeedback *tfc = helper.Program->GetTransformFeedback())
+      {
+      tfc->SetNumberOfVertices(drawMode, numVerts);
+      tfc->BindBuffer();
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
+// Call after glDraw* commands to ensure that vertices are properly captured
+// for GL2PS export.
+void PostDraw(vtkOpenGLHelper &helper, vtkRenderer *ren, unsigned char col[4])
+{
+  vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
+  if (gl2ps && gl2ps->GetActiveState() == vtkOpenGLGL2PSHelper::Capture &&
+      helper.Program)
+    {
+    if (vtkTransformFeedback *tfc = helper.Program->GetTransformFeedback())
+      {
+      tfc->ReadBuffer();
+      tfc->ReleaseGraphicsResources();
+      gl2ps->ProcessTransformFeedback(tfc, ren, col);
+      tfc->ReleaseBufferData();
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
+// Returns true if the startAngle and stopAngle (as used in the ellipse drawing
+// functions) describe a full circle.
+inline bool IsFullCircle(float startAngle, float stopAngle)
+{
+  // A small number practical for rendering purposes.
+  const float TOL = 1e-5f;
+
+  return std::fabs(stopAngle - startAngle) + TOL >= 360.f;
+}
+
+} // end anon namespace
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLContextDevice2D)
@@ -456,15 +551,29 @@ void vtkOpenGLContextDevice2D::BuildVBO(
 
 void vtkOpenGLContextDevice2D::ReadyVBOProgram()
 {
+  vtkOpenGLGL2PSHelper *gl2ps = PrepProgramForGL2PS(*this->VBO);
+
   if (!this->VBO->Program)
     {
+    vtkTransformFeedback *tf = NULL;
+    if (gl2ps && gl2ps->GetActiveState() == vtkOpenGLGL2PSHelper::Capture)
+      {
+      tf = vtkTransformFeedback::New();
+      tf->AddVarying(vtkTransformFeedback::Vertex_ClipCoordinate_F,
+                     "gl_Position");
+      }
     std::string vs = "//VTK::System::Dec\n";
     vs += myVertShader;
     std::string fs = "//VTK::System::Dec\n";
     fs +=myFragShader;
     this->VBO->Program  =
         this->RenderWindow->GetShaderCache()->ReadyShaderProgram(
-        vs.c_str(), fs.c_str(),"");
+        vs.c_str(), fs.c_str(),"",tf);
+    if (tf)
+      {
+      tf->Delete();
+      tf = NULL;
+      }
     }
   else
     {
@@ -474,15 +583,31 @@ void vtkOpenGLContextDevice2D::ReadyVBOProgram()
 
 void vtkOpenGLContextDevice2D::ReadyVCBOProgram()
 {
+  vtkOpenGLGL2PSHelper *gl2ps = PrepProgramForGL2PS(*this->VCBO);
+
   if (!this->VCBO->Program)
     {
+    vtkTransformFeedback *tf = NULL;
+    if (gl2ps && gl2ps->GetActiveState() == vtkOpenGLGL2PSHelper::Capture)
+      {
+      tf = vtkTransformFeedback::New();
+      tf->AddVarying(vtkTransformFeedback::Vertex_ClipCoordinate_F,
+                     "gl_Position");
+      tf->AddVarying(vtkTransformFeedback::Color_RGBA_F,
+                     "vertexColor");
+      }
     std::string vs = "//VTK::System::Dec\n#define haveColors\n";
     vs += myVertShader;
     std::string fs = "//VTK::System::Dec\n#define haveColors\n";
     fs +=myFragShader;
     this->VCBO->Program  =
         this->RenderWindow->GetShaderCache()->ReadyShaderProgram(
-        vs.c_str(), fs.c_str(),"");
+          vs.c_str(), fs.c_str(),"",tf);
+    if (tf)
+      {
+      tf->Delete();
+      tf = NULL;
+      }
     }
   else
     {
@@ -492,15 +617,29 @@ void vtkOpenGLContextDevice2D::ReadyVCBOProgram()
 
 void vtkOpenGLContextDevice2D::ReadyLinesBOProgram()
 {
+  vtkOpenGLGL2PSHelper *gl2ps = PrepProgramForGL2PS(*this->VCBO);
+
   if (!this->LinesBO->Program)
     {
+    vtkTransformFeedback *tf = NULL;
+    if (gl2ps && gl2ps->GetActiveState() == vtkOpenGLGL2PSHelper::Capture)
+      {
+      tf = vtkTransformFeedback::New();
+      tf->AddVarying(vtkTransformFeedback::Vertex_ClipCoordinate_F,
+                     "gl_Position");
+      }
     std::string vs = "//VTK::System::Dec\n#define haveLines\n";
     vs += myVertShader;
     std::string fs = "//VTK::System::Dec\n#define haveLines\n";
     fs +=myFragShader;
     this->LinesBO->Program  =
         this->RenderWindow->GetShaderCache()->ReadyShaderProgram(
-        vs.c_str(), fs.c_str(),"");
+        vs.c_str(), fs.c_str(),"",tf);
+    if (tf)
+      {
+      tf->Delete();
+      tf = NULL;
+      }
     }
   else
     {
@@ -511,8 +650,19 @@ void vtkOpenGLContextDevice2D::ReadyLinesBOProgram()
 
 void vtkOpenGLContextDevice2D::ReadyLinesCBOProgram()
 {
+  vtkOpenGLGL2PSHelper *gl2ps = PrepProgramForGL2PS(*this->VCBO);
+
   if (!this->LinesCBO->Program)
     {
+    vtkTransformFeedback *tf = NULL;
+    if (gl2ps && gl2ps->GetActiveState() == vtkOpenGLGL2PSHelper::Capture)
+      {
+      tf = vtkTransformFeedback::New();
+      tf->AddVarying(vtkTransformFeedback::Vertex_ClipCoordinate_F,
+                     "gl_Position");
+      tf->AddVarying(vtkTransformFeedback::Color_RGBA_F,
+                     "vertexColor");
+      }
     std::string vs =
       "//VTK::System::Dec\n#define haveColors\n#define haveLines\n";
     vs += myVertShader;
@@ -521,7 +671,12 @@ void vtkOpenGLContextDevice2D::ReadyLinesCBOProgram()
     fs +=myFragShader;
     this->LinesCBO->Program  =
         this->RenderWindow->GetShaderCache()->ReadyShaderProgram(
-        vs.c_str(), fs.c_str(),"");
+        vs.c_str(), fs.c_str(),"",tf);
+    if (tf)
+      {
+      tf->Delete();
+      tf = NULL;
+      }
     }
   else
     {
@@ -615,7 +770,18 @@ void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n, unsigned char *colors,
   assert("f must be non-null" && f != NULL);
   assert("n must be greater than 0" && n > 0);
 
+  if (SkipDraw())
+    {
+    return;
+    }
+
   if (this->Pen->GetLineType() == vtkPen::NO_PEN)
+    {
+    return;
+    }
+
+  // Skip transparent elements.
+  if (!colors && this->Pen->GetColorObject().GetAlpha() == 0)
     {
     return;
     }
@@ -655,8 +821,12 @@ void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n, unsigned char *colors,
     distances[i*2] = totDist;
     }
 
+  // For GL2PS captures, use the path that draws lines instead of triangles --
+  // GL2PS can handle stipples and linewidths just fine.
+  vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
 
-  if (this->Pen->GetWidth() > 1.0)
+  if (this->Pen->GetWidth() > 1.0 &&
+      !(gl2ps && gl2ps->GetActiveState() == vtkOpenGLGL2PSHelper::Capture))
     {
     // convert to triangles and draw, this is because
     // OpenGL no longer supports wide lines directly
@@ -710,13 +880,18 @@ void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n, unsigned char *colors,
 
     this->BuildVBO(cbo, &(newVerts[0]), newVerts.size()/2,
       colors ? &(newColors[0]) : NULL, nc, &(newDistances[0]));
+
+    PreDraw(*cbo, GL_TRIANGLES, newVerts.size() / 2);
     glDrawArrays(GL_TRIANGLES, 0, newVerts.size()/2);
+    PostDraw(*cbo, this->Renderer, this->Pen->GetColor());
     }
   else
     {
     this->SetLineWidth(this->Pen->GetWidth());
     this->BuildVBO(cbo, f, n, colors, nc, &(distances[0]));
+    PreDraw(*cbo, GL_LINE_STRIP, n);
     glDrawArrays(GL_LINE_STRIP, 0, n);
+    PostDraw(*cbo, this->Renderer, this->Pen->GetColor());
     this->SetLineWidth(1.0);
     }
 
@@ -733,7 +908,18 @@ void vtkOpenGLContextDevice2D::DrawLines(float *f, int n, unsigned char *colors,
   assert("f must be non-null" && f != NULL);
   assert("n must be greater than 0" && n > 0);
 
+  if (SkipDraw())
+    {
+    return;
+    }
+
   if (this->Pen->GetLineType() == vtkPen::NO_PEN)
+    {
+    return;
+    }
+
+  // Skip transparent elements.
+  if (!colors && this->Pen->GetColorObject().GetAlpha() == 0)
     {
     return;
     }
@@ -828,13 +1014,17 @@ void vtkOpenGLContextDevice2D::DrawLines(float *f, int n, unsigned char *colors,
 
     this->BuildVBO(cbo, &(newVerts[0]), newVerts.size()/2,
       colors ? &(newColors[0]) : NULL, nc, &(newDistances[0]));
+    PreDraw(*cbo, GL_TRIANGLES, newVerts.size() / 2);
     glDrawArrays(GL_TRIANGLES, 0, newVerts.size()/2);
+    PostDraw(*cbo, this->Renderer, this->Pen->GetColor());
     }
   else
     {
     this->SetLineWidth(this->Pen->GetWidth());
     this->BuildVBO(cbo, f, n, colors, nc, &(distances[0]));
+    PreDraw(*cbo, GL_LINES, n);
     glDrawArrays(GL_LINES, 0, n);
+    PostDraw(*cbo, this->Renderer, this->Pen->GetColor());
     this->SetLineWidth(1.0);
     }
 
@@ -848,6 +1038,17 @@ void vtkOpenGLContextDevice2D::DrawLines(float *f, int n, unsigned char *colors,
 void vtkOpenGLContextDevice2D::DrawPoints(float *f, int n, unsigned char *c,
                                           int nc)
 {
+  if (SkipDraw())
+    {
+    return;
+    }
+
+  // Skip transparent elements.
+  if (!c && this->Pen->GetColorObject().GetAlpha() == 0)
+    {
+    return;
+    }
+
   vtkOpenGLClearErrorMacro();
 
   vtkOpenGLHelper *cbo = 0;
@@ -869,7 +1070,9 @@ void vtkOpenGLContextDevice2D::DrawPoints(float *f, int n, unsigned char *c,
   this->BuildVBO(cbo, f, n, c, nc, NULL);
   this->SetMatrices(cbo->Program);
 
+  PreDraw(*cbo, GL_POINTS, n);
   glDrawArrays(GL_POINTS, 0, n);
+  PostDraw(*cbo, this->Renderer, this->Pen->GetColor());
 
   // free everything
   cbo->ReleaseGraphicsResources(this->RenderWindow);
@@ -883,6 +1086,12 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
                                                 unsigned char *colors,
                                                 int nc_comps)
 {
+//  // Draw these to the background -- we don't currently export them to GL2PS.
+//  if (SkipDraw())
+//    {
+//    return;
+//    }
+
   vtkOpenGLClearErrorMacro();
   if (points && n > 0)
     {
@@ -958,6 +1167,21 @@ void vtkOpenGLContextDevice2D::DrawMarkers(int shape, bool highlight,
                                            float *points, int n,
                                            unsigned char *colors, int nc_comps)
 {
+  vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
+  if (gl2ps)
+    {
+    switch (gl2ps->GetActiveState())
+      {
+      case vtkOpenGLGL2PSHelper::Capture:
+        this->DrawMarkersGL2PS(shape, highlight, points, n, colors, nc_comps);
+        return;
+      case vtkOpenGLGL2PSHelper::Background:
+        return; // Do nothing.
+      case vtkOpenGLGL2PSHelper::Inactive:
+        break; // Render as normal.
+      }
+    }
+
   // Get a point sprite for the shape
   vtkImageData *sprite = this->GetMarker(shape, this->Pen->GetWidth(),
                                          highlight);
@@ -967,6 +1191,11 @@ void vtkOpenGLContextDevice2D::DrawMarkers(int shape, bool highlight,
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::DrawQuad(float *f, int n)
 {
+  if (SkipDraw())
+    {
+    return;
+    }
+
   if (!f || n <= 0)
     {
     vtkWarningMacro(<< "Points supplied that were not of type float.");
@@ -991,6 +1220,11 @@ void vtkOpenGLContextDevice2D::DrawQuad(float *f, int n)
 void vtkOpenGLContextDevice2D::CoreDrawTriangles(
   std::vector<float> &tverts)
 {
+  if (SkipDraw())
+    {
+    return;
+    }
+
   vtkOpenGLClearErrorMacro();
 
   float* texCoord = 0;
@@ -1009,6 +1243,11 @@ void vtkOpenGLContextDevice2D::CoreDrawTriangles(
     }
   else
     {
+    // Skip transparent elements.
+    if (this->Brush->GetColorObject().GetAlpha() == 0)
+      {
+      return;
+      }
     this->ReadyVBOProgram();
     cbo = this->VBO;
     }
@@ -1018,7 +1257,9 @@ void vtkOpenGLContextDevice2D::CoreDrawTriangles(
   this->BuildVBO(cbo, &(tverts[0]), tverts.size()/2, NULL, 0, texCoord);
   this->SetMatrices(cbo->Program);
 
+  PreDraw(*cbo, GL_TRIANGLES, tverts.size() / 2);
   glDrawArrays(GL_TRIANGLES, 0, tverts.size()/2);
+  PostDraw(*cbo, this->Renderer, this->Brush->GetColor());
 
   // free everything
   cbo->ReleaseGraphicsResources(this->RenderWindow);
@@ -1034,6 +1275,11 @@ void vtkOpenGLContextDevice2D::CoreDrawTriangles(
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::DrawQuadStrip(float *f, int n)
 {
+  if (SkipDraw())
+    {
+    return;
+    }
+
   if (!f || n <= 0)
     {
     vtkWarningMacro(<< "Points supplied that were not of type float.");
@@ -1058,6 +1304,11 @@ void vtkOpenGLContextDevice2D::DrawQuadStrip(float *f, int n)
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::DrawPolygon(float *f, int n)
 {
+  if (SkipDraw())
+    {
+    return;
+    }
+
   if (!f || n <= 0)
     {
     vtkWarningMacro(<< "Points supplied that were not of type float.");
@@ -1095,10 +1346,27 @@ void vtkOpenGLContextDevice2D::DrawEllipseWedge(float x, float y, float outRx,
   assert("pre: ordered_rx" && inRx<=outRx);
   assert("pre: ordered_ry" && inRy<=outRy);
 
+  if (SkipDraw())
+    {
+    return;
+    }
+
   if(outRy==0.0f && outRx==0.0f)
     {
     // we make sure maxRadius will never be null.
     return;
+    }
+
+  // If the 'wedge' is actually a full circle, gl2ps can just insert a circle
+  // instead of using a polygonal approximation.
+  if (IsFullCircle(startAngle, stopAngle))
+    {
+    vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
+    if (gl2ps && gl2ps->GetActiveState() == vtkOpenGLGL2PSHelper::Capture)
+      {
+      this->DrawWedgeGL2PS(x, y, outRx, outRy, inRx, inRy);
+      return;
+      }
     }
 
   int iterations=this->GetNumberOfArcIterations(outRx,outRy,startAngle,
@@ -1145,10 +1413,27 @@ void vtkOpenGLContextDevice2D::DrawEllipticArc(float x, float y, float rX,
   assert("pre: positive_rX" && rX>=0);
   assert("pre: positive_rY" && rY>=0);
 
+  if (SkipDraw())
+    {
+    return;
+    }
+
   if(rX==0.0f && rY==0.0f)
     {
     // we make sure maxRadius will never be null.
     return;
+    }
+
+  // If the 'arc' is actually a full circle, gl2ps can just insert a circle
+  // instead of using a polygonal approximation.
+  if (IsFullCircle(startAngle, stopAngle))
+    {
+    vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
+    if (gl2ps && gl2ps->GetActiveState() == vtkOpenGLGL2PSHelper::Capture)
+      {
+      this->DrawCircleGL2PS(x, y, rX, rY);
+      return;
+      }
     }
 
   vtkOpenGLClearErrorMacro();
@@ -1345,6 +1630,26 @@ void vtkOpenGLContextDevice2D::ComputeStringBounds(const vtkStdString &string,
 void vtkOpenGLContextDevice2D::DrawString(float *point,
                                           const vtkUnicodeString &string)
 {
+  vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
+  if (gl2ps)
+    {
+    switch (gl2ps->GetActiveState())
+      {
+      case vtkOpenGLGL2PSHelper::Capture:
+        {
+        double x[3] = { static_cast<double>(point[0]),
+                        static_cast<double>(point[1]), 0. };
+        gl2ps->DrawString(string.utf8_str(), this->TextProp, x, 0.,
+                          this->Renderer);
+        return;
+        }
+      case vtkOpenGLGL2PSHelper::Background:
+        return; // Do nothing.
+      case vtkOpenGLGL2PSHelper::Inactive:
+        break; // Render as normal.
+      }
+    }
+
   vtkOpenGLClearErrorMacro();
 
   double *mv = this->ModelMatrix->GetMatrix()->Element[0];
@@ -1475,6 +1780,21 @@ void vtkOpenGLContextDevice2D::DrawMathTextString(float point[2],
     return;
     }
 
+  vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
+  if (gl2ps)
+    {
+    switch (gl2ps->GetActiveState())
+      {
+      case vtkOpenGLGL2PSHelper::Capture:
+        this->DrawMathTextStringGL2PS(point, string);
+        return;
+      case vtkOpenGLGL2PSHelper::Background:
+        return; // Do nothing.
+      case vtkOpenGLGL2PSHelper::Inactive:
+        break; // Render as normal.
+      }
+    }
+
   vtkOpenGLClearErrorMacro();
 
   float p[] = { std::floor(point[0]), std::floor(point[1]) };
@@ -1562,6 +1882,21 @@ void vtkOpenGLContextDevice2D::DrawMathTextString(float point[2],
 void vtkOpenGLContextDevice2D::DrawImage(float p[2], float scale,
                                          vtkImageData *image)
 {
+  vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
+  if (gl2ps)
+    {
+    switch (gl2ps->GetActiveState())
+      {
+      case vtkOpenGLGL2PSHelper::Capture:
+        this->DrawImageGL2PS(p, scale, image);
+        return;
+      case vtkOpenGLGL2PSHelper::Background:
+        return; // Do nothing.
+      case vtkOpenGLGL2PSHelper::Inactive:
+        break; // Draw as normal.
+      }
+    }
+
   vtkOpenGLClearErrorMacro();
 
   this->SetTexture(image);
@@ -1613,6 +1948,21 @@ void vtkOpenGLContextDevice2D::DrawImage(float p[2], float scale,
 void vtkOpenGLContextDevice2D::DrawImage(const vtkRectf& pos,
                                          vtkImageData *image)
 {
+  vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
+  if (gl2ps)
+    {
+    switch (gl2ps->GetActiveState())
+      {
+      case vtkOpenGLGL2PSHelper::Capture:
+        this->DrawImageGL2PS(pos, image);
+        return;
+      case vtkOpenGLGL2PSHelper::Background:
+        return; // Do nothing.
+      case vtkOpenGLGL2PSHelper::Inactive:
+        break; // Draw as normal.
+      }
+    }
+
   vtkVector2f tex(1.0, 1.0);
   GLuint index = 0;
   if (this->Storage->PowerOfTwoTextures)
@@ -1707,12 +2057,22 @@ void vtkOpenGLContextDevice2D::SetTexture(vtkImageData* image, int properties)
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::SetPointSize(float size)
 {
+  vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
+  if (gl2ps && gl2ps->GetActiveState() == vtkOpenGLGL2PSHelper::Capture)
+    {
+    gl2ps->SetPointSize(size);
+    }
   glPointSize(size);
 }
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::SetLineWidth(float width)
 {
+  vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
+  if (gl2ps && gl2ps->GetActiveState() == vtkOpenGLGL2PSHelper::Capture)
+    {
+    gl2ps->SetLineWidth(width);
+    }
   glLineWidth(width);
 }
 
@@ -1739,6 +2099,12 @@ void vtkOpenGLContextDevice2D::SetLineType(int type)
       break;
     default:
       this->LinePattern = 0xFFFF;
+    }
+
+  vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
+  if (gl2ps && gl2ps->GetActiveState() == vtkOpenGLGL2PSHelper::Capture)
+    {
+    gl2ps->SetLineStipple(this->LinePattern);
     }
 }
 
@@ -2110,4 +2476,620 @@ void vtkOpenGLContextDevice2D::PrintSelf(ostream &os, vtkIndent indent)
      << this->MaximumMarkerCacheSize << endl;
   os << indent << "MarkerCache: " << this->MarkerCache.size()
      << " entries." << endl;
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawMarkersGL2PS(
+    int shape, bool highlight, float *points, int n, unsigned char *colors,
+    int nc_comps)
+{
+  switch (shape)
+    {
+    case VTK_MARKER_CROSS:
+      this->DrawCrossMarkersGL2PS(highlight, points, n, colors, nc_comps);
+      break;
+    default:
+      // default is here for consistency with old impl -- defaults to plus for
+      // unrecognized shapes.
+    case VTK_MARKER_PLUS:
+      this->DrawPlusMarkersGL2PS(highlight, points, n, colors, nc_comps);
+      break;
+    case VTK_MARKER_SQUARE:
+      this->DrawSquareMarkersGL2PS(highlight, points, n, colors, nc_comps);
+      break;
+    case VTK_MARKER_CIRCLE:
+      this->DrawCircleMarkersGL2PS(highlight, points, n, colors, nc_comps);
+      break;
+    case VTK_MARKER_DIAMOND:
+      this->DrawDiamondMarkersGL2PS(highlight, points, n, colors, nc_comps);
+      break;
+    }
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawCrossMarkersGL2PS(
+    bool highlight, float *points, int n, unsigned char *colors, int nc_comps)
+{
+  float oldWidth = this->Pen->GetWidth();
+  unsigned char oldColor[4];
+  this->Pen->GetColor(oldColor);
+  int oldLineType = this->Pen->GetLineType();
+
+  float halfWidth = oldWidth * 0.5f;
+  float deltaX = halfWidth;
+  float deltaY = halfWidth;
+
+  this->TransformSize(deltaX, deltaY);
+
+  if (highlight)
+    {
+    this->Pen->SetWidth(1.5);
+    }
+  else
+    {
+    this->Pen->SetWidth(0.5);
+    }
+  this->Pen->SetLineType(vtkPen::SOLID_LINE);
+
+  float curLine[4];
+  unsigned char color[4];
+  for (int i = 0; i < n; ++i)
+    {
+    float *point = points + (i * 2);
+    if (colors)
+      {
+      color[3] = 255;
+      switch (nc_comps)
+        {
+        case 4:
+        case 3:
+          memcpy(color, colors + (i * nc_comps), nc_comps);
+          break;
+        case 2:
+          color[3] = colors[i * nc_comps + 1];
+          VTK_FALLTHROUGH;
+        case 1:
+          memset(color, colors[i * nc_comps], 3);
+          break;
+        default:
+          vtkErrorMacro(<<"Invalid number of color components: " << nc_comps);
+          break;
+        }
+
+      this->Pen->SetColor(color);
+      }
+
+    // The first line of the cross:
+    curLine[0] = point[0] + deltaX;
+    curLine[1] = point[1] + deltaY;
+    curLine[2] = point[0] - deltaX;
+    curLine[3] = point[1] - deltaY;
+    this->DrawPoly(curLine, 2);
+
+    // And the second:
+    curLine[0] = point[0] + deltaX;
+    curLine[1] = point[1] - deltaY;
+    curLine[2] = point[0] - deltaX;
+    curLine[3] = point[1] + deltaY;
+    this->DrawPoly(curLine, 2);
+    }
+
+  this->Pen->SetWidth(oldWidth);
+  this->Pen->SetColor(oldColor);
+  this->Pen->SetLineType(oldLineType);
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawPlusMarkersGL2PS(
+    bool highlight, float *points, int n, unsigned char *colors, int nc_comps)
+{
+  float oldWidth = this->Pen->GetWidth();
+  unsigned char oldColor[4];
+  this->Pen->GetColor(oldColor);
+  int oldLineType = this->Pen->GetLineType();
+
+  float halfWidth = oldWidth * 0.5f;
+  float deltaX = halfWidth;
+  float deltaY = halfWidth;
+
+  this->TransformSize(deltaX, deltaY);
+
+  if (highlight)
+    {
+    this->Pen->SetWidth(1.5);
+    }
+  else
+    {
+    this->Pen->SetWidth(0.5);
+    }
+  this->Pen->SetLineType(vtkPen::SOLID_LINE);
+
+  float curLine[4];
+  unsigned char color[4];
+  for (int i = 0; i < n; ++i)
+    {
+    float *point = points + (i * 2);
+    if  (colors)
+      {
+      color[3] = 255;
+      switch (nc_comps)
+        {
+        case 4:
+        case 3:
+          memcpy(color, colors + (i * nc_comps), nc_comps);
+          break;
+        case 2:
+          color[3] = colors[i * nc_comps + 1];
+          VTK_FALLTHROUGH;
+        case 1:
+          memset(color, colors[i * nc_comps], 3);
+          break;
+        default:
+          vtkErrorMacro(<<"Invalid number of color components: " << nc_comps);
+          break;
+        }
+
+      this->Pen->SetColor(color);
+      }
+
+    // The first line of the plus:
+    curLine[0] = point[0] - deltaX;
+    curLine[1] = point[1];
+    curLine[2] = point[0] + deltaX;
+    curLine[3] = point[1];
+    this->DrawPoly(curLine, 2);
+
+    // And the second:
+    curLine[0] = point[0];
+    curLine[1] = point[1] - deltaY;
+    curLine[2] = point[0];
+    curLine[3] = point[1] + deltaY;
+    this->DrawPoly(curLine, 2);
+    }
+
+  this->Pen->SetWidth(oldWidth);
+  this->Pen->SetColor(oldColor);
+  this->Pen->SetLineType(oldLineType);
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawSquareMarkersGL2PS(
+    bool /*hilight*/, float *points, int n, unsigned char *colors, int nc_comps)
+{
+  unsigned char oldColor[4];
+  this->Brush->GetColor(oldColor);
+
+  this->Brush->SetColor(this->Pen->GetColor());
+
+  float halfWidth = this->GetPen()->GetWidth() * 0.5f;
+  float deltaX = halfWidth;
+  float deltaY = halfWidth;
+
+  this->TransformSize(deltaX, deltaY);
+
+  float quad[8];
+  unsigned char color[4];
+  for (int i = 0; i < n; ++i)
+    {
+    float *point = points + (i * 2);
+    if  (colors)
+      {
+      color[3] = 255;
+      switch (nc_comps)
+        {
+        case 4:
+        case 3:
+          memcpy(color, colors + (i * nc_comps), nc_comps);
+          break;
+        case 2:
+          color[3] = colors[i * nc_comps + 1];
+          VTK_FALLTHROUGH;
+        case 1:
+          memset(color, colors[i * nc_comps], 3);
+          break;
+        default:
+          vtkErrorMacro(<<"Invalid number of color components: " << nc_comps);
+          break;
+        }
+
+      this->Brush->SetColor(color);
+      }
+
+    quad[0] = point[0] - deltaX;
+    quad[1] = point[1] - deltaY;
+    quad[2] = point[0] + deltaX;
+    quad[3] = quad[1];
+    quad[4] = quad[2];
+    quad[5] = point[1] + deltaY;
+    quad[6] = quad[0];
+    quad[7] = quad[5];
+
+    this->DrawQuad(quad,4);
+    }
+
+  this->Brush->SetColor(oldColor);
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawCircleMarkersGL2PS(
+    bool /*hilight*/, float *points, int n, unsigned char *colors, int nc_comps)
+{
+  float radius = this->GetPen()->GetWidth() * 0.475;
+
+  unsigned char oldColor[4];
+  this->Brush->GetColor(oldColor);
+
+  this->Brush->SetColor(this->Pen->GetColor());
+
+  unsigned char color[4];
+  for (int i = 0; i < n; ++i)
+    {
+    float *point = points + (i * 2);
+    if  (colors)
+      {
+      color[3] = 255;
+      switch (nc_comps)
+        {
+        case 4:
+        case 3:
+          memcpy(color, colors + (i * nc_comps), nc_comps);
+          break;
+        case 2:
+          color[3] = colors[i * nc_comps + 1];
+          VTK_FALLTHROUGH;
+        case 1:
+          memset(color, colors[i * nc_comps], 3);
+          break;
+        default:
+          vtkErrorMacro(<<"Invalid number of color components: " << nc_comps);
+          break;
+        }
+
+      this->Brush->SetColor(color);
+      }
+
+    this->DrawEllipseWedge(point[0], point[1], radius, radius, 0, 0,
+                           0, 360);
+    }
+
+  this->Brush->SetColor(oldColor);
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawDiamondMarkersGL2PS(
+    bool /*hilight*/, float *points, int n, unsigned char *colors, int nc_comps)
+{
+  unsigned char oldColor[4];
+  this->Brush->GetColor(oldColor);
+
+  this->Brush->SetColor(this->Pen->GetColor());
+
+  float halfWidth = this->GetPen()->GetWidth() * 0.5f;
+  float deltaX = halfWidth;
+  float deltaY = halfWidth;
+
+  this->TransformSize(deltaX, deltaY);
+
+  float quad[8];
+  unsigned char color[4];
+  for (int i = 0; i < n; ++i)
+    {
+    float *point = points + (i * 2);
+    if  (colors)
+      {
+      color[3] = 255;
+      switch (nc_comps)
+        {
+        case 4:
+        case 3:
+          memcpy(color, colors + (i * nc_comps), nc_comps);
+          break;
+        case 2:
+          color[3] = colors[i * nc_comps + 1];
+          VTK_FALLTHROUGH;
+        case 1:
+          memset(color, colors[i * nc_comps], 3);
+          break;
+        default:
+          vtkErrorMacro(<<"Invalid number of color components: " << nc_comps);
+          break;
+        }
+
+      this->Brush->SetColor(color);
+      }
+
+    quad[0] = point[0] - deltaX;
+    quad[1] = point[1];
+    quad[2] = point[0];
+    quad[3] = point[1] - deltaY;
+    quad[4] = point[0] + deltaX;
+    quad[5] = point[1];
+    quad[6] = point[0];
+    quad[7] = point[1] + deltaY;
+
+    this->DrawQuad(quad,4);
+    }
+
+  this->Brush->SetColor(oldColor);
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawImageGL2PS(float p[2], vtkImageData *input)
+{
+  // Must be unsigned char -- otherwise OpenGL rendering behaves badly anyway.
+  if (!vtkDataTypesCompare(input->GetScalarType(), VTK_UNSIGNED_CHAR))
+    {
+    vtkErrorMacro("Invalid image format: Expected unsigned char scalars.");
+    return;
+    }
+
+  // Convert to float for GL2PS
+  vtkNew<vtkImageData> image;
+  image->ShallowCopy(input);
+  vtkDataArray *s = image->GetPointData()->GetScalars();
+  size_t numVals = (s->GetNumberOfComponents() * s->GetNumberOfTuples());
+  unsigned char *vals = static_cast<unsigned char*>(s->GetVoidPointer(0));
+  vtkNew<vtkFloatArray> scalars;
+  scalars->SetNumberOfComponents(s->GetNumberOfComponents());
+  scalars->SetNumberOfTuples(s->GetNumberOfTuples());
+  for (size_t i = 0; i < numVals; ++i)
+    {
+    scalars->SetValue(i, vals[i] / 255.f);
+    }
+  image->GetPointData()->SetScalars(scalars.GetPointer());
+
+  double pos[3] = { static_cast<double>(p[0]), static_cast<double>(p[1]), 0. };
+
+  // Instance always exists when this method is called:
+  vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
+  gl2ps->DrawImage(image.GetPointer(), pos);
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawImageGL2PS(float p[2], float scale,
+                                              vtkImageData *image)
+{
+  if (std::fabs(scale - 1.f) < 1e-5f)
+    {
+    this->DrawImageGL2PS(p, image);
+    return;
+    }
+
+  int dims[3];
+  image->GetDimensions(dims);
+  vtkRectf rect(p[0], p[1], dims[0] * scale, dims[1] * scale);
+  this->DrawImageGL2PS(rect, image);
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawImageGL2PS(const vtkRectf &rect,
+                                              vtkImageData *image)
+{
+  int dims[3];
+  image->GetDimensions(dims);
+  int width = vtkMath::Round(rect.GetWidth());
+  int height = vtkMath::Round(rect.GetHeight());
+  if (width == dims[0] && height == dims[1])
+    {
+    this->DrawImageGL2PS(rect.GetBottomLeft().GetData(), image);
+    return;
+    }
+
+  vtkNew<vtkImageResize> resize;
+  resize->SetInputData(image);
+  resize->SetResizeMethod(vtkImageResize::OUTPUT_DIMENSIONS);
+  resize->SetOutputDimensions(width, height, -1);
+  resize->Update();
+  this->DrawImageGL2PS(rect.GetBottomLeft().GetData(), resize->GetOutput());
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawCircleGL2PS(float x, float y,
+                                               float rX, float rY)
+{
+  if (this->Brush->GetColorObject().GetAlpha() == 0)
+    {
+    return;
+    }
+
+  // We know this is valid if this method has been called:
+  vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
+
+  vtkNew<vtkPath> path;
+  this->AddEllipseToPath(path.GetPointer(), 0.f, 0.f, rX, rY, false);
+  this->TransformPath(path.GetPointer());
+
+  double origin[3] = {x, y, 0.f};
+
+  // Fill
+  unsigned char fillColor[4];
+  this->Brush->GetColor(fillColor);
+
+  std::stringstream label;
+  label << "vtkOpenGLContextDevice2D::DrawCircleGL2PS("
+        << x << ", " << y << ", " << rX << ", " << rY << ") fill:";
+
+  gl2ps->DrawPath(path.GetPointer(), origin, origin, fillColor, NULL, 0.0, -1.f,
+                  label.str().c_str());
+
+  // and stroke
+  unsigned char strokeColor[4];
+  this->Pen->GetColor(strokeColor);
+  float strokeWidth = this->Pen->GetWidth();
+
+  label.str("");
+  label.clear();
+  label << "vtkOpenGLContextDevice2D::DrawCircleGL2PS("
+        << x << ", " << y << ", " << rX << ", " << rY << ") stroke:";
+  gl2ps->DrawPath(path.GetPointer(), origin, origin, strokeColor, NULL, 0.0,
+                  strokeWidth, label.str().c_str());
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawWedgeGL2PS(
+    float x, float y, float outRx, float outRy, float inRx, float inRy)
+{
+  if (this->Brush->GetColorObject().GetAlpha() == 0)
+    {
+    return;
+    }
+
+  vtkNew<vtkPath> path;
+  this->AddEllipseToPath(path.GetPointer(), 0.f, 0.f, outRx, outRy, false);
+  this->AddEllipseToPath(path.GetPointer(), 0.f, 0.f, inRx, inRy, true);
+
+  std::stringstream label;
+  label << "vtkOpenGLGL2PSContextDevice2D::DrawWedgeGL2PS("
+        << x << ", " << y << ", " << outRx << ", " << outRy << ", "
+        << inRx << ", " << inRy << ") path:";
+
+  unsigned char color[4];
+  this->Brush->GetColor(color);
+
+  double rasterPos[3] = {static_cast<double>(x), static_cast<double>(y), 0.};
+
+  this->TransformPoint(x, y);
+  double windowPos[3] = {static_cast<double>(x), static_cast<double>(y), 0.};
+
+  // We know the helper exists and that we are capturing if this function has
+  // been called.
+  vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
+  gl2ps->DrawPath(path.GetPointer(), rasterPos, windowPos, color, NULL, 0.0,
+                  -1.f, label.str().c_str());
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::DrawMathTextStringGL2PS(
+    float point[2], const vtkStdString &string)
+{
+  // Always valid when this method is called:
+  vtkMathTextUtilities *mathText = vtkMathTextUtilities::GetInstance();
+
+  vtkNew<vtkPath> path;
+  bool ok = mathText->StringToPath(string.c_str(), path.GetPointer(),
+                                   this->TextProp,
+                                   this->RenderWindow->GetDPI());
+  if (!ok)
+    {
+    vtkErrorMacro("Error generating path info for mathtext string: " << string);
+    return;
+    }
+
+  double origin[3] = { point[0], point[1], 0.f };
+  double rotateAngle = this->TextProp->GetOrientation();
+  double dcolor[3];
+  this->TextProp->GetColor(dcolor);
+  unsigned char color[4];
+  color[0] = static_cast<unsigned char>(dcolor[0]*255);
+  color[1] = static_cast<unsigned char>(dcolor[1]*255);
+  color[2] = static_cast<unsigned char>(dcolor[2]*255);
+  color[3] = static_cast<unsigned char>(this->TextProp->GetOpacity()*255);
+
+  this->TransformPath(path.GetPointer());
+
+  std::ostringstream label;
+  label << "vtkOpenGLContextDevice2D::DrawMathTextString: string: "
+        << string;
+
+  // Instance always exists when this method is called.
+  vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
+  gl2ps->DrawPath(path.GetPointer(), origin, origin, color, NULL,
+                  rotateAngle, -1.f, label.str().c_str());
+
+  return;
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::AddEllipseToPath(
+    vtkPath *path, float x, float y, float rx, float ry, bool reverse)
+{
+  if (rx < 1e-5 || ry < 1e-5)
+    {
+    return;
+    }
+
+  // method based on http://www.tinaja.com/glib/ellipse4.pdf
+  const static float MAGIC = (4.f/3.f) * (sqrt(2.f) - 1.f);
+
+  if (!reverse)
+    {
+    path->InsertNextPoint(x - rx,      y,           0, vtkPath::MOVE_TO);
+    path->InsertNextPoint(x - rx,      ry * MAGIC,  0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(-rx * MAGIC, y + ry,      0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x,           y + ry,      0, vtkPath::CUBIC_CURVE);
+
+    path->InsertNextPoint(rx * MAGIC,  y + ry,      0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x + rx,      ry * MAGIC,  0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x + rx,      y,           0, vtkPath::CUBIC_CURVE);
+
+    path->InsertNextPoint(x + rx,      -ry * MAGIC, 0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(rx * MAGIC,  y - ry,      0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x,           y - ry,      0, vtkPath::CUBIC_CURVE);
+
+    path->InsertNextPoint(-rx * MAGIC, y - ry,      0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x - rx,      -ry * MAGIC, 0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x - rx,      y,           0, vtkPath::CUBIC_CURVE);
+    }
+  else
+    {
+    path->InsertNextPoint(x - rx,      y,           0, vtkPath::MOVE_TO);
+    path->InsertNextPoint(x - rx,      -ry * MAGIC, 0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(-rx * MAGIC, y - ry,      0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x,           y - ry,      0, vtkPath::CUBIC_CURVE);
+
+    path->InsertNextPoint(rx * MAGIC,  y - ry,      0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x + rx,      -ry * MAGIC, 0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x + rx,      y,           0, vtkPath::CUBIC_CURVE);
+
+    path->InsertNextPoint(x + rx,      ry * MAGIC,  0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(rx * MAGIC,  y + ry,      0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x,           y + ry,      0, vtkPath::CUBIC_CURVE);
+
+    path->InsertNextPoint(-rx * MAGIC, y + ry,      0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x - rx,      ry * MAGIC,  0, vtkPath::CUBIC_CURVE);
+    path->InsertNextPoint(x - rx,      y,           0, vtkPath::CUBIC_CURVE);
+    }
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::TransformPath(vtkPath *path) const
+{
+  // Transform the path with the modelview matrix:
+  double modelview[16];
+  vtkMatrix4x4::DeepCopy(modelview, this->ModelMatrix->GetMatrix());
+
+  // Transform the 2D path.
+  float newPoint[3] = {0, 0, 0};
+  vtkPoints *points = path->GetPoints();
+  for (vtkIdType i = 0; i < path->GetNumberOfPoints(); ++i)
+    {
+    double *point = points->GetPoint(i);
+    newPoint[0] = modelview[0] * point[0] + modelview[1] * point[1]
+        + modelview[3];
+    newPoint[1] = modelview[4] * point[0] + modelview[5] * point[1]
+        + modelview[7];
+    points->SetPoint(i, newPoint);
+    }
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::TransformPoint(float &x, float &y) const
+{
+  double modelview[16];
+  vtkMatrix4x4::DeepCopy(modelview, this->ModelMatrix->GetMatrix());
+
+  float inX = x;
+  float inY = y;
+  x = modelview[0] * inX + modelview[1] * inY + modelview[3];
+  y = modelview[4] * inX + modelview[5] * inY + modelview[7];
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::TransformSize(float &dx, float &dy) const
+{
+  double modelview[16];
+  vtkMatrix4x4::DeepCopy(modelview, this->ModelMatrix->GetMatrix());
+
+  dx /= modelview[0];
+  dy /= modelview[5];
 }
