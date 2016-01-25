@@ -1585,6 +1585,10 @@ namespace vtkvolume
       {
       return std::string("\
         \n    vec4 worldDataPos = textureToWorldMat * vec4(g_dataPos,1.0);\
+        \n    if (worldDataPos.w != 0.0)\
+        \n      {\
+        \n      worldDataPos = worldDataPos/worldDataPos.w;\
+        \n      }\
         \n    for (int i = 0; i < clippingPlanesSize && !l_skip; i = i + 6)\
         \n      {\
         \n      vec3 planeOrigin = vec3(in_clippingPlanes[i + 1],\
@@ -1593,35 +1597,32 @@ namespace vtkvolume
         \n      vec3 planeNormal = vec3(in_clippingPlanes[i + 4],\
         \n                              in_clippingPlanes[i + 5],\
         \n                              in_clippingPlanes[i + 6]);\
+        \n      vec3 normalizedPlaneNormal = normalize(planeNormal);\
         \n\
         \n      vec3 dir = worldDataPos.xyz - planeOrigin;\
-        \n      if ((dot(dir, rayDir.xyz) > 0) && (dot(rayDir.xyz, planeOrigin) > 0)) \
+        \n      float planeD = -planeOrigin[0] * normalizedPlaneNormal[0] - planeOrigin[1]\
+        \n                        * normalizedPlaneNormal[1] - planeOrigin[2] * normalizedPlaneNormal[2];\
+        \n      if (dot(vec3(worldDataPos.xyz - planeOrigin), planeNormal) < 0 && dot(rayDir, planeNormal) < 0)\
         \n        {\
         \n         l_skip = true;\
         \n         g_exit = true;\
         \n        }\
-        \n      if (dot(vec3(worldDataPos.xyz - planeOrigin), planeNormal) < 0)\
+        \n      else if (dot(vec3(worldDataPos.xyz - planeOrigin), planeNormal) < 0)\
         \n        {\
         \n        l_skip=true;\
-        \n        if ((dot(dir, rayDir.xyz) < 0) && (dot(rayDir.xyz, planeOrigin) < 0))\
+        \n        float paraT = -(dot(worldDataPos.xyz, normalizedPlaneNormal) + planeD) /\
+        \n                        (dot(normalizedRayDir, normalizedPlaneNormal))  ;\
+        \n        vec3 newWorldPos = worldDataPos.xyz + paraT * normalizedRayDir;\
+        \n        vec4 texturePos = vec4(newWorldPos.xyz, 1.0) * in_inverseTextureDatasetMatrix\
+        \n                            * in_inverseVolumeMatrix;\
+        \n        if (texturePos.w != 0.0)\
         \n          {\
-        \n          vec3 normalizedPlaneNormal = normalize(planeNormal);\
-        \n          float planeD = -planeOrigin[0] * planeNormal[0] - planeOrigin[1]\
-        \n                      * planeNormal[1] - planeOrigin[2] * planeNormal[2];\
-        \n          float paraT = -(dot(worldDataPos.xyz, normalizedPlaneNormal) + planeD) /\
-        \n                      (dot(normalizedRayDir, normalizedPlaneNormal))  ;\
-        \n            vec3 newWorldPos = worldDataPos.xyz + paraT * normalizedRayDir;\
-        \n            vec4 texturePos = vec4(newWorldPos.xyz, 1.0) * in_inverseTextureDatasetMatrix\
-        \n                          * in_inverseVolumeMatrix;\
-        \n            if (texturePos.w != 0.0)\
-        \n                {\
-        \n                texturePos = texturePos/texturePos.w;\
-        \n                }\
-        \n            g_dataPos = texturePos.xyz;\
+        \n          texturePos = texturePos/texturePos.w;\
+        \n          }\
+        \n        g_dataPos = texturePos.xyz;\
+        \n        break;\
         \n        }\
-        \n      break;\
-        \n      }\
-        \n    }"
+        \n      }"
       );
       }
   }
