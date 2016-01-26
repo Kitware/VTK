@@ -33,11 +33,6 @@ public:
   vtkTypeMacro(vtkXMLPUnstructuredDataWriter,vtkXMLPDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // See the vtkAlgorithm for a desciption of what these do
-  int ProcessRequest(vtkInformation*,
-                     vtkInformationVector**,
-                     vtkInformationVector*);
-
 protected:
   vtkXMLPUnstructuredDataWriter();
   ~vtkXMLPUnstructuredDataWriter();
