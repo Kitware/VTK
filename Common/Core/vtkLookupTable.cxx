@@ -300,7 +300,7 @@ void vtkLookupTable::BuildSpecialColors()
   this->ResizeTableForSpecialColors();
 
   // Below range color
-  if (this->GetUseBelowRangeColor())
+  if (this->GetUseBelowRangeColor() || numberOfColors == 0)
     {
     vtkLookupTable::GetColorAsUnsignedChars(this->GetBelowRangeColor(), color);
     tptr[0] = color[0];
@@ -319,7 +319,7 @@ void vtkLookupTable::BuildSpecialColors()
 
   // Above range color
   tptr = table + 4*(numberOfColors + vtkLookupTable::ABOVE_RANGE_COLOR_INDEX);
-  if (this->GetUseAboveRangeColor())
+  if (this->GetUseAboveRangeColor() || numberOfColors == 0)
     {
     vtkLookupTable::GetColorAsUnsignedChars(this->GetAboveRangeColor(), color);
     tptr[0] = color[0];
