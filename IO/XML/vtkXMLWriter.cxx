@@ -332,9 +332,6 @@ vtkXMLWriter::vtkXMLWriter()
   this->OutStringStream = 0;
 
   // Time support
-  this->TimeStep = 0; // By default the file does not have timestep
-  this->TimeStepRange[0] = 0;
-  this->TimeStepRange[1] = 0;
   this->NumberOfTimeSteps = 1;
   this->CurrentTimeIndex = 0;
   this->UserContinueExecuting = -1; //invalid state
@@ -436,10 +433,7 @@ void vtkXMLWriter::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Stream: (none)\n";
     }
-  os << indent << "TimeStep:" << this->TimeStep << "\n";
   os << indent << "NumberOfTimeSteps:" << this->NumberOfTimeSteps << "\n";
-  os << indent << "TimeStepRange:(" << this->TimeStepRange[0] << ","
-                                    << this->TimeStepRange[1] << ")\n";
 }
 
 //----------------------------------------------------------------------------
