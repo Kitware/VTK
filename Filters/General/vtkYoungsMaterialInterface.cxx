@@ -3069,9 +3069,6 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 } /* namespace vtkYoungsMaterialInterfaceCellCutInternals */
 
 
-// useful to avoid numerical errors
-#define Clamp(x,min,max) if(x<min) x=min; else if(x>max) x=max
-
 // ------------------------------------
 //         ####     ####
 //             #    #   #
@@ -3158,7 +3155,7 @@ void vtkYoungsMaterialInterfaceCellCut::cellInterface3D(
       if(edist!=0)
         {
         t = ( 0 - dist[e0] ) / edist ;
-        Clamp(t,0,1);
+        t = vtkMath::ClampValue(t,0.0,1.0);
         }
       else
         {
@@ -3325,7 +3322,7 @@ bool vtkYoungsMaterialInterfaceCellCut::cellInterfaceD(
       if( dist[edge[0]]*dist[edge[1]] < 0.0 )
         {
         double t = ( 0 - dist[edge[0]] ) / ( dist[edge[1]] - dist[edge[0]] );
-        Clamp(t,0,1);
+        t = vtkMath::ClampValue(t,0.0,1.0);
         eids[np*2+0] = edge[0];
         eids[np*2+1] = edge[1];
         weights[np] = t;

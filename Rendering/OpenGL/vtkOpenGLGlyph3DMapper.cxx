@@ -48,14 +48,6 @@
 
 vtkStandardNewMacro(vtkOpenGLGlyph3DMapper);
 
-template <class T>
-static T vtkClamp(T val, T min, T max)
-{
-  val = val < min? min : val;
-  val = val > max? max : val;
-  return val;
-}
-
 class vtkOpenGLGlyph3DMapperArray
 {
 public:
@@ -498,7 +490,7 @@ void vtkOpenGLGlyph3DMapper::Render(
       double value = vtkMath::Norm(indexArray->GetTuple(inPtId),
         indexArray->GetNumberOfComponents());
       index = static_cast<int>((value-this->Range[0])*numberOfSources/den);
-      index = ::vtkClamp(index, 0, numberOfSources-1);
+      index = vtkMath::ClampValue(index, 0, numberOfSources-1);
       }
 
     // source can be null.

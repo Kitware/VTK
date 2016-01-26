@@ -113,14 +113,6 @@ string mpifn(vtkPainterCommunicator *comm, const char *fn)
 namespace vtkSurfaceLICMapperUtil
 {
 
-inline
-double vtkClamp(double val, const double& min, const double& max)
-{
-  val = (val < min)? min : val;
-  val = (val > max)? max : val;
-  return val;
-}
-
 // Description
 // find min/max of unmasked fragments across all regions
 // download the entire screen then search each region
@@ -1315,8 +1307,8 @@ public:
         double sx = (ndcBBox[qq  ] + 1.0) * vx2;
         double sy = (ndcBBox[qq+1] + 1.0) * vy2;
         box.AddPoint(
-          vtkClamp(sx, 0.0, vx),
-          vtkClamp(sy, 0.0, vy),
+          vtkMath::ClampValue(sx, 0.0, vx),
+          vtkMath::ClampValue(sy, 0.0, vy),
           0.0);
         }
       // to screen extent

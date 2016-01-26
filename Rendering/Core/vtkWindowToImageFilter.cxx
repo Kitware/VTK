@@ -136,11 +136,11 @@ void vtkWindowToImageFilter::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkWindowToImageFilter::SetViewport(double a1, double a2, double a3, double a4)
 {
-#define CLAMP(_x, _min, _max) _x = _x < _min ? _min : (_x > _max ? _max : _x)
-  CLAMP(a1, 0., 1.);
-  CLAMP(a2, 0., 1.);
-  CLAMP(a3, 0., 1.);
-  CLAMP(a4, 0., 1.);
+  a1 = vtkMath::ClampValue(a1, 0.0, 1.0);
+  a2 = vtkMath::ClampValue(a2, 0.0, 1.0);
+  a3 = vtkMath::ClampValue(a3, 0.0, 1.0);
+  a4 = vtkMath::ClampValue(a4, 0.0, 1.0);
+
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting Viewport to (" << a1 << "," << a2 << "," << a3 << "," << a4 << ")");
   if ((this->Viewport[0] != a1) || (this->Viewport[1] != a2) || (this->Viewport[2] != a3) || (this->Viewport[3] != a4))
     {

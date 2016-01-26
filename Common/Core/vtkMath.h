@@ -871,6 +871,12 @@ public:
   }
 
   // Description:
+  // Clamp some value against a range, return the result.
+  // min must be less than or equal to max.
+  template<class T>
+  static T ClampValue(const T & value, const T & min, const T & max);
+
+  // Description:
   // Clamp some values against a range
   // The method without 'clamped_values' will perform in-place clamping.
   static void ClampValue(double *value, const double range[2]);
@@ -1191,10 +1197,31 @@ inline double vtkMath::Determinant3x3(double A[3][3])
 }
 
 //----------------------------------------------------------------------------
+template<class T>
+inline T vtkMath::ClampValue(const T & value, const T & min, const T & max)
+{
+  assert("pre: valid_range" && min<=max);
+
+  if (value < min)
+    {
+    return min;
+    }
+
+  if (value > max)
+    {
+    return max;
+    }
+
+  return value;
+}
+
+//----------------------------------------------------------------------------
 inline void vtkMath::ClampValue(double *value, const double range[2])
 {
   if (value && range)
     {
+    assert("pre: valid_range" && range[0]<=range[1]);
+
     if (*value < range[0])
       {
       *value = range[0];
@@ -1212,6 +1239,8 @@ inline void vtkMath::ClampValue(
 {
   if (range && clamped_value)
     {
+    assert("pre: valid_range" && range[0]<=range[1]);
+
     if (value < range[0])
       {
       *clamped_value = range[0];
