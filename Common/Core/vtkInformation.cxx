@@ -474,7 +474,7 @@ VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(Variant, const vtkVariant&);
     key->Append(this, value);                                               \
     }                                                                       \
   void vtkInformation::Set(vtkInformation##name##VectorKey* key,            \
-                           type* value, int length)                         \
+                           type const* value, int length)                         \
     {                                                                       \
     key->Set(this, value, length);                                          \
     }                                                                       \

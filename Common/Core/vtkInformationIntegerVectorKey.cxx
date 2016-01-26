@@ -72,7 +72,8 @@ void vtkInformationIntegerVectorKey::Set(vtkInformation* info)
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationIntegerVectorKey::Set(vtkInformation* info, int* value,
+void vtkInformationIntegerVectorKey::Set(vtkInformation* info,
+                                         const int* value,
                                          int length)
 {
   if(value)

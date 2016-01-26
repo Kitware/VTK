@@ -49,7 +49,7 @@ public:
   // Get/Set the value associated with this key in the given
   // information object.
   void Append(vtkInformation* info, double value);
-  void Set(vtkInformation* info, double* value, int length);
+  void Set(vtkInformation* info, const double* value, int length);
   double* Get(vtkInformation* info);
   double  Get(vtkInformation* info, int idx);
   void Get(vtkInformation* info, double* value);
