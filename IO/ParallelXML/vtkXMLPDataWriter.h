@@ -89,7 +89,7 @@ protected:
   // Subclasses can override this method to collect information between ranks
   // before writing the summary file. This method is called on all ranks while
   // summary file is only written on 1 rank (rank 0).
-  virtual void PrepareSummaryFile() {}
+  virtual void PrepareSummaryFile();
 
   virtual vtkXMLWriter* CreatePieceWriter(int index)=0;
 
@@ -136,12 +136,19 @@ private:
   // Method used to delete all written files.
   void DeleteFiles();
 
+  // Description:
+  // Initializes PieceFileNameExtension.
+  void SetupPieceFileNameExtension();
+
   // Indicates the piece currently being written.
   int CurrentPiece;
 
   // Set in WriteInternal() to request continued execution from the executive to
   // write more pieces.
   bool ContinuingExecution;
+
+  // Flags used to keep track of which pieces were written out.
+  unsigned char *PieceWrittenFlags;
 };
 
 #endif

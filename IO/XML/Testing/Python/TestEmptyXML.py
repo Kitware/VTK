@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
+import os, os.path
 import sys
 import vtk
 from vtk.util.misc import vtkGetDataRoot
@@ -121,9 +121,9 @@ for t in types:
     os.remove('empty' + type + '.' + ext)
     os.remove('empty' + type + 'DataSet.' + ext)
     os.remove('emptyP' + type + '.p' + ext)
-    os.remove('emptyP' + type + '_0.' + ext)
+    assert not os.path.exists('emptyP' + type + '_0.' + ext)
     os.remove('emptyP' + type + 'DataSet.p' + ext)
-    os.remove('emptyP' + type + 'DataSet_0.' + ext)
+    assert not os.path.exists('emptyP' + type + 'DataSet_0.' + ext)
 
 os.remove('junkFile.vtk')
 os.remove('emptyFile.vtk')
