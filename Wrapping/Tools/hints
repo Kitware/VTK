@@ -107,6 +107,8 @@ vtkImagePlaneWidget                   GetNormal                         307  3
 vtkImagePlaneWidget                   GetOrigin                         307  3
 vtkImagePlaneWidget                   GetPoint1                         307  3
 vtkImagePlaneWidget                   GetPoint2                         307  3
+vtkImagePointDataIterator             GetIndex                          304  3
+vtkImagePointIterator                 GetPosition                       307  3
 vtkImageReslice                       GetResliceAxesDirectionCosines    307  9
 vtkImageReslice                       GetResliceAxesOrigin              307  3
 vtkImageSincInterpolator              GetBlurFactors                    307  3
