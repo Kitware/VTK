@@ -15,7 +15,7 @@
 #include "vtkImageFourierFilter.h"
 
 #include "vtkMath.h"
-#include <math.h>
+#include <cmath>
 
 /*=========================================================================
         Vectors of complex numbers.

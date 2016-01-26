@@ -27,7 +27,7 @@
 #include "vtkTransform.h"
 #include "vtkTransformFilter.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkSpherePuzzle);
 

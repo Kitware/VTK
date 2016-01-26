@@ -35,7 +35,7 @@
 #include "vtkGeoMath.h"
 #include "vtkTimerLog.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkGlobeSource);
 

@@ -69,8 +69,8 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkPoints.h"
 
 #include <ctime>
-#include <ctype.h>
-#include <stdio.h>
+#include <cctype>
+#include <cstdio>
 
 #include <stack>
 #include <vtksys/SystemTools.hxx>

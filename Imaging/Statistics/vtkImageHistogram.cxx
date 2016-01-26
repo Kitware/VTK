@@ -26,7 +26,7 @@
 #include "vtkMultiThreader.h"
 #include "vtkTemplateAliasMacro.h"
 
-#include <math.h>
+#include <cmath>
 
 // turn off 64-bit ints when templating over all types
 # undef VTK_USE_INT64

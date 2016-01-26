@@ -28,7 +28,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkStructuredData.h"
 
-#include <math.h>
+#include <cmath>
 
 
 //----------------------------------------------------------------------------

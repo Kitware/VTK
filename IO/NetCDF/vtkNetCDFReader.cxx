@@ -61,7 +61,7 @@
       } \
   }
 
-#include <ctype.h>
+#include <cctype>
 
 class vtkNetCDFReaderPrivate {
 public:

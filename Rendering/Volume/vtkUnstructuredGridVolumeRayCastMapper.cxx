@@ -38,7 +38,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkIdList.h"
 
-#include <math.h>
+#include <cmath>
 
 VTK_THREAD_RETURN_TYPE UnstructuredGridVolumeRayCastMapper_CastRays( void *arg );
 

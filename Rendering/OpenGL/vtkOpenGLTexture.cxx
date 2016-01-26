@@ -30,7 +30,7 @@
 #include "vtkOpenGLError.h"
 #include "vtkgl.h" // vtkgl namespace
 
-#include <math.h>
+#include <cmath>
 
 
 // ----------------------------------------------------------------------------

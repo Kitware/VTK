@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkPerlinNoise.h"
 #include "vtkObjectFactory.h"
-#include <math.h>
+#include <cmath>
 #include <cassert>
 
 vtkStandardNewMacro(vtkPerlinNoise);

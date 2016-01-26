@@ -15,7 +15,7 @@
 #include "vtkFixedPointVolumeRayCastHelper.h"
 #include "vtkObjectFactory.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastHelper);
 

@@ -29,7 +29,7 @@
 #include "vtkSMPTools.h"
 
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkCheckerboardSplatter);
 

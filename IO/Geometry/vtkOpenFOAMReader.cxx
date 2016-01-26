@@ -98,9 +98,9 @@
 #include <unistd.h>
 #endif
 // for fabs()
-#include <math.h>
+#include <cmath>
 // for isalnum() / isspace() / isdigit()
-#include <ctype.h>
+#include <cctype>
 
 #if VTK_FOAMFILE_OMIT_CRCCHECK
 uLong ZEXPORT crc32(uLong, const Bytef *, uInt)

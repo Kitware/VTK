@@ -43,7 +43,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTrivialProducer.h"
 #include "vtkUnsignedCharArray.h"
 
-#include <math.h>
+#include <cmath>
 #include <cassert>
 #include <list>
 

@@ -36,7 +36,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <set>
 #include <vector>
 
-#include <math.h>
+#include <cmath>
 
 // Return NULL if no override is supplied.
 vtkAbstractObjectFactoryNewMacro(vtkHAVSVolumeMapper)

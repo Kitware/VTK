@@ -54,7 +54,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <map>
 #include <algorithm>
 
-#include <math.h>
+#include <cmath>
 #include <cassert>
 
 class vtkYoungsMaterialInterfaceCellCut

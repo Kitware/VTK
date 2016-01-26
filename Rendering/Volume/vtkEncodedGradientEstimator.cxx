@@ -20,7 +20,7 @@
 #include "vtkRecursiveSphereDirectionEncoder.h"
 #include "vtkTimerLog.h"
 
-#include <math.h>
+#include <cmath>
 
 
 vtkCxxSetObjectMacro(vtkEncodedGradientEstimator, InputData, vtkImageData );

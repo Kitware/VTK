@@ -32,7 +32,7 @@
 
 #include "vtkOpenGLError.h"
 
-#include <math.h>
+#include <cmath>
 
 #include "vtkTextureObjectVS.h"  // a pass through shader
 

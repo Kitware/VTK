@@ -35,7 +35,7 @@
 #include <cassert>
 #include <vector>
 #include <map>
-#include <float.h>
+#include <cfloat>
 #define H5_USE_16_API
 #include "vtk_hdf5.h"
 

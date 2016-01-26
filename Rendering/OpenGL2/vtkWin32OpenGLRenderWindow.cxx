@@ -26,7 +26,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStringOutputWindow.h"
 #include "vtkWin32RenderWindowInteractor.h"
 
-#include <math.h>
+#include <cmath>
 #include <sstream>
 
 #include "vtkOpenGLError.h"

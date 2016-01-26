@@ -24,7 +24,7 @@
 #include "vtkInformationVector.h"
 #include "vtkExecutive.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkImageOpenClose3D);
 

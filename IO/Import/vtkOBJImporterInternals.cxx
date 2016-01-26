@@ -22,9 +22,9 @@
 #include "vtksys/SystemTools.hxx"
 
 #include <iostream>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
 #include <map>
 
 #if defined(_WIN32)

@@ -43,7 +43,7 @@
 #include "vtkGeoMath.h"
 #include "vtkCoordinate.h"
 
-#include <float.h>
+#include <cfloat>
 
 vtkStandardNewMacro(vtkGeoInteractorStyle);
 

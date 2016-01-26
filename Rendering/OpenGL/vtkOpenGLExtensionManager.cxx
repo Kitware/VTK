@@ -27,7 +27,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkObjectFactory.h"
 
-#include <string.h>
+#include <cstring>
 #include <string>
 #include <cassert>
 #include <sstream>

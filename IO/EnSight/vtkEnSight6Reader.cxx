@@ -30,7 +30,7 @@
 
 
 #include <cassert>
-#include <ctype.h>
+#include <cctype>
 #include <string>
 
 vtkStandardNewMacro(vtkEnSight6Reader);

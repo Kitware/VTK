@@ -49,7 +49,7 @@
 
 #include "vtkTypeUInt64Array.h"
 
-#include <ctype.h>
+#include <cctype>
 #include <sys/stat.h>
 
 // I need a safe way to read a line of arbitrary length.  It exists on

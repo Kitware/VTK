@@ -22,7 +22,7 @@
 #include "vtkSuperquadric.h"
 #include "vtkObjectFactory.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkSuperquadric);
 

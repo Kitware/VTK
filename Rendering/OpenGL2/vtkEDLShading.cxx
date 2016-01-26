@@ -51,7 +51,7 @@ Ph.D. thesis of Christian BOUCHENY.
 #include "vtkShaderProgram.h"
 #include "vtkTextureObject.h"
 #include "vtk_glew.h"
-#include <assert.h>
+#include <cassert>
 #include <sstream>
 #include <string>
 

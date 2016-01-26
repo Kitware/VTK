@@ -13,7 +13,7 @@
 #include <vector>
 #include <algorithm>
 
-#include <math.h>
+#include <cmath>
 
 #ifdef VTK_USE_BOOST
 # include "vtkBoostBreadthFirstSearchTree.h"

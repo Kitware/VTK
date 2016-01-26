@@ -25,7 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkTensor.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkCellDerivatives);
 

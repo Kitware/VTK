@@ -12,7 +12,7 @@
 #include <vector>
 #include <set>
 
-#include <ctype.h>
+#include <cctype>
 
 bool vtkExodusIIReaderVariableCheck::Start( std::string name, const int* truth, int numTruth )
 {

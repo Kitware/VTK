@@ -39,7 +39,7 @@
 #include "vtkUnsignedShortArray.h"
 #include "vtkPolygonBuilder.h"
 #include "vtkSmartPointer.h"
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkGridSynchronizedTemplates3D);
 

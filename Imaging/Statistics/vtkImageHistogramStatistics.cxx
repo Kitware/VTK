@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkIdTypeArray.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkImageHistogramStatistics);
 

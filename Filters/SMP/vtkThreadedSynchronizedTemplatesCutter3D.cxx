@@ -40,7 +40,7 @@
 #include "vtkIdListCollection.h"
 #include "vtkSmartPointer.h"
 
-#include <math.h>
+#include <cmath>
 
 #include "vtkSMPTools.h"
 #include "vtkSMPThreadLocalObject.h"

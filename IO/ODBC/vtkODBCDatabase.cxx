@@ -42,7 +42,7 @@
 #include <sstream>
 
 #include <cassert>
-#include <string.h>
+#include <cstring>
 
 #include <sql.h>
 #include <sqlext.h>

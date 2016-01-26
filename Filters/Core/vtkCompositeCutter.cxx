@@ -31,7 +31,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkAppendPolyData.h"
 
-#include <math.h>
+#include <cmath>
 #include "vtkObjectFactory.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkSmartPointer.h"

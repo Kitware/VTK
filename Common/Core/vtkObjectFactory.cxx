@@ -23,7 +23,7 @@
 
 #include "vtksys/Directory.hxx"
 
-#include <ctype.h>
+#include <cctype>
 
 
 vtkObjectFactoryCollection* vtkObjectFactory::RegisteredFactories = 0;

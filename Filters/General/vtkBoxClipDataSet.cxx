@@ -35,7 +35,7 @@
 #include "vtkIdList.h"
 #include "vtkIncrementalPointLocator.h"
 
-#include <math.h>
+#include <cmath>
 #include <vector>
 
 vtkStandardNewMacro(vtkBoxClipDataSet);

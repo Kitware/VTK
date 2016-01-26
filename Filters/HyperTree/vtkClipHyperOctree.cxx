@@ -41,7 +41,7 @@
 #include "vtkHyperOctreeClipCutPointsGrabber.h"
 #include "vtkIncrementalPointLocator.h"
 
-#include <math.h>
+#include <cmath>
 #include <cassert>
 
 vtkStandardNewMacro(vtkClipHyperOctree);

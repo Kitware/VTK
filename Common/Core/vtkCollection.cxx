@@ -19,8 +19,8 @@
 #include "vtkObjectFactory.h"
 
 #include <cassert>
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 vtkStandardNewMacro(vtkCollection);
 

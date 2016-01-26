@@ -38,10 +38,10 @@
 // Header for zlib
 #include "vtk_zlib.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <float.h>
-#include <math.h>
+#include <cstdio>
+#include <cstring>
+#include <cfloat>
+#include <cmath>
 
 vtkStandardNewMacro(vtkNIFTIImageWriter);
 vtkCxxSetObjectMacro(vtkNIFTIImageWriter,QFormMatrix,vtkMatrix4x4);

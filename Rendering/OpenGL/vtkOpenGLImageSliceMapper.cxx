@@ -36,7 +36,7 @@
 #include "vtkInformationVector.h"
 
 
-#include <math.h>
+#include <cmath>
 
 #include "vtkOpenGL.h"
 #include "vtkOpenGLError.h"

@@ -46,7 +46,7 @@
 #include "vtkVolumeRayCastSpaceLeapingImageFilter.h"
 
 #include <exception>
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper);
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);

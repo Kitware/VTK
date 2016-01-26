@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include <ctype.h>
+#include <cctype>
 
 vtkStandardNewMacro(vtkOBJReader);
 

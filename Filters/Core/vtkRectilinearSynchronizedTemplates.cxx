@@ -40,7 +40,7 @@
 #include "vtkPolygonBuilder.h"
 #include "vtkSmartPointer.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkRectilinearSynchronizedTemplates);
 

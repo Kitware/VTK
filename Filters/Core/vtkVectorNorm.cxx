@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkSMPTools.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkVectorNorm);
 

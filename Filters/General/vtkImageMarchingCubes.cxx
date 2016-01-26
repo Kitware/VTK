@@ -26,7 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkImageMarchingCubes);
 

@@ -40,7 +40,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-#include <math.h>
+#include <cmath>
 
 #include "vtkSMPTools.h"
 #include "vtkNew.h"

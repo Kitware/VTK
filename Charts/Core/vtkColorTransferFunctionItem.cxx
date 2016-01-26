@@ -24,7 +24,7 @@
 #include "vtkPoints2D.h"
 
 #include <cassert>
-#include <math.h>
+#include <cmath>
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkColorTransferFunctionItem);

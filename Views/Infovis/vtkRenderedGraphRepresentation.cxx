@@ -80,7 +80,7 @@
 #include "vtkVertexDegree.h"
 #include "vtkViewTheme.h"
 
-#include <ctype.h>
+#include <cctype>
 #include <algorithm>
 
 

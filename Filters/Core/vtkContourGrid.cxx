@@ -37,7 +37,7 @@
 #include "vtkPointLocator.h"
 #include "vtkIncrementalPointLocator.h"
 #include "vtkContourHelper.h"
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkContourGrid);
 

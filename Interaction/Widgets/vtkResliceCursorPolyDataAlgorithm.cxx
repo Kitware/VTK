@@ -30,7 +30,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkLinearExtrusionFilter.h"
 #include "vtkMath.h"
-#include <math.h>
+#include <cmath>
 #include <algorithm>
 
 vtkStandardNewMacro(vtkResliceCursorPolyDataAlgorithm);

@@ -31,7 +31,7 @@
 #include <string>
 #include <map>
 #include <cassert>
-#include <ctype.h> /* isspace */
+#include <cctype> /* isspace */
 
 vtkStandardNewMacro(vtkGenericEnSightReader);
 

@@ -34,7 +34,7 @@
 #include <vector>
 #include <fstream>
 
-#include <ctype.h>
+#include <cctype>
 
 vtkStandardNewMacro(vtkFixedWidthTextReader);
 vtkCxxSetObjectMacro(vtkFixedWidthTextReader,TableErrorObserver,vtkCommand);

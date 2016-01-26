@@ -63,7 +63,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkInformationVector.h"
 #include "vtkPoints.h"
 
-#include <ctype.h>
+#include <cctype>
 #include <sys/types.h>
 #include <sys/stat.h>
 

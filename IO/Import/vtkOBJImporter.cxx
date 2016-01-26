@@ -28,7 +28,7 @@
 #include "vtkSmartPointer.h"
 #include "vtksys/SystemTools.hxx"
 
-#include <ctype.h>
+#include <cctype>
 #include <cstdio>
 #include <list>
 #include <set>

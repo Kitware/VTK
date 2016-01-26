@@ -29,7 +29,7 @@
 #include "vtkPlane.h"
 #include "vtkSMPTools.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkFlyingEdgesPlaneCutter);
 vtkCxxSetObjectMacro(vtkFlyingEdgesPlaneCutter,Plane,vtkPlane);

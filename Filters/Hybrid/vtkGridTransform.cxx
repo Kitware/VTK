@@ -23,7 +23,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkGridTransform);
 

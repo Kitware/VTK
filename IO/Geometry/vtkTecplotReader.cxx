@@ -52,7 +52,7 @@
 
 #include <fstream>
 
-#include <ctype.h> // for isspace(), isalnum()
+#include <cctype> // for isspace(), isalnum()
 
 vtkStandardNewMacro( vtkTecplotReader );
 

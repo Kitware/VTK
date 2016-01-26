@@ -27,7 +27,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkTransform.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkOpenGLActor);
 

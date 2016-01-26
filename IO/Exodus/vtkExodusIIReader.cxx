@@ -59,11 +59,11 @@
 #include "vtksys/RegularExpression.hxx"
 
 #include "vtk_exodusII.h"
-#include <stdio.h>
+#include <cstdio>
 #include <cstdlib> /* for free() */
-#include <string.h> /* for memset() */
-#include <ctype.h> /* for toupper(), isgraph() */
-#include <math.h> /* for cos() */
+#include <cstring> /* for memset() */
+#include <cctype> /* for toupper(), isgraph() */
+#include <cmath> /* for cos() */
 
 #ifdef EXODUSII_HAVE_MALLOC_H
 #  include <malloc.h>

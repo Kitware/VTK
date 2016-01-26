@@ -47,7 +47,7 @@
 #include <vtksys/RegularExpression.hxx>
 
 #include <sys/stat.h>
-#include <ctype.h>
+#include <cctype>
 
 #undef DBG_PEXOIIRDR
 #define vtkPExodusIIReaderMAXPATHLEN 2048

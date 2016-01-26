@@ -24,7 +24,7 @@
 #include "vtkFixedPointRayCastImage.h"
 #include "vtkDataArray.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMIPHelper);
 

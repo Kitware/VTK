@@ -18,7 +18,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkCursor2D);
 

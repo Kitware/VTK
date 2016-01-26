@@ -20,7 +20,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-#include <ctype.h>
+#include <cctype>
 
 vtkStandardNewMacro(vtkSLCReader);
 

@@ -55,7 +55,7 @@
 #include <vtksys/hash_map.hxx>
 #include <vtksys/RegularExpression.hxx>
 
-#include <math.h>
+#include <cmath>
 
 //=============================================================================
 #define CALL_NETCDF(call)                       \

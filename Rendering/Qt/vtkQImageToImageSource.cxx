@@ -24,7 +24,7 @@
 
 #include <QApplication>
 #include <QImage>
-#include <math.h>
+#include <cmath>
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \

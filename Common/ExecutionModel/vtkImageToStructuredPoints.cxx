@@ -24,7 +24,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredPoints.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkImageToStructuredPoints);
 

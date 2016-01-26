@@ -37,8 +37,8 @@
 # define VTK_USE_UINT64 0
 
 #include <climits>
-#include <float.h>
-#include <math.h>
+#include <cfloat>
+#include <cmath>
 
 // for uintptr_t
 #ifdef _MSC_VER

@@ -62,7 +62,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkIntArray.h"
 #include "vtkStringArray.h"
 
-#include <ctype.h>
+#include <cctype>
 #include <sys/types.h>
 #include <sys/stat.h>
 

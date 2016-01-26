@@ -43,7 +43,7 @@
 #include "vtkPointData.h"
 
 #include <cassert>
-#include <string.h> // memset()
+#include <cstring> // memset()
 #include <vector>
 #include <list>
 

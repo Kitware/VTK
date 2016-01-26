@@ -29,7 +29,7 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
 
-#include <math.h>
+#include <cmath>
 
 
 // ---------------------------------------------------------------------------

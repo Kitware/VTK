@@ -24,7 +24,7 @@
 #include "vtkTypeTraits.h"
 #include "vtkWin32RenderWindowInteractor.h"
 
-#include <math.h>
+#include <cmath>
 #include <sstream>
 
 #include "vtkOpenGL.h"

@@ -47,7 +47,7 @@
 #include <vector>
 
 #if defined (__BORLANDC__)
-#include <ctype.h> // for isspace, isdigit
+#include <cctype> // for isspace, isdigit
 #endif
 
 // I need a safe way to read a line of arbitrary length.  It exists on

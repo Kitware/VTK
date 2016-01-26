@@ -20,7 +20,7 @@
 #include "vtkTrivialProducer.h"
 #include "vtkObjectFactory.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkBSplineTransform);
 

@@ -18,8 +18,8 @@
 #include "vtkCriticalSection.h"
 
 #include <mil.h>
-#include <ctype.h>
-#include <string.h>
+#include <cctype>
+#include <cstring>
 
 vtkStandardNewMacro(vtkMILVideoSource);
 

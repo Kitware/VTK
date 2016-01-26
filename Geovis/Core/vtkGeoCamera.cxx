@@ -25,7 +25,7 @@
 #include "vtkMath.h"
 #include "vtkCamera.h"
 #include "vtkTransform.h"
-#include <float.h>
+#include <cfloat>
 
 vtkStandardNewMacro(vtkGeoCamera);
 

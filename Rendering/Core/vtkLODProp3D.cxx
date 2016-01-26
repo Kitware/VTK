@@ -26,7 +26,7 @@
 #include "vtkImageMapper3D.h"
 #include "vtkLinearTransform.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkLODProp3D);
 

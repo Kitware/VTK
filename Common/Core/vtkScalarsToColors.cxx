@@ -24,7 +24,7 @@
 
 #include <map>
 
-#include <math.h>
+#include <cmath>
 
 // A helper map for quick lookups of annotated values.
 class vtkScalarsToColors::vtkInternalAnnotatedValueMap :
