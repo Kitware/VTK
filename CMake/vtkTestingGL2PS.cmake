@@ -19,7 +19,7 @@ function(vtk_add_gl2ps_test_cxx)
         "-DPNGFILE=${VTK_TEST_OUTPUT_DIR}/${TName}-raster.png"
         "-DGS_EXECUTABLE=${VTK_GHOSTSCRIPT_EXECUTABLE}"
         -DREMOVEPS=1
-        -P "${VTK_CMAKE_DIR}/RasterizePostScript.cmake"
+        -P "${vtkTestingGL2PS_SOURCE_DIR}/RasterizePostScript.cmake"
     )
     set_tests_properties("${vtk-module}Cxx-${TName}-RasterizePNG"
       PROPERTIES
@@ -62,3 +62,5 @@ function(vtk_add_gl2ps_test_cxx)
     )
   endforeach()
 endfunction()
+
+set(vtkTestingGL2PS_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}")
