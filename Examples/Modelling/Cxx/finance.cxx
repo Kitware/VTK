@@ -43,14 +43,15 @@ int main( int argc, char *argv[] )
 
   if (argc < 2)
     {
-    cout << "Usage: " << argv[0] << " financial_file" << endl;
-    return 1;
+    std::cout << "Usage: " << argv[0] << " financial_file" << endl;
+    return EXIT_FAILURE;
     }
   char* fname = argv[1];
 
   // read data
-  vtkSmartPointer<vtkDataSet> dataSet = ReadFinancialData(fname, "MONTHLY_PAYMENT","INTEREST_RATE",
-                                          "LOAN_AMOUNT","TIME_LATE");
+  vtkSmartPointer<vtkDataSet> dataSet =
+    ReadFinancialData(fname, "MONTHLY_PAYMENT","INTEREST_RATE",
+                      "LOAN_AMOUNT","TIME_LATE");
   // construct pipeline for original population
   vtkSmartPointer<vtkGaussianSplatter> popSplatter =
     vtkSmartPointer<vtkGaussianSplatter>::New();
@@ -145,7 +146,7 @@ int main( int argc, char *argv[] )
   renWin->Render();
   iren->Start();
 
-  return 0;
+  return EXIT_SUCCESS;
 }
 
 static vtkSmartPointer<vtkDataSet> ReadFinancialData(const char* filename, const char *x, const char *y, const char *z, const char *s)
@@ -157,18 +158,29 @@ static vtkSmartPointer<vtkDataSet> ReadFinancialData(const char* filename, const
 
   if ( (file = fopen(filename,"r")) == 0 )
     {
-    cerr << "ERROR: Can't open file: " << filename << "\n";
+    std::cerr << "ERROR: Can't open file: " << filename << std::endl;
     return NULL;
     }
 
   int n = fscanf (file, "%s %d", tag, &npts); // read number of points
   if (n != 2)
     {
-    cerr << "ERROR: Can't read file: " << filename << "\n";
+    std::cerr << "ERROR: Can't read file: " << filename << std::endl;
     fclose(file);
     return NULL;
     }
-
+  // Check for a reasonable npts
+  if (npts <= 0)
+    {
+    std::cerr << "ERROR: Number of points must be greater that 0" << std::endl;
+    return NULL;
+    }
+  // We arbitrarily pick a large upper limit on npts
+  if (npts > VTK_INT_MAX / 10)
+    {
+    std::cerr << "ERROR: npts (" << npts << ") is unreasonably large" << std::endl;
+    return NULL;
+    }
   vtkSmartPointer<vtkUnstructuredGrid> dataSet =
     vtkSmartPointer<vtkUnstructuredGrid>::New();
   float *xV = new float[npts];
@@ -179,7 +191,7 @@ static vtkSmartPointer<vtkDataSet> ReadFinancialData(const char* filename, const
   if ( ! ParseFile(file, x, xV) || ! ParseFile(file, y, yV) ||
        ! ParseFile(file, z, zV) || ! ParseFile(file, s, sV) )
     {
-    cerr << "Couldn't read data!\n";
+    std::cerr << "ERROR: Couldn't read data!" << std::endl;
     delete [] xV;
     delete [] yV;
     delete [] zV;
@@ -226,7 +238,7 @@ static int ParseFile(FILE *file, const char *label, float *data)
 
   if (fscanf(file, "%s %d", tag, &npts) != 2)
     {
-    cerr << "IO Error " << __FILE__ << ":" << __LINE__ << "\n";
+    std::cerr << "ERROR: IO Error " << __FILE__ << ":" << __LINE__ << std::endl;
     return 0;
     }
 
@@ -239,7 +251,7 @@ static int ParseFile(FILE *file, const char *label, float *data)
         {
         if (fscanf(file, "%f", data+i) != 1)
           {
-          cerr << "IO Error " << __FILE__ << ":" << __LINE__ << "\n";
+          std::cerr << "ERROR: IO Error " << __FILE__ << ":" << __LINE__ << std::endl;
           return 0;
           }
         if ( data[i] < min ) min = data[i];
@@ -254,7 +266,7 @@ static int ParseFile(FILE *file, const char *label, float *data)
         {
         if (fscanf(file, "%*f") != 0)
           {
-          cerr << "IO Error " << __FILE__ << ":" << __LINE__ << "\n";
+          std::cerr << "ERROR: IO Error " << __FILE__ << ":" << __LINE__ << std::endl;
           return 0;
           }
         }

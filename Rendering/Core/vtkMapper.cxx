@@ -630,7 +630,8 @@ void vtkMapper::ColorByArrayComponent(const char* arrayName, int component)
     }
   this->Modified();
 
-  strcpy(this->ArrayName, arrayName);
+  strncpy(this->ArrayName, arrayName, sizeof(this->ArrayName) - 1);
+  this->ArrayName[sizeof(this->ArrayName) - 1] = '\0';
   this->ArrayComponent = component;
   this->ArrayAccessMode = VTK_GET_ARRAY_BY_NAME;
 }

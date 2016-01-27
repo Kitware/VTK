@@ -223,7 +223,9 @@ RequestData(vtkInformation *vtkNotUsed(request),
   else if (numPts == 0)
     {
     // Trivial case of no points - lets set it to 3
-    numValuesPerLine = 3;
+    vtkErrorMacro(<< "Could not process file " <<
+                  this->FileName << " - No points specified");
+    return 0;
     }
   else
     {
