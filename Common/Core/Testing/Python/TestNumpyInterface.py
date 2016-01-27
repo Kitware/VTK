@@ -87,7 +87,7 @@ g = algs.gradient(elev)
 assert algs.all(g[0] == (1, 0, 0))
 
 v = algs.make_vector(elev, g[:,0], elev)
-assert algs.all(algs.gradient(v) == [[1, 0, 0], [0, 0, 0], [1, 0, 0]])
+assert algs.all(algs.gradient(v) == [[1, 0, 1], [0, 0, 0], [0, 0, 0]])
 
 v = algs.make_vector(elev, g[:,0], elev2)
 assert algs.all(algs.curl(v) == [1, 0, 0])
