@@ -205,9 +205,13 @@ void vtkTransformFeedback::ReadBuffer()
   this->ReleaseBufferData();
   this->BufferData = new unsigned char[bufferSize];
 
-  glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, bufferSize,
-                     static_cast<void*>(this->BufferData));
-
+  unsigned char *glBuffer(NULL);
+  glMapBufferRange(GL_TRANSFORM_FEEDBACK_BUFFER, 0, bufferSize,
+                   GL_MAP_READ_BIT);
+  glGetBufferPointerv(GL_TRANSFORM_FEEDBACK_BUFFER, GL_BUFFER_MAP_POINTER,
+                      reinterpret_cast<GLvoid**>(&glBuffer));
+  std::copy(glBuffer, glBuffer + bufferSize, this->BufferData);
+  glUnmapBuffer(GL_TRANSFORM_FEEDBACK_BUFFER);
   this->ReleaseGraphicsResources();
 
   vtkOpenGLCheckErrorMacro("OpenGL errors detected.");
