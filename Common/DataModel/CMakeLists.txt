@@ -168,7 +168,6 @@ set(Module_SRCS
   vtkStructuredPoints.cxx
   vtkSuperquadric.cxx
   vtkTable.cxx
-  vtkTensor.cxx
   vtkTetra.cxx
   vtkTreeBFSIterator.cxx
   vtkTree.cxx
