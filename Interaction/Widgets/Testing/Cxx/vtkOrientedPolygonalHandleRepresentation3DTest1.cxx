@@ -5,7 +5,7 @@
 
 #include "WidgetTestingMacros.h"
 
-#include <vtkProperty2D.h>
+#include "vtkProperty2D.h"
 
 int vtkOrientedPolygonalHandleRepresentation3DTest1(int , char * [] )
 {

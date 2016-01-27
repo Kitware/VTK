@@ -16,20 +16,20 @@
 #include "vtkGeoJSONFeature.h"
 
 // VTK Includes
-#include <vtkAbstractArray.h>
-#include <vtkBitArray.h>
-#include <vtkCellArray.h>
-#include <vtkCellData.h>
-#include <vtkDoubleArray.h>
-#include <vtkIntArray.h>
-#include <vtkLine.h>
-#include <vtkNew.h>
-#include <vtkObjectFactory.h>
-#include <vtkPoints.h>
-#include <vtkPolyData.h>
-#include <vtkPolygon.h>
-#include <vtkPolyLine.h>
-#include <vtkStringArray.h>
+#include "vtkAbstractArray.h"
+#include "vtkBitArray.h"
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkDoubleArray.h"
+#include "vtkIntArray.h"
+#include "vtkLine.h"
+#include "vtkNew.h"
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkPolygon.h"
+#include "vtkPolyLine.h"
+#include "vtkStringArray.h"
 
 #include <sstream>
 #include <string>

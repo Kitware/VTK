@@ -16,26 +16,26 @@
 #include "vtkGDALRasterReader.h"
 
 // VTK includes
-#include <vtkCellArray.h>
-#include <vtkCellData.h>
-#include <vtkDoubleArray.h>
-#include <vtkFloatArray.h>
-#include <vtkGDAL.h>
-#include <vtkInformationVector.h>
-#include <vtkInformation.h>
-#include <vtkIntArray.h>
-#include <vtkMath.h>
-#include <vtkObjectFactory.h>
-#include <vtkPointData.h>
-#include <vtkPoints.h>
-#include <vtkShortArray.h>
-#include <vtkSmartPointer.h>
-#include <vtkStreamingDemandDrivenPipeline.h>
-#include <vtkStringArray.h>
-#include <vtkUniformGrid.h>
-#include <vtkUnsignedCharArray.h>
-#include <vtkUnsignedIntArray.h>
-#include <vtkUnsignedShortArray.h>
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
+#include "vtkGDAL.h"
+#include "vtkInformationVector.h"
+#include "vtkInformation.h"
+#include "vtkIntArray.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkShortArray.h"
+#include "vtkSmartPointer.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringArray.h"
+#include "vtkUniformGrid.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkUnsignedIntArray.h"
+#include "vtkUnsignedShortArray.h"
 
 // GDAL includes
 #include <gdal_priv.h>

@@ -24,8 +24,8 @@
 #include "WidgetTestingMacros.h"
 #include "vtkTestErrorObserver.h"
 
-#include <vtkTextActor.h>
-#include <vtkPointHandleRepresentation3D.h>
+#include "vtkTextActor.h"
+#include "vtkPointHandleRepresentation3D.h"
 
 #define CHECK_ERROR_MSG(observer, msg)   \
   { \

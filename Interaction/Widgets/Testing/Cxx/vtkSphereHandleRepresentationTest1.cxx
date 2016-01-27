@@ -5,8 +5,8 @@
 
 #include "WidgetTestingMacros.h"
 
-#include <vtkPointHandleRepresentation3D.h>
-#include <vtkProperty.h>
+#include "vtkPointHandleRepresentation3D.h"
+#include "vtkProperty.h"
 
 int vtkSphereHandleRepresentationTest1(int , char * [] )
 {

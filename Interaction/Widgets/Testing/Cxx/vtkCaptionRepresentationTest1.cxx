@@ -9,8 +9,8 @@
 
 #include "WidgetTestingMacros.h"
 
-#include <vtkCaptionActor2D.h>
-#include <vtkPointHandleRepresentation3D.h>
+#include "vtkCaptionActor2D.h"
+#include "vtkPointHandleRepresentation3D.h"
 
 int vtkCaptionRepresentationTest1(int , char * [] )
 {

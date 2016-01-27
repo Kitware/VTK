@@ -5,13 +5,13 @@
 
 #include "WidgetTestingMacros.h"
 
-#include <vtkPointHandleRepresentation3D.h>
-#include <vtkPlaneSource.h>
+#include "vtkPointHandleRepresentation3D.h"
+#include "vtkPlaneSource.h"
 
-#include <vtkPolyData.h>
-#include <vtkProperty.h>
+#include "vtkPolyData.h"
+#include "vtkProperty.h"
 
-#include <vtkDoubleArray.h>
+#include "vtkDoubleArray.h"
 
 int vtkPolyLineRepresentationTest1(int , char * [] )
 {
