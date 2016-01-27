@@ -1,3 +1,7 @@
+if(ANDROID OR APPLE_IOS) # No GL2PS on mobile
+  return()
+endif()
+
 vtk_module(vtkRenderingGL2PS
   TCL_NAME vtkRenderingGLtoPS
   BACKEND
