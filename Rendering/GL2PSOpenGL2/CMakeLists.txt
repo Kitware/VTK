@@ -7,6 +7,11 @@ set(Module_SRCS
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
 )
 
+set_source_files_properties(
+  vtkOpenGLGL2PSHelperImpl
+  WRAP_EXCLUDE
+)
+
 vtk_module_library(${vtk-module} ${Module_SRCS})
 
 include(vtkOpenGL)
