@@ -2848,7 +2848,6 @@ void vtkPolyhedron::Contour(double value,
   this->ConstructPolyData();
   this->ComputeBounds();
 
-  vtkIdVectorType pointLabelVector;
   if (this->IntersectWithContour(value, 0, pointScalars))
     {
     return;

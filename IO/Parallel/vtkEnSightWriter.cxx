@@ -1069,7 +1069,7 @@ void vtkEnSightWriter::WriteElementTypeToFile(int elementType,FILE* fd)
 //----------------------------------------------------------------------------
 bool vtkEnSightWriter::ShouldWriteGeometry()
 {
-  return ((this->TransientGeometry || (!this->TransientGeometry && this->TimeStep==0)));
+  return (this->TransientGeometry || (this->TimeStep==0));
 }
 
 //----------------------------------------------------------------------------

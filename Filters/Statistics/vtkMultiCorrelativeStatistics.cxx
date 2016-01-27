@@ -540,11 +540,8 @@ void vtkMultiCorrelativeStatistics::Derive( vtkMultiBlockDataSet* outMeta )
 
   std::set<std::set<vtkStdString> >::const_iterator reqIt;
   std::set<vtkStdString>::const_iterator colIt;
-  std::set<std::pair<vtkStdString,vtkDataArray*> > allColumns;
   std::map<std::pair<vtkIdType,vtkIdType>,vtkIdType> colPairs;
-  std::map<std::pair<vtkIdType,vtkIdType>,vtkIdType>::iterator cpIt;
   std::map<vtkStdString,vtkIdType> colNameToIdx;
-  std::vector<vtkDataArray*> colPtrs;
   // Reconstruct information about the computed sums from the raw data.
   // The first entry is always the sample size
   double n = col3->GetValue( 0 );

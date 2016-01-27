@@ -148,7 +148,7 @@ void vtkModifiedBSPTree::BuildLocatorIfNeeded()
 {
   if (this->LazyEvaluation)
     {
-    if (!this->mRoot || (this->mRoot && (this->MTime>this->BuildTime)))
+    if (!this->mRoot || (this->MTime>this->BuildTime))
       {
       this->Modified();
       vtkDebugMacro(<< "Forcing BuildLocator");

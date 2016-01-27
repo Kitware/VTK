@@ -1751,7 +1751,7 @@ void vtkAxisActor::SetTitle(const char *t)
     {
     return;
     }
-  if (this->Title && (!strcmp(this->Title, t)))
+  if (this->Title && t && (!strcmp(this->Title, t)))
     {
     return;
     }

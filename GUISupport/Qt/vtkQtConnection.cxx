@@ -67,7 +67,7 @@ void vtkQtConnection::DoCallback(vtkObject* vtk_obj, unsigned long event,
 void vtkQtConnection::Execute(vtkObject* caller, unsigned long e, void* call_data)
 {
   if(e != vtkCommand::DeleteEvent ||
-     (e == vtkCommand::DeleteEvent && this->VTKEvent == vtkCommand::DeleteEvent))
+     (this->VTKEvent == vtkCommand::DeleteEvent))
     {
     emit EmitExecute(caller, e, ClientData, call_data, this->Callback);
     }
