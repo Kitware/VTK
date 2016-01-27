@@ -14,5 +14,4 @@ vtk_module(vtkRenderingGL2PSOpenGL2
   TEST_DEPENDS
     vtkTestingRendering
     vtkInteractionStyle
-  EXCLUDE_FROM_WRAPPING
 )

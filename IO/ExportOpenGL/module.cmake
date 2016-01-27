@@ -18,5 +18,4 @@ vtk_module(vtkIOExportOpenGL
   TEST_DEPENDS
     vtkTestingRendering
     vtkViewsContext2D
-  EXCLUDE_FROM_WRAPPING
 )
