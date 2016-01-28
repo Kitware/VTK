@@ -7,7 +7,6 @@ if (NOT WIN32)
       MPI
     DEPENDS
       vtkFiltersCore
-    PRIVATE_DEPENDS
       vtkdiy2
     TEST_DEPENDS
       vtkFiltersParallelMPI
