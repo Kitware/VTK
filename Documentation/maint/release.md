@@ -246,6 +246,8 @@ DragNDrop`. The deployment target and SDK should be for 10.7.
 
 #### Windows
 
+Also pass `ENABLE_python=ON` and `USE_SYSTEM_python=OFF` to the superbuild.
+
 ##### VTK 6
 
 VNC into `miranda`. The source lives in `%USERPROFILE%/DeMarle/VTKSB`. Use the
@@ -260,6 +262,13 @@ VNC into `nemesis` (hostname `nemesis-win64`). The source lives in
 2013 command shells (in the Start menu) to compile from
 `%USERPROFILE%/code/depot/group-kitware/vtk/build-sb-release`. Use `ninja` to
 build the tree. To generate the binary, run `cpack -G NSIS`.
+
+#### Verifying the binaries
+
+On a clean (not setup for development) machine, unpack/install the binaries and
+run the vtkpython executable. The version number reported should be correct and
+`import vtk; rv=vtk.vtkRenderView(); rv.Render()`
+should create a window on the desktop.
 
 ### Uploading
 
