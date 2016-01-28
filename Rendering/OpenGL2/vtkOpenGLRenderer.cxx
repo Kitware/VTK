@@ -288,6 +288,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     vtkRenderState s(this);
     s.SetPropArrayAndCount(this->PropArray, this->PropArrayCount);
     s.SetFrameBuffer(0);
+    this->LastRenderingUsedDepthPeeling=1;
     this->DepthPeelingPass->Render(&s);
     }
 
