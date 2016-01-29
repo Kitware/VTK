@@ -47,6 +47,14 @@ public:
   vtkBooleanMacro( AutoAdjustSampleDistances, int );
 
   // Description:
+  // If UseJittering is on, each ray traversal direction will be
+  // perturbed slightly using a noise-texture to get rid of wood-grain
+  // effect.
+  vtkSetClampMacro( UseJittering, int, 0, 1 );
+  vtkGetMacro( UseJittering, int );
+  vtkBooleanMacro( UseJittering, int );
+
+  // Description:
   // Set/Get the distance between samples used for rendering
   // when AutoAdjustSampleDistances is off, or when this mapper
   // has more than 1 second allocated to it for rendering.
@@ -275,6 +283,9 @@ protected:
 
   // Render to texture mode flag
   int RenderToImage;
+
+  // Enable / disable stochasting jittering
+  int UseJittering;
 
   // The distance between sample points along the ray
   float  SampleDistance;

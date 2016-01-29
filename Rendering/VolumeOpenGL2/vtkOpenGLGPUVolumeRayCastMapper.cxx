@@ -3174,6 +3174,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
                        1.0 / this->Impl->WindowSize[1], fvalue2);
   this->Impl->ShaderProgram->SetUniform2fv("in_inverseWindowSize", 1, &fvalue2);
 
+  this->Impl->ShaderProgram->SetUniformi("in_useJittering", this->GetUseJittering());
   this->Impl->ShaderProgram->SetUniformi("in_cellFlag", this->CellFlag);
 
   // Updating cropping if enabled
