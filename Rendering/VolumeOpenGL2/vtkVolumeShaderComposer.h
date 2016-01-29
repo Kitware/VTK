@@ -180,7 +180,10 @@ namespace vtkvolume
       \nuniform vec3 in_ambient;\
       \nuniform vec3 in_specular;\
       \nuniform float in_shininess;\
+      \n\
+      \n// Others\
       \nuniform bool in_cellFlag;\
+      \n uniform bool in_useJittering;\
       ");
 
     if (hasGradientOpacity || lightingComplexity > 0)
@@ -279,7 +282,15 @@ namespace vtkvolume
       \n  g_dirStep = (in_inverseTextureDatasetMatrix *\
       \n              vec4(rayDir, 0.0)).xyz * in_sampleDistance;\
       \n\
-      \n  g_dataPos += g_dirStep;\
+      \n  float jitterValue = (texture2D(in_noiseSampler, g_dataPos.xy).x);\
+      \n  if (in_useJittering)\
+      \n    {\
+      \n    g_dataPos += g_dirStep * jitterValue;\
+      \n    }\
+      \n  else\
+      \n    {\
+      \n    g_dataPos += g_dirStep;\
+      \n    }\
       \n\
       \n  // Flag to deternmine if voxel should be considered for the rendering\
       \n  bool l_skip = false;");
@@ -1572,7 +1583,15 @@ namespace vtkvolume
       \n                             in_textureDatasetMatrix;\
       \n  for (int i = 0; i < clippingPlanesSize; i = i + 6)\
       \n    {\
-      \n    objDataPos = textureToObjMat * vec4(g_dataPos - g_dirStep, 1.0);\
+      \n    if (in_useJittering)\
+      \n      {\
+      \n      objDataPos = textureToObjMat * vec4(g_dataPos - g_dirStep\
+      \n                                          - jitterValue, 1.0);\
+      \n      }\
+      \n    else\
+      \n      {\
+      \n      objDataPos = textureToObjMat * vec4(g_dataPos - g_dirStep, 1.0);\
+      \n      }\
       \n    if (objDataPos.w != 0.0)\
       \n      {\
       \n      objDataPos = objDataPos/objDataPos.w; objDataPos.w = 1.0;\
@@ -1599,7 +1618,14 @@ namespace vtkvolume
       \n        {\
       \n        newObjDataPos /= newObjDataPos.w;\
       \n        }\
+      \n     if (in_useJittering)\
+      \n       {\
+      \n       g_dataPos = newObjDataPos.xyz + g_dirStep * jitterValue;\
+      \n       }\
+      \n     else\
+      \n       {\
       \n       g_dataPos = newObjDataPos.xyz + g_dirStep;\
+      \n       }\
       \n       bool stop = dot(sign(g_dataPos - l_texMin), sign(l_texMax - g_dataPos))\
       \n                     < 3.0;\
       \n      if (stop)\
