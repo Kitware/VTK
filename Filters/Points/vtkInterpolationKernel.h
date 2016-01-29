@@ -26,6 +26,13 @@
 // method requires providing a point locator to accelerate neigborhood
 // queries. Some kernels may refer back to the original dataset, or the point
 // attribute data associated with the dataset.
+//
+// Typically the kernels are invoked in two parts: first, the basis is
+// computed using the supplied point locator and dataset. These are the
+// neighboring points used to compute the interpolation weights. Then, the
+// weights are computed from points forming the basis. However, advanced
+// users can develop their own basis, skipping the ComputeBasis() method, and
+// then invoke ComputeWeights() directly.
 
 // .SECTION Caveats
 // The ComputeWeights() method is thread safe.
@@ -77,11 +84,22 @@ public:
   vtkBooleanMacro(RequiresInitialization, bool);
 
   // Description:
-  // Given a point x, compute interpolation weights associated with nearby
-  // points. The method returns the number of nearby points N (i.e., the
-  // neighborhood). Note that both the nearby points list pIds and the
-  // weights array are of length N, are provided by the caller of the method,
-  // and may be dynamically resized as necessary.
+  // Given a point x, determine the points around x which form an
+  // interpolation basis. The user must provide the vtkIdList pids, which will
+  // be dynamically resized as necessary. The method returns the number of
+  // points in the basis. Typically this method is called before
+  // ComputeBasis().
+  virtual vtkIdType ComputeBasis(double x[3], vtkIdList *pIds) = 0;
+
+  // Description:
+  // Given a point x, and a list of basis points pIds, compute interpolation
+  // weights associated with these basis points.  Note that both the nearby
+  // basis points list pIds and the weights array are provided by the caller
+  // of the method, and may be dynamically resized as necessary. The method
+  // returns the number of weights (pIds may be resized in some
+  // cases). Typically this method is called after ComputeBasis(), although
+  // advanced users can invoke ComputeWeights() and provide the interpolation
+  // basis points pIds directly.
   virtual vtkIdType ComputeWeights(double x[3], vtkIdList *pIds,
                                    vtkDoubleArray *weights) = 0;
 

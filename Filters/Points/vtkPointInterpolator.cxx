@@ -256,10 +256,9 @@ struct ProbePoints
         {
         this->Input->GetPoint(ptId,x);
 
-        numWeights = this->Kernel->ComputeWeights(x, pIds, weights);
-
-        if ( numWeights > 0)
+        if ( this->Kernel->ComputeBasis(x, pIds) > 0 )
           {
+          numWeights = this->Kernel->ComputeWeights(x, pIds, weights);
           this->Arrays.Interpolate(numWeights, pIds->GetPointer(0),
                                    weights->GetPointer(0), ptId);
           }
@@ -324,10 +323,9 @@ struct ImageProbePoints : public ProbePoints
             x[0] = origin[0] + i*spacing[0];
             ptId = i + jOffset + kOffset;
 
-            numWeights = this->Kernel->ComputeWeights(x, pIds, weights);
-
-            if ( numWeights > 0)
+            if ( this->Kernel->ComputeBasis(x, pIds) > 0 )
               {
+              numWeights = this->Kernel->ComputeWeights(x, pIds, weights);
               this->Arrays.Interpolate(numWeights, pIds->GetPointer(0),
                                        weights->GetPointer(0), ptId);
               }

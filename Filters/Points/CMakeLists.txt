@@ -3,6 +3,7 @@ set(Module_SRCS
   vtkGaussianKernel.cxx
   vtkInterpolationKernel.cxx
   vtkPointInterpolator.cxx
+  vtkLinearKernel.cxx
   vtkSPHKernel.cxx
   vtkShepardKernel.cxx
   vtkVoronoiKernel.cxx

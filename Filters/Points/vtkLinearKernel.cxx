@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkVoronoiKernel.cxx
+  Module:    vtkLinearKernel.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,48 +12,53 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkVoronoiKernel.h"
+#include "vtkLinearKernel.h"
 #include "vtkAbstractPointLocator.h"
 #include "vtkObjectFactory.h"
 #include "vtkIdList.h"
 #include "vtkDoubleArray.h"
 
-vtkStandardNewMacro(vtkVoronoiKernel);
+vtkStandardNewMacro(vtkLinearKernel);
 
 //----------------------------------------------------------------------------
-vtkVoronoiKernel::vtkVoronoiKernel()
+vtkLinearKernel::vtkLinearKernel()
+{
+  this->Radius = 1.0;
+}
+
+
+//----------------------------------------------------------------------------
+vtkLinearKernel::~vtkLinearKernel()
 {
 }
 
 
 //----------------------------------------------------------------------------
-vtkVoronoiKernel::~vtkVoronoiKernel()
-{
-}
-
-//----------------------------------------------------------------------------
-vtkIdType vtkVoronoiKernel::
+vtkIdType vtkLinearKernel::
 ComputeBasis(double x[3], vtkIdList *pIds)
 {
-  pIds->SetNumberOfIds(1);
-  vtkIdType pId = this->Locator->FindClosestPoint(x);
-  pIds->SetId(0,pId);
-
-  return 1;
+  this->Locator->FindPointsWithinRadius(this->Radius, x, pIds);
+  return pIds->GetNumberOfIds();
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkVoronoiKernel::
-ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *weights)
+vtkIdType vtkLinearKernel::
+ComputeWeights(double*, vtkIdList *pIds, vtkDoubleArray *weights)
 {
-  weights->SetNumberOfTuples(1);
-  weights->SetValue(0,1.0);
+  vtkIdType numPts = pIds->GetNumberOfIds();
+  double w = 1.0 / static_cast<double>(numPts);
 
-  return 1;
+  weights->SetNumberOfTuples(numPts);
+  for (vtkIdType i=0; i < numPts; ++i)
+    {
+    weights->SetValue(i,w);
+    }
+
+  return numPts;
 }
 
 //----------------------------------------------------------------------------
-void vtkVoronoiKernel::PrintSelf(ostream& os, vtkIndent indent)
+void vtkLinearKernel::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 

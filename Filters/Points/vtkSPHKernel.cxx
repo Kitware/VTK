@@ -34,11 +34,19 @@ vtkSPHKernel::~vtkSPHKernel()
 
 //----------------------------------------------------------------------------
 vtkIdType vtkSPHKernel::
-ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *weights)
+ComputeBasis(double x[3], vtkIdList *pIds)
 {
   pIds->SetNumberOfIds(1);
   vtkIdType pId = this->Locator->FindClosestPoint(x);
   pIds->SetId(0,pId);
+
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkSPHKernel::
+ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *weights)
+{
   weights->SetNumberOfTuples(1);
   weights->SetValue(0,1.0);
 

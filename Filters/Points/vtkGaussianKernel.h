@@ -56,19 +56,29 @@ public:
   // computational values.
   virtual void Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds,
                           vtkPointData *pd);
+
   // Description:
-  // Given a point x, compute interpolation weights associated with nearby
-  // points. The method returns the number of nearby points N (i.e., the
-  // neighborhood). Note that both the nearby points list pIds and the
-  // weights array are of length N, are provided by the caller of the method,
-  // and may be dynamically resized as necessary.
+  // Given a point x, determine the points around x which form an
+  // interpolation basis. The user must provide the vtkIdList pids, which will
+  // be dynamically resized as necessary. The method returns the number of
+  // points in the basis. Typically this method is called before
+  // ComputeWeights().
+  virtual vtkIdType ComputeBasis(double x[3], vtkIdList *pIds);
+
+  // Description:
+  // Given a point x, and a list of basis points pIds, compute interpolation
+  // weights associated with these basis points.  Note that both the nearby
+  // basis points list pIds and the weights array are provided by the caller
+  // of the method, and may be dynamically resized as necessary. Typically
+  // this method is called after ComputeBasis(), although advanced users can
+  // invoke ComputeWeights() and provide the interpolation basis points pIds
+  // directly.
   virtual vtkIdType ComputeWeights(double x[3], vtkIdList *pIds,
                                    vtkDoubleArray *weights);
 
   // Description:
   // Specify the radius of the kernel. Points within this radius will be
-  // used for interpolation. If no point is found, then the closest point
-  // will be used.
+  // used for interpolation (if ComputeBasis() is invoked).
   vtkSetClampMacro(Radius,double,0.000001,VTK_FLOAT_MAX);
   vtkGetMacro(Radius,double);
 

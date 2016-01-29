@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkVoronoiKernel.h
+  Module:    vtkLinearKernel.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,23 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkVoronoiKernel - a Voronoi interpolation kernel
+// .NAME vtkLinearKernel - a linear interpolation kernel
 
 // .SECTION Description
-// vtkVoronoiKernel is an interpolation kernel that simply returns the
-// closest point to a point to be interpolated. A single weight is returned
-// with value=1.0.
-
-// .SECTION Caveats
-// In degenerate cases (where a point x is equidistance from more than one
-// point) the kernel basis arbitrarily chooses one of the equidistant points.
+// vtkLinearKernel is an interpolation kernel that averages the contributions
+// of all points in the basis.
 
 // .SECTION See Also
-// vtkInterpolationKernel vtkGaussianKernel vtkSPHKernel vtkShepardKernel
+// vtkInterpolationKernel vtkGaussianKernel vtkLinearKernel vtkShepardKernel
 
 
-#ifndef vtkVoronoiKernel_h
-#define vtkVoronoiKernel_h
+#ifndef vtkLinearKernel_h
+#define vtkLinearKernel_h
 
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkInterpolationKernel.h"
@@ -37,13 +32,13 @@ class vtkIdList;
 class vtkDoubleArray;
 
 
-class VTKFILTERSPOINTS_EXPORT vtkVoronoiKernel : public vtkInterpolationKernel
+class VTKFILTERSPOINTS_EXPORT vtkLinearKernel : public vtkInterpolationKernel
 {
 public:
   // Description:
   // Standard methods for instantiation, obtaining type information, and printing.
-  static vtkVoronoiKernel *New();
-  vtkTypeMacro(vtkVoronoiKernel,vtkInterpolationKernel);
+  static vtkLinearKernel *New();
+  vtkTypeMacro(vtkLinearKernel,vtkInterpolationKernel);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -65,13 +60,21 @@ public:
   virtual vtkIdType ComputeWeights(double x[3], vtkIdList *pIds,
                                    vtkDoubleArray *weights);
 
+  // Description:
+  // Specify the radius of the kernel. Points within this radius will be used
+  // for interpolation (if ComputeBasis() is used).
+  vtkSetClampMacro(Radius,double,0.000001,VTK_FLOAT_MAX);
+  vtkGetMacro(Radius,double);
+
 protected:
-  vtkVoronoiKernel();
-  ~vtkVoronoiKernel();
+  vtkLinearKernel();
+  ~vtkLinearKernel();
+
+  double Radius;
 
 private:
-  vtkVoronoiKernel(const vtkVoronoiKernel&);  // Not implemented.
-  void operator=(const vtkVoronoiKernel&);  // Not implemented.
+  vtkLinearKernel(const vtkLinearKernel&);  // Not implemented.
+  void operator=(const vtkLinearKernel&);  // Not implemented.
 };
 
 #endif

@@ -50,54 +50,52 @@ Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds, vtkPointData *pd)
 
 //----------------------------------------------------------------------------
 vtkIdType vtkGaussianKernel::
-ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *weights)
+ComputeBasis(double x[3], vtkIdList *pIds)
 {
   this->Locator->FindPointsWithinRadius(this->Radius, x, pIds);
+  return pIds->GetNumberOfIds();
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkGaussianKernel::
+ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *weights)
+{
   vtkIdType numPts = pIds->GetNumberOfIds();
+  int i;
+  vtkIdType id;
+  double d2, y[3], sum = 0.0;
+  weights->SetNumberOfTuples(numPts);
+  double *w = weights->GetPointer(0);
+  double f2=this->F2;
 
-  if ( numPts >= 1 ) //Use Gaussian kernel
+  for (i=0; i<numPts; ++i)
     {
-    int i;
-    vtkIdType id;
-    double d2, y[3], sum = 0.0;
-    weights->SetNumberOfTuples(numPts);
-    double *w = weights->GetPointer(0);
-    double f2=this->F2;
+    id = pIds->GetId(i);
+    this->DataSet->GetPoint(id,y);
+    d2 = vtkMath::Distance2BetweenPoints(x,y);
 
-    for (i=0; i<numPts; ++i)
+    if ( d2 == 0.0 ) //precise hit on existing point
       {
-      id = pIds->GetId(i);
-      this->DataSet->GetPoint(id,y);
-      d2 = vtkMath::Distance2BetweenPoints(x,y);
-
-      if ( d2 == 0.0 ) //precise hit on existing point
-        {
-        pIds->SetNumberOfIds(1);
-        pIds->SetId(0,id);
-        weights->SetNumberOfTuples(1);
-        weights->SetValue(0,1.0);
-        return 1;
-        }
-      else
-        {
-        w[i] = exp(-f2 * d2);
-        sum += w[i];
-        }
-      }//over all points
-
-    // Normalize
-    for (i=0; i<numPts; ++i)
-      {
-      w[i] /= sum;
+      pIds->SetNumberOfIds(1);
+      pIds->SetId(0,id);
+      weights->SetNumberOfTuples(1);
+      weights->SetValue(0,1.0);
+      return 1;
       }
+    else
+      {
+      w[i] = exp(-f2 * d2);
+      sum += w[i];
+      }
+    }//over all points
 
-    return numPts;
-    }//using Gaussian Kernel
-
-  else //null point
+  // Normalize
+  for (i=0; i<numPts; ++i)
     {
-    return 0;
+    w[i] /= sum;
     }
+
+  return numPts;
 }
 
 //----------------------------------------------------------------------------

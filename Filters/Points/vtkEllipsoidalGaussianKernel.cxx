@@ -100,86 +100,84 @@ Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds, vtkPointData *pd)
 
 //----------------------------------------------------------------------------
 vtkIdType vtkEllipsoidalGaussianKernel::
-ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *weights)
+ComputeBasis(double x[3], vtkIdList *pIds)
 {
   this->Locator->FindPointsWithinRadius(this->Radius, x, pIds);
+  return pIds->GetNumberOfIds();
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkEllipsoidalGaussianKernel::
+ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *weights)
+{
   vtkIdType numPts = pIds->GetNumberOfIds();
+  int i;
+  vtkIdType id;
+  double sum = 0.0;
+  weights->SetNumberOfTuples(numPts);
+  double *w = weights->GetPointer(0);
+  double y[3], v[3], r2, z2, rxy2, mag;
+  double n[3], s;
+  double f2=this->F2, e2=this->E2;
 
-  if ( numPts >= 1 ) //Use Gaussian kernel
+  for (i=0; i<numPts; ++i)
     {
-    int i;
-    vtkIdType id;
-    double sum = 0.0;
-    weights->SetNumberOfTuples(numPts);
-    double *w = weights->GetPointer(0);
-    double y[3], v[3], r2, z2, rxy2, mag;
-    double n[3], s;
-    double f2=this->F2, e2=this->E2;
+    id = pIds->GetId(i);
+    this->DataSet->GetPoint(id,y);
 
-    for (i=0; i<numPts; ++i)
+    v[0] = x[0] - y[0];
+    v[1] = x[1] - y[1];
+    v[2] = x[2] - y[2];
+    r2 = vtkMath::Dot(v,v);
+
+    if ( r2 == 0.0 ) //precise hit on existing point
       {
-      id = pIds->GetId(i);
-      this->DataSet->GetPoint(id,y);
-
-      v[0] = x[0] - y[0];
-      v[1] = x[1] - y[1];
-      v[2] = x[2] - y[2];
-      r2 = vtkMath::Dot(v,v);
-
-      if ( r2 == 0.0 ) //precise hit on existing point
-        {
-        pIds->SetNumberOfIds(1);
-        pIds->SetId(0,id);
-        weights->SetNumberOfTuples(1);
-        weights->SetValue(0,1.0);
-        return 1;
-        }
-      else // continue computing weights
-        {
-        // Normal affect
-        if ( this->Normals )
-          {
-          this->Normals->GetTuple(id,n);
-          mag = vtkMath::Dot(n,n);
-          mag = ( mag == 0.0 ? 1.0 : sqrt(mag) );
-          }
-        else
-          {
-          mag = 1.0;
-          }
-
-        // Scalar scaling
-        if ( this->Scalars )
-          {
-          this->Scalars->GetTuple(id,&s);
-          }
-        else
-          {
-          s = 1.0;
-          }
-
-        z2 = vtkMath::Dot(v,n) / mag;
-        z2 = z2*z2;
-        rxy2 = r2 - z2;
-
-        w[i] = s * exp(-f2 * (rxy2/e2 + z2));
-        sum += w[i];
-        }//computing weights
-      }//over all points
-
-    // Normalize
-    for (i=0; i<numPts; ++i)
-      {
-      w[i] /= sum;
+      pIds->SetNumberOfIds(1);
+      pIds->SetId(0,id);
+      weights->SetNumberOfTuples(1);
+      weights->SetValue(0,1.0);
+      return 1;
       }
+    else // continue computing weights
+      {
+      // Normal affect
+      if ( this->Normals )
+        {
+        this->Normals->GetTuple(id,n);
+        mag = vtkMath::Dot(n,n);
+        mag = ( mag == 0.0 ? 1.0 : sqrt(mag) );
+        }
+      else
+        {
+        mag = 1.0;
+        }
 
-    return numPts;
-    }//using ellipsoidal Gaussian Kernel
+      // Scalar scaling
+      if ( this->Scalars )
+        {
+        this->Scalars->GetTuple(id,&s);
+        }
+      else
+        {
+        s = 1.0;
+        }
 
-  else //null point
+      z2 = vtkMath::Dot(v,n) / mag;
+      z2 = z2*z2;
+      rxy2 = r2 - z2;
+
+      w[i] = s * exp(-f2 * (rxy2/e2 + z2));
+      sum += w[i];
+      }//computing weights
+    }//over all points
+
+  // Normalize
+  for (i=0; i<numPts; ++i)
     {
-    return 0;
+    w[i] /= sum;
     }
+
+  return numPts;
 }
 
 //----------------------------------------------------------------------------
