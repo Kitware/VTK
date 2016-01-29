@@ -1963,16 +1963,20 @@ void vtkOpenGLContextDevice2D::DrawImage(const vtkRectf& pos,
       }
     }
 
+  int tunit =  this->RenderWindow->GetTextureUnitManager()->Allocate();
+  if (tunit < 0)
+    {
+    vtkErrorMacro("Hardware does not support the number of textures defined.");
+    return;
+    }
+
+  glActiveTexture(GL_TEXTURE0 + tunit);
+
   vtkVector2f tex(1.0, 1.0);
-  GLuint index = 0;
-  if (this->Storage->PowerOfTwoTextures)
-    {
-    index = this->Storage->TextureFromImage(image, tex);
-    }
-  else
-    {
-    index = this->Storage->TextureFromImage(image, tex);
-    }
+
+  // Call this *after* calling glActiveTexture() to ensure the texture
+  // is bound to the correct texture unit.
+  GLuint index = this->Storage->TextureFromImage(image, tex);
 
   float points[] = {
     pos.GetX()                 , pos.GetY(),
@@ -1993,14 +1997,6 @@ void vtkOpenGLContextDevice2D::DrawImage(const vtkRectf& pos,
   vtkOpenGLHelper *cbo = 0;
   this->ReadyVTBOProgram();
   cbo = this->VTBO;
-  int tunit =  this->RenderWindow->GetTextureUnitManager()->Allocate();
-  if (tunit < 0)
-    {
-    vtkErrorMacro("Hardware does not support the number of textures defined.");
-    return;
-    }
-  glActiveTexture(GL_TEXTURE0 + tunit);
-
   cbo->Program->SetUniformi("texture1", tunit);
 
   this->BuildVBO(cbo, points, 6, NULL, 0, texCoord);
