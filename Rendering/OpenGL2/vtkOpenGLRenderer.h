@@ -67,6 +67,11 @@ public:
   void SetPass(vtkRenderPass *p);
   vtkGetObjectMacro(Pass, vtkRenderPass);
 
+  // Description:
+  // Indicate if this system is subject to the apple/amd bug
+  // of not having a working glPrimitiveId
+  bool HaveApplePrimitiveIdBug();
+
 protected:
   vtkOpenGLRenderer();
   ~vtkOpenGLRenderer();
@@ -120,6 +125,9 @@ protected:
 
   friend class vtkRenderPass;
   vtkRenderPass *Pass;
+
+  bool HaveApplePrimitiveIdBugValue;
+  bool HaveApplePrimitiveIdBugChecked;
 
 private:
   vtkOpenGLRenderer(const vtkOpenGLRenderer&);  // Not implemented.
