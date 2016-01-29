@@ -1567,9 +1567,47 @@ namespace vtkvolume
   {
     return std::string("\
       \n  int clippingPlanesSize = int(in_clippingPlanes[0]);\
-      \n  mat4 textureToWorldMat = in_volumeMatrix *\
+      \n  vec4 objDataPos = vec4(0.0);\
+      \n  mat4 textureToObjMat = in_volumeMatrix *\
       \n                             in_textureDatasetMatrix;\
-      \n  vec3 normalizedRayDir = normalize(rayDir);");
+      \n  for (int i = 0; i < clippingPlanesSize; i = i + 6)\
+      \n    {\
+      \n    objDataPos = textureToObjMat * vec4(g_dataPos - g_dirStep, 1.0);\
+      \n    if (objDataPos.w != 0.0)\
+      \n      {\
+      \n      objDataPos = objDataPos/objDataPos.w; objDataPos.w = 1.0;\
+      \n      }\
+      \n    vec3 planeOrigin = vec3(in_clippingPlanes[i + 1],\
+      \n                            in_clippingPlanes[i + 2],\
+      \n                            in_clippingPlanes[i + 3]);\
+      \n    vec3 planeNormal = vec3(in_clippingPlanes[i + 4],\
+      \n                            in_clippingPlanes[i + 5],\
+      \n                            in_clippingPlanes[i + 6]);\
+      \n    vec3 normalizedPlaneNormal = normalize(planeNormal);\
+      \n\
+      \n    float planeD = -planeOrigin[0] * normalizedPlaneNormal[0] - planeOrigin[1]\
+      \n                      * normalizedPlaneNormal[1] - planeOrigin[2] * normalizedPlaneNormal[2];\
+      \n    bool frontFace = dot(rayDir, normalizedPlaneNormal) > 0;\
+      \n    float dist = dot(rayDir, normalizedPlaneNormal);\
+      \n    if (dist != 0.0) { dist = (-planeD - dot(normalizedPlaneNormal, objDataPos.xyz)) / dist; }\
+      \n    if (frontFace && dist > 0.0 && dot(vec3(objDataPos.xyz - planeOrigin), planeNormal) < 0)\
+      \n      {\
+      \n      vec4 newObjDataPos = vec4(objDataPos.xyz + dist * rayDir, 1.0);\
+      \n      newObjDataPos = in_inverseTextureDatasetMatrix\
+      \n                        * in_inverseVolumeMatrix * vec4(newObjDataPos.xyz, 1.0);\
+      \n      if (newObjDataPos.w != 0.0)\
+      \n        {\
+      \n        newObjDataPos /= newObjDataPos.w;\
+      \n        }\
+      \n       g_dataPos = newObjDataPos.xyz + g_dirStep;\
+      \n       bool stop = dot(sign(g_dataPos - l_texMin), sign(l_texMax - g_dataPos))\
+      \n                     < 3.0;\
+      \n      if (stop)\
+      \n        {\
+      \n        discard;\
+      \n        }\
+      \n      }\
+      \n  }");
   }
 
   //--------------------------------------------------------------------------
@@ -1584,43 +1622,23 @@ namespace vtkvolume
     else
       {
       return std::string("\
-        \n    vec4 worldDataPos = textureToWorldMat * vec4(g_dataPos,1.0);\
-        \n    if (worldDataPos.w != 0.0)\
-        \n      {\
-        \n      worldDataPos = worldDataPos/worldDataPos.w;\
-        \n      }\
         \n    for (int i = 0; i < clippingPlanesSize && !l_skip; i = i + 6)\
         \n      {\
+        \n      vec4 objDataPos = textureToObjMat * vec4(g_dataPos, 1.0);\
+        \n      if (objDataPos.w != 0.0)\
+        \n        {\
+        \n        objDataPos /= objDataPos.w;\
+        \n        }\
         \n      vec3 planeOrigin = vec3(in_clippingPlanes[i + 1],\
         \n                              in_clippingPlanes[i + 2],\
         \n                              in_clippingPlanes[i + 3]);\
         \n      vec3 planeNormal = vec3(in_clippingPlanes[i + 4],\
         \n                              in_clippingPlanes[i + 5],\
         \n                              in_clippingPlanes[i + 6]);\
-        \n      vec3 normalizedPlaneNormal = normalize(planeNormal);\
-        \n\
-        \n      vec3 dir = worldDataPos.xyz - planeOrigin;\
-        \n      float planeD = -planeOrigin[0] * normalizedPlaneNormal[0] - planeOrigin[1]\
-        \n                        * normalizedPlaneNormal[1] - planeOrigin[2] * normalizedPlaneNormal[2];\
-        \n      if (dot(vec3(worldDataPos.xyz - planeOrigin), planeNormal) < 0 && dot(rayDir, planeNormal) < 0)\
+        \n      if (dot(vec3(objDataPos.xyz - planeOrigin), planeNormal) < 0 && dot(rayDir, planeNormal) < 0)\
         \n        {\
         \n         l_skip = true;\
         \n         g_exit = true;\
-        \n        }\
-        \n      else if (dot(vec3(worldDataPos.xyz - planeOrigin), planeNormal) < 0)\
-        \n        {\
-        \n        l_skip=true;\
-        \n        float paraT = -(dot(worldDataPos.xyz, normalizedPlaneNormal) + planeD) /\
-        \n                        (dot(normalizedRayDir, normalizedPlaneNormal))  ;\
-        \n        vec3 newWorldPos = worldDataPos.xyz + paraT * normalizedRayDir;\
-        \n        vec4 texturePos = vec4(newWorldPos.xyz, 1.0) * in_inverseTextureDatasetMatrix\
-        \n                            * in_inverseVolumeMatrix;\
-        \n        if (texturePos.w != 0.0)\
-        \n          {\
-        \n          texturePos = texturePos/texturePos.w;\
-        \n          }\
-        \n        g_dataPos = texturePos.xyz;\
-        \n        break;\
         \n        }\
         \n      }"
       );
