@@ -425,16 +425,17 @@ public:
   // Copy an array.
   template<class T>
   static void SaveArray(const T *a, T *b, int n) {
-    int i = 0;
-    do { b[i] = a[i]; } while (++i < n); }
+    for (int i = 0; i < n; i++) {
+      b[i] = a[i]; } }
 
   // Description:
   // Check if an array has changed.
   template<class T>
   static bool ArrayHasChanged(const T *a, const T *b, int n) {
-    int i = 0;
-    do { if (a[i] != b[i]) break; } while (++i < n);
-    return (i < n); }
+    for (int i = 0; i < n; i++) {
+      if (a[i] != b[i]) {
+        return true; } }
+    return false; }
 
   // Description:
   // Get the argument count.

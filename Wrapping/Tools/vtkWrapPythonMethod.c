@@ -198,11 +198,15 @@ static void vtkWrapPython_GetSizesForArrays(
         }
 
       fprintf(fp,
-              "%s  temp%d = small%d;\n"
-              "%s  if (size%d > 4)\n"
+              "%s  if (size%d > 0)\n"
               "%s    {\n"
-              "%s    temp%d = new %s[%ssize%d];\n"
-              "%s    }\n",
+              "%s    temp%d = small%d;\n"
+              "%s    if (size%d > 4)\n"
+              "%s      {\n"
+              "%s      temp%d = new %s[%ssize%d];\n"
+              "%s      }\n",
+              indentation, i,
+              indentation,
               indentation, i, i,
               indentation, i,
               indentation,
@@ -212,9 +216,13 @@ static void vtkWrapPython_GetSizesForArrays(
       if (*mtwo)
         {
         fprintf(fp,
-              "%s  save%d = &temp%d[size%d];\n",
+              "%s    save%d = &temp%d[size%d];\n",
               indentation, i, i, i);
         }
+
+      fprintf(fp,
+              "%s    }\n",
+              indentation);
       }
     }
   if (j > 1)
