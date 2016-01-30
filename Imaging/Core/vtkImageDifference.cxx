@@ -114,16 +114,64 @@ if (this->Averaging && \
   }
 
 //----------------------------------------------------------------------------
+// This functor is used with vtkSMPTools to execute the algorithm in pieces
+// split over the extent of the data.
+class vtkImageDifferenceSMPFunctor
+{
+public:
+  // Create the functor by providing all of the information that will be
+  // needed by the ThreadedRequestData method that the functor will call.
+  vtkImageDifferenceSMPFunctor(
+    vtkImageDifference *algo, vtkImageData ***inputs, vtkImageData **outputs,
+    int *extent, vtkIdType pieces)
+    : Algorithm(algo), Inputs(inputs), Outputs(outputs),
+      Extent(extent), NumberOfPieces(pieces) {}
+
+  void Initialize() {}
+  void operator()(vtkIdType begin, vtkIdType end);
+  void Reduce();
+
+private:
+  vtkImageDifferenceSMPFunctor();
+
+  vtkImageDifference *Algorithm;
+  vtkImageData ***Inputs;
+  vtkImageData **Outputs;
+  int *Extent;
+  vtkIdType NumberOfPieces;
+};
+
+//----------------------------------------------------------------------------
+void vtkImageDifferenceSMPFunctor::operator()(vtkIdType begin, vtkIdType end)
+{
+  for (vtkIdType piece = begin; piece < end; piece++)
+    {
+    int splitExt[6] = { 0, -1, 0, -1, 0, -1 };
+    vtkIdType total = this->Algorithm->SplitExtent(
+      splitExt, this->Extent, piece, this->NumberOfPieces);
+
+    if (piece < total &&
+        splitExt[0] <= splitExt[1] &&
+        splitExt[2] <= splitExt[3] &&
+        splitExt[4] <= splitExt[5])
+      {
+      this->Algorithm->ThreadedRequestData(
+        NULL, NULL, NULL, this->Inputs, this->Outputs, splitExt, piece);
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
 // Used with vtkSMPTools to compute the error
-void vtkImageDifference::SMPReduce()
+void vtkImageDifferenceSMPFunctor::Reduce()
 {
   const char *errorMessage = 0;
   double error = 0.0;
   double thresholdedError = 0.0;
 
   for (vtkImageDifferenceSMPThreadLocal::iterator
-       iter = this->SMPThreadData->begin();
-       iter != this->SMPThreadData->end();
+       iter = this->Algorithm->SMPThreadData->begin();
+       iter != this->Algorithm->SMPThreadData->end();
        ++iter)
     {
     errorMessage = iter->ErrorMessage;
@@ -135,9 +183,9 @@ void vtkImageDifference::SMPReduce()
     thresholdedError += iter->ThresholdedError;
     }
 
-  this->ErrorMessage = errorMessage;
-  this->Error = error;
-  this->ThresholdedError = thresholdedError;
+  this->Algorithm->ErrorMessage = errorMessage;
+  this->Algorithm->Error = error;
+  this->Algorithm->ThresholdedError = thresholdedError;
 }
 
 //----------------------------------------------------------------------------
@@ -418,17 +466,46 @@ int vtkImageDifference::RequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-  int r = 0;
+  int r = 1;
 
-  if (this->EnableSMP)
+  if (this->EnableSMP) // For vtkSMPTools implementation.
     {
-    // For vtkSMPTools implementation.
+    // Allocate the output data object
+    vtkImageData *outData[1];
+    vtkInformation* outInfo = outputVector->GetInformationObject(0);
+    outData[0] = vtkImageData::SafeDownCast(
+      outInfo->Get(vtkDataObject::DATA_OBJECT()));
+    int extent[6];
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent);
+    this->AllocateOutputData(outData[0], outInfo, extent);
+
+    // Get the input data objects
+    vtkImageData *inDataPointer[2];
+    vtkImageData **inData[2] = { &inDataPointer[0], &inDataPointer[1] };
+    vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+    inData[0][0] = vtkImageData::SafeDownCast(
+      inInfo->Get(vtkDataObject::DATA_OBJECT()));
+    vtkInformation* inInfo2 = inputVector[1]->GetInformationObject(0);
+    inData[1][0] = vtkImageData::SafeDownCast(
+      inInfo2->Get(vtkDataObject::DATA_OBJECT()));
+
+    // Copy attribute arrays from first input to the output
+    this->CopyAttributeData(inData[0][0], outData[0], inputVector);
+
+    // Do a dummy execution of SplitExtent to compute the number of pieces
+    int subExtent[6];
+    vtkIdType pieces = this->SplitExtent(
+      subExtent, extent, 0, this->NumberOfThreads);
+
+    // Use vtkSMPTools to multithread the functor
     vtkImageDifferenceSMPThreadLocal threadData;
+    vtkImageDifferenceSMPFunctor functor(
+      this, inData, outData, extent, pieces);
     this->SMPThreadData = &threadData;
-
-    // The superclass will call ThreadedRequestData
-    r = this->Superclass::RequestData(request, inputVector, outputVector);
-
+    bool debug = this->Debug;
+    this->Debug = false;
+    vtkSMPTools::For(0, pieces, functor);
+    this->Debug = debug;
     this->SMPThreadData = NULL;
     }
   else

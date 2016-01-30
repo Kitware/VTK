@@ -266,18 +266,6 @@ public:
       }
   }
 
-  // Called by vtkSMPTools prior to starting the multi-threading.
-  void Initialize()
-  {
-    this->Algorithm->SMPInitialize();
-  }
-
-  // Called by vtkSMPTools once the multi-threading has finished.
-  void Reduce()
-  {
-    this->Algorithm->SMPReduce();
-  }
-
   // Called by vtkSMPTools to execute the algorithm over specific pieces.
   void operator()(vtkIdType begin, vtkIdType end);
 

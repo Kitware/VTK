@@ -123,10 +123,6 @@ protected:
                                    vtkImageData **outData,
                                    int extent[6], int threadId);
 
-  // Description:
-  // Called immediately after SMP execution completes.
-  virtual void SMPReduce();
-
   // Used for vtkMultiThreader operation.
   vtkImageDifferenceThreadData *ThreadData;
 
@@ -136,6 +132,8 @@ protected:
 private:
   vtkImageDifference(const vtkImageDifference&);  // Not implemented.
   void operator=(const vtkImageDifference&);  // Not implemented.
+
+  friend class vtkImageDifferenceSMPFunctor;
 };
 
 #endif
