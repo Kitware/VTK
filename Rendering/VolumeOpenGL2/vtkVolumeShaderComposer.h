@@ -1585,8 +1585,8 @@ namespace vtkvolume
       \n    {\
       \n    if (in_useJittering)\
       \n      {\
-      \n      objDataPos = textureToObjMat * vec4(g_dataPos - g_dirStep\
-      \n                                          - jitterValue, 1.0);\
+      \n      objDataPos = textureToObjMat * vec4(g_dataPos - (g_dirStep\
+      \n                                           * jitterValue), 1.0);\
       \n      }\
       \n    else\
       \n      {\
