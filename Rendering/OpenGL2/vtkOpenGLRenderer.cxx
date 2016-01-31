@@ -73,6 +73,9 @@ vtkOpenGLRenderer::vtkOpenGLRenderer()
 
   this->BackgroundTexture = 0;
   this->Pass = 0;
+
+  this->HaveApplePrimitiveIdBugValue = false;
+  this->HaveApplePrimitiveIdBugChecked = false;
 }
 
 // Ask lights to load themselves into graphics pipeline.
@@ -650,6 +653,57 @@ vtkOpenGLRenderer::~vtkOpenGLRenderer()
     this->DepthPeelingPass->Delete();
     this->DepthPeelingPass = 0;
     }
+}
+
+bool vtkOpenGLRenderer::HaveApplePrimitiveIdBug()
+{
+  if (this->HaveApplePrimitiveIdBugChecked)
+    {
+    return this->HaveApplePrimitiveIdBugValue;
+    }
+
+#ifdef __APPLE__
+  // working AMD APPLE systems
+  // OpenGL vendor string:  ATI Technologies Inc.
+  // OpenGL version string:   4.1 ATI-1.40.15
+  // OpenGL renderer string:    AMD Radeon R9 M370X OpenGL Engine
+  // OpenGL version string:   4.1 ATI-1.40.16
+  // OpenGL renderer string:    AMD Radeon HD - FirePro D500 OpenGL Engine
+  // OpenGL renderer string:    AMD Radeon HD 5770 OpenGL Engine
+
+  // known bad APPLE AMD systems
+  // OpenGL vendor string:  ATI Technologies Inc.
+  // OpenGL version string:   3.3 ATI-10.0.40
+  // OpenGL renderer string:    ATI Radeon HD 2600 PRO OpenGL Engine
+
+  std::string vendor = (const char *)glGetString(GL_VENDOR);
+  if (vendor.find("ATI") != std::string::npos ||
+      vendor.find("AMD") != std::string::npos ||
+      vendor.find("amd") != std::string::npos)
+    {
+    // assume we have the bug
+    this->HaveApplePrimitiveIdBugValue = true;
+
+    // but exclude systems we know do not have it
+    std::string renderer = (const char *)glGetString(GL_RENDERER);
+    std::string version = (const char *)glGetString(GL_VERSION);
+    if (
+        (version.find("4.1 ATI-1.40.15") != std::string::npos &&
+          (renderer.find("AMD Radeon R9 M370X OpenGL Engine") != std::string::npos)) ||
+        (version.find("4.1 ATI-1.40.16") != std::string::npos &&
+          (renderer.find("ATI Radeon HD 5770 OpenGL Engine") != std::string::npos ||
+           renderer.find("AMD Radeon HD - FirePro D500 OpenGL Engine") != std::string::npos))
+        )
+      {
+      this->HaveApplePrimitiveIdBugValue = false;
+      }
+    }
+#else
+  this->HaveApplePrimitiveIdBugValue = false;
+#endif
+
+  this->HaveApplePrimitiveIdBugChecked = true;
+  return this->HaveApplePrimitiveIdBugValue;
 }
 
 unsigned int vtkOpenGLRenderer::GetNumPickedIds()
