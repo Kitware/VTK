@@ -59,6 +59,11 @@ vtkVolumeRayCastSpaceLeapingImageFilter::vtkVolumeRayCastSpaceLeapingImageFilter
     this->GradientOpacityTable[i] = NULL;
     }
   this->Cache = NULL;
+
+  // Ensure that no splits occur along X or Y axes when multithreading,
+  // there seems to be a bug with the increments that requires this.
+  this->SplitPath[0] = 2;
+  this->SplitPathLength = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -135,8 +140,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilter
 
 //----------------------------------------------------------------------------
 static void
-vtkVolumeRayCastSpaceLeapingImageFilterClearOutput(vtkDataArray *scalars,
-                                                   vtkImageData *outData,
+vtkVolumeRayCastSpaceLeapingImageFilterClearOutput(vtkImageData *outData,
                                                    int outExt[6],
                                                    int nComponents )
 {
@@ -146,10 +150,7 @@ vtkVolumeRayCastSpaceLeapingImageFilterClearOutput(vtkDataArray *scalars,
   // Get increments to march through the thread's output extents
 
   vtkIdType outInc0, outInc1, outInc2;
-  outData->GetContinuousIncrements(scalars,
-                                   outExt, outInc0, outInc1, outInc2);
-  outInc1 *= 3;
-  outInc2 *= 3;
+  outData->GetContinuousIncrements(outExt, outInc0, outInc1, outInc2);
   // A. Initialize the arrays with a blank flag.
 
   int i,j,k;
@@ -680,8 +681,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilter
   // Get increments to march through the output
 
   vtkIdType outInc0, outInc1, outInc2;
-  outData->GetContinuousIncrements(this->CurrentScalars,
-                                   outExt, outInc0, outInc1, outInc2);
+  outData->GetContinuousIncrements(outExt, outInc0, outInc1, outInc2);
 
   // Now process the flags
 
@@ -768,11 +768,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilter
   // Get increments to march through the output
 
   vtkIdType outInc0, outInc1, outInc2;
-  outData->GetContinuousIncrements(this->CurrentScalars,
-                                   outExt, outInc0, outInc1, outInc2);
-
-  outInc1 *= 3;
-  outInc2 *= 3;
+  outData->GetContinuousIncrements(outExt, outInc0, outInc1, outInc2);
 
   // Now process the flags
 
@@ -873,8 +869,8 @@ void vtkVolumeRayCastSpaceLeapingImageFilter::ThreadedRequestData(
 
   if (this->ComputeMinMax)
     {
-    vtkVolumeRayCastSpaceLeapingImageFilterClearOutput(this->CurrentScalars,
-                                                       outData[0], outExt, nComponents );
+    vtkVolumeRayCastSpaceLeapingImageFilterClearOutput(
+      outData[0], outExt, nComponents );
     }
 
 
