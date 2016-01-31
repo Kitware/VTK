@@ -506,6 +506,5 @@ int TestIntersectWithLine(int argc, char* argv[])
 
 int quadraticIntersection(int argc, char* argv[])
 {
-  std::ostringstream vtkmsg_with_warning_C4701;
   return TestIntersectWithLine(argc,argv);
 }

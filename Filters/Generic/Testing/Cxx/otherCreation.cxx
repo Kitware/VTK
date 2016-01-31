@@ -1680,8 +1680,6 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
 int otherCreation(int vtkNotUsed(argc),
                   char *vtkNotUsed(argv)[])
 {
-  std::ostringstream vtkmsg_with_warning_C4701;
-
   if (TestEmpty(cout))
     {
     return 1;
