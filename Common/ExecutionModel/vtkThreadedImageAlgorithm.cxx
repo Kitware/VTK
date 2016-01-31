@@ -43,6 +43,10 @@ vtkThreadedImageAlgorithm::vtkThreadedImageAlgorithm()
   this->SplitPath[1] = 1;
   this->SplitPath[2] = 0;
   this->SplitPathLength = 3;
+
+  // The desired block size in bytes, should be small enough that the
+  // operation will fit in cache, where cache is usually a few MB.
+  this->DesiredBytesPerPiece = 1000000;
 }
 
 //----------------------------------------------------------------------------
@@ -76,6 +80,8 @@ void vtkThreadedImageAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "GlobalDefaultEnableSMP: "
      << (vtkThreadedImageAlgorithm::GlobalDefaultEnableSMP ?
          "On\n" : "Off\n");
+  os << indent << "DesiredBytesPerPiece: "
+     << this->DesiredBytesPerPiece << "\n";
   os << indent << "SplitMode: "
      << (this->SplitMode == SLAB ? "Slab\n" :
          (this->SplitMode == BEAM ? "Beam\n" :
@@ -588,6 +594,9 @@ int vtkThreadedImageAlgorithm::RequestData(
     // SMP is enabled, use vtkSMPTools to thread the filter
     int updateExtent[6] = { 0, -1, 0, -1, 0, -1 };
 
+    // need bytes per voxel to compute block size
+    int bytesPerVoxel = 1;
+
     // get the update extent from the output, if there is an output
     if (this->GetNumberOfOutputPorts())
       {
@@ -595,9 +604,14 @@ int vtkThreadedImageAlgorithm::RequestData(
         request->Get(vtkDemandDrivenPipeline::FROM_OUTPUT_PORT());
       vtkInformation *outInfo =
         outputVector->GetInformationObject(outputPort);
-
-      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-                   updateExtent);
+      vtkImageData *outData = vtkImageData::SafeDownCast(
+        outInfo->Get(vtkDataObject::DATA_OBJECT()));
+      if (outData)
+        {
+        bytesPerVoxel = (outData->GetScalarSize() *
+                         outData->GetNumberOfScalarComponents());
+        outData->GetExtent(updateExtent);
+        }
       }
     else
       {
@@ -606,9 +620,17 @@ int vtkThreadedImageAlgorithm::RequestData(
         {
         if (this->GetNumberOfInputConnections(inPort))
           {
-          inputVector[inPort]->GetInformationObject(0)->Get(
-            vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), updateExtent);
-          break;
+          vtkInformation *inInfo =
+            inputVector[inPort]->GetInformationObject(0);
+          vtkImageData *inData = vtkImageData::SafeDownCast(
+            inInfo->Get(vtkDataObject::DATA_OBJECT()));
+          if (inData)
+            {
+            bytesPerVoxel = (inData->GetScalarSize() *
+                             inData->GetNumberOfScalarComponents());
+            inData->GetExtent(updateExtent);
+            break;
+            }
           }
         }
       }
@@ -618,12 +640,21 @@ int vtkThreadedImageAlgorithm::RequestData(
         updateExtent[2] <= updateExtent[3] &&
         updateExtent[4] <= updateExtent[5])
       {
-      // do a dummy execution of SplitExtent to compute the number of pieces,
-      // for backwards compatibility limit number of pieces to NumberOfThreads
-      // which should be set to VTK_MAX_THREADS for good performance
+      // compute a reasonable number of pieces, this should be at least the
+      // number of available threads and should be relative to the data size
+      vtkTypeInt64 bytesize = (
+        static_cast<vtkTypeInt64>(updateExtent[1] - updateExtent[0] + 1)*
+        static_cast<vtkTypeInt64>(updateExtent[3] - updateExtent[2] + 1)*
+        static_cast<vtkTypeInt64>(updateExtent[5] - updateExtent[4] + 1)*
+        bytesPerVoxel);
+      vtkIdType bytesPerPiece = (this->DesiredBytesPerPiece > 0 ?
+                                 this->DesiredBytesPerPiece : 1);
+      vtkIdType pieces = bytesize/bytesPerPiece;
+      pieces += vtkSMPTools::GetEstimatedNumberOfThreads();
+
+      // do a dummy execution of SplitExtent to compute the number of pieces
       int subExtent[6];
-      vtkIdType pieces =
-        this->SplitExtent(subExtent, updateExtent, 0, this->NumberOfThreads);
+      pieces = this->SplitExtent(subExtent, updateExtent, 0, pieces);
 
       // always shut off debugging to avoid threading problems with GetMacros
       bool debug = this->Debug;

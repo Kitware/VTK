@@ -65,6 +65,14 @@ public:
   static bool GetGlobalDefaultEnableSMP();
 
   // Description:
+  // The desired bytes per piece when volume is split for execution.
+  // When SMP is enabled, this is used to subdivide the volume into pieces.
+  // Smaller pieces allow for better dynamic load balancing, but increase
+  // the total overhead. The default is 1000000 bytes.
+  vtkSetMacro(DesiredBytesPerPiece, vtkIdType);
+  vtkGetMacro(DesiredBytesPerPiece, vtkIdType);
+
+  // Description:
   // Set the method used to divide the volume into pieces.
   // Slab mode splits the volume along the Z direction first,
   // Beam mode splits evenly along the Z and Y directions, and
@@ -107,6 +115,7 @@ protected:
   int SplitMode;
   int SplitPath[3];
   int SplitPathLength;
+  vtkIdType DesiredBytesPerPiece;
 
   // Description:
   // This is called by the superclass.
