@@ -59,6 +59,7 @@ argumentSize:Common/DataModel/vtkStructuredGrid.h
 arrayIndexOutOfBounds:Common/DataModel/vtkCell.h
 assignBoolToPointer:Common/Math/vtkMatrix4x4.h
 AssignmentAddressToInteger:Common/Math/vtkPolynomialSolversUnivariate.cxx
+clarifyCondition:Rendering/Core/Testing/Cxx/TestInteractorStyleImageProperty.cxx
 comparisonOfBoolWithInvalidComparator:Rendering/Label/vtkLabeledTreeMapDataMapper.cxx
 copyCtorPointerCopying:IO/NetCDF/vtkSLACReader.cxx
 deallocDealloc:Wrapping/Tools/vtkParseMerge.c
@@ -80,14 +81,22 @@ nullPointerRedundantCheck:Filters/General/vtkMultiThreshold.cxx
 oppositeInnerCondition:Rendering/VolumeOpenGL/vtkOpenGLVolumeTextureMapper3D.cxx
 pointerPositive:Common/DataModel/vtkUnstructuredGridCellIterator.cxx
 redundantAssignInSwitch:Wrapping/Tools/vtkWrapPythonOverload.c
+stlIfStrFind:Infovis/Core/vtkPipelineGraphSource.cxx
 unassignedVariable:Common/Transforms/vtkHomogeneousTransform.cxx
 unassignedVariable:Filters/Core/vtkFlyingEdges3D.cxx
 unassignedVariable:Rendering/Core/vtkCamera.cxx
 uninitdata:IO/Import/vtk3DSImporter.cxx
+uninitvar:Common/Transforms/vtkAbstractTransform.cxx
+uninitvar:Common/Transforms/vtkHomogeneousTransform.cxx
+uninitvar:Common/Transforms/vtkLinearTransform.cxx
+uninitvar:Common/Transforms/vtkPerspectiveTransform.cxx
+uninitvar:Common/Transforms/vtkTransform2D.cxx
+uninitvar:Filters/SMP/vtkSMPTransform.cxx
 uninitvar:IO/Exodus/vtkExodusIIReader.cxx
+uninitvar:Rendering/ContextOpenGL2/vtkOpenGLContextDevice2D.cxx
+uninitvar:Rendering/Core/vtkCamera.cxx
 unsafeClassCanLeak:Filters/General/vtkDensifyPolyData.cxx
 unsafeClassCanLeak:Interaction/Widgets/vtkBiDimensionalRepresentation.h
-unsafeClassCanLeak:Views/Qt/vtkQtListView.h:
 unusedAllocatedMemory:IO/Legacy/vtkDataWriter.cxx
 unusedStructMember:Common/Misc/vtkHeap.cxx
 uselessAssignmentArg:Common/DataModel/vtkReebGraph.cxx
@@ -97,23 +106,16 @@ uselessAssignmentPtrArg:Wrapping/Tools/vtkParse.tab.c
 zerodiv:Filters/ParallelFlowPaths/Testing/Cxx/TestPStreamGeometry.cxx
 
 // There are a fair number of these, but they are probably worth working through.
-nullPointerRedundantCheck
 duplInheritedMember
-uninitvar
-unusedStructMember
-redundantCondition
-stlIfStrFind
-catchExceptionByValue
-clarifyCondition
 invalidPointerCast
 memleakOnRealloc
 noConstructor
 operatorEq
 postfixOperator
-unnecessaryQualification
-unusedVariable
+unusedStructMember
 
 // Unsure about these.
 exceptRethrowCopy:IO/Core/vtkUTF8TextCodec.cxx
 memleak:Wrapping/Tools/vtkParsePreprocess.c
 unsafeClassCanLeak:GUISupport/Qt/QVTKInteractorInternal.h
+unsafeClassCanLeak:Views/Qt/vtkQtListView.h
