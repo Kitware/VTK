@@ -1625,7 +1625,7 @@ int vtkReebGraph::Implementation::CommitSimplification()
     }
 
   std::pair<int, int> destinationArc;
-  std::map<int, bool> processedInputArcs, processedOutputArcs;
+  std::map<int, bool> processedOutputArcs;
 
   // now map the unsimplified arcs onto the simplified ones
   for(unsigned int i = 0; i < before.size(); i++)

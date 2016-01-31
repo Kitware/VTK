@@ -397,10 +397,6 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
   vtkUnsignedCharArray *colors;
   vtkSmartPointer<vtkTransform> trans;
 
-  // to be deleted
-  std::ostringstream appearance_stream;
-  std::ostringstream ostr;
-
   // see if the actor has a mapper. it could be an assembly
   if (anActor->GetMapper() == NULL)
     {
@@ -532,8 +528,6 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
     vtkCellArray* lines = pd->GetLines();
     vtkCellArray* polys = pd->GetPolys();
     vtkCellArray* tstrips = pd->GetStrips();
-
-    std::ostringstream geometry_stream;
 
     vtkIdType numVerts = verts->GetNumberOfCells();
     vtkIdType numLines = lines->GetNumberOfCells();

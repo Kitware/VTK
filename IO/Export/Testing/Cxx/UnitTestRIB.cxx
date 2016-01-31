@@ -225,7 +225,6 @@ int TestRIBExporter()
   }
   {
   std::cout << "RIBExporter Set/Get..";
-  std::ostringstream exporterPrint;
   vtkSmartPointer<vtkRIBExporter> exporter =
     vtkSmartPointer<vtkRIBExporter>::New();
 

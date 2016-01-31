@@ -156,7 +156,6 @@ int ValidateSphere::ProcessRequest(vtkInformation* request,
       }
 
     // Adjust Phi and Theta resolutions for multi-piece
-    int thetaResolution, phiResolution;
     int piece = controller->GetLocalProcessId();
     int numPieces = mpInput->GetNumberOfPieces();
     if (numPieces > this->ThetaResolution)

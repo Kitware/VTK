@@ -788,7 +788,6 @@ int vtkTesting::Test(int argc, char *argv[], vtkRenderWindow *rw,
     {
     testing->SetRenderWindow(rw);
 
-    std::ostringstream out1;
     return testing->RegressionTestAndCaptureOutput(thresh, cout);
     }
   return NOT_RUN;

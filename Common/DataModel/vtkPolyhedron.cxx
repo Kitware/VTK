@@ -2914,9 +2914,6 @@ void vtkPolyhedron::Clip(double value,
   // vector to store cell connectivity
   vtkIdVectorType cellVector;
 
-  // vector to store which side of the clip function the polyhedron vertices are
-  vtkIdVectorType pointLabelVector;
-
   // check if polyhedron is all in
   if (this->IntersectWithContour(value, insideOut, pointScalars) == 1)
     {

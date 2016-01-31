@@ -112,8 +112,6 @@ void GenerateDescriptorAndMaterial(int depth, int sx, int sy, int sz, int branch
 
 int TestHyperTreeGridTernary2DFullMaterialBits( int argc, char* argv[] )
 {
-  std::stringstream descriptor;
-  std::stringstream materialMask;
   int sx = 10;
   int sy = 10;
   int sz = 1;

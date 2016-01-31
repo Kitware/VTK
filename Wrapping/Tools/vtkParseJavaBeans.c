@@ -510,7 +510,6 @@ void outputFunction(FILE *fp, ClassInfo *data)
   unsigned int rType =
     (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
   unsigned int aType = 0;
-  unsigned int baseType;
   int i;
   /* beans */
   char *beanfunc;
