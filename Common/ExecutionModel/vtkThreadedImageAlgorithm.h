@@ -85,6 +85,17 @@ protected:
   bool EnableSMP;
   static bool GlobalDefaultEnableSMP;
 
+  enum SplitModeEnum
+  {
+    SLAB = 0,
+    BEAM = 1,
+    BLOCK = 2
+  };
+
+  int SplitMode;
+  int SplitPath[3];
+  int SplitPathLength;
+
   // Description:
   // This is called by the superclass.
   // This is the method you should override.

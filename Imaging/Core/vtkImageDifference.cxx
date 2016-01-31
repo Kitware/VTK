@@ -493,9 +493,7 @@ int vtkImageDifference::RequestData(
     this->CopyAttributeData(inData[0][0], outData[0], inputVector);
 
     // Do a dummy execution of SplitExtent to compute the number of pieces
-    int subExtent[6];
-    vtkIdType pieces = this->SplitExtent(
-      subExtent, extent, 0, this->NumberOfThreads);
+    vtkIdType pieces = this->SplitExtent(0, extent, 0, this->NumberOfThreads);
 
     // Use vtkSMPTools to multithread the functor
     vtkImageDifferenceSMPThreadLocal threadData;

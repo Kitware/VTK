@@ -36,6 +36,13 @@ vtkThreadedImageAlgorithm::vtkThreadedImageAlgorithm()
 
   // SMP default settings
   this->EnableSMP = vtkThreadedImageAlgorithm::GlobalDefaultEnableSMP;
+
+  // Splitting method
+  this->SplitMode = SLAB;
+  this->SplitPath[0] = 2;
+  this->SplitPath[1] = 1;
+  this->SplitPath[2] = 0;
+  this->SplitPathLength = 3;
 }
 
 //----------------------------------------------------------------------------
@@ -93,56 +100,171 @@ int vtkThreadedImageAlgorithm::SplitExtent(int splitExt[6],
                                            int startExt[6],
                                            int num, int total)
 {
-  int splitAxis;
-  int min, max;
+  // split path (the order in which to split the axes)
+  const int *path = this->SplitPath;
+  int pathlen = this->SplitPathLength;
+  int mode = this->SplitMode;
+  int axis0 = path[0];
+  int axis1 = path[1];
+  int axis2 = path[2];
 
-  vtkDebugMacro("SplitExtent: ( " << startExt[0] << ", " << startExt[1] << ", "
-                << startExt[2] << ", " << startExt[3] << ", "
-                << startExt[4] << ", " << startExt[5] << "), "
-                << num << " of " << total);
+  // divisions
+  int divs[3] = { 1, 1, 1 };
 
-  // start with same extent
-  memcpy(splitExt, startExt, 6 * sizeof(int));
+  // this needs 64 bits to avoid overflow in the math below
+  const vtkTypeInt64 size[3] = {
+    startExt[1] - startExt[0] + 1,
+    startExt[3] - startExt[2] + 1,
+    startExt[5] - startExt[4] + 1 };
 
-  splitAxis = 2;
-  min = startExt[4];
-  max = startExt[5];
-  while (min >= max)
+  // check for valid extent
+  if (size[0] <= 0 || size[1] <= 0 || size[2] <= 0)
     {
-    // empty extent so cannot split
-    if (min > max)
+    return 0;
+    }
+
+  // make sure total is not greater than max number of pieces
+  vtkTypeInt64 maxPieces = size[axis0];
+  if (pathlen > 1)
+    {
+    maxPieces *= size[axis1];
+    if (pathlen > 2)
       {
-      return 1;
+      maxPieces *= size[axis2];
       }
-    --splitAxis;
-    if (splitAxis < 0)
-      { // cannot split
-      vtkDebugMacro("  Cannot Split");
-      return 1;
+    }
+  if (total > maxPieces)
+    {
+    total = maxPieces;
+    }
+
+  if (mode == SLAB || pathlen < 2)
+    {
+    // split the axes in the given order
+    divs[axis0] = size[axis0];
+    if (total < size[axis0])
+      {
+      divs[axis0] = total;
       }
-    min = startExt[splitAxis*2];
-    max = startExt[splitAxis*2+1];
+    else if (pathlen > 1)
+      {
+      divs[axis1] = size[axis1];
+      int q = total/divs[axis0];
+      if (q < size[axis1])
+        {
+        divs[axis1] = q;
+        }
+      else if (pathlen > 2)
+        {
+        divs[axis2] = q/divs[axis1];
+        }
+      }
     }
-
-  // determine the actual number of pieces that will be generated
-  int range = max - min + 1;
-  int valuesPerThread = static_cast<int>(ceil(range/static_cast<double>(total)));
-  int maxThreadIdUsed = static_cast<int>(ceil(range/static_cast<double>(valuesPerThread))) - 1;
-  if (num < maxThreadIdUsed)
+  else if (mode == BEAM || pathlen < 3)
     {
-    splitExt[splitAxis*2] = splitExt[splitAxis*2] + num*valuesPerThread;
-    splitExt[splitAxis*2+1] = splitExt[splitAxis*2] + valuesPerThread - 1;
+    // split two of the axes first, leave third axis for last
+    vtkTypeInt64 maxdivs = size[axis0]*size[axis1];
+    if (total <= maxdivs)
+      {
+      // split until we get the desired number of pieces
+      while (divs[axis0]*divs[axis1] < total)
+        {
+        axis0 = path[0];
+        axis1 = path[1];
+
+        // if necessary, swap axes to keep a good aspect ratio
+        if (size[axis0]*divs[axis1] < size[axis1]*divs[axis0])
+          {
+          axis0 = path[1];
+          axis1 = path[0];
+          }
+        // compute the new split for this axis
+        divs[axis0] = divs[axis1]*size[axis0]/size[axis1] + 1;
+        }
+      // compute final division
+      divs[axis0] = total/divs[axis1];
+      divs[axis1] = total/divs[axis0];
+      }
+    else
+      {
+      // maximum split for first two axes
+      divs[axis0] = size[axis0];
+      divs[axis1] = size[axis1];
+      if (pathlen > 2)
+        {
+        // split the third axis
+        divs[axis2] = total/(divs[axis0]*divs[axis1]);
+        }
+      }
     }
-  if (num == maxThreadIdUsed)
+  else // block mode: keep blocks roughly cube shaped
     {
-    splitExt[splitAxis*2] = splitExt[splitAxis*2] + num*valuesPerThread;
+    // split until we get the desired number of pieces
+    while (divs[0]*divs[1]*divs[2] < total)
+      {
+      axis0 = path[0];
+      axis1 = path[1];
+      axis2 = path[2];
+
+      // check whether z or y is best candidate for splitting
+      if (size[axis0]*divs[axis1] < size[axis1]*divs[axis0])
+        {
+        axis1 = axis0;
+        axis0 = path[1];
+        }
+      // check if x is the best candidate for splitting
+      if (size[axis0]*divs[path[2]] < size[path[2]]*divs[axis0])
+        {
+        axis2 = axis1;
+        axis1 = axis0;
+        axis0 = path[2];
+        }
+      // now find the second best candidate
+      if (size[axis1]*divs[axis2] < size[axis2]*divs[axis1])
+        {
+        int tmp = axis2;
+        axis2 = axis1;
+        axis1 = tmp;
+        }
+      // compute the new split for this axis
+      divs[axis0] = divs[axis1]*size[axis0]/size[axis1] + 1;
+      }
+    // compute the final division
+    divs[axis0] = total/(divs[axis1]*divs[axis2]);
+    divs[axis1] = total/(divs[axis0]*divs[axis2]);
+    divs[axis2] = total/(divs[axis0]*divs[axis1]);
     }
 
-  vtkDebugMacro("  Split Piece: ( " <<splitExt[0]<< ", " <<splitExt[1]<< ", "
-                << splitExt[2] << ", " << splitExt[3] << ", "
-                << splitExt[4] << ", " << splitExt[5] << ")");
+  // compute new total from the chosen divisions
+  total = divs[0]*divs[1]*divs[2];
 
-  return maxThreadIdUsed + 1;
+  if (splitExt)
+    {
+    // compute increments
+    int a = divs[0];
+    int b = a*divs[1];
+
+    // compute 3D block index
+    int i = num;
+    int index[3];
+    index[2] = i/b;
+    i -= index[2]*b;
+    index[1] = i/a;
+    i -= index[1]*a;
+    index[0] = i;
+
+    // compute the extent for the resulting block
+    for (int j = 0; j < 3; j++)
+      {
+      splitExt[2*j] = index[j]*size[j]/divs[j];
+      splitExt[2*j + 1] = (index[j] + 1)*size[j]/divs[j] - 1;
+      splitExt[2*j] += startExt[2*j];
+      splitExt[2*j + 1] += startExt[2*j];
+      }
+    }
+
+  // return the number of blocks (may be fewer than requested)
+  return total;
 }
 
 //----------------------------------------------------------------------------

@@ -841,9 +841,7 @@ int vtkImageHistogram::RequestData(
     inData->GetExtent(extent);
 
     // do a dummy execution of SplitExtent to compute the number of pieces
-    int subExtent[6];
-    vtkIdType pieces =
-      this->SplitExtent(subExtent, extent, 0, this->NumberOfThreads);
+    vtkIdType pieces = this->SplitExtent(0, extent, 0, this->NumberOfThreads);
 
     // create the thread-local object and the functor
     vtkImageHistogramSMPThreadLocal tlocal;
