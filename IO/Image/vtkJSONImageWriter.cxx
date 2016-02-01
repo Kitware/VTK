@@ -156,9 +156,5 @@ int vtkJSONImageWriter::RequestData(
 void vtkJSONImageWriter::Write()
 {
   this->Modified();
-  this->UpdateInformation();
-  vtkInformation* inInfo = this->GetInputInformation(0, 0);
-  vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo,
-    vtkStreamingDemandDrivenPipeline::GetWholeExtent(inInfo));
-  this->Update();
+  this->UpdateWholeExtent();
 }

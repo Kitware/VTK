@@ -314,10 +314,7 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
     }
   else
     {
-    this->GetInputAlgorithm()->UpdateInformation();
-    vtkStreamingDemandDrivenPipeline::SetUpdateExtentToWholeExtent(
-      this->GetInputInformation());
-    this->GetInputAlgorithm()->Update();
+    this->GetInputAlgorithm()->UpdateWholeExtent();
     }
 
 

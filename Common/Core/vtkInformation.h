@@ -108,6 +108,13 @@ public:
   VTKCOMMONCORE_EXPORT void Copy(vtkInformation* from, int deep=0);
 
   // Description:
+  // Append all information entries from the given vtkInformation
+  // instance. If deep==1, a deep copy of the information structure is performed
+  // (new instances of any contained vtkInformation and vtkInformationVector
+  // objects are created).
+  VTKCOMMONCORE_EXPORT void Append(vtkInformation* from, int deep=0);
+
+  // Description:
   // Copy the key/value pair associated with the given key in the
   // given information object.  If deep=1, a deep copy of the information
   // structure is performed (new instances of any contained vtkInformation and

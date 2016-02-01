@@ -339,14 +339,7 @@ int loadGraphFromSQL(vtkSQLDatabase * db,
 
   sqlSrc->SetDirected(directed);
 
-  vtkStreamingDemandDrivenPipeline * execSqlSrc =
-         vtkStreamingDemandDrivenPipeline::SafeDownCast(sqlSrc->GetExecutive());
-
-  sqlSrc->UpdateInformation();
-
-  execSqlSrc->SetUpdateNumberOfPieces(execSqlSrc->GetOutputInformation(0), world.size());
-  execSqlSrc->SetUpdatePiece(execSqlSrc->GetOutputInformation(0), world.rank());
-  sqlSrc->Update();
+  sqlSrc->Update(world.rank(), world.size(), 0);
 
   fflush(stdout);
   world.barrier();
@@ -378,14 +371,8 @@ int collectDistributedGraphToSingleNode(vtkAlgorithmOutput * inGraph,
   PBGLCollect->CopyVertexDataOn();
   PBGLCollect->CopyEdgeDataOn();
   PBGLCollect->CreateOriginProcessArrayOn();
-  PBGLCollect->UpdateInformation();
 
-  vtkStreamingDemandDrivenPipeline * exec2 = NULL;
-  exec2 = vtkStreamingDemandDrivenPipeline::SafeDownCast(
-                                                  PBGLCollect->GetExecutive());
-  exec2->SetUpdateNumberOfPieces( exec2->GetOutputInformation(0), world.size());
-  exec2->SetUpdatePiece( exec2->GetOutputInformation(0), world.rank());
-  PBGLCollect->Update();
+  PBGLCollect->Update(world.rank(), world.size(), 0);
 
   if(world.rank()==0)
     {

@@ -37,6 +37,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
+#include "vtkNew.h"
 
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
@@ -71,6 +72,23 @@ public:
     obj->Crop(extent);
     }
 };
+
+namespace
+{
+void vtkSDDPSetUpdateExtentToWholeExtent(vtkInformation *info)
+{
+  typedef vtkStreamingDemandDrivenPipeline vtkSDDP;
+  info->Set(vtkSDDP::UPDATE_PIECE_NUMBER(), 0);
+  info->Set(vtkSDDP::UPDATE_NUMBER_OF_PIECES(), 1);
+  info->Set(vtkSDDP::UPDATE_NUMBER_OF_GHOST_LEVELS(), 0);
+  if(info->Has(vtkSDDP::WHOLE_EXTENT()))
+    {
+    int extent[6] = {0,-1,0,-1,0,-1};
+    info->Get(vtkSDDP::WHOLE_EXTENT(), extent);
+    info->Set(vtkSDDP::UPDATE_EXTENT(), extent, 6);
+    }
+}
+}
 
 //----------------------------------------------------------------------------
 vtkStreamingDemandDrivenPipeline::vtkStreamingDemandDrivenPipeline()
@@ -344,11 +362,33 @@ int vtkStreamingDemandDrivenPipeline::Update()
 //----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline::Update(int port)
 {
+  return this->Update(port, 0);
+}
+
+//----------------------------------------------------------------------------
+int vtkStreamingDemandDrivenPipeline::Update(int port,
+                                             vtkInformationVector* requests)
+{
   if(!this->UpdateInformation())
     {
     return 0;
     }
-  if(port >= -1 && port < this->Algorithm->GetNumberOfOutputPorts())
+  int numPorts = this->Algorithm->GetNumberOfOutputPorts();
+  if (requests)
+    {
+    vtkInformationVector* outInfoVec = this->GetOutputInformation();
+    for (int i=0; i<numPorts; i++)
+      {
+      vtkInformation* outInfo = outInfoVec->GetInformationObject(i);
+      vtkInformation* req = requests->GetInformationObject(i);
+      if (outInfo && req)
+        {
+        outInfo->Append(req);
+        }
+      }
+    }
+
+  if(port >= -1 && port < numPorts)
     {
     int retval = 1;
     // some streaming filters can request that the pipeline execute multiple
@@ -379,7 +419,7 @@ int vtkStreamingDemandDrivenPipeline::UpdateWholeExtent()
   // if we have an output then set the UE to WE for it
   if (this->Algorithm->GetNumberOfOutputPorts())
     {
-    this->SetUpdateExtentToWholeExtent
+    vtkSDDPSetUpdateExtentToWholeExtent
       (this->GetOutputInformation()->GetInformationObject(0));
     }
   // otherwise do it for the inputs
@@ -394,7 +434,7 @@ int vtkStreamingDemandDrivenPipeline::UpdateWholeExtent()
         {
         // Get the pipeline information for this input connection.
         vtkInformation* inInfo = this->GetInputInformation(i, j);
-        this->SetUpdateExtentToWholeExtent(inInfo);
+        vtkSDDPSetUpdateExtentToWholeExtent(inInfo);
         }
       }
     }
@@ -431,13 +471,9 @@ vtkStreamingDemandDrivenPipeline
         }
 
       // Make sure an update request exists.
-      if(!info->Has(UPDATE_EXTENT_INITIALIZED()) ||
-         !info->Get(UPDATE_EXTENT_INITIALIZED()))
-        {
-        // Request all data by default.
-        this->SetUpdateExtentToWholeExtent
-          (outInfoVec->GetInformationObject(i));
-        }
+      // Request all data by default.
+      vtkSDDPSetUpdateExtentToWholeExtent
+        (outInfoVec->GetInformationObject(i));
       }
     return 1;
     }
@@ -556,7 +592,7 @@ vtkStreamingDemandDrivenPipeline
       for (int j=0; j<numInConnections; j++)
         {
         vtkInformation* inInfo = inInfoVec[i]->GetInformationObject(j);
-        this->SetUpdateExtentToWholeExtent(inInfo);
+        vtkSDDPSetUpdateExtentToWholeExtent(inInfo);
         }
       }
 
@@ -1421,6 +1457,13 @@ int* vtkStreamingDemandDrivenPipeline::GetWholeExtent(vtkInformation* info)
   return info->Get(WHOLE_EXTENT());
 }
 
+// This is here to shut off warning about deprecated calls being
+// made from other deprecated functions.
+#if defined(__GNUC__) && !defined(__INTEL_COMPILER)
+# pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
+#ifndef VTK_LEGACY_REMOVE
 //----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline
 ::SetUpdateExtentToWholeExtent(int port)
@@ -1455,10 +1498,6 @@ int vtkStreamingDemandDrivenPipeline
       vtkStreamingDemandDrivenPipeline::SetUpdateExtent(info, extent);
     }
 
-  // Make sure the update extent will remain the whole extent until
-  // the update extent is explicitly set by the caller.
-  info->Set(UPDATE_EXTENT_INITIALIZED(), 0);
-
   return modified;
 }
 
@@ -1466,6 +1505,7 @@ int vtkStreamingDemandDrivenPipeline
 int vtkStreamingDemandDrivenPipeline
 ::SetUpdateExtent(int port, int x0, int x1, int y0, int y1, int z0, int z1)
 {
+  VTK_LEGACY_BODY(vtkStreamingDemandDrivenPipeline::SetUpdateExtent, "VTK 7.1");
   int extent[6] = {x0, x1, y0, y1, z0, z1};
   return this->SetUpdateExtent(
     this->GetOutputInformation(port), extent);
@@ -1475,6 +1515,7 @@ int vtkStreamingDemandDrivenPipeline
 int vtkStreamingDemandDrivenPipeline
 ::SetUpdateExtent(int port, int extent[6])
 {
+  VTK_LEGACY_BODY(vtkStreamingDemandDrivenPipeline::SetUpdateExtent, "VTK 7.1");
   return this->SetUpdateExtent(
     this->GetOutputInformation(port), extent);
 }
@@ -1483,6 +1524,7 @@ int vtkStreamingDemandDrivenPipeline
 int vtkStreamingDemandDrivenPipeline
 ::SetUpdateExtent(vtkInformation *info, int extent[6])
 {
+  VTK_LEGACY_BODY(vtkStreamingDemandDrivenPipeline::SetUpdateExtent, "VTK 7.1");
   if(!info)
     {
     vtkGenericWarningMacro("SetUpdateExtent on invalid output");
@@ -1498,7 +1540,6 @@ int vtkStreamingDemandDrivenPipeline
     modified = 1;
     info->Set(UPDATE_EXTENT(), extent, 6);
     }
-  info->Set(UPDATE_EXTENT_INITIALIZED(), 1);
   return modified;
 }
 
@@ -1506,6 +1547,7 @@ int vtkStreamingDemandDrivenPipeline
 int vtkStreamingDemandDrivenPipeline
 ::SetUpdateExtent(int port, int piece,int numPieces, int ghostLevel)
 {
+  VTK_LEGACY_BODY(vtkStreamingDemandDrivenPipeline::SetUpdateExtent, "VTK 7.1");
   return this->SetUpdateExtent(
     this->GetOutputInformation(port), piece, numPieces, ghostLevel);
 }
@@ -1516,6 +1558,7 @@ int vtkStreamingDemandDrivenPipeline
                   int numPieces,
                   int ghostLevel)
 {
+  VTK_LEGACY_BODY(vtkStreamingDemandDrivenPipeline::SetUpdateExtent, "VTK 7.1");
   if(!info)
     {
     vtkGenericWarningMacro("SetUpdateExtent on invalid output");
@@ -1531,6 +1574,7 @@ int vtkStreamingDemandDrivenPipeline
 
   return modified;
 }
+#endif // VTK_LEGACY_REMOVE
 
 //----------------------------------------------------------------------------
 void vtkStreamingDemandDrivenPipeline
@@ -1546,7 +1590,6 @@ void vtkStreamingDemandDrivenPipeline
   if(!info->Has(UPDATE_EXTENT()))
     {
     info->Set(UPDATE_EXTENT(), emptyExtent, 6);
-    info->Set(UPDATE_EXTENT_INITIALIZED(), 0);
     }
   info->Get(UPDATE_EXTENT(), extent);
 }
@@ -1564,15 +1607,16 @@ int* vtkStreamingDemandDrivenPipeline
   if(!info->Has(UPDATE_EXTENT()))
     {
     info->Set(UPDATE_EXTENT(), emptyExtent, 6);
-    info->Set(UPDATE_EXTENT_INITIALIZED(), 0);
     }
   return info->Get(UPDATE_EXTENT());
 }
 
+#ifndef VTK_LEGACY_REMOVE
 //----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline
 ::SetUpdatePiece(vtkInformation *info, int piece)
 {
+  VTK_LEGACY_BODY(vtkStreamingDemandDrivenPipeline::SetUpdatePiece, "VTK 7.1");
   if(!info)
     {
     vtkGenericWarningMacro("SetUpdatePiece on invalid output");
@@ -1584,19 +1628,20 @@ int vtkStreamingDemandDrivenPipeline
     info->Set(UPDATE_PIECE_NUMBER(), piece);
     modified = 1;
     }
-  info->Set(UPDATE_EXTENT_INITIALIZED(), 1);
   return modified;
 }
 
 //----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline::SetUpdateTimeStep(int port, double time)
 {
+  VTK_LEGACY_BODY(vtkStreamingDemandDrivenPipeline::SetUpdateTimeStep, "VTK 7.1");
   return this->SetUpdateTimeStep(this->GetOutputInformation(port), time);
 }
 
 //----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline::SetUpdateTimeStep(vtkInformation *info, double time)
 {
+  VTK_LEGACY_BODY(vtkStreamingDemandDrivenPipeline::SetUpdateTimeStep, "VTK 7.1");
   if(!info)
     {
     vtkGenericWarningMacro("SetUpdateTimeSteps on invalid output");
@@ -1621,6 +1666,7 @@ int vtkStreamingDemandDrivenPipeline::SetUpdateTimeStep(vtkInformation *info, do
     }
   return modified;
 }
+#endif // VTK_LEGACY_REMOVE
 
 //----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline
@@ -1638,10 +1684,13 @@ int vtkStreamingDemandDrivenPipeline
   return info->Get(UPDATE_PIECE_NUMBER());
 }
 
+#ifndef VTK_LEGACY_REMOVE
 //----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline
 ::SetUpdateNumberOfPieces(vtkInformation *info, int n)
 {
+  VTK_LEGACY_BODY(vtkStreamingDemandDrivenPipeline::SetUpdateNumberOfPieces,
+    "VTK 7.1");
   if(!info)
     {
     vtkGenericWarningMacro("SetUpdateNumberOfPieces on invalid output");
@@ -1653,10 +1702,9 @@ int vtkStreamingDemandDrivenPipeline
     info->Set(UPDATE_NUMBER_OF_PIECES(), n);
     modified = 1;
     }
-  info->Set(UPDATE_EXTENT_INITIALIZED(), 1);
   return modified;
 }
-
+#endif
 //----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline
 ::GetUpdateNumberOfPieces(vtkInformation *info)
@@ -1673,10 +1721,13 @@ int vtkStreamingDemandDrivenPipeline
   return info->Get(UPDATE_NUMBER_OF_PIECES());
 }
 
+#ifndef VTK_LEGACY_REMOVE
 //----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline
 ::SetUpdateGhostLevel(vtkInformation *info, int n)
 {
+  VTK_LEGACY_BODY(vtkStreamingDemandDrivenPipeline::SetUpdateGhostLevel,
+    "VTK 7.1");
   if(!info)
     {
     vtkGenericWarningMacro("SetUpdateGhostLevel on invalid output");
@@ -1689,6 +1740,7 @@ int vtkStreamingDemandDrivenPipeline
     }
   return 0;
 }
+#endif
 
 //----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline

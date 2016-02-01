@@ -29,7 +29,6 @@ sphere.SetRadius(70)
 
 functionToStencil = vtk.vtkImplicitFunctionToImageStencil()
 functionToStencil.SetInput(sphere)
-functionToStencil.GetExecutive().SetUpdateExtent(0, 0, 255, 0, 255, 0, 0)
 
 blend = vtk.vtkImageBlend()
 blend.SetInputConnection(reader1.GetOutputPort())

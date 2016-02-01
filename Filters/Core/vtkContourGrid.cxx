@@ -448,12 +448,10 @@ int vtkContourGrid::RequestData(
     tempInput->ShallowCopy(output);
     normalsFilter->SetInputData(tempInput.GetPointer());
     normalsFilter->SetFeatureAngle(180.);
-    normalsFilter->SetUpdateExtent(
-      0,
+    normalsFilter->UpdatePiece(
       info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()),
       info->Get(vtkStreamingDemandDrivenPipeline:: UPDATE_NUMBER_OF_PIECES()),
       info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
-    normalsFilter->Update();
     output->ShallowCopy(normalsFilter->GetOutput());
     }
 

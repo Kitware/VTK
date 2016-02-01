@@ -138,9 +138,7 @@ int TestCopyAttributeData(int,char *[])
 
   for (int r = 0; r < 2; r++)
     {
-    filter->UpdateInformation();
-    filter->SetUpdateExtent(outExt);
-    filter->Update();
+    filter->UpdateExtent(outExt);
 
     vtkImageData *output = filter->GetOutput();
 

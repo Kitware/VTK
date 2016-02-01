@@ -107,9 +107,7 @@ int TestSampleFunction(int, char *[])
   sf5->SetImplicitFunction(sphere);
   sf5->SetModelBounds(xmin, xmax, ymin, ymax, zmin, zmax);
   sf5->ComputeNormalsOn();
-  sf5->UpdateInformation();
-  sf5->SetUpdateExtent(extent);
-  sf5->Update();
+  sf5->UpdateExtent(extent);
 
   sa = sf5->GetOutput()->GetPointData()->GetScalars();
   double *s5 = static_cast<double*>(sa->GetVoidPointer(0));

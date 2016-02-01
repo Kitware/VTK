@@ -215,6 +215,20 @@ void vtkInformation::Copy(vtkInformation* from, int deep)
 }
 
 //----------------------------------------------------------------------------
+void vtkInformation::Append(vtkInformation* from, int deep)
+{
+  if(from)
+    {
+    typedef vtkInformationInternals::MapType MapType;
+    for(MapType::const_iterator i = from->Internal->Map.begin();
+        i != from->Internal->Map.end(); ++i)
+      {
+      this->CopyEntry(from, i->first, deep);
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkInformation::CopyEntry(vtkInformation* from,
                                vtkInformationKey* key, int deep)
 {

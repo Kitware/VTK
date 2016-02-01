@@ -43,10 +43,9 @@ int TestCompressedTIFFReader(int argc, char* argv[])
   const int maxNumPieces = 4;
   for (int cc=0; cc < maxNumPieces; cc++)
     {
-    reader->SetUpdateExtent(cc, maxNumPieces, 0);
-    reader->Update();
+    reader->UpdatePiece(cc, maxNumPieces, 0);
     }
-  reader->SetUpdateExtentToWholeExtent();
+  reader->UpdateWholeExtent();
 
   // Visualize
   vtkSmartPointer<vtkImageViewer2> imageViewer =

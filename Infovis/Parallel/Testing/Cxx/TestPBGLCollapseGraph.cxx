@@ -109,19 +109,13 @@ void TestPSQLGraphReader()
   collapse->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, "color");
   collapse->SetInputConnection(reader->GetOutputPort());
 
-  // Setup the parallel executive
-  vtkStreamingDemandDrivenPipeline* exec =
-    vtkStreamingDemandDrivenPipeline::SafeDownCast(collapse->GetExecutive());
   vtkSmartPointer<vtkPBGLDistributedGraphHelper> helper =
     vtkSmartPointer<vtkPBGLDistributedGraphHelper>::New();
   int total = num_processes(helper->GetProcessGroup());
   int rank = process_id(helper->GetProcessGroup());
-  collapse->UpdateInformation();
-  exec->SetUpdateNumberOfPieces(exec->GetOutputInformation(0), total);
-  exec->SetUpdatePiece(exec->GetOutputInformation(0), rank);
 
   // Update the pipeline
-  collapse->Update();
+  collapse->Update(rank, total, 0);
 
   // Display the output
   vtkGraph* output = collapse->GetOutput();

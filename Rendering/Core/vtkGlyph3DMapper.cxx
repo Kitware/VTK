@@ -624,8 +624,6 @@ double* vtkGlyph3DMapper::GetBounds()
     // This should not affect anything else, because no one uses this.
     // It should also render just the same.
     // Just remove this lie if we no longer need streaming in paraview :)
-    //this->GetInput()->SetUpdateExtent(0, 1, 0);
-    //this->GetInput()->Update();
 
     // first get the bounds from the input
     this->Update();

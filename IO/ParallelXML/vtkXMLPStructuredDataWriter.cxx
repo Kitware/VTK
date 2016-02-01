@@ -218,8 +218,12 @@ int vtkXMLPStructuredDataWriter::RequestUpdateExtent(
   // pieces because that does its own RequestUpdateExtent with the right
   // piece information.
 
-  vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo,
-    this->StartPiece, this->GetNumberOfPieces(), this->GhostLevel);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+    this->StartPiece);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+    this->GetNumberOfPieces());
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+    this->GhostLevel);
 
   return 1;
 }

@@ -483,13 +483,11 @@ int vtkPlot3DMetaReader::RequestData(
       {
       this->Reader->SetFunctionFileName(0);
       }
-    this->Reader->UpdateInformation();
-    this->Reader->SetUpdateExtent(
+    this->Reader->UpdatePiece(
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()),
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()),
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS())
       );
-    this->Reader->Update();
     vtkDataObject* ioutput = this->Reader->GetOutput();
     output->ShallowCopy(ioutput);
     output->GetInformation()->Set(
