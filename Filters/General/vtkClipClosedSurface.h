@@ -17,10 +17,19 @@
 // vtkClipClosedSurface will clip a closed polydata surface with a
 // collection of clipping planes.  It will produce a new closed surface
 // by creating new polygonal faces where the input data was clipped.
-// If GenerateOutline is on, it will also generate an outline wherever
+//
+// Non-manifold surfaces should not be used as input for this filter.
+// The input surface should have no open edges, and must not have any
+// edges that are shared by more than two faces.  The vtkFeatureEdges
+// filter can be used to verify that a data set satisfies these conditions.
+// In addition, the input surface should not self-intersect, meaning
+// that the faces of the surface should only touch at their edges.
+//
+// If GenerateOutline is on, this filter will generate an outline wherever
 // the clipping planes intersect the data.  The ScalarMode option
 // will add cell scalars to the output, so that the generated faces
 // can be visualized in a different color from the original surface.
+//
 // .SECTION Caveats
 // The triangulation of new faces is done in O(n) time for simple convex
 // inputs, but for non-convex inputs the worst-case time is O(n^2*m^2)
