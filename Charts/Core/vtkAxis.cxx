@@ -80,6 +80,7 @@ vtkAxis::vtkAxis()
   this->GridVisible = true;
   this->LabelsVisible = true;
   this->RangeLabelsVisible = false;
+  this->LabelOffset = 7;
   this->TicksVisible = true;
   this->AxisVisible = true;
   this->Precision = 2;
@@ -370,7 +371,7 @@ bool vtkAxis::Paint(vtkContext2D *painter)
   // There are five possible tick label positions, which should be set by the
   // class laying out the axes.
   float tickLength = 5;
-  float labelOffset = 7;
+  float labelOffset = this->LabelOffset;
   if (this->Position == vtkAxis::LEFT || this->Position == vtkAxis::PARALLEL ||
       this->Position == vtkAxis::BOTTOM)
     {
