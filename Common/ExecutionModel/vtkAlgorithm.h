@@ -494,13 +494,13 @@ public:
   // Update(int port, vtkInformationVector* requests) for details.
   // Supports piece and extent (optional) requests.
   virtual int UpdatePiece(
-    int piece, int numPieces, int ghostLevels, int* extents=0);
+    int piece, int numPieces, int ghostLevels, const int extents[6]=0);
 
   // Description:
   // Convenience method to update an algorithm after passing requests
   // to its first output port.
   // Supports extent request.
-  virtual int UpdateExtent(int* extents);
+  virtual int UpdateExtent(const int extents[6]=0);
 
   // Description:
   // Convenience method to update an algorithm after passing requests
@@ -508,7 +508,7 @@ public:
   // Update(int port, vtkInformationVector* requests) for details.
   // Supports time, piece (optional) and extent (optional) requests.
   virtual int UpdateTimeStep(double time,
-    int piece=-1, int numPieces=1, int ghostLevels=0, int* extents=0);
+    int piece=-1, int numPieces=1, int ghostLevels=0, const int extents[6]=0);
 
   // Description:
   // Bring the algorithm's information up-to-date.
