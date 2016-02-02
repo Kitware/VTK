@@ -138,18 +138,6 @@ if (ANDROID OR APPLE_IOS)
   SET( KWSYS_LFS_WORKS__TRYRUN_OUTPUT ""
      CACHE STRING "Output from TRY_RUN" FORCE)
 
-  option(BUILD_SHARED_LIBS "should be off for embedded" OFF)
-  set(VTK_RENDERING_BACKEND OpenGL2)
-  set(Module_vtkRenderingCore ON)
-  option(VTK_Group_Rendering "off for embedded" OFF)
-  option(VTK_Group_StandAlone "off for embedded" OFF)
-  option(VTK_Group_Imaging "off for embedded" OFF)
-  option(VTK_Group_MPI "off for embedded" OFF)
-  option(VTK_Group_Views "off for embedded" OFF)
-  option(VTK_Group_Qt "off for embedded" OFF)
-  option(VTK_Group_Tk "off for embedded" OFF)
-  option(VTK_Group_Web "off for embedded" OFF)
-
   # need int version for CPP
   if (${OPENGL_ES_VERSION} MATCHES 2.0)
     set(OPENGL_ES_VERSION_INT 20)

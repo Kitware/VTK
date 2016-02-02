@@ -68,20 +68,20 @@ macro(compile_vtk_tools)
   ExternalProject_Add(
     vtk-compile-tools
     SOURCE_DIR ${CMAKE_SOURCE_DIR}
-    PREFIX ${PREFIX_DIR}/vtk-compile-tools
-    BINARY_DIR ${BUILD_DIR}/vtk-compile-tools
+    PREFIX ${CMAKE_BINARY_DIR}/CompileTools
+    BINARY_DIR ${CMAKE_BINARY_DIR}/CompileTools
+    INSTALL_COMMAND ""
     ${VTK_BUILD_COMMAND} vtkCompileTools
     ${BUILD_ALWAYS_STRING}
-    INSTALL_DIR ${INSTALL_DIR}/vtk-compile-tools
-    CMAKE_ARGS
+    CMAKE_CACHE_ARGS
       -DCMAKE_BUILD_TYPE:STRING=Release
       -DVTK_BUILD_ALL_MODULES:BOOL=OFF
       -DVTK_Group_Rendering:BOOL=OFF
-      -DVTK_Group_StandAlone:BOOL=ON
+      -DVTK_Group_StandAlone:BOOL=OFF
       -DBUILD_SHARED_LIBS:BOOL=ON
       -DBUILD_EXAMPLES:BOOL=OFF
       -DBUILD_TESTING:BOOL=OFF
-      -DCMAKE_INSTALL_PREFIX:PATH=${INSTALL_DIR}/vtk-compile-tools
+      -DModule_vtkUtilitiesEncodeString:BOOL=ON
   )
 endmacro()
 compile_vtk_tools()
@@ -157,7 +157,7 @@ macro(crosscompile target toolchain_file)
       -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
       -DCMAKE_TOOLCHAIN_FILE:PATH=CMake/${toolchain_file}
       -DANDROID_NDK:PATH=${ANDROID_NDK}
-      -DVTKCompileTools_DIR:PATH=${BUILD_DIR}/vtk-compile-tools
+      -DVTKCompileTools_DIR:PATH=${CMAKE_BINARY_DIR}/CompileTools
       ${android_cmake_flags}
   )
 endmacro()
