@@ -318,8 +318,11 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "warning C4275: non dll-interface class 'std::exception' used as base"
 
   # This warning occurs when building Java with -source x.y with compiler a.b's
-  # runtime library (rt.jar).
+  # runtime library (rt.jar). It also emits a line with "1 warning"
+  # which matches ctests regex as well
   "bootstrap class path not set in conjunction with -source"
+  "1 warning"
+
 
   #supress diy2 warnings
   "include.diy"
