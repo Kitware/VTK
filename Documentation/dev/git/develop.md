@@ -102,6 +102,20 @@ A reader should have a general idea of the feature or fix to be developed given 
 
         $ git checkout -b release-my-topic origin/release
 
+    If backporting a change, you may rebase the branch back onto
+    `origin/release`:
+
+        $ git checkout -b release-my-topic my-topic
+        $ git rebase --onto origin/release origin/master
+
+    Alternatively, for more targeted or aggregate backports, use the `-x` flag
+    when performing `git cherry-pick` so that a reference to the original
+    commit is added to the commit message:
+
+        $ git checkout -b release-my-topic origin/release
+        $ git cherry-pick -x $hash_a $hash_b $hash_c
+        $ git cherry-pick -x $hash_d $hash_e $hash_f
+
 3.  Edit files and create commits (repeat as needed):
 
         $ edit file1 file2 file3
