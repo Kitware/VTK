@@ -70,7 +70,7 @@ void MyProcess::Execute()
   this->Controller->Barrier();
   this->CreatePipeline();
   this->Controller->Barrier();
-  this->Reader->Update(proc, numprocs, 0);
+  this->Reader->UpdatePiece(proc, numprocs, 0);
   this->Reader->Delete();
   this->ReturnValue = 1;
 }
