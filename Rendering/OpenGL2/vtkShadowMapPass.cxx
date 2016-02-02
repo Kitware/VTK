@@ -20,8 +20,6 @@
 #include "vtkCamera.h"
 #include "vtkFrameBufferObject.h"
 #include "vtkImageData.h"
-#include "vtkImageExport.h"
-#include "vtkImplicitHalo.h"
 #include "vtkImplicitSum.h"
 #include "vtkInformation.h"
 #include "vtkInformationObjectBaseKey.h"
@@ -39,7 +37,6 @@
 #include "vtkPerspectiveTransform.h"
 #include "vtkRenderPassCollection.h"
 #include "vtkRenderState.h"
-#include "vtkSampleFunction.h"
 #include "vtkSequencePass.h"
 #include "vtkShaderProgram.h"
 #include "vtkShadowMapBakerPass.h"
@@ -50,7 +47,6 @@
 
 // debugging
 #include "vtkTimerLog.h"
-//#include "vtkBreakPoint.h"
 
 #include <cassert>
 #include <sstream>
@@ -91,11 +87,6 @@ vtkShadowMapPass::vtkShadowMapPass()
   vtkNew<vtkShadowMapBakerPass> bp;
   this->ShadowMapBakerPass = 0;
   this->SetShadowMapBakerPass(bp.Get());
-
-  this->IntensityMap=0;
-  this->IntensitySource=0;
-  this->IntensityExporter=0;
-  this->Halo=0;
 }
 
 // ----------------------------------------------------------------------------
@@ -108,26 +99,6 @@ vtkShadowMapPass::~vtkShadowMapPass()
   if(this->OpaqueSequence!=0)
     {
     this->OpaqueSequence->Delete();
-    }
-
-  if(this->IntensityMap!=0)
-    {
-    vtkErrorMacro(<<"IntensityMap should have been deleted in ReleaseGraphicsResources().");
-    }
-
-  if(this->IntensitySource!=0)
-    {
-    this->IntensitySource->Delete();
-    }
-
-  if(this->IntensityExporter!=0)
-    {
-    this->IntensityExporter->Delete();
-    }
-
-  if(this->Halo!=0)
-    {
-    this->Halo->Delete();
     }
 }
 
@@ -459,41 +430,6 @@ void vtkShadowMapPass::BuildShaderCode()
 }
 
 // ----------------------------------------------------------------------------
-void vtkShadowMapPass::BuildSpotLightIntensityMap()
-{
-   if(this->IntensitySource==0)
-     {
-     this->IntensitySource=vtkSampleFunction::New();
-     this->IntensityExporter=vtkImageExport::New();
-     this->Halo=vtkImplicitHalo::New();
-
-     vtkImplicitSum *scale=vtkImplicitSum::New();
-     scale->AddFunction(this->Halo,255.0);
-     scale->SetNormalizeByWeight(false);
-     this->IntensitySource->SetImplicitFunction(scale);
-     scale->Delete();
-     }
-   unsigned int resolution=this->ShadowMapBakerPass->GetResolution();
-
-   this->Halo->SetRadius(resolution/2.0);
-   this->Halo->SetCenter(resolution/2.0,
-                         resolution/2.0,0.0);
-   this->Halo->SetFadeOut(0.1);
-
-   this->IntensitySource->SetOutputScalarType(VTK_UNSIGNED_CHAR);
-   this->IntensitySource->SetSampleDimensions(
-     static_cast<int>(resolution),
-     static_cast<int>(resolution),1);
-   this->IntensitySource->SetModelBounds(0.0,resolution-1.0,
-                                         0.0,resolution-1.0,
-                                         0.0,0.0);
-   this->IntensitySource->SetComputeNormals(false);
-
-   this->IntensityExporter->SetInputConnection(
-     this->IntensitySource->GetOutputPort());
-}
-
-// ----------------------------------------------------------------------------
 // Description:
 // Release graphics resources and ask components to release their own
 // resources.
@@ -504,11 +440,5 @@ void vtkShadowMapPass::ReleaseGraphicsResources(vtkWindow *w)
   if(this->ShadowMapBakerPass!=0)
     {
     this->ShadowMapBakerPass->ReleaseGraphicsResources(w);
-    }
-
-  if(this->IntensityMap!=0)
-    {
-    this->IntensityMap->Delete();
-    this->IntensityMap=0;
     }
 }

@@ -12,14 +12,12 @@ set(Module_SRCS
   vtkExtractPolyDataGeometry.cxx
   vtkExtractRectilinearGrid.cxx
   vtkExtractSelectedBlock.cxx
-  vtkExtractSelectedFrustum.cxx
   vtkExtractSelectedIds.cxx
   vtkExtractSelectedLocations.cxx
   vtkExtractSelectedPolyDataIds.cxx
   vtkExtractSelectedRows.cxx
   vtkExtractSelectedThresholds.cxx
   vtkExtractSelection.cxx
-  vtkExtractSelectionBase.cxx
   vtkExtractTemporalFieldData.cxx
   vtkExtractTensorComponents.cxx
   vtkExtractUnstructuredGrid.cxx

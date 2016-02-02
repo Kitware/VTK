@@ -292,6 +292,19 @@ foreach(vtk-module ${VTK_MODULES_ALL})
   endif()
 endforeach()
 
+#hide options of modules that are part of a different backend
+# or are required by the backend
+foreach(backend ${VTK_BACKENDS})
+  foreach(module ${VTK_BACKEND_${backend}_MODULES})
+    if(NOT ${module}_IS_TEST)
+      if((NOT (${backend} STREQUAL "${VTK_RENDERING_BACKEND}")) OR
+        ${module}_IMPLEMENTATION_REQUIRED_BY_BACKEND)
+        set_property(CACHE Module_${module} PROPERTY TYPE INTERNAL)
+      endif()
+    endif()
+  endforeach()
+endforeach()
+
 if(NOT VTK_MODULES_ENABLED)
   message(WARNING "No modules enabled!")
   file(REMOVE "${VTK_BINARY_DIR}/VTKTargets.cmake")

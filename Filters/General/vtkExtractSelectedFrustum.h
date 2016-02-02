@@ -33,7 +33,7 @@
 #ifndef vtkExtractSelectedFrustum_h
 #define vtkExtractSelectedFrustum_h
 
-#include "vtkFiltersExtractionModule.h" // For export macro
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkExtractSelectionBase.h"
 
 class vtkPlanes;
@@ -43,7 +43,7 @@ class vtkCell;
 class vtkPoints;
 class vtkDoubleArray;
 
-class VTKFILTERSEXTRACTION_EXPORT vtkExtractSelectedFrustum : public vtkExtractSelectionBase
+class VTKFILTERSGENERAL_EXPORT vtkExtractSelectedFrustum : public vtkExtractSelectionBase
 {
 public:
   static vtkExtractSelectedFrustum *New();
@@ -152,5 +152,3 @@ private:
 };
 
 #endif
-
-
