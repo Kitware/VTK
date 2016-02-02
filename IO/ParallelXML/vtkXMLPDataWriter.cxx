@@ -17,14 +17,17 @@
 #include "vtkCallbackCommand.h"
 #include "vtkDataSet.h"
 #include "vtkErrorCode.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMultiProcessController.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
+#include <algorithm>
+#include <cassert>
 #include <sstream>
+#include <vtksys/SystemTools.hxx>
 
-vtkCxxSetObjectMacro(vtkXMLPDataWriter,
-                     Controller,
-                     vtkMultiProcessController);
-
+vtkCxxSetObjectMacro(vtkXMLPDataWriter, Controller, vtkMultiProcessController);
 //----------------------------------------------------------------------------
 vtkXMLPDataWriter::vtkXMLPDataWriter()
 {
@@ -47,6 +50,10 @@ vtkXMLPDataWriter::vtkXMLPDataWriter()
 
   this->Controller = 0;
   this->SetController(vtkMultiProcessController::GetGlobalController());
+
+  this->ContinuingExecution = false;
+  this->CurrentPiece = -1;
+  this->PieceWrittenFlags = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -56,6 +63,7 @@ vtkXMLPDataWriter::~vtkXMLPDataWriter()
   delete [] this->FileNameBase;
   delete [] this->FileNameExtension;
   delete [] this->PieceFileNameExtension;
+  delete [] this->PieceWrittenFlags;
   this->SetController(0);
   this->ProgressObserver->Delete();
 }
@@ -69,6 +77,58 @@ void vtkXMLPDataWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "EndPiece: " << this->EndPiece << "\n";
   os << indent << "GhostLevel: " << this->GhostLevel << "\n";
   os << indent << "WriteSummaryFile: " << this->WriteSummaryFile << "\n";
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLPDataWriter::ProcessRequest(vtkInformation* request,
+                                 vtkInformationVector** inputVector,
+                                 vtkInformationVector* outputVector)
+{
+  if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+    {
+    return this->RequestUpdateExtent(request, inputVector, outputVector);
+    }
+
+  int retVal = this->Superclass::ProcessRequest(request, inputVector, outputVector);
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+    {
+    if (retVal && this->ContinuingExecution)
+      {
+      request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
+      }
+    else
+      {
+      request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
+      this->ContinuingExecution = false;
+      }
+    }
+  return retVal;
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLPDataWriter::RequestUpdateExtent(vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector, vtkInformationVector *vtkNotUsed(outputVector))
+{
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  int piece = 0;
+  if (this->ContinuingExecution)
+    {
+    assert(this->CurrentPiece >= this->StartPiece &&
+      this->CurrentPiece <= this->EndPiece &&
+      this->CurrentPiece < this->NumberOfPieces);
+    piece = this->CurrentPiece;
+    }
+  else
+    {
+    piece = this->StartPiece;
+    }
+
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), piece);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+    this->GetNumberOfPieces());
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+    this->GhostLevel);
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -86,44 +146,106 @@ void vtkXMLPDataWriter::SetWriteSummaryFile(int flag)
 //----------------------------------------------------------------------------
 int vtkXMLPDataWriter::WriteInternal()
 {
-  // Prepare the file name.
-  this->SplitFileName();
+  bool the_beginning = (this->ContinuingExecution == false);
+  bool the_end = true;
 
-  // Write the pieces now so the data are up to date.
-  int result = this->WritePieces();
-  if (!result)
+  this->ContinuingExecution = false;
+  this->CurrentPiece = the_beginning? this->StartPiece : this->CurrentPiece;
+
+  assert(this->CurrentPiece >= this->StartPiece && this->CurrentPiece <= this->EndPiece);
+  the_end = (this->CurrentPiece == this->EndPiece);
+
+  if (the_beginning)
     {
-    return result;
+    // Prepare the file name.
+    this->SplitFileName();
+    delete [] this->PieceWrittenFlags;
+    this->PieceWrittenFlags = new unsigned char[this->NumberOfPieces];
+    memset(this->PieceWrittenFlags, 0, sizeof(unsigned char)*this->NumberOfPieces);
+
+    // Prepare the extension.
+    this->SetupPieceFileNameExtension();
     }
 
-  // Decide whether to write the summary file.
-  int writeSummary = 0;
-  if (this->WriteSummaryFile)
+  // Write the current piece.
+
+  // Split progress range by piece.  Just assume all pieces are the
+  // same size.
+  float progressRange[2] = { 0.f, 0.f };
+  this->GetProgressRange(progressRange);
+
+  this->SetProgressRange(progressRange, this->CurrentPiece - this->StartPiece,
+    this->EndPiece - this->StartPiece + 1);
+  vtkDataSet* inputDS = this->GetInputAsDataSet();
+  if (inputDS && (inputDS->GetNumberOfPoints() > 0 || inputDS->GetNumberOfCells() > 0))
     {
-    if (!this->Controller || this->Controller->GetLocalProcessId() == 0)
+    if (!this->WritePiece(this->CurrentPiece))
       {
-      writeSummary = this->WriteSummaryFile;
+      vtkErrorMacro("Ran out of disk space; deleting file(s) already written");
+      this->DeleteFiles();
+      return 0;
       }
+    this->PieceWrittenFlags[this->CurrentPiece] = static_cast<unsigned char>(0x1);
     }
 
   // Write the summary file if requested.
-  if (result && writeSummary)
+  if (the_end && this->WriteSummaryFile)
     {
-    if (!this->Superclass::WriteInternal())
-      {
-      vtkErrorMacro("Ran out of disk space; deleting file(s) already written");
+    // Decide whether to write the summary file.
+    bool writeSummaryLocally = (this->Controller == NULL || this->Controller->GetLocalProcessId() == 0);
 
-      for (int i = this->StartPiece; i < this->EndPiece; i++)
+    // Let subclasses collect information, if any to write the summary file.
+    this->PrepareSummaryFile();
+
+    if (writeSummaryLocally)
+      {
+      if (!this->Superclass::WriteInternal())
         {
-        char* fileName = this->CreatePieceFileName(i, this->PathName);
-        this->DeleteAFile(fileName);
-        delete [] fileName;
+        vtkErrorMacro("Ran out of disk space; deleting file(s) already written");
+        this->DeleteFiles();
+        return 0;
         }
-      return 0;
       }
     }
 
-  return result;
+  if (the_end == false)
+    {
+    this->CurrentPiece++;
+    assert(this->CurrentPiece <= this->EndPiece);
+    this->ContinuingExecution = true;
+    }
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLPDataWriter::DeleteFiles()
+{
+  for (int i = this->StartPiece; i < this->EndPiece; ++i)
+    {
+    char* fileName = this->CreatePieceFileName(i, this->PathName);
+    this->DeleteAFile(fileName);
+    delete [] fileName;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLPDataWriter::PrepareSummaryFile()
+{
+  if (this->Controller && this->Controller->GetNumberOfProcesses() > 1)
+    {
+    assert(this->PieceWrittenFlags != NULL);
+    // Reduce information about which pieces were written out to rank 0.
+    int myId = this->Controller->GetLocalProcessId();
+    unsigned char* recvBuffer = (myId == 0)? new unsigned char[this->NumberOfPieces] : NULL;
+    this->Controller->Reduce(
+      this->PieceWrittenFlags, recvBuffer, this->NumberOfPieces,
+      vtkCommunicator::MAX_OP, 0);
+    if (myId == 0)
+      {
+      std::swap(this->PieceWrittenFlags, recvBuffer);
+      }
+    delete [] recvBuffer;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -165,6 +287,10 @@ int vtkXMLPDataWriter::WriteData()
   // Write the elements referencing each piece and its file.
   for (int i = 0; i < this->NumberOfPieces; ++i)
     {
+    if (this->PieceWrittenFlags[i] == 0)
+      {
+      continue;
+      }
     os << nextIndent << "<Piece";
     this->WritePPieceAttributes(i);
     if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
@@ -205,74 +331,19 @@ void vtkXMLPDataWriter::SplitFileName()
 {
   // Split the FileName into its PathName, FileNameBase, and
   // FileNameExtension components.
-  size_t length = strlen(this->FileName);
-  char* fileName = new char[length+1];
-  strcpy(fileName, this->FileName);
-  char* begin = fileName;
-  char* end = fileName + length;
-  char* s;
 
-#if defined(_WIN32)
-  // Convert to UNIX-style slashes.
-  for (s = begin; s != end; ++s)
-    {
-    if (*s == '\\')
-      {
-      *s = '/';
-      }
-    }
-#endif
+  std::string pathname = vtksys::SystemTools::GetProgramPath(this->FileName);
+  pathname += "/";
+  std::string filename_wo_ext = vtksys::SystemTools::GetFilenameWithoutExtension(this->FileName);
+  std::string ext = vtksys::SystemTools::GetFilenameExtension(this->FileName);
 
-  // Extract the path name up to the last '/'.
   delete [] this->PathName;
-  this->PathName = 0;
-  char* rbegin = end - 1;
-  char* rend = begin - 1;
-  for (s = rbegin; s != rend; --s)
-    {
-    if(*s == '/')
-      {
-      break;
-      }
-    }
-  if (s >= begin)
-    {
-    length = (s-begin) + 1;
-    this->PathName = new char[length+1];
-    strncpy(this->PathName, this->FileName, length);
-    this->PathName[length] = '\0';
-    begin = s+1;
-    }
-
-  // "begin" now points at the beginning of the file name.
-  // Look for the first "." to pull off the longest extension.
-  delete [] this->FileNameExtension;
-  this->FileNameExtension = 0;
-  for (s = begin; s != end; ++s)
-    {
-    if (*s == '.')
-      {
-      break;
-      }
-    }
-  if (s < end)
-    {
-    length = end - s;
-    this->FileNameExtension = new char[length + 1];
-    strncpy(this->FileNameExtension, s, length);
-    this->FileNameExtension[length] = '\0';
-    end = s;
-    }
-
-  // "end" now points to end of the file name.
   delete [] this->FileNameBase;
-  length = end - begin;
-  this->FileNameBase = new char[length+1];
-  strncpy(this->FileNameBase, begin, length);
-  this->FileNameBase[length] = '\0';
+  delete [] this->FileNameExtension;
 
-  // Cleanup temporary name.
-  delete [] fileName;
+  this->PathName = vtksys::SystemTools::DuplicateString(pathname.c_str());
+  this->FileNameBase = vtksys::SystemTools::DuplicateString(filename_wo_ext.c_str());
+  this->FileNameExtension = vtksys::SystemTools::DuplicateString(ext.c_str());
 }
 
 //----------------------------------------------------------------------------
@@ -298,37 +369,6 @@ char* vtkXMLPDataWriter::CreatePieceFileName(int index, const char* path)
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLPDataWriter::WritePieces()
-{
-  // Split progress range by piece.  Just assume all pieces are the
-  // same size.
-  float progressRange[2] = { 0.f, 0.f };
-  this->GetProgressRange(progressRange);
-
-  // Write each piece from StartPiece to EndPiece.
-  for(int i = this->StartPiece; i <= this->EndPiece; ++i)
-    {
-    this->SetProgressRange(progressRange, i-this->StartPiece,
-      this->EndPiece-this->StartPiece + 1);
-    if (!this->WritePiece(i))
-      {
-      // Writing a piece failed.
-      // Delete files for previous pieces and abort.
-      vtkErrorMacro("Ran out of disk space; deleting file(s) already written");
-
-      for (int j = this->StartPiece; j < i; ++j)
-        {
-        char* fileName = this->CreatePieceFileName(j, this->PathName);
-        this->DeleteAFile(fileName);
-        delete [] fileName;
-        }
-      return 0;
-      }
-    }
-  return 1;
-}
-
-//----------------------------------------------------------------------------
 int vtkXMLPDataWriter::WritePiece(int index)
 {
   // Create the writer for the piece.  Its configuration should match
@@ -336,14 +376,6 @@ int vtkXMLPDataWriter::WritePiece(int index)
   vtkXMLWriter* pWriter = this->CreatePieceWriter(index);
   pWriter->AddObserver(vtkCommand::ProgressEvent, this->ProgressObserver);
 
-  // Set the file name.
-  if(!this->PieceFileNameExtension)
-    {
-    const char* ext = pWriter->GetDefaultFileExtension();
-    this->PieceFileNameExtension = new char[strlen(ext)+2];
-    this->PieceFileNameExtension[0] = '.';
-    strcpy(this->PieceFileNameExtension+1, ext);
-    }
   char* fileName = this->CreatePieceFileName(index, this->PathName);
   pWriter->SetFileName(fileName);
   delete [] fileName;
@@ -391,4 +423,18 @@ void vtkXMLPDataWriter::ProgressCallback(vtkAlgorithm* w)
     {
     w->SetAbortExecute(1);
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLPDataWriter::SetupPieceFileNameExtension()
+{
+  delete [] this->PieceFileNameExtension;
+
+  // Create a temporary piece writer and then initialize the extension.
+  vtkXMLWriter* writer = this->CreatePieceWriter(0);
+  const char* ext = writer->GetDefaultFileExtension();
+  this->PieceFileNameExtension = new char[strlen(ext)+2];
+  this->PieceFileNameExtension[0] = '.';
+  strcpy(this->PieceFileNameExtension+1, ext);
+  writer->Delete();
 }
