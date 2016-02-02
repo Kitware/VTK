@@ -29,11 +29,11 @@
 #include "vtkUnsignedCharArray.h"
 
 #include "vtk_diy2.h"   // must include this before any diy header
-#include "diy/algorithms.hpp"
-#include "diy/assigner.hpp"
-#include "diy/link.hpp"
-#include "diy/master.hpp"
-#include "diy/mpi.hpp"
+#include VTK_DIY2_HEADER(diy/algorithms.hpp)
+#include VTK_DIY2_HEADER(diy/assigner.hpp)
+#include VTK_DIY2_HEADER(diy/link.hpp)
+#include VTK_DIY2_HEADER(diy/master.hpp)
+#include VTK_DIY2_HEADER(diy/mpi.hpp)
 
 #include <mpi.h>
 
