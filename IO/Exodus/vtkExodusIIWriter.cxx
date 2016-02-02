@@ -2595,8 +2595,6 @@ int vtkExodusIIWriter::WriteSideSetInformation()
   // they appear in the input. We need a mapping from their internal
   // id in the input to their internal id in the output.
 
-  std::map<int, int>::iterator idIt;
-
   int nids = em->GetSumSidesPerSideSet();
 
   if (nids < 1)

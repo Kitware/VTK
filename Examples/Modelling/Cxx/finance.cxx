@@ -173,12 +173,14 @@ static vtkSmartPointer<vtkDataSet> ReadFinancialData(const char* filename, const
   if (npts <= 0)
     {
     std::cerr << "ERROR: Number of points must be greater that 0" << std::endl;
+    fclose(file);
     return NULL;
     }
   // We arbitrarily pick a large upper limit on npts
   if (npts > VTK_INT_MAX / 10)
     {
     std::cerr << "ERROR: npts (" << npts << ") is unreasonably large" << std::endl;
+    fclose(file);
     return NULL;
     }
   vtkSmartPointer<vtkUnstructuredGrid> dataSet =
