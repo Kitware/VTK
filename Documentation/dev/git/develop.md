@@ -170,6 +170,10 @@ Follow these steps:
     select the `master` branch as the target because the change needs
     to end up there too.
 
+    For other `release` branches (e.g., `release-6.3`), merge requests should
+    go directly to the branch (they are not tied with `master` in our
+    workflow).
+
 3.  Use the "**Compare branches**" button to proceed to the next page
     and fill out the merge request creation form.
 
