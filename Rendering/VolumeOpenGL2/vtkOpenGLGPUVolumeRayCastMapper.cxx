@@ -731,6 +731,16 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(
   // Update texture size
   imageData->GetExtent(this->Extents);
 
+  if (this->Parent->CellFlag)
+    {
+    int i = 1;
+    while (i < 6)
+      {
+      this->Extents[i]--;
+      i += 2;
+      }
+    }
+
   int i = 0;
   while(i < 3)
     {
@@ -928,6 +938,17 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ComputeBounds(
   input->GetSpacing(this->CellSpacing);
   input->GetOrigin(origin);
   input->GetExtent(this->Extents);
+
+
+  if (this->Parent->CellFlag)
+    {
+    int i = 1;
+    while (i < 6)
+      {
+      this->Extents[i]--;
+      i += 2;
+      }
+    }
 
   int swapBounds[3];
   swapBounds[0] = (this->CellSpacing[0] < 0);
