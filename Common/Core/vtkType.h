@@ -293,7 +293,7 @@ typedef int vtkIdType;
  * is intended to handle vtkIdType, which does not have the same tag as its
  * underlying data type.
  * @note This method is only available when included from a C++ source file. */
-inline int vtkDataTypesCompare(int a, int b)
+inline vtkTypeBool vtkDataTypesCompare(int a, int b)
 {
   return (a == b ||
           ((a == VTK_ID_TYPE || a == VTK_ID_TYPE_IMPL) &&

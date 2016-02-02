@@ -852,7 +852,7 @@ void vtkObject::Modified()
 }
 
 //----------------------------------------------------------------------------
-void vtkObject::RegisterInternal(vtkObjectBase* o, int check)
+void vtkObject::RegisterInternal(vtkObjectBase* o, vtkTypeBool check)
 {
   // Print debugging messages.
   if(o)
@@ -871,7 +871,7 @@ void vtkObject::RegisterInternal(vtkObjectBase* o, int check)
 }
 
 //----------------------------------------------------------------------------
-void vtkObject::UnRegisterInternal(vtkObjectBase* o, int check)
+void vtkObject::UnRegisterInternal(vtkObjectBase* o, vtkTypeBool check)
 {
   // Print debugging messages.
   if(o)

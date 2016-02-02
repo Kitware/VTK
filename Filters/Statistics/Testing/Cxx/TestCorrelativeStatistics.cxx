@@ -258,8 +258,8 @@ int TestCorrelativeStatistics( int, char *[] )
 
     double testPearsonR = outputDerived1->GetValueByName( r, "Pearson r" ).ToDouble();
     // Special treatment as some values of Pearson r are Nan, resulting in an exception on VS for <
-    int isNanTest = vtkMath::IsNan( testPearsonR );
-    int isNanCorr = vtkMath::IsNan( correlations1[r] );
+    vtkTypeBool isNanTest = vtkMath::IsNan( testPearsonR );
+    vtkTypeBool isNanCorr = vtkMath::IsNan( correlations1[r] );
     if ( isNanTest || isNanCorr )
       {
       if ( isNanTest != isNanCorr )
