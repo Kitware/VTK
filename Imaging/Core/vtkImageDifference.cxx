@@ -144,21 +144,9 @@ private:
 //----------------------------------------------------------------------------
 void vtkImageDifferenceSMPFunctor::operator()(vtkIdType begin, vtkIdType end)
 {
-  for (vtkIdType piece = begin; piece < end; piece++)
-    {
-    int splitExt[6] = { 0, -1, 0, -1, 0, -1 };
-    vtkIdType total = this->Algorithm->SplitExtent(
-      splitExt, this->Extent, piece, this->NumberOfPieces);
-
-    if (piece < total &&
-        splitExt[0] <= splitExt[1] &&
-        splitExt[2] <= splitExt[3] &&
-        splitExt[4] <= splitExt[5])
-      {
-      this->Algorithm->ThreadedRequestData(
-        NULL, NULL, NULL, this->Inputs, this->Outputs, splitExt, piece);
-      }
-    }
+  this->Algorithm->SMPRequestData(
+    0, 0, 0, this->Inputs, this->Outputs,
+    begin, end, this->NumberOfPieces, this->Extent);
 }
 
 //----------------------------------------------------------------------------

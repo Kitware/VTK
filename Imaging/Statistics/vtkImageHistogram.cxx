@@ -634,22 +634,9 @@ void vtkImageHistogramFunctor::operator()(vtkIdType begin, vtkIdType end)
 {
   vtkImageHistogramThreadStruct *ts = this->PipelineInfo;
 
-  for (vtkIdType piece = begin; piece < end; piece++)
-    {
-    int splitExt[6] = { 0, -1, 0, -1, 0, -1 };
-    vtkIdType total = ts->Algorithm->SplitExtent(
-      splitExt, this->Extent, piece, this->NumberOfPieces);
-
-    if (piece < total &&
-        splitExt[0] <= splitExt[1] &&
-        splitExt[2] <= splitExt[3] &&
-        splitExt[4] <= splitExt[5])
-      {
-      ts->Algorithm->ThreadedRequestData(
-        ts->Request, ts->InputsInfo, ts->OutputsInfo,
-        NULL, NULL, splitExt, piece);
-      }
-    }
+  ts->Algorithm->SMPRequestData(
+    ts->Request, ts->InputsInfo, ts->OutputsInfo, NULL, NULL,
+    begin, end, this->NumberOfPieces, this->Extent);
 }
 
 // Called by vtkSMPTools once the multi-threading has finished.

@@ -115,6 +115,17 @@ protected:
                           vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector);
 
+  // Description:
+  // This will join contiguous groups of pieces together into larger
+  // pieces and will then call ThreadedRequestData.
+  virtual void SMPRequestData(vtkInformation *request,
+                              vtkInformationVector **inputVector,
+                              vtkInformationVector *outputVector,
+                              vtkImageData ***inData,
+                              vtkImageData **outData,
+                              vtkIdType begin, vtkIdType end,
+                              vtkIdType pieces, int extent[6]);
+
 private:
   vtkThreadedImageAlgorithm(const vtkThreadedImageAlgorithm&);  // Not implemented.
   void operator=(const vtkThreadedImageAlgorithm&);  // Not implemented.

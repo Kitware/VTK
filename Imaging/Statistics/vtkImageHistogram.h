@@ -203,6 +203,8 @@ protected:
 private:
   vtkImageHistogram(const vtkImageHistogram&);  // Not implemented.
   void operator=(const vtkImageHistogram&);  // Not implemented.
+
+  friend class vtkImageHistogramFunctor;
 };
 
 #endif
