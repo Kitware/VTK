@@ -333,7 +333,12 @@ void vtkXMLPDataWriter::SplitFileName()
   // FileNameExtension components.
 
   std::string pathname = vtksys::SystemTools::GetProgramPath(this->FileName);
-  pathname += "/";
+  // Pathname may be empty if FileName is simply a filename without any leading
+  // "/".
+  if (!pathname.empty())
+    {
+    pathname += "/";
+    }
   std::string filename_wo_ext = vtksys::SystemTools::GetFilenameWithoutExtension(this->FileName);
   std::string ext = vtksys::SystemTools::GetFilenameExtension(this->FileName);
 
