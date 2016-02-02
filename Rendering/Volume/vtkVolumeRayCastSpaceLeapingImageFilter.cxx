@@ -29,7 +29,7 @@
 #include "vtkMetaImageWriter.h"
 #endif
 
-#include <math.h>
+#include <cmath>
 
 // Space leaping block size
 #define VTK_SL_BLK 4

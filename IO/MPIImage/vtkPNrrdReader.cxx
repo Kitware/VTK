@@ -32,9 +32,9 @@
 #include <istream>
 #include <sstream>
 
-#include <math.h>
-#include <string.h>
-#include <ctype.h>
+#include <cmath>
+#include <cstring>
+#include <cctype>
 #include "vtkSmartPointer.h"
 #include "vtkMPI.h"
 

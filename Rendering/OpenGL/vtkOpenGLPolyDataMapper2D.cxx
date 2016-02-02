@@ -30,7 +30,7 @@
 #include "vtkWindow.h"
 #include "vtkgluPickMatrix.h"
 #include "vtkOpenGLError.h"
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper2D);
 

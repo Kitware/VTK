@@ -27,7 +27,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkDoubleArray.h"
 
-#include <float.h>
+#include <cfloat>
 
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 

@@ -61,8 +61,8 @@
 #include "vtkUnstructuredGrid.h"
 
 #include <errno.h>
-#include <math.h>
-#include <ctype.h>
+#include <cmath>
+#include <cctype>
 
 #include <vector>
 #include <list>

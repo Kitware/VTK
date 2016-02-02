@@ -28,7 +28,7 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkAxisFollower);
 

@@ -56,7 +56,7 @@
 #endif
 
 #if defined(__BORLANDC__)
-#include <ctype.h> // isalnum is defined here for some versions of Borland
+#include <cctype> // isalnum is defined here for some versions of Borland
 #endif
 
 #include <locale> // C++ locale

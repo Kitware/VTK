@@ -15,7 +15,7 @@
 #include "vtkParametricSuperEllipsoid.h"
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkParametricSuperEllipsoid);
 

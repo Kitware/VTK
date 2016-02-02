@@ -38,7 +38,7 @@
 #include "vtkGenericCellTessellator.h"
 #include "vtkIncrementalPointLocator.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkGenericCutter);
 vtkCxxSetObjectMacro(vtkGenericCutter,CutFunction,vtkImplicitFunction);

@@ -21,7 +21,7 @@
 #include <set>
 
 #include <ctime> // for strftime
-#include <ctype.h> // for isdigit
+#include <cctype> // for isdigit
 #include <cassert>
 
 //----------------------------------------------------------------------------

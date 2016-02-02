@@ -31,7 +31,7 @@
 #include "vtkStructuredPoints.h"
 #include "vtkIncrementalPointLocator.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkMarchingContourFilter);
 

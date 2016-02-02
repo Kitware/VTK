@@ -51,7 +51,7 @@ WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 #include "vtkByteSwap.h"
 
 #include <cstddef>
-#include <string.h>
+#include <cstring>
 #include <cassert>
 
 /* memory allocation */

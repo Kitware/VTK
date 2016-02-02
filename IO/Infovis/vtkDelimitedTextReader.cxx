@@ -43,7 +43,7 @@
 #include <set>
 #include <vector>
 
-#include <ctype.h>
+#include <cctype>
 
 // #include <utf8.h>
 

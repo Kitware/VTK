@@ -26,7 +26,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkSmartPointer.h"
 
-#include <math.h>
+#include <cmath>
 #include <map>
 
 vtkStandardNewMacro(vtkLassoStencilSource);

@@ -25,8 +25,8 @@
 #include "vtkCellData.h"
 #include "vtkIntArray.h"
 
-#include <ctype.h>
-#include <string.h>
+#include <cctype>
+#include <cstring>
 #include <sstream>
 #include <string>
 #include <map>

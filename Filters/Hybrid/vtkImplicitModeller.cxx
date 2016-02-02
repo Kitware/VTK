@@ -37,7 +37,7 @@
 #include "vtkImageIterator.h"
 #include "vtkImageProgressIterator.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkImplicitModeller);
 

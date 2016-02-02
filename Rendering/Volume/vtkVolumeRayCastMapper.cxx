@@ -38,7 +38,7 @@
 #include "vtkRayCastImageDisplayHelper.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkVolumeRayCastMapper);
 

@@ -15,7 +15,7 @@
 #include "vtkRecursiveSphereDirectionEncoder.h"
 #include "vtkObjectFactory.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkRecursiveSphereDirectionEncoder);
 

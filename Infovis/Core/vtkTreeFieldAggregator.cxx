@@ -37,7 +37,7 @@
 #include "vtkTreeDFSIterator.h"
 #include "vtkVariantArray.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkTreeFieldAggregator);
 

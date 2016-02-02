@@ -50,7 +50,7 @@
 #include <vtksys/RegularExpression.hxx>
 #include <vtksys/SystemTools.hxx>
 
-#include <string.h>
+#include <cstring>
 
 #include "vtk_netcdf.h"
 
@@ -72,7 +72,7 @@
 
 #include <algorithm>
 
-#include <math.h>
+#include <cmath>
 
 //=============================================================================
 // Convenience function for getting the text attribute on a variable.  Returns

@@ -43,7 +43,7 @@
 #include <set>
 #include <map>
 
-#include <stdio.h> // for snprintf
+#include <cstdio> // for snprintf
 
 #if defined(_MSC_VER) && (_MSC_VER < 1900)
 #  define SNPRINTF _snprintf

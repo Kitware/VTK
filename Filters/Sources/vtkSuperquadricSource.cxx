@@ -30,7 +30,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkSuperquadricSource);
 

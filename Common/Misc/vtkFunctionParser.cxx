@@ -15,7 +15,7 @@
 #include "vtkFunctionParser.h"
 #include "vtkObjectFactory.h"
 
-#include <ctype.h>
+#include <cctype>
 
 vtkStandardNewMacro(vtkFunctionParser);
 

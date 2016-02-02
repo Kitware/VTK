@@ -6,7 +6,7 @@
 #include "WidgetTestingMacros.h"
 #include "vtkPolyData.h"
 
-#include <vtkProperty2D.h>
+#include "vtkProperty2D.h"
 
 int vtkPointHandleRepresentation2DTest1(int , char * [] )
 {

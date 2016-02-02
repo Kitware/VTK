@@ -28,7 +28,7 @@
 #include "vtkMarchingCubesTriangleCases.h"
 #include "vtkSMPTools.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkFlyingEdges3D);
 

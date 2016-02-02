@@ -81,7 +81,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #endif
 
 #include <cstdlib>
-#include <float.h>
+#include <cfloat>
 #include <ctime>
 #include <string>
 #include <vector>

@@ -55,7 +55,7 @@
 #include <sstream>
 #include <algorithm>
 
-#include <ctype.h>
+#include <cctype>
 #include <sys/stat.h>
 
 vtkStandardNewMacro(vtkFLUENTReader);

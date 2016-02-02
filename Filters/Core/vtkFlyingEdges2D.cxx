@@ -25,7 +25,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkSMPTools.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkFlyingEdges2D);
 

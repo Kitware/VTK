@@ -19,7 +19,7 @@
 #include "vtkImageProgressIterator.h"
 #include "vtkObjectFactory.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkImageEuclideanToPolar);
 

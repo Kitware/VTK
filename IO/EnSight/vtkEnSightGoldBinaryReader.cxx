@@ -29,7 +29,7 @@
 #include "vtkUnstructuredGrid.h"
 
 #include <sys/stat.h>
-#include <ctype.h>
+#include <cctype>
 #include <string>
 #include <vector>
 #include <map>

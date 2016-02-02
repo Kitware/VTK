@@ -45,7 +45,7 @@
 #include "vtkIncrementalPointLocator.h"
 #include "vtkContourHelper.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkContourFilter);
 vtkCxxSetObjectMacro(vtkContourFilter,ScalarTree,vtkScalarTree);

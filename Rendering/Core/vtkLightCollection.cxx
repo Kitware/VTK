@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkLight.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkLightCollection);
 

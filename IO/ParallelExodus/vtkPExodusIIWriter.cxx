@@ -43,7 +43,7 @@
 
 #include "vtk_exodusII.h"
 #include <ctime>
-#include <ctype.h>
+#include <cctype>
 
 vtkStandardNewMacro (vtkPExodusIIWriter);
 

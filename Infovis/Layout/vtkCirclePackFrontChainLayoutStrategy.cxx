@@ -33,7 +33,7 @@
 #include <vector>
 #include <limits>
 #include <list>
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkCirclePackFrontChainLayoutStrategy);
 

@@ -56,7 +56,7 @@
 
 #include <algorithm>
 #include <map>
-#include <stdio.h>
+#include <cstdio>
 #include <sstream>
 #include <vector>
 

@@ -24,7 +24,7 @@
 #include "vtkImageData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-#include <math.h>
+#include <cmath>
 
 //
 // Special classes for manipulating data

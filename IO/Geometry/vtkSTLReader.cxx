@@ -29,7 +29,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <algorithm>
-#include <ctype.h>
+#include <cctype>
 #include <stdexcept>
 #include <string>
 #include <vtksys/SystemTools.hxx>

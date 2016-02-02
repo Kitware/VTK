@@ -49,7 +49,7 @@
 
 #include <algorithm>
 #include <cassert>
-#include <math.h>
+#include <cmath>
 #include <string>
 #include <vector>
 

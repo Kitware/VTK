@@ -24,7 +24,7 @@
 
 #include "vtkOpenGL.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkOpenGLCamera);
 

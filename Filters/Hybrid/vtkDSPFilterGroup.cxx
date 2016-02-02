@@ -32,7 +32,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkDSPFilterDefinition.h"
 
-#include <ctype.h>
+#include <cctype>
 #include <vector>
 #include <string>
 

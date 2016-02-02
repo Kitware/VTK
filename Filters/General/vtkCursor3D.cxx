@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkCursor3D);
 

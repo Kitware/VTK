@@ -22,7 +22,7 @@
 #include "vtkShaderProgram.h"
 #include "vtkOpenGLHelper.h"
 
-#include <math.h>
+#include <cmath>
 #include <sstream>
 
 

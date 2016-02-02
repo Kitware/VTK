@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <cstdio>
 #include <cstdlib>
 #if !defined(_WIN32) || defined(__CYGWIN__)
 # include <sys/types.h>

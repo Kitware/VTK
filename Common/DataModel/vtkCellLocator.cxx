@@ -21,7 +21,7 @@
 #include "vtkPolyData.h"
 #include "vtkBox.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkCellLocator);
 

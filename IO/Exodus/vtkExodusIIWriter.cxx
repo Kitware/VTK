@@ -43,7 +43,7 @@
 #include "vtkToolkits.h" // for VTK_USE_PARALLEL
 
 #include "vtk_exodusII.h"
-#include <ctype.h>
+#include <cctype>
 #include <map>
 #include <ctime>
 

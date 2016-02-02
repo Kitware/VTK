@@ -47,7 +47,7 @@
 #include "vtkActor.h"
 #include "vtkProperty.h"
 
-#include <math.h>
+#include <cmath>
 
 #include "vtkOpenGLError.h"
 

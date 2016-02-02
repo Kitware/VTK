@@ -77,12 +77,12 @@ void vtkDirectory::PrintSelf(ostream& os, vtkIndent indent)
 #if defined(_MSC_VER) || defined(__BORLANDC__) || defined(__MINGW32__)
 #include "vtkWindows.h"
 #include <io.h>
-#include <ctype.h>
+#include <cctype>
 #include <direct.h>
 #include <fcntl.h>
-#include <stdio.h>
+#include <cstdio>
 #include <cstdlib>
-#include <string.h>
+#include <cstring>
 #include <sys/types.h>
 
 int vtkDirectory::Open(const char* name)

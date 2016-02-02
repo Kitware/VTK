@@ -16,7 +16,7 @@
 #include "vtkMath.h"
 #include "vtkPlane.h"
 #include <cassert>
-#include <math.h>
+#include <cmath>
 
 // ---------------------------------------------------------------------------
 namespace

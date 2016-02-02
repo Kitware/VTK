@@ -18,10 +18,10 @@ See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
 #include "vtkObjectFactory.h"
 
-#include <string.h>
-#include <float.h>
-#include <math.h>
-#include <ctype.h>
+#include <cstring>
+#include <cfloat>
+#include <cmath>
+#include <cctype>
 
 vtkStandardNewMacro(vtkNIFTIImageHeader);
 

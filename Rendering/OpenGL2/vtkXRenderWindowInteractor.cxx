@@ -12,9 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 // We have to define XTSTRINGDEFINES (used in X11/StringDefs.h and X11/Shell.h)
 // otherwise the string are define as char * instead of const char which can
@@ -28,7 +28,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkActor.h"
 #include <X11/Shell.h>
-#include <math.h>
+#include <cmath>
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 

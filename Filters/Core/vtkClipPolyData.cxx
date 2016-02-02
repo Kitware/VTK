@@ -30,7 +30,7 @@
 #include "vtkTriangle.h"
 #include "vtkIncrementalPointLocator.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkClipPolyData);
 vtkCxxSetObjectMacro(vtkClipPolyData,ClipFunction,vtkImplicitFunction);

@@ -33,7 +33,7 @@
 
 #include "vtkOpenGL.h"
 
-#include <math.h>
+#include <cmath>
 
 #include <string>
 #include <map>

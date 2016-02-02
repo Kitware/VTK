@@ -38,7 +38,7 @@
 #include "vtkIncrementalPointLocator.h"
 #include "vtkPolyhedron.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkClipDataSet);
 vtkCxxSetObjectMacro(vtkClipDataSet,ClipFunction,vtkImplicitFunction);

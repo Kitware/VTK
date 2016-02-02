@@ -22,7 +22,7 @@
 
 #include "vtkSMPTools.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 vtkStandardNewMacro(vtkSMPTransform);
 

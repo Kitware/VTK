@@ -31,7 +31,7 @@
 # undef VTK_USE_UINT64
 # define VTK_USE_UINT64 0
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkImageSlab);
 

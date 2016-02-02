@@ -19,7 +19,7 @@
 #include "vtkPlane.h"
 #include "vtkPoints.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkPlanes);
 vtkCxxSetObjectMacro(vtkPlanes,Points,vtkPoints);

@@ -25,7 +25,7 @@
 #include "vtkOpenGL.h"
 #include "vtkOpenGLError.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkOpenGLRayCastImageDisplayHelper);
 
