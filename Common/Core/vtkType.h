@@ -272,6 +272,21 @@ typedef int vtkIdType;
 # define VTK_ID_MAX VTK_INT_MAX
 #endif
 
+/*--------------------------------------------------------------------------*/
+/* If not already defined, define vtkTypeBool. When VTK was started, some   */
+/* compilers did not yet support the bool type, and so VTK often used int   */
+/* where it should have used bool. Eventually vtkTypeBool will switch to    */
+/* real bool. */
+#ifndef VTK_TYPE_BOOL_TYPEDEFED
+# define VTK_TYPE_BOOL_TYPEDEFED
+# if 1
+   typedef int vtkTypeBool;
+# else
+   typedef bool vtkTypeBool;
+# endif
+#endif
+
+
 #if defined(__cplusplus)
 /* Description:
  * Returns true if data type tags a and b point to the same data type. This
