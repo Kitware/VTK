@@ -109,7 +109,7 @@ for F in F_lst:
     cell_derivatives.SetTensorModeToComputeGradient()
     cell_derivatives.SetInputData(ugrid_hex)
     cell_derivatives.Update()
-    vector_gradient = numpy.reshape(cell_derivatives.GetOutput().GetCellData().GetArray("VectorGradient").GetTuple(0), (3,3), "F") # vtkTensor components are stored in column, not in row…
+    vector_gradient = numpy.reshape(cell_derivatives.GetOutput().GetCellData().GetArray("VectorGradient").GetTuple(0), (3,3))
     print("VectorGradient = " + str(vector_gradient))
     assert numpy.allclose(vector_gradient, GU)
 
@@ -119,7 +119,7 @@ for F in F_lst:
     cell_derivatives.SetTensorModeToComputeStrain()
     cell_derivatives.SetInputData(ugrid_hex)
     cell_derivatives.Update()
-    strain = numpy.reshape(cell_derivatives.GetOutput().GetCellData().GetArray("Strain").GetTuple(0), (3,3), "F") # vtkTensor components are stored in column, not in row…
+    strain = numpy.reshape(cell_derivatives.GetOutput().GetCellData().GetArray("Strain").GetTuple(0), (3,3))
     print("Strain = " + str(strain))
     assert numpy.allclose(strain, e)
 
@@ -129,6 +129,6 @@ for F in F_lst:
     cell_derivatives.SetTensorModeToComputeGreenLagrangeStrain()
     cell_derivatives.SetInputData(ugrid_hex)
     cell_derivatives.Update()
-    green_lagrange_strain = numpy.reshape(cell_derivatives.GetOutput().GetCellData().GetArray("GreenLagrangeStrain").GetTuple(0), (3,3), "F") # vtkTensor components are stored in column, not in row…
+    green_lagrange_strain = numpy.reshape(cell_derivatives.GetOutput().GetCellData().GetArray("GreenLagrangeStrain").GetTuple(0), (3,3))
     print("GreenLagrangeStrain = " + str(green_lagrange_strain))
     assert numpy.allclose(green_lagrange_strain, E)

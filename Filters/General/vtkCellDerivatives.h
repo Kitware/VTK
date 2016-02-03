@@ -26,7 +26,8 @@
 // (The interpolation functions of the cells are used to compute the
 // derivatives which is why point data is required.)
 //
-// Note that the tensor components are sent out in column, not in row.
+// Note that the tensor components used to be sent out in column, but they
+// are now sent out not in row.
 
 // .SECTION Caveats
 // The computed derivatives are cell attribute data; you can convert them to

@@ -27,7 +27,6 @@
 #include "vtkPolyData.h"
 #include "vtkPolyDataNormals.h"
 #include "vtkPolygon.h"
-#include "vtkTensor.h"
 #include "vtkTriangle.h"
 
 vtkStandardNewMacro(vtkCurvatures);
