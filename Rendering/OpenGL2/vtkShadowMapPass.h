@@ -50,10 +50,6 @@ class vtkLight;
 class vtkFrameBufferObject;
 class vtkShadowMapPassTextures; // internal
 class vtkShadowMapPassLightCameras; // internal
-class vtkImageExport;
-class vtkTextureObject;
-class vtkImplicitHalo;
-class vtkSampleFunction;
 class vtkShadowMapBakerPass;
 class vtkInformationObjectBaseKey;
 class vtkShaderProgram;
@@ -133,10 +129,6 @@ public:
   virtual ~vtkShadowMapPass();
 
   // Description:
-  // Build the intensity map.
-  void BuildSpotLightIntensityMap();
-
-  // Description:
   // Check if shadow mapping is supported by the current OpenGL context.
   // \pre w_exists: w!=0
   void CheckSupport(vtkOpenGLRenderWindow *w);
@@ -152,12 +144,6 @@ public:
 
   vtkShadowMapPassTextures *ShadowMaps;
   vtkShadowMapPassLightCameras *LightCameras;
-
-  vtkTextureObject *IntensityMap;
-
-  vtkSampleFunction *IntensitySource;
-  vtkImageExport *IntensityExporter;
-  vtkImplicitHalo *Halo;
 
   vtkTimeStamp LastRenderTime;
 

@@ -28,6 +28,8 @@ set(Module_SRCS
   vtkDicer.cxx
   vtkDiscreteMarchingCubes.cxx
   vtkEdgePoints.cxx
+  vtkExtractSelectedFrustum.cxx
+  vtkExtractSelectionBase.cxx
   vtkGradientFilter.cxx
   vtkGraphLayoutFilter.cxx
   vtkGraphToPoints.cxx

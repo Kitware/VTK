@@ -3,6 +3,7 @@ vtk_module(vtkRenderingOpenGL
     vtkRenderingCore
   BACKEND
     OpenGL
+  IMPLEMENTATION_REQUIRED_BY_BACKEND
   PRIVATE_DEPENDS
     # These are likely to be removed soon - split Rendering/OpenGL further.
     vtkImagingHybrid # For vtkSampleFunction
