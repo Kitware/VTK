@@ -19,6 +19,9 @@ README.md
 
 extract_source () {
     git_archive
+    pushd ${extractdir}/${name}-reduced
+    mv include/diy include/vtkdiy
+    popd
 }
 
 . "${BASH_SOURCE%/*}/../update-common.sh"
