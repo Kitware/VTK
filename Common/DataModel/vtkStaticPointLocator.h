@@ -131,6 +131,18 @@ public:
   virtual void BuildLocator();
   virtual void GenerateRepresentation(int level, vtkPolyData *pd);
 
+  // Description:
+  // Given a bucket number bNum between 0 <= bNum < this->GetNumberOfBuckets(),
+  // return the number of points found in the bucket.
+  vtkIdType GetNumberOfPointsInBucket(vtkIdType bNum);
+
+  // Description:
+  // Given a bucket number bNum between 0 <= bNum < this->GetNumberOfBuckets(),
+  // return a list of point ids contained within the bucket. The user must
+  // provide an instance of vtkIdList to contain the result.
+  void GetBucketIds(vtkIdType bNum, vtkIdList *bList);
+
+
 protected:
   vtkStaticPointLocator();
   virtual ~vtkStaticPointLocator();
