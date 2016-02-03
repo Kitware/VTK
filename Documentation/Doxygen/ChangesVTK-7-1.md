@@ -115,3 +115,13 @@ This is equivalent to:
     reader->Update();
 
 We expect to remove the deprecated methods in VTK 8.0.
+
+Derivatives
+-----------
+
+VTK has a C/row-major ordering of arrays. The vtkCellDerivatives
+filter was erroneously outputting second order tensors
+(i.e. 9 component tuples) in Fortran/column-major ordering. This has been
+fixed along with the numpy vector_gradient and strain functions.
+Additionally, vtkTensors was removed as this class was only
+used by vtkCellDerivatives and was contributing to the confusion.
