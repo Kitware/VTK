@@ -122,6 +122,13 @@ FT_BEGIN_HEADER
   /*                                                                       */
 #if ( defined( __APPLE__ ) && !defined( DARWIN_NO_CARBON ) ) || \
     ( defined( __MWERKS__ ) && defined( macintosh )        )
+
+#ifdef __APPLE__
+#include "TargetConditionals.h"
+#endif
+
+# if !(TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR)
+
   /* no Carbon frameworks for 64bit 10.4.x */
   /* AvailabilityMacros.h is available since Mac OS X 10.2,        */
   /* so guess the system version by maximum errno before inclusion */
@@ -145,6 +152,7 @@ FT_BEGIN_HEADER
 
 #endif
 
+#endif
 
   /*************************************************************************/
   /*                                                                       */
