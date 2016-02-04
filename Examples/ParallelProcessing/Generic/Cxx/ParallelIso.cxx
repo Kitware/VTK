@@ -80,7 +80,7 @@ void SetIsoValueRMI(void *localArg, void* vtkNotUsed(remoteArg),
   vtkContourFilter *iso = args->ContourFilter;
   val = iso->GetValue(0);
   iso->SetValue(0, val + ISO_STEP);
-  args->Elevation->Update(myid, numProcs, 0));
+  args->Elevation->UpdatePiece(myid, numProcs, 0);
 
   contrl->Send(args->Elevation->GetOutput(), 0, ISO_OUTPUT_TAG);
 }
@@ -168,7 +168,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
       {
       // set the local value
       iso->SetValue(0, iso->GetValue(0) + ISO_STEP);
-      elev->Update(myid, numProcs, 0));
+      elev->UpdatePiece(myid, numProcs, 0);
 
       for (int i = 1; i < numProcs; ++i)
         {
