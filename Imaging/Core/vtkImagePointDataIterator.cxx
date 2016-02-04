@@ -141,7 +141,7 @@ void vtkImagePointDataIterator::Initialize(
   if (stencil)
     {
     this->HasStencil = true;
-    this->InStencil = true;
+    this->InStencil = false;
 
     this->SpanIndex = 0;
     int stencilExtent[6];
@@ -175,9 +175,13 @@ void vtkImagePointDataIterator::Initialize(
     if (yOffset < 0)
       {
       this->Extent[2] = stencilExtent[2];
+      // starting before start of stencil: subtract the increment that
+      // will be added in NextSpan() upon entry into stencil extent
+      startOffset -= 1;
       }
     else
       {
+      // starting partway into the stencil, so add an offset
       startOffset += yOffset;
       }
 
@@ -190,9 +194,16 @@ void vtkImagePointDataIterator::Initialize(
     if (zOffset < 0)
       {
       this->Extent[4] = stencilExtent[4];
+      // starting before start of stencil: subtract the increment that
+      // will be added in NextSpan() upon entry into stencil extent
+      if (yOffset >= 0)
+        {
+        startOffset -= 1 + this->SpanSliceEndIncrement;
+        }
       }
     else
       {
+      // starting partway into the stencil, so add an offset
       startOffset += zOffset*this->SpanSliceIncrement;
       }
 
@@ -212,8 +223,13 @@ void vtkImagePointDataIterator::Initialize(
         vtkImageStencilIteratorFriendship::GetExtentLists(stencil) +
         startOffset;
 
-      // Holds the current position within the span list for the current row
-      this->SetSpanState(this->Extent[0]);
+      // Get the current position within the span list for the current row
+      if (yOffset >= 0 && zOffset >= 0)
+        {
+        // If starting within stencil extent, check stencil immediately
+        this->InStencil = true;
+        this->SetSpanState(this->Extent[0]);
+        }
       }
     else
       {
