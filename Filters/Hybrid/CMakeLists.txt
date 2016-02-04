@@ -5,6 +5,7 @@ set(Module_SRCS
   vtkDSPFilterGroup.cxx
   vtkEarthSource.cxx
   vtkFacetReader.cxx
+  vtkForceTime.cxx
   vtkGreedyTerrainDecimation.cxx
   vtkGridTransform.cxx
   vtkImageToPolyDataFilter.cxx
