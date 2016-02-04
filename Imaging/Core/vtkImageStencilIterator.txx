@@ -111,7 +111,7 @@ void vtkImageStencilIterator<DType>::Initialize(
   if (stencil)
     {
     this->HasStencil = true;
-    this->InStencil = true;
+    this->InStencil = false;
 
     this->SpanIndexX = 0;
     this->SpanIndexY = 0;
@@ -152,11 +152,15 @@ void vtkImageStencilIterator<DType>::Initialize(
     if (yOffset >= 0)
       {
       this->SpanMinY = 0;
+      // starting partway into the stencil, so add an offset
       startOffset += yOffset;
       }
     else
       {
       this->SpanMinY = -yOffset;
+      // starting before start of stencil: subtract the increment that
+      // will be added in NextSpan() upon entry into stencil extent
+      startOffset -= 1;
       }
 
     if (stencilExtent[3] > extent[3])
@@ -172,11 +176,18 @@ void vtkImageStencilIterator<DType>::Initialize(
     if (zOffset >= 0)
       {
       this->SpanMinZ = 0;
+      // starting partway into the stencil, so add an offset
       startOffset += zOffset*this->SpanSliceIncrement;
       }
     else
       {
       this->SpanMinZ = -zOffset;
+      // starting before start of stencil: subtract the increment that
+      // will be added in NextSpan() upon entry into stencil extent
+      if (yOffset >= 0)
+        {
+        startOffset -= 1 + this->SpanSliceEndIncrement;
+        }
       }
 
     if (stencilExtent[5] > extent[5])
@@ -199,14 +210,18 @@ void vtkImageStencilIterator<DType>::Initialize(
         vtkImageStencilIteratorFriendship::GetExtentLists(stencil) +
         startOffset;
 
-      // Holds the current position within the span list for the current row
-      this->SetSpanState(this->SpanMinX);
+      // Get the current position within the span list for the current row
+      if (yOffset >= 0 && zOffset >= 0)
+        {
+        // If starting within stencil extent, check stencil immediately
+        this->InStencil = true;
+        this->SetSpanState(this->SpanMinX);
+        }
       }
     else
       {
       this->SpanCountPointer = 0;
       this->SpanListPointer = 0;
-      this->InStencil = false;
       }
     }
   else
