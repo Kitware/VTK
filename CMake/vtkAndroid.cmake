@@ -77,11 +77,10 @@ macro(compile_vtk_tools)
       -DCMAKE_BUILD_TYPE:STRING=Release
       -DVTK_BUILD_ALL_MODULES:BOOL=OFF
       -DVTK_Group_Rendering:BOOL=OFF
-      -DVTK_Group_StandAlone:BOOL=OFF
+      -DVTK_Group_StandAlone:BOOL=ON
       -DBUILD_SHARED_LIBS:BOOL=ON
       -DBUILD_EXAMPLES:BOOL=OFF
       -DBUILD_TESTING:BOOL=OFF
-      -DModule_vtkUtilitiesEncodeString:BOOL=ON
   )
 endmacro()
 compile_vtk_tools()

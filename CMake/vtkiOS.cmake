@@ -60,11 +60,10 @@ macro(compile_vtk_tools)
       -DCMAKE_BUILD_TYPE:STRING=Release
       -DVTK_BUILD_ALL_MODULES:BOOL=OFF
       -DVTK_Group_Rendering:BOOL=OFF
-      -DVTK_Group_StandAlone:BOOL=OFF
+      -DVTK_Group_StandAlone:BOOL=ON
       -DBUILD_SHARED_LIBS:BOOL=ON
       -DBUILD_EXAMPLES:BOOL=OFF
       -DBUILD_TESTING:BOOL=OFF
-      -DModule_vtkUtilitiesEncodeString:BOOL=ON
   )
 endmacro()
 compile_vtk_tools()
@@ -83,6 +82,7 @@ mark_as_advanced(
 
 # expose some module options
 option(Module_vtkRenderingOpenGL2 "Include Polygonal Rendering Support" ON)
+option(Module_vtkInteractionWidgets "Include INteractionWidgets module" OFF)
 
 # add volume rendering option for ES 3.0
 if (OPENGL_ES_VERSION STREQUAL "3.0" AND Module_vtkRenderingOpenGL2)
@@ -117,8 +117,9 @@ set(ios_cmake_flags
 #  -DModule_vtkImagingCore:BOOL=ON
 #  -DModule_vtkInteractionStyle:BOOL=ON
 #  -DModule_vtkParallelCore:BOOL=ON
-  -DModule_vtkRenderingFreeType:BOOL=OFF
+#  -DModule_vtkRenderingFreeType:BOOL=OFF
   -DModule_vtkRenderingOpenGL2:BOOL=${Module_vtkRenderingOpenGL2}
+  -DModule_vtkInteractionWidgets:BOOL=${Module_vtkInteractionWidgets}
 )
 
 if (Module_vtkRenderingOpenGL2)
