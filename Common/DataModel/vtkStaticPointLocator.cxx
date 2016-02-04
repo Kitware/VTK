@@ -462,6 +462,18 @@ public:
       return this->Map + this->Offsets[bucketNum];
     }
 
+  // Given a bucket number, return the point ids in that bucket.
+  void GetIds(vtkIdType bucketNum, vtkIdList *bList)
+    {
+      const LocatorTuple<TIds> *ids = this->GetIds(bucketNum);
+      vtkIdType numIds = this->GetNumberOfIds(bucketNum);
+      bList->SetNumberOfIds(numIds);
+      for (int i=0; i < numIds; i++)
+        {
+        bList->SetId(i,ids[i].PtId);
+        }
+    }
+
   // Templated implementations of the locator
   vtkIdType FindClosestPoint(const double x[3]);
   vtkIdType FindClosestPointWithinRadius(double radius, const double x[3],
@@ -1566,6 +1578,51 @@ GenerateRepresentation(int level, vtkPolyData *pd)
     {
     return static_cast<BucketList<int>*>(this->Buckets)->
       GenerateRepresentation(level,pd);
+    }
+}
+
+//-----------------------------------------------------------------------------
+// Given a position x, return the id of the point closest to it.
+vtkIdType vtkStaticPointLocator::
+GetNumberOfPointsInBucket(vtkIdType bNum)
+{
+  this->BuildLocator(); // will subdivide if modified; otherwise returns
+  if ( !this->Buckets )
+    {
+    return 0;
+    }
+
+  if ( this->LargeIds )
+    {
+    return static_cast<BucketList<vtkIdType>*>(this->Buckets)->
+      GetNumberOfIds(bNum);
+    }
+  else
+    {
+    return static_cast<BucketList<int>*>(this->Buckets)->
+      GetNumberOfIds(bNum);
+    }
+}
+
+//-----------------------------------------------------------------------------
+// Given a position x, return the id of the point closest to it.
+void vtkStaticPointLocator::
+GetBucketIds(vtkIdType bNum, vtkIdList *bList)
+{
+  this->BuildLocator(); // will subdivide if modified; otherwise returns
+  if ( !this->Buckets )
+    {
+    bList->Reset();
+    return;
+    }
+
+  if ( this->LargeIds )
+    {
+    return static_cast<BucketList<vtkIdType>*>(this->Buckets)->GetIds(bNum,bList);
+    }
+  else
+    {
+    return static_cast<BucketList<int>*>(this->Buckets)->GetIds(bNum,bList);
     }
 }
 
