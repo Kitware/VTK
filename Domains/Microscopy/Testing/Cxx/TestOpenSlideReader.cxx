@@ -12,26 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include <vtkOpenSlideReader.h>
-
-// VTK includes
-#include <vtkImageActor.h>
-#include <vtkCellData.h>
-#include <vtkCompositePolyDataMapper.h>
-#include <vtkDataSetAttributes.h>
-#include <vtkDoubleArray.h>
-#include <vtkLookupTable.h>
-#include <vtkMapper.h>
-#include <vtkMultiBlockDataSet.h>
 #include <vtkNew.h>
-#include <vtkPolyData.h>
-#include <vtkPolyDataMapper.h>
-#include <vtkProperty.h>
-#include <vtkRegressionTestImage.h>
+#include <vtkOpenSlideReader.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
-#include <vtkSmartPointer.h>
+#include <vtkImageViewer2.h>
+#include <vtkImageData.h>
+#include <vtkPNGWriter.h>
+
+// VTK includes
 #include <vtkTestUtilities.h>
 
 // C++ includes
@@ -41,43 +31,44 @@
 int TestOpenSlideReader(int argc, char** argv)
 {
   const char* rasterFileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                 "Data/Microscopy/Small.ndpi");
+                                 "Data/Microscopy/small2.ndpi");
 
-  std::cout << "Got Filename: " << rasterFileName << std::endl;
+  //std::cout << "Got Filename: " << rasterFileName << std::endl;
 
   // Create reader to read shape file.
   vtkNew<vtkOpenSlideReader> reader;
   reader->SetFileName(rasterFileName);
-  reader->Update();
+  reader->UpdateInformation();
   delete [] rasterFileName;
 
-  // We need a renderer
+  int extent[6] = {20,120,20,120,0,0};
+
+  reader->SetUpdateExtent(extent);
+  vtkNew<vtkPNGWriter> writer;
+  writer->SetInputConnection(reader->GetOutputPort());
+  writer->SetFileName("this.png");
+  writer->SetUpdateExtent(extent);
+  writer->Update();
+  writer->Write();
+
+  // Visualize
   vtkNew<vtkRenderer> renderer;
+  vtkNew<vtkRenderWindow> window;
+  window->AddRenderer(renderer.GetPointer());
 
-  // Get the data
-  vtkNew<vtkImageActor> actor;
-  actor->SetInputData(reader->GetOutput());
-  renderer->AddActor(actor.GetPointer());
-
-  // Create a render window, and an interactor
-  vtkNew<vtkRenderWindow> renderWindow;
   vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
-  renderWindow->AddRenderer(renderer.GetPointer());
-  renderWindowInteractor->SetRenderWindow(renderWindow.GetPointer());
+  renderWindowInteractor->SetRenderWindow(window.GetPointer());
 
-  //Add the actor to the scene
-  renderer->SetBackground(1.0, 1.0, 1.0);
-  renderWindow->SetSize(400, 400);
-  renderWindow->Render();
-  renderer->ResetCamera();
-  renderWindow->Render();
+  vtkNew<vtkImageViewer2> imageViewer;
+  imageViewer->SetInputConnection(reader->GetOutputPort());
+  //imageViewer->SetExtent(1000,1500,1000,1500,0,0);
+  imageViewer->SetupInteractor(renderWindowInteractor.GetPointer());
+  //imageViewer->SetSlice(0);
+  imageViewer->Render();
+  imageViewer->GetRenderer()->ResetCamera();
+  renderWindowInteractor->Initialize();
+  imageViewer->Render();
+  renderWindowInteractor->Start();
 
-  int retVal = vtkRegressionTestImage(renderWindow.GetPointer());
-
-  if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
-    renderWindowInteractor->Start();
-    }
-
-  return !retVal;
+  return EXIT_SUCCESS;
 }

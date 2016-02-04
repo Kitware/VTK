@@ -1,6 +1,6 @@
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestOpenSlideReader.cxx
-  "DATA{${VTK_TEST_INPUT_DIR}/Microscopy/Small.ndpi}"i
+  "DATA{${VTK_TEST_INPUT_DIR}/Microscopy/small2.ndpi}"
   )
 
-vtk_test_cxx_executable(${vtk-module}CxxTests tests)
+vtk_test_cxx_executable(${vtk-module}CxxTests tests RENDERING_FACTORY)

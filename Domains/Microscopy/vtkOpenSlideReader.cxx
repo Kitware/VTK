@@ -19,27 +19,39 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkToolkits.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 vtkStandardNewMacro(vtkOpenSlideReader);
 
 void vtkOpenSlideReader::ExecuteInformation()
 {
-  std::cout << this->GetFileName() << std::endl;
+  //std::cout << this->GetFileName() << std::endl;
 
   this->openslide_handle = openslide_open(this->GetFileName());
 
   if(this->openslide_handle == NULL || openslide_get_error(this->openslide_handle) != NULL)
     {
     vtkErrorWithObjectMacro(this,
-                            "Trying to read a JPEG image from "
-                            "a zero-length memory buffer!");
+                            "File could not be opened by openslide"
+                           );
     return;
     }
 
+  int64_t w, h;
+  openslide_get_level0_dimensions(this->openslide_handle, &w, &h);
+  //std::cout << "Dimensions: " << w << ", " << h << std::endl;
 
-  if (this->GetFileName() == NULL)
-    {
-    }
+  this->vtkImageReader2::ExecuteInformation();
+
+  this->DataExtent[0] = 0;
+  this->DataExtent[1] = w;
+  this->DataExtent[2] = 0;
+  this->DataExtent[3] = h;
+  this->DataExtent[4] = 0;
+  this->DataExtent[5] = 0;
+
+  this->SetNumberOfScalarComponents(3);
+  this->SetDataScalarTypeToUnsignedChar();
 }
 
 
@@ -49,25 +61,72 @@ void vtkOpenSlideReader::ExecuteInformation()
 void vtkOpenSlideReader::ExecuteDataWithInformation(vtkDataObject *output,
                                                vtkInformation *outInfo)
 {
+  int inExtent[6];
+
+  vtkStreamingDemandDrivenPipeline::GetUpdateExtent(
+      outInfo,
+      inExtent);
+
+  cout << inExtent[0] << ", " << inExtent[1] << endl;
+  cout << inExtent[2] << ", " << inExtent[3] << endl;
+
   vtkImageData *data = this->AllocateOutputData(output, outInfo);
+  //data->GetExtent(this->OutputExtent);
+  //data->GetIncrements(this->OutputIncrements);
 
-  //// Leverage openslide to read the region
-  //openslide_read_region(this->openslide_handle, data->GetPointer(), x, y, 0, w, h);
-  //assert(openslide_get_error(osr) == NULL);
-  //openslide_close(osr);
+  if(this->openslide_handle == NULL)
+    {
+    std::cout << "In the data info update, file is not updated" << std::endl;
+    }
 
+  //std::cout << "Extents: " << data->GetExtent() << std::endl;
 
-  //if (this->InternalFileName == NULL)
-    //{
-    //vtkErrorMacro(<< "Either a FileName or FilePrefix must be specified.");
-    //return;
-    //}
-
-  //this->ComputeDataIncrements();
+  this->ComputeDataIncrements();
 
   data->GetPointData()->GetScalars()->SetName("OpenSlideImage");
-
   // No updating anything right now
+  //// Leverage openslide to read the region
+  //int inExtent[6];
+  //data->GetExtent(inExtent);
+  cout << inExtent[0] << ", " << inExtent[1] << endl;
+  cout << inExtent[2] << ", " << inExtent[3] << endl;
+
+  int w = inExtent[1] - inExtent[0];
+  int h = inExtent[3]- inExtent[2];
+  char * buffer = new char[w * h * 4];
+
+  openslide_read_region(this->openslide_handle, (unsigned int *) buffer,
+    inExtent[0],
+    inExtent[2],
+    0,  // level
+    w,
+    h
+    );
+
+  if(openslide_get_error(this->openslide_handle) != NULL)
+    {
+    delete[] buffer;
+    vtkErrorWithObjectMacro(this,
+                            "File could not be read by openslide"
+                           );
+    return;
+    }
+
+  unsigned char* ptr = (unsigned char*)(data->GetScalarPointer());
+  unsigned char* filePtr = ((unsigned char*) buffer);
+
+  // Order = RGBA
+  for (long i = 0; i < w*h; i++)
+    {
+    ptr[0] = filePtr[0];
+    ptr[1] = filePtr[1];
+    ptr[2] = filePtr[2];
+    ptr += 3;
+    filePtr += 4;
+  }
+
+  delete[] buffer;
+  openslide_close(this->openslide_handle);
 }
 
 

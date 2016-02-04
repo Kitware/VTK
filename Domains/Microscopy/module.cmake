@@ -11,4 +11,6 @@ vtk_module(vtkDomainsMicroscopy
   TEST_DEPENDS
     vtkTestingCore
     vtkTestingRendering
+    vtkInteractionImage
+    vtkRenderingContext${VTK_RENDERING_BACKEND}
   )
