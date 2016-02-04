@@ -1520,7 +1520,12 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
         }
       else if (isASideSet)
         {
+        int hexSides = 0;
+        int wedgeSides = 0;
+        int otherSides = 0;
+        int badSides = 0;
         numSideSets ++;
+        // TODO capture the name.
         const char* id_str = name != 0 ? strstr (name, "ID:") : 0;
         if (id_str != 0)
           {
@@ -1531,30 +1536,42 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
         side_id ++; // Make sure the side_id is unique if id_str is invalid
         vtkUnstructuredGrid* grid = vtkUnstructuredGrid::SafeDownCast (iter->GetCurrentDataObject ());
         vtkFieldData* field = grid->GetCellData ();
+        int cells = grid->GetNumberOfCells ();
         vtkIdTypeArray* sourceElement = vtkIdTypeArray::SafeDownCast (field ? field->GetArray ("SourceElementId") : 0);
         vtkIntArray* sourceSide = vtkIntArray::SafeDownCast (field ? field->GetArray ("SourceElementSide") : 0);
         if (sourceElement && sourceSide)
           {
-          int cells = grid->GetNumberOfCells ();
           for (int c = 0; c < cells; c ++)
             {
             sideSetElementList->InsertNextTuple1 (sourceElement->GetValue (c) + 1);
             switch (GetElementType (sourceElement->GetValue (c) + 1))
               {
+              case -1:
+                {
+                badSides ++;
+                break;
+                }
               case VTK_WEDGE:
                 {
                 int wedgeMapping[5] = {3, 4, 0, 1, 2};
-                sideSetSideList->InsertNextTuple1 (wedgeMapping[sourceSide->GetValue (c)] + 1);
+                int side = wedgeMapping[sourceSide->GetValue (c)] + 1;
+                sideSetSideList->InsertNextTuple1 (side);
+                wedgeSides ++;
                 break;
                 }
               case VTK_HEXAHEDRON:
                 {
                 int hexMapping[6] = {3, 1, 0, 2, 4, 5};
                 sideSetSideList->InsertNextTuple1 (hexMapping[sourceSide->GetValue (c)] + 1);
+                hexSides ++;
                 break;
                 }
               default:
+                {
                 sideSetSideList->InsertNextTuple1 (sourceSide->GetValue (c) + 1);
+                otherSides ++;
+                break;
+                }
               }
             // TODO implement distribution factors
             sideSetNumDF->InsertNextTuple1 (0);
@@ -1566,8 +1583,10 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
           // {
           // vtkErrorMacro ("We have a side set, but it doesn't have SourceElementId or SourceElementSide");
           // }
+        cerr << "hex sides " << hexSides << " wedge " << wedgeSides << " other " << otherSides << " bad  " << badSides << " cells are " << cells << endl;
         }
       }
+
 
     em->SetNumberOfNodeSets (numNodeSets);
     em->SetSumNodesPerNodeSet (sumNodes);
@@ -2548,10 +2567,24 @@ vtkIdType vtkExodusIIWriter::GetElementLocalId(vtkIdType id)
         for (vtkIdType j=0; j<ncells; j++)
           {
           vtkIdType gid = this->GlobalElementIdList[i][j];
-          int offset = this->CellToElementOffset[i][j];
-          int start = this->BlockInfoMap[BlockIdList[i]->GetValue (j)].ElementStartIndex;
+          std::map<vtkIdType,vtkIdType>::iterator mapit = this->LocalElementIdMap->find(gid);
+          if (mapit != this->LocalElementIdMap->end ())
+            {
+            vtkErrorMacro ("Overlapping gids in the dataset");
+            continue;
+            }
+
+          std::map<int, Block>::const_iterator blockIter =
+                  this->BlockInfoMap.find (this->BlockIdList[i]->GetValue (j));
+          if (blockIter == this->BlockInfoMap.end ())
+            {
+            vtkWarningMacro ("vtkExodusIIWriter: The block id map has come out of sync");
+            continue;
+            }
+
+          int index = blockIter->second.ElementStartIndex + CellToElementOffset[i][j];
           this->LocalElementIdMap->insert(
-            std::map<vtkIdType, vtkIdType>::value_type(gid, start + offset));
+            std::map<vtkIdType, vtkIdType>::value_type(gid, index));
           }
         }
       }
@@ -2683,7 +2716,7 @@ int vtkExodusIIWriter::WriteSideSetInformation()
         {
         ssSize[i]++;
 
-        idBuf[nextId] = lid+1;
+        idBuf[nextId] = lid + 1;
         sideBuf[nextId] = *sides;
         sides ++;
 

@@ -815,10 +815,18 @@ int vtkExodusIIReaderPrivate::AssembleOutputProceduralArrays(
       elementside->SetNumberOfTuples(idarray->GetNumberOfTuples());
       elementside->SetName(vtkExodusIIReader::GetSideSetSourceElementSideArrayName());
       vtkIdType values[2];
+
+      vtkExodusIICacheKey ckey( -1, -1, 0, 0 );
+      ckey.ObjectType = vtkExodusIIReader::ELEMENT_ID;
+      vtkIdTypeArray* src = vtkIdTypeArray::SafeDownCast( this->GetCacheOrRead( ckey ) );
+      if (src == 0)
+        {
+        vtkErrorMacro("Unable to retrieve the Element Ids");
+        }
       for(vtkIdType i=0;i<idarray->GetNumberOfTuples();i++)
         {
         idarray->GetTypedTuple(i, values);
-        elementid->SetValue(i, values[0]-1); // switch to 0-based indexing
+        elementid->SetValue(i, src != 0 ? src->GetValue (values[0] - 1) - 1 : values[0] - 1); // find the global element id
         // now we have to worry about mapping from exodus canonical side
         // ordering to vtk canonical side ordering for wedges and hexes.
         // Even if the element block isn't loaded that we still know what
@@ -837,7 +845,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputProceduralArrays(
           case VTK_HEXAHEDRON:
             {
             int hexMapping[6] = {2, 1, 3, 0, 4, 5};
-            elementside->SetValue(i, hexMapping[ values[1]-1 ] );
+            elementside->SetValue(i,  hexMapping[ values[1]-1 ] );
             break;
             }
           default:
