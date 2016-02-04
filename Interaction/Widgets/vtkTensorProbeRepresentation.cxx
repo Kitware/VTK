@@ -27,10 +27,6 @@
 #include "vtkMath.h"
 #include "vtkGenericCell.h"
 
-#define min(x,y) ((x<y) ? (x) : (y))
-#define max(x,y) ((x>y) ? (x) : (y))
-
-
 //----------------------------------------------------------------------
 vtkTensorProbeRepresentation::vtkTensorProbeRepresentation()
 {
@@ -117,8 +113,8 @@ void vtkTensorProbeRepresentation
   this->Trajectory->GetLines()->GetCell( 0, npts, ptIds );
   vtkPoints *points = this->Trajectory->GetPoints();
 
-  vtkIdType minCellId = max( this->ProbeCellId - maxSpeed, 0 );
-  vtkIdType maxCellId = min( this->ProbeCellId + maxSpeed, npts-1 );
+  vtkIdType minCellId = vtkMath::Max( this->ProbeCellId - maxSpeed, static_cast<vtkIdType>(0) );
+  vtkIdType maxCellId = vtkMath::Min( this->ProbeCellId + maxSpeed, npts-1 );
 
   double closestT=0.0, closestDist = VTK_DOUBLE_MAX,
          pprev[3]= {0.0, 0.0, 0.0}, t, closestPt[3], dist,

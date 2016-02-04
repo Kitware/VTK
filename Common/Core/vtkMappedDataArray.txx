@@ -95,6 +95,15 @@ void vtkMappedDataArray<Scalar>::SetVoidArray(void *, vtkIdType, int)
 
 //------------------------------------------------------------------------------
 template<class Scalar>
+void vtkMappedDataArray<Scalar>::SetVoidArray(void *, vtkIdType, int, int)
+{
+  vtkErrorMacro(<<"SetVoidArray not supported for vtkMappedDataArray "
+                "subclasses.");
+  return;
+}
+
+//------------------------------------------------------------------------------
+template<class Scalar>
 void vtkMappedDataArray<Scalar>::DataChanged()
 {
   if (!this->TemporaryScalarPointer)

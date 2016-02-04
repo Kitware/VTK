@@ -43,11 +43,6 @@
 
 vtkStandardNewMacro(vtkFast2DLayoutStrategy);
 
-#ifndef MIN
-#define MIN(x, y)       ((x) < (y) ? (x) : (y))
-#endif
-
-
 // Cool-down function.
 static inline float CoolDown(float t, float r)
 {
@@ -420,7 +415,7 @@ void vtkFast2DLayoutStrategy::Layout()
 
       // Avoid divide by zero
       float forceDiv = fabs(forceX) + fabs(forceY) + epsilon;
-      float pNormalize = MIN(1, 1.0/forceDiv);
+      float pNormalize = vtkMath::Min(1.0f, 1.0f/forceDiv);
       pNormalize *= this->Temp;
       forceX *= pNormalize;
       forceY *= pNormalize;

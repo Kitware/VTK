@@ -20,6 +20,10 @@
 #include "vtkPointData.h"
 #include "vtk_png.h"
 
+#include <algorithm>
+#include <vector>
+
+
 vtkStandardNewMacro(vtkPNGReader);
 
 #ifdef _MSC_VER
@@ -29,9 +33,77 @@ vtkStandardNewMacro(vtkPNGReader);
 #pragma warning( disable : 4611 )
 #endif
 
+namespace
+{
+  class CompareFirst
+  {
+  public:
+    bool operator() (const std::pair<std::string,std::string>& left,
+                     const std::pair<std::string,std::string>& right)
+    {
+      return left.first < right.first;
+    }
+
+  };
+};
+
+class vtkPNGReader::vtkInternals
+{
+public:
+  std::vector<std::pair<std::string, std::string> > TextKeyValue;
+  typedef std::vector<std::pair<std::string, std::string> >::iterator
+  TextKeyValueIterator;
+  void ReadTextChunks(png_structp png_ptr, png_infop info_ptr)
+  {
+    png_textp text_ptr;
+    int num_text;
+    png_get_text(png_ptr, info_ptr, &text_ptr, &num_text);
+    this->TextKeyValue.clear();
+    for (int i = 0; i < num_text; ++i)
+      {
+      if (
+        // we don't deal with compressed text yet
+        text_ptr[i].compression != PNG_TEXT_COMPRESSION_NONE ||
+        // we don't deal with international text yet
+        text_ptr[i].text_length == 0
+          )
+        {
+        continue;
+        }
+      this->TextKeyValue.push_back(std::pair<std::string, std::string>(
+                                     text_ptr[i].key, text_ptr[i].text));
+      }
+    std::sort(this->TextKeyValue.begin(), this->TextKeyValue.end(),
+              CompareFirst());
+  }
+
+  void GetTextChunks(const char* key, int beginEndIndex[2])
+  {
+    std::pair<TextKeyValueIterator, TextKeyValueIterator> it =
+      std::equal_range(this->TextKeyValue.begin(), this->TextKeyValue.end(),
+                       std::pair<std::string,std::string>(key,std::string()),
+                       CompareFirst());
+    beginEndIndex[0] = it.first - this->TextKeyValue.begin();
+    beginEndIndex[1] = it.second - this->TextKeyValue.begin();
+  }
+};
+
+//----------------------------------------------------------------------------
+vtkPNGReader::vtkPNGReader()
+{
+  this->Internals = new vtkInternals();
+}
+
+//----------------------------------------------------------------------------
+vtkPNGReader::~vtkPNGReader()
+{
+  delete this->Internals;
+}
+
 //----------------------------------------------------------------------------
 void vtkPNGReader::ExecuteInformation()
 {
+  vtkInternals* impl = this->Internals;
   this->ComputeInternalFileName(this->DataExtent[4]);
   if (this->InternalFileName == NULL)
     {
@@ -112,6 +184,8 @@ void vtkPNGReader::ExecuteInformation()
                &bit_depth, &color_type, &interlace_type,
                &compression_type, &filter_method);
 
+  impl->ReadTextChunks(png_ptr, info_ptr);
+
   // set-up the transformations
   // convert palettes to RGB
   if (color_type == PNG_COLOR_TYPE_PALETTE)
@@ -160,15 +234,15 @@ void vtkPNGReader::ExecuteInformation()
   fclose(fp);
 }
 
-
 //----------------------------------------------------------------------------
 template <class OT>
-void vtkPNGReaderUpdate2(vtkPNGReader *self, OT *outPtr,
-                         int *outExt, vtkIdType *outInc, long pixSize)
+void vtkPNGReader::vtkPNGReaderUpdate2(
+  OT *outPtr, int *outExt, vtkIdType *outInc, long pixSize)
 {
+  vtkPNGReader::vtkInternals* impl = this->Internals;
   unsigned int ui;
   int i;
-  FILE *fp = fopen(self->GetInternalFileName(), "rb");
+  FILE *fp = fopen(this->GetInternalFileName(), "rb");
   if (!fp)
     {
     return;
@@ -176,7 +250,7 @@ void vtkPNGReaderUpdate2(vtkPNGReader *self, OT *outPtr,
   unsigned char header[8];
   if (fread(header, 1, 8, fp) != 8)
     {
-    vtkGenericWarningMacro ("PNGReader error reading file: " << self->GetInternalFileName()
+    vtkGenericWarningMacro ("PNGReader error reading file: " << this->GetInternalFileName()
                    << " Premature EOF while reading header.");
     fclose (fp);
     return;
@@ -234,6 +308,8 @@ void vtkPNGReaderUpdate2(vtkPNGReader *self, OT *outPtr,
                &width, &height,
                &bit_depth, &color_type, &interlace_type,
                &compression_type, &filter_method);
+
+  impl->ReadTextChunks(png_ptr, info_ptr);
 
   // set-up the transformations
   // convert palettes to RGB
@@ -301,7 +377,8 @@ void vtkPNGReaderUpdate2(vtkPNGReader *self, OT *outPtr,
 // This function reads in one data of data.
 // templated to handle different data types.
 template <class OT>
-void vtkPNGReaderUpdate(vtkPNGReader *self, vtkImageData *data, OT *outPtr)
+void vtkPNGReader::vtkPNGReaderUpdate(
+  vtkImageData *data, OT *outPtr)
 {
   vtkIdType outIncr[3];
   int outExtent[6];
@@ -316,15 +393,14 @@ void vtkPNGReaderUpdate(vtkPNGReader *self, vtkImageData *data, OT *outPtr)
   int idx2;
   for (idx2 = outExtent[4]; idx2 <= outExtent[5]; ++idx2)
     {
-    self->ComputeInternalFileName(idx2);
+    this->ComputeInternalFileName(idx2);
     // read in a PNG file
-    vtkPNGReaderUpdate2(self, outPtr2, outExtent, outIncr, pixSize);
-    self->UpdateProgress((idx2 - outExtent[4])/
+    this->vtkPNGReaderUpdate2(outPtr2, outExtent, outIncr, pixSize);
+    this->UpdateProgress((idx2 - outExtent[4])/
                          (outExtent[5] - outExtent[4] + 1.0));
     outPtr2 += outIncr[2];
     }
 }
-
 
 //----------------------------------------------------------------------------
 // This function reads a data from a file.  The datas extent/axes
@@ -351,7 +427,7 @@ void vtkPNGReader::ExecuteDataWithInformation(vtkDataObject *output,
   outPtr = data->GetScalarPointer();
   switch (data->GetScalarType())
     {
-    vtkTemplateMacro(vtkPNGReaderUpdate(this, data, (VTK_TT *)(outPtr)));
+    vtkTemplateMacro(this->vtkPNGReaderUpdate(data, (VTK_TT *)(outPtr)));
     default:
       vtkErrorMacro(<< "UpdateFromFile: Unknown data type");
     }
@@ -418,4 +494,27 @@ int vtkPNGReader::CanReadFile(const char* fname)
 void vtkPNGReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+}
+
+//----------------------------------------------------------------------------
+void vtkPNGReader::GetTextChunks(const char* key, int beginEndIndex[2])
+{
+  this->Internals->GetTextChunks(key, beginEndIndex);
+}
+
+//----------------------------------------------------------------------------
+const char* vtkPNGReader::GetTextKey(int index)
+{
+  return this->Internals->TextKeyValue[index].first.c_str();
+}
+
+//----------------------------------------------------------------------------
+const char* vtkPNGReader::GetTextValue(int index)
+{
+  return this->Internals->TextKeyValue[index].second.c_str();
+}
+
+size_t vtkPNGReader::GetNumberOfTextChunks()
+{
+  return this->Internals->TextKeyValue.size();
 }

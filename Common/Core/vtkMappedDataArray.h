@@ -91,9 +91,10 @@ public:
   void DataChanged();
 
   // Description:
-  // This method doesn't make sense for mapped data array. Prints an error and
+  // These methods don't make sense for mapped data array. Prints an error and
   // returns.
   void SetVoidArray(void *, vtkIdType, int);
+  void SetVoidArray(void *, vtkIdType, int, int);
 
   // Description:
   // Not implemented. Print error and return NULL.

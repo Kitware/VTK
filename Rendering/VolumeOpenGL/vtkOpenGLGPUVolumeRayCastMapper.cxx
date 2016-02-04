@@ -2139,19 +2139,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
   this->UnsupportedRequiredExtensions =
     new vtkUnsupportedRequiredExtensionsStringStream;
 
-  // It does not work on Apple OS X Snow Leopard with nVidia.
-  // There is a bug in the OpenGL driver with an error in the
-  // Cg compiler about an infinite loop.
-#if defined(__APPLE__) && !defined(APPLE_SNOW_LEOPARD_BUG)
-
-  (void)window;
-  this->UnsupportedRequiredExtensions->Stream<<
-    " Disabled on Apple OS X Snow Leopard with nVidia.";
-  this->LoadExtensionsSucceeded=0;
-  return;
-
-#else
-
   // Assume success
   this->LoadExtensionsSucceeded=1;
 
@@ -2165,6 +2152,23 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
     return;
     }
   vtkOpenGLExtensionManager *extensions = context->GetExtensionManager();
+
+  // It does not work on Apple OS X Snow Leopard with nVidia.
+  // However it works with Apple OS X Lion with nVidia
+  // There is a bug in the OpenGL driver with an error in the
+  // Cg compiler about an infinite loop.
+#if defined(__APPLE__) && !defined(APPLE_SNOW_LEOPARD_BUG)
+  const char *minNVIDIAVersion = "2.1 NVIDIA-8";
+  const char *version = extensions->GetDriverGLVersion();
+  if (!extensions->DriverIsNvidia() ||
+      strncmp(version, minNVIDIAVersion, strlen(minNVIDIAVersion)) < 0)
+    {
+    this->UnsupportedRequiredExtensions->Stream <<
+      " Disabled on unsupported Apple OS X driver.";
+    this->LoadExtensionsSucceeded=0;
+    return;
+    }
+#endif
 
   // mesa notes:
   // 8.0.0 -- missing some required extensions
@@ -2431,8 +2435,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
   this->LastComponent=
     vtkOpenGLGPUVolumeRayCastMapperComponentNotInitialized;
   this->LastShade=vtkOpenGLGPUVolumeRayCastMapperShadeNotInitialized;
-
-#endif
 }
 
 //-----------------------------------------------------------------------------

@@ -129,7 +129,7 @@ typedef long nc_size_t;
     {                                                                          \
     vtkNcTemplateMacro(call);                                                  \
     default:                                                                   \
-      vtkErrorMacro(<<"Unsupported data type: " << type);                      \
+      vtkErrorMacro(<<"Unsupported data type: " << (type));                    \
       abort();                                                                 \
     }
 

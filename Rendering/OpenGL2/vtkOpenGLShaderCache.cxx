@@ -58,9 +58,24 @@ public:
     md5Hash[32] = '\0';
 
     vtksysMD5_Initialize(this->md5);
-    vtksysMD5_Append(this->md5, reinterpret_cast<const unsigned char *>(content), (int)strlen(content));
-    vtksysMD5_Append(this->md5, reinterpret_cast<const unsigned char *>(content2), (int)strlen(content2));
-    vtksysMD5_Append(this->md5, reinterpret_cast<const unsigned char *>(content3), (int)strlen(content3));
+    if (content)
+      {
+      vtksysMD5_Append(this->md5,
+        reinterpret_cast<const unsigned char *>(content),
+        (int)strlen(content));
+      }
+    if (content2)
+      {
+      vtksysMD5_Append(this->md5,
+        reinterpret_cast<const unsigned char *>(content2),
+        (int)strlen(content2));
+      }
+    if (content3)
+      {
+      vtksysMD5_Append(this->md5,
+        reinterpret_cast<const unsigned char *>(content3),
+        (int)strlen(content3));
+      }
     vtksysMD5_Finalize(this->md5, digest);
     vtksysMD5_DigestToHex(digest, md5Hash);
 

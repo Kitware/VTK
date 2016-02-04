@@ -18,7 +18,7 @@
 //
 // .SECTION Description
 // This filter generate ghost cells for distributed a unstructured grid in
-// parallel - using MPI asynchronous communcations.
+// parallel - using MPI asynchronous communications.
 // The filter can take benefit of the input grid point global ids to perform.
 //
 // .SECTION Caveats
@@ -72,6 +72,15 @@ public:
   vtkSetStringMacro(GlobalPointIdsArrayName);
   vtkGetStringMacro(GlobalPointIdsArrayName);
 
+  // Description:
+  // Specify if the filter must generate the ghost cells only if required by
+  // the pipeline.
+  // If false, ghost cells are computed even if they are not required.
+  // Default is TRUE.
+  vtkSetMacro(BuildIfRequired, bool);
+  vtkGetMacro(BuildIfRequired, bool);
+  vtkBooleanMacro(BuildIfRequired, bool);
+
 protected:
   vtkPUnstructuredGridGhostCellsGenerator();
   ~vtkPUnstructuredGridGhostCellsGenerator();
@@ -93,6 +102,7 @@ protected:
   int RankId;
   char* GlobalPointIdsArrayName;
   bool UseGlobalPointIds;
+  bool BuildIfRequired;
 
 private:
   struct vtkInternals;

@@ -153,6 +153,22 @@ public:
   // Make a shallow copy of this mapper.
   void ShallowCopy(vtkAbstractMapper *m);
 
+  // Description:
+  // Override the normal test for the apple bug
+  void ForceHaveAppleBugOff()
+  {
+    this->HaveAppleBugForce = 1;
+    this->Modified();
+  }
+  void ForceHaveAppleBugOn()
+  {
+    this->HaveAppleBugForce = 2;
+    this->Modified();
+  }
+
+  // Description:
+  // Get the value of HaveAppleBug
+  bool GetHaveAppleBug() { return this->HaveAppleBug; }
 
 protected:
   vtkOpenGLPolyDataMapper();
@@ -163,6 +179,7 @@ protected:
   // Apple devices with AMD graphics hardware. See apple
   // bug ID 20747550
   bool HaveAppleBug;
+  int HaveAppleBugForce; // 0 = default 1 = 0ff 2 = on
   std::vector<float> AppleBugPrimIDs;
   vtkOpenGLBufferObject *AppleBugPrimIDBuffer;
 

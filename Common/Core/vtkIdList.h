@@ -84,6 +84,12 @@ public:
   vtkIdType *WritePointer(const vtkIdType i, const vtkIdType number);
 
   // Description:
+  // Specify an array of vtkIdType to use as the id list. This replaces the
+  // underlying array. This instance of vtkIdList takes ownership of the
+  // array, meaning that it deletes it on destruction (using delete[]).
+  void SetArray(vtkIdType *array, vtkIdType size);
+
+  // Description:
   // Reset to an empty state.
   void Reset() {this->NumberOfIds = 0;};
 

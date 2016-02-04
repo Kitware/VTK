@@ -99,6 +99,9 @@ vtkXRenderWindowInteractor::vtkXRenderWindowInteractor()
   this->OwnTop = 0;
   this->OwnApp = 0;
   this->TopLevelShell = NULL;
+  this->DisplayId = 0;
+  this->WindowId = 0;
+  this->KillAtom = 0;
 }
 
 //-------------------------------------------------------------------------

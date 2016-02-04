@@ -22,13 +22,34 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtk_png.h"
 
+#include <vector>
+
 #if _MSC_VER
 #define snprintf _snprintf
 #endif
 
+class vtkPNGWriter::vtkInternals
+{
+public:
+  std::vector<std::pair<std::string, std::string> > TextKeyValue;
+};
+
+
 vtkStandardNewMacro(vtkPNGWriter);
 
 vtkCxxSetObjectMacro(vtkPNGWriter,Result,vtkUnsignedCharArray);
+
+const char* vtkPNGWriter::TITLE = "Title";
+const char* vtkPNGWriter::AUTHOR = "Author";
+const char* vtkPNGWriter::DESCRIPTION = "Description";
+const char* vtkPNGWriter::COPYRIGHT = "Copyright";
+const char* vtkPNGWriter::CREATION_TIME = "Creation Time";
+const char* vtkPNGWriter::SOFTWARE = "Software";
+const char* vtkPNGWriter::DISCLAIMER = "Disclaimer";
+const char* vtkPNGWriter::WARNING = "Warning";
+const char* vtkPNGWriter::SOURCE = "Source";
+const char* vtkPNGWriter::COMMENT = "Comment";
+
 
 vtkPNGWriter::vtkPNGWriter()
 {
@@ -38,6 +59,7 @@ vtkPNGWriter::vtkPNGWriter()
   this->WriteToMemory = 0;
   this->Result = 0;
   this->TempFP = 0;
+  this->Internals = new vtkInternals();
 }
 
 vtkPNGWriter::~vtkPNGWriter()
@@ -47,6 +69,7 @@ vtkPNGWriter::~vtkPNGWriter()
     this->Result->Delete();
     this->Result = 0;
     }
+  delete this->Internals;
 }
 
 //----------------------------------------------------------------------------
@@ -205,7 +228,8 @@ extern "C"
 #endif
 void vtkPNGWriter::WriteSlice(vtkImageData *data, int* uExtent)
 {
-  // Call the correct templated function for the output
+  vtkInternals* impl = this->Internals;
+  // Call The correct templated function for the output
   unsigned int ui;
 
   // Call the correct templated function for the input
@@ -302,6 +326,26 @@ void vtkPNGWriter::WriteSlice(vtkImageData *data, int* uExtent)
                bit_depth, color_type, PNG_INTERLACE_NONE,
                PNG_COMPRESSION_TYPE_DEFAULT,
                PNG_FILTER_TYPE_DEFAULT);
+
+  // add latin1, uncompressed text chunks to the PNG file
+  if (impl->TextKeyValue.size() > 0)
+    {
+    std::vector<png_text> pngText(impl->TextKeyValue.size());
+    for (size_t i = 0; i < pngText.size(); ++i)
+      {
+      pngText[i].compression = PNG_TEXT_COMPRESSION_NONE;
+      pngText[i].key = const_cast<char*>(impl->TextKeyValue[i].first.c_str());
+      pngText[i].text = const_cast<char*>(impl->TextKeyValue[i].second.c_str());
+      pngText[i].text_length = impl->TextKeyValue[i].second.length();
+#ifdef PNG_iTXt_SUPPORTED
+      pngText[i].itxt_length = 0;
+      pngText[i].lang = NULL;
+      pngText[i].lang_key = NULL;
+#endif
+      }
+    png_set_text(png_ptr, info_ptr, &pngText[0], static_cast<int>(pngText.size()));
+    }
+
   // interlace_type - PNG_INTERLACE_NONE or
   //                 PNG_INTERLACE_ADAM7
 
@@ -352,4 +396,28 @@ void vtkPNGWriter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Result: " << this->Result << "\n";
   os << indent << "WriteToMemory: " << (this->WriteToMemory ? "On" : "Off") << "\n";
+}
+
+void vtkPNGWriter::AddText(const char* key, const char* value)
+{
+  vtkInternals* impl = this->Internals;
+  const size_t MAX_KEY_LENGTH = 79;
+  if (! key || key[0] == '\0')
+    {
+    vtkWarningMacro("Trying to add PNG text chunk with a null or empty key");
+    return;
+    }
+  size_t keyLength = strlen(key);
+  if (keyLength > MAX_KEY_LENGTH)
+    {
+    vtkWarningMacro("Trying to add a PNG text chunk with a key longer than "
+                    << MAX_KEY_LENGTH
+                    << " characters: " << key << " Truncating ...");
+    keyLength = MAX_KEY_LENGTH;
+    }
+  size_t index = impl->TextKeyValue.size();
+  impl->TextKeyValue.resize(index + 1);
+  impl->TextKeyValue[index].first.assign(key, keyLength);
+  impl->TextKeyValue[index].second.assign(value);
+  this->Modified();
 }

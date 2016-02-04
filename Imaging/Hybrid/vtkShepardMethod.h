@@ -12,25 +12,60 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkShepardMethod - sample unstructured points onto structured points using the method of Shepard
+// .NAME vtkShepardMethod - interpolate points and associated scalars onto volume
+// using the method of Shepard
+
 // .SECTION Description
-// vtkShepardMethod is a filter used to visualize unstructured point data using
-// Shepard's method. The method works by resampling the unstructured points
-// onto a structured points set. The influence functions are described as
-// "inverse distance weighted". Once the structured points are computed, the
-// usual visualization techniques (e.g., iso-contouring or volume rendering)
-// can be used visualize the structured points.
+// vtkShepardMethod is a filter used to interpolate point scalar values using
+// Shepard's method. The method works by resampling the scalars associated
+// with points defined on an arbitrary dataset onto a volume (i.e.,
+// structured points) dataset. The influence functions are described as
+// "inverse distance weighted". Once the interpolation is performed across
+// the volume, the usual volume visualization techniques (e.g.,
+// iso-contouring or volume rendering) can be used.
+//
+// Note that this implementation also provides the ability to specify the
+// power parameter p. Given the generalized Inverse Distance Weighting (IDW)
+// function with distance between points measured as d(x,xi), p is defined
+// as:
+// <pre>
+// u(x) = Sum(wi(x) * ui) / Sum(wi(x)) if d(x,xi) != 0
+// u(x) = ui                           if d(x,xi) == 0
+//
+// where wi(x) = 1 / (d(x,xi)^p
+// </pre>
+// Typically p=2, so the weights wi(x) are the inverse of the distance
+// squared. However, power parameters > 2 can be used which assign higher
+// weights for data closer to the interpolated point; or <2 which assigns
+// greater weight to points further away. (Note that if p!=2, performance may
+// be significantly impacted as the algorihm is tuned for p=2.)
+
 // .SECTION Caveats
-// The input to this filter is any dataset type. This filter can be used
-// to resample any form of data, i.e., the input data need not be
-// unstructured.
+// Strictly speaking, this is a modified Shepard's methodsince only points
+// within the MaxiumDistance are used for interpolation. By setting the
+// maximum distance to include the entire bounding box and therefore all
+// points, the class executes much slower but incorporates all points into
+// the interpolation process (i.e., a pure Shepard method).
+//
+// The input to this filter is any dataset type. This filter can be used to
+// resample the points of any type of dataset onto the output volume; i.e.,
+// the input data need not be unstructured with explicit point
+// representations.
 //
 // The bounds of the data (i.e., the sample space) is automatically computed
 // if not set by the user.
 //
-// If you use a maximum distance less than 1.0, some output points may
-// never receive a contribution. The final value of these points can be
-// specified with the "NullValue" instance variable.
+// If you use a maximum distance less than 1.0 (i.e., using a modified
+// Shephard's method), some output points may never receive a
+// contribution. The final value of these points can be specified with the
+// "NullValue" instance variable.
+//
+// This class has been threaded with vtkSMPTools. Using TBB or other
+// non-sequential type (set in the CMake variable
+// VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
+
+// .SECTION See Also
+// vtkGaussianSplatter vtkCheckerboardSplatter
 
 #ifndef vtkShepardMethod_h
 #define vtkShepardMethod_h
@@ -41,50 +76,62 @@
 class VTKIMAGINGHYBRID_EXPORT vtkShepardMethod : public vtkImageAlgorithm
 {
 public:
+  // Description:
+  // Standard type and print methods.
   vtkTypeMacro(vtkShepardMethod,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Construct with sample dimensions=(50,50,50) and so that model bounds are
-  // automatically computed from input. Null value for each unvisited output
-  // point is 0.0. Maximum distance is 0.25.
+  // automatically computed from the input. The null value for each unvisited
+  // output point is 0.0. Maximum distance is 0.25. Power parameter p=2.
   static vtkShepardMethod *New();
 
   // Description:
-  // Compute ModelBounds from input geometry.
-  double ComputeModelBounds(double origin[3], double ar[3]);
-
-  // Description:
-  // Specify i-j-k dimensions on which to sample input points.
-  vtkGetVectorMacro(SampleDimensions,int,3);
-
-  // Description:
-  // Set the i-j-k dimensions on which to sample the distance function.
+  // Set the i-j-k dimensions on which to interpolate the input points.
   void SetSampleDimensions(int i, int j, int k);
 
   // Description:
-  // Set the i-j-k dimensions on which to sample the distance function.
+  // Set the i-j-k dimensions on which to sample the input points.
   void SetSampleDimensions(int dim[3]);
 
   // Description:
-  // Specify influence distance of each input point. This distance is a
-  // fraction of the length of the diagonal of the sample space. Thus, values
-  // of 1.0 will cause each input point to influence all points in the
-  // structured point dataset. Values less than 1.0 can improve performance
-  // significantly.
+  // Retrieve the i-j-k dimensions on which to interpolate the  input points.
+  vtkGetVectorMacro(SampleDimensions,int,3);
+
+  // Description:
+  // Specify the maximum influence distance of each input point. This
+  // distance is a fraction of the length of the diagonal of the sample
+  // space. Thus, values of 1.0 will cause each input point to influence all
+  // points in the volume dataset. Values less than 1.0 can improve
+  // performance significantly. By default the maximum distance is 0.25.
   vtkSetClampMacro(MaximumDistance,double,0.0,1.0);
   vtkGetMacro(MaximumDistance,double);
 
   // Description:
-  // Specify the position in space to perform the sampling.
+  // Set the value for output points not receiving a contribution from any
+  // input point(s). Output points may not receive a contribution when the
+  // MaximumDistance < 1.
+  vtkSetMacro(NullValue,double);
+  vtkGetMacro(NullValue,double);
+
+  // Description:
+  // Specify the position in space to perform the sampling. The ModelBounds
+  // and SampleDimensions together define the output volume. (Note: if the
+  // ModelBounds are set to an invalid state [zero or negative volume] then
+  // the bounds are computed automatically.)
   vtkSetVector6Macro(ModelBounds,double);
   vtkGetVectorMacro(ModelBounds,double,6);
 
   // Description:
-  // Set the Null value for output points not receiving a contribution from the
-  // input points.
-  vtkSetMacro(NullValue,double);
-  vtkGetMacro(NullValue,double);
+  // Set / Get the power parameter p. By default p=2. Values (which must be
+  // a positive, real value) != 2 may affect performance significantly.
+  vtkSetClampMacro(PowerParameter,double,0.001,100);
+  vtkGetMacro(PowerParameter,double);
+
+  // Description:
+  // Compute ModelBounds from the input geometry.
+  double ComputeModelBounds(double origin[3], double ar[3]);
 
 protected:
   vtkShepardMethod();
@@ -106,11 +153,11 @@ protected:
   double MaximumDistance;
   double ModelBounds[6];
   double NullValue;
+  double PowerParameter;
+
 private:
   vtkShepardMethod(const vtkShepardMethod&);  // Not implemented.
   void operator=(const vtkShepardMethod&);  // Not implemented.
 };
 
 #endif
-
-

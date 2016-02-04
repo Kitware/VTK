@@ -66,8 +66,8 @@ void vtkPExodusIIWriter::PrintSelf (ostream& os, vtkIndent indent)
 int vtkPExodusIIWriter::CheckParameters ()
 {
   vtkMultiProcessController *c = vtkMultiProcessController::GetGlobalController();
-  int numberOfProcesses = c->GetNumberOfProcesses();
-  int myRank = c->GetLocalProcessId();
+  int numberOfProcesses = c ? c->GetNumberOfProcesses() : 1;
+  int myRank = c ? c->GetLocalProcessId() : 0;
 
   if (this->GhostLevel > 0)
     {
@@ -154,7 +154,10 @@ int vtkPExodusIIWriter::GlobalContinueExecuting(int localContinue)
 {
   vtkMultiProcessController *c =
     vtkMultiProcessController::GetGlobalController();
-  int globalContinue;
-  c->AllReduce (&localContinue, &globalContinue, 1, vtkCommunicator::MIN_OP);
+  int globalContinue = localContinue;
+  if (c)
+    {
+    c->AllReduce (&localContinue, &globalContinue, 1, vtkCommunicator::MIN_OP);
+    }
   return globalContinue;
 }

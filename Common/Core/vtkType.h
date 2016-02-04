@@ -16,6 +16,29 @@
 #define vtkType_h
 
 #include "vtkConfigure.h"
+#include "vtk_kwiml.h"
+
+#define VTK_SIZEOF_CHAR KWIML_ABI_SIZEOF_CHAR
+#define VTK_SIZEOF_SHORT KWIML_ABI_SIZEOF_SHORT
+#define VTK_SIZEOF_INT KWIML_ABI_SIZEOF_INT
+#define VTK_SIZEOF_LONG KWIML_ABI_SIZEOF_LONG
+#define VTK_SIZEOF_LONG_LONG KWIML_ABI_SIZEOF_LONG_LONG
+#define VTK_SIZEOF_FLOAT KWIML_ABI_SIZEOF_FLOAT
+#define VTK_SIZEOF_DOUBLE KWIML_ABI_SIZEOF_DOUBLE
+#define VTK_SIZEOF_VOID_P KWIML_ABI_SIZEOF_DATA_PTR
+
+/* Whether type "long long" is enabled as a unique fundamental type.  */
+#define VTK_TYPE_USE_LONG_LONG
+#if VTK_SIZEOF_LONG_LONG == 0
+# error "No 'long long' type available."
+#endif
+
+/* Whether type "char" is signed (it may be signed or unsigned).  */
+#if defined(KWIML_ABI_CHAR_IS_SIGNED)
+# define VTK_TYPE_CHAR_IS_SIGNED 1
+#else
+# define VTK_TYPE_CHAR_IS_SIGNED 0
+#endif
 
 /*--------------------------------------------------------------------------*/
 /* Define a unique integer identifier for each native scalar type.  */
@@ -138,12 +161,10 @@
 #define VTK_FLOAT_MAX               VTK_TYPE_CAST(float,  1.0e+38f)
 #define VTK_DOUBLE_MIN              VTK_TYPE_CAST(double, -1.0e+299)
 #define VTK_DOUBLE_MAX              VTK_TYPE_CAST(double,  1.0e+299)
-#if defined(VTK_SIZEOF_LONG_LONG)
-# define VTK_LONG_LONG_MIN          VTK_TYPE_CAST(long long, ~(~0ull >> 1))
-# define VTK_LONG_LONG_MAX          VTK_TYPE_CAST(long long, ~0ull >> 1)
-# define VTK_UNSIGNED_LONG_LONG_MIN VTK_TYPE_CAST(unsigned long long, 0ull)
-# define VTK_UNSIGNED_LONG_LONG_MAX VTK_TYPE_CAST(unsigned long long, ~0ull)
-#endif
+#define VTK_LONG_LONG_MIN           VTK_TYPE_CAST(long long, ~(~0ull >> 1))
+#define VTK_LONG_LONG_MAX           VTK_TYPE_CAST(long long, ~0ull >> 1)
+#define VTK_UNSIGNED_LONG_LONG_MIN  VTK_TYPE_CAST(unsigned long long, 0ull)
+#define VTK_UNSIGNED_LONG_LONG_MAX  VTK_TYPE_CAST(unsigned long long, ~0ull)
 
 /*--------------------------------------------------------------------------*/
 /* Define named types and constants corresponding to specific integer

@@ -92,6 +92,7 @@ vtkStandardNewMacro(vtkRTAnalyticSource2);
 // Program main
 int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
 {
+  int ret = EXIT_SUCCESS;
   // Initialize the MPI controller
   vtkNew<vtkMPIController> controller;
   controller->Initialize(&argc, &argv, 0);
@@ -117,12 +118,40 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
   ghostGenerator->SetController(controller.Get());
   ghostGenerator->UseGlobalPointIdsOn();
   ghostGenerator->UpdateInformation();
+
+  // Check BuildIfRequired option
+  ghostGenerator->SetUpdateExtent(rankId, nbRanks, 0); // piece, nbPieces, # ghost levels
+  ghostGenerator->BuildIfRequiredOff();
+  ghostGenerator->Update();
+
+  if (ghostGenerator->GetOutput()->GetCellGhostArray() == NULL)
+    {
+    vtkMPIUtilities::Printf(controller.Get(),
+      "Ghost were not generated but were explicitely requested!\n");
+    ret = EXIT_FAILURE;
+    }
+
+  ghostGenerator->BuildIfRequiredOn();
+  ghostGenerator->Update();
+
+  if (ghostGenerator->GetOutput()->GetCellGhostArray())
+    {
+    vtkMPIUtilities::Printf(controller.Get(),
+      "Ghost were generated but were not requested!\n");
+    ret = EXIT_FAILURE;
+    }
+
   ghostGenerator->SetUpdateExtent(rankId, nbRanks, 1); // piece, nbPieces, # ghost levels
 
-  vtkUnstructuredGrid* outGrids[2];
+  // Check if algorithm works with empty input on all nodes except first one
+  vtkNew<vtkUnstructuredGrid> emptyGrid;
+  ghostGenerator->SetInputData(rankId == 0 ? initialGrid : emptyGrid.Get());
+  ghostGenerator->Update();
+  ghostGenerator->SetInputData(initialGrid);
+  ghostGenerator->Modified();
 
-  int ret = EXIT_SUCCESS;
-  // Generate ghost cells with and without the global point ids
+  // Check ghost cells generated with and without the global point ids
+  vtkUnstructuredGrid* outGrids[2];
   for(int step = 0; step < 2; ++step)
     {
     ghostGenerator->SetUseGlobalPointIds(step == 0 ? 1 : 0);

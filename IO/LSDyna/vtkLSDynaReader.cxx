@@ -2797,11 +2797,11 @@ int vtkLSDynaReader::ReadCellStateInfo( vtkIdType vtkNotUsed(step) )
   char ctmp[128];
 
 #define VTK_LS_CELLARRAY(cond,celltype,arrayname,numComps)\
-  if ( cond && this->GetCellArrayStatus( celltype, arrayname ) ) \
+  if ( (cond) && this->GetCellArrayStatus( celltype, arrayname ) ) \
     { \
     this->Parts->AddProperty(celltype,arrayname,startPos,numComps); \
     } \
-  startPos+=numComps;
+  startPos+=(numComps);
 
   // Solid element data========================================================
   int startPos=0; //used to keep track of the startpos between calls to VTK_LS_CELLARRAY
@@ -3018,11 +3018,11 @@ int vtkLSDynaReader::ReadSPHState( vtkIdType vtkNotUsed(step) )
   p->Fam.SkipWords(p->SPHStateOffset);
 
 #define VTK_LS_SPHARRAY(cond,celltype,arrayname,numComps)\
-  if ( cond && this->GetCellArrayStatus( celltype, arrayname ) ) \
+  if ( (cond) && this->GetCellArrayStatus( celltype, arrayname ) ) \
     { \
     this->Parts->AddProperty(celltype,arrayname,startPos,numComps); \
     } \
-  startPos+=numComps;
+  startPos+=(numComps);
 
   // Smooth Particle ========================================================
 

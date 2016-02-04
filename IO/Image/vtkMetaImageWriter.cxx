@@ -111,6 +111,12 @@ void vtkMetaImageWriter::Write( )
       }
     }
 
+  vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
+    this->GetInputInformation(0, 0), ext);
+  vtkDemandDrivenPipeline::SafeDownCast(
+    this->GetInputExecutive(0, 0))->UpdateData(
+      this->GetInputConnection(0, 0)->GetIndex());
+
   double origin[3];
   double spacingDouble[3];
   this->GetInput()->GetOrigin(origin);
@@ -153,11 +159,6 @@ void vtkMetaImageWriter::Write( )
 
   int numberOfElements = this->GetInput()->GetNumberOfScalarComponents();
 
-  vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
-    this->GetInputInformation(0, 0), ext);
-  vtkDemandDrivenPipeline::SafeDownCast(
-    this->GetInputExecutive(0, 0))->UpdateData(
-      this->GetInputConnection(0, 0)->GetIndex());
   this->MetaImagePtr->InitializeEssential( nDims,
                                            dimSize,
                                            spacing,

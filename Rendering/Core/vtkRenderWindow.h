@@ -103,6 +103,10 @@ public:
   static const char *GetRenderLibrary();
 
   // Description:
+  // What rendering backend has the user requested
+  virtual const char *GetRenderingBackend();
+
+  // Description:
   // Return the collection of renderers in the render window.
   vtkRendererCollection *GetRenderers() {return this->Renderers;};
 
@@ -568,6 +572,15 @@ public:
     return 0;
   }
 
+  // Description:
+  // Create and bind offscreen rendering buffers without destroying the current
+  // OpenGL context. This allows to temporary switch to offscreen rendering
+  // (ie. to make a screenshot even if the window is hidden).
+  // Return if the creation was successful (1) or not (0).
+  // Note: This function requires that the device supports OpenGL framebuffer extension.
+  // The function has no effect if OffScreenRendering is ON.
+  virtual int SetUseOffScreenBuffers(bool) { return 0; }
+  virtual bool GetUseOffScreenBuffers() { return false; }
 
 protected:
   vtkRenderWindow();

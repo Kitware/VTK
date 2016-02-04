@@ -44,7 +44,7 @@ function(vtk_add_wrapping module_name module_srcs module_hdrs)
       # The module is wrapped by at least one language - invoke wrap hierarchy.
       if(NOT ${module_name}_EXCLUDE_FROM_WRAP_HIERARCHY)
         set(_all_files ${module_srcs} ${modules_hdrs})
-        vtk_wrap_hierarchy(${module_name}Hierarchy ${VTK_MODULES_DIR}
+        vtk_wrap_hierarchy(${module_name} ${VTK_MODULES_DIR}
           "${_all_files}")
         set (${module_name}_WRAP_HIERARCHY_FILE
           "${VTK_MODULES_DIR}/${module_name}Hierarchy.txt"

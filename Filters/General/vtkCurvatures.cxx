@@ -203,7 +203,7 @@ void vtkCurvatures::GetMeanCurvature(vtkPolyData *mesh)
     delete [] num_neighb;
 };
 //--------------------------------------------
-#define CLAMP_MACRO(v)    ((v)<(-1) ? (-1) : (v) > (1) ? (1) : v)
+#define CLAMP_MACRO(v)    ((v)<(-1) ? (-1) : (v) > (1) ? (1) : (v))
 void vtkCurvatures::GetGaussCurvature(vtkPolyData *output)
 {
     vtkDebugMacro("Start vtkCurvatures::GetGaussCurvature()");

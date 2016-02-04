@@ -152,6 +152,9 @@
 #  define gz_header_s           vtk_zlib_gz_header_s
 #  define internal_state        vtk_zlib_internal_state
 
+/* XXX(kitware) this symbol wasn't Z_PREFIX mangled */
+#  define z_errmsg              vtk_zlib_errmsg
+
 #endif
 
 #if defined(__MSDOS__) && !defined(MSDOS)

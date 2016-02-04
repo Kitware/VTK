@@ -1284,13 +1284,14 @@ void vtkTIFFReader::ReadGenericImage(T* out, unsigned int, unsigned int height)
     }
 
   unsigned int isize = TIFFScanlineSize(this->InternalImage->Image);
-  tdata_t buf = _TIFFmalloc(isize);
 
   if (this->InternalImage->PlanarConfig != PLANARCONFIG_CONTIG)
     {
     vtkErrorMacro(<< "This reader can only do PLANARCONFIG_CONTIG");
     return;
     }
+
+  tdata_t buf = _TIFFmalloc(isize);
 
   T* image;
   if (this->InternalImage->PlanarConfig == PLANARCONFIG_CONTIG)

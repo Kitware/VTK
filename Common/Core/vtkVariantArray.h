@@ -170,9 +170,8 @@ public:
   // from deleting the array when it cleans up or reallocates memory.
   // The class uses the actual array provided; it does not copy the data
   // from the supplied array.
-  virtual void SetVoidArray(void *arr,
-                            vtkIdType size,
-                            int save);
+  virtual void SetVoidArray(void *arr, vtkIdType size, int save);
+  virtual void SetVoidArray(void *arr, vtkIdType size, int save, int deleteM);
 
   // Description:
   // Return the memory in kibibytes (1024 bytes) consumed by this data array. Used to

@@ -115,6 +115,12 @@ public:
   vtkGetMacro(ClipTolerance,double);
 
   // Description:
+  // Set/Get the component to use of an input scalars array with more than one
+  // component. Default is 0.
+  vtkSetMacro(Component,int);
+  vtkGetMacro(Component,int);
+
+  // Description:
   // Get the second output which contains the edges dividing the contour
   // bands. This output is empty unless GenerateContourEdges is enabled.
   vtkPolyData *GetContourEdgesOutput();
@@ -134,15 +140,19 @@ protected:
   int IsContourValue(double val);
   int ClipEdge(int v1, int v2, vtkPoints *pts, vtkDataArray *inScalars,
                vtkDoubleArray *outScalars,
-               vtkPointData *inPD, vtkPointData *outPD);
+               vtkPointData *inPD, vtkPointData *outPD, vtkIdType edgePts[]);
   int InsertCell(vtkCellArray *cells, int npts, vtkIdType *pts,
                  int cellId, double s, vtkFloatArray *newS);
-
+  int InsertLine(vtkCellArray *cells, vtkIdType pt1, vtkIdType pt2,
+                 int cellId, double s, vtkFloatArray *newS);
+  int ComputeClippedIndex(double s);
+  int InsertNextScalar(vtkFloatArray* scalars, int cellId, int idx);
   // data members
   vtkContourValues *ContourValues;
 
   int Clipping;
   int ScalarMode;
+  int Component;
 
   // sorted and cleaned contour values
   double *ClipValues;

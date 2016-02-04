@@ -494,8 +494,8 @@ static void vtkMultiCorrelativeCholesky( std::vector<double*>& a, vtkIdType m )
 #ifdef L
 #  undef L
 #endif
-#define A(i,j) ( j >= i ? a[j][i] : a[i][j] )
-#define L(i,j) a[j][i + 1]
+#define A(i,j) ( (j) >= (i) ? a[j][i] : a[i][j] )
+#define L(i,j) a[j][(i) + 1]
 
   // Then perform decomposition
   double tmp;
@@ -890,6 +890,7 @@ void vtkMultiCorrelativeStatistics::SelectAssessFunctor( vtkTable* inData,
   if ( ! mcfunc->Initialize( inData, reqModel ) )
     {
     delete mcfunc;
+    return;
     }
   dfunc = mcfunc;
 }

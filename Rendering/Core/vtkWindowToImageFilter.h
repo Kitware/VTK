@@ -108,7 +108,8 @@ public:
   // Description:
   // Set/get the extents to be used to generate the image. Initial value is
   // {0,0,1,1} (This option does not work if Magnification > 1.)
-  vtkSetVector4Macro(Viewport,double);
+  void SetViewport(double, double, double, double);
+  void SetViewport(double*);
   vtkGetVectorMacro(Viewport,double,4);
 
   // Description:

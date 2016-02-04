@@ -270,6 +270,7 @@ protected:
   void CreateOffScreenWindow(int width, int height);
   void DestroyOffScreenWindow();
   void ResizeOffScreenWindow(int width, int height);
+  void CloseDisplay();
 
 
 private:

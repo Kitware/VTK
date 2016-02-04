@@ -331,6 +331,10 @@ protected:
   // The OpenGL render window being used by the device
   vtkOpenGLRenderWindow* RenderWindow;
 
+  vtkOpenGLHelper *LinesCBO;  // vertex + color
+  void ReadyLinesCBOProgram();
+  vtkOpenGLHelper *LinesBO;  // vertex
+  void ReadyLinesBOProgram();
   vtkOpenGLHelper *VCBO;  // vertex + color
   void ReadyVCBOProgram();
   vtkOpenGLHelper *VBO;  // vertex
@@ -348,6 +352,9 @@ protected:
     unsigned char *coolors, int nc,
     float *tcoords);
   void CoreDrawTriangles(std::vector<float> &tverts);
+
+  // used for stipples
+  unsigned short LinePattern;
 
 private:
   vtkOpenGLContextDevice2D(const vtkOpenGLContextDevice2D &); // Not implemented.

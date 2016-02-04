@@ -45,13 +45,13 @@ void vtkPMaskPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  if (this->Controller)
+  if (this->GetController())
     {
-    os << indent << "Controller: " << this->Controller << endl;
+    os << indent << "Controller: " << this->GetController() << std::endl;
     }
   else
     {
-    os << indent << "Controller: (null)\n";
+    os << indent << "Controller: (null)" << std::endl;;
     }
 }
 

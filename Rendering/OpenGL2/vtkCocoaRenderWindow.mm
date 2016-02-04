@@ -515,9 +515,7 @@ void vtkCocoaRenderWindow::SetSize(int x, int y)
 
   if ((this->Size[0] != x) || (this->Size[1] != y) || (this->GetParentId()))
     {
-    this->Modified();
-    this->Size[0] = x;
-    this->Size[1] = y;
+    this->Superclass::SetSize(x, y);
     if (this->GetParentId() && this->GetWindowId() && this->Mapped)
       {
       // Set the NSView size, not the window size.

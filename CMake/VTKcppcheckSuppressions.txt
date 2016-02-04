@@ -13,7 +13,7 @@
 //=========================================================================
 
 // This file contains enough suppressions to result in no cppcheck warnings,
-// at least on Mac OS X 10.9 with cppcheck 1.71.
+// at least on Mac OS X 10.9 with cppcheck 1.72.
 
 // To run:
 // cd /path/to/VTK/
@@ -58,7 +58,9 @@ argumentSize:Common/DataModel/vtkAMRBox.cxx
 argumentSize:Common/DataModel/vtkStructuredGrid.h
 arrayIndexOutOfBounds:Common/DataModel/vtkCell.h
 assignBoolToPointer:Common/Math/vtkMatrix4x4.h
+AssignmentAddressToInteger:Common/Math/vtkPolynomialSolversUnivariate.cxx
 comparisonOfBoolWithInvalidComparator:Rendering/Label/vtkLabeledTreeMapDataMapper.cxx
+copyCtorPointerCopying:IO/NetCDF/vtkSLACReader.cxx
 deallocDealloc:Wrapping/Tools/vtkParseMerge.c
 duplicateExpression:Common/Math/Testing/Cxx/TestPolynomialSolversUnivariate.cxx
 duplicateExpression:Filters/General/vtkContourTriangulator.cxx
@@ -68,15 +70,18 @@ knownConditionTrueFalse:Common/Core/Testing/Cxx/TestDataArrayIterators.cxx
 memleak:Common/Core/Testing/Cxx/TestGarbageCollector.cxx
 memleak:Examples/Infovis/Cxx/MultiView.cxx
 memleak:Imaging/Hybrid/vtkSurfaceReconstructionFilter.cxx
+memleak:IO/Image/vtkJPEGReader.cxx
 multiCondition:Filters/Matlab/vtkMatlabMexAdapter.cxx
 negativeIndex:Common/DataModel/vtkPerlinNoise.cxx
 nullPointer:Interaction/Style/vtkInteractorStyleJoystickActor.cxx
 nullPointer:Interaction/Style/vtkInteractorStyleTrackballActor.cxx
 nullPointer:IO/Exodus/vtkExodusIIReaderParser.cxx
+nullPointerRedundantCheck:Filters/General/vtkMultiThreshold.cxx
 oppositeInnerCondition:Rendering/VolumeOpenGL/vtkOpenGLVolumeTextureMapper3D.cxx
 pointerPositive:Common/DataModel/vtkUnstructuredGridCellIterator.cxx
 redundantAssignInSwitch:Wrapping/Tools/vtkWrapPythonOverload.c
 unassignedVariable:Common/Transforms/vtkHomogeneousTransform.cxx
+unassignedVariable:Filters/Core/vtkFlyingEdges3D.cxx
 unassignedVariable:Rendering/Core/vtkCamera.cxx
 uninitdata:IO/Import/vtk3DSImporter.cxx
 uninitvar:IO/Exodus/vtkExodusIIReader.cxx
@@ -85,6 +90,7 @@ unsafeClassCanLeak:Interaction/Widgets/vtkBiDimensionalRepresentation.h
 unsafeClassCanLeak:Views/Qt/vtkQtListView.h:
 unusedAllocatedMemory:IO/Legacy/vtkDataWriter.cxx
 unusedStructMember:Common/Misc/vtkHeap.cxx
+uselessAssignmentArg:Common/DataModel/vtkReebGraph.cxx
 uselessAssignmentPtrArg:Filters/General/vtkYoungsMaterialInterface.cxx
 uselessAssignmentPtrArg:IO/Parallel/vtkPImageWriter.cxx
 uselessAssignmentPtrArg:Wrapping/Tools/vtkParse.tab.c

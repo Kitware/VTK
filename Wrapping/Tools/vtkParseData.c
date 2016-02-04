@@ -61,6 +61,28 @@ void vtkParse_FreeFile(FileInfo *file_info)
   file_info->Contents = NULL;
 }
 
+/* Initialize a CommentInfo struct */
+void vtkParse_InitComment(CommentInfo *info)
+{
+  info->Type = DOX_COMMAND_OTHER;
+  info->Comment = NULL;
+  info->Name = NULL;
+}
+
+/* Copy a CommentInfo struct */
+void vtkParse_CopyComment(CommentInfo *info, const CommentInfo *orig)
+{
+  info->Type = orig->Type;
+  info->Comment = orig->Comment;
+  info->Name = orig->Name;
+}
+
+/* Free a CommentInfo struct */
+void vtkParse_FreeComment(CommentInfo *info)
+{
+  free(info);
+}
+
 /* Initialize a TemplateInfo struct */
 void vtkParse_InitTemplate(TemplateInfo *info)
 {
@@ -406,6 +428,8 @@ void vtkParse_InitClass(ClassInfo *cls)
   cls->Usings = NULL;
   cls->NumberOfNamespaces = 0;
   cls->Namespaces = NULL;
+  cls->NumberOfComments = 0;
+  cls->Comments = NULL;
   cls->IsAbstract = 0;
   cls->IsFinal = 0;
   cls->HasDelete = 0;
@@ -547,6 +571,18 @@ void vtkParse_CopyClass(ClassInfo *cls, const ClassInfo *orig)
       }
     }
 
+  n = orig->NumberOfComments;
+  cls->NumberOfComments = n;
+  if (n)
+    {
+    cls->Comments = (CommentInfo **)malloc(n*sizeof(CommentInfo *));
+    for (i = 0; i < n; i++)
+      {
+      cls->Comments[i] = (CommentInfo *)malloc(sizeof(CommentInfo));
+      vtkParse_CopyComment(cls->Comments[i], orig->Comments[i]);
+      }
+    }
+
   cls->IsAbstract = orig->IsAbstract;
   cls->IsFinal = orig->IsFinal;
   cls->HasDelete = orig->HasDelete;
@@ -595,6 +631,10 @@ void vtkParse_FreeClass(ClassInfo *class_info)
   if (m > 0) { free(class_info->Namespaces); }
 
   if (class_info->NumberOfItems > 0) { free(class_info->Items); }
+
+  m = class_info->NumberOfComments;
+  for (j = 0; j < m; j++) { vtkParse_FreeComment(class_info->Comments[j]); }
+  if (m > 0) { free(class_info->Comments); }
 
   free(class_info);
 }
@@ -753,6 +793,14 @@ void vtkParse_AddUsingToClass(ClassInfo *info, UsingInfo *item)
   info->Usings[info->NumberOfUsings++] = item;
 }
 
+/* Add a CommentInfo to a ClassInfo */
+void vtkParse_AddCommentToClass(ClassInfo *info, CommentInfo *item)
+{
+  info->Comments = (CommentInfo **)array_size_check(
+    info->Comments, sizeof(CommentInfo *), info->NumberOfComments);
+  info->Comments[info->NumberOfComments++] = item;
+}
+
 
 /* Add a NamespaceInfo to a NamespaceInfo */
 void vtkParse_AddNamespaceToNamespace(NamespaceInfo *info, NamespaceInfo *item)
@@ -804,6 +852,12 @@ void vtkParse_AddTypedefToNamespace(NamespaceInfo *info, ValueInfo *item)
 void vtkParse_AddUsingToNamespace(NamespaceInfo *info, UsingInfo *item)
 {
   vtkParse_AddUsingToClass(info, item);
+}
+
+/* Add a CommentInfo to a NamespaceInfo */
+void vtkParse_AddCommentToNamespace(NamespaceInfo *info, CommentInfo *item)
+{
+  vtkParse_AddCommentToClass(info, item);
 }
 
 

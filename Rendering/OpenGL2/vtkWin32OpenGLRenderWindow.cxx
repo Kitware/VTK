@@ -16,11 +16,14 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkIdList.h"
 #include "vtkCommand.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLShaderCache.h"
 #include "vtkRendererCollection.h"
+#include "vtkStringOutputWindow.h"
 #include "vtkWin32RenderWindowInteractor.h"
 
 #include <math.h>
@@ -253,17 +256,12 @@ bool vtkWin32OpenGLRenderWindow::IsCurrent()
 }
 
 // ----------------------------------------------------------------------------
-void AdjustWindowRectForBorders(const int borders, const int x, const int y,
+void AdjustWindowRectForBorders(HWND hwnd, DWORD style, const int x, const int y,
                                 const int width, const int height, RECT &r)
 {
-  DWORD style = WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/;
-  if (borders)
+  if (!style && hwnd)
     {
-    style |= WS_OVERLAPPEDWINDOW;
-    }
-  else
-    {
-    style |= WS_POPUP;
+    style = GetWindowLong(hwnd, GWL_STYLE);
     }
   r.left = x;
   r.top = y;
@@ -283,9 +281,7 @@ void vtkWin32OpenGLRenderWindow::SetSize(int x, int y)
   static int resizing = 0;
   if ((this->Size[0] != x) || (this->Size[1] != y))
     {
-    this->Modified();
-    this->Size[0] = x;
-    this->Size[1] = y;
+    this->Superclass::SetSize(x, y);
 
     if (this->Interactor)
       {
@@ -322,7 +318,7 @@ void vtkWin32OpenGLRenderWindow::SetSize(int x, int y)
         else
           {
           RECT r;
-          AdjustWindowRectForBorders(this->Borders, 0, 0, x, y, r);
+          AdjustWindowRectForBorders(this->WindowId, 0, 0, 0, x, y, r);
           SetWindowPos(this->WindowId, HWND_TOP, 0, 0,
                        r.right - r.left,
                        r.bottom - r.top,
@@ -412,43 +408,74 @@ void vtkWin32OpenGLRenderWindow::VTKRegisterClass()
 
 int vtkWin32OpenGLRenderWindow::SupportsOpenGL()
 {
+  if (this->OpenGLSupportTested)
+    {
+    return this->OpenGLSupportResult;
+    }
+
+  vtkOutputWindow *oldOW = vtkOutputWindow::GetInstance();
+  oldOW->Register(this);
+  vtkNew<vtkStringOutputWindow> sow;
+  vtkOutputWindow::SetInstance(sow.Get());
+
+  vtkWin32OpenGLRenderWindow *rw = vtkWin32OpenGLRenderWindow::New();
+  rw->SetOffScreenRendering(1);
+  rw->Initialize();
+  if (rw->GetContextSupportsOpenGL32())
+    {
+    this->OpenGLSupportResult = 1;
+    this->OpenGLSupportMessage =
+      "The system appears to support OpenGL 3.2";
+    }
+
 #ifdef GLEW_OK
-  this->InitializeApplication();
-  this->VTKRegisterClass();
 
-  // Create a dummy window, needed for calling wglGetProcAddress.
-#ifdef UNICODE
-  HWND tempId = CreateWindow(L"vtkOpenGL", 0, 0, 0, 0, 1, 1, 0, 0, this->ApplicationInstance, 0);
-#else
-  HWND tempId = CreateWindow("vtkOpenGL", 0, 0, 0, 0, 1, 1, 0, 0, this->ApplicationInstance, 0);
-#endif
-  HDC tempDC = GetDC(tempId);
-  PIXELFORMATDESCRIPTOR tempPfd;
-  memset(&tempPfd, 0, sizeof(PIXELFORMATDESCRIPTOR));
-  tempPfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
-  tempPfd.nVersion = 1;
-  tempPfd.dwFlags = PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW;
-  tempPfd.iPixelType = PFD_TYPE_RGBA;
-  int tempPixelFormat = ChoosePixelFormat(tempDC, &tempPfd);
-  SetPixelFormat(tempDC, tempPixelFormat, &tempPfd);
-  HGLRC tempContext = wglCreateContext(tempDC);
-  wglMakeCurrent(tempDC, tempContext);
-
-  GLenum result = glewInit();
-  bool m_valid = (result == GLEW_OK);
-  if (!m_valid)
+  else if (GLEW_VERSION_3_2 || (GLEW_VERSION_2_1 && GLEW_EXT_gpu_shader4))
     {
-    return 0;
-    }
-
-  if (GLEW_VERSION_3_2 || (GLEW_VERSION_2_1 && GLEW_EXT_gpu_shader4))
-    {
-    return 1;
+    this->OpenGLSupportResult = 1;
+    this->OpenGLSupportMessage =
+      "The system appears to support OpenGL 3.2 or has 2.1 with the required extension";
     }
 
 #endif
 
-  return 0;
+  if (this->OpenGLSupportResult)
+    {
+    // even if glew thinks we have support we should actually try linking a
+    // shader program to make sure
+    vtkShaderProgram *newShader =
+      rw->GetShaderCache()->ReadyShaderProgram(
+        // simple vert shader
+        "//VTK::System::Dec\n"
+        "attribute vec4 vertexMC;\n"
+        "void main() { gl_Position = vertexMC; }\n",
+        // frag shader that used gl_PrimitiveId
+        "//VTK::System::Dec\n"
+        "//VTK::Output::Dec\n"
+        "void main(void) {\n"
+        "  gl_FragData[0] = vec4(float(gl_PrimitiveID)/100.0,1.0,1.0,1.0);\n"
+        "}\n",
+        // no geom shader
+        "");
+    if (newShader == NULL)
+      {
+      this->OpenGLSupportResult = 0;
+      this->OpenGLSupportMessage =
+        "The system appeared to have OpenGL Support but a test shader program failed to compile and link";
+      }
+    }
+
+  rw->Delete();
+
+  this->OpenGLSupportMessage +=
+    "vtkOutputWindow Text Folows:\n\n" +
+    sow->GetOutput();
+  vtkOutputWindow::SetInstance(oldOW);
+  oldOW->Delete();
+
+  this->OpenGLSupportTested = true;
+
+  return this->OpenGLSupportResult;
 }
 
 
@@ -937,7 +964,7 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow()
           style = WS_POPUP | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/;
           }
         RECT r;
-        AdjustWindowRectForBorders(this->Borders, x, y, width, height, r);
+        AdjustWindowRectForBorders(0, style, x, y, width, height, r);
 #ifdef UNICODE
         this->WindowId = CreateWindow(
           L"vtkOpenGL", wname, style,
@@ -1218,7 +1245,7 @@ void vtkWin32OpenGLRenderWindow::PrefFullScreen()
   this->Borders = 0;
 
   RECT r;
-  AdjustWindowRectForBorders(this->Borders, 0, 0, size[0], size[1], r);
+  AdjustWindowRectForBorders(this->WindowId, 0, 0, 0, size[0], size[1], r);
 
   // use full screen
   this->Position[0] = 0;

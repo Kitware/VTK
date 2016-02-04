@@ -128,6 +128,7 @@ set(Module_SRCS
   )
 
 if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+  # needed as we do not have vtkRenderingOpenGLConfigure.h here
   set_source_files_properties(
     vtkRenderWindow.cxx  # dummy out painterdevice adapter
     vtkHardwareSelector.cxx # dummy out painter device adapter

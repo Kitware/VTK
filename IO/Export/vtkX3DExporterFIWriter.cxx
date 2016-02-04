@@ -81,7 +81,7 @@ public:
   void FillByte();
 
   // Get stream info
-  const char* GetStringStream(int& size);
+  std::string GetStringStream(int& size);
 
 private:
   unsigned char Append(unsigned int value, unsigned char count);
@@ -132,7 +132,7 @@ int vtkX3DExporterFIByteWriter::OpenStream()
 }
 
 //----------------------------------------------------------------------------
-const char* vtkX3DExporterFIByteWriter::GetStringStream(int& size)
+std::string vtkX3DExporterFIByteWriter::GetStringStream(int& size)
 {
   if (this->WriteToOutputString && this->Stream)
     {
@@ -140,7 +140,7 @@ const char* vtkX3DExporterFIByteWriter::GetStringStream(int& size)
       static_cast<std::ostringstream*>(this->Stream);
 
     size = static_cast<int>(ostr->str().size());
-    return ostr->str().c_str();
+    return ostr->str();
     }
 
   size = 0;
@@ -295,7 +295,8 @@ void vtkX3DExporterFIWriter::CloseFile()
     if(this->WriteToOutputString)
       {
       delete [] this->OutputString;
-      const char* tmp = this->Writer->GetStringStream(this->OutputStringLength);
+      std::string tmpstr = this->Writer->GetStringStream(this->OutputStringLength);
+      const char* tmp = tmpstr.c_str();
       this->OutputString = new char[this->OutputStringLength];
       memcpy(this->OutputString, tmp, this->OutputStringLength);
       }

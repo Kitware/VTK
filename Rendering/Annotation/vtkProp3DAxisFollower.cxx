@@ -441,15 +441,15 @@ void vtkProp3DAxisFollower::ComputerAutoCenterTranslation(
     halfWidth  = -halfWidth;
     }
 
-  if(this->Axis->GetAxisType() == VTK_AXIS_TYPE_X)
+  if(this->Axis->GetAxisType() == vtkAxisActor::VTK_AXIS_TYPE_X)
     {
     translation[0] = translation[0] - halfWidth;
     }
-  else if(this->Axis->GetAxisType() == VTK_AXIS_TYPE_Y)
+  else if(this->Axis->GetAxisType() == vtkAxisActor::VTK_AXIS_TYPE_Y)
     {
     translation[1] = translation[1] - halfWidth;
     }
-  else if(this->Axis->GetAxisType() == VTK_AXIS_TYPE_Z)
+  else if(this->Axis->GetAxisType() == vtkAxisActor::VTK_AXIS_TYPE_Z)
     {
     translation[2] = translation[2] - halfWidth;
     }

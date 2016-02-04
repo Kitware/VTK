@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkTestCompareTypes.cxx
+  Module:    vtk_kwiml.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,29 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#ifndef vtk_kwiml_h
+#define vtk_kwiml_h
 
-#ifdef HAVE_SYS_TYPES_H
-#  include <sys/types.h>
-#endif /* HAVE_SYS_TYPES_H */
+/* Use the KWIML library configured for VTK.  */
+#include "vtkkwiml/abi.h"
+#include "vtkkwiml/int.h"
 
-#ifdef HAVE_STDINT_H
-#  include <stdint.h>
-#endif /* HAVE_STDINT_H */
-
-#ifdef HAVE_STDDEF_H
-#  include <stddef.h>
-#endif /* HAVE_STDDEF_H */
-
-#define TYPE_LONG_LONG long long
-
-typedef VTK_TEST_COMPARE_TYPE_1 Type1;
-typedef VTK_TEST_COMPARE_TYPE_2 Type2;
-
-void function(Type1**) {}
-
-int main()
-{
-  Type2** p = 0;
-  function(p);
-  return 0;
-}
+#endif

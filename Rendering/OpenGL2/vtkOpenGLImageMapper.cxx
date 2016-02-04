@@ -116,7 +116,7 @@ void vtkOpenGLImageMapper::ReleaseGraphicsResources(vtkWindow *renWin)
 */
 
 // the bit-shift must be done after the comparison to zero
-// because bit-shift is implemenation dependent for negative numbers
+// because bit-shift is undefined behaviour for negative numbers
 #define vtkClampIntToUnsignedChar(x,y,shift) \
 { \
   val = (y); \
@@ -124,7 +124,7 @@ void vtkOpenGLImageMapper::ReleaseGraphicsResources(vtkWindow *renWin)
     { \
     val = 0; \
     } \
-  val >>= shift; \
+  val >>= (shift); \
   if (val > 255) \
     { \
     val = 255; \

@@ -15,6 +15,8 @@
 #       The git repository to use as upstream.
 #   tag
 #       The tag, branch or commit hash to use for upstream.
+#   shortlog
+#       Optional.  Set to 'true' to get a shortlog in the commit message.
 #
 # Additionally, an "extract_source" function must be defined. It will be
 # run within the checkout of the project on the requested tag. It should
@@ -46,6 +48,7 @@ warn () {
 readonly regex_date='20[0-9][0-9]-[0-9][0-9]-[0-9][0-9]'
 readonly basehash_regex="$name $regex_date ([0-9a-f]*)"
 readonly basehash="$( git rev-list --author="$ownership" --grep="$basehash_regex" -n 1 HEAD )"
+readonly upstream_old_short="$( git cat-file commit "$basehash" | sed -n '/'"$basehash_regex"'/ {s/.*(//;s/)//;p}' | egrep '^[0-9a-f]+$' )"
 
 ########################################################################
 # Sanity checking
@@ -62,6 +65,7 @@ readonly basehash="$( git rev-list --author="$ownership" --grep="$basehash_regex
     die "'tag' is empty"
 [ -n "$basehash" ] || \
     warn "'basehash' is empty; performing initial import"
+readonly do_shortlog="${shortlog-false}"
 
 readonly workdir="$PWD/work"
 readonly upstreamdir="$workdir/upstream"
@@ -95,6 +99,16 @@ readonly upstream_hash="$( git rev-parse HEAD )"
 readonly upstream_hash_short="$( git rev-parse --short=8 "$upstream_hash" )"
 readonly upstream_datetime="$( git rev-list "$upstream_hash" --format='%ci' -n 1 | grep -e "^$regex_date" )"
 readonly upstream_date="$( echo "$upstream_datetime" | grep -o -e "$regex_date" )"
+if $do_shortlog && [ -n "$basehash" ]; then
+    readonly commit_shortlog="
+
+Upstream Shortlog
+-----------------
+
+$( git shortlog --no-merges --abbrev=8 --format='%h %s' "$upstream_old_short".."$upstream_hash" )"
+else
+    readonly commit_shortlog=""
+fi
 extract_source || \
     die "failed to extract source"
 popd
@@ -115,7 +129,7 @@ Code extracted from:
 
     $repo
 
-at commit $upstream_hash ($tag).
+at commit $upstream_hash ($tag).$commit_shortlog
 EOF
 git branch -f "upstream-$name"
 popd

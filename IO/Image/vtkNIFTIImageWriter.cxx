@@ -503,7 +503,8 @@ int vtkNIFTIImageWriter::GenerateHeader(vtkInformation *info, bool singleFile)
   // set the description
   if (this->Description)
     {
-    strncpy(hdr.descrip, this->Description, 80);
+    strncpy(hdr.descrip, this->Description, sizeof(hdr.descrip) - 1);
+    hdr.descrip[sizeof(hdr.descrip) - 1] = '\0';
     }
 
   // qfac dictates the slice ordering in the file

@@ -99,9 +99,6 @@ void vtkImageCanvasSource2D::PrintSelf(ostream& os, vtkIndent indent)
      << ")\n";
 }
 
-#define vtkMAX(x, y) (((x)>(y))?(x):(y))
-#define vtkMIN(x, y) (((x)<(y))?(x):(y))
-
 //----------------------------------------------------------------------------
 // Draw a data.  Only implentented for 2D extents.
 template <class T>
@@ -187,7 +184,7 @@ void vtkImageCanvasSource2D::DrawImage(int x0, int y0,
     }
   else
     {
-    width = vtkMIN(width, ext[1] - ext[0] + 1);
+    width = vtkMath::Min(width, ext[1] - ext[0] + 1);
     }
   if ( height < 0 )
     {
@@ -195,12 +192,12 @@ void vtkImageCanvasSource2D::DrawImage(int x0, int y0,
     }
   else
     {
-    height = vtkMIN(height, ext[3] - ext[2] + 1);
+    height = vtkMath::Min(height, ext[3] - ext[2] + 1);
     }
-  ext[0] = vtkMAX(sx, ext[0]);
-  ext[1] = vtkMAX(sx+width-1, ext[1]);
-  ext[2] = vtkMAX(sy, ext[2]);
-  ext[3] = vtkMAX(sy+height-1, ext[3]);
+  ext[0] = vtkMath::Max(sx, ext[0]);
+  ext[1] = vtkMath::Max(sx+width-1, ext[1]);
+  ext[2] = vtkMath::Max(sy, ext[2]);
+  ext[3] = vtkMath::Max(sy+height-1, ext[3]);
   clip->SetOutputWholeExtent(ext);
 
   vtkImageCast* ic = vtkImageCast::New();
