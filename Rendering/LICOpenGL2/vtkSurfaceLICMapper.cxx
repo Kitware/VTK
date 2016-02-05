@@ -774,10 +774,11 @@ vtkImageData *vtkGetNoiseResource()
   unsigned char* binaryInput
      = new unsigned char[file_noise200x200_vtk_decoded_length + 10];
 
-  unsigned long binarylength = vtkBase64Utilities::Decode(
+  unsigned long binarylength = vtkBase64Utilities::DecodeSafely(
         reinterpret_cast<const unsigned char*>(base64string.c_str()),
-        static_cast<unsigned long>(base64string.length()),
-        binaryInput);
+        base64string.length(),
+        binaryInput,
+        file_noise200x200_vtk_decoded_length + 10);
 
   assert("check valid_length"
     && (binarylength == file_noise200x200_vtk_decoded_length));

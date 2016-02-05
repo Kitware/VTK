@@ -40,10 +40,10 @@ class TestDataEncoder(Testing.vtkTest):
         base64String = encoder.EncodeAsBase64Png(imgData).encode('ascii')
 
         # Now Base64 decode the string back to PNG image data bytes
-        outputBuffer = bytearray(120000)
         inputArray = array.array('B', base64String)
+        outputBuffer = bytearray(len(inputArray))
         utils = vtk.vtkIOCore.vtkBase64Utilities()
-        actualLength = utils.Decode(inputArray, 120000, outputBuffer)
+        actualLength = utils.DecodeSafely(inputArray, len(inputArray), outputBuffer, len(outputBuffer))
         outputArray = bytearray(actualLength)
         outputArray[:] = outputBuffer[0:actualLength]
 
