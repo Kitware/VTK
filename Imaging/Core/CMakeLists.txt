@@ -26,7 +26,7 @@ set(Module_SRCS
   vtkImageResliceToColors.cxx
   vtkImageShiftScale.cxx
   vtkImageShrink3D.cxx
-  vtkImageStencilIterator.h
+  vtkImageStencilIterator.cxx
   vtkImageThreshold.cxx
   vtkImageTranslateExtent.cxx
   vtkImageWrapPad.cxx
