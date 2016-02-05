@@ -13,7 +13,7 @@
 //=========================================================================
 
 // This file contains enough suppressions to result in no cppcheck warnings,
-// at least on Mac OS X 10.9 with cppcheck 1.72.
+// at least on Mac OS X with cppcheck 1.72.
 
 // To run:
 // cd /path/to/VTK/
@@ -28,7 +28,6 @@
 
 // Can't fix in portable way for all VTK-supported platforms.
 duplicateExpression:IO/PostgreSQL/vtkPostgreSQLQuery.cxx
-obsoleteFunctionsasctime
 unpreciseMathCall
 
 // VTK assumes IEEE 754 floats, so this warning isn't useful.
@@ -38,7 +37,6 @@ memsetClassFloat
 clarifyCalculation
 cstyleCast
 invalidscanf
-invalidscanf_libc
 noCopyConstructor
 noExplicitConstructor
 operatorEqVarError
@@ -114,8 +112,6 @@ operatorEq
 postfixOperator
 unusedStructMember
 
-// Unsure about these.
-exceptRethrowCopy:IO/Core/vtkUTF8TextCodec.cxx
+// To investigate further...
 memleak:Wrapping/Tools/vtkParsePreprocess.c
-unsafeClassCanLeak:GUISupport/Qt/QVTKInteractorInternal.h
-unsafeClassCanLeak:Views/Qt/vtkQtListView.h
+nullPointerRedundantCheck:IO/Exodus/vtkExodusIIReaderParser.cxx
