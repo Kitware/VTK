@@ -120,6 +120,13 @@ protected:
   void ExecuteFftForwardBackward(vtkImageComplex *in, vtkImageComplex *out,
                                  int N, int fb);
   //ETX
+
+  // Description:
+  // Override to change extent splitting rules.
+  int RequestData(vtkInformation* request,
+                  vtkInformationVector** inputVector,
+                  vtkInformationVector* outputVector);
+
 private:
   vtkImageFourierFilter(const vtkImageFourierFilter&);  // Not implemented.
   void operator=(const vtkImageFourierFilter&);  // Not implemented.

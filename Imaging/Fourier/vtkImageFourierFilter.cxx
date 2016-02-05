@@ -228,4 +228,23 @@ void vtkImageFourierFilter::ExecuteRfft(vtkImageComplex *in,
   this->ExecuteFftForwardBackward(in, out, N, -1);
 }
 
+//----------------------------------------------------------------------------
+// Called each axis over which the filter is executed.
+int vtkImageFourierFilter::RequestData(vtkInformation* request,
+                                       vtkInformationVector** inputVector,
+                                       vtkInformationVector* outputVector)
+{
+  // ensure that iteration axis is not split during threaded execution
+  this->SplitPathLength = 0;
+  for (int axis = 2; axis >= 0; --axis)
+    {
+    if (axis != this->Iteration)
+      {
+      this->SplitPath[this->SplitPathLength++] = axis;
+      }
+    }
+
+  return this->Superclass::RequestData(request, inputVector, outputVector);
+}
+
 
