@@ -38,7 +38,6 @@ vtkAMRDataSetCache::~vtkAMRDataSetCache()
       {
       iter->second->Delete();
       }
-    this->Cache.erase( iter );
     }
 }
 
