@@ -1463,6 +1463,10 @@ int* vtkStreamingDemandDrivenPipeline::GetWholeExtent(vtkInformation* info)
 # pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
+#ifdef _MSC_VER
+# pragma warning (disable: 4996)
+#endif
+
 #ifndef VTK_LEGACY_REMOVE
 //----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline
