@@ -50,6 +50,7 @@
 #include "vtkCommand.h"
 #include "vtkWindow.h"
 
+#include <algorithm>
 #include <cfloat> //for FLT_EPSILON
 
 vtkStandardNewMacro(vtkImplicitCylinderRepresentation);
