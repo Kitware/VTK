@@ -518,6 +518,72 @@ void vtkThreadedImageAlgorithm::SMPRequestData(
 }
 
 //----------------------------------------------------------------------------
+void vtkThreadedImageAlgorithm::PrepareImageData(
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector,
+  vtkImageData*** inDataObjects,
+  vtkImageData** outDataObjects)
+{
+  vtkImageData* firstInput = 0;
+  vtkImageData* firstOutput = 0;
+
+  // now we must create the output array
+  int numOutputPorts = this->GetNumberOfOutputPorts();
+  for (int i = 0; i < numOutputPorts; i++)
+    {
+    vtkInformation* info = outputVector->GetInformationObject(i);
+    vtkImageData *outData = vtkImageData::SafeDownCast(
+      info->Get(vtkDataObject::DATA_OBJECT()));
+    if (i == 0)
+      {
+      firstOutput = outData;
+      }
+    if (outDataObjects)
+      {
+      outDataObjects[i] = outData;
+      }
+    if (outData)
+      {
+      int updateExtent[6];
+      info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+                updateExtent);
+
+      // unlike geometry filters, for image filters data is pre-allocated
+      // in the superclass (which means, in this class)
+      this->AllocateOutputData(outData, info, updateExtent);
+      }
+    }
+
+  // now create the inputs array
+  int numInputPorts = this->GetNumberOfInputPorts();
+  for (int i = 0; i < numInputPorts; i++)
+    {
+    vtkInformationVector* portInfo = inputVector[i];
+    int numConnections = portInfo->GetNumberOfInformationObjects();
+    for (int j = 0; j < numConnections; j++)
+      {
+      vtkInformation* info = portInfo->GetInformationObject(j);
+      vtkImageData *inData = vtkImageData::SafeDownCast(
+        info->Get(vtkDataObject::DATA_OBJECT()));
+      if (i == 0 && j == 0)
+        {
+        firstInput = inData;
+        }
+      if (inDataObjects && inDataObjects[i])
+        {
+        inDataObjects[i][j] = inData;
+        }
+      }
+    }
+
+  // copy other arrays
+  if (firstInput && firstOutput)
+    {
+    this->CopyAttributeData(firstInput, firstOutput, inputVector);
+    }
+}
+
+//----------------------------------------------------------------------------
 // This is the superclasses style of Execute method.  Convert it into
 // an imaging style Execute method.
 int vtkThreadedImageAlgorithm::RequestData(
@@ -525,69 +591,36 @@ int vtkThreadedImageAlgorithm::RequestData(
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
-  int i;
-
-  // setup the threasd structure
+  // setup the thread structure
   vtkImageThreadStruct str;
   str.Filter = this;
   str.Request = request;
   str.InputsInfo = inputVector;
   str.OutputsInfo = outputVector;
-
-  // now we must create the output array
-  str.Outputs = 0;
-  if (this->GetNumberOfOutputPorts())
-    {
-    str.Outputs = new vtkImageData * [this->GetNumberOfOutputPorts()];
-    for (i = 0; i < this->GetNumberOfOutputPorts(); ++i)
-      {
-      vtkInformation* info = outputVector->GetInformationObject(i);
-      vtkImageData *outData = vtkImageData::SafeDownCast(
-        info->Get(vtkDataObject::DATA_OBJECT()));
-      str.Outputs[i] = outData;
-      if (outData)
-        {
-        int updateExtent[6];
-        info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-                  updateExtent);
-
-        // unlike geometry filters, for image filters data is pre-allocated
-        // in the superclass (which means, in this class)
-        this->AllocateOutputData(outData, info, updateExtent);
-        }
-      }
-    }
-
-  // now create the inputs array
   str.Inputs = 0;
-  if (this->GetNumberOfInputPorts())
-    {
-    str.Inputs = new vtkImageData ** [this->GetNumberOfInputPorts()];
-    for (i = 0; i < this->GetNumberOfInputPorts(); ++i)
-      {
-      str.Inputs[i] = 0;
-      vtkInformationVector* portInfo = inputVector[i];
+  str.Outputs = 0;
 
-      if (portInfo->GetNumberOfInformationObjects())
-        {
-        int j;
-        str.Inputs[i] =
-          new vtkImageData *[portInfo->GetNumberOfInformationObjects()];
-        for (j = 0; j < portInfo->GetNumberOfInformationObjects(); ++j)
-          {
-          vtkInformation* info = portInfo->GetInformationObject(j);
-          str.Inputs[i][j] = vtkImageData::SafeDownCast(
-            info->Get(vtkDataObject::DATA_OBJECT()));
-          }
-        }
+  // create an array for input data objects
+  int numInputPorts = this->GetNumberOfInputPorts();
+  if (numInputPorts)
+    {
+    str.Inputs = new vtkImageData ** [numInputPorts];
+    for (int i = 0; i < numInputPorts; i++)
+      {
+      int numConnections = inputVector[i]->GetNumberOfInformationObjects();
+      str.Inputs[i] = new vtkImageData * [numConnections];
       }
     }
 
-  // copy other arrays
-  if (str.Inputs && str.Inputs[0] && str.Outputs)
+  // create an array for output data objects
+  int numOutputPorts = this->GetNumberOfOutputPorts();
+  if (numOutputPorts)
     {
-    this->CopyAttributeData(str.Inputs[0][0],str.Outputs[0],inputVector);
+    str.Outputs = new vtkImageData * [numOutputPorts];
     }
+
+  // allocate the output data and call CopyAttributeData
+  this->PrepareImageData(inputVector, outputVector, str.Inputs, str.Outputs);
 
   if (this->EnableSMP)
     {
@@ -598,14 +631,9 @@ int vtkThreadedImageAlgorithm::RequestData(
     int bytesPerVoxel = 1;
 
     // get the update extent from the output, if there is an output
-    if (this->GetNumberOfOutputPorts())
+    if (numOutputPorts)
       {
-      int outputPort =
-        request->Get(vtkDemandDrivenPipeline::FROM_OUTPUT_PORT());
-      vtkInformation *outInfo =
-        outputVector->GetInformationObject(outputPort);
-      vtkImageData *outData = vtkImageData::SafeDownCast(
-        outInfo->Get(vtkDataObject::DATA_OBJECT()));
+      vtkImageData *outData = str.Outputs[0];
       if (outData)
         {
         bytesPerVoxel = (outData->GetScalarSize() *
@@ -616,14 +644,11 @@ int vtkThreadedImageAlgorithm::RequestData(
     else
       {
       // if no output, get update extent from the first input
-      for (int inPort = 0; inPort < this->GetNumberOfInputPorts(); ++inPort)
+      for (int inPort = 0; inPort < numInputPorts; inPort++)
         {
         if (this->GetNumberOfInputConnections(inPort))
           {
-          vtkInformation *inInfo =
-            inputVector[inPort]->GetInformationObject(0);
-          vtkImageData *inData = vtkImageData::SafeDownCast(
-            inInfo->Get(vtkDataObject::DATA_OBJECT()));
+          vtkImageData *inData = str.Inputs[inPort][0];
           if (inData)
             {
             bytesPerVoxel = (inData->GetScalarSize() *
@@ -682,7 +707,7 @@ int vtkThreadedImageAlgorithm::RequestData(
     }
 
   // free up the arrays
-  for (i = 0; i < this->GetNumberOfInputPorts(); ++i)
+  for (int i = 0; i < numInputPorts; i++)
     {
     delete [] str.Inputs[i];
     }

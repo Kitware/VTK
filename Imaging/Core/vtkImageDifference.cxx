@@ -458,27 +458,15 @@ int vtkImageDifference::RequestData(
 
   if (this->EnableSMP) // For vtkSMPTools implementation.
     {
-    // Allocate the output data object
-    vtkImageData *outData[1];
-    vtkInformation* outInfo = outputVector->GetInformationObject(0);
-    outData[0] = vtkImageData::SafeDownCast(
-      outInfo->Get(vtkDataObject::DATA_OBJECT()));
-    int extent[6];
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent);
-    this->AllocateOutputData(outData[0], outInfo, extent);
-
-    // Get the input data objects
+    // Get the input and output data objects
     vtkImageData *inDataPointer[2];
     vtkImageData **inData[2] = { &inDataPointer[0], &inDataPointer[1] };
-    vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-    inData[0][0] = vtkImageData::SafeDownCast(
-      inInfo->Get(vtkDataObject::DATA_OBJECT()));
-    vtkInformation* inInfo2 = inputVector[1]->GetInformationObject(0);
-    inData[1][0] = vtkImageData::SafeDownCast(
-      inInfo2->Get(vtkDataObject::DATA_OBJECT()));
+    vtkImageData *outData[1];
+    this->PrepareImageData(inputVector, outputVector, inData, outData);
 
-    // Copy attribute arrays from first input to the output
-    this->CopyAttributeData(inData[0][0], outData[0], inputVector);
+    // Get the extent
+    int extent[6];
+    outData[0]->GetExtent(extent);
 
     // Do a dummy execution of SplitExtent to compute the number of pieces
     vtkIdType pieces = this->SplitExtent(0, extent, 0, this->NumberOfThreads);

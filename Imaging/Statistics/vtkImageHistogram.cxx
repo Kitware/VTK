@@ -756,8 +756,6 @@ int vtkImageHistogram::RequestData(
       }
     }
 
-  // start of code copied from vtkThreadedImageAlgorithm
-
   // setup the threads structure
   vtkImageHistogramThreadStruct ts;
   ts.Algorithm = this;
@@ -766,44 +764,7 @@ int vtkImageHistogram::RequestData(
   ts.OutputsInfo = outputVector;
 
   // allocate the output data
-  int numberOfOutputs = this->GetNumberOfOutputPorts();
-  if (numberOfOutputs > 0)
-    {
-    for (int i = 0; i < numberOfOutputs; ++i)
-      {
-      vtkInformation* outInfo = outputVector->GetInformationObject(i);
-      vtkImageData *outData = vtkImageData::SafeDownCast(
-        outInfo->Get(vtkDataObject::DATA_OBJECT()));
-      if (outData)
-        {
-        int updateExtent[6];
-        outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-                     updateExtent);
-        this->AllocateOutputData(outData, outInfo, updateExtent);
-        }
-      }
-    }
-
-  // copy arrays from first input to output
-  int numberOfInputs = this->GetNumberOfInputPorts();
-  if (numberOfInputs > 0)
-    {
-    vtkInformationVector* portInfo = inputVector[0];
-    int numberOfConnections = portInfo->GetNumberOfInformationObjects();
-    if (numberOfConnections && numberOfOutputs)
-      {
-      vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-      vtkImageData *inData = vtkImageData::SafeDownCast(
-        inInfo->Get(vtkDataObject::DATA_OBJECT()));
-
-      vtkInformation* outInfo = outputVector->GetInformationObject(0);
-      vtkImageData *outData = vtkImageData::SafeDownCast(
-        outInfo->Get(vtkDataObject::DATA_OBJECT()));
-      this->CopyAttributeData(inData, outData, inputVector);
-      }
-    }
-
-  // end of code copied from vtkThreadedImageAlgorithm
+  this->PrepareImageData(inputVector, outputVector);
 
   // create the histogram array
   this->Histogram->SetNumberOfComponents(1);

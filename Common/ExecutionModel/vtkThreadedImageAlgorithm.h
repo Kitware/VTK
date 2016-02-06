@@ -135,6 +135,16 @@ protected:
                               vtkIdType begin, vtkIdType end,
                               vtkIdType pieces, int extent[6]);
 
+  // Description:
+  // Allocate space for output data and copy attributes from first input.
+  // If the inDataObjects and outDataObjects are not passed as zero, then
+  // they must be large enough to store the data objects for all inputs and
+  // outputs.
+  virtual void PrepareImageData(vtkInformationVector **inputVector,
+                                vtkInformationVector *outputVector,
+                                vtkImageData ***inDataObjects=0,
+                                vtkImageData **outDataObjects=0);
+
 private:
   vtkThreadedImageAlgorithm(const vtkThreadedImageAlgorithm&);  // Not implemented.
   void operator=(const vtkThreadedImageAlgorithm&);  // Not implemented.
