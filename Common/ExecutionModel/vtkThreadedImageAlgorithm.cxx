@@ -76,6 +76,10 @@ void vtkThreadedImageAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "GlobalDefaultEnableSMP: "
      << (vtkThreadedImageAlgorithm::GlobalDefaultEnableSMP ?
          "On\n" : "Off\n");
+  os << indent << "SplitMode: "
+     << (this->SplitMode == SLAB ? "Slab\n" :
+         (this->SplitMode == BEAM ? "Beam\n" :
+          (this->SplitMode == BLOCK ? "Block\n" : "Unknown\n")));
 }
 
 //----------------------------------------------------------------------------

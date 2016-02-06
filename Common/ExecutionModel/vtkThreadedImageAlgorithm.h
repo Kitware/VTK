@@ -65,6 +65,18 @@ public:
   static bool GetGlobalDefaultEnableSMP();
 
   // Description:
+  // Set the method used to divide the volume into pieces.
+  // Slab mode splits the volume along the Z direction first,
+  // Beam mode splits evenly along the Z and Y directions, and
+  // Block mode splits evenly along all three directions.
+  // Most filters use Slab mode as the default.
+  vtkSetClampMacro(SplitMode, int, 0, 2);
+  void SetSplitModeToSlab() { this->SetSplitMode(SLAB); }
+  void SetSplitModeToBeam() { this->SetSplitMode(BEAM); }
+  void SetSplitModeToBlock() { this->SetSplitMode(BLOCK); }
+  vtkGetMacro(SplitMode, int);
+
+  // Description:
   // Get/Set the number of threads to create when rendering.
   // This is ignored if EnableSMP is On.
   vtkSetClampMacro( NumberOfThreads, int, 1, VTK_MAX_THREADS );
