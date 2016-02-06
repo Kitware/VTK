@@ -65,6 +65,12 @@ public:
   static bool GetGlobalDefaultEnableSMP();
 
   // Description:
+  // The minimum piece size when volume is split for execution.
+  // By default, the minimum size is (1,1,1).
+  vtkSetVector3Macro(MinimumPieceSize, int);
+  vtkGetVector3Macro(MinimumPieceSize, int);
+
+  // Description:
   // The desired bytes per piece when volume is split for execution.
   // When SMP is enabled, this is used to subdivide the volume into pieces.
   // Smaller pieces allow for better dynamic load balancing, but increase
@@ -115,6 +121,7 @@ protected:
   int SplitMode;
   int SplitPath[3];
   int SplitPathLength;
+  int MinimumPieceSize[3];
   vtkIdType DesiredBytesPerPiece;
 
   // Description:

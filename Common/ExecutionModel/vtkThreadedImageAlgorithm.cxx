@@ -44,6 +44,11 @@ vtkThreadedImageAlgorithm::vtkThreadedImageAlgorithm()
   this->SplitPath[2] = 0;
   this->SplitPathLength = 3;
 
+  // Minumum block size
+  this->MinimumPieceSize[0] = 1;
+  this->MinimumPieceSize[1] = 1;
+  this->MinimumPieceSize[2] = 1;
+
   // The desired block size in bytes, should be small enough that the
   // operation will fit in cache, where cache is usually a few MB.
   this->DesiredBytesPerPiece = 1000000;
@@ -80,6 +85,10 @@ void vtkThreadedImageAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "GlobalDefaultEnableSMP: "
      << (vtkThreadedImageAlgorithm::GlobalDefaultEnableSMP ?
          "On\n" : "Off\n");
+  os << indent << "MinimumPieceSize: "
+     << this->MinimumPieceSize[0] << " "
+     << this->MinimumPieceSize[1] << " "
+     << this->MinimumPieceSize[2] << "\n";
   os << indent << "DesiredBytesPerPiece: "
      << this->DesiredBytesPerPiece << "\n";
   os << indent << "SplitMode: "
@@ -111,12 +120,12 @@ int vtkThreadedImageAlgorithm::SplitExtent(int splitExt[6],
                                            int num, int total)
 {
   // split path (the order in which to split the axes)
-  const int *path = this->SplitPath;
   int pathlen = this->SplitPathLength;
   int mode = this->SplitMode;
-  int axis0 = path[0];
-  int axis1 = path[1];
-  int axis2 = path[2];
+  int axis0 = this->SplitPath[0];
+  int axis1 = this->SplitPath[1];
+  int axis2 = this->SplitPath[2];
+  int path[3] = { axis0, axis1, axis2 };
 
   // divisions
   int divs[3] = { 1, 1, 1 };
@@ -133,14 +142,26 @@ int vtkThreadedImageAlgorithm::SplitExtent(int splitExt[6],
     return 0;
     }
 
+  // divide out the minimum block size
+  int maxdivs[3] = { 1, 1, 1 };
+  for (int i = 0; i < 3; i++)
+    {
+    if (size[i] > this->MinimumPieceSize[i] && this->MinimumPieceSize[i] > 0)
+      {
+      maxdivs[i] = size[i]/this->MinimumPieceSize[i];
+      }
+    }
+
   // make sure total is not greater than max number of pieces
-  vtkTypeInt64 maxPieces = size[axis0];
+  vtkTypeInt64 maxPieces = maxdivs[axis0];
+  vtkTypeInt64 maxPieces2D = maxPieces;
   if (pathlen > 1)
     {
-    maxPieces *= size[axis1];
+    maxPieces *= maxdivs[axis1];
+    maxPieces2D = maxPieces;
     if (pathlen > 2)
       {
-      maxPieces *= size[axis2];
+      maxPieces *= maxdivs[axis2];
       }
     }
   if (total > maxPieces)
@@ -151,16 +172,16 @@ int vtkThreadedImageAlgorithm::SplitExtent(int splitExt[6],
   if (mode == SLAB || pathlen < 2)
     {
     // split the axes in the given order
-    divs[axis0] = size[axis0];
-    if (total < size[axis0])
+    divs[axis0] = maxdivs[axis0];
+    if (total < maxdivs[axis0])
       {
       divs[axis0] = total;
       }
     else if (pathlen > 1)
       {
-      divs[axis1] = size[axis1];
+      divs[axis1] = maxdivs[axis1];
       int q = total/divs[axis0];
-      if (q < size[axis1])
+      if (q < maxdivs[axis1])
         {
         divs[axis1] = q;
         }
@@ -173,8 +194,7 @@ int vtkThreadedImageAlgorithm::SplitExtent(int splitExt[6],
   else if (mode == BEAM || pathlen < 3)
     {
     // split two of the axes first, leave third axis for last
-    vtkTypeInt64 maxdivs = size[axis0]*size[axis1];
-    if (total <= maxdivs)
+    if (total < maxPieces2D)
       {
       // split until we get the desired number of pieces
       while (divs[axis0]*divs[axis1] < total)
@@ -188,18 +208,29 @@ int vtkThreadedImageAlgorithm::SplitExtent(int splitExt[6],
           axis0 = path[1];
           axis1 = path[0];
           }
+
         // compute the new split for this axis
         divs[axis0] = divs[axis1]*size[axis0]/size[axis1] + 1;
         }
+
       // compute final division
       divs[axis0] = total/divs[axis1];
+      if (divs[axis0] > maxdivs[axis0])
+        {
+        divs[axis0] = maxdivs[axis0];
+        }
       divs[axis1] = total/divs[axis0];
+      if (divs[axis1] > maxdivs[axis1])
+        {
+        divs[axis1] = maxdivs[axis1];
+        divs[axis0] = total/divs[axis1];
+        }
       }
     else
       {
       // maximum split for first two axes
-      divs[axis0] = size[axis0];
-      divs[axis1] = size[axis1];
+      divs[axis0] = maxdivs[axis0];
+      divs[axis1] = maxdivs[axis1];
       if (pathlen > 2)
         {
         // split the third axis
@@ -222,27 +253,64 @@ int vtkThreadedImageAlgorithm::SplitExtent(int splitExt[6],
         axis1 = axis0;
         axis0 = path[1];
         }
-      // check if x is the best candidate for splitting
-      if (size[axis0]*divs[path[2]] < size[path[2]]*divs[axis0])
+
+      if (pathlen > 2)
         {
-        axis2 = axis1;
-        axis1 = axis0;
-        axis0 = path[2];
+        // check if x is the best candidate for splitting
+        if (size[axis0]*divs[path[2]] < size[path[2]]*divs[axis0])
+          {
+          axis2 = axis1;
+          axis1 = axis0;
+          axis0 = path[2];
+          }
+        // now find the second best candidate
+        if (size[axis1]*divs[axis2] < size[axis2]*divs[axis1])
+          {
+          int tmp = axis2;
+          axis2 = axis1;
+          axis1 = tmp;
+          }
         }
-      // now find the second best candidate
-      if (size[axis1]*divs[axis2] < size[axis2]*divs[axis1])
-        {
-        int tmp = axis2;
-        axis2 = axis1;
-        axis1 = tmp;
-        }
+
       // compute the new split for this axis
       divs[axis0] = divs[axis1]*size[axis0]/size[axis1] + 1;
+
+      // if axis0 reached maxdivs, remove it from the split path
+      if (divs[axis0] >= maxdivs[axis0])
+        {
+        divs[axis0] = maxdivs[axis0];
+        if (--pathlen == 1)
+          {
+          break;
+          }
+        if (axis0 != path[2])
+          {
+          if (axis0 != path[1])
+            {
+            path[0] = path[1];
+            }
+          path[1] = path[2];
+          path[2] = axis0;
+          }
+        }
       }
+
     // compute the final division
     divs[axis0] = total/(divs[axis1]*divs[axis2]);
+    if (divs[axis0] > maxdivs[axis0])
+      {
+      divs[axis0] = maxdivs[axis0];
+      }
     divs[axis1] = total/(divs[axis0]*divs[axis2]);
+    if (divs[axis1] > maxdivs[axis1])
+      {
+      divs[axis1] = maxdivs[axis1];
+      }
     divs[axis2] = total/(divs[axis0]*divs[axis1]);
+    if (divs[axis2] > maxdivs[axis2])
+      {
+      divs[axis2] = maxdivs[axis2];
+      }
     }
 
   // compute new total from the chosen divisions
