@@ -410,7 +410,16 @@ void vtkMapper::ShallowCopy(vtkAbstractMapper *mapper)
 vtkUnsignedCharArray *vtkMapper::MapScalars(double alpha)
 {
   vtkDataSet *input = this->GetInput();
-  return this->MapScalars(input,alpha);
+  int cellFlag; //not used
+  return this->MapScalars(input,alpha,cellFlag);
+}
+
+// a side effect of this is that this->Colors is also set
+// to the return value
+vtkUnsignedCharArray *vtkMapper::MapScalars(double alpha, int &cellFlag)
+{
+  vtkDataSet *input = this->GetInput();
+  return this->MapScalars(input,alpha,cellFlag);
 }
 
 //-----------------------------------------------------------------------------
@@ -466,13 +475,19 @@ int vtkMapper::CanUseTextureMapForColoring(vtkDataObject* input)
   return 1;
 }
 
-// a side effect of this is that this->Colors is also set
-// to the return value
 vtkUnsignedCharArray *vtkMapper::MapScalars(vtkDataSet *input,
                                             double alpha)
 {
   int cellFlag = 0;
+  return this->MapScalars(input, alpha, cellFlag);
+}
 
+// a side effect of this is that this->Colors is also set
+// to the return value
+vtkUnsignedCharArray *vtkMapper::MapScalars(vtkDataSet *input,
+                                            double alpha,
+                                            int &cellFlag)
+{
   vtkAbstractArray *scalars = NULL;
   if (!this->UseInvertibleColors)
     {

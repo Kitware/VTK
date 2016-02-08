@@ -423,8 +423,13 @@ public:
   // allows the blending of the scalars with an additional alpha (typically
   // which comes from a vtkActor, etc.)
   virtual vtkUnsignedCharArray *MapScalars(double alpha);
+  virtual vtkUnsignedCharArray *MapScalars(double alpha,
+                                           int &cellFlag);
   virtual vtkUnsignedCharArray *MapScalars(vtkDataSet *input,
                                            double alpha);
+  virtual vtkUnsignedCharArray *MapScalars(vtkDataSet *input,
+                                           double alpha,
+                                           int &cellFlag);
 
   // Description:
   // Set/Get the light-model color mode.
@@ -496,6 +501,7 @@ protected:
   vtkMapper();
   ~vtkMapper();
 
+  friend class vtkOsprayActorNode;
   vtkUnsignedCharArray *Colors;
 
   // Use texture coordinates for coloring.
