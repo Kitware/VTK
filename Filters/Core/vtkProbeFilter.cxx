@@ -141,6 +141,16 @@ void vtkProbeFilter::PassAttributeData(
       {
       output->GetPointData()->AddArray(input->GetPointData()->GetArray(i));
       }
+
+    // Set active attributes in the output to the active attributes in the input
+    for (int i = 0; i < vtkDataSetAttributes::NUM_ATTRIBUTES; ++i)
+      {
+      vtkAbstractArray* da = input->GetPointData()->GetAttribute(i);
+      if (da)
+        {
+        output->GetPointData()->SetAttribute(da, i);
+        }
+      }
     }
 
   // copy cell data arrays
@@ -150,6 +160,16 @@ void vtkProbeFilter::PassAttributeData(
     for (int i=0; i<numCellArrays; ++i)
       {
       output->GetCellData()->AddArray(input->GetCellData()->GetArray(i));
+      }
+
+    // Set active attributes in the output to the active attributes in the input
+    for (int i = 0; i < vtkDataSetAttributes::NUM_ATTRIBUTES; ++i)
+      {
+      vtkAbstractArray* da = input->GetCellData()->GetAttribute(i);
+      if (da)
+        {
+        output->GetCellData()->SetAttribute(da, i);
+        }
       }
     }
 
