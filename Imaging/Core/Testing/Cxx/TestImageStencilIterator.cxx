@@ -121,7 +121,7 @@ static bool CheckStencilExtents(
           j >= stencilExt[2] && j <= stencilExt[3] &&
           k >= stencilExt[4] && k <= stencilExt[5])
         {
-        match &= !inside ^ (*p > 127);
+        match &= (!inside) ^ (*p > 127);
         }
       else
         {

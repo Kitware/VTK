@@ -106,7 +106,7 @@ void vtkUTF8TextCodec::ToUnicode(istream& InputStream,
       }
     else
       {
-      throw ef;
+      throw;
       }
     }
 }
