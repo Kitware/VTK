@@ -665,7 +665,7 @@ void vtkCamera::Yaw(double angle)
 // and the negative of the , centered at the camera's position.
 void vtkCamera::Pitch(double angle)
 {
-  double axis[3], newFocalPoint[3];
+  double axis[3], newFocalPoint[3], savedViewUp[3];
   double *pos = this->Position;
   this->Transform->Identity();
 
@@ -673,6 +673,13 @@ void vtkCamera::Pitch(double angle)
   axis[0] = this->ViewTransform->GetMatrix()->GetElement(0,0);
   axis[1] = this->ViewTransform->GetMatrix()->GetElement(0,1);
   axis[2] = this->ViewTransform->GetMatrix()->GetElement(0,2);
+
+  // temporarily set the view up with the transformation applied
+  // to avoid bad cross product computations during SetFocalPoint call
+  this->GetViewUp(savedViewUp);
+  this->Transform->RotateWXYZ(angle, axis);
+  this->Transform->TransformPoint(this->ViewUp, this->ViewUp);
+  this->Transform->Identity();
 
   // translate the camera to the origin,
   // rotate about axis,
@@ -684,6 +691,11 @@ void vtkCamera::Pitch(double angle)
   // now transform focal point
   this->Transform->TransformPoint(this->FocalPoint,newFocalPoint);
   this->SetFocalPoint(newFocalPoint);
+
+  // restore the previous ViewUp vector
+  this->ViewUp[0] = savedViewUp[0];
+  this->ViewUp[1] = savedViewUp[1];
+  this->ViewUp[2] = savedViewUp[2];
 }
 
 //----------------------------------------------------------------------------
@@ -711,7 +723,7 @@ void vtkCamera::Azimuth(double angle)
 // direction of projection and the view up vector centered on the focal point.
 void vtkCamera::Elevation(double angle)
 {
-  double axis[3], newPosition[3];
+  double axis[3], newPosition[3], savedViewUp[3];
   double *fp = this->FocalPoint;
   this->Transform->Identity();
 
@@ -719,6 +731,13 @@ void vtkCamera::Elevation(double angle)
   axis[0] = -this->ViewTransform->GetMatrix()->GetElement(0,0);
   axis[1] = -this->ViewTransform->GetMatrix()->GetElement(0,1);
   axis[2] = -this->ViewTransform->GetMatrix()->GetElement(0,2);
+
+  // temporarily set the view up with the transformation applied
+  // to avoid bad cross product computations during SetPosition call
+  this->GetViewUp(savedViewUp);
+  this->Transform->RotateWXYZ(angle, axis);
+  this->Transform->TransformPoint(this->ViewUp, this->ViewUp);
+  this->Transform->Identity();
 
   // translate the focal point to the origin,
   // rotate about axis,
@@ -730,6 +749,11 @@ void vtkCamera::Elevation(double angle)
   // now transform position
   this->Transform->TransformPoint(this->Position,newPosition);
   this->SetPosition(newPosition);
+
+  // restore the previous ViewUp vector
+  this->ViewUp[0] = savedViewUp[0];
+  this->ViewUp[1] = savedViewUp[1];
+  this->ViewUp[2] = savedViewUp[2];
 }
 
 //----------------------------------------------------------------------------
