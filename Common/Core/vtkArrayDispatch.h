@@ -23,6 +23,19 @@
 // implementations, and provide tools to lower compilation time and binary
 // size (i.e. avoiding 'template explosions').
 //
+// vtkArrayDispatch is also intended to replace code that currently relies on
+// the encapsulation-breaking vtkDataArray::GetVoidPointer method. Not all
+// subclasses of vtkDataArray use the memory layout assumed by GetVoidPointer;
+// calling this method on, e.g. a vtkSOADataArrayTemplate will trigger a deep
+// copy of the array data into an AOS buffer. This is very inefficient and
+// should be avoided.
+//
+// The vtkDataArrayAccessor wrapper is worth mentioning here, as it allows
+// vtkArrayDispatch workers to operate on selected concrete subclasses for
+// 'fast paths', yet fallback to using the slower vtkDataArray API for uncommon
+// array types. This helps mitigate the "template explosion" issues that can
+// result from instantiating a large worker functions for many array types.
+//
 // These dispatchers extend the basic functionality of vtkTemplateMacro with
 // the following features:
 // - Multiarray dispatch: A single call can dispatch up to 3 arrays at once.
@@ -125,7 +138,7 @@
 // Examples:
 // See TestArrayDispatchers.cxx for examples of each dispatch type.
 //
-// .SEE ALSO
+// .SECTION See Also
 // vtkDataArrayAccessor
 
 #ifndef vtkArrayDispatch_h

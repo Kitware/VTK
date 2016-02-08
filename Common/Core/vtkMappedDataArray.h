@@ -70,7 +70,7 @@ public:
   // Description:
   // Print an error and create an internal, long-lived temporary array. This
   // method should not be used on vtkMappedDataArray subclasses. See
-  // vtkTypedDataArrayIterator and/or vtkDataArrayIteratorMacro instead.
+  // vtkArrayDispatch for a better way.
   void * GetVoidPointer(vtkIdType id);
 
   // Description:

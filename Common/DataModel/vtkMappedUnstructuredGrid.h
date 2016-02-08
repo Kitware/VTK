@@ -34,11 +34,7 @@
 // member (for points/nodes) or added directly to vtkPointData, vtkCellData, or
 // vtkFieldData for attribute information. Filters used in the pipeline will
 // need to be modified to remove calls to vtkDataArray::GetVoidPointer and use
-// vtkTypedDataArrayIterators instead.
-// See vtkDataArrayIteratorMacro.h for a (relatively) simple way to write
-// processing algorithms that will use efficient raw memory accesses for
-// standard VTK data arrays and safe iterators for non-standard data arrays in a
-// single templated implementation.
+// a suitable vtkArrayDispatch instead.
 //
 // Introducing an arbitrary topology implementation into VTK requires the use of
 // the vtkMappedUnstructuredGrid class. Unlike the data array counterpart, the

@@ -185,12 +185,12 @@ int vtkAbstractArray::CopyComponentNames( vtkAbstractArray *da )
 }
 
 //----------------------------------------------------------------------------
-void vtkAbstractArray::SetNumberOfValues(vtkIdType number)
+void vtkAbstractArray::SetNumberOfValues(vtkIdType numValues)
 {
-  if (this->Resize(std::ceil(number /
+  if (this->Resize(std::ceil(numValues /
                              static_cast<float>(this->NumberOfComponents))))
     {
-    this->MaxId = number - 1;
+    this->MaxId = numValues - 1;
     }
 }
 
@@ -214,7 +214,7 @@ void vtkAbstractArray::SetInformation(vtkInformation *args)
 }
 
 //----------------------------------------------------------------------------
-void vtkAbstractArray::GetTuples(vtkIdList* ptIds, vtkAbstractArray* aa)
+void vtkAbstractArray::GetTuples(vtkIdList* tupleIds, vtkAbstractArray* aa)
 {
   if (aa->GetNumberOfComponents() != this->GetNumberOfComponents())
     {
@@ -223,10 +223,10 @@ void vtkAbstractArray::GetTuples(vtkIdList* ptIds, vtkAbstractArray* aa)
     }
   // Here we give the slowest implementation. Subclasses can override
   // to use the knowledge about the data.
-  vtkIdType num = ptIds->GetNumberOfIds();
+  vtkIdType num = tupleIds->GetNumberOfIds();
   for (vtkIdType i = 0; i < num; i++)
     {
-    aa->SetTuple(i, ptIds->GetId(i), this);
+    aa->SetTuple(i, tupleIds->GetId(i), this);
     }
 }
 
@@ -411,13 +411,13 @@ vtkVariant vtkAbstractArrayGetVariantValue(T* arr, vtkIdType index)
 }
 
 //----------------------------------------------------------------------------
-vtkVariant vtkAbstractArray::GetVariantValue(vtkIdType i)
+vtkVariant vtkAbstractArray::GetVariantValue(vtkIdType valueIdx)
 {
   vtkVariant val;
   switch(this->GetDataType())
     {
     vtkExtraExtendedTemplateMacro(val = vtkAbstractArrayGetVariantValue(
-      static_cast<VTK_TT*>(this->GetVoidPointer(0)), i));
+      static_cast<VTK_TT*>(this->GetVoidPointer(0)), valueIdx));
     }
   return val;
 }

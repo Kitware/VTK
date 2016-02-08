@@ -12,100 +12,110 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkAOSDataArrayTemplate - vtkGenericDataArray specialization that
-// stores data array in the traditional VTK memory layout where a 3 component is
-// stored in contiguous memory as \c A1A2A2B1B2B3C1C2C3 ... where A,B,C,... are
-// tuples.
+// .NAME vtkAOSDataArrayTemplate - Array-Of-Structs implementation of
+// vtkGenericDataArray.
+//
 // .SECTION Description
+// vtkGenericDataArray specialization that stores data array in the traditional
+// VTK memory layout where a 3 component is stored in contiguous memory as
+// \c A1A2A2B1B2B3C1C2C3 ... where A,B,C,... are tuples.
+//
 // This replaces vtkDataArrayTemplate.
+//
+// .SECTION See Also
+// vtkGenericDataArray vtkSOADataArrayTemplate
 
 #ifndef vtkAOSDataArrayTemplate_h
 #define vtkAOSDataArrayTemplate_h
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkGenericDataArray.h"
-#include "vtkBuffer.h"
+#include "vtkBuffer.h" // For storage buffer.
 
+// The export macro below makes no sense, but is necessary for older compilers
+// when we export instantiations of this class from vtkCommonCore.
 template <class ValueTypeT>
 class VTKCOMMONCORE_EXPORT vtkAOSDataArrayTemplate :
     public vtkGenericDataArray<vtkAOSDataArrayTemplate<ValueTypeT>, ValueTypeT>
 {
-  typedef vtkGenericDataArray<vtkAOSDataArrayTemplate<ValueTypeT>, ValueTypeT >
+  typedef vtkGenericDataArray<vtkAOSDataArrayTemplate<ValueTypeT>, ValueTypeT>
           GenericDataArrayType;
 public:
   typedef vtkAOSDataArrayTemplate<ValueTypeT> SelfType;
   vtkTemplateTypeMacro(SelfType, GenericDataArrayType)
   typedef typename Superclass::ValueType ValueType;
 
-  // Description:
-  // Legacy support for array-of-structs value iteration.
-  // TODO Deprecate?
-  typedef ValueType* Iterator;
-  Iterator Begin() { return Iterator(this->GetVoidPointer(0)); }
-  Iterator End() { return Iterator(this->GetVoidPointer(this->MaxId + 1)); }
-
-  static vtkAOSDataArrayTemplate* New();
-
-  // **************************************************************************
-  // Methods that are needed to be implemented by every vtkGenericDataArray
-  // subclass.
-  // **************************************************************************
-  inline ValueType GetValue(vtkIdType valueIdx) const
-    {
-    return this->Buffer->GetBuffer()[valueIdx];
-    }
-  inline void GetTypedTuple(vtkIdType tupleIdx, ValueType* tuple) const
-    {
-    const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
-    std::copy(this->Buffer->GetBuffer() + valueIdx,
-              this->Buffer->GetBuffer() + valueIdx + this->NumberOfComponents,
-              tuple);
-    }
-  inline ValueType GetTypedComponent(vtkIdType index, int comp) const
-    {
-    return this->Buffer->GetBuffer()[this->NumberOfComponents*index + comp];
-    }
-  inline void SetValue(vtkIdType valueIdx, ValueType value)
-    {
-    this->Buffer->GetBuffer()[valueIdx] = value;
-    }
-  inline void SetTypedTuple(vtkIdType tupleIdx, const ValueType* tuple)
-    {
-    const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
-    std::copy(tuple, tuple + this->NumberOfComponents,
-              this->Buffer->GetBuffer() + valueIdx);
-    }
-  inline void SetTypedComponent(vtkIdType tupleIdx, int comp, ValueType value)
-    {
-    const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents + comp;
-    this->SetValue(valueIdx, value);
-    }
-
-  virtual void ShallowCopy(vtkDataArray *other);
-
-  // **************************************************************************
-  // Description:
-  // Get the address of a particular data index. Make sure data is allocated
-  // for the number of items requested. Set MaxId according to the number of
-  // data values requested.
-  ValueType* WritePointer(vtkIdType id, vtkIdType number);
-  virtual void* WriteVoidPointer(vtkIdType id, vtkIdType number)
-    { return this->WritePointer(id, number); }
-
-  // Description:
-  // Get the address of a particular data index. Performs no checks
-  // to verify that the memory has been allocated etc.
-  // If the data is simply being iterated over, consider using
-  // vtkDataArrayIteratorMacro for safety and efficiency, rather than using this
-  // member directly.
-  ValueType* GetPointer(vtkIdType id) { return this->Buffer->GetBuffer() + id; }
-  virtual void* GetVoidPointer(vtkIdType id) { return this->GetPointer(id); }
-
   enum DeleteMethod
     {
     VTK_DATA_ARRAY_FREE=vtkBuffer<ValueType>::VTK_DATA_ARRAY_FREE,
     VTK_DATA_ARRAY_DELETE=vtkBuffer<ValueType>::VTK_DATA_ARRAY_DELETE
     };
+
+  static vtkAOSDataArrayTemplate* New();
+
+  // Description:
+  // Get the value at @a valueIdx. @a valueIdx assumes AOS ordering.
+  inline ValueType GetValue(vtkIdType valueIdx) const
+  {
+    return this->Buffer->GetBuffer()[valueIdx];
+  }
+
+  // Description:
+  // Set the value at @a valueIdx to @a value. @a valueIdx assumes AOS ordering.
+  inline void SetValue(vtkIdType valueIdx, ValueType value)
+  {
+    this->Buffer->GetBuffer()[valueIdx] = value;
+  }
+
+  // Description:
+  // Copy the tuple at @a tupleIdx into @a tuple.
+  inline void GetTypedTuple(vtkIdType tupleIdx, ValueType* tuple) const
+  {
+    const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
+    std::copy(this->Buffer->GetBuffer() + valueIdx,
+              this->Buffer->GetBuffer() + valueIdx + this->NumberOfComponents,
+              tuple);
+  }
+
+  // Description:
+  // Set this array's tuple at @a tupleIdx to the values in @a tuple.
+  inline void SetTypedTuple(vtkIdType tupleIdx, const ValueType* tuple)
+  {
+    const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
+    std::copy(tuple, tuple + this->NumberOfComponents,
+              this->Buffer->GetBuffer() + valueIdx);
+  }
+
+  // Description:
+  // Get component @a comp of the tuple at @a tupleIdx.
+  inline ValueType GetTypedComponent(vtkIdType tupleIdx, int comp) const
+  {
+    return this->Buffer->GetBuffer()[this->NumberOfComponents*tupleIdx + comp];
+  }
+
+  // Description:
+  // Set component @a comp of the tuple at @a tupleIdx to @a value.
+  inline void SetTypedComponent(vtkIdType tupleIdx, int comp, ValueType value)
+  {
+    const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents + comp;
+    this->SetValue(valueIdx, value);
+  }
+
+  // Description:
+  // Get the address of a particular data index. Make sure data is allocated
+  // for the number of items requested. Set MaxId according to the number of
+  // data values requested.
+  ValueType* WritePointer(vtkIdType valueIdx, vtkIdType numValues);
+  virtual void* WriteVoidPointer(vtkIdType valueIdx, vtkIdType numValues);
+
+  // Description:
+  // Get the address of a particular data index. Performs no checks
+  // to verify that the memory has been allocated etc.
+  // Use of this method is discouraged, as newer arrays require a deep-copy of
+  // the array data in order to return a suitable pointer. See vtkArrayDispatch
+  // for a safer alternative for fast data access.
+  ValueType* GetPointer(vtkIdType valueIdx);
+  virtual void* GetVoidPointer(vtkIdType valueIdx);
 
   // Description:
   // This method lets the user specify data to be held by the array.  The
@@ -118,15 +128,10 @@ public:
   // VTK_DATA_ARRAY_FREE, free() will be used. If the delete method is
   // DELETE, delete[] will be used. The default is FREE.
   void SetArray(ValueType* array, vtkIdType size, int save, int deleteMethod);
-  void SetArray(ValueType* array, vtkIdType size, int save)
-    { this->SetArray(array, size, save, VTK_DATA_ARRAY_FREE); }
-  virtual void SetVoidArray(void* array, vtkIdType size, int save)
-    { this->SetArray(static_cast<ValueType*>(array), size, save); }
+  void SetArray(ValueType* array, vtkIdType size, int save);
+  virtual void SetVoidArray(void* array, vtkIdType size, int save);
   virtual void SetVoidArray(void* array, vtkIdType size, int save,
-                            int deleteMethod)
-    {
-    this->SetArray(static_cast<ValueType*>(array), size, save, deleteMethod);
-    }
+                            int deleteMethod);
 
   // Description:
   // Tell the array explicitly that a single data element has
@@ -135,12 +140,16 @@ public:
   // @note This is a legacy method from vtkDataArrayTemplate, and is only
   // implemented for array-of-struct arrays. It currently just calls
   // DataChanged() and does nothing clever.
-  virtual void DataElementChanged(vtkIdType)
-  {
-    this->DataChanged();
-  }
+  // TODO this is only defined for AOS (vtkDataArrayTemplate leftover).
+  // Deprecate to favor DataChanged?
+  void DataElementChanged(vtkIdType) { this->DataChanged(); }
 
-  virtual vtkArrayIterator *NewIterator();
+  // Description:
+  // Legacy support for array-of-structs value iteration.
+  // TODO Deprecate?
+  typedef ValueType* Iterator;
+  Iterator Begin() { return Iterator(this->GetVoidPointer(0)); }
+  Iterator End() { return Iterator(this->GetVoidPointer(this->MaxId + 1)); }
 
   // Description:
   // Perform a fast, safe cast from a vtkAbstractArray to a
@@ -164,42 +173,42 @@ public:
     return NULL;
   }
 
-  // Description:
-  // Method for type-checking in FastDownCast implementations.
   virtual int GetArrayType() { return vtkAbstractArray::AoSDataArrayTemplate; }
-
+  virtual vtkArrayIterator *NewIterator();
   virtual bool HasStandardMemoryLayout() { return true; }
+  virtual void ShallowCopy(vtkDataArray *other);
 
-//BTX
+  //BTX
 protected:
   vtkAOSDataArrayTemplate();
   ~vtkAOSDataArrayTemplate();
 
-  // **************************************************************************
-  // Methods that are needed to be implemented by every vtkGenericDataArray
-  // subclass.
-  // **************************************************************************
-  // Implement the memory management interface.
+  // Description:
+  // Allocate space for numTuples. Old data is not preserved. If numTuples == 0,
+  // all data is freed.
   bool AllocateTuples(vtkIdType numTuples);
+
+  // Description:
+  // Allocate space for numTuples. Old data is preserved. If numTuples == 0,
+  // all data is freed.
   bool ReallocateTuples(vtkIdType numTuples);
-  // **************************************************************************
 
   vtkBuffer<ValueType> *Buffer;
-  ValueType ValueRange[2]; // XXX
 
 private:
   vtkAOSDataArrayTemplate(const vtkAOSDataArrayTemplate&); // Not implemented.
   void operator=(const vtkAOSDataArrayTemplate&); // Not implemented.
+
   friend class vtkGenericDataArray<vtkAOSDataArrayTemplate<ValueTypeT>,
                                    ValueTypeT>;
-//ETX
+  //ETX
 };
 
 // Declare vtkArrayDownCast implementations for AoS containers:
 vtkArrayDownCast_TemplateFastCastMacro(vtkAOSDataArrayTemplate)
 
 # define VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATE(T) \
-   template class VTKCOMMONCORE_EXPORT vtkAOSDataArrayTemplate< T >
+  template class VTKCOMMONCORE_EXPORT vtkAOSDataArrayTemplate< T >
 
 // This macro is used by the subclasses to create dummy
 // declarations for these functions such that the wrapper

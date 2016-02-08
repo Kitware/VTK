@@ -25,6 +25,12 @@
 // *always* be true. Beware that if cond is false at runtime, the results are
 // unpredictable (and likely catastrophic). A runtime assertion is added so
 // that debugging builds may easily catch violations of the condition.
+//
+// A useful application of this macro is when a vtkGenericDataArray subclass has
+// a known number of components at compile time. Adding, for example,
+// VTK_ASSUME(array->GetNumberOfComponents() == 3); allows the compiler to
+// provide faster access through the GetTypedComponent method, as the fixed data
+// stride in AOS arrays allows advanced optimization of the accesses.
 #define VTK_ASSUME(cond) \
   do { \
   const bool c = cond; \

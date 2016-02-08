@@ -19,34 +19,33 @@
 
 #include "vtkArrayIteratorTemplate.h"
 
-#define vtkAOSDataArrayTemplateT(returnType) \
-  template <class ValueType> \
-  returnType vtkAOSDataArrayTemplate<ValueType>
-
 //-----------------------------------------------------------------------------
-vtkAOSDataArrayTemplateT(vtkAOSDataArrayTemplate<ValueType>*)::New()
+template <class ValueTypeT>
+vtkAOSDataArrayTemplate<ValueTypeT>*
+vtkAOSDataArrayTemplate<ValueTypeT>::New()
 {
   VTK_STANDARD_NEW_BODY(vtkAOSDataArrayTemplate<ValueType>);
 }
 
 //-----------------------------------------------------------------------------
-template <class ValueType>
-vtkAOSDataArrayTemplate<ValueType>::vtkAOSDataArrayTemplate()
+template <class ValueTypeT>
+vtkAOSDataArrayTemplate<ValueTypeT>::vtkAOSDataArrayTemplate()
 {
   this->Buffer = vtkBuffer<ValueType>::New();
 }
 
 //-----------------------------------------------------------------------------
-template <class ValueType>
-vtkAOSDataArrayTemplate<ValueType>::~vtkAOSDataArrayTemplate()
+template <class ValueTypeT>
+vtkAOSDataArrayTemplate<ValueTypeT>::~vtkAOSDataArrayTemplate()
 {
   this->SetArray(NULL, 0, 0);
   this->Buffer->Delete();
 }
 
 //-----------------------------------------------------------------------------
-vtkAOSDataArrayTemplateT(void)::SetArray(
-  ValueType* array, vtkIdType size, int save, int deleteMethod)
+template <class ValueTypeT>
+void vtkAOSDataArrayTemplate<ValueTypeT>
+::SetArray(ValueType* array, vtkIdType size, int save, int deleteMethod)
 {
   this->Buffer->SetBuffer(array, size, save != 0, deleteMethod);
   this->Size = size;
@@ -55,7 +54,32 @@ vtkAOSDataArrayTemplateT(void)::SetArray(
 }
 
 //-----------------------------------------------------------------------------
-vtkAOSDataArrayTemplateT(vtkArrayIterator*)::NewIterator()
+template <class ValueTypeT>
+void vtkAOSDataArrayTemplate<ValueTypeT>
+::SetArray(ValueType *array, vtkIdType size, int save)
+{
+  this->SetArray(array, size, save, VTK_DATA_ARRAY_FREE);
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueTypeT>
+void vtkAOSDataArrayTemplate<ValueTypeT>
+::SetVoidArray(void *array, vtkIdType size, int save)
+{
+  this->SetArray(static_cast<ValueType*>(array), size, save);
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueTypeT>
+void vtkAOSDataArrayTemplate<ValueTypeT>
+::SetVoidArray(void *array, vtkIdType size, int save, int deleteMethod)
+{
+  this->SetArray(static_cast<ValueType*>(array), size, save, deleteMethod);
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueTypeT>
+vtkArrayIterator* vtkAOSDataArrayTemplate<ValueTypeT>::NewIterator()
 {
   vtkArrayIterator *iter = vtkArrayIteratorTemplate<ValueType>::New();
   iter->Initialize(this);
@@ -91,10 +115,10 @@ void vtkAOSDataArrayTemplate<ValueTypeT>::ShallowCopy(vtkDataArray *other)
 //-----------------------------------------------------------------------------
 template <class ValueTypeT>
 typename vtkAOSDataArrayTemplate<ValueTypeT>::ValueType*
-vtkAOSDataArrayTemplate<ValueTypeT>::WritePointer(vtkIdType id,
-                                                  vtkIdType number)
+vtkAOSDataArrayTemplate<ValueTypeT>
+::WritePointer(vtkIdType valueIdx, vtkIdType numValues)
 {
-  vtkIdType newSize = id + number;
+  vtkIdType newSize = valueIdx + numValues;
   if (newSize > this->Size)
     {
     if (!this->Resize(newSize / this->NumberOfComponents + 1))
@@ -108,11 +132,35 @@ vtkAOSDataArrayTemplate<ValueTypeT>::WritePointer(vtkIdType id,
   this->MaxId = std::max(this->MaxId, newSize - 1);
 
   this->DataChanged();
-  return this->GetPointer(id);
+  return this->GetPointer(valueIdx);
 }
 
 //-----------------------------------------------------------------------------
-vtkAOSDataArrayTemplateT(bool)::AllocateTuples(vtkIdType numTuples)
+template <class ValueTypeT>
+void* vtkAOSDataArrayTemplate<ValueTypeT>
+::WriteVoidPointer(vtkIdType valueIdx, vtkIdType numValues)
+{
+  return this->WritePointer(valueIdx, numValues);
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueTypeT>
+typename vtkAOSDataArrayTemplate<ValueTypeT>::ValueType *
+vtkAOSDataArrayTemplate<ValueTypeT>::GetPointer(vtkIdType valueIdx)
+{
+  return this->Buffer->GetBuffer() + valueIdx;
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueTypeT>
+void* vtkAOSDataArrayTemplate<ValueTypeT>::GetVoidPointer(vtkIdType valueIdx)
+{
+  return this->GetPointer(valueIdx);
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueTypeT>
+bool vtkAOSDataArrayTemplate<ValueTypeT>::AllocateTuples(vtkIdType numTuples)
 {
   vtkIdType numValues = numTuples * this->GetNumberOfComponents();
   if (this->Buffer->Allocate(numValues))
@@ -124,7 +172,8 @@ vtkAOSDataArrayTemplateT(bool)::AllocateTuples(vtkIdType numTuples)
 }
 
 //-----------------------------------------------------------------------------
-vtkAOSDataArrayTemplateT(bool)::ReallocateTuples(vtkIdType numTuples)
+template <class ValueTypeT>
+bool vtkAOSDataArrayTemplate<ValueTypeT>::ReallocateTuples(vtkIdType numTuples)
 {
   if (this->Buffer->Reallocate(numTuples * this->GetNumberOfComponents()))
     {

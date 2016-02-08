@@ -18,12 +18,17 @@
 // This templated class decorates vtkDataArray with additional type-specific
 // methods that can be used to interact with the data.
 //
+// NOTE: This class has been made obsolete by the newer vtkGenericDataArray.
+//
 // .SECTION Caveats
 // This class uses vtkTypeTraits to implement GetDataType(). Since vtkIdType
 // is a typedef for either a 32- or 64-bit integer, subclasses that are designed
 // to hold vtkIdTypes will, by default, return an incorrect value from
 // GetDataType(). To fix this, such subclasses should override GetDataType() to
 // return VTK_ID_TYPE.
+//
+// .SECTION See Also
+// vtkGenericDataArray
 
 #ifndef vtkTypedDataArray_h
 #define vtkTypedDataArray_h
@@ -47,20 +52,14 @@ public:
 
   // Description:
   // Typedef to a suitable iterator class.
-  // Rather than using this member directly, consider using
-  // vtkDataArrayIteratorMacro for safety and efficiency.
   typedef vtkTypedDataArrayIterator<ValueType> Iterator;
 
   // Description:
   // Return an iterator initialized to the first element of the data.
-  // Rather than using this member directly, consider using
-  // vtkDataArrayIteratorMacro for safety and efficiency.
   Iterator Begin();
 
   // Description:
   // Return an iterator initialized to first element past the end of the data.
-  // Rather than using this member directly, consider using
-  // vtkDataArrayIteratorMacro for safety and efficiency.
   Iterator End();
 
   // Description:

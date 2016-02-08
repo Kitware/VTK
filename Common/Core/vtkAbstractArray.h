@@ -35,6 +35,19 @@
 // change this name using the SetName() method.  (The array name is
 // used for data manipulation.)
 //
+// This class (and subclasses) use two forms of addressing elements:
+// - Value Indexing: The index of an element assuming an array-of-structs
+//   memory layout.
+// - Tuple/Component Indexing: Explicitly specify the tuple and component
+//   indices.
+//
+// It is also worth pointing out that the behavior of the "Insert*" methods
+// of classes in this hierarchy may not behave as expected. They work exactly
+// as the corresponding "Set*" methods, except that memory allocation will
+// be performed if acting on a value past the end of the array. If the data
+// already exists, "inserting" will overwrite existing values, rather than shift
+// the array contents and insert the new data at the specified location.
+//
 // .SECTION See Also
 // vtkDataArray vtkStringArray vtkCellArray
 
@@ -125,16 +138,16 @@ public:
   // Also note that if allocation is performed no copy is performed so
   // existing data will be lost (if data conservation is sought, one may
   // use the Resize method instead).
-  virtual void SetNumberOfTuples(vtkIdType number) = 0;
+  virtual void SetNumberOfTuples(vtkIdType numTuples) = 0;
 
   // Description:
-  // Specify the number of values for this object to hold. Does an
-  // allocation as well as setting the MaxId ivar. Used in conjunction with
-  // SetValue() method for fast insertion.
-  virtual void SetNumberOfValues(vtkIdType number);
+  // Specify the number of values (tuples * components) for this object to hold.
+  // Does an allocation as well as setting the MaxId ivar. Used in conjunction
+  // with SetValue() method for fast insertion.
+  virtual void SetNumberOfValues(vtkIdType numValues);
 
   // Description:
-  // Get the number of tuples (a component group) in the array.
+  // Get the number of complete tuples (a component group) in the array.
   vtkIdType GetNumberOfTuples()
     {return (this->MaxId + 1)/this->NumberOfComponents;}
 
@@ -149,16 +162,19 @@ public:
     }
 
   // Description:
-  // Set the tuple at the ith location using the jth tuple in the source array.
-  // This method assumes that the two arrays have the same type
-  // and structure. Note that range checking and memory allocation is not
+  // Set the tuple at dstTupleIdx in this array to the tuple at srcTupleIdx in
+  // the source array. This method assumes that the two arrays have the same
+  // type and structure. Note that range checking and memory allocation is not
   // performed; use in conjunction with SetNumberOfTuples() to allocate space.
-  virtual void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source) = 0;
+  virtual void SetTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx,
+                        vtkAbstractArray *source) = 0;
 
   // Description:
-  // Insert the jth tuple in the source array, at ith location in this array.
+  // Insert the tuple at srcTupleIdx in the source array into this array at
+  // dstTupleIdx.
   // Note that memory allocation is performed as necessary to hold the data.
-  virtual void InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source) = 0;
+  virtual void InsertTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx,
+                           vtkAbstractArray* source) = 0;
 
   // Description:
   // Copy the tuples indexed in srcIds from the source array to the tuple
@@ -175,19 +191,20 @@ public:
                             vtkAbstractArray* source) = 0;
 
   // Description:
-  // Insert the jth tuple in the source array, at the end in this array.
-  // Note that memory allocation is performed as necessary to hold the data.
-  // Returns the location at which the data was inserted.
-  virtual vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray* source) = 0;
+  // Insert the tuple from srcTupleIdx in the source array at the end of this
+  // array. Note that memory allocation is performed as necessary to hold the
+  // data. Returns the tuple index at which the data was inserted.
+  virtual vtkIdType InsertNextTuple(vtkIdType srcTupleIdx,
+                                    vtkAbstractArray* source) = 0;
 
   // Description:
-  // Given a list of point ids, return an array of tuples.
+  // Given a list of tuple ids, return an array of tuples.
   // You must insure that the output array has been previously
   // allocated with enough space to hold the data.
-  virtual void GetTuples(vtkIdList *ptIds, vtkAbstractArray* output);
+  virtual void GetTuples(vtkIdList *tupleIds, vtkAbstractArray* output);
 
   // Description:
-  // Get the tuples for the range of points ids specified
+  // Get the tuples for the range of tuple ids specified
   // (i.e., p1->p2 inclusive). You must insure that the output array has
   // been previously allocated with enough space to hold the data.
   virtual void GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray *output);
@@ -197,23 +214,15 @@ public:
   // VTK user guide, e.g. a contiguous array:
   // {t1c1, t1c2, t1c3, ... t1cM, t2c1, ... tNcM}
   // where t1c2 is the second component of the first tuple.
-  //
-  // If the array does not have the standard memory layout GetVoidPointer should
-  // not be used, as a deep copy of the data must be made. Instead, use a
-  // vtkTypedDataArrayIterator to get pointer-like semantics that can safely
-  // access the data values.
-  //
-  // Subclasses that return false here must derive from vtkMappedDataArray
-  // to ensure that they will work safely with the rest of the pipeline.
   virtual bool HasStandardMemoryLayout();
 
   // Description:
   // Return a void pointer. For image pipeline interface and other
   // special pointer manipulation.
-  // If the data is simply being iterated over, consider using
-  // vtkDataArrayIteratorMacro for safety and efficiency, rather than using this
-  // member directly.
-  virtual void *GetVoidPointer(vtkIdType id) = 0;
+  // Use of this method is discouraged, as newer arrays require a deep-copy of
+  // the array data in order to return a suitable pointer. See vtkArrayDispatch
+  // for a safer alternative for fast data access.
+  virtual void *GetVoidPointer(vtkIdType valueIdx) = 0;
 
   // Description:
   // Deep copy of data. Implementation left to subclasses, which
@@ -225,24 +234,24 @@ public:
   virtual void DeepCopy(vtkAbstractArray* da);
 
   // Description:
-  // Set the ith tuple in this array as the interpolated tuple value,
-  // given the ptIndices in the source array and associated
-  // interpolation weights.
+  // Set the tuple at dstTupleIdx in this array to the interpolated tuple value,
+  // given the ptIndices in the source array and associated interpolation
+  // weights.
   // This method assumes that the two arrays are of the same type
   // and strcuture.
-  virtual void InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
-    vtkAbstractArray* source,  double* weights) = 0;
+  virtual void InterpolateTuple(vtkIdType dstTupleIdx, vtkIdList *ptIndices,
+                                vtkAbstractArray* source,  double* weights) = 0;
 
   // Description
-  // Insert the ith tuple in this array as interpolated from the two values,
-  // p1 and p2, and an interpolation factor, t.
-  // The interpolation factor ranges from (0,1),
-  // with t=0 located at p1. This method assumes that the three arrays are of
-  // the same type. p1 is value at index id1 in source1, while, p2 is
-  // value at index id2 in source2.
-  virtual void InterpolateTuple(vtkIdType i,
-    vtkIdType id1, vtkAbstractArray* source1,
-    vtkIdType id2, vtkAbstractArray* source2, double t) =0;
+  // Insert the tuple at dstTupleIdx in this array to the tuple interpolated
+  // from the two tuple indices, srcTupleIdx1 and srcTupleIdx2, and an
+  // interpolation factor, t. The interpolation factor ranges from (0,1),
+  // with t=0 located at the tuple described by srcTupleIdx1. This method
+  // assumes that the three arrays are of the same type, srcTupleIdx1 is an
+  // index to array source1, and srcTupleIdx2 is an index to array source2.
+  virtual void InterpolateTuple(vtkIdType dstTupleIdx,
+    vtkIdType srcTupleIdx1, vtkAbstractArray* source1,
+    vtkIdType srcTupleIdx2, vtkAbstractArray* source2, double t) =0;
 
   // Description:
   // Free any unnecessary memory.
@@ -359,23 +368,23 @@ public:
     }
 
   // Description:
-  // Return the indices where a specific value appears.
+  // Return the value indices where a specific value appears.
   virtual vtkIdType LookupValue(vtkVariant value) = 0;
-  virtual void LookupValue(vtkVariant value, vtkIdList* ids) = 0;
+  virtual void LookupValue(vtkVariant value, vtkIdList* valueIds) = 0;
 
   // Description:
   // Retrieve value from the array as a variant.
-  virtual vtkVariant GetVariantValue(vtkIdType idx);
+  virtual vtkVariant GetVariantValue(vtkIdType valueIdx);
 
   // Description:
   // Insert a value into the array from a variant.  This method does
   // bounds checking.
-  virtual void InsertVariantValue(vtkIdType idx, vtkVariant value) = 0;
+  virtual void InsertVariantValue(vtkIdType valueIdx, vtkVariant value) = 0;
 
   // Description:
   // Set a value in the array from a variant.  This method does NOT do
   // bounds checking.
-  virtual void SetVariantValue(vtkIdType idx, vtkVariant value) = 0;
+  virtual void SetVariantValue(vtkIdType valueIdx, vtkVariant value) = 0;
 
   // Description:
   // Tell the array explicitly that the data has changed.

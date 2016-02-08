@@ -76,6 +76,7 @@
 //   }
 //
 // .SECTION See Also
+// vtkArrayDispatch vtkGenericDataArray
 // vtkTemplateMacro vtkTypedDataArrayIterator
 
 #ifndef vtkDataArrayIteratorMacro_h

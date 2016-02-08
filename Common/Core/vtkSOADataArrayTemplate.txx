@@ -35,7 +35,6 @@ vtkSOADataArrayTemplate<ValueType>::New()
 template<class ValueType>
 vtkSOADataArrayTemplate<ValueType>::vtkSOADataArrayTemplate()
   : AoSCopy(NULL),
-    Resizeable(true),
     NumberOfComponentsReciprocal(1.0)
 {
 }
@@ -159,25 +158,6 @@ vtkSOADataArrayTemplate<ValueType>::GetComponentArrayPointer(int comp)
 template<class ValueType>
 bool vtkSOADataArrayTemplate<ValueType>::AllocateTuples(vtkIdType numTuples)
 {
-  if (!this->Resizeable)
-    {
-    vtkIdType minTuples = VTK_ID_MAX;
-    for (size_t cc = 0, max = this->Data.size(); cc < max; cc++)
-      {
-      minTuples = std::min(minTuples, this->Data[cc]->GetSize());
-      }
-    if (numTuples <= minTuples)
-      {
-      return true;
-      }
-    else
-      {
-      vtkErrorMacro("AllocateTuples cannot be called on a non-resizeable "
-                    "array!");
-      return false;
-      }
-    }
-
   for (size_t cc = 0, max = this->Data.size(); cc < max; ++cc)
     {
     if (!this->Data[cc]->Allocate(numTuples))
@@ -192,21 +172,6 @@ bool vtkSOADataArrayTemplate<ValueType>::AllocateTuples(vtkIdType numTuples)
 template<class ValueType>
 bool vtkSOADataArrayTemplate<ValueType>::ReallocateTuples(vtkIdType numTuples)
 {
-  if (!this->Resizeable)
-    {
-    vtkIdType minTuples = VTK_ID_MAX;
-    for (size_t cc = 0, max = this->Data.size(); cc < max; cc++)
-      {
-      minTuples = std::min(minTuples, this->Data[cc]->GetSize());
-      }
-    if (numTuples <= minTuples)
-      {
-      return true;
-      }
-    vtkErrorMacro("Resize attempted on a non-resizable array!");
-    return false;
-    }
-
   for (size_t cc = 0, max = this->Data.size(); cc < max; ++cc)
     {
     if (!this->Data[cc]->Reallocate(numTuples))
@@ -219,7 +184,7 @@ bool vtkSOADataArrayTemplate<ValueType>::ReallocateTuples(vtkIdType numTuples)
 
 //-----------------------------------------------------------------------------
 template<class ValueType>
-void *vtkSOADataArrayTemplate<ValueType>::GetVoidPointer(vtkIdType id)
+void *vtkSOADataArrayTemplate<ValueType>::GetVoidPointer(vtkIdType valueIdx)
 {
   // Allow warnings to be silenced:
   const char *silence = getenv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS");
@@ -250,7 +215,7 @@ void *vtkSOADataArrayTemplate<ValueType>::GetVoidPointer(vtkIdType id)
 
   this->ExportToVoidPointer(static_cast<void*>(this->AoSCopy->GetBuffer()));
 
-  return static_cast<void*>(this->AoSCopy->GetBuffer() + id);
+  return static_cast<void*>(this->AoSCopy->GetBuffer() + valueIdx);
 }
 
 //-----------------------------------------------------------------------------

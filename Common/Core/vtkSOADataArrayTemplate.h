@@ -12,9 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSOADataArrayTemplate
+// .NAME vtkSOADataArrayTemplate - Struct-Of-Arrays implementation of
+// vtkGenericDataArray.
+//
 // .SECTION Description
-// vtkSOADataArrayTemplate is the counterpart of vtkAOSDataArrayTemplate.
+// vtkSOADataArrayTemplate is the counterpart of vtkAOSDataArrayTemplate. Each
+// component is stored in a separate array.
+//
+// .SECTION See Also
+// vtkGenericDataArray vtkAOSDataArrayTemplate
 
 #ifndef vtkSOADataArrayTemplate_h
 #define vtkSOADataArrayTemplate_h
@@ -23,6 +29,8 @@
 #include "vtkGenericDataArray.h"
 #include "vtkBuffer.h"
 
+// The export macro below makes no sense, but is necessary for older compilers
+// when we export instantiations of this class from vtkCommonCore.
 template <class ValueTypeT>
 class VTKCOMMONCORE_EXPORT vtkSOADataArrayTemplate :
     public vtkGenericDataArray<vtkSOADataArrayTemplate<ValueTypeT>, ValueTypeT>
@@ -34,58 +42,67 @@ public:
   vtkTemplateTypeMacro(SelfType, GenericDataArrayType)
   typedef typename Superclass::ValueType ValueType;
 
-  static vtkSOADataArrayTemplate* New();
-
-  // **************************************************************************
-  // Methods that are needed to be implemented by every vtkGenericDataArray
-  // subclass.
-  // **************************************************************************
-  inline ValueType GetValue(vtkIdType valueIdx) const
-    {
-    vtkIdType tupleIdx;
-    int comp;
-    this->GetTupleIndexFromValueIndex(valueIdx, tupleIdx, comp);
-    return this->GetTypedComponent(tupleIdx, comp);
-    }
-  inline void GetTypedTuple(vtkIdType tupleIdx, ValueType* tuple) const
-    {
-    for (size_t cc=0; cc < this->Data.size(); cc++)
-      {
-      tuple[cc] = this->Data[cc]->GetBuffer()[tupleIdx];
-      }
-    }
-  inline ValueType GetTypedComponent(vtkIdType tupleIdx, int comp) const
-    {
-    return this->Data[comp]->GetBuffer()[tupleIdx];
-    }
-  inline void SetValue(vtkIdType valueIdx, ValueType value)
-    {
-    vtkIdType tupleIdx;
-    int comp;
-    this->GetTupleIndexFromValueIndex(valueIdx, tupleIdx, comp);
-    this->SetTypedComponent(tupleIdx, comp, value);
-    }
-  inline void SetTypedTuple(vtkIdType tupleIdx, const ValueType* tuple)
-    {
-    for (size_t cc=0; cc < this->Data.size(); ++cc)
-      {
-      this->Data[cc]->GetBuffer()[tupleIdx] = tuple[cc];
-      }
-    }
-  inline void SetTypedComponent(vtkIdType tupleIdx, int comp, ValueType value)
-    {
-    this->Data[comp]->GetBuffer()[tupleIdx] = value;
-    }
-
-  // **************************************************************************
-
-  virtual void ShallowCopy(vtkDataArray *other);
-
   enum DeleteMethod
     {
     VTK_DATA_ARRAY_FREE=vtkBuffer<ValueType>::VTK_DATA_ARRAY_FREE,
     VTK_DATA_ARRAY_DELETE=vtkBuffer<ValueType>::VTK_DATA_ARRAY_DELETE
     };
+
+  static vtkSOADataArrayTemplate* New();
+
+  // Description:
+  // Get the value at @a valueIdx. @a valueIdx assumes AOS ordering.
+  inline ValueType GetValue(vtkIdType valueIdx) const
+  {
+    vtkIdType tupleIdx;
+    int comp;
+    this->GetTupleIndexFromValueIndex(valueIdx, tupleIdx, comp);
+    return this->GetTypedComponent(tupleIdx, comp);
+  }
+
+  // Description:
+  // Set the value at @a valueIdx to @a value. @a valueIdx assumes AOS ordering.
+  inline void SetValue(vtkIdType valueIdx, ValueType value)
+  {
+    vtkIdType tupleIdx;
+    int comp;
+    this->GetTupleIndexFromValueIndex(valueIdx, tupleIdx, comp);
+    this->SetTypedComponent(tupleIdx, comp, value);
+  }
+
+  // Description:
+  // Copy the tuple at @a tupleIdx into @a tuple.
+  inline void GetTypedTuple(vtkIdType tupleIdx, ValueType* tuple) const
+  {
+    for (size_t cc=0; cc < this->Data.size(); cc++)
+      {
+      tuple[cc] = this->Data[cc]->GetBuffer()[tupleIdx];
+      }
+  }
+
+  // Description:
+  // Set this array's tuple at @a tupleIdx to the values in @a tuple.
+  inline void SetTypedTuple(vtkIdType tupleIdx, const ValueType* tuple)
+  {
+    for (size_t cc=0; cc < this->Data.size(); ++cc)
+      {
+      this->Data[cc]->GetBuffer()[tupleIdx] = tuple[cc];
+      }
+  }
+
+  // Description:
+  // Get component @a comp of the tuple at @a tupleIdx.
+  inline ValueType GetTypedComponent(vtkIdType tupleIdx, int comp) const
+  {
+    return this->Data[comp]->GetBuffer()[tupleIdx];
+  }
+
+  // Description:
+  // Set component @a comp of the tuple at @a tupleIdx to @a value.
+  inline void SetTypedComponent(vtkIdType tupleIdx, int comp, ValueType value)
+  {
+    this->Data[comp]->GetBuffer()[tupleIdx] = value;
+  }
 
   // Description:
   // Use this API to pass externally allocated memory to this instance. Since
@@ -111,27 +128,12 @@ public:
   // Description:
   // Use of this method is discouraged, it creates a deep copy of the data into
   // a contiguous AoS-ordered buffer and prints a warning.
-  virtual void *GetVoidPointer(vtkIdType id);
+  virtual void *GetVoidPointer(vtkIdType valueIdx);
 
   // Description:
   // Export a copy of the data in AoS ordering to the preallocated memory
   // buffer.
   void ExportToVoidPointer(void *ptr);
-
-  // Description:
-  // Overridden to allocate pointer for each component.
-  virtual void SetNumberOfComponents(int);
-
-  // Description:
-  // Call this method before using any of the methods on this array that affect
-  // memory allocation. When set to false, any attempt to grow the arrays will
-  // raise runtime exceptions. Any attempt to shrink the arrays will have no
-  // effect.
-  vtkSetMacro(Resizeable, bool);
-  vtkGetMacro(Resizeable, bool);
-  vtkBooleanMacro(Resizeable, bool);
-
-  virtual vtkArrayIterator *NewIterator();
 
   // Description:
   // Perform a fast, safe cast from a vtkAbstractArray to a vtkDataArray.
@@ -154,38 +156,41 @@ public:
     return NULL;
   }
 
-  // Description:
-  // Method for type-checking in FastDownCast implementations.
   virtual int GetArrayType() { return vtkAbstractArray::SoADataArrayTemplate; }
+  virtual vtkArrayIterator *NewIterator();
+  virtual void SetNumberOfComponents(int numComps);
+  virtual void ShallowCopy(vtkDataArray *other);
 
 protected:
   vtkSOADataArrayTemplate();
   ~vtkSOADataArrayTemplate();
 
-  // **************************************************************************
-  // Methods that are needed to be implemented by every vtkGenericDataArray
-  // subclass.
-  // **************************************************************************
-  // Implement the memory management interface.
+  // Description:
+  // Allocate space for numTuples. Old data is not preserved. If numTuples == 0,
+  // all data is freed.
   bool AllocateTuples(vtkIdType numTuples);
+
+  // Description:
+  // Allocate space for numTuples. Old data is preserved. If numTuples == 0,
+  // all data is freed.
   bool ReallocateTuples(vtkIdType numTuples);
-  // **************************************************************************
 
   std::vector<vtkBuffer<ValueType>*> Data;
   vtkBuffer<ValueType> *AoSCopy;
-  bool Resizeable;
+
   double NumberOfComponentsReciprocal;
+
 private:
   vtkSOADataArrayTemplate(const vtkSOADataArrayTemplate&); // Not implemented.
   void operator=(const vtkSOADataArrayTemplate&); // Not implemented.
 
   inline void GetTupleIndexFromValueIndex(vtkIdType valueIdx,
                                           vtkIdType& tupleIdx, int& comp) const
-    {
+  {
     tupleIdx = static_cast<vtkIdType>(valueIdx *
                                       this->NumberOfComponentsReciprocal);
     comp = valueIdx - (tupleIdx * this->NumberOfComponents);
-    }
+  }
 
   friend class vtkGenericDataArray<vtkSOADataArrayTemplate<ValueTypeT>,
                                    ValueTypeT>;
@@ -195,7 +200,7 @@ private:
 vtkArrayDownCast_TemplateFastCastMacro(vtkSOADataArrayTemplate)
 
 # define VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(T) \
-   template class VTKCOMMONCORE_EXPORT vtkSOADataArrayTemplate< T >
+  template class VTKCOMMONCORE_EXPORT vtkSOADataArrayTemplate< T >
 
 #endif // header guard
 
