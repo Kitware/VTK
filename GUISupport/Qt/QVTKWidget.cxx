@@ -309,6 +309,7 @@ void QVTKWidget::setAutomaticImageCacheEnabled(bool flag)
     this->mCachedImage->Initialize();
     this->mCachedImage->SetOrigin(0,0,0);
     this->mCachedImage->SetSpacing(1,1,1);
+    this->markCachedImageAsDirty();
     }
 }
 bool QVTKWidget::isAutomaticImageCacheEnabled() const
