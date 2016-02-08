@@ -186,6 +186,7 @@ class QVTKRenderWindowInteractor(QWidget):
         self.__saveY = 0
         self.__saveModifiers = Qt.NoModifier
         self.__saveButtons = Qt.NoButton
+        self.__wheelDelta = 0
 
         # do special handling of some keywords:
         # stereo, rw
@@ -426,10 +427,17 @@ class QVTKRenderWindowInteractor(QWidget):
         self._Iren.KeyReleaseEvent()
 
     def wheelEvent(self, ev):
-        if ev.delta() >= 0:
-            self._Iren.MouseWheelForwardEvent()
+        if hasattr(ev, 'delta'):
+            self.__wheelDelta += ev.delta()
         else:
+            self.__wheelDelta += ev.angleDelta().y()
+
+        if self.__wheelDelta >= 120:
+            self._Iren.MouseWheelForwardEvent()
+            self.__wheelDelta = 0
+        elif self.__wheelDelta <= -120:
             self._Iren.MouseWheelBackwardEvent()
+            self.__wheelDelta = 0
 
     def GetRenderWindow(self):
         return self._RenderWindow
