@@ -16,8 +16,10 @@
 
 #include "vtkArrayDispatch.h"
 #include "vtkArrayIteratorIncludes.h"
+#include "vtkAssume.h"
 #include "vtkCell.h"
 #include "vtkCharArray.h"
+#include "vtkDataArrayAccessor.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
@@ -460,6 +462,13 @@ struct CopyStructuredDataWorker
       this->OutExt[5] - this->InExt[4]
     };
 
+    // Give the compiler a hand -- allow optimizations that require both arrays
+    // to have the same stride.
+    VTK_ASSUME(src->GetNumberOfComponents() == dest->GetNumberOfComponents());
+
+    vtkDataArrayAccessor<Array1T> d(dest);
+    vtkDataArrayAccessor<Array2T> s(src);
+
     const int dims[3] = { this->InExt[1] - this->InExt[0] + 1,
                           this->InExt[3] - this->InExt[2] + 1,
                           this->InExt[5] - this->InExt[4] + 1};
@@ -477,8 +486,7 @@ struct CopyStructuredDataWorker
           for (int comp = 0, max = dest->GetNumberOfComponents();
                comp < max; ++comp)
             {
-            dest->SetTypedComponent(outTupleIdx, comp,
-                                    src->GetTypedComponent(inTupleIdx, comp));
+            d.Set(outTupleIdx, comp, s.Get(inTupleIdx, comp));
             }
           outTupleIdx++;
           }
@@ -612,9 +620,7 @@ void vtkDataSetAttributes::CopyStructuredData(vtkDataSetAttributes *fromPd,
     // legacy code around until we've done through benchmarking.
     vtkDataArray *inDA = vtkDataArray::SafeDownCast(inArray);
     vtkDataArray *outDA = vtkDataArray::SafeDownCast(outArray);
-    if ((inArray->HasStandardMemoryLayout() &&
-         outArray->HasStandardMemoryLayout()) ||
-        (!inDA || !outDA))
+    if (!inDA || !outDA) // String array, etc
       {
       vtkArrayIterator* srcIter = inArray->NewIterator();
       vtkArrayIterator* destIter = outArray->NewIterator();
@@ -634,7 +640,8 @@ void vtkDataSetAttributes::CopyStructuredData(vtkDataSetAttributes *fromPd,
       if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(outDA, inDA,
                                                              worker))
         {
-        vtkWarningMacro("Dispatch failed for array " << inArray->GetName());
+        // Fallback to vtkDataArray API (e.g. vtkBitArray):
+        worker(outDA, inDA);
         }
       }
     }
