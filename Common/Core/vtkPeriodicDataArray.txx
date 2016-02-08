@@ -374,6 +374,22 @@ template <class Scalar> void vtkPeriodicDataArray<Scalar>
 }
 
 //------------------------------------------------------------------------------
+template <class Scalar>
+typename vtkPeriodicDataArray<Scalar>::ValueType
+vtkPeriodicDataArray<Scalar>::GetTypedComponent(vtkIdType tupleId,
+                                                int compId) const
+{
+  if (tupleId != this->TempTupleIdx)
+    {
+    this->Data->GetTypedTuple(tupleId, this->TempScalarArray);
+    this->Transform(const_cast<Scalar*>(this->TempScalarArray));
+    *const_cast<vtkIdType*>(&this->TempTupleIdx) = tupleId;
+    }
+
+  return this->TempScalarArray[compId];
+}
+
+//------------------------------------------------------------------------------
 template <class Scalar> unsigned long int vtkPeriodicDataArray<Scalar>
 ::GetActualMemorySize()
 {
@@ -558,6 +574,13 @@ template <class Scalar> void vtkPeriodicDataArray<Scalar>
 
 //------------------------------------------------------------------------------
 template <class Scalar> void vtkPeriodicDataArray<Scalar>
+::SetTypedComponent(vtkIdType, int, Scalar)
+{
+  vtkErrorMacro("Read only container.");
+}
+
+//------------------------------------------------------------------------------
+template <class Scalar> void vtkPeriodicDataArray<Scalar>
 ::InsertTypedTuple(vtkIdType, const Scalar*)
 {
   vtkErrorMacro("Read only container.");
@@ -591,6 +614,22 @@ template <class Scalar> void vtkPeriodicDataArray<Scalar>
 ::InsertValue(vtkIdType, Scalar)
 {
   vtkErrorMacro("Read only container.");
+}
+
+//------------------------------------------------------------------------------
+template <class Scalar> bool vtkPeriodicDataArray<Scalar>
+::AllocateTuples(vtkIdType)
+{
+  vtkErrorMacro("Read only container.");
+  return false;
+}
+
+//------------------------------------------------------------------------------
+template <class Scalar> bool vtkPeriodicDataArray<Scalar>
+::ReallocateTuples(vtkIdType)
+{
+  vtkErrorMacro("Read only container.");
+  return false;
 }
 
 //------------------------------------------------------------------------------

@@ -132,7 +132,7 @@ vtkArrayDownCast_TemplateFastCastMacro(vtkMappedDataArray)
 
 #include "vtkMappedDataArray.txx"
 
-// Adds an implementation of NewInstanceInternal() that returns a standard
+// Adds an implementation of NewInstanceInternal() that returns an AoS
 // (unmapped) VTK array, if possible. Use this in combination with
 // vtkAbstractTemplateTypeMacro when your subclass is a template class.
 // Otherwise, use vtkMappedDataArrayTypeMacro.

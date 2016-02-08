@@ -75,6 +75,10 @@ public:
   typedef ValueTypeT ValueType;
   vtkTemplateTypeMacro(SelfType, vtkDataArray)
 
+  // Description:
+  // Compile time access to the VTK type identifier.
+  enum { VTK_DATA_TYPE = vtkTypeTraits<ValueType>::VTK_TYPE_ID };
+
   /// @defgroup vtkGDAConceptMethods vtkGenericDataArray Concept Methods
   /// These signatures must be reimplemented in subclasses as public,
   /// non-virtual methods. Ideally, they should be inlined and as efficient as
@@ -270,5 +274,25 @@ private:
 };
 
 #include "vtkGenericDataArray.txx"
+
+// Adds an implementation of NewInstanceInternal() that returns an AoS
+// (unmapped) VTK array, if possible. This allows the pipeline to copy and
+// propagate the array when the array data is not modifiable. Use this in
+// combination with vtkAbstractTypeMacro or vtkAbstractTemplateTypeMacro
+// (instead of vtkTypeMacro) to avoid adding the default NewInstance
+// implementation.
+#define vtkAOSArrayNewInstanceMacro(thisClass) \
+  protected: \
+  vtkObjectBase *NewInstanceInternal() const \
+  { \
+    if (vtkDataArray *da = \
+        vtkDataArray::CreateDataArray(thisClass::VTK_DATA_TYPE)) \
+      { \
+      return da; \
+      } \
+    return thisClass::New(); \
+  } \
+  public:
+
 #endif
 // VTK-HeaderTest-Exclude: vtkGenericDataArray.h

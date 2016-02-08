@@ -26,14 +26,16 @@
 #ifndef vtkPeriodicDataArray_h
 #define vtkPeriodicDataArray_h
 
-#include "vtkMappedDataArray.h"   // Parent
+#include "vtkGenericDataArray.h"   // Parent
 #include "vtkAOSDataArrayTemplate.h" // Template
 
 template <class Scalar>
-class vtkPeriodicDataArray: public vtkMappedDataArray<Scalar>
+class vtkPeriodicDataArray:
+    public vtkGenericDataArray<vtkPeriodicDataArray<Scalar>, Scalar>
 {
+  typedef vtkGenericDataArray<vtkPeriodicDataArray<Scalar>, Scalar> GenericBase;
 public:
-  vtkTemplateTypeMacro(vtkPeriodicDataArray<Scalar>, vtkMappedDataArray<Scalar>)
+  vtkTemplateTypeMacro(vtkPeriodicDataArray<Scalar>, GenericBase)
   typedef typename Superclass::ValueType ValueType;
 
   virtual void PrintSelf(ostream &os, vtkIndent indent);
@@ -110,6 +112,12 @@ public:
   // Description:
   // Copy tuple value at location idx into provided array
   void GetTypedTuple(vtkIdType idx, Scalar *t) const;
+
+  // Description:
+  // Return the requested component of the specified tuple.
+  // Warning, this internally calls GetTypedTuple, so it is an inefficient way
+  // of reading all data.
+  ValueType GetTypedComponent(vtkIdType tupleIdx, int compIdx) const;
 
   // Description:
   // Return the memory in kilobytes consumed by this data array.
@@ -217,6 +225,10 @@ public:
 
   // Description:
   // Read only container, not supported.
+  void SetTypedComponent(vtkIdType t, int c, Scalar v);
+
+  // Description:
+  // Read only container, not supported.
   void InsertTypedTuple(vtkIdType i, const Scalar *t);
 
   // Description:
@@ -245,6 +257,11 @@ protected:
   ~vtkPeriodicDataArray();
 
   // Description:
+  // Read only container, not supported.
+  bool AllocateTuples(vtkIdType numTuples);
+  bool ReallocateTuples(vtkIdType numTuples);
+
+  // Description:
   // Transform the provided tuple
   virtual void Transform(Scalar* tuple) const = 0;
 
@@ -269,6 +286,8 @@ protected:
 private:
   vtkPeriodicDataArray(const vtkPeriodicDataArray &); // Not implemented.
   void operator=(const vtkPeriodicDataArray &); // Not implemented.
+
+  friend class vtkGenericDataArray<vtkPeriodicDataArray<Scalar>, Scalar>;
 
   Scalar* TempScalarArray; // Temporary array used by GetTypedTuple methods
   double* TempDoubleArray; // Temporary array used by GetTuple vethods
