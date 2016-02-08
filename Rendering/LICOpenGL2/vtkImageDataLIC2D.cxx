@@ -86,7 +86,6 @@ vtkImageDataLIC2D::vtkImageDataLIC2D()
         0,
         vtkDataObject::FIELD_ASSOCIATION_POINTS,
         vtkDataSetAttributes::VECTORS);
-
 }
 
 //----------------------------------------------------------------------------
@@ -470,9 +469,29 @@ int vtkImageDataLIC2D::RequestData(
       1.0f, 1.0f, 0.0f,
       -1.0f, 1.0f, 0.0f};
 
-    vectorTex->CopyToFrameBuffer(tcoords, verts, NULL, NULL);
+    vtkOpenGLHelper shaderHelper;
 
+    // build the shader source code
+    shaderHelper.Program =
+      this->Context->GetShaderCache()->ReadyShaderProgram(
+        vtkTextureObjectVS,
+        "//VTK::System::Dec\n"
+        "varying vec2 tcoordVC;\n"
+        "uniform sampler2D source;\n"
+        "//VTK::Output::Dec\n"
+        "void main(void) {\n"
+        "  gl_FragData[0] = texture2D(source,tcoordVC); }\n",
+        "");
+
+    // bind and activate this texture
+    vectorTex->Activate();
+    int sourceId = vectorTex->GetTextureUnit();
+    shaderHelper.Program->SetUniformi("source",sourceId);
+    vectorTex->CopyToFrameBuffer(tcoords, verts,
+      shaderHelper.Program, shaderHelper.VAO);
+    vectorTex->Deactivate();
     vectorTex->Delete();
+    shaderHelper.ReleaseGraphicsResources(this->Context);
 
     drawFbo->UnBind(GL_FRAMEBUFFER);
     drawFbo->Delete();
