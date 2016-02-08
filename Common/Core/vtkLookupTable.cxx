@@ -292,12 +292,12 @@ void vtkLookupTable::Build()
 void vtkLookupTable::BuildSpecialColors()
 {
   // Add "special" colors (NaN, below range, above range) to table here.
-  unsigned char *table = this->GetTable()->GetPointer(0);
   vtkIdType numberOfColors = this->GetTable()->GetNumberOfTuples();
-  unsigned char *tptr = table + 4*(numberOfColors + vtkLookupTable::BELOW_RANGE_COLOR_INDEX);
-  unsigned char color[4];
 
   this->ResizeTableForSpecialColors();
+  unsigned char *table = this->GetTable()->GetPointer(0);
+  unsigned char *tptr = table + 4*(numberOfColors + vtkLookupTable::BELOW_RANGE_COLOR_INDEX);
+  unsigned char color[4];
 
   // Below range color
   if (this->GetUseBelowRangeColor() || numberOfColors == 0)
