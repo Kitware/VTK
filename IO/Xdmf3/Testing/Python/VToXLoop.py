@@ -325,7 +325,7 @@ def RunTest():
   for x in indices:
       xReader.UpdateTimeStep(timerange[x])
       obds = xReader.GetOutputDataObject(0).GetBounds()
-      tsrc.Update(timerange[x]+0.0001) #workaround a precision bug in TSE
+      tsrc.UpdateTimeStep(timerange[x]+0.0001) #workaround a precision bug in TSE
       ibds = tsrc.GetOutputDataObject(0).GetBounds()
       print timerange[x], obds
       for i in (0,1,2,3,4,5):
