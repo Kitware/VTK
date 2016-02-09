@@ -16,6 +16,10 @@ endif()
 
 option(VTK_USE_X "Use X for VTK render windows" ${VTK_USE_X_DEFAULT})
 
+# OSMesa logic for offscreen mesa rendering.
+option(VTK_OPENGL_HAS_OSMESA
+  "The OpenGL library being used supports / can be combined with off screen Mesa calls" OFF)
+
 # OSMesa offscreen mesa rendering.
 option(VTK_USE_OSMESA
   "Use OSMesa for off screen rendering." OFF)
@@ -43,17 +47,18 @@ if(VTK_USE_X OR VTK_USE_COCOA OR WIN32 OR ANDROID OR APPLE_IOS OR VTK_USE_OSMESA
   endif()
 endif()
 
-mark_as_advanced(VTK_USE_X VTK_USE_OSMESA VTK_USE_OFFSCREEN_EGL
+mark_as_advanced(VTK_USE_X VTK_OPENGL_HAS_OSMESA VTK_USE_OSMESA VTK_USE_OFFSCREEN_EGL
   VTK_USE_OFFSCREEN VTK_EGL_DEVICE_INDEX)
 
 if(VTK_USE_OSMESA)
-  find_package(OSMesa REQUIRED)
-  include_directories(SYSTEM ${OSMESA_INCLUDE_DIR})
-endif(VTK_USE_OSMESA)
+    find_package(OSMesa REQUIRED)
+    include_directories(SYSTEM ${OSMESA_INCLUDE_DIR})
+endif()
 if(VTK_USE_OFFSCREEN_EGL)
     find_package(EGL REQUIRED)
     include_directories(SYSTEM ${EGL_INCLUDE_DIR})
-endif(VTK_USE_OFFSCREEN_EGL)
+endif()
+
 if(VTK_USE_X)
   find_package(OpenGL REQUIRED)
   include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
@@ -75,17 +80,17 @@ if(VTK_USE_X)
 endif()
 
 # Function to link a VTK target to the necessary OpenGL libraries.
-SET(VTK_OPENGL_LINK_LIBRARIES)
+set(VTK_OPENGL_LINK_LIBRARIES)
 
-if(VTK_USE_OFSCREEN_EGL)
-  SET(VTK_OPENGL_LINK_LIBRARIES ${VTK_OPENGL_LINK_LIBRARIES} ${EGL_LIBRARIES})
-endif(VTK_USE_OFSCREEN_EGL)
+if(VTK_USE_OFFSCREEN_EGL)
+  set(VTK_OPENGL_LINK_LIBRARIES ${VTK_OPENGL_LINK_LIBRARIES} ${EGL_LIBRARIES})
+endif()
 if(VTK_USE_OSMESA)
-  SET(VTK_OPENGL_LINK_LIBRARIES ${VTK_OPENGL_LINK_LIBRARIES} ${OSMESA_LIBRARY})
-endif(VTK_USE_OSMESA)
+  set(VTK_OPENGL_LINK_LIBRARIES ${VTK_OPENGL_LINK_LIBRARIES} ${OSMESA_LIBRARY})
+endif()
 if(VTK_USE_X)
-  SET(VTK_OPENGL_LINK_LIBRARIES ${VTK_OPENGL_LINK_LIBRARIES} ${OPENGL_LIBRARIES})
-endif(VTK_USE_X)
+  set(VTK_OPENGL_LINK_LIBRARIES ${VTK_OPENGL_LINK_LIBRARIES} ${OPENGL_LIBRARIES})
+endif()
 
 function(vtk_opengl_link target)
   vtk_module_link_libraries(${target} LINK_PRIVATE ${VTK_OPENGL_LINK_LIBRARIES})
