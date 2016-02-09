@@ -94,6 +94,7 @@ uninitvar:IO/Exodus/vtkExodusIIReader.cxx
 uninitvar:Rendering/ContextOpenGL2/vtkOpenGLContextDevice2D.cxx
 uninitvar:Rendering/Core/vtkCamera.cxx
 unsafeClassCanLeak:Filters/General/vtkDensifyPolyData.cxx
+unsafeClassCanLeak:GUISupport/Qt/QVTKInteractorInternal.h
 unsafeClassCanLeak:Interaction/Widgets/vtkBiDimensionalRepresentation.h
 unusedAllocatedMemory:IO/Legacy/vtkDataWriter.cxx
 unusedStructMember:Common/Misc/vtkHeap.cxx
