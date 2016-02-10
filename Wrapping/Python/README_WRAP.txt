@@ -1,7 +1,7 @@
 Notes on the Python Wrappers for VTK
 
 First version by David Gobbi: Dec 19, 2002
-Last update was on Aug 30, 2015
+Last update was on Feb 10, 2016
 
 Abstract:
 =========
@@ -196,11 +196,6 @@ from the built-in "docstrings":
 >>> help(vtk.vtkActor)
 >>> help(vtk.vtkActor.SetUserTransform)
 [ lots of info printed, try it yourself ]
-
-If you have an object, rather than a class, you must call help()
-on the __class__ atribute of the object:
-
->>> help(a.__class__)
 
 For the method documentation, all the different 'signatures' for the
 method are given in Python format and the original C++ format:
