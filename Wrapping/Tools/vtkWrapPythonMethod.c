@@ -113,7 +113,7 @@ void vtkWrapPython_DeclareVariables(
     if (vtkWrap_IsArray(arg) || vtkWrap_IsNArray(arg) ||
         vtkWrap_IsPODPointer(arg))
       {
-      storageSize = 4;
+      storageSize = (arg->Count ? arg->Count : 4);
       if (!vtkWrap_IsConst(arg) &&
           !vtkWrap_IsSetVectorMethod(theFunc))
         {
@@ -121,7 +121,8 @@ void vtkWrapPython_DeclareVariables(
         vtkWrap_DeclareVariable(fp, data, arg, "save", i, VTK_WRAP_ARG);
         storageSize *= 2;
         }
-      if (arg->CountHint || vtkWrap_IsPODPointer(arg))
+      if (arg->CountHint || vtkWrap_IsPODPointer(arg) ||
+          (vtkWrap_IsArray(arg) && arg->Value))
         {
         fprintf(fp,
                 "  %s small%d[%d];\n",
@@ -167,7 +168,8 @@ static void vtkWrapPython_GetSizesForArrays(
     {
     arg = theFunc->Parameters[i];
 
-    if (arg->CountHint || vtkWrap_IsPODPointer(arg))
+    if (arg->CountHint || vtkWrap_IsPODPointer(arg) ||
+        (vtkWrap_IsArray(arg) && arg->Value))
       {
       if (j == 1)
         {
@@ -200,18 +202,29 @@ static void vtkWrapPython_GetSizesForArrays(
       fprintf(fp,
               "%s  if (size%d > 0)\n"
               "%s    {\n"
-              "%s    temp%d = small%d;\n"
+              "%s    temp%d = small%d;\n",
+              indentation, i,
+              indentation,
+              indentation, i, i);
+
+      if (arg->CountHint || vtkWrap_IsPODPointer(arg))
+        {
+        fprintf(fp,
               "%s    if (size%d > 4)\n"
               "%s      {\n"
               "%s      temp%d = new %s[%ssize%d];\n"
               "%s      }\n",
               indentation, i,
               indentation,
-              indentation, i, i,
-              indentation, i,
-              indentation,
               indentation, i, vtkWrap_GetTypeName(arg), mtwo, i,
               indentation);
+        }
+      else
+        {
+        fprintf(fp,
+              "%s    size%d = %d;\n",
+              indentation, i, arg->Count);
+        }
 
       if (*mtwo)
         {

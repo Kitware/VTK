@@ -422,7 +422,6 @@ int vtkWrap_CountRequiredArguments(FunctionInfo *f)
   for (i = 0; i < totalArgs; i++)
     {
     if (f->Parameters[i]->Value == NULL ||
-        vtkWrap_IsArray(f->Parameters[i]) ||
         vtkWrap_IsNArray(f->Parameters[i]))
       {
       requiredArgs = i+1;
@@ -1012,7 +1011,8 @@ void vtkWrap_DeclareVariable(
       fprintf(fp, "*");
       }
     /* arrays of unknown size are handled via pointers */
-    else if (val->CountHint || vtkWrap_IsPODPointer(val))
+    else if (val->CountHint || vtkWrap_IsPODPointer(val) ||
+             (vtkWrap_IsArray(val) && val->Value))
       {
       fprintf(fp, "*");
       }
@@ -1037,7 +1037,8 @@ void vtkWrap_DeclareVariable(
         aType != VTK_PARSE_OBJECT_PTR &&
         !vtkWrap_IsQtObject(val) &&
         val->CountHint == NULL &&
-        !vtkWrap_IsPODPointer(val))
+        !vtkWrap_IsPODPointer(val) &&
+        !(vtkWrap_IsArray(val) && val->Value))
       {
       if (val->NumberOfDimensions == 1 && val->Count > 0)
         {
@@ -1114,8 +1115,8 @@ void vtkWrap_DeclareVariableSize(
     {
     fprintf(fp,
             "  %sint %s%s = %d;\n",
-            (val->Count == 0 ? "" : "const "), name, idx,
-            (val->Count == 0 ? 0 : val->Count));
+            ((val->Count == 0 || val->Value != 0) ? "" : "const "),
+            name, idx, (val->Count == 0 ? 0 : val->Count));
     }
   else if (val->NumberOfDimensions == 1)
     {

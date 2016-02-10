@@ -1481,7 +1481,7 @@ int vtkAlgorithm::Update(vtkInformation* requests)
 
 //----------------------------------------------------------------------------
 int vtkAlgorithm::UpdatePiece(
-  int piece, int numPieces, int ghostLevels, int* extents)
+  int piece, int numPieces, int ghostLevels, const int extents[6])
 {
   typedef vtkStreamingDemandDrivenPipeline vtkSDDP;
 
@@ -1497,7 +1497,7 @@ int vtkAlgorithm::UpdatePiece(
 }
 
 //----------------------------------------------------------------------------
-int vtkAlgorithm::UpdateExtent(int* extents)
+int vtkAlgorithm::UpdateExtent(const int extents[6])
 {
   typedef vtkStreamingDemandDrivenPipeline vtkSDDP;
 
@@ -1508,7 +1508,7 @@ int vtkAlgorithm::UpdateExtent(int* extents)
 
 //----------------------------------------------------------------------------
 int vtkAlgorithm::UpdateTimeStep(
-  double time, int piece, int numPieces, int ghostLevels, int* extents)
+  double time, int piece, int numPieces, int ghostLevels, const int extents[6])
 {
   typedef vtkStreamingDemandDrivenPipeline vtkSDDP;
 
