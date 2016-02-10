@@ -26,7 +26,13 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkSMPTools.h"
 
+// If SMP backend is Sequential then fall back to vtkMultiThreader,
+// else enable the newer vtkSMPTools code path by default.
+#ifdef VTK_SMP_Sequential
 bool vtkThreadedImageAlgorithm::GlobalDefaultEnableSMP = false;
+#else
+bool vtkThreadedImageAlgorithm::GlobalDefaultEnableSMP = true;
+#endif
 
 //----------------------------------------------------------------------------
 vtkThreadedImageAlgorithm::vtkThreadedImageAlgorithm()
