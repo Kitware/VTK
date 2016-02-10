@@ -112,8 +112,9 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   this->LastLightComplexity[&this->TriStrips] = -1;
   this->LastLightComplexity[&this->TrisEdges] = -1;
   this->LastLightComplexity[&this->TriStripsEdges] = -1;
-}
 
+  this->TimerQuery = 0;
+}
 
 //-----------------------------------------------------------------------------
 vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
@@ -1962,6 +1963,34 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
   glPointSize(actor->GetProperty()->GetPointSize()); // not on ES2
 #endif
 
+  this->TimeToDraw = 0.0;
+
+#if GL_ES_VERSION_2_0 != 1 && GL_ES_VERSION_3_0 != 1
+  if (this->TimerQuery == 0)
+    {
+    glGenQueries(1, static_cast<GLuint*>(&this->TimerQuery));
+    }
+  else
+    {
+    GLint timerAvailable = 0;
+    glGetQueryObjectiv(static_cast<GLuint>(this->TimerQuery),
+      GL_QUERY_RESULT_AVAILABLE, &timerAvailable);
+
+    if (timerAvailable)
+      {
+      // See how much time the rendering of the mapper took
+      // in nanoseconds during the previous frame
+      GLuint timeElapsed = 0;
+      glGetQueryObjectuiv(static_cast<GLuint>(this->TimerQuery),
+        GL_QUERY_RESULT, &timeElapsed);
+      // Set the rendering time for this frame with the previous one
+      this->TimeToDraw = timeElapsed / 1.0e9;
+      }
+    }
+
+  glBeginQuery(GL_TIME_ELAPSED, static_cast<GLuint>(this->TimerQuery));
+#endif
+
   vtkHardwareSelector* selector = ren->GetSelector();
   int picking = getPickState(ren);
   if (this->LastSelectionState != picking)
@@ -1985,7 +2014,6 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
       }
     }
 
-  this->TimeToDraw = 0.0;
   this->PrimitiveIDOffset = 0;
 
   // make sure the BOs are up to date
@@ -2205,6 +2233,10 @@ void vtkOpenGLPolyDataMapper::RenderPieceFinish(vtkRenderer* ren,
     {
     this->InternalColorTexture->PostRender(ren);
     }
+
+#if GL_ES_VERSION_2_0 != 1 && GL_ES_VERSION_3_0 != 1
+  glEndQuery(GL_TIME_ELAPSED);
+#endif
 
   // If the timer is not accurate enough, set it to a small
   // time so that it is not zero
