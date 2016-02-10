@@ -4,6 +4,7 @@ vtk_add_test_python(
   TestArrays.py
   TestArrayArguments.py
   TestBuffer.py
+  TestDefaultArgs.py
   TestEmptyInput.py
   TestEnums.py
   TestExecuteMethodFinalizeCrash.py
