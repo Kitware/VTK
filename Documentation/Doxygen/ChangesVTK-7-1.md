@@ -125,3 +125,10 @@ filter was erroneously outputting second order tensors
 fixed along with the numpy vector_gradient and strain functions.
 Additionally, vtkTensors was removed as this class was only
 used by vtkCellDerivatives and was contributing to the confusion.
+
+vtkSMPTools
+-----------
+
+The following back-ends have been removed:
++ Simple: This is not a production level backend and was only used for debugging purposes.
++ Kaapi: This backend is no longer maintained.

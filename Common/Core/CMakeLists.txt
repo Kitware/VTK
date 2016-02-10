@@ -27,16 +27,14 @@ set(vtkCommonCore_EXPORT_OPTIONS
   )
 
 # Choose which multi-threaded parallelism library to use
-set(VTK_SMP_IMPLEMENTATION_TYPE_DOC_STRING "Which multi-threaded parallelism implementation to use. Options are Sequential, Simple, Kaapi, OpenMP or TBB")
+set(VTK_SMP_IMPLEMENTATION_TYPE_DOC_STRING "Which multi-threaded parallelism implementation to use. Options are Sequential, OpenMP or TBB")
 
 set(VTK_SMP_IMPLEMENTATION_TYPE "Sequential" CACHE STRING ${VTK_SMP_IMPLEMENTATION_TYPE_DOC_STRING})
 
-set_property(CACHE VTK_SMP_IMPLEMENTATION_TYPE PROPERTY STRINGS Sequential Simple Kaapi OpenMP TBB)
+set_property(CACHE VTK_SMP_IMPLEMENTATION_TYPE PROPERTY STRINGS Sequential OpenMP TBB)
 
-if( NOT ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "Kaapi" OR
-         "${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "OpenMP" OR
-         "${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "TBB" OR
-         "${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "Simple") )
+if( NOT ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "OpenMP" OR
+         "${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "TBB") )
   set(VTK_SMP_IMPLEMENTATION_TYPE "Sequential" CACHE STRING ${VTK_SMP_IMPLEMENTATION_TYPE_DOC_STRING} FORCE)
 endif()
 
@@ -76,25 +74,6 @@ elseif ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "OpenMP")
   else()
     message(WARNING "Required OpenMP version (3.1) for atomics not detected. Using default atomics implementation.")
   endif()
-
-elseif ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "Kaapi")
-  find_package(XKaapi REQUIRED)
-  include_directories(${XKAAPI_INCLUDE_DIRS})
-  set(VTK_SMP_IMPLEMENTATION_LIBRARIES ${XKAAPI_LIBRARIES})
-  list(APPEND vtkCommonCore_SYSTEM_INCLUDE_DIRS ${XKAAPI_INCLUDE_DIRS})
-
-  set(VTK_SMP_IMPLEMENTATION_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SMP/Kaapi")
-  set(VTK_SMP_SOURCES ${VTK_SMP_IMPLEMENTATION_DIR}/vtkSMPTools.cxx)
-  set(VTK_SMP_HEADERS_TO_CONFIG vtkSMPToolsInternal.h vtkSMPThreadLocal.h)
-
-elseif ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "Simple")
-  set(VTK_SMP_IMPLEMENTATION_LIBRARIES)
-
-  set(VTK_SMP_IMPLEMENTATION_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SMP/Simple")
-  set(VTK_SMP_SOURCES ${VTK_SMP_IMPLEMENTATION_DIR}/vtkSMPTools.cxx)
-  set(VTK_SMP_HEADERS_TO_CONFIG vtkSMPToolsInternal.h vtkSMPThreadLocal.h)
-
-  message(WARNING "The Simple backend for SMP operations is an experimental backend that is mainly used for debugging currently. We recommend that you use either the TBB or the Kaapi backend for production work. Use the Sequential backend if you would like to turn off any SMP parallelism.")
 
 elseif ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "Sequential")
   set(VTK_SMP_IMPLEMENTATION_LIBRARIES)
