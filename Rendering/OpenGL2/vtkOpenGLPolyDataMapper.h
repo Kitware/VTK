@@ -392,6 +392,7 @@ protected:
   char *VertexShaderCode;
   char *FragmentShaderCode;
   char *GeometryShaderCode;
+  unsigned int TimerQuery;
 
 private:
   vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&); // Not implemented.
