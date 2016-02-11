@@ -265,6 +265,7 @@ vtkSpanSpace::vtkSpanSpace()
   this->RMin[0] = this->RMin[1] = 0;
   this->RMax[0] = this->RMax[1] = 0;
   this->BatchSize = 10;
+  this->Resolution = 100;
 }
 
 //-----------------------------------------------------------------------------
