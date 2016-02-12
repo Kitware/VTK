@@ -78,14 +78,23 @@ void vtkWrapPython_DeclareVariables(
     {
     arg = theFunc->Parameters[i];
 
-    if (vtkWrap_IsPythonObject(arg) ||
-        /* a callable python object for function args */
-        vtkWrap_IsFunction(arg))
+    /* a callable python object for function args */
+    if (vtkWrap_IsFunction(arg))
       {
       fprintf(fp,
               "  PyObject *temp%d = NULL;\n",
               i);
+      /* ignore further arguments */
       break;
+      }
+
+    /* a PyObject argument will simply be passed through */
+    if (vtkWrap_IsPythonObject(arg))
+      {
+      fprintf(fp,
+              "  PyObject *temp%d;\n",
+              i);
+      continue;
       }
 
     /* make a "temp" variable for the argument */
