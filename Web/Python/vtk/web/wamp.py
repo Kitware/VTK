@@ -102,6 +102,7 @@ class ServerProtocol(ApplicationSession):
         imageCapture.setApplication(self.Application)
 
     def registerVtkWebProtocol(self, protocol):
+        protocol.coreServer = self
         protocol.setApplication(self.Application)
         self.vtkWebProtocols.append(protocol)
 
