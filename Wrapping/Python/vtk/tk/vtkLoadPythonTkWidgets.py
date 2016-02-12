@@ -61,6 +61,8 @@ def vtkLoadPythonTkWidgets(interp):
     # if python 3, there is no separate "unicode" type
     if sys.hexversion >= 0x03000000:
         unicode = str
+    else:
+        unicode = sys.modules['__builtin__'].unicode
 
     # attempt to load
     for path in pathlist:
