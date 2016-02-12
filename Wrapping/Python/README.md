@@ -3,7 +3,7 @@ Notes on the Python Wrappers for VTK
 
 First version by David Gobbi: Dec 19, 2002
 
-Last update was on Feb 10, 2016
+Last update was on Feb 12, 2016
 
 Abstract:
 =========
@@ -171,8 +171,8 @@ Unavailable classes
 -------------------
 
 Some classes are meant to be used only by other VTK classes and are
-not wrapped.  These are labelled as WRAP\_EXCLUDE in the CMakeLists.txt
-files.
+not wrapped.  These are labelled as WRAP\_EXCLUDE\_PYTHON in the
+CMakeLists.txt files.
 
 
 Printing VTK objects
