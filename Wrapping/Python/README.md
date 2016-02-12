@@ -155,14 +155,15 @@ to make greater use of namespaces.
 Unavailable methods
 -------------------
 
-A method is not wrapped if
+A method is not wrapped if:
 
-1. its parameter list contains a pointer that isn't a vtkObject
-   pointer, char pointer, or void pointer -- though the vtkDataArray
-   'Tuple' methods are an exception, they are wrapped
-2. it returns a pointer that is not a vtkObject pointer, char pointer,
-   or void pointer, unless the method has an entry in the wrapping
-   hints file -- again, vtkDataArray methods are an exception
+1. its parameter list contains a pointer to anything other than
+   a vtkObjectBase-derived object or a fundamental C++ type (void,
+   char, int, unsigned short, double, etc.)
+2. it returns a pointer to anything other than a vtkObjectBase-derived
+   object, unless the method returns a pointer to a fundamental C++
+   type and has an entry in the wrapping hints file, or the method is
+   a vtkDataArray Get() method, or the returned type is 'char \*' or 'void \*'
 3. it is an operator method (though many exceptions exist)
 
 
