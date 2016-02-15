@@ -37,7 +37,7 @@ public:
 struct vtkScalarBarBox
 {
   /// The position of the box in viewport (pixel) coordinates.
-  vtkTuple<int,2> Posn;
+  vtkTuple<int, 2> Posn;
 
   /**\brief Size of the box, stored as (thickness, length) not (width, height).
     *
@@ -46,7 +46,7 @@ struct vtkScalarBarBox
     * Length is a measure of the box size parallel to the long axis of the scalar bar.
     * When the scalar bar orientation is horizontal, length measures width.
     */
-  vtkTuple<int,2> Size;
+  vtkTuple<int, 2> Size;
 };
 
 /// Internal state for the scalar bar actor shared with subclasses.
@@ -68,6 +68,14 @@ public:
     this->NanSwatch = 0;
     this->NanSwatchMapper = 0;
     this->NanSwatchActor = 0;
+
+    this->BelowRangeSwatch = 0;
+    this->BelowRangeSwatchMapper = 0;
+    this->BelowRangeSwatchActor = 0;
+
+    this->AboveRangeSwatch = 0;
+    this->AboveRangeSwatchMapper = 0;
+    this->AboveRangeSwatchActor = 0;
     }
 
   // Define types for smart vectors containing various base classes.
@@ -86,6 +94,12 @@ public:
 
   /// The thickness and length of the (square) NaN swatch.
   double NanSwatchSize;
+
+  /// The thickness and length of the (square) Below Range swatch.
+  double BelowRangeSwatchSize;
+
+  /// The thickness and length of the (square) Above Range swatch.
+  double AboveRangeSwatchSize;
 
   /// Space in pixels between swatches when in indexed lookup mode.
   double SwatchPad;
@@ -124,6 +138,12 @@ public:
   /// The bounding box of the NaN swatch
   vtkScalarBarBox NanBox;
 
+  /// The bounding box of the Below Range
+  vtkScalarBarBox BelowRangeSwatchBox;
+
+  /// The bounding box of the Above Range
+  vtkScalarBarBox AboveRangeSwatchBox;
+
   /// The bounding box of tick mark anchor points (tick labels are not
   /// fully contained)
   vtkScalarBarBox TickBox;
@@ -132,11 +152,11 @@ public:
   vtkScalarBarBox TitleBox;
 
   /// Map from viewport coordinates to label text of each annotation.
-  std::map<double,vtkStdString> Labels;
+  std::map<double, vtkStdString> Labels;
 
   /// Map from viewport coordinates to the leader line color of each
   /// annotation.
-  std::map<double,vtkColor3ub> LabelColors;
+  std::map<double, vtkColor3ub> LabelColors;
   //@}
 
   /// Cache of classes holding geometry assembled and ready for rendering.
@@ -154,6 +174,14 @@ public:
   vtkPolyData*         NanSwatch;
   vtkPolyDataMapper2D* NanSwatchMapper;
   vtkActor2D*          NanSwatchActor;
+
+  vtkPolyData*         BelowRangeSwatch;
+  vtkPolyDataMapper2D* BelowRangeSwatchMapper;
+  vtkActor2D*          BelowRangeSwatchActor;
+
+  vtkPolyData*         AboveRangeSwatch;
+  vtkPolyDataMapper2D* AboveRangeSwatchMapper;
+  vtkActor2D*          AboveRangeSwatchActor;
   //@}
 };
 
