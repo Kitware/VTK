@@ -702,7 +702,8 @@ void vtkRenderWindowInteractor::RecognizeGesture(vtkCommand::EventIds event)
       // pan is a move of the center point
       // compute the distance along each of these axes in pixels
       // the first to break thresh wins
-      double thresh = sqrt(this->Size[0]*this->Size[0] + this->Size[1]*this->Size[1])*0.01;
+      double thresh = 0.01*sqrt(
+        static_cast<double>(this->Size[0]*this->Size[0] + this->Size[1]*this->Size[1]));
       if (thresh < 15.0)
         {
         thresh = 15.0;
@@ -732,32 +733,6 @@ void vtkRenderWindowInteractor::RecognizeGesture(vtkCommand::EventIds event)
         this->Translation[1] = 0.0;
         this->StartPanEvent();
         }
-
-      // // if we are a reasonable distance apart and the rotation is > some degrees
-      // // then start a rotation
-      // if (newDistance > 50.0 && fabs(angleDeviation) > 10.0)
-      //   {
-      //   this->CurrentGesture = vtkCommand::RotateEvent;
-      //   this->Rotation = 0.0;
-      //   }
-      // // if the distance has significantly changed then start a pinch event
-      // if (fabs(newDistance - originalDistance)/
-      //       sqrt(this->Size[0]*this->Size[0] + this->Size[1]*this->Size[1]) > 0.1 ||
-      //     fabs(newDistance - originalDistance) > 100.0)
-      //   {
-      //   this->CurrentGesture = vtkCommand::PinchEvent;
-      //   this->Scale = 1.0;
-      //   }
-      // // if
-      // if (fabs(angleDeviation) < 10.0 &&  // there is little rotation and
-      //     (transDistance/sqrt(this->Size[0]*this->Size[0] + this->Size[1]*this->Size[1]) > 0.1 ||
-      //      transDistance > 100.0))
-      //   {
-      //   this->CurrentGesture = vtkCommand::PanEvent;
-      //   this->Translation[0] = 0.0;
-      //   this->Translation[1] = 0.0;
-      //   }
-
       }
 
     // if we have found a specific type of movement then
@@ -777,9 +752,6 @@ void vtkRenderWindowInteractor::RecognizeGesture(vtkCommand::EventIds event)
 
     if (this->CurrentGesture == vtkCommand::PanEvent)
       {
-      double trans[2];
-      trans[0] = (posVals[0][0] - startVals[0][0] + posVals[1][0] - startVals[1][0])/2.0;
-      trans[1] = (posVals[0][1] - startVals[0][1] + posVals[1][1] - startVals[1][1])/2.0;
       this->SetTranslation(trans);
       this->PanEvent();
       }
