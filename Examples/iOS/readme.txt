@@ -27,7 +27,11 @@ directory in vtkios ala cd vtkios; mkdir install
 Once the framework is built it will automatically be installed. Now you can
 try building an iOS application that uses the framework.
 
-* Start up XCode and load an example Xcode project from Examples/iOS. You will
+* Start up XCode and load an example Xcode project from Examples/iOS. They will
+* be located in
+
+<yourBinDir>/CMakeExternals/Build/vtk-ios-device-armv7/Examples/iOS
+
 * likely need to update a couple setting in the project to find the vtk fraework
 * and its header files. You may also get unresolved link errors related to the
 * c++ standard libaries. I have had to change the stdlib settings in XCode away
@@ -47,6 +51,6 @@ bit twitchy sometimes.
 The GLPaint example is a modified version of Apple's GLPaint example. So credit
 to them for the original example file and framework.
 
-The VolumeRender example requires OpenGL ES3 so it will only work on
-devices that support ES3, which I believe includes iphone 5s or later and
+The VolumeRender and PlaneView examples require OpenGL ES3 so it will only
+work on devices that support ES3, which includes iphone 5s or later and
 ipad Air or later

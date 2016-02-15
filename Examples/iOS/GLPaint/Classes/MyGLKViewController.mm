@@ -213,12 +213,6 @@ PURPOSE.  See the above copyright notice for more information.
     return;
     }
 
-  vtkIOSRenderWindow *renWin = [self getVTKRenderWindow];
-  if (!renWin)
-    {
-    return;
-    }
-
   CGRect bounds = [self.view bounds];
 
   // set the position for all contacts
@@ -244,7 +238,7 @@ PURPOSE.  See the above copyright notice for more information.
     {
     int index = interactor->GetPointerIndexForContact((size_t)(__bridge void *)touch);
     interactor->SetPointerIndex(index);
-    interactor->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
+    interactor->LeftButtonPressEvent();
     NSLog(@"Starting left mouse");
     }
 
@@ -257,12 +251,6 @@ PURPOSE.  See the above copyright notice for more information.
 {
   vtkIOSRenderWindowInteractor *interactor = [self getInteractor];
   if (!interactor)
-    {
-    return;
-    }
-
-  vtkIOSRenderWindow *renWin = [self getVTKRenderWindow];
-  if (!renWin)
     {
     return;
     }
@@ -290,7 +278,7 @@ PURPOSE.  See the above copyright notice for more information.
 
   // fire move event on last index
   interactor->SetPointerIndex(index);
-  interactor->InvokeEvent(vtkCommand::MouseMoveEvent,NULL);
+  interactor->MouseMoveEvent();
   //  NSLog(@"Moved left mouse");
 
   // Display the buffer
@@ -302,12 +290,6 @@ PURPOSE.  See the above copyright notice for more information.
 {
   vtkIOSRenderWindowInteractor *interactor = [self getInteractor];
   if (!interactor)
-    {
-    return;
-    }
-
-  vtkIOSRenderWindow *renWin = [self getVTKRenderWindow];
-  if (!renWin)
     {
     return;
     }
@@ -336,7 +318,7 @@ PURPOSE.  See the above copyright notice for more information.
     {
     int index = interactor->GetPointerIndexForContact((size_t)(__bridge void *)touch);
     interactor->SetPointerIndex(index);
-    interactor->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
+    interactor->LeftButtonReleaseEvent();
     interactor->ClearContact((size_t)(__bridge void *)touch);
     NSLog(@"lifting left mouse");
     }
@@ -354,12 +336,6 @@ PURPOSE.  See the above copyright notice for more information.
     return;
     }
 
-  vtkIOSRenderWindow *renWin = [self getVTKRenderWindow];
-  if (!renWin)
-    {
-    return;
-    }
-
   CGRect        bounds = [self.view bounds];
   UITouch*            touch = [[event touchesForView:self.view] anyObject];
   // Convert touch point from UIView referential to OpenGL one (upside-down flip)
@@ -370,7 +346,7 @@ PURPOSE.  See the above copyright notice for more information.
                                   (int)round(location.y),
                                   0, 0,
                                   0, 0);
-  interactor->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
+  interactor->LeftButtonReleaseEvent();
   // NSLog(@"Ended left mouse");
 
   // Display the buffer

@@ -110,6 +110,10 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
   this->ControlKey = 0;
   this->ShiftKey = 0;
   this->KeyCode = 0;
+  this->Rotation = 0;
+  this->LastRotation = 0;
+  this->Scale = 0;
+  this->LastScale = 0;
   this->RepeatCount = 0;
   this->KeySym = 0;
   this->TimerEventId = 0;
@@ -127,8 +131,12 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
   for (int i=0; i < VTKI_MAX_POINTERS; i++)
     {
     this->PointerIndexLookup[i] = 0;
+    this->PointersDown[i] = 0;
     }
 
+  this->RecognizeGestures = true;
+  this->PointersDownCount = 0;
+  this->CurrentGesture = vtkCommand::StartEvent;
 }
 
 //----------------------------------------------------------------------
@@ -545,6 +553,241 @@ vtkRenderer* vtkRenderWindowInteractor::FindPokedRenderer(int x,int y)
   return currentRenderer;
 }
 
+//----------------------------------------------------------------------------
+void vtkRenderWindowInteractor::SetScale(double scale)
+{
+  this->LastScale = this->Scale;
+  if (this->Scale != scale)
+    {
+    this->Scale = scale;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkRenderWindowInteractor::SetRotation(double rot)
+{
+  this->LastRotation = this->Rotation;
+  if (this->Rotation != rot)
+    {
+    this->Rotation = rot;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkRenderWindowInteractor::SetTranslation(double val[2])
+{
+  this->LastTranslation[0] = this->Translation[0];
+  this->LastTranslation[1] = this->Translation[1];
+  if (this->Translation[0] != val[0] ||
+      this->Translation[1] != val[1])
+    {
+    this->Translation[0] = val[0];
+    this->Translation[1] = val[1];
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkRenderWindowInteractor::RecognizeGesture(vtkCommand::EventIds event)
+{
+  // we know we are in multitouch now, so start recognizing
+
+  // more than two pointers we ignore
+  if (this->PointersDownCount > 2)
+    {
+    return;
+    }
+
+  // store the initial positions
+  if (event == vtkCommand::LeftButtonPressEvent)
+    {
+    for (int i = 0; i < VTKI_MAX_POINTERS; i++)
+      {
+      if (this->PointersDown[i])
+        {
+        this->StartingEventPositions[i][0] =
+          this->EventPositions[i][0];
+        this->StartingEventPositions[i][1] =
+          this->EventPositions[i][1];
+        }
+      }
+    // we do not know what the gesture is yet
+    this->CurrentGesture = vtkCommand::StartEvent;
+    return;
+    }
+
+  // end the gesture if needed
+  if (event == vtkCommand::LeftButtonReleaseEvent)
+    {
+    if (this->CurrentGesture == vtkCommand::PinchEvent)
+      {
+      this->EndPinchEvent();
+      }
+    if (this->CurrentGesture == vtkCommand::RotateEvent)
+      {
+      this->EndRotateEvent();
+      }
+    if (this->CurrentGesture == vtkCommand::PanEvent)
+      {
+      this->EndPanEvent();
+      }
+    this->CurrentGesture = vtkCommand::StartEvent;
+    return;
+    }
+
+  // what are the two pointers we are working with
+  int count = 0;
+  int *posVals[2];
+  int *startVals[2];
+  for (int i = 0; i < VTKI_MAX_POINTERS; i++)
+    {
+    if (this->PointersDown[i])
+      {
+      posVals[count] = this->EventPositions[i];
+      startVals[count] = this->StartingEventPositions[i];
+      count++;
+      }
+    }
+
+  // The meat of the algorithm
+  // on move events we analyze them to determine what type
+  // of movement it is and then deal with it.
+  if (event == vtkCommand::MouseMoveEvent)
+    {
+    // calculate the distances
+    double originalDistance = sqrt(
+        static_cast<double>(
+        (startVals[0][0] - startVals[1][0])*(startVals[0][0] - startVals[1][0])
+        + (startVals[0][1] - startVals[1][1])*(startVals[0][1] - startVals[1][1])));
+    double newDistance = sqrt(
+        static_cast<double>(
+        (posVals[0][0] - posVals[1][0])*(posVals[0][0] - posVals[1][0])
+        + (posVals[0][1] - posVals[1][1])*(posVals[0][1] - posVals[1][1])));
+
+    // calculate rotations
+    double originalAngle =
+      vtkMath::DegreesFromRadians( atan2((double)startVals[1][1] - startVals[0][1],
+                                         (double)startVals[1][0] - startVals[0][0]));
+    double newAngle =
+      vtkMath::DegreesFromRadians( atan2( (double)posVals[1][1] - posVals[0][1],
+                                          (double)posVals[1][0] - posVals[0][0]));
+
+    // angles are cyclic so watch for that, 1 and 359 are only 2 apart :)
+    double angleDeviation = newAngle - originalAngle;
+    newAngle = (newAngle+180.0 >= 360.0 ? newAngle - 180.0 : newAngle + 180.0);
+    originalAngle = (originalAngle+180.0 >= 360.0 ? originalAngle - 180.0 : originalAngle + 180.0);
+    if (fabs(newAngle - originalAngle) < fabs(angleDeviation))
+      {
+      angleDeviation = newAngle - originalAngle;
+      }
+
+    // calculate the translations
+    double trans[2];
+      trans[0] = (posVals[0][0] - startVals[0][0] + posVals[1][0] - startVals[1][0])/2.0;
+      trans[1] = (posVals[0][1] - startVals[0][1] + posVals[1][1] - startVals[1][1])/2.0;
+
+    // OK we want to
+    // - immediately respond to the user
+    // - allow the user to zoom without panning (saves focal point)
+    // - allow the user to rotate without panning (saves focal point)
+
+    // do we know what gesture we are doing yet? If not
+    // see if we can figure it out
+    if (this->CurrentGesture == vtkCommand::StartEvent)
+      {
+      // pinch is a move to/from the center point
+      // rotate is a move along the circumference
+      // pan is a move of the center point
+      // compute the distance along each of these axes in pixels
+      // the first to break thresh wins
+      double thresh = sqrt(this->Size[0]*this->Size[0] + this->Size[1]*this->Size[1])*0.01;
+      if (thresh < 15.0)
+        {
+        thresh = 15.0;
+        }
+      double pinchDistance = fabs(newDistance - originalDistance);
+      double rotateDistance = newDistance*3.1415926*fabs(angleDeviation)/360.0;
+      double panDistance = sqrt(trans[0]*trans[0] + trans[1]*trans[1]);
+      if (pinchDistance > thresh
+          && pinchDistance > rotateDistance
+          && pinchDistance > panDistance)
+        {
+        this->CurrentGesture = vtkCommand::PinchEvent;
+        this->Scale = 1.0;
+        this->StartPinchEvent();
+        }
+      else if (rotateDistance > thresh
+          && rotateDistance > panDistance)
+        {
+        this->CurrentGesture = vtkCommand::RotateEvent;
+        this->Rotation = 0.0;
+        this->StartRotateEvent();
+        }
+      else if (panDistance > thresh)
+        {
+        this->CurrentGesture = vtkCommand::PanEvent;
+        this->Translation[0] = 0.0;
+        this->Translation[1] = 0.0;
+        this->StartPanEvent();
+        }
+
+      // // if we are a reasonable distance apart and the rotation is > some degrees
+      // // then start a rotation
+      // if (newDistance > 50.0 && fabs(angleDeviation) > 10.0)
+      //   {
+      //   this->CurrentGesture = vtkCommand::RotateEvent;
+      //   this->Rotation = 0.0;
+      //   }
+      // // if the distance has significantly changed then start a pinch event
+      // if (fabs(newDistance - originalDistance)/
+      //       sqrt(this->Size[0]*this->Size[0] + this->Size[1]*this->Size[1]) > 0.1 ||
+      //     fabs(newDistance - originalDistance) > 100.0)
+      //   {
+      //   this->CurrentGesture = vtkCommand::PinchEvent;
+      //   this->Scale = 1.0;
+      //   }
+      // // if
+      // if (fabs(angleDeviation) < 10.0 &&  // there is little rotation and
+      //     (transDistance/sqrt(this->Size[0]*this->Size[0] + this->Size[1]*this->Size[1]) > 0.1 ||
+      //      transDistance > 100.0))
+      //   {
+      //   this->CurrentGesture = vtkCommand::PanEvent;
+      //   this->Translation[0] = 0.0;
+      //   this->Translation[1] = 0.0;
+      //   }
+
+      }
+
+    // if we have found a specific type of movement then
+    // handle it
+    if (this->CurrentGesture == vtkCommand::RotateEvent)
+      {
+      this->SetRotation(angleDeviation);
+      this->RotateEvent();
+      }
+
+    if (this->CurrentGesture == vtkCommand::PinchEvent)
+      {
+        vtkErrorMacro("See pinch");
+      this->SetScale(newDistance/originalDistance);
+      this->PinchEvent();
+      }
+
+    if (this->CurrentGesture == vtkCommand::PanEvent)
+      {
+      double trans[2];
+      trans[0] = (posVals[0][0] - startVals[0][0] + posVals[1][0] - startVals[1][0])/2.0;
+      trans[1] = (posVals[0][1] - startVals[0][1] + posVals[1][1] - startVals[1][1])/2.0;
+      this->SetTranslation(trans);
+      this->PanEvent();
+      }
+
+    }
+
+}
+
 
 // Timer methods. There are two basic groups of methods, those for backward
 // compatibility (group #1) and those that operate on specific timers (i.e.,
@@ -767,6 +1010,7 @@ void vtkRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TimerEventDuration: " << this->TimerEventDuration << "\n";
   os << indent << "TimerEventPlatformId: " << this->TimerEventPlatformId << "\n";
   os << indent << "UseTDx: " << this->UseTDx << endl;
+  os << indent << "Recognize Gestures: " << this->RecognizeGestures << endl;
 }
 
 //----------------------------------------------------------------------------
@@ -808,7 +1052,17 @@ void vtkRenderWindowInteractor::MouseMoveEvent()
     {
     return;
     }
-  this->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
+
+  // handle gestures or not?
+  if (this->RecognizeGestures && this->PointersDownCount > 1)
+    {
+    // handle the gesture
+    this->RecognizeGesture(vtkCommand::MouseMoveEvent);
+    }
+  else
+    {
+    this->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
+    }
 }
 
 //------------------------------------------------------------------
@@ -838,6 +1092,29 @@ void vtkRenderWindowInteractor::LeftButtonPressEvent()
     {
     return;
     }
+
+  // are we translating multitouch into gestures?
+  if (this->RecognizeGestures)
+    {
+    if (!this->PointersDown[this->PointerIndex])
+      {
+      this->PointersDown[this->PointerIndex] = 1;
+      this->PointersDownCount++;
+      }
+    // do we have multitouch
+    if (this->PointersDownCount > 1)
+      {
+      // did we just transition to multitouch?
+      if (this->PointersDownCount == 2)
+        {
+        this->InvokeEvent(vtkCommand::LeftButtonReleaseEvent, NULL);
+        }
+      // handle the gesture
+      this->RecognizeGesture(vtkCommand::LeftButtonPressEvent);
+      return;
+      }
+    }
+
   this->InvokeEvent(vtkCommand::LeftButtonPressEvent, NULL);
 }
 
@@ -847,6 +1124,22 @@ void vtkRenderWindowInteractor::LeftButtonReleaseEvent()
   if (!this->Enabled)
     {
     return;
+    }
+
+  if (this->RecognizeGestures)
+    {
+    if (this->PointersDown[this->PointerIndex])
+      {
+      this->PointersDown[this->PointerIndex] = 0;
+      this->PointersDownCount--;
+      }
+    // do we have multitouch
+    if (this->PointersDownCount > 1)
+      {
+      // handle the gesture
+      this->RecognizeGesture(vtkCommand::LeftButtonReleaseEvent);
+      return;
+      }
     }
   this->InvokeEvent(vtkCommand::LeftButtonReleaseEvent, NULL);
 }
@@ -971,4 +1264,115 @@ void vtkRenderWindowInteractor::ExitEvent()
   this->InvokeEvent(vtkCommand::ExitEvent, NULL);
 }
 
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor::StartPinchEvent()
+{
+  if (!this->Enabled)
+    {
+    return;
+    }
+  this->InvokeEvent(vtkCommand::StartPinchEvent, NULL);
+}
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor::PinchEvent()
+{
+  if (!this->Enabled)
+    {
+    return;
+    }
+  this->InvokeEvent(vtkCommand::PinchEvent, NULL);
+}
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor::EndPinchEvent()
+{
+  if (!this->Enabled)
+    {
+    return;
+    }
+  this->InvokeEvent(vtkCommand::EndPinchEvent, NULL);
+}
 
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor::StartRotateEvent()
+{
+  if (!this->Enabled)
+    {
+    return;
+    }
+  this->InvokeEvent(vtkCommand::StartRotateEvent, NULL);
+}
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor::RotateEvent()
+{
+  if (!this->Enabled)
+    {
+    return;
+    }
+  this->InvokeEvent(vtkCommand::RotateEvent, NULL);
+}
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor::EndRotateEvent()
+{
+  if (!this->Enabled)
+    {
+    return;
+    }
+  this->InvokeEvent(vtkCommand::EndRotateEvent, NULL);
+}
+
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor::StartPanEvent()
+{
+  if (!this->Enabled)
+    {
+    return;
+    }
+  this->InvokeEvent(vtkCommand::StartPanEvent, NULL);
+}
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor::PanEvent()
+{
+  if (!this->Enabled)
+    {
+    return;
+    }
+  this->InvokeEvent(vtkCommand::PanEvent, NULL);
+}
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor::EndPanEvent()
+{
+  if (!this->Enabled)
+    {
+    return;
+    }
+  this->InvokeEvent(vtkCommand::EndPanEvent, NULL);
+}
+
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor::TapEvent()
+{
+  if (!this->Enabled)
+    {
+    return;
+    }
+  this->InvokeEvent(vtkCommand::TapEvent, NULL);
+}
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor::LongTapEvent()
+{
+  if (!this->Enabled)
+    {
+    return;
+    }
+  this->InvokeEvent(vtkCommand::LongTapEvent, NULL);
+}
+
+//------------------------------------------------------------------
+void vtkRenderWindowInteractor::SwipeEvent()
+{
+  if (!this->Enabled)
+    {
+    return;
+    }
+  this->InvokeEvent(vtkCommand::SwipeEvent, NULL);
+}
