@@ -270,6 +270,14 @@ run the vtkpython executable. The version number reported should be correct and
 `import vtk; rv=vtk.vtkRenderView(); rv.Render()`
 should create a window on the desktop.
 
+#### Tagging the release
+
+When tagging the release, use:
+
+```sh
+$ git tag -a -m "VTK $version" v$version $commit_to_be_tagged
+```
+
 ### Uploading
 
 Upload the files to vtk.org using a public key with access to `vtk.org/files`.
