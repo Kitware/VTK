@@ -53,7 +53,7 @@
 
 int TestCoincidentGeoGraphRepresentation2D(int argc, char* argv[])
 {
-  int projNum = 44;
+  int projNum = 26; // eqc : Equidistant Cylindrical (Plate Caree)
   char* fname = vtkTestUtilities::ExpandDataFileName(
     argc, argv, "Data/NE2_ps_bath_small.jpg");
   vtkStdString imageFile = fname;

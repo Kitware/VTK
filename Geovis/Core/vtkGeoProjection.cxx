@@ -80,7 +80,7 @@ int vtkGeoProjection::GetNumberOfProjections()
   if ( vtkGeoProjectionNumProj < 0 )
     {
     vtkGeoProjectionNumProj = 0;
-    for ( const PROJ_LIST* pj = proj_list; pj && pj->id; ++ pj )
+    for ( const PJ_LIST* pj = pj_get_list_ref(); pj && pj->id; ++ pj )
       ++ vtkGeoProjectionNumProj;
     }
   return vtkGeoProjectionNumProj;
@@ -91,7 +91,7 @@ const char* vtkGeoProjection::GetProjectionName( int projection )
   if ( projection < 0 || projection >= vtkGeoProjection::GetNumberOfProjections() )
     return 0;
 
-  return proj_list[projection].id;
+  return pj_get_list_ref()[projection].id;
 }
 //-----------------------------------------------------------------------------
 const char* vtkGeoProjection::GetProjectionDescription( int projection )
@@ -99,7 +99,7 @@ const char* vtkGeoProjection::GetProjectionDescription( int projection )
   if ( projection < 0 || projection >= vtkGeoProjection::GetNumberOfProjections() )
     return 0;
 
-  return proj_list[projection].descr[0];
+  return pj_get_list_ref()[projection].descr[0];
 }
 //-----------------------------------------------------------------------------
 vtkGeoProjection::vtkGeoProjection()
@@ -116,7 +116,7 @@ vtkGeoProjection::~vtkGeoProjection()
   this->SetName( 0 );
   if ( this->Projection )
     {
-    proj_free( this->Projection );
+    pj_free( this->Projection );
     }
   delete this->Internals;
   this->Internals = NULL;
@@ -142,7 +142,7 @@ int vtkGeoProjection::GetIndex()
   if ( ! this->Projection )
     return -1;
   int i = 0;
-  for ( const PROJ_LIST* proj = proj_list; proj && proj->id; ++ proj, ++ i )
+  for ( const PJ_LIST* proj = pj_get_list_ref(); proj && proj->id; ++ proj, ++ i )
     {
     if ( ! strcmp( proj->id, this->Name ) )
       {
@@ -162,7 +162,7 @@ const char* vtkGeoProjection::GetDescription()
   return this->Projection->descr;
 }
 //-----------------------------------------------------------------------------
-PROJ* vtkGeoProjection::GetProjection()
+projPJ vtkGeoProjection::GetProjection()
 {
   this->UpdateProjection();
   return this->Projection;
@@ -178,7 +178,7 @@ int vtkGeoProjection::UpdateProjection()
 
   if ( this->Projection )
     {
-    proj_free( this->Projection );
+    pj_free( this->Projection );
     this->Projection = 0;
     }
 
@@ -217,7 +217,7 @@ int vtkGeoProjection::UpdateProjection()
     pjArgs[3+i] = stringHolder[i].c_str();
     }
 
-  this->Projection = proj_init( argSize, const_cast<char**>( pjArgs ) );
+  this->Projection = pj_init( argSize, const_cast<char**>( pjArgs ) );
   delete[] pjArgs;
   if ( this->Projection )
     {

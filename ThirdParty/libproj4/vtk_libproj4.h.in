@@ -18,9 +18,13 @@
 /* Use the libproj4 library configured for VTK.  */
 #cmakedefine VTK_USE_SYSTEM_LIBPROJ4
 #ifdef VTK_USE_SYSTEM_LIBPROJ4
-# include <lib_proj.h>
+# include <projects.h>
+# include <proj_api.h>
+# include <geodesic.h>
 #else
-# include <vtklibproj4/lib_proj.h>
+# include <vtklibproj4/src/projects.h>
+# include <vtklibproj4/src/proj_api.h>
+# include <vtklibproj4/src/geodesic.h>
 #endif
 
 #endif
