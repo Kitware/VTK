@@ -279,10 +279,6 @@ void vtkIOSRenderWindow::Frame()
     {
 //    [(NSOpenGLContext*)this->GetContextId() flushBuffer];
     }
-   else
-    {
-    glFlush();
-    }
 }
 
 //----------------------------------------------------------------------------

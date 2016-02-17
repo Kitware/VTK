@@ -375,10 +375,6 @@ void vtkXOpenGLRenderWindow::Frame()
     glXSwapBuffers(this->DisplayId, this->WindowId);
     vtkDebugMacro(<< " glXSwapBuffers\n");
     }
-  else
-    {
-    glFlush();
-    }
 }
 
 bool vtkXOpenGLRenderWindow::InitializeFromCurrentContext()

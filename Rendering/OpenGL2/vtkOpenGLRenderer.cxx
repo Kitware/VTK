@@ -554,8 +554,6 @@ void vtkOpenGLRenderer::DonePick()
 {
   if (this->PickInfo->PerformedHardwarePick)
     {
-    glFlush();
-
     unsigned char *pixBuffer = this->GetRenderWindow()->GetPixelData(
       this->PickX1, this->PickY1, this->PickX2, this->PickY2, 0);
   //    (this->GetRenderWindow()->GetSwapBuffers() == 1) ? 0 : 1);

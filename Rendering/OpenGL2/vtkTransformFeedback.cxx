@@ -199,7 +199,6 @@ void vtkTransformFeedback::ReadBuffer()
     }
 
   glEndTransformFeedback();
-  glFlush();
 
   size_t bufferSize = this->GetBufferSize();
   this->ReleaseBufferData();

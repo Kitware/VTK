@@ -149,10 +149,6 @@ void vtkEGLRenderWindow::Frame()
       eglSwapBuffers(impl->Display, impl->Surface);
       vtkDebugMacro(<< " eglSwapBuffers\n");
       }
-    else
-      {
-      glFlush();
-      }
     }
   else
     {
@@ -160,10 +156,6 @@ void vtkEGLRenderWindow::Frame()
       {
       eglSwapBuffers( eglGetCurrentDisplay(), eglGetCurrentSurface( EGL_DRAW ) );
       vtkDebugMacro(<< " eglSwapBuffers\n");
-      }
-    else
-      {
-      glFlush();
       }
     }
 }

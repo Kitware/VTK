@@ -369,10 +369,6 @@ void vtkWin32OpenGLRenderWindow::Frame(void)
       vtkDebugMacro(<< " SwapBuffers\n");
       }
     }
-  else
-    {
-    glFlush();
-    }
 }
 
 void vtkWin32OpenGLRenderWindow::VTKRegisterClass()

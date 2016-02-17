@@ -970,9 +970,6 @@ void vtkOpenGLRenderWindow::DrawPixels(
   this->DrawPixelsTextureObject->Create2DFromRaw(srcWidth, srcHeight,
         numComponents, dataType, data);
   this->DrawPixelsTextureObject->CopyToFrameBuffer(NULL, NULL);
-
-  // This seems to be necessary for the image to show up
-  glFlush();
 }
 
 // very generic call to draw pixel data to a region of the window
@@ -999,9 +996,6 @@ void vtkOpenGLRenderWindow::DrawPixels(
       dstXmin, dstYmin, dstXmax, dstYmax,
       this->GetSize()[0], this->GetSize()[1],
       NULL, NULL);
-
-  // This seems to be necessary for the image to show up
-  glFlush();
 }
 
 // less generic verison, old API
@@ -1585,9 +1579,6 @@ int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
   // Renenable writing on the z-buffer.
   glDepthMask(GL_TRUE);
   glEnable(GL_DEPTH_TEST);
-
-  // This seems to be necessary for the image to show up
-  glFlush();
 
   glDrawBuffer(buffer);
 
