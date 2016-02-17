@@ -466,12 +466,11 @@ vtkOpenGLGL2PSHelperImpl::TextPropertyToPSFontName(vtkTextProperty *tprop)
         {
         return "Helvetica-Bold";
         }
-      else if (italic)
+      else // (italic)
         {
         return "Helvetica-Italic";
         }
       }
-      break;
     case VTK_TIMES:
       {
       if (!bold && !italic)
@@ -486,12 +485,11 @@ vtkOpenGLGL2PSHelperImpl::TextPropertyToPSFontName(vtkTextProperty *tprop)
         {
         return "Times-Bold";
         }
-      else if (italic)
+      else // (italic)
         {
         return "Times-Oblique";
         }
       }
-      break;
     case VTK_COURIER:
       {
       if (!bold && !italic)
@@ -506,12 +504,11 @@ vtkOpenGLGL2PSHelperImpl::TextPropertyToPSFontName(vtkTextProperty *tprop)
         {
         return "Courier-Bold";
         }
-      else if (italic)
+      else // (italic)
         {
         return "Courier-Oblique";
         }
       }
-      break;
     case VTK_UNKNOWN_FONT:
     default:
       break;
@@ -1131,18 +1128,15 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathSVG(
         {
         // Next point should be a CONIC_CURVE as well
         code += 1;
-        const float &conicX = *pt;
-        const float &conicY = *(++pt);
-        ++pt; // Flush z
-        const float &nextX = *(++pt);
-        const float &nextY = *(++pt);
-        ++pt; // Flush z
 
         // Perform degree elevation:
-        curveto[0][0] = conicX;
-        curveto[0][1] = conicY;
-        curveto[1][0] = curX = nextX;
-        curveto[1][1] = curY = nextY;
+        curveto[0][0] = *pt;
+        curveto[0][1] = *(++pt);
+        ++pt; // Flush z
+        curveto[1][0] = *(++pt);
+        curveto[1][1] = *(++pt);
+        ++pt; // Flush z
+
         out << "    Q " << curveto[0][0] << " " << curveto[0][1] << endl
             << "      " << curveto[1][0] << " " << curveto[1][1] << endl;
         }
@@ -1158,9 +1152,10 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathSVG(
         curveto[1][0] = *(++pt);
         curveto[1][1] = *(++pt);
         ++pt;
-        curveto[2][0] = curX = *(++pt);
-        curveto[2][1] = curY = *(++pt);
+        curveto[2][0] = *(++pt);
+        curveto[2][1] = *(++pt);
         ++pt;
+
         out << "    C " << curveto[0][0] << " " << curveto[0][1] << endl
             << "      " << curveto[1][0] << " " << curveto[1][1] << endl
             << "      " << curveto[2][0] << " " << curveto[2][1] << endl;

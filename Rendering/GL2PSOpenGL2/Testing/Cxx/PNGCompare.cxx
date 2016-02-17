@@ -63,6 +63,9 @@ int PNGCompare(int argc, char *argv[])
 
   if (result == vtkTesting::PASSED)
     {
+    // Coverity complains that we don't check the result of remove(), but
+    // we really don't care about it. Suppressing:
+    // coverity[CHECKED_RETURN]
     remove(testImageFileName.c_str());
     return EXIT_SUCCESS;
     }
