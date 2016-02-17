@@ -172,11 +172,11 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
 
   // Get composite input
   vtkCompositeDataSet * compositeInput = vtkCompositeDataSet::SafeDownCast(
-                                                                           inInfo->Get( vtkDataObject::DATA_OBJECT() ) );
+    inInfo->Get( vtkDataObject::DATA_OBJECT() ) );
 
   // Get typed output
   vtkMultiBlockDataSet * compositeOutput = vtkMultiBlockDataSet::SafeDownCast(
-                                                                              outInfo->Get( vtkDataObject::DATA_OBJECT() ));
+    outInfo->Get( vtkDataObject::DATA_OBJECT() ));
 
   if( compositeInput==0 || compositeOutput==0 )
     {
@@ -184,23 +184,36 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
     return 0;
     }
 
-  std::map<int,vtkDataSet*> outputBlocks;
-
   vtkDebugMacro(<<"input="<<compositeInput->GetClassName()<<"\n");
+
+  // we want the output to have the same structure than the input
+  compositeOutput->CopyStructure(compositeInput);
 
   // allocate composite iterator
   vtkCompositeDataIterator * inputIterator = compositeInput->NewIterator();
-  inputIterator->SkipEmptyNodesOn();
+  inputIterator->SkipEmptyNodesOff();
   inputIterator->InitTraversal();
-  inputIterator->GoToFirstItem();
+
+  vtkCompositeDataIterator * outputIterator = compositeOutput->NewIterator();
+  outputIterator->SkipEmptyNodesOff();
+  outputIterator->InitTraversal();
 
   while ( inputIterator->IsDoneWithTraversal() == 0 )
     {
     // get the input and ouptut
-    vtkPolyData *input = vtkPolyData::SafeDownCast( inputIterator->GetCurrentDataObject() );
-    vtkPolyData *output = vtkPolyData::New();
     int blockId = inputIterator->GetCurrentFlatIndex();
+    vtkPolyData *input = vtkPolyData::SafeDownCast( inputIterator->GetCurrentDataObject() );
     inputIterator->GoToNextItem();
+    if (!input)
+      {
+      outputIterator->GoToNextItem();
+      continue;
+      }
+
+    vtkPolyData *output = vtkPolyData::New();
+    compositeOutput->SetDataSet(outputIterator, output);
+    outputIterator->GoToNextItem();
+    output->Delete();
 
     vtkIdType numPts, numCells;
     numPts = input->GetNumberOfPoints();
@@ -488,29 +501,12 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
 
       output->Squeeze();
 
-      if ( blockId == -1 )
-        {
-        blockId = static_cast<int>( outputBlocks.size() );
-        }
-      outputBlocks[blockId] = output;
-
       } /* if numPts>0 && numCells>0 */
 
     } /* Iterate over input blocks */
+
   inputIterator->Delete();
-
-
-  // build final composite output. also tagging blocks with their associated Id
-  compositeOutput->SetNumberOfBlocks( static_cast<unsigned int>( outputBlocks.size() ) );
-  int blockIndex=0;
-  for( std::map<int,vtkDataSet*>::iterator it=outputBlocks.begin(); it!=outputBlocks.end(); ++it, ++blockIndex )
-    {
-    if( it->second->GetNumberOfCells() > 0 )
-      {
-      compositeOutput->SetBlock( blockIndex , it->second );
-      it->second->Delete();
-      }
-    }
+  outputIterator->Delete();
 
   return 1;
 }
