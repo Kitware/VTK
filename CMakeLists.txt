@@ -38,7 +38,6 @@ set(PROJ_BUILD_VERSION "10.0.1")
 #################################################################################
 # Build features and variants
 #################################################################################
-include(Proj4SystemInfo)
 include(Proj4Config)
 include(Proj4Mac)
 include(policies)
@@ -55,9 +54,6 @@ CHECK_SYMBOL_EXISTS(PTHREAD_MUTEX_RECURSIVE pthread.h HAVE_PTHREAD_MUTEX_RECURSI
 if (HAVE_PTHREAD_MUTEX_RECURSIVE_DEFN)
     add_definitions(-DHAVE_PTHREAD_MUTEX_RECURSIVE=1)
 endif()
-
-boost_report_value(PROJ_PLATFORM_NAME)
-boost_report_value(PROJ_COMPILER_NAME)
 
 # Set a default build type for single-configuration cmake generators if
 # no build type is set.
