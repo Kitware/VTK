@@ -392,7 +392,7 @@ which include string objects, numpy arrays and even VTK arrays.
 Extreme caution should be applied when using this feature.
 
 Methods that return a 'void \*' in C++ will, in Python, return a
-string with a hexidecimal number that gives the memory address.
+string with a hexadecimal number that gives the memory address.
 
 
 Transmitting data from Python to VTK
@@ -406,7 +406,7 @@ the vtkDataArray.SetVoidArray() method.
 Creating a Python object from just the address of a VTK object
 --------------------------------------------------------------
 
-When you instantiate a class, you can provide a hexidecimal string
+When you instantiate a class, you can provide a hexadecimal string
 containing the address of an existing vtk object, e.g.
 
     t = vtkTransform('_1010e068_vtkTransform_p')
