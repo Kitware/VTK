@@ -78,7 +78,8 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
       chain = linebuf[21];
       sscanf(&linebuf[22], "%d", &resi);
       sscanf(&linebuf[30],"%8f%8f%8f", x, x+1, x+2);
-      sscanf(&linebuf[76], "%2s", elem);
+      if (strlen(linebuf) > 55)
+          sscanf(&linebuf[76], "%2s", elem);
 
       if (elem[0] == '\0')
         {
