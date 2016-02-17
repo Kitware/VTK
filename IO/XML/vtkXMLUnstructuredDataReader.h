@@ -46,6 +46,10 @@ public:
   virtual vtkIdType GetNumberOfCells();
 
   // Description:
+  // Get the number of pieces in the file
+  virtual vtkIdType GetNumberOfPieces();
+
+  // Description:
   // Setup the reader as if the given update extent were requested by
   // its output.  This can be used after an UpdateInformation to
   // validate GetNumberOfPoints() and GetNumberOfCells() without

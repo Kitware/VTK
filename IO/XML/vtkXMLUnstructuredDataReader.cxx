@@ -340,6 +340,12 @@ vtkIdType vtkXMLUnstructuredDataReader::GetNumberOfCells()
 }
 
 //----------------------------------------------------------------------------
+vtkIdType vtkXMLUnstructuredDataReader::GetNumberOfPieces()
+{
+  return this->NumberOfPieces;
+}
+
+//----------------------------------------------------------------------------
 vtkIdType vtkXMLUnstructuredDataReader::GetNumberOfPointsInPiece(int piece)
 {
   return this->NumberOfPoints[piece];
