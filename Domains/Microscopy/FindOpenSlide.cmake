@@ -8,7 +8,10 @@
 #   OPENSLIDE_LIBRARIES     - link to these to use OpenSlide
 
 # Look for the header.
-find_path( OPENSLIDE_INCLUDE_DIR NAMES openslide.h PATHS /usr/local/include/openslide)
+find_path( OPENSLIDE_INCLUDE_DIR NAMES openslide.h PATHS
+    /usr/local/include/openslide
+    /usr/include/openslide)
+
 mark_as_advanced( OPENSLIDE_INCLUDE_DIR )
 
 # Look for the library.
