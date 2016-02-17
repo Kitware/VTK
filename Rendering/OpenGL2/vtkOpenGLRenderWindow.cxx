@@ -563,6 +563,21 @@ void vtkOpenGLRenderWindow::InitializeTextureInternalFormats()
     }
 }
 
+void vtkOpenGLRenderWindow::GetOpenGLVersion(int &major, int &minor)
+{
+  int glMajorVersion = 0;
+  int glMinorVersion = 0;
+
+  if (this->Initialized)
+    {
+    glGetIntegerv(GL_MAJOR_VERSION, & glMajorVersion);
+    glGetIntegerv(GL_MINOR_VERSION, & glMinorVersion);
+    }
+
+  major = glMinorVersion;
+  minor = glMinorVersion;
+}
+
 void vtkOpenGLRenderWindow::OpenGLInitContext()
 {
   this->ContextCreationTime.Modified();
