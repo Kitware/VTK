@@ -60,10 +60,10 @@ static int windowId = -1;
 static int windowH = 301;
 static int windowW = 300;
 
-static void MakeCurrentCallback(vtkObject* caller,
-                                long unsigned int eventId,
-                                void * clientData,
-                                void * callData)
+static void MakeCurrentCallback(vtkObject* vtkNotUsed(caller),
+                                long unsigned int vtkNotUsed(eventId),
+                                void * vtkNotUsed(clientData),
+                                void * vtkNotUsed(callData))
 {
   if (initialized)
     {
@@ -168,7 +168,7 @@ void onexit(void)
 } // end anon namespace
 
 /* Main function: GLUT runs as a console application starting at main()  */
-int TestGLUTRenderWindow(int argc, char** argv)
+int TestGLUTRenderWindow(int argc, char* argv[])
 {
   NumArgs = argc;
   ArgV = argv;
