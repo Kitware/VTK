@@ -25,16 +25,14 @@
 #ifndef vtkOpenSlideReader_h
 #define vtkOpenSlideReader_h
 
-#include "vtkIOImageModule.h" // For export macro
+#include "vtkDomainsMicroscopyModule.h" // For export macro
 #include "vtkImageReader2.h"
 
-
 extern "C" {
-#include "openslide/openslide.h"
+#include "openslide/openslide.h" // For openslide support
 }
 
-
-class VTKIOIMAGE_EXPORT vtkOpenSlideReader : public vtkImageReader2
+class VTKDOMAINSMICROSCOPY_EXPORT vtkOpenSlideReader : public vtkImageReader2
 {
 public:
   static vtkOpenSlideReader *New();
@@ -51,14 +49,14 @@ public:
   // the format .extension
   virtual const char* GetFileExtensions()
     {
-      return ".ndpi .svs";
+      return ".ndpi .svs"; // TODO: Get exaustive list of formats
     }
 
   // Description:
   // Return a descriptive name for the file format that might be useful in a GUI.
   virtual const char* GetDescriptiveName()
     {
-      return "OpenSlide";
+      return "Openslide::WholeSlideImage";
     }
 protected:
   vtkOpenSlideReader() {}
