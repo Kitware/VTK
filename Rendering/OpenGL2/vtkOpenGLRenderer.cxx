@@ -663,6 +663,7 @@ bool vtkOpenGLRenderer::HaveApplePrimitiveIdBug()
 #ifdef __APPLE__
   // working AMD APPLE systems
   // OpenGL vendor string:  ATI Technologies Inc.
+  // OpenGL version string:   4.1 ATI-1.38.3
   // OpenGL version string:   4.1 ATI-1.40.15
   // OpenGL renderer string:    AMD Radeon R9 M370X OpenGL Engine
   // OpenGL version string:   4.1 ATI-1.40.16
@@ -686,7 +687,8 @@ bool vtkOpenGLRenderer::HaveApplePrimitiveIdBug()
     std::string renderer = (const char *)glGetString(GL_RENDERER);
     std::string version = (const char *)glGetString(GL_VERSION);
     if (
-        (version.find("4.1 ATI-1.40.15") != std::string::npos &&
+        ((version.find("4.1 ATI-1.38.3") != std::string::npos ||
+          version.find("4.1 ATI-1.40.15") != std::string::npos) &&
           (renderer.find("AMD Radeon R9 M370X OpenGL Engine") != std::string::npos)) ||
         (version.find("4.1 ATI-1.40.16") != std::string::npos &&
           (renderer.find("ATI Radeon HD 5770 OpenGL Engine") != std::string::npos ||
