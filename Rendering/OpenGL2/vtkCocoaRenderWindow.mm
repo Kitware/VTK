@@ -613,10 +613,6 @@ void vtkCocoaRenderWindow::Frame()
     {
     [(NSOpenGLContext*)this->GetContextId() flushBuffer];
     }
-   else
-    {
-    glFlush();
-    }
 }
 
 //----------------------------------------------------------------------------

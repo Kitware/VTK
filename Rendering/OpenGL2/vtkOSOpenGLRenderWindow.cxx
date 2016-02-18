@@ -128,7 +128,6 @@ vtkOSOpenGLRenderWindow::~vtkOSOpenGLRenderWindow()
 void vtkOSOpenGLRenderWindow::Frame()
 {
   this->MakeCurrent();
-  glFlush();
 }
 
 //
