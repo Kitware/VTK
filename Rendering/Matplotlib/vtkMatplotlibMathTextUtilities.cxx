@@ -13,6 +13,7 @@
 
 =========================================================================*/
 #include "vtkPython.h" // must be the first thing that's included.
+#include "vtkPythonCompatibility.h"
 #include "vtkMatplotlibMathTextUtilities.h"
 
 #include "vtkCommand.h"

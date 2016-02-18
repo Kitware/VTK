@@ -253,7 +253,7 @@ if(PYTHON_EXECUTABLE)
     endif ()
   endforeach()
 
-  if(NOT "${VTK_BINARY_DIR}" MATCHES "^${VTK_SOURCE_DIR}$")
+  if(NOT "${VTK_BINARY_DIR}" STREQUAL "${VTK_SOURCE_DIR}")
     foreach(file ${VTK_PYTHON_FILES})
       if (NOT IS_ABSOLUTE "${file}")
         set(src "${CMAKE_CURRENT_SOURCE_DIR}/${file}.py")
