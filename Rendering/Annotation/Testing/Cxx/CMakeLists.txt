@@ -1,5 +1,8 @@
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestAxisActor3D.cxx
+  TestAxisActor.cxx
+  TestAxisActor2D.cxx
+  TestAxisActorText3D.cxx
   TestBarChartActor.cxx
   TestCaptionActor2D.cxx
   TestConvexHull2D.cxx,NO_VALID
