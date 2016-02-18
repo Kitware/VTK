@@ -707,18 +707,27 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
       reinterpret_cast<PFNWGLCREATECONTEXTATTRIBSARBPROC>(wglGetProcAddress("wglCreateContextAttribsARB"));
     if (wglCreateContextAttribsARB)
       {
-      int iContextAttribs[] =
+      this->ContextId = 0;
+      // we believe that these later versions are all compatible with
+      // OpenGL 3.2 so get a more recent context if we can.
+      int attemptedVersions[] = {4,5, 4,4, 4,3, 4,2, 4,1, 4,0, 3,3, 3,2};
+      for (int i = 0; i < 8 && !this->ContextId; i++)
         {
-        WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
-        WGL_CONTEXT_MINOR_VERSION_ARB, 2,
-        WGL_CONTEXT_FLAGS_ARB, 0,
-        // WGL_CONTEXT_PROFILE_MASK_ARB,
-        // WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
-        // WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
-        0 // End of attributes list
-        };
+        int iContextAttribs[] =
+          {
+          WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
+          WGL_CONTEXT_MINOR_VERSION_ARB, 2,
+          WGL_CONTEXT_FLAGS_ARB, 0,
+          // WGL_CONTEXT_PROFILE_MASK_ARB,
+          // WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
+          // WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+          0 // End of attributes list
+          };
+        iContextAttribs[1] = attemptedVersions[i*2];
+        iContextAttribs[3] = attemptedVersions[i*2+1];
 
-      this->ContextId = wglCreateContextAttribsARB(hDC, 0, iContextAttribs);
+        this->ContextId = wglCreateContextAttribsARB(hDC, 0, iContextAttribs);
+        }
       }
     if (this->ContextId)
       {

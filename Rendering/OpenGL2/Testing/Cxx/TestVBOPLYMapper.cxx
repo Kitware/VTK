@@ -31,6 +31,8 @@
 
 #include "vtkRenderWindowInteractor.h"
 
+#include "vtkOpenGLRenderWindow.h"
+
 //----------------------------------------------------------------------------
 int TestVBOPLYMapper(int argc, char *argv[])
 {
@@ -86,6 +88,9 @@ int TestVBOPLYMapper(int argc, char *argv[])
   timer->StopTimer();
   double firstRender = timer->GetElapsedTime();
   cerr << "first render time: " << firstRender << endl;
+  int major, minor;
+  vtkOpenGLRenderWindow::SafeDownCast(renderWindow.Get())->GetOpenGLVersion(major,minor);
+  cerr << "opengl version " << major << "." << minor << "\n";
 
   timer->StartTimer();
   int numRenders = 8;
