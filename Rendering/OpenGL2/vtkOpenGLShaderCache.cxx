@@ -305,16 +305,16 @@ vtkShaderProgram *vtkOpenGLShaderCache::ReadyShaderProgram(
 vtkShaderProgram *vtkOpenGLShaderCache::ReadyShaderProgram(
     vtkShaderProgram *shader, vtkTransformFeedback *cap)
 {
+  if (!shader)
+    {
+    return NULL;
+    }
+
   if (shader->GetTransformFeedback() != cap)
     {
     this->ReleaseCurrentShader();
     shader->ReleaseGraphicsResources(NULL);
     shader->SetTransformFeedback(cap);
-    }
-
-  if (!shader)
-    {
-    return NULL;
     }
 
   // compile if needed
