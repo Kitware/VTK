@@ -1,6 +1,6 @@
 /*=========================================================================
 Program:   Visualization Toolkit
-Module:    TestGPURayCastTwoComponentsGradient.cxx
+Module:    TestGPURayCastTwoComponentsDependentGradient.cxx
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 All rights reserved.
 See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
@@ -11,7 +11,8 @@ PURPOSE.  See the above copyright notice for more information.
 
 // Description
 // This test creates a vtkImageData with two components.
-// The data is volume rendered considering the two components as independent.
+// The data is volume rendered considering the two components as dependent
+// and gradient based modulation of the opacity is applied
 
 #include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
@@ -29,7 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkVolumeProperty.h"
 #include "vtkUnsignedShortArray.h"
 
-int TestGPURayCastTwoComponentsGradient(int argc, char *argv[])
+int TestGPURayCastTwoComponentsDependentGradient(int argc, char *argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
@@ -84,7 +85,7 @@ int TestGPURayCastTwoComponentsGradient(int argc, char *argv[])
 
   // Color transfer function
   vtkNew<vtkColorTransferFunction> ctf1;
-  ctf1->AddRGBPoint(0.0, 0.0, 0.0, 0.0);
+  ctf1->AddRGBPoint(0.0, 0.0, 0.0, 1.0);
   ctf1->AddRGBPoint(1.0, 1.0, 0.0, 0.0);
 
   vtkNew<vtkColorTransferFunction> ctf2;
@@ -93,7 +94,7 @@ int TestGPURayCastTwoComponentsGradient(int argc, char *argv[])
 
   // Opacity functions
   vtkNew<vtkPiecewiseFunction> pf1;
-  pf1->AddPoint(0.0, 0.0);
+  pf1->AddPoint(0.0, 1.0);
   pf1->AddPoint(1.0, 1.0);
 
   vtkNew<vtkPiecewiseFunction> pf2;
@@ -109,9 +110,9 @@ int TestGPURayCastTwoComponentsGradient(int argc, char *argv[])
   pf4->AddPoint(0.0, 0.0);
   pf4->AddPoint(1.0, 1.0);
 
-  // Volume property with independent components ON
+  // Volume property with independent components OFF
   vtkNew<vtkVolumeProperty> property;
-  property->IndependentComponentsOn();
+  property->IndependentComponentsOff();
 
   // Set color and opacity functions
   property->SetColor(0, ctf1.GetPointer());
@@ -119,7 +120,7 @@ int TestGPURayCastTwoComponentsGradient(int argc, char *argv[])
   property->SetScalarOpacity(0, pf1.GetPointer());
   property->SetScalarOpacity(1, pf2.GetPointer());
   property->SetGradientOpacity(0, pf3.GetPointer());
-  property->SetGradientOpacity(1, pf4.GetPointer());
+//  property->SetGradientOpacity(1, pf4.GetPointer());
 
   vtkNew<vtkVolume> volume;
   volume->SetMapper(mapper.GetPointer());
