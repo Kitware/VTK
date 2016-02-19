@@ -22,6 +22,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestDijkstraImageGeodesicPath.cxx
   TestDistanceWidget3D.cxx
   TestDistanceWidget.cxx
+  TestFinitePlaneWidget.cxx
   TestFixedSizeHandleRepresentation3D.cxx
   TestFocalPlaneContour.cxx
   TestHandleWidget2D.cxx
