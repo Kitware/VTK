@@ -205,13 +205,14 @@ int vtkGeoProjection::UpdateProjection()
   pjArgs[2] = meridSpec.c_str();
 
   // Add optional parameters
-  std::vector<std::string> stringHolder; // Keep string ref in memory
+  std::vector<std::string> stringHolder(
+    this->GetNumberOfOptionalParameters()); // Keep string ref in memory
   for(int i=0; i < this->GetNumberOfOptionalParameters(); i++)
     {
     std::ostringstream param;
     param << "+" << this->GetOptionalParameterKey(i);
     param << "=" << this->GetOptionalParameterValue(i);
-    stringHolder.push_back(param.str());
+    stringHolder[i] = param.str();
     pjArgs[3+i] = stringHolder[i].c_str();
     }
 
