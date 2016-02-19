@@ -11,6 +11,7 @@ res = 100
 
 # create pipeline
 #
+extent = [0,56, 0,32, 0,24]
 pl3d = vtk.vtkMultiBlockPLOT3DReader()
 pl3d.SetXYZFileName(VTK_DATA_ROOT + "/Data/combxyz.bin")
 pl3d.SetQFileName(VTK_DATA_ROOT + "/Data/combq.bin")
@@ -31,7 +32,6 @@ probe.SetOrigin(bounds[0],bounds[2],bounds[4])
 probe.SetSpacing((bounds[1]-bounds[0])/(res-1),
                  (bounds[3]-bounds[2])/(res-1),
                  (bounds[5]-bounds[4])/(res-1))
-
 
 # Reuse the locator
 locator = vtk.vtkStaticPointLocator()

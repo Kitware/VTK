@@ -44,7 +44,7 @@ ComputeBasis(double x[3], vtkIdList *pIds)
 
 //----------------------------------------------------------------------------
 vtkIdType vtkVoronoiKernel::
-ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *weights)
+ComputeWeights(double*, vtkIdList*, vtkDoubleArray *weights)
 {
   weights->SetNumberOfTuples(1);
   weights->SetValue(0,1.0);

@@ -219,8 +219,8 @@ struct ProbePoints
     }
 
   // When null point is encountered
-  void AssignNullPoint(const double x[3], vtkIdType numWeights,
-                       vtkIdList *pIds, vtkDoubleArray *weights, vtkIdType ptId)
+  void AssignNullPoint(const double x[3], vtkIdList *pIds,
+                       vtkDoubleArray *weights, vtkIdType ptId)
     {
       if ( this->Strategy == vtkPointInterpolator::MASK_POINTS)
         {
@@ -233,13 +233,12 @@ struct ProbePoints
         }
       else //vtkPointInterpolator::CLOSEST_POINT:
         {
-        numWeights = 1;
         pIds->SetNumberOfIds(1);
         vtkIdType pId = this->Locator->FindClosestPoint(x);
         pIds->SetId(0,pId);
         weights->SetNumberOfTuples(1);
         weights->SetValue(0,1.0);
-        this->Arrays.Interpolate(numWeights, pIds->GetPointer(0),
+        this->Arrays.Interpolate(1, pIds->GetPointer(0),
                                  weights->GetPointer(0), ptId);
         }
     }
@@ -264,7 +263,7 @@ struct ProbePoints
           }
         else
           {
-          this->AssignNullPoint(x, numWeights, pIds, weights, ptId);
+          this->AssignNullPoint(x, pIds, weights, ptId);
           }// null point
         }//for all dataset points
     }
@@ -331,7 +330,7 @@ struct ImageProbePoints : public ProbePoints
               }
             else
               {
-              this->AssignNullPoint(x, numWeights, pIds, weights, ptId);
+              this->AssignNullPoint(x, pIds, weights, ptId);
               }// null point
 
             }//over i

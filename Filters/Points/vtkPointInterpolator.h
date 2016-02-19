@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPointInterpolator - probe point cloud using various interpolation kernels
+// .NAME vtkPointInterpolator - interpolate over point cloud using various kernels
 
 // .SECTION Description
 // vtkPointInterpolator probes a point cloud Pc (the filter Source) with a
@@ -25,8 +25,9 @@
 //
 // A key input to this filter is the specification of the interpolation
 // kernel, and the parameters which control the associated interpolation
-// process. Currently Voronoi, Gaussian, Shepard, and SPH (smoothed particle
-// hydrodynamics) interpolation kernels are available.
+// process. Interpolation kernels include Voronoi, Gaussian, Shepard, and SPH
+// (smoothed particle hydrodynamics), with additional kernels to be added in
+// the future.
 //
 // An overview of the algorithm is as follows. For each p from P, Np "close"
 // points to p are found. (The meaning of what is "close" can be specified as
@@ -75,22 +76,23 @@ class VTKFILTERSPOINTS_EXPORT vtkPointInterpolator : public vtkDataSetAlgorithm
 public:
   // Description:
   // Standard methods for instantiating, obtaining type information, and
-  // printing information.
+  // printing.
   static vtkPointInterpolator *New();
   vtkTypeMacro(vtkPointInterpolator,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify the dataset Pc that will be probed by the input points P.  The
-  // Input P defines the geometry (the points and cells) for the output,
-  // while the Source Pc is probed (interpolated) to generate the scalars,
-  // vectors, etc. for the output points based on the point locations.
+  // Input P defines the dataset structure (the points and cells) for the
+  // output, while the Source Pc is probed (interpolated) to generate the
+  // scalars, vectors, etc. for the output points based on the point
+  // locations.
   void SetSourceData(vtkDataObject *source);
   vtkDataObject *GetSource();
 
   // Description:
   // Specify the dataset Pc that will be probed by the input points P.  The
-  // Input P defines the geometry (the points and cells) for the output,
+  // Input P defines the structure (the points and cells) for the output,
   // while the Source Pc is probed (interpolated) to generate the scalars,
   // vectors, etc. for the output points based on the point locations.
   void SetSourceConnection(vtkAlgorithmOutput* algOutput);
@@ -121,10 +123,10 @@ public:
   // interpolation process. Null points occur when the local neighborhood (of
   // nearby points to interpolate from) is empty. If the strategy is set to
   // MaskPoints, then an output array is created that marks points as being
-  // valid (=1) or null (invalid =0) (and NullValue is set as well). If the
-  // strategy is set to NullValue, then the output data value(s) are set to
-  // the NullPoint value (specified in the output point data). Finally, the
-  // default strategy ClosestPoint is to simply use the closest point to
+  // valid (=1) or null (invalid =0) (and the NullValue is set as well). If
+  // the strategy is set to NullValue, then the output data value(s) are set
+  // to the NullPoint value (specified in the output point data). Finally,
+  // the default strategy ClosestPoint is to simply use the closest point to
   // perform the interpolation.
   vtkSetMacro(NullPointsStrategy,int);
   vtkGetMacro(NullPointsStrategy,int);
@@ -144,15 +146,15 @@ public:
   vtkGetStringMacro(ValidPointsMaskArrayName);
 
   // Description:
-  // Shallow copy the input point data arrays to the output.
-  // On by default.
+  // Indicate whether to shallow copy the input point data arrays to the
+  // output.  On by default.
   vtkSetMacro(PassPointArrays, bool);
   vtkBooleanMacro(PassPointArrays, bool);
   vtkGetMacro(PassPointArrays, bool);
 
   // Description:
-  // Shallow copy the input cell data arrays to the output.
-  // On by default.
+  // Indicate whether to shallow copy the input cell data arrays to the
+  // output.  On by default.
   vtkSetMacro(PassCellArrays, bool);
   vtkBooleanMacro(PassCellArrays, bool);
   vtkGetMacro(PassCellArrays, bool);
