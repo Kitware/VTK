@@ -35,15 +35,9 @@ class vtkMolecule;
 class VTKDOMAINSCHEMISTRY_EXPORT vtkXYZMolReader2 : public vtkMoleculeAlgorithm
 {
 public:
+  static vtkXYZMolReader2 *New();
   vtkTypeMacro(vtkXYZMolReader2,vtkMoleculeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-
-  static vtkXYZMolReader2 *New();
-
-  // Description:
-  // Test whether the file with the given name can be read by this
-  // reader.
-  int CanReadFile(const char* fname);
 
   // Description:
   // Get/Set the output (vtkMolecule) that the reader will fill
@@ -65,7 +59,6 @@ protected:
                   vtkInformationVector *);
 
   char *FileName;
-  ifstream file_in;
   std::vector<istream::pos_type> file_positions; // to store begining of each tstep
   std::vector<double> TimeSteps;
 

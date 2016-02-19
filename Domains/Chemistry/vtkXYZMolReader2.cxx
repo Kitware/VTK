@@ -164,8 +164,7 @@ int vtkXYZMolReader2::RequestData(
     vtkErrorMacro ("vtkXYZMolReader2 error opening file: " << this->FileName);
     return 0;
     }
-  int length = outInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-  double* steps = outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+
   int timestep=0;
   std::vector<double>::iterator it = this->TimeSteps.begin();
 
@@ -191,7 +190,7 @@ int vtkXYZMolReader2::RequestData(
     if(it != this->TimeSteps.end())
       {
       it--; timestep--;
-      //std::cout << __LINE__ << "comparing " << *it << ", " << *(it+1) << std::endl;
+
       if(fabs(*it - requestedTimeStep) > fabs(*(it+1) - requestedTimeStep))
         {
         // closer to next timestep value
@@ -213,7 +212,7 @@ int vtkXYZMolReader2::RequestData(
   int nbAtoms;
   char eolc;
   file_in >> nbAtoms >> eolc; // first title line
-  //std::cout << __LINE__ << "# of atoms read = " << nbAtoms << std::endl;
+
   if(nbAtoms != this->NumberOfAtoms)
     {
     vtkErrorMacro ("vtkXYZMolReader2 error reading file: " << this->FileName
@@ -246,17 +245,6 @@ int vtkXYZMolReader2::RequestData(
 
   return 1;
 }
-
-
-//----------------------------------------------------------------------------
-int vtkXYZMolReader2::CanReadFile(const char* fname)
-{
-// to be implemented further
-  int valid = 1;
-
-  return valid;
-}
-
 
 //----------------------------------------------------------------------------
 void vtkXYZMolReader2::PrintSelf(ostream& os, vtkIndent indent)

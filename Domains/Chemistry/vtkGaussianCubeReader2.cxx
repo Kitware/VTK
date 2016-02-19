@@ -151,7 +151,6 @@ int vtkGaussianCubeReader2::RequestData(
   vtkInformationVector *outputVector)
 {
   char title[256];
-  char data_name[256];
   double elements[16];
   int NumberOfAtoms, JN1, N1N2, n1, n2, n3, i, j, k;
   float tmp, *cubedata;
