@@ -184,16 +184,6 @@ public:
   virtual  int GetEventPending();
 
   // Description:
-  // These methods can be used by MFC applications
-  // to support print preview and printing, or more
-  // general rendering into memory.
-  void SetupMemoryRendering(int x, int y, HDC prn);
-  void SetupMemoryRendering(HBITMAP hbmp);
-  void ResumeScreenRendering(void);
-  HDC GetMemoryDC();
-  unsigned char *GetMemoryData(){return this->MemoryData;};
-
-  // Description:
   // Initialize OpenGL for this window.
   virtual void SetupPalette(HDC hDC);
   virtual void SetupPixelFormatPaletteAndContext(
@@ -240,18 +230,6 @@ protected:
   int       OwnWindow;
   int       ScreenSize[2];
 
-  // the following is used to support rendering into memory
-  BITMAPINFO MemoryDataHeader;
-  HBITMAP MemoryBuffer;
-  unsigned char *MemoryData;    // the data in the DIBSection
-  HDC MemoryHdc;
-
-  int ScreenMapped;
-  int ScreenWindowSize[2];
-  HDC ScreenDeviceContext;
-  int ScreenDoubleBuffer;
-  HGLRC ScreenContextId;
-
   int CreatingOffScreenWindow; // to avoid recursion (and memory leaks...)
 
   // message handler
@@ -270,10 +248,7 @@ protected:
   virtual void DestroyWindow();
   void InitializeApplication();
   void CleanUpOffScreenRendering(void);
-  void CreateOffScreenDC(int xsize, int ysize, HDC aHdc);
-  void CreateOffScreenDC(HBITMAP hbmp, HDC aHdc);
   void CreateOffScreenWindow(int width,int height);
-  void SaveScreenRendering();
   void CleanUpRenderers();
   void VTKRegisterClass();
 
