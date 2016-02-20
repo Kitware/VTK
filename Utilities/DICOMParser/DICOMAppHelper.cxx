@@ -553,7 +553,7 @@ void DICOMAppHelper::SliceLocationCallback(DICOMParser *parser,
     this->Implementation->SliceOrderingMap.insert(dicom_stl::pair<const dicom_stl::string,
       DICOMOrderingElements>(parser->GetFileName(), ord));
     }
-  else
+  else if (val)
     {
     // file found, add new values
     (*it).second.SliceLocation =
