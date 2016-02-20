@@ -19,6 +19,7 @@
 #include "vtkVolumeMask.h"
 
 #include <vtkCamera.h>
+#include <vtkOpenGLGPUVolumeRayCastMapper.h>
 #include <vtkRenderer.h>
 #include <vtkVolume.h>
 #include <vtkVolumeMapper.h>
@@ -126,7 +127,7 @@ namespace vtkvolume
 
   //--------------------------------------------------------------------------
   std::string BaseDeclarationFragment(vtkRenderer* vtkNotUsed(ren),
-                                      vtkVolumeMapper* vtkNotUsed(mapper),
+                                      vtkVolumeMapper* mapper,
                                       vtkVolume* vtkNotUsed(vol),
                                       int vtkNotUsed(numberOfLights),
                                       int lightingComplexity,
@@ -251,49 +252,102 @@ namespace vtkvolume
         \nuniform vec4 in_componentWeight;");
       }
 
+    vtkOpenGLGPUVolumeRayCastMapper* glMapper
+      = vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(mapper);
+    if (glMapper->GetCurrentPass() != vtkOpenGLGPUVolumeRayCastMapper::DepthPass &&
+        glMapper->GetUseDepthPass())
+      {
+      shaderStr += std::string("\
+        \nuniform sampler2D in_depthPassSampler;");
+      }
+
     return shaderStr;
     }
 
   //--------------------------------------------------------------------------
   std::string BaseInit(vtkRenderer* vtkNotUsed(ren),
-                       vtkVolumeMapper* vtkNotUsed(mapper),
+                       vtkVolumeMapper* mapper,
                        vtkVolume* vol,
                        int lightingComplexity)
     {
+    vtkOpenGLGPUVolumeRayCastMapper* glMapper
+      = vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(mapper);
+
     std::string shaderStr = std::string("\
-      \n  // Get the 3D texture coordinates for lookup into the in_volume dataset\
-      \n  g_dataPos = ip_textureCoords.xyz;\
-      \n\
-      \n  // Eye position in object space\
-      \n  g_eyePosObj = (in_inverseVolumeMatrix * vec4(in_cameraPos, 1.0));\
-      \n  if (g_eyePosObj.w != 0.0)\
-      \n    {\
-      \n    g_eyePosObj.x /= g_eyePosObj.w;\
-      \n    g_eyePosObj.y /= g_eyePosObj.w;\
-      \n    g_eyePosObj.z /= g_eyePosObj.w;\
-      \n    g_eyePosObj.w = 1.0;\
-      \n    }\
-      \n\
-      \n  // Getting the ray marching direction (in object space);\
-      \n  vec3 rayDir = computeRayDirection();\
-      \n\
-      \n  // Multiply the raymarching direction with the step size to get the\
-      \n  // sub-step size we need to take at each raymarching step\
-      \n  g_dirStep = (in_inverseTextureDatasetMatrix *\
-      \n              vec4(rayDir, 0.0)).xyz * in_sampleDistance;\
-      \n\
-      \n  float jitterValue = (texture2D(in_noiseSampler, g_dataPos.xy).x);\
-      \n  if (in_useJittering)\
-      \n    {\
-      \n    g_dataPos += g_dirStep * jitterValue;\
-      \n    }\
-      \n  else\
-      \n    {\
-      \n    g_dataPos += g_dirStep;\
-      \n    }\
-      \n\
-      \n  // Flag to deternmine if voxel should be considered for the rendering\
-      \n  bool l_skip = false;");
+      \n  bool l_adjustTextureExtents =  !in_cellFlag;"
+    );
+
+    if (glMapper->GetCurrentPass() != vtkOpenGLGPUVolumeRayCastMapper::DepthPass &&
+        glMapper->GetUseDepthPass() && glMapper->GetBlendMode() ==
+        vtkVolumeMapper::COMPOSITE_BLEND)
+      {
+      shaderStr += std::string("\
+        \n  //\
+        \n  vec2 fragTexCoord2 = (gl_FragCoord.xy - in_windowLowerLeftCorner) *\
+        \n                        in_inverseWindowSize;\
+        \n  vec4 depthValue = texture2D(in_depthPassSampler, fragTexCoord2);\
+        \n  vec4 dataPos;\
+        \n  dataPos.x = (gl_FragCoord.x - in_windowLowerLeftCorner.x) * 2.0 *\
+        \n                     in_inverseWindowSize.x - 1.0;\
+        \n  dataPos.y = (gl_FragCoord.y - in_windowLowerLeftCorner.y) * 2.0 *\
+        \n                     in_inverseWindowSize.y - 1.0;\
+        \n  dataPos.z = (2.0 * depthValue.x - (gl_DepthRange.near +\
+        \n                     gl_DepthRange.far)) / gl_DepthRange.diff;\
+        \n  dataPos.w = 1.0;\
+        \n\
+        \n  // From normalized device coordinates to eye coordinates.\
+        \n  // in_projectionMatrix is inversed because of way VT\
+        \n  // From eye coordinates to texture coordinates\
+        \n  dataPos = in_inverseTextureDatasetMatrix *\
+        \n            in_inverseVolumeMatrix *\
+        \n            in_inverseModelViewMatrix *\
+        \n            in_inverseProjectionMatrix *\
+        \n            dataPos;\
+        \n  dataPos /= dataPos.w;\
+        \n  g_dataPos = dataPos.xyz;\
+        \n  l_adjustTextureExtents = true;"
+      );
+      }
+    else
+      {
+      shaderStr += std::string("\
+        \n  // Get the 3D texture coordinates for lookup into the in_volume dataset\
+        \n  g_dataPos = ip_textureCoords.xyz;"
+      );
+      }
+
+      shaderStr += std::string("\
+        \n\
+        \n  // Eye position in object space\
+        \n  g_eyePosObj = (in_inverseVolumeMatrix * vec4(in_cameraPos, 1.0));\
+        \n  if (g_eyePosObj.w != 0.0)\
+        \n    {\
+        \n    g_eyePosObj.x /= g_eyePosObj.w;\
+        \n    g_eyePosObj.y /= g_eyePosObj.w;\
+        \n    g_eyePosObj.z /= g_eyePosObj.w;\
+        \n    g_eyePosObj.w = 1.0;\
+        \n    }\
+        \n\
+        \n  // Getting the ray marching direction (in object space);\
+        \n  vec3 rayDir = computeRayDirection();\
+        \n\
+        \n  // Multiply the raymarching direction with the step size to get the\
+        \n  // sub-step size we need to take at each raymarching step\
+        \n  g_dirStep = (in_inverseTextureDatasetMatrix *\
+        \n              vec4(rayDir, 0.0)).xyz * in_sampleDistance;\
+        \n\
+        \n  float jitterValue = (texture2D(in_noiseSampler, g_dataPos.xy).x);\
+        \n  if (in_useJittering)\
+        \n    {\
+        \n    g_dataPos += g_dirStep * jitterValue;\
+        \n    }\
+        \n  else\
+        \n    {\
+        \n    g_dataPos += g_dirStep;\
+        \n    }\
+        \n\
+        \n  // Flag to deternmine if voxel should be considered for the rendering\
+        \n  bool l_skip = false;");
 
     if (vol->GetProperty()->GetShade() && lightingComplexity == 1)
       {
@@ -313,8 +367,9 @@ namespace vtkvolume
           \n  g_h = normalize(g_ldir + g_vdir);"
         );
       }
-    if (vol->GetProperty()->GetShade() ||
-        vol->GetProperty()->HasGradientOpacity())
+    if ( (vol->GetProperty()->GetShade() ||
+          vol->GetProperty()->HasGradientOpacity()) &&
+         glMapper->GetCurrentPass() != vtkOpenGLGPUVolumeRayCastMapper::DepthPass)
       {
       shaderStr += std::string("\
         \n  g_cellSpacing = vec3(in_cellSpacing[0],\
@@ -930,7 +985,8 @@ namespace vtkvolume
         \n  vec4 l_maxValue = vec4(0.0);"
       );
       }
-    else if (mapper->GetBlendMode() == vtkVolumeMapper::MINIMUM_INTENSITY_BLEND)
+    else if (mapper->GetBlendMode() ==
+             vtkVolumeMapper::MINIMUM_INTENSITY_BLEND)
       {
       return std::string("\
         \n  //We get data between 0.0 - 1.0 range\
@@ -960,6 +1016,8 @@ namespace vtkvolume
                                     int noOfComponents,
                                     int independentComponents = 0)
     {
+    vtkOpenGLGPUVolumeRayCastMapper* glMapper =
+      vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(mapper);
     std::string shaderStr = std::string("\
       \n    if (!l_skip)\
       \n      {\
@@ -1117,12 +1175,25 @@ namespace vtkvolume
       if (noOfComponents > 1 && independentComponents)
         {
         shaderStr += std::string("\
-        \n      vec4 color[4]; vec4 tmp = vec4(0.0);\
-        \n      float totalAlpha = 0.0;\
-        \n      for (int i = 0; i < in_noOfComponents; ++i)\
-        \n        {\
+          \n      vec4 color[4]; vec4 tmp = vec4(0.0);\
+          \n      float totalAlpha = 0.0;\
+          \n      for (int i = 0; i < in_noOfComponents; ++i)\
+          \n        {\
         ");
-        if (!mask || !maskInput ||
+        if (glMapper->GetUseDepthPass() && glMapper->GetCurrentPass() ==
+            vtkOpenGLGPUVolumeRayCastMapper::DepthPass)
+          {
+          shaderStr += std::string("\
+            \n        // Data fetching from the red channel of volume texture\
+            \n        float opacity = computeOpacity(scalar, i);\
+            \n        if (opacity > 0.0)\
+            \n          {\
+            \n          g_srcColor.a = opacity;\
+            \n          }\
+            \n       }"
+          );
+          }
+        else if (!mask || !maskInput ||
             maskType != vtkGPUVolumeRayCastMapper::LabelMapMaskType)
           {
           shaderStr += std::string("\
@@ -1144,6 +1215,14 @@ namespace vtkvolume
           \n      g_fragColor = (1.0f - g_fragColor.a) * tmp + g_fragColor;"
           );
           }
+        }
+      else if (glMapper->GetUseDepthPass() && glMapper->GetCurrentPass() ==
+               vtkOpenGLGPUVolumeRayCastMapper::DepthPass)
+        {
+        shaderStr += std::string("\
+          \n      g_srcColor = vec4(0.0);\
+          \n      g_srcColor.a = computeOpacity(scalar);"
+        );
         }
       else
         {
@@ -1201,7 +1280,16 @@ namespace vtkvolume
                           int noOfComponents,
                           int independentComponents = 0)
     {
-    if (mapper->GetBlendMode() == vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND)
+    vtkOpenGLGPUVolumeRayCastMapper* glMapper =
+      vtkOpenGLGPUVolumeRayCastMapper::SafeDownCast(mapper);
+
+    if (glMapper->GetUseDepthPass() && glMapper->GetCurrentPass() ==
+        vtkOpenGLGPUVolumeRayCastMapper::DepthPass &&
+        mapper->GetBlendMode() == vtkVolumeMapper::COMPOSITE_BLEND)
+      {
+      return std::string();
+      }
+    else if (mapper->GetBlendMode() == vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND)
       {
       if (noOfComponents > 1 && independentComponents)
         {
@@ -1303,7 +1391,7 @@ namespace vtkvolume
       \n  // Minimum texture access coordinate\
       \n  vec3 l_texMin = vec3(0.0);\
       \n  vec3 l_texMax = vec3(1.0);\
-      \n  if (!in_cellFlag)\
+      \n  if (l_adjustTextureExtents)\
       \n    {\
       \n    vec3 delta = in_textureExtentsMax - in_textureExtentsMin;\
       \n    l_texMin = vec3(0.5) / delta;\
@@ -1827,9 +1915,9 @@ namespace vtkvolume
   }
 
   //--------------------------------------------------------------------------
-  std::string RenderToImageDepthInit(vtkRenderer* vtkNotUsed(ren),
-                                     vtkVolumeMapper* vtkNotUsed(mapper),
-                                     vtkVolume* vtkNotUsed(vol))
+  std::string RenderToImageInit(vtkRenderer* vtkNotUsed(ren),
+                                vtkVolumeMapper* vtkNotUsed(mapper),
+                                vtkVolume* vtkNotUsed(vol))
   {
   return std::string("\
     \n  vec3 l_opaqueFragPos = g_dataPos;\
@@ -1838,7 +1926,7 @@ namespace vtkvolume
   }
 
   //--------------------------------------------------------------------------
-  std::string RenderToImageDepthImplementation(
+  std::string RenderToImageImplementation(
     vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* vtkNotUsed(mapper),
     vtkVolume* vtkNotUsed(vol))
   {
@@ -1852,14 +1940,53 @@ namespace vtkvolume
   }
 
   //--------------------------------------------------------------------------
-  std::string RenderToImageDepthExit(vtkRenderer* vtkNotUsed(ren),
+  std::string RenderToImageExit(vtkRenderer* vtkNotUsed(ren),
+                                vtkVolumeMapper* vtkNotUsed(mapper),
+                                vtkVolume* vtkNotUsed(vol))
+  {
+  return std::string("\
+    \n  vec4 depthValue = in_projectionMatrix * in_modelViewMatrix *\
+    \n                  in_volumeMatrix * in_textureDatasetMatrix *\
+    \n                  vec4(l_opaqueFragPos, 1.0);\
+    \n  gl_FragData[1] = vec4(vec3((depthValue.z/depthValue.w) * 0.5 + 0.5),\
+    \n                        1.0);"
+  );
+  }
+
+  //--------------------------------------------------------------------------
+  std::string DepthPassInit(vtkRenderer* vtkNotUsed(ren),
+                                     vtkVolumeMapper* vtkNotUsed(mapper),
+                                     vtkVolume* vtkNotUsed(vol))
+  {
+  return std::string("\
+    \n  vec3 l_isoPos = g_dataPos;"
+  );
+  }
+
+  //--------------------------------------------------------------------------
+  std::string DepthPassImplementation(
+    vtkRenderer* vtkNotUsed(ren), vtkVolumeMapper* vtkNotUsed(mapper),
+    vtkVolume* vtkNotUsed(vol))
+  {
+  return std::string("\
+    \n    if(!l_skip && g_srcColor.a > 0.0)\
+    \n      {\
+    \n      l_isoPos = g_dataPos;\
+    \n      g_exit = true; l_skip = true;\
+    \n      }"
+  );
+  }
+
+  //--------------------------------------------------------------------------
+  std::string DepthPassExit(vtkRenderer* vtkNotUsed(ren),
                                      vtkVolumeMapper* vtkNotUsed(mapper),
                                      vtkVolume* vtkNotUsed(vol))
   {
   return std::string("\
     \n  vec4 depthValue = in_projectionMatrix * in_modelViewMatrix *\
     \n                  in_volumeMatrix * in_textureDatasetMatrix *\
-    \n                  vec4(l_opaqueFragPos, 1.0);\
+    \n                  vec4(l_isoPos, 1.0);\
+    \n  gl_FragData[0] = vec4(l_isoPos, 1.0);\
     \n  gl_FragData[1] = vec4(vec3((depthValue.z/depthValue.w) * 0.5 + 0.5),\
     \n                        1.0);"
   );

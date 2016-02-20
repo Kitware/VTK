@@ -18,6 +18,7 @@
 #include "vtkImageData.h"
 #include "vtkPointData.h"
 #include "vtkCellData.h"
+#include "vtkContourValues.h"
 #include "vtkDataArray.h"
 #include "vtkTimerLog.h"
 #include "vtkImageResample.h"
@@ -46,6 +47,8 @@ vtkGPUVolumeRayCastMapper::vtkGPUVolumeRayCastMapper()
   this->MaximumImageSampleDistance = 10.0;
   this->RenderToImage              = 0;
   this->UseJittering               = 1;
+  this->UseDepthPass               = 0;
+  this->DepthPassContourValues     = NULL;
   this->SampleDistance             = 1.0;
   this->SmallVolumeRender          = 0;
   this->BigTimeToDraw              = 0.0;
@@ -682,4 +685,15 @@ void vtkGPUVolumeRayCastMapper::SetMaskTypeToBinary()
 void vtkGPUVolumeRayCastMapper::SetMaskTypeToLabelMap()
 {
   this->MaskType = vtkGPUVolumeRayCastMapper::LabelMapMaskType;
+}
+
+//----------------------------------------------------------------------------
+vtkContourValues* vtkGPUVolumeRayCastMapper::GetDepthPassContourValues()
+{
+  if (!this->DepthPassContourValues)
+    {
+    this->DepthPassContourValues = vtkContourValues::New();
+    }
+
+  return this->DepthPassContourValues;
 }

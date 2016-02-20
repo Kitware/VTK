@@ -4,6 +4,7 @@ vtk_module(vtkRenderingVolumeOpenGL2
   DEPENDS
     vtkglew
     vtkRenderingOpenGL2
+    vtkIOImage
   IMPLEMENTS
     vtkRenderingVolume
   BACKEND

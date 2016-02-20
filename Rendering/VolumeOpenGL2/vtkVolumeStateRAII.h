@@ -33,7 +33,6 @@ class vtkVolumeStateRAII
       // Enable depth_sampler test
       if (!this->DepthTestEnabled)
         {
-        std::cerr << "enabling depth test" << std::endl;
         glEnable(GL_DEPTH_TEST);
         }
 

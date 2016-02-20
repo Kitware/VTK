@@ -25,8 +25,9 @@
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkVolumeMapper.h"
 
-class vtkVolumeProperty;
+class vtkContourValues;
 class vtkRenderWindow;
+class vtkVolumeProperty;
 
 //class vtkKWAMRVolumeMapper; // friend class.
 
@@ -53,6 +54,12 @@ public:
   vtkSetClampMacro( UseJittering, int, 0, 1 );
   vtkGetMacro( UseJittering, int );
   vtkBooleanMacro( UseJittering, int );
+
+  vtkSetClampMacro( UseDepthPass, int, 0, 1 );
+  vtkGetMacro( UseDepthPass, int );
+  vtkBooleanMacro( UseDepthPass, int );
+
+  vtkContourValues* GetDepthPassContourValues();
 
   // Description:
   // Set/Get the distance between samples used for rendering
@@ -286,6 +293,10 @@ protected:
 
   // Enable / disable stochasting jittering
   int UseJittering;
+
+  // Enable / disable two pass rendering
+  int UseDepthPass;
+  vtkContourValues* DepthPassContourValues;
 
   // The distance between sample points along the ray
   float  SampleDistance;
