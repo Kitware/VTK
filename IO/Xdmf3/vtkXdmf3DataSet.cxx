@@ -800,6 +800,8 @@ int vtkXdmf3DataSet::GetXdmfCellType(int vtkType)
       return 0x8; //XdmfTopologyType::Wedge()
     case VTK_PYRAMID :
       return 0x7; //XdmfTopologyType::Pyramid()
+    case VTK_POLYHEDRON :
+      return 0x10; //XdmfTopologyType::Polyhedron()
     case VTK_PENTAGONAL_PRISM :
     case VTK_HEXAGONAL_PRISM :
     case VTK_QUADRATIC_EDGE :
@@ -818,7 +820,6 @@ int vtkXdmf3DataSet::GetXdmfCellType(int vtkType)
     case VTK_BIQUADRATIC_TRIANGLE :
     case VTK_CUBIC_LINE :
     case VTK_CONVEX_POINT_SET :
-    case VTK_POLYHEDRON :
     case VTK_PARAMETRIC_CURVE :
     case VTK_PARAMETRIC_SURFACE :
     case VTK_PARAMETRIC_TRI_SURFACE :
@@ -957,6 +958,10 @@ int vtkXdmf3DataSet::GetVTKCellType(
   if (topologyType == XdmfTopologyType::Hexahedron_27())
     {
     return VTK_TRIQUADRATIC_HEXAHEDRON;
+    }
+  if (topologyType == XdmfTopologyType::Polyhedron())
+    {
+    return VTK_POLYHEDRON;
     }
   /* TODO: Translate these new XDMF cell types
   static shared_ptr<const XdmfTopologyType> Hexahedron_64();
@@ -1474,33 +1479,68 @@ void vtkXdmf3DataSet::CopyShape(
         XdmfTopologyType::New(xTopology->getValue<vtkIdType>(index++));
       int vtk_cell_typeI = vtkXdmf3DataSet::GetVTKCellType(nextCellType);
 
-      bool unknownCell;
-      unsigned int numPointsPerCell =
-        vtkXdmf3DataSet::GetNumberOfPointsPerCell(vtk_cell_typeI, unknownCell);
-
-      if (unknownCell)
+      if (vtk_cell_typeI != VTK_POLYHEDRON)
         {
-        // encountered an unknown cell.
-        cerr << "Unkown cell type." << endl;
-        vCells->Delete();
-        delete [] cell_types;
-        vtkXdmf3DataSet_ReleaseIfNeeded(xTopology.get(), freeMe);
-        return;
+        bool unknownCell;
+        unsigned int numPointsPerCell =
+          vtkXdmf3DataSet::GetNumberOfPointsPerCell(vtk_cell_typeI, unknownCell);
+
+        if (unknownCell)
+          {
+          // encountered an unknown cell.
+          cerr << "Unkown cell type." << endl;
+          vCells->Delete();
+          delete [] cell_types;
+          vtkXdmf3DataSet_ReleaseIfNeeded(xTopology.get(), freeMe);
+          return;
+          }
+
+        if (numPointsPerCell==0)
+          {
+          // cell type does not have a fixed number of points in which case the
+          // next entry in xmfConnections tells us the number of points.
+          numPointsPerCell = xTopology->getValue<unsigned int>(index++);
+          sub++; // used to shrink the cells array at the end.
+          }
+
+        cell_types[cc] = vtk_cell_typeI;
+        *cells_ptr++ = numPointsPerCell;
+        for(vtkIdType i = 0 ; i < static_cast<vtkIdType>(numPointsPerCell); i++ )
+          {
+          *cells_ptr++ = xTopology->getValue<vtkIdType>(index++);
+          }
         }
-
-      if (numPointsPerCell==0)
+      else
         {
-        // cell type does not have a fixed number of points in which case the
-        // next entry in xmfConnections tells us the number of points.
-        numPointsPerCell = xTopology->getValue<unsigned int>(index++);
+        // polyhedrons do not have a fixed number of faces in which case the
+        // next entry in xmfConnections tells us the number of faces.
+        const unsigned int numFacesPerCell =
+          xTopology->getValue<unsigned int>(index++);
+
+        // polyhedrons do not have a fixed number of points in which case the
+        // the number of points needs to be obtained from the data.
+        unsigned int numPointsPerCell = 0;
+        for(vtkIdType i = 0 ; i < static_cast<vtkIdType>(numFacesPerCell); i++ )
+          {
+          // faces do not have a fixed number of points in which case the next
+          // entry in xmfConnections tells us the number of points.
+          numPointsPerCell +=
+            xTopology->getValue<unsigned int>(index + numPointsPerCell + i);
+          }
+
+        // add cell entry to the array, which for polyhedrons is in the format:
+        // [cellLength, nCellFaces, nFace0Pts, id0_0, id0_1, ...,
+        //                          nFace1Pts, id1_0, id1_1, ...,
+        //                          ...]
+        cell_types[cc] = vtk_cell_typeI;
+        *cells_ptr++ = numPointsPerCell + numFacesPerCell + 1;
         sub++; // used to shrink the cells array at the end.
-        }
-
-      cell_types[cc] = vtk_cell_typeI;
-      *cells_ptr++ = numPointsPerCell;
-      for(vtkIdType i = 0 ; i < static_cast<vtkIdType>(numPointsPerCell); i++ )
-        {
-        *cells_ptr++ = xTopology->getValue<vtkIdType>(index++);
+        *cells_ptr++ = numFacesPerCell;
+        for(vtkIdType i = 0 ;
+            i < static_cast<vtkIdType>(numPointsPerCell + numFacesPerCell); i++ )
+          {
+          *cells_ptr++ = xTopology->getValue<vtkIdType>(index++);
+          }
         }
       }
     // Resize the Array to the Proper Size
@@ -1639,6 +1679,29 @@ void vtkXdmf3DataSet::VTKToXdmf(
       xTopology->insert(cntr++, (int)cell->GetPointId(3));
       xTopology->insert(cntr++, (int)cell->GetPointId(2));
       tcount +=4;
+      }
+    else if ( cellType == VTK_POLYHEDRON )
+      {
+      // Convert polyhedron to format:
+      // [nCellFaces, nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...]
+      const vtkIdType numFaces = cell->GetNumberOfFaces();
+      xTopology->insert(cntr++,static_cast<long>(numFaces));
+      tcount +=1;
+
+      vtkIdType fid, pid;
+      vtkCell *face;
+      for (fid=0; fid < numFaces; fid++)
+        {
+        face = cell->GetFace(fid);
+        numPts = face->GetNumberOfPoints();
+        xTopology->insert(cntr++,static_cast<long>(numPts));
+        tcount +=1;
+        for (pid=0; pid < numPts; pid++)
+          {
+          xTopology->insert(cntr++, (int)face->GetPointId(pid));
+          }
+        tcount +=numPts;
+        }
       }
     else
       {
