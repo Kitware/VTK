@@ -1068,7 +1068,7 @@ namespace boost {
   inline typename property_traits<PMap>::reference
   get(
     vtkGraphPropertyMapMultiplier<PMap> multi,
-    const typename property_traits<PMap>::key_type key)
+    const typename property_traits<PMap>::key_type & key)
   {
     return multi.multiplier * get(multi.pmap, key);
   }
@@ -1077,7 +1077,7 @@ namespace boost {
   inline void
   put(
     vtkGraphPropertyMapMultiplier<PMap> multi,
-    const typename property_traits<PMap>::key_type key,
+    const typename property_traits<PMap>::key_type & key,
     const typename property_traits<PMap>::value_type & value)
   {
     put(multi.pmap, key, value);

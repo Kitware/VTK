@@ -35,7 +35,7 @@ namespace ADIOS
 {
 
 //----------------------------------------------------------------------------
-std::ostream& operator<<(std::ostream& os, const ArrayDim d)
+std::ostream& operator<<(std::ostream& os, const ArrayDim& d)
 {
   if(d.ValueS.empty())
     {

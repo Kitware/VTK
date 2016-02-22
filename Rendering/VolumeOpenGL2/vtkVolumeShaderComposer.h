@@ -32,7 +32,7 @@ namespace vtkvolume
 {
   //--------------------------------------------------------------------------
   std::string replace(std::string source, const std::string &search,
-                      const std::string replace, bool all)
+                      const std::string &replace, bool all)
     {
     if (replace.empty())
       {

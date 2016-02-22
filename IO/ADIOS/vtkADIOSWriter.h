@@ -185,7 +185,7 @@ protected:
   int RequestExtent[6];
 
   // Used to determine whether or not the data getting written is stale
-  bool UpdateMTimeTable(const std::string path, const vtkObject* value);
+  bool UpdateMTimeTable(const std::string& path, const vtkObject* value);
   std::map<std::string, unsigned long> LastUpdated;
 private:
   bool WriteInternal();

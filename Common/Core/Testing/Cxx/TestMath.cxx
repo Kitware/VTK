@@ -75,7 +75,7 @@ private:
   double data[3];
 };
 
-static ostream &operator<<(ostream &os, const Triple t)
+static ostream &operator<<(ostream &os, const Triple &t)
 {
   os << t[0] << ", " << t[1] << ", " << t[2];
   return os;

@@ -131,7 +131,7 @@ int strcmp_null(const char* s1, const char* s2)
 //////////////////////////////////////////////////////////////////////////////
 // Prints and checks point/cell data
 //////////////////////////////////////////////////////////////////////////////
-int PrintAndCheck(const std::vector<vtkPolyData*> inputs, vtkDataSet* output,
+int PrintAndCheck(const std::vector<vtkPolyData*>& inputs, vtkDataSet* output,
                   vtkDataSetAttributes*(*selector)(vtkDataSet*))
 {
   vtkDataSetAttributes* dataArrays = selector(output);
@@ -356,7 +356,7 @@ vtkDataSetAttributes* CellDataSelector(vtkDataSet* ds)
 //////////////////////////////////////////////////////////////////////////////
 // Returns 1 on success, 0 otherwise
 //////////////////////////////////////////////////////////////////////////////
-int AppendDatasetsAndPrint(const std::vector<vtkPolyData*> inputs)
+int AppendDatasetsAndPrint(const std::vector<vtkPolyData*>& inputs)
 {
   vtkNew<vtkAppendFilter> append;
   for (size_t inputIndex = 0; inputIndex < inputs.size(); ++inputIndex)
