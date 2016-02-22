@@ -1,16 +1,14 @@
 vtk_add_test_cxx(${vtk-module}CxxTests tests
-  TestOsprayDemo.cxx,NO_DATA,NO_VALID,NO_OUTPUT
-  TestOspraySceneGraph.cxx,NO_DATA,NO_VALID,NO_OUTPUT
-  TestOsprayRenderMesh.cxx,NO_DATA,NO_VALID
-  TestOsprayPass.cxx,NO_DATA,NO_VALID
-  TestOsprayDynamicScene.cxx,NO_DATA,NO_VALID,NO_OUTPUT
-  TestOsprayDynamicObject.cxx,NO_DATA,NO_VALID,NO_OUTPUT
-  TestOsprayLayers.cxx,NO_DATA,NO_VALID,NO_OUTPUT
-  TestOsprayMultiBlock.cxx,NO_VALID
-  TestOsprayTime.cxx,NO_VALID
-  #TODO: interaction, pure offscreen, volumes, textures
+  TestOsprayRenderMesh.cxx,
+  TestOsprayPass.cxx,
+  TestOsprayDynamicScene.cxx,
+  TestOsprayDynamicObject.cxx,
+  TestOsprayLayers.cxx,
+  TestOsprayMultiBlock.cxx
+  TestOsprayTime.cxx
+  #TODO: interaction, pure offscreen, volumes
   )
-vtk_test_cxx_executable(${vtk-module}CxxTests tests
+vtk_test_cxx_executable(${vtk-module}CxxTests tests RENDERING_FACTORY
   vtkOsprayTestInteractor.cxx
   )
 
@@ -21,7 +19,7 @@ if(VTK_MPI_MAX_NUMPROCS GREATER 1)
     TESTING_DATA
     TestOsprayComposite.cxx
     )
-  vtk_test_mpi_executable(${vtk-module}Cxx-MPI tests
+  vtk_test_mpi_executable(${vtk-module}Cxx-MPI tests RENDERING_FACTORY
     vtkOsprayTestInteractor.cxx
   )
 endif()

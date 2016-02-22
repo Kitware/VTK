@@ -12,16 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// This test verifies that we can render objects and that changing vtk state
-// changes the resulting image accordingly. It
-// runs for a while so that we can verify that we have no leaks.
+// This test verifies that we can render dynamic objects (changing mesh)
+// and that changing vtk state changes the resulting image accordingly.
 //
 // The command line arguments are:
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
 
-#include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
+//TODO: test broken by pre SC15 ospray caching
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
@@ -39,8 +37,6 @@
 
 int TestOsprayDynamicObject(int argc, char* argv[])
 {
-  int retVal = 1;
-
   vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
   vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   iren->SetRenderWindow(renWin);
@@ -69,27 +65,38 @@ int TestOsprayDynamicObject(int argc, char* argv[])
 
   vtkLight *light = vtkLight::SafeDownCast(renderer->GetLights()->GetItemAsObject(0));
   double lColor[3];
-  light->GetDiffuseColor(lColor);
+  lColor[0] = 0.5;
+  lColor[1] = 0.5;
+  lColor[2] = 0.5;
+  light->SetDiffuseColor(lColor[0],lColor[1],lColor[2]);
 
   vtkCamera *camera = renderer->GetActiveCamera();
   double position[3];
   camera->GetPosition(position);
+  camera->SetClippingRange(0.01,1000.0);
 
 #define MAXFRAME 100
+  double inc = 1.0/(double)MAXFRAME;
 
   for (int i = 0; i < MAXFRAME; i++)
     {
     double I = (double)i/(double)MAXFRAME;
-
-    renWin->SetSize(400+i,400-i); //TODO: not working yet
-
+    renWin->SetSize(400+i,400-i);
     sphere->SetThetaResolution(3+i);
 
-    lColor[0] += I;
-    lColor[1] -= I;
-    light->SetDiffuseColor(lColor[0],lColor[1],lColor[2]); //TODO: not working, nor is lposition
+    lColor[0] += inc/2;
+    lColor[1] -= inc/2;
+    light->SetDiffuseColor(lColor[0],lColor[1],lColor[2]);
 
-    position[2] += I;
+    if (i < (MAXFRAME/2))
+      {
+      position[2] += inc*5;
+      }
+    else
+      {
+      position[2] -= inc*5;
+      }
+
     camera->SetPosition(position);
 
     renderer->SetBackground(0.0,I,1-I);
@@ -98,7 +105,7 @@ int TestOsprayDynamicObject(int argc, char* argv[])
 
   vn->Delete();
 
-  //iren->Start();
+  iren->Start();
 
-  return !retVal;
+  return 0;
 }

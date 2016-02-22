@@ -17,16 +17,13 @@
 // The command line arguments are:
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
-
-#include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
+//              In interactive mode it responds to the keys listed
+//              vtkOsprayTestInteractor.h
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkCompositePolyDataMapper2.h"
-#include "vtkLight.h"
-#include "vtkLightCollection.h"
 #include "vtkOsprayPass.h"
 #include "vtkOsprayViewNodeFactory.h"
 #include "vtkOsprayWindowNode.h"
@@ -34,12 +31,13 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSmartPointer.h"
+#include "vtkTestUtilities.h"
 #include "vtkXMLMultiBlockDataReader.h"
+
+#include "vtkOsprayTestInteractor.h"
 
 int TestOsprayMultiBlock(int argc, char* argv[])
 {
-  int retVal = 1;
-
   vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
   vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   iren->SetRenderWindow(renWin);
@@ -51,7 +49,6 @@ int TestOsprayMultiBlock(int argc, char* argv[])
                                                                "Data/many_blocks/many_blocks.vtm");
   reader->SetFileName(fileName);
   reader->Update();
-  cerr << reader->GetOutput() << endl;
 
   vtkSmartPointer<vtkCompositePolyDataMapper2> mapper=vtkSmartPointer<vtkCompositePolyDataMapper2>::New();
   mapper->SetInputConnection(reader->GetOutputPort());
@@ -61,6 +58,9 @@ int TestOsprayMultiBlock(int argc, char* argv[])
   renderer->SetBackground(0.1,0.1,1.0);
   renWin->SetSize(400,400);
   renWin->Render();
+
+  vtkCamera *cam = renderer->GetActiveCamera();
+  cam->SetPosition(1.5,1.5,0.75);
 
   vtkSmartPointer<vtkOsprayViewNodeFactory> vnf = vtkSmartPointer<vtkOsprayViewNodeFactory>::New();
   vtkViewNode *vn = vnf->CreateNode(renWin);
@@ -73,8 +73,15 @@ int TestOsprayMultiBlock(int argc, char* argv[])
 
   renWin->Render();
 
+  vtkSmartPointer<vtkOsprayTestInteractor> style =
+    vtkSmartPointer<vtkOsprayTestInteractor>::New();
+  style->
+    SetPipelineControlPoints((vtkOpenGLRenderer*)renderer.Get(), ospray, NULL);
+  iren->SetInteractorStyle(style);
+  style->SetCurrentRenderer(renderer);
+
   iren->Start();
 
   vn->Delete();
-  return !retVal;
+  return 0;
 }

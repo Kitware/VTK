@@ -18,9 +18,6 @@
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
 
-#include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
-
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkConeSource.h"
@@ -36,8 +33,6 @@
 
 int TestOsprayLayers(int argc, char* argv[])
 {
-  int retVal = 1;
-
   vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
   vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   iren->SetRenderWindow(renWin);
@@ -52,7 +47,7 @@ int TestOsprayLayers(int argc, char* argv[])
   vtkSmartPointer<vtkActor> actor=vtkSmartPointer<vtkActor>::New();
   renderer->AddActor(actor);
   actor->SetMapper(mapper);
-  renderer->SetBackground(0.5,0.5,1.0); //should see a blueish background
+  renderer->SetBackground(0.5,0.5,1.0); //should see a light blue background
 
   vtkSmartPointer<vtkRenderer> renderer2 = vtkSmartPointer<vtkRenderer>::New();
   renderer2->SetLayer(1);
@@ -83,6 +78,5 @@ int TestOsprayLayers(int argc, char* argv[])
 
   vn->Delete();
 
-  //TODO: see top layer only
-  return !retVal;
+  return 0;
 }

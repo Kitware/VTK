@@ -482,7 +482,7 @@ namespace {
       }
     else
       {
-      //actor color
+      //per actor color
       ospSetMaterial(ospMesh, oMaterial);
       }
 

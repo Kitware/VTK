@@ -12,8 +12,6 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .SECTION Description
-// A common interactor style for the ospray tests.
 
 #include "vtkOsprayTestInteractor.h"
 #include "vtkObjectFactory.h"
@@ -23,6 +21,13 @@
 #include "vtkRenderPass.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+
+#include <vector>
+#include <string>
+
+namespace {
+  static std::vector<std::string> ActorNames;
+}
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOsprayTestInteractor);
@@ -79,7 +84,7 @@ void vtkOsprayTestInteractor::OnKeyPress()
     vtkActorCollection * actors = this->GLRenderer->GetActors();
 
     this->VisibleActor++;
-    cerr << "VISIBLE " << this->VisibleActor << " : ";
+    cerr << "VISIBLE " << this->VisibleActor;
     if (this->VisibleActor == actors->GetNumberOfItems())
       {
       this->VisibleActor = -1;
@@ -88,7 +93,10 @@ void vtkOsprayTestInteractor::OnKeyPress()
       {
       if (this->VisibleActor == -1 || this->VisibleActor == i)
         {
-        //cerr << names[i] << " ";
+        if (i < ActorNames.size())
+          {
+          cerr << " : " << ActorNames[i] << " ";
+          }
         vtkActor::SafeDownCast(actors->GetItemAsObject(i))->
           SetVisibility(1);
         }
@@ -155,4 +163,10 @@ void vtkOsprayTestInteractor::OnKeyPress()
 
   // Forward events
   vtkInteractorStyleTrackballCamera::OnKeyPress();
+}
+
+//------------------------------------------------------------------------------
+void vtkOsprayTestInteractor::AddName(const char *name)
+{
+  ActorNames.push_back(std::string(name));
 }

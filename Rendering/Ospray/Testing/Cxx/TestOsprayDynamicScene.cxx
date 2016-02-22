@@ -12,14 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// This test verifies that dynamic scene contents work acceptably
+// This test verifies that dynamic scene (vary number of objects)
+// contents work acceptably
 //
 // The command line arguments are:
 // -I        => run in interactive mode; unless this is used, the program will
 //              not allow interaction and exit
 
-#include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
+//TODO: test broken by pre SC15 ospray caching
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
@@ -37,8 +37,6 @@
 
 int TestOsprayDynamicScene(int argc, char* argv[])
 {
-  int retVal = 1;
-
   vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
   vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   iren->SetRenderWindow(renWin);
@@ -55,19 +53,18 @@ int TestOsprayDynamicScene(int argc, char* argv[])
   vtkSmartPointer<vtkOsprayPass> ospray=vtkSmartPointer<vtkOsprayPass>::New();
   ospray->SetSceneGraph(vtkOsprayWindowNode::SafeDownCast(vn));
   renderer->SetPass(ospray);
-  //renWin->Render();
 
-  #define NUMACTS 3
+  #define GRIDDIM 3
   vtkSmartPointer<vtkCamera> camera = vtkSmartPointer<vtkCamera>::New();
-  camera->SetPosition(NUMACTS*3,NUMACTS*3,NUMACTS*4);
+  camera->SetPosition(GRIDDIM*3,GRIDDIM*3,GRIDDIM*4);
   renderer->SetActiveCamera(camera);
 
   std::map<int, vtkActor*> actors;
-  for (int i = 0; i < NUMACTS; i++)
+  for (int i = 0; i < GRIDDIM; i++)
     {
-    for (int j = 0; j < NUMACTS; j++)
+    for (int j = 0; j < GRIDDIM; j++)
       {
-      for (int k = 0; k < NUMACTS; k++)
+      for (int k = 0; k < GRIDDIM; k++)
         {
         vtkSmartPointer<vtkSphereSource> sphere = vtkSmartPointer<vtkSphereSource>::New();
         sphere->SetCenter(i,j,k);
@@ -78,57 +75,63 @@ int TestOsprayDynamicScene(int argc, char* argv[])
         vtkActor *actor= vtkActor::New();
         renderer->AddActor(actor);
         actor->SetMapper(mapper);
-        actors[i*NUMACTS*NUMACTS+j*NUMACTS+k] = actor;
+        actors[i*GRIDDIM*GRIDDIM+j*GRIDDIM+k] = actor;
         renWin->Render();
         }
       }
     }
 
-  for (int i = 0; i < NUMACTS; i++)
+  for (int i = 0; i < GRIDDIM; i++)
     {
-    for (int j = 0; j < NUMACTS; j++)
+    for (int j = 0; j < GRIDDIM; j++)
       {
-      for (int k = 0; k < NUMACTS; k++)
+      for (int k = 0; k < GRIDDIM; k++)
         {
-        vtkActor *actor = actors[i*NUMACTS*NUMACTS+j*NUMACTS+k];
+        vtkActor *actor = actors[i*GRIDDIM*GRIDDIM+j*GRIDDIM+k];
         actor->VisibilityOff();
         renWin->Render();
         }
       }
     }
 
-  for (int i = 0; i < NUMACTS; i++)
+  for (int i = 0; i < GRIDDIM; i++)
     {
-    for (int j = 0; j < NUMACTS; j++)
+    for (int j = 0; j < GRIDDIM; j++)
       {
-      for (int k = 0; k < NUMACTS; k++)
+      for (int k = 0; k < GRIDDIM; k++)
         {
-        vtkActor *actor = actors[i*NUMACTS*NUMACTS+j*NUMACTS+k];
+        vtkActor *actor = actors[i*GRIDDIM*GRIDDIM+j*GRIDDIM+k];
         actor->VisibilityOn();
         renWin->Render();
         }
       }
     }
 
-  for (int i = 0; i < NUMACTS; i++)
+  for (int i = 0; i < GRIDDIM; i++)
     {
-    for (int j = 0; j < NUMACTS; j++)
+    for (int j = 0; j < GRIDDIM; j++)
       {
-      for (int k = 0; k < NUMACTS; k++)
+      for (int k = 0; k < GRIDDIM; k++)
         {
-        vtkActor *actor = actors[i*NUMACTS*NUMACTS+j*NUMACTS+k];
-        renderer->RemoveActor(actor);
-        actor->Delete();
-        renWin->Render();
+        vtkActor *actor = actors[i*GRIDDIM*GRIDDIM+j*GRIDDIM+k];
+        //leaving one to have a decent image to compare against
+        bool killme = !(i==0 && j==1 && k==0);
+        if (killme)
+          {
+          renderer->RemoveActor(actor);
+          actor->Delete();
+          renWin->Render();
+          }
         }
       }
     }
 
-
   vn->Delete();
 
-  //iren->Start();
+  iren->Start();
 
+  renderer->RemoveActor(actors[0*GRIDDIM*GRIDDIM+1*GRIDDIM+0]);
+  actors[0*GRIDDIM*GRIDDIM+1*GRIDDIM+0]->Delete();
 
-  return !retVal;
+  return 0;
 }

@@ -13,12 +13,22 @@
 
 =========================================================================*/
 // .SECTION Description
-// A common interactor style for the ospray tests.
+// .SECTION Description
+// A common interactor style for the ospray tests that understands
+// the following key presses.
+// c        => switch between OSPRay and GL
+// s        => turn shadows on and off
+// n        => focusses view on the next actor and hides all others
+// 2/1      => increase/decrease the number of samples per pixel
+// P/p      => increase/decrease the number of OSPRay rendering passes
 
 #ifndef vtkOsprayActorNode_h
 #define vtkOsprayActorNode_h
 
 #include "vtkInteractorStyleTrackballCamera.h"
+
+#include <vector>
+#include <string>
 
 class vtkOpenGLRenderer;
 class vtkRenderPass;
@@ -40,6 +50,8 @@ public:
                                 vtkRenderPass *_O,
                                 vtkRenderPass *_G);
   virtual void OnKeyPress();
+
+  static void AddName(const char *name);
 };
 
 #endif

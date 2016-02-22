@@ -25,29 +25,20 @@
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkCompositeRenderManager.h"
-#include "vtkContourFilter.h"
-#include "vtkImageMandelbrotSource.h"
-#include "vtkLookupTable.h"
 #include "vtkMPICommunicator.h"
 #include "vtkMPIController.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenGLRenderWindow.h"
 #include "vtkOsprayPass.h"
 #include "vtkOsprayWindowNode.h"
 #include "vtkOsprayViewNodeFactory.h"
-#include "vtkPieceScalars.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProcess.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkScalarsToColors.h"
+#include "vtkRenderWindow.h"
 #include "vtkSphereSource.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkSynchronizedRenderWindows.h"
-#include "vtkSynchronizedRenderers.h"
-#include "vtkTestUtilities.h"
 #include "vtkViewNode.h"
 
 class MyProcess : public vtkProcess
@@ -69,42 +60,18 @@ public:
     int num_procs = this->Controller->GetNumberOfProcesses();
     int my_id = this->Controller->GetLocalProcessId();
 
-    vtkSmartPointer<vtkPieceScalars> piecescalars =
-      vtkSmartPointer<vtkPieceScalars>::New();
     vtkSmartPointer<vtkPolyDataMapper> pdm =
       vtkSmartPointer<vtkPolyDataMapper>::New();
     vtkSmartPointer<vtkActor> actor =
       vtkSmartPointer<vtkActor>::New();
 
-#if 0
-    vtkSmartPointer<vtkImageMandelbrotSource> src =
-      vtkSmartPointer<vtkImageMandelbrotSource>::New();
-    vtkSmartPointer<vtkContourFilter> vtkcontour =
-      vtkSmartPointer<vtkContourFilter>::New();
-
-    src->SetWholeExtent(0,40,0,40,0,40);
-    vtkcontour->SetInputConnection(src->GetOutputPort());
-    vtkcontour->SetNumberOfContours(1);
-    vtkcontour->SetValue(0, 50.0);
-    piecescalars->SetInputConnection(vtkcontour->GetOutputPort());
-#else
     vtkSmartPointer<vtkSphereSource> src =
       vtkSmartPointer<vtkSphereSource>::New();
     src->SetPhiResolution(100);
     src->SetThetaResolution(100);
-    piecescalars->SetInputConnection(src->GetOutputPort());
-#endif
-#if 0
-    piecescalars->SetScalarModeToPointData();
-    pdm->SetScalarModeToUsePointFieldData();
-    pdm->SelectColorArray("Piece");
-    pdm->SetScalarRange(0,num_procs-1);
-#else
-    pdm->ScalarVisibilityOff();
     float pFrac = (float)(my_id/(float)(num_procs-1));
     actor->GetProperty()->SetColor(0,pFrac,1.0-pFrac);
-#endif
-    pdm->SetInputConnection(piecescalars->GetOutputPort());
+    pdm->SetInputConnection(src->GetOutputPort());
     pdm->SetPiece(my_id);
     pdm->SetNumberOfPieces(num_procs);
     actor->SetMapper(pdm);
@@ -138,6 +105,9 @@ void MyProcess::Execute()
   vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
   renWin->Render();
+
+  vtkCamera *cam = renderer->GetActiveCamera();
+  cam->SetPosition(0,0.2,1);
 
   vtkSmartPointer<vtkOsprayViewNodeFactory> vnf = vtkSmartPointer<vtkOsprayViewNodeFactory>::New();
   vtkViewNode *vn = vnf->CreateNode(renWin);
@@ -174,6 +144,7 @@ void MyProcess::Execute()
     this->ReturnValue = vtkTesting::PASSED;
     }
 
+  vn->Delete();
   renderer->Delete();
   renWin->Delete();
   iren->Delete();

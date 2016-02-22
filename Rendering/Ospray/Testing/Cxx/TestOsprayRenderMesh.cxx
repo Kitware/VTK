@@ -13,14 +13,20 @@
 
 =========================================================================*/
 // This test verifies that we can do simple mesh rendering with ospray
-// and VTK's standard rendering modes work as expected.
+// and that VTK's many standard rendering modes (points, lines, surface, with
+// a variety of color controls (actor, point, cell, texture) etc work as
+// they should.
 //
 // The command line arguments are:
 // -I        => run in interactive mode; unless this is used, the program will
-//              not allow interaction and exit
-
-#include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
+//              not allow interaction and exit.
+//              In interactive mode it responds to the keys listed
+//              vtkOsprayTestInteractor.h
+// -GL       => users OpenGL instead of OSPRay to render
+// -type N   => where N is one of 0,1,2, or 3 makes meshes consisting of
+//              points, wireframes, triangles (=the default) or triangle strips
+// -rep N    => where N is one of 0,1 or 2 draws the meshes as points, lines
+//              or surfaces
 
 #include "vtkActor.h"
 #include "vtkActorCollection.h"
@@ -29,7 +35,6 @@
 #include "vtkDoubleArray.h"
 #include "vtkExtractEdges.h"
 #include "vtkImageData.h"
-#include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
 #include "vtkOpenGLRenderer.h"
@@ -57,10 +62,6 @@
 
 #include "vtkOsprayTestInteractor.h"
 
-namespace {
-std::vector<std::string> names;
-}
-
 class renderable
 {
 public:
@@ -78,7 +79,7 @@ public:
 renderable *MakeSphereAt(double x, double y, double z, int res,
                          int type, int rep, const char *name)
 {
-  names.push_back(name);
+  vtkOsprayTestInteractor::AddName(name);
   renderable *ret = new renderable;
   ret->s = vtkSphereSource::New();
   ret->s->SetEndTheta(180); //half spheres better show variation and f and back
@@ -225,7 +226,6 @@ renderable *MakeSphereAt(double x, double y, double z, int res,
 
 int TestOsprayRenderMesh(int argc, char* argv[])
 {
-
   bool useGL = false;
   int type = 2;
   int rep = -1;
@@ -244,7 +244,6 @@ int TestOsprayRenderMesh(int argc, char* argv[])
       rep = atoi(argv[i+1]);
       }
     }
-  int retVal = 1;
 
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
@@ -255,14 +254,13 @@ int TestOsprayRenderMesh(int argc, char* argv[])
   renWin->AddRenderer(renderer);
   renderer->AutomaticLightCreationOn();
   renderer->SetBackground(0.75,0.75,0.75);
-  renWin->SetSize(1400,1300);
+  renWin->SetSize(600,550);
   vtkSmartPointer<vtkCamera> camera = vtkSmartPointer<vtkCamera>::New();
   camera->SetPosition(2.5,11,-3);
   camera->SetFocalPoint(2.5,0,-3);
   camera->SetViewUp(0,0,1);
   renderer->SetActiveCamera(camera);
   renWin->Render();
-  //TODO: exercise exotic types of camera manipulation
 
   vtkSmartPointer<vtkOsprayViewNodeFactory> vnf =
     vtkSmartPointer<vtkOsprayViewNodeFactory>::New();
@@ -277,8 +275,9 @@ int TestOsprayRenderMesh(int argc, char* argv[])
     }
 
 
-  //Now, vary of most of the many parameters that rendering can vary by
-  //representations points, wireframe, surface ////////////////////
+  //Now, vary of most of the many parameters that rendering can vary by.
+
+  //representations points, wireframe, surface
   renderable *ren = MakeSphereAt(5,0,-5, 10, type, rep, "points");
   ren->a->GetProperty()->SetRepresentationToPoints();
   renderer->AddActor(ren->a);
@@ -294,7 +293,7 @@ int TestOsprayRenderMesh(int argc, char* argv[])
   renderer->AddActor(ren->a);
   delete(ren);
 
-  //actor color ////////////////////
+  //actor color
   ren = MakeSphereAt(4,0,-5, 10, type, rep, "actor_color");
   ren->a->GetProperty()->SetColor(0,1,0);
   renderer->AddActor(ren->a);
@@ -319,8 +318,7 @@ int TestOsprayRenderMesh(int argc, char* argv[])
   renderer->AddActor(ren->a);
   delete(ren);
 
-  //
-  //color map cell values ////////////////////
+  //color map cell values
   ren = MakeSphereAt(3,0,-5, 10, type, rep, "cell_value");
   ren->m->SetScalarModeToUseCellFieldData();
   ren->m->SelectColorArray(0);
@@ -357,7 +355,7 @@ int TestOsprayRenderMesh(int argc, char* argv[])
   renderer->AddActor(ren->a);
   delete(ren);
 
-  //color map point values ////////////////////
+  //color map point values
   ren = MakeSphereAt(2,0,-5,6, type, rep, "point_value");
   ren->m->SetScalarModeToUsePointFieldData();
   ren->m->SelectColorArray("testarray1");
@@ -388,6 +386,7 @@ int TestOsprayRenderMesh(int argc, char* argv[])
   renderer->AddActor(ren->a);
   delete(ren);
 
+  //unlit, flat, and gouraud lighting
   ren = MakeSphereAt(1,0,-5,7, type, rep, "not_lit");
   ren->a->GetProperty()->LightingOff();
   renderer->AddActor(ren->a);
@@ -467,9 +466,8 @@ int TestOsprayRenderMesh(int argc, char* argv[])
   iren->SetInteractorStyle(style);
   style->SetCurrentRenderer(renderer);
 
-
   iren->Start();
   vn->Delete();
 
-  return !retVal;
+  return 0;
 }
