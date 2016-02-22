@@ -125,7 +125,7 @@ int vtkXYZMolReader2::RequestInformation(
   file_in.close();
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
-    this->TimeSteps.data(), this->NumberOfTimeSteps);
+    &this->TimeSteps[0], this->NumberOfTimeSteps);
   double timeRange[2];
   timeRange[0] = this->TimeSteps[0];
   timeRange[1] = this->TimeSteps[this->NumberOfTimeSteps - 1];
