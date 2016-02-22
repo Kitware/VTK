@@ -34,7 +34,6 @@ unpreciseMathCall
 memsetClassFloat
 
 // There are just too many of these to manage, so suppress them all.  Can look again one day.
-clarifyCalculation
 cstyleCast
 invalidscanf
 noCopyConstructor

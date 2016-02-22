@@ -1083,7 +1083,7 @@ int vtkXYPlotActor::RenderOpaqueGeometry( vtkViewport* viewport )
         switch ( this->AdjustTitlePositionMode & ( AlignAxisTop | AlignAxisBottom | AlignAxisVCenter ) )
           {
           case AlignAxisTop:
-            titlePos[1] += this->AdjustTitlePositionMode & AlignTop ? this->Border : -this->Border;
+            titlePos[1] += (this->AdjustTitlePositionMode & AlignTop) ? this->Border : -this->Border;
             break;
           case AlignAxisBottom:
             titlePos[1] -= stringSize[1];
