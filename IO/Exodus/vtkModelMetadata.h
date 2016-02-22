@@ -78,6 +78,7 @@ class vtkIdTypeArray;
 class vtkIntArray;
 class vtkFloatArray;
 class vtkIntArray;
+class vtkStringArray;
 class vtkModelMetadataSTLCloak;
 
 class VTKIOEXODUS_EXPORT vtkModelMetadata : public vtkObject
@@ -237,6 +238,12 @@ public:
   vtkSetMacro(NumberOfNodeSets, int);
   int GetNumberOfNodeSets() const {return this->NumberOfNodeSets;}
 
+//BTX
+  // Description:
+  void SetNodeSetNames (vtkStringArray *names);
+  vtkStringArray* GetNodeSetNames() const { return this->NodeSetNames; }
+//ETX
+
   // Description:
   //   Set or get the list the IDs for each node set.
   //   Length of list is the number of node sets.
@@ -302,6 +309,12 @@ public:
   //   setting any of the other side set arrays.
   vtkSetMacro(NumberOfSideSets, int);
   int GetNumberOfSideSets() const {return this->NumberOfSideSets;}
+
+//BTX
+  // Description:
+  void SetSideSetNames (vtkStringArray *names);
+  vtkStringArray* GetSideSetNames() const { return this->SideSetNames; }
+//ETX
 
   // Description:
   //   Set or get a pointer to a list giving the ID of each side set.
@@ -653,6 +666,9 @@ private:
 
   int NumberOfNodeSets; // (G)
 
+//BTX
+  vtkStringArray *NodeSetNames;
+//ETX
   int *NodeSetIds;             // NumberOfNodeSets (G)
   int *NodeSetSize;            // NumberOfNodeSets (L)
   int *NodeSetNumberOfDistributionFactors;  // NNS (L) (NSNDF[i] is 0 or NSS[i])
@@ -671,6 +687,9 @@ private:
 
   int NumberOfSideSets; // (G)
 
+//BTX
+  vtkStringArray *SideSetNames;
+//ETX
   int *SideSetIds;                          // NumberOfSideSets (G)
   int *SideSetSize;                         // NumberOfSideSets (L)
   int *SideSetNumberOfDistributionFactors;  // NSS (L) (SSNDF[i] = 0 or NumNodesInSide)
