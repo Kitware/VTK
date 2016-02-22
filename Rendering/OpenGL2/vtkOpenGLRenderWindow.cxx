@@ -565,13 +565,15 @@ void vtkOpenGLRenderWindow::InitializeTextureInternalFormats()
 
 void vtkOpenGLRenderWindow::GetOpenGLVersion(int &major, int &minor)
 {
-  int glMajorVersion = 0;
+  int glMajorVersion = 2;
   int glMinorVersion = 0;
 
   if (this->Initialized)
     {
+#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
     glGetIntegerv(GL_MAJOR_VERSION, & glMajorVersion);
     glGetIntegerv(GL_MINOR_VERSION, & glMinorVersion);
+#endif
     }
 
   major = glMinorVersion;
@@ -1891,9 +1893,6 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenBuffers(int width, int height,
   int glMajorVersion = 2;
 #if GL_ES_VERSION_2_0 != 1
   glGetIntegerv(GL_MAJOR_VERSION, & glMajorVersion);
-#endif
-  // test for FBO support
-#if GL_ES_VERSION_2_0 != 1
   if (glMajorVersion < 3 &&
     !glewIsSupported("GL_EXT_framebuffer_object") &&
     !glewIsSupported("GL_ARB_framebuffer_object"))
