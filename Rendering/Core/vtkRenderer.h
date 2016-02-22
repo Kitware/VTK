@@ -289,6 +289,13 @@ public:
   vtkGetMacro(NearClippingPlaneTolerance,double);
 
   // Description:
+  // Specify enlargement of bounds when resetting the
+  // camera clipping range.  By default the range is not expanded by
+  // any percent of the (far - near) on the near and far sides
+  vtkSetClampMacro(ClippingRangeExpansion,double,0,0.99);
+  vtkGetMacro(ClippingRangeExpansion,double);
+
+  // Description:
   // Automatically set up the camera based on the visible actors.
   // The camera will reposition itself to view the center point of the actors,
   // and move along its initial view plane normal (i.e., vector defined from
@@ -589,6 +596,11 @@ protected:
   // Note that values which are too small may cause problems on systems
   // with low z-buffer resolution.
   double              NearClippingPlaneTolerance;
+
+  // Description:
+  // Specify enlargement of bounds when resetting the
+  // camera clipping range.
+  double ClippingRangeExpansion;
 
   // Description:
   // When this flag is off, the renderer will not erase the background
