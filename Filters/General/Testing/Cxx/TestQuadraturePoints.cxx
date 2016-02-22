@@ -213,7 +213,7 @@ int TestQuadraturePoints(int argc,char *argv[])
   camera->Elevation(95.0);
   camera->SetViewUp(0.0,0.0,1.0);
   camera->Azimuth(180.0);
-  camera=0;
+
   // Setup upper right pane.
   vtkSmartPointer<vtkRenderer> ren1 = vtkSmartPointer<vtkRenderer>::New();
   ren1->SetViewport(0.5,0.5,1.0,1.0);
@@ -228,7 +228,7 @@ int TestQuadraturePoints(int argc,char *argv[])
   camera->OrthogonalizeViewUp();
   camera->Elevation(-10.0);
   camera->Azimuth(55.0);
-  camera=0;
+
   // Setup lower right pane.
   vtkSmartPointer<vtkRenderer> ren2 = vtkSmartPointer<vtkRenderer>::New();
   ren2->SetViewport(0.5,0.0,1.0,0.5);
@@ -236,7 +236,7 @@ int TestQuadraturePoints(int argc,char *argv[])
   ren2->SetBackground(0.328125, 0.347656, 0.425781);
   ren2->AddActor(surfaceActor);
   ren2->ResetCamera();
-  camera=0;
+
   // If interactive mode then we show wireframes for
   // reference.
   if (testHelper->IsInteractiveModeSpecified())

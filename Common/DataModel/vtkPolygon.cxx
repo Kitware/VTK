@@ -568,10 +568,6 @@ int vtkPolygon::ParameterizePolygon(double *p0, double *p10, double& l10,
       {
       p[j] = x1[j] - p0[j];
       }
-#ifdef BAD_WITH_NODEBUG
-    s = vtkMath::Dot(p,p10) / l10;
-    t = vtkMath::Dot(p,p20) / l20;
-#endif
     s = (p[0]*p10[0] + p[1]*p10[1] + p[2]*p10[2]) / l10;
     t = (p[0]*p20[0] + p[1]*p20[1] + p[2]*p20[2]) / l20;
     sbounds[0] = (s<sbounds[0]?s:sbounds[0]);

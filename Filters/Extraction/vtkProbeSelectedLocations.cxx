@@ -129,7 +129,6 @@ int vtkProbeSelectedLocations::RequestData(vtkInformation *vtkNotUsed(request),
   subFilter->SetInputConnection(1, tp->GetOutputPort());
   inputClone->Delete();
   tp->Delete();
-  tp = 0;
 
   tp = vtkTrivialProducer::New();
   tp->SetOutput(tempInput);

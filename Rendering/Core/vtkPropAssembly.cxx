@@ -171,12 +171,11 @@ int vtkPropAssembly::RenderOpaqueGeometry(vtkViewport *ren)
   vtkAssemblyPath *path;
   double fraction;
   int   renderedSomething=0;
-  double numberOfItems = 0.0;
 
   // Make sure the paths are up-to-date
   this->UpdatePaths();
 
-  numberOfItems =  static_cast<double>(this->Parts->GetNumberOfItems());
+  double numberOfItems =  static_cast<double>(this->Parts->GetNumberOfItems());
   fraction = numberOfItems >= 1.0 ?
     this->AllocatedRenderTime / numberOfItems : this->AllocatedRenderTime;
 
@@ -204,12 +203,11 @@ int vtkPropAssembly::RenderOverlay(vtkViewport *ren)
   vtkAssemblyPath *path;
   double fraction;
   int   renderedSomething=0;
-  double numberOfItems = 0.0;
 
   // Make sure the paths are up-to-date
   this->UpdatePaths();
 
-  numberOfItems =  static_cast<double>(this->Parts->GetNumberOfItems());
+  double numberOfItems =  static_cast<double>(this->Parts->GetNumberOfItems());
   fraction = numberOfItems >= 1.0 ?
     this->AllocatedRenderTime / numberOfItems : this->AllocatedRenderTime;
 

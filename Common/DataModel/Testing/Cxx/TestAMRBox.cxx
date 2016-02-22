@@ -251,11 +251,10 @@ int TestAMRBoxIntersection()
 
   // Save the initial
   A0 = A;
-  bool doesIntersect = false;
 
   B = A;
   B.Shrink( 2 );
-  doesIntersect = A.Intersect( B );
+  bool doesIntersect = A.Intersect( B );
   if( !doesIntersect || (A != B) )
     {
     std::cerr << "ERROR: Intersecting a fully encompassing box failed!\n";

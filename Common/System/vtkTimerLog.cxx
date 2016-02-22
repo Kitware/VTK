@@ -556,11 +556,11 @@ double vtkTimerLog::GetUniversalTime()
 //----------------------------------------------------------------------------
 double vtkTimerLog::GetCPUTime()
 {
-  double   currentCPUTime = 1.0;
 #ifndef _WIN32_WCE
-  currentCPUTime = static_cast<double>(clock()) /static_cast<double>(CLOCKS_PER_SEC);
+  return static_cast<double>(clock()) /static_cast<double>(CLOCKS_PER_SEC);
+#else
+  return 1.0;
 #endif
-  return currentCPUTime;
 }
 
 //----------------------------------------------------------------------------

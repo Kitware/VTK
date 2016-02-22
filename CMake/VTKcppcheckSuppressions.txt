@@ -78,6 +78,12 @@ nullPointerRedundantCheck:Filters/General/vtkMultiThreshold.cxx
 oppositeInnerCondition:Rendering/VolumeOpenGL/vtkOpenGLVolumeTextureMapper3D.cxx
 pointerPositive:Common/DataModel/vtkUnstructuredGridCellIterator.cxx
 redundantAssignInSwitch:Wrapping/Tools/vtkWrapPythonOverload.c
+redundantAssignment:Filters/General/vtkApproximatingSubdivisionFilter.cxx
+redundantAssignment:Filters/General/vtkInterpolatingSubdivisionFilter.cxx
+redundantAssignment:Rendering/OpenGL2/vtkOpenGLRenderWindow.cxx
+redundantAssignment:Rendering/OpenGL2/vtkRenderbuffer.cxx
+redundantAssignment:Rendering/OpenGL2/vtkTextureObject.cxx
+redundantAssignment:Rendering/VolumeOpenGL2/vtkOpenGLGPUVolumeRayCastMapper.cxx
 stlIfStrFind:Infovis/Core/vtkPipelineGraphSource.cxx
 unassignedVariable:Common/Transforms/vtkHomogeneousTransform.cxx
 unassignedVariable:Filters/Core/vtkFlyingEdges3D.cxx

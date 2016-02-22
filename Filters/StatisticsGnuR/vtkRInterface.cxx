@@ -119,14 +119,14 @@ public:
 #endif
 
     ParseStatus status;
-    SEXP cmdSexp, cmdexpr = R_NilValue;
     int error;
 
 
+    SEXP cmdSexp;
     PROTECT(cmdSexp = allocVector(STRSXP, 1));
     SET_STRING_ELT(cmdSexp, 0, mkChar(rcommand.c_str()));
 
-    cmdexpr = PROTECT(R_ParseVector(cmdSexp, -1, &status, R_NilValue));
+    SEXP cmdexpr = PROTECT(R_ParseVector(cmdSexp, -1, &status, R_NilValue));
     for(int i = 0; i < length(cmdexpr); i++)
       {
       R_tryEval(VECTOR_ELT(cmdexpr, i),NULL,&error);
@@ -227,15 +227,15 @@ int vtkRInterface::EvalRscript(const char *string, bool showRoutput)
 {
 
   ParseStatus status;
-  SEXP cmdSexp, cmdexpr = R_NilValue;
   SEXP ans;
   int i;
   int error;
 
+  SEXP cmdSexp;
   PROTECT(cmdSexp = allocVector(STRSXP, 1));
   SET_STRING_ELT(cmdSexp, 0, mkChar(string));
 
-  cmdexpr = PROTECT(R_ParseVector(cmdSexp, -1, &status, R_NilValue));
+  SEXP cmdexpr = PROTECT(R_ParseVector(cmdSexp, -1, &status, R_NilValue));
   switch (status)
     {
     case PARSE_OK:

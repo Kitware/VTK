@@ -510,10 +510,9 @@ void vtkParallelTimer::StartEvent(const char *event)
   cerr << "=====vtkParallelTimer::StartEvent" << endl;
   #endif
 
-  double walls = 0.0;
   timeval wallt;
   gettimeofday(&wallt, 0x0);
-  walls = static_cast<double>(wallt.tv_sec)
+  double walls = static_cast<double>(wallt.tv_sec)
     + static_cast<double>(wallt.tv_usec)/1.0E6;
 
   #if vtkParallelTimerDEBUG < 0
@@ -544,10 +543,9 @@ void vtkParallelTimer::EndEvent(const char *event)
   cerr << "=====vtkParallelTimer::EndEvent" << endl;
   #endif
 
-  double walle = 0.0;
   timeval wallt;
   gettimeofday(&wallt, 0x0);
-  walle = static_cast<double>(wallt.tv_sec)
+  double walle = static_cast<double>(wallt.tv_sec)
     + static_cast<double>(wallt.tv_usec)/1.0E6;
 
   #if vtkParallelTimerDEBUG > 0

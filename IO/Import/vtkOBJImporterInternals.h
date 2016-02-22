@@ -81,9 +81,10 @@ public:
     TexturePath = std::string(arg);
     if(TexturePath.empty())
       return;
-    char sep    = '/';
 #if defined(_WIN32)
-    sep = '\\';
+    const char sep = '\\';
+#else
+    const char sep = '/';
 #endif
     if(TexturePath.at(TexturePath.size()-1) != sep )
       TexturePath += sep;

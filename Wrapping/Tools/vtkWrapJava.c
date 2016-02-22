@@ -1045,7 +1045,6 @@ int checkFunctionSignature(ClassInfo *data)
 void outputFunction(FILE *fp, ClassInfo *data)
 {
   int i;
-  int args_ok = 1;
   unsigned int rType =
     (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
   const char *jniFunction = 0;
@@ -1054,7 +1053,7 @@ void outputFunction(FILE *fp, ClassInfo *data)
   size_t j;
   CurrentData = data;
 
-  args_ok = checkFunctionSignature(data);
+  int args_ok = checkFunctionSignature(data);
 
   /* handle DataReader SetBinaryInputString as a special case */
   if (!strcmp("SetBinaryInputString",currentFunction->Name) &&

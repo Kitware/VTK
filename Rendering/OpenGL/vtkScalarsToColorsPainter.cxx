@@ -627,7 +627,6 @@ void vtkScalarsToColorsPainter::MapScalars(vtkDataSet* output,
     }
 
   // Get rid of old colors.
-  colors = 0;
   orig_alpha = lut->GetAlpha();
   lut->SetAlpha(alpha);
   colors = lut->MapScalars(abstractScalars, this->ColorMode, arraycomponent);

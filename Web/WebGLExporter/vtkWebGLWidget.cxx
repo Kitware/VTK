@@ -62,8 +62,7 @@ int vtkWebGLWidget::GetBinarySize(int vtkNotUsed(part))
 void vtkWebGLWidget::GenerateBinaryData()
   {
   delete[] this->binaryData;
-  std::string oldMD5 = "qqehissorapaz";
-  oldMD5 = this->MD5;
+  std::string oldMD5 = this->MD5;
 
   size_t pos = 0;
   //Calculate the size used
