@@ -598,11 +598,6 @@ int vtkPolygon::ParameterizePolygon(double *p0, double *p10, double& l10,
 #define VTK_POLYGON_MAX_ITER 10    //Maximum iterations for ray-firing
 #define VTK_POLYGON_VOTE_THRESHOLD 2
 
-#ifndef TRUE
-#define FALSE 0
-#define TRUE 1
-#endif
-
 //----------------------------------------------------------------------------
 // Determine whether point is inside polygon. Function uses ray-casting
 // to determine if point is inside polygon. Works for arbitrary polygon shape
@@ -615,7 +610,7 @@ int vtkPolygon::PointInPolygon (double x[3], int numPts, double *pts,
 {
   double *x1, *x2, xray[3], u, v;
   double rayMag, mag=1, ray[3];
-  int testResult, rayOK, status, numInts, i;
+  int testResult, status, numInts, i;
   int iterNumber;
   int maxComp, comps[2];
   int deltaVotes;
@@ -706,7 +701,8 @@ int vtkPolygon::PointInPolygon (double x[3], int numPts, double *pts,
     //
     //  Generate ray
     //
-    for (rayOK = FALSE; rayOK == FALSE; )
+    bool rayOK;
+    for (rayOK = false; rayOK == false; )
       {
       ray[comps[0]] = vtkMath::Random(-rayMag, rayMag);
       ray[comps[1]] = vtkMath::Random(-rayMag, rayMag);
@@ -714,7 +710,7 @@ int vtkPolygon::PointInPolygon (double x[3], int numPts, double *pts,
                         n[comps[1]]*ray[comps[1]]) / n[maxComp];
       if ( (mag = vtkMath::Norm(ray)) > rayMag*VTK_TOL )
         {
-        rayOK = TRUE;
+        rayOK = true;
         }
       }
 

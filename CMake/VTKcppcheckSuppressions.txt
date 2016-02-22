@@ -103,6 +103,7 @@ unsafeClassCanLeak:GUISupport/Qt/QVTKInteractorInternal.h
 unsafeClassCanLeak:Interaction/Widgets/vtkBiDimensionalRepresentation.h
 unusedAllocatedMemory:IO/Legacy/vtkDataWriter.cxx
 unusedStructMember:Common/Misc/vtkHeap.cxx
+unusedStructMember:IO/Image/vtkMRCReader.cxx
 uselessAssignmentArg:Common/DataModel/vtkReebGraph.cxx
 uselessAssignmentPtrArg:Filters/General/vtkYoungsMaterialInterface.cxx
 uselessAssignmentPtrArg:IO/Parallel/vtkPImageWriter.cxx
@@ -116,7 +117,6 @@ memleakOnRealloc
 noConstructor
 operatorEq
 postfixOperator
-unusedStructMember
 
 // To investigate further...
 memleak:Wrapping/Tools/vtkParsePreprocess.c
