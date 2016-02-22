@@ -420,6 +420,7 @@ void vtkEGLRenderWindow::Initialize (void)
       this->ResizeWindow(this->Size[0], this->Size[1]);
       }
     }
+  this->Initialized = true;
 }
 
 void vtkEGLRenderWindow::Finalize (void)
@@ -551,6 +552,10 @@ void vtkEGLRenderWindow::SetPosition(int x, int y)
 
 int vtkEGLRenderWindow::SupportsOpenGL()
 {
+  if(!this->Initialized)
+    {
+    this->Initialize();
+    }
   vtkInternals* impl = this->Internals;
   this->MakeCurrent();
   if(impl->Display == EGL_NO_DISPLAY && this->OwnWindow)
