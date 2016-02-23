@@ -19,7 +19,7 @@
 // vtkSampleDataSet is a filter that evaluates an implicit function and
 // (optional) gradients at each point in an input vtkDataSet. The output
 // of the filter are new scalar values (the function values) and the
-// optional vector, gradient array.
+// optional vector (function gradient) array.
 
 // .SECTION Caveats
 // This class has been threaded with vtkSMPTools. Using TBB or other
@@ -59,19 +59,19 @@ public:
   vtkBooleanMacro(ComputeGradients,int);
 
   // Description:
-  // Set/get the scalar array name for this data set. Initial value is
+  // Set/get the scalar array name for this data set. The initial value is
   // "Implicit scalars".
   vtkSetStringMacro(ScalarArrayName);
   vtkGetStringMacro(ScalarArrayName);
 
   // Description:
-  // Set/get the gradient array name for this data set. Initial value is
+  // Set/get the gradient array name for this data set. The initial value is
   // "Implicit gradients".
   vtkSetStringMacro(GradientArrayName);
   vtkGetStringMacro(GradientArrayName);
 
   // Description:
-  // Return the MTime also considering the implicit function.
+  // Return the MTime also taking into account the implicit function.
   unsigned long GetMTime();
 
 protected:

@@ -29,7 +29,7 @@
 vtkStandardNewMacro(vtkSampleDataSet);
 vtkCxxSetObjectMacro(vtkSampleDataSet,ImplicitFunction,vtkImplicitFunction);
 
-//Interface between vtkSMPTools and VTK pipeline
+// Interface between vtkSMPTools and the VTK pipeline
 namespace {
 
 struct SampleDataSet
@@ -97,10 +97,10 @@ vtkSampleDataSet::vtkSampleDataSet()
 
   this->ComputeGradients = 1;
 
-  this->ScalarArrayName=0;
+  this->ScalarArrayName = 0;
   this->SetScalarArrayName("Implicit scalars");
 
-  this->GradientArrayName=0;
+  this->GradientArrayName = 0;
   this->SetGradientArrayName("Implicit gradients");
 }
 
@@ -188,9 +188,6 @@ int vtkSampleDataSet::RequestData(
 
   if ( this->ComputeGradients )
     {
-    // For an unknown reason yet, if the following line is not commented out,
-    // it will make ImplicitSum, TestBoxFunction and TestDiscreteMarchingCubes
-    // to fail.
     newGradients->SetName(this->GradientArrayName);
     output->GetPointData()->SetVectors(newGradients);
     newGradients->Delete();
