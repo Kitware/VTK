@@ -20,7 +20,7 @@ cyl.SetCenter(0,0,0)
 cyl.SetRadius(0.1)
 
 # Generate scalars and vector
-sample = vtk.vtkSampleDataSet()
+sample = vtk.vtkSampleImplicitFunctionFilter()
 sample.SetInputConnection(points.GetOutputPort())
 sample.SetImplicitFunction(cyl)
 sample.Update()

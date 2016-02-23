@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSampleDataSet.cxx
+  Module:    vtkSampleImplicitFunctionFilter.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkSampleDataSet.h"
+#include "vtkSampleImplicitFunctionFilter.h"
 
 #include "vtkFloatArray.h"
 #include "vtkGarbageCollector.h"
@@ -27,8 +27,8 @@
 #include "vtkPointData.h"
 #include "vtkSMPTools.h"
 
-vtkStandardNewMacro(vtkSampleDataSet);
-vtkCxxSetObjectMacro(vtkSampleDataSet,ImplicitFunction,vtkImplicitFunction);
+vtkStandardNewMacro(vtkSampleImplicitFunctionFilter);
+vtkCxxSetObjectMacro(vtkSampleImplicitFunctionFilter,ImplicitFunction,vtkImplicitFunction);
 
 // Interface between vtkSMPTools and the VTK pipeline
 namespace {
@@ -92,7 +92,7 @@ struct SampleDataSetWithGradients
 
 //----------------------------------------------------------------------------
 // Okay define the VTK class proper
-vtkSampleDataSet::vtkSampleDataSet()
+vtkSampleImplicitFunctionFilter::vtkSampleImplicitFunctionFilter()
 {
   this->ImplicitFunction = NULL;
 
@@ -106,7 +106,7 @@ vtkSampleDataSet::vtkSampleDataSet()
 }
 
 //----------------------------------------------------------------------------
-vtkSampleDataSet::~vtkSampleDataSet()
+vtkSampleImplicitFunctionFilter::~vtkSampleImplicitFunctionFilter()
 {
   this->SetImplicitFunction(NULL);
   this->SetScalarArrayName(NULL);
@@ -115,7 +115,7 @@ vtkSampleDataSet::~vtkSampleDataSet()
 
 //----------------------------------------------------------------------------
 // Produce the output data
-int vtkSampleDataSet::RequestData(
+int vtkSampleImplicitFunctionFilter::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
@@ -204,7 +204,7 @@ int vtkSampleDataSet::RequestData(
 }
 
 //----------------------------------------------------------------------------
-int vtkSampleDataSet::
+int vtkSampleImplicitFunctionFilter::
 FillInputPortInformation(int, vtkInformation *info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
@@ -212,7 +212,7 @@ FillInputPortInformation(int, vtkInformation *info)
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkSampleDataSet::GetMTime()
+unsigned long vtkSampleImplicitFunctionFilter::GetMTime()
 {
   unsigned long mTime=this->Superclass::GetMTime();
   unsigned long impFuncMTime;
@@ -227,7 +227,8 @@ unsigned long vtkSampleDataSet::GetMTime()
 }
 
 //----------------------------------------------------------------------------
-void vtkSampleDataSet::ReportReferences(vtkGarbageCollector* collector)
+void vtkSampleImplicitFunctionFilter::
+ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
   vtkGarbageCollectorReport(collector, this->ImplicitFunction,
@@ -235,7 +236,7 @@ void vtkSampleDataSet::ReportReferences(vtkGarbageCollector* collector)
 }
 
 //----------------------------------------------------------------------------
-void vtkSampleDataSet::PrintSelf(ostream& os, vtkIndent indent)
+void vtkSampleImplicitFunctionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 

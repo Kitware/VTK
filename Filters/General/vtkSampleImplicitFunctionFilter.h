@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSampleDataSet.h
+  Module:    vtkSampleImplicitFunctionFilter.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,11 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSampleDataSet - sample an implicit function over a dataset,
+// .NAME vtkSampleImplicitFunctionFilter - sample an implicit function over a dataset,
 // generating scalar values and optional gradient vectors
 
 // .SECTION Description
-// vtkSampleDataSet is a filter that evaluates an implicit function and
+// vtkSampleImplicitFunctionFilter is a filter that evaluates an implicit function and
 // (optional) gradients at each point in an input vtkDataSet. The output
 // of the filter are new scalar values (the function values) and the
 // optional vector (function gradient) array.
@@ -29,8 +29,8 @@
 // .SECTION See Also
 // vtkSampleFunction vtkImplicitModeller
 
-#ifndef vtkSampleDataSet_h
-#define vtkSampleDataSet_h
+#ifndef vtkSampleImplicitFunctionFilter_h
+#define vtkSampleImplicitFunctionFilter_h
 
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
@@ -38,13 +38,13 @@
 class vtkImplicitFunction;
 class vtkDataArray;
 
-class VTKFILTERSGENERAL_EXPORT vtkSampleDataSet : public vtkDataSetAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkSampleImplicitFunctionFilter : public vtkDataSetAlgorithm
 {
 public:
   // Description:
   // Standard instantiation, type information, and print methods.
-  static vtkSampleDataSet *New();
-  vtkTypeMacro(vtkSampleDataSet,vtkDataSetAlgorithm);
+  static vtkSampleImplicitFunctionFilter *New();
+  vtkTypeMacro(vtkSampleImplicitFunctionFilter,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -75,8 +75,8 @@ public:
   unsigned long GetMTime();
 
 protected:
-  vtkSampleDataSet();
-  ~vtkSampleDataSet();
+  vtkSampleImplicitFunctionFilter();
+  ~vtkSampleImplicitFunctionFilter();
 
   vtkImplicitFunction *ImplicitFunction;
   int ComputeGradients;
@@ -91,8 +91,8 @@ protected:
 
 
 private:
-  vtkSampleDataSet(const vtkSampleDataSet&);  // Not implemented.
-  void operator=(const vtkSampleDataSet&);  // Not implemented.
+  vtkSampleImplicitFunctionFilter(const vtkSampleImplicitFunctionFilter&);  // Not implemented.
+  void operator=(const vtkSampleImplicitFunctionFilter&);  // Not implemented.
 };
 
 #endif

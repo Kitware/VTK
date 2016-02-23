@@ -10,7 +10,7 @@ vtk_add_test_python(
   TestGraphLayoutFilter.py
   TestMultiBlockStreamer.py
   TestRectilinearGridToTetrahedra.py
-  TestSampleDataSet.py
+  TestSampleImplicitFunctionFilter.py
   TestSplineFilter.py
   WarpToImage.py
   blankGrid.py
