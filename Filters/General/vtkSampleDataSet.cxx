@@ -23,6 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkDataSet.h"
+#include "vtkCellData.h"
 #include "vtkPointData.h"
 #include "vtkSMPTools.h"
 
@@ -153,6 +154,10 @@ int vtkSampleDataSet::RequestData(
   // The output geometic structure is the same as the input
   output->CopyStructure(input);
 
+  // Pass the output attribute data
+  output->GetPointData()->PassData(input->GetPointData());
+  output->GetCellData()->PassData(input->GetCellData());
+
   // Set up for execution
   vtkFloatArray *newScalars = vtkFloatArray::New();
   newScalars->SetNumberOfTuples(numPts);
@@ -183,13 +188,15 @@ int vtkSampleDataSet::RequestData(
 
   // Update self
   newScalars->SetName(this->ScalarArrayName);
-  output->GetPointData()->SetScalars(newScalars);
+  output->GetPointData()->AddArray(newScalars);
+  output->GetPointData()->SetActiveScalars(this->ScalarArrayName);
   newScalars->Delete();
 
   if ( this->ComputeGradients )
     {
     newGradients->SetName(this->GradientArrayName);
-    output->GetPointData()->SetVectors(newGradients);
+    output->GetPointData()->AddArray(newGradients);
+    output->GetPointData()->SetActiveVectors(this->GradientArrayName);
     newGradients->Delete();
     }
 
