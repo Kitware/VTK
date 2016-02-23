@@ -30,28 +30,9 @@ public:
   vtkTypeMacro(vtkCameraNode, vtkViewNode);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //Description:
-  //Build containers for our (not existent) child nodes.
-  virtual void BuildSelf() {};
-
-  //Description:
-  //Get state from our renderable.
-  virtual void SynchronizeSelf();
-
-  //Description:
-  //Override to interface to a specific backend.
-  virtual void RenderSelf() {};
-
 protected:
   vtkCameraNode();
   ~vtkCameraNode();
-
-  //todo: use a map with string keys being renderable's member name
-  //state
-  double Position[3];
-  double FocalPoint[3];
-  double ViewUp[3];
-  double ViewAngle;
 
 private:
   vtkCameraNode(const vtkCameraNode&); // Not implemented.

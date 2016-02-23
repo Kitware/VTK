@@ -16,15 +16,18 @@
 
 #include "vtkCamera.h"
 #include "vtkCollectionIterator.h"
+#include "vtkInformation.h"
+#include "vtkInformationIntegerKey.h"
 #include "vtkObjectFactory.h"
 #include "vtkOsprayActorNode.h"
 #include "vtkOsprayCameraNode.h"
 #include "vtkOsprayLightNode.h"
 #include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
 #include "vtkViewNodeCollection.h"
 
 #include "ospray/ospray.h"
-#include "include/ospray/version.h"
+#include "ospray/version.h"
 
 #include <cmath>
 
@@ -37,9 +40,10 @@
 #include <unistd.h>
 #endif
 
-int vtkOsprayRendererNode::maxframes = 1;
-int vtkOsprayRendererNode::doshadows=0;
-int vtkOsprayRendererNode::spp=1;
+vtkInformationKeyMacro(vtkOsprayRendererNode, SAMPLES_PER_PIXEL, Integer);
+vtkInformationKeyMacro(vtkOsprayRendererNode, MAX_FRAMES, Integer);
+vtkInformationKeyMacro(vtkOsprayRendererNode, AMBIENT_SAMPLES, Integer);
+
 //============================================================================
 vtkStandardNewMacro(vtkOsprayRendererNode);
 
@@ -50,6 +54,7 @@ vtkOsprayRendererNode::vtkOsprayRendererNode()
   this->ZBuffer = NULL;
   this->OModel = NULL;
   this->ORenderer = NULL;
+  this->NumActors = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -62,44 +67,101 @@ vtkOsprayRendererNode::~vtkOsprayRendererNode()
 }
 
 //----------------------------------------------------------------------------
+void vtkOsprayRendererNode::SetSamplesPerPixel(int value, vtkRenderer *renderer)
+{
+  if (!renderer)
+    {
+    return;
+    }
+  vtkInformation *info = renderer->GetInformation();
+  info->Set(vtkOsprayRendererNode::SAMPLES_PER_PIXEL(), value);
+}
+
+//----------------------------------------------------------------------------
+int vtkOsprayRendererNode::GetSamplesPerPixel(vtkRenderer *renderer)
+{
+  if (!renderer)
+    {
+    return 1;
+    }
+  vtkInformation *info = renderer->GetInformation();
+  if (info && info->Has(vtkOsprayRendererNode::SAMPLES_PER_PIXEL()))
+    {
+    return (info->Get(vtkOsprayRendererNode::SAMPLES_PER_PIXEL()));
+    }
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkOsprayRendererNode::SetMaxFrames(int value, vtkRenderer *renderer)
+{
+  if (!renderer)
+    {
+    return;
+    }
+  vtkInformation *info = renderer->GetInformation();
+  info->Set(vtkOsprayRendererNode::MAX_FRAMES(), value);
+}
+
+//----------------------------------------------------------------------------
+int vtkOsprayRendererNode::GetMaxFrames(vtkRenderer *renderer)
+{
+  if (!renderer)
+    {
+    return 1;
+    }
+  vtkInformation *info = renderer->GetInformation();
+  if (info && info->Has(vtkOsprayRendererNode::MAX_FRAMES()))
+    {
+    return (info->Get(vtkOsprayRendererNode::MAX_FRAMES()));
+    }
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkOsprayRendererNode::SetAmbientSamples(int value, vtkRenderer *renderer)
+{
+  if (!renderer)
+    {
+    return;
+    }
+  vtkInformation *info = renderer->GetInformation();
+  info->Set(vtkOsprayRendererNode::AMBIENT_SAMPLES(), value);
+}
+
+//----------------------------------------------------------------------------
+int vtkOsprayRendererNode::GetAmbientSamples(vtkRenderer *renderer)
+{
+  if (!renderer)
+    {
+    return 1;
+    }
+  vtkInformation *info = renderer->GetInformation();
+  if (info && info->Has(vtkOsprayRendererNode::AMBIENT_SAMPLES()))
+    {
+    return (info->Get(vtkOsprayRendererNode::AMBIENT_SAMPLES()));
+    }
+  return 1;
+}
+
+//----------------------------------------------------------------------------
 void vtkOsprayRendererNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
-void vtkOsprayRendererNode::Render()
+void vtkOsprayRendererNode::Traverse(int operation)
 {
-  OSPRenderer oRenderer = NULL;
-  if (!this->ORenderer)
+  // do not override other passes
+  if (operation != render)
     {
-    ospRelease((osp::Renderer*)this->ORenderer);
-#if  OSPRAY_VERSION_MAJOR == 0 && OSPRAY_VERSION_MINOR < 9
-    oRenderer = (osp::Renderer*)ospNewRenderer("obj");
-#else
-    oRenderer = (osp::Renderer*)ospNewRenderer("scivis");
-#endif
-    this->ORenderer = oRenderer;
-    }
-  else
-    {
-    oRenderer = (osp::Renderer*)this->ORenderer;
+    this->Superclass::Traverse(operation);
+    return;
     }
 
-  if (doshadows)
-    {
-    ospSet1i(oRenderer,"shadowsEnabled",1);
-    }
-  else
-    {
-    ospSet1i(oRenderer,"shadowsEnabled",0);
-    }
-  ospSet1i(oRenderer,"spp",spp);
+  this->Apply(operation,true);
 
-  ospSet3f(oRenderer,"bgColor",
-           this->Background[0],
-           this->Background[1],
-           this->Background[2]);
+  OSPRenderer oRenderer = (osp::Renderer*)this->ORenderer;
 
   //camera
   //TODO: this repeated traversal to find things of particular types
@@ -113,17 +175,14 @@ void vtkOsprayRendererNode::Render()
       vtkOsprayCameraNode::SafeDownCast(it->GetCurrentObject());
     if (child)
       {
-      OSPCamera oCamera = ospNewCamera("perspective");
-      ospSetObject(oRenderer,"camera", oCamera);
-      child->ORender(this->TiledSize, oCamera);
-      ospCommit(oCamera);
-      ospRelease(oCamera);
+      child->Traverse(operation);
       break;
       }
     it->GoToNextItem();
     }
 
   //lights
+  this->Lights.clear();
   it->InitTraversal();
   while (!it->IsDoneWithTraversal())
     {
@@ -131,33 +190,49 @@ void vtkOsprayRendererNode::Render()
       vtkOsprayLightNode::SafeDownCast(it->GetCurrentObject());
     if (child)
       {
-      child->ORender(oRenderer);
-      break;
+      child->Traverse(operation);
       }
     it->GoToNextItem();
     }
+  OSPData lightArray = ospNewData(this->Lights.size(), OSP_OBJECT,
+    (this->Lights.size()?&this->Lights[0]:NULL), 0);
+  ospSetData(oRenderer, "lights", lightArray);
 
   //actors
   OSPModel oModel=NULL;
   it->InitTraversal();
+  //since we have to spatially sort everything
+  //let's see if we can avoid that in the common case when
+  //the objects have not changed. Note we also cache in actornodes
+  //to reuse already created ospray meshes
   unsigned int recent = 0;
+  int numAct = 0; //catches removed actors
   while (!it->IsDoneWithTraversal())
     {
     vtkOsprayActorNode *child =
       vtkOsprayActorNode::SafeDownCast(it->GetCurrentObject());
     if (child)
       {
-      if (child->RenderTime > recent)
+      numAct++;
+      unsigned int mtime = child->GetMTime();
+      if (mtime > recent)
         {
-        recent = child->RenderTime;
+        recent = mtime;
         }
       }
     it->GoToNextItem();
     }
-  if (recent > this->RenderTime || !this->OModel)
+
+  bool enable_cache = true; //turn off to force rebuilds for debugging
+  if (!this->OModel ||
+      !enable_cache ||
+      (recent > this->RenderTime) ||
+      (numAct != this->NumActors))
     {
+    this->NumActors = numAct;
     ospRelease((OSPModel)this->OModel);
     oModel = ospNewModel();
+    this->OModel = oModel;
     it->InitTraversal();
     while (!it->IsDoneWithTraversal())
       {
@@ -165,12 +240,11 @@ void vtkOsprayRendererNode::Render()
         vtkOsprayActorNode::SafeDownCast(it->GetCurrentObject());
       if (child)
         {
-        child->ORender(oRenderer, oModel);
+        child->Traverse(operation);
         }
       it->GoToNextItem();
       }
-    this->OModel = oModel;
-    this->RenderTime.Modified();
+    this->RenderTime = recent;
     ospSetObject(oRenderer,"model", oModel);
     ospCommit(oModel);
     }
@@ -179,113 +253,143 @@ void vtkOsprayRendererNode::Render()
     oModel = (OSPModel)this->OModel;
     }
   it->Delete();
-  ospCommit(oRenderer);
 
-#if OSPRAY_VERSION_MINOR < 9
-  osp::vec2i isize(this->Size[0], this->Size[1]);
-#else
-  osp::vec2i isize = {this->Size[0], this->Size[1]};
-#endif
-  OSPFrameBuffer osp_framebuffer = ospNewFrameBuffer
-    (isize,
-     OSP_RGBA_I8, OSP_FB_COLOR | OSP_FB_DEPTH | OSP_FB_ACCUM);
-  ospFrameBufferClear(osp_framebuffer, OSP_FB_COLOR|OSP_FB_DEPTH|OSP_FB_ACCUM);
-  for (int i = 0; i < maxframes; i++)
+  this->Apply(operation,false);
+}
+
+//----------------------------------------------------------------------------
+void vtkOsprayRendererNode::Build(bool prepass)
+{
+  if (prepass)
     {
-    ospRenderFrame(osp_framebuffer, oRenderer, OSP_FB_COLOR|OSP_FB_DEPTH|OSP_FB_ACCUM);
+    vtkRenderer *aren = vtkRenderer::SafeDownCast(this->Renderable);
+    // make sure we have a camera
+    if ( !aren->IsActiveCameraCreated() )
+      {
+      aren->ResetCamera();
+      }
     }
-  const void* rgba = ospMapFrameBuffer(osp_framebuffer, OSP_FB_COLOR);
-  delete[] this->Buffer;
-  this->Buffer = new unsigned char[this->Size[0]*this->Size[1]*4];
-  memcpy((void*)this->Buffer, rgba, this->Size[0]*this->Size[1]*sizeof(char)*4);
-  ospUnmapFrameBuffer(rgba, osp_framebuffer);
+  this->Superclass::Build(prepass);
+}
 
-  vtkCamera *cam = vtkRenderer::SafeDownCast(this->Renderable)->
-    GetActiveCamera();
-  double *clipValues = cam->GetClippingRange();
-  double viewAngle = cam->GetViewAngle();
-  double clipMin = clipValues[0];
-  double clipMax = clipValues[1];
-  double clipDiv = 1.0 / (clipMax - clipMin);
-
-  const void *Z = ospMapFrameBuffer(osp_framebuffer, OSP_FB_DEPTH);
-  delete[] this->ZBuffer;
-  this->ZBuffer = new float[this->Size[0]*this->Size[1]];
-  float *s = (float *)Z;
-  float *d = this->ZBuffer;
-  /*
-  float minS = 1000.0;
-  float maxS = -1000.0;
-  float minD = 1000.0;
-  float maxD = -10000.0;
-  */
-  for (int i = 0; i < (this->Size[0]*this->Size[1]); i++, s++, d++)
+//----------------------------------------------------------------------------
+void vtkOsprayRendererNode::Render(bool prepass)
+{
+  if (prepass)
     {
-    *d = (*s<clipMin? 1.0 : (*s - clipMin) * clipDiv);
+    OSPRenderer oRenderer = NULL;
+    if (!this->ORenderer)
+      {
+      ospRelease((osp::Renderer*)this->ORenderer);
+  #if  OSPRAY_VERSION_MAJOR == 0 && OSPRAY_VERSION_MINOR < 9
+      oRenderer = (osp::Renderer*)ospNewRenderer("obj");
+  #else
+      oRenderer = (osp::Renderer*)ospNewRenderer("scivis");
+  #endif
+      this->ORenderer = oRenderer;
+      }
+    else
+      {
+      oRenderer = (osp::Renderer*)this->ORenderer;
+      }
+
+    vtkRenderer *ren = vtkRenderer::SafeDownCast(this->GetRenderable());
+    int *tmp = ren->GetSize();
+    this->Size[0] = tmp[0];
+    this->Size[1] = tmp[1];
+    if (ren->GetUseShadows())
+      {
+      ospSet1i(oRenderer,"shadowsEnabled",1);
+      }
+    else
+      {
+      ospSet1i(oRenderer,"shadowsEnabled",0);
+      }
+    ospSet1i(oRenderer,"aoSamples",
+             this->GetAmbientSamples(static_cast<vtkRenderer*>(this->Renderable)));
+    ospSet1i(oRenderer,"spp",
+             this->GetSamplesPerPixel(static_cast<vtkRenderer*>(this->Renderable)));
+
+    double *bg = ren->GetBackground();
+    ospSet3f(oRenderer,"bgColor", bg[0], bg[1], bg[2]);
+    }
+  else
+    {
+    OSPRenderer oRenderer = (osp::Renderer*)this->ORenderer;
+    ospCommit(oRenderer);
+
+  #if OSPRAY_VERSION_MINOR < 9
+    osp::vec2i isize(this->Size[0], this->Size[1]);
+  #else
+    osp::vec2i isize = {this->Size[0], this->Size[1]};
+  #endif
+    OSPFrameBuffer osp_framebuffer = ospNewFrameBuffer
+      (isize,
+       OSP_RGBA_I8, OSP_FB_COLOR | OSP_FB_DEPTH | OSP_FB_ACCUM);
+    ospFrameBufferClear(osp_framebuffer, OSP_FB_COLOR|OSP_FB_DEPTH|OSP_FB_ACCUM);
+    for (int i = 0; i < this->GetMaxFrames(static_cast<vtkRenderer*>(this->Renderable)); i++)
+      {
+      ospRenderFrame(osp_framebuffer, oRenderer,
+                     OSP_FB_COLOR|OSP_FB_DEPTH|OSP_FB_ACCUM);
+      }
+    const void* rgba = ospMapFrameBuffer(osp_framebuffer, OSP_FB_COLOR);
+    delete[] this->Buffer;
+    this->Buffer = new unsigned char[this->Size[0]*this->Size[1]*4];
+    memcpy((void*)this->Buffer, rgba, this->Size[0]*this->Size[1]*sizeof(char)*4);
+    ospUnmapFrameBuffer(rgba, osp_framebuffer);
+
+    vtkCamera *cam = vtkRenderer::SafeDownCast(this->Renderable)->
+      GetActiveCamera();
+    double *clipValues = cam->GetClippingRange();
+    double clipMin = clipValues[0];
+    double clipMax = clipValues[1];
+    double clipDiv = 1.0 / (clipMax - clipMin);
+
+    const void *Z = ospMapFrameBuffer(osp_framebuffer, OSP_FB_DEPTH);
+    delete[] this->ZBuffer;
+    this->ZBuffer = new float[this->Size[0]*this->Size[1]];
+    float *s = (float *)Z;
+    float *d = this->ZBuffer;
     /*
-    if (*d < minD) minD = *d;
-    if (*d > maxD) maxD = *d;
-    if (*s < minS) minS = *s;
-    if (*s > maxS) maxS = *s;
+    float minS = 1000.0;
+    float maxS = -1000.0;
+    float minD = 1000.0;
+    float maxD = -10000.0;
     */
+    for (int i = 0; i < (this->Size[0]*this->Size[1]); i++, s++, d++)
+      {
+      *d = (*s<clipMin? 1.0 : (*s - clipMin) * clipDiv);
+      /*
+      if (*d < minD) minD = *d;
+      if (*d > maxD) maxD = *d;
+      if (*s < minS) minS = *s;
+      if (*s > maxS) maxS = *s;
+      */
+      }
+    /*
+    cerr << "CmM" << clipMin << "," << clipMax << "\t";
+    cerr << "SmM " << minS << "," << maxS << "\t";
+    cerr << "DmM " << minD << "," << maxD << endl;
+    */
+    ospUnmapFrameBuffer(Z, osp_framebuffer);
+
+    ospRelease(osp_framebuffer);
     }
-  /*
-  cerr << "CmM" << clipMin << "," << clipMax << "\t";
-  cerr << "SmM " << minS << "," << maxS << "\t";
-  cerr << "DmM " << minD << "," << maxD << endl;
-  */
-  ospUnmapFrameBuffer(Z, osp_framebuffer);
-
-  ospRelease(osp_framebuffer);
-
-  /*
-  int pid = getpid();
-  char fname[100];
-  vtkSmartPointer<vtkImageImport> wiff1 = vtkSmartPointer<vtkImageImport>::New();
-  wiff1->CopyImportVoidPointer(this->Buffer,(int)(this->Size[0]*this->Size[1]*sizeof(char)*4));
-  wiff1->SetDataScalarTypeToUnsignedChar();
-  wiff1->SetNumberOfScalarComponents(4);
-  wiff1->SetWholeExtent(0,this->Size[0]-1,0,this->Size[1]-1,0,0);
-  wiff1->SetDataExtentToWholeExtent();
-
-  vtkSmartPointer<vtkDataSetWriter> dw1 = vtkSmartPointer<vtkDataSetWriter>::New();
-  dw1->SetInputConnection(wiff1->GetOutputPort());
-  sprintf(fname, "color_%d.vtk", pid);
-  cerr << fname << endl;
-  dw1->SetFileName(fname);
-  dw1->Write();
-
-  vtkSmartPointer<vtkImageImport> wiff2 = vtkSmartPointer<vtkImageImport>::New();
-  wiff2->CopyImportVoidPointer(this->ZBuffer,(int)(this->Size[0]*this->Size[1]*sizeof(float)));
-  wiff2->SetDataScalarTypeToFloat();
-  wiff2->SetNumberOfScalarComponents(1);
-  wiff2->SetWholeExtent(0,this->Size[0]-1,0,this->Size[1]-1,0,0);
-  wiff2->SetDataExtentToWholeExtent();
-
-  vtkSmartPointer<vtkDataSetWriter> dw2 = vtkSmartPointer<vtkDataSetWriter>::New();
-  dw2->SetInputConnection(wiff2->GetOutputPort());
-  sprintf(fname, "depth_%d.vtk", pid);
-  cerr << fname << endl;
-  dw2->SetFileName(fname);
-  dw2->Write();
-  */
 }
 
 //----------------------------------------------------------------------------
 void vtkOsprayRendererNode::WriteLayer(unsigned char *buffer, float *Z,
-                                       int buffx, int buffy)
+                                       int buffx, int buffy, int layer)
 {
-  //TODO: have to keep depth information around in VTK side for
-  //parallel compositing to work too.
-  unsigned char *iptr = this->Buffer;
-  float *zptr = this->ZBuffer;
-  unsigned char *optr = buffer;
-  float *ozptr = Z;
-  if (this->Layer == 0)
+  if (layer == 0)
     {
-    for (int i = 0; i < buffx && i < this->Size[0]; i++)
+    for (int j = 0; j < buffy && j < this->Size[1]; j++)
       {
-      for (int j = 0; j < buffy && i < this->Size[1]; j++)
+      unsigned char *iptr = this->Buffer + j*this->Size[0]*4;
+      float *zptr = this->ZBuffer + j*this->Size[0];
+      unsigned char *optr = buffer + j*buffx*4;
+      float *ozptr = Z +  j*buffx;
+      for (int i = 0; i < buffx && i < this->Size[0]; i++)
         {
         *optr++ = *iptr++;
         *optr++ = *iptr++;
@@ -298,9 +402,13 @@ void vtkOsprayRendererNode::WriteLayer(unsigned char *buffer, float *Z,
     }
   else
     {
-    for (int i = 0; i < buffx && i < this->Size[0]; i++)
+    for (int j = 0; j < buffy && j < this->Size[1]; j++)
       {
-      for (int j = 0; j < buffy && i < this->Size[1]; j++)
+      unsigned char *iptr = this->Buffer + j*this->Size[0]*4;
+      float *zptr = this->ZBuffer + j*this->Size[0];
+      unsigned char *optr = buffer + j*buffx*4;
+      float *ozptr = Z +  j*buffx;
+      for (int i = 0; i < buffx && i < this->Size[0]; i++)
         {
         if (*zptr<1.0)
           {

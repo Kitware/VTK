@@ -24,7 +24,14 @@
 #include "vtkRenderingOsprayModule.h" // For export macro
 #include "vtkRenderPass.h"
 
-class vtkOsprayWindowNode;
+class vtkOsprayRendererNode;
+class vtkCameraPass;
+class vtkLightsPass;
+class vtkOverlayPass;
+class vtkRenderPassCollection;
+class vtkSequencePass;
+class vtkVolumetricPass;
+class vtkOsprayPassInternals;
 
 class VTKRENDERINGOSPRAY_EXPORT vtkOsprayPass : public vtkRenderPass
 {
@@ -39,8 +46,12 @@ public:
 
   // Description:
   // Tells the pass what it will render.
-  void SetSceneGraph(vtkOsprayWindowNode *);
-  vtkGetObjectMacro(SceneGraph, vtkOsprayWindowNode);
+  void SetSceneGraph(vtkOsprayRendererNode *);
+  vtkGetObjectMacro(SceneGraph, vtkOsprayRendererNode);
+
+  // Description:
+  // Called by the internals of this class
+  virtual void RenderInternal(const vtkRenderState *s);
 
  protected:
   // Description:
@@ -51,11 +62,20 @@ public:
   // Destructor.
   virtual ~vtkOsprayPass();
 
-  vtkOsprayWindowNode *SceneGraph;
+  vtkOsprayRendererNode *SceneGraph;
+  vtkCameraPass *CameraPass;
+  vtkLightsPass *LightsPass;
+  vtkOverlayPass *OverlayPass;
+  vtkVolumetricPass *VolumetricPass;
+  vtkSequencePass *SequencePass;
+  vtkRenderPassCollection *RenderPassCollection;
 
  private:
   vtkOsprayPass(const vtkOsprayPass&);  // Not implemented.
   void operator=(const vtkOsprayPass&);  // Not implemented.
+
+  class Internals;
+  vtkOsprayPassInternals *Internal;
 };
 
 #endif

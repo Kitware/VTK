@@ -897,6 +897,7 @@ void vtkMapper::ClearInvertibleColor()
     }
 }
 
+//-------------------------------------------------------------------
 // Return the method of coloring scalar data.
 const char *vtkMapper::GetColorModeAsString(void)
 {
@@ -1286,4 +1287,42 @@ void vtkMapper::PrintSelf(ostream& os, vtkIndent indent)
      << this->CoincidentLineFactor << "\n";
   os << indent << "CoincidentPolygonFactor: "
      << this->CoincidentPolygonFactor << "\n";
+}
+
+//-------------------------------------------------------------------
+void vtkMapper::ClearColorArrays()
+{
+  if (this->Colors)
+    {
+    this->Colors->Delete();
+    this->Colors = NULL;
+    }
+  if (this->ColorCoordinates)
+    {
+    this->ColorCoordinates->Delete();
+    this->ColorCoordinates = NULL;
+    }
+  if (this->ColorTextureMap)
+    {
+    this->ColorTextureMap->Delete();
+    this->ColorTextureMap = NULL;
+    }
+}
+
+//-------------------------------------------------------------------
+vtkUnsignedCharArray *vtkMapper::GetColorMapColors()
+{
+  return this->Colors;
+}
+
+//-------------------------------------------------------------------
+vtkFloatArray *vtkMapper::GetColorCoordinates()
+{
+  return this->ColorCoordinates;
+}
+
+//-------------------------------------------------------------------
+vtkImageData* vtkMapper::GetColorTextureMap()
+{
+  return this->ColorTextureMap;
 }

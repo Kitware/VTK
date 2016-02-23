@@ -15,13 +15,19 @@
 #include "vtkOsprayLightNode.h"
 
 #include "vtkCollectionIterator.h"
-#include "vtkObjectFactory.h"
 #include "vtkLight.h"
-#include "vtkViewNodeCollection.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkOsprayRendererNode.h"
 
 #include "ospray/ospray.h"
-#include "vtkMath.h"
+#include <vector>
+
+
 //============================================================================
+double vtkOsprayLightNode::LightScale = 1.0;
+
+//----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOsprayLightNode);
 
 //----------------------------------------------------------------------------
@@ -35,62 +41,75 @@ vtkOsprayLightNode::~vtkOsprayLightNode()
 }
 
 //----------------------------------------------------------------------------
+void vtkOsprayLightNode::SetLightScale(double s)
+{
+  vtkOsprayLightNode::LightScale = s;
+}
+
+//----------------------------------------------------------------------------
+double vtkOsprayLightNode::GetLightScale()
+{
+  return vtkOsprayLightNode::LightScale;
+}
+
+//----------------------------------------------------------------------------
 void vtkOsprayLightNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
-void vtkOsprayLightNode::ORender(void *renderer)
+void vtkOsprayLightNode::Render(bool prepass)
 {
-  OSPRenderer oRenderer = (OSPRenderer) renderer;
-
-  std::vector<OSPLight> lights;
-
-  /*
-  OSPLight ospLight = ospNewLight(oRenderer, "AmbientLight");
-  ospSetString(ospLight, "name", "ambient" );
-  ospSet3f(ospLight, "color", 255.0,255.0,255.0);
-  ospSet1f(ospLight, "intensity", 255.0);
-  ospCommit(ospLight);
-  lights.push_back(ospLight);
-  */
-
-  if (this->Positional)
+  if (prepass)
     {
-    OSPLight ospLight = ospNewLight(oRenderer, "PointLight");
-    ospSetString(ospLight, "name", "point" );
-    ospSet3f(ospLight, "color",
-             this->DiffuseColor[0]*255.0, //TODO: why 0..255 not 0.0..1.0?
-             this->DiffuseColor[1]*255.0,
-             this->DiffuseColor[2]*255.0);
-    ospSet3f(ospLight, "position",
-             this->Position[0],
-             this->Position[1],
-             this->Position[2]);
-    ospCommit(ospLight);
-    lights.push_back(ospLight);
-    }
-  else
-    {
-    double direction[3];
-    direction[0] = this->Position[0] - this->FocalPoint[0];
-    direction[1] = this->Position[1] - this->FocalPoint[1];
-    direction[2] = this->Position[2] - this->FocalPoint[2];
-    OSPLight ospLight = ospNewLight(oRenderer, "DirectionalLight");
-    ospSetString(ospLight, "name", "sun" );
-    ospSet3f(ospLight, "color",
-             this->DiffuseColor[0], //TODO: why 0.0..1.0 not 0..255?
-             this->DiffuseColor[1],
-             this->DiffuseColor[2]);
-    vtkMath::Normalize(direction);
-    ospSet3f(ospLight, "direction", -direction[0],-direction[1],-direction[2]);
-    ospCommit(ospLight);
-    lights.push_back(ospLight);
-    }
+    vtkOsprayRendererNode *orn =
+      static_cast<vtkOsprayRendererNode *>(
+        this->GetFirstAncestorOfType("vtkOsprayRendererNode"));
+    OSPRenderer oRenderer = orn->GetORenderer();
 
-  OSPData lightArray = ospNewData(lights.size(),
-                                  OSP_OBJECT, &lights[0], 0);
-  ospSetData(oRenderer, "lights", lightArray);
+    vtkLight *light = vtkLight::SafeDownCast(this->GetRenderable());
 
+    float color[3] = {0.0,0.0,0.0};
+    if (light->GetSwitch())
+      {
+      color[0] = static_cast<float>(light->GetDiffuseColor()[0]);
+      color[1] = static_cast<float>(light->GetDiffuseColor()[1]);
+      color[2] = static_cast<float>(light->GetDiffuseColor()[2]);
+      }
+    if (light->GetPositional())
+      {
+      OSPLight ospLight = ospNewLight(oRenderer, "PointLight");
+      ospSet3f(ospLight, "color",
+               color[0],
+               color[1],
+               color[2]);
+      float fI = static_cast<float>(vtkOsprayLightNode::LightScale*light->GetIntensity()*0.2);//TODO: why so bright?
+      ospSet1f(ospLight, "intensity", fI);
+      ospSet3f(ospLight, "position",
+               light->GetPosition()[0],
+               light->GetPosition()[1],
+               light->GetPosition()[2]);
+      ospCommit(ospLight);
+      orn->AddLight(ospLight);
+      }
+    else
+      {
+      double direction[3];
+      direction[0] = light->GetPosition()[0] - light->GetFocalPoint()[0];
+      direction[1] = light->GetPosition()[1] - light->GetFocalPoint()[1];
+      direction[2] = light->GetPosition()[2] - light->GetFocalPoint()[2];
+      OSPLight ospLight = ospNewLight(oRenderer, "DirectionalLight");
+      ospSet3f(ospLight, "color",
+               color[0],
+               color[1],
+               color[2]);
+      ospSet1f(ospLight, "intensity", vtkOsprayLightNode::LightScale*light->GetIntensity());
+      vtkMath::Normalize(direction);
+      ospSet3f(ospLight, "direction",
+               -direction[0],-direction[1],-direction[2]);
+      ospCommit(ospLight);
+      orn->AddLight(ospLight);
+      }
+    }
 }

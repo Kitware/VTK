@@ -497,11 +497,28 @@ public:
   static void ColorToValue(unsigned char *color, double min, double scale,
     double &value);
 
+  // Description:
+  // Call to force a rebuild of color result arrays on next MapScalars.
+  // Necessary when using arrays in the case of multiblock data.
+  void ClearColorArrays();
+
+  // Description:
+  // Provide read access to the color array
+  vtkUnsignedCharArray *GetColorMapColors();
+
+  // Description:
+  // Provide read access to the color texture coordinate array
+  vtkFloatArray *GetColorCoordinates();
+
+  // Description:
+  // Provide read access to the color texture array
+  vtkImageData* GetColorTextureMap();
+
 protected:
   vtkMapper();
   ~vtkMapper();
 
-  friend class vtkOsprayActorNode;
+  // color mapped colors
   vtkUnsignedCharArray *Colors;
 
   // Use texture coordinates for coloring.

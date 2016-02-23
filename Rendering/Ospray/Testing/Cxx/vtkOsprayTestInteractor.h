@@ -13,17 +13,19 @@
 
 =========================================================================*/
 // .SECTION Description
-// .SECTION Description
 // A common interactor style for the ospray tests that understands
 // the following key presses.
 // c        => switch between OSPRay and GL
 // s        => turn shadows on and off
-// n        => focusses view on the next actor and hides all others
+// n        => focuses view on the next actor and hides all others
 // 2/1      => increase/decrease the number of samples per pixel
 // P/p      => increase/decrease the number of OSPRay rendering passes
+// l        => turns on each light in the scene in turn
+// I/i      => increase/decrease the global light intensity scale
+// D/d      => increase/decrease the number of ambient occlusion samples
 
-#ifndef vtkOsprayActorNode_h
-#define vtkOsprayActorNode_h
+#ifndef vtkOsprayTestInteractor_h
+#define vtkOsprayTestInteractor_h
 
 #include "vtkInteractorStyleTrackballCamera.h"
 
@@ -41,6 +43,7 @@ private:
   vtkRenderPass *O;
   vtkRenderPass *G;
   int VisibleActor;
+  int VisibleLight;
 
 public:
   static vtkOsprayTestInteractor* New();

@@ -41,11 +41,14 @@ class vtkMyActorNode : public vtkActorNode
 public:
   static vtkMyActorNode* New();
   vtkTypeMacro(vtkMyActorNode, vtkActorNode);
-  virtual void RenderSelf() {
-    cerr << "Render " << this << " " << this->GetClassName() << endl;
-    result += "Render ";
-    result += this->GetClassName();
-    result += "\n";
+  virtual void Render(bool prepass) {
+    if (prepass)
+      {
+      cerr << "Render " << this << " " << this->GetClassName() << endl;
+      result += "Render ";
+      result += this->GetClassName();
+      result += "\n";
+      }
   }
   vtkMyActorNode() {};
   ~vtkMyActorNode() {};
@@ -57,11 +60,14 @@ class vtkMyCameraNode : public vtkCameraNode
 public:
   static vtkMyCameraNode* New();
   vtkTypeMacro(vtkMyCameraNode, vtkCameraNode);
-  virtual void RenderSelf() {
-    cerr << "Render " << this << " " << this->GetClassName() << endl;
-    result += "Render ";
-    result += this->GetClassName();
-    result += "\n";
+  virtual void Render(bool prepass) {
+    if (prepass)
+      {
+      cerr << "Render " << this << " " << this->GetClassName() << endl;
+      result += "Render ";
+      result += this->GetClassName();
+      result += "\n";
+      }
   }
   vtkMyCameraNode() {};
   ~vtkMyCameraNode() {};
@@ -73,11 +79,14 @@ class vtkMyLightNode : public vtkLightNode
 public:
   static vtkMyLightNode* New();
   vtkTypeMacro(vtkMyLightNode, vtkLightNode);
-  virtual void RenderSelf() {
-    cerr << "Render " << this << " " << this->GetClassName() << endl;
-    result += "Render ";
-    result += this->GetClassName();
-    result += "\n";
+  virtual void Render( bool prepass) {
+    if (prepass)
+      {
+      cerr << "Render " << this << " " << this->GetClassName() << endl;
+      result += "Render ";
+      result += this->GetClassName();
+      result += "\n";
+      }
   }
   vtkMyLightNode() {};
   ~vtkMyLightNode() {};
@@ -89,11 +98,14 @@ class vtkMyRendererNode : public vtkRendererNode
 public:
   static vtkMyRendererNode* New();
   vtkTypeMacro(vtkMyRendererNode, vtkRendererNode);
-  virtual void RenderSelf() {
-    cerr << "Render " << this << " " << this->GetClassName() << endl;
-    result += "Render ";
-    result += this->GetClassName();
-    result += "\n";
+  virtual void Render(bool prepass) {
+    if (prepass)
+      {
+      cerr << "Render " << this << " " << this->GetClassName() << endl;
+      result += "Render ";
+      result += this->GetClassName();
+      result += "\n";
+      }
   }
   vtkMyRendererNode() {};
   ~vtkMyRendererNode() {};
@@ -105,11 +117,14 @@ class vtkMyWindowNode : public vtkWindowNode
 public:
   static vtkMyWindowNode* New();
   vtkTypeMacro(vtkMyWindowNode, vtkWindowNode);
-  virtual void RenderSelf() {
-    cerr << "Render " << this << " " << this->GetClassName() << endl;
-    result += "Render ";
-    result += this->GetClassName();
-    result += "\n";
+  virtual void Render(bool prepass) {
+    if (prepass)
+      {
+      cerr << "Render " << this << " " << this->GetClassName() << endl;
+      result += "Render ";
+      result += this->GetClassName();
+      result += "\n";
+      }
   }
   vtkMyWindowNode() {};
   ~vtkMyWindowNode() {};
@@ -192,7 +207,7 @@ int UnitTests( int argc, char *argv[] )
   cerr << "factory makes" << endl;
   cerr << vn << endl;
   cerr << "BUILD [" << endl;
-  vn->Build();
+  vn->Traverse(vtkViewNode::build);
   cerr << "]" << endl;
 
   cerr << "add renderer" << endl;
@@ -223,13 +238,13 @@ int UnitTests( int argc, char *argv[] )
   pmap->Delete();
 
   cerr << "BUILD [" << endl;
-  vn->Build();
+  vn->Traverse(vtkViewNode::build);
   cerr << "]" << endl;
   cerr << "SYNCHRONIZE [" << endl;
-  vn->Synchronize();
+  vn->Traverse(vtkViewNode::synchronize);
   cerr << "]" << endl;
   cerr << "RENDER [" << endl;
-  vn->Render();
+  vn->Traverse(vtkViewNode::render);
   cerr << "]" << endl;
 
   vn->Delete();

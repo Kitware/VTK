@@ -35,12 +35,13 @@
 #include "vtkDoubleArray.h"
 #include "vtkExtractEdges.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkOsprayActorNode.h"
 #include "vtkOsprayPass.h"
-#include "vtkOsprayViewNodeFactory.h"
-#include "vtkOsprayWindowNode.h"
+#include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -135,7 +136,9 @@ renderable *MakeSphereAt(double x, double y, double z, int res,
   for (int i = 0; i < np; i++)
     {
     unsigned char vals[3] =
-      {255*((double)i/(double)np), 255*((double)(i*4)/(double)np-2.0), 42};
+      {static_cast<unsigned char>(255*((double)i/(double)np)),
+       static_cast<unsigned char>(255*((double)(i*4)/(double)np-2.0)),
+       42};
     pac->InsertNextTuple3(vals[0],vals[1],vals[2]);
     }
 
@@ -147,7 +150,9 @@ renderable *MakeSphereAt(double x, double y, double z, int res,
   for (int i = 0; i < np; i++)
     {
     unsigned char vals[3] =
-      {(double)i/(double)np*255, (double)(1-i)/(double)np, 42};
+      {static_cast<unsigned char>((double)i/(double)np*255),
+       static_cast<unsigned char>((double)(1-i)/(double)np),
+       42};
     ca->InsertNextTuple3(vals[0],vals[1],vals[2]);
     }
   //cell aligned
@@ -175,7 +180,9 @@ renderable *MakeSphereAt(double x, double y, double z, int res,
   for (int i = 0; i < nc; i++)
     {
     unsigned char vals[3] =
-      {(double)i/(double)np*255, (double)(1-i)/(double)np, 42};
+      {static_cast<unsigned char>((double)i/(double)np*255),
+       static_cast<unsigned char>((double)(1-i)/(double)np),
+       42};
     ca->InsertNextTuple3(vals[0],vals[1],vals[2]);
     }
   ret->m = vtkPolyDataMapper::New();
@@ -262,19 +269,11 @@ int TestOsprayRenderMesh(int argc, char* argv[])
   renderer->SetActiveCamera(camera);
   renWin->Render();
 
-  vtkSmartPointer<vtkOsprayViewNodeFactory> vnf =
-    vtkSmartPointer<vtkOsprayViewNodeFactory>::New();
-  vtkViewNode *vn = vnf->CreateNode(renWin);
-  vn->Build();
-
   vtkSmartPointer<vtkOsprayPass> ospray = vtkSmartPointer<vtkOsprayPass>::New();
-  ospray->SetSceneGraph(vtkOsprayWindowNode::SafeDownCast(vn));
   if (!useGL)
     {
     renderer->SetPass(ospray);
     }
-
-
   //Now, vary of most of the many parameters that rendering can vary by.
 
   //representations points, wireframe, surface
@@ -467,7 +466,6 @@ int TestOsprayRenderMesh(int argc, char* argv[])
   style->SetCurrentRenderer(renderer);
 
   iren->Start();
-  vn->Delete();
 
   return 0;
 }

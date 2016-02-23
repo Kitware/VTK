@@ -30,36 +30,9 @@ public:
   vtkTypeMacro(vtkLightNode, vtkViewNode);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //Description:
-  //Build containers for our (not existent) child nodes.
-  virtual void BuildSelf() {};
-
-  //Description:
-  //Get state from our renderable.
-  virtual void SynchronizeSelf();
-
-  //Description:
-  //Override to interface to a specific backend.
-  virtual void RenderSelf() {};
-
 protected:
   vtkLightNode();
   ~vtkLightNode();
-
-  //todo: use a map with string keys being renderable's member name
-  //state
-  double AmbientColor[3];
-  double AttenuationValues[3];
-  double ConeAngle;
-  double DiffuseColor[3];
-  double Exponent;
-  double FocalPoint[3];
-  double Intensity;
-  int LightType;
-  double Position[3];
-  bool Positional;
-  double SpecularColor[3];
-  bool Switch;
 
 private:
   vtkLightNode(const vtkLightNode&); // Not implemented.

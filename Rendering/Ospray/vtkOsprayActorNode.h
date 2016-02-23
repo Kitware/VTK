@@ -23,6 +23,12 @@
 #include "vtkActorNode.h"
 
 class vtkActor;
+class vtkCompositeDataDisplayAttributes;
+class vtkDataArray;
+class vtkInformationIntegerKey;
+class vtkInformationObjectBaseKey;
+class vtkInformationStringKey;
+class vtkPiecewiseFunction;
 class vtkPolyData;
 
 class VTKRENDERINGOSPRAY_EXPORT vtkOsprayActorNode :
@@ -33,24 +39,44 @@ public:
   vtkTypeMacro(vtkOsprayActorNode, vtkActorNode);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //Description:
-  //Make ospray calls to render me.
-  virtual void RenderSelf();
+  // Description:
+  // Overridden to take into account my renderables time, including
+  // mapper and data into mapper inclusive of composite input
+  virtual unsigned long GetMTime();
 
-  //Description:
-  //todo - why?
-  void ORender(void *oRenderer, void *oModel);
+  // Description:
+  // When added to the mapper, enables scale array and scale function.
+  static vtkInformationIntegerKey* ENABLE_SCALING();
 
-  //todo - why public?
-  vtkTimeStamp RenderTime;
+  // Description:
+  // Convenience method to set enabled scaling on my renderable.
+  static void SetEnableScaling(int value, vtkActor *);
+  static int GetEnableScaling(vtkActor *);
+
+  // Description:
+  // Name of a point aligned, single component wide, double valued array that,
+  // when added to the mapper, will be used to scale each element in the
+  // sphere and cylinder representations individually.
+  // When not supplied the radius is constant across all elements and
+  // is a function of the Mapper's PointSize and LineWidth.
+  static vtkInformationStringKey* SCALE_ARRAY_NAME();
+
+  // Description:
+  // Convenience method to set a scale array on my renderable.
+  static void SetScaleArrayName(const char *scaleArrayName, vtkActor *);
+
+  // Description:
+  // A piecewise function for values from the scale array that alters the resulting
+  // radii arbitrarily
+  static vtkInformationObjectBaseKey* SCALE_FUNCTION();
+
+  // Description:
+  // Convenience method to set a scale function on my renderable.
+  static void SetScaleFunction(vtkPiecewiseFunction *scaleFunction, vtkActor *);
 
 protected:
   vtkOsprayActorNode();
   ~vtkOsprayActorNode();
-
-  void ORenderPoly(void *renderer, void *model,
-                   vtkActor *act, vtkPolyData * poly);
-  void *OSPMeshes;
 
 private:
   vtkOsprayActorNode(const vtkOsprayActorNode&); // Not implemented.

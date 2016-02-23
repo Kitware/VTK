@@ -22,8 +22,6 @@
 #include "vtkCamera.h"
 #include "vtkConeSource.h"
 #include "vtkOsprayPass.h"
-#include "vtkOsprayViewNodeFactory.h"
-#include "vtkOsprayWindowNode.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -31,7 +29,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 
-int TestOsprayLayers(int argc, char* argv[])
+int TestOsprayLayers(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
   vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
@@ -63,20 +61,14 @@ int TestOsprayLayers(int argc, char* argv[])
   renWin->SetSize(400,400);
   renWin->Render();
 
-  vtkSmartPointer<vtkOsprayViewNodeFactory> vnf = vtkSmartPointer<vtkOsprayViewNodeFactory>::New();
-  vtkViewNode *vn = vnf->CreateNode(renWin);
-  vn->Build();
-
   vtkSmartPointer<vtkOsprayPass> ospray=vtkSmartPointer<vtkOsprayPass>::New();
-  ospray->SetSceneGraph(vtkOsprayWindowNode::SafeDownCast(vn));
+  vtkSmartPointer<vtkOsprayPass> ospray2=vtkSmartPointer<vtkOsprayPass>::New();
 
   renderer->SetPass(ospray);
-  renderer2->SetPass(ospray);
+  renderer2->SetPass(ospray2);
   renWin->Render();
 
   iren->Start();
-
-  vn->Delete();
 
   return 0;
 }

@@ -44,7 +44,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkFrameBufferObject : public vtkFrameBufferObje
 {
 public:
   static vtkFrameBufferObject* New();
-  vtkTypeMacro(vtkFrameBufferObject, vtkObject);
+  vtkTypeMacro(vtkFrameBufferObject, vtkFrameBufferObjectBase);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -25,8 +25,6 @@
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkInformation.h"
 #include "vtkOsprayPass.h"
-#include "vtkOsprayViewNodeFactory.h"
-#include "vtkOsprayWindowNode.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -35,7 +33,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTimeSourceExample.h"
 
-int TestOsprayTime(int argc, char* argv[])
+int TestOsprayTime(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
   vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
@@ -46,12 +44,7 @@ int TestOsprayTime(int argc, char* argv[])
   renWin->SetSize(400,400);
   renWin->Render();
 
-  vtkSmartPointer<vtkOsprayViewNodeFactory> vnf = vtkSmartPointer<vtkOsprayViewNodeFactory>::New();
-  vtkViewNode *vn = vnf->CreateNode(renWin);
-  vn->Build();
-
   vtkSmartPointer<vtkOsprayPass> ospray=vtkSmartPointer<vtkOsprayPass>::New();
-  ospray->SetSceneGraph(vtkOsprayWindowNode::SafeDownCast(vn));
   renderer->SetPass(ospray);
 
   vtkSmartPointer<vtkTimeSourceExample> timeywimey = vtkSmartPointer<vtkTimeSourceExample>::New();
@@ -78,9 +71,9 @@ int TestOsprayTime(int argc, char* argv[])
   renderer->ResetCameraClippingRange();
   renWin->Render();
 
-  for (int i = 0; i < 5; i++)
+  for (int i = 0; i < 20; i++)
     {
-    double updateTime = (double)i/10.0;
+    double updateTime = (double)(i%10)/10.0;
     cerr << "t=" << updateTime << endl;
     renderer->SetActiveCamera(camera);
     vtkInformation* outInfo = dsf->GetExecutive()->GetOutputInformation(0);
@@ -89,8 +82,6 @@ int TestOsprayTime(int argc, char* argv[])
     renWin->Render();
     }
   iren->Start();
-
-  vn->Delete();
 
   return 0;
 }

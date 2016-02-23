@@ -22,6 +22,8 @@
 #include "vtkRenderingSceneGraphModule.h" // For export macro
 #include "vtkViewNode.h"
 
+class  vtkCollection;
+
 class VTKRENDERINGSCENEGRAPH_EXPORT vtkRendererNode :
   public vtkViewNode
 {
@@ -32,34 +34,17 @@ public:
 
   //Description:
   //Build containers for our child nodes.
-  virtual void BuildSelf();
+  virtual void Build(bool prepass);
 
   //Description:
-  //Get state of my renderable.
-  virtual void SynchronizeSelf();
-
-  //Description:
-  //Override to interface to a specific backend.
-  virtual void RenderSelf() {};
-
-  //todo: need Set per VTK style checks
-  int GetLayer() { return this->Layer; }
+  //Synchronize our state
+  virtual void Synchronize(bool prepass);
 
 protected:
   vtkRendererNode();
   ~vtkRendererNode();
 
-  //todo: use a map with string keys being renderable's member name
-  //state
-  double Ambient[3];
-  double Background[3];
-  double Background2[3];
-  bool GradientBackground;
-  int Layer;
-  int Origin[2];
   int Size[2];
-  int TiledOrigin[2];
-  int TiledSize[2];
 
 private:
   vtkRendererNode(const vtkRendererNode&); // Not implemented.

@@ -25,8 +25,6 @@
 #include "vtkCompositeDataSet.h"
 #include "vtkCompositePolyDataMapper2.h"
 #include "vtkOsprayPass.h"
-#include "vtkOsprayViewNodeFactory.h"
-#include "vtkOsprayWindowNode.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -62,12 +60,7 @@ int TestOsprayMultiBlock(int argc, char* argv[])
   vtkCamera *cam = renderer->GetActiveCamera();
   cam->SetPosition(1.5,1.5,0.75);
 
-  vtkSmartPointer<vtkOsprayViewNodeFactory> vnf = vtkSmartPointer<vtkOsprayViewNodeFactory>::New();
-  vtkViewNode *vn = vnf->CreateNode(renWin);
-  vn->Build();
-
   vtkSmartPointer<vtkOsprayPass> ospray=vtkSmartPointer<vtkOsprayPass>::New();
-  ospray->SetSceneGraph(vtkOsprayWindowNode::SafeDownCast(vn));
 
   renderer->SetPass(ospray);
 
@@ -82,6 +75,5 @@ int TestOsprayMultiBlock(int argc, char* argv[])
 
   iren->Start();
 
-  vn->Delete();
   return 0;
 }

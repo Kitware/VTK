@@ -29,8 +29,6 @@
 #include "vtkMPIController.h"
 #include "vtkObjectFactory.h"
 #include "vtkOsprayPass.h"
-#include "vtkOsprayWindowNode.h"
-#include "vtkOsprayViewNodeFactory.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProcess.h"
 #include "vtkProperty.h"
@@ -39,7 +37,6 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkSphereSource.h"
-#include "vtkViewNode.h"
 
 class MyProcess : public vtkProcess
 {
@@ -109,11 +106,7 @@ void MyProcess::Execute()
   vtkCamera *cam = renderer->GetActiveCamera();
   cam->SetPosition(0,0.2,1);
 
-  vtkSmartPointer<vtkOsprayViewNodeFactory> vnf = vtkSmartPointer<vtkOsprayViewNodeFactory>::New();
-  vtkViewNode *vn = vnf->CreateNode(renWin);
-  vn->Build();
   vtkSmartPointer<vtkOsprayPass> ospray=vtkSmartPointer<vtkOsprayPass>::New();
-  ospray->SetSceneGraph(vtkOsprayWindowNode::SafeDownCast(vn));
   renderer->SetPass(ospray);
 
   this->CreatePipeline(renderer);
@@ -144,7 +137,6 @@ void MyProcess::Execute()
     this->ReturnValue = vtkTesting::PASSED;
     }
 
-  vn->Delete();
   renderer->Delete();
   renWin->Delete();
   iren->Delete();

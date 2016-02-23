@@ -24,8 +24,6 @@
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkOsprayPass.h"
-#include "vtkOsprayViewNodeFactory.h"
-#include "vtkOsprayWindowNode.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -35,7 +33,7 @@
 
 #include <map>
 
-int TestOsprayDynamicScene(int argc, char* argv[])
+int TestOsprayDynamicScene(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
   vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
@@ -46,12 +44,7 @@ int TestOsprayDynamicScene(int argc, char* argv[])
   renWin->SetSize(400,400);
   renWin->Render();
 
-  vtkSmartPointer<vtkOsprayViewNodeFactory> vnf = vtkSmartPointer<vtkOsprayViewNodeFactory>::New();
-  vtkViewNode *vn = vnf->CreateNode(renWin);
-  vn->Build();
-
   vtkSmartPointer<vtkOsprayPass> ospray=vtkSmartPointer<vtkOsprayPass>::New();
-  ospray->SetSceneGraph(vtkOsprayWindowNode::SafeDownCast(vn));
   renderer->SetPass(ospray);
 
   #define GRIDDIM 3
@@ -59,6 +52,7 @@ int TestOsprayDynamicScene(int argc, char* argv[])
   camera->SetPosition(GRIDDIM*3,GRIDDIM*3,GRIDDIM*4);
   renderer->SetActiveCamera(camera);
 
+  cerr << "ADD" << endl;
   std::map<int, vtkActor*> actors;
   for (int i = 0; i < GRIDDIM; i++)
     {
@@ -81,6 +75,7 @@ int TestOsprayDynamicScene(int argc, char* argv[])
       }
     }
 
+  cerr << "HIDE" << endl;
   for (int i = 0; i < GRIDDIM; i++)
     {
     for (int j = 0; j < GRIDDIM; j++)
@@ -94,6 +89,7 @@ int TestOsprayDynamicScene(int argc, char* argv[])
       }
     }
 
+  cerr << "SHOW" << endl;
   for (int i = 0; i < GRIDDIM; i++)
     {
     for (int j = 0; j < GRIDDIM; j++)
@@ -107,6 +103,7 @@ int TestOsprayDynamicScene(int argc, char* argv[])
       }
     }
 
+  cerr << "REMOVE" << endl;
   for (int i = 0; i < GRIDDIM; i++)
     {
     for (int j = 0; j < GRIDDIM; j++)
@@ -125,8 +122,6 @@ int TestOsprayDynamicScene(int argc, char* argv[])
         }
       }
     }
-
-  vn->Delete();
 
   iren->Start();
 

@@ -14,11 +14,12 @@
 =========================================================================*/
 #include "vtkWindowNode.h"
 
-#include "vtkCollectionIterator.h"
+#include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkViewNodeCollection.h"
 
 //============================================================================
@@ -29,11 +30,17 @@ vtkWindowNode::vtkWindowNode()
 {
   this->Size[0] = 0;
   this->Size[1] = 0;
+  this->ColorBuffer = vtkUnsignedCharArray::New();
+  this->ZBuffer = vtkFloatArray::New();
 }
 
 //----------------------------------------------------------------------------
 vtkWindowNode::~vtkWindowNode()
 {
+  this->ColorBuffer->Delete();
+  this->ColorBuffer = 0;
+  this->ZBuffer->Delete();
+  this->ZBuffer = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -43,93 +50,64 @@ void vtkWindowNode::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkWindowNode::BuildSelf()
+void vtkWindowNode::Build(bool prepass)
 {
-  vtkRenderWindow *mine = vtkRenderWindow::SafeDownCast
-    (this->GetRenderable());
-  if (!mine)
+  if (prepass)
     {
-    return;
-    }
-
-  //create/delete children as required
-  //to make sure my children are consistent with my renderable's
-  vtkViewNodeCollection *nodes = this->GetChildren();
-  vtkRendererCollection *rens = mine->GetRenderers();
-
-  //remove viewnodes if their renderables are no longer present
-  vtkCollectionIterator *nit = nodes->NewIterator();
-  nit->InitTraversal();
-  while (!nit->IsDoneWithTraversal())
-    {
-    vtkViewNode *node = vtkViewNode::SafeDownCast(nit->GetCurrentObject());
-    vtkObject *obj = node->GetRenderable();
-    if (!rens->IsItemPresent(obj))
+    vtkRenderWindow *mine = vtkRenderWindow::SafeDownCast
+      (this->GetRenderable());
+    if (!mine)
       {
-      nodes->RemoveItem(node);
+      return;
       }
-    nit->GoToNextItem();
-    }
-  nit->Delete();
 
-  //add viewnodes for renderables that are not yet present
-  vtkCollectionIterator *rit = rens->NewIterator();
-  rit->InitTraversal();
-  while (!rit->IsDoneWithTraversal())
-    {
-    vtkRenderer *obj = vtkRenderer::SafeDownCast(rit->GetCurrentObject());
-    if (!nodes->IsRenderablePresent(obj))
-      {
-      vtkViewNode *node = this->CreateViewNode(obj);
-      if (node)
-        {
-        nodes->AddItem(node);
-        node->Delete();
-        }
-      }
-    rit->GoToNextItem();
+    this->PrepareNodes();
+    this->AddMissingNodes(mine->GetRenderers());
+    this->RemoveUnusedNodes();
     }
-  rit->Delete();
 }
 
 //----------------------------------------------------------------------------
-void vtkWindowNode::SynchronizeSelf()
+void vtkWindowNode::Synchronize(bool prepass)
 {
-  vtkRenderWindow *mine = vtkRenderWindow::SafeDownCast
-    (this->GetRenderable());
-  if (!mine)
+  if (prepass)
     {
-    return;
+    vtkRenderWindow *mine = vtkRenderWindow::SafeDownCast
+      (this->GetRenderable());
+    if (!mine)
+      {
+      return;
+      }
+    /*
+      GetAAFrames()   vtkRenderWindow virtual
+      GetActualSize() vtkWindow
+      GetAlphaBitPlanes()     vtkRenderWindow virtual
+      GetDoubleBuffer()       vtkWindow       virtual
+      GetDPI()        vtkWindow       virtual
+      GetFDFrames()   vtkRenderWindow virtual
+      GetFullScreen() vtkRenderWindow virtual
+      GetLineSmoothing()      vtkRenderWindow virtual
+      GetMapped()     vtkWindow       virtual
+      GetMTime()      vtkObject       virtual
+      GetMultiSamples()       vtkRenderWindow virtual
+      GetNeverRendered()      vtkRenderWindow virtual
+      GetNumberOfLayers()     vtkRenderWindow virtual
+      GetOffScreenRendering() vtkWindow       virtual
+      GetPointSmoothing()     vtkRenderWindow virtual
+      GetPolygonSmoothing()   vtkRenderWindow virtual
+      GetPosition()   vtkWindow       virtual
+      GetScreenSize()=0       vtkWindow       pure virtual
+    */
+    int * sz = mine->GetSize();
+    this->Size[0] = sz[0];
+    this->Size[1] = sz[1];
+    /*
+      GetStereoType() vtkRenderWindow virtual
+      GetSubFrames()  vtkRenderWindow virtual
+      GetSwapBuffers()        vtkRenderWindow virtual
+      GetTileScale()  vtkWindow       virtual
+      GetTileViewport()       vtkWindow       virtual
+      GetUseConstantFDOffsets()       vtkRenderWindow virtual
+    */
     }
-  /*
-    GetAAFrames()   vtkRenderWindow virtual
-    GetActualSize() vtkWindow
-    GetAlphaBitPlanes()     vtkRenderWindow virtual
-    GetDoubleBuffer()       vtkWindow       virtual
-    GetDPI()        vtkWindow       virtual
-    GetFDFrames()   vtkRenderWindow virtual
-    GetFullScreen() vtkRenderWindow virtual
-    GetLineSmoothing()      vtkRenderWindow virtual
-    GetMapped()     vtkWindow       virtual
-    GetMTime()      vtkObject       virtual
-    GetMultiSamples()       vtkRenderWindow virtual
-    GetNeverRendered()      vtkRenderWindow virtual
-    GetNumberOfLayers()     vtkRenderWindow virtual
-    GetOffScreenRendering() vtkWindow       virtual
-    GetPointSmoothing()     vtkRenderWindow virtual
-    GetPolygonSmoothing()   vtkRenderWindow virtual
-    GetPosition()   vtkWindow       virtual
-    GetScreenSize()=0       vtkWindow       pure virtual
-  */
-  int * sz = mine->GetSize();
-  this->Size[0] = sz[0];
-  this->Size[1] = sz[1];
-  /*
-    GetStereoType() vtkRenderWindow virtual
-    GetSubFrames()  vtkRenderWindow virtual
-    GetSwapBuffers()        vtkRenderWindow virtual
-    GetTileScale()  vtkWindow       virtual
-    GetTileViewport()       vtkWindow       virtual
-    GetUseConstantFDOffsets()       vtkRenderWindow virtual
-  */
 }

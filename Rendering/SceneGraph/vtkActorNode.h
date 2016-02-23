@@ -33,49 +33,14 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   //Description:
-  //Build containers for our (not existent) child nodes.
-  virtual void BuildSelf() {};
-
-  //Description:
-  //Get state from our renderable.
-  virtual void SynchronizeSelf();
-
-  //Description:
-  //Override to interface to a specific backend.
-  virtual void RenderSelf() {};
+  //Build containers for our child nodes.
+  virtual void Build(bool prepass);
 
 protected:
   vtkActorNode();
   ~vtkActorNode();
 
-  //todo: use a map with string keys being renderable's member name
-  //state
-  //actor
-  bool Visibility;
-  //property
-  double Opacity;
-  int Representation;
-  bool Lighting;
-  int Interpolation;
-  double Ambient;
-  double AmbientColor[3];
-  double Diffuse;
-  double DiffuseColor[3];
-  double LineWidth;
-  double PointSize;
-  double Specular;
-  double SpecularColor[3];
-  double SpecularPower;
-  //mapper
-  bool ScalarVisibility;
-  int ScalarMode;
-  int ColorMode;
-  bool InterpolateScalarsBeforeMapping;
-  double ScalarRange[2];
-  bool UseLookupTableScalarRange;
-  int ScalarMaterialMode;
-
-private:
+ private:
   vtkActorNode(const vtkActorNode&); // Not implemented.
   void operator=(const vtkActorNode&); // Not implemented.
 };

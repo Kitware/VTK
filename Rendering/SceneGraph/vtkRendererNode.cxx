@@ -34,15 +34,8 @@ vtkStandardNewMacro(vtkRendererNode);
 //----------------------------------------------------------------------------
 vtkRendererNode::vtkRendererNode()
 {
-  this->Ambient[0] = this->Ambient[1] = this->Ambient[2] = 0.0;
-  this->Background[0] = this->Background[1] = this->Background[2] = 0.0;
-  this->Background2[0] = this->Background2[1] = this->Background2[2] = 0.0;
-  this->GradientBackground = false;
-  this->Layer = 0;
-  this->Origin[0] = this->Origin[1] = 0;
-  this->Size[0] = this->Size[1] = 0;
-  this->TiledOrigin[0] = this->TiledOrigin[1] = 0;
-  this->TiledSize[0] = this->TiledSize[1] = 0;
+  this->Size[0] = 0;
+  this->Size[1] = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -57,165 +50,39 @@ void vtkRendererNode::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkRendererNode::BuildSelf()
+void vtkRendererNode::Synchronize(bool prepass)
 {
-  vtkRenderer *mine = vtkRenderer::SafeDownCast
-    (this->GetRenderable());
-  if (!mine)
+  if (prepass)
     {
-    return;
-    }
-
-  //create/delete children as required to make sure my children are
-  //consistent with my renderables
-  vtkViewNodeCollection *nodes = this->GetChildren();
-
-  vtkActorCollection *actors = mine->GetActors();
-  vtkLightCollection *lights = mine->GetLights();
-  //vtkVolumeCollection *volumes = mine->GetVolumes();
-  vtkCamera *cam = mine->GetActiveCamera();
-
-  //remove viewnodes if their renderables are no longer present
-  vtkCollectionIterator *nit = nodes->NewIterator();
-  nit->InitTraversal();
-  while (!nit->IsDoneWithTraversal())
-    {
-    vtkViewNode *node = vtkViewNode::SafeDownCast(nit->GetCurrentObject());
-    if (node)
+    vtkRenderer *mine = vtkRenderer::SafeDownCast
+      (this->GetRenderable());
+    if (!mine)
       {
-      vtkObject *obj = node->GetRenderable();
-      if (!lights->IsItemPresent(obj) &&
-//        !volumes->IsItemPresent(obj) &&
-          !actors->IsItemPresent(obj) &&
-          obj != cam)
-        {
-        nodes->RemoveItem(node);
-        }
+      return;
       }
-    nit->GoToNextItem();
-    }
-  nit->Delete();
-
-  //add viewnodes for renderables that are not yet present
-  //lights
-  vtkCollectionIterator *rit = lights->NewIterator();
-  rit->InitTraversal();
-  while (!rit->IsDoneWithTraversal())
-    {
-    vtkLight *obj = vtkLight::SafeDownCast(rit->GetCurrentObject());
-    if (!nodes->IsRenderablePresent(obj))
-      {
-      vtkViewNode *node = this->CreateViewNode(obj);
-      if (node)
-        {
-        nodes->AddItem(node);
-        node->Delete();
-        }
-      }
-    rit->GoToNextItem();
-    }
-  rit->Delete();
-
-  /*
-  TODO volume rendering
-  //volumes
-  rit = volumes->NewIterator();
-  rit->InitTraversal();
-  while (!rit->IsDoneWithTraversal())
-    {
-    vtkVolume *obj = vtkVolume::SafeDownCast(rit->GetCurrentObject());
-    if (!nodes->IsRenderablePresent(obj))
-      {
-      vtkViewNode *node = this->CreateViewNode(obj);
-      nodes->AddItem(node);
-      node->Delete();
-      }
-    rit->GoToNextItem();
-    }
-  rit->Delete();
-  */
-
-  //actors
-  rit = actors->NewIterator();
-  rit->InitTraversal();
-  while (!rit->IsDoneWithTraversal())
-    {
-    vtkActor *obj = vtkActor::SafeDownCast(rit->GetCurrentObject());
-    if (!nodes->IsRenderablePresent(obj))
-      {
-      vtkViewNode *node = this->CreateViewNode(obj);
-      if (node)
-        {
-        nodes->AddItem(node);
-        node->Delete();
-        }
-      }
-    rit->GoToNextItem();
-    }
-  rit->Delete();
-  //camera
-  vtkCamera *obj = mine->GetActiveCamera();
-  if (!nodes->IsRenderablePresent(obj))
-    {
-    vtkViewNode *node = this->CreateViewNode(obj);
-    if (node)
-      {
-      nodes->AddItem(node);
-      node->Delete();
-      }
+    int *tmp = mine->GetSize();
+    this->Size[0] = tmp[0];
+    this->Size[1] = tmp[1];
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkRendererNode::SynchronizeSelf()
+void vtkRendererNode::Build(bool prepass)
 {
-  vtkRenderer *mine = vtkRenderer::SafeDownCast
-    (this->GetRenderable());
-  if (!mine)
+  if (prepass)
     {
-    return;
-    }
+    vtkRenderer *mine = vtkRenderer::SafeDownCast
+      (this->GetRenderable());
+    if (!mine)
+      {
+      return;
+      }
 
-  mine->GetAmbient(this->Ambient);
-  mine->GetBackground(this->Background[0],
-                      this->Background[1],
-                      this->Background[2]);
-  mine->GetBackground2(this->Background2[0],
-                       this->Background2[1],
-                       this->Background2[2]);
-  /*
-  GetBackgroundTexture()        vtkRenderer     virtual
-  GetCullers()  vtkRenderer     inline
-  GetDraw()     vtkRenderer     virtual
-  GetErase()    vtkRenderer     virtual
-  */
-  this->GradientBackground = mine->GetGradientBackground();
-  this->Layer = mine->GetLayer();
-  /*
-  GetLightFollowCamera()        vtkRenderer     virtual
-  GetMTime()    vtkRenderer     virtual
-  GetNearClippingPlaneTolerance()       vtkRenderer     virtual
-  */
-  int *result;
-  result = mine->GetOrigin();
-  this->Origin[0] = result[0];
-  this->Origin[1] = result[1];
-  /*
-  GetPreserveColorBuffer()      vtkRenderer     virtual
-  GetPreserveDepthBuffer()      vtkRenderer     virtual
-  */
-  result = mine->GetSize();
-  this->Size[0] = result[0];
-  this->Size[1] = result[1];
-  /*
-  GetTexturedBackground()       vtkRenderer     virtual
-  */
-  mine->GetTiledSizeAndOrigin(&this->TiledSize[0], &this->TiledSize[1],
-                              &this->TiledOrigin[0], &this->TiledOrigin[1]);
-  /*
-  GetTwoSidedLighting() vtkRenderer     virtual
-  GetUseDepthPeeling()  vtkRenderer     virtual
-  GetUseShadows()       vtkRenderer     virtual
-  GetViewport(double data[4])   vtkViewport     virtual
-  */
+    this->PrepareNodes();
+    this->AddMissingNodes(mine->GetLights());
+    this->AddMissingNodes(mine->GetActors());
+    //this->AddMissingNodes(mine->GetVolumes());
+    this->AddMissingNode(mine->GetActiveCamera());
+    this->RemoveUnusedNodes();
+    }
 }

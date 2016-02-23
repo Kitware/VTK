@@ -16,9 +16,12 @@
 #include "vtkOsprayTestInteractor.h"
 #include "vtkObjectFactory.h"
 
+#include "vtkLight.h"
+#include "vtkLightCollection.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkOsprayLightNode.h"
 #include "vtkOsprayRendererNode.h"
-#include "vtkRenderPass.h"
+#include "vtkOsprayPass.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 
@@ -37,6 +40,7 @@ vtkOsprayTestInteractor::vtkOsprayTestInteractor()
 {
   this->SetPipelineControlPoints(NULL,NULL,NULL);
   this->VisibleActor = -1;
+  this->VisibleLight = -1;
 }
 
 //----------------------------------------------------------------------------
@@ -67,13 +71,13 @@ void vtkOsprayTestInteractor::OnKeyPress()
     vtkRenderPass * current = this->GLRenderer->GetPass();
     if (current == this->G)
       {
-      cerr << "OSPRAY rendering" << this->O << endl;
+      cerr << "OSPRAY rendering " << this->O << endl;
       this->GLRenderer->SetPass(this->O);
       this->GLRenderer->GetRenderWindow()->Render();
       }
     else if (current == this->O)
       {
-      cerr << "GL rendering" << this->G << endl;
+      cerr << "GL rendering " << this->G << endl;
       this->GLRenderer->SetPass(this->G);
       this->GLRenderer->GetRenderWindow()->Render();
       }
@@ -111,53 +115,112 @@ void vtkOsprayTestInteractor::OnKeyPress()
     this->GLRenderer->GetRenderWindow()->Render();
     }
 
+  if(key == "l")
+    {
+    vtkLightCollection * lights = this->GLRenderer->GetLights();
+
+    this->VisibleLight++;
+    if (this->VisibleLight == lights->GetNumberOfItems())
+      {
+      this->VisibleLight = -1;
+      }
+    cerr << "LIGHT " << this->VisibleLight << "/" << lights->GetNumberOfItems() << endl;
+    for (int i = 0; i < lights->GetNumberOfItems(); i++)
+      {
+      if (this->VisibleLight == -1 || this->VisibleLight == i)
+        {
+        vtkLight::SafeDownCast(lights->GetItemAsObject(i))->
+          SwitchOn();
+        }
+      else
+        {
+        vtkLight::SafeDownCast(lights->GetItemAsObject(i))->
+              SwitchOff();
+        }
+      }
+    this->GLRenderer->GetRenderWindow()->Render();
+    }
+
   if(key == "P")
     {
-    vtkOsprayRendererNode::maxframes=
-      vtkOsprayRendererNode::maxframes+=4;
-    if (vtkOsprayRendererNode::maxframes>64)
+    int maxframes = vtkOsprayRendererNode::GetMaxFrames(this->GLRenderer) + 4;
+    if (maxframes>64)
       {
-      vtkOsprayRendererNode::maxframes=64;
+      maxframes=64;
       }
-    cerr << "MF" << vtkOsprayRendererNode::maxframes << endl;
+    vtkOsprayRendererNode::SetMaxFrames(maxframes, this->GLRenderer);
+    cerr << "frames " << maxframes << endl;
     this->GLRenderer->GetRenderWindow()->Render();
     }
 
   if(key == "p")
     {
-    if (vtkOsprayRendererNode::maxframes>1)
+    int maxframes = vtkOsprayRendererNode::GetMaxFrames(this->GLRenderer);
+    if (maxframes>1)
       {
-      vtkOsprayRendererNode::maxframes=
-        vtkOsprayRendererNode::maxframes/2;
+      maxframes=maxframes/2;
       }
-    cerr << "MF" << vtkOsprayRendererNode::maxframes << endl;
+    vtkOsprayRendererNode::SetMaxFrames(maxframes, this->GLRenderer);
+    cerr << "frames " << maxframes << endl;
     this->GLRenderer->GetRenderWindow()->Render();
     }
 
   if(key == "s")
     {
-    cerr << "change shadows" << endl;
-    if (vtkOsprayRendererNode::doshadows)
-      {
-      vtkOsprayRendererNode::doshadows=0;
-      }
-    else
-      {
-      vtkOsprayRendererNode::doshadows=1;
-      }
+    bool shadows = !(this->GLRenderer->GetUseShadows()==0);
+    cerr << "shadows now " << (!shadows?"ON":"OFF") << endl;
+    this->GLRenderer->SetUseShadows(!shadows);
     this->GLRenderer->GetRenderWindow()->Render();
     }
 
   if(key == "2")
     {
-    cerr << "change SPP" << endl;
-    vtkOsprayRendererNode::spp++;
+    int spp = vtkOsprayRendererNode::GetSamplesPerPixel(this->GLRenderer);
+    cerr << "samples now " << spp+1 << endl;
+    vtkOsprayRendererNode::SetSamplesPerPixel(spp+1, this->GLRenderer);
     this->GLRenderer->GetRenderWindow()->Render();
     }
   if(key == "1")
     {
-    cerr << "change SPP" << endl;
-    vtkOsprayRendererNode::spp=0;
+    vtkOsprayRendererNode::SetSamplesPerPixel(1, this->GLRenderer);
+    cerr << "samples now " << 1 << endl;
+    this->GLRenderer->GetRenderWindow()->Render();
+    }
+
+  if(key == "D")
+    {
+    int aoSamples = vtkOsprayRendererNode::GetAmbientSamples(this->GLRenderer) + 2;
+    if (aoSamples>64)
+      {
+      aoSamples=64;
+      }
+    vtkOsprayRendererNode::SetAmbientSamples(aoSamples, this->GLRenderer);
+    cerr << "aoSamples " << aoSamples << endl;
+    this->GLRenderer->GetRenderWindow()->Render();
+    }
+
+  if(key == "d")
+    {
+    int aosamples = vtkOsprayRendererNode::GetAmbientSamples(this->GLRenderer);
+    aosamples=aosamples/2;
+    vtkOsprayRendererNode::SetAmbientSamples(aosamples, this->GLRenderer);
+    cerr << "aoSamples " << aosamples << endl;
+    this->GLRenderer->GetRenderWindow()->Render();
+    }
+
+  if(key == "I")
+    {
+    double intens = vtkOsprayLightNode::GetLightScale()*1.5;
+    vtkOsprayLightNode::SetLightScale(intens);
+    cerr << "intensity " << intens << endl;
+    this->GLRenderer->GetRenderWindow()->Render();
+    }
+
+  if(key == "i")
+    {
+    double intens = vtkOsprayLightNode::GetLightScale()/1.5;
+    vtkOsprayLightNode::SetLightScale(intens);
+    cerr << "intensity " << intens << endl;
     this->GLRenderer->GetRenderWindow()->Render();
     }
 

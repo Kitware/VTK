@@ -22,7 +22,8 @@
 #include "vtkRenderingSceneGraphModule.h" // For export macro
 #include "vtkViewNode.h"
 
-class vtkRenderWindow;
+class vtkUnsignedCharArray;
+class vtkFloatArray;
 
 class VTKRENDERINGSCENEGRAPH_EXPORT vtkWindowNode :
   public vtkViewNode
@@ -34,23 +35,38 @@ public:
 
   //Description:
   //Build containers for our child nodes.
-  virtual void BuildSelf();
+  virtual void Build(bool prepass);
 
   //Description:
   //Get state of my renderable.
-  virtual void SynchronizeSelf();
+  virtual void Synchronize(bool prepass);
 
-  //Description:
-  //Override to interface to a specific backend.
-  virtual void RenderSelf() {};
+  // Description:
+  // Return the size of the last rendered image
+  virtual int *GetSize() {
+    return this->Size; }
+
+  // Description:
+  // Get the most recent color buffer RGBA
+  virtual vtkUnsignedCharArray *GetColorBuffer()
+    { return this->ColorBuffer; }
+
+  // Description:
+  // Get the most recent zbufer buffer
+  virtual vtkFloatArray *GetZBuffer()
+    { return this->ZBuffer; }
 
 protected:
   vtkWindowNode();
   ~vtkWindowNode();
 
-  //todo: use a map with string keys being renderable's member name
+  //TODO: use a map with string keys being renderable's member name
   //state
   int Size[2];
+
+  // stores the results of a render
+  vtkUnsignedCharArray*ColorBuffer;
+  vtkFloatArray *ZBuffer;
 
 private:
   vtkWindowNode(const vtkWindowNode&); // Not implemented.

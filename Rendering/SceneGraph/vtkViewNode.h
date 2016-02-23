@@ -24,8 +24,10 @@
 #define vtkViewNode_h
 
 #include "vtkRenderingSceneGraphModule.h" // For export macro
+#include "vtkWeakPointer.h" //avoid ref loop to parent
 #include "vtkObject.h"
 
+class vtkCollection;
 class vtkViewNodeFactory;
 class vtkViewNodeCollection;
 
@@ -41,37 +43,21 @@ public:
   vtkGetObjectMacro(Renderable, vtkObject);
 
   //Description:
-  //Call to build self and descendents.
-  void Build();
-
-  //Description:
   //Builds myself.
-  //Sublcasses must implement.
-  virtual void BuildSelf() = 0;
-
-  //Description:
-  //Call to ensure that my state (including that of descendents)
-  //agrees with Renderable's.
-  void Synchronize();
+  virtual void Build(bool /* prepass */) {};
 
   //Description:
   //Ensures that my state agrees with my Renderable's.
-  //Sublcasses must implement.
-  virtual void SynchronizeSelf() = 0;
-
-  //Description:
-  //Call to make self and descendents visible.
-  virtual void Render();
+  virtual void Synchronize(bool /* prepass */) {};
 
   //Description:
   //Makes calls to make self visible.
-  //Sublcasses must implement.
-  virtual void RenderSelf() = 0;
+  virtual void Render(bool /*prepass*/) {};
 
   //Description:
   //Access the node that owns this one.
   virtual void SetParent(vtkViewNode*);
-  vtkGetObjectMacro(Parent, vtkViewNode);
+  virtual vtkViewNode * GetParent();
 
   //Description:
   //Access nodes that this one owns.
@@ -84,28 +70,69 @@ public:
   virtual void SetMyFactory(vtkViewNodeFactory*);
   vtkGetObjectMacro(MyFactory, vtkViewNodeFactory);
 
-protected:
-  vtkViewNode();
-  ~vtkViewNode();
+  //Description:
+  //Returns the view node that corresponding to the provided object
+  //Will return NULL if a match is not found in self or descendents
+  vtkViewNode* GetViewNodeFor(vtkObject *);
+
+  // Description:
+  // Find the first parent/grandparent of the desired type
+  vtkViewNode *GetFirstAncestorOfType(const char *type);
+
+  // Description:
+  // Alow explicit setting of the renderable for a
+  // view node.
+  virtual void SetRenderable(vtkObject *);
+
+  // if you want to traverse your children in a specific order
+  // or way override this method
+  virtual void Traverse(int operation);
+
+  virtual void TraverseAllPasses();
+
+  //Descriptions:
+  //Allows smart caching
+  unsigned long RenderTime;
 
   //Description:
   //internal mechanics of graph traversal and actions
   enum operation_type{noop, build, synchronize, render};
+
+protected:
+  vtkViewNode();
+  ~vtkViewNode();
+
   static const char* operation_type_strings[];
-  void Traverse(int operation);
-  void Apply(int operation);
+
+  void Apply(int operation, bool prepass);
+
+  // Description::
+  //convienience method to add node or nodes
+  //if missing from our current list
+  void AddMissingNode(vtkObject *obj);
+  void AddMissingNodes(vtkCollection *col);
+
+  // Description::
+  // Called first before adding missing nodes.
+  // Keeps track of the nodes that should be in the collection
+  void PrepareNodes();
+  vtkCollection *PreparedNodes;
+
+  // Description:
+  // Called after PrepareNodes and AddMissingNodes
+  // removes any extra leftover nodes
+  void RemoveUnusedNodes();
 
   //Description:
   //Create the correct ViewNode subclass for the passed in object.
   virtual vtkViewNode *CreateViewNode(vtkObject *obj);
 
   vtkObject *Renderable;
-  vtkViewNode *Parent;
+  vtkWeakPointer<vtkViewNode> Parent;
   vtkViewNodeCollection *Children;
   vtkViewNodeFactory *MyFactory;
 
   friend class vtkViewNodeFactory;
-  void SetRenderable(vtkObject *);
 
 private:
   vtkViewNode(const vtkViewNode&); // Not implemented.

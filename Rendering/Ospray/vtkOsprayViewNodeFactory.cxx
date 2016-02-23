@@ -17,15 +17,10 @@
 
 #include "vtkOsprayActorNode.h"
 #include "vtkOsprayCameraNode.h"
+#include "vtkOsprayCompositePolyDataMapper2Node.h"
 #include "vtkOsprayLightNode.h"
 #include "vtkOsprayRendererNode.h"
-#include "vtkOsprayWindowNode.h"
-
-vtkViewNode *win_maker()
-{
-  vtkOsprayWindowNode *vn = vtkOsprayWindowNode::New();
-  return vn;
-}
+#include "vtkOsprayPolyDataMapperNode.h"
 
 vtkViewNode *ren_maker()
 {
@@ -51,30 +46,33 @@ vtkViewNode *light_maker()
   return vn;
 }
 
+vtkViewNode *pd_maker()
+{
+  vtkOsprayPolyDataMapperNode *vn = vtkOsprayPolyDataMapperNode::New();
+  return vn;
+}
+
+vtkViewNode *cpd_maker()
+{
+  vtkOsprayCompositePolyDataMapper2Node *vn = vtkOsprayCompositePolyDataMapper2Node::New();
+  return vn;
+}
+
 //============================================================================
 vtkStandardNewMacro(vtkOsprayViewNodeFactory);
 
 //----------------------------------------------------------------------------
 vtkOsprayViewNodeFactory::vtkOsprayViewNodeFactory()
 {
-  //TODO: better to introspect somehow and always get a definitive list.
-  //Until then just grep override in Rendering/OpenGL*/CMakeLists.txt
-  //to come up with something like this.
-  this->RegisterOverride("vtkCocoaRenderWindow", win_maker);
-  this->RegisterOverride("vtkXOpenGLRenderWindow", win_maker);
-  this->RegisterOverride("vtkOSOpenGLRenderWindow", win_maker);
-  this->RegisterOverride("vtkWin32OpenGLRenderWindow", win_maker);
-  this->RegisterOverride("vtkCocoaRenderWindow", win_maker);
-  this->RegisterOverride("vtkCarbonRenderWindow", win_maker);
-  this->RegisterOverride("vtkEGLRenderWindow", win_maker);
-  this->RegisterOverride("vtkIOSRenderWindow", win_maker);
-
   //see vtkRenderWindow::GetRenderLibrary
   this->RegisterOverride("vtkOpenGLRenderer", ren_maker);
   this->RegisterOverride("vtkOpenGLActor", act_maker);
   this->RegisterOverride("vtkPVLODActor", act_maker);
   this->RegisterOverride("vtkOpenGLCamera", cam_maker);
   this->RegisterOverride("vtkOpenGLLight", light_maker);
+  this->RegisterOverride("vtkPainterPolyDataMapper", pd_maker);
+  this->RegisterOverride("vtkOpenGLPolyDataMapper", pd_maker);
+  this->RegisterOverride("vtkCompositePolyDataMapper2", cpd_maker);
 }
 
 //----------------------------------------------------------------------------

@@ -31,16 +31,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   //Description:
-  //Traverse graph in ospray's prefered order and render
-  virtual void Render();
-
-  //Description:
   //Make ospray calls to render me.
-  virtual void RenderSelf();
-
-  //Description:
-  //Update my renderable with the result
-  virtual void PostRender();
+  virtual void Render(bool prepass);
 
 protected:
   vtkOsprayWindowNode();

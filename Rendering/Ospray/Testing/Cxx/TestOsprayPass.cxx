@@ -28,8 +28,6 @@
 #include "vtkCamera.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOsprayPass.h"
-#include "vtkOsprayViewNodeFactory.h"
-#include "vtkOsprayWindowNode.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataNormals.h"
 #include "vtkPLYReader.h"
@@ -68,12 +66,7 @@ int TestOsprayPass(int argc, char* argv[])
   renWin->SetSize(400,400);
   renWin->Render();
 
-  vtkSmartPointer<vtkOsprayViewNodeFactory> vnf = vtkSmartPointer<vtkOsprayViewNodeFactory>::New();
-  vtkViewNode *vn = vnf->CreateNode(renWin);
-  vn->Build();
-
   vtkSmartPointer<vtkOsprayPass> ospray=vtkSmartPointer<vtkOsprayPass>::New();
-  ospray->SetSceneGraph(vtkOsprayWindowNode::SafeDownCast(vn));
 
   for (int i = 1; i<10; i++)
     {
@@ -97,7 +90,6 @@ int TestOsprayPass(int argc, char* argv[])
   style->SetCurrentRenderer(renderer);
 
   iren->Start();
-  vn->Delete();
 
   return 0;
 }

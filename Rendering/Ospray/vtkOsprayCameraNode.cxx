@@ -14,9 +14,11 @@
 =========================================================================*/
 #include "vtkOsprayCameraNode.h"
 
+#include "vtkCamera.h"
 #include "vtkCollectionIterator.h"
 #include "vtkObjectFactory.h"
-#include "vtkCamera.h"
+#include "vtkOsprayRendererNode.h"
+#include "vtkRenderer.h"
 #include "vtkViewNodeCollection.h"
 
 #include "ospray/ospray.h"
@@ -41,16 +43,35 @@ void vtkOsprayCameraNode::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkOsprayCameraNode::ORender(int *TiledSize, void *camera)
+void vtkOsprayCameraNode::Render(bool prepass)
 {
-  OSPCamera ospCamera = (OSPCamera)camera;
-  ospSetf(ospCamera,"aspect",float(TiledSize[0])/float(TiledSize[1]));
-  ospSetf(ospCamera,"fovy",this->ViewAngle);
-  ospSet3f(ospCamera,"pos",this->Position[0], this->Position[1], this->Position[2]);
-  ospSet3f(ospCamera,"up",this->ViewUp[0], this->ViewUp[1], this->ViewUp[2]);
-  ospSet3f(ospCamera,"dir",
-           this->FocalPoint[0]-this->Position[0],
-           this->FocalPoint[1]-this->Position[1],
-           this->FocalPoint[2]-this->Position[2]);
-  ospCommit(ospCamera);
+  if (prepass)
+    {
+    vtkOsprayRendererNode *orn =
+      static_cast<vtkOsprayRendererNode *>(
+        this->GetFirstAncestorOfType("vtkOsprayRendererNode"));
+
+    vtkRenderer *ren = vtkRenderer::SafeDownCast(orn->GetRenderable());
+    int tiledSize[2];
+    int tiledOrigin[2];
+    ren->GetTiledSizeAndOrigin(&tiledSize[0], &tiledSize[1],
+                            &tiledOrigin[0], &tiledOrigin[1]);
+
+
+    OSPCamera ospCamera = ospNewCamera("perspective");
+    ospSetObject(orn->GetORenderer(),"camera", ospCamera);
+
+    vtkCamera *cam = static_cast<vtkCamera *>(this->Renderable);
+    ospSetf(ospCamera,"aspect", float(tiledSize[0])/float(tiledSize[1]));
+    ospSetf(ospCamera,"fovy",cam->GetViewAngle());
+    double *pos = cam->GetPosition();
+    ospSet3f(ospCamera,"pos",pos[0], pos[1], pos[2]);
+    ospSet3f(ospCamera,"up",
+      cam->GetViewUp()[0], cam->GetViewUp()[1], cam->GetViewUp()[2]);
+    double *dop = cam->GetDirectionOfProjection();
+    ospSet3f(ospCamera,"dir", dop[0], dop[1], dop[2]);
+
+    ospCommit(ospCamera);
+    ospRelease(ospCamera);
+    }
 }

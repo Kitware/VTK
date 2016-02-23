@@ -32,7 +32,13 @@ public:
 
   //Description:
   //Make ospray calls to render me.
-  virtual void ORender(void *oRenderer);
+  virtual void Render(bool prepass);
+
+  //Description:
+  //A global multiplier to all ospray lights.
+  //default is 1.0
+  static void SetLightScale(double s);
+  static double GetLightScale();
 
 protected:
   vtkOsprayLightNode();
@@ -41,6 +47,8 @@ protected:
 private:
   vtkOsprayLightNode(const vtkOsprayLightNode&); // Not implemented.
   void operator=(const vtkOsprayLightNode&); // Not implemented.
+
+  static double LightScale;
 };
 
 #endif

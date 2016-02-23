@@ -32,7 +32,7 @@ public:
 
   //Description:
   //Make ospray calls to render me.
-  virtual void ORender(int *TiledSize, void *camera);
+  virtual void Render(bool prepass);
 
 protected:
   vtkOsprayCameraNode();

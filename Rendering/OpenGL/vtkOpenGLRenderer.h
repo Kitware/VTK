@@ -48,7 +48,7 @@ public:
   // Description:
   // Internal method temporarily removes lights before reloading them
   // into graphics pipeline.
-  void ClearLights(void);
+  virtual void ClearLights(void);
 
   virtual void Clear(void);
 

@@ -26,8 +26,6 @@
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
 #include "vtkOsprayPass.h"
-#include "vtkOsprayViewNodeFactory.h"
-#include "vtkOsprayWindowNode.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -35,7 +33,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 
-int TestOsprayDynamicObject(int argc, char* argv[])
+int TestOsprayDynamicObject(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
   vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
@@ -53,12 +51,7 @@ int TestOsprayDynamicObject(int argc, char* argv[])
   renWin->SetSize(400,400);
   renWin->Render();
 
-  vtkSmartPointer<vtkOsprayViewNodeFactory> vnf = vtkSmartPointer<vtkOsprayViewNodeFactory>::New();
-  vtkViewNode *vn = vnf->CreateNode(renWin);
-  vn->Build();
-
   vtkSmartPointer<vtkOsprayPass> ospray=vtkSmartPointer<vtkOsprayPass>::New();
-  ospray->SetSceneGraph(vtkOsprayWindowNode::SafeDownCast(vn));
 
   renderer->SetPass(ospray);
   renWin->Render();
@@ -75,7 +68,7 @@ int TestOsprayDynamicObject(int argc, char* argv[])
   camera->GetPosition(position);
   camera->SetClippingRange(0.01,1000.0);
 
-#define MAXFRAME 100
+#define MAXFRAME 20
   double inc = 1.0/(double)MAXFRAME;
 
   for (int i = 0; i < MAXFRAME; i++)
@@ -102,8 +95,6 @@ int TestOsprayDynamicObject(int argc, char* argv[])
     renderer->SetBackground(0.0,I,1-I);
     renWin->Render();
     }
-
-  vn->Delete();
 
   iren->Start();
 

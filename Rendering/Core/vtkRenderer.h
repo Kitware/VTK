@@ -41,6 +41,7 @@ class vtkCuller;
 class vtkActor;
 class vtkActor2D;
 class vtkCamera;
+class vtkInformation;
 class vtkLightCollection;
 class vtkCullerCollection;
 class vtkLight;
@@ -245,6 +246,11 @@ public:
   // override this method.
   // It updates boolean ivar LastRenderingUsedDepthPeeling.
   virtual void DeviceRenderTranslucentPolygonalGeometry();
+
+  // Description:
+  // Internal method temporarily removes lights before reloading them
+  // into graphics pipeline.
+  virtual void ClearLights(void) {};
 
   // Description:
   // Clear the image to the background color.
@@ -527,6 +533,11 @@ public:
   void SetPass(vtkRenderPass *p);
   vtkGetObjectMacro(Pass, vtkRenderPass);
 
+  // Description:
+  // Set/Get the information object associated with this algorithm.
+  vtkGetObjectMacro(Information, vtkInformation);
+  virtual void SetInformation(vtkInformation*);
+
 //BTX
 protected:
   vtkRenderer();
@@ -715,6 +726,9 @@ protected:
 
   friend class vtkRenderPass;
   vtkRenderPass *Pass;
+
+  // Arbitrary extra information associated with this renderer
+  vtkInformation* Information;
 
 private:
   vtkRenderer(const vtkRenderer&);  // Not implemented.

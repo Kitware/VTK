@@ -4,8 +4,10 @@ include_directories(${OSPRAY_INCLUDE_DIRS})
 set(Module_SRCS
   vtkOsprayActorNode.cxx
   vtkOsprayCameraNode.cxx
+  vtkOsprayCompositePolyDataMapper2Node.cxx
   vtkOsprayLightNode.cxx
   vtkOsprayPass.cxx
+  vtkOsprayPolyDataMapperNode.cxx
   vtkOsprayRendererNode.cxx
   vtkOsprayViewNodeFactory.cxx
   vtkOsprayWindowNode.cxx

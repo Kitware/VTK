@@ -24,6 +24,7 @@
 #include "vtkFrustumCoverageCuller.h"
 #include "vtkObjectFactory.h"
 #include "vtkHardwareSelector.h"
+#include "vtkInformation.h"
 #include "vtkLightCollection.h"
 #include "vtkLight.h"
 #include "vtkMath.h"
@@ -39,6 +40,7 @@
 #include "vtkVolume.h"
 #include "vtkTexture.h"
 
+vtkCxxSetObjectMacro(vtkRenderer, Information, vtkInformation);
 vtkCxxSetObjectMacro(vtkRenderer, Delegate, vtkRendererDelegate);
 vtkCxxSetObjectMacro(vtkRenderer, BackgroundTexture, vtkTexture);
 vtkCxxSetObjectMacro(vtkRenderer, Pass, vtkRenderPass);
@@ -129,6 +131,10 @@ vtkRenderer::vtkRenderer()
   this->BackgroundTexture = NULL;
 
   this->Pass = 0;
+
+  this->Information = vtkInformation::New();
+  this->Information->Register(this);
+  this->Information->Delete();
 }
 
 vtkRenderer::~vtkRenderer()
@@ -167,6 +173,8 @@ vtkRenderer::~vtkRenderer()
     {
     this->BackgroundTexture->Delete();
     }
+
+  this->SetInformation(0);
 }
 
 void vtkRenderer::ReleaseGraphicsResources(vtkWindow *renWin)
@@ -838,6 +846,7 @@ void vtkRenderer::CreateLight(void)
 
   if (this->CreatedLight)
     {
+    this->RemoveLight(this->CreatedLight);
     this->CreatedLight->UnRegister(this);
     this->CreatedLight = NULL;
     }
