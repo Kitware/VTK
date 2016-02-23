@@ -1828,7 +1828,6 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
   assert("pre: not_initialized" && !this->OffScreenUseFrameBuffer);
 
   this->CreateAWindow();
-
   this->MakeCurrent();
   this->OpenGLInit();
 
