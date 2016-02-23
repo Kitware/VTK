@@ -61,6 +61,7 @@ set(Module_SRCS
   vtkRecursiveDividingCubes.cxx
   vtkReflectionFilter.cxx
   vtkRotationFilter.cxx
+  vtkSampleImplicitFunctionFilter.cxx
   vtkShrinkFilter.cxx
   vtkShrinkPolyData.cxx
   vtkSpatialRepresentationFilter.cxx
