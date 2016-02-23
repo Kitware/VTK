@@ -277,6 +277,17 @@ public:
   virtual int SetUseOffScreenBuffers(bool offScreen);
   virtual bool GetUseOffScreenBuffers();
 
+  // Description:
+  // Does this render window support OpenGL? 0-false, 1-true
+  virtual int SupportsOpenGL();
+
+  // Description:
+  // Initialize the rendering window.  This will setup all system-specific
+  // resources.  This method and Finalize() must be symmetric and it
+  // should be possible to call them multiple times, even changing WindowId
+  // in-between.  This is what WindowRemap does.
+  virtual void Initialize(void) {};
+
 protected:
   vtkOpenGLRenderWindow();
   ~vtkOpenGLRenderWindow();
