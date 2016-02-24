@@ -51,12 +51,15 @@
  */
 typedef struct _OptionInfo
 {
-  int           NumberOfFiles;     /* the total number of file arguments */
-  char        **Files;             /* all of the file arguments */
-  char         *InputFileName;     /* the first file argument */
-  char         *OutputFileName;    /* the second file, or the "-o" file */
-  char         *HintFileName;      /* the file preceded by "--hints" */
-  char         *HierarchyFileName; /* the file preceded by "--types" */
+  int           NumberOfFiles;      /* the total number of file arguments */
+  char        **Files;              /* all of the file arguments */
+  char         *InputFileName;      /* the first file argument */
+  char         *OutputFileName;     /* the second file, or the "-o" file */
+  int           NumberOfHintFileNames; /* the total number of hints arguments */
+  char        **HintFileNames;      /* all of the hints arguments */
+  char         *HierarchyFileName;  /* the file preceded by "--types" XXX DEPRECATED */
+  int           NumberOfHierarchyFileNames; /* the total number of types argument */
+  char        **HierarchyFileNames; /* the file preceded by "--types" */
 } OptionInfo;
 
 #ifdef __cplusplus

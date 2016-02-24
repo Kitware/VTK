@@ -518,7 +518,8 @@ int vtkParseMerge_Merge(
  * superclasses to "merge" */
 void vtkParseMerge_MergeHelper(
   FileInfo *finfo, const NamespaceInfo *data, const HierarchyInfo *hinfo,
-  const char *classname, FILE *hintfile, MergeInfo *info, ClassInfo *merge)
+  const char *classname, int nhintfiles, char **hintfiles, MergeInfo *info,
+  ClassInfo *merge)
 {
   FILE *fp = NULL;
   ClassInfo *cinfo = NULL;
@@ -532,6 +533,9 @@ void vtkParseMerge_MergeHelper(
   const char *filename;
   int i, j, n, m;
   int recurse;
+  FILE *hintfile = NULL;
+  int ihintfiles = 0;
+  const char *hintfilename = NULL;
 
   /* Note: this method does not deal with scoping yet.
    * "classname" might be a scoped name, in which case the
@@ -597,7 +601,6 @@ void vtkParseMerge_MergeHelper(
     header = entry->HeaderFile;
     if (!header)
       {
-      if (hintfile) { fclose(hintfile); }
       fprintf(stderr, "Null header file for class %s!\n", classname);
       exit(1);
       }
@@ -605,7 +608,6 @@ void vtkParseMerge_MergeHelper(
     filename = vtkParse_FindIncludeFile(header);
     if (!filename)
       {
-      if (hintfile) { fclose(hintfile); }
       fprintf(stderr, "Couldn't locate header file %s\n", header);
       exit(1);
       }
@@ -613,7 +615,6 @@ void vtkParseMerge_MergeHelper(
     fp = fopen(filename, "r");
     if (!fp)
       {
-      if (hintfile) { fclose(hintfile); }
       fprintf(stderr, "Couldn't open header file %s\n", header);
       exit(1);
       }
@@ -623,14 +624,27 @@ void vtkParseMerge_MergeHelper(
 
     if (!finfo)
       {
-      if (hintfile) { fclose(hintfile); }
       exit(1);
       }
 
-    if (hintfile)
+    if (nhintfiles > 0 && hintfiles)
       {
-      rewind(hintfile);
-      vtkParse_ReadHints(finfo, hintfile, stderr);
+      for (ihintfiles = 0; ihintfiles < nhintfiles; ihintfiles++)
+        {
+        hintfilename = hintfiles[ihintfiles];
+        if (hintfilename && hintfilename[0] != '\0')
+          {
+          if (!(hintfile = fopen(hintfilename, "r")))
+            {
+            fprintf(stderr, "Error opening hint file %s\n", hintfilename);
+            vtkParse_FreeFile(finfo);
+            exit(1);
+            }
+
+          vtkParse_ReadHints(finfo, hintfile, stderr);
+          fclose(hintfile);
+          }
+        }
       }
 
     data = finfo->Contents;
@@ -709,7 +723,7 @@ void vtkParseMerge_MergeHelper(
       for (i = 0; i < n; i++)
         {
         vtkParseMerge_MergeHelper(finfo, data, hinfo, cinfo->SuperClasses[i],
-                                  hintfile, info, merge);
+                                  nhintfiles, hintfiles, info, merge);
         }
       }
     }
@@ -725,7 +739,6 @@ void vtkParseMerge_MergeHelper(
 MergeInfo *vtkParseMerge_MergeSuperClasses(
   FileInfo *finfo, NamespaceInfo *data, ClassInfo *classInfo)
 {
-  FILE *hintfile = NULL;
   HierarchyInfo *hinfo = NULL;
   MergeInfo *info = NULL;
   OptionInfo *oinfo = NULL;
@@ -733,14 +746,10 @@ MergeInfo *vtkParseMerge_MergeSuperClasses(
 
   oinfo = vtkParse_GetCommandLineOptions();
 
-  if (oinfo->HierarchyFileName)
+  if (oinfo->HierarchyFileNames)
     {
-    hinfo = vtkParseHierarchy_ReadFile(oinfo->HierarchyFileName);
-
-    if (oinfo->HintFileName)
-      {
-      hintfile = fopen(oinfo->HintFileName, "r");
-      }
+    hinfo = vtkParseHierarchy_ReadFiles(
+      oinfo->NumberOfHierarchyFileNames, oinfo->HierarchyFileNames);
 
     info = vtkParseMerge_CreateMergeInfo(classInfo);
 
@@ -749,12 +758,9 @@ MergeInfo *vtkParseMerge_MergeSuperClasses(
       {
       vtkParseMerge_MergeHelper(finfo, data, hinfo,
                                 classInfo->SuperClasses[i],
-                                hintfile, info, classInfo);
-      }
-
-    if (hintfile)
-      {
-      fclose(hintfile);
+                                oinfo->NumberOfHintFileNames,
+                                oinfo->HintFileNames,
+                                info, classInfo);
       }
     }
 
