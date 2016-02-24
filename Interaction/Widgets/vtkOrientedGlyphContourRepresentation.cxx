@@ -182,6 +182,10 @@ vtkOrientedGlyphContourRepresentation::vtkOrientedGlyphContourRepresentation()
   this->Lines = vtkPolyData::New();
   this->LinesMapper = vtkPolyDataMapper::New();
   this->LinesMapper->SetInputData(this->Lines);
+  this->LinesMapper->SetResolveCoincidentTopologyToPolygonOffset();
+  this->LinesMapper->SetRelativeCoincidentTopologyLineOffsetParameters(-1,-1);
+  this->LinesMapper->SetRelativeCoincidentTopologyPolygonOffsetParameters(-1,-1);
+  this->LinesMapper->SetRelativeCoincidentTopologyPointOffsetParameter(-1);
 
   this->LinesActor = vtkActor::New();
   this->LinesActor->SetMapper( this->LinesMapper );
@@ -680,6 +684,9 @@ void vtkOrientedGlyphContourRepresentation::BuildRepresentation()
     {
     // max value 65536 so we subtract 66000 to make sure we are
     // zero or negative
+    this->LinesMapper->SetRelativeCoincidentTopologyLineOffsetParameters(0,-66000);
+    this->LinesMapper->SetRelativeCoincidentTopologyPolygonOffsetParameters(0,-66000);
+    this->LinesMapper->SetRelativeCoincidentTopologyPointOffsetParameter(-66000);
     this->Mapper->SetRelativeCoincidentTopologyLineOffsetParameters(0,-66000);
     this->Mapper->SetRelativeCoincidentTopologyPolygonOffsetParameters(0,-66000);
     this->Mapper->SetRelativeCoincidentTopologyPointOffsetParameter(-66000);
@@ -689,6 +696,9 @@ void vtkOrientedGlyphContourRepresentation::BuildRepresentation()
     }
   else
     {
+    this->LinesMapper->SetRelativeCoincidentTopologyLineOffsetParameters(-1,-1);
+    this->LinesMapper->SetRelativeCoincidentTopologyPolygonOffsetParameters(-1,-1);
+    this->LinesMapper->SetRelativeCoincidentTopologyPointOffsetParameter(-1);
     this->Mapper->SetRelativeCoincidentTopologyLineOffsetParameters(-1,-1);
     this->Mapper->SetRelativeCoincidentTopologyPolygonOffsetParameters(-1,-1);
     this->Mapper->SetRelativeCoincidentTopologyPointOffsetParameter(-1);
