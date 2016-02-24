@@ -299,6 +299,18 @@ if(PYTHON_EXECUTABLE)
   list(APPEND VTK_PYTHON_FILES
     "${CMAKE_CURRENT_BINARY_DIR}/vtk/__init__.py")
 
+# Kit module adapters
+  foreach(kit IN LISTS vtk_kits)
+    set(_module_kit ${kit}${VTK_KIT_SUFFIX})
+    foreach(dep IN LISTS _${kit}_modules)
+      file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/vtk/${dep}")
+      configure_file(vtk/kit_module__init__.py.in vtk/${dep}/__init__.py @ONLY)
+      list(APPEND VTK_PYTHON_FILES
+        "${CMAKE_CURRENT_BINARY_DIR}/vtk/${dep}/__init__.py")
+    endforeach()
+  endforeach()
+  unset(_module_kit)
+
 # vtk.util package
   list(APPEND VTK_PYTHON_FILES
     vtk/util/__init__
