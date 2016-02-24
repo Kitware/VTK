@@ -676,6 +676,27 @@ void vtkOrientedGlyphContourRepresentation::BuildRepresentation()
   // Make sure we are up to date with any changes made in the placer
   this->UpdateContour();
 
+  if (this->AlwaysOnTop)
+    {
+    // max value 65536 so we subtract 66000 to make sure we are
+    // zero or negative
+    this->Mapper->SetRelativeCoincidentTopologyLineOffsetParameters(0,-66000);
+    this->Mapper->SetRelativeCoincidentTopologyPolygonOffsetParameters(0,-66000);
+    this->Mapper->SetRelativeCoincidentTopologyPointOffsetParameter(-66000);
+    this->ActiveMapper->SetRelativeCoincidentTopologyLineOffsetParameters(0,-66000);
+    this->ActiveMapper->SetRelativeCoincidentTopologyPolygonOffsetParameters(0,-66000);
+    this->ActiveMapper->SetRelativeCoincidentTopologyPointOffsetParameter(-66000);
+    }
+  else
+    {
+    this->Mapper->SetRelativeCoincidentTopologyLineOffsetParameters(-1,-1);
+    this->Mapper->SetRelativeCoincidentTopologyPolygonOffsetParameters(-1,-1);
+    this->Mapper->SetRelativeCoincidentTopologyPointOffsetParameter(-1);
+    this->ActiveMapper->SetRelativeCoincidentTopologyLineOffsetParameters(-1,-1);
+    this->ActiveMapper->SetRelativeCoincidentTopologyPolygonOffsetParameters(-1,-1);
+    this->ActiveMapper->SetRelativeCoincidentTopologyPointOffsetParameter(-1);
+    }
+
   double p1[4], p2[4];
   this->Renderer->GetActiveCamera()->GetFocalPoint(p1);
   p1[3] = 1.0;
