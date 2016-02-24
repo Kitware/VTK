@@ -238,6 +238,8 @@ if(VTK_ENABLE_KITS)
     endforeach()
   endforeach()
 
+  list(REMOVE_DUPLICATES vtk_kits)
+
   # Put all kits in the list (if they are not dependencies of any module, they
   # will be dropped otherwise).
   list(APPEND vtk_modules_and_kits ${vtk_kits})
