@@ -10,7 +10,6 @@ vtk_add_test_python(
   TestGraphLayoutFilter.py
   TestMultiBlockStreamer.py
   TestRectilinearGridToTetrahedra.py
-  TestSampleImplicitFunctionFilter.py
   TestSplineFilter.py
   WarpToImage.py
   blankGrid.py
@@ -47,3 +46,9 @@ vtk_add_test_python(
   tableBasedClip.py,NO_RT
   GreenLagrangeStrain.py.py,NO_OUTPUT,NO_DATA,NO_VALID
   )
+
+if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
+  vtk_add_test_python(
+    TestSampleImplicitFunctionFilter.py
+    )
+endif()
