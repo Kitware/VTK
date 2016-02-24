@@ -52,7 +52,11 @@ public:
   // Each loaded vtkObjectFactory will be asked in the order
   // the factory was in the VTK_AUTOLOAD_PATH.  After the
   // first factory returns the object no other factories are asked.
-  static vtkObject* CreateInstance(const char* vtkclassname);
+  // If the requested class is abstract, set isAbstract to true. Otherwise
+  // it is assumed that an instance of 'vtkclassname' will be instantiated
+  // by the caller when no override is found.
+  static vtkObject* CreateInstance(const char* vtkclassname,
+                                   bool isAbstract = false);
 
   // Description:
   // Call vtkDebugLeaks::ConstructClass if necessary. Does not attempt
@@ -284,7 +288,7 @@ vtkObjectFactory* vtkLoad()                     \
 
 // Macro to implement the body of the object factory form of the New() method.
 #define VTK_OBJECT_FACTORY_NEW_BODY(thisClass) \
-  vtkObject* ret = vtkObjectFactory::CreateInstance(#thisClass); \
+  vtkObject* ret = vtkObjectFactory::CreateInstance(#thisClass, false); \
   if(ret) \
     { \
     return static_cast<thisClass*>(ret); \
@@ -295,7 +299,7 @@ vtkObjectFactory* vtkLoad()                     \
 // method, i.e. an abstract base class that can only be instantiated if the
 // object factory overrides it.
 #define VTK_ABSTRACT_OBJECT_FACTORY_NEW_BODY(thisClass) \
-  vtkObject* ret = vtkObjectFactory::CreateInstance(#thisClass); \
+  vtkObject* ret = vtkObjectFactory::CreateInstance(#thisClass, true); \
   if(ret) \
     { \
     return static_cast<thisClass*>(ret); \

@@ -55,14 +55,6 @@ MACRO(VTK_WRAP_TCL3 TARGET SRC_LIST_NAME SOURCES COMMANDS)
     endif()
   endif()
 
-  IF(CMAKE_GENERATOR MATCHES "NMake Makefiles")
-    SET(verbatim "")
-    SET(quote "\"")
-  ELSE()
-    SET(verbatim "VERBATIM")
-    SET(quote "")
-  ENDIF()
-
   # Initialize the custom target counter.
   IF(VTK_WRAP_TCL_NEED_CUSTOM_TARGETS)
     SET(VTK_WRAP_TCL_CUSTOM_COUNT "")
@@ -77,22 +69,8 @@ MACRO(VTK_WRAP_TCL3 TARGET SRC_LIST_NAME SOURCES COMMANDS)
       "${VTK_WRAPPER_INIT_DATA}\nVERSION ${ARGV4}")
   ENDIF ()
 
-  # all the include directories
-  if(VTK_WRAP_INCLUDE_DIRS)
-    set(TMP_INCLUDE_DIRS ${VTK_WRAP_INCLUDE_DIRS})
-  else()
-    set(TMP_INCLUDE_DIRS ${VTK_INCLUDE_DIRS})
-  endif()
-
   # collect the common wrapper-tool arguments
   set(_common_args)
-  get_directory_property(_def_list DEFINITION COMPILE_DEFINITIONS)
-  foreach(TMP_DEF ${_def_list})
-    set(_common_args "${_common_args}-D${TMP_DEF}\n")
-  endforeach()
-  foreach(INCLUDE_DIR ${TMP_INCLUDE_DIRS})
-    set(_common_args "${_common_args}-I\"${INCLUDE_DIR}\"\n")
-  endforeach()
   if(VTK_WRAP_HINTS)
     set(_common_args "${_common_args}--hints \"${VTK_WRAP_HINTS}\"\n")
   endif()
@@ -100,11 +78,37 @@ MACRO(VTK_WRAP_TCL3 TARGET SRC_LIST_NAME SOURCES COMMANDS)
     set(_common_args "${_common_args}--types \"${KIT_HIERARCHY_FILE}\"\n")
   endif()
 
-  # write wrapper-tool arguments to a file
-  string(STRIP "${_common_args}" CMAKE_CONFIGURABLE_FILE_CONTENT)
-  set(_args_file ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.args)
-  configure_file(${CMAKE_ROOT}/Modules/CMakeConfigurableFile.in
-                 ${_args_file} @ONLY)
+  if(NOT CMAKE_VERSION VERSION_LESS 3.1 AND NOT VTK_ENABLE_KITS)
+    # write wrapper-tool arguments to a file
+    set(_args_file ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.$<CONFIGURATION>.args)
+    file(GENERATE OUTPUT ${_args_file} CONTENT "${_common_args}
+$<$<BOOL:$<TARGET_PROPERTY:${TARGET},COMPILE_DEFINITIONS>>:
+-D\"$<JOIN:$<TARGET_PROPERTY:${TARGET},COMPILE_DEFINITIONS>,\"
+-D\">\">
+$<$<BOOL:$<TARGET_PROPERTY:${TARGET},INCLUDE_DIRECTORIES>>:
+-I\"$<JOIN:$<TARGET_PROPERTY:${TARGET},INCLUDE_DIRECTORIES>,\"
+-I\">\">
+")
+  else()
+    # all the include directories
+    if(VTK_WRAP_INCLUDE_DIRS)
+      set(TMP_INCLUDE_DIRS ${VTK_WRAP_INCLUDE_DIRS})
+    else()
+      set(TMP_INCLUDE_DIRS ${VTK_INCLUDE_DIRS})
+    endif()
+    foreach(INCLUDE_DIR ${TMP_INCLUDE_DIRS})
+      set(_common_args "${_common_args}-I\"${INCLUDE_DIR}\"\n")
+    endforeach()
+    get_directory_property(_def_list DEFINITION COMPILE_DEFINITIONS)
+    foreach(TMP_DEF ${_def_list})
+      set(_common_args "${_common_args}-D${TMP_DEF}\n")
+    endforeach()
+    # write wrapper-tool arguments to a file
+    string(STRIP "${_common_args}" CMAKE_CONFIGURABLE_FILE_CONTENT)
+    set(_args_file ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.args)
+    configure_file(${CMAKE_ROOT}/Modules/CMakeConfigurableFile.in
+                   ${_args_file} @ONLY)
+  endif()
 
   # for each class
   FOREACH(FILE ${SOURCES})
@@ -138,16 +142,18 @@ MACRO(VTK_WRAP_TCL3 TARGET SRC_LIST_NAME SOURCES COMMANDS)
       # add custom command to output
       ADD_CUSTOM_COMMAND(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Tcl.cxx
-        DEPENDS ${VTK_WRAP_TCL_EXE} ${VTK_WRAP_HINTS} ${TMP_INPUT} ${_args_file}
-        ${KIT_HIERARCHY_FILE}
+        DEPENDS ${VTK_WRAP_TCL_EXE}
+                ${VTK_WRAP_HINTS}
+                ${TMP_INPUT}
+                ${_args_file}
+                ${KIT_HIERARCHY_FILE}
         COMMAND ${VTK_WRAP_TCL_EXE}
-        ARGS
-        ${TMP_HINTS}
-        "${quote}@${_args_file}${quote}"
-        "-o" "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Tcl.cxx${quote}"
-        "${quote}${TMP_INPUT}${quote}"
+                ${TMP_HINTS}
+                @${_args_file}
+                -o ${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}Tcl.cxx
+                ${TMP_INPUT}
         COMMENT "Tcl Wrapping - generating ${TMP_FILENAME}Tcl.cxx"
-        ${verbatim}
+        VERBATIM
         )
 
       # Add this output to a custom target if needed.
@@ -182,13 +188,12 @@ MACRO(VTK_WRAP_TCL3 TARGET SRC_LIST_NAME SOURCES COMMANDS)
   ADD_CUSTOM_COMMAND(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.cxx
     DEPENDS ${VTK_WRAP_TCL_INIT_EXE}
-    ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data
+            ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data
     COMMAND ${VTK_WRAP_TCL_INIT_EXE}
-    ARGS
-    "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data${quote}"
-    "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.cxx${quote}"
+            ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.data
+            ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Init.cxx
     COMMENT "Tcl Wrapping - generating ${TARGET}Init.cxx"
-    ${verbatim}
+    VERBATIM
     )
 
   # Create the Init File

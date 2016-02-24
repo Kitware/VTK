@@ -45,28 +45,6 @@ vtkPointSet* vtkXMLPUnstructuredDataWriter::GetInputAsPointSet()
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLPUnstructuredDataWriter::ProcessRequest(
-  vtkInformation* request,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
-{
-  if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
-    {
-    vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-    inInfo->Set(
-      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-      this->NumberOfPieces);
-    inInfo->Set(
-      vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), this->StartPiece);
-    inInfo->Set(
-      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
-      this->GhostLevel);
-    return 1;
-    }
-  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
-}
-
-//----------------------------------------------------------------------------
 vtkXMLWriter* vtkXMLPUnstructuredDataWriter::CreatePieceWriter(int index)
 {
   vtkXMLUnstructuredDataWriter* pWriter = this->CreateUnstructuredPieceWriter();

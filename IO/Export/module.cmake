@@ -1,32 +1,36 @@
-if(VTK_RENDERING_BACKEND STREQUAL "OpenGL")
-  set(opengl_depends vtkRenderingGL2PS)
-  set(private_opengl_depends vtkgl2ps)
+if(ANDROID OR APPLE_IOS) # No gl2ps on mobile
+  set(gl2ps_depends)
+  set(gl2ps_test_depends)
+elseif(VTK_RENDERING_BACKEND STREQUAL "OpenGL")
+  set(gl2ps_depends vtkRenderingGL2PS)
+  set(gl2ps_test_depends vtkIOExportOpenGL)
+elseif(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+  set(gl2ps_depends vtkRenderingGL2PSOpenGL2)
+  set(gl2ps_test_depends vtkIOExportOpenGL2)
 endif()
+
 vtk_module(vtkIOExport
   GROUPS
     Rendering
   DEPENDS
     vtkCommonCore
-    vtkRenderingAnnotation
-    vtkRenderingContext2D
-    vtkRenderingCore
-    vtkRenderingFreeType
-    ${opengl_depends}
-    vtkRenderingLabel
-    vtkRendering${VTK_RENDERING_BACKEND}
     vtkImagingCore
+    vtkRenderingCore
+    ${gl2ps_depends}
   PRIVATE_DEPENDS
     vtkIOImage
     vtkFiltersGeometry
-    ${private_opengl_depends}
   TEST_DEPENDS
     vtkCommonColor
     vtkChartsCore
     vtkInteractionImage
+    vtkIOParallel
     vtkTestingRendering
     vtkInteractionStyle
     vtkRenderingAnnotation
-    vtkRenderingVolume${VTK_RENDERING_BACKEND}
     vtkRenderingContext${VTK_RENDERING_BACKEND}
+    vtkRenderingLabel
+    vtkRenderingVolume${VTK_RENDERING_BACKEND}
     vtkViewsContext2D
+    ${gl2ps_test_depends}
   )

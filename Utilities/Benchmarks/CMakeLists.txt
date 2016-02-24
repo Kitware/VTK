@@ -14,9 +14,6 @@ add_executable(TimingTests MACOSX_BUNDLE
 target_link_libraries(TimingTests ${${vtk-module}_LIBRARIES})
 set_property(TARGET TimingTests APPEND PROPERTY
   COMPILE_DEFINITIONS "${${vtk-module}_DEFINITIONS}")
-if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
-  list(APPEND compile_defs VTK_OPENGL2)
-endif()
 
 # Chemistry target
 if(TARGET vtkDomainsChemistry)

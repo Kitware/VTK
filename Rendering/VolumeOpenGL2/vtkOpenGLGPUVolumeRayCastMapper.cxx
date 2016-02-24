@@ -26,51 +26,51 @@
 #include <raycastervs.h>
 
 // VTK includes
-#include <vtkBoundingBox.h>
-#include <vtkCamera.h>
-#include <vtkCellArray.h>
-#include <vtkCellData.h>
-#include <vtkClipConvexPolyData.h>
-#include <vtkColorTransferFunction.h>
-#include <vtkCommand.h>
-#include <vtkDataArray.h>
-#include <vtkDensifyPolyData.h>
-#include <vtkFloatArray.h>
-#include <vtkFrameBufferObject2.h>
+#include "vtkBoundingBox.h"
+#include "vtkCamera.h"
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkClipConvexPolyData.h"
+#include "vtkColorTransferFunction.h"
+#include "vtkCommand.h"
+#include "vtkDataArray.h"
+#include "vtkDensifyPolyData.h"
+#include "vtkFloatArray.h"
+#include "vtkFrameBufferObject2.h"
 #include <vtk_glew.h>
-#include <vtkImageData.h>
-#include <vtkLightCollection.h>
-#include <vtkLight.h>
-#include <vtkMath.h>
-#include <vtkMatrix4x4.h>
-#include <vtkNew.h>
-#include <vtkObjectFactory.h>
-#include <vtkOpenGLError.h>
-#include <vtkOpenGLCamera.h>
-#include <vtkOpenGLRenderWindow.h>
-#include <vtkOpenGLShaderCache.h>
-#include <vtkPerlinNoise.h>
-#include <vtkPixelBufferObject.h>
-#include <vtkPixelExtent.h>
-#include <vtkPixelTransfer.h>
-#include <vtkPlaneCollection.h>
-#include <vtkPointData.h>
-#include <vtkPoints.h>
-#include <vtkPolyData.h>
-#include <vtkRenderer.h>
-#include <vtkRenderWindow.h>
-#include <vtkShader.h>
-#include <vtkShaderProgram.h>
-#include <vtkSmartPointer.h>
-#include <vtkTessellatedBoxSource.h>
-#include <vtkTextureObject.h>
-#include <vtkTimerLog.h>
-#include <vtkTransform.h>
-#include <vtkUnsignedCharArray.h>
-#include <vtkUnsignedIntArray.h>
-#include <vtkVolumeMask.h>
-#include <vtkVolumeProperty.h>
-#include <vtkWeakPointer.h>
+#include "vtkImageData.h"
+#include "vtkLightCollection.h"
+#include "vtkLight.h"
+#include "vtkMath.h"
+#include "vtkMatrix4x4.h"
+#include "vtkNew.h"
+#include "vtkObjectFactory.h"
+#include "vtkOpenGLError.h"
+#include "vtkOpenGLCamera.h"
+#include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLShaderCache.h"
+#include "vtkPerlinNoise.h"
+#include "vtkPixelBufferObject.h"
+#include "vtkPixelExtent.h"
+#include "vtkPixelTransfer.h"
+#include "vtkPlaneCollection.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkShader.h"
+#include "vtkShaderProgram.h"
+#include "vtkSmartPointer.h"
+#include "vtkTessellatedBoxSource.h"
+#include "vtkTextureObject.h"
+#include "vtkTimerLog.h"
+#include "vtkTransform.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkUnsignedIntArray.h"
+#include "vtkVolumeMask.h"
+#include "vtkVolumeProperty.h"
+#include "vtkWeakPointer.h"
 
 // C/C++ includes
 #include <cassert>
@@ -112,6 +112,7 @@ public:
     this->TextureSize[0] = this->TextureSize[1] = this->TextureSize[2] = -1;
     this->WindowLowerLeft[0] = this->WindowLowerLeft[1] = 0;
     this->WindowSize[0] = this->WindowSize[1] = 0;
+    this->LastWindowSize[0] = this->LastWindowSize[1] = 0;
     this->ScalarsRange[0][0] = this->ScalarsRange[0][1] = 0.0;
     this->ScalarsRange[1][0] = this->ScalarsRange[1][1] = 0.0;
     this->ScalarsRange[2][0] = this->ScalarsRange[2][1] = 0.0;
@@ -287,6 +288,11 @@ public:
   void ConvertTextureToImageData(vtkTextureObject* texture,
                                  vtkImageData* output);
 
+  // Render to framebuffer object
+  void RenderToFBO(vtkRenderer* ren);
+
+  void ReleaseRenderToImageGraphicsResources(vtkWindow* win);
+
   // Private member variables
   //--------------------------------------------------------------------------
   vtkOpenGLGPUVolumeRayCastMapper* Parent;
@@ -321,6 +327,7 @@ public:
   int TextureSize[3];
   int WindowLowerLeft[2];
   int WindowSize[2];
+  int LastWindowSize[2];
 
   double ScalarsRange[4][2];
   double LoadedBounds[6];
@@ -2054,6 +2061,133 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
 }
 
 //----------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderToFBO(vtkRenderer* ren)
+{
+  if ( (this->LastWindowSize[0] != this->WindowSize[0]) ||
+       (this->LastWindowSize[1] != this->WindowSize[1]) )
+    {
+    this->LastWindowSize[0] = this->WindowSize[0];
+    this->LastWindowSize[1] = this->WindowSize[1];
+    this->ReleaseRenderToImageGraphicsResources(ren->GetRenderWindow());
+    }
+
+  if (!this->FBO)
+    {
+    this->FBO = vtkFrameBufferObject2::New();
+    }
+
+  this->FBO->SetContext(vtkOpenGLRenderWindow::SafeDownCast(
+                        ren->GetRenderWindow()));
+
+  this->FBO->Bind(GL_FRAMEBUFFER);
+  this->FBO->InitializeViewport(this->WindowSize[0], this->WindowSize[1]);
+
+  if (!this->RTTDepthBufferTextureObject ||
+      !this->RTTDepthTextureObject ||
+      !this->RTTColorTextureObject)
+    {
+    this->RTTDepthBufferTextureObject = vtkTextureObject::New();
+    this->RTTDepthBufferTextureObject->SetContext(
+      vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
+    this->RTTDepthBufferTextureObject->AllocateDepth(
+        this->WindowSize[0], this->WindowSize[1], vtkTextureObject::Float32);
+    this->RTTDepthBufferTextureObject->SetMinificationFilter(
+      vtkTextureObject::Nearest);
+    this->RTTDepthBufferTextureObject->SetMagnificationFilter(
+      vtkTextureObject::Nearest);
+    this->RTTDepthBufferTextureObject->SetAutoParameters(0);
+    this->RTTDepthBufferTextureObject->Bind();
+
+    this->RTTDepthTextureObject = vtkTextureObject::New();
+    this->RTTDepthTextureObject->SetContext(
+      vtkOpenGLRenderWindow::SafeDownCast(
+      ren->GetRenderWindow()));
+    this->RTTDepthTextureObject->Create2D(this->WindowSize[0],
+                                          this->WindowSize[1], 1,
+                                          VTK_UNSIGNED_CHAR, false);
+    this->RTTDepthTextureObject->SetMinificationFilter(
+      vtkTextureObject::Nearest);
+    this->RTTDepthTextureObject->SetMagnificationFilter(
+      vtkTextureObject::Nearest);
+    this->RTTDepthTextureObject->SetAutoParameters(0);
+    this->RTTDepthTextureObject->Bind();
+
+    this->RTTColorTextureObject = vtkTextureObject::New();
+
+    this->RTTColorTextureObject->SetContext(
+      vtkOpenGLRenderWindow::SafeDownCast(
+      ren->GetRenderWindow()));
+    this->RTTColorTextureObject->SetMinificationFilter(
+      vtkTextureObject::Nearest);
+    this->RTTColorTextureObject->SetMagnificationFilter(
+      vtkTextureObject::Nearest);
+    this->RTTColorTextureObject->Create2D(this->WindowSize[0],
+                                          this->WindowSize[1], 4,
+                                          VTK_UNSIGNED_CHAR, false);
+    this->RTTColorTextureObject->SetAutoParameters(0);
+    this->RTTColorTextureObject->Bind();
+
+    this->FBO->AddTexDepthAttachment(
+      GL_DRAW_FRAMEBUFFER,
+      this->RTTDepthBufferTextureObject->GetHandle());
+    this->FBO->AddTexColorAttachment(
+      GL_DRAW_FRAMEBUFFER, 0U,
+      this->RTTColorTextureObject->GetHandle());
+    this->FBO->AddTexColorAttachment(
+      GL_DRAW_FRAMEBUFFER, 1U,
+      this->RTTDepthTextureObject->GetHandle());
+
+    this->FBO->ActivateDrawBuffers(2);
+    this->FBO->UnBind(GL_FRAMEBUFFER);
+    }
+
+  this->FBO->Bind(GL_FRAMEBUFFER);
+  this->FBO->CheckFrameBufferStatus(GL_FRAMEBUFFER);
+
+  glClearColor(0.0, 0.0, 0.0, 0.0);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glEnable(GL_DEPTH_TEST);
+}
+
+//----------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal
+  ::ReleaseRenderToImageGraphicsResources(vtkWindow* win)
+{
+  vtkOpenGLRenderWindow *rwin =
+   vtkOpenGLRenderWindow::SafeDownCast(win);
+
+  if (rwin)
+    {
+    if (this->FBO)
+      {
+      this->FBO->Delete();
+      this->FBO = 0;
+      }
+
+    if (this->RTTDepthBufferTextureObject)
+      {
+      this->RTTDepthBufferTextureObject->ReleaseGraphicsResources(win);
+      this->RTTDepthBufferTextureObject->Delete();
+      this->RTTDepthBufferTextureObject = 0;
+      }
+
+    if (this->RTTDepthTextureObject)
+      {
+      this->RTTDepthTextureObject->ReleaseGraphicsResources(win);
+      this->RTTDepthTextureObject->Delete();
+      this->RTTDepthTextureObject = 0;
+      }
+
+    if (this->RTTColorTextureObject)
+      {
+      this->RTTColorTextureObject->ReleaseGraphicsResources(win);
+      this->RTTColorTextureObject->Delete();
+      this->RTTColorTextureObject = 0;
+      }
+    }
+  }
+
+//----------------------------------------------------------------------------
 vtkOpenGLGPUVolumeRayCastMapper::vtkOpenGLGPUVolumeRayCastMapper() :
   vtkGPUVolumeRayCastMapper()
 {
@@ -2102,16 +2236,14 @@ vtkTextureObject* vtkOpenGLGPUVolumeRayCastMapper::GetColorTexture()
 void vtkOpenGLGPUVolumeRayCastMapper::GetDepthImage(vtkImageData* output)
 {
   return this->Impl->ConvertTextureToImageData(
-                       this->Impl->RTTDepthTextureObject,
-                       output);
+    this->Impl->RTTDepthTextureObject, output);
 }
 
 //----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::GetColorImage(vtkImageData* output)
 {
   return this->Impl->ConvertTextureToImageData(
-                       this->Impl->RTTColorTextureObject,
-                       output);
+    this->Impl->RTTColorTextureObject, output);
 }
 
 //----------------------------------------------------------------------------
@@ -2141,25 +2273,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
     this->Impl->DepthTextureObject = 0;
     }
 
-  if (this->Impl->FBO)
-    {
-    this->Impl->FBO->Delete();
-    this->Impl->FBO = 0;
-    }
-
-  if (this->Impl->RTTDepthTextureObject)
-    {
-    this->Impl->RTTDepthTextureObject->ReleaseGraphicsResources(window);
-    this->Impl->RTTDepthTextureObject->Delete();
-    this->Impl->RTTDepthTextureObject = 0;
-    }
-
-  if (this->Impl->RTTColorTextureObject)
-    {
-    this->Impl->RTTColorTextureObject->ReleaseGraphicsResources(window);
-    this->Impl->RTTColorTextureObject->Delete();
-    this->Impl->RTTColorTextureObject = 0;
-    }
+  this->Impl->ReleaseRenderToImageGraphicsResources(window);
 
   if(this->Impl->MaskTextures != 0)
     {
@@ -2683,99 +2797,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 
   if (this->RenderToImage)
     {
-    if (!this->Impl->FBO)
-      {
-      this->Impl->FBO = vtkFrameBufferObject2::New();
-      }
-
-    this->Impl->FBO->SetContext(vtkOpenGLRenderWindow::SafeDownCast(
-                                  ren->GetRenderWindow()));
-
-    this->Impl->FBO->Bind(GL_FRAMEBUFFER);
-    this->Impl->FBO->InitializeViewport(this->Impl->WindowSize[0],
-                                        this->Impl->WindowSize[1]);
-
-    if (this->Impl->RTTDepthBufferTextureObject)
-      {
-      this->Impl->RTTDepthBufferTextureObject->ReleaseGraphicsResources(
-        ren->GetRenderWindow());
-      this->Impl->RTTDepthBufferTextureObject->Delete();
-      this->Impl->RTTDepthBufferTextureObject = 0;
-      }
-
-    if (this->Impl->RTTColorTextureObject)
-      {
-      this->Impl->RTTColorTextureObject->ReleaseGraphicsResources(
-        ren->GetRenderWindow());
-      this->Impl->RTTColorTextureObject->Delete();
-      this->Impl->RTTColorTextureObject = 0;
-      }
-
-    if (!this->Impl->RTTDepthBufferTextureObject ||
-        !this->Impl->RTTColorTextureObject)
-      {
-      this->Impl->RTTDepthBufferTextureObject = vtkTextureObject::New();
-      this->Impl->RTTDepthBufferTextureObject->SetContext(
-        vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow()));
-      this->Impl->RTTDepthBufferTextureObject->AllocateDepth(
-          this->Impl->WindowSize[0], this->Impl->WindowSize[1], vtkTextureObject::Float32);
-      this->Impl->RTTDepthBufferTextureObject->SetMinificationFilter(
-        vtkTextureObject::Nearest);
-      this->Impl->RTTDepthBufferTextureObject->SetMagnificationFilter(
-        vtkTextureObject::Nearest);
-      this->Impl->RTTDepthBufferTextureObject->SetAutoParameters(0);
-      this->Impl->RTTDepthBufferTextureObject->Bind();
-
-      this->Impl->RTTDepthTextureObject = vtkTextureObject::New();
-      this->Impl->RTTDepthTextureObject->SetContext(
-        vtkOpenGLRenderWindow::SafeDownCast(
-        ren->GetRenderWindow()));
-      this->Impl->RTTDepthTextureObject->Create2D(this->Impl->WindowSize[0],
-                                                  this->Impl->WindowSize[1], 1,
-                                                  VTK_UNSIGNED_CHAR, false);
-      this->Impl->RTTDepthTextureObject->SetMinificationFilter(
-        vtkTextureObject::Nearest);
-      this->Impl->RTTDepthTextureObject->SetMagnificationFilter(
-        vtkTextureObject::Nearest);
-      this->Impl->RTTDepthTextureObject->SetAutoParameters(0);
-      this->Impl->RTTDepthTextureObject->Bind();
-
-      this->Impl->RTTColorTextureObject = vtkTextureObject::New();
-
-      this->Impl->RTTColorTextureObject->SetContext(
-        vtkOpenGLRenderWindow::SafeDownCast(
-        ren->GetRenderWindow()));
-      this->Impl->RTTColorTextureObject->SetMinificationFilter(
-        vtkTextureObject::Nearest);
-      this->Impl->RTTColorTextureObject->SetMagnificationFilter(
-        vtkTextureObject::Nearest);
-      this->Impl->RTTColorTextureObject->Create2D(this->Impl->WindowSize[0],
-                                                  this->Impl->WindowSize[1], 4,
-                                                  VTK_UNSIGNED_CHAR, false);
-      this->Impl->RTTColorTextureObject->SetAutoParameters(0);
-      this->Impl->RTTColorTextureObject->Bind();
-
-      this->Impl->FBO->AddTexDepthAttachment(
-        GL_DRAW_FRAMEBUFFER,
-        this->Impl->RTTDepthBufferTextureObject->GetHandle());
-      this->Impl->FBO->AddTexColorAttachment(
-        GL_DRAW_FRAMEBUFFER, 0U,
-        this->Impl->RTTColorTextureObject->GetHandle());
-      this->Impl->FBO->AddTexColorAttachment(
-        GL_DRAW_FRAMEBUFFER, 1U,
-        this->Impl->RTTDepthTextureObject->GetHandle());
-
-      this->Impl->FBO->ActivateDrawBuffers(2);
-      this->Impl->FBO->UnBind(GL_FRAMEBUFFER);
-      }
-
-    this->Impl->FBO->Bind(GL_FRAMEBUFFER);
-    this->Impl->FBO->CheckFrameBufferStatus(GL_FRAMEBUFFER);
-
-    vtkCheckFrameBufferStatusMacro(GL_FRAMEBUFFER);
-    glClearColor(0.0, 0.0, 0.0, 0.0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glEnable(GL_DEPTH_TEST);
+    this->Impl->RenderToFBO(ren);
     }
 
   // Allocate important variables

@@ -1082,7 +1082,7 @@ int Test_doubleptr_GetTupleN_i()
       case _N: \
         { \
         double *tmpPtr = source->GetTuple##_N(t); \
-        std::copy(tmpPtr, tmpPtr + _N, tuple.begin()); \
+        std::copy(tmpPtr, tmpPtr + (_N), tuple.begin()); \
         } \
         break
       vtkDataArrayAPIGetTupleNCase(2);

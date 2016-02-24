@@ -26,7 +26,7 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkEncodedGradientShader);
 

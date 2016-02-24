@@ -16,7 +16,7 @@
 
 #include "vtkObjectFactory.h"
 
-#include <ctype.h>
+#include <cctype>
 #include <sstream>
 using std::ostringstream;
 using std::istringstream;

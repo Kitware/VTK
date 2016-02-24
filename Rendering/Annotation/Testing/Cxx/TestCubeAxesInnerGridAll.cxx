@@ -81,7 +81,7 @@ int TestCubeAxesInnerGridAll( int argc, char * argv [] )
   axes->SetDrawXGridlines(1);
   axes->SetDrawYGridlines(1);
   axes->SetDrawZGridlines(1);
-  axes->SetGridLineLocation(VTK_GRID_LINES_ALL);
+  axes->SetGridLineLocation(vtkCubeAxesActor::VTK_GRID_LINES_ALL);
   axes->SetCornerOffset( .0 );
 
   // Use red color for X axis

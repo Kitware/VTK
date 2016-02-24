@@ -355,6 +355,7 @@ void vtkVolume16Reader::ReadVolume(int first, int last,
     if ( !(fp = fopen(filename,"rb")) )
       {
       vtkErrorMacro(<<"Can't find file: " << filename);
+      delete [] slice;
       return;
       }
 

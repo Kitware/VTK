@@ -43,7 +43,7 @@
 #include "vtkPointData.h"
 
 #include <cassert>
-#include <string.h> // memset()
+#include <cstring> // memset()
 #include <vector>
 #include <list>
 
@@ -2652,9 +2652,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::Render(vtkRenderer *ren,
 
   int inputAlgPort;
   vtkAlgorithm* inputAlg = this->GetInputAlgorithm(0, 0, inputAlgPort);
-  inputAlg->UpdateInformation();
-  inputAlg->SetUpdateExtentToWholeExtent(inputAlgPort);
-  inputAlg->Update();
+  inputAlg->UpdateWholeExtent();
 
   this->Scalars = this->GetScalars(this->GetInput(), this->ScalarMode,
                                    this->ArrayAccessMode,

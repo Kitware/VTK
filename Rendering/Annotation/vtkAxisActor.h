@@ -52,22 +52,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor.h"
 
-#define VTK_MAX_LABELS    200
-#define VTK_MAX_TICKS     1000
-
-#define VTK_AXIS_TYPE_X   0
-#define VTK_AXIS_TYPE_Y   1
-#define VTK_AXIS_TYPE_Z   2
-
-#define VTK_TICKS_INSIDE  0
-#define VTK_TICKS_OUTSIDE 1
-#define VTK_TICKS_BOTH    2
-
-#define VTK_AXIS_POS_MINMIN 0
-#define VTK_AXIS_POS_MINMAX 1
-#define VTK_AXIS_POS_MAXMAX 2
-#define VTK_AXIS_POS_MAXMIN 3
-
 class vtkAxisFollower;
 class vtkCamera;
 class vtkCoordinate;
@@ -156,6 +140,13 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
   // Set/Get the size of the major tick marks
   vtkSetMacro(MinorTickSize, double);
   vtkGetMacro(MinorTickSize, double);
+
+  enum TickLocation
+  {
+    VTK_TICKS_INSIDE = 0,
+    VTK_TICKS_OUTSIDE = 1,
+    VTK_TICKS_BOTH = 2
+  };
 
   // Description:
   // Set/Get the location of the ticks.
@@ -261,6 +252,13 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
   vtkGetMacro(DrawGridpolys, int);
   vtkBooleanMacro(DrawGridpolys, int);
 
+  enum AxisType
+  {
+    VTK_AXIS_TYPE_X = 0,
+    VTK_AXIS_TYPE_Y = 1,
+    VTK_AXIS_TYPE_Z = 2
+  };
+
   // Description:
   // Set/Get the type of this axis.
   vtkSetClampMacro(AxisType, int, VTK_AXIS_TYPE_X, VTK_AXIS_TYPE_Z);
@@ -268,6 +266,14 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
   void SetAxisTypeToX(void) { this->SetAxisType(VTK_AXIS_TYPE_X); };
   void SetAxisTypeToY(void) { this->SetAxisType(VTK_AXIS_TYPE_Y); };
   void SetAxisTypeToZ(void) { this->SetAxisType(VTK_AXIS_TYPE_Z); };
+
+  enum AxisPosition
+  {
+    VTK_AXIS_POS_MINMIN = 0,
+    VTK_AXIS_POS_MINMAX = 1,
+    VTK_AXIS_POS_MAXMAX = 2,
+    VTK_AXIS_POS_MAXMIN = 3
+  };
 
   // Description:
   // Set/Get the position of this axis (in relation to an an

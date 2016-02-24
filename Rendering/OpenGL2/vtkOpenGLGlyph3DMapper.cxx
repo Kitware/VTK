@@ -31,14 +31,6 @@
 
 #include <map>
 
-template <class T>
-static T vtkClamp(T val, T min, T max)
-{
-  val = val < min? min : val;
-  val = val > max? max : val;
-  return val;
-}
-
 class vtkOpenGLGlyph3DMappervtkColorMapper : public vtkMapper
 {
 public:
@@ -489,7 +481,7 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
         double value = vtkMath::Norm(indexArray->GetTuple(inPtId),
           indexArray->GetNumberOfComponents());
         index = static_cast<int>((value-this->Range[0])*numEntries/den);
-        index = ::vtkClamp(index, 0, numEntries-1);
+        index = vtkMath::ClampValue(index, 0, numEntries-1);
         }
       numPointsPerSource[index]++;
       }
@@ -538,7 +530,7 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
       double value = vtkMath::Norm(indexArray->GetTuple(inPtId),
         indexArray->GetNumberOfComponents());
       index = static_cast<int>((value-this->Range[0])*numEntries/den);
-      index = ::vtkClamp(index, 0, numEntries-1);
+      index = vtkMath::ClampValue(index, 0, numEntries-1);
       }
 
     // source can be null.

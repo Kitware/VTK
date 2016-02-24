@@ -10,6 +10,7 @@ set(Module_SRCS
   vtkPointLoad.cxx
   vtkImageCursor3D.cxx
   vtkImageRectilinearWipe.cxx
+  vtkImageToPoints.cxx
   vtkTriangularTexture.cxx
   vtkSliceCubes.cxx
 

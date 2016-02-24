@@ -124,6 +124,13 @@ void vtkImplicitCylinderWidget::SelectAction(vtkAbstractWidget *w)
     return;
     }
 
+  if (self->Interactor->GetControlKey() &&
+    interactionState == vtkImplicitCylinderRepresentation::MovingCenter)
+    {
+    reinterpret_cast<vtkImplicitCylinderRepresentation*>(self->WidgetRep)->
+      SetInteractionState(vtkImplicitCylinderRepresentation::TranslatingCenter);
+    }
+
   // We are definitely selected
   self->GrabFocus(self->EventCallbackCommand);
   double eventPos[2];

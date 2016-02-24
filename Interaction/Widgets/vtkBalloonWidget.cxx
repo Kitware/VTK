@@ -29,6 +29,7 @@
 #include "vtkCommand.h"
 #include "vtkImageData.h"
 
+#include <cassert>
 #include <map>
 
 vtkStandardNewMacro(vtkBalloonWidget);
@@ -205,15 +206,13 @@ void vtkBalloonWidget::CreateDefaultRepresentation()
 void vtkBalloonWidget::AddBalloon(vtkProp *prop, vtkStdString *str,
                                   vtkImageData *img)
 {
+  assert(prop);
   vtkPropMapIterator iter = this->PropMap->find(prop);
   if ( iter == this->PropMap->end() || (*this->PropMap)[prop] != vtkBalloon(str,img) )
     {
     (*this->PropMap)[prop] = vtkBalloon(str,img);
-    if ( prop != NULL )
-      {
-      this->Picker->DeletePickList(prop); //ensure only entered once
-      this->Picker->AddPickList(prop);
-      }
+    this->Picker->DeletePickList(prop); //ensure only entered once
+    this->Picker->AddPickList(prop);
     this->Modified();
     }
 }

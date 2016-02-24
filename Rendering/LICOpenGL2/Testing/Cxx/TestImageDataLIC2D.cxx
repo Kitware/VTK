@@ -317,8 +317,7 @@ int ImageDataLIC2D(int argc, char* argv[])
   // copy into the output.
   for (int kk=0; kk < num_partitions; kk++)
     {
-    filter->SetUpdateExtent(0, kk, num_partitions, 0);
-    filter->Update();
+    filter->UpdatePiece(kk, num_partitions, 0);
 
     vtkImageData *licPieceDataSet = filter->GetOutput();
     vtkDataArray *licPiece = licPieceDataSet->GetPointData()->GetScalars();

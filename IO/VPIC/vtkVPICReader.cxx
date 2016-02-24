@@ -354,10 +354,6 @@ int vtkVPICReader::RequestData(
   vtkImageData *output = vtkImageData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  // Even if the pipeline asks for a smaller subextent, give it the
-  // full subextent with ghosts
-  vtkStreamingDemandDrivenPipeline::SetUpdateExtent(outInfo, this->SubExtent);
-
   // Set the subextent for this processor
   output->SetExtent(this->SubExtent);
 

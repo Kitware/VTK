@@ -975,9 +975,9 @@ void vtkExtractArraysOverTime::ExecuteAtTimeStep(
 
   vtkDebugMacro(<< "Preparing subfilter to extract from dataset");
   //pass all required information to the helper filter
-  int piece = -1;
-  int npieces = -1;
-  int *uExtent;
+  int piece = 0;
+  int npieces = 1;
+  int *uExtent=0;
   if (outInfo->Has(
         vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()))
     {
@@ -985,7 +985,6 @@ void vtkExtractArraysOverTime::ExecuteAtTimeStep(
       vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
     npieces = outInfo->Get(
       vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-    filter->SetUpdateExtent(0, piece, npieces, 0);
     }
 
   if (outInfo->Has(
@@ -993,10 +992,9 @@ void vtkExtractArraysOverTime::ExecuteAtTimeStep(
     {
     uExtent = outInfo->Get(
       vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
-    filter->SetUpdateExtent(0, uExtent);
     }
 
-  filter->Update();
+  filter->UpdatePiece(piece, npieces, 0, uExtent);
 
   vtkDataObject* output = filter->GetOutputDataObject(0)->NewInstance();
   output->ShallowCopy(filter->GetOutputDataObject(0));

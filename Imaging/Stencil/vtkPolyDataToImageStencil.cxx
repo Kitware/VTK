@@ -68,7 +68,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include <utility>
 #include <algorithm>
 
-#include <math.h>
+#include <cmath>
 
 
 vtkStandardNewMacro(vtkPolyDataToImageStencil);

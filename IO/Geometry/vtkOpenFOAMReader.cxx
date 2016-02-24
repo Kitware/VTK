@@ -98,9 +98,9 @@
 #include <unistd.h>
 #endif
 // for fabs()
-#include <math.h>
+#include <cmath>
 // for isalnum() / isspace() / isdigit()
-#include <ctype.h>
+#include <cctype>
 
 #if VTK_FOAMFILE_OMIT_CRCCHECK
 uLong ZEXPORT crc32(uLong, const Bytef *, uInt)
@@ -4257,7 +4257,6 @@ bool vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByControlDict(
   const int tempNumTimeSteps = static_cast<int>(tempResult + 0.5) + 1;
 
   // make sure time step dir exists
-  std::vector<double> tempSteps;
   vtkDirectory *test = vtkDirectory::New();
   this->TimeValues->Initialize();
   this->TimeNames->Initialize();
@@ -6879,7 +6878,6 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
     return;
     }
 
-  std::vector<vtkFloatArray *> vDataVector;
   for (int boundaryI = 0, activeBoundaryI = 0; boundaryI
     < static_cast<int>(this->BoundaryDict.size()); boundaryI++)
     {

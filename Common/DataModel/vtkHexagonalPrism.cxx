@@ -337,9 +337,6 @@ static int faces[8][6] = { {0,5,4,3,2,1}, {6,7,8,9,10,11},
                            {2,3,9,8,-1,-1}, {3,4,10,9,-1,-1},
                            {4,5,11,10,-1,-1}, {5,0,6,11,-1,-1} };
 
-#define VTK_MAX(a,b)    (((a)>(b))?(a):(b))
-#define VTK_MIN(a,b)    (((a)<(b))?(a):(b))
-
 //----------------------------------------------------------------------------
 // Returns the closest face to the point specified. Closeness is measured
 // parametrically.
@@ -356,8 +353,8 @@ int vtkHexagonalPrism::CellBoundary(int subId, double pcoords[3],
 
   this->Polygon->CellBoundary( subId, pcoords, pts);
 
-  int min = VTK_MIN(pts->GetId( 0 ), pts->GetId( 1 ));
-  int max = VTK_MAX(pts->GetId( 0 ), pts->GetId( 1 ));
+  int min = vtkMath::Min(pts->GetId( 0 ), pts->GetId( 1 ));
+  int max = vtkMath::Max(pts->GetId( 0 ), pts->GetId( 1 ));
 
   //Base on the edge find the quad that correspond:
   int index;

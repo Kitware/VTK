@@ -42,8 +42,8 @@
   #include <unistd.h>
   #include <sys/time.h>
   #include <errno.h>
-  #include <string.h>
-  #include <stdio.h>
+  #include <cstring>
+  #include <cstdio>
 #endif
 #endif
 

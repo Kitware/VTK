@@ -57,9 +57,14 @@ void vtkPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
     {
     // If more than one pieces, render in loop.
     int currentPiece = this->NumberOfSubPieces * this->Piece + i;
-    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
-      inInfo,
-      currentPiece, nPieces, this->GhostLevel);
+    this->GetInputAlgorithm()->UpdateInformation();
+    inInfo->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), currentPiece);
+    inInfo->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), nPieces);
+    inInfo->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+      this->GhostLevel);
     this->RenderPiece(ren, act);
     }
 }
@@ -79,40 +84,6 @@ vtkPolyData *vtkPolyDataMapper::GetInput()
 }
 
 //----------------------------------------------------------------------------
-// Update the network connected to this mapper.
-void vtkPolyDataMapper::Update(int port)
-{
-  if (this->Static)
-    {
-    return;
-    }
-
-  this->UpdateInformation();
-
-  vtkInformation* inInfo = this->GetInputInformation();
-
-  // If the estimated pipeline memory usage is larger than
-  // the memory limit, break the current piece into sub-pieces.
-  if (inInfo)
-    {
-    int currentPiece = this->NumberOfSubPieces * this->Piece;
-    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
-      inInfo,
-      currentPiece,
-      this->NumberOfSubPieces * this->NumberOfPieces,
-      this->GhostLevel);
-    }
-
-  this->vtkMapper::Update(port);
-}
-
-//----------------------------------------------------------------------------
-void vtkPolyDataMapper::Update()
-{
-  this->Superclass::Update();
-}
-
-//----------------------------------------------------------------------------
 int vtkPolyDataMapper::ProcessRequest(vtkInformation* request,
                                       vtkInformationVector** inputVector,
                                       vtkInformationVector*)
@@ -121,10 +92,13 @@ int vtkPolyDataMapper::ProcessRequest(vtkInformation* request,
     {
     vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
     int currentPiece = this->NumberOfSubPieces * this->Piece;
-    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
-      inInfo,
-      currentPiece,
-      this->NumberOfSubPieces * this->NumberOfPieces,
+    inInfo->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), currentPiece);
+    inInfo->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+      this->NumberOfSubPieces * this->NumberOfPieces);
+    inInfo->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
       this->GhostLevel);
     }
   return 1;
@@ -150,12 +124,9 @@ double *vtkPolyDataMapper::GetBounds()
         {
         this->GetInputAlgorithm()->UpdateInformation();
         int currentPiece = this->NumberOfSubPieces * this->Piece;
-        vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
-          inInfo,
-          currentPiece,
+        this->GetInputAlgorithm()->UpdatePiece(currentPiece,
           this->NumberOfSubPieces * this->NumberOfPieces,
           this->GhostLevel);
-        this->GetInputAlgorithm()->Update();
         }
       }
     this->ComputeBounds();
@@ -246,4 +217,45 @@ int vtkPolyDataMapper::FillInputPortInformation(
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
   return 1;
+}
+
+
+//----------------------------------------------------------------------------
+void vtkPolyDataMapper::Update(int port)
+{
+  if (this->Static)
+    {
+    return;
+    }
+  this->Superclass::Update(port);
+}
+
+//----------------------------------------------------------------------------
+void vtkPolyDataMapper::Update()
+{
+  if (this->Static)
+    {
+    return;
+    }
+  this->Superclass::Update();
+}
+
+//----------------------------------------------------------------------------
+int vtkPolyDataMapper::Update(int port, vtkInformationVector* requests)
+{
+  if (this->Static)
+    {
+    return 1;
+    }
+  return this->Superclass::Update(port, requests);
+}
+
+//----------------------------------------------------------------------------
+int vtkPolyDataMapper::Update(vtkInformation* requests)
+{
+  if (this->Static)
+    {
+    return 1;
+    }
+  return this->Superclass::Update(requests);
 }

@@ -46,7 +46,7 @@
 #include "vtkVolumeRayCastSpaceLeapingImageFilter.h"
 
 #include <exception>
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper);
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
@@ -1206,10 +1206,7 @@ void vtkFixedPointVolumeRayCastMapper::PerVolumeInitialization( vtkRenderer *ren
   else
     {
     vtkAlgorithm* inAlg = this->GetInputAlgorithm();
-    inAlg->UpdateInformation();
-    vtkStreamingDemandDrivenPipeline::SetUpdateExtentToWholeExtent(
-      this->GetInputInformation());
-    inAlg->Update();
+    inAlg->UpdateWholeExtent();
     }
 
   int usingCellColors;

@@ -64,9 +64,11 @@ int TestAxes(int , char * [])
 
   // Exercise some of the API in the axis API.
   axesVertical[0]->AutoScale();
+  axesVertical[0]->SetLabelOffset(9);
 
   axesVertical[1]->SetBehavior(vtkAxis::FIXED);
   axesVertical[1]->AutoScale();
+  axesVertical[1]->SetLabelOffset(13);
 
   axesVertical[2]->SetNotation(vtkAxis::SCIENTIFIC_NOTATION);
   axesVertical[2]->SetPosition(vtkAxis::LEFT);

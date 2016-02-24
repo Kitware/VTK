@@ -111,11 +111,7 @@ void vtkMetaImageWriter::Write( )
       }
     }
 
-  vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
-    this->GetInputInformation(0, 0), ext);
-  vtkDemandDrivenPipeline::SafeDownCast(
-    this->GetInputExecutive(0, 0))->UpdateData(
-      this->GetInputConnection(0, 0)->GetIndex());
+  this->GetInputAlgorithm()->UpdateExtent(ext);
 
   double origin[3];
   double spacingDouble[3];

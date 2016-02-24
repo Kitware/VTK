@@ -17,6 +17,7 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
+#include "vtkMath.h"
 #include "vtkPKdTree.h"
 #include "vtkKdNode.h"
 #include "vtkDataSet.h"
@@ -895,13 +896,7 @@ void vtkPKdTree::ExchangeVals(int pos1, int pos2)
 // all the elements X[j], j < k satisfy X[j] <= X[K], and all the
 // elements X[j], j > k satisfy X[j] >= X[K].
 
-#define sign(x) ((x<0) ? (-1) : (1))
-#ifndef max
-#define max(x,y) ((x>y) ? (x) : (y))
-#endif
-#ifndef min
-#define min(x,y) ((x<y) ? (x) : (y))
-#endif
+#define sign(x) (((x)<0) ? (-1) : (1))
 
 void vtkPKdTree::_select(int L, int R, int K, int dim)
 {
@@ -922,8 +917,8 @@ void vtkPKdTree::_select(int L, int R, int K, int dim)
       Z = static_cast<float>(log(float(N)));
       S = static_cast<int>(.5 * exp(2*Z/3));
       SD = static_cast<int>(.5 * sqrt(Z*S*((float)(N-S)/N)) * sign(I - N/2));
-      LL = max(L, K - static_cast<int>((I*((float)S/N))) + SD);
-      RR = min(R, K + static_cast<int>((N-I) * ((float)S/N)) + SD);
+      LL = vtkMath::Max(L, K - static_cast<int>((I*((float)S/N))) + SD);
+      RR = vtkMath::Min(R, K + static_cast<int>((N-I) * ((float)S/N)) + SD);
       this->_select(LL, RR, K, dim);
       }
 
@@ -2333,7 +2328,7 @@ void vtkPKdTree::FreeSelectBuffer()
   int i;                           \
   if (list)                        \
     {                              \
-    for (i=0; i<len; i++)          \
+    for (i=0; i<(len); i++)        \
       {                            \
       if (list[i]) delete [] list[i]; \
       }                                 \
@@ -2344,7 +2339,7 @@ void vtkPKdTree::FreeSelectBuffer()
 
 #define MakeList(field, type, len) \
   {                                \
-   if (len>0)                      \
+   if ((len)>0)                    \
     {                              \
     field = new type [len];         \
     if (field)                      \

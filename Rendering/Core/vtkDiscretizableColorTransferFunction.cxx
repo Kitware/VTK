@@ -272,6 +272,8 @@ void vtkDiscretizableColorTransferFunction::Build()
     delete [] table;
     }
 
+  this->LookupTable->BuildSpecialColors();
+
   this->BuildTime.Modified();
 }
 

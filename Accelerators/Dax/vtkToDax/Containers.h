@@ -119,7 +119,7 @@ public:
         DAX_ASSERT_CONT(this->NumberOfValues == 0);
         }
       }
-    catch (std::bad_alloc err)
+    catch (const std::bad_alloc&)
       {
       // Make sureour state is OK.
       this->Array = NULL;
@@ -223,7 +223,7 @@ public:
         DAX_ASSERT_CONT(this->NumberOfValues == 0);
         }
       }
-    catch (std::bad_alloc err)
+    catch (const std::bad_alloc&)
       {
       // Make sureour state is OK.
       this->Array = NULL;
@@ -326,7 +326,7 @@ public:
         DAX_ASSERT_CONT(this->NumberOfValues == 0);
         }
       }
-    catch (std::bad_alloc err)
+    catch (const std::bad_alloc&)
       {
       // Make sureour state is OK.
       this->Array = NULL;

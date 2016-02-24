@@ -151,6 +151,5 @@ int TestValuePass(int argc, char *argv[])
     interactor->Start();
     }
 
-  bool failed = false;
-  return failed ? 1 : 0;
+  return 0;
 }

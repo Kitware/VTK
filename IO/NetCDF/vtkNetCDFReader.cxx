@@ -61,7 +61,7 @@
       } \
   }
 
-#include <ctype.h>
+#include <cctype>
 
 class vtkNetCDFReaderPrivate {
 public:
@@ -401,7 +401,8 @@ int vtkNetCDFReader::RequestData(vtkInformation *vtkNotUsed(request),
   vtkImageData *imageOutput = vtkImageData::SafeDownCast(output);
   vtkRectilinearGrid *rectOutput = vtkRectilinearGrid::SafeDownCast(output);
   vtkStructuredGrid *structOutput = vtkStructuredGrid::SafeDownCast(output);
-  vtkStreamingDemandDrivenPipeline::GetUpdateExtent(outInfo, this->UpdateExtent);
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+    this->UpdateExtent);
   if (imageOutput)
     {
     imageOutput->SetExtent(this->UpdateExtent);

@@ -40,7 +40,7 @@
 #include "vtkIdListCollection.h"
 #include "vtkSmartPointer.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkSynchronizedTemplatesCutter3D);
 vtkCxxSetObjectMacro(vtkSynchronizedTemplatesCutter3D,CutFunction,vtkImplicitFunction);

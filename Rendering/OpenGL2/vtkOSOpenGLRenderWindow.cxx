@@ -128,7 +128,6 @@ vtkOSOpenGLRenderWindow::~vtkOSOpenGLRenderWindow()
 void vtkOSOpenGLRenderWindow::Frame()
 {
   this->MakeCurrent();
-  glFlush();
 }
 
 //
@@ -337,9 +336,8 @@ void vtkOSOpenGLRenderWindow::SetSize(int width,int height)
 {
   if ((this->Size[0] != width)||(this->Size[1] != height))
     {
-    this->Size[0] = width;
-    this->Size[1] = height;
-    this->ResizeOffScreenWindow(width,height);
+    this->Superclass::SetSize(width, height);
+    this->ResizeOffScreenWindow(width, height);
     this->Modified();
     }
 }

@@ -1998,7 +1998,9 @@ int vtkPolyhedron::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
     {
     if (faceIter.CurrentPolygonSize < 3)
       {
-      continue;
+      vtkErrorMacro("Find a face with " << faceIter.CurrentPolygonSize <<
+        " vertices. Cannot return CellBoundary due to this degenerate case.");
+      break;
       }
 
     vtkPolygon::ComputeNormal(this->Points, faceIter.CurrentPolygonSize,
@@ -2846,7 +2848,6 @@ void vtkPolyhedron::Contour(double value,
   this->ConstructPolyData();
   this->ComputeBounds();
 
-  vtkIdVectorType pointLabelVector;
   if (this->IntersectWithContour(value, 0, pointScalars))
     {
     return;
@@ -2912,9 +2913,6 @@ void vtkPolyhedron::Clip(double value,
 
   // vector to store cell connectivity
   vtkIdVectorType cellVector;
-
-  // vector to store which side of the clip function the polyhedron vertices are
-  vtkIdVectorType pointLabelVector;
 
   // check if polyhedron is all in
   if (this->IntersectWithContour(value, insideOut, pointScalars) == 1)

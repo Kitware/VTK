@@ -44,17 +44,26 @@ public:
 
   // Description:
   // Set the elements of the matrix to the same values as the elements
-  // of the source Matrix.
+  // of the given source matrix.
   void DeepCopy(const vtkMatrix4x4 *source)
-    {vtkMatrix4x4::DeepCopy(*this->Element,source); this->Modified(); }
-  static void DeepCopy(double elements[16], const vtkMatrix4x4 *source)
-    {vtkMatrix4x4::DeepCopy(elements,*source->Element); }
-  static void DeepCopy(double elements[16], const double newElements[16]);
+    {vtkMatrix4x4::DeepCopy(*this->Element, source); this->Modified(); }
 
   // Description:
-  // Non-static member function. Assigns *from* elements array
+  // Set the elements of the given destination buffer to the same values
+  // as the elements of the given source matrix.
+  static void DeepCopy(double destination[16], const vtkMatrix4x4 *source)
+    {vtkMatrix4x4::DeepCopy(destination, *source->Element); }
+
+  // Description:
+  // Copies the given source buffer to the given destination buffer.
+  // The memory ranges must not overlap.  Does not affect any matrix.
+  static void DeepCopy(double destination[16], const double source[16]);
+
+  // Description:
+  // Non-static member function. Assigns *to* the matrix *from*
+  // the given elements array.
   void DeepCopy(const double elements[16])
-    { this->DeepCopy(*this->Element,elements); this->Modified(); }
+    { this->DeepCopy(*this->Element, elements); this->Modified(); }
 
   // Description:
   // Set all of the elements to zero.
@@ -72,7 +81,7 @@ public:
   // Matrix Inversion (adapted from Richard Carling in "Graphics Gems,"
   // Academic Press, 1990).
   static void Invert(const vtkMatrix4x4 *in, vtkMatrix4x4 *out)
-    {vtkMatrix4x4::Invert(*in->Element,*out->Element); out->Modified(); }
+    {vtkMatrix4x4::Invert(*in->Element, *out->Element); out->Modified(); }
   void Invert()
     { vtkMatrix4x4::Invert(this,this); }
   static void Invert(const double inElements[16], double outElements[16]);
@@ -80,7 +89,7 @@ public:
   // Description:
   // Transpose the matrix and put it into out.
   static void Transpose(const vtkMatrix4x4 *in, vtkMatrix4x4 *out)
-    {vtkMatrix4x4::Transpose(*in->Element,*out->Element); out->Modified(); }
+    {vtkMatrix4x4::Transpose(*in->Element, *out->Element); out->Modified(); }
   void Transpose()
     { vtkMatrix4x4::Transpose(this,this); }
   static void Transpose(const double inElements[16], double outElements[16]);
@@ -89,9 +98,9 @@ public:
   // Multiply a homogeneous coordinate by this matrix, i.e. out = A*in.
   // The in[4] and out[4] can be the same array.
   void MultiplyPoint(const float in[4], float out[4])
-    {vtkMatrix4x4::MultiplyPoint(*this->Element,in,out); }
+    {vtkMatrix4x4::MultiplyPoint(*this->Element, in, out); }
   void MultiplyPoint(const double in[4], double out[4])
-    {vtkMatrix4x4::MultiplyPoint(*this->Element,in,out); }
+    {vtkMatrix4x4::MultiplyPoint(*this->Element, in, out); }
 
   static void MultiplyPoint(const double elements[16],
                             const float in[4], float out[4]);
@@ -118,7 +127,7 @@ public:
   // Description:
   // Compute adjoint of the matrix and put it into out.
   void Adjoint(const vtkMatrix4x4 *in, vtkMatrix4x4 *out)
-    {vtkMatrix4x4::Adjoint(*in->Element,*out->Element);}
+    {vtkMatrix4x4::Adjoint(*in->Element, *out->Element);}
   static void Adjoint(const double inElements[16], double outElements[16]);
 
   // Description:
@@ -139,11 +148,11 @@ public:
   // Legacy methods. Do not use.
   VTK_LEGACY(double *operator[](const unsigned int i));
   VTK_LEGACY(const double *operator[](unsigned int i) const);
-  VTK_LEGACY(void Adjoint(vtkMatrix4x4 &in,vtkMatrix4x4 &out));
+  VTK_LEGACY(void Adjoint(vtkMatrix4x4 &in, vtkMatrix4x4 &out));
   VTK_LEGACY(double Determinant(vtkMatrix4x4 &in));
   VTK_LEGACY(double Determinant(vtkMatrix4x4 *));
-  VTK_LEGACY(void Invert(vtkMatrix4x4 &in,vtkMatrix4x4 &out));
-  VTK_LEGACY(void Transpose(vtkMatrix4x4 &in,vtkMatrix4x4 &out));
+  VTK_LEGACY(void Invert(vtkMatrix4x4 &in, vtkMatrix4x4 &out));
+  VTK_LEGACY(void Transpose(vtkMatrix4x4 &in, vtkMatrix4x4 &out));
   VTK_LEGACY(static void PointMultiply(const double [16],
                                        const float [4], float [4]));
   VTK_LEGACY(static void PointMultiply(const double [16],

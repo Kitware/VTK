@@ -27,16 +27,14 @@ set(vtkCommonCore_EXPORT_OPTIONS
   )
 
 # Choose which multi-threaded parallelism library to use
-set(VTK_SMP_IMPLEMENTATION_TYPE_DOC_STRING "Which multi-threaded parallelism implementation to use. Options are Sequential, Simple, Kaapi, OpenMP or TBB")
+set(VTK_SMP_IMPLEMENTATION_TYPE_DOC_STRING "Which multi-threaded parallelism implementation to use. Options are Sequential, OpenMP or TBB")
 
 set(VTK_SMP_IMPLEMENTATION_TYPE "Sequential" CACHE STRING ${VTK_SMP_IMPLEMENTATION_TYPE_DOC_STRING})
 
-set_property(CACHE VTK_SMP_IMPLEMENTATION_TYPE PROPERTY STRINGS Sequential Simple Kaapi OpenMP TBB)
+set_property(CACHE VTK_SMP_IMPLEMENTATION_TYPE PROPERTY STRINGS Sequential OpenMP TBB)
 
-if( NOT ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "Kaapi" OR
-         "${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "OpenMP" OR
-         "${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "TBB" OR
-         "${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "Simple") )
+if( NOT ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "OpenMP" OR
+         "${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "TBB") )
   set(VTK_SMP_IMPLEMENTATION_TYPE "Sequential" CACHE STRING ${VTK_SMP_IMPLEMENTATION_TYPE_DOC_STRING} FORCE)
 endif()
 
@@ -76,25 +74,6 @@ elseif ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "OpenMP")
   else()
     message(WARNING "Required OpenMP version (3.1) for atomics not detected. Using default atomics implementation.")
   endif()
-
-elseif ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "Kaapi")
-  find_package(XKaapi REQUIRED)
-  include_directories(${XKAAPI_INCLUDE_DIRS})
-  set(VTK_SMP_IMPLEMENTATION_LIBRARIES ${XKAAPI_LIBRARIES})
-  list(APPEND vtkCommonCore_SYSTEM_INCLUDE_DIRS ${XKAAPI_INCLUDE_DIRS})
-
-  set(VTK_SMP_IMPLEMENTATION_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SMP/Kaapi")
-  set(VTK_SMP_SOURCES ${VTK_SMP_IMPLEMENTATION_DIR}/vtkSMPTools.cxx)
-  set(VTK_SMP_HEADERS_TO_CONFIG vtkSMPToolsInternal.h vtkSMPThreadLocal.h)
-
-elseif ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "Simple")
-  set(VTK_SMP_IMPLEMENTATION_LIBRARIES)
-
-  set(VTK_SMP_IMPLEMENTATION_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SMP/Simple")
-  set(VTK_SMP_SOURCES ${VTK_SMP_IMPLEMENTATION_DIR}/vtkSMPTools.cxx)
-  set(VTK_SMP_HEADERS_TO_CONFIG vtkSMPToolsInternal.h vtkSMPThreadLocal.h)
-
-  message(WARNING "The Simple backend for SMP operations is an experimental backend that is mainly used for debugging currently. We recommend that you use either the TBB or the Kaapi backend for production work. Use the Sequential backend if you would like to turn off any SMP parallelism.")
 
 elseif ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "Sequential")
   set(VTK_SMP_IMPLEMENTATION_LIBRARIES)
@@ -224,6 +203,7 @@ SET(Module_SRCS
   vtkSortDataArray.cxx
   vtkStdString.cxx
   vtkStringArray.cxx
+  vtkStringOutputWindow.cxx
   vtkTimePointUtility.cxx
   vtkTimeStamp.cxx
   vtkTypedDataArray.txx
@@ -374,31 +354,79 @@ set_source_files_properties(
 
 # Configure data arrays for platform-independent fixed-size types.
 # Match the type selection here to that in vtkType.h.
-if(VTK_TYPE_CHAR_IS_SIGNED)
-  set(VTK_TYPE_NATIVE_Int8 Char)
-else()
-  set(VTK_TYPE_NATIVE_Int8 SignedChar)
-endif()
-set(VTK_TYPE_NATIVE_Int16 Short)
-set(VTK_TYPE_NATIVE_Int32 Int)
-set(VTK_TYPE_NATIVE_UInt8 UnsignedChar)
-set(VTK_TYPE_NATIVE_UInt16 UnsignedShort)
-set(VTK_TYPE_NATIVE_UInt32 UnsignedInt)
+set(VTK_TYPE_NATIVE_Int8 "
+#if VTK_TYPE_INT8 == VTK_CHAR
+# include \"vtkCharArray.h\"
+# define vtkTypeArrayBase vtkCharArray
+#else
+# include \"vtkSignedCharArray.h\"
+# define vtkTypeArrayBase vtkSignedCharArray
+#endif
+")
+set(VTK_TYPE_NATIVE_UInt8 "
+#if VTK_TYPE_UINT8 == VTK_UNSIGNED_CHAR
+# include \"vtkUnsignedCharArray.h\"
+# define vtkTypeArrayBase vtkUnsignedCharArray
+#endif
+")
+set(VTK_TYPE_NATIVE_Int16 "
+#if VTK_TYPE_INT16 == VTK_SHORT
+# include \"vtkShortArray.h\"
+# define vtkTypeArrayBase vtkShortArray
+#endif
+")
+set(VTK_TYPE_NATIVE_UInt16 "
+#if VTK_TYPE_UINT16 == VTK_UNSIGNED_SHORT
+# include \"vtkUnsignedShortArray.h\"
+# define vtkTypeArrayBase vtkUnsignedShortArray
+#endif
+")
+set(VTK_TYPE_NATIVE_Int32 "
+#if VTK_TYPE_INT32 == VTK_INT
+# include \"vtkIntArray.h\"
+# define vtkTypeArrayBase vtkIntArray
+#endif
+")
+set(VTK_TYPE_NATIVE_UInt32 "
+#if VTK_TYPE_UINT32 == VTK_UNSIGNED_INT
+# include \"vtkUnsignedIntArray.h\"
+# define vtkTypeArrayBase vtkUnsignedIntArray
+#endif
+")
+set(VTK_TYPE_NATIVE_Int64 "
+#if VTK_TYPE_INT64 == VTK_LONG
+# include \"vtkLongArray.h\"
+# define vtkTypeArrayBase vtkLongArray
+#elif VTK_TYPE_INT64 == VTK_LONG_LONG
+# include \"vtkLongLongArray.h\"
+# define vtkTypeArrayBase vtkLongLongArray
+#endif
+")
+set(VTK_TYPE_NATIVE_UInt64 "
+#if VTK_TYPE_UINT64 == VTK_UNSIGNED_LONG
+# include \"vtkUnsignedLongArray.h\"
+# define vtkTypeArrayBase vtkUnsignedLongArray
+#elif VTK_TYPE_UINT64 == VTK_UNSIGNED_LONG_LONG
+# include \"vtkUnsignedLongLongArray.h\"
+# define vtkTypeArrayBase vtkUnsignedLongLongArray
+#endif
+")
+set(VTK_TYPE_NATIVE_Float32 "
+#if VTK_TYPE_FLOAT32 == VTK_FLOAT
+# include \"vtkFloatArray.h\"
+# define vtkTypeArrayBase vtkFloatArray
+#endif
+")
+set(VTK_TYPE_NATIVE_Float64 "
+#if VTK_TYPE_FLOAT64 == VTK_DOUBLE
+# include \"vtkDoubleArray.h\"
+# define vtkTypeArrayBase vtkDoubleArray
+#endif
+")
 
-if(VTK_SIZEOF_LONG_LONG MATCHES "^8$")
-  set(VTK_TYPE_NATIVE_Int64 LongLong)
-  set(VTK_TYPE_NATIVE_UInt64 UnsignedLongLong)
-else()
-  if(VTK_SIZEOF_LONG MATCHES "^8$")
-    set(VTK_TYPE_NATIVE_Int64 Long)
-    set(VTK_TYPE_NATIVE_UInt64 UnsignedLong)
-  endif()
-endif()
-set(VTK_TYPE_NATIVE_Float32 Float)
-set(VTK_TYPE_NATIVE_Float64 Double)
 foreach(t Int8 Int16 Int32 Int64 UInt8 UInt16 UInt32 UInt64 Float32 Float64)
   set(VTK_TYPE_NAME ${t})
-  set(VTK_TYPE_NATIVE ${VTK_TYPE_NATIVE_${t}})
+  set(VTK_TYPE_NATIVE "${VTK_TYPE_NATIVE_${t}}")
   if(VTK_TYPE_NATIVE)
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkTypedArray.h.in
                    ${CMAKE_CURRENT_BINARY_DIR}/vtkType${t}Array.h

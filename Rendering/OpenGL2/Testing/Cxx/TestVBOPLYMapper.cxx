@@ -14,7 +14,7 @@
 
 #include "vtkCamera.h"
 #include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkActor.h"
 #include "vtkCellArray.h"
 #include "vtkPointData.h"
@@ -30,6 +30,8 @@
 #include "vtkTestUtilities.h"
 
 #include "vtkRenderWindowInteractor.h"
+
+#include "vtkOpenGLRenderWindow.h"
 
 //----------------------------------------------------------------------------
 int TestVBOPLYMapper(int argc, char *argv[])
@@ -50,6 +52,7 @@ int TestVBOPLYMapper(int argc, char *argv[])
   if (!renderWindow->SupportsOpenGL())
     {
     cerr << "The platform does not support OpenGL as required\n";
+    cerr << vtkOpenGLRenderWindow::SafeDownCast(renderWindow.Get())->GetOpenGLSupportMessage();
     cerr << renderWindow->ReportCapabilities();
     return 1;
     }
@@ -85,6 +88,9 @@ int TestVBOPLYMapper(int argc, char *argv[])
   timer->StopTimer();
   double firstRender = timer->GetElapsedTime();
   cerr << "first render time: " << firstRender << endl;
+  int major, minor;
+  vtkOpenGLRenderWindow::SafeDownCast(renderWindow.Get())->GetOpenGLVersion(major,minor);
+  cerr << "opengl version " << major << "." << minor << "\n";
 
   timer->StartTimer();
   int numRenders = 8;

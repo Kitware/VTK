@@ -441,9 +441,7 @@ int TestParticleTracers(int, char*[])
   numRequestData = imageSource->GetNumRequestData();
 
   filter->SetIgnorePipelineTime(1);
-  vtkStreamingDemandDrivenPipeline* pipeline= vtkStreamingDemandDrivenPipeline::SafeDownCast(filter->GetExecutive());
-  pipeline->SetUpdateTimeStep(0,6.5);
-  filter->Update();
+  filter->UpdateTimeStep(6.5);
 
   EXPECT(imageSource->GetNumRequestData()-numRequestData==0,"Pipeline Time should be ignored")
   numRequestData = imageSource->GetNumRequestData();
@@ -452,16 +450,13 @@ int TestParticleTracers(int, char*[])
   filter->Update();
   EXPECT(imageSource->GetNumRequestData()-numRequestData==1,"Wrong");
 
-  pipeline->SetUpdateTimeStep(0, 0);
-  filter->Update();
+  filter->UpdateTimeStep(0.0);
   pts = vtkPolyData::SafeDownCast(filter->GetOutputDataObject(0))->GetPoints();
   EXPECT(pts->GetNumberOfPoints()==1,"should have points even if start and stop time coincide");
 
 
-  pipeline->SetUpdateTimeStep(0, 100.0); //make sure this doesn't crash
-  filter->Update();
-  pipeline->SetUpdateTimeStep(0, 200.0); //make sure this doesn't crash
-  filter->Update();
+  filter->UpdateTimeStep(100.0);
+  filter->UpdateTimeStep(200.0);
   filter->SetIgnorePipelineTime(true);
   filter->SetTerminationTime(9.0); //make sure this doesn't crash
   filter->Update();

@@ -18,13 +18,18 @@
 /* Use the JsonCpp library configured for VTK.  */
 #cmakedefine VTK_USE_SYSTEM_JSONCPP
 #ifdef VTK_USE_SYSTEM_JSONCPP
+#cmakedefine VTK_SYSTEM_JSONCPP_SHARED
+// Needed for Windows declspec import logic
+# if !defined(JSON_DLL) && defined(_WIN32) && defined(VTK_SYSTEM_JSONCPP_SHARED)
+#  define JSON_DLL
+# endif
 # include <json/json.h>
 # ifndef JSON_FORWARDS_H_INCLUDED
 #  error Incorrect header included, check your include paths for conflicts
 # endif
 #else
 // Needed for Windows declspec import logic
-# if defined(_WIN32) && defined(VTK_BUILD_SHARED_LIBS)
+# if !defined(JSON_DLL) && defined(_WIN32) && defined(VTK_BUILD_SHARED_LIBS)
 #  define JSON_DLL
 # endif
 # include <vtkjsoncpp/json/json.h>

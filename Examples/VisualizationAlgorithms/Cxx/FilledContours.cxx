@@ -41,7 +41,19 @@ int main (int argc, char *argv[])
   vtkSmartPointer<vtkAppendPolyData> appendFilledContours =
     vtkSmartPointer<vtkAppendPolyData>::New();
 
+  // Check for a reasonable number of contours to avoid excessive
+  // computation. Here we arbitrarily pick an upper limit of 1000
   int numberOfContours = atoi(argv[2]);
+  if (numberOfContours > 1000)
+    {
+    std::cout << "ERROR: the number of contours " << numberOfContours << " exceeds 1000" << std::endl;
+    return EXIT_FAILURE;
+    }
+  if (numberOfContours <= 0)
+    {
+    std::cout << "ERROR: the number of contours " << numberOfContours << " is <= 0" << std::endl;
+    return EXIT_FAILURE;
+    }
 
   double delta =
     (scalarRange[1] - scalarRange[0]) /

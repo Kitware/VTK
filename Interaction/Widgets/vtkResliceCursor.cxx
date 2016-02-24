@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-#include <math.h>
+#include <cmath>
 
 
 //----------------------------------------------------------------------------

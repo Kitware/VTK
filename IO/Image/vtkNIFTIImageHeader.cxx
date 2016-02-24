@@ -18,10 +18,10 @@ See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
 #include "vtkObjectFactory.h"
 
-#include <string.h>
-#include <float.h>
-#include <math.h>
-#include <ctype.h>
+#include <cstring>
+#include <cfloat>
+#include <cmath>
+#include <cctype>
 
 vtkStandardNewMacro(vtkNIFTIImageHeader);
 
@@ -188,7 +188,8 @@ void vtkNIFTIImageHeader::GetHeader(nifti_1_header *hdr)
     hdr->pixdim[i] = vtkNIFTINormalizeFloat(this->PixDim[i]);
     }
   hdr->vox_offset = static_cast<float>(this->VoxOffset);
-  strncpy(hdr->intent_name, this->IntentName, sizeof(hdr->intent_name));
+  strncpy(hdr->intent_name, this->IntentName, sizeof(hdr->intent_name) - 1);
+  hdr->intent_name[sizeof(hdr->intent_name) - 1] = '\0';
   hdr->scl_slope = vtkNIFTINormalizeFloat(this->SclSlope);
   hdr->scl_inter = vtkNIFTINormalizeFloat(this->SclInter);
   hdr->cal_min = vtkNIFTINormalizeFloat(this->CalMin);
@@ -200,8 +201,10 @@ void vtkNIFTIImageHeader::GetHeader(nifti_1_header *hdr)
   hdr->slice_end = this->SliceEnd;
   hdr->slice_code = this->SliceCode;
   hdr->xyzt_units = this->XYZTUnits;
-  strncpy(hdr->descrip, this->Descrip, sizeof(hdr->descrip));
-  strncpy(hdr->aux_file, this->AuxFile, sizeof(hdr->aux_file));
+  strncpy(hdr->descrip, this->Descrip, sizeof(hdr->descrip) - 1);
+  hdr->descrip[sizeof(hdr->descrip) - 1] = '\0';
+  strncpy(hdr->aux_file, this->AuxFile, sizeof(hdr->aux_file) - 1);
+  hdr->aux_file[sizeof(hdr->aux_file) - 1] = '\0';
   hdr->qform_code = static_cast<short>(this->QFormCode);
   hdr->sform_code = static_cast<short>(this->SFormCode);
   hdr->quatern_b = vtkNIFTINormalizeFloat(this->QuaternB);
@@ -289,8 +292,10 @@ void vtkNIFTIImageHeader::GetHeader(nifti_2_header *hdr)
   hdr->toffset = vtkNIFTINormalizeDouble(this->TOffset);
   hdr->slice_start = this->SliceStart;
   hdr->slice_end = this->SliceEnd;
-  strncpy(hdr->descrip, this->Descrip, sizeof(hdr->descrip));
-  strncpy(hdr->aux_file, this->AuxFile, sizeof(hdr->aux_file));
+  strncpy(hdr->descrip, this->Descrip, sizeof(hdr->descrip) - 1);
+  hdr->descrip[sizeof(hdr->descrip) - 1] = '\0';
+  strncpy(hdr->aux_file, this->AuxFile, sizeof(hdr->aux_file) - 1);
+  hdr->aux_file[sizeof(hdr->aux_file) - 1] = '\0';
   hdr->qform_code = static_cast<short>(this->QFormCode);
   hdr->sform_code = static_cast<short>(this->SFormCode);
   hdr->quatern_b = vtkNIFTINormalizeDouble(this->QuaternB);
@@ -308,7 +313,8 @@ void vtkNIFTIImageHeader::GetHeader(nifti_2_header *hdr)
   hdr->slice_code = this->SliceCode;
   hdr->xyzt_units = this->XYZTUnits;
   hdr->intent_code = static_cast<short>(this->IntentCode);
-  strncpy(hdr->intent_name, this->IntentName, sizeof(hdr->intent_name));
+  strncpy(hdr->intent_name, this->IntentName, sizeof(hdr->intent_name) - 1);
+  hdr->intent_name[sizeof(hdr->intent_name) - 1] = '\0';
   hdr->dim_info = static_cast<char>(this->DimInfo);
   memset(hdr->unused_str, '\0', 15);
 }

@@ -20,6 +20,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
+#include "vtkTransformFeedback.h"
 #include "vtkTypeTraits.h"
 
 # include <sstream>
@@ -63,6 +64,7 @@ vtkStandardNewMacro(vtkShaderProgram)
 vtkCxxSetObjectMacro(vtkShaderProgram,VertexShader,vtkShader)
 vtkCxxSetObjectMacro(vtkShaderProgram,FragmentShader,vtkShader)
 vtkCxxSetObjectMacro(vtkShaderProgram,GeometryShader,vtkShader)
+vtkCxxSetObjectMacro(vtkShaderProgram, TransformFeedback, vtkTransformFeedback)
 
 vtkShaderProgram::vtkShaderProgram()
 {
@@ -72,6 +74,8 @@ vtkShaderProgram::vtkShaderProgram()
   this->FragmentShader->SetType(vtkShader::Fragment);
   this->GeometryShader = vtkShader::New();
   this->GeometryShader->SetType(vtkShader::Geometry);
+
+  this->TransformFeedback = NULL;
 
   this->Compiled = false;
   this->NumberOfOutputs = 0;
@@ -99,6 +103,11 @@ vtkShaderProgram::~vtkShaderProgram()
     {
     this->GeometryShader->Delete();
     this->GeometryShader = NULL;
+    }
+  if (this->TransformFeedback)
+    {
+    this->TransformFeedback->Delete();
+    this->TransformFeedback = NULL;
     }
 }
 
@@ -404,6 +413,13 @@ int vtkShaderProgram::CompileShader()
     vtkErrorMacro(<< this->GetError());
     return 0;
     }
+
+  // Setup transform feedback:
+  if (this->TransformFeedback)
+    {
+    this->TransformFeedback->BindVaryings(this);
+    }
+
   if (!this->Link())
     {
     vtkErrorMacro(<< "Links failed: " << this->GetError());
@@ -436,7 +452,7 @@ void vtkShaderProgram::ReleaseGraphicsResources(vtkWindow *win)
     }
 
   vtkOpenGLRenderWindow *renWin = vtkOpenGLRenderWindow::SafeDownCast(win);
-  if (renWin->GetShaderCache()->GetLastShaderBound() == this)
+  if (renWin && renWin->GetShaderCache()->GetLastShaderBound() == this)
     {
     renWin->GetShaderCache()->ClearLastShaderBound();
     }
@@ -448,6 +464,10 @@ void vtkShaderProgram::ReleaseGraphicsResources(vtkWindow *win)
     this->Linked = false;
     }
 
+  if (this->TransformFeedback)
+    {
+    this->TransformFeedback->ReleaseGraphicsResources();
+    }
 }
 
 bool vtkShaderProgram::EnableAttributeArray(const char *name)

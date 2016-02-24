@@ -94,25 +94,18 @@ void vtkTransmitPolyDataPiece::RootExecute(vtkPolyData *input,
   int ext[3];
   int numProcs, i;
 
-  vtkStreamingDemandDrivenPipeline *extractExecutive =
-    vtkStreamingDemandDrivenPipeline::SafeDownCast(extract->GetExecutive());
-  vtkInformation *extractInfo = extractExecutive->GetOutputInformation(0);
-
   // First, set up the pipeline and handle local request.
   tmp->ShallowCopy(input);
   extract->SetCreateGhostCells(this->CreateGhostCells);
   extract->SetInputData(tmp);
 
-  extractExecutive->UpdateDataObject();
-  extractInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-                   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
-  extractInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
-                   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
-  extractInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
-                   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
-  extractInfo->Set(
-    vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(), 1);
-  extract->Update();
+  int nPieces =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  int piece =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  int ghosts =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+  extract->UpdatePiece(piece, nPieces, ghosts);
 
   // Copy geometry without copying information.
   output->CopyStructure(extract->GetOutput());
@@ -125,13 +118,7 @@ void vtkTransmitPolyDataPiece::RootExecute(vtkPolyData *input,
   for (i = 1; i < numProcs; ++i)
     {
     this->Controller->Receive(ext, 3, i, 22341);
-    extractInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-                     ext[1]);
-    extractInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
-                     ext[0]);
-    extractInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
-                     ext[2]);
-    extract->Update();
+    extract->UpdatePiece(ext[0], ext[1], ext[2]);
     this->Controller->Send(extract->GetOutput(), i, 22342);
     }
   tmp->Delete();

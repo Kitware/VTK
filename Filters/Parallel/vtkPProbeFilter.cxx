@@ -144,7 +144,9 @@ int vtkPProbeFilter::RequestUpdateExtent(vtkInformation *,
   vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo, 0, 1, 0);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), 0);
 
 //inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
 //inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 1);
@@ -152,7 +154,8 @@ int vtkPProbeFilter::RequestUpdateExtent(vtkInformation *,
 //            0);
   // If structured data, we want the whole extent. This is necessary because
   // the pipeline will copy the update extent from the output to all inputs.
-  vtkStreamingDemandDrivenPipeline::SetUpdateExtentToWholeExtent(sourceInfo);
+  sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+    sourceInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()), 6);
   // Then we want the same as output pieces.
   sourceInfo->Set(
     vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),

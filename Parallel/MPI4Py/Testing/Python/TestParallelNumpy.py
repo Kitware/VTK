@@ -59,11 +59,12 @@ def testArrays(rtData, rtData2, grad, grad2, total_npts):
     PRINT( "grad var 0:", (algs.var(grad, 0) - numpy.var(grad2, 0)) / numpy.var(grad2, 0) )
 
 w = vtk.vtkRTAnalyticSource()
-w.UpdateInformation()
 # Update with ghost level because gradient needs it
 # to be piece independent
-w.SetUpdateExtent(rank, size, 1)
-w.Update()
+w.UpdatePiece(rank, size, 1)
+
+print(w.GetOutput())
+print(w.GetOutputInformation(0))
 
 # The parallel arrays that we care about
 ds = dsa.WrapDataObject(w.GetOutput())

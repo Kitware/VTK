@@ -26,8 +26,6 @@
 
 vtkStandardNewMacro(vtkAMRInformation);
 
-#define ReturnFalseIfMacro(b,msg) { if(b) { std::cerr<<msg<<std::endl; return false;}}
-
 namespace
 {
   inline bool Inside(double q[3], double gbounds[6])
@@ -805,8 +803,16 @@ bool vtkAMRInformation::FindCell(double q[3],unsigned int level, unsigned int id
 bool vtkAMRInformation::GetCoarsenedAMRBox(unsigned int level, unsigned int id, vtkAMRBox& box) const
 {
   box = this->GetAMRBox(level,id);
-  ReturnFalseIfMacro(box.IsInvalid(),"Invalid AMR box.")
-  ReturnFalseIfMacro(level==0, "Cannot get AMR box at level 0.")
+  if(box.IsInvalid())
+    {
+    std::cerr<<"Invalid AMR box."<<std::endl;
+    return false;
+    }
+  if(level==0)
+    {
+    std::cerr<<"Cannot get AMR box at level 0."<<std::endl;
+    return false;
+    }
 
   int refinementRatio = this->GetRefinementRatio(level-1);
   box.Coarsen(refinementRatio);

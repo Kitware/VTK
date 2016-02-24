@@ -31,6 +31,7 @@
 #include "vtkSLACReader.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTestUtilities.h"
+#include "vtkInformation.h"
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \
@@ -89,9 +90,10 @@ int SLACReaderQuadratic(int argc, char *argv[])
   renwin->Render();
 
   // Change the time to test the periodic mode interpolation.
-  vtkStreamingDemandDrivenPipeline *sdd
-    = vtkStreamingDemandDrivenPipeline::SafeDownCast(geometry->GetExecutive());
-  sdd->SetUpdateTimeStep(0, 3e-10);
+  geometry->UpdateInformation();
+  geometry->GetOutputInformation(0)->Set(
+    vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),
+    3e-10);
   renwin->Render();
 
   // Do the test comparison.

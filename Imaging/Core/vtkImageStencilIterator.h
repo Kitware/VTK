@@ -23,54 +23,73 @@
 #ifndef vtkImageStencilIterator_h
 #define vtkImageStencilIterator_h
 
-#include "vtkSystemIncludes.h"
-#include "vtkImagingCoreModule.h"
-class vtkImageData;
-class vtkImageStencilData;
-class vtkAlgorithm;
+#include "vtkImagePointDataIterator.h"
 
 template<class DType>
-class VTKIMAGINGCORE_EXPORT vtkImageStencilIterator
+class VTKIMAGINGCORE_EXPORT vtkImageStencilIterator :
+  public vtkImagePointDataIterator
 {
 public:
   // Description:
-  // Default empty constructor, useful only when creating an array of
-  // iterators. Call Initialize() on each iterator before using.
-  vtkImageStencilIterator();
-
-  // Description:
-  // Create an iterator for an extent of an image.  If a stencil is
-  // provided, it must have an extent at least as large as the desired
-  // extent.
-  vtkImageStencilIterator(
-    vtkImageData *image, vtkImageStencilData *stencil, int extent[6],
-    vtkAlgorithm *algorithm=0, int threadId=0);
-
-  // Description:
-  // Initialize  an iterator for an extent of the image.  If a stencil is
-  // provided, it must have an extent at least as large as the desired
-  // extent.
-  void Initialize(
-    vtkImageData *image, vtkImageStencilData *stencil, int extent[6]);
-
-  // Description:
-  // Check if the iterator is within the stencilled region.  This
-  // is updated when NextSpan() is called.
-  bool IsInStencil()
+  // Default constructor, its use must be followed by Initialize().
+  vtkImageStencilIterator()
     {
-    return this->InStencil;
+    this->Increment = 0;
+    this->BasePointer = 0;
+    this->Pointer = 0;
+    this->SpanEndPointer = 0;
     }
 
   // Description:
-  // Move the iterator to the start of the next span.  A span is a
-  // contiguous region over which nothing but the X index changes.
-  void NextSpan();
+  // Create an iterator for the given image, with several options.
+  // If a stencil is provided, then the iterator's IsInStencil() method
+  // reports whether each span is inside the stencil.  If an extent is
+  // provided, it iterates over the extent and ignores the rest of the
+  // image (the provided extent must be within the image extent).  If
+  // a pointer to the algorithm is provided and threadId is set to zero,
+  // then progress events will provided for the algorithm.
+  vtkImageStencilIterator(vtkImageData *image,
+                          vtkImageStencilData *stencil=0,
+                          const int extent[6] = 0,
+                          vtkAlgorithm *algorithm=0,
+                          int threadId=0)
+    : vtkImagePointDataIterator(image, extent, stencil, algorithm, threadId)
+    {
+    this->BasePointer = static_cast<DType *>(
+      vtkImagePointDataIterator::GetVoidPointer(image, 0, &this->Increment));
+    this->UpdatePointer();
+    }
 
   // Description:
-  // Test if the end of the extent has been reached
+  // Initialize an iterator.  See constructor for more details.
+  void Initialize(vtkImageData *image,
+                  vtkImageStencilData *stencil=0,
+                  const int extent[6] = 0,
+                  vtkAlgorithm *algorithm=0,
+                  int threadId=0)
+    {
+    this->vtkImagePointDataIterator::Initialize(
+      image, extent, stencil, algorithm, threadId);
+    this->BasePointer = static_cast<DType *>(
+      vtkImagePointDataIterator::GetVoidPointer(image, 0, &this->Increment));
+    this->UpdatePointer();
+    }
+
+  // Description:
+  // Move the iterator to the beginning of the next span.
+  // A span is a contiguous region of the image over which nothing but
+  // the point Id and the X index changes.
+  void NextSpan()
+    {
+    this->vtkImagePointDataIterator::NextSpan();
+    this->UpdatePointer();
+    }
+
+  // Description:
+  // Test if the iterator has completed iterating over the entire extent.
   bool IsAtEnd()
     {
-    return (this->Pointer == this->EndPointer);
+    return this->vtkImagePointDataIterator::IsAtEnd();
     }
 
   // Description:
@@ -89,51 +108,21 @@ public:
 
 protected:
 
-  // Description
-  // Set all the state variables for the stencil span that includes idX.
-  void SetSpanState(int idX);
+  // Description:
+  // Update the pointer (called automatically when a new span begins).
+  void UpdatePointer()
+    {
+    this->Pointer = this->BasePointer + this->Id*this->Increment;
+    this->SpanEndPointer = this->BasePointer + this->SpanEnd*this->Increment;
+    }
 
-  // Description
-  // Report the progress and do an abort check.  This must be called
-  // every time that one row of the image is completed. Only called if
-  // Algorithm is not null.
-  void ReportProgress();
+  // The pointer must be incremented by this amount for each pixel.
+  int Increment;
 
   // Pointers
-  DType     *Pointer;           // current iterator position within data
-  DType     *SpanEndPointer;    // end of current span
-  DType     *RowEndPointer;     // end of current row
-  DType     *SliceEndPointer;   // end of current slice
-  DType     *EndPointer;        // end of data
-
-  // Increments
-  vtkIdType  PixelIncrement;    // to next pixel
-  vtkIdType  RowIncrement;      // to same position in next row
-  vtkIdType  SliceIncrement;    // to same position in next slice
-  vtkIdType  RowEndIncrement;   // from end of row to start of next row
-  vtkIdType  SliceEndIncrement; // from end of slice to start of next slice
-
-  // Stencil-related items
-  bool       HasStencil;
-  bool       InStencil;
-  int        SpanSliceEndIncrement;
-  int        SpanSliceIncrement;
-  int        SpanMinX;
-  int        SpanMaxX;
-  int        SpanMinY;
-  int        SpanMaxY;
-  int        SpanMinZ;
-  int        SpanMaxZ;
-  int        SpanIndexX;
-  int        SpanIndexY;
-  int        SpanIndexZ;
-  int       *SpanCountPointer;
-  int      **SpanListPointer;
-
-  // Progress-related items
-  vtkAlgorithm *Algorithm;
-  vtkIdType  Count;
-  vtkIdType  Target;
+  DType *BasePointer;       // pointer to the first voxel
+  DType *Pointer;           // current iterator position within data
+  DType *SpanEndPointer;    // end of current span
 };
 
 #endif

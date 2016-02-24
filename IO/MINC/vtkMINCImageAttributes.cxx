@@ -65,8 +65,8 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtk_netcdf.h"
 
 #include <cstdlib>
-#include <ctype.h>
-#include <float.h>
+#include <cctype>
+#include <cfloat>
 #include <string>
 #include <map>
 #include <sstream>

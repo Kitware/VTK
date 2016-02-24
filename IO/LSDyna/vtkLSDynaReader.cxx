@@ -2125,7 +2125,7 @@ int vtkLSDynaReader::ReadHeaderInformation( int curAdapt )
         p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_STRAIN "InnerSurf", 6, 1 );
         p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_STRAIN "OuterSurf", 6, 1 );
       }
-    if ( ! p->Dict["ISTRN"] || (p->Dict["ISTRN"] && p->Dict["NV2D"] >= 45) )
+    if ( ! p->Dict["ISTRN"] || (p->Dict["NV2D"] >= 45) )
       {
         p->AddCellArray( LSDynaMetaData::SHELL, LS_ARRAYNAME_INTERNALENERGY, 1, 1 );
       }
@@ -2797,11 +2797,11 @@ int vtkLSDynaReader::ReadCellStateInfo( vtkIdType vtkNotUsed(step) )
   char ctmp[128];
 
 #define VTK_LS_CELLARRAY(cond,celltype,arrayname,numComps)\
-  if ( cond && this->GetCellArrayStatus( celltype, arrayname ) ) \
+  if ( (cond) && this->GetCellArrayStatus( celltype, arrayname ) ) \
     { \
     this->Parts->AddProperty(celltype,arrayname,startPos,numComps); \
     } \
-  startPos+=numComps;
+  startPos+=(numComps);
 
   // Solid element data========================================================
   int startPos=0; //used to keep track of the startpos between calls to VTK_LS_CELLARRAY
@@ -2959,7 +2959,7 @@ int vtkLSDynaReader::ReadCellStateInfo( vtkIdType vtkNotUsed(step) )
   //we use a temp boolean so that we have less of a chance of causing a bug.
   //if you just insert the or conditions into the macro it becomes a || b && c
   //when you really want (a ||b) && c
-  bool valid =(! p->Dict["ISTRN"] || (p->Dict["ISTRN"] && p->Dict["NV2D"] >= 45));
+  bool valid =(! p->Dict["ISTRN"] || (p->Dict["NV2D"] >= 45));
   VTK_LS_CELLARRAY(valid,LSDynaMetaData::SHELL,LS_ARRAYNAME_INTERNALENERGY,1);
 
   this->ReadCellProperties(LSDynaMetaData::SHELL, p->Dict["NV2D"]);
@@ -3018,11 +3018,11 @@ int vtkLSDynaReader::ReadSPHState( vtkIdType vtkNotUsed(step) )
   p->Fam.SkipWords(p->SPHStateOffset);
 
 #define VTK_LS_SPHARRAY(cond,celltype,arrayname,numComps)\
-  if ( cond && this->GetCellArrayStatus( celltype, arrayname ) ) \
+  if ( (cond) && this->GetCellArrayStatus( celltype, arrayname ) ) \
     { \
     this->Parts->AddProperty(celltype,arrayname,startPos,numComps); \
     } \
-  startPos+=numComps;
+  startPos+=(numComps);
 
   // Smooth Particle ========================================================
 

@@ -28,6 +28,8 @@ set(Module_SRCS
   vtkDicer.cxx
   vtkDiscreteMarchingCubes.cxx
   vtkEdgePoints.cxx
+  vtkExtractSelectedFrustum.cxx
+  vtkExtractSelectionBase.cxx
   vtkGradientFilter.cxx
   vtkGraphLayoutFilter.cxx
   vtkGraphToPoints.cxx
@@ -59,6 +61,7 @@ set(Module_SRCS
   vtkRecursiveDividingCubes.cxx
   vtkReflectionFilter.cxx
   vtkRotationFilter.cxx
+  vtkSampleImplicitFunctionFilter.cxx
   vtkShrinkFilter.cxx
   vtkShrinkPolyData.cxx
   vtkSpatialRepresentationFilter.cxx

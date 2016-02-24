@@ -53,16 +53,42 @@ public:
       return "PNG";
     }
 
+  // Description:
+  // Given a 'key' for the text chunks, fills in 'beginEndIndex'
+  // with the begin and end indexes. Values are stored between
+  // [begin, end) indexes.
+  void GetTextChunks(const char* key, int beginEndIndex[2]);
+  // Description:
+  // Returns the text key stored at 'index'.
+  const char* GetTextKey(int index);
+  // Description:
+  // Returns the text value stored at 'index'. A range of indexes
+  // that store values for a certain key can be obtained by calling
+  // GetTextChunks.
+  const char* GetTextValue(int index);
+  // Description:
+  // Return the number of text chunks in the PNG file.
+  // Note that we don't process compressed or international text entries
+  size_t GetNumberOfTextChunks();
+
 protected:
-  vtkPNGReader() {}
-  ~vtkPNGReader() {}
+  vtkPNGReader();
+  ~vtkPNGReader();
 
   virtual void ExecuteInformation();
   virtual void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation *outInfo);
+  template <class OT>
+    void vtkPNGReaderUpdate(vtkImageData *data, OT *outPtr);
+  template <class OT>
+    void vtkPNGReaderUpdate2(
+      OT *outPtr, int *outExt, vtkIdType *outInc, long pixSize);
+
+
 private:
   vtkPNGReader(const vtkPNGReader&);  // Not implemented.
   void operator=(const vtkPNGReader&);  // Not implemented.
+
+  class vtkInternals;
+  vtkInternals* Internals;
 };
 #endif
-
-

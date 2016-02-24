@@ -24,7 +24,7 @@
 #include "vtkTypeTraits.h"
 #include "vtkWin32RenderWindowInteractor.h"
 
-#include <math.h>
+#include <cmath>
 #include <sstream>
 
 #include "vtkOpenGL.h"
@@ -293,17 +293,12 @@ bool vtkWin32OpenGLRenderWindow::IsCurrent()
 }
 
 // ----------------------------------------------------------------------------
-void AdjustWindowRectForBorders(const int borders, const int x, const int y,
+void AdjustWindowRectForBorders(HWND hwnd, DWORD style, const int x, const int y,
                                 const int width, const int height, RECT &r)
 {
-  DWORD style = WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/;
-  if (borders)
+  if (!style && hwnd)
     {
-    style |= WS_OVERLAPPEDWINDOW;
-    }
-  else
-    {
-    style |= WS_POPUP;
+    style = GetWindowLong(hwnd, GWL_STYLE);
     }
   r.left = x;
   r.top = y;
@@ -323,9 +318,7 @@ void vtkWin32OpenGLRenderWindow::SetSize(int x, int y)
   static int resizing = 0;
   if ((this->Size[0] != x) || (this->Size[1] != y))
     {
-    this->Modified();
-    this->Size[0] = x;
-    this->Size[1] = y;
+    this->Superclass::SetSize(x, y);
 
     if (this->Interactor)
       {
@@ -362,7 +355,7 @@ void vtkWin32OpenGLRenderWindow::SetSize(int x, int y)
         else
           {
           RECT r;
-          AdjustWindowRectForBorders(this->Borders, 0, 0, x, y, r);
+          AdjustWindowRectForBorders(this->WindowId, 0, 0, 0, x, y, r);
           SetWindowPos(this->WindowId, HWND_TOP, 0, 0,
                        r.right - r.left,
                        r.bottom - r.top,
@@ -1020,7 +1013,7 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow()
           style |= WS_POPUP;
           }
         RECT r;
-        AdjustWindowRectForBorders(this->Borders, x, y, width, height, r);
+        AdjustWindowRectForBorders(0, style, x, y, width, height, r);
 #ifdef UNICODE
         this->WindowId = CreateWindow(
           L"vtkOpenGL", wname, style,
@@ -1195,6 +1188,11 @@ int *vtkWin32OpenGLRenderWindow::GetSize(void)
 // Get the size of the whole screen.
 int *vtkWin32OpenGLRenderWindow::GetScreenSize(void)
 {
+  if (this->OffScreenRendering)
+    {
+    return this->Size;
+    }
+
   HDC hDC = ::GetDC(NULL);
   if (hDC)
     {
@@ -1294,7 +1292,7 @@ void vtkWin32OpenGLRenderWindow::PrefFullScreen()
   this->Borders = 0;
 
   RECT r;
-  AdjustWindowRectForBorders(this->Borders, 0, 0, size[0], size[1], r);
+  AdjustWindowRectForBorders(this->WindowId, 0, 0, 0, size[0], size[1], r);
 
   // use full screen
   this->Position[0] = 0;
@@ -1491,6 +1489,10 @@ void vtkWin32OpenGLRenderWindow::CreateOffScreenWindow(int width,
     this->CreateOffScreenDC(width, height, dc);
     DeleteDC(dc);
     }
+    else
+    {
+    this->Mapped = 0;
+    }
   this->CreatingOffScreenWindow = status;
 }
 
@@ -1525,14 +1527,6 @@ void vtkWin32OpenGLRenderWindow::CreateOffScreenDC(HBITMAP hbmp, HDC aHdc)
   BITMAP bm;
   GetObject(hbmp, sizeof(BITMAP), &bm);
 
-  this->MemoryBuffer = hbmp;
-
-  // Create a compatible device context
-  this->MemoryHdc = (HDC)CreateCompatibleDC(aHdc);
-
-  // Put the bitmap into the device context
-  SelectObject(this->MemoryHdc, this->MemoryBuffer);
-
   // Renderers will need to redraw anything cached in display lists
   vtkRenderer *ren;
   vtkCollectionSimpleIterator rsit;
@@ -1542,6 +1536,14 @@ void vtkWin32OpenGLRenderWindow::CreateOffScreenDC(HBITMAP hbmp, HDC aHdc)
     ren->SetRenderWindow(NULL);
     ren->SetRenderWindow(this);
     }
+
+  this->MemoryBuffer = hbmp;
+
+  // Create a compatible device context
+  this->MemoryHdc = (HDC)CreateCompatibleDC(aHdc);
+
+  // Put the bitmap into the device context
+  SelectObject(this->MemoryHdc, this->MemoryBuffer);
 
   // adjust settings for renderwindow
   this->Mapped = 0;
@@ -1554,6 +1556,7 @@ void vtkWin32OpenGLRenderWindow::CreateOffScreenDC(HBITMAP hbmp, HDC aHdc)
                          PFD_SUPPORT_OPENGL | PFD_SUPPORT_GDI |
                          PFD_DRAW_TO_BITMAP, this->GetDebug(), 24, 32);
   this->SetupPalette(this->DeviceContext);
+
   this->ContextId = wglCreateContext(this->DeviceContext);
   if (this->ContextId == NULL)
     {
@@ -1645,6 +1648,21 @@ void vtkWin32OpenGLRenderWindow::ResumeScreenRendering(void)
         ren->SetRenderWindow(NULL);
         ren->SetRenderWindow(this);
         }
+    }
+
+  if (this->MemoryBuffer)
+    {
+    DeleteObject(this->MemoryBuffer);
+    this->MemoryBuffer = 0;
+    }
+  if (this->MemoryHdc)
+    {
+    DeleteDC(this->MemoryHdc);
+    this->MemoryHdc = 0;
+    }
+  if (this->ContextId && wglDeleteContext(this->ContextId) != TRUE)
+    {
+    vtkErrorMacro("wglDeleteContext failed in CleanUpOffScreenRendering(), error: " << GetLastError());
     }
 
   this->Mapped = this->ScreenMapped;

@@ -37,7 +37,7 @@
 #include "vtkImageIterator.h"
 #include "vtkImageProgressIterator.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkImplicitModeller);
 
@@ -177,9 +177,11 @@ void vtkImplicitModeller::StartAppend(int internal)
     // it has been called.
     this->UpdateInformation();
     }
-  vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
-    this->GetOutputInformation(0),
-    vtkStreamingDemandDrivenPipeline::GetWholeExtent(this->GetOutputInformation(0)));
+  vtkInformation* outInfo = this->GetOutputInformation(0);
+  outInfo->Set(
+    vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+    vtkStreamingDemandDrivenPipeline::GetWholeExtent(outInfo),
+    6);
 
   vtkDebugMacro(<< "Initializing data");
   this->AllocateOutputData(this->GetOutput(), this->GetOutputInformation(0));
@@ -686,6 +688,7 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
               break;
             default:
               vtkErrorMacro(<<"Unexpected DataSet type!");
+              delete [] info.Input;
               return;
             }
           info.Input[i]->CopyStructure(input);

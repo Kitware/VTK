@@ -32,6 +32,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLLabeledContourMapper
 public:
   static vtkOpenGLLabeledContourMapper *New();
   vtkTypeMacro(vtkOpenGLLabeledContourMapper, vtkLabeledContourMapper)
+  virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:
   // Release graphics resources

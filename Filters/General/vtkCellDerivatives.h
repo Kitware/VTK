@@ -18,13 +18,16 @@
 // and vectors at the center of cells. You can choose to generate
 // different output including the scalar gradient (a vector), computed
 // tensor vorticity (a vector), gradient of input vectors (a tensor),
-// and strain matrix of the input vectors (a tensor); or you may
-// choose to pass data through to the output.
+// and strain matrix (linearized or Green-Lagrange) of the input vectors
+// (a tensor); or you may choose to pass data through to the output.
 //
 // Note that it is assumed that on input scalars and vector point data
 // is available, which are then used to generate cell vectors and tensors.
 // (The interpolation functions of the cells are used to compute the
 // derivatives which is why point data is required.)
+//
+// Note that the tensor components used to be sent out in column, but they
+// are now sent out not in row.
 
 // .SECTION Caveats
 // The computed derivatives are cell attribute data; you can convert them to
@@ -48,9 +51,10 @@
 #define VTK_VECTOR_MODE_COMPUTE_GRADIENT  1
 #define VTK_VECTOR_MODE_COMPUTE_VORTICITY 2
 
-#define VTK_TENSOR_MODE_PASS_TENSORS     0
-#define VTK_TENSOR_MODE_COMPUTE_GRADIENT 1
-#define VTK_TENSOR_MODE_COMPUTE_STRAIN   2
+#define VTK_TENSOR_MODE_PASS_TENSORS                  0
+#define VTK_TENSOR_MODE_COMPUTE_GRADIENT              1
+#define VTK_TENSOR_MODE_COMPUTE_STRAIN                2
+#define VTK_TENSOR_MODE_COMPUTE_GREEN_LAGRANGE_STRAIN 3
 
 class VTKFILTERSGENERAL_EXPORT vtkCellDerivatives : public vtkDataSetAlgorithm
 {
@@ -81,9 +85,10 @@ public:
   // Description:
   // Control how the filter works to generate tensor cell data. You can
   // choose to pass the input cell tensors, compute the gradient of
-  // the input vectors, or compute the strain tensor of the vector gradient
-  // tensor. By default (TensorModeToComputeGradient), the filter will
-  // take the gradient of the vector data to construct a tensor.
+  // the input vectors, or compute the strain tensor (linearized or
+  // Green-Lagrange strain)of the vector gradient tensor. By default
+  // (TensorModeToComputeGradient), the filter will take the gradient
+  // of the vector data to construct a tensor.
   vtkSetMacro(TensorMode,int);
   vtkGetMacro(TensorMode,int);
   void SetTensorModeToPassTensors()
@@ -92,6 +97,8 @@ public:
     {this->SetTensorMode(VTK_TENSOR_MODE_COMPUTE_GRADIENT);};
   void SetTensorModeToComputeStrain()
     {this->SetTensorMode(VTK_TENSOR_MODE_COMPUTE_STRAIN);};
+  void SetTensorModeToComputeGreenLagrangeStrain()
+    {this->SetTensorMode(VTK_TENSOR_MODE_COMPUTE_GREEN_LAGRANGE_STRAIN);};
   const char *GetTensorModeAsString();
 
 protected:

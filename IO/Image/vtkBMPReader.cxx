@@ -456,6 +456,7 @@ void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data, OT *outPtr)
       {
       if (!self->OpenAndSeekFile(dataExtent,idx2))
         {
+        delete [] buf;
         return;
         }
       }

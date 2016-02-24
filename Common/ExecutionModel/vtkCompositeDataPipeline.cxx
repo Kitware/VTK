@@ -480,9 +480,6 @@ vtkDataObject* vtkCompositeDataPipeline::ExecuteSimpleAlgorithmForBlock(
         vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
         extent,
         6);
-      info->Set(
-        vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(),
-        1);
       storedPiece =
         info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
       storedNumPieces=

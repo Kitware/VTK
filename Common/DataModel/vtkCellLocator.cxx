@@ -21,7 +21,7 @@
 #include "vtkPolyData.h"
 #include "vtkBox.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkCellLocator);
 
@@ -1165,7 +1165,7 @@ void vtkCellLocator::BuildLocator()
 void vtkCellLocator::BuildLocatorIfNeeded()
 {
   if (this->LazyEvaluation) {
-    if (!this->Tree || (this->Tree && (this->MTime>this->BuildTime))) {
+    if (!this->Tree || (this->MTime>this->BuildTime)) {
       this->Modified();
       vtkDebugMacro(<< "Forcing BuildLocator");
       this->ForceBuildLocator();

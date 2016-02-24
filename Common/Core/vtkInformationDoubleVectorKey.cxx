@@ -64,8 +64,9 @@ void vtkInformationDoubleVectorKey::Append(vtkInformation* info, double value)
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationDoubleVectorKey::Set(vtkInformation* info, double* value,
-                                         int length)
+void vtkInformationDoubleVectorKey::Set(vtkInformation* info,
+                                        const double* value,
+                                        int length)
 {
   if(value)
     {

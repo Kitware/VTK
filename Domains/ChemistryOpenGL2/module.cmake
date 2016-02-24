@@ -7,6 +7,7 @@ vtk_module(vtkDomainsChemistryOpenGL2
     vtkDomainsChemistry
   BACKEND
     OpenGL2
+  IMPLEMENTATION_REQUIRED_BY_BACKEND
   PRIVATE_DEPENDS
     vtkglew
   KIT

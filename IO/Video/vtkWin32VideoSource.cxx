@@ -19,7 +19,7 @@
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
 
-#include <ctype.h>
+#include <cctype>
 
 // because of warnings in windows header push and pop the warning level
 #ifdef _MSC_VER

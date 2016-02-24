@@ -50,6 +50,8 @@ set(Module_SRCS
   vtkDistanceWidget.cxx
   vtkEllipsoidTensorProbeRepresentation.cxx
   vtkEvent.cxx
+  vtkFinitePlaneRepresentation.cxx
+  vtkFinitePlaneWidget.cxx
   vtkFixedSizeHandleRepresentation3D.cxx
   vtkFocalPlaneContourRepresentation.cxx
   vtkFocalPlanePointPlacer.cxx

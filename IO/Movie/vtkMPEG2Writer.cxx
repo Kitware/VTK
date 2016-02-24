@@ -240,10 +240,7 @@ void vtkMPEG2Writer::Write()
 
   // get the data
   vtkImageData* input = this->GetImageDataInput(0);
-  input->UpdateInformation();
-  int *wExtent = input->GetWholeExtent();
-  input->SetUpdateExtent(wExtent);
-  input->Update();
+  input->UpdateWholeExtent();
 
   int dim[4];
   input->GetDimensions(dim);

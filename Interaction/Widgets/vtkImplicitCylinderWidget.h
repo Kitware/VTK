@@ -36,7 +36,8 @@
 // If the center point (handle) is selected:
 //   LeftButtonPressEvent - select handle (if on slider)
 //   LeftButtonReleaseEvent - release handle (if selected)
-//   MouseMoveEvent - move the center point (constrained to plane)
+//   MouseMoveEvent - move the center point (constrained to plane or on the
+//                    axis if CTRL key is pressed)
 // If the cylinder is selected:
 //   LeftButtonPressEvent - select cylinder
 //   LeftButtonReleaseEvent - release cylinder

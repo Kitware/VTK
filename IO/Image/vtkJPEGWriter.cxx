@@ -99,9 +99,6 @@ void vtkJPEGWriter::Write()
     memcpy(uExtent, wExtent, 4*sizeof(int));
     uExtent[4] = this->FileNumber;
     uExtent[5] = this->FileNumber;
-    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
-      this->GetInputInformation(0, 0),
-      uExtent);
     // determine the name
     if (this->FileName)
       {
@@ -120,7 +117,7 @@ void vtkJPEGWriter::Write()
           this->FilePattern, this->FileNumber);
         }
       }
-    this->GetInputExecutive(0, 0)->Update();
+    this->GetInputAlgorithm()->UpdateExtent(uExtent);
     this->WriteSlice(this->GetInput(), uExtent);
     if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
       {

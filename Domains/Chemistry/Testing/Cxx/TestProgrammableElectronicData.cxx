@@ -20,7 +20,7 @@
 #define CHECK_MO(num) \
   if (ed->GetMO(num) != mo##num.GetPointer()) \
     {   \
-    cerr << "MO number " << num << " has changed since being set: " \
+    cerr << "MO number " << (num) << " has changed since being set: " \
          << "Expected @" << mo##num.GetPointer() \
          << ", got @" << ed->GetMO(num) << ".\n"; \
     return EXIT_FAILURE;  \

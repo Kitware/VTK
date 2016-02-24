@@ -42,11 +42,11 @@
 #include "vtkRegressionTestImage.h"
 
 #define compare_doublevec(x, y, e) \
-(((x[0]-y[0])<e) && ((x[0]-y[0])>-e) && \
-((x[1]-y[1])<e) && ((x[1]-y[1])>-e) && \
-((x[2]-y[2])<e) && ((x[2]-y[2])>-e))
+(((x[0]-y[0])<(e)) && ((x[0]-y[0])>-(e)) && \
+((x[1]-y[1])<(e)) && ((x[1]-y[1])>-(e)) && \
+((x[2]-y[2])<(e)) && ((x[2]-y[2])>-(e)))
 
-#define compare_double(x, y, e) ((x)-(y)<e && (x)-(y)>-e)
+#define compare_double(x, y, e) ((x)-(y)<(e) && (x)-(y)>-(e))
 
 // Test of vtkPolyhedron. A structured grid is converted to a polyhedral
 // mesh.

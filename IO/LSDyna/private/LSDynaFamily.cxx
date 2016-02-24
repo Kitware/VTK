@@ -32,32 +32,34 @@
 
 namespace
 {
-//Documentation on why the exemption
-#define USE_STAT_64 VTK_SIZEOF_ID_TYPE==8 && !defined _DARWIN_FEATURE_64_BIT_INODE && !defined __FreeBSD__
-//OS X and FreeBSD use stat instead of stat64
-#if (USE_STAT_64)
-//64bit
-#ifndef WIN32
-int LS_DYNA_STAT(const char* fname, struct stat64& s)
-{
-  //POSIX
-  return stat64(fname,&s);
-}
+// Decide which of 3 stat varieties to use: stat, stat64, __stat64
+// Usually stat uses 32 bit fields, and stat64 (with underscores in Windows) uses 64 bit fields.
+// But on OS X and FreeBSD, stat uses 64 bit fields these days.
+#if (VTK_SIZEOF_ID_TYPE == 8) && !defined(_DARWIN_FEATURE_64_BIT_INODE) && !defined(__FreeBSD__)
+  #ifndef WIN32
+    #define USE_STAT_64
+  #else
+    #define USE_WIN_STAT_64
+  #endif
 #else
-int LS_DYNA_STAT(const char* fname, struct __stat64& s)
-{
-  //Windows
-  return __stat64(fname, &s);
-}
+  #define USE_STAT
 #endif
 
-#else
-//32bit
-int LS_DYNA_STAT(const char* fname, struct stat& s)
-{
-  //POSIX
-  return stat(fname,&s);
-}
+#if defined(USE_STAT_64)
+  int LS_DYNA_STAT(const char* fname, struct stat64& s)
+  {
+    return stat64(fname,&s);
+  }
+#elif defined(USE_WIN_STAT_64)
+  int LS_DYNA_STAT(const char* fname, struct __stat64& s)
+  {
+    return __stat64(fname, &s);
+  }
+#elif defined(USE_STAT)
+  int LS_DYNA_STAT(const char* fname, struct stat& s)
+  {
+    return stat(fname,&s);
+  }
 #endif
 
 vtkLSDynaFile_t VTK_LSDYNA_OPENFILE(const char* fname)
@@ -220,11 +222,11 @@ int LSDynaFamily::ScanDatabaseDirectory()
   int adaptLevel = 0;
   int tryAdapt = 0; // don't try an adaptive step unless we have one good file at the current level.
   bool adapted = true; // true when advancing over a mesh adaptation.
-#if defined (WIN32) && VTK_SIZEOF_ID_TYPE==8
+#if defined(USE_WIN_STAT_64)
   struct __stat64 st;
-#elif USE_STAT_64
+#elif defined(USE_STAT_64)
   struct stat64 st;
-#else
+#elif defined(USE_STAT)
   struct stat st;
 #endif
   while ( tryAdapt >= 0 )

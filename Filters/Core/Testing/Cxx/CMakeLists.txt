@@ -27,6 +27,8 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestPolyDataConnectivityFilter.cxx,NO_VALID
   TestProbeFilter.cxx,NO_VALID
   TestProbeFilterImageInput.cxx
+  TestProbeFilterOutputAttributes.cxx,NO_VALID
+  TestResampleToImage.cxx,NO_VALID
   TestSmoothPolyDataFilter.cxx,NO_VALID
   TestSMPPipelineContour.cxx,NO_VALID
   TestStripper.cxx,NO_VALID
@@ -35,6 +37,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestThresholdPoints.cxx,NO_VALID
   TestTransposeTable.cxx,NO_VALID
   TestTubeFilter.cxx,NO_VALID
+  UnitTestMaskPoints.cxx,NO_VALID
   UnitTestMergeFilter.cxx,NO_VALID
   )
 vtk_test_cxx_executable(${vtk-module}CxxTests tests)

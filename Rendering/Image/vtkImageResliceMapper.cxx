@@ -274,9 +274,29 @@ void vtkImageResliceMapper::Update(int port)
   this->UpdateTime.Modified();
 }
 
+//----------------------------------------------------------------------------
 void vtkImageResliceMapper::Update()
 {
   this->Superclass::Update();
+}
+
+//----------------------------------------------------------------------------
+int vtkImageResliceMapper::Update(
+  int port, vtkInformationVector*)
+{
+  // One can't really make requests of a mapper so default to regular
+  // update.
+  this->Update(port);
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkImageResliceMapper::Update(vtkInformation*)
+{
+  // One can't really make requests of a mapper so default to regular
+  // update.
+  this->Update();
+  return 1;
 }
 
 //----------------------------------------------------------------------------

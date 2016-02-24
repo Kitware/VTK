@@ -61,8 +61,8 @@
 #include "vtkUnstructuredGrid.h"
 
 #include <errno.h>
-#include <math.h>
-#include <ctype.h>
+#include <cmath>
+#include <cctype>
 
 #include <vector>
 #include <list>
@@ -200,11 +200,14 @@ void vtkEnSightWriter::WriteData()
   vtkInformation* inInfo = this->GetInputInformation();
 
   if (this->GhostLevel >
-      vtkStreamingDemandDrivenPipeline::GetUpdateGhostLevel(inInfo))
+      inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()))
     {
     // re-execute pipeline if necessary to obtain ghost cells
 
-    vtkStreamingDemandDrivenPipeline::SetUpdateGhostLevel(inInfo, this->GhostLevel);
+    this->GetInputAlgorithm()->UpdateInformation();
+    inInfo->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+      this->GhostLevel);
     this->GetInputAlgorithm()->Update();
     }
 
@@ -1069,7 +1072,7 @@ void vtkEnSightWriter::WriteElementTypeToFile(int elementType,FILE* fd)
 //----------------------------------------------------------------------------
 bool vtkEnSightWriter::ShouldWriteGeometry()
 {
-  return ((this->TransientGeometry || (!this->TransientGeometry && this->TimeStep==0)));
+  return (this->TransientGeometry || (this->TimeStep==0));
 }
 
 //----------------------------------------------------------------------------

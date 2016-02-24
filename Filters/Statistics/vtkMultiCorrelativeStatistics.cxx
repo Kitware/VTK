@@ -494,8 +494,8 @@ static void vtkMultiCorrelativeCholesky( std::vector<double*>& a, vtkIdType m )
 #ifdef L
 #  undef L
 #endif
-#define A(i,j) ( j >= i ? a[j][i] : a[i][j] )
-#define L(i,j) a[j][i + 1]
+#define A(i,j) ( (j) >= (i) ? a[j][i] : a[i][j] )
+#define L(i,j) a[j][(i) + 1]
 
   // Then perform decomposition
   double tmp;
@@ -540,11 +540,8 @@ void vtkMultiCorrelativeStatistics::Derive( vtkMultiBlockDataSet* outMeta )
 
   std::set<std::set<vtkStdString> >::const_iterator reqIt;
   std::set<vtkStdString>::const_iterator colIt;
-  std::set<std::pair<vtkStdString,vtkDataArray*> > allColumns;
   std::map<std::pair<vtkIdType,vtkIdType>,vtkIdType> colPairs;
-  std::map<std::pair<vtkIdType,vtkIdType>,vtkIdType>::iterator cpIt;
   std::map<vtkStdString,vtkIdType> colNameToIdx;
-  std::vector<vtkDataArray*> colPtrs;
   // Reconstruct information about the computed sums from the raw data.
   // The first entry is always the sample size
   double n = col3->GetValue( 0 );
@@ -890,6 +887,7 @@ void vtkMultiCorrelativeStatistics::SelectAssessFunctor( vtkTable* inData,
   if ( ! mcfunc->Initialize( inData, reqModel ) )
     {
     delete mcfunc;
+    return;
     }
   dfunc = mcfunc;
 }

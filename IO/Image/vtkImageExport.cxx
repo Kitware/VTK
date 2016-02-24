@@ -21,8 +21,8 @@
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-#include <ctype.h>
-#include <string.h>
+#include <cctype>
+#include <cstring>
 
 vtkStandardNewMacro(vtkImageExport);
 
@@ -497,9 +497,12 @@ void vtkImageExport::PropagateUpdateExtentCallback(int* extent)
 {
   if (this->GetInputAlgorithm())
     {
-    this->GetInputAlgorithm()->SetUpdateExtent(
-      this->GetInputConnection(0, 0)->GetIndex(),
-      extent);
+    int port = this->GetInputConnection(0, 0)->GetIndex();
+    vtkInformation* info =
+      this->GetInputAlgorithm()->GetOutputInformation(port);
+    info->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+      extent, 6);
     }
 }
 

@@ -62,7 +62,7 @@ inline static bool vtkReebGraphVertexSoS(const std::pair<int, double> v0,
 #define vtkReebGraphInitialStreamSize 1000
 
 #define vtkReebGraphIsSmaller(myReebGraph, nodeId0, nodeId1, node0, node1) \
-((node0->Value < node1->Value) || (node0->Value == node1->Value && nodeId0 < nodeId1))
+((node0->Value < node1->Value) || (node0->Value == node1->Value && (nodeId0) < (nodeId1)))
 
 #define vtkReebGraphGetArcPersistence(rg,a)  \
 ((this->GetNode(a->NodeId1)->Value - this->GetNode(a->NodeId0)->Value) \
@@ -1625,7 +1625,7 @@ int vtkReebGraph::Implementation::CommitSimplification()
     }
 
   std::pair<int, int> destinationArc;
-  std::map<int, bool> processedInputArcs, processedOutputArcs;
+  std::map<int, bool> processedOutputArcs;
 
   // now map the unsimplified arcs onto the simplified ones
   for(unsigned int i = 0; i < before.size(); i++)

@@ -158,7 +158,7 @@ void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
 
   // if the current request did not fit into memory
   // the we will split the current axis
-  int* updateExtent = vtkStreamingDemandDrivenPipeline::GetUpdateExtent(inInfo);
+  int* updateExtent = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
   this->GetInput()->GetAxisUpdateExtent(axis, min, max, updateExtent);
 
   vtkDebugMacro("Axes: " << axis << "(" << min << ", " << max
@@ -188,30 +188,35 @@ void vtkPImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
     {
     // first half
     cache->SetAxisUpdateExtent(axis, mid+1, max, updateExtent, axisUpdateExtent);
-    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo, axisUpdateExtent);
+    inInfo->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), axisUpdateExtent, 6);
     this->RecursiveWrite(axis,cache,inInfo,file);
 
     // second half
     cache->SetAxisUpdateExtent(axis, min, mid, updateExtent, axisUpdateExtent);
-    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo, axisUpdateExtent);
+    inInfo->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), axisUpdateExtent, 6);
     this->RecursiveWrite(axis,cache,inInfo,file);
     }
   else
     {
     // first half
     cache->SetAxisUpdateExtent(axis, min, mid, updateExtent, axisUpdateExtent);
-    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo, axisUpdateExtent);
+    inInfo->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), axisUpdateExtent, 6);
     this->RecursiveWrite(axis,cache,inInfo,file);
 
     // second half
     cache->SetAxisUpdateExtent(axis, mid+1, max, updateExtent, axisUpdateExtent);
-    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo, axisUpdateExtent);
+    inInfo->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), axisUpdateExtent, 6);
     this->RecursiveWrite(axis,cache,inInfo,file);
     }
 
   // restore original extent
   cache->SetAxisUpdateExtent(axis, min, max, updateExtent, axisUpdateExtent);
-  vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo, axisUpdateExtent);
+    inInfo->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), axisUpdateExtent, 6);
 
   // if we opened the file here, then we need to close it up
   vtkPIWCloseFile;

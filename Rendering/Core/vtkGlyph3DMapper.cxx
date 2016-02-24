@@ -41,14 +41,6 @@
 // Return NULL if no override is supplied.
 vtkAbstractObjectFactoryNewMacro(vtkGlyph3DMapper)
 
-template <class T>
-static T vtkClamp(T val, T min, T max)
-{
-  val = val < min? min : val;
-  val = val > max? max : val;
-  return val;
-}
-
 // ---------------------------------------------------------------------------
 // Construct object with scaling on, scaling mode is by scalar value,
 // scale factor = 1.0, the range is (0,1), orient geometry is on, and
@@ -502,7 +494,7 @@ bool vtkGlyph3DMapper::GetBoundsInternal(vtkDataSet* ds, double ds_bounds[6])
     for (int i=0; i<2; i++)
       {
       indexRange[i]=static_cast<int>((range[i]-this->Range[0])*numberOfSources/den);
-      indexRange[i] = ::vtkClamp(indexRange[i], 0, numberOfSources-1);
+      indexRange[i] = vtkMath::ClampValue(indexRange[i], 0, numberOfSources-1);
       }
     }
 
@@ -632,8 +624,6 @@ double* vtkGlyph3DMapper::GetBounds()
     // This should not affect anything else, because no one uses this.
     // It should also render just the same.
     // Just remove this lie if we no longer need streaming in paraview :)
-    //this->GetInput()->SetUpdateExtent(0, 1, 0);
-    //this->GetInput()->Update();
 
     // first get the bounds from the input
     this->Update();

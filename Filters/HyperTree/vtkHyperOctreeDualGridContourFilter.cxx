@@ -39,7 +39,7 @@
 #include "vtkTetra.h"
 #include "vtkPolygon.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include <math.h>
+#include <cmath>
 #include <cassert>
 #include <set>
 #include "vtkBitArray.h"

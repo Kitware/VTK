@@ -81,7 +81,7 @@ public:
   void FillByte();
 
   // Get stream info
-  const char* GetStringStream(int& size);
+  std::string GetStringStream(int& size);
 
 private:
   unsigned char Append(unsigned int value, unsigned char count);
@@ -132,7 +132,7 @@ int vtkX3DExporterFIByteWriter::OpenStream()
 }
 
 //----------------------------------------------------------------------------
-const char* vtkX3DExporterFIByteWriter::GetStringStream(int& size)
+std::string vtkX3DExporterFIByteWriter::GetStringStream(int& size)
 {
   if (this->WriteToOutputString && this->Stream)
     {
@@ -140,7 +140,7 @@ const char* vtkX3DExporterFIByteWriter::GetStringStream(int& size)
       static_cast<std::ostringstream*>(this->Stream);
 
     size = static_cast<int>(ostr->str().size());
-    return ostr->str().c_str();
+    return ostr->str();
     }
 
   size = 0;
@@ -295,7 +295,8 @@ void vtkX3DExporterFIWriter::CloseFile()
     if(this->WriteToOutputString)
       {
       delete [] this->OutputString;
-      const char* tmp = this->Writer->GetStringStream(this->OutputStringLength);
+      std::string tmpstr = this->Writer->GetStringStream(this->OutputStringLength);
+      const char* tmp = tmpstr.c_str();
       this->OutputString = new char[this->OutputStringLength];
       memcpy(this->OutputString, tmp, this->OutputStringLength);
       }
@@ -446,8 +447,6 @@ void vtkX3DExporterFIWriter::EndAttribute()
 //----------------------------------------------------------------------------
 void vtkX3DExporterFIWriter::SetField(int attributeID, int type, const double* d)
 {
-  std::ostringstream ss;
-
   this->StartAttribute(attributeID, true, false);
 
 #ifdef ENCODEASSTRING
@@ -474,6 +473,7 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, int type, const double* d
     }
   vtkX3DExporterFIWriterHelper::EncodeFloatFI(this->Writer, loc, size);
 #else
+  std::ostringstream ss;
   switch (type)
     {
     case(SFVEC3F):
@@ -504,12 +504,10 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, int type, const double* d
 //----------------------------------------------------------------------------
 void vtkX3DExporterFIWriter::SetField(int attributeID, int type, vtkDataArray* a)
 {
-  std::ostringstream ss;
-  std::vector<double> values;
-
   this->StartAttribute(attributeID, true, false);
 
 #ifdef ENCODEASSTRING
+  std::ostringstream ss;
   switch(type)
     {
   case (MFVEC3F):
@@ -529,6 +527,7 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, int type, vtkDataArray* a
     assert(false);
     }
 #else
+  std::vector<double> values;
   switch(type)
     {
   case (MFVEC3F):
@@ -597,9 +596,6 @@ void vtkX3DExporterFIWriter::SetField(int attributeID,
 //----------------------------------------------------------------------------
 void vtkX3DExporterFIWriter::SetField(int attributeID, int type, vtkCellArray* a)
 {
-  std::ostringstream ss;
-  std::vector<int> values;
-
   vtkIdType npts = 0;
   vtkIdType *indx = 0;
 
@@ -626,6 +622,7 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, int type, vtkCellArray* a
     assert(false);
     }
 #else
+  std::vector<int> values;
   switch(type)
     {
   case (MFINT32):

@@ -50,7 +50,8 @@
 #include "vtkCommand.h"
 #include "vtkWindow.h"
 
-#include <float.h> //for FLT_EPSILON
+#include <algorithm>
+#include <cfloat> //for FLT_EPSILON
 
 vtkStandardNewMacro(vtkImplicitCylinderRepresentation);
 
@@ -383,6 +384,10 @@ void vtkImplicitCylinderRepresentation::SetRepresentationState(int state)
     this->HighlightCylinder(1);
     this->HighlightOutline(1);
     }
+  else if ( state == vtkImplicitCylinderRepresentation::TranslatingCenter )
+    {
+    this->HighlightNormal(1);
+    }
   else
     {
     this->HighlightNormal(0);
@@ -435,6 +440,10 @@ void vtkImplicitCylinderRepresentation::WidgetInteraction(double e[2])
   else if ( this->InteractionState == vtkImplicitCylinderRepresentation::MovingCenter )
     {
     this->TranslateCenter(prevPickPoint, pickPoint);
+    }
+  else if ( this->InteractionState == vtkImplicitCylinderRepresentation::TranslatingCenter )
+    {
+    this->TranslateCenterOnAxis(prevPickPoint, pickPoint);
     }
   else if ( this->InteractionState == vtkImplicitCylinderRepresentation::AdjustingRadius )
     {
@@ -681,6 +690,9 @@ void vtkImplicitCylinderRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     case Scaling:
       os << "Scaling\n";
       break;
+    case TranslatingCenter:
+      os << "TranslatingCenter\n";
+      break;
     }
 
   // this->InteractionState is printed in superclass
@@ -824,6 +836,47 @@ void vtkImplicitCylinderRepresentation::TranslateCenter(double *p1, double *p2)
   newCenter[2] = c[2] + v[2];
 
   vtkPlane::ProjectPoint(newCenter,c,a,newCenter);
+  this->SetCenter(newCenter[0],newCenter[1],newCenter[2]);
+  this->BuildRepresentation();
+}
+
+//----------------------------------------------------------------------------
+// Translate the center on the axis
+void vtkImplicitCylinderRepresentation::TranslateCenterOnAxis(double *p1, double *p2)
+{
+  // Get the motion vector
+  double v[3];
+  v[0] = p2[0] - p1[0];
+  v[1] = p2[1] - p1[1];
+  v[2] = p2[2] - p1[2];
+
+  // Add to the current point, project back down onto plane
+  double *c = this->Cylinder->GetCenter();
+  double *a = this->Cylinder->GetAxis();
+  double newCenter[3];
+
+  newCenter[0] = c[0] + v[0];
+  newCenter[1] = c[1] + v[1];
+  newCenter[2] = c[2] + v[2];
+
+  // Normalize the axis vector
+  const double imag = 1. /
+    std::max(1.0e-100, sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2]));
+  double an[3];
+  an[0] = a[0] * imag;
+  an[1] = a[1] * imag;
+  an[2] = a[2] * imag;
+
+  // Project the point on the axis vector
+  double u[3];
+  u[0] = newCenter[0] - c[0];
+  u[1] = newCenter[1] - c[1];
+  u[2] = newCenter[2] - c[2];
+  double dot = an[0] * u[0] + an[1] * u[1] + an[2] * u[2];
+  newCenter[0] = c[0] + an[0] * dot;
+  newCenter[1] = c[1] + an[1] * dot;
+  newCenter[2] = c[2] + an[2] * dot;
+
   this->SetCenter(newCenter[0],newCenter[1],newCenter[2]);
   this->BuildRepresentation();
 }

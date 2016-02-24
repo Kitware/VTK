@@ -33,6 +33,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTestUtilities.h"
+#include "vtkInformation.h"
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) \
@@ -118,9 +119,10 @@ void PSLACReaderQuadraticMethod(vtkMultiProcessController *controller, void *_ar
 
     prm->StopServices();
     // Change the time to test the periodic mode interpolation.
-    vtkStreamingDemandDrivenPipeline *sdd =
-      vtkStreamingDemandDrivenPipeline::SafeDownCast(geometry->GetExecutive());
-    sdd->SetUpdateTimeStep(0, 3e-10);
+    geometry->UpdateInformation();
+    geometry->GetOutputInformation(0)->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),
+      3e-10);
     renwin->Render();
 
     // Do the test comparison.
@@ -142,9 +144,10 @@ void PSLACReaderQuadraticMethod(vtkMultiProcessController *controller, void *_ar
     {
     prm->StartServices();
     // Change the time to test the periodic mode interpolation.
-    vtkStreamingDemandDrivenPipeline *sdd =
-      vtkStreamingDemandDrivenPipeline::SafeDownCast(geometry->GetExecutive());
-    sdd->SetUpdateTimeStep(0, 3e-10);
+    geometry->UpdateInformation();
+    geometry->GetOutputInformation(0)->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),
+      3e-10);
     prm->StartServices();
     }
 

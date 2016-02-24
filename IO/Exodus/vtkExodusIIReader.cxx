@@ -59,17 +59,17 @@
 #include "vtksys/RegularExpression.hxx"
 
 #include "vtk_exodusII.h"
-#include <stdio.h>
+#include <cstdio>
 #include <cstdlib> /* for free() */
-#include <string.h> /* for memset() */
-#include <ctype.h> /* for toupper(), isgraph() */
-#include <math.h> /* for cos() */
+#include <cstring> /* for memset() */
+#include <cctype> /* for toupper(), isgraph() */
+#include <cmath> /* for cos() */
 
 #ifdef EXODUSII_HAVE_MALLOC_H
 #  include <malloc.h>
 #endif /* EXODUSII_HAVE_MALLOC_H */
 
-#if defined(_WIN32) && !defined(__CYGWIN__)
+#if defined(_MSC_VER) && (_MSC_VER < 1900)
 # define SNPRINTF _snprintf
 #else
 # define SNPRINTF snprintf
@@ -152,10 +152,10 @@ static const char* obj_typestr[] = {
   "N"
 };
 
-#define OBJTYPE_IS_BLOCK(i) ((i>=0)&&(i<3))
-#define OBJTYPE_IS_SET(i) ((i>2)&&(i<8))
-#define OBJTYPE_IS_MAP(i) ((i>7)&&(i<12))
-#define OBJTYPE_IS_NODAL(i) (i==12)
+#define OBJTYPE_IS_BLOCK(i) (((i)>=0)&&((i)<3))
+#define OBJTYPE_IS_SET(i) (((i)>2)&&((i)<8))
+#define OBJTYPE_IS_MAP(i) (((i)>7)&&((i)<12))
+#define OBJTYPE_IS_NODAL(i) ((i)==12)
 
 // Unlike obj* items above:
 // - conn* arrays only reference objects that generate connectivity information
@@ -189,8 +189,8 @@ static int conn_obj_idx_cvt[] = {
   2, 1, 0, 7, 6, 5, 4, 3
 };
 
-#define CONNTYPE_IS_BLOCK(i) ((i>=0)&&(i<3))
-#define CONNTYPE_IS_SET(i) ((i>2)&&(i<8))
+#define CONNTYPE_IS_BLOCK(i) (((i)>=0)&&((i)<3))
+#define CONNTYPE_IS_SET(i) (((i)>2)&&((i)<8))
 
 static const char* glomTypeNames[] = {
   "Scalar",
@@ -466,8 +466,6 @@ void vtkExodusIIReaderPrivate::GlomArrayNames( int objtyp,
   glommers.push_back( ten34 );
   glommers.push_back( intpt );
   glomVec::iterator glommer;
-  typedef std::vector<vtkExodusIIReaderPrivate::ArrayInfoType> varVec;
-  varVec arrays;
   std::vector<int> tmpTruth;
   // Advance through the variable names.
   for ( int i = 0; i < num_vars; ++ i )
@@ -515,6 +513,7 @@ void vtkExodusIIReaderPrivate::GlomArrayNames( int objtyp,
 
   // Now see what the gloms were.
   /*
+  typedef std::vector<vtkExodusIIReaderPrivate::ArrayInfoType> varVec;
   for ( varVec::iterator it = this->ArrayInfo[objtyp].begin(); it != this->ArrayInfo[objtyp].end(); ++ it )
     {
     cout << "Name: \"" << it->Name.c_str() << "\" (" << it->Components << ")\n";
@@ -3860,7 +3859,6 @@ void vtkExodusIIReaderPrivate::BuildSIL()
   crossEdgesArray->Delete();
 
   std::deque<std::string> names;
-  std::deque<vtkIdType> crossEdgeIds; // ids for edges between trees.
   int cc;
 
   // Now build the hierarchy.
@@ -4288,7 +4286,6 @@ int vtkExodusIIReaderPrivate::RequestInformation()
   VTK_EXO_FUNC( ex_get_var_param( exoid, "n", &num_vars ), "Unable to read number of nodal variables." );
   if ( num_vars > 0 )
     {
-    ArrayInfoType ainfo;
     var_names = (char**) malloc( num_vars * sizeof(char*) );
     for ( j = 0; j < num_vars; ++j )
       var_names[j] = (char*) malloc( (MAX_STR_LENGTH + 1) * sizeof(char) );
@@ -4318,7 +4315,6 @@ int vtkExodusIIReaderPrivate::RequestInformation()
   VTK_EXO_FUNC( ex_get_var_param( exoid, "g", &num_vars ), "Unable to read number of global variables." );
   if ( num_vars > 0 )
     {
-    ArrayInfoType ainfo;
     var_names = (char**) malloc( num_vars * sizeof(char*) );
     for ( j = 0; j < num_vars; ++j )
       var_names[j] = (char*) malloc( (MAX_STR_LENGTH + 1) * sizeof(char) );

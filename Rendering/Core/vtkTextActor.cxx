@@ -33,7 +33,7 @@
 
 #include <algorithm>
 
-vtkStandardNewMacro(vtkTextActor);
+vtkObjectFactoryNewMacro(vtkTextActor)
 
 // ----------------------------------------------------------------------------
 vtkTextActor::vtkTextActor()

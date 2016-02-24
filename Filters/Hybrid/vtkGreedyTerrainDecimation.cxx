@@ -33,8 +33,8 @@ vtkStandardNewMacro(vtkGreedyTerrainDecimation);
 
 // Define some constants describing vertices
 //
-#define VTK_VERTEX_NO_TRIANGLE -1
-#define VTK_VERTEX_INSERTED    -2
+#define VTK_VERTEX_NO_TRIANGLE (-1)
+#define VTK_VERTEX_INSERTED    (-2)
 
 #define VTK_IN_TRIANGLE   0
 #define VTK_INTERIOR_EDGE 1

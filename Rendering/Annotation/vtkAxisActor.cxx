@@ -35,6 +35,8 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
+#define VTK_MAX_TICKS     1000
+
 vtkStandardNewMacro(vtkAxisActor);
 vtkCxxSetObjectMacro(vtkAxisActor, Camera, vtkCamera);
 vtkCxxSetObjectMacro(vtkAxisActor,LabelTextProperty,vtkTextProperty);
@@ -1749,7 +1751,7 @@ void vtkAxisActor::SetTitle(const char *t)
     {
     return;
     }
-  if (this->Title && (!strcmp(this->Title, t)))
+  if (this->Title && t && (!strcmp(this->Title, t)))
     {
     return;
     }

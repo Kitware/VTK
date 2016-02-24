@@ -49,7 +49,7 @@
 #include "vtkContourHelper.h"
 
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkCutter);
 vtkCxxSetObjectMacro(vtkCutter,CutFunction,vtkImplicitFunction);

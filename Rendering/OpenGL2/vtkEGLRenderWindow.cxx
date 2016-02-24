@@ -149,10 +149,6 @@ void vtkEGLRenderWindow::Frame()
       eglSwapBuffers(impl->Display, impl->Surface);
       vtkDebugMacro(<< " eglSwapBuffers\n");
       }
-    else
-      {
-      glFlush();
-      }
     }
   else
     {
@@ -160,10 +156,6 @@ void vtkEGLRenderWindow::Frame()
       {
       eglSwapBuffers( eglGetCurrentDisplay(), eglGetCurrentSurface( EGL_DRAW ) );
       vtkDebugMacro(<< " eglSwapBuffers\n");
-      }
-    else
-      {
-      glFlush();
       }
     }
 }
@@ -428,6 +420,7 @@ void vtkEGLRenderWindow::Initialize (void)
       this->ResizeWindow(this->Size[0], this->Size[1]);
       }
     }
+  this->Initialized = true;
 }
 
 void vtkEGLRenderWindow::Finalize (void)
@@ -557,24 +550,12 @@ void vtkEGLRenderWindow::SetPosition(int x, int y)
   this->Position[1] = y;
 }
 
-int vtkEGLRenderWindow::SupportsOpenGL()
-{
-  vtkInternals* impl = this->Internals;
-  this->MakeCurrent();
-  if(impl->Display == EGL_NO_DISPLAY && this->OwnWindow)
-    {
-    return false;
-    }
-  return true;
-}
-
 // Set this RenderWindow to a pre-existing window.
 void vtkEGLRenderWindow::SetWindowInfo(char *)
 {
   this->OwnWindow = 0;
   this->Mapped = 1;
 }
-
 
 void vtkEGLRenderWindow::SetWindowName(const char *name)
 {

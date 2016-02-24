@@ -22,6 +22,7 @@
 #define vtkDataArrayTemplate_h
 
 #include "vtkCommonCoreModule.h" // For export macro
+#include "vtkAbstractArray.h" // For delete method enums
 #include "vtkTypedDataArray.h"
 #include "vtkTypeTemplate.h" // For templated vtkObject API
 #include <cassert> // for assert()
@@ -263,14 +264,6 @@ public:
   T* GetPointer(vtkIdType id) { return this->Array + id; }
   virtual void* GetVoidPointer(vtkIdType id) { return this->GetPointer(id); }
 
-//BTX
-  enum DeleteMethod
-  {
-    VTK_DATA_ARRAY_FREE,
-    VTK_DATA_ARRAY_DELETE
-  };
-//ETX
-
   // Description:
   // This method lets the user specify data to be held by the array.  The
   // array argument is a pointer to the data.  size is the size of the
@@ -283,12 +276,10 @@ public:
   // DELETE, delete[] will be used. The default is FREE.
   void SetArray(T* array, vtkIdType size, int save, int deleteMethod);
   void SetArray(T* array, vtkIdType size, int save)
-    { this->SetArray(array, size, save, VTK_DATA_ARRAY_FREE); }
+    { this->SetArray(array, size, save, vtkAbstractArray::VTK_DATA_ARRAY_FREE); }
   virtual void SetVoidArray(void* array, vtkIdType size, int save)
     { this->SetArray(static_cast<T*>(array), size, save); }
-  virtual void SetVoidArray(void* array,
-                            vtkIdType size,
-                            int save,
+  virtual void SetVoidArray(void* array, vtkIdType size, int save,
                             int deleteMethod)
     {
       this->SetArray(static_cast<T*>(array), size, save, deleteMethod);

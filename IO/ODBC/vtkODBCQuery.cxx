@@ -1593,7 +1593,6 @@ vtkODBCQuery::CacheBinaryColumn(int column)
 
   this->SetLastErrorText(NULL);
 
-  std::ostringstream resultbuf;
   std::ostringstream outbuf;
 
   while (true)

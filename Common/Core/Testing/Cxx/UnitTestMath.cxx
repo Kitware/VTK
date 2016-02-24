@@ -3101,6 +3101,34 @@ int TestClampValue()
   double clampedValue;
   double range[2] = {-1.0, 1.0};
 
+  value = -800.0;
+  clampedValue = vtkMath::ClampValue(value, range[0], range[1]);
+  if (clampedValue != range[0])
+    {
+    std::cout << " ClampValue expected " << range[0]
+              << " but got " << value;
+    ++status;
+    }
+
+  value = 900.0;
+  clampedValue = vtkMath::ClampValue(value, range[0], range[1]);
+  if (clampedValue != range[1])
+    {
+    std::cout << " ClampValue expected " << range[1]
+              << " but got " << value;
+    ++status;
+    }
+
+  value = 0.0;
+  clampedValue = vtkMath::ClampValue(value, range[0], range[1]);
+  if (clampedValue != 0.0)
+    {
+    std::cout << " ClampValue expected " << 0.0
+              << " but got " << value;
+    ++status;
+    }
+
+
   value = -100.0;
   vtkMath::ClampValue(&value, range);
   if (value != range[0])

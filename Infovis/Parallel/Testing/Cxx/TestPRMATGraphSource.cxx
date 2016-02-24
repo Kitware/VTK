@@ -187,12 +187,7 @@ int TestPRMATGraphSource(int argc, char* argv[])
       cerr << "Breadth-first search...";
       }
     boost::mpi::timer timer;
-    bfs->UpdateInformation();
-    vtkStreamingDemandDrivenPipeline* exec =
-      vtkStreamingDemandDrivenPipeline::SafeDownCast(bfs->GetExecutive());
-    exec->SetUpdateNumberOfPieces(exec->GetOutputInformation(0), world.size());
-    exec->SetUpdatePiece(exec->GetOutputInformation(0), world.rank());
-    bfs->Update();
+    bfs->Update(world.rank(), world.size(), 0);
 
     if (world.rank() == 0)
       {
@@ -225,12 +220,7 @@ int TestPRMATGraphSource(int argc, char* argv[])
       cerr << "Single-source shortest paths...";
       }
     boost::mpi::timer timer;
-    sssp->UpdateInformation();
-    vtkStreamingDemandDrivenPipeline* exec =
-      vtkStreamingDemandDrivenPipeline::SafeDownCast(sssp->GetExecutive());
-    exec->SetUpdateNumberOfPieces(exec->GetOutputInformation(0), world.size());
-    exec->SetUpdatePiece(exec->GetOutputInformation(0), world.rank());
-    sssp->Update();
+    sssp->Update(world.rank(), world.size(), 0);
 
     if (world.rank() == 0)
       {
@@ -307,12 +297,7 @@ int TestPRMATGraphSource(int argc, char* argv[])
       cerr << "Connected components...";
       }
     boost::mpi::timer timer;
-    cc->UpdateInformation();
-    vtkStreamingDemandDrivenPipeline* exec =
-      vtkStreamingDemandDrivenPipeline::SafeDownCast(cc->GetExecutive());
-    exec->SetUpdateNumberOfPieces(exec->GetOutputInformation(0), world.size());
-    exec->SetUpdatePiece(exec->GetOutputInformation(0), world.rank());
-    cc->Update();
+    cc->Update(world.rank(), world.size(), 0);
 
     if (world.rank() == 0)
       {

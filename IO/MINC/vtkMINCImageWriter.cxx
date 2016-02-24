@@ -81,7 +81,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #endif
 
 #include <cstdlib>
-#include <float.h>
+#include <cfloat>
 #include <ctime>
 #include <string>
 #include <vector>
@@ -218,7 +218,7 @@ int vtkMINCImageWriter::CloseNetCDFFile(int ncid)
 // this is a macro so the vtkErrorMacro will report a useful line number
 #define vtkMINCImageWriterFailAndClose(ncid, status) \
 { \
-  if (status != NC_NOERR) \
+  if ((status) != NC_NOERR) \
     { \
     vtkErrorMacro("There was an error with the MINC file \"" \
                   << this->GetFileName() << "\":\n" \
@@ -2144,7 +2144,7 @@ int vtkMINCImageWriter::RequestData(
           input,
           timeStep,
           vtkStreamingDemandDrivenPipeline::GetWholeExtent(inInfo),
-          vtkStreamingDemandDrivenPipeline::GetUpdateExtent(inInfo)) == 0)
+          inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT())) == 0)
       {
       return 0;
       }

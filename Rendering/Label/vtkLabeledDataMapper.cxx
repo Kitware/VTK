@@ -46,7 +46,7 @@ vtkStandardNewMacro(vtkLabeledDataMapper);
 
 vtkCxxSetObjectMacro(vtkLabeledDataMapper,Transform,vtkTransform);
 
-#if defined(_WIN32) && !defined(__CYGWIN__)
+#if defined(_MSC_VER) && (_MSC_VER < 1900)
 # define SNPRINTF _snprintf
 #else
 # define SNPRINTF snprintf

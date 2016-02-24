@@ -1,4 +1,6 @@
 vtk_module(vtkCommonDataModel
+  GROUPS
+    StandAlone
   DEPENDS
     vtkCommonSystem
     vtkCommonMath

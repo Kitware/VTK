@@ -634,11 +634,11 @@ void testPipeline(vtkUnstructuredGridBase *input, vtkDataSet *&output,
 { \
   timeLog_.clear(); \
   timeLog_.resize(repeat_, -500); \
-  for (int benchmark = 0; benchmark < repeat_; ++benchmark) \
+  for (int benchmark = 0; benchmark < (repeat_); ++benchmark) \
     { \
     double &benchmarkTime = timeLog_[benchmark]; \
     call_; \
-    if (benchmark + 1 != repeat_) \
+    if (benchmark + 1 != (repeat_)) \
       { \
       reset_; \
       } \

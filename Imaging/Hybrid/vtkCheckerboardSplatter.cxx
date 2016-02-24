@@ -29,7 +29,7 @@
 #include "vtkSMPTools.h"
 
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkCheckerboardSplatter);
 
@@ -601,6 +601,11 @@ vtkCheckerboardSplatter::vtkCheckerboardSplatter()
   this->MaximumDimension = 50;
 
   this->ParallelSplatCrossover = 2;
+
+  // Splat point scalars by default:
+  this->SetInputArrayToProcess(0, 0, 0,
+                               vtkDataObject::FIELD_ASSOCIATION_POINTS,
+                               vtkDataSetAttributes::SCALARS);
 }
 
 //----------------------------------------------------------------------------
@@ -696,7 +701,7 @@ int vtkCheckerboardSplatter::RequestData(
     }
 
   // Grab relevant attribute data
-  vtkDataArray *inScalars = input->GetPointData()->GetScalars();
+  vtkDataArray *inScalars = this->GetInputArrayToProcess(0, inputVector);
   vtkDataArray *inNormals = input->GetPointData()->GetNormals();
 
   // Okay actually execute the algorithm. Manage all the crazy template

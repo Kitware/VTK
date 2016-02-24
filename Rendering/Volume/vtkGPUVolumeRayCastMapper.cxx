@@ -294,7 +294,7 @@ int vtkGPUVolumeRayCastMapper::ValidateRender(vtkRenderer *ren,
       // Transform the origin and the extents.
       origin[cc] = origin[cc] + extents[2*cc]*spacing[cc];
       extents[2*cc+1] -= extents[2*cc];
-      extents[2*cc] -= extents[2*cc];
+      extents[2*cc] = 0;
       }
 
     clone->SetOrigin(origin);

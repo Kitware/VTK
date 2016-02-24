@@ -19,7 +19,7 @@
 
 #include "vtkMultiThreshold.h"
 
-#include <math.h>
+#include <cmath>
 
 #include "vtkCellData.h"
 #include "vtkDataArray.h"

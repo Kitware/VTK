@@ -20,7 +20,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
-#include <stdio.h>
+#include <cstdio>
 
 using std::cout;
 using std::endl;

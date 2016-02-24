@@ -141,6 +141,16 @@ void vtkProbeFilter::PassAttributeData(
       {
       output->GetPointData()->AddArray(input->GetPointData()->GetArray(i));
       }
+
+    // Set active attributes in the output to the active attributes in the input
+    for (int i = 0; i < vtkDataSetAttributes::NUM_ATTRIBUTES; ++i)
+      {
+      vtkAbstractArray* da = input->GetPointData()->GetAttribute(i);
+      if (da)
+        {
+        output->GetPointData()->SetAttribute(da, i);
+        }
+      }
     }
 
   // copy cell data arrays
@@ -150,6 +160,16 @@ void vtkProbeFilter::PassAttributeData(
     for (int i=0; i<numCellArrays; ++i)
       {
       output->GetCellData()->AddArray(input->GetCellData()->GetArray(i));
+      }
+
+    // Set active attributes in the output to the active attributes in the input
+    for (int i = 0; i < vtkDataSetAttributes::NUM_ATTRIBUTES; ++i)
+      {
+      vtkAbstractArray* da = input->GetCellData()->GetAttribute(i);
+      if (da)
+        {
+        output->GetCellData()->SetAttribute(da, i);
+        }
       }
     }
 
@@ -645,6 +665,13 @@ int vtkProbeFilter::RequestUpdateExtent(
     }
 
   inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
+
+  sourceInfo->Remove(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+  if (sourceInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
+    {
+    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+      sourceInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()), 6);
+    }
 
   if ( ! this->SpatialMatch)
     {

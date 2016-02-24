@@ -36,7 +36,7 @@
 #include <set>
 #include <algorithm>
 
-#include <math.h>
+#include <cmath>
 
 #ifndef M_SQRTPI
 #define M_SQRTPI        1.77245385090551602792981

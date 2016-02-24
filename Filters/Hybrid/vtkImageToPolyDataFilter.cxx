@@ -635,7 +635,7 @@ unsigned char *vtkImageToPolyDataFilter::GetColor(unsigned char *rgb)
   return this->Table->GetPointer(3*(red + green*8 + blue*64));
 }
 
-void vtkImageToPolyDataFilter::GetIJ(int id, int &i, int &j, int dims[3])
+void vtkImageToPolyDataFilter::GetIJ(int id, int &i, int &j, int dims[2])
 {
   i = id % dims[0];
   j = id / dims[0];
@@ -1198,6 +1198,7 @@ void vtkImageToPolyDataFilter::BuildPolygons(vtkUnsignedCharArray *vtkNotUsed(po
     if (ncells < 2)
       {
       vtkErrorMacro(<<"Bad mojo");
+      delete [] polyVisited;
       return;
       }
     //for each edge, walk around polygon (if not visited before)

@@ -29,7 +29,7 @@
 #include "vtkVolumeCollection.h"
 #include "vtkVolumeProperty.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkVolume);
 

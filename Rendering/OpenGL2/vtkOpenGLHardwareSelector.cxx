@@ -230,7 +230,6 @@ void vtkOpenGLHardwareSelector::BeginRenderProp()
   this->BeginRenderProp(renWin);
 
   //cout << "In BeginRenderProp" << endl;
-  //glFinish();
   if (this->CurrentPass == ACTOR_PASS)
     {
     int propid = this->PropID;

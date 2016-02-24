@@ -29,7 +29,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkVariant.h"
-#include <ctype.h>
+#include <cctype>
 
 #include <map>
 #include <utility>

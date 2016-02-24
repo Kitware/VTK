@@ -38,17 +38,14 @@ Ph.D. thesis of Christian BOUCHENY.
 
 #include "vtkDepthImageProcessingPass.h"
 #include "vtkObjectFactory.h"
-#include <assert.h>
+#include <cassert>
 #include "vtkRenderState.h"
 #include "vtkRenderer.h"
 #include "vtkFrameBufferObject.h"
 #include "vtkTextureObject.h"
 #include "vtkOpenGLRenderWindow.h"
 
-#include "vtkPNGWriter.h"
-#include "vtkImageImport.h"
 #include "vtkPixelBufferObject.h"
-#include "vtkImageExtractComponents.h"
 #include "vtkCamera.h"
 #include "vtkMath.h"
 

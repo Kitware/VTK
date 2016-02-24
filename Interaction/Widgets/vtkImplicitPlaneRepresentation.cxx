@@ -46,7 +46,7 @@
 #include "vtkCommand.h"
 #include "vtkWindow.h"
 
-#include <float.h> //for FLT_EPSILON
+#include <cfloat> //for FLT_EPSILON
 
 vtkStandardNewMacro(vtkImplicitPlaneRepresentation);
 

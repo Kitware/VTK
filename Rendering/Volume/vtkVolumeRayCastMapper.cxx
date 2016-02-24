@@ -38,7 +38,7 @@
 #include "vtkRayCastImageDisplayHelper.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkVolumeRayCastMapper);
 
@@ -314,10 +314,7 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
     }
   else
     {
-    this->GetInputAlgorithm()->UpdateInformation();
-    vtkStreamingDemandDrivenPipeline::SetUpdateExtentToWholeExtent(
-      this->GetInputInformation());
-    this->GetInputAlgorithm()->Update();
+    this->GetInputAlgorithm()->UpdateWholeExtent();
     }
 
 

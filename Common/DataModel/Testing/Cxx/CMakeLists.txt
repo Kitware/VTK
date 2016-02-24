@@ -31,10 +31,12 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestQuadraticPolygon.cxx
   TestRect.cxx
   TestSelectionSubtract.cxx
+  TestSortFieldData.cxx
   TestTable.cxx
   TestTreeBFSIterator.cxx
   TestTreeDFSIterator.cxx
   TestTriangle.cxx
+  TimePointLocators.cxx
   otherCellArray.cxx
   otherCellBoundaries.cxx
   otherCellPosition.cxx

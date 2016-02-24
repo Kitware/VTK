@@ -30,4 +30,10 @@ for impl in ["PyQt5", "PyQt4", "PySide"]:
         PyQtImpl = impl
         break
 
+# QVTKRWIBase, base class for QVTKRenderWindowInteractor,
+# can be altered by the user to "QGLWidget" in case
+# of rendering errors (e.g. depth check problems, readGLBuffer
+# warnings...)
+QVTKRWIBase = "QWidget"
+
 __all__ = ['QVTKRenderWindowInteractor']

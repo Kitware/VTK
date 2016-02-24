@@ -89,7 +89,7 @@ protected:
   vtkTexturedActor2D          *TextureActor;
 
   // Helper methods
-  void AdjustImageSize(double o[2], double borderSize[2], double imageSize[2]);
+  virtual void AdjustImageSize(double o[2], double borderSize[2], double imageSize[2]);
 
 private:
   vtkLogoRepresentation(const vtkLogoRepresentation&);  //Not implemented

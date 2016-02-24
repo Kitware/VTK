@@ -520,18 +520,9 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
     return;
     }
 
-  // check if this system is subject to the apple primID bug
-  this->HaveAppleBug = false;
-
-#ifdef __APPLE__
-  std::string vendor = (const char *)glGetString(GL_VENDOR);
-  if (vendor.find("ATI") != std::string::npos ||
-      vendor.find("AMD") != std::string::npos ||
-      vendor.find("amd") != std::string::npos)
-    {
-    this->HaveAppleBug = true;
-    }
-#endif
+  // check if this system is subject to the apple/amd primID bug
+  this->HaveAppleBug =
+    static_cast<vtkOpenGLRenderer *>(viewport)->HaveApplePrimitiveIdBug();
 
   this->HaveCellScalars = false;
   if (this->ScalarVisibility)

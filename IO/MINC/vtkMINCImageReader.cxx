@@ -63,6 +63,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkSmartPointer.h"
 #include "vtkMath.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkInformation.h"
 
 #include "vtkType.h"
 
@@ -71,8 +72,8 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtk_netcdf.h"
 
 #include <cstdlib>
-#include <ctype.h>
-#include <float.h>
+#include <cctype>
+#include <cfloat>
 #include <string>
 #include <map>
 
@@ -327,7 +328,7 @@ int vtkMINCImageReader::CloseNetCDFFile(int ncid)
 // this is a macro so the vtkErrorMacro will report a useful line number
 #define vtkMINCImageReaderFailAndClose(ncid, status) \
 { \
-  if (status != NC_NOERR) \
+  if ((status) != NC_NOERR) \
     { \
     vtkErrorMacro("There was an error with the MINC file:\n" \
                   << this->GetFileName() << "\n" \
@@ -1136,8 +1137,8 @@ void vtkMINCImageReader::ExecuteDataWithInformation(vtkDataObject *output,
   int scalarSize = data->GetScalarSize();
   int numComponents = data->GetNumberOfScalarComponents();
   int outExt[6];
-  memcpy(outExt, vtkStreamingDemandDrivenPipeline::GetUpdateExtent(
-           this->GetOutputInformation(0)), 6*sizeof(int));
+  this->GetOutputInformation(0)->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), outExt);
   vtkIdType outInc[3];
   data->GetIncrements(outInc);
   int outSize[3];

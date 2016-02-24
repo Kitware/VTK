@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 
 #include <cstdlib>
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkMatrix4x4);
 
@@ -285,11 +285,11 @@ void vtkMatrix4x4::Adjoint(const double elem[16], double outElem[16])
 }
 
 //----------------------------------------------------------------------------
-void vtkMatrix4x4::DeepCopy(double elements[16], const double newElements[16])
+void vtkMatrix4x4::DeepCopy(double destination[16], const double source[16])
 {
   for (int i = 0; i < 16; i++)
     {
-    elements[i] = newElements[i];
+    destination[i] = source[i];
     }
 }
 

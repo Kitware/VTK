@@ -33,6 +33,7 @@ set(Module_SRCS
   vtkOpenGLActor.cxx
   vtkOpenGLBufferObject.cxx
   vtkOpenGLCamera.cxx
+  vtkOpenGLGL2PSHelper.cxx
   vtkOpenGLGlyph3DHelper.cxx
   vtkOpenGLGlyph3DMapper.cxx
   vtkOpenGLHardwareSelector.cxx
@@ -50,10 +51,14 @@ set(Module_SRCS
   vtkOpenGLRenderUtilities.cxx
   vtkOpenGLRenderer.cxx
   vtkOpenGLShaderCache.cxx
+  vtkOpenGLTextActor.cxx
+  vtkOpenGLTextActor3D.cxx
+  vtkOpenGLTextMapper.cxx
   vtkOpenGLTexture.cxx
   vtkOpenGLVertexArrayObject.cxx
   vtkOpenGLVertexBufferObject.cxx
   vtkOverlayPass.cxx
+  vtkPointFillPass.cxx
   vtkRenderPass.cxx
   vtkRenderPassCollection.cxx
   vtkRenderState.cxx
@@ -67,6 +72,7 @@ set(Module_SRCS
   vtkSobelGradientMagnitudePass.cxx
   vtkTextureObject.cxx
   vtkTextureUnitManager.cxx
+  vtkTransformFeedback.cxx
   vtkTranslucentPass.cxx
   vtkValuePass.cxx
   vtkVolumetricPass.cxx
@@ -100,6 +106,7 @@ set_source_files_properties(
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
   vtkFrameBufferObject
   vtkOpenGLBufferObject
+  vtkOpenGLGL2PSHelper
   vtkOpenGLGlyph3DHelper
   vtkOpenGLGlyph3DMapper
   vtkOpenGLHelper
@@ -112,15 +119,18 @@ set_source_files_properties(
   vtkRenderbuffer
   vtkTextureObject
   vtkTextureUnitManager
+  vtkTransformFeedback
   WRAP_EXCLUDE)
 
 set_source_files_properties(
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
+  vtkOpenGLGL2PSHelper
   vtkOpenGLGlyph3DHelper
   vtkOpenGLHelper
   PROPERTIES WRAP_EXCLUDE_PYTHON 1)
 
 set_source_files_properties(
+  vtkOpenGLGL2PSHelper
   vtkOpenGLRenderWindow
   vtkRenderPass
   vtkRenderState
@@ -138,6 +148,7 @@ set(shader_files
   glsl/vtkGaussianBlurPassVS.glsl
   glsl/vtkGlyph3DVS.glsl
   glsl/vtkPointGaussianVS.glsl
+  glsl/vtkPointFillPassFS.glsl
   glsl/vtkPolyData2DFS.glsl
   glsl/vtkPolyData2DVS.glsl
   glsl/vtkPolyDataFS.glsl
@@ -194,6 +205,9 @@ set(opengl_overrides
   PolyDataMapper2D
   Property
   Renderer
+  TextActor
+  TextActor3D
+  TextMapper
   Texture
   )
 

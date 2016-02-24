@@ -42,6 +42,7 @@ IMAGE_PATH           = "@VTK_SOURCE_DIR@/Utilities/Doxygen" "@VTK_BINARY_DIR@/Ut
 OUTPUT_DIRECTORY     = "@VTK_BINARY_DIR@/Utilities/Doxygen/doc"
 
 INPUT                = \
+          "@VTK_SOURCE_DIR@/Documentation/Doxygen" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_version.dox" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_class2examples.dox" \
@@ -95,7 +96,7 @@ TAB_SIZE             = 3
 SHORT_NAMES          = @DOXYGEN_SHORT_NAMES@
 # PAPER_TYPE           = letter
 
-FILE_PATTERNS        = *.h
+FILE_PATTERNS        = *.h *.md
 RECURSIVE            = YES
 
 ALPHABETICAL_INDEX   = YES

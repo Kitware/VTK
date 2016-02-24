@@ -23,12 +23,9 @@ class TestTemporalSnapToTimeStep(Testing.vtkTest):
     shift = vtk.vtkTemporalSnapToTimeStep()
     shift.SetInputConnection(source.GetOutputPort())
 
-    shift.UpdateInformation()
-    executive = shift.GetExecutive()
     for i in range(4):
       inTime = i*0.5+0.1
-      executive.SetUpdateTimeStep(0,inTime)
-      executive.Update()
+      shift.UpdateTimeStep(inTime)
       self.assertEqual(shift.GetOutputDataObject(0).GetInformation().Has(vtk.vtkDataObject.DATA_TIME_STEP()),True)
       outTime = shift.GetOutputDataObject(0).GetInformation().Get(vtk.vtkDataObject.DATA_TIME_STEP())
       self.assertEqual(outTime==Nearest(inTime),True);

@@ -99,6 +99,7 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
 
   this->AppleBugPrimIDBuffer = 0;
   this->HaveAppleBug = false;
+  this->HaveAppleBugForce = 0;
   this->LastBoundBO = NULL;
 
   this->VertexShaderCode = 0;
@@ -111,8 +112,9 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   this->LastLightComplexity[&this->TriStrips] = -1;
   this->LastLightComplexity[&this->TrisEdges] = -1;
   this->LastLightComplexity[&this->TriStripsEdges] = -1;
-}
 
+  this->TimerQuery = 0;
+}
 
 //-----------------------------------------------------------------------------
 vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
@@ -420,7 +422,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
       "  vec3 specularColor;\n"
       "  float specularPower;\n";
     }
-  if (actor->GetBackfaceProperty())
+  if (actor->GetBackfaceProperty() && !this->DrawingEdges)
     {
     if (this->LastLightComplexity[this->LastBoundBO])
       {
@@ -1961,6 +1963,34 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
   glPointSize(actor->GetProperty()->GetPointSize()); // not on ES2
 #endif
 
+  this->TimeToDraw = 0.0;
+
+#if GL_ES_VERSION_2_0 != 1 && GL_ES_VERSION_3_0 != 1
+  if (this->TimerQuery == 0)
+    {
+    glGenQueries(1, static_cast<GLuint*>(&this->TimerQuery));
+    }
+  else
+    {
+    GLint timerAvailable = 0;
+    glGetQueryObjectiv(static_cast<GLuint>(this->TimerQuery),
+      GL_QUERY_RESULT_AVAILABLE, &timerAvailable);
+
+    if (timerAvailable)
+      {
+      // See how much time the rendering of the mapper took
+      // in nanoseconds during the previous frame
+      GLuint timeElapsed = 0;
+      glGetQueryObjectuiv(static_cast<GLuint>(this->TimerQuery),
+        GL_QUERY_RESULT, &timeElapsed);
+      // Set the rendering time for this frame with the previous one
+      this->TimeToDraw = timeElapsed / 1.0e9;
+      }
+    }
+
+  glBeginQuery(GL_TIME_ELAPSED, static_cast<GLuint>(this->TimerQuery));
+#endif
+
   vtkHardwareSelector* selector = ren->GetSelector();
   int picking = getPickState(ren);
   if (this->LastSelectionState != picking)
@@ -1972,15 +2002,6 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
   if (selector && this->PopulateSelectionSettings)
     {
     selector->BeginRenderProp();
-    // render points for point picking in a special way
-    if (selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS &&
-        selector->GetCurrentPass() >= vtkHardwareSelector::ID_LOW24)
-      {
-#if GL_ES_VERSION_2_0 != 1
-      glPointSize(4.0); //make verts large enough to be sure to overlap cell
-#endif
-      glDepthMask(GL_FALSE); //prevent verts from interfering with each other
-      }
     if (selector->GetCurrentPass() == vtkHardwareSelector::COMPOSITE_INDEX_PASS)
       {
       selector->RenderCompositeIndex(1);
@@ -1993,7 +2014,6 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
       }
     }
 
-  this->TimeToDraw = 0.0;
   this->PrimitiveIDOffset = 0;
 
   // make sure the BOs are up to date
@@ -2023,9 +2043,31 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
 {
+  int representation = actor->GetProperty()->GetRepresentation();
+
+  // render points for point picking in a special way
+  // all cell types should be rendered as points
+  vtkHardwareSelector* selector = ren->GetSelector();
+  bool pointPicking = false;
+  if (selector && this->PopulateSelectionSettings &&
+      selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS &&
+      selector->GetCurrentPass() >= vtkHardwareSelector::ID_LOW24)
+    {
+    representation = VTK_POINTS;
+    pointPicking = true;
+    }
+
   // draw points
   if (this->Points.IBO->IndexCount)
     {
+    // render points for point picking in a special way
+    if (pointPicking)
+      {
+#if GL_ES_VERSION_2_0 != 1
+      glPointSize(2.0);
+#endif
+      }
+
     // Update/build/etc the shader.
     this->UpdateShaders(this->Points, ren, actor);
     this->Points.IBO->Bind();
@@ -2036,18 +2078,6 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
                         reinterpret_cast<const GLvoid *>(NULL));
     this->Points.IBO->Release();
     this->PrimitiveIDOffset += (int)this->Points.IBO->IndexCount;
-    }
-
-  int representation = actor->GetProperty()->GetRepresentation();
-
-  // render points for point picking in a special way
-  // all cell types should be rendered as points
-  vtkHardwareSelector* selector = ren->GetSelector();
-  if (selector && this->PopulateSelectionSettings &&
-      selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS &&
-      selector->GetCurrentPass() >= vtkHardwareSelector::ID_LOW24)
-    {
-    representation = VTK_POINTS;
     }
 
   // draw lines
@@ -2061,6 +2091,12 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
     this->Lines.IBO->Bind();
     if (representation == VTK_POINTS)
       {
+      if (pointPicking)
+        {
+  #if GL_ES_VERSION_2_0 != 1
+        glPointSize(4.0);
+  #endif
+        }
       glDrawRangeElements(GL_POINTS, 0,
                           static_cast<GLuint>(this->VBO->VertexCount - 1),
                           static_cast<GLsizei>(this->Lines.IBO->IndexCount),
@@ -2091,6 +2127,12 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
     this->Tris.IBO->Bind();
     GLenum mode = (representation == VTK_POINTS) ? GL_POINTS :
       (representation == VTK_WIREFRAME) ? GL_LINES : GL_TRIANGLES;
+    if (pointPicking)
+      {
+#if GL_ES_VERSION_2_0 != 1
+      glPointSize(6.0);
+#endif
+      }
     glDrawRangeElements(mode, 0,
                       static_cast<GLuint>(this->VBO->VertexCount - 1),
                       static_cast<GLsizei>(this->Tris.IBO->IndexCount),
@@ -2108,6 +2150,12 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
     this->TriStrips.IBO->Bind();
     if (representation == VTK_POINTS)
       {
+      if (pointPicking)
+        {
+  #if GL_ES_VERSION_2_0 != 1
+        glPointSize(6.0);
+  #endif
+        }
       glDrawRangeElements(GL_POINTS, 0,
                           static_cast<GLuint>(this->VBO->VertexCount - 1),
                           static_cast<GLsizei>(this->TriStrips.IBO->IndexCount),
@@ -2185,6 +2233,10 @@ void vtkOpenGLPolyDataMapper::RenderPieceFinish(vtkRenderer* ren,
     {
     this->InternalColorTexture->PostRender(ren);
     }
+
+#if GL_ES_VERSION_2_0 != 1 && GL_ES_VERSION_3_0 != 1
+  glEndQuery(GL_TIME_ELAPSED);
+#endif
 
   // If the timer is not accurate enough, set it to a small
   // time so that it is not zero
@@ -2791,18 +2843,17 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
     pointPicking = true;
     }
 
-  // check if this system is subject to the apple primID bug
-  this->HaveAppleBug = false;
-
-#ifdef __APPLE__
-  std::string vendor = (const char *)glGetString(GL_VENDOR);
-  if (vendor.find("ATI") != std::string::npos ||
-      vendor.find("AMD") != std::string::npos ||
-      vendor.find("amd") != std::string::npos)
+  // check if this system is subject to the apple/amd primID bug
+  this->HaveAppleBug =
+    static_cast<vtkOpenGLRenderer *>(ren)->HaveApplePrimitiveIdBug();
+  if (this->HaveAppleBugForce == 1)
+    {
+    this->HaveAppleBug = false;
+    }
+  if (this->HaveAppleBugForce == 2)
     {
     this->HaveAppleBug = true;
     }
-#endif
 
   vtkCellArray *prims[4];
   prims[0] =  poly->GetVerts();
@@ -2842,7 +2893,8 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
       {
       vtkWarningMacro("VTK is working around a bug in Apple-AMD hardware related to gl_PrimitiveID.  This may cause significant memory and performance impacts. Your hardware has been identified as vendor "
         << (const char *)glGetString(GL_VENDOR) << " with renderer of "
-        << (const char *)glGetString(GL_RENDERER));
+        << (const char *)glGetString(GL_RENDERER) << " and version "
+        << (const char *)glGetString(GL_VERSION));
       warnedAboutBrokenAppleDriver = true;
       }
     if (n)

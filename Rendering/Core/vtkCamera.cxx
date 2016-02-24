@@ -22,7 +22,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkRenderer.h"
 
-#include <math.h>
+#include <cmath>
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.

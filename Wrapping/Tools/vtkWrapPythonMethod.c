@@ -78,14 +78,23 @@ void vtkWrapPython_DeclareVariables(
     {
     arg = theFunc->Parameters[i];
 
-    if (vtkWrap_IsPythonObject(arg) ||
-        /* a callable python object for function args */
-        vtkWrap_IsFunction(arg))
+    /* a callable python object for function args */
+    if (vtkWrap_IsFunction(arg))
       {
       fprintf(fp,
               "  PyObject *temp%d = NULL;\n",
               i);
+      /* ignore further arguments */
       break;
+      }
+
+    /* a PyObject argument will simply be passed through */
+    if (vtkWrap_IsPythonObject(arg))
+      {
+      fprintf(fp,
+              "  PyObject *temp%d;\n",
+              i);
+      continue;
       }
 
     /* make a "temp" variable for the argument */
@@ -113,7 +122,7 @@ void vtkWrapPython_DeclareVariables(
     if (vtkWrap_IsArray(arg) || vtkWrap_IsNArray(arg) ||
         vtkWrap_IsPODPointer(arg))
       {
-      storageSize = 4;
+      storageSize = (arg->Count ? arg->Count : 4);
       if (!vtkWrap_IsConst(arg) &&
           !vtkWrap_IsSetVectorMethod(theFunc))
         {
@@ -121,7 +130,8 @@ void vtkWrapPython_DeclareVariables(
         vtkWrap_DeclareVariable(fp, data, arg, "save", i, VTK_WRAP_ARG);
         storageSize *= 2;
         }
-      if (arg->CountHint || vtkWrap_IsPODPointer(arg))
+      if (arg->CountHint || vtkWrap_IsPODPointer(arg) ||
+          (vtkWrap_IsArray(arg) && arg->Value))
         {
         fprintf(fp,
                 "  %s small%d[%d];\n",
@@ -167,7 +177,8 @@ static void vtkWrapPython_GetSizesForArrays(
     {
     arg = theFunc->Parameters[i];
 
-    if (arg->CountHint || vtkWrap_IsPODPointer(arg))
+    if (arg->CountHint || vtkWrap_IsPODPointer(arg) ||
+        (vtkWrap_IsArray(arg) && arg->Value))
       {
       if (j == 1)
         {
@@ -198,23 +209,42 @@ static void vtkWrapPython_GetSizesForArrays(
         }
 
       fprintf(fp,
-              "%s  temp%d = small%d;\n"
-              "%s  if (size%d > 4)\n"
+              "%s  if (size%d > 0)\n"
               "%s    {\n"
-              "%s    temp%d = new %s[%ssize%d];\n"
-              "%s    }\n",
-              indentation, i, i,
+              "%s    temp%d = small%d;\n",
+              indentation, i,
+              indentation,
+              indentation, i, i);
+
+      if (arg->CountHint || vtkWrap_IsPODPointer(arg))
+        {
+        fprintf(fp,
+              "%s    if (size%d > 4)\n"
+              "%s      {\n"
+              "%s      temp%d = new %s[%ssize%d];\n"
+              "%s      }\n",
               indentation, i,
               indentation,
               indentation, i, vtkWrap_GetTypeName(arg), mtwo, i,
               indentation);
+        }
+      else
+        {
+        fprintf(fp,
+              "%s    size%d = %d;\n",
+              indentation, i, arg->Count);
+        }
 
       if (*mtwo)
         {
         fprintf(fp,
-              "%s  save%d = &temp%d[size%d];\n",
+              "%s    save%d = &temp%d[size%d];\n",
               indentation, i, i, i);
         }
+
+      fprintf(fp,
+              "%s    }\n",
+              indentation);
       }
     }
   if (j > 1)

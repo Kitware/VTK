@@ -66,8 +66,8 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkMath.h"
 #include "vtkErrorCode.h"
 
-#include <ctype.h>
-#include <math.h>
+#include <cctype>
+#include <cmath>
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
 # include <unistd.h> /* unlink */

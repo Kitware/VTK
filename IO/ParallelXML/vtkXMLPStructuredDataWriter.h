@@ -34,11 +34,6 @@ public:
   vtkTypeMacro(vtkXMLPStructuredDataWriter,vtkXMLPDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // See the vtkAlgorithm for a description of what these do
-  virtual int ProcessRequest(vtkInformation* request,
-                             vtkInformationVector** inputVector,
-                             vtkInformationVector* outputVector);
-
 protected:
   vtkXMLPStructuredDataWriter();
   ~vtkXMLPStructuredDataWriter();
@@ -48,13 +43,9 @@ protected:
   void WritePPieceAttributes(int index);
   vtkXMLWriter* CreatePieceWriter(int index);
 
-  virtual int RequestUpdateExtent(vtkInformation* request,
-                                  vtkInformationVector** inputVector,
-                                  vtkInformationVector* outputVector);
-
   virtual int WriteInternal();
 
-  virtual int WritePieces();
+  virtual void PrepareSummaryFile();
   virtual int WritePiece(int index);
 
 private:

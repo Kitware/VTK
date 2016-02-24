@@ -103,28 +103,6 @@ if(TK_FOUND AND VTK_USE_TK)
   target_link_libraries(vtk ${VTK_TK_LIBRARIES})
 endif()
 
-if(NOT VTK_INSTALL_NO_RUNTIME AND VTK_BUILD_FORWARDING_EXECUTABLES)
-  install(TARGETS vtk
-    EXPORT ${VTK_INSTALL_EXPORT_NAME}
-    RUNTIME DESTINATION ${VTK_INSTALL_LIBRARY_DIR} COMPONENT RuntimeExecutables # .exe, .dll
-    LIBRARY DESTINATION ${VTK_INSTALL_LIBRARY_DIR} COMPONENT RuntimeLibraries # .so, mod.dll
-    ARCHIVE DESTINATION ${VTK_INSTALL_LIBRARY_DIR} COMPONENT Development      # .a, .lib
-    )
-  install(TARGETS vtk${VTK_EXE_SUFFIX}
-    EXPORT ${VTK_INSTALL_EXPORT_NAME}
-    RUNTIME DESTINATION ${VTK_INSTALL_RUNTIME_DIR} COMPONENT RuntimeExecutables # .exe, .dll
-    LIBRARY DESTINATION ${VTK_INSTALL_LIBRARY_DIR} COMPONENT RuntimeLibraries # .so, mod.dll
-    ARCHIVE DESTINATION ${VTK_INSTALL_LIBRARY_DIR} COMPONENT Development      # .a, .lib
-    )
-elseif(NOT VTK_INSTALL_NO_RUNTIME)
-  install(TARGETS vtk
-    EXPORT ${VTK_INSTALL_EXPORT_NAME}
-    RUNTIME DESTINATION ${VTK_INSTALL_RUNTIME_DIR} COMPONENT RuntimeExecutables # .exe, .dll
-    LIBRARY DESTINATION ${VTK_INSTALL_LIBRARY_DIR} COMPONENT RuntimeLibraries # .so, mod.dll
-    ARCHIVE DESTINATION ${VTK_INSTALL_LIBRARY_DIR} COMPONENT Development      # .a, .lib
-    )
-endif()
-
 # Create the pvtk Tcl wrapper executable with MPI support.
 if(vtkParallelMPI_ENABLED)
   include(vtkMPI)
@@ -149,6 +127,32 @@ if(vtkParallelMPI_ENABLED)
       target_link_libraries(pvtk LINK_PRIVATE ${${module}_TCL_NAME}TCL)
     endforeach()
   endif()
+endif()
+
+if(NOT VTK_INSTALL_NO_RUNTIME AND VTK_BUILD_FORWARDING_EXECUTABLES)
+  install(TARGETS vtk
+    EXPORT ${VTK_INSTALL_EXPORT_NAME}
+    RUNTIME DESTINATION ${VTK_INSTALL_LIBRARY_DIR} COMPONENT RuntimeExecutables # .exe, .dll
+    LIBRARY DESTINATION ${VTK_INSTALL_LIBRARY_DIR} COMPONENT RuntimeLibraries # .so, mod.dll
+    ARCHIVE DESTINATION ${VTK_INSTALL_LIBRARY_DIR} COMPONENT Development      # .a, .lib
+    )
+  install(TARGETS vtk${VTK_EXE_SUFFIX}
+    EXPORT ${VTK_INSTALL_EXPORT_NAME}
+    RUNTIME DESTINATION ${VTK_INSTALL_RUNTIME_DIR} COMPONENT RuntimeExecutables # .exe, .dll
+    LIBRARY DESTINATION ${VTK_INSTALL_LIBRARY_DIR} COMPONENT RuntimeLibraries # .so, mod.dll
+    ARCHIVE DESTINATION ${VTK_INSTALL_LIBRARY_DIR} COMPONENT Development      # .a, .lib
+    )
+elseif(NOT VTK_INSTALL_NO_RUNTIME)
+  set( vtk_program vtk )
+  if(vtkParallelMPI_ENABLED)
+    list( APPEND vtk_program pvtk )
+  endif()
+  install(TARGETS ${vtk_program}
+    EXPORT ${VTK_INSTALL_EXPORT_NAME}
+    RUNTIME DESTINATION ${VTK_INSTALL_RUNTIME_DIR} COMPONENT RuntimeExecutables # .exe, .dll
+    LIBRARY DESTINATION ${VTK_INSTALL_LIBRARY_DIR} COMPONENT RuntimeLibraries # .so, mod.dll
+    ARCHIVE DESTINATION ${VTK_INSTALL_LIBRARY_DIR} COMPONENT Development      # .a, .lib
+    )
 endif()
 
 if(NOT VTK_INSTALL_NO_DOCUMENTATION)

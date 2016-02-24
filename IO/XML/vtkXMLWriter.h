@@ -195,15 +195,6 @@ public:
                              vtkInformationVector** inputVector,
                              vtkInformationVector* outputVector);
 
-  // Description:
-  // Which TimeStep to write.
-  vtkSetMacro(TimeStep, int);
-  vtkGetMacro(TimeStep, int);
-
-  // Description:
-  // Which TimeStepRange to write.
-  vtkGetVector2Macro(TimeStepRange, int);
-  vtkSetVector2Macro(TimeStepRange, int);
 
   // Description:
   // Set the number of time steps
@@ -450,11 +441,8 @@ protected:
   void CloseString();
 
   // The timestep currently being written
-  int TimeStep;
   int CurrentTimeIndex;
   int NumberOfTimeSteps;
-  // Store the range of time steps
-  int TimeStepRange[2];
 
   // Dummy boolean var to start/stop the continue executing:
   // when using the Start/Stop/WriteNextTime API

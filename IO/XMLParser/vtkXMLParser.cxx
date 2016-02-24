@@ -15,7 +15,7 @@
 #include "vtkXMLParser.h"
 #include "vtkObjectFactory.h"
 #include "vtk_expat.h"
-#include <ctype.h>
+#include <cctype>
 #include <sys/stat.h>
 
 vtkStandardNewMacro(vtkXMLParser);

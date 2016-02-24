@@ -258,7 +258,8 @@ public:
     MovingCenter,
     RotatingAxis,
     AdjustingRadius,
-    Scaling
+    Scaling,
+    TranslatingCenter
   };
 
   // Description:
@@ -269,7 +270,7 @@ public:
   // ComputeInteractionState() is invoked that returns a state based on
   // geometric considerations (i.e., cursor near a widget feature), then
   // based on events, the widget may modify this further.
-  vtkSetClampMacro(InteractionState,int,Outside,Scaling);
+  vtkSetClampMacro(InteractionState,int,Outside,TranslatingCenter);
 
   // Description:
   // Sets the visual appearance of the representation based on the
@@ -370,6 +371,7 @@ protected:
   void TranslateCylinder(double *p1, double *p2);
   void TranslateOutline(double *p1, double *p2);
   void TranslateCenter(double *p1, double *p2);
+  void TranslateCenterOnAxis(double *p1, double *p2);
   void ScaleRadius(double *p1, double *p2);
   void AdjustRadius(double X, double Y, double *p1, double *p2);
   void Scale(double *p1, double *p2, double X, double Y);

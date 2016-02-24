@@ -27,13 +27,13 @@
 #define vtkType@VTK_TYPE_NAME@Array_h
 
 #include "vtkCommonCoreModule.h" // For export macro
-#include "vtk@VTK_TYPE_NATIVE@Array.h"
-
-class VTKCOMMONCORE_EXPORT vtkType@VTK_TYPE_NAME@Array : public vtk@VTK_TYPE_NATIVE@Array
+#include "vtkType.h" // For native type selections.
+@VTK_TYPE_NATIVE@
+class VTKCOMMONCORE_EXPORT vtkType@VTK_TYPE_NAME@Array : public vtkTypeArrayBase
 {
 public:
   static vtkType@VTK_TYPE_NAME@Array* New();
-  vtkTypeMacro(vtkType@VTK_TYPE_NAME@Array,vtk@VTK_TYPE_NATIVE@Array);
+  vtkTypeMacro(vtkType@VTK_TYPE_NAME@Array,vtkTypeArrayBase);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
@@ -44,6 +44,8 @@ private:
   vtkType@VTK_TYPE_NAME@Array(const vtkType@VTK_TYPE_NAME@Array&);  // Not implemented.
   void operator=(const vtkType@VTK_TYPE_NAME@Array&);  // Not implemented.
 };
+
+#undef vtkTypeArrayBase
 
 #endif
 // VTK-HeaderTest-Exclude: vtkTypedArray.h.in

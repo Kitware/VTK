@@ -14,8 +14,8 @@
 =========================================================================*/
 #include "vtkErrorCode.h"
 
-#include <string.h>
-#include <ctype.h>
+#include <cstring>
+#include <cctype>
 #include <errno.h>
 
 // this list should only contain the initial, contiguous

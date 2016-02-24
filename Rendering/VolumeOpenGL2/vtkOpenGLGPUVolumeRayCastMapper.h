@@ -35,12 +35,16 @@ public:
 
   // Description:
   // Low level API to enable access to depth texture in
-  // RenderToTexture mode.
+  // RenderToTexture mode. It will return either NULL if
+  // RenderToImage was never turned on or texture captured
+  // the last time RenderToImage was on.
   vtkTextureObject* GetDepthTexture();
 
   // Description:
   // Low level API to enable access to color texture in
-  // RenderToTexture mode.
+  // RenderToTexture mode. It will return either NULL if
+  // RenderToImage was never turned on or texture captured
+  // the last time RenderToImage was on.
   vtkTextureObject* GetColorTexture();
 
   // Description:

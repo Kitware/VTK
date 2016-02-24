@@ -121,9 +121,10 @@ int SLACMultipleModes(int argc, char *argv[])
   renwin->Render();
 
   // Change the time to offset the phase.
-  vtkStreamingDemandDrivenPipeline *sdd =
-      vtkStreamingDemandDrivenPipeline::SafeDownCast(geometry->GetExecutive());
-  sdd->SetUpdateTimeStep(0, 0.5*period);
+  geometry->UpdateInformation();
+  geometry->GetOutputInformation(0)->Set(
+    vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),
+    0.5*period);
 
   // Do the test comparison.
   int retVal = vtkRegressionTestImage(renwin.GetPointer());

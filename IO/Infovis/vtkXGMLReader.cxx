@@ -41,7 +41,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <map>
 
 #if defined (__BORLANDC__)
-#include <ctype.h> // for isspace, isdigit
+#include <cctype> // for isspace, isdigit
 #endif
 
 // Copied from vtkTulipReader.cxx ..

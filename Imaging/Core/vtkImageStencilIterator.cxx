@@ -13,7 +13,9 @@
 
 =========================================================================*/
 
-#include "vtkImageStencilIterator.txx"
+#include "vtkImageStencilIterator.h"
+
+#ifndef VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
 
 template class VTKIMAGINGCORE_EXPORT vtkImageStencilIterator<signed char>;
 template class VTKIMAGINGCORE_EXPORT vtkImageStencilIterator<char>;
@@ -28,3 +30,5 @@ template class VTKIMAGINGCORE_EXPORT vtkImageStencilIterator<unsigned char>;
 template class VTKIMAGINGCORE_EXPORT vtkImageStencilIterator<unsigned int>;
 template class VTKIMAGINGCORE_EXPORT vtkImageStencilIterator<long long>;
 template class VTKIMAGINGCORE_EXPORT vtkImageStencilIterator<unsigned long long>;
+
+#endif

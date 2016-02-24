@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkMath.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkArcSource);
 

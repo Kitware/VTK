@@ -24,7 +24,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-#include <ctype.h>
+#include <cctype>
 #include <exception>
 
 vtkStandardNewMacro(vtkImageImport);

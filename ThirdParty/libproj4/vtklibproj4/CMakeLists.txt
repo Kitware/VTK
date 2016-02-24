@@ -1,225 +1,90 @@
-#------------------------------------------------------------------------------
-# libproj4 -- library of cartographic projections
+#################################################################################
 #
-project( libproj4 )
+# This file is part of CMake configuration for PROJ4 library (inspired from SOCI
+# CMake,  Copyright (C) 2009-2010 Mateusz Loskot <mateusz@loskot.net> )
+#
+# Copyright (C) 2011 Nicolas David <nicolas.david@ign.fr>
+# Distributed under the MIT license
+#
+#################################################################################
+# General settings
+#################################################################################
+cmake_minimum_required(VERSION 2.6.0 FATAL_ERROR)
 
-#------------------------------------------------------------------------------
-# Platform configuration tests and options.
+# proj4 is an ANSI C project
+project(PROJ4 C)
+set(PROJECT_INTERN_NAME PROJ)
 
-# Shared or static library?
-if ( NOT DEFINED BUILD_SHARED_LIBS )
-  option( BUILD_SHARED_LIBS "Should libproj4 be built as a shared library (or static)?" OFF )
-endif ()
+#################################################################################
+# PROJ4 CMake modules
+#################################################################################
+# Path to additional CMake modules
+set(CMAKE_MODULE_PATH ${PROJ4_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH ${PROJ4_SOURCE_DIR}/cmake/modules ${CMAKE_MODULE_PATH})
 
-# Only experts should turn this on:
-option( PROJ_LIST_EXTERNAL "Does an external project define proj_list or should libproj4 define it?" OFF )
-mark_as_advanced( PROJ_LIST_EXTERNAL )
-if ( PROJ_LIST_EXTERNAL AND BUILD_SHARED_LIBS )
-  message( FATAL_ERROR "You may not define both PROJ_LIST_EXTERNAL and BUILD_SHARED_LIBS. Turn one off and re-run CMake." )
-endif ()
+include(Proj4Utilities)
 
-# Make libproj4 thread-safe?
-option( PROJ_USE_PTHREADS "Should libproj4 be built as a thread-friendly library?" ${VTK_USE_PTHREADS} )
-mark_as_advanced( PROJ_USE_PTHREADS )
-if ( PROJ_USE_PTHREADS )
-  if ( NOT VTK_USE_PTHREADS )
-    message( FATAL_ERROR "Your platform does not appear to support pthreads. Please turn PROJ_USE_PTHREADS off and retry." )
-  endif ()
-endif ()
+message(STATUS "")
+colormsg(_HIBLUE_ "Configuring PROJ:")
 
-# Include code that requires GSL
-option( PROJ_USE_GSL "Should libproj4 include projection code that relies on GSL?" OFF )
-mark_as_advanced( PROJ_USE_GSL )
-if ( PROJ_USE_GSL )
-  find_package( PkgConfig )
-  if ( PKG_CONFIG_FOUND )
-    pkg_check_modules( GSL REQUIRED gsl )
-  endif ()
-  if ( NOT GSL_FOUND )
-    message( FATAL_ERROR "You must install GSL and its pkg-config file OR turn PROJ_USE_GSL off" )
-  endif ()
-endif ()
+#################################################################################
+#PROJ version information
+#################################################################################
+include(Proj4Version)
+proj_version(MAJOR 4 MINOR 9 PATCH 2)
+set(PROJ_API_VERSION "9")
+set(PROJ_BUILD_VERSION "10.0.1")
 
-# Test for "double complex" type and "atanh()" support.
-if ( UNIX )
-  set( LINK_LIBRARIES m )
-endif ()
+#################################################################################
+# Build features and variants
+#################################################################################
+include(Proj4Config)
+include(Proj4Mac)
+include(policies)
 
+#################################################################################
+# threading configuration
+#################################################################################
+set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+find_package (Threads)
+
+include(CheckIncludeFiles)
 include(CheckSymbolExists)
-set(CMAKE_REQUIRED_LIBRARIES m)
-check_symbol_exists(csin complex.h PROJ_HAVE_COMPLEX)
-check_symbol_exists(atanh math.h PROJ_HAVE_ATANH)
-set(CMAKE_REQUIRED_LIBRARIES)
+CHECK_SYMBOL_EXISTS(PTHREAD_MUTEX_RECURSIVE pthread.h HAVE_PTHREAD_MUTEX_RECURSIVE_DEFN)
+if (HAVE_PTHREAD_MUTEX_RECURSIVE_DEFN)
+    add_definitions(-DHAVE_PTHREAD_MUTEX_RECURSIVE=1)
+endif()
 
-#------------------------------------------------------------------------------
-# Source
-set( AZIM_SRCS
-  proj_aeqd.c proj_aitoff.c proj_geos.c
-  proj_gilbert.c proj_gnom.c proj_hammer.c
-  proj_laea.c proj_mod_ster.c proj_nsper.c
-  proj_nzmg.c proj_ortho.c proj_rouss.c
-  proj_sterea.c proj_stere.c proj_wag7.c
-  proj_wag9.c
-)
-
-set( CONIC_SRCS
-  proj_aea.c proj_bipc.c proj_bonne.c
-  proj_eqdc.c proj_hill.c proj_imw_p.c
-  proj_kocc.c proj_lcca.c proj_lcc.c
-  proj_poly.c proj_rpoly.c proj_sconics.c
-)
-
-set( CYLIND_SRCS
-  proj_ardn_cls.c proj_braun2.c proj_cass.c
-  proj_cc.c proj_cea.c proj_cubic.c
-  proj_cyl_stere.c proj_eqc.c proj_labrd.c
-  proj_lsat.c proj_merc.c proj_mill_2.c
-  proj_mill.c proj_mill_per.c proj_ocea.c
-  proj_omerc.c proj_somerc.c proj_tcc.c
-  proj_tcea.c proj_tmerc.c proj_tob_sqr.c
-  proj_etmerc.c
-)
-
-if ( PROJ_HAVE_COMPLEX )
-  set( CYLIND_SRCS
-    ${CYLIND_SRCS}
-    proj_ftmerc.c
-  )
+# Set a default build type for single-configuration cmake generators if
+# no build type is set.
+if (NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
+  set (CMAKE_BUILD_TYPE Release)
 endif ()
 
-if ( PROJ_HAVE_ATANH )
-  set( CYLIND_SRCS
-    ${CYLIND_SRCS}
-    proj_gstmerc.c
-    proj_ktmerc.c
-  )
+if (MSVC OR CMAKE_CONFIGURATION_TYPES)
+  # For multi-config systems and for Visual Studio, the debug version of
+  # the library has _d appended.
+  set (CMAKE_DEBUG_POSTFIX _d)
 endif ()
 
-set( MISC_SRCS
-  proj_airy.c proj_apian2.c proj_armadillo.c
-  proj_august.c proj_bacon.c
-  proj_eisen.c proj_four1.c proj_guyou.c
-  proj_lagrng.c proj_larr.c proj_lask.c
-  proj_nocol.c proj_ob_tran.c proj_oea.c
-  proj_tpeqd.c proj_vandg2.c proj_vandg4.c
-  proj_vandg.c
-)
+#################################################################################
+# Installation
+#################################################################################
+include(Proj4InstallPath)
+set(LIBPROJ_BINDIR "${DEFAULT_BINDIR}" CACHE PATH "The directory to install binaries into.")
+set(LIBPROJ_LIBDIR "${DEFAULT_LIBDIR}" CACHE PATH "The directory to install libraries into.")
+set(LIBPROJ_DATADIR "${DEFAULT_DATADIR}" CACHE PATH "The directory to install data files into.")
+set(LIBPROJ_DOCDIR "${DEFAULT_DOCDIR}" CACHE PATH "The directory to install doc files into.")
+set(LIBPROJ_INCLUDEDIR "${DEFAULT_INCLUDEDIR}" CACHE PATH "The directory to install includes into.")
 
-set( PSEUDO_SRCS
-  proj_baker.c proj_baranyi4.c proj_baranyi.c
-  proj_boggs.c proj_collg.c proj_crast.c
-  proj_denoy.c proj_eck1.c proj_eck2.c
-  proj_eck3.c proj_eck4.c proj_eck5.c
-  proj_equi_moll.c proj_erdi_ksz.c proj_fahey.c
-  proj_fc-loerr.c proj_fouc_s.c proj_four2.c
-  proj_gins8.c proj_gn_sinu.c proj_goode.c
-  proj_hatano.c proj_holzel.c proj_loxim.c
-  proj_maurer.c proj_mayr.c proj_mbtfpp.c
-  proj_mbtfpq.c proj_mbt_fps.c proj_mcb_s3.c
-  proj_moll.c proj_nell.c
-  proj_oxford.c proj_putp2.c proj_putp3.c
-  proj_putp4p.c proj_putp5.c proj_putp6.c
-  proj_robin.c proj_semiconf.c proj_s_min_err.c
-  proj_sts.c proj_tob_g1.c proj_trapez.c
-  proj_urm5.c proj_urmfps.c proj_wag2.c
-  proj_wag3.c proj_wag5.c proj_wink1.c
-  proj_wink2.c
-)
+mark_as_advanced(LIBPROJ_BINDIR LIBPROJ_LIBDIR LIBPROJ_DATADIR LIBPROJ_DOCDIR LIBPROJ_INCLUDEDIR)
 
-if ( PROJ_HAVE_ATANH )
-  set( PSEUDO_SRCS
-    ${PSEUDO_SRCS}
-    proj_nell_h.c
-  )
-endif ()
+#################################################################################
+# Build configured components
+#################################################################################
+include_directories(${PROJ4_SOURCE_DIR}/src)
 
-set( SUPPORT_SRCS
-  proj_adjlon.c proj_auth.c proj_deriv.c
-  proj_dmstor.c proj_ellps.c proj_ell_set.c
-  proj_err_list.c proj_errno.c proj_factors.c
-  proj_fwd.c proj_gauss.c proj_init.c
-  proj_inv.c proj_mdist.c
-  proj_msfn.c proj_param.c proj_phi2.c
-  proj_pr_list.c proj_rtodms.c proj_strerrno.c
-  proj_strerror_r.c proj_trans.c proj_translate.c
-  proj_tsfn.c proj_units.c proj_zpoly1.c
-  proj_psi.c
-)
-if ( NOT PROJ_LIST_EXTERNAL )
-  set( SUPPORT_SRCS
-    ${SUPPORT_SRCS}
-    proj_list.c
-  )
+message(STATUS "")
+add_subdirectory(src)
+add_subdirectory(cmake)
 
-#------------------------------------------------------------------------------
-# Doesn't work with CMake 2.4
-#  set_source_files_properties(
-#    FILES
-#      proj_list.c
-#    PROPERTIES
-#      OBJECT_DEPENDS ${libproj4_SOURCE_DIR}/proj_list.h
-#  )
-endif ()
-
-set( LP4_SRCS
-  ${AZIM_SRCS} ${CONIC_SRCS} ${CYLIND_SRCS}
-  ${MISC_SRCS} ${PSEUDO_SRCS} ${SUPPORT_SRCS}
-)
-
-#------------------------------------------------------------------------------
-# Executable and library targets
-
-include_directories(
-  ${libproj4_SOURCE_DIR}
-  ${libproj4_BINARY_DIR}
-)
-
-vtk_add_library( vtkproj4
-  ${LP4_SRCS}
-)
-
-if ( UNIX )
-  target_link_libraries( vtkproj4
-    LINK_PUBLIC
-      m
-  )
-endif ()
-
-if ( PROJ_LIBRARY_PROPERTIES )
-  set_target_properties( vtkproj4
-    PROPERTIES
-      ${PROJ_LIBRARY_PROPERTIES}
-  )
-endif ()
-
-add_executable( lproj
-  lproj.c
-)
-
-target_link_libraries( lproj
-  vtkproj4
-)
-
-if ( GSL_FOUND )
-  include_directories( GSL_INCLUDE_DIRS )
-  target_link_libraries( proj4
-    ${GSL_LIBRARIES}
-  )
-endif ()
-
-configure_file(
-  ${libproj4_SOURCE_DIR}/proj_config.h.cmake
-  ${libproj4_BINARY_DIR}/proj_config.h
-)
-
-#------------------------------------------------------------------------------
-# Install targets
-
-IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  INSTALL(FILES
-    ${libproj4_SOURCE_DIR}/lib_proj.h
-    ${libproj4_SOURCE_DIR}/vtk_libproj4_mangle.h
-    ${libproj4_BINARY_DIR}/proj_config.h
-    DESTINATION ${VTK_INSTALL_INCLUDE_DIR}/vtklibproj4
-    COMPONENT Development)
-ENDIF()

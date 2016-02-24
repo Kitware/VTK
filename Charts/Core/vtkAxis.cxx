@@ -39,13 +39,6 @@
 #include <limits>
 #include <cmath>
 
-// pull in snprintf on MSVC:
-#if defined(_WIN32) && !defined(__CYGWIN__)
-#  define SNPRINTF _snprintf
-#else
-#  define SNPRINTF snprintf
-#endif
-
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAxis);
 
@@ -87,6 +80,7 @@ vtkAxis::vtkAxis()
   this->GridVisible = true;
   this->LabelsVisible = true;
   this->RangeLabelsVisible = false;
+  this->LabelOffset = 7;
   this->TicksVisible = true;
   this->AxisVisible = true;
   this->Precision = 2;
@@ -377,7 +371,7 @@ bool vtkAxis::Paint(vtkContext2D *painter)
   // There are five possible tick label positions, which should be set by the
   // class laying out the axes.
   float tickLength = 5;
-  float labelOffset = 7;
+  float labelOffset = this->LabelOffset;
   if (this->Position == vtkAxis::LEFT || this->Position == vtkAxis::PARALLEL ||
       this->Position == vtkAxis::BOTTOM)
     {
@@ -1497,19 +1491,16 @@ vtkStdString vtkAxis::GenerateSprintfLabel(double value, const std::string & for
   // digits on Windows for consistent behavior.
 #if defined(_MSC_VER) && _MSC_VER < 1900
   unsigned int oldWin32ExponentFormat = _set_output_format(_TWO_DIGIT_EXPONENT);
-#endif
 
-  int len = SNPRINTF(buffer, buffSize, format.c_str(), value);
-  if (len < 0) // Overrun on windows
-    {
-    len = buffSize;
-    }
+  _snprintf(buffer, buffSize-1, format.c_str(), value);
+  buffer[buffSize-1] = '\0';
 
-#if defined(_MSC_VER) && _MSC_VER < 1900
   _set_output_format(oldWin32ExponentFormat);
+#else
+  snprintf(buffer, buffSize, format.c_str(), value);
 #endif
 
-  vtkStdString result = vtkStdString(buffer, std::min(len, buffSize));
+  vtkStdString result = vtkStdString(buffer);
 
   return result;
 }

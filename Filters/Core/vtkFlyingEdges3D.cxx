@@ -28,7 +28,7 @@
 #include "vtkMarchingCubesTriangleCases.h"
 #include "vtkSMPTools.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkFlyingEdges3D);
 
@@ -120,7 +120,7 @@ public:
   float     *NewPoints;
   float     *NewGradients;
   float     *NewNormals;
-  unsigned char NeedGradients;
+  bool       NeedGradients;
 
   // Setup algorithm
   vtkFlyingEdges3DAlgorithm();
@@ -1195,7 +1195,7 @@ Contour(vtkFlyingEdges3D *self, vtkImageData *input, int extent[6],
         newNormals->WriteVoidPointer(0,3*totalPts);
         algo.NewNormals = static_cast<float*>(newNormals->GetVoidPointer(0));
         }
-      algo.NeedGradients = (algo.NewGradients || algo.NewNormals ? 1 : 0);
+      algo.NeedGradients = (algo.NewGradients || algo.NewNormals);
 
       // PASS 4: Fourth and final pass: Process voxel rows and generate output.
       // Note that we are simultaneously generating triangles and interpolating

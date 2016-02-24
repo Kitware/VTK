@@ -9,5 +9,8 @@ vtk_module(vtkImagingHybrid
     vtkTestingCore
     vtkCommonCore
     vtkCommonDataModel
+    vtkImagingStencil
     vtkRendering${VTK_RENDERING_BACKEND}
+    vtkTestingRendering
+    vtkInteractionStyle
   )

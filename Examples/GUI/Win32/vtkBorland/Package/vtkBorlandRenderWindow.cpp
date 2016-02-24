@@ -251,7 +251,7 @@ void __fastcall TvtkBorlandRenderWindow::WMChar(TWMKey &Message)
     case 'e':
     case 'E':
     case 'q':
-    case 'Q': if (!FOnVtkClose || (FOnVtkClose && FOnVtkClose(this)))
+    case 'Q': if (!FOnVtkClose || FOnVtkClose(this))
                 {
                 FInteractor->OnChar(Handle,Message.CharCode, 0, 0);
                 }

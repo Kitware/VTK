@@ -51,9 +51,11 @@ public:
   vtkPolyData *GetInput();
 
   // Description:
-  // Update that sets the update piece first.
-  void Update();
-  void Update(int port);
+  // Bring this algorithm's outputs up-to-date.
+  virtual void Update(int port);
+  virtual void Update();
+  virtual int Update(int port, vtkInformationVector* requests);
+  virtual int Update(vtkInformation* requests);
 
   // Description:
   // If you want only a part of the data, specify by setting the piece.

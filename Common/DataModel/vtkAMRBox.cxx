@@ -302,12 +302,9 @@ void vtkAMRBox::Deserialize(
   // STEP 7: de-serialize the low corner
   std::memcpy( &(this->LoCorner), ptr, 3*sizeof(int) );
   ptr += 3*sizeof( int );
-  assert( ptr != NULL );
 
   // STEP 8: de-serialize the high corner
   std::memcpy(&(this->HiCorner), ptr,  3*sizeof(int) );
-  ptr += 3*sizeof( int );
-  assert( ptr != NULL );
 }
 
 

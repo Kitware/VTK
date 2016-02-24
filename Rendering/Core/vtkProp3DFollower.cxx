@@ -24,7 +24,7 @@
 #include "vtkTransform.h"
 #include "vtkAssemblyPaths.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkProp3DFollower);
 

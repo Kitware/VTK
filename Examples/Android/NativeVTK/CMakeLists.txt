@@ -9,6 +9,8 @@ find_package(VTK COMPONENTS
   vtkInteractionStyle
   vtkRenderingOpenGL2
   vtkRenderingFreeType
+  vtkTestingCore
+  vtkTestingRendering
 )
 include(${VTK_USE_FILE})
 

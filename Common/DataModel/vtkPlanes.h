@@ -91,8 +91,13 @@ public:
   // Create and return a pointer to a vtkPlane object at the ith
   // position. Asking for a plane outside the allowable range returns NULL.
   // This method always returns the same object.
-  // Use GetPlane(int i, vtkPlane *plane) instead
+  // Use GetPlane(int i, vtkPlane *plane) instead.
   vtkPlane *GetPlane(int i);
+
+  // Description:
+  // If i is within the allowable range, mutates the given plane's
+  // Normal and Origin to match the vtkPlane object at the ith
+  // position. Does nothing if i is outside the allowable range.
   void GetPlane(int i, vtkPlane *plane);
 
 protected:

@@ -40,11 +40,6 @@ public:
   void PrintSelf( ostream& os, vtkIndent indent );
 
   // Description:
-  // Update the volume rendering pipeline by updating the scalar input
-  virtual void Update();
-  virtual void Update(int port);
-
-  // Description:
   // Set / Get the gradient estimator used to estimate normals
   virtual void SetGradientEstimator( vtkEncodedGradientEstimator *gradest );
   vtkGetObjectMacro( GradientEstimator, vtkEncodedGradientEstimator );
@@ -90,7 +85,11 @@ public:
 
 //ETX
 
-
+  // Description:
+  // see vtkAlgorithm for details
+  virtual int ProcessRequest(vtkInformation*,
+                             vtkInformationVector**,
+                             vtkInformationVector*);
 
 protected:
   vtkVolumeTextureMapper();

@@ -107,6 +107,8 @@ vtkImagePlaneWidget                   GetNormal                         307  3
 vtkImagePlaneWidget                   GetOrigin                         307  3
 vtkImagePlaneWidget                   GetPoint1                         307  3
 vtkImagePlaneWidget                   GetPoint2                         307  3
+vtkImagePointDataIterator             GetIndex                          304  3
+vtkImagePointIterator                 GetPosition                       307  3
 vtkImageReslice                       GetResliceAxesDirectionCosines    307  9
 vtkImageReslice                       GetResliceAxesOrigin              307  3
 vtkImageSincInterpolator              GetBlurFactors                    307  3
@@ -120,6 +122,8 @@ vtkImageVectorConvolve                GetKernel                         301  3
 vtkImageViewer                        GetPosition                       304  2
 vtkImageViewer                        GetSize                           304  2
 vtkImplicitFunction                   FunctionGradient                  307  3
+vtkImplicitCylinderRepresentation     GetCenter                         307  3
+vtkImplicitCylinderRepresentation     GetAxis                           307  3
 vtkImplicitPlaneRepresentation        GetBounds                         307  6
 vtkImplicitPlaneRepresentation        GetNormal                         307  3
 vtkImplicitPlaneRepresentation        GetOrigin                         307  3

@@ -27,7 +27,7 @@
 #include "vtkInformationVector.h"
 #include "vtkSmartPointer.h"
 
-#include <math.h>
+#include <cmath>
 #include <string>
 
 vtkStandardNewMacro(vtkParametricFunctionSource);

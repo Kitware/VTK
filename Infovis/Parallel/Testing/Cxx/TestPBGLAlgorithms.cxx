@@ -141,12 +141,7 @@ void TestDirectedGraph()
     {
     (cout << "  Breadth-first search...").flush();
     }
-  bfs->UpdateInformation();
-  vtkStreamingDemandDrivenPipeline* exec =
-    vtkStreamingDemandDrivenPipeline::SafeDownCast(bfs->GetExecutive());
-  exec->SetUpdateNumberOfPieces(exec->GetOutputInformation(0), numProcs);
-  exec->SetUpdatePiece(exec->GetOutputInformation(0), myRank);
-  bfs->Update();
+  bfs->Update(myRank, numProcs, 0);
 
   // Verify the results of the breadth-first search
   if (myRank == 0)
@@ -273,12 +268,7 @@ void TestUndirectedGraph()
     {
     (cout << "  Breadth-first search...").flush();
     }
-  bfs->UpdateInformation();
-  vtkStreamingDemandDrivenPipeline* exec =
-    vtkStreamingDemandDrivenPipeline::SafeDownCast(bfs->GetExecutive());
-  exec->SetUpdateNumberOfPieces(exec->GetOutputInformation(0), numProcs);
-  exec->SetUpdatePiece(exec->GetOutputInformation(0), myRank);
-  bfs->Update();
+  bfs->Update(myRank numProcs, 0);
 
   // Verify the results of the breadth-first search
   if (myRank == 0)

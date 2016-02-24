@@ -5,10 +5,10 @@
 
 #include "WidgetTestingMacros.h"
 
-#include <vtkPolyData.h>
-#include <vtkPolyDataAlgorithm.h>
-#include <vtkPlane.h>
-#include <vtkProperty.h>
+#include "vtkPolyData.h"
+#include "vtkPolyDataAlgorithm.h"
+#include "vtkPlane.h"
+#include "vtkProperty.h"
 
 int vtkImplicitPlaneRepresentationTest1(int , char * [] )
 {

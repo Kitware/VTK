@@ -24,7 +24,7 @@
 #include "algorithm"
 #include "vtkVariantArray.h"
 
-#include <ctype.h>
+#include <cctype>
 
 
 vtkRowQuery::vtkRowQuery()

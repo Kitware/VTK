@@ -65,7 +65,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkProperty.h"
 #include "vtkMath.h"
 
-#include <ctype.h>
+#include <cctype>
 #include <sys/types.h>
 #include <sys/stat.h>
 
