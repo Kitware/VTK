@@ -578,7 +578,7 @@ void vtkOpenGLRenderWindow::GetOpenGLVersion(int &major, int &minor)
 #endif
     }
 
-  major = glMinorVersion;
+  major = glMajorVersion;
   minor = glMinorVersion;
 }
 
