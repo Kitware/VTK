@@ -180,7 +180,10 @@ namespace vtkvolume
       \nuniform vec3 in_ambient;\
       \nuniform vec3 in_specular;\
       \nuniform float in_shininess;\
+      \n\
+      \n// Others\
       \nuniform bool in_cellFlag;\
+      \n uniform bool in_useJittering;\
       ");
 
     if (hasGradientOpacity || lightingComplexity > 0)
@@ -279,7 +282,15 @@ namespace vtkvolume
       \n  g_dirStep = (in_inverseTextureDatasetMatrix *\
       \n              vec4(rayDir, 0.0)).xyz * in_sampleDistance;\
       \n\
-      \n  g_dataPos += g_dirStep * (texture2D(in_noiseSampler, g_dataPos.xy).x);\
+      \n  float jitterValue = (texture2D(in_noiseSampler, g_dataPos.xy).x);\
+      \n  if (in_useJittering)\
+      \n    {\
+      \n    g_dataPos += g_dirStep * jitterValue;\
+      \n    }\
+      \n  else\
+      \n    {\
+      \n    g_dataPos += g_dirStep;\
+      \n    }\
       \n\
       \n  // Flag to deternmine if voxel should be considered for the rendering\
       \n  bool l_skip = false;");
@@ -1211,7 +1222,7 @@ namespace vtkvolume
         {
         return std::string("\
          \n  g_srcColor = computeColor(l_maxValue,\
-                                            computeOpacity(l_maxValue));\
+         \n                            computeOpacity(l_maxValue));\
          \n  g_fragColor.rgb = g_srcColor.rgb * g_srcColor.a;\
          \n  g_fragColor.a = g_srcColor.a;"
         );
@@ -1290,13 +1301,13 @@ namespace vtkvolume
     {
     return std::string("\
       \n  // Minimum texture access coordinate\
-      \n  vec3 l_tex_min = vec3(0.0);\
-      \n  vec3 l_tex_max = vec3(1.0);\
+      \n  vec3 l_texMin = vec3(0.0);\
+      \n  vec3 l_texMax = vec3(1.0);\
       \n  if (!in_cellFlag)\
       \n    {\
       \n    vec3 delta = in_textureExtentsMax - in_textureExtentsMin;\
-      \n    l_tex_min = vec3(0.5) / delta;\
-      \n    l_tex_max = (delta - vec3(0.5)) / delta;\
+      \n    l_texMin = vec3(0.5) / delta;\
+      \n    l_texMax = (delta - vec3(0.5)) / delta;\
       \n    }\
       \n\
       \n  // Flag to indicate if the raymarch loop should terminate \
@@ -1367,7 +1378,7 @@ namespace vtkvolume
       \n    // if the difference is less than 0, 0 if equal to 0, and 1 if\
       \n    // above 0. So if the ray is inside the volume, dot product will\
       \n    // always be 3.\
-      \n    stop = dot(sign(g_dataPos - l_tex_min), sign(l_tex_max - g_dataPos))\
+      \n    stop = dot(sign(g_dataPos - l_texMin), sign(l_texMax - g_dataPos))\
       \n             < 3.0;\
       \n\
       \n    // If the stopping condition is true we brek out of the ray marching\
@@ -1415,8 +1426,8 @@ namespace vtkvolume
     }
 
     return std::string("\
-      \nuniform float cropping_planes[6];\
-      \nuniform int cropping_flags [32];\
+      \nuniform float in_croppingPlanes[6];\
+      \nuniform int in_croppingFlags [32];\
       \n// X: axis = 0, Y: axis = 1, Z: axis = 2\
       \n// cp Cropping plane bounds (minX, maxX, minY, maxY, minZ, maxZ)\
       \nint computeRegionCoord(float cp[6], vec3 pos, int axis)\
@@ -1460,56 +1471,56 @@ namespace vtkvolume
 
     return std::string("\
       \n  // Convert cropping region to texture space\
-      \n  float cropping_planes_ts[6];\
+      \n  float croppingPlanesTexture[6];\
       \n  mat4  datasetToTextureMat = in_inverseTextureDatasetMatrix;\
       \n\
-      \n  vec4 temp = vec4(cropping_planes[0], 0.0, 0.0, 1.0);\
+      \n  vec4 temp = vec4(in_croppingPlanes[0], 0.0, 0.0, 1.0);\
       \n  temp = datasetToTextureMat * temp;\
       \n  if (temp[3] != 0.0)\
       \n   {\
       \n   temp[0] /= temp[3];\
       \n   }\
-      \n  cropping_planes_ts[0] = temp[0];\
+      \n  croppingPlanesTexture[0] = temp[0];\
       \n\
-      \n  temp = vec4(cropping_planes[1], 0.0, 0.0, 1.0);\
+      \n  temp = vec4(in_croppingPlanes[1], 0.0, 0.0, 1.0);\
       \n  temp = datasetToTextureMat * temp;\
       \n  if (temp[3] != 0.0)\
       \n   {\
       \n   temp[0] /= temp[3];\
       \n   }\
-      \n  cropping_planes_ts[1] = temp[0];\
+      \n  croppingPlanesTexture[1] = temp[0];\
       \n\
-      \n  temp = vec4(0.0, cropping_planes[2], 0.0, 1.0);\
+      \n  temp = vec4(0.0, in_croppingPlanes[2], 0.0, 1.0);\
       \n  temp = datasetToTextureMat * temp;\
       \n  if (temp[3] != 0.0)\
       \n   {\
       \n   temp[1] /= temp[3];\
       \n   }\
-      \n  cropping_planes_ts[2] = temp[1];\
+      \n  croppingPlanesTexture[2] = temp[1];\
       \n\
-      \n  temp = vec4(0.0, cropping_planes[3], 0.0, 1.0);\
+      \n  temp = vec4(0.0, in_croppingPlanes[3], 0.0, 1.0);\
       \n  temp = datasetToTextureMat * temp;\
       \n  if (temp[3] != 0.0)\
       \n   {\
       \n   temp[1] /= temp[3];\
       \n   }\
-      \n  cropping_planes_ts[3] = temp[1];\
+      \n  croppingPlanesTexture[3] = temp[1];\
       \n\
-      \n  temp = vec4(0.0, 0.0, cropping_planes[4], 1.0);\
+      \n  temp = vec4(0.0, 0.0, in_croppingPlanes[4], 1.0);\
       \n  temp = datasetToTextureMat * temp;\
       \n  if (temp[3] != 0.0)\
       \n   {\
       \n   temp[2] /= temp[3];\
       \n   }\
-      \n  cropping_planes_ts[4] = temp[2];\
+      \n  croppingPlanesTexture[4] = temp[2];\
       \n\
-      \n  temp = vec4(0.0, 0.0, cropping_planes[5], 1.0);\
+      \n  temp = vec4(0.0, 0.0, in_croppingPlanes[5], 1.0);\
       \n  temp = datasetToTextureMat * temp;\
       \n  if (temp[3] != 0.0)\
       \n   {\
       \n   temp[2] /= temp[3];\
       \n   }\
-      \n  cropping_planes_ts[5] = temp[2];"
+      \n  croppingPlanesTexture[5] = temp[2];"
     );
   }
 
@@ -1524,11 +1535,11 @@ namespace vtkvolume
 
     return std::string("\
       \n    // Determine region\
-      \n    int regionNo = computeRegion(cropping_planes_ts, g_dataPos);\
+      \n    int regionNo = computeRegion(croppingPlanesTexture, g_dataPos);\
       \n\
       \n    // Do & operation with cropping flags\
       \n    // Pass the flag that its Ok to sample or not to sample\
-      \n    if (cropping_flags[regionNo] == 0)\
+      \n    if (in_croppingFlags[regionNo] == 0)\
       \n      {\
       \n      // Skip this voxel\
       \n      l_skip = true;\
@@ -1569,48 +1580,66 @@ namespace vtkvolume
       {
       return std::string();
       }
-   else
+    else
       {
       return std::string("\
-        \nfloat clippingPlanesTexture[48];\
-        \nint clippingPlanesSize = int(in_clippingPlanes[0]);\
-        \n\
-        \nmat4 world_to_texture_mat = in_inverseTextureDatasetMatrix *\
-        \n                            in_inverseVolumeMatrix;\
-        \nfor (int i = 0; i < clippingPlanesSize; i = i + 6)\
-        \n  {\
-        \n  vec4 origin = vec4(in_clippingPlanes[i + 1],\
-        \n                     in_clippingPlanes[i + 2],\
-        \n                     in_clippingPlanes[i + 3], 1.0);\
-        \n  vec4 normal = vec4(in_clippingPlanes[i + 4],\
-        \n                     in_clippingPlanes[i + 5],\
-        \n                     in_clippingPlanes[i + 6], 0.0);\
-        \n\
-        \n  origin = world_to_texture_mat * origin;\
-        \n  normal = world_to_texture_mat * normal;\
-        \n\
-        \n  if (origin[3] != 0.0)\
+        \n  int clippingPlanesSize = int(in_clippingPlanes[0]);\
+        \n  vec4 objDataPos = vec4(0.0);\
+        \n  mat4 textureToObjMat = in_volumeMatrix *\
+        \n                             in_textureDatasetMatrix;\
+        \n  for (int i = 0; i < clippingPlanesSize; i = i + 6)\
         \n    {\
-        \n    origin[0] = origin[0] / origin[3];\
-        \n    origin[1] = origin[1] / origin[3];\
-        \n    origin[2] = origin[2] / origin[3];\
-        \n    }\
-        \n  if (normal[3] != 0.0)\
-        \n    {\
-        \n    normal[0] = normal[0] / normal[3];\
-        \n    normal[1] = normal[1] / normal[3];\
-        \n    normal[2] = normal[2] / normal[3];\
-        \n    }\
+        \n    if (in_useJittering)\
+        \n      {\
+        \n      objDataPos = textureToObjMat * vec4(g_dataPos - (g_dirStep\
+        \n                                           * jitterValue), 1.0);\
+        \n      }\
+        \n    else\
+        \n      {\
+        \n      objDataPos = textureToObjMat * vec4(g_dataPos - g_dirStep, 1.0);\
+        \n      }\
+        \n    if (objDataPos.w != 0.0)\
+        \n      {\
+        \n      objDataPos = objDataPos/objDataPos.w; objDataPos.w = 1.0;\
+        \n      }\
+        \n    vec3 planeOrigin = vec3(in_clippingPlanes[i + 1],\
+        \n                            in_clippingPlanes[i + 2],\
+        \n                            in_clippingPlanes[i + 3]);\
+        \n    vec3 planeNormal = vec3(in_clippingPlanes[i + 4],\
+        \n                            in_clippingPlanes[i + 5],\
+        \n                            in_clippingPlanes[i + 6]);\
+        \n    vec3 normalizedPlaneNormal = normalize(planeNormal);\
         \n\
-        \n  clippingPlanesTexture[i]     = origin[0];\
-        \n  clippingPlanesTexture[i + 1] = origin[1];\
-        \n  clippingPlanesTexture[i + 2] = origin[2];\
-        \n\
-        \n  clippingPlanesTexture[i + 3] = normal[0];\
-        \n  clippingPlanesTexture[i + 4] = normal[1];\
-        \n  clippingPlanesTexture[i + 5] = normal[2];\
-        \n  }"
-      );
+        \n    float planeD = -planeOrigin[0] * normalizedPlaneNormal[0] - planeOrigin[1]\
+        \n                      * normalizedPlaneNormal[1] - planeOrigin[2] * normalizedPlaneNormal[2];\
+        \n    bool frontFace = dot(rayDir, normalizedPlaneNormal) > 0;\
+        \n    float dist = dot(rayDir, normalizedPlaneNormal);\
+        \n    if (dist != 0.0) { dist = (-planeD - dot(normalizedPlaneNormal, objDataPos.xyz)) / dist; }\
+        \n    if (frontFace && dist > 0.0 && dot(vec3(objDataPos.xyz - planeOrigin), planeNormal) < 0)\
+        \n      {\
+        \n      vec4 newObjDataPos = vec4(objDataPos.xyz + dist * rayDir, 1.0);\
+        \n      newObjDataPos = in_inverseTextureDatasetMatrix\
+        \n                        * in_inverseVolumeMatrix * vec4(newObjDataPos.xyz, 1.0);\
+        \n      if (newObjDataPos.w != 0.0)\
+        \n        {\
+        \n        newObjDataPos /= newObjDataPos.w;\
+        \n        }\
+        \n     if (in_useJittering)\
+        \n       {\
+        \n       g_dataPos = newObjDataPos.xyz + g_dirStep * jitterValue;\
+        \n       }\
+        \n     else\
+        \n       {\
+        \n       g_dataPos = newObjDataPos.xyz + g_dirStep;\
+        \n       }\
+        \n       bool stop = dot(sign(g_dataPos - l_texMin), sign(l_texMax - g_dataPos))\
+        \n                     < 3.0;\
+        \n      if (stop)\
+        \n        {\
+        \n        discard;\
+        \n        }\
+        \n      }\
+        \n  }");
       }
   }
 
@@ -1626,17 +1655,23 @@ namespace vtkvolume
     else
       {
       return std::string("\
-        \n    for (int i = 0; i < (clippingPlanesSize) && !l_skip; i = i + 6)\
+        \n    for (int i = 0; i < clippingPlanesSize && !l_skip; i = i + 6)\
         \n      {\
-        \n      if (dot(vec3(g_dataPos - vec3(clippingPlanesTexture[i],\
-        \n                                    clippingPlanesTexture[i + 1],\
-        \n                                    clippingPlanesTexture[i + 2])),\
-        \n              vec3(clippingPlanesTexture[i + 3],\
-        \n                   clippingPlanesTexture[i + 4],\
-        \n                   clippingPlanesTexture[i + 5])) < 0)\
+        \n      vec4 objDataPos = textureToObjMat * vec4(g_dataPos, 1.0);\
+        \n      if (objDataPos.w != 0.0)\
         \n        {\
-        \n        l_skip = true;\
-        \n        break;\
+        \n        objDataPos /= objDataPos.w;\
+        \n        }\
+        \n      vec3 planeOrigin = vec3(in_clippingPlanes[i + 1],\
+        \n                              in_clippingPlanes[i + 2],\
+        \n                              in_clippingPlanes[i + 3]);\
+        \n      vec3 planeNormal = vec3(in_clippingPlanes[i + 4],\
+        \n                              in_clippingPlanes[i + 5],\
+        \n                              in_clippingPlanes[i + 6]);\
+        \n      if (dot(vec3(objDataPos.xyz - planeOrigin), planeNormal) < 0 && dot(rayDir, planeNormal) < 0)\
+        \n        {\
+        \n         l_skip = true;\
+        \n         g_exit = true;\
         \n        }\
         \n      }"
       );

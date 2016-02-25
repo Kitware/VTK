@@ -1,7 +1,8 @@
+
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestGPURayCastClipping.cxx
+  Module:    TestGPURayCastVolumeUpdate.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,93 +13,102 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// This test covers cropping on volume datasets.
+// This test volume tests whether updating the volume MTime updates the ,
+// geometry in the volume mapper.
 
-#include <vtkActor.h>
-#include <vtkCamera.h>
 #include <vtkColorTransferFunction.h>
+#include <vtkDataArray.h>
 #include <vtkGPUVolumeRayCastMapper.h>
 #include <vtkImageData.h>
+#include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkNew.h>
+#include <vtkOutlineFilter.h>
 #include <vtkPiecewiseFunction.h>
-#include <vtkPlane.h>
-#include <vtkPlaneCollection.h>
+#include <vtkPointDataToCellData.h>
+#include <vtkPolyDataMapper.h>
 #include <vtkRegressionTestImage.h>
+#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
-#include <vtkRenderer.h>
+#include <vtkRTAnalyticSource.h>
 #include <vtkSmartPointer.h>
+#include <vtkTesting.h>
 #include <vtkTestUtilities.h>
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
 
-int TestGPURayCastClipping(int argc, char *argv[])
+
+int TestGPURayCastCellData(int argc, char *argv[])
 {
+  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+
   double scalarRange[2];
 
+  vtkNew<vtkActor> outlineActor;
+  vtkNew<vtkPolyDataMapper> outlineMapper;
   vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
 
   vtkNew<vtkXMLImageDataReader> reader;
-  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(
+  char* volumeFile = vtkTestUtilities::ExpandDataFileName(
                             argc, argv, "Data/vase_1comp.vti");
-
   reader->SetFileName(volumeFile);
-  reader->Update();
-  volumeMapper->SetInputConnection(reader->GetOutputPort());
+  delete[] volumeFile;
+
+  vtkNew<vtkPointDataToCellData> pointToCell;
+  pointToCell->SetInputConnection(reader->GetOutputPort());
+  volumeMapper->SetInputConnection(pointToCell->GetOutputPort());
+
+  // Add outline filter
+  vtkNew<vtkOutlineFilter> outlineFilter;
+  outlineFilter->SetInputConnection(pointToCell->GetOutputPort());
+  outlineMapper->SetInputConnection(outlineFilter->GetOutputPort());
+  outlineActor->SetMapper(outlineMapper.GetPointer());
 
   volumeMapper->GetInput()->GetScalarRange(scalarRange);
+  volumeMapper->SetSampleDistance(0.1);
+  volumeMapper->SetAutoAdjustSampleDistances(0);
   volumeMapper->SetBlendModeToComposite();
 
-  // Testing prefers image comparison with small images
   vtkNew<vtkRenderWindow> renWin;
+  renWin->SetMultiSamples(0);
   renWin->SetSize(400, 400);
-
-  vtkNew<vtkRenderer> ren;
-  renWin->AddRenderer(ren.GetPointer());
 
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin.GetPointer());
+  vtkNew<vtkInteractorStyleTrackballCamera> style;
+  iren->SetInteractorStyle(style.GetPointer());
+
+  renWin->Render(); // make sure we have an OpenGL context.
+
+  vtkNew<vtkRenderer> ren;
+  ren->SetBackground(0.2, 0.2, 0.5);
+  renWin->AddRenderer(ren.GetPointer());
 
   vtkNew<vtkPiecewiseFunction> scalarOpacity;
-  scalarOpacity->AddPoint(scalarRange[0], 0.0);
-  scalarOpacity->AddPoint(scalarRange[1], 1.0);
+  scalarOpacity->AddPoint(50, 0.0);
+  scalarOpacity->AddPoint(75, 1.0);
 
   vtkNew<vtkVolumeProperty> volumeProperty;
-  volumeProperty->ShadeOff();
+  volumeProperty->ShadeOn();
   volumeProperty->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
   volumeProperty->SetScalarOpacity(scalarOpacity.GetPointer());
 
-  vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction =
-    volumeProperty->GetRGBTransferFunction(0);
+  vtkNew<vtkColorTransferFunction> colorTransferFunction;
   colorTransferFunction->RemoveAllPoints();
-  colorTransferFunction->AddRGBPoint(scalarRange[0], 0.1, 0.5, 1.0);
-  colorTransferFunction->AddRGBPoint(scalarRange[1], 1.0, 0.5, 0.1);
+  colorTransferFunction->AddRGBPoint(scalarRange[0], 0.6, 0.4, 0.1);
+  volumeProperty->SetColor(colorTransferFunction.GetPointer());
 
-  // Test cropping now
-  double* bounds = reader->GetOutput()->GetBounds();
-  vtkNew<vtkPlane> clipPlane1;
-  clipPlane1->SetOrigin(0.45 * (bounds[0] + bounds[1]), 0.0, 0.0);
-  clipPlane1->SetNormal(0.8, 0.0, 0.0);
-
-  vtkNew<vtkPlane> clipPlane2;
-  clipPlane2->SetOrigin(0.45 * (bounds[0] + bounds[1]),
-                        0.35 * (bounds[2] + bounds[3]), 0.0);
-  clipPlane2->SetNormal(0.2, -0.2, 0.0);
-
-  vtkNew<vtkPlaneCollection> clipPlaneCollection;
-  clipPlaneCollection->AddItem(clipPlane1.GetPointer());
-  clipPlaneCollection->AddItem(clipPlane2.GetPointer());
-  volumeMapper->SetClippingPlanes(clipPlaneCollection.GetPointer());
-
-  // Setup volume actor
   vtkNew<vtkVolume> volume;
   volume->SetMapper(volumeMapper.GetPointer());
   volume->SetProperty(volumeProperty.GetPointer());
 
-  ren->AddViewProp(volume.GetPointer());
-  ren->GetActiveCamera()->Azimuth(-40);
+  ren->AddVolume(volume.GetPointer());
+  ren->AddActor(outlineActor.GetPointer());
   ren->ResetCamera();
+
   renWin->Render();
+  ren->ResetCamera();
+
   iren->Initialize();
 
   int retVal = vtkRegressionTestImage( renWin.GetPointer() );

@@ -731,6 +731,16 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(
   // Update texture size
   imageData->GetExtent(this->Extents);
 
+  if (this->Parent->CellFlag)
+    {
+    int i = 1;
+    while (i < 6)
+      {
+      this->Extents[i]--;
+      i += 2;
+      }
+    }
+
   int i = 0;
   while(i < 3)
     {
@@ -928,6 +938,17 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ComputeBounds(
   input->GetSpacing(this->CellSpacing);
   input->GetOrigin(origin);
   input->GetExtent(this->Extents);
+
+
+  if (this->Parent->CellFlag)
+    {
+    int i = 1;
+    while (i < 6)
+      {
+      this->Extents[i]--;
+      i += 2;
+      }
+    }
 
   int swapBounds[3];
   swapBounds[0] = (this->CellSpacing[0] < 0);
@@ -1790,7 +1811,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateCropping(
                             static_cast<float>(croppingRegionPlanes[4]),
                             static_cast<float>(croppingRegionPlanes[5]) };
 
-    this->ShaderProgram->SetUniform1fv("cropping_planes", 6, cropPlanes);
+    this->ShaderProgram->SetUniform1fv("in_croppingPlanes", 6, cropPlanes);
     const int numberOfRegions = 32;
     int cropFlagsArray[numberOfRegions];
     cropFlagsArray[0] = 0;
@@ -1806,7 +1827,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateCropping(
       cropFlagsArray[i] = 0;
       }
 
-    this->ShaderProgram->SetUniform1iv("cropping_flags",
+    this->ShaderProgram->SetUniform1iv("in_croppingFlags",
                                        numberOfRegions,
                                        cropFlagsArray);
     }
@@ -1839,11 +1860,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateClipping(
       clippingPlanes.push_back(planeNormal[2]);
       }
 
-    double croppingRegionPlanes[6];
-    this->Parent->GetCroppingRegionPlanes(croppingRegionPlanes);
-
-    clippingPlanes[0] = clippingPlanes.size() > 0 ?
-      (clippingPlanes.size() - 1) : 0;
+    clippingPlanes[0] = clippingPlanes.size() > 1 ?
+                          static_cast<int>(clippingPlanes.size() - 1): 0;
 
     this->ShaderProgram->SetUniform1fv("in_clippingPlanes",
                                        static_cast<int>(clippingPlanes.size()),
@@ -3177,6 +3195,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
                        1.0 / this->Impl->WindowSize[1], fvalue2);
   this->Impl->ShaderProgram->SetUniform2fv("in_inverseWindowSize", 1, &fvalue2);
 
+  this->Impl->ShaderProgram->SetUniformi("in_useJittering", this->GetUseJittering());
   this->Impl->ShaderProgram->SetUniformi("in_cellFlag", this->CellFlag);
 
   // Updating cropping if enabled

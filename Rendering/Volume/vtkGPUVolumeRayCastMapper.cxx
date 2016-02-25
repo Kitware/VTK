@@ -45,6 +45,7 @@ vtkGPUVolumeRayCastMapper::vtkGPUVolumeRayCastMapper()
   this->MinimumImageSampleDistance = 1.0;
   this->MaximumImageSampleDistance = 10.0;
   this->RenderToImage              = 0;
+  this->UseJittering               = 1;
   this->SampleDistance             = 1.0;
   this->SmallVolumeRender          = 0;
   this->BigTimeToDraw              = 0.0;
