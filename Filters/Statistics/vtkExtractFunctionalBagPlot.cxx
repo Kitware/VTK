@@ -26,6 +26,7 @@
 
 #include <algorithm>
 #include <set>
+#include <sstream>
 #include <vector>
 
 vtkStandardNewMacro(vtkExtractFunctionalBagPlot);
@@ -34,6 +35,9 @@ vtkStandardNewMacro(vtkExtractFunctionalBagPlot);
 vtkExtractFunctionalBagPlot::vtkExtractFunctionalBagPlot()
 {
   this->SetNumberOfInputPorts(2);
+  this->DensityForP50 = 0;
+  this->DensityForPUser = 0.;
+  this->PUser = 95;
 }
 
 //-----------------------------------------------------------------------------
@@ -102,49 +106,35 @@ int vtkExtractFunctionalBagPlot::RequestData(vtkInformation* /*request*/,
 
   vtkIdType nbPoints = varName->GetNumberOfValues();
 
-  // Fetch and sort arrays according their density
-  std::vector<DensityVal> varNames;
-  varNames.reserve(nbPoints);
-  for (int i = 0; i < nbPoints; i++)
-    {
-    varNames.push_back(DensityVal(density->GetValue(i),
-      inTable->GetColumnByName(varName->GetValue(i))));
-    }
-  std::sort(varNames.begin(), varNames.end());
-
   std::vector<vtkAbstractArray*> medianLines;
   std::vector<vtkAbstractArray*> q3Lines;
-  std::set<vtkAbstractArray*> outliersSeries;
+  std::set<vtkIdType> outliersSeries;
 
-  // Compute total density sum
-  double densitySum = 0.0;
   for (vtkIdType i = 0; i < nbPoints; i++)
     {
-    densitySum += density->GetTuple1(i);
-    }
-
-  double sum = 0.0;
-  for (vtkIdType i = 0; i < nbPoints; i++)
-    {
-    sum += varNames[i].Density;
-    if (sum < 0.5 * densitySum)
+    double d = density->GetValue(i);
+    vtkAbstractArray* c = inTable->GetColumnByName(varName->GetValue(i));
+    if (d < this->DensityForPUser)
       {
-      medianLines.push_back(varNames[i].Array);
-      }
-    if (sum < 0.99 * densitySum)
-      {
-      q3Lines.push_back(varNames[i].Array);
+      outliersSeries.insert(i);
       }
     else
       {
-      outliersSeries.insert(varNames[i].Array);
+      if (d > this->DensityForP50)
+        {
+        medianLines.push_back(c);
+        }
+      else
+        {
+        q3Lines.push_back(c);
+        }
       }
     }
 
   vtkIdType nbRows = inTable->GetNumberOfRows();
   vtkIdType nbCols = inTable->GetNumberOfColumns();
 
-  // Generate the median line
+  // Generate the median curve with median values for every sample.
   vtkNew<vtkDoubleArray> qMedPoints;
   qMedPoints->SetName("QMedianLine");
   qMedPoints->SetNumberOfComponents(1);
@@ -163,8 +153,10 @@ int vtkExtractFunctionalBagPlot::RequestData(vtkInformation* /*request*/,
     }
 
   // Generate the quad strip arrays
+  std::ostringstream ss;
+  ss << "Q3Points" << this->PUser;
   vtkNew<vtkDoubleArray> q3Points;
-  q3Points->SetName("Q3Points");
+  q3Points->SetName(ss.str().c_str());
   q3Points->SetNumberOfComponents(2);
   q3Points->SetNumberOfTuples(nbRows);
 
@@ -202,7 +194,7 @@ int vtkExtractFunctionalBagPlot::RequestData(vtkInformation* /*request*/,
   for (vtkIdType i = 0; i < inNbColumns; i++)
     {
     vtkAbstractArray* arr = inTable->GetColumn(i);
-    if (outliersSeries.find(arr) != outliersSeries.end())
+    if (outliersSeries.find(i) != outliersSeries.end())
       {
       vtkAbstractArray* arrCopy = arr->NewInstance();
       arrCopy->DeepCopy(arr);
@@ -218,8 +210,14 @@ int vtkExtractFunctionalBagPlot::RequestData(vtkInformation* /*request*/,
     }
 
   // Then add the 2 "bag" columns into the output table
-  outTable->AddColumn(q3Points.GetPointer());
-  outTable->AddColumn(q2Points.GetPointer());
+  if (q3Lines.size() > 0)
+    {
+    outTable->AddColumn(q3Points.GetPointer());
+    }
+  if (medianLines.size() > 0)
+    {
+    outTable->AddColumn(q2Points.GetPointer());
+    }
   outTable->AddColumn(qMedPoints.GetPointer());
 
   return 1;

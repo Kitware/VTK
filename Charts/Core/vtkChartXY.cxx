@@ -1153,6 +1153,7 @@ vtkPlot * vtkChartXY::AddPlot(int type)
     case FUNCTIONALBAG:
       {
       vtkPlotFunctionalBag *bag = vtkPlotFunctionalBag::New();
+      bag->GetPen()->SetColor(color.GetData());
       bag->GetBrush()->SetColor(color.GetData());
       plot = bag;
       break;
