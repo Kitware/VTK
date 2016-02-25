@@ -57,22 +57,30 @@
 
   if (indexPath.row == 1)
     {
-    UIDocumentMenuViewController *documentPicker =
-      [[UIDocumentMenuViewController alloc]
+    UIDocumentPickerViewController *documentPicker =
+      [[UIDocumentPickerViewController alloc]
         initWithDocumentTypes:@[@"com.kitware.vtu",@"com.kitware.vts",@"com.kitware.vtr",@"com.kitware.vti"]
         inMode:UIDocumentPickerModeImport];
     documentPicker.delegate = self;
     documentPicker.modalPresentationStyle = UIModalPresentationFormSheet;
-    [self presentViewController:documentPicker animated:YES completion:nil];
+    [self presentViewController:documentPicker animated:NO completion:nil];
+
+    // UIDocumentMenuViewController *documentPicker =
+    //   [[UIDocumentMenuViewController alloc]
+    //     initWithDocumentTypes:@[@"com.kitware.vtu",@"com.kitware.vts",@"com.kitware.vtr",@"com.kitware.vti"]
+    //     inMode:UIDocumentPickerModeImport];
+    // documentPicker.delegate = self;
+    // documentPicker.modalPresentationStyle = UIModalPresentationFullScreen;
+    // [self presentViewController:documentPicker animated:NO completion:nil];
     }
 }
 
 - (void)documentMenu:(UIDocumentMenuViewController *)documentMenu
   didPickDocumentPicker:(UIDocumentPickerViewController *)documentPicker
 {
-  documentPicker.delegate = self;
-  documentPicker.modalPresentationStyle = UIModalPresentationFormSheet;
-  [self presentViewController:documentPicker animated:YES completion:nil];
+  // documentPicker.delegate = self;
+  // documentPicker.modalPresentationStyle = UIModalPresentationFormSheet;
+  // [self presentViewController:documentPicker animated:YES completion:nil];
 }
 
 - (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentAtURL:(NSURL *)url

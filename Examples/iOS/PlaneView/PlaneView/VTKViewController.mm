@@ -348,7 +348,6 @@ public:
     int index = interactor->GetPointerIndexForContact((size_t)(__bridge void *)touch);
     interactor->SetPointerIndex(index);
     interactor->LeftButtonPressEvent();
-    NSLog(@"Starting left mouse %i",index);
     }
 
   // Display the buffer
@@ -434,7 +433,6 @@ public:
     interactor->SetPointerIndex(index);
     interactor->LeftButtonReleaseEvent();
     interactor->ClearContact((size_t)(__bridge void *)touch);
-    NSLog(@"lifting left mouse");
     }
 
   // Display the buffer

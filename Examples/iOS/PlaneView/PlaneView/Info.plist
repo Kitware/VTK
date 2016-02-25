@@ -8,7 +8,9 @@
 	<array>
 		<dict>
 			<key>CFBundleTypeIconFiles</key>
-			<array/>
+			<array>
+				<string>iOSapplication</string>
+			</array>
 			<key>CFBundleTypeName</key>
 			<string>VTK Unstructured Grid</string>
 			<key>LSItemContentTypes</key>
@@ -18,7 +20,9 @@
 		</dict>
 		<dict>
 			<key>CFBundleTypeIconFiles</key>
-			<array/>
+			<array>
+				<string>iOSapplication</string>
+			</array>
 			<key>CFBundleTypeName</key>
 			<string>VTK Structured Grid</string>
 			<key>LSItemContentTypes</key>
@@ -28,7 +32,9 @@
 		</dict>
 		<dict>
 			<key>CFBundleTypeIconFiles</key>
-			<array/>
+			<array>
+				<string>iOSapplication</string>
+			</array>
 			<key>CFBundleTypeName</key>
 			<string>VTK Rectlinear Grid</string>
 			<key>LSItemContentTypes</key>
@@ -38,7 +44,9 @@
 		</dict>
 		<dict>
 			<key>CFBundleTypeIconFiles</key>
-			<array/>
+			<array>
+				<string>iOSapplication</string>
+			</array>
 			<key>CFBundleTypeName</key>
 			<string>VTK Image Data</string>
 			<key>LSItemContentTypes</key>
@@ -102,6 +110,10 @@
 			<string>VTK XML Unstructured Grid</string>
 			<key>UTTypeIdentifier</key>
 			<string>com.kitware.vtu</string>
+			<key>UTTypeSize320IconFile</key>
+			<string>iOSapplication</string>
+			<key>UTTypeSize64IconFile</key>
+			<string>iOSapplication</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>com.apple.ostype</key>
@@ -121,6 +133,10 @@
 			<string>VTK XML Structured Grid</string>
 			<key>UTTypeIdentifier</key>
 			<string>com.kitware.vts</string>
+			<key>UTTypeSize320IconFile</key>
+			<string>iOSapplication</string>
+			<key>UTTypeSize64IconFile</key>
+			<string>iOSapplication</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>com.apple.ostype</key>
@@ -140,6 +156,10 @@
 			<string>VTK XML Rectilinear Grid</string>
 			<key>UTTypeIdentifier</key>
 			<string>com.kitware.vtr</string>
+			<key>UTTypeSize320IconFile</key>
+			<string>iOSapplication</string>
+			<key>UTTypeSize64IconFile</key>
+			<string>iOSapplication</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>com.apple.ostype</key>
@@ -158,7 +178,11 @@
 			<key>UTTypeDescription</key>
 			<string>VTK XML Image Data</string>
 			<key>UTTypeIdentifier</key>
-			<string>com.kitware.vts</string>
+			<string>com.kitware.vti</string>
+			<key>UTTypeSize320IconFile</key>
+			<string>iOSapplication</string>
+			<key>UTTypeSize64IconFile</key>
+			<string>iOSapplication</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>com.apple.ostype</key>

@@ -16,6 +16,7 @@
 		1312F9571C6502270064AA4C /* vtk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1312F9561C6502270064AA4C /* vtk.framework */; };
 		1312F9591C6503EC0064AA4C /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1312F9581C6503EC0064AA4C /* GLKit.framework */; };
 		1312F95F1C650B050064AA4C /* SettingsTableViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1312F95E1C650B050064AA4C /* SettingsTableViewController.mm */; };
+		135BC9A11C777D12009C8169 /* iOSapplication.icns in Resources */ = {isa = PBXBuildFile; fileRef = 135BC9A01C777D12009C8169 /* iOSapplication.icns */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +35,7 @@
 		1312F95D1C650B050064AA4C /* SettingsTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingsTableViewController.h; sourceTree = "<group>"; };
 		1312F95E1C650B050064AA4C /* SettingsTableViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SettingsTableViewController.mm; sourceTree = "<group>"; };
 		1312F9631C68EADF0064AA4C /* PlaneView.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PlaneView.entitlements; sourceTree = "<group>"; };
+		135BC9A01C777D12009C8169 /* iOSapplication.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = iOSapplication.icns; path = iOSapplication.icns; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -70,6 +72,7 @@
 		1312F93A1C65005D0064AA4C /* PlaneView */ = {
 			isa = PBXGroup;
 			children = (
+				135BC9A01C777D12009C8169 /* iOSapplication.icns */,
 				1312F9631C68EADF0064AA4C /* PlaneView.entitlements */,
 				1312F93E1C65005D0064AA4C /* AppDelegate.h */,
 				1312F93F1C65005D0064AA4C /* AppDelegate.m */,
@@ -162,6 +165,7 @@
 			files = (
 				1312F94A1C65005D0064AA4C /* Main.storyboard in Resources */,
 				1312F94C1C65005D0064AA4C /* Assets.xcassets in Resources */,
+				135BC9A11C777D12009C8169 /* iOSapplication.icns in Resources */,
 				1312F94F1C65005D0064AA4C /* LaunchScreen.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
