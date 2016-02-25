@@ -400,29 +400,33 @@ bool vtkEDLShading::EDLShadeHigh(
   // compute the scene bounding box, and set the scene size to the diagonal of it.
   double bb[6];
   vtkMath::UninitializeBounds(bb);
+  bool boundsSet = false;
   for(int i=0; i<s.GetPropArrayCount(); i++)
     {
     double* bounds = s.GetPropArray()[i]->GetBounds();
-    if(i==0)
+    if (bounds)
       {
-      bb[0] = bounds[0];
-      bb[1] = bounds[1];
-      bb[2] = bounds[2];
-      bb[3] = bounds[3];
-      bb[4] = bounds[4];
-      bb[5] = bounds[5];
-      }
-    else
-      {
-      bb[0] = (bb[0] < bounds[0] ? bb[0] : bounds[0]);
-      bb[1] = (bb[1] > bounds[1] ? bb[1] : bounds[1]);
-      bb[2] = (bb[2] < bounds[2] ? bb[2] : bounds[2]);
-      bb[3] = (bb[3] > bounds[3] ? bb[3] : bounds[3]);
-      bb[4] = (bb[4] < bounds[4] ? bb[4] : bounds[4]);
-      bb[5] = (bb[5] > bounds[5] ? bb[5] : bounds[5]);
+      if(!boundsSet)
+        {
+        bb[0] = bounds[0];
+        bb[1] = bounds[1];
+        bb[2] = bounds[2];
+        bb[3] = bounds[3];
+        bb[4] = bounds[4];
+        bb[5] = bounds[5];
+        boundsSet = true;
+        }
+      else
+        {
+        bb[0] = (bb[0] < bounds[0] ? bb[0] : bounds[0]);
+        bb[1] = (bb[1] > bounds[1] ? bb[1] : bounds[1]);
+        bb[2] = (bb[2] < bounds[2] ? bb[2] : bounds[2]);
+        bb[3] = (bb[3] > bounds[3] ? bb[3] : bounds[3]);
+        bb[4] = (bb[4] < bounds[4] ? bb[4] : bounds[4]);
+        bb[5] = (bb[5] > bounds[5] ? bb[5] : bounds[5]);
+        }
       }
     }
-
   float diag = (bb[1]-bb[0])*(bb[1]-bb[0]) + (bb[3]-bb[2])*(bb[3]-bb[2])
                + (bb[5]-bb[4])*(bb[5]-bb[4]);
   diag = sqrt(diag);
