@@ -2824,8 +2824,16 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
 
   bool rescaleScalars = (scalarShift != 0.0 || scalarScale != 1.0);
 
+  // get the interpolation mode from the interpolator
+  int interpolationMode = VTK_INT_MAX;
+  if (interpolator->IsA("vtkImageInterpolator"))
+    {
+    interpolationMode =
+      static_cast<vtkImageInterpolator *>(interpolator)
+        ->GetInterpolationMode();
+    }
+
   // if doConversion is false, a special fast-path will be used
-  int interpolationMode = self->GetInterpolationMode();
   bool doConversion = true;
   int inputScalarType = scalars->GetDataType();
   if (interpolationMode == VTK_NEAREST_INTERPOLATION &&
