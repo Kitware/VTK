@@ -230,6 +230,11 @@ bool vtkTransposeTableInternal::TransposeTable(vtkTable* inTable,
       }
     }
 
+  // Compute the number of chars needed to write the largest column id
+  std::stringstream ss;
+  ss << firstCol->GetNumberOfTuples();
+  std::size_t maxBLen = ss.str().length();
+
   // Set id column on transposed table
   firstCol = this->InTable->GetColumn(0);
   for (int r = 0; r < firstCol->GetNumberOfComponents() *
@@ -242,9 +247,12 @@ bool vtkTransposeTableInternal::TransposeTable(vtkTable* inTable,
       }
     else
       {
-      std::stringstream ss;
-      ss << r;
-      destColumn->SetName(ss.str().c_str());
+      // Set the column name to the (padded) row id.
+      // We padd ids with 0 to avoid downstream dictionnary sort issues.
+      std::stringstream ss2;
+      ss2 << std::setw(maxBLen) << std::setfill('0');
+      ss2 << r;
+      destColumn->SetName(ss2.str().c_str());
       }
     }
 
