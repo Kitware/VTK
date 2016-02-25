@@ -53,8 +53,9 @@ namespace
     {
       return this->Available_;
     }
-    EGLQueryDevicesType eglQueryDevices = NULL;
-    EGLGetPlatformDisplayType eglGetPlatformDisplay = NULL;
+    bool Available_;
+    EGLQueryDevicesType eglQueryDevices;
+    EGLGetPlatformDisplayType eglGetPlatformDisplay;
 
   private:
     vtkEGLDeviceExtensions()
@@ -77,7 +78,6 @@ namespace
           }
         }
     }
-    bool Available_;
   };
 };
 
