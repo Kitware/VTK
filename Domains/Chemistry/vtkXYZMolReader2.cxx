@@ -82,10 +82,8 @@ int vtkXYZMolReader2::RequestInformation(
     {
     int natoms;
     istream::pos_type current_pos = file_in.tellg();
-    std::string title;
-    getline(file_in, title); // first title line
-    std::istringstream tmp(title);
-    tmp >> natoms;
+    file_in >> natoms;
+    file_in.get();  // end of line char
     if (!file_in)
       break; // reached after last timestep
 
@@ -102,7 +100,7 @@ int vtkXYZMolReader2::RequestInformation(
       vtkWarningMacro ("XYZMolReader2 has different number of atoms at each timestep "
                       << this->NumberOfAtoms << " " << natoms);
       }
-
+    std::string title;
     getline(file_in, title);  // second title line
     if(!title.empty())
       {
@@ -213,10 +211,9 @@ int vtkXYZMolReader2::RequestData(
 
   file_in.seekg(file_positions[timestep]);
   int nbAtoms;
-  std::string title;
-  getline(file_in, title); // first title line
-  std::istringstream tmp(title);
-  tmp >> nbAtoms;
+
+  file_in >> nbAtoms;
+  file_in.get(); // end of line char
 
   if(nbAtoms != this->NumberOfAtoms)
     {
@@ -225,7 +222,7 @@ int vtkXYZMolReader2::RequestData(
     file_in.close();
     return 0;
     }
-
+  std::string title;
   getline(file_in, title);  // second title line
 
 // construct vtkMolecule
@@ -236,10 +233,8 @@ int vtkXYZMolReader2::RequestData(
     {
     char atomType[16];
     float x, y, z;
-    getline(file_in, title);  // an atom's position line
-    std::istringstream tmp(title);
-    tmp >> atomType >> x >> y >> z;
-    if (!tmp) // checking we are at end of line
+    file_in >> atomType >> x >> y >> z;
+    if (file_in.fail()) // checking we are at end of line
       {
       vtkErrorMacro ("vtkXYZMolReader2 error reading file: " << this->FileName
                      << " Problem reading atoms' positions.");
