@@ -481,11 +481,11 @@ void vtkOpenGLPolyDataMapper2D::SetCameraShaderParameters(
     }
 
   float nearV = 0;
-  float farV = 1;
+  float farV = VTK_FLOAT_MAX;
   if (actor->GetProperty()->GetDisplayLocation() !=
        VTK_FOREGROUND_LOCATION)
     {
-    nearV = -1;
+    nearV = -VTK_FLOAT_MAX;;
     farV = 0;
     }
 
