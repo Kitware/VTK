@@ -152,7 +152,8 @@ int vtkGaussianCubeReader2::RequestData(
 {
   char title[256];
   double elements[16];
-  int NumberOfAtoms, JN1, N1N2, n1, n2, n3, i, j, k;
+  int NumberOfAtoms;
+  int n1, n2, n3; // grid resolution
   float tmp, *cubedata;
   bool orbitalCubeFile = false;
   int numberOfOrbitals;
@@ -236,7 +237,7 @@ int vtkGaussianCubeReader2::RequestData(
   float xyz[3];
   float dummy;
 
-  for(i = 0; i < NumberOfAtoms; i++)
+  for(int i = 0; i < NumberOfAtoms; i++)
     {
     if (!(file_in >> atomType >> dummy >> xyz[0] >> xyz[1] >> xyz[2]))
       {
@@ -261,7 +262,7 @@ int vtkGaussianCubeReader2::RequestData(
       file_in.close();
       return 0;
       }
-    for(k = 0; k < numberOfOrbitals; k++)
+    for(int k = 0; k < numberOfOrbitals; k++)
       {
       if (!(file_in >> tmp))
         {
@@ -289,14 +290,14 @@ int vtkGaussianCubeReader2::RequestData(
   grid->GetPointData()->GetScalars()->SetName(title);
 
   cubedata = (float *)grid->GetPointData()->GetScalars()->GetVoidPointer(0);
-  N1N2 = n1*n2;
+  int N1N2 = n1*n2;
 
-  for(i = 0; i < n1; i++)
+  for(int i = 0; i < n1; i++)
     {
-    JN1 = 0;
-    for(j = 0; j < n2; j++)
+    int JN1 = 0;
+    for(int j = 0; j < n2; j++)
       {
-      for(k = 0; k < n3; k++)
+      for(int k = 0; k < n3; k++)
         {
         if (!(file_in >> tmp))
           {
