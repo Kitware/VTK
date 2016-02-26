@@ -27,6 +27,7 @@
 #include <math.h>
 #include <string.h>
 
+#include <sstream>
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkXYZMolReader2);
 
@@ -64,8 +65,6 @@ int vtkXYZMolReader2::RequestInformation(
 {
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  char title[256];
-
   if (!this->FileName)
     {
     return 0;
@@ -78,20 +77,24 @@ int vtkXYZMolReader2::RequestInformation(
     vtkErrorMacro ("vtkXYZMolReader2 error opening file: " << this->FileName);
     return 0;
     }
-  int natoms;
-  char eolc;
+
   while(file_in)
     {
+    int natoms;
     istream::pos_type current_pos = file_in.tellg();
-
-    file_in >> natoms >> eolc; // first title line
+    std::string title;
+    getline(file_in, title); // first title line
+    std::istringstream tmp(title);
+    tmp >> natoms;
     if (!file_in)
       break; // reached after last timestep
 
     file_positions.push_back(current_pos);
 
     if (!this->NumberOfAtoms) // first read
+      {
       this->NumberOfAtoms = natoms;
+      }
     else
       {
 // do a consistency check with previous step. Assume there should be same # of atoms
@@ -100,16 +103,19 @@ int vtkXYZMolReader2::RequestInformation(
                       << this->NumberOfAtoms << " " << natoms);
       }
 
-    file_in.getline(title, 256);
-    // second title line with time index, time value and E?
-    // search now for an optional "time = value" field and assign it if found
-
-    char *timeLabel = strstr(title,"time");
-    double timeValue;
-    if(sscanf(timeLabel, "time = %lf", &timeValue) == 1)
+    getline(file_in, title);  // second title line
+    if(!title.empty())
       {
-      //std::cout << __LINE__ << "timeValue " << timeValue << std::endl;
-      this->TimeSteps.push_back(timeValue);
+      // second title line may have a time index, time value and E?
+      // search now for an optional "time = value" field and assign it if found
+      std::size_t found = title.find(std::string("time"));
+      if (found!=std::string::npos)
+        {
+        std::istringstream tmp(&title[found+6]);
+        double timeValue;
+        tmp >> timeValue;
+        this->TimeSteps.push_back(timeValue);
+        }
       }
     else
       {
@@ -119,7 +125,7 @@ int vtkXYZMolReader2::RequestInformation(
     this->NumberOfTimeSteps++;
     for(int i=0; i < natoms; i++)
       {
-      file_in.getline(title, 256); // for each atom a line with symbol, x, y, z
+      getline(file_in, title); // for each atom a line with symbol, x, y, z
       }
     }
   file_in.close();
@@ -138,9 +144,6 @@ int vtkXYZMolReader2::RequestData(
   vtkInformationVector **,
   vtkInformationVector *outputVector)
 {
-  char title[256];
-  int i;
-
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkMolecule *output = vtkMolecule::SafeDownCast
     (vtkDataObject::GetData(outputVector));
@@ -189,8 +192,8 @@ int vtkXYZMolReader2::RequestData(
 
     if(it != this->TimeSteps.end())
       {
-      it--; timestep--;
-
+      it--;
+      timestep--;
       if(fabs(*it - requestedTimeStep) > fabs(*(it+1) - requestedTimeStep))
         {
         // closer to next timestep value
@@ -210,8 +213,10 @@ int vtkXYZMolReader2::RequestData(
 
   file_in.seekg(file_positions[timestep]);
   int nbAtoms;
-  char eolc;
-  file_in >> nbAtoms >> eolc; // first title line
+  std::string title;
+  getline(file_in, title); // first title line
+  std::istringstream tmp(title);
+  tmp >> nbAtoms;
 
   if(nbAtoms != this->NumberOfAtoms)
     {
@@ -220,21 +225,24 @@ int vtkXYZMolReader2::RequestData(
     file_in.close();
     return 0;
     }
-  file_in.getline(title, 256); // second title line
+
+  getline(file_in, title);  // second title line
 
 // construct vtkMolecule
   output->Initialize();
 
-  char atomType[16];
-  float x, y, z;
   vtkPeriodicTable *pT = vtkPeriodicTable::New();
-  for(i = 0; i < this->NumberOfAtoms; i++)
+  for(int i = 0; i < this->NumberOfAtoms; i++)
     {
-    file_in.getline(title, 256);
-    if (sscanf(title,"%s %f %f %f", atomType, &x, &y, &z) != 4)
+    char atomType[16];
+    float x, y, z;
+    getline(file_in, title);  // an atom's position line
+    std::istringstream tmp(title);
+    tmp >> atomType >> x >> y >> z;
+    if (!tmp) // checking we are at end of line
       {
       vtkErrorMacro ("vtkXYZMolReader2 error reading file: " << this->FileName
-                     << " Premature EOF while reading molecule.");
+                     << " Problem reading atoms' positions.");
       file_in.close();
       return 0;
       }
