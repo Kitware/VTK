@@ -1,4 +1,5 @@
 set(Module_SRCS
+  vtkArrayListTemplate.txx
   vtkEllipsoidalGaussianKernel.cxx
   vtkGaussianKernel.cxx
   vtkInterpolationKernel.cxx
@@ -9,9 +10,17 @@ set(Module_SRCS
   vtkVoronoiKernel.cxx
   )
 
+set(${vtk-module}_HDRS
+  vtkArrayListTemplate.h
+  )
+
 set_source_files_properties(
   vtkInterpolationKernel
   ABSTRACT
   )
 
+set_source_files_properties(
+  vtkArrayListTemplate.txx
+  WRAP_EXCLUDE
+)
 vtk_module_library(vtkFiltersPoints ${Module_SRCS})
