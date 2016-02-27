@@ -44,145 +44,7 @@ vtkCxxSetObjectMacro(vtkPointInterpolator,Kernel,vtkInterpolationKernel);
 // Helper classes to support efficient computing, and threaded execution.
 namespace {
 
-// As of this writing, there are thread-safety and efficiency issues with
-// vtkPointData::InterpolatePoint and other vtkDataSetAttribute methods. So
-// here we are going to create thread safe, and slightly more efficient but
-// equivalent methods. A std::vector will be used to maintain a list of array
-// pairs, potentially of different types. They are array "pairs" because they
-// consist of an array to interpolate from, and the target array we are
-// interpolating to. The vector must refer to a base class; subclasses of
-// this base class are templated based on type. Virtual dispatch is used to
-// invoke the correct interpolation methods.
-
-// Generic, virtual dispatch to type-specific subclasses
-struct BaseInterpolationPair
-{
-  vtkIdType Num;
-  int NumComp;
-
-  BaseInterpolationPair(vtkIdType num, int numComp) : Num(num), NumComp(numComp)
-    {
-    }
-  virtual ~BaseInterpolationPair()
-    {
-    }
-
-  virtual void Interpolate(int numWeights, const vtkIdType *ids,
-                           const double *weights, vtkIdType outPtId) = 0;
-};
-
-// Type specific interpolation pair
-template <typename T>
-struct InterpolationPair : public BaseInterpolationPair
-{
-  T *Input;
-  T *Output;
-
-  InterpolationPair(T *in, T *out, vtkIdType num, int numComp) :
-    BaseInterpolationPair(num,numComp), Input(in), Output(out)
-    {
-    }
-  virtual ~InterpolationPair()  //calm down some finicky compilers
-    {
-    }
-
-  virtual void Interpolate(int numWeights, const vtkIdType *ids,
-                           const double *weights, vtkIdType outPtId)
-    {
-    for (int j=0; j < NumComp; ++j)
-      {
-      double v = 0.0;
-      for (vtkIdType i=0; i < numWeights; ++i)
-        {
-        v += weights[i] * static_cast<double>(Input[ids[i]*NumComp+j]);
-        }
-      Output[outPtId*NumComp+j] = static_cast<T>(v);
-      }
-    }
-};
-
-// Forward declarations. This makes working with vtkTemplateMacro easier.
-struct ArrayList;
-
-template <typename T>
-void CreateArrayPair(ArrayList *list, T *inData, T *outData, vtkIdType numPts, int numComp);
-
-
-// A list of the arrays to interpolate, and a method to invoke interpolation on the list
-struct ArrayList
-{
-  // The list of arrays
-  std::vector<BaseInterpolationPair*> Arrays;
-
-  // Add the arrays to interpolate here
-  void AddArrays(vtkIdType numOutPts, vtkPointData *inPD, vtkPointData *outPD)
-    {
-      // Build the vector of interpolation pairs. Note that InterpolateAllocate should have
-      // been called at this point (output arrays created and allocated).
-      char *name;
-      vtkDataArray *iArray, *oArray;
-      int iType, oType;
-      void *iD, *oD;
-      int iNumComp, oNumComp;
-      int i, numArrays = outPD->GetNumberOfArrays();
-      for (i=0; i < numArrays; ++i)
-        {
-        oArray = outPD->GetArray(i);
-        if ( oArray )
-          {
-          name = oArray->GetName();
-          iArray = inPD->GetArray(name);
-          if ( iArray )
-            {
-            iType = iArray->GetDataType();
-            oType = oArray->GetDataType();
-            iNumComp = iArray->GetNumberOfComponents();
-            oNumComp = oArray->GetNumberOfComponents();
-            oArray->SetNumberOfTuples(numOutPts);
-
-            if ( (iType == oType) && (iNumComp == oNumComp) ) //sanity check
-              {
-              iD = iArray->GetVoidPointer(0);
-              oD = oArray->GetVoidPointer(0);
-              switch (iType)
-                {
-                vtkTemplateMacro(CreateArrayPair(this, static_cast<VTK_TT *>(iD),
-                                                 static_cast<VTK_TT *>(oD),numOutPts,oNumComp));
-                }//over all VTK types
-              }//if matching types
-            }//if matching input array
-          }//if output array
-        }//for each candidate array
-    }
-
-  // Loop over the arrays and have them interpolate themselves
-  void Interpolate(int numWeights, const vtkIdType *ids, const double *weights, vtkIdType outPtId)
-    {
-      for (std::vector<BaseInterpolationPair*>::iterator it = Arrays.begin();
-           it != Arrays.end(); ++it)
-        {
-        (*it)->Interpolate(numWeights, ids, weights, outPtId);
-        }
-    }
-
-  // Only you can prevent memory leaks!
-  ~ArrayList()
-    {
-      for (std::vector<BaseInterpolationPair*>::iterator it = Arrays.begin();
-           it != Arrays.end(); ++it)
-        {
-        delete (*it);
-        }
-    }
-};
-
-// Sort of a little object factory (in conjunction w/ vtkTemplateMacro())
-template <typename T>
-void CreateArrayPair(ArrayList *list, T *inData, T *outData, vtkIdType numPts, int numComp)
-{
-  InterpolationPair<T> *pair = new InterpolationPair<T>(inData,outData,numPts,numComp);
-  list->Arrays.push_back(pair);
-}
+#include "vtkArrayListTemplate.h"
 
 // The threaded core of the algorithm
 struct ProbePoints
@@ -202,11 +64,11 @@ struct ProbePoints
   vtkSMPThreadLocalObject<vtkDoubleArray> Weights;
 
   ProbePoints(vtkDataSet *input, vtkInterpolationKernel *kernel,vtkAbstractPointLocator *loc,
-              vtkPointData *inPD, vtkPointData *outPD, int strategy, char *valid) :
+              vtkPointData *inPD, vtkPointData *outPD, int strategy, char *valid, double nullV) :
     Input(input), Kernel(kernel), Locator(loc), InPD(inPD), OutPD(outPD),
     Valid(valid), Strategy(strategy)
     {
-      this->Arrays.AddArrays(input->GetNumberOfPoints(), inPD, outPD);
+      this->Arrays.AddArrays(input->GetNumberOfPoints(), inPD, outPD, nullV);
     }
 
   // Just allocate a little bit of memory to get started.
@@ -225,11 +87,11 @@ struct ProbePoints
       if ( this->Strategy == vtkPointInterpolator::MASK_POINTS)
         {
         this->Valid[ptId] = 0;
-        this->OutPD->NullPoint(ptId);
+        this->Arrays.AssignNullValue(ptId);
         }
       else if ( this->Strategy == vtkPointInterpolator::NULL_VALUE)
         {
-        this->OutPD->NullPoint(ptId);
+        this->Arrays.AssignNullValue(ptId);
         }
       else //vtkPointInterpolator::CLOSEST_POINT:
         {
@@ -284,8 +146,8 @@ struct ImageProbePoints : public ProbePoints
   ImageProbePoints(vtkImageData *image, int dims[3], double origin[3],
                    double spacing[3], vtkInterpolationKernel *kernel,
                    vtkAbstractPointLocator *loc, vtkPointData *inPD,
-                   vtkPointData *outPD, int strategy, char *valid) :
-    ProbePoints(image, kernel, loc, inPD, outPD, strategy, valid)
+                   vtkPointData *outPD, int strategy, char *valid, double nullV) :
+    ProbePoints(image, kernel, loc, inPD, outPD, strategy, valid, nullV)
     {
       for (int i=0; i < 3; ++i)
         {
@@ -352,6 +214,7 @@ vtkPointInterpolator::vtkPointInterpolator()
   this->Kernel = vtkVoronoiKernel::New();
 
   this->NullPointsStrategy = vtkPointInterpolator::CLOSEST_POINT;
+  this->NullValue = 0.0;
 
   this->ValidPointsMask = NULL;
   this->ValidPointsMaskArrayName = 0;
@@ -454,13 +317,13 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
     this->ExtractImageDescription(imgInput,dims,origin,spacing);
     ImageProbePoints imageProbe(imgInput, dims, origin, spacing,
                                 this->Kernel,this->Locator,inPD,outPD,
-                                this->NullPointsStrategy,mask);
+                                this->NullPointsStrategy,mask,this->NullValue);
     vtkSMPTools::For(0, dims[2], imageProbe);//over slices
     }
   else
     {
     ProbePoints probe(input,this->Kernel,this->Locator,inPD,outPD,
-                      this->NullPointsStrategy,mask);
+                      this->NullPointsStrategy,mask,this->NullValue);
     vtkSMPTools::For(0, numPts, probe);
     }
 
@@ -620,8 +483,9 @@ void vtkPointInterpolator::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   os << indent << "Source: " << source << "\n";
   os << indent << "Locator: " << this->Locator << "\n";
-  os << indent << "Kernel: " << this->Locator << "\n";
+  os << indent << "Kernel: " << this->Kernel << "\n";
   os << indent << "Null Points Strategy: " << this->NullPointsStrategy << endl;
+  os << indent << "Null Value: " << this->NullValue << "\n";
   os << indent << "Valid Points Mask Array Name: "
      << (this->ValidPointsMaskArrayName ? this->ValidPointsMaskArrayName : "(none)") << "\n";
   os << indent << "Pass Point Arrays: "

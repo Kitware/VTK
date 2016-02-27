@@ -146,7 +146,8 @@ SPHKernel = vtk.vtkSPHKernel()
 interpolator3 = vtk.vtkPointInterpolator()
 interpolator3.SetInputConnection(plane.GetOutputPort())
 interpolator3.SetSourceData(output)
-interpolator3.SetKernel(SPHKernel)
+interpolator3.SetKernel(voronoiKernel)
+#interpolator3.SetKernel(SPHKernel)
 interpolator3.SetLocator(locator)
 
 # Time execution
@@ -226,4 +227,4 @@ iren.Initialize()
 #
 renWin.Render()
 
-#iren.Start()
+iren.Start()

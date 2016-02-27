@@ -146,6 +146,13 @@ public:
   vtkGetStringMacro(ValidPointsMaskArrayName);
 
   // Description:
+  // Specify the null point value. When a null point is encountered then all
+  // components of each null tuple are set to this value. By default the
+  // null value is set to zero.
+  vtkSetMacro(NullValue,double);
+  vtkGetMacro(NullValue,double);
+
+  // Description:
   // Indicate whether to shallow copy the input point data arrays to the
   // output.  On by default.
   vtkSetMacro(PassPointArrays, bool);
@@ -174,6 +181,7 @@ protected:
   vtkInterpolationKernel *Kernel;
 
   int NullPointsStrategy;
+  double NullValue;
   char* ValidPointsMaskArrayName;
   vtkCharArray *ValidPointsMask;
 
