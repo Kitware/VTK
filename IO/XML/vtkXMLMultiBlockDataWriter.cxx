@@ -60,6 +60,15 @@ int vtkXMLMultiBlockDataWriter::WriteComposite(vtkCompositeDataSet* compositeDat
   iter->VisitOnlyLeavesOff();
   iter->TraverseSubTreeOff();
   iter->SkipEmptyNodesOff();
+  int toBeWritten = 0;
+  for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
+    iter->GoToNextItem())
+    {
+    toBeWritten++;
+    }
+
+  float progressRange[2] = { 0.f, 0.f };
+  this->GetProgressRange(progressRange);
 
   int index = 0;
   int RetVal = 0;
@@ -115,6 +124,8 @@ int vtkXMLMultiBlockDataWriter::WriteComposite(vtkCompositeDataSet* compositeDat
         datasetXML->SetAttribute("name", name);
         }
       vtkStdString fileName = this->CreatePieceFileName(writerIdx);
+
+      this->SetProgressRange(progressRange, writerIdx, toBeWritten);
       if (this->WriteNonCompositeData( curDO, datasetXML, writerIdx,
                                        fileName.c_str()))
         {
