@@ -57,7 +57,7 @@ macro(vtk_module _name)
   set(${vtk-module}_EXCLUDE_FROM_ALL 0)
   set(${vtk-module}_EXCLUDE_FROM_WRAPPING 0)
   set(${vtk-module}_EXCLUDE_FROM_WRAP_HIERARCHY 0)
-  set(${vtk-module}_TEST_LABELS "")
+  set(${vtk-module}_TEST_LABELS "${vtk-module}")
   set(${vtk-module}_KIT "")
   foreach(arg ${ARGN})
     # XXX: Adding a new keyword? Update Utilities/Maintenance/WhatModulesVTK.py
