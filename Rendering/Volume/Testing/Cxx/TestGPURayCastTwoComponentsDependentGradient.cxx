@@ -34,7 +34,7 @@ int TestGPURayCastTwoComponentsDependentGradient(int argc, char *argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
-  int dims[3] = { 35, 35, 35 };
+  int dims[3] = { 30, 30, 30 };
 
   // Create a vtkImageData with two components
   vtkNew<vtkImageData> image;
@@ -46,24 +46,40 @@ int TestGPURayCastTwoComponentsDependentGradient(int argc, char *argv[])
   double * ptr = static_cast<double *> (image->GetScalarPointer(0, 0, 0));
 
   for (int z = 0; z < dims[2]; ++z)
-  {
-    for (int y = 0; y < dims[1]; ++y)
     {
-      for (int x = 0; x < dims[0]; ++x)
+    for (int y = 0; y < dims[1]; ++y)
       {
+      for (int x = 0; x < dims[0]; ++x)
+        {
         if (x < dims[0] / 2)
-        {
-          *ptr++ = 0.0;
-          *ptr++ = 0.0;
-        }
+          {
+          if (y < dims[1] / 2)
+            {
+            *ptr++ = 0.0;
+            *ptr++ = 0.2;
+            }
+          else
+            {
+            *ptr++ = 0.25;
+            *ptr++ = 0.2;
+            }
+          }
         else
-        {
-          *ptr++ = 1.0;
-          *ptr++ = 1.0;
+          {
+          if (y < dims[1] / 2)
+            {
+            *ptr++ = 0.5;
+            *ptr++ = 0.2;
+            }
+          else
+            {
+            *ptr++ = 1.0;
+            *ptr++ = 0.2;
+            }
+          }
         }
       }
     }
-  }
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetSize(301, 300); // Intentional NPOT size
@@ -80,12 +96,13 @@ int TestGPURayCastTwoComponentsDependentGradient(int argc, char *argv[])
   // Volume render the dataset
   vtkNew<vtkGPUVolumeRayCastMapper> mapper;
   mapper->AutoAdjustSampleDistancesOff();
-  mapper->SetSampleDistance(0.9);
+  mapper->SetSampleDistance(0.5);
   mapper->SetInputData(image.GetPointer());
 
   // Color transfer function
   vtkNew<vtkColorTransferFunction> ctf1;
   ctf1->AddRGBPoint(0.0, 0.0, 0.0, 1.0);
+  ctf1->AddRGBPoint(0.5, 0.0, 1.0, 0.0);
   ctf1->AddRGBPoint(1.0, 1.0, 0.0, 0.0);
 
   vtkNew<vtkColorTransferFunction> ctf2;
@@ -94,21 +111,13 @@ int TestGPURayCastTwoComponentsDependentGradient(int argc, char *argv[])
 
   // Opacity functions
   vtkNew<vtkPiecewiseFunction> pf1;
-  pf1->AddPoint(0.0, 1.0);
-  pf1->AddPoint(1.0, 1.0);
+  pf1->AddPoint(0.0, 0.5);
+  pf1->AddPoint(1.0, 0.5);
 
+  // Gradient Opacity function
   vtkNew<vtkPiecewiseFunction> pf2;
   pf2->AddPoint(0.0, 0.0);
   pf2->AddPoint(1.0, 1.0);
-
-  // Gradient Opacity function
-  vtkNew<vtkPiecewiseFunction> pf3;
-  pf3->AddPoint(0.0, 0.0);
-  pf3->AddPoint(1.0, 1.0);
-
-  vtkNew<vtkPiecewiseFunction> pf4;
-  pf4->AddPoint(0.0, 0.0);
-  pf4->AddPoint(1.0, 1.0);
 
   // Volume property with independent components OFF
   vtkNew<vtkVolumeProperty> property;
@@ -116,11 +125,11 @@ int TestGPURayCastTwoComponentsDependentGradient(int argc, char *argv[])
 
   // Set color and opacity functions
   property->SetColor(0, ctf1.GetPointer());
+  // Setting the transfer function for second component would be a no-op as only
+  // the first component functions are used.
   property->SetColor(1, ctf2.GetPointer());
   property->SetScalarOpacity(0, pf1.GetPointer());
-  property->SetScalarOpacity(1, pf2.GetPointer());
-  property->SetGradientOpacity(0, pf3.GetPointer());
-//  property->SetGradientOpacity(1, pf4.GetPointer());
+  property->SetGradientOpacity(0, pf2.GetPointer());
 
   vtkNew<vtkVolume> volume;
   volume->SetMapper(mapper.GetPointer());
