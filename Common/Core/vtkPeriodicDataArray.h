@@ -35,8 +35,7 @@ class vtkPeriodicDataArray: public vtkMappedDataArray<Scalar>
 public:
   vtkTemplateTypeMacro(vtkPeriodicDataArray<Scalar>, vtkMappedDataArray<Scalar>)
   typedef typename Superclass::ValueType ValueType;
-  typedef typename Superclass::ReferenceType ReferenceType;
-  typedef typename Superclass::ConstReferenceType ConstReferenceType;
+
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:
@@ -98,19 +97,19 @@ public:
 
   // Description:
   // Get value at index idx.
-  // Warning, it internally call GetTupleValue,
+  // Warning, it internally call GetTypedTuple,
   // so it is an inneficcient way if reading all data
-  ConstReferenceType GetValue(vtkIdType idx) const;
+  ValueType GetValue(vtkIdType idx) const;
 
   // Description:
   // Get value at index idx as reference.
-  // Warning, it internally call GetTupleValue,
+  // Warning, it internally call GetTypedTuple,
   // so it is an inneficcient way if reading all data
-  ReferenceType GetValueReference(vtkIdType idx);
+  ValueType& GetValueReference(vtkIdType idx);
 
   // Description:
   // Copy tuple value at location idx into provided array
-  void GetTupleValue(vtkIdType idx, Scalar *t) const;
+  void GetTypedTuple(vtkIdType idx, Scalar *t) const;
 
   // Description:
   // Return the memory in kilobytes consumed by this data array.
@@ -214,15 +213,15 @@ public:
 
   // Description:
   // Read only container, not supported.
-  void SetTupleValue(vtkIdType i, const Scalar *t);
+  void SetTypedTuple(vtkIdType i, const Scalar *t);
 
   // Description:
   // Read only container, not supported.
-  void InsertTupleValue(vtkIdType i, const Scalar *t);
+  void InsertTypedTuple(vtkIdType i, const Scalar *t);
 
   // Description:
   // Read only container, not supported.
-  vtkIdType InsertNextTupleValue(const Scalar *t);
+  vtkIdType InsertNextTypedTuple(const Scalar *t);
 
   // Description:
   // Read only container, not supported.
@@ -271,7 +270,7 @@ private:
   vtkPeriodicDataArray(const vtkPeriodicDataArray &); // Not implemented.
   void operator=(const vtkPeriodicDataArray &); // Not implemented.
 
-  Scalar* TempScalarArray; // Temporary array used by GetTupleValue methods
+  Scalar* TempScalarArray; // Temporary array used by GetTypedTuple methods
   double* TempDoubleArray; // Temporary array used by GetTuple vethods
   vtkIdType TempTupleIdx;  // Location of currently stored Temp Tuple to use as cache
   vtkAOSDataArrayTemplate<Scalar>* Data; // Original data

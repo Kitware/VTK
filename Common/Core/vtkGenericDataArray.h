@@ -34,40 +34,34 @@ class vtkGenericDataArray : public vtkDataArray
 public:
   vtkTemplateTypeMacro(SelfType, vtkDataArray)
   typedef ValueTypeT        ValueType;
-  typedef ValueTypeT&       ReferenceType;
-  typedef const ValueTypeT& ConstReferenceType;
 
   //----------------------------------------------------------------------------
   // Methods that must be defined by the subclasses.
   // Let's call these GenericDataArray concept methods.
-  inline ConstReferenceType GetValue(vtkIdType valueIdx) const
+  inline ValueType GetValue(vtkIdType valueIdx) const
     {
-    // TODO this method shadows a non-const method in vtkDataArrayTemplate
-    // that returns a value. Prolly won't matter for most cases, but we should
-    // note it somewhere.
     return static_cast<const DerivedT*>(this)->GetValue(valueIdx);
     }
-  inline void GetTupleValue(vtkIdType tupleIdx, ValueType* tuple) const
+  inline void GetTypedTuple(vtkIdType tupleIdx, ValueType* tuple) const
     {
-    static_cast<const DerivedT*>(this)->GetTupleValue(tupleIdx, tuple);
+    static_cast<const DerivedT*>(this)->GetTypedTuple(tupleIdx, tuple);
     }
-  inline ConstReferenceType GetComponentValue(vtkIdType tupleIdx,
-                                              int comp) const
+  inline ValueType GetTypedComponent(vtkIdType tupleIdx, int comp) const
     {
-    return static_cast<const DerivedT*>(this)->GetComponentValue(tupleIdx,
+    return static_cast<const DerivedT*>(this)->GetTypedComponent(tupleIdx,
                                                                  comp);
     }
   inline void SetValue(vtkIdType valueIdx, ValueType value)
     {
     static_cast<DerivedT*>(this)->SetValue(valueIdx, value);
     }
-  inline void SetTupleValue(vtkIdType tupleIdx, const ValueType* tuple)
+  inline void SetTypedTuple(vtkIdType tupleIdx, const ValueType* tuple)
     {
-    static_cast<DerivedT*>(this)->SetTupleValue(tupleIdx, tuple);
+    static_cast<DerivedT*>(this)->SetTypedTuple(tupleIdx, tuple);
     }
-  inline void SetComponentValue(vtkIdType tupleIdx, int comp, ValueType value)
+  inline void SetTypedComponent(vtkIdType tupleIdx, int comp, ValueType value)
     {
-    static_cast<DerivedT*>(this)->SetComponentValue(tupleIdx, comp, value);
+    static_cast<DerivedT*>(this)->SetTypedComponent(tupleIdx, comp, value);
     }
 
   // Provide implementations for pure virtual methods in vtkDataArray.
@@ -263,7 +257,7 @@ public:
   virtual void SetComponent(vtkIdType i, int j, double c)
   {
     // Reimplemented for efficiency (base impl allocates heap memory)
-    this->SetComponentValue(i, j, static_cast<ValueType>(c));
+    this->SetTypedComponent(i, j, static_cast<ValueType>(c));
   }
 
   //----------------------------------------------------------------------------
@@ -271,7 +265,7 @@ public:
   virtual double GetComponent(vtkIdType i, int j)
   {
     // Reimplemented for efficiency (base impl allocates heap memory)
-    return static_cast<double>(this->GetComponentValue(i, j));
+    return static_cast<double>(this->GetTypedComponent(i, j));
   }
 
   //----------------------------------------------------------------------------
@@ -329,15 +323,6 @@ public:
   // concept methods defined above.
 
   // Description:
-  // Get a reference to the scalar value at a particular index.
-  // Index is value/component index assuming
-  // traditional VTK memory layout (array-of-structures).
-  ReferenceType GetValueReference(vtkIdType idx)
-    {
-    return const_cast<ReferenceType>(this->GetValue(idx));
-    }
-
-  // Description:
   // Insert data at the end of the array. Return its location in the array.
   vtkIdType InsertNextValue(ValueType v)
     {
@@ -381,27 +366,27 @@ public:
   // Description:
   // Insert (memory allocation performed) the tuple into the ith location
   // in the array.
-  void InsertTupleValue(vtkIdType tupleIdx, const ValueType *t)
+  void InsertTypedTuple(vtkIdType tupleIdx, const ValueType *t)
     {
     if (this->EnsureAccessToTuple(tupleIdx))
       {
-      this->SetTupleValue(tupleIdx, t);
+      this->SetTypedTuple(tupleIdx, t);
       }
     }
 
   // Description:
   // Insert (memory allocation performed) the tuple onto the end of the array.
-  vtkIdType InsertNextTupleValue(const ValueType *t)
+  vtkIdType InsertNextTypedTuple(const ValueType *t)
     {
     vtkIdType nextTuple = this->GetNumberOfTuples();
-    this->InsertTupleValue(nextTuple, t);
+    this->InsertTypedTuple(nextTuple, t);
     return nextTuple;
     }
 
   // Description:
   // Insert (memory allocation performed) the value at the specified tuple and
   // component location.
-  void InsertComponentValue(vtkIdType tupleIdx, int compIdx, ValueType val)
+  void InsertTypedComponent(vtkIdType tupleIdx, int compIdx, ValueType val)
     {
     // Update MaxId to the inserted component (not the complete tuple) for
     // compatibility with InsertNextValue.
@@ -413,17 +398,9 @@ public:
     this->EnsureAccessToTuple(tupleIdx);
     assert("Sufficient space allocated." && this->MaxId >= newMaxId);
     this->MaxId = newMaxId;
-    this->SetComponentValue(tupleIdx, compIdx, val);
+    this->SetTypedComponent(tupleIdx, compIdx, val);
     }
 
-  // Description:
-  // Returns the number of values i.e.
-  // (this->NumberOfComponents*this->NumberOfTuples)
-  // TODO this can go in vtkAbstractArray.
-  inline vtkIdType GetNumberOfValues()
-    {
-    return (this->MaxId + 1);
-    }
 
   // Description:
   // Get the range of array values for the given component in the

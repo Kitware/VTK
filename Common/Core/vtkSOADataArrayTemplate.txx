@@ -192,7 +192,7 @@ void *vtkSOADataArrayTemplate<ValueType>::GetVoidPointer(vtkIdType id)
                       "this warning.");
     }
 
-  size_t numValues = this->NumberOfComponents * this->GetNumberOfTuples();
+  size_t numValues = this->GetNumberOfValues();
 
   if (!this->AoSCopy.Allocate(numValues))
     {

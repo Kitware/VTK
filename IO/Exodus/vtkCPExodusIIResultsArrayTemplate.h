@@ -39,8 +39,6 @@ public:
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   typedef typename Superclass::ValueType ValueType;
-  typedef typename Superclass::ReferenceType ReferenceType;
-  typedef typename Superclass::ConstReferenceType ConstReferenceType;
 
   // Description:
   // Set the arrays to be used and the number of tuples in each array.
@@ -64,9 +62,9 @@ public:
   void GetTuple(vtkIdType i, double *tuple);
   vtkIdType LookupTypedValue(Scalar value);
   void LookupTypedValue(Scalar value, vtkIdList *ids);
-  ConstReferenceType GetValue(vtkIdType idx) const;
-  ReferenceType GetValueReference(vtkIdType idx);
-  void GetTupleValue(vtkIdType idx, Scalar *t) const;
+  ValueType GetValue(vtkIdType idx) const;
+  ValueType& GetValueReference(vtkIdType idx);
+  void GetTypedTuple(vtkIdType idx, Scalar *t) const;
 
   // Description:
   // This container is read only -- this method does nothing but print a
@@ -98,9 +96,9 @@ public:
   void RemoveTuple(vtkIdType id);
   void RemoveFirstTuple();
   void RemoveLastTuple();
-  void SetTupleValue(vtkIdType i, const Scalar *t);
-  void InsertTupleValue(vtkIdType i, const Scalar *t);
-  vtkIdType InsertNextTupleValue(const Scalar *t);
+  void SetTypedTuple(vtkIdType i, const Scalar *t);
+  void InsertTypedTuple(vtkIdType i, const Scalar *t);
+  vtkIdType InsertNextTypedTuple(const Scalar *t);
   void SetValue(vtkIdType idx, Scalar value);
   vtkIdType InsertNextValue(Scalar v);
   void InsertValue(vtkIdType idx, Scalar v);

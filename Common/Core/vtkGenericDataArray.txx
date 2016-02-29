@@ -38,7 +38,7 @@ vtkGenericDataArrayT(void)::GetTuple(vtkIdType i, double *tuple)
 {
   for (int c = 0; c < this->NumberOfComponents; ++c)
     {
-    tuple[c] = static_cast<double>(this->GetComponentValue(i, c));
+    tuple[c] = static_cast<double>(this->GetTypedComponent(i, c));
     }
 }
 
@@ -69,8 +69,8 @@ vtkGenericDataArrayT(void)::RemoveTuple(vtkIdType id)
     {
     for (int comp=0; comp < numComps; ++comp)
       {
-      this->SetComponentValue(toTuple, comp,
-                              this->GetComponentValue(fromTuple, comp));
+      this->SetTypedComponent(toTuple, comp,
+                              this->GetTypedComponent(fromTuple, comp));
       }
     }
   this->SetNumberOfTuples(this->GetNumberOfTuples() - 1);

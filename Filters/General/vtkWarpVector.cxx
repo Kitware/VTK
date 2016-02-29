@@ -125,9 +125,9 @@ struct WarpVectorDispatch2Points
 
       for (int c = 0; c < 3; ++c)
         {
-        PointValueT val = inPtArray->GetComponentValue(t, c) +
-            scaleFactor * this->Vectors->GetComponentValue(t, c);
-        outPtArray->SetComponentValue(t, c, val);
+        PointValueT val = inPtArray->GetTypedComponent(t, c) +
+            scaleFactor * this->Vectors->GetTypedComponent(t, c);
+        outPtArray->SetTypedComponent(t, c, val);
         }
       }
   }

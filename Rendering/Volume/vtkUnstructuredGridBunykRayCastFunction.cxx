@@ -278,10 +278,10 @@ struct TemplateCastRayWorker
           for (int c = 0; c < this->NumComponents; c++)
             {
             ValueType A, B, C;
-            A = scalarArray->GetComponentValue(this->CurrentTriangle->PointIndex[0], c);
-            B = scalarArray->GetComponentValue(this->CurrentTriangle->PointIndex[1], c);
-            C = scalarArray->GetComponentValue(this->CurrentTriangle->PointIndex[2], c);
-            nearIntersectionArray->SetComponentValue(
+            A = scalarArray->GetTypedComponent(this->CurrentTriangle->PointIndex[0], c);
+            B = scalarArray->GetTypedComponent(this->CurrentTriangle->PointIndex[1], c);
+            C = scalarArray->GetTypedComponent(this->CurrentTriangle->PointIndex[2], c);
+            nearIntersectionArray->SetTypedComponent(
                   this->NumIntersections, c,
                   static_cast<ValueType>(a1 * A + b1 * B + c1 * C));
             }
@@ -292,10 +292,10 @@ struct TemplateCastRayWorker
           for (int c = 0; c < this->NumComponents; c++)
             {
             ValueType A, B, C;
-            A = scalarArray->GetComponentValue(nextTriangle->PointIndex[0], c);
-            B = scalarArray->GetComponentValue(nextTriangle->PointIndex[1], c);
-            C = scalarArray->GetComponentValue(nextTriangle->PointIndex[2], c);
-            farIntersectionArray->SetComponentValue(
+            A = scalarArray->GetTypedComponent(nextTriangle->PointIndex[0], c);
+            B = scalarArray->GetTypedComponent(nextTriangle->PointIndex[1], c);
+            C = scalarArray->GetTypedComponent(nextTriangle->PointIndex[2], c);
+            farIntersectionArray->SetTypedComponent(
                   this->NumIntersections, c,
                   static_cast<ValueType>(a2 * A + b2 * B + c2 * C));
             }

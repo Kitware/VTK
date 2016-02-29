@@ -80,9 +80,9 @@ struct ComputeScalarRange
       for(int compIdx = 0, j = 0; compIdx < NumComps; ++compIdx, j+=2)
         {
         tempRange[j] = detail::min(tempRange[j],
-          array->GetComponentValue(tupleIdx, compIdx));
+          array->GetTypedComponent(tupleIdx, compIdx));
         tempRange[j+1] = detail::max(tempRange[j+1],
-          array->GetComponentValue(tupleIdx, compIdx));
+          array->GetTypedComponent(tupleIdx, compIdx));
         }
       }
 
@@ -171,9 +171,9 @@ bool DoComputeScalarRange(ArrayT *array, double *ranges)
       for(int compIdx = 0, j = 0; compIdx < numComp; ++compIdx, j+=2)
         {
         tempRange[j] = detail::min(tempRange[j],
-          array->GetComponentValue(tupleIdx, compIdx));
+          array->GetTypedComponent(tupleIdx, compIdx));
         tempRange[j+1] = detail::max(tempRange[j+1],
-          array->GetComponentValue(tupleIdx, compIdx));
+          array->GetTypedComponent(tupleIdx, compIdx));
         }
       }
 
@@ -247,7 +247,7 @@ bool DoComputeVectorRange(ArrayT *array, double range[2])
     for (int compIdx = 0; compIdx < numComps; ++compIdx)
       {
       const double t =
-          static_cast<double>(array->GetComponentValue(tupleIdx, compIdx));
+          static_cast<double>(array->GetTypedComponent(tupleIdx, compIdx));
       squaredSum += t * t;
       }
     range[0] = detail::min(range[0], squaredSum);

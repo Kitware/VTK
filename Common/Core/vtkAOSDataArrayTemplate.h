@@ -36,8 +36,6 @@ public:
   typedef vtkAOSDataArrayTemplate<ValueTypeT> SelfType;
   vtkTemplateTypeMacro(SelfType, GenericDataArrayType)
   typedef typename Superclass::ValueType ValueType;
-  typedef typename Superclass::ReferenceType ReferenceType;
-  typedef typename Superclass::ConstReferenceType ConstReferenceType;
 
   // Description:
   // Legacy support for array-of-structs value iteration.
@@ -52,18 +50,18 @@ public:
   // Methods that are needed to be implemented by every vtkGenericDataArray
   // subclass.
   // **************************************************************************
-  inline ConstReferenceType GetValue(vtkIdType valueIdx) const
+  inline ValueType GetValue(vtkIdType valueIdx) const
     {
     return this->Buffer.GetBuffer()[valueIdx];
     }
-  inline void GetTupleValue(vtkIdType tupleIdx, ValueType* tuple) const
+  inline void GetTypedTuple(vtkIdType tupleIdx, ValueType* tuple) const
     {
     const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
     std::copy(this->Buffer.GetBuffer() + valueIdx,
               this->Buffer.GetBuffer() + valueIdx + this->NumberOfComponents,
               tuple);
     }
-  inline ConstReferenceType GetComponentValue(vtkIdType index, int comp) const
+  inline ValueType GetTypedComponent(vtkIdType index, int comp) const
     {
     return this->Buffer.GetBuffer()[this->NumberOfComponents*index + comp];
     }
@@ -71,13 +69,13 @@ public:
     {
     this->Buffer.GetBuffer()[valueIdx] = value;
     }
-  inline void SetTupleValue(vtkIdType tupleIdx, const ValueType* tuple)
+  inline void SetTypedTuple(vtkIdType tupleIdx, const ValueType* tuple)
     {
     const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents;
     std::copy(tuple, tuple + this->NumberOfComponents,
               this->Buffer.GetBuffer() + valueIdx);
     }
-  inline void SetComponentValue(vtkIdType tupleIdx, int comp, ValueType value)
+  inline void SetTypedComponent(vtkIdType tupleIdx, int comp, ValueType value)
     {
     const vtkIdType valueIdx = tupleIdx * this->NumberOfComponents + comp;
     this->SetValue(valueIdx, value);
@@ -208,10 +206,10 @@ vtkArrayDownCast_TemplateFastCastMacro(vtkAOSDataArrayTemplate)
 // can see them. The wrappers ignore vtkAOSDataArrayTemplate.
 #define vtkCreateWrappedArrayInterface(T) \
   int GetDataType(); \
-  void GetTupleValue(vtkIdType i, T* tuple); \
-  void SetTupleValue(vtkIdType i, const T* tuple); \
-  void InsertTupleValue(vtkIdType i, const T* tuple); \
-  vtkIdType InsertNextTupleValue(const T* tuple); \
+  void GetTypedTuple(vtkIdType i, T* tuple); \
+  void SetTypedTuple(vtkIdType i, const T* tuple); \
+  void InsertTypedTuple(vtkIdType i, const T* tuple); \
+  vtkIdType InsertNextTypedTuple(const T* tuple); \
   T GetValue(vtkIdType id); \
   void SetValue(vtkIdType id, T value); \
   void SetNumberOfValues(vtkIdType number); \

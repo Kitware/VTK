@@ -156,7 +156,7 @@ void vtkPCAStatistics::GetEigenvectors(int request, vtkDoubleArray* eigenvectors
         eigenvector.push_back(currentCol->GetValue(i));
         }
 
-      eigenvectors->InsertNextTupleValue(&eigenvector.front());
+      eigenvectors->InsertNextTypedTuple(&eigenvector.front());
       eval++;
       }
     }
@@ -177,12 +177,12 @@ void vtkPCAStatistics::GetEigenvector(int request, int i, vtkDoubleArray* eigenv
   this->GetEigenvectors(request, eigenvectors);
 
   double* evec = new double[eigenvectors->GetNumberOfComponents()];
-  eigenvectors->GetTupleValue(i, evec);
+  eigenvectors->GetTypedTuple(i, evec);
 
   eigenvector->Reset();
   eigenvector->Squeeze();
   eigenvector->SetNumberOfComponents(eigenvectors->GetNumberOfComponents());
-  eigenvector->InsertNextTupleValue(evec);
+  eigenvector->InsertNextTypedTuple(evec);
   delete[] evec;
 }
 

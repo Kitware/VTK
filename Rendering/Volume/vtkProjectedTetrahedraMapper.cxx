@@ -119,7 +119,7 @@ struct TransformPointsWorker
     // Transform all points.
     for (i = 0, out_p = this->OutPoints; i < num_points; i++, out_p += 3)
       {
-      in_points->GetTupleValue(i, in_p);
+      in_points->GetTypedTuple(i, in_p);
       for (row = 0; row < 3; row++)
         {
         out_p[row] = (  mat[0*4+row] * in_p[0] + mat[1*4+row] * in_p[1]
@@ -133,7 +133,7 @@ struct TransformPointsWorker
       {
       for (i = 0, out_p = this->OutPoints; i < num_points; i++, out_p += 3)
         {
-        in_points->GetTupleValue(i, in_p);
+        in_points->GetTypedTuple(i, in_p);
         float w = (  mat[0*4+3]*in_p[0] + mat[1*4+3]*in_p[1]
                    + mat[2*4+3]*in_p[2] + mat[3*4+3]);
         if (w > 0.0)
@@ -320,10 +320,10 @@ namespace vtkProjectedTetrahedraMapperNamespace
 
       for (i = 0; i < num_scalars; i++)
         {
-        ScalarType s = scalars->GetComponentValue(i, 0);
+        ScalarType s = scalars->GetTypedComponent(i, 0);
         c[0] = c[1] = c[2] = static_cast<ColorType>(gray->GetValue(s));
         c[3] = static_cast<ColorType>(alpha->GetValue(s));
-        colors->SetTupleValue(i, c);
+        colors->SetTypedTuple(i, c);
         }
       }
     else
@@ -333,14 +333,14 @@ namespace vtkProjectedTetrahedraMapperNamespace
 
       for (i = 0; i < num_scalars; i++)
         {
-        ScalarType s = scalars->GetComponentValue(i, 0);
+        ScalarType s = scalars->GetTypedComponent(i, 0);
         double trgb[3];
         rgb->GetColor(s, trgb);
         c[0] = static_cast<ColorType>(trgb[0]);
         c[1] = static_cast<ColorType>(trgb[1]);
         c[2] = static_cast<ColorType>(trgb[2]);
         c[3] = static_cast<ColorType>(alpha->GetValue(s));
-        colors->SetTupleValue(i, c);
+        colors->SetTypedTuple(i, c);
         }
       }
   }
@@ -358,7 +358,7 @@ namespace vtkProjectedTetrahedraMapperNamespace
 
     for (vtkIdType i = 0; i < num_scalars; i++)
       {
-      scalars->GetTupleValue(i, scalar);
+      scalars->GetTypedTuple(i, scalar);
       rgb->GetColor(scalar[0], rgbColor);
       rgbColor[3] = alpha->GetValue(scalar[1]);
       colors->SetTuple(i, rgbColor);

@@ -1754,7 +1754,7 @@ void vtkHyperTreeGrid::TraverseDualLeaf( vtkHyperTreeGridSuperCursor* superCurso
 
     if ( owner )
       {
-      this->Connectivity->InsertNextTupleValue( leaves );
+      this->Connectivity->InsertNextTypedTuple( leaves );
       }
     } // cornerIdx
 }

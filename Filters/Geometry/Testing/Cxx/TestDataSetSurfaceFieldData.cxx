@@ -69,7 +69,7 @@ int TestDataSet(vtkDataSet* ds, int expectedValue)
     else
       {
       int value = 0;
-      array->GetTupleValue(0, &value);
+      array->GetTypedTuple(0, &value);
 
       std::cout << "Block value " << value << "\n";
       if (value != expectedValue)
@@ -92,7 +92,7 @@ void AddFieldData(vtkDataSet* ds, int id)
   array->SetName("ID");
   array->SetNumberOfComponents(1);
   array->SetNumberOfTuples(1);
-  array->SetTupleValue(0, &id);
+  array->SetTypedTuple(0, &id);
 
   ds->GetFieldData()->AddArray(array.GetPointer());
 }

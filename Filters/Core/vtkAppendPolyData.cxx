@@ -730,8 +730,8 @@ struct AppendDataWorker
       {
       for (int c = 0; c < numComps; ++c)
         {
-        dest->SetComponentValue(t + this->Offset, c,
-                                src->GetComponentValue(t, c));
+        dest->SetTypedComponent(t + this->Offset, c,
+                                src->GetTypedComponent(t, c));
         }
       }
   }

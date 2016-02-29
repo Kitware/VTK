@@ -189,19 +189,19 @@ void vtkCenteredSliderRepresentation::BuildTube()
   this->Points->SetPoint(1, 0.0, this->ArcEnd, 0.0);
   this->Points->SetPoint(this->ArcCount+2, 0.0, this->ArcStart, 0.0);
   this->Points->SetPoint(this->ArcCount+3, 0.0, 1.0 - this->TubeSize, 0.0);
-  colors->SetTupleValue(0,col);
-  colors->SetTupleValue(1,col);
-  colors->SetTupleValue(this->ArcCount+2,col);
-  colors->SetTupleValue(this->ArcCount+3,col);
+  colors->SetTypedTuple(0,col);
+  colors->SetTypedTuple(1,col);
+  colors->SetTypedTuple(this->ArcCount+2,col);
+  colors->SetTypedTuple(this->ArcCount+3,col);
 
   this->Points->SetPoint(this->ArcCount+4, 1.0,1.0, 0.0);
   this->Points->SetPoint(this->ArcCount+5, 1.0, this->ArcEnd, 0.0);
   this->Points->SetPoint(2*this->ArcCount+6, 1.0, this->ArcStart, 0.0);
   this->Points->SetPoint(2*this->ArcCount+7, 1.0, 1.0 - this->TubeSize, 0.0);
-  colors->SetTupleValue(this->ArcCount+4,col);
-  colors->SetTupleValue(this->ArcCount+5,col);
-  colors->SetTupleValue(2*this->ArcCount+6,col);
-  colors->SetTupleValue(2*this->ArcCount+7,col);
+  colors->SetTypedTuple(this->ArcCount+4,col);
+  colors->SetTypedTuple(this->ArcCount+5,col);
+  colors->SetTypedTuple(2*this->ArcCount+6,col);
+  colors->SetTypedTuple(2*this->ArcCount+7,col);
 
   // and the arc
   double midPoint = this->ArcCount/2.0;
@@ -222,8 +222,8 @@ void vtkCenteredSliderRepresentation::BuildTube()
       (i + this->ArcCount + 6, 0.7,
        (1.0 - this->TubeSize/2.0) - halfArcLength*factor*sign, 0.0);
     col[3] = static_cast<unsigned char>(255*factor);
-    colors->SetTupleValue(i+2,col);
-    colors->SetTupleValue(i+this->ArcCount+6,col);
+    colors->SetTypedTuple(i+2,col);
+    colors->SetTypedTuple(i+this->ArcCount+6,col);
     }
 
   // last four points are the slider
@@ -236,10 +236,10 @@ void vtkCenteredSliderRepresentation::BuildTube()
   this->Points->SetPoint(this->ArcCount*2+11, 1.0,
                          (this->ArcStart + this->ArcEnd)/2.0 + 0.025, 0.0);
   col[0] = 255; col[1] = 255; col[2] = 255; col[3] = 255;
-  colors->SetTupleValue(this->ArcCount*2+8,col);
-  colors->SetTupleValue(this->ArcCount*2+9,col);
-  colors->SetTupleValue(this->ArcCount*2+10,col);
-  colors->SetTupleValue(this->ArcCount*2+11,col);
+  colors->SetTypedTuple(this->ArcCount*2+8,col);
+  colors->SetTypedTuple(this->ArcCount*2+9,col);
+  colors->SetTypedTuple(this->ArcCount*2+10,col);
+  colors->SetTypedTuple(this->ArcCount*2+11,col);
 }
 
 //----------------------------------------------------------------------

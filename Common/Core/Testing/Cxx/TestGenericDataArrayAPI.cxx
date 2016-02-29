@@ -190,12 +190,12 @@ vtkSmartPointer<vtkDataArray> CreateDataArray()
 //------------------Unit Test Implementations-----------------------------------
 //------------------------------------------------------------------------------
 
-// const ReferenceType GetValue(vtkIdType valueIdx) const
+// ValueType GetValue(vtkIdType valueIdx) const
 // No range checking/allocation.
 template <typename ScalarT, typename ArrayT>
-int Test_constRefT_GetValue_valueIdx_const()
+int Test_valT_GetValue_valueIdx_const()
 {
-  DataArrayAPIInit("const ReferenceType GetValue(vtkIdType valueIdx) const");
+  DataArrayAPIInit("ValueType GetValue(vtkIdType valueIdx) const");
 
   DataArrayAPICreateTestArray(array);
   vtkIdType comps = 9;
@@ -212,7 +212,7 @@ int Test_constRefT_GetValue_valueIdx_const()
   // Verify:
   for (vtkIdType i = 0; i < comps * tuples; ++i)
     {
-    typename ArrayT::ConstReferenceType test = array->GetValue(i);
+    ScalarT test = array->GetValue(i);
     ScalarT ref = static_cast<ScalarT>(i % 16);
     if (test != ref)
       {
@@ -224,11 +224,11 @@ int Test_constRefT_GetValue_valueIdx_const()
   DataArrayAPIFinish();
 }
 
-//void GetTupleValue(vtkIdType tupleIdx, ValueType* tuple) const
+//void GetTypedTuple(vtkIdType tupleIdx, ValueType* tuple) const
 template <typename ScalarT, typename ArrayT>
-int Test_void_GetTupleValue_tupleIdx_tuple()
+int Test_void_GetTypedTuple_tupleIdx_tuple()
 {
-  DataArrayAPIInit("void GetTupleValue(vtkIdType tupleIdx, ValueType *tuple)");
+  DataArrayAPIInit("void GetTypedTuple(vtkIdType tupleIdx, ValueType *tuple)");
 
   DataArrayAPICreateTestArray(source);
 
@@ -247,7 +247,7 @@ int Test_void_GetTupleValue_tupleIdx_tuple()
   std::vector<ScalarT> tuple(comps);
   for (vtkIdType tupleIdx = 0; tupleIdx < tuples; ++tupleIdx)
     {
-    source->GetTupleValue(tupleIdx, &tuple[0]);
+    source->GetTypedTuple(tupleIdx, &tuple[0]);
     for (int compIdx = 0; compIdx < comps; ++compIdx)
       {
       if (tuple[compIdx] != static_cast<ScalarT>(refValue))
@@ -264,11 +264,11 @@ int Test_void_GetTupleValue_tupleIdx_tuple()
   DataArrayAPIFinish();
 }
 
-//const ReferenceType GetComponentValue(vtkIdType tupleIdx, int comp) const
+// ValueType GetTypedComponent(vtkIdType tupleIdx, int comp) const
 template <typename ScalarT, typename ArrayT>
-int Test_constRefT_GetComponentValue_tupleIdx_comp_const()
+int Test_valT_GetTypedComponent_tupleIdx_comp_const()
 {
-  DataArrayAPIInit("const ReferenceType GetComponentValue("
+  DataArrayAPIInit("ValueType GetTypedComponent("
                    "vtkIdType tupleIdx, int comp) const");
 
   DataArrayAPICreateTestArray(source);
@@ -289,11 +289,11 @@ int Test_constRefT_GetComponentValue_tupleIdx_comp_const()
     {
     for (int j = 0; j < comps; ++j)
       {
-      if (source->GetComponentValue(i, j) != static_cast<ScalarT>(refValue))
+      if (source->GetTypedComponent(i, j) != static_cast<ScalarT>(refValue))
         {
         DataArrayAPIError("Data mismatch at tuple " << i << ", "
                           "component " << j << ": Expected '" << refValue
-                          << "', got '" << source->GetComponentValue(i, j)
+                          << "', got '" << source->GetTypedComponent(i, j)
                           << "'.");
         }
       ++refValue;
@@ -337,11 +337,11 @@ int Test_void_SetValue_valueIdx_value()
   DataArrayAPIFinish();
 }
 
-// void SetTupleValue(vtkIdType tupleIdx, const ValueType* tuple)
+// void SetTypedTuple(vtkIdType tupleIdx, const ValueType* tuple)
 template <typename ScalarT, typename ArrayT>
-int Test_void_SetTupleValue_tupleIdx_tuple()
+int Test_void_SetTypedTuple_tupleIdx_tuple()
 {
-  DataArrayAPIInit("void SetTupleValue(vtkIdType tupleIdx, "
+  DataArrayAPIInit("void SetTypedTuple(vtkIdType tupleIdx, "
                    "const ValueType* tuple)");
 
   DataArrayAPICreateTestArray(source);
@@ -358,7 +358,7 @@ int Test_void_SetTupleValue_tupleIdx_tuple()
       {
       tuple.push_back(static_cast<ScalarT>(((t * comps) + c) % 17));
       }
-    source->SetTupleValue(t, &tuple[0]);
+    source->SetTypedTuple(t, &tuple[0]);
     }
 
   // Verify:
@@ -367,8 +367,7 @@ int Test_void_SetTupleValue_tupleIdx_tuple()
     for (int c = 0; c < comps; ++c)
       {
       ScalarT ref = static_cast<ScalarT>(((t * comps) + c) % 17);
-      typename ArrayT::ConstReferenceType test =
-          source->GetComponentValue(t, c);
+      ScalarT test = source->GetTypedComponent(t, c);
       if (ref != test)
         {
         DataArrayAPIError("Data mismatch at tuple " << t << " component " << c
@@ -380,11 +379,11 @@ int Test_void_SetTupleValue_tupleIdx_tuple()
   DataArrayAPIFinish();
 }
 
-// void SetComponentValue(vtkIdType tupleIdx, int comp, ValueType value)
+// void SetTypedComponent(vtkIdType tupleIdx, int comp, ValueType value)
 template <typename ScalarT, typename ArrayT>
-int Test_void_SetComponentValue_tupleIdx_comp_value()
+int Test_void_SetTypedComponent_tupleIdx_comp_value()
 {
-  DataArrayAPIInit("void SetComponentValue(vtkIdType tupleIdx, int comp, "
+  DataArrayAPIInit("void SetTypedComponent(vtkIdType tupleIdx, int comp, "
                    "ValueType value)");
 
   DataArrayAPICreateTestArray(source);
@@ -398,7 +397,7 @@ int Test_void_SetComponentValue_tupleIdx_comp_value()
     {
     for (int j = 0; j < comps; ++j)
       {
-      source->SetComponentValue(i, j,
+      source->SetTypedComponent(i, j,
                                 static_cast<ScalarT>(((i + 1) * (j + 1)) % 17));
       }
     }
@@ -407,7 +406,7 @@ int Test_void_SetComponentValue_tupleIdx_comp_value()
   std::vector<ScalarT> tuple(comps);
   for (vtkIdType i = 0; i < tuples; ++i)
     {
-    source->GetTupleValue(i, &tuple[0]);
+    source->GetTypedTuple(i, &tuple[0]);
     for (int j = 0; j < comps; ++j)
       {
       ScalarT test = tuple[j];
@@ -520,39 +519,6 @@ int Test_LookupTypedValue_allSigs()
   DataArrayAPIFinish();
 }
 
-// ReferenceType GetValueReference(vtkIdType idx)
-template <typename ScalarT, typename ArrayT>
-int Test_RefT_GetValueReference_valueIdx()
-{
-  DataArrayAPIInit("ReferenceType GetValueReference(vtkIdType valueIdx)");
-
-  DataArrayAPICreateTestArray(array);
-  vtkIdType comps = 9;
-  vtkIdType tuples = 5;
-  array->SetNumberOfComponents(comps);
-  array->SetNumberOfTuples(tuples);
-
-  // Initialize:
-  for (vtkIdType i = 0; i < comps * tuples; ++i)
-    {
-    array->SetValue(i, static_cast<ScalarT>(i % 16));
-    }
-
-  // Verify:
-  for (vtkIdType i = 0; i < comps * tuples; ++i)
-    {
-    typename ArrayT::ConstReferenceType test = array->GetValueReference(i);
-    ScalarT ref = static_cast<ScalarT>(i % 16);
-    if (test != ref)
-      {
-      DataArrayAPIError("Data mismatch at value index '" << i << "'. Expected '"
-                        << ref << "', got '" << test << "'.");
-      }
-    }
-
-  DataArrayAPIFinish();
-}
-
 // vtkIdType InsertNextValue(ValueType v)
 template <typename ScalarT, typename ArrayT>
 int Test_vtkIdType_InsertNextValue_v()
@@ -643,11 +609,11 @@ int Test_void_InsertValue_idx_v()
   DataArrayAPIFinish();
 }
 
-// void InsertTupleValue(vtkIdType idx, const ValueType *t)
+// void InsertTypedTuple(vtkIdType idx, const ValueType *t)
 template <typename ScalarT, typename ArrayT>
-int Test_void_InsertTupleValue_idx_t()
+int Test_void_InsertTypedTuple_idx_t()
 {
-  DataArrayAPIInit("void InsertTupleValue(vtkIdType idx, const ValueType *t)");
+  DataArrayAPIInit("void InsertTypedTuple(vtkIdType idx, const ValueType *t)");
 
   DataArrayAPICreateTestArray(source);
 
@@ -662,7 +628,7 @@ int Test_void_InsertTupleValue_idx_t()
       {
       tuple.push_back(static_cast<ScalarT>(((t * comps) + c) % 17));
       }
-    source->InsertTupleValue(t, &tuple[0]);
+    source->InsertTypedTuple(t, &tuple[0]);
     if (source->GetSize() < ((t + 1) * comps))
       {
       DataArrayAPIError("Size should be at least " << ((t + 1) * comps)
@@ -680,13 +646,13 @@ int Test_void_InsertTupleValue_idx_t()
     {
     for (int c = 0; c < comps; ++c)
       {
-      if (source->GetComponentValue(t, c) !=
+      if (source->GetTypedComponent(t, c) !=
           static_cast<ScalarT>(((t * comps) + c) % 17))
         {
         DataArrayAPIError("Data mismatch at tuple " << t << " component " << c
                           << ": Expected "
                           << static_cast<ScalarT>(((t * comps) + c) % 17)
-                          << ", got " << source->GetComponentValue(t, c)
+                          << ", got " << source->GetTypedComponent(t, c)
                           << ".");
         }
       }
@@ -695,11 +661,11 @@ int Test_void_InsertTupleValue_idx_t()
   DataArrayAPIFinish();
 }
 
-// vtkIdType InsertNextTupleValue(const ValueType *t)
+// vtkIdType InsertNextTypedTuple(const ValueType *t)
 template <typename ScalarT, typename ArrayT>
-int Test_vtkIdType_InsertNextTupleValue_t()
+int Test_vtkIdType_InsertNextTypedTuple_t()
 {
-  DataArrayAPIInit("vtkIdType InsertNextTupleValue(const ValueType *t)");
+  DataArrayAPIInit("vtkIdType InsertNextTypedTuple(const ValueType *t)");
 
   DataArrayAPICreateTestArray(source);
 
@@ -714,7 +680,7 @@ int Test_vtkIdType_InsertNextTupleValue_t()
       {
       tuple.push_back(static_cast<ScalarT>(((t * comps) + c) % 17));
       }
-    vtkIdType insertLoc = source->InsertNextTupleValue(&tuple[0]);
+    vtkIdType insertLoc = source->InsertNextTypedTuple(&tuple[0]);
     if (insertLoc != t)
       {
       DataArrayAPIError("Returned location incorrect. Expected '" << t
@@ -737,13 +703,13 @@ int Test_vtkIdType_InsertNextTupleValue_t()
     {
     for (int c = 0; c < comps; ++c)
       {
-      if (source->GetComponentValue(t, c) !=
+      if (source->GetTypedComponent(t, c) !=
           static_cast<ScalarT>(((t * comps) + c) % 17))
         {
         DataArrayAPIError("Data mismatch at tuple " << t << " component " << c
                           << ": Expected "
                           << static_cast<ScalarT>(((t * comps) + c) % 17)
-                          << ", got " << source->GetComponentValue(t, c)
+                          << ", got " << source->GetTypedComponent(t, c)
                           << ".");
         }
       }
@@ -756,7 +722,7 @@ int Test_vtkIdType_InsertNextTupleValue_t()
 template <typename ScalarT, typename ArrayT>
 int Test_vtkIdType_GetNumberOfValues()
 {
-  DataArrayAPIInit("vtkIdType InsertNextTupleValue(const ValueType *t)");
+  DataArrayAPIInit("vtkIdType InsertNextTypedTuple(const ValueType *t)");
 
   DataArrayAPICreateTestArray(source);
 
@@ -864,28 +830,23 @@ int Test_GetValueRange_all_overloads()
 //------------------------------------------------------------------------------
 //-----------Unit Test Function Caller------------------------------------------
 //------------------------------------------------------------------------------
-struct CanDispatch // Dummy for testing if we can dispatch an array type.
-{
-  template <typename ArrayT> void operator()(ArrayT *) {}
-};
 
 template <typename ScalarT, typename ArrayT>
 int ExerciseGenericDataArray()
 {
   int errors = 0;
 
-  errors += Test_constRefT_GetValue_valueIdx_const<ScalarT, ArrayT>();
-  errors += Test_void_GetTupleValue_tupleIdx_tuple<ScalarT, ArrayT>();
-  errors += Test_constRefT_GetComponentValue_tupleIdx_comp_const<ScalarT, ArrayT>();
+  errors += Test_valT_GetValue_valueIdx_const<ScalarT, ArrayT>();
+  errors += Test_void_GetTypedTuple_tupleIdx_tuple<ScalarT, ArrayT>();
+  errors += Test_valT_GetTypedComponent_tupleIdx_comp_const<ScalarT, ArrayT>();
   errors += Test_void_SetValue_valueIdx_value<ScalarT, ArrayT>();
-  errors += Test_void_SetTupleValue_tupleIdx_tuple<ScalarT, ArrayT>();
-  errors += Test_void_SetComponentValue_tupleIdx_comp_value<ScalarT, ArrayT>();
+  errors += Test_void_SetTypedTuple_tupleIdx_tuple<ScalarT, ArrayT>();
+  errors += Test_void_SetTypedComponent_tupleIdx_comp_value<ScalarT, ArrayT>();
   errors += Test_LookupTypedValue_allSigs<ScalarT, ArrayT>();
-  errors += Test_RefT_GetValueReference_valueIdx<ScalarT, ArrayT>();
   errors += Test_vtkIdType_InsertNextValue_v<ScalarT, ArrayT>();
   errors += Test_void_InsertValue_idx_v<ScalarT, ArrayT>();
-  errors += Test_void_InsertTupleValue_idx_t<ScalarT, ArrayT>();
-  errors += Test_vtkIdType_InsertNextTupleValue_t<ScalarT, ArrayT>();
+  errors += Test_void_InsertTypedTuple_idx_t<ScalarT, ArrayT>();
+  errors += Test_vtkIdType_InsertNextTypedTuple_t<ScalarT, ArrayT>();
   errors += Test_vtkIdType_GetNumberOfValues<ScalarT, ArrayT>();
   errors += Test_GetValueRange_all_overloads<ScalarT, ArrayT>();
 

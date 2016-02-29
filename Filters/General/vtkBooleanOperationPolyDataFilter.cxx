@@ -336,11 +336,11 @@ void vtkBooleanOperationPolyDataFilter
         if ( reverseCells && outNormals )
           {
           float normal[3];
-          outNormals->GetTupleValue( newId, normal );
+          outNormals->GetTypedTuple( newId, normal );
           normal[0] *= -1.0;
           normal[1] *= -1.0;
           normal[2] *= -1.0;
-          outNormals->SetTupleValue( newId, normal );
+          outNormals->SetTypedTuple( newId, normal );
           }
 
         }

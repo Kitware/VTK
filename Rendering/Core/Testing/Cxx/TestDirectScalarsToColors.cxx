@@ -104,7 +104,7 @@ void addViews (vtkRenderWindow* renWin, int typeIndex)
             }
           for (int kk = 0; kk < 5; kk++)
             {
-            arr->SetTupleValue(i++, cval);
+            arr->SetTypedTuple(i++, cval);
             }
           }
         }

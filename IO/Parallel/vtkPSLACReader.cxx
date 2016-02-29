@@ -763,7 +763,7 @@ int vtkPSLACReader::ReadConnectivity(int meshFD,
       vtkIdType ids[2];
       ids[0] = edgesNeeded[i].GetMinEndPoint();
       ids[1] = edgesNeeded[i].GetMaxEndPoint();
-      edgeLists[process]->InsertNextTupleValue(static_cast<vtkIdType*>(ids));
+      edgeLists[process]->InsertNextTypedTuple(static_cast<vtkIdType*>(ids));
       }
     for (int process = 0; process < this->NumberOfPieces; process ++)
       {
@@ -1080,7 +1080,7 @@ int vtkPSLACReader::ReadMidpointCoordinates (
       {
       MidpointsAvailableType::const_iterator iter;
       vtkIdType e[2];
-      this->Internal->EdgesToSendToProcesses->GetTupleValue(i, e);
+      this->Internal->EdgesToSendToProcesses->GetTypedTuple(i, e);
       iter = MidpointsAvailable.find(EdgeEndpoints(e[0], e[1]));
       if (iter != MidpointsAvailable.end ())
         {
@@ -1121,7 +1121,7 @@ int vtkPSLACReader::ReadMidpointCoordinates (
     vtkIdType index;
     if (iter == localMap.end())
       {
-      index = this->Internal->LocalToGlobalIds->InsertNextTupleValue(
+      index = this->Internal->LocalToGlobalIds->InsertNextTypedTuple(
                                                             &topIter->globalId);
       localMap[topIter->globalId] = index;
       }
@@ -1160,7 +1160,7 @@ int vtkPSLACReader::ReadMidpointData(int meshFD, vtkMultiBlockDataSet *output,
   vtkIdType end = start + pointsAdded;
   for (vtkIdType i = start; i < end; i ++)
     {
-    this->Internal->LocalToGlobalIds->InsertNextTupleValue (&i);
+    this->Internal->LocalToGlobalIds->InsertNextTypedTuple (&i);
     }
 
   return 1;

@@ -38,7 +38,7 @@ int TestTableSplitColumnComponents(int, char*[])
     {
     single->InsertValue(i, i);
     int ints[] = { i+1, 2 * (i+1), 3 * (i+1) };
-    multi->InsertTupleValue(i, ints);
+    multi->InsertTypedTuple(i, ints);
     }
 
   VTK_CREATE(vtkTable, table);

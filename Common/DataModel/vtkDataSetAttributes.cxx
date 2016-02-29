@@ -477,8 +477,8 @@ struct CopyStructuredDataWorker
           for (int comp = 0, max = dest->GetNumberOfComponents();
                comp < max; ++comp)
             {
-            dest->SetComponentValue(outTupleIdx, comp,
-                                    src->GetComponentValue(inTupleIdx, comp));
+            dest->SetTypedComponent(outTupleIdx, comp,
+                                    src->GetTypedComponent(inTupleIdx, comp));
             }
           outTupleIdx++;
           }

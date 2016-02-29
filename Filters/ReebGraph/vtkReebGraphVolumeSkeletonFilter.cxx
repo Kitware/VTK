@@ -205,10 +205,10 @@ int vtkReebGraphVolumeSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(req
                 // add also its scalar value to the subField
                 inputMesh->GetPoint(vertexId, point);
                 meshToSubMeshMap[vertexId] =
-                  subCoordinates->InsertNextTupleValue(point);
+                  subCoordinates->InsertNextTypedTuple(point);
                 double scalarFieldValue =
                   scalarField->GetComponent(vertexId, 0);
-                subField->InsertNextTupleValue(&scalarFieldValue);
+                subField->InsertNextTypedTuple(&scalarFieldValue);
                 visitedVertices[vertexId] = true;
                 }
               }
@@ -368,7 +368,7 @@ int vtkReebGraphVolumeSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(req
           {
           for(int k = 0; k < 3; k++)
             point[k] = skeleton[i][j][k];
-          outputArc->InsertNextTupleValue(point);
+          outputArc->InsertNextTypedTuple(point);
           }
         output->AddColumn(outputArc);
         outputArc->Delete();

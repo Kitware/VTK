@@ -203,10 +203,10 @@ private:
         {
         for (int compIdx = 0; compIdx < numComps; ++compIdx)
           {
-          if (mask->GetComponentValue(tupleIdx, compIdx) != 0)
+          if (mask->GetTypedComponent(tupleIdx, compIdx) != 0)
             {
-            typename ArrayT::ConstReferenceType val =
-                array->GetComponentValue(tupleIdx, compIdx);
+            typename ArrayT::ValueType val =
+                array->GetTypedComponent(tupleIdx, compIdx);
             Result[0] = std::min(Result[0], static_cast<double>(val));
             Result[1] = std::max(Result[1], static_cast<double>(val));
             }
@@ -225,8 +225,8 @@ private:
         {
         for (int compIdx = 0; compIdx < numComps; ++compIdx)
           {
-          typename ArrayT::ConstReferenceType val =
-              array->GetComponentValue(tupleIdx, compIdx);
+          typename ArrayT::ValueType val =
+              array->GetTypedComponent(tupleIdx, compIdx);
           Result[0] = std::min(Result[0], static_cast<double>(val));
           Result[1] = std::max(Result[1], static_cast<double>(val));
           }

@@ -144,7 +144,7 @@ bool vtkPlotParallelCoordinates::Paint(vtkContext2D *painter)
     selectionSize = this->Selection->GetNumberOfTuples();
     if (selectionSize)
       {
-      this->Selection->GetTupleValue(selection, &id);
+      this->Selection->GetTypedTuple(selection, &id);
       }
     }
 
@@ -187,7 +187,7 @@ bool vtkPlotParallelCoordinates::Paint(vtkContext2D *painter)
       {
       for (size_t j = 0; j < cols; ++j)
         {
-        this->Selection->GetTupleValue(i, &id);
+        this->Selection->GetTypedTuple(i, &id);
         line[j].Set(this->Storage->AxisPos[j], (*this->Storage)[j][id]);
         }
       painter->DrawPoly(line[0].GetData(), static_cast<int>(cols));
@@ -233,7 +233,7 @@ bool vtkPlotParallelCoordinates::SetSelectionRange(int axis, float low,
     for (vtkIdType i = 0; i < this->Selection->GetNumberOfTuples(); ++i)
       {
       vtkIdType id = 0;
-      this->Selection->GetTupleValue(i, &id);
+      this->Selection->GetTypedTuple(i, &id);
       if (col[id] >= low && col[id] <= high)
         {
         // Remove this point - no longer selected

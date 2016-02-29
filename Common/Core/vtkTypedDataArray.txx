@@ -77,15 +77,15 @@ void vtkTypedDataArray<Scalar>::SetNumberOfValues(vtkIdType number)
 
 //------------------------------------------------------------------------------
 template <typename Scalar> inline
-typename vtkTypedDataArray<Scalar>::ConstReferenceType
-vtkTypedDataArray<Scalar>::GetComponentValue(vtkIdType tupleIdx, int comp) const
+typename vtkTypedDataArray<Scalar>::ValueType
+vtkTypedDataArray<Scalar>::GetTypedComponent(vtkIdType tupleIdx, int comp) const
 {
   return this->GetValue(tupleIdx * this->NumberOfComponents + comp);
 }
 
 //------------------------------------------------------------------------------
 template <typename Scalar> inline
-void vtkTypedDataArray<Scalar>::SetComponentValue(vtkIdType tupleIdx, int comp,
+void vtkTypedDataArray<Scalar>::SetTypedComponent(vtkIdType tupleIdx, int comp,
                                                   ValueType v)
 {
   this->SetValue(tupleIdx * this->NumberOfComponents + comp, v);

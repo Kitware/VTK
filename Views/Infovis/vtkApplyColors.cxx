@@ -257,7 +257,7 @@ int vtkApplyColors::RequestData(
           {
           continue;
           }
-        colorArr1->GetTupleValue(list1->GetValue(i), prev);
+        colorArr1->GetTypedTuple(list1->GetValue(i), prev);
         if (hasColor)
           {
           curColor[0] = annColor[0];
@@ -279,7 +279,7 @@ int vtkApplyColors::RequestData(
           {
           curColor[3] = prev[3];
           }
-        colorArr1->SetTupleValue(list1->GetValue(i), curColor);
+        colorArr1->SetTypedTuple(list1->GetValue(i), curColor);
         }
       numIds = list2->GetNumberOfTuples();
       for (vtkIdType i = 0; i < numIds; ++i)
@@ -288,7 +288,7 @@ int vtkApplyColors::RequestData(
           {
           continue;
           }
-        colorArr2->GetTupleValue(list2->GetValue(i), prev);
+        colorArr2->GetTypedTuple(list2->GetValue(i), prev);
         if (hasColor)
           {
           curColor[0] = annColor[0];
@@ -310,7 +310,7 @@ int vtkApplyColors::RequestData(
           {
           curColor[3] = prev[3];
           }
-        colorArr2->SetTupleValue(list2->GetValue(i), curColor);
+        colorArr2->SetTypedTuple(list2->GetValue(i), curColor);
         }
       }
     if (vtkAnnotation* ann = layers->GetCurrentAnnotation())
@@ -371,7 +371,7 @@ int vtkApplyColors::RequestData(
           {
           continue;
           }
-        colorArr1->SetTupleValue(list1->GetValue(i), color1);
+        colorArr1->SetTypedTuple(list1->GetValue(i), color1);
         }
       numIds = list2->GetNumberOfTuples();
       for (vtkIdType i = 0; i < numIds; ++i)
@@ -380,7 +380,7 @@ int vtkApplyColors::RequestData(
           {
           continue;
           }
-        colorArr2->SetTupleValue(list2->GetValue(i), color2);
+        colorArr2->SetTypedTuple(list2->GetValue(i), color2);
         }
       }
     } // end if (layers)
@@ -438,7 +438,7 @@ void vtkApplyColors::ProcessColorArray(
       // Combine the opacity of the lookup table with the
       // default color opacity.
       myColor[3] = static_cast<unsigned char>((color[3]/255.0)*mappedColor[3]);
-      colorArr->SetTupleValue(i, myColor);
+      colorArr->SetTypedTuple(i, myColor);
       }
     }
   else
@@ -446,7 +446,7 @@ void vtkApplyColors::ProcessColorArray(
     // If no lookup table, use default color.
     for (vtkIdType i = 0; i < colorArr->GetNumberOfTuples(); ++i)
       {
-      colorArr->SetTupleValue(i, color);
+      colorArr->SetTypedTuple(i, color);
       }
     }
 }

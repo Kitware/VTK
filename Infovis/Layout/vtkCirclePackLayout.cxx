@@ -194,7 +194,7 @@ vtkIdType vtkCirclePackLayout::FindVertex(double pnt[2], double *cinfo)
     vtkIdType vertex = otree->GetRoot();
     vtkDoubleArray *circleInfo = vtkDoubleArray::SafeDownCast(array);
     // Now try to find the vertex that contains the point
-    circleInfo->GetTupleValue(vertex, climits); // Get the extents of the root
+    circleInfo->GetTypedTuple(vertex, climits); // Get the extents of the root
     if (pow((pnt[0]- climits[0]),2) + pow((pnt[1] - climits[1]),2) > pow(climits[2],2))
       {
         // Point is not in the tree at all
@@ -216,7 +216,7 @@ vtkIdType vtkCirclePackLayout::FindVertex(double pnt[2], double *cinfo)
     while (it->HasNext())
       {
         child = it->Next();
-        circleInfo->GetTupleValue(child, climits); // Get the extents of the child
+        circleInfo->GetTypedTuple(child, climits); // Get the extents of the child
         if (pow((pnt[0]- climits[0]),2) + pow((pnt[1] - climits[1]),2) > pow(climits[2],2))
           {
             continue;
@@ -263,7 +263,7 @@ void vtkCirclePackLayout::GetBoundingCircle(vtkIdType id, double *cinfo)
       }
 
     vtkDoubleArray *boxInfo = vtkDoubleArray::SafeDownCast(array);
-    boxInfo->GetTupleValue(id, cinfo);
+    boxInfo->GetTypedTuple(id, cinfo);
 }
 
 unsigned long vtkCirclePackLayout::GetMTime()

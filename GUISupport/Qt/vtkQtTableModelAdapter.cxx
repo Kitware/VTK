@@ -816,7 +816,7 @@ QVariant vtkQtTableModelAdapter::getColorIcon(int row) const
   if(nComponents >= 3)
     {
     unsigned char rgba[4];
-    colors->GetTupleValue(row, rgba);
+    colors->GetTypedTuple(row, rgba);
     int rgb[3];
     rgb[0] = static_cast<int>(0x0ff & rgba[0]);
     rgb[1] = static_cast<int>(0x0ff & rgba[1]);

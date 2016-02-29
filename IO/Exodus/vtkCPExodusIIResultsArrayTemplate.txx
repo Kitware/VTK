@@ -239,7 +239,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 
 //------------------------------------------------------------------------------
 template <class Scalar>
-typename vtkCPExodusIIResultsArrayTemplate<Scalar>::ConstReferenceType
+typename vtkCPExodusIIResultsArrayTemplate<Scalar>::ValueType
 vtkCPExodusIIResultsArrayTemplate<Scalar>::GetValue(vtkIdType idx) const
 {
   return const_cast<vtkCPExodusIIResultsArrayTemplate<Scalar>*>(
@@ -248,7 +248,7 @@ vtkCPExodusIIResultsArrayTemplate<Scalar>::GetValue(vtkIdType idx) const
 
 //------------------------------------------------------------------------------
 template <class Scalar>
-typename vtkCPExodusIIResultsArrayTemplate<Scalar>::ReferenceType
+typename vtkCPExodusIIResultsArrayTemplate<Scalar>::ValueType&
 vtkCPExodusIIResultsArrayTemplate<Scalar>::GetValueReference(vtkIdType idx)
 {
   const vtkIdType tuple = idx / this->NumberOfComponents;
@@ -258,7 +258,7 @@ vtkCPExodusIIResultsArrayTemplate<Scalar>::GetValueReference(vtkIdType idx)
 
 //------------------------------------------------------------------------------
 template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::GetTupleValue(vtkIdType tupleId, Scalar *tuple) const
+::GetTypedTuple(vtkIdType tupleId, Scalar *tuple) const
 {
   for (size_t comp = 0; comp < this->Arrays.size(); ++comp)
     {
@@ -454,7 +454,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 
 //------------------------------------------------------------------------------
 template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::SetTupleValue(vtkIdType, const Scalar*)
+::SetTypedTuple(vtkIdType, const Scalar*)
 {
   vtkErrorMacro("Read only container.")
   return;
@@ -462,7 +462,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 
 //------------------------------------------------------------------------------
 template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
-::InsertTupleValue(vtkIdType, const Scalar*)
+::InsertTypedTuple(vtkIdType, const Scalar*)
 {
   vtkErrorMacro("Read only container.")
   return;
@@ -470,7 +470,7 @@ template <class Scalar> void vtkCPExodusIIResultsArrayTemplate<Scalar>
 
 //------------------------------------------------------------------------------
 template <class Scalar> vtkIdType vtkCPExodusIIResultsArrayTemplate<Scalar>
-::InsertNextTupleValue(const Scalar *)
+::InsertNextTypedTuple(const Scalar *)
 {
   vtkErrorMacro("Read only container.")
   return -1;

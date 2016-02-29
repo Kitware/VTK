@@ -1058,7 +1058,7 @@ static void vtkX3DExporterWriteData(vtkPoints *points,
     unsigned char c[4];
     for (int i = 0; i < colors->GetNumberOfTuples(); i++)
       {
-      colors->GetTupleValue(i,c);
+      colors->GetTypedTuple(i,c);
       colorVec.push_back(c[0]/255.0);
       colorVec.push_back(c[1]/255.0);
       colorVec.push_back(c[2]/255.0);
@@ -1124,11 +1124,11 @@ static bool vtkX3DExporterWriterRenderVerts(
         unsigned char color[4];
         if (cell_colors)
           {
-          colors->GetTupleValue(cellId, color);
+          colors->GetTypedTuple(cellId, color);
           }
         else
           {
-          colors->GetTupleValue(indx[cc], color);
+          colors->GetTypedTuple(indx[cc], color);
           }
 
         colorVector.push_back(color[0]/255.0);
@@ -1185,7 +1185,7 @@ static bool vtkX3DExporterWriterRenderPoints(
 
       // Get the color for this cell.
       unsigned char color[4];
-      colors->GetTupleValue(cid, color);
+      colors->GetTypedTuple(cid, color);
       double dcolor[3];
       dcolor[0] = color[0]/255.0;
       dcolor[1] = color[1]/255.0;
@@ -1220,7 +1220,7 @@ static bool vtkX3DExporterWriterRenderPoints(
       if (colors)
         {
         unsigned char color[4];
-        colors->GetTupleValue(pid, color);
+        colors->GetTypedTuple(pid, color);
         colorVec.push_back(color[0]/255.0);
         colorVec.push_back(color[1]/255.0);
         colorVec.push_back(color[2]/255.0);

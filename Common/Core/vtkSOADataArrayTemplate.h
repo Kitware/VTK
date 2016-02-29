@@ -33,8 +33,6 @@ public:
   typedef vtkSOADataArrayTemplate<ValueTypeT> SelfType;
   vtkTemplateTypeMacro(SelfType, GenericDataArrayType)
   typedef typename Superclass::ValueType ValueType;
-  typedef typename Superclass::ReferenceType ReferenceType;
-  typedef typename Superclass::ConstReferenceType ConstReferenceType;
 
   static vtkSOADataArrayTemplate* New();
 
@@ -42,22 +40,21 @@ public:
   // Methods that are needed to be implemented by every vtkGenericDataArray
   // subclass.
   // **************************************************************************
-  inline ConstReferenceType GetValue(vtkIdType valueIdx) const
+  inline ValueType GetValue(vtkIdType valueIdx) const
     {
     vtkIdType tupleIdx;
     int comp;
     this->GetTupleIndexFromValueIndex(valueIdx, tupleIdx, comp);
-    return this->GetComponentValue(tupleIdx, comp);
+    return this->GetTypedComponent(tupleIdx, comp);
     }
-  inline void GetTupleValue(vtkIdType tupleIdx, ValueType* tuple) const
+  inline void GetTypedTuple(vtkIdType tupleIdx, ValueType* tuple) const
     {
     for (size_t cc=0; cc < this->Data.size(); cc++)
       {
       tuple[cc] = this->Data[cc].GetBuffer()[tupleIdx];
       }
     }
-  inline ConstReferenceType GetComponentValue(vtkIdType tupleIdx,
-                                              int comp) const
+  inline ValueType GetTypedComponent(vtkIdType tupleIdx, int comp) const
     {
     return this->Data[comp].GetBuffer()[tupleIdx];
     }
@@ -66,16 +63,16 @@ public:
     vtkIdType tupleIdx;
     int comp;
     this->GetTupleIndexFromValueIndex(valueIdx, tupleIdx, comp);
-    this->SetComponentValue(tupleIdx, comp, value);
+    this->SetTypedComponent(tupleIdx, comp, value);
     }
-  inline void SetTupleValue(vtkIdType tupleIdx, const ValueType* tuple)
+  inline void SetTypedTuple(vtkIdType tupleIdx, const ValueType* tuple)
     {
     for (size_t cc=0; cc < this->Data.size(); ++cc)
       {
       this->Data[cc].GetBuffer()[tupleIdx] = tuple[cc];
       }
     }
-  inline void SetComponentValue(vtkIdType tupleIdx, int comp, ValueType value)
+  inline void SetTypedComponent(vtkIdType tupleIdx, int comp, ValueType value)
     {
     this->Data[comp].GetBuffer()[tupleIdx] = value;
     }

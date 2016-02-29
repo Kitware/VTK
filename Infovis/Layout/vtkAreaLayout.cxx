@@ -185,7 +185,7 @@ void vtkAreaLayout::GetBoundingArea(vtkIdType id, float *sinfo)
     }
 
   vtkFloatArray *sectorInfo = vtkFloatArray::SafeDownCast(array);
-  sectorInfo->GetTupleValue(id, sinfo);
+  sectorInfo->GetTypedTuple(id, sinfo);
 }
 
 unsigned long vtkAreaLayout::GetMTime()

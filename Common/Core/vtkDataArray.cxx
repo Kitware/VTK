@@ -83,9 +83,9 @@ struct DeepCopyWorker
       {
       for (int c = 0; c < comps; ++c)
         {
-        dst->SetComponentValue(
+        dst->SetTypedComponent(
               t, c,  static_cast<typename Array2T::ValueType>(
-                src->GetComponentValue(t, c)));
+                src->GetTypedComponent(t, c)));
         }
       }
   }
@@ -141,11 +141,11 @@ struct InterpolateMultiTupleWorker
         {
         vtkIdType t = this->TupleIds[tupleId];
         double weight = this->Weights[tupleId];
-        val += weight * static_cast<double>(src->GetComponentValue(t, c));
+        val += weight * static_cast<double>(src->GetTypedComponent(t, c));
         }
       typename Array2T::ValueType valT;
       vtkDataArrayRoundIfNecessary(val, &valT);
-      dst->InsertComponentValue(this->DestTuple, c, valT);
+      dst->InsertTypedComponent(this->DestTuple, c, valT);
       }
   }
 };
@@ -172,10 +172,10 @@ struct InterpolateTupleWorker
     typename Array3T::ValueType valT;
     for (int c = 0; c < numComps; ++c)
       {
-      val = src1->GetComponentValue(this->SrcTuple1, c) * oneMinusT +
-            src2->GetComponentValue(this->SrcTuple2, c) * this->Weight;
+      val = src1->GetTypedComponent(this->SrcTuple1, c) * oneMinusT +
+            src2->GetTypedComponent(this->SrcTuple2, c) * this->Weight;
       vtkDataArrayRoundIfNecessary(val, &valT);
-      dst->InsertComponentValue(this->DstTuple, c, valT);
+      dst->InsertTypedComponent(this->DstTuple, c, valT);
       }
   }
 };
@@ -198,9 +198,9 @@ struct GetTuplesFromListWorker
       {
       for (int c = 0; c < numComps; ++c)
         {
-        dst->SetComponentValue(dstTuple, c,
+        dst->SetTypedComponent(dstTuple, c,
                                static_cast<typename Array2T::ValueType>(
-                                 src->GetComponentValue(*srcTuple, c)));
+                                 src->GetTypedComponent(*srcTuple, c)));
         }
       ++srcTuple;
       ++dstTuple;
@@ -245,9 +245,9 @@ struct GetTuplesRangeWorker
       {
       for (int c = 0; c < numComps; ++c)
         {
-        dst->SetComponentValue(dstT, c,
+        dst->SetTypedComponent(dstT, c,
                                static_cast<typename Array2T::ValueType>(
-                                 src->GetComponentValue(srcT, c)));
+                                 src->GetTypedComponent(srcT, c)));
         }
       }
   }
@@ -283,8 +283,8 @@ struct SetTupleArrayWorker
     int numComps = src->GetNumberOfComponents();
     for (int c = 0; c < numComps; ++c)
       {
-      dst->SetComponentValue(this->DstTuple, c,
-                             src->GetComponentValue(this->SrcTuple, c));
+      dst->SetTypedComponent(this->DstTuple, c,
+                             src->GetTypedComponent(this->SrcTuple, c));
       }
   }
 
@@ -320,7 +320,7 @@ struct SetTuplesIdListWorker
       vtkIdType dstT = this->DstTuples->GetId(t);
       for (int c = 0; c < numComps; ++c)
         {
-        dst->SetComponentValue(dstT, c, src->GetComponentValue(srcT, c));
+        dst->SetTypedComponent(dstT, c, src->GetTypedComponent(srcT, c));
         }
       }
   }
@@ -369,7 +369,7 @@ struct SetTuplesRangeWorker
         {
         for (int c = 0; c < numComps; ++c)
           {
-          dst->SetComponentValue(dstT, c, src->GetComponentValue(srcT, c));
+          dst->SetTypedComponent(dstT, c, src->GetTypedComponent(srcT, c));
           }
         }
       ++srcT;

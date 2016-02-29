@@ -997,7 +997,7 @@ void vtkContourRepresentation::UpdateLines( int index )
     int nNodes = arr->GetNumberOfTuples();
     for (int i = 0; i < nNodes; i++)
       {
-      arr->GetTupleValue( i, indices );
+      arr->GetTypedTuple( i, indices );
       this->UpdateLine( indices[0], indices[1] );
       }
     arr->Delete();

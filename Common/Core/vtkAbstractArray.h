@@ -139,6 +139,16 @@ public:
     {return (this->MaxId + 1)/this->NumberOfComponents;}
 
   // Description:
+  // Get the total number of values in the array. This is typically equivalent
+  // to (numTuples * numComponents). The exception is during incremental array
+  // construction for subclasses that support component insertion, which may
+  // result in an incomplete trailing tuple.
+  inline vtkIdType GetNumberOfValues() const
+    {
+    return (this->MaxId + 1);
+    }
+
+  // Description:
   // Set the tuple at the ith location using the jth tuple in the source array.
   // This method assumes that the two arrays have the same type
   // and structure. Note that range checking and memory allocation is not

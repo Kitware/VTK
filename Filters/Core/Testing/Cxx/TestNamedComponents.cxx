@@ -115,7 +115,7 @@ int TestNamedComponents(int , char *[])
       {
       data[j+1] = pts[j];
       }
-    cellPoints->SetTupleValue(i, data);
+    cellPoints->SetTypedTuple(i, data);
     }
 
   poly->GetCellData()->AddArray(cellPoints);

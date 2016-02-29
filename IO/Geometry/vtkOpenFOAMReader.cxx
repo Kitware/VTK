@@ -5603,7 +5603,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
             else
               {
               nAdditionalCells++;
-              additionalCells->InsertNextTupleValue(cellPoints->GetPointer(0));
+              additionalCells->InsertNextTypedTuple(cellPoints->GetPointer(0));
               }
             }
 
@@ -5633,7 +5633,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
               // set the 5th vertex number to -1 to distinguish a tetra cell
               cellPoints->SetId(4, -1);
               nAdditionalCells++;
-              additionalCells->InsertNextTupleValue(cellPoints->GetPointer(0));
+              additionalCells->InsertNextTypedTuple(cellPoints->GetPointer(0));
               }
             }
           }

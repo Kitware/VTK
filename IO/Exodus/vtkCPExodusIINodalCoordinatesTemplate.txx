@@ -203,7 +203,7 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 
 //------------------------------------------------------------------------------
 template <class Scalar>
-typename vtkCPExodusIINodalCoordinatesTemplate<Scalar>::ConstReferenceType
+typename vtkCPExodusIINodalCoordinatesTemplate<Scalar>::ValueType
 vtkCPExodusIINodalCoordinatesTemplate<Scalar>::GetValue(vtkIdType idx) const
 {
   return const_cast<vtkCPExodusIINodalCoordinatesTemplate<Scalar>*>(
@@ -212,7 +212,7 @@ vtkCPExodusIINodalCoordinatesTemplate<Scalar>::GetValue(vtkIdType idx) const
 
 //------------------------------------------------------------------------------
 template <class Scalar>
-typename vtkCPExodusIINodalCoordinatesTemplate<Scalar>::ReferenceType
+typename vtkCPExodusIINodalCoordinatesTemplate<Scalar>::ValueType&
 vtkCPExodusIINodalCoordinatesTemplate<Scalar>::GetValueReference(vtkIdType idx)
 {
   const vtkIdType tuple = idx / this->NumberOfComponents;
@@ -234,7 +234,7 @@ vtkCPExodusIINodalCoordinatesTemplate<Scalar>::GetValueReference(vtkIdType idx)
 
 //------------------------------------------------------------------------------
 template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::GetTupleValue(vtkIdType tupleId, Scalar *tuple) const
+::GetTypedTuple(vtkIdType tupleId, Scalar *tuple) const
 {
   tuple[0] = this->XArray[tupleId];
   tuple[1] = this->YArray[tupleId];
@@ -432,7 +432,7 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 
 //------------------------------------------------------------------------------
 template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::SetTupleValue(vtkIdType, const Scalar*)
+::SetTypedTuple(vtkIdType, const Scalar*)
 {
   vtkErrorMacro("Read only container.")
   return;
@@ -440,7 +440,7 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 
 //------------------------------------------------------------------------------
 template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::InsertTupleValue(vtkIdType, const Scalar*)
+::InsertTypedTuple(vtkIdType, const Scalar*)
 {
   vtkErrorMacro("Read only container.")
   return;
@@ -448,7 +448,7 @@ template <class Scalar> void vtkCPExodusIINodalCoordinatesTemplate<Scalar>
 
 //------------------------------------------------------------------------------
 template <class Scalar> vtkIdType vtkCPExodusIINodalCoordinatesTemplate<Scalar>
-::InsertNextTupleValue(const Scalar *)
+::InsertNextTypedTuple(const Scalar *)
 {
   vtkErrorMacro("Read only container.")
   return -1;

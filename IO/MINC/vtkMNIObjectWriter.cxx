@@ -647,7 +647,7 @@ int vtkMNIObjectWriter::WriteColors(
       rgba[3] = 255;
       }
 
-    newScalars->SetTupleValue(0, rgba);
+    newScalars->SetTypedTuple(0, rgba);
     scalars = newScalars;
     }
 

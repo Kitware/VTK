@@ -3656,7 +3656,7 @@ void vtkHyperOctree::EvaluateDualCorner(
     leaves[corner] = neighborhood[corner].GetLeafIndex();
     }
 
-  this->CornerLeafIds->InsertNextTupleValue(leaves);
+  this->CornerLeafIds->InsertNextTypedTuple(leaves);
 }
 
 //----------------------------------------------------------------------------
