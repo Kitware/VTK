@@ -55,9 +55,8 @@ vtkThreadedImageAlgorithm::vtkThreadedImageAlgorithm()
   this->MinimumPieceSize[1] = 1;
   this->MinimumPieceSize[2] = 1;
 
-  // The desired block size in bytes, should be small enough that the
-  // operation will fit in cache, where cache is usually a few MB.
-  this->DesiredBytesPerPiece = 1000000;
+  // The desired block size in bytes
+  this->DesiredBytesPerPiece = 65536;
 }
 
 //----------------------------------------------------------------------------
@@ -739,18 +738,20 @@ int vtkThreadedImageAlgorithm::RequestData(
         updateExtent[2] <= updateExtent[3] &&
         updateExtent[4] <= updateExtent[5])
       {
-      // compute a reasonable number of pieces, this should be at least the
-      // number of available threads and should be relative to the data size
+      // compute a reasonable number of pieces, this will be a multiple of
+      // the number of available threads and relative to the data size
       vtkTypeInt64 bytesize = (
         static_cast<vtkTypeInt64>(updateExtent[1] - updateExtent[0] + 1)*
         static_cast<vtkTypeInt64>(updateExtent[3] - updateExtent[2] + 1)*
         static_cast<vtkTypeInt64>(updateExtent[5] - updateExtent[4] + 1)*
         bytesPerVoxel);
-      vtkIdType bytesPerPiece = (this->DesiredBytesPerPiece > 0 ?
-                                 this->DesiredBytesPerPiece : 1);
-      vtkIdType pieces = bytesize/bytesPerPiece;
-      pieces += vtkSMPTools::GetEstimatedNumberOfThreads();
-
+      vtkTypeInt64 bytesPerPiece = this->DesiredBytesPerPiece;
+      vtkIdType pieces = vtkSMPTools::GetEstimatedNumberOfThreads();
+      if (bytesPerPiece > 0 && bytesPerPiece < bytesize)
+        {
+        vtkTypeInt64 b = pieces*bytesPerPiece;
+        pieces *= (bytesize + b - 1)/b;
+        }
       // do a dummy execution of SplitExtent to compute the number of pieces
       int subExtent[6];
       pieces = this->SplitExtent(subExtent, updateExtent, 0, pieces);

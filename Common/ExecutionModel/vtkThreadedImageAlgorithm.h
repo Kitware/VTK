@@ -74,7 +74,7 @@ public:
   // The desired bytes per piece when volume is split for execution.
   // When SMP is enabled, this is used to subdivide the volume into pieces.
   // Smaller pieces allow for better dynamic load balancing, but increase
-  // the total overhead. The default is 1000000 bytes.
+  // the total overhead. The default is 65536 bytes.
   vtkSetMacro(DesiredBytesPerPiece, vtkIdType);
   vtkGetMacro(DesiredBytesPerPiece, vtkIdType);
 
