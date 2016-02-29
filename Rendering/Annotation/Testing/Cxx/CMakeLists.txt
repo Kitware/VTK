@@ -18,6 +18,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestCubeAxesWithZInnerPolys.cxx
   TestCubeAxesWithZLines.cxx
   TestLegendBoxActor.cxx
+  TestLegendBoxActor2.cxx
   TestLegendScaleActor.cxx
   TestPieChartActor.cxx
   TestPolarAxes.cxx
