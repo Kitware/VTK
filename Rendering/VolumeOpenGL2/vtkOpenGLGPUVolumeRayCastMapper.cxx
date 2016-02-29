@@ -2905,18 +2905,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     }
   else
     {
-    if (noOfComponents == 2)
+    if (noOfComponents == 2 || noOfComponents == 4)
       {
-      this->Impl->UpdateOpacityTransferFunction(ren, vol, noOfComponents, 1);
+      this->Impl->UpdateOpacityTransferFunction(ren, vol, noOfComponents, 0);
       this->Impl->UpdateGradientOpacityTransferFunction(ren, vol,
-                                                        noOfComponents, 1);
+      noOfComponents, 0);
       this->Impl->UpdateColorTransferFunction(ren, vol, noOfComponents, 0);
-      }
-    else if (noOfComponents == 4)
-      {
-      this->Impl->UpdateOpacityTransferFunction(ren, vol, noOfComponents, 3);
-      this->Impl->UpdateGradientOpacityTransferFunction(ren, vol,
-                                                        noOfComponents, 3);
       }
     }
 
