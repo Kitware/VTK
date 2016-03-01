@@ -94,8 +94,8 @@ struct vtkEGLRenderWindow::vtkInternals
   EGLContext Context;
   vtkInternals() : Window((EGLNativeWindowType)0),
                    Display(EGL_NO_DISPLAY),
-                   Context(EGL_NO_CONTEXT),
-                   Surface(EGL_NO_SURFACE)
+                   Surface(EGL_NO_SURFACE),
+                   Context(EGL_NO_CONTEXT)
   {
   }
 };
@@ -283,8 +283,7 @@ void vtkEGLRenderWindow::ResizeWindow(int width, int height)
   };
 
 
-  EGLint dummy, format;
-  EGLint numConfigs;
+  EGLint numConfigs = 0;
   EGLConfig config;
 
   if (impl->Display == EGL_NO_DISPLAY)
@@ -323,6 +322,7 @@ void vtkEGLRenderWindow::ResizeWindow(int width, int height)
     }
 
 #ifdef ANDROID
+  EGLint format = 0;
   /* EGL_NATIVE_VISUAL_ID is an attribute of the EGLConfig that is
    * guaranteed to be accepted by ANativeWindow_setBuffersGeometry().
    * As soon as we picked a EGLConfig, we can safely reconfigure the
@@ -343,7 +343,7 @@ void vtkEGLRenderWindow::ResizeWindow(int width, int height)
       eglDestroySurface(impl->Display, impl->Surface);
     }
   impl->Surface = this->OffScreenRendering ?
-    impl->Surface = eglCreatePbufferSurface(impl->Display, config, surface_attribs):
+    eglCreatePbufferSurface(impl->Display, config, surface_attribs):
     eglCreateWindowSurface(impl->Display, config, impl->Window, NULL);
   this->Mapped = 1;
   this->OwnWindow = 1;
@@ -430,7 +430,7 @@ void vtkEGLRenderWindow::Finalize (void)
 }
 
 // Change the window to fill the entire screen.
-void vtkEGLRenderWindow::SetFullScreen(int arg)
+void vtkEGLRenderWindow::SetFullScreen(int vtkNotUsed(arg))
 {
   // window is always full screen
 }
