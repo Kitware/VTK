@@ -108,8 +108,7 @@ static void vtkXMLTreeReaderProcessElement(vtkMutableDirectedGraph *tree,
       continue;
       }
 
-    vtkIdType vertex = -1;
-    vertex = tree->AddVertex();
+    vtkIdType vertex = tree->AddVertex();
     if (parent != -1)
       {
       tree->AddEdge(parent, vertex);

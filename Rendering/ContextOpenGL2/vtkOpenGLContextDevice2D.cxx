@@ -1395,8 +1395,8 @@ void vtkOpenGLContextDevice2D::DrawEllipseWedge(float x, float y, float outRx,
   for (int i = 0; i < numTVerts; i++)
     {
     int index = i/6 + offset[i%6]/2;
-    double radiusX = offset[i%6]%2 ? outRx : inRx;
-    double radiusY = offset[i%6]%2 ? outRy : inRy;
+    double radiusX = (offset[i%6]%2) ? outRx : inRx;
+    double radiusY = (offset[i%6]%2) ? outRy : inRy;
     double a=rstart+index*step;
     tverts.push_back(radiusX * cos(a) + x);
     tverts.push_back(radiusY * sin(a) + y);

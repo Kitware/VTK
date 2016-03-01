@@ -153,12 +153,9 @@ void vtkPerturbCoincidentVertices::SpiralPerturbation(vtkGraph *input, vtkGraph 
 
   double spiralPoint[3];
   double point[3];
-  //double distance = sqrt(vtkMath::Distance2BetweenPoints(point1, point2));
-  double scale = 1.0;
-  //scale = (distance * 1.4)/numPoints;
 
   // use the smallest metric to scale the spiral vertices.
-  scale = shortestEdge < averageDistance ? shortestEdge/4 : averageDistance/4;
+  double scale = shortestEdge < averageDistance ? shortestEdge/4 : averageDistance/4;
   vtkSmartPointer<vtkPoints> offsets = vtkSmartPointer<vtkPoints>::New();
 
   coincidentPoints->InitTraversal();

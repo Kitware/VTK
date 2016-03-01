@@ -99,9 +99,7 @@ int TestStaticCellLinks( int, char *[] )
   extract->Update();
 
   // Grab the output, build links on unstructured grid
-  vtkSmartPointer<vtkUnstructuredGrid> ugrid =
-    vtkSmartPointer<vtkUnstructuredGrid>::New();
-  ugrid = extract->GetOutput();
+  vtkSmartPointer<vtkUnstructuredGrid> ugrid = extract->GetOutput();
 
   vtkStaticCellLinksTemplate<int> slinks;
   slinks.BuildLinks(ugrid);
@@ -157,9 +155,7 @@ int TestStaticCellLinks( int, char *[] )
   ss->SetPhiResolution(10);
   ss->Update();
 
-  vtkSmartPointer<vtkPolyData> pdata =
-    vtkSmartPointer<vtkPolyData>::New();
-  pdata = ss->GetOutput();
+  vtkSmartPointer<vtkPolyData> pdata = ss->GetOutput();
 
   slinks.Initialize(); //reuse
   slinks.BuildLinks(pdata);

@@ -344,14 +344,14 @@ int TestHyperOctreeIO(int argc, char* argv[])
   cam->Azimuth(180);
   renWin->Render();
 
-  int retVal = 1;
 #ifdef HYPEROCTREEIO_STANDALONE
+  int retVal = 1;
   if (interactive)
     {
     iren->Start();
     }
 #else
-  retVal = vtkRegressionTestImage( renWin );
+  int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
     {
     iren->Start();

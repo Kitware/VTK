@@ -532,9 +532,9 @@ bool vtkAMRCutPlane::PlaneIntersectsAMRBox( double plane[4], double bounds[6] )
   for( int i=0; i < 8; ++i )
     {
     // Get box coordinates
-    double x = ( i&1 ? bounds[1] : bounds[0] );
-    double y = ( i&2 ? bounds[3] : bounds[2] );
-    double z = ( i&3 ? bounds[5] : bounds[4] );
+    double x = ( i&1 ) ? bounds[1] : bounds[0];
+    double y = ( i&2 ) ? bounds[3] : bounds[2];
+    double z = ( i&3 ) ? bounds[5] : bounds[4];
 
     // Plug-in coordinates to the plane equation
     double v = plane[3] - plane[0]*x - plane[1]*y - plane[2]*z;

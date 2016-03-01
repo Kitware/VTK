@@ -523,7 +523,6 @@ bool vtkQtTreeRingLabelMapper::PointInWindow(double *sinfo, double *newDim,
   if( dc[1] < 0 || dc[1] > winSize[1] )
     return_value = false;
 
-  double height = 0., width = 0.;
   double xlc = sinfo[2] * cos( vtkMath::RadiansFromDegrees(sinfo[0]) );
   double xuc = sinfo[3] * cos( vtkMath::RadiansFromDegrees(sinfo[0]) );
   double ylc = sinfo[2] * sin( vtkMath::RadiansFromDegrees(sinfo[0]) );
@@ -536,10 +535,10 @@ bool vtkQtTreeRingLabelMapper::PointInWindow(double *sinfo, double *newDim,
   int *dc2 = VCoord->GetComputedDisplayValue(0);
   double dc2x = dc2[0];
   double dc2y = dc2[1];
-  height = sqrt( ((dc2x-dc1x)*(dc2x-dc1x)) + ((dc2y-dc1y)*(dc2y-dc1y)) );
+  double height = sqrt( ((dc2x-dc1x)*(dc2x-dc1x)) + ((dc2y-dc1y)*(dc2y-dc1y)) );
 
   double widthWC = r * vtkMath::RadiansFromDegrees( sinfo[1] - sinfo[0] );
-  width = widthWC * height / sqrt( (xuc-xlc)*(xuc-xlc) + (yuc-ylc)*(yuc-ylc) );
+  double width = widthWC * height / sqrt( (xuc-xlc)*(xuc-xlc) + (yuc-ylc)*(yuc-ylc) );
   newDim[0] = width;
   newDim[1] = height;
 

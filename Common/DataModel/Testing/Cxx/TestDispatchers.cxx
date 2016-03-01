@@ -255,6 +255,7 @@ bool TestMixedDispatch()
 
   int result = dispatcher.Go(as<vtkDataArray>(doubleArray.GetPointer()));
   result = dispatcher.Go(intArray.GetPointer());
+  test_expression(result==2,"unexpected");
   result = dispatcher.Go(doubleArray.GetPointer());
   test_expression(result==3,"statefull functor failed with int and double");
 

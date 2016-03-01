@@ -254,11 +254,9 @@ vtkIdType vtkIncrementalOctreePointLocator::FindClosestInsertedPoint
   double    miniDist2 = this->OctreeMaxDimSize * this->OctreeMaxDimSize * 4.0;
   double    elseDist2;      // inter-node search
   vtkIdType elsePntId;      // inter-node search
-  vtkIdType pointIndx = -1;
-  vtkIncrementalOctreeNode * pLeafNode = NULL;
 
-  pLeafNode = this->GetLeafContainer( this->OctreeRootNode, x );
-  pointIndx = this->FindClosestPointInLeafNode( pLeafNode, x, &miniDist2 );
+  vtkIncrementalOctreeNode * pLeafNode = this->GetLeafContainer( this->OctreeRootNode, x );
+  vtkIdType pointIndx = this->FindClosestPointInLeafNode( pLeafNode, x, &miniDist2 );
 
   if ( miniDist2 > 0.0 )
     {

@@ -79,7 +79,7 @@ namespace
 // Returns 1 on success, 0 otherwise
 //////////////////////////////////////////////////////////////////////////////
   int AppendDatasetsAndCheck(
-    const std::vector<vtkSmartPointer<vtkStructuredGrid> > inputs,
+    const std::vector<vtkSmartPointer<vtkStructuredGrid> >& inputs,
     int outputExtent[6])
   {
     vtkNew<vtkStructuredGridAppend> append;

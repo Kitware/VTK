@@ -583,10 +583,8 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(
     {
     supportsFloat = true;
     }
-#else
-#if GL_ES_VERSION_3_0 == 1
+#elif GL_ES_VERSION_3_0 == 1
   supportsFloat = true;
-#endif
 #endif
 
   // scale and bias

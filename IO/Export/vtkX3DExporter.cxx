@@ -637,7 +637,6 @@ void vtkX3DExporter::WriteATextActor2D(vtkActor2D *anTextActor2D,
 
   ta = static_cast<vtkTextActor*>(anTextActor2D);
   tp = ta->GetTextProperty();
-  ds = NULL;
   ds = ta->GetInput();
 
   if (ds==NULL)

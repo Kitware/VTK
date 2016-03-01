@@ -34,8 +34,7 @@
 
 double exponential_distribution(const int i, const double beta)
 {
-  double xi=0.0;
-  xi = ( ( exp( i*beta ) - 1 ) /( exp( beta ) - 1 ) );
+  double xi = ( ( exp( i*beta ) - 1 ) /( exp( beta ) - 1 ) );
   return( xi );
 }
 

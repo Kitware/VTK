@@ -40,7 +40,7 @@ class DICOMCallback;
 //
 struct group_element_compare
 {
-  bool operator() (const dicom_stl::pair<doublebyte, doublebyte> p1, const dicom_stl::pair<doublebyte, doublebyte> p2) const
+  bool operator() (const dicom_stl::pair<doublebyte, doublebyte>& p1, const dicom_stl::pair<doublebyte, doublebyte>& p2) const
   {
     if (p1.first < p2.first)
       {
