@@ -27,16 +27,6 @@
 #include "vtkPython.h"
 #include "vtkSystemIncludes.h"
 
-// The PyVTKTemplate is a wrapper around a dict.
-struct PyVTKTemplate {
-  PyObject_HEAD
-  PyObject *dict;
-  PyObject *doc;
-  PyObject *name;
-  PyObject *module;
-  PyObject *bases; // this is just a hint for help()
-};
-
 extern VTKWRAPPINGPYTHONCORE_EXPORT PyTypeObject PyVTKTemplate_Type;
 
 #define PyVTKTemplate_Check(obj) \
@@ -45,7 +35,7 @@ extern VTKWRAPPINGPYTHONCORE_EXPORT PyTypeObject PyVTKTemplate_Type;
 extern "C"
 {
 VTKWRAPPINGPYTHONCORE_EXPORT
-PyObject *PyVTKTemplate_New(const char *name, const char *modulename,
+PyObject *PyVTKTemplate_New(const char *name,
                             const char *docstring[]);
 
 VTKWRAPPINGPYTHONCORE_EXPORT
