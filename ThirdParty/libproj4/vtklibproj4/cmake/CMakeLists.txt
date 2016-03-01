@@ -22,8 +22,3 @@ install (FILES
   "${CMAKE_CURRENT_BINARY_DIR}/project-config-version.cmake"
   DESTINATION "${INSTALL_CMAKE_DIR}"
   RENAME "${PROJECT_NAME_LOWER}-config-version.cmake")
-# Make information about the cmake targets (the library and the tools)
-# available.
-install (EXPORT targets
-  FILE ${PROJECT_NAME_LOWER}-targets.cmake
-  DESTINATION "${INSTALL_CMAKE_DIR}")
