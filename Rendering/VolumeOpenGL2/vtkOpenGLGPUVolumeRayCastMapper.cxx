@@ -1157,16 +1157,13 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateOpacityTransferFunction(
     }
 
   vtkVolumeProperty* volumeProperty = vol->GetProperty();
-  vtkPiecewiseFunction* scalarOpacity = 0;
 
-  if (!vol->GetProperty()->GetIndependentComponents())
-    {
-    scalarOpacity = volumeProperty->GetScalarOpacity(0);
-    }
-  else
-    {
-    scalarOpacity = volumeProperty->GetScalarOpacity(component);
-    }
+  // Transfer function component used based on whether independent / dependent
+  // components. If dependent, use the first scalar opacity transfer function
+  unsigned int dependentComponent = volumeProperty->GetIndependentComponents() ?
+                                    component : 0;
+  vtkPiecewiseFunction* scalarOpacity =
+    volumeProperty->GetScalarOpacity(dependentComponent);
 
   if (scalarOpacity->GetSize() < 1)
     {
@@ -1184,9 +1181,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateOpacityTransferFunction(
     scalarRange[i] = this->ScalarsRange[component][i];
     }
 
-  int tableIndex = component < this->OpacityTables->GetNumberOfTables() ?
-                   component : this->OpacityTables->GetNumberOfTables() - 1;
-  this->OpacityTables->GetTable(tableIndex)->Update(
+  this->OpacityTables->GetTable(dependentComponent)->Update(
     scalarOpacity,this->Parent->BlendMode,
     this->ActualSampleDistance,
     scalarRange,
@@ -1213,25 +1208,21 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
 
   vtkVolumeProperty* volumeProperty = vol->GetProperty();
 
+  // Transfer function component used based on whether independent / dependent
+  // components. If dependent, use the first gradient opacity transfer function
+  unsigned int dependentComponent = volumeProperty->GetIndependentComponents() ?
+                                    component : 0;
   // TODO Currently we expect the all of the tables will
   // be initialized once and if at that time, the gradient
   // opacity was not enabled then it is not used later.
-//  if (!volumeProperty->HasGradientOpacity(component) ||
-//      !this->GradientOpacityTables)
-//    {
-//    return 1;
-//    }
-
-  vtkPiecewiseFunction* gradientOpacity = 0;
-
-  if (!vol->GetProperty()->GetIndependentComponents())
+  if (!volumeProperty->HasGradientOpacity(dependentComponent) ||
+      !this->GradientOpacityTables)
     {
-    gradientOpacity = volumeProperty->GetGradientOpacity(0);
+    return 1;
     }
-  else
-    {
-    gradientOpacity = volumeProperty->GetGradientOpacity(component);
-    }
+
+  vtkPiecewiseFunction* gradientOpacity =
+    volumeProperty->GetGradientOpacity(dependentComponent);
 
   if (gradientOpacity->GetSize() < 1)
     {
@@ -1249,10 +1240,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
     scalarRange[i] = this->ScalarsRange[component][i];
     }
 
-  int tableIndex =
-    component < this->GradientOpacityTables->GetNumberOfTables() ?
-    component : this->GradientOpacityTables->GetNumberOfTables() - 1;
-  this->GradientOpacityTables->GetTable(tableIndex)->Update(
+  this->GradientOpacityTables->GetTable(dependentComponent)->Update(
     gradientOpacity,
     this->ActualSampleDistance,
     scalarRange,
