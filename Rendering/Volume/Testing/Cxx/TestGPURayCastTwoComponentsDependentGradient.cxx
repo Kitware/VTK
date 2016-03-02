@@ -61,7 +61,7 @@ int TestGPURayCastTwoComponentsDependentGradient(int argc, char *argv[])
           else
             {
             *ptr++ = 0.25;
-            *ptr++ = 0.25;
+            *ptr++ = 25.0;
             }
           }
         else
@@ -69,12 +69,12 @@ int TestGPURayCastTwoComponentsDependentGradient(int argc, char *argv[])
           if (y < dims[1] / 2)
             {
             *ptr++ = 0.5;
-            *ptr++ = 0.5;
+            *ptr++ = 50.0;
             }
           else
             {
             *ptr++ = 1.0;
-            *ptr++ = 1.0;
+            *ptr++ = 100.0;
             }
           }
         }
@@ -111,13 +111,14 @@ int TestGPURayCastTwoComponentsDependentGradient(int argc, char *argv[])
 
   // Opacity functions
   vtkNew<vtkPiecewiseFunction> pf1;
-  pf1->AddPoint(0.0, 0.5);
-  pf1->AddPoint(1.0, 0.5);
+  pf1->AddPoint(0.0, 0.1);
+  pf1->AddPoint(100.0, 0.1);
 
   // Gradient Opacity function
+  // Whenever the gradient
   vtkNew<vtkPiecewiseFunction> pf2;
-  pf2->AddPoint(0.0, 0.0);
-  pf2->AddPoint(1.0, 1.0);
+  pf2->AddPoint(0.0, 0.2);
+  pf2->AddPoint(30.0, 1.0);
 
   // Volume property with independent components OFF
   vtkNew<vtkVolumeProperty> property;
