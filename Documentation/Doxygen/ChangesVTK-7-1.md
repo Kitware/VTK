@@ -1,7 +1,7 @@
 Changes in VTK 7.1          {#VTK-7-1-Changes}
 ==================
 
-This pages documents API and behavior changes between VTK 7.0 and
+This page documents API and behavior changes between VTK 7.0 and
 VTK 7.1
 
 Pipeline Update Methods
@@ -43,10 +43,10 @@ The following new methods were added:
 
     int Update(int port, vtkInformationVector* requests);
     int Update(vtkInformation* requests);
-    int UpdatePiece(int piece, int numPieces, int ghostLevels, int* extents=0);
-    int UpdateExtent(int piece, int numPieces, int ghostLevels, int* extents=0);
+    int UpdatePiece(int piece, int numPieces, int ghostLevels, const int extents[6]=0);
+    int UpdateExtent(const int extents[6]);
     int UpdateTimeStep(double time,
-        int piece=-1, int numPieces=1, int ghostLevels=0, int* extents=0);
+        int piece=-1, int numPieces=1, int ghostLevels=0, const int extents[6]=0);
 
 ### vtkStreamingDemandDrivenPipeline:
 

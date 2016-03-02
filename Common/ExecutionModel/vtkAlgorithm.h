@@ -500,7 +500,7 @@ public:
   // Convenience method to update an algorithm after passing requests
   // to its first output port.
   // Supports extent request.
-  virtual int UpdateExtent(const int extents[6]=0);
+  virtual int UpdateExtent(const int extents[6]);
 
   // Description:
   // Convenience method to update an algorithm after passing requests
