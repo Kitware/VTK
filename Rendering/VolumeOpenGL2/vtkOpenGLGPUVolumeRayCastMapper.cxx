@@ -1216,11 +1216,11 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
   // TODO Currently we expect the all of the tables will
   // be initialized once and if at that time, the gradient
   // opacity was not enabled then it is not used later.
-  if (!volumeProperty->HasGradientOpacity(component) ||
-      !this->GradientOpacityTables)
-    {
-    return 1;
-    }
+//  if (!volumeProperty->HasGradientOpacity(component) ||
+//      !this->GradientOpacityTables)
+//    {
+//    return 1;
+//    }
 
   vtkPiecewiseFunction* gradientOpacity = 0;
 
@@ -1256,7 +1256,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
     gradientOpacity,
     this->ActualSampleDistance,
     scalarRange,
-    volumeProperty->GetScalarOpacityUnitDistance(),
+    volumeProperty->GetScalarOpacityUnitDistance(component),
 #if GL_ES_VERSION_2_0 != 1
     filterVal,
 #else
@@ -2907,9 +2907,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     {
     if (noOfComponents == 2 || noOfComponents == 4)
       {
-      this->Impl->UpdateOpacityTransferFunction(ren, vol, noOfComponents, 0);
+      this->Impl->UpdateOpacityTransferFunction(ren, vol, noOfComponents,
+                                                noOfComponents - 1);
       this->Impl->UpdateGradientOpacityTransferFunction(ren, vol,
-      noOfComponents, 0);
+                                                        noOfComponents,
+                                                        noOfComponents - 1);
       this->Impl->UpdateColorTransferFunction(ren, vol, noOfComponents, 0);
       }
     }
