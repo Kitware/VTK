@@ -232,19 +232,16 @@ public:
   // and number of scalar components.
   int UpdateColorTransferFunction(vtkRenderer* ren,
                                   vtkVolume* vol,
-                                  int noOfComponents,
                                   unsigned int component);
 
   // Update opacity transfer function (not gradient opacity)
   int UpdateOpacityTransferFunction(vtkRenderer* ren,
                                     vtkVolume* vol,
-                                    int noOfComponents,
                                     unsigned int component);
 
   // Update gradient opacity function
   int UpdateGradientOpacityTransferFunction(vtkRenderer* ren,
                                             vtkVolume* vol,
-                                            int noOfComponents,
                                             unsigned int component);
 
   // Update noise texture (used to reduce rendering artifacts
@@ -1083,10 +1080,10 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateInterpolationType(
     return 0;
   }
 
-  //----------------------------------------------------------------------------
-  int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateColorTransferFunction(
-    vtkRenderer* ren, vtkVolume* vol, int vtkNotUsed(noOfComponents),
-    unsigned int component)
+//----------------------------------------------------------------------------
+int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
+  UpdateColorTransferFunction(vtkRenderer* ren, vtkVolume* vol,
+                              unsigned int component)
 {
   // Volume property cannot be null.
   vtkVolumeProperty* volumeProperty = vol->GetProperty();
@@ -1147,9 +1144,9 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateInterpolationType(
 }
 
 //----------------------------------------------------------------------------
-int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateOpacityTransferFunction(
-  vtkRenderer* ren, vtkVolume* vol, int vtkNotUsed(noOfComponents),
-  unsigned int component)
+int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
+  UpdateOpacityTransferFunction(vtkRenderer* ren, vtkVolume* vol,
+                                unsigned int component)
 {
   if (!vol)
     {
@@ -1199,7 +1196,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateOpacityTransferFunction(
 //----------------------------------------------------------------------------
 int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
   UpdateGradientOpacityTransferFunction(vtkRenderer* ren, vtkVolume* vol,
-    int vtkNotUsed(noOfComponents), unsigned int component)
+                                        unsigned int component)
 {
   if (!vol)
     {
@@ -2885,22 +2882,19 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     {
     for (int i = 0; i < noOfComponents; ++i)
       {
-      this->Impl->UpdateOpacityTransferFunction(ren, vol, noOfComponents, i);
-      this->Impl->UpdateGradientOpacityTransferFunction(ren, vol,
-                                                        noOfComponents, i);
-      this->Impl->UpdateColorTransferFunction(ren, vol, noOfComponents, i);
+      this->Impl->UpdateOpacityTransferFunction(ren, vol, i);
+      this->Impl->UpdateGradientOpacityTransferFunction(ren, vol, i);
+      this->Impl->UpdateColorTransferFunction(ren, vol, i);
       }
     }
   else
     {
     if (noOfComponents == 2 || noOfComponents == 4)
       {
-      this->Impl->UpdateOpacityTransferFunction(ren, vol, noOfComponents,
-                                                noOfComponents - 1);
+      this->Impl->UpdateOpacityTransferFunction(ren, vol, noOfComponents - 1);
       this->Impl->UpdateGradientOpacityTransferFunction(ren, vol,
-                                                        noOfComponents,
                                                         noOfComponents - 1);
-      this->Impl->UpdateColorTransferFunction(ren, vol, noOfComponents, 0);
+      this->Impl->UpdateColorTransferFunction(ren, vol, 0);
       }
     }
 
