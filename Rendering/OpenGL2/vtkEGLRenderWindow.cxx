@@ -607,12 +607,20 @@ int vtkEGLRenderWindow::GetOffScreenRendering ()
 //----------------------------------------------------------------------------
 bool vtkEGLRenderWindow::IsPointSpriteBugPresent()
 {
-  if (! this->IsPointSpriteBugTested)
-    {
-    this->IsPointSpriteBugTested = true;
-    this->IsPointSpriteBugPresent_ =
-      (strcmp(reinterpret_cast<const char*>(glGetString(GL_VERSION)), "4.5.0 NVIDIA 355.11") == 0);
-    }
+  // eventually we'll want to check with the NVIDIA EGL version to see if the
+  // point sprite bug is fixed but we don't know yet when it will be fixed
+  // but we do know that it's present in both the 355 and 358 drivers. for
+  // now do the safe thing and just assume the bug isn't fixed until we
+  // find a driver version where it is fixed.
+  this->IsPointSpriteBugTested = true;
+  this->IsPointSpriteBugPresent_ = true;
+  // if (! this->IsPointSpriteBugTested)
+  //   {
+  //   this->IsPointSpriteBugTested = true;
+  //   this->IsPointSpriteBugPresent_ =
+  //     (strcmp(reinterpret_cast<const char*>(glGetString(GL_VERSION)), "4.5.0 NVIDIA 355.11") == 0) ||
+  //     (strcmp(reinterpret_cast<const char*>(glGetString(GL_VERSION)), "4.5.0 NVIDIA 358.16") == 0);
+  //   }
   return this->IsPointSpriteBugPresent_;
 }
 
