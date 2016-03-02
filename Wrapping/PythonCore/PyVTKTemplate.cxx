@@ -417,8 +417,8 @@ PyObject *PyVTKTemplate_NameFromKey(PyObject *self, PyObject *key)
       name.push_back('L');
       // guess the type based on available template instantiations
       const char *trylist = (*tname == '-' ? "lxisa" : "lmxyijstah");
+      int bestfit = (*tname == '-' ? 5 : 10);
       char typechar = 'l'; // C++ long is best fit for python int
-      int bestfit = 12;
       PyObject *dict = PyModule_GetDict(self);
       Py_ssize_t pos = 0;
       PyObject *okey, *value;
@@ -439,9 +439,9 @@ PyObject *PyVTKTemplate_NameFromKey(PyObject *self, PyObject *key)
             {
             // compare this template instance against the typecode
             char c = cname[name.length()];
-            for (int k = 0; trylist[k]; k++)
+            for (int k = 0; k < bestfit; k++)
               {
-              if (c == trylist[k] && k < bestfit)
+              if (c == trylist[k])
                 {
                 typechar = c;
                 bestfit = k;
@@ -506,7 +506,7 @@ PyObject *PyVTKTemplate_NameFromKey(PyObject *self, PyObject *key)
         // special compatibility code for 'long' (python 'int') to allow
         // it to match either a 32-bit or a 64-bit integer
         const char *trylist = (typechar == 'l' ? "lxi" : "myj");
-        int bestfit = 4;
+        int bestfit = 3;
         PyObject *dict = PyModule_GetDict(self);
         Py_ssize_t pos = 0;
         PyObject *okey, *value;
@@ -527,9 +527,9 @@ PyObject *PyVTKTemplate_NameFromKey(PyObject *self, PyObject *key)
               {
               // compare this template instance against the typecode
               char c = cname[name.length()];
-              for (int k = 0; trylist[k]; k++)
+              for (int k = 0; k < bestfit; k++)
                 {
-                if (c == trylist[k] && k < bestfit)
+                if (c == trylist[k])
                   {
                   typechar = c;
                   bestfit = k;
