@@ -56,12 +56,12 @@ int TestGPURayCastTwoComponentsDependentGradient(int argc, char *argv[])
           if (y < dims[1] / 2)
             {
             *ptr++ = 0.0;
-            *ptr++ = 0.2;
+            *ptr++ = 0.0;
             }
           else
             {
             *ptr++ = 0.25;
-            *ptr++ = 0.2;
+            *ptr++ = 0.25;
             }
           }
         else
@@ -69,12 +69,12 @@ int TestGPURayCastTwoComponentsDependentGradient(int argc, char *argv[])
           if (y < dims[1] / 2)
             {
             *ptr++ = 0.5;
-            *ptr++ = 0.2;
+            *ptr++ = 0.5;
             }
           else
             {
             *ptr++ = 1.0;
-            *ptr++ = 0.2;
+            *ptr++ = 1.0;
             }
           }
         }
