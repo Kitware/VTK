@@ -833,11 +833,10 @@ int vtkKdNode::IntersectsCell(vtkCell *cell, int useDataBounds, int cellRegion,
       min = this->Min;
       max = this->Max;
       }
-    double regionBounds[6];
-
-    regionBounds[0] = min[0], regionBounds[1] = max[0];
-    regionBounds[2] = min[1], regionBounds[3] = max[1];
-    regionBounds[4] = min[2], regionBounds[5] = max[2];
+    double regionBounds[6] = {
+      min[0], max[0],
+      min[1], max[1],
+      min[2], max[2]};
 
     if (cell->GetCellType() == VTK_TRIANGLE_STRIP)
       {

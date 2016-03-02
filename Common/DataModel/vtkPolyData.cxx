@@ -2215,7 +2215,8 @@ int vtkPolyData::GetScalarFieldCriticalIndex (vtkIdType pointId,
     triangleList->Delete();
     visitedPointNb++;
 
-    currentPointId = stack->GetId(stackBottom), nextPointId = -1;
+    currentPointId = stack->GetId(stackBottom);
+    nextPointId = -1;
 
   }while(stackBottom < stack->GetNumberOfIds());
 
@@ -2238,7 +2239,8 @@ int vtkPolyData::GetScalarFieldCriticalIndex (vtkIdType pointId,
   stack->Delete();
   stack = vtkIdList::New();
   stack->InsertUniqueId(upperLinkPointList->GetId(0));
-  currentPointId = stack->GetId(stackBottom), nextPointId = -1;
+  currentPointId = stack->GetId(stackBottom);
+  nextPointId = -1;
   do
     {
     stackBottom++;
@@ -2273,7 +2275,8 @@ int vtkPolyData::GetScalarFieldCriticalIndex (vtkIdType pointId,
     triangleList->Delete();
     visitedPointNb++;
 
-    currentPointId = stack->GetId(stackBottom), nextPointId = -1;
+    currentPointId = stack->GetId(stackBottom);
+    nextPointId = -1;
     }while(stackBottom < stack->GetNumberOfIds());
 
   if(visitedPointNb != upperLinkPointNb)
