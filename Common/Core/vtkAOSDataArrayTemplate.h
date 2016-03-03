@@ -178,6 +178,14 @@ public:
   virtual bool HasStandardMemoryLayout() { return true; }
   virtual void ShallowCopy(vtkDataArray *other);
 
+  // Description:
+  // @deprecated Replace TupleValue with TypedTuple to use the new method
+  // names. Note that the new signatures are also const-correct.
+  VTK_LEGACY(void GetTupleValue(vtkIdType tupleIdx, ValueType *tuple));
+  VTK_LEGACY(void SetTupleValue(vtkIdType tupleIdx, const ValueType *tuple));
+  VTK_LEGACY(void InsertTupleValue(vtkIdType tupleIdx, const ValueType *tuple));
+  VTK_LEGACY(vtkIdType InsertNextTupleValue(const ValueType *tuple));
+
   //BTX
 protected:
   vtkAOSDataArrayTemplate();
