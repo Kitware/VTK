@@ -59,6 +59,8 @@ protected:
   vtkXMLDataReader* CreatePieceReader();
   virtual int FillOutputPortInformation(int, vtkInformation*);
 
+  virtual void SqueezeOutputArrays(vtkDataObject*);
+
   // The index of the cell in the output where the current piece
   // begins.
   vtkIdType StartCell;

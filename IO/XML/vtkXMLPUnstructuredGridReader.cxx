@@ -160,7 +160,41 @@ int vtkXMLPUnstructuredGridReader::ReadPieceData()
     outLocs[i] = inLocs[i] + startLoc;
     }
 
-  // Copy the cooresponding cell types.
+  // Copy Faces and FaceLocations with offset adjustment if they exist
+  if(vtkIdTypeArray* inputFaces = input->GetFaces())
+    {
+    vtkIdTypeArray* inputFaceLocations = input->GetFaceLocations();
+    vtkIdTypeArray* outputFaces = output->GetFaces();
+    if(!outputFaces)
+      {
+      output->InitializeFacesRepresentation(0);
+      outputFaces = output->GetFaces();
+      }
+    vtkIdTypeArray* outputFaceLocations = output->GetFaceLocations();
+    for (vtkIdType i = 0;i < numCells; ++i)
+      {
+      outputFaceLocations->InsertNextValue(outputFaces->GetMaxId() + 1);
+      vtkIdType location = inputFaceLocations->GetValue(i);
+      vtkIdType numFaces = inputFaces->GetValue(location);
+      location++;
+      outputFaces->InsertNextValue(numFaces);
+      for (vtkIdType f = 0;f < numFaces; f++)
+        {
+        vtkIdType numPoints = inputFaces->GetValue(location);
+        outputFaces->InsertNextValue(numPoints);
+        location++;
+        for (vtkIdType p = 0;p < numPoints; p++)
+          {
+          // only the point ids get the offset
+          outputFaces->InsertNextValue(
+            inputFaces->GetValue(location)+this->StartPoint);
+          location++;
+          }
+        }
+      }
+    }
+
+  // Copy the corresponding cell types.
   vtkUnsignedCharArray* inTypes = input->GetCellTypesArray();
   vtkUnsignedCharArray* outTypes = output->GetCellTypesArray();
   vtkIdType components = outTypes->GetNumberOfComponents();
@@ -203,4 +237,18 @@ int vtkXMLPUnstructuredGridReader::FillOutputPortInformation(
 {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkUnstructuredGrid");
   return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLPUnstructuredGridReader::SqueezeOutputArrays(vtkDataObject* output)
+{
+  vtkUnstructuredGrid* grid = vtkUnstructuredGrid::SafeDownCast(output);
+  if(vtkIdTypeArray* outputFaces = grid->GetFaces())
+    {
+    outputFaces->Squeeze();
+    }
+  if(vtkIdTypeArray* outputFaceLocations = grid->GetFaceLocations())
+    {
+    outputFaceLocations->Squeeze();
+    }
 }
