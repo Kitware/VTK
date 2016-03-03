@@ -15,7 +15,9 @@
 #include "vtkPResampleToImage.h"
 
 #include "vtkCharArray.h"
+#include "vtkDataArrayIteratorMacro.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkExtentTranslator.h"
 #include "vtkIdList.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
@@ -154,6 +156,17 @@ inline void InitializeFieldData(const std::vector<FieldMetaData> &metadata,
     }
 }
 
+template <typename Iterator>
+inline void SaveToBuffer(Iterator begin, std::size_t start, std::size_t count,
+                         diy::MemoryBuffer &bb)
+{
+  std::advance(begin, start);
+  for (std::size_t i = 0; i < count; ++i)
+    {
+    diy::save(bb, *begin++);
+    }
+}
+
 inline void SerializeFieldData(vtkFieldData *field, vtkIdType tuple,
                                std::vector<char> &bytestream)
 {
@@ -162,14 +175,25 @@ inline void SerializeFieldData(vtkFieldData *field, vtkIdType tuple,
   for (int i = 0; i < numFields; ++i)
     {
     vtkDataArray *da = field->GetArray(i);
-    void *ptr = da->GetVoidPointer(tuple);
     std::size_t numComponents = static_cast<std::size_t>(da->GetNumberOfComponents());
+    std::size_t index = tuple * numComponents;
     switch(da->GetDataType())
       {
-      vtkTemplateMacro(diy::save(bb, static_cast<VTK_TT*>(ptr), numComponents));
+      vtkDataArrayIteratorMacro(da, SaveToBuffer(vtkDABegin, index, numComponents, bb));
       }
     }
   std::swap(bytestream, bb.buffer);
+}
+
+template <typename Iterator>
+inline void LoadFromBuffer(Iterator begin, std::size_t start, std::size_t count,
+                           diy::MemoryBuffer &bb)
+{
+  std::advance(begin, start);
+  for (std::size_t i = 0; i < count; ++i)
+    {
+    diy::load(bb, *begin++);
+    }
 }
 
 inline void DeserializeFieldData(const std::vector<char> &bytestream,
@@ -182,11 +206,11 @@ inline void DeserializeFieldData(const std::vector<char> &bytestream,
   for (int i = 0; i < numFields; ++i)
     {
     vtkDataArray *da = field->GetArray(i);
-    void *ptr = da->GetVoidPointer(tuple);
     std::size_t numComponents = static_cast<std::size_t>(da->GetNumberOfComponents());
+    std::size_t index = tuple * numComponents;
     switch(da->GetDataType())
       {
-      vtkTemplateMacro(diy::load(bb, static_cast<VTK_TT*>(ptr), numComponents));
+      vtkDataArrayIteratorMacro(da, LoadFromBuffer(vtkDABegin, index, numComponents, bb));
       }
     }
 }
@@ -209,10 +233,17 @@ inline void ComputeBoundingExtent(const double origin[3], const double spacing[3
 {
   for (int i = 0; i < 3; ++i)
     {
-    extent[2*i] = static_cast<int>(
-                  vtkMath::Floor((bounds[2*i] - origin[i]) / spacing[i]));
-    extent[2*i + 1] = static_cast<int>(
-                      vtkMath::Ceil((bounds[2*i + 1] - origin[i])/spacing[i]));
+    if (spacing[i] != 0.0)
+      {
+      extent[2*i] =
+        static_cast<int>(vtkMath::Floor((bounds[2*i] - origin[i])/spacing[i]));
+      extent[2*i + 1] =
+        static_cast<int>(vtkMath::Ceil((bounds[2*i + 1] - origin[i])/spacing[i]));
+      }
+    else
+      {
+      extent[2*i] = extent[2*i + 1] = 0;
+      }
     }
 }
 
@@ -221,10 +252,17 @@ inline void ComputeTilingExtent(const double origin[3], const double spacing[3],
 {
   for (int i = 0; i < 3; ++i)
     {
-    extent[2*i] = static_cast<int>(
-                  vtkMath::Floor((bounds[2*i] - origin[i])/spacing[i]));
-    extent[2*i + 1] = static_cast<int>(
-                      vtkMath::Floor((bounds[2*i + 1] - origin[i])/spacing[i]));
+    if (spacing[i] != 0.0)
+      {
+      extent[2*i] =
+        static_cast<int>(vtkMath::Floor((bounds[2*i] - origin[i])/spacing[i]));
+      extent[2*i + 1] =
+        static_cast<int>(vtkMath::Floor((bounds[2*i + 1] - origin[i])/spacing[i]));
+      }
+    else
+      {
+      extent[2*i] = extent[2*i + 1] = 0;
+      }
     }
 }
 
@@ -239,7 +277,11 @@ inline bool InsideExtent(const int extent[6], const int ijk[3])
 //----------------------------------------------------------------------------
 struct Block
 {
+  double Origin[3];
+  double Spacing[3];
   std::vector<Point> Points;
+
+  double Bounds[6];
 };
 
 inline void* CreateBlock()
@@ -251,6 +293,7 @@ inline void DestroyBlock(void *blockp)
 {
   delete static_cast<Block*>(blockp);
 }
+
 
 inline void GetPoint(vtkImageData *img, const int ijk[3], double x[3])
 {
@@ -296,13 +339,8 @@ inline void AddPointsToBlock(vtkImageData *piece, const char *maskArrayName,
 }
 
 //---------------------------------------------------------------------------
-class FindGhostPointsForNeighbors
+struct FindGhostPointsForNeighbors
 {
-public:
-  FindGhostPointsForNeighbors(const double *origin, const double *spacing)
-    : Origin(origin), Spacing(spacing)
-  { }
-
   void operator()(void *blockp, const diy::Master::ProxyWithLink& cp, void*) const
   {
     Block &block = *static_cast<Block*>(blockp);
@@ -315,7 +353,7 @@ public:
       {
       const diy::ContinuousBounds &b = link.bounds(static_cast<int>(i));
       double bounds[6] = { b.min[0], b.max[0], b.min[1], b.max[1], b.min[2], b.max[2] };
-      ComputeTilingExtent(this->Origin, this->Spacing, bounds, extents[i].data());
+      ComputeTilingExtent(block.Origin, block.Spacing, bounds, extents[i].data());
       }
 
     for (std::size_t i = 0; i < block.Points.size(); ++i)
@@ -330,21 +368,10 @@ public:
         }
       }
   }
-
-private:
-  const double *Origin;
-  const double *Spacing;
 };
 
-class ReceiveGhostPointsAndMakeResult
+struct ReceiveGhostPoints
 {
-public:
-  ReceiveGhostPointsAndMakeResult(const double *origin, const double *spacing,
-                                  const std::vector<FieldMetaData> &fieldMetaData,
-                                  vtkImageData *result)
-    : Origin(origin), Spacing(spacing), FMetaData(&fieldMetaData), Result(result)
-  { }
-
   void operator()(void *blockp, const diy::Master::ProxyWithLink& cp, void*) const
   {
     Block &block = *static_cast<Block*>(blockp);
@@ -362,33 +389,34 @@ public:
         }
       }
 
-    int extent[6];
     const diy::ContinuousBounds &b = link.bounds();
-    double bounds[6] = { b.min[0], b.max[0], b.min[1], b.max[1], b.min[2], b.max[2] };
-    ComputeTilingExtent(this->Origin, this->Spacing, bounds, extent);
-
-    this->Result->SetOrigin(this->Origin[0], this->Origin[1], this->Origin[2]);
-    this->Result->SetSpacing(this->Spacing[0], this->Spacing[1], this->Spacing[2]);
-    this->Result->SetExtent(extent);
-
-    vtkPointData *pd = this->Result->GetPointData();
-    InitializeFieldData(*this->FMetaData, this->Result->GetNumberOfPoints(), pd);
-
-    for (std::size_t i = 0; i < block.Points.size(); ++i)
+    for (int i = 0; i < 3; ++i)
       {
-      Point &p = block.Points[i];
-      vtkIdType id = this->Result->ComputePointId(p.idx);
-      DeserializeFieldData(p.data, pd, id);
+      block.Bounds[2*i] = b.min[i];
+      block.Bounds[2*i + 1] = b.max[i];
       }
   }
-
-private:
-  const double *Origin;
-  const double *Spacing;
-  const std::vector<FieldMetaData> *FMetaData;
-  vtkImageData *Result;
 };
 
+void MakeResult(const double origin[3], const double spacing[3],
+                const int extent[3], const std::vector<FieldMetaData> &fieldMetaData,
+                const std::vector<Point> &points, vtkImageData *result)
+{
+  result->SetOrigin(origin[0], origin[1], origin[2]);
+  result->SetSpacing(spacing[0], spacing[1], spacing[2]);
+  result->SetExtent(extent[0], extent[1], extent[2], extent[3], extent[4], extent[5]);
+
+  vtkPointData *pd = result->GetPointData();
+  InitializeFieldData(fieldMetaData, result->GetNumberOfPoints(), pd);
+
+  for (std::size_t i = 0; i < points.size(); ++i)
+    {
+    const Point &p = points[i];
+    int idx[3] = { p.idx[0], p.idx[1], p.idx[2] };
+    vtkIdType id = result->ComputePointId(idx);
+    DeserializeFieldData(p.data, pd, id);
+    }
+}
 
 //----------------------------------------------------------------------------
 inline void ComputeGlobalBounds(const double lbounds[6], double gbounds[6])
@@ -422,18 +450,23 @@ inline void GetGlobalFieldMetaData(vtkDataSetAttributes *data,
   std::vector<FieldMetaData> local;
   ExtractFieldMetaData(data, &local);
 
+  // find a process that has field meta data information (choose the process with
+  // minimum rank)
   int rank = local.size() ? world.rank() : world.size();
   int source;
   diy::mpi::all_reduce(world, rank, source, diy::mpi::minimum<int>());
 
-  diy::MemoryBuffer bb;
-  if (world.rank() == source)
+  if (source < world.size()) // atleast one process has field meta data
     {
-    diy::save(bb, local);
-    bb.reset();
+    diy::MemoryBuffer bb;
+    if (world.rank() == source)
+      {
+      diy::save(bb, local);
+      bb.reset();
+      }
+    diy::mpi::broadcast(world, bb.buffer, source);
+    diy::load(bb, *metadata);
     }
-  diy::mpi::broadcast(world, bb.buffer, source);
-  diy::load(bb, *metadata);
 }
 
 } // anonymous namespace
@@ -472,6 +505,13 @@ int vtkPResampleToImage::RequestData(vtkInformation *request,
   vtkImageData *output = vtkImageData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
+  if (this->SamplingDimensions[0] <= 0 ||
+      this->SamplingDimensions[1] <= 0 ||
+      this->SamplingDimensions[2] <= 0)
+    {
+    return 1;
+    }
+
   // compute global bounds of the dataset
   double localBounds[6], globalBounds[6];
   input->GetBounds(localBounds);
@@ -480,11 +520,13 @@ int vtkPResampleToImage::RequestData(vtkInformation *request,
   // compute bounds and extent where probing should be performed for this node
   double *wholeBounds = this->UseInputBounds ? globalBounds : this->SamplingBounds;
   double origin[3] = { wholeBounds[0], wholeBounds[2], wholeBounds[4] };
-  double spacing[3] = {
-    (wholeBounds[1] - wholeBounds[0])/static_cast<double>(this->SamplingDimensions[0] - 1),
-    (wholeBounds[3] - wholeBounds[2])/static_cast<double>(this->SamplingDimensions[1] - 1),
-    (wholeBounds[5] - wholeBounds[4])/static_cast<double>(this->SamplingDimensions[2] - 1)
-  };
+  double spacing[3];
+  for (int i = 0; i < 3; ++i)
+    {
+    spacing[i] = (this->SamplingDimensions[i] == 1) ? 0 :
+                 ((wholeBounds[i*2 + 1] - wholeBounds[i*2]) /
+                  static_cast<double>(this->SamplingDimensions[i] - 1));
+    }
 
   int updateExtent[6];
   if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()))
@@ -500,45 +542,42 @@ int vtkPResampleToImage::RequestData(vtkInformation *request,
     updateExtent[5] = this->SamplingDimensions[2] - 1;
     }
 
-  bool emptyExtent = false;
   int extent[6];
   ComputeBoundingExtent(origin, spacing, localBounds, extent);
   for (int i = 0; i < 3; ++i)
     {
     extent[2*i] = vtkMath::Max(extent[2*i], updateExtent[2*i]);
     extent[2*i + 1] = vtkMath::Min(extent[2*i + 1], updateExtent[2*i + 1]);
-    if (extent[2*i] > extent[2*i + 1])
+    if (extent[2*i] > extent[2*i + 1]) // no overlap
       {
-      emptyExtent = true; // no overlap
+      extent[0] = extent[2] = extent[4] = 0;
+      extent[1] = extent[3] = extent[5] = -1;
       break;
       }
     }
 
   // perform probing
   vtkNew<vtkProbeFilter> prober;
-  if (!emptyExtent)
-    {
-    vtkNew<vtkImageData> structure;
-    structure->SetOrigin(origin);
-    structure->SetSpacing(spacing);
-    structure->SetExtent(extent);
-
-    prober->SetInputData(structure.GetPointer());
-    prober->SetSourceData(input);
-    prober->Update();
-    }
-
   const char *maskArrayName = prober->GetValidPointMaskArrayName();
 
-  // Ensure every node has fields' metadata information
+  vtkNew<vtkImageData> structure;
+  structure->SetOrigin(origin);
+  structure->SetSpacing(spacing);
+  structure->SetExtent(extent);
+
+  prober->SetInputData(structure.GetPointer());
+  prober->SetSourceData(input);
+  prober->Update();
+
   vtkImageData *mypiece = static_cast<vtkImageData*>(prober->GetOutput());
-  std::vector<FieldMetaData> fieldMetaData;
-  GetGlobalFieldMetaData(mypiece->GetPointData(), &fieldMetaData);
+
+  // Ensure every node has fields' metadata information
+  std::vector<FieldMetaData> pointFieldMetaData;
+  GetGlobalFieldMetaData(mypiece->GetPointData(), &pointFieldMetaData);
 
   // perform kd-tree partitioning on probed points so that each node ends up
   // with non-overlapping rectangular regions
   diy::mpi::communicator world;
-  diy::Master master(world, 1, -1, &CreateBlock, &DestroyBlock);
   diy::RoundRobinAssigner assigner(world.size(), world.size());
 
   std::vector<int> gids;
@@ -553,22 +592,50 @@ int vtkPResampleToImage::RequestData(vtkInformation *request,
     domain.max[i] = static_cast<float>(updateBounds[2*i + 1] + 1e-4);
     }
 
-  // b and l are freed by master
-  Block *b = new Block;
-  AddPointsToBlock(mypiece, maskArrayName, b);
-  diy::RegularContinuousLink *l = new diy::RegularContinuousLink(3, domain, domain);
-  master.add(gids[0], b, l);
+  // block and link are freed by master
+  Block *block = static_cast<Block*>(CreateBlock());
+  std::copy(origin, origin + 3, block->Origin);
+  std::copy(spacing, spacing + 3, block->Spacing);
+  AddPointsToBlock(mypiece, maskArrayName, block);
+  diy::RegularContinuousLink *link = new diy::RegularContinuousLink(3, domain, domain);
 
-  const int hist = 32;
-  diy::kdtree(master, assigner, 3, domain, &Block::Points, 2*hist, false);
+  diy::Master master(world, 1, -1, &CreateBlock, &DestroyBlock);
+  master.add(gids[0], block, link);
 
-  // handle ghost points
-  master.foreach(FindGhostPointsForNeighbors(origin, spacing));
-  master.exchange();
-  master.foreach(ReceiveGhostPointsAndMakeResult(origin, spacing, fieldMetaData,
-                                                 output));
+  int outExtent[6];
+  vtkIdType numPoints = static_cast<vtkIdType>(block->Points.size());
+  vtkIdType sumNumPoints = 0;
+  diy::mpi::all_reduce(world, numPoints, sumNumPoints, std::plus<vtkIdType>());
+  if (sumNumPoints > 0)
+    {
+    const int hist = 32;
+    diy::kdtree(master, assigner, 3, domain, &Block::Points, 2*hist, false);
 
-  vtkPResampleToImage::SetBlankPointsAndCells(output, maskArrayName);
+    // handle ghost points
+    master.foreach(FindGhostPointsForNeighbors());
+    master.exchange();
+    master.foreach(ReceiveGhostPoints());
+
+    // generate output extent
+    ComputeTilingExtent(block->Origin, block->Spacing, block->Bounds, outExtent);
+    for (int i = 0; i < 3; ++i)
+      {
+      outExtent[2*i] = std::max(outExtent[2*i], updateExtent[2*i]);
+      outExtent[2*i + 1] = std::min(outExtent[2*i + 1], updateExtent[2*i + 1]);
+      }
+    }
+  else
+    {
+    vtkNew<vtkExtentTranslator> extentTranslator;
+    extentTranslator->PieceToExtentThreadSafe(world.rank(), world.size(), 0,
+                                              updateExtent, outExtent,
+                                              vtkExtentTranslator::BLOCK_MODE,
+                                              false);
+    }
+
+  MakeResult(origin, spacing, outExtent, pointFieldMetaData, block->Points, output);
+  vtkResampleToImage::SetBlankPointsAndCells(output, maskArrayName);
+
   return 1;
 }
 
