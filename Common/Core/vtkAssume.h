@@ -12,6 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+// .NAME VTK_ASSUME - Provide compiler hints for non-obvious conditions.
 
 #ifndef vtkAssume_h
 #define vtkAssume_h
@@ -31,6 +32,9 @@
 // VTK_ASSUME(array->GetNumberOfComponents() == 3); allows the compiler to
 // provide faster access through the GetTypedComponent method, as the fixed data
 // stride in AOS arrays allows advanced optimization of the accesses.
+//
+// A more detailed description of this class and related tools can be found
+// \ref VTK-7-1-ArrayDispatch "here".
 #define VTK_ASSUME(cond) \
   do { \
   const bool c = cond; \

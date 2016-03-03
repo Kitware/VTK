@@ -620,6 +620,9 @@ struct vtkArrayDownCast_impl
 // However, not all arrays support the FastDownCast mechanism. vtkArrayDownCast
 // exists to select between the two; Arrays that support FastDownCast will use
 // it, while others will fallback to the slower SafeDownCast.
+//
+// A more detailed description of this class and related tools can be found
+// \ref VTK-7-1-ArrayDispatch "here".
 template <typename ArrayT>
 ArrayT* vtkArrayDownCast(vtkAbstractArray *array)
 {

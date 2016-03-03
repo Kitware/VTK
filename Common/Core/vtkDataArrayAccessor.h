@@ -19,6 +19,9 @@
 // vtkDataArrayAccessor provides access to data stored in a vtkDataArray. It
 // is intended to be used in conjunction with vtkArrayDispatcher.
 //
+// A more detailed description of this class and related tools can be found
+// \ref VTK-7-1-ArrayDispatch "here".
+//
 // The goal of this helper template is to allow developers to write a single
 // templated worker function that will generates code to use the efficient typed
 // APIs provided by vtkGenericDataArray when the array type is known, but
@@ -37,31 +40,33 @@
 //
 // A standard usage pattern of this class would be:
 //
-//    // vtkArrayDispatch worker struct:
-//    struct Worker
-//    {
-//      // Templated worker function:
-//      template <typename ArrayT>
-//      void operator()(ArrayT *array)
-//      {
-//        // The accessor:
-//        vtkDataArrayAccessor<ArrayT> accessor(array);
-//        // The data type used by ArrayT's API, use this for
-//        // temporary/intermediate results:
-//        typedef typename vtkDataArrayAccessor<ArrayT>::APIType APIType;
+// @code
+// // vtkArrayDispatch worker struct:
+// struct Worker
+// {
+//   // Templated worker function:
+//   template <typename ArrayT>
+//   void operator()(ArrayT *array)
+//   {
+//     // The accessor:
+//     vtkDataArrayAccessor<ArrayT> accessor(array);
+//     // The data type used by ArrayT's API, use this for
+//     // temporary/intermediate results:
+//     typedef typename vtkDataArrayAccessor<ArrayT>::APIType APIType;
 //
-//        // Do work using accessor to set/get values....
-//      }
-//    };
+//     // Do work using accessor to set/get values....
+//   }
+// };
 //
-//    // Usage:
-//    Worker worker;
-//    vtkDataArray *array = ...;
-//    if (!vtkArrayDispatch::Dispatch::Execute(array, worker))
-//      {
-//      // Dispatch failed: unknown array type. Fallback to vtkDataArray API:
-//      worker(array);
-//      }
+// // Usage:
+// Worker worker;
+// vtkDataArray *array = ...;
+// if (!vtkArrayDispatch::Dispatch::Execute(array, worker))
+//   {
+//   // Dispatch failed: unknown array type. Fallback to vtkDataArray API:
+//   worker(array);
+//   }
+// @endcode
 //
 // We define Worker::operator() as the templated worker function, restricting
 // all data accesses to go through the 'accessor' object (methods like

@@ -17,6 +17,9 @@
 //
 // .SECTION Description
 //
+// A more detailed description of this class and related tools can be found
+// \ref VTK-7-1-ArrayDispatch "here".
+//
 // The vtkGenericDataArray class provides a generic implementation of the
 // vtkDataArray API. It relies on subclasses providing access to data
 // via 8 "concept methods", which should be implemented as non-virtual

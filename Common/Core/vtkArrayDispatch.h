@@ -12,12 +12,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkArrayDispatch - vtkDataArray code generator
+// .NAME vtkArrayDispatch - vtkDataArray code generator/dispatcher.
 //
 // vtkArrayDispatch implements a mechanism for generating optimized code for
 // multiple subclasses of vtkDataArray at once. Using a TypeList based
 // approach (see vtkTypeList), a templated worker implementation is generated
 // for a restricted or unrestricted set of vtkDataArray subclasses.
+//
+// A more detailed description of this class and related tools can be found
+// \ref VTK-7-1-ArrayDispatch "here".
 //
 // The primary goals of this class are to simplify multi-array dispatch
 // implementations, and provide tools to lower compilation time and binary
@@ -99,13 +102,17 @@
 // There are three components to a dispatch: The dispatcher, the worker, and
 // the array(s). They are combined like so:
 //
+// @code
 // bool result = Dispatcher<...>::Execute(array, worker);
+// @endcode
 //
 // The dispatcher can also be instantiated into an object, e.g.:
 //
+// @code
 // vtkArrayDispatch::SomeDispatcher<...> myDispatcher;
 // MyWorker worker;
 // bool result = myDispatcher.Execute(array, worker);
+// @endcode
 //
 // Return value:
 // The Execute method of the dispatcher will return true if a code path matching
@@ -122,6 +129,7 @@
 // additional input/output data is needed.
 //
 // A simple worker implementation for triple dispatch:
+// @code
 // struct MyWorker
 // {
 //   template <typename Array1T, typename Array2T, typename Array3T>
@@ -130,6 +138,7 @@
 //     // Do work using vtkGenericDataArray API...
 //   }
 // };
+// @endcode
 //
 // Note that optimized implementations (e.g. for AoS arrays vs SoA arrays) can
 // be supported by providing overloads of operator() that have more restrictive

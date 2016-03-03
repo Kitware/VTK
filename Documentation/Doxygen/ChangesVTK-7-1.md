@@ -132,3 +132,27 @@ vtkSMPTools
 The following back-ends have been removed:
 + Simple: This is not a production level backend and was only used for debugging purposes.
 + Kaapi: This backend is no longer maintained.
+
+vtkDataArray Refactor, vtkArrayDispatch and Related Tools
+---------------------------------------------------------
+
+The `vtkDataArrayTemplate` template class has been replaced by
+`vtkAOSDataArrayTemplate` to distinguish it from the new
+`vtkSOADataArrayTemplate`. The former uses Array-Of-Structs component ordering
+while the latter uses Struct-Of-Arrays component ordering. These both derive
+from the new `vtkGenericDataArray` template class and are an initial
+implementation of native support for alternate memory layouts in VTK.
+
+To facilitate working with these arrays efficiently, several new tools have
+been added in this release. They are detailed \ref VTK-7-1-ArrayDispatch "here".
+
+As part of the refactoring effort, several `vtkDataArrayTemplate` methods were
+deprecated and replaced with new, const-correct methods with more meaningful
+names.
+
+The old and new method names are listed below:
+
++ `GetTupleValue` is now `GetTypedTuple`
++ `SetTupleValue` is now `SetTypedTuple`
++ `InsertTupleValue` is now `InsertTypedTuple`
++ `InsertNextTupleValue` is now `InsertNextTypedTuple`

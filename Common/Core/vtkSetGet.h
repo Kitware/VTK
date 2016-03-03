@@ -688,6 +688,9 @@ virtual double *Get##name() \
     return thisClass::New(); \
   }
 
+// NOTE: This is no longer the prefer method for dispatching an array to a
+// worker template. See vtkArrayDispatch for the new approach.
+//
 // The vtkTemplateMacro is used to centralize the set of types
 // supported by Execute methods.  It also avoids duplication of long
 // switch statement case lists.
