@@ -290,6 +290,7 @@ set(${vtk-module}_HDRS
   vtkAtomicTypeConcepts.h
   vtkAtomicTypes.h
   vtkAutoInit.h
+  vtkBuffer.h
   vtkDataArrayAccessor.h
   vtkDataArrayIteratorMacro.h
   vtkDataArrayTemplate.h
@@ -587,6 +588,7 @@ set_source_files_properties(
   vtkArrayRange.cxx
   vtkArraySort.cxx
   vtkArrayWeights.cxx
+  vtkBuffer.h
   vtkBoundingBox.cxx
   vtkBreakPoint.cxx
   vtkCallbackCommand.cxx
