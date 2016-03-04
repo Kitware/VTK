@@ -26,10 +26,10 @@
 // vtkDataSetAttributes::CopyInterpolate() or InterpolateAllocate() which
 // performs the initial magic of constructing input and output arrays. Then
 // the input attributes, and output attributes, are passed to initialize the
-// internal structures. Internally, pairs of typed arrays are created; the
-// operations (e.g., interpolate) occur on these typed arrays using a
-// typeless, virtual dispatch base class.
-
+// internal structures. Essentially these internal structures are pairs of
+// arrays of the same type, which can be efficently accessed and
+// assigned. The operations on these array pairs (e.g., interpolation) occur
+// using a typeless, virtual dispatch base class.
 
 // .SECTION See Also
 // vtkFieldData vtkDataSetAttributes vtkPointData vtkCellData
@@ -46,8 +46,10 @@ struct BaseArrayPair
 {
   vtkIdType Num;
   int NumComp;
+  vtkDataArray *OutputArray;
 
-  BaseArrayPair(vtkIdType num, int numComp) : Num(num), NumComp(numComp)
+  BaseArrayPair(vtkIdType num, int numComp, vtkDataArray *outArray) :
+    Num(num), NumComp(numComp), OutputArray(outArray)
     {
     }
   virtual ~BaseArrayPair()
@@ -56,8 +58,11 @@ struct BaseArrayPair
 
   virtual void Copy(vtkIdType inId, vtkIdType outId) = 0;
   virtual void Interpolate(int numWeights, const vtkIdType *ids,
-                           const double *weights, vtkIdType outPtId) = 0;
+                           const double *weights, vtkIdType outId) = 0;
+  virtual void InterpolateEdge(vtkIdType v0, vtkIdType v1,
+                               double t, vtkIdType outId) = 0;
   virtual void AssignNullValue(vtkIdType outId) = 0;
+  virtual void Realloc(vtkIdType sze) = 0;
 };
 
 // Type specific interpolation on a matched pair of data arrays
@@ -68,8 +73,8 @@ struct ArrayPair : public BaseArrayPair
   T *Output;
   T  NullValue;
 
-  ArrayPair(T *in, T *out, vtkIdType num, int numComp, T null) :
-    BaseArrayPair(num,numComp), Input(in), Output(out), NullValue(null)
+  ArrayPair(T *in, T *out, vtkIdType num, int numComp, vtkDataArray *outArray, T null) :
+    BaseArrayPair(num,numComp,outArray), Input(in), Output(out), NullValue(null)
     {
     }
   virtual ~ArrayPair()  //calm down some finicky compilers
@@ -85,7 +90,7 @@ struct ArrayPair : public BaseArrayPair
     }
 
   virtual void Interpolate(int numWeights, const vtkIdType *ids,
-                           const double *weights, vtkIdType outPtId)
+                           const double *weights, vtkIdType outId)
     {
     for (int j=0; j < this->NumComp; ++j)
       {
@@ -94,7 +99,19 @@ struct ArrayPair : public BaseArrayPair
         {
         v += weights[i] * static_cast<double>(this->Input[ids[i]*this->NumComp+j]);
         }
-      this->Output[outPtId*this->NumComp+j] = static_cast<T>(v);
+      this->Output[outId*this->NumComp+j] = static_cast<T>(v);
+      }
+    }
+
+  virtual void InterpolateEdge(vtkIdType v0, vtkIdType v1, double t, vtkIdType outId)
+    {
+    double v;
+    vtkIdType numComp=this->NumComp;
+    for (int j=0; j < numComp; ++j)
+      {
+      v = this->Input[v0*numComp+j] +
+        t * (this->Input[v1*numComp+j] - this->Input[v0*numComp+j]);
+      this->Output[outId*numComp+j] = static_cast<T>(v);
       }
     }
 
@@ -104,6 +121,12 @@ struct ArrayPair : public BaseArrayPair
       {
       this->Output[outId*this->NumComp+j] = this->NullValue;
       }
+    }
+
+  virtual void Realloc(vtkIdType sze)
+    {
+      this->OutputArray->WriteVoidPointer(0,sze*this->NumComp);
+      this->Output = static_cast<T*>(this->OutputArray->GetVoidPointer(0));
     }
 
 };
@@ -137,22 +160,42 @@ struct ArrayList
     }
 
   // Loop over the arrays and have them interpolate themselves
-  void Interpolate(int numWeights, const vtkIdType *ids, const double *weights, vtkIdType outPtId)
+  void Interpolate(int numWeights, const vtkIdType *ids, const double *weights, vtkIdType outId)
     {
       for (std::vector<BaseArrayPair*>::iterator it = Arrays.begin();
            it != Arrays.end(); ++it)
         {
-        (*it)->Interpolate(numWeights, ids, weights, outPtId);
+        (*it)->Interpolate(numWeights, ids, weights, outId);
         }
     }
 
-  // Loop over the arrays and have them interpolate themselves
+  // Loop over the arrays perform edge interpolation
+  void InterpolateEdge(vtkIdType v0, vtkIdType v1, double t, vtkIdType outId)
+    {
+      for (std::vector<BaseArrayPair*>::iterator it = Arrays.begin();
+           it != Arrays.end(); ++it)
+        {
+        (*it)->InterpolateEdge(v0, v1, t, outId);
+        }
+    }
+
+  // Loop over the arrays and assign the null value
   void AssignNullValue(vtkIdType outId)
     {
       for (std::vector<BaseArrayPair*>::iterator it = Arrays.begin();
            it != Arrays.end(); ++it)
         {
         (*it)->AssignNullValue(outId);
+        }
+    }
+
+  // Extend (realloc) the arrays
+  void Realloc(vtkIdType sze)
+    {
+      for (std::vector<BaseArrayPair*>::iterator it = Arrays.begin();
+           it != Arrays.end(); ++it)
+        {
+        (*it)->Realloc(sze);
         }
     }
 

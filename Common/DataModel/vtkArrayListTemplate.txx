@@ -22,9 +22,9 @@
 // Sort of a little object factory (in conjunction w/ vtkTemplateMacro())
 template <typename T>
 void CreateArrayPair(ArrayList *list, T *inData, T *outData,
-                     vtkIdType numPts, int numComp, T nullValue)
+                     vtkIdType numPts, int numComp, vtkDataArray *outArray, T nullValue)
 {
-  ArrayPair<T> *pair = new ArrayPair<T>(inData,outData,numPts,numComp, nullValue);
+  ArrayPair<T> *pair = new ArrayPair<T>(inData,outData,numPts,numComp,outArray,nullValue);
   list->Arrays.push_back(pair);
 }
 
@@ -64,7 +64,7 @@ AddArrays(vtkIdType numOutPts, vtkDataSetAttributes *inPD, vtkDataSetAttributes 
             {
             vtkTemplateMacro(CreateArrayPair(this, static_cast<VTK_TT *>(iD),
                              static_cast<VTK_TT *>(oD),numOutPts,oNumComp,
-                                             static_cast<VTK_TT>(nullValue)));
+                             oArray,static_cast<VTK_TT>(nullValue)));
             }//over all VTK types
           }//if matching types
         }//if matching input array
