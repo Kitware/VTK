@@ -24,7 +24,7 @@
 
 namespace vtkDataArrayPrivate
 {
-#if defined(_MSC_VER) && ( _MSC_VER < 1900 )
+#if defined(_MSC_VER) && ( _MSC_VER < 2000 )
 namespace msvc
 {
 //----------------------------------------------------------------------------
@@ -36,6 +36,9 @@ namespace msvc
 // and also handles the cases where the right value may be a NaN properly.
 // All code using these methods should ensure that the "left" value is never
 // NaN.
+// We use _MSC_VER < 2000 instead of 1900 not due to performance issues, but
+// because MSVC 2015 (_MSC_VER=1900) doesn't handle NaNs properly in optimized
+// builds.
 template <class ValueType>
 ValueType max(const ValueType& left, const ValueType& right)
 {
@@ -52,7 +55,7 @@ ValueType min(const ValueType& left, const ValueType& right)
 
 namespace detail
 {
-#if defined(_MSC_VER) && ( _MSC_VER < 1900 )
+#if defined(_MSC_VER) && ( _MSC_VER < 2000 )
 using msvc::min;
 using msvc::max;
 #else
