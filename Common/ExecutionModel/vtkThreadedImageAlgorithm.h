@@ -132,8 +132,10 @@ protected:
                           vtkInformationVector* outputVector);
 
   // Description:
-  // This will join contiguous groups of pieces together into larger
-  // pieces and will then call ThreadedRequestData.
+  // Execute ThreadedRequestData for the given set of pieces.
+  // The extent will be broken into the number of pieces specified,
+  // and ThreadedRequestData will be called for all pieces starting
+  // at "begin" and up to but not including "end".
   virtual void SMPRequestData(vtkInformation *request,
                               vtkInformationVector **inputVector,
                               vtkInformationVector *outputVector,

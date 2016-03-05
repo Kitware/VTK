@@ -494,42 +494,6 @@ private:
 };
 
 //----------------------------------------------------------------------------
-// Append "other" to "extent" if possible, return true if so
-static bool vtkThreadedImageAlgorithmJoinExtents(
-  int extent[6], const int other[6])
-{
-  int diffcount = 0;
-  int axis = -1;
-  bool joined = false;
-
-  for (int i = 0; i < 3; i++)
-    {
-    if (extent[2*i] != other[2*i] ||
-        extent[2*i + 1] != other[2*i + 1])
-      {
-      diffcount++;
-      axis = i;
-      }
-    }
-
-  if (diffcount == 1)
-    {
-    if (extent[2*axis + 1] + 1 == other[2*axis])
-      {
-      extent[2*axis + 1] = other[2*axis + 1];
-      joined = true;
-      }
-    else if (extent[2*axis] == other[2*axis + 1] + 1)
-      {
-      extent[2*axis] = other[2*axis];
-      joined = true;
-      }
-    }
-
-  return joined;
-}
-
-//----------------------------------------------------------------------------
 // The execute method created by the subclass.
 void vtkThreadedImageAlgorithm::SMPRequestData(
   vtkInformation* request,
@@ -542,50 +506,20 @@ void vtkThreadedImageAlgorithm::SMPRequestData(
   vtkIdType numPieces,
   int extent[6])
 {
-  vtkIdType firstPiece = begin;
-  int joinedExtent[6] = { 0, -1, 0, -1, 0, -1 };
-
-  for (vtkIdType piece = begin; piece <= end; piece++)
+  for (vtkIdType piece = begin; piece < end; piece++)
     {
     int splitExt[6] = { 0, -1, 0, -1, 0, -1 };
 
-    if (piece < end)
-      {
-      vtkIdType total = this->SplitExtent(splitExt, extent, piece, numPieces);
+    vtkIdType total = this->SplitExtent(splitExt, extent, piece, numPieces);
 
-      // check for valid piece and extent
-      if (piece >= total ||
-          splitExt[0] > splitExt[1] ||
-          splitExt[2] > splitExt[3] ||
-          splitExt[4] > splitExt[5])
-        {
-        continue;
-        }
-
-      // if splitExt can be joined with extent, then delay execute call
-      if (vtkThreadedImageAlgorithmJoinExtents(joinedExtent, splitExt))
-        {
-        continue;
-        }
-      }
-
-    // if extent is valid, then execute
-    if (joinedExtent[0] <= joinedExtent[1] &&
-        joinedExtent[2] <= joinedExtent[3] &&
-        joinedExtent[4] <= joinedExtent[5])
+    // check for valid piece and extent
+    if (piece < total &&
+        splitExt[0] <= splitExt[1] &&
+        splitExt[2] <= splitExt[3] &&
+        splitExt[4] <= splitExt[5])
       {
       this->ThreadedRequestData(
-        request, inputVector, outputVector, inData, outData,
-        joinedExtent, firstPiece);
-
-      // the following piece becomes the first piece for the next call
-      firstPiece = piece;
-      }
-
-    // seed the extent with the last split extent
-    for (int i = 0; i < 6; i++)
-      {
-      joinedExtent[i] = splitExt[i];
+        request, inputVector, outputVector, inData, outData, splitExt, piece);
       }
     }
 }
