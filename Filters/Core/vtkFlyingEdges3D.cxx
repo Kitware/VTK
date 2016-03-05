@@ -26,7 +26,6 @@
 #include "vtkFloatArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkMarchingCubesTriangleCases.h"
-#include "vtkArrayListTemplate.h"
 #include "vtkSMPTools.h"
 
 #include <cmath>
@@ -36,7 +35,6 @@ vtkStandardNewMacro(vtkFlyingEdges3D);
 //----------------------------------------------------------------------------
 namespace {
 #include "vtkArrayListTemplate.h" // For processing attribute data
-}
 
 // This templated class implements the heart of the algorithm.
 // vtkFlyingEdges3D populates the information in this class and
@@ -393,6 +391,7 @@ public:
 
   // Interface between VTK and templated functions
   static void Contour(vtkFlyingEdges3D *self, vtkImageData *input,
+                      vtkDataArray *inScalars,
                       int extent[6], vtkIdType *incs, T *scalars,
                       vtkPolyData *output, vtkPoints *newPts, vtkCellArray *newTris,
                       vtkDataArray *newScalars,vtkFloatArray *newNormals,
@@ -1097,9 +1096,9 @@ GenerateOutput(double value, T* rowPtr, vtkIdType row, vtkIdType slice)
 // interfaces the vtkFlyingEdges3D class with the templated algorithm
 // class. It also invokes the three passes of the Flying Edges algorithm.
 template <class T> void vtkFlyingEdges3DAlgorithm<T>::
-Contour(vtkFlyingEdges3D *self, vtkImageData *input, int extent[6],
-        vtkIdType *incs, T *scalars, vtkPolyData *output, vtkPoints *newPts,
-        vtkCellArray *newTris, vtkDataArray *newScalars,
+Contour(vtkFlyingEdges3D *self, vtkImageData *input, vtkDataArray *inScalars,
+        int extent[6], vtkIdType *incs, T *scalars, vtkPolyData *output,
+        vtkPoints *newPts, vtkCellArray *newTris, vtkDataArray *newScalars,
         vtkFloatArray *newNormals, vtkFloatArray *newGradients)
 {
   double value, *values = self->GetValues();
@@ -1234,8 +1233,11 @@ Contour(vtkFlyingEdges3D *self, vtkImageData *input, int extent[6],
         {
         if ( vidx == 0 ) //first contour
           {
-//          output->GetPointData()->CopyScalarsOff();
+          // Make sure we don't interpolate the input scalars twice; or generate scalars
+          // when ComputeScalars is off.
           output->GetPointData()->InterpolateAllocate(input->GetPointData(),totalPts);
+          output->GetPointData()->RemoveArray(inScalars->GetName());
+          algo.Arrays.ExcludeArray(inScalars);
           algo.Arrays.AddArrays(totalPts,input->GetPointData(),output->GetPointData());
           }
         else
@@ -1263,6 +1265,8 @@ Contour(vtkFlyingEdges3D *self, vtkImageData *input, int extent[6],
   delete [] algo.XCases;
   delete [] algo.EdgeMetaData;
 }
+
+}//anonymous namespace
 
 //----------------------------------------------------------------------------
 // Here is the VTK class proper.
@@ -1326,7 +1330,7 @@ int vtkFlyingEdges3D::RequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-   vtkDebugMacro(<< "Executing 3D structured contour");
+   vtkDebugMacro(<< "Executing 3D flying edges");
 
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
@@ -1412,7 +1416,7 @@ int vtkFlyingEdges3D::RequestData(
   switch (inScalars->GetDataType())
     {
     vtkTemplateMacro(vtkFlyingEdges3DAlgorithm<VTK_TT>::
-                     Contour(this, input, exExt, incs, (VTK_TT *)ptr,
+                     Contour(this, input, inScalars, exExt, incs, (VTK_TT *)ptr,
                              output, newPts, newTris, newScalars, newNormals,
                              newGradients));
     }

@@ -28,6 +28,20 @@ void CreateArrayPair(ArrayList *list, T *inData, T *outData,
   list->Arrays.push_back(pair);
 }
 
+// Indicate arrays not to process
+void ArrayList::
+ExcludeArray(vtkDataArray *da)
+{
+  ExcludedArrays.push_back(da);
+}
+
+// Has the specified array been excluded?
+bool ArrayList::
+IsExcluded(vtkDataArray *da)
+{
+  return (std::find(ExcludedArrays.begin(), ExcludedArrays.end(), da) != ExcludedArrays.end());
+}
+
 // Add the arrays to interpolate here
 void ArrayList::
 AddArrays(vtkIdType numOutPts, vtkDataSetAttributes *inPD, vtkDataSetAttributes *outPD,
@@ -44,11 +58,11 @@ AddArrays(vtkIdType numOutPts, vtkDataSetAttributes *inPD, vtkDataSetAttributes 
   for (i=0; i < numArrays; ++i)
     {
     oArray = outPD->GetArray(i);
-    if ( oArray )
+    if ( oArray && ! this->IsExcluded(oArray) )
       {
       name = oArray->GetName();
       iArray = inPD->GetArray(name);
-      if ( iArray )
+      if ( iArray && ! this->IsExcluded(iArray) )
         {
         iType = iArray->GetDataType();
         oType = oArray->GetDataType();

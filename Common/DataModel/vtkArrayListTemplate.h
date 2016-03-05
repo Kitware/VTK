@@ -142,12 +142,18 @@ void CreateArrayPair(ArrayList *list, T *inData, T *outData,
 // A list of the arrays to interpolate, and a method to invoke interpolation on the list
 struct ArrayList
 {
-  // The list of arrays
+  // The list of arrays, and the arrays not to process
   std::vector<BaseArrayPair*> Arrays;
+  std::vector<vtkDataArray*> ExcludedArrays;
 
   // Add the arrays to interpolate here
   void AddArrays(vtkIdType numOutPts, vtkDataSetAttributes *inPD,
                  vtkDataSetAttributes *outPD, double nullValue=0.0);
+
+  // Any array excluded here is not added by AddArrays(), hence not
+  // processed. Also check whether an array is excluded.
+  void ExcludeArray(vtkDataArray *da);
+  bool IsExcluded(vtkDataArray *da);
 
   // Loop over the array pairs and copy data from one to another
   void Copy(vtkIdType inId, vtkIdType outId)
@@ -208,6 +214,13 @@ struct ArrayList
         delete (*it);
         }
     }
+
+  // Return the number of arrays
+  vtkIdType GetNumberOfArrays()
+    {
+      return Arrays.size();
+    }
+
 };
 
 

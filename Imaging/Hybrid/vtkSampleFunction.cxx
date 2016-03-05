@@ -113,6 +113,7 @@ public:
               {
               x[0] = this->Algo->Origin[0] + i*this->Algo->Spacing[0];
               this->Algo->ImplicitFunction->FunctionGradient(x,n);
+              vtkMath::Normalize(n);
               nPtr = this->Algo->Normals + 3*((i-extent[0])+jOffset+kOffset);
               nPtr[0] = static_cast<TT>(-n[0]);
               nPtr[1] = static_cast<TT>(-n[1]);
