@@ -51,7 +51,7 @@ vtkThreadedImageAlgorithm::vtkThreadedImageAlgorithm()
   this->SplitPathLength = 3;
 
   // Minumum block size
-  this->MinimumPieceSize[0] = 1;
+  this->MinimumPieceSize[0] = 16;
   this->MinimumPieceSize[1] = 1;
   this->MinimumPieceSize[2] = 1;
 

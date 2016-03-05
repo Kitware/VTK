@@ -66,7 +66,7 @@ public:
 
   // Description:
   // The minimum piece size when volume is split for execution.
-  // By default, the minimum size is (1,1,1).
+  // By default, the minimum size is (16,1,1).
   vtkSetVector3Macro(MinimumPieceSize, int);
   vtkGetVector3Macro(MinimumPieceSize, int);
 
