@@ -8,7 +8,34 @@ if(PYTHONINTERP_FOUND AND PYTHONLIBS_FOUND)
    endif()
 endif()
 
-function(vtk_add_python_wrapping module_name)
+# To support wrapping of either module or kit, this function
+# has two signatures:
+# 1) vtk_add_python_wrapping(<module_name> <sources_var>)
+# 2) vtk_add_python_wrapping("<module_name>[ <module_name>]" <sources_var> <kit_name>)
+#
+# Legacy code may call this function with a single argument. In that case,
+# vtk_add_python_wrapping_library() is called internally to maintain backwards
+# compatibility.
+function(vtk_add_python_wrapping module_names)
+  if(${ARGC} EQUAL 1)
+    set(_legacy TRUE)
+    message(AUTHOR_WARNING
+      "Calling vtk_add_python_wrapping() with a single argument is deprecated.\n"
+      "Replace calls like:\n"
+      "    vtk_add_python_wrapping(\${module})\n"
+      "with:\n"
+      "    vtk_add_python_wrapping(\${module} module_srcs)\n"
+      "    vtk_add_python_wrapping_library(\${module} module_srcs \${module})")
+  endif()
+  if("${ARGV1}" MATCHES ".+")
+    set(sources_var ${ARGV1})
+  endif()
+  if("${ARGV2}" MATCHES ".+")
+    list(REMOVE_AT ARGN 0)
+    set(target ${ARGN})
+  else()
+    set(target ${module_names})
+  endif()
   if(NOT VTK_WRAP_PYTHON_INIT_EXE)
     if(TARGET vtkWrapPythonInit)
       set (VTK_WRAP_PYTHON_INIT_EXE vtkWrapPythonInit)
@@ -16,6 +43,37 @@ function(vtk_add_python_wrapping module_name)
       message(FATAL_ERROR "VTK must be built with Python wrapping turned on.")
     endif()
   endif()
+
+  set(EXTRA_PYTHON_INCLUDE_DIRS)
+  set(KIT_HIERARCHY_FILE)
+  set(VTK_WRAP_HINTS_FILES)
+
+  foreach(module_name IN LISTS module_names)
+    list(APPEND EXTRA_PYTHON_INCLUDE_DIRS ${${module_name}_PYTHON_INCLUDE_DIRS})
+
+    if(NOT ${module_name}_EXCLUDE_FROM_WRAP_HIERARCHY)
+      list(APPEND KIT_HIERARCHY_FILE ${${module_name}_WRAP_HIERARCHY_FILE})
+    endif()
+
+    if(${module_name}_WRAP_HINTS AND EXISTS "${${module_name}_WRAP_HINTS}")
+      list(APPEND VTK_WRAP_HINTS_FILES "${${module_name}_WRAP_HINTS}")
+    endif()
+  endforeach()
+
+  if(VTK_WRAP_HINTS_FILES)
+    set(VTK_WRAP_HINTS ${VTK_WRAP_HINTS_FILES})
+  endif()
+
+  vtk_wrap_python(${target}Python Python_SRCS "${module_names}")
+  if(_legacy)
+    set(_sources "${Python_SRCS}" "${extra_srcs}")
+    vtk_add_python_wrapping_library(${module_names} _sources ${module_names})
+  else()
+    set(${sources_var} "${Python_SRCS}" "${extra_srcs}" PARENT_SCOPE)
+  endif()
+endfunction()
+
+function(vtk_add_python_wrapping_library module srcs)
   # Need to add the Wrapping/Python to the include directory
   set(_python_include_dirs
     ${VTK_SOURCE_DIR}/Wrapping/Python
@@ -23,57 +81,52 @@ function(vtk_add_python_wrapping module_name)
     ${VTK_SOURCE_DIR}/Utilities/Python
     ${VTK_BINARY_DIR}/Utilities/Python
     ${PYTHON_INCLUDE_DIRS})
+  set(XY ${PYTHON_MAJOR_VERSION}${PYTHON_MINOR_VERSION})
 
   if(NOT CMAKE_HAS_TARGET_INCLUDES)
     include_directories(${_python_include_dirs})
   endif()
 
-  if(NOT ${module_name}_EXCLUDE_FROM_WRAP_HIERARCHY)
-    set(KIT_HIERARCHY_FILE ${${module_name}_WRAP_HIERARCHY_FILE})
-  endif()
-
-  string(REGEX REPLACE "^vtk" "" kit_name "${module_name}")
-  set(KIT ${kit_name})
-  set(XY ${PYTHON_MAJOR_VERSION}${PYTHON_MINOR_VERSION})
-
   # Figure out the dependent PythonXYD libraries for the module
-  unset(extra_links)
-  set(EXTRA_PYTHON_INCLUDE_DIRS ${${module_name}_PYTHON_INCLUDE_DIRS})
-  foreach(dep ${${module_name}_DEPENDS})
-    if(NOT "${module_name}" STREQUAL "${dep}" AND TARGET ${dep}PythonD)
+  set(extra_links)
+  foreach(dep IN LISTS ${module}_DEPENDS)
+    if(NOT "${module}" STREQUAL "${dep}" AND TARGET ${dep}PythonD)
       list(APPEND extra_links ${dep}PythonD)
     endif()
   endforeach()
 
-  if(${module_name}_WRAP_HINTS AND EXISTS "${${module_name}_WRAP_HINTS}")
-    set(VTK_WRAP_HINTS "${${module_name}_WRAP_HINTS}")
-  endif()
-
-  vtk_wrap_python(${module_name}Python Python_SRCS ${module_name})
-  vtk_add_library(${module_name}PythonD ${Python_SRCS} ${extra_srcs})
-  get_property(output_name TARGET ${module_name}PythonD PROPERTY OUTPUT_NAME)
+  vtk_add_library(${module}PythonD ${${srcs}})
+  get_property(output_name TARGET ${module}PythonD PROPERTY OUTPUT_NAME)
   string(REPLACE "PythonD" "Python${XY}D" output_name "${output_name}")
-  set_property(TARGET ${module_name}PythonD PROPERTY OUTPUT_NAME ${output_name})
+  set_property(TARGET ${module}PythonD PROPERTY OUTPUT_NAME ${output_name})
   if(CMAKE_HAS_TARGET_INCLUDES)
-    set_property(TARGET ${module_name}PythonD APPEND
+    set_property(TARGET ${module}PythonD APPEND
       PROPERTY INCLUDE_DIRECTORIES ${_python_include_dirs})
   endif()
-  if(${module_name}_IMPLEMENTS)
-    set_property(TARGET ${module_name}PythonD PROPERTY COMPILE_DEFINITIONS
-      "${module_name}_AUTOINIT=1(${module_name})")
-  endif()
-  target_link_libraries(${module_name}PythonD LINK_PUBLIC ${module_name}
+  target_link_libraries(${module}PythonD LINK_PUBLIC
     vtkWrappingPythonCore ${extra_links} ${VTK_PYTHON_LIBRARIES})
 
   if (MSVC)
-    set_target_properties(${module_name}PythonD
+    set_target_properties(${module}PythonD
       PROPERTIES STATIC_LIBRARY_FLAGS ${CMAKE_MODULE_LINKER_FLAGS})
   endif()
 
-  _vtk_add_python_module(${module_name}Python ${module_name}PythonInit.cxx)
-  target_link_libraries(${module_name}Python ${module_name}PythonD)
+  foreach (submodule IN LISTS ARGN)
+    if(${submodule}_IMPLEMENTS)
+      set_property(TARGET ${module}PythonD APPEND PROPERTY COMPILE_DEFINITIONS
+        "${submodule}_AUTOINIT=1(${submodule})")
+    endif()
+    target_link_libraries(${module}PythonD LINK_PUBLIC ${submodule})
+  endforeach ()
+
+  set(prefix ${module})
+  if(_${module}_is_kit)
+    set(prefix ${prefix}${VTK_KIT_SUFFIX})
+  endif()
+  _vtk_add_python_module(${module}Python ${prefix}PythonInit.cxx)
+  target_link_libraries(${module}Python ${module}PythonD)
   if(CMAKE_HAS_TARGET_INCLUDES)
-    set_property(TARGET ${module_name}Python APPEND
+    set_property(TARGET ${module}Python APPEND
       PROPERTY INCLUDE_DIRECTORIES ${_python_include_dirs})
   endif()
 endfunction()
