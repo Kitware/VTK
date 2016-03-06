@@ -2842,7 +2842,6 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
   bool doConversion = true;
   int inputScalarType = scalars->GetDataType();
   if (interpolationMode == VTK_NEAREST_INTERPOLATION &&
-      interpolator->IsA("vtkImageInterpolator") &&
       inputScalarType == scalarType && !convertScalars && !rescaleScalars &&
       nsamples == 1)
     {
