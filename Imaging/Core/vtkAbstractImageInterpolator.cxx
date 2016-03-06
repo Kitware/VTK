@@ -66,8 +66,6 @@ vtkAbstractImageInterpolator::vtkAbstractImageInterpolator()
     {
     this->Extent[2*j] = 0;
     this->Extent[2*j+1] = -1;
-    this->WholeExtent[2*j] = 0;
-    this->WholeExtent[2*j+1] = -1;
     this->Spacing[j] = 1.0;
     this->Origin[j] = 0.0;
     }
@@ -110,7 +108,6 @@ void vtkAbstractImageInterpolator::DeepCopy(vtkAbstractImageInterpolator *obj)
   this->SetComponentCount(obj->ComponentCount);
   this->SetBorderMode(obj->BorderMode);
   obj->GetExtent(this->Extent);
-  obj->GetWholeExtent(this->WholeExtent);
   obj->GetOrigin(this->Origin);
   obj->GetSpacing(this->Spacing);
   if (this->Scalars)
@@ -139,10 +136,6 @@ void vtkAbstractImageInterpolator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Extent: " << this->Extent[0] << " " << this->Extent[1]
      << " " << this->Extent[2] << " " << this->Extent[3]
      << " " << this->Extent[4] << " " << this->Extent[5] << "\n";
-  os << indent << "WholeExtent: "
-     << this->WholeExtent[0] << " " << this->WholeExtent[1] << " "
-     << this->WholeExtent[2] << " " << this->WholeExtent[3] << " "
-     << this->WholeExtent[4] << " " << this->WholeExtent[5] << "\n";
   os << indent << "Origin: " << this->Origin[0] << " " << this->Origin[1]
      << " " << this->Origin[2] << "\n";
   os << indent << "Spacing: " << this->Spacing[0] << " " << this->Spacing[1]
@@ -266,7 +259,6 @@ void vtkAbstractImageInterpolator::Initialize(vtkDataObject *o)
   // get the image information
   data->GetSpacing(this->Spacing);
   data->GetOrigin(this->Origin);
-  data->GetExtent(this->WholeExtent);
   data->GetExtent(this->Extent);
 
   // call update
@@ -317,10 +309,9 @@ void vtkAbstractImageInterpolator::Update()
   extent[4] = this->Extent[4];
   extent[5] = this->Extent[5];
 
-  // use the WholeExtent and Tolerance to set the bounds
+  // use the Extent and Tolerance to set the bounds
   double *bounds = this->StructuredBoundsDouble;
   float *fbounds = this->StructuredBoundsFloat;
-  int *wholeExtent = this->WholeExtent;
   double tol = this->Tolerance;
   // always restrict the bounds to the limits of int
   int supportSize[3];
@@ -335,13 +326,13 @@ void vtkAbstractImageInterpolator::Update()
   for (int i = 0; i < 3; i++)
     {
     // use min tolerance of 0.5 if just one slice thick
-    double newtol = 0.5*(wholeExtent[2*i] == wholeExtent[2*i+1]);
+    double newtol = 0.5*(extent[2*i] == extent[2*i+1]);
     newtol = ((newtol > tol) ? newtol : tol);
 
-    double bound = wholeExtent[2*i] - newtol;
+    double bound = extent[2*i] - newtol;
     bound = ((bound > minbound) ? bound : minbound);
     fbounds[2*i] = bounds[2*i] = bound;
-    bound = wholeExtent[2*i+1] + newtol;
+    bound = extent[2*i+1] + newtol;
     bound = ((bound < maxbound) ? bound : maxbound);
     fbounds[2*i+1] = bounds[2*i+1] = bound;
     }
@@ -509,3 +500,22 @@ void vtkAbstractImageInterpolator::FreePrecomputedWeights(
 
   weights = NULL;
 }
+
+//----------------------------------------------------------------------------
+#if !defined(VTK_LEGACY_REMOVE)
+int *vtkAbstractImageInterpolator::GetWholeExtent()
+{
+  VTK_LEGACY_REPLACED_BODY(
+    vtkAbstractImageInterpolator::GetWholeExtent, "VTK 7.1",
+    vtkAbstractImageInterpolator::GetExtent);
+  return this->GetExtent();
+}
+
+void vtkAbstractImageInterpolator::GetWholeExtent(int extent[6])
+{
+  VTK_LEGACY_REPLACED_BODY(
+    vtkAbstractImageInterpolator::GetWholeExtent, "VTK 7.1",
+    vtkAbstractImageInterpolator::GetExtent);
+  this->GetExtent(extent);
+}
+#endif
