@@ -40,6 +40,9 @@
 #include "vtkDataArray.h"
 #include "vtkDataSetAttributes.h"
 
+#include <vector>
+#include <algorithm>
+
 // Create a generic class supporting virtual dispatch to type-specific
 // subclasses.
 struct BaseArrayPair
