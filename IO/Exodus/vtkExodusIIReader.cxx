@@ -804,16 +804,13 @@ int vtkExodusIIReaderPrivate::AssembleOutputProceduralArrays(
        ( otyp == vtkExodusIIReader::SIDE_SET_CONN ||
          otyp == vtkExodusIIReader::SIDE_SET ) )
     {
-
+    vtkExodusIICacheKey ckey( -1, vtkExodusIIReader::ELEMENT_ID, 0, 0 );
     vtkIdTypeArray* src = 0;
-    if (! this->GenerateGlobalElementIdArray)
+
+    if ( vtkDataArray* elems = this->GetCacheOrRead( ckey ) )
       {
-      vtkExodusIICacheKey ckey( -1, vtkExodusIIReader::ELEMENT_ID, 0, 0 );
-      vtkIdTypeArray* src = vtkIdTypeArray::SafeDownCast( this->GetCacheOrRead( ckey ) );
-      if (src == 0)
-        {
-        vtkErrorMacro("Unable to retrieve the Element Ids");
-        }
+      src = vtkIdTypeArray::New ();
+      src->DeepCopy  (elems);
       }
 
     vtkExodusIICacheKey key( -1, vtkExodusIIReader::SIDE_SET_CONN, obj, 1 );
@@ -829,10 +826,19 @@ int vtkExodusIIReaderPrivate::AssembleOutputProceduralArrays(
       elementside->SetName(vtkExodusIIReader::GetSideSetSourceElementSideArrayName());
       vtkIdType values[2];
 
+      cerr << "value 0 AFTER the weirdness " << src->GetValue(0) << endl;
+
       for(vtkIdType i=0;i<idarray->GetNumberOfTuples();i++)
         {
         idarray->GetTypedTuple(i, values);
-        elementid->SetValue(i, src != 0 ? src->GetValue (values[0] - 1) - 1 : values[0] - 1); // find the global element id
+        if (src == 0 || src->GetValue (values[0] - 1) <= 0)
+          {
+          elementid->SetValue(i, values[0] - 1);
+          }
+        else
+          {
+          elementid->SetValue(i, src->GetValue (values[0] - 1) - 1); // find the global element id
+          }
         // now we have to worry about mapping from exodus canonical side
         // ordering to vtk canonical side ordering for wedges and hexes.
         // Even if the element block isn't loaded that we still know what
@@ -865,6 +871,11 @@ int vtkExodusIIReaderPrivate::AssembleOutputProceduralArrays(
       elementid->FastDelete();
       elementside->FastDelete();
       status -= 2;
+      }
+
+    if (src != 0)
+      {
+      src->Delete ();
       }
     }
 
