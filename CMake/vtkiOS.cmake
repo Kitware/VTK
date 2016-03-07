@@ -82,7 +82,17 @@ mark_as_advanced(
 
 # expose some module options
 option(Module_vtkRenderingOpenGL2 "Include Polygonal Rendering Support" ON)
-option(Module_vtkInteractionWidgets "Include INteractionWidgets module" OFF)
+option(Module_vtkInteractionWidgets "Include InteractionWidgets module" OFF)
+option(Module_vtkIOXML "Include IO/XML Module" OFF)
+option(Module_vtkFiltersModeling "Turn on or off this module" OFF)
+option(Module_vtkFiltersSources "Turn on or off this module" OFF)
+option(Module_vtkIOGeometry "Turn on or off this module" OFF)
+option(Module_vtkIOLegacy "Turn on or off this module" OFF)
+option(Module_vtkIOImage "Turn on or off this module" OFF)
+option(Module_vtkIOPLY "Turn on or off this module" OFF)
+option(Module_vtkIOInfovis "Turn on or off this module" OFF)
+option(Module_vtkRenderingFreeType "Turn on or off this module" OFF)
+
 
 # add volume rendering option for ES 3.0
 if (OPENGL_ES_VERSION STREQUAL "3.0" AND Module_vtkRenderingOpenGL2)
@@ -105,21 +115,16 @@ set(ios_cmake_flags
   -DVTK_Group_Qt:BOOL=OFF
   -DVTK_Group_Tk:BOOL=OFF
   -DVTK_Group_Web:BOOL=OFF
-#  -DModule_vtkFiltersCore:BOOL=ON
-#  -DModule_vtkFiltersModeling:BOOL=ON
-#  -DModule_vtkFiltersSources:BOOL=ON
-#  -DModule_vtkFiltersGeometry:BOOL=ON
-#  -DModule_vtkIOGeometry:BOOL=ON
-#  -DModule_vtkIOLegacy:BOOL=ON
-#  -DModule_vtkIOImage:BOOL=ON
-#  -DModule_vtkIOPLY:BOOL=ON
-#  -DModule_vtkIOInfovis:BOOL=ON
-#  -DModule_vtkImagingCore:BOOL=ON
-#  -DModule_vtkInteractionStyle:BOOL=ON
-#  -DModule_vtkParallelCore:BOOL=ON
-#  -DModule_vtkRenderingFreeType:BOOL=OFF
   -DModule_vtkRenderingOpenGL2:BOOL=${Module_vtkRenderingOpenGL2}
   -DModule_vtkInteractionWidgets:BOOL=${Module_vtkInteractionWidgets}
+  -DModule_vtkFiltersModeling:BOOL=${Module_vtkFiltersModeling}
+  -DModule_vtkFiltersSources:BOOL=${Module_vtkFiltersSources}
+  -DModule_vtkIOGeometry:BOOL=${Module_vtkIOGeometry}
+  -DModule_vtkIOLegacy:BOOL=${Module_vtkIOLegacy}
+  -DModule_vtkIOImage:BOOL=${Module_vtkIOImage}
+  -DModule_vtkIOPLY:BOOL=${Module_vtkIOPLY}
+  -DModule_vtkIOInfovis:BOOL=${Module_vtkIOInfovis}
+  -DModule_vtkRenderingFreeType:BOOL=${Module_vtkRenderingFreeType}
 )
 
 if (Module_vtkRenderingOpenGL2)
@@ -150,6 +155,17 @@ macro(crosscompile target toolchain_file archs)
       -DCMAKE_INSTALL_PREFIX:PATH=${INSTALL_DIR}/${target}
       ${ios_cmake_flags}
   )
+  #
+  # add an INSTALL_ALLWAYS since we want it and cmake lacks it
+  #
+  ExternalProject_Get_Property(${target} binary_dir)
+  _ep_get_build_command(${target} INSTALL cmd)
+  ExternalProject_Add_Step(${target} always-install
+    COMMAND ${cmd}
+    WORKING_DIRECTORY ${binary_dir}
+    DEPENDEES build
+    ALWAYS 1
+    )
 endmacro()
 
 crosscompile(vtk-ios-simulator

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9531" systemVersion="15C50" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" initialViewController="01J-lp-oVM">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="EHf-IW-A2E">
+            <objects>
+                <viewController id="01J-lp-oVM" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="Llm-lL-Icb"/>
+                        <viewControllerLayoutGuide type="bottom" id="xb3-aO-Qok"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="PlaneView" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="39m-Qt-eOT">
+                                <rect key="frame" x="198" y="41" width="204" height="71"/>
+                                <fontDescription key="fontDescription" name="Papyrus" family="Papyrus" pointSize="46"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="iOSapplication" translatesAutoresizingMaskIntoConstraints="NO" id="cYs-9q-FCr">
+                                <rect key="frame" x="120" y="120" width="360" height="360"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" secondItem="cYs-9q-FCr" secondAttribute="height" multiplier="1:1" id="R1o-6y-PuP"/>
+                                </constraints>
+                            </imageView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="cYs-9q-FCr" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="0cC-KR-vUX"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="cYs-9q-FCr" secondAttribute="trailing" constant="100" id="3Z0-gp-f1P"/>
+                            <constraint firstItem="cYs-9q-FCr" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="4RA-Ub-PDM"/>
+                            <constraint firstItem="39m-Qt-eOT" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="enT-ej-9Uv"/>
+                            <constraint firstItem="cYs-9q-FCr" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leadingMargin" constant="100" id="ggN-QW-qq5"/>
+                            <constraint firstItem="cYs-9q-FCr" firstAttribute="top" secondItem="39m-Qt-eOT" secondAttribute="bottom" constant="8" symbolic="YES" id="xE7-us-WNf"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="53" y="375"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="iOSapplication" width="3458" height="3971"/>
+    </resources>
+</document>

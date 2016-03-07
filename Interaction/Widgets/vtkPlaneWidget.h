@@ -244,7 +244,8 @@ protected:
     Pushing,
     Rotating,
     Spinning,
-    Outside
+    Outside,
+    Pinching
   };
 
   //handles the events
@@ -261,6 +262,9 @@ protected:
   void OnRightButtonDown();
   void OnRightButtonUp();
   void OnMouseMove();
+  void OnStartPinch();
+  void OnPinch();
+  void OnEndPinch();
 
   // controlling ivars
   int NormalToXAxis;

@@ -250,6 +250,15 @@ public:
   virtual void UniformScale() {}
 
   // Description:
+  // gesture based events
+  virtual void OnPinch() {}
+  virtual void OnRotate() {}
+  virtual void OnPan() {}
+  virtual void OnTap() {}
+  virtual void OnLongTap() {}
+  virtual void OnSwipe() {}
+
+  // Description:
   // utility routines used by state changes
   virtual void StartState(int newstate);
   virtual void StopState();
