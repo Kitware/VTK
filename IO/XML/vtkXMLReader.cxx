@@ -622,6 +622,8 @@ int vtkXMLReader::RequestData(vtkInformation *vtkNotUsed(request),
     this->TimeStepWasReadOnce = 1;
     }
 
+  this->SqueezeOutputArrays(output);
+
   this->CurrentOutput = 0;
   return 1;
 }
