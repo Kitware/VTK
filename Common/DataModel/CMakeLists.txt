@@ -9,6 +9,7 @@ set(Module_SRCS
   vtkAnnotation.cxx
   vtkAnnotationLayers.cxx
   vtkArrayData.cxx
+  vtkArrayListTemplate.txx
   vtkAttributesErrorMetric.cxx
   vtkBiQuadraticQuad.cxx
   vtkBiQuadraticQuadraticHexahedron.cxx
@@ -213,6 +214,7 @@ set(Module_SRCS
   )
 
 set(${vtk-module}_HDRS
+  vtkArrayListTemplate.h
   vtkCellType.h
   vtkMappedUnstructuredGrid.h
   vtkMappedUnstructuredGridCellIterator.h
@@ -260,6 +262,7 @@ set_source_files_properties(
 
 set_source_files_properties(
   vtkAMRBox
+  vtkArrayListTemplate.txx
   vtkAtom
   vtkBond
   vtkBoundingBox

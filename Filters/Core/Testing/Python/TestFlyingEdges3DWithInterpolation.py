@@ -18,25 +18,48 @@ sphere = vtk.vtkSphere()
 sphere.SetCenter( 0.0,0.0,0.0)
 sphere.SetRadius(0.25)
 
-# Iso-surface to create geometry. This uses a very small volume to stress
-# boundary conditions in vtkFlyingEdges; i.e., we want the sphere isosurface
-# to intersect the boundary.
+# Iso-surface to create geometry. Demonstrate the ability to
+# interpolate data attributes.
 sample = vtk.vtkSampleFunction()
 sample.SetImplicitFunction(sphere)
 sample.SetModelBounds(-0.5,0.5, -0.5,0.5, -0.5,0.5)
-sample.SetSampleDimensions(3,3,3)
+sample.SetSampleDimensions(100,100,100)
+
+# Now create some new attributes
+cyl = vtk.vtkCylinder()
+cyl.SetRadius(0.1)
+cyl.SetAxis(1,1,1)
+
+attr = vtk.vtkSampleImplicitFunctionFilter()
+attr.SetInputConnection(sample.GetOutputPort())
+attr.SetImplicitFunction(cyl)
+attr.ComputeGradientsOn()
+attr.Update()
 
 iso = vtk.vtkFlyingEdges3D()
-iso.SetInputConnection(sample.GetOutputPort())
+iso.SetInputConnection(attr.GetOutputPort())
+iso.SetInputArrayToProcess(0, 0, 0, vtk.vtkDataObject.FIELD_ASSOCIATION_POINTS, "scalars")
 iso.SetValue(0,0.25)
 iso.ComputeNormalsOn()
 iso.ComputeGradientsOn()
 iso.ComputeScalarsOn()
-iso.InterpolateAttributesOff()
+iso.InterpolateAttributesOn()
+
+# Time execution
+timer = vtk.vtkTimerLog()
+timer.StartTimer()
+iso.Update()
+timer.StopTimer()
+time = timer.GetElapsedTime()
+print("Flying edges with attributes: {0}".format(time))
 
 isoMapper = vtk.vtkPolyDataMapper()
 isoMapper.SetInputConnection(iso.GetOutputPort())
-isoMapper.ScalarVisibilityOff()
+isoMapper.ScalarVisibilityOn()
+isoMapper.SetScalarModeToUsePointFieldData()
+isoMapper.SelectColorArray("Implicit scalars")
+isoMapper.SetScalarRange(0,.3)
+
 isoActor = vtk.vtkActor()
 isoActor.SetMapper(isoMapper)
 isoActor.GetProperty().SetColor(1,1,1)
@@ -55,7 +78,7 @@ outlineProp = outlineActor.GetProperty()
 ren1.AddActor(outlineActor)
 ren1.AddActor(isoActor)
 ren1.SetBackground(0,0,0)
-renWin.SetSize(400,400)
+renWin.SetSize(300,300)
 ren1.ResetCamera()
 iren.Initialize()
 
