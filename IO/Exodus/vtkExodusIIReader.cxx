@@ -804,9 +804,22 @@ int vtkExodusIIReaderPrivate::AssembleOutputProceduralArrays(
        ( otyp == vtkExodusIIReader::SIDE_SET_CONN ||
          otyp == vtkExodusIIReader::SIDE_SET ) )
     {
+
+    vtkIdTypeArray* src = 0;
+    if (! this->GenerateGlobalElementIdArray)
+      {
+      vtkExodusIICacheKey ckey( -1, vtkExodusIIReader::ELEMENT_ID, 0, 0 );
+      vtkIdTypeArray* src = vtkIdTypeArray::SafeDownCast( this->GetCacheOrRead( ckey ) );
+      if (src == 0)
+        {
+        vtkErrorMacro("Unable to retrieve the Element Ids");
+        }
+      }
+
     vtkExodusIICacheKey key( -1, vtkExodusIIReader::SIDE_SET_CONN, obj, 1 );
     if ( vtkDataArray* arr = this->GetCacheOrRead( key ) )
       {
+
       vtkIdTypeArray* idarray = vtkIdTypeArray::SafeDownCast(arr);
       vtkIdTypeArray* elementid = vtkIdTypeArray::New();
       elementid->SetNumberOfTuples(idarray->GetNumberOfTuples());
@@ -816,13 +829,6 @@ int vtkExodusIIReaderPrivate::AssembleOutputProceduralArrays(
       elementside->SetName(vtkExodusIIReader::GetSideSetSourceElementSideArrayName());
       vtkIdType values[2];
 
-      vtkExodusIICacheKey ckey( -1, -1, 0, 0 );
-      ckey.ObjectType = vtkExodusIIReader::ELEMENT_ID;
-      vtkIdTypeArray* src = vtkIdTypeArray::SafeDownCast( this->GetCacheOrRead( ckey ) );
-      if (src == 0)
-        {
-        vtkErrorMacro("Unable to retrieve the Element Ids");
-        }
       for(vtkIdType i=0;i<idarray->GetNumberOfTuples();i++)
         {
         idarray->GetTypedTuple(i, values);

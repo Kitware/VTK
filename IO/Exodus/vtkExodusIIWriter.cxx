@@ -453,7 +453,7 @@ int vtkExodusIIWriter::FlattenHierarchy (vtkDataObject* input, const char *name,
          !iter->IsDoneWithTraversal ();
          iter->GoToNextItem ())
       {
-      const char *name = iter->GetCurrentMetaData()->Get (vtkCompositeDataSet::NAME());
+      name = iter->GetCurrentMetaData()->Get (vtkCompositeDataSet::NAME());
       if (name != 0 && strstr (name, "Sets") != 0)
         {
         continue;
@@ -2581,7 +2581,7 @@ int vtkExodusIIWriter::WriteNodeSetInformation()
               nsSize, nsNumDF, nsIdIdx, nsDFIdx, idBuf, dfBuf);
     }
 
-  for (int i = 0; i < nnsets; i ++) {
+  for (i = 0; i < nnsets; i ++) {
     vtkStdString name = em->GetNodeSetNames ()->GetValue (node_ids[i]);
     ex_put_name (this->fid, EX_NODE_SET, node_ids[i], name.c_str());
   }
@@ -2806,7 +2806,7 @@ int vtkExodusIIWriter::WriteSideSetInformation()
             ssSize, ssNumDF, ssIdIdx, ssDFIdx, idBuf, sideBuf, dfBuf);
     }
 
-  for (int i = 0; i < nssets; i ++) {
+  for (i = 0; i < nssets; i ++) {
     vtkStdString name = em->GetSideSetNames ()->GetValue (sids[i]);
     ex_put_name (this->fid, EX_SIDE_SET, sids[i], name.c_str());
   }
