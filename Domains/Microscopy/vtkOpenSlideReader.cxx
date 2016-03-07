@@ -85,10 +85,8 @@ void vtkOpenSlideReader::ExecuteDataWithInformation(vtkDataObject *output,
   data->GetPointData()->GetScalars()->SetName("OpenSlideImage");
   //// Leverage openslide to read the region
 
-  // int inExtent[6];
-  // data->GetExtent(inExtent);
-  // cout << inExtent[0] << ", " << inExtent[1] << endl;
-  // cout << inExtent[2] << ", " << inExtent[3] << endl;
+  // VTK extents have origin at top left and y axis looking downwards
+  // openslide needs to convert
 
   int w = inExtent[1] - inExtent[0] + 1;
   int h = inExtent[3]- inExtent[2] + 1;
@@ -96,7 +94,7 @@ void vtkOpenSlideReader::ExecuteDataWithInformation(vtkDataObject *output,
 
   openslide_read_region(this->openslide_handle, (unsigned int *) buffer,
     inExtent[0],
-    inExtent[2],
+    this->DataExtent[3]-inExtent[3],
     0,  // level
     w,
     h
@@ -104,7 +102,8 @@ void vtkOpenSlideReader::ExecuteDataWithInformation(vtkDataObject *output,
 
   if(openslide_get_error(this->openslide_handle) != NULL)
     {
-    delete[] buffer;
+    // Buffer is deleted by the openslide in case the error occurs
+    // delete[] buffer;
     vtkErrorWithObjectMacro(this,
                             "File could not be read by openslide"
                            );
@@ -129,7 +128,7 @@ void vtkOpenSlideReader::ExecuteDataWithInformation(vtkDataObject *output,
     }
 
   delete[] buffer;
-  openslide_close(this->openslide_handle);
+  // openslide_close(this->openslide_handle);
 }
 
 
@@ -150,10 +149,23 @@ int vtkOpenSlideReader::CanReadFile(const char* fname)
   else
   {
     // Pretty sure
+    if(this->openslide_handle != NULL)
+      {
+      openslide_close(this->openslide_handle);
+      this->openslide_handle = NULL;
+      }
     return 2;
   }
 }
 
+vtkOpenSlideReader::~vtkOpenSlideReader()
+  {
+  // Release openslide_handle if being used
+  if(this->openslide_handle != NULL)
+    {
+    openslide_close(this->openslide_handle);
+    }
+  }
 
 //----------------------------------------------------------------------------
 void vtkOpenSlideReader::PrintSelf(ostream& os, vtkIndent indent)

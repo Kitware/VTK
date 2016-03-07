@@ -60,7 +60,7 @@ public:
     }
 protected:
   vtkOpenSlideReader() {}
-  ~vtkOpenSlideReader() {}
+  ~vtkOpenSlideReader();
 
   virtual void ExecuteInformation();
   virtual void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation *outInfo);

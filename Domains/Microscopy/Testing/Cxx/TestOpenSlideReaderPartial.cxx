@@ -28,7 +28,7 @@
 #include <sstream>
 
 // Main program
-int TestOpenSlideReader(int argc, char** argv)
+int TestOpenSlideReaderPartial(int argc, char** argv)
 {
   const char* rasterFileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
                                  "Data/Microscopy/small2.ndpi");
@@ -39,12 +39,19 @@ int TestOpenSlideReader(int argc, char** argv)
   vtkNew<vtkOpenSlideReader> reader;
   reader->SetFileName(rasterFileName);
   reader->UpdateInformation();
+  // reader->Print(cout);
   delete [] rasterFileName;
 
-  // For debug
-  // reader->SetUpdateExtent(extent);
+  int extent[6] = {200,499,200,499,0,0};
+
+  reader->UpdateExtent(extent);
+
+  vtkNew<vtkImageData> data;
+  data->ShallowCopy(reader->GetOutput());
+
+  // // For debug
   // vtkNew<vtkPNGWriter> writer;
-  // writer->SetInputConnection(reader->GetOutputPort());
+  // writer->SetInputData(data.GetPointer());
   // writer->SetFileName("this.png");
   // writer->SetUpdateExtent(extent);
   // writer->Update();
@@ -59,7 +66,7 @@ int TestOpenSlideReader(int argc, char** argv)
   renderWindowInteractor->SetRenderWindow(window.GetPointer());
 
   vtkNew<vtkImageViewer2> imageViewer;
-  imageViewer->SetInputConnection(reader->GetOutputPort());
+  imageViewer->SetInputData(data.GetPointer());
   //imageViewer->SetExtent(1000,1500,1000,1500,0,0);
   imageViewer->SetupInteractor(renderWindowInteractor.GetPointer());
   //imageViewer->SetSlice(0);
