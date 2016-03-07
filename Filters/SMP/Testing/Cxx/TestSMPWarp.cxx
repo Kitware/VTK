@@ -119,7 +119,7 @@ public:
       float* fptr = pts->GetPointer(3*begin);
       for (vtkIdType i=begin; i<end; i++)
         {
-        //pts->GetTupleValue(i, x);
+        //pts->GetTypedTuple(i, x);
         x = fptr;
         lbounds[0] = x[0] < lbounds[0] ? x[0] : lbounds[0];
         lbounds[1] = x[0] > lbounds[1] ? x[0] : lbounds[1];
@@ -152,7 +152,7 @@ public:
 #if 0
           pts->SetTuple(counter++, pt);
 #else
-          pts->SetTupleValue(counter++, pt);
+          pts->SetTypedTuple(counter++, pt);
           // pts->SetValue(counter++, i*spacing);
           // pts->SetValue(counter++, j*spacing);
           // pts->SetValue(counter++, k*spacing);

@@ -14,10 +14,12 @@
 =========================================================================*/
 #include "vtkAppendPolyData.h"
 
+#include "vtkAssume.h"
+#include "vtkArrayDispatch.h"
 #include "vtkAlgorithmOutput.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkDataArrayIteratorMacro.h"
+#include "vtkDataArrayAccessor.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -26,6 +28,9 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
+
+#include <cassert>
+#include <cstdlib>
 
 vtkStandardNewMacro(vtkAppendPolyData);
 
@@ -711,62 +716,49 @@ void vtkAppendPolyData::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-template <class T>
-size_t vtkAppendPolyDataGetTypeSize(T*)
+namespace {
+struct AppendDataWorker
 {
-  return sizeof(T);
-}
+  vtkIdType Offset;
+
+  AppendDataWorker(vtkIdType offset) : Offset(offset) {}
+
+  template <typename Array1T, typename Array2T>
+  void operator()(Array1T *dest, Array2T *src)
+  {
+    vtkDataArrayAccessor<Array1T> d(dest);
+    vtkDataArrayAccessor<Array2T> s(src);
+    VTK_ASSUME(src->GetNumberOfComponents() == dest->GetNumberOfComponents());
+
+    const vtkIdType numTuples = src->GetNumberOfTuples();
+    const int numComps = src->GetNumberOfComponents();
+
+    for (vtkIdType t = 0; t < numTuples; ++t)
+      {
+      for (int c = 0; c < numComps; ++c)
+        {
+        d.Set(t + this->Offset, c, s.Get(t, c));
+        }
+      }
+  }
+};
+} // end anon namespace
 
 //----------------------------------------------------------------------------
 void vtkAppendPolyData::AppendData(vtkDataArray *dest, vtkDataArray *src,
                                    vtkIdType offset)
 {
-  switch (src->GetDataType())
+  assert("Arrays have same number of components." &&
+         src->GetNumberOfComponents() == dest->GetNumberOfComponents());
+  assert("Destination array has enough tuples." &&
+         src->GetNumberOfTuples() + offset <= dest->GetNumberOfTuples());
+
+  AppendDataWorker worker(offset);
+  if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(dest, src, worker))
     {
-    vtkDataArrayIteratorMacro(src,
-      AppendData(dest, src, offset, vtkDABegin, vtkDAEnd));
+    // Use vtkDataArray API when fast-path dispatch fails.
+    worker(dest, src);
     }
-}
-
-//----------------------------------------------------------------------------
-template <class InputIterator>
-void vtkAppendPolyData::AppendData(vtkDataArray *dest, vtkDataArray *src,
-                                   vtkIdType offset, InputIterator srcIt,
-                                   InputIterator srcEnd)
-{
-  switch (dest->GetDataType())
-    {
-    vtkDataArrayIteratorMacro(dest,
-      AppendData(dest, src, offset, srcIt, srcEnd, vtkDABegin));
-    }
-}
-
-
-//----------------------------------------------------------------------------
-template <class InputIterator, class OutputIterator>
-void vtkAppendPolyData::AppendData(vtkDataArray *dest, vtkDataArray *src,
-                                   vtkIdType offset, InputIterator srcIt,
-                                   InputIterator srcEnd, OutputIterator destIt)
-{
-  if (src->GetNumberOfComponents() != dest->GetNumberOfComponents())
-    {
-    vtkErrorMacro("NumberOfComponents mismatch.");
-    return;
-    }
-  if (src->GetNumberOfTuples() + offset > dest->GetNumberOfTuples())
-    {
-    vtkErrorMacro("Destination not big enough");
-    return;
-    }
-
-  // convert from tuples to components.
-  offset *= src->GetNumberOfComponents();
-
-  // Position destination iterator
-  destIt += offset;
-
-  // Copy data, performing implicit conversion if necessary
-  std::copy(srcIt, srcEnd, destIt);
 }
 
 //----------------------------------------------------------------------------

@@ -72,7 +72,7 @@ int TestBareScalarsToColors(int argc, char *argv[])
           cval[1] = (ncomp > 2 ? cval[1] : cval[3]);
           for (int kk = 0; kk < 5; kk++)
             {
-            arr->SetTupleValue(i++, cval);
+            arr->SetTypedTuple(i++, cval);
             }
           }
         }

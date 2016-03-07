@@ -1563,7 +1563,7 @@ vtkCell *vtkPolyhedron::GetEdge(int edgeId)
 
   // Return the requested edge
   vtkIdType edge[2];
-  this->Edges->GetTupleValue(edgeId,edge);
+  this->Edges->GetTypedTuple(edgeId,edge);
 
   // Recall that edge tuples are stored in canonical numbering
   for (int i=0; i<2; i++)
@@ -1607,7 +1607,7 @@ int vtkPolyhedron::GenerateEdges()
       if ( this->EdgeTable->IsEdge(edge[0],edge[1]) == (-1) )
         {
         this->EdgeTable->InsertEdge(edge[0],edge[1]);
-        this->Edges->InsertNextTupleValue(edge);
+        this->Edges->InsertNextTypedTuple(edge);
         }
       }
     face += face[0] + 1;

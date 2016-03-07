@@ -21,18 +21,13 @@
 #ifndef vtkUnsignedCharArray_h
 #define vtkUnsignedCharArray_h
 
-// Tell the template header how to give our superclass a DLL interface.
-#if !defined(vtkUnsignedCharArray_cxx)
-# define VTK_DATA_ARRAY_TEMPLATE_TYPE unsigned char
-#endif
-
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkDataArray.h"
-#include "vtkDataArrayTemplate.h" // Real Superclass
+#include "vtkAOSDataArrayTemplate.h" // Real Superclass
 
 // Fake the superclass for the wrappers.
 #ifndef __WRAP__
-#define vtkDataArray vtkDataArrayTemplate<unsigned char>
+#define vtkDataArray vtkAOSDataArrayTemplate<unsigned char>
 #endif
 class VTKCOMMONCORE_EXPORT vtkUnsignedCharArray : public vtkDataArray
 {
@@ -45,11 +40,18 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // This macro expands to the set of method declarations that
-  // make up the interface of vtkDataArrayTemplate, which is ignored
+  // make up the interface of vtkAOSDataArrayTemplate, which is ignored
   // by the wrappers.
 #if defined(__WRAP__) || defined (__WRAP_GCCXML__)
   vtkCreateWrappedArrayInterface(unsigned char);
 #endif
+
+  // Description:
+  // A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+  static vtkUnsignedCharArray* FastDownCast(vtkAbstractArray *source)
+  {
+    return static_cast<vtkUnsignedCharArray*>(Superclass::FastDownCast(source));
+  }
 
   // Description:
   // Get the minimum data value in its native type.
@@ -65,10 +67,13 @@ protected:
 
 private:
   //BTX
-  typedef vtkDataArrayTemplate<unsigned char> RealSuperclass;
+  typedef vtkAOSDataArrayTemplate<unsigned char> RealSuperclass;
   //ETX
   vtkUnsignedCharArray(const vtkUnsignedCharArray&);  // Not implemented.
   void operator=(const vtkUnsignedCharArray&);  // Not implemented.
 };
+
+// Define vtkArrayDownCast implementation:
+vtkArrayDownCast_FastCastMacro(vtkUnsignedCharArray)
 
 #endif

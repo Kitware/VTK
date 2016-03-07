@@ -431,7 +431,7 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkOverlappingAMR* oamr)
         for (unsigned int index=0; index < num_datasets; index++, metadata_index++)
           {
           int tuple[6];
-          idata->GetTupleValue(metadata_index, tuple);
+          idata->GetTypedTuple(metadata_index, tuple);
 
           vtkAMRBox box;
           box.SetDimensions(&tuple[0], &tuple[3], description);

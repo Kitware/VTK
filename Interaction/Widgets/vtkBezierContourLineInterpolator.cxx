@@ -213,7 +213,7 @@ void vtkBezierContourLineInterpolator::GetSpan( int nodeIndex,
     if ( index[0] >= 0 && index[0] < rep->GetNumberOfNodes() &&
          index[1] >= 0 && index[1] < rep->GetNumberOfNodes() )
       {
-      nodeIndices->InsertNextTupleValue( index );
+      nodeIndices->InsertNextTypedTuple( index );
       }
     }
 }

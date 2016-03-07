@@ -103,7 +103,7 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
       sscanf(&linebuf[32], "%c", &endChain);
       sscanf(&linebuf[33], "%d", &endResi);
       int tuple[4] = { startChain, startResi, endChain, endResi };
-      Sheets->InsertNextTupleValue(tuple);
+      Sheets->InsertNextTypedTuple(tuple);
       }
     else if (command == "HELIX")
       {
@@ -112,7 +112,7 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
       sscanf(&linebuf[31], "%c", &endChain);
       sscanf(&linebuf[33], "%d", &endResi);
       int tuple[4] = { startChain, startResi, endChain, endResi };
-      Helix->InsertNextTupleValue(tuple);
+      Helix->InsertNextTypedTuple(tuple);
       }
     }
 
@@ -136,7 +136,7 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
     for (j = 0; j < Sheets->GetNumberOfTuples(); j++)
       {
       int sheet[4];
-      Sheets->GetTupleValue(j, sheet);
+      Sheets->GetTypedTuple(j, sheet);
       if (this->Chain->GetValue(i) != sheet[0]) continue;
       if (resi < sheet[1]) continue;
       if (resi > sheet[3]) continue;
@@ -148,7 +148,7 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
     for (j = 0; j < Helix->GetNumberOfTuples(); j++)
       {
       int helix[4];
-      Helix->GetTupleValue(j, helix);
+      Helix->GetTypedTuple(j, helix);
       if (this->Chain->GetValue(i) != helix[0]) continue;
       if (resi < helix[1]) continue;
       if (resi > helix[3]) continue;

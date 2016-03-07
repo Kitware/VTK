@@ -817,7 +817,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputProceduralArrays(
       vtkIdType values[2];
       for(vtkIdType i=0;i<idarray->GetNumberOfTuples();i++)
         {
-        idarray->GetTupleValue(i, values);
+        idarray->GetTypedTuple(i, values);
         elementid->SetValue(i, values[0]-1); // switch to 0-based indexing
         // now we have to worry about mapping from exodus canonical side
         // ordering to vtk canonical side ordering for wedges and hexes.
@@ -2626,7 +2626,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         { // we'll have to fix up the side indexing later
         // because Exodus and VTK have different canonical orderings for wedges and hexes.
         vtkIdType info[2] = {side_set_elem_list[i], side_set_side_list[i]};
-        iarr->SetTupleValue(i, info);
+        iarr->SetTypedTuple(i, info);
         }
       arr = iarr;
       }
@@ -2854,7 +2854,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
           {
           for ( i = 0; i < num_info; ++i )
             {
-            carr->InsertTupleValue( i, info[i] );
+            carr->InsertTypedTuple( i, info[i] );
             }
           arr = carr;
           }
@@ -2917,7 +2917,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
             {
             for ( j = 0; j < 4 ; ++j )
               {
-              carr->InsertTupleValue( ( i * 4 ) + j, qa_record[i][j] );
+              carr->InsertTypedTuple( ( i * 4 ) + j, qa_record[i][j] );
               }
             }
           arr = carr;

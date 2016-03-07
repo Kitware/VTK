@@ -678,7 +678,7 @@ void vtkScalarsToColorsPainter::MapScalars(vtkDataSet* output,
         {
         // Use only the requested tuple's color
         unsigned char color[4];
-        scalarColors->GetTupleValue(this->FieldDataTupleId, color);
+        scalarColors->GetTypedTuple(this->FieldDataTupleId, color);
 
         vtkUnsignedCharArray* newColors = vtkUnsignedCharArray::New();
         newColors->SetNumberOfComponents(4);
@@ -686,7 +686,7 @@ void vtkScalarsToColorsPainter::MapScalars(vtkDataSet* output,
         newColors->SetName("Color");
         for (vtkIdType i = 0; i < input->GetNumberOfCells(); ++i)
           {
-          newColors->SetTupleValue(i, color);
+          newColors->SetTypedTuple(i, color);
           }
         opfd->AddArray(newColors);
 

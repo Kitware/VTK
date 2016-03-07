@@ -45,19 +45,19 @@
 #define vtkTypedArray_h
 
 #include "vtkArray.h"
-#include "vtkTypeTemplate.h"
 
 class vtkArrayCoordinates;
 
 template<typename T>
-class vtkTypedArray : public vtkTypeTemplate<vtkTypedArray<T>, vtkArray>
+class vtkTypedArray : public vtkArray
 {
 public:
+  vtkTemplateTypeMacro(vtkTypedArray<T>, vtkArray)
   typedef typename vtkArray::CoordinateT CoordinateT;
   typedef typename vtkArray::SizeT SizeT;
 
-  using vtkTypeTemplate<vtkTypedArray<T>, vtkArray>::GetVariantValue;
-  using vtkTypeTemplate<vtkTypedArray<T>, vtkArray>::SetVariantValue;
+  using vtkArray::GetVariantValue;
+  using vtkArray::SetVariantValue;
 
   void PrintSelf(ostream &os, vtkIndent indent);
 

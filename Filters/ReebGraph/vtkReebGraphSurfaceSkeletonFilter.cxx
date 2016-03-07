@@ -198,10 +198,10 @@ int vtkReebGraphSurfaceSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(re
                 points[k] = (double *) malloc(sizeof(double)*3);
                 inputMesh->GetPoint(vertices[k], points[k]);
                 meshToSubMeshMap[vertices[k]] =
-                  subCoordinates->InsertNextTupleValue(points[k]);
+                  subCoordinates->InsertNextTypedTuple(points[k]);
                 double scalarFieldValue =
                   scalarField->GetComponent(vertices[k], 0);
-                subField->InsertNextTupleValue(&scalarFieldValue);
+                subField->InsertNextTypedTuple(&scalarFieldValue);
                 visitedVertices[vertices[k]] = true;
                 free(points[k]);
                 }
@@ -371,7 +371,7 @@ int vtkReebGraphSurfaceSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(re
           double *point = (double *) malloc(sizeof(double)*3);
           for(int k = 0; k < 3; k++)
             point[k] = skeleton[i][j][k];
-          outputArc->InsertNextTupleValue(point);
+          outputArc->InsertNextTypedTuple(point);
           free(point);
           }
         output->AddColumn(outputArc);

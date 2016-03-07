@@ -21,7 +21,6 @@
 #include "vtkCellData.h"
 #include "vtkCommand.h"
 #include "vtkCompositeDataSet.h"
-#include "vtkDataArrayTemplate.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkExtractSelectedThresholds.h"

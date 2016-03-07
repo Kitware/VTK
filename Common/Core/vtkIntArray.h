@@ -25,18 +25,13 @@
 #ifndef vtkIntArray_h
 #define vtkIntArray_h
 
-// Tell the template header how to give our superclass a DLL interface.
-#if !defined(vtkIntArray_cxx) && (defined(VTK_USE_64BIT_IDS) || !defined(vtkIdTypeArray_h))
-# define VTK_DATA_ARRAY_TEMPLATE_TYPE int
-#endif
-
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkDataArray.h"
-#include "vtkDataArrayTemplate.h" // Real Superclass
+#include "vtkAOSDataArrayTemplate.h" // Real Superclass
 
 // Fake the superclass for the wrappers.
 #ifndef __WRAP__
-#define vtkDataArray vtkDataArrayTemplate<int>
+#define vtkDataArray vtkAOSDataArrayTemplate<int>
 #endif
 class VTKCOMMONCORE_EXPORT vtkIntArray : public vtkDataArray
 {
@@ -49,11 +44,18 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // This macro expands to the set of method declarations that
-  // make up the interface of vtkDataArrayTemplate, which is ignored
+  // make up the interface of vtkAOSDataArrayTemplate, which is ignored
   // by the wrappers.
 #if defined(__WRAP__) || defined (__WRAP_GCCXML__)
   vtkCreateWrappedArrayInterface(int);
 #endif
+
+  // Description:
+  // A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+  static vtkIntArray* FastDownCast(vtkAbstractArray *source)
+  {
+    return static_cast<vtkIntArray*>(Superclass::FastDownCast(source));
+  }
 
   // Description:
   // Get the minimum data value in its native type.
@@ -69,10 +71,13 @@ protected:
 
 private:
   //BTX
-  typedef vtkDataArrayTemplate<int> RealSuperclass;
+  typedef vtkAOSDataArrayTemplate<int> RealSuperclass;
   //ETX
   vtkIntArray(const vtkIntArray&);  // Not implemented.
   void operator=(const vtkIntArray&);  // Not implemented.
 };
+
+// Define vtkArrayDownCast implementation:
+vtkArrayDownCast_FastCastMacro(vtkIntArray)
 
 #endif

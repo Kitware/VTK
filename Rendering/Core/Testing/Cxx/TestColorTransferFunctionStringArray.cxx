@@ -66,7 +66,7 @@ int TestColorTransferFunctionStringArray(int vtkNotUsed(argc), char* vtkNotUsed(
   for (int i = 0; i < sArray->GetNumberOfValues(); ++i)
     {
     unsigned char color[4];
-    colors->GetTupleValue(i, color);
+    colors->GetTypedTuple(i, color);
     if (expectedColors[i][0] != color[0] ||
         expectedColors[i][1] != color[1] ||
         expectedColors[i][2] != color[2] ||

@@ -1280,7 +1280,7 @@ int vtkSLACReader::ReadConnectivity(int meshFD,
       // winding, but it should be consistent through the mesh.  The invertTets
       // flag set earlier indicates whether we need to invert the tetrahedra.
       vtkIdType tetInfo[NumPerTetInt];
-      connectivity->GetTupleValue(i, tetInfo);
+      connectivity->GetTypedTuple(i, tetInfo);
       if (invertTets) std::swap(tetInfo[1], tetInfo[2]);
       vtkUnstructuredGrid *ugrid = AllocateGetBlock(volumeOutput, tetInfo[0],
                                                     IS_INTERNAL_VOLUME());
@@ -1300,7 +1300,7 @@ int vtkSLACReader::ReadConnectivity(int meshFD,
     // when the face is internal.  Other flags separate faces in a multiblock
     // data set.
     vtkIdType tetInfo[NumPerTetExt];
-    connectivity->GetTupleValue(i, tetInfo);
+    connectivity->GetTypedTuple(i, tetInfo);
     if (invertTets)
       {
       std::swap(tetInfo[1], tetInfo[2]); // Invert point indices

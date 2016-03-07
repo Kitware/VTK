@@ -328,7 +328,7 @@ QVariant vtkQtTreeModelAdapter::data(const QModelIndex &idx, int role) const
       }
 
     unsigned char rgba[4];
-    colors->GetTupleValue(vertex, rgba);
+    colors->GetTypedTuple(vertex, rgba);
     int rgb[3];
     rgb[0] = static_cast<int>(0x0ff & rgba[0]);
     rgb[1] = static_cast<int>(0x0ff & rgba[1]);

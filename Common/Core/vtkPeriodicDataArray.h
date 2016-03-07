@@ -26,19 +26,23 @@
 #ifndef vtkPeriodicDataArray_h
 #define vtkPeriodicDataArray_h
 
-#include "vtkMappedDataArray.h"   // Parent
-#include "vtkDataArrayTemplate.h" // Template
+#include "vtkGenericDataArray.h"   // Parent
+#include "vtkAOSDataArrayTemplate.h" // Template
 
 template <class Scalar>
 class vtkPeriodicDataArray:
-public vtkTypeTemplate <vtkPeriodicDataArray <Scalar>, vtkMappedDataArray <Scalar> >
+    public vtkGenericDataArray<vtkPeriodicDataArray<Scalar>, Scalar>
 {
+  typedef vtkGenericDataArray<vtkPeriodicDataArray<Scalar>, Scalar> GenericBase;
 public:
+  vtkTemplateTypeMacro(vtkPeriodicDataArray<Scalar>, GenericBase)
+  typedef typename Superclass::ValueType ValueType;
+
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
   // Description:
   // Initialize the mapped array with the original input data array.
-  void InitializeArray(vtkDataArrayTemplate<Scalar>* inputData);
+  virtual void InitializeArray(vtkAOSDataArrayTemplate<Scalar>* inputData);
 
   // Description:
   // Initialize array with zero values
@@ -95,19 +99,25 @@ public:
 
   // Description:
   // Get value at index idx.
-  // Warning, it internally call GetTupleValue,
+  // Warning, it internally call GetTypedTuple,
   // so it is an inneficcient way if reading all data
-  Scalar GetValue(vtkIdType idx);
+  ValueType GetValue(vtkIdType idx) const;
 
   // Description:
   // Get value at index idx as reference.
-  // Warning, it internally call GetTupleValue,
+  // Warning, it internally call GetTypedTuple,
   // so it is an inneficcient way if reading all data
-  Scalar& GetValueReference(vtkIdType idx);
+  ValueType& GetValueReference(vtkIdType idx);
 
   // Description:
   // Copy tuple value at location idx into provided array
-  void GetTupleValue(vtkIdType idx, Scalar *t);
+  void GetTypedTuple(vtkIdType idx, Scalar *t) const;
+
+  // Description:
+  // Return the requested component of the specified tuple.
+  // Warning, this internally calls GetTypedTuple, so it is an inefficient way
+  // of reading all data.
+  ValueType GetTypedComponent(vtkIdType tupleIdx, int compIdx) const;
 
   // Description:
   // Return the memory in kilobytes consumed by this data array.
@@ -211,15 +221,19 @@ public:
 
   // Description:
   // Read only container, not supported.
-  void SetTupleValue(vtkIdType i, const Scalar *t);
+  void SetTypedTuple(vtkIdType i, const Scalar *t);
 
   // Description:
   // Read only container, not supported.
-  void InsertTupleValue(vtkIdType i, const Scalar *t);
+  void SetTypedComponent(vtkIdType t, int c, Scalar v);
 
   // Description:
   // Read only container, not supported.
-  vtkIdType InsertNextTupleValue(const Scalar *t);
+  void InsertTypedTuple(vtkIdType i, const Scalar *t);
+
+  // Description:
+  // Read only container, not supported.
+  vtkIdType InsertNextTypedTuple(const Scalar *t);
 
   // Description:
   // Read only container, not supported.
@@ -243,8 +257,13 @@ protected:
   ~vtkPeriodicDataArray();
 
   // Description:
+  // Read only container, not supported.
+  bool AllocateTuples(vtkIdType numTuples);
+  bool ReallocateTuples(vtkIdType numTuples);
+
+  // Description:
   // Transform the provided tuple
-  virtual void Transform(Scalar* tuple) = 0;
+  virtual void Transform(Scalar* tuple) const = 0;
 
   // Description:
   // Get the transformed range by components
@@ -268,10 +287,12 @@ private:
   vtkPeriodicDataArray(const vtkPeriodicDataArray &); // Not implemented.
   void operator=(const vtkPeriodicDataArray &); // Not implemented.
 
-  Scalar* TempScalarArray; // Temporary array used by GetTupleValue methods
+  friend class vtkGenericDataArray<vtkPeriodicDataArray<Scalar>, Scalar>;
+
+  Scalar* TempScalarArray; // Temporary array used by GetTypedTuple methods
   double* TempDoubleArray; // Temporary array used by GetTuple vethods
   vtkIdType TempTupleIdx;  // Location of currently stored Temp Tuple to use as cache
-  vtkDataArrayTemplate<Scalar>* Data; // Original data
+  vtkAOSDataArrayTemplate<Scalar>* Data; // Original data
 
   bool InvalidRange;
   double PeriodicRange[6]; // Transformed periodic range

@@ -184,7 +184,7 @@ void vtkPeriodicTable::GetDefaultLUT(vtkLookupTable * lut)
   float rgb[3];
   for (vtkIdType i = 0; static_cast<unsigned int>(i) < numColors; ++i)
     {
-    colors->GetTupleValue(i, rgb);
+    colors->GetTypedTuple(i, rgb);
     lut->SetTableValue(i, rgb[0], rgb[1], rgb[2]);
     }
 }
@@ -193,14 +193,14 @@ void vtkPeriodicTable::GetDefaultLUT(vtkLookupTable * lut)
 void vtkPeriodicTable::GetDefaultRGBTuple(unsigned short atomicNum,
  float rgb[3])
 {
-  this->BlueObeliskData->GetDefaultColors()->GetTupleValue(atomicNum, rgb);
+  this->BlueObeliskData->GetDefaultColors()->GetTypedTuple(atomicNum, rgb);
 }
 
 //----------------------------------------------------------------------------
 vtkColor3f vtkPeriodicTable::GetDefaultRGBTuple(unsigned short atomicNum)
 {
   vtkColor3f result;
-  this->BlueObeliskData->GetDefaultColors()->GetTupleValue(atomicNum,
+  this->BlueObeliskData->GetDefaultColors()->GetTypedTuple(atomicNum,
                                                            result.GetData());
   return result;
 }
