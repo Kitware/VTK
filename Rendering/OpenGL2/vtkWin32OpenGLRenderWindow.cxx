@@ -654,7 +654,8 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
           std::string renderer = (const char *)glGetString(GL_RENDERER);
           std::string version = (const char *)glGetString(GL_VERSION);
           if (vendor.find("Intel") != std::string::npos &&
-              renderer.find("HD Graphics 3000") != std::string::npos)
+              (renderer.find("HD Graphics 3000") != std::string::npos ||
+               renderer.find("HD Graphics 2000") != std::string::npos))
             {
             vtkErrorMacro("We have determined that your graphics system is"
             " an Intel SandyBridge based system. These systems only partially "
