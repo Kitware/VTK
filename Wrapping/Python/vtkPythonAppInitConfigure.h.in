@@ -1,6 +1,0 @@
-#ifndef vtkPythonAppInitConfigure_h
-#define vtkPythonAppInitConfigure_h
-
-#define VTK_PYTHON_LIBRARY_DIR "@CMAKE_LIBRARY_OUTPUT_DIRECTORY@"
-
-#endif

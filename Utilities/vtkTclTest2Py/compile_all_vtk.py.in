@@ -1,4 +1,0 @@
-import compileall
-compileall.compile_dir('@VTK_BINARY_DIR@/Utilities/vtkTclTest2Py')
-file = open('@VTK_BINARY_DIR@/Utilities/vtkTclTest2Py/vtk_compile_complete', 'w')
-file.write('Done')

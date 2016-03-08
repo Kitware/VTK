@@ -1,4 +1,0 @@
-import compileall
-compileall.compile_dir('@VTK_BINARY_DIR@/Wrapping/Python')
-file = open('@VTK_BINARY_DIR@/Wrapping/Python/vtk_compile_complete', 'w')
-file.write('Done')

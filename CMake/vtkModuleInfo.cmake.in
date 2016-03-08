@@ -1,8 +1,0 @@
-set(@vtk-module@_LOADED 1)
-set(@vtk-module@_DEPENDS "@vtk-module-DEPENDS@")
-set(@vtk-module@_LIBRARIES "@vtk-module-LIBRARIES@")
-set(@vtk-module@_INCLUDE_DIRS "@vtk-module-INCLUDE_DIRS@")
-set(@vtk-module@_LIBRARY_DIRS "@vtk-module-LIBRARY_DIRS@")
-set(@vtk-module@_RUNTIME_LIBRARY_DIRS "@vtk-module-RUNTIME_LIBRARY_DIRS@")
-set(@vtk-module@_WRAP_HIERARCHY_FILE "@vtk-module-WRAP_HIERARCHY_FILE@")
-@vtk-module-EXPORT_CODE@

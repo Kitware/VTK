@@ -1,8 +1,0 @@
-#!/bin/sh
-echo 'Your work tree has not been configured for VTK development.
-Paste the following commands into a shell:
-
- ./Utilities/SetupForDevelopment.sh
-
-See http://www.vtk.org/Wiki/VTK/Git#Hooks for more details.'
-exit 1

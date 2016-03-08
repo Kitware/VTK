@@ -1,1 +1,0 @@
-vtk_module(vtkkwiml EXCLUDE_FROM_WRAPPING)
