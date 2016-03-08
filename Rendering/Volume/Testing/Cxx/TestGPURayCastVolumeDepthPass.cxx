@@ -104,7 +104,7 @@ int TestGPURayCastVolumeDepthPass(int argc, char *argv[])
 
     iren->Initialize();
 
-    int retVal = vtkRegressionTestImage( renWin.GetPointer() );
+    retVal = vtkRegressionTestImage( renWin.GetPointer() );
     if( retVal == vtkRegressionTester::DO_INTERACTOR)
       {
       iren->Start();
