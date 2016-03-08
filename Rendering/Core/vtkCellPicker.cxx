@@ -198,6 +198,7 @@ void vtkCellPicker::RemoveAllLocators()
 int vtkCellPicker::Pick(double selectionX, double selectionY,
                            double selectionZ, vtkRenderer *renderer)
 {
+  std::cout << "->>> cellPicker::pick! " << '\n';
   int pickResult = 0;
 
   if ( (pickResult = this->Superclass::Pick(selectionX, selectionY, selectionZ,

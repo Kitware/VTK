@@ -132,6 +132,7 @@ int vtkViewport::HasViewProp(vtkProp *p)
 //----------------------------------------------------------------------------
 void vtkViewport::AddViewProp(vtkProp *p)
 {
+  //std::cout << "->>> View Prop Added!!! " << '\n';
   if (p && !this->HasViewProp(p))
     {
     this->Props->AddItem(p);

@@ -292,7 +292,9 @@ bool vtkHardwareSelector::CaptureBuffers()
       {
       continue;
       }
+    std::cout << "->>> before rwin::render(), PASS: " << this->CurrentPass << '\n';
     rwin->Render();
+    std::cout << "->>> after rwin::render()" << '\n';
     this->SavePixelBuffer(this->CurrentPass);
     }
   this->EndSelection();
@@ -514,6 +516,7 @@ void vtkHardwareSelector::RenderProcessId(unsigned int processid)
 int vtkHardwareSelector::Render(vtkRenderer* renderer, vtkProp** propArray,
   int propArrayCount)
 {
+  std::cout << "->>> vtkHwSelector::Render!" << '\n';
   if (this->Renderer != renderer)
     {
     vtkErrorMacro("Usage error.");

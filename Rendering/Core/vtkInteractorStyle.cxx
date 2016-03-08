@@ -889,6 +889,9 @@ void vtkInteractorStyle::OnChar()
             picker->Pick(eventPos[0], eventPos[1],
                          0.0, this->CurrentRenderer);
             path = picker->GetPath();
+//            std::cout << "->>> the picker: " << '\n';
+//           picker->Print(std::cout);
+//            std::cout << '\n';
             }
           if ( path == NULL )
             {

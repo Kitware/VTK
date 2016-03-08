@@ -41,6 +41,7 @@
 #include "vtkElevationFilter.h"
 #include "vtkBitArray.h"
 #include "vtkGlyph3DMapper.h"
+#include "vtkOpenGLGlyph3DMapper.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include <cassert>
@@ -83,11 +84,11 @@ public:
 
     vtkSelection *res = sel->Select();
 
-#if 1
-    cerr << "x0 " << x0 << " y0 " << y0 << "\t";
-    cerr << "x1 " << x1 << " y1 " << y1 << endl;
-    res->Print(cout);
-#endif
+//#if 1
+//    cerr << "x0 " << x0 << " y0 " << y0 << "\t";
+//    cerr << "x1 " << x1 << " y1 " << y1 << endl;
+//    res->Print(cout);
+//#endif
 
     // Reset the mask to false.
     vtkIdType numPoints = this->Mask->GetNumberOfTuples();
@@ -118,7 +119,7 @@ public:
           vtkIdType value = ids->GetValue(i);
           if (value >=0 && value < numPoints)
             {
-            cout << "Turn On: " << value << endl;
+            //cout << "Turn On: " << value << endl;
             this->Mask->SetValue(value,true);
             }
           else
@@ -174,7 +175,8 @@ int TestGlyph3DMapperPicking(int argc, char* argv[])
   squad->SetPhiResolution(25);
   squad->SetThetaResolution(25);
 
-  vtkGlyph3DMapper *glypher=vtkGlyph3DMapper::New();
+  //vtkGlyph3DMapper *glypher=vtkGlyph3DMapper::New();
+  vtkOpenGLGlyph3DMapper* glypher = vtkOpenGLGlyph3DMapper::New();
   //  glypher->SetNestedDisplayLists(0);
   glypher->SetInputConnection(colors->GetOutputPort());
   colors->Delete();
