@@ -136,7 +136,22 @@ void vtkOpenSlideReader::ExecuteDataWithInformation(vtkDataObject *output,
 //----------------------------------------------------------------------------
 int vtkOpenSlideReader::CanReadFile(const char* fname)
 {
-  return 3;
+  // 1 - I think I can read the file but I cannot prove it
+  // 2 - I definitely can read the file
+  // 3 - I can read the file and I have validated that I am the correct reader for this file
+
+  this->openslide_handle = openslide_open(fname);
+
+  if(this->openslide_handle == NULL || openslide_get_error(this->openslide_handle) != NULL)
+    {
+    // Unable to open
+    return 0;
+    }
+  else
+  {
+    // Pretty sure
+    return 2;
+  }
 }
 
 
