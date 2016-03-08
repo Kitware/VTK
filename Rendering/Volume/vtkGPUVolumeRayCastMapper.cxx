@@ -108,6 +108,11 @@ vtkGPUVolumeRayCastMapper::~vtkGPUVolumeRayCastMapper()
   this->SetMaskInput(NULL);
   this->SetTransformedInput(NULL);
   this->LastInput = NULL;
+
+  if (this->DepthPassContourValues)
+    {
+    this->DepthPassContourValues->Delete();
+    }
 }
 
 // ----------------------------------------------------------------------------
