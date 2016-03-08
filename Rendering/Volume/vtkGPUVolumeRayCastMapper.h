@@ -22,7 +22,8 @@
 #ifndef vtkGPUVolumeRayCastMapper_h
 #define vtkGPUVolumeRayCastMapper_h
 
-#include "vtkRenderingVolumeModule.h" // For export macro
+#include <vtkRenderingVolumeModule.h> // For export macro
+
 #include "vtkVolumeMapper.h"
 
 class vtkContourValues;

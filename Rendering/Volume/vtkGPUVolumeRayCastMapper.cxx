@@ -14,25 +14,26 @@
 =========================================================================*/
 #include "vtkGPUVolumeRayCastMapper.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkImageData.h"
-#include "vtkPointData.h"
-#include "vtkCellData.h"
-#include "vtkContourValues.h"
-#include "vtkDataArray.h"
-#include "vtkTimerLog.h"
-#include "vtkImageResample.h"
-#include "vtkVolume.h"
-#include "vtkVolumeProperty.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
+#include <vtkCamera.h>
+#include <vtkCellData.h>
+#include <vtkCommand.h> // for VolumeMapperRender{Start|End|Progress}Event
+#include <vtkContourValues.h>
+#include <vtkDataArray.h>
+#include <vtkGPUInfo.h>
+#include <vtkGPUInfoList.h>
+#include <vtkImageData.h>
+#include <vtkImageResample.h>
+#include <vtkMultiThreader.h>
+#include <vtkObjectFactory.h>
+#include <vtkPointData.h>
+#include <vtkRenderer.h>
+#include <vtkRendererCollection.h>
+#include <vtkRenderWindow.h>
+#include <vtkTimerLog.h>
+#include <vtkVolume.h>
+#include <vtkVolumeProperty.h>
+
 #include <cassert>
-#include "vtkCommand.h" // for VolumeMapperRender{Start|End|Progress}Event
-#include "vtkCamera.h"
-#include "vtkRendererCollection.h"
-#include "vtkMultiThreader.h"
-#include "vtkGPUInfoList.h"
-#include "vtkGPUInfo.h"
 
 // Return NULL if no override is supplied.
 vtkAbstractObjectFactoryNewMacro(vtkGPUVolumeRayCastMapper)
