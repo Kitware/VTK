@@ -100,13 +100,13 @@ public:
   // Description:
   // Convert this quaternion to a unit log quaternion.
   // The unit log quaternion is defined by:
-  // [w, x, y, z] =  [0.0, v*sin(theta)].
+  // [w, x, y, z] =  [0.0, v*theta].
   void ToUnitLog();
 
   // Description:
   // Return the unit log version of this quaternion.
   // The unit log quaternion is defined by:
-  // [w, x, y, z] =  [0.0, v*sin(theta)].
+  // [w, x, y, z] =  [0.0, v*theta].
   vtkQuaternion<T> UnitLog() const;
 
   // Description:
