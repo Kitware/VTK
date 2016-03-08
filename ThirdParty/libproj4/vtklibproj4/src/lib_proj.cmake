@@ -256,22 +256,6 @@ endif(LIBPROJ_USE_THREAD AND Threads_FOUND AND CMAKE_USE_PTHREADS_INIT AND BUILD
 
 
 ##############################################
-# install
-##############################################
-if(NOT VTK_INSTALL_NO_DEVELOPMENT)
-    install(TARGETS ${PROJ_CORE_TARGET}
-            EXPORT targets
-            RUNTIME DESTINATION ${LIBPROJ_BINDIR}
-            LIBRARY DESTINATION ${VTK_INSTALL_LIBRARY_DIR}
-            ARCHIVE DESTINATION ${LIBPROJ_LIBDIR}
-            FRAMEWORK DESTINATION ${FRAMEWORKDIR})
-    if(NOT BUILD_FRAMEWORKS_AND_BUNDLE)
-      install(FILES ${ALL_LIBPROJ_HEADERS}
-            DESTINATION ${VTK_INSTALL_INCLUDE_DIR}/vtklibproj4)
-    endif(NOT BUILD_FRAMEWORKS_AND_BUNDLE)
-endif(NOT VTK_INSTALL_NO_DEVELOPMENT)
-
-##############################################
 # Core configuration summary
 ##############################################
 boost_report_value(PROJ_CORE_TARGET)
