@@ -14,7 +14,6 @@ AUTHORS
 ChangeLog
 cmake/*.cmake
 cmake/*.cmake.in
-cmake/CMakeLists.txt
 CMakeLists.txt
 COPYING
 src/CMakeLists.txt

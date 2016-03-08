@@ -86,5 +86,5 @@ include_directories(${PROJ4_SOURCE_DIR}/src)
 
 message(STATUS "")
 add_subdirectory(src)
-add_subdirectory(cmake)
+
 
