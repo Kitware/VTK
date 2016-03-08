@@ -666,7 +666,7 @@ void vtkWrap_FindCountHints(
       theFunc = data->Functions[i];
 
       if ((strcmp(theFunc->Name, "GetTuple") == 0 ||
-           strcmp(theFunc->Name, "GetTupleValue") == 0) &&
+           strcmp(theFunc->Name, "GetTypedTuple") == 0) &&
           theFunc->ReturnValue && theFunc->ReturnValue->Count == 0 &&
           theFunc->NumberOfParameters == 1 &&
           theFunc->Parameters[0]->Type == VTK_PARSE_ID_TYPE)
@@ -674,11 +674,11 @@ void vtkWrap_FindCountHints(
         theFunc->ReturnValue->CountHint = countMethod;
         }
       else if ((strcmp(theFunc->Name, "SetTuple") == 0 ||
-                strcmp(theFunc->Name, "SetTupleValue") == 0 ||
+                strcmp(theFunc->Name, "SetTypedTuple") == 0 ||
                 strcmp(theFunc->Name, "GetTuple") == 0 ||
-                strcmp(theFunc->Name, "GetTupleValue") == 0 ||
+                strcmp(theFunc->Name, "GetTypedTuple") == 0 ||
                 strcmp(theFunc->Name, "InsertTuple") == 0 ||
-                strcmp(theFunc->Name, "InsertTupleValue") == 0) &&
+                strcmp(theFunc->Name, "InsertTypedTuple") == 0) &&
                theFunc->NumberOfParameters == 2 &&
                theFunc->Parameters[0]->Type == VTK_PARSE_ID_TYPE &&
                theFunc->Parameters[1]->Count == 0)
@@ -686,7 +686,7 @@ void vtkWrap_FindCountHints(
         theFunc->Parameters[1]->CountHint = countMethod;
         }
       else if ((strcmp(theFunc->Name, "InsertNextTuple") == 0 ||
-                strcmp(theFunc->Name, "InsertNextTupleValue") == 0) &&
+                strcmp(theFunc->Name, "InsertNextTypedTuple") == 0) &&
                theFunc->NumberOfParameters == 1 &&
                theFunc->Parameters[0]->Count == 0)
         {
@@ -871,7 +871,7 @@ void vtkWrap_ApplyUsingDeclarations(
       {
       vtkParseMerge_MergeHelper(
         finfo, finfo->Contents, hinfo, data->SuperClasses[i],
-        NULL, NULL, data);
+        0, NULL, NULL, data);
       }
     }
 }

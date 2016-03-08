@@ -264,7 +264,7 @@ vtkRenderer *vtkImageMapper3D::GetCurrentRenderer()
 
   if (count > 1)
     {
-    vtkErrorMacro("Cannot follow camera, mapper is associated with"
+    vtkErrorMacro("Cannot follow camera, mapper is associated with "
                   "multiple renderers");
     ren = 0;
     }

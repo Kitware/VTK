@@ -82,7 +82,6 @@ int TestPResampleToImage(int argc, char *argv[])
   contour->SetValue(0, 157);
   contour->ComputeNormalsOn();
   contour->SetInputConnection(voi->GetOutputPort());
-  //contour->SetInputConnection(resample->GetOutputPort());
 
   vtkNew<vtkPieceScalars> pieceScalars;
   pieceScalars->SetInputConnection(contour->GetOutputPort());

@@ -1,20 +1,6 @@
-#include <vtkSmartPointer.h>
-#include <vtkPlanes.h>
-#include <vtkCamera.h>
-#include <vtkSphereSource.h>
-
-#include <vtkPolyDataMapper.h>
-#include <vtkActor.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderer.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkPolyData.h>
-#include <vtkPointData.h>
-
-
 /*=========================================================================
 Program:   Visualization Toolkit
-Module:    TestGPURayCastTwoComponentsIndependent.cxx
+Module:    TestGPURayCastTwoComponentsGradient.cxx
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 All rights reserved.
 See Copyright.txt or http://www.kitware.com/Copyright.htm for details.

@@ -14,25 +14,25 @@
 =========================================================================*/
 #include "vtkDataSetAttributes.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkArrayIteratorIncludes.h"
+#include "vtkAssume.h"
 #include "vtkCell.h"
-#include "vtkMath.h"
 #include "vtkCharArray.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkShortArray.h"
-#include "vtkUnsignedShortArray.h"
-#include "vtkIntArray.h"
-#include "vtkUnsignedIntArray.h"
-#include "vtkLongArray.h"
-#include "vtkMappedDataArray.h"
-#include "vtkUnsignedLongArray.h"
+#include "vtkDataArrayAccessor.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
-#include "vtkObjectFactory.h"
-#include "vtkTypedDataArrayIterator.h"
 #include "vtkInformation.h"
-
+#include "vtkIntArray.h"
+#include "vtkLongArray.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkShortArray.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkUnsignedIntArray.h"
+#include "vtkUnsignedLongArray.h"
+#include "vtkUnsignedShortArray.h"
 #include <vector>
 
 namespace
@@ -438,51 +438,65 @@ void vtkDataSetAttributes::PassData(vtkFieldData* fd)
 }
 
 //----------------------------------------------------------------------------
-// This is a version of vtkDataSetAttributesCopyValues adapted to work with
-// vtkTypedDataArrayIterators.
-template <class Scalar>
-void vtkTypedIteratorDataSetAttributesCopyValues(
-    vtkTypedDataArrayIterator<Scalar> destIter, const int *outExt,
-    vtkIdType outIncs[3],
-    vtkTypedDataArrayIterator<Scalar> srcIter, const int *inExt,
-    vtkIdType inIncs[3])
+namespace {
+struct CopyStructuredDataWorker
 {
-  // For vtkMappedDataArray subclasses.
-  vtkTypedDataArrayIterator<Scalar> inZIter;
-  vtkTypedDataArrayIterator<Scalar> outZIter;
-  vtkTypedDataArrayIterator<Scalar> inYIter;
-  vtkTypedDataArrayIterator<Scalar> outYIter;
-  vtkTypedDataArrayIterator<Scalar> inIter;
-  vtkTypedDataArrayIterator<Scalar> outIter;
+  const int *OutExt;
+  const int *InExt;
 
-  // Set the starting iterators.
-  inZIter = srcIter +
-      (outExt[0] - inExt[0]) * inIncs[0] +
-      (outExt[2] - inExt[2]) * inIncs[1] +
-      (outExt[4] - inExt[4]) * inIncs[2];
-  outZIter = destIter;
+  CopyStructuredDataWorker(const int *outExt, const int *inExt)
+    : OutExt(outExt), InExt(inExt)
+  {}
 
-  int rowLength = outIncs[1];
+  template <typename Array1T, typename Array2T>
+  void operator()(Array1T *dest, Array2T *src)
+  {
+    // get outExt relative to the inExt to keep the logic simple. This assumes
+    // that outExt is a subset of the inExt.
+    const int relOutExt[6] = {
+      this->OutExt[0] - this->InExt[0],
+      this->OutExt[1] - this->InExt[0],
+      this->OutExt[2] - this->InExt[2],
+      this->OutExt[3] - this->InExt[2],
+      this->OutExt[4] - this->InExt[4],
+      this->OutExt[5] - this->InExt[4]
+    };
 
-  for (int zIdx = outExt[4]; zIdx <= outExt[5]; ++zIdx)
-    {
-    inIter = inZIter;
-    outIter = outZIter;
-    for (int yIdx = outExt[2]; yIdx <= outExt[3]; ++yIdx)
+    // Give the compiler a hand -- allow optimizations that require both arrays
+    // to have the same stride.
+    VTK_ASSUME(src->GetNumberOfComponents() == dest->GetNumberOfComponents());
+
+    vtkDataArrayAccessor<Array1T> d(dest);
+    vtkDataArrayAccessor<Array2T> s(src);
+
+    const int dims[3] = { this->InExt[1] - this->InExt[0] + 1,
+                          this->InExt[3] - this->InExt[2] + 1,
+                          this->InExt[5] - this->InExt[4] + 1};
+
+    vtkIdType outTupleIdx = 0;
+    for (int outz = relOutExt[4]; outz <= relOutExt[5]; ++outz)
       {
-      for (int c = 0; c < rowLength; ++c)
+      const vtkIdType zfactor = static_cast<vtkIdType>(outz) * dims[1];
+      for (int outy = relOutExt[2]; outy <= relOutExt[3]; ++outy)
         {
-        *outIter = *inIter;
-        ++outIter;
-        ++inIter;
+        const vtkIdType yfactor = (zfactor + outy) * dims[0];
+        for (int outx = relOutExt[0]; outx <= relOutExt[1]; ++outx)
+          {
+          const vtkIdType inTupleIdx = yfactor + outx;
+          for (int comp = 0, max = dest->GetNumberOfComponents();
+               comp < max; ++comp)
+            {
+            d.Set(outTupleIdx, comp, s.Get(inTupleIdx, comp));
+            }
+          outTupleIdx++;
+          }
         }
-      inIter += inIncs[1];
-      outIter += outIncs[1];
       }
-    inZIter += inIncs[2];
-    outZIter += outIncs[2];
-    }
-}
+    dest->DataChanged();
+  }
+};
+
+} // end anon namespace
 
 //----------------------------------------------------------------------------
 template <class iterT>
@@ -602,12 +616,14 @@ void vtkDataSetAttributes::CopyStructuredData(vtkDataSetAttributes *fromPd,
       outArray->SetNumberOfTuples(zIdx);
       }
 
-    if (inArray->HasStandardMemoryLayout() &&
-        outArray->HasStandardMemoryLayout())
+    // We get very little performance improvement from this, but we'll leave the
+    // legacy code around until we've done through benchmarking.
+    vtkDataArray *inDA = vtkDataArray::SafeDownCast(inArray);
+    vtkDataArray *outDA = vtkDataArray::SafeDownCast(outArray);
+    if (!inDA || !outDA) // String array, etc
       {
       vtkArrayIterator* srcIter = inArray->NewIterator();
       vtkArrayIterator* destIter = outArray->NewIterator();
-
       switch (inArray->GetDataType())
         {
         vtkArrayIteratorTemplateMacro(
@@ -620,24 +636,12 @@ void vtkDataSetAttributes::CopyStructuredData(vtkDataSetAttributes *fromPd,
       }
     else
       {
-      switch (inArray->GetDataType())
+      CopyStructuredDataWorker worker(outExt, inExt);
+      if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(outDA, inDA,
+                                                             worker))
         {
-        vtkTemplateMacro(
-          vtkTypedDataArray<VTK_TT> *typedIn =
-            vtkTypedDataArray<VTK_TT>::FastDownCast(inArray);
-          vtkTypedDataArray<VTK_TT> *typedOut =
-            vtkTypedDataArray<VTK_TT>::FastDownCast(outArray);
-          if (typedIn == NULL || typedOut == NULL)
-            {
-            vtkGenericWarningMacro("Cannot copy to/from a mapped data array "
-                                   "from/into an array that does not derive "
-                                   "from vtkTypedDataArray.");
-            continue;
-            }
-          vtkTypedIteratorDataSetAttributesCopyValues(
-                vtkTypedDataArrayIterator<VTK_TT>(typedOut), outExt, outIncs,
-                vtkTypedDataArrayIterator<VTK_TT>(typedIn), inExt, inIncs)
-              ); // end vtkTemplateMacro
+        // Fallback to vtkDataArray API (e.g. vtkBitArray):
+        worker(outDA, inDA);
         }
       }
     }

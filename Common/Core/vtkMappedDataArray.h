@@ -34,14 +34,11 @@
 
 #include "vtkTypedDataArray.h"
 
-#include "vtkTypeTemplate.h" // for vtkTypeTemplate
-
 template <class Scalar>
-class vtkMappedDataArray : public vtkTypeTemplate<vtkMappedDataArray<Scalar>,
-                                                  vtkTypedDataArray<Scalar> >
+class vtkMappedDataArray : public vtkTypedDataArray<Scalar>
 {
 public:
-  typedef vtkTypedDataArray<Scalar> Superclass;
+  vtkTemplateTypeMacro(vtkMappedDataArray<Scalar>, vtkTypedDataArray<Scalar>)
   typedef typename Superclass::ValueType ValueType;
 
   // Description:
@@ -73,7 +70,7 @@ public:
   // Description:
   // Print an error and create an internal, long-lived temporary array. This
   // method should not be used on vtkMappedDataArray subclasses. See
-  // vtkTypedDataArrayIterator and/or vtkDataArrayIteratorMacro instead.
+  // vtkArrayDispatch for a better way.
   void * GetVoidPointer(vtkIdType id);
 
   // Description:
@@ -130,11 +127,15 @@ private:
   size_t TemporaryScalarPointerSize;
 };
 
+// Declare vtkArrayDownCast implementations for mapped containers:
+vtkArrayDownCast_TemplateFastCastMacro(vtkMappedDataArray)
+
 #include "vtkMappedDataArray.txx"
 
-// Adds an implementation of NewInstanceInternal() that returns a standard
-// (unmapped) VTK array, if possible. Use this with classes that derive from
-// vtkTypeTemplate, otherwise, use vtkMappedDataArrayTypeMacro.
+// Adds an implementation of NewInstanceInternal() that returns an AoS
+// (unmapped) VTK array, if possible. Use this in combination with
+// vtkAbstractTemplateTypeMacro when your subclass is a template class.
+// Otherwise, use vtkMappedDataArrayTypeMacro.
 #define vtkMappedDataArrayNewInstanceMacro(thisClass) \
   protected: \
   vtkObjectBase *NewInstanceInternal() const \

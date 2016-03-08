@@ -31,9 +31,11 @@
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLVertexArrayObject.h"
+#include "vtkOutputWindow.h"
 #include "vtkRendererCollection.h"
 #include "vtkShaderProgram.h"
 #include "vtkStdString.h"
+#include "vtkStringOutputWindow.h"
 #include "vtkTextureObject.h"
 #include "vtkTextureUnitManager.h"
 #include "vtkUnsignedCharArray.h"
@@ -565,16 +567,18 @@ void vtkOpenGLRenderWindow::InitializeTextureInternalFormats()
 
 void vtkOpenGLRenderWindow::GetOpenGLVersion(int &major, int &minor)
 {
-  int glMajorVersion = 0;
+  int glMajorVersion = 2;
   int glMinorVersion = 0;
 
   if (this->Initialized)
     {
+#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
     glGetIntegerv(GL_MAJOR_VERSION, & glMajorVersion);
     glGetIntegerv(GL_MINOR_VERSION, & glMinorVersion);
+#endif
     }
 
-  major = glMinorVersion;
+  major = glMajorVersion;
   minor = glMinorVersion;
 }
 
@@ -1826,7 +1830,6 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenWindow(int width, int height)
   assert("pre: not_initialized" && !this->OffScreenUseFrameBuffer);
 
   this->CreateAWindow();
-
   this->MakeCurrent();
   this->OpenGLInit();
 
@@ -1891,9 +1894,6 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenBuffers(int width, int height,
   int glMajorVersion = 2;
 #if GL_ES_VERSION_2_0 != 1
   glGetIntegerv(GL_MAJOR_VERSION, & glMajorVersion);
-#endif
-  // test for FBO support
-#if GL_ES_VERSION_2_0 != 1
   if (glMajorVersion < 3 &&
     !glewIsSupported("GL_EXT_framebuffer_object") &&
     !glewIsSupported("GL_ARB_framebuffer_object"))
@@ -2247,4 +2247,78 @@ int vtkOpenGLRenderWindow::SetUseOffScreenBuffers(bool offScreen)
 bool vtkOpenGLRenderWindow::GetUseOffScreenBuffers()
 {
   return this->HardwareOffScreenBuffersBind || this->OffScreenRendering;
+}
+
+// ----------------------------------------------------------------------------
+int vtkOpenGLRenderWindow::SupportsOpenGL()
+{
+  if (this->OpenGLSupportTested)
+    {
+    return this->OpenGLSupportResult;
+    }
+
+  vtkOutputWindow *oldOW = vtkOutputWindow::GetInstance();
+  oldOW->Register(this);
+  vtkNew<vtkStringOutputWindow> sow;
+  vtkOutputWindow::SetInstance(sow.Get());
+
+  vtkOpenGLRenderWindow *rw = this->NewInstance();
+  rw->SetDisplayId(this->GetGenericDisplayId());
+  rw->SetOffScreenRendering(1);
+  rw->Initialize();
+  if (rw->GetContextSupportsOpenGL32())
+    {
+    this->OpenGLSupportResult = 1;
+    this->OpenGLSupportMessage =
+      "The system appears to support OpenGL 3.2";
+    }
+
+#ifdef GLEW_OK
+
+  else if (GLEW_VERSION_3_2 || (GLEW_VERSION_2_1 && GLEW_EXT_gpu_shader4))
+    {
+    this->OpenGLSupportResult = 1;
+    this->OpenGLSupportMessage =
+      "The system appears to support OpenGL 3.2 or has 2.1 with the required extension";
+    }
+
+#endif
+
+  if (this->OpenGLSupportResult)
+    {
+    // even if glew thinks we have support we should actually try linking a
+    // shader program to make sure
+    vtkShaderProgram *newShader =
+      rw->GetShaderCache()->ReadyShaderProgram(
+        // simple vert shader
+        "//VTK::System::Dec\n"
+        "attribute vec4 vertexMC;\n"
+        "void main() { gl_Position = vertexMC; }\n",
+        // frag shader that used gl_PrimitiveId
+        "//VTK::System::Dec\n"
+        "//VTK::Output::Dec\n"
+        "void main(void) {\n"
+        "  gl_FragData[0] = vec4(float(gl_PrimitiveID)/100.0,1.0,1.0,1.0);\n"
+        "}\n",
+        // no geom shader
+        "");
+    if (newShader == NULL)
+      {
+      this->OpenGLSupportResult = 0;
+      this->OpenGLSupportMessage =
+        "The system appeared to have OpenGL Support but a test shader program failed to compile and link";
+      }
+    }
+
+  rw->Delete();
+
+  this->OpenGLSupportMessage +=
+    "vtkOutputWindow Text Folows:\n\n" +
+    sow->GetOutput();
+  vtkOutputWindow::SetInstance(oldOW);
+  oldOW->Delete();
+
+  this->OpenGLSupportTested = true;
+
+  return this->OpenGLSupportResult;
 }

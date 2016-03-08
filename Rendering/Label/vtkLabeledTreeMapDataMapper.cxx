@@ -515,7 +515,7 @@ void vtkLabeledTreeMapDataMapper::LabelTree(vtkTree *tree,
 
     if (level >= this->StartLevel && (this->EndLevel == -1 || level <= this->EndLevel))
       {
-      boxInfo->GetTupleValue(vertex, blimits); // Get the extents of the vertex
+      boxInfo->GetTypedTuple(vertex, blimits); // Get the extents of the vertex
       if (this->ConvertToDC(blimits, blimitsDC))
         {
         continue;

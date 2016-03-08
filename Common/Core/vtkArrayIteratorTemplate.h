@@ -24,21 +24,14 @@
 #define vtkArrayIteratorTemplate_h
 
 #include "vtkCommonCoreModule.h" // For export macro
-#include "vtkTypeTemplate.h" // For templated vtkObject API
 #include "vtkArrayIterator.h"
 
 template <class T>
-class VTKCOMMONCORE_EXPORT vtkArrayIteratorTemplate :
-    public vtkTypeTemplate<vtkArrayIteratorTemplate<T>, vtkArrayIterator>
+class VTKCOMMONCORE_EXPORT vtkArrayIteratorTemplate : public vtkArrayIterator
 {
 public:
   static vtkArrayIteratorTemplate<T>* New();
-  typedef vtkArrayIterator Superclass;
-private:
-  virtual const char* GetClassNameInternal() const
-    { return "vtkArrayIteratorTemplate"; }
-
-public:
+  vtkTemplateTypeMacro(vtkArrayIteratorTemplate<T>, vtkArrayIterator)
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

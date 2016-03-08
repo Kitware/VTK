@@ -273,7 +273,7 @@ void vtkBlueObeliskDataParser::NewAtomFinished()
   // Tuple handled differently
   this->ResizeArrayIfNeeded(this->Target->DefaultColors.GetPointer(),
                             index);
-  this->Target->DefaultColors->SetTupleValue(index,
+  this->Target->DefaultColors->SetTypedTuple(index,
                                              this->CurrentDefaultColor);
   this->ResizeAndSetValue(this->CurrentBoilingPoint,
                           this->Target->BoilingPoints.GetPointer(),

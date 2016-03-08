@@ -381,7 +381,7 @@ int TestQuaternionConversions() //this test uses vtkQuaterniond
   // Logarithm
   vtkQuaterniond logQuat;
   logQuat = quat.UnitLog();
-  if (!(logQuat.Compare(vtkQuaterniond(0, -0.378151, 0.252101, 0.00012),
+  if (!(logQuat.Compare(vtkQuaterniond(0, -0.19628, 0.13085, 0.00007),
                         0.00001)))
     {
     std::cerr << "Error vtkQuaterniond UnitLogQuaternion() failed: "
@@ -391,11 +391,20 @@ int TestQuaternionConversions() //this test uses vtkQuaterniond
 
   // Exponential
   vtkQuaterniond expQuat = quat.UnitExp();
-  if (!(expQuat.Compare(vtkQuaterniond(0.89075, -0.37815, 0.25210, 0.00012),
+  if (!(expQuat.Compare(vtkQuaterniond(-0.89429, 0.37234, -0.24822, -0.00012),
                         0.00001)))
     {
     std::cerr << "Error vtkQuaterniond UnitExpQuaternion() failed: "
       << expQuat << std::endl;
+    ++retVal;
+    }
+
+  // UnitExp(UnitLog(q)) on a normalized quaternion is an identity operation
+  vtkQuaterniond normQuat = quat.Normalized();
+  if (!(normQuat.Compare(logQuat.UnitExp(), 0.00001)))
+    {
+    std::cerr << "Error vtkQuaterniond UnitExp(UnitLog(q)) is not identity: "
+      << logQuat.UnitExp() << " vs. " << normQuat << std::endl;
     ++retVal;
     }
 

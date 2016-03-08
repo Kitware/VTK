@@ -468,30 +468,6 @@ const char* vtkCocoaRenderWindow::ReportCapabilities()
 }
 
 //----------------------------------------------------------------------------
-int vtkCocoaRenderWindow::SupportsOpenGL()
-{
-#ifdef GLEW_OK
-  this->CreateGLContext();
-  this->MakeCurrent();
-
-  GLenum result = glewInit();
-  bool m_valid = (result == GLEW_OK);
-  if (!m_valid)
-    {
-    return 0;
-    }
-
-  if (GLEW_VERSION_3_2 || (GLEW_VERSION_2_1 && GLEW_EXT_gpu_shader4))
-    {
-    return 1;
-    }
-
-#endif
-
-  return 0;
-}
-
-//----------------------------------------------------------------------------
 int vtkCocoaRenderWindow::IsDirect()
 {
   this->MakeCurrent();

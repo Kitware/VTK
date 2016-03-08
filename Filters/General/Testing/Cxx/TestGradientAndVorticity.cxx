@@ -84,7 +84,7 @@ namespace
         {// +offset makes the curl/vorticity nonzero
         tupleValues[j] = point[(j+offset)%3];
         }
-      array->SetTupleValue(i, &tupleValues[0]);
+      array->SetTypedTuple(i, &tupleValues[0]);
       }
     array->SetName(arrayName);
     grid->GetCellData()->AddArray(array);
@@ -107,7 +107,7 @@ namespace
         {// +offset makes the curl/vorticity nonzero
         tupleValues[j] = point[(j+offset)%3];
         }
-      array->SetTupleValue(i, &tupleValues[0]);
+      array->SetTypedTuple(i, &tupleValues[0]);
       }
     array->SetName(arrayName);
     grid->GetPointData()->AddArray(array);

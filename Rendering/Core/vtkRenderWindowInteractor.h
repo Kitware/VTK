@@ -44,6 +44,7 @@
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkCommand.h" // for method sig
 
 class vtkTimerIdMap;
 
@@ -448,6 +449,24 @@ public:
   vtkGetMacro(PointerIndex, int);
 
   // Description:
+  // Set/get the rotation for the gesture in degrees, update LastRotation
+  void SetRotation(double val);
+  vtkGetMacro(Rotation, double);
+  vtkGetMacro(LastRotation, double);
+
+  // Description:
+  // Set/get the scale for the gesture, updates LastScale
+  void SetScale(double val);
+  vtkGetMacro(Scale, double);
+  vtkGetMacro(LastScale, double);
+
+  // Description:
+  // Set/get the tranlation for pan/swipe gestures, update LastTranslation
+  void SetTranslation(double val[2]);
+  vtkGetVector2Macro(Translation, double);
+  vtkGetVector2Macro(LastTranslation, double);
+
+  // Description:
   // Set all the event information in one call.
   void SetEventInformation(int x,
                            int y,
@@ -588,6 +607,36 @@ public:
   virtual void ExitEvent();
 
   // Description:
+  // Fire various gesture based events.  These methods will Invoke the
+  // corresponding vtk event.
+  virtual void StartPinchEvent();
+  virtual void PinchEvent();
+  virtual void EndPinchEvent();
+  virtual void StartRotateEvent();
+  virtual void RotateEvent();
+  virtual void EndRotateEvent();
+  virtual void StartPanEvent();
+  virtual void PanEvent();
+  virtual void EndPanEvent();
+  virtual void TapEvent();
+  virtual void LongTapEvent();
+  virtual void SwipeEvent();
+
+  // Description:
+  // Convert multitouch events into gestures. When this is on
+  // (its default) multitouch events received by this interactor
+  // will be converted into gestures by VTK. If turned off the
+  // raw multitouch events will be passed down.
+  vtkSetMacro(RecognizeGestures,bool);
+  vtkGetMacro(RecognizeGestures,bool);
+
+  // Description:
+  // When handling gestures you can query this value to
+  // determine how many pointers are down for the gesture
+  // this is useful for pan gestures for example
+  vtkGetMacro(PointersDownCount,int);
+
+  // Description:
   // Most multitouch systems use persistent contact/pointer ids to
   // track events/motion during multitouch events. We keep an array
   // that maps these system dependent contact ids to our pointer index
@@ -629,6 +678,12 @@ protected:
   int   ControlKey;
   int   ShiftKey;
   char  KeyCode;
+  double Rotation;
+  double LastRotation;
+  double Scale;
+  double LastScale;
+  double Translation[2];
+  double LastTranslation[2];
   int   RepeatCount;
   char* KeySym;
   int   EventPosition[2];
@@ -694,6 +749,15 @@ protected:
   virtual void StartEventLoop() {}
 
   bool UseTDx; // 3DConnexion device.
+
+  // when recognizing gestures VTK will take multitouch events
+  // if it receives them and convert them to gestures
+  bool RecognizeGestures;
+  int PointersDownCount;
+  int PointersDown[VTKI_MAX_POINTERS];
+  virtual void RecognizeGesture(vtkCommand::EventIds);
+  int StartingEventPositions[VTKI_MAX_POINTERS][2];
+  vtkCommand::EventIds CurrentGesture;
 
 private:
   vtkRenderWindowInteractor(const vtkRenderWindowInteractor&);  // Not implemented.

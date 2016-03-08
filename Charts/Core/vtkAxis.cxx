@@ -1667,17 +1667,16 @@ double vtkAxis::LogScaleTickMark(double number,
                                  bool &niceValue,
                                  int &order)
 {
-  double result(0.0);
-  niceValue = false;
   // We need to retrive the order of our number.
   order = static_cast<int>(floor(log10(number)));
 
   // We retrive the basis of our number depending on roundUp and return it as
   // result.
   number = number * pow(10.0, static_cast<double>(order*(-1)));
-  result = roundUp ? ceil(number) : floor(number);
+  double result = roundUp ? ceil(number) : floor(number);
 
   // If result is 1.0, 2.0 or 5.0 we mark the result as "nice value".
+  niceValue = false;
   if (result == 1.0 || result == 2.0 || result == 5.0)
     {
     niceValue = true;

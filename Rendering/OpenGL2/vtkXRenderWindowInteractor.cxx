@@ -644,11 +644,11 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
         return;
         }
       int ctrl =
-        (reinterpret_cast<XButtonEvent *>(event))->state & ControlMask ? 1 : 0;
+        ((reinterpret_cast<XButtonEvent *>(event))->state & ControlMask) ? 1 : 0;
       int shift =
-        (reinterpret_cast<XButtonEvent *>(event))->state & ShiftMask ? 1 : 0;
+        ((reinterpret_cast<XButtonEvent *>(event))->state & ShiftMask) ? 1 : 0;
       int alt =
-        (reinterpret_cast<XButtonEvent *>(event))->state & Mod1Mask ? 1 : 0;
+        ((reinterpret_cast<XButtonEvent *>(event))->state & Mod1Mask) ? 1 : 0;
       xp = (reinterpret_cast<XButtonEvent*>(event))->x;
       yp = (reinterpret_cast<XButtonEvent*>(event))->y;
 
@@ -702,11 +702,11 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
         return;
         }
       int ctrl =
-        (reinterpret_cast<XButtonEvent *>(event))->state & ControlMask ? 1 : 0;
+        ((reinterpret_cast<XButtonEvent *>(event))->state & ControlMask) ? 1 : 0;
       int shift =
-        (reinterpret_cast<XButtonEvent *>(event))->state & ShiftMask ? 1 : 0;
+        ((reinterpret_cast<XButtonEvent *>(event))->state & ShiftMask) ? 1 : 0;
       int alt =
-        (reinterpret_cast<XButtonEvent *>(event))->state & Mod1Mask ? 1 : 0;
+        ((reinterpret_cast<XButtonEvent *>(event))->state & Mod1Mask) ? 1 : 0;
       xp = (reinterpret_cast<XButtonEvent*>(event))->x;
       yp = (reinterpret_cast<XButtonEvent*>(event))->y;
       me->SetEventInformationFlipY(xp,
@@ -744,7 +744,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
                                      (e->state & ControlMask) != 0,
                                      (e->state & ShiftMask) != 0);
         me->SetAltKey(
-          (reinterpret_cast<XButtonEvent *>(event))->state & Mod1Mask ? 1 : 0);
+          ((reinterpret_cast<XButtonEvent *>(event))->state & Mod1Mask) ? 1 : 0);
         me->InvokeEvent(vtkCommand::EnterEvent, NULL);
         }
       }
@@ -760,7 +760,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
                                      (e->state & ControlMask) != 0,
                                      (e->state & ShiftMask) != 0);
         me->SetAltKey(
-          (reinterpret_cast<XButtonEvent *>(event))->state & Mod1Mask ? 1 : 0);
+          ((reinterpret_cast<XButtonEvent *>(event))->state & Mod1Mask) ? 1 : 0);
         me->InvokeEvent(vtkCommand::LeaveEvent, NULL);
         }
       }
@@ -773,11 +773,11 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
         return;
         }
       int ctrl =
-        (reinterpret_cast<XButtonEvent *>(event))->state & ControlMask ? 1 : 0;
+        ((reinterpret_cast<XButtonEvent *>(event))->state & ControlMask) ? 1 : 0;
       int shift =
-        (reinterpret_cast<XButtonEvent *>(event))->state & ShiftMask ? 1 : 0;
+        ((reinterpret_cast<XButtonEvent *>(event))->state & ShiftMask) ? 1 : 0;
       int alt =
-        (reinterpret_cast<XButtonEvent *>(event))->state & Mod1Mask ? 1 : 0;
+        ((reinterpret_cast<XButtonEvent *>(event))->state & Mod1Mask) ? 1 : 0;
       KeySym ks;
       static char buffer[20];
       buffer[0] = '\0';
@@ -804,11 +804,11 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
         return;
         }
       int ctrl =
-        (reinterpret_cast<XButtonEvent *>(event))->state & ControlMask ? 1 : 0;
+        ((reinterpret_cast<XButtonEvent *>(event))->state & ControlMask) ? 1 : 0;
       int shift =
-        (reinterpret_cast<XButtonEvent *>(event))->state & ShiftMask ? 1 : 0;
+        ((reinterpret_cast<XButtonEvent *>(event))->state & ShiftMask) ? 1 : 0;
       int alt =
-        (reinterpret_cast<XButtonEvent *>(event))->state & Mod1Mask ? 1 : 0;
+        ((reinterpret_cast<XButtonEvent *>(event))->state & Mod1Mask) ? 1 : 0;
       KeySym ks;
       static char buffer[20];
       buffer[0] = '\0';
@@ -834,11 +834,11 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
         return;
         }
       int ctrl =
-        (reinterpret_cast<XButtonEvent *>(event))->state & ControlMask ? 1 : 0;
+        ((reinterpret_cast<XButtonEvent *>(event))->state & ControlMask) ? 1 : 0;
       int shift =
-        (reinterpret_cast<XButtonEvent *>(event))->state & ShiftMask ? 1 : 0;
+        ((reinterpret_cast<XButtonEvent *>(event))->state & ShiftMask) ? 1 : 0;
       int alt =
-        (reinterpret_cast<XButtonEvent *>(event))->state & Mod1Mask ? 1 : 0;
+        ((reinterpret_cast<XButtonEvent *>(event))->state & Mod1Mask) ? 1 : 0;
 
       // Note that even though the (x,y) location of the pointer is event structure,
       // we must call XQueryPointer for the hints (motion event compression) to

@@ -41,7 +41,6 @@
 int TestPUnstructuredGridConnectivity(int argc, char* argv[])
 {
   int rc             = 0;
-  double ellapsed    = 0.0;
   vtkTimerLog* timer = vtkTimerLog::New();
 
   // STEP 0: Initialize
@@ -64,7 +63,7 @@ int TestPUnstructuredGridConnectivity(int argc, char* argv[])
   timer->StartTimer();
   ghostGen->BuildGhostZoneConnectivity();
   timer->StopTimer();
-  ellapsed = timer->GetElapsedTime();
+  double ellapsed = timer->GetElapsedTime();
   vtkMPIUtilities::Printf(cntrl,"[DONE]\n");
 
   // get some performance statistics

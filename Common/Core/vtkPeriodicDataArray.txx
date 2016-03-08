@@ -52,19 +52,12 @@ template <class Scalar> void vtkPeriodicDataArray<Scalar>
 
 //------------------------------------------------------------------------------
 template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::InitializeArray(vtkDataArrayTemplate<Scalar>* data)
+::InitializeArray(vtkAOSDataArrayTemplate<Scalar>* data)
 {
   this->Initialize();
   if (!data)
     {
     vtkErrorMacro(<< "No original data provided.");
-    return;
-    }
-
-  if (data->GetNumberOfComponents() != 3 && data->GetNumberOfComponents() != 9)
-    {
-    vtkWarningMacro(<< "Original data has " << data->GetNumberOfComponents() <<
-                    " components, Expecting 3 or 9.");
     return;
     }
 
@@ -310,7 +303,7 @@ template <class Scalar> double* vtkPeriodicDataArray<Scalar>
 {
   if (this->TempTupleIdx != i)
     {
-    this->GetTupleValue(i, this->TempScalarArray);
+    this->GetTypedTuple(i, this->TempScalarArray);
     this->TempTupleIdx = i;
     }
   for (int j = 0; j < this->NumberOfComponents; j++)
@@ -326,7 +319,7 @@ template <class Scalar> void vtkPeriodicDataArray<Scalar>
 {
   if (this->TempTupleIdx != i)
     {
-    this->GetTupleValue(i, this->TempScalarArray);
+    this->GetTypedTuple(i, this->TempScalarArray);
     this->TempTupleIdx = i;
     }
   for (int j = 0; j < this->NumberOfComponents; j++)
@@ -351,20 +344,22 @@ template <class Scalar> void vtkPeriodicDataArray<Scalar>
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> Scalar vtkPeriodicDataArray<Scalar>
-::GetValue(vtkIdType idx)
+template <class Scalar>
+typename vtkPeriodicDataArray<Scalar>::ValueType
+vtkPeriodicDataArray<Scalar>::GetValue(vtkIdType idx) const
 {
-  return this->GetValueReference(idx);
+  return const_cast<vtkPeriodicDataArray<Scalar>*>(this)->GetValueReference(idx);
 }
 
 //------------------------------------------------------------------------------
-template <class Scalar> Scalar& vtkPeriodicDataArray<Scalar>
-::GetValueReference(vtkIdType idx)
+template <class Scalar>
+typename vtkPeriodicDataArray<Scalar>::ValueType&
+vtkPeriodicDataArray<Scalar>::GetValueReference(vtkIdType idx)
 {
   vtkIdType tupleIdx = idx / this->NumberOfComponents;
   if (tupleIdx != this->TempTupleIdx)
     {
-    this->GetTupleValue(tupleIdx, this->TempScalarArray);
+    this->GetTypedTuple(tupleIdx, this->TempScalarArray);
     this->TempTupleIdx = tupleIdx;
     }
   return this->TempScalarArray[idx % this->NumberOfComponents];
@@ -372,10 +367,26 @@ template <class Scalar> Scalar& vtkPeriodicDataArray<Scalar>
 
 //------------------------------------------------------------------------------
 template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::GetTupleValue(vtkIdType tupleId, Scalar *tuple)
+::GetTypedTuple(vtkIdType tupleId, Scalar *tuple) const
 {
-  this->Data->GetTupleValue(tupleId, tuple);
+  this->Data->GetTypedTuple(tupleId, tuple);
   this->Transform(tuple);
+}
+
+//------------------------------------------------------------------------------
+template <class Scalar>
+typename vtkPeriodicDataArray<Scalar>::ValueType
+vtkPeriodicDataArray<Scalar>::GetTypedComponent(vtkIdType tupleId,
+                                                int compId) const
+{
+  if (tupleId != this->TempTupleIdx)
+    {
+    this->Data->GetTypedTuple(tupleId, this->TempScalarArray);
+    this->Transform(const_cast<Scalar*>(this->TempScalarArray));
+    *const_cast<vtkIdType*>(&this->TempTupleIdx) = tupleId;
+    }
+
+  return this->TempScalarArray[compId];
 }
 
 //------------------------------------------------------------------------------
@@ -556,21 +567,28 @@ template <class Scalar> void vtkPeriodicDataArray<Scalar>
 
 //------------------------------------------------------------------------------
 template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::SetTupleValue(vtkIdType, const Scalar*)
+::SetTypedTuple(vtkIdType, const Scalar*)
 {
   vtkErrorMacro("Read only container.");
 }
 
 //------------------------------------------------------------------------------
 template <class Scalar> void vtkPeriodicDataArray<Scalar>
-::InsertTupleValue(vtkIdType, const Scalar*)
+::SetTypedComponent(vtkIdType, int, Scalar)
+{
+  vtkErrorMacro("Read only container.");
+}
+
+//------------------------------------------------------------------------------
+template <class Scalar> void vtkPeriodicDataArray<Scalar>
+::InsertTypedTuple(vtkIdType, const Scalar*)
 {
   vtkErrorMacro("Read only container.");
 }
 
 //------------------------------------------------------------------------------
 template <class Scalar> vtkIdType vtkPeriodicDataArray<Scalar>
-::InsertNextTupleValue(const Scalar *)
+::InsertNextTypedTuple(const Scalar *)
 {
   vtkErrorMacro("Read only container.");
   return -1;
@@ -596,6 +614,22 @@ template <class Scalar> void vtkPeriodicDataArray<Scalar>
 ::InsertValue(vtkIdType, Scalar)
 {
   vtkErrorMacro("Read only container.");
+}
+
+//------------------------------------------------------------------------------
+template <class Scalar> bool vtkPeriodicDataArray<Scalar>
+::AllocateTuples(vtkIdType)
+{
+  vtkErrorMacro("Read only container.");
+  return false;
+}
+
+//------------------------------------------------------------------------------
+template <class Scalar> bool vtkPeriodicDataArray<Scalar>
+::ReallocateTuples(vtkIdType)
+{
+  vtkErrorMacro("Read only container.");
+  return false;
 }
 
 //------------------------------------------------------------------------------

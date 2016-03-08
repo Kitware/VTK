@@ -43,9 +43,9 @@ int TestAngularPeriodicDataArray(int, char * [])
   angularPeriodicDataArray2->SetAxis(VTK_PERIODIC_ARRAY_AXIS_Y);
 
   double pTmp[3];
-  angularPeriodicDataArray->GetTupleValue(0, pTmp);
+  angularPeriodicDataArray->GetTypedTuple(0, pTmp);
   float pTmp2[3];
-  angularPeriodicDataArray2->GetTupleValue(0, pTmp2);
+  angularPeriodicDataArray2->GetTypedTuple(0, pTmp2);
 
   double dEpsilon = std::numeric_limits<double>::epsilon() * 20.0;
   float fEpsilon = std::numeric_limits<float>::epsilon() * 20.f;
@@ -85,7 +85,7 @@ int TestAngularPeriodicDataArray(int, char * [])
   tmp[1] = 1.;
   tmp[2] = 1.;
   angularPeriodicDataArray2->SetCenter(tmp);
-  angularPeriodicDataArray2->GetTupleValue(0, pTmp2);
+  angularPeriodicDataArray2->GetTypedTuple(0, pTmp2);
 
   if (std::abs(pTmp2[0] - 4.7902297) >= fEpsilon ||
       std::abs(pTmp2[1] - 12.3) >= fEpsilon ||
@@ -122,7 +122,7 @@ int TestAngularPeriodicDataArray(int, char * [])
   tensorPArray->SetCenter(tmp);
 
   double pTmp3[9];
-  tensorPArray->GetTupleValue(0, pTmp3);
+  tensorPArray->GetTypedTuple(0, pTmp3);
   if (std::abs(pTmp3[0] - 2.0096597239047708783) >= dEpsilon ||
       std::abs(pTmp3[1] - 13.555918489185591724) >= dEpsilon ||
       std::abs(pTmp3[2] - -8.6693107531410973365) >= dEpsilon ||

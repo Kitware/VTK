@@ -135,7 +135,8 @@ vtkMappedDataArray<Scalar>::FastDownCast(vtkAbstractArray *source)
   switch (source->GetArrayType())
     {
     case vtkAbstractArray::MappedDataArray:
-      if (source->GetDataType() == vtkTypeTraits<Scalar>::VTK_TYPE_ID)
+      if (vtkDataTypesCompare(source->GetDataType(),
+                              vtkTypeTraits<Scalar>::VTK_TYPE_ID))
         {
         return static_cast<vtkMappedDataArray<Scalar>*>(source);
         }

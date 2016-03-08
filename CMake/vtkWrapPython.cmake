@@ -36,12 +36,12 @@ macro(VTK_WRAP_PYTHON3 TARGET SRC_LIST_NAME SOURCES)
 
   # collect the common wrapper-tool arguments
   set(_common_args)
-  if(VTK_WRAP_HINTS)
-    set(_common_args "${_common_args}--hints \"${VTK_WRAP_HINTS}\"\n")
-  endif()
-  if(KIT_HIERARCHY_FILE)
-    set(_common_args "${_common_args}--types \"${KIT_HIERARCHY_FILE}\"\n")
-  endif()
+  foreach(file IN LISTS VTK_WRAP_HINTS)
+    set(_common_args "${_common_args}--hints \"${file}\"\n")
+  endforeach()
+  foreach(file IN LISTS KIT_HIERARCHY_FILE)
+    set(_common_args "${_common_args}--types \"${file}\"\n")
+  endforeach()
 
   if(NOT CMAKE_VERSION VERSION_LESS 3.1 AND NOT VTK_ENABLE_KITS)
     # write wrapper-tool arguments to a file
@@ -56,13 +56,21 @@ $<$<BOOL:$<TARGET_PROPERTY:${TARGET},INCLUDE_DIRECTORIES>>:
 ")
   else()
     # all the include directories
-    string(REGEX REPLACE "Python\$" "" module "${TARGET}")
-    if(${module}_INCLUDE_DIRS)
-      set(TMP_INCLUDE_DIRS ${${module}_INCLUDE_DIRS})
-    elseif(VTK_WRAP_INCLUDE_DIRS)
-      set(TMP_INCLUDE_DIRS ${VTK_WRAP_INCLUDE_DIRS})
+    set(TMP_INCLUDE_DIRS)
+    set(_modules ${ARGN})
+    if(NOT _modules)
+      string(REGEX REPLACE "Python\$" "" module "${TARGET}")
+      set(_modules ${module})
+    endif()
+    foreach(module IN LISTS ${_modules})
+      if(${module}_INCLUDE_DIRS)
+        list(APPEND TMP_INCLUDE_DIRS ${${module}_INCLUDE_DIRS})
+      endif()
+    endforeach()
+    if(VTK_WRAP_INCLUDE_DIRS)
+      list(APPEND TMP_INCLUDE_DIRS ${VTK_WRAP_INCLUDE_DIRS})
     else()
-      set(TMP_INCLUDE_DIRS ${VTK_INCLUDE_DIRS})
+      list(APPEND TMP_INCLUDE_DIRS ${VTK_INCLUDE_DIRS})
     endif()
     if(EXTRA_PYTHON_INCLUDE_DIRS)
       list(APPEND TMP_INCLUDE_DIRS ${EXTRA_PYTHON_INCLUDE_DIRS})
@@ -220,10 +228,12 @@ macro(vtk_find_header header include_dirs full_path)
   endforeach()
 endmacro()
 
-# Macro that just takes the name of the module, figure the rest out from there.
-macro(vtk_wrap_python TARGET SRC_LIST_NAME module)
+# Macro that just takes the a list of module names, figure the rest out from there.
+macro(vtk_wrap_python TARGET SRC_LIST_NAME)
   # List of all headers to wrap.
   set(headers_to_wrap)
+
+  foreach(module ${ARGN})
 
   # Decide what to do for each header.
   foreach(header ${${module}_HEADERS})
@@ -241,6 +251,8 @@ macro(vtk_wrap_python TARGET SRC_LIST_NAME module)
     endif()
   endforeach()
 
+  endforeach() # end ARGN loop
+
   # Delegate to vtk_wrap_python3
-  vtk_wrap_python3(${TARGET} ${SRC_LIST_NAME} "${headers_to_wrap}")
+  vtk_wrap_python3(${TARGET} ${SRC_LIST_NAME} "${headers_to_wrap}" ${ARGN})
 endmacro()

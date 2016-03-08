@@ -127,7 +127,7 @@ protected:
   char* Name;
   double CentralMeridian;
   projPJ Projection;
-  vtkTimeStamp ProjectionMTime;
+  unsigned long ProjectionMTime;
 
 private:
   vtkGeoProjection( const vtkGeoProjection& ); // Not implemented.

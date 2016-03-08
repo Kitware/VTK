@@ -125,7 +125,7 @@ int TestPolygonSelection( int argc, char* argv[] )
       {
       const vtkVector2i &v = points[j];
       int pos[2] = {v[0], v[1]};
-      polygonPointsArray->SetTupleValue(j, pos);
+      polygonPointsArray->SetTypedTuple(j, pos);
       }
 
     vtkNew<vtkHardwareSelector> hardSel;

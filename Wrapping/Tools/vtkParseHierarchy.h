@@ -69,6 +69,7 @@ typedef struct _HierarchyEntry
  */
 typedef struct _HierarchyInfo
 {
+  int             MaxNumberOfEntries;
   int             NumberOfEntries;
   HierarchyEntry *Entries;
   StringCache    *Strings;
@@ -79,9 +80,15 @@ extern "C" {
 #endif
 
 /**
- * Read a hierarchy file into a HeirarchyInfo struct, or return NULL
- */
+* Read a hierarchy file into a HeirarchyInfo struct, or return NULL
+* XXX DEPRECATED; use vtkParseHierarchy_ReadFiles
+*/
 HierarchyInfo *vtkParseHierarchy_ReadFile(const char *filename);
+
+/**
+ * Read hierarchy files into a HierarchyInfo struct, or return NULL
+ */
+HierarchyInfo *vtkParseHierarchy_ReadFiles(int n, char **filenames);
 
 /**
  * Free a HierarchyInfo struct

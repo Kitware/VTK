@@ -1307,7 +1307,6 @@ void vtkTecplotReader::GetDataArraysList()
   int             guessedYid = -1;
   int             guessedZid = -1;
   bool            tokenReady = false;
-  std::string  theTpToken = "";
   std::string  noSpaceTok = "";
 
   this->Variables.clear();
@@ -1315,7 +1314,7 @@ void vtkTecplotReader::GetDataArraysList()
 
   this->Internal->Init();
   this->Internal->ASCIIStream.open( this->FileName );
-  theTpToken = this->Internal->GetNextToken();
+  std::string theTpToken = this->Internal->GetNextToken();
 
   while ( !this->Internal->NextCharEOF )
     {

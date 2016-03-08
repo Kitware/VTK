@@ -33,7 +33,7 @@ namespace vtkvolume
 {
   //--------------------------------------------------------------------------
   std::string replace(std::string source, const std::string &search,
-                      const std::string replace, bool all)
+                      const std::string &replace, bool all)
     {
     if (replace.empty())
       {
@@ -425,7 +425,8 @@ namespace vtkvolume
                                            gradientTableMap)
   {
     std::string shaderStr;
-    if (noOfComponents == 1 && vol->GetProperty()->HasGradientOpacity())
+    if (vol->GetProperty()->HasGradientOpacity() &&
+        (noOfComponents == 1 || !independentComponents))
       {
       shaderStr += std::string("\
         \nuniform sampler2D in_gradientTransferFunc;\
@@ -755,7 +756,8 @@ namespace vtkvolume
       );
       }
 
-    if (noOfComponents == 1 && volProperty->HasGradientOpacity())
+    if (volProperty->HasGradientOpacity() &&
+        (noOfComponents == 1 || !independentComponents))
       {
       shaderStr += std::string("\
         \n  if (gradient.w >= 0.0)\
@@ -765,7 +767,7 @@ namespace vtkvolume
         \n    }"
       );
       }
-    else if (noOfComponents > 1 && independentComponents &&
+     else if (noOfComponents > 1 && independentComponents &&
              volProperty->HasGradientOpacity())
       {
       shaderStr += std::string("\

@@ -380,7 +380,6 @@ vtkDataObject* vtkExtractSelection::RequestDataFromBlock(
   tp->SetOutput(tempSel);
   subFilter->SetInputConnection(1, tp->GetOutputPort());
   tp->Delete();
-  tp = 0;
 
   vtkDataObject* inputCopy = input->NewInstance();
   inputCopy->ShallowCopy(input);

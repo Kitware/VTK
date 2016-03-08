@@ -34,8 +34,8 @@ class TestArrayArguments(Testing.vtkTest):
             a.SetNumberOfTuples(1)
             ti = [0, a.GetDataTypeValueMin(), a.GetDataTypeValueMax()]
             to = [0, 0, 0]
-            a.SetTupleValue(0, ti)
-            a.GetTupleValue(0, to);
+            a.SetTypedTuple(0, ti)
+            a.GetTypedTuple(0, to);
             self.assertEqual(ti, to)
             d1 = a.GetTuple(0)
             d2 = [float(x) for x in ti]
@@ -50,8 +50,8 @@ class TestArrayArguments(Testing.vtkTest):
             a.SetNumberOfTuples(1)
             ti = [0, a.GetDataTypeValueMin(), a.GetDataTypeValueMax()]
             to = [0, 0, 0]
-            a.SetTupleValue(0, ti)
-            a.GetTupleValue(0, to);
+            a.SetTypedTuple(0, ti)
+            a.GetTypedTuple(0, to);
             self.assertEqual(ti, to)
             d1 = a.GetTuple(0)
             d2 = [float(x) for x in ti]
@@ -64,10 +64,10 @@ class TestArrayArguments(Testing.vtkTest):
         a.SetNumberOfComponents(3)
         a.SetNumberOfTuples(1)
         ti = "opn"
-        a.SetTupleValue(0, ti)
+        a.SetTypedTuple(0, ti)
         # python strings are immutable, so this should NOT work
         #to = "***"
-        #a.GetTupleValue(0, to);
+        #a.GetTypedTuple(0, to);
         d1 = list(a.GetTuple(0))
         d2 = [ord(x) for x in ti]
         self.assertEqual(d1, d2)

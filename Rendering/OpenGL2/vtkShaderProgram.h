@@ -194,7 +194,7 @@ public:
   static bool Substitute(
     std::string &source,
     const std::string &search,
-    const std::string replace,
+    const std::string &replace,
     bool all = true);
 
   // Description:

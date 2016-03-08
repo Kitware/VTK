@@ -147,7 +147,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
                                ( argc, argv, "Data/post.vtk" );
   ugReader = vtkUnstructuredGridReader::New();
   ugReader->SetFileName( fileName );
-  delete []  fileName;  fileName = NULL;
+  delete []  fileName;
   ugReader->Update();
   unstruct = ugReader->GetOutput();
   dataPnts = unstruct->GetPoints();

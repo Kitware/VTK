@@ -13,12 +13,13 @@
 
 =========================================================================*/
 // Instantiate superclass first to give the template a DLL interface.
-#include "vtkDataArrayTemplate.txx"
-VTK_DATA_ARRAY_TEMPLATE_INSTANTIATE(short);
+#define VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATING
+#include "vtkAOSDataArrayTemplate.txx"
+VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATE(short);
+
 #include "vtkArrayIteratorTemplate.txx"
 VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(short);
 
-#define vtkShortArray_cxx
 #include "vtkShortArray.h"
 
 #include "vtkObjectFactory.h"

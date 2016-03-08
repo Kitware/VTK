@@ -113,7 +113,7 @@ vtkShaderProgram::~vtkShaderProgram()
 
 // Process the string, and return a version with replacements.
 bool vtkShaderProgram::Substitute(std::string &source, const std::string &search,
-             const std::string replace, bool all)
+             const std::string &replace, bool all)
 {
   std::string::size_type pos = 0;
   bool replaced = false;

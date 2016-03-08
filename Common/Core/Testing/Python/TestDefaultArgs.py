@@ -40,13 +40,6 @@ class TestDefaultArgs(Testing.vtkTest):
         ipi.Initialize(image, (0,9,0,9,0,9))
         # call this method without extent parameter
         ipi.Initialize(image)
-        # do another method for good measure
-        source = vtk.vtkImageGridSource()
-        source.SetDataExtent((0,99,0,99,0,0))
-        # set the parameter
-        source.UpdateExtent((0,50,0,50,0,0))
-        # use default parameter value
-        source.UpdateExtent()
 
     def testDefaultPointer(self):
         """Test a POD pointer arg with default value of 0."""

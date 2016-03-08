@@ -2054,7 +2054,6 @@ void vtkImageResliceExecute(vtkImageReslice *self,
   int componentOffset = interpolator->GetComponentOffset();
   int borderMode = interpolator->GetBorderMode();
   int *inExt = interpolator->GetExtent();
-  int *inWholeExt = interpolator->GetWholeExtent();
   vtkIdType inInc[3];
   inInc[0] = scalars->GetNumberOfComponents();
   inInc[1] = inInc[0]*(inExt[1] - inExt[0] + 1);
@@ -2084,10 +2083,7 @@ void vtkImageResliceExecute(vtkImageReslice *self,
       !(newtrans || perspective || convertScalars || rescaleScalars) &&
       inputScalarType == outData->GetScalarType() &&
       fullSize == scalars->GetNumberOfTuples() &&
-      self->GetBorder() == 1 && nsamples <= 1 &&
-      inExt[0] >= inWholeExt[0] && inExt[1] <= inWholeExt[1] &&
-      inExt[2] >= inWholeExt[2] && inExt[3] <= inWholeExt[3] &&
-      inExt[4] >= inWholeExt[4] && inExt[5] <= inWholeExt[5])
+      self->GetBorder() == 1 && nsamples <= 1)
     {
     optimizeNearest = 1;
     }
@@ -2829,12 +2825,19 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
 
   bool rescaleScalars = (scalarShift != 0.0 || scalarScale != 1.0);
 
+  // get the interpolation mode from the interpolator
+  int interpolationMode = VTK_INT_MAX;
+  if (interpolator->IsA("vtkImageInterpolator"))
+    {
+    interpolationMode =
+      static_cast<vtkImageInterpolator *>(interpolator)
+        ->GetInterpolationMode();
+    }
+
   // if doConversion is false, a special fast-path will be used
-  int interpolationMode = self->GetInterpolationMode();
   bool doConversion = true;
   int inputScalarType = scalars->GetDataType();
   if (interpolationMode == VTK_NEAREST_INTERPOLATION &&
-      interpolator->IsA("vtkImageInterpolator") &&
       inputScalarType == scalarType && !convertScalars && !rescaleScalars &&
       nsamples == 1)
     {

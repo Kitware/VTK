@@ -1139,7 +1139,7 @@ void vtkImageResliceMapper::CheckerboardImage(
   input->GetOrigin(origin);
   checkOffset[0] = (checkOffset[0] - origin[0])/spacing[0];
   checkOffset[1] = (checkOffset[1] - origin[1])/spacing[1];
-  checkSpacing[0] /= spacing[0],
+  checkSpacing[0] /= spacing[0];
   checkSpacing[1] /= spacing[1];
 
   // Apply the checkerboard to the data

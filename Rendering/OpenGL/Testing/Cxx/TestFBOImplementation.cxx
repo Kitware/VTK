@@ -2196,9 +2196,8 @@ int main(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   // extensions returned by the driver.
 
   // clean glError
-  GLenum errorCode=glGetError();
   glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA16,64,64,0, GL_RGBA, GL_FLOAT, NULL );
-  errorCode=glGetError();
+  GLenum errorCode=glGetError();
   if(errorCode!=GL_NO_ERROR)
     {
     cout << "Loading a power-of-two texture failed with the following error:"

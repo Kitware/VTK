@@ -87,7 +87,7 @@ they are system headers.  Do NOT add any #undef lines here.  */
 #endif
 
 #ifdef VTK_PYTHON_UNDEF_DEBUG
-# define _DEBUG
+# define _DEBUG 1
 # undef VTK_PYTHON_UNDEF_DEBUG
 #endif
 

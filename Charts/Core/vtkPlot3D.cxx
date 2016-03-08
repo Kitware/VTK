@@ -230,9 +230,9 @@ void vtkPlot3D::SetColors(vtkDataArray *colorArr)
     double value = colorArr->GetComponent(i, 0);
     unsigned char *rgb = lookupTable->MapValue(value);
     const unsigned char constRGB[3] = { rgb[0], rgb[1], rgb[2] };
-    this->Colors->InsertNextTupleValue(&constRGB[0]);
-    this->Colors->InsertNextTupleValue(&constRGB[1]);
-    this->Colors->InsertNextTupleValue(&constRGB[2]);
+    this->Colors->InsertNextTypedTuple(&constRGB[0]);
+    this->Colors->InsertNextTypedTuple(&constRGB[1]);
+    this->Colors->InsertNextTypedTuple(&constRGB[2]);
     }
 
   this->Modified();

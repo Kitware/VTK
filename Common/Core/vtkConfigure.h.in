@@ -18,6 +18,37 @@
 /* This header is configured by VTK's build process.  */
 
 /*--------------------------------------------------------------------------*/
+/* Compiler backend                                                         */
+/* Be careful modifying this -- order is important.                         */
+#if defined(_MSC_VER)
+/* MSVC 2015+ can use a clang frontend, so we want to label it only as MSVC
+ * and not MSVC and clang. */
+#define VTK_COMPILER_MSVC
+
+#elif defined(__INTEL_COMPILER)
+/* Intel 14+ on OSX uses a clang frontend, so again we want to label them as
+ * intel only, and not intel and clang. */
+#define VTK_COMPILER_ICC
+
+#elif defined(__PGI)
+/* PGI reports as GNUC as it generates the same ABI, so we need to check for
+ * it before gcc. */
+#define VTK_COMPILER_PGI
+
+#elif defined(__clang__)
+/* Check for clang before GCC, as clang says it is GNUC since it has ABI
+ * compliance. */
+#define VTK_COMPILER_CLANG
+
+#elif defined(__GNUC__)
+/* Several compilers pretend to be GCC but have minor differences. Try to
+ * compensate for that, by checking for those compilers first. */
+#define VTK_COMPILER_GCC
+#define VTK_COMPILER_GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + \
+                                  __GNUC_PATCHLEVEL__)
+#endif
+
+/*--------------------------------------------------------------------------*/
 /* Platform Features                                                        */
 
 /* Byte order.  */
@@ -83,6 +114,9 @@
 
 /* Debug leaks support.  */
 #cmakedefine VTK_DEBUG_LEAKS
+
+/* Print warning on vtkArrayDispatch failure.  */
+#cmakedefine VTK_WARN_ON_DISPATCH_FAILURE
 
 /* Should all New methods use the object factory override. */
 #cmakedefine VTK_ALL_NEW_OBJECT_FACTORY

@@ -312,7 +312,19 @@
     _vtk_add_event(WindowIsDirectEvent)\
     _vtk_add_event(UncheckedPropertyModifiedEvent)\
     _vtk_add_event(UpdateShaderEvent)\
-    _vtk_add_event(MessageEvent)
+    _vtk_add_event(MessageEvent)\
+    _vtk_add_event(StartPinchEvent)\
+    _vtk_add_event(PinchEvent)\
+    _vtk_add_event(EndPinchEvent)\
+    _vtk_add_event(StartRotateEvent)\
+    _vtk_add_event(RotateEvent)\
+    _vtk_add_event(EndRotateEvent)\
+    _vtk_add_event(StartPanEvent)\
+    _vtk_add_event(PanEvent)\
+    _vtk_add_event(EndPanEvent)\
+    _vtk_add_event(TapEvent)\
+    _vtk_add_event(LongTapEvent)\
+    _vtk_add_event(SwipeEvent)
 
 #define vtkEventDeclarationMacro(_enum_name)\
   enum _enum_name{\

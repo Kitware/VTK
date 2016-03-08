@@ -31,6 +31,8 @@ iso.SetInputConnection(sample.GetOutputPort())
 iso.SetValue(0,0.25)
 iso.ComputeNormalsOn()
 iso.ComputeGradientsOn()
+iso.ComputeScalarsOn()
+iso.InterpolateAttributesOff()
 
 isoMapper = vtk.vtkPolyDataMapper()
 isoMapper.SetInputConnection(iso.GetOutputPort())

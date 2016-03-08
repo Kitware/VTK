@@ -53,8 +53,9 @@ namespace
     {
       return this->Available_;
     }
-    EGLQueryDevicesType eglQueryDevices = NULL;
-    EGLGetPlatformDisplayType eglGetPlatformDisplay = NULL;
+    bool Available_;
+    EGLQueryDevicesType eglQueryDevices;
+    EGLGetPlatformDisplayType eglGetPlatformDisplay;
 
   private:
     vtkEGLDeviceExtensions()
@@ -77,7 +78,6 @@ namespace
           }
         }
     }
-    bool Available_;
   };
 };
 
@@ -94,8 +94,8 @@ struct vtkEGLRenderWindow::vtkInternals
   EGLContext Context;
   vtkInternals() : Window((EGLNativeWindowType)0),
                    Display(EGL_NO_DISPLAY),
-                   Context(EGL_NO_CONTEXT),
-                   Surface(EGL_NO_SURFACE)
+                   Surface(EGL_NO_SURFACE),
+                   Context(EGL_NO_CONTEXT)
   {
   }
 };
@@ -283,8 +283,7 @@ void vtkEGLRenderWindow::ResizeWindow(int width, int height)
   };
 
 
-  EGLint dummy, format;
-  EGLint numConfigs;
+  EGLint numConfigs = 0;
   EGLConfig config;
 
   if (impl->Display == EGL_NO_DISPLAY)
@@ -323,6 +322,7 @@ void vtkEGLRenderWindow::ResizeWindow(int width, int height)
     }
 
 #ifdef ANDROID
+  EGLint format = 0;
   /* EGL_NATIVE_VISUAL_ID is an attribute of the EGLConfig that is
    * guaranteed to be accepted by ANativeWindow_setBuffersGeometry().
    * As soon as we picked a EGLConfig, we can safely reconfigure the
@@ -343,7 +343,7 @@ void vtkEGLRenderWindow::ResizeWindow(int width, int height)
       eglDestroySurface(impl->Display, impl->Surface);
     }
   impl->Surface = this->OffScreenRendering ?
-    impl->Surface = eglCreatePbufferSurface(impl->Display, config, surface_attribs):
+    eglCreatePbufferSurface(impl->Display, config, surface_attribs):
     eglCreateWindowSurface(impl->Display, config, impl->Window, NULL);
   this->Mapped = 1;
   this->OwnWindow = 1;
@@ -420,6 +420,7 @@ void vtkEGLRenderWindow::Initialize (void)
       this->ResizeWindow(this->Size[0], this->Size[1]);
       }
     }
+  this->Initialized = true;
 }
 
 void vtkEGLRenderWindow::Finalize (void)
@@ -429,7 +430,7 @@ void vtkEGLRenderWindow::Finalize (void)
 }
 
 // Change the window to fill the entire screen.
-void vtkEGLRenderWindow::SetFullScreen(int arg)
+void vtkEGLRenderWindow::SetFullScreen(int vtkNotUsed(arg))
 {
   // window is always full screen
 }
@@ -549,24 +550,12 @@ void vtkEGLRenderWindow::SetPosition(int x, int y)
   this->Position[1] = y;
 }
 
-int vtkEGLRenderWindow::SupportsOpenGL()
-{
-  vtkInternals* impl = this->Internals;
-  this->MakeCurrent();
-  if(impl->Display == EGL_NO_DISPLAY && this->OwnWindow)
-    {
-    return false;
-    }
-  return true;
-}
-
 // Set this RenderWindow to a pre-existing window.
 void vtkEGLRenderWindow::SetWindowInfo(char *)
 {
   this->OwnWindow = 0;
   this->Mapped = 1;
 }
-
 
 void vtkEGLRenderWindow::SetWindowName(const char *name)
 {
@@ -618,12 +607,20 @@ int vtkEGLRenderWindow::GetOffScreenRendering ()
 //----------------------------------------------------------------------------
 bool vtkEGLRenderWindow::IsPointSpriteBugPresent()
 {
-  if (! this->IsPointSpriteBugTested)
-    {
-    this->IsPointSpriteBugTested = true;
-    this->IsPointSpriteBugPresent_ =
-      (strcmp(reinterpret_cast<const char*>(glGetString(GL_VERSION)), "4.5.0 NVIDIA 355.11") == 0);
-    }
+  // eventually we'll want to check with the NVIDIA EGL version to see if the
+  // point sprite bug is fixed but we don't know yet when it will be fixed
+  // but we do know that it's present in both the 355 and 358 drivers. for
+  // now do the safe thing and just assume the bug isn't fixed until we
+  // find a driver version where it is fixed.
+  this->IsPointSpriteBugTested = true;
+  this->IsPointSpriteBugPresent_ = true;
+  // if (! this->IsPointSpriteBugTested)
+  //   {
+  //   this->IsPointSpriteBugTested = true;
+  //   this->IsPointSpriteBugPresent_ =
+  //     (strcmp(reinterpret_cast<const char*>(glGetString(GL_VERSION)), "4.5.0 NVIDIA 355.11") == 0) ||
+  //     (strcmp(reinterpret_cast<const char*>(glGetString(GL_VERSION)), "4.5.0 NVIDIA 358.16") == 0);
+  //   }
   return this->IsPointSpriteBugPresent_;
 }
 

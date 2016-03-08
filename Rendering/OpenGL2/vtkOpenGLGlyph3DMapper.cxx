@@ -664,7 +664,7 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
 
       if (colors)
         {
-        colors->GetTupleValue(inPtId, &(entry->Colors[entry->NumberOfPoints*4]));
+        colors->GetTypedTuple(inPtId, &(entry->Colors[entry->NumberOfPoints*4]));
         }
 
       // scale data if appropriate

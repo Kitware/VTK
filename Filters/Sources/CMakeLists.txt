@@ -6,6 +6,7 @@ set(Module_SRCS
   vtkCubeSource.cxx
   vtkCylinderSource.cxx
   vtkDiskSource.cxx
+  vtkEllipseArcSource.cxx
   vtkEllipticalButtonSource.cxx
   vtkFrustumSource.cxx
   vtkGlyphSource2D.cxx

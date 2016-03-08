@@ -708,8 +708,7 @@ bool CompareFieldsForGrid( vtkUniformGrid *grid )
           grid->GetCellData()->GetArray( "EXPECTED-CellXYZ" ) );
   assert( "pre: expectedCellData is NULL" && (expectedCellData != NULL) );
 
-  bool status = true;
-  status = CheckArrays( computedCellData, expectedCellData );
+  bool status = CheckArrays( computedCellData, expectedCellData );
   if( !status )
     {
     return status;

@@ -172,11 +172,11 @@ void vtkCompassRepresentation::BuildBackdrop()
   color[1] = 0;
   color[2] = 0;
   color[3] = 0;
-  colors->SetTupleValue(0,color);
-  colors->SetTupleValue(3,color);
+  colors->SetTypedTuple(0,color);
+  colors->SetTypedTuple(3,color);
   color[3] = 80;
-  colors->SetTupleValue(1,color);
-  colors->SetTupleValue(2,color);
+  colors->SetTypedTuple(1,color);
+  colors->SetTypedTuple(2,color);
   backdropPolyData->GetPointData()->SetScalars(colors);
 
   this->BackdropMapper = vtkPolyDataMapper2D::New();
@@ -480,14 +480,14 @@ void vtkCompassRepresentation::BuildRepresentation()
     pts->SetPoint( 0, center[0] - rsize * 5.0, center[1] - rsize * 1.1, 0 );
     pts->SetPoint( 3, center[0] - rsize * 5.0, renSize[1], 0 );
     color[3] = 80;
-    colors->SetTupleValue(1,color);
+    colors->SetTypedTuple(1,color);
     }
   else
     {
     pts->SetPoint( 0, center[0] - rsize * 3.0, center[1] - rsize * 1.1, 0 );
     pts->SetPoint( 3, center[0] - rsize * 3.0, renSize[1], 0 );
     color[3] = 0;
-    colors->SetTupleValue( 1, color );
+    colors->SetTypedTuple( 1, color );
     }
   pts->Modified();
   colors->Modified();

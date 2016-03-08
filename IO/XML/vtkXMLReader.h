@@ -230,6 +230,10 @@ protected:
   static void SelectionModifiedCallback(vtkObject* caller, unsigned long eid,
                                         void* clientdata, void* calldata);
 
+  // Give concrete classes an option to squeeze any output arrays
+  // at the end of RequestData.
+  virtual void SqueezeOutputArrays(vtkDataObject*) {}
+
   // The vtkXMLDataParser instance used to hide XML reading details.
   vtkXMLDataParser* XMLParser;
 

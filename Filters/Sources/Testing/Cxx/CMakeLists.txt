@@ -5,6 +5,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestCylinderSource.cxx,NO_VALID
   TestDiskSource.cxx,NO_VALID
   TestEllipticalButtonSource.cxx,NO_VALID
+  TestEllipseArcSource.cxx
   TestFrustumSource.cxx,NO_VALID
   TestGlyphSource2D.cxx,NO_VALID
   TestLineSource.cxx,NO_VALID
@@ -25,4 +26,5 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestTexturedSphereSource.cxx,NO_VALID
   TestGlyphSource2DResolution.cxx,
   )
-vtk_test_cxx_executable(${vtk-module}CxxTests tests)
+vtk_test_cxx_executable(${vtk-module}CxxTests tests
+  RENDERING_FACTORY)

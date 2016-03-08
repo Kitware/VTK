@@ -28,13 +28,16 @@
 #ifndef vtkTypeTemplate_h
 #define vtkTypeTemplate_h
 
-#include "vtkObjectBase.h"
+#include "vtkObject.h"
 #include <string>
 #include <typeinfo>
 
+// This class is legacy. See vtkTemplateTypeMacro in vtkSetGet.h for the
+// replacement.
+#ifndef VTK_LEGACY_REMOVE
+
 template<class ThisT, class BaseT>
-class vtkTypeTemplate :
-  public BaseT
+class vtkTypeTemplate : public BaseT
 {
 public:
   typedef BaseT Superclass;
@@ -82,7 +85,11 @@ protected:
     return this->IsTypeOf(type);
   }
 
-  vtkTypeTemplate() {}
+  vtkTypeTemplate()
+  {
+    VTK_LEGACY_REPLACED_BODY(vtkTypeTemplate, "VTK 7.1",
+                             vtkTemplateTypeMacro (vtkSetGet.h));
+  }
 
 private:
   // not implemented:
@@ -101,6 +108,7 @@ private:
   }
 };
 
-#endif
+#endif // VTK_LEGACY_REMOVE
+#endif // header guard
 
 // VTK-HeaderTest-Exclude: vtkTypeTemplate.h

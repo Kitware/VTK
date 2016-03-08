@@ -72,7 +72,8 @@ void vtkParseMerge_FreeMergeInfo(MergeInfo *info);
  */
 void vtkParseMerge_MergeHelper(
   FileInfo *finfo, const NamespaceInfo *data, const HierarchyInfo *hinfo,
-  const char *classname, FILE *hintfile, MergeInfo *info, ClassInfo *merge);
+  const char *classname, int nhintfiles, char **hintfiles, MergeInfo *info,
+  ClassInfo *merge);
 
 #ifdef __cplusplus
 } /* extern "C" */

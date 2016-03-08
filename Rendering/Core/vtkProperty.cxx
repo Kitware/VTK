@@ -124,6 +124,7 @@ void vtkProperty::DeepCopy(vtkProperty *p)
     this->SetLineWidth(p->GetLineWidth());
     this->SetLineStipplePattern(p->GetLineStipplePattern());
     this->SetLineStippleRepeatFactor(p->GetLineStippleRepeatFactor());
+    this->SetLighting(p->GetLighting());
     this->SetShading(p->GetShading());
 
     this->RemoveAllTextures();

@@ -254,6 +254,9 @@ int vtkXMLCompositeDataWriter::WriteNonCompositeData(
     }
 
   // FIXME
+  // Ken's note, I do not think you can fix this, the
+  // setprogress range has to be done in the loop that calls
+  // this function.
   // this->SetProgressRange(progressRange, myWriterIndex,
   //                       GetNumberOfInputConnections(0)+writeCollection);
 

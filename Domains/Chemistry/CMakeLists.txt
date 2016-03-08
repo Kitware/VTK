@@ -2,6 +2,7 @@ set(Module_SRCS
   vtkBlueObeliskData.cxx
   vtkBlueObeliskDataParser.cxx
   vtkCMLMoleculeReader.cxx
+  vtkGaussianCubeReader2.cxx
   vtkMoleculeAlgorithm.cxx
   vtkMoleculeMapper.cxx
   vtkMoleculeToAtomBallFilter.cxx
@@ -11,6 +12,7 @@ set(Module_SRCS
   vtkProgrammableElectronicData.cxx
   vtkProteinRibbonFilter.cxx
   vtkSimpleBondPerceiver.cxx
+  vtkXYZMolReader2.cxx
   )
 
 set_source_files_properties(

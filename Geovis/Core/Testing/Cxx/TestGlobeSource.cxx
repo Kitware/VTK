@@ -82,7 +82,7 @@ int TestGlobeSource(int argc, char* argv[])
   for(int i=0; i < array->GetNumberOfTuples(); ++i)
     {
 
-     array->GetTupleValue(i, val);
+     array->GetTypedTuple(i, val);
 
      // Get the texture coordinates in [0,1] range.
      newVal[1] = (latRange[0]  - val[0])  / range[0];

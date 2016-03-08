@@ -390,10 +390,10 @@ int vtkWrapPython_WrapTemplatedClass(
             "{\n"
             "  PyObject *o;\n"
             "\n"
-            "  PyObject *temp = PyVTKTemplate_New(\"%s\", \"%s\",\n"
+            "  PyObject *temp = PyVTKTemplate_New(\"%sPython.%s\",\n"
             "                                     Py%s_Doc);\n"
             "\n",
-            data->Name, data->Name, modulename, data->Name);
+            data->Name, modulename, data->Name, data->Name);
 
     for (k = 0; k < ninstantiations; k++)
       {

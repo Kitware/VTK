@@ -1,14 +1,15 @@
 #
 # VTK WikiExamples
 #
+# To run tests for this module
+# ctest -L WikiExamples
 
-# If the environement var RemoteGitTag exists, use it
-if (NOT DEFINED ENV{RemoteGitTag})
-  # February 17, 2016
-  # Qt5 fixes
-  set(GIT_TAG 184ef64f241c53356a8a6c3852dfb2ec18691d49)
+# If the environement var WikiExamplesTag exists, use it
+if (NOT DEFINED ENV{WikiExamplesTag})
+  # February 29, 2016
+  set(GIT_TAG ab816c494f60b7e94c992e9e5dabcadd28227dc1)
 else()
-  set(GIT_TAG $ENV{RemoteGitTag})
+  set(GIT_TAG $ENV{WikiExamplesTag})
 endif()
 
 vtk_fetch_module(WikiExamples

@@ -106,6 +106,8 @@ vtkRenderer::vtkRenderer()
   // a value of 0 indicates it is uninitialized
   this->NearClippingPlaneTolerance = 0;
 
+  this->ClippingRangeExpansion = 0.5;
+
   this->Erase = 1;
   this->Draw = 1;
 
@@ -1148,6 +1150,25 @@ void vtkRenderer::ResetCameraClippingRange( double bounds[6] )
       }
     }
 
+  // do not let far - near be less than 0.1 of the window height
+  // this is for cases such as 2D images which may have zero range
+  double minGap = 0.0;
+  if(this->ActiveCamera->GetParallelProjection())
+    {
+    minGap = 0.1*this->ActiveCamera->GetParallelScale();
+    }
+  else
+    {
+    double angle=vtkMath::RadiansFromDegrees(this->ActiveCamera->GetViewAngle());
+    minGap = 0.2*tan(angle/2.0)*range[1];
+    }
+  if (range[1] - range[0] < minGap)
+    {
+    minGap = minGap - range[1] + range[0];
+    range[1] += minGap/2.0;
+    range[0] -= minGap/2.0;
+    }
+
   // Do not let the range behind the camera throw off the calculation.
   if (range[0] < 0.0)
     {
@@ -1155,8 +1176,8 @@ void vtkRenderer::ResetCameraClippingRange( double bounds[6] )
     }
 
   // Give ourselves a little breathing room
-  range[0] = 0.99*range[0] - (range[1] - range[0])*0.5;
-  range[1] = 1.01*range[1] + (range[1] - range[0])*0.5;
+  range[0] = 0.99*range[0] - (range[1] - range[0])*this->ClippingRangeExpansion;
+  range[1] = 1.01*range[1] + (range[1] - range[0])*this->ClippingRangeExpansion;
 
   // Make sure near is not bigger than far
   range[0] = (range[0] >= range[1])?(0.01*range[1]):(range[0]);
@@ -1359,6 +1380,9 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Near Clipping Plane Tolerance: "
      << this->NearClippingPlaneTolerance << "\n";
+
+  os << indent << "ClippingRangeExpansion: "
+     << this->ClippingRangeExpansion << "\n";
 
   os << indent << "Ambient: (" << this->Ambient[0] << ", "
      << this->Ambient[1] << ", " << this->Ambient[2] << ")\n";

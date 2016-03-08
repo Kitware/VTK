@@ -931,7 +931,7 @@ int vtkParallelopipedRepresentation
         // will determine which axis of the parallelopiped we will rescale along
 
         axis[i][0] = neighborDisplayPos[i][0] - handleDisplayPos[0];
-        axis[i][1] = neighborDisplayPos[i][1] - handleDisplayPos[1],
+        axis[i][1] = neighborDisplayPos[i][1] - handleDisplayPos[1];
         axis[i][2] = 0.0;
         vtkMath::Normalize2D(axis[i]);
 

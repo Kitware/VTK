@@ -23,6 +23,9 @@
 // vtkTypedDataArray API functions to retrieve values. It is especially helpful
 // for safely iterating through subclasses of vtkMappedDataArray, which may
 // not use the same memory layout as a typical vtkDataArray.
+//
+// NOTE: This class has been superceded by the newer vtkGenericDataArray and
+// vtkArrayDispatch mechanism.
 
 #ifndef vtkTypedDataArrayIterator_h
 #define vtkTypedDataArrayIterator_h

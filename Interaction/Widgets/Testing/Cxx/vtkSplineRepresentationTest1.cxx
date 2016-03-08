@@ -180,7 +180,7 @@ int vtkSplineRepresentationTest1(int , char * [] )
     for (vtkIdType i = 0; i < da->GetNumberOfTuples(); i++)
       {
       double val[3];
-      da->GetTupleValue(i, val);
+      da->GetTypedTuple(i, val);
       std::cout << i << " = " << val[0] << ", " << val[1] << ", " << val[2] << std::endl;
       }
     }
@@ -207,7 +207,7 @@ int vtkSplineRepresentationTest1(int , char * [] )
     for (vtkIdType i = 0; i < da->GetNumberOfTuples(); i++)
       {
       double val[3];
-      da->GetTupleValue(i, val);
+      da->GetTypedTuple(i, val);
       std::cout << i << " = " << val[0] << ", " << val[1] << ", " << val[2] << std::endl;
       }
     }

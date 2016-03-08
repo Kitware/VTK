@@ -46,3 +46,9 @@ vtk_add_test_python(
   tableBasedClip.py,NO_RT
   GreenLagrangeStrain.py.py,NO_OUTPUT,NO_DATA,NO_VALID
   )
+
+if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
+  vtk_add_test_python(
+    TestSampleImplicitFunctionFilter.py
+    )
+endif()

@@ -3001,14 +3001,13 @@ static int cgmImageColorAllocate(cgmImagePtr im, int r, int g, int b)
 #ifdef VTK_NOT_DEFINED
 static int cgmImageColor16(cgmImagePtr im)
 {
-  int si, ei, li;
-  si = cgmImageAddColorIndex(im, 255, 255, 255);
+  int si = cgmImageAddColorIndex(im, 255, 255, 255);
   if (si == -1)
     {
     return 0;
     }
-  li = -1; ei=si;
-  ei = cgmImageAddColorIndex(im, 0, 0, 0);
+  int li = -1;
+  int ei = cgmImageAddColorIndex(im, 0, 0, 0);
   if (ei != -1)
     {
     li = ei;

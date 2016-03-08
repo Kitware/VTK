@@ -34,11 +34,9 @@ vtkStandardNewMacro(vtkHighestDensityRegionsStatistics);
 // ----------------------------------------------------------------------
 vtkHighestDensityRegionsStatistics::vtkHighestDensityRegionsStatistics()
 {
+  this->SmoothHC1[0] = 0.;
   // Initialize H smooth matrix to Identity.
-  this->SmoothHC1[0] = 1.0;
-  this->SmoothHC1[1] = 0.0;
-  this->SmoothHC2[0] = 0.0;
-  this->SmoothHC2[1] = 1.0;
+  this->SetSigma(1.0);
 
   //  At the construction, no columns pair are requested yet
   this->NumberOfRequestedColumnsPair = 0;
@@ -55,7 +53,7 @@ void vtkHighestDensityRegionsStatistics::PrintSelf(ostream& os,
   {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Smooth matrix: " <<
+  os << indent << "Sigma matrix: " <<
     this->SmoothHC1[0] << ", " <<
     this->SmoothHC1[1] << ", " <<
     this->SmoothHC2[0] << ", " <<
@@ -63,21 +61,41 @@ void vtkHighestDensityRegionsStatistics::PrintSelf(ostream& os,
   }
 
 // ----------------------------------------------------------------------
-void vtkHighestDensityRegionsStatistics::SetSigma(double sigma)
+void vtkHighestDensityRegionsStatistics::SetSigmaMatrix(
+  double s11, double s12, double s21, double s22)
 {
-  if (this->SmoothHC1[0] == sigma &&
-    this->SmoothHC1[1] == 0.0 &&
-    this->SmoothHC2[0] == 0.0 &&
-    this->SmoothHC2[1] == sigma)
+  if (this->SmoothHC1[0] == s11 && this->SmoothHC1[1] == s12 &&
+      this->SmoothHC2[0] == s21 && this->SmoothHC2[1] == s22)
     {
     return;
     }
-  // Force H matrix to be equal to sigma * Identity.
-  this->SmoothHC1[0] = sigma;
-  this->SmoothHC1[1] = 0.0;
-  this->SmoothHC2[0] = 0.0;
-  this->SmoothHC2[1] = sigma;
+
+  this->SmoothHC1[0] = s11;
+  this->SmoothHC1[1] = s12;
+  this->SmoothHC2[0] = s21;
+  this->SmoothHC2[1] = s22;
+
+  this->Determinant =
+    vtkMath::Determinant2x2(this->SmoothHC1, this->SmoothHC2);
+  double invDet = 0.;
+  if (this->Determinant != 0.)
+    {
+    invDet = 1.0 / this->Determinant;
+    }
+
+  // We compute and store the inverse of the smoothing matrix
+  this->InvSigmaC1[0] = +invDet * this->SmoothHC2[1];
+  this->InvSigmaC1[1] = -invDet * this->SmoothHC1[1];
+  this->InvSigmaC2[0] = -invDet * this->SmoothHC2[0];
+  this->InvSigmaC2[1] = +invDet * this->SmoothHC1[0];
+
   this->Modified();
+}
+
+// ----------------------------------------------------------------------
+void vtkHighestDensityRegionsStatistics::SetSigma(double sigma)
+{
+  this->SetSigmaMatrix(sigma * sigma, 0, 0, sigma * sigma);
 }
 
 // ----------------------------------------------------------------------
@@ -229,16 +247,10 @@ double vtkHighestDensityRegionsStatistics
     // Sum all gaussian kernel
     for (vtkIdType j = 0; j < nbObservations; j++)
       {
-
       inObs->GetTuple(j, currentXj);
 
       const double deltaX = currentXi[0] - currentXj[0];
       const double deltaY = currentXi[1] - currentXj[1];
-      // Avoid case where point is compared to itself
-      if (deltaX == 0. && deltaY == 0.)
-        {
-        continue;
-        }
       hdr += this->ComputeSmoothGaussianKernel(
         inObs->GetNumberOfComponents(),
         deltaX, deltaY);
@@ -253,53 +265,12 @@ double vtkHighestDensityRegionsStatistics
 
 // ----------------------------------------------------------------------
 double vtkHighestDensityRegionsStatistics::ComputeSmoothGaussianKernel(
-  int dimension, double khx, double khy)
+  int vtkNotUsed(dimension), double khx, double khy)
 {
-  double HDeterminant =
-    vtkMath::Determinant2x2(this->SmoothHC1, this->SmoothHC2);
-  if (HDeterminant > 0.0)
-    {
-    HDeterminant = 1.0 / sqrt(HDeterminant);
-    }
-
-  // We need to multiply the input vector by the smooth square root of
-  // H matrix parameter: sqrt(H) * [khx, khy] -> random vector of the
-  // standard gaussian input.
-
-  // If a H coefficient is equal to 0.0. we don't compute its sqrt to avoid
-  // domain error.
-  double SHC10 = 0.0;
-  double SHC11 = 0.0;
-  double SHC20 = 0.0;
-  double SHC21 = 0.0;
-
-  if (this->SmoothHC1[0] != 0.0)
-    {
-    SHC10 = 1.0 / sqrt(this->SmoothHC1[0]);
-    }
-  if (this->SmoothHC1[1] != 0.0)
-    {
-    SHC11 = 1.0 / sqrt(this->SmoothHC1[1]);
-    }
-  if (this->SmoothHC2[0] != 0.0)
-    {
-    SHC20 = 1.0 / sqrt(this->SmoothHC2[0]);
-    }
-  if (this->SmoothHC2[1] != 0.0)
-    {
-    SHC21 = 1.0 / sqrt(this->SmoothHC2[1]);
-    }
-
   // Call the standard gaussian kernel with the new random vector.
-  return HDeterminant *
-    this->ComputeStandardGaussianKernel(dimension,
-    SHC10 * khx + SHC11 * khy,
-    SHC20 * khx + SHC21 * khy);
-}
+  double d =
+    khx * (this->InvSigmaC1[0] * khx + this->InvSigmaC2[0] * khy) +
+    khy * (this->InvSigmaC1[1] * khx + this->InvSigmaC2[1] * khy);
 
-// ----------------------------------------------------------------------
-double vtkHighestDensityRegionsStatistics::ComputeStandardGaussianKernel(
-  int vtkNotUsed(dimension), double kx, double ky)
-{
-  return exp(-(kx * kx + ky * ky) / 2.0) / (2.0 * vtkMath::Pi());
+  return (exp(-d * 0.5)) / (2.0 * vtkMath::Pi() * this->Determinant);
 }

@@ -1,7 +1,7 @@
 Changes in VTK 7.1          {#VTK-7-1-Changes}
 ==================
 
-This pages documents API and behavior changes between VTK 7.0 and
+This page documents API and behavior changes between VTK 7.0 and
 VTK 7.1
 
 Pipeline Update Methods
@@ -43,10 +43,10 @@ The following new methods were added:
 
     int Update(int port, vtkInformationVector* requests);
     int Update(vtkInformation* requests);
-    int UpdatePiece(int piece, int numPieces, int ghostLevels, int* extents=0);
-    int UpdateExtent(int piece, int numPieces, int ghostLevels, int* extents=0);
+    int UpdatePiece(int piece, int numPieces, int ghostLevels, const int extents[6]=0);
+    int UpdateExtent(const int extents[6]);
     int UpdateTimeStep(double time,
-        int piece=-1, int numPieces=1, int ghostLevels=0, int* extents=0);
+        int piece=-1, int numPieces=1, int ghostLevels=0, const int extents[6]=0);
 
 ### vtkStreamingDemandDrivenPipeline:
 
@@ -132,3 +132,27 @@ vtkSMPTools
 The following back-ends have been removed:
 + Simple: This is not a production level backend and was only used for debugging purposes.
 + Kaapi: This backend is no longer maintained.
+
+vtkDataArray Refactor, vtkArrayDispatch and Related Tools
+---------------------------------------------------------
+
+The `vtkDataArrayTemplate` template class has been replaced by
+`vtkAOSDataArrayTemplate` to distinguish it from the new
+`vtkSOADataArrayTemplate`. The former uses Array-Of-Structs component ordering
+while the latter uses Struct-Of-Arrays component ordering. These both derive
+from the new `vtkGenericDataArray` template class and are an initial
+implementation of native support for alternate memory layouts in VTK.
+
+To facilitate working with these arrays efficiently, several new tools have
+been added in this release. They are detailed \ref VTK-7-1-ArrayDispatch "here".
+
+As part of the refactoring effort, several `vtkDataArrayTemplate` methods were
+deprecated and replaced with new, const-correct methods with more meaningful
+names.
+
+The old and new method names are listed below:
+
++ `GetTupleValue` is now `GetTypedTuple`
++ `SetTupleValue` is now `SetTypedTuple`
++ `InsertTupleValue` is now `InsertTypedTuple`
++ `InsertNextTupleValue` is now `InsertNextTypedTuple`

@@ -182,6 +182,10 @@ vtkOrientedGlyphContourRepresentation::vtkOrientedGlyphContourRepresentation()
   this->Lines = vtkPolyData::New();
   this->LinesMapper = vtkPolyDataMapper::New();
   this->LinesMapper->SetInputData(this->Lines);
+  this->LinesMapper->SetResolveCoincidentTopologyToPolygonOffset();
+  this->LinesMapper->SetRelativeCoincidentTopologyLineOffsetParameters(-1,-1);
+  this->LinesMapper->SetRelativeCoincidentTopologyPolygonOffsetParameters(-1,-1);
+  this->LinesMapper->SetRelativeCoincidentTopologyPointOffsetParameter(-1);
 
   this->LinesActor = vtkActor::New();
   this->LinesActor->SetMapper( this->LinesMapper );
@@ -675,6 +679,33 @@ void vtkOrientedGlyphContourRepresentation::BuildRepresentation()
 {
   // Make sure we are up to date with any changes made in the placer
   this->UpdateContour();
+
+  if (this->AlwaysOnTop)
+    {
+    // max value 65536 so we subtract 66000 to make sure we are
+    // zero or negative
+    this->LinesMapper->SetRelativeCoincidentTopologyLineOffsetParameters(0,-66000);
+    this->LinesMapper->SetRelativeCoincidentTopologyPolygonOffsetParameters(0,-66000);
+    this->LinesMapper->SetRelativeCoincidentTopologyPointOffsetParameter(-66000);
+    this->Mapper->SetRelativeCoincidentTopologyLineOffsetParameters(0,-66000);
+    this->Mapper->SetRelativeCoincidentTopologyPolygonOffsetParameters(0,-66000);
+    this->Mapper->SetRelativeCoincidentTopologyPointOffsetParameter(-66000);
+    this->ActiveMapper->SetRelativeCoincidentTopologyLineOffsetParameters(0,-66000);
+    this->ActiveMapper->SetRelativeCoincidentTopologyPolygonOffsetParameters(0,-66000);
+    this->ActiveMapper->SetRelativeCoincidentTopologyPointOffsetParameter(-66000);
+    }
+  else
+    {
+    this->LinesMapper->SetRelativeCoincidentTopologyLineOffsetParameters(-1,-1);
+    this->LinesMapper->SetRelativeCoincidentTopologyPolygonOffsetParameters(-1,-1);
+    this->LinesMapper->SetRelativeCoincidentTopologyPointOffsetParameter(-1);
+    this->Mapper->SetRelativeCoincidentTopologyLineOffsetParameters(-1,-1);
+    this->Mapper->SetRelativeCoincidentTopologyPolygonOffsetParameters(-1,-1);
+    this->Mapper->SetRelativeCoincidentTopologyPointOffsetParameter(-1);
+    this->ActiveMapper->SetRelativeCoincidentTopologyLineOffsetParameters(-1,-1);
+    this->ActiveMapper->SetRelativeCoincidentTopologyPolygonOffsetParameters(-1,-1);
+    this->ActiveMapper->SetRelativeCoincidentTopologyPointOffsetParameter(-1);
+    }
 
   double p1[4], p2[4];
   this->Renderer->GetActiveCamera()->GetFocalPoint(p1);

@@ -131,15 +131,6 @@ protected:
   void AddInputData(vtkDataObject *)
     { vtkErrorMacro( << "AddInput() must be called with a vtkPolyData not a vtkDataObject."); };
 
-  template <class InputIterator>
-  void AppendData(vtkDataArray *dest, vtkDataArray *src, vtkIdType offset,
-                  InputIterator srcData, InputIterator srcEnd);
-
-  template <class InputIterator, class OutputIterator>
-  void AppendData(vtkDataArray *dest, vtkDataArray *src, vtkIdType offset,
-                  InputIterator srcData, InputIterator srcEnd,
-                  OutputIterator destData);
-
   int UserManagedInputs;
 
 private:

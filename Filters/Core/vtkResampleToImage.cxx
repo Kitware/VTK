@@ -183,17 +183,26 @@ int vtkResampleToImage::RequestData(vtkInformation *vtkNotUsed(request),
   vtkImageData *output = vtkImageData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
+  if (this->SamplingDimensions[0] <= 0 ||
+      this->SamplingDimensions[1] <= 0 ||
+      this->SamplingDimensions[2] <= 0)
+    {
+    return 1;
+    }
+
   double inputBounds[6];
   input->GetBounds(inputBounds);
 
   // compute bounds and extent where probing should be performed
   double *wholeBounds = this->UseInputBounds ? inputBounds : this->SamplingBounds;
   double origin[3] = { wholeBounds[0], wholeBounds[2], wholeBounds[4] };
-  double spacing[3] = {
-    (wholeBounds[1] - wholeBounds[0])/static_cast<double>(this->SamplingDimensions[0] - 1),
-    (wholeBounds[3] - wholeBounds[2])/static_cast<double>(this->SamplingDimensions[1] - 1),
-    (wholeBounds[5] - wholeBounds[4])/static_cast<double>(this->SamplingDimensions[2] - 1)
-  };
+  double spacing[3];
+  for (int i = 0; i < 3; ++i)
+    {
+    spacing[i] = (this->SamplingDimensions[i] == 1) ? 0 :
+                 ((wholeBounds[i*2 + 1] - wholeBounds[i*2]) /
+                  static_cast<double>(this->SamplingDimensions[i] - 1));
+    }
 
   int extent[6];
   if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()))

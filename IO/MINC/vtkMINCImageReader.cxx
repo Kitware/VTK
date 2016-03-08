@@ -190,9 +190,8 @@ int vtkMINCImageReader::CanReadFile(const char* fname)
 
   // Do a more thorough check of the image:version attribute, since
   // there are lots of NetCDF files out there that aren't minc files.
-  int status = NC_NOERR;
   int ncid = 0;
-  status = nc_open(fname, 0, &ncid);
+  int status = nc_open(fname, 0, &ncid);
   if (status != NC_NOERR)
     {
     return 0;

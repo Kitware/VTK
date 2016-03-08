@@ -315,9 +315,10 @@ int main(int argc, char *argv[])
     }
 
   /* get the hierarchy info for accurate typing */
-  if (options->HierarchyFileName)
+  if (options->HierarchyFileNames)
     {
-    hinfo = vtkParseHierarchy_ReadFile(options->HierarchyFileName);
+    hinfo = vtkParseHierarchy_ReadFiles(
+      options->NumberOfHierarchyFileNames, options->HierarchyFileNames);
     }
 
   /* get the filename without the extension */
