@@ -37,6 +37,9 @@
 #include "vtkImagingCoreModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
 
+class vtkImageDifferenceThreadData;
+class vtkImageDifferenceSMPThreadLocal;
+
 class VTKIMAGINGCORE_EXPORT vtkImageDifference : public vtkThreadedImageAlgorithm
 {
 public:
@@ -55,16 +58,15 @@ public:
 
   // Description:
   // Return the total error in comparing the two images.
-  double GetError(void);
+  double GetError() { return this->Error; }
   void GetError(double *e) { *e = this->GetError(); };
 
   // Description:
   // Return the total thresholded error in comparing the two images.
   // The thresholded error is the error for a given pixel minus the
   // threshold and clamped at a minimum of zero.
-  double GetThresholdedError(void);
+  double GetThresholdedError() { return this->ThresholdedError; }
   void GetThresholdedError(double *e) { *e = this->GetThresholdedError(); };
-
 
   // Description:
   // Specify a threshold tolerance for pixel differences.
@@ -94,11 +96,15 @@ protected:
   vtkImageDifference();
   ~vtkImageDifference() {}
 
-  double ErrorPerThread[VTK_MAX_THREADS];
-  double ThresholdedErrorPerThread[VTK_MAX_THREADS];
+  // Parameters
   int AllowShift;
   int Threshold;
   int Averaging;
+
+  // Outputs
+  const char *ErrorMessage;
+  double Error;
+  double ThresholdedError;
 
   virtual int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,
@@ -106,6 +112,9 @@ protected:
   virtual int RequestUpdateExtent(vtkInformation *,
                                   vtkInformationVector **,
                                   vtkInformationVector *);
+  virtual int RequestData(vtkInformation *,
+                          vtkInformationVector **,
+                          vtkInformationVector *);
 
   virtual void ThreadedRequestData(vtkInformation *request,
                                    vtkInformationVector **inputVector,
@@ -114,9 +123,17 @@ protected:
                                    vtkImageData **outData,
                                    int extent[6], int threadId);
 
+  // Used for vtkMultiThreader operation.
+  vtkImageDifferenceThreadData *ThreadData;
+
+  // Used for vtkSMPTools operation.
+  vtkImageDifferenceSMPThreadLocal *SMPThreadData;
+
 private:
   vtkImageDifference(const vtkImageDifference&);  // Not implemented.
   void operator=(const vtkImageDifference&);  // Not implemented.
+
+  friend class vtkImageDifferenceSMPFunctor;
 };
 
 #endif

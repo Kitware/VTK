@@ -142,6 +142,16 @@ int vtkImageBSplineCoefficients::RequestData(
     {
     this->Iteration = i;
 
+    // ensure that iteration axis is not split during threaded execution
+    this->SplitPathLength = 0;
+    for (int axis = 2; axis >= 0; --axis)
+      {
+      if (axis != i)
+        {
+        this->SplitPath[this->SplitPathLength++] = axis;
+        }
+      }
+
     if (ie[2*i+1] > ie[2*i])
       {
       if (!this->vtkThreadedImageAlgorithm::RequestData(
@@ -229,52 +239,6 @@ int vtkImageBSplineCoefficients::RequestUpdateExtent(
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent, 6);
 
   return 1;
-}
-
-//----------------------------------------------------------------------------
-// For streaming and threads.  Splits output update extent into num pieces.
-// This method needs to be called num times.  Results must not overlap for
-// consistent starting extent.  This particular filter requires splitting
-// along different directions depending on the iteration.
-int vtkImageBSplineCoefficients::SplitExtent(
-  int splitExt[6], int fullExt[6], int num, int total)
-{
-  static int splitAxisPriority[3][2] = {
-    { 2, 1 }, { 2, 0 }, { 1, 0 } };
-
-  // start with same extent
-  for (int i = 0; i < 6; i++)
-    {
-    splitExt[i] = fullExt[i];
-    }
-
-  int axis = this->Iteration;
-  int splitAxis = splitAxisPriority[axis][0];
-  int minIdx = fullExt[splitAxis*2];
-  int maxIdx = fullExt[splitAxis*2 + 1];
-  int size = maxIdx - minIdx + 1;
-  if (size == 1)
-    {
-    splitAxis = splitAxisPriority[axis][1];
-    minIdx = fullExt[splitAxis*2];
-    maxIdx = fullExt[splitAxis*2 + 1];
-    size = maxIdx - minIdx + 1;
-    }
-
-  // determine the actual number of pieces that will be generated
-  if (size < total)
-    {
-    total = size;
-    }
-
-  // make sure that num isn't greater than the number of possible splits
-  if (num < total)
-    {
-    splitExt[splitAxis*2] = minIdx + size*num/total;
-    splitExt[splitAxis*2 + 1] = minIdx + size*(num + 1)/total - 1;
-    }
-
-  return total;
 }
 
 //----------------------------------------------------------------------------

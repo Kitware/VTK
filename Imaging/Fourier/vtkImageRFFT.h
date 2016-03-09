@@ -44,17 +44,6 @@ public:
   static vtkImageRFFT *New();
   vtkTypeMacro(vtkImageRFFT,vtkImageFourierFilter);
 
-
-  // Description:
-  // For streaming and threads.  Splits output update extent into num pieces.
-  // This method needs to be called num times.  Results must not overlap for
-  // consistent starting extent.  Subclass can override this method.  This
-  // method returns the number of pieces resulting from a successful split.
-  // This can be from 1 to "total".  If 1 is returned, the extent cannot be
-  // split.
-  int SplitExtent(int splitExt[6], int startExt[6],
-                  int num, int total);
-
 protected:
   vtkImageRFFT() {}
   ~vtkImageRFFT() {}

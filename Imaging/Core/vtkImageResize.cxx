@@ -75,6 +75,10 @@ vtkImageResize::vtkImageResize()
   this->Interpolator = NULL;
   this->NNInterpolator = NULL;
   this->Interpolate = 1;
+
+  // This filter works best when the number of pieces is equal to
+  // the number of threads, so never try for smaller pieces.
+  this->DesiredBytesPerPiece = 0;
 }
 
 //----------------------------------------------------------------------------

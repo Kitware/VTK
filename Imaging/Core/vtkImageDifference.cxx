@@ -19,25 +19,46 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkSMPTools.h"
 
 vtkStandardNewMacro(vtkImageDifference);
+
+// Thread-local data needed for each thread.
+class vtkImageDifferenceThreadData
+{
+public:
+  vtkImageDifferenceThreadData()
+    : ErrorMessage(0), Error(0.0), ThresholdedError(0.0) {}
+
+  const char *ErrorMessage;
+  double Error;
+  double ThresholdedError;
+};
+
+// Holds thread-local data for all threads.
+class vtkImageDifferenceSMPThreadLocal
+  : public vtkSMPThreadLocal<vtkImageDifferenceThreadData>
+{
+public:
+  typedef vtkSMPThreadLocal<vtkImageDifferenceThreadData>::iterator iterator;
+};
 
 // Construct object to extract all of the input data.
 vtkImageDifference::vtkImageDifference()
 {
-  int i;
-  for ( i = 0; i < this->NumberOfThreads; i++ )
-    {
-    this->ErrorPerThread[i] = 0;
-    this->ThresholdedErrorPerThread[i] = 0.0;
-    }
   this->Threshold = 16;
   this->AllowShift = 1;
   this->Averaging = 1;
+
+  this->ErrorMessage = 0;
+  this->Error = 0.0;
+  this->ThresholdedError = 0.0;
+
+  this->ThreadData = NULL;
+  this->SMPThreadData = NULL;
+
   this->SetNumberOfInputPorts(2);
 }
-
-
 
 // not so simple macro for calculating error
 #define vtkImageDifferenceComputeError(c1,c2) \
@@ -92,8 +113,68 @@ if (this->Averaging && \
   if ((r1+g1+b1) < (tr+tg+tb)) { tr = r1; tg = g1; tb = b1; } \
   }
 
+//----------------------------------------------------------------------------
+// This functor is used with vtkSMPTools to execute the algorithm in pieces
+// split over the extent of the data.
+class vtkImageDifferenceSMPFunctor
+{
+public:
+  // Create the functor by providing all of the information that will be
+  // needed by the ThreadedRequestData method that the functor will call.
+  vtkImageDifferenceSMPFunctor(
+    vtkImageDifference *algo, vtkImageData ***inputs, vtkImageData **outputs,
+    int *extent, vtkIdType pieces)
+    : Algorithm(algo), Inputs(inputs), Outputs(outputs),
+      Extent(extent), NumberOfPieces(pieces) {}
 
+  void Initialize() {}
+  void operator()(vtkIdType begin, vtkIdType end);
+  void Reduce();
 
+private:
+  vtkImageDifferenceSMPFunctor();
+
+  vtkImageDifference *Algorithm;
+  vtkImageData ***Inputs;
+  vtkImageData **Outputs;
+  int *Extent;
+  vtkIdType NumberOfPieces;
+};
+
+//----------------------------------------------------------------------------
+void vtkImageDifferenceSMPFunctor::operator()(vtkIdType begin, vtkIdType end)
+{
+  this->Algorithm->SMPRequestData(
+    0, 0, 0, this->Inputs, this->Outputs,
+    begin, end, this->NumberOfPieces, this->Extent);
+}
+
+//----------------------------------------------------------------------------
+// Used with vtkSMPTools to compute the error
+void vtkImageDifferenceSMPFunctor::Reduce()
+{
+  const char *errorMessage = 0;
+  double error = 0.0;
+  double thresholdedError = 0.0;
+
+  for (vtkImageDifferenceSMPThreadLocal::iterator
+       iter = this->Algorithm->SMPThreadData->begin();
+       iter != this->Algorithm->SMPThreadData->end();
+       ++iter)
+    {
+    errorMessage = iter->ErrorMessage;
+    if (errorMessage)
+      {
+      break;
+      }
+    error += iter->Error;
+    thresholdedError += iter->ThresholdedError;
+    }
+
+  this->Algorithm->ErrorMessage = errorMessage;
+  this->Algorithm->Error = error;
+  this->Algorithm->ThresholdedError = thresholdedError;
+}
 
 //----------------------------------------------------------------------------
 // This method computes the input extent necessary to generate the output.
@@ -183,18 +264,28 @@ void vtkImageDifference::ThreadedRequestData(
   int matched;
   unsigned long count = 0;
   unsigned long target;
+  double error = 0.0;
+  double thresholdedError = 0.0;
+  vtkImageDifferenceThreadData *threadData = NULL;
 
-  this->ErrorPerThread[id] = 0;
-  this->ThresholdedErrorPerThread[id] = 0;
+  if (this->EnableSMP)
+    {
+    threadData = &this->SMPThreadData->Local();
+    }
+  else
+    {
+    threadData = &this->ThreadData[id];
+    }
+
+  // If an error has occurred, then do not continue.
+  if (threadData->ErrorMessage)
+    {
+    return;
+    }
 
   if (inData[0] == NULL || inData[1] == NULL || outData == NULL)
     {
-    if (!id)
-      {
-      vtkErrorMacro(<< "Execute: Missing data");
-      }
-    this->ErrorPerThread[id] = 1000;
-    this->ThresholdedErrorPerThread[id] = 1000;
+    threadData->ErrorMessage = "Missing data";
     return;
     }
 
@@ -202,12 +293,7 @@ void vtkImageDifference::ThreadedRequestData(
       inData[1][0]->GetNumberOfScalarComponents() != 3 ||
       outData[0]->GetNumberOfScalarComponents() != 3)
     {
-    if (!id)
-      {
-      vtkErrorMacro(<< "Execute: Expecting 3 components (RGB)");
-      }
-    this->ErrorPerThread[id] = 1000;
-    this->ThresholdedErrorPerThread[id] = 1000;
+    threadData->ErrorMessage = "Expecting 3 components (RGB)";
     return;
     }
 
@@ -215,15 +301,10 @@ void vtkImageDifference::ThreadedRequestData(
   if (inData[0][0]->GetScalarType() != VTK_UNSIGNED_CHAR ||
       inData[1][0]->GetScalarType() != VTK_UNSIGNED_CHAR ||
       outData[0]->GetScalarType() != VTK_UNSIGNED_CHAR)
-      {
-      if (!id)
-        {
-        vtkErrorMacro(<< "Execute: All ScalarTypes must be unsigned char");
-        }
-      this->ErrorPerThread[id] = 1000;
-      this->ThresholdedErrorPerThread[id] = 1000;
-      return;
-      }
+    {
+    threadData->ErrorMessage = "All ScalarTypes must be unsigned char";
+    return;
+    }
 
   in1Ptr2 = static_cast<unsigned char *>(
     inData[0][0]->GetScalarPointerForExtent(outExt));
@@ -328,7 +409,7 @@ void vtkImageDifference::ThreadedRequestData(
             }
           }
 
-        this->ErrorPerThread[id] = this->ErrorPerThread[id] + (tr + tg + tb)/(3.0*255);
+        error += (tr + tg + tb)/(3.0*255);
         tr -= this->Threshold;
         if (tr < 0)
           {
@@ -347,7 +428,7 @@ void vtkImageDifference::ThreadedRequestData(
         *outPtr0++ = static_cast<unsigned char>(tr);
         *outPtr0++ = static_cast<unsigned char>(tg);
         *outPtr0++ = static_cast<unsigned char>(tb);
-        this->ThresholdedErrorPerThread[id] += (tr + tg + tb)/(3.0*255.0);
+        thresholdedError += (tr + tg + tb)/(3.0*255.0);
 
         in1Ptr0 += in1Inc0;
         in2Ptr0 += in2Inc0;
@@ -360,6 +441,85 @@ void vtkImageDifference::ThreadedRequestData(
     in1Ptr2 += in1Inc2;
     in2Ptr2 += in2Inc2;
     }
+
+  // Add the results to the thread-local total.
+  threadData->Error += error;
+  threadData->ThresholdedError += thresholdedError;
+}
+
+//----------------------------------------------------------------------------
+// Create thread-local objects before initiating the multithreading
+int vtkImageDifference::RequestData(
+  vtkInformation *request,
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
+{
+  int r = 1;
+
+  if (this->EnableSMP) // For vtkSMPTools implementation.
+    {
+    // Get the input and output data objects
+    vtkImageData *inDataPointer[2];
+    vtkImageData **inData[2] = { &inDataPointer[0], &inDataPointer[1] };
+    vtkImageData *outData[1];
+    this->PrepareImageData(inputVector, outputVector, inData, outData);
+
+    // Get the extent
+    int extent[6];
+    outData[0]->GetExtent(extent);
+
+    // Do a dummy execution of SplitExtent to compute the number of pieces
+    vtkIdType pieces = this->SplitExtent(0, extent, 0, this->NumberOfThreads);
+
+    // Use vtkSMPTools to multithread the functor
+    vtkImageDifferenceSMPThreadLocal threadData;
+    vtkImageDifferenceSMPFunctor functor(
+      this, inData, outData, extent, pieces);
+    this->SMPThreadData = &threadData;
+    bool debug = this->Debug;
+    this->Debug = false;
+    vtkSMPTools::For(0, pieces, functor);
+    this->Debug = debug;
+    this->SMPThreadData = NULL;
+    }
+  else
+    {
+    // For vtkMultiThreader implementation.
+    int n = this->NumberOfThreads;
+    this->ThreadData = new vtkImageDifferenceThreadData[n];
+
+    // The superclass will call ThreadedRequestData
+    r = this->Superclass::RequestData(request, inputVector, outputVector);
+
+    // Compute error sums here.
+    this->Error = 0.0;
+    this->ThresholdedError = 0.0;
+    for (int i = 0; i < n; i++)
+      {
+      this->Error += this->ThreadData[i].Error;
+      this->ThresholdedError += this->ThreadData[i].ThresholdedError;
+      this->ErrorMessage = this->ThreadData[i].ErrorMessage;
+      if (this->ErrorMessage)
+        {
+        break;
+        }
+      }
+
+    delete [] this->ThreadData;
+    this->ThreadData = NULL;
+    }
+
+  if (this->ErrorMessage)
+    {
+    // Report errors here, do not report errors while multithreading!
+    vtkErrorMacro("RequestData: " << this->ErrorMessage);
+    this->ErrorMessage = NULL;
+    this->Error = 1000.0;
+    this->ThresholdedError = 1000.0;
+    r = 0;
+    }
+
+  return r;
 }
 
 //----------------------------------------------------------------------------
@@ -383,11 +543,9 @@ int vtkImageDifference::RequestInformation (
       in1Ext[2] != in2Ext[2] || in1Ext[3] != in2Ext[3] ||
       in1Ext[4] != in2Ext[4] || in1Ext[5] != in2Ext[5])
     {
-    for (i = 0; i < this->NumberOfThreads; i++)
-      {
-      this->ErrorPerThread[i] = 1000;
-      this->ThresholdedErrorPerThread[i] = 1000;
-      }
+    this->Error = 1000.0;
+    this->ThresholdedError = 1000.0;
+
     vtkErrorMacro("ExecuteInformation: Input are not the same size.\n"
       << " Input1 is: " << in1Ext[0] << "," << in1Ext[1] << ","
                         << in1Ext[2] << "," << in1Ext[3] << ","
@@ -418,32 +576,7 @@ int vtkImageDifference::RequestInformation (
   return 1;
 }
 
-double vtkImageDifference::GetError()
-{
-  double error = 0.0;
-  int i;
-
-  for ( i= 0; i < this->NumberOfThreads; i++ )
-    {
-    error += this->ErrorPerThread[i];
-    }
-
-  return error;
-}
-
-double vtkImageDifference::GetThresholdedError()
-{
-  double error = 0.0;
-  int i;
-
-  for ( i= 0; i < this->NumberOfThreads; i++ )
-    {
-    error += this->ThresholdedErrorPerThread[i];
-    }
-
-  return error;
-}
-
+//----------------------------------------------------------------------------
 vtkImageData *vtkImageDifference::GetImage()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
@@ -454,22 +587,15 @@ vtkImageData *vtkImageDifference::GetImage()
     this->GetExecutive()->GetInputData(1, 0));
 }
 
-
+//----------------------------------------------------------------------------
 void vtkImageDifference::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  int i;
-
-  for ( i= 0; i < this->NumberOfThreads; i++ )
-    {
-    os << indent << "Error for thread " << i << ": " << this->ErrorPerThread[i] << "\n";
-    os << indent << "ThresholdedError for thread " << i << ": "
-       << this->ThresholdedErrorPerThread[i] << "\n";
-    }
+  os << indent << "Error: " << this->Error << "\n";
+  os << indent << "ThresholdedError: " << this->ThresholdedError << "\n";
   os << indent << "Threshold: " << this->Threshold << "\n";
   os << indent << "AllowShift: " << this->AllowShift << "\n";
   os << indent << "Averaging: " << this->Averaging << "\n";
 }
-
 
