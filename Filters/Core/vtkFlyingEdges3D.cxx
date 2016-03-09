@@ -1412,7 +1412,7 @@ int vtkFlyingEdges3D::RequestData(
     }
 
   void *ptr = input->GetArrayPointerForExtent(inScalars, exExt);
-  vtkIdType *incs = input->GetIncrements();
+  vtkIdType *incs = input->GetIncrements(inScalars);
   switch (inScalars->GetDataType())
     {
     vtkTemplateMacro(vtkFlyingEdges3DAlgorithm<VTK_TT>::
