@@ -826,8 +826,6 @@ int vtkExodusIIReaderPrivate::AssembleOutputProceduralArrays(
       elementside->SetName(vtkExodusIIReader::GetSideSetSourceElementSideArrayName());
       vtkIdType values[2];
 
-      cerr << "value 0 AFTER the weirdness " << src->GetValue(0) << endl;
-
       for(vtkIdType i=0;i<idarray->GetNumberOfTuples();i++)
         {
         idarray->GetTypedTuple(i, values);
