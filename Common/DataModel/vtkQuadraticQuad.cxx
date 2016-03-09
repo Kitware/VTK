@@ -296,7 +296,7 @@ void vtkQuadraticQuad::Contour(double value,
       }
 
     this->Quad->Contour(value,this->Scalars,locator,verts,lines,polys,
-                        this->PointData,outPd,this->CellData,cellId,outCd);
+                        this->PointData,outPd,this->CellData,i,outCd);
     }
 }
 //----------------------------------------------------------------------------
