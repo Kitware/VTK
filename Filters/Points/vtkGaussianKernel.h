@@ -36,19 +36,19 @@
 #define vtkGaussianKernel_h
 
 #include "vtkFiltersPointsModule.h" // For export macro
-#include "vtkInterpolationKernel.h"
+#include "vtkGeneralizedKernel.h"
 
 class vtkIdList;
 class vtkDoubleArray;
 
 
-class VTKFILTERSPOINTS_EXPORT vtkGaussianKernel : public vtkInterpolationKernel
+class VTKFILTERSPOINTS_EXPORT vtkGaussianKernel : public vtkGeneralizedKernel
 {
 public:
   // Description:
   // Standard methods for instantiation, obtaining type information, and printing.
   static vtkGaussianKernel *New();
-  vtkTypeMacro(vtkGaussianKernel,vtkInterpolationKernel);
+  vtkTypeMacro(vtkGaussianKernel,vtkGeneralizedKernel);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -58,29 +58,20 @@ public:
                           vtkPointData *pd);
 
   // Description:
-  // Given a point x, determine the points around x which form an
-  // interpolation basis. The user must provide the vtkIdList pids, which will
-  // be dynamically resized as necessary. The method returns the number of
-  // points in the basis. Typically this method is called before
-  // ComputeWeights().
-  virtual vtkIdType ComputeBasis(double x[3], vtkIdList *pIds);
-
-  // Description:
-  // Given a point x, and a list of basis points pIds, compute interpolation
-  // weights associated with these basis points.  Note that both the nearby
-  // basis points list pIds and the weights array are provided by the caller
-  // of the method, and may be dynamically resized as necessary. Typically
+  // Given a point x, a list of basis points pIds, and a probability
+  // weighting function prob, compute interpolation weights associated with
+  // these basis points.  Note that basis points list pIds, the probability
+  // weighting prob, and the weights array are provided by the caller of the
+  // method, and may be dynamically resized as necessary. The method returns
+  // the number of weights (pIds may be resized in some cases). Typically
   // this method is called after ComputeBasis(), although advanced users can
   // invoke ComputeWeights() and provide the interpolation basis points pIds
-  // directly.
+  // directly. The probably weighting prob are numbers 0<=prob<=1 which are
+  // multiplied against the interpolation weights before normalization. They
+  // are estimates of local confidence of weights. The prob may be NULL in
+  // which all probabilities are considered =1.
   virtual vtkIdType ComputeWeights(double x[3], vtkIdList *pIds,
-                                   vtkDoubleArray *weights);
-
-  // Description:
-  // Specify the radius of the kernel. Points within this radius will be
-  // used for interpolation (if ComputeBasis() is invoked).
-  vtkSetClampMacro(Radius,double,0.000001,VTK_FLOAT_MAX);
-  vtkGetMacro(Radius,double);
+                                   vtkDoubleArray *prob, vtkDoubleArray *weights);
 
   // Description:
   // Set / Get the sharpness (i.e., falloff) of the Gaussian. By default
@@ -93,7 +84,6 @@ protected:
   vtkGaussianKernel();
   ~vtkGaussianKernel();
 
-  double Radius;
   double Sharpness;
 
   // Internal structure to reduce computation

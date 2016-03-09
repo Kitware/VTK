@@ -217,8 +217,7 @@ vtkPointInterpolator::vtkPointInterpolator()
   this->NullValue = 0.0;
 
   this->ValidPointsMask = NULL;
-  this->ValidPointsMaskArrayName = 0;
-  this->SetValidPointsMaskArrayName("vtkValidPointMask");
+  this->ValidPointsMaskArrayName = "vtkValidPointMask";
 
   this->PassPointArrays = true;
   this->PassCellArrays = true;

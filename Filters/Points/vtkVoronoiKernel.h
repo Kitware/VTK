@@ -24,7 +24,7 @@
 // point) the kernel basis arbitrarily chooses one of the equidistant points.
 
 // .SECTION See Also
-// vtkInterpolationKernel vtkGaussianKernel vtkSPHKernel vtkShepardKernel
+// vtkInterpolationKernel vtkGeneralizedKernel vtkProbabilisticVoronoiKernel
 
 
 #ifndef vtkVoronoiKernel_h

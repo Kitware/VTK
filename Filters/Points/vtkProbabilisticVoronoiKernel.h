@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkShepardKernel.h
+  Module:    vtkProbabilisticVoronoiKernel.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,26 +12,27 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkShepardKernel - a Shepard method interpolation kernel
+// .NAME vtkProbabilisticVoronoiKernel - interpolate from the weighted closest point
 
 // .SECTION Description
-// vtkShepardKernel is an interpolation kernel that uses the method of
-// Shepard to perform interpolation. The weights are computed as 1/r^p, where
-// r is the distance to a neighbor point within the kernal radius R; and p
-// (the power parameter) is a positive exponent (typically p=2).
+// vtkProbabilisticVoronoiKernel is an interpolation kernel that interpolates
+// from the closest weighted point from a neighborhood of points. The weights
+// refer to the probabilistic weighting that can be provided to the
+// ComputeWeights() method.
+//
+// Note that the local neighborhood is taken from the kernel footprint
+// specified in the superclass vtkGeneralizedKernel.
 
 // .SECTION Caveats
-// The weights are normalized sp that SUM(Wi) = 1. If a neighbor point p
-// precisely lies on the point to be interpolated, then the interpolated
-// point takes on the values associated with p.
+// If probability weightings are not defined, then the kernel provides the
+// same results as vtkVoronoiKernel, except a less efficiently.
 
 // .SECTION See Also
-// vtkPointInterpolator vtkPointInterpolator2D vtkInterpolationKernel
-// vtkGaussianKernel vtkSPHKernel vtkShepardKernel
+// vtkInterpolationKernel vtkGeneralizedKernel vtkVoronoiKernel
 
 
-#ifndef vtkShepardKernel_h
-#define vtkShepardKernel_h
+#ifndef vtkProbabilisticVoronoiKernel_h
+#define vtkProbabilisticVoronoiKernel_h
 
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkGeneralizedKernel.h"
@@ -40,13 +41,13 @@ class vtkIdList;
 class vtkDoubleArray;
 
 
-class VTKFILTERSPOINTS_EXPORT vtkShepardKernel : public vtkGeneralizedKernel
+class VTKFILTERSPOINTS_EXPORT vtkProbabilisticVoronoiKernel : public vtkGeneralizedKernel
 {
 public:
   // Description:
   // Standard methods for instantiation, obtaining type information, and printing.
-  static vtkShepardKernel *New();
-  vtkTypeMacro(vtkShepardKernel,vtkGeneralizedKernel);
+  static vtkProbabilisticVoronoiKernel *New();
+  vtkTypeMacro(vtkProbabilisticVoronoiKernel,vtkGeneralizedKernel);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -65,22 +66,13 @@ public:
   virtual vtkIdType ComputeWeights(double x[3], vtkIdList *pIds,
                                    vtkDoubleArray *prob, vtkDoubleArray *weights);
 
-  // Description:
-  // Set / Get the power parameter p. By default p=2. Values (which must be
-  // a positive, real value) != 2 may affect performance significantly.
-  vtkSetClampMacro(PowerParameter,double,0.001,100);
-  vtkGetMacro(PowerParameter,double);
-
 protected:
-  vtkShepardKernel();
-  ~vtkShepardKernel();
-
-  // The exponent of the weights, =2 by default (l2 norm)
-  double PowerParameter;
+  vtkProbabilisticVoronoiKernel();
+  ~vtkProbabilisticVoronoiKernel();
 
 private:
-  vtkShepardKernel(const vtkShepardKernel&);  // Not implemented.
-  void operator=(const vtkShepardKernel&);  // Not implemented.
+  vtkProbabilisticVoronoiKernel(const vtkProbabilisticVoronoiKernel&);  // Not implemented.
+  void operator=(const vtkProbabilisticVoronoiKernel&);  // Not implemented.
 };
 
 #endif

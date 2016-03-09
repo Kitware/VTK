@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkLinearKernel.cxx
+  Module:    vtkGeneralizedKernel.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,69 +12,52 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkLinearKernel.h"
+#include "vtkGeneralizedKernel.h"
 #include "vtkAbstractPointLocator.h"
 #include "vtkObjectFactory.h"
 #include "vtkIdList.h"
 #include "vtkDoubleArray.h"
-
-vtkStandardNewMacro(vtkLinearKernel);
+#include "vtkDataSet.h"
+#include "vtkPointData.h"
+#include "vtkMath.h"
 
 //----------------------------------------------------------------------------
-vtkLinearKernel::vtkLinearKernel()
+vtkGeneralizedKernel::vtkGeneralizedKernel()
 {
+  this->KernelFootprint = vtkGeneralizedKernel::RADIUS;
+  this->Radius = 1.0;
+  this->NumberOfPoints = 8;
 }
 
 
 //----------------------------------------------------------------------------
-vtkLinearKernel::~vtkLinearKernel()
+vtkGeneralizedKernel::~vtkGeneralizedKernel()
 {
 }
 
-
 //----------------------------------------------------------------------------
-vtkIdType vtkLinearKernel::
-ComputeWeights(double*, vtkIdList *pIds, vtkDoubleArray *prob,
-               vtkDoubleArray *weights)
+vtkIdType vtkGeneralizedKernel::
+ComputeBasis(double x[3], vtkIdList *pIds)
 {
-  vtkIdType numPts = pIds->GetNumberOfIds();
-  double *p = (prob ? prob->GetPointer(0) : NULL);
-  double *w = weights->GetPointer(0);
-  double weight = 1.0 / static_cast<double>(numPts);
-
-  if ( ! prob ) //standard linear interpolation
+  if ( this->KernelFootprint == vtkGeneralizedKernel::RADIUS )
     {
-    weights->SetNumberOfTuples(numPts);
-    for (vtkIdType i=0; i < numPts; ++i)
-      {
-      w[i] = weight;
-      }
+    this->Locator->FindPointsWithinRadius(this->Radius, x, pIds);
+    }
+  else
+    {
+    this->Locator->FindClosestNPoints(this->NumberOfPoints, x, pIds);
     }
 
-  else //weight by probability
-    {
-    double sum=0.0;
-    for (vtkIdType i=0; i < numPts; ++i)
-      {
-      w[i] = weight * p[i];
-      sum += w[i];
-      }
-    // Now normalize
-    if ( sum != 0.0 )
-      {
-      for (vtkIdType i=0; i < numPts; ++i)
-        {
-        w[i] /= sum;
-        }
-      }
-    }
-
-  return numPts;
+  return pIds->GetNumberOfIds();
 }
 
 //----------------------------------------------------------------------------
-void vtkLinearKernel::PrintSelf(ostream& os, vtkIndent indent)
+void vtkGeneralizedKernel::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "Kernel Footprint: " << this->KernelFootprint << "\n";
+  os << indent << "Radius: " << this->Radius << "\n";
+  os << indent << "Number of Points: " << this->NumberOfPoints << "\n";
 
 }
