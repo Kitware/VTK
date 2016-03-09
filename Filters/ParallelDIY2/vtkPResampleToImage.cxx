@@ -14,8 +14,9 @@
 =========================================================================*/
 #include "vtkPResampleToImage.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkCharArray.h"
-#include "vtkDataArrayIteratorMacro.h"
+#include "vtkDataArrayAccessor.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkExtentTranslator.h"
 #include "vtkIdList.h"
@@ -127,7 +128,6 @@ inline void ExtractFieldMetaData(vtkDataSetAttributes *data,
     }
 }
 
-
 inline void InitializeFieldData(const std::vector<FieldMetaData> &metadata,
                                 vtkIdType numTuples,
                                 vtkDataSetAttributes *data)
@@ -156,16 +156,28 @@ inline void InitializeFieldData(const std::vector<FieldMetaData> &metadata,
     }
 }
 
-template <typename Iterator>
-inline void SaveToBuffer(Iterator begin, std::size_t start, std::size_t count,
-                         diy::MemoryBuffer &bb)
+class SerializeWorklet
 {
-  std::advance(begin, start);
-  for (std::size_t i = 0; i < count; ++i)
-    {
-    diy::save(bb, *begin++);
-    }
-}
+public:
+  SerializeWorklet(vtkIdType tuple, int numComponents, diy::MemoryBuffer &buffer)
+    : Tuple(tuple), NumComponents(numComponents), Buffer(&buffer)
+  { }
+
+  template <typename ArrayType>
+  void operator()(ArrayType *array) const
+  {
+    vtkDataArrayAccessor<ArrayType> accessor(array);
+    for (int i = 0; i < this->NumComponents; ++i)
+      {
+      diy::save(*this->Buffer, accessor.Get(this->Tuple, i));
+      }
+  }
+
+private:
+  vtkIdType Tuple;
+  int NumComponents;
+  diy::MemoryBuffer *Buffer;
+};
 
 inline void SerializeFieldData(vtkFieldData *field, vtkIdType tuple,
                                std::vector<char> &bytestream)
@@ -176,25 +188,40 @@ inline void SerializeFieldData(vtkFieldData *field, vtkIdType tuple,
     {
     vtkDataArray *da = field->GetArray(i);
     std::size_t numComponents = static_cast<std::size_t>(da->GetNumberOfComponents());
-    std::size_t index = tuple * numComponents;
-    switch(da->GetDataType())
+    SerializeWorklet worklet(tuple, numComponents, bb);
+    if (!vtkArrayDispatch::Dispatch::Execute(da, worklet))
       {
-      vtkDataArrayIteratorMacro(da, SaveToBuffer(vtkDABegin, index, numComponents, bb));
+      vtkGenericWarningMacro(<< "Dispatch failed, fallback to vtkDataArray Get/Set");
+      worklet(da);
       }
     }
   std::swap(bytestream, bb.buffer);
 }
 
-template <typename Iterator>
-inline void LoadFromBuffer(Iterator begin, std::size_t start, std::size_t count,
-                           diy::MemoryBuffer &bb)
+class DeserializeWorklet
 {
-  std::advance(begin, start);
-  for (std::size_t i = 0; i < count; ++i)
-    {
-    diy::load(bb, *begin++);
-    }
-}
+public:
+  DeserializeWorklet(vtkIdType tuple, int numComponents, diy::MemoryBuffer &buffer)
+    : Tuple(tuple), NumComponents(numComponents), Buffer(&buffer)
+  { }
+
+  template <typename ArrayType>
+  void operator()(ArrayType *array) const
+  {
+    vtkDataArrayAccessor<ArrayType> accessor(array);
+    for (int i = 0; i < this->NumComponents; ++i)
+      {
+      typename vtkDataArrayAccessor<ArrayType>::APIType val;
+      diy::load(*this->Buffer, val);
+      accessor.Set(this->Tuple, i, val);
+      }
+  }
+
+private:
+  vtkIdType Tuple;
+  int NumComponents;
+  diy::MemoryBuffer *Buffer;
+};
 
 inline void DeserializeFieldData(const std::vector<char> &bytestream,
                                  vtkFieldData *field, vtkIdType tuple)
@@ -207,10 +234,11 @@ inline void DeserializeFieldData(const std::vector<char> &bytestream,
     {
     vtkDataArray *da = field->GetArray(i);
     std::size_t numComponents = static_cast<std::size_t>(da->GetNumberOfComponents());
-    std::size_t index = tuple * numComponents;
-    switch(da->GetDataType())
+    DeserializeWorklet worklet(tuple, numComponents, bb);
+    if (!vtkArrayDispatch::Dispatch::Execute(da, worklet))
       {
-      vtkDataArrayIteratorMacro(da, LoadFromBuffer(vtkDABegin, index, numComponents, bb));
+      vtkGenericWarningMacro(<< "Dispatch failed, fallback to vtkDataArray Get/Set");
+      worklet(da);
       }
     }
 }
@@ -399,7 +427,7 @@ struct ReceiveGhostPoints
 };
 
 void MakeResult(const double origin[3], const double spacing[3],
-                const int extent[3], const std::vector<FieldMetaData> &fieldMetaData,
+                const int extent[6], const std::vector<FieldMetaData> &fieldMetaData,
                 const std::vector<Point> &points, vtkImageData *result)
 {
   result->SetOrigin(origin[0], origin[1], origin[2]);
