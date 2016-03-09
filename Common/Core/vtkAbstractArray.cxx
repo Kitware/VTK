@@ -258,10 +258,22 @@ bool vtkAbstractArray::HasStandardMemoryLayout()
 //----------------------------------------------------------------------------
 void vtkAbstractArray::DeepCopy( vtkAbstractArray* da )
 {
-  if (da && da->HasInformation() && da!=this)
+  if (!da || da == this)
+    {
+    return;
+    }
+
+  if (da->HasInformation())
     {
     this->CopyInformation(da->GetInformation(),/*deep=*/1);
     }
+  else
+    {
+    this->SetInformation(NULL);
+    }
+
+  this->SetName(da->Name);
+
   this->CopyComponentNames( da );
 }
 
