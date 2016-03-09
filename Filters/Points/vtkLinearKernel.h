@@ -42,6 +42,9 @@ public:
   vtkTypeMacro(vtkLinearKernel,vtkGeneralizedKernel);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Re-use any superclass signatures that we don't override.
+  using vtkGeneralizedKernel::ComputeWeights;
+
   // Description:
   // Given a point x, a list of basis points pIds, and a probability
   // weighting function prob, compute interpolation weights associated with
