@@ -211,8 +211,7 @@ RequestData(vtkInformation *vtkNotUsed(request),
   // x y z intensity or
   // or x y z intensity r g b?
   int numValuesPerLine;
-  float intensity;
-  double rgb[3], pt[3];
+  double irgb[4], pt[3];
 
   if (numPts == -1)
     {
@@ -230,13 +229,13 @@ RequestData(vtkInformation *vtkNotUsed(request),
   else
     {
     getline(file, buffer);
-    numValuesPerLine = sscanf(buffer.c_str(), "%lf %lf %lf %f %lf %lf %lf",
+    numValuesPerLine = sscanf(buffer.c_str(), "%lf %lf %lf %lf %lf %lf %lf",
                               pt, pt+1, pt+2,
-                              &intensity, rgb, rgb+1, rgb+2);
+                              irgb, irgb+1, irgb+2, irgb+3);
     }
-
   if (!((numValuesPerLine == 3) ||
         (numValuesPerLine == 4) ||
+        (numValuesPerLine == 6) ||
         (numValuesPerLine == 7)))
     {
     // Unsupported line format!
@@ -285,8 +284,8 @@ RequestData(vtkInformation *vtkNotUsed(request),
     output->SetVerts( newVerts.GetPointer() );
     }
 
-  bool wantIntensities = (numValuesPerLine > 3);
-  if (numValuesPerLine == 7)
+  bool wantIntensities = ((numValuesPerLine == 4) || (numValuesPerLine == 7));
+  if (numValuesPerLine > 4)
     {
     colors->SetNumberOfComponents(3);
     colors->SetName("Color");
@@ -298,7 +297,7 @@ RequestData(vtkInformation *vtkNotUsed(request),
       }
     }
 
-  if (wantIntensities && numValuesPerLine > 3)
+  if (wantIntensities)
     {
     intensities->SetName("Intensities");
     intensities->SetNumberOfComponents(1);
@@ -350,9 +349,9 @@ RequestData(vtkInformation *vtkNotUsed(request),
     if (floor(i*onRatio) > lastCount)
       {
       lastCount++;
-      sscanf(buffer.c_str(), "%lf %lf %lf %f %lf %lf %lf",
+      sscanf(buffer.c_str(), "%lf %lf %lf %lf %lf %lf %lf",
              pt, pt+1, pt+2,
-             &intensity, rgb, rgb+1, rgb+2);
+             irgb, irgb+1, irgb+2, irgb+3);
       // OK to process based on bounding box
       if ((!this->LimitReadToBounds) || this->ReadBBox.ContainsPoint(pt))
         {
@@ -362,13 +361,22 @@ RequestData(vtkInformation *vtkNotUsed(request),
           {
           pids[pid] = pid;
           }
-        if (wantIntensities && numValuesPerLine > 3)
+        if (wantIntensities)
           {
-          intensities->InsertNextValue(intensity);
+          intensities->InsertNextValue(irgb[0]);
           }
-        if (numValuesPerLine == 7)
+        if (numValuesPerLine > 4)
           {
-          colors->InsertNextTuple(rgb);
+            // if we have intensity then the color info starts with the second value in the array
+            // else it starts with the first
+            if(wantIntensities)
+              {
+                colors->InsertNextTuple(irgb+1);
+              }
+            else
+              {
+                colors->InsertNextTuple(irgb);
+              }
           }
         }
       }
@@ -391,11 +399,11 @@ RequestData(vtkInformation *vtkNotUsed(request),
   if (newPts->GetNumberOfPoints() < targetNumPts)
     {
     newPts->Squeeze();
-    if (wantIntensities && numValuesPerLine > 3)
+    if (wantIntensities)
       {
       intensities->Squeeze();
       }
-    if (numValuesPerLine > 7)
+    if (numValuesPerLine > 4)
       {
       colors->Squeeze();
       }
