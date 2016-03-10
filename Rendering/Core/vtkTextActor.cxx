@@ -13,23 +13,26 @@
 
 =========================================================================*/
 #include "vtkTextActor.h"
-#include "vtkObjectFactory.h"
-#include "vtkPolyDataMapper2D.h"
-#include "vtkTextProperty.h"
-#include "vtkViewport.h"
-#include "vtkWindow.h"
-#include "vtkTransform.h"
-#include "vtkImageData.h"
-#include "vtkPoints.h"
-#include "vtkPointData.h"
-#include "vtkPolyData.h"
+
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
-#include "vtkTexture.h"
+#include "vtkImageData.h"
 #include "vtkMath.h"
-#include "vtkTextRenderer.h"
+#include "vtkNew.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper2D.h"
+#include "vtkProperty2D.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkTextProperty.h"
+#include "vtkTextRenderer.h"
+#include "vtkTexture.h"
+#include "vtkTransform.h"
+#include "vtkViewport.h"
+#include "vtkWindow.h"
 
 #include <algorithm>
 
@@ -109,6 +112,28 @@ vtkTextActor::vtkTextActor()
     {
     vtkErrorMacro(<<"Failed getting the TextRenderer instance!");
     }
+
+  this->DrawFrame = false;
+  this->FrameProperty = vtkProperty2D::New();
+
+  this->FramePoints = vtkPoints::New();
+  this->FramePoints->SetNumberOfPoints(4);
+  vtkNew<vtkPolyData> frame;
+  frame->SetPoints(this->FramePoints);
+
+  vtkNew<vtkCellArray> lines;
+  lines->Allocate(lines->EstimateSize(1, 5));
+  frame->SetLines(lines.Get());
+  vtkIdType frameIds[5] = { 0, 1, 2, 3, 0 };
+  lines->InsertNextCell(5, frameIds);
+
+  this->FrameMapper = vtkPolyDataMapper2D::New();
+  this->FrameMapper->SetInputData(frame.Get());
+  this->FrameActor = vtkActor2D::New();
+  this->FrameActor->SetMapper(this->FrameMapper);
+  this->FrameActor->
+    GetPositionCoordinate()->SetReferenceCoordinate(this->PositionCoordinate);
+  this->FrameActor->SetProperty(this->FrameProperty);
 }
 
 // ----------------------------------------------------------------------------
@@ -125,6 +150,12 @@ vtkTextActor::~vtkTextActor()
   this->RectanglePoints->Delete();
   this->RectanglePoints = 0;
   this->SetTexture(0);
+
+  this->FrameMapper->Delete();
+  this->FrameActor->Delete();
+  this->FrameProperty->Delete();
+  this->FrameProperty = 0;
+  this->FramePoints->Delete();
 }
 
 // ----------------------------------------------------------------------------
@@ -369,7 +400,41 @@ bool vtkTextActor::GetImageBoundingBox(vtkTextProperty *tprop, vtkViewport *vp,
     return false;
     }
 
-  return this->TextRenderer->GetBoundingBox(tprop, text, bbox, win->GetDPI());
+  vtkTextRenderer::Metrics metrics;
+  bool ret = this->TextRenderer->GetMetrics(tprop, text, metrics, win->GetDPI());
+
+  bbox[0] = metrics.BoundingBox[0];
+  bbox[1] = metrics.BoundingBox[1];
+  bbox[2] = metrics.BoundingBox[2];
+  bbox[3] = metrics.BoundingBox[3];
+
+  // The rectangle returned by the GetMetrics function is one pixel less larger
+  // than the background drawn so we need to move right points in the direction
+  // of the width vector. Those points are the geometry of the frame.
+  vtkVector2<float> v(
+    metrics.TopRight.GetX() - metrics.TopLeft.GetX(),
+    metrics.TopRight.GetY() - metrics.TopLeft.GetY());
+  v.Normalize();
+
+  this->FramePoints->SetNumberOfPoints(4);
+
+  this->FramePoints->SetPoint(0,
+    metrics.TopLeft.GetX(),
+    metrics.TopLeft.GetY(), 0.0);
+
+  this->FramePoints->SetPoint(1,
+    metrics.TopRight.GetX() + vtkMath::Round(v.GetX()),
+    metrics.TopRight.GetY() + vtkMath::Round(v.GetY()), 0.0);
+
+  this->FramePoints->SetPoint(2,
+    metrics.BottomRight.GetX() + vtkMath::Round(v.GetX()),
+    metrics.BottomRight.GetY() + vtkMath::Round(v.GetY()), 0.0);
+
+  this->FramePoints->SetPoint(3,
+    metrics.BottomLeft.GetX(),
+    metrics.BottomLeft.GetY(), 0.0);
+
+  return ret;
 }
 
 // ----------------------------------------------------------------------------
@@ -421,6 +486,28 @@ void vtkTextActor::SetTextProperty(vtkTextProperty *p)
 }
 
 // ----------------------------------------------------------------------------
+void vtkTextActor::SetFrameProperty(vtkProperty2D *p)
+{
+  if (this->FrameProperty == p)
+    {
+    return;
+    }
+  if (this->FrameProperty)
+    {
+    this->FrameActor->SetProperty(NULL);
+    this->FrameProperty->UnRegister(this);
+    this->FrameProperty = NULL;
+    }
+  this->FrameProperty = p;
+  if (this->FrameProperty)
+    {
+    this->FrameProperty->Register(this);
+    this->FrameActor->SetProperty(this->FrameProperty);
+    }
+  this->Modified();
+}
+
+// ----------------------------------------------------------------------------
 void vtkTextActor::ShallowCopy(vtkProp *prop)
 {
   vtkTextActor *a = vtkTextActor::SafeDownCast(prop);
@@ -432,6 +519,8 @@ void vtkTextActor::ShallowCopy(vtkProp *prop)
     this->SetTextScaleMode(a->GetTextScaleMode());
     this->SetTextProperty(a->GetTextProperty());
     this->SetInput(a->GetInput());
+    this->SetDrawFrame(a->GetDrawFrame());
+    this->SetFrameProperty(a->GetFrameProperty());
     }
   // Now do superclass (mapper is handled by it as well).
   this->Superclass::ShallowCopy(prop);
@@ -443,6 +532,8 @@ void vtkTextActor::ShallowCopy(vtkProp *prop)
 // resources to release.
 void vtkTextActor::ReleaseGraphicsResources(vtkWindow *win)
 {
+  this->FrameActor->ReleaseGraphicsResources(win);
+
   this->Superclass::ReleaseGraphicsResources(win);
 }
 
@@ -455,7 +546,14 @@ int vtkTextActor::RenderOverlay(vtkViewport *viewport)
     }
 
   // Everything is built in RenderOpaqueGeometry, just have to render
-  return this->Superclass::RenderOverlay(viewport);
+  int renderedSomething = this->Superclass::RenderOverlay(viewport);
+
+  if (this->DrawFrame)
+    {
+    renderedSomething += this->FrameActor->RenderOverlay(viewport);
+    }
+
+  return renderedSomething;
 }
 
 // ----------------------------------------------------------------------------
@@ -873,10 +971,11 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
     yo = anchorOffset[1];
     } //end unscaled text case
 
-  this->RectanglePoints->InsertNextPoint(xo,           yo,           0.0 );
-  this->RectanglePoints->InsertNextPoint(xo,           yo + dims[1], 0.0 );
-  this->RectanglePoints->InsertNextPoint(xo + dims[0], yo + dims[1], 0.0 );
-  this->RectanglePoints->InsertNextPoint(xo + dims[0], yo,           0.0 );
+  this->RectanglePoints->SetNumberOfPoints(4);
+  this->RectanglePoints->SetPoint(0, xo,           yo,           0.0);
+  this->RectanglePoints->SetPoint(1, xo,           yo + dims[1], 0.0);
+  this->RectanglePoints->SetPoint(2, xo + dims[0], yo + dims[1], 0.0);
+  this->RectanglePoints->SetPoint(3, xo + dims[0], yo,           0.0);
 }
 
 // ----------------------------------------------------------------------------
@@ -1021,4 +1120,8 @@ void vtkTextActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Orientation: " << this->Orientation << endl;
   os << indent << "FontScaleExponent: " << this->FontScaleExponent << endl;
   os << indent << "UseBorderAlign: " << this->UseBorderAlign << "\n";
+
+  os << indent << "DrawFrame: " << this->DrawFrame << "\n";
+  os << indent << "Frame Property:\n";
+  this->FrameProperty->PrintSelf(os, indent.GetNextIndent());
 }
