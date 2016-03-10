@@ -3156,7 +3156,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
         cam->GetParallelProjection();
 
       this->Impl->ContourFilter->SetInputData(input);
-      for (int i = 0; i < this->DepthPassContourValues->GetNumberOfContours(); ++i)
+      for (int i = 0; i < this->GetDepthPassContourValues()->GetNumberOfContours(); ++i)
         {
         this->Impl->ContourFilter->SetValue(i,
           this->DepthPassContourValues->GetValue(i));
@@ -3250,15 +3250,19 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     if (this->RenderToImage)
       {
       this->Impl->SetupRenderToTexture(ren);
-      }
 
-    this->DoGPURender(ren, vol, input,
-                       cam, this->Impl->ShaderProgram,
-                       noOfComponents, independentComponents);
 
-    if (this->RenderToImage)
-      {
+      this->DoGPURender(ren, vol, input,
+                         cam, this->Impl->ShaderProgram,
+                         noOfComponents, independentComponents);
+
       this->Impl->ExitRenderToTexture(ren);
+      }
+    else
+      {
+      this->DoGPURender(ren, vol, input,
+                         cam, this->Impl->ShaderProgram,
+                         noOfComponents, independentComponents);
       }
     }
 

@@ -56,10 +56,21 @@ public:
   vtkGetMacro( UseJittering, int );
   vtkBooleanMacro( UseJittering, int );
 
+  // Description:
+  // If UseDepthPass is on, the mapper will use two passes. In the first
+  // pass, an isocontour depth buffer will be utilized as starting point
+  // for ray-casting hence eliminating traversal on voxels that are
+  // not going to participate in final rendering. UseDepthPass requires
+  // reasonable contour values to be set which can be set by calling
+  // GetDepthPassContourValues() method and using vtkControurValues API.
   vtkSetClampMacro( UseDepthPass, int, 0, 1 );
   vtkGetMacro( UseDepthPass, int );
   vtkBooleanMacro( UseDepthPass, int );
 
+  // Description:
+  // Return handle to contour values container so
+  // that values can be set by the application. Contour values
+  // will be used only when UseDepthPass is on.
   vtkContourValues* GetDepthPassContourValues();
 
   // Description:
