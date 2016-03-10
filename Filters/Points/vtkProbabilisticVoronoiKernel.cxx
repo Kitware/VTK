@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkShepardKernel.cxx
+  Module:    vtkProbabilisticVoronoiKernel.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkShepardKernel.h"
+#include "vtkProbabilisticVoronoiKernel.h"
 #include "vtkAbstractPointLocator.h"
 #include "vtkObjectFactory.h"
 #include "vtkIdList.h"
@@ -21,78 +21,73 @@
 #include "vtkPointData.h"
 #include "vtkMath.h"
 
-vtkStandardNewMacro(vtkShepardKernel);
+vtkStandardNewMacro(vtkProbabilisticVoronoiKernel);
 
 //----------------------------------------------------------------------------
-vtkShepardKernel::vtkShepardKernel()
-{
-  this->PowerParameter = 2.0;
-}
-
-
-//----------------------------------------------------------------------------
-vtkShepardKernel::~vtkShepardKernel()
+vtkProbabilisticVoronoiKernel::vtkProbabilisticVoronoiKernel()
 {
 }
 
 
 //----------------------------------------------------------------------------
-vtkIdType vtkShepardKernel::
+vtkProbabilisticVoronoiKernel::~vtkProbabilisticVoronoiKernel()
+{
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkProbabilisticVoronoiKernel::
 ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *prob,
                vtkDoubleArray *weights)
 {
   vtkIdType numPts = pIds->GetNumberOfIds();
-  int i;
-  vtkIdType id;
-  double d, y[3], sum=0.0;
-  weights->SetNumberOfTuples(numPts);
   double *p = (prob ? prob->GetPointer(0) : NULL);
-  double *w = weights->GetPointer(0);
+  double highestProbability=(-VTK_FLOAT_MIN);
+  vtkIdType id, mostProbableId=0;
 
-  for (i=0; i<numPts; ++i)
+  if ( p ) // return the point in the neighborhood with the highest probability
     {
-    id = pIds->GetId(i);
-    this->DataSet->GetPoint(id,y);
-    if ( this->PowerParameter == 2.0 )
+    for (int i=0; i<numPts; ++i)
       {
-      d = vtkMath::Distance2BetweenPoints(x,y);
-      }
-    else
-      {
-      d = pow(sqrt(vtkMath::Distance2BetweenPoints(x,y)), this->PowerParameter);
-      }
-    if ( d == 0.0 ) //precise hit on existing point
-      {
-      pIds->SetNumberOfIds(1);
-      pIds->SetId(0,id);
-      weights->SetNumberOfTuples(1);
-      weights->SetValue(0,1.0);
-      return 1;
-      }
-    else
-      {
-      w[i] = (p ? p[i]/d : 1.0/d); //take into account probability if provided
-      sum += w[i];
-      }
-    }//over all points
-
-  // Normalize
-  if ( sum != 0.0 )
-    {
-    for (i=0; i<numPts; ++i)
-      {
-      w[i] /= sum;
+      if ( p[i] > highestProbability )
+        {
+        mostProbableId = pIds->GetId(i);
+        highestProbability = p[i];
+        }
       }
     }
 
-  return numPts;
+  else //return the closest point in the footprint provided
+    {
+    double y[3], d, minD=VTK_FLOAT_MAX;
+    for (int i=0; i<numPts; ++i)
+      {
+      id = pIds->GetId(i);
+      this->DataSet->GetPoint(id,y);
+      d = vtkMath::Distance2BetweenPoints(x,y);
+      if ( d == 0.0 ) //precise hit on existing point
+        {
+        mostProbableId = id;
+        break;
+        }
+      else if ( d <= minD )
+        {
+        mostProbableId = id;
+        minD = d;
+        }
+      }//over all points
+    }
+
+  // Okay let's get out
+  pIds->SetNumberOfIds(1);
+  pIds->SetId(0,mostProbableId);
+  weights->SetNumberOfTuples(1);
+  weights->SetValue(0,1.0);
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkShepardKernel::PrintSelf(ostream& os, vtkIndent indent)
+void vtkProbabilisticVoronoiKernel::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-
-  os << indent << "Power Parameter: "
-     << this->PowerParameter << "\n";
 }

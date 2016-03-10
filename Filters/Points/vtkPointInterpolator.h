@@ -54,15 +54,16 @@
 // as in the NullPointsStrategy).
 
 // .SECTION See Also
-// vtkProbeFilter vtkGaussianSplatter vtkCheckerboardSplatter
-// vtkShepardMethod vtkVoronoiKernel vtkShepardKernel vtkGaussianKernel
-// vtkSPHKernel
+// vtkPointInterpolator2D vtkProbeFilter vtkGaussianSplatter
+// vtkCheckerboardSplatter vtkShepardMethod vtkVoronoiKernel vtkShepardKernel
+// vtkGaussianKernel vtkSPHKernel
 
 #ifndef vtkPointInterpolator_h
 #define vtkPointInterpolator_h
 
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
+#include "vtkStdString.h"        // For vtkStdString ivars
 
 class vtkAbstractPointLocator;
 class vtkIdList;
@@ -142,8 +143,8 @@ public:
   // each input point. This vtkCharArray is placed into the output of the filter,
   // with a non-zero value for a valid point, and zero otherwise. The name of
   // this masking array is specified here.
-  vtkSetStringMacro(ValidPointsMaskArrayName);
-  vtkGetStringMacro(ValidPointsMaskArrayName);
+  vtkSetMacro(ValidPointsMaskArrayName, vtkStdString);
+  vtkGetMacro(ValidPointsMaskArrayName, vtkStdString);
 
   // Description:
   // Specify the null point value. When a null point is encountered then all
@@ -182,7 +183,7 @@ protected:
 
   int NullPointsStrategy;
   double NullValue;
-  char* ValidPointsMaskArrayName;
+  vtkStdString ValidPointsMaskArrayName;
   vtkCharArray *ValidPointsMask;
 
   bool PassCellArrays;
@@ -197,13 +198,13 @@ protected:
     vtkInformationVector *);
 
   // Description:
-  // Equivalent to calling BuildFieldList(); InitializeForProbing(); DoProbing().
-  void Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output);
+  // Virtual for specialized subclass(es)
+  virtual void Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output);
 
   // Description:
   // Call at end of RequestData() to pass attribute data respecting the
   // PassCellArrays, PassPointArrays, PassFieldArrays flags.
-  void PassAttributeData(
+  virtual void PassAttributeData(
     vtkDataSet* input, vtkDataObject* source, vtkDataSet* output);
 
   // Description:

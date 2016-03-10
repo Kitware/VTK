@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkGaussianKernel.h
+  Module:    vtkProbabilisticVoronoiKernel.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,28 +12,27 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGaussianKernel - a spherical Gaussian interpolation kernel
+// .NAME vtkProbabilisticVoronoiKernel - interpolate from the weighted closest point
 
 // .SECTION Description
-// vtkGaussianKernel is an interpolation kernel that simply returns the
-// weights for all points found in the sphere defined by radius R. The
-// weights are computed as: exp(-(s*r/R)^2) where r is the distance from the
-// point to be interpolated to a neighboring point within R. The sharpness s
-// simply affects the rate of fall off of the Gaussian. (A more general
-// Gaussian kernel is available from vtkEllipsoidalGaussianKernel.)
+// vtkProbabilisticVoronoiKernel is an interpolation kernel that interpolates
+// from the closest weighted point from a neighborhood of points. The weights
+// refer to the probabilistic weighting that can be provided to the
+// ComputeWeights() method.
+//
+// Note that the local neighborhood is taken from the kernel footprint
+// specified in the superclass vtkGeneralizedKernel.
 
 // .SECTION Caveats
-// The weights are normalized sp that SUM(Wi) = 1. If a neighbor point p
-// precisely lies on the point to be interpolated, then the interpolated
-// point takes on the values associated with p.
+// If probability weightings are not defined, then the kernel provides the
+// same results as vtkVoronoiKernel, except a less efficiently.
 
 // .SECTION See Also
-// vtkPointInterpolator vtkInterpolationKernel vtkEllipsoidalGaussianKernel
-// vtkVoronoiKernel vtkSPHKernel vtkShepardKernel
+// vtkInterpolationKernel vtkGeneralizedKernel vtkVoronoiKernel
 
 
-#ifndef vtkGaussianKernel_h
-#define vtkGaussianKernel_h
+#ifndef vtkProbabilisticVoronoiKernel_h
+#define vtkProbabilisticVoronoiKernel_h
 
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkGeneralizedKernel.h"
@@ -42,20 +41,14 @@ class vtkIdList;
 class vtkDoubleArray;
 
 
-class VTKFILTERSPOINTS_EXPORT vtkGaussianKernel : public vtkGeneralizedKernel
+class VTKFILTERSPOINTS_EXPORT vtkProbabilisticVoronoiKernel : public vtkGeneralizedKernel
 {
 public:
   // Description:
   // Standard methods for instantiation, obtaining type information, and printing.
-  static vtkGaussianKernel *New();
-  vtkTypeMacro(vtkGaussianKernel,vtkGeneralizedKernel);
+  static vtkProbabilisticVoronoiKernel *New();
+  vtkTypeMacro(vtkProbabilisticVoronoiKernel,vtkGeneralizedKernel);
   void PrintSelf(ostream& os, vtkIndent indent);
-
-  // Description:
-  // Initialize the kernel. Overload the superclass to set up internal
-  // computational values.
-  virtual void Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds,
-                          vtkPointData *pd);
 
   // Re-use any superclass signatures that we don't override.
   using vtkGeneralizedKernel::ComputeWeights;
@@ -76,25 +69,13 @@ public:
   virtual vtkIdType ComputeWeights(double x[3], vtkIdList *pIds,
                                    vtkDoubleArray *prob, vtkDoubleArray *weights);
 
-  // Description:
-  // Set / Get the sharpness (i.e., falloff) of the Gaussian. By default
-  // Sharpness=2. As the sharpness increases the effects of distant points
-  // are reduced.
-  vtkSetClampMacro(Sharpness,double,1,VTK_FLOAT_MAX);
-  vtkGetMacro(Sharpness,double);
-
 protected:
-  vtkGaussianKernel();
-  ~vtkGaussianKernel();
-
-  double Sharpness;
-
-  // Internal structure to reduce computation
-  double F2;
+  vtkProbabilisticVoronoiKernel();
+  ~vtkProbabilisticVoronoiKernel();
 
 private:
-  vtkGaussianKernel(const vtkGaussianKernel&);  // Not implemented.
-  void operator=(const vtkGaussianKernel&);  // Not implemented.
+  vtkProbabilisticVoronoiKernel(const vtkProbabilisticVoronoiKernel&);  // Not implemented.
+  void operator=(const vtkProbabilisticVoronoiKernel&);  // Not implemented.
 };
 
 #endif

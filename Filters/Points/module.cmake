@@ -2,6 +2,7 @@ vtk_module(vtkFiltersPoints
   GROUPS
     StandAlone
   DEPENDS
+    vtkCommonDataModel
     vtkCommonExecutionModel
     vtkCommonSystem
     vtkCommonMisc

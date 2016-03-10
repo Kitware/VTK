@@ -26,9 +26,7 @@ vtkStandardNewMacro(vtkGaussianKernel);
 //----------------------------------------------------------------------------
 vtkGaussianKernel::vtkGaussianKernel()
 {
-  this->Radius = 1.0;
   this->Sharpness = 2.0;
-
   this->F2 = this->Sharpness / this->Radius;
 }
 
@@ -50,21 +48,15 @@ Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds, vtkPointData *pd)
 
 //----------------------------------------------------------------------------
 vtkIdType vtkGaussianKernel::
-ComputeBasis(double x[3], vtkIdList *pIds)
-{
-  this->Locator->FindPointsWithinRadius(this->Radius, x, pIds);
-  return pIds->GetNumberOfIds();
-}
-
-//----------------------------------------------------------------------------
-vtkIdType vtkGaussianKernel::
-ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *weights)
+ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *prob,
+               vtkDoubleArray *weights)
 {
   vtkIdType numPts = pIds->GetNumberOfIds();
   int i;
   vtkIdType id;
   double d2, y[3], sum = 0.0;
   weights->SetNumberOfTuples(numPts);
+  double *p = (prob ? prob->GetPointer(0) : NULL);
   double *w = weights->GetPointer(0);
   double f2=this->F2;
 
@@ -84,15 +76,18 @@ ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *weights)
       }
     else
       {
-      w[i] = exp(-f2 * d2);
+      w[i] = (p ? p[i]*exp(-f2 * d2) : exp(-f2 * d2));
       sum += w[i];
       }
     }//over all points
 
   // Normalize
-  for (i=0; i<numPts; ++i)
+  if ( sum != 0.0 )
     {
-    w[i] /= sum;
+    for (i=0; i<numPts; ++i)
+      {
+      w[i] /= sum;
+      }
     }
 
   return numPts;
@@ -103,6 +98,5 @@ void vtkGaussianKernel::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Radius: " << this->Radius << endl;
   os << indent << "Sharpness: " << this->Sharpness << endl;
 }
