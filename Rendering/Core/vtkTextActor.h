@@ -35,13 +35,14 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkTexturedActor2D.h"
 
-class vtkTextProperty;
-class vtkPolyDataMapper2D;
 class vtkImageData;
+class vtkPoints;
+class vtkPolyData;
+class vtkPolyDataMapper2D;
+class vtkProperty2D;
+class vtkTextProperty;
 class vtkTextRenderer;
 class vtkTransform;
-class vtkPolyData;
-class vtkPoints;
 
 class VTKRENDERINGCORE_EXPORT vtkTextActor : public vtkTexturedActor2D
 {
@@ -146,6 +147,17 @@ public:
   // Set/Get the text property.
   virtual void SetTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(TextProperty,vtkTextProperty);
+
+  // Description:
+  // Draw a frame around the text. Default is FALSE.
+  vtkSetMacro(DrawFrame, bool);
+  vtkGetMacro(DrawFrame, bool);
+  vtkBooleanMacro(DrawFrame, bool);
+
+  // Description:
+  // Set/Get the frame property
+  virtual void SetFrameProperty(vtkProperty2D* p);
+  vtkGetObjectMacro(FrameProperty, vtkProperty2D);
 
   // Description:
   // Return the bounding box coordinates of the text in viewport coordinates.
@@ -266,6 +278,13 @@ protected:
   bool InputRendered;
   double FormerOrientation;
   int RenderedDPI;
+
+  bool DrawFrame;
+
+  vtkProperty2D* FrameProperty;
+  vtkPolyDataMapper2D* FrameMapper;
+  vtkActor2D* FrameActor;
+  vtkPoints* FramePoints;
 
   vtkTextProperty *ScaledTextProperty;
 
