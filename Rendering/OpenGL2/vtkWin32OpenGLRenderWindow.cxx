@@ -628,7 +628,7 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
       {
       // we believe that these later versions are all compatible with
       // OpenGL 3.2 so get a more recent context if we can.
-      int attemptedVersions[] = {4,5, 4,4, 4,3, 4,2, 4,1, 4,0, 3,3, 3,2, 3,1, 3,0};
+      int attemptedVersions[] = {4,5, 4,4, 4,3, 4,2, 4,1, 4,0, 3,3, 3,2, 3,1};
       int iContextAttribs[] =
         {
         WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
@@ -639,11 +639,35 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
         // WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
         0 // End of attributes list
         };
-      for (int i = 0; i < 8 && !this->ContextId; i++)
+      for (int i = 0; i < 9 && !this->ContextId; i++)
         {
         iContextAttribs[1] = attemptedVersions[i*2];
         iContextAttribs[3] = attemptedVersions[i*2+1];
         this->ContextId = wglCreateContextAttribsARB(hDC, 0, iContextAttribs);
+        }
+      if (this->ContextId)
+        {
+        // if it is a 3.1 context check for systems that we allow
+        if (iContextAttribs[1] == 3 && iContextAttribs[3] == 1)
+          {
+          std::string vendor = (const char *)glGetString(GL_VENDOR);
+          std::string renderer = (const char *)glGetString(GL_RENDERER);
+          std::string version = (const char *)glGetString(GL_VERSION);
+          if (vendor.find("Intel") != std::string::npos &&
+              (renderer.find("HD Graphics 3000") != std::string::npos ||
+               renderer.find("HD Graphics 2000") != std::string::npos))
+            {
+            vtkErrorMacro("We have determined that your graphics system is"
+            " an Intel SandyBridge based system. These systems only partially "
+            " support VTK. If you encounter any issues please make sure"
+            " your graphics drivers from Intel are up to date.");
+            }
+          else
+            {
+            wglDeleteContext(this->ContextId);
+            this->ContextId = NULL;
+            }
+          }
         }
       if (this->ContextId &&
           (iContextAttribs[1] >= 4 || iContextAttribs[3] >= 2))

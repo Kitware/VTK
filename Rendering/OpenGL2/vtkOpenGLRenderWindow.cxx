@@ -598,9 +598,9 @@ void vtkOpenGLRenderWindow::OpenGLInitContext()
       return;
       }
 
-    if (!GLEW_VERSION_3_2)
+    if (!GLEW_VERSION_3_2 && !GLEW_VERSION_3_1)
       {
-      if (!GLEW_VERSION_2_1 || !GLEW_EXT_gpu_shader4)
+      if (!GLEW_EXT_gpu_shader4)
         {
         vtkErrorMacro("GL version 2.1 with the gpu_shader4 extension is not "
         "supported by your graphics driver but is required for the new "
@@ -612,8 +612,8 @@ void vtkOpenGLRenderWindow::OpenGLInitContext()
       vtkWarningMacro(
         "VTK is designed to work with OpenGL version 3.2 but it appears "
         "it has been given a context that does not support 3.2. VTK will "
-        "run in a compatibility mode designed to work with OpenGL 2.1 but "
-        "some features may not work.");
+        "run in a compatibility mode designed to work with earlier versions "
+        "of OpenGL but some features may not work.");
       }
     else
       {
@@ -2275,11 +2275,11 @@ int vtkOpenGLRenderWindow::SupportsOpenGL()
 
 #ifdef GLEW_OK
 
-  else if (GLEW_VERSION_3_2 || (GLEW_VERSION_2_1 && GLEW_EXT_gpu_shader4))
+  else if (GLEW_VERSION_3_2 || GLEW_VERSION_3_1 || GLEW_EXT_gpu_shader4)
     {
     this->OpenGLSupportResult = 1;
     this->OpenGLSupportMessage =
-      "The system appears to support OpenGL 3.2 or has 2.1 with the required extension";
+      "The system appears to support OpenGL 3.2/3.1 or has 2.1 with the required extension";
     }
 
 #endif
