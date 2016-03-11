@@ -25,6 +25,7 @@
 #include "vtkAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
 
+class vtkCompositeDataSet;
 class vtkDataSet;
 class vtkImageData;
 
@@ -73,6 +74,8 @@ protected:
                                   vtkInformationVector *);
   virtual int FillInputPortInformation(int, vtkInformation *);
   virtual int FillOutputPortInformation(int, vtkInformation *);
+
+  void GetCompositeDataSetBounds(vtkCompositeDataSet *data, double bounds[6]);
 
   static void SetBlankPointsAndCells(vtkImageData *data,
                                      const char *maskArrayName);
