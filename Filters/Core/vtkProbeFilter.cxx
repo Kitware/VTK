@@ -548,19 +548,9 @@ void vtkProbeFilter::ProbePointsImageData(vtkImageData *input,
           double dist2;
           int subId;
           int inside = cell->EvaluatePosition(p, closestPoint, subId, pcoords,
-            dist2, weights);
+                                              dist2, weights);
 
-          // Ensure the point really falls in the cell. Prevents extrapolation.
-          for (int k=0; k<cell->GetNumberOfPoints(); k++)
-            {
-            if (weights[k]<0)
-              {
-              inside=0;
-              break;
-              }
-            }
-
-          if (inside && (dist2==0)) // ensure it's inside the cell
+          if ((inside == 1) && (dist2 < (cell->GetLength2() * 1e-6)))
             {
             vtkIdType ptId = ix + dim[0]*(iy + dim[1]*iz);
 
