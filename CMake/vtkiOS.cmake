@@ -163,7 +163,7 @@ macro(crosscompile target toolchain_file archs)
   ExternalProject_Add_Step(${target} always-install
     COMMAND ${cmd}
     WORKING_DIRECTORY ${binary_dir}
-    DEPENDEES build
+    DEPENDEES build install
     ALWAYS 1
     )
 endmacro()
