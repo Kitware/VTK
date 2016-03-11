@@ -92,11 +92,8 @@ vtkVolumeProperty volume_property
   volume_property SetColor color_transfer_function
   volume_property SetScalarOpacity opacity_transfer_function
 
-vtkVolumeRayCastCompositeFunction  composite_function
-
-vtkVolumeRayCastMapper volume_mapper
+vtkFixedPointVolumeRayCastMapper volume_mapper
   volume_mapper SetInputConnection [reader GetOutputPort]
-  volume_mapper SetVolumeRayCastFunction composite_function
 
 vtkVolume volume
   volume SetMapper volume_mapper
