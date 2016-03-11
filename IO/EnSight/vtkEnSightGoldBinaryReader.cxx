@@ -34,9 +34,17 @@
 #include <vector>
 #include <map>
 
+#if defined(_WIN32) && (VTK_SIZEOF_ID_TYPE==8)
+# define VTK_STAT_STRUCT struct _stat64
+# define VTK_STAT_FUNC _stat64
+#else
+// here, we're relying on _FILE_OFFSET_BITS defined in vtkWin32Header.h to help
+// us on POSIX without resorting to using stat64.
+# define VTK_STAT_STRUCT struct stat
+# define VTK_STAT_FUNC stat
+#endif
+
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
-
-
 class vtkEnSightGoldBinaryReader::FileOffsetMapInternal
 {
   typedef std::string MapKey;
@@ -97,11 +105,11 @@ int vtkEnSightGoldBinaryReader::OpenFile(const char* filename)
 
   // Open the new file
   vtkDebugMacro(<< "Opening file " << filename);
-  struct stat fs;
-  if ( !stat( filename, &fs) )
+  VTK_STAT_STRUCT fs;
+  if ( !VTK_STAT_FUNC( filename, &fs) )
     {
     // Find out how big the file is.
-    this->FileSize = (vtkIdType)(fs.st_size);
+    this->FileSize = static_cast<vtkIdType>(fs.st_size);
 
 #ifdef _WIN32
     this->IFile = new ifstream(filename, ios::in | ios::binary);
