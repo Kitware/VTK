@@ -87,6 +87,12 @@ order to eliminate shift/reduce conflicts in the parser.  However, this
 means that this parser will only recognize "scope::*" as valid if it is
 preceded by "(", e.g. as part of a member function pointer specification.
 
+Variables that are initialized via constructor arguments, for example
+"someclass variablename(arglist)", must take a literals as the first
+argument.  If an identifier is used as the first argument, then the
+parser will interpret the variable declaration as a function declaration,
+since the parser will assume the identifier names a type.
+
 An odd bit of C++ ambiguity is that y(x); can be interpreted variously
 as declaration of variable "x" of type "y", as a function call if "y"
 is the name of a function, or as a constructor if "y" is the name of
@@ -1724,8 +1730,9 @@ unsigned int add_indirection_to_array(unsigned int type)
 /* Use the GLR parser algorithm for tricky cases */
 %glr-parser
 
-/* Expect five shift-reduce conflicts from opt_final (final classes) */
-%expect 5
+/* Expect five shift-reduce conflicts from opt_final (final classes)
+   and five from '(' constructor_args ')' in initializer */
+%expect 10
 
 /* Expect 121 reduce/reduce conflicts, these can be cleared by removing
    either '<' or angle_brackets_sig from constant_expression_item. */
@@ -2662,6 +2669,14 @@ initializer:
     constant_expression { chopSig(); setVarValue(copySig()); }
   | { clearVarValue(); markSig(); }
     braces_sig { chopSig(); setVarValue(copySig()); }
+  | { clearVarValue(); markSig(); postSig("("); }
+    '(' constructor_args ')'
+    { chopSig(); postSig(")"); setVarValue(copySig()); }
+
+constructor_args:
+    literal { postSig($<str>1); }
+  | constructor_args ',' { postSig(", "); } constant_expression
+
 
 /*
  * Variables
