@@ -163,7 +163,7 @@ endmacro()
 macro(_test_compiler_hidden_visibility)
 
   if(CMAKE_COMPILER_IS_GNUCXX)
-    execute_process(COMMAND ${CMAKE_C_COMPILER} ARGS --version
+    execute_process(COMMAND ${CMAKE_C_COMPILER} --version
       OUTPUT_VARIABLE _gcc_version_info
       ERROR_VARIABLE _gcc_version_info)
     string(REGEX MATCH "[3456]\\.[0-9]\\.[0-9]*"
@@ -181,7 +181,7 @@ macro(_test_compiler_hidden_visibility)
   endif()
 
   if(CMAKE_CXX_COMPILER_ID MATCHES "Intel")
-    execute_process(COMMAND ${CMAKE_CXX_COMPILER} ARGS -V
+    execute_process(COMMAND ${CMAKE_CXX_COMPILER} -V
       OUTPUT_VARIABLE _intel_version_info
       ERROR_VARIABLE _intel_version_info)
     string(REGEX REPLACE ".*Version ([0-9]+(\\.[0-9]+)+).*" "\\1"
