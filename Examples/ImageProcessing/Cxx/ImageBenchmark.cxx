@@ -1347,7 +1347,7 @@ static bool RunBenchmark(
     }
 
   // write the result
-  if (slave || threads.size() > 1)
+  if (threads.size() > 1 || (slave && threads.size() == 1))
     {
     std::cout << threads[0] << ",";
     }
