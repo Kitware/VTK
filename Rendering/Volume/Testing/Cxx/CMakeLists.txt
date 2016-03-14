@@ -68,6 +68,7 @@ set (VolumeOpenGL2CxxTests
   TestGPURayCastTwoComponentsDependentGradient.cxx
   TestGPURayCastTwoComponentsGradient.cxx
   TestGPURayCastTwoComponentsIndependent.cxx
+  TestGPURayCastVolumeDepthPass.cxx
   TestGPURayCastVolumeLightKit.cxx
   TestGPURayCastVolumePolyData.cxx
   TestGPURayCastVolumeRotation.cxx

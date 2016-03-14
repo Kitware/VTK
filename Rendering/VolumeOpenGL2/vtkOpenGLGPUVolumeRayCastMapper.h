@@ -18,9 +18,11 @@
 
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 
-#include "vtkGPUVolumeRayCastMapper.h"
+#include <vtkGPUVolumeRayCastMapper.h>
 
 // Forward declarations
+class vtkOpenGLCamera;
+class vtkShaderProgram;
 class vtkTextureObject;
 
 //----------------------------------------------------------------------------
@@ -29,6 +31,12 @@ class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkOpenGLGPUVolumeRayCastMapper :
 {
 public:
   static vtkOpenGLGPUVolumeRayCastMapper* New();
+
+  enum Passes
+  {
+    RenderPass,
+    DepthPass = 1
+  };
 
   vtkTypeMacro(vtkOpenGLGPUVolumeRayCastMapper, vtkGPUVolumeRayCastMapper);
   void PrintSelf( ostream& os, vtkIndent indent );
@@ -57,6 +65,13 @@ public:
   // RenderToImage mode.
   void GetColorImage(vtkImageData* im);
 
+  // Description:
+  // Mapper can have multiple passes and internally it will set
+  // the state. The state can not be set externally explicitly
+  // but can be set indirectly depending on the options set by
+  // the user.
+  vtkGetMacro(CurrentPass, int);
+
 protected:
   vtkOpenGLGPUVolumeRayCastMapper();
   ~vtkOpenGLGPUVolumeRayCastMapper();
@@ -65,6 +80,12 @@ protected:
   // Delete OpenGL objects.
   // \post done: this->OpenGLObjectsCreated==0
   virtual void ReleaseGraphicsResources(vtkWindow *window);
+
+  // Description:
+  // Build vertex and fragment shader for the volume rendering
+  void BuildDepthPassShader(vtkRenderer* ren, vtkVolume* vol,
+                            int noOfComponents,
+                            int independentComponents);
 
   // Description:
   // Build vertex and fragment shader for the volume rendering
@@ -77,7 +98,7 @@ protected:
                          double vtkNotUsed(datasetBounds)[6],
                          double vtkNotUsed(scalarRange)[2],
                          int vtkNotUsed(noOfComponents),
-                         unsigned int vtkNotUsed(numberOfLevels)) {}
+                         unsigned int vtkNotUsed(numberOfLevels)) {};
 
   // \pre input is up-to-date
   virtual void RenderBlock(vtkRenderer *vtkNotUsed(ren),
@@ -90,6 +111,16 @@ protected:
   // Description:
   // Rendering volume on GPU
   void GPURender(vtkRenderer *ren, vtkVolume *vol);
+
+  // Description:
+  // Method that performs the actual rendering given a volume and a shader
+  void DoGPURender(vtkRenderer* ren,
+                   vtkVolume* vol,
+                   vtkImageData* input,
+                   vtkOpenGLCamera* cam,
+                   vtkShaderProgram* shaderProgram,
+                   int noOfComponents,
+                   int independentComponents);
 
   // Description:
   // Update the reduction factor of the render viewport (this->ReductionFactor)
@@ -109,6 +140,7 @@ protected:
     ratio[0] = ratio[1] = ratio[2] = 1.0;
     }
 
+
   // Description:
   // Empty implementation.
   virtual int IsRenderSupported(vtkRenderWindow *vtkNotUsed(window),
@@ -118,6 +150,7 @@ protected:
     }
 
   double ReductionFactor;
+  int    CurrentPass;
 
 private:
   class vtkInternal;
