@@ -163,10 +163,10 @@ endmacro()
 macro(_test_compiler_hidden_visibility)
 
   if(CMAKE_COMPILER_IS_GNUCXX)
-    execute_process(COMMAND ${CMAKE_C_COMPILER} ARGS --version
+    execute_process(COMMAND ${CMAKE_C_COMPILER} --version
       OUTPUT_VARIABLE _gcc_version_info
       ERROR_VARIABLE _gcc_version_info)
-    string(REGEX MATCH "[345]\\.[0-9]\\.[0-9]*"
+    string(REGEX MATCH "[3456]\\.[0-9]\\.[0-9]*"
       _gcc_version "${_gcc_version_info}")
     # gcc on mac just reports: "gcc (GCC) 3.3 20030304 ..." without the
     # patch level, handle this here:
@@ -175,13 +175,13 @@ macro(_test_compiler_hidden_visibility)
         _gcc_version "${_gcc_version_info}")
     endif()
 
-    if(${_gcc_version} VERSION_LESS "4.2")
+    if(_gcc_version VERSION_LESS "4.2")
       set(GCC_TOO_OLD TRUE)
     endif()
   endif()
 
   if(CMAKE_CXX_COMPILER_ID MATCHES "Intel")
-    execute_process(COMMAND ${CMAKE_CXX_COMPILER} ARGS -V
+    execute_process(COMMAND ${CMAKE_CXX_COMPILER} -V
       OUTPUT_VARIABLE _intel_version_info
       ERROR_VARIABLE _intel_version_info)
     string(REGEX REPLACE ".*Version ([0-9]+(\\.[0-9]+)+).*" "\\1"
