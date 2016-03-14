@@ -44,7 +44,7 @@ if(CMAKE_COMPILER_IS_GNUCXX)
   option(VTK_USE_GCC_VISIBILITY "Use GCC visibility support if available." OFF)
   mark_as_advanced(VTK_USE_GCC_VISIBILITY)
 
-  if(${_gcc_version} VERSION_GREATER 4.2.0 AND BUILD_SHARED_LIBS
+  if(_gcc_version VERSION_GREATER 4.2.0 AND BUILD_SHARED_LIBS
     AND HAVE_GCC_VISIBILITY AND VTK_USE_GCC_VISIBILITY
     AND NOT MINGW AND NOT CYGWIN)
     # Should only be set if GCC is newer than 4.2.0
