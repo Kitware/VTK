@@ -946,8 +946,6 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPicking(
   std::map<vtkShader::Type, vtkShader *> shaders,
   vtkRenderer *, vtkActor *)
 {
-  //std::cout << "->>> vtkOpenGLPolyDataMapper::ReplaceShaderPicking ! " << '\n';
-
   std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
 
   if (this->LastSelectionState >= vtkHardwareSelector::MIN_KNOWN_PASS)

@@ -197,7 +197,6 @@ void vtkRenderer::ReleaseGraphicsResources(vtkWindow *renWin)
 // Concrete render method.
 void vtkRenderer::Render(void)
 {
-  std::cout << "->>> vtkRenderer::Renderer()" << '\n';
   if(this->Delegate!=0 && this->Delegate->GetUsed())
     {
       this->Delegate->Render(this);

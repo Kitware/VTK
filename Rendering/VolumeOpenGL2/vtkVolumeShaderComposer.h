@@ -1283,6 +1283,26 @@ namespace vtkvolume
     }
 
   //--------------------------------------------------------------------------
+  std::string PickingExit(vtkRenderer* vtkNotUsed(ren),
+                          vtkVolumeMapper* vtkNotUsed(mapper),
+                          vtkVolume* vtkNotUsed(vol))
+    {
+    return std::string("\
+    \n  // Special coloring mode which renders the Prop Id in fragments that\
+    \n  // have accumulated certain level of opacity. Used during the rendering\
+    \n  // pass of vtkHardwareSelection.\
+    \n  if (g_fragColor.a > (1.0 - 3.0/ 255.0))\
+    \n    {\
+    \n    gl_FragData[0] = vec4(in_propId, 1.0);\
+    \n    }\
+    \n  else\
+    \n    {\
+    \n    gl_FragData[0] = vec4(0.0);\
+    \n    }\
+    \n  return;");
+    };
+
+  //--------------------------------------------------------------------------
   std::string ShadingExit(vtkRenderer* vtkNotUsed(ren),
                           vtkVolumeMapper* mapper,
                           vtkVolume* vtkNotUsed(vol),
@@ -1390,6 +1410,15 @@ namespace vtkvolume
     {
     return std::string();
     }
+
+  //--------------------------------------------------------------------------
+  std::string PickingDeclaration(vtkRenderer* vtkNotUsed(ren),
+                                   vtkVolumeMapper* vtkNotUsed(mapper),
+                                   vtkVolume* vtkNotUsed(vol))
+    {
+    return std::string("\
+    \n  uniform vec3 in_propId;");
+    };
 
   //--------------------------------------------------------------------------
   std::string TerminationInit(vtkRenderer* vtkNotUsed(ren),

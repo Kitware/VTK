@@ -122,6 +122,11 @@ public:
   vtkSetMacro(UseProcessIdFromData, bool);
   vtkGetMacro(UseProcessIdFromData, bool);
 
+  /// Enable/disable blending during selection passes (false by default). Some
+  /// vtkMapper classes require blending to be enabled to correclty render with
+  /// other geometries (e.g. vtkGPUVolumeRayCastMapper).
+  vtkSetMacro(UseBlending, bool);
+
   // Description:
   // Perform the selection. Returns  a new instance of vtkSelection containing
   // the selection on success.
@@ -246,6 +251,10 @@ protected:
   virtual void BeginRenderProp(vtkRenderWindow *) = 0;
   virtual void EndRenderProp(vtkRenderWindow *) = 0;
 
+  /// Called internally before each rendering pass for device specific
+  /// preparation.
+  virtual void BeginPass() = 0;
+
   int Convert(unsigned long offset, unsigned char* pb)
     {
     if (!pb)
@@ -330,6 +339,9 @@ protected:
   int FieldAssociation;
   bool UseProcessIdFromData;
   vtkIdType MaxAttributeId;
+
+  /// Blending state during selection passes (false by default).
+  bool UseBlending;
 
   // At most 10 passes.
   unsigned char* PixBuffer[10];

@@ -38,14 +38,16 @@
 #include <vtkTimerLog.h>
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
-#include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkInteractorStyleRubberBandPick.h"
 #include "vtkRenderedAreaPicker.h"
 
 #include "vtkCommand.h"
 #include "vtkHardwareSelector.h"
 #include "vtkSelection.h"
+#include "vtkSelectionNode.h"
 #include "vtkConeSource.h"
+#include "vtkSphereSource.h"
+#include "vtkInformationIntegerKey.h"
 
 
 typedef vtkSmartPointer<vtkHardwareSelector> SelectorPtr;
@@ -67,25 +69,45 @@ public:
   virtual void Execute(vtkObject* vtkNotUsed(caller), unsigned long vtkNotUsed(eventId),
     void* vtkNotUsed(callData))
   {
-    //std::cout << "->>> VolumePickingCommand::Execute!" << '\n';
     assert(this->Renderer != NULL);
-    //std::cout << "->>> VolPickCmd, Renderer: " << this->Renderer;
 
     SelectorPtr sel = SelectorPtr::New();
     sel->SetRenderer(this->Renderer);
-    sel->SetFieldAssociation(vtkDataObject::FIELD_ASSOCIATION_POINTS); // points or cells ?
+    sel->SetFieldAssociation(vtkDataObject::FIELD_ASSOCIATION_CELLS);
 
-//    //sel->SetArea(x0, y0, x1, y1);
-//
-//    vtkSelection* result = sel->Select();
-//    //res->Print(std::cout);
+    unsigned int const x1 = static_cast<unsigned int>(this->Renderer->GetPickX1());
+    unsigned int const y1 = static_cast<unsigned int>(this->Renderer->GetPickY1());
+    unsigned int const x2 = static_cast<unsigned int>(this->Renderer->GetPickX2());
+    unsigned int const y2 = static_cast<unsigned int>(this->Renderer->GetPickY2());
+    sel->SetArea(x1, y1, x2, y2);
 
-//    // Do something with the selection (color the volume?, draw a frame?)
+    vtkSelection* result = sel->Select();
+    //result->Print(std::cout);
 
-//    result->Delete();
+    unsigned int const numProps = result->GetNumberOfNodes();
+    if (numProps > 0)
+      std::cout << "->>> Hit Props: " << '\n';
+
+    for (unsigned int n = 0; n < numProps; n++)
+      {
+        vtkSelectionNode* node = result->GetNode(n);
+        vtkInformation* properties = node->GetProperties();
+        vtkInformationIntegerKey* infoIntKey = node->PROP_ID();
+        int const propId = infoIntKey->Get(properties);
+
+        vtkAbstractArray* abs = node->GetSelectionList();
+        vtkIdType size = abs->GetSize();
+
+        std::cout << "PropId: " << propId << "/ Num. Attr.:  " << size << '\n';
+      }
+
+    if (numProps > 0)
+      std::cout << '\n';
+
+    result->Delete();
   };
 
-  ////////// member variables ///////////////////
+  ////////// members variables ///////////////////
 
   RendererPtr Renderer;
 };
@@ -130,11 +152,11 @@ int TestGPURayCastVolumePicking(int argc, char *argv[])
   volume->SetMapper(volumeMapper.GetPointer());
   volume->SetProperty(volumeProperty.GetPointer());
 
-  // polygonal source and mapper
+  // polygonal sources and mapper
   vtkSmartPointer<vtkConeSource> cone = vtkSmartPointer<vtkConeSource>::New();
   cone->SetHeight(100.0);
   cone->SetRadius(50.0);
-  cone->SetResolution(5);
+  cone->SetResolution(200.0);
   cone->SetCenter(80, 100, 100);
   cone->Update();
 
@@ -145,10 +167,25 @@ int TestGPURayCastVolumePicking(int argc, char *argv[])
   coneActor->SetMapper(coneMapper);
   coneActor->PickableOn();
 
+  vtkSmartPointer<vtkSphereSource> sphere = vtkSmartPointer<vtkSphereSource>::New();
+  sphere->SetPhiResolution(20.0);
+  sphere->SetThetaResolution(20.0);
+  sphere->SetCenter(90, 40, 170);
+  sphere->SetRadius(40.0);
+  sphere->Update();
+
+  vtkSmartPointer<vtkPolyDataMapper> sphereMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+  sphereMapper->AddInputConnection(sphere->GetOutputPort());
+
+  vtkSmartPointer<vtkActor> sphereActor = vtkSmartPointer<vtkActor>::New();
+  sphereActor->SetMapper(sphereMapper);
+  sphereActor->PickableOn();
+
   // rendering setup
   RendererPtr ren = RendererPtr::New();
   ren->SetBackground(0.2, 0.2, 0.5);
   ren->AddActor(coneActor);
+  ren->AddActor(sphereActor);
   ren->AddViewProp(volume.GetPointer());
 
   vtkNew<vtkRenderWindow> renWin;
@@ -163,10 +200,6 @@ int TestGPURayCastVolumePicking(int argc, char *argv[])
 
   // interaction & picking
   vtkRenderWindowInteractor* rwi = renWin->GetInteractor();
-
-//  vtkNew<vtkInteractorStyleTrackballCamera> style;
-//  iren->SetInteractorStyle(style.GetPointer());
-
   vtkInteractorStyleRubberBandPick* rbp = vtkInteractorStyleRubberBandPick::New();
   rwi->SetInteractorStyle(rbp);
   vtkRenderedAreaPicker* areaPicker = vtkRenderedAreaPicker::New();

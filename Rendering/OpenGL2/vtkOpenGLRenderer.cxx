@@ -181,8 +181,6 @@ int vtkOpenGLRenderer::UpdateGeometry()
 
   if (this->Selector)
     {
-
-    std::cout << "->>> Selector UpdateGeom Ogl2!" << '\n';
     // When selector is present, we are performing a selection,
     // so do the selection rendering pass instead of the normal passes.
     // Delegate the rendering of the props to the selector itself.
@@ -211,7 +209,6 @@ int vtkOpenGLRenderer::UpdateGeometry()
     {
     // loop through props and give them a chance to
     // render themselves as opaque geometry
-    //std::cout << "->>> num props: " << this->PropArrayCount << '\n';
     for ( i = 0; i < this->PropArrayCount; i++ )
       {
       this->NumberOfPropsRendered +=

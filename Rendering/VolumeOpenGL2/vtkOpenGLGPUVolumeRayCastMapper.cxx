@@ -72,6 +72,7 @@
 #include <vtkVolumeMask.h>
 #include <vtkVolumeProperty.h>
 #include <vtkWeakPointer.h>
+#include <vtkHardwareSelector.h>
 
 #include <vtk_glew.h>
 
@@ -120,7 +121,7 @@ public:
     this->ScalarsRange[1][0] = this->ScalarsRange[1][1] = 0.0;
     this->ScalarsRange[2][0] = this->ScalarsRange[2][1] = 0.0;
     this->ScalarsRange[3][0] = this->ScalarsRange[3][1] = 0.0;
-
+    this->CurrentSelectionPass = vtkHardwareSelector::MIN_KNOWN_PASS - 1;
 
     this->CellScale[0] = this->CellScale[1] = this->CellScale[2] = 0.0;
     this->NoiseTextureData = 0;
@@ -309,6 +310,18 @@ public:
   void UpdateSamplingDistance(vtkImageData *input,
                               vtkRenderer* ren, vtkVolume* vol);
 
+  // Check if the mapper should enter picking mode.
+  void CheckPickingState(vtkRenderer* ren);
+
+  // Configure the vtkHardwareSelector to begin a picking pass.
+  void BeginPicking(vtkRenderer* ren);
+
+  // Update the prop Id if hardware selection is enabled.
+  void SetPickingId(vtkRenderer* ren);
+
+  // Configure the vtkHardwareSelector to end a picking pass.
+  void EndPicking(vtkRenderer* ren);
+
   // Load OpenGL extensiosn required to grab depth sampler buffer
   void LoadRequireDepthTextureExtensions(vtkRenderWindow* renWin);
 
@@ -419,6 +432,9 @@ public:
   vtkTimeStamp ReleaseResourcesTime;
   vtkTimeStamp DepthPassTime;
   vtkTimeStamp DepthPassSetupTime;
+  vtkTimeStamp SelectionStateTime;
+  int CurrentSelectionPass;
+  bool IsPicking;
 
   bool NeedToInitializeResources;
 
@@ -1937,6 +1953,74 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetClippingPlanes(
     }
 }
 
+// -----------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::CheckPickingState(vtkRenderer* ren)
+{
+  vtkHardwareSelector* selector = ren->GetSelector();
+  this->IsPicking = (selector != NULL) || ren->GetRenderWindow()->GetIsPicking();
+
+  if (this->IsPicking)
+  {
+    // rebuild shader only in the first pass
+    if (this->CurrentSelectionPass == vtkHardwareSelector::MIN_KNOWN_PASS - 1)
+      this->SelectionStateTime.Modified();
+
+    this->CurrentSelectionPass = selector ? selector->GetCurrentPass() : vtkHardwareSelector::ACTOR_PASS;
+  }
+  else if (this->CurrentSelectionPass != vtkHardwareSelector::MIN_KNOWN_PASS - 1)
+  {
+    // return to the regular rendering state
+    this->SelectionStateTime.Modified();
+    this->CurrentSelectionPass = vtkHardwareSelector::MIN_KNOWN_PASS - 1;
+  }
+}
+
+// -----------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::BeginPicking(vtkRenderer* ren)
+{
+  vtkHardwareSelector* selector = ren->GetSelector();
+  if (selector)
+    {
+    selector->SetUseBlending(true);
+    selector->BeginRenderProp();
+    }
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetPickingId
+  (vtkRenderer* ren)
+{
+  float propIdColor[3] = {0.0, 0.0, 0.0};
+  vtkHardwareSelector* selector = ren->GetSelector();
+
+  if (selector)
+    {
+      // set the prop id for the ACTOR_PASS, otherwise leave zeros
+      if (this->CurrentSelectionPass < vtkHardwareSelector::ID_LOW24)
+        {
+        selector->GetPropColorValue(propIdColor);
+        }
+    }
+  else // RenderWindow is picking
+    {
+      unsigned int const idx = ren->GetCurrentPickId();
+      vtkHardwareSelector::Convert(idx, propIdColor);
+    }
+
+  this->ShaderProgram->SetUniform3f("in_propId", propIdColor);
+}
+
+// ---------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::EndPicking(vtkRenderer* ren)
+{
+  vtkHardwareSelector* selector = ren->GetSelector();
+  if(selector)
+    {
+    selector->SetUseBlending(false);
+    selector->EndRenderProp();
+    }
+}
+
 //----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateSamplingDistance(
   vtkImageData* input, vtkRenderer* vtkNotUsed(ren), vtkVolume* vol)
@@ -2815,6 +2899,17 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
       noOfComponents),
     true);
 
+  // Picking replacements
+  //--------------------------------------------------------------------------
+  if (this->Impl->CurrentSelectionPass != (vtkHardwareSelector::MIN_KNOWN_PASS - 1))
+    {
+    fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Picking::Dec",
+      vtkvolume::PickingDeclaration(ren, this, vol), true);
+
+    fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Picking::Exit",
+      vtkvolume::PickingExit(ren, this, vol), true);
+    }
+
   // Render to texture
   //--------------------------------------------------------------------------
   if (this->RenderToImage)
@@ -2942,7 +3037,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->NeedToInitializeResources  =
     (this->Impl->ReleaseResourcesTime.GetMTime() >
     this->Impl->InitializationTime.GetMTime());
-
 
   // Make sure the context is current
   vtkOpenGLRenderWindow* renWin =
@@ -3119,6 +3213,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
   this->Impl->ShaderCache = vtkOpenGLRenderWindow::SafeDownCast(
     ren->GetRenderWindow())->GetShaderCache();
 
+  this->Impl->CheckPickingState(ren);
+
   if (this->UseDepthPass && this->GetBlendMode() ==
       vtkVolumeMapper::COMPOSITE_BLEND)
     {
@@ -3127,8 +3223,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     if (this->Impl->NeedToInitializeResources ||
         volumeProperty->GetMTime() > this->Impl->DepthPassSetupTime.GetMTime() ||
         this->GetMTime() > this->Impl->DepthPassSetupTime.GetMTime() ||
-        cam->GetParallelProjection() !=
-        this->Impl->LastProjectionParallel)
+        cam->GetParallelProjection() != this->Impl->LastProjectionParallel ||
+        this->Impl->SelectionStateTime.GetMTime() > this->Impl->ShaderBuildTime.GetMTime())
       {
       this->Impl->LastProjectionParallel =
         cam->GetParallelProjection();
@@ -3211,8 +3307,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
         volumeProperty->GetMTime() >
         this->Impl->ShaderBuildTime.GetMTime() ||
         this->GetMTime() > this->Impl->ShaderBuildTime.GetMTime() ||
-        cam->GetParallelProjection() !=
-        this->Impl->LastProjectionParallel)
+        cam->GetParallelProjection() != this->Impl->LastProjectionParallel ||
+        this->Impl->SelectionStateTime.GetMTime() > this->Impl->ShaderBuildTime.GetMTime())
       {
       this->Impl->LastProjectionParallel =
         cam->GetParallelProjection();
@@ -3502,6 +3598,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
   //--------------------------------------------------------------------------
   this->Impl->SetClippingPlanes(ren, prog, vol);
 
+  // Bind the prop Id and configure picking begin
+  //--------------------------------------------------------------------------
+  if (this->Impl->IsPicking)
+    {
+    this->Impl->BeginPicking(ren);
+    this->Impl->SetPickingId(ren);
+    }
+
   // Finally set the scale and bias for color correction
   //--------------------------------------------------------------------------
   prog->SetUniformf("in_scale", 1.0 / this->FinalColorWindow);
@@ -3554,6 +3658,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
       this->Impl->Mask1RGBTable->Deactivate();
       this->Impl->Mask2RGBTable->Deactivate();
       }
+    }
+
+  // Configure picking end
+  // ---------------------------------------------------------------------------
+  if (this->Impl->IsPicking)
+    {
+    this->Impl->EndPicking(ren);
     }
 
   vtkOpenGLCheckErrorMacro("failed after Render");
