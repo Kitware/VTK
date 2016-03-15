@@ -572,8 +572,12 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
   if (!volume->GetIsIdentity())
     {
     vtkMatrix4x4 *tmpMat = vtkMatrix4x4::New();
+    vtkMatrix4x4 *tmpMat2 = vtkMatrix4x4::New();
     vtkMatrix4x4 *mcwc = volume->GetMatrix();
-    vtkMatrix4x4::Multiply4x4(mcwc, wcvc, tmpMat);
+    tmpMat2->DeepCopy(wcvc);
+    tmpMat2->Transpose();
+    vtkMatrix4x4::Multiply4x4(mcwc, tmpMat2, tmpMat);
+    tmpMat->Transpose();
     for(int i = 0; i < 4; ++i)
       {
       for (int j = 0; j < 4; ++j)
@@ -582,6 +586,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
         }
       }
     tmpMat->Delete();
+    tmpMat2->Delete();
     }
   else
     {
