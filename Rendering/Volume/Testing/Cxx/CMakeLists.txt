@@ -26,6 +26,7 @@ set (GenericVolumeCxxTests
   TestGPUVolumeRayCastMapper.cxx
   TestMinIntensityRendering.cxx
   TestProjectedTetrahedra.cxx
+  TestProjectedTetrahedraTransform.cxx
   TestSmartVolumeMapper.cxx
   TestSmartVolumeMapperWindowLevel.cxx
   )
