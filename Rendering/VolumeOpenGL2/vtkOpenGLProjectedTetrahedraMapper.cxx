@@ -140,6 +140,14 @@ bool vtkOpenGLProjectedTetrahedraMapper::IsSupported(vtkRenderWindow *rwin)
   this->CanDoFloatingPointFrameBuffer = false;
   if (this->UseFloatingPointFrameBuffer)
     {
+#if GL_ES_VERSION_2_0 != 1
+  if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
+    {
+    this->CanDoFloatingPointFrameBuffer = true;
+    return true;
+    }
+#endif
+
     this->CanDoFloatingPointFrameBuffer
 #if GL_ES_VERSION_2_0 != 1
       = (glewIsSupported("GL_EXT_framebuffer_object") != 0)
@@ -215,26 +223,23 @@ bool vtkOpenGLProjectedTetrahedraMapper::AllocateFBOResources(vtkRenderer *r)
           GL_RENDERBUFFER,
           this->Internals->RenderBufferObjectIds[0]);
     vtkOpenGLCheckErrorMacro("failed at glBindRenderBuffer color");
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA4,
+                          this->CurrentFBOWidth,
+                          this->CurrentFBOHeight);
+    glFramebufferRenderbuffer(
+       GL_FRAMEBUFFER,
+       GL_COLOR_ATTACHMENT0,
+       GL_RENDERBUFFER,
+       this->Internals->RenderBufferObjectIds[0]);
+    vtkOpenGLCheckErrorMacro("failed at glFramebufferRenderBuffer for color");
 
     glBindRenderbuffer(
           GL_RENDERBUFFER,
           this->Internals->RenderBufferObjectIds[1]);
     vtkOpenGLCheckErrorMacro("failed at glBindRenderBuffer depth");
-
-   // best way to make it complete: bind the fbo for both draw+read
-   // durring setup
-   glBindFramebuffer(
-         GL_FRAMEBUFFER,
-         this->Internals->FrameBufferObjectId);
-   vtkOpenGLCheckErrorMacro("failed at glBindFramebuffer");
-
-   glFramebufferRenderbuffer(
-         GL_FRAMEBUFFER,
-         GL_COLOR_ATTACHMENT0,
-         GL_RENDERBUFFER,
-         this->Internals->RenderBufferObjectIds[0]);
-    vtkOpenGLCheckErrorMacro("failed at glFramebufferRenderBuffer for color");
-
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT,
+                          this->CurrentFBOWidth,
+                          this->CurrentFBOHeight);
     glFramebufferRenderbuffer(
           GL_FRAMEBUFFER,
           GL_DEPTH_ATTACHMENT,
@@ -492,7 +497,7 @@ inline float vtkOpenGLProjectedTetrahedraMapper::GetCorrectedDepth(
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer,
-                                                     vtkVolume *volume)
+                                                           vtkVolume *volume)
 {
   vtkOpenGLClearErrorMacro();
 
