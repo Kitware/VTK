@@ -196,6 +196,22 @@ endfunction()
 # the header file should link against (using target_link_libraries()).
 function(vtk_write_python_modules_header_for_wrapped_modules filename out_var)
   get_property(python_wrapped_modules GLOBAL PROPERTY VTK_PYTHON_WRAPPED)
+  if(VTK_ENABLE_KITS)
+    # Process VTK_PYTHON_WRAPPED to generate a list of Python wrapped kits and
+    # modules.
+    set(_kits_and_modules)
+    foreach(module IN LISTS python_wrapped_modules)
+      vtk_module_load("${module}")
+      if(${module}_KIT)
+        set(kit ${${module}_KIT})
+        list(APPEND _kits_and_modules ${kit}Kit)
+      else()
+        list(APPEND _kits_and_modules ${module})
+      endif()
+    endforeach()
+    list(REMOVE_DUPLICATES _kits_and_modules)
+    set(python_wrapped_modules ${_kits_and_modules})
+  endif()
   vtk_write_python_modules_header(
     "${filename}" ${python_wrapped_modules})
   set (dependencies)
