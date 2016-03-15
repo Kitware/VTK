@@ -140,14 +140,15 @@ int TestProjectedTetrahedraTransform(int argc, char *argv[])
   renderWindowInteractor->SetRenderWindow(renderWindow.GetPointer());
 
   // Add the props to the scene
-  renderer->AddActor(volume1);
-  renderer->AddActor(volume2);
+  renderer->AddVolume(volume1);
+  renderer->AddVolume(volume2);
   renderer->AddActor(actor1);
   renderer->AddActor(actor2);
 
   renderer->SetBackground(1, 1, 1);
 
   // Render and interact
+  renderWindow->Render();
   renderer->ResetCamera();
   renderWindow->Render();
 
