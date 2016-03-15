@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestProjectedTetrahedra.cxx
+  Module:    TestProjectedTetrahedraTransform.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -37,7 +37,7 @@
 #include <vtkVolumeProperty.h>
 
 // Creates a cube volume
-vtkSmartPointer<vtkVolume> cubeVolume(double r, double g, double b)
+vtkSmartPointer<vtkVolume> CubeVolume(double r, double g, double b)
 {
   // Create the coordinates
   vtkNew<vtkDoubleArray> xArray;
@@ -91,7 +91,7 @@ vtkSmartPointer<vtkVolume> cubeVolume(double r, double g, double b)
 }
 
 // Creates a cone actor
-vtkSmartPointer<vtkActor> coneActor(double r, double g, double b)
+vtkSmartPointer<vtkActor> ConeActor(double r, double g, double b)
 {
   // Simple cone mapper
   vtkNew<vtkPolyDataMapper> mapper;
@@ -113,16 +113,16 @@ int TestProjectedTetrahedraTransform(int argc, char *argv[])
   // Create the props
 
   // The red cube volume
-  vtkSmartPointer<vtkProp3D> volume1 = cubeVolume(1, 0, 0);
+  vtkSmartPointer<vtkProp3D> volume1 = CubeVolume(1, 0, 0);
 
   // The blue cube volume
-  vtkSmartPointer<vtkProp3D> volume2 = cubeVolume(0, 0, 1);
+  vtkSmartPointer<vtkProp3D> volume2 = CubeVolume(0, 0, 1);
 
   // The red cone actor
-  vtkSmartPointer<vtkProp3D> actor1 = coneActor(1, 0, 0);
+  vtkSmartPointer<vtkProp3D> actor1 = ConeActor(1, 0, 0);
 
   // The blue cone actor
-  vtkSmartPointer<vtkProp3D> actor2 = coneActor(0, 0, 1);
+  vtkSmartPointer<vtkProp3D> actor2 = ConeActor(0, 0, 1);
 
   // Translate the blue props by (2,2)
   vtkNew<vtkTransform> transform;
@@ -148,7 +148,6 @@ int TestProjectedTetrahedraTransform(int argc, char *argv[])
   renderer->SetBackground(1, 1, 1);
 
   // Render and interact
-  renderWindow->Render();
   renderer->ResetCamera();
   renderWindow->Render();
 
