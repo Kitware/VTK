@@ -106,7 +106,7 @@ private:
 
   struct ValueWithIndex
     {
-    typename detail::remove_const<ValueType>::type Value;
+    typename ::detail::remove_const<ValueType>::type Value;
     vtkIdType Index;
     inline bool operator<(const ValueWithIndex& other) const
       {
