@@ -283,6 +283,7 @@ macro(vtk_module_export_info)
   set(vtk-module-INCLUDE_DIRS "${vtk-module-INCLUDE_DIRS-build}")
   set(vtk-module-EXPORT_CODE "${vtk-module-EXPORT_CODE-build}")
   set(vtk-module-WRAP_HIERARCHY_FILE "${${vtk-module}_WRAP_HIERARCHY_FILE}")
+  set(vtk-module-KIT "${${vtk-module}_KIT}")
   configure_file(${_VTKModuleMacros_DIR}/vtkModuleInfo.cmake.in
     ${VTK_MODULES_DIR}/${vtk-module}.cmake @ONLY)
   set(vtk-module-INCLUDE_DIRS "${vtk-module-INCLUDE_DIRS-install}")
