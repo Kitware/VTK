@@ -440,13 +440,19 @@ void vtkCamera::ComputeOffAxisProjectionFrustum()
   double L[4] = {this->ScreenBottomLeft[0], this->ScreenBottomLeft[1], this->ScreenBottomLeft[2], 1.0};
   double H[4] = {this->ScreenTopRight[0],   this->ScreenTopRight[1], this->ScreenTopRight[2], 1.0};
 
+  double eyeSeparationCorrectionFactor = 10.0;
+  double shiftDistance = this->EyeSeparation / (2.0 * eyeSeparationCorrectionFactor);
+  if(this->Distance < 1.0)
+    {
+    shiftDistance *= this->Distance;
+    }
   if(this->LeftEye)
     {
-    E[0] -= this->EyeSeparation / 2.0;
+    E[0] -= shiftDistance;
     }
   else
     {
-    E[0] += this->EyeSeparation / 2.0;
+    E[0] += shiftDistance;
     }
 
   // First transform the eye to new position.
@@ -464,9 +470,10 @@ void vtkCamera::ComputeOffAxisProjectionFrustum()
 
   // Back and front are not traditional near and far.
   // Front (aka near)
-  double F = E[2] - 10000.0;//this->ClippingRange[1];
+  double F = E[2] - (this->Distance + this->Thickness);//E[2] - 10000.0;//this->ClippingRange[1];
   // Back (aka far)
-  double B = E[2] - .1;//this->ClippingRange[0];
+  double nearDistanceCorrectionFactor  = 1000.0;
+  double B = E[2] - (this->Distance / nearDistanceCorrectionFactor);//E[2] - .1;//this->ClippingRange[0];
 
   double depth = B - F;
   matrix[0][0] =  ( 2*E[2] ) / width;
