@@ -26,7 +26,6 @@ set (GenericVolumeCxxTests
   TestGPUVolumeRayCastMapper.cxx
   TestMinIntensityRendering.cxx
   TestProjectedTetrahedra.cxx
-  TestProjectedTetrahedraTransform.cxx
   TestSmartVolumeMapper.cxx
   TestSmartVolumeMapperWindowLevel.cxx
   )
@@ -71,6 +70,7 @@ set (VolumeOpenGL2CxxTests
   TestGPURayCastVolumePolyData.cxx
   TestGPURayCastVolumeRotation.cxx
   TestGPURayCastVolumeScale.cxx
+  TestProjectedTetrahedraTransform.cxx
   )
 
 # everyone gets these tests
