@@ -42,9 +42,16 @@ int vtkGDALVectorReader::OGRRegistered = 0;
 class vtkGDALVectorReader::Internal
 {
 public:
-  Internal( const char* srcName, int srcMode, int appendFeatures, int addFeatIds )
+  Internal( const char* srcName, int appendFeatures, int addFeatIds )
     {
-    this->Source = OGRSFDriverRegistrar::Open( srcName, srcMode, &this->Driver );
+#if GDAL_VERSION_MAJOR < 2
+    OGRSFDriver* driver;
+    this->Source = OGRSFDriverRegistrar::Open( srcName, 0, &driver );
+#else
+    GDALAllRegister();
+    this->Source = static_cast<GDALDataset*>(
+      GDALOpenEx(srcName, GDAL_OF_VECTOR, NULL, NULL, NULL));
+#endif
     if ( ! this->Source )
       {
       this->LastError = CPLGetLastErrorMsg();
@@ -61,7 +68,11 @@ public:
     {
     if ( this->Source )
       {
+#if GDAL_VERSION_MAJOR < 2
       OGRDataSource::DestroyDataSource( this->Source );
+#else
+      GDALClose(this->Source);
+#endif
       }
     }
 
@@ -307,8 +318,11 @@ public:
     return nCells;
     }
 
+#if GDAL_VERSION_MAJOR < 2
   OGRDataSource* Source;
-  OGRSFDriver* Driver;
+#else
+  GDALDataset* Source;
+#endif
   const char* LastError;
   int LayerIdx;
   int AppendFeatures;
@@ -559,7 +573,7 @@ int vtkGDALVectorReader::InitializeInternal()
   if ( !this->Implementation )
     {
     this->Implementation = new vtkGDALVectorReader::Internal(
-                             this->FileName, 0 ,
+                             this->FileName,
                              this->AppendFeatures, this->AddFeatureIds );
     if ( ! this->Implementation || this->Implementation->LastError )
       {
