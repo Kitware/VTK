@@ -581,7 +581,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
     vtkMatrix4x4 *mcwc = volume->GetMatrix();
     tmpMat2->DeepCopy(wcvc);
     tmpMat2->Transpose();
-    vtkMatrix4x4::Multiply4x4(mcwc, tmpMat2, tmpMat);
+    vtkMatrix4x4::Multiply4x4(tmpMat2, mcwc, tmpMat);
     tmpMat->Transpose();
     for(int i = 0; i < 4; ++i)
       {
