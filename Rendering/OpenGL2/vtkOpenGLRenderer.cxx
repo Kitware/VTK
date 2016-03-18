@@ -669,6 +669,7 @@ bool vtkOpenGLRenderer::HaveApplePrimitiveIdBug()
   // OpenGL version string:   4.1 ATI-1.40.16
   // OpenGL renderer string:    AMD Radeon HD - FirePro D500 OpenGL Engine
   // OpenGL renderer string:    AMD Radeon HD 5770 OpenGL Engine
+  // OpenGL renderer string:    AMD Radeon R9 M395 OpenGL Engine
 
   // known bad APPLE AMD systems
   // OpenGL vendor string:  ATI Technologies Inc.
@@ -692,8 +693,9 @@ bool vtkOpenGLRenderer::HaveApplePrimitiveIdBug()
           (renderer.find("AMD Radeon R9 M370X OpenGL Engine") != std::string::npos)) ||
         (version.find("4.1 ATI-1.40.16") != std::string::npos &&
           (renderer.find("ATI Radeon HD 5770 OpenGL Engine") != std::string::npos ||
-           renderer.find("AMD Radeon HD - FirePro D500 OpenGL Engine") != std::string::npos))
-        )
+           renderer.find("AMD Radeon HD - FirePro D500 OpenGL Engine") != std::string::npos ||
+           renderer.find("AMD Radeon R9 M395 OpenGL Engine") != std::string::npos))
+         )
       {
       this->HaveApplePrimitiveIdBugValue = false;
       }
