@@ -37,7 +37,7 @@ int TestTextActor3DDepthPeeling(int argc, char* argv[])
   iren->SetRenderWindow(renWin);
   renWin->Delete();
 
-  renWin->SetMultiSamples(1);
+  renWin->SetMultiSamples(0);
   renWin->SetAlphaBitPlanes(1);
 
   vtkRenderer *renderer = vtkRenderer::New();
