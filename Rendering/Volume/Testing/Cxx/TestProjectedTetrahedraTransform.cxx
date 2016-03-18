@@ -152,7 +152,7 @@ int TestProjectedTetrahedraTransform(int argc, char *argv[])
   renderer->ResetCamera();
   renderWindow->Render();
 
-  int retVal = vtkTesting::Test(argc, argv, renderWindow.GetPointer(), 75);
+  int retVal = vtkTesting::Test(argc, argv, renderWindow.GetPointer(), 20);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     renderWindowInteractor->Start();
