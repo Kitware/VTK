@@ -196,7 +196,6 @@ int vtkRungeKutta45::ComputeNextStep(double* xprev, double* dxprev,
       }
     }
 
-  delTActual = delT;
   return 0;
 }
 
