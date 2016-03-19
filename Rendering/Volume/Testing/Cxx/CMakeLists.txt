@@ -73,6 +73,7 @@ set (VolumeOpenGL2CxxTests
   TestGPURayCastVolumePolyData.cxx
   TestGPURayCastVolumeRotation.cxx
   TestGPURayCastVolumeScale.cxx
+  TestProjectedTetrahedraTransform.cxx
   )
 
 # everyone gets these tests
