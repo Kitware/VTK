@@ -1575,7 +1575,7 @@ struct ScalarRangeDispatchWrapper
   bool Success;
   double *Range;
 
-  ScalarRangeDispatchWrapper(double *range) : Range(range) {}
+  ScalarRangeDispatchWrapper(double *range) : Success(false), Range(range) {}
 
   template <typename ArrayT>
   void operator()(ArrayT *array)
@@ -1591,7 +1591,7 @@ struct VectorRangeDispatchWrapper
   bool Success;
   double *Range;
 
-  VectorRangeDispatchWrapper(double *range) : Range(range) {}
+  VectorRangeDispatchWrapper(double *range) : Success(false), Range(range) {}
 
   template <typename ArrayT>
   void operator()(ArrayT *array)
