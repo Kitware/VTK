@@ -49,7 +49,7 @@ public:
   vtkGetStringMacro(FileName);
 
   // Description:
-  // Enable writing to an InputString instead of the default, a file.
+  // Enable reading from an InputString instead of the default, a file.
   vtkSetMacro(ReadFromInputString, int);
   vtkGetMacro(ReadFromInputString, int);
   vtkBooleanMacro(ReadFromInputString, int);
