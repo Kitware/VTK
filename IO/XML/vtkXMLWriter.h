@@ -51,7 +51,7 @@ class OffsetsManagerArray; // array of OffsetsManagerGroup
 class VTKIOXML_EXPORT vtkXMLWriter : public vtkAlgorithm
 {
 public:
-  vtkTypeMacro(vtkXMLWriter,vtkAlgorithm);
+  vtkTypeMacro(vtkXMLWriter, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   //BTX
@@ -114,9 +114,9 @@ public:
 
   // Description:
   // Enable writing to an OutputString instead of the default, a file.
-  vtkSetMacro(WriteToOutputString,int);
-  vtkGetMacro(WriteToOutputString,int);
-  vtkBooleanMacro(WriteToOutputString,int);
+  vtkSetMacro(WriteToOutputString, int);
+  vtkGetMacro(WriteToOutputString, int);
+  vtkBooleanMacro(WriteToOutputString, int);
   std::string GetOutputString() { return this->OutputString; }
 
   // Description:
@@ -198,8 +198,8 @@ public:
 
   // Description:
   // Set the number of time steps
-  vtkGetMacro(NumberOfTimeSteps,int);
-  vtkSetMacro(NumberOfTimeSteps,int);
+  vtkGetMacro(NumberOfTimeSteps, int);
+  vtkSetMacro(NumberOfTimeSteps, int);
 
   // Description:
   // API to interface an outside the VTK pipeline control
@@ -295,7 +295,7 @@ protected:
 
   // Method defined by subclasses to write data.  Return 1 for
   // success, 0 for failure.
-  virtual int WriteData() {return 1;}
+  virtual int WriteData() { return 1; }
 
   // Method defined by subclasses to specify the data set's type name.
   virtual const char* GetDataSetName()=0;

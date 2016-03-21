@@ -50,9 +50,9 @@ public:
 
   // Description:
   // Enable writing to an InputString instead of the default, a file.
-  vtkSetMacro(ReadFromInputString,int);
-  vtkGetMacro(ReadFromInputString,int);
-  vtkBooleanMacro(ReadFromInputString,int);
+  vtkSetMacro(ReadFromInputString, int);
+  vtkGetMacro(ReadFromInputString, int);
+  vtkBooleanMacro(ReadFromInputString, int);
   void SetInputString(std::string s) { this->InputString = s; }
 
   // Description:
@@ -125,13 +125,13 @@ public:
   // Set/get the ErrorObserver for the internal reader
   // This is useful for applications that want to catch error messages.
   void SetReaderErrorObserver(vtkCommand *);
-  vtkGetObjectMacro(ReaderErrorObserver,vtkCommand);
+  vtkGetObjectMacro(ReaderErrorObserver, vtkCommand);
 
   // Description:
   // Set/get the ErrorObserver for the internal xml parser
   // This is useful for applications that want to catch error messages.
   void SetParserErrorObserver(vtkCommand *);
-  vtkGetObjectMacro(ParserErrorObserver,vtkCommand);
+  vtkGetObjectMacro(ParserErrorObserver, vtkCommand);
 
 protected:
   vtkXMLReader();
