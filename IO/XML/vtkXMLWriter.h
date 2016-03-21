@@ -180,7 +180,7 @@ public:
   void SetInputData(vtkDataObject *);
   void SetInputData(int, vtkDataObject*);
   vtkDataObject *GetInput(int port);
-  vtkDataObject *GetInput() { return this->GetInput(0); };
+  vtkDataObject *GetInput() { return this->GetInput(0); }
 
   // Description:
   // Get the default file extension for files written by this writer.
@@ -295,7 +295,7 @@ protected:
 
   // Method defined by subclasses to write data.  Return 1 for
   // success, 0 for failure.
-  virtual int WriteData() {return 1;};
+  virtual int WriteData() {return 1;}
 
   // Method defined by subclasses to specify the data set's type name.
   virtual const char* GetDataSetName()=0;
