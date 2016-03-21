@@ -313,6 +313,19 @@ public:
 
     case wkbNone:
       return 0;
+#if GDAL_VERSION_MAJOR >= 2
+    case wkbCircularString:
+    case wkbCircularStringZ:
+    case wkbCompoundCurve:
+    case wkbCompoundCurveZ:
+    case wkbCurvePolygon:
+    case wkbCurvePolygonZ:
+    case wkbMultiCurve:
+    case wkbMultiCurveZ:
+    case wkbMultiSurface:
+    case wkbMultiSurfaceZ:
+      return 0;
+#endif
       }
 
     return nCells;
