@@ -687,14 +687,25 @@ bool vtkOpenGLRenderer::HaveApplePrimitiveIdBug()
     // but exclude systems we know do not have it
     std::string renderer = (const char *)glGetString(GL_RENDERER);
     std::string version = (const char *)glGetString(GL_VERSION);
+    int minorVersion = 0;
+    int patchVersion = 0;
+    // try to extract some minor version numbers
+    if (version.find("4.1 ATI-1.") == 0)
+      {
+      std::string minorVer = version.substr(strlen("4.1 ATI-1."),std::string::npos);
+      if (minorVer.find(".") == 2)
+        {
+        minorVersion = std::stoi(minorVer.substr(0,2));
+        patchVersion = std::stoi(minorVer.substr(3,std::string::npos));
+        }
+      }
     if (
         ((version.find("4.1 ATI-1.38.3") != std::string::npos ||
           version.find("4.1 ATI-1.40.15") != std::string::npos) &&
           (renderer.find("AMD Radeon R9 M370X OpenGL Engine") != std::string::npos)) ||
-        (version.find("4.1 ATI-1.40.16") != std::string::npos &&
-          (renderer.find("ATI Radeon HD 5770 OpenGL Engine") != std::string::npos ||
-           renderer.find("AMD Radeon HD - FirePro D500 OpenGL Engine") != std::string::npos ||
-           renderer.find("AMD Radeon R9 M395 OpenGL Engine") != std::string::npos))
+          // assume anything with 1.40.16 or later is good?
+          minorVersion > 40 ||
+          (minorVersion == 40 && patchVersion >= 16)
          )
       {
       this->HaveApplePrimitiveIdBugValue = false;
