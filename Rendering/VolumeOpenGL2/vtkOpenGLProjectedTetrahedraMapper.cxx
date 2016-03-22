@@ -212,6 +212,21 @@ bool vtkOpenGLProjectedTetrahedraMapper::AllocateFBOResources(vtkRenderer *r)
       this->FloatingPointFrameBufferResourcesAllocated = true;
       }
 
+    GLint winSampleBuffers = 0;
+    glGetIntegerv(GL_SAMPLE_BUFFERS, &winSampleBuffers);
+
+    GLint winSamples = 0;
+    glGetIntegerv(GL_SAMPLES, &winSamples);
+
+    GLint fboSampleBuffers = 0;
+    glGetIntegerv(GL_SAMPLE_BUFFERS, &fboSampleBuffers);
+
+    int fboSamples
+      = ((fboSampleBuffers >= 1)
+      && (winSampleBuffers >= 1)
+      && (winSamples >= 1))?winSamples:0;
+
+
     // do not special handle multisampling, use the default.
     // Multisampling is becoming less common as it
     // is replaced with other techniques
@@ -223,9 +238,32 @@ bool vtkOpenGLProjectedTetrahedraMapper::AllocateFBOResources(vtkRenderer *r)
           GL_RENDERBUFFER,
           this->Internals->RenderBufferObjectIds[0]);
     vtkOpenGLCheckErrorMacro("failed at glBindRenderBuffer color");
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA4,
-                          this->CurrentFBOWidth,
-                          this->CurrentFBOHeight);
+    glRenderbufferStorageMultisample(
+          GL_RENDERBUFFER,
+          fboSamples,
+          GL_RGBA32F,
+          this->CurrentFBOWidth,
+          this->CurrentFBOHeight);
+    vtkOpenGLCheckErrorMacro("failed at glRenderBufferStorage color");
+
+
+    glBindRenderbuffer(
+          GL_RENDERBUFFER,
+          this->Internals->RenderBufferObjectIds[1]);
+    vtkOpenGLCheckErrorMacro("failed at glBindRenderBuffer depth");
+    glRenderbufferStorageMultisample(
+          GL_RENDERBUFFER,
+          fboSamples,
+          GL_DEPTH_COMPONENT,
+          this->CurrentFBOWidth,
+          this->CurrentFBOHeight);
+
+    // Best way to make it complete: bind the fbo for both draw+read
+    // durring setup
+    glBindFramebuffer(
+      GL_FRAMEBUFFER,
+      this->Internals->FrameBufferObjectId);
+
     glFramebufferRenderbuffer(
        GL_FRAMEBUFFER,
        GL_COLOR_ATTACHMENT0,
@@ -233,13 +271,6 @@ bool vtkOpenGLProjectedTetrahedraMapper::AllocateFBOResources(vtkRenderer *r)
        this->Internals->RenderBufferObjectIds[0]);
     vtkOpenGLCheckErrorMacro("failed at glFramebufferRenderBuffer for color");
 
-    glBindRenderbuffer(
-          GL_RENDERBUFFER,
-          this->Internals->RenderBufferObjectIds[1]);
-    vtkOpenGLCheckErrorMacro("failed at glBindRenderBuffer depth");
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT,
-                          this->CurrentFBOWidth,
-                          this->CurrentFBOHeight);
     glFramebufferRenderbuffer(
           GL_FRAMEBUFFER,
           GL_DEPTH_ATTACHMENT,
@@ -529,11 +560,11 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
                            this->Internals->FrameBufferObjectId);
 
     glBlitFramebuffer(0, 0,
-                           this->CurrentFBOWidth, this->CurrentFBOHeight,
-                           0, 0,
-                           this->CurrentFBOWidth, this->CurrentFBOHeight,
-                           GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,
-                           GL_NEAREST);
+                      this->CurrentFBOWidth, this->CurrentFBOHeight,
+                      0, 0,
+                      this->CurrentFBOWidth, this->CurrentFBOHeight,
+                      GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,
+                      GL_NEAREST);
 
     vtkOpenGLCheckErrorMacro("failed at glBlitFramebuffer");
     }
@@ -1086,13 +1117,13 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
 
     // read from fbo
     glBindFramebuffer(GL_READ_FRAMEBUFFER,
-                           this->Internals->FrameBufferObjectId);
+                      this->Internals->FrameBufferObjectId);
     // draw to default fbo
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
     glBlitFramebuffer(0, 0, this->CurrentFBOWidth, this->CurrentFBOHeight,
-                         0, 0, this->CurrentFBOWidth, this->CurrentFBOHeight,
-                         GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+                      0, 0, this->CurrentFBOWidth, this->CurrentFBOHeight,
+                      GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 
     vtkOpenGLCheckErrorMacro("failed at glBlitFramebuffer");
 
