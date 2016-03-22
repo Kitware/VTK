@@ -1702,7 +1702,7 @@ void vtkVRMLYaccData::expect(int type)
 
 #define FLEX_SCANNER
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <io.h>
 #else
 #include <unistd.h>

@@ -41,7 +41,7 @@ vtkStandardNewMacro(vtkRInterface);
 #include "Rversion.h"
 #include "Rdefines.h"
 
-#ifndef WIN32
+#ifndef _WIN32
 #define CSTACK_DEFNS
 #define R_INTERFACE_PTRS
 #include "Rinterface.h"
@@ -75,7 +75,7 @@ public:
     return;
     }
 
-#ifndef WIN32
+#ifndef _WIN32
     R_SignalHandlers = 0;
 #endif
 
@@ -97,7 +97,7 @@ public:
           R_CStackLimit = (uintptr_t)-1;
       #endif
 
-      #ifndef WIN32
+      #ifndef _WIN32
           R_Interactive = static_cast<Rboolean>(TRUE);
       #endif
           setup_Rmainloop();
@@ -112,7 +112,7 @@ public:
     rcommand.append("f<-file(paste(tempdir(), \"/Routput.txt\", sep = \"\"), open=\"wt+\")\nsink(f)\n");
     this->tmpFilePath.clear();
     this->tmpFilePath.append(R_TempDir);
-#ifdef WIN32
+#ifdef _WIN32
     this->tmpFilePath.append("\\Routput.txt");
 #else
     this->tmpFilePath.append("/Routput.txt");

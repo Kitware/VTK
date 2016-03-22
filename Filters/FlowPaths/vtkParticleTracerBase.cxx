@@ -133,7 +133,7 @@ vtkParticleTracerBase::vtkParticleTracerBase()
   this->SetNumberOfInputPorts(2);
 
 #ifdef JB_H5PART_PARTICLE_OUTPUT
-#ifdef WIN32
+#ifdef _WIN32
   vtkDebugMacro(<<"Setting vtkH5PartWriter");
   vtkH5PartWriter *writer = vtkH5PartWriter::New();
 #else

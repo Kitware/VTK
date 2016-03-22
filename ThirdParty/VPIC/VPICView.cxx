@@ -8,7 +8,7 @@
 #include <algorithm>
 #include "math.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 const static char * Slash = "\\";
 #else
 const static char * Slash = "/";

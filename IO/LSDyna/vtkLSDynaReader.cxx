@@ -152,7 +152,7 @@ static const char* vtkLSDynaCellTypes[] =
 
 static void vtkLSGetLine( ifstream& deck, std::string& line )
 {
-#if !defined(_WIN32) && !defined(WIN32) && !defined(_MSC_VER) && !defined(__BORLANDC__)
+#if !defined(_WIN32) && !defined(_MSC_VER) && !defined(__BORLANDC__)
   // One line implementation for everyone but Windows (MSVC6 and BCC32 are the troublemakers):
   std::getline( deck, line, '\n' );
 #else
@@ -3424,11 +3424,11 @@ int vtkLSDynaReader::ReadInputDeckKeywords( ifstream& deck )
       {
       deckExt = "";
       }
-#ifndef WIN32
+#ifndef _WIN32
     xmlSummary = deckDir + "/" + deckName + ".lsdyna";
 #else
     xmlSummary = deckDir + "\\" + deckName + ".lsdyna";
-#endif // WIN32
+#endif // _WIN32
     // As long as we don't kill the input deck, write the summary XML:
     if ( xmlSummary != this->InputDeck )
       {
@@ -3460,11 +3460,11 @@ int vtkLSDynaReader::WriteInputDeckSummary( const char* fname )
   std::string dbName = this->P->Fam.GetDatabaseBaseName();
   if ( this->IsDatabaseValid() && ! dbDir.empty() && ! dbName.empty() )
     {
-#ifndef WIN32
+#ifndef _WIN32
     if ( dbDir[0] == '/' )
 #else
     if ( dbDir[0] == '\\' )
-#endif // WIN32
+#endif // _WIN32
       {
       // OK, we have an absolute path, so it should be safe to write it out.
       xmlSummary

@@ -48,7 +48,7 @@ void otherTimerLogTest(ostream& strm)
       {
       a *= a;
       }
-#ifndef WIN32
+#ifndef _WIN32
     sleep (1);
 #else
     Sleep(1000);
