@@ -695,8 +695,8 @@ bool vtkOpenGLRenderer::HaveApplePrimitiveIdBug()
       std::string minorVer = version.substr(strlen("4.1 ATI-1."),std::string::npos);
       if (minorVer.find(".") == 2)
         {
-        minorVersion = std::stoi(minorVer.substr(0,2));
-        patchVersion = std::stoi(minorVer.substr(3,std::string::npos));
+        minorVersion = atoi(minorVer.substr(0,2).c_str());
+        patchVersion = atoi(minorVer.substr(3,std::string::npos).c_str());
         }
       }
     if (
