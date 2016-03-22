@@ -172,4 +172,4 @@ private:
 };
 
 
-#endif // __vtkIntersectionPolyDataFilter_h
+#endif // vtkIntersectionPolyDataFilter_h

@@ -209,13 +209,13 @@ vtkIntersectionPolyDataFilter::Impl::Impl() :
   OBBTree1(0), IntersectionLines(0), SurfaceId(0), PointMerger(0)
 {
   for (int i = 0; i < 2; i++)
-  {
+    {
     this->Mesh[i]                 = NULL;
     this->CellIds[i]              = NULL;
     this->IntersectionMap[i]      = new IntersectionMapType();
     this->IntersectionPtsMap[i]   = new IntersectionMapType();
     this->PointEdgeMap[i]         = new PointEdgeMapType();
-  }
+    }
   this->PointMapper             = new IntersectionMapType();
   this->SplittingPD             = vtkPolyData::New();
   this->TransformSign = 0;
@@ -226,11 +226,11 @@ vtkIntersectionPolyDataFilter::Impl::Impl() :
 vtkIntersectionPolyDataFilter::Impl::~Impl()
 {
   for (int i = 0; i < 2; i++)
-  {
+    {
     delete this->IntersectionMap[i];
     delete this->IntersectionPtsMap[i];
     delete this->PointEdgeMap[i];
-  }
+    }
   delete this->PointMapper;
   this->SplittingPD->Delete();
 }
