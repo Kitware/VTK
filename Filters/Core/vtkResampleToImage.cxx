@@ -15,14 +15,17 @@
 #include "vtkResampleToImage.h"
 
 #include "vtkCharArray.h"
+#include "vtkCompositeDataProbeFilter.h"
+#include "vtkCompositeDataIterator.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkIdList.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkProbeFilter.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 
@@ -120,6 +123,7 @@ int vtkResampleToImage::FillInputPortInformation(int vtkNotUsed(port),
                                                   vtkInformation *info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
   return 1;
 }
 
@@ -168,6 +172,32 @@ void vtkResampleToImage::SetBlankPointsAndCells(vtkImageData *data,
     }
 }
 
+void vtkResampleToImage::GetCompositeDataSetBounds(vtkCompositeDataSet* data,
+                                                   double bounds[6])
+{
+  bounds[0] = bounds[2] = bounds[4] = VTK_DOUBLE_MAX;
+  bounds[1] = bounds[3] = bounds[5] = -VTK_DOUBLE_MAX;
+
+  vtkCompositeDataIterator *iter = data->NewIterator();
+  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+    {
+    vtkDataSet *ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+    if (!ds)
+      {
+      vtkErrorMacro("All leaves in the multiblock dataset must be vtkDataSet.");
+      continue;
+      }
+    double b[6];
+    ds->GetBounds(b);
+    for (int i = 0; i < 3; ++i)
+      {
+      bounds[2*i] = vtkMath::Min(bounds[2*i], b[2*i]);
+      bounds[2*i + 1] = vtkMath::Max(bounds[2*i + 1], b[2*i + 1]);
+      }
+    }
+  iter->Delete();
+}
+
 //----------------------------------------------------------------------------
 int vtkResampleToImage::RequestData(vtkInformation *vtkNotUsed(request),
                                      vtkInformationVector **inputVector,
@@ -178,8 +208,7 @@ int vtkResampleToImage::RequestData(vtkInformation *vtkNotUsed(request),
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
   vtkImageData *output = vtkImageData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
@@ -191,7 +220,15 @@ int vtkResampleToImage::RequestData(vtkInformation *vtkNotUsed(request),
     }
 
   double inputBounds[6];
-  input->GetBounds(inputBounds);
+  if (vtkDataSet::SafeDownCast(input))
+    {
+    vtkDataSet::SafeDownCast(input)->GetBounds(inputBounds);
+    }
+  else
+    {
+    this->GetCompositeDataSetBounds(vtkCompositeDataSet::SafeDownCast(input),
+                                    inputBounds);
+    }
 
   // compute bounds and extent where probing should be performed
   double *wholeBounds = this->UseInputBounds ? inputBounds : this->SamplingBounds;
@@ -224,14 +261,14 @@ int vtkResampleToImage::RequestData(vtkInformation *vtkNotUsed(request),
   structure->SetSpacing(spacing);
   structure->SetExtent(extent);
 
-  vtkNew<vtkProbeFilter> prober;
+  vtkNew<vtkCompositeDataProbeFilter> prober;
   prober->SetInputData(structure.GetPointer());
   prober->SetSourceData(input);
   prober->Update();
 
   const char *maskArrayName = prober->GetValidPointMaskArrayName();
   output->ShallowCopy(prober->GetOutput());
-  vtkResampleToImage::SetBlankPointsAndCells(output, maskArrayName);
+  SetBlankPointsAndCells(output, maskArrayName);
   return 1;
 }
 

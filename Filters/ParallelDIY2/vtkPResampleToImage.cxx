@@ -16,6 +16,8 @@
 
 #include "vtkArrayDispatch.h"
 #include "vtkCharArray.h"
+#include "vtkCompositeDataProbeFilter.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkDataArrayAccessor.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkExtentTranslator.h"
@@ -27,7 +29,6 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkProbeFilter.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 
@@ -528,8 +529,7 @@ int vtkPResampleToImage::RequestData(vtkInformation *request,
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
   vtkImageData *output = vtkImageData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
@@ -542,7 +542,15 @@ int vtkPResampleToImage::RequestData(vtkInformation *request,
 
   // compute global bounds of the dataset
   double localBounds[6], globalBounds[6];
-  input->GetBounds(localBounds);
+  if (vtkDataSet::SafeDownCast(input))
+    {
+    vtkDataSet::SafeDownCast(input)->GetBounds(localBounds);
+    }
+  else
+    {
+    this->GetCompositeDataSetBounds(vtkCompositeDataSet::SafeDownCast(input),
+                                    localBounds);
+    }
   ComputeGlobalBounds(localBounds, globalBounds);
 
   // compute bounds and extent where probing should be performed for this node
@@ -585,7 +593,7 @@ int vtkPResampleToImage::RequestData(vtkInformation *request,
     }
 
   // perform probing
-  vtkNew<vtkProbeFilter> prober;
+  vtkNew<vtkCompositeDataProbeFilter> prober;
   const char *maskArrayName = prober->GetValidPointMaskArrayName();
 
   vtkNew<vtkImageData> structure;
@@ -662,7 +670,7 @@ int vtkPResampleToImage::RequestData(vtkInformation *request,
     }
 
   MakeResult(origin, spacing, outExtent, pointFieldMetaData, block->Points, output);
-  vtkResampleToImage::SetBlankPointsAndCells(output, maskArrayName);
+  SetBlankPointsAndCells(output, maskArrayName);
 
   return 1;
 }
