@@ -231,32 +231,32 @@ bool vtkOpenGLProjectedTetrahedraMapper::AllocateFBOResources(vtkRenderer *r)
     // Multisampling is becoming less common as it
     // is replaced with other techniques
     glBindFramebuffer(GL_FRAMEBUFFER,
-          this->Internals->FrameBufferObjectId);
+      this->Internals->FrameBufferObjectId);
 
     // allocate storage for renderbuffers
     glBindRenderbuffer(
-          GL_RENDERBUFFER,
-          this->Internals->RenderBufferObjectIds[0]);
+      GL_RENDERBUFFER,
+      this->Internals->RenderBufferObjectIds[0]);
     vtkOpenGLCheckErrorMacro("failed at glBindRenderBuffer color");
     glRenderbufferStorageMultisample(
-          GL_RENDERBUFFER,
-          fboSamples,
-          GL_RGBA32F,
-          this->CurrentFBOWidth,
-          this->CurrentFBOHeight);
+      GL_RENDERBUFFER,
+      fboSamples,
+      GL_RGBA32F,
+      this->CurrentFBOWidth,
+      this->CurrentFBOHeight);
     vtkOpenGLCheckErrorMacro("failed at glRenderBufferStorage color");
 
 
     glBindRenderbuffer(
-          GL_RENDERBUFFER,
-          this->Internals->RenderBufferObjectIds[1]);
+      GL_RENDERBUFFER,
+      this->Internals->RenderBufferObjectIds[1]);
     vtkOpenGLCheckErrorMacro("failed at glBindRenderBuffer depth");
     glRenderbufferStorageMultisample(
-          GL_RENDERBUFFER,
-          fboSamples,
-          GL_DEPTH_COMPONENT,
-          this->CurrentFBOWidth,
-          this->CurrentFBOHeight);
+      GL_RENDERBUFFER,
+      fboSamples,
+      GL_DEPTH_COMPONENT,
+      this->CurrentFBOWidth,
+      this->CurrentFBOHeight);
 
     // Best way to make it complete: bind the fbo for both draw+read
     // durring setup
@@ -265,17 +265,17 @@ bool vtkOpenGLProjectedTetrahedraMapper::AllocateFBOResources(vtkRenderer *r)
       this->Internals->FrameBufferObjectId);
 
     glFramebufferRenderbuffer(
-       GL_FRAMEBUFFER,
-       GL_COLOR_ATTACHMENT0,
-       GL_RENDERBUFFER,
-       this->Internals->RenderBufferObjectIds[0]);
+      GL_FRAMEBUFFER,
+      GL_COLOR_ATTACHMENT0,
+      GL_RENDERBUFFER,
+      this->Internals->RenderBufferObjectIds[0]);
     vtkOpenGLCheckErrorMacro("failed at glFramebufferRenderBuffer for color");
 
     glFramebufferRenderbuffer(
-          GL_FRAMEBUFFER,
-          GL_DEPTH_ATTACHMENT,
-          GL_RENDERBUFFER,
-          this->Internals->RenderBufferObjectIds[1]);
+      GL_FRAMEBUFFER,
+      GL_DEPTH_ATTACHMENT,
+      GL_RENDERBUFFER,
+      this->Internals->RenderBufferObjectIds[1]);
     vtkOpenGLCheckErrorMacro("failed at glFramebufferRenderBuffer for depth");
 
     // verify that it is usable
