@@ -154,7 +154,7 @@ public:
   // Return the name of the ith excluded array.
   const char* GetExcludedArray(int i)
     {
-      if ( i < 0 || i >= this->ExcludedArrays.size() )
+      if ( i < 0 || i >= static_cast<int>(this->ExcludedArrays.size()) )
         {
         return NULL;
         }
@@ -181,7 +181,7 @@ public:
   // Return the name of the ith derivative array.
   const char* GetDerivativeArray(int i)
     {
-      if ( i < 0 || i >= this->DerivArrays.size() )
+      if ( i < 0 || i >= static_cast<int>(this->DerivArrays.size()) )
         {
         return NULL;
         }

@@ -49,7 +49,6 @@ namespace {
 #include "vtkArrayListTemplate.h"
 
 // The threaded core of the algorithm
-template <typename TK>
 struct ProbePoints
 {
   vtkSPHInterpolator *SPHInterpolator;
@@ -161,8 +160,7 @@ struct ProbePoints
 }; //ProbePoints
 
 // Probe points using an image. Uses a more efficient iteration scheme.
-template <typename TK>
-struct ImageProbePoints : public ProbePoints<TK>
+struct ImageProbePoints : public ProbePoints
 {
   int Dims[3];
   double Origin[3];
@@ -376,14 +374,14 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
     int dims[3];
     double origin[3], spacing[3];
     this->ExtractImageDescription(imgInput,dims,origin,spacing);
-    ImageProbePoints<vtkSPHQuinticKernel> imageProbe(this, imgInput, dims, origin,
+    ImageProbePoints imageProbe(this, imgInput, dims, origin,
                                 spacing, this->Kernel,this->Locator,inPD,outPD,
                                 this->NullPointsStrategy,mask,this->NullValue);
     vtkSMPTools::For(0, dims[2], imageProbe);//over slices
     }
   else
     {
-    ProbePoints<vtkSPHQuinticKernel> probe(this, input,this->Kernel,this->Locator,
+    ProbePoints probe(this, input,this->Kernel,this->Locator,
                       inPD,outPD, this->NullPointsStrategy,mask,this->NullValue);
     vtkSMPTools::For(0, numPts, probe);
     }
