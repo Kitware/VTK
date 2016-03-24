@@ -42,7 +42,30 @@ IsExcluded(vtkDataArray *da)
   return (std::find(ExcludedArrays.begin(), ExcludedArrays.end(), da) != ExcludedArrays.end());
 }
 
-// Add the arrays to interpolate here
+// Add an array pair (input,output) using the name provided for the output.
+void ArrayList::
+AddArrayPair(vtkIdType numPts, vtkDataArray *inArray,
+             vtkStdString &outArrayName, double nullValue)
+{
+  vtkDataArray *outArray = inArray->NewInstance();
+  outArray->SetNumberOfComponents(inArray->GetNumberOfComponents());
+  outArray->SetNumberOfTuples(inArray->GetNumberOfTuples());
+  outArray->SetName(outArrayName);
+  void *iD = inArray->GetVoidPointer(0);
+  void *oD = outArray->GetVoidPointer(0);
+  int iType = inArray->GetDataType();
+
+  switch (iType)
+    {
+    vtkTemplateMacro(CreateArrayPair(this, static_cast<VTK_TT *>(iD),
+                     static_cast<VTK_TT *>(oD),numPts,inArray->GetNumberOfComponents(),
+                     outArray,static_cast<VTK_TT>(nullValue)));
+    }//over all VTK types
+}
+
+// Add the arrays to interpolate here. This presumes that vtkDataSetAttributes::CopyData() or
+// vtkDataSetAttributes::InterpolateData() has been called, and the input and output array
+// names match.
 void ArrayList::
 AddArrays(vtkIdType numOutPts, vtkDataSetAttributes *inPD, vtkDataSetAttributes *outPD,
           double nullValue)

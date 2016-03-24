@@ -140,22 +140,23 @@ outlineMapper2.SetInputConnection(outline2.GetOutputPort())
 outlineActor2 = vtk.vtkActor()
 outlineActor2.SetMapper(outlineMapper2)
 
-# SPH kernel-------------------------------------------------------
-SPHKernel = vtk.vtkSPHKernel()
+# Linear kernel-------------------------------------------------------
+linearKernel = vtk.vtkLinearKernel()
+linearKernel.SetRadius(0.5)
 
 interpolator3 = vtk.vtkPointInterpolator()
 interpolator3.SetInputConnection(plane.GetOutputPort())
 interpolator3.SetSourceData(output)
-interpolator3.SetKernel(voronoiKernel)
-#interpolator3.SetKernel(SPHKernel)
+interpolator3.SetKernel(linearKernel)
 interpolator3.SetLocator(locator)
+interpolator3.SetNullPointsStrategyToNullValue()
 
 # Time execution
 timer.StartTimer()
 interpolator3.Update()
 timer.StopTimer()
 time = timer.GetElapsedTime()
-print("Interpolate Points (SPH): {0}".format(time))
+print("Interpolate Points (Linear): {0}".format(time))
 
 intMapper3 = vtk.vtkPolyDataMapper()
 intMapper3.SetInputConnection(interpolator3.GetOutputPort())

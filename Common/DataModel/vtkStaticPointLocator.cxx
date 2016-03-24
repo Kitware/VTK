@@ -23,11 +23,13 @@
 #include "vtkPolyData.h"
 #include "vtkSMPTools.h"
 
+#include <vector>
+
 vtkStandardNewMacro(vtkStaticPointLocator);
 
 // There are stack-allocated bucket neighbor lists. This is the initial
 // value. Too small and heap allocation kicks in.
-static const int VTK_INITIAL_BUCKET_SIZE=1000;
+static const int VTK_INITIAL_BUCKET_SIZE=10000;
 
 //-----------------------------------------------------------------------------
 // The following code supports threaded point locator construction. The locator
@@ -157,33 +159,35 @@ public:
 
   int *GetPoint(vtkIdType i)
     {
-      return (this->Count > i ?  &(this->P[3*i]) : 0);
+      return this->P + 3*i;
+//      return (this->Count > i ?  this->P + 3*i : 0);
     }
 
   vtkIdType InsertNextBucket(const int x[3])
     {
       // Re-allocate if beyond the current max size.
       // (Increase by VTK_INITIAL_BUCKET_SIZE)
-      if (this->Count == this->MaxSize)
-        {
-        int *tmp = this->P;
+      int *tmp;
+      vtkIdType offset=this->Count*3;
 
-        this->MaxSize += VTK_INITIAL_BUCKET_SIZE;
+      if (this->Count >= this->MaxSize)
+        {
+        tmp = this->P;
+        this->MaxSize *= 2;
         this->P = new int[this->MaxSize*3];
 
-        for(vtkIdType i=0; i<3*this->Count; i++)
-          {
-          this->P[i] = tmp[i];
-          }
+        memcpy(this->P, tmp, offset*sizeof(int));
+
         if ( tmp != &(this->InitialBuffer[0]) )
           {
           delete[] tmp;
           }
         }
 
-      this->P[3*this->Count] = x[0];
-      this->P[3*this->Count+1] = x[1];
-      this->P[3*this->Count+2] = x[2];
+      tmp = this->P + offset;
+      *tmp++ = *x++;
+      *tmp++ = *x++;
+      *tmp   = *x;
       this->Count++;
       return this->Count-1;
     }
