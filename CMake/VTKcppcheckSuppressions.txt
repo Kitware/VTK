@@ -39,7 +39,6 @@ invalidscanf
 noCopyConstructor
 noExplicitConstructor
 operatorEqVarError
-passedByValue
 redundantAssignment
 uninitMemberVar
 unreadVariable
@@ -109,6 +108,10 @@ uselessAssignmentPtrArg:Filters/General/vtkYoungsMaterialInterface.cxx
 uselessAssignmentPtrArg:IO/Parallel/vtkPImageWriter.cxx
 uselessAssignmentPtrArg:Wrapping/Tools/vtkParse.tab.c
 zerodiv:Filters/ParallelFlowPaths/Testing/Cxx/TestPStreamGeometry.cxx
+unusedStructMember:Common/Core/vtkTypeList.txx
+
+// Not worth fixing.
+passedByValue:Filters/General/vtkYoungsMaterialInterface.cxx
 
 // There are a fair number of these, but they are probably worth working through.
 duplInheritedMember
@@ -121,3 +124,6 @@ postfixOperator
 // To investigate further...
 memleak:Wrapping/Tools/vtkParsePreprocess.c
 nullPointerRedundantCheck:IO/Exodus/vtkExodusIIReaderParser.cxx
+redundantAssignment:Rendering/Volume/vtkGPUVolumeRayCastMapper.cxx:
+redundantAssignment:Rendering/Volume/vtkFixedPointVolumeRayCastMapper.cxx
+redundantAssignment:Filters/General/vtkBoxClipDataSet.cxx
