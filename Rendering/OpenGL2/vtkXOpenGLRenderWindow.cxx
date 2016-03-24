@@ -1150,7 +1150,25 @@ void vtkXOpenGLRenderWindow::SetSize(int width,int height)
       XResizeWindow(this->DisplayId,this->WindowId,
                     static_cast<unsigned int>(width),
                     static_cast<unsigned int>(height));
-      XSync(this->DisplayId,False);
+      // this is an async call so we wait until we
+      // know it has been resized. To avoid infinite
+      // loops we put in a count limit just to be safe
+      XWindowAttributes attribs;
+      int count = 20000;
+      do
+        {
+        XSync(this->DisplayId,False);
+
+        //  Find the current window size
+        XGetWindowAttributes(this->DisplayId,
+                             this->WindowId, &attribs);
+        count--;
+        }
+      while (count && (attribs.width != width || attribs.height != height));
+      if (!count)
+        {
+        vtkWarningMacro("warning window did not resize in the allotted time");
+        }
       }
 
     this->Modified();
