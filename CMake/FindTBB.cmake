@@ -193,22 +193,22 @@ endif ()
 
 # For OS X binary distribution, choose libc++ based libraries for Mavericks (10.9)
 # and above and AppleClang
-if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" AND
-    NOT ${CMAKE_SYSTEM_VERSION} LESS 13.0)
+if (CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND
+    NOT CMAKE_SYSTEM_VERSION VERSION_LESS 13.0)
   set (USE_LIBCXX OFF)
   cmake_policy(GET CMP0025 POLICY_VAR)
 
-  if ("${POLICY_VAR}" STREQUAL "NEW")
-    if (${CMAKE_CXX_COMPILER_ID} STREQUAL "AppleClang")
+  if (POLICY_VAR STREQUAL "NEW")
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
       set (USE_LIBCXX ON)
     endif ()
   else ()
-    if (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
       set (USE_LIBCXX ON)
     endif ()
   endif ()
 
-  if (${USE_LIBCXX})
+  if (USE_LIBCXX)
     foreach (dir IN LISTS TBB_PREFIX_PATH)
       list (APPEND TBB_LIB_SEARCH_PATH ${dir}/lib/libc++ ${dir}/libc++/lib)
     endforeach ()
