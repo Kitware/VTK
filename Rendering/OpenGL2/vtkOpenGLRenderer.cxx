@@ -661,20 +661,29 @@ bool vtkOpenGLRenderer::HaveApplePrimitiveIdBug()
     }
 
 #ifdef __APPLE__
-  // working AMD APPLE systems
+  // Known working Apple+AMD systems:
   // OpenGL vendor string:  ATI Technologies Inc.
   // OpenGL version string:   4.1 ATI-1.38.3
   // OpenGL version string:   4.1 ATI-1.40.15
   // OpenGL renderer string:    AMD Radeon R9 M370X OpenGL Engine
+
   // OpenGL version string:   4.1 ATI-1.40.16
   // OpenGL renderer string:    AMD Radeon HD - FirePro D500 OpenGL Engine
   // OpenGL renderer string:    AMD Radeon HD 5770 OpenGL Engine
   // OpenGL renderer string:    AMD Radeon R9 M395 OpenGL Engine
 
-  // known bad APPLE AMD systems
+  // OpenGL vendor string:  ATI Technologies Inc.
+  // OpenGL renderer string:  ATI Radeon HD 5770 OpenGL Engine
+  // OpenGL version string:  4.1 ATI-1.42.6
+
+  // Known buggy Apple+AMD systems:
   // OpenGL vendor string:  ATI Technologies Inc.
   // OpenGL version string:   3.3 ATI-10.0.40
   // OpenGL renderer string:    ATI Radeon HD 2600 PRO OpenGL Engine
+
+  // OpenGL vendor string:  ATI Technologies Inc.
+  // OpenGL renderer string:  AMD Radeon HD - FirePro D300 OpenGL Engine
+  // OpenGL version string:  4.1 ATI-1.24.39
 
   std::string vendor = (const char *)glGetString(GL_VENDOR);
   if (vendor.find("ATI") != std::string::npos ||
