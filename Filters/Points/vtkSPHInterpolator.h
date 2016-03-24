@@ -63,8 +63,8 @@
 
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
-#include "vtkStdString.h"        // For vtkStdString ivars
-#include <vector>
+#include "vtkStdString.h" // For vtkStdString ivars
+#include <vector> //For STL vector
 
 class vtkAbstractPointLocator;
 class vtkIdList;
