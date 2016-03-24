@@ -92,7 +92,7 @@ public:
   // interpolation basis. The user must provide the vtkIdList pids, which will
   // be dynamically resized as necessary. The method returns the number of
   // points in the basis. Typically this method is called before
-  // ComputeBasis().
+  // ComputeWeights().
   virtual vtkIdType ComputeBasis(double x[3], vtkIdList *pIds) = 0;
 
   // Description:

@@ -39,6 +39,7 @@
 
 #include "vtkDataArray.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkStdString.h"
 
 #include <vector>
 #include <algorithm>
@@ -149,11 +150,15 @@ struct ArrayList
   std::vector<BaseArrayPair*> Arrays;
   std::vector<vtkDataArray*> ExcludedArrays;
 
-  // Add the arrays to interpolate here
+  // Add the arrays to interpolate here (from attribute data)
   void AddArrays(vtkIdType numOutPts, vtkDataSetAttributes *inPD,
                  vtkDataSetAttributes *outPD, double nullValue=0.0);
 
-  // Any array excluded here is not added by AddArrays(), hence not
+  // Add a pair of arrays (manual insertion)
+  void AddArrayPair(vtkIdType numPts, vtkDataArray *inArray,
+                    vtkStdString &outArrayName, double nullValue);
+
+  // Any array excluded here is not added by AddArrays() or AddArrayPair, hence not
   // processed. Also check whether an array is excluded.
   void ExcludeArray(vtkDataArray *da);
   bool IsExcluded(vtkDataArray *da);
