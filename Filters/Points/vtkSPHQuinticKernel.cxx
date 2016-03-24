@@ -48,7 +48,7 @@ ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *weights)
   vtkIdType numPts = pIds->GetNumberOfIds();
   int i;
   vtkIdType id;
-  double d, y[3], sum=0.0;
+  double d, y[3];
   weights->SetNumberOfTuples(numPts);
   double *w = weights->GetPointer(0);
   double KW, den, mass;
@@ -79,7 +79,7 @@ ComputeGradWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *weights,
   vtkIdType numPts = pIds->GetNumberOfIds();
   int i;
   vtkIdType id;
-  double d, y[3], sum=0.0;
+  double d, y[3];
   weights->SetNumberOfTuples(numPts);
   double *w = weights->GetPointer(0);
   gradWeights->SetNumberOfTuples(numPts);
