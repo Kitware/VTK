@@ -178,7 +178,7 @@ if (WIN32 AND MSVC)
   endif ()
 
   # for each prefix path, add ia32/64\${COMPILER_PREFIX}\lib to the lib search path
-  foreach (dir ${TBB_PREFIX_PATH})
+  foreach (dir IN LISTS TBB_PREFIX_PATH)
     if (CMAKE_CL_64)
       list(APPEND TBB_LIB_SEARCH_PATH ${dir}/ia64/${COMPILER_PREFIX}/lib)
       list(APPEND TBB_LIB_SEARCH_PATH ${dir}/lib/ia64/${COMPILER_PREFIX})
@@ -209,7 +209,7 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" AND
   endif ()
 
   if (${USE_LIBCXX})
-    foreach (dir ${TBB_PREFIX_PATH})
+    foreach (dir IN LISTS TBB_PREFIX_PATH)
       list (APPEND TBB_LIB_SEARCH_PATH ${dir}/lib/libc++ ${dir}/libc++/lib)
     endforeach ()
   endif ()
@@ -226,13 +226,13 @@ endif ()
 # if platform architecture is explicitly specified
 set(TBB_ARCH_PLATFORM $ENV{TBB_ARCH_PLATFORM})
 if (TBB_ARCH_PLATFORM)
-  foreach (dir ${TBB_PREFIX_PATH})
+  foreach (dir IN LISTS TBB_PREFIX_PATH)
     list(APPEND TBB_LIB_SEARCH_PATH ${dir}/${TBB_ARCH_PLATFORM}/lib)
     list(APPEND TBB_LIB_SEARCH_PATH ${dir}/lib/${TBB_ARCH_PLATFORM})
   endforeach ()
 endif ()
 
-foreach (dir ${TBB_PREFIX_PATH})
+foreach (dir IN LISTS TBB_PREFIX_PATH)
   if (CMAKE_SIZEOF_VOID_P EQUAL 8)
     list(APPEND TBB_LIB_SEARCH_PATH ${dir}/lib/intel64)
     list(APPEND TBB_LIB_SEARCH_PATH ${dir}/lib/intel64/${COMPILER_PREFIX})
@@ -247,7 +247,7 @@ foreach (dir ${TBB_PREFIX_PATH})
 endforeach ()
 
 # add general search paths
-foreach (dir ${TBB_PREFIX_PATH})
+foreach (dir IN LISTS TBB_PREFIX_PATH)
   list(APPEND TBB_LIB_SEARCH_PATH ${dir}/lib ${dir}/Lib ${dir}/lib/tbb
     ${dir}/Libs)
   list(APPEND TBB_INC_SEARCH_PATH ${dir}/include ${dir}/Include
