@@ -188,7 +188,6 @@ vtkCxxSetObjectMacro(vtkHardwareSelector, Renderer, vtkRenderer);
 
 //----------------------------------------------------------------------------
 vtkHardwareSelector::vtkHardwareSelector()
-: UseBlending(false)
 {
   this->Internals = new vtkInternals();
   this->Renderer = 0;
@@ -293,8 +292,6 @@ bool vtkHardwareSelector::CaptureBuffers()
       {
       continue;
       }
-
-    this->BeginPass();
     rwin->Render();
     this->SavePixelBuffer(this->CurrentPass);
     }
@@ -647,11 +644,13 @@ vtkHardwareSelector::PixelInformation vtkHardwareSelector::GetPixelInformation(
     int mid24 = this->Convert(display_position, this->PixBuffer[ID_MID24]);
     int high16 = this->Convert(display_position, this->PixBuffer[ID_HIGH16]);
 
-    // Even if the pixel did not hit any cell (AttributeID < 0) do not discard
-    // it (e.g. it did hit a prop so it could be a volume mapper).
-    //
     // id 0 is reserved for nothing present.
     info.AttributeID = (this->GetID(low24, mid24, high16) - ID_OFFSET);
+    if (info.AttributeID < 0)
+      {
+      // the pixel did not hit any cell.
+      return PixelInformation();
+      }
 
     info.ProcessID = this->Convert(display_position[0], display_position[1],
       this->PixBuffer[PROCESS_PASS]);
@@ -819,6 +818,5 @@ void vtkHardwareSelector::PrintSelf(ostream& os, vtkIndent indent)
     << this->Area[2] << ", " << this->Area[3] << endl;
   os << indent << "Renderer: " << this->Renderer << endl;
   os << indent << "UseProcessIdFromData: " << this->UseProcessIdFromData << endl;
-  os << indent << "UseBlending: " << this->UseBlending << endl;
 }
 

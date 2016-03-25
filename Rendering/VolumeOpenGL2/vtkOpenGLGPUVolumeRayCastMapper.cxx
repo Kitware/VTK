@@ -1960,19 +1960,21 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::CheckPickingState(vtkRenderer
   this->IsPicking = (selector != NULL) || ren->GetRenderWindow()->GetIsPicking();
 
   if (this->IsPicking)
-  {
+    {
     // rebuild shader only in the first pass
     if (this->CurrentSelectionPass == vtkHardwareSelector::MIN_KNOWN_PASS - 1)
+      {
       this->SelectionStateTime.Modified();
+      }
 
     this->CurrentSelectionPass = selector ? selector->GetCurrentPass() : vtkHardwareSelector::ACTOR_PASS;
-  }
+    }
   else if (this->CurrentSelectionPass != vtkHardwareSelector::MIN_KNOWN_PASS - 1)
-  {
+    {
     // return to the regular rendering state
     this->SelectionStateTime.Modified();
     this->CurrentSelectionPass = vtkHardwareSelector::MIN_KNOWN_PASS - 1;
-  }
+    }
 }
 
 // -----------------------------------------------------------------------------
@@ -1981,8 +1983,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::BeginPicking(vtkRenderer* ren
   vtkHardwareSelector* selector = ren->GetSelector();
   if (selector)
     {
-    selector->SetUseBlending(true);
     selector->BeginRenderProp();
+
+    if (this->CurrentSelectionPass >= vtkHardwareSelector::ID_LOW24)
+      {
+      selector->RenderAttributeId(0);
+      }
     }
 }
 
@@ -1995,16 +2001,16 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetPickingId
 
   if (selector)
     {
-      // set the prop id for the ACTOR_PASS, otherwise leave zeros
-      if (this->CurrentSelectionPass < vtkHardwareSelector::ID_LOW24)
-        {
-        selector->GetPropColorValue(propIdColor);
-        }
+    // query the selector for the appropriate id
+    if (this->CurrentSelectionPass <= vtkHardwareSelector::MAX_KNOWN_PASS)
+      {
+      selector->GetPropColorValue(propIdColor);
+      }
     }
   else // RenderWindow is picking
     {
-      unsigned int const idx = ren->GetCurrentPickId();
-      vtkHardwareSelector::Convert(idx, propIdColor);
+    unsigned int const idx = ren->GetCurrentPickId();
+    vtkHardwareSelector::Convert(idx, propIdColor);
     }
 
   this->ShaderProgram->SetUniform3f("in_propId", propIdColor);
@@ -2016,7 +2022,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::EndPicking(vtkRenderer* ren)
   vtkHardwareSelector* selector = ren->GetSelector();
   if(selector)
     {
-    selector->SetUseBlending(false);
     selector->EndRenderProp();
     }
 }
@@ -3266,6 +3271,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
       this->CurrentPass = RenderPass;
       }
 
+    // Configure picking begin (changes blending, so needs to be called before
+    // vtkVolumeStateRAII)
+    if (this->Impl->IsPicking)
+      {
+      this->Impl->BeginPicking(ren);
+      }
     // Set OpenGL states
     vtkVolumeStateRAII glState;
 
@@ -3296,6 +3307,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     }
   else
     {
+    // Configure picking begin (changes blending, so needs to be called before
+    // vtkVolumeStateRAII)
+    if (this->Impl->IsPicking)
+      {
+      this->Impl->BeginPicking(ren);
+      }
     // Set OpenGL states
     vtkVolumeStateRAII glState;
 
@@ -3338,6 +3355,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
                          cam, this->Impl->ShaderProgram,
                          noOfComponents, independentComponents);
       }
+    }
+
+  // Configure picking end
+  if (this->Impl->IsPicking)
+    {
+    this->Impl->EndPicking(ren);
     }
 
   if (volumeModified)
@@ -3598,11 +3621,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
   //--------------------------------------------------------------------------
   this->Impl->SetClippingPlanes(ren, prog, vol);
 
-  // Bind the prop Id and configure picking begin
+  // Bind the prop Id
   //--------------------------------------------------------------------------
   if (this->Impl->IsPicking)
     {
-    this->Impl->BeginPicking(ren);
     this->Impl->SetPickingId(ren);
     }
 
@@ -3658,13 +3680,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
       this->Impl->Mask1RGBTable->Deactivate();
       this->Impl->Mask2RGBTable->Deactivate();
       }
-    }
-
-  // Configure picking end
-  // ---------------------------------------------------------------------------
-  if (this->Impl->IsPicking)
-    {
-    this->Impl->EndPicking(ren);
     }
 
   vtkOpenGLCheckErrorMacro("failed after Render");

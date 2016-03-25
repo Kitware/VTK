@@ -179,7 +179,7 @@ public:
   /// @warning INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   /// DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
   virtual bool GetSupportsSelection()
-   { return true; };
+   { return true; }
 
 //ETX
 

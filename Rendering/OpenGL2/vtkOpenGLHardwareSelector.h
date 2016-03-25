@@ -64,10 +64,6 @@ protected:
   virtual void BeginRenderProp(vtkRenderWindow *);
   virtual void EndRenderProp(vtkRenderWindow *);
 
-  // Called internally before each rendering pass for device specific
-  // preparation.
-  virtual void BeginPass();
-
   virtual void SavePixelBuffer(int passNo);
 
   // for internal state

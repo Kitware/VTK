@@ -30,6 +30,10 @@ class vtkVolumeStateRAII
 
       this->CullFaceEnabled = (glIsEnabled(GL_CULL_FACE) != 0);
 
+      GLboolean depthMaskWrite = GL_TRUE;
+      glGetBooleanv(GL_DEPTH_WRITEMASK, &depthMaskWrite);
+      this->DepthMaskEnabled = (depthMaskWrite == GL_TRUE);
+
       // Enable depth_sampler test
       if (!this->DepthTestEnabled)
         {
@@ -50,6 +54,12 @@ class vtkVolumeStateRAII
       if (!this->CullFaceEnabled)
         {
         glEnable(GL_CULL_FACE);
+        }
+
+      // Disable depth mask writing
+      if (this->DepthMaskEnabled)
+        {
+        glDepthMask(GL_FALSE);
         }
       }
 
@@ -80,12 +90,18 @@ class vtkVolumeStateRAII
         {
         glDisable(GL_DEPTH_TEST);
         }
+
+      if (this->DepthMaskEnabled)
+        {
+        glDepthMask(GL_TRUE);
+        }
       }
 
 private:
   bool DepthTestEnabled;
   bool BlendEnabled;
   bool CullFaceEnabled;
+  bool DepthMaskEnabled;
 };
 
 #endif // vtkVolumeStateRAII_h

@@ -201,7 +201,7 @@ void vtkOpenGLHardwareSelector::BeginRenderProp(vtkRenderWindow *context)
   this->Internals->EnableMultisampling(false);
 
   this->Internals->OriginalBlending = this->Internals->QueryBlending();
-  this->Internals->EnableBlending(this->UseBlending);
+  this->Internals->EnableBlending(false);
 }
 
 //----------------------------------------------------------------------------
@@ -214,14 +214,6 @@ void vtkOpenGLHardwareSelector::EndRenderProp(vtkRenderWindow *)
   // Restore multisample, and blending.
   this->Internals->EnableMultisampling(this->Internals->OriginalMultisample);
   this->Internals->EnableBlending(this->Internals->OriginalBlending);
-}
-
-//----------------------------------------------------------------------------
-void vtkOpenGLHardwareSelector::BeginPass()
-{
-  // This is necessary for correct z-buffer compositing with volumeMappers when
-  // rendering attribute-Id passes (> ACTOR_PASS).
-  glClear(GL_DEPTH_BUFFER_BIT);
 }
 
 //----------------------------------------------------------------------------

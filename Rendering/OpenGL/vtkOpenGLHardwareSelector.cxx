@@ -215,11 +215,3 @@ void vtkOpenGLHardwareSelector::PrintSelf(ostream& os, vtkIndent indent)
    << this->Internals->MultisampleSupport
    << endl;
 }
-
-// -----------------------------------------------------------------------------
-void vtkOpenGLHardwareSelector::BeginPass()
-{
-  // This is necessary for correct z-buffer compositing with volumeMappers when
-  // rendering attribute-Id passes (> ACTOR_PASS).
-  glClear(GL_DEPTH_BUFFER_BIT);
-}

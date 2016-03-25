@@ -43,10 +43,6 @@ public:
   virtual void EndRenderProp()
     { this->vtkHardwareSelector::EndRenderProp(); }
 
-  /// Called internally before each rendering pass for device specific
-  /// preparation.
-  virtual void BeginPass();
-
 protected:
   vtkOpenGLHardwareSelector();
   virtual ~vtkOpenGLHardwareSelector();
