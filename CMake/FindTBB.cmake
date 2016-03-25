@@ -191,8 +191,8 @@ if (WIN32 AND MSVC)
   endforeach ()
 endif ()
 
-# For OS X binary distribution, choose libc++ based libraries for Maverics and
-# above and AppleClang
+# For OS X binary distribution, choose libc++ based libraries for Mavericks (10.9)
+# and above and AppleClang
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" AND
     NOT ${CMAKE_SYSTEM_VERSION} LESS 13.0)
   set (USE_LIBCXX OFF)
