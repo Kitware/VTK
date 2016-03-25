@@ -31,7 +31,7 @@
 
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkSPHKernel.h"
-#include <math.h> // For fmin()
+#include <algorithm> // For std::min()
 
 class vtkIdList;
 class vtkDoubleArray;
@@ -69,9 +69,9 @@ public:
   // Compute weighting factor given a normalized distance from a sample point.
   double ComputeFunctionWeight(const double d)
   {
-    double tmp1 = 3.0 - fmin(d,3.0);
-    double tmp2 = 2.0 - fmin(d,2.0);
-    double tmp3 = 1.0 - fmin(d,1.0);
+    double tmp1 = 3.0 - std::min(d,3.0);
+    double tmp2 = 2.0 - std::min(d,2.0);
+    double tmp3 = 1.0 - std::min(d,1.0);
     return (tmp1*tmp1*tmp1*tmp1*tmp1 - 6.0*tmp2*tmp2*tmp2*tmp2*tmp2 +
             15.0*tmp3*tmp3*tmp3*tmp3*tmp3);
   }
@@ -81,9 +81,9 @@ public:
   // distance from a sample point.
   double ComputeGradientWeight(const double d)
   {
-    double tmp1 = 3.0 - fmin(d,3.0);
-    double tmp2 = 2.0 - fmin(d,2.0);
-    double tmp3 = 1.0 - fmin(d,1.0);
+    double tmp1 = 3.0 - std::min(d,3.0);
+    double tmp2 = 2.0 - std::min(d,2.0);
+    double tmp3 = 1.0 - std::min(d,1.0);
     return (tmp1*tmp1*tmp1*tmp1 - 6.0*tmp2*tmp2*tmp2*tmp2 +
             15.0*tmp3*tmp3*tmp3*tmp3);
   }
