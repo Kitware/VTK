@@ -94,6 +94,7 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "vcruntime_exception.h\\(43\\): note: see declaration"
   "Utilities/vtktiff/"
   "json/json"
+  "shadows a member of 'OGRRawPoint'"
   "list.[0-9]+. : warning C4702: unreachable code"
   "xtree.[0-9]+. : warning C4702: unreachable code"
   "vector.[0-9]+. : warning C4702: unreachable code"
