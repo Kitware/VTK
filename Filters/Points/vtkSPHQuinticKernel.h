@@ -31,6 +31,7 @@
 
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkSPHKernel.h"
+#include <math.h> // For fmin()
 
 class vtkIdList;
 class vtkDoubleArray;
