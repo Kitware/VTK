@@ -137,13 +137,19 @@ public:
   // Description:
   // Adds an array to the list of arrays which are to be excluded from the
   // interpolation process.
-  void AddExcludedArray(vtkStdString &excludedArray)
-    {this->ExcludedArrays.push_back(excludedArray);}
+  void AddExcludedArray(const vtkStdString &excludedArray)
+    {
+    this->ExcludedArrays.push_back(excludedArray);
+    this->Modified();
+    }
 
   // Description:
   // Clears the contents of excluded array list.
   void ClearExcludedArrays()
-    {this->ExcludedArrays.clear();}
+    {
+    this->ExcludedArrays.clear();
+    this->Modified();
+    }
 
   // Description:
   // Return the number of excluded arrays.
@@ -164,13 +170,19 @@ public:
   // Adds an array to the list of arrays whose derivative is to be taken. If
   // the name of the array is "derivArray" this will produce an output array
   // with the name "derivArray_deriv" (after filter execution).
-  void AddDerivativeArray(vtkStdString &derivArray)
-    {this->DerivArrays.push_back(derivArray);}
+  void AddDerivativeArray(const vtkStdString &derivArray)
+    {
+    this->DerivArrays.push_back(derivArray);
+    this->Modified();
+    }
 
   // Description:
   // Clears the contents of derivative array list.
   void ClearDerivativeArrays()
-    {this->DerivArrays.clear();}
+    {
+    this->DerivArrays.clear();
+    this->Modified();
+    }
 
   // Description:
   // Return the number of derivative arrays.
