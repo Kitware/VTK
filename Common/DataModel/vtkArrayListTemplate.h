@@ -39,6 +39,7 @@
 
 #include "vtkDataArray.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkSmartPointer.h"
 #include "vtkStdString.h"
 
 #include <vector>
@@ -50,7 +51,7 @@ struct BaseArrayPair
 {
   vtkIdType Num;
   int NumComp;
-  vtkDataArray *OutputArray;
+  vtkSmartPointer<vtkDataArray> OutputArray;
 
   BaseArrayPair(vtkIdType num, int numComp, vtkDataArray *outArray) :
     Num(num), NumComp(numComp), OutputArray(outArray)
@@ -154,8 +155,10 @@ struct ArrayList
   void AddArrays(vtkIdType numOutPts, vtkDataSetAttributes *inPD,
                  vtkDataSetAttributes *outPD, double nullValue=0.0);
 
-  // Add a pair of arrays (manual insertion)
-  void AddArrayPair(vtkIdType numPts, vtkDataArray *inArray,
+  // Add a pair of arrays (manual insertion). Returns the output array created,
+  // if any. No array may be created if \c inArray was previously marked as
+  // excluded using ExcludeArray().
+  vtkDataArray* AddArrayPair(vtkIdType numPts, vtkDataArray *inArray,
                     vtkStdString &outArrayName, double nullValue);
 
   // Any array excluded here is not added by AddArrays() or AddArrayPair, hence not
