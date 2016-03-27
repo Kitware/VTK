@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkArrayListTemplate.h"
 
+#include <cassert>
 
 #ifndef vtkArrayListTemplate_txx
 #define vtkArrayListTemplate_txx
@@ -59,13 +60,14 @@ AddArrayPair(vtkIdType numPts, vtkDataArray *inArray,
   void *iD = inArray->GetVoidPointer(0);
   void *oD = outArray->GetVoidPointer(0);
   int iType = inArray->GetDataType();
-
   switch (iType)
     {
     vtkTemplateMacro(CreateArrayPair(this, static_cast<VTK_TT *>(iD),
                      static_cast<VTK_TT *>(oD),numPts,inArray->GetNumberOfComponents(),
                      outArray,static_cast<VTK_TT>(nullValue)));
     }//over all VTK types
+  assert(outArray->GetReferenceCount() > 1);
+  outArray->FastDelete();
   return outArray;
 }
 

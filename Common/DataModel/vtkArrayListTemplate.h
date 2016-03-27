@@ -39,6 +39,7 @@
 
 #include "vtkDataArray.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkSmartPointer.h"
 #include "vtkStdString.h"
 
 #include <vector>
@@ -50,7 +51,7 @@ struct BaseArrayPair
 {
   vtkIdType Num;
   int NumComp;
-  vtkDataArray *OutputArray;
+  vtkSmartPointer<vtkDataArray> OutputArray;
 
   BaseArrayPair(vtkIdType num, int numComp, vtkDataArray *outArray) :
     Num(num), NumComp(numComp), OutputArray(outArray)
