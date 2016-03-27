@@ -15,7 +15,7 @@
 #include "vtkPointInterpolator.h"
 
 #include "vtkObjectFactory.h"
-#include "vtkVoronoiKernel.h"
+#include "vtkLinearKernel.h"
 #include "vtkAbstractPointLocator.h"
 #include "vtkStaticPointLocator.h"
 #include "vtkDataSet.h"
@@ -117,8 +117,9 @@ struct ProbePoints
         {
         this->Input->GetPoint(ptId,x);
 
-        if ( this->Kernel->ComputeBasis(x, pIds) > 0 )
+        if ( (numWeights=this->Kernel->ComputeBasis(x, pIds)) > 0 )
           {
+          weights->SetNumberOfTuples(numWeights);
           numWeights = this->Kernel->ComputeWeights(x, pIds, weights);
           this->Arrays.Interpolate(numWeights, pIds->GetPointer(0),
                                    weights->GetPointer(0), ptId);
@@ -211,9 +212,9 @@ vtkPointInterpolator::vtkPointInterpolator()
 
   this->Locator = vtkStaticPointLocator::New();
 
-  this->Kernel = vtkVoronoiKernel::New();
+  this->Kernel = vtkLinearKernel::New();
 
-  this->NullPointsStrategy = vtkPointInterpolator::CLOSEST_POINT;
+  this->NullPointsStrategy = vtkPointInterpolator::NULL_VALUE;
   this->NullValue = 0.0;
 
   this->ValidPointsMask = NULL;

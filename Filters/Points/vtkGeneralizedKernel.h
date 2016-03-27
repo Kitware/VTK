@@ -33,7 +33,9 @@
 // the interpolation process. For example, it is possible to choose between a
 // radius-based kernel selection, and one based on the N nearest
 // neighbors. Note that the performance and mathematical properties of
-// kernels may vary greatly depending on which kernel style is selected.
+// kernels may vary greatly depending on which kernel style is selected. For
+// example, if a radius-based kernel footprint is used, and the radius is too
+// big, the algorithm can perform in n^3 fashion.
 //
 // Finally, in advanced usage, probability functions can be applied to the
 // interpolation weights (prior to normalization). These probability
