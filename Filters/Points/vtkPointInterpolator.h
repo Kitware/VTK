@@ -106,9 +106,9 @@ public:
   vtkGetObjectMacro(Locator,vtkAbstractPointLocator);
 
   // Description:
-  // Specify an interpolation kernel. By default a vtkVoronoiKernel is used
-  // (i.e., closest point). The interpolation kernel changes the basis of the
-  // interpolation.
+  // Specify an interpolation kernel. By default a vtkLinearKernel is used
+  // (i.e., linear combination of closest points). The interpolation kernel
+  // changes the basis of the interpolation.
   void SetKernel(vtkInterpolationKernel *kernel);
   vtkGetObjectMacro(Kernel,vtkInterpolationKernel);
 
@@ -125,10 +125,10 @@ public:
   // nearby points to interpolate from) is empty. If the strategy is set to
   // MaskPoints, then an output array is created that marks points as being
   // valid (=1) or null (invalid =0) (and the NullValue is set as well). If
-  // the strategy is set to NullValue, then the output data value(s) are set
-  // to the NullPoint value (specified in the output point data). Finally,
-  // the default strategy ClosestPoint is to simply use the closest point to
-  // perform the interpolation.
+  // the strategy is set to NullValue (this is the default), then the output
+  // data value(s) are set to the NullPoint value (specified in the output
+  // point data). Finally, the strategy ClosestPoint is to simply use the
+  // closest point to perform the interpolation.
   vtkSetMacro(NullPointsStrategy,int);
   vtkGetMacro(NullPointsStrategy,int);
   void SetNullPointsStrategyToMaskPoints()

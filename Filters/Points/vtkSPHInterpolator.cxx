@@ -82,6 +82,7 @@ struct ProbePoints
         vtkDataArray *array = this->InPD->GetArray(arrayName);
         if ( array != NULL )
           {
+          outPD->RemoveArray(array->GetName());
           this->Arrays.ExcludeArray(array);
           this->DerivArrays.ExcludeArray(array);
           }

@@ -178,9 +178,9 @@ public:
 
         memcpy(this->P, tmp, offset*sizeof(int));
 
-        if ( tmp != &(this->InitialBuffer[0]) )
+        if ( tmp != this->InitialBuffer )
           {
-          delete[] tmp;
+          delete [] tmp;
           }
         }
 
