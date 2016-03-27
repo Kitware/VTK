@@ -43,10 +43,15 @@ IsExcluded(vtkDataArray *da)
 }
 
 // Add an array pair (input,output) using the name provided for the output.
-void ArrayList::
+vtkDataArray* ArrayList::
 AddArrayPair(vtkIdType numPts, vtkDataArray *inArray,
              vtkStdString &outArrayName, double nullValue)
 {
+  if (this->IsExcluded(inArray))
+    {
+    return NULL;
+    }
+
   vtkDataArray *outArray = inArray->NewInstance();
   outArray->SetNumberOfComponents(inArray->GetNumberOfComponents());
   outArray->SetNumberOfTuples(inArray->GetNumberOfTuples());
@@ -61,6 +66,7 @@ AddArrayPair(vtkIdType numPts, vtkDataArray *inArray,
                      static_cast<VTK_TT *>(oD),numPts,inArray->GetNumberOfComponents(),
                      outArray,static_cast<VTK_TT>(nullValue)));
     }//over all VTK types
+  return outArray;
 }
 
 // Add the arrays to interpolate here. This presumes that vtkDataSetAttributes::CopyData() or
