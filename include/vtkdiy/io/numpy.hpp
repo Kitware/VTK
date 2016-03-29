@@ -143,7 +143,7 @@ write_header(const S& shape)
     convert_and_save(dict, sizeof(T));
     save(dict, "', 'fortran_order': False, 'shape': (");
     convert_and_save(dict, shape[0]);
-    for (int i = 1; i < shape.size(); i++)
+    for (int i = 1; i < (int) shape.size(); i++)
     {
         save(dict, ", ");
         convert_and_save(dict, shape[i]);
@@ -174,7 +174,8 @@ char
 diy::io::detail::big_endian()
 {
   unsigned char x[] = {1,0};
-  short y = *(short*) x;
+  void* x_void = x;
+  short y = *static_cast<short*>(x_void);
   return y == 1 ? '<' : '>';
 }
 
