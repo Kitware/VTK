@@ -17,7 +17,7 @@
 // vtkParametricSpline is a parametric function for 1D interpolating splines.
 // vtkParametricSpline maps the single parameter u into a 3D point (x,y,z)
 // using three instances of interpolating splines.  This family of 1D splines
-// is quaranteed to be parameterized in the interval [0,1].  Attempting to
+// is guaranteed to be parameterized in the interval [0,1].  Attempting to
 // evaluate outside this interval will cause the parameter u to be clamped in
 // the range [0,1].
 //
