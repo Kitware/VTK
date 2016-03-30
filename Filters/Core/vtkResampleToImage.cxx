@@ -139,15 +139,20 @@ int vtkResampleToImage::FillOutputPortInformation(int vtkNotUsed(port),
 void vtkResampleToImage::SetBlankPointsAndCells(vtkImageData *data,
                                                 const char *maskArrayName)
 {
+  if (data->GetNumberOfPoints() <= 0)
+    {
+    return;
+    }
+
+  vtkPointData *pd = data->GetPointData();
+  vtkCharArray *maskArray = vtkCharArray::SafeDownCast(pd->GetArray(maskArrayName));
+  char *mask = maskArray->GetPointer(0);
+
   data->AllocatePointGhostArray();
   vtkUnsignedCharArray *pointGhostArray = data->GetPointGhostArray();
 
   data->AllocateCellGhostArray();
   vtkUnsignedCharArray *cellGhostArray = data->GetCellGhostArray();
-
-  vtkPointData *pd = data->GetPointData();
-  vtkCharArray *maskArray = vtkCharArray::SafeDownCast(pd->GetArray(maskArrayName));
-  char *mask = maskArray->GetPointer(0);
 
   vtkNew<vtkIdList> pointCells;
   pointCells->Allocate(8);

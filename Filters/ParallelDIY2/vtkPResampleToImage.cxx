@@ -33,11 +33,13 @@
 #include "vtkUnsignedCharArray.h"
 
 #include "vtk_diy2.h"   // must include this before any diy header
-#include VTK_DIY2_HEADER(diy/algorithms.hpp)
 #include VTK_DIY2_HEADER(diy/assigner.hpp)
 #include VTK_DIY2_HEADER(diy/link.hpp)
 #include VTK_DIY2_HEADER(diy/master.hpp)
 #include VTK_DIY2_HEADER(diy/mpi.hpp)
+#include VTK_DIY2_HEADER(diy/reduce.hpp)
+#include VTK_DIY2_HEADER(diy/partners/swap.hpp)
+#include VTK_DIY2_HEADER(diy/decomposition.hpp)
 
 #include <mpi.h>
 
@@ -80,25 +82,6 @@ public:
 
 private:
   T Data[Len];
-};
-
-
-//----------------------------------------------------------------------------
-struct Point
-{
-  double pos[3];
-  int idx[3];
-  std::vector<char> data;
-
-  double& operator[](std::size_t i)
-  {
-    return pos[i];
-  }
-
-  double operator[](std::size_t i) const
-  {
-    return pos[i];
-  }
 };
 
 
@@ -157,6 +140,8 @@ inline void InitializeFieldData(const std::vector<FieldMetaData> &metadata,
     }
 }
 
+
+//----------------------------------------------------------------------------
 class SerializeWorklet
 {
 public:
@@ -246,71 +231,18 @@ inline void DeserializeFieldData(const std::vector<char> &bytestream,
 
 
 //----------------------------------------------------------------------------
-inline void ComputeBoundsFromExtent(const int extent[6], const double origin[3],
-                                    const double spacing[3], double bounds[6])
+struct Point
 {
-  for (int i = 0; i < 3; ++i)
-    {
-    bounds[2*i] = static_cast<double>(extent[2*i]) * spacing[i] + origin[i];
-    bounds[2*i + 1] = static_cast<double>(extent[2*i + 1]) * spacing[i] +
-                      origin[i];
-    }
-}
-
-inline void ComputeBoundingExtent(const double origin[3], const double spacing[3],
-                                  const double bounds[6], int extent[6])
-{
-  for (int i = 0; i < 3; ++i)
-    {
-    if (spacing[i] != 0.0)
-      {
-      extent[2*i] =
-        static_cast<int>(vtkMath::Floor((bounds[2*i] - origin[i])/spacing[i]));
-      extent[2*i + 1] =
-        static_cast<int>(vtkMath::Ceil((bounds[2*i + 1] - origin[i])/spacing[i]));
-      }
-    else
-      {
-      extent[2*i] = extent[2*i + 1] = 0;
-      }
-    }
-}
-
-inline void ComputeTilingExtent(const double origin[3], const double spacing[3],
-                                const double bounds[6], int extent[6])
-{
-  for (int i = 0; i < 3; ++i)
-    {
-    if (spacing[i] != 0.0)
-      {
-      extent[2*i] =
-        static_cast<int>(vtkMath::Floor((bounds[2*i] - origin[i])/spacing[i]));
-      extent[2*i + 1] =
-        static_cast<int>(vtkMath::Floor((bounds[2*i + 1] - origin[i])/spacing[i]));
-      }
-    else
-      {
-      extent[2*i] = extent[2*i + 1] = 0;
-      }
-    }
-}
-
-inline bool InsideExtent(const int extent[6], const int ijk[3])
-{
-  return ijk[0] >= extent[0] && ijk[0] <= extent[1] &&
-         ijk[1] >= extent[2] && ijk[1] <= extent[3] &&
-         ijk[2] >= extent[4] && ijk[2] <= extent[5];
-}
+  int idx[3];
+  std::vector<char> data;
+};
 
 
 //----------------------------------------------------------------------------
 struct Block
 {
-  double Origin[3];
-  double Spacing[3];
   std::vector<Point> Points;
-
-  double Bounds[6];
+  int Extent[6];
 };
 
 inline void* CreateBlock()
@@ -324,19 +256,14 @@ inline void DestroyBlock(void *blockp)
 }
 
 
-inline void GetPoint(vtkImageData *img, const int ijk[3], double x[3])
-{
-  double *origin = img->GetOrigin();
-  double *spacing = img->GetSpacing();
-  for (int i = 0; i < 3; ++i)
-  {
-    x[i] = origin[i] + (static_cast<double>(ijk[i]) * spacing[i]);
-  }
-}
-
 inline void AddPointsToBlock(vtkImageData *piece, const char *maskArrayName,
                              Block *block)
 {
+  if (piece->GetNumberOfPoints() <= 0)
+    {
+    return;
+    }
+
   vtkPointData *pd = piece->GetPointData();
   vtkCharArray *maskArray = vtkCharArray::SafeDownCast(pd->GetArray(maskArrayName));
   char *mask = maskArray->GetPointer(0);
@@ -353,11 +280,7 @@ inline void AddPointsToBlock(vtkImageData *piece, const char *maskArrayName,
         vtkIdType id = piece->ComputePointId(ijk);
         if (mask[id])
           {
-          double x[3];
-          GetPoint(piece, ijk, x);
-
           Point pt;
-          std::copy(x, x + 3, pt.pos);
           std::copy(ijk, ijk + 3, pt.idx);
           SerializeFieldData(pd, id, pt.data);
           block->Points.push_back(pt);
@@ -368,65 +291,6 @@ inline void AddPointsToBlock(vtkImageData *piece, const char *maskArrayName,
 }
 
 //---------------------------------------------------------------------------
-struct FindGhostPointsForNeighbors
-{
-  void operator()(void *blockp, const diy::Master::ProxyWithLink& cp, void*) const
-  {
-    Block &block = *static_cast<Block*>(blockp);
-    diy::RegularContinuousLink &link =
-        *static_cast<diy::RegularContinuousLink*>(cp.link());
-
-    std::size_t numNeighbors = static_cast<std::size_t>(link.size());
-    std::vector<Array<int, 6> > extents(numNeighbors);
-    for (std::size_t i = 0; i < numNeighbors; ++i)
-      {
-      const diy::ContinuousBounds &b = link.bounds(static_cast<int>(i));
-      double bounds[6] = { b.min[0], b.max[0], b.min[1], b.max[1], b.min[2], b.max[2] };
-      ComputeTilingExtent(block.Origin, block.Spacing, bounds, extents[i].data());
-      }
-
-    for (std::size_t i = 0; i < block.Points.size(); ++i)
-      {
-      const Point &p = block.Points[i];
-      for (std::size_t j = 0; j < extents.size(); ++j)
-        {
-        if (InsideExtent(extents[j].data(), p.idx))
-          {
-          cp.enqueue(link.target(static_cast<int>(j)), p);
-          }
-        }
-      }
-  }
-};
-
-struct ReceiveGhostPoints
-{
-  void operator()(void *blockp, const diy::Master::ProxyWithLink& cp, void*) const
-  {
-    Block &block = *static_cast<Block*>(blockp);
-    diy::RegularContinuousLink &link =
-        *static_cast<diy::RegularContinuousLink*>(cp.link());
-
-    diy::Master::IncomingQueues &in = *cp.incoming();
-    for (diy::Master::IncomingQueues::iterator i = in.begin(); i != in.end(); ++i)
-      {
-      while (i->second)
-        {
-        Point pt;
-        cp.dequeue(i->first, pt);
-        block.Points.push_back(pt);
-        }
-      }
-
-    const diy::ContinuousBounds &b = link.bounds();
-    for (int i = 0; i < 3; ++i)
-      {
-      block.Bounds[2*i] = b.min[i];
-      block.Bounds[2*i + 1] = b.max[i];
-      }
-  }
-};
-
 void MakeResult(const double origin[3], const double spacing[3],
                 const int extent[6], const std::vector<FieldMetaData> &fieldMetaData,
                 const std::vector<Point> &points, vtkImageData *result)
@@ -495,6 +359,104 @@ inline void GetGlobalFieldMetaData(vtkDataSetAttributes *data,
       }
     diy::mpi::broadcast(world, bb.buffer, source);
     diy::load(bb, *metadata);
+    }
+}
+
+
+//---------------------------------------------------------------------------
+void Redistribute(void* blockp, const diy::ReduceProxy& srp,
+                  const diy::RegularSwapPartners& partners)
+{
+  Block *b = static_cast<Block*>(blockp);
+  unsigned round = srp.round();
+
+  // step 1: dequeue all the incoming points and add them to this block's vector
+  diy::Master::IncomingQueues &in = *srp.incoming();
+  for (diy::Master::IncomingQueues::iterator i = in.begin(); i != in.end(); ++i)
+    {
+    while (i->second)
+      {
+      Point pt;
+      srp.dequeue(i->first, pt);
+      b->Points.push_back(pt);
+      }
+    }
+
+  // final round
+  if (srp.out_link().size() == 0)
+    {
+    return;
+    }
+
+  // find this block's position in the group
+  int groupSize = srp.out_link().size();
+  int myPos = 0;
+  for (; myPos < groupSize; ++myPos)
+    {
+    if (srp.out_link().target(myPos).gid == srp.gid())
+      {
+      break;
+      }
+    }
+
+  // step 2: redistribute this block's points among the blocks in the group
+  int axis = partners.dim(round);
+  int minIdx = b->Extent[2 * axis];
+  int maxIdx = b->Extent[2 * axis + 1];
+  int length = (maxIdx - minIdx + 1 + groupSize - 1) / groupSize;
+
+  std::vector<Point> myPoints;
+  for (size_t i = 0; i < b->Points.size(); ++i)
+    {
+    Point &pt = b->Points[i];
+
+    int nlocs = 1;
+    int loc[2] = { (pt.idx[axis] - minIdx)/length, 0 };
+
+    // duplicate shared point
+    if (((pt.idx[axis] - minIdx)%length == 0) && (loc[0] != 0))
+      {
+      loc[1] = loc[0] - 1;
+      ++nlocs;
+      }
+
+    for (int j = 0; j < nlocs; ++j)
+      {
+      if (loc[j] == myPos)
+        {
+        myPoints.push_back(pt);
+        }
+      else
+        {
+        srp.enqueue(srp.out_link().target(loc[j]), pt);
+        }
+      }
+    }
+  b->Points.swap(myPoints);
+
+  // step 3: readjust extents for next round
+  b->Extent[2*axis] = minIdx + (length * myPos);
+  b->Extent[2*axis + 1] = std::min(b->Extent[2*axis] + length, maxIdx);
+}
+
+
+//----------------------------------------------------------------------------
+inline void ComputeBoundingExtent(const double origin[3], const double spacing[3],
+                                  const double bounds[6], int extent[6])
+{
+  for (int i = 0; i < 3; ++i)
+    {
+    if (spacing[i] != 0.0)
+      {
+      extent[2*i] =
+        static_cast<int>(vtkMath::Floor((bounds[2*i] - origin[i])/spacing[i]));
+      extent[2*i + 1] =
+        static_cast<int>(vtkMath::Ceil((bounds[2*i + 1] - origin[i])/spacing[i]));
+      }
+    else
+      {
+      extent[2*i] = extent[2*i + 1] = 0;
+      }
     }
 }
 
@@ -611,65 +573,32 @@ int vtkPResampleToImage::RequestData(vtkInformation *request,
   std::vector<FieldMetaData> pointFieldMetaData;
   GetGlobalFieldMetaData(mypiece->GetPointData(), &pointFieldMetaData);
 
-  // perform kd-tree partitioning on probed points so that each node ends up
-  // with non-overlapping rectangular regions
+  // perform swap-reduce partitioning on probed points to decompose the domain
+  // into non-overlapping rectangular regions
   diy::mpi::communicator world;
   diy::RoundRobinAssigner assigner(world.size(), world.size());
 
-  std::vector<int> gids;
-  assigner.local_gids(world.rank(), gids);
-
-  double updateBounds[6];
-  ComputeBoundsFromExtent(updateExtent, origin, spacing, updateBounds);
-  diy::ContinuousBounds domain;
+  diy::DiscreteBounds domain;
   for (int i = 0; i < 3; ++i)
     {
-    domain.min[i] = static_cast<float>(updateBounds[2*i] - 1e-4);
-    domain.max[i] = static_cast<float>(updateBounds[2*i + 1] + 1e-4);
+    domain.min[i] = updateExtent[2*i];
+    domain.max[i] = updateExtent[2*i + 1];
     }
-
-  // block and link are freed by master
-  Block *block = static_cast<Block*>(CreateBlock());
-  std::copy(origin, origin + 3, block->Origin);
-  std::copy(spacing, spacing + 3, block->Spacing);
-  AddPointsToBlock(mypiece, maskArrayName, block);
-  diy::RegularContinuousLink *link = new diy::RegularContinuousLink(3, domain, domain);
 
   diy::Master master(world, 1, -1, &CreateBlock, &DestroyBlock);
-  master.add(gids[0], block, link);
 
-  int outExtent[6];
-  vtkIdType numPoints = static_cast<vtkIdType>(block->Points.size());
-  vtkIdType sumNumPoints = 0;
-  diy::mpi::all_reduce(world, numPoints, sumNumPoints, std::plus<vtkIdType>());
-  if (sumNumPoints > 0)
-    {
-    const int hist = 32;
-    diy::kdtree(master, assigner, 3, domain, &Block::Points, 2*hist, false);
+  diy::RegularDecomposer<diy::DiscreteBounds> decomposer(3, domain, world.size());
+  decomposer.decompose(world.rank(), assigner, master);
 
-    // handle ghost points
-    master.foreach(FindGhostPointsForNeighbors());
-    master.exchange();
-    master.foreach(ReceiveGhostPoints());
+  Block *block = master.block<Block>(0);
+  std::copy(updateExtent, updateExtent + 6, block->Extent);
+  AddPointsToBlock(mypiece, maskArrayName, block);
 
-    // generate output extent
-    ComputeTilingExtent(block->Origin, block->Spacing, block->Bounds, outExtent);
-    for (int i = 0; i < 3; ++i)
-      {
-      outExtent[2*i] = std::max(outExtent[2*i], updateExtent[2*i]);
-      outExtent[2*i + 1] = std::min(outExtent[2*i + 1], updateExtent[2*i + 1]);
-      }
-    }
-  else
-    {
-    vtkNew<vtkExtentTranslator> extentTranslator;
-    extentTranslator->PieceToExtentThreadSafe(world.rank(), world.size(), 0,
-                                              updateExtent, outExtent,
-                                              vtkExtentTranslator::BLOCK_MODE,
-                                              false);
-    }
+  diy::RegularSwapPartners  partners(decomposer, 2, false);
+  diy::reduce(master, assigner, partners, &Redistribute);
 
-  MakeResult(origin, spacing, outExtent, pointFieldMetaData, block->Points, output);
+  MakeResult(origin, spacing, block->Extent, pointFieldMetaData, block->Points,
+             output);
   SetBlankPointsAndCells(output, maskArrayName);
 
   return 1;
@@ -708,14 +637,12 @@ struct Serialization<Point>
 {
   static void save(BinaryBuffer& bb, const Point& p)
   {
-    diy::save(bb, p.pos, 3);
     diy::save(bb, p.idx, 3);
     diy::save(bb, p.data);
   }
 
   static void load(BinaryBuffer& bb, Point& p)
   {
-    diy::load(bb, p.pos, 3);
     diy::load(bb, p.idx, 3);
     diy::load(bb, p.data);
   }
