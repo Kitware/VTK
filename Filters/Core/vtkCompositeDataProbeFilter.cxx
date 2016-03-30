@@ -244,7 +244,7 @@ int vtkCompositeDataProbeFilter::BuildFieldList(vtkCompositeDataSet* source)
           }
         else
           {
-          this->CellList->IntersectFieldList(sourceDS->GetPointData());
+          this->CellList->IntersectFieldList(sourceDS->GetCellData());
           }
         }
       }
