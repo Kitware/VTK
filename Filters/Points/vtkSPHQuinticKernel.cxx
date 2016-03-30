@@ -51,10 +51,9 @@ ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *weights)
   double d, y[3];
   weights->SetNumberOfTuples(numPts);
   double *w = weights->GetPointer(0);
-  double KW, den, mass;
+  double KW, volume=this->DefaultVolume;
 
-  // Compute SPH coefficients. If requested, the summed Shepard weights
-  // are computed as well.
+  // Compute SPH coefficients.
   for (i=0; i<numPts; ++i)
     {
     id = pIds->GetId(i);
@@ -63,9 +62,7 @@ ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *weights)
 
     KW = vtkSPHQuinticKernel::ComputeFunctionWeight(d*this->NormDist);
 
-    mass = 1.0;
-    den = static_cast<double>(this->DensityArray->GetTuple1(id));
-    w[i] = this->FacW * KW * (mass/den);
+    w[i] = this->FacW * KW * volume;
     }//over all neighbor points
 
   return numPts;
@@ -84,8 +81,9 @@ ComputeGradWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *weights,
   double *w = weights->GetPointer(0);
   gradWeights->SetNumberOfTuples(numPts);
   double *gw = gradWeights->GetPointer(0);
-  double KW, GW, mass, den, mdF;
+  double KW, GW, mdF, volume=this->DefaultVolume;
 
+  // Compute SPH coefficients for data and deriative data
   for (i=0; i<numPts; ++i)
     {
     id = pIds->GetId(i);
@@ -95,9 +93,7 @@ ComputeGradWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *weights,
     KW = vtkSPHQuinticKernel::ComputeFunctionWeight(d*this->NormDist);
     GW = vtkSPHQuinticKernel::ComputeGradientWeight(d*this->NormDist);
 
-    mass = 1.0;
-    den = static_cast<double>(this->DensityArray->GetTuple1(id));
-    mdF  = this->FacW * mass / den;
+    mdF  = this->FacW * volume;
     w[i] = KW * mdF;
     gw[i] = GW * mdF;
     }//over all neighbor points

@@ -117,9 +117,8 @@ struct ProbePoints
         {
         this->Input->GetPoint(ptId,x);
 
-        if ( (numWeights=this->Kernel->ComputeBasis(x, pIds)) > 0 )
+        if ( this->Kernel->ComputeBasis(x, pIds) > 0 )
           {
-          weights->SetNumberOfTuples(numWeights);
           numWeights = this->Kernel->ComputeWeights(x, pIds, weights);
           this->Arrays.Interpolate(numWeights, pIds->GetPointer(0),
                                    weights->GetPointer(0), ptId);
