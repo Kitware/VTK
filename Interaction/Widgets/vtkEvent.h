@@ -84,8 +84,8 @@ public:
   // Description:
   // Used to compare whether two events are equal. Takes into account
   // the EventId as well as the various modifiers.
-  int operator==(vtkEvent*);
-  int operator==(unsigned long VTKEvent);  //event with no modifiers
+  bool operator==(vtkEvent*);
+  bool operator==(unsigned long VTKEvent);  //event with no modifiers
 //ETX
 
 protected:
