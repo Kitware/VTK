@@ -67,18 +67,17 @@ void vtkOpenSlideReader::ExecuteDataWithInformation(vtkDataObject *output,
       outInfo,
       inExtent);
 
-  // cout << "OpenSlideReaderDataInf: " << inExtent[0] << ", " << inExtent[1] << ", " << inExtent[2] << ", " << inExtent[3] << endl;
-
   vtkImageData *data = this->AllocateOutputData(output, outInfo);
-  //data->GetExtent(this->OutputExtent);
-  //data->GetIncrements(this->OutputIncrements);
 
   if(this->openslide_handle == NULL)
     {
-    std::cout << "In the data info update, file is not updated" << std::endl;
+    vtkErrorWithObjectMacro(this,
+                            "File could not be read by openslide"
+                           );
+    return;
     }
 
-  //std::cout << "Extents: " << data->GetExtent() << std::endl;
+  //std::cout << "OpenSlideReader Extents: " << data->GetExtent() << std::endl;
 
   this->ComputeDataIncrements();
 

@@ -7,7 +7,9 @@ mark_as_advanced(OPENSLIDE_INCLUDE_DIR OPENSLIDE_LIBRARY)
 set(OPENSLIDE_SRCS vtkOpenSlideReader.cxx)
 
 include_directories(${OPENSLIDE_INCLUDE_DIRS})
-set_source_files_properties(vtkOPENSLIDE WRAP_EXCLUDE)
+
+set(${vtk-module}_SYSTEM_INCLUDE_DIRS
+    ${OPENSLIDE_INCLUDE_DIRS})
 
 vtk_module_library(vtkDomainsMicroscopy ${OPENSLIDE_SRCS})
 

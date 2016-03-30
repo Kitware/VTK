@@ -30,6 +30,9 @@
 // Main program
 int TestOpenSlideReader(int argc, char** argv)
 {
+  // This test is known to fail with openslide library libopenslide-dev shipped
+  // with ubuntu 14.04 as of March 31'2016. It does pass on fedora23, or if the
+  // openslide library is built from source
   const char* rasterFileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
                                  "Data/Microscopy/small2.ndpi");
 

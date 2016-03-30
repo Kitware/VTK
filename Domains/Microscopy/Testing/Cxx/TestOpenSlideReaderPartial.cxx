@@ -30,19 +30,20 @@
 // Main program
 int TestOpenSlideReaderPartial(int argc, char** argv)
 {
-  const char* rasterFileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                 "Data/Microscopy/small2.ndpi");
+  if ( argc <= 1 )
+    {
+    std::cout << "Usage: " << argv[0] << " <image file>" << endl;
+    return EXIT_FAILURE;
+    }
 
-  //std::cout << "Got Filename: " << rasterFileName << std::endl;
+  std::cout << "Got Filename: " << argv[1] << std::endl;
 
   // Create reader to read shape file.
   vtkNew<vtkOpenSlideReader> reader;
-  reader->SetFileName(rasterFileName);
+  reader->SetFileName(argv[1]);
   reader->UpdateInformation();
-  // reader->Print(cout);
-  delete [] rasterFileName;
 
-  int extent[6] = {200,499,200,499,0,0};
+  int extent[6] = {100,299,100,299,0,0};
 
   reader->UpdateExtent(extent);
 
