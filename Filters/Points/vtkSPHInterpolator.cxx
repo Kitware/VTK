@@ -62,6 +62,7 @@ struct ProbePoints
   bool ComputeDerivArrays;
   char *Valid;
   int Strategy;
+  float *Shepard;
 
   // Don't want to allocate these working arrays on every thread invocation,
   // so make them thread local.
@@ -71,9 +72,9 @@ struct ProbePoints
 
   ProbePoints(vtkSPHInterpolator *sphInt, vtkDataSet *input, vtkSPHKernel *kernel,
               vtkAbstractPointLocator *loc, vtkPointData *inPD, vtkPointData *outPD,
-              int strategy, char *valid, double nullV) :
+              int strategy, char *valid, double nullV, float *shepCoef) :
     SPHInterpolator(sphInt), Input(input), Kernel(kernel), Locator(loc),
-    InPD(inPD), OutPD(outPD), Valid(valid), Strategy(strategy)
+    InPD(inPD), OutPD(outPD), Valid(valid), Strategy(strategy), Shepard(shepCoef)
     {
       // Manage arrays for interpolation
       for (int i=0; i < sphInt->GetNumberOfExcludedArrays(); ++i)
@@ -131,15 +132,15 @@ struct ProbePoints
         {
         this->Input->GetPoint(ptId,x);
 
-        if ( this->Kernel->ComputeBasis(x, pIds) > 0 )
+        if ( (numWeights=this->Kernel->ComputeBasis(x, pIds)) > 0 )
           {
           if ( ! this->ComputeDerivArrays )
             {
-            numWeights = this->Kernel->ComputeWeights(x, pIds, weights);
+            this->Kernel->ComputeWeights(x, pIds, weights);
             }
           else
             {
-            numWeights = this->Kernel->ComputeGradWeights(x, pIds, weights, gradWeights);
+            this->Kernel->ComputeGradWeights(x, pIds, weights, gradWeights);
             this->DerivArrays.Interpolate(numWeights, pIds->GetPointer(0),
                                           gradWeights->GetPointer(0), ptId);
             }
@@ -154,6 +155,17 @@ struct ProbePoints
             this->Valid[ptId] = 0;
             }
           }// null point
+
+        // Shepard's coefficient if requested
+        if ( this->Shepard )
+          {
+          double sum=0.0, *w=weights->GetPointer(0);
+          for (int i=0; i < numWeights; ++i)
+            {
+            sum += w[i];
+            }
+          this->Shepard[ptId] = sum;
+          }
         }//for all dataset points
     }
 
@@ -173,8 +185,8 @@ struct ImageProbePoints : public ProbePoints
   ImageProbePoints(vtkSPHInterpolator *sphInt, vtkImageData *image, int dims[3],
                    double origin[3], double spacing[3], vtkSPHKernel *kernel,
                    vtkAbstractPointLocator *loc, vtkPointData *inPD,
-                   vtkPointData *outPD, int strategy, char *valid, double nullV) :
-    ProbePoints(sphInt, image, kernel, loc, inPD, outPD, strategy, valid, nullV)
+                   vtkPointData *outPD, int strategy, char *valid, double nullV, float *shep) :
+    ProbePoints(sphInt, image, kernel, loc, inPD, outPD, strategy, valid, nullV, shep)
     {
       for (int i=0; i < 3; ++i)
         {
@@ -212,15 +224,15 @@ struct ImageProbePoints : public ProbePoints
             x[0] = origin[0] + i*spacing[0];
             ptId = i + jOffset + kOffset;
 
-            if ( this->Kernel->ComputeBasis(x, pIds) > 0 )
+            if ( (numWeights=this->Kernel->ComputeBasis(x, pIds)) > 0 )
               {
               if ( ! this->ComputeDerivArrays )
                 {
-                numWeights = this->Kernel->ComputeWeights(x, pIds, weights);
+                this->Kernel->ComputeWeights(x, pIds, weights);
                 }
               else
                 {
-                numWeights = this->Kernel->ComputeGradWeights(x, pIds, weights, gradWeights);
+                this->Kernel->ComputeGradWeights(x, pIds, weights, gradWeights);
                 this->DerivArrays.Interpolate(numWeights, pIds->GetPointer(0),
                                               gradWeights->GetPointer(0), ptId);
                 }
@@ -235,6 +247,17 @@ struct ImageProbePoints : public ProbePoints
                 this->Valid[ptId] = 0;
                 }
               }// null point
+
+            // Shepard's coefficient if requested
+            if ( this->Shepard )
+              {
+              double sum=0.0, *w=weights->GetPointer(0);
+              for (int i=0; i < numWeights; ++i) //numWieights=0 for null point
+                {
+                sum += w[i];
+                }
+              this->Shepard[ptId] = sum;
+              }
 
             }//over i
           }//over j
@@ -349,24 +372,19 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
     }
 
   // Shepard summation if requested
+  float *shepardArray=NULL;
   if ( this->ComputeShepardSum )
     {
     this->ShepardSumArray = vtkFloatArray::New();
     this->ShepardSumArray->SetNumberOfTuples(numPts);
+    shepardArray=this->ShepardSumArray->GetPointer(0);
     }
 
   // Initialize the SPH kernel
   if ( this->Kernel->GetRequiresInitialization() )
     {
-    vtkDataArray *denArray = inPD->GetArray(this->DensityArrayName);
-    if ( denArray == NULL )
-      {
-      vtkErrorMacro("Density array required");
-      return;
-      }
-    this->Kernel->SetDensityArray(denArray);
+    this->Kernel->SetDensityArray(inPD->GetArray(this->DensityArrayName));
     this->Kernel->SetMassArray(inPD->GetArray(this->MassArrayName));
-    this->Kernel->SetShepardSumArray(this->ShepardSumArray);
     this->Kernel->Initialize(this->Locator, source, inPD);
     }
 
@@ -380,13 +398,15 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
     this->ExtractImageDescription(imgInput,dims,origin,spacing);
     ImageProbePoints imageProbe(this, imgInput, dims, origin,
                                 spacing, this->Kernel,this->Locator,inPD,outPD,
-                                this->NullPointsStrategy,mask,this->NullValue);
+                                this->NullPointsStrategy,mask,this->NullValue,
+                                shepardArray);
     vtkSMPTools::For(0, dims[2], imageProbe);//over slices
     }
   else
     {
     ProbePoints probe(this, input,this->Kernel,this->Locator,
-                      inPD,outPD, this->NullPointsStrategy,mask,this->NullValue);
+                      inPD,outPD, this->NullPointsStrategy,mask,this->NullValue,
+                      shepardArray);
     vtkSMPTools::For(0, numPts, probe);
     }
 

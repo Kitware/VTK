@@ -26,8 +26,9 @@
 // To use this filter, besides setting the input and source, specify a point
 // locator (which accelerates queries about points and their neighbors) and
 // an interpolation kernel (a subclass of vtkSPHKernel). In addition, the
-// name of the source's density and mass arrays must be provided (or a
-// strategy for computing the mass must be specified).
+// name of the source's density and mass arrays can optionally be provided;
+// however if not provided then the local volume is computed from the kernel's
+// spatial step.
 //
 // Other options to the filter include specifying which data attributes to
 // interpolate from the source. By default, all data attributes contained in
@@ -108,22 +109,19 @@ public:
   vtkGetObjectMacro(Locator,vtkAbstractPointLocator);
 
   // Description:
-  // Specify an interpolation kernel. By default a vtkVoronoiKernel is used
+  // Specify an interpolation kernel. By default a vtkSPHQuinticKernel is used
   // (i.e., closest point). The interpolation kernel changes the basis of the
   // interpolation.
   void SetKernel(vtkSPHKernel *kernel);
   vtkGetObjectMacro(Kernel,vtkSPHKernel);
 
   // Description:
-  // Specify the density array name. This is required in computation. If not
-  // specified the code will error out.
+  // Specify the density array name. This is optional.
   vtkSetMacro(DensityArrayName,vtkStdString);
   vtkGetMacro(DensityArrayName,vtkStdString);
 
   // Description:
-  // Specify the mass array name. If not specified, then the mass at each point
-  // will be computed from the density and local (spherical) volume at a each
-  // point.
+  // Specify the mass array name. This is optional.
   vtkSetMacro(MassArrayName,vtkStdString);
   vtkGetMacro(MassArrayName,vtkStdString);
 
@@ -216,11 +214,13 @@ public:
     { this->SetNullPointsStrategy(NULL_VALUE); }
 
   // Description:
-  // Indicate whether to compute the summation of Shepard coefficients. In the
-  // interior of a SPH point cloud, the Shephard summation value should be ~1.0.
-  // Towards the boundary, the Shepard summation is <1.0. If ComputeShepardSum
-  // is specified, then the output will contain an array of summed Shepard weights
-  // for each output point. On by default.
+
+  // Indicate whether to compute the summation of weighting coefficients(the
+  // so-called Shepard sum). In the interior of a SPH point cloud, the
+  // Shephard summation value should be ~1.0.  Towards the boundary, the
+  // Shepard summation generally falls off <1.0. If ComputeShepardSum is specified, then the
+  // output will contain an array of summed Shepard weights for each output
+  // point. On by default.
   vtkSetMacro(ComputeShepardSum, bool);
   vtkBooleanMacro(ComputeShepardSum, bool);
   vtkGetMacro(ComputeShepardSum, bool);
