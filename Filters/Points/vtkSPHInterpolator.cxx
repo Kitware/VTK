@@ -252,9 +252,9 @@ struct ImageProbePoints : public ProbePoints
             if ( this->Shepard )
               {
               double sum=0.0, *w=weights->GetPointer(0);
-              for (int i=0; i < numWeights; ++i) //numWieights=0 for null point
+              for (int ii=0; ii < numWeights; ++ii) //numWieights=0 for null point
                 {
-                sum += w[i];
+                sum += w[ii];
                 }
               this->Shepard[ptId] = sum;
               }
