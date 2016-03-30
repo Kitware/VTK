@@ -104,10 +104,11 @@ public:
     this->Data = bw.Data;
     this->Data->Register(NULL);
   }
-  void operator=(const BadWinding &bw) {
+  BadWinding& operator=(const BadWinding &bw) {
     this->Data->UnRegister(NULL);
     this->Data = bw.Data;
     this->Data->Register(NULL);
+    return *this;
   }
 
   vtkUnstructuredGrid *Data;

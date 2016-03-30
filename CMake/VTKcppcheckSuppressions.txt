@@ -136,8 +136,6 @@ duplInheritedMember
 invalidPointerCast
 // 6 warnings
 noConstructor
-// not many
-operatorEq
 
 // To investigate further...
 memleak:Wrapping/Tools/vtkParsePreprocess.c

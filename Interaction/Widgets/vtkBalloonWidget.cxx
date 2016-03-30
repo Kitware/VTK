@@ -74,7 +74,7 @@ struct vtkBalloon
         this->Image->UnRegister(NULL);
         }
     }
-  void operator=(const vtkBalloon &balloon)
+  vtkBalloon& operator=(const vtkBalloon &balloon)
     {
       this->Text = balloon.Text;
 
@@ -90,6 +90,8 @@ struct vtkBalloon
         {
         this->Image->Register(NULL);
         }
+
+      return *this;
     }
   int operator==(const vtkBalloon &balloon) const
     {
