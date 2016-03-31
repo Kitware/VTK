@@ -20,7 +20,7 @@
 // As for PointData and CellData, vtkPLYWriter cannot handle normals or
 // vectors. It only handles RGB PointData and CellData. You need to set the
 // name of the array (using SetName for the array and SetArrayName for the
-// writer). If the array is not a vtkUnsignedCharArray with 3 components,
+// writer). If the array is not a vtkUnsignedCharArray with 3 or 4 components,
 // you need to specify a vtkLookupTable to map the scalars to RGB.
 
 // .SECTION Caveats
@@ -77,7 +77,9 @@ public:
   // output file. The default behavior is as follows. The user provides the
   // name of an array and a component number. If the type of the array is
   // three components, unsigned char, then the data is written as three
-  // separate "red", "green" and "blue" properties. If the type is not
+  // separate "red", "green" and "blue" properties. If the type of the array is
+  // four components, unsigned char, then the data is written as three separate
+  // "red", "green" and "blue" properties, dropping the "alpha". If the type is not
   // unsigned char, and a lookup table is provided, then the array/component
   // are mapped through the table to generate three separate "red", "green"
   // and "blue" properties in the PLY file. The user can also set the
