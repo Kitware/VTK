@@ -1,0 +1,13 @@
+vtk_module(vtkIOTecplotTable
+  GROUPS
+    StandAlone
+  DEPENDS
+    vtkCommonDataModel
+    vtkCommonSystem
+    vtkCommonMisc
+    vtkIOCore
+    vtkIOLegacy
+    vtkIOXML
+  PRIVATE_DEPENDS
+    vtksys
+  )
