@@ -7,11 +7,11 @@ if (NOT WIN32)
       MPI
     DEPENDS
       vtkFiltersCore
+      vtkParallelMPI
       vtkdiy2
     TEST_DEPENDS
       vtkFiltersParallelMPI
       vtkInteractionStyle
-      vtkParallelMPI
       vtkRendering${VTK_RENDERING_BACKEND}
       vtkRenderingParallel
       vtkTestingCore

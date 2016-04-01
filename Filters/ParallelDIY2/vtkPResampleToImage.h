@@ -27,6 +27,7 @@
 
 class vtkDataSet;
 class vtkImageData;
+class vtkMultiProcessController;
 
 class VTKFILTERSPARALLELDIY2_EXPORT vtkPResampleToImage : public vtkResampleToImage
 {
@@ -36,12 +37,20 @@ public:
 
   static vtkPResampleToImage *New();
 
+  // Description:
+  // By defualt this filter uses the global controller,
+  // but this method can be used to set another instead.
+  virtual void SetController(vtkMultiProcessController*);
+  vtkGetObjectMacro(Controller, vtkMultiProcessController);
+
 protected:
   vtkPResampleToImage();
   ~vtkPResampleToImage();
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
+
+  vtkMultiProcessController *Controller;
 
 private:
   vtkPResampleToImage(const vtkPResampleToImage&);  // Not implemented.

@@ -25,7 +25,9 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkMath.h"
+#include "vtkMPI.h"
+#include "vtkMPIController.h"
+#include "vtkMPICommunicator.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -41,12 +43,12 @@
 #include VTK_DIY2_HEADER(diy/partners/swap.hpp)
 #include VTK_DIY2_HEADER(diy/decomposition.hpp)
 
-#include <mpi.h>
-
 #include <algorithm>
 
 
 vtkStandardNewMacro(vtkPResampleToImage);
+
+vtkCxxSetObjectMacro(vtkPResampleToImage, Controller, vtkMultiProcessController);
 
 namespace {
 
@@ -256,20 +258,21 @@ inline void DestroyBlock(void *blockp)
 }
 
 
-inline void AddPointsToBlock(vtkImageData *piece, const char *maskArrayName,
-                             Block *block)
+//---------------------------------------------------------------------------
+inline void GetPointsFromImage(vtkImageData *img, const char *maskArrayName,
+                               std::vector<Point> *points)
 {
-  if (piece->GetNumberOfPoints() <= 0)
+  if (img->GetNumberOfPoints() <= 0)
     {
     return;
     }
 
-  vtkPointData *pd = piece->GetPointData();
+  vtkPointData *pd = img->GetPointData();
   vtkCharArray *maskArray = vtkCharArray::SafeDownCast(pd->GetArray(maskArrayName));
   char *mask = maskArray->GetPointer(0);
 
   int extent[6];
-  piece->GetExtent(extent);
+  img->GetExtent(extent);
   for (int k = extent[4]; k <= extent[5]; ++k)
     {
     for (int j = extent[2]; j <= extent[3]; ++j)
@@ -277,42 +280,37 @@ inline void AddPointsToBlock(vtkImageData *piece, const char *maskArrayName,
       for (int i = extent[0]; i <= extent[1]; ++i)
         {
         int ijk[3] = { i, j, k };
-        vtkIdType id = piece->ComputePointId(ijk);
+        vtkIdType id = img->ComputePointId(ijk);
         if (mask[id])
           {
           Point pt;
           std::copy(ijk, ijk + 3, pt.idx);
           SerializeFieldData(pd, id, pt.data);
-          block->Points.push_back(pt);
+          points->push_back(pt);
           }
         }
       }
     }
 }
 
-//---------------------------------------------------------------------------
-void MakeResult(const double origin[3], const double spacing[3],
-                const int extent[6], const std::vector<FieldMetaData> &fieldMetaData,
-                const std::vector<Point> &points, vtkImageData *result)
+void SetPointsToImage(const std::vector<FieldMetaData> &fieldMetaData,
+                      const std::vector<Point> &points, vtkImageData *img)
 {
-  result->SetOrigin(origin[0], origin[1], origin[2]);
-  result->SetSpacing(spacing[0], spacing[1], spacing[2]);
-  result->SetExtent(extent[0], extent[1], extent[2], extent[3], extent[4], extent[5]);
-
-  vtkPointData *pd = result->GetPointData();
-  InitializeFieldData(fieldMetaData, result->GetNumberOfPoints(), pd);
+  vtkPointData *pd = img->GetPointData();
+  InitializeFieldData(fieldMetaData, img->GetNumberOfPoints(), pd);
 
   for (std::size_t i = 0; i < points.size(); ++i)
     {
     const Point &p = points[i];
     int idx[3] = { p.idx[0], p.idx[1], p.idx[2] };
-    vtkIdType id = result->ComputePointId(idx);
+    vtkIdType id = img->ComputePointId(idx);
     DeserializeFieldData(p.data, pd, id);
     }
 }
 
 //----------------------------------------------------------------------------
-inline void ComputeGlobalBounds(const double lbounds[6], double gbounds[6])
+inline void ComputeGlobalBounds(diy::mpi::communicator &comm,
+                                const double lbounds[6], double gbounds[6])
 {
   Array<double, 3> localBoundsMin, localBoundsMax;
   for (std::size_t i = 0; i < 3; ++i)
@@ -321,11 +319,10 @@ inline void ComputeGlobalBounds(const double lbounds[6], double gbounds[6])
     localBoundsMax[i] = lbounds[2*i + 1];
     }
 
-  diy::mpi::communicator world;
   Array<double, 3> globalBoundsMin, globalBoundsMax;
-  diy::mpi::all_reduce(world, localBoundsMin, globalBoundsMin,
+  diy::mpi::all_reduce(comm, localBoundsMin, globalBoundsMin,
                        diy::mpi::minimum<double>());
-  diy::mpi::all_reduce(world, localBoundsMax, globalBoundsMax,
+  diy::mpi::all_reduce(comm, localBoundsMax, globalBoundsMax,
                        diy::mpi::maximum<double>());
 
   for (std::size_t i = 0; i < 3; ++i)
@@ -335,29 +332,28 @@ inline void ComputeGlobalBounds(const double lbounds[6], double gbounds[6])
     }
 }
 
-inline void GetGlobalFieldMetaData(vtkDataSetAttributes *data,
+inline void GetGlobalFieldMetaData(diy::mpi::communicator &comm,
+                                   vtkDataSetAttributes *data,
                                    std::vector<FieldMetaData> *metadata)
 {
-  diy::mpi::communicator world;
-
   std::vector<FieldMetaData> local;
   ExtractFieldMetaData(data, &local);
 
   // find a process that has field meta data information (choose the process with
   // minimum rank)
-  int rank = local.size() ? world.rank() : world.size();
+  int rank = local.size() ? comm.rank() : comm.size();
   int source;
-  diy::mpi::all_reduce(world, rank, source, diy::mpi::minimum<int>());
+  diy::mpi::all_reduce(comm, rank, source, diy::mpi::minimum<int>());
 
-  if (source < world.size()) // atleast one process has field meta data
+  if (source < comm.size()) // atleast one process has field meta data
     {
     diy::MemoryBuffer bb;
-    if (world.rank() == source)
+    if (comm.rank() == source)
       {
       diy::save(bb, local);
       bb.reset();
       }
-    diy::mpi::broadcast(world, bb.buffer, source);
+    diy::mpi::broadcast(comm, bb.buffer, source);
     diy::load(bb, *metadata);
     }
 }
@@ -441,23 +437,11 @@ void Redistribute(void* blockp, const diy::ReduceProxy& srp,
 
 
 //----------------------------------------------------------------------------
-inline void ComputeBoundingExtent(const double origin[3], const double spacing[3],
-                                  const double bounds[6], int extent[6])
+inline diy::mpi::communicator GetDiyCommunicator(vtkMPIController *controller)
 {
-  for (int i = 0; i < 3; ++i)
-    {
-    if (spacing[i] != 0.0)
-      {
-      extent[2*i] =
-        static_cast<int>(vtkMath::Floor((bounds[2*i] - origin[i])/spacing[i]));
-      extent[2*i + 1] =
-        static_cast<int>(vtkMath::Ceil((bounds[2*i + 1] - origin[i])/spacing[i]));
-      }
-    else
-      {
-      extent[2*i] = extent[2*i + 1] = 0;
-      }
-    }
+  vtkMPICommunicator *vtkcomm = vtkMPICommunicator::SafeDownCast(
+    controller->GetCommunicator());
+  return diy::mpi::communicator(*vtkcomm->GetMPIComm()->GetHandle());
 }
 
 } // anonymous namespace
@@ -465,12 +449,25 @@ inline void ComputeBoundingExtent(const double origin[3], const double spacing[3
 
 //---------------------------------------------------------------------------
 vtkPResampleToImage::vtkPResampleToImage()
+  : Controller(NULL)
 {
+  this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
 //----------------------------------------------------------------------------
 vtkPResampleToImage::~vtkPResampleToImage()
 {
+  this->SetController(NULL);
+}
+
+//----------------------------------------------------------------------------
+void vtkPResampleToImage::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  if (this->Controller)
+    {
+    this->Controller->PrintSelf(os, indent);
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -478,10 +475,8 @@ int vtkPResampleToImage::RequestData(vtkInformation *request,
                                      vtkInformationVector **inputVector,
                                      vtkInformationVector *outputVector)
 {
-  int mpiInitializedFlag = 0;
-  MPI_Initialized(&mpiInitializedFlag);
-
-  if (!mpiInitializedFlag || diy::mpi::communicator().size() == 1)
+  vtkMPIController *mpiCont = vtkMPIController::SafeDownCast(this->Controller);
+  if (!mpiCont || mpiCont->GetNumberOfProcesses() == 1)
     {
     return this->Superclass::RequestData(request, inputVector, outputVector);
     }
@@ -495,89 +490,36 @@ int vtkPResampleToImage::RequestData(vtkInformation *request,
   vtkImageData *output = vtkImageData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  if (this->SamplingDimensions[0] <= 0 ||
-      this->SamplingDimensions[1] <= 0 ||
-      this->SamplingDimensions[2] <= 0)
-    {
-    return 1;
-    }
 
-  // compute global bounds of the dataset
-  double localBounds[6], globalBounds[6];
-  if (vtkDataSet::SafeDownCast(input))
+  diy::mpi::communicator comm = GetDiyCommunicator(mpiCont);
+
+  double localBounds[6];
+  ComputeDataBounds(input, localBounds);
+
+  double samplingBounds[6];
+  if (this->UseInputBounds)
     {
-    vtkDataSet::SafeDownCast(input)->GetBounds(localBounds);
+    ComputeGlobalBounds(comm, localBounds, samplingBounds);
     }
   else
     {
-    this->GetCompositeDataSetBounds(vtkCompositeDataSet::SafeDownCast(input),
-                                    localBounds);
-    }
-  ComputeGlobalBounds(localBounds, globalBounds);
-
-  // compute bounds and extent where probing should be performed for this node
-  double *wholeBounds = this->UseInputBounds ? globalBounds : this->SamplingBounds;
-  double origin[3] = { wholeBounds[0], wholeBounds[2], wholeBounds[4] };
-  double spacing[3];
-  for (int i = 0; i < 3; ++i)
-    {
-    spacing[i] = (this->SamplingDimensions[i] == 1) ? 0 :
-                 ((wholeBounds[i*2 + 1] - wholeBounds[i*2]) /
-                  static_cast<double>(this->SamplingDimensions[i] - 1));
+    std::copy(this->SamplingBounds, this->SamplingBounds + 6, samplingBounds);
     }
 
-  int updateExtent[6];
-  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()))
-    {
-    int *ue = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
-    std::copy(ue, ue + 6, updateExtent);
-    }
-  else
-    {
-    updateExtent[0] = updateExtent[2] = updateExtent[4] = 0;
-    updateExtent[1] = this->SamplingDimensions[0] - 1;
-    updateExtent[3] = this->SamplingDimensions[1] - 1;
-    updateExtent[5] = this->SamplingDimensions[2] - 1;
-    }
+  vtkNew<vtkImageData> mypiece;
+  this->PerformResampling(input, samplingBounds, true, localBounds,
+                          mypiece.GetPointer());
 
-  int extent[6];
-  ComputeBoundingExtent(origin, spacing, localBounds, extent);
-  for (int i = 0; i < 3; ++i)
-    {
-    extent[2*i] = vtkMath::Max(extent[2*i], updateExtent[2*i]);
-    extent[2*i + 1] = vtkMath::Min(extent[2*i + 1], updateExtent[2*i + 1]);
-    if (extent[2*i] > extent[2*i + 1]) // no overlap
-      {
-      extent[0] = extent[2] = extent[4] = 0;
-      extent[1] = extent[3] = extent[5] = -1;
-      break;
-      }
-    }
-
-  // perform probing
-  vtkNew<vtkCompositeDataProbeFilter> prober;
-  const char *maskArrayName = prober->GetValidPointMaskArrayName();
-
-  vtkNew<vtkImageData> structure;
-  structure->SetOrigin(origin);
-  structure->SetSpacing(spacing);
-  structure->SetExtent(extent);
-
-  prober->SetInputData(structure.GetPointer());
-  prober->SetSourceData(input);
-  prober->Update();
-
-  vtkImageData *mypiece = static_cast<vtkImageData*>(prober->GetOutput());
 
   // Ensure every node has fields' metadata information
   std::vector<FieldMetaData> pointFieldMetaData;
-  GetGlobalFieldMetaData(mypiece->GetPointData(), &pointFieldMetaData);
+  GetGlobalFieldMetaData(comm, mypiece->GetPointData(), &pointFieldMetaData);
 
   // perform swap-reduce partitioning on probed points to decompose the domain
   // into non-overlapping rectangular regions
-  diy::mpi::communicator world;
-  diy::RoundRobinAssigner assigner(world.size(), world.size());
+  diy::RoundRobinAssigner assigner(comm.size(), comm.size());
 
+  int *updateExtent = this->GetUpdateExtent();
   diy::DiscreteBounds domain;
   for (int i = 0; i < 3; ++i)
     {
@@ -585,29 +527,26 @@ int vtkPResampleToImage::RequestData(vtkInformation *request,
     domain.max[i] = updateExtent[2*i + 1];
     }
 
-  diy::Master master(world, 1, -1, &CreateBlock, &DestroyBlock);
+  diy::Master master(comm, 1, -1, &CreateBlock, &DestroyBlock);
 
-  diy::RegularDecomposer<diy::DiscreteBounds> decomposer(3, domain, world.size());
-  decomposer.decompose(world.rank(), assigner, master);
+  diy::RegularDecomposer<diy::DiscreteBounds> decomposer(3, domain, comm.size());
+  decomposer.decompose(comm.rank(), assigner, master);
 
   Block *block = master.block<Block>(0);
   std::copy(updateExtent, updateExtent + 6, block->Extent);
-  AddPointsToBlock(mypiece, maskArrayName, block);
+  GetPointsFromImage(mypiece.GetPointer(), this->GetMaskArrayName(),
+                     &block->Points);
 
   diy::RegularSwapPartners  partners(decomposer, 2, false);
   diy::reduce(master, assigner, partners, &Redistribute);
 
-  MakeResult(origin, spacing, block->Extent, pointFieldMetaData, block->Points,
-             output);
-  SetBlankPointsAndCells(output, maskArrayName);
+  output->SetOrigin(mypiece->GetOrigin());
+  output->SetSpacing(mypiece->GetSpacing());
+  output->SetExtent(block->Extent);
+  SetPointsToImage(pointFieldMetaData, block->Points, output);
+  this->SetBlankPointsAndCells(output);
 
   return 1;
-}
-
-//----------------------------------------------------------------------------
-void vtkPResampleToImage::PrintSelf(ostream& os, vtkIndent indent)
-{
-  this->Superclass::PrintSelf(os, indent);
 }
 
 
