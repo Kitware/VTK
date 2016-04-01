@@ -1,5 +1,5 @@
 set(optional_test_depends)
-if(${Module_vtkRenderingParallel} AND ${Module_vtkParallelMPI})
+if("${Module_vtkRenderingParallel}" AND "${Module_vtkParallelMPI}")
   set(optional_test_depends "vtkRenderingParallel;vtkParallelMPI")
 endif()
 
