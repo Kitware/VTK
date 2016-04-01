@@ -8,7 +8,9 @@ set(Module_SRCS
   vtkPointInterpolator2D.cxx
   vtkProbabilisticVoronoiKernel.cxx
   vtkSPHInterpolator.cxx
+  vtkSPHCubicKernel.cxx
   vtkSPHKernel.cxx
+  vtkSPHQuarticKernel.cxx
   vtkSPHQuinticKernel.cxx
   vtkShepardKernel.cxx
   vtkVoronoiKernel.cxx

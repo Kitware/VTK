@@ -36,8 +36,6 @@
 #include "vtkSMPTools.h"
 #include "vtkSMPThreadLocalObject.h"
 
-#include <vector>
-
 vtkStandardNewMacro(vtkSPHInterpolator);
 vtkCxxSetObjectMacro(vtkSPHInterpolator,Locator,vtkAbstractPointLocator);
 vtkCxxSetObjectMacro(vtkSPHInterpolator,Kernel,vtkSPHKernel);

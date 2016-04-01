@@ -116,21 +116,16 @@ public:
   vtkGetObjectMacro(Kernel,vtkSPHKernel);
 
   // Description:
-  // Specify the density array name. This is optional.
+  // Specify the density array name. This is optional. Typically both the density
+  // and mass arrays are specified together (in order to compute the local volume).
   vtkSetMacro(DensityArrayName,vtkStdString);
   vtkGetMacro(DensityArrayName,vtkStdString);
 
   // Description:
-  // Specify the mass array name. This is optional.
+  // Specify the mass array name. This is optional. Typically both the density
+  // and mass arrays are specified together (in order to compute the local volume).
   vtkSetMacro(MassArrayName,vtkStdString);
   vtkGetMacro(MassArrayName,vtkStdString);
-
-  // How to handle NULL points
-  enum NullStrategy
-  {
-    MASK_POINTS=0,
-    NULL_VALUE=1
-  };
 
   // Description:
   // Adds an array to the list of arrays which are to be excluded from the
@@ -164,6 +159,7 @@ public:
         }
       return this->ExcludedArrays[i].c_str();
     }
+
   // Description:
   // Adds an array to the list of arrays whose derivative is to be taken. If
   // the name of the array is "derivArray" this will produce an output array
@@ -198,6 +194,13 @@ public:
       return this->DerivArrays[i].c_str();
     }
 
+  // How to handle NULL points
+  enum NullStrategy
+  {
+    MASK_POINTS=0,
+    NULL_VALUE=1
+  };
+
   // Description:
   // Specify a strategy to use when encountering a "null" point during the
   // interpolation process. Null points occur when the local neighborhood (of
@@ -205,7 +208,7 @@ public:
   // MaskPoints, then an output array is created that marks points as being
   // valid (=1) or null (invalid =0) (and the NullValue is set as well). If
   // the strategy is set to NullValue, then the output data value(s) are set
-  // to the NullPoint value (specified in the output point data).
+  // to the NullPoint value.
   vtkSetMacro(NullPointsStrategy,int);
   vtkGetMacro(NullPointsStrategy,int);
   void SetNullPointsStrategyToMaskPoints()
@@ -214,8 +217,22 @@ public:
     { this->SetNullPointsStrategy(NULL_VALUE); }
 
   // Description:
+  // If the NullPointsStrategy == MASK_POINTS, then an array is generated for
+  // each input point. This vtkCharArray is placed into the output of the filter,
+  // with a non-zero value for a valid point, and zero otherwise. The name of
+  // this masking array is specified here.
+  vtkSetMacro(ValidPointsMaskArrayName, vtkStdString);
+  vtkGetMacro(ValidPointsMaskArrayName, vtkStdString);
 
-  // Indicate whether to compute the summation of weighting coefficients(the
+  // Description:
+  // Specify the null point value. When a null point is encountered then all
+  // components of each null tuple are set to this value. By default the
+  // null value is set to zero.
+  vtkSetMacro(NullValue,double);
+  vtkGetMacro(NullValue,double);
+
+  // Description:
+  // Indicate whether to compute the summation of weighting coefficients (the
   // so-called Shepard sum). In the interior of a SPH point cloud, the
   // Shephard summation value should be ~1.0.  Towards the boundary, the
   // Shepard summation generally falls off <1.0. If ComputeShepardSum is specified, then the
@@ -232,21 +249,6 @@ public:
   // default name is "Shepard Summation".
   vtkSetMacro(ShepardSumArrayName, vtkStdString);
   vtkGetMacro(ShepardSumArrayName, vtkStdString);
-
-  // Description:
-  // If the NullPointsStrategy == MASK_POINTS, then an array is generated for
-  // each input point. This vtkCharArray is placed into the output of the filter,
-  // with a non-zero value for a valid point, and zero otherwise. The name of
-  // this masking array is specified here.
-  vtkSetMacro(ValidPointsMaskArrayName, vtkStdString);
-  vtkGetMacro(ValidPointsMaskArrayName, vtkStdString);
-
-  // Description:
-  // Specify the null point value. When a null point is encountered then all
-  // components of each null tuple are set to this value. By default the
-  // null value is set to zero.
-  vtkSetMacro(NullValue,double);
-  vtkGetMacro(NullValue,double);
 
   // Description:
   // Indicate whether to shallow copy the input point data arrays to the

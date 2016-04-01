@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSPHQuinticKernel.h
+  Module:    vtkSPHQuarticKernel.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,11 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSPHQuinticKernel - a quintic SPH interpolation kernel
+// .NAME vtkSPHQuarticKernel - a quartic SPH interpolation kernel
 
 // .SECTION Description
-// vtkSPHQuinticKernel is an smooth particle hydrodynamics interpolation kernel as
-// described by D.J. Price. This is a quintic formulation.
+// vtkSPHQuarticKernel is an smooth particle hydrodynamics interpolation kernel as
+// described by D.J. Price. This is a quartic formulation.
 //
 // .SECTION Caveats
 // See D.J. Price, Smoothed particle hydrodynamics and magnetohydrodynamics,
@@ -26,8 +26,8 @@
 // vtkSPHKernel vtkSPHInterpolator
 
 
-#ifndef vtkSPHQuinticKernel_h
-#define vtkSPHQuinticKernel_h
+#ifndef vtkSPHQuarticKernel_h
+#define vtkSPHQuarticKernel_h
 
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkSPHKernel.h"
@@ -37,24 +37,24 @@ class vtkIdList;
 class vtkDoubleArray;
 
 
-class VTKFILTERSPOINTS_EXPORT vtkSPHQuinticKernel : public vtkSPHKernel
+class VTKFILTERSPOINTS_EXPORT vtkSPHQuarticKernel : public vtkSPHKernel
 {
 public:
   // Description:
   // Standard methods for instantiation, obtaining type information, and printing.
-  static vtkSPHQuinticKernel *New();
-  vtkTypeMacro(vtkSPHQuinticKernel,vtkSPHKernel);
+  static vtkSPHQuarticKernel *New();
+  vtkTypeMacro(vtkSPHQuarticKernel,vtkSPHKernel);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Compute weighting factor given a normalized distance from a sample point.
   virtual double ComputeFunctionWeight(const double d)
   {
-    double tmp1 = 3.0 - std::min(d,3.0);
-    double tmp2 = 2.0 - std::min(d,2.0);
-    double tmp3 = 1.0 - std::min(d,1.0);
-    return (tmp1*tmp1*tmp1*tmp1*tmp1 - 6.0*tmp2*tmp2*tmp2*tmp2*tmp2 +
-            15.0*tmp3*tmp3*tmp3*tmp3*tmp3);
+    double tmp1 = 2.5 - std::min(d,2.5);
+    double tmp2 = 1.5 - std::min(d,1.5);
+    double tmp3 = 0.5 - std::min(d,0.5);
+    return (tmp1*tmp1*tmp1*tmp1 - 5.0*tmp2*tmp2*tmp2*tmp2 +
+            10.0*tmp3*tmp3*tmp3*tmp3);
   }
 
   // Description:
@@ -62,20 +62,19 @@ public:
   // distance from a sample point.
   virtual double ComputeGradientWeight(const double d)
   {
-    double tmp1 = 3.0 - std::min(d,3.0);
-    double tmp2 = 2.0 - std::min(d,2.0);
-    double tmp3 = 1.0 - std::min(d,1.0);
-    return (tmp1*tmp1*tmp1*tmp1 - 6.0*tmp2*tmp2*tmp2*tmp2 +
-            15.0*tmp3*tmp3*tmp3*tmp3);
+    double tmp1 = 2.5 - std::min(d,2.5);
+    double tmp2 = 1.5 - std::min(d,1.5);
+    double tmp3 = 0.5 - std::min(d,0.5);
+    return (tmp1*tmp1*tmp1 - 5.0*tmp2*tmp2*tmp2 + 10.0*tmp3*tmp3*tmp3);
   }
 
 protected:
-  vtkSPHQuinticKernel();
-  ~vtkSPHQuinticKernel();
+  vtkSPHQuarticKernel();
+  ~vtkSPHQuarticKernel();
 
 private:
-  vtkSPHQuinticKernel(const vtkSPHQuinticKernel&);  // Not implemented.
-  void operator=(const vtkSPHQuinticKernel&);  // Not implemented.
+  vtkSPHQuarticKernel(const vtkSPHQuarticKernel&);  // Not implemented.
+  void operator=(const vtkSPHQuarticKernel&);  // Not implemented.
 };
 
 #endif
