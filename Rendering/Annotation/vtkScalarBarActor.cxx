@@ -387,6 +387,11 @@ vtkScalarBarActor::~vtkScalarBarActor()
 //----------------------------------------------------------------------------
 int vtkScalarBarActor::RenderOverlay(vtkViewport* viewport)
 {
+  if (!this->RebuildLayoutIfNeeded(viewport))
+    {
+    return 0;
+    }
+
   int renderedSomething = 0;
 
   // Is the viewport's RenderWindow capturing GL2PS-special props? We'll need
@@ -486,11 +491,8 @@ int vtkScalarBarActor::RenderOverlay(vtkViewport* viewport)
   return renderedSomething;
 }
 
-//----------------------------------------------------------------------------
-int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport* viewport)
+int vtkScalarBarActor::RebuildLayoutIfNeeded(vtkViewport* viewport)
 {
-  int renderedSomething = 0;
-
   if (!this->LookupTable)
     {
     vtkWarningMacro(<< "Need a mapper to render a scalar bar");
@@ -561,6 +563,18 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport* viewport)
     {
     this->RebuildLayout(viewport);
     }
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport* viewport)
+{
+  if (!this->RebuildLayoutIfNeeded(viewport))
+    {
+    return 0;
+    }
+
+  int renderedSomething = 0;
 
   // Everything is built, just have to render
   if (this->Title != NULL)

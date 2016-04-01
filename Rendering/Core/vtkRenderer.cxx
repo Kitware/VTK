@@ -24,6 +24,7 @@
 #include "vtkFrustumCoverageCuller.h"
 #include "vtkObjectFactory.h"
 #include "vtkHardwareSelector.h"
+#include "vtkInformation.h"
 #include "vtkLightCollection.h"
 #include "vtkLight.h"
 #include "vtkMath.h"
@@ -33,13 +34,16 @@
 #include "vtkProp3DCollection.h"
 #include "vtkPropCollection.h"
 #include "vtkRendererDelegate.h"
+#include "vtkRenderPass.h"
 #include "vtkRenderWindow.h"
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 #include "vtkTexture.h"
 
+vtkCxxSetObjectMacro(vtkRenderer, Information, vtkInformation);
 vtkCxxSetObjectMacro(vtkRenderer, Delegate, vtkRendererDelegate);
 vtkCxxSetObjectMacro(vtkRenderer, BackgroundTexture, vtkTexture);
+vtkCxxSetObjectMacro(vtkRenderer, Pass, vtkRenderPass);
 
 //----------------------------------------------------------------------------
 // Return NULL if no override is supplied.
@@ -125,6 +129,12 @@ vtkRenderer::vtkRenderer()
 
   this->TexturedBackground = false;
   this->BackgroundTexture = NULL;
+
+  this->Pass = 0;
+
+  this->Information = vtkInformation::New();
+  this->Information->Register(this);
+  this->Information->Delete();
 }
 
 vtkRenderer::~vtkRenderer()
@@ -163,6 +173,8 @@ vtkRenderer::~vtkRenderer()
     {
     this->BackgroundTexture->Delete();
     }
+
+  this->SetInformation(0);
 }
 
 void vtkRenderer::ReleaseGraphicsResources(vtkWindow *renWin)
@@ -834,6 +846,7 @@ void vtkRenderer::CreateLight(void)
 
   if (this->CreatedLight)
     {
+    this->RemoveLight(this->CreatedLight);
     this->CreatedLight->UnRegister(this);
     this->CreatedLight = NULL;
     }
@@ -1464,6 +1477,17 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "null" << endl;
     }
+
+  os << indent << "Pass:";
+  if(this->Pass!=0)
+    {
+      os << "exists" << endl;
+    }
+  else
+    {
+      os << "null" << endl;
+    }
+
 }
 
 int vtkRenderer::VisibleActorCount()

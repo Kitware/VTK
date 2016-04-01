@@ -393,6 +393,13 @@ protected:
   virtual void RebuildLayout(vtkViewport* viewport);
 
   // Description:
+  // Calls RebuildLayout if it is needed such as when
+  // positions etc have changed. Return 1 on success
+  // zero on error
+  virtual int RebuildLayoutIfNeeded(vtkViewport* viewport);
+
+
+  // Description:
   // Free internal storage used by the previous layout.
   virtual void FreeLayoutStorage();
 

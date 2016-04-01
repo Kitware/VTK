@@ -1595,6 +1595,10 @@ int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
   glDisable( GL_ALPHA_TEST );
   glDisable( GL_SCISSOR_TEST );
 
+  int gldepth;
+  glGetIntegerv(GL_DEPTH_FUNC, &gldepth);
+  glDepthFunc(GL_ALWAYS);
+
   // Turn of texturing in case it is on - some drivers have a problem
   // getting / setting pixels with texturing enabled.
   glDisable( GL_TEXTURE_2D );
@@ -1604,6 +1608,8 @@ int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
 
   // This seems to be necessary for the image to show up
   glFlush();
+
+  glDepthFunc(gldepth);
 
   if (glGetError() != GL_NO_ERROR)
     {

@@ -41,11 +41,13 @@ class vtkCuller;
 class vtkActor;
 class vtkActor2D;
 class vtkCamera;
+class vtkInformation;
 class vtkLightCollection;
 class vtkCullerCollection;
 class vtkLight;
 class vtkHardwareSelector;
 class vtkRendererDelegate;
+class vtkRenderPass;
 class vtkTexture;
 
 class VTKRENDERINGCORE_EXPORT vtkRenderer : public vtkViewport
@@ -244,6 +246,11 @@ public:
   // override this method.
   // It updates boolean ivar LastRenderingUsedDepthPeeling.
   virtual void DeviceRenderTranslucentPolygonalGeometry();
+
+  // Description:
+  // Internal method temporarily removes lights before reloading them
+  // into graphics pipeline.
+  virtual void ClearLights(void) {};
 
   // Description:
   // Clear the image to the background color.
@@ -521,6 +528,16 @@ public:
   vtkGetMacro(UseShadows,int);
   vtkBooleanMacro(UseShadows,int);
 
+  // Set/Get a custom render pass.
+  // Initial value is NULL.
+  void SetPass(vtkRenderPass *p);
+  vtkGetObjectMacro(Pass, vtkRenderPass);
+
+  // Description:
+  // Set/Get the information object associated with this algorithm.
+  vtkGetObjectMacro(Information, vtkInformation);
+  virtual void SetInformation(vtkInformation*);
+
 //BTX
 protected:
   vtkRenderer();
@@ -619,9 +636,6 @@ protected:
   // Temporary collection used by vtkRenderWindow::CaptureGL2PSSpecialProps.
   vtkPropCollection *GL2PSSpecialPropCollection;
 
-  // Friend class to allow render passes to access functions.
-  friend class vtkRenderPass;
-
   // Description:
   // Ask all props to update and draw any opaque and translucent
   // geometry. This includes both vtkActors and vtkVolumes
@@ -709,6 +723,12 @@ protected:
 
   bool TexturedBackground;
   vtkTexture* BackgroundTexture;
+
+  friend class vtkRenderPass;
+  vtkRenderPass *Pass;
+
+  // Arbitrary extra information associated with this renderer
+  vtkInformation* Information;
 
 private:
   vtkRenderer(const vtkRenderer&);  // Not implemented.

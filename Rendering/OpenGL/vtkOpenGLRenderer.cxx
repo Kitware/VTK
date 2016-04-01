@@ -51,7 +51,6 @@ public:
 vtkStandardNewMacro(vtkOpenGLRenderer);
 
 vtkCxxSetObjectMacro(vtkOpenGLRenderer,ShaderProgram,vtkShaderProgram2);
-vtkCxxSetObjectMacro(vtkOpenGLRenderer, Pass, vtkRenderPass);
 
 #define VTK_MAX_LIGHTS 8
 
@@ -84,7 +83,6 @@ vtkOpenGLRenderer::vtkOpenGLRenderer()
 
   this->ShaderProgram=0;
   this->BackgroundTexture = 0;
-  this->Pass = 0;
 }
 
 // Internal method temporarily removes lights before reloading them
@@ -1086,15 +1084,6 @@ void vtkOpenGLRenderer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PickedId" << this->PickInfo->PickedId<< "\n";
   os << indent << "NumPicked" << this->PickInfo->NumPicked<< "\n";
   os << indent << "PickedZ " << this->PickedZ << "\n";
-  os << indent << "Pass:";
-  if(this->Pass!=0)
-    {
-      os << "exists" << endl;
-    }
-  else
-    {
-      os << "null" << endl;
-    }
 }
 
 

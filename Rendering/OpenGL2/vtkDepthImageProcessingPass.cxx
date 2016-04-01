@@ -184,7 +184,8 @@ void vtkDepthImageProcessingPass::ReadWindowSize(const vtkRenderState* s)
 {
     assert("pre: s_exists" && s!=0);
 
-    vtkFrameBufferObject *fbo=s->GetFrameBuffer();
+    vtkFrameBufferObject *fbo=vtkFrameBufferObject::SafeDownCast
+      (s->GetFrameBuffer());
     vtkRenderer *r = s->GetRenderer();
     if(fbo==0)
     {

@@ -23,7 +23,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkgluPickMatrix.h"
 #include "vtkCamera.h"
-#include "vtkFrameBufferObject.h"
+#include "vtkFrameBufferObjectBase.h"
 #include "vtkOpenGLError.h"
 
 vtkStandardNewMacro(vtkCameraPass);
@@ -108,7 +108,7 @@ void vtkCameraPass::Render(const vtkRenderState *s)
   int vsize;
   vtkMatrix4x4 *matrix=vtkMatrix4x4::New();
 
-  vtkFrameBufferObject *fbo=s->GetFrameBuffer();
+  vtkFrameBufferObjectBase *fbo=s->GetFrameBuffer();
 
   if(fbo==0)
     {

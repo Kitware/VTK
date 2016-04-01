@@ -15,7 +15,7 @@
 
 #include "vtkRenderPass.h"
 #include <cassert>
-#include "vtkOpenGLRenderer.h"
+#include "vtkRenderer.h"
 
 // ----------------------------------------------------------------------------
 // Description:
@@ -59,12 +59,10 @@ void vtkRenderPass::UpdateCamera(vtkRenderer *renderer)
 // Description:
 // Call ClearLights() on Renderer. See note about UpdateCamera().
 // \pre renderer_exists: renderer!=0
-void vtkRenderPass::ClearLights(vtkRenderer *vtkNotUsed(renderer))
+void vtkRenderPass::ClearLights(vtkRenderer *renderer)
 {
   //  assert("pre: renderer_exists" && renderer != 0);
-  /// FIXME: What to do if there is no clear lights? Remove this API?
-  //vtkOpenGLRenderer *oRenderer = vtkOpenGLRenderer::SafeDownCast(renderer);
-  //oRenderer->ClearLights();
+  renderer->ClearLights();
 }
 
 // ----------------------------------------------------------------------------
@@ -95,6 +93,15 @@ void vtkRenderPass::UpdateGeometry(vtkRenderer *renderer)
 {
   assert("pre: renderer_exists" && renderer != 0);
   renderer->UpdateGeometry();
+}
+
+// ----------------------------------------------------------------------------
+void vtkRenderPass::SetLastRenderingUsedDepthPeeling(vtkRenderer *renderer,
+                                                     bool value)
+{
+  assert("pre: renderer_exists" && renderer != 0);
+
+  renderer->LastRenderingUsedDepthPeeling = value;
 }
 
 // ----------------------------------------------------------------------------
