@@ -705,7 +705,6 @@ void vtkCocoaRenderWindow::CreateAWindow()
 
     NSWindow* theWindow = nil;
 
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1060
     NSScreen *screen = [NSScreen mainScreen];
     if (this->FullScreen && screen)
       {
@@ -725,7 +724,6 @@ void vtkCocoaRenderWindow::CreateAWindow()
       //[theWindow setLevel:NSFloatingWindowLevel];
       }
     else
-#endif
       {
       if ((this->Size[0]+this->Size[1]) == 0)
         {
@@ -877,7 +875,7 @@ void vtkCocoaRenderWindow::CreateGLContext()
     attribs[i++] = NSOpenGLPFAOpenGLProfile;
     attribs[i++] = NSOpenGLProfileVersion3_2Core;
 #endif
-  //  OSX always preferrs an accelerated context
+  //  OS X always prefers an accelerated context
   //    attribs[i++] = NSOpenGLPFAAccelerated;
     attribs[i++] = NSOpenGLPFADepthSize;
     attribs[i++] = (NSOpenGLPixelFormatAttribute)32;
@@ -928,7 +926,7 @@ void vtkCocoaRenderWindow::CreateGLContext()
       }
     else
       {
-#if defined(MAC_OS_X_VERSION_MIN_REQUIRED) && MAC_OS_X_VERSION_MIN_REQUIRED > MAC_OS_X_VERSION_10_6
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
       this->SetContextSupportsOpenGL32(true);
 #else
       this->SetContextSupportsOpenGL32(false);

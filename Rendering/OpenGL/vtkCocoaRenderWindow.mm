@@ -737,7 +737,6 @@ void vtkCocoaRenderWindow::CreateAWindow()
 
     NSWindow* theWindow = nil;
 
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1060
     NSScreen *screen = [NSScreen mainScreen];
     if (this->FullScreen && screen)
       {
@@ -757,7 +756,6 @@ void vtkCocoaRenderWindow::CreateAWindow()
       //[theWindow setLevel:NSFloatingWindowLevel];
       }
     else
-#endif
       {
       if ((this->Size[0]+this->Size[1]) == 0)
         {
