@@ -149,7 +149,7 @@ AddArrays(vtkIdType numOutPts, vtkDataSetAttributes *inPD, vtkDataSetAttributes 
         oArray->SetNumberOfTuples(numOutPts);
 
         assert( iNumComp == oNumComp );
-        if ( (iType == oType) )
+        if ( iType == oType )
           {
           iD = iArray->GetVoidPointer(0);
           oD = oArray->GetVoidPointer(0);
