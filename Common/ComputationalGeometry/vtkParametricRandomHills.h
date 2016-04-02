@@ -132,14 +132,6 @@ public:
   vtkGetMacro(AmplitudeScaleFactor,double);
 
   // Description:
-  // Generate the centers of the hills, their standard deviations and
-  // their amplitudes. This function creates a series of vectors representing
-  // the u, v coordinates of each hill, its variance in the u, v directions and
-  // the amplitude.
-  // \deprecated 6.2 This function is no longer needed.
-  VTK_LEGACY(void GenerateTheHills(void));
-
-  // Description:
   // Construct a terrain consisting of hills on a surface.
   //
   // This function performs the mapping \f$f(u,v) \rightarrow (x,y,x)\f$, returning it
