@@ -208,6 +208,10 @@ public:
   vtkBooleanMacro(PassFieldArrays, bool);
   vtkGetMacro(PassFieldArrays, bool);
 
+  // Description:
+  // Get the MTime of this object also considering the locator and kernel.
+  unsigned long int GetMTime();
+
 protected:
   vtkPointInterpolator();
   ~vtkPointInterpolator();

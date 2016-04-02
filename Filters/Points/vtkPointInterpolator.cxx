@@ -23,6 +23,7 @@
 #include "vtkImageData.h"
 #include "vtkPoints.h"
 #include "vtkCharArray.h"
+#include "vtkFloatArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkCellData.h"
 #include "vtkPointData.h"
@@ -485,6 +486,24 @@ int vtkPointInterpolator::RequestUpdateExtent(
     6);
 
   return 1;
+}
+
+//--------------------------------------------------------------------------
+unsigned long int vtkPointInterpolator::GetMTime()
+{
+  unsigned long mTime=this->vtkObject::GetMTime();
+  unsigned long mTime2;
+  if ( this->Locator != NULL )
+    {
+    mTime2 = this->Locator->GetMTime();
+    mTime = ( mTime2 > mTime ? mTime2 : mTime );
+    }
+  if ( this->Kernel != NULL )
+    {
+    mTime2 = this->Kernel->GetMTime();
+    mTime = ( mTime2 > mTime ? mTime2 : mTime );
+    }
+  return mTime;
 }
 
 //----------------------------------------------------------------------------

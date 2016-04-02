@@ -12,15 +12,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSPHCubicKernel - a quintic SPH interpolation kernel
+// .NAME vtkSPHCubicKernel - a cubic SPH interpolation kernel
 
 // .SECTION Description
 // vtkSPHCubicKernel is an smooth particle hydrodynamics interpolation kernel as
-// described by D.J. Price. This is a quintic formulation.
+// described by D.J. Price. This is a cubic formulation.
 //
 // .SECTION Caveats
-// See D.J. Price, Smoothed particle hydrodynamics and magnetohydrodynamics,
-// J. Comput. Phys. 231:759-794, 2012. Especially equation 49.
+// For more information see D.J. Price, Smoothed particle hydrodynamics and
+// magnetohydrodynamics, J. Comput. Phys. 231:759-794, 2012. Especially
+// equation 49.
+
+// .SECTION Acknowledgments
+// The following work has been generously supported by Altair Engineering
+// and FluiDyna GmbH, Please contact Steve Cosgrove or Milos Stanic for
+// more information.
 
 // .SECTION See Also
 // vtkSPHKernel vtkSPHInterpolator

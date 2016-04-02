@@ -24,6 +24,7 @@
 #include "vtkPolyData.h"
 #include "vtkPoints.h"
 #include "vtkCharArray.h"
+#include "vtkFloatArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkCellData.h"
 #include "vtkPointData.h"

@@ -51,10 +51,15 @@
 // closest points within R are requested to interpolate p, if N=0 then the
 // interpolation will switch to a different strategy (which can be controlled
 // as in the NullPointsStrategy).
-
-// .SECTION Caveats
-// See D.J. Price, Smoothed particle hydrodynamics and magnetohydrodynamics,
+//
+// For more information and technical reference, see D.J. Price, Smoothed
+// particle hydrodynamics and magnetohydrodynamics,
 // J. Comput. Phys. 231:759-794, 2012. Especially equation 49.
+
+// .SECTION Acknowledgments
+// The following work has been generously supported by Altair Engineering
+// and FluiDyna GmbH, Please contact Steve Cosgrove or Milos Stanic for
+// more information.
 
 // .SECTION See Also
 // vtkPointInterpolator vtkSPHKernel vtkSPHQuinticKernel
@@ -251,6 +256,15 @@ public:
   vtkGetMacro(ShepardSumArrayName, vtkStdString);
 
   // Description:
+  // If enabled, then input arrays that are non-real types (i.e., not float
+  // or double) are promoted to float type on output. This is because the
+  // interpolation process may not be well behaved when integral types are
+  // combined using interpolation weights.
+  vtkSetMacro(PromoteOutput, bool);
+  vtkBooleanMacro(PromoteOutput, bool);
+  vtkGetMacro(PromoteOutput, bool);
+
+  // Description:
   // Indicate whether to shallow copy the input point data arrays to the
   // output. On by default.
   vtkSetMacro(PassPointArrays, bool);
@@ -270,6 +284,10 @@ public:
   vtkSetMacro(PassFieldArrays, bool);
   vtkBooleanMacro(PassFieldArrays, bool);
   vtkGetMacro(PassFieldArrays, bool);
+
+  // Description:
+  // Get the MTime of this object also considering the locator and kernel.
+  unsigned long int GetMTime();
 
 protected:
   vtkSPHInterpolator();
@@ -292,6 +310,8 @@ protected:
   bool ComputeShepardSum;
   vtkStdString ShepardSumArrayName;
   vtkFloatArray *ShepardSumArray;
+
+  bool PromoteOutput;
 
   bool PassCellArrays;
   bool PassPointArrays;

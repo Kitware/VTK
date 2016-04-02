@@ -29,11 +29,16 @@
 // By default the kernel computes local particle volume from the spatial step^3.
 // However, if both an optional mass and density arrays are provided then they are
 // used to compute local volume.
-//
 
 // .SECTION Caveats
-// See D.J. Price, Smoothed particle hydrodynamics and magnetohydrodynamics,
-// J. Comput. Phys. 231:759-794, 2012. Especially equation 49.
+// For more information see D.J. Price, Smoothed particle hydrodynamics and
+// magnetohydrodynamics, J. Comput. Phys. 231:759-794, 2012. Especially
+// equation 49.
+
+// .SECTION Acknowledgments
+// The following work has been generously supported by Altair Engineering
+// and FluiDyna GmbH, Please contact Steve Cosgrove or Milos Stanic for
+// more information.
 
 // .SECTION See Also
 // vtkSPHKernel vtkSPHQuinticKernel vtkInterpolationKernel vtkGaussianKernel
