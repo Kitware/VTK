@@ -167,7 +167,7 @@ AddArrays(vtkIdType numOutPts, vtkDataSetAttributes *inPD, vtkDataSetAttributes 
           switch (iType)
             {
             vtkTemplateMacro(CreateRealArrayPair(this, static_cast<VTK_TT *>(iD),
-                             static_cast<float*>(oD),numOutPts,oNumComp,
+                             static_cast<float*>(oD),numOutPts,iNumComp,
                              oArray,static_cast<float>(nullValue)));
             }//over all VTK types
           }//if promoted pair
