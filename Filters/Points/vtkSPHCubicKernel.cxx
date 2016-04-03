@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSPHQuinticKernel.cxx
+  Module:    vtkSPHCubicKernel.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,40 +12,39 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkSPHQuinticKernel.h"
+#include "vtkSPHCubicKernel.h"
 #include "vtkAbstractPointLocator.h"
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 
-vtkStandardNewMacro(vtkSPHQuinticKernel);
+vtkStandardNewMacro(vtkSPHCubicKernel);
 
 //----------------------------------------------------------------------------
-vtkSPHQuinticKernel::vtkSPHQuinticKernel()
+vtkSPHCubicKernel::vtkSPHCubicKernel()
 {
-  this->CutoffFactor = 3.0;
+  this->CutoffFactor = 2.0;
 
   if ( this->Dimension == 1 )
     {
-    this->Sigma = 1.0 / 120.0;
+    this->Sigma = 2.0/3.0;
     }
   else if ( this->Dimension == 2 )
     {
-    this->Sigma = 7.0/(478.0*vtkMath::Pi());
+    this->Sigma = 10.0/(7.0*vtkMath::Pi());
     }
   else //if ( this->Dimension == 3 )
     {
-    this->Sigma = 1.0/(120.0*vtkMath::Pi());
+      this->Sigma = 1.0/vtkMath::Pi();
     }
 }
 
 //----------------------------------------------------------------------------
-vtkSPHQuinticKernel::~vtkSPHQuinticKernel()
+vtkSPHCubicKernel::~vtkSPHCubicKernel()
 {
 }
 
-
 //----------------------------------------------------------------------------
-void vtkSPHQuinticKernel::PrintSelf(ostream& os, vtkIndent indent)
+void vtkSPHCubicKernel::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }
