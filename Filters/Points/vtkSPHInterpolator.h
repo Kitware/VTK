@@ -260,9 +260,9 @@ public:
   // or double) are promoted to float type on output. This is because the
   // interpolation process may not be well behaved when integral types are
   // combined using interpolation weights.
-  vtkSetMacro(PromoteOutput, bool);
-  vtkBooleanMacro(PromoteOutput, bool);
-  vtkGetMacro(PromoteOutput, bool);
+  vtkSetMacro(PromoteOutputArrays, bool);
+  vtkBooleanMacro(PromoteOutputArrays, bool);
+  vtkGetMacro(PromoteOutputArrays, bool);
 
   // Description:
   // Indicate whether to shallow copy the input point data arrays to the
@@ -287,7 +287,7 @@ public:
 
   // Description:
   // Get the MTime of this object also considering the locator and kernel.
-  unsigned long int GetMTime();
+  unsigned long GetMTime();
 
 protected:
   vtkSPHInterpolator();
@@ -311,7 +311,7 @@ protected:
   vtkStdString ShepardSumArrayName;
   vtkFloatArray *ShepardSumArray;
 
-  bool PromoteOutput;
+  bool PromoteOutputArrays;
 
   bool PassCellArrays;
   bool PassPointArrays;

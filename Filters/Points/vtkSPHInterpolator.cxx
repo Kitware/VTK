@@ -80,7 +80,7 @@ struct ProbePoints
       this->Locator = sphInt->GetLocator();
       this->Strategy = sphInt->GetNullPointsStrategy();
       double nullV = sphInt->GetNullValue();
-      this->Promote = sphInt->GetPromoteOutput();
+      this->Promote = sphInt->GetPromoteOutputArrays();
 
       // Manage arrays for interpolation
       for (int i=0; i < sphInt->GetNumberOfExcludedArrays(); ++i)
@@ -294,7 +294,7 @@ vtkSPHInterpolator::vtkSPHInterpolator()
   this->ComputeShepardSum = true;
   this->ShepardSumArrayName = "Shepard Summation";
 
-  this->PromoteOutput = true;
+  this->PromoteOutputArrays = true;
 
   this->PassPointArrays = true;
   this->PassCellArrays = true;
@@ -573,9 +573,9 @@ int vtkSPHInterpolator::RequestUpdateExtent(
 }
 
 //--------------------------------------------------------------------------
-unsigned long int vtkSPHInterpolator::GetMTime()
+unsigned long vtkSPHInterpolator::GetMTime()
 {
-  unsigned long mTime=this->vtkObject::GetMTime();
+  unsigned long mTime=this->Superclass::GetMTime();
   unsigned long mTime2;
   if ( this->Locator != NULL )
     {
