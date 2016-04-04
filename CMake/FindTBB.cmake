@@ -90,7 +90,7 @@ macro(findpkg_finish PREFIX)
 endmacro()
 
 #===============================================
-# Generate debug names from given RELEASEease names
+# Generate debug names from given release names
 #===============================================
 macro(get_debug_names PREFIX)
   foreach(i ${${PREFIX}})
@@ -110,7 +110,7 @@ macro(getenv_path VAR)
 endmacro()
 
 #===============================================
-# Couple a set of RELEASEease AND debug libraries
+# Couple a set of release AND debug libraries
 #===============================================
 macro(make_library_set PREFIX)
   if (${PREFIX}_RELEASE AND ${PREFIX}_DEBUG)
