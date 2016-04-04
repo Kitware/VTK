@@ -1,29 +1,36 @@
-#ifndef DIY_DETAIL_ALGORITHMS_KDTREE_HPP
-#define DIY_DETAIL_ALGORITHMS_KDTREE_HPP
+#ifndef DIY_DETAIL_ALGORITHMS_KDTREE_SAMPLING_HPP
+#define DIY_DETAIL_ALGORITHMS_KDTREE_SAMPLING_HPP
 
 #include <vector>
 #include <cassert>
 #include "../../partners/all-reduce.hpp"
+
+// TODO: technically, what's done now is not a perfect subsample:
+//       we take the same number of samples from every block, in reality this number should be selected at random,
+//       so that the total number of samples adds up to samples*nblocks
+//
+// NB: random samples are chosen using rand(), which is assumed to be seeded
+//     externally. Once we switch to C++11, we should use its more advanced
+//     random number generators (and take a generator as an external parameter)
+//     (TODO)
 
 namespace diy
 {
 namespace detail
 {
 
-struct KDTreePartners;
-
 template<class Block, class Point>
-struct KDTreePartition
+struct KDTreeSamplingPartition
 {
     typedef     diy::RegularContinuousLink      RCLink;
     typedef     diy::ContinuousBounds           Bounds;
 
-    typedef     std::vector<size_t>             Histogram;
+    typedef     std::vector<float>              Samples;
 
-                KDTreePartition(int                             dim,
-                                std::vector<Point>  Block::*    points,
-                                size_t                          bins):
-                    dim_(dim), points_(points), bins_(bins)            {}
+                KDTreeSamplingPartition(int                             dim,
+                                        std::vector<Point>  Block::*    points,
+                                        size_t                          samples):
+                    dim_(dim), points_(points), samples_(samples)           {}
 
     void        operator()(void* b_, const diy::ReduceProxy& srp, const KDTreePartners& partners) const;
 
@@ -33,12 +40,12 @@ struct KDTreePartition
     diy::Direction
                 find_wrap(const Bounds& bounds, const Bounds& nbr_bounds, const Bounds& domain) const;
 
-    void        compute_local_histogram(Block* b, const diy::ReduceProxy& srp, int dim) const;
-    void        add_histogram(Block* b, const diy::ReduceProxy& srp, Histogram& histogram) const;
-    void        receive_histogram(Block* b, const diy::ReduceProxy& srp,       Histogram& histogram) const;
-    void        forward_histogram(Block* b, const diy::ReduceProxy& srp, const Histogram& histogram) const;
+    void        compute_local_samples(Block* b, const diy::ReduceProxy& srp, int dim) const;
+    void        add_samples(Block* b, const diy::ReduceProxy& srp, Samples& samples) const;
+    void        receive_samples(Block* b, const diy::ReduceProxy& srp,       Samples& samples) const;
+    void        forward_samples(Block* b, const diy::ReduceProxy& srp, const Samples& samples) const;
 
-    void        enqueue_exchange(Block* b, const diy::ReduceProxy& srp, int dim, const Histogram& histogram) const;
+    void        enqueue_exchange(Block* b, const diy::ReduceProxy& srp, int dim, const Samples& samples) const;
     void        dequeue_exchange(Block* b, const diy::ReduceProxy& srp, int dim) const;
 
     void        update_neighbor_bounds(Bounds& bounds, float split, int dim, bool lower) const;
@@ -47,126 +54,16 @@ struct KDTreePartition
 
     int                             dim_;
     std::vector<Point>  Block::*    points_;
-    size_t                          bins_;
+    size_t                          samples_;
 };
 
 }
 }
 
-struct diy::detail::KDTreePartners
-{
-  // bool = are we in a swap (vs histogram) round
-  // int  = round within that partner
-  typedef           std::pair<bool, int>                    RoundType;
-  typedef           diy::ContinuousBounds                   Bounds;
-
-                    KDTreePartners(int dim, int nblocks, bool wrap_, const Bounds& domain_):
-                        decomposer(1, interval(0,nblocks-1), nblocks),
-                        histogram(decomposer, 2),
-                        swap(decomposer, 2, false),
-                        wrap(wrap_),
-                        domain(domain_)
-  {
-    for (unsigned i = 0; i < swap.rounds(); ++i)
-    {
-      // fill histogram rounds
-      for (unsigned j = 0; j < histogram.rounds(); ++j)
-      {
-        rounds_.push_back(std::make_pair(false, j));
-        dim_.push_back(i % dim);
-        if (j == histogram.rounds() / 2 - 1 - i)
-            j += 2*i;
-      }
-
-      // fill swap round
-      rounds_.push_back(std::make_pair(true, i));
-      dim_.push_back(i % dim);
-
-      // fill link round
-      rounds_.push_back(std::make_pair(true, -1));          // (true, -1) signals link round
-      dim_.push_back(i % dim);
-    }
-  }
-
-  size_t        rounds() const                              { return rounds_.size(); }
-  size_t        swap_rounds() const                         { return swap.rounds(); }
-
-  int           dim(int round) const                        { return dim_[round]; }
-  bool          swap_round(int round) const                 { return rounds_[round].first; }
-  int           sub_round(int round) const                  { return rounds_[round].second; }
-
-  inline bool   active(int round, int gid, const diy::Master& m) const
-  {
-    if (round == (int) rounds())
-        return true;
-    else if (swap_round(round) && sub_round(round) < 0)     // link round
-        return true;
-    else if (swap_round(round))
-        return swap.active(sub_round(round), gid, m);
-    else
-        return histogram.active(sub_round(round), gid, m);
-  }
-
-  inline void   incoming(int round, int gid, std::vector<int>& partners, const diy::Master& m) const
-  {
-    if (round == (int) rounds())
-        link_neighbors(-1, gid, partners, m);
-    else if (swap_round(round) && sub_round(round) < 0)       // link round
-        swap.incoming(sub_round(round - 1) + 1, gid, partners, m);
-    else if (swap_round(round))
-        histogram.incoming(histogram.rounds(), gid, partners, m);
-    else
-    {
-        if (round > 0 && sub_round(round) == 0)
-            link_neighbors(-1, gid, partners, m);
-        else if (round > 0 && sub_round(round - 1) != sub_round(round) - 1)        // jump through the histogram rounds
-            histogram.incoming(sub_round(round - 1) + 1, gid, partners, m);
-        else
-            histogram.incoming(sub_round(round), gid, partners, m);
-    }
-  }
-
-  inline void   outgoing(int round, int gid, std::vector<int>& partners, const diy::Master& m) const
-  {
-    if (round == (int) rounds())
-        swap.outgoing(sub_round(round-1) + 1, gid, partners, m);
-    else if (swap_round(round) && sub_round(round) < 0)       // link round
-        link_neighbors(-1, gid, partners, m);
-    else if (swap_round(round))
-        swap.outgoing(sub_round(round), gid, partners, m);
-    else
-        histogram.outgoing(sub_round(round), gid, partners, m);
-  }
-
-  inline void   link_neighbors(int, int gid, std::vector<int>& partners, const diy::Master& m) const
-  {
-    int         lid  = m.lid(gid);
-    diy::Link*  link = m.link(lid);
-
-    std::set<int> result;       // partners must be unique
-    for (int i = 0; i < link->size(); ++i)
-        result.insert(link->target(i).gid);
-
-    for (std::set<int>::const_iterator it = result.begin(); it != result.end(); ++it)
-        partners.push_back(*it);
-  }
-
-  // 1-D domain to feed into histogram and swap
-  diy::RegularDecomposer<diy::DiscreteBounds>   decomposer;
-
-  diy::RegularAllReducePartners     histogram;
-  diy::RegularSwapPartners          swap;
-
-  std::vector<RoundType>            rounds_;
-  std::vector<int>                  dim_;
-
-  bool                              wrap;
-  Bounds                            domain;
-};
 
 template<class Block, class Point>
 void
-diy::detail::KDTreePartition<Block,Point>::
+diy::detail::KDTreeSamplingPartition<Block,Point>::
 operator()(void* b_, const diy::ReduceProxy& srp, const KDTreePartners& partners) const
 {
     Block* b = static_cast<Block*>(b_);
@@ -186,9 +83,9 @@ operator()(void* b_, const diy::ReduceProxy& srp, const KDTreePartners& partners
     }
     else if (partners.swap_round(srp.round()))
     {
-        Histogram   histogram;
-        receive_histogram(b, srp, histogram);
-        enqueue_exchange(b, srp, dim, histogram);
+        Samples samples;
+        receive_samples(b, srp, samples);
+        enqueue_exchange(b, srp, dim, samples);
     } else if (partners.sub_round(srp.round()) == 0)
     {
         if (srp.round() > 0)
@@ -199,24 +96,32 @@ operator()(void* b_, const diy::ReduceProxy& srp, const KDTreePartners& partners
             update_links(b, srp, prev_dim, partners.sub_round(srp.round() - 2), partners.swap_rounds(), partners.wrap, partners.domain);    // -1 would be the "uninformative" link round
         }
 
-        compute_local_histogram(b, srp, dim);
-    } else if (partners.sub_round(srp.round()) < (int) partners.histogram.rounds()/2)
+        compute_local_samples(b, srp, dim);
+    } else if (partners.sub_round(srp.round()) < (int) partners.histogram.rounds()/2)     // we are reusing partners class, so really we are talking about the samples rounds here
     {
-        Histogram   histogram(bins_);
-        add_histogram(b, srp, histogram);
-        srp.enqueue(srp.out_link().target(0), histogram);
-    }
-    else
+        Samples samples;
+        add_samples(b, srp, samples);
+        srp.enqueue(srp.out_link().target(0), samples);
+    } else
     {
-        Histogram   histogram(bins_);
-        add_histogram(b, srp, histogram);
-        forward_histogram(b, srp, histogram);
+        Samples samples;
+        add_samples(b, srp, samples);
+        if (samples.size() != 1)
+        {
+            // pick the median
+            std::nth_element(samples.begin(), samples.begin() + samples.size()/2, samples.end());
+            std::swap(samples[0], samples[samples.size()/2]);
+            //std::sort(samples.begin(), samples.end());
+            //samples[0] = (samples[samples.size()/2] + samples[samples.size()/2 + 1])/2;
+            samples.resize(1);
+        }
+        forward_samples(b, srp, samples);
     }
 }
 
 template<class Block, class Point>
 int
-diy::detail::KDTreePartition<Block,Point>::
+diy::detail::KDTreeSamplingPartition<Block,Point>::
 divide_gid(int gid, bool lower, int round, int rounds) const
 {
     if (lower)
@@ -229,7 +134,7 @@ divide_gid(int gid, bool lower, int round, int rounds) const
 // round here is the outer iteration of the algorithm
 template<class Block, class Point>
 void
-diy::detail::KDTreePartition<Block,Point>::
+diy::detail::KDTreeSamplingPartition<Block,Point>::
 update_links(Block* b, const diy::ReduceProxy& srp, int dim, int round, int rounds, bool wrap, const Bounds& domain) const
 {
     int         gid  = srp.gid();
@@ -258,6 +163,7 @@ update_links(Block* b, const diy::ReduceProxy& srp, int dim, int round, int roun
                 dir[j] = -dir[j];
 
             int k = link_map[std::make_pair(in_gid, dir)];
+            //printf("%d %d %f -> %d\n", in_gid, dir, split, k);
             splits[k] = split;
         }
     }
@@ -269,7 +175,7 @@ update_links(Block* b, const diy::ReduceProxy& srp, int dim, int round, int roun
     // fill out the new link
     for (int i = 0; i < link->size(); ++i)
     {
-        diy::Direction  dir      = link->direction(i);
+        diy::Direction  dir = link->direction(i);
         //diy::Direction  wrap_dir = link->wrap(i);     // we don't use existing wrap, but restore it from scratch
         if (dir[dim] != 0)
         {
@@ -346,7 +252,7 @@ update_links(Block* b, const diy::ReduceProxy& srp, int dim, int round, int roun
 
 template<class Block, class Point>
 void
-diy::detail::KDTreePartition<Block,Point>::
+diy::detail::KDTreeSamplingPartition<Block,Point>::
 split_to_neighbors(Block* b, const diy::ReduceProxy& srp, int dim) const
 {
     int         lid  = srp.master()->lid(srp.gid());
@@ -364,71 +270,61 @@ split_to_neighbors(Block* b, const diy::ReduceProxy& srp, int dim) const
 
 template<class Block, class Point>
 void
-diy::detail::KDTreePartition<Block,Point>::
-compute_local_histogram(Block* b, const diy::ReduceProxy& srp, int dim) const
+diy::detail::KDTreeSamplingPartition<Block,Point>::
+compute_local_samples(Block* b, const diy::ReduceProxy& srp, int dim) const
 {
-    int         lid  = srp.master()->lid(srp.gid());
-    RCLink*     link = static_cast<RCLink*>(srp.master()->link(lid));
-
-    // compute and enqueue local histogram
-    Histogram histogram(bins_);
-
-    float   width = (link->core().max[dim] - link->core().min[dim])/bins_;
-    for (size_t i = 0; i < (b->*points_).size(); ++i)
+    // compute and enqueue local samples
+    Samples samples;
+    size_t points_size = (b->*points_).size();
+    size_t n = std::min(points_size, samples_);
+    samples.reserve(n);
+    for (size_t i = 0; i < n; ++i)
     {
-        float x = (b->*points_)[i][dim];
-        int loc = (x - link->core().min[dim]) / width;
-        if (loc < 0)
-        {
-            std::cerr << loc << " " << x << " " << link->core().min[dim] << std::endl;
-            std::abort();
-        }
-        if (loc >= (int) bins_)
-            loc = bins_ - 1;
-        ++(histogram[loc]);
+        float x = (b->*points_)[rand() % points_size][dim];
+        samples.push_back(x);
     }
 
-    srp.enqueue(srp.out_link().target(0), histogram);
+    srp.enqueue(srp.out_link().target(0), samples);
 }
 
 template<class Block, class Point>
 void
-diy::detail::KDTreePartition<Block,Point>::
-add_histogram(Block* b, const diy::ReduceProxy& srp, Histogram& histogram) const
+diy::detail::KDTreeSamplingPartition<Block,Point>::
+add_samples(Block* b, const diy::ReduceProxy& srp, Samples& samples) const
 {
-    // dequeue and add up the histograms
+    // dequeue and combine the samples
     for (int i = 0; i < srp.in_link().size(); ++i)
     {
         int nbr_gid = srp.in_link().target(i).gid;
 
-        Histogram hist;
-        srp.dequeue(nbr_gid, hist);
-        for (size_t i = 0; i < hist.size(); ++i)
-            histogram[i] += hist[i];
+        Samples smpls;
+        srp.dequeue(nbr_gid, smpls);
+        for (size_t i = 0; i < smpls.size(); ++i)
+            samples.push_back(smpls[i]);
     }
 }
 
 template<class Block, class Point>
 void
-diy::detail::KDTreePartition<Block,Point>::
-receive_histogram(Block* b, const diy::ReduceProxy& srp, Histogram& histogram) const
+diy::detail::KDTreeSamplingPartition<Block,Point>::
+receive_samples(Block* b, const diy::ReduceProxy& srp, Samples& samples) const
 {
-    srp.dequeue(srp.in_link().target(0).gid, histogram);
+    srp.dequeue(srp.in_link().target(0).gid, samples);
 }
 
 template<class Block, class Point>
 void
-diy::detail::KDTreePartition<Block,Point>::
-forward_histogram(Block* b, const diy::ReduceProxy& srp, const Histogram& histogram) const
+diy::detail::KDTreeSamplingPartition<Block,Point>::
+forward_samples(Block* b, const diy::ReduceProxy& srp, const Samples& samples) const
 {
     for (int i = 0; i < srp.out_link().size(); ++i)
-        srp.enqueue(srp.out_link().target(i), histogram);
+        srp.enqueue(srp.out_link().target(i), samples);
 }
 
 template<class Block, class Point>
 void
-diy::detail::KDTreePartition<Block,Point>::
-enqueue_exchange(Block* b, const diy::ReduceProxy& srp, int dim, const Histogram& histogram) const
+diy::detail::KDTreeSamplingPartition<Block,Point>::
+enqueue_exchange(Block* b, const diy::ReduceProxy& srp, int dim, const Samples& samples) const
 {
     int         lid  = srp.master()->lid(srp.gid());
     RCLink*     link = static_cast<RCLink*>(srp.master()->link(lid));
@@ -439,24 +335,7 @@ enqueue_exchange(Block* b, const diy::ReduceProxy& srp, int dim, const Histogram
         return;
 
     // pick split points
-    size_t total = 0;
-    for (size_t i = 0; i < histogram.size(); ++i)
-        total += histogram[i];
-    //fprintf(stderr, "Histogram total: %lu\n", total);
-
-    size_t cur   = 0;
-    float  width = (link->core().max[dim] - link->core().min[dim])/bins_;
-    float  split = 0;
-    for (size_t i = 0; i < histogram.size(); ++i)
-    {
-        if (cur + histogram[i] > total/2)
-        {
-            split = link->core().min[dim] + width*i;
-            break;
-        }
-        cur += histogram[i];
-    }
-    //std::cout << "Found split: " << split << " (dim=" << dim << ") in " << link->core().min[dim] << " - " << link->core().max[dim] << std::endl;
+    float split = samples[0];
 
     // subset and enqueue
     std::vector< std::vector<Point> > out_points(srp.out_link().size());
@@ -485,7 +364,7 @@ enqueue_exchange(Block* b, const diy::ReduceProxy& srp, int dim, const Histogram
 
 template<class Block, class Point>
 void
-diy::detail::KDTreePartition<Block,Point>::
+diy::detail::KDTreeSamplingPartition<Block,Point>::
 dequeue_exchange(Block* b, const diy::ReduceProxy& srp, int dim) const
 {
     int         lid  = srp.master()->lid(srp.gid());
@@ -514,7 +393,7 @@ dequeue_exchange(Block* b, const diy::ReduceProxy& srp, int dim) const
 
 template<class Block, class Point>
 void
-diy::detail::KDTreePartition<Block,Point>::
+diy::detail::KDTreeSamplingPartition<Block,Point>::
 update_neighbor_bounds(Bounds& bounds, float split, int dim, bool lower) const
 {
     if (lower)
@@ -525,7 +404,7 @@ update_neighbor_bounds(Bounds& bounds, float split, int dim, bool lower) const
 
 template<class Block, class Point>
 bool
-diy::detail::KDTreePartition<Block,Point>::
+diy::detail::KDTreeSamplingPartition<Block,Point>::
 intersects(const Bounds& x, const Bounds& y, int dim, bool wrap, const Bounds& domain) const
 {
     if (wrap)
@@ -540,7 +419,7 @@ intersects(const Bounds& x, const Bounds& y, int dim, bool wrap, const Bounds& d
 
 template<class Block, class Point>
 float
-diy::detail::KDTreePartition<Block,Point>::
+diy::detail::KDTreeSamplingPartition<Block,Point>::
 find_split(const Bounds& changed, const Bounds& original) const
 {
     for (int i = 0; i < dim_; ++i)
@@ -556,7 +435,7 @@ find_split(const Bounds& changed, const Bounds& original) const
 
 template<class Block, class Point>
 diy::Direction
-diy::detail::KDTreePartition<Block,Point>::
+diy::detail::KDTreeSamplingPartition<Block,Point>::
 find_wrap(const Bounds& bounds, const Bounds& nbr_bounds, const Bounds& domain) const
 {
     diy::Direction wrap;

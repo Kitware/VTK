@@ -20,12 +20,12 @@ struct RegularSwapPartners: public RegularPartners
                 // contiguous parameter indicates whether to match partners contiguously or in a round-robin fashion;
                 // contiguous is useful when data needs to be united;
                 // round-robin is useful for vector-"halving"
-                RegularSwapPartners(int dim,               //!< dimensionality of regular block grid
-                                    int nblocks,           //!< total number of blocks
-                                    int k,                 //!< target k value
-                                    bool contiguous = true //!< distance halving (true) or doubling (false)
+  template<class Decomposer>
+                RegularSwapPartners(const Decomposer& decomposer,   //!< domain decomposition
+                                    int k,                          //!< target k value
+                                    bool contiguous = true          //!< distance halving (true) or doubling (false)
                     ):
-                    Parent(dim, nblocks, k, contiguous)         {}
+                    Parent(decomposer, k, contiguous)         {}
                 RegularSwapPartners(const DivisionVector&   divs, //!< explicit division vector
                                     const KVSVector&        kvs,  //!< explicit k vector
                                     bool  contiguous = true       //!< distance halving (true) or doubling (false)
