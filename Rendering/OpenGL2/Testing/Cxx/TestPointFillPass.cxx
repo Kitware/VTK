@@ -20,6 +20,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 
+#include "vtkCameraPass.h"
 #include "vtkNew.h"
 #include "vtkPLYReader.h"
 #include "vtkProperty.h"
@@ -111,7 +112,9 @@ int TestPointFillPass(int argc, char* argv[])
   vtkNew<vtkPointFillPass> pfp;
   pfp->SetDelegatePass(basicPasses.Get());
   // tell the renderer to use our render pass pipeline
-  glrenderer->SetPass(pfp.Get());
+  vtkNew<vtkCameraPass> camPass;
+  camPass->SetDelegatePass(pfp.Get());
+  glrenderer->SetPass(camPass.Get());
 
   renWin->SetSize(500,500);
 
