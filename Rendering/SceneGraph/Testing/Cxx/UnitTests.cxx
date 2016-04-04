@@ -175,7 +175,7 @@ vtkViewNode *win_maker()
 }
 
 //exercises the scene graph related classes
-int UnitTests( int argc, char *argv[] )
+int UnitTests( int vtkNotUsed(argc), char *vtkNotUsed(argv)[] )
 {
   vtkWindowNode *wvn = vtkWindowNode::New();
   cerr << "made " << wvn << endl;
