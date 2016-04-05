@@ -19,9 +19,11 @@
 #define vtkOpenGLPolyDataMapper_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkNew.h" // for ivars
 #include "vtkPolyDataMapper.h"
 #include "vtkShader.h" // for methods
 #include "vtkOpenGLHelper.h" // used for ivars
+
 #include <vector> //for ivars
 #include <map> //for methods
 
@@ -32,6 +34,7 @@ class vtkOpenGLTexture;
 class vtkOpenGLBufferObject;
 class vtkOpenGLVertexBufferObject;
 class vtkTextureObject;
+class vtkTransform;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMapper
 {
@@ -170,6 +173,13 @@ public:
   // Get the value of HaveAppleBug
   bool GetHaveAppleBug() { return this->HaveAppleBug; }
 
+  /// Return the mapper's vertex buffer object.
+  vtkGetObjectMacro(VBO,vtkOpenGLVertexBufferObject);
+
+  /**\brief A convenience method for enabling/disabling
+    *   the VBO's shift+scale transform.
+    */
+  void SetVBOShiftScaleMethod(int m);
 protected:
   vtkOpenGLPolyDataMapper();
   ~vtkOpenGLPolyDataMapper();
@@ -323,8 +333,10 @@ protected:
   int PopulateSelectionSettings;
   int PrimitiveIDOffset;
 
-  vtkMatrix4x4 *TempMatrix4;
-  vtkMatrix3x3 *TempMatrix3;
+  vtkMatrix4x4* TempMatrix4;
+  vtkMatrix3x3* TempMatrix3;
+  vtkNew<vtkTransform> VBOInverseTransform;
+  vtkNew<vtkMatrix4x4> VBOShiftScale;
 
   // if set to true, tcoords will be passed to the
   // VBO even if the mapper knows of no texture maps

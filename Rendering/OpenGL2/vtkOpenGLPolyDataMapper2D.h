@@ -26,16 +26,19 @@
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkPolyDataMapper2D.h"
+#include "vtkNew.h" // used for ivars
 #include "vtkOpenGLHelper.h" // used for ivars
 #include <string> // For API.
 #include <vector> //for ivars
 
+class vtkMatrix4x4;
 class vtkOpenGLBufferObject;
 class vtkOpenGLHelper;
 class vtkOpenGLVertexBufferObject;
 class vtkPoints;
 class vtkRenderer;
 class vtkTextureObject;
+class vtkTransform;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLPolyDataMapper2D : public vtkPolyDataMapper2D
 {
@@ -53,6 +56,9 @@ public:
   // The parameter window could be used to determine which graphic
   // resources to release.
   void ReleaseGraphicsResources(vtkWindow *);
+
+  /// Return the mapper's vertex buffer object.
+  vtkGetObjectMacro(VBO,vtkOpenGLVertexBufferObject);
 
 protected:
   vtkOpenGLPolyDataMapper2D();
@@ -117,6 +123,8 @@ protected:
 
   vtkTimeStamp VBOUpdateTime; // When was the VBO updated?
   vtkPoints *TransformedPoints;
+  vtkNew<vtkTransform> VBOTransformInverse;
+  vtkNew<vtkMatrix4x4> VBOShiftScale;
 
   // do we have wide lines that require special handling
   virtual bool HaveWideLines(vtkViewport *, vtkActor2D *);
