@@ -145,14 +145,17 @@ vtkMatplotlibMathTextUtilities::~vtkMatplotlibMathTextUtilities()
 //----------------------------------------------------------------------------
 void vtkMatplotlibMathTextUtilities::CleanupPythonObjects()
 {
-  vtkPythonScopeGilEnsurer gilEnsurer;
-  Py_XDECREF(this->MaskParser);
-  Py_XDECREF(this->PathParser);
-  Py_XDECREF(this->FontPropertiesClass);
+  if (Py_IsInitialized())
+    {
+    vtkPythonScopeGilEnsurer gilEnsurer;
+    Py_XDECREF(this->MaskParser);
+    Py_XDECREF(this->PathParser);
+    Py_XDECREF(this->FontPropertiesClass);
 
-  this->MaskParser = NULL;
-  this->PathParser = NULL;
-  this->FontPropertiesClass = NULL;
+    this->MaskParser = NULL;
+    this->PathParser = NULL;
+    this->FontPropertiesClass = NULL;
+    }
 }
 
 //----------------------------------------------------------------------------
