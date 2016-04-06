@@ -38,17 +38,21 @@ vtkStandardNewMacro(vtk3DSImporter);
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif
 
-static vtk3DSColour Black = {0.0f, 0.0f, 0.0f};
-static char   obj_name[80] = "";
-static vtk3DSColour fog_colour = {0.0f, 0.0f, 0.0f};
+// Wrap these globals in a namespace to prevent identifier collisions with
+// inline code on MSVC2015:
+namespace vtk3DS {
+static vtk3DSColour black = {0.0f, 0.0f, 0.0f};
+static char   objName[80] = "";
+static vtk3DSColour fogColour  = {0.0f, 0.0f, 0.0f};
 static vtk3DSColour col        = {0.0f, 0.0f, 0.0f};
-static vtk3DSColour global_amb = {0.1f, 0.1f, 0.1f};
+static vtk3DSColour globalAmb  = {0.1f, 0.1f, 0.1f};
 static vtk3DSVector pos        = {0.0, 0.0, 0.0};
 static vtk3DSVector target     = {0.0, 0.0, 0.0};
 static float  hotspot = -1;
 static float  falloff = -1;
+
 /* Default material property */
-static vtk3DSMatProp DefaultMaterial =
+static vtk3DSMatProp defaultMaterial =
   { "Default", NULL,
     {1.0, 1.0, 1.0}, {1.0, 1.0, 1.0}, {1.0, 1.0, 1.0},
     70.0, // shininess
@@ -60,6 +64,8 @@ static vtk3DSMatProp DefaultMaterial =
     "",   // bump_map
     0.0,  // bump_strength
     NULL};// vtkProperty
+
+} // end namespace vtk3DS
 
 static void cleanup_name (char *);
 static void list_insert (vtk3DSList **root, vtk3DSList *new_node);
@@ -149,7 +155,7 @@ int vtk3DSImporter::Read3DS ()
 
   // create a vtk3DSMatProp and fill if in with default
   aMaterial = (vtk3DSMatProp *) malloc (sizeof (vtk3DSMatProp));
-  *aMaterial = DefaultMaterial;
+  *aMaterial = vtk3DS::defaultMaterial;
   aMaterial->aProperty = vtkProperty::New ();
   VTK_LIST_INSERT (this->MatPropList, aMaterial);
   return 1;
@@ -411,9 +417,9 @@ static vtk3DSMatProp *create_mprop()
 
   new_mprop = (vtk3DSMatProp *) malloc (sizeof(*new_mprop));
   strcpy (new_mprop->name, "");
-  new_mprop->ambient = Black;
-  new_mprop->diffuse = Black;
-  new_mprop->specular = Black;
+  new_mprop->ambient = vtk3DS::black;
+  new_mprop->diffuse = vtk3DS::black;
+  new_mprop->specular = vtk3DS::black;
   new_mprop->shininess = 0.0;
   new_mprop->transparency = 0.0;
   new_mprop->reflection = 0.0;
@@ -530,7 +536,7 @@ static void parse_mdata (vtk3DSImporter *importer, vtk3DSChunk *mainchunk)
       {
       switch (chunk.tag)
         {
-        case 0x2100: parse_colour (importer, &global_amb);
+        case 0x2100: parse_colour (importer, &vtk3DS::globalAmb);
           break;
         case 0x1200: parse_colour (importer, &bgnd_colour);
           break;
@@ -559,7 +565,7 @@ static void parse_fog (vtk3DSImporter *importer, vtk3DSChunk *mainchunk)
   (void) read_float(importer);
   (void)read_float(importer);
 
-  parse_colour (importer, &fog_colour);
+  parse_colour (importer, &vtk3DS::fogColour);
 
   do
     {
@@ -677,8 +683,8 @@ static void parse_named_object (vtk3DSImporter *importer, vtk3DSChunk *mainchunk
   vtk3DSMesh *mesh;
   vtk3DSChunk chunk;
 
-  strcpy (obj_name, read_string(importer));
-  cleanup_name (obj_name);
+  strcpy (vtk3DS::objName, read_string(importer));
+  cleanup_name (vtk3DS::objName);
 
   mesh = NULL;
 
@@ -718,7 +724,7 @@ static void parse_n_tri_object (vtk3DSImporter *importer, vtk3DSChunk *mainchunk
   vtk3DSMesh *mesh;
   vtk3DSChunk chunk;
 
-  mesh = create_mesh (obj_name, 0, 0);
+  mesh = create_mesh (vtk3DS::objName, 0, 0);
 
   do
     {
@@ -840,8 +846,8 @@ static void parse_n_direct_light (vtk3DSImporter *importer, vtk3DSChunk *mainchu
   vtk3DSOmniLight *o;
   int spot_flag = 0;
 
-  read_point (importer, pos);
-  parse_colour (importer, &col);
+  read_point (importer, vtk3DS::pos);
+  parse_colour (importer, &vtk3DS::col);
 
   do
     {
@@ -863,63 +869,63 @@ static void parse_n_direct_light (vtk3DSImporter *importer, vtk3DSChunk *mainchu
 
   if (!spot_flag)
     {
-    o = (vtk3DSOmniLight *) VTK_LIST_FIND (importer->OmniList, obj_name);
+    o = (vtk3DSOmniLight *) VTK_LIST_FIND (importer->OmniList, vtk3DS::objName);
 
     if (o != NULL)
       {
-      pos[0] = o->pos[0];
-      pos[1] = o->pos[1];
-      pos[2] = o->pos[2];
-      col    = o->col;
+      vtk3DS::pos[0] = o->pos[0];
+      vtk3DS::pos[1] = o->pos[1];
+      vtk3DS::pos[2] = o->pos[2];
+      vtk3DS::col    = o->col;
       }
     else
       {
       o = (vtk3DSOmniLight *) malloc (sizeof (*o));
-      o->pos[0] = pos[0];
-      o->pos[1] = pos[1];
-      o->pos[2] = pos[2];
-      o->col = col   ;
-      strcpy (o->name, obj_name);
+      o->pos[0] = vtk3DS::pos[0];
+      o->pos[1] = vtk3DS::pos[1];
+      o->pos[2] = vtk3DS::pos[2];
+      o->col = vtk3DS::col   ;
+      strcpy (o->name, vtk3DS::objName);
       VTK_LIST_INSERT (importer->OmniList, o);
       }
     }
   else
     {
-    s = (vtk3DSSpotLight *) VTK_LIST_FIND (importer->SpotLightList, obj_name);
+    s = (vtk3DSSpotLight *) VTK_LIST_FIND (importer->SpotLightList, vtk3DS::objName);
 
     if (s != NULL)
       {
-      pos[0]    = s->pos[0];
-      pos[1]    = s->pos[1];
-      pos[2]    = s->pos[2];
-      target[0] = s->target[0];
-      target[1] = s->target[1];
-      target[2] = s->target[2];
-      col       = s->col;
-      hotspot   = s->hotspot;
-      falloff   = s->falloff;
+      vtk3DS::pos[0]    = s->pos[0];
+      vtk3DS::pos[1]    = s->pos[1];
+      vtk3DS::pos[2]    = s->pos[2];
+      vtk3DS::target[0] = s->target[0];
+      vtk3DS::target[1] = s->target[1];
+      vtk3DS::target[2] = s->target[2];
+      vtk3DS::col       = s->col;
+      vtk3DS::hotspot   = s->hotspot;
+      vtk3DS::falloff   = s->falloff;
       }
     else
       {
-      if (falloff <= 0.0)
+      if (vtk3DS::falloff <= 0.0)
         {
-        falloff = 180.0;
+        vtk3DS::falloff = 180.0;
         }
-      if (hotspot <= 0.0)
+      if (vtk3DS::hotspot <= 0.0)
         {
-        hotspot = 0.7*falloff;
+        vtk3DS::hotspot = 0.7*vtk3DS::falloff;
         }
       s = (vtk3DSSpotLight *) malloc (sizeof (*s));
-      s->pos[0] = pos[0];
-      s->pos[1] = pos[1];
-      s->pos[2] = pos[2];
-      s->target[0] = target[0];
-      s->target[1] = target[1];
-      s->target[2] = target[2];
-      s->col = col   ;
-      s->hotspot = hotspot;
-      s->falloff = falloff;
-      strcpy (s->name, obj_name);
+      s->pos[0] = vtk3DS::pos[0];
+      s->pos[1] = vtk3DS::pos[1];
+      s->pos[2] = vtk3DS::pos[2];
+      s->target[0] = vtk3DS::target[0];
+      s->target[1] = vtk3DS::target[1];
+      s->target[2] = vtk3DS::target[2];
+      s->col = vtk3DS::col   ;
+      s->hotspot = vtk3DS::hotspot;
+      s->falloff = vtk3DS::falloff;
+      strcpy (s->name, vtk3DS::objName);
       VTK_LIST_INSERT (importer->SpotLightList, s);
       }
     }
@@ -928,10 +934,10 @@ static void parse_n_direct_light (vtk3DSImporter *importer, vtk3DSChunk *mainchu
 
 static void parse_dl_spotlight(vtk3DSImporter *importer)
 {
-  read_point (importer, target);
+  read_point (importer, vtk3DS::target);
 
-  hotspot = read_float(importer);
-  falloff = read_float(importer);
+  vtk3DS::hotspot = read_float(importer);
+  vtk3DS::falloff = read_float(importer);
 }
 
 
@@ -941,18 +947,18 @@ static void parse_n_camera(vtk3DSImporter *importer)
   float  lens;
   vtk3DSCamera *c = (vtk3DSCamera *) malloc (sizeof (vtk3DSCamera));
 
-  read_point (importer, pos);
-  read_point (importer, target);
+  read_point (importer, vtk3DS::pos);
+  read_point (importer, vtk3DS::target);
   bank = read_float(importer);
   lens = read_float(importer);
 
-  strcpy (c->name, obj_name);
-  c->pos[0] = pos[0];
-  c->pos[1] = pos[1];
-  c->pos[2] = pos[2];
-  c->target[0] = target[0];
-  c->target[1] = target[1];
-  c->target[2] = target[2];
+  strcpy (c->name, vtk3DS::objName);
+  c->pos[0] = vtk3DS::pos[0];
+  c->pos[1] = vtk3DS::pos[1];
+  c->pos[2] = vtk3DS::pos[2];
+  c->target[0] = vtk3DS::target[0];
+  c->target[1] = vtk3DS::target[1];
+  c->target[2] = vtk3DS::target[2];
   c->lens = lens;
   c->bank = bank;
 
