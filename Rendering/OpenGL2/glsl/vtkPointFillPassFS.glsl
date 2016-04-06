@@ -37,7 +37,7 @@ void main(void)
   vec4  fbcolor = texture2D(source,tcoordVC);
 
   vec4  closestColor = vec4(0.0,0.0,0.0,0.0);
-  float closestDepth = fbdepth;
+  float closestDepth = 0.0;
   int count = 0;
 
   // we track the theta range twice
@@ -56,8 +56,8 @@ void main(void)
     for (int j = -3; j <= 3; j++)
       {
       float adepth = texture2D(depth,tcoordVC + pixelToTCoord*vec2(i,j)).r;
-      adepth = 2.0*nearC/(farC + nearC -adepth*(farC - nearC));
-      if (adepth < fbdepth*CandidatePointRatio && (i != 0 || j != 0))
+      float mdepth = 2.0*nearC/(farC + nearC -adepth*(farC - nearC));
+      if (mdepth < fbdepth*CandidatePointRatio && (i != 0 || j != 0))
         {
         float theta = atan(float(j),float(i));
         minTheta = min(minTheta,theta);
@@ -74,6 +74,7 @@ void main(void)
         maxTheta2 = max(maxTheta2,theta);
         count = count + 1;
         closestColor += texture2D(source,tcoordVC + pixelToTCoord*vec2(i,j));
+        closestDepth += adepth;
         }
       }
     }
@@ -82,9 +83,11 @@ void main(void)
 if (min(maxTheta-minTheta, maxTheta2-minTheta2) > MinimumCandidateAngle)
   {
   gl_FragData[0] = closestColor/count;
+  gl_FragDepth = closestDepth/count;
   }
 else
   {
   gl_FragData[0] = fbcolor;
+  gl_FragDepth = fbdepth;
   }
 }
