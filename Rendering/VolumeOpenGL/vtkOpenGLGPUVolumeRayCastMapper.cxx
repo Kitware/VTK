@@ -2153,7 +2153,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
   // There is a bug in that OpenGL driver with an error in the
   // Cg compiler about an infinite loop.
   // However it works with Mac OS X 10.7 (Lion) with nVidia.
-#if defined(__APPLE__) && (MAC_OS_X_VERSION_MIN_REQUIRED <= 1060)
+#if defined(__APPLE__) && (MAC_OS_X_VERSION_MIN_REQUIRED < 1070)
   // Gestalt() is deprecated, but all this code will go away when 10.7 is VTK's minimum.
   #pragma clang diagnostic push
   #pragma clang diagnostic ignored "-Wdeprecated-declarations"
