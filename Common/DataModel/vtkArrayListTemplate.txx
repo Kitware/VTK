@@ -43,7 +43,7 @@ void CreateRealArrayPair(ArrayList *list, T *inData, float *outData,vtkIdType nu
 
 //----------------------------------------------------------------------------
 // Indicate arrays not to process
-void ArrayList::
+inline void ArrayList::
 ExcludeArray(vtkDataArray *da)
 {
   ExcludedArrays.push_back(da);
@@ -51,7 +51,7 @@ ExcludeArray(vtkDataArray *da)
 
 //----------------------------------------------------------------------------
 // Has the specified array been excluded?
-bool ArrayList::
+inline bool ArrayList::
 IsExcluded(vtkDataArray *da)
 {
   return (std::find(ExcludedArrays.begin(), ExcludedArrays.end(), da) != ExcludedArrays.end());
@@ -59,7 +59,7 @@ IsExcluded(vtkDataArray *da)
 
 //----------------------------------------------------------------------------
 // Add an array pair (input,output) using the name provided for the output.
-vtkDataArray* ArrayList::
+inline vtkDataArray* ArrayList::
 AddArrayPair(vtkIdType numPts, vtkDataArray *inArray,
              vtkStdString &outArrayName, double nullValue, bool promote)
 {
@@ -110,7 +110,7 @@ AddArrayPair(vtkIdType numPts, vtkDataArray *inArray,
 // Add the arrays to interpolate here. This presumes that vtkDataSetAttributes::CopyData() or
 // vtkDataSetAttributes::InterpolateData() has been called, and the input and output array
 // names match.
-void ArrayList::
+inline void ArrayList::
 AddArrays(vtkIdType numOutPts, vtkDataSetAttributes *inPD, vtkDataSetAttributes *outPD,
           double nullValue, bool promote)
 {
