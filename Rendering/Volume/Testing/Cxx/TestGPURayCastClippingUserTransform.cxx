@@ -123,6 +123,7 @@ static void UpdateRearClippingPlane(vtkPlane* rearClippingPlane, double* normal,
   rearClippingPlane->SetOrigin(rearOrigin);
 }
 
+
 class vtkInteractorStyleCallback : public vtkCommand
 {
 public:
@@ -141,8 +142,6 @@ public:
     // Get the normal and focal point of the camera
     double* normal = camera->GetViewPlaneNormal();
     double* focalPoint = camera->GetFocalPoint();
-    double* viewUp = camera->GetViewUp();
-    double* position = camera->GetPosition();
 
     // Fixed slab thickness
     slabThickness = 3.0;
@@ -152,14 +151,14 @@ public:
 
   vtkInteractorStyleCallback(){}
 
-  void SetFrontClippingPlane(vtkPlane* frontClippingPlane)
+  void SetFrontClippingPlane(vtkPlane* fcPlane)
     {
-    this->frontClippingPlane = frontClippingPlane;
+    this->frontClippingPlane = fcPlane;
     }
 
-  void SetRearClippingPlane(vtkPlane* rearClippingPlane)
+  void SetRearClippingPlane(vtkPlane* rcPlane)
     {
-    this->rearClippingPlane = rearClippingPlane;
+    this->rearClippingPlane = rcPlane;
     }
 
   double slabThickness;
@@ -198,7 +197,7 @@ int TestGPURayCastClippingUserTransform(int argc, char *argv[])
     }
 
   // Convert to short
-  unsigned short * shortData = new unsigned short[size / 2];
+  unsigned short* shortData = new unsigned short[size / 2];
   int idx = 0;
   int idx2 = 0;
   for (idx = 0; idx < size / 2; idx ++) {
@@ -356,7 +355,7 @@ int TestGPURayCastClippingUserTransform(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImageThreshold(renWin.GetPointer(), 70);
 
-  if ( retVal == vtkRegressionTester::DO_INTERACTOR)
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     iren->Start();
     }
@@ -364,5 +363,7 @@ int TestGPURayCastClippingUserTransform(int argc, char *argv[])
 
   delete[] memblock;
   delete[] shortData;
-  delete fname;
+  delete[] fname;
+
+  return !retVal;
 }
