@@ -40,6 +40,7 @@ vtkStandardNewMacro(vtkAngularPeriodicFilter);
 //----------------------------------------------------------------------------
 vtkAngularPeriodicFilter::vtkAngularPeriodicFilter()
 {
+  this->ComputeRotationsOnTheFly = true;
   this->RotationMode = VTK_ROTATION_MODE_DIRECT_ANGLE;
   this->RotationAngle = 180.;
   this->RotationArrayName = 0;
@@ -59,6 +60,8 @@ vtkAngularPeriodicFilter::~vtkAngularPeriodicFilter()
 void vtkAngularPeriodicFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Compute Rotations on-the-fly: " << this->ComputeRotationsOnTheFly
+               << endl;
   if (this->RotationMode == VTK_ROTATION_MODE_DIRECT_ANGLE)
     {
     os << indent << "Rotation Mode: Direct Angle" << endl;
@@ -188,6 +191,7 @@ void vtkAngularPeriodicFilter::CreatePeriodicDataSet(
   this->PeriodNumbers.push_back(periodsNb);
   output->SetDataSet(loc, multiPiece.Get());
 }
+
 //----------------------------------------------------------------------------
 void vtkAngularPeriodicFilter::SetPeriodNumber(vtkCompositeDataIterator* loc,
                              vtkCompositeDataSet* output,
@@ -271,7 +275,17 @@ vtkDataArray* vtkAngularPeriodicFilter::TransformDataArray(
         }
       pArray->SetNormalize(normalize);
       pArray->InitializeArray(vtkFloatArray::SafeDownCast(inputArray));
-      periodicArray = pArray;
+      if (this->ComputeRotationsOnTheFly)
+        {
+        periodicArray = pArray;
+        }
+      else
+        {
+        vtkFloatArray *concrete = vtkFloatArray::New();
+        concrete->DeepCopy(pArray); // instantiate the array
+        periodicArray = concrete;
+        pArray->Delete();
+        }
       break;
       }
     case VTK_DOUBLE:
@@ -286,7 +300,17 @@ vtkDataArray* vtkAngularPeriodicFilter::TransformDataArray(
         }
       pArray->SetNormalize(normalize);
       pArray->InitializeArray(vtkDoubleArray::SafeDownCast(inputArray));
-      periodicArray = pArray;
+      if (this->ComputeRotationsOnTheFly)
+        {
+        periodicArray = pArray;
+        }
+      else
+        {
+        vtkDoubleArray *concrete = vtkDoubleArray::New();
+        concrete->DeepCopy(pArray); // instantiate the array
+        periodicArray = concrete;
+        pArray->Delete();
+        }
       break;
       }
     default:
@@ -297,6 +321,7 @@ vtkDataArray* vtkAngularPeriodicFilter::TransformDataArray(
       break;
       }
     }
+
   return periodicArray;
 }
 
