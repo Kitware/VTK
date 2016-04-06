@@ -416,7 +416,7 @@ int TestOSPRayRenderMesh(int argc, char* argv[])
       {
       bool ival = (i/10)%2==1;
       bool jval = (j/10)%2==1;
-      unsigned char val = ival^jval?255:0;
+      unsigned char val = (ival^jval) ? 255 : 0;
       aa->SetTuple3(idx, val, val, val);
       if (j <= 3 || j >= maxj-3)
         {
