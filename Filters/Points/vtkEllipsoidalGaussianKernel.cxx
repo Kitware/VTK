@@ -160,9 +160,12 @@ ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *prob,
         this->NormalsArray->GetTuple(id,n);
         mag = vtkMath::Dot(n,n);
         mag = ( mag == 0.0 ? 1.0 : sqrt(mag) );
+        z2 = vtkMath::Dot(v,n) / mag;
+        z2 = z2*z2;
         }
       else
         {
+        z2 = 0.0;
         mag = 1.0;
         }
 
@@ -176,13 +179,12 @@ ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *prob,
         s = 1.0;
         }
 
-      z2 = vtkMath::Dot(v,n) / mag;
-      z2 = z2*z2;
       rxy2 = r2 - z2;
 
       scale = this->ScaleFactor * (p ? p[i] : 1.0);
 
       w[i] = scale * s * exp(-f2 * (rxy2/e2 + z2));
+
       sum += w[i];
       }//computing weights
     }//over all points
