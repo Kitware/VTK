@@ -32,7 +32,7 @@
   #endif
 #endif
 
-#if defined(_WIN32) || defined(WIN32)
+#if defined(_WIN32)
 #define WIN32_JAWT_LOCK_HACK
 #endif
 
@@ -108,7 +108,7 @@ Java_vtk_vtkPanel_RenderCreate(JNIEnv *env, jobject canvas, jobject id0)
     }
 
 // Here is the win32 drawing code
-#if defined(_WIN32) || defined(WIN32)
+#if defined(_WIN32)
   temp0->Finalize();
   JAWT_Win32DrawingSurfaceInfo* dsi_win;
   dsi_win = (JAWT_Win32DrawingSurfaceInfo*)dsi->platformInfo;
@@ -209,7 +209,7 @@ Java_vtk_rendering_awt_vtkInternalAwtComponent_RenderCreate(JNIEnv *env, jobject
     }
 
 // Here is the win32 drawing code
-#if defined(_WIN32) || defined(WIN32)
+#if defined(_WIN32)
   temp0->Finalize();
   JAWT_Win32DrawingSurfaceInfo* dsi_win;
   dsi_win = (JAWT_Win32DrawingSurfaceInfo*)dsi->platformInfo;

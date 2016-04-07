@@ -705,7 +705,7 @@ void DICOMAppHelper::TransferSyntaxCallback(DICOMParser *parser,
 {
 
 #ifdef DEBUG_DICOM_APP_HELPER
-#ifdef WIN32
+#ifdef _WIN32
   char platformByteOrder = 'L';
 #else
   char platformByteOrder = 'B';

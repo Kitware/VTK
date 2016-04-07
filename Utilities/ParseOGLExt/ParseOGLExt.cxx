@@ -76,7 +76,7 @@ public:
     switch (itype)
       {
       case WGL:
-        out << "#ifdef WIN32" << endl;
+        out << "#ifdef _WIN32" << endl;
         break;
       case GLX:
        out << "#ifdef VTK_USE_X" << endl;

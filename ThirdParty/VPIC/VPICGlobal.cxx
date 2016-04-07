@@ -12,7 +12,7 @@
 #include <iomanip>
 #include <algorithm>
 
-#ifdef WIN32
+#ifdef _WIN32
 const static char * Slash = "\\";
 #else
 const static char * Slash = "/";
