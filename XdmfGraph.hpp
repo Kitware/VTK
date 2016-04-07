@@ -102,7 +102,4 @@ private:
   shared_ptr<XdmfTime> mTime;
 };
 
-#ifdef _WIN32
-#endif
-
 #endif /* XDMFGRAPH_HPP_ */

@@ -24,16 +24,24 @@
 #ifndef _XDMF_HPP
 #ifndef _XDMFCORE_HPP
 #define _XDMFCORE_HPP
+
+#include "XdmfCoreConfig.hpp"
+
 /* Keep all our Win32 Conversions here */
 #ifdef _WIN32
-/* Used to export/import from the dlls */
-#ifdef XdmfCore_EXPORTS
-#define XDMFCORE_EXPORT __declspec(dllexport)
-#define XDMFCORE_TEMPLATE
-#else /* Xdmf_EXPORTS */
-#define XDMFCORE_EXPORT __declspec(dllimport)
-#define XDMFCORE_TEMPLATE extern
-#endif /* Xdmf_EXPORTS */
+# ifdef XDMFSTATIC
+#   define XDMFCORE_EXPORT
+#   define XDMFCORE_TEMPLATE
+# else
+  /* Used to export/import from the dlls */
+#  ifdef XdmfCore_EXPORTS
+#    define XDMFCORE_EXPORT __declspec(dllexport)
+#    define XDMFCORE_TEMPLATE
+#   else /* Xdmf_EXPORTS */
+#    define XDMFCORE_EXPORT __declspec(dllimport)
+#    define XDMFCORE_TEMPLATE extern
+#   endif /* Xdmf_EXPORTS */
+# endif
 
 /* Used in XdmfSystemUtils */
 #define PATH_MAX _MAX_PATH
@@ -54,10 +62,12 @@
 #pragma optimize("g", off)
 
 #else /* _WIN32 */
+
 /* We don't need to export/import since there are no dlls */
 #define XDMFCORE_EXPORT
 #define XDMFCORE_TEMPLATE
+
 #endif /* _WIN32 */
+
 #endif /* _XDMFCORE_HPP */
 #endif /*_XDMF_HPP */
-

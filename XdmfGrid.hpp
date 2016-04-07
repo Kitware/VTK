@@ -276,33 +276,4 @@ private:
 
 };
 
-#ifdef _WIN32
-XDMF_TEMPLATE template class XDMF_EXPORT
-std::allocator<shared_ptr<XdmfAttribute> >;
-XDMF_TEMPLATE template class XDMF_EXPORT
-std::vector<shared_ptr<XdmfAttribute>,
-            std::allocator<shared_ptr<XdmfAttribute> > >;
-XDMF_TEMPLATE template class XDMF_EXPORT
-std::allocator<shared_ptr<XdmfSet> >;
-XDMF_TEMPLATE template class XDMF_EXPORT
-std::vector<shared_ptr<XdmfSet>,
-            std::allocator<shared_ptr<XdmfSet> > >;
-XDMF_TEMPLATE template class XDMF_EXPORT
-shared_ptr<XdmfGeometry>;
-XDMF_TEMPLATE template class XDMF_EXPORT
-shared_ptr<const XdmfGeometry>;
-XDMF_TEMPLATE template class XDMF_EXPORT
-shared_ptr<XdmfTopology>;
-XDMF_TEMPLATE template class XDMF_EXPORT
-shared_ptr<const XdmfTopology>;
-XDMF_TEMPLATE template class XDMF_EXPORT
-shared_ptr<XdmfMap>;
-XDMF_TEMPLATE template class XDMF_EXPORT
-shared_ptr<const XdmfMap>;
-XDMF_TEMPLATE template class XDMF_EXPORT
-shared_ptr<XdmfTime>;
-XDMF_TEMPLATE template class XDMF_EXPORT
-shared_ptr<const XdmfTime>;
-#endif
-
 #endif /* XDMFGRID_HPP_ */

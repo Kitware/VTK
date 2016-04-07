@@ -660,10 +660,11 @@ shared_ptr<std::vector<T> >
 XdmfArray::initialize(const std::vector<unsigned int> & dimensions)
 {
   mDimensions = dimensions;
-  const unsigned int size = std::accumulate(dimensions.begin(),
+  const unsigned int size = static_cast<unsigned int>(
+    std::accumulate(dimensions.begin(),
                                             dimensions.end(),
                                             1,
-                                            std::multiplies<unsigned int>());
+                    std::multiplies<unsigned int>()));
   return this->initialize<T>(size);
 }
 
@@ -727,10 +728,11 @@ void
 XdmfArray::resize(const std::vector<unsigned int> & dimensions,
                   const T & value)
 {
-  const unsigned int size = std::accumulate(dimensions.begin(),
+  const unsigned int size = static_cast<unsigned int>(
+    std::accumulate(dimensions.begin(),
                                             dimensions.end(),
                                             1,
-                                            std::multiplies<unsigned int>());
+                    std::multiplies<unsigned int>()));
   this->resize(size, value);
   mDimensions = dimensions;
 }

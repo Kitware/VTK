@@ -73,7 +73,7 @@
 * as the base. The Domain contains multiple grid collections or
 * grids; each with their own geometries, topologies, attributes,
 * and/or sets. With the inclusion of shared pointers in Xdmf2
-* a topology could be shared across multiple grids or a grid 
+* a topology could be shared across multiple grids or a grid
 * could be included in multiple grid collections and/or the domain.
 *
 *
@@ -125,28 +125,38 @@
 * \include XdmfExampleEdit.py
 */
 
+#include "XdmfConfig.hpp"
 
 
 /* Keep all our Win32 Conversions here */
 #ifdef _WIN32
+#ifdef XDMFSTATIC
+# define XDMFCORE_EXPORT
+# define XDMFDSM_EXPORT
+# define XDMF_EXPORT
+# define XDMFCORE_TEMPLATE
+# define XDMFDSM_TEMPLATE
+# define XDMF_TEMPLATE
+#else
 /* Used to export/import from the dlls */
-#undef XDMFCORE_EXPORT
-#define XDMFCORE_EXPORT __declspec(dllimport)
-#undef XDMFCORE_TEMPLATE
-#define XDMFCORE_TEMPLATE extern
+# undef XDMFCORE_EXPORT
+# define XDMFCORE_EXPORT __declspec(dllimport)
+# undef XDMFCORE_TEMPLATE
+# define XDMFCORE_TEMPLATE extern
 
-#undef XDMFDSM_EXPORT
-#define XDMFDSM_EXPORT __declspec(dllimport)
-#undef XDMFDSM_TEMPLATE
-#define XDMFDSM_TEMPLATE extern
+# undef XDMFDSM_EXPORT
+# define XDMFDSM_EXPORT __declspec(dllimport)
+# undef XDMFDSM_TEMPLATE
+# define XDMFDSM_TEMPLATE extern
 
-#ifdef Xdmf_EXPORTS
-#define XDMF_EXPORT __declspec(dllexport)
-#define XDMF_TEMPLATE
-#else /* Xdmf_EXPORTS */
-#define XDMF_EXPORT __declspec(dllimport)
-#define XDMF_TEMPLATE extern
-#endif /* Xdmf_EXPORTS */
+# ifdef xdmf3_EXPORTS
+# define XDMF_EXPORT __declspec(dllexport)
+# define XDMF_TEMPLATE
+# else /* xxdmf3_EXPORTS */
+# define XDMF_EXPORT __declspec(dllimport)
+# define XDMF_TEMPLATE extern
+# endif /* xdmf3_EXPORTS */
+#endif
 
 /* Compiler Warnings */
 #ifndef XDMF_DEBUG
@@ -170,4 +180,3 @@
 #define XDMF_TEMPLATE
 #endif /* _WIN32 */
 #endif /* _XDMF_HPP */
-

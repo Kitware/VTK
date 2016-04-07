@@ -519,11 +519,5 @@ private:
 
 };
 
-#ifdef _WIN32
-XDMFCORE_TEMPLATE template class XDMFCORE_EXPORT
-shared_ptr<XdmfHeavyDataWriter>;
-XDMFCORE_TEMPLATE template class XDMFCORE_EXPORT
-shared_ptr<const XdmfHeavyDataWriter>;
-#endif
 
 #endif /* XDMFWRITER_HPP_ */

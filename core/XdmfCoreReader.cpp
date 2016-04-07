@@ -220,7 +220,7 @@ public:
             XdmfSubset::ItemTag.compare((char *)currNode->name) == 0) {
           while(childNode != NULL) {
             if(childNode->type == XML_TEXT_NODE && childNode->content) {
-///*
+/*
             const char * content = (char*)childNode->content;
 
             // Determine if content is whitespace
@@ -241,8 +241,8 @@ public:
               itemProperties.insert(std::make_pair("XMLDir", mXMLDir));
               break;
             }
-//*/
-/*              
+*/
+//*
               std::string content((char *)childNode->content);
               boost::algorithm::trim(content);
               
@@ -251,7 +251,7 @@ public:
                 itemProperties.insert(std::make_pair("XMLDir", mXMLDir));
                 break;
               }
-*/
+//*/
             }
             childNode = childNode->next;
           }

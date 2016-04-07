@@ -16,15 +16,15 @@ MESSAGE("| Call Output: End")
 IF(fortran_error)
 	MESSAGE("| Call Error: Begin\n${fortran_error}")
 	MESSAGE("| Call Error: End")
-ENDIF(fortran_error)
+ENDIF()
 MESSAGE("| Call Ended")
 MESSAGE("----------------------------------------------------------")
 
 # Let's make sure that if the test failed, it failed with CTest too
 IF(fortran_error)
 	MESSAGE(SEND_ERROR "Test Failed.")
-ENDIF(fortran_error)
+ENDIF()
 
 IF(NOT ${fortran_result} EQUAL "0")
 	MESSAGE(SEND_ERROR "Test Failed.")
-ENDIF(NOT ${fortran_result} EQUAL "0")
+ENDIF()

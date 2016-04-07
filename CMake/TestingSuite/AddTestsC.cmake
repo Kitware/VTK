@@ -16,8 +16,8 @@ MACRO(ADD_TEST_C_DEPENDENCIES dependencies)
         SET_PROPERTY(GLOBAL APPEND PROPERTY C_TEST_DEPENDENCIES
             "${dependencies}"
  	)
-    ENDIF(NOT ("${dependencies}" STREQUAL ""))
-ENDMACRO(ADD_TEST_C_DEPENDENCIES dependencies)
+    ENDIF()
+ENDMACRO()
 
 # C Add LDPath  Macro
 # Author: Brian Panneton
@@ -30,8 +30,8 @@ MACRO(ADD_TEST_C_LDPATH ld)
         SET_PROPERTY(GLOBAL PROPERTY C_TEST_LDPATH 
                 "${ldpath}${sep}${ld}" 
         )
-    ENDIF("${ld}" STRGREATER "")
-ENDMACRO(ADD_TEST_C_LDPATH ld)
+    ENDIF()
+ENDMACRO()
 
 # C Add Path  Macro
 # Author: Brian Panneton
@@ -44,8 +44,8 @@ MACRO(ADD_TEST_C_PATH p)
         SET_PROPERTY(GLOBAL PROPERTY C_TEST_PATH 
                 "${path}${sep}${p}" 
         )
-    ENDIF("${p}" STRGREATER "")
-ENDMACRO(ADD_TEST_C_PATH p)
+    ENDIF()
+ENDMACRO()
 
 # C Test Macro
 # Author: Brian Panneton
@@ -60,7 +60,7 @@ MACRO(ADD_TEST_C executable)
     
     IF(EXISTS ${c_source_dir}/${executable}.c)
         ADD_EXECUTABLE(${executable}${dup} ${c_source_dir}/${executable}.c)
-    ENDIF(EXISTS ${c_source_dir}/${executable}.c)
+    ENDIF()
 
     GET_PROPERTY(c_dependencies GLOBAL PROPERTY C_TEST_DEPENDENCIES)
     GET_PROPERTY(c_ldpath GLOBAL PROPERTY C_TEST_LDPATH)
@@ -77,8 +77,8 @@ MACRO(ADD_TEST_C executable)
 
         IF("${c_path}" STREQUAL "")
             SET(c_path ${c_ldpath})
-        ENDIF("${c_path}" STREQUAL "")
-    ENDIF(WIN32)
+        ENDIF()
+    ENDIF()
 
     SET_CORE("${c_binary_dir}")
     ADD_TEST(C${is_core}_${executable}${dup} ${CMAKE_COMMAND}
@@ -92,8 +92,8 @@ MACRO(ADD_TEST_C executable)
     IF(NOT "${tdep}" STREQUAL "")
 	    SET_TESTS_PROPERTIES(C${is_core}_${executable}${dup}
             PROPERTIES DEPENDS ${tdep})
-    ENDIF(NOT "${tdep}" STREQUAL "")
-ENDMACRO(ADD_TEST_C executable)
+    ENDIF()
+ENDMACRO()
 
 # C MPI Test Macro
 # Author: Andrew Burns
@@ -118,7 +118,7 @@ MACRO(ADD_MPI_TEST_C script files)
 
         IF(EXISTS ${c_source_dir}/${executable}.c)
             ADD_EXECUTABLE(${executable} ${c_source_dir}/${executable}.c)
-        ENDIF(EXISTS ${c_source_dir}/${executable}.c)
+        ENDIF()
 
         GET_PROPERTY(c_dependencies GLOBAL PROPERTY C_TEST_DEPENDENCIES)
         GET_PROPERTY(c_ldpath GLOBAL PROPERTY C_TEST_LDPATH)
@@ -135,9 +135,9 @@ MACRO(ADD_MPI_TEST_C script files)
 
             IF("${c_path}" STREQUAL "")
                 SET(c_path ${c_ldpath})
-            ENDIF("${c_path}" STREQUAL "")
-        ENDIF(WIN32)
-    ENDWHILE(NOT "${tempfiles}" STREQUAL "")
+            ENDIF()
+        ENDIF()
+    ENDWHILE()
 
     SET_CORE("${c_binary_dir}")
     ADD_TEST(C${is_core}_${script} ${CMAKE_COMMAND}
@@ -151,12 +151,12 @@ MACRO(ADD_MPI_TEST_C script files)
     IF(NOT "${tdep}" STREQUAL "")
             SET_TESTS_PROPERTIES(C${is_core}_${script}
             PROPERTIES DEPENDS ${tdep} ${script})
-    ENDIF(NOT "${tdep}" STREQUAL "")
+    ENDIF()
     file(COPY
         ${c_source_dir}/${script}
         DESTINATION ${c_binary_dir}/
     )
-ENDMACRO(ADD_MPI_TEST_C script files)
+ENDMACRO()
 
 # C Clean Macro
 # Author: Brian Panneton
@@ -168,7 +168,7 @@ MACRO(CLEAN_TEST_C executable)
     set_property(DIRECTORY APPEND PROPERTY 
         ADDITIONAL_MAKE_CLEAN_FILES ${ARGN} 
     )
-ENDMACRO(CLEAN_TEST_C executable)
+ENDMACRO()
 
  # Configure the c 'driver' file
 CONFIGURE_FILE(${TESTING_SUITE_DIR}/TestingSuite/TestDriverC.cmake.in ${c_binary_dir}/TestDriverC.cmake @ONLY)

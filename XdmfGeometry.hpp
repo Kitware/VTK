@@ -164,9 +164,4 @@ private:
   shared_ptr<const XdmfGeometryType> mType;
 };
 
-#ifdef _WIN32
-XDMF_TEMPLATE template class XDMF_EXPORT
-shared_ptr<const XdmfGeometryType>;
-#endif
-
 #endif /* XDMFGEOMETRY_HPP_ */

@@ -215,11 +215,4 @@ private:
 
 };
 
-#ifdef _WIN32
-XDMF_TEMPLATE template class XDMF_EXPORT
-shared_ptr<XdmfTopology>;
-XDMF_TEMPLATE template class XDMF_EXPORT
-shared_ptr<XdmfGeometry>;
-#endif
-
 #endif /* XDMFUNSTRUCTUREDGRID_HPP_ */

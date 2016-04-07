@@ -19,9 +19,9 @@ SET(defines
 # Take care of Windows Path Seperators
 IF(WIN32)
     SET(sep ";")
-ELSE(WIN32)
+ELSE()
     SET(sep ":")
-ENDIF(WIN32)
+ENDIF()
 
 # Make sure they are defined
 FOREACH(def IN LISTS defines)
@@ -66,10 +66,10 @@ MACRO(PARSE_TEST_ARGS test_args)
         STRING(REGEX REPLACE ";" "" tdep "${tdep}")
 	STRING(REGEX REPLACE "tdep=([^ ;])+" "" arguments "${arguments}")
 	STRING(REGEX REPLACE "," ";" tdep "${tdep}")
-    ELSE(${check})
+    ELSE()
         SET(arguments "") # Sanity Check	
-    ENDIF(${check})
-ENDMACRO(PARSE_TEST_ARGS test_args)
+    ENDIF()
+ENDMACRO()
 
 # Set Core Macro
 # Author: Brian Panneton
@@ -82,5 +82,5 @@ MACRO(SET_CORE dir)
     STRING(REGEX MATCH "core" is_core "${dir}")
     IF(EXISTS ${is_core})
         SET(is_core "Core")
-    ENDIF(EXISTS ${is_core})
-ENDMACRO(SET_CORE dir)
+    ENDIF()
+ENDMACRO()

@@ -79,9 +79,4 @@ private:
   void operator=(const XdmfReader &);  // Not implemented.
 };
 
-#ifdef _WIN32
-XDMF_TEMPLATE template class XDMF_EXPORT
-shared_ptr<XdmfItem>;
-#endif
-
 #endif /* XDMFREADER_HPP_ */

@@ -15,8 +15,8 @@ MACRO(ADD_TEST_PYTHON_DEPENDENCIES dependencies)
 	        SET_PROPERTY(GLOBAL APPEND PROPERTY PYTHON_TEST_DEPENDENCIES 
         	        "${dependencies}"
 	        )
-	ENDIF(NOT ("${dependencies}" STREQUAL ""))
-ENDMACRO(ADD_TEST_PYTHON_DEPENDENCIES dependencies)
+	ENDIF()
+ENDMACRO()
 
 # Python Add Dependencies Macro
 # Author: Brian Panneton
@@ -29,8 +29,8 @@ MACRO(ADD_TEST_PYTHON_FILE_DEPENDENCIES dependencies)
 	        SET_PROPERTY(GLOBAL APPEND PROPERTY PYTHON_TEST_FILE_DEPENDENCIES 
         	        "${dependencies}"
 	        )
-	ENDIF(NOT ("${dependencies}" STREQUAL ""))
-ENDMACRO(ADD_TEST_PYTHON_FILE_DEPENDENCIES dependencies)
+	ENDIF()
+ENDMACRO()
 
 # Python Add PythonPath Macro
 # Author: Brian Panneton
@@ -43,8 +43,8 @@ MACRO(ADD_TEST_PYTHON_PYTHONPATH pyp)
                 SET_PROPERTY(GLOBAL PROPERTY PYTHON_TEST_PYTHONPATH 
                         "${pythonpath}${sep}${pyp}" 
                 )
-        ENDIF(NOT ("${pyp}" STREQUAL ""))
-ENDMACRO(ADD_TEST_PYTHON_PYTHONPATH cp)
+        ENDIF()
+ENDMACRO()
 
 # Python Add LDPath  Macro
 # Author: Brian Panneton
@@ -57,8 +57,8 @@ MACRO(ADD_TEST_PYTHON_LDPATH ld)
         SET_PROPERTY(GLOBAL PROPERTY PYTHON_TEST_LDPATH 
                 "${ldpath}${sep}${ld}" 
         )
-    ENDIF("${ld}" STRGREATER "")
-ENDMACRO(ADD_TEST_PYTHON_LDPATH ld)
+    ENDIF()
+ENDMACRO()
 
 # Python Add Path Macro
 # Author: Brian Panneton
@@ -71,8 +71,8 @@ MACRO(ADD_TEST_PYTHON_PATH p)
         SET_PROPERTY(GLOBAL PROPERTY PYTHON_TEST_PATH 
                 "${path}${sep}${p}" 
         )
-    ENDIF("${p}" STRGREATER "")
-ENDMACRO(ADD_TEST_PYTHON_PATH p)
+    ENDIF()
+ENDMACRO()
 
 # Add Python Test Macro
 # Author: Brian Panneton
@@ -113,8 +113,8 @@ MACRO(ADD_TEST_PYTHON executable)
     IF(WIN32)
         IF("${python_path}" STREQUAL "")
             SET(python_path ${java_ldpath})
-        ENDIF("${python_path}" STREQUAL "")
-    ENDIF(WIN32)
+        ENDIF()
+    ENDIF()
 
 	SET_CORE("${python_binary_dir}")
     ADD_TEST(Python${is_core}_${executable}${dup} ${CMAKE_COMMAND}
@@ -129,9 +129,9 @@ MACRO(ADD_TEST_PYTHON executable)
     IF(NOT "${tdep}" STREQUAL "")
         SET_TESTS_PROPERTIES(Python${is_core}_${executable}${dup}
             PROPERTIES DEPENDS ${tdep})
-    ENDIF(NOT "${tdep}" STREQUAL "")
+    ENDIF()
 
-ENDMACRO(ADD_TEST_PYTHON executable)
+ENDMACRO()
 
 
 
@@ -155,8 +155,8 @@ MACRO(ADD_MPI_TEST_PYTHON script files)
     IF(WIN32)
         IF("${python_path}" STREQUAL "")
             SET(python_path ${python_ldpath})
-        ENDIF("${python_path}" STREQUAL "")
-    ENDIF(WIN32)
+        ENDIF()
+    ENDIF()
 
     set(tempfiles ${files})
 
@@ -173,9 +173,9 @@ MACRO(ADD_MPI_TEST_PYTHON script files)
                     ${python_source_dir}/${executable}.py
                     DESTINATION ${python_binary_dir}/
                 )
-        ENDIF(EXISTS ${python_source_dir}/${executable}.py)
+        ENDIF()
 
-    ENDWHILE(NOT "${tempfiles}" STREQUAL "")
+    ENDWHILE()
 
     SET_CORE("${python_binary_dir}")
     ADD_TEST(Python${is_core}_${script} ${CMAKE_COMMAND}
@@ -190,12 +190,12 @@ MACRO(ADD_MPI_TEST_PYTHON script files)
     IF(NOT "${tdep}" STREQUAL "")
         SET_TESTS_PROPERTIES(Python${is_core}_${script}}
             PROPERTIES DEPENDS ${tdep})
-    ENDIF(NOT "${tdep}" STREQUAL "")
+    ENDIF()
     file(COPY
         ${python_source_dir}/${script}
         DESTINATION ${python_binary_dir}/
     )
-ENDMACRO(ADD_MPI_TEST_PYTHON script files)
+ENDMACRO()
 
 
 
@@ -211,7 +211,7 @@ MACRO(CLEAN_TEST_PYTHON executable)
 		ADDITIONAL_MAKE_CLEAN_FILES ${ARGN}
 		${executable}.py
 	)
-ENDMACRO(CLEAN_TEST_PYTHON executable)
+ENDMACRO()
 
 
 # Python Create Target Macro
@@ -221,7 +221,7 @@ ENDMACRO(CLEAN_TEST_PYTHON executable)
 MACRO(CREATE_TARGET_TEST_PYTHON)
 	IF(EXISTS PythonCore_ALLTEST)
         	SET(PythonCore_ALLTEST PythonCore_ALLTEST)
-	ENDIF(EXISTS PythonCore_ALLTEST)
+	ENDIF()
 
     GET_PROPERTY(python_dependencies GLOBAL PROPERTY PYTHON_TEST_DEPENDENCIES)	
 
@@ -232,13 +232,13 @@ MACRO(CREATE_TARGET_TEST_PYTHON)
 
     IF(NOT ("${python_dependencies}" STREQUAL ""))
         ADD_DEPENDENCIES(Python${is_core}_ALLTEST ${python_dependencies})
-	ENDIF(NOT ("${python_dependencies}" STREQUAL ""))
+	ENDIF()
 
 	IF(NOT ("${is_core}" STREQUAL ""))
 		SET_PROPERTY(GLOBAL PROPERTY PYTHON_TEST_TARGETS "")
-	ENDIF(NOT ("${is_core}" STREQUAL ""))
+	ENDIF()
 
-ENDMACRO(CREATE_TARGET_TEST_PYTHON)
+ENDMACRO()
 
 
 # Configure the python 'driver' file

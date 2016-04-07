@@ -176,9 +176,4 @@ private:
   shared_ptr<const XdmfGridCollectionType> mType;
 };
 
-#ifdef _WIN32
-XDMF_TEMPLATE template class XDMF_EXPORT
-shared_ptr<const XdmfGridCollectionType>;
-#endif
-
 #endif /* XDMFGRID_HPP_ */

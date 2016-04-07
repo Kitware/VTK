@@ -308,9 +308,5 @@ private:
 
 };
 
-#ifdef _WIN32
-XDMFCORE_TEMPLATE template class XDMFCORE_EXPORT
-shared_ptr<const XdmfArrayType>;
-#endif
 
 #endif /* XDMFHEAVYDATACONTROLLER_HPP_ */

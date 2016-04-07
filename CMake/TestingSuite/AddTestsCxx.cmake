@@ -16,8 +16,8 @@ MACRO(ADD_TEST_CXX_DEPENDENCIES dependencies)
         SET_PROPERTY(GLOBAL APPEND PROPERTY CXX_TEST_DEPENDENCIES
             "${dependencies}"
  	)
-    ENDIF(NOT ("${dependencies}" STREQUAL ""))
-ENDMACRO(ADD_TEST_CXX_DEPENDENCIES dependencies)
+    ENDIF()
+ENDMACRO()
 
 # Cxx Add LDPath  Macro
 # Author: Brian Panneton
@@ -30,8 +30,8 @@ MACRO(ADD_TEST_CXX_LDPATH ld)
         SET_PROPERTY(GLOBAL PROPERTY CXX_TEST_LDPATH 
                 "${ldpath}${sep}${ld}" 
         )
-    ENDIF("${ld}" STRGREATER "")
-ENDMACRO(ADD_TEST_CXX_LDPATH ld)
+    ENDIF()
+ENDMACRO()
 
 # Cxx Add Path  Macro
 # Author: Brian Panneton
@@ -44,8 +44,8 @@ MACRO(ADD_TEST_CXX_PATH p)
         SET_PROPERTY(GLOBAL PROPERTY CXX_TEST_PATH 
                 "${path}${sep}${p}" 
         )
-    ENDIF("${p}" STRGREATER "")
-ENDMACRO(ADD_TEST_CXX_PATH p)
+    ENDIF()
+ENDMACRO()
 
 # CXX Test Macro
 # Author: Brian Panneton
@@ -60,11 +60,11 @@ MACRO(ADD_TEST_CXX executable)
     
     IF(EXISTS ${cxx_source_dir}/${executable}.cpp)
         ADD_EXECUTABLE(${executable}${dup} ${cxx_source_dir}/${executable}.cpp)
-    ENDIF(EXISTS ${cxx_source_dir}/${executable}.cpp)
+    ENDIF()
 
     IF(EXISTS ${cxx_source_dir}/${executable}.cxx)
         ADD_EXECUTABLE(${executable}${dup} ${cxx_source_dir}/${executable}.cxx)
-    ENDIF(EXISTS ${cxx_source_dir}/${executable}.cxx)
+    ENDIF()
 	
     GET_PROPERTY(cxx_dependencies GLOBAL PROPERTY CXX_TEST_DEPENDENCIES)
     GET_PROPERTY(cxx_ldpath GLOBAL PROPERTY CXX_TEST_LDPATH)
@@ -81,8 +81,8 @@ MACRO(ADD_TEST_CXX executable)
 
         IF("${cxx_path}" STREQUAL "")
             SET(cxx_path ${cxx_ldpath})
-        ENDIF("${cxx_path}" STREQUAL "")
-    ENDIF(WIN32)
+        ENDIF()
+    ENDIF()
 
     SET_CORE("${cxx_binary_dir}")
     ADD_TEST(Cxx${is_core}_${executable}${dup} ${CMAKE_COMMAND}
@@ -96,8 +96,8 @@ MACRO(ADD_TEST_CXX executable)
     IF(NOT "${tdep}" STREQUAL "")
 	    SET_TESTS_PROPERTIES(Cxx${is_core}_${executable}${dup}
             PROPERTIES DEPENDS ${tdep})
-    ENDIF(NOT "${tdep}" STREQUAL "")
-ENDMACRO(ADD_TEST_CXX executable)
+    ENDIF()
+ENDMACRO()
 
 # CXX MPI Test Macro
 # Author: Andrew Burns
@@ -122,11 +122,11 @@ MACRO(ADD_MPI_TEST_CXX script files)
 
         IF(EXISTS ${cxx_source_dir}/${executable}.cpp)
             ADD_EXECUTABLE(${executable} ${cxx_source_dir}/${executable}.cpp)
-        ENDIF(EXISTS ${cxx_source_dir}/${executable}.cpp)
+        ENDIF()
 
         IF(EXISTS ${cxx_source_dir}/${executable}.cxx)
             ADD_EXECUTABLE(${executable} ${cxx_source_dir}/${executable}.cxx)
-        ENDIF(EXISTS ${cxx_source_dir}/${executable}.cxx)
+        ENDIF()
 
         GET_PROPERTY(cxx_dependencies GLOBAL PROPERTY CXX_TEST_DEPENDENCIES)
         GET_PROPERTY(cxx_ldpath GLOBAL PROPERTY CXX_TEST_LDPATH)
@@ -143,9 +143,9 @@ MACRO(ADD_MPI_TEST_CXX script files)
 
             IF("${cxx_path}" STREQUAL "")
                 SET(cxx_path ${cxx_ldpath})
-            ENDIF("${cxx_path}" STREQUAL "")
-        ENDIF(WIN32)
-    ENDWHILE(NOT "${tempfiles}" STREQUAL "")
+            ENDIF()
+        ENDIF()
+    ENDWHILE()
 
     SET_CORE("${cxx_binary_dir}")
     ADD_TEST(Cxx${is_core}_${script} ${CMAKE_COMMAND}
@@ -159,12 +159,12 @@ MACRO(ADD_MPI_TEST_CXX script files)
     IF(NOT "${tdep}" STREQUAL "")
             SET_TESTS_PROPERTIES(Cxx${is_core}_${script}
             PROPERTIES DEPENDS ${tdep} ${script})
-    ENDIF(NOT "${tdep}" STREQUAL "")
+    ENDIF()
     file(COPY
         ${cxx_source_dir}/${script}
         DESTINATION ${cxx_binary_dir}/
     )
-ENDMACRO(ADD_MPI_TEST_CXX script files)
+ENDMACRO()
 
 # CXX Clean Macro
 # Author: Brian Panneton
@@ -176,7 +176,7 @@ MACRO(CLEAN_TEST_CXX executable)
     set_property(DIRECTORY APPEND PROPERTY 
         ADDITIONAL_MAKE_CLEAN_FILES ${ARGN} 
     )
-ENDMACRO(CLEAN_TEST_CXX executable)
+ENDMACRO()
 
  # Configure the cxx 'driver' file
 CONFIGURE_FILE(${TESTING_SUITE_DIR}/TestingSuite/TestDriverCxx.cmake.in ${cxx_binary_dir}/TestDriverCxx.cmake @ONLY)

@@ -186,7 +186,7 @@ XdmfCurvilinearGrid::New(const unsigned int xNumPoints,
                          const unsigned int yNumPoints)
 {
   shared_ptr<XdmfArray> numPoints = XdmfArray::New();
-  numPoints->resize<unsigned int>(2);
+  numPoints->initialize<unsigned int>(2);
   numPoints->insert(0, xNumPoints);
   numPoints->insert(1, yNumPoints);
   shared_ptr<XdmfCurvilinearGrid> p(new XdmfCurvilinearGrid(numPoints));
@@ -199,7 +199,7 @@ XdmfCurvilinearGrid::New(const unsigned int xNumPoints,
                          const unsigned int zNumPoints)
 {
   shared_ptr<XdmfArray> numPoints = XdmfArray::New();
-  numPoints->resize<unsigned int>(3);
+  numPoints->initialize<unsigned int>(3);
   numPoints->insert(0, xNumPoints);
   numPoints->insert(1, yNumPoints);
   numPoints->insert(2, zNumPoints);

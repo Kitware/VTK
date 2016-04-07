@@ -26,6 +26,7 @@
   #include <H5FDdsmManager.h>
   #include <H5FDdsmBuffer.h>
 #endif
+#include <H5public.h>
 #include <hdf5.h>
 #include "XdmfArray.hpp"
 #include "XdmfArrayType.hpp"

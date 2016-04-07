@@ -213,14 +213,4 @@ private:
   shared_ptr<const XdmfSetType> mType;
 };
 
-#ifdef _WIN32
-XDMF_TEMPLATE template class XDMF_EXPORT
-std::allocator<shared_ptr<XdmfAttribute> >;
-XDMF_TEMPLATE template class XDMF_EXPORT
-std::vector<shared_ptr<XdmfAttribute>,
-            std::allocator<shared_ptr<XdmfAttribute> > >;
-XDMF_TEMPLATE template class XDMF_EXPORT
-shared_ptr<const XdmfSetType>;
-#endif
-
 #endif /* XDMFSET_HPP_ */

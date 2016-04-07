@@ -30,6 +30,7 @@ class XdmfInformation;
 class XdmfVisitor;
 
 // Includes
+#undef reference //stop libXML2 mangle of "reference" from causing havoc
 #include <loki/Visitor.h>
 #include <map>
 #include <string>
@@ -387,23 +388,5 @@ private:
   void operator=(const XdmfItem &);  // Not implemented.
 
 };
-
-#ifdef _WIN32
-XDMFCORE_TEMPLATE
-template class XDMFCORE_EXPORT
-std::allocator<shared_ptr<XdmfItem> >;
-XDMFCORE_TEMPLATE template class XDMFCORE_EXPORT
-std::vector<shared_ptr<XdmfItem>, 
-            std::allocator<shared_ptr<XdmfItem> > >;
-XDMFCORE_TEMPLATE template class XDMFCORE_EXPORT
-std::allocator<shared_ptr<XdmfInformation> >;
-XDMFCORE_TEMPLATE template class XDMFCORE_EXPORT
-std::vector<shared_ptr<XdmfInformation>, 
-            std::allocator<shared_ptr<XdmfInformation> > >;
-XDMFCORE_TEMPLATE template class XDMFCORE_EXPORT
-shared_ptr<Loki::BaseVisitor>;
-XDMFCORE_TEMPLATE template class XDMFCORE_EXPORT
-Loki::BaseVisitable<void, false>;
-#endif
 
 #endif /* XDMFITEM_HPP_ */

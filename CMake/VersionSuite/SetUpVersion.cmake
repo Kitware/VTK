@@ -20,12 +20,12 @@ MACRO(VersionCreate versionName versionMajor export_name)
     VersionMajorSet(${versionMajor})
     VersionCalculate()
     VersionWrite(${versionName} ${export_name} "${ARGN}")
-ENDMACRO(VersionCreate versionName versionMajor export_name)
+ENDMACRO()
 
 # This Macro allows you to set the rewrite number
 MACRO(VersionMajorSet versionMajor)
         SET(vMajor ${versionMajor})
-ENDMACRO(VersionMajorSet)
+ENDMACRO()
 
 # This Macro calculates the number of tags from your git repo
 MACRO(VersionCalculate)
@@ -36,20 +36,20 @@ MACRO(VersionCalculate)
         SET(count 0)
         FOREACH(r ${return})
             MATH(EXPR count "${count} + 1")
-        ENDFOREACH(r ${return})
+        ENDFOREACH()
         SET(vMinor ${count})
-    ELSE(GIT_FOUND)
+    ELSE()
         SET(vMinor "X")
-    ENDIF(GIT_FOUND)
-ENDMACRO(VersionCalculate)
+    ENDIF()
+ENDMACRO()
 
 # This Macro writes your hpp/cpp files
 MACRO(VersionWrite vProjectName export_name)
     SET(include_list "${ARGN}")
     FOREACH(il ${include_list})
         SET(includes "${includes}\n\#include \"${il}\"")
-    ENDFOREACH(il ${include_list})
-    FILE(WRITE ${CMAKE_BINARY_DIR}/${vProjectName}Version.hpp
+    ENDFOREACH()
+    FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${vProjectName}Version.hpp
 "/* Current Version of ${vProjectName}
  * Major is: ${vMajor}
  * Minor is: ${vMinor}
@@ -59,11 +59,11 @@ ${includes}
 extern ${export_name} ProjectVersion ${vProjectName}Version;\n"
     )
 
-        FILE(WRITE ${CMAKE_BINARY_DIR}/${vProjectName}Version.cpp
+        FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${vProjectName}Version.cpp
 "/* Current Version of ${vProjectName}
  * Make sure to include this file in your built sources
  */
 \#include \"${vProjectName}Version.hpp\"
 ProjectVersion ${vProjectName}Version = ProjectVersion(\"${vProjectName}\", \"${vMajor}\", \"${vMinor}\");\n"
         )
-ENDMACRO(VersionWrite vProjectName export_name)
+ENDMACRO()

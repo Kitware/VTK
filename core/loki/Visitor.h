@@ -257,12 +257,12 @@ struct DefaultCatchAll
     public:
         typedef R ReturnType;
         virtual ~BaseVisitable() {}
-        virtual ReturnType accept(const shared_ptr<BaseVisitor>) = 0;
+        virtual ReturnType accept(const shared_ptr<BaseVisitor>&) = 0;
         
     protected: // give access only to the hierarchy
 
         template <class T>
-        static ReturnType acceptImpl(T& visited, const shared_ptr<BaseVisitor> guest)
+        static ReturnType acceptImpl(T& visited, const shared_ptr<BaseVisitor>& guest)
         {
             // Apply the Acyclic Visitor
             if (Visitor<T,R>* p = dynamic_cast<Visitor<T,R>*>(guest.get()))
@@ -280,10 +280,10 @@ struct DefaultCatchAll
         typedef R ReturnType;
         virtual ~BaseVisitable() {}
         virtual ReturnType accept(BaseVisitor&) const = 0;
-        
+
     protected: // give access only to the hierarchy
         template <class T>
-        static ReturnType acceptImpl(const T& visited, const shared_ptr<BaseVisitor> guest)
+        static ReturnType acceptImpl(const T& visited, const shared_ptr<BaseVisitor>& guest)
         {
             // Apply the Acyclic Visitor
             if (Visitor<T,R,true>* p = dynamic_cast<Visitor<T,R,true>*>(guest.get()))
@@ -291,6 +291,50 @@ struct DefaultCatchAll
                 p->visit(visited, guest);
             }
             return;
+        }
+    };
+
+
+    template< >
+    class BaseVisitable<void, false>
+    {
+        typedef void R;
+    public:
+        typedef R ReturnType;
+        virtual ~BaseVisitable() {}
+        virtual ReturnType accept(const shared_ptr<BaseVisitor>&) = 0;
+
+    protected: // give access only to the hierarchy
+
+        template <class T>
+        static ReturnType acceptImpl(T& visited, const shared_ptr<BaseVisitor>& guest)
+        {
+            // Apply the Acyclic Visitor
+            if (Visitor<T,R>* p = dynamic_cast<Visitor<T,R>*>(guest.get()))
+            {
+                p->visit(visited, guest);
+            }
+        }
+    };
+
+    template<>
+    class BaseVisitable<void, true>
+    {
+        typedef void R;
+    public:
+        typedef R ReturnType;
+        virtual ~BaseVisitable() {}
+        virtual ReturnType accept(BaseVisitor&) const = 0;
+
+    protected: // give access only to the hierarchy
+        template <class T>
+        static ReturnType acceptImpl(const T& visited, const shared_ptr<BaseVisitor>& guest)
+        {
+            // Apply the Acyclic Visitor
+            if (Visitor<T,R,true>* p = dynamic_cast<Visitor<T,R,true>*>(guest.get()))
+            {
+                p->visit(visited, guest);
+            }
         }
     };
 
@@ -302,13 +346,14 @@ struct DefaultCatchAll
 ////////////////////////////////////////////////////////////////////////////////
 
 #define LOKI_DEFINE_VISITABLE_BASE() \
-    virtual ReturnType accept(const shared_ptr<Loki::BaseVisitor> guest) \
+    virtual void accept(const shared_ptr<Loki::BaseVisitor> &guest) \
     { acceptImpl(*this, guest); }
 
 #define LOKI_DEFINE_VISITABLE(my_class, my_base) \
-    virtual ReturnType accept(const shared_ptr<Loki::BaseVisitor> guest) \
+    virtual void accept(const shared_ptr<Loki::BaseVisitor> &guest) \
     { \
-        if (Loki::Visitor<my_class,ReturnType>* p = dynamic_cast<Loki::Visitor<my_class,ReturnType>*>(guest.get())) \
+        Loki::BaseVisitor* t = guest.get();\
+        if (Loki::Visitor<my_class,ReturnType>* p = dynamic_cast<Loki::Visitor<my_class,ReturnType>*>(t)) \
         { \
             p->visit(*this, guest); \
         } \
