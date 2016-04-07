@@ -56,6 +56,7 @@ set (VolumeOpenGL2CxxTests
   TestGPURayCastCameraInsideSmallSpacing.cxx
   TestGPURayCastCellData.cxx
   TestGPURayCastClipping.cxx
+  TestGPURayCastClippingUserTransform.cxx
   TestGPURayCastFourComponentsDependentGradient.cxx
   TestGPURayCastGradientOpacity.cxx
   TestGPURayCastPositionalLights.cxx
