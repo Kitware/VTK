@@ -18,6 +18,7 @@
 #include "vtkSPHQuinticKernel.h"
 #include "vtkVoronoiKernel.h"
 #include "vtkAbstractPointLocator.h"
+#include "vtkArrayListTemplate.h"
 #include "vtkStaticPointLocator.h"
 #include "vtkDataSet.h"
 #include "vtkDataArray.h"
@@ -43,9 +44,6 @@ vtkCxxSetObjectMacro(vtkSPHInterpolator,Kernel,vtkSPHKernel);
 //----------------------------------------------------------------------------
 // Helper classes to support efficient computing, and threaded execution.
 namespace {
-
-#include "vtkArrayListTemplate.h"
-
 // The threaded core of the algorithm
 struct ProbePoints
 {
