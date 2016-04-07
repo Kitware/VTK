@@ -16,14 +16,16 @@
 #include "vtkPResampleToImage.h"
 
 #include "vtkActor.h"
+#include "vtkAssignAttribute.h"
 #include "vtkCamera.h"
-#include "vtkClipDataSet.h"
 #include "vtkCompositeRenderManager.h"
 #include "vtkContourFilter.h"
-#include "vtkPExtractVOI.h"
+#include "vtkExtentTranslator.h"
+#include "vtkImageData.h"
 #include "vtkMPIController.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
-#include "vtkPieceScalars.h"
+#include "vtkPointDataToCellData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
@@ -36,7 +38,7 @@
 #include VTK_DIY2_HEADER(diy/mpi.hpp)
 
 
-int TestPResampleToImage(int argc, char *argv[])
+int TestPResampleToImageCompositeDataSet(int argc, char *argv[])
 {
   diy::mpi::environment mpienv(argc, argv);
   vtkNew<vtkMPIController> controller;
@@ -61,42 +63,59 @@ int TestPResampleToImage(int argc, char *argv[])
   prm->SetController(controller.GetPointer());
 
 
-  // Create Pipeline
+  // Create input dataset
+  const int piecesPerRank = 2;
+  int numberOfPieces = world.size() * piecesPerRank;
+
+  vtkNew<vtkMultiBlockDataSet> input;
+  input->SetNumberOfBlocks(numberOfPieces);
+
+  vtkNew<vtkExtentTranslator> extentTranslator;
+  extentTranslator->SetWholeExtent(0, 31, 0, 31, 0, 31);
+  extentTranslator->SetNumberOfPieces(numberOfPieces);
+  extentTranslator->SetSplitModeToBlock();
+
   vtkNew<vtkRTAnalyticSource> wavelet;
   wavelet->SetWholeExtent(0, 31, 0, 31, 0, 31);
   wavelet->SetCenter(16, 16, 16);
+  vtkNew<vtkPointDataToCellData> pointToCell;
+  pointToCell->SetInputConnection(wavelet->GetOutputPort());
 
-  vtkNew<vtkClipDataSet> clip;
-  clip->SetInputConnection(wavelet->GetOutputPort());
-  clip->SetValue(157);
+  for (int i = 0; i < piecesPerRank; ++i)
+    {
+    int piece = (world.rank() * piecesPerRank) + i;
+    int pieceExtent[6];
+    extentTranslator->SetPiece(piece);
+    extentTranslator->PieceToExtent();
+    extentTranslator->GetExtent(pieceExtent);
+    pointToCell->UpdateExtent(pieceExtent);
+    vtkNew<vtkImageData> img;
+    img->DeepCopy(vtkImageData::SafeDownCast(pointToCell->GetOutput()));
+    input->SetBlock(piece, img.GetPointer());
+    }
 
+
+  // create pipeline
   vtkNew<vtkPResampleToImage> resample;
+  resample->SetInputDataObject(input.GetPointer());
+  resample->SetController(controller.GetPointer());
   resample->SetUseInputBounds(true);
   resample->SetSamplingDimensions(64, 64, 64);
-  resample->SetInputConnection(clip->GetOutputPort());
 
-  vtkNew<vtkPExtractVOI> voi;
-  voi->SetVOI(4, 59, 4, 59, 4, 59);
-  voi->SetInputConnection(resample->GetOutputPort());
+  vtkNew<vtkAssignAttribute> assignAttrib;
+  assignAttrib->SetInputConnection(resample->GetOutputPort());
+  assignAttrib->Assign("RTData", vtkDataSetAttributes::SCALARS,
+                       vtkAssignAttribute::POINT_DATA);
 
   vtkNew<vtkContourFilter> contour;
-  contour->SetValue(0, 200);
+  contour->SetInputConnection(assignAttrib->GetOutputPort());
+  contour->SetValue(0, 157);
   contour->ComputeNormalsOn();
-  contour->SetInputConnection(voi->GetOutputPort());
-
-  vtkNew<vtkPieceScalars> pieceScalars;
-  pieceScalars->SetInputConnection(contour->GetOutputPort());
-  pieceScalars->SetScalarModeToCellData();
 
 
   // Execute pipeline and render
   vtkNew<vtkPolyDataMapper> mapper;
-  mapper->SetInputConnection(pieceScalars->GetOutputPort());
-  mapper->SetScalarModeToUseCellFieldData();
-  mapper->SelectColorArray("Piece");
-  mapper->SetScalarRange(0, world.size() - 1);
-  mapper->SetPiece(world.rank());
-  mapper->SetNumberOfPieces(world.size());
+  mapper->SetInputConnection(contour->GetOutputPort());
   mapper->Update();
 
   vtkNew<vtkActor> actor;
@@ -107,8 +126,6 @@ int TestPResampleToImage(int argc, char *argv[])
   if (world.rank() == 0)
     {
     prm->ResetAllCameras();
-    renderer->GetActiveCamera()->Azimuth(90);
-
     renWin->Render();
     retVal = vtkRegressionTester::Test(argc, argv, renWin.GetPointer(), 10);
     if (retVal == vtkRegressionTester::DO_INTERACTOR)

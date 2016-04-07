@@ -154,7 +154,7 @@ namespace detail
          SkipIntermediate(size_t rounds_):
             rounds(rounds_)                                     {}
 
-    bool operator()(int round, int, const Master&) const        { if (round == 0 || round == rounds) return false; return true; }
+    bool operator()(int round, int, const Master&) const        { if (round == 0 || round == (int) rounds) return false; return true; }
 
     size_t  rounds;
   };
