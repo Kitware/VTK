@@ -871,7 +871,7 @@ void vtkCocoaRenderWindow::CreateGLContext()
     int i = 0;
     NSOpenGLPixelFormatAttribute attribs[20];
 
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
     attribs[i++] = NSOpenGLPFAOpenGLProfile;
     attribs[i++] = NSOpenGLProfileVersion3_2Core;
 #endif
@@ -926,7 +926,7 @@ void vtkCocoaRenderWindow::CreateGLContext()
       }
     else
       {
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
       this->SetContextSupportsOpenGL32(true);
 #else
       this->SetContextSupportsOpenGL32(false);
