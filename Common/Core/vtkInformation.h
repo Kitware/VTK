@@ -55,6 +55,7 @@ class vtkInformationKey;
 class vtkInformationKeyToInformationFriendship;
 class vtkInformationKeyVectorKey;
 class vtkInformationObjectBaseKey;
+class vtkInformationObjectBaseVectorKey;
 class vtkInformationRequestKey;
 class vtkInformationStringKey;
 class vtkInformationStringVectorKey;
@@ -128,6 +129,7 @@ public:
   VTKCOMMONCORE_EXPORT void CopyEntry(vtkInformation* from, vtkInformationInformationVectorKey* key, int deep=0);
   VTKCOMMONCORE_EXPORT void CopyEntry(vtkInformation* from, vtkInformationIntegerKey* key, int deep=0);
   VTKCOMMONCORE_EXPORT void CopyEntry(vtkInformation* from, vtkInformationIntegerVectorKey* key, int deep=0);
+  VTKCOMMONCORE_EXPORT void CopyEntry(vtkInformation* from, vtkInformationObjectBaseVectorKey* key, int deep=0);
   VTKCOMMONCORE_EXPORT void CopyEntry(vtkInformation* from, vtkInformationRequestKey* key, int deep=0);
   VTKCOMMONCORE_EXPORT void CopyEntry(vtkInformation* from, vtkInformationStringKey* key, int deep=0);
   VTKCOMMONCORE_EXPORT void CopyEntry(vtkInformation* from, vtkInformationStringVectorKey* key, int deep=0);
@@ -345,6 +347,22 @@ public:
   VTKCOMMONCORE_EXPORT vtkObjectBase* Get(vtkInformationObjectBaseKey* key);
   VTKCOMMONCORE_EXPORT void Remove(vtkInformationObjectBaseKey* key);
   VTKCOMMONCORE_EXPORT int Has(vtkInformationObjectBaseKey* key);
+
+  // Description:
+  // Manipulate a ObjectBaseVector entry.
+  VTKCOMMONCORE_EXPORT void Append(vtkInformationObjectBaseVectorKey* key,
+                                   vtkObjectBase *data);
+  VTKCOMMONCORE_EXPORT void Set(vtkInformationObjectBaseVectorKey *key,
+                                vtkObjectBase* value, int idx = 0);
+  VTKCOMMONCORE_EXPORT vtkObjectBase* Get(vtkInformationObjectBaseVectorKey *key,
+                                          int idx = 0);
+  VTKCOMMONCORE_EXPORT int Length(vtkInformationObjectBaseVectorKey *key);
+  VTKCOMMONCORE_EXPORT void Remove(vtkInformationObjectBaseVectorKey *key);
+  VTKCOMMONCORE_EXPORT void Remove(vtkInformationObjectBaseVectorKey *key,
+                                   vtkObjectBase *objectToRemove);
+  VTKCOMMONCORE_EXPORT void Remove(vtkInformationObjectBaseVectorKey *key,
+                                   int indexToRemove);
+  VTKCOMMONCORE_EXPORT int Has(vtkInformationObjectBaseVectorKey *key);
 
   // Description:
   // Get/Set an entry storing a vtkDataObject instance.
