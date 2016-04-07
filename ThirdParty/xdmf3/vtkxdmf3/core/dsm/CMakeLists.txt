@@ -150,6 +150,6 @@ endif()
 
 include_directories(${XdmfCore_INCLUDE_DIRS} ${XdmfDSM_INCLUDE_DIRS})
 
-if(BUILD_TESTING)
+if(XDMF_BUILD_TESTING)
   add_subdirectory(tests)
 endif()

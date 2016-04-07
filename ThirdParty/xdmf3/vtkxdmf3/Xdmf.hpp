@@ -149,13 +149,13 @@
 # undef XDMFDSM_TEMPLATE
 # define XDMFDSM_TEMPLATE extern
 
-# ifdef vtkxdmf3_EXPORTS
+# ifdef xdmf3_EXPORTS
 # define XDMF_EXPORT __declspec(dllexport)
 # define XDMF_TEMPLATE
-# else /* vtkxdmf3_EXPORTS */
+# else /* xxdmf3_EXPORTS */
 # define XDMF_EXPORT __declspec(dllimport)
 # define XDMF_TEMPLATE extern
-# endif /* vtkxdmf3_EXPORTS */
+# endif /* xdmf3_EXPORTS */
 #endif
 
 /* Compiler Warnings */

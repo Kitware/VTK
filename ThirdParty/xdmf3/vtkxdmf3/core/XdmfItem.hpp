@@ -30,7 +30,7 @@ class XdmfInformation;
 class XdmfVisitor;
 
 // Includes
-#undef reference //stop VTK's libXM2 mangle of "reference" from causing havoc
+#undef reference //stop libXML2 mangle of "reference" from causing havoc
 #include <loki/Visitor.h>
 #include <map>
 #include <string>

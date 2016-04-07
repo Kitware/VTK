@@ -42,7 +42,7 @@ MACRO(ADD_TEST_JAVA_CLASSPATH cp)
                 SET_PROPERTY(GLOBAL PROPERTY JAVA_TEST_CLASSPATH 
                         "${classpath}${sep}${cp}" 
                 )
-        ENDIF() 
+        ENDIF()
 ENDMACRO()
 
 # Java Add LDPath  Macro
@@ -56,7 +56,7 @@ MACRO(ADD_TEST_JAVA_LDPATH ld)
 		SET_PROPERTY(GLOBAL PROPERTY JAVA_TEST_LDPATH 
         		"${ldpath}${sep}${ld}" 
 		)
-	ENDIF()  
+	ENDIF()
 ENDMACRO()
 
 # Java Add Path Macro
@@ -110,7 +110,7 @@ MACRO(ADD_TEST_JAVA executable)
         IF("${java_path}" STREQUAL "")
             SET(java_path ${java_ldpath})
         ENDIF()
-    ENDIF()    
+    ENDIF()
 
 	SET_CORE("${java_binary_dir}")
     ADD_TEST(Java${is_core}_${executable}${dup} ${CMAKE_COMMAND}
