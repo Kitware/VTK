@@ -283,7 +283,7 @@ protected:
   std::map<std::string, int> Attributes;
 
 
-  std::map<std::string, bool> UniformsUsed;
+  std::map<std::string, int> UniformLocs;
 
   friend class VertexArrayObject;
 
