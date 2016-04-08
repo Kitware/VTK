@@ -43,6 +43,9 @@
 
 #include "vtkCommonMiscModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkTuple.h" // needed for vtkTuple
+#include <vector> // needed for vector
+#include <string> // needed for string.
 
 #define VTK_PARSER_IMMEDIATE 1
 #define VTK_PARSER_UNARY_MINUS 2
@@ -200,19 +203,21 @@ public:
 
   // Description:
   // Get the number of scalar variables.
-  vtkGetMacro(NumberOfScalarVariables,int);
+  int GetNumberOfScalarVariables()
+    { return static_cast<int>(this->ScalarVariableNames.size()); }
 
   // Description:
   // Get the number of vector variables.
-  vtkGetMacro(NumberOfVectorVariables,int);
+  int GetNumberOfVectorVariables()
+    { return static_cast<int>(this->VectorVariableNames.size()); }
 
   // Description:
   // Get the ith scalar variable name.
-  char* GetScalarVariableName(int i);
+  const char* GetScalarVariableName(int i);
 
   // Description:
   // Get the ith vector variable name.
-  char* GetVectorVariableName(int i);
+  const char* GetVectorVariableName(int i);
 
   // Description:
   // Remove all the current variables.
@@ -293,12 +298,11 @@ protected:
   char* FunctionWithSpaces;
 
   int FunctionLength;
-  int NumberOfScalarVariables;
-  int NumberOfVectorVariables;
-  char** ScalarVariableNames;
-  char** VectorVariableNames;
-  double* ScalarVariableValues;
-  double** VectorVariableValues;
+  std::vector<std::string> ScalarVariableNames;
+  std::vector<std::string> VectorVariableNames;
+  std::vector<double> ScalarVariableValues;
+  std::vector<vtkTuple<double, 3> >  VectorVariableValues;
+
   unsigned char *ByteCode;
   int ByteCodeSize;
   double *Immediates;
