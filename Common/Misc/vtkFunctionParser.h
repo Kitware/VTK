@@ -220,6 +220,20 @@ public:
   const char* GetVectorVariableName(int i);
 
   // Description:
+  // Returns whether a scalar variable is needed for the function evaluation.
+  // This is only valid after a successful Parse(). Thus, call GetScalarResult()
+  // or IsScalarResult() or similar method before calling this.
+  bool GetScalarVariableNeeded(int i);
+  bool GetScalarVariableNeeded(const char* variableName);
+
+  // Description:
+  // Returns whether a vector variable is needed for the function evaluation.
+  // This is only valid after a successful Parse(). Thus, call GetVectorResult()
+  // or IsVectorResult() or similar method before calling this.
+  bool GetVectorVariableNeeded(int i);
+  bool GetVectorVariableNeeded(const char* variableName);
+
+  // Description:
   // Remove all the current variables.
   void RemoveAllVariables();
 
@@ -290,6 +304,11 @@ protected:
 
   int DisambiguateOperators();
 
+  // Description:
+  // Collects meta-data about which variables are needed by the current
+  // function. This is called only after a successful call to this->Parse().
+  void UpdateNeededVariables();
+
   vtkSetStringMacro(ParseError);
 
   int FindPositionInOriginalFunction(const int& pos);
@@ -302,6 +321,8 @@ protected:
   std::vector<std::string> VectorVariableNames;
   std::vector<double> ScalarVariableValues;
   std::vector<vtkTuple<double, 3> >  VectorVariableValues;
+  std::vector<bool> ScalarVariableNeeded;
+  std::vector<bool> VectorVariableNeeded;
 
   unsigned char *ByteCode;
   int ByteCodeSize;

@@ -16,6 +16,7 @@
 #include "vtkObjectFactory.h"
 
 #include <cctype>
+#include <algorithm>
 
 vtkStandardNewMacro(vtkFunctionParser);
 
@@ -51,8 +52,6 @@ vtkFunctionParser::vtkFunctionParser()
 //-----------------------------------------------------------------------------
 vtkFunctionParser::~vtkFunctionParser()
 {
-  int i;
-
   delete [] this->Function;
   this->Function = NULL;
 
@@ -103,6 +102,8 @@ void vtkFunctionParser::SetFunction(const char *function)
     }
 
   this->FunctionMTime.Modified();
+  this->ScalarVariableNeeded.clear();
+  this->VectorVariableNeeded.clear();
   this->Modified();
 }
 
@@ -162,6 +163,9 @@ int vtkFunctionParser::Parse()
       }
     }
 
+  // Collect meta-data about variables that are needed for evaluation of the
+  // function.
+  this->UpdateNeededVariables();
   this->ParseMTime.Modified();
   return 1;
 }
@@ -2413,4 +2417,96 @@ int vtkFunctionParser::FindPositionInOriginalFunction(const int &pos)
     }
 
   return origPos;
+}
+
+//-----------------------------------------------------------------------------
+void vtkFunctionParser::UpdateNeededVariables()
+{
+  this->ScalarVariableNeeded.clear();
+  this->ScalarVariableNeeded.resize(this->ScalarVariableNames.size(), false);
+
+  this->VectorVariableNeeded.clear();
+  this->VectorVariableNeeded.resize(this->VectorVariableNames.size(), false);
+
+  unsigned char numscalars = static_cast<unsigned char>(this->GetNumberOfScalarVariables());
+
+  for (int cc=0; cc < this->ByteCodeSize; ++cc)
+    {
+    unsigned char code = this->ByteCode[cc];
+    if (code < VTK_PARSER_BEGIN_VARIABLES)
+      {
+      continue;
+      }
+    code -= VTK_PARSER_BEGIN_VARIABLES;
+    if (code >= numscalars)
+      {
+      this->VectorVariableNeeded[code - numscalars] = true;
+      }
+    else
+      {
+      this->ScalarVariableNeeded[code] = true;
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
+bool vtkFunctionParser::GetScalarVariableNeeded(int i)
+{
+  if (i < 0 || i >= static_cast<int>(this->ScalarVariableNeeded.size()))
+    {
+    return false;
+    }
+  return this->ScalarVariableNeeded[i];
+}
+
+//-----------------------------------------------------------------------------
+bool vtkFunctionParser::GetScalarVariableNeeded(const char* inVariableName)
+{
+  char* variableName = this->RemoveSpacesFrom(inVariableName);
+  std::vector<std::string>::const_iterator iter = std::find(
+    this->ScalarVariableNames.begin(), this->ScalarVariableNames.end(),
+    std::string(variableName));
+  delete [] variableName;
+  if (iter != this->ScalarVariableNames.end())
+    {
+    return this->GetScalarVariableNeeded(
+      static_cast<int>(iter - this->ScalarVariableNames.begin()));
+    }
+  else
+    {
+    vtkErrorMacro("GetScalarVariableNeeded: scalar variable name " << variableName
+                   << " does not exist");
+    return false;
+    }
+}
+
+//-----------------------------------------------------------------------------
+bool vtkFunctionParser::GetVectorVariableNeeded(int i)
+{
+  if (i < 0 || i >= static_cast<int>(this->VectorVariableNeeded.size()))
+    {
+    return false;
+    }
+  return this->VectorVariableNeeded[i];
+}
+
+//-----------------------------------------------------------------------------
+bool vtkFunctionParser::GetVectorVariableNeeded(const char* inVariableName)
+{
+  char* variableName = this->RemoveSpacesFrom(inVariableName);
+  std::vector<std::string>::const_iterator iter = std::find(
+    this->VectorVariableNames.begin(), this->VectorVariableNames.end(),
+    std::string(variableName));
+  delete [] variableName;
+  if (iter != this->VectorVariableNames.end())
+    {
+    return this->GetVectorVariableNeeded(
+      static_cast<int>(iter - this->VectorVariableNames.begin()));
+    }
+  else
+    {
+    vtkErrorMacro("GetVectorVariableNeeded: scalar variable name " << variableName
+                   << " does not exist");
+    return false;
+    }
 }

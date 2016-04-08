@@ -453,12 +453,29 @@ int vtkArrayCalculator::RequestData(
     resultArray->SetTuple(0, this->FunctionParser->GetVectorResult());
     }
 
+  // Save array pointers to avoid looking them up for each tuple.
+  std::vector<vtkDataArray*> scalarArrays(this->NumberOfScalarArrays);
+  std::vector<vtkDataArray*> vectorArrays(this->NumberOfVectorArrays);
+  for (int cc=0; cc < this->NumberOfScalarArrays; cc++)
+    {
+    if (this->FunctionParser->GetScalarVariableNeeded(cc))
+      {
+      scalarArrays[cc] = inFD->GetArray(this->ScalarArrayNames[cc]);
+      }
+    }
+  for (int cc=0; cc < this->NumberOfVectorArrays; cc++)
+    {
+    if (this->FunctionParser->GetVectorVariableNeeded(cc))
+      {
+      vectorArrays[cc] = inFD->GetArray(this->VectorArrayNames[cc]);
+      }
+    }
+
   for (i = 1; i < numTuples; i++)
     {
     for (j = 0; j < this->NumberOfScalarArrays; j++)
       {
-      currentArray = inFD->GetArray(this->ScalarArrayNames[j]);
-      if(currentArray)
+      if ((currentArray = scalarArrays[j]))
         {
         this->FunctionParser->
           SetScalarVariableValue(
@@ -467,13 +484,14 @@ int vtkArrayCalculator::RequestData(
       }
     for (j = 0; j < this->NumberOfVectorArrays; j++)
       {
-      currentArray = inFD->GetArray(this->VectorArrayNames[j]);
-      this->FunctionParser->
-        SetVectorVariableValue(
-          j, currentArray->GetComponent(i, this->SelectedVectorComponents[j][0]),
-          currentArray->GetComponent(
-            i, this->SelectedVectorComponents[j][1]),
-          currentArray->GetComponent(i, this->SelectedVectorComponents[j][2]));
+      if ((currentArray = vectorArrays[j]))
+        {
+        this->FunctionParser->SetVectorVariableValue(
+            j, currentArray->GetComponent(i, this->SelectedVectorComponents[j][0]),
+            currentArray->GetComponent(
+              i, this->SelectedVectorComponents[j][1]),
+            currentArray->GetComponent(i, this->SelectedVectorComponents[j][2]));
+        }
       }
     if(attributeDataType == POINT_DATA)
       {
