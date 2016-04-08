@@ -117,14 +117,14 @@ bool vtkShaderProgram::Substitute(std::string &source, const std::string &search
 {
   std::string::size_type pos = 0;
   bool replaced = false;
-  while ((pos = source.find(search, 0)) != std::string::npos)
+  while ((pos = source.find(search, pos)) != std::string::npos)
     {
     source.replace(pos, search.length(), replace);
     if (!all)
       {
       return true;
       }
-    pos += search.length();
+    pos += replace.length();
     replaced = true;
     }
   return replaced;
