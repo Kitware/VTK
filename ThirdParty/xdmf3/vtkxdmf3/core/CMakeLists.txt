@@ -8,7 +8,7 @@ include(CheckCXXSourceCompiles)
 include(SetUpVersion)
 include(TestBigEndian)
 
-if(VERSION_CONTROL_AUTOUPDATE OR 
+if(VERSION_CONTROL_AUTOUPDATE OR
     NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/XdmfVersion.hpp)
   VersionCreate("Xdmf" "2" "XDMFCORE_EXPORT" "XdmfCore.hpp")
 endif()
@@ -93,18 +93,17 @@ if(HDF5_FOUND)
 endif()
 
 
-set(LIBXML2_LIBRARIES ${vtklibxml2_LIBRARIES})
-set(LIBXML2_INCLUDE_DIR ${vtklibxml2_INCLUDE_DIRS})
-set(LIBXML2_FOUND TRUE)
-find_package(LibXml2 REQUIRED)
-if(LIBXML2_FOUND)
-  include_directories(${LIBXML2_INCLUDE_DIR})
-  get_filename_component(LIBXML2_ROOT "${LIBXML2_INCLUDE_DIR}/../" REALPATH)
-  set(LIBXML2_BINARY_DIRS ${LIBXML2_ROOT}/bin)
-  set(LIBXML2_BINARY_DIRS ${LIBXML2_BINARY_DIRS} PARENT_SCOPE)
-  set(XDMF_LIBRARIES ${XDMF_LIBRARIES} ${LIBXML2_LIBRARIES})
-  set(XDMF_BINARIES ${XDMF_BINARIES} ${LIBXML2_BINARY_DIRS})
+find_package(LibXml2)
+if(NOT LIBXML2_FOUND)
+  set(LIBXML2_LIBRARIES ${vtklibxml2_LIBRARIES})
+  set(LIBXML2_INCLUDE_DIR ${vtklibxml2_INCLUDE_DIRS})
 endif()
+include_directories(${LIBXML2_INCLUDE_DIR})
+get_filename_component(LIBXML2_ROOT "${LIBXML2_INCLUDE_DIR}/../" REALPATH)
+set(LIBXML2_BINARY_DIRS ${LIBXML2_ROOT}/bin)
+set(LIBXML2_BINARY_DIRS ${LIBXML2_BINARY_DIRS} PARENT_SCOPE)
+set(XDMF_LIBRARIES ${XDMF_LIBRARIES} ${LIBXML2_LIBRARIES})
+set(XDMF_BINARIES ${XDMF_BINARIES} ${LIBXML2_BINARY_DIRS})
 
 # Perform compile-time checks and generate XdmfCoreConfig.hpp
 
