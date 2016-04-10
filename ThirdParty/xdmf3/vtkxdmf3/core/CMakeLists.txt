@@ -155,7 +155,9 @@ add_library(XdmfCore ${LIBTYPE} ${XdmfCoreSources})
 link_directories(${XDMF_LIBRARY_DIRS})
 
 target_link_libraries(XdmfCore ${XDMF_LIBRARIES})
-vtk_target_install(XdmfCore)
+if (COMMAND vtk_target_install)
+  vtk_target_install(XdmfCore)
+endif()
 
 if(WIN32)
   add_definitions(-D_HDF5USEDLL_ -D_HDF5USEHLDLL_)
@@ -211,6 +213,7 @@ install(TARGETS XdmfCore
 set(XdmfCore_INCLUDE_DIRS
   ${Boost_INCLUDE_DIRS}
   ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_BINARY_DIR}
   ${HDF5_INCLUDE_DIR}
   ${LIBXML2_INCLUDE_DIR}
   ${PYTHON_INCLUDE_DIRS}
@@ -225,9 +228,9 @@ if(XDMF_BUILD_DSM)
   add_subdirectory(dsm)
 endif()
 
-#if(BUILD_TESTING)
-#  add_subdirectory(tests)
-#endif()
+if(XDMF_BUILD_TESTING)
+  add_subdirectory(tests)
+endif()
 
 set(XDMF_LIBRARIES ${XDMF_LIBRARIES} PARENT_SCOPE)
 set(XDMF_BINARIES ${XDMF_BINARIES} PARENT_SCOPE)

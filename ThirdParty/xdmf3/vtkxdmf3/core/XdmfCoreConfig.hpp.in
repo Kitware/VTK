@@ -32,4 +32,6 @@
 #  define XDMFSTATIC
 #endif
 
+#cmakedefine XDMF_NO_REALPATH
+
 #endif /* XDMFCORECONFIG_HPP_ */
