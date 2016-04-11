@@ -509,6 +509,8 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
       }
     }
 
+//  std::cout << "Number of peels: " << peelCount << "\n";
+
   // unload the textures we are done with
   this->CurrentRGBATexture->Deactivate();
   this->TranslucentZTexture->UnRegister(this);

@@ -47,6 +47,9 @@ int main( int argc, char *argv[] )
   a.TestsToRun.push_back(new volumeTest("Volume", false));
   a.TestsToRun.push_back(new volumeTest("VolumeWithShading", true));
 
+  a.TestsToRun.push_back(new depthPeelingTest("DepthPeeling", false));
+  a.TestsToRun.push_back(new depthPeelingTest("DepthPeelingWithNormals", true));
+
   // process them
   return a.ParseCommandLineArguments(argc, argv);
 }
