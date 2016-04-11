@@ -18,6 +18,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkCellArray.h"
 #include "vtkDepthPeelingPass.h"
+#include "vtkDualDepthPeelingPass.h"
 #include "vtkFloatArray.h"
 #include "vtkHardwareSelector.h"
 #include "vtkLight.h"
@@ -277,7 +278,20 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     {
     if (!this->DepthPeelingPass)
       {
-      this->DepthPeelingPass = vtkDepthPeelingPass::New();
+      // Some mesa drivers don't provide ARB_texture_float. Fallback to standard
+      // depth peeling in this case.
+      if (GLEW_ARB_texture_float)
+        {
+        vtkDebugMacro("Floating point textures supported -- "
+                      "using dual depth peeling.");
+        this->DepthPeelingPass = vtkDualDepthPeelingPass::New();
+        }
+      else
+        {
+        vtkDebugMacro("Floating point textures NOT supported -- "
+                      "using standard depth peeling.");
+        this->DepthPeelingPass = vtkDepthPeelingPass::New();
+        }
       vtkTranslucentPass *tp = vtkTranslucentPass::New();
       this->DepthPeelingPass->SetTranslucentPass(tp);
       tp->Delete();

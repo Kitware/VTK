@@ -17,7 +17,6 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCommand.h"
-#include "vtkDepthPeelingPass.h"
 #include "vtkFloatArray.h"
 #include "vtkHardwareSelector.h"
 #include "vtkImageData.h"
@@ -35,6 +34,7 @@
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLHelper.h"
 #include "vtkOpenGLIndexBufferObject.h"
+#include "vtkOpenGLRenderPass.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLShaderCache.h"
@@ -349,6 +349,37 @@ void vtkOpenGLPolyDataMapper::GetShaderTemplate(
     }
 }
 
+//------------------------------------------------------------------------------
+void vtkOpenGLPolyDataMapper::ReplaceShaderRenderPass(
+    std::map<vtkShader::Type, vtkShader *> shaders, vtkRenderer *,
+    vtkActor *act)
+{
+  std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
+  std::string GSSource = shaders[vtkShader::Geometry]->GetSource();
+  std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
+
+  vtkInformation *info = act->GetPropertyKeys();
+  if (info && info->Has(vtkOpenGLRenderPass::RenderPasses()))
+    {
+    int numRenderPasses = info->Length(vtkOpenGLRenderPass::RenderPasses());
+    for (int i = 0; i < numRenderPasses; ++i)
+      {
+      vtkObjectBase *rpBase = info->Get(vtkOpenGLRenderPass::RenderPasses(), i);
+      vtkOpenGLRenderPass *rp = static_cast<vtkOpenGLRenderPass*>(rpBase);
+      if (!rp->ReplaceShaderValues(VSSource, GSSource, FSSource, this, act))
+        {
+        vtkErrorMacro("vtkOpenGLRenderPass::ReplaceShaderValues failed for "
+                      << rp->GetClassName());
+        }
+      }
+    }
+
+  shaders[vtkShader::Vertex]->SetSource(VSSource);
+  shaders[vtkShader::Geometry]->SetSource(GSSource);
+  shaders[vtkShader::Fragment]->SetSource(FSSource);
+}
+
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
   std::map<vtkShader::Type, vtkShader *> shaders,
   vtkRenderer *, vtkActor *actor)
@@ -952,42 +983,6 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPicking(
   shaders[vtkShader::Fragment]->SetSource(FSSource);
 }
 
-void vtkOpenGLPolyDataMapper::ReplaceShaderDepthPeeling(
-  std::map<vtkShader::Type, vtkShader *> shaders,
-  vtkRenderer *, vtkActor *actor)
-{
-  std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
-
-  // are we using depth peeling?
-  vtkInformation *info = actor->GetPropertyKeys();
-  if (info && info->Has(vtkDepthPeelingPass::OpaqueZTextureUnit()))
-    {
-    vtkShaderProgram::Substitute(FSSource, "//VTK::DepthPeeling::Dec",
-      "uniform vec2 screenSize;\n"
-      "uniform sampler2D opaqueZTexture;\n"
-      "uniform sampler2D translucentZTexture;\n");
-    // the .0000001 below is an epsilon.  It turns out that
-    // graphics cards can render the same polygon two times
-    // in a row with different z values. I suspect it has to
-    // do with how rasterization of the polygon is broken up.
-    // A different breakup across fragment shaders can result in
-    // very slightly different z values for some of the pixels.
-    // The end result is that with depth peeling, you can end up
-    // counting/accumulating pixels of the same surface twice
-    // simply due to this randomness in z values. So we introduce
-    // an epsilon into the transparent test to require some
-    // minimal z seperation between pixels
-    vtkShaderProgram::Substitute(FSSource, "//VTK::DepthPeeling::Impl",
-      "float odepth = texture2D(opaqueZTexture, gl_FragCoord.xy/screenSize).r;\n"
-      "  if (gl_FragCoord.z >= odepth) { discard; }\n"
-      "  float tdepth = texture2D(translucentZTexture, gl_FragCoord.xy/screenSize).r;\n"
-      "  if (gl_FragCoord.z <= tdepth + .0000001) { discard; }\n"
-      //  "gl_FragData[0] = vec4(odepth*odepth,tdepth*tdepth,gl_FragCoord.z*gl_FragCoord.z,1.0);"
-      );
-    }
-  shaders[vtkShader::Fragment]->SetSource(FSSource);
-}
-
 void vtkOpenGLPolyDataMapper::ReplaceShaderClip(
   std::map<vtkShader::Type, vtkShader *> shaders,
   vtkRenderer *, vtkActor *)
@@ -1096,10 +1091,16 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
           // view are probably not orthogonal. Which is why when we cross result that with
           // the line gradient again we get a reasonable normal. It will be othogonal to
           // the line (which is a plane but maximally aligned with the camera view.
+          vtkShaderProgram::Substitute(
+                FSSource,"//VTK::UniformFlow::Impl",
+                "  vec3 fdx = vec3(dFdx(vertexVC.x),dFdx(vertexVC.y),dFdx(vertexVC.z));\n"
+                "  vec3 fdy = vec3(dFdy(vertexVC.x),dFdy(vertexVC.y),dFdy(vertexVC.z));\n"
+                "  //VTK::UniformFlow::Impl\n" // For further replacements
+                );
           vtkShaderProgram::Substitute(FSSource,"//VTK::Normal::Impl",
             "vec3 normalVCVSOutput;\n"
-            "  vec3 fdx = normalize(vec3(dFdx(vertexVC.x),dFdx(vertexVC.y),dFdx(vertexVC.z)));\n"
-            "  vec3 fdy = normalize(vec3(dFdy(vertexVC.x),dFdy(vertexVC.y),dFdy(vertexVC.z)));\n"
+            "  fdx = normalize(fdx);\n"
+            "  fdy = normalize(fdy);\n"
             "  if (abs(fdx.x) > 0.0)\n"
             "    { normalVCVSOutput = normalize(cross(vec3(fdx.y, -fdx.x, 0.0), fdx)); }\n"
             "  else { normalVCVSOutput = normalize(cross(vec3(fdy.y, -fdy.x, 0.0), fdy));}"
@@ -1111,9 +1112,15 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
             "//VTK::Normal::Dec",
             "uniform int cameraParallel;");
 
+          vtkShaderProgram::Substitute(
+                FSSource,"//VTK::UniformFlow::Impl",
+                "vec3 fdx = vec3(dFdx(vertexVC.x),dFdx(vertexVC.y),dFdx(vertexVC.z));\n"
+                "  vec3 fdy = vec3(dFdy(vertexVC.x),dFdy(vertexVC.y),dFdy(vertexVC.z));\n"
+                "  //VTK::UniformFlow::Impl\n" // For further replacements
+                );
           vtkShaderProgram::Substitute(FSSource,"//VTK::Normal::Impl",
-            "vec3 fdx = normalize(vec3(dFdx(vertexVC.x),dFdx(vertexVC.y),dFdx(vertexVC.z)));\n"
-            "  vec3 fdy = normalize(vec3(dFdy(vertexVC.x),dFdy(vertexVC.y),dFdy(vertexVC.z)));\n"
+            "  fdx = normalize(fdx);\n"
+            "  fdy = normalize(fdy);\n"
             "  vec3 normalVCVSOutput = normalize(cross(fdx,fdy));\n"
             // the code below is faster, but does not work on some devices
             //"vec3 normalVC = normalize(cross(dFdx(vertexVC.xyz), dFdy(vertexVC.xyz)));\n"
@@ -1247,9 +1254,10 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderCoincidentOffset(
     if (factor != 0.0)
       {
       vtkShaderProgram::Substitute(FSSource,
-        "//VTK::Coincident::Impl",
+        "//VTK::UniformFlow::Impl",
         "float cscale = length(vec2(dFdx(gl_FragCoord.z),dFdy(gl_FragCoord.z)));\n"
         "  gl_FragDepth = gl_FragCoord.z + cfactor*cscale + 0.000016*coffset;\n"
+        "  //VTK::UniformFlow::Impl\n" // for other replacements
         );
       }
     else
@@ -1267,12 +1275,12 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(
   std::map<vtkShader::Type, vtkShader *> shaders,
   vtkRenderer *ren, vtkActor *actor)
 {
+  this->ReplaceShaderRenderPass(shaders, ren, actor);
   this->ReplaceShaderColor(shaders, ren, actor);
   this->ReplaceShaderNormal(shaders, ren, actor);
   this->ReplaceShaderLight(shaders, ren, actor);
   this->ReplaceShaderTCoord(shaders, ren, actor);
   this->ReplaceShaderPicking(shaders, ren, actor);
-  this->ReplaceShaderDepthPeeling(shaders, ren, actor);
   this->ReplaceShaderClip(shaders, ren, actor);
   this->ReplaceShaderPrimID(shaders, ren, actor);
   this->ReplaceShaderPositionVC(shaders, ren, actor);
@@ -1352,14 +1360,69 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
     this->LastLightComplexity[&cellBO] = lightComplexity;
     }
 
-  // check for prop keys
+  // Have the renderpasses changed?
   vtkInformation *info = actor->GetPropertyKeys();
-  int dp = (info && info->Has(vtkDepthPeelingPass::OpaqueZTextureUnit())) ? 1 : 0;
 
-  if (this->LastDepthPeeling != dp)
+  int curRenderPasses = 0;
+  if (info && info->Has(vtkOpenGLRenderPass::RenderPasses()))
     {
-    this->DepthPeelingChanged.Modified();
-    this->LastDepthPeeling = dp;
+    curRenderPasses = info->Length(vtkOpenGLRenderPass::RenderPasses());
+    }
+
+  int lastRenderPasses = 0;
+  if (this->LastRenderPassInfo->Has(vtkOpenGLRenderPass::RenderPasses()))
+    {
+    lastRenderPasses =
+        this->LastRenderPassInfo->Length(vtkOpenGLRenderPass::RenderPasses());
+    }
+
+  // Determine the last time a render pass changed stages:
+  unsigned long int renderPassMTime = 0;
+  if (curRenderPasses != lastRenderPasses)
+    {
+    // Number of passes changed, definitely need to update.
+    // Fake the time to force an update:
+    renderPassMTime = cellBO.ShaderSourceTime.GetMTime() + 1;
+    }
+  else
+    {
+    // Compare the current to the previous render passes:
+    for (int i = 0; i < curRenderPasses; ++i)
+      {
+      vtkObjectBase *curRP = info->Get(vtkOpenGLRenderPass::RenderPasses(), i);
+      vtkObjectBase *lastRP =
+          this->LastRenderPassInfo->Get(vtkOpenGLRenderPass::RenderPasses(), i);
+
+      if (curRP != lastRP)
+        {
+        // Render passes have changed. Force update:
+        renderPassMTime = cellBO.ShaderSourceTime.GetMTime() + 1;
+        break;
+        }
+      else
+        {
+        // Render passes have not changed -- check MTime.
+        vtkOpenGLRenderPass *rp = static_cast<vtkOpenGLRenderPass*>(curRP);
+        renderPassMTime = std::max(renderPassMTime, rp->GetShaderStageMTime());
+
+        // abort early if possible:
+        if (cellBO.ShaderSourceTime < renderPassMTime)
+          {
+          break;
+          }
+        }
+      }
+    }
+
+  // Cache the current set of render passes for next time:
+  if (info)
+    {
+    this->LastRenderPassInfo->CopyEntry(info,
+                                        vtkOpenGLRenderPass::RenderPasses());
+    }
+  else
+    {
+    this->LastRenderPassInfo->Clear();
     }
 
   // has something changed that would require us to recreate the shader?
@@ -1372,7 +1435,7 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
       cellBO.ShaderSourceTime < actor->GetMTime() ||
       cellBO.ShaderSourceTime < this->CurrentInput->GetMTime() ||
       cellBO.ShaderSourceTime < this->SelectionStateChanged ||
-      cellBO.ShaderSourceTime < this->DepthPeelingChanged ||
+      cellBO.ShaderSourceTime < renderPassMTime ||
       cellBO.ShaderSourceTime < this->LightComplexityChanged[&cellBO])
     {
     return true;
@@ -1546,21 +1609,21 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
     cellBO.Program->SetUniformi("textureN", tunit);
     }
 
-  // if depth peeling set the required uniforms
+  // Handle render pass setup:
   vtkInformation *info = actor->GetPropertyKeys();
-  if (info && info->Has(vtkDepthPeelingPass::OpaqueZTextureUnit()) &&
-      info->Has(vtkDepthPeelingPass::TranslucentZTextureUnit()))
+  if (info && info->Has(vtkOpenGLRenderPass::RenderPasses()))
     {
-    int otunit = info->Get(vtkDepthPeelingPass::OpaqueZTextureUnit());
-    int ttunit = info->Get(vtkDepthPeelingPass::TranslucentZTextureUnit());
-    cellBO.Program->SetUniformi("opaqueZTexture", otunit);
-    cellBO.Program->SetUniformi("translucentZTexture", ttunit);
-
-    int *renSize = info->Get(vtkDepthPeelingPass::DestinationSize());
-    float screenSize[2];
-    screenSize[0] = renSize[0];
-    screenSize[1] = renSize[1];
-    cellBO.Program->SetUniform2f("screenSize", screenSize);
+    int numRenderPasses = info->Length(vtkOpenGLRenderPass::RenderPasses());
+    for (int i = 0; i < numRenderPasses; ++i)
+      {
+      vtkObjectBase *rpBase = info->Get(vtkOpenGLRenderPass::RenderPasses(), i);
+      vtkOpenGLRenderPass *rp = static_cast<vtkOpenGLRenderPass*>(rpBase);
+      if (!rp->SetShaderParameters(cellBO.Program, this, actor))
+        {
+        vtkErrorMacro("RenderPass::SetShaderParameters failed for renderpass: "
+                      << rp->GetClassName());
+        }
+      }
     }
 
   vtkHardwareSelector* selector = ren->GetSelector();

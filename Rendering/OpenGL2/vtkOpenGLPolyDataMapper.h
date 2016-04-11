@@ -18,6 +18,7 @@
 #ifndef vtkOpenGLPolyDataMapper_h
 #define vtkOpenGLPolyDataMapper_h
 
+#include "vtkNew.h" // For vtkNew
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkNew.h" // for ivars
 #include "vtkPolyDataMapper.h"
@@ -235,6 +236,9 @@ protected:
   // Description:
   // Perform string replacments on the shader templates, called from
   // ReplaceShaderValues
+  virtual void ReplaceShaderRenderPass(
+    std::map<vtkShader::Type, vtkShader *> shaders,
+    vtkRenderer *ren, vtkActor *act);
   virtual void ReplaceShaderColor(
     std::map<vtkShader::Type, vtkShader *> shaders,
     vtkRenderer *ren, vtkActor *act);
@@ -245,9 +249,6 @@ protected:
     std::map<vtkShader::Type, vtkShader *> shaders,
     vtkRenderer *ren, vtkActor *act);
   virtual void ReplaceShaderPicking(
-    std::map<vtkShader::Type, vtkShader *> shaders,
-    vtkRenderer *ren, vtkActor *act);
-  virtual void ReplaceShaderDepthPeeling(
     std::map<vtkShader::Type, vtkShader *> shaders,
     vtkRenderer *ren, vtkActor *act);
   virtual void ReplaceShaderPrimID(
@@ -320,6 +321,11 @@ protected:
 
   int LastSelectionState;
   vtkTimeStamp SelectionStateChanged;
+
+  // Caches the vtkOpenGLRenderPass::RenderPasses() information.
+  // Note: Do not dereference the pointers held by this object. There is no
+  // guarantee that they are still valid!
+  vtkNew<vtkInformation> LastRenderPassInfo;
 
   int LastDepthPeeling;
   vtkTimeStamp DepthPeelingChanged;

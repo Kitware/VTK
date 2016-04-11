@@ -15,9 +15,8 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkDepthPeelingPass.h"
 #include "vtkInformation.h"
-#include "vtkInformationIntegerKey.h"
-#include "vtkInformationIntegerVectorKey.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLActor.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
@@ -39,10 +38,6 @@ PURPOSE.  See the above copyright notice for more information.
 
 vtkStandardNewMacro(vtkDepthPeelingPass);
 vtkCxxSetObjectMacro(vtkDepthPeelingPass,TranslucentPass,vtkRenderPass);
-
-vtkInformationKeyMacro(vtkDepthPeelingPass,OpaqueZTextureUnit,Integer);
-vtkInformationKeyMacro(vtkDepthPeelingPass,TranslucentZTextureUnit,Integer);
-vtkInformationKeyMacro(vtkDepthPeelingPass,DestinationSize,IntegerVector);
 
 // ----------------------------------------------------------------------------
 vtkDepthPeelingPass::vtkDepthPeelingPass()
@@ -413,27 +408,23 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
   this->TranslucentZTexture->Activate();
   this->OpaqueZTexture->Activate();
 
-  // set the required keys on the props for the txture units
-  int destSize[2];
-  destSize[0] = this->ViewportWidth;
-  destSize[1] = this->ViewportHeight;
+  // Setup property keys for actors:
+  this->PreRender(s);
 
-  int c = s->GetPropArrayCount();
-  for (i = 0; i < c; i++)
+  // Enable the depth buffer (otherwise it's disabled for translucent geometry)
+  assert("Render state valid." && s);
+  int numProps = s->GetPropArrayCount();
+  for (int j = 0; j < numProps; ++j)
     {
-    vtkProp *p=s->GetPropArray()[i];
-    vtkInformation *info = p->GetPropertyKeys();
+    vtkProp *prop = s->GetPropArray()[j];
+    vtkInformation *info = prop->GetPropertyKeys();
     if (!info)
       {
       info = vtkInformation::New();
-      p->SetPropertyKeys(info);
-      info->Delete();
+      prop->SetPropertyKeys(info);
+      info->FastDelete();
       }
-    info->Set(vtkDepthPeelingPass::OpaqueZTextureUnit(),
-      this->OpaqueZTexture->GetTextureUnit());
-    info->Set(vtkDepthPeelingPass::TranslucentZTextureUnit(),
-      this->TranslucentZTexture->GetTextureUnit());
-    info->Set(vtkDepthPeelingPass::DestinationSize(),destSize,2);
+    info->Set(vtkOpenGLActor::GLDepthMaskOverride(), 1);
     }
 
   // Do render loop until complete
@@ -541,17 +532,70 @@ void vtkDepthPeelingPass::Render(const vtkRenderState *s)
   // restore blending
   glEnable(GL_BLEND);
 
-  c = s->GetPropArrayCount();
-  for (i = 0; i < c; i++)
+  this->PostRender(s);
+  for (int j = 0; j < numProps; ++j)
     {
-    vtkProp *p=s->GetPropArray()[i];
-    vtkInformation *info = p->GetPropertyKeys();
-    info->Remove(vtkDepthPeelingPass::OpaqueZTextureUnit());
-    info->Remove(vtkDepthPeelingPass::TranslucentZTextureUnit());
-    info->Remove(vtkDepthPeelingPass::DestinationSize());
+    vtkProp *prop = s->GetPropArray()[j];
+    vtkInformation *info = prop->GetPropertyKeys();
+    if (info)
+      {
+      info->Remove(vtkOpenGLActor::GLDepthMaskOverride());
+      }
     }
 
   this->NumberOfRenderedProps = this->TranslucentPass->GetNumberOfRenderedProps();
 
   vtkOpenGLCheckErrorMacro("failed after Render");
+}
+
+//------------------------------------------------------------------------------
+bool vtkDepthPeelingPass::ReplaceShaderValues(std::string &,
+                                              std::string &,
+                                              std::string &fragmentShader,
+                                              vtkAbstractMapper *,
+                                              vtkProp *)
+{
+  vtkShaderProgram::Substitute(
+        fragmentShader, "//VTK::DepthPeeling::Dec",
+        "uniform vec2 screenSize;\n"
+        "uniform sampler2D opaqueZTexture;\n"
+        "uniform sampler2D translucentZTexture;\n"
+        );
+
+  // the .0000001 below is an epsilon.  It turns out that
+  // graphics cards can render the same polygon two times
+  // in a row with different z values. I suspect it has to
+  // do with how rasterization of the polygon is broken up.
+  // A different breakup across fragment shaders can result in
+  // very slightly different z values for some of the pixels.
+  // The end result is that with depth peeling, you can end up
+  // counting/accumulating pixels of the same surface twice
+  // simply due to this randomness in z values. So we introduce
+  // an epsilon into the transparent test to require some
+  // minimal z seperation between pixels
+  vtkShaderProgram::Substitute(
+        fragmentShader, "//VTK::DepthPeeling::Impl",
+        "float odepth = texture2D(opaqueZTexture, gl_FragCoord.xy/screenSize).r;\n"
+        "  if (gl_FragCoord.z >= odepth) { discard; }\n"
+        "  float tdepth = texture2D(translucentZTexture, gl_FragCoord.xy/screenSize).r;\n"
+        "  if (gl_FragCoord.z <= tdepth + .0000001) { discard; }\n"
+        );
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkDepthPeelingPass::SetShaderParameters(vtkShaderProgram *program,
+                                              vtkAbstractMapper*, vtkProp*)
+{
+  program->SetUniformi("opaqueZTexture",
+                       this->OpaqueZTexture->GetTextureUnit());
+  program->SetUniformi("translucentZTexture",
+                       this->TranslucentZTexture->GetTextureUnit());
+
+  float screenSize[2] = { static_cast<float>(this->ViewportWidth),
+                          static_cast<float>(this->ViewportHeight) };
+  program->SetUniform2f("screenSize", screenSize);
+
+  return true;
 }
