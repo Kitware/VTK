@@ -77,19 +77,21 @@ namespace diy
       typedef   std::vector<Direction>              DirVec;
 
     public:
-                RegularLink(int dim, const Bounds& core, const Bounds& bounds, Direction wrap = Direction(0)):
-                  dim_(dim), wrap_(wrap), core_(core), bounds_(bounds)            {}
+                RegularLink(int dim, const Bounds& core, const Bounds& bounds):
+                  dim_(dim), core_(core), bounds_(bounds)            {}
 
-      int       dimension() const                   { return dim_; }
+      // dimension
+      int       dimension() const                       { return dim_; }
 
       // direction
-      int       direction(Direction dir) const;     // convert direction to a neighbor (-1 if no neighbor)
-      Direction direction(int i) const              { return dir_vec_[i]; }
-      void      add_direction(Direction dir)        { int c = dir_map_.size(); dir_map_[dir] = c; dir_vec_.push_back(dir); }
+      int       direction(Direction dir) const;         // convert direction to a neighbor (-1 if no neighbor)
+      Direction direction(int i) const                  { return dir_vec_[i]; }
+      void      add_direction(Direction dir)            { int c = dir_map_.size(); dir_map_[dir] = c; dir_vec_.push_back(dir); }
 
       // wrap
-      void      add_wrap(Direction dir)             { wrap_ = static_cast<Direction>(wrap_ | dir); }
-      Direction wrap() const                        { return wrap_; }
+      void       add_wrap(Direction dir)                { wrap_.push_back(dir); }
+      Direction  wrap(int i) const                      { return wrap_[i]; }
+      Direction& wrap(int i)                            { return wrap_[i]; }
 
       // bounds
       const Bounds& core() const                        { return core_; }
@@ -99,7 +101,7 @@ namespace diy
       const Bounds& bounds(int i) const                 { return nbr_bounds_[i]; }
       void          add_bounds(const Bounds& bounds)    { nbr_bounds_.push_back(bounds); }
 
-      void      swap(RegularLink& other)                { Link::swap(other); dir_map_.swap(other.dir_map_); dir_vec_.swap(other.dir_vec_); nbr_bounds_.swap(other.nbr_bounds_); std::swap(dim_, other.dim_); std::swap(wrap_, other.wrap_); std::swap(core_, other.core_); std::swap(bounds_, other.bounds_); }
+      void      swap(RegularLink& other)                { Link::swap(other); dir_map_.swap(other.dir_map_); dir_vec_.swap(other.dir_vec_); nbr_bounds_.swap(other.nbr_bounds_); std::swap(dim_, other.dim_); wrap_.swap(other.wrap_); std::swap(core_, other.core_); std::swap(bounds_, other.bounds_); }
 
       void      save(BinaryBuffer& bb) const
       {
@@ -107,10 +109,10 @@ namespace diy
           diy::save(bb, dim_);
           diy::save(bb, dir_map_);
           diy::save(bb, dir_vec_);
-          diy::save(bb, wrap_);
           diy::save(bb, core_);
           diy::save(bb, bounds_);
           diy::save(bb, nbr_bounds_);
+          diy::save(bb, wrap_);
       }
 
       void      load(BinaryBuffer& bb)
@@ -119,10 +121,10 @@ namespace diy
           diy::load(bb, dim_);
           diy::load(bb, dir_map_);
           diy::load(bb, dir_vec_);
-          diy::load(bb, wrap_);
           diy::load(bb, core_);
           diy::load(bb, bounds_);
           diy::load(bb, nbr_bounds_);
+          diy::load(bb, wrap_);
       }
 
       virtual size_t id() const                         { return RegularLinkSelector<Bounds>::id; }
@@ -132,11 +134,11 @@ namespace diy
 
       DirMap    dir_map_;
       DirVec    dir_vec_;
-      Direction wrap_;
 
-      Bounds                core_;
-      Bounds                bounds_;
-      std::vector<Bounds>   nbr_bounds_;
+      Bounds                    core_;
+      Bounds                    bounds_;
+      std::vector<Bounds>       nbr_bounds_;
+      std::vector<Direction>    wrap_;
   };
 
   // Other cover candidates: KDTreeLink, AMRGridLink

@@ -38,6 +38,7 @@
 #include "vtkProperty.h"
 #include "vtkShaderProgram.h"
 #include "vtkTextureObject.h"
+#include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkViewport.h"
 
@@ -501,6 +502,14 @@ void vtkOpenGLPolyDataMapper2D::SetCameraShaderParameters(
   // XXX(cppcheck): possible division by zero
   tmpMat->SetElement(2,3,-1.0*(farV+nearV)/(farV-nearV));
   tmpMat->Transpose();
+  if (this->VBO->GetCoordShiftAndScaleEnabled())
+    {
+    this->VBOTransformInverse->GetTranspose(this->VBOShiftScale.GetPointer());
+    // Pre-multiply the inverse of the VBO's transform:
+    vtkMatrix4x4::Multiply4x4(
+      this->VBOShiftScale.GetPointer(), tmpMat, tmpMat);
+    }
+
   program->SetUniformMatrix("WCVCMatrix", tmpMat);
 
   tmpMat->Delete();
@@ -665,6 +674,20 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
     haveTextures ? poly->GetPointData()->GetTCoords() : NULL,
     c ? (unsigned char *) c->GetVoidPointer(0) : NULL,
     c ? c->GetNumberOfComponents() : 0);
+
+  if (this->VBO->GetCoordShiftAndScaleEnabled())
+    {
+    // The poly points are far from the origin relative to their
+    // variations so the VBO removed their mean coordinate and scaled...
+    // Generate an inverse of the VBO's transform:
+    double shift[3];
+    double scale[3];
+    this->VBO->GetCoordShift(shift);
+    this->VBO->GetCoordScale(scale);
+    this->VBOTransformInverse->Identity();
+    this->VBOTransformInverse->Translate(shift[0], shift[1], shift[2]);
+    this->VBOTransformInverse->Scale(1.0/scale[0], 1.0/scale[1], 1.0/scale[2]);
+    }
 
   this->Points.IBO->IndexCount =
     this->Points.IBO->CreatePointIndexBuffer(prims[0]);

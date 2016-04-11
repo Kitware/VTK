@@ -64,6 +64,7 @@
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 #include "vtkStdString.h"        // For vtkStdString ivars
+#include <vector> //For STL vector
 
 class vtkAbstractPointLocator;
 class vtkIdList;
@@ -154,6 +155,39 @@ public:
   vtkGetMacro(NullValue,double);
 
   // Description:
+  // Adds an array to the list of arrays which are to be excluded from the
+  // interpolation process.
+  void AddExcludedArray(const vtkStdString &excludedArray)
+    {
+    this->ExcludedArrays.push_back(excludedArray);
+    this->Modified();
+    }
+
+  // Description:
+  // Clears the contents of excluded array list.
+  void ClearExcludedArrays()
+    {
+    this->ExcludedArrays.clear();
+    this->Modified();
+    }
+
+  // Description:
+  // Return the number of excluded arrays.
+  int GetNumberOfExcludedArrays()
+    {return static_cast<int>(this->ExcludedArrays.size());}
+
+  // Description:
+  // Return the name of the ith excluded array.
+  const char* GetExcludedArray(int i)
+    {
+      if ( i < 0 || i >= static_cast<int>(this->ExcludedArrays.size()) )
+        {
+        return NULL;
+        }
+      return this->ExcludedArrays[i].c_str();
+    }
+
+  // Description:
   // Indicate whether to shallow copy the input point data arrays to the
   // output.  On by default.
   vtkSetMacro(PassPointArrays, bool);
@@ -174,6 +208,10 @@ public:
   vtkBooleanMacro(PassFieldArrays, bool);
   vtkGetMacro(PassFieldArrays, bool);
 
+  // Description:
+  // Get the MTime of this object also considering the locator and kernel.
+  unsigned long GetMTime();
+
 protected:
   vtkPointInterpolator();
   ~vtkPointInterpolator();
@@ -185,6 +223,8 @@ protected:
   double NullValue;
   vtkStdString ValidPointsMaskArrayName;
   vtkCharArray *ValidPointsMask;
+
+  std::vector<vtkStdString> ExcludedArrays;
 
   bool PassCellArrays;
   bool PassPointArrays;

@@ -135,10 +135,10 @@ namespace mpi
 
       out.resize(comm.size());
       size_t cur = 0;
-      for (unsigned i = 0; i < comm.size(); ++i)
+      for (int i = 0; i < comm.size(); ++i)
       {
           out[i].reserve(counts[i]);
-          for (unsigned j = 0; j < counts[i]; ++j)
+          for (int j = 0; j < counts[i]; ++j)
               out[i].push_back(buffer[cur++]);
       }
     }
@@ -168,6 +168,17 @@ namespace mpi
       MPI_Allreduce(Datatype::address(const_cast<T&>(in)),
                     Datatype::address(out),
                     Datatype::count(in),
+                    Datatype::datatype(),
+                    detail::mpi_op<Op>::get(),
+                    comm);
+    }
+
+    static void all_reduce(const communicator& comm, const std::vector<T>& in, std::vector<T>& out, const Op&)
+    {
+      out.resize(in.size());
+      MPI_Allreduce(Datatype::address(const_cast<T&>(in[0])),
+                    Datatype::address(out[0]),
+                    in.size(),
                     Datatype::datatype(),
                     detail::mpi_op<Op>::get(),
                     comm);
@@ -270,6 +281,13 @@ namespace mpi
   //! all_reduce
   template<class T, class Op>
   void      all_reduce(const communicator& comm, const T& in, T& out, const Op& op)
+  {
+    Collectives<T, Op>::all_reduce(comm, in, out, op);
+  }
+
+  //! Same as above, but for vectors.
+  template<class T, class Op>
+  void      all_reduce(const communicator& comm, const std::vector<T>& in, std::vector<T>& out, const Op& op)
   {
     Collectives<T, Op>::all_reduce(comm, in, out, op);
   }

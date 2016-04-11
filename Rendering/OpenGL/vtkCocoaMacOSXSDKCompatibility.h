@@ -25,8 +25,8 @@ PURPOSE.  See the above copyright notice for more information.
   #error VTK requires the Mac OS X 10.6 SDK or later
 #endif
 
-#if MAC_OS_X_VERSION_MIN_REQUIRED < 1060
-  #error VTK requires a deployment target of Mac OS X 10.6 or later
+#if MAC_OS_X_VERSION_MIN_REQUIRED < 1068
+  #error VTK requires a deployment target of Mac OS X 10.6.8 or later
 #endif
 
 // __has_feature is new in the 10.7 SDK, define it here if it's not yet defined.

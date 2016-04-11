@@ -1,9 +1,9 @@
-## DIY2 is a data-parallel out-of-core library
+## DIY2 is a block-parallel library
 
-DIY2 is a data-parallel library for implementing scalable algorithms that can execute both
+DIY2 is a block-parallel library for implementing scalable algorithms that can execute both
 in-core and out-of-core. The same program can be executed with one or more threads per MPI
 process, seamlessly combining distributed-memory message passing with shared-memory thread
-parallelism.  The abstraction enabling these capabilities is block-based parallelism; blocks
+parallelism.  The abstraction enabling these capabilities is block parallelism; blocks
 and their message queues are mapped onto processing elements (MPI processes or threads) and are
 migrated between memory and storage by the DIY2 runtime. Complex communication patterns,
 including neighbor exchange, merge reduction, swap reduction, and all-to-all exchange, are

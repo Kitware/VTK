@@ -88,14 +88,14 @@ public:
   // Create a new list of associated observers
   void CreateDefaultCollection(vtkAbstractPicker* picker, vtkObject* object);
 
-  // Instead of a vtkCollection we are using a vector of a vtkSmartPointer
+  // vtkCollection doesn't allow NULL values. Instead we use a vector
   // containing vtkObject to allow using 0 as a valid value because it is
   // allowed the return a picker event if he is not associated to a specific
   // object.
   // This is related with the capacity when a picker associated with a given
   // object does not manage others object,
   // it will automatically be removed from the list as well.
-  typedef std::vector<vtkSmartPointer<vtkObject> > CollectionType;
+  typedef std::vector<vtkObject*> CollectionType;
 
   // For code clearance and performances during the computation std::map is
   // used instead of a vector of pair. Nevertheless, it makes internally use of
@@ -136,23 +136,6 @@ public:
       }
 
     vtkAbstractPicker* Picker;
-  };
-
-  // Predicate comparing a vtkObject*
-  // and a vtkSmartPointer<vtkObject> using the PickerObjectsType.
-  // As we use a vtkSmartPointer, this predicate allows to compare the equality
-  // of a pointer on a vtkObject with the adress contained in
-  // a corresponding vtkSmartPointer.
-  struct equal_smartPtrObject
-  {
-    equal_smartPtrObject(vtkObject* object) : Object(object) {}
-
-    bool operator () (const vtkSmartPointer<vtkObject>& smartObj) const
-      {
-      return this->Object == smartObj.GetPointer();
-      }
-
-    vtkObject* Object;
   };
 
   PickerObjectsType Pickers;           // Map the picker with the objects
@@ -202,9 +185,9 @@ CreateDefaultCollection(vtkAbstractPicker* picker, vtkObject* object)
 void vtkPickingManager::vtkInternal::
 LinkPickerObject(const PickerObjectsType::iterator& it, vtkObject* object)
 {
-  CollectionType::iterator itObj = std::find_if(it->second.begin(),
-                                                it->second.end(),
-                                                equal_smartPtrObject(object));
+  CollectionType::iterator itObj = std::find(it->second.begin(),
+                                             it->second.end(),
+                                             object);
 
   if (itObj != it->second.end() && object)
     {
@@ -234,9 +217,9 @@ IsObjectLinked(vtkAbstractPicker* picker, vtkObject* obj)
     return false;
     }
 
-  CollectionType::iterator itObj = std::find_if(itPick->second.begin(),
-                                                itPick->second.end(),
-                                                equal_smartPtrObject(obj));
+  CollectionType::iterator itObj = std::find(itPick->second.begin(),
+                                             itPick->second.end(),
+                                             obj);
   return (itObj != itPick->second.end());
 }
 
@@ -418,9 +401,9 @@ void vtkPickingManager::RemovePicker(vtkAbstractPicker* picker,
     }
 
   vtkPickingManager::vtkInternal::CollectionType::iterator itObj =
-    std::find_if(it->second.begin(),
-                 it->second.end(),
-                 vtkPickingManager::vtkInternal::equal_smartPtrObject(object));
+    std::find(it->second.begin(),
+              it->second.end(),
+              object);
 
   // The object is not associated with the given picker.
   if (itObj == it->second.end())
@@ -446,9 +429,9 @@ void vtkPickingManager::RemoveObject(vtkObject* object)
   for(; it != this->Internal->Pickers.end();)
     {
     vtkPickingManager::vtkInternal::CollectionType::iterator itObj =
-      std::find_if(it->second.begin(),
-                   it->second.end(),
-                   vtkPickingManager::vtkInternal::equal_smartPtrObject(object));
+      std::find(it->second.begin(),
+                it->second.end(),
+                object);
 
     if (itObj != it->second.end())
       {

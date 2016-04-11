@@ -73,7 +73,7 @@
 
 /* Atomic operations */
 #cmakedefine VTK_HAVE_SYNC_BUILTINS
-#if defined(WIN32)
+#if defined(_WIN32)
  #cmakedefine VTK_HAS_INTERLOCKEDADD
 #endif
 

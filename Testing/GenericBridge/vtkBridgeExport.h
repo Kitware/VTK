@@ -26,7 +26,7 @@
 # define VTK_BRIDGE_EXPORT
 #else
 
-#if defined(WIN32) && defined(VTK_BUILD_SHARED_LIBS)
+#if defined(_WIN32) && defined(VTK_BUILD_SHARED_LIBS)
 
  #if defined(vtkBridge_EXPORTS)
   #define VTK_BRIDGE_EXPORT __declspec( dllexport )

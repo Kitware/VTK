@@ -19,8 +19,14 @@
 // described by D.J. Price. This is a quintic formulation.
 //
 // .SECTION Caveats
-// See D.J. Price, Smoothed particle hydrodynamics and magnetohydrodynamics,
-// J. Comput. Phys. 231:759-794, 2012. Especially equation 49.
+// FOr more information see D.J. Price, Smoothed particle hydrodynamics and
+// magnetohydrodynamics, J. Comput. Phys. 231:759-794, 2012. Especially
+// equation 49.
+
+// .SECTION Acknowledgments
+// The following work has been generously supported by Altair Engineering
+// and FluiDyna GmbH, Please contact Steve Cosgrove or Milos Stanic for
+// more information.
 
 // .SECTION See Also
 // vtkSPHKernel vtkSPHInterpolator
@@ -47,27 +53,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Produce the computational parameters for this kernel. Invoke this method
-  // after setting initial values like SpatialStep.
-  virtual void Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds,
-                          vtkPointData *pd);
-
-  // Description:
-  // Given a point x, and a list of basis points pIds, compute interpolation
-  // weights associated with these basis points.
-  virtual vtkIdType ComputeWeights(double x[3], vtkIdList *pIds,
-                                   vtkDoubleArray *weights);
-
-  // Description:
-  // Given a point x, and a list of basis points pIds, compute interpolation
-  // weights, plus derivative weights, associated with these basis points.
-  virtual vtkIdType ComputeGradWeights(double x[3], vtkIdList *pIds,
-                                       vtkDoubleArray *weights,
-                                       vtkDoubleArray *gradWeights);
-
-  // Description:
   // Compute weighting factor given a normalized distance from a sample point.
-  double ComputeFunctionWeight(const double d)
+  virtual double ComputeFunctionWeight(const double d)
   {
     double tmp1 = 3.0 - std::min(d,3.0);
     double tmp2 = 2.0 - std::min(d,2.0);
@@ -79,7 +66,7 @@ public:
   // Description:
   // Compute weighting factor for derivative quantities given a normalized
   // distance from a sample point.
-  double ComputeGradientWeight(const double d)
+  virtual double ComputeGradientWeight(const double d)
   {
     double tmp1 = 3.0 - std::min(d,3.0);
     double tmp2 = 2.0 - std::min(d,2.0);

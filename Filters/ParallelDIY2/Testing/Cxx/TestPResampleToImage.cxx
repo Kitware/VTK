@@ -16,6 +16,7 @@
 #include "vtkPResampleToImage.h"
 
 #include "vtkActor.h"
+#include "vtkCamera.h"
 #include "vtkClipDataSet.h"
 #include "vtkCompositeRenderManager.h"
 #include "vtkContourFilter.h"
@@ -79,7 +80,7 @@ int TestPResampleToImage(int argc, char *argv[])
   voi->SetInputConnection(resample->GetOutputPort());
 
   vtkNew<vtkContourFilter> contour;
-  contour->SetValue(0, 157);
+  contour->SetValue(0, 200);
   contour->ComputeNormalsOn();
   contour->SetInputConnection(voi->GetOutputPort());
 
@@ -106,6 +107,8 @@ int TestPResampleToImage(int argc, char *argv[])
   if (world.rank() == 0)
     {
     prm->ResetAllCameras();
+    renderer->GetActiveCamera()->Azimuth(90);
+
     renWin->Render();
     retVal = vtkRegressionTester::Test(argc, argv, renWin.GetPointer(), 10);
     if (retVal == vtkRegressionTester::DO_INTERACTOR)

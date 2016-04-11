@@ -11,6 +11,7 @@
 
 #include "detail/algorithms/sort.hpp"
 #include "detail/algorithms/kdtree.hpp"
+#include "detail/algorithms/kdtree-sampling.hpp"
 
 namespace diy
 {
@@ -36,7 +37,8 @@ namespace diy
         detail::SampleSort<Block,T,Cmp> sorter(values, samples, cmp, num_samples);
 
         // swap-reduce to all-gather samples
-        RegularSwapPartners   partners(1, assigner.nblocks(), k);
+        RegularDecomposer<DiscreteBounds> decomposer(1, interval(0,assigner.nblocks()), assigner.nblocks());
+        RegularSwapPartners   partners(decomposer, k);
         reduce(master, assigner, partners, sorter.sample(), detail::SkipIntermediate(partners.rounds()));
 
         // all_to_all to exchange the values
@@ -66,7 +68,7 @@ namespace diy
 
     /**
      * \ingroup Algorithms
-     * \brief build a kd-tree and sort a set of points into it
+     * \brief build a kd-tree and sort a set of points into it (use histograms to determine split values)
      */
     template<class Block, class Point>
     void kdtree(Master&                         master,      //!< master object
@@ -85,11 +87,33 @@ namespace diy
 
         typedef     diy::RegularContinuousLink      RCLink;
 
-        for (int i = 0; i < master.size(); ++i)
+        for (size_t i = 0; i < master.size(); ++i)
         {
             RCLink* link   = static_cast<RCLink*>(master.link(i));
-            link->core()   = domain;
-            link->bounds() = domain;
+            *link = RCLink(dim, domain, domain);
+
+            if (wrap)       // set up the links to self
+            {
+                diy::BlockID self = { master.gid(i), master.communicator().rank() };
+                for (int j = 0; j < dim; ++j)
+                {
+                    diy::Direction dir, wrap_dir;
+
+                    // left
+                    dir.x[j] = -1; wrap_dir.x[j] = -1;
+                    link->add_neighbor(self);
+                    link->add_bounds(domain);
+                    link->add_direction(dir);
+                    link->add_wrap(wrap_dir);
+
+                    // right
+                    dir.x[j] = 1; wrap_dir.x[j] = 1;
+                    link->add_neighbor(self);
+                    link->add_bounds(domain);
+                    link->add_direction(dir);
+                    link->add_wrap(wrap_dir);
+                }
+            }
         }
 
         detail::KDTreePartition<Block,Point>    kdtree_partition(dim, points, bins);
@@ -99,11 +123,73 @@ namespace diy
 
         // update master.expected to match the links
         int expected = 0;
-        for (int i = 0; i < master.size(); ++i)
+        for (size_t i = 0; i < master.size(); ++i)
             expected += master.link(i)->size_unique();
         master.set_expected(expected);
     }
 
+    /**
+     * \ingroup Algorithms
+     * \brief build a kd-tree and sort a set of points into it (use sampling to determine split values)
+     */
+    template<class Block, class Point>
+    void kdtree_sampling
+               (Master&                         master,      //!< master object
+                const Assigner&                 assigner,    //!< assigner object
+                int                             dim,         //!< dimensionality
+                const ContinuousBounds&         domain,      //!< global data extents
+                std::vector<Point>  Block::*    points,      //!< input points to sort into kd-tree
+                size_t                          samples,     //!< number of samples to take in each block
+                bool                            wrap = false)//!< periodic boundaries in all dimensions
+    {
+        if (assigner.nblocks() & (assigner.nblocks() - 1))
+        {
+            fprintf(stderr, "KD-tree requires a number of blocks that's a power of 2, got %d\n", assigner.nblocks());
+            std::abort();
+        }
+
+        typedef     diy::RegularContinuousLink      RCLink;
+
+        for (size_t i = 0; i < master.size(); ++i)
+        {
+            RCLink* link   = static_cast<RCLink*>(master.link(i));
+            *link = RCLink(dim, domain, domain);
+
+            if (wrap)       // set up the links to self
+            {
+                diy::BlockID self = { master.gid(i), master.communicator().rank() };
+                for (int j = 0; j < dim; ++j)
+                {
+                    diy::Direction dir, wrap_dir;
+
+                    // left
+                    dir.x[j] = -1; wrap_dir.x[j] = -1;
+                    link->add_neighbor(self);
+                    link->add_bounds(domain);
+                    link->add_direction(dir);
+                    link->add_wrap(wrap_dir);
+
+                    // right
+                    dir.x[j] = 1; wrap_dir.x[j] = 1;
+                    link->add_neighbor(self);
+                    link->add_bounds(domain);
+                    link->add_direction(dir);
+                    link->add_wrap(wrap_dir);
+                }
+            }
+        }
+
+        detail::KDTreeSamplingPartition<Block,Point>    kdtree_partition(dim, points, samples);
+
+        detail::KDTreePartners                          partners(dim, assigner.nblocks(), wrap, domain);
+        reduce(master, assigner, partners, kdtree_partition);
+
+        // update master.expected to match the links
+        int expected = 0;
+        for (size_t i = 0; i < master.size(); ++i)
+            expected += master.link(i)->size_unique();
+        master.set_expected(expected);
+    }
 }
 
 #endif

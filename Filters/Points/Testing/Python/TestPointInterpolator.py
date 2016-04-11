@@ -150,6 +150,7 @@ interpolator3.SetSourceData(output)
 interpolator3.SetKernel(linearKernel)
 interpolator3.SetLocator(locator)
 interpolator3.SetNullPointsStrategyToNullValue()
+interpolator3.AddExcludedArray("StagnationEnergy")
 
 # Time execution
 timer.StartTimer()

@@ -423,8 +423,13 @@ public:
   // allows the blending of the scalars with an additional alpha (typically
   // which comes from a vtkActor, etc.)
   virtual vtkUnsignedCharArray *MapScalars(double alpha);
+  virtual vtkUnsignedCharArray *MapScalars(double alpha,
+                                           int &cellFlag);
   virtual vtkUnsignedCharArray *MapScalars(vtkDataSet *input,
                                            double alpha);
+  virtual vtkUnsignedCharArray *MapScalars(vtkDataSet *input,
+                                           double alpha,
+                                           int &cellFlag);
 
   // Description:
   // Set/Get the light-model color mode.
@@ -492,10 +497,28 @@ public:
   static void ColorToValue(unsigned char *color, double min, double scale,
     double &value);
 
+  // Description:
+  // Call to force a rebuild of color result arrays on next MapScalars.
+  // Necessary when using arrays in the case of multiblock data.
+  void ClearColorArrays();
+
+  // Description:
+  // Provide read access to the color array
+  vtkUnsignedCharArray *GetColorMapColors();
+
+  // Description:
+  // Provide read access to the color texture coordinate array
+  vtkFloatArray *GetColorCoordinates();
+
+  // Description:
+  // Provide read access to the color texture array
+  vtkImageData* GetColorTextureMap();
+
 protected:
   vtkMapper();
   ~vtkMapper();
 
+  // color mapped colors
   vtkUnsignedCharArray *Colors;
 
   // Use texture coordinates for coloring.

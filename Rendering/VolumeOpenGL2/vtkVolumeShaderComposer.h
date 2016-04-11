@@ -29,6 +29,12 @@
 #include <sstream>
 #include <string>
 
+// NOTE:
+// In this code, we referred to various spaces described below:
+// Object space: Raw coordinates in space defined by volume matrix
+// Dataset space: Raw coordinates
+// Eye space: Coordinates in eye space (as referred in computer graphics)
+
 namespace vtkvolume
 {
   //--------------------------------------------------------------------------
@@ -318,7 +324,7 @@ namespace vtkvolume
 
       shaderStr += std::string("\
         \n\
-        \n  // Eye position in object space\
+        \n  // Eye position in dataset space\
         \n  g_eyePosObj = (in_inverseVolumeMatrix * vec4(in_cameraPos, 1.0));\
         \n  if (g_eyePosObj.w != 0.0)\
         \n    {\
@@ -328,7 +334,7 @@ namespace vtkvolume
         \n    g_eyePosObj.w = 1.0;\
         \n    }\
         \n\
-        \n  // Getting the ray marching direction (in object space);\
+        \n  // Getting the ray marching direction (in dataset space);\
         \n  vec3 rayDir = computeRayDirection();\
         \n\
         \n  // Multiply the raymarching direction with the step size to get the\
@@ -352,7 +358,7 @@ namespace vtkvolume
     if (vol->GetProperty()->GetShade() && lightingComplexity == 1)
       {
         shaderStr += std::string("\
-          \n  // Light position in object space\
+          \n  // Light position in dataset space\
           \n  g_lightPosObj = (in_inverseVolumeMatrix *\
           \n                      vec4(in_cameraPos, 1.0));\
           \n  if (g_lightPosObj.w != 0.0)\
@@ -1662,7 +1668,7 @@ namespace vtkvolume
   }
 
   //--------------------------------------------------------------------------
-  std::string ClippingInit(vtkRenderer* vtkNotUsed(ren),
+  std::string ClippingInit(vtkRenderer* ren,
                            vtkVolumeMapper* mapper,
                            vtkVolume* vtkNotUsed(vol))
   {
@@ -1670,67 +1676,85 @@ namespace vtkvolume
       {
       return std::string();
       }
+
+    std::string shaderStr;
+    if (!ren->GetActiveCamera()->GetParallelProjection())
+      {
+      shaderStr = std::string("\
+        vec4 temp = in_volumeMatrix * vec4(rayDir, 0.0);\
+        \n    if (temp.w != 0.0)\
+        \n      {\
+        \n      temp = temp/temp.w;\
+        \n      temp.w = 1.0;\
+        \n      }\
+        vec3 objRayDir = temp.xyz;");
+      }
     else
       {
-      return std::string("\
-        \n  int clippingPlanesSize = int(in_clippingPlanes[0]);\
-        \n  vec4 objDataPos = vec4(0.0);\
-        \n  mat4 textureToObjMat = in_volumeMatrix *\
-        \n                             in_textureDatasetMatrix;\
-        \n  for (int i = 0; i < clippingPlanesSize; i = i + 6)\
-        \n    {\
-        \n    if (in_useJittering)\
-        \n      {\
-        \n      objDataPos = textureToObjMat * vec4(g_dataPos - (g_dirStep\
-        \n                                           * jitterValue), 1.0);\
-        \n      }\
-        \n    else\
-        \n      {\
-        \n      objDataPos = textureToObjMat * vec4(g_dataPos - g_dirStep, 1.0);\
-        \n      }\
-        \n    if (objDataPos.w != 0.0)\
-        \n      {\
-        \n      objDataPos = objDataPos/objDataPos.w; objDataPos.w = 1.0;\
-        \n      }\
-        \n    vec3 planeOrigin = vec3(in_clippingPlanes[i + 1],\
-        \n                            in_clippingPlanes[i + 2],\
-        \n                            in_clippingPlanes[i + 3]);\
-        \n    vec3 planeNormal = vec3(in_clippingPlanes[i + 4],\
-        \n                            in_clippingPlanes[i + 5],\
-        \n                            in_clippingPlanes[i + 6]);\
-        \n    vec3 normalizedPlaneNormal = normalize(planeNormal);\
-        \n\
-        \n    float planeD = -planeOrigin[0] * normalizedPlaneNormal[0] - planeOrigin[1]\
-        \n                      * normalizedPlaneNormal[1] - planeOrigin[2] * normalizedPlaneNormal[2];\
-        \n    bool frontFace = dot(rayDir, normalizedPlaneNormal) > 0;\
-        \n    float dist = dot(rayDir, normalizedPlaneNormal);\
-        \n    if (dist != 0.0) { dist = (-planeD - dot(normalizedPlaneNormal, objDataPos.xyz)) / dist; }\
-        \n    if (frontFace && dist > 0.0 && dot(vec3(objDataPos.xyz - planeOrigin), planeNormal) < 0)\
-        \n      {\
-        \n      vec4 newObjDataPos = vec4(objDataPos.xyz + dist * rayDir, 1.0);\
-        \n      newObjDataPos = in_inverseTextureDatasetMatrix\
-        \n                        * in_inverseVolumeMatrix * vec4(newObjDataPos.xyz, 1.0);\
-        \n      if (newObjDataPos.w != 0.0)\
-        \n        {\
-        \n        newObjDataPos /= newObjDataPos.w;\
-        \n        }\
-        \n     if (in_useJittering)\
-        \n       {\
-        \n       g_dataPos = newObjDataPos.xyz + g_dirStep * jitterValue;\
-        \n       }\
-        \n     else\
-        \n       {\
-        \n       g_dataPos = newObjDataPos.xyz + g_dirStep;\
-        \n       }\
-        \n       bool stop = dot(sign(g_dataPos - l_texMin), sign(l_texMax - g_dataPos))\
-        \n                     < 3.0;\
-        \n      if (stop)\
-        \n        {\
-        \n        discard;\
-        \n        }\
-        \n      }\
-        \n  }");
+      shaderStr = std::string("\
+        vec3 objRayDir = normalize(in_projectionDirection);");
       }
+
+    shaderStr += std::string("\
+      \n  int clippingPlanesSize = int(in_clippingPlanes[0]);\
+      \n  vec4 objDataPos = vec4(0.0);\
+      \n  mat4 textureToObjMat = in_volumeMatrix *\
+      \n                             in_textureDatasetMatrix;\
+      \n  for (int i = 0; i < clippingPlanesSize; i = i + 6)\
+      \n    {\
+      \n    if (in_useJittering)\
+      \n      {\
+      \n      objDataPos = textureToObjMat * vec4(g_dataPos - (g_dirStep\
+      \n                                           * jitterValue), 1.0);\
+      \n      }\
+      \n    else\
+      \n      {\
+      \n      objDataPos = textureToObjMat * vec4(g_dataPos - g_dirStep, 1.0);\
+      \n      }\
+      \n    if (objDataPos.w != 0.0)\
+      \n      {\
+      \n      objDataPos = objDataPos/objDataPos.w; objDataPos.w = 1.0;\
+      \n      }\
+      \n    vec3 planeOrigin = vec3(in_clippingPlanes[i + 1],\
+      \n                            in_clippingPlanes[i + 2],\
+      \n                            in_clippingPlanes[i + 3]);\
+      \n    vec3 planeNormal = vec3(in_clippingPlanes[i + 4],\
+      \n                            in_clippingPlanes[i + 5],\
+      \n                            in_clippingPlanes[i + 6]);\
+      \n    vec3 normalizedPlaneNormal = normalize(planeNormal);\
+      \n\
+      \n    float planeD = -planeOrigin[0] * normalizedPlaneNormal[0] - planeOrigin[1]\
+      \n                      * normalizedPlaneNormal[1] - planeOrigin[2] * normalizedPlaneNormal[2];\
+      \n    bool frontFace = dot(objRayDir, normalizedPlaneNormal) > 0;\
+      \n    float dist = dot(objRayDir, normalizedPlaneNormal);\
+      \n    if (dist != 0.0) { dist = (-planeD - dot(normalizedPlaneNormal, objDataPos.xyz)) / dist; }\
+      \n    if (frontFace && dist > 0.0 && dot(vec3(objDataPos.xyz - planeOrigin), planeNormal) < 0)\
+      \n      {\
+      \n      vec4 newObjDataPos = vec4(objDataPos.xyz + dist * objRayDir, 1.0);\
+      \n      newObjDataPos = in_inverseTextureDatasetMatrix\
+      \n                        * in_inverseVolumeMatrix * vec4(newObjDataPos.xyz, 1.0);\
+      \n      if (newObjDataPos.w != 0.0)\
+      \n        {\
+      \n        newObjDataPos /= newObjDataPos.w;\
+      \n        }\
+      \n     if (in_useJittering)\
+      \n       {\
+      \n       g_dataPos = newObjDataPos.xyz + g_dirStep * jitterValue;\
+      \n       }\
+      \n     else\
+      \n       {\
+      \n       g_dataPos = newObjDataPos.xyz + g_dirStep;\
+      \n       }\
+      \n       bool stop = dot(sign(g_dataPos - l_texMin), sign(l_texMax - g_dataPos))\
+      \n                     < 3.0;\
+      \n      if (stop)\
+      \n        {\
+      \n        discard;\
+      \n        }\
+      \n      }\
+      \n  }");
+
+    return shaderStr;
   }
 
   //--------------------------------------------------------------------------
@@ -1758,7 +1782,7 @@ namespace vtkvolume
         \n      vec3 planeNormal = vec3(in_clippingPlanes[i + 4],\
         \n                              in_clippingPlanes[i + 5],\
         \n                              in_clippingPlanes[i + 6]);\
-        \n      if (dot(vec3(objDataPos.xyz - planeOrigin), planeNormal) < 0 && dot(rayDir, planeNormal) < 0)\
+        \n      if (dot(vec3(objDataPos.xyz - planeOrigin), planeNormal) < 0 && dot(objRayDir, planeNormal) < 0)\
         \n        {\
         \n         l_skip = true;\
         \n         g_exit = true;\

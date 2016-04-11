@@ -25,6 +25,7 @@
 #include <limits.h>
 #include <stdlib.h>
 #include "XdmfSystemUtils.hpp"
+#include "XdmfCoreConfig.hpp"
 #include <iostream>
 
 XdmfSystemUtils::XdmfSystemUtils()
@@ -35,6 +36,14 @@ XdmfSystemUtils::~XdmfSystemUtils()
 {
 }
 
+#ifdef XDMF_NO_REALPATH
+//allows symbolic links
+std::string
+XdmfSystemUtils::getRealPath(const std::string & path)
+{
+  return path;
+}
+#else
 std::string
 XdmfSystemUtils::getRealPath(const std::string & path)
 {
@@ -44,5 +53,6 @@ XdmfSystemUtils::getRealPath(const std::string & path)
   char realPath[PATH_MAX];
   char *rp = realpath(ref->path, realPath);
   xmlFreeURI(ref);
-  return path;
+  return std::string(rp);
 }
+#endif

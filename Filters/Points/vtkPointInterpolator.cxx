@@ -17,12 +17,14 @@
 #include "vtkObjectFactory.h"
 #include "vtkLinearKernel.h"
 #include "vtkAbstractPointLocator.h"
+#include "vtkArrayListTemplate.h"
 #include "vtkStaticPointLocator.h"
 #include "vtkDataSet.h"
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkPoints.h"
 #include "vtkCharArray.h"
+#include "vtkFloatArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkCellData.h"
 #include "vtkPointData.h"
@@ -43,12 +45,10 @@ vtkCxxSetObjectMacro(vtkPointInterpolator,Kernel,vtkInterpolationKernel);
 //----------------------------------------------------------------------------
 // Helper classes to support efficient computing, and threaded execution.
 namespace {
-
-#include "vtkArrayListTemplate.h"
-
 // The threaded core of the algorithm
 struct ProbePoints
 {
+  vtkPointInterpolator *PointInterpolator;
   vtkDataSet *Input;
   vtkInterpolationKernel *Kernel;
   vtkAbstractPointLocator *Locator;
@@ -63,11 +63,23 @@ struct ProbePoints
   vtkSMPThreadLocalObject<vtkIdList> PIds;
   vtkSMPThreadLocalObject<vtkDoubleArray> Weights;
 
-  ProbePoints(vtkDataSet *input, vtkInterpolationKernel *kernel,vtkAbstractPointLocator *loc,
-              vtkPointData *inPD, vtkPointData *outPD, int strategy, char *valid, double nullV) :
-    Input(input), Kernel(kernel), Locator(loc), InPD(inPD), OutPD(outPD),
+  ProbePoints(vtkPointInterpolator *ptInt, vtkDataSet *input, vtkInterpolationKernel *kernel,
+              vtkAbstractPointLocator *loc, vtkPointData *inPD, vtkPointData *outPD, int strategy,
+              char *valid, double nullV) :
+    PointInterpolator(ptInt), Input(input), Kernel(kernel), Locator(loc), InPD(inPD), OutPD(outPD),
     Valid(valid), Strategy(strategy)
     {
+      // Manage arrays for interpolation
+      for (int i=0; i < ptInt->GetNumberOfExcludedArrays(); ++i)
+        {
+        const char *arrayName = ptInt->GetExcludedArray(i);
+        vtkDataArray *array = this->InPD->GetArray(arrayName);
+        if ( array != NULL )
+          {
+          outPD->RemoveArray(array->GetName());
+          this->Arrays.ExcludeArray(array);
+          }
+        }
       this->Arrays.AddArrays(input->GetNumberOfPoints(), inPD, outPD, nullV);
     }
 
@@ -143,11 +155,11 @@ struct ImageProbePoints : public ProbePoints
   double Origin[3];
   double Spacing[3];
 
-  ImageProbePoints(vtkImageData *image, int dims[3], double origin[3],
-                   double spacing[3], vtkInterpolationKernel *kernel,
+  ImageProbePoints(vtkPointInterpolator *ptInt,  vtkImageData *image, int dims[3],
+                   double origin[3], double spacing[3], vtkInterpolationKernel *kernel,
                    vtkAbstractPointLocator *loc, vtkPointData *inPD,
                    vtkPointData *outPD, int strategy, char *valid, double nullV) :
-    ProbePoints(image, kernel, loc, inPD, outPD, strategy, valid, nullV)
+    ProbePoints(ptInt, image, kernel, loc, inPD, outPD, strategy, valid, nullV)
     {
       for (int i=0; i < 3; ++i)
         {
@@ -314,14 +326,14 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
     int dims[3];
     double origin[3], spacing[3];
     this->ExtractImageDescription(imgInput,dims,origin,spacing);
-    ImageProbePoints imageProbe(imgInput, dims, origin, spacing,
+    ImageProbePoints imageProbe(this, imgInput, dims, origin, spacing,
                                 this->Kernel,this->Locator,inPD,outPD,
                                 this->NullPointsStrategy,mask,this->NullValue);
     vtkSMPTools::For(0, dims[2], imageProbe);//over slices
     }
   else
     {
-    ProbePoints probe(input,this->Kernel,this->Locator,inPD,outPD,
+    ProbePoints probe(this, input,this->Kernel,this->Locator,inPD,outPD,
                       this->NullPointsStrategy,mask,this->NullValue);
     vtkSMPTools::For(0, numPts, probe);
     }
@@ -474,6 +486,24 @@ int vtkPointInterpolator::RequestUpdateExtent(
   return 1;
 }
 
+//--------------------------------------------------------------------------
+unsigned long vtkPointInterpolator::GetMTime()
+{
+  unsigned long mTime=this->Superclass::GetMTime();
+  unsigned long mTime2;
+  if ( this->Locator != NULL )
+    {
+    mTime2 = this->Locator->GetMTime();
+    mTime = ( mTime2 > mTime ? mTime2 : mTime );
+    }
+  if ( this->Kernel != NULL )
+    {
+    mTime2 = this->Kernel->GetMTime();
+    mTime = ( mTime2 > mTime ? mTime2 : mTime );
+    }
+  return mTime;
+}
+
 //----------------------------------------------------------------------------
 void vtkPointInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -483,10 +513,19 @@ void vtkPointInterpolator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Source: " << source << "\n";
   os << indent << "Locator: " << this->Locator << "\n";
   os << indent << "Kernel: " << this->Kernel << "\n";
+
   os << indent << "Null Points Strategy: " << this->NullPointsStrategy << endl;
   os << indent << "Null Value: " << this->NullValue << "\n";
   os << indent << "Valid Points Mask Array Name: "
      << (this->ValidPointsMaskArrayName ? this->ValidPointsMaskArrayName : "(none)") << "\n";
+
+  os << indent << "Number of Excluded Arrays:" << this->GetNumberOfExcludedArrays() << endl;
+  vtkIndent nextIndent=indent.GetNextIndent();
+  for (int i=0; i<this->GetNumberOfExcludedArrays(); ++i)
+    {
+    os << nextIndent << "Excluded Array: " << this->ExcludedArrays[i] << endl;
+    }
+
   os << indent << "Pass Point Arrays: "
      << (this->PassPointArrays? "On" : " Off") << "\n";
   os << indent << "Pass Cell Arrays: "

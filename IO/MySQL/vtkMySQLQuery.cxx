@@ -25,7 +25,7 @@
 #include <errmsg.h>
 
 
-#if defined(WIN32)
+#if defined(_WIN32)
 # include <string.h>
 # include <locale.h>
 # define LOWERCASE_COMPARE _stricmp

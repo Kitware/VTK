@@ -28,7 +28,6 @@
 #include "vtkMath.h"
 #include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
-#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLActor.h"
 #include "vtkOpenGLBufferObject.h"
@@ -1766,40 +1765,82 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(vtkOpenGLHelper &cellBO,
 
   vtkOpenGLCamera *cam = (vtkOpenGLCamera *)(ren->GetActiveCamera());
 
-  vtkMatrix4x4 *wcdc;
-  vtkMatrix4x4 *wcvc;
-  vtkMatrix3x3 *norms;
-  vtkMatrix4x4 *vcdc;
-  cam->GetKeyMatrices(ren,wcvc,norms,vcdc,wcdc);
+  // [WMVD]C == {world, model, view, display} coordinates
+  // E.g., WCDC == world to display coordinate transformation
+  vtkMatrix4x4* wcdc;
+  vtkMatrix4x4* wcvc;
+  vtkMatrix3x3* norms;
+  vtkMatrix4x4* vcdc;
+  cam->GetKeyMatrices(ren, wcvc, norms, vcdc, wcdc);
 
-  if (!actor->GetIsIdentity())
+  if (this->VBO->GetCoordShiftAndScaleEnabled())
     {
-    vtkMatrix4x4 *mcwc;
-    vtkMatrix3x3 *anorms;
-    ((vtkOpenGLActor *)actor)->GetKeyMatrices(mcwc,anorms);
-    vtkMatrix4x4::Multiply4x4(mcwc, wcdc, this->TempMatrix4);
-    program->SetUniformMatrix("MCDCMatrix", this->TempMatrix4);
-    if (program->IsUniformUsed("MCVCMatrix"))
+    if (!actor->GetIsIdentity())
       {
-      vtkMatrix4x4::Multiply4x4(mcwc, wcvc, this->TempMatrix4);
-      program->SetUniformMatrix("MCVCMatrix", this->TempMatrix4);
+      vtkMatrix4x4* mcwc;
+      vtkMatrix3x3* anorms;
+      ((vtkOpenGLActor*)actor)->GetKeyMatrices(mcwc,anorms);
+      vtkMatrix4x4::Multiply4x4(this->VBOShiftScale.GetPointer(), mcwc, this->TempMatrix4);
+      vtkMatrix4x4::Multiply4x4(this->TempMatrix4, wcdc, this->TempMatrix4);
+      program->SetUniformMatrix("MCDCMatrix", this->TempMatrix4);
+      if (program->IsUniformUsed("MCVCMatrix"))
+        {
+        vtkMatrix4x4::Multiply4x4(this->VBOShiftScale.GetPointer(), mcwc, this->TempMatrix4);
+        vtkMatrix4x4::Multiply4x4(this->TempMatrix4, wcvc, this->TempMatrix4);
+        program->SetUniformMatrix("MCVCMatrix", this->TempMatrix4);
+        }
+      if (program->IsUniformUsed("normalMatrix"))
+        {
+        vtkMatrix3x3::Multiply3x3(anorms, norms, this->TempMatrix3);
+        program->SetUniformMatrix("normalMatrix", this->TempMatrix3);
+        }
       }
-    if (program->IsUniformUsed("normalMatrix"))
+    else
       {
-      vtkMatrix3x3::Multiply3x3(anorms, norms, this->TempMatrix3);
-      program->SetUniformMatrix("normalMatrix", this->TempMatrix3);
+      vtkMatrix4x4::Multiply4x4(this->VBOShiftScale.GetPointer(), wcdc, this->TempMatrix4);
+      program->SetUniformMatrix("MCDCMatrix", this->TempMatrix4);
+      if (program->IsUniformUsed("MCVCMatrix"))
+        {
+        vtkMatrix4x4::Multiply4x4(this->VBOShiftScale.GetPointer(), wcvc, this->TempMatrix4);
+        program->SetUniformMatrix("MCVCMatrix", this->TempMatrix4);
+        }
+      if (program->IsUniformUsed("normalMatrix"))
+        {
+        program->SetUniformMatrix("normalMatrix", norms);
+        }
       }
     }
   else
     {
-    program->SetUniformMatrix("MCDCMatrix", wcdc);
-    if (program->IsUniformUsed("MCVCMatrix"))
+    if (!actor->GetIsIdentity())
       {
-      program->SetUniformMatrix("MCVCMatrix", wcvc);
+      vtkMatrix4x4 *mcwc;
+      vtkMatrix3x3 *anorms;
+      ((vtkOpenGLActor *)actor)->GetKeyMatrices(mcwc,anorms);
+      vtkMatrix4x4::Multiply4x4(mcwc, wcdc, this->TempMatrix4);
+      program->SetUniformMatrix("MCDCMatrix", this->TempMatrix4);
+      if (program->IsUniformUsed("MCVCMatrix"))
+        {
+        vtkMatrix4x4::Multiply4x4(mcwc, wcvc, this->TempMatrix4);
+        program->SetUniformMatrix("MCVCMatrix", this->TempMatrix4);
+        }
+      if (program->IsUniformUsed("normalMatrix"))
+        {
+        vtkMatrix3x3::Multiply3x3(anorms, norms, this->TempMatrix3);
+        program->SetUniformMatrix("normalMatrix", this->TempMatrix3);
+        }
       }
-    if (program->IsUniformUsed("normalMatrix"))
+    else
       {
-      program->SetUniformMatrix("normalMatrix", norms);
+      program->SetUniformMatrix("MCDCMatrix", wcdc);
+      if (program->IsUniformUsed("MCVCMatrix"))
+        {
+        program->SetUniformMatrix("MCVCMatrix", wcvc);
+        }
+      if (program->IsUniformUsed("normalMatrix"))
+        {
+        program->SetUniformMatrix("normalMatrix", norms);
+        }
       }
     }
 
@@ -2954,6 +2995,19 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
         c ? (unsigned char *)c->GetVoidPointer(0) : NULL,
         c ? c->GetNumberOfComponents() : 0);
 
+    // If the VBO coordinates were shifted and scaled, prepare the inverse transform
+    // for application to the model->view matrix:
+    if (this->VBO->GetCoordShiftAndScaleEnabled())
+      {
+      double shift[3];
+      double scale[3];
+      this->VBO->GetCoordShift(shift);
+      this->VBO->GetCoordScale(scale);
+      this->VBOInverseTransform->Identity();
+      this->VBOInverseTransform->Translate(shift[0], shift[1], shift[2]);
+      this->VBOInverseTransform->Scale(1.0/scale[0], 1.0/scale[1], 1.0/scale[2]);
+      this->VBOInverseTransform->GetTranspose(this->VBOShiftScale.GetPointer());
+      }
     this->VBOBuildTime.Modified();
     this->VBOBuildString = toString.str();
     }
@@ -3151,6 +3205,12 @@ void vtkOpenGLPolyDataMapper::ShallowCopy(vtkAbstractMapper *mapper)
 
   // Now do superclass
   this->vtkPolyDataMapper::ShallowCopy(mapper);
+}
+
+void vtkOpenGLPolyDataMapper::SetVBOShiftScaleMethod(int m)
+{
+  this->VBO->SetCoordShiftAndScaleMethod(
+    static_cast<vtkOpenGLVertexBufferObject::ShiftScaleMethod>(m));
 }
 
 //-----------------------------------------------------------------------------

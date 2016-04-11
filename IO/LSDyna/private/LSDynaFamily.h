@@ -42,7 +42,7 @@
 
 //this is needs to be moved over to fseekpos and ftellpos
 //in the future
-#ifndef WIN32
+#ifndef _WIN32
 #   include <unistd.h>
 typedef off_t vtkLSDynaOff_t; // sanity
 typedef int vtkLSDynaFile_t;
@@ -53,7 +53,7 @@ typedef int vtkLSDynaFile_t;
 #  define VTK_LSDYNA_READ(fid,ptr,cnt) read(fid,ptr,cnt)
 #  define VTK_LSDYNA_ISBADFILE(fid) (fid < 0)
 #  define VTK_LSDYNA_CLOSEFILE(fid) close(fid)
-#else // WIN32
+#else // _WIN32
 typedef long vtkLSDynaOff_t; // insanity
 typedef FILE* vtkLSDynaFile_t;
 #  define VTK_LSDYNA_BADFILE 0

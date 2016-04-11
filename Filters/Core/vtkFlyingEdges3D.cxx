@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkFlyingEdges3D.h"
 
+#include "vtkArrayListTemplate.h" // For processing attribute data
 #include "vtkMath.h"
 #include "vtkImageData.h"
 #include "vtkCellArray.h"
@@ -34,8 +35,6 @@ vtkStandardNewMacro(vtkFlyingEdges3D);
 
 //----------------------------------------------------------------------------
 namespace {
-#include "vtkArrayListTemplate.h" // For processing attribute data
-
 // This templated class implements the heart of the algorithm.
 // vtkFlyingEdges3D populates the information in this class and
 // then invokes Contour() to actually initiate execution.
