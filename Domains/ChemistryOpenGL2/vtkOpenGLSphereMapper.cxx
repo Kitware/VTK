@@ -73,7 +73,8 @@ void vtkOpenGLSphereMapper::ReplaceShaderValues(
   // we create vertexVC below, so turn off the default
   // implementation
   vtkShaderProgram::Substitute(FSSource,
-    "//VTK::PositionVC::Impl","");
+    "//VTK::PositionVC::Impl",
+    "vec4 vertexVC = vertexVCVSOutput;\n");
 
   // for lights kit and positional the VCDC matrix is already defined
   // so don't redefine it
@@ -87,7 +88,6 @@ void vtkOpenGLSphereMapper::ReplaceShaderValues(
 
   vtkShaderProgram::Substitute(FSSource,"//VTK::Normal::Impl",
     // compute the eye position and unit direction
-    "vec4 vertexVC = vertexVCVSOutput;\n"
     "  vec3 EyePos;\n"
     "  vec3 EyeDir;\n"
     "  if (cameraParallel != 0) {\n"
