@@ -411,7 +411,10 @@ int vtkTecplotTableReader::RequestData(
       }
 
     if (!this->PedigreeIdArrayName)
-      throw std::runtime_error("You must specify a pedigree id array name");
+      {
+      vtkErrorMacro(<<"You must specify a pedigree id array name");
+      return 0;
+      }
 
     istream* input_stream_pt = NULL;
     ifstream file_stream;
@@ -426,8 +429,8 @@ int vtkTecplotTableReader::RequestData(
     file_stream.open(this->FileName, ios::binary);
     if(!file_stream.good())
       {
-      throw std::runtime_error(
-        "Unable to open input file " + std::string(this->FileName));
+      vtkErrorMacro(<<"Unable to open input file" << std::string(this->FileName));
+      return 0;
       }
 
     file_stream.seekg(0, ios::end);
@@ -481,25 +484,25 @@ int vtkTecplotTableReader::RequestData(
           }
         else
           {
-          throw std::runtime_error(
-                "Could not find pedigree id array: " +
-                vtkStdString(this->PedigreeIdArrayName));
+          vtkErrorMacro(<< "Could not find pedigree id array: " << std::string(this->PedigreeIdArrayName));
+          return 0;
           }
+        }
       }
-    }
-
     }
   catch(std::exception& e)
     {
-    vtkErrorMacro(<< "caught exception: " << e.what() << endl);
+    vtkErrorMacro(<< "caught exception: " << e.what());
     this->LastError = e.what();
     output_table->Initialize();
+    return 0;
     }
   catch(...)
     {
-    vtkErrorMacro(<< "caught unknown exception." << endl);
+    vtkErrorMacro(<< "caught unknown exception.");
     this->LastError = "Unknown exception.";
     output_table->Initialize();
+    return 0;
     }
 
   return 1;
