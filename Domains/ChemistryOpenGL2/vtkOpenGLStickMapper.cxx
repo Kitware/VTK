@@ -237,25 +237,44 @@ void vtkOpenGLStickMapper::SetCameraShaderParameters(vtkOpenGLHelper &cellBO,
   vtkMatrix3x3 *norms;
   vtkMatrix4x4 *vcdc;
   cam->GetKeyMatrices(ren,wcvc,norms,vcdc,wcdc);
-  program->SetUniformMatrix("VCDCMatrix", vcdc);
+
+  if (program->IsUniformUsed("VCDCMatrix"))
+    {
+    program->SetUniformMatrix("VCDCMatrix", vcdc);
+    }
 
   if (!actor->GetIsIdentity())
     {
     vtkMatrix4x4 *mcwc;
     vtkMatrix3x3 *anorms;
     ((vtkOpenGLActor *)actor)->GetKeyMatrices(mcwc,anorms);
-    vtkMatrix4x4::Multiply4x4(mcwc, wcvc, this->TempMatrix4);
-    program->SetUniformMatrix("MCVCMatrix", this->TempMatrix4);
-    vtkMatrix3x3::Multiply3x3(anorms, norms, this->TempMatrix3);
-    program->SetUniformMatrix("normalMatrix", this->TempMatrix3);
+    if (program->IsUniformUsed("MCVCMatrix"))
+      {
+      vtkMatrix4x4::Multiply4x4(mcwc, wcvc, this->TempMatrix4);
+      program->SetUniformMatrix("MCVCMatrix", this->TempMatrix4);
+      }
+    if (program->IsUniformUsed("normalMatrix"))
+      {
+      vtkMatrix3x3::Multiply3x3(anorms, norms, this->TempMatrix3);
+      program->SetUniformMatrix("normalMatrix", this->TempMatrix3);
+      }
     }
   else
     {
-    program->SetUniformMatrix("MCVCMatrix", wcvc);
-    program->SetUniformMatrix("normalMatrix", norms);
+    if (program->IsUniformUsed("MCVCMatrix"))
+      {
+      program->SetUniformMatrix("MCVCMatrix", wcvc);
+      }
+    if (program->IsUniformUsed("normalMatrix"))
+      {
+      program->SetUniformMatrix("normalMatrix", norms);
+      }
     }
 
-  cellBO.Program->SetUniformi("cameraParallel", cam->GetParallelProjection());
+  if (program->IsUniformUsed("cameraParallel"))
+    {
+    cellBO.Program->SetUniformi("cameraParallel", cam->GetParallelProjection());
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -271,31 +290,49 @@ void vtkOpenGLStickMapper::SetMapperShaderParameters(
     bool picking = (ren->GetRenderWindow()->GetIsPicking() || selector != NULL);
 
     cellBO.VAO->Bind();
-    if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
-                                    "orientMC", this->VBO->ColorOffset+sizeof(float),
-                                    this->VBO->Stride, VTK_FLOAT, 3, false))
+    if (cellBO.Program->IsAttributeUsed("orientMC"))
       {
-      vtkErrorMacro(<< "Error setting 'orientMC' in shader VAO.");
+      if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
+                                         "orientMC",
+                                         this->VBO->ColorOffset + sizeof(float),
+                                         this->VBO->Stride, VTK_FLOAT, 3,
+                                         false))
+        {
+        vtkErrorMacro(<< "Error setting 'orientMC' in shader VAO.");
+        }
       }
-    if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
-                                    "offsetMC", this->VBO->ColorOffset+4*sizeof(float),
-                                    this->VBO->Stride, VTK_UNSIGNED_CHAR, 3, false))
+    if (cellBO.Program->IsAttributeUsed("offsetMC"))
       {
-      vtkErrorMacro(<< "Error setting 'offsetMC' in shader VAO.");
+      if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
+                                         "offsetMC",
+                                         this->VBO->ColorOffset+4*sizeof(float),
+                                         this->VBO->Stride, VTK_UNSIGNED_CHAR,
+                                         3, false))
+        {
+        vtkErrorMacro(<< "Error setting 'offsetMC' in shader VAO.");
+        }
       }
-    if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
-                                    "radiusMC", this->VBO->ColorOffset+5*sizeof(float),
-                                    this->VBO->Stride, VTK_FLOAT, 1, false))
+    if (cellBO.Program->IsAttributeUsed("radiusMC"))
       {
-      vtkErrorMacro(<< "Error setting 'radiusMC' in shader VAO.");
+      if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
+                                         "radiusMC",
+                                         this->VBO->ColorOffset+5*sizeof(float),
+                                         this->VBO->Stride, VTK_FLOAT, 1,
+                                         false))
+        {
+        vtkErrorMacro(<< "Error setting 'radiusMC' in shader VAO.");
+        }
       }
     if (picking &&
         (!selector ||
-         (this->LastSelectionState >= vtkHardwareSelector::ID_LOW24)))
+         (this->LastSelectionState >= vtkHardwareSelector::ID_LOW24)) &&
+        cellBO.Program->IsAttributeUsed("selectionId"))
       {
       if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
-                                      "selectionId", this->VBO->ColorOffset+6*sizeof(float),
-                                      this->VBO->Stride, VTK_UNSIGNED_CHAR, 4, true))
+                                         "selectionId",
+                                         this->VBO->ColorOffset+6*sizeof(float),
+                                         this->VBO->Stride, VTK_UNSIGNED_CHAR,
+                                         4, true))
         {
         vtkErrorMacro(<< "Error setting 'selectionId' in shader VAO.");
         }

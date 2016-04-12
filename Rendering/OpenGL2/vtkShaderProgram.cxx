@@ -330,7 +330,7 @@ bool vtkShaderProgram::Link()
     return false;
     }
   this->Linked = true;
-  this->Attributes.clear();
+  this->AttributeLocs.clear();
   return true;
 }
 
@@ -769,22 +769,36 @@ bool vtkShaderProgram::SetAttributeArrayInternal(
   return true;
 }
 
-inline int vtkShaderProgram::FindAttributeArray(const char *name)
+inline int vtkShaderProgram::FindAttributeArray(const char *cname)
 {
-  if (name == NULL || !this->Linked)
+  if (cname == NULL || !this->Linked)
     {
     return -1;
     }
-  GLint location =
-      static_cast<int>(glGetAttribLocation(static_cast<GLuint>(Handle),
-                                           (const GLchar *)name));
-  if (location == -1)
+
+  std::string name(cname);
+  GLint loc = -1;
+
+  typedef std::map<std::string, int>::iterator IterT;
+  IterT iter = this->AttributeLocs.find(name);
+  if (iter == this->AttributeLocs.end())
+    {
+    loc = glGetAttribLocation(static_cast<GLuint>(Handle),
+                              static_cast<const GLchar *>(cname));
+    this->AttributeLocs.insert(std::make_pair(name, static_cast<int>(loc)));
+    }
+  else
+    {
+    loc = iter->second;
+    }
+
+  if (loc == -1)
     {
     this->Error = "Specified attribute not found in current shader program: ";
     this->Error += name;
     }
 
-  return location;
+  return loc;
 }
 
 inline int vtkShaderProgram::FindUniform(const char *cname)
@@ -850,6 +864,32 @@ bool vtkShaderProgram::IsUniformUsed(const char *cname)
   return found->second != -1;
 }
 
+// ----------------------------------------------------------------------------
+bool vtkShaderProgram::IsAttributeUsed(const char *cname)
+{
+  if (cname == NULL || !this->Linked)
+    {
+    return -1;
+    }
+
+  std::string name(cname);
+  GLint loc = -1;
+
+  typedef std::map<std::string, int>::iterator IterT;
+  IterT iter = this->AttributeLocs.find(name);
+  if (iter == this->AttributeLocs.end())
+    {
+    loc = glGetAttribLocation(static_cast<GLuint>(Handle),
+                              static_cast<const GLchar*>(cname));
+    this->AttributeLocs.insert(std::make_pair(name, static_cast<int>(loc)));
+    }
+  else
+    {
+    loc = iter->second;
+    }
+
+  return loc != -1;
+}
 
 // ----------------------------------------------------------------------------
 void vtkShaderProgram::PrintSelf(ostream& os, vtkIndent indent)
