@@ -116,13 +116,7 @@ bool vtkDualDepthPeelingPass::ReplaceShaderValues(std::string &,
             "    gl_FragData[1].xy = vec2(-1., oDepth);\n"
             "    return;\n"
             "    }\n"
-            // TODO it'd be great to find a way around this, but not sure if
-            // we can, as optimizing out the varyings causes errors when the
-            // mapper tries to set them.
-            "  // This comparison will always be true. It's here to prevent\n"
-            "  // compiler optimization from removing varyings that are set\n"
-            "  // in the mapper. Kinda hacky, but it works.\n"
-            "  else if (gl_FragCoord.z < 10.)\n"
+            "  else\n"
             "    {\n"
             "    gl_FragData[1].xy = vec2(-gl_FragCoord.z, gl_FragCoord.z);\n"
             "    return;\n"
