@@ -89,10 +89,9 @@ vtkXMLWriter* vtkXMLDataSetWriter::NewWriter(int dataset_type)
 //----------------------------------------------------------------------------
 int vtkXMLDataSetWriter::WriteInternal()
 {
-  vtkSmartPointer<vtkXMLWriter> writer;
-  writer.TakeReference(
-    // Create a writer based on the data set type.
-    vtkXMLDataSetWriter::NewWriter(this->GetInput()->GetDataObjectType()));
+  // Create a writer based on the data set type.
+  vtkXMLWriter* writer =
+    vtkXMLDataSetWriter::NewWriter(this->GetInput()->GetDataObjectType());
   if (writer)
     {
     writer->SetInputConnection(this->GetInputConnection(0, 0));
