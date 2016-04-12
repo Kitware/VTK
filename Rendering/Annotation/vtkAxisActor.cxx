@@ -787,6 +787,7 @@ vtkAxisActor::BuildLabels(vtkViewport *viewport, bool force)
     return;
     }
 
+  double maxLabelScale = 0.0;
   for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
     {
     this->LabelActors[i]->SetCamera(this->Camera);
@@ -809,13 +810,21 @@ vtkAxisActor::BuildLabels(vtkViewport *viewport, bool force)
       const double labelActors3DWidth =
         static_cast<double>(labelActors3DBounds[1] - labelActors3DBounds[0]);
 
-      this->LabelActors3D[i]->SetScale( labelActorsWidth / labelActors3DWidth );
+      if (labelActorsWidth / labelActors3DWidth > maxLabelScale)
+        {
+        maxLabelScale = labelActorsWidth / labelActors3DWidth;
+        }
       }
     if(!this->GetCalculateLabelOffset())
       {
       this->LabelActors[i]->SetAutoCenter(1);
       this->LabelProps3D[i]->SetAutoCenter(1);
       }
+    }
+
+  for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
+    {
+    this->LabelActors3D[i]->SetScale(maxLabelScale);
     }
 
   if (force || this->BuildTime.GetMTime() <  this->BoundsTime.GetMTime() ||

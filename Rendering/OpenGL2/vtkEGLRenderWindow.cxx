@@ -513,7 +513,7 @@ void vtkEGLRenderWindow::MakeCurrent()
     {
     if (eglMakeCurrent(impl->Display, impl->Surface, impl->Surface, impl->Context) == EGL_FALSE)
       {
-      vtkErrorMacro("Unable to eglMakeCurrent");
+      vtkWarningMacro("Unable to eglMakeCurrent: " << eglGetError());
       return;
       }
     }

@@ -804,9 +804,19 @@ int vtkExodusIIReaderPrivate::AssembleOutputProceduralArrays(
        ( otyp == vtkExodusIIReader::SIDE_SET_CONN ||
          otyp == vtkExodusIIReader::SIDE_SET ) )
     {
+    vtkExodusIICacheKey ckey( -1, vtkExodusIIReader::ELEMENT_ID, 0, 0 );
+    vtkIdTypeArray* src = 0;
+
+    if ( vtkDataArray* elems = this->GetCacheOrRead( ckey ) )
+      {
+      src = vtkIdTypeArray::New ();
+      src->DeepCopy  (elems);
+      }
+
     vtkExodusIICacheKey key( -1, vtkExodusIIReader::SIDE_SET_CONN, obj, 1 );
     if ( vtkDataArray* arr = this->GetCacheOrRead( key ) )
       {
+
       vtkIdTypeArray* idarray = vtkIdTypeArray::SafeDownCast(arr);
       vtkIdTypeArray* elementid = vtkIdTypeArray::New();
       elementid->SetNumberOfTuples(idarray->GetNumberOfTuples());
@@ -815,10 +825,18 @@ int vtkExodusIIReaderPrivate::AssembleOutputProceduralArrays(
       elementside->SetNumberOfTuples(idarray->GetNumberOfTuples());
       elementside->SetName(vtkExodusIIReader::GetSideSetSourceElementSideArrayName());
       vtkIdType values[2];
+
       for(vtkIdType i=0;i<idarray->GetNumberOfTuples();i++)
         {
         idarray->GetTypedTuple(i, values);
-        elementid->SetValue(i, values[0]-1); // switch to 0-based indexing
+        if (src == 0 || src->GetValue (values[0] - 1) <= 0)
+          {
+          elementid->SetValue(i, values[0] - 1);
+          }
+        else
+          {
+          elementid->SetValue(i, src->GetValue (values[0] - 1) - 1); // find the global element id
+          }
         // now we have to worry about mapping from exodus canonical side
         // ordering to vtk canonical side ordering for wedges and hexes.
         // Even if the element block isn't loaded that we still know what
@@ -837,7 +855,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputProceduralArrays(
           case VTK_HEXAHEDRON:
             {
             int hexMapping[6] = {2, 1, 3, 0, 4, 5};
-            elementside->SetValue(i, hexMapping[ values[1]-1 ] );
+            elementside->SetValue(i,  hexMapping[ values[1]-1 ] );
             break;
             }
           default:
@@ -851,6 +869,11 @@ int vtkExodusIIReaderPrivate::AssembleOutputProceduralArrays(
       elementid->FastDelete();
       elementside->FastDelete();
       status -= 2;
+      }
+
+    if (src != 0)
+      {
+      src->Delete ();
       }
     }
 
