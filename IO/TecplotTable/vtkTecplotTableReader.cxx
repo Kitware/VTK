@@ -177,7 +177,9 @@ public:
       }
 
     if (this->CurrentRecordIndex < ColumnNamesOnLine)
+      {
       return *this; // keep skipping until column names line
+      }
 
     // Look for field delimiters unless we're in a string ...
     if(!this->WithinString && this->FieldDelimiters.count(value))
@@ -270,9 +272,9 @@ public:
       }
 
     if(!this->Whitespace.count(value))
-     {
-     this->WhiteSpaceOnlyString = false;
-     }
+      {
+      this->WhiteSpaceOnlyString = false;
+      }
     // Keep growing the current field ...
     this->CurrentField += value;
     return *this;
@@ -284,7 +286,7 @@ private:
     vtkIdType fieldIndex = this->CurrentFieldIndex;
     if (this->CurrentRecordIndex == ColumnNamesOnLine)
       {
-        fieldIndex -= SkipColumnNames;
+      fieldIndex -= SkipColumnNames;
       }
 
     if(fieldIndex >= this->OutputTable->GetNumberOfColumns() && ColumnNamesOnLine == this->CurrentRecordIndex)
