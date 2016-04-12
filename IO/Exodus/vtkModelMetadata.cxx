@@ -24,6 +24,7 @@
 #include "vtkFieldData.h"
 #include "vtkCharArray.h"
 #include "vtkFloatArray.h"
+#include "vtkStringArray.h"
 #include "vtkDataArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
@@ -92,6 +93,7 @@ void vtkModelMetadata::InitializeAllMetadata()
 
   this->NumberOfNodeSets = 0;
 
+  this->NodeSetNames = NULL;
   this->NodeSetIds = NULL;
   this->NodeSetSize = NULL;
   this->NodeSetNumberOfDistributionFactors = NULL;
@@ -103,6 +105,7 @@ void vtkModelMetadata::InitializeAllMetadata()
 
   this->NumberOfSideSets = 0;
 
+  this->SideSetNames = NULL;
   this->SideSetIds = NULL;
   this->SideSetSize = NULL;
   this->SideSetNumberOfDistributionFactors = NULL;
@@ -194,7 +197,9 @@ void vtkModelMetadata::FreeAllGlobalData()
   delete this->BlockIdIndex;
   this->BlockIdIndex = NULL;
 
+  this->SetNodeSetNames(NULL);
   this->SetNodeSetIds(NULL);
+  this->SetSideSetNames(NULL);
   this->SetSideSetIds(NULL);
 
   this->SetBlockPropertyNames(0, NULL);
@@ -467,6 +472,13 @@ int vtkModelMetadata::SetBlockNumberOfAttributesPerElement(int *natts)
 // node set calculations
 //-------------------------------------------------
 
+void vtkModelMetadata::SetNodeSetNames(vtkStringArray* names)
+{
+  if (this->NodeSetNames != NULL)
+    this->NodeSetNames->Delete ();
+  this->NodeSetNames = names;
+}
+
 void vtkModelMetadata::SetNodeSetIds(int *n)
 {
   FREE(this->NodeSetIds);
@@ -501,6 +513,12 @@ void vtkModelMetadata::SetNodeSetDistributionFactors(float *d)
 //-------------------------------------------------
 // side set calculations
 //-------------------------------------------------
+void vtkModelMetadata::SetSideSetNames(vtkStringArray* names)
+{
+  if (this->SideSetNames != NULL)
+    this->SideSetNames->Delete ();
+  this->SideSetNames = names;
+}
 
 void vtkModelMetadata::SetSideSetIds(int *s)
 {
@@ -1158,6 +1176,11 @@ void vtkModelMetadata::PrintSelf(ostream& os, vtkIndent indent)
                    this->NumberOfBlocks << endl;
   os << indent << "NumberOfNodeSets: " <<
                    this->NumberOfNodeSets << endl;
+  os << indent << "NodeSetNames: ";
+  for(i=0;i<this->NodeSetNames->GetNumberOfValues (); i++)
+    {
+    os << this->NodeSetNames->GetValue (i) << " ";
+    }
   os << indent << "NodeSetIds: ";
   for(i=0;i<this->NumberOfNodeSets;i++)
     {
@@ -1189,6 +1212,11 @@ void vtkModelMetadata::PrintSelf(ostream& os, vtkIndent indent)
   os << endl;
   os << indent << "NumberOfSideSets: " <<
                    this->NumberOfSideSets << endl;
+  os << indent << "SideSetNames: ";
+  for(i=0;i<this->SideSetNames->GetNumberOfValues (); i++)
+    {
+    os << this->SideSetNames->GetValue (i) << " ";
+    }
   os << indent << "SideSetIds: ";
   for(i=0;i<this->NumberOfSideSets;i++)
     {

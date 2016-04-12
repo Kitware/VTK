@@ -39,6 +39,8 @@
 #include "vtkIntArray.h"
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
+#include "vtkStringArray.h"
+#include "vtkStdString.h"
 #include "vtkArrayIteratorIncludes.h"
 #include "vtkToolkits.h" // for VTK_USE_PARALLEL
 
@@ -276,9 +278,10 @@ int vtkExodusIIWriter::GlobalContinueExecuting(int localContinueExecution)
 void vtkExodusIIWriter::WriteData ()
 {
   this->NewFlattenedInput.clear ();
+  this->NewFlattenedNames.clear ();
   // Is it safe to assume this is the same?
   bool newHierarchy = false;
-  if (!this->FlattenHierarchy (this->OriginalInput, newHierarchy))
+  if (!this->FlattenHierarchy (this->OriginalInput, 0, newHierarchy))
     {
     vtkErrorMacro (
       "vtkExodusIIWriter::WriteData Unable to flatten hierarchy");
@@ -301,6 +304,7 @@ void vtkExodusIIWriter::WriteData ()
 
   // Copies over the new results data in the new objects
   this->FlattenedInput = this->NewFlattenedInput;
+  this->FlattenedNames = this->NewFlattenedNames;
 
   this->RemoveGhostCells ();
 
@@ -435,7 +439,7 @@ void vtkExodusIIWriter::StringUppercase(std::string& str)
 }
 
 //----------------------------------------------------------------------------
-int vtkExodusIIWriter::FlattenHierarchy (vtkDataObject* input, bool& changed)
+int vtkExodusIIWriter::FlattenHierarchy (vtkDataObject* input, const char *name, bool& changed)
 {
   if (input->IsA ("vtkMultiBlockDataSet"))
     {
@@ -449,12 +453,12 @@ int vtkExodusIIWriter::FlattenHierarchy (vtkDataObject* input, bool& changed)
          !iter->IsDoneWithTraversal ();
          iter->GoToNextItem ())
       {
-      const char *name = iter->GetCurrentMetaData()->Get (vtkCompositeDataSet::NAME());
+      name = iter->GetCurrentMetaData()->Get (vtkCompositeDataSet::NAME());
       if (name != 0 && strstr (name, "Sets") != 0)
         {
         continue;
         }
-      if (iter->GetCurrentDataObject () && !this->FlattenHierarchy (iter->GetCurrentDataObject (), changed))
+      if (iter->GetCurrentDataObject () && !this->FlattenHierarchy (iter->GetCurrentDataObject (), name, changed))
         {
         return 0;
         }
@@ -476,7 +480,7 @@ int vtkExodusIIWriter::FlattenHierarchy (vtkDataObject* input, bool& changed)
          !iter->IsDoneWithTraversal ();
          iter->GoToNextItem ())
       {
-      if (iter->GetCurrentDataObject () && !this->FlattenHierarchy (iter->GetCurrentDataObject (), changed))
+      if (iter->GetCurrentDataObject () && !this->FlattenHierarchy (iter->GetCurrentDataObject (), name, changed))
         {
         return 0;
         }
@@ -535,6 +539,7 @@ int vtkExodusIIWriter::FlattenHierarchy (vtkDataObject* input, bool& changed)
       changed = true;
       }
     this->NewFlattenedInput.push_back (output);
+    this->NewFlattenedNames.push_back (name);
     }
   else
     {
@@ -813,6 +818,10 @@ int vtkExodusIIWriter::CheckInputArrays ()
 
     // Trying to find global element id
     vtkDataArray *da = cd->GetGlobalIds();
+    if (!da)
+      { // try finding the array explicitly named
+      da = cd->GetArray ("GlobalElementId");
+      }
     if (da)
       {
       vtkIdTypeArray *ia = vtkIdTypeArray::SafeDownCast(da);
@@ -829,8 +838,13 @@ int vtkExodusIIWriter::CheckInputArrays ()
         }
       }
 
+
     // Trying to find global node id
     da = pd->GetGlobalIds();
+    if (!da)
+      { // try finding the array explicitly named
+      da = pd->GetArray ("GlobalNodeId");
+      }
     if (da)
       {
       vtkIdTypeArray *ia = vtkIdTypeArray::SafeDownCast(da);
@@ -897,6 +911,7 @@ int vtkExodusIIWriter::ConstructBlockInfoMap ()
         {
         this->CellToElementOffset[i][j] = 0;
         Block& b = this->BlockInfoMap[this->BlockIdList[i]->GetValue (j)];//CLM
+        b.Name = this->FlattenedNames[i].c_str();
         b.Type = this->FlattenedInput[i]->GetCellType (j);
         b.NumElements = 1;
         b.ElementStartIndex = 0;
@@ -1442,12 +1457,14 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
     {
     int numNodeSets = 0;
     int sumNodes = 0;
+    vtkStringArray *nodeSetNames = vtkStringArray::New ();
     vtkSmartPointer<vtkIntArray> nodeSetIds = vtkSmartPointer<vtkIntArray>::New ();
     vtkSmartPointer<vtkIntArray> nodeSetSizes = vtkSmartPointer<vtkIntArray>::New ();
     vtkSmartPointer<vtkIntArray> nodeSetNumDF = vtkSmartPointer<vtkIntArray>::New ();
     vtkSmartPointer<vtkIntArray> nodeIds = vtkSmartPointer<vtkIntArray>::New ();
     int numSideSets = 0;
     int sumSides = 0;
+    vtkStringArray *sideSetNames = vtkStringArray::New ();
     vtkSmartPointer<vtkIntArray> sideSetIds = vtkSmartPointer<vtkIntArray>::New ();
     vtkSmartPointer<vtkIntArray> sideSetSizes = vtkSmartPointer<vtkIntArray>::New ();
     vtkSmartPointer<vtkIntArray> sideSetNumDF = vtkSmartPointer<vtkIntArray>::New ();
@@ -1481,6 +1498,20 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
           node_id = atoi (id_str);
           }
         nodeSetIds->InsertNextTuple1 (node_id);
+
+        if (nodeSetNames->GetNumberOfValues () <= node_id)
+          {
+          vtkStringArray* newSideSetNames = vtkStringArray::New ();
+          newSideSetNames->SetNumberOfValues ((node_id + 1) * 2);
+          for (int i = 0; i < nodeSetNames->GetNumberOfValues (); i ++)
+            {
+            newSideSetNames->SetValue (i, nodeSetNames->GetValue (i));
+            }
+          nodeSetNames->Delete ();
+          nodeSetNames = newSideSetNames;
+          }
+        nodeSetNames->SetValue (node_id, name);
+
         node_id ++; // Make sure the node_id is unique if id_str is invalid
         vtkUnstructuredGrid* grid = vtkUnstructuredGrid::SafeDownCast (iter->GetCurrentDataObject ());
         vtkFieldData* field = grid->GetPointData ();
@@ -1511,6 +1542,10 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
         }
       else if (isASideSet)
         {
+        int hexSides = 0;
+        int wedgeSides = 0;
+        int otherSides = 0;
+        int badSides = 0;
         numSideSets ++;
         const char* id_str = name != 0 ? strstr (name, "ID:") : 0;
         if (id_str != 0)
@@ -1519,33 +1554,57 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
           side_id = atoi (id_str);
           }
         sideSetIds->InsertNextTuple1 (side_id);
+        if (sideSetNames->GetNumberOfValues () <= side_id)
+          {
+          vtkStringArray* newSideSetNames = vtkStringArray::New ();
+          newSideSetNames->SetNumberOfValues ((side_id + 1) * 2);
+          for (int i = 0; i < sideSetNames->GetNumberOfValues (); i ++)
+            {
+            newSideSetNames->SetValue (i, sideSetNames->GetValue (i));
+            }
+          sideSetNames->Delete ();
+          sideSetNames = newSideSetNames;
+          }
+        sideSetNames->SetValue (side_id, name);
         side_id ++; // Make sure the side_id is unique if id_str is invalid
         vtkUnstructuredGrid* grid = vtkUnstructuredGrid::SafeDownCast (iter->GetCurrentDataObject ());
         vtkFieldData* field = grid->GetCellData ();
+        int cells = grid->GetNumberOfCells ();
         vtkIdTypeArray* sourceElement = vtkIdTypeArray::SafeDownCast (field ? field->GetArray ("SourceElementId") : 0);
         vtkIntArray* sourceSide = vtkIntArray::SafeDownCast (field ? field->GetArray ("SourceElementSide") : 0);
         if (sourceElement && sourceSide)
           {
-          int cells = grid->GetNumberOfCells ();
           for (int c = 0; c < cells; c ++)
             {
             sideSetElementList->InsertNextTuple1 (sourceElement->GetValue (c) + 1);
             switch (GetElementType (sourceElement->GetValue (c) + 1))
               {
+              case -1:
+                {
+                badSides ++;
+                break;
+                }
               case VTK_WEDGE:
                 {
                 int wedgeMapping[5] = {3, 4, 0, 1, 2};
-                sideSetSideList->InsertNextTuple1 (wedgeMapping[sourceSide->GetValue (c)] + 1);
+                int side = wedgeMapping[sourceSide->GetValue (c)] + 1;
+                sideSetSideList->InsertNextTuple1 (side);
+                wedgeSides ++;
                 break;
                 }
               case VTK_HEXAHEDRON:
                 {
                 int hexMapping[6] = {3, 1, 0, 2, 4, 5};
                 sideSetSideList->InsertNextTuple1 (hexMapping[sourceSide->GetValue (c)] + 1);
+                hexSides ++;
                 break;
                 }
               default:
+                {
                 sideSetSideList->InsertNextTuple1 (sourceSide->GetValue (c) + 1);
+                otherSides ++;
+                break;
+                }
               }
             // TODO implement distribution factors
             sideSetNumDF->InsertNextTuple1 (0);
@@ -1560,8 +1619,10 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
         }
       }
 
+
     em->SetNumberOfNodeSets (numNodeSets);
     em->SetSumNodesPerNodeSet (sumNodes);
+    em->SetNodeSetNames (nodeSetNames);
 
     int *nodeSetIds_a = new int[nodeSetIds->GetNumberOfTuples ()];
     memcpy (nodeSetIds_a, nodeSetIds->GetPointer (0), nodeSetIds->GetNumberOfTuples () * sizeof(int));
@@ -1581,6 +1642,7 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
 
     em->SetNumberOfSideSets (numSideSets);
     em->SetSumSidesPerSideSet (sumSides);
+    em->SetSideSetNames (sideSetNames);
 
     int *sideSetIds_a = new int[sideSetIds->GetNumberOfTuples ()];
     memcpy (sideSetIds_a, sideSetIds->GetPointer (0), sideSetIds->GetNumberOfTuples() * sizeof(int));
@@ -1916,7 +1978,7 @@ int vtkExodusIIWriter::WriteBlockInformation()
        blockIter != this->BlockInfoMap.end ();
        blockIter ++)
     {
-    char *name = vtkExodusIIWriter::GetCellTypeName (blockIter->second.Type);
+    char *type_name = vtkExodusIIWriter::GetCellTypeName (blockIter->second.Type);
     if (blockIter->second.NodesPerElement == 0 &&
         blockIter->second.NumElements > 0)
       {
@@ -1924,7 +1986,7 @@ int vtkExodusIIWriter::WriteBlockInformation()
       int numPoints = blockIter->second.EntityNodeOffsets[numElts - 1]
                     + blockIter->second.EntityCounts[numElts - 1];
       rc = ex_put_elem_block(this->fid, blockIter->first,
-                  name,
+                  type_name,
                   blockIter->second.NumElements,
                   numPoints,
                   blockIter->second.NumAttributes);
@@ -1932,17 +1994,20 @@ int vtkExodusIIWriter::WriteBlockInformation()
     else
       {
       rc = ex_put_elem_block(this->fid, blockIter->first,
-                  name,
+                  type_name,
                   blockIter->second.NumElements,
                   blockIter->second.NodesPerElement,
                   blockIter->second.NumAttributes);
       }
-    delete [] name;
+    delete [] type_name;
+
     if (rc < 0)
       {
       vtkErrorMacro (<< "Problem adding block with id " << blockIter->first);
       continue;
       }
+
+    ex_put_name (this->fid, EX_ELEM_BLOCK, blockIter->first, blockIter->second.Name);
 
     if (blockIter->second.NumElements > 0)
       {
@@ -2503,16 +2568,24 @@ int vtkExodusIIWriter::WriteNodeSetInformation()
       emNumDF ++;
     }
 
+  int *node_ids = em->GetNodeSetIds();
+
   if (this->PassDoubles)
     {
-    rc = ex_put_concat_node_sets(this->fid, em->GetNodeSetIds(),
+    rc = ex_put_concat_node_sets(this->fid, node_ids,
               nsSize, nsNumDF, nsIdIdx, nsDFIdx, idBuf, dfBufD);
     }
   else
     {
-    rc = ex_put_concat_node_sets(this->fid, em->GetNodeSetIds(),
+    rc = ex_put_concat_node_sets(this->fid, node_ids,
               nsSize, nsNumDF, nsIdIdx, nsDFIdx, idBuf, dfBuf);
     }
+
+  for (i = 0; i < nnsets; i ++) {
+    vtkStdString name = em->GetNodeSetNames ()->GetValue (node_ids[i]);
+    ex_put_name (this->fid, EX_NODE_SET, node_ids[i], name.c_str());
+  }
+
 
   delete [] nsSize;
   delete [] nsNumDF;
@@ -2539,10 +2612,24 @@ vtkIdType vtkExodusIIWriter::GetElementLocalId(vtkIdType id)
         for (vtkIdType j=0; j<ncells; j++)
           {
           vtkIdType gid = this->GlobalElementIdList[i][j];
-          int offset = this->CellToElementOffset[i][j];
-          int start = this->BlockInfoMap[BlockIdList[i]->GetValue (j)].ElementStartIndex;
+          std::map<vtkIdType,vtkIdType>::iterator mapit = this->LocalElementIdMap->find(gid);
+          if (mapit != this->LocalElementIdMap->end ())
+            {
+            vtkErrorMacro ("Overlapping gids in the dataset");
+            continue;
+            }
+
+          std::map<int, Block>::const_iterator blockIter =
+                  this->BlockInfoMap.find (this->BlockIdList[i]->GetValue (j));
+          if (blockIter == this->BlockInfoMap.end ())
+            {
+            vtkWarningMacro ("vtkExodusIIWriter: The block id map has come out of sync");
+            continue;
+            }
+
+          int index = blockIter->second.ElementStartIndex + CellToElementOffset[i][j];
           this->LocalElementIdMap->insert(
-            std::map<vtkIdType, vtkIdType>::value_type(gid, start + offset));
+            std::map<vtkIdType, vtkIdType>::value_type(gid, index));
           }
         }
       }
@@ -2674,7 +2761,7 @@ int vtkExodusIIWriter::WriteSideSetInformation()
         {
         ssSize[i]++;
 
-        idBuf[nextId] = lid+1;
+        idBuf[nextId] = lid + 1;
         sideBuf[nextId] = *sides;
         sides ++;
 
@@ -2706,16 +2793,23 @@ int vtkExodusIIWriter::WriteSideSetInformation()
       }
     }
 
+  int *sids = em->GetSideSetIds ();
+
   if (this->PassDoubles)
     {
-    rc = ex_put_concat_side_sets(this->fid, em->GetSideSetIds(),
+    rc = ex_put_concat_side_sets(this->fid, sids,
             ssSize, ssNumDF, ssIdIdx, ssDFIdx, idBuf, sideBuf, dfBufD);
     }
   else
     {
-    rc = ex_put_concat_side_sets(this->fid, em->GetSideSetIds(),
+    rc = ex_put_concat_side_sets(this->fid, sids,
             ssSize, ssNumDF, ssIdIdx, ssDFIdx, idBuf, sideBuf, dfBuf);
     }
+
+  for (i = 0; i < nssets; i ++) {
+    vtkStdString name = em->GetSideSetNames ()->GetValue (sids[i]);
+    ex_put_name (this->fid, EX_SIDE_SET, sids[i], name.c_str());
+  }
 
   delete [] ssSize;
   delete [] ssNumDF;

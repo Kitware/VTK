@@ -193,12 +193,16 @@ protected:
   std::vector< vtkSmartPointer<vtkUnstructuredGrid> > FlattenedInput;
   std::vector< vtkSmartPointer<vtkUnstructuredGrid> > NewFlattenedInput;
 
+  std::vector< vtkStdString > FlattenedNames;
+  std::vector< vtkStdString > NewFlattenedNames;
+
   std::vector< vtkIntArray* > BlockIdList;
 
   struct Block
   {
     Block ()
       {
+      this->Name = 0;
       this->Type = 0;
       this->NumElements = 0;
       this->ElementStartIndex = -1;
@@ -210,6 +214,7 @@ protected:
       this->NumAttributes = 0;
       this->BlockAttributes = 0;
       };
+    const char *Name;
     int Type;
     int NumElements;
     int ElementStartIndex;
@@ -283,7 +288,7 @@ protected:
 
   void WriteData ();
 
-  int FlattenHierarchy (vtkDataObject* input, bool& changed);
+  int FlattenHierarchy (vtkDataObject* input, const char *name, bool& changed);
 
   int CreateNewExodusFile ();
   void CloseExodusFile ();
