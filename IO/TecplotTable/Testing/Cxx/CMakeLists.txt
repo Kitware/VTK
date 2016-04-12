@@ -1,8 +1,3 @@
-INCLUDE_DIRECTORIES(
-  ${VTK_SOURCE_DIR}/Common/Testing/Cxx/
-  ${VTK_SOURCE_DIR}/Rendering/Testing/Cxx/
-  ${VTK_SOURCE_DIR}/Testing/Core/
-  )
 
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   NO_VALID

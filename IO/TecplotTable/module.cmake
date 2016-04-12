@@ -8,6 +8,9 @@ vtk_module(vtkIOTecplotTable
     vtkIOCore
     vtkIOLegacy
     vtkIOXML
+  TEST_DEPENDS
+    vtkTestingCore
+    vtkTestingRendering
   PRIVATE_DEPENDS
     vtksys
   )
