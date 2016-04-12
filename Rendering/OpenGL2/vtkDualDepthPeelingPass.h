@@ -113,14 +113,6 @@ protected:
   void FreeGLObjects();
 
   // Description:
-  // Draw a full-screen quad.
-  void DrawFullScreenQuad();
-  void PrepFullScreenVAO(vtkOpenGLVertexArrayObject *vao,
-                         vtkShaderProgram *prog);
-  const char* FullScreenQuadVertexShader();
-  const char* FullScreenQuadGeometryShader();
-
-  // Description:
   // Render the translucent pass geometry, counting number of render calls.
   void RenderTranslucentPass();
 
@@ -180,8 +172,6 @@ protected:
 
   vtkFrameBufferObject2 *Framebuffer;
   vtkTextureObject *Textures[NumberOfTextures];
-
-  vtkOpenGLBufferObject *FullScreenQuadVerts;
 
   TextureName FrontSource; // The current front source buffer
   TextureName FrontDestination; // The current front destination buffer
