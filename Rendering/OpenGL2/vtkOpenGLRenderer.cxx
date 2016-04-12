@@ -280,7 +280,8 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       {
       // Some mesa drivers don't provide ARB_texture_float. Fallback to standard
       // depth peeling in this case.
-      if (GLEW_ARB_texture_float)
+      if (GLEW_ARB_texture_float ||
+          context->GetContextSupportsOpenGL32())
         {
         vtkDebugMacro("Floating point textures supported -- "
                       "using dual depth peeling.");
