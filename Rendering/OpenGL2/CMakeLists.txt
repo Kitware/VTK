@@ -21,6 +21,7 @@ set(Module_SRCS
   vtkDepthOfFieldPass.cxx
   vtkDepthImageProcessingPass.cxx
   vtkDepthPeelingPass.cxx
+  vtkDualDepthPeelingPass.cxx
   vtkEDLShading.cxx
   vtkFrameBufferObject.cxx
   vtkGaussianBlurPass.cxx
@@ -47,8 +48,9 @@ set(Module_SRCS
   vtkOpenGLPolyDataMapper.cxx
   vtkOpenGLPolyDataMapper2D.cxx
   vtkOpenGLProperty.cxx
-  vtkOpenGLRenderWindow.cxx
+  vtkOpenGLRenderPass.cxx
   vtkOpenGLRenderUtilities.cxx
+  vtkOpenGLRenderWindow.cxx
   vtkOpenGLRenderer.cxx
   vtkOpenGLShaderCache.cxx
   vtkOpenGLTextActor.cxx

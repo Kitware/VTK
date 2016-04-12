@@ -117,14 +117,14 @@ bool vtkShaderProgram::Substitute(std::string &source, const std::string &search
 {
   std::string::size_type pos = 0;
   bool replaced = false;
-  while ((pos = source.find(search, 0)) != std::string::npos)
+  while ((pos = source.find(search, pos)) != std::string::npos)
     {
     source.replace(pos, search.length(), replace);
     if (!all)
       {
       return true;
       }
-    pos += search.length();
+    pos += replace.length();
     replaced = true;
     }
   return replaced;
@@ -295,7 +295,7 @@ bool vtkShaderProgram::Link()
     }
 
   // clear out the list of uniforms used
-  this->UniformsUsed.clear();
+  this->UniformLocs.clear();
 
 #if GL_ES_VERSION_2_0 != 1
   // bind the outputs if specified
@@ -787,36 +787,52 @@ inline int vtkShaderProgram::FindAttributeArray(const char *name)
   return location;
 }
 
-inline int vtkShaderProgram::FindUniform(const char *name)
+inline int vtkShaderProgram::FindUniform(const char *cname)
 {
-  if (name == NULL || !this->Linked)
+  if (cname == NULL || !this->Linked)
     {
     return -1;
     }
-  GLint location =
-      static_cast<int>(glGetUniformLocation(static_cast<GLuint>(Handle),
-                                            (const GLchar *)name));
-  if (location == -1)
+
+  std::string name(cname);
+  GLint loc = -1;
+
+  typedef std::map<std::string, int>::iterator IterT;
+  IterT iter = this->UniformLocs.find(name);
+  if (iter == this->UniformLocs.end())
     {
-    this->Error = "Uniform " + std::string(name) + " not found in current shader program.";
+    loc = static_cast<int>(glGetUniformLocation(static_cast<GLuint>(Handle),
+                                                (const GLchar *)cname));
+    this->UniformLocs.insert(std::make_pair(cname, static_cast<int>(loc)));
+    }
+  else
+    {
+    loc = iter->second;
     }
 
-  return location;
+  if (loc == -1)
+    {
+    this->Error = "Uniform " + name + " not found in current shader program.";
+    }
+
+  return loc;
 }
 
 
-bool vtkShaderProgram::IsUniformUsed(const char *name)
+bool vtkShaderProgram::IsUniformUsed(const char *cname)
 {
-  if (name == NULL)
+  if (cname == NULL)
     {
     return false;
     }
 
-    // see if we have cached the result
-  typedef std::map<std::string, bool>::iterator iter;
-  iter found = this->UniformsUsed.find(name);
+  std::string name(cname);
+
+  // see if we have cached the result
+  typedef std::map<std::string, int>::iterator iter;
+  iter found = this->UniformLocs.find(name);
   // if not, go query openGL
-  if (found == this->UniformsUsed.end())
+  if (found == this->UniformLocs.end())
     {
     if (!this->Linked)
       {
@@ -825,12 +841,13 @@ bool vtkShaderProgram::IsUniformUsed(const char *name)
       }
     GLint location =
       static_cast<int>(glGetUniformLocation(static_cast<GLuint>(Handle),
-                                            (const GLchar *)name));
-    this->UniformsUsed[name] = (location == -1 ? false : true);
-    return (location == -1 ? false : true);
+                                            (const GLchar *)cname));
+    std::pair<iter, bool> res = this->UniformLocs.insert(
+          std::make_pair(name, static_cast<int>(location)));
+    found = res.first;
     }
 
-  return found->second;
+  return found->second != -1;
 }
 
 

@@ -28,6 +28,7 @@
 #include "vtkInformationIterator.h"
 #include "vtkInformationKeyVectorKey.h"
 #include "vtkInformationObjectBaseKey.h"
+#include "vtkInformationObjectBaseVectorKey.h"
 #include "vtkInformationRequestKey.h"
 #include "vtkInformationStringKey.h"
 #include "vtkInformationStringVectorKey.h"
@@ -328,6 +329,21 @@ void vtkInformation::CopyEntry(vtkInformation* from,
 }
 
 //----------------------------------------------------------------------------
+void vtkInformation::CopyEntry(vtkInformation *from,
+                               vtkInformationObjectBaseVectorKey *key,
+                               int deep)
+{
+  if (!deep)
+    {
+    key->ShallowCopy(from, this);
+    }
+  else
+    {
+    key->DeepCopy(from, this);
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkInformation::CopyEntry(vtkInformation* from,
                                vtkInformationDoubleVectorKey* key, int deep)
 {
@@ -586,6 +602,60 @@ int vtkInformation::Has(vtkInformationStringVectorKey* key)
   {
   return key->vtkInformationStringVectorKey::Has(this);
   }
+
+
+//------------------------------------------------------------------------------
+void vtkInformation::Append(vtkInformationObjectBaseVectorKey *key,
+                            vtkObjectBase *data)
+{
+  key->Append(this, data);
+}
+
+//------------------------------------------------------------------------------
+void vtkInformation::Set(vtkInformationObjectBaseVectorKey *key,
+                         vtkObjectBase *value, int idx)
+{
+  key->Set(this, value, idx);
+}
+
+//------------------------------------------------------------------------------
+vtkObjectBase *vtkInformation::Get(vtkInformationObjectBaseVectorKey *key,
+                                   int idx)
+{
+  return key->Get(this, idx);
+}
+
+//------------------------------------------------------------------------------
+int vtkInformation::Length(vtkInformationObjectBaseVectorKey *key)
+{
+  return key->Length(this);
+}
+
+//------------------------------------------------------------------------------
+void vtkInformation::Remove(vtkInformationObjectBaseVectorKey *key)
+{
+  key->Remove(this);
+}
+
+//------------------------------------------------------------------------------
+void vtkInformation::Remove(vtkInformationObjectBaseVectorKey *key,
+                            vtkObjectBase *objectToRemove)
+{
+  key->Remove(this, objectToRemove);
+}
+
+//------------------------------------------------------------------------------
+void vtkInformation::Remove(vtkInformationObjectBaseVectorKey *key,
+                            int indexToRemove)
+{
+  key->Remove(this, indexToRemove);
+}
+
+//------------------------------------------------------------------------------
+int vtkInformation::Has(vtkInformationObjectBaseVectorKey *key)
+{
+  return key->Has(this);
+}
 
 VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Key, vtkInformationKey*);
 #define VTK_INFORMATION_DEFINE_VECTOR_VALUE2_PROPERTY(name, type, atype)    \
