@@ -648,9 +648,10 @@ void vtkInteractorStyleImage::SetCurrentImageToNthImage(int i)
       for (prop->InitPathTraversal(); (path = prop->GetNextPath()); )
         {
         vtkProp *tryProp = path->GetLastNode()->GetViewProp();
-        if ( (imageProp = vtkImageSlice::SafeDownCast(tryProp)) != 0 )
+        imageProp = vtkImageSlice::SafeDownCast(tryProp);
+        if (imageProp)
           {
-          if (j == i)
+          if (j == i && imageProp->GetPickable())
             {
             foundImageProp = true;
             break;
