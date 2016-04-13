@@ -47,6 +47,7 @@
 
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkInterpolationKernel.h"
+#include "vtkStdString.h" // For vtkStdString ivars
 
 class vtkIdList;
 class vtkDataArray;
@@ -95,11 +96,28 @@ public:
   vtkBooleanMacro(UseNormals,bool);
 
   // Description:
+  // Specify the normals array name. Used to orient the ellipsoid.
+  vtkSetMacro(NormalsArrayName,vtkStdString);
+  vtkGetMacro(NormalsArrayName,vtkStdString);
+
+  // Description:
   // Specify whether scalar values should be used to scale the weights.
   // By default this is off.
   vtkSetMacro(UseScalars,bool);
   vtkGetMacro(UseScalars,bool);
   vtkBooleanMacro(UseScalars,bool);
+
+  // Description:
+  // Specify the normals array name. Used to orient the ellipsoid.
+  vtkSetMacro(ScalarsArrayName,vtkStdString);
+  vtkGetMacro(ScalarsArrayName,vtkStdString);
+
+  // Description:
+  // Multiply the Gaussian splat distribution by this value. If UseScalars is
+  // on and a scalar aray is provided, then the scalar value will be
+  // multiplied by the ScaleFactor times the Gaussian function.
+  vtkSetClampMacro(ScaleFactor,double,0.0,VTK_DOUBLE_MAX);
+  vtkGetMacro(ScaleFactor,double);
 
   // Description:
   // Specify the radius of the kernel. Points within this radius will be
@@ -127,18 +145,21 @@ protected:
   vtkEllipsoidalGaussianKernel();
   ~vtkEllipsoidalGaussianKernel();
 
+  bool UseNormals;
+  bool UseScalars;
+
+  vtkStdString NormalsArrayName;
+  vtkStdString ScalarsArrayName;
+
+  double ScaleFactor;
   double Radius;
   double Sharpness;
   double Eccentricity;
 
-  bool UseNormals;
-  bool UseScalars;
-
-  vtkDataArray *Normals;
-  vtkDataArray *Scalars;
-
   // Internal structure to reduce computation
   double F2, E2;
+  vtkDataArray *NormalsArray;
+  vtkDataArray *ScalarsArray;
 
   virtual void FreeStructures();
 

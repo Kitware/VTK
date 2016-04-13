@@ -188,6 +188,15 @@ public:
     }
 
   // Description:
+  // If enabled, then input arrays that are non-real types (i.e., not float
+  // or double) are promoted to float type on output. This is because the
+  // interpolation process may not be well behaved when integral types are
+  // combined using interpolation weights.
+  vtkSetMacro(PromoteOutputArrays, bool);
+  vtkBooleanMacro(PromoteOutputArrays, bool);
+  vtkGetMacro(PromoteOutputArrays, bool);
+
+  // Description:
   // Indicate whether to shallow copy the input point data arrays to the
   // output.  On by default.
   vtkSetMacro(PassPointArrays, bool);
@@ -225,6 +234,8 @@ protected:
   vtkCharArray *ValidPointsMask;
 
   std::vector<vtkStdString> ExcludedArrays;
+
+  bool PromoteOutputArrays;
 
   bool PassCellArrays;
   bool PassPointArrays;
