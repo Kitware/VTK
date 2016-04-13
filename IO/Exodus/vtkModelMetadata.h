@@ -71,7 +71,8 @@
 
 #include "vtkIOExodusModule.h" // For export macro
 #include "vtkObject.h"
-
+#include "vtkSmartPointer.h" // for vtkSmartPointer
+#include "vtkStringArray.h" // for vtkStringArray
 class vtkDataSet;
 class vtkCharArray;
 class vtkIdTypeArray;
@@ -240,7 +241,7 @@ public:
 
 //BTX
   // Description:
-  void SetNodeSetNames (vtkStringArray *names);
+  void SetNodeSetNames (vtkStringArray *names) { this->NodeSetNames = names; }
   vtkStringArray* GetNodeSetNames() const { return this->NodeSetNames; }
 //ETX
 
@@ -312,7 +313,7 @@ public:
 
 //BTX
   // Description:
-  void SetSideSetNames (vtkStringArray *names);
+  void SetSideSetNames (vtkStringArray *names) { this->SideSetNames = names; }
   vtkStringArray* GetSideSetNames() const { return this->SideSetNames; }
 //ETX
 
@@ -666,9 +667,8 @@ private:
 
   int NumberOfNodeSets; // (G)
 
-//BTX
-  vtkStringArray *NodeSetNames;
-//ETX
+  vtkSmartPointer<vtkStringArray> NodeSetNames;
+
   int *NodeSetIds;             // NumberOfNodeSets (G)
   int *NodeSetSize;            // NumberOfNodeSets (L)
   int *NodeSetNumberOfDistributionFactors;  // NNS (L) (NSNDF[i] is 0 or NSS[i])
@@ -687,9 +687,8 @@ private:
 
   int NumberOfSideSets; // (G)
 
-//BTX
-  vtkStringArray *SideSetNames;
-//ETX
+  vtkSmartPointer<vtkStringArray> SideSetNames;
+
   int *SideSetIds;                          // NumberOfSideSets (G)
   int *SideSetSize;                         // NumberOfSideSets (L)
   int *SideSetNumberOfDistributionFactors;  // NSS (L) (SSNDF[i] = 0 or NumNodesInSide)

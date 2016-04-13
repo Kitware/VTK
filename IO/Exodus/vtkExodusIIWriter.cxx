@@ -18,31 +18,32 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
+#include "vtkArrayIteratorIncludes.h"
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkCompositeDataIterator.h"
+#include "vtkCompositeDataSet.h"
+#include "vtkDataObject.h"
+#include "vtkDataObjectTreeIterator.h"
+#include "vtkDoubleArray.h"
 #include "vtkExodusIIWriter.h"
-#include "vtkObjectFactory.h"
-#include "vtkModelMetadata.h"
+#include "vtkFieldData.h"
+#include "vtkFloatArray.h"
+#include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkDoubleArray.h"
-#include "vtkDataObject.h"
-#include "vtkFieldData.h"
-#include "vtkCompositeDataSet.h"
-#include "vtkCompositeDataIterator.h"
-#include "vtkMultiBlockDataSet.h"
-#include "vtkDataObjectTreeIterator.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkCellData.h"
-#include "vtkPointData.h"
-#include "vtkIdList.h"
-#include "vtkThreshold.h"
 #include "vtkIntArray.h"
-#include "vtkCellArray.h"
-#include "vtkFloatArray.h"
-#include "vtkStringArray.h"
+#include "vtkModelMetadata.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkNew.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkStdString.h"
-#include "vtkArrayIteratorIncludes.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringArray.h"
+#include "vtkThreshold.h"
 #include "vtkToolkits.h" // for VTK_USE_PARALLEL
+#include "vtkUnstructuredGrid.h"
 
 #include "vtk_exodusII.h"
 #include <cctype>
@@ -1457,14 +1458,14 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
     {
     int numNodeSets = 0;
     int sumNodes = 0;
-    vtkStringArray *nodeSetNames = vtkStringArray::New ();
+    vtkNew<vtkStringArray> nodeSetNames;
     vtkSmartPointer<vtkIntArray> nodeSetIds = vtkSmartPointer<vtkIntArray>::New ();
     vtkSmartPointer<vtkIntArray> nodeSetSizes = vtkSmartPointer<vtkIntArray>::New ();
     vtkSmartPointer<vtkIntArray> nodeSetNumDF = vtkSmartPointer<vtkIntArray>::New ();
     vtkSmartPointer<vtkIntArray> nodeIds = vtkSmartPointer<vtkIntArray>::New ();
     int numSideSets = 0;
     int sumSides = 0;
-    vtkStringArray *sideSetNames = vtkStringArray::New ();
+    vtkNew<vtkStringArray> sideSetNames;
     vtkSmartPointer<vtkIntArray> sideSetIds = vtkSmartPointer<vtkIntArray>::New ();
     vtkSmartPointer<vtkIntArray> sideSetSizes = vtkSmartPointer<vtkIntArray>::New ();
     vtkSmartPointer<vtkIntArray> sideSetNumDF = vtkSmartPointer<vtkIntArray>::New ();
@@ -1499,16 +1500,9 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
           }
         nodeSetIds->InsertNextTuple1 (node_id);
 
-        if (nodeSetNames->GetNumberOfValues () <= node_id)
+        if (nodeSetNames->GetNumberOfValues() <= node_id)
           {
-          vtkStringArray* newSideSetNames = vtkStringArray::New ();
-          newSideSetNames->SetNumberOfValues ((node_id + 1) * 2);
-          for (int i = 0; i < nodeSetNames->GetNumberOfValues (); i ++)
-            {
-            newSideSetNames->SetValue (i, nodeSetNames->GetValue (i));
-            }
-          nodeSetNames->Delete ();
-          nodeSetNames = newSideSetNames;
+          nodeSetNames->SetNumberOfValues ((node_id + 1) * 2);
           }
         nodeSetNames->SetValue (node_id, name);
 
@@ -1556,14 +1550,7 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
         sideSetIds->InsertNextTuple1 (side_id);
         if (sideSetNames->GetNumberOfValues () <= side_id)
           {
-          vtkStringArray* newSideSetNames = vtkStringArray::New ();
-          newSideSetNames->SetNumberOfValues ((side_id + 1) * 2);
-          for (int i = 0; i < sideSetNames->GetNumberOfValues (); i ++)
-            {
-            newSideSetNames->SetValue (i, sideSetNames->GetValue (i));
-            }
-          sideSetNames->Delete ();
-          sideSetNames = newSideSetNames;
+          sideSetNames->SetNumberOfValues((side_id + 1) * 2);
           }
         sideSetNames->SetValue (side_id, name);
         side_id ++; // Make sure the side_id is unique if id_str is invalid
@@ -1622,7 +1609,7 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
 
     em->SetNumberOfNodeSets (numNodeSets);
     em->SetSumNodesPerNodeSet (sumNodes);
-    em->SetNodeSetNames (nodeSetNames);
+    em->SetNodeSetNames (nodeSetNames.Get());
 
     int *nodeSetIds_a = new int[nodeSetIds->GetNumberOfTuples ()];
     memcpy (nodeSetIds_a, nodeSetIds->GetPointer (0), nodeSetIds->GetNumberOfTuples () * sizeof(int));
@@ -1642,7 +1629,7 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
 
     em->SetNumberOfSideSets (numSideSets);
     em->SetSumSidesPerSideSet (sumSides);
-    em->SetSideSetNames (sideSetNames);
+    em->SetSideSetNames (sideSetNames.Get());
 
     int *sideSetIds_a = new int[sideSetIds->GetNumberOfTuples ()];
     memcpy (sideSetIds_a, sideSetIds->GetPointer (0), sideSetIds->GetNumberOfTuples() * sizeof(int));
