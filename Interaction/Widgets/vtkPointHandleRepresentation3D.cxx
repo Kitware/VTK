@@ -277,7 +277,6 @@ void vtkPointHandleRepresentation3D::StartWidgetInteraction(double startEventPos
   vtkAssemblyPath* path = this->GetAssemblyPath(
     startEventPos[0], startEventPos[1], 0., this->CursorPicker);
 
-  path = this->CursorPicker->GetPath();
   if ( path != NULL )
     {
     this->InteractionState = vtkHandleRepresentation::Nearby;
