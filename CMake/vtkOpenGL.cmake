@@ -16,9 +16,9 @@ endif()
 
 option(VTK_USE_X "Use X for VTK render windows" ${VTK_USE_X_DEFAULT})
 
-# OSMesa offscreen mesa rendering.
-option(VTK_USE_OSMESA
-  "Use OSMesa for off screen rendering." OFF)
+# OSMesa logic for offscreen mesa rendering.
+option(VTK_OPENGL_HAS_OSMESA
+  "The OpenGL library being used supports off screen Mesa calls" OFF)
 # EGL offscreen rendering
 option(VTK_USE_OFFSCREEN_EGL
   "Use EGL for OpenGL client API for offscreen rendering." OFF)
@@ -33,28 +33,33 @@ if (VTK_USE_OFFSCREEN_EGL AND ANDROID)
 endif()
 
 option(VTK_USE_OFFSCREEN "Use off screen calls by default" OFF)
-
-if(VTK_USE_X OR VTK_USE_COCOA OR WIN32 OR ANDROID OR APPLE_IOS OR VTK_USE_OSMESA)
+unset(VTK_CAN_DO_OFFSCREEN)
+if(VTK_OPENGL_HAS_OSMESA OR WIN32 OR VTK_USE_OFFSCREEN_EGL)
+  set(VTK_CAN_DO_OFFSCREEN 1)
+endif()
+if(VTK_USE_X OR VTK_USE_COCOA OR WIN32 OR ANDROID OR APPLE_IOS)
+  set(VTK_USE_OSMESA FALSE)
   if (VTK_USE_OFFSCREEN_EGL)
     message(FATAL_ERROR "VTK_USE_OFFSCREEN_EGL set together with one of ("
-      "VTK_USE_X, VTK_USE_COCOA, VTK_USE_OSMESA, WIN32, ANDROID OR APPLE_IOS). "
-      "You cannot use both offscreen and one of the listed windowing systems or "
-      "alternative offscreen rendering backends.")
+      "VTK_USE_X, VTK_USE_COCOA, WIN32, ANDROID OR APPLE_IOS). "
+      "You cannot use both offscreen and one of the listed windowing systems.")
   endif()
+elseif(VTK_USE_OFFSCREEN_EGL)
+  set(VTK_USE_OSMESA FALSE)
+else()
+  set(VTK_USE_OSMESA TRUE)
 endif()
 
-mark_as_advanced(VTK_USE_X VTK_USE_OSMESA VTK_USE_OFFSCREEN_EGL
+mark_as_advanced(VTK_USE_X VTK_OPENGL_HAS_OSMESA VTK_USE_OFFSCREEN_EGL
   VTK_USE_OFFSCREEN VTK_EGL_DEVICE_INDEX)
 
 if(VTK_USE_OSMESA)
   find_package(OSMesa REQUIRED)
   include_directories(SYSTEM ${OSMESA_INCLUDE_DIR})
-endif(VTK_USE_OSMESA)
-if(VTK_USE_OFFSCREEN_EGL)
+elseif(VTK_USE_OFFSCREEN_EGL)
     find_package(EGL REQUIRED)
     include_directories(SYSTEM ${EGL_INCLUDE_DIR})
-endif(VTK_USE_OFFSCREEN_EGL)
-if(VTK_USE_X)
+else()
   find_package(OpenGL REQUIRED)
   include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
   if(APPLE)
@@ -75,18 +80,12 @@ if(VTK_USE_X)
 endif()
 
 # Function to link a VTK target to the necessary OpenGL libraries.
-SET(VTK_OPENGL_LINK_LIBRARIES)
-
-if(VTK_USE_OFSCREEN_EGL)
-  SET(VTK_OPENGL_LINK_LIBRARIES ${VTK_OPENGL_LINK_LIBRARIES} ${EGL_LIBRARIES})
-endif(VTK_USE_OFSCREEN_EGL)
-if(VTK_USE_OSMESA)
-  SET(VTK_OPENGL_LINK_LIBRARIES ${VTK_OPENGL_LINK_LIBRARIES} ${OSMESA_LIBRARY})
-endif(VTK_USE_OSMESA)
-if(VTK_USE_X)
-  SET(VTK_OPENGL_LINK_LIBRARIES ${VTK_OPENGL_LINK_LIBRARIES} ${OPENGL_LIBRARIES})
-endif(VTK_USE_X)
-
 function(vtk_opengl_link target)
-  vtk_module_link_libraries(${target} LINK_PRIVATE ${VTK_OPENGL_LINK_LIBRARIES})
+  if(VTK_USE_OSMESA)
+    vtk_module_link_libraries(${target} LINK_PRIVATE ${OSMESA_LIBRARY})
+  elseif(VTK_USE_OFFSCREEN_EGL)
+    vtk_module_link_libraries(${target} LINK_PRIVATE ${EGL_LIBRARIES})
+  else()
+    vtk_module_link_libraries(${target} LINK_PRIVATE ${OPENGL_LIBRARIES})
+  endif()
 endfunction()
