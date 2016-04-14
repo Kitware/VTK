@@ -485,9 +485,10 @@ int vtkSPHInterpolator::RequestData(
   vtkDataSet *output = vtkDataSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  if (!source)
+  if (!source || source->GetNumberOfPoints() < 1 )
     {
-    return 0;
+    vtkWarningMacro(<<"No source points to interpolate from");
+    return 1;
     }
 
   // Copy the input geometry and topology to the output
@@ -610,6 +611,9 @@ void vtkSPHInterpolator::PrintSelf(ostream& os, vtkIndent indent)
      << (this->ComputeShepardSum ? "On" : " Off") << "\n";
   os << indent << "Shepard Sum Array Name: "
      << (this->ShepardSumArrayName ? this->ShepardSumArrayName : "(none)") << "\n";
+
+  os << indent << "Promote Output Arrays: "
+     << (this->PromoteOutputArrays ? "On" : " Off") << "\n";
 
   os << indent << "Pass Point Arrays: "
      << (this->PassPointArrays? "On" : " Off") << "\n";

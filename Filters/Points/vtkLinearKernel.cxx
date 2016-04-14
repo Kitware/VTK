@@ -60,7 +60,7 @@ ComputeWeights(double*, vtkIdList *pIds, vtkDoubleArray *prob,
       sum += w[i];
       }
     // Now normalize
-    if ( sum != 0.0 )
+    if ( this->NormalizeWeights && sum != 0.0 )
       {
       for (vtkIdType i=0; i < numPts; ++i)
         {

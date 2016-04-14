@@ -82,7 +82,7 @@ ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *prob,
     }//over all points
 
   // Normalize
-  if ( sum != 0.0 )
+  if ( this->NormalizeWeights && sum != 0.0 )
     {
     for (i=0; i<numPts; ++i)
       {
