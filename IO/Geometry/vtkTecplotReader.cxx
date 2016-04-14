@@ -414,17 +414,17 @@ private:
 // ----------------------------------------------------------------------------
 static int GetCoord( const std::string & theToken )
 {
-  if ( theToken == "X" || theToken == "x" || theToken == "I" )
+  if ( theToken == "X" || theToken == "x" || theToken == "I" || theToken == "CoordinateX" )
     {
     return 0;
     }
 
-  if ( theToken == "Y" || theToken == "y" || theToken == "J" )
+  if ( theToken == "Y" || theToken == "y" || theToken == "J" || theToken == "CoordinateY" )
     {
     return 1;
     }
 
-  if ( theToken == "Z" || theToken == "z" || theToken == "K" )
+  if ( theToken == "Z" || theToken == "z" || theToken == "K" || theToken == "CoordinateZ" )
     {
     return 2;
     }
