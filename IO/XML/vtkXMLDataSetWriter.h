@@ -44,6 +44,13 @@ public:
   vtkDataSet* GetInput();
   //ETX
 
+  // Description:
+  // Creates a writer for the given dataset type. May return NULL for
+  // unsupported/unrecognized dataset types. Returns a new instance. The caller
+  // is responsible of calling vtkObject::Delete() or vtkObject::UnRegister() on
+  // it when done.
+  static vtkXMLWriter* NewWriter(int dataset_type);
+
 protected:
   vtkXMLDataSetWriter();
   ~vtkXMLDataSetWriter();
@@ -66,6 +73,7 @@ protected:
 
   // The observer to report progress from the internal writer.
   vtkCallbackCommand* ProgressObserver;
+
 
 private:
   vtkXMLDataSetWriter(const vtkXMLDataSetWriter&);  // Not implemented.
