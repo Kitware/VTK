@@ -15,7 +15,6 @@ else:
     nranks = contr.GetNumberOfProcesses()
     rank = contr.GetLocalProcessId()
 
-
 # Let's create a simple multiblock with non-empty blocks as indicated below.
 # <MB> is a multiblock dataset.
 # [<num>] is a leaf node where the number indicates the ranks on which it is
@@ -84,6 +83,11 @@ if rank == 0:
         shutil.rmtree(prefix)
     except OSError: pass
     print("Output: %s" % fname)
+
+# put a barrier here to make sure that the files are deleted by process 0
+# before going further with the test
+if contr:
+    contr.Barrier()
 
 writer.SetFileName(fname)
 writer.SetInputDataObject(createMB(rank, nranks))
