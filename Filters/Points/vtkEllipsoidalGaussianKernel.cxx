@@ -33,7 +33,6 @@ vtkEllipsoidalGaussianKernel::vtkEllipsoidalGaussianKernel()
   this->ScalarsArrayName = "Scalars";
 
   this->ScaleFactor = 1.0;
-  this->Radius = 1.0;
   this->Sharpness = 2.0;
   this->Eccentricity = 2.0;
 
@@ -76,27 +75,44 @@ Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds, vtkPointData *pd)
 {
   this->Superclass::Initialize(loc, ds, pd);
 
-  this->ScalarsArray = pd->GetArray(this->ScalarsArrayName);
-  if ( this->UseScalars && this->ScalarsArray &&
-       this->ScalarsArray->GetNumberOfComponents() == 1 )
+  // Grab the scalars if requested
+  if ( this->UseScalars)
     {
-    this->ScalarsArray->Register(this);
+    this->ScalarsArray = pd->GetScalars();
+    if ( !this->ScalarsArray )
+      {
+      this->ScalarsArray = pd->GetArray(this->ScalarsArrayName);
+      }
+    if ( this->ScalarsArray &&
+         this->ScalarsArray->GetNumberOfComponents() == 1 )
+      {
+      this->ScalarsArray->Register(this);
+      }
     }
   else
     {
     this->ScalarsArray = NULL;
     }
 
-  this->NormalsArray = pd->GetArray(this->NormalsArrayName);
-  if ( this->UseNormals && this->NormalsArray )
+  // Grab the normals if requested
+  if ( this->UseNormals)
     {
-    this->NormalsArray->Register(this);
-    }
-  else
-    {
-    this->NormalsArray = NULL;
+    this->NormalsArray = pd->GetNormals();
+    if ( !this->NormalsArray )
+      {
+      this->NormalsArray = pd->GetArray(this->NormalsArrayName);
+      }
+    if ( this->NormalsArray )
+      {
+      this->NormalsArray->Register(this);
+      }
+    else
+      {
+      this->NormalsArray = NULL;
+      }
     }
 
+  // Set up computation
   this->F2 = this->Sharpness / this->Radius;
   this->F2 = this->F2 * this->F2;
   this->E2 = this->Eccentricity * this->Eccentricity;
@@ -104,24 +120,18 @@ Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds, vtkPointData *pd)
 
 //----------------------------------------------------------------------------
 vtkIdType vtkEllipsoidalGaussianKernel::
-ComputeBasis(double x[3], vtkIdList *pIds)
-{
-  this->Locator->FindPointsWithinRadius(this->Radius, x, pIds);
-  return pIds->GetNumberOfIds();
-}
-
-//----------------------------------------------------------------------------
-vtkIdType vtkEllipsoidalGaussianKernel::
-ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *weights)
+ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *prob,
+               vtkDoubleArray *weights)
 {
   vtkIdType numPts = pIds->GetNumberOfIds();
   int i;
   vtkIdType id;
   double sum = 0.0;
   weights->SetNumberOfTuples(numPts);
+  double *p = (prob ? prob->GetPointer(0) : NULL);
   double *w = weights->GetPointer(0);
   double y[3], v[3], r2, z2, rxy2, mag;
-  double n[3], s;
+  double n[3], s, scale;
   double f2=this->F2, e2=this->E2;
 
   for (i=0; i<numPts; ++i)
@@ -170,15 +180,20 @@ ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *weights)
       z2 = z2*z2;
       rxy2 = r2 - z2;
 
-      w[i] = s * exp(-f2 * (rxy2/e2 + z2));
+      scale = this->ScaleFactor * (p ? p[i] : 1.0);
+
+      w[i] = scale * s * exp(-f2 * (rxy2/e2 + z2));
       sum += w[i];
       }//computing weights
     }//over all points
 
   // Normalize
-  for (i=0; i<numPts; ++i)
+  if ( this->NormalizeWeights && sum != 0.0 )
     {
-    w[i] /= sum;
+    for (i=0; i<numPts; ++i)
+      {
+      w[i] /= sum;
+      }
     }
 
   return numPts;
