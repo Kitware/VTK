@@ -134,6 +134,13 @@ option(VTK_WARN_ON_DISPATCH_FAILURE
   OFF
 )
 
+mark_as_advanced(
+  VTK_DISPATCH_AOS_ARRAYS
+  VTK_DISPATCH_SOA_ARRAYS
+  VTK_DISPATCH_TYPED_ARRAYS
+  VTK_WARN_ON_DISPATCH_FAILURE
+)
+
 #-----------------------------------------------------------------------------
 
 include_directories(${VTK_SOURCE_DIR}/ThirdParty/utf8/source)
