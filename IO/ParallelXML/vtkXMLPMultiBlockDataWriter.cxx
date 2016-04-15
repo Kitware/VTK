@@ -263,8 +263,8 @@ int vtkXMLPMultiBlockDataWriter::WriteComposite(
             curDO, datasetXML, currentFileIndex) )
         {
         retVal = 1;
+        parentXML->AddNestedElement(datasetXML);
         }
-      parentXML->AddNestedElement(datasetXML);
       currentFileIndex++;
       datasetXML->Delete();
       }
@@ -334,7 +334,7 @@ int vtkXMLPMultiBlockDataWriter::ParallelWriteNonCompositeData(
     return this->Superclass::WriteNonCompositeData(
       dObj, NULL, currentFileIndex, fName.c_str());
     }
-  return 0;
+  return 1;
 }
 
 //----------------------------------------------------------------------------
