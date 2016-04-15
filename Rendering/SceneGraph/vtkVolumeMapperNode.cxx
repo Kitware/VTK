@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkActorNode.cxx
+  Module:    vtkVolumeMapperNode.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,56 +12,33 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkActorNode.h"
+#include "vtkVolumeMapperNode.h"
 
 #include "vtkActor.h"
+#include "vtkObjectFactory.h"
 #include "vtkCellArray.h"
-#include "vtkMapper.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
-#include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPolygon.h"
 #include "vtkProperty.h"
 
 //============================================================================
-vtkStandardNewMacro(vtkActorNode);
+vtkStandardNewMacro(vtkVolumeMapperNode);
 
 //----------------------------------------------------------------------------
-vtkActorNode::vtkActorNode()
+vtkVolumeMapperNode::vtkVolumeMapperNode()
 {
 }
 
 //----------------------------------------------------------------------------
-vtkActorNode::~vtkActorNode()
+vtkVolumeMapperNode::~vtkVolumeMapperNode()
 {
 }
 
 //----------------------------------------------------------------------------
-void vtkActorNode::Build(bool prepass)
-{
-  if (prepass)
-    {
-    vtkActor *mine = vtkActor::SafeDownCast
-      (this->GetRenderable());
-    if (!mine)
-      {
-      return;
-      }
-    if (!mine->GetMapper())
-      {
-      return;
-      }
-
-    this->PrepareNodes();
-    this->AddMissingNode(mine->GetMapper());
-    this->RemoveUnusedNodes();
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkActorNode::PrintSelf(ostream& os, vtkIndent indent)
+void vtkVolumeMapperNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

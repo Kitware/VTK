@@ -28,9 +28,12 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 #include "vtkVolumeTextureMapper3D.h"
+#include "vtkSmartPointer.h"
 #include <cassert>
 
 #include "vtkGPUVolumeRayCastMapper.h"
+#include "vtkOSPRayPass.h"
+#define VTK_USE_OSPRAY 1
 
 vtkStandardNewMacro( vtkSmartVolumeMapper );
 
@@ -207,6 +210,21 @@ void vtkSmartVolumeMapper::Render( vtkRenderer *ren, vtkVolume *vol )
         this->InteractiveUpdateRate);
       usedMapper->Render(ren, vol);
       break;
+#if VTK_USE_OSPRAY
+    case vtkSmartVolumeMapper::OSPRayRenderMode:
+      {
+        vtkRenderPass* oldPass = ren->GetPass();
+        vtkSmartPointer<vtkRenderer> tmpRen = vtkSmartPointer<vtkRenderer>::New();
+        tmpRen->SetRenderWindow(ren->GetRenderWindow());
+        tmpRen->SetActiveCamera(ren->GetActiveCamera());
+        tmpRen->SetBackground(ren->GetBackground());
+        tmpRen->AddVolume(vol);
+        vtkSmartPointer<vtkOSPRayPass> ospray=vtkSmartPointer<vtkOSPRayPass>::New();
+        tmpRen->SetPass(ospray);
+        tmpRen->Render();
+        break;
+      }
+#endif
     case vtkSmartVolumeMapper::InvalidRenderMode:
       // Silently fail - a render mode that is not
       // valid was selected so we will render nothing
@@ -365,6 +383,13 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
         this->CurrentRenderMode = vtkSmartVolumeMapper::GPURenderMode;
         }
       break;
+
+    #if VTK_USE_OSPRAY
+    // Requested OSPRay
+    case vtkSmartVolumeMapper::OSPRayRenderMode:
+      this->CurrentRenderMode = this->RequestedRenderMode;
+      break;
+    #endif
 
       // Requested default mode - select GPU if supported, otherwise
       // select texture mapping for interactive rendering (if supported)
@@ -541,6 +566,12 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
 
       break;
 
+#if VTK_USE_OSPRAY
+    // render with OSPRay
+    case vtkSmartVolumeMapper::OSPRayRenderMode:
+      break;
+#endif
+
       // The user selected a RequestedRenderMode that is
       // not supported. In this case the mapper will just
       // silently fail.
@@ -618,7 +649,7 @@ void vtkSmartVolumeMapper::SetRequestedRenderMode(int mode)
 
   // Make sure it is a valid mode
   if ( mode < vtkSmartVolumeMapper::DefaultRenderMode ||
-       mode > vtkSmartVolumeMapper::GPURenderMode )
+       mode >= vtkSmartVolumeMapper::UndefinedRenderMode )
     {
     vtkErrorMacro("Invalid Render Mode.");
     return;

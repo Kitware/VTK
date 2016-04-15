@@ -1,9 +1,11 @@
 set(Module_SRCS
   vtkActorNode.cxx
+  vtkVolumeNode.cxx
   vtkCameraNode.cxx
   vtkLightNode.cxx
   vtkMapperNode.cxx
   vtkPolyDataMapperNode.cxx
+  vtkVolumeMapperNode.cxx
   vtkRendererNode.cxx
   vtkViewNode.cxx
   vtkViewNodeCollection.cxx

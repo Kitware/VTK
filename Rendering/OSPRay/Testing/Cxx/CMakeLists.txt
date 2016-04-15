@@ -13,6 +13,18 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestOSPRayTime.cxx,
   TestOSPRayWindow.cxx
   #TODO: interaction, pure offscreen, volumes
+  # Volume rendering tests
+  TestGPURayCastAdditive.cxx
+  TestGPURayCastCameraInside.cxx
+  TestGPURayCastCameraInsideSmallSpacing.cxx
+  TestGPURayCastMapperBenchmark.cxx
+  TestGPURayCastMapperSampleDistance.cxx
+  TestGPURayCastPerspectiveParallel.cxx
+  TestGPURayCastVolumeLightKit.cxx
+  TestGPURayCastVolumeRotation.cxx
+  TestGPURayCastVolumeScale.cxx
+  TestGPUVolumeRayCastMapper.cxx
+  TestGPURayCastVolumePolyData.cxx
   )
 vtk_test_cxx_executable(${vtk-module}CxxTests tests RENDERING_FACTORY
   vtkOSPRayTestInteractor.cxx

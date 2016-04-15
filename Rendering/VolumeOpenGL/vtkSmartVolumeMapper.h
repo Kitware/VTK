@@ -155,6 +155,7 @@ public:
     RayCastRenderMode,
     TextureRenderMode,
     GPURenderMode,
+    OSPRayRenderMode,
     UndefinedRenderMode,
     InvalidRenderMode
   };

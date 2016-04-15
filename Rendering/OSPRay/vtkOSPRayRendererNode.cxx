@@ -22,6 +22,7 @@
 #include "vtkOSPRayActorNode.h"
 #include "vtkOSPRayCameraNode.h"
 #include "vtkOSPRayLightNode.h"
+#include "vtkOSPRayVolumeNode.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkViewNodeCollection.h"
@@ -211,6 +212,8 @@ void vtkOSPRayRendererNode::Traverse(int operation)
     {
     vtkOSPRayActorNode *child =
       vtkOSPRayActorNode::SafeDownCast(it->GetCurrentObject());
+    vtkOSPRayVolumeNode *vchild =
+      vtkOSPRayVolumeNode::SafeDownCast(it->GetCurrentObject());
     if (child)
       {
       numAct++;
@@ -220,6 +223,16 @@ void vtkOSPRayRendererNode::Traverse(int operation)
         recent = mtime;
         }
       }
+    if (vchild)
+      {
+      numAct++;
+      unsigned int mtime = vchild->GetMTime();
+      if (mtime > recent)
+        {
+        recent = mtime;
+        }
+      }
+
     it->GoToNextItem();
     }
 

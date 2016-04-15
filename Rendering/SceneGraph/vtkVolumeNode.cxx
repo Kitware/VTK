@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkActorNode.cxx
+  Module:    vtkVolumeNode.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,11 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkActorNode.h"
+#include "vtkVolumeNode.h"
 
-#include "vtkActor.h"
+#include "vtkVolume.h"
 #include "vtkCellArray.h"
 #include "vtkMapper.h"
+#include "vtkAbstractVolumeMapper.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
@@ -26,24 +27,24 @@
 #include "vtkProperty.h"
 
 //============================================================================
-vtkStandardNewMacro(vtkActorNode);
+vtkStandardNewMacro(vtkVolumeNode);
 
 //----------------------------------------------------------------------------
-vtkActorNode::vtkActorNode()
+vtkVolumeNode::vtkVolumeNode()
 {
 }
 
 //----------------------------------------------------------------------------
-vtkActorNode::~vtkActorNode()
+vtkVolumeNode::~vtkVolumeNode()
 {
 }
 
 //----------------------------------------------------------------------------
-void vtkActorNode::Build(bool prepass)
+void vtkVolumeNode::Build(bool prepass)
 {
   if (prepass)
     {
-    vtkActor *mine = vtkActor::SafeDownCast
+    vtkVolume *mine = vtkVolume::SafeDownCast
       (this->GetRenderable());
     if (!mine)
       {
@@ -61,7 +62,7 @@ void vtkActorNode::Build(bool prepass)
 }
 
 //----------------------------------------------------------------------------
-void vtkActorNode::PrintSelf(ostream& os, vtkIndent indent)
+void vtkVolumeNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

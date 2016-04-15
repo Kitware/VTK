@@ -81,7 +81,7 @@ void vtkRendererNode::Build(bool prepass)
     this->PrepareNodes();
     this->AddMissingNodes(mine->GetLights());
     this->AddMissingNodes(mine->GetActors());
-    //this->AddMissingNodes(mine->GetVolumes());
+    this->AddMissingNodes(mine->GetVolumes());
     this->AddMissingNode(mine->GetActiveCamera());
     this->RemoveUnusedNodes();
     }
