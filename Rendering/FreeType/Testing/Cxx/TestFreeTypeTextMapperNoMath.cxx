@@ -172,6 +172,19 @@ int TestFreeTypeTextMapperNoMath(int argc, char *argv[])
   mapper11->SetInput("oTeVaVoVAW");
   actor11->SetPosition(300, 200);
 
+  // Empty string, solid background: should not render
+  vtkNew<vtkTextMapper> mapper12;
+  vtkNew<vtkActor2D> actor12;
+  actor12->SetMapper(mapper12.GetPointer());
+  mapper12->GetTextProperty()->SetFontSize(16);
+  mapper12->GetTextProperty()->SetColor(1.0, 0.0, 0.0);
+  mapper12->GetTextProperty()->SetBackgroundColor(1.0, 0.5, 1.0);
+  mapper12->GetTextProperty()->SetBackgroundOpacity(1.0);
+  mapper12->GetTextProperty()->SetJustificationToRight();
+  mapper12->GetTextProperty()->SetVerticalJustificationToCentered();
+  mapper12->SetInput("");
+  actor12->SetPosition(0, 0);
+
   // Boring rendering setup....
 
   vtkNew<vtkRenderer> ren;
@@ -193,6 +206,7 @@ int TestFreeTypeTextMapperNoMath(int argc, char *argv[])
   ren->AddActor(actor9.GetPointer());
   ren->AddActor(actor10.GetPointer());
   ren->AddActor(actor11.GetPointer());
+  ren->AddActor(actor12.GetPointer());
 
   win->SetMultiSamples(0);
   win->Render();

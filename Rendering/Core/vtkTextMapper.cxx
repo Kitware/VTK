@@ -367,7 +367,7 @@ void vtkTextMapper::RenderOverlay(vtkViewport *viewport, vtkActor2D *actor)
   vtkDebugMacro(<<"RenderOverlay called");
 
   vtkRenderer *ren = NULL;
-  if (this->Input)
+  if (this->Input && this->Input[0])
     {
     vtkWindow *win = viewport->GetVTKWindow();
     if (!win)
@@ -394,15 +394,15 @@ void vtkTextMapper::RenderOverlay(vtkViewport *viewport, vtkActor2D *actor)
       info->Set(vtkProp::GeneralTextureUnit(),
         this->Texture->GetTextureUnit());
       }
-    }
 
-  vtkDebugMacro(<<"PolyData::RenderOverlay called");
-  this->Mapper->RenderOverlay(viewport, actor);
+    vtkDebugMacro(<<"PolyData::RenderOverlay called");
+    this->Mapper->RenderOverlay(viewport, actor);
 
-  // clean up
-  if (ren)
-    {
-    this->Texture->PostRender(ren);
+    // clean up
+    if (ren)
+      {
+      this->Texture->PostRender(ren);
+      }
     }
 
   vtkDebugMacro(<<"Superclass::RenderOverlay called");
