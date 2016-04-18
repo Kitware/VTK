@@ -62,9 +62,13 @@ static const char *FileHeader = "\n\
  * Behavior Sanitizer (UBSan) from warning.
  */
 #if defined(__clang__)
-#define HDF_NO_UBSAN __attribute__((no_sanitize("undefined")))
+    #if __has_attribute(no_sanitize)
+        #define HDF_NO_UBSAN __attribute__((no_sanitize("undefined")))
+    #else
+        #define HDF_NO_UBSAN
+    #endif
 #else
-#define HDF_NO_UBSAN
+     #define HDF_NO_UBSAN
 #endif
 
 
