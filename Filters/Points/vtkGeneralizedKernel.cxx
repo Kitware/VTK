@@ -27,6 +27,7 @@ vtkGeneralizedKernel::vtkGeneralizedKernel()
   this->KernelFootprint = vtkGeneralizedKernel::RADIUS;
   this->Radius = 1.0;
   this->NumberOfPoints = 8;
+  this->NormalizeWeights = true;
 }
 
 
@@ -59,5 +60,7 @@ void vtkGeneralizedKernel::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Kernel Footprint: " << this->KernelFootprint << "\n";
   os << indent << "Radius: " << this->Radius << "\n";
   os << indent << "Number of Points: " << this->NumberOfPoints << "\n";
+  os << indent << "Normalize Weights: "
+     << (this->NormalizeWeights ? "On\n" : "Off\n");
 
 }

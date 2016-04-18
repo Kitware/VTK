@@ -144,6 +144,14 @@ public:
   vtkSetClampMacro(NumberOfPoints,int,1,VTK_INT_MAX);
   vtkGetMacro(NumberOfPoints,int);
 
+  // Description:
+  // Indicate whether the interpolation weights should be normalized after they
+  // are computed. Generally this is left on as it results in more reasonable
+  // behavior.
+  vtkSetMacro(NormalizeWeights,bool);
+  vtkGetMacro(NormalizeWeights,bool);
+  vtkBooleanMacro(NormalizeWeights,bool);
+
 protected:
   vtkGeneralizedKernel();
   ~vtkGeneralizedKernel();
@@ -151,6 +159,7 @@ protected:
   int KernelFootprint;
   double Radius;
   int NumberOfPoints;
+  bool NormalizeWeights;
 
 private:
   vtkGeneralizedKernel(const vtkGeneralizedKernel&);  // Not implemented.

@@ -114,6 +114,11 @@ protected:
   const char* GetFilePath();
 
   // Description:
+  // Returns the default extension to use for the given dataset type.
+  // Returns NULL if an extension cannot be determined.
+  const char* GetDefaultFileExtensionForDataSet(int dataset_type);
+
+  // Description:
   // Write the collection file if it is requested.
   // This is overridden in parallel writers to communicate the hierarchy to the
   // root which then write the meta file.

@@ -57,18 +57,24 @@ struct ProbePoints
   ArrayList Arrays;
   char *Valid;
   int Strategy;
+  bool Promote;
 
   // Don't want to allocate these working arrays on every thread invocation,
   // so make them thread local.
   vtkSMPThreadLocalObject<vtkIdList> PIds;
   vtkSMPThreadLocalObject<vtkDoubleArray> Weights;
 
-  ProbePoints(vtkPointInterpolator *ptInt, vtkDataSet *input, vtkInterpolationKernel *kernel,
-              vtkAbstractPointLocator *loc, vtkPointData *inPD, vtkPointData *outPD, int strategy,
-              char *valid, double nullV) :
-    PointInterpolator(ptInt), Input(input), Kernel(kernel), Locator(loc), InPD(inPD), OutPD(outPD),
-    Valid(valid), Strategy(strategy)
+  ProbePoints(vtkPointInterpolator *ptInt, vtkDataSet *input, vtkPointData *inPD,
+              vtkPointData *outPD, char *valid) :
+    PointInterpolator(ptInt), Input(input), InPD(inPD), OutPD(outPD), Valid(valid)
     {
+      // Gather information from the interpolator
+      this->Kernel = ptInt->GetKernel();
+      this->Locator = ptInt->GetLocator();
+      this->Strategy = ptInt->GetNullPointsStrategy();
+      double nullV = ptInt->GetNullValue();
+      this->Promote = ptInt->GetPromoteOutputArrays();
+
       // Manage arrays for interpolation
       for (int i=0; i < ptInt->GetNumberOfExcludedArrays(); ++i)
         {
@@ -80,7 +86,7 @@ struct ProbePoints
           this->Arrays.ExcludeArray(array);
           }
         }
-      this->Arrays.AddArrays(input->GetNumberOfPoints(), inPD, outPD, nullV);
+      this->Arrays.AddArrays(input->GetNumberOfPoints(), inPD, outPD, nullV, this->Promote);
     }
 
   // Just allocate a little bit of memory to get started.
@@ -156,10 +162,9 @@ struct ImageProbePoints : public ProbePoints
   double Spacing[3];
 
   ImageProbePoints(vtkPointInterpolator *ptInt,  vtkImageData *image, int dims[3],
-                   double origin[3], double spacing[3], vtkInterpolationKernel *kernel,
-                   vtkAbstractPointLocator *loc, vtkPointData *inPD,
-                   vtkPointData *outPD, int strategy, char *valid, double nullV) :
-    ProbePoints(ptInt, image, kernel, loc, inPD, outPD, strategy, valid, nullV)
+                   double origin[3], double spacing[3], vtkPointData *inPD,
+                   vtkPointData *outPD, char *valid) :
+    ProbePoints(ptInt, image, inPD, outPD, valid)
     {
       for (int i=0; i < 3; ++i)
         {
@@ -230,6 +235,8 @@ vtkPointInterpolator::vtkPointInterpolator()
 
   this->ValidPointsMask = NULL;
   this->ValidPointsMaskArrayName = "vtkValidPointMask";
+
+  this->PromoteOutputArrays = true;
 
   this->PassPointArrays = true;
   this->PassCellArrays = true;
@@ -327,14 +334,12 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
     double origin[3], spacing[3];
     this->ExtractImageDescription(imgInput,dims,origin,spacing);
     ImageProbePoints imageProbe(this, imgInput, dims, origin, spacing,
-                                this->Kernel,this->Locator,inPD,outPD,
-                                this->NullPointsStrategy,mask,this->NullValue);
+                                inPD, outPD, mask);
     vtkSMPTools::For(0, dims[2], imageProbe);//over slices
     }
   else
     {
-    ProbePoints probe(this, input,this->Kernel,this->Locator,inPD,outPD,
-                      this->NullPointsStrategy,mask,this->NullValue);
+    ProbePoints probe(this, input, inPD, outPD, mask);
     vtkSMPTools::For(0, numPts, probe);
     }
 
@@ -401,9 +406,10 @@ int vtkPointInterpolator::RequestData(
   vtkDataSet *output = vtkDataSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  if (!source)
+  if (!source || source->GetNumberOfPoints() < 1 )
     {
-    return 0;
+    vtkWarningMacro(<<"No source points to interpolate from");
+    return 1;
     }
 
   // Copy the input geometry and topology to the output
@@ -525,6 +531,9 @@ void vtkPointInterpolator::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << nextIndent << "Excluded Array: " << this->ExcludedArrays[i] << endl;
     }
+
+  os << indent << "Promote Output Arrays: "
+     << (this->PromoteOutputArrays ? "On" : " Off") << "\n";
 
   os << indent << "Pass Point Arrays: "
      << (this->PassPointArrays? "On" : " Off") << "\n";

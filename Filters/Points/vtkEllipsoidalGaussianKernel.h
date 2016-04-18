@@ -38,28 +38,29 @@
 // point takes on the values associated with p.
 
 // .SECTION See Also
-// vtkPointInterpolator vtkInterpolationKernel vtkGaussianKernel
-// vtkVoronoiKernel vtkSPHKernel vtkShepardKernel
+// vtkPointInterpolator vtkInterpolationKernel vtkGeneralizedKernel
+// vtkGaussianKernel vtkVoronoiKernel vtkSPHKernel vtkShepardKernel
 
 
 #ifndef vtkEllipsoidalGaussianKernel_h
 #define vtkEllipsoidalGaussianKernel_h
 
 #include "vtkFiltersPointsModule.h" // For export macro
-#include "vtkInterpolationKernel.h"
+#include "vtkGeneralizedKernel.h"
+#include "vtkStdString.h" // For vtkStdString ivars
 
 class vtkIdList;
 class vtkDataArray;
 class vtkDoubleArray;
 
 
-class VTKFILTERSPOINTS_EXPORT vtkEllipsoidalGaussianKernel : public vtkInterpolationKernel
+class VTKFILTERSPOINTS_EXPORT vtkEllipsoidalGaussianKernel : public vtkGeneralizedKernel
 {
 public:
   // Description:
   // Standard methods for instantiation, obtaining type information, and printing.
   static vtkEllipsoidalGaussianKernel *New();
-  vtkTypeMacro(vtkEllipsoidalGaussianKernel,vtkInterpolationKernel);
+  vtkTypeMacro(vtkEllipsoidalGaussianKernel,vtkGeneralizedKernel);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -68,24 +69,24 @@ public:
   virtual void Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds,
                           vtkPointData *pd);
 
-  // Description:
-  // Given a point x, determine the points around x which form an
-  // interpolation basis. The user must provide the vtkIdList pids, which will
-  // be dynamically resized as necessary. The method returns the number of
-  // points in the basis. Typically this method is called before
-  // ComputeWeights().
-  virtual vtkIdType ComputeBasis(double x[3], vtkIdList *pIds);
+  // Re-use any superclass signatures that we don't override.
+  using vtkGeneralizedKernel::ComputeWeights;
 
   // Description:
-  // Given a point x, and a list of basis points pIds, compute interpolation
-  // weights associated with these basis points.  Note that both the nearby
-  // basis points list pIds and the weights array are of length numPts, are
-  // provided by the caller of the method, and may be dynamically resized as
-  // necessary. Typically this method is called after ComputeBasis(),
-  // although advanced users can invoke ComputeWeights() and provide the
-  // interpolation basis points pIds directly.
+  // Given a point x, a list of basis points pIds, and a probability
+  // weighting function prob, compute interpolation weights associated with
+  // these basis points.  Note that basis points list pIds, the probability
+  // weighting prob, and the weights array are provided by the caller of the
+  // method, and may be dynamically resized as necessary. The method returns
+  // the number of weights (pIds may be resized in some cases). Typically
+  // this method is called after ComputeBasis(), although advanced users can
+  // invoke ComputeWeights() and provide the interpolation basis points pIds
+  // directly. The probably weighting prob are numbers 0<=prob<=1 which are
+  // multiplied against the interpolation weights before normalization. They
+  // are estimates of local confidence of weights. The prob may be NULL in
+  // which all probabilities are considered =1.
   virtual vtkIdType ComputeWeights(double x[3], vtkIdList *pIds,
-                                   vtkDoubleArray *weights);
+                                   vtkDoubleArray *prob, vtkDoubleArray *weights);
 
   // Description:
   // Specify whether vector values should be used to affect the shape
@@ -95,6 +96,14 @@ public:
   vtkBooleanMacro(UseNormals,bool);
 
   // Description:
+  // Specify the normals array name. Used to orient the ellipsoid. Note that
+  // by default the input normals are used (i.e. the input to
+  // vtkPointInterpolator). If no input normals are available, then the named
+  // NormalsArrayName is used.
+  vtkSetMacro(NormalsArrayName,vtkStdString);
+  vtkGetMacro(NormalsArrayName,vtkStdString);
+
+  // Description:
   // Specify whether scalar values should be used to scale the weights.
   // By default this is off.
   vtkSetMacro(UseScalars,bool);
@@ -102,11 +111,19 @@ public:
   vtkBooleanMacro(UseScalars,bool);
 
   // Description:
-  // Specify the radius of the kernel. Points within this radius will be
-  // used for interpolation. If no point is found, then the closest point
-  // will be used.
-  vtkSetClampMacro(Radius,double,0.000001,VTK_FLOAT_MAX);
-  vtkGetMacro(Radius,double);
+  // Specify the scalars array name. Used to scale the ellipsoid. Note that
+  // by default the input scalars are used (i.e. the input to
+  // vtkPointInterpolator). If no input scalars are available, then the named
+  // ScalarsArrayName is used.
+  vtkSetMacro(ScalarsArrayName,vtkStdString);
+  vtkGetMacro(ScalarsArrayName,vtkStdString);
+
+  // Description:
+  // Multiply the Gaussian splat distribution by this value. If UseScalars is
+  // on and a scalar aray is provided, then the scalar value will be
+  // multiplied by the ScaleFactor times the Gaussian function.
+  vtkSetClampMacro(ScaleFactor,double,0.0,VTK_DOUBLE_MAX);
+  vtkGetMacro(ScaleFactor,double);
 
   // Description:
   // Set / Get the sharpness (i.e., falloff) of the Gaussian. By default
@@ -127,18 +144,20 @@ protected:
   vtkEllipsoidalGaussianKernel();
   ~vtkEllipsoidalGaussianKernel();
 
-  double Radius;
-  double Sharpness;
-  double Eccentricity;
-
   bool UseNormals;
   bool UseScalars;
 
-  vtkDataArray *Normals;
-  vtkDataArray *Scalars;
+  vtkStdString NormalsArrayName;
+  vtkStdString ScalarsArrayName;
+
+  double ScaleFactor;
+  double Sharpness;
+  double Eccentricity;
 
   // Internal structure to reduce computation
   double F2, E2;
+  vtkDataArray *NormalsArray;
+  vtkDataArray *ScalarsArray;
 
   virtual void FreeStructures();
 

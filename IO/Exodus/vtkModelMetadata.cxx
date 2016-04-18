@@ -93,7 +93,6 @@ void vtkModelMetadata::InitializeAllMetadata()
 
   this->NumberOfNodeSets = 0;
 
-  this->NodeSetNames = NULL;
   this->NodeSetIds = NULL;
   this->NodeSetSize = NULL;
   this->NodeSetNumberOfDistributionFactors = NULL;
@@ -105,7 +104,6 @@ void vtkModelMetadata::InitializeAllMetadata()
 
   this->NumberOfSideSets = 0;
 
-  this->SideSetNames = NULL;
   this->SideSetIds = NULL;
   this->SideSetSize = NULL;
   this->SideSetNumberOfDistributionFactors = NULL;
@@ -472,13 +470,6 @@ int vtkModelMetadata::SetBlockNumberOfAttributesPerElement(int *natts)
 // node set calculations
 //-------------------------------------------------
 
-void vtkModelMetadata::SetNodeSetNames(vtkStringArray* names)
-{
-  if (this->NodeSetNames != NULL)
-    this->NodeSetNames->Delete ();
-  this->NodeSetNames = names;
-}
-
 void vtkModelMetadata::SetNodeSetIds(int *n)
 {
   FREE(this->NodeSetIds);
@@ -513,13 +504,6 @@ void vtkModelMetadata::SetNodeSetDistributionFactors(float *d)
 //-------------------------------------------------
 // side set calculations
 //-------------------------------------------------
-void vtkModelMetadata::SetSideSetNames(vtkStringArray* names)
-{
-  if (this->SideSetNames != NULL)
-    this->SideSetNames->Delete ();
-  this->SideSetNames = names;
-}
-
 void vtkModelMetadata::SetSideSetIds(int *s)
 {
   FREE(this->SideSetIds);
@@ -1177,7 +1161,7 @@ void vtkModelMetadata::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NumberOfNodeSets: " <<
                    this->NumberOfNodeSets << endl;
   os << indent << "NodeSetNames: ";
-  for(i=0;i<this->NodeSetNames->GetNumberOfValues (); i++)
+  for(i=0; this->NodeSetNames && (i<this->NodeSetNames->GetNumberOfValues()); i++)
     {
     os << this->NodeSetNames->GetValue (i) << " ";
     }
@@ -1213,7 +1197,7 @@ void vtkModelMetadata::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NumberOfSideSets: " <<
                    this->NumberOfSideSets << endl;
   os << indent << "SideSetNames: ";
-  for(i=0;i<this->SideSetNames->GetNumberOfValues (); i++)
+  for(i=0;this->SideSetNames && (i<this->SideSetNames->GetNumberOfValues()); i++)
     {
     os << this->SideSetNames->GetValue (i) << " ";
     }
