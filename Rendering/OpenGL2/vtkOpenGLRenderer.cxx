@@ -18,7 +18,6 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkCellArray.h"
 #include "vtkDepthPeelingPass.h"
-#include "vtkDualDepthPeelingPass.h"
 #include "vtkFloatArray.h"
 #include "vtkHardwareSelector.h"
 #include "vtkLight.h"
@@ -43,6 +42,11 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTranslucentPass.h"
 #include "vtkTrivialProducer.h"
 #include "vtkUnsignedCharArray.h"
+
+// Dual depth peeling requires GL_MAX blending, which is unavailable on ES2.
+#if GL_ES_VERSION_2_0 != 1
+#include "vtkDualDepthPeelingPass.h"
+#endif
 
 #include <cmath>
 #include <cassert>
@@ -278,19 +282,29 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     {
     if (!this->DepthPeelingPass)
       {
-      // Some mesa drivers don't provide ARB_texture_float. Fallback to standard
-      // depth peeling in this case.
-      if (GLEW_ARB_texture_float ||
-          context->GetContextSupportsOpenGL32())
+      // Dual depth peeling requires:
+      // - float textures (ARB_texture_float)
+      // - RG textures (ARB_texture_rg)
+      // - MAX blending (not available in ES2, but added in ES3).
+      bool dualDepthPeelingSupported = false;
+#if GL_ES_VERSION_2_0 != 1
+      dualDepthPeelingSupported = context->GetContextSupportsOpenGL32() ||
+          (GLEW_ARB_texture_float && GLEW_ARB_texture_rg);
+#elif GL_ES_VERSION_3_0 == 1
+      // ES3 is supported:
+      dualDepthPeelingSupported = true;
+#endif
+      if (dualDepthPeelingSupported)
         {
-        vtkDebugMacro("Floating point textures supported -- "
-                      "using dual depth peeling.");
+#if GL_ES_VERSION_2_0 != 1 // vtkDualDepthPeelingPass is not built on ES2
+        vtkDebugMacro("Using dual depth peeling.");
         this->DepthPeelingPass = vtkDualDepthPeelingPass::New();
+#endif
         }
       else
         {
-        vtkDebugMacro("Floating point textures NOT supported -- "
-                      "using standard depth peeling.");
+        vtkDebugMacro("Using standard depth peeling (dual depth peeling not "
+                      "supported by the graphics card/driver).");
         this->DepthPeelingPass = vtkDepthPeelingPass::New();
         }
       vtkTranslucentPass *tp = vtkTranslucentPass::New();

@@ -521,9 +521,7 @@ void vtkDualDepthPeelingPass::Prepare()
 //------------------------------------------------------------------------------
 void vtkDualDepthPeelingPass::InitializeOcclusionQuery()
 {
-#if GL_ES_VERSION_2_0 != 1
   glGenQueries(1, &this->OcclusionQueryId);
-#endif
 
   int numPixels = this->ViewportHeight * this->ViewportWidth;
   this->OcclusionThreshold = numPixels * this->OcclusionRatio;
@@ -780,19 +778,15 @@ void vtkDualDepthPeelingPass::BlendBackBuffer()
 //------------------------------------------------------------------------------
 void vtkDualDepthPeelingPass::StartOcclusionQuery()
 {
-#if GL_ES_VERSION_2_0 != 1
-    glBeginQuery(GL_SAMPLES_PASSED, this->OcclusionQueryId);
-#endif
+  glBeginQuery(GL_SAMPLES_PASSED, this->OcclusionQueryId);
 }
 
 //------------------------------------------------------------------------------
 void vtkDualDepthPeelingPass::EndOcclusionQuery()
 {
-#if GL_ES_VERSION_2_0 != 1
-    glEndQuery(GL_SAMPLES_PASSED);
-    glGetQueryObjectuiv(this->OcclusionQueryId, GL_QUERY_RESULT,
-                        &this->WrittenPixels);
-#endif
+  glEndQuery(GL_SAMPLES_PASSED);
+  glGetQueryObjectuiv(this->OcclusionQueryId, GL_QUERY_RESULT,
+                      &this->WrittenPixels);
 }
 
 //------------------------------------------------------------------------------
