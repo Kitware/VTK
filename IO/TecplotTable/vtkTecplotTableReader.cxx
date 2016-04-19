@@ -66,15 +66,15 @@ public:
     const vtkIdType columnHeadersOnLine,
     const vtkIdType skipColumnNames
       ):
-    HeaderLines(headerLines),
-    ColumnNamesOnLine(columnHeadersOnLine),
-    SkipColumnNames(skipColumnNames),
     MaxRecords(maxRecords),
     MaxRecordIndex(maxRecords + headerLines), // first two lines are title + column names
     WhiteSpaceOnlyString(true),
     OutputTable(outputTable),
     CurrentRecordIndex(0),
     CurrentFieldIndex(0),
+    HeaderLines(headerLines),
+    ColumnNamesOnLine(columnHeadersOnLine),
+    SkipColumnNames(skipColumnNames),
     RecordAdjacent(true),
     MergeConsDelims(true),
     ProcessEscapeSequence(false),
