@@ -382,8 +382,7 @@ int vtkGPUVolumeRayCastMapper::ValidateRender(vtkRenderer *ren,
       }
     }
 
-  int numberOfComponents = 0;
-  numberOfComponents = scalars->GetNumberOfComponents();
+  int numberOfComponents = goodSoFar ? scalars->GetNumberOfComponents() : 0;
 
 #ifdef VTK_OPENGL2
   // This mapper supports anywhere from 1-4 components. Number of components
