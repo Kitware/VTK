@@ -94,7 +94,7 @@ public:
 
  // Description:
  // Set/Get the desired screen offset from the axis.
- // first component is horizaontal, second is vertical.
+ // first component is horizontal, second is vertical.
  vtkSetVector2Macro(ScreenOffsetVector, double);
  vtkGetVector2Macro(ScreenOffsetVector, double);
 

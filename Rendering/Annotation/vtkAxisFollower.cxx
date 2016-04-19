@@ -509,7 +509,7 @@ void vtkAxisFollower::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------
 void vtkAxisFollower::SetScreenOffset(double offset)
 {
-  this->SetScreenOffsetVector(0, offset);
+  this->SetScreenOffsetVector(1, offset);
 }
 
 //----------------------------------------------------------------------

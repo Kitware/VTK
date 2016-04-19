@@ -36,16 +36,18 @@
 #define VTK_EXPONENT_AXES_ACTOR_RTOL (1. - 10. * VTK_DBL_EPSILON)
 
 vtkStandardNewMacro(vtkPolarAxesActor);
-vtkCxxSetObjectMacro(vtkPolarAxesActor, Camera,vtkCamera);
+vtkCxxSetObjectMacro(vtkPolarAxesActor, Camera, vtkCamera);
 vtkCxxSetObjectMacro(vtkPolarAxesActor, PolarAxisLabelTextProperty, vtkTextProperty);
 vtkCxxSetObjectMacro(vtkPolarAxesActor, PolarAxisTitleTextProperty, vtkTextProperty);
 vtkCxxSetObjectMacro(vtkPolarAxesActor, LastRadialAxisTextProperty, vtkTextProperty);
 vtkCxxSetObjectMacro(vtkPolarAxesActor, SecondaryRadialAxesTextProperty, vtkTextProperty);
+vtkCxxSetObjectMacro(vtkPolarAxesActor, LastRadialAxisProperty, vtkProperty);
+vtkCxxSetObjectMacro(vtkPolarAxesActor, SecondaryRadialAxesProperty, vtkProperty);
 
 //-----------------------------------------------------------------------------
 void vtkPolarAxesActor::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Bounds: \n";
   os << indent << "  Xmin,Xmax: (" << this->Bounds[0] << ", "
@@ -75,7 +77,7 @@ void vtkPolarAxesActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Maximum Radius: " << this->MaximumRadius << endl;
   os << indent << "Log Scale: " << (this->Log ? "On" : "Off") << endl;
   os << indent << "Auto-Scale Radius: " << (this->AutoScaleRadius ? "On" : "Off") << endl;
-  os << indent << "Ratio: "<< this->Ratio << endl;
+  os << indent << "Ratio: " << this->Ratio << endl;
   os << indent << "Minimum Angle: " << this->MinimumAngle << endl;
   os << indent << "Maximum Angle: " << this->MaximumAngle << endl;
   os << indent << "Smallest Visible Polar Angle: " << this->SmallestVisiblePolarAngle << endl;
@@ -85,7 +87,7 @@ void vtkPolarAxesActor::PrintSelf(ostream& os, vtkIndent indent)
   if (this->Camera)
     {
     os << indent << "Camera:\n";
-    this->Camera->PrintSelf(os,indent.GetNextIndent());
+    this->Camera->PrintSelf(os, indent.GetNextIndent());
     }
   else
     {
@@ -128,18 +130,18 @@ void vtkPolarAxesActor::PrintSelf(ostream& os, vtkIndent indent)
 
   if (this->ExponentLocation == VTK_EXPONENT_BOTTOM)
     {
-    os << " next to the polar axis title."<<endl;
+    os << " next to the polar axis title." << endl;
     }
   else if (this->ExponentLocation == VTK_EXPONENT_EXTERN)
     {
-    os << " outer side."<<endl;
+    os << " outer side." << endl;
     }
   else
     {
-    os << " bound to labels."<<endl;
+    os << " bound to labels." << endl;
     }
 
-  os << indent << "Radial Axes Visibility: "<< (this->RadialAxesVisibility ? "On\n" : "Off\n");
+  os << indent << "Radial Axes Visibility: " << (this->RadialAxesVisibility ? "On\n" : "Off\n");
   os << indent << "Radial Title Visibility: "   << (this->RadialTitleVisibility ? "On" : "Off") << endl;
   if (this->RadialAxisTitleLocation == VTK_TITLE_BOTTOM)
     {
@@ -150,20 +152,20 @@ void vtkPolarAxesActor::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Radial Title Location: EXTERN" << endl;
     }
 
-  os << indent << "Polar Arcs Visibility: "<< (this->PolarArcsVisibility ? "On" : "Off") << endl;
-  os << indent << "Draw Radial Gridlines: "<< (this->DrawRadialGridlines ? "On" : "Off") << endl;
-  os << indent << "Draw Polar Arcs Gridlines: "<< (this->DrawPolarArcsGridlines ? "On" : "Off") << endl;
-  os << indent << "Draw Radial Axes From Polar Axis: "<< (this->RadialAxesOriginToPolarAxis ? "On" : "Off") << endl;
+  os << indent << "Polar Arcs Visibility: " << (this->PolarArcsVisibility ? "On" : "Off") << endl;
+  os << indent << "Draw Radial Gridlines: " << (this->DrawRadialGridlines ? "On" : "Off") << endl;
+  os << indent << "Draw Polar Arcs Gridlines: " << (this->DrawPolarArcsGridlines ? "On" : "Off") << endl;
+  os << indent << "Draw Radial Axes From Polar Axis: " << (this->RadialAxesOriginToPolarAxis ? "On" : "Off") << endl;
 
   //--------------------- TICKS ------------------
   os << indent << "TickLocation: " << this->TickLocation << endl;
 
   os << indent << "Ticks overall enabled: " << (this->PolarTickVisibility ? "On" : "Off") << endl;
-  os << indent << "Draw Arc Ticks From Polar Axis: "<< (this->ArcTicksOriginToPolarAxis ? "On" : "Off") << endl;
+  os << indent << "Draw Arc Ticks From Polar Axis: " << (this->ArcTicksOriginToPolarAxis ? "On" : "Off") << endl;
 
   //--- major ticks ---
   // polar axis and last radial axis
-  os << indent << "Axes Major Tick Visibility: "<<(this->AxisTickVisibility ? "On" : "Off")<<endl;
+  os << indent << "Axes Major Tick Visibility: " << (this->AxisTickVisibility ? "On" : "Off") << endl;
   if (this->AxisTickVisibility && this->PolarTickVisibility)
     {
     os << indent << "Axes Major Tick Step: " << this->DeltaRangeMajor << endl;
@@ -177,17 +179,17 @@ void vtkPolarAxesActor::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   // last arc
-  os << indent << "Arc Major Ticks Visibility: "<<(this->ArcTickVisibility ? "On" : "Off")<<endl;
+  os << indent << "Arc Major Ticks Visibility: " << (this->ArcTickVisibility ? "On" : "Off") << endl;
   if (this->ArcTickVisibility && this->PolarTickVisibility)
     {
-    os << indent << "Arc Major angle step: " << this->DeltaAngleMajor << endl;
+    os << indent << "Arc Major Angle Step: " << this->DeltaAngleMajor << endl;
     os << indent << "Arc Major Ticks Size: " << this->ArcMajorTickSize << endl;
     os << indent << "Arc Major Ticks Thickness: " << this->ArcMajorTickThickness << endl;
     }
 
   //--- minor ticks ---
   //  polar axis and last radial axis
-  os << indent << "Axis Minor Ticks Visibility: "<<(this->AxisMinorTickVisibility ? "On" : "Off")<<endl;
+  os << indent << "Axis Minor Ticks Visibility: " << (this->AxisMinorTickVisibility ? "On" : "Off") << endl;
   if (this->AxisMinorTickVisibility && this->PolarTickVisibility)
     {
     os << indent << "Axes Minor Tick Step: " << this->DeltaRangeMinor << endl;
@@ -199,14 +201,13 @@ void vtkPolarAxesActor::PrintSelf(ostream& os, vtkIndent indent)
       os << indent << "Ratio Between LastAxis Major and Minor Tick Thickness: " << this->LastAxisTickRatioThickness << endl;
       }
     }
-  os << indent << "Arc Minor Ticks Visibility: "<<(this->ArcMinorTickVisibility ? "On" : "Off")<<endl;
+  os << indent << "Arc Minor Ticks Visibility: " << (this->ArcMinorTickVisibility ? "On" : "Off") << endl;
   if (this->ArcMinorTickVisibility && this->PolarTickVisibility)
     {
-    os << indent << "Arc Minor angle step: " << this->DeltaAngleMinor << endl;
+    os << indent << "Arc Minor Angle Step: " << this->DeltaAngleMinor << endl;
     os << indent << "Ratio Between Last Arc Major and Minor Tick : " << this->ArcTickRatioSize << endl;
     os << indent << "Ratio Between Last Arc Major and Minor Tick Thickness: " << this->ArcTickRatioThickness << endl;
     }
-
 
 }
 
@@ -270,10 +271,10 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   this->PolarAxisProperty->SetColor(0., 0., 0.);
   this->PolarAxisTitleTextProperty = vtkTextProperty::New();
   this->PolarAxisTitleTextProperty->SetOpacity(1.0);
-  this->PolarAxisTitleTextProperty->SetColor(1., 1. ,1.);
+  this->PolarAxisTitleTextProperty->SetColor(1., 1. , 1.);
   this->PolarAxisTitleTextProperty->SetFontFamilyToArial();
   this->PolarAxisLabelTextProperty = vtkTextProperty::New();
-  this->PolarAxisLabelTextProperty->SetColor(1., 1. ,1.);
+  this->PolarAxisLabelTextProperty->SetColor(1., 1. , 1.);
   this->PolarAxisLabelTextProperty->SetFontFamilyToArial();
 
   // Create and set polar axis of type X
@@ -304,7 +305,7 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
 
   this->LastRadialAxisTextProperty = vtkTextProperty::New();
   this->LastRadialAxisTextProperty->SetOpacity(1.0);
-  this->LastRadialAxisTextProperty->SetColor(1., 1. ,1.);
+  this->LastRadialAxisTextProperty->SetColor(1., 1. , 1.);
   this->LastRadialAxisTextProperty->SetFontFamilyToArial();
 
   // Properties of the secondaries radial axes, with default color black
@@ -315,7 +316,7 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
 
   this->SecondaryRadialAxesTextProperty = vtkTextProperty::New();
   this->SecondaryRadialAxesTextProperty->SetOpacity(1.0);
-  this->SecondaryRadialAxesTextProperty->SetColor(1., 1. ,1.);
+  this->SecondaryRadialAxesTextProperty->SetColor(1., 1. , 1.);
   this->SecondaryRadialAxesTextProperty->SetFontFamilyToArial();
 
   // Create and set principal polar arcs and ancillary objects, with default color white
@@ -411,13 +412,13 @@ vtkPolarAxesActor::vtkPolarAxesActor() : vtkActor()
   this->DeltaRangeMajor = 1.0;
 
   // Step between 2 minor ticks, in range value (values displayed on the axis).
-  this->DeltaRangeMinor = 0.5*this->DeltaRangeMajor;
+  this->DeltaRangeMinor = 0.5 * this->DeltaRangeMajor;
 
   // Angle between 2 major ticks on the last arc.
   this->DeltaAngleMajor = 10.0;
 
   // Angle between 2 minor ticks on the last arc.
-  this->DeltaAngleMinor = 0.5*this->DeltaAngleMajor;
+  this->DeltaAngleMinor = 0.5 *this->DeltaAngleMajor;
 
   this->RadialAxesOriginToPolarAxis = 1;
   this->DeltaAngleRadialAxes = 45.0;
@@ -482,13 +483,13 @@ vtkPolarAxesActor::~vtkPolarAxesActor()
     this->PolarAxisLabelTextProperty = NULL;
     }
 
-   if (this->LastRadialAxisTextProperty)
+  if (this->LastRadialAxisTextProperty)
     {
     this->LastRadialAxisTextProperty->Delete();
     this->LastRadialAxisTextProperty = NULL;
     }
 
-    if (this->SecondaryRadialAxesTextProperty)
+  if (this->SecondaryRadialAxesTextProperty)
     {
     this->SecondaryRadialAxesTextProperty->Delete();
     this->SecondaryRadialAxesTextProperty = NULL;
@@ -548,45 +549,45 @@ vtkPolarAxesActor::~vtkPolarAxesActor()
 
   // ticks related objects
   if (this->ArcMajorTickPts)
-  {
+    {
     this->ArcMajorTickPts->Delete();
     this->ArcMajorTickPts = NULL;
-  }
+    }
   if (this->ArcMinorTickPts)
-  {
+    {
     this->ArcMinorTickPts->Delete();
     this->ArcMinorTickPts = NULL;
-  }
+    }
   if (this->ArcTickPolyData)
-  {
+    {
     this->ArcTickPolyData->Delete();
     this->ArcTickPolyData = NULL;
-  }
+    }
   if (this->ArcMinorTickPolyData)
-  {
+    {
     this->ArcMinorTickPolyData->Delete();
     this->ArcMinorTickPolyData = NULL;
-  }
+    }
   if (this->ArcTickPolyDataMapper)
-  {
+    {
     this->ArcTickPolyDataMapper->Delete();
     this->ArcTickPolyDataMapper = NULL;
-  }
+    }
   if (this->ArcMinorTickPolyDataMapper)
-  {
+    {
     this->ArcMinorTickPolyDataMapper->Delete();
     this->ArcMinorTickPolyDataMapper = NULL;
-  }
+    }
   if (this->ArcTickActor)
-  {
+    {
     this->ArcTickActor->Delete();
     this->ArcTickActor = NULL;
-  }
+    }
   if (this->ArcMinorTickActor)
-  {
+    {
     this->ArcMinorTickActor->Delete();
     this->ArcMinorTickActor = NULL;
-  }
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -596,7 +597,7 @@ int vtkPolarAxesActor::RenderOpaqueGeometry(vtkViewport *viewport)
   int renderedSomething = 0;
   if (!this->Camera)
     {
-    vtkErrorMacro(<<"No camera!");
+    vtkErrorMacro(<< "No camera!");
     return renderedSomething;
     }
 
@@ -611,13 +612,13 @@ int vtkPolarAxesActor::RenderOpaqueGeometry(vtkViewport *viewport)
   // Render the radial axes
   if (this->RadialAxesVisibility)
     {
-    bool isInnerAxis, isInnerAxisVisible;
+    bool isInnerAxis, isAxisVisible;
     for (int i = 0; i < this->NumberOfRadialAxes; ++ i)
       {
-      isInnerAxis = (i != this->NumberOfRadialAxes-1) ||
-        (i == this->NumberOfRadialAxes-1 && (vtkMathUtilities::FuzzyCompare(MaximumAngle, MinimumAngle))) ;
-      isInnerAxisVisible = !isInnerAxis || this->DrawRadialGridlines;
-      if (this->RadialAxesVisibility && isInnerAxisVisible)
+      isInnerAxis = (i != this->NumberOfRadialAxes - 1) ||
+        (i == this->NumberOfRadialAxes - 1 && (vtkMathUtilities::FuzzyCompare(MaximumAngle, MinimumAngle))) ;
+      isAxisVisible = !isInnerAxis || this->DrawRadialGridlines;
+      if (this->RadialAxesVisibility && isAxisVisible)
         {
         renderedSomething += this->RadialAxes[i]->RenderOpaqueGeometry(viewport);
         }
@@ -631,14 +632,17 @@ int vtkPolarAxesActor::RenderOpaqueGeometry(vtkViewport *viewport)
     renderedSomething += this->SecondaryPolarArcsActor->RenderOpaqueGeometry(viewport);
 
     if (this->PolarTickVisibility)
-    {
+      {
       if (this->ArcTickVisibility)
+        {
         renderedSomething += this->ArcTickActor->RenderOpaqueGeometry(viewport);
+        }
       if (this->ArcMinorTickVisibility)
+        {
         renderedSomething += this->ArcMinorTickActor->RenderOpaqueGeometry(viewport);
+        }
+      }
     }
-    }
-
   return renderedSomething;
 }
 
@@ -647,27 +651,21 @@ int vtkPolarAxesActor::RenderOverlay(vtkViewport *viewport)
   int renderedSomething = 0;
 
   if (this->PolarAxisVisibility && this->PolarAxis->GetUse2DMode())
-  {
-    renderedSomething += this->PolarAxis->RenderOverlay(viewport);
-  }
-
-   if (this->RadialAxesVisibility)
-   {
-    for (int i = 0; i < this->NumberOfRadialAxes; ++i)
     {
-      if (this->RadialAxes[i]->GetUse2DMode())
-        renderedSomething += this->RadialAxes[i]->RenderOverlay(viewport);
+    renderedSomething += this->PolarAxis->RenderOverlay(viewport);
     }
-   }
 
+  if (this->RadialAxesVisibility)
+    {
+    for (int i = 0; i < this->NumberOfRadialAxes; ++i)
+      {
+      if (this->RadialAxes[i]->GetUse2DMode())
+        {
+        renderedSomething += this->RadialAxes[i]->RenderOverlay(viewport);
+        }
+      }
+    }
   return renderedSomething;
-}
-
-//-----------------------------------------------------------------------------
-void vtkPolarAxesActor::SetScreenSize(double screenSize)
-{
-  this->ScreenSize = screenSize;
-  this->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -795,7 +793,7 @@ void vtkPolarAxesActor::CalculateBounds()
 //-----------------------------------------------------------------------------
 void vtkPolarAxesActor::GetBounds(double bounds[6])
 {
-  for (int i=0; i< 6; i++)
+  for (int i = 0; i< 6; i++)
     {
     bounds[i] = this->Bounds[i];
     }
@@ -803,8 +801,8 @@ void vtkPolarAxesActor::GetBounds(double bounds[6])
 
 //-----------------------------------------------------------------------------
 void vtkPolarAxesActor::GetBounds(double& xmin, double& xmax,
-                                   double& ymin, double& ymax,
-                                   double& zmin, double& zmax)
+  double& ymin, double& ymax,
+  double& zmin, double& zmax)
 {
   xmin = this->Bounds[0];
   xmax = this->Bounds[1];
@@ -823,129 +821,122 @@ double *vtkPolarAxesActor::GetBounds()
 bool vtkPolarAxesActor::CheckMembersConsistency()
 {
   if (this->MaximumAngle > 360.0 || this->MinimumAngle > 360.0)
-  {
-  // Incorrect MaximumRadius input
-  vtkWarningMacro(<< "Cannot draw polar axis, Angle > 360.0: "
-    << "MinimumAngle : "<< this->MinimumAngle << " _ MaximumAngle: "<<this->MaximumAngle);
-  return false;
-  }
+    {
+    // Incorrect MaximumRadius input
+    vtkWarningMacro(<< "Cannot draw polar axis, Angle > 360.0: "
+      << "MinimumAngle : " << this->MinimumAngle << " _ MaximumAngle: " << this->MaximumAngle);
+    return false;
+    }
 
   // Min/Max Radius
   if (vtkMathUtilities::FuzzyCompare(this->MaximumRadius, this->MinimumRadius))
-  {
+    {
     // MaximumRadius and this->MinimumRadius are too close
     vtkWarningMacro(<< "Maximum and Minimum Radius cannot be distinct: "
-      << " MinimumRadius: "<< this->MinimumRadius << " _ MaximumRadius: "<< this->MaximumRadius);
+      << " MinimumRadius: " << this->MinimumRadius << " _ MaximumRadius: " << this->MaximumRadius);
     return false;
-  }
+    }
 
   if (this->MaximumRadius <= 0.0 || this->MinimumRadius < 0.0)
-  {
+    {
     // Incorrect MaximumRadius input
     vtkWarningMacro(<< "Cannot draw polar axis, Negative Radius value set: "
-      << "MinimumRadius : "<< this->MinimumRadius << " _ MaximumRadius: "<<this->MaximumRadius);
+      << "MinimumRadius : " << this->MinimumRadius << " _ MaximumRadius: " << this->MaximumRadius);
     return false;
-  }
+    }
 
   // Min/Max Range
   if (vtkMathUtilities::FuzzyCompare(this->Range[0], this->Range[1]))
-  {
+    {
     // MaximumRadius and this->MinimumRadius are too close
     vtkWarningMacro(<< "Maximum and Minimum Range cannot be distinct: "
-      << " Range[0]: "<< this->Range[0] << " _ Range[1]: "<< this->Range[1]);
+      << " Range[0]: " << this->Range[0] << " _ Range[1]: " << this->Range[1]);
     return false;
-  }
+    }
 
   // Log Mode
   if (this->Log != 0 && this->Range[0] <= 0.0)
-  {
+    {
     vtkWarningMacro(<< "Scale Set to Linear. Range value undefined for log scale enabled. "
-    <<"Current Range: ("<<this->Range[0]<<", "<<this->Range[1]<<")"
-    << "Range must be > 0.0 for log scale to be enabled"
-    << ".");
+      << "Current Range: (" << this->Range[0] << ", " << this->Range[1] << ")"
+      << "Range must be > 0.0 for log scale to be enabled"
+      << ".");
 
     this->Log = 0;
-  }
+    }
 
   // Range Step
   if (this->DeltaRangeMajor <= 0.0 ||
-    (this->DeltaRangeMajor > fabs(this->Range[1]-this->Range[0]) && !AutoSubdividePolarAxis))
-  {
-    vtkWarningMacro(<< "Axis Major Step or Range length invalid: "<< "DeltaRangeMajor: "<< this->DeltaRangeMajor
-      << "_ Range length: "<< fabs(this->Range[1]-this->Range[0])
-      <<" _ Enable AutoSubdividePolarAxis to get a proper DeltaRangeMajor or set it yourself");
+    (this->DeltaRangeMajor > fabs(this->Range[1] -this->Range[0]) && !AutoSubdividePolarAxis))
+    {
+    vtkWarningMacro(<< "Axis Major Step or Range length invalid: " << "DeltaRangeMajor: " << this->DeltaRangeMajor
+      << "_ Range length: " << fabs(this->Range[1] -this->Range[0])
+      << " _ Enable AutoSubdividePolarAxis to get a proper DeltaRangeMajor or set it yourself");
     return false;
-  }
+    }
   if (this->DeltaRangeMinor <= 0.0 ||
-    (this->DeltaRangeMinor > fabs(this->Range[1]-this->Range[0]) && !AutoSubdividePolarAxis))
-  {
-    vtkWarningMacro(<< "Axis Minor Step or range length invalid: "<< "DeltaRangeMinor: "<< this->DeltaRangeMinor
-      << "_ Range length: "<< fabs(this->Range[1]-this->Range[0])
-      <<" _ Enable AutoSubdividePolarAxis to get a proper DeltaRangeMinor or set it yourself");
+    (this->DeltaRangeMinor > fabs(this->Range[1] -this->Range[0]) && !AutoSubdividePolarAxis))
+    {
+    vtkWarningMacro(<< "Axis Minor Step or range length invalid: " << "DeltaRangeMinor: " << this->DeltaRangeMinor
+      << "_ Range length: " << fabs(this->Range[1] -this->Range[0])
+      << " _ Enable AutoSubdividePolarAxis to get a proper DeltaRangeMinor or set it yourself");
     return false;
-  }
+    }
 
   // Angle Step
   if (this->DeltaAngleMajor <= 0.0 || this->DeltaAngleMajor >= 360.0 ||
     this->DeltaAngleMinor <= 0.0 || this->DeltaAngleMinor >= 360.0)
-  {
-    vtkWarningMacro(<< "Arc Delta Angle: "<< "DeltaAngleMajor: "<< this->DeltaAngleMajor
-      <<" _ DeltaAngleMinor: "<< this->DeltaAngleMinor << "_ DeltaAngles should be in ]0.0, 360.0[ range. ");
+    {
+    vtkWarningMacro(<< "Arc Delta Angle: " << "DeltaAngleMajor: " << this->DeltaAngleMajor
+      << " _ DeltaAngleMinor: " << this->DeltaAngleMinor << "_ DeltaAngles should be in ]0.0, 360.0[ range. ");
     return false;
-  }
+    }
 
   // Angle Step
   if (this->DeltaAngleRadialAxes <= 0.0 || this->DeltaAngleRadialAxes >= 360.0)
-  {
-    vtkWarningMacro(<< "Delta Angle for radial axes: "<< "DeltaAngleRadialAxes: "<< this->DeltaAngleRadialAxes
-      <<"_ DeltaAngleRadialAxes should be in ]0.0, 360.0[ range. ");
+    {
+    vtkWarningMacro(<< "Delta Angle for radial axes: " << "DeltaAngleRadialAxes: " << this->DeltaAngleRadialAxes
+      << "_ DeltaAngleRadialAxes should be in ]0.0, 360.0[ range. ");
     return false;
-  }
+    }
 
   // Tick ratios range check
   if (this->PolarAxisTickRatioThickness < (1.0 / VTK_MAXIMUM_RATIO) || this->PolarAxisTickRatioThickness > VTK_MAXIMUM_RATIO ||
-     this->LastAxisTickRatioThickness < (1.0 / VTK_MAXIMUM_RATIO) || this->LastAxisTickRatioThickness > VTK_MAXIMUM_RATIO ||
-     this->ArcTickRatioThickness < (1.0 / VTK_MAXIMUM_RATIO) || this->ArcTickRatioThickness > VTK_MAXIMUM_RATIO ||
-     this->PolarAxisTickRatioSize < (1.0 / VTK_MAXIMUM_RATIO) || this->PolarAxisTickRatioSize > VTK_MAXIMUM_RATIO ||
-     this->LastAxisTickRatioSize < (1.0 / VTK_MAXIMUM_RATIO) || this->LastAxisTickRatioSize > VTK_MAXIMUM_RATIO ||
-     this->ArcTickRatioSize < (1.0 / VTK_MAXIMUM_RATIO) || this->ArcTickRatioSize > VTK_MAXIMUM_RATIO)
-  {
+    this->LastAxisTickRatioThickness < (1.0 / VTK_MAXIMUM_RATIO) || this->LastAxisTickRatioThickness > VTK_MAXIMUM_RATIO ||
+    this->ArcTickRatioThickness < (1.0 / VTK_MAXIMUM_RATIO) || this->ArcTickRatioThickness > VTK_MAXIMUM_RATIO ||
+    this->PolarAxisTickRatioSize < (1.0 / VTK_MAXIMUM_RATIO) || this->PolarAxisTickRatioSize > VTK_MAXIMUM_RATIO ||
+    this->LastAxisTickRatioSize < (1.0 / VTK_MAXIMUM_RATIO) || this->LastAxisTickRatioSize > VTK_MAXIMUM_RATIO ||
+    this->ArcTickRatioSize < (1.0 / VTK_MAXIMUM_RATIO) || this->ArcTickRatioSize > VTK_MAXIMUM_RATIO)
+    {
     vtkWarningMacro(<< "A size/thickness ratio between major and minor ticks is way too large: "
-      <<"PolarAxisTickRatioThickness: "<< this->PolarAxisTickRatioThickness
-      <<"LastAxisTickRatioThickness: "<< this->LastAxisTickRatioThickness
-      <<"ArcTickRatioThickness: "<< this->ArcTickRatioThickness
-      <<"PolarAxisTickRatioSize: "<< this->PolarAxisTickRatioSize
-      <<"LastAxisTickRatioSize: "<< this->LastAxisTickRatioSize
-      <<"ArcTickRatioSize: "<< this->ArcTickRatioSize);
+      << "PolarAxisTickRatioThickness: " << this->PolarAxisTickRatioThickness
+      << "LastAxisTickRatioThickness: " << this->LastAxisTickRatioThickness
+      << "ArcTickRatioThickness: " << this->ArcTickRatioThickness
+      << "PolarAxisTickRatioSize: " << this->PolarAxisTickRatioSize
+      << "LastAxisTickRatioSize: " << this->LastAxisTickRatioSize
+      << "ArcTickRatioSize: " << this->ArcTickRatioSize);
     return false;
-  }
-
+    }
   return true;
 }
 
 //-----------------------------------------------------------------------------
 void vtkPolarAxesActor::BuildAxes(vtkViewport *viewport)
 {
-  if ((this->GetMTime() < this->BuildTime.GetMTime()))
+  if (this->GetMTime() < this->BuildTime.GetMTime())
     {
     this->AutoScale(viewport);
     return;
     }
 
-  double swap;
   if (this->MaximumRadius - this->MinimumRadius < 0.0)
-  {
-    swap = this->MinimumRadius;
-    this->MinimumRadius = this->MaximumRadius;
-    this->MaximumRadius = swap;
-  }
-
+    {
+    std::swap(this->MinimumRadius, this->MaximumRadius);
+    }
   if (Range[0] > Range[1])
-  {
-    swap = Range[0];
-    Range[0] = Range[1];
-    Range[1] = swap;
-  }
+    {
+    std::swap(Range[0], Range[1]);
+    }
   if (this->DeltaRangeMajor < 0.0)
     {
     this->DeltaRangeMajor *= -1.0;
@@ -958,11 +949,8 @@ void vtkPolarAxesActor::BuildAxes(vtkViewport *viewport)
 
   // ---------- Angles check -----------
   // set angle range [0.0; 360.0]
-  int quotient = (int)(this->MaximumAngle/360.0);
-  this->MaximumAngle = this->MaximumAngle - quotient*360.0;
-
-  quotient = (int)(this->MinimumAngle/360.0);
-  this->MinimumAngle = this->MinimumAngle - quotient*360.0;
+  this->MaximumAngle = std::fmod(this->MaximumAngle, 360);
+  this->MinimumAngle = std::fmod(this->MinimumAngle, 360);
 
   if (this->MaximumAngle < 0.0)
     {
@@ -988,42 +976,24 @@ void vtkPolarAxesActor::BuildAxes(vtkViewport *viewport)
   // Set polar axis endpoints
   vtkAxisActor* axis = this->PolarAxis;
 
-    // convert section angle to an angle applied to ellipse equation.
-  // the result point with ellipse angle, is the point located on section angle
-
-  double miniAngleEllipse;
-  double minimumAngleRad = vtkMath::RadiansFromDegrees(this->MinimumAngle);
-
-  quotient = (int)(minimumAngleRad / (2.0*vtkMath::Pi()));
-  minimumAngleRad = minimumAngleRad - quotient* 2.0*vtkMath::Pi();
-
-  // result range: -pi/2, pi/2
-  miniAngleEllipse = atan(tan(minimumAngleRad) / this->Ratio);
-
-  //theta range: 0, 2*pi
-  if (minimumAngleRad > vtkMath::Pi()/2 && minimumAngleRad <= vtkMath::Pi())
-    {
-    miniAngleEllipse += vtkMath::Pi();
-    }
-  else if (minimumAngleRad > vtkMath::Pi() && minimumAngleRad <= 1.5*vtkMath::Pi())
-    {
-    miniAngleEllipse -= vtkMath::Pi();
-    }
+  // compute ellipse angle
+  double miniAngleEllipse =
+    this->ComputeEllipseAngle(this->MinimumAngle, this->Ratio);
 
   // Set the start point and end point (world coord system) of the Polar Axis.
   double startPt[3], endPt[3];
-  startPt[0] = this->Pole[0] + this->MinimumRadius* cos(miniAngleEllipse);
-  startPt[1] = this->Pole[1] + this->MinimumRadius* this->Ratio * sin(miniAngleEllipse);
+  startPt[0] = this->Pole[0] + this->MinimumRadius * cos(miniAngleEllipse);
+  startPt[1] = this->Pole[1] + this->MinimumRadius * this->Ratio * sin(miniAngleEllipse);
   startPt[2] = this->Pole[2];
 
   endPt[0] = this->Pole[0] + this->MaximumRadius * cos(miniAngleEllipse);
-  endPt[1] = this->Pole[1] + this->MaximumRadius*this->Ratio * sin(miniAngleEllipse);
+  endPt[1] = this->Pole[1] + this->MaximumRadius * this->Ratio * sin(miniAngleEllipse);
   endPt[2] = this->Pole[2];
 
   axis->GetPoint1Coordinate()->SetValue(startPt);
   axis->GetPoint2Coordinate()->SetValue(endPt);
 
-  // axis Type. We assume the polar graph is build in the local plane x-y
+  // axis Type. We assume the polar graph is built in the local plane x-y
   if ((this->MinimumAngle > 45.0 && this->MinimumAngle < 135.0) ||
     (this->MinimumAngle > 225.0 && this->MinimumAngle < 315.0))
     {
@@ -1034,17 +1004,15 @@ void vtkPolarAxesActor::BuildAxes(vtkViewport *viewport)
     axis->SetAxisTypeToX();
     }
 
-  // Set common axis attributes (range, tick location)
+  // Set axess attributes (range, tick location)
   this->SetCommonAxisAttributes(axis);
-
-  // Set (title, visibility for axis, ticks, title.)
   this->SetPolarAxisAttributes(axis);
 
   // ------- Ticks thickness -------
 
   // Polar Axis
   this->PolarAxis->GetAxisMajorTicksProperty()->SetLineWidth(this->PolarAxisMajorTickThickness);
-  double minorThickness = this->PolarAxisTickRatioThickness*this->PolarAxisMajorTickThickness;
+  double minorThickness = this->PolarAxisTickRatioThickness * this->PolarAxisMajorTickThickness;
   if (minorThickness < 1.0)
     {
     minorThickness = 1.0;
@@ -1053,27 +1021,23 @@ void vtkPolarAxesActor::BuildAxes(vtkViewport *viewport)
 
   // Last arc
   this->ArcTickActor->GetProperty()->SetLineWidth(this->ArcMajorTickThickness);
-  minorThickness = this->ArcMajorTickThickness * this->ArcTickRatioThickness;
-  if (minorThickness < 1.0)
-    {
-    minorThickness = 1.0;
-    }
+  minorThickness = std::max(this->ArcMajorTickThickness * this->ArcTickRatioThickness, 1.);
+
   this->ArcMinorTickActor->GetProperty()->SetLineWidth(minorThickness);
 
   // last polar axis line width is set in BuildRadialAxes() function
 
   // Build polar axis ticks
   if (this->Log)
-  {
-  this->BuildLabelsLog();
-
-  this->BuildPolarArcsLog();
-  }
+    {
+    this->BuildLabelsLog();
+    this->BuildPolarArcsLog();
+    }
   else
-  {
-  // Build polar axis labels
-  this->BuildPolarAxisLabelsArcs();
-  }
+    {
+    // Build polar axis labels
+    this->BuildPolarAxisLabelsArcs();
+    }
 
   // Set title relative location from the axis
   if (this->PolarAxisTitleLocation == VTK_TITLE_BOTTOM)
@@ -1095,7 +1059,7 @@ void vtkPolarAxesActor::BuildAxes(vtkViewport *viewport)
     }
 
   // color copy
-  vtkProperty *prop = this->PolarArcsActor->GetProperty();
+  vtkProperty* prop = this->PolarArcsActor->GetProperty();
   double color[3];
   prop->GetColor(color);
   this->ArcTickActor->GetProperty()->SetColor(color);
@@ -1141,7 +1105,7 @@ void vtkPolarAxesActor::BuildAxes(vtkViewport *viewport)
 
 void vtkPolarAxesActor::AutoComputeTicksProperties()
 {
-  // set major tick size as 0.02* majorRadius
+  // set major tick size as 0.02 * majorRadius
   this->PolarAxisMajorTickSize = 0.02 * this->MaximumRadius;
   this->LastRadialAxisMajorTickSize = this->PolarAxisMajorTickSize;
   this->ArcMajorTickSize = this->PolarAxisMajorTickSize;
@@ -1153,18 +1117,18 @@ void vtkPolarAxesActor::AutoComputeTicksProperties()
   double threshold = log10(1.5);
   double log10RangeLength = log10(rangeLength);
 
-  double stepPow10 = (log10RangeLength - floor(log10RangeLength) < threshold) ? floor(log10RangeLength)-1.0: floor(log10RangeLength);
+  double stepPow10 = (log10RangeLength - std::floor(log10RangeLength) < threshold) ? std::floor(log10RangeLength) - 1.0: std::floor(log10RangeLength);
 
-  this->DeltaRangeMajor = pow(10.0, stepPow10);
+  this->DeltaRangeMajor = std::pow(10.0, stepPow10);
   this->DeltaRangeMinor = this->DeltaRangeMajor / 2.0;
 }
 //-----------------------------------------------------------------------------
 void vtkPolarAxesActor::SetCommonAxisAttributes(vtkAxisActor* axis)
 {
-  vtkProperty *prop = this->GetProperty();
-  prop->SetAmbient( 1.0 );
-  prop->SetDiffuse( 0.0 );
-  axis->SetProperty( prop );
+  vtkProperty* prop = this->GetProperty();
+  prop->SetAmbient(1.0);
+  prop->SetDiffuse(0.0);
+  axis->SetProperty(prop);
 
   axis->SetScreenSize(this->ScreenSize);
 
@@ -1207,13 +1171,12 @@ void vtkPolarAxesActor::SetPolarAxisAttributes(vtkAxisActor* axis)
   axis->SetTitle(this->PolarAxisTitle);
   axis->SetTitleTextProperty(this->PolarAxisTitleTextProperty);
 
-  // Set Labels exposant value
+  // Set Labels exponent value
   if (this->ExponentLocation == VTK_EXPONENT_BOTTOM)
     {
     axis->SetExponentLocation(vtkAxisActor::VTK_ALIGN_BOTTOM);
     axis->SetExponentVisibility(true);
     }
-
   else if (this->ExponentLocation == VTK_EXPONENT_EXTERN)
     {
     axis->SetExponentLocation(vtkAxisActor::VTK_ALIGN_POINT2);
@@ -1230,11 +1193,13 @@ void vtkPolarAxesActor::SetPolarAxisAttributes(vtkAxisActor* axis)
 
   // compute tick length, and delta Range values (if log == 1, deltaRange properties will be overwritten)
   if (this->AutoSubdividePolarAxis)
+    {
     this->AutoComputeTicksProperties();
+    }
 
   axis->SetMajorTickSize(this->PolarAxisMajorTickSize);
 
-  axis->SetMinorTickSize(this->PolarAxisTickRatioSize*this->PolarAxisMajorTickSize);
+  axis->SetMinorTickSize(this->PolarAxisTickRatioSize * this->PolarAxisMajorTickSize);
 
   // Set the value between two ticks
   axis->SetDeltaRangeMajor(this->DeltaRangeMajor);
@@ -1262,31 +1227,32 @@ inline double vtkPolarAxesActor::FSign(double value, double sign)
 //-----------------------------------------------------------------------------
 void vtkPolarAxesActor::CreateRadialAxes(int axisCount)
 {
-
   // If number of radial axes does not change, do nothing
   if (this->NumberOfRadialAxes == axisCount)
+    {
     return;
+    }
 
   // Delete existing secondary radial axes
   if (this->RadialAxes)
-  {
-    for (int i = 0; i < this->NumberOfRadialAxes; ++ i)
     {
-      if (this->RadialAxes[i])
+    for (int i = 0; i < this->NumberOfRadialAxes; ++ i)
       {
+      if (this->RadialAxes[i])
+        {
         this->RadialAxes[i]->Delete();
         this->RadialAxes[i] = NULL;
+        }
       }
-    }
     delete[] this->RadialAxes;
     this->RadialAxes = NULL;
-  }
+    }
 
   // Create and set n radial axes of type X
   this->NumberOfRadialAxes = axisCount;
 
   // Create requested number of secondary radial axes
-  this->RadialAxes = new vtkAxisActor*[this->NumberOfRadialAxes];
+  this->RadialAxes = new vtkAxisActor* [this->NumberOfRadialAxes];
   for (int i = 0; i < this->NumberOfRadialAxes; ++ i)
     {
     // Create axis of type X
@@ -1311,24 +1277,25 @@ void vtkPolarAxesActor::BuildRadialAxes()
 
   // set MaximumAngle and MinimumAngle range: [0.0; 360.0]
   double angleSection = (this->MaximumAngle > this->MinimumAngle)?
-            this->MaximumAngle - this->MinimumAngle: 360.0 - fabs(this->MaximumAngle - this->MinimumAngle);
+    this->MaximumAngle - this->MinimumAngle: 360.0 - fabs(this->MaximumAngle - this->MinimumAngle);
 
   if (vtkMathUtilities::FuzzyCompare(this->MaximumAngle, this->MinimumAngle) || angleSection == 360.0)
+    {
     angleSection = 360.0;
+    }
 
   bool positiveSection = false;
   double dAlpha = this->DeltaAngleRadialAxes;
-  double alphaDeg, alphaRad, currentAlpha;
+  double alphaDeg, currentAlpha;
 
   // current ellipse angle
-  double thetaEllipse;
   double actualAngle;
   int i = 0;
 
   double minorThickness;
 
-  double alphaStart = (originToPolarAxis) ? this->MinimumAngle + dAlpha: floor(this->MinimumAngle/dAlpha)*dAlpha + dAlpha;
-  double alphaStop = angleSection+this->MinimumAngle+dAlpha;
+  double alphaStart = (originToPolarAxis) ? this->MinimumAngle + dAlpha: std::floor(this->MinimumAngle / dAlpha) * dAlpha + dAlpha;
+  double alphaStop = angleSection + this->MinimumAngle + dAlpha;
 
   int n = (angleSection == 360.0)? 0:1;
   double intPart, fractPart;
@@ -1337,51 +1304,36 @@ void vtkPolarAxesActor::BuildRadialAxes()
   n += intPart;
 
   if (fractPart == 0.0)
+    {
     n--;
+    }
 
   if (n > VTK_MAXIMUM_NUMBER_OF_RADIAL_AXES)
-  {
+    {
     this->DeltaAngleRadialAxes = angleSection / n;
     dAlpha = this->DeltaAngleRadialAxes;
-  }
+    }
   if (this->DeltaAngleRadialAxes >= angleSection || n == 0)
-  {
+    {
     n = 1;
-    alphaStart = angleSection+this->MinimumAngle;
-  }
+    alphaStart = angleSection + this->MinimumAngle;
+    }
 
   // init radial axis. Does nothing if number of radial axes doesn't change
   this->CreateRadialAxes(n);
 
   char titleValue[64];
   for (alphaDeg = alphaStart; alphaDeg <= alphaStop && i < this->NumberOfRadialAxes; alphaDeg += dAlpha, i++)
-  {
+    {
     currentAlpha = alphaDeg;
 
-    if (currentAlpha > angleSection+this->MinimumAngle)
-      currentAlpha = angleSection+this->MinimumAngle;
+    if (currentAlpha > angleSection + this->MinimumAngle)
+      {
+      currentAlpha = angleSection + this->MinimumAngle;
+      }
 
     // Calculate startpoint coordinates
-    alphaRad = vtkMath::RadiansFromDegrees(currentAlpha);
-
-    // convert section angle to an angle being applied to ellipse equation.
-    // the result point with the ellipse angle, will be located on section angle
-    int quotient = (int)(alphaRad / (2.0*vtkMath::Pi()));
-    alphaRad = alphaRad - quotient* 2.0*vtkMath::Pi();
-
-    // result range: -pi/2, pi/2
-    thetaEllipse = atan(tan(alphaRad) / this->Ratio);
-
-    //theta range: 0, 2*pi
-    if (alphaRad > vtkMath::Pi()/2 && alphaRad <= vtkMath::Pi())
-      {
-      thetaEllipse += vtkMath::Pi();
-      }
-    else if (alphaRad > vtkMath::Pi() && alphaRad <= 1.5*vtkMath::Pi())
-      {
-      thetaEllipse -= vtkMath::Pi();
-      }
-
+    double thetaEllipse = this->ComputeEllipseAngle(currentAlpha, this->Ratio);
     double xStart = this->Pole[0] + this->MinimumRadius * cos(thetaEllipse);
     double yStart = this->Pole[1] + this->MinimumRadius * this->Ratio * sin(thetaEllipse);
 
@@ -1408,15 +1360,15 @@ void vtkPolarAxesActor::BuildRadialAxes()
 
     // The last arc has its own property
     if ((alphaDeg + dAlpha) >= alphaStop)
-    {
+      {
       axis->SetAxisLinesProperty(this->LastRadialAxisProperty);
       axis->SetTitleTextProperty(this->LastRadialAxisTextProperty);
-    }
+      }
     else
-    {
+      {
       axis->SetAxisLinesProperty(this->SecondaryRadialAxesProperty);
       axis->SetTitleTextProperty(this->SecondaryRadialAxesTextProperty);
-    }
+      }
 
     axis->GetPoint1Coordinate()->SetValue(xStart, yStart, this->Pole[2]);
     axis->GetPoint2Coordinate()->SetValue(xEnd, yEnd, this->Pole[2]);
@@ -1433,9 +1385,13 @@ void vtkPolarAxesActor::BuildRadialAxes()
 
     // Set title relative location from the axis
     if (this->RadialAxisTitleLocation == VTK_TITLE_BOTTOM)
+      {
       axis->SetTitleAlignLocation(vtkAxisActor::VTK_ALIGN_BOTTOM);
+      }
     else
+      {
       axis->SetTitleAlignLocation(vtkAxisActor::VTK_ALIGN_POINT2);
+      }
 
     // Set radial axis title with polar angle as title for non-polar axes
     if (this->PolarAxisVisibility && fabs(alphaDeg) < 2.)
@@ -1467,19 +1423,19 @@ void vtkPolarAxesActor::BuildRadialAxes()
       axis->GetTitleActor()->SetDistanceLODThreshold(this->DistanceLODThreshold);
       axis->GetTitleActor()->SetEnableViewAngleLOD(this->EnableViewAngleLOD);
       axis->GetTitleActor()->SetViewAngleLODThreshold(this->ViewAngleLODThreshold);
-    }
+      }
 
-    //Ticks for the last radial axis
-    if (angleSection != 360.0 && i == this->NumberOfRadialAxes-1)
-    {
-      // axis Type. We assume the polar graph is build in the local plane x-y
+    // Ticks for the last radial axis
+    if (angleSection != 360.0 && i == this->NumberOfRadialAxes - 1)
+      {
+      // axis Type. We assume the polar graph is built in the local plane x-y
       if ((actualAngle > 45.0 && actualAngle < 135.0) ||
         (actualAngle > 225.0 && actualAngle < 315.0))
-      {
+        {
         axis->SetAxisTypeToY();
-      }
+        }
       else
-        axis->SetAxisTypeToX();
+          axis->SetAxisTypeToX();
 
       // Set polar axis ticks
       axis->SetTickVisibility(this->AxisTickVisibility && this->PolarTickVisibility);
@@ -1492,10 +1448,6 @@ void vtkPolarAxesActor::BuildRadialAxes()
       // Set the tick orientation
       axis->SetTickLocation(this->TickLocation);
 
-      // Set the value between two ticks
-      /*axis->SetDeltaRangeMajor(this->DeltaRangeMajor);
-      axis->SetDeltaRangeMinor(this->DeltaRangeMinor);*/
-
       axis->GetAxisMajorTicksProperty()->SetLineWidth(this->LastRadialAxisMajorTickThickness);
       minorThickness = this->LastRadialAxisMajorTickThickness * LastAxisTickRatioThickness;
       if (minorThickness < 1.0)
@@ -1503,13 +1455,13 @@ void vtkPolarAxesActor::BuildRadialAxes()
         minorThickness = 1.0;
         }
       axis->GetAxisMinorTicksProperty()->SetLineWidth(minorThickness);
-    }
+      }
     else
-    {
+      {
       axis->SetLabelVisibility(0);
       axis->SetTickVisibility(0);
+      }
     }
-  }
 }
 
 //-----------------------------------------------------------------------------
@@ -1517,71 +1469,37 @@ void vtkPolarAxesActor::BuildArcTicks()
 {
   bool originToPolarAxis = this->ArcTicksOriginToPolarAxis != 0.0;
 
-    // set MaximumAngle and MinimumAngle range: [0.0; 360.0]
+  // set MaximumAngle and MinimumAngle range: [0.0; 360.0]
   double angleSection = (this->MaximumAngle > this->MinimumAngle)?
-            this->MaximumAngle - this->MinimumAngle: 360.0 - fabs(this->MaximumAngle - this->MinimumAngle);
+    this->MaximumAngle - this->MinimumAngle: 360.0 - fabs(this->MaximumAngle - this->MinimumAngle);
 
   if (vtkMathUtilities::FuzzyCompare(this->MaximumAngle, this->MinimumAngle) || angleSection == 360.0)
+    {
     angleSection = 360.0;
+    }
 
   // Create requested number of radial axes
   double dAlpha = this->DeltaAngleMajor;
   double alphaStart;
-  double alphaDeg, alphaRad;
 
-  alphaStart = (originToPolarAxis) ? this->MinimumAngle + dAlpha: floor(this->MinimumAngle/dAlpha)*dAlpha + dAlpha;
+  alphaStart = (originToPolarAxis) ? this->MinimumAngle + dAlpha: std::floor(this->MinimumAngle / dAlpha) * dAlpha + dAlpha;
 
-  // current ellipse angle
-  double thetaEllipse;
-
-  for (alphaDeg = alphaStart; alphaDeg < (angleSection + this->MinimumAngle); alphaDeg += dAlpha)
+  for (double alphaDeg = alphaStart; alphaDeg < (angleSection + this->MinimumAngle); alphaDeg += dAlpha)
     {
-    // Calculate startpoint coordinates
-    alphaRad = vtkMath::RadiansFromDegrees(alphaDeg);
-
-    // convert section angle to an angle being applied to ellipse equation.
-    // the result point with the ellipse angle, will be located on section angle
-    int quotient = (int)(alphaRad / (2.0*vtkMath::Pi()));
-    alphaRad = alphaRad - quotient* 2.0*vtkMath::Pi();
-
-    // result range: -pi/2, pi/2
-    thetaEllipse = atan(tan(alphaRad) / this->Ratio);
-
-    //theta range: 0, 2*pi
-    if (alphaRad > vtkMath::Pi()/2 && alphaRad <= vtkMath::Pi())
-      thetaEllipse += vtkMath::Pi();
-    else if (alphaRad > vtkMath::Pi() && alphaRad <= 1.5*vtkMath::Pi())
-      thetaEllipse -= vtkMath::Pi();
-
+    double thetaEllipse = ComputeEllipseAngle(alphaDeg, this->Ratio);
     StoreTicksPtsFromParamEllipse(this->MaximumRadius, thetaEllipse, this->ArcMajorTickSize, this->ArcMajorTickPts);
-  }
+    }
 
   // Copy/paste should be replaced with a python-like generator to provide parameters to StoreTicksPtsFromParamEllipse()
   // without running twice through the ellipse
 
   dAlpha = this->DeltaAngleMinor;
-  alphaStart = (originToPolarAxis) ? this->MinimumAngle + dAlpha: floor(this->MinimumAngle/dAlpha)*dAlpha + dAlpha;
-  for (alphaDeg = alphaStart; alphaDeg < (angleSection + this->MinimumAngle); alphaDeg += dAlpha)
+  alphaStart = (originToPolarAxis) ? this->MinimumAngle + dAlpha: std::floor(this->MinimumAngle / dAlpha) * dAlpha + dAlpha;
+  for (double alphaDeg = alphaStart; alphaDeg < (angleSection + this->MinimumAngle); alphaDeg += dAlpha)
     {
-    // Calculate startpoint coordinates
-    alphaRad = vtkMath::RadiansFromDegrees(alphaDeg);
-
-    // convert section angle to an angle being applied to ellipse equation.
-    // the result point with the ellipse angle, will be located on section angle
-    int quotient = (int)(alphaRad / (2.0*vtkMath::Pi()));
-    alphaRad = alphaRad - quotient* 2.0*vtkMath::Pi();
-
-    // result range: -pi/2, pi/2
-    thetaEllipse = atan(tan(alphaRad) / this->Ratio);
-
-    //theta range: 0, 2*pi
-    if (alphaRad > vtkMath::Pi()/2 && alphaRad <= vtkMath::Pi())
-      thetaEllipse += vtkMath::Pi();
-    else if (alphaRad > vtkMath::Pi() && alphaRad <= 1.5*vtkMath::Pi())
-      thetaEllipse -= vtkMath::Pi();
-
-    StoreTicksPtsFromParamEllipse(this->MaximumRadius, thetaEllipse, this->ArcTickRatioSize*this->ArcMajorTickSize, this->ArcMinorTickPts);
-  }
+    double thetaEllipse = ComputeEllipseAngle(alphaDeg, this->Ratio);
+    StoreTicksPtsFromParamEllipse(this->MaximumRadius, thetaEllipse, this->ArcTickRatioSize * this->ArcMajorTickSize, this->ArcMinorTickPts);
+    }
 
   // set vtk object to draw the ticks
   vtkNew<vtkPoints> majorPts;
@@ -1596,40 +1514,44 @@ void vtkPolarAxesActor::BuildArcTicks()
   this->ArcMinorTickPolyData->SetLines(minorLines.Get());
 
   if (this->ArcTickVisibility)
-  {
+    {
     numTickPts = this->ArcMajorTickPts->GetNumberOfPoints();
     for (i = 0; i < numTickPts; i++)
+      {
       majorPts->InsertNextPoint(this->ArcMajorTickPts->GetPoint(i));
-  }
+      }
+    }
   if (this->ArcMinorTickVisibility)
-  {
+    {
     // In 2D mode, the minorTickPts for yz portion or xz portion have been removed.
     numTickPts = this->ArcMinorTickPts->GetNumberOfPoints();
     for (i = 0; i < numTickPts; i++)
+      {
       minorPts->InsertNextPoint(this->ArcMinorTickPts->GetPoint(i));
-  }
+      }
+    }
 
   // create lines
   if (this->ArcTickVisibility)
-  {
+    {
     numLines = majorPts->GetNumberOfPoints() / 2;
-    for (i=0; i < numLines; i++)
-    {
-      ptIds[0] = 2*i;
-      ptIds[1] = 2*i + 1;
+    for (i = 0; i < numLines; i++)
+      {
+      ptIds[0] = 2 * i;
+      ptIds[1] = 2 * i + 1;
       majorLines->InsertNextCell(2, ptIds);
+      }
     }
-  }
   if (this->ArcMinorTickVisibility)
-  {
-    numLines = minorPts->GetNumberOfPoints() / 2;
-    for (i=0; i < numLines; i++)
     {
-      ptIds[0] = 2*i;
-      ptIds[1] = 2*i + 1;
+    numLines = minorPts->GetNumberOfPoints() / 2;
+    for (i = 0; i < numLines; i++)
+      {
+      ptIds[0] = 2 * i;
+      ptIds[1] = 2 * i + 1;
       minorLines->InsertNextCell(2, ptIds);
+      }
     }
-  }
 }
 
 void vtkPolarAxesActor::StoreTicksPtsFromParamEllipse(double a, double angleEllipseRad, double tickSize, vtkPoints* tickPts)
@@ -1644,39 +1566,51 @@ void vtkPolarAxesActor::StoreTicksPtsFromParamEllipse(double a, double angleElli
   double planeInPt[3], planeOutPt[3], normalDirPt[3], invNormalDirPt[3];
 
   if (!tickPts)
+    {
     return;
+    }
 
-  double b = a*this->Ratio;
-  double xArc = this->Pole[0] + a*cos(angleEllipseRad);
-  double yArc = this->Pole[1] + b*sin(angleEllipseRad);
+  double b = a * this->Ratio;
+  double xArc = this->Pole[0] + a * cos(angleEllipseRad);
+  double yArc = this->Pole[1] + b * sin(angleEllipseRad);
   double ellipsePt[3] = {xArc, yArc, this->Pole[2]};
 
-  double deltaVector[3] = {a*cos(angleEllipseRad), b*sin(angleEllipseRad), 0.0 };
+  double deltaVector[3] = {a * cos(angleEllipseRad), b * sin(angleEllipseRad), 0.0 };
   vtkMath::Normalize(deltaVector);
 
   double orthoVector[3] = {0.0, 0.0, 1.0};
 
   // init
-  for (i=0;i<3;i++)
+  for (i = 0;i<3;i++)
+    {
     planeInPt[i] = planeOutPt[i] = normalDirPt[i] = invNormalDirPt[i] = ellipsePt[i];
+    }
 
   if (this->TickLocation == vtkAxisActor::VTK_TICKS_INSIDE || this->TickLocation == vtkAxisActor::VTK_TICKS_BOTH)
-  {
-    for (i=0;i<3;i++)
-      planeInPt[i] = ellipsePt[i] - tickSize*deltaVector[i];
+    {
+    for (i = 0;i<3;i++)
+      {
+      planeInPt[i] = ellipsePt[i] - tickSize * deltaVector[i];
+      }
 
-    for (i=0;i<3;i++)
-      normalDirPt[i] = ellipsePt[i] + tickSize*orthoVector[i];
-  }
+    for (i = 0;i<3;i++)
+      {
+      normalDirPt[i] = ellipsePt[i] + tickSize * orthoVector[i];
+      }
+    }
 
   if (this->TickLocation == vtkAxisActor::VTK_TICKS_OUTSIDE || this->TickLocation == vtkAxisActor::VTK_TICKS_BOTH)
-  {
-    for (i=0;i<3;i++)
-      planeOutPt[i] = ellipsePt[i] + tickSize*deltaVector[i];
+    {
+    for (i = 0;i<3;i++)
+      {
+      planeOutPt[i] = ellipsePt[i] + tickSize * deltaVector[i];
+      }
 
-    for (i=0;i<3;i++)
-      invNormalDirPt[i] = ellipsePt[i] - tickSize*orthoVector[i];
-  }
+    for (i = 0;i<3;i++)
+      {
+      invNormalDirPt[i] = ellipsePt[i] - tickSize * orthoVector[i];
+      }
+    }
 
   tickPts->InsertNextPoint(planeInPt);
   tickPts->InsertNextPoint(planeOutPt);
@@ -1691,7 +1625,7 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs()
     this->MaximumAngle - this->MinimumAngle: 360.0 -
     fabs(this->MaximumAngle - this->MinimumAngle);
 
-   // if Min and max angle are the same, interpret it as 360 segment opening
+  // if Min and max angle are the same, interpret it as 360 segment opening
   if (vtkMathUtilities::FuzzyCompare(this->MaximumAngle, this->MinimumAngle))
     {
     angleSection = 360.0;
@@ -1725,7 +1659,8 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs()
   double rangeScale = axisLength / rangeLength;
 
   // Label values refers to range values
-  double valueRange = axis->GetRange()[0], currentValue;
+  double valueRange = axis->GetRange()[0];
+  double currentValue;
   double deltaRange = axis->GetDeltaRangeMajor();
   double deltaArc;
 
@@ -1740,14 +1675,14 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs()
     {
     currentValue =
       (valueRange > axis->GetRange()[1]) ? axis->GetRange()[1]: valueRange;
-    deltaArc = (currentValue-axis->GetRange()[0]) * rangeScale;
+    deltaArc = (currentValue - axis->GetRange()[0]) * rangeScale;
 
     isInnerArc =
       currentValue > axis->GetRange()[0] && currentValue < axis->GetRange()[1];
     isArcVisible = !isInnerArc || this->DrawPolarArcsGridlines;
     isLastArc = currentValue == axis->GetRange()[1];
 
-      // Store value
+    // Store value
     labelValList.push_back(currentValue);
 
     // Build polar arcs for non-zero values
@@ -1758,7 +1693,7 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs()
       arc->SetCenter(this->Pole);
       arc->SetRatio(this->Ratio);
       arc->SetNormal(0., 0., 1.);
-      arc->SetMajorRadiusVector(deltaArc+this->MinimumRadius, 0.0, 0.0);
+      arc->SetMajorRadiusVector(deltaArc + this->MinimumRadius, 0.0, 0.0);
       arc->SetStartAngle(this->MinimumAngle);
       arc->SetSegmentAngle(angleSection);
       arc->SetResolution(arcResolution);
@@ -1780,7 +1715,7 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs()
             polarArcsPoints->InsertNextPoint(arcPoints->GetPoint(j));
             arcPointIds[j] = j;
             }
-            polarArcsLines->InsertNextCell(nPoints, arcPointIds);
+          polarArcsLines->InsertNextCell(nPoints, arcPointIds);
           }
 
         // Clean up
@@ -1818,7 +1753,7 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs()
     valueRange += deltaRange;
     }
 
-    // set up vtk collection to store labels
+  // set up vtk collection to store labels
   vtkNew<vtkStringArray> labels;
 
   if (this->ExponentLocation != VTK_EXPONENT_LABELS)
@@ -1883,26 +1818,9 @@ void vtkPolarAxesActor::BuildPolarArcsLog()
   this->SecondaryPolarArcs->SetLines(secondaryPolarArcsLines.Get());
 
   //--- prepare significant values ----
+  double miniAngleEllipseRad = ComputeEllipseAngle(this->MinimumAngle, this->Ratio);
 
-  double minAngleRad = vtkMath::RadiansFromDegrees(this->MinimumAngle);
-
-  double miniAngleEllipseRad;
-
-  // convert section angle to an angle applied to ellipse equation.
-  // the result point with the ellipse angle, will be located on section angle
-  int quotient = (int)(minAngleRad / (2.0*vtkMath::Pi()));
-  minAngleRad = minAngleRad - quotient* 2.0*vtkMath::Pi();
-
-  // result range of tan: ]-pi/2, pi/2]
-  miniAngleEllipseRad = atan(tan(minAngleRad) / this->Ratio);
-
-  //theta range: 0, 2*pi
-  if (minAngleRad > vtkMath::Pi()/2 && minAngleRad <= vtkMath::Pi())
-    miniAngleEllipseRad += vtkMath::Pi();
-  else if (minAngleRad > vtkMath::Pi() && minAngleRad <= 1.5*vtkMath::Pi())
-    miniAngleEllipseRad -= vtkMath::Pi();
-
-  //distance from Pole to Range[0]
+  // Distance from Pole to Range[0]
   vtkAxisActor* axis = this->PolarAxis;
 
   double deltaVector[3], polarAxisUnitVect[3];
@@ -1921,8 +1839,10 @@ void vtkPolarAxesActor::BuildPolarArcsLog()
   double distanceAxisPoint1FromPole = vtkMath::Norm(deltaVector);
 
   double base = 10.0;
-  double log10Range0 = log10(axis->GetRange()[0]), log10Range1 = log10(axis->GetRange()[1]);
-  double lowBound = pow(base, (int)floor(log10Range0)), upBound = pow(base, (int)ceil(log10Range1));
+  double log10Range0 = log10(axis->GetRange()[0]);
+  double log10Range1 = log10(axis->GetRange()[1]);
+  double lowBound = std::pow(base, static_cast<int>(std::floor(log10Range0)));
+  double upBound = std::pow(base, static_cast<int>(ceil(log10Range1)));
 
   int i;
   double tickVal, tickRangeVal, indexTickRangeValue;
@@ -1933,7 +1853,7 @@ void vtkPolarAxesActor::BuildPolarArcsLog()
   double epsilon = 1e-8;
 
   for (indexTickRangeValue = lowBound; indexTickRangeValue <= upBound; indexTickRangeValue *= base)
-  {
+    {
     // to keep major values as power of 10
     tickRangeVal = indexTickRangeValue;
 
@@ -1942,7 +1862,9 @@ void vtkPolarAxesActor::BuildPolarArcsLog()
     isLastArc = tickRangeVal == upBound;
 
     if (!isArcVisible)
+      {
       continue;
+      }
 
     if (tickRangeVal < axis->GetRange()[0])
       {
@@ -1955,10 +1877,10 @@ void vtkPolarAxesActor::BuildPolarArcsLog()
       }
 
     // conversion range value to world value
-    tickVal = (log10(tickRangeVal) - log10Range0)*rangeScaleLog;
+    tickVal = (log10(tickRangeVal) - log10Range0) * rangeScaleLog;
 
-    //vector from Pole to major tick
-    for (i=0; i<3; i++)
+    // Vector from Pole to major tick
+    for (i = 0; i<3; i++)
       {
       deltaVector[i] = polarAxisUnitVect[i]* (tickVal + distanceAxisPoint1FromPole);
       }
@@ -1969,10 +1891,10 @@ void vtkPolarAxesActor::BuildPolarArcsLog()
       }
 
     // epsilon is a very low value. vtkMathUtilities::FuzzyCompare is not fuzzy enough ...
-    if (fabs(fabs(miniAngleEllipseRad) - vtkMath::Pi()/2.0) < epsilon)
+    if (fabs(fabs(miniAngleEllipseRad) - vtkMath::Pi() / 2.0) < epsilon)
       {
       b = deltaVector[1] / sin(miniAngleEllipseRad);
-      a = b/this->Ratio;
+      a = b / this->Ratio;
       }
     else
       {
@@ -1991,13 +1913,13 @@ void vtkPolarAxesActor::BuildPolarArcsLog()
     arc->Update();
 
     if (isLastArc)
-    {
+      {
       // Add principal polar arc
       vtkPoints* arcPoints = NULL;
       vtkIdType nPoints;
       vtkIdType* arcPointIds = NULL;
       if (arc->GetOutput()->GetNumberOfPoints() > 0)
-      {
+        {
         arcPoints = arc->GetOutput()->GetPoints();
         nPoints = arcResolution + 1;
         arcPointIds = new vtkIdType[nPoints];
@@ -2007,35 +1929,35 @@ void vtkPolarAxesActor::BuildPolarArcsLog()
           arcPointIds[j] = j;
           }
         polarArcsLines->InsertNextCell(nPoints, arcPointIds);
-      }
+        }
       // Clean up
       delete [] arcPointIds;
-    }
+      }
     else
-    {
+      {
       // Append new polar arc to existing ones
       vtkPoints* arcPoints = NULL;
       vtkIdType nPoints = 0;
       vtkIdType* arcPointIds = NULL;
       if (arc->GetOutput()->GetNumberOfPoints() > 0)
-      {
+        {
         arcPoints = arc->GetOutput()->GetPoints();
         nPoints = arcResolution + 1;
         arcPointIds = new vtkIdType[nPoints];
         for (vtkIdType j = 0; j < nPoints; ++ j)
-        {
-        secondaryPolarArcsPoints->InsertNextPoint(arcPoints->GetPoint(j));
-        arcPointIds[j] = pointIdOffset + j;
-        }
+          {
+          secondaryPolarArcsPoints->InsertNextPoint(arcPoints->GetPoint(j));
+          arcPointIds[j] = pointIdOffset + j;
+          }
         secondaryPolarArcsLines->InsertNextCell(nPoints, arcPointIds);
-      }
+        }
       // Clean up
       delete [] arcPointIds;
 
       // Update polyline cell offset
       pointIdOffset += nPoints;
+      }
     }
-  }
 }
 
 //-----------------------------------------------------------------------------
@@ -2048,23 +1970,31 @@ void vtkPolarAxesActor::BuildLabelsLog()
   double base = 10.0;
 
   if (axis->GetRange()[0] <= 0.0)
+    {
     return;
+    }
 
   // define major ticks label values
   double indexTickRangeValue;
   double tickRangeVal;
-  double log10Range0 = log10(axis->GetRange()[0]), log10Range1 = log10(axis->GetRange()[1]);
-  double lowBound = pow(base, (int)floor(log10Range0)), upBound = pow(base, (int)ceil(log10Range1));
+  double log10Range0 = log10(axis->GetRange()[0]);
+  double log10Range1 = log10(axis->GetRange()[1]);
+  double lowBound = std::pow(base, static_cast<int>(std::floor(log10Range0)));
+  double upBound = std::pow(base, static_cast<int>(ceil(log10Range1)));
 
   for (indexTickRangeValue = lowBound; indexTickRangeValue <= upBound; indexTickRangeValue *= base)
     {
     tickRangeVal = indexTickRangeValue;
 
     if (indexTickRangeValue < axis->GetRange()[0])
-    tickRangeVal = axis->GetRange()[0];
+      {
+      tickRangeVal = axis->GetRange()[0];
+      }
 
     else if (indexTickRangeValue > axis->GetRange()[1])
-    tickRangeVal = axis->GetRange()[1];
+      {
+      tickRangeVal = axis->GetRange()[1];
+      }
 
     labelValList.push_back(tickRangeVal);
     }
@@ -2127,13 +2057,13 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcsLog()
   vtkAxisFollower** labelActors = this->PolarAxis->GetLabelActors();
   int labelCount = this->PolarAxis->GetNumberOfLabelsBuilt();
   for (int i = 0; i < labelCount; ++ i)
-  {
+    {
     labelActors[i]->SetAxis(this->PolarAxis);
     labelActors[i]->SetEnableDistanceLOD(this->EnableDistanceLOD);
     labelActors[i]->SetDistanceLODThreshold(this->DistanceLODThreshold);
     labelActors[i]->SetEnableViewAngleLOD(this->EnableViewAngleLOD);
     labelActors[i]->SetViewAngleLODThreshold(this->ViewAngleLODThreshold);
-  }
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -2150,7 +2080,7 @@ std::string vtkPolarAxesActor::FindExponentAndAdjustValues(
     {
     if (*itDouble != 0.0)
       {
-      double exponent = floor(log10(fabs(*itDouble)));
+      double exponent = std::floor(log10(fabs(*itDouble)));
       exponentMean += exponent;
       count++;
       }
@@ -2188,13 +2118,13 @@ std::string vtkPolarAxesActor::FindExponentAndAdjustValues(
     {
     if (*itDouble != 0.0)
       {
-      *itDouble /= pow(10, exponentMean);
+      *itDouble /= std::pow(10, exponentMean);
       }
     }
 
   // Layout of the exponent:
   std::stringstream ss;
-  int exponentInt = (int)fabs(exponentMean);
+  int exponentInt = static_cast<int>(fabs(exponentMean));
 
   // add sign
   ss << (exponentMean >= 0.0 ? "+" : "-");
@@ -2212,7 +2142,7 @@ std::string vtkPolarAxesActor::FindExponentAndAdjustValues(
 
 //-----------------------------------------------------------------------------
 void vtkPolarAxesActor::GetSignificantPartFromValues(vtkStringArray* valuesStr,
- std::list<double>& valuesList)
+  std::list<double>& valuesList)
 {
   if (!valuesStr || valuesList.size() == 0)
     {
@@ -2225,61 +2155,65 @@ void vtkPolarAxesActor::GetSignificantPartFromValues(vtkStringArray* valuesStr,
   std::size_t i = 0;
   for (itList = valuesList.begin();
     itList != valuesList.end(); i++, itList++)
-  {
+    {
     char label[64];
     if (this->ExponentLocation == VTK_EXPONENT_LABELS)
-    {
+      {
       sprintf(label, this->PolarLabelFormat, *itList);
       valuesStr->SetValue(i, label);
-    }
+      }
     else
-    {
+      {
       std::stringstream ss;
       if (*itList == 0.0)
-      {
-        ss << std::fixed << std::setw(1) << std::setprecision(0)<<0.0;
+        {
+        ss << std::fixed << std::setw(1) << std::setprecision(0) << 0.0;
         valuesStr->SetValue(i, ss.str().c_str());
         continue;
-      }
+        }
 
       // get pow of ten of the value to set the precision of the label
-      int exponent = (int)(floor(log10(fabs(*itList))));
+      int exponent = static_cast<int>(std::floor(log10(fabs(*itList))));
       if (exponent < 0)
+        {
         ss << std::fixed << std::setw(1) << setprecision(-exponent) << *itList;
+        }
       else
-        ss << std::fixed <<setprecision(1)<< *itList;
+        {
+        ss << std::fixed << setprecision(1) << *itList;
+        }
 
       valuesStr->SetValue(i, ss.str().c_str());
+      }
     }
-  }
 }
 
 //-----------------------------------------------------------------------------
-void vtkPolarAxesActor::AutoScale( vtkViewport *viewport )
+void vtkPolarAxesActor::AutoScale(vtkViewport *viewport)
 {
   // Scale polar axis title
   vtkAxisActor* axis = this->PolarAxis;
   double newTitleScale
-    = vtkAxisFollower::AutoScale( viewport,
-                                  this->Camera,
-                                  this->ScreenSize,
-                                  axis->GetTitleActor()->GetPosition() );
-  axis->SetTitleScale( newTitleScale );
+    = vtkAxisFollower::AutoScale(viewport,
+      this->Camera,
+      this->ScreenSize,
+      axis->GetTitleActor()->GetPosition());
+  axis->SetTitleScale(newTitleScale);
 
   // Scale polar axis labels
-  axis->SetLabelScale( newTitleScale );
+  axis->SetLabelScale(newTitleScale);
 
   // Loop over radial axes
-  for ( int i = 0; i < this->NumberOfRadialAxes; ++ i )
+  for (int i = 0; i < this->NumberOfRadialAxes; ++ i)
     {
     axis = this->RadialAxes[i];
     // Scale title
     newTitleScale
-      = vtkAxisFollower::AutoScale( viewport,
-                                    this->Camera,
-                                    this->ScreenSize,
-                                    axis->GetTitleActor()->GetPosition() );
-    axis->SetTitleScale( newTitleScale );
+      = vtkAxisFollower::AutoScale(viewport,
+        this->Camera,
+        this->ScreenSize,
+        axis->GetTitleActor()->GetPosition());
+    axis->SetTitleScale(newTitleScale);
     }
 }
 
@@ -2395,38 +2329,6 @@ void vtkPolarAxesActor::SetPolarAxisProperty(vtkProperty *prop)
 }
 
 //-----------------------------------------------------------------------------
-vtkProperty* vtkPolarAxesActor::GetPolarAxisProperty()
-{
-  return this->PolarAxisProperty;
-}
-
-//-----------------------------------------------------------------------------
-void vtkPolarAxesActor::SetLastRadialAxisProperty(vtkProperty * prop)
-{
-  this->LastRadialAxisProperty->DeepCopy(prop);
-  this->Modified();
-}
-
-//-----------------------------------------------------------------------------
-vtkProperty* vtkPolarAxesActor::GetLastRadialAxisProperty()
-{
-  return this->LastRadialAxisProperty;
-}
-
-//-----------------------------------------------------------------------------
-void vtkPolarAxesActor::SetSecondaryRadialAxesProperty(vtkProperty *prop)
-{
-  this->SecondaryRadialAxesProperty->DeepCopy(prop);
-  this->Modified();
-}
-
-//-----------------------------------------------------------------------------
-vtkProperty* vtkPolarAxesActor::GetSecondaryRadialAxesProperty()
-{
-  return this->SecondaryRadialAxesProperty;
-}
-
-//-----------------------------------------------------------------------------
 void vtkPolarAxesActor::SetPolarArcsProperty(vtkProperty * prop)
 {
   this->PolarArcsActor->SetProperty(prop);
@@ -2457,11 +2359,16 @@ void vtkPolarAxesActor::SetNumberOfPolarAxisTicks(int tickCountRequired)
 {
   double rangeLength = fabs(this->Range[1] - this->Range[0]);
   double step = this->ComputeIdealStep(
-    tickCountRequired-1, rangeLength, VTK_MAXIMUM_NUMBER_OF_POLAR_AXIS_TICKS - 1);
+    tickCountRequired - 1, rangeLength, VTK_MAXIMUM_NUMBER_OF_POLAR_AXIS_TICKS - 1);
+  double tmpRangeMajor = this->DeltaRangeMajor;
+  double tmpRangeMinor = this->DeltaRangeMinor;
   this->DeltaRangeMajor = (step == 0.0) ? rangeLength / 10.0 : step;
   this->DeltaRangeMinor =
     (step == 0.0) ? (this->DeltaRangeMajor / 2.0) : (step / 2.0);
-  this->Modified();
+  if (tmpRangeMajor != this->DeltaRangeMajor || tmpRangeMinor != this->DeltaRangeMinor)
+    {
+    this->Modified();
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -2469,8 +2376,12 @@ void vtkPolarAxesActor::SetNumberOfRadialAxes(vtkIdType n)
 {
   if (n == 0)
     {
-    this->DeltaAngleRadialAxes = 45.0;
-    return;
+    if (this->DeltaAngleRadialAxes != 45.)
+      {
+      this->DeltaAngleRadialAxes = 45.0;
+      this->Modified();
+      return;
+      }
     }
 
   double angleSection = (this->MaximumAngle > this->MinimumAngle)?
@@ -2483,14 +2394,17 @@ void vtkPolarAxesActor::SetNumberOfRadialAxes(vtkIdType n)
     angleSection = 360.0;
     }
 
-  double step = this->ComputeIdealStep(n-1, angleSection);
+  double step = this->ComputeIdealStep(n - 1, angleSection);
   if (step == 0.0)
     {
     step = angleSection / n;
     }
 
-  this->DeltaAngleRadialAxes = step;
-  this->Modified();
+  if (this->DeltaAngleRadialAxes != step)
+    {
+    this->DeltaAngleRadialAxes = step;
+    this->Modified();
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -2514,13 +2428,17 @@ double vtkPolarAxesActor::ComputeIdealStep(
   rawStep = rangeLength / subDivsRequired;
 
   // pow of 10 order of magnitude
-  pow10Start = floor(log10(rawStep));
+  pow10Start = std::floor(log10(rawStep));
   pow10End = -10.0;
   if (pow10End >= pow10Start)
+    {
     pow10End -= 1.0;
+    }
 
-  if (rawStep <= pow(10, pow10End))
+  if (rawStep <= std::pow(10, pow10End))
+    {
     return 0.0;
+    }
 
   double dividend = rawStep;
 
@@ -2535,14 +2453,14 @@ double vtkPolarAxesActor::ComputeIdealStep(
     // 10.0, 1.0, 0.1, ...
     pow10Step = std::pow(10.0, pow10);
 
-    // example: 4 = 0.4874/0.1 for pow10Step = 0.1
-    currentPow10Multiple = (int) (dividend / pow10Step);
+    // example: 4 = 0.4874 / 0.1 for pow10Step = 0.1
+    currentPow10Multiple = static_cast<int> (dividend / pow10Step);
 
     // 0.4 = 4 * 0.1
     roundStep = currentPow10Multiple * pow10Step;
 
     // 0.5 = 5 * 0.1
-    roundStepSup = (currentPow10Multiple + 1)*pow10Step;
+    roundStepSup = (currentPow10Multiple + 1) * pow10Step;
 
     // currentIdealStep is the previous digits of the ideal step we seek
     subdivs = rangeLength / (idealStep + roundStep);
@@ -2573,7 +2491,7 @@ double vtkPolarAxesActor::ComputeIdealStep(
     }
 
   // if idealStep is too small
-  if ((int) (rangeLength / idealStep) > subDivsRequired)
+  if (static_cast<int> (rangeLength / idealStep) > subDivsRequired)
     {
     idealStep = rawStep;
     }
@@ -2586,4 +2504,25 @@ int vtkPolarAxesActor::GetNumberOfPolarAxisTicks()
 {
   double rangeLength = fabs(this->Range[1] - this->Range[0]);
   return static_cast<int>((rangeLength / this->DeltaRangeMajor) + 1);
+}
+
+double vtkPolarAxesActor::ComputeEllipseAngle(double angleInDegrees, double ratio)
+{
+  double miniAngleEllipse;
+  double minimumAngleRad = vtkMath::RadiansFromDegrees(angleInDegrees);
+  minimumAngleRad = std::fmod(minimumAngleRad, 2.0 * vtkMath::Pi());
+
+  // result range: -pi / 2, pi / 2
+  miniAngleEllipse = atan(tan(minimumAngleRad) / ratio);
+
+  // ellipse range: 0, 2 * pi
+  if (minimumAngleRad > vtkMath::Pi() / 2 && minimumAngleRad <= vtkMath::Pi())
+    {
+    miniAngleEllipse += vtkMath::Pi();
+    }
+  else if (minimumAngleRad > vtkMath::Pi() && minimumAngleRad <= 1.5 * vtkMath::Pi())
+    {
+    miniAngleEllipse -= vtkMath::Pi();
+    }
+  return miniAngleEllipse;
 }

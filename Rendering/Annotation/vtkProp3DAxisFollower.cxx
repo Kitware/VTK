@@ -570,7 +570,7 @@ bool vtkProp3DAxisFollower::IsTextUpsideDown( double* a, double* b )
 //----------------------------------------------------------------------
 void vtkProp3DAxisFollower::SetScreenOffset(double offset)
 {
-  this->SetScreenOffsetVector(0, offset);
+  this->SetScreenOffsetVector(1, offset);
 }
 
 //----------------------------------------------------------------------
