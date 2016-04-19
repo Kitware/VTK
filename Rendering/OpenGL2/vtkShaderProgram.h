@@ -203,6 +203,11 @@ public:
   // or attributes are expensive to compute
   bool IsUniformUsed(const char *);
 
+  // Description:
+  // Return true if the compiled and linked shader has an attribute matching @a
+  // name.
+  bool IsAttributeUsed(const char *name);
+
 protected:
   vtkShaderProgram();
   ~vtkShaderProgram();
@@ -280,7 +285,7 @@ protected:
 
   std::string Error;
 
-  std::map<std::string, int> Attributes;
+  std::map<std::string, int> AttributeLocs;
 
 
   std::map<std::string, int> UniformLocs;

@@ -1515,13 +1515,18 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
       cellBO.ShaderSourceTime > cellBO.AttributeUpdateTime))
     {
     cellBO.VAO->Bind();
-    if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
-                                    "vertexMC", this->VBO->VertexOffset,
-                                    this->VBO->Stride, VTK_FLOAT, 3, false))
+    if (cellBO.Program->IsAttributeUsed("vertexMC"))
       {
-      vtkErrorMacro(<< "Error setting 'vertexMC' in shader VAO.");
+      if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
+                                         "vertexMC", this->VBO->VertexOffset,
+                                         this->VBO->Stride, VTK_FLOAT, 3,
+                                         false))
+        {
+        vtkErrorMacro(<< "Error setting 'vertexMC' in shader VAO.");
+        }
       }
-    if (this->VBO->NormalOffset && this->LastLightComplexity[&cellBO] > 0)
+    if (this->VBO->NormalOffset && this->LastLightComplexity[&cellBO] > 0 &&
+        cellBO.Program->IsAttributeUsed("normalMC"))
       {
       if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
                                       "normalMC", this->VBO->NormalOffset,
@@ -1530,7 +1535,8 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
         vtkErrorMacro(<< "Error setting 'normalMC' in shader VAO.");
         }
       }
-    if (this->VBO->TCoordComponents && !this->DrawingEdges)
+    if (this->VBO->TCoordComponents && !this->DrawingEdges &&
+        cellBO.Program->IsAttributeUsed("tcoordMC"))
       {
       if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
                                       "tcoordMC", this->VBO->TCoordOffset,
@@ -1539,7 +1545,8 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
         vtkErrorMacro(<< "Error setting 'tcoordMC' in shader VAO.");
         }
       }
-    if (this->VBO->ColorComponents != 0 && !this->DrawingEdges)
+    if (this->VBO->ColorComponents != 0 && !this->DrawingEdges &&
+        cellBO.Program->IsAttributeUsed("scalarColor"))
       {
       if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
                                       "scalarColor", this->VBO->ColorOffset,
@@ -1549,7 +1556,8 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
         vtkErrorMacro(<< "Error setting 'scalarColor' in shader VAO.");
         }
       }
-    if (this->AppleBugPrimIDs.size())
+    if (this->AppleBugPrimIDs.size() &&
+        cellBO.Program->IsAttributeUsed("appleBugPrimID"))
       {
       if (!cellBO.VAO->AddAttributeArray(cellBO.Program,
           this->AppleBugPrimIDBuffer,
@@ -1573,7 +1581,7 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
       {
       texture = actor->GetProperty()->GetTexture(0);
       }
-    if (texture)
+    if (texture && cellBO.Program->IsUniformUsed("texture1"))
       {
       int tunit = vtkOpenGLTexture::SafeDownCast(texture)->GetTextureUnit();
       cellBO.Program->SetUniformi("texture1", tunit);
@@ -1581,7 +1589,8 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
     // check for tcoord transform matrix
     vtkInformation *info = actor->GetPropertyKeys();
     vtkOpenGLCheckErrorMacro("failed after Render");
-    if (info && info->Has(vtkProp::GeneralTextureTransform()))
+    if (info && info->Has(vtkProp::GeneralTextureTransform()) &&
+        cellBO.Program->IsUniformUsed("tcMatrix"))
       {
       double *dmatrix = info->Get(vtkProp::GeneralTextureTransform());
       float fmatrix[16];
@@ -1597,13 +1606,14 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
       }
     }
 
-  if (this->HaveCellScalars || this->HavePickScalars)
+  if ((this->HaveCellScalars || this->HavePickScalars) &&
+      cellBO.Program->IsUniformUsed("textureC"))
     {
     int tunit = this->CellScalarTexture->GetTextureUnit();
     cellBO.Program->SetUniformi("textureC", tunit);
     }
 
-  if (this->HaveCellNormals)
+  if (this->HaveCellNormals && cellBO.Program->IsUniformUsed("textureN"))
     {
     int tunit = this->CellNormalTexture->GetTextureUnit();
     cellBO.Program->SetUniformi("textureN", tunit);
@@ -1628,7 +1638,7 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
 
   vtkHardwareSelector* selector = ren->GetSelector();
   bool picking = (ren->GetRenderWindow()->GetIsPicking() || selector != NULL);
-  if (picking)
+  if (picking && cellBO.Program->IsUniformUsed("mapperIndex"))
     {
     if (selector)
       {
@@ -1646,7 +1656,9 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
       }
     }
 
-  if (this->GetNumberOfClippingPlanes())
+  if (this->GetNumberOfClippingPlanes() &&
+      cellBO.Program->IsUniformUsed("numClipPlanes") &&
+      cellBO.Program->IsUniformUsed("clipPlanes"))
     {
     // add all the clipping planes
     int numClipPlanes = this->GetNumberOfClippingPlanes();
@@ -1671,7 +1683,8 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
     }
 
   // handle wide lines
-  if (this->HaveWideLines(ren, actor))
+  if (this->HaveWideLines(ren, actor) &&
+      cellBO.Program->IsUniformUsed("lineWidthNVC"))
     {
       int vp[4];
       glGetIntegerv(GL_VIEWPORT, vp);
@@ -1687,7 +1700,11 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
     float factor, offset;
     this->GetCoincidentParameters(actor,factor,offset);
     cellBO.Program->SetUniformf("coffset",offset);
-    cellBO.Program->SetUniformf("cfactor",factor);
+    // cfactor isn't always used when coffset is.
+    if (cellBO.Program->IsUniformUsed("cfactor"))
+      {
+      cellBO.Program->SetUniformf("cfactor", factor);
+      }
     }
 }
 

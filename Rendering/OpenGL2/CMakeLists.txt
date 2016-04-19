@@ -21,7 +21,6 @@ set(Module_SRCS
   vtkDepthOfFieldPass.cxx
   vtkDepthImageProcessingPass.cxx
   vtkDepthPeelingPass.cxx
-  vtkDualDepthPeelingPass.cxx
   vtkEDLShading.cxx
   vtkFrameBufferObject.cxx
   vtkGaussianBlurPass.cxx
@@ -81,6 +80,7 @@ set(Module_SRCS
 if (NOT DEFINED OPENGL_ES_VERSION)
   set(Module_SRCS ${Module_SRCS}
     vtkDataTransferHelper.cxx
+    vtkDualDepthPeelingPass.cxx # Needs GL_MAX
     vtkFrameBufferObject2.cxx
     vtkPixelBufferObject.cxx
     vtkRenderbuffer.cxx
@@ -88,6 +88,7 @@ if (NOT DEFINED OPENGL_ES_VERSION)
 else()
   if (${OPENGL_ES_VERSION} MATCHES 3.0)
     set(Module_SRCS ${Module_SRCS}
+      vtkDualDepthPeelingPass.cxx # Needs GL_MAX
       vtkFrameBufferObject2.cxx
       vtkPixelBufferObject.cxx
       vtkRenderbuffer.cxx
