@@ -1283,15 +1283,14 @@ namespace vtkvolume
     }
 
   //--------------------------------------------------------------------------
-  std::string PickingExit(vtkRenderer* vtkNotUsed(ren),
-                          vtkVolumeMapper* vtkNotUsed(mapper),
-                          vtkVolume* vtkNotUsed(vol))
+  std::string PickingActorPassExit(vtkRenderer* vtkNotUsed(ren),
+    vtkVolumeMapper* vtkNotUsed(mapper), vtkVolume* vtkNotUsed(vol))
     {
     return std::string("\
     \n  // Special coloring mode which renders the Prop Id in fragments that\
-    \n  // have accumulated certain level of opacity. Used during the rendering\
-    \n  // pass of vtkHardwareSelection.\
-    \n  if (g_fragColor.a > (1.0 - 3.0/ 255.0))\
+    \n  // have accumulated certain level of opacity. Used during the selection\
+    \n  // pass vtkHardwareSelection::ACTOR_PASS.\
+    \n  if (g_fragColor.a > 3.0/ 255.0)\
     \n    {\
     \n    gl_FragData[0] = vec4(in_propId, 1.0);\
     \n    }\
@@ -1301,6 +1300,59 @@ namespace vtkvolume
     \n    }\
     \n  return;");
     };
+
+  //--------------------------------------------------------------------------
+  std::string PickingIdLow24PassExit(vtkRenderer* vtkNotUsed(ren),
+    vtkVolumeMapper* vtkNotUsed(mapper), vtkVolume* vtkNotUsed(vol))
+  {
+  return std::string("\
+  \n  // Special coloring mode which renders the voxel index in fragments that\
+  \n  // have accumulated certain level of opacity. Used during the selection\
+  \n  // pass vtkHardwareSelection::ID_LOW24.\
+  \n  if (g_fragColor.a > 3.0/ 255.0)\
+  \n    {\
+  \n    uvec3 volumeDim = uvec3(in_textureExtentsMax - in_textureExtentsMin);\
+  \n    uvec3 voxelCoords = uvec3(volumeDim * g_dataPos);\
+  \n    // vtkHardwareSelector assumes index 0 to be empty space, so add uint(1).\
+  \n    uint idx = volumeDim.x * volumeDim.y * voxelCoords.z +\
+  \n      volumeDim.x * voxelCoords.y + voxelCoords.x + uint(1);\
+  \n    gl_FragData[0] = vec4(float(idx % uint(256)) / 255.0,\
+  \n      float((idx / uint(256)) % uint(256)) / 255.0,\
+  \n      float((idx / uint(65536)) % uint(256)) / 255.0, 1.0);\
+  \n    }\
+  \n  else\
+  \n    {\
+  \n    gl_FragData[0] = vec4(0.0);\
+  \n    }\
+  \n  return;");
+  };
+
+  //--------------------------------------------------------------------------
+  std::string PickingIdMid24PassExit(vtkRenderer* vtkNotUsed(ren),
+    vtkVolumeMapper* vtkNotUsed(mapper), vtkVolume* vtkNotUsed(vol))
+  {
+  return std::string("\
+  \n  // Special coloring mode which renders the voxel index in fragments that\
+  \n  // have accumulated certain level of opacity. Used during the selection\
+  \n  // pass vtkHardwareSelection::ID_MID24.\
+  \n  if (g_fragColor.a > 3.0/ 255.0)\
+  \n    {\
+  \n    uvec3 volumeDim = uvec3(in_textureExtentsMax - in_textureExtentsMin);\
+  \n    uvec3 voxelCoords = uvec3(volumeDim * g_dataPos);\
+  \n    // vtkHardwareSelector assumes index 0 to be empty space, so add uint(1).\
+  \n    uint idx = volumeDim.x * volumeDim.y * voxelCoords.z +\
+  \n      volumeDim.x * voxelCoords.y + voxelCoords.x + uint(1);\
+  \n    idx = ((idx & 0xff000000) >> 24);\
+  \n    gl_FragData[0] = vec4(float(idx % uint(256)) / 255.0,\
+  \n      float((idx / uint(256)) % uint(256)) / 255.0,\
+  \n      float(idx / uint(65536)) / 255.0, 1.0);\
+  \n    }\
+  \n  else\
+  \n    {\
+  \n    gl_FragData[0] = vec4(0.0);\
+  \n    }\
+  \n  return;");
+  };
 
   //--------------------------------------------------------------------------
   std::string ShadingExit(vtkRenderer* vtkNotUsed(ren),
@@ -1412,13 +1464,12 @@ namespace vtkvolume
     }
 
   //--------------------------------------------------------------------------
-  std::string PickingDeclaration(vtkRenderer* vtkNotUsed(ren),
-                                   vtkVolumeMapper* vtkNotUsed(mapper),
-                                   vtkVolume* vtkNotUsed(vol))
-    {
-    return std::string("\
-    \n  uniform vec3 in_propId;");
-    };
+  std::string PickingActorPassDeclaration(vtkRenderer* vtkNotUsed(ren),
+    vtkVolumeMapper* vtkNotUsed(mapper), vtkVolume* vtkNotUsed(vol))
+  {
+  return std::string("\
+  \n  uniform vec3 in_propId;");
+  };
 
   //--------------------------------------------------------------------------
   std::string TerminationInit(vtkRenderer* vtkNotUsed(ren),

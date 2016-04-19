@@ -1957,16 +1957,18 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetClippingPlanes(
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::CheckPickingState(vtkRenderer* ren)
 {
   vtkHardwareSelector* selector = ren->GetSelector();
-  this->IsPicking = (selector != NULL) || ren->GetRenderWindow()->GetIsPicking();
+  bool selectorPicking = selector != NULL;
+  if (selector)
+    {
+    // this mapper currently only supports cell picking
+    selectorPicking &= selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_CELLS;
+    }
 
+  this->IsPicking = selectorPicking || ren->GetRenderWindow()->GetIsPicking();
   if (this->IsPicking)
     {
-    // rebuild shader only in the first pass
-    if (this->CurrentSelectionPass == vtkHardwareSelector::MIN_KNOWN_PASS - 1)
-      {
-      this->SelectionStateTime.Modified();
-      }
-
+    // rebuild the shader on every pass
+    this->SelectionStateTime.Modified();
     this->CurrentSelectionPass = selector ? selector->GetCurrentPass() : vtkHardwareSelector::ACTOR_PASS;
     }
   else if (this->CurrentSelectionPass != vtkHardwareSelector::MIN_KNOWN_PASS - 1)
@@ -1981,7 +1983,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::CheckPickingState(vtkRenderer
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::BeginPicking(vtkRenderer* ren)
 {
   vtkHardwareSelector* selector = ren->GetSelector();
-  if (selector)
+  if (selector && this->IsPicking)
     {
     selector->BeginRenderProp();
 
@@ -1999,13 +2001,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetPickingId
   float propIdColor[3] = {0.0, 0.0, 0.0};
   vtkHardwareSelector* selector = ren->GetSelector();
 
-  if (selector)
+  if (selector && this->IsPicking)
     {
     // query the selector for the appropriate id
-    if (this->CurrentSelectionPass <= vtkHardwareSelector::MAX_KNOWN_PASS)
-      {
-      selector->GetPropColorValue(propIdColor);
-      }
+    selector->GetPropColorValue(propIdColor);
     }
   else // RenderWindow is picking
     {
@@ -2020,8 +2019,15 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetPickingId
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::EndPicking(vtkRenderer* ren)
 {
   vtkHardwareSelector* selector = ren->GetSelector();
-  if(selector)
+  if(selector && this->IsPicking)
     {
+    if (this->CurrentSelectionPass >= vtkHardwareSelector::ID_LOW24)
+      {
+      // tell the selector the maximum number of cells that the mapper could render
+      unsigned int const numVoxels = (this->Extents[1] - this->Extents[0]) *
+        (this->Extents[3] - this->Extents[2]) * (this->Extents[5] - this->Extents[4]);
+      selector->RenderAttributeId(numVoxels);
+      }
     selector->EndRenderProp();
     }
 }
@@ -2908,11 +2914,24 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
   //--------------------------------------------------------------------------
   if (this->Impl->CurrentSelectionPass != (vtkHardwareSelector::MIN_KNOWN_PASS - 1))
     {
-    fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Picking::Dec",
-      vtkvolume::PickingDeclaration(ren, this, vol), true);
+    switch(this->Impl->CurrentSelectionPass)
+    {
+    case vtkHardwareSelector::ID_LOW24:
+      fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Picking::Exit",
+        vtkvolume::PickingIdLow24PassExit(ren, this, vol), true);
+      break;
+    case vtkHardwareSelector::ID_MID24:
+      fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Picking::Exit",
+        vtkvolume::PickingIdMid24PassExit(ren, this, vol), true);
+      break;
+    default: // ACTOR_PASS, PROCESS_PASS
+      fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Picking::Dec",
+        vtkvolume::PickingActorPassDeclaration(ren, this, vol), true);
 
-    fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Picking::Exit",
-      vtkvolume::PickingExit(ren, this, vol), true);
+      fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Picking::Exit",
+        vtkvolume::PickingActorPassExit(ren, this, vol), true);
+      break;
+    }
     }
 
   // Render to texture
@@ -3623,7 +3642,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
 
   // Bind the prop Id
   //--------------------------------------------------------------------------
-  if (this->Impl->IsPicking)
+  if (this->Impl->CurrentSelectionPass < vtkHardwareSelector::ID_LOW24)
     {
     this->Impl->SetPickingId(ren);
     }
