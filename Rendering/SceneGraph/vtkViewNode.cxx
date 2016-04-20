@@ -129,15 +129,18 @@ void vtkViewNode::AddMissingNodes(vtkCollection *col)
   while (!rit->IsDoneWithTraversal())
     {
     vtkObject *obj = rit->GetCurrentObject();
-    this->PreparedNodes->AddItem(obj);
-    if (!nodes->IsRenderablePresent(obj))
+    if (obj)
       {
-      vtkViewNode *node = this->CreateViewNode(obj);
-      if (node)
+      this->PreparedNodes->AddItem(obj);
+      if (!nodes->IsRenderablePresent(obj))
         {
-        nodes->AddItem(node);
-        node->SetParent(this);
-        node->Delete();
+        vtkViewNode *node = this->CreateViewNode(obj);
+        if (node)
+          {
+          nodes->AddItem(node);
+          node->SetParent(this);
+          node->Delete();
+          }
         }
       }
     rit->GoToNextItem();
@@ -148,6 +151,11 @@ void vtkViewNode::AddMissingNodes(vtkCollection *col)
 //----------------------------------------------------------------------------
 void vtkViewNode::AddMissingNode(vtkObject *obj)
 {
+  if (!obj)
+    {
+    return;
+    }
+
   //add viewnodes for renderables that are not yet present
   vtkViewNodeCollection *nodes = this->GetChildren();
   this->PreparedNodes->AddItem(obj);
