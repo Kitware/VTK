@@ -326,6 +326,8 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     OSPFrameBuffer osp_framebuffer = ospNewFrameBuffer
       (isize,
        OSP_RGBA_I8, OSP_FB_COLOR | OSP_FB_DEPTH | OSP_FB_ACCUM);
+    ospSet1f(osp_framebuffer, "gamma", 1.0f);
+    ospCommit(osp_framebuffer);
     ospFrameBufferClear(osp_framebuffer, OSP_FB_COLOR|OSP_FB_DEPTH|OSP_FB_ACCUM);
     for (int i = 0; i < this->GetMaxFrames(static_cast<vtkRenderer*>(this->Renderable)); i++)
       {
