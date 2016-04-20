@@ -6,8 +6,8 @@
 
 # If the environement var WikiExamplesTag exists, use it
 if (NOT DEFINED ENV{WikiExamplesTag})
-  # February 29, 2016
-  set(GIT_TAG ab816c494f60b7e94c992e9e5dabcadd28227dc1)
+  # April 19, 2016
+  set(GIT_TAG 533e7047fc8bbec29cfe82686cd66eec9b94ba0c)
 else()
   set(GIT_TAG $ENV{WikiExamplesTag})
 endif()
@@ -15,7 +15,5 @@ endif()
 vtk_fetch_module(WikiExamples
   "A collection of examples that illustrate how to use VTK."
   GIT_REPOSITORY https://github.com/lorensen/VTKWikiExamples.git
-  # February 14, 2016
-  # New baselines
   GIT_TAG ${GIT_TAG}
   )
