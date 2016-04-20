@@ -146,6 +146,15 @@ unsigned long vtkOSPRayActorNode::GetMTime()
       {
       mtime = mapper->GetInformation()->GetMTime();
       }
+    vtkPiecewiseFunction *pwf = vtkPiecewiseFunction::SafeDownCast
+      (mapper->GetInformation()->Get(vtkOSPRayActorNode::SCALE_FUNCTION()));
+    if (pwf)
+      {
+      if (pwf->GetMTime() > mtime)
+        {
+        mtime = pwf->GetMTime();
+        }
+      }
     dobj = mapper->GetInputDataObject(0, 0);
     poly = vtkPolyData::SafeDownCast(dobj);
     }
