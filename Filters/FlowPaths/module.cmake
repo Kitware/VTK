@@ -15,6 +15,7 @@ vtk_module(vtkFiltersFlowPaths
     vtkCommonMath
   PRIVATE_DEPENDS
     vtkFiltersCore
+    vtkFiltersGeometry
     vtkFiltersSources
     vtkIOCore
   )

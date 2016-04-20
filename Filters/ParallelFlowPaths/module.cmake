@@ -18,6 +18,7 @@ vtk_module(vtkFiltersParallelFlowPaths
     vtkCommonSystem
     vtkFiltersAMR
     vtkFiltersCore
+    vtkFiltersGeneral
     vtkIOCore
     vtkParallelCore
     vtkParallelMPI
