@@ -2415,21 +2415,6 @@ vtkTextureObject* vtkOpenGLGPUVolumeRayCastMapper::GetColorTexture()
 //----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::GetDepthImage(vtkImageData* output)
 {
-#if 0
-      vtkNew<vtkImageData> imageData;
-      this->Impl->ConvertTextureToImageData(
-        this->Impl->RTTDepthTextureObject, imageData.GetPointer());
-      vtkNew<vtkTIFFWriter> pngWriter;
-      pngWriter->SetInputData(imageData.GetPointer());
-      std::stringstream ss;
-      std::stringstream ss2;
-      static int kkk = 0;
-      ss << this;
-      ss2 << kkk++;
-      pngWriter->SetFileName((std::string("renderpass_depth") + ss.str()  + ss2.str() + ".tiff").c_str());
-      pngWriter->Write();
-#endif
-
   return this->Impl->ConvertTextureToImageData(
     this->Impl->RTTDepthTextureObject, output);
 }
@@ -2437,20 +2422,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GetDepthImage(vtkImageData* output)
 //----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::GetColorImage(vtkImageData* output)
 {
-#if 0
-      vtkNew<vtkImageData> imageData;
-      this->Impl->ConvertTextureToImageData(
-        this->Impl->RTTColorTextureObject, imageData.GetPointer());
-      vtkNew<vtkTIFFWriter> pngWriter;
-      pngWriter->SetInputData(imageData.GetPointer());
-      std::stringstream ss;
-      std::stringstream ss2;
-      static int kkk = 0;
-      ss << this;
-      ss2 << kkk++;
-      pngWriter->SetFileName((std::string("renderpass_color") + ss.str()  + ss2.str() + ".tiff").c_str());
-      pngWriter->Write();
-#endif
   return this->Impl->ConvertTextureToImageData(
     this->Impl->RTTColorTextureObject, output);
 }
