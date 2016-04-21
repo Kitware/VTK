@@ -263,8 +263,8 @@ void vtkMINCImageAttributes::AddDimension(const char *dimension,
                                           vtkIdType length)
 {
   // Check for duplicates
-  int n = this->DimensionNames->GetNumberOfValues();
-  for (int i = 0; i < n; i++)
+  vtkIdType n = this->DimensionNames->GetNumberOfValues();
+  for (vtkIdType i = 0; i < n; i++)
     {
     if (strcmp(dimension, this->DimensionNames->GetValue(i)) == 0)
       {
@@ -308,8 +308,8 @@ const char *vtkMINCImageAttributes::ConvertDataArrayToString(
 
   std::ostringstream os;
 
-  int n = array->GetNumberOfTuples();
-  int i = 0;
+  vtkIdType n = array->GetNumberOfTuples();
+  vtkIdType i = 0;
   for (i = 0; i < n; i++)
     {
     double val = array->GetComponent(i, 0);
@@ -421,12 +421,12 @@ void vtkMINCImageAttributes::PrintFileHeader(ostream &os)
   os << "netcdf " << name << " {\n";
   os << "dimensions:\n";
 
-  int ndim = 0;
+  vtkIdType ndim = 0;
   if (this->DimensionNames)
     {
     ndim = this->DimensionNames->GetNumberOfValues();
     }
-  for (int idim = 0; idim < ndim; idim++)
+  for (vtkIdType idim = 0; idim < ndim; idim++)
     {
     os << "\t" << this->DimensionNames->GetValue(idim) << " = "
        << this->DimensionLengths->GetValue(idim) << " ;\n";
@@ -434,8 +434,8 @@ void vtkMINCImageAttributes::PrintFileHeader(ostream &os)
 
   os << "variables:\n";
 
-  int nvar = 0;
-  int ivar = 0;
+  vtkIdType nvar = 0;
+  vtkIdType ivar = 0;
   if (this->VariableNames)
     {
     nvar = this->VariableNames->GetNumberOfValues();
@@ -455,7 +455,7 @@ void vtkMINCImageAttributes::PrintFileHeader(ostream &os)
           strcmp(varname, MIimagemin) == 0)
         {
         os << "\t" << imageDataType << " " << varname;
-        int nvardim = this->DimensionNames->GetNumberOfValues();
+        vtkIdType nvardim = this->DimensionNames->GetNumberOfValues();
         // If this is image-min or image-max, only print the
         // dimensions for these variables
         if (varname[5] == '-')
@@ -490,8 +490,8 @@ void vtkMINCImageAttributes::PrintFileHeader(ostream &os)
       this->AttributeNames->GetStringArray(varname);
     if (attArray)
       {
-      int natt = attArray->GetNumberOfValues();
-      for (int iatt = 0; iatt < natt; iatt++)
+      vtkIdType natt = attArray->GetNumberOfValues();
+      for (vtkIdType iatt = 0; iatt < natt; iatt++)
         {
         const char *attname = attArray->GetValue(iatt);
         vtkDataArray *array =
@@ -816,8 +816,8 @@ void vtkMINCImageAttributes::SetAttributeValueAsArray(
   this->AttributeValues->AddArray(array);
 
   // Add to variable to VariableNames
-  int n = this->VariableNames->GetNumberOfValues();
-  int i = 0;
+  vtkIdType n = this->VariableNames->GetNumberOfValues();
+  vtkIdType i = 0;
   for (i = 0; i < n; i++)
     {
     if (strcmp(this->VariableNames->GetValue(i), variable) == 0)
@@ -1409,8 +1409,8 @@ void vtkMINCImageAttributes::FindValidRange(double range[2])
     if (this->DataType == VTK_FLOAT)
       {
       // use float precision if VTK_FLOAT
-      range[0] = (float)range[0];
-      range[1] = (float)range[1];
+      range[0] = static_cast<float>(range[0]);
+      range[1] = static_cast<float>(range[1]);
       }
     }
   else
@@ -1515,8 +1515,8 @@ void vtkMINCImageAttributes::ShallowCopy(vtkMINCImageAttributes *source)
   this->AttributeNames->Clear();
 
   vtkStringArray *varnames = source->GetVariableNames();
-  int nvar = varnames->GetNumberOfValues();
-  for (int ivar = 0; ivar <= nvar; ivar++)
+  vtkIdType nvar = varnames->GetNumberOfValues();
+  for (vtkIdType ivar = 0; ivar <= nvar; ivar++)
     {
     // set varname to emtpy last time around to get global attributes
     const char *varname = MI_EMPTY_STRING;
@@ -1525,8 +1525,8 @@ void vtkMINCImageAttributes::ShallowCopy(vtkMINCImageAttributes *source)
       varname = varnames->GetValue(ivar);
       }
     vtkStringArray *attnames = source->GetAttributeNames(varname);
-    int natt = attnames->GetNumberOfValues();
-    for (int iatt = 0; iatt < natt; iatt++)
+    vtkIdType natt = attnames->GetNumberOfValues();
+    for (vtkIdType iatt = 0; iatt < natt; iatt++)
       {
       const char *attname = attnames->GetValue(iatt);
       this->SetAttributeValueAsArray(
@@ -1539,4 +1539,3 @@ void vtkMINCImageAttributes::ShallowCopy(vtkMINCImageAttributes *source)
     this->StringStore->Reset();
     }
 }
-

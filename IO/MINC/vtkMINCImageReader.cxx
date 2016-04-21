@@ -379,10 +379,7 @@ int vtkMINCImageReader::ReadMINCFileAttributes()
   this->DirectionCosines->Identity();
 
   // Orientation set tells us which direction cosines were found
-  int orientationSet[3];
-  orientationSet[0] = 0;
-  orientationSet[1] = 0;
-  orientationSet[2] = 0;
+  int orientationSet[3] = {0, 0, 0};
 
   this->ImageAttributes->Reset();
 
@@ -835,16 +832,11 @@ void vtkMINCImageReader::ExecuteInformation()
     }
 
   // Set the VTK information from the MINC information.
-  int dataExtent[6];
-  dataExtent[0] = dataExtent[1] = 0;
-  dataExtent[2] = dataExtent[3] = 0;
-  dataExtent[4] = dataExtent[5] = 0;
+  int dataExtent[6] = {0, 0, 0, 0, 0, 0};
 
-  double dataSpacing[3];
-  dataSpacing[0] = dataSpacing[1] = dataSpacing[2] = 1.0;
+  double dataSpacing[3] = {1.0, 1.0, 1.0};
 
-  double dataOrigin[3];
-  dataOrigin[0] = dataOrigin[1] = dataOrigin[2] = 0.0;
+  double dataOrigin[3] = {0.0, 0.0, 0.0};
 
   int numberOfComponents = 1;
 
@@ -895,8 +887,8 @@ void vtkMINCImageReader::ExecuteInformation()
   vtkIdTypeArray *dimensionLengths =
     this->ImageAttributes->GetDimensionLengths();
 
-  int numberOfDimensions = dimensionNames->GetNumberOfValues();
-  for (int i = 0; i < numberOfDimensions; i++)
+  unsigned int numberOfDimensions = dimensionNames->GetNumberOfValues();
+  for (unsigned int i = 0; i < numberOfDimensions; i++)
     {
     const char *dimName = dimensionNames->GetValue(i);
     vtkIdType dimLength = dimensionLengths->GetValue(i);
