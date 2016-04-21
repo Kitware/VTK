@@ -703,7 +703,7 @@ int vtkMINCImageReader::ReadMINCFileAttributes()
   // Get the name from the file name by removing the path and
   // the extension.
   const char *fileName = this->FileName;
-  char name[128];
+  char name[4096];
   name[0] = '\0';
   int startChar = 0;
   int endChar = static_cast<int>(strlen(fileName));
