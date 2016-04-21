@@ -87,6 +87,10 @@ POSSIBILITY OF SUCH DAMAGES.
 #include <vector>
 #include <map>
 
+#if defined(_MSC_VER) && (_MSC_VER < 1900)
+#define snprintf _snprintf
+#endif
+
 #define VTK_MINC_MAX_DIMS 8
 
 //--------------------------------------------------------------------------
@@ -437,7 +441,7 @@ std::string vtkMINCImageWriterCreateIdentString()
 #else
   int processId = getpid();
 #endif
-  sprintf(buf, "%i%s%i", processId, itemsep, identx++);
+  snprintf(buf, 1024, "%i%s%i", processId, itemsep, identx++);
   ident.append(buf);
 
   return ident;

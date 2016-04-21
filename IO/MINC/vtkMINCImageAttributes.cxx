@@ -71,6 +71,10 @@ POSSIBILITY OF SUCH DAMAGES.
 #include <map>
 #include <sstream>
 
+#if defined(_MSC_VER) && (_MSC_VER < 1900)
+#define snprintf _snprintf
+#endif
+
 //-------------------------------------------------------------------------
 // A container for mapping attribute names to arrays
 class vtkMINCImageAttributeMap
@@ -315,11 +319,11 @@ const char *vtkMINCImageAttributes::ConvertDataArrayToString(
       char storage[128];
       if (dataType == VTK_DOUBLE)
         {
-        sprintf(storage, "%0.15g", val);
+        snprintf(storage, 128, "%0.15g", val);
         }
       else
         {
-        sprintf(storage, "%0.7g", val);
+        snprintf(storage, 128, "%0.7g", val);
         }
       // Add a decimal if there isn't one, to distinguish from int
       for (char *cp = storage; *cp != '.'; cp++)
@@ -869,11 +873,13 @@ void vtkMINCImageAttributes::SetAttributeValueAsString(
   const char *attribute,
   const char *value)
 {
-  size_t length = strlen(value)+1;
+  size_t length = strlen(value);
 
   vtkCharArray *array = vtkCharArray::New();
-  array->SetNumberOfValues(length);
-  strcpy(array->GetPointer(0), value);
+  array->SetNumberOfValues(length+1);
+  char *dest = array->GetPointer(0);
+  strncpy(dest, value, length);
+  dest[length] = '\0';
 
   this->SetAttributeValueAsArray(variable, attribute, array);
 

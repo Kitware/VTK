@@ -189,7 +189,8 @@ int vtkMNITagPointReader::ReadLineAfterComments(
       {
       delete [] this->Comments;
       this->Comments = new char[comments.length() + 1];
-      strcpy(this->Comments, comments.c_str());
+      strncpy(this->Comments, comments.c_str(), comments.length());
+      this->Comments[comments.length()] = '\0';
 
       return 1;
       }
