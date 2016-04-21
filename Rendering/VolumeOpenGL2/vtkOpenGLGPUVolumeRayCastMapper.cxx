@@ -2169,7 +2169,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupRenderToTexture(
         ren->GetRenderWindow()));
       this->RTTDepthTextureObject->Create2D(this->WindowSize[0],
                                             this->WindowSize[1], 1,
-                                            VTK_UNSIGNED_CHAR, false);
+                                            VTK_FLOAT, false);
       this->RTTDepthTextureObject->Activate();
       this->RTTDepthTextureObject->SetMinificationFilter(
         vtkTextureObject::Nearest);
