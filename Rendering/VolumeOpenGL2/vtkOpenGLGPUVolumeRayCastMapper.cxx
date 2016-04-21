@@ -2075,42 +2075,33 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
   int tt = texture->GetVTKDataType();
 
   vtkPixelExtent texExt(0U, tw-1U, 0U, th-1U);
-  vtkPixelExtent subExt(texExt);
-
-  vtkUnsignedCharArray* ta = vtkUnsignedCharArray::New();
-  ta->SetNumberOfComponents(tnc);
-  ta->SetNumberOfTuples(subExt.Size());
-  ta->SetName("tex");
-  unsigned char *pTa = ta->GetPointer(0);
-
-  vtkPixelBufferObject *pbo = texture->Download();
-
-  vtkPixelTransfer::Blit(texExt,
-                         subExt,
-                         subExt,
-                         subExt,
-                         tnc,
-                         tt,
-                         pbo->MapPackedBuffer(),
-                         tnc,
-                         VTK_UNSIGNED_CHAR,
-                         pTa);
-
-  pbo->UnmapPackedBuffer();
-  pbo->Delete();
 
   int dataExt[6]={0,0, 0,0, 0,0};
-  texExt.CellToNode();
   texExt.GetData(dataExt);
 
   double dataOrigin[6] = {0, 0, 0, 0, 0, 0};
 
   vtkImageData *id = vtkImageData::New();
-  id->SetExtent(dataExt);
   id->SetOrigin(dataOrigin);
   id->SetDimensions(tw, th, 1);
-  id->GetPointData()->SetScalars(ta);
-  ta->Delete();
+  id->SetExtent(dataExt);
+  id->AllocateScalars(tt, tnc);
+
+  vtkPixelBufferObject *pbo = texture->Download();
+
+  vtkPixelTransfer::Blit(texExt,
+                         texExt,
+                         texExt,
+                         texExt,
+                         tnc,
+                         tt,
+                         pbo->MapPackedBuffer(),
+                         tnc,
+                         tt,
+                         id->GetScalarPointer(0, 0, 0));
+
+  pbo->UnmapPackedBuffer();
+  pbo->Delete();
 
   if (!output)
     {
@@ -2428,14 +2419,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::GetDepthImage(vtkImageData* output)
       vtkNew<vtkImageData> imageData;
       this->Impl->ConvertTextureToImageData(
         this->Impl->RTTDepthTextureObject, imageData.GetPointer());
-      vtkNew<vtkPNGWriter> pngWriter;
+      vtkNew<vtkTIFFWriter> pngWriter;
       pngWriter->SetInputData(imageData.GetPointer());
       std::stringstream ss;
       std::stringstream ss2;
       static int kkk = 0;
       ss << this;
       ss2 << kkk++;
-      pngWriter->SetFileName((std::string("renderpass_depth") + ss.str()  + ss2.str() + ".png").c_str());
+      pngWriter->SetFileName((std::string("renderpass_depth") + ss.str()  + ss2.str() + ".tiff").c_str());
       pngWriter->Write();
 #endif
 
@@ -2446,6 +2437,20 @@ void vtkOpenGLGPUVolumeRayCastMapper::GetDepthImage(vtkImageData* output)
 //----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::GetColorImage(vtkImageData* output)
 {
+#if 0
+      vtkNew<vtkImageData> imageData;
+      this->Impl->ConvertTextureToImageData(
+        this->Impl->RTTColorTextureObject, imageData.GetPointer());
+      vtkNew<vtkTIFFWriter> pngWriter;
+      pngWriter->SetInputData(imageData.GetPointer());
+      std::stringstream ss;
+      std::stringstream ss2;
+      static int kkk = 0;
+      ss << this;
+      ss2 << kkk++;
+      pngWriter->SetFileName((std::string("renderpass_color") + ss.str()  + ss2.str() + ".tiff").c_str());
+      pngWriter->Write();
+#endif
   return this->Impl->ConvertTextureToImageData(
     this->Impl->RTTColorTextureObject, output);
 }
