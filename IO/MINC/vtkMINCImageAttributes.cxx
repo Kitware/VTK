@@ -298,12 +298,19 @@ void vtkMINCImageAttributes::AddDimension(const char *dimension,
 const char *vtkMINCImageAttributes::ConvertDataArrayToString(
   vtkDataArray *array)
 {
+  const char *result = 0;
+
   int dataType = array->GetDataType();
 
   if (dataType == VTK_CHAR)
     {
     vtkCharArray *charArray = vtkCharArray::SafeDownCast(array);
-    return charArray->GetPointer(0);
+    result = charArray->GetPointer(0);
+    if (!result)
+      {
+      result = "";
+      }
+    return result;
     }
 
   std::ostringstream os;
@@ -349,7 +356,6 @@ const char *vtkMINCImageAttributes::ConvertDataArrayToString(
 
     // Store the string
     std::string str = os.str();
-    const char *result = 0;
 
     if (this->StringStore == 0)
       {
@@ -698,7 +704,7 @@ const char *vtkMINCImageAttributes::GetAttributeValueAsString(
     return 0;
     }
 
-  // Convert any other array to a a string.
+  // Convert any other array to a string.
   return this->ConvertDataArrayToString(array);
 }
 
@@ -719,12 +725,15 @@ int vtkMINCImageAttributes::GetAttributeValueAsInt(
   if (array->GetDataType() == VTK_CHAR)
     {
     char *text = vtkCharArray::SafeDownCast(array)->GetPointer(0);
-    char *endp = text;
-    long result = strtol(text, &endp, 10);
-    // Check for complete conversion
-    if (*endp == '\0' && *text != '\0')
+    if (text)
       {
-      return static_cast<int>(result);
+      char *endp = text;
+      long result = strtol(text, &endp, 10);
+      // Check for complete conversion
+      if (*endp == '\0' && *text != '\0')
+        {
+        return static_cast<int>(result);
+        }
       }
     }
   else if (array->GetNumberOfTuples() == 1)
@@ -768,12 +777,15 @@ double vtkMINCImageAttributes::GetAttributeValueAsDouble(
   if (array->GetDataType() == VTK_CHAR)
     {
     char *text = vtkCharArray::SafeDownCast(array)->GetPointer(0);
-    char *endp = text;
-    double result = strtod(text, &endp);
-    // Check for complete conversion
-    if (*endp == '\0' && *text != '\0')
+    if (text)
       {
-      return result;
+      char *endp = text;
+      double result = strtod(text, &endp);
+      // Check for complete conversion
+      if (*endp == '\0' && *text != '\0')
+        {
+        return result;
+        }
       }
     }
   else if (array->GetNumberOfTuples() == 1)
