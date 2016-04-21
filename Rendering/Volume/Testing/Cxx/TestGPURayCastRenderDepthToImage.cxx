@@ -22,15 +22,16 @@
 #include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkImageActor.h"
 #include "vtkImageData.h"
+#include "vtkImageMapToColors.h"
 #include "vtkImageMapper3D.h"
+#include "vtkLookupTable.h"
 #include "vtkNew.h"
 #include "vtkOpenGLGPUVolumeRayCastMapper.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkRegressionTestImage.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkTesting.h"
+#include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 #include "vtkVolume16Reader.h"
 #include "vtkVolumeProperty.h"
@@ -105,8 +106,22 @@ int TestGPURayCastRenderDepthToImage(int argc, char *argv[])
   // Get depth texture as image
   volumeMapper->GetDepthImage(im.GetPointer());
 
+  // Create a grayscale lookup table
+  vtkNew<vtkLookupTable> lut;
+  lut->SetRange(im->GetScalarRange());
+  lut->SetValueRange(0.0, 1.0);
+  lut->SetSaturationRange(0.0, 0.0);
+  lut->SetRampToLinear();
+  lut->Build();
+
+  // Map the pixel values of the image with the lookup table
+  vtkNew<vtkImageMapToColors> imageMap;
+  imageMap->SetInputData(im.GetPointer());
+  imageMap->SetLookupTable(lut.GetPointer());
+
+  // Render the image in the scene
   vtkNew<vtkImageActor> ia;
-  ia->GetMapper()->SetInputData(im.GetPointer());
+  ia->GetMapper()->SetInputConnection(imageMap->GetOutputPort());
   ren->AddActor(ia.GetPointer());
   ren->RemoveVolume(volume.GetPointer());
   ren->GetActiveCamera()->SetPosition(0, 0, -1);
