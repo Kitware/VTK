@@ -778,15 +778,31 @@ void vtkDualDepthPeelingPass::BlendBackBuffer()
 //------------------------------------------------------------------------------
 void vtkDualDepthPeelingPass::StartOcclusionQuery()
 {
+  // ES 3.0 only supports checking if *any* samples passed. We'll just use
+  // that query to stop peeling once all frags are processed, and ignore the
+  // requested occlusion ratio.
+#if GL_ES_VERSION_3_0 == 1
+  glBeginQuery(GL_ANY_SAMPLES_PASSED, this->OcclusionQueryId);
+#else // GL ES 3.0
   glBeginQuery(GL_SAMPLES_PASSED, this->OcclusionQueryId);
+#endif // GL ES 3.0
 }
 
 //------------------------------------------------------------------------------
 void vtkDualDepthPeelingPass::EndOcclusionQuery()
 {
+#if GL_ES_VERSION_3_0 == 1
+  glEndQuery(GL_ANY_SAMPLES_PASSED);
+  GLuint anySamplesPassed;
+  glGetQueryObjectuiv(this->OcclusionQueryId, GL_QUERY_RESULT,
+                      &anySamplesPassed);
+  this->WrittenPixels = anySamplesPassed ? this->OcclusionThreshold + 1
+                                         : 0;
+#else // GL ES 3.0
   glEndQuery(GL_SAMPLES_PASSED);
   glGetQueryObjectuiv(this->OcclusionQueryId, GL_QUERY_RESULT,
                       &this->WrittenPixels);
+#endif // GL ES 3.0
 }
 
 //------------------------------------------------------------------------------
