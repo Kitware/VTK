@@ -217,6 +217,19 @@ public:
   vtkBooleanMacro(RenderToImage, int);
 
   // Description:
+  // Enable or disable clamping the depth value of the fully
+  // transparent voxel to the depth of the back-face of the
+  // volume. This parameter is used when RenderToImage mode is
+  // enabled. When ClampDepthToBackFace is false, the fully transparent
+  // voxels will have a value of 1.0 in the depth image. When
+  // this is true, the fully transparent voxels will have the
+  // depth value of the face at which the ray exits the volume.
+  // By default, this is set to 0 (off).
+  vtkSetMacro(ClampDepthToBackface, int);
+  vtkGetMacro(ClampDepthToBackface, int);
+  vtkBooleanMacro(ClampDepthToBackface, int);
+
+  // Description:
   // Low level API to export the depth texture as vtkImageData in
   // RenderToImage mode.
   // Should be implemented by the graphics API specific mapper (GL or other).
@@ -302,6 +315,10 @@ protected:
 
   // Render to texture mode flag
   int RenderToImage;
+
+  // Clamp depth values to the depth of the face at which the ray
+  // exits the volume
+  int ClampDepthToBackface;
 
   // Enable / disable stochasting jittering
   int UseJittering;
