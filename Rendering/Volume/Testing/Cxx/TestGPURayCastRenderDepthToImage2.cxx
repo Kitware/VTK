@@ -43,6 +43,7 @@ int TestGPURayCastRenderDepthToImage2(int argc, char *argv[])
   vtkNew<vtkRTAnalyticSource> waveletSource;
   volumeMapper->SetInputConnection(waveletSource->GetOutputPort());
   volumeMapper->RenderToImageOn();
+  volumeMapper->SetClampDepthToBackface(1);
 
   vtkNew<vtkColorTransferFunction> colorFunction;
   colorFunction->AddRGBPoint(37.35310363769531, 0.231373, 0.298039, 0.752941);

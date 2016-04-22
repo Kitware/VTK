@@ -191,6 +191,7 @@ namespace vtkvolume
       \n// Others\
       \nuniform bool in_cellFlag;\
       \n uniform bool in_useJittering;\
+      \n uniform bool in_clampDepthToBackface;\
       ");
 
     if (hasGradientOpacity || lightingComplexity > 0)
@@ -1946,7 +1947,11 @@ namespace vtkvolume
                                 vtkVolume* vtkNotUsed(vol))
   {
   return std::string("\
-    \n  vec3 l_opaqueFragPos = g_dataPos;\
+    \n  vec3 l_opaqueFragPos = vec3(-1.0);\
+    \n  if(in_clampDepthToBackface)\
+    \n    {\
+    \n    l_opaqueFragPos = g_dataPos;\
+    \n    }\
     \n  bool l_updateDepth = true;"
   );
   }
@@ -1971,13 +1976,20 @@ namespace vtkvolume
                                 vtkVolume* vtkNotUsed(vol))
   {
   return std::string("\
-    \n  vec4 depthValue = in_projectionMatrix * in_modelViewMatrix *\
-    \n                    in_volumeMatrix * in_textureDatasetMatrix *\
-    \n                    vec4(l_opaqueFragPos, 1.0);\
-    \n  depthValue /= depthValue.w;\
-    \n  gl_FragData[1] = vec4(vec3(0.5 * (gl_DepthRange.far -\
-    \n                     gl_DepthRange.near) * depthValue.z + 0.5 *\
-    \n                    (gl_DepthRange.far + gl_DepthRange.near)), 1.0);"
+    \n  if (l_opaqueFragPos == vec3(-1.0))\
+    \n    {\
+    \n    gl_FragData[1] = vec4(1.0);\
+    \n    }\
+    \n  else\
+    \n    {\
+    \n    vec4 depthValue = in_projectionMatrix * in_modelViewMatrix *\
+    \n                      in_volumeMatrix * in_textureDatasetMatrix *\
+    \n                      vec4(l_opaqueFragPos, 1.0);\
+    \n    depthValue /= depthValue.w;\
+    \n    gl_FragData[1] = vec4(vec3(0.5 * (gl_DepthRange.far -\
+    \n                       gl_DepthRange.near) * depthValue.z + 0.5 *\
+    \n                      (gl_DepthRange.far + gl_DepthRange.near)), 1.0);\
+    \n    }"
   );
   }
 

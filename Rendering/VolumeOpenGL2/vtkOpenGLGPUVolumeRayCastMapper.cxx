@@ -3492,6 +3492,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
   prog->SetUniformi("in_useJittering", this->GetUseJittering());
   prog->SetUniformi("in_cellFlag", this->CellFlag);
 
+  prog->SetUniformi("in_clampDepthToBackface", this->GetClampDepthToBackface());
+
   // Bind cropping
   //--------------------------------------------------------------------------
   this->Impl->SetCroppingRegions(ren, prog, vol);
