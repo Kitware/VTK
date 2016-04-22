@@ -108,7 +108,7 @@ int TestGPURayCastRenderDepthToImage(int argc, char *argv[])
 
   // Create a grayscale lookup table
   vtkNew<vtkLookupTable> lut;
-  lut->SetRange(im->GetScalarRange());
+  lut->SetRange(0.0, 1.0);
   lut->SetValueRange(0.0, 1.0);
   lut->SetSaturationRange(0.0, 0.0);
   lut->SetRampToLinear();
