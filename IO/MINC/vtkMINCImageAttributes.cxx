@@ -472,7 +472,6 @@ void vtkMINCImageAttributes::PrintFileHeader(ostream &os)
           strcmp(varname, MIimagemax) == 0 ||
           strcmp(varname, MIimagemin) == 0)
         {
-        os << "\t" << imageDataType << " " << varname;
         vtkIdType nvardim = this->DimensionNames->GetNumberOfValues();
         // If this is image-min or image-max, only print the
         // dimensions for these variables
@@ -482,6 +481,11 @@ void vtkMINCImageAttributes::PrintFileHeader(ostream &os)
             {
             nvardim = this->NumberOfImageMinMaxDimensions;
             }
+          os << "\tdouble " << varname;
+          }
+        else
+          {
+          os << "\t" << imageDataType << " " << varname;
           }
 
         if (nvardim > 0)
