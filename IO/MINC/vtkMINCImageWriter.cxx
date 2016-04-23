@@ -498,11 +498,15 @@ nc_type vtkMINCImageWriterConvertVTKTypeToMINCType(
 }
 
 //-------------------------------------------------------------------------
-// These macro is only for use in WriteMINCFileAttributes
+// These macros are only for use in WriteMINCFileAttributes.
+
+// Note: Until VTK 7.0, this macro added a terminating null byte to all
+// text attributes.  As of VTK 7.1, it does not.  The attribute length
+// should be the string length, not the string length "plus one".
 #define vtkMINCImageWriterPutAttributeTextMacro(name, text) \
   if (status == NC_NOERR) \
     { \
-    status = nc_put_att_text(ncid, varid, name, strlen(text)+1, text); \
+    status = nc_put_att_text(ncid, varid, name, strlen(text), text); \
     }
 
 #define vtkMINCImageWriterPutAttributeDoubleMacro(name, count, ptr) \

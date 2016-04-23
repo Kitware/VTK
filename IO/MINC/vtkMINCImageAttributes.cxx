@@ -298,26 +298,33 @@ void vtkMINCImageAttributes::AddDimension(const char *dimension,
 const char *vtkMINCImageAttributes::ConvertDataArrayToString(
   vtkDataArray *array)
 {
-  const char *result = 0;
+  const char *result = "";
+  vtkIdType n = array->GetNumberOfTuples();
+  if (n == 0)
+    {
+    return result;
+    }
 
   int dataType = array->GetDataType();
-
   if (dataType == VTK_CHAR)
     {
     vtkCharArray *charArray = vtkCharArray::SafeDownCast(array);
-    result = charArray->GetPointer(0);
-    if (!result)
+    if (charArray)
       {
-      result = "";
+      result = charArray->GetPointer(0);
+      // Check to see if string has a terminal null (the null might be
+      // part of the attribute, or stored in the following byte)
+      if ((n > 0 && result[n-1] == '\0') ||
+          (charArray->GetSize() > n && result[n] == '\0'))
+        {
+        return result;
+        }
       }
-    return result;
     }
 
   std::ostringstream os;
 
-  vtkIdType n = array->GetNumberOfTuples();
-  vtkIdType i = 0;
-  for (i = 0; i < n; i++)
+  for (vtkIdType i = 0; i < n; i++)
     {
     double val = array->GetComponent(i, 0);
     if (dataType == VTK_DOUBLE || dataType == VTK_FLOAT)
@@ -344,42 +351,47 @@ const char *vtkMINCImageAttributes::ConvertDataArrayToString(
         }
       os << storage;
       }
+    else if (dataType == VTK_CHAR)
+      {
+      os.put(static_cast<char>(val));
+      }
     else
       {
       os << val;
       }
-    if (i < n-1)
+    if (i < n-1 && dataType != VTK_CHAR)
       {
       os << ", ";
       }
     }
 
-    // Store the string
-    std::string str = os.str();
+  // Store the string
+  std::string str = os.str();
 
-    if (this->StringStore == 0)
-      {
-      this->StringStore = vtkStringArray::New();
-      }
+  if (this->StringStore == 0)
+    {
+    this->StringStore = vtkStringArray::New();
+    }
 
-    // See if the string is already stored
-    n = this->StringStore->GetNumberOfValues();
-    for (i = 0; i < n; i++)
+  // See if the string is already stored
+  vtkIdType m = this->StringStore->GetNumberOfValues();
+  vtkIdType j;
+  for (j = 0; j < m; j++)
+    {
+    result = this->StringStore->GetValue(j);
+    if (strcmp(str.c_str(), result) == 0)
       {
-      result = this->StringStore->GetValue(i);
-      if (strcmp(str.c_str(), result) == 0)
-        {
-        break;
-        }
+      break;
       }
-    // If not, add it to the array.
-    if (i == n)
-      {
-      i = this->StringStore->InsertNextValue(str.c_str());
-      result = this->StringStore->GetValue(i);
-      }
+    }
+  // If not, add it to the array.
+  if (j == m)
+    {
+    j = this->StringStore->InsertNextValue(str.c_str());
+    result = this->StringStore->GetValue(j);
+    }
 
-    return result;
+  return result;
 }
 
 //-------------------------------------------------------------------------
@@ -888,11 +900,11 @@ void vtkMINCImageAttributes::SetAttributeValueAsString(
   size_t length = strlen(value);
 
   vtkCharArray *array = vtkCharArray::New();
-  array->SetNumberOfValues(length+1);
-  char *dest = array->GetPointer(0);
+  // Allocate an extra byte to store a null terminator.
+  array->Resize(length + 1);
+  char *dest = array->WritePointer(0, length);
   strncpy(dest, value, length);
   dest[length] = '\0';
-
   this->SetAttributeValueAsArray(variable, attribute, array);
 
   array->Delete();
