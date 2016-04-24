@@ -58,7 +58,7 @@ public:
 
   // satisfy vtkDataArray API
   int GetDataType() const override { return VTK_BIT; }
-  int GetDataTypeSize() override { return 0; }
+  int GetDataTypeSize() const override { return 0; }
 
   /**
    * Set the number of n-tuples in the array.

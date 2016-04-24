@@ -265,7 +265,7 @@ public:
   virtual void FillValue(ValueType value);
 
   int GetDataType() const override;
-  int GetDataTypeSize() override;
+  int GetDataTypeSize() const override;
   bool HasStandardMemoryLayout() override;
   vtkTypeBool Allocate(vtkIdType size, vtkIdType ext = 1000) override;
   vtkTypeBool Resize(vtkIdType numTuples) override;

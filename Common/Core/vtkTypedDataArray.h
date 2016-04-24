@@ -94,7 +94,7 @@ public:
   /**
    * Return the size of the element type in bytes.
    */
-  int GetDataTypeSize() override;
+  int GetDataTypeSize() const override;
 
   /**
    * Set the tuple value at the ith location in the array.

@@ -47,7 +47,7 @@ public:
   void Initialize() override;
   int GetDataType() const override;
   int GetDataTypeSize() const override;
-  int GetElementComponentSize() override;
+  int GetElementComponentSize() const override;
   void SetNumberOfTuples(vtkIdType number) override;
   void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source) override;
   void InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source) override;

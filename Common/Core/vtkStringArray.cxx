@@ -489,7 +489,7 @@ vtkIdType vtkStringArray::InsertNextValue(vtkStdString f)
 }
 
 // ----------------------------------------------------------------------------
-int vtkStringArray::GetDataTypeSize()
+int vtkStringArray::GetDataTypeSize() const
 {
   return static_cast<int>(sizeof(vtkStdString));
 }

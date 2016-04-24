@@ -248,7 +248,7 @@ int vtkGenericDataArray<DerivedT, ValueTypeT>::GetDataType() const
 
 //-----------------------------------------------------------------------------
 template <class DerivedT, class ValueTypeT>
-int vtkGenericDataArray<DerivedT, ValueTypeT>::GetDataTypeSize()
+int vtkGenericDataArray<DerivedT, ValueTypeT>::GetDataTypeSize() const
 {
   return static_cast<int>(sizeof(ValueType));
 }

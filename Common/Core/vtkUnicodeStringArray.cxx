@@ -65,12 +65,12 @@ int vtkUnicodeStringArray::GetDataType() const
   return VTK_UNICODE_STRING;
 }
 
-int vtkUnicodeStringArray::GetDataTypeSize()
+int vtkUnicodeStringArray::GetDataTypeSize() const
 {
   return 0;
 }
 
-int vtkUnicodeStringArray::GetElementComponentSize()
+int vtkUnicodeStringArray::GetElementComponentSize() const
 {
   return sizeof(vtkUnicodeString::value_type);
 }

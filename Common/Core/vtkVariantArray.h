@@ -91,7 +91,7 @@ public:
    * returned.  For string 0 is returned. Arrays with variable length
    * components return 0.
    */
-  int GetDataTypeSize() override;
+  int GetDataTypeSize() const override;
 
   /**
    * Return the size, in bytes, of the lowest-level element of an
@@ -100,7 +100,7 @@ public:
    * sizeof(vtkStdString::value_type), which winds up being
    * sizeof(char).
    */
-  int GetElementComponentSize() override;
+  int GetElementComponentSize() const override;
 
   /**
    * Set the number of tuples (a component group) in the array. Note that

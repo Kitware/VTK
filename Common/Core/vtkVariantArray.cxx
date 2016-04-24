@@ -165,13 +165,13 @@ int vtkVariantArray::GetDataType() const
 }
 
 //----------------------------------------------------------------------------
-int vtkVariantArray::GetDataTypeSize()
+int vtkVariantArray::GetDataTypeSize() const
 {
   return static_cast<int>(sizeof(vtkVariant));
 }
 
 //----------------------------------------------------------------------------
-int vtkVariantArray::GetElementComponentSize()
+int vtkVariantArray::GetElementComponentSize() const
 {
   return this->GetDataTypeSize();
 }

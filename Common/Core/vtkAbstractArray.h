@@ -105,7 +105,7 @@ public:
    * returned.  For string 0 is returned. Arrays with variable length
    * components return 0.
    */
-  virtual int GetDataTypeSize() = 0;
+  virtual int GetDataTypeSize() const = 0;
   static int GetDataTypeSize(int type);
   //@}
 
@@ -116,7 +116,7 @@ public:
    * sizeof(vtkStdString::value_type), which winds up being
    * sizeof(char).
    */
-  virtual int GetElementComponentSize() = 0;
+  virtual int GetElementComponentSize() const = 0;
 
   //@{
   /**

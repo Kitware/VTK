@@ -107,7 +107,7 @@ int vtkArrayIteratorTemplate<T>::GetDataType() const
 
 //-----------------------------------------------------------------------------
 template <class T>
-int vtkArrayIteratorTemplate<T>::GetDataTypeSize()
+int vtkArrayIteratorTemplate<T>::GetDataTypeSize() const
 {
   return this->Array->GetDataTypeSize();
 }

@@ -73,7 +73,7 @@ public:
    * array.  For vtkDataArray and subclasses this is the size of the
    * data type.
    */
-  int GetElementComponentSize() override { return this->GetDataTypeSize(); }
+  int GetElementComponentSize() const override { return this->GetDataTypeSize(); }
 
   // Reimplemented virtuals (doc strings are inherited from superclass):
   void InsertTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx, vtkAbstractArray* source) override;

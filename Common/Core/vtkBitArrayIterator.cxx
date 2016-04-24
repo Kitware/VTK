@@ -133,7 +133,7 @@ int vtkBitArrayIterator::GetDataType() const
   return 0;
 }
 //-----------------------------------------------------------------------------
-int vtkBitArrayIterator::GetDataTypeSize()
+int vtkBitArrayIterator::GetDataTypeSize() const
 {
   if (this->Array)
   {

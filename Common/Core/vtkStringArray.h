@@ -72,7 +72,7 @@ public:
    * sizeof(std::string) and not take into account the data
    * included in any particular string.
    */
-  int GetDataTypeSize() override;
+  int GetDataTypeSize() const override;
 
   /**
    * Free any unnecessary memory.
@@ -196,7 +196,7 @@ public:
   vtkIdType GetNumberOfValues() { return this->MaxId + 1; }
 
   int GetNumberOfElementComponents() { return 0; }
-  int GetElementComponentSize() override
+  int GetElementComponentSize() const override
   {
     return static_cast<int>(sizeof(vtkStdString::value_type));
   }

@@ -59,7 +59,7 @@ inline int vtkTypedDataArray<Scalar>::GetDataType() const
 
 //------------------------------------------------------------------------------
 template <typename Scalar>
-inline int vtkTypedDataArray<Scalar>::GetDataTypeSize()
+inline int vtkTypedDataArray<Scalar>::GetDataTypeSize() const
 {
   return static_cast<int>(sizeof(Scalar));
 }

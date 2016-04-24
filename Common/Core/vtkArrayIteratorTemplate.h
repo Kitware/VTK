@@ -95,7 +95,7 @@ public:
   /**
    * Get the data type size from the underlying array.
    */
-  int GetDataTypeSize();
+  int GetDataTypeSize() const;
 
   /**
    * This is the data type for the value.
