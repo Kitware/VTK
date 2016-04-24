@@ -60,7 +60,7 @@ void vtkUnicodeStringArray::Initialize()
   this->DataChanged();
 }
 
-int vtkUnicodeStringArray::GetDataType()
+int vtkUnicodeStringArray::GetDataType() const
 {
   return VTK_UNICODE_STRING;
 }

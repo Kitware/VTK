@@ -75,7 +75,7 @@ public:
   /**
    * Get the data type from the underlying array.
    */
-  int GetDataType() override;
+  int GetDataType() const override;
 
   /**
    * Get the data type size from the underlying array.

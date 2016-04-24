@@ -241,7 +241,7 @@ vtkGenericDataArray<DerivedT, ValueTypeT>::WritePointer(vtkIdType id, vtkIdType 
 
 //-----------------------------------------------------------------------------
 template <class DerivedT, class ValueTypeT>
-int vtkGenericDataArray<DerivedT, ValueTypeT>::GetDataType()
+int vtkGenericDataArray<DerivedT, ValueTypeT>::GetDataType() const
 {
   return vtkTypeTraits<ValueType>::VTK_TYPE_ID;
 }

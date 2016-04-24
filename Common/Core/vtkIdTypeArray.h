@@ -52,7 +52,7 @@ public:
   /**
    * Get the data type.
    */
-  int GetDataType() override
+  int GetDataType() const override
   {
     // This needs to overwritten from superclass because
     // the templated superclass is not able to differentiate

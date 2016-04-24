@@ -65,7 +65,7 @@ public:
    * Return the underlying data type. An integer indicating data type is
    * returned as specified in vtkSetGet.h.
    */
-  virtual int GetDataType();
+  virtual int GetDataType() const;
 
   /**
    * Specify the underlying data type of the object.

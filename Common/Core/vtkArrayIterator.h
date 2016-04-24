@@ -65,7 +65,7 @@ public:
    * Get the data type from the underlying array. Returns 0 if
    * no underlying array is present.
    */
-  virtual int GetDataType() = 0;
+  virtual int GetDataType() const = 0;
 
 protected:
   vtkArrayIterator();

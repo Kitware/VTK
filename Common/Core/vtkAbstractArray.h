@@ -97,7 +97,7 @@ public:
    * Return the underlying data type. An integer indicating data type is
    * returned as specified in vtkType.h.
    */
-  virtual int GetDataType() = 0;
+  virtual int GetDataType() const = 0;
 
   //@{
   /**

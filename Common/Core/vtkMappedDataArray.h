@@ -29,7 +29,7 @@
  *
  * @attention
  * Subclasses that hold vtkIdType elements must also
- * reimplement `int GetDataType()` (see Caveat in vtkTypedDataArray).
+ * reimplement `int GetDataType() const` (see Caveat in vtkTypedDataArray).
  */
 
 #ifndef vtkMappedDataArray_h

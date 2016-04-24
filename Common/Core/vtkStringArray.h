@@ -57,7 +57,7 @@ public:
   /**
    * Get the data type.
    */
-  int GetDataType() override { return VTK_STRING; }
+  int GetDataType() const override { return VTK_STRING; }
 
   int IsNumeric() override { return 0; }
 

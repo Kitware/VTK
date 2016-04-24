@@ -159,7 +159,7 @@ void vtkVariantArray::Initialize()
 }
 
 //----------------------------------------------------------------------------
-int vtkVariantArray::GetDataType()
+int vtkVariantArray::GetDataType() const
 {
   return VTK_VARIANT;
 }

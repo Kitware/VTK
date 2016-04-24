@@ -100,7 +100,7 @@ T* vtkArrayIteratorTemplate<T>::GetTuple(vtkIdType id)
 
 //-----------------------------------------------------------------------------
 template <class T>
-int vtkArrayIteratorTemplate<T>::GetDataType()
+int vtkArrayIteratorTemplate<T>::GetDataType() const
 {
   return this->Array->GetDataType();
 }

@@ -89,7 +89,7 @@ public:
   /**
    * Return the VTK data type held by this array.
    */
-  int GetDataType() override;
+  int GetDataType() const override;
 
   /**
    * Return the size of the element type in bytes.

@@ -45,8 +45,8 @@ public:
 
   vtkTypeBool Allocate(vtkIdType sz, vtkIdType ext = 1000) override;
   void Initialize() override;
-  int GetDataType() override;
-  int GetDataTypeSize() override;
+  int GetDataType() const override;
+  int GetDataTypeSize() const override;
   int GetElementComponentSize() override;
   void SetNumberOfTuples(vtkIdType number) override;
   void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source) override;

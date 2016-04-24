@@ -84,7 +84,7 @@ public:
    * Return the underlying data type. An integer indicating data type is
    * returned as specified in vtkSetGet.h.
    */
-  int GetDataType() override;
+  int GetDataType() const override;
 
   /**
    * Return the size of the underlying data type.  For a bit, 1 is

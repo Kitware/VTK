@@ -310,7 +310,7 @@ vtkArrayDownCast_TemplateFastCastMacro(vtkAOSDataArrayTemplate);
 // declarations for these functions such that the wrapper
 // can see them. The wrappers ignore vtkAOSDataArrayTemplate.
 #define vtkCreateWrappedArrayInterface(T)                                                          \
-  int GetDataType() override;                                                                      \
+  int GetDataType() const override;                                                                \
   void GetTypedTuple(vtkIdType i, T* tuple) VTK_EXPECTS(0 <= i && i < GetNumberOfTuples());        \
   void SetTypedTuple(vtkIdType i, const T* tuple) VTK_EXPECTS(0 <= i && i < GetNumberOfTuples());  \
   void InsertTypedTuple(vtkIdType i, const T* tuple) VTK_EXPECTS(0 <= i);                          \

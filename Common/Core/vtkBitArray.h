@@ -57,7 +57,7 @@ public:
   void Initialize() override;
 
   // satisfy vtkDataArray API
-  int GetDataType() override { return VTK_BIT; }
+  int GetDataType() const override { return VTK_BIT; }
   int GetDataTypeSize() override { return 0; }
 
   /**

@@ -137,7 +137,7 @@ void vtkPoints2D::Initialize()
   this->Modified();
 }
 
-int vtkPoints2D::GetDataType()
+int vtkPoints2D::GetDataType() const
 {
   return this->Data->GetDataType();
 }

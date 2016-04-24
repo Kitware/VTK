@@ -52,7 +52,7 @@ public:
   /**
    * Return the type of data.
    */
-  int GetDataType() { return VTK_VOID; }
+  int GetDataType() const { return VTK_VOID; }
 
   /**
    * Return the size of the data contained in the array.
