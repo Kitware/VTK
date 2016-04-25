@@ -255,7 +255,7 @@ int vtkGenericDataArray<DerivedT, ValueTypeT>::GetDataTypeSize() const
 
 //-----------------------------------------------------------------------------
 template <class DerivedT, class ValueTypeT>
-bool vtkGenericDataArray<DerivedT, ValueTypeT>::HasStandardMemoryLayout()
+bool vtkGenericDataArray<DerivedT, ValueTypeT>::HasStandardMemoryLayout() const
 {
   // False by default, AoS should set true.
   return false;

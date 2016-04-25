@@ -265,7 +265,7 @@ public:
 
   int GetArrayType() override { return vtkAbstractArray::AoSDataArrayTemplate; }
   VTK_NEWINSTANCE vtkArrayIterator* NewIterator() override;
-  bool HasStandardMemoryLayout() override { return true; }
+  bool HasStandardMemoryLayout() const override { return true; }
   void ShallowCopy(vtkDataArray* other) override;
 
   // Reimplemented for efficiency:

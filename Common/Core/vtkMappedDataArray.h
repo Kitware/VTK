@@ -119,7 +119,7 @@ public:
   void Modified() override;
 
   // vtkAbstractArray override:
-  bool HasStandardMemoryLayout() override { return false; }
+  bool HasStandardMemoryLayout() const override { return false; }
 
 protected:
   vtkMappedDataArray();

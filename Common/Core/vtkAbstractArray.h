@@ -141,7 +141,7 @@ public:
   /**
    * Returns if any component has had a name assigned
    */
-  bool HasAComponentName();
+  bool HasAComponentName() const;
 
   /**
    * Copies the component names from the inputed array to the current array
@@ -237,7 +237,7 @@ public:
    * {t1c1, t1c2, t1c3, ... t1cM, t2c1, ... tNcM}
    * where t1c2 is the second component of the first tuple.
    */
-  virtual bool HasStandardMemoryLayout();
+  virtual bool HasStandardMemoryLayout() const;
 
   /**
    * Return a void pointer. For image pipeline interface and other

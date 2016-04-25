@@ -150,7 +150,7 @@ const char* vtkAbstractArray::GetComponentName(vtkIdType component)
 }
 
 //----------------------------------------------------------------------------
-bool vtkAbstractArray::HasAComponentName()
+bool vtkAbstractArray::HasAComponentName() const
 {
   return (this->ComponentNames) ? (!this->ComponentNames->empty()) : 0;
 }
@@ -258,7 +258,7 @@ void vtkAbstractArray::GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray* a
 }
 
 //----------------------------------------------------------------------------
-bool vtkAbstractArray::HasStandardMemoryLayout()
+bool vtkAbstractArray::HasStandardMemoryLayout() const
 {
   return true;
 }
