@@ -20,6 +20,7 @@
 #include "vtkDataSet.h"
 #include "vtkPointData.h"
 #include "vtkMath.h"
+#include "vtkMathUtilities.h"
 
 vtkStandardNewMacro(vtkEllipsoidalGaussianKernel);
 
@@ -144,7 +145,7 @@ ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *prob,
     v[2] = x[2] - y[2];
     r2 = vtkMath::Dot(v,v);
 
-    if ( r2 == 0.0 ) //precise hit on existing point
+    if ( vtkMathUtilities::FuzzyCompare(r2, 0.0, std::numeric_limits<double>::epsilon()*256.0 )) //precise hit on existing point
       {
       pIds->SetNumberOfIds(1);
       pIds->SetId(0,id);
@@ -207,15 +208,16 @@ void vtkEllipsoidalGaussianKernel::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Use Normals: "
-     << (this->UseNormals? "On" : " Off") << "\n";
+     << (this->GetUseNormals()? "On" : " Off") << "\n";
   os << indent << "Use Scalars: "
-     << (this->UseScalars? "On" : " Off") << "\n";
+     << (this->GetUseScalars()? "On" : " Off") << "\n";
 
-  os << indent << "Scalars Array Name: " << this->ScalarsArrayName << "\n";
-  os << indent << "Normals Array Name: " << this->NormalsArrayName << "\n";
+  os << indent << "Scalars Array Name: " << this->GetScalarsArrayName() << "\n";
+  os << indent << "Normals Array Name: " << this->GetNormalsArrayName() << "\n";
 
-  os << indent << "Radius: " << this->Radius << endl;
-  os << indent << "Sharpness: " << this->Sharpness << endl;
-  os << indent << "Eccentricity: " << this->Eccentricity << endl;
+  os << indent << "Radius: " << this->GetRadius() << endl;
+  os << indent << "ScaleFactor: " << this->GetScaleFactor() << endl;
+  os << indent << "Sharpness: " << this->GetSharpness() << endl;
+  os << indent << "Eccentricity: " << this->GetEccentricity() << endl;
 
 }

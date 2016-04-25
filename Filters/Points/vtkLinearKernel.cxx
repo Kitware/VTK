@@ -76,5 +76,4 @@ ComputeWeights(double*, vtkIdList *pIds, vtkDoubleArray *prob,
 void vtkLinearKernel::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-
 }

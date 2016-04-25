@@ -70,7 +70,7 @@ class VTKFILTERSPOINTS_EXPORT vtkGeneralizedKernel : public vtkInterpolationKern
 public:
   // Description:
   // Standard methods for type and printing.
-  vtkTypeMacro(vtkGeneralizedKernel,vtkInterpolationKernel);
+  vtkTypeMacro(vtkGeneralizedKernel, vtkInterpolationKernel)
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
