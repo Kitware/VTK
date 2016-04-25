@@ -146,6 +146,7 @@ public:
     this->FBO = 0;
     this->RTTDepthTextureObject = 0;
     this->RTTColorTextureObject = 0;
+    this->RTTDepthTextureType = -1;
 
     this->DPFBO = 0;
     this->DPDepthBufferTextureObject = 0;
@@ -421,6 +422,7 @@ public:
   vtkFrameBufferObject2* FBO;
   vtkTextureObject* RTTDepthTextureObject;
   vtkTextureObject* RTTColorTextureObject;
+  int RTTDepthTextureType;
 
   vtkFrameBufferObject2* DPFBO;
   vtkTextureObject* DPDepthBufferTextureObject;
@@ -2128,16 +2130,30 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupRenderToTexture(
     this->FBO->Bind(GL_FRAMEBUFFER);
     this->FBO->InitializeViewport(this->WindowSize[0], this->WindowSize[1]);
 
-    if (!this->RTTDepthTextureObject ||
-        !this->RTTColorTextureObject)
+    int depthImageScalarType = this->Parent->GetDepthImageScalarType();
+    bool initDepthTexture = true;
+    // Re-instantiate the depth texture object if the scalar type requested has
+    // changed from the last frame
+    if (this->RTTDepthTextureObject &&
+        this->RTTDepthTextureType == depthImageScalarType)
       {
+      initDepthTexture = false;
+      }
+
+    if (initDepthTexture)
+      {
+      if (this->RTTDepthTextureObject)
+        {
+        this->RTTDepthTextureObject->Delete();
+        this->RTTDepthTextureObject = 0;
+        }
       this->RTTDepthTextureObject = vtkTextureObject::New();
       this->RTTDepthTextureObject->SetContext(
         vtkOpenGLRenderWindow::SafeDownCast(
         ren->GetRenderWindow()));
       this->RTTDepthTextureObject->Create2D(this->WindowSize[0],
                                             this->WindowSize[1], 1,
-                                            VTK_FLOAT, false);
+                                            depthImageScalarType, false);
       this->RTTDepthTextureObject->Activate();
       this->RTTDepthTextureObject->SetMinificationFilter(
         vtkTextureObject::Nearest);
@@ -2145,6 +2161,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupRenderToTexture(
         vtkTextureObject::Nearest);
       this->RTTDepthTextureObject->SetAutoParameters(0);
 
+      // Cache the value of the scalar type
+      this->RTTDepthTextureType = depthImageScalarType;
+      }
+
+    if (!this->RTTColorTextureObject)
+      {
       this->RTTColorTextureObject = vtkTextureObject::New();
 
       this->RTTColorTextureObject->SetContext(
