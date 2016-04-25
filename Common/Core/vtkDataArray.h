@@ -506,7 +506,7 @@ public:
   /**
    * Method for type-checking in FastDownCast implementations.
    */
-  int GetArrayType() override { return DataArray; }
+  int GetArrayType() const override { return DataArray; }
 
 protected:
   friend class vtkPoints;

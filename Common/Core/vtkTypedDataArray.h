@@ -149,7 +149,7 @@ public:
   /**
    * Method for type-checking in FastDownCast implementations.
    */
-  int GetArrayType() override { return vtkAbstractArray::TypedDataArray; }
+  int GetArrayType() const override { return vtkAbstractArray::TypedDataArray; }
 
   // Reintroduced as pure virtual since the base vtkGenericDataArray method
   // requires new allocation/resize APIs, though existing MappedDataArrays

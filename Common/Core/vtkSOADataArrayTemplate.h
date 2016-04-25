@@ -202,7 +202,7 @@ public:
   //@}
 #endif
 
-  int GetArrayType() override { return vtkAbstractArray::SoADataArrayTemplate; }
+  int GetArrayType() const override { return vtkAbstractArray::SoADataArrayTemplate; }
   VTK_NEWINSTANCE vtkArrayIterator* NewIterator() override;
   void SetNumberOfComponents(int numComps) override;
   void ShallowCopy(vtkDataArray* other) override;

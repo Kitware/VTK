@@ -263,7 +263,7 @@ public:
   }
   //@}
 
-  int GetArrayType() override { return vtkAbstractArray::AoSDataArrayTemplate; }
+  int GetArrayType() const override { return vtkAbstractArray::AoSDataArrayTemplate; }
   VTK_NEWINSTANCE vtkArrayIterator* NewIterator() override;
   bool HasStandardMemoryLayout() const override { return true; }
   void ShallowCopy(vtkDataArray* other) override;

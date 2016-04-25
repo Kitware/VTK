@@ -125,7 +125,7 @@ protected:
   vtkMappedDataArray();
   ~vtkMappedDataArray() override;
 
-  int GetArrayType() override { return vtkAbstractArray::MappedDataArray; }
+  int GetArrayType() const override { return vtkAbstractArray::MappedDataArray; }
 
 private:
   vtkMappedDataArray(const vtkMappedDataArray&) = delete;

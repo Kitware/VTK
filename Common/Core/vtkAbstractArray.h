@@ -647,7 +647,7 @@ public:
    * Method for type-checking in FastDownCast implementations. See also
    * vtkArrayDownCast.
    */
-  virtual int GetArrayType() { return AbstractArray; }
+  virtual int GetArrayType() const { return AbstractArray; }
 
 protected:
   // Construct object with default tuple dimension (number of components) of 1.
