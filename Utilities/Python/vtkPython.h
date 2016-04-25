@@ -16,6 +16,7 @@
 #define vtkPython_h
 
 #include "vtkPythonConfigure.h"
+#include "vtkConfigure.h"
 #include "vtkABI.h"
 
 /*

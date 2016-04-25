@@ -29,6 +29,7 @@
 #ifndef vtkQtTableModelAdapter_h
 #define vtkQtTableModelAdapter_h
 
+#include "vtkConfigure.h"
 #include "vtkGUISupportQtModule.h" // For export macro
 #include "vtkQtAbstractModelAdapter.h"
 #include <QImage> // Needed for icon support
