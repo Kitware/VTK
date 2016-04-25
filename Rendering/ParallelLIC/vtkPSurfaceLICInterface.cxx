@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkPSurfaceLICMapper.cxx
+  Module:    vtkPSurfaceLICInterface.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkPSurfaceLICMapper.h"
+#include "vtkPSurfaceLICInterface.h"
 
 #include "vtkObjectFactory.h"
 #include "vtkPainterCommunicator.h"
@@ -21,22 +21,22 @@
 #include "vtkParallelTimer.h"
 
 //----------------------------------------------------------------------------
-vtkStandardNewMacro(vtkPSurfaceLICMapper);
+vtkStandardNewMacro(vtkPSurfaceLICInterface);
 
 //----------------------------------------------------------------------------
-vtkPSurfaceLICMapper::vtkPSurfaceLICMapper()
+vtkPSurfaceLICInterface::vtkPSurfaceLICInterface()
 {}
 
 //----------------------------------------------------------------------------
-vtkPSurfaceLICMapper::~vtkPSurfaceLICMapper()
+vtkPSurfaceLICInterface::~vtkPSurfaceLICInterface()
 {
-  #ifdef vtkPSurfaceLICMapperDEBUG
-  cerr << "=====vtkPSurfaceLICMapper::~vtkPSurfaceLICMapper" << endl;
+  #ifdef vtkPSurfaceLICInterfaceDEBUG
+  cerr << "=====vtkPSurfaceLICInterface::~vtkPSurfaceLICInterface" << endl;
   #endif
 }
 
 //----------------------------------------------------------------------------
-bool vtkPSurfaceLICMapper::NeedToUpdateCommunicator()
+bool vtkPSurfaceLICInterface::NeedToUpdateCommunicator()
 {
   // TODO -- with slice widget in PV the input dataset
   // MTime is changing at different rates on different
@@ -70,7 +70,7 @@ bool vtkPSurfaceLICMapper::NeedToUpdateCommunicator()
 }
 
 // ----------------------------------------------------------------------------
-void vtkPSurfaceLICMapper::GetGlobalMinMax(
+void vtkPSurfaceLICInterface::GetGlobalMinMax(
       vtkPainterCommunicator *painterComm,
       float &min,
       float &max)
@@ -102,9 +102,9 @@ void vtkPSurfaceLICMapper::GetGlobalMinMax(
 }
 
 //-----------------------------------------------------------------------------
-void vtkPSurfaceLICMapper::StartTimerEvent(const char *event)
+void vtkPSurfaceLICInterface::StartTimerEvent(const char *event)
 {
-  #if defined(vtkSurfaceLICMapperTIME)
+  #if defined(vtkSurfaceLICInterfaceTIME)
   vtkParallelTimer *log = vtkParallelTimer::GetGlobalInstance();
   log->StartEvent(event);
   #else
@@ -113,9 +113,9 @@ void vtkPSurfaceLICMapper::StartTimerEvent(const char *event)
 }
 
 //-----------------------------------------------------------------------------
-void vtkPSurfaceLICMapper::EndTimerEvent(const char *event)
+void vtkPSurfaceLICInterface::EndTimerEvent(const char *event)
 {
-  #if defined(vtkSurfaceLICMapperTIME)
+  #if defined(vtkSurfaceLICInterfaceTIME)
   vtkParallelTimer *log = vtkParallelTimer::GetGlobalInstance();
   log->EndEvent(event);
   #else
@@ -124,9 +124,9 @@ void vtkPSurfaceLICMapper::EndTimerEvent(const char *event)
 }
 
 //----------------------------------------------------------------------------
-void vtkPSurfaceLICMapper::WriteTimerLog(const char *fileName)
+void vtkPSurfaceLICInterface::WriteTimerLog(const char *fileName)
 {
-  #if defined(vtkSurfaceLICMapperTIME)
+  #if defined(vtkSurfaceLICInterfaceTIME)
   std::string fname = fileName?fileName:"";
   if (fname == this->LogFileName)
     {
@@ -146,7 +146,7 @@ void vtkPSurfaceLICMapper::WriteTimerLog(const char *fileName)
 }
 
 //----------------------------------------------------------------------------
-vtkPainterCommunicator *vtkPSurfaceLICMapper::CreateCommunicator(int include)
+vtkPainterCommunicator *vtkPSurfaceLICInterface::CreateCommunicator(int include)
 {
   // if we're using MPI and it's been initialized then
   // subset VTK's world communicator otherwise run the
@@ -165,7 +165,7 @@ vtkPainterCommunicator *vtkPSurfaceLICMapper::CreateCommunicator(int include)
 }
 
 //----------------------------------------------------------------------------
-void vtkPSurfaceLICMapper::PrintSelf(ostream & os, vtkIndent indent)
+void vtkPSurfaceLICInterface::PrintSelf(ostream & os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "LogFileName=" << this->LogFileName << endl;

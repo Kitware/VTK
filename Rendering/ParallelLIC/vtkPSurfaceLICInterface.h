@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkPSurfaceLICMapper.h
+  Module:    vtkPSurfaceLICInterface.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,38 +12,38 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPSurfaceLICMapper - parallel parts of the vtkSurfaceLICMapper
+// .NAME vtkPSurfaceLICInterface - parallel parts of the vtkSurfaceLICInterface
 //
 // .SECTION Description
-// Parallel parts of the vtkSurfaceLICMapper, see that class for
+// Parallel parts of the vtkSurfaceLICInterface, see that class for
 // documentation.
 
-#ifndef vtkPSurfaceLICMapper_h
-#define vtkPSurfaceLICMapper_h
+#ifndef vtkPSurfaceLICInterface_h
+#define vtkPSurfaceLICInterface_h
 
-#include "vtkSurfaceLICMapper.h"
+#include "vtkSurfaceLICInterface.h"
 #include "vtkRenderingParallelLICModule.h" // For export macro
 #include <string> // for string
 
 class vtkPainterCommunicator;
 
-class VTKRENDERINGPARALLELLIC_EXPORT vtkPSurfaceLICMapper : public vtkSurfaceLICMapper
+class VTKRENDERINGPARALLELLIC_EXPORT vtkPSurfaceLICInterface : public vtkSurfaceLICInterface
 {
 public:
-  static vtkPSurfaceLICMapper* New();
-  vtkTypeMacro(vtkPSurfaceLICMapper, vtkSurfaceLICMapper);
+  static vtkPSurfaceLICInterface* New();
+  vtkTypeMacro(vtkPSurfaceLICInterface, vtkSurfaceLICInterface);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Methods used for parallel benchmarks. Use cmake to define
-  // vtkSurfaceLICMapperTIME to enable benchmarks. During each
+  // vtkSurfaceLICInterfaceTIME to enable benchmarks. During each
   // update timing information is stored, it can be written to
   // disk by calling WriteLog.
   virtual void WriteTimerLog(const char *fileName);
 
 protected:
-  vtkPSurfaceLICMapper();
-  ~vtkPSurfaceLICMapper();
+  vtkPSurfaceLICInterface();
+  ~vtkPSurfaceLICInterface();
 
   //BTX
   // Description:
@@ -70,7 +70,7 @@ protected:
 
   // Description:
   // Methods used for parallel benchmarks. Use cmake to define
-  // vtkSurfaceLICMapperTIME to enable benchmarks. During each
+  // vtkSurfaceLICInterfaceTIME to enable benchmarks. During each
   // update timing information is stored, it can be written to
   // disk by calling WriteLog.
   virtual void StartTimerEvent(const char *name);
@@ -80,8 +80,8 @@ private:
   std::string LogFileName;
 
 private:
-  vtkPSurfaceLICMapper(const vtkPSurfaceLICMapper&); // Not implemented.
-  void operator=(const vtkPSurfaceLICMapper&); // Not implemented.
+  vtkPSurfaceLICInterface(const vtkPSurfaceLICInterface&); // Not implemented.
+  void operator=(const vtkPSurfaceLICInterface&); // Not implemented.
 };
 
 #endif

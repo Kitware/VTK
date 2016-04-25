@@ -475,7 +475,11 @@ void vtkCompositeSurfaceLICMapper::RenderBlock(vtkRenderer *renderer,
         helper = found->second;
         helper->SetInputData(ds);
         }
-      if (ds && ds->GetPoints())
+      // the parallel LIC code must get called
+      // even if the data is empty to initialize the
+      // communicators. Normally we would only call on
+      // cases where we have data
+      // if (ds && ds->GetPoints())
         {
         helper->RenderPiece(renderer,actor);
         }
