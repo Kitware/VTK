@@ -521,11 +521,9 @@ void vtkMINCImageAttributes::PrintFileHeader(ostream &os)
         os << "\t\t" << varname << ":" << attname << " = ";
         if (array->GetDataType() == VTK_CHAR)
           {
-          vtkCharArray *charArray =
-            vtkCharArray::SafeDownCast(array);
           os << "\"";
-          const char *cp = charArray->GetPointer(0);
-          const char *endcp = cp + charArray->GetNumberOfTuples();
+          const char *cp = this->ConvertDataArrayToString(array);
+          const char *endcp = cp + strlen(cp);
           char text[512];
           text[0] = '\0';
           while (cp < endcp)
@@ -740,16 +738,13 @@ int vtkMINCImageAttributes::GetAttributeValueAsInt(
 
   if (array->GetDataType() == VTK_CHAR)
     {
-    char *text = vtkCharArray::SafeDownCast(array)->GetPointer(0);
-    if (text)
+    const char *text = this->ConvertDataArrayToString(array);
+    char *endp = const_cast<char *>(text);
+    long result = strtol(text, &endp, 10);
+    // Check for complete conversion
+    if (*endp == '\0' && *text != '\0')
       {
-      char *endp = text;
-      long result = strtol(text, &endp, 10);
-      // Check for complete conversion
-      if (*endp == '\0' && *text != '\0')
-        {
-        return static_cast<int>(result);
-        }
+      return static_cast<int>(result);
       }
     }
   else if (array->GetNumberOfTuples() == 1)
@@ -792,16 +787,13 @@ double vtkMINCImageAttributes::GetAttributeValueAsDouble(
 
   if (array->GetDataType() == VTK_CHAR)
     {
-    char *text = vtkCharArray::SafeDownCast(array)->GetPointer(0);
-    if (text)
+    const char *text = this->ConvertDataArrayToString(array);
+    char *endp = const_cast<char *>(text);
+    double result = strtod(text, &endp);
+    // Check for complete conversion
+    if (*endp == '\0' && *text != '\0')
       {
-      char *endp = text;
-      double result = strtod(text, &endp);
-      // Check for complete conversion
-      if (*endp == '\0' && *text != '\0')
-        {
-        return result;
-        }
+      return result;
       }
     }
   else if (array->GetNumberOfTuples() == 1)
