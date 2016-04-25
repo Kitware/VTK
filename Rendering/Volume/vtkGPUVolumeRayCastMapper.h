@@ -217,6 +217,15 @@ public:
   vtkBooleanMacro(RenderToImage, int);
 
   // Description:
+  // Set/Get the scalar type of the depth texture in RenderToImage mode.
+  // By default, the type if VTK_FLOAT.
+  vtkSetMacro(DepthImageScalarType, int);
+  vtkGetMacro(DepthImageScalarType, int);
+  void SetDepthImageScalarTypeToUnsignedChar();
+  void SetDepthImageScalarTypeToUnsignedShort();
+  void SetDepthImageScalarTypeToFloat();
+
+  // Description:
   // Enable or disable clamping the depth value of the fully
   // transparent voxel to the depth of the back-face of the
   // volume. This parameter is used when RenderToImage mode is
@@ -315,6 +324,9 @@ protected:
 
   // Render to texture mode flag
   int RenderToImage;
+
+  // Depth image scalar type
+  int DepthImageScalarType;
 
   // Clamp depth values to the depth of the face at which the ray
   // exits the volume
