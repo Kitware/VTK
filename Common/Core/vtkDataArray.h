@@ -66,7 +66,7 @@ public:
    * All vtkDataArray subclasses contain numeric data, hence this method
    * always returns 1(true).
    */
-  int IsNumeric() override { return 1; }
+  int IsNumeric() const override { return 1; }
 
   /**
    * Return the size, in bytes, of the lowest-level element of an

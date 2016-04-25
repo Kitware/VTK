@@ -59,7 +59,7 @@ public:
    */
   int GetDataType() const override { return VTK_STRING; }
 
-  int IsNumeric() override { return 0; }
+  int IsNumeric() const override { return 0; }
 
   /**
    * Release storage and reset array to initial state.

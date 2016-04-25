@@ -409,7 +409,7 @@ public:
    * This method is here to make backward compatibility easier.  It
    * must return true if and only if an array contains numeric data.
    */
-  virtual int IsNumeric() = 0;
+  virtual int IsNumeric() const = 0;
 
   /**
    * Subclasses must override this method and provide the right kind
@@ -545,7 +545,7 @@ public:
    * Inquire if this array has an instance of vtkInformation
    * already associated with it.
    */
-  bool HasInformation() { return this->Information != nullptr; }
+  bool HasInformation() const { return this->Information != nullptr; }
 
   /**
    * Copy information instance. Arrays use information objects

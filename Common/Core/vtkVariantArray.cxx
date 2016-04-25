@@ -605,7 +605,7 @@ unsigned long vtkVariantArray::GetActualMemorySize()
 }
 
 //----------------------------------------------------------------------------
-int vtkVariantArray::IsNumeric()
+int vtkVariantArray::IsNumeric() const
 {
   return 0;
 }

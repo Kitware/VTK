@@ -217,7 +217,7 @@ public:
   /**
    * Since each item can be of a different type, we say that a variant array is not numeric.
    */
-  int IsNumeric() override;
+  int IsNumeric() const override;
 
   /**
    * Subclasses must override this method and provide the right

@@ -323,7 +323,7 @@ unsigned long vtkUnicodeStringArray::GetActualMemorySize()
   return count;
 }
 
-int vtkUnicodeStringArray::IsNumeric()
+int vtkUnicodeStringArray::IsNumeric() const
 {
   return 0;
 }
