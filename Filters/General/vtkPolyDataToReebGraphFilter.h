@@ -57,9 +57,8 @@ protected:
                   vtkInformationVector*);
 
 private:
-  vtkPolyDataToReebGraphFilter(const vtkPolyDataToReebGraphFilter&);
-  // Not implemented.
-  void operator=(const vtkPolyDataToReebGraphFilter&);  // Not implemented.
+  vtkPolyDataToReebGraphFilter(const vtkPolyDataToReebGraphFilter&); // Not implemented.
+  void operator=(const vtkPolyDataToReebGraphFilter&); // Not implemented.
 };
 
 #endif

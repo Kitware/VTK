@@ -156,9 +156,8 @@ public:
   }
 
 private:
-  // Not implemented.
-  ArrayContainerControl(const ArrayContainerControl<ValueType, vtkToDax::vtkPointsContainerTag> &src);
-  void operator=(const ArrayContainerControl<ValueType, vtkToDax::vtkPointsContainerTag> &src);
+  ArrayContainerControl(const ArrayContainerControl<ValueType, vtkToDax::vtkPointsContainerTag> &src); // Not implemented.
+  void operator=(const ArrayContainerControl<ValueType, vtkToDax::vtkPointsContainerTag> &src); // Not implemented.
 
   PointerType Array;
   dax::Id NumberOfValues;
@@ -260,9 +259,8 @@ public:
   }
 
 private:
-  // Not implemented.
-  ArrayContainerControl(const ArrayContainerControl<ValueType, vtkToDax::vtkPointsContainerTag> &src);
-  void operator=(const ArrayContainerControl<ValueType, vtkToDax::vtkPointsContainerTag> &src);
+  ArrayContainerControl(const ArrayContainerControl<ValueType, vtkToDax::vtkPointsContainerTag> &src); // Not implemented.
+  void operator=(const ArrayContainerControl<ValueType, vtkToDax::vtkPointsContainerTag> &src); // Not implemented.
 
   PointerType Array;
   dax::Id NumberOfValues;
@@ -363,9 +361,8 @@ public:
   }
 
 private:
-  // Not implemented.
-  ArrayContainerControl(const ArrayContainerControl<ValueType, vtkToDax::vtkPointsContainerTag> &src);
-  void operator=(const ArrayContainerControl<ValueType, vtkToDax::vtkPointsContainerTag> &src);
+  ArrayContainerControl(const ArrayContainerControl<ValueType, vtkToDax::vtkPointsContainerTag> &src); // Not implemented.
+  void operator=(const ArrayContainerControl<ValueType, vtkToDax::vtkPointsContainerTag> &src); // Not implemented.
 
   PointerType Array;
   dax::Id NumberOfValues;

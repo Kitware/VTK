@@ -92,9 +92,8 @@ protected:
   }
 
 private:
-  // not implemented:
-  vtkTypeTemplate(const vtkTypeTemplate<ThisT, BaseT>&);
-  void operator=(const vtkTypeTemplate<ThisT, BaseT>&);
+  vtkTypeTemplate(const vtkTypeTemplate<ThisT, BaseT>&); // Not implemented.
+  void operator=(const vtkTypeTemplate<ThisT, BaseT>&); // Not implemented.
 
   static const char* GetClassNameInternalCachedName()
   {
