@@ -200,6 +200,11 @@ void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
     {
     this->AppleBugPrimIDBuffer->ReleaseGraphicsResources();
     }
+  if (this->TimerQuery)
+    {
+    glDeleteQueries(1, &this->TimerQuery);
+    this->TimerQuery = 0;
+    }
   this->VBOBuildString = "";
   this->IBOBuildString = "";
   this->Modified();
