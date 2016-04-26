@@ -97,7 +97,7 @@ protected:
 
   void InitializeRender( vtkRenderer *ren, vtkVolume *vol );
 
-  virtual void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
   // Objects / variables  needed for shading / gradient magnitude opacity
   vtkEncodedGradientEstimator  *GradientEstimator;

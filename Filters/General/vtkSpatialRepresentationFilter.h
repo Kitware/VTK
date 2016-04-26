@@ -95,7 +95,7 @@ protected:
 
   vtkLocator *SpatialRepresentation;
 
-  virtual void ReportReferences(vtkGarbageCollector*);
+  virtual void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
   virtual int FillInputPortInformation(int, vtkInformation*);
 private:
   vtkSpatialRepresentationFilter(const vtkSpatialRepresentationFilter&);  // Not implemented.

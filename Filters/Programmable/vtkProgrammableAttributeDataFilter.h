@@ -124,7 +124,7 @@ protected:
   ProgrammableMethodCallbackType ExecuteMethodArgDelete;
   void *ExecuteMethodArg;
 
-  virtual void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
 private:
   // hide the superclass' AddInput() from the user and the compiler

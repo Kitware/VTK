@@ -220,8 +220,8 @@ protected:
   virtual ~vtkObject();
 
   // See vtkObjectBase.h.
-  virtual void RegisterInternal(vtkObjectBase*, int check);
-  virtual void UnRegisterInternal(vtkObjectBase*, int check);
+  void RegisterInternal(vtkObjectBase*, int check) VTK_OVERRIDE;
+  void UnRegisterInternal(vtkObjectBase*, int check) VTK_OVERRIDE;
 
   bool     Debug;      // Enable debug messages
   vtkTimeStamp      MTime;      // Keep track of modification time

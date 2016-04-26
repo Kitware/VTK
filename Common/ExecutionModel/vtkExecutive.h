@@ -149,8 +149,8 @@ public:
 
   // Description:
   // Participate in garbage collection.
-  virtual void Register(vtkObjectBase* o);
-  virtual void UnRegister(vtkObjectBase* o);
+  void Register(vtkObjectBase* o) VTK_OVERRIDE;
+  void UnRegister(vtkObjectBase* o) VTK_OVERRIDE;
 
   // Description:
   // Information key to store the executive/port number producing an
@@ -219,7 +219,7 @@ protected:
   virtual int UpdateDataObject()=0;
 
   // Garbage collection support.
-  virtual void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
   virtual void SetAlgorithm(vtkAlgorithm* algorithm);
 

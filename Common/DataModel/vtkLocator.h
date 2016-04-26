@@ -149,7 +149,7 @@ protected:
 
   vtkTimeStamp BuildTime;  // time at which locator was built
 
-  virtual void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
 private:
   vtkLocator(const vtkLocator&);  // Not implemented.

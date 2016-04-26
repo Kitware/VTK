@@ -391,8 +391,8 @@ public:
 
   // Description:
   // Initiate garbage collection when a reference is removed.
-  VTKCOMMONCORE_EXPORT virtual void Register(vtkObjectBase* o);
-  VTKCOMMONCORE_EXPORT virtual void UnRegister(vtkObjectBase* o);
+  VTKCOMMONCORE_EXPORT void Register(vtkObjectBase* o) VTK_OVERRIDE;
+  VTKCOMMONCORE_EXPORT void UnRegister(vtkObjectBase* o) VTK_OVERRIDE;
 
   // Description:
   // Get/Set the Request ivar
@@ -415,7 +415,7 @@ protected:
   vtkInformationInternals* Internal;
 
   // Garbage collection support.
-  VTKCOMMONCORE_EXPORT virtual void ReportReferences(vtkGarbageCollector*);
+  VTKCOMMONCORE_EXPORT void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
   // Report the object associated with the given key to the collector.
   VTKCOMMONCORE_EXPORT void ReportAsObjectBase(vtkInformationKey* key,

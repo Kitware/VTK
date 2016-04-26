@@ -138,7 +138,7 @@ protected:
 
   ~vtkSampleFunction();
 
-  virtual void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
   void ExecuteDataWithInformation(vtkDataObject *, vtkInformation *);
   virtual int RequestInformation (vtkInformation *,
