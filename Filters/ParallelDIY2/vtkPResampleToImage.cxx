@@ -168,9 +168,8 @@ private:
 };
 
 inline void SerializeFieldData(vtkFieldData *field, vtkIdType tuple,
-                               std::vector<char> &bytestream)
+                               diy::MemoryBuffer &bb)
 {
-  diy::MemoryBuffer bb;
   int numFields = field->GetNumberOfArrays();
   for (int i = 0; i < numFields; ++i)
     {
@@ -183,7 +182,6 @@ inline void SerializeFieldData(vtkFieldData *field, vtkIdType tuple,
       worklet(da);
       }
     }
-  std::swap(bytestream, bb.buffer);
 }
 
 class DeserializeWorklet
@@ -211,12 +209,9 @@ private:
   diy::MemoryBuffer *Buffer;
 };
 
-inline void DeserializeFieldData(const std::vector<char> &bytestream,
-                                 vtkFieldData *field, vtkIdType tuple)
+inline void DeserializeFieldData(diy::MemoryBuffer &bb, vtkFieldData *field,
+                                 vtkIdType tuple)
 {
-  diy::MemoryBuffer bb;
-  bb.buffer = bytestream;
-
   int numFields = field->GetNumberOfArrays();
   for (int i = 0; i < numFields; ++i)
     {
@@ -233,17 +228,39 @@ inline void DeserializeFieldData(const std::vector<char> &bytestream,
 
 
 //----------------------------------------------------------------------------
-struct Point
+// A structure representing a list of points from an ImageData. Stores the
+// points' 3D indices (Indices) and serialized point data (Data) and they
+// should be stored in the same order.
+struct PointList
 {
-  int idx[3];
-  std::vector<char> data;
+  typedef Array<int, 3> IndexType;
+
+  std::vector<IndexType> Indices; // indices
+  std::vector<char> Data; // serialized data
+  vtkIdType DataSize; // size in bytes of serialized data of one point
 };
 
+inline void swap(PointList &a, PointList &b)
+{
+  a.Indices.swap(b.Indices);
+  a.Data.swap(b.Data);
+  std::swap(a.DataSize, b.DataSize);
+}
+
+inline vtkIdType ComputeSerializedFieldDataSize(
+  const std::vector<FieldMetaData> &fieldMetaData)
+{
+  vtkNew<vtkDataSetAttributes> attribs;
+  InitializeFieldData(fieldMetaData, 1, attribs.GetPointer());
+  diy::MemoryBuffer bb;
+  SerializeFieldData(attribs.GetPointer(), 0, bb);
+  return static_cast<vtkIdType>(bb.buffer.size());
+}
 
 //----------------------------------------------------------------------------
 struct Block
 {
-  std::vector<Point> Points;
+  PointList Points;
   int Extent[6];
 };
 
@@ -259,8 +276,9 @@ inline void DestroyBlock(void *blockp)
 
 
 //---------------------------------------------------------------------------
+// Creates a PointList of all the valid points in img
 inline void GetPointsFromImage(vtkImageData *img, const char *maskArrayName,
-                               std::vector<Point> *points)
+                               PointList *points)
 {
   if (img->GetNumberOfPoints() <= 0)
     {
@@ -270,6 +288,9 @@ inline void GetPointsFromImage(vtkImageData *img, const char *maskArrayName,
   vtkPointData *pd = img->GetPointData();
   vtkCharArray *maskArray = vtkCharArray::SafeDownCast(pd->GetArray(maskArrayName));
   char *mask = maskArray->GetPointer(0);
+
+  // use diy's serialization facilities
+  diy::MemoryBuffer bb;
 
   int extent[6];
   img->GetExtent(extent);
@@ -283,29 +304,35 @@ inline void GetPointsFromImage(vtkImageData *img, const char *maskArrayName,
         vtkIdType id = img->ComputePointId(ijk);
         if (mask[id])
           {
-          Point pt;
-          std::copy(ijk, ijk + 3, pt.idx);
-          SerializeFieldData(pd, id, pt.data);
-          points->push_back(pt);
+          PointList::IndexType idx;
+          std::copy(ijk, ijk + 3, idx.data());
+          points->Indices.push_back(idx);
+          SerializeFieldData(pd, id, bb);
           }
         }
       }
     }
+  points->Data.swap(bb.buffer); // get the serialized data buffer
 }
 
+// Sets the points from the PointList (points) to img. 'points' is modified
+// in the process.
 void SetPointsToImage(const std::vector<FieldMetaData> &fieldMetaData,
-                      const std::vector<Point> &points, vtkImageData *img)
+                      PointList &points, vtkImageData *img)
 {
   vtkPointData *pd = img->GetPointData();
   InitializeFieldData(fieldMetaData, img->GetNumberOfPoints(), pd);
 
-  for (std::size_t i = 0; i < points.size(); ++i)
+  diy::MemoryBuffer bb;
+  bb.buffer.swap(points.Data);
+  std::size_t numPoints = points.Indices.size();
+  for (std::size_t i = 0; i < numPoints; ++i)
     {
-    const Point &p = points[i];
-    int idx[3] = { p.idx[0], p.idx[1], p.idx[2] };
-    vtkIdType id = img->ComputePointId(idx);
-    DeserializeFieldData(p.data, pd, id);
+    vtkIdType id = img->ComputePointId(points.Indices[i].data());
+    DeserializeFieldData(bb, pd, id);
     }
+
+  points.Indices.clear(); // reset the points structure to a valid empty state
 }
 
 //----------------------------------------------------------------------------
@@ -372,9 +399,13 @@ void Redistribute(void* blockp, const diy::ReduceProxy& srp,
     {
     while (i->second)
       {
-      Point pt;
-      srp.dequeue(i->first, pt);
-      b->Points.push_back(pt);
+      PointList::IndexType idx;
+      srp.dequeue(i->first, idx);
+      b->Points.Indices.push_back(idx);
+
+      std::size_t beg = b->Points.Data.size();
+      b->Points.Data.resize(beg + b->Points.DataSize);
+      srp.dequeue(i->first, &b->Points.Data[beg], b->Points.DataSize);
       }
     }
 
@@ -401,16 +432,19 @@ void Redistribute(void* blockp, const diy::ReduceProxy& srp,
   int maxIdx = b->Extent[2 * axis + 1];
   int length = (maxIdx - minIdx + 1 + groupSize - 1) / groupSize;
 
-  std::vector<Point> myPoints;
-  for (size_t i = 0; i < b->Points.size(); ++i)
+  PointList myPoints;
+  myPoints.DataSize = b->Points.DataSize; // initilize myPoints
+  std::size_t numPoints = b->Points.Indices.size();
+  for (size_t i = 0; i < numPoints; ++i)
     {
-    Point &pt = b->Points[i];
+    PointList::IndexType idx = b->Points.Indices[i];
+    const char *data = &b->Points.Data[i * b->Points.DataSize];
 
     int nlocs = 1;
-    int loc[2] = { (pt.idx[axis] - minIdx)/length, 0 };
+    int loc[2] = { (idx[axis] - minIdx)/length, 0 };
 
     // duplicate shared point
-    if (((pt.idx[axis] - minIdx)%length == 0) && (loc[0] != 0))
+    if (((idx[axis] - minIdx)%length == 0) && (loc[0] != 0))
       {
       loc[1] = loc[0] - 1;
       ++nlocs;
@@ -420,15 +454,17 @@ void Redistribute(void* blockp, const diy::ReduceProxy& srp,
       {
       if (loc[j] == myPos)
         {
-        myPoints.push_back(pt);
+        myPoints.Indices.push_back(idx);
+        myPoints.Data.insert(myPoints.Data.end(), data, data + myPoints.DataSize);
         }
       else
         {
-        srp.enqueue(srp.out_link().target(loc[j]), pt);
+        srp.enqueue(srp.out_link().target(loc[j]), idx);
+        srp.enqueue(srp.out_link().target(loc[j]), data, myPoints.DataSize);
         }
       }
     }
-  b->Points.swap(myPoints);
+  swap(b->Points, myPoints);
 
   // step 3: readjust extents for next round
   b->Extent[2*axis] = minIdx + (length * myPos);
@@ -532,8 +568,10 @@ int vtkPResampleToImage::RequestData(vtkInformation *request,
   diy::RegularDecomposer<diy::DiscreteBounds> decomposer(3, domain, comm.size());
   decomposer.decompose(comm.rank(), assigner, master);
 
+  // Set up master's block
   Block *block = master.block<Block>(0);
   std::copy(updateExtent, updateExtent + 6, block->Extent);
+  block->Points.DataSize = ComputeSerializedFieldDataSize(pointFieldMetaData);
   GetPointsFromImage(mypiece.GetPointer(), this->GetMaskArrayName(),
                      &block->Points);
 
@@ -570,22 +608,6 @@ struct mpi_datatype<Array<T, Len> >
 }
 } // namespace mpi::detail
 
-
-template<>
-struct Serialization<Point>
-{
-  static void save(BinaryBuffer& bb, const Point& p)
-  {
-    diy::save(bb, p.idx, 3);
-    diy::save(bb, p.data);
-  }
-
-  static void load(BinaryBuffer& bb, Point& p)
-  {
-    diy::load(bb, p.idx, 3);
-    diy::load(bb, p.data);
-  }
-};
 
 template<>
 struct Serialization<FieldMetaData>
