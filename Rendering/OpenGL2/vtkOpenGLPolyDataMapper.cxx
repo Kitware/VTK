@@ -202,7 +202,9 @@ void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
     }
   if (this->TimerQuery)
     {
+#if GL_ES_VERSION_2_0 != 1 && GL_ES_VERSION_3_0 != 1
     glDeleteQueries(1, &this->TimerQuery);
+#endif
     this->TimerQuery = 0;
     }
   this->VBOBuildString = "";
