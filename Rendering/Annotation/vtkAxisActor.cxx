@@ -1203,6 +1203,9 @@ void vtkAxisActor::SetLabelPositions2D(vtkViewport *viewport, bool force)
       xcoeff = 1.0;
       ycoeff = 0.5;
       break;
+    default:
+      // shouldn't get here
+      break;
     }
 
   int ptIdx;
@@ -1383,6 +1386,7 @@ void vtkAxisActor::BuildTitle(bool force)
     {
     case (VTK_ALIGN_TOP):
       vertOffsetSign = -1;
+      VTK_FALLTHROUGH;
       // NO BREAK
     case (VTK_ALIGN_BOTTOM):
       // Position to center of axis
@@ -1406,6 +1410,9 @@ void vtkAxisActor::BuildTitle(bool force)
         pos[i] = p2[i];
         }
       offset[0] += this->ScreenSize * halfTitleWidth + 3;
+      break;
+    default:
+      // shouldn't get there
       break;
     }
 
@@ -1514,6 +1521,7 @@ void vtkAxisActor::BuildExponent(bool force)
     {
     case (VTK_ALIGN_TOP):
       offsetSign = -1;
+      VTK_FALLTHROUGH;
       // NO BREAK
     case (VTK_ALIGN_BOTTOM):
       // Position to center of axis
@@ -1537,6 +1545,9 @@ void vtkAxisActor::BuildExponent(bool force)
         pos[i] = p2[i];
         }
       offset[0] += this->ScreenSize * halfExponentWidth + 3;
+      break;
+    default:
+      // shouldn't get there
       break;
     }
 
@@ -1801,7 +1812,7 @@ void vtkAxisActor::PrintSelf(ostream& os, vtkIndent indent)
       break;
     default:
       // shouldn't get here
-      ;
+      break;
     }
 
   os << indent << "DeltaMajor: "
@@ -2583,6 +2594,10 @@ bool vtkAxisActor::BuildTickPoints(double p1[3], double p2[3], bool force)
       memcpy(&coordSystem[1], this->AxisBaseForX, 3*sizeof(double));
       memcpy(&coordSystem[2], this->AxisBaseForY, 3*sizeof(double));
       break;
+
+    default:
+      // shouldn't get here
+      break;
     }
 
   //-----------------------------------------------------------------------------*
@@ -2655,6 +2670,9 @@ void vtkAxisActor::BuildAxisGridLines(double p1[3], double p2[3], double localCo
       uGridLength = this->GridlineXLength;
       vGridLength = this->GridlineYLength;
       uIndex = 0; vIndex = 1;
+      break;
+    default:
+      // shouldn't get here
       break;
     }
 
