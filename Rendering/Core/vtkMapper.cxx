@@ -834,6 +834,13 @@ void vtkMapper::UseInvertibleColorFor(int scalarMode,
 
   this->Modified();
 
+  // Ensure the scalar range is initialized
+  vtkDataArray *dataArray = vtkDataArray::SafeDownCast(abstractArray);
+  if (dataArray && scalarRange[0] > scalarRange[1])
+    {
+    scalarRange = dataArray->GetRange();
+    }
+
   this->ScalarMode = scalarMode;
   this->ArrayComponent = arrayComponent;
   this->SetScalarRange(scalarRange);
@@ -863,7 +870,6 @@ void vtkMapper::UseInvertibleColorFor(int scalarMode,
     this->LookupTable = NULL;
     }
 
-  vtkDataArray *dataArray = vtkDataArray::SafeDownCast(abstractArray);
   if (!dataArray)
     {
     vtkLookupTable* table = vtkLookupTable::New();
