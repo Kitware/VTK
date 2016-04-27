@@ -879,6 +879,9 @@ void vtkMapper::UseInvertibleColorFor(int scalarMode,
     this->LookupTable = vtkMapper::InvertibleLookupTable;
     this->LookupTable->Register(this);
     }
+
+    // Update the component in either case.
+    this->LookupTable->SetVectorComponent(arrayComponent);
 }
 
 //-------------------------------------------------------------------
