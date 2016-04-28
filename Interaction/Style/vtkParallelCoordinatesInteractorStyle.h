@@ -20,12 +20,11 @@
 // .NAME vtkParallelCoordinatesInteractorStyle - interactive manipulation of the camera specialized for parallel coordinates
 // .SECTION Description
 // vtkParallelCoordinatesInteractorStyle allows the user to interactively manipulate
-// (rotate, pan, zoomm etc.) the camera.
+// (rotate, pan, zoom etc.) the camera.
 // Several events are overloaded from its superclass
-// vtkParallelCoordinatesInteractorStyle, hence the mouse bindings are
-// different. (The bindings
-// keep the camera's view plane normal perpendicular to the x-y plane.) In
-// summary the mouse events are as follows:
+// vtkInteractorStyleTrackballCamera, hence the mouse bindings are different.
+// (The bindings keep the camera's view plane normal perpendicular to the x-y plane.)
+// In summary, the mouse events are as follows:
 // + Left Mouse button triggers window level events
 // + CTRL Left Mouse spins the camera around its view plane normal
 // + SHIFT Left Mouse pans the camera

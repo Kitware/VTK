@@ -15,18 +15,16 @@
 // .NAME vtkContourLineInterpolator - Defines API for interpolating/modifying nodes from a vtkContourRepresentation
 // .SECTION Description
 // vtkContourLineInterpolator is an abstract base class for interpolators
-// that work are used by the contour representation class to interpolate
+// that are used by the vtkContourRepresentation class to interpolate
 // and/or modify nodes in a contour. Subclasses must override the virtual
-// method: \c InterpolateLine. This is used by the contour representation
+// method \c InterpolateLine. This is used by the contour representation
 // to give the interpolator a chance to define an interpolation scheme
 // between nodes. See vtkBezierContourLineInterpolator for a concrete
-// implementation. Subclasses may also override, \c UpdateNode. This provides
+// implementation. Subclasses may also override \c UpdateNode. This provides
 // a way for the representation to give the interpolator a chance to modify
-// the nodes, as the user constructs the contours. For instance a sticky
+// the nodes, as the user constructs the contours. For instance, a sticky
 // contour widget may be implemented that moves nodes to nearby regions of
-// high gradient, to be used in contour guided segmentation.
-//
-// .SECTION See Also
+// high gradient, to be used in contour-guided segmentation.
 
 #ifndef vtkContourLineInterpolator_h
 #define vtkContourLineInterpolator_h

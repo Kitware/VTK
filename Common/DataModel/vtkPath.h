@@ -12,11 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPath - concrete dataset representing a path defined by Bezier
+// .NAME vtkPath - concrete dataset representing a path defined by Bézier
 // curves.
 // .SECTION Description
-// vtkPath provides a container for paths composed of line segment and
-// 2nd/3rd order Bezier curves.
+// vtkPath provides a container for paths composed of line segments,
+// 2nd-order (quadratic) and 3rd-order (cubic) Bézier curves.
 
 #ifndef vtkPath_h
 #define vtkPath_h

@@ -149,12 +149,12 @@ vtkOrientedGlyphContourRepresentation::vtkOrientedGlyphContourRepresentation()
   this->Mapper = vtkPolyDataMapper::New();
   this->Mapper->SetInputConnection(this->Glypher->GetOutputPort());
 
-  // this turns on resolve coincident topology for everything
+  // This turns on resolve coincident topology for everything
   // as it is a class static on the mapper
   this->Mapper->SetResolveCoincidentTopologyToPolygonOffset();
   this->Mapper->ScalarVisibilityOff();
   this->Mapper->ImmediateModeRenderingOn();
-  // put this on top of other objects
+  // Put this on top of other objects
   this->Mapper->SetRelativeCoincidentTopologyLineOffsetParameters(-1,-1);
   this->Mapper->SetRelativeCoincidentTopologyPolygonOffsetParameters(-1,-1);
   this->Mapper->SetRelativeCoincidentTopologyPointOffsetParameter(-1);

@@ -60,13 +60,15 @@ vtkArcSource::vtkArcSource(int res)
   // Default arc is a quarter-circle
   this->Angle =  90.;
 
-  // Default resolution
+  // Ensure resolution (number of line segments to approximate the arc)
+  // is at least 1
   this->Resolution = (res < 1 ? 1 : res);
 
-  // Default resolution
+  // By default use the shortest angular sector
+  // rather than its complement (a.k.a. negative coterminal)
   this->Negative = false;
 
-  // By default use the original API
+  // By default use the original API (endpoints + center)
   this->UseNormalAndAngle = false;
 
   this->OutputPointsPrecision = SINGLE_PRECISION;

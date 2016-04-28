@@ -15,7 +15,7 @@
 // .NAME vtkBezierContourLineInterpolator - Interpolates supplied nodes with bezier line segments
 // .SECTION Description
 // The line interpolator interpolates supplied nodes (see InterpolateLine)
-// with bezier line segments. The finess of the curve may be controlled using
+// with Bézier line segments. The fitness of the curve may be controlled using
 // SetMaximumCurveError and SetMaximumNumberOfLineSegments.
 //
 // .SECTION See Also
@@ -60,12 +60,12 @@ public:
   vtkGetMacro(MaximumCurveLineSegments, int);
 
   // Description:
-  // Span of the interpolator. ie. the number of control points its supposed
+  // Span of the interpolator, i.e. the number of control points it's supposed
   // to interpolate given a node.
   //
   // The first argument is the current nodeIndex.
-  // ie, you'd be trying to interpolate between nodes "nodeIndex" and
-  // "nodeIndex-1", unless you're closing the contour in which case, you're
+  // i.e., you'd be trying to interpolate between nodes "nodeIndex" and
+  // "nodeIndex-1", unless you're closing the contour, in which case you're
   // trying to interpolate "nodeIndex" and "Node=0". The node span is
   // returned in a vtkIntArray.
   //
