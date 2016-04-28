@@ -227,24 +227,20 @@ static bool vtkPythonGetValue(
       reinterpret_cast<char *>(p), &s, "p_void");
 #ifdef VTK_PY3K
     Py_DECREF(bytes);
-#endif
-    if (s >= 0)
+    if (s != 0)
       {
-      return true;
+      PyErr_SetString(PyExc_TypeError, "requires a _addr_p_void string");
+      return false;
       }
+#else
     if (s == -1)
       {
-      char buf[128];
-      sprintf(buf, "value is %.80s, required type is p_void",
-        reinterpret_cast<char *>(p));
-      PyErr_SetString(PyExc_TypeError, buf);
-      return false;
+      // matched _addr_ but not p_void, assume it isn't a swig ptr string:
+      // use the buffer's pointer as the argument
+      a = p;
       }
-    else
-      {
-      PyErr_SetString(PyExc_TypeError, "cannot get a void pointer");
-      return false;
-      }
+#endif
+    return true;
     }
   else if (p && sz >= 0)
     {
