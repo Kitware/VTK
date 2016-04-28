@@ -38,7 +38,7 @@ public:
 
   // Description:
   // Standard methods for instances of this class.
-  vtkTypeMacro(vtkBezierContourLineInterpolator,vtkContourLineInterpolator);
+  vtkTypeMacro(vtkBezierContourLineInterpolator, vtkContourLineInterpolator);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual int InterpolateLine( vtkRenderer *ren,
@@ -71,14 +71,14 @@ public:
   //
   // The node span is returned in a vtkIntArray. The node span returned by
   // this interpolator will be a 2-tuple with a span of 4.
-  virtual void GetSpan( int nodeIndex, vtkIntArray *nodeIndices,
-                        vtkContourRepresentation *rep );
+  virtual void GetSpan(int nodeIndex, vtkIntArray *nodeIndices,
+                        vtkContourRepresentation *rep);
 
 protected:
   vtkBezierContourLineInterpolator();
   ~vtkBezierContourLineInterpolator();
 
-  void ComputeMidpoint( double p1[3], double p2[3], double mid[3] )
+  void ComputeMidpoint(double p1[3], double p2[3], double mid[3])
     {
       mid[0] = (p1[0] + p2[0])/2;
       mid[1] = (p1[1] + p2[1])/2;
