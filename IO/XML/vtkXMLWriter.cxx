@@ -62,6 +62,7 @@
 
 #include <locale> // C++ locale
 
+
 //*****************************************************************************
 // Friend class to enable access for  template functions to the protected
 // writer methods.
@@ -1363,12 +1364,26 @@ int vtkXMLWriter::WriteBinaryDataInternal(vtkAbstractArray* a)
                                       numValues);
     if (!vtkArrayDispatch::Dispatch::Execute(da, worker))
       {
-      size_t size = 1;
+        switch (wordType)
+          {
+          case VTK___INT64:
+          case VTK_UNSIGNED___INT64:
+          case VTK_LONG_LONG:
+          case VTK_UNSIGNED_LONG_LONG:
+#ifdef VTK_USE_64BIT_IDS
+          case VTK_ID_TYPE:
+#endif
+            vtkWarningMacro("Using legacy vtkDataArray API, which may result "
+                            "in precision loss");
+            break;
+          default:
+            break;
+          }
+
       switch (wordType)
         {
         vtkTemplateMacro(WriteDataArrayFallback(static_cast<VTK_TT*>(0),
                                                 da,worker));
-
       default:
         vtkWarningMacro("Unsupported data type: " << wordType);
         break;

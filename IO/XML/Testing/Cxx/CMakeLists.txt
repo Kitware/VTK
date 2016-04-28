@@ -7,6 +7,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestXMLUnstructuredGridReader.cxx
   TestXML.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   TestXMLToString.cxx,NO_DATA,NO_VALID,NO_OUTPUT
+  TestXMLWriterWithDataArrayFallback.cxx,NO_VALID
   TestDataObjectXMLIO.cxx,NO_VALID
   )
 
