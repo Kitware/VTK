@@ -62,7 +62,6 @@
 
 #include <locale> // C++ locale
 
-
 //*****************************************************************************
 // Friend class to enable access for  template functions to the protected
 // writer methods.
@@ -217,6 +216,77 @@ struct WriteBinaryDataBlockWorker
   }
 
 }; // End WriteBinaryDataBlockWorker
+
+namespace
+{
+  //----------------------------------------------------------------------------
+  // Specialize for vtkDataArrays, which implicitly cast everything to double:
+  template <class ValueType>
+  void WriteDataArrayFallback(ValueType*, vtkDataArray *array,
+                              WriteBinaryDataBlockWorker& worker)
+  {
+    // generic implementation for fixed component length arrays.
+    size_t blockWords = worker.Writer->GetBlockSize() / worker.OutWordSize;
+
+    // Prepare a buffer to move through the data.
+    std::vector<unsigned char> buffer(blockWords * worker.MemWordSize);
+    size_t wordsLeft = worker.NumWords;
+
+    if (buffer.empty())
+      {
+      // No data -- bail here, since the calls to buffer[0] below will segfault.
+      worker.Result = false;
+      return;
+      }
+
+    vtkIdType nComponents = array->GetNumberOfComponents();
+
+    // Do the complete blocks.
+    vtkXMLWriterHelper::SetProgressPartial(worker.Writer, 0);
+    worker.Result = true;
+    vtkIdType valueIdx = 0;
+    while (worker.Result && (wordsLeft >= blockWords))
+      {
+      // Copy data to contiguous buffer:
+      ValueType* bufferIter = reinterpret_cast<ValueType*>(&buffer[0]);
+      for (size_t i = 0; i < blockWords; ++i, ++valueIdx)
+        {
+        *bufferIter++ = static_cast<ValueType>(
+          array->GetComponent(valueIdx/nComponents,valueIdx%nComponents));
+        }
+
+      if (!vtkXMLWriterHelper::WriteBinaryDataBlock(worker.Writer, &buffer[0],
+                                                    blockWords, worker.WordType))
+        {
+        worker.Result = false;
+        }
+      wordsLeft -= blockWords;
+      vtkXMLWriterHelper::SetProgressPartial(
+            worker.Writer,
+            static_cast<float>(worker.NumWords - wordsLeft) / worker.NumWords);
+      }
+
+    // Do the last partial block if any.
+    if (worker.Result && (wordsLeft > 0))
+      {
+      ValueType* bufferIter = reinterpret_cast<ValueType*>(&buffer[0]);
+      for (size_t i = 0; i < wordsLeft; ++i, ++valueIdx)
+        {
+        *bufferIter++ = static_cast<ValueType>(
+          array->GetComponent(valueIdx/nComponents,valueIdx%nComponents));
+        }
+
+      if (!vtkXMLWriterHelper::WriteBinaryDataBlock(worker.Writer, &buffer[0],
+                                                    wordsLeft, worker.WordType))
+        {
+        worker.Result = false;
+        }
+      }
+
+    vtkXMLWriterHelper::SetProgressPartial(worker.Writer, 1);
+  }
+
+}
 
 //----------------------------------------------------------------------------
 // Specialize for string arrays:
@@ -1293,13 +1363,18 @@ int vtkXMLWriter::WriteBinaryDataInternal(vtkAbstractArray* a)
                                       numValues);
     if (!vtkArrayDispatch::Dispatch::Execute(da, worker))
       {
-      vtkWarningMacro("Dispatch failed for array: " << da->GetName());
-      ret = 0;
+      size_t size = 1;
+      switch (wordType)
+        {
+        vtkTemplateMacro(WriteDataArrayFallback(static_cast<VTK_TT*>(0),
+                                                da,worker));
+
+      default:
+        vtkWarningMacro("Unsupported data type: " << wordType);
+        break;
+        }
       }
-    else
-      {
-      ret = worker.Result ? 1 : 0;
-      }
+    ret = worker.Result ? 1 : 0;
     }
   else
     {
