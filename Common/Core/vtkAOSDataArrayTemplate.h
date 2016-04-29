@@ -186,6 +186,11 @@ public:
   VTK_LEGACY(void InsertTupleValue(vtkIdType tupleIdx, const ValueType *tuple));
   VTK_LEGACY(vtkIdType InsertNextTupleValue(const ValueType *tuple));
 
+  // Reimplemented for efficiency:
+  virtual void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
+                            vtkAbstractArray* source);
+  using Superclass::InsertTuples;
+
   //BTX
 protected:
   vtkAOSDataArrayTemplate();

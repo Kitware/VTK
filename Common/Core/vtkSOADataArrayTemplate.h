@@ -161,6 +161,11 @@ public:
   virtual void SetNumberOfComponents(int numComps);
   virtual void ShallowCopy(vtkDataArray *other);
 
+  // Reimplemented for efficiency:
+  virtual void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
+                            vtkAbstractArray* source);
+  using Superclass::InsertTuples;
+
 protected:
   vtkSOADataArrayTemplate();
   ~vtkSOADataArrayTemplate();

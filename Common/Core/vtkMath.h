@@ -38,9 +38,11 @@
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkTypeTraits.h" // For type traits
 
 #include "vtkMathConfigure.h" // For <cmath> and VTK_HAS_ISNAN etc.
 
+#include <algorithm> // min/max in template implementations.
 #include <cassert> // assert() in inline implementations.
 
 #ifndef DBL_MIN
@@ -69,6 +71,30 @@ class vtkMathInternal;
 class vtkMinimalStandardRandomSequence;
 class vtkBoxMuellerRandomSequence;
 
+namespace vtk_detail
+{
+// Can't specialize templates inside a template class, so we move the impl here.
+template <typename OutT>
+void RoundDoubleToIntegralIfNecessary(double val, OutT* ret)
+{ // OutT is integral -- clamp and round
+  val = std::max(val, static_cast<double>(vtkTypeTraits<OutT>::Min()));
+  val = std::min(val, static_cast<double>(vtkTypeTraits<OutT>::Max()));
+  *ret = static_cast<OutT>((val >= 0.0) ? (val + 0.5) : (val - 0.5));
+}
+template <>
+inline void RoundDoubleToIntegralIfNecessary(double val, double* retVal)
+{ // OutT is double: passthrough
+  *retVal = val;
+}
+template <>
+inline void RoundDoubleToIntegralIfNecessary(double val, float* retVal)
+{ // OutT is float -- just clamp
+  val = std::max(val, static_cast<double>(vtkTypeTraits<float>::Min()));
+  val = std::min(val, static_cast<double>(vtkTypeTraits<float>::Max()));
+  *retVal = static_cast<float>(val);
+}
+} // end namespace vtk_detail
+
 class VTKCOMMONCORE_EXPORT vtkMath : public vtkObject
 {
 public:
@@ -96,6 +122,17 @@ public:
     return static_cast<int>( f + ( f >= 0.0 ? 0.5 : -0.5 ) ); }
   static int Round(double f) {
     return static_cast<int>( f + ( f >= 0.0 ? 0.5 : -0.5 ) ); }
+
+  // Description:
+  // Round a double to type OutT if OutT is integral, otherwise simply clamp
+  // the value to the output range.
+  template <typename OutT>
+  static void RoundDoubleToIntegralIfNecessary(double val, OutT* ret)
+  {
+    // Can't specialize template methods in a template class, so we move the
+    // implementations to a external namespace.
+    vtk_detail::RoundDoubleToIntegralIfNecessary(val, ret);
+  }
 
   // Description:
   // Rounds a double to the nearest integer not greater than itself.

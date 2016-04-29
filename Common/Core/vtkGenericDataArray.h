@@ -217,6 +217,12 @@ public:
   virtual void SetNumberOfTuples(vtkIdType number);
   virtual void Initialize();
   virtual void Squeeze();
+  virtual void SetTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx,
+                        vtkAbstractArray* source);
+  using Superclass::SetTuple;
+  virtual void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
+                            vtkAbstractArray *source);
+  using Superclass::InsertTuples;
   virtual void InsertTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx,
                            vtkAbstractArray *source);
   virtual void InsertTuple(vtkIdType tupleIdx, const float *source);
@@ -226,8 +232,15 @@ public:
                                     vtkAbstractArray *source);
   virtual vtkIdType InsertNextTuple(const float *tuple);
   virtual vtkIdType InsertNextTuple(const double *tuple);
+  virtual void GetTuples(vtkIdList *tupleIds, vtkAbstractArray *output);
+  virtual void GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray *output);
   virtual double *GetTuple(vtkIdType tupleIdx);
   virtual void GetTuple(vtkIdType tupleIdx, double * tuple);
+  virtual void InterpolateTuple(vtkIdType dstTupleIdx, vtkIdList *ptIndices,
+                                vtkAbstractArray* source,  double* weights);
+  virtual void InterpolateTuple(vtkIdType dstTupleIdx,
+    vtkIdType srcTupleIdx1, vtkAbstractArray* source1,
+    vtkIdType srcTupleIdx2, vtkAbstractArray* source2, double t);
   virtual void SetComponent(vtkIdType tupleIdx, int compIdx, double value);
   virtual double GetComponent(vtkIdType tupleIdx, int compIdx);
   virtual void SetVariantValue(vtkIdType valueIdx, vtkVariant value);
