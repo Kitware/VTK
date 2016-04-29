@@ -18,6 +18,7 @@
 
 #include "vtkActor2D.h"
 #include "vtkCellArray.h"
+#include "vtkHardwareSelector.h"
 #include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
@@ -62,6 +63,7 @@ vtkOpenGLPolyDataMapper2D::vtkOpenGLPolyDataMapper2D()
   this->LastBoundBO = 0;
   this->HaveCellScalars = false;
   this->PrimitiveIDOffset = 0;
+  this->LastPickState = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -128,7 +130,8 @@ bool vtkOpenGLPolyDataMapper2D::GetNeedToRebuildShaders(
   if (cellBO.Program == 0 ||
       cellBO.ShaderSourceTime < this->GetMTime() ||
       cellBO.ShaderSourceTime < actor->GetMTime() ||
-      cellBO.ShaderSourceTime < this->GetInput()->GetMTime())
+      cellBO.ShaderSourceTime < this->GetInput()->GetMTime() ||
+      cellBO.ShaderSourceTime < this->PickStateChanged)
     {
     return true;
     }
@@ -277,6 +280,12 @@ void vtkOpenGLPolyDataMapper2D::BuildShaders(
         "gl_PrimitiveID = gl_PrimitiveIDIn;");
       }
     }
+
+  vtkRenderer* ren = vtkRenderer::SafeDownCast(viewport);
+  if (ren && ren->GetRenderWindow()->GetIsPicking())
+    {
+    this->ReplaceShaderPicking(FSSource, ren, actor);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -394,6 +403,16 @@ void vtkOpenGLPolyDataMapper2D::SetMapperShaderParameters(
       lineWidth[1] = 2.0*actor->GetProperty()->GetLineWidth()/vp[3];
       cellBO.Program->SetUniform2f("lineWidthNVC",lineWidth);
     }
+
+  vtkRenderer* ren = vtkRenderer::SafeDownCast(viewport);
+  bool picking = ren && ren->GetRenderWindow()->GetIsPicking();
+  if (picking && cellBO.Program->IsUniformUsed("mapperIndex"))
+    {
+    unsigned int idx = ren->GetCurrentPickId();
+    float color[3];
+    vtkHardwareSelector::Convert(idx, color);
+    cellBO.Program->SetUniform3f("mapperIndex", color);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -414,6 +433,18 @@ void vtkOpenGLPolyDataMapper2D::SetPropertyShaderParameters(
 
     program->SetUniform4f("diffuseColor", diffuseColor);
     }
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLPolyDataMapper2D::ReplaceShaderPicking(
+  std::string & fssource,
+  vtkRenderer *ren, vtkActor2D *)
+{
+  vtkShaderProgram::Substitute(fssource, "//VTK::Picking::Dec",
+    "uniform vec3 mapperIndex;");
+  vtkShaderProgram::Substitute(fssource,
+    "//VTK::Picking::Impl",
+    "gl_FragData[0] = vec4(mapperIndex,1.0);\n");
 }
 
 //-----------------------------------------------------------------------------
@@ -753,6 +784,14 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   if ( this->LookupTable == NULL )
     {
     this->CreateDefaultLookupTable();
+    }
+
+  vtkRenderWindow *renWin = vtkRenderWindow::SafeDownCast(viewport->GetVTKWindow());
+  int picking = renWin->GetIsPicking();
+  if (picking != this->LastPickState)
+    {
+    this->LastPickState = picking;
+    this->PickStateChanged.Modified();
     }
 
   // Assume we want to do Zbuffering for now.
