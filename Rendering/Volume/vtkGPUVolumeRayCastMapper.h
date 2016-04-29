@@ -320,7 +320,7 @@ protected:
   // exits the volume
   int ClampDepthToBackface;
 
-  // Enable / disable stochasting jittering
+  // Enable / disable stochastic jittering
   int UseJittering;
 
   // Enable / disable two pass rendering

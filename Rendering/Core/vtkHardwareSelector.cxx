@@ -520,7 +520,7 @@ int vtkHardwareSelector::Render(vtkRenderer* renderer, vtkProp** propArray,
     return 0;
     }
 
-  int propsRenderered = 0;
+  int propsRendered = 0;
   // loop through props and give them a chance to
   // render themselves as opaque geometry
   for (int i = 0; i < propArrayCount; i++ )
@@ -535,7 +535,22 @@ int vtkHardwareSelector::Render(vtkRenderer* renderer, vtkProp** propArray,
     this->Internals->Props[this->PropID] = propArray[i];
     if (this->IsPropHit(this->PropID))
       {
-      propsRenderered += propArray[i]->RenderOpaqueGeometry(renderer);
+      propsRendered += propArray[i]->RenderOpaqueGeometry(renderer);
+      }
+    }
+
+  // Render props as volumetric data.
+  for (int i = 0; i < propArrayCount; i++)
+    {
+    if (!propArray[i]->GetPickable() || !propArray[i]->GetSupportsSelection())
+      {
+      continue;
+      }
+    this->PropID = this->GetPropID(i, propArray[i]);
+    this->Internals->Props[this->PropID] = propArray[i];
+    if (this->IsPropHit(this->PropID))
+      {
+      propsRendered += propArray[i]->RenderVolumetricGeometry(renderer);
       }
     }
 
@@ -553,11 +568,11 @@ int vtkHardwareSelector::Render(vtkRenderer* renderer, vtkProp** propArray,
     this->Internals->Props[this->PropID] = propArray[i];
     if (this->IsPropHit(this->PropID))
       {
-      propsRenderered += propArray[i]->RenderOverlay(renderer);
+      propsRendered += propArray[i]->RenderOverlay(renderer);
       }
     }
 
-  return propsRenderered;
+  return propsRendered;
 }
 
 //----------------------------------------------------------------------------
@@ -628,6 +643,7 @@ vtkHardwareSelector::PixelInformation vtkHardwareSelector::GetPixelInformation(
     int low24 = this->Convert(display_position, this->PixBuffer[ID_LOW24]);
     int mid24 = this->Convert(display_position, this->PixBuffer[ID_MID24]);
     int high16 = this->Convert(display_position, this->PixBuffer[ID_HIGH16]);
+
     // id 0 is reserved for nothing present.
     info.AttributeID = (this->GetID(low24, mid24, high16) - ID_OFFSET);
     if (info.AttributeID < 0)
@@ -801,7 +817,6 @@ void vtkHardwareSelector::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Area: " << this->Area[0] << ", " << this->Area[1] << ", "
     << this->Area[2] << ", " << this->Area[3] << endl;
   os << indent << "Renderer: " << this->Renderer << endl;
-  os << indent << "UseProcessIdFromData: " << this->UseProcessIdFromData <<
-    endl;
+  os << indent << "UseProcessIdFromData: " << this->UseProcessIdFromData << endl;
 }
 

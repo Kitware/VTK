@@ -174,6 +174,13 @@ public:
   void UpdateScalarOpacityforSampleSize(vtkRenderer *ren,
                                         float sample_distance);
 
+  /// Used by vtkHardwareSelector to determine if the prop supports hardware
+  /// selection.
+  /// @warning INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  /// DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+  virtual bool GetSupportsSelection()
+   { return true; }
+
 //ETX
 
 protected:
