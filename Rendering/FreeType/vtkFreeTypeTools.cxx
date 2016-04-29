@@ -1242,8 +1242,11 @@ bool vtkFreeTypeTools::RenderStringInternal(vtkTextProperty *tprop,
   if (str.empty())
     {
     data->Initialize();
-    textDims[0] = 0;
-    textDims[1] = 0;
+    if (textDims)
+      {
+      textDims[0] = 0;
+      textDims[1] = 0;
+      }
     return true;
     }
 
