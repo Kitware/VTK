@@ -17,7 +17,6 @@
 
 #include "vtkGenericDataArray.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkIdList.h"
 #include "vtkMath.h"
 #include "vtkVariantCast.h"
