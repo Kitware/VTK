@@ -342,7 +342,7 @@ void vtkOpenGLPolyDataMapper2D::SetMapperShaderParameters(
       {
       vtkErrorMacro(<< "Error setting 'vertexWC' in shader program.");
       }
-    if (this->VBO->TCoordComponents)
+    if (this->VBO->TCoordComponents && cellBO.Program->IsAttributeUsed("tcoordMC"))
       {
       if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
                                       "tcoordMC", this->VBO->TCoordOffset,
@@ -351,7 +351,7 @@ void vtkOpenGLPolyDataMapper2D::SetMapperShaderParameters(
         vtkErrorMacro(<< "Error setting 'tcoordMC' in shader VAO.");
         }
       }
-    if (this->VBO->ColorComponents != 0)
+    if (this->VBO->ColorComponents && cellBO.Program->IsAttributeUsed("diffuseColor"))
       {
       if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
                                       "diffuseColor", this->VBO->ColorOffset,
@@ -438,7 +438,7 @@ void vtkOpenGLPolyDataMapper2D::SetPropertyShaderParameters(
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper2D::ReplaceShaderPicking(
   std::string & fssource,
-  vtkRenderer *ren, vtkActor2D *)
+  vtkRenderer *, vtkActor2D *)
 {
   vtkShaderProgram::Substitute(fssource, "//VTK::Picking::Dec",
     "uniform vec3 mapperIndex;");
