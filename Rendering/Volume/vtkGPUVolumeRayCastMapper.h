@@ -212,6 +212,14 @@ public:
   // color and depth textures. By default this is set to 0 (off).
   // It should be noted that it is possible that underlying API specific
   // mapper may not supoport RenderToImage mode.
+  // \warning
+  // \li This method ignores any other volumes / props in the scene.
+  // \li This method does not respect the general attributes of the
+  // scene i.e. background color, etc. It always produces a color
+  // image that has a transparent white background outside the
+  // bounds of the volume.
+  //
+  // \sa GetDepthImage(), GetColorImage()
   vtkSetMacro(RenderToImage, int);
   vtkGetMacro(RenderToImage, int);
   vtkBooleanMacro(RenderToImage, int);
@@ -219,6 +227,7 @@ public:
   // Description:
   // Set/Get the scalar type of the depth texture in RenderToImage mode.
   // By default, the type if VTK_FLOAT.
+  // \sa SetRenderToImage()
   vtkSetMacro(DepthImageScalarType, int);
   vtkGetMacro(DepthImageScalarType, int);
   void SetDepthImageScalarTypeToUnsignedChar();
@@ -234,6 +243,7 @@ public:
   // this is true, the fully transparent voxels will have the
   // depth value of the face at which the ray exits the volume.
   // By default, this is set to 0 (off).
+  // \sa SetRenderToImage(), GetDepthImage()
   vtkSetMacro(ClampDepthToBackface, int);
   vtkGetMacro(ClampDepthToBackface, int);
   vtkBooleanMacro(ClampDepthToBackface, int);
@@ -242,18 +252,20 @@ public:
   // Low level API to export the depth texture as vtkImageData in
   // RenderToImage mode.
   // Should be implemented by the graphics API specific mapper (GL or other).
+  // \sa SetRenderToImage()
   virtual void GetDepthImage(vtkImageData*) {};
 
   // Description:
   // Low level API to export the color texture as vtkImageData in
   // RenderToImage mode.
   // Should be implemented by the graphics API specific mapper (GL or other).
+  // \sa SetRenderToImage()
   virtual void GetColorImage(vtkImageData*) {};
 
 //BTX
   // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // Initialize rendering for this volume.
+  // \warning INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   void Render( vtkRenderer *, vtkVolume * );
 
   // Description:
@@ -262,10 +274,10 @@ public:
   virtual void GPURender( vtkRenderer *, vtkVolume *) {}
 
   // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // Release any graphics resources that are being consumed by this mapper.
   // The parameter window could be used to determine which graphic
   // resources to release.
+  // \warning INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   void ReleaseGraphicsResources(vtkWindow *) {}
 
   // Description:
