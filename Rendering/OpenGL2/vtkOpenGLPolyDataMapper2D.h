@@ -31,6 +31,7 @@
 #include <string> // For API.
 #include <vector> //for ivars
 
+class vtkActor2D;
 class vtkMatrix4x4;
 class vtkOpenGLBufferObject;
 class vtkOpenGLHelper;
@@ -103,6 +104,13 @@ protected:
   void SetPropertyShaderParameters(vtkOpenGLHelper &cellBO, vtkViewport *viewport, vtkActor2D *act);
 
   // Description:
+  // Perform string replacments on the shader templates, called from
+  // ReplaceShaderValues
+  virtual void ReplaceShaderPicking(
+    std::string & fssource,
+    vtkRenderer *ren, vtkActor2D *act);
+
+  // Description:
   // Update the scene when necessary.
   void UpdateVBO(vtkActor2D *act, vtkViewport *viewport);
 
@@ -125,6 +133,9 @@ protected:
   vtkPoints *TransformedPoints;
   vtkNew<vtkTransform> VBOTransformInverse;
   vtkNew<vtkMatrix4x4> VBOShiftScale;
+
+  int LastPickState;
+  vtkTimeStamp PickStateChanged;
 
   // do we have wide lines that require special handling
   virtual bool HaveWideLines(vtkViewport *, vtkActor2D *);
