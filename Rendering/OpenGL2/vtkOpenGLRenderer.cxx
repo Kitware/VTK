@@ -51,6 +51,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <cmath>
 #include <cassert>
 #include <list>
+#include <string>
 
 class vtkGLPickInfo
 {
@@ -294,6 +295,21 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       // ES3 is supported:
       dualDepthPeelingSupported = true;
 #endif
+
+      // There's a bug on current mesa master that prevents dual depth peeling
+      // from functioning properly, something in the texture sampler is causing
+      // all lookups to return NaN. See discussion on
+      // https://bugs.freedesktop.org/show_bug.cgi?id=94955
+      // We'll always fallback to regular depth peeling until this is fixed.
+      std::string glVersion =
+          reinterpret_cast<const char *>(glGetString(GL_VERSION));
+      if (glVersion.find("Mesa 11.3.0") != std::string::npos)
+        {
+        vtkDebugMacro("Disabling dual depth peeling -- mesa bug detected. "
+                      "GL_VERSION = " << glVersion);
+        dualDepthPeelingSupported = false;
+        }
+
       if (dualDepthPeelingSupported)
         {
 #if GL_ES_VERSION_2_0 != 1 // vtkDualDepthPeelingPass is not built on ES2
