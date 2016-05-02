@@ -219,10 +219,21 @@ public:
   virtual void Squeeze();
   virtual void SetTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx,
                         vtkAbstractArray* source);
-  using Superclass::SetTuple;
+  // MSVC doesn't like 'using' here (error C2487). Just forward instead:
+//  using Superclass::SetTuple;
+  virtual void SetTuple(vtkIdType tupleIdx, const float *tuple)
+  { this->Superclass::SetTuple(tupleIdx, tuple); }
+  virtual void SetTuple(vtkIdType tupleIdx, const double *tuple)
+  { this->Superclass::SetTuple(tupleIdx, tuple); }
+
   virtual void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
                             vtkAbstractArray *source);
-  using Superclass::InsertTuples;
+  // MSVC doesn't like 'using' here (error C2487). Just forward instead:
+//  using Superclass::InsertTuples;
+  virtual void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
+                            vtkAbstractArray* source)
+  { this->Superclass::InsertTuples(dstStart, n, srcStart, source); }
+
   virtual void InsertTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx,
                            vtkAbstractArray *source);
   virtual void InsertTuple(vtkIdType tupleIdx, const float *source);

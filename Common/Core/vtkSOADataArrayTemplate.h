@@ -164,7 +164,11 @@ public:
   // Reimplemented for efficiency:
   virtual void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
                             vtkAbstractArray* source);
-  using Superclass::InsertTuples;
+  // MSVC doesn't like 'using' here (error C2487). Just forward instead:
+  //  using Superclass::InsertTuples;
+  virtual void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
+                            vtkAbstractArray *source)
+  { this->Superclass::InsertTuples(dstIds, srcIds, source); }
 
 protected:
   vtkSOADataArrayTemplate();
