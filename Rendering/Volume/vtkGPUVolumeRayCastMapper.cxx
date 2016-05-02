@@ -47,6 +47,7 @@ vtkGPUVolumeRayCastMapper::vtkGPUVolumeRayCastMapper()
   this->MinimumImageSampleDistance = 1.0;
   this->MaximumImageSampleDistance = 10.0;
   this->RenderToImage              = 0;
+  this->DepthImageScalarType       = VTK_FLOAT;
   this->ClampDepthToBackface       = 0;
   this->UseJittering               = 1;
   this->UseDepthPass               = 0;
@@ -702,4 +703,22 @@ vtkContourValues* vtkGPUVolumeRayCastMapper::GetDepthPassContourValues()
     }
 
   return this->DepthPassContourValues;
+}
+
+//----------------------------------------------------------------------------
+void vtkGPUVolumeRayCastMapper::SetDepthImageScalarTypeToUnsignedChar()
+{
+  this->SetDepthImageScalarType(VTK_UNSIGNED_CHAR);
+}
+
+//----------------------------------------------------------------------------
+void vtkGPUVolumeRayCastMapper::SetDepthImageScalarTypeToUnsignedShort()
+{
+  this->SetDepthImageScalarType(VTK_UNSIGNED_SHORT);
+}
+
+//----------------------------------------------------------------------------
+void vtkGPUVolumeRayCastMapper::SetDepthImageScalarTypeToFloat()
+{
+  this->SetDepthImageScalarType(VTK_FLOAT);
 }
