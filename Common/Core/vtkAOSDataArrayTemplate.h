@@ -186,6 +186,16 @@ public:
   VTK_LEGACY(void InsertTupleValue(vtkIdType tupleIdx, const ValueType *tuple));
   VTK_LEGACY(vtkIdType InsertNextTupleValue(const ValueType *tuple));
 
+  // Reimplemented for efficiency:
+  virtual void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
+                            vtkAbstractArray* source);
+  // MSVC doesn't like 'using' here (error C2487). Just forward instead:
+//  using Superclass::InsertTuples;
+  virtual void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
+                            vtkAbstractArray *source)
+  { this->Superclass::InsertTuples(dstIds, srcIds, source); }
+
+
   //BTX
 protected:
   vtkAOSDataArrayTemplate();

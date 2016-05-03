@@ -17,8 +17,8 @@
 
 #include "vtkGenericDataArray.h"
 
-#include "vtkObjectFactory.h"
 #include "vtkIdList.h"
+#include "vtkMath.h"
 #include "vtkVariantCast.h"
 
 //-----------------------------------------------------------------------------
@@ -38,6 +38,115 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>
   for (int c = 0; c < this->NumberOfComponents; ++c)
     {
     tuple[c] = static_cast<double>(this->GetTypedComponent(tupleIdx, c));
+    }
+}
+
+//-----------------------------------------------------------------------------
+template <class DerivedT, class ValueTypeT>
+void vtkGenericDataArray<DerivedT, ValueTypeT>::InterpolateTuple(
+    vtkIdType dstTupleIdx, vtkIdList *ptIndices, vtkAbstractArray *source,
+    double *weights)
+{
+  // First, check for the common case of typeid(source) == typeid(this). This
+  // way we don't waste time redoing the other checks in the superclass, and
+  // can avoid doing a dispatch for the most common usage of this method.
+  DerivedT *other = vtkArrayDownCast<DerivedT>(source);
+  if (!other)
+    {
+    // Let the superclass handle dispatch/fallback.
+    this->Superclass::InterpolateTuple(dstTupleIdx, ptIndices, source, weights);
+    return;
+    }
+
+  int numComps = this->GetNumberOfComponents();
+  if (other->GetNumberOfComponents() != numComps)
+    {
+    vtkErrorMacro("Number of components do not match: Source: "
+                  << other->GetNumberOfComponents() << " Dest: "
+                  << this->GetNumberOfComponents());
+    return;
+    }
+
+  vtkIdType numIds = ptIndices->GetNumberOfIds();
+  vtkIdType *ids = ptIndices->GetPointer(0);
+
+  for (int c = 0; c < numComps; ++c)
+    {
+    double val = 0.;
+    for (vtkIdType tupleId = 0; tupleId < numIds; ++tupleId)
+      {
+      vtkIdType t = ids[tupleId];
+      double weight = weights[tupleId];
+      val += weight * static_cast<double>(other->GetTypedComponent(t, c));
+      }
+    ValueType valT;
+    vtkMath::RoundDoubleToIntegralIfNecessary(val, &valT);
+    this->InsertTypedComponent(dstTupleIdx, c, valT);
+    }
+}
+
+//-----------------------------------------------------------------------------
+template <class DerivedT, class ValueTypeT>
+void vtkGenericDataArray<DerivedT, ValueTypeT>::InterpolateTuple(
+    vtkIdType dstTupleIdx, vtkIdType srcTupleIdx1, vtkAbstractArray *source1,
+    vtkIdType srcTupleIdx2, vtkAbstractArray *source2, double t)
+{
+  // First, check for the common case of typeid(source) == typeid(this). This
+  // way we don't waste time redoing the other checks in the superclass, and
+  // can avoid doing a dispatch for the most common usage of this method.
+  DerivedT *other1 = vtkArrayDownCast<DerivedT>(source1);
+  DerivedT *other2 = other1 ? vtkArrayDownCast<DerivedT>(source2) : NULL;
+  if (!other1 || !other2)
+    {
+    // Let the superclass handle dispatch/fallback.
+    this->Superclass::InterpolateTuple(dstTupleIdx,
+                                       srcTupleIdx1, source1,
+                                       srcTupleIdx2, source2, t);
+    return;
+    }
+
+  if (srcTupleIdx1 >= source1->GetNumberOfTuples())
+    {
+    vtkErrorMacro("Tuple 1 out of range for provided array. "
+                  "Requested tuple: " << srcTupleIdx1 << " "
+                  "Tuples: " << source1->GetNumberOfTuples());
+    return;
+    }
+
+  if (srcTupleIdx2 >= source2->GetNumberOfTuples())
+    {
+    vtkErrorMacro("Tuple 2 out of range for provided array. "
+                  "Requested tuple: " << srcTupleIdx2 << " "
+                  "Tuples: " << source2->GetNumberOfTuples());
+    return;
+    }
+
+  int numComps = this->GetNumberOfComponents();
+  if (other1->GetNumberOfComponents() != numComps)
+    {
+    vtkErrorMacro("Number of components do not match: Source: "
+                  << other1->GetNumberOfComponents() << " Dest: "
+                  << this->GetNumberOfComponents());
+    return;
+    }
+  if (other2->GetNumberOfComponents() != numComps)
+    {
+    vtkErrorMacro("Number of components do not match: Source: "
+                  << other2->GetNumberOfComponents() << " Dest: "
+                  << this->GetNumberOfComponents());
+    return;
+    }
+
+  const double oneMinusT = 1. - t;
+  double val;
+  ValueType valT;
+
+  for (int c = 0; c < numComps; ++c)
+    {
+    val = other1->GetTypedComponent(srcTupleIdx1, c) * oneMinusT +
+          other2->GetTypedComponent(srcTupleIdx2, c) * t;
+    vtkMath::RoundDoubleToIntegralIfNecessary(val, &valT);
+    this->InsertTypedComponent(dstTupleIdx, c, valT);
     }
 }
 
@@ -392,6 +501,120 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::Squeeze()
 
 //-----------------------------------------------------------------------------
 template <class DerivedT, class ValueTypeT>
+void vtkGenericDataArray<DerivedT, ValueTypeT>::SetTuple(
+    vtkIdType dstTupleIdx, vtkIdType srcTupleIdx, vtkAbstractArray *source)
+{
+  // First, check for the common case of typeid(source) == typeid(this). This
+  // way we don't waste time redoing the other checks in the superclass, and
+  // can avoid doing a dispatch for the most common usage of this method.
+  DerivedT *other = vtkArrayDownCast<DerivedT>(source);
+  if (!other)
+    {
+    // Let the superclass handle dispatch/fallback.
+    this->Superclass::SetTuple(dstTupleIdx, srcTupleIdx, source);
+    return;
+    }
+
+  int numComps = this->GetNumberOfComponents();
+  if (source->GetNumberOfComponents() != numComps)
+    {
+    vtkErrorMacro("Number of components do not match: Source: "
+                  << source->GetNumberOfComponents() << " Dest: "
+                  << this->GetNumberOfComponents());
+    return;
+    }
+
+  for (int c = 0; c < numComps; ++c)
+    {
+    this->SetTypedComponent(dstTupleIdx, c,
+                            other->GetTypedComponent(srcTupleIdx, c));
+    }
+}
+
+//-----------------------------------------------------------------------------
+template <class DerivedT, class ValueTypeT>
+void vtkGenericDataArray<DerivedT, ValueTypeT>::InsertTuples(
+    vtkIdList *dstIds, vtkIdList *srcIds, vtkAbstractArray *source)
+{
+  // First, check for the common case of typeid(source) == typeid(this). This
+  // way we don't waste time redoing the other checks in the superclass, and
+  // can avoid doing a dispatch for the most common usage of this method.
+  DerivedT *other = vtkArrayDownCast<DerivedT>(source);
+  if (!other)
+    {
+    // Let the superclass handle dispatch/fallback.
+    this->Superclass::InsertTuples(dstIds, srcIds, source);
+    return;
+    }
+
+  if (dstIds->GetNumberOfIds() == 0)
+    {
+    return;
+    }
+
+  if (dstIds->GetNumberOfIds() != srcIds->GetNumberOfIds())
+    {
+    vtkErrorMacro("Mismatched number of tuples ids. Source: "
+                  << srcIds->GetNumberOfIds() << " Dest: "
+                  << dstIds->GetNumberOfIds());
+    return;
+    }
+
+  int numComps = this->GetNumberOfComponents();
+  if (other->GetNumberOfComponents() != numComps)
+    {
+    vtkErrorMacro("Number of components do not match: Source: "
+                  << other->GetNumberOfComponents() << " Dest: "
+                  << this->GetNumberOfComponents());
+    return;
+    }
+
+  vtkIdType maxSrcTupleId = srcIds->GetId(0);
+  vtkIdType maxDstTupleId = dstIds->GetId(0);
+  for (int i = 0; i < dstIds->GetNumberOfIds(); ++i)
+    {
+    // parenthesis around std::max prevent MSVC macro replacement when
+    // inlined:
+    maxSrcTupleId = (std::max)(maxSrcTupleId, srcIds->GetId(i));
+    maxDstTupleId = (std::max)(maxDstTupleId, dstIds->GetId(i));
+    }
+
+  if (maxSrcTupleId >= other->GetNumberOfTuples())
+    {
+    vtkErrorMacro("Source array too small, requested tuple at index "
+                  << maxSrcTupleId << ", but there are only "
+                  << other->GetNumberOfTuples() << " tuples in the array.");
+    return;
+    }
+
+  vtkIdType newSize = (maxDstTupleId + 1) * this->NumberOfComponents;
+  if (this->Size < newSize)
+    {
+    if (!this->Resize(maxDstTupleId + 1))
+      {
+      vtkErrorMacro("Resize failed.");
+      return;
+      }
+    }
+
+  // parenthesis around std::max prevent MSVC macro replacement when
+  // inlined:
+  this->MaxId = (std::max)(this->MaxId, newSize - 1);
+
+  vtkIdType numTuples = srcIds->GetNumberOfIds();
+  for (vtkIdType t = 0; t < numTuples; ++t)
+    {
+    vtkIdType srcT = srcIds->GetId(t);
+    vtkIdType dstT = dstIds->GetId(t);
+    for (int c = 0; c < numComps; ++c)
+      {
+      this->SetTypedComponent(dstT, c, other->GetTypedComponent(srcT, c));
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
+template <class DerivedT, class ValueTypeT>
 void vtkGenericDataArray<DerivedT, ValueTypeT>
 ::InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray *source)
 {
@@ -463,6 +686,83 @@ vtkIdType vtkGenericDataArray<DerivedT, ValueTypeT>
   vtkIdType nextTuple = this->GetNumberOfTuples();
   this->InsertTuple(nextTuple, tuple);
   return nextTuple;
+}
+
+//-----------------------------------------------------------------------------
+template <class DerivedT, class ValueTypeT>
+void vtkGenericDataArray<DerivedT, ValueTypeT>::GetTuples(
+    vtkIdList *tupleIds, vtkAbstractArray *output)
+{
+  // First, check for the common case of typeid(source) == typeid(this). This
+  // way we don't waste time redoing the other checks in the superclass, and
+  // can avoid doing a dispatch for the most common usage of this method.
+  DerivedT *other = vtkArrayDownCast<DerivedT>(output);
+  if (!other)
+    {
+    // Let the superclass handle dispatch/fallback.
+    this->Superclass::GetTuples(tupleIds, output);
+    return;
+    }
+
+  int numComps = this->GetNumberOfComponents();
+  if (other->GetNumberOfComponents() != numComps)
+    {
+    vtkErrorMacro("Number of components for input and output do not match.\n"
+                  "Source: " << this->GetNumberOfComponents() << "\n"
+                  "Destination: " << other->GetNumberOfComponents());
+    return;
+    }
+
+  vtkIdType *srcTuple = tupleIds->GetPointer(0);
+  vtkIdType *srcTupleEnd = tupleIds->GetPointer(tupleIds->GetNumberOfIds());
+  vtkIdType dstTuple = 0;
+
+  while (srcTuple != srcTupleEnd)
+    {
+    for (int c = 0; c < numComps; ++c)
+      {
+      other->SetTypedComponent(dstTuple, c,
+                               this->GetTypedComponent(*srcTuple, c));
+      }
+    ++srcTuple;
+    ++dstTuple;
+    }
+}
+
+//-----------------------------------------------------------------------------
+template <class DerivedT, class ValueTypeT>
+void vtkGenericDataArray<DerivedT, ValueTypeT>::GetTuples(
+    vtkIdType p1, vtkIdType p2, vtkAbstractArray *output)
+{
+  // First, check for the common case of typeid(source) == typeid(this). This
+  // way we don't waste time redoing the other checks in the superclass, and
+  // can avoid doing a dispatch for the most common usage of this method.
+  DerivedT *other = vtkArrayDownCast<DerivedT>(output);
+  if (!other)
+    {
+    // Let the superclass handle dispatch/fallback.
+    this->Superclass::GetTuples(p1, p2, output);
+    return;
+    }
+
+  int numComps = this->GetNumberOfComponents();
+  if (other->GetNumberOfComponents() != numComps)
+    {
+    vtkErrorMacro("Number of components for input and output do not match.\n"
+                  "Source: " << this->GetNumberOfComponents() << "\n"
+                  "Destination: " << other->GetNumberOfComponents());
+    return;
+    }
+
+  // p1-p2 are inclusive
+  for (vtkIdType srcT = p1, dstT = 0; srcT <= p2; ++srcT, ++dstT)
+    {
+    for (int c = 0; c < numComps; ++c)
+      {
+      other->SetTypedComponent(dstT, c,
+                               this->GetTypedComponent(srcT, c));
+      }
+    }
 }
 
 //-----------------------------------------------------------------------------

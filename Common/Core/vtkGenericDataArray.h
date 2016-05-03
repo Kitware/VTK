@@ -217,6 +217,23 @@ public:
   virtual void SetNumberOfTuples(vtkIdType number);
   virtual void Initialize();
   virtual void Squeeze();
+  virtual void SetTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx,
+                        vtkAbstractArray* source);
+  // MSVC doesn't like 'using' here (error C2487). Just forward instead:
+//  using Superclass::SetTuple;
+  virtual void SetTuple(vtkIdType tupleIdx, const float *tuple)
+  { this->Superclass::SetTuple(tupleIdx, tuple); }
+  virtual void SetTuple(vtkIdType tupleIdx, const double *tuple)
+  { this->Superclass::SetTuple(tupleIdx, tuple); }
+
+  virtual void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
+                            vtkAbstractArray *source);
+  // MSVC doesn't like 'using' here (error C2487). Just forward instead:
+//  using Superclass::InsertTuples;
+  virtual void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
+                            vtkAbstractArray* source)
+  { this->Superclass::InsertTuples(dstStart, n, srcStart, source); }
+
   virtual void InsertTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx,
                            vtkAbstractArray *source);
   virtual void InsertTuple(vtkIdType tupleIdx, const float *source);
@@ -226,8 +243,15 @@ public:
                                     vtkAbstractArray *source);
   virtual vtkIdType InsertNextTuple(const float *tuple);
   virtual vtkIdType InsertNextTuple(const double *tuple);
+  virtual void GetTuples(vtkIdList *tupleIds, vtkAbstractArray *output);
+  virtual void GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray *output);
   virtual double *GetTuple(vtkIdType tupleIdx);
   virtual void GetTuple(vtkIdType tupleIdx, double * tuple);
+  virtual void InterpolateTuple(vtkIdType dstTupleIdx, vtkIdList *ptIndices,
+                                vtkAbstractArray* source,  double* weights);
+  virtual void InterpolateTuple(vtkIdType dstTupleIdx,
+    vtkIdType srcTupleIdx1, vtkAbstractArray* source1,
+    vtkIdType srcTupleIdx2, vtkAbstractArray* source2, double t);
   virtual void SetComponent(vtkIdType tupleIdx, int compIdx, double value);
   virtual double GetComponent(vtkIdType tupleIdx, int compIdx);
   virtual void SetVariantValue(vtkIdType valueIdx, vtkVariant value);
