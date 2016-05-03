@@ -20,6 +20,7 @@
 #include "vtkDataSet.h"
 #include "vtkPointData.h"
 #include "vtkMath.h"
+#include "vtkMathUtilities.h"
 
 vtkStandardNewMacro(vtkProbabilisticVoronoiKernel);
 
@@ -64,7 +65,7 @@ ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *prob,
       id = pIds->GetId(i);
       this->DataSet->GetPoint(id,y);
       d = vtkMath::Distance2BetweenPoints(x,y);
-      if ( d == 0.0 ) //precise hit on existing point
+      if ( vtkMathUtilities::FuzzyCompare(d, 0.0, std::numeric_limits<double>::epsilon()*256.0 )) //precise hit on existing point
         {
         mostProbableId = id;
         break;

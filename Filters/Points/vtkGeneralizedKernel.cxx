@@ -57,10 +57,10 @@ void vtkGeneralizedKernel::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Kernel Footprint: " << this->KernelFootprint << "\n";
-  os << indent << "Radius: " << this->Radius << "\n";
-  os << indent << "Number of Points: " << this->NumberOfPoints << "\n";
+  os << indent << "Kernel Footprint: " << this->GetKernelFootprint() << "\n";
+  os << indent << "Radius: " << this->GetRadius() << "\n";
+  os << indent << "Number of Points: " << this->GetNumberOfPoints() << "\n";
   os << indent << "Normalize Weights: "
-     << (this->NormalizeWeights ? "On\n" : "Off\n");
+     << (this->GetNormalizeWeights() ? "On\n" : "Off\n");
 
 }

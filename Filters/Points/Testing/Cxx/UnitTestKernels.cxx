@@ -31,8 +31,9 @@
 
 #include <string>
 #include <cmath>
+#include <sstream>
 
-template<typename T> int TestProbabilisticKernel (vtkSmartPointer<T> kernel, vtkIdType numberOfPoints, std::string description = "");
+template<typename T> int TestProbabilisticKernel (vtkSmartPointer<T> kernel, vtkIdType numberOfPoints, std::string description = "", bool useProbs = true);
 template<typename T> int TestKernel (vtkSmartPointer<T> kernel, vtkIdType numberOfPoints, std::string description = "");
 
 //-----------------------------------------------------------------------------
@@ -43,14 +44,22 @@ int UnitTestKernels(int, char*[])
   {
   vtkSmartPointer<vtkGaussianKernel> kernel =
     vtkSmartPointer<vtkGaussianKernel>::New();
+  std::ostringstream emptyPrint;
+  kernel->Print(emptyPrint);
+
   kernel->RequiresInitializationOff();
   kernel->SetKernelFootprintToNClosest();
   kernel->SetNumberOfPoints(100);
-  status += TestProbabilisticKernel<vtkGaussianKernel> (kernel, numberOfPoints, "GaussianKernel: NClosest(100)");
+  kernel->SetSharpness(5.0);
+  kernel->NormalizeWeightsOn();
+  status += TestProbabilisticKernel<vtkGaussianKernel> (kernel, numberOfPoints, "GaussianKernel: NClosest(100): Sharpness(5.0)");
   }
   {
   vtkSmartPointer<vtkGaussianKernel> kernel =
     vtkSmartPointer<vtkGaussianKernel>::New();
+  std::ostringstream emptyPrint;
+  kernel->Print(emptyPrint);
+
   kernel->RequiresInitializationOff();
   kernel->SetKernelFootprintToRadius();
   kernel->SetRadius(.05);
@@ -59,6 +68,9 @@ int UnitTestKernels(int, char*[])
   {
   vtkSmartPointer<vtkShepardKernel> kernel =
     vtkSmartPointer<vtkShepardKernel>::New();
+  std::ostringstream emptyPrint;
+  kernel->Print(emptyPrint);
+
   kernel->RequiresInitializationOff();
   kernel->SetKernelFootprintToNClosest();
   kernel->SetNumberOfPoints(100);
@@ -67,6 +79,9 @@ int UnitTestKernels(int, char*[])
   {
   vtkSmartPointer<vtkShepardKernel> kernel =
     vtkSmartPointer<vtkShepardKernel>::New();
+  std::ostringstream emptyPrint;
+  kernel->Print(emptyPrint);
+
   kernel->RequiresInitializationOff();
   kernel->SetKernelFootprintToRadius();
   kernel->SetRadius(.05);
@@ -75,6 +90,9 @@ int UnitTestKernels(int, char*[])
   {
   vtkSmartPointer<vtkShepardKernel> kernel =
     vtkSmartPointer<vtkShepardKernel>::New();
+  std::ostringstream emptyPrint;
+  kernel->Print(emptyPrint);
+
   kernel->RequiresInitializationOff();
   kernel->SetKernelFootprintToRadius();
   kernel->SetPowerParameter(10.0);
@@ -84,6 +102,9 @@ int UnitTestKernels(int, char*[])
   {
   vtkSmartPointer<vtkShepardKernel> kernel =
     vtkSmartPointer<vtkShepardKernel>::New();
+  std::ostringstream emptyPrint;
+  kernel->Print(emptyPrint);
+
   kernel->RequiresInitializationOff();
   kernel->SetKernelFootprintToRadius();
   kernel->SetPowerParameter(1.0);
@@ -93,6 +114,9 @@ int UnitTestKernels(int, char*[])
   {
   vtkSmartPointer<vtkProbabilisticVoronoiKernel> kernel =
     vtkSmartPointer<vtkProbabilisticVoronoiKernel>::New();
+  std::ostringstream emptyPrint;
+  kernel->Print(emptyPrint);
+
   kernel->RequiresInitializationOff();
   kernel->SetKernelFootprintToNClosest();
   kernel->SetNumberOfPoints(100);
@@ -101,6 +125,9 @@ int UnitTestKernels(int, char*[])
   {
   vtkSmartPointer<vtkProbabilisticVoronoiKernel> kernel =
     vtkSmartPointer<vtkProbabilisticVoronoiKernel>::New();
+  std::ostringstream emptyPrint;
+  kernel->Print(emptyPrint);
+
   kernel->RequiresInitializationOff();
   kernel->SetKernelFootprintToRadius();
   kernel->SetRadius(.05);
@@ -109,6 +136,9 @@ int UnitTestKernels(int, char*[])
   {
   vtkSmartPointer<vtkLinearKernel> kernel =
     vtkSmartPointer<vtkLinearKernel>::New();
+  std::ostringstream emptyPrint;
+  kernel->Print(emptyPrint);
+
   kernel->RequiresInitializationOff();
   kernel->SetKernelFootprintToNClosest();
   kernel->SetNumberOfPoints(100);
@@ -117,14 +147,38 @@ int UnitTestKernels(int, char*[])
   {
   vtkSmartPointer<vtkLinearKernel> kernel =
     vtkSmartPointer<vtkLinearKernel>::New();
+  std::ostringstream emptyPrint;
+  kernel->Print(emptyPrint);
+
   kernel->RequiresInitializationOff();
   kernel->SetKernelFootprintToRadius();
   kernel->SetRadius(.05);
   status += TestProbabilisticKernel<vtkLinearKernel> (kernel, numberOfPoints, "LinearKernel: Radius(.05)");
   }
   {
+  vtkSmartPointer<vtkLinearKernel> kernel =
+    vtkSmartPointer<vtkLinearKernel>::New();
+  std::ostringstream emptyPrint;
+  kernel->Print(emptyPrint);
+
+  kernel->RequiresInitializationOff();
+  kernel->SetKernelFootprintToRadius();
+  kernel->SetRadius(.05);
+  status += TestProbabilisticKernel<vtkLinearKernel> (kernel, numberOfPoints, "LinearKernel: Radius(.05), No Probabilities", false);
+  }
+  {
   vtkSmartPointer<vtkEllipsoidalGaussianKernel> kernel =
     vtkSmartPointer<vtkEllipsoidalGaussianKernel>::New();
+  std::ostringstream emptyPrint;
+  kernel->Print(emptyPrint);
+  std::ostringstream superPrint;
+  kernel->Superclass::Print(superPrint);
+
+  kernel->UseNormalsOff();
+  kernel->UseScalarsOn();
+  kernel->SetScaleFactor(2.0);
+
+  kernel->SetScalarsArrayName("TestDistances");
   kernel->RequiresInitializationOff();
   kernel->SetRadius(.05);
   status += TestKernel<vtkEllipsoidalGaussianKernel> (kernel, numberOfPoints, "EllipsoidalGaussianKernel: Radius(.05)");
@@ -132,7 +186,13 @@ int UnitTestKernels(int, char*[])
   {
   vtkSmartPointer<vtkEllipsoidalGaussianKernel> kernel =
     vtkSmartPointer<vtkEllipsoidalGaussianKernel>::New();
+  std::ostringstream emptyPrint;
+  kernel->Print(emptyPrint);
+
   kernel->RequiresInitializationOff();
+  kernel->UseNormalsOn();
+  kernel->SetNormalsArrayName("TestNormals");
+  kernel->UseScalarsOff();
   kernel->SetRadius(.05);
   kernel->SetSharpness(5.0);
   status += TestKernel<vtkEllipsoidalGaussianKernel> (kernel, numberOfPoints, "EllipsoidalGaussianKernel: Radius(.05) Sharpness(5.0)");
@@ -140,6 +200,9 @@ int UnitTestKernels(int, char*[])
   {
   vtkSmartPointer<vtkEllipsoidalGaussianKernel> kernel =
     vtkSmartPointer<vtkEllipsoidalGaussianKernel>::New();
+  std::ostringstream emptyPrint;
+  kernel->Print(emptyPrint);
+
   kernel->RequiresInitializationOff();
   kernel->SetRadius(.05);
   kernel->SetEccentricity(.1);
@@ -148,6 +211,9 @@ int UnitTestKernels(int, char*[])
   {
   vtkSmartPointer<vtkEllipsoidalGaussianKernel> kernel =
     vtkSmartPointer<vtkEllipsoidalGaussianKernel>::New();
+  std::ostringstream emptyPrint;
+  kernel->Print(emptyPrint);
+
   kernel->RequiresInitializationOff();
   kernel->SetRadius(.05);
   kernel->SetEccentricity(10.0);
@@ -156,16 +222,36 @@ int UnitTestKernels(int, char*[])
   {
   vtkSmartPointer<vtkVoronoiKernel> kernel =
     vtkSmartPointer<vtkVoronoiKernel>::New();
+  std::ostringstream emptyPrint;
+  kernel->Print(emptyPrint);
+
   kernel->RequiresInitializationOff();
   status += TestKernel<vtkVoronoiKernel> (kernel, numberOfPoints, "VoronoiKernel");
   }
   return status;
 }
 
-template<typename T> int TestProbabilisticKernel (vtkSmartPointer<T> kernel, vtkIdType numberOfPoints, std::string description)
+template<typename T> int TestProbabilisticKernel (vtkSmartPointer<T> kernel, vtkIdType numberOfPoints, std::string description, bool useProbs)
 {
-  int status = 0;
+  int status = EXIT_SUCCESS;
+
   std::cout << "Testing " << description;
+
+  if ( !kernel->IsTypeOf("vtkGeneralizedKernel"))
+    {
+    std::cout << " ERROR: " << kernel->GetClassName()
+              << " is not a subclass of vtkGeneralizedKernel";
+    std::cout << " FAILED" << std::endl;
+    status = EXIT_FAILURE;
+    }
+  if ( !kernel->IsTypeOf("vtkInterpolationKernel"))
+    {
+    std::cout << " ERROR: " << kernel->GetClassName()
+              << " is not a subclass of vtkInterpolationKernel";
+    std::cout << " FAILED" << std::endl;
+    status = EXIT_FAILURE;
+    }
+
   vtkSmartPointer<vtkSphereSource> sphere =
     vtkSmartPointer<vtkSphereSource>::New();
   sphere->SetPhiResolution(11);
@@ -190,6 +276,7 @@ template<typename T> int TestProbabilisticKernel (vtkSmartPointer<T> kernel, vtk
     {
     double distance;
     double pt[3];
+
     randomSphere->GetOutput()->GetPoint(id, pt);
     distance = std::sqrt(vtkMath::Distance2BetweenPoints(refPt, pt));
     distances->SetTuple1(id, distance);
@@ -203,6 +290,10 @@ template<typename T> int TestProbabilisticKernel (vtkSmartPointer<T> kernel, vtk
   locator->SetDataSet(randomSphere->GetOutput());
   double meanProbe = 0.0;
   kernel->Initialize(locator, randomSphere->GetOutput(), randomSphere->GetOutput()->GetPointData());
+
+  std::ostringstream fullPrint;
+  kernel->Print(fullPrint);
+
   for (vtkIdType id = 0; id < sphere->GetOutput()->GetNumberOfPoints(); ++id)
     {
     double point[3];
@@ -223,8 +314,14 @@ template<typename T> int TestProbabilisticKernel (vtkSmartPointer<T> kernel, vtk
       distance = std::sqrt(vtkMath::Distance2BetweenPoints(refPt, pt));
       probabilities->SetTuple1(p, (2.0 - distance) / 2.0);
       }
-    kernel->ComputeWeights(point, ptIds, probabilities, weights);
-
+    if (useProbs)
+      {
+      kernel->ComputeWeights(point, ptIds, probabilities, weights);
+      }
+    else
+      {
+      kernel->ComputeWeights(point, ptIds, NULL, weights);
+      }
     double scalar;
     randomSphere->GetOutput()->GetPointData()->GetArray("Distances")->GetTuple(id, &scalar);
     double probe = 0.0;
@@ -251,10 +348,49 @@ template<typename T> int TestProbabilisticKernel (vtkSmartPointer<T> kernel, vtk
     std::cout << " FAILED" << std::endl;
     status = EXIT_FAILURE;
     }
-  else
+
+  // Test for exact points
+  vtkSmartPointer<vtkStaticPointLocator> exactLocator =
+    vtkSmartPointer<vtkStaticPointLocator>::New();
+  exactLocator->SetDataSet(sphere->GetOutput());
+  vtkSmartPointer<vtkDoubleArray> radii =
+    vtkSmartPointer<vtkDoubleArray>::New();
+  radii->SetNumberOfTuples(sphere->GetOutput()->GetNumberOfPoints());
+  radii->FillComponent(0, .5);
+  sphere->GetOutput()->GetPointData()->SetScalars(radii);
+  kernel->Initialize(exactLocator,
+                     sphere->GetOutput(),
+                     sphere->GetOutput()->GetPointData());
+  for (vtkIdType id = 0; id < sphere->GetOutput()->GetNumberOfPoints(); ++id)
+    {
+    double point[3];
+    sphere->GetOutput()->GetPoints()->GetPoint(id, point);
+    vtkSmartPointer<vtkIdList> ptIds =
+      vtkSmartPointer<vtkIdList>::New();
+    kernel->ComputeBasis(point, ptIds);
+    vtkSmartPointer<vtkDoubleArray> weights =
+      vtkSmartPointer<vtkDoubleArray>::New();
+    kernel->ComputeWeights(point, ptIds, NULL, weights);
+
+    double probe = 0.0;
+    for (vtkIdType p = 0; p < ptIds->GetNumberOfIds(); ++p)
+      {
+      double value;
+      sphere->GetOutput()->GetPointData()->GetScalars()->GetTuple(ptIds->GetId(p), &value);;
+      double weight;
+      weights->GetTuple(p, &weight);
+      probe += weight * value;
+      }
+    if (!vtkMathUtilities::FuzzyCompare(probe, .5, std::numeric_limits<double>::epsilon()*256.0))
+      {
+      status = EXIT_FAILURE;
+      std::cout << "Expected .5 but got " << probe << std::endl;
+      }
+    }
+
+  if (status == EXIT_SUCCESS)
     {
     std::cout << " PASSED" << std::endl;
-    status = EXIT_SUCCESS;
     }
   return status;
 }
@@ -278,6 +414,10 @@ template<typename T> int TestKernel (vtkSmartPointer<T> kernel, vtkIdType number
   vtkSmartPointer<vtkDoubleArray> distances =
     vtkSmartPointer<vtkDoubleArray>::New();
   distances->SetNumberOfTuples(randomSphere->GetOutput()->GetNumberOfPoints());
+  vtkSmartPointer<vtkDoubleArray> normals =
+    vtkSmartPointer<vtkDoubleArray>::New();
+  normals->SetNumberOfComponents(3);
+  normals->SetNumberOfTuples(randomSphere->GetOutput()->GetNumberOfPoints());
 
   double refPt[3];
   refPt[0] = 0.0;
@@ -290,24 +430,34 @@ template<typename T> int TestKernel (vtkSmartPointer<T> kernel, vtkIdType number
     randomSphere->GetOutput()->GetPoint(id, pt);
     distance = std::sqrt(vtkMath::Distance2BetweenPoints(refPt, pt));
     distances->SetTuple1(id, distance);
+    double normal[3];
+    normal[0] = pt[0];
+    normal[1] = pt[1];
+    normal[2] = pt[2];
+    normals->SetTuple3(id, normal[0], normal[1], normal[2]);
     }
-  distances->SetName("Distances");
+  distances->SetName("TestDistances");
+  normals->SetName("TestNormals");
 
-  randomSphere->GetOutput()->GetPointData()->SetScalars(distances);
+  randomSphere->GetOutput()->GetPointData()->AddArray(distances);
+  randomSphere->GetOutput()->GetPointData()->AddArray(normals);
 
   vtkSmartPointer<vtkStaticPointLocator> locator =
     vtkSmartPointer<vtkStaticPointLocator>::New();
   locator->SetDataSet(randomSphere->GetOutput());
-  vtkSmartPointer<vtkIdList> ptIds =
-    vtkSmartPointer<vtkIdList>::New();
-  vtkSmartPointer<vtkDoubleArray> weights =
-    vtkSmartPointer<vtkDoubleArray>::New();
   double meanProbe = 0.0;
   kernel->Initialize(locator, randomSphere->GetOutput(), randomSphere->GetOutput()->GetPointData());
+
+  std::ostringstream fullPrint;
+  kernel->Print(fullPrint);
   for (vtkIdType id = 0; id < sphere->GetOutput()->GetNumberOfPoints(); ++id)
     {
     double point[3];
     sphere->GetOutput()->GetPoints()->GetPoint(id, point);
+    vtkSmartPointer<vtkIdList> ptIds =
+      vtkSmartPointer<vtkIdList>::New();
+    vtkSmartPointer<vtkDoubleArray> weights =
+      vtkSmartPointer<vtkDoubleArray>::New();
     kernel->ComputeBasis(point, ptIds);
     kernel->ComputeWeights(point, ptIds, weights);
     if (id == 0)
@@ -315,12 +465,12 @@ template<typename T> int TestKernel (vtkSmartPointer<T> kernel, vtkIdType number
       std::cout << " # points: " << ptIds->GetNumberOfIds();
       }
     double scalar;
-    randomSphere->GetOutput()->GetPointData()->GetArray("Distances")->GetTuple(id, &scalar);
+    randomSphere->GetOutput()->GetPointData()->GetArray("TestDistances")->GetTuple(id, &scalar);
     double probe = 0.0;
     for (vtkIdType p = 0; p < ptIds->GetNumberOfIds(); ++p)
       {
       double value;
-      randomSphere->GetOutput()->GetPointData()->GetArray("Distances")->GetTuple(ptIds->GetId(p), &value);;
+      randomSphere->GetOutput()->GetPointData()->GetArray("TestDistances")->GetTuple(ptIds->GetId(p), &value);;
       double weight;
       weights->GetTuple(p, &weight);
       probe += weight * value;
@@ -335,10 +485,49 @@ template<typename T> int TestKernel (vtkSmartPointer<T> kernel, vtkIdType number
     std::cout << " FAILED" << std::endl;
     status = EXIT_FAILURE;
     }
-  else
+
+  // Test for exact points
+  vtkSmartPointer<vtkStaticPointLocator> exactLocator =
+    vtkSmartPointer<vtkStaticPointLocator>::New();
+  exactLocator->SetDataSet(sphere->GetOutput());
+  vtkSmartPointer<vtkDoubleArray> radii =
+    vtkSmartPointer<vtkDoubleArray>::New();
+  radii->SetNumberOfTuples(sphere->GetOutput()->GetNumberOfPoints());
+  radii->FillComponent(0, .5);
+  sphere->GetOutput()->GetPointData()->SetScalars(radii);
+  kernel->Initialize(exactLocator,
+                     sphere->GetOutput(),
+                     sphere->GetOutput()->GetPointData());
+  for (vtkIdType id = 0; id < sphere->GetOutput()->GetNumberOfPoints(); ++id)
+    {
+    double point[3];
+    sphere->GetOutput()->GetPoints()->GetPoint(id, point);
+    vtkSmartPointer<vtkIdList> ptIds =
+      vtkSmartPointer<vtkIdList>::New();
+    vtkSmartPointer<vtkDoubleArray> weights =
+      vtkSmartPointer<vtkDoubleArray>::New();
+    kernel->ComputeBasis(point, ptIds);
+    kernel->ComputeWeights(point, ptIds, weights);
+
+    double probe = 0.0;
+    for (vtkIdType p = 0; p < ptIds->GetNumberOfIds(); ++p)
+      {
+      double value;
+      sphere->GetOutput()->GetPointData()->GetScalars()->GetTuple(ptIds->GetId(p), &value);;
+      double weight;
+      weights->GetTuple(p, &weight);
+      probe += weight * value;
+      }
+    if (!vtkMathUtilities::FuzzyCompare(probe, .5, std::numeric_limits<double>::epsilon()*256.0))
+      {
+      status = EXIT_FAILURE;
+      std::cout << "Expected .5 but got " << probe << std::endl;
+      }
+    }
+
+  if (status == EXIT_SUCCESS)
     {
     std::cout << " PASSED" << std::endl;
-    status = EXIT_SUCCESS;
     }
   return status;
 }

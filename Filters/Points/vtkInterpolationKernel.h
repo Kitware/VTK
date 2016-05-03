@@ -63,8 +63,8 @@ class VTKFILTERSPOINTS_EXPORT vtkInterpolationKernel : public vtkObject
 {
 public:
   // Description:
-  // Standard methods for type and printing.
-  vtkTypeMacro(vtkInterpolationKernel,vtkObject);
+  // Standard method for type and printing.
+  vtkAbstractTypeMacro(vtkInterpolationKernel, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

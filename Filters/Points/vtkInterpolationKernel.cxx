@@ -87,7 +87,7 @@ void vtkInterpolationKernel::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Requires Initialization: "
-     << (this->RequiresInitialization ? "On\n" : "Off\n");
+     << (this->GetRequiresInitialization() ? "On\n" : "Off\n");
 
   if ( this->Locator )
     {
