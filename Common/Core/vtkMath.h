@@ -42,7 +42,6 @@
 
 #include "vtkMathConfigure.h" // For <cmath> and VTK_HAS_ISNAN etc.
 
-#include <algorithm> // min/max in template implementations.
 #include <cassert> // assert() in inline implementations.
 
 #ifndef DBL_MIN
@@ -73,26 +72,9 @@ class vtkBoxMuellerRandomSequence;
 
 namespace vtk_detail
 {
-// Can't specialize templates inside a template class, so we move the impl here.
+// forward declaration
 template <typename OutT>
-void RoundDoubleToIntegralIfNecessary(double val, OutT* ret)
-{ // OutT is integral -- clamp and round
-  val = std::max(val, static_cast<double>(vtkTypeTraits<OutT>::Min()));
-  val = std::min(val, static_cast<double>(vtkTypeTraits<OutT>::Max()));
-  *ret = static_cast<OutT>((val >= 0.0) ? (val + 0.5) : (val - 0.5));
-}
-template <>
-inline void RoundDoubleToIntegralIfNecessary(double val, double* retVal)
-{ // OutT is double: passthrough
-  *retVal = val;
-}
-template <>
-inline void RoundDoubleToIntegralIfNecessary(double val, float* retVal)
-{ // OutT is float -- just clamp
-  val = std::max(val, static_cast<double>(vtkTypeTraits<float>::Min()));
-  val = std::min(val, static_cast<double>(vtkTypeTraits<float>::Max()));
-  *retVal = static_cast<float>(val);
-}
+void RoundDoubleToIntegralIfNecessary(double val, OutT* ret);
 } // end namespace vtk_detail
 
 class VTKCOMMONCORE_EXPORT vtkMath : public vtkObject
@@ -1331,6 +1313,30 @@ inline double vtkMath::ClampAndNormalizeValue(double value,
 
   return result;
 }
+
+namespace vtk_detail
+{
+// Can't specialize templates inside a template class, so we move the impl here.
+template <typename OutT>
+void RoundDoubleToIntegralIfNecessary(double val, OutT* ret)
+{ // OutT is integral -- clamp and round
+  val = vtkMath::Max(val, static_cast<double>(vtkTypeTraits<OutT>::Min()));
+  val = vtkMath::Min(val, static_cast<double>(vtkTypeTraits<OutT>::Max()));
+  *ret = static_cast<OutT>((val >= 0.0) ? (val + 0.5) : (val - 0.5));
+}
+template <>
+inline void RoundDoubleToIntegralIfNecessary(double val, double* retVal)
+{ // OutT is double: passthrough
+  *retVal = val;
+}
+template <>
+inline void RoundDoubleToIntegralIfNecessary(double val, float* retVal)
+{ // OutT is float -- just clamp
+  val = vtkMath::Max(val, static_cast<double>(vtkTypeTraits<float>::Min()));
+  val = vtkMath::Min(val, static_cast<double>(vtkTypeTraits<float>::Max()));
+  *retVal = static_cast<float>(val);
+}
+} // end namespace vtk_detail
 
 //-----------------------------------------------------------------------------
 #if defined(VTK_HAS_ISINF) || defined(VTK_HAS_STD_ISINF)
