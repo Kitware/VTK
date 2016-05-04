@@ -35,11 +35,11 @@ public:
 
   // Description:
   // Implement base class method.
-  void Render(vtkRenderer *ren);
+  virtual void Render(vtkRenderer *ren);
 
-  void UpdateViewport(vtkRenderer *ren);
+  virtual void UpdateViewport(vtkRenderer *ren);
 
-  void GetKeyMatrices(vtkRenderer *ren, vtkMatrix4x4 *&WCVCMatrix,
+  virtual void GetKeyMatrices(vtkRenderer *ren, vtkMatrix4x4 *&WCVCMatrix,
     vtkMatrix3x3 *&normalMatrix, vtkMatrix4x4 *&VCDCMatrix, vtkMatrix4x4 *&WCDCMatrix);
 
 protected:
