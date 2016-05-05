@@ -1390,6 +1390,10 @@ void vtkPolyData::Reset()
     {
     this->Strips->Reset();
     }
+
+  // discard Links and Cells
+  this->DeleteLinks();
+  this->DeleteCells();
 }
 
 //----------------------------------------------------------------------------
