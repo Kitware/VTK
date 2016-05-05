@@ -45,9 +45,9 @@ int TestExodusImplicitArrays(int argc, char *argv[])
     {
     return 1;
     }
-  vtkIdTypeArray *ie = vtkIdTypeArray::SafeDownCast (
+  vtkIdTypeArray *ie = vtkArrayDownCast<vtkIdTypeArray>(
                   obj->GetAttributes (vtkDataSet::CELL)->GetAbstractArray ("ImplicitElementId"));
-  vtkIdTypeArray *in = vtkIdTypeArray::SafeDownCast (
+  vtkIdTypeArray *in = vtkArrayDownCast<vtkIdTypeArray>(
                   obj->GetAttributes (vtkDataSet::POINT)->GetAbstractArray ("ImplicitNodeId"));
   if (!ie || !in)
     {

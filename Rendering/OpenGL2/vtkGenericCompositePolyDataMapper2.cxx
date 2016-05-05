@@ -620,7 +620,7 @@ void vtkGenericCompositePolyDataMapper2::RenderBlock(vtkRenderer *renderer,
         {
         if (selector && selector->GetCurrentPass() == vtkHardwareSelector::COMPOSITE_INDEX_PASS &&
             (!this->CompositeIdArrayName || !ds->GetCellData() ||
-            vtkUnsignedIntArray::SafeDownCast(
+            vtkArrayDownCast<vtkUnsignedIntArray>(
             ds->GetCellData()->GetArray(this->CompositeIdArrayName)) == NULL))
           {
           helper->SetPopulateSelectionSettings(0);

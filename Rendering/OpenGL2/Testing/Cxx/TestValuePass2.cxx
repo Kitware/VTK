@@ -292,7 +292,7 @@ int TestValuePass2(int argc, char* argv[])
   //id->PrintSelf(cerr, vtkIndent(0));
 
   vtkUnsignedCharArray *ar =
-    vtkUnsignedCharArray::SafeDownCast(id->GetPointData()->GetArray("ImageScalars"));
+    vtkArrayDownCast<vtkUnsignedCharArray>(id->GetPointData()->GetArray("ImageScalars"));
   unsigned char *ptr = static_cast<unsigned char*>(ar->GetVoidPointer(0));
   std::set<double> found;
   double value;

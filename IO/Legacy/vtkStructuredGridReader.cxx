@@ -249,7 +249,7 @@ int vtkStructuredGridReader::RequestData(
           return 1;
           }
 
-        vtkUnsignedCharArray *data = vtkUnsignedCharArray::SafeDownCast(
+        vtkUnsignedCharArray *data = vtkArrayDownCast<vtkUnsignedCharArray>(
                                         this->ReadArray(line, numPts, 1));
 
         if ( data != NULL )

@@ -264,7 +264,7 @@ void vtkExtractArraysOverTime::vtkInternal::AddTimeStepInternalForLocations(
     }
 
   vtkDataSetAttributes* inDSA = input->GetPointData();
-  vtkCharArray* validMask = vtkCharArray::SafeDownCast(
+  vtkCharArray* validMask = vtkArrayDownCast<vtkCharArray>(
     inDSA->GetArray("vtkValidPointMask"));
 
   if (!validMask)
@@ -493,7 +493,7 @@ void vtkExtractArraysOverTime::vtkInternal::AddTimeStepInternalForQuery(
       vtkExtractArraysAddColumnValue(
         statSummary.GetPointer(), maxName.str(), cType, model->GetValue(4, 1));
       }
-    if (vtkDataArray::SafeDownCast(col))
+    if (vtkArrayDownCast<vtkDataArray>(col))
       {
       descrStats->ResetRequests();
       descrStats->AddColumn(cname);
@@ -601,11 +601,11 @@ void vtkExtractArraysOverTime::vtkInternal::AddTimeStepInternal(
     }
 
   vtkIdTypeArray* idsArray =
-    vtkIdTypeArray::SafeDownCast(inDSA->GetArray(idarrayname));
+    vtkArrayDownCast<vtkIdTypeArray>(inDSA->GetArray(idarrayname));
 
   if (this->ContentType == vtkSelectionNode::GLOBALIDS)
     {
-    idsArray = vtkIdTypeArray::SafeDownCast(inDSA->GetGlobalIds());
+    idsArray = vtkArrayDownCast<vtkIdTypeArray>(inDSA->GetGlobalIds());
     }
 
   if (!idsArray)
@@ -647,7 +647,7 @@ void vtkExtractArraysOverTime::vtkInternal::AddTimeStepInternal(
       std::ostringstream stream;
       if (this->ContentType == vtkSelectionNode::GLOBALIDS)
         {
-        vtkIdTypeArray* gidsArray = vtkIdTypeArray::SafeDownCast(
+        vtkIdTypeArray* gidsArray = vtkArrayDownCast<vtkIdTypeArray>(
           inDSA->GetGlobalIds());
         if (gidsArray)
           {

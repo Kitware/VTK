@@ -171,7 +171,7 @@ void vtkJavaScriptDataWriter::WriteTable(vtkTable* table, ostream *stream_ptr)
         }
 
       // If the array is a string array put "" around it
-      if (vtkStringArray::SafeDownCast(dsa->GetAbstractArray(c)))
+      if (vtkArrayDownCast<vtkStringArray>(dsa->GetAbstractArray(c)))
         {
         (*stream_ptr) << "\"" << table->GetValue( r, c ).ToString() << "\",";
         }

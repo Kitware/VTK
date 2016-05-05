@@ -239,10 +239,10 @@ int main( int, char *[] )
        << maxdev
        << " for metric 1:\n";
 
-  vtkDoubleArray* vals0 = vtkDoubleArray::SafeDownCast( outputData1->GetColumnByName( "Metric 0" ) );
-  vtkDoubleArray* vals1 = vtkDoubleArray::SafeDownCast( outputData1->GetColumnByName( "Metric 1" ) );
-  vtkDoubleArray* devs0 = vtkDoubleArray::SafeDownCast( outputData1->GetColumnByName( "d(Metric 0)" ) );
-  vtkDoubleArray* devs1 = vtkDoubleArray::SafeDownCast( outputData1->GetColumnByName( "d(Metric 1)" ) );
+  vtkDoubleArray* vals0 = vtkArrayDownCast<vtkDoubleArray>( outputData1->GetColumnByName( "Metric 0" ) );
+  vtkDoubleArray* vals1 = vtkArrayDownCast<vtkDoubleArray>( outputData1->GetColumnByName( "Metric 1" ) );
+  vtkDoubleArray* devs0 = vtkArrayDownCast<vtkDoubleArray>( outputData1->GetColumnByName( "d(Metric 0)" ) );
+  vtkDoubleArray* devs1 = vtkArrayDownCast<vtkDoubleArray>( outputData1->GetColumnByName( "d(Metric 1)" ) );
 
   if ( ! devs0 || ! devs1 || ! vals0 || ! vals1 )
     {
@@ -333,8 +333,8 @@ int main( int, char *[] )
   ds1->SetAssessOption( true );
   ds1->Update();
 
-  vals1 = vtkDoubleArray::SafeDownCast( outputData1->GetColumnByName( "Metric 1" ) );
-  devs1 = vtkDoubleArray::SafeDownCast( outputData1->GetColumnByName( "d(Metric 1)" ) );
+  vals1 = vtkArrayDownCast<vtkDoubleArray>( outputData1->GetColumnByName( "Metric 1" ) );
+  devs1 = vtkArrayDownCast<vtkDoubleArray>( outputData1->GetColumnByName( "d(Metric 1)" ) );
 
   if ( ! devs1 || ! vals1 )
     {

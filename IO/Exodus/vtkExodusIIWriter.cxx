@@ -825,7 +825,7 @@ int vtkExodusIIWriter::CheckInputArrays ()
       }
     if (da)
       {
-      vtkIdTypeArray *ia = vtkIdTypeArray::SafeDownCast(da);
+      vtkIdTypeArray *ia = vtkArrayDownCast<vtkIdTypeArray>(da);
       if (!ia)
         {
         vtkWarningMacro(<<
@@ -848,7 +848,7 @@ int vtkExodusIIWriter::CheckInputArrays ()
       }
     if (da)
       {
-      vtkIdTypeArray *ia = vtkIdTypeArray::SafeDownCast(da);
+      vtkIdTypeArray *ia = vtkArrayDownCast<vtkIdTypeArray>(da);
       if (!ia)
         {
         vtkWarningMacro(<<
@@ -1509,7 +1509,7 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
         node_id ++; // Make sure the node_id is unique if id_str is invalid
         vtkUnstructuredGrid* grid = vtkUnstructuredGrid::SafeDownCast (iter->GetCurrentDataObject ());
         vtkFieldData* field = grid->GetPointData ();
-        vtkIdTypeArray* globalIds = vtkIdTypeArray::SafeDownCast (field ? field->GetArray ("GlobalNodeId") : 0);
+        vtkIdTypeArray* globalIds = vtkArrayDownCast<vtkIdTypeArray>(field ? field->GetArray ("GlobalNodeId") : 0);
         if (globalIds)
           {
           int size = 0;
@@ -1557,8 +1557,8 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
         vtkUnstructuredGrid* grid = vtkUnstructuredGrid::SafeDownCast (iter->GetCurrentDataObject ());
         vtkFieldData* field = grid->GetCellData ();
         int cells = grid->GetNumberOfCells ();
-        vtkIdTypeArray* sourceElement = vtkIdTypeArray::SafeDownCast (field ? field->GetArray ("SourceElementId") : 0);
-        vtkIntArray* sourceSide = vtkIntArray::SafeDownCast (field ? field->GetArray ("SourceElementSide") : 0);
+        vtkIdTypeArray* sourceElement = vtkArrayDownCast<vtkIdTypeArray>(field ? field->GetArray ("SourceElementId") : 0);
+        vtkIntArray* sourceSide = vtkArrayDownCast<vtkIntArray>(field ? field->GetArray ("SourceElementSide") : 0);
         if (sourceElement && sourceSide)
           {
           for (int c = 0; c < cells; c ++)
@@ -3077,13 +3077,13 @@ int vtkExodusIIWriter::WriteGlobalData (int timestep, vtkDataArray *buffer)
   int rc;
   if (buffer->IsA ("vtkDoubleArray"))
     {
-    vtkDoubleArray *da = vtkDoubleArray::SafeDownCast (buffer);
+    vtkDoubleArray *da = vtkArrayDownCast<vtkDoubleArray>(buffer);
     rc = ex_put_glob_vars (this->fid, timestep + 1,
                   this->NumberOfScalarGlobalArrays, da->GetPointer (0));
     }
   else /* (buffer->IsA ("vtkFloatArray")) */
     {
-    vtkFloatArray *fa = vtkFloatArray::SafeDownCast (buffer);
+    vtkFloatArray *fa = vtkArrayDownCast<vtkFloatArray>(buffer);
     rc = ex_put_glob_vars (this->fid, timestep + 1,
                   this->NumberOfScalarGlobalArrays, fa->GetPointer (0));
     }
@@ -3130,13 +3130,13 @@ int vtkExodusIIWriter::WriteCellData (int timestep, vtkDataArray *buffer)
         int rc;
         if (buffer->IsA ("vtkDoubleArray"))
           {
-          vtkDoubleArray *da = vtkDoubleArray::SafeDownCast (buffer);
+          vtkDoubleArray *da = vtkArrayDownCast<vtkDoubleArray>(buffer);
           rc = ex_put_elem_var(this->fid, timestep + 1, varOutIndex + 1, id,
                                    numElts, da->GetPointer(start));
           }
         else /* (buffer->IsA ("vtkFloatArray")) */
           {
-          vtkFloatArray *fa = vtkFloatArray::SafeDownCast (buffer);
+          vtkFloatArray *fa = vtkArrayDownCast<vtkFloatArray>(buffer);
           rc = ex_put_elem_var(this->fid, timestep + 1, varOutIndex + 1, id,
                                    numElts, fa->GetPointer(start));
           }
@@ -3174,13 +3174,13 @@ int vtkExodusIIWriter::WritePointData (int timestep, vtkDataArray *buffer)
       int rc;
       if (buffer->IsA ("vtkDoubleArray"))
         {
-        vtkDoubleArray *da = vtkDoubleArray::SafeDownCast (buffer);
+        vtkDoubleArray *da = vtkArrayDownCast<vtkDoubleArray>(buffer);
         rc = ex_put_nodal_var(this->fid, timestep + 1, varOutIndex + 1,
                                   this->NumPoints, da->GetPointer (0));
         }
       else /* (buffer->IsA ("vtkFloatArray")) */
         {
-        vtkFloatArray *fa = vtkFloatArray::SafeDownCast (buffer);
+        vtkFloatArray *fa = vtkArrayDownCast<vtkFloatArray>(buffer);
         rc = ex_put_nodal_var(this->fid, timestep + 1, varOutIndex + 1,
                                   this->NumPoints, fa->GetPointer (0));
         }
@@ -3304,7 +3304,7 @@ vtkIntArray* vtkExodusIIWriter::GetBlockIdArray (
     }
   if (da)
     {
-    vtkIntArray *ia = vtkIntArray::SafeDownCast(da);
+    vtkIntArray *ia = vtkArrayDownCast<vtkIntArray>(da);
     if (ia != 0 && vtkExodusIIWriter::SameTypeOfCells (ia, input))
       {
       this->SetBlockIdArrayName(name);

@@ -166,7 +166,7 @@ void vtkFast2DLayoutStrategy::Initialize()
     }
 
   // Get a quick pointer to the point data
-  vtkFloatArray *array = vtkFloatArray::SafeDownCast(pts->GetData());
+  vtkFloatArray *array = vtkArrayDownCast<vtkFloatArray>(pts->GetData());
   float *rawPointData = array->GetPointer(0);
 
   // Avoid divide by zero
@@ -214,7 +214,7 @@ void vtkFast2DLayoutStrategy::Initialize()
   double weight, maxWeight = 1;
   if (this->WeightEdges && this->EdgeWeightField != NULL)
     {
-    weightArray = vtkDataArray::SafeDownCast(this->Graph->GetEdgeData()->GetAbstractArray(this->EdgeWeightField));
+    weightArray = vtkArrayDownCast<vtkDataArray>(this->Graph->GetEdgeData()->GetAbstractArray(this->EdgeWeightField));
     if (weightArray != NULL)
       {
       for (vtkIdType w = 0; w < weightArray->GetNumberOfTuples(); w++)
@@ -292,7 +292,7 @@ void vtkFast2DLayoutStrategy::Layout()
   vtkIdType numEdges = this->Graph->GetNumberOfEdges();
 
   // Get a quick pointer to the point data
-  vtkFloatArray *array = vtkFloatArray::SafeDownCast(pts->GetData());
+  vtkFloatArray *array = vtkArrayDownCast<vtkFloatArray>(pts->GetData());
   float *rawPointData = array->GetPointer(0);
 
   // This is the mega, uber, triple inner loop
@@ -471,7 +471,7 @@ void vtkFast2DLayoutStrategy::ResolveCoincidentVertices()
 
   // Get a quick pointer to the point data
   vtkPoints* pts = this->Graph->GetPoints();
-  vtkFloatArray *array = vtkFloatArray::SafeDownCast(pts->GetData());
+  vtkFloatArray *array = vtkArrayDownCast<vtkFloatArray>(pts->GetData());
   float *rawPointData = array->GetPointer(0);
 
   // Place the vertices into a giant grid (100xNumVertices)

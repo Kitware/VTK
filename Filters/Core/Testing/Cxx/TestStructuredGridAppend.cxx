@@ -102,7 +102,7 @@ namespace
       }
 
     if(vtkDoubleArray* pointArray =
-       vtkDoubleArray::SafeDownCast(output->GetPointData()->GetArray(arrayName)))
+       vtkArrayDownCast<vtkDoubleArray>(output->GetPointData()->GetArray(arrayName)))
       {
       vtkIdType counter = 0;
       for(int k=extent[4];k<=extent[5];k++)
@@ -130,7 +130,7 @@ namespace
       }
 
     if(vtkIntArray* cellArray =
-       vtkIntArray::SafeDownCast(output->GetCellData()->GetArray(arrayName)))
+       vtkArrayDownCast<vtkIntArray>(output->GetCellData()->GetArray(arrayName)))
       {
       vtkIdType counter = 0;
       for(int k=extent[4];k<extent[5];k++)

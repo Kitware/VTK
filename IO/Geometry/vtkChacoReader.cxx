@@ -258,7 +258,7 @@ int vtkChacoReader::BuildOutputGrid(vtkUnstructuredGrid *output)
 
   if (ncells && (this->NumberOfVertexWeights > 0))
     {
-    vtkDoubleArray *da = vtkDoubleArray::SafeDownCast(
+    vtkDoubleArray *da = vtkArrayDownCast<vtkDoubleArray>(
         this->DataCache->GetPointData()->GetArray(this->VarrayName[0]));
 
     haveVertexWeightArrays = (da != NULL);
@@ -266,7 +266,7 @@ int vtkChacoReader::BuildOutputGrid(vtkUnstructuredGrid *output)
 
   if (ncells && (this->NumberOfEdgeWeights > 0))
     {
-    vtkDoubleArray *da = vtkDoubleArray::SafeDownCast(
+    vtkDoubleArray *da = vtkArrayDownCast<vtkDoubleArray>(
         this->DataCache->GetCellData()->GetArray(this->EarrayName[0]));
 
     haveEdgeWeightArrays = (da != NULL);
@@ -336,7 +336,7 @@ int vtkChacoReader::BuildOutputGrid(vtkUnstructuredGrid *output)
       this->NumberOfCellWeightArrays = 0;
       }
 
-    vtkIntArray *ia = vtkIntArray::SafeDownCast(
+    vtkIntArray *ia = vtkArrayDownCast<vtkIntArray>(
       this->DataCache->GetCellData()->GetArray(this->GetGlobalElementIdArrayName()));
 
     if (!ia && this->GenerateGlobalElementIdArray)
@@ -348,7 +348,7 @@ int vtkChacoReader::BuildOutputGrid(vtkUnstructuredGrid *output)
       this->DataCache->GetCellData()->RemoveArray(this->GetGlobalElementIdArrayName());
       }
 
-    ia = vtkIntArray::SafeDownCast(
+    ia = vtkArrayDownCast<vtkIntArray>(
       this->DataCache->GetPointData()->GetArray(this->GetGlobalNodeIdArrayName()));
 
     if (!ia && this->GenerateGlobalNodeIdArray)

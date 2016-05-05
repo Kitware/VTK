@@ -152,7 +152,7 @@ void TestDirectedGraph()
   graph = vtkMutableDirectedGraph::SafeDownCast(bfs->GetOutput());
   int index;
   vtkIntArray *distArray
-    = vtkIntArray::SafeDownCast(graph->GetVertexData()->GetArray("BFS", index));
+    = vtkArrayDownCast<vtkIntArray>(graph->GetVertexData()->GetArray("BFS", index));
   assert(distArray);
   for (vtkIdType i = 0; i < verticesPerNode; ++i)
     {
@@ -279,7 +279,7 @@ void TestUndirectedGraph()
   graph = vtkMutableUndirectedGraph::SafeDownCast(bfs->GetOutput());
   int index;
   vtkIntArray *distArray
-    = vtkIntArray::SafeDownCast(graph->GetVertexData()->GetArray("BFS", index));
+    = vtkArrayDownCast<vtkIntArray>(graph->GetVertexData()->GetArray("BFS", index));
   assert(distArray);
   for (vtkIdType i = 0; i < verticesPerNode; ++i)
     {

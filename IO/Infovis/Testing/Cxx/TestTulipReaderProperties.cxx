@@ -56,7 +56,7 @@ int TestTulipReaderProperties(int argc, char* argv[])
   int error_count = 0;
 
   // Test a sample of the node pedigree id property
-  vtkVariantArray *nodePedigree= vtkVariantArray::SafeDownCast(
+  vtkVariantArray *nodePedigree= vtkArrayDownCast<vtkVariantArray>(
       graph->GetVertexData()->GetPedigreeIds());
   if (nodePedigree)
     {
@@ -74,7 +74,7 @@ int TestTulipReaderProperties(int argc, char* argv[])
     }
 
   // Test a sample of the node string property
-  vtkStringArray *nodeProperty1 = vtkStringArray::SafeDownCast(
+  vtkStringArray *nodeProperty1 = vtkArrayDownCast<vtkStringArray>(
       graph->GetVertexData()->GetAbstractArray("Node Name"));
   if (nodeProperty1)
     {
@@ -92,7 +92,7 @@ int TestTulipReaderProperties(int argc, char* argv[])
     }
 
   // Test a sample of the node int property
-  vtkIntArray *nodeProperty2 = vtkIntArray::SafeDownCast(
+  vtkIntArray *nodeProperty2 = vtkArrayDownCast<vtkIntArray>(
       graph->GetVertexData()->GetAbstractArray("Weight"));
   if (nodeProperty2)
     {
@@ -110,7 +110,7 @@ int TestTulipReaderProperties(int argc, char* argv[])
     }
 
   // Test a sample of the node double property
-  vtkDoubleArray *nodeProperty3 = vtkDoubleArray::SafeDownCast(
+  vtkDoubleArray *nodeProperty3 = vtkArrayDownCast<vtkDoubleArray>(
       graph->GetVertexData()->GetAbstractArray("Betweenness Centrality"));
   if (nodeProperty3)
     {
@@ -128,7 +128,7 @@ int TestTulipReaderProperties(int argc, char* argv[])
     }
 
   // Test a sample of the edge string property
-  vtkStringArray *edgeProperty1 = vtkStringArray::SafeDownCast(
+  vtkStringArray *edgeProperty1 = vtkArrayDownCast<vtkStringArray>(
       graph->GetEdgeData()->GetAbstractArray("Edge Name"));
   if (edgeProperty1)
     {
@@ -146,7 +146,7 @@ int TestTulipReaderProperties(int argc, char* argv[])
     }
 
   // Test a sample of the edge int property
-  vtkIntArray *edgeProperty2 = vtkIntArray::SafeDownCast(
+  vtkIntArray *edgeProperty2 = vtkArrayDownCast<vtkIntArray>(
       graph->GetEdgeData()->GetAbstractArray("Weight"));
   if (edgeProperty2)
     {
@@ -164,7 +164,7 @@ int TestTulipReaderProperties(int argc, char* argv[])
     }
 
   // Test a sample of the edge pedigree id property
-  vtkVariantArray *edgePedigree= vtkVariantArray::SafeDownCast(
+  vtkVariantArray *edgePedigree= vtkArrayDownCast<vtkVariantArray>(
       graph->GetEdgeData()->GetPedigreeIds());
   if (edgePedigree)
     {

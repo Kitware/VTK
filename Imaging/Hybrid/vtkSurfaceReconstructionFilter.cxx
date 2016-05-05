@@ -437,7 +437,7 @@ int vtkSurfaceReconstructionFilter::RequestData(
                0, dim[0]-1, 0, dim[1]-1, 0, dim[2]-1);
 
   vtkFloatArray *newScalars =
-    vtkFloatArray::SafeDownCast(output->GetPointData()->GetScalars());
+    vtkArrayDownCast<vtkFloatArray>(output->GetPointData()->GetScalars());
   outInfo->Set(vtkDataObject::SPACING(),
                this->SampleSpacing, this->SampleSpacing, this->SampleSpacing);
   outInfo->Set(vtkDataObject::ORIGIN(),topleft,3);

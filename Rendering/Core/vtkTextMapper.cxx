@@ -457,7 +457,7 @@ void vtkTextMapper::UpdateQuad(vtkActor2D *actor, int dpi)
     float tcYMax = std::min(1.0f,
                             (((2.f * th - 1.f) / (2.f)) + 0.000001f) / ih);
     if (vtkFloatArray *tc =
-        vtkFloatArray::SafeDownCast(
+        vtkArrayDownCast<vtkFloatArray>(
           this->PolyData->GetPointData()->GetTCoords()))
       {
       vtkDebugMacro(<<"Setting tcoords: xmin, xmax, ymin, ymax: "

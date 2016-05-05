@@ -157,7 +157,7 @@ void vtkXMLPUnstructuredDataReader::SetupOutputData()
     {
     vtkAbstractArray* aa = this->CreateArray(
       this->PPointsElement->GetNestedElement(0));
-    vtkDataArray* a = vtkDataArray::SafeDownCast(aa);
+    vtkDataArray* a = vtkArrayDownCast<vtkDataArray>(aa);
     if (a)
       {
       a->SetNumberOfTuples(this->GetNumberOfPoints());

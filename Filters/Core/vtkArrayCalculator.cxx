@@ -435,7 +435,7 @@ int vtkArrayCalculator::RequestData(
   else
     {
       resultArray=
-        vtkDataArray::SafeDownCast(vtkAbstractArray::CreateArray(this->ResultArrayType));
+        vtkArrayDownCast<vtkDataArray>(vtkAbstractArray::CreateArray(this->ResultArrayType));
     }
 
   if (resultType == SCALAR_RESULT)

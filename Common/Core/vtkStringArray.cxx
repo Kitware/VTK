@@ -201,7 +201,7 @@ void vtkStringArray::DeepCopy(vtkAbstractArray* aa)
     return;
     }
 
-  vtkStringArray *fa = vtkStringArray::SafeDownCast( aa );
+  vtkStringArray *fa = vtkArrayDownCast<vtkStringArray>( aa );
   if ( fa == NULL )
     {
     vtkErrorMacro(<< "Shouldn't Happen: Couldn't downcast array into a vtkStringArray." );
@@ -518,7 +518,7 @@ vtkIdType vtkStringArray::GetDataSize()
 void vtkStringArray::SetTuple(vtkIdType i, vtkIdType j,
   vtkAbstractArray* source)
 {
-  vtkStringArray* sa = vtkStringArray::SafeDownCast(source);
+  vtkStringArray* sa = vtkArrayDownCast<vtkStringArray>(source);
   if (!sa)
     {
     vtkWarningMacro("Input and outputs array data types do not match.");
@@ -540,7 +540,7 @@ void vtkStringArray::SetTuple(vtkIdType i, vtkIdType j,
 void vtkStringArray::InsertTuple(vtkIdType i, vtkIdType j,
   vtkAbstractArray* source)
 {
-  vtkStringArray* sa = vtkStringArray::SafeDownCast(source);
+  vtkStringArray* sa = vtkArrayDownCast<vtkStringArray>(source);
   if (!sa)
     {
     vtkWarningMacro("Input and outputs array data types do not match.");
@@ -560,7 +560,7 @@ void vtkStringArray::InsertTuple(vtkIdType i, vtkIdType j,
 void vtkStringArray::InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
                                   vtkAbstractArray *source)
 {
-  vtkStringArray* sa = vtkStringArray::SafeDownCast(source);
+  vtkStringArray* sa = vtkArrayDownCast<vtkStringArray>(source);
   if (!sa)
     {
     vtkWarningMacro("Input and outputs array data types do not match.");
@@ -598,7 +598,7 @@ void vtkStringArray::InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
 void vtkStringArray::InsertTuples(vtkIdType dstStart, vtkIdType n,
                                   vtkIdType srcStart, vtkAbstractArray *source)
 {
-  vtkStringArray* sa = vtkStringArray::SafeDownCast(source);
+  vtkStringArray* sa = vtkArrayDownCast<vtkStringArray>(source);
   if (!sa)
     {
     vtkWarningMacro("Input and outputs array data types do not match.");
@@ -641,7 +641,7 @@ void vtkStringArray::InsertTuples(vtkIdType dstStart, vtkIdType n,
 vtkIdType vtkStringArray::InsertNextTuple(vtkIdType j,
                                           vtkAbstractArray* source)
 {
-  vtkStringArray* sa = vtkStringArray::SafeDownCast(source);
+  vtkStringArray* sa = vtkArrayDownCast<vtkStringArray>(source);
   if (!sa)
     {
     vtkWarningMacro("Input and outputs array data types do not match.");
@@ -672,7 +672,7 @@ void vtkStringArray::GetTuples(vtkIdList *indices, vtkAbstractArray *aa)
     return;
     }
 
-  vtkStringArray *output = vtkStringArray::SafeDownCast(aa);
+  vtkStringArray *output = vtkArrayDownCast<vtkStringArray>(aa);
 
   if (output == NULL)
     {
@@ -699,7 +699,7 @@ void vtkStringArray::GetTuples(vtkIdType startIndex,
     return;
     }
 
-  vtkStringArray *output = vtkStringArray::SafeDownCast(aa);
+  vtkStringArray *output = vtkArrayDownCast<vtkStringArray>(aa);
 
   if (output == NULL)
     {

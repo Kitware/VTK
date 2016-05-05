@@ -76,20 +76,20 @@ int vtkTableToPolyData::RequestData(vtkInformation* vtkNotUsed(request),
 
   if(this->XColumn && this->YColumn)
     {
-    xarray = vtkDataArray::SafeDownCast(
+    xarray = vtkArrayDownCast<vtkDataArray>(
       input->GetColumnByName(this->XColumn));
-    yarray = vtkDataArray::SafeDownCast(
+    yarray = vtkArrayDownCast<vtkDataArray>(
       input->GetColumnByName(this->YColumn));
-    zarray = vtkDataArray::SafeDownCast(
+    zarray = vtkArrayDownCast<vtkDataArray>(
       input->GetColumnByName(this->ZColumn));
     }
   else if(this->XColumnIndex >= 0)
     {
-    xarray = vtkDataArray::SafeDownCast(
+    xarray = vtkArrayDownCast<vtkDataArray>(
       input->GetColumn(this->XColumnIndex));
-    yarray = vtkDataArray::SafeDownCast(
+    yarray = vtkArrayDownCast<vtkDataArray>(
       input->GetColumn(this->YColumnIndex));
-    zarray = vtkDataArray::SafeDownCast(
+    zarray = vtkArrayDownCast<vtkDataArray>(
       input->GetColumn(this->ZColumnIndex));
     }
 

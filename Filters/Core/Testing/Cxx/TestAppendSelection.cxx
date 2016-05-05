@@ -32,9 +32,9 @@ int SelectionCompare(
   vtkSelectionNode* b)
 {
   int errors = 0;
-  vtkIdTypeArray* alist = vtkIdTypeArray::SafeDownCast(
+  vtkIdTypeArray* alist = vtkArrayDownCast<vtkIdTypeArray>(
     a->GetSelectionList());
-  vtkIdTypeArray* blist = vtkIdTypeArray::SafeDownCast(
+  vtkIdTypeArray* blist = vtkArrayDownCast<vtkIdTypeArray>(
     b->GetSelectionList());
   if (a->GetContentType() != b->GetContentType())
     {

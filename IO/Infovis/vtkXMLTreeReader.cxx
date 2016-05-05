@@ -91,7 +91,7 @@ static void vtkXMLTreeReaderProcessElement(vtkMutableDirectedGraph *tree,
    vtkIdType parent, xmlNode *node, int readCharData, int maskArrays)
 {
   vtkDataSetAttributes *data = tree->GetVertexData();
-  vtkStringArray *nameArr = vtkStringArray::SafeDownCast(data->GetAbstractArray(vtkXMLTreeReader::TagNameField));
+  vtkStringArray *nameArr = vtkArrayDownCast<vtkStringArray>(data->GetAbstractArray(vtkXMLTreeReader::TagNameField));
   vtkStdString content;
   for (xmlNode *curNode = node; curNode; curNode = curNode->next)
     {
@@ -128,11 +128,11 @@ static void vtkXMLTreeReaderProcessElement(vtkMutableDirectedGraph *tree,
       char *validName = new char[len+8];
       strcpy(validName, ".valid.");
       strcat(validName, name);
-      vtkStringArray *stringArr = vtkStringArray::SafeDownCast(data->GetAbstractArray(name));
+      vtkStringArray *stringArr = vtkArrayDownCast<vtkStringArray>(data->GetAbstractArray(name));
       vtkBitArray *bitArr = 0;
       if (maskArrays)
         {
-        bitArr = vtkBitArray::SafeDownCast(data->GetAbstractArray(validName));
+        bitArr = vtkArrayDownCast<vtkBitArray>(data->GetAbstractArray(validName));
         }
       if (!stringArr)
         {
@@ -168,7 +168,7 @@ static void vtkXMLTreeReaderProcessElement(vtkMutableDirectedGraph *tree,
 
   if (readCharData && parent >= 0)
     {
-    vtkStringArray *charArr = vtkStringArray::SafeDownCast(data->GetAbstractArray(vtkXMLTreeReader::CharDataField));
+    vtkStringArray *charArr = vtkArrayDownCast<vtkStringArray>(data->GetAbstractArray(vtkXMLTreeReader::CharDataField));
     charArr->InsertValue(parent, content);
     }
 }
@@ -228,7 +228,7 @@ int vtkXMLTreeReader::RequestData(
   // Make all the arrays the same size
   for (int i = 0; i < data->GetNumberOfArrays(); i++)
     {
-    vtkStringArray *stringArr = vtkStringArray::SafeDownCast(data->GetAbstractArray(i));
+    vtkStringArray *stringArr = vtkArrayDownCast<vtkStringArray>(data->GetAbstractArray(i));
     if (stringArr && (stringArr->GetNumberOfTuples() < builder->GetNumberOfVertices()))
       {
       stringArr->InsertValue(builder->GetNumberOfVertices() - 1, vtkStdString(""));

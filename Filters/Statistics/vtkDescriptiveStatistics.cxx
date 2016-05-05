@@ -536,7 +536,7 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
   statCol->SetName( "Jarque-Bera" );
 
   // Downcast columns to string arrays for efficient data access
-  vtkStringArray* vars = vtkStringArray::SafeDownCast( primaryTab->GetColumnByName( "Variable" ) );
+  vtkStringArray* vars = vtkArrayDownCast<vtkStringArray>( primaryTab->GetColumnByName( "Variable" ) );
 
   // Loop over requests
   for ( std::set<std::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
@@ -705,7 +705,7 @@ void vtkDescriptiveStatistics::SelectAssessFunctor( vtkTable* outData,
   vtkStdString varName = rowNames->GetValue( 0 );
 
   // Downcast meta columns to string arrays for efficient data access
-  vtkStringArray* vars = vtkStringArray::SafeDownCast( primaryTab->GetColumnByName( "Variable" ) );
+  vtkStringArray* vars = vtkArrayDownCast<vtkStringArray>( primaryTab->GetColumnByName( "Variable" ) );
   if ( ! vars )
     {
     return;
@@ -725,7 +725,7 @@ void vtkDescriptiveStatistics::SelectAssessFunctor( vtkTable* outData,
 
       // For descriptive statistics, type must be convertible to DataArray
       // E.g., StringArrays do not fit here
-      vtkDataArray* vals = vtkDataArray::SafeDownCast( arr );
+      vtkDataArray* vals = vtkArrayDownCast<vtkDataArray>( arr );
       if ( ! vals )
         {
         return;

@@ -58,7 +58,7 @@ bool CheckNodeFieldsForGrid( vtkUniformGrid *grid )
 
   double xyz[3];
   vtkDoubleArray *array =
-     vtkDoubleArray::SafeDownCast( grid->GetPointData()->GetArray("NODE-XYZ") );
+     vtkArrayDownCast<vtkDoubleArray>( grid->GetPointData()->GetArray("NODE-XYZ") );
   assert("pre: num tuples must match number of nodes" &&
          (array->GetNumberOfTuples() == grid->GetNumberOfPoints()) );
   assert("pre: num components must be 3" &&
@@ -89,7 +89,7 @@ bool CheckCellFieldsForGrid( vtkUniformGrid *grid )
   double centroid[3];
   double xyz[3];
   vtkDoubleArray *array =
-      vtkDoubleArray::SafeDownCast(grid->GetCellData()->GetArray("CELL-XYZ") );
+      vtkArrayDownCast<vtkDoubleArray>(grid->GetCellData()->GetArray("CELL-XYZ") );
   assert("pre: num tuples must match number of nodes" &&
          (array->GetNumberOfTuples() == grid->GetNumberOfCells()) );
   assert("pre: num components must be 3" &&

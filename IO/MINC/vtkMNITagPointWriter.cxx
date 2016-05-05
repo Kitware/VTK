@@ -237,7 +237,7 @@ void vtkMNITagPointWriter::WriteData(vtkPointSet *inputs[2])
       {
       points[ii] = inputs[ii]->GetPoints();
 
-      vtkStringArray *stringArray = vtkStringArray::SafeDownCast(
+      vtkStringArray *stringArray = vtkArrayDownCast<vtkStringArray>(
         inputs[ii]->GetPointData()->GetAbstractArray("LabelText"));
       if (stringArray)
         {

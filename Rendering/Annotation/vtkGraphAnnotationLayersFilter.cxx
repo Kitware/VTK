@@ -188,7 +188,7 @@ int vtkGraphAnnotationLayersFilter::RequestData(vtkInformation *vtkNotUsed(reque
         {
         continue;
         }
-      vtkIdTypeArray* vertexIds = vtkIdTypeArray::SafeDownCast(
+      vtkIdTypeArray* vertexIds = vtkArrayDownCast<vtkIdTypeArray>(
         selectionNode->GetSelectionList());
 
       // Get points from graph

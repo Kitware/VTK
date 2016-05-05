@@ -274,7 +274,7 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
          << " absolute tolerance).\n";
     }
 
-  vtkIdTypeArray* keys = vtkIdTypeArray::SafeDownCast( outputContingency->GetColumnByName( "Key" ) );
+  vtkIdTypeArray* keys = vtkArrayDownCast<vtkIdTypeArray>( outputContingency->GetColumnByName( "Key" ) );
   if ( ! keys )
     {
     cout << "*** Error: "
@@ -284,7 +284,7 @@ void RandomContingencyStatistics( vtkMultiProcessController* controller, void* a
     }
 
   vtkStdString proName = "P";
-  vtkDoubleArray* prob = vtkDoubleArray::SafeDownCast( outputContingency->GetColumnByName( proName ) );
+  vtkDoubleArray* prob = vtkArrayDownCast<vtkDoubleArray>( outputContingency->GetColumnByName( proName ) );
   if ( ! prob )
     {
     cout << "*** Error: "

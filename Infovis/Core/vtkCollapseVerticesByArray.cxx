@@ -289,7 +289,7 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
                 this->Internal->AggregateEdgeArrays[j].c_str()) == 0)
         {
         vtkDataArray* inDataArray =
-          vtkDataArray::SafeDownCast(absArray);
+          vtkArrayDownCast<vtkDataArray>(absArray);
         if(inDataArray)
           {
           inEdgeDataArraysOI.push_back(inDataArray);
@@ -328,7 +328,7 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
         return 0;
         }
 
-      vtkDataArray* outDataArray = vtkDataArray::SafeDownCast(
+      vtkDataArray* outDataArray = vtkArrayDownCast<vtkDataArray>(
                                    outGraph->GetEdgeData()->GetAbstractArray(
                                    inEdgeDataArraysOI[i]->GetName()));
 

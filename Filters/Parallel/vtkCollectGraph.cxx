@@ -267,10 +267,10 @@ int vtkCollectGraph::RequestData(
         }
 
       vtkAbstractArray *idArr = curGraph->GetVertexData()->GetAbstractArray(idFieldName);
-      vtkStringArray *idArrStr = vtkStringArray::SafeDownCast(idArr);
-      vtkIntArray *idArrInt = vtkIntArray::SafeDownCast(idArr);
+      vtkStringArray *idArrStr = vtkArrayDownCast<vtkStringArray>(idArr);
+      vtkIntArray *idArrInt = vtkArrayDownCast<vtkIntArray>(idArr);
 
-      vtkIntArray *ghostLevelsArr = vtkIntArray::SafeDownCast(
+      vtkIntArray *ghostLevelsArr = vtkArrayDownCast<vtkIntArray>(
         wholePointData->GetAbstractArray(vtkDataSetAttributes::GhostArrayName()));
 
       // Add new vertices
@@ -340,7 +340,7 @@ int vtkCollectGraph::RequestData(
         }
 
       // Add non-ghost edges
-      vtkIntArray* edgeGhostLevelsArr = vtkIntArray::SafeDownCast(
+      vtkIntArray* edgeGhostLevelsArr = vtkArrayDownCast<vtkIntArray>(
         curGraph->GetEdgeData()->GetAbstractArray(vtkDataSetAttributes::GhostArrayName()));
       curGraph->GetEdges(edges);
       while (edges->HasNext())

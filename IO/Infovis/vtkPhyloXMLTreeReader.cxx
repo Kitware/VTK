@@ -704,7 +704,7 @@ void vtkPhyloXMLTreeReader::ReadColorElement(vtkXMLDataElement *element,
     }
 
   // store this color value in the array
-  vtkUnsignedCharArray *colorArray = vtkUnsignedCharArray::SafeDownCast(
+  vtkUnsignedCharArray *colorArray = vtkArrayDownCast<vtkUnsignedCharArray>(
     g->GetVertexData()->GetAbstractArray("color"));
   colorArray->SetTuple3(vertex, red, green, blue);
   this->ColoredVertices->SetValue(vertex, 1);
@@ -718,7 +718,7 @@ void vtkPhyloXMLTreeReader::PropagateBranchColor(vtkTree *tree)
     return;
     }
 
-  vtkUnsignedCharArray *colorArray = vtkUnsignedCharArray::SafeDownCast(
+  vtkUnsignedCharArray *colorArray = vtkArrayDownCast<vtkUnsignedCharArray>(
     tree->GetVertexData()->GetAbstractArray("color"));
   if (!colorArray)
     {

@@ -292,13 +292,13 @@ private:
         if(this->UnicodeArrayOutput)
           {
           array->SetNumberOfTuples(this->CurrentRecordIndex + 1);
-          vtkUnicodeStringArray::SafeDownCast(array)->SetValue(this->CurrentRecordIndex, this->CurrentField);
+          vtkArrayDownCast<vtkUnicodeStringArray>(array)->SetValue(this->CurrentRecordIndex, this->CurrentField);
           }
         else
           {
           std::string s;
           this->CurrentField.utf8_str(s);
-          vtkStringArray::SafeDownCast(array)->InsertValue(this->CurrentRecordIndex, s);
+          vtkArrayDownCast<vtkStringArray>(array)->InsertValue(this->CurrentRecordIndex, s);
           }
         }
       this->OutputTable->AddColumn(array);
@@ -319,13 +319,13 @@ private:
 
       if(this->UnicodeArrayOutput)
         {
-        vtkUnicodeStringArray* uarray = vtkUnicodeStringArray::SafeDownCast(this->OutputTable->GetColumn(this->CurrentFieldIndex));
+        vtkUnicodeStringArray* uarray = vtkArrayDownCast<vtkUnicodeStringArray>(this->OutputTable->GetColumn(this->CurrentFieldIndex));
         uarray->SetNumberOfTuples(rec_index + 1);
         uarray->SetValue(rec_index, this->CurrentField);
         }
       else
         {
-        vtkStringArray* sarray = vtkStringArray::SafeDownCast(this->OutputTable->GetColumn(this->CurrentFieldIndex));
+        vtkStringArray* sarray = vtkArrayDownCast<vtkStringArray>(this->OutputTable->GetColumn(this->CurrentFieldIndex));
         std::string s;
         this->CurrentField.utf8_str(s);
         sarray->InsertValue(rec_index,s);

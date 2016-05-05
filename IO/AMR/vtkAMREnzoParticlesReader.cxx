@@ -276,7 +276,7 @@ vtkPolyData* vtkAMREnzoParticlesReader::GetParticles(
   GetDoubleArrayByName( rootIndx, "particle_position_y", ycoords );
   GetDoubleArrayByName( rootIndx, "particle_position_z", zcoords );
 
-  vtkIntArray *particleTypes = vtkIntArray::SafeDownCast(
+  vtkIntArray *particleTypes = vtkArrayDownCast<vtkIntArray>(
       this->GetParticlesTypeArray( blockIdx ) );
 
   assert( "Coordinate arrays must have the same size: " &&

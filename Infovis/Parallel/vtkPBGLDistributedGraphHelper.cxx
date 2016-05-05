@@ -461,13 +461,13 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType uDistributedId,
       for (int iprop=0; iprop<numProps; iprop++)
         {
         vtkAbstractArray* arr = edgeData->GetAbstractArray(iprop);
-        if (vtkDataArray::SafeDownCast(arr))
+        if (vtkArrayDownCast<vtkDataArray>(arr))
           {
-          vtkDataArray::SafeDownCast(arr)->InsertNextTuple1(propertyArr->GetPointer(iprop)->ToDouble());
+          vtkArrayDownCast<vtkDataArray>(arr)->InsertNextTuple1(propertyArr->GetPointer(iprop)->ToDouble());
           }
-        else if (vtkStringArray::SafeDownCast(arr))
+        else if (vtkArrayDownCast<vtkStringArray>(arr))
           {
-          vtkStringArray::SafeDownCast(arr)->InsertNextValue(propertyArr->GetPointer(iprop)->ToString());
+          vtkArrayDownCast<vtkStringArray>(arr)->InsertNextValue(propertyArr->GetPointer(iprop)->ToString());
           }
         else
           {

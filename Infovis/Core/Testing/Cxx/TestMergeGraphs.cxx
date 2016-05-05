@@ -51,8 +51,8 @@ bool CheckTable(vtkTable* expected, vtkTable* output)
   bool ok = true;
   for (vtkIdType col = 0; col < expected->GetNumberOfColumns(); ++col)
     {
-    vtkStringArray* exp_arr = vtkStringArray::SafeDownCast(expected->GetColumn(col));
-    vtkStringArray* out_arr = vtkStringArray::SafeDownCast(output->GetColumnByName(exp_arr->GetName()));
+    vtkStringArray* exp_arr = vtkArrayDownCast<vtkStringArray>(expected->GetColumn(col));
+    vtkStringArray* out_arr = vtkArrayDownCast<vtkStringArray>(output->GetColumnByName(exp_arr->GetName()));
     if (!out_arr)
       {
       cerr << "Output array " << exp_arr->GetName() << " does not exist" << endl;

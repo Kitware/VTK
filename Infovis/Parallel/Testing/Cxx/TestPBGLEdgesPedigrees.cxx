@@ -102,7 +102,7 @@ void UseCase3()
     vtkIdType vtx = vit->Next();
     int idx = mdg->GetDistributedGraphHelper()->GetVertexIndex(vtx);
 
-    vtkVariant ped = vtkVariantArray::SafeDownCast(peds)->GetValue(helper->GetVertexIndex(vtx));
+    vtkVariant ped = vtkArrayDownCast<vtkVariantArray>(peds)->GetValue(helper->GetVertexIndex(vtx));
 
     cout <<"  Rank #" << myRank << ": vertex " << ped.ToString() << " ("
          << hex << vtx << ")" << " owner="<<mdg->GetDistributedGraphHelper()->GetVertexOwner(vtx)<< ", "
@@ -111,7 +111,7 @@ void UseCase3()
     cout << myRank<<") "<<"  GetNumberOfArrays= " << mdg->GetVertexData()->GetNumberOfArrays() << endl;
     for (int iprop=0; iprop<numProps; iprop++)
       {
-      vtkAbstractArray* aa = vtkAbstractArray::SafeDownCast(mdg->GetVertexData()->GetAbstractArray(iprop));
+      vtkAbstractArray* aa = vtkArrayDownCast<vtkAbstractArray>(mdg->GetVertexData()->GetAbstractArray(iprop));
 //      int idx = helper->GetVertexIndex(vtx);
       cout << "     idx="<<idx<<") = "<< aa->GetVariantValue(idx).ToString() <<endl;
       }

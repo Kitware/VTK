@@ -189,7 +189,7 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
 
     for (int step = 0; step < 2; ++step)
       {
-      vtkUnsignedCharArray* ghosts = vtkUnsignedCharArray::SafeDownCast(
+      vtkUnsignedCharArray* ghosts = vtkArrayDownCast<vtkUnsignedCharArray>(
         outGrids[step]->GetCellGhostArray());
       if (initialNbOfCells >= outGrids[step]->GetNumberOfCells())
         {

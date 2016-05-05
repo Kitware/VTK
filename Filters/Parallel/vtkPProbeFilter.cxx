@@ -93,7 +93,7 @@ int vtkPProbeFilter::RequestData(vtkInformation *request,
 
         remotePointData = remoteProbeOutput->GetPointData();
 
-        vtkCharArray* maskArray = vtkCharArray::SafeDownCast(
+        vtkCharArray* maskArray = vtkArrayDownCast<vtkCharArray>(
           remotePointData->GetArray(this->ValidPointMaskArrayName));
 
         // Iterate over all point data in the output gathered from the remove

@@ -1882,7 +1882,7 @@ int vtkDataReader::ReadPoints(vtkPointSet *ps, int numPts)
     return 0;
     }
 
-  data = vtkDataArray::SafeDownCast(
+  data = vtkArrayDownCast<vtkDataArray>(
     this->ReadArray(line, numPts, 3));
   if ( data != NULL )
     {
@@ -1916,7 +1916,7 @@ int vtkDataReader::ReadPoints(vtkGraph *g, int numPts)
     return 0;
     }
 
-  data = vtkDataArray::SafeDownCast(
+  data = vtkArrayDownCast<vtkDataArray>(
     this->ReadArray(line, numPts, 3));
   if ( data != NULL )
     {
@@ -1953,7 +1953,7 @@ int vtkDataReader::ReadCoordinates(vtkRectilinearGrid *rg, int axes,
     return 0;
     }
 
-  data = vtkDataArray::SafeDownCast(
+  data = vtkArrayDownCast<vtkDataArray>(
     this->ReadArray(line, numCoords, 1));
   if ( !data  )
     {
@@ -2046,7 +2046,7 @@ int vtkDataReader::ReadScalarData(vtkDataSetAttributes *a, int numPts)
     }
 
   // Read the data
-  data = vtkDataArray::SafeDownCast(
+  data = vtkArrayDownCast<vtkDataArray>(
     this->ReadArray(line, numPts, numComp));
   if ( data != NULL )
     {
@@ -2095,7 +2095,7 @@ int vtkDataReader::ReadVectorData(vtkDataSetAttributes *a, int numPts)
     skipVector = 1;
     }
 
-  data = vtkDataArray::SafeDownCast(
+  data = vtkArrayDownCast<vtkDataArray>(
     this->ReadArray(line, numPts, 3));
   if ( data != NULL )
     {
@@ -2145,7 +2145,7 @@ int vtkDataReader::ReadNormalData(vtkDataSetAttributes *a, int numPts)
     skipNormal = 1;
     }
 
-  data = vtkDataArray::SafeDownCast(
+  data = vtkArrayDownCast<vtkDataArray>(
     this->ReadArray(line, numPts, 3));
   if ( data != NULL )
     {
@@ -2194,7 +2194,7 @@ int vtkDataReader::ReadTensorData(vtkDataSetAttributes *a, int numPts)
     skipTensor = 1;
     }
 
-  data = vtkDataArray::SafeDownCast(
+  data = vtkArrayDownCast<vtkDataArray>(
     this->ReadArray(line, numPts, 9));
   if ( data != NULL )
     {
@@ -2348,7 +2348,7 @@ int vtkDataReader::ReadTCoordsData(vtkDataSetAttributes *a, int numPts)
     skipTCoord = 1;
     }
 
-  data = vtkDataArray::SafeDownCast(
+  data = vtkArrayDownCast<vtkDataArray>(
     this->ReadArray(line, numPts, dim));
   if ( data != NULL )
     {
@@ -2397,7 +2397,7 @@ int vtkDataReader::ReadGlobalIds(vtkDataSetAttributes *a, int numPts)
     skipGlobalIds = 1;
     }
 
-  data = vtkDataArray::SafeDownCast(
+  data = vtkArrayDownCast<vtkDataArray>(
     this->ReadArray(line, numPts, 1));
   if ( data != NULL )
     {
@@ -2728,7 +2728,7 @@ int vtkDataReader::ReadCells(int size, int *data,
 void vtkDataReader::ConvertGhostLevelsToGhostType(
   FieldType fieldType, vtkAbstractArray *data) const
 {
-  vtkUnsignedCharArray* ucData = vtkUnsignedCharArray::SafeDownCast(data);
+  vtkUnsignedCharArray* ucData = vtkArrayDownCast<vtkUnsignedCharArray>(data);
   const char* name = data->GetName();
   int numComp = data->GetNumberOfComponents();
   if (this->FileMajorVersion < 4 && ucData &&

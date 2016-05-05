@@ -644,7 +644,7 @@ int vtkExtractSelectedIds::ExtractCells(
   int selType = sel->GetProperties()->Get(vtkSelectionNode::CONTENT_TYPE());
   if (selType == vtkSelectionNode::GLOBALIDS)
     {
-    labelArray = vtkIdTypeArray::SafeDownCast(
+    labelArray = vtkArrayDownCast<vtkIdTypeArray>(
       input->GetCellData()->GetGlobalIds());
     }
   else if (selType == vtkSelectionNode::PEDIGREEIDS)
@@ -718,8 +718,8 @@ int vtkExtractSelectedIds::ExtractCells(
     }
 
   // Array types must match if they are string arrays.
-  if (vtkStringArray::SafeDownCast(labelArray) &&
-    vtkStringArray::SafeDownCast(idArray) == NULL)
+  if (vtkArrayDownCast<vtkStringArray>(labelArray) &&
+    vtkArrayDownCast<vtkStringArray>(idArray) == NULL)
     {
     labelArray->Delete();
     idxArray->Delete();
@@ -847,7 +847,7 @@ int vtkExtractSelectedIds::ExtractPoints(
   int selType = sel->GetProperties()->Get(vtkSelectionNode::CONTENT_TYPE());
   if (selType == vtkSelectionNode::GLOBALIDS)
     {
-    labelArray = vtkIdTypeArray::SafeDownCast(
+    labelArray = vtkArrayDownCast<vtkIdTypeArray>(
       input->GetPointData()->GetGlobalIds());
     }
   else if (selType == vtkSelectionNode::PEDIGREEIDS)
@@ -910,8 +910,8 @@ int vtkExtractSelectedIds::ExtractPoints(
     }
 
   // Array types must match if they are string arrays.
-  if (vtkStringArray::SafeDownCast(labelArray) &&
-    vtkStringArray::SafeDownCast(idArray) == NULL)
+  if (vtkArrayDownCast<vtkStringArray>(labelArray) &&
+    vtkArrayDownCast<vtkStringArray>(idArray) == NULL)
     {
     vtkWarningMacro(
       "Array types don't match. They must match for vtkStringArray.");

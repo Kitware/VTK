@@ -123,7 +123,7 @@ void vtkChartBox::Update()
   for (int i = 0; i < nbCols; ++i)
     {
     vtkDataArray* array =
-      vtkDataArray::SafeDownCast(table->GetColumnByName(
+      vtkArrayDownCast<vtkDataArray>(table->GetColumnByName(
     this->VisibleColumns->GetValue(i)));
     if (array)
       {
@@ -172,7 +172,7 @@ bool vtkChartBox::Paint(vtkContext2D *painter)
         this->AnnotationLink->GetMTime() > this->Storage->Plot->GetMTime())
       {
       vtkSelectionNode *node = selection->GetNode(0);
-      idArray = vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
+      idArray = vtkArrayDownCast<vtkIdTypeArray>(node->GetSelectionList());
       this->Storage->Plot->SetSelection(idArray);
       }
     }

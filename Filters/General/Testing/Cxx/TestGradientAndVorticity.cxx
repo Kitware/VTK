@@ -277,7 +277,7 @@ namespace
     cellGradients->Update();
     pointGradients->Update();
 
-    vtkDoubleArray* gradCellArray = vtkDoubleArray::SafeDownCast(
+    vtkDoubleArray* gradCellArray = vtkArrayDownCast<vtkDoubleArray>(
       vtkDataSet::SafeDownCast(
         cellGradients->GetOutput())->GetCellData()->GetArray(resultName));
 
@@ -291,7 +291,7 @@ namespace
         }
       }
 
-    vtkDoubleArray* gradPointArray = vtkDoubleArray::SafeDownCast(
+    vtkDoubleArray* gradPointArray = vtkArrayDownCast<vtkDoubleArray>(
       vtkDataSet::SafeDownCast(
         pointGradients->GetOutput())->GetPointData()->GetArray(resultName));
 
@@ -320,7 +320,7 @@ namespace
     pointVorticity->Update();
 
     // cell stuff
-    vtkDoubleArray* vorticityCellArray = vtkDoubleArray::SafeDownCast(
+    vtkDoubleArray* vorticityCellArray = vtkArrayDownCast<vtkDoubleArray>(
       vtkDataSet::SafeDownCast(
         cellVorticity->GetOutput())->GetCellData()->GetArray("Vorticity"));
 
@@ -330,7 +330,7 @@ namespace
       }
 
     // point stuff
-    vtkDoubleArray* vorticityPointArray = vtkDoubleArray::SafeDownCast(
+    vtkDoubleArray* vorticityPointArray = vtkArrayDownCast<vtkDoubleArray>(
       vtkDataSet::SafeDownCast(
         pointVorticity->GetOutput())->GetPointData()->GetArray("Vorticity"));
 
@@ -338,7 +338,7 @@ namespace
       {
       return EXIT_FAILURE;
       }
-    vtkDoubleArray* divergencePointArray = vtkDoubleArray::SafeDownCast(
+    vtkDoubleArray* divergencePointArray = vtkArrayDownCast<vtkDoubleArray>(
       vtkDataSet::SafeDownCast(
         pointVorticity->GetOutput())->GetPointData()->GetArray("Divergence"));
 
@@ -346,7 +346,7 @@ namespace
       {
       return EXIT_FAILURE;
       }
-    vtkDoubleArray* qCriterionPointArray = vtkDoubleArray::SafeDownCast(
+    vtkDoubleArray* qCriterionPointArray = vtkArrayDownCast<vtkDoubleArray>(
       vtkDataSet::SafeDownCast(
         pointVorticity->GetOutput())->GetPointData()->GetArray("Q-criterion"));
     if(!IsQCriterionCorrect(gradPointArray, qCriterionPointArray))

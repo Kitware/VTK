@@ -81,7 +81,7 @@ int vtkJSONImageWriter::RequestData(
 
   // Write
   this->InvokeEvent(vtkCommand::StartEvent);
-  vtkCharArray *validMask = vtkCharArray::SafeDownCast(input->GetPointData()->GetArray("vtkValidPointMask"));
+  vtkCharArray *validMask = vtkArrayDownCast<vtkCharArray>(input->GetPointData()->GetArray("vtkValidPointMask"));
 
   ofstream file(this->FileName, ios::out);
   if (file.fail())

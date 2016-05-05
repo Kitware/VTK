@@ -817,7 +817,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputProceduralArrays(
     if ( vtkDataArray* arr = this->GetCacheOrRead( key ) )
       {
 
-      vtkIdTypeArray* idarray = vtkIdTypeArray::SafeDownCast(arr);
+      vtkIdTypeArray* idarray = vtkArrayDownCast<vtkIdTypeArray>(arr);
       vtkIdTypeArray* elementid = vtkIdTypeArray::New();
       elementid->SetNumberOfTuples(idarray->GetNumberOfTuples());
       elementid->SetName(vtkExodusIIReader::GetSideSetSourceElementIdArrayName());
@@ -1079,7 +1079,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputPointMaps( vtkIdType timeStep,
     if ( ! mi->Status )
       continue; // Skip arrays we don't want.
 
-    vtkIdTypeArray* src = vtkIdTypeArray::SafeDownCast( this->GetCacheOrRead(
+    vtkIdTypeArray* src = vtkArrayDownCast<vtkIdTypeArray>( this->GetCacheOrRead(
         vtkExodusIICacheKey( -1, vtkExodusIIReader::NODE_MAP, 0, midx ) ) );
     if ( !src )
       {
@@ -1240,7 +1240,7 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
   if ( binfo->PointsPerCell == 0 )
     {
     int arrId = (conn_type == vtkExodusIIReader::ELEM_BLOCK_ELEM_CONN ? 0 : 1);
-    ent = vtkIntArray::SafeDownCast(
+    ent = vtkArrayDownCast<vtkIntArray>(
       this->GetCacheOrRead(
         vtkExodusIICacheKey( -1, vtkExodusIIReader::ENTITY_COUNTS, obj, arrId
           )));
@@ -1264,19 +1264,19 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
   if (binfo->CellType == VTK_POLYHEDRON)
     {
     vtkIntArray* efconn;
-    efconn = vtkIntArray::SafeDownCast(
+    efconn = vtkArrayDownCast<vtkIntArray>(
       this->GetCacheOrRead(
         vtkExodusIICacheKey( -1, vtkExodusIIReader::ELEM_BLOCK_FACE_CONN, obj, 0 )));
     if (efconn)
       efconn->Register(this);
     vtkIntArray* fconn;
-    fconn = vtkIntArray::SafeDownCast(
+    fconn = vtkArrayDownCast<vtkIntArray>(
       this->GetCacheOrRead(
         vtkExodusIICacheKey( -1, vtkExodusIIReader::FACE_BLOCK_CONN, obj, 0 )));
     if (fconn)
       fconn->Register(this);
     vtkIntArray* ptsPerFace = NULL;
-    ptsPerFace = vtkIntArray::SafeDownCast(
+    ptsPerFace = vtkArrayDownCast<vtkIntArray>(
       this->GetCacheOrRead(
         vtkExodusIICacheKey( -1, vtkExodusIIReader::ENTITY_COUNTS, obj, 1
           )));
@@ -1303,7 +1303,7 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
     }
 
   vtkIntArray* arr;
-  arr = vtkIntArray::SafeDownCast(
+  arr = vtkArrayDownCast<vtkIntArray>(
     this->GetCacheOrRead(
       vtkExodusIICacheKey( -1, conn_type, obj, 0 )));
   if ( ! arr )
@@ -1411,7 +1411,7 @@ void vtkExodusIIReaderPrivate::InsertSetCells(
     return;
     }
 
-  vtkIntArray* arr = vtkIntArray::SafeDownCast(
+  vtkIntArray* arr = vtkArrayDownCast<vtkIntArray>(
     this->GetCacheOrRead( vtkExodusIICacheKey( -1, conn_type, obj, 0 ) ) );
   if ( ! arr )
     {
@@ -1542,7 +1542,7 @@ void vtkExodusIIReaderPrivate::InsertSetCellCopies(
       }
     if ( loadNewBlk )
       {
-      nconn = vtkIntArray::SafeDownCast(
+      nconn = vtkArrayDownCast<vtkIntArray>(
         this->GetCacheOrRead( vtkExodusIICacheKey( -1, this->GetBlockConnTypeFromBlockType( otyp ), bnum, 0 ) )
         );
       if ( ! nconn )
@@ -2090,7 +2090,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
       ckey.ObjectType = vtkExodusIIReader::ELEMENT_ID;
       break;
       }
-    vtkIdTypeArray* src = vtkIdTypeArray::SafeDownCast( this->GetCacheOrRead( ckey ) );
+    vtkIdTypeArray* src = vtkArrayDownCast<vtkIdTypeArray>( this->GetCacheOrRead( ckey ) );
     if ( ! src )
       {
       arr = 0;
@@ -2190,7 +2190,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
     int otypidx = this->GetObjectTypeIndexFromObjectType( key.ObjectId );
     int obj = key.ArrayId;
     BlockSetInfoType* bsinfop = (BlockSetInfoType*) this->GetObjectInfo( otypidx, obj );
-    vtkIdTypeArray* src = vtkIdTypeArray::SafeDownCast(
+    vtkIdTypeArray* src = vtkArrayDownCast<vtkIdTypeArray>(
       this->GetCacheOrRead( vtkExodusIICacheKey( -1, vtkExodusIIReader::NODE_ID, 0, 0 ) ) );
     if ( this->SqueezePoints && src )
       {
@@ -2313,7 +2313,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
       ktmp = vtkExodusIICacheKey( -1, vtkExodusIIReader::NODE_MAP, 0, 0 );
       }
     // If there are no new-style maps, get the old-style map (which creates a default if nothing is stored on disk).
-    if ( nMaps < 1 || ! (iarr = vtkIdTypeArray::SafeDownCast(this->GetCacheOrRead( ktmp ))) )
+    if ( nMaps < 1 || ! (iarr = vtkArrayDownCast<vtkIdTypeArray>(this->GetCacheOrRead( ktmp ))) )
       {
       iarr = vtkIdTypeArray::New();
       iarr->SetNumberOfComponents( 1 );

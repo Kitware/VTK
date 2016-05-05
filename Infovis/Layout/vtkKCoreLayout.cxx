@@ -186,7 +186,7 @@ int vtkKCoreLayout::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Get the kcore attribute array
   vtkIntArray * kcore_array = NULL;
-  kcore_array = vtkIntArray::SafeDownCast(output->GetVertexData()->GetArray(this->KCoreLabelArrayName));
+  kcore_array = vtkArrayDownCast<vtkIntArray>(output->GetVertexData()->GetArray(this->KCoreLabelArrayName));
 
   if(!kcore_array)
     {

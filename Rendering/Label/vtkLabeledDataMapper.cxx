@@ -398,9 +398,9 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
                   this->FieldDataArray : pd->GetNumberOfArrays() - 1);
       abstractData = pd->GetAbstractArray(arrayNum);
       }
-    numericData = vtkDataArray::SafeDownCast(abstractData);
-    stringData = vtkStringArray::SafeDownCast(abstractData);
-    uStringData = vtkUnicodeStringArray::SafeDownCast(abstractData);
+    numericData = vtkArrayDownCast<vtkDataArray>(abstractData);
+    stringData = vtkArrayDownCast<vtkStringArray>(abstractData);
+    uStringData = vtkArrayDownCast<vtkUnicodeStringArray>(abstractData);
     }; break;
     }
 
@@ -541,7 +541,7 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
   const char *LiveFormatString = FormatString.c_str();
   char TempString[1024];
 
-  vtkIntArray *typeArr = vtkIntArray::SafeDownCast(
+  vtkIntArray *typeArr = vtkArrayDownCast<vtkIntArray>(
     this->GetInputAbstractArrayToProcess(0, input));
   for (i=0; i < numCurLabels; i++)
     {

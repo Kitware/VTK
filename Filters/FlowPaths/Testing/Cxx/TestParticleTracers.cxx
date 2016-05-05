@@ -177,7 +177,7 @@ protected:
       return 0 ;
       }
 
-    vtkDataArray* outArray = vtkDataArray::SafeDownCast(vtkAbstractArray::CreateArray(VTK_FLOAT));
+    vtkDataArray* outArray = vtkArrayDownCast<vtkDataArray>(vtkAbstractArray::CreateArray(VTK_FLOAT));
     outArray->SetName("Gradients");
     outArray->SetNumberOfComponents(3);
     outArray->SetNumberOfTuples(outImage->GetNumberOfPoints());
@@ -269,7 +269,7 @@ int TestParticlePathFilter()
   vtkPolyData* out = filter->GetOutput();
   vtkCellArray* lines = out->GetLines();
   vtkNew<vtkIdList> polyLine;
-//  vtkIntArray* particleIds = vtkIntArray::SafeDownCast(out->GetPointData()->GetArray("ParticleId"));
+//  vtkIntArray* particleIds = vtkArrayDownCast<vtkIntArray>(out->GetPointData()->GetArray("ParticleId"));
 
 
 
@@ -358,7 +358,7 @@ int TestStreaklineFilter()
 
   vtkCellArray* lines = out->GetLines();
   vtkNew<vtkIdList> polyLine;
-  vtkFloatArray* particleAge = vtkFloatArray::SafeDownCast(out->GetPointData()->GetArray("ParticleAge"));
+  vtkFloatArray* particleAge = vtkArrayDownCast<vtkFloatArray>(out->GetPointData()->GetArray("ParticleAge"));
 
   lines->InitTraversal();
   while(lines->GetNextCell(polyLine.GetPointer()))

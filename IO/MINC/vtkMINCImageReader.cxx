@@ -582,7 +582,7 @@ int vtkMINCImageReader::ReadMINCFileAttributes()
           {
           // Set the orientation matrix from the direction_cosines
           vtkDoubleArray *doubleArray =
-            vtkDoubleArray::SafeDownCast(
+            vtkArrayDownCast<vtkDoubleArray>(
               this->ImageAttributes->GetAttributeValueAsArray(
                 dimname, MIdirection_cosines));
           if (doubleArray && doubleArray->GetNumberOfTuples() == 3)

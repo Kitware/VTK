@@ -220,7 +220,7 @@ QItemSelection vtkQtTreeModelAdapter::VTKIndexSelectionToQItemSelection(
     vtkSelectionNode* node = vtksel->GetNode(j);
     if (node && node->GetFieldType() == vtkSelectionNode::VERTEX)
       {
-      vtkIdTypeArray* arr = vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
+      vtkIdTypeArray* arr = vtkArrayDownCast<vtkIdTypeArray>(node->GetSelectionList());
       if (arr)
         {
         for (vtkIdType i = 0; i < arr->GetNumberOfTuples(); i++)
@@ -259,22 +259,22 @@ void vtkQtTreeModelAdapter::GenerateVTKIndexToQtModelIndex(vtkIdType vtk_index, 
 QVariant vtkQtTreeModelAdapterArrayValue(vtkAbstractArray* arr, vtkIdType i, vtkIdType j)
 {
   int comps = arr->GetNumberOfComponents();
-  if(vtkDataArray* const data = vtkDataArray::SafeDownCast(arr))
+  if(vtkDataArray* const data = vtkArrayDownCast<vtkDataArray>(arr))
     {
     return QVariant(data->GetComponent(i, j));
     }
 
-  if(vtkStringArray* const data = vtkStringArray::SafeDownCast(arr))
+  if(vtkStringArray* const data = vtkArrayDownCast<vtkStringArray>(arr))
     {
     return QVariant(data->GetValue(i*comps + j));
     }
 
-  if(vtkUnicodeStringArray* const data = vtkUnicodeStringArray::SafeDownCast(arr))
+  if(vtkUnicodeStringArray* const data = vtkArrayDownCast<vtkUnicodeStringArray>(arr))
     {
     return QVariant(QString::fromUtf8(data->GetValue(i*comps + j).utf8_str()));
     }
 
-  if(vtkVariantArray* const data = vtkVariantArray::SafeDownCast(arr))
+  if(vtkVariantArray* const data = vtkArrayDownCast<vtkVariantArray>(arr))
     {
     return QVariant(QString(data->GetValue(i*comps + j).ToString().c_str()));
     }
@@ -315,7 +315,7 @@ QVariant vtkQtTreeModelAdapter::data(const QModelIndex &idx, int role) const
   if(this->ColorColumn >= 0)
     {
     int colorColumn = this->ModelColumnToFieldDataColumn(this->ColorColumn);
-    vtkUnsignedCharArray* colors = vtkUnsignedCharArray::SafeDownCast(this->Tree->GetVertexData()->GetAbstractArray(colorColumn));
+    vtkUnsignedCharArray* colors = vtkArrayDownCast<vtkUnsignedCharArray>(this->Tree->GetVertexData()->GetAbstractArray(colorColumn));
     if (!colors)
       {
       return QVariant();

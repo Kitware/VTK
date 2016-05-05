@@ -147,7 +147,7 @@ void vtkKMeansDistanceFunctor::PackElements( vtkTable* curTable, void* vElements
 
   for( vtkIdType col = 0; col < numCols; col++ )
     {
-    vtkDoubleArray* doubleArr = vtkDoubleArray::SafeDownCast( curTable->GetColumn( col ) );
+    vtkDoubleArray* doubleArr = vtkArrayDownCast<vtkDoubleArray>( curTable->GetColumn( col ) );
     memcpy( &(localElements[col*numRows]), doubleArr->GetPointer( 0 ), numRows*sizeof( double ) );
     }
 }

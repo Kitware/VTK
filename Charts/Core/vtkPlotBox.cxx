@@ -336,7 +336,7 @@ bool vtkPlotBox::UpdateTableCache(vtkTable *table)
     std::vector<double>& col = this->Storage->at(i);
     col.resize(rows);
     vtkSmartPointer<vtkDataArray> data =
-        vtkDataArray::SafeDownCast(table->GetColumnByName(cols->GetValue(i)));
+        vtkArrayDownCast<vtkDataArray>(table->GetColumnByName(cols->GetValue(i)));
     if (!data)
       {
       continue;

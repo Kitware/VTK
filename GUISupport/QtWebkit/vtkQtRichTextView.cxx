@@ -219,7 +219,7 @@ void vtkQtRichTextView::Update()
 
   this->Internal->UI.WebView->history()->clear(); // Workaround for a quirk in QWebHistory
 
-  vtkIdTypeArray* selectedRows = vtkIdTypeArray::SafeDownCast(selection->GetNode(0)->GetSelectionList());
+  vtkIdTypeArray* selectedRows = vtkArrayDownCast<vtkIdTypeArray>(selection->GetNode(0)->GetSelectionList());
   if(selectedRows->GetNumberOfTuples() == 0)
     {
     this->Internal->UI.WebView->setHtml("");

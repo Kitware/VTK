@@ -505,7 +505,7 @@ size_t vtkOpenGLIndexBufferObject::CreateEdgeFlagIndexBuffer(
   vtkIdType      npts = 0;
   std::vector<unsigned int> indexArray;
   unsigned char *ucef = NULL;
-  ucef = vtkUnsignedCharArray::SafeDownCast(ef)->GetPointer(0);
+  ucef = vtkArrayDownCast<vtkUnsignedCharArray>(ef)->GetPointer(0);
   indexArray.reserve(cells->GetData()->GetSize()*2);
   for (cells->InitTraversal(); cells->GetNextCell(npts,pts); )
     {

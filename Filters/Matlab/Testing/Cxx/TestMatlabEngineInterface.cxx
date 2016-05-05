@@ -77,7 +77,7 @@ int TestMatlabEngineInterface(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
                      d(:,2) = d(:,2) - 0.2;\n\
                      d(:,3) = d(:,3) - 0.3;\n");
     cout << out_buffer << endl;
-    vtkDoubleArray* rda = vtkDoubleArray::SafeDownCast(mei->GetVtkDataArray("d"));
+    vtkDoubleArray* rda = vtkArrayDownCast<vtkDoubleArray>(mei->GetVtkDataArray("d"));
     test_expression(rda);
     for(int i = 0;i<rda->GetNumberOfTuples();i++)
       {

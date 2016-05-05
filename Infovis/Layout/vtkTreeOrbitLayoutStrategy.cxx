@@ -63,7 +63,7 @@ void vtkTreeOrbitLayoutStrategy::OrbitChildren(vtkTree *t,
   yCenter = pt[1];
 
   // Check for leaf_count array
-  vtkIntArray* leaf_count = vtkIntArray::SafeDownCast(
+  vtkIntArray* leaf_count = vtkArrayDownCast<vtkIntArray>(
                             t->GetVertexData()->GetArray("leaf_count"));
   if (!leaf_count)
     {
@@ -171,7 +171,7 @@ void vtkTreeOrbitLayoutStrategy::Layout()
       {
       reordered->SetPoint(i, 0, 0, 0);
       }
-    vtkIdTypeArray* graphVertexIdArr = vtkIdTypeArray::SafeDownCast(
+    vtkIdTypeArray* graphVertexIdArr = vtkArrayDownCast<vtkIdTypeArray>(
       tree->GetVertexData()->GetAbstractArray("GraphVertexId"));
     for (vtkIdType i = 0; i < graphVertexIdArr->GetNumberOfTuples(); i++)
       {

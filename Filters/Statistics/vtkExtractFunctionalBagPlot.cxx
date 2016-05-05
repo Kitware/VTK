@@ -88,7 +88,7 @@ int vtkExtractFunctionalBagPlot::RequestData(vtkInformation* /*request*/,
     return false;
     }
 
-  vtkDoubleArray *density = vtkDoubleArray::SafeDownCast(
+  vtkDoubleArray *density = vtkArrayDownCast<vtkDoubleArray>(
     this->GetInputAbstractArrayToProcess(0, inTableDensity));
   if (!density)
     {
@@ -96,7 +96,7 @@ int vtkExtractFunctionalBagPlot::RequestData(vtkInformation* /*request*/,
     return false;
     }
 
-  vtkStringArray *varName = vtkStringArray::SafeDownCast(
+  vtkStringArray *varName = vtkArrayDownCast<vtkStringArray>(
     this->GetInputAbstractArrayToProcess(1, inTableDensity));
   if (!varName)
     {

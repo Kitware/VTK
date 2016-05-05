@@ -52,10 +52,10 @@ int TestExodusSideSets(int argc, char* argv[])
     return 1;
     }
 
-  vtkIdTypeArray* sourceelementids = vtkIdTypeArray::SafeDownCast(
+  vtkIdTypeArray* sourceelementids = vtkArrayDownCast<vtkIdTypeArray>(
     cd->GetArray(vtkExodusIIReader::GetSideSetSourceElementIdArrayName()));
 
-  vtkIntArray* sourceelementsides = vtkIntArray::SafeDownCast(
+  vtkIntArray* sourceelementsides = vtkArrayDownCast<vtkIntArray>(
     cd->GetArray(vtkExodusIIReader::GetSideSetSourceElementSideArrayName()));
 
   if(!sourceelementsides || !sourceelementids)

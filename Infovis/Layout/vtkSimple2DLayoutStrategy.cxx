@@ -99,7 +99,7 @@ void vtkSimple2DLayoutStrategy::Initialize()
     }
 
   // Get a quick pointer to the point data
-  vtkFloatArray *array = vtkFloatArray::SafeDownCast(pts->GetData());
+  vtkFloatArray *array = vtkArrayDownCast<vtkFloatArray>(pts->GetData());
   float *rawPointData = array->GetPointer(0);
 
   // Avoid divide by zero
@@ -152,7 +152,7 @@ void vtkSimple2DLayoutStrategy::Initialize()
   double weight, maxWeight = 1;
   if (this->WeightEdges && this->EdgeWeightField != NULL)
     {
-    weightArray = vtkDataArray::SafeDownCast(this->Graph->GetEdgeData()->GetAbstractArray(this->EdgeWeightField));
+    weightArray = vtkArrayDownCast<vtkDataArray>(this->Graph->GetEdgeData()->GetAbstractArray(this->EdgeWeightField));
     if (weightArray != NULL)
       {
       for (vtkIdType w = 0; w < weightArray->GetNumberOfTuples(); w++)
@@ -212,7 +212,7 @@ void vtkSimple2DLayoutStrategy::Layout()
   vtkIdType numEdges = this->Graph->GetNumberOfEdges();
 
   // Get a quick pointer to the point data
-  vtkFloatArray *array = vtkFloatArray::SafeDownCast(pts->GetData());
+  vtkFloatArray *array = vtkArrayDownCast<vtkFloatArray>(pts->GetData());
   float *rawPointData = array->GetPointer(0);
 
   // This is the mega, uber, triple inner loop

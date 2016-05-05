@@ -223,7 +223,7 @@ void vtkChartXY::Update()
       vtkSelectionNode *node = selection->GetNumberOfNodes() > 0?
         selection->GetNode(0) : NULL;
       vtkIdTypeArray *idArray = node?
-          vtkIdTypeArray::SafeDownCast(node->GetSelectionList()) : NULL;
+          vtkArrayDownCast<vtkIdTypeArray>(node->GetSelectionList()) : NULL;
       std::vector<vtkPlot*>::iterator it =
           this->ChartPrivate->plots.begin();
       for ( ; it != this->ChartPrivate->plots.end(); ++it)
@@ -238,7 +238,7 @@ void vtkChartXY::Update()
         {
         vtkSelectionNode *node = selection->GetNode(i);
         vtkIdTypeArray *idArray =
-            vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
+            vtkArrayDownCast<vtkIdTypeArray>(node->GetSelectionList());
         vtkPlot *selectionPlot =
             vtkPlot::SafeDownCast(node->GetProperties()->Get(vtkSelectionNode::PROP()));
         // Now iterate through the plots to update selection data
@@ -261,7 +261,7 @@ void vtkChartXY::Update()
         {
         vtkSelectionNode *node = selection->GetNode(i);
         vtkIdTypeArray *selectedColumns =
-            vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
+            vtkArrayDownCast<vtkIdTypeArray>(node->GetSelectionList());
         vtkIdType* ptr = reinterpret_cast<vtkIdType*>(selectedColumns->GetVoidPointer(0));
         for (vtkIdType j = 0; j < selectedColumns->GetNumberOfTuples(); ++j)
           {
@@ -2062,7 +2062,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse)
             selection->GetNode(0) : NULL;
         if (node)
           {
-          oldSelection->DeepCopy(vtkIdTypeArray::SafeDownCast(node->GetSelectionList()));
+          oldSelection->DeepCopy(vtkArrayDownCast<vtkIdTypeArray>(node->GetSelectionList()));
           }
         }
       vtkNew<vtkIdTypeArray> plotSelection;

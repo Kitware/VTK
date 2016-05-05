@@ -274,7 +274,7 @@ vtkDataArray* vtkAngularPeriodicFilter::TransformDataArray(
         pArray->SetCenter(this->Center);
         }
       pArray->SetNormalize(normalize);
-      pArray->InitializeArray(vtkFloatArray::SafeDownCast(inputArray));
+      pArray->InitializeArray(vtkArrayDownCast<vtkFloatArray>(inputArray));
       if (this->ComputeRotationsOnTheFly)
         {
         periodicArray = pArray;
@@ -299,7 +299,7 @@ vtkDataArray* vtkAngularPeriodicFilter::TransformDataArray(
         pArray->SetCenter(this->Center);
         }
       pArray->SetNormalize(normalize);
-      pArray->InitializeArray(vtkDoubleArray::SafeDownCast(inputArray));
+      pArray->InitializeArray(vtkArrayDownCast<vtkDoubleArray>(inputArray));
       if (this->ComputeRotationsOnTheFly)
         {
         periodicArray = pArray;

@@ -292,7 +292,7 @@ void QVTKWidget::saveImageToCache()
   int h = this->height();
   this->mCachedImage->SetExtent(0, w-1, 0, h-1, 0, 0);
   this->mCachedImage->AllocateScalars(VTK_UNSIGNED_CHAR, 3);
-  vtkUnsignedCharArray* array = vtkUnsignedCharArray::SafeDownCast(
+  vtkUnsignedCharArray* array = vtkArrayDownCast<vtkUnsignedCharArray>(
     this->mCachedImage->GetPointData()->GetScalars());
   // We use back-buffer if
   this->mRenWin->GetPixelData(0, 0, this->width()-1, this->height()-1,
@@ -827,7 +827,7 @@ bool QVTKWidget::paintCachedImage()
   // if we have a saved image, use it
   if (this->cachedImageCleanFlag)
     {
-    vtkUnsignedCharArray* array = vtkUnsignedCharArray::SafeDownCast(
+    vtkUnsignedCharArray* array = vtkArrayDownCast<vtkUnsignedCharArray>(
       this->mCachedImage->GetPointData()->GetScalars());
     // put cached image into back buffer if we can
     this->mRenWin->SetPixelData(0, 0, this->width()-1, this->height()-1,

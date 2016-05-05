@@ -68,7 +68,7 @@ int ParticlePathFilterInternal::OutputParticles(vtkPolyData* particles)
 
   //Get the input arrays
   vtkPointData* pd = particles->GetPointData();
-  vtkIntArray* particleIds = vtkIntArray::SafeDownCast(pd->GetArray("ParticleId"));
+  vtkIntArray* particleIds = vtkArrayDownCast<vtkIntArray>(pd->GetArray("ParticleId"));
 
   //Append the input arrays to the output arrays
   int begin = outPoints->GetNumberOfPoints();
@@ -99,7 +99,7 @@ int ParticlePathFilterInternal::OutputParticles(vtkPolyData* particles)
 #ifdef DEBUG
     if(path->GetNumberOfIds()>0)
       {
-      vtkFloatArray* outParticleAge = vtkFloatArray::SafeDownCast(outPd->GetArray("ParticleAge"));
+      vtkFloatArray* outParticleAge = vtkArrayDownCast<vtkFloatArray>(outPd->GetArray("ParticleAge"));
       if(outParticleAge->GetValue(outId) < outParticleAge->GetValue(path->GetId(path->GetNumberOfIds()-1)))
         {
         vtkOStrStreamWrapper vtkmsg;

@@ -119,7 +119,7 @@ void TestPSQLGraphReader()
 
   // Display the output
   vtkGraph* output = collapse->GetOutput();
-  vtkAbstractArray* colorArr = vtkAbstractArray::SafeDownCast(output->GetVertexData()->GetAbstractArray("color"));
+  vtkAbstractArray* colorArr = vtkArrayDownCast<vtkAbstractArray>(output->GetVertexData()->GetAbstractArray("color"));
   vtkSmartPointer<vtkVertexListIterator> vit =
     vtkSmartPointer<vtkVertexListIterator>::New();
   output->GetVertices(vit);

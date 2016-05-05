@@ -219,7 +219,7 @@ vtkDataArray *vtkXdmfDataArray::FromXdmfArray( char *ArrayName, int CopyShape,
   switch( array->GetNumberType() ){
   case XDMF_INT8_TYPE :
     {
-    vtkCharArray *chara = vtkCharArray::SafeDownCast(this->vtkArray);
+    vtkCharArray *chara = vtkArrayDownCast<vtkCharArray>(this->vtkArray);
     if(!chara){
         XdmfErrorMessage("Cannot downcast data array");
         return(0);
@@ -229,7 +229,7 @@ vtkDataArray *vtkXdmfDataArray::FromXdmfArray( char *ArrayName, int CopyShape,
     break;
   case XDMF_UINT8_TYPE :
     {
-    vtkUnsignedCharArray *uchara = vtkUnsignedCharArray::SafeDownCast(this->vtkArray);
+    vtkUnsignedCharArray *uchara = vtkArrayDownCast<vtkUnsignedCharArray>(this->vtkArray);
     if(!uchara){
         XdmfErrorMessage("Cannot downcast ucharata array");
         return(0);
@@ -239,7 +239,7 @@ vtkDataArray *vtkXdmfDataArray::FromXdmfArray( char *ArrayName, int CopyShape,
     break;
   case XDMF_INT16_TYPE :
     {
-    vtkShortArray *shorta = vtkShortArray::SafeDownCast(this->vtkArray);
+    vtkShortArray *shorta = vtkArrayDownCast<vtkShortArray>(this->vtkArray);
     if(!shorta){
         XdmfErrorMessage("Cannot downcast data array");
         return(0);
@@ -249,7 +249,7 @@ vtkDataArray *vtkXdmfDataArray::FromXdmfArray( char *ArrayName, int CopyShape,
     break;
   case XDMF_UINT16_TYPE :
     {
-    vtkUnsignedShortArray *ushorta = vtkUnsignedShortArray::SafeDownCast(this->vtkArray);
+    vtkUnsignedShortArray *ushorta = vtkArrayDownCast<vtkUnsignedShortArray>(this->vtkArray);
     if(!ushorta){
         XdmfErrorMessage("Cannot downcast ushortata array");
         return(0);
@@ -259,7 +259,7 @@ vtkDataArray *vtkXdmfDataArray::FromXdmfArray( char *ArrayName, int CopyShape,
     break;
   case XDMF_INT32_TYPE :
     {
-    vtkIntArray *inta = vtkIntArray::SafeDownCast(this->vtkArray);
+    vtkIntArray *inta = vtkArrayDownCast<vtkIntArray>(this->vtkArray);
     if(!inta){
         XdmfErrorMessage("Cannot downcast intata array");
         return(0);
@@ -269,7 +269,7 @@ vtkDataArray *vtkXdmfDataArray::FromXdmfArray( char *ArrayName, int CopyShape,
     break;
   case XDMF_UINT32_TYPE :
     {
-    vtkUnsignedIntArray *uinta = vtkUnsignedIntArray::SafeDownCast(this->vtkArray);
+    vtkUnsignedIntArray *uinta = vtkArrayDownCast<vtkUnsignedIntArray>(this->vtkArray);
     if(!uinta){
         XdmfErrorMessage("Cannot downcast uintata array");
         return(0);
@@ -279,7 +279,7 @@ vtkDataArray *vtkXdmfDataArray::FromXdmfArray( char *ArrayName, int CopyShape,
     break;
   case XDMF_INT64_TYPE :
     {
-    vtkLongArray *longa = vtkLongArray::SafeDownCast(this->vtkArray);
+    vtkLongArray *longa = vtkArrayDownCast<vtkLongArray>(this->vtkArray);
     if(!longa){
         XdmfErrorMessage("Cannot downcast longa array");
         return(0);
@@ -289,7 +289,7 @@ vtkDataArray *vtkXdmfDataArray::FromXdmfArray( char *ArrayName, int CopyShape,
     break;
   case XDMF_FLOAT32_TYPE :
     {
-    vtkFloatArray *floata = vtkFloatArray::SafeDownCast(this->vtkArray);
+    vtkFloatArray *floata = vtkArrayDownCast<vtkFloatArray>(this->vtkArray);
     if(!floata){
         XdmfErrorMessage("Cannot downcast floatata array");
         return(0);
@@ -299,7 +299,7 @@ vtkDataArray *vtkXdmfDataArray::FromXdmfArray( char *ArrayName, int CopyShape,
     break;
   case XDMF_FLOAT64_TYPE :
     {
-    vtkDoubleArray *doublea = vtkDoubleArray::SafeDownCast(this->vtkArray);
+    vtkDoubleArray *doublea = vtkArrayDownCast<vtkDoubleArray>(this->vtkArray);
     if(!doublea){
         XdmfErrorMessage("Cannot downcast doubleata array");
         return(0);

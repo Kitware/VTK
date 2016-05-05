@@ -144,7 +144,7 @@ int TestCopyAttributeData(int,char *[])
 
     vtkDataArray *outPointVectors = output->GetPointData()->GetVectors();
     vtkDataArray *outCellScalars = output->GetCellData()->GetScalars();
-    vtkStringArray *outCellStrings = vtkStringArray::SafeDownCast(
+    vtkStringArray *outCellStrings = vtkArrayDownCast<vtkStringArray>(
       output->GetCellData()->GetAbstractArray("CellStrings"));
 
     for (int zId = outExt[4]; zId <= outExt[5]; zId++)

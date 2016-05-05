@@ -408,7 +408,7 @@ int TestOSPRayRenderMesh(int argc, char* argv[])
   texin->SetExtent(0,maxi,0,maxj,0,0);
   texin->AllocateScalars(VTK_UNSIGNED_CHAR, 3);
   vtkUnsignedCharArray *aa =
-    vtkUnsignedCharArray::SafeDownCast(texin->GetPointData()->GetScalars());
+    vtkArrayDownCast<vtkUnsignedCharArray>(texin->GetPointData()->GetScalars());
   int idx = 0;
   for (int i = 0; i<=maxi; i++)
     {

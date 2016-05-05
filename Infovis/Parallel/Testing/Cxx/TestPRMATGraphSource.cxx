@@ -237,7 +237,7 @@ int TestPRMATGraphSource(int argc, char* argv[])
 
       // Create distributed property maps for path length and edge weight
       vtkDoubleArray* pathLengthArray
-        = vtkDoubleArray::SafeDownCast
+        = vtkArrayDownCast<vtkDoubleArray>
             (output->GetVertexData()->GetAbstractArray("PathLength"));
       vtkDistributedVertexPropertyMapType<vtkDoubleArray>::type pathLengthMap
         = MakeDistributedVertexPropertyMap(output, pathLengthArray);

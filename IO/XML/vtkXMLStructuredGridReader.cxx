@@ -133,7 +133,7 @@ void vtkXMLStructuredGridReader::SetupOutputData()
     {
     // Non-zero volume.
     vtkAbstractArray* aa = this->CreateArray(ePoints->GetNestedElement(0));
-    vtkDataArray* a = vtkDataArray::SafeDownCast(aa);
+    vtkDataArray* a = vtkArrayDownCast<vtkDataArray>(aa);
     if (a)
       {
       // Allocate the points array.

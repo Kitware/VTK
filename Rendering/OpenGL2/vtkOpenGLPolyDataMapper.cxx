@@ -2562,13 +2562,13 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
        if (selector->GetUseProcessIdFromData())
         {
         mapArray = this->ProcessIdArrayName ?
-          vtkUnsignedIntArray::SafeDownCast(
+          vtkArrayDownCast<vtkUnsignedIntArray>(
             pd->GetArray(this->ProcessIdArrayName)) : NULL;
         }
         break;
       case vtkHardwareSelector::COMPOSITE_INDEX_PASS:
         mapArray = this->CompositeIdArrayName ?
-          vtkUnsignedIntArray::SafeDownCast(
+          vtkArrayDownCast<vtkUnsignedIntArray>(
             cd->GetArray(this->CompositeIdArrayName)) : NULL;
         break;
       case vtkHardwareSelector::ID_LOW24:
@@ -2577,13 +2577,13 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
           vtkDataObject::FIELD_ASSOCIATION_POINTS)
           {
           mapArrayId = this->PointIdArrayName ?
-            vtkIdTypeArray::SafeDownCast(
+            vtkArrayDownCast<vtkIdTypeArray>(
               pd->GetArray(this->PointIdArrayName)) : NULL;
           }
         else
           {
           mapArrayId = this->CellIdArrayName ?
-            vtkIdTypeArray::SafeDownCast(
+            vtkArrayDownCast<vtkIdTypeArray>(
               cd->GetArray(this->CellIdArrayName)) : NULL;
           }
         break;

@@ -1265,7 +1265,7 @@ static void AddBox(vtkPolyData *pd, double *bounds, int level)
 {
   vtkPoints      *pts = pd->GetPoints();
   vtkCellArray *lines = pd->GetLines();
-  vtkIntArray *levels = vtkIntArray::SafeDownCast(pd->GetPointData()->GetArray(0));
+  vtkIntArray *levels = vtkArrayDownCast<vtkIntArray>(pd->GetPointData()->GetArray(0));
   double x[3];
   vtkIdType cells[8], ids[2];
   //

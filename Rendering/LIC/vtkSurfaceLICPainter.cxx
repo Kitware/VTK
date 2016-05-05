@@ -3296,7 +3296,7 @@ bool vtkSurfaceLICPainter::VectorsToTCoords(vtkDataSet *data)
   if (this->Internals->FieldNameSet)
     {
     vectors
-       = vtkDataArray::SafeDownCast(
+       = vtkArrayDownCast<vtkDataArray>(
             this->GetInputArrayToProcess(
             this->Internals->FieldAssociation,
             this->Internals->FieldName.c_str(),
@@ -3306,7 +3306,7 @@ bool vtkSurfaceLICPainter::VectorsToTCoords(vtkDataSet *data)
   else
     {
     vectors
-       = vtkDataArray::SafeDownCast(
+       = vtkArrayDownCast<vtkDataArray>(
             this->GetInputArrayToProcess(
             this->Internals->FieldAssociation,
             this->Internals->FieldAttributeType,

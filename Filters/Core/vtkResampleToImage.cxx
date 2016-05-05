@@ -252,7 +252,7 @@ void vtkResampleToImage::SetBlankPointsAndCells(vtkImageData *data)
     }
 
   vtkPointData *pd = data->GetPointData();
-  vtkCharArray *maskArray = vtkCharArray::SafeDownCast(
+  vtkCharArray *maskArray = vtkArrayDownCast<vtkCharArray>(
     pd->GetArray(this->GetMaskArrayName()));
   char *mask = maskArray->GetPointer(0);
 

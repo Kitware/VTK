@@ -291,7 +291,7 @@ void vtkStandardPolyDataPainter::DrawCells(
 
   vtkCellData* cellData = pd->GetCellData();
   vtkPointData* pointData = pd->GetPointData();
-  vtkUnsignedCharArray* fieldColors = vtkUnsignedCharArray::SafeDownCast(
+  vtkUnsignedCharArray* fieldColors = vtkArrayDownCast<vtkUnsignedCharArray>(
     pd->GetFieldData()->GetArray("Color"));
 
   int disable_scalar_color = 0;

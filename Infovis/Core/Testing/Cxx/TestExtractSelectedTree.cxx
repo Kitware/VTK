@@ -98,7 +98,7 @@ int TestExtractSelectedTree(int, char*[])
       }
     else
       {
-      vtkStringArray * nodename = vtkStringArray::SafeDownCast(vertexData->GetAbstractArray("node name"));
+      vtkStringArray * nodename = vtkArrayDownCast<vtkStringArray>(vertexData->GetAbstractArray("node name"));
       vtkStdString n = nodename->GetValue(4);
       if (n.compare("d") != 0)
         {

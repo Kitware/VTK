@@ -459,7 +459,7 @@ vtkDataSet *vtkTemporalInterpolator
       outPointSet->SetPoints(outpoints);
       }
 
-    if (vtkDoubleArray::SafeDownCast(outarray))
+    if (vtkArrayDownCast<vtkDoubleArray>(outarray))
       {
       outpoints->SetDataTypeToDouble();
       }
@@ -626,7 +626,7 @@ vtkDataArray *vtkTemporalInterpolator
   // Create the output
   //
   vtkAbstractArray *aa = arrays[0]->CreateArray(arrays[0]->GetDataType());
-  vtkDataArray *output = vtkDataArray::SafeDownCast(aa);
+  vtkDataArray *output = vtkArrayDownCast<vtkDataArray>(aa);
 
   int Nc = arrays[0]->GetNumberOfComponents();
 

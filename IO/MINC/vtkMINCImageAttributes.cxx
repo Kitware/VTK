@@ -308,7 +308,7 @@ const char *vtkMINCImageAttributes::ConvertDataArrayToString(
   int dataType = array->GetDataType();
   if (dataType == VTK_CHAR)
     {
-    vtkCharArray *charArray = vtkCharArray::SafeDownCast(array);
+    vtkCharArray *charArray = vtkArrayDownCast<vtkCharArray>(array);
     if (charArray)
       {
       result = charArray->GetPointer(0);
