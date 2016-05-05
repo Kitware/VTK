@@ -316,6 +316,7 @@ set(${vtk-module}_HDRS
   vtkSOADataArrayTemplate.h
   vtkSOADataArrayTemplate.txx
   vtkTemplateAliasMacro.h
+  vtkTestDataArray.h
   vtkTypeList.h
   vtkTypeList.txx
   vtkTypeTraits.h
