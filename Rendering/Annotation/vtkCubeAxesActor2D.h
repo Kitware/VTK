@@ -46,10 +46,6 @@
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"
 
-#define VTK_FLY_OUTER_EDGES 0
-#define VTK_FLY_CLOSEST_TRIAD 1
-#define VTK_FLY_NONE 2
-
 class vtkAlgorithmOutput;
 class vtkAxisActor2D;
 class vtkCamera;
@@ -136,6 +132,13 @@ public:
   // vtkCubeAxesActor2D.
   virtual void SetCamera(vtkCamera*);
   vtkGetObjectMacro(Camera,vtkCamera);
+
+  enum FlyMode
+  {
+    VTK_FLY_OUTER_EDGES = 0,
+    VTK_FLY_CLOSEST_TRIAD = 1,
+    VTK_FLY_NONE = 2
+  };
 
   // Description:
   // Specify a mode to control how the axes are drawn: either outer edges
