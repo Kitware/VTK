@@ -2315,7 +2315,7 @@ void vtkAxisActor::SetExponent(const char *t)
     {
     return;
     }
-  if (this->Exponent && (!strcmp(this->Exponent, t)))
+  if (this->Exponent && t && (!strcmp(this->Exponent, t)))
     {
     return;
     }

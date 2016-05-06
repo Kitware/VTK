@@ -25,25 +25,39 @@
 // Similarly, these aren't really part of VTK proper.
 *:Utilities/KWSys/*
 *:Utilities/MetaIO/*
+*:Utilities/DICOMParser/*
 
 // Can't fix in portable way for all VTK-supported platforms.
 duplicateExpression:IO/PostgreSQL/vtkPostgreSQLQuery.cxx
 unpreciseMathCall
 
+// Using reallocf() would be a good solution, but it's not available on all platforms.
+memleakOnRealloc
+
 // VTK assumes IEEE 754 floats, so this warning isn't useful.
 memsetClassFloat
 
 // There are just too many of these to manage, so suppress them all.  Can look again one day.
-cstyleCast
-invalidscanf
-noCopyConstructor
-noExplicitConstructor
-operatorEqVarError
-redundantAssignment
-uninitMemberVar
-unreadVariable
-useInitializationList
+// 2364 warnings
 variableScope
+// 1109 warnings
+uninitMemberVar
+// 231 warnings
+cstyleCast
+// 182 warnings
+noExplicitConstructor
+// 169 warnings
+invalidscanf
+// 137 warnings
+unreadVariable
+// 60 warnings
+redundantAssignment
+// 46 warnings
+operatorEqVarError
+// 34 warnings
+noCopyConstructor
+// 20 warnings
+useInitializationList
 
 // Gives too many false positives.
 assertWithSideEffect
@@ -110,16 +124,20 @@ uselessAssignmentPtrArg:Wrapping/Tools/vtkParse.tab.c
 zerodiv:Filters/ParallelFlowPaths/Testing/Cxx/TestPStreamGeometry.cxx
 unusedStructMember:Common/Core/vtkTypeList.txx
 
-// Not worth fixing.
+// Not worth fixing, but not actually false positives.
 passedByValue:Filters/General/vtkYoungsMaterialInterface.cxx
 
 // There are a fair number of these, but they are probably worth working through.
-duplInheritedMember
-invalidPointerCast
-memleakOnRealloc
-noConstructor
-operatorEq
+// 217 warnings
 postfixOperator
+// 30 warnings
+duplInheritedMember
+// 12 warnings
+invalidPointerCast
+// 6 warnings
+noConstructor
+// not many
+operatorEq
 
 // To investigate further...
 memleak:Wrapping/Tools/vtkParsePreprocess.c

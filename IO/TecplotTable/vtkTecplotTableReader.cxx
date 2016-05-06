@@ -420,7 +420,6 @@ int vtkTecplotTableReader::RequestData(
 
     istream* input_stream_pt = NULL;
     ifstream file_stream;
-    std::istringstream string_stream;
 
     // If the filename hasn't been specified, we're done ...
     if(!this->FileName)

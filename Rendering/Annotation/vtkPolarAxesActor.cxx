@@ -616,7 +616,7 @@ int vtkPolarAxesActor::RenderOpaqueGeometry(vtkViewport *viewport)
     for (int i = 0; i < this->NumberOfRadialAxes; ++ i)
       {
       isInnerAxis = (i != this->NumberOfRadialAxes - 1) ||
-        (i == this->NumberOfRadialAxes - 1 && (vtkMathUtilities::FuzzyCompare(MaximumAngle, MinimumAngle))) ;
+        (vtkMathUtilities::FuzzyCompare(MaximumAngle, MinimumAngle));
       isAxisVisible = !isInnerAxis || this->DrawRadialGridlines;
       if (this->RadialAxesVisibility && isAxisVisible)
         {
