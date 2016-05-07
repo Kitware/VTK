@@ -134,7 +134,7 @@ void vtkCirclePackFrontChainLayoutStrategyImplementation::incrListIteratorWrapAr
 {
   if(i != frontChain.end())
     ++i;
-  else if(i == frontChain.end())
+  else
     i = frontChain.begin();
 }
 
