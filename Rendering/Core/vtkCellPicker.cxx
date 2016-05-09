@@ -801,6 +801,13 @@ double vtkCellPicker::IntersectVolumeWithLine(const double p1[3],
             }
           }
         }
+
+      // Break if far clipping plane has been reached
+      if (t >= 1.0)
+        {
+        t = 1.0;
+        break;
+        }
       } // End of "while (t <= t2)"
 
     // If the ray hit the isosurface, compute the isosurface position
