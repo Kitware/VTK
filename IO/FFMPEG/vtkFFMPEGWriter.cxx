@@ -43,6 +43,15 @@ extern "C" {
 #if LIBAVCODEC_VERSION_MAJOR < 55
 # define AV_CODEC_ID_MJPEG CODEC_ID_MJPEG
 # define AV_CODEC_ID_RAWVIDEO CODEC_ID_RAWVIDEO
+# define AV_PIX_FMT_BGR24 PIX_FMT_BGR24
+# define AV_PIX_FMT_RGB24 PIX_FMT_RGB24
+# define AV_PIX_FMT_YUVJ422P PIX_FMT_YUVJ422P
+#endif
+
+#if LIBAVCODEC_VERSION_MAJOR < 56 || \
+    LIBAVCODEC_VERSION_MAJOR == 55 && LIBAVCODEC_VERSION_MINOR < 28 || \
+    LIBAVCODEC_VERSION_MAJOR == 55 && LIBAVCODEC_VERSION_MINOR == 28 && LIBAVCODEC_VERSION_MICRO < 1
+# define av_frame_alloc avcodec_alloc_frame
 #endif
 
 //---------------------------------------------------------------------------
@@ -191,11 +200,11 @@ int vtkFFMPEGWriterInternal::Start()
   c->height = this->Dim[1];
   if (this->Writer->GetCompression())
     {
-    c->pix_fmt = PIX_FMT_YUVJ422P;
+    c->pix_fmt = AV_PIX_FMT_YUVJ422P;
     }
   else
     {
-    c->pix_fmt = PIX_FMT_BGR24;
+    c->pix_fmt = AV_PIX_FMT_BGR24;
     }
 
   //to do playback at actual recorded rate, this will need more work see also below
@@ -274,13 +283,13 @@ int vtkFFMPEGWriterInternal::Start()
 #endif
 
   //for the output of the writer's input...
-  this->rgbInput = avcodec_alloc_frame();
+  this->rgbInput = av_frame_alloc();
   if (!this->rgbInput)
     {
     vtkGenericWarningMacro (<< "Could not make rgbInput avframe." );
     return 0;
     }
-  int RGBsize = avpicture_get_size(PIX_FMT_RGB24, c->width, c->height);
+  int RGBsize = avpicture_get_size(AV_PIX_FMT_RGB24, c->width, c->height);
   unsigned char *rgb = (unsigned char *)av_malloc(sizeof(unsigned char) * RGBsize);
   if (!rgb)
     {
@@ -288,10 +297,10 @@ int vtkFFMPEGWriterInternal::Start()
     return 0;
     }
   //The rgb buffer should get deleted when this->rgbInput is.
-  avpicture_fill((AVPicture *)this->rgbInput, rgb, PIX_FMT_RGB24, c->width, c->height);
+  avpicture_fill((AVPicture *)this->rgbInput, rgb, AV_PIX_FMT_RGB24, c->width, c->height);
 
   //and for the output to the codec's input.
-  this->yuvOutput = avcodec_alloc_frame();
+  this->yuvOutput = av_frame_alloc();
   if (!this->yuvOutput)
     {
     vtkGenericWarningMacro (<< "Could not make yuvOutput avframe." );
@@ -323,7 +332,11 @@ int vtkFFMPEGWriterInternal::Start()
 #if LIBAVFORMAT_VERSION_MAJOR < 54
   av_write_header(this->avFormatContext);
 #else
-  avformat_write_header(this->avFormatContext, NULL);
+  if (avformat_write_header(this->avFormatContext, NULL) < 0)
+    {
+    vtkGenericWarningMacro (<< "Could not allocate avcodec private data.");
+    return 0;
+    }
 #endif
   return 1;
 }
@@ -349,12 +362,12 @@ int vtkFFMPEGWriterInternal::Write(vtkImageData *id)
   //convert that to YUV for input to the codec
 #ifdef VTK_FFMPEG_HAS_IMG_CONVERT
   img_convert((AVPicture *)this->yuvOutput, cc->pix_fmt,
-              (AVPicture *)this->rgbInput, PIX_FMT_RGB24,
+              (AVPicture *)this->rgbInput, AV_PIX_FMT_RGB24,
               cc->width, cc->height);
 #else
   //convert that to YUV for input to the codec
   SwsContext* convert_ctx = sws_getContext(
-    cc->width, cc->height, PIX_FMT_RGB24,
+    cc->width, cc->height, AV_PIX_FMT_RGB24,
     cc->width, cc->height, cc->pix_fmt,
     SWS_BICUBIC, NULL, NULL, NULL);
 
