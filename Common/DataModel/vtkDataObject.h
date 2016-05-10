@@ -25,8 +25,7 @@
 // concrete subclass of vtkDataSet before they can actually be displayed.
 //
 // .SECTION See Also
-// vtkDataSet vtkFieldData vtkDataObjectSource vtkDataObjectFilter
-// vtkDataObjectMapper vtkDataObjectToDataSet
+// vtkDataSet vtkFieldData vtkDataObjectToDataSetFilter
 // vtkFieldDataToAttributeDataFilter
 
 #ifndef vtkDataObject_h
