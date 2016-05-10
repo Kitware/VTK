@@ -22,6 +22,7 @@
 #include "vtkEventForwarderCommand.h"
 #include "vtkImageData.h"
 #include "vtkImageResample.h"
+#include "vtkOSPRayVolumeInterface.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -32,8 +33,6 @@
 #include <cassert>
 
 #include "vtkGPUVolumeRayCastMapper.h"
-#include "vtkOSPRayPass.h"
-#define VTK_USE_OSPRAY 1
 
 vtkStandardNewMacro( vtkSmartVolumeMapper );
 
@@ -135,6 +134,8 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
   ***/
 
   cb->Delete();
+
+  this->OSPRayHelper = NULL;
 }
 
 // ----------------------------------------------------------------------------
@@ -168,6 +169,11 @@ vtkSmartVolumeMapper::~vtkSmartVolumeMapper()
     {
     this->GPUResampleFilter->Delete();
     this->GPUResampleFilter = 0;
+    }
+  if (this->OSPRayHelper)
+    {
+    this->OSPRayHelper->Delete();
+    this->OSPRayHelper = 0;
     }
 }
 
@@ -210,21 +216,14 @@ void vtkSmartVolumeMapper::Render( vtkRenderer *ren, vtkVolume *vol )
         this->InteractiveUpdateRate);
       usedMapper->Render(ren, vol);
       break;
-#if VTK_USE_OSPRAY
     case vtkSmartVolumeMapper::OSPRayRenderMode:
       {
-        vtkRenderPass* oldPass = ren->GetPass();
-        vtkSmartPointer<vtkRenderer> tmpRen = vtkSmartPointer<vtkRenderer>::New();
-        tmpRen->SetRenderWindow(ren->GetRenderWindow());
-        tmpRen->SetActiveCamera(ren->GetActiveCamera());
-        tmpRen->SetBackground(ren->GetBackground());
-        tmpRen->AddVolume(vol);
-        vtkSmartPointer<vtkOSPRayPass> ospray=vtkSmartPointer<vtkOSPRayPass>::New();
-        tmpRen->SetPass(ospray);
-        tmpRen->Render();
-        break;
+      if (!this->OSPRayHelper)
+        {
+        this->OSPRayHelper = vtkOSPRayVolumeInterface::New();
+        }
+      this->OSPRayHelper->Render(ren, vol);
       }
-#endif
     case vtkSmartVolumeMapper::InvalidRenderMode:
       // Silently fail - a render mode that is not
       // valid was selected so we will render nothing
@@ -384,12 +383,10 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
         }
       break;
 
-    #if VTK_USE_OSPRAY
     // Requested OSPRay
     case vtkSmartVolumeMapper::OSPRayRenderMode:
       this->CurrentRenderMode = this->RequestedRenderMode;
       break;
-    #endif
 
       // Requested default mode - select GPU if supported, otherwise
       // select texture mapping for interactive rendering (if supported)
@@ -566,11 +563,9 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
 
       break;
 
-#if VTK_USE_OSPRAY
     // render with OSPRay
     case vtkSmartVolumeMapper::OSPRayRenderMode:
       break;
-#endif
 
       // The user selected a RequestedRenderMode that is
       // not supported. In this case the mapper will just
@@ -670,6 +665,12 @@ void vtkSmartVolumeMapper::SetRequestedRenderModeToDefault()
 void vtkSmartVolumeMapper::SetRequestedRenderModeToGPU()
 {
   this->SetRequestedRenderMode(vtkSmartVolumeMapper::GPURenderMode);
+}
+
+// ----------------------------------------------------------------------------
+void vtkSmartVolumeMapper::SetRequestedRenderModeToOSPRay()
+{
+  this->SetRequestedRenderMode(vtkSmartVolumeMapper::OSPRayRenderMode);
 }
 
 // ----------------------------------------------------------------------------

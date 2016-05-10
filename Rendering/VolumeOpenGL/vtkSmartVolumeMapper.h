@@ -106,6 +106,7 @@
 class vtkFixedPointVolumeRayCastMapper;
 class vtkGPUVolumeRayCastMapper;
 class vtkImageResample;
+class vtkOSPRayVolumeInterface;
 class vtkRenderWindow;
 class vtkVolume;
 class vtkVolumeProperty;
@@ -199,6 +200,11 @@ public:
   // This option will use software rendering exclusively. This is a good option
   // if you know there is no hardware acceleration.
   void SetRequestedRenderModeToRayCast();
+
+  // Description:
+  // Set the requested render mode to vtkSmartVolumeMapper::OSPRayRenderMode.
+  // This option will use intel OSPRay to do software rendering exclusively.
+  void SetRequestedRenderModeToOSPRay();
 
   // Description:
   // Get the requested render mode.
@@ -350,6 +356,8 @@ protected:
 private:
   vtkSmartVolumeMapper(const vtkSmartVolumeMapper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSmartVolumeMapper&) VTK_DELETE_FUNCTION;
+
+  vtkOSPRayVolumeInterface *OSPRayHelper;
 };
 
 #endif

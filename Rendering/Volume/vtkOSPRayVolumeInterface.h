@@ -1,0 +1,52 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkOSPRayVolumeInterface.h
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+// .NAME vtkOSPRayVolumeInterface - Removes link dependence
+// on optional ospray module.
+// .SECTION Description
+// Class allows SmartVolume to use OSPRay for rendering when ospray
+// is enabled. When disabled, this class does nothing but return a warning.
+
+#ifndef vtkOSPRayVolumeInterface_h
+#define vtkOSPRayVolumeInterface_h
+
+#include "vtkRenderingVolumeModule.h" // For export macro
+#include "vtkObject.h"
+
+class vtkRenderer;
+class vtkVolume;
+
+class VTKRENDERINGVOLUME_EXPORT vtkOSPRayVolumeInterface
+: public vtkObject //TODO - reparent onto AbstractVolumeMapper
+{
+public:
+  static vtkOSPRayVolumeInterface *New();
+  vtkTypeMacro(vtkOSPRayVolumeInterface,vtkObject);
+  void PrintSelf( ostream& os, vtkIndent indent );
+
+  //Description:
+  //Overridden to warn about lack of OSPRay if not overridden.
+  virtual void Render(vtkRenderer *, vtkVolume *);
+
+protected:
+  vtkOSPRayVolumeInterface();
+  ~vtkOSPRayVolumeInterface();
+
+private:
+  vtkOSPRayVolumeInterface
+    (const vtkOSPRayVolumeInterface&);  // Not implemented.
+  void operator=(const vtkOSPRayVolumeInterface&);  // Not implemented.
+};
+
+#endif

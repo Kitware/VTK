@@ -7,11 +7,6 @@ else ()
   set (VTK_RENDERINGVOLUMEOPENGLNEW "")
 endif()
 
-set(ospray_depend "")
-if (VTK_USE_OSPRAY)
-  set(ospray_depend vtkRenderingOSPRay)
-endif (VTK_USE_OSPRAY)
-
 vtk_module(vtkRenderingVolumeOpenGL
   IMPLEMENTS
     vtkRenderingVolume
@@ -21,7 +16,6 @@ vtk_module(vtkRenderingVolumeOpenGL
   DEPENDS
     vtkRenderingOpenGL
     ${VTK_RENDERINGVOLUMEOPENGLNEW}
-    ${ospray_depend}
   PRIVATE_DEPENDS
     vtksys
     vtkFiltersGeneral

@@ -9,6 +9,8 @@ vtk_module(vtkRenderingOSPRay
     vtkRenderingSceneGraph
     #todo promote compositedatadisplayattributes to rendering/core
     vtkRendering${VTK_RENDERING_BACKEND} #only for comp.data.disp.attr.
+  IMPLEMENTS
+    vtkRenderingVolume
   TEST_DEPENDS
     vtkFiltersTexture
     vtkInteractionStyle

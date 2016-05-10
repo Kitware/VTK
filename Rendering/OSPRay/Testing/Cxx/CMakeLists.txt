@@ -10,10 +10,11 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestOSPRayPass.cxx,
   TestOSPRayRenderMesh.cxx,
   TestOSPRayScalarBar.cxx
+  TestSmartVolumeMapper.cxx
   TestOSPRayTime.cxx,
   TestOSPRayWindow.cxx
-  #TODO: interaction, pure offscreen, volumes
   # Volume rendering tests
+  TestOSPRayVolumeRenderer.cxx
   TestGPURayCastAdditive.cxx
   TestGPURayCastCameraInside.cxx
   TestGPURayCastCameraInsideSmallSpacing.cxx
