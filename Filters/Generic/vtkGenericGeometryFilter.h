@@ -145,7 +145,6 @@ protected:
   void UnstructuredGridExecute();
   void StructuredGridExecute();
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int FillInputPortInformation(int, vtkInformation*);
 
